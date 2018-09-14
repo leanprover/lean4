@@ -1,749 +1,663 @@
 result: 
-[(lean.parser.module [(lean.parser.prelude "prelude")] [] [])
- (lean.parser.parser.eoi "")]
+[(module [(prelude "prelude")] [] []) (parser.eoi "")]
 result: 
-[(lean.parser.module
+[(module
   []
-  [(lean.parser.import
-    "import"
-    [(lean.parser.import_path
-      []
-      (lean.parser.id (lean.parser.ident_part (1 "me")) []))])]
+  [(import "import" [(import_path [] (id (ident_part (1 "me")) []))])]
   [])
- (lean.parser.parser.eoi "")]
+ (parser.eoi "")]
 error at line 1, column 0:
 expected command
 partial syntax tree:
-[(lean.parser.module [] [] []) (lean.parser.parser.eoi "")]
+[(module [] [] []) (parser.eoi "")]
 error at line 1, column 6:
 
 partial syntax tree:
-[(lean.parser.module
+[(module
   []
-  [(lean.parser.import "import" [(lean.parser.import_path [] <missing>) <missing>])
-   <missing>]
+  [(import "import" [(import_path [] <missing>) <missing>]) <missing>]
   <missing>)
- (lean.parser.parser.eoi "")]
+ (parser.eoi "")]
 result: 
-[(lean.parser.module
-  [(lean.parser.prelude "prelude")]
-  [(lean.parser.import
+[(module
+  [(prelude "prelude")]
+  [(import
     "import"
-    [(lean.parser.import_path
-      ["." "."]
-      (lean.parser.id (lean.parser.ident_part (1 "a")) []))
-     (lean.parser.import_path
-      []
-      (lean.parser.id (lean.parser.ident_part (1 "b")) []))])
-   (lean.parser.import
-    "import"
-    [(lean.parser.import_path
-      []
-      (lean.parser.id (lean.parser.ident_part (1 "c")) []))])]
+    [(import_path ["." "."] (id (ident_part (1 "a")) []))
+     (import_path [] (id (ident_part (1 "b")) []))])
+   (import "import" [(import_path [] (id (ident_part (1 "c")) []))])]
   [])
- (lean.parser.parser.eoi "")]
+ (parser.eoi "")]
 result: 
-[(lean.parser.module
+[(module
   []
   []
-  [(lean.parser.open
+  [(open
     "open"
-    [(lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
-      []
-      []
-      []
-      [])
-     (lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "you")) [])
-      []
-      []
-      []
-      [])])])
- (lean.parser.parser.eoi "")]
+    [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])
+     (open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
+ (parser.eoi "")]
 result: 
-[(lean.parser.module
+[(module
   []
   []
-  [(lean.parser.open
+  [(open
     "open"
-    [(lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
-      [(lean.parser.open_spec.as
-        "as"
-        (lean.parser.id (lean.parser.ident_part (1 "you")) []))]
-      [(lean.parser.open_spec.only
-        ["(" (lean.parser.id (lean.parser.ident_part (1 "a")) [])]
-        [(lean.parser.id (lean.parser.ident_part (1 "b")) [])
-         (lean.parser.id (lean.parser.ident_part (1 "c")) [])]
+    [(open_spec
+      (id (ident_part (1 "me")) [])
+      [(open_spec.as "as" (id (ident_part (1 "you")) []))]
+      [(open_spec.only
+        ["(" (id (ident_part (1 "a")) [])]
+        [(id (ident_part (1 "b")) []) (id (ident_part (1 "c")) [])]
         ")")]
-      [(lean.parser.open_spec.renaming
+      [(open_spec.renaming
         ["(" "renaming"]
-        [(lean.parser.open_spec.renaming.item
-          (lean.parser.id (lean.parser.ident_part (1 "a")) [])
+        [(open_spec.renaming.item
+          (id (ident_part (1 "a")) [])
           "->"
-          (lean.parser.id (lean.parser.ident_part (1 "b")) []))
-         (lean.parser.open_spec.renaming.item
-          (lean.parser.id (lean.parser.ident_part (1 "c")) [])
+          (id (ident_part (1 "b")) []))
+         (open_spec.renaming.item
+          (id (ident_part (1 "c")) [])
           "->"
-          (lean.parser.id (lean.parser.ident_part (1 "d")) []))]
+          (id (ident_part (1 "d")) []))]
         ")")]
-      [(lean.parser.open_spec.hiding
+      [(open_spec.hiding
         "("
         "hiding"
-        [(lean.parser.id (lean.parser.ident_part (1 "a")) [])
-         (lean.parser.id (lean.parser.ident_part (1 "b")) [])]
+        [(id (ident_part (1 "a")) []) (id (ident_part (1 "b")) [])]
         ")")])])])
- (lean.parser.parser.eoi "")]
+ (parser.eoi "")]
 error at line 1, column 11:
 expected command
 partial syntax tree:
-[(lean.parser.module
+[(module
   []
   []
-  [(lean.parser.open
+  [(open
     "open"
-    [(lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
-      []
-      []
-      []
-      [])
-     (lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "you")) [])
-      []
-      []
-      []
-      [])])])
- (lean.parser.parser.eoi "")]
+    [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])
+     (open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
+ (parser.eoi "")]
 error at line 1, column 5:
 expected identifier
 error at line 1, column 9:
 
 partial syntax tree:
-[(lean.parser.module
+[(module
   []
   []
-  [(lean.parser.open
+  [(open
     "open"
-    [(lean.parser.open_spec <missing> <missing> <missing> <missing> <missing>)
-     <missing>])
-   (lean.parser.open
+    [(open_spec <missing> <missing> <missing> <missing> <missing>) <missing>])
+   (open
     "open"
-    [(lean.parser.open_spec <missing> <missing> <missing> <missing> <missing>)
-     <missing>])])
- (lean.parser.parser.eoi "")]
+    [(open_spec <missing> <missing> <missing> <missing> <missing>) <missing>])])
+ (parser.eoi "")]
 error at line 1, column 8:
 expected command
 partial syntax tree:
-[(lean.parser.module
+[(module
   []
   []
-  [(lean.parser.open
-    "open"
-    [(lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "me")) [])
-      []
-      []
-      []
-      [])])
-   (lean.parser.open
-    "open"
-    [(lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "you")) [])
-      []
-      []
-      []
-      [])])])
- (lean.parser.parser.eoi "")]
+  [(open "open" [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])])
+   (open "open" [(open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
+ (parser.eoi "")]
 result: 
-[(lean.parser.module
+[(module
   []
   []
-  [(lean.parser.open
-    "open"
-    [(lean.parser.open_spec
-      (lean.parser.id (lean.parser.ident_part (1 "a")) [])
-      []
-      []
-      []
-      [])])
-   (lean.parser.section
+  [(open "open" [(open_spec (id (ident_part (1 "a")) []) [] [] [] [])])
+   (section
     "section"
-    [(lean.parser.id (lean.parser.ident_part (1 "b")) [])]
-    [(lean.parser.open
-      "open"
-      [(lean.parser.open_spec
-        (lean.parser.id (lean.parser.ident_part (1 "c")) [])
-        []
-        []
-        []
-        [])])
-     (lean.parser.section
+    [(id (ident_part (1 "b")) [])]
+    [(open "open" [(open_spec (id (ident_part (1 "c")) []) [] [] [] [])])
+     (section
       "section"
-      [(lean.parser.id (lean.parser.ident_part (1 "d")) [])]
-      [(lean.parser.open
-        "open"
-        [(lean.parser.open_spec
-          (lean.parser.id (lean.parser.ident_part (1 "e")) [])
-          []
-          []
-          []
-          [])])]
+      [(id (ident_part (1 "d")) [])]
+      [(open "open" [(open_spec (id (ident_part (1 "e")) []) [] [] [] [])])]
       "end"
-      [(lean.parser.id (lean.parser.ident_part (1 "d")) [])])]
+      [(id (ident_part (1 "d")) [])])]
     "end"
-    [(lean.parser.id (lean.parser.ident_part (1 "b")) [])])])
- (lean.parser.parser.eoi "")]
+    [(id (ident_part (1 "b")) [])])])
+ (parser.eoi "")]
 result: 
-[(lean.parser.module
-  []
-  []
-  [(lean.parser.section
-    "section"
-    [(lean.parser.id (lean.parser.ident_part (1 "a")) [])]
-    []
-    "end"
-    [])])
- (lean.parser.parser.eoi "")]
+[(module [] [] [(section "section" [(id (ident_part (1 "a")) [])] [] "end" [])])
+ (parser.eoi "")]
 Type (max u v) : Type ((max u v)+1)
 result: 
-[(lean.parser.module
+[(module
   []
   []
-  [(lean.parser.check
+  [(check
     "#check"
-    (lean.parser.term.app
-     (lean.parser.term.app
-      (lean.parser.term.sort_app
-       (lean.parser.term.sort (1 "Type"))
-       (lean.parser.level.leading
-        (0 (lean.parser.id (lean.parser.ident_part (1 "max")) []))))
-      (lean.parser.id (lean.parser.ident_part (1 "u")) []))
-     (lean.parser.id (lean.parser.ident_part (1 "v")) [])))])
- (lean.parser.parser.eoi "")]
-(lean.parser.notation
+    (term.app
+     (term.app
+      (term.sort_app
+       (term.sort (1 "Type"))
+       (level.leading (0 (id (ident_part (1 "max")) []))))
+      (id (ident_part (1 "u")) []))
+     (id (ident_part (1 "v")) [])))])
+ (parser.eoi "")]
+(notation
  "notation"
- (lean.parser.notation_spec
+ (notation_spec
   (1
-   (lean.parser.notation_spec.rules
+   (notation_spec.rules
     []
-    [(lean.parser.notation_spec.rule
-      (lean.parser.notation_spec.notation_symbol
+    [(notation_spec.rule
+      (notation_spec.notation_symbol
        (0
-        (lean.parser.notation_spec.notation_quoted_symbol
+        (notation_spec.notation_quoted_symbol
          "`"
          "+"
          "`"
-         [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "10"))])))
-      [(lean.parser.notation_spec.transition
+         [(notation_spec.precedence ":" (parser.base10_lit "10"))])))
+      [(notation_spec.transition
         (2
-         (lean.parser.notation_spec.argument
-          (lean.parser.id (lean.parser.ident_part (1 "b")) [])
-          [(lean.parser.notation_spec.action
+         (notation_spec.argument
+          (id (ident_part (1 "b")) [])
+          [(notation_spec.action
             ":"
-            (lean.parser.notation_spec.action_kind (0 (lean.parser.parser.base10_lit "10"))))])))])])))
+            (notation_spec.action_kind (0 (parser.base10_lit "10"))))])))])])))
  ":="
- (lean.parser.term.hole "_"))
+ (term.hole "_"))
 notation`+`:10 b:10 :=_
 error at line 85, column 0:
 expected command
 partial syntax tree:
-[(lean.parser.module
-  [(lean.parser.prelude "prelude")]
+[(module
+  [(prelude "prelude")]
   []
-  [(lean.parser.notation
+  [(notation
     "notation"
-    (lean.parser.notation_spec
+    (notation_spec
      (1
-      (lean.parser.notation_spec.rules
+      (notation_spec.rules
        []
-       [(lean.parser.notation_spec.rule
-         (lean.parser.notation_spec.notation_symbol
-          (0 (lean.parser.notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
+       [(notation_spec.rule
+         (notation_spec.notation_symbol
+          (0 (notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
          [])])))
     ":="
-    (lean.parser.term.sort_app
-     (lean.parser.term.sort (0 "Sort"))
-     (lean.parser.level.leading (4 (lean.parser.parser.base10_lit "0")))))
-   (lean.parser.notation
+    (term.sort_app
+     (term.sort (0 "Sort"))
+     (level.leading (4 (parser.base10_lit "0")))))
+   (notation
     "notation"
-    (lean.parser.notation_spec
+    (notation_spec
      (1
-      (lean.parser.notation_spec.rules
-       [(lean.parser.id (lean.parser.ident_part (1 "f")) [])]
-       [(lean.parser.notation_spec.rule
-         (lean.parser.notation_spec.notation_symbol
+      (notation_spec.rules
+       [(id (ident_part (1 "f")) [])]
+       [(notation_spec.rule
+         (notation_spec.notation_symbol
           (0
-           (lean.parser.notation_spec.notation_quoted_symbol
+           (notation_spec.notation_quoted_symbol
             "`"
             "$ "
             "`"
-            [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "1"))])))
-         [(lean.parser.notation_spec.transition
+            [(notation_spec.precedence ":" (parser.base10_lit "1"))])))
+         [(notation_spec.transition
            (2
-            (lean.parser.notation_spec.argument
-             (lean.parser.id (lean.parser.ident_part (1 "a")) [])
-             [(lean.parser.notation_spec.action
+            (notation_spec.argument
+             (id (ident_part (1 "a")) [])
+             [(notation_spec.action
                ":"
-               (lean.parser.notation_spec.action_kind (0 (lean.parser.parser.base10_lit "0"))))])))])])))
+               (notation_spec.action_kind (0 (parser.base10_lit "0"))))])))])])))
     ":="
-    (lean.parser.term.app
-     (lean.parser.id (lean.parser.ident_part (1 "f")) [])
-     (lean.parser.id (lean.parser.ident_part (1 "a")) [])))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (0 "prefix"))]
-    (lean.parser.notation_spec.notation_symbol
+    (term.app (id (ident_part (1 "f")) []) (id (ident_part (1 "a")) [])))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "¬"
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "40"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (0 "prefix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "40"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "~"
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "40"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "40"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∧ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "35"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "/\\ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "35"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "\\/ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "30"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∨ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "30"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "<-> "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "20"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "20"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "↔ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "20"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "20"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "= "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "== "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "≠ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "≈ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "~ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "≡ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "⬝ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "75"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "75"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "▸ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "75"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "75"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "▹ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "75"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "75"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "⊕ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "30"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "× "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "35"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "+ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "65"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "- "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "65"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "* "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "70"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "/ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "70"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "% "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "70"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "%ₙ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "70"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (0 "prefix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "-"
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "100"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "100"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "^ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "80"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "80"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∘ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "90"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "90"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "<= "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "≤ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "< "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        ">= "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "≥ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "> "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (0 "prefix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (0 "prefix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "!"
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "40"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "40"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "&& "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "35"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "35"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "|| "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "30"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "30"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∈ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∉ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∩ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "70"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∪ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "65"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "⊆ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "⊇ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "⊂ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "⊃ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "\\ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "70"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (1 "infix"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "70"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (1 "infix"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "∣ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "50"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "50"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "++ "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "65"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (3 "infixr"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "65"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (3 "infixr"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        ":: "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "67"))]))))
-   (lean.parser.reserve_mixfix
-    ["reserve" (lean.parser.mixfix.kind (2 "infixl"))]
-    (lean.parser.notation_spec.notation_symbol
+       [(notation_spec.precedence ":" (parser.base10_lit "67"))]))))
+   (reserve_mixfix
+    ["reserve" (mixfix.kind (2 "infixl"))]
+    (notation_spec.notation_symbol
      (0
-      (lean.parser.notation_spec.notation_quoted_symbol
+      (notation_spec.notation_quoted_symbol
        "`"
        "; "
        "`"
-       [(lean.parser.notation_spec.precedence ":" (lean.parser.parser.base10_lit "1"))]))))
-   (lean.parser.universes
+       [(notation_spec.precedence ":" (parser.base10_lit "1"))]))))
+   (universes
     "universes"
-    [(lean.parser.id (lean.parser.ident_part (1 "u")) [])
-     (lean.parser.id (lean.parser.ident_part (1 "v")) [])
-     (lean.parser.id (lean.parser.ident_part (1 "w")) [])])])
- (lean.parser.parser.eoi "")]
+    [(id (ident_part (1 "u")) [])
+     (id (ident_part (1 "v")) [])
+     (id (ident_part (1 "w")) [])])])
+ (parser.eoi "")]

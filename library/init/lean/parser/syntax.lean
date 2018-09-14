@@ -59,7 +59,7 @@ with to_format : syntax → format
 | (node {kind := none, args := args, ..}) :=
   sbracket $ join_sep (to_format_lst args) line
 | (node {kind := some kind, args := args, ..}) :=
-  paren $ join_sep (to_fmt kind.name :: to_format_lst args) line
+  paren $ join_sep (to_fmt (kind.name.replace_prefix `lean.parser name.anonymous) :: to_format_lst args) line
 | missing := "<missing>"
 with to_format_lst : list syntax → list format
 | []      := []

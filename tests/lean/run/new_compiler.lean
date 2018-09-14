@@ -43,9 +43,6 @@ open parsec_t
 variables {μ : Type}
 variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
 
-@[inline] def label' (p : m α) (ex : string) : m α :=
-map (λ m' inst β p, @parsec_t.label m' inst μ β p ex) p
-
 open parsec
 
 def longest_match' [monad_except (message μ) m] (ps : list (m α)) : m (list α) :=

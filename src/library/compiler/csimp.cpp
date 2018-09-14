@@ -184,7 +184,7 @@ class csimp_fn {
     expr mk_cast(type_checker & tc, expr const & A, expr const & B, expr const & t) {
         if (tc.is_def_eq(A, B)) {
             return t;
-        } else if (is_lc_proof(t)) {
+        } else if (is_lc_proof_app(t)) {
             return mk_app(mk_constant(get_lc_proof_name()), B);
         } else {
             /* lc_cast.{u_1 u_2} : Π {α : Sort u_2} {β : Sort u_1}, α → β */
@@ -264,14 +264,6 @@ class csimp_fn {
         return mk_let_decl(mk_app(cases, cases_args));
     }
 
-    static bool is_lc_proof(expr const & e) {
-        return is_app_of(e, get_lc_proof_name(), 1);
-    }
-
-    static bool is_lc_cast_app(expr const & e) {
-        return is_app_of(e, get_lc_cast_name(), 3);
-    }
-
     expr reduce_lc_cast(expr const & e) {
         buffer<expr> args;
         expr const & cast_fn1 = get_app_args(e, args);
@@ -321,6 +313,9 @@ class csimp_fn {
             return beta_reduce(fn, e);
         } else if (is_cases_app(fn)) {
             return distrib_app_cases(fn, e);
+        } else if (is_lc_unreachable_app(fn)) {
+            expr type = infer_type(e);
+            return mk_let_decl(mk_lc_unreachable(m_st, m_lctx, type));
         } else if (is_app(fn)) {
             return merge_app_app(fn, e);
         }

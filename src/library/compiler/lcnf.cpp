@@ -223,10 +223,8 @@ public:
         } else {
             /* Remark: args.size() may be greater than 2, but
                (lc_unreachable a_1 ... a_n) is equivalent to (lc_unreachable) */
-            type_checker tc(m_st, m_lctx);
-            expr type = tc.whnf(tc.infer(mk_app(fn, args)));
-            level lvl = sort_level(tc.ensure_type(type));
-            return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type));
+            expr type = infer_type(mk_app(fn, args));
+            return mk_let_decl(mk_lc_unreachable(m_st, m_lctx, type));
         }
     }
 

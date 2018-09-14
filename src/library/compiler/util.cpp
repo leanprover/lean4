@@ -27,10 +27,6 @@ bool is_comp_irrelevant(type_context_old & ctx, expr const & e) {
     return is_sort(type) || ctx.is_prop(type);
 }
 
-bool is_cases_on_recursor(environment const & env, name const & n) {
-    return ::lean::is_aux_recursor(env, n) && n.get_string() == "cases_on";
-}
-
 unsigned get_constructor_arity(environment const & env, name const & n) {
     constant_info info = env.get(n);
     expr e = info.get_type();

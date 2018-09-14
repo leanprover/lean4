@@ -122,8 +122,22 @@ class csimp_fn {
     }
 
     expr reduce_cases_cnstr(expr const & c, buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
-        // TODO(Leo)
-        return mk_app(c, args);
+        lean_assert(is_constructor_app(env(), major));
+        unsigned nparams = I_val.get_nparams();
+        names cnstrs     = I_val.get_cnstrs();
+        buffer<expr> k_args;
+        expr const & k   = get_app_args(major, k_args);
+        lean_assert(is_constant(k));
+        lean_assert(nparams <= k_args.size());
+        unsigned first_minor_idx = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices() + 1 /* major */;
+        for (unsigned i = first_minor_idx; i < args.size(); i++) {
+            lean_assert(!empty(cnstrs));
+            if (head(cnstrs) == const_name(k)) {
+                return visit(beta_reduce(args[i], k_args.size() - nparams, k_args.data() + nparams));
+            }
+            cnstrs = tail(cnstrs);
+        }
+        lean_unreachable();
     }
 
     expr visit_cases(expr const & e) {
@@ -133,7 +147,7 @@ class csimp_fn {
         inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
         unsigned major_idx       = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices();
         lean_assert(major_idx < args.size());
-        expr const & major       = args[major_idx];
+        expr const & major       = find(args[major_idx]);
         if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(c, args, I_val, major);
         } else if (is_cases_app(major)) {
@@ -143,26 +157,30 @@ class csimp_fn {
         }
     }
 
+    expr beta_reduce(expr fn, unsigned nargs, expr const * args) {
+        unsigned i = 0;
+        while (is_lambda(fn) && i < nargs) {
+            i++;
+            fn = binding_body(fn);
+        }
+        expr r = visit(instantiate_rev(fn, i, args));
+        lean_assert(!is_let(r));
+        if (is_lambda(r)) {
+            lean_assert(i == nargs);
+            return r;
+        } else {
+            if (!is_atom(r))
+                r = mk_let_decl(r);
+            return mk_app(r, nargs - i, args + i);
+        }
+    }
+
     expr beta_reduce(expr fn, expr const & e) {
         lean_assert(is_lambda(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
         buffer<expr> args;
         get_app_args(e, args);
-        unsigned i = 0;
-        while (is_lambda(fn) && i < args.size()) {
-            i++;
-            fn = binding_body(fn);
-        }
-        expr r = visit(instantiate_rev(fn, i, args.data()));
-        lean_assert(!is_let(r));
-        if (is_lambda(r)) {
-            lean_assert(i == args.size());
-            return r;
-        } else {
-            if (!is_atom(r))
-                r = mk_let_decl(r);
-            return mk_app(r, args.size() - i, args.data() + i);
-        }
+        return beta_reduce(fn, args.size(), args.data());
     }
 
     expr distrib_app_cases(expr const & fn, expr const & e) {

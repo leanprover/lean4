@@ -221,7 +221,7 @@ def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
 def dbg (label : string) (p : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
-  pure $ trace ("DBG " ++ label ++ ": '" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "'") $ match r : _ → result μ α with
+  pure $ trace ("DBG " ++ label ++ ": \"" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "\"") $ match r : _ → result μ α with
   | ok a it' := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it'
   | ok_eps a it' ex := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok_eps μ α a it' ex
   | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg tt

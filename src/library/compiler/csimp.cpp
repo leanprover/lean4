@@ -60,10 +60,14 @@ class csimp_fn {
     }
 
     expr mk_let_decl(expr const & e) {
-        expr type = infer_type(e);
-        expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
-        m_fvars.push_back(fvar);
-        return fvar;
+        if (is_atom(e)) {
+            return e;
+        } else {
+            expr type = infer_type(e);
+            expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
+            m_fvars.push_back(fvar);
+            return fvar;
+        }
     }
 
     expr visit_let(expr e) {

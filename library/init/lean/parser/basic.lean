@@ -6,85 +6,12 @@ Author: Sebastian Ullrich
 Parser for the Lean language
 -/
 prelude
-import init.lean.parser.parsec init.lean.parser.syntax
+import init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec
+import init.lean.parser.trie
 import init.lean.parser.identifier init.data.rbmap init.lean.message
-
-/-- A small wrapper of `reader_t` that simplifies introducing and invoking
-    recursion points in a computation. -/
--- TODO(Sebastian): move?
-def rec_t (α δ : Type) (m : Type → Type) (β : Type) :=
-reader_t (α → m δ) m β
-
-namespace rec_t
-variables {m : Type → Type} {α δ β : Type} [monad m]
-local attribute [reducible] rec_t
-
-/-- Continue at the recursion point stored at `run`. -/
-def recurse (a : α) : rec_t α δ m δ :=
-do x ← read,
-   monad_lift (x a)
-
-variables (base : α → m δ) (rec : α → rec_t α δ m δ)
-private def run_aux : nat → α → m δ
-| 0     := base
-| (n+1) := λ a, (rec a).run (run_aux n)
-
-/-- Execute `rec a`, re-executing it whenever `recurse` (with a new `a`) is called.
-    After `max_rec` recursion steps, `base` is executed instead. -/
-protected def run (a : α) (max_rec := 1000) : m δ :=
-(rec a).run (run_aux base rec max_rec)
-
--- not clear how to auto-derive these given the additional constraints
-instance : monad (rec_t α δ m) := infer_instance
-instance [alternative m] : alternative (rec_t α δ m) := infer_instance
-instance : has_monad_lift m (rec_t α δ m) := infer_instance
-instance (ε) [monad_except ε m] : monad_except ε (rec_t α δ m) := infer_instance
-instance (μ) [lean.parser.monad_parsec μ m] : lean.parser.monad_parsec μ (rec_t α δ m) :=
-infer_instance
-end rec_t
-
-class monad_rec (α δ : out_param Type) (m : Type → Type) :=
-(recurse {} : α → m δ)
-export monad_rec (recurse)
-
-instance monad_rec.trans (α δ m m') [has_monad_lift m m'] [monad_rec α δ m] [monad m] : monad_rec α δ m' :=
-{ recurse := λ a, monad_lift (recurse a : m δ) }
-
-instance monad_rec.base (α δ m) [monad m] : monad_rec α δ (rec_t α δ m) :=
-{ recurse := rec_t.recurse }
 
 namespace lean
 namespace parser
-
-inductive trie (α : Type)
-| node : option α → rbnode (char × trie) → trie
-
-namespace trie
-variables {α : Type}
-
-protected def mk : trie α :=
-⟨none, rbnode.leaf⟩
-
-private def insert_aux (val : α) : nat → trie α → string.iterator → trie α
-| 0     (trie.node _ map)    _ := trie.node (some val) map   -- NOTE: overrides old value
-| (n+1) (trie.node val map) it :=
-  let t' := (rbmap_core.find (<) map it.curr).get_or_else trie.mk in
-  trie.node val (rbmap_core.insert (<) map it.curr (insert_aux n t' it.next))
-
-def insert (t : trie α) (s : string) (val : α) : trie α :=
-insert_aux val s.length t s.mk_iterator
-
-private def match_prefix_aux : nat → trie α → string.iterator → option (string.iterator × α) → option (string.iterator × α)
-| 0     (trie.node val map) it acc := prod.mk it <$> val <|> acc
-| (n+1) (trie.node val map) it acc :=
-  let acc' := prod.mk it <$> val <|> acc in
-  match rbmap_core.find (<) map it.curr with
-    | some t := match_prefix_aux n t it.next acc'
-    | none   := acc'
-
-def match_prefix {α : Type} (t : trie α) (it : string.iterator) : option (string.iterator × α) :=
-match_prefix_aux it.remaining t it none
-end trie
 
 /- Maximum standard precedence. This is the precedence of function application.
    In the standard Lean language, only the token `.` has a left-binding power greater

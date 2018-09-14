@@ -141,12 +141,12 @@ instance : has_monad_lift m (parsec_t μ m) :=
 def expect (msg : message μ) (exp : string) : message μ :=
 {expected := dlist.singleton exp, ..msg}
 
-@[inline] def label (p : parsec_t μ m α) (ex : string) : parsec_t μ m α :=
+@[inline] def labels (p : parsec_t μ m α) (lbls : dlist string) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   pure $ match r with
-  | ok_eps a it _  := ok_eps a it (dlist.singleton ex)
-  | error msg ff   := error (expect msg ex) ff
+  | ok_eps a it _  := ok_eps a it lbls
+  | error msg ff   := error {expected := lbls, ..msg} ff
   | other          := other
 
 /--
@@ -264,10 +264,16 @@ lift $ λ it, result.mk_eps it it
 def remaining : m nat :=
 string.iterator.remaining <$> left_over
 
-@[inline] def label (p : m α) (ex : string) : m α :=
-map (λ m' inst β p, @parsec_t.label m' inst μ β p ex) p
+@[inline] def labels (p : m α) (lbls : dlist string) : m α :=
+map (λ m' inst β p, @parsec_t.labels m' inst μ β p lbls) p
+
+@[inline] def label (p : m α) (lbl : string) : m α :=
+labels p (dlist.singleton lbl)
 
 infixr ` <?> `:2 := label
+
+@[inline] def hidden (p : m α) : m α :=
+labels p dlist.empty
 
 /--
 `try p` behaves like `p`, but it pretends `p` hasn't

@@ -54,11 +54,12 @@ local notation `lift` := @monad_lift basic_parser_m _ _ _
 
 /-- Skip whitespace and comments. -/
 def whitespace : basic_parser_m substring :=
--- every `whitespace_aux` loop reads at least one char
-do start ← left_over,
-   whitespace_aux (start.remaining+1),
-   stop ← left_over,
-   pure ⟨start, stop⟩
+hidden $ do
+  start ← left_over,
+  -- every `whitespace_aux` loop reads at least one char
+  whitespace_aux (start.remaining+1),
+  stop ← left_over,
+  pure ⟨start, stop⟩
 
 def with_source_info [monad m] [monad_state parser_state m] [monad_parsec syntax m] {α : Type} (r : m α) : m (α × source_info) :=
 do token_start ← parser_state.token_start <$> get,

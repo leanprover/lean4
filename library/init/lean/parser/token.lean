@@ -40,11 +40,11 @@ do r ← remaining,
 
 private def whitespace_aux : nat → basic_parser_m unit
 | (n+1) :=
-do tk ← whitespace *> match_token,
-   (match token_config.prefix <$> tk with
-    | some "--"         := str "--" *> take_while' (= '\n') *> whitespace_aux n
-    | some "/-"         := str "/-" *> finish_comment_block *> whitespace_aux n
-    | _                 := pure ())
+do whitespace,
+   str "--" *> take_while' (= '\n') *> whitespace_aux n <|>
+   -- a "/--" doc comment is an actual token, not whitespace
+   try (str "/-" *> not_followed_by (str "-")) *> finish_comment_block *> whitespace_aux n <|>
+   pure ()
 | 0 := error "unreachable"
 
 abbreviation monad_basic_read := has_monad_lift_t basic_parser_m

@@ -449,7 +449,7 @@ do it ← left_over,
 def pos : m position :=
 string.iterator.offset <$> left_over
 
-@[inline] def not_followed_by [monad_except message m] (p : m α) (msg : string := "input") : m unit :=
+@[inline] def not_followed_by [monad_except (message μ) m] (p : m α) (msg : string := "input") : m unit :=
 do it ← left_over,
    b ← lookahead $ catch (p *> pure ff) (λ _, pure tt),
    if b then pure () else error msg dlist.empty it

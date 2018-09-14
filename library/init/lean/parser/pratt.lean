@@ -21,7 +21,7 @@ def curr_lbp : m nat :=
 do st ← get,
    except.ok tk ← (monad_lift $ observing $ lookahead token) <* put st | pure 0 <* put st,
    match tk with
-   | syntax.atom ⟨_, atomic_val.string sym⟩ := do
+   | syntax.atom ⟨_, sym⟩ := do
      st ← get,
      some ⟨_, tk_cfg⟩ ← pure (st.tokens.match_prefix sym.mk_iterator) | error "curr_lbp: unreachable",
      pure tk_cfg.lbp

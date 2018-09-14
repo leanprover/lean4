@@ -122,7 +122,7 @@ parser.run cfg ⟨trie, message_log.empty, s.mk_iterator⟩ s $ do
   let stop := tk_start.to_end in
   pure $ syntax.node ⟨none, [
     stx,
-    syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨tk_start, stop⟩, stop.offset, ⟨stop, stop⟩⟩, atomic_val.string ""⟩]⟩
+    syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨tk_start, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]⟩
   ]⟩
 
 structure parse.view_ty :=

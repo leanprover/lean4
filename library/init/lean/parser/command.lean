@@ -56,7 +56,7 @@ node! «precedence» [":", prec: number]/-TODO <|> expr-/
 
 def quoted_symbol.parser : command_parser :=
 do (s, info) ← with_source_info $ take_until (= '`'),
-   pure $ syntax.atom ⟨info, atomic_val.string s⟩
+   pure $ syntax.atom ⟨info, s⟩
 
 instance quoted_symbol.tokens : parser.has_tokens quoted_symbol.parser := ⟨[]⟩
 instance quoted_symbol.view : parser.has_view quoted_symbol.parser syntax := default _
@@ -163,7 +163,7 @@ do v ← view mixfix stx,
        rules := [{
          symbol := v.symbol,
          transition := optional_view.some $ transition.view.arg $ {
-           id := `b,
+           id := review id {part := ident_part.view.default "b", suffix := optional_view.none},
            action := prec_to_action <$> prec}}]}
      | _ := sorry,
    pure $ review «notation» ⟨"notation", spec, ":=", v.term⟩

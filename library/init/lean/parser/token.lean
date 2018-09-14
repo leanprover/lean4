@@ -86,7 +86,7 @@ do token_start ← parser_state.token_start <$> get,
 def raw {α : Type} (p : m α) (leading_ws := ff) (trailing_ws := ff) : parser :=
 try $ do
   (ss, info) ← with_source_info (as_substring p) leading_ws trailing_ws,
-  pure $ syntax.atom ⟨info, atomic_val.string ss.to_string⟩
+  pure $ syntax.atom ⟨info, ss.to_string⟩
 
 instance raw.tokens {α} (p : m α) : parser.has_tokens (raw p : parser) := ⟨[]⟩
 instance raw.view {α} (p : m α) : parser.has_view (raw p : parser) syntax := default _
@@ -98,7 +98,7 @@ end
 --TODO(Sebastian): other bases
 private def number' : basic_parser_m (source_info → syntax) :=
 do num ← take_while1 char.is_digit,
-   pure $ λ i, syntax.node ⟨base10_lit, [syntax.atom ⟨i, atomic_val.string num⟩]⟩
+   pure $ λ i, syntax.node ⟨base10_lit, [syntax.atom ⟨i, num⟩]⟩
 
 set_option class.instance_max_depth 200
 
@@ -129,9 +129,9 @@ do tk ← match_token,
    -- constant-length token
    | some ⟨tk, _, none⟩   :=
      do str tk,
-        pure $ λ i, syntax.atom ⟨some i, atomic_val.string tk⟩
+        pure $ λ i, syntax.atom ⟨some i, tk⟩
    -- variable-length token
-   | some ⟨tk, _, some r⟩ := error "not implemented" --str tk *> monad_parsec.lift r
+   | some ⟨tk, _, some r⟩ := error "symbol': not implemented" --str tk *> monad_parsec.lift r
    | none                 := error
 
 def token : basic_parser_m syntax :=
@@ -149,7 +149,7 @@ variable [monad_basic_read m]
 def symbol (sym : string) (lbp := 0) : parser :=
 lift $ try $ do
   it ← left_over,
-  stx@(syntax.atom ⟨_, atomic_val.string sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
+  stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
   when (sym ≠ sym') $
     error "" (dlist.singleton (repr sym)) it,
   pure stx
@@ -188,10 +188,10 @@ lift $ try $ do
   it ← left_over,
   stx ← token,
   let sym' := match stx with
-  | syntax.atom ⟨_, atomic_val.string sym'⟩ := some sym'
+  | syntax.atom ⟨_, sym'⟩ := some sym'
   | syntax.node ⟨ident, _⟩ :=
     (match syntax_node_kind.has_view.view id stx with
-     | some {part := ident_part.view.default (syntax.atom ⟨_, atomic_val.string sym'⟩),
+     | some {part := ident_part.view.default (syntax.atom ⟨_, sym'⟩),
              suffix := optional_view.none} := some sym'
      | _ := none)
   | _ := none,

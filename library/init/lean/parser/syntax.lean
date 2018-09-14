@@ -23,24 +23,8 @@ structure source_info :=
 (pos      : parsec.position)
 (trailing : substring)
 
-structure resolved :=
--- local or (overloaded) global
-(decl : var_offset ⊕ list name)
-/- prefix of the reference that corresponds to the decl. All trailing name components
-   are field accesses. -/
-(«prefix» : name)
-
-instance resolved.has_to_format : has_to_format resolved := ⟨λ r, to_fmt (r.decl, r.prefix)⟩
-
-structure syntax_ident :=
-(info : option source_info) (name : name) (msc : option macro_scope_id) (res : option resolved)
-
-inductive atomic_val
-| string (s : string)
-| name   (n : name)
-
 structure syntax_atom :=
-(info : option source_info) (val : atomic_val)
+(info : option source_info) (val : string)
 
 /-- A simple wrapper that should remind you to use the static declaration instead
     of hard-coding the node name. -/
@@ -52,7 +36,6 @@ structure syntax_node (syntax : Type) :=
 (kind : option syntax_node_kind) (args : list syntax)
 
 inductive syntax
-| ident (val : syntax_ident)
 /- any non-ident atom -/
 | atom (val : syntax_atom)
 | node (val : syntax_node syntax)
@@ -62,10 +45,7 @@ instance : inhabited syntax :=
 ⟨syntax.missing⟩
 
 instance coe_string_syntax : has_coe string syntax :=
-⟨λ s, syntax.atom ⟨none, atomic_val.string s⟩⟩
-
-instance coe_name_syntax : has_coe name syntax :=
-⟨λ n, syntax.ident ⟨none, n, none, none⟩⟩
+⟨λ s, syntax.atom ⟨none, s⟩⟩
 
 def substring.to_string (s : substring) : string :=
 (s.start.extract s.stop).get_or_else ""
@@ -75,27 +55,7 @@ open lean.format
 
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
-| (ident id) :=
-  let n :=
-    to_fmt id.name ++
-    (match id.msc with
-     | some msc := "!" ++ to_fmt msc
-     | none := "") ++
-    (match id.res with
-     | some res :=
-       ":" ++
-       (match res.decl with
-        | sum.inl idx := to_fmt idx
-        | sum.inr [n] := to_fmt n
-        | sum.inr ns  := to_fmt ns)
-       ++ if res.prefix = id.name then
-         to_fmt ""
-       else
-         to_fmt ".(" ++ to_fmt (id.name.replace_prefix res.prefix name.anonymous) ++ ")"
-     | none := "") in
-  n
-| (atom ⟨_, atomic_val.string s⟩) := to_fmt $ repr s
-| (atom ⟨_, atomic_val.name   n⟩) := to_fmt "`" ++ to_fmt n
+| (atom ⟨_, s⟩) := to_fmt $ repr s
 | (node {kind := none, args := args, ..}) :=
   sbracket $ join_sep (to_format_lst args) line
 | (node {kind := some kind, args := args, ..}) :=
@@ -111,9 +71,7 @@ def reprint_with_info : option source_info → string → string
 
 mutual def reprint, reprint_lst
 with reprint : syntax → string
-| (ident id) := reprint_with_info id.info id.name.to_string
-| (atom ⟨info, atomic_val.string s⟩) := reprint_with_info info s
-| (atom ⟨info, atomic_val.name   n⟩) := reprint_with_info info n.to_string
+| (atom ⟨info, s⟩) := reprint_with_info info s
 | (node n) := reprint_lst n.args
 | missing := ""
 with reprint_lst : list syntax → string

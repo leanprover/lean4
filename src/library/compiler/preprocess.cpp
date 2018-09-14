@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "library/compiler/extract_values.h"
 #include "library/compiler/cse.h"
 #include "library/compiler/lcnf.h"
+#include "library/compiler/lcsimp.h"
 
 namespace lean {
 class expand_aux_fn : public compiler_step_visitor {
@@ -235,9 +236,14 @@ public:
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
         lean_trace(name({"compiler", "lcnf"}),
-                   expr r = to_lcnf(m_env, local_ctx(), v);
-                   tout() << "\n" << r << "\n";
-                   check(d, r););
+                   expr r1 = to_lcnf(m_env, local_ctx(), v);
+                   tout() << "\n" << r1 << "\n";
+                   check(d, r1);
+                   tout() << "----------------\n";
+                   expr r2 = lcsimp(m_env, local_ctx(), r1);
+                   tout() << "\n" << r2 << "\n";
+                   check(d, r2);
+            );
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);

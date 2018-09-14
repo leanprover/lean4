@@ -85,7 +85,9 @@ structure inductive_val extends constant_val :=
 
 structure constructor_val extends constant_val :=
 (induct  : name)  -- Inductive type this constructor is a member of
+(cidx    : nat)   -- Constructor index (i.e., position in the inductive declaration)
 (nparams : nat)   -- Number of parameters in inductive datatype `induct`
+(nfields : nat)   -- Number of fields (i.e., arity - nparams)
 (is_meta : bool)
 
 /-- Information for reducing a recursor -/

@@ -278,6 +278,7 @@ public:
     unsigned get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_get_ref(*this, 4)); }
+    unsigned get_ncnstrs() const { return length(get_cnstrs()); }
     bool is_rec() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
     bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
     bool is_reflexive() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2) != 0; }
@@ -286,20 +287,24 @@ public:
 /*
 structure constructor_val extends constant_val :=
 (induct  : name)  -- Inductive type this constructor is a member of
+(cidx    : nat)   -- Constructor index (i.e., position in the inductive declaration)
 (nparams : nat)   -- Number of parameters in inductive datatype `induct`
+(nfields : nat)   -- Number of fields (i.e., arity - nparams)
 (is_meta : bool)
 */
 class constructor_val : public object_ref {
 public:
-    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta);
+    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_meta);
     constructor_val(constructor_val const & other):object_ref(other) {}
     constructor_val(constructor_val && other):object_ref(other) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
     constructor_val & operator=(constructor_val && other) { object_ref::operator=(other); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
     name const & get_induct() const { return static_cast<name const &>(cnstr_get_ref(*this, 1)); }
-    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
-    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
+    unsigned get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
+    unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
+    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
 };
 
 /*

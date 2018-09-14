@@ -81,9 +81,9 @@ inductive_val::inductive_val(name const & n, names const & lparams, expr const &
     lean_assert(is_reflexive() == is_refl);
 }
 
-constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned nparams, bool is_meta):
-    object_ref(mk_cnstr(0, constant_val(n, lparams, type), induct, nat(nparams), 1)) {
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_meta));
+constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_meta):
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), induct, nat(cidx), nat(nparams), nat(nfields), 1)) {
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(is_meta));
 }
 
 recursor_val::recursor_val(name const & n, names const & lparams, expr const & type,

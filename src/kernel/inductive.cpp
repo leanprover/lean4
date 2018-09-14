@@ -385,10 +385,20 @@ public:
     void declare_constructors() {
         for (unsigned idx = 0; idx < m_ind_types.size(); idx++) {
             inductive_type const & ind_type = m_ind_types[idx];
+            unsigned cidx = 0;
             for (constructor const & cnstr : ind_type.get_cnstrs()) {
                 name const & n = constructor_name(cnstr);
                 expr const & t = constructor_type(cnstr);
-                m_env.add_core(constant_info(constructor_val(n, m_lparams, t, ind_type.get_name(), m_nparams, m_is_meta)));
+                unsigned arity = 0;
+                expr it = t;
+                while (is_pi(it)) {
+                    it = binding_body(it);
+                    arity++;
+                }
+                lean_assert(arity >= m_nparams);
+                unsigned nfields = arity - m_nparams;
+                m_env.add_core(constant_info(constructor_val(n, m_lparams, t, ind_type.get_name(), cidx, m_nparams, nfields, m_is_meta)));
+                cidx++;
             }
         }
     }
@@ -1078,8 +1088,8 @@ environment environment::add_inductive(declaration const & d) const {
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();
                 expr new_type = res.restore_nested(cnstr_info.get_type(), aux_env);
                 new_env.add_core(constant_info(constructor_val(cnstr_info.get_name(), cnstr_info.get_lparams(), new_type,
-                                                               cnstr_val.get_induct(), cnstr_val.get_nparams(),
-                                                               cnstr_val.is_meta())));
+                                                               cnstr_val.get_induct(), cnstr_val.get_cidx(), cnstr_val.get_nparams(),
+                                                               cnstr_val.get_nfields(), cnstr_val.is_meta())));
             }
             process_rec(mk_rec_name(ind_type.get_name()));
         }

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "library/util.h"
+#include "library/constants.h"
 #include "library/compiler/lc_util.h"
 
 namespace lean {
@@ -22,13 +23,13 @@ class lcsimp_fn {
 
     name_generator & ngen() { return m_st.ngen(); }
 
-    expr find(expr const & e) const {
+    expr find(expr const & e, bool skip_mdata = true) const {
         if (is_fvar(e)) {
             if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
                 if (optional<expr> v = decl->get_value())
                     return find(*v);
             }
-        } else if (is_mdata(e)) {
+        } else if (is_mdata(e) && skip_mdata) {
             return find(mdata_expr(e));
         }
         return e;
@@ -45,13 +46,18 @@ class lcsimp_fn {
 
     expr infer_type(expr const & e) { return type_checker(m_st, m_lctx).infer(e); }
 
-    expr mk_let_decl(expr const & e) {
-        expr type = infer_type(e);
+    name next_name() {
         /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
            because the resulting name is confusing during debugging: it looks like a projection application.
            We should replace it with `name(m_x, m_next_idx)` when the compiler code gets more stable. */
-        expr fvar = m_lctx.mk_local_decl(ngen(), m_x.append_after(m_next_idx), type, e);
+        name r = m_x.append_after(m_next_idx);
         m_next_idx++;
+        return r;
+    }
+
+    expr mk_let_decl(expr const & e) {
+        expr type = infer_type(e);
+        expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
         m_fvars.push_back(fvar);
         return fvar;
     }
@@ -64,13 +70,14 @@ class lcsimp_fn {
             if (is_atom(new_val)) {
                 let_fvars.push_back(new_val);
             } else {
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), new_type, new_val);
+                name n = is_internal_name(let_name(e)) ? next_name() : let_name(e);
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), n, new_type, new_val);
                 let_fvars.push_back(new_fvar);
                 m_fvars.push_back(new_fvar);
             }
             e = let_body(e);
         }
-        return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()));
+        return find(visit(instantiate_rev(e, let_fvars.size(), let_fvars.data())), false);
     }
 
     expr visit_lambda(expr e) {
@@ -86,7 +93,7 @@ class lcsimp_fn {
             binding_fvars.push_back(new_fvar);
             e = binding_body(e);
         }
-        expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()));
+        expr new_body = find(visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data())), false);
         new_body      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_body);
         m_fvars.shrink(m_fvars_init_size);
         return m_lctx.mk_lambda(binding_fvars, new_body);
@@ -165,9 +172,41 @@ class lcsimp_fn {
         return e;
     }
 
+    static bool is_lc_cast_app(expr const & e) {
+        return is_app_of(e, get_lc_cast_name(), 3);
+    }
+
+    expr reduce_lc_cast(expr const & e) {
+        buffer<expr> args;
+        expr const & cast_fn1 = get_app_args(e, args);
+        lean_assert(args.size() == 3);
+        if (type_checker(m_st, m_lctx).is_def_eq(args[0], args[1])) {
+            /* (lc_cast A A t) ==> t */
+            return args[2];
+        }
+        expr major = find(args[2]);
+        if (is_lc_cast_app(major)) {
+            /* Cast transitivity:
+               (lc_cast B C (lc_cast A B t)) ==> (lc_cast A C t)
+
+
+               lc_cast.{u_1 u_2} : Π {α : Sort u_2} {β : Sort u_1}, α → β */
+            buffer<expr> nested_args;
+            expr const & cast_fn2 = get_app_args(major, nested_args);
+            expr const & C = args[1];
+            expr const & A = nested_args[0];
+            level u1       = head(const_levels(cast_fn1));
+            level u2       = head(tail(const_levels(cast_fn2)));
+            return reduce_lc_cast(mk_app(mk_constant(get_lc_cast_name(), {u1, u2}), A, C, nested_args[2]));
+        }
+        return e;
+    }
+
     expr visit_app(expr const & e) {
         if (is_cases_app(e)) {
             return visit_cases(e);
+        } else if (is_lc_cast_app(e)) {
+            return reduce_lc_cast(e);
         }
         expr fn = find(get_app_fn(e));
         if (is_lambda(fn)) {

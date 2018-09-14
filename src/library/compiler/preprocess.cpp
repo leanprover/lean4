@@ -236,12 +236,13 @@ public:
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
         lean_trace(name({"compiler", "lcnf"}),
+                   tout() << "\n>> Convert to LCNF\n";
                    expr r1 = to_lcnf(m_env, local_ctx(), v);
-                   tout() << "\n" << r1 << "\n";
+                   tout() << r1 << "\n";
                    check(d, r1);
-                   tout() << "----------------\n";
+                   tout() << ">> Simplify\n";
                    expr r2 = lcsimp(m_env, local_ctx(), r1);
-                   tout() << "\n" << r2 << "\n";
+                   tout() << r2 << "\n";
                    check(d, r2);
             );
         v = inline_simple_definitions(m_env, m_cache, v);

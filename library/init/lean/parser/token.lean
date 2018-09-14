@@ -69,27 +69,24 @@ do start ← left_over,
 
 variables [monad_state parser_state m] [monad_basic_read m]
 
-def with_source_info {α : Type} (r : m α) (leading_ws := tt) (trailing_ws := tt) : m (α × source_info) :=
-do token_start ← parser_state.token_start <$> get,
-   when leading_ws $
-     lift whitespace,
-   it ← left_over,
+def with_source_info {α : Type} (r : m α) (trailing_ws := tt) : m (α × source_info) :=
+do it ← left_over,
+   let leading : substring := ⟨it, it⟩, -- NOTE: will be adjusted by `syntax.update_leading`
    a ← r,
    -- TODO(Sebastian): less greedy, more natural whitespace assignment
    -- E.g. only read up to the next line break
    trailing ← lift $ as_substring $ if trailing_ws then whitespace else pure (),
    it2 ← left_over,
-   modify $ λ st, {st with token_start := it2},
-   pure (a, ⟨⟨token_start, it⟩, it.offset, trailing⟩)
+   pure (a, ⟨leading, it.offset, trailing⟩)
 
 /-- Match an arbitrary parser and return the consumed string in an `atomic_val.string`. -/
-def raw {α : Type} (p : m α) (leading_ws := ff) (trailing_ws := ff) : parser :=
+def raw {α : Type} (p : m α) (trailing_ws := ff) : parser :=
 try $ do
-  (ss, info) ← with_source_info (as_substring p) leading_ws trailing_ws,
+  (ss, info) ← with_source_info (as_substring p) trailing_ws,
   pure $ syntax.atom ⟨info, ss.to_string⟩
 
-instance raw.tokens {α} (p : m α) : parser.has_tokens (raw p : parser) := ⟨[]⟩
-instance raw.view {α} (p : m α) : parser.has_view (raw p : parser) syntax := default _
+instance raw.tokens {α} (p : m α) (t) : parser.has_tokens (raw p t : parser) := ⟨[]⟩
+instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) syntax := default _
 
 end
 

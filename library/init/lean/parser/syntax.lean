@@ -19,6 +19,8 @@ structure substring :=
 (stop : string.iterator)
 
 structure source_info :=
+/- Will be inferred after parsing by `syntax.update_leading`. During parsing,
+   it is not at all clear what the preceding token was, especially with backtracking. -/
 (leading  : substring)
 (pos      : parsec.position)
 (trailing : substring)
@@ -64,6 +66,26 @@ with to_format : syntax → format
 with to_format_lst : list syntax → list format
 | []      := []
 | (s::ss) := to_format s :: to_format_lst ss
+
+private mutual def update_leading_aux, update_leading_lst
+with update_leading_aux : syntax → reader_t string (state string.iterator) syntax
+| (atom a@{info := some info, ..}) := do
+  source ← read,
+  last ← get,
+  put info.trailing.stop,
+  pure $ atom {a with info := some {info with leading := ⟨last, source.mk_iterator.nextn info.pos⟩}}
+| (node n) := do args ← update_leading_lst n.args, pure $ node {n with args := args}
+| stx := pure stx
+with update_leading_lst : list syntax → reader_t string (state string.iterator) (list syntax)
+| []      := pure []
+| (s::ss) := list.cons <$> update_leading_aux s <*> update_leading_lst ss
+
+/-- Set `source_info.leading` according to the trailing stop of the preceding token.
+    The result is a round-tripping syntax tree IF, in the input syntax tree,
+    * all leading stops, atom contents, and trailing starts are correct
+    * trailing stops are between the trailing start and the next leading stop. -/
+def update_leading (source : string) : syntax → syntax :=
+λ stx, prod.fst $ ((update_leading_aux stx).run source).run source.mk_iterator
 
 def reprint_with_info : option source_info → string → string
 | (some info) inner := info.leading.to_string ++ inner ++ info.trailing.to_string

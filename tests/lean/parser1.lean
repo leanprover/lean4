@@ -5,10 +5,10 @@ open lean.parser.syntax_node_kind.has_view
 
 def show_result (p : syntax × message_log) (s : string) : eio unit :=
 let (stx, msgs) := p in
-/-when (stx.reprint ≠ s) (
+when (stx.reprint ≠ s) (
   io.println "reprint fail:" *>
   io.println stx.reprint
-) *>-/
+) *>
 match msgs.to_list with
 | [] := do
   io.println "result: ",

@@ -40,11 +40,6 @@ structure token_config :=
 structure parser_state :=
 (tokens : trie token_config)
 (messages : message_log)
-/- Start position of the current token. This might not be equal to the parser
-   position for two reasons:
-   * We plan to eagerly parse leading whitespace so as not to do so multiple times
-   * During error recovery, skipped input should be associated to the next token -/
-(token_start : string.iterator)
 
 structure parser_config :=
 (filename : string)
@@ -89,8 +84,8 @@ protected def run {m : Type → Type} [monad m] (cfg : parser_config) (st : pars
 m (syntax × message_log) :=
 do r ← ((r.run cfg).run st).parse_with_eoi s,
 pure $ match r with
-| except.ok (a, st) := (a, st.messages)
-| except.error msg  := (msg.custom, message_log.empty.add (message_of_parsec_message cfg msg))
+| except.ok (stx, st) := (stx.update_leading s, st.messages)
+| except.error msg  := (msg.custom.update_leading s, message_log.empty.add (message_of_parsec_message cfg msg))
 end
 
 open monad_parsec
@@ -109,20 +104,17 @@ protected def parse [monad m] (cfg : parser_config) (s : string) (r : parser_t m
 -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
 let builtin_tokens : list token_config := [⟨"/-", 0, none⟩, ⟨"--", 0, none⟩] in
 let trie := (tokens r ++ builtin_tokens).foldl (λ t cfg, trie.insert t cfg.prefix cfg) trie.mk in
-parser.run cfg ⟨trie, message_log.empty, s.mk_iterator⟩ s $ do
+parser.run cfg ⟨trie, message_log.empty⟩ s $ do
   stx ← catch r $ λ (msg : parsec.message _), do {
-    modify $ λ st, {st with token_start := msg.it},
     parser.log_message msg,
     pure msg.custom
   },
-  whitespace,
-  -- add `eoi` node and store any residual input in its prefix
+  -- add `eoi` node
   catch monad_parsec.eoi parser.log_message,
-  tk_start ← parser_state.token_start <$> get,
-  let stop := tk_start.to_end in
+  let stop := s.mk_iterator.to_end,
   pure $ syntax.node ⟨none, [
     stx,
-    syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨tk_start, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]⟩
+    syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]⟩
   ]⟩
 
 structure parse.view_ty :=

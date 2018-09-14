@@ -66,7 +66,7 @@ def symbol_quote.parser : command_parser :=
 node! notation_quoted_symbol [
   left_quote: raw $ ch '`',
   symbol: quoted_symbol.parser,
-  right_quote: raw $ ch '`',
+  right_quote: raw (ch '`') tt, -- consume trailing ws
   prec: precedence.parser?]
 
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems

@@ -46,6 +46,10 @@ class csimp_fn {
 
     expr infer_type(expr const & e) { return type_checker(m_st, m_lctx).infer(e); }
 
+    expr whnf(expr const & e) { return type_checker(m_st, m_lctx).whnf(e); }
+
+    expr whnf_infer_type(expr const & e) { type_checker tc(m_st, m_lctx); return tc.whnf(tc.infer(e)); }
+
     name next_name() {
         /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
            because the resulting name is confusing during debugging: it looks like a projection application.
@@ -177,11 +181,91 @@ class csimp_fn {
         return beta_reduce(fn, args.size(), args.data());
     }
 
+    expr mk_cast(type_checker & tc, expr const & A, expr const & B, expr const & t) {
+        if (tc.is_def_eq(A, B)) {
+            return t;
+        } else if (is_lc_proof(t)) {
+            return mk_app(mk_constant(get_lc_proof_name()), B);
+        } else {
+            /* lc_cast.{u_1 u_2} : Π {α : Sort u_2} {β : Sort u_1}, α → β */
+            level u_2 = sort_level(tc.ensure_type(A));
+            level u_1 = sort_level(tc.ensure_type(B));
+            return mk_let_decl(mk_app(mk_constant(get_lc_cast_name(), {u_1, u_2}), A, B, t));
+        }
+    }
+
     expr distrib_app_cases(expr const & fn, expr const & e) {
         lean_assert(is_cases_app(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
-        // TODO(Leo)
-        return e;
+        expr result_type         = infer_type(e);
+        buffer<expr> args;
+        get_app_args(e, args);
+        buffer<expr> cases_args;
+        expr const & cases = get_app_args(fn, cases_args);
+        lean_assert(is_constant(cases));
+        inductive_val I_val      = env().get(const_name(cases).get_prefix()).to_inductive_val();
+        unsigned motive_idx      = I_val.get_nparams();
+        unsigned first_index     = motive_idx + 1;
+        unsigned nindices        = I_val.get_nindices();
+        unsigned major_idx       = first_index + nindices;
+        unsigned first_minor_idx = major_idx + 1;
+        unsigned nminors         = length(I_val.get_cnstrs());
+        /* Infer argument types */
+        buffer<expr> arg_types;
+        {
+            type_checker tc(m_st, m_lctx);
+            for (expr const & arg : args) {
+                arg_types.push_back(tc.infer(arg));
+            }
+        }
+        /* Update motive */
+        {
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            buffer<expr> fvars;
+            expr motive              = cases_args[motive_idx];
+            expr motive_type         = whnf_infer_type(motive);
+            for (unsigned i = 0; i < nindices + 1; i++) {
+                lean_assert(is_pi(motive_type));
+                expr fvar = m_lctx.mk_local_decl(ngen(), binding_name(motive_type), binding_domain(motive_type), binding_info(motive_type));
+                fvars.push_back(fvar);
+                motive_type = whnf(instantiate(binding_body(motive_type), fvar));
+            }
+            expr new_motive = m_lctx.mk_lambda(fvars, result_type);
+            cases_args[motive_idx] = new_motive;
+        }
+        /* Update minor premises */
+        for (unsigned i = 0; i < nminors; i++) {
+            unsigned minor_idx    = first_minor_idx + i;
+            expr minor            = cases_args[minor_idx];
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            buffer<expr> minor_fvars;
+            unsigned m_fvars_init_size = m_fvars.size();
+            while (is_lambda(minor)) {
+                expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
+                minor_fvars.push_back(new_fvar);
+                minor = binding_body(minor);
+            }
+            expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()));
+            for (unsigned i = 0; i < args.size(); i++) {
+                type_checker tc(m_st, m_lctx);
+                expr new_minor_type = tc.whnf(tc.infer(new_minor));
+                lean_assert(is_pi(new_minor_type));
+                new_minor = mk_app(new_minor, mk_cast(tc, arg_types[i], binding_domain(new_minor_type), args[i]));
+            }
+            new_minor = visit(new_minor);
+            type_checker tc(m_st, m_lctx);
+            new_minor = mk_cast(tc, tc.infer(new_minor), result_type, new_minor);
+            new_minor = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
+            m_fvars.shrink(m_fvars_init_size);
+            new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
+            cases_args[minor_idx] = new_minor;
+        }
+        return mk_let_decl(mk_app(cases, cases_args));
+    }
+
+    static bool is_lc_proof(expr const & e) {
+        return is_app_of(e, get_lc_proof_name(), 1);
     }
 
     static bool is_lc_cast_app(expr const & e) {

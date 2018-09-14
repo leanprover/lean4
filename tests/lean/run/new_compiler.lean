@@ -5,6 +5,7 @@ universes u v w r s
 set_option trace.compiler.lcnf true
 -- set_option pp.implicit true
 set_option pp.binder_types false
+set_option pp.proofs true
 
 def foo (n : nat) : nat :=
 let x := nat.zero in

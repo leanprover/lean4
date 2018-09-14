@@ -298,6 +298,18 @@ class csimp_fn {
         return e;
     }
 
+    expr merge_app_app(expr const & fn, expr const & e) {
+        lean_assert(is_app(fn));
+        lean_assert(is_eqp(find(get_app_fn(e)), fn));
+        if (!is_lc_cast_app(fn) && !is_cases_app(fn)) {
+            buffer<expr> args;
+            get_app_args(e, args);
+            return mk_let_decl(mk_app(fn, args));
+        } else {
+            return e;
+        }
+    }
+
     expr visit_app(expr const & e) {
         if (is_cases_app(e)) {
             return visit_cases(e);
@@ -309,6 +321,8 @@ class csimp_fn {
             return beta_reduce(fn, e);
         } else if (is_cases_app(fn)) {
             return distrib_app_cases(fn, e);
+        } else if (is_app(fn)) {
+            return merge_app_app(fn, e);
         }
         return e;
     }

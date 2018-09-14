@@ -133,7 +133,7 @@ class csimp_fn {
         for (unsigned i = first_minor_idx; i < args.size(); i++) {
             lean_assert(!empty(cnstrs));
             if (head(cnstrs) == const_name(k)) {
-                return visit(beta_reduce(args[i], k_args.size() - nparams, k_args.data() + nparams));
+                return beta_reduce(args[i], k_args.size() - nparams, k_args.data() + nparams);
             }
             cnstrs = tail(cnstrs);
         }
@@ -171,7 +171,7 @@ class csimp_fn {
         } else {
             if (!is_atom(r))
                 r = mk_let_decl(r);
-            return mk_app(r, nargs - i, args + i);
+            return visit(mk_app(r, nargs - i, args + i));
         }
     }
 

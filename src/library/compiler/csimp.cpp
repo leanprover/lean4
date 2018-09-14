@@ -77,7 +77,7 @@ class csimp_fn {
             }
             e = let_body(e);
         }
-        return find(visit(instantiate_rev(e, let_fvars.size(), let_fvars.data())), false);
+        return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()));
     }
 
     expr visit_lambda(expr e) {
@@ -93,7 +93,7 @@ class csimp_fn {
             binding_fvars.push_back(new_fvar);
             e = binding_body(e);
         }
-        expr new_body = find(visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data())), false);
+        expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()));
         new_body      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_body);
         m_fvars.shrink(m_fvars_init_size);
         return m_lctx.mk_lambda(binding_fvars, new_body);

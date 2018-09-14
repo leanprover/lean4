@@ -48,19 +48,15 @@ public:
         return is_app_of(e, get_lc_proof_name());
     }
 
-    expr mk_let_decl(expr const & e, bool root) {
-        if (root) {
-            return e;
-        } else {
-            expr type = infer_type(e);
-            /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
-               because the resulting name is confusing during debugging: it looks like a projection application.
-               We should replace it with `name(m_x, m_next_idx)` when the compiler code gets more stable. */
-            expr fvar = m_lctx.mk_local_decl(ngen(), m_x.append_after(m_next_idx), type, e);
-            m_next_idx++;
-            m_fvars.push_back(fvar);
-            return fvar;
-        }
+    expr mk_let_decl(expr const & e) {
+        expr type = infer_type(e);
+        /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
+           because the resulting name is confusing during debugging: it looks like a projection application.
+           We should replace it with `name(m_x, m_next_idx)` when the compiler code gets more stable. */
+        expr fvar = m_lctx.mk_local_decl(ngen(), m_x.append_after(m_next_idx), type, e);
+        m_next_idx++;
+        m_fvars.push_back(fvar);
+        return fvar;
     }
 
     expr eta_expand(expr e, unsigned num_extra) {
@@ -153,18 +149,14 @@ public:
                 }
                 flet<cache> save_cache(m_cache, m_cache);
                 unsigned m_fvars_init_size = m_fvars.size();
-                expr new_minor = visit(minor, true);
-                if (is_lambda(new_minor) && m_fvars.size() == m_fvars_init_size) {
-                    // create an aux let declaration to make sure we separate the cases_on binders from the result.
-                    new_minor = mk_let_decl(new_minor, false);
-                }
+                expr new_minor             = visit(minor, false);
                 // add let-decls
                 new_minor      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
                 m_fvars.shrink(m_fvars_init_size);
                 new_minor      = m_lctx.mk_lambda(minor_fvars, new_minor);
                 args[i]        = new_minor;
             }
-            return mk_let_decl(mk_app(fn, args), root);
+            return mk_let_decl(mk_app(fn, args));
         }
     }
 
@@ -190,7 +182,7 @@ public:
         if (lhs_constructor != rhs_constructor) {
             expr type = tc.whnf(tc.infer(mk_app(fn, args)));
             level lvl = sort_level(tc.ensure_type(type));
-            return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type), root);
+            return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type));
         } else if (args.size() < basic_arity + 1 /* major */) {
             return visit(eta_expand(mk_app(fn, args), basic_arity + 1 - args.size()), root);
         } else {
@@ -253,7 +245,7 @@ public:
             type_checker tc(m_st, m_lctx);
             expr type = tc.whnf(tc.infer(mk_app(fn, args)));
             level lvl = sort_level(tc.ensure_type(type));
-            return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type), root);
+            return mk_let_decl(mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type));
         }
     }
 
@@ -318,7 +310,7 @@ public:
         for (expr & arg : args) {
             arg = visit(arg, false);
         }
-        return mk_let_decl(mk_app(fn, args), root);
+        return mk_let_decl(mk_app(fn, args));
     }
 
     expr visit_app(expr const & e, bool root) {
@@ -356,14 +348,14 @@ public:
     expr visit_proj(expr const & e, bool root) {
         expr v = visit(proj_expr(e), false);
         expr r = mk_proj(proj_idx(e), v);
-        return mk_let_decl(r, root);
+        return mk_let_decl(r);
     }
 
     expr visit_mdata(expr const & e, bool root) {
         if (is_lc_mdata(e)) {
             expr v = visit(mdata_expr(e), false);
             expr r = mk_mdata(mdata_data(e), v);
-            return mk_let_decl(r, root);
+            return mk_let_decl(r);
         } else {
             return visit(mdata_expr(e), root);
         }
@@ -389,7 +381,10 @@ public:
             m_fvars.shrink(m_fvars_init_size);
             r = m_lctx.mk_lambda(binding_fvars, new_body);
         }
-        return mk_let_decl(r, root);
+        if (root)
+            return r;
+        else
+            return mk_let_decl(r);
     }
 
     expr visit_let(expr e, bool root) {

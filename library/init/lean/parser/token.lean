@@ -116,9 +116,19 @@ def ident_suffix.parser : rec_t unit syntax basic_parser_m syntax :=
 try (lookahead (ch '.' *> (ch id_begin_escape *> pure () <|> satisfy is_id_first *> pure ()))) *>
 node! ident_suffix [«.»: raw $ ch '.', ident: recurse ()]
 
-def ident' : basic_parser :=
-with_recurse () $ λ _,
-  node! id [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser]
+private mutual def update_trailing, update_trailing_lst
+with update_trailing : substring → syntax → syntax
+| trailing (syntax.atom a@⟨some info, _⟩) := syntax.atom {a with info := some {info with trailing := trailing}}
+| trailing (syntax.node n@⟨k, args⟩) := syntax.node {n with args := update_trailing_lst trailing args}
+| trailing stx := stx
+with update_trailing_lst : substring → list syntax → list syntax
+| trailing [] := []
+| trailing [stx] := [update_trailing trailing stx]
+| trailing (stx::stxs) := stx :: update_trailing_lst trailing stxs
+
+def ident' : basic_parser_m (source_info → syntax) :=
+do stx ← with_recurse () $ λ _, node! id [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser],
+   pure $ λ info, update_trailing info.trailing stx
 
 private def symbol' : basic_parser_m (source_info → syntax) :=
 do tk ← match_token,
@@ -135,7 +145,7 @@ def token : basic_parser_m syntax :=
 do (r, i) ← with_source_info $ do {
      -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-     f::_ ← longest_match [symbol', (function.const _) <$> ident'] <|> list.ret <$> number' | failure,
+     f::_ ← longest_match [symbol', ident'] <|> list.ret <$> number' | failure,
      pure f
    },
    pure (r i)

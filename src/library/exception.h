@@ -58,32 +58,7 @@ public:
 
     virtual optional<pos_info> get_pos() const override;
     virtual format pp(formatter const & fmt) const override;
-};
 
-/* Similar to nested_exception but get_pos returns none
-   even if nested exception has position information. */
-class nested_exception_without_pos : public nested_exception {
-    nested_exception_without_pos(pp_fn const & fn, std::exception_ptr const & ex):
-        nested_exception(none_expr(), fn, ex) {}
-public:
-    nested_exception_without_pos(char const * msg, std::exception_ptr const & ex):
-        nested_exception(msg, ex) {}
-    virtual optional<pos_info> get_pos() const override { return optional<pos_info>(); }
-};
-
-/** \brief Lean exception occurred when parsing file. */
-class parser_nested_exception : public exception {
-    std::exception_ptr m_exception;
-public:
-    parser_nested_exception(std::exception_ptr const & ex): exception("parser exception"), m_exception(ex) {}
-    virtual ~parser_nested_exception() {}
-    virtual char const * what() const noexcept override {
-        try {
-            std::rethrow_exception(m_exception);
-        } catch (std::exception & ex) {
-            return ex.what();
-        }
-    }
     std::exception_ptr const & get_exception() const { return m_exception; }
 };
 }

@@ -43,6 +43,16 @@ message_builder & message_builder::set_exception(std::exception const & ex, bool
         *this << *ext_ex;
     } else if (auto f_ex = dynamic_cast<formatted_exception const *>(&ex)) {
         *this << f_ex->pp();
+    } else if (auto nex = dynamic_cast<nested_exception const *>(&ex)) {
+        // reimplement nested_exception::pp to handle nested kernel_exceptions
+        *this << nex->generic_exception::pp(get_formatter())
+                << "\nnested exception message:\n";
+        try {
+            std::rethrow_exception(nex->get_exception());
+        } catch (std::exception & ex) {
+            set_exception(ex, false);
+        } catch (...) {
+        }
     } else if (auto kex = dynamic_cast<unknown_constant_exception const *>(&ex)) {
         *this << "unknown declaration '" << kex->get_name() << "'";
     } else if (auto kex = dynamic_cast<already_declared_exception const *>(&ex)) {

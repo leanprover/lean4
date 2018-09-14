@@ -4,5 +4,5 @@ add_library(compiler OBJECT util.cpp eta_expansion.cpp preprocess.cpp
   lambda_lifting.cpp simp_inductive.cpp nat_value.cpp
   vm_compiler.cpp cse.cpp elim_unused_lets.cpp extract_values.cpp init_module.cpp
   ## New compiler
-  lcnf.cpp lcsimp.cpp elim_dead_let.cpp
+  lcnf.cpp csimp.cpp elim_dead_let.cpp
   )

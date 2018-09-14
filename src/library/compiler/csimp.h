@@ -7,5 +7,5 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-expr lcsimp(environment const & env, local_ctx const & lctx, expr const & e);
+expr csimp(environment const & env, local_ctx const & lctx, expr const & e);
 }

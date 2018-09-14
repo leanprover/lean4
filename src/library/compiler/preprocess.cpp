@@ -37,7 +37,7 @@ Author: Leonardo de Moura
 #include "library/compiler/cse.h"
 
 #include "library/compiler/lcnf.h"
-#include "library/compiler/lcsimp.h"
+#include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
 
 namespace lean {
@@ -243,7 +243,7 @@ public:
                    tout() << r1 << "\n";
                    check(d, r1);
                    tout() << ">> Simplify\n";
-                   expr r2 = lcsimp(m_env, local_ctx(), r1);
+                   expr r2 = csimp(m_env, local_ctx(), r1);
                    tout() << r2 << "\n";
                    check(d, r2);
                    tout() << ">> Remove dead let-expressions\n";

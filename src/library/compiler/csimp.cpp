@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "library/compiler/lc_util.h"
 
 namespace lean {
-class lcsimp_fn {
+class csimp_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
     buffer<expr>        m_fvars;
@@ -228,7 +228,7 @@ class lcsimp_fn {
     }
 
 public:
-    lcsimp_fn(environment const & env, local_ctx const & lctx):
+    csimp_fn(environment const & env, local_ctx const & lctx):
         m_st(env), m_lctx(lctx), m_x("_x") {}
 
     expr operator()(expr const & e) {
@@ -236,7 +236,7 @@ public:
         return m_lctx.mk_lambda(m_fvars, r);
     }
 };
-expr lcsimp(environment const & env, local_ctx const & lctx, expr const & e) {
-    return lcsimp_fn(env, lctx)(e);
+expr csimp(environment const & env, local_ctx const & lctx, expr const & e) {
+    return csimp_fn(env, lctx)(e);
 }
 }

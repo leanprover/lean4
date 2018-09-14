@@ -35,8 +35,10 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_unused_lets.h"
 #include "library/compiler/extract_values.h"
 #include "library/compiler/cse.h"
+
 #include "library/compiler/lcnf.h"
 #include "library/compiler/lcsimp.h"
+#include "library/compiler/elim_dead_let.h"
 
 namespace lean {
 class expand_aux_fn : public compiler_step_visitor {
@@ -235,7 +237,7 @@ public:
             return;
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
-        lean_trace(name({"compiler", "lcnf"}),
+        lean_trace(name({"compiler", "lcnf"}), {
                    tout() << "\n>> Convert to LCNF\n";
                    expr r1 = to_lcnf(m_env, local_ctx(), v);
                    tout() << r1 << "\n";
@@ -244,7 +246,11 @@ public:
                    expr r2 = lcsimp(m_env, local_ctx(), r1);
                    tout() << r2 << "\n";
                    check(d, r2);
-            );
+                   tout() << ">> Remove dead let-expressions\n";
+                   expr r3 = elim_dead_let(r2);
+                   tout() << r3 << "\n";
+                   check(d, r3);
+            });
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);

@@ -129,7 +129,7 @@ class csimp_fn {
         return mk_app(c, args);
     }
 
-    expr reduce_cases_cnstr(expr const & c, buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
+    expr reduce_cases_cnstr(buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
         lean_assert(is_constructor_app(env(), major));
         unsigned nparams = I_val.get_nparams();
         buffer<expr> k_args;
@@ -151,7 +151,7 @@ class csimp_fn {
         lean_assert(major_idx < args.size());
         expr const & major       = find(args[major_idx]);
         if (is_constructor_app(env(), major)) {
-            return reduce_cases_cnstr(c, args, I_val, major);
+            return reduce_cases_cnstr(args, I_val, major);
         } else if (is_cases_app(major)) {
             return reduce_cases_cases(c, args, I_val, major);
         } else {

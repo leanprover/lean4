@@ -124,20 +124,14 @@ class csimp_fn {
     expr reduce_cases_cnstr(expr const & c, buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
         lean_assert(is_constructor_app(env(), major));
         unsigned nparams = I_val.get_nparams();
-        names cnstrs     = I_val.get_cnstrs();
         buffer<expr> k_args;
         expr const & k   = get_app_args(major, k_args);
         lean_assert(is_constant(k));
         lean_assert(nparams <= k_args.size());
-        unsigned first_minor_idx = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices() + 1 /* major */;
-        for (unsigned i = first_minor_idx; i < args.size(); i++) {
-            lean_assert(!empty(cnstrs));
-            if (head(cnstrs) == const_name(k)) {
-                return beta_reduce(args[i], k_args.size() - nparams, k_args.data() + nparams);
-            }
-            cnstrs = tail(cnstrs);
-        }
-        lean_unreachable();
+        unsigned first_minor_idx = nparams + 1 /* typeformer/motive */ + I_val.get_nindices() + 1 /* major */;
+        constructor_val k_val = env().get(const_name(k)).to_constructor_val();
+        expr const & minor    = args[first_minor_idx + k_val.get_cidx()];
+        return beta_reduce(minor, k_args.size() - nparams, k_args.data() + nparams);
     }
 
     expr visit_cases(expr const & e) {

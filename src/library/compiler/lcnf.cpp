@@ -83,27 +83,8 @@ public:
         return visit(apply_beta(fn_val, args.size(), args.data()), root);
     }
 
-    pair<unsigned, unsigned> get_constructor_arity_nfields(name const & n) {
-        constant_info cnstr_info = env().get(n);
-        lean_assert(cnstr_info.is_constructor());
-        unsigned nparams         = cnstr_info.to_constructor_val().get_nparams();
-        unsigned cnstr_arity     = 0;
-        expr cnstr_type          = cnstr_info.get_type();
-        while (is_pi(cnstr_type)) {
-            cnstr_arity++;
-            cnstr_type = binding_body(cnstr_type);
-        }
-        lean_assert(cnstr_arity >= nparams);
-        unsigned num_fields = cnstr_arity - nparams;
-        return mk_pair(cnstr_arity, num_fields);
-    }
-
-    unsigned get_constructor_arity(name const & n) {
-        return get_constructor_arity_nfields(n).first;
-    }
-
     unsigned get_constructor_nfields(name const & n) {
-        return get_constructor_arity_nfields(n).second;
+        return env().get(n).to_constructor_val().get_nfields();
     }
 
     expr visit_cases_on(expr const & fn, buffer<expr> & args, bool root) {
@@ -268,11 +249,12 @@ public:
     }
 
     expr visit_constructor(expr const & fn, buffer<expr> & args, bool root) {
-        unsigned arity = get_constructor_arity(const_name(fn));
+        constructor_val cval = env().get(const_name(fn)).to_constructor_val();
+        unsigned arity       = cval.get_nparams() + cval.get_nfields();
         if (args.size() < arity) {
             return visit(eta_expand(mk_app(fn, args), arity - args.size()), root);
         } else {
-            return visit_app_default(fn, args, root);
+            return visit_app_default(fn, args);
         }
     }
 
@@ -306,7 +288,7 @@ public:
         return true;
     }
 
-    expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
+    expr visit_app_default(expr const & fn, buffer<expr> & args) {
         for (expr & arg : args) {
             arg = visit(arg, false);
         }
@@ -342,10 +324,10 @@ public:
             }
         }
         fn = visit(fn, false);
-        return visit_app_default(fn, args, root);
+        return visit_app_default(fn, args);
     }
 
-    expr visit_proj(expr const & e, bool root) {
+    expr visit_proj(expr const & e) {
         expr v = visit(proj_expr(e), false);
         expr r = mk_proj(proj_idx(e), v);
         return mk_let_decl(r);
@@ -453,7 +435,7 @@ public:
 
         switch (e.kind()) {
         case expr_kind::App:    return cache_result(e, visit_app(e, root), shared);
-        case expr_kind::Proj:   return cache_result(e, visit_proj(e, root), shared);
+        case expr_kind::Proj:   return cache_result(e, visit_proj(e), shared);
         case expr_kind::MData:  return cache_result(e, visit_mdata(e, root), shared);
         case expr_kind::Lambda: return cache_result(e, visit_lambda(e, root), shared);
         case expr_kind::Let:    return cache_result(e, visit_let(e, root), shared);

@@ -16,6 +16,10 @@ namespace lean {
 inline bool is_lc_mdata(expr const &) { return false; }
 
 bool is_cases_on_recursor(environment const & env, name const & n);
+inline bool is_cases_on_app(environment const & env, expr const & e) {
+    expr const & fn = get_app_fn(e);
+    return is_constant(fn) && is_cases_on_recursor(env, const_name(fn));
+}
 
 inline bool is_lc_unreachable_app(expr const & e) { return is_app_of(e, get_lc_unreachable_name(), 1); }
 inline bool is_lc_proof_app(expr const & e) { return is_app_of(e, get_lc_proof_name(), 1); }

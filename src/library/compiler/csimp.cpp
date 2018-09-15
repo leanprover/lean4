@@ -119,11 +119,6 @@ class csimp_fn {
         return e;
     }
 
-    bool is_cases_app(expr const & e) {
-        expr const & fn = get_app_fn(e);
-        return is_constant(fn) && is_cases_on_recursor(env(), const_name(fn));
-    }
-
     expr reduce_cases_cases(expr const & c, buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
         // TODO(Leo)
         return mk_app(c, args);
@@ -152,7 +147,7 @@ class csimp_fn {
         expr const & major       = find(args[major_idx]);
         if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major);
-        } else if (is_cases_app(major)) {
+        } else if (is_cases_on_app(env(), major)) {
             return reduce_cases_cases(c, args, I_val, major);
         } else {
             inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
@@ -327,7 +322,7 @@ class csimp_fn {
     expr merge_app_app(expr const & fn, expr const & e) {
         lean_assert(is_app(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
-        if (!is_lc_cast_app(fn) && !is_cases_app(fn)) {
+        if (!is_lc_cast_app(fn) && !is_cases_on_app(env(), fn)) {
             buffer<expr> args;
             get_app_args(e, args);
             return mk_let_decl(visit(mk_app(fn, args)));
@@ -368,7 +363,7 @@ class csimp_fn {
     }
 
     expr visit_app(expr const & e) {
-        if (is_cases_app(e)) {
+        if (is_cases_on_app(env(), e)) {
             return visit_cases(e);
         } else if (is_lc_cast_app(e)) {
             return reduce_lc_cast(e);
@@ -376,7 +371,7 @@ class csimp_fn {
         expr fn = find(get_app_fn(e));
         if (is_lambda(fn)) {
             return beta_reduce(fn, e);
-        } else if (is_cases_app(fn)) {
+        } else if (is_cases_on_app(env(), fn)) {
             return distrib_app_cases(fn, e);
         } else if (is_lc_cast_app(fn)) {
             return reduce_cast_app_app(fn, e);

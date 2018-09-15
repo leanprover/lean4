@@ -225,7 +225,7 @@ class csimp_fn {
     }
 
     expr distrib_app_cases(expr const & fn, expr const & e) {
-        lean_assert(is_cases_app(fn));
+        lean_assert(is_cases_on_app(env(), fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
         expr result_type         = infer_type(e);
         buffer<expr> args;

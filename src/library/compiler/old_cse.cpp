@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "library/compiler/simp_inductive.h"
 
 namespace lean {
-class cse_fn : public compiler_step_visitor {
+class old_cse_fn : public compiler_step_visitor {
     unsigned m_counter{1};
 
     class visitor_fn {
@@ -295,12 +295,12 @@ class cse_fn : public compiler_step_visitor {
     }
 
 public:
-    cse_fn(environment const & env, abstract_context_cache & cache):
+    old_cse_fn(environment const & env, abstract_context_cache & cache):
         compiler_step_visitor(env, cache) {}
 };
 
 void old_cse(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs) {
-    cse_fn fn(env, cache);
+    old_cse_fn fn(env, cache);
     for (auto & proc : procs)
         proc.m_code = fn(proc.m_code);
 }

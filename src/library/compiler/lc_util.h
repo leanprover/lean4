@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"
 #include "library/constants.h"
+#include "library/util.h"
 
 namespace lean {
 /* Return true if the given argument is mdata relevant to the compiler

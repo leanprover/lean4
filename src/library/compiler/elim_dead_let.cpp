@@ -128,7 +128,7 @@ public:
 expr elim_dead_let(expr const & e) { return elim_dead_let_fn()(e); }
 
 void initialize_elim_dead_let() {
-    g_elim_dead_let_fresh = new name("_elim_dead_let");
+    g_elim_dead_let_fresh = new name("_elim_dead_let_fresh");
     register_name_generator_prefix(*g_elim_dead_let_fresh);
 }
 void finalize_elim_dead_let() {

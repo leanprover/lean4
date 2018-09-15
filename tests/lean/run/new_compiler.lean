@@ -21,6 +21,11 @@ let y_1 := x in
 let y_2 := y_1 in
 y_2 + n
 
+def cse_tst (n : nat) : nat :=
+let y := nat.succ ((λ x, x) n) in
+let z := nat.succ n in
+y + z
+
 def tst1 (n : nat) : nat :=
 let p := (nat.succ n, n) in
 let q := (p, p) in

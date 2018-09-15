@@ -39,6 +39,7 @@ Author: Leonardo de Moura
 #include "library/compiler/lcnf.h"
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
+#include "library/compiler/cse.h"
 
 namespace lean {
 class expand_aux_fn : public compiler_step_visitor {
@@ -250,6 +251,10 @@ public:
                    expr r3 = elim_dead_let(r2);
                    tout() << r3 << "\n";
                    check(d, r3);
+                   tout() << ">> CSE\n";
+                   expr r4 = cse(m_env, r3);
+                   tout() << r4 << "\n";
+                   check(d, r4);
             });
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));

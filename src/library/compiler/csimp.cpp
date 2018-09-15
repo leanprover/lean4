@@ -137,6 +137,62 @@ class csimp_fn {
         return beta_reduce(minor, k_args.size() - nparams, k_args.data() + nparams);
     }
 
+    /* Just simplify minor premises. */
+    expr visit_cases_default(expr const & c, buffer<expr> & args) {
+        inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
+        unsigned motive_idx      = I_val.get_nparams();
+        unsigned first_index     = motive_idx + 1;
+        unsigned nindices        = I_val.get_nindices();
+        unsigned major_idx       = first_index + nindices;
+        unsigned first_minor_idx = major_idx + 1;
+        unsigned nminors         = length(I_val.get_cnstrs());
+        /* simplify minor premises */
+        for (unsigned i = 0; i < nminors; i++) {
+            unsigned minor_idx    = first_minor_idx + i;
+            expr minor            = args[minor_idx];
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            buffer<expr> minor_fvars;
+            unsigned m_fvars_init_size = m_fvars.size();
+            while (is_lambda(minor)) {
+                expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
+                minor_fvars.push_back(new_fvar);
+                minor = binding_body(minor);
+            }
+            expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()));
+            new_minor = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
+            m_fvars.shrink(m_fvars_init_size);
+            new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
+            args[minor_idx] = new_minor;
+        }
+        return mk_let_decl(mk_app(c, args));
+    }
+
+    /* We can eliminate `S.cases_on` using projections when `S` is a structure.
+       Example:
+       ```
+       prod.cases_on M (\fun a b, t)
+       ```
+       ==>
+       ```
+       let a := M.0 in
+       let b := M.1 in
+       t
+       ``` */
+    expr elim_cases_struct(expr const & major, expr minor, expr const & e) {
+        unsigned i = 0;
+        buffer<expr> fields;
+        while (is_lambda(minor)) {
+            fields.push_back(mk_let_decl(mk_proj(i, major)));
+            i++;
+            minor = binding_body(minor);
+        }
+        expr r = visit(instantiate_rev(minor, fields.size(), fields.data()));
+        expr e_type = infer_type(e);
+        expr r_type = infer_type(r);
+        return mk_cast(r_type, e_type, r);
+    }
+
     expr visit_cases(expr const & e) {
         buffer<expr> args;
         expr const & c = get_app_args(e, args);
@@ -145,38 +201,14 @@ class csimp_fn {
         unsigned major_idx       = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices();
         lean_assert(major_idx < args.size());
         expr const & major       = find(args[major_idx]);
-        if (is_constructor_app(env(), major)) {
+        if (I_val.get_ncnstrs() == 1) {
+            return elim_cases_struct(args[major_idx], args[major_idx + 1], e);
+        } else if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major);
         } else if (is_cases_on_app(env(), major)) {
             return reduce_cases_cases(c, args, I_val, major);
         } else {
-            inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
-            unsigned motive_idx      = I_val.get_nparams();
-            unsigned first_index     = motive_idx + 1;
-            unsigned nindices        = I_val.get_nindices();
-            unsigned major_idx       = first_index + nindices;
-            unsigned first_minor_idx = major_idx + 1;
-            unsigned nminors         = length(I_val.get_cnstrs());
-            /* simplify minor premises */
-            for (unsigned i = 0; i < nminors; i++) {
-                unsigned minor_idx    = first_minor_idx + i;
-                expr minor            = args[minor_idx];
-                flet<local_ctx> save_lctx(m_lctx, m_lctx);
-                buffer<expr> minor_fvars;
-                unsigned m_fvars_init_size = m_fvars.size();
-                while (is_lambda(minor)) {
-                    expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
-                    expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
-                    minor_fvars.push_back(new_fvar);
-                    minor = binding_body(minor);
-                }
-                expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()));
-                new_minor = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
-                m_fvars.shrink(m_fvars_init_size);
-                new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
-                args[minor_idx] = new_minor;
-            }
-            return mk_let_decl(mk_app(c, args));
+            return visit_cases_default(c, args);
         }
     }
 

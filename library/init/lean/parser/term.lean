@@ -12,6 +12,10 @@ namespace lean
 namespace parser
 open combinators parser.has_view monad_parsec
 
+local postfix `?`:10000 := optional
+local postfix *:10000 := combinators.many
+local postfix +:10000 := combinators.many1
+
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
 def command_parser_m := rec_t unit syntax basic_parser_m
 abbreviation command_parser := command_parser_m syntax
@@ -24,6 +28,15 @@ abbreviation term_parser := term_parser_m syntax
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
 def trailing_term_parser_m := reader_t syntax term_parser_m
 abbreviation trailing_term_parser := trailing_term_parser_m syntax
+
+
+@[derive parser.has_tokens parser.has_view]
+def ident_univ_spec.parser : basic_parser :=
+node! ident_univ_spec [".{", levels: level.parser+, "}"]
+
+@[derive parser.has_tokens parser.has_view]
+protected def term.ident.parser : term_parser :=
+node! term.ident [id: ident, univ: monad_lift ident_univ_spec.parser?]
 
 namespace term
 /-- Access leading term -/
@@ -42,7 +55,7 @@ node_choice! sort {"Sort":max_prec, "Type":max_prec}
 @[derive parser.has_tokens parser.has_view]
 def leading.parser :=
 any_of [
-  ident,
+  term.ident.parser,
   number,
   hole.parser,
   sort.parser

@@ -82,6 +82,13 @@ reserve infixl `; `:1
 
 universes u v w
 
+/-- Auxiliary meta constant used by the compiler when erasing proofs from code. -/
+meta constant lc_proof {α : Prop} : α
+/-- Auxiliary meta constant used by the compiler to mark unreachable code. -/
+meta constant lc_unreachable {α : Sort u} : α
+/-- Auxiliary meta constant used by the compiler to mark type casting. -/
+meta constant lc_cast {α : Sort u} {β : Sort v} : α → β
+
 @[inline] def id {α : Sort u} (a : α) : α := a
 
 @[inline] def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
@@ -2226,13 +2233,6 @@ theorem by_contradiction {p : Prop} (h : ¬p → false) : p :=
 decidable.by_contradiction h
 
 end classical
-
-/-- Auxiliary meta constant used by the compiler when erasing proofs from code. -/
-meta constant lc_proof {α : Prop} : α
-/-- Auxiliary meta constant used by the compiler to mark unreachable code. -/
-meta constant lc_unreachable {α : Sort u} : α
-/-- Auxiliary meta constant used by the compiler to mark type casting. -/
-meta constant lc_cast {α : Sort u} {β : Sort v} : α → β
 
 /- Auxiliary axiom used to implement `sorry`.
    TODO: add this theorem on-demand. That is,

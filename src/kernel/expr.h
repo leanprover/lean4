@@ -50,6 +50,7 @@ public:
     explicit literal(char const * v);
     explicit literal(unsigned v);
     explicit literal(mpz const & v);
+    explicit literal(nat const & v);
     literal(literal const & other):object_ref(other) {}
     literal(literal && other):object_ref(other) {}
     literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }

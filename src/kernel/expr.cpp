@@ -39,6 +39,10 @@ literal::literal(mpz const & v):
     object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), mk_nat_obj(v))) {
 }
 
+literal::literal(nat const & v):
+    object_ref(mk_cnstr(static_cast<unsigned>(literal_kind::Nat), v)) {
+}
+
 bool operator==(literal const & a, literal const & b) {
     if (a.kind() != b.kind()) return false;
     switch (a.kind()) {

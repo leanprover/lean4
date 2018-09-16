@@ -27,4 +27,10 @@ inline bool is_lc_proof_app(expr const & e) { return is_app_of(e, get_lc_proof_n
 inline bool is_lc_cast_app(expr const & e) { return is_app_of(e, get_lc_cast_name(), 3); }
 
 expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr const & type);
+
+/* Create an auxiliary names for a declaration that saves the result of the compilation
+   after step simplification. */
+inline name mk_cstage1_name(name const & decl_name) {
+    return name(decl_name, "_cstage1");
+}
 }

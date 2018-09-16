@@ -36,6 +36,7 @@ Author: Leonardo de Moura
 #include "library/compiler/extract_values.h"
 #include "library/compiler/old_cse.h"
 
+#include "library/compiler/lc_util.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
@@ -220,6 +221,32 @@ class preprocess_fn {
         }
     }
 
+    void exec_new_compiler(constant_info const & d) {
+        name n  = d.get_name();
+        expr v  = d.get_value();
+        expr v1 = to_lcnf(m_env, local_ctx(), v);
+        // std::cout << "compiling " << n << "\n";
+        lean_trace(name({"compiler", "lcnf"}), tout() << "\n" << v1 << "\n";);
+        lean_cond_assert("compiler", check(d, v1));
+        expr v2 = csimp(m_env, local_ctx(), v1);
+        lean_cond_assert("compiler", check(d, v2));
+        lean_trace(name({"compiler", "simp"}), tout() << "\n" << v2 << "\n";);
+        expr v3 = elim_dead_let(v2);
+        lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v3 << "\n";);
+        lean_cond_assert("compiler", check(d, v3));
+        expr v4 = cse(m_env, v3);
+        lean_trace(name({"compiler", "cse"}), tout() << "\n" << v4 << "\n";);
+        lean_cond_assert("compiler", check(d, v4));
+        // std::cout << "done compiling " << n << "\n";
+        declaration simp_decl = mk_definition(mk_cstage1_name(n), d.get_lparams(), d.get_type(),
+                                              v4, reducibility_hints::mk_opaque(), true);
+        /* IMPORTANT: We do not need to save the auxiliary declaration in the environment.
+           This is just a temporary hack.
+           We should store this information in a different place. Otherwise, we will have
+           to pay the price of type checking this auxiliary declaration. */
+        m_env = module::add(m_env, simp_decl);
+    }
+
 public:
     preprocess_fn(environment const & env, constant_info const & d):
         m_env(env) {
@@ -232,30 +259,15 @@ public:
             m_decl_names.insert(d.get_name());
     }
 
-    void operator()(constant_info const & d, buffer<procedure> & procs) {
+    environment const & env() const { return m_env; }
+
+    environment operator()(constant_info const & d, buffer<procedure> & procs) {
         lean_trace(name({"compiler", "input"}), tout() << d.get_name() << "\n";);
         if (compile_irrelevant(d, procs))
-            return;
+            return m_env;
+        exec_new_compiler(d);
         expr v = d.get_value();
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
-        lean_trace(name({"compiler", "lcnf"}), {
-                   tout() << "\n>> Convert to LCNF\n";
-                   expr r1 = to_lcnf(m_env, local_ctx(), v);
-                   tout() << r1 << "\n";
-                   check(d, r1);
-                   tout() << ">> Simplify\n";
-                   expr r2 = csimp(m_env, local_ctx(), r1);
-                   tout() << r2 << "\n";
-                   check(d, r2);
-                   tout() << ">> Remove dead let-expressions\n";
-                   expr r3 = elim_dead_let(r2);
-                   tout() << r3 << "\n";
-                   check(d, r3);
-                   tout() << ">> CSE\n";
-                   expr r4 = cse(m_env, r3);
-                   tout() << r4 << "\n";
-                   check(d, r4);
-            });
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
@@ -290,26 +302,29 @@ public:
         old_cse(m_env, m_cache, procs);
         lean_trace(name({"compiler", "cse"}), tout() << "\n"; display(procs););
         lean_trace(name({"compiler", "preprocess"}), tout() << "\n"; display(procs););
+        return m_env;
     }
 };
 
-void preprocess(environment const & env, constant_info const & d, buffer<procedure> & result) {
+environment preprocess(environment const & env, constant_info const & d, buffer<procedure> & result) {
     return preprocess_fn(env, d)(d, result);
 }
 
-void preprocess(environment const & env, buffer<constant_info> const & ds, buffer<procedure> & result) {
+environment preprocess(environment const & env, buffer<constant_info> const & ds, buffer<procedure> & result) {
     preprocess_fn F(env, ds);
     for (constant_info const & d : ds) {
         buffer<procedure> procs;
         F(d, procs);
         result.append(procs);
     }
+    return F.env();
 }
 
 void initialize_preprocess() {
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "lcnf"});
+    register_trace_class({"compiler", "simp"});
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "eta_expansion"});
     register_trace_class({"compiler", "inline"});

@@ -366,8 +366,8 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
 
 environment vm_compile(environment const & env, buffer<constant_info> const & ds, bool optimize_bytecode) {
     buffer<procedure> procs;
-    preprocess(env, ds, procs);
-    return vm_compile(env, procs, optimize_bytecode);
+    environment new_env = preprocess(env, ds, procs);
+    return vm_compile(new_env, procs, optimize_bytecode);
 }
 
 static optional<environment> try_reuse_aux_meta_code(environment const & env, name const & d_name) {

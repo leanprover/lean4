@@ -302,7 +302,7 @@ expr type_checker::whnf_fvar(expr const & e) {
     if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
         if (optional<expr> const & v = decl->get_value()) {
             /* zeta-reduction */
-            return *v;
+            return whnf_core(*v);
         }
     }
     return e;
@@ -327,6 +327,15 @@ optional<expr> type_checker::reduce_proj(expr const & e) {
         return none_expr();
 }
 
+static bool is_let_fvar(local_ctx const & lctx, expr const & e) {
+    lean_assert(is_fvar(e));
+    if (optional<local_decl> decl = lctx.find_local_decl(e)) {
+        return static_cast<bool>(decl->get_value());
+    } else {
+        return false;
+    }
+}
+
 /** \brief Weak head normal form core procedure. It does not perform delta reduction nor normalization extensions. */
 expr type_checker::whnf_core(expr const & e) {
     check_system("whnf");
@@ -340,7 +349,10 @@ expr type_checker::whnf_core(expr const & e) {
     case expr_kind::MData:
         return whnf_core(mdata_expr(e));
     case expr_kind::FVar:
-        return whnf_fvar(e);
+        if (is_let_fvar(m_lctx, e))
+            break;
+        else
+            return e;
     case expr_kind::App: case expr_kind::Let:
     case expr_kind::Proj:
         break;
@@ -354,11 +366,12 @@ expr type_checker::whnf_core(expr const & e) {
     // do the actual work
     expr r;
     switch (e.kind()) {
-    case expr_kind::BVar:  case expr_kind::Sort:  case expr_kind::MVar: case expr_kind::FVar:
+    case expr_kind::BVar:  case expr_kind::Sort:  case expr_kind::MVar:
     case expr_kind::Pi:    case expr_kind::Const: case expr_kind::Lambda:
     case expr_kind::Lit:   case expr_kind::MData:
         lean_unreachable(); // LCOV_EXCL_LINE
-
+    case expr_kind::FVar:
+        return whnf_fvar(e);
     case expr_kind::Proj: {
         if (auto m = reduce_proj(e))
             r = whnf_core(*m);
@@ -448,7 +461,10 @@ expr type_checker::whnf(expr const & e) {
     case expr_kind::MData:
         return whnf(mdata_expr(e));
     case expr_kind::FVar:
-        return whnf_fvar(e);
+        if (is_let_fvar(m_lctx, e))
+            break;
+        else
+            return e;
     case expr_kind::Lambda: case expr_kind::App:
     case expr_kind::Const:  case expr_kind::Let: case expr_kind::Proj:
         break;

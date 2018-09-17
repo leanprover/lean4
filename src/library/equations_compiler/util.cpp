@@ -500,7 +500,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
         return env;
     }
 
-    name meta_aux_fn_name = mk_aux_meta_rec_name(fn_name);
+    name meta_aux_fn_name = mk_meta_rec_name(fn_name);
 
     expr helper_value;
     if (optional<constant_info> aux_info = env.find(meta_aux_fn_name)) {

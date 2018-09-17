@@ -346,7 +346,7 @@ static expr compile_equations_main(environment & env, elaborator & elab,
 
 /*
   We create auxiliary applications for nested match-expressions.  The
-  declarations should be expanded when we generate the `_meta_aux`
+  declarations should be expanded when we generate the `_meta_rec`
   definitions for code generation. Thus, we don't need to use `pull_nested_rec_fn`
   which may affect the runtime behavior of the generated code.
 */
@@ -385,7 +385,7 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
         equations_header aux_header = header;
         aux_header.m_is_meta    = true;
         aux_header.m_aux_lemmas = false;
-        aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_aux_meta_rec_name);
+        aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_meta_rec_name);
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
         aux_eqns = unfold_auxiliary_fns(env, header.m_fn_actual_names, aux_eqns);
         compile_equations_main(env, elab, mctx, lctx, aux_eqns, false);

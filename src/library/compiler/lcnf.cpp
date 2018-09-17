@@ -20,14 +20,15 @@ namespace lean {
 class to_lcnf_fn {
     typedef rb_expr_map<expr> cache;
     type_checker::state m_st;
+    name_set            m_decl_names;
     local_ctx           m_lctx;
     cache               m_cache;
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
 public:
-    to_lcnf_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx), m_x("_x") {}
+    to_lcnf_fn(environment const & env, name_set const & decl_names, local_ctx const & lctx):
+        m_st(env), m_decl_names(decl_names), m_lctx(lctx), m_x("_x") {}
 
     environment & env() { return m_st.env(); }
 
@@ -322,6 +323,11 @@ public:
             } else if (optional<name> n = is_meta_rec_name(const_name(fn))) {
                 fn = mk_constant(*n, const_levels(fn));
                 return visit_app_default(fn, args);
+            } else if (is_internal_name(const_name(fn)) && !const_name(fn).is_atomic() &&
+                       m_decl_names.contains(const_name(fn).get_prefix()) &&
+                       const_name(fn).get_string() != "_main") {
+                /* Expand auxiliary function application such as `f._match_<idx> ...` when compiling `f`. */
+                fn = instantiate_value_lparams(env().get(const_name(fn)), const_levels(fn));
             }
         }
         fn = visit(fn, false);
@@ -451,8 +457,8 @@ public:
     }
 };
 
-expr to_lcnf(environment const & env, local_ctx const & lctx, expr const & e) {
-    return to_lcnf_fn(env, lctx)(e);
+expr to_lcnf(environment const & env, name_set const & decl_names, local_ctx const & lctx, expr const & e) {
+    return to_lcnf_fn(env, decl_names, lctx)(e);
 }
 
 void initialize_lcnf() {

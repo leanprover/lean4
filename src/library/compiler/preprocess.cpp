@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "library/context_cache.h"
 #include "library/module.h"
 #include "library/vm/vm.h"
-#include "library/compiler/util.h"
+#include "library/compiler/old_util.h"
 #include "library/compiler/preprocess.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/comp_irrelevant.h"

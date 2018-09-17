@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/aux_recursors.h"
 #include "library/sorry.h"
-#include "library/compiler/util.h"
+#include "library/compiler/old_util.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/eta_expansion.h"

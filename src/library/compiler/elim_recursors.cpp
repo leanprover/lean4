@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/util.h"
 #include "library/trace.h"
-#include "library/compiler/util.h"
+#include "library/compiler/old_util.h"
 #include "library/compiler/procedure.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"

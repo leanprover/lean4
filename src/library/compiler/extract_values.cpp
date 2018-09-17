@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/sorry.h"
 #include "library/equations_compiler/util.h"
-#include "library/compiler/util.h"
+#include "library/compiler/old_util.h"
 #include "library/compiler/procedure.h"
 #include "library/compiler/compiler_step_visitor.h"
 

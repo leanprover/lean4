@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/constants.h"
 #include "library/aux_recursors.h"
-#include "library/compiler/util.h"
+#include "library/compiler/old_util.h"
 #include "library/compiler/nat_value.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <algorithm>
+#include <vector>
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
@@ -20,8 +21,8 @@ class cse_fn {
     name_generator    m_ngen;
     expr_map<expr>    m_lval2fvar;
     std::vector<expr> m_lvals;
-public:
 
+public:
     expr visit_let(expr e) {
         unsigned lvals_size = m_lvals.size();
         buffer<expr> fvars;
@@ -94,7 +95,6 @@ public:
             inductive_val I_val      = m_env.get(const_name(c).get_prefix()).to_inductive_val();
             unsigned first_minor_idx = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices() + 1;
             for (unsigned i = first_minor_idx; i < args.size(); i++) {
-
                 args[i] = visit(args[i]);
             }
             return mk_app(c, args);

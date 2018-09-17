@@ -70,7 +70,7 @@ meta instance : has_to_format bool :=
 ⟨λ b, if b then of_string "tt" else of_string "ff"⟩
 
 meta instance {p : Prop} : has_to_format (decidable p) :=
-⟨λ b : decidable p, @ite p b _ (of_string "tt") (of_string "ff")⟩
+⟨λ b : decidable p, @ite p b _ (λ _, of_string "tt") (λ _, of_string "ff")⟩
 
 meta instance : has_to_format string :=
 ⟨λ s, format.of_string s⟩

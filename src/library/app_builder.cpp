@@ -974,9 +974,18 @@ expr mk_false_rec(type_context_old & ctx, expr const & c, expr const & H) {
 }
 
 expr mk_ite(type_context_old & ctx, expr const & c, expr const & t, expr const & e) {
-    bool mask[5] = {true, false, false, true, true};
-    expr args[3] = {c, t, e};
-    return mk_app(ctx, get_ite_name(), 5, mask, args);
+    expr dec_c     = mk_app(mk_constant(get_decidable_name()), c);
+    optional<expr> dec_c_val = ctx.mk_class_instance(dec_c);
+    if (!dec_c_val) {
+        lean_app_builder_trace_core(ctx, tout() << "failed to build instance '" << dec_c << "'\n";);
+        throw app_builder_exception();
+    }
+    expr t_type   = ctx.infer(t);
+    level u       = get_level(ctx, t_type);
+    expr new_t    = mk_lambda("_", mk_unit(mk_level_one()), t);
+    expr new_e    = mk_lambda("_", mk_unit(mk_level_one()), e);
+    return mk_app(mk_constant(get_ite_name(), {u}),
+                  {c, *dec_c_val, t_type, new_t, new_e});
 }
 
 expr mk_id(type_context_old & ctx, expr const & type, expr const & h) {

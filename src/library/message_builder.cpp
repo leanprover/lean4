@@ -74,7 +74,7 @@ message_builder & message_builder::set_exception(std::exception const & ex, bool
         auto fmt = get_global_ios().get_formatter_factory()(kex->get_environment(), get_global_ios().get_options(),
                                                             ctx);
         *this << pp_decl_has_metavars(fmt, kex->get_decl_name(), kex->get_expr(), /* is_type */ false);
-    } else if (auto kex = dynamic_cast<declaration_has_free_vars_exception const *>(&ex)) {
+    } else if (dynamic_cast<declaration_has_free_vars_exception const *>(&ex)) {
         *this << "invalid declaration, it contains free variables";
     } else if (auto kex = dynamic_cast<kernel_exception_with_lctx const *>(&ex)) {
         type_context_old ctx(kex->get_environment(), get_global_ios().get_options(), metavar_context(),

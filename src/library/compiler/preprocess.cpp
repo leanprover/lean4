@@ -252,9 +252,10 @@ class preprocess_fn {
                                               v4, reducibility_hints::mk_opaque(), true);
         /* IMPORTANT: We do not need to save the auxiliary declaration in the environment.
            This is just a temporary hack.
-           We should store this information in a different place. Otherwise, we will have
-           to pay the price of type checking this auxiliary declaration. */
-        m_env = module::add(m_env, simp_decl);
+           We should store this information in a different place. In the meantime,
+           I just invoke `module::add` with `check = false`. This is a temporary
+           solution since we will not have this parameter in the final version. */
+        m_env = module::add(m_env, simp_decl, false);
     }
 
     name get_real_name(name const & n) {

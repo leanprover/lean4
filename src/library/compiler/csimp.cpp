@@ -263,7 +263,7 @@ class csimp_fn {
         buffer<expr> args;
         get_app_args(e, args);
         buffer<expr> cases_args;
-        expr const & cases = get_app_args(fn, cases_args);
+        expr cases = get_app_args(fn, cases_args);
         lean_assert(is_constant(cases));
         inductive_val I_val      = env().get(const_name(cases).get_prefix()).to_inductive_val();
         unsigned motive_idx      = I_val.get_nparams();
@@ -292,8 +292,12 @@ class csimp_fn {
                 fvars.push_back(fvar);
                 motive_type = whnf(instantiate(binding_body(motive_type), fvar));
             }
-            expr new_motive = m_lctx.mk_lambda(fvars, result_type);
+            level result_lvl       = sort_level(type_checker(env(), m_lctx).ensure_type(result_type));
+            expr new_motive        = m_lctx.mk_lambda(fvars, result_type);
             cases_args[motive_idx] = new_motive;
+            /* We need to update the resultant universe. */
+            levels new_cases_lvls  = levels(result_lvl, tail(const_levels(cases)));
+            cases = update_constant(cases, new_cases_lvls);
         }
         /* Update minor premises */
         for (unsigned i = 0; i < nminors; i++) {

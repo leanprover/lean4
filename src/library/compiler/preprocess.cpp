@@ -36,7 +36,7 @@ Author: Leonardo de Moura
 #include "library/compiler/extract_values.h"
 #include "library/compiler/old_cse.h"
 
-#include "library/compiler/lc_util.h"
+#include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"

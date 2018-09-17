@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/expr_maps.h"
-#include "library/compiler/lc_util.h"
+#include "library/compiler/util.h"
 
 namespace lean {
 static name * g_cse_fresh = nullptr;

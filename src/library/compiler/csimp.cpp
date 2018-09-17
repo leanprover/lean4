@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/constants.h"
-#include "library/compiler/lc_util.h"
+#include "library/compiler/util.h"
 
 namespace lean {
 class csimp_fn {

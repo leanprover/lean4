@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include "runtime/flet.h"
+#include "runtime/sstream.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "library/expr_lt.h"
@@ -13,10 +14,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/constants.h"
 #include "library/projection.h"
-#include "library/compiler/lc_util.h"
-
-#include "library/trace.h"
-#include "kernel/for_each_fn.h"
+#include "library/compiler/util.h"
 
 namespace lean {
 class to_lcnf_fn {

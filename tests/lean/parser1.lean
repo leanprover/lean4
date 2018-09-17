@@ -60,7 +60,7 @@ universes u v
   (stx, ⟨[]⟩) ← pure $ parse_module "prefix `+`:10 := _",
   some {root := stx, ..} ← pure $ parser.parse.view stx,
   some {commands := [stx], ..} ← pure $ view module stx,
-  some stx ← pure $ mixfix.expand stx | throw "expand fail",
+  some stx ← pure $ command.mixfix.expand stx | throw "expand fail",
   io.println stx,
   io.println stx.reprint
 } : except_t string io unit)

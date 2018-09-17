@@ -377,7 +377,11 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
         !header.m_is_noncomputable &&
         /* Remark: we don't need special compilation scheme for non recursive equations */
         is_recursive_eqns(ctx, eqns)) {
-        /* We compile non-meta recursive definitions as meta definitions first.
+        /* Compile equations but do not generate code since we will use `brec_on` or `well_founded.fix`. */
+        equations_header new_header = header;
+        new_header.m_gen_code       = false;
+        expr result = compile_equations_main(env, elab, mctx, lctx, update_equations(eqns, new_header), true);
+        /* Then, we compile the equations again using `meta` and generate code.
            The motivations are:
            - Clear execution cost semantics for recursive functions.
            - Auxiliary meta definition may assist recursive definition unfolding in the type_context_old object.
@@ -389,8 +393,10 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
         aux_eqns = unfold_auxiliary_fns(env, header.m_fn_actual_names, aux_eqns);
         compile_equations_main(env, elab, mctx, lctx, aux_eqns, false);
+        return result;
+    } else {
+        return compile_equations_main(env, elab, mctx, lctx, eqns, true);
     }
-    return compile_equations_main(env, elab, mctx, lctx, eqns, true);
 }
 
 void initialize_compiler() {

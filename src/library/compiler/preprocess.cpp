@@ -221,6 +221,16 @@ class preprocess_fn {
         }
     }
 
+    expr remove_meta_rec(expr const & e) {
+        return replace(e, [&](expr const & c, unsigned) {
+                if (is_constant(c)) {
+                    if (optional<name> new_c = is_meta_rec_name(const_name(c)))
+                        return some_expr(mk_constant(*new_c, const_levels(c)));
+                }
+                return none_expr();
+            });
+    }
+
     void exec_new_compiler(constant_info const & d) {
         name n  = d.get_name();
         expr v  = d.get_value();
@@ -247,16 +257,23 @@ class preprocess_fn {
         m_env = module::add(m_env, simp_decl);
     }
 
+    name get_real_name(name const & n) {
+        if (optional<name> new_n = is_meta_rec_name(n))
+            return *new_n;
+        else
+            return n;
+    }
+
 public:
     preprocess_fn(environment const & env, constant_info const & d):
         m_env(env) {
-        m_decl_names.insert(d.get_name());
+        m_decl_names.insert(get_real_name(d.get_name()));
     }
 
     preprocess_fn(environment const & env, buffer<constant_info> const & ds):
         m_env(env) {
         for (constant_info const & d : ds)
-            m_decl_names.insert(d.get_name());
+            m_decl_names.insert(get_real_name(d.get_name()));
     }
 
     environment const & env() const { return m_env; }
@@ -267,6 +284,7 @@ public:
             return m_env;
         exec_new_compiler(d);
         expr v = d.get_value();
+        v = remove_meta_rec(v);
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
         v = inline_simple_definitions(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
@@ -281,8 +299,9 @@ public:
         v = eta_expand(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
-        v = elim_recursors(m_env, m_cache, d.get_name(), v, procs);
-        procs.emplace_back(d.get_name(), optional<pos_info>(), v);
+        name n = get_real_name(d.get_name());
+        v = elim_recursors(m_env, m_cache, n, v, procs);
+        procs.emplace_back(n, optional<pos_info>(), v);
         lean_cond_assert("compiler", check(d, procs.back().m_code));
         lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););
         erase_irrelevant(procs);
@@ -291,13 +310,13 @@ public:
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
         erase_trivial_structures(m_env, m_cache, procs);
         lean_trace(name({"compiler", "erase_trivial_structures"}), tout() << "\n"; display(procs););
-        lambda_lifting(m_env, m_cache, d.get_name(), procs);
+        lambda_lifting(m_env, m_cache, n, procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
         simp_inductive(m_env, m_cache, procs);
         lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
         elim_unused_lets(m_env, m_cache, procs);
         lean_trace(name({"compiler", "elim_unused_lets"}), tout() << "\n"; display(procs););
-        extract_values(m_env, m_cache, d.get_name(), procs);
+        extract_values(m_env, m_cache, n, procs);
         lean_trace(name({"compiler", "extract_values"}), tout() << "\n"; display(procs););
         old_cse(m_env, m_cache, procs);
         lean_trace(name({"compiler", "cse"}), tout() << "\n"; display(procs););

@@ -232,7 +232,7 @@ class preprocess_fn {
     }
 
     void exec_new_compiler(constant_info const & d) {
-        name n  = d.get_name();
+        name n  = get_real_name(d.get_name());
         expr v  = d.get_value();
         expr v1 = to_lcnf(m_env, local_ctx(), v);
         // std::cout << "compiling " << n << "\n";

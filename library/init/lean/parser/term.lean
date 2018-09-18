@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Term-level parsers
 -/
 prelude
-import init.lean.parser.level
+import init.lean.parser.level init.lean.parser.notation
 
 namespace lean
 namespace parser
@@ -16,19 +16,11 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
-def command_parser_m := rec_t unit syntax basic_parser_m
-abbreviation command_parser := command_parser_m syntax
-
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
-def term_parser_m := rec_t nat syntax command_parser_m
-abbreviation term_parser := term_parser_m syntax
 
 /-- A term parser for a suffix or infix notation that accepts a preceding term. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
 def trailing_term_parser_m := reader_t syntax term_parser_m
 abbreviation trailing_term_parser := trailing_term_parser_m syntax
-
 
 @[derive parser.has_tokens parser.has_view]
 def ident_univ_spec.parser : basic_parser :=
@@ -51,6 +43,66 @@ node! hole [hole: symbol "_" max_prec]
 @[derive parser.has_tokens parser.has_view]
 def sort.parser : term_parser :=
 node_choice! sort {"Sort":max_prec, "Type":max_prec}
+
+set_option class.instance_max_depth 200
+
+section binder
+@[derive has_tokens has_view]
+def binder_content.parser : term_parser :=
+node! binder_content [
+  ids: (node_choice! binder_id {id: ident.parser, hole: hole.parser})+,
+  type: node! binder_content_type [":", type: recurse 0],
+  default: node_choice! binder_default {
+    val: node! binder_default_val [":=", term: recurse 0],
+    tac: node! binder_default_tac [".", term: recurse 0]
+  }?
+]
+
+/- All binders must be surrounded with some kind of bracket. (e.g., '()', '{}', '[]').
+   We use this feature when parsing examples/definitions/theorems. The goal is to avoid counter-intuitive
+   declarations such as:
+
+     example p : false := trivial
+     def main proof : false := trivial
+
+   which would be parsed as
+
+     example (p : false) : _ := trivial
+
+     def main (proof : false) : _ := trivial
+
+   where `_` in both cases is elaborated into `true`. This issue was raised by @gebner in the slack channel.
+
+
+   Remark: we still want implicit delimiters for lambda/pi expressions. That is, we want to
+   write
+
+       fun x : t, s
+   or
+       fun x, s
+
+   instead of
+
+       fun (x : t), s -/
+@[derive has_tokens has_view]
+def bracketed_binder.parser : term_parser :=
+node_choice! bracketed_binder {
+  explicit: node! explicit_binder ["(":max_prec, content: node_choice! explicit_binder_content {
+    «notation»: any_of [command.notation.parser, command.mixfix.parser],
+    other: binder_content.parser
+  }, right: symbol ")"],
+  implicit: node! implicit_binder ["{":max_prec, content: binder_content.parser, "}"],
+  strict_implicit: node! strict_implicit_binder [
+    left: any_of [symbol "{{" max_prec, symbol "⦃" max_prec],
+    content: binder_content.parser,
+    right: any_of [symbol "}}", symbol "⦄"]
+  ],
+  inst_implicit: node! inst_implicit_binder ["[":max_prec, content: longest_match [
+    node! inst_implicit_named_binder [id: ident.parser, type: recurse 0],
+    node! inst_implicit_anonymous_binder [type: recurse 0]
+  ], "]"]
+}
+end binder
 
 @[derive parser.has_tokens parser.has_view]
 def leading.parser :=

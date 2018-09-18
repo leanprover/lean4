@@ -3,7 +3,7 @@ result:
 result: 
 [(module
   []
-  [(import "import" [(import_path [] (id (ident_part (1 "me")) []))])]
+  [(import "import" [(import_path [] (ident (ident_part (1 "me")) []))])]
   [])
  (eoi "")]
 error at line 1, column 0:
@@ -23,48 +23,48 @@ result:
   [(prelude "prelude")]
   [(import
     "import"
-    [(import_path ["." "."] (id (ident_part (1 "a")) []))
-     (import_path [] (id (ident_part (1 "b")) []))])
-   (import "import" [(import_path [] (id (ident_part (1 "c")) []))])]
+    [(import_path ["." "."] (ident (ident_part (1 "a")) []))
+     (import_path [] (ident (ident_part (1 "b")) []))])
+   (import "import" [(import_path [] (ident (ident_part (1 "c")) []))])]
   [])
  (eoi "")]
 result: 
 [(module
   []
   []
-  [(open
+  [(command.open
     "open"
-    [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])
-     (open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
+    [(command.open_spec (ident (ident_part (1 "me")) []) [] [] [] [])
+     (command.open_spec (ident (ident_part (1 "you")) []) [] [] [] [])])])
  (eoi "")]
 result: 
 [(module
   []
   []
-  [(open
+  [(command.open
     "open"
-    [(open_spec
-      (id (ident_part (1 "me")) [])
-      [(open_spec.as "as" (id (ident_part (1 "you")) []))]
-      [(open_spec.only
-        ["(" (id (ident_part (1 "a")) [])]
-        [(id (ident_part (1 "b")) []) (id (ident_part (1 "c")) [])]
+    [(command.open_spec
+      (ident (ident_part (1 "me")) [])
+      [(command.open_spec.as "as" (ident (ident_part (1 "you")) []))]
+      [(command.open_spec.only
+        ["(" (ident (ident_part (1 "a")) [])]
+        [(ident (ident_part (1 "b")) []) (ident (ident_part (1 "c")) [])]
         ")")]
-      [(open_spec.renaming
+      [(command.open_spec.renaming
         ["(" "renaming"]
-        [(open_spec.renaming.item
-          (id (ident_part (1 "a")) [])
+        [(command.open_spec.renaming.item
+          (ident (ident_part (1 "a")) [])
           "->"
-          (id (ident_part (1 "b")) []))
-         (open_spec.renaming.item
-          (id (ident_part (1 "c")) [])
+          (ident (ident_part (1 "b")) []))
+         (command.open_spec.renaming.item
+          (ident (ident_part (1 "c")) [])
           "->"
-          (id (ident_part (1 "d")) []))]
+          (ident (ident_part (1 "d")) []))]
         ")")]
-      [(open_spec.hiding
+      [(command.open_spec.hiding
         "("
         "hiding"
-        [(id (ident_part (1 "a")) []) (id (ident_part (1 "b")) [])]
+        [(ident (ident_part (1 "a")) []) (ident (ident_part (1 "b")) [])]
         ")")])])])
  (eoi "")]
 error at line 1, column 11:
@@ -73,10 +73,10 @@ partial syntax tree:
 [(module
   []
   []
-  [(open
+  [(command.open
     "open"
-    [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])
-     (open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
+    [(command.open_spec (ident (ident_part (1 "me")) []) [] [] [] [])
+     (command.open_spec (ident (ident_part (1 "you")) []) [] [] [] [])])])
  (eoi "")]
 error at line 1, column 5:
 expected identifier
@@ -86,12 +86,14 @@ partial syntax tree:
 [(module
   []
   []
-  [(open
+  [(command.open
     "open"
-    [(open_spec <missing> <missing> <missing> <missing> <missing>) <missing>])
-   (open
+    [(command.open_spec <missing> <missing> <missing> <missing> <missing>)
+     <missing>])
+   (command.open
     "open"
-    [(open_spec <missing> <missing> <missing> <missing> <missing>) <missing>])])
+    [(command.open_spec <missing> <missing> <missing> <missing> <missing>)
+     <missing>])])
  (eoi "")]
 error at line 1, column 8:
 expected command
@@ -99,559 +101,619 @@ partial syntax tree:
 [(module
   []
   []
-  [(open "open" [(open_spec (id (ident_part (1 "me")) []) [] [] [] [])])
-   (open "open" [(open_spec (id (ident_part (1 "you")) []) [] [] [] [])])])
+  [(command.open
+    "open"
+    [(command.open_spec (ident (ident_part (1 "me")) []) [] [] [] [])])
+   (command.open
+    "open"
+    [(command.open_spec (ident (ident_part (1 "you")) []) [] [] [] [])])])
  (eoi "")]
 result: 
 [(module
   []
   []
-  [(open "open" [(open_spec (id (ident_part (1 "a")) []) [] [] [] [])])
-   (section
+  [(command.open
+    "open"
+    [(command.open_spec (ident (ident_part (1 "a")) []) [] [] [] [])])
+   (command.section
     "section"
-    [(id (ident_part (1 "b")) [])]
-    [(open "open" [(open_spec (id (ident_part (1 "c")) []) [] [] [] [])])
-     (section
+    [(ident (ident_part (1 "b")) [])]
+    [(command.open
+      "open"
+      [(command.open_spec (ident (ident_part (1 "c")) []) [] [] [] [])])
+     (command.section
       "section"
-      [(id (ident_part (1 "d")) [])]
-      [(open "open" [(open_spec (id (ident_part (1 "e")) []) [] [] [] [])])]
+      [(ident (ident_part (1 "d")) [])]
+      [(command.open
+        "open"
+        [(command.open_spec (ident (ident_part (1 "e")) []) [] [] [] [])])]
       "end"
-      [(id (ident_part (1 "d")) [])])]
+      [(ident (ident_part (1 "d")) [])])]
     "end"
-    [(id (ident_part (1 "b")) [])])])
+    [(ident (ident_part (1 "b")) [])])])
  (eoi "")]
 result: 
-[(module [] [] [(section "section" [(id (ident_part (1 "a")) [])] [] "end" [])])
+[(module
+  []
+  []
+  [(command.section "section" [(ident (ident_part (1 "a")) [])] [] "end" [])])
  (eoi "")]
 Type (max u v) : Type ((max u v)+1)
 result: 
 [(module
   []
   []
-  [(check
+  [(command.check
     "#check"
     (term.app
      (term.app
       (term.sort_app
        (term.sort (1 "Type"))
-       (level.leading (0 (id (ident_part (1 "max")) []))))
-      (id (ident_part (1 "u")) []))
-     (id (ident_part (1 "v")) [])))])
+       (level.leading (0 (ident (ident_part (1 "max")) []))))
+      (term.ident (ident (ident_part (1 "u")) []) []))
+     (term.ident (ident (ident_part (1 "v")) []) [])))])
  (eoi "")]
-(notation
+(command.notation
  "notation"
- (notation_spec
+ (command.notation_spec
   (1
-   (notation_spec.rules
+   (command.notation_spec.rules
     []
-    [(notation_spec.rule
-      (notation_spec.notation_symbol
+    [(command.notation_spec.rule
+      (command.notation_spec.notation_symbol
        (0
-        (notation_spec.notation_quoted_symbol
+        (command.notation_spec.notation_quoted_symbol
          "`"
          "+"
          "`"
-         [(notation_spec.precedence ":" (base10_lit "10"))])))
-      [(notation_spec.transition
+         [(command.notation_spec.precedence ":" (base10_lit "10"))])))
+      [(command.notation_spec.transition
         (2
-         (notation_spec.argument
-          (id (ident_part (1 "b")) [])
-          [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "10"))))])))])])))
+         (command.notation_spec.argument
+          (ident (ident_part (1 "b")) [])
+          [(command.notation_spec.action
+            ":"
+            (command.notation_spec.action_kind (0 (base10_lit "10"))))])))])])))
  ":="
  (term.hole "_"))
 notation`+`:10 b:10 :=_
-error at line 85, column 0:
-expected command
-partial syntax tree:
+result: 
 [(module
   [(prelude "prelude")]
   []
-  [(notation
+  [(command.notation
     "notation"
-    (notation_spec
+    (command.notation_spec
      (1
-      (notation_spec.rules
+      (command.notation_spec.rules
        []
-       [(notation_spec.rule
-         (notation_spec.notation_symbol
-          (0 (notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
+       [(command.notation_spec.rule
+         (command.notation_spec.notation_symbol
+          (0 (command.notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
          [])])))
     ":="
     (term.sort_app (term.sort (0 "Sort")) (level.leading (4 (base10_lit "0")))))
-   (notation
+   (command.notation
     "notation"
-    (notation_spec
+    (command.notation_spec
      (1
-      (notation_spec.rules
-       [(id (ident_part (1 "f")) [])]
-       [(notation_spec.rule
-         (notation_spec.notation_symbol
+      (command.notation_spec.rules
+       [(ident (ident_part (1 "f")) [])]
+       [(command.notation_spec.rule
+         (command.notation_spec.notation_symbol
           (0
-           (notation_spec.notation_quoted_symbol
+           (command.notation_spec.notation_quoted_symbol
             "`"
-            "$ "
+            " $ "
             "`"
-            [(notation_spec.precedence ":" (base10_lit "1"))])))
-         [(notation_spec.transition
+            [(command.notation_spec.precedence ":" (base10_lit "1"))])))
+         [(command.notation_spec.transition
            (2
-            (notation_spec.argument
-             (id (ident_part (1 "a")) [])
-             [(notation_spec.action ":" (notation_spec.action_kind (0 (base10_lit "0"))))])))])])))
+            (command.notation_spec.argument
+             (ident (ident_part (1 "a")) [])
+             [(command.notation_spec.action
+               ":"
+               (command.notation_spec.action_kind (0 (base10_lit "0"))))])))])])))
     ":="
-    (term.app (id (ident_part (1 "f")) []) (id (ident_part (1 "a")) [])))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (0 "prefix"))]
-    (notation_spec.notation_symbol
+    (term.app
+     (term.ident (ident (ident_part (1 "f")) []) [])
+     (term.ident (ident (ident_part (1 "a")) []) [])))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (0 "prefix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
        "¬"
        "`"
-       [(notation_spec.precedence ":" (base10_lit "40"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (0 "prefix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "40"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (0 "prefix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
        "~"
        "`"
-       [(notation_spec.precedence ":" (base10_lit "40"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "40"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∧ "
+       " ∧ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "35"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "35"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "/\\ "
+       " /\\ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "35"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "35"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "\\/ "
+       " \\/ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "30"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "30"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∨ "
+       " ∨ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "30"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "30"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "<-> "
+       " <-> "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "20"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "20"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "↔ "
+       " ↔ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "20"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "20"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "= "
+       " = "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "== "
+       " == "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "≠ "
+       " ≠ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "≈ "
+       " ≈ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "~ "
+       " ~ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "≡ "
+       " ≡ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "⬝ "
+       " ⬝ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "75"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "75"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "▸ "
+       " ▸ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "75"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "75"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "▹ "
+       " ▹ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "75"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "75"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "⊕ "
+       " ⊕ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "30"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "30"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "× "
+       " × "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "35"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "35"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "+ "
+       " + "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "65"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "65"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "- "
+       " - "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "65"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "65"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "* "
+       " * "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "70"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "70"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "/ "
+       " / "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "70"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "70"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "% "
+       " % "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "70"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "70"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "%ₙ "
+       " %ₙ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "70"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (0 "prefix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "70"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (0 "prefix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
        "-"
        "`"
-       [(notation_spec.precedence ":" (base10_lit "100"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "100"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "^ "
+       " ^ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "80"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "80"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∘ "
+       " ∘ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "90"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "90"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "<= "
+       " <= "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "≤ "
+       " ≤ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "< "
+       " < "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       ">= "
+       " >= "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "≥ "
+       " ≥ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "> "
+       " > "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (0 "prefix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (0 "prefix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
        "!"
        "`"
-       [(notation_spec.precedence ":" (base10_lit "40"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "40"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "&& "
+       " && "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "35"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "35"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "|| "
+       " || "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "30"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "30"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∈ "
+       " ∈ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∉ "
+       " ∉ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∩ "
+       " ∩ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "70"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "70"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∪ "
+       " ∪ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "65"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "65"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "⊆ "
+       " ⊆ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "⊇ "
+       " ⊇ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "⊂ "
+       " ⊂ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "⊃ "
+       " ⊃ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "\\ "
+       " \\ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "70"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (1 "infix"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "70"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (1 "infix"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "∣ "
+       " ∣ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "50"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "50"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       "++ "
+       " ++ "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "65"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (3 "infixr"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "65"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (3 "infixr"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
-       ":: "
+       " :: "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "67"))]))))
-   (reserve_mixfix
-    ["reserve" (mixfix.kind (2 "infixl"))]
-    (notation_spec.notation_symbol
+       [(command.notation_spec.precedence ":" (base10_lit "67"))]))))
+   (command.reserve_mixfix
+    ["reserve" (command.mixfix.kind (2 "infixl"))]
+    (command.notation_spec.notation_symbol
      (0
-      (notation_spec.notation_quoted_symbol
+      (command.notation_spec.notation_quoted_symbol
        "`"
        "; "
        "`"
-       [(notation_spec.precedence ":" (base10_lit "1"))]))))
-   (universes
+       [(command.notation_spec.precedence ":" (base10_lit "1"))]))))
+   (command.universes
     "universes"
-    [(id (ident_part (1 "u")) [])
-     (id (ident_part (1 "v")) [])
-     (id (ident_part (1 "w")) [])])])
+    [(ident (ident_part (1 "u")) [])
+     (ident (ident_part (1 "v")) [])
+     (ident (ident_part (1 "w")) [])])
+   (command.declaration
+    (command.decl_modifiers
+     []
+     []
+     []
+     [(command.decl_attribute
+       "@["
+       [(command.attr_instance (ident (ident_part (1 "inline")) []) [])]
+       "]")])
+    (command.declaration.inner
+     (0
+      (command.def
+       "def"
+       (ident (ident_part (1 "id")) [])
+       (command.decl_sig
+        [(term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident (ident (ident_part (1 "α")) []) [])))]
+             (term.binder_content_type
+              ":"
+              (term.sort_app
+               (term.sort (0 "Sort"))
+               (level.leading (5 (ident (ident_part (1 "u")) [])))))
+             [])
+            "}")))
+         (term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident (ident (ident_part (1 "a")) []) [])))]
+               (term.binder_content_type ":" (term.ident (ident (ident_part (1 "α")) []) []))
+               [])))
+            ")")))]
+        [(command.decl_type ":" (term.ident (ident (ident_part (1 "α")) []) []))])
+       (command.decl_val
+        (0
+         (command.simple_decl_val ":=" (term.ident (ident (ident_part (1 "a")) []) []))))))))])
  (eoi "")]

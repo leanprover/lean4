@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Notation parsers
 -/
 prelude
-import init.lean.parser.term
+import init.lean.parser.token
 
 namespace lean
 namespace parser
@@ -23,10 +23,10 @@ set_option class.instance_max_depth 100
 
 namespace notation_spec
 @[derive parser.has_tokens parser.has_view]
-def precedence.parser : command_parser :=
+def precedence.parser : term_parser :=
 node! «precedence» [":", prec: number]/-TODO <|> expr-/
 
-def quoted_symbol.parser : command_parser :=
+def quoted_symbol.parser : term_parser :=
 do (s, info) ← with_source_info $ take_until (= '`'),
    pure $ syntax.atom ⟨info, s⟩
 
@@ -34,7 +34,7 @@ instance quoted_symbol.tokens : parser.has_tokens quoted_symbol.parser := ⟨[]�
 instance quoted_symbol.view : parser.has_view quoted_symbol.parser syntax := default _
 
 @[derive parser.has_tokens parser.has_view]
-def symbol_quote.parser : command_parser :=
+def symbol_quote.parser : term_parser :=
 node! notation_quoted_symbol [
   left_quote: raw $ ch '`',
   symbol: quoted_symbol.parser,
@@ -43,14 +43,14 @@ node! notation_quoted_symbol [
 
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems
 @[derive parser.has_tokens parser.has_view]
-def notation_symbol.parser : command_parser :=
+def notation_symbol.parser : term_parser :=
 node_choice! notation_symbol {
   quoted: symbol_quote.parser
   --TODO, {read := do tk ← token, /- check if reserved token-/}
 }
 
 @[derive parser.has_tokens parser.has_view]
-def action.parser : command_parser :=
+def action.parser : term_parser :=
 node! action [":", action: node_choice! action_kind {
   prec: number,
   max: symbol_or_ident "max",
@@ -63,7 +63,7 @@ node! action [":", action: node_choice! action_kind {
     notation_tk,-/}]
 
 @[derive parser.has_tokens parser.has_view]
-def transition.parser : command_parser :=
+def transition.parser : term_parser :=
 node_choice! transition {
   binder: node! binder ["binder", prec: precedence.parser?],
   binders: node! binders ["binders", prec: precedence.parser?],
@@ -71,38 +71,38 @@ node_choice! transition {
 }
 
 @[derive parser.has_tokens parser.has_view]
-def rule.parser : command_parser :=
+def rule.parser : term_parser :=
 node! rule [symbol: notation_symbol.parser, transition: transition.parser?]
 
 end notation_spec
 
 @[derive parser.has_tokens parser.has_view]
-def notation_spec.parser : command_parser :=
+def notation_spec.parser : term_parser :=
 node_choice! notation_spec {
   number_literal: number,
   rules: node! notation_spec.rules [id: ident.parser?, rules: notation_spec.rule.parser*]
 }
 
 @[derive parser.has_tokens parser.has_view]
-def notation.parser : command_parser :=
-node! «notation» ["notation", spec: notation_spec.parser, ":=", term: term.parser]
+def notation.parser : term_parser :=
+node! «notation» ["notation", spec: notation_spec.parser, ":=", term: recurse 0]
 
 @[derive parser.has_tokens parser.has_view]
-def reserve_notation.parser : command_parser :=
+def reserve_notation.parser : term_parser :=
 node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec.parser]
 
 @[derive parser.has_tokens parser.has_view]
-def mixfix.kind.parser : command_parser :=
+def mixfix.kind.parser : term_parser :=
 node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 
 @[derive parser.has_tokens parser.has_view]
-def mixfix.parser : command_parser :=
+def mixfix.parser : term_parser :=
 node! «mixfix» [
   kind: mixfix.kind.parser,
-  symbol: notation_spec.notation_symbol.parser, ":=", term: term.parser]
+  symbol: notation_spec.notation_symbol.parser, ":=", term: recurse 0]
 
 @[derive parser.has_tokens parser.has_view]
-def reserve_mixfix.parser : command_parser :=
+def reserve_mixfix.parser : term_parser :=
 node! «reserve_mixfix» [
   try ["reserve", kind: mixfix.kind.parser],
   symbol: notation_spec.notation_symbol.parser]

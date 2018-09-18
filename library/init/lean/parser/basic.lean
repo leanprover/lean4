@@ -48,6 +48,7 @@ structure parser_config :=
 def parser_t (m : Type → Type) [monad m] := reader_t parser_config $ state_t parser_state $ parsec_t syntax m
 abbreviation basic_parser_m := parser_t id
 abbreviation basic_parser := basic_parser_m syntax
+abbreviation monad_basic_read := has_monad_lift_t basic_parser_m
 
  -- an arbitrary `parser` type; parsers are usually some monad stack based on `basic_parser_m` returning `syntax`
 variable {ρ : Type}
@@ -124,6 +125,17 @@ structure parse.view_ty :=
 def parse.view : syntax → option parse.view_ty
 | (syntax.node ⟨none, [root, eoi]⟩) := some ⟨root, eoi⟩
 | _ := none
+
+
+/- Monad stacks used in multiple files -/
+
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
+def command_parser_m := rec_t unit syntax basic_parser_m
+abbreviation command_parser := command_parser_m syntax
+
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
+def term_parser_m := rec_t nat syntax command_parser_m
+abbreviation term_parser := term_parser_m syntax
 
 end «parser»
 end lean

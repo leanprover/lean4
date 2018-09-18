@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Command parsers
 -/
 prelude
-import init.lean.parser.notation
+import init.lean.parser.declaration
 
 namespace lean
 namespace parser
@@ -21,9 +21,10 @@ local postfix +:10000 := combinators.many1
 @[derive parser.has_view parser.has_tokens]
 def command_parser.recurse : command_parser := recurse ()
 
+set_option class.instance_max_depth 200
+
 namespace «command»
 
-set_option class.instance_max_depth 200
 @[derive parser.has_view parser.has_tokens]
 def open_spec.parser : command_parser :=
 node! open_spec [
@@ -62,7 +63,7 @@ open «command»
 @[derive parser.has_tokens parser.has_view]
 def command.parser : command_parser :=
 any_of [open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
-  mixfix.parser, reserve_mixfix.parser, check.parser] <?> "command"
+  mixfix.parser, reserve_mixfix.parser, check.parser, declaration.parser] <?> "command"
 
 end parser
 

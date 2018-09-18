@@ -46,7 +46,6 @@ do whitespace,
    pure ()
 | 0 := error "unreachable"
 
-abbreviation monad_basic_read := has_monad_lift_t basic_parser_m
 variables {m : Type → Type}
 local notation `parser` := m syntax
 local notation `lift` := @monad_lift basic_parser_m _ _ _

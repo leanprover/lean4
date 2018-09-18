@@ -10,6 +10,9 @@ import init.lean.parser.basic
 
 namespace lean
 namespace parser
+
+@[pattern] def choice := {syntax_node_kind . name := `lean.parser.choice}
+
 namespace combinators
 open has_tokens has_view monad_parsec
 
@@ -39,10 +42,11 @@ instance node.view (k) (rs : list parser) [i : syntax_node_kind.has_view k α] :
 
 private def many1_aux (p : parser) : list syntax → nat → parser
 | as 0     := error "unreachable"
-| as (n+1) := do a ← catch p (λ msg, throw {msg with custom :=
-                       -- append `syntax.missing` to make clear that list is incomplete
-                       syntax.node ⟨none, (syntax.missing::msg.custom::as).reverse⟩}),
-              many1_aux (a::as) n <|> pure (syntax.node ⟨none, (a::as).reverse⟩)
+| as (n+1) := do
+  a ← catch p (λ msg, throw {msg with custom :=
+    -- append `syntax.missing` to make clear that list is incomplete
+    syntax.node ⟨none, (syntax.missing::msg.custom::as).reverse⟩}),
+  many1_aux (a::as) n <|> pure (syntax.node ⟨none, (a::as).reverse⟩)
 
 def many1 (r : parser) : parser :=
 do rem ← remaining, many1_aux r [] (rem+1)
@@ -65,6 +69,59 @@ instance many.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (man
 
 instance many.view (r : parser) [has_view r α] : parser.has_view (many r) (list α) :=
 {..many1.view r}
+
+private def sep_by_aux (p : m syntax) (sep : parser) (allow_trailing_sep : bool) : bool → list syntax → nat → parser
+| p_opt as 0     := error "unreachable"
+| p_opt as (n+1) := do
+  let p := if p_opt then some <$> p <|> pure none else some <$> p,
+  some a ← catch p (λ msg, throw {msg with custom :=
+    -- append `syntax.missing` to make clear that list is incomplete
+    syntax.node ⟨none, (syntax.missing::msg.custom::as).reverse⟩})
+    | pure (syntax.node ⟨none, as.reverse⟩),
+  -- I don't want to think about what the output on a failed separator parse should look like
+  let sep := try sep,
+  some s ← some <$> sep <|> pure none
+    | pure (syntax.node ⟨none, (a::as).reverse⟩),
+  sep_by_aux allow_trailing_sep (s::a::as) n
+
+def sep_by (p sep : parser) (allow_trailing_sep := tt) : parser :=
+do rem ← remaining, sep_by_aux p sep allow_trailing_sep tt [] (rem+1)
+
+def sep_by1 (p sep : parser) (allow_trailing_sep := tt) : parser :=
+do rem ← remaining, sep_by_aux p sep allow_trailing_sep ff [] (rem+1)
+
+instance sep_by.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_tokens sep] :
+  parser.has_tokens (sep_by p sep a) :=
+⟨tokens p ++ tokens sep⟩
+
+private def sep_by.view_aux {α β} (p sep : parser) [parser.has_view p α] [parser.has_view sep β] :
+  list syntax → option (list (α × option β))
+| []    := some []
+| [stx] := do
+  vp ← view p stx,
+  some [(vp, none)]
+| (stx1::stx2::stxs) := do
+  vp ← view p stx1,
+  vsep ← view sep stx2,
+  vs ← sep_by.view_aux stxs,
+  some ((vp, some vsep)::vs)
+
+instance sep_by.view {α β} (p sep : parser) (a) [parser.has_view p α] [parser.has_view sep β] :
+  parser.has_view (sep_by p sep a) (list (α × option β)) :=
+{ view := λ stx, match stx with
+    | syntax.node ⟨none, stxs⟩ := sep_by.view_aux p sep stxs
+    | _ := failure,
+  review := λ as, syntax.node ⟨none, as.bind (λ a, match a with
+    | ⟨v, some vsep⟩ := [review p v, review sep vsep]
+    | ⟨v, none⟩      := [review p v])⟩ }
+
+instance sep_by1.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_tokens sep] :
+  parser.has_tokens (sep_by1 p sep a) :=
+⟨tokens (sep_by p sep a)⟩
+
+instance sep_by1.view {α β} (p sep : parser) (a) [parser.has_view p α] [parser.has_view sep β] :
+  parser.has_view (sep_by1 p sep a) (list (α × option β)) :=
+{..sep_by.view p sep a}
 
 def optional (r : parser) : parser :=
 do r ← optional $
@@ -111,8 +168,19 @@ match rs with
 
 instance any_of.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (any_of rs) :=
 ⟨tokens rs⟩
-
 instance any_of.view (rs : list parser) : parser.has_view (any_of rs) syntax := default _
+
+/-- Parse a list `[p1, ..., pn]` of parsers with `monad_parsec.longest_match`.
+    If the result is ambiguous, wrap it in a `choice` node.
+    Note that there is NO explicit encoding of which parser was chosen;
+    parsers should instead produce distinct node names for disambiguation. -/
+def longest_match (rs : list parser) : parser :=
+do stxs ← monad_parsec.longest_match rs,
+   pure $ syntax.node ⟨choice, stxs⟩
+
+instance longest_match.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (longest_match rs) :=
+⟨tokens rs⟩
+instance longest_match.view (rs : list parser) : parser.has_view (longest_match rs) syntax := default _
 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     The result will be wrapped in a node with the the index of the successful
@@ -170,6 +238,11 @@ instance seq_left.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_
 instance seq_right.tokens {α : Type} (x : m α) (p : m syntax) [parser.has_tokens p] : parser.has_tokens (x *> p) :=
 ⟨tokens p⟩
 instance seq_right.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view p β] : parser.has_view (x *> p) β :=
+{..i}
+
+instance coe.tokens {β} (r : parser) [parser.has_tokens r] [has_coe_t parser β]: parser.has_tokens (coe r : β) :=
+⟨tokens r⟩
+instance coe.view {β} (r : parser) [i : parser.has_view r α] [has_coe_t parser β] : parser.has_view (coe r : β) α :=
 {..i}
 
 end combinators

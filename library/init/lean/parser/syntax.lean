@@ -55,13 +55,28 @@ def substring.to_string (s : substring) : string :=
 namespace syntax
 open lean.format
 
+private def ident_to_format : syntax → format
+| stx := option.get_or_else (do
+  syntax.node ⟨_, [syntax.node ⟨_, [syntax.node ⟨some ⟨idx⟩, part⟩]⟩, suffix]⟩ ← pure stx | failure,
+  part ← match idx, part with
+  | name.mk_numeral name.anonymous 0, [syntax.node ⟨_, [_, syntax.atom ⟨_, s⟩, _]⟩] := pure $ to_fmt "«" ++ s ++ "»"
+  | name.mk_numeral name.anonymous 1, [syntax.atom ⟨_, s⟩] := pure $ s
+  | _, _ := failure,
+  match suffix with
+  | syntax.node ⟨_, []⟩ := pure $ to_fmt part
+  | syntax.node ⟨_, [syntax.node ⟨_, [_, id]⟩]⟩ := pure $ to_fmt part ++ "." ++ ident_to_format id
+  | _ := failure
+) "syntax.to_format: unexpected `ident` node content"
+
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
 | (atom ⟨_, s⟩) := to_fmt $ repr s
 | (node {kind := none, args := args, ..}) :=
   sbracket $ join_sep (to_format_lst args) line
-| (node {kind := some kind, args := args, ..}) :=
-  paren $ join_sep (to_fmt (kind.name.replace_prefix `lean.parser name.anonymous) :: to_format_lst args) line
+| stx@(node {kind := some kind, args := args, ..}) :=
+  if kind.name = `lean.parser.ident
+  then to_fmt "`" ++ ident_to_format stx
+  else paren $ join_sep (to_fmt (kind.name.replace_prefix `lean.parser name.anonymous) :: to_format_lst args) line
 | missing := "<missing>"
 with to_format_lst : list syntax → list format
 | []      := []

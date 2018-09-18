@@ -1,11 +1,7 @@
 result: 
 [(module [(prelude "prelude")] [] []) (eoi "")]
 result: 
-[(module
-  []
-  [(import "import" [(import_path [] (ident (ident_part (1 "me")) []))])]
-  [])
- (eoi "")]
+[(module [] [(import "import" [(import_path [] `me)])] []) (eoi "")]
 error at line 1, column 0:
 expected command
 partial syntax tree:
@@ -21,11 +17,8 @@ partial syntax tree:
 result: 
 [(module
   [(prelude "prelude")]
-  [(import
-    "import"
-    [(import_path ["." "."] (ident (ident_part (1 "a")) []))
-     (import_path [] (ident (ident_part (1 "b")) []))])
-   (import "import" [(import_path [] (ident (ident_part (1 "c")) []))])]
+  [(import "import" [(import_path ["." "."] `a) (import_path [] `b)])
+   (import "import" [(import_path [] `c)])]
   [])
  (eoi "")]
 result: 
@@ -34,8 +27,7 @@ result:
   []
   [(command.open
     "open"
-    [(command.open_spec (ident (ident_part (1 "me")) []) [] [] [] [])
-     (command.open_spec (ident (ident_part (1 "you")) []) [] [] [] [])])])
+    [(command.open_spec `me [] [] [] []) (command.open_spec `you [] [] [] [])])])
  (eoi "")]
 result: 
 [(module
@@ -44,28 +36,15 @@ result:
   [(command.open
     "open"
     [(command.open_spec
-      (ident (ident_part (1 "me")) [])
-      [(command.open_spec.as "as" (ident (ident_part (1 "you")) []))]
-      [(command.open_spec.only
-        ["(" (ident (ident_part (1 "a")) [])]
-        [(ident (ident_part (1 "b")) []) (ident (ident_part (1 "c")) [])]
-        ")")]
+      `me
+      [(command.open_spec.as "as" `you)]
+      [(command.open_spec.only ["(" `a] [`b `c] ")")]
       [(command.open_spec.renaming
         ["(" "renaming"]
-        [(command.open_spec.renaming.item
-          (ident (ident_part (1 "a")) [])
-          "->"
-          (ident (ident_part (1 "b")) []))
-         (command.open_spec.renaming.item
-          (ident (ident_part (1 "c")) [])
-          "->"
-          (ident (ident_part (1 "d")) []))]
+        [(command.open_spec.renaming.item `a "->" `b)
+         (command.open_spec.renaming.item `c "->" `d)]
         ")")]
-      [(command.open_spec.hiding
-        "("
-        "hiding"
-        [(ident (ident_part (1 "a")) []) (ident (ident_part (1 "b")) [])]
-        ")")])])])
+      [(command.open_spec.hiding "(" "hiding" [`a `b] ")")])])])
  (eoi "")]
 error at line 1, column 11:
 expected command
@@ -75,8 +54,7 @@ partial syntax tree:
   []
   [(command.open
     "open"
-    [(command.open_spec (ident (ident_part (1 "me")) []) [] [] [] [])
-     (command.open_spec (ident (ident_part (1 "you")) []) [] [] [] [])])])
+    [(command.open_spec `me [] [] [] []) (command.open_spec `you [] [] [] [])])])
  (eoi "")]
 error at line 1, column 5:
 expected identifier
@@ -101,43 +79,29 @@ partial syntax tree:
 [(module
   []
   []
-  [(command.open
-    "open"
-    [(command.open_spec (ident (ident_part (1 "me")) []) [] [] [] [])])
-   (command.open
-    "open"
-    [(command.open_spec (ident (ident_part (1 "you")) []) [] [] [] [])])])
+  [(command.open "open" [(command.open_spec `me [] [] [] [])])
+   (command.open "open" [(command.open_spec `you [] [] [] [])])])
  (eoi "")]
 result: 
 [(module
   []
   []
-  [(command.open
-    "open"
-    [(command.open_spec (ident (ident_part (1 "a")) []) [] [] [] [])])
+  [(command.open "open" [(command.open_spec `a [] [] [] [])])
    (command.section
     "section"
-    [(ident (ident_part (1 "b")) [])]
-    [(command.open
-      "open"
-      [(command.open_spec (ident (ident_part (1 "c")) []) [] [] [] [])])
+    [`b]
+    [(command.open "open" [(command.open_spec `c [] [] [] [])])
      (command.section
       "section"
-      [(ident (ident_part (1 "d")) [])]
-      [(command.open
-        "open"
-        [(command.open_spec (ident (ident_part (1 "e")) []) [] [] [] [])])]
+      [`d]
+      [(command.open "open" [(command.open_spec `e [] [] [] [])])]
       "end"
-      [(ident (ident_part (1 "d")) [])])]
+      [`d])]
     "end"
-    [(ident (ident_part (1 "b")) [])])])
+    [`b])])
  (eoi "")]
 result: 
-[(module
-  []
-  []
-  [(command.section "section" [(ident (ident_part (1 "a")) [])] [] "end" [])])
- (eoi "")]
+[(module [] [] [(command.section "section" [`a] [] "end" [])]) (eoi "")]
 Type (max u v) : Type ((max u v)+1)
 result: 
 [(module
@@ -147,11 +111,9 @@ result:
     "#check"
     (term.app
      (term.app
-      (term.sort_app
-       (term.sort (1 "Type"))
-       (level.leading (0 (ident (ident_part (1 "max")) []))))
-      (term.ident (ident (ident_part (1 "u")) []) []))
-     (term.ident (ident (ident_part (1 "v")) []) [])))])
+      (term.sort_app (term.sort (1 "Type")) (level.leading (0 `max)))
+      (term.ident `u []))
+     (term.ident `v [])))])
  (eoi "")]
 (command.notation
  "notation"
@@ -170,7 +132,7 @@ result:
       [(command.notation_spec.transition
         (2
          (command.notation_spec.argument
-          (ident (ident_part (1 "b")) [])
+          `b
           [(command.notation_spec.action
             ":"
             (command.notation_spec.action_kind (0 (base10_lit "10"))))])))])])))
@@ -198,7 +160,7 @@ result:
     (command.notation_spec
      (1
       (command.notation_spec.rules
-       [(ident (ident_part (1 "f")) [])]
+       [`f]
        [(command.notation_spec.rule
          (command.notation_spec.notation_symbol
           (0
@@ -210,14 +172,12 @@ result:
          [(command.notation_spec.transition
            (2
             (command.notation_spec.argument
-             (ident (ident_part (1 "a")) [])
+             `a
              [(command.notation_spec.action
                ":"
                (command.notation_spec.action_kind (0 (base10_lit "0"))))])))])])))
     ":="
-    (term.app
-     (term.ident (ident (ident_part (1 "f")) []) [])
-     (term.ident (ident (ident_part (1 "a")) []) [])))
+    (term.app (term.ident `f []) (term.ident `a [])))
    (command.reserve_mixfix
     ["reserve" (command.mixfix.kind (0 "prefix"))]
     (command.notation_spec.notation_symbol
@@ -668,37 +628,28 @@ result:
        "; "
        "`"
        [(command.notation_spec.precedence ":" (base10_lit "1"))]))))
-   (command.universes
-    "universes"
-    [(ident (ident_part (1 "u")) [])
-     (ident (ident_part (1 "v")) [])
-     (ident (ident_part (1 "w")) [])])
+   (command.universes "universes" [`u `v `w])
    (command.declaration
     (command.decl_modifiers
      []
      []
      []
-     [(command.decl_attribute
-       "@["
-       [(command.attr_instance (ident (ident_part (1 "inline")) []) [])]
-       "]")])
+     [(command.decl_attribute "@[" [(command.attr_instance `inline [])] "]")])
     (command.declaration.inner
      (0
       (command.def
        "def"
-       (ident (ident_part (1 "id")) [])
+       `id
        (command.decl_sig
         [(term.bracketed_binder
           (1
            (term.implicit_binder
             "{"
             (term.binder_content
-             [(term.binder_id (0 (term.ident (ident (ident_part (1 "α")) []) [])))]
+             [(term.binder_id (0 (term.ident `α [])))]
              (term.binder_content_type
               ":"
-              (term.sort_app
-               (term.sort (0 "Sort"))
-               (level.leading (5 (ident (ident_part (1 "u")) [])))))
+              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
              [])
             "}")))
          (term.bracketed_binder
@@ -708,12 +659,10 @@ result:
             (term.explicit_binder_content
              (1
               (term.binder_content
-               [(term.binder_id (0 (term.ident (ident (ident_part (1 "a")) []) [])))]
-               (term.binder_content_type ":" (term.ident (ident (ident_part (1 "α")) []) []))
+               [(term.binder_id (0 (term.ident `a [])))]
+               (term.binder_content_type ":" (term.ident `α []))
                [])))
             ")")))]
-        [(command.decl_type ":" (term.ident (ident (ident_part (1 "α")) []) []))])
-       (command.decl_val
-        (0
-         (command.simple_decl_val ":=" (term.ident (ident (ident_part (1 "a")) []) []))))))))])
+        [(command.decl_type ":" (term.ident `α []))])
+       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `a []))))))))])
  (eoi "")]

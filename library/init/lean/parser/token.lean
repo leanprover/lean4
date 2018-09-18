@@ -78,7 +78,7 @@ do it ← left_over,
    it2 ← left_over,
    pure (a, ⟨leading, it.offset, trailing⟩)
 
-/-- Match an arbitrary parser and return the consumed string in an `atomic_val.string`. -/
+/-- Match an arbitrary parser and return the consumed string in a `syntax.atom`. -/
 def raw {α : Type} (p : m α) (trailing_ws := ff) : parser :=
 try $ do
   (ss, info) ← with_source_info (as_substring p) trailing_ws,

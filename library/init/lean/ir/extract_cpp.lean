@@ -56,7 +56,7 @@ emit "(" *> a <* emit ")"
 def comma (a b : extract_m unit) : extract_m unit :=
 a *> emit ", " *> b
 
-local infix `<+>`:65 := comma
+local infix ` <+> `:65 := comma
 
 def emit_var (x : var) : extract_m unit :=
 emit $ name.mangle x "_x"

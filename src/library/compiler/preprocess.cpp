@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h"
 #include "library/context_cache.h"
 #include "library/module.h"
+#include "library/max_sharing.h"
 #include "library/vm/vm.h"
 #include "library/compiler/old_util.h"
 #include "library/compiler/preprocess.h"
@@ -248,6 +249,8 @@ class preprocess_fn {
         lean_trace(name({"compiler", "cse"}), tout() << "\n" << v4 << "\n";);
         lean_cond_assert("compiler", check(d, v4));
         // std::cout << "done compiling " << n << "\n";
+        v4 = max_sharing(v4);
+        lean_trace(name({"compiler", "stage1"}), tout() << n << "\n" << v4 << "\n";);
         declaration simp_decl = mk_definition(mk_cstage1_name(n), d.get_lparams(), d.get_type(),
                                               v4, reducibility_hints::mk_opaque(), true);
         /* IMPORTANT: We do not need to save the auxiliary declaration in the environment.
@@ -345,6 +348,7 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "lcnf"});
     register_trace_class({"compiler", "simp"});
+    register_trace_class({"compiler", "stage1"});
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "eta_expansion"});
     register_trace_class({"compiler", "inline"});

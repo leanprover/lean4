@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/context_cache.h"
 #include "library/module.h"
 #include "library/max_sharing.h"
+#include "library/aux_match.h"
 #include "library/vm/vm.h"
 #include "library/compiler/old_util.h"
 #include "library/compiler/preprocess.h"
@@ -234,8 +235,8 @@ class preprocess_fn {
 
     void exec_new_compiler(constant_info const & d) {
         name n  = get_real_name(d.get_name());
-        expr v  = d.get_value();
-        expr v1 = to_lcnf(m_env, m_decl_names, local_ctx(), v);
+        expr v  = unfold_aux_match(m_env, d.get_value());
+        expr v1 = to_lcnf(m_env, local_ctx(), v);
         // std::cout << "compiling " << n << "\n";
         lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v1 << "\n";);
         lean_cond_assert("compiler", check(d, v1));

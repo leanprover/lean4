@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/abstract.h"
 #include "library/placeholder.h"
+#include "library/aux_match.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/util.h"
@@ -14,10 +15,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 
 namespace lean {
-static name * g_match_name = nullptr;
-
-bool is_match_binder_name(name const & n) { return n == *g_match_name; }
-
 /** \brief Use equations compiler infrastructure to implement match-with */
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
     parser::local_scope scope1(p);
@@ -36,9 +33,9 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
         if (p.curr_is_token(get_colon_tk())) {
             p.next();
             expr type = p.parse_expr();
-            fn = mk_local(p.next_name(), *g_match_name, type, mk_rec_info());
+            fn = mk_local(p.next_name(), get_aux_match_suffix(), type, mk_rec_info());
         } else {
-            fn = mk_local(p.next_name(), *g_match_name, mk_expr_placeholder(), mk_rec_info());
+            fn = mk_local(p.next_name(), get_aux_match_suffix(), mk_expr_placeholder(), mk_rec_info());
         }
 
         p.check_token_next(get_with_tk(), "invalid 'match' expression, 'with' expected");
@@ -86,10 +83,8 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
 }
 
 void initialize_match_expr() {
-    g_match_name = new name("_match");
 }
 
 void finalize_match_expr() {
-    delete g_match_name;
 }
 }

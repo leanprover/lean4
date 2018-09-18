@@ -8,9 +8,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 namespace lean {
 class parser;
-/** \brief Return true iff \c n is the auxiliary name used to elaborate match-expressions. */
-bool is_match_binder_name(name const & n);
-
 expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos);
 
 void initialize_match_expr();

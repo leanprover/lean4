@@ -31,6 +31,7 @@ Author: Leonardo de Moura
 #include "library/fun_info.h"
 #include "library/num.h"
 #include "library/check.h"
+#include "library/aux_match.h"
 
 namespace lean {
 bool is_at_least_semireducible(transparency_mode m) {
@@ -474,7 +475,7 @@ name mk_smart_unfolding_name_for(name const & n) {
 }
 
 static bool is_smart_unfolding_target(environment const & env, name const & fn_name) {
-    if (!fn_name.is_atomic() && fn_name.is_string() && strncmp(fn_name.get_string().data(), "_match", 6) == 0)
+    if (is_aux_match(fn_name))
         return true;
     bool r = static_cast<bool>(env.find(mk_smart_unfolding_name_for(fn_name)));
     return r;

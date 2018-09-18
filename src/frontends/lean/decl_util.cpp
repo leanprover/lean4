@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/explicit.h"
 #include "library/reducible.h"
+#include "library/aux_match.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/tokens.h"
@@ -529,8 +530,8 @@ private_name_scope::~private_name_scope() {
 match_definition_scope::match_definition_scope(environment const & env) {
     definition_info & info = get_definition_info();
     while (true) {
-        m_name        = mk_decl_name(info.m_prefix, name("_match").append_after(info.m_next_match_idx));
-        m_actual_name = mk_decl_name(info.m_actual_prefix, name("_match").append_after(info.m_next_match_idx));
+        m_name        = mk_decl_name(info.m_prefix, mk_aux_match_suffix(info.m_next_match_idx));
+        m_actual_name = mk_decl_name(info.m_actual_prefix, mk_aux_match_suffix(info.m_next_match_idx));
         info.m_next_match_idx++;
         if (empty(get_expr_aliases(env, m_name))) {
             /* Make sure we don't introduce aliases.

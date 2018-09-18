@@ -1108,23 +1108,23 @@ is_false not_false
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
 @[inline] def dite (c : Prop) [h : decidable c] {α : Sort u} : (c → α) → (¬ c → α) → α :=
-λ t e, decidable.rec_on h e t
+λ t e, decidable.cases_on h e t
 
 /- if-then-else -/
 
 @[inline] def ite (c : Prop) [h : decidable c] {α : Sort u} (t e : unit → α) : α :=
-decidable.rec_on h (λ hnc, e ()) (λ hc, t ())
+decidable.cases_on h (λ hnc, e ()) (λ hc, t ())
 
 namespace decidable
 variables {p q : Prop}
 
 def rec_on_true [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u} (h₃ : p) (h₄ : h₁ h₃)
     : (decidable.rec_on h h₂ h₁ : Sort u) :=
-decidable.rec_on h (λ h, false.rec _ (h h₃)) (λ h, h₄)
+decidable.cases_on h (λ h, false.rec _ (h h₃)) (λ h, h₄)
 
 def rec_on_false [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u} (h₃ : ¬p) (h₄ : h₂ h₃)
     : (decidable.rec_on h h₂ h₁ : Sort u) :=
-decidable.rec_on h (λ h, h₄) (λ h, false.rec _ (h₃ h))
+decidable.cases_on h (λ h, h₄) (λ h, false.rec _ (h₃ h))
 
 def by_cases {q : Sort u} [s : decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
 match s with
@@ -1405,7 +1405,7 @@ instance prop.inhabited : inhabited Prop :=
 ⟨true⟩
 
 instance fun.inhabited (α : Sort u) {β : Sort v} [h : inhabited β] : inhabited (α → β) :=
-inhabited.rec_on h (λ b, ⟨λ a, b⟩)
+inhabited.cases_on h (λ b, ⟨λ a, b⟩)
 
 instance pi.inhabited (α : Sort u) {β : α → Sort v} [Π x, inhabited (β x)] : inhabited (Π x, β x) :=
 ⟨λ a, default (β a)⟩
@@ -1434,7 +1434,7 @@ class inductive subsingleton (α : Sort u) : Prop
 | intro (h : ∀ a b : α, a = b) : subsingleton
 
 protected def subsingleton.elim {α : Sort u} [h : subsingleton α] : ∀ (a b : α), a = b :=
-subsingleton.rec (λ p, p) h
+subsingleton.cases_on h (λ p, p)
 
 protected def subsingleton.helim {α β : Sort u} [h : subsingleton α] (h : α = β) : ∀ (a : α) (b : β), a == b :=
 eq.rec_on h (λ a b : α, heq_of_eq (subsingleton.elim a b))
@@ -1456,7 +1456,7 @@ subsingleton.intro (λ d₁,
 
 protected theorem rec_subsingleton {p : Prop} [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u}
                                  [h₃ : Π (h : p), subsingleton (h₁ h)] [h₄ : Π (h : ¬p), subsingleton (h₂ h)]
-                                 : subsingleton (decidable.rec_on h h₂ h₁) :=
+                                 : subsingleton (decidable.cases_on h h₂ h₁) :=
 match h with
 | (is_true h)  := h₃ h
 | (is_false h) := h₄ h

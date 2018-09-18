@@ -236,7 +236,7 @@ class preprocess_fn {
         expr v  = d.get_value();
         expr v1 = to_lcnf(m_env, m_decl_names, local_ctx(), v);
         // std::cout << "compiling " << n << "\n";
-        lean_trace(name({"compiler", "lcnf"}), tout() << "\n" << v1 << "\n";);
+        lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v1 << "\n";);
         lean_cond_assert("compiler", check(d, v1));
         expr v2 = csimp(m_env, local_ctx(), v1);
         lean_cond_assert("compiler", check(d, v2));

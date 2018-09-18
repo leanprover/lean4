@@ -47,7 +47,7 @@ public:
     }
 
     expr mk_let_decl(expr const & e) {
-        expr type = head_beta_const_fn(infer_type(e));
+        expr type = cheap_beta_reduce(infer_type(e));
         /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
            because the resulting name is confusing during debugging: it looks like a projection application.
            We should replace it with `name(m_x, m_next_idx)` when the compiler code gets more stable. */

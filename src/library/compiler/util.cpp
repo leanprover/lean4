@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 
 namespace lean {
-expr head_beta_const_fn(expr const & e) {
+expr cheap_beta_reduce(expr const & e) {
     if (!is_app(e)) return e;
     expr fn = get_app_fn(e);
     if (!is_lambda(fn)) return e;
@@ -17,14 +17,17 @@ expr head_beta_const_fn(expr const & e) {
     get_app_args(e, args);
     unsigned i = 0;
     while (is_lambda(fn) && i < args.size()) {
-        expr const & body = binding_body(fn);
-        if (has_loose_bvars(body))
-            break;
         i++;
-        fn = body;
+        fn = binding_body(fn);
     }
-    if (i == 0) return e;
-    return mk_app(fn, args.size() - i, args.data() + i);
+    if (!has_loose_bvars(fn)) {
+        return mk_app(fn, args.size() - i, args.data() + i);
+    } else if (is_bvar(fn)) {
+        lean_assert(bvar_idx(fn) < i);
+        return mk_app(args[i - bvar_idx(fn).get_small_value() - 1], args.size() - i, args.data() + i);
+    } else {
+        return e;
+    }
 }
 
 bool is_cases_on_recursor(environment const & env, name const & n) {

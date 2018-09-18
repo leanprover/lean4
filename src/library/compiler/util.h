@@ -12,8 +12,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 /* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,
-   and `e` otherwise. */
-expr head_beta_const_fn(expr const & e);
+   and `e` otherwise. We also reduce `(fun x_1 ... x_n, x_i) a_1 ... a_n` into `a_[n-i-1]` */
+expr cheap_beta_reduce(expr const & e);
 
 /* Return true if the given argument is mdata relevant to the compiler
 

@@ -27,11 +27,11 @@ set_option class.instance_max_depth 200
 @[derive parser.has_view parser.has_tokens]
 def open_spec.parser : command_parser :=
 node! open_spec [
- id: ident,
- as: node! open_spec.as ["as", id: ident]?,
- only: node! open_spec.only [try ["(", id: ident], ids: ident*, ")"]?,
- «renaming»: node! open_spec.renaming [try ["(", "renaming"], items: node! open_spec.renaming.item [«from»: ident, "->", to: ident]+, ")"]?,
- «hiding»: node! open_spec.hiding ["(", "hiding", ids: ident+, ")"]?
+ id: ident.parser,
+ as: node! open_spec.as ["as", id: ident.parser]?,
+ only: node! open_spec.only [try ["(", id: ident.parser], ids: ident.parser*, ")"]?,
+ «renaming»: node! open_spec.renaming [try ["(", "renaming"], items: node! open_spec.renaming.item [«from»: ident.parser, "->", to: ident.parser]+, ")"]?,
+ «hiding»: node! open_spec.hiding ["(", "hiding", ids: ident.parser+, ")"]?
 ]+
 
 @[derive parser.has_tokens]
@@ -40,16 +40,16 @@ node! «open» ["open", spec: open_spec.parser]
 
 @[derive parser.has_tokens]
 def section.parser : command_parser :=
-node! «section» ["section", name: ident?, commands: command_parser.recurse*, "end", end_name: ident?]
+node! «section» ["section", name: ident.parser?, commands: command_parser.recurse*, "end", end_name: ident.parser?]
 
 @[derive parser.has_tokens]
 def universe.parser : command_parser :=
 any_of [
   -- local
-  node! universe_variables [try ["universe", "variables"], ids: ident+],
+  node! universe_variables [try ["universe", "variables"], ids: ident.parser+],
   -- global
-  node! «universes» ["universes", ids: ident+],
-  node! «universe» ["universe", id: ident]
+  node! «universes» ["universes", ids: ident.parser+],
+  node! «universe» ["universe", id: ident.parser]
 ]
 
 @[derive parser.has_tokens parser.has_view]
@@ -84,7 +84,7 @@ do v ← view mixfix stx,
        rules := [{
          symbol := v.symbol,
          transition := optional_view.some $ transition.view.arg $ {
-           id := review id {part := ident_part.view.default "b", suffix := optional_view.none},
+           id := review ident {part := ident_part.view.default "b", suffix := optional_view.none},
            action := prec_to_action <$> prec}}]}
      | _ := sorry,
    pure $ review «notation» ⟨"notation", spec, ":=", v.term⟩

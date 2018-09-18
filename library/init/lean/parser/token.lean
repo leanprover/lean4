@@ -127,7 +127,7 @@ with update_trailing_lst : substring → list syntax → list syntax
 | trailing (stx::stxs) := stx :: update_trailing_lst trailing stxs
 
 def ident' : basic_parser_m (source_info → syntax) :=
-do stx ← with_recurse () $ λ _, node! id [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser],
+do stx ← with_recurse () $ λ _, node! ident [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser],
    pure $ λ info, update_trailing info.trailing stx
 
 private def symbol' : basic_parser_m (source_info → syntax) :=
@@ -174,14 +174,14 @@ lift $ try $ do
 instance number.tokens : parser.has_tokens (number : parser) := ⟨[]⟩
 instance number.view : parser.has_view (number : parser) syntax := default _
 
-def ident : parser :=
+def ident.parser : parser :=
 lift $ try $ do
   it ← left_over,
   stx@(syntax.node ⟨ident, _⟩) ← token | error "" (dlist.singleton "identifier") it,
   pure stx
 
-instance ident.tokens : parser.has_tokens (ident : parser) := ⟨[]⟩
-instance ident.view : parser.has_view (ident : parser) syntax := default _
+instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := ⟨[]⟩
+instance ident.parser.view : parser.has_view (ident.parser : parser) syntax := default _
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
@@ -197,7 +197,7 @@ lift $ try $ do
   let sym' := match stx with
   | syntax.atom ⟨_, sym'⟩ := some sym'
   | syntax.node ⟨ident, _⟩ :=
-    (match syntax_node_kind.has_view.view id stx with
+    (match syntax_node_kind.has_view.view ident stx with
      | some {part := ident_part.view.default (syntax.atom ⟨_, sym'⟩),
              suffix := optional_view.none} := some sym'
      | _ := none)

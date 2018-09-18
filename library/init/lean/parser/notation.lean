@@ -67,7 +67,7 @@ def transition.parser : command_parser :=
 node_choice! transition {
   binder: node! binder ["binder", prec: precedence.parser?],
   binders: node! binders ["binders", prec: precedence.parser?],
-  arg: node! argument [id: ident, action: action.parser?]
+  arg: node! argument [id: ident.parser, action: action.parser?]
 }
 
 @[derive parser.has_tokens parser.has_view]
@@ -80,7 +80,7 @@ end notation_spec
 def notation_spec.parser : command_parser :=
 node_choice! notation_spec {
   number_literal: number,
-  rules: node! notation_spec.rules [id: ident?, rules: notation_spec.rule.parser*]
+  rules: node! notation_spec.rules [id: ident.parser?, rules: notation_spec.rule.parser*]
 }
 
 @[derive parser.has_tokens parser.has_view]

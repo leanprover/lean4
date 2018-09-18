@@ -39,7 +39,7 @@ node_choice! leading {
   hole: symbol "_" max_prec,
   paren: paren.parser,
   lit: number,
-  var: ident
+  var: ident.parser
 }
 
 @[derive parser.has_tokens parser.has_view]

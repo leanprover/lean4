@@ -63,7 +63,7 @@ class csimp_fn {
         if (is_atom(e)) {
             return e;
         } else {
-            expr type = infer_type(e);
+            expr type = head_beta_const_fn(infer_type(e));
             expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
             m_fvars.push_back(fvar);
             return fvar;

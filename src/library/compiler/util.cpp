@@ -9,6 +9,24 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 
 namespace lean {
+expr head_beta_const_fn(expr const & e) {
+    if (!is_app(e)) return e;
+    expr fn = get_app_fn(e);
+    if (!is_lambda(fn)) return e;
+    buffer<expr> args;
+    get_app_args(e, args);
+    unsigned i = 0;
+    while (is_lambda(fn) && i < args.size()) {
+        expr const & body = binding_body(fn);
+        if (has_loose_bvars(body))
+            break;
+        i++;
+        fn = body;
+    }
+    if (i == 0) return e;
+    return mk_app(fn, args.size() - i, args.data() + i);
+}
+
 bool is_cases_on_recursor(environment const & env, name const & n) {
     return ::lean::is_aux_recursor(env, n) && n.get_string() == "cases_on";
 }

@@ -11,6 +11,10 @@ Author: Leonardo de Moura
 #include "library/util.h"
 
 namespace lean {
+/* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,
+   and `e` otherwise. */
+expr head_beta_const_fn(expr const & e);
+
 /* Return true if the given argument is mdata relevant to the compiler
 
    Remark: we currently don't keep any metadata in the compiler. */

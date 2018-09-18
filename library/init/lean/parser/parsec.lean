@@ -33,10 +33,12 @@ def expected.to_string : list string → string
 
 protected def message.to_string {μ : Type} (msg : message μ) : string :=
 let (line, col) := msg.it.to_string.line_column msg.it.offset in
-"error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":\n" ++
-(if msg.unexpected = "" then "" else "unexpected " ++ msg.unexpected ++ "\n") ++
+-- always print ":"; we assume at least one of `unexpected` and `expected` to be non-empty
+let loc := ["error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":"] in
+let unexpected := (if msg.unexpected = "" then [] else ["unexpected " ++ msg.unexpected]) in
 let ex_list := msg.expected.to_list in
-if ex_list = [] then "" else "expected " ++ expected.to_string ex_list
+let expected := if ex_list = [] then [] else ["expected " ++ expected.to_string ex_list] in
+"\n".intercalate $ loc ++ unexpected ++ expected
 
 instance {μ : Type} : has_to_string (message μ) :=
 ⟨message.to_string⟩
@@ -254,7 +256,7 @@ namespace monad_parsec
 open parsec_t
 variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
 
-@[inline] def error {α : Type} (unexpected : string := "") (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
+@[inline] def error {α : Type} (unexpected : string) (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
 lift $ λ it', result.error { unexpected := unexpected, expected := expected, it := it.get_or_else it', custom := custom } ff
 
 @[inline] def left_over : m iterator :=

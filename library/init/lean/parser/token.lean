@@ -138,46 +138,48 @@ do tk ← match_token,
         pure $ λ i, syntax.atom ⟨some i, tk⟩
    -- variable-length token
    | some ⟨tk, _, some r⟩ := error "symbol': not implemented" --str tk *> monad_parsec.lift r
-   | none                 := error
+   | none                 := monad_parsec.eoi *> error "end of file" <|> error "token"
 
 def token : basic_parser_m syntax :=
 do (r, i) ← with_source_info $ do {
      -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-     f::_ ← longest_match [symbol', ident'] <|> list.ret <$> number' | failure,
+     f::_ ← longest_match [symbol', ident'] <|> list.ret <$> number' | error "token: unreachable",
      pure f
    },
    pure (r i)
 
 variable [monad_basic_read m]
 
---TODO(Sebastian): error messages
 def symbol (sym : string) (lbp := 0) : parser :=
-lift $ try $ do
+lift $ try $ do {
   it ← left_over,
   stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
   when (sym ≠ sym') $
     error "" (dlist.singleton (repr sym)) it,
   pure stx
+} <?> repr sym
 
 instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
 ⟨[⟨sym, lbp, none⟩]⟩
 instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) syntax := default _
 
 def number : parser :=
-lift $ try $ do
+lift $ try $ do {
   it ← left_over,
   stx@(syntax.node ⟨base10_lit, _⟩) ← token | error "" (dlist.singleton "number") it,
   pure stx
+} <?> "number"
 
 instance number.tokens : parser.has_tokens (number : parser) := ⟨[]⟩
 instance number.view : parser.has_view (number : parser) syntax := default _
 
 def ident.parser : parser :=
-lift $ try $ do
+lift $ try $ do {
   it ← left_over,
   stx@(syntax.node ⟨ident, _⟩) ← token | error "" (dlist.singleton "identifier") it,
   pure stx
+} <?> "identifier"
 
 instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := ⟨[]⟩
 instance ident.parser.view : parser.has_view (ident.parser : parser) syntax := default _

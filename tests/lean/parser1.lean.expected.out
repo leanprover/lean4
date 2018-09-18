@@ -7,7 +7,8 @@ expected command
 partial syntax tree:
 [(module [] [] []) (eoi "")]
 error at line 1, column 6:
-
+unexpected end of file
+expected identifier
 partial syntax tree:
 [(module
   []
@@ -59,7 +60,8 @@ partial syntax tree:
 error at line 1, column 5:
 expected identifier
 error at line 1, column 9:
-
+unexpected end of file
+expected identifier
 partial syntax tree:
 [(module
   []
@@ -139,7 +141,11 @@ result:
  ":="
  (term.hole "_"))
 notation`+`:10 b:10 :=_
-result: 
+error at line 85, column 0:
+expected command
+error at line 85, column 19:
+expected "def", "abbreviation", "theorem", "instance" or "example"
+partial syntax tree:
 [(module
   [(prelude "prelude")]
   []
@@ -630,39 +636,7 @@ result:
        [(command.notation_spec.precedence ":" (base10_lit "1"))]))))
    (command.universes "universes" [`u `v `w])
    (command.declaration
-    (command.decl_modifiers
-     []
-     []
-     []
-     [(command.decl_attribute "@[" [(command.attr_instance `inline [])] "]")])
+    (command.decl_modifiers [] [] ["meta"] [])
     (command.declaration.inner
-     (0
-      (command.def
-       "def"
-       `id
-       (command.decl_sig
-        [(term.bracketed_binder
-          (1
-           (term.implicit_binder
-            "{"
-            (term.binder_content
-             [(term.binder_id (0 (term.ident `α [])))]
-             (term.binder_content_type
-              ":"
-              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
-             [])
-            "}")))
-         (term.bracketed_binder
-          (0
-           (term.explicit_binder
-            "("
-            (term.explicit_binder_content
-             (1
-              (term.binder_content
-               [(term.binder_id (0 (term.ident `a [])))]
-               (term.binder_content_type ":" (term.ident `α []))
-               [])))
-            ")")))]
-        [(command.decl_type ":" (term.ident `α []))])
-       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `a []))))))))])
+     (command.def <missing> <missing> <missing> <missing>)))])
  (eoi "")]

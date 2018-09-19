@@ -22,26 +22,26 @@ variables {α : Sort u₁} {β : Sort u₂} {φ : Sort u₃} {δ : Sort u₄} {�
 infixr  ` ∘ `      := function.comp
 infixr  ` ∘' `:80  := function.dcomp
 
-@[reducible] def comp_right (f : β → β → β) (g : α → β) : β → α → β :=
+@[inline, reducible] def comp_right (f : β → β → β) (g : α → β) : β → α → β :=
 λ b a, f b (g a)
 
-@[reducible] def comp_left (f : β → β → β) (g : α → β) : α → β → β :=
+@[inline, reducible] def comp_left (f : β → β → β) (g : α → β) : α → β → β :=
 λ a b, f (g a) b
 
-@[reducible] def on_fun (f : β → β → φ) (g : α → β) : α → α → φ :=
+@[inline, reducible] def on_fun (f : β → β → φ) (g : α → β) : α → α → φ :=
 λ x y, f (g x) (g y)
 
-@[reducible] def combine (f : α → β → φ) (op : φ → δ → ζ) (g : α → β → δ)
+@[inline, reducible] def combine (f : α → β → φ) (op : φ → δ → ζ) (g : α → β → δ)
   : α → β → ζ :=
 λ x y, op (f x y) (g x y)
 
-@[reducible] def const (β : Sort u₂) (a : α) : β → α :=
+@[inline, reducible] def const (β : Sort u₂) (a : α) : β → α :=
 λ x, a
 
-@[reducible] def swap {φ : α → β → Sort u₃} (f : Π x y, φ x y) : Π y x, φ x y :=
+@[inline, reducible] def swap {φ : α → β → Sort u₃} (f : Π x y, φ x y) : Π y x, φ x y :=
 λ y x, f x y
 
-@[reducible] def app {β : α → Sort u₂} (f : Π x, β x) (x : α) : β x :=
+@[inline, reducible] def app {β : α → Sort u₂} (f : Π x, β x) (x : α) : β x :=
 f x
 
 infixl  ` on `:2         := on_fun

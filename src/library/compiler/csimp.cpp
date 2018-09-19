@@ -419,7 +419,7 @@ class csimp_fn {
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
         if (should_inline(const_name(fn), get_app_num_args(e))) {
             if (optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)))) {
-                expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
+                expr new_fn = visit(instantiate_value_lparams(*info, const_levels(fn)));
                 return beta_reduce(new_fn, e);
             }
         }

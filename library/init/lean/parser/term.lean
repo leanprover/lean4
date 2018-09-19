@@ -51,7 +51,7 @@ section binder
 def binder_content.parser : term_parser :=
 node! binder_content [
   ids: (node_choice! binder_id {id: ident.parser, hole: hole.parser})+,
-  type: node! binder_content_type [":", type: recurse 0],
+  type: node! binder_content_type [":", type: recurse 0]?,
   default: node_choice! binder_default {
     val: node! binder_default_val [":=", term: recurse 0],
     tac: node! binder_default_tac [".", term: recurse 0]
@@ -102,7 +102,33 @@ node_choice! bracketed_binder {
     node! inst_implicit_anonymous_binder [type: recurse 0]
   ], "]"]
 }
+
+@[derive has_tokens has_view]
+def binder.parser : term_parser :=
+node_choice! binder {
+  bracketed: bracketed_binder.parser,
+  unbracketed: binder_content.parser
+}
+
 end binder
+
+@[derive parser.has_tokens parser.has_view]
+def lambda.parser : term_parser :=
+node! lambda [
+  op: any_of [symbol "λ", symbol "fun"],
+  binders: binder.parser+,
+  ",",
+  body: recurse 0
+]
+
+@[derive parser.has_tokens parser.has_view]
+def pi.parser : term_parser :=
+node! pi [
+  op: any_of [symbol "Π", symbol "Pi"],
+  binders: binder.parser+,
+  ",",
+  range: recurse 0
+]
 
 @[derive parser.has_tokens parser.has_view]
 def leading.parser :=
@@ -110,7 +136,9 @@ any_of [
   term.ident.parser,
   number,
   hole.parser,
-  sort.parser
+  sort.parser,
+  lambda.parser,
+  pi.parser
 ]
 
 @[derive parser.has_tokens parser.has_view]
@@ -123,10 +151,15 @@ def app.parser : trailing_term_parser :=
 node! app [fn: get_leading, arg: recurse max_prec]
 
 @[derive parser.has_tokens parser.has_view]
+def arrow.parser : trailing_term_parser :=
+node! arrow [dom: get_leading, op: any_of [symbol "→" 25, symbol "->" 25], range: recurse 24]
+
+@[derive parser.has_tokens parser.has_view]
 def trailing.parser : trailing_term_parser :=
 any_of [
   sort_app.parser,
-  app.parser
+  app.parser,
+  arrow.parser
 ]
 
 end term

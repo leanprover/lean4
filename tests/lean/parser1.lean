@@ -68,7 +68,7 @@ universes u v
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
-  let s := (s.mk_iterator.nextn 3000).prev_to_string,
+  let s := (s.mk_iterator.nextn 3500).prev_to_string,
   let k := parser.parse ⟨"foo"⟩ s module.parser,
   io.prim.iterate_eio k $ λ k, match k.resume () with
     | coroutine_result_core.done p := show_result p s *> pure (sum.inr ())

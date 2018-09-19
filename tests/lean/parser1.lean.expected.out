@@ -141,12 +141,9 @@ result:
  ":="
  (term.hole "_"))
 notation`+`:10 b:10 :=_
-error at line 90, column 52:
+error at line 130, column 16:
 expected command
-error at line 94, column 65:
-unexpected '→'
-expected ")"
-error at line 121, column 28:
+error at line 134, column 61:
 expected "/-" or "-/"
 partial syntax tree:
 [(module
@@ -657,7 +654,7 @@ partial syntax tree:
             "{"
             (term.binder_content
              [(term.binder_id (0 (term.ident `α [])))]
-             (term.binder_content_type ":" (term.ident `Prop []))
+             [(term.binder_content_type ":" (term.ident `Prop []))]
              [])
             "}")))]
         [(command.decl_type ":" (term.ident `α []))])))))
@@ -680,9 +677,9 @@ partial syntax tree:
             "{"
             (term.binder_content
              [(term.binder_id (0 (term.ident `α [])))]
-             (term.binder_content_type
-              ":"
-              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
              [])
             "}")))]
         [(command.decl_type ":" (term.ident `α []))])))))
@@ -705,9 +702,9 @@ partial syntax tree:
             "{"
             (term.binder_content
              [(term.binder_id (0 (term.ident `α [])))]
-             (term.binder_content_type
-              ":"
-              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
              [])
             "}")))
          (term.bracketed_binder
@@ -716,12 +713,12 @@ partial syntax tree:
             "{"
             (term.binder_content
              [(term.binder_id (0 (term.ident `β [])))]
-             (term.binder_content_type
-              ":"
-              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `v))))
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `v))))]
              [])
             "}")))]
-        [(command.decl_type ":" (term.ident `α []))])))))
+        [(command.decl_type ":" (term.arrow (term.ident `α []) "→" (term.ident `β [])))])))))
    (command.declaration
     (command.decl_modifiers
      []
@@ -741,9 +738,9 @@ partial syntax tree:
             "{"
             (term.binder_content
              [(term.binder_id (0 (term.ident `α [])))]
-             (term.binder_content_type
-              ":"
-              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
              [])
             "}")))
          (term.bracketed_binder
@@ -754,7 +751,7 @@ partial syntax tree:
              (1
               (term.binder_content
                [(term.binder_id (0 (term.ident `a [])))]
-               (term.binder_content_type ":" (term.ident `α []))
+               [(term.binder_content_type ":" (term.ident `α []))]
                [])))
             ")")))]
         [(command.decl_type ":" (term.ident `α []))])
@@ -767,56 +764,81 @@ partial syntax tree:
      []
      [(command.decl_attribute "@[" [(command.attr_instance `inline [])] "]")])
     (command.declaration.inner
-     (command.def
-      "def"
-      `flip
-      (command.decl_sig
-       [(term.bracketed_binder
-         (1
-          (term.implicit_binder
-           "{"
-           (term.binder_content
-            [(term.binder_id (0 (term.ident `α [])))]
-            (term.binder_content_type
-             ":"
-             (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
-            [])
-           "}")))
-        (term.bracketed_binder
-         (1
-          (term.implicit_binder
-           "{"
-           (term.binder_content
-            [(term.binder_id (0 (term.ident `β [])))]
-            (term.binder_content_type
-             ":"
-             (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `v))))
-            [])
-           "}")))
-        (term.bracketed_binder
-         (1
-          (term.implicit_binder
-           "{"
-           (term.binder_content
-            [(term.binder_id (0 (term.ident `φ [])))]
-            (term.binder_content_type
-             ":"
-             (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `w))))
-            [])
-           "}")))
-        (term.bracketed_binder
-         (term.explicit_binder
-          "("
-          (term.explicit_binder_content
-           (1
+     (0
+      (command.def
+       "def"
+       `flip
+       (command.decl_sig
+        [(term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
             (term.binder_content
-             [(term.binder_id (0 (term.ident `f [])))]
-             (term.binder_content_type ":" (term.ident `α []))
-             [])))
-          <missing>))
-        <missing>]
-       <missing>)
-      <missing>)))
+             [(term.binder_id (0 (term.ident `α [])))]
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
+             [])
+            "}")))
+         (term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `β [])))]
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `v))))]
+             [])
+            "}")))
+         (term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `φ [])))]
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `w))))]
+             [])
+            "}")))
+         (term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `f [])))]
+               [(term.binder_content_type
+                 ":"
+                 (term.arrow
+                  (term.ident `α [])
+                  "→"
+                  (term.arrow (term.ident `β []) "→" (term.ident `φ []))))]
+               [])))
+            ")")))]
+        [(command.decl_type
+          ":"
+          (term.arrow
+           (term.ident `β [])
+           "→"
+           (term.arrow (term.ident `α []) "→" (term.ident `φ []))))])
+       (command.decl_val
+        (0
+         (command.simple_decl_val
+          ":="
+          (term.lambda
+           "λ"
+           [(term.binder
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `b [])))
+                (term.binder_id (0 (term.ident `a [])))]
+               []
+               [])))]
+           ","
+           (term.app (term.app (term.ident `f []) (term.ident `a [])) (term.ident `b []))))))))))
    (command.declaration
     (command.decl_modifiers
      []
@@ -836,9 +858,9 @@ partial syntax tree:
             "{"
             (term.binder_content
              [(term.binder_id (0 (term.ident `α [])))]
-             (term.binder_content_type
-              ":"
-              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [(term.binder_content_type
+               ":"
+               (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
              [])
             "}")))
          (term.bracketed_binder
@@ -849,7 +871,7 @@ partial syntax tree:
              (1
               (term.binder_content
                [(term.binder_id (0 (term.ident `a [])))]
-               (term.binder_content_type ":" (term.ident `α []))
+               [(term.binder_content_type ":" (term.ident `α []))]
                [])))
             ")")))]
         [(command.decl_type ":" (term.ident `α []))])
@@ -875,9 +897,9 @@ partial syntax tree:
              (1
               (term.binder_content
                [(term.binder_id (0 (term.ident `α [])))]
-               (term.binder_content_type
-                ":"
-                (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+               [(term.binder_content_type
+                 ":"
+                 (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
                [])))
             ")")))
          (term.bracketed_binder
@@ -888,7 +910,7 @@ partial syntax tree:
              (1
               (term.binder_content
                [(term.binder_id (0 (term.ident `default [])))]
-               (term.binder_content_type ":" (term.ident `α []))
+               [(term.binder_content_type ":" (term.ident `α []))]
                [])))
             ")")))]
         [(command.decl_type
@@ -916,15 +938,94 @@ partial syntax tree:
              (1
               (term.binder_content
                [(term.binder_id (0 (term.ident `α [])))]
-               (term.binder_content_type
-                ":"
-                (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+               [(term.binder_content_type
+                 ":"
+                 (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
                [])))
             ")")))]
         [(command.decl_type
           ":"
           (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))])
        (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `α []))))))))
+   (command.declaration
+    (command.decl_modifiers
+     ["/-- Auxiliary declaration used to implement the notation (a : α) -/"]
+     []
+     []
+     []
+     [(command.decl_attribute "@[" [(command.attr_instance `reducible [])] "]")])
+    (command.declaration.inner
+     (0
+      (command.def
+       "def"
+       `typed_expr
+       (command.decl_sig
+        [(term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `α [])))]
+               [(term.binder_content_type
+                 ":"
+                 (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
+               [])))
+            ")")))
+         (term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `a [])))]
+               [(term.binder_content_type ":" (term.ident `α []))]
+               [])))
+            ")")))]
+        [(command.decl_type ":" (term.ident `α []))])
+       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `a []))))))))
+   (command.declaration
+    (command.decl_modifiers [] [] [] [] [])
+    (command.declaration.inner
+     (1
+      (command.abbreviation
+       "abbreviation"
+       `id_rhs
+       (command.decl_sig
+        [(term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `α [])))]
+               [(term.binder_content_type
+                 ":"
+                 (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))]
+               [])))
+            ")")))
+         (term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `a [])))]
+               [(term.binder_content_type ":" (term.ident `α []))]
+               [])))
+            ")")))]
+        [(command.decl_type ":" (term.ident `α []))])
+       (command.decl_val
+        (0
+         (command.simple_decl_val
+          ":="
+          (term.app
+           (term.app (term.ident `a []) (term.ident `inductive []))
+           (term.ident `punit [])))))))))
    (command.declaration
     (command.decl_modifiers [<missing>] <missing> <missing> <missing> <missing>)
     <missing>)])

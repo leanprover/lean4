@@ -88,7 +88,7 @@ node! binder_content [
 def bracketed_binder.parser : term_parser :=
 node_choice! bracketed_binder {
   explicit: node! explicit_binder ["(":max_prec, content: node_choice! explicit_binder_content {
-    «notation»: any_of [command.notation.parser, command.mixfix.parser],
+    «notation»: command.notation_like.parser,
     other: binder_content.parser
   }, right: symbol ")"],
   implicit: node! implicit_binder ["{":max_prec, content: binder_content.parser, "}"],
@@ -131,6 +131,10 @@ node! pi [
 ]
 
 @[derive parser.has_tokens parser.has_view]
+def anonymous_constructor.parser : term_parser :=
+node! anonymous_constructor ["⟨":max_prec, args: sep_by (recurse 0) (symbol ","), "⟩"]
+
+@[derive parser.has_tokens parser.has_view]
 def leading.parser :=
 any_of [
   term.ident.parser,
@@ -138,7 +142,8 @@ any_of [
   hole.parser,
   sort.parser,
   lambda.parser,
-  pi.parser
+  pi.parser,
+  anonymous_constructor.parser
 ]
 
 @[derive parser.has_tokens parser.has_view]

@@ -141,8 +141,6 @@ result:
  ":="
  (term.hole "_"))
 notation`+`:10 b:10 :=_
-error at line 130, column 16:
-expected command
 error at line 134, column 61:
 expected "/-" or "-/"
 partial syntax tree:
@@ -646,7 +644,7 @@ partial syntax tree:
      (5
       (command.constant
        "constant"
-       `lc_proof
+       (term.ident `lc_proof [])
        (command.decl_sig
         [(term.bracketed_binder
           (1
@@ -669,7 +667,7 @@ partial syntax tree:
      (5
       (command.constant
        "constant"
-       `lc_unreachable
+       (term.ident `lc_unreachable [])
        (command.decl_sig
         [(term.bracketed_binder
           (1
@@ -694,7 +692,7 @@ partial syntax tree:
      (5
       (command.constant
        "constant"
-       `lc_cast
+       (term.ident `lc_cast [])
        (command.decl_sig
         [(term.bracketed_binder
           (1
@@ -730,7 +728,7 @@ partial syntax tree:
      (0
       (command.def
        "def"
-       `id
+       (term.ident `id [])
        (command.decl_sig
         [(term.bracketed_binder
           (1
@@ -767,7 +765,7 @@ partial syntax tree:
      (0
       (command.def
        "def"
-       `flip
+       (term.ident `flip [])
        (command.decl_sig
         [(term.bracketed_binder
           (1
@@ -850,7 +848,7 @@ partial syntax tree:
      (0
       (command.def
        "def"
-       `id_delta
+       (term.ident `id_delta [])
        (command.decl_sig
         [(term.bracketed_binder
           (1
@@ -887,7 +885,7 @@ partial syntax tree:
      (0
       (command.def
        "def"
-       `opt_param
+       (term.ident `opt_param [])
        (command.decl_sig
         [(term.bracketed_binder
           (0
@@ -928,7 +926,7 @@ partial syntax tree:
      (0
       (command.def
        "def"
-       `out_param
+       (term.ident `out_param [])
        (command.decl_sig
         [(term.bracketed_binder
           (0
@@ -958,7 +956,7 @@ partial syntax tree:
      (0
       (command.def
        "def"
-       `typed_expr
+       (term.ident `typed_expr [])
        (command.decl_sig
         [(term.bracketed_binder
           (0
@@ -992,7 +990,7 @@ partial syntax tree:
      (1
       (command.abbreviation
        "abbreviation"
-       `id_rhs
+       (term.ident `id_rhs [])
        (command.decl_sig
         [(term.bracketed_binder
           (0
@@ -1019,13 +1017,25 @@ partial syntax tree:
                [])))
             ")")))]
         [(command.decl_type ":" (term.ident `α []))])
-       (command.decl_val
-        (0
-         (command.simple_decl_val
-          ":="
-          (term.app
-           (term.app (term.ident `a []) (term.ident `inductive []))
-           (term.ident `punit [])))))))))
+       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `a []))))))))
+   (command.declaration
+    (command.decl_modifiers [] [] [] [] [])
+    (command.declaration.inner
+     (7
+      (command.inductive
+       "inductive"
+       (term.ident `punit [])
+       (command.decl_sig
+        []
+        [(command.decl_type
+          ":"
+          (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))])
+       []
+       [(command.intro_rule
+         "|"
+         `star
+         []
+         (command.decl_sig [] [(command.decl_type ":" (term.ident `punit []))]))]))))
    (command.declaration
     (command.decl_modifiers [<missing>] <missing> <missing> <missing> <missing>)
     <missing>)])

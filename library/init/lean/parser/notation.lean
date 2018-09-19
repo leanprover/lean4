@@ -102,6 +102,10 @@ node! «mixfix» [
   symbol: notation_spec.notation_symbol.parser, ":=", term: recurse 0]
 
 @[derive parser.has_tokens parser.has_view]
+def notation_like.parser : term_parser :=
+node_choice! notation_like {«notation»: notation.parser, mixfix: mixfix.parser}
+
+@[derive parser.has_tokens parser.has_view]
 def reserve_mixfix.parser : term_parser :=
 node! «reserve_mixfix» [
   try ["reserve", kind: mixfix.kind.parser],

@@ -328,8 +328,8 @@ class csimp_fn {
         // } else
         if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major);
-        } else if (is_cases_on_app(env(), major)) {
-            return reduce_cases_cases(c, args, I_val, major);
+        // } else if (is_cases_on_app(env(), major)) {
+        // return reduce_cases_cases(c, args, I_val, major);
         } else {
             return visit_cases_default(c, args);
         }

@@ -34,10 +34,10 @@ section
   instance : monad (state_t σ m) :=
   { pure := @state_t.pure _ _ _, bind := @state_t.bind _ _ _ }
 
-  protected def orelse [alternative m] {α : Type u} (x₁ x₂ : state_t σ m α) : state_t σ m α :=
+  @[inline] protected def orelse [alternative m] {α : Type u} (x₁ x₂ : state_t σ m α) : state_t σ m α :=
   ⟨λ s, x₁.run s <|> x₂.run s⟩
 
-  protected def failure [alternative m] {α : Type u} : state_t σ m α :=
+  @[inline] protected def failure [alternative m] {α : Type u} : state_t σ m α :=
   ⟨λ s, failure⟩
 
   instance [alternative m] : alternative (state_t σ m) :=

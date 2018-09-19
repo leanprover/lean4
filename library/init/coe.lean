@@ -47,30 +47,30 @@ class has_coe_to_fun (a : Sort u) : Sort (max u (v+1)) :=
 class has_coe_to_sort (a : Sort u) : Type (max u (v+1)) :=
 (S : Sort v) (coe : a → S)
 
-def lift {a : Sort u} {b : Sort v} [has_lift a b] : a → b :=
+@[inline] def lift {a : Sort u} {b : Sort v} [has_lift a b] : a → b :=
 @has_lift.lift a b _
 
-def lift_t {a : Sort u} {b : Sort v} [has_lift_t a b] : a → b :=
+@[inline] def lift_t {a : Sort u} {b : Sort v} [has_lift_t a b] : a → b :=
 @has_lift_t.lift a b _
 
-def coe_b {a : Sort u} {b : Sort v} [has_coe a b] : a → b :=
+@[inline] def coe_b {a : Sort u} {b : Sort v} [has_coe a b] : a → b :=
 @has_coe.coe a b _
 
-def coe_t {a : Sort u} {b : Sort v} [has_coe_t a b] : a → b :=
+@[inline] def coe_t {a : Sort u} {b : Sort v} [has_coe_t a b] : a → b :=
 @has_coe_t.coe a b _
 
-def coe_fn_b {a : Sort u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
+@[inline] def coe_fn_b {a : Sort u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
 has_coe_to_fun.coe
 
 /- User level coercion operators -/
 
-@[reducible] def coe {a : Sort u} {b : Sort v} [has_lift_t a b] : a → b :=
+@[reducible, inline] def coe {a : Sort u} {b : Sort v} [has_lift_t a b] : a → b :=
 lift_t
 
-@[reducible] def coe_fn {a : Sort u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
+@[reducible, inline] def coe_fn {a : Sort u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
 has_coe_to_fun.coe
 
-@[reducible] def coe_sort {a : Sort u} [has_coe_to_sort.{u v} a] : a → has_coe_to_sort.S.{u v} a :=
+@[reducible, inline] def coe_sort {a : Sort u} [has_coe_to_sort.{u v} a] : a → has_coe_to_sort.S.{u v} a :=
 has_coe_to_sort.coe
 
 /- Notation -/

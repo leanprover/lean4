@@ -33,7 +33,7 @@ node! term.ident [id: ident.parser, univ: monad_lift ident_univ_spec.parser?]
 namespace term
 /-- Access leading term -/
 def get_leading : trailing_term_parser := read
-instance : has_tokens get_leading := ⟨[]⟩
+instance : has_tokens get_leading := default _
 instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]

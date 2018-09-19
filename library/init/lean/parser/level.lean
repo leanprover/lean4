@@ -24,7 +24,7 @@ abbreviation trailing_level_parser := trailing_level_parser_m syntax
 
 /-- Access leading term -/
 def get_leading : trailing_level_parser := read
-instance : has_tokens get_leading := ⟨[]⟩
+instance : has_tokens get_leading := default _
 instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]

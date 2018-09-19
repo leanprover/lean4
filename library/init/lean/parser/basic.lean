@@ -63,8 +63,11 @@ f (f a)
 def tokens (r : ρ) [has_tokens r] :=
 donotinline (has_tokens.tokens r)
 
+instance has_tokens.inhabited (r : ρ) : inhabited (has_tokens r) :=
+⟨⟨[]⟩⟩
+
 instance list.nil.tokens : parser.has_tokens ([] : list ρ) :=
-⟨[]⟩
+default _
 instance list.cons.tokens (r : ρ) (rs : list ρ) [parser.has_tokens r] [parser.has_tokens rs] :
   parser.has_tokens (r::rs) :=
 ⟨tokens r ++ tokens rs⟩

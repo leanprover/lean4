@@ -210,7 +210,7 @@ instance dbg.view (r  : parser) (l) [i : parser.has_view r α] : parser.has_view
 {..i}
 
 instance recurse.tokens (α δ m a) [monad_rec α δ m] : parser.has_tokens (recurse a : m δ) :=
-⟨[]⟩ -- recursive use should not contribute any new tokens
+default _ -- recursive use should not contribute any new tokens
 instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view (recurse a : m δ) syntax := default _
 
 def with_recurse {α : Type} (init : α) (r : α → rec_t α syntax m syntax) : parser :=

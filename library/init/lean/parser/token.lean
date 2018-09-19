@@ -84,7 +84,7 @@ try $ do
   (ss, info) ← with_source_info (as_substring p) trailing_ws,
   pure $ syntax.atom ⟨info, ss.to_string⟩
 
-instance raw.tokens {α} (p : m α) (t) : parser.has_tokens (raw p t : parser) := ⟨[]⟩
+instance raw.tokens {α} (p : m α) (t) : parser.has_tokens (raw p t : parser) := default _
 instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) syntax := default _
 
 end
@@ -171,7 +171,7 @@ lift $ try $ do {
   pure stx
 } <?> "number"
 
-instance number.tokens : parser.has_tokens (number : parser) := ⟨[]⟩
+instance number.tokens : parser.has_tokens (number : parser) := default _
 instance number.view : parser.has_view (number : parser) syntax := default _
 
 def ident.parser : parser :=
@@ -181,7 +181,7 @@ lift $ try $ do {
   pure stx
 } <?> "identifier"
 
-instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := ⟨[]⟩
+instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := default _
 instance ident.parser.view : parser.has_view (ident.parser : parser) syntax := default _
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
@@ -208,7 +208,7 @@ lift $ try $ do
   pure stx
 
 instance symbol_or_ident.tokens (sym) : parser.has_tokens (symbol_or_ident sym : parser) :=
-⟨[]⟩
+default _
 instance symbol_or_ident.view (sym) : parser.has_view (symbol_or_ident sym : parser) syntax := default _
 
 end «parser»

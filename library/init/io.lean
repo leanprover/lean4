@@ -46,7 +46,7 @@ open fs
 
 constant iterate {α β : Type} : α → (α → io (sum α β)) → io β
 
-def iterate_eio {α β : Type} (a : α) (f : α → eio (sum α β)) : eio β :=
+def iterate_eio {ε α β : Type} (a : α) (f : α → except_t ε io (sum α β)) : except_t ε io β :=
 iterate a $ λ r, do
   r ← (f r).run,
   match r with

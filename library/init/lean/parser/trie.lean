@@ -25,6 +25,15 @@ private def insert_aux (val : α) : nat → trie α → string.iterator → trie
 def insert (t : trie α) (s : string) (val : α) : trie α :=
 insert_aux val s.length t s.mk_iterator
 
+private def find_aux : nat → trie α → string.iterator → option α
+| 0     (trie.node val _)    _ := val
+| (n+1) (trie.node val map) it := do
+  t' ← rbmap_core.find (<) map it.curr,
+  find_aux n t' it.next
+
+def find (t : trie α) (s : string) : option α :=
+find_aux s.length t s.mk_iterator
+
 private def match_prefix_aux : nat → trie α → string.iterator → option (string.iterator × α) → option (string.iterator × α)
 | 0     (trie.node val map) it acc := prod.mk it <$> val <|> acc
 | (n+1) (trie.node val map) it acc :=

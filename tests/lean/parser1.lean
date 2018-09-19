@@ -3,7 +3,7 @@ open lean
 open lean.parser
 open lean.parser.syntax_node_kind.has_view
 
-def show_result (p : syntax × message_log) (s : string) : eio unit :=
+def show_result (p : syntax × message_log) (s : string) : except_t string io unit :=
 let (stx, msgs) := p in
 when (stx.reprint ≠ s) (
   io.println "reprint fail:" *>
@@ -18,11 +18,13 @@ match msgs.to_list with
   io.println "partial syntax tree:",
   io.println (to_string stx)
 
-def parse_module (s : string) : syntax × message_log :=
-coroutine.finish (λ cmd, ()) (parser.parse ⟨"<unknown>"⟩ s module.parser) ()
+def parse_module (s : string) : except string (syntax × message_log) :=
+do st ← parser.mk_parser_state (parser.tokens module.parser),
+   pure $ coroutine.finish (λ cmd, ()) (parser.parse ⟨"<unknown>"⟩ st s module.parser) ()
 
-def show_parse (s : string) : eio unit :=
-show_result (parse_module s) s
+def show_parse (s : string) : except_t string io unit :=
+do r ← monad_except.lift_except $ parse_module s,
+   show_result r s
 
 #eval show_parse "prelude"
 #eval show_parse "import me"
@@ -57,7 +59,7 @@ universes u v
 
 -- expansion example
 #eval (do {
-  (stx, ⟨[]⟩) ← pure $ parse_module "prefix `+`:10 := _",
+  (stx, ⟨[]⟩) ← monad_except.lift_except $ parse_module "prefix `+`:10 := _",
   some {root := stx, ..} ← pure $ parser.parse.view stx,
   some {commands := [stx], ..} ← pure $ view module stx,
   some stx ← pure $ command.mixfix.expand stx | throw "expand fail",
@@ -69,7 +71,8 @@ universes u v
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
   let s := (s.mk_iterator.nextn 3500).prev_to_string,
-  let k := parser.parse ⟨"foo"⟩ s module.parser,
+  st ← monad_except.lift_except $ parser.mk_parser_state (tokens module.parser),
+  let k := parser.parse ⟨"foo"⟩ st s module.parser,
   io.prim.iterate_eio k $ λ k, match k.resume () with
     | coroutine_result_core.done p := show_result p s *> pure (sum.inr ())
     | coroutine_result_core.yielded cmd k := do {

@@ -35,7 +35,7 @@ structure token_config :=
    It should return a syntax tree with a "hole" for the
    `source_info` surrounding the token, which will be supplied
    by the `token` parser. -/
-(token_parser : option (parsec' (source_info → syntax)) := none)
+(suffix_parser : option (parsec' (source_info → syntax)) := none)
 
 structure parser_state :=
 (tokens : trie token_config)
@@ -108,12 +108,21 @@ do cfg ← read,
 
 def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
 
-protected def parse [monad m] (cfg : parser_config) (s : string) (r : parser_t m syntax) [parser.has_tokens r] :
+def mk_parser_state (tokens : list token_config) : except string parser_state :=
+do -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
+   let builtin_tokens : list token_config := [⟨"/-", 0, none⟩, ⟨"--", 0, none⟩],
+   t ← (builtin_tokens ++ tokens).mfoldl (λ (t : trie token_config) tk,
+     match t.find tk.prefix with
+     | some tk' := if tk.lbp = tk'.lbp then pure t else throw $
+       "invalid token '" ++ tk.prefix ++ "', has been defined with precendences " ++
+       to_string tk.lbp ++ " and " ++ to_string tk'.lbp
+     | none := pure $ t.insert tk.prefix tk)
+     trie.mk,
+   pure ⟨t, message_log.empty⟩
+
+protected def parse [monad m] (cfg : parser_config) (st : parser_state) (s : string) (r : parser_t m syntax) [parser.has_tokens r] :
   m (syntax × message_log) :=
--- the only hardcoded tokens, because they are never directly mentioned by a `parser`
-let builtin_tokens : list token_config := [⟨"/-", 0, none⟩, ⟨"--", 0, none⟩] in
-let trie := (tokens r ++ builtin_tokens).foldl (λ t cfg, trie.insert t cfg.prefix cfg) trie.mk in
-parser.run cfg ⟨trie, message_log.empty⟩ s $ do
+parser.run cfg st s $ do
   stx ← catch r $ λ (msg : parsec.message _), do {
     parser.log_message msg,
     pure msg.custom

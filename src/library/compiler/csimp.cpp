@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/constants.h"
+#include "library/class.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -74,7 +75,7 @@ class csimp_fn {
         buffer<expr> let_fvars;
         while (is_let(e)) {
             expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
-            expr new_val  = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()));
+            expr new_val  = visit_let_value(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()));
             if (is_atom(new_val)) {
                 let_fvars.push_back(new_val);
             } else {
@@ -85,7 +86,7 @@ class csimp_fn {
             }
             e = let_body(e);
         }
-        return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()));
+        return instantiate_rev(e, let_fvars.size(), let_fvars.data());
     }
 
     expr visit_lambda(expr e) {
@@ -109,6 +110,11 @@ class csimp_fn {
 
     expr visit_proj(expr const & e) {
         expr s = find(proj_expr(e));
+        if (is_constant(s) && should_inline(const_name(s), 0)) {
+            if (optional<constant_info> info = env().find(mk_cstage1_name(const_name(s)))) {
+                s = instantiate_value_lparams(*info, const_levels(s));
+            }
+        }
         if (is_constructor_app(env(), s)) {
             buffer<expr> args;
             expr const & k        = get_app_args(s, args);
@@ -226,13 +232,12 @@ class csimp_fn {
         } else {
             if (!is_atom(r))
                 r = mk_let_decl(r);
-            return visit(mk_app(r, nargs - i, args + i));
+            return visit_let_value(mk_app(r, nargs - i, args + i));
         }
     }
 
     expr beta_reduce(expr fn, expr const & e) {
         lean_assert(is_lambda(fn));
-        lean_assert(is_eqp(find(get_app_fn(e)), fn));
         buffer<expr> args;
         get_app_args(e, args);
         return beta_reduce(fn, args.size(), args.data());
@@ -318,7 +323,7 @@ class csimp_fn {
                 lean_assert(is_pi(new_minor_type));
                 new_minor = mk_app(new_minor, mk_cast(arg_types[i], binding_domain(new_minor_type), args[i]));
             }
-            new_minor = visit(new_minor);
+            new_minor = visit_let_value(new_minor);
             type_checker tc(m_st, m_lctx);
             new_minor = mk_cast(tc, tc.infer(new_minor), result_type, new_minor);
             new_minor = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
@@ -361,7 +366,7 @@ class csimp_fn {
         if (!is_lc_cast_app(fn) && !is_cases_on_app(env(), fn)) {
             buffer<expr> args;
             get_app_args(e, args);
-            return mk_let_decl(visit(mk_app(fn, args)));
+            return mk_let_decl(visit_let_value(mk_app(fn, args)));
         } else {
             return e;
         }
@@ -391,11 +396,32 @@ class csimp_fn {
             arg                = new_arg;
             g_type             = whnf(instantiate(binding_body(g_type), new_arg));
         }
-        expr r      = mk_let_decl(visit(mk_app(g, args)));
+        expr r      = mk_let_decl(visit_let_value(mk_app(g, args)));
         type_checker tc(m_st, m_lctx);
         expr r_type = tc.infer(r);
         expr e_type = tc.infer(e);
         return mk_cast(tc, r_type, e_type, r);
+    }
+
+    bool should_inline(name const & fn, unsigned /* nargs */) {
+        if (is_instance(env(), fn))
+            return !has_noinline_attribute(env(), fn);
+        else if (has_inline_attribute(env(), fn))
+            return true;
+        else
+            return false;
+    }
+
+    expr try_inline(expr const & fn, expr const & e) {
+        lean_assert(is_constant(fn));
+        lean_assert(is_eqp(find(get_app_fn(e)), fn));
+        if (should_inline(const_name(fn), get_app_num_args(e))) {
+            if (optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)))) {
+                expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
+                return beta_reduce(new_fn, e);
+            }
+        }
+        return e;
     }
 
     expr visit_app(expr const & e) {
@@ -416,16 +442,25 @@ class csimp_fn {
             return mk_let_decl(mk_lc_unreachable(m_st, m_lctx, type));
         } else if (is_app(fn)) {
             return merge_app_app(fn, e);
+        } else if (is_constant(fn)) {
+            return try_inline(fn, e);
         }
         return e;
+    }
+
+    expr visit_let_value(expr const & e) {
+        /* Remark: We simplify lambda expressions when we perform lambda lifting. */
+        switch (e.kind()) {
+        case expr_kind::Proj:   return visit_proj(e);
+        case expr_kind::App:    return visit_app(e);
+        default:                return e;
+        }
     }
 
     expr visit(expr const & e) {
         switch (e.kind()) {
         case expr_kind::Lambda: return visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
-        case expr_kind::Proj:   return visit_proj(e);
-        case expr_kind::App:    return visit_app(e);
         default:                return e;
         }
     }

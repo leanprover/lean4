@@ -29,7 +29,7 @@ structure token_config :=
    never continues parsing an argument after the initial parse, unless a token with
    lbp > max_prec is encountered. Conversely, the term parser will always continue
    parsing inside parentheses until it finds a token with lbp 0 (such as `)`). -/
-(lbp : nat)
+(lbp : nat := 0)
 -- reading a token should not need any state
 /- An optional parser that is activated after matching `prefix`.
    It should return a syntax tree with a "hole" for the

@@ -141,10 +141,13 @@ result:
  ":="
  (term.hole "_"))
 notation`+`:10 b:10 :=_
-error at line 85, column 0:
+error at line 90, column 52:
 expected command
-error at line 85, column 19:
-expected "def", "abbreviation", "theorem", "instance" or "example"
+error at line 94, column 65:
+unexpected '→'
+expected ")"
+error at line 121, column 28:
+expected "/-" or "-/"
 partial syntax tree:
 [(module
   [(prelude "prelude")]
@@ -636,7 +639,293 @@ partial syntax tree:
        [(command.notation_spec.precedence ":" (base10_lit "1"))]))))
    (command.universes "universes" [`u `v `w])
    (command.declaration
-    (command.decl_modifiers [] [] ["meta"] [])
+    (command.decl_modifiers
+     ["/-- Auxiliary meta constant used by the compiler when erasing proofs from code. -/"]
+     []
+     []
+     ["meta"]
+     [])
     (command.declaration.inner
-     (command.def <missing> <missing> <missing> <missing>)))])
+     (5
+      (command.constant
+       "constant"
+       `lc_proof
+       (command.decl_sig
+        [(term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `α [])))]
+             (term.binder_content_type ":" (term.ident `Prop []))
+             [])
+            "}")))]
+        [(command.decl_type ":" (term.ident `α []))])))))
+   (command.declaration
+    (command.decl_modifiers
+     ["/-- Auxiliary meta constant used by the compiler to mark unreachable code. -/"]
+     []
+     []
+     ["meta"]
+     [])
+    (command.declaration.inner
+     (5
+      (command.constant
+       "constant"
+       `lc_unreachable
+       (command.decl_sig
+        [(term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `α [])))]
+             (term.binder_content_type
+              ":"
+              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [])
+            "}")))]
+        [(command.decl_type ":" (term.ident `α []))])))))
+   (command.declaration
+    (command.decl_modifiers
+     ["/-- Auxiliary meta constant used by the compiler to mark type casting. -/"]
+     []
+     []
+     ["meta"]
+     [])
+    (command.declaration.inner
+     (5
+      (command.constant
+       "constant"
+       `lc_cast
+       (command.decl_sig
+        [(term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `α [])))]
+             (term.binder_content_type
+              ":"
+              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [])
+            "}")))
+         (term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `β [])))]
+             (term.binder_content_type
+              ":"
+              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `v))))
+             [])
+            "}")))]
+        [(command.decl_type ":" (term.ident `α []))])))))
+   (command.declaration
+    (command.decl_modifiers
+     []
+     []
+     []
+     []
+     [(command.decl_attribute "@[" [(command.attr_instance `inline [])] "]")])
+    (command.declaration.inner
+     (0
+      (command.def
+       "def"
+       `id
+       (command.decl_sig
+        [(term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `α [])))]
+             (term.binder_content_type
+              ":"
+              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [])
+            "}")))
+         (term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `a [])))]
+               (term.binder_content_type ":" (term.ident `α []))
+               [])))
+            ")")))]
+        [(command.decl_type ":" (term.ident `α []))])
+       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `a []))))))))
+   (command.declaration
+    (command.decl_modifiers
+     []
+     []
+     []
+     []
+     [(command.decl_attribute "@[" [(command.attr_instance `inline [])] "]")])
+    (command.declaration.inner
+     (command.def
+      "def"
+      `flip
+      (command.decl_sig
+       [(term.bracketed_binder
+         (1
+          (term.implicit_binder
+           "{"
+           (term.binder_content
+            [(term.binder_id (0 (term.ident `α [])))]
+            (term.binder_content_type
+             ":"
+             (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+            [])
+           "}")))
+        (term.bracketed_binder
+         (1
+          (term.implicit_binder
+           "{"
+           (term.binder_content
+            [(term.binder_id (0 (term.ident `β [])))]
+            (term.binder_content_type
+             ":"
+             (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `v))))
+            [])
+           "}")))
+        (term.bracketed_binder
+         (1
+          (term.implicit_binder
+           "{"
+           (term.binder_content
+            [(term.binder_id (0 (term.ident `φ [])))]
+            (term.binder_content_type
+             ":"
+             (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `w))))
+            [])
+           "}")))
+        (term.bracketed_binder
+         (term.explicit_binder
+          "("
+          (term.explicit_binder_content
+           (1
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `f [])))]
+             (term.binder_content_type ":" (term.ident `α []))
+             [])))
+          <missing>))
+        <missing>]
+       <missing>)
+      <missing>)))
+   (command.declaration
+    (command.decl_modifiers
+     []
+     []
+     []
+     []
+     [(command.decl_attribute "@[" [(command.attr_instance `inline [])] "]")])
+    (command.declaration.inner
+     (0
+      (command.def
+       "def"
+       `id_delta
+       (command.decl_sig
+        [(term.bracketed_binder
+          (1
+           (term.implicit_binder
+            "{"
+            (term.binder_content
+             [(term.binder_id (0 (term.ident `α [])))]
+             (term.binder_content_type
+              ":"
+              (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+             [])
+            "}")))
+         (term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `a [])))]
+               (term.binder_content_type ":" (term.ident `α []))
+               [])))
+            ")")))]
+        [(command.decl_type ":" (term.ident `α []))])
+       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `a []))))))))
+   (command.declaration
+    (command.decl_modifiers
+     ["/-- Gadget for optional parameter support. -/"]
+     []
+     []
+     []
+     [(command.decl_attribute "@[" [(command.attr_instance `reducible [])] "]")])
+    (command.declaration.inner
+     (0
+      (command.def
+       "def"
+       `opt_param
+       (command.decl_sig
+        [(term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `α [])))]
+               (term.binder_content_type
+                ":"
+                (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+               [])))
+            ")")))
+         (term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `default [])))]
+               (term.binder_content_type ":" (term.ident `α []))
+               [])))
+            ")")))]
+        [(command.decl_type
+          ":"
+          (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))])
+       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `α []))))))))
+   (command.declaration
+    (command.decl_modifiers
+     ["/-- Gadget for marking output parameters in type classes. -/"]
+     []
+     []
+     []
+     [(command.decl_attribute "@[" [(command.attr_instance `reducible [])] "]")])
+    (command.declaration.inner
+     (0
+      (command.def
+       "def"
+       `out_param
+       (command.decl_sig
+        [(term.bracketed_binder
+          (0
+           (term.explicit_binder
+            "("
+            (term.explicit_binder_content
+             (1
+              (term.binder_content
+               [(term.binder_id (0 (term.ident `α [])))]
+               (term.binder_content_type
+                ":"
+                (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))
+               [])))
+            ")")))]
+        [(command.decl_type
+          ":"
+          (term.sort_app (term.sort (0 "Sort")) (level.leading (5 `u))))])
+       (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `α []))))))))
+   (command.declaration
+    (command.decl_modifiers [<missing>] <missing> <missing> <missing> <missing>)
+    <missing>)])
  (eoi "")]

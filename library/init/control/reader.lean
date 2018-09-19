@@ -11,12 +11,13 @@ import init.control.lift init.control.id init.control.alternative init.control.e
 universes u v w
 
 /-- An implementation of [ReaderT](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Reader.html#t:ReaderT) -/
-structure reader_t (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
-(run : ρ → m α)
+def reader_t (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+ρ → m α
+
+@[inline] def reader_t.run {ρ : Type u} {m : Type u → Type v} {α : Type u} (x : reader_t ρ m α) (r : ρ) : m α :=
+x r
 
 @[reducible] def reader (ρ : Type u) := reader_t ρ id
-
-attribute [pp_using_anonymous_constructor] reader_t
 
 namespace reader_t
 section
@@ -26,38 +27,38 @@ section
   variables {α β : Type u}
 
   @[inline] protected def read : reader_t ρ m ρ :=
-  ⟨pure⟩
+  pure
 
   @[inline] protected def pure (a : α) : reader_t ρ m α :=
-  ⟨λ r, pure a⟩
+  λ r, pure a
 
   @[inline] protected def bind (x : reader_t ρ m α) (f : α → reader_t ρ m β) : reader_t ρ m β :=
-  ⟨λ r, do a ← x.run r,
-           (f a).run r⟩
+  λ r, do a ← x r,
+          f a r
 
   instance : monad (reader_t ρ m) :=
   { pure := @reader_t.pure _ _ _, bind := @reader_t.bind _ _ _ }
 
   @[inline] protected def lift (a : m α) : reader_t ρ m α :=
-  ⟨λ r, a⟩
+  λ r, a
 
   instance (m) [monad m] : has_monad_lift m (reader_t ρ m) :=
   ⟨@reader_t.lift ρ m _⟩
 
   @[inline] protected def monad_map {ρ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t ρ m α → reader_t ρ m' α :=
-  λ x, ⟨λ r, f (x.run r)⟩
+  λ x, λ r, f (x r)
 
   instance (ρ m m') [monad m] [monad m'] : monad_functor m m' (reader_t ρ m) (reader_t ρ m') :=
   ⟨@reader_t.monad_map ρ m m' _ _⟩
 
   @[inline] protected def adapt {ρ' : Type u} [monad m] {α : Type u} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
-  λ x, ⟨λ r, x.run (f r)⟩
+  λ x r, x (f r)
 
   protected def orelse [alternative m] {α : Type u} (x₁ x₂ : reader_t ρ m α) : reader_t ρ m α :=
-  ⟨λ s, x₁.run s <|> x₂.run s⟩
+  λ s, x₁ s <|> x₂ s
 
   protected def failure [alternative m] {α : Type u} : reader_t ρ m α :=
-  ⟨λ s, failure⟩
+  λ s, failure
 
   instance [alternative m] : alternative (reader_t ρ m) :=
   { failure := @reader_t.failure _ _ _ _,
@@ -65,7 +66,7 @@ section
 
   instance (ε) [monad m] [monad_except ε m] : monad_except ε (reader_t ρ m) :=
   { throw := λ α, reader_t.lift ∘ throw,
-    catch := λ α x c, ⟨λ r, catch (x.run r) (λ e, (c e).run r)⟩ }
+    catch := λ α x c r, catch (x r) (λ e, (c e) r) }
 end
 end reader_t
 
@@ -118,7 +119,7 @@ instance [monad m] : monad_reader_adapter ρ ρ' (reader_t ρ m) (reader_t ρ' m
 end
 
 instance (ρ : Type u) (m out) [monad_run out m] : monad_run (λ α, ρ → out α) (reader_t ρ m) :=
-⟨λ α x, run ∘ x.run⟩
+⟨λ α x, run ∘ x⟩
 
 class monad_reader_runner (ρ : Type u) (m m' : Type u → Type u) :=
 (run_reader {} {α : Type u} : m α → ρ → m' α)
@@ -131,5 +132,5 @@ instance monad_reader_runner_trans {n n' : Type u → Type u} [monad_functor m m
 ⟨λ α x r, monad_map (λ α (y : m α), (run_reader y r : m' α)) x⟩
 
 instance reader_t.monad_state_runner [monad m] : monad_reader_runner ρ (reader_t ρ m) m :=
-⟨λ α x r, x.run r⟩
+⟨λ α x r, x r⟩
 end

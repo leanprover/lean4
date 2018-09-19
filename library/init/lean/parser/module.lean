@@ -26,7 +26,7 @@ end
 abbreviation module_parser := module_parser_m syntax
 
 instance module_parser_m.lift_basic_parser_m : monad_basic_read module_parser_m :=
-{ monad_lift := λ α x, ⟨λ r, ⟨λ st it, pure (((x.run r).run st) it)⟩⟩ }
+{ monad_lift := λ α x r st it, pure (((x.run r).run st) it) }
 
 @[derive parser.has_view parser.has_tokens]
 def prelude.parser : module_parser :=

@@ -47,7 +47,7 @@ open fs
 constant iterate {α β : Type} : α → (α → io (sum α β)) → io β
 
 def iterate_eio {α β : Type} (a : α) (f : α → eio (sum α β)) : eio β :=
-except_t.mk $ iterate a $ λ r, do
+iterate a $ λ r, do
   r ← (f r).run,
   match r with
   | except.ok (sum.inl r) := pure (sum.inl r)
@@ -67,9 +67,8 @@ constant handle.get_line : handle → eio string
 
 def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
   (x : eio α) : m α :=
-do e : except io.error α ← monad_lift x.run, -- uses [monad_io m] instance
-   monad_except.lift_except e                -- uses [monad_except ε m] [has_lift_t io.error ε] instances
-
+do e : except io.error α ← monad_lift (except_t.run x), -- uses [monad_io m] instance
+   monad_except.lift_except e                           -- uses [monad_except ε m] [has_lift_t io.error ε] instances
 end prim
 
 section
@@ -264,7 +263,7 @@ local attribute [reducible] io
     TODO(Leo): replace `state_t io.real_world id` with `io` as soon as we fix inductive_cmd
 -/
 inductive coroutine_io (α δ β: Type) : Type
-| mk    {} : (α → state_t io.real_world id (coroutine_result_core.{0 0 0} coroutine_io α δ β)) → coroutine_io
+| mk    {} : (α → io.real_world → (coroutine_result_core.{0 0 0} coroutine_io α δ β) × io.real_world) → coroutine_io
 
 abbreviation coroutine_result_io (α δ β: Type) : Type :=
 coroutine_result_core.{0 0 0} (coroutine_io α δ β) α δ β
@@ -276,6 +275,9 @@ universes v w r s
 namespace coroutine_io
 variables {α δ β γ : Type}
 
+@[inline] def mk_st {α δ β: Type} (k : α → state_t io.real_world id (coroutine_result_io α δ β)) : coroutine_io α δ β :=
+mk k
+
 export coroutine_result_core (done yielded)
 
 /-- `resume c a` resumes/invokes the coroutine_io `c` with input `a`. -/
@@ -283,16 +285,16 @@ export coroutine_result_core (done yielded)
 | (mk k) a := k a
 
 @[inline] protected def pure (b : β) : coroutine_io α δ β :=
-mk $ λ _, pure (done b)
+mk_st $ λ _, pure $ done b
 
 /-- Read the input argument passed to the coroutine.
     Remark: should we use a different name? I added an instance [monad_reader] later. -/
 @[inline] protected def read : coroutine_io α δ α :=
-mk $ λ a, pure (done a)
+mk_st $ λ a, pure $ done a
 
 /-- Return the control to the invoker with result `d` -/
 @[inline] protected def yield (d : δ) : coroutine_io α δ punit :=
-mk $ λ a : α, pure $ yielded d (coroutine_io.pure ⟨⟩)
+mk_st $ λ (a : α), pure $ yielded d (coroutine_io.pure ⟨⟩)
 
 /-
 TODO(Leo): following relations have been commented because Lean4 is currently
@@ -338,7 +340,7 @@ open well_founded_tactics
 -/
 
 protected def bind : coroutine_io α δ β → (β → coroutine_io α δ γ) → coroutine_io α δ γ
-| (mk k) f := mk $ λ a, k a >>= λ r,
+| (mk k) f := mk_st $ λ a, k a >>= λ r,
     match r, rfl : ∀ (n : _), n = r → _ with
     | done b, _      := coroutine_io.resume (f b) a
     | yielded d c, h :=
@@ -347,7 +349,7 @@ protected def bind : coroutine_io α δ β → (β → coroutine_io α δ γ) �
 --  using_well_founded { dec_tac := unfold_wf_rel *> process_lex (tactic.assumption) }
 
 def pipe : coroutine_io α δ β → coroutine_io δ γ β → coroutine_io α γ β
-| (mk k₁) (mk k₂) := mk $ λ a, do
+| (mk k₁) (mk k₂) := mk_st $ λ a, do
   r ← k₁ a,
   match r, rfl : ∀ (n : _), n = r → _ with
   | done b, h        := pure (done b)
@@ -371,6 +373,6 @@ instance (α δ : Type) : coroutine.monad_coroutine α δ (coroutine_io α δ) :
 { yield  := coroutine_io.yield }
 
 instance : monad_io (coroutine_io α δ) :=
-{ monad_lift := λ _ x, mk (λ _, done <$> x) }
+{ monad_lift := λ _ x, mk_st (λ _, done <$> x) }
 
 end coroutine_io

@@ -10,10 +10,11 @@ import init.control.alternative init.control.lift
 import init.control.id init.control.except
 universes u v w
 
-structure state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
-(run : σ → m (α × σ))
+def state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+σ → m (α × σ)
 
-attribute [pp_using_anonymous_constructor] state_t
+@[inline] def state_t.run {σ : Type u} {m : Type u → Type v} {α : Type u} (x : state_t σ m α) (s : σ) : m (α × σ) :=
+x s
 
 @[reducible] def state (σ α : Type u) : Type u := state_t σ id α
 
@@ -25,56 +26,56 @@ section
   variables {α β : Type u}
 
   @[inline] protected def pure (a : α) : state_t σ m α :=
-  ⟨λ s, pure (a, s)⟩
+  λ s, pure (a, s)
 
   @[inline] protected def bind (x : state_t σ m α) (f : α → state_t σ m β) : state_t σ m β :=
-  ⟨λ s, do (a, s') ← x.run s,
-           (f a).run s'⟩
+  λ s, do (a, s') ← x s,
+          f a s'
 
   instance : monad (state_t σ m) :=
   { pure := @state_t.pure _ _ _, bind := @state_t.bind _ _ _ }
 
   @[inline] protected def orelse [alternative m] {α : Type u} (x₁ x₂ : state_t σ m α) : state_t σ m α :=
-  ⟨λ s, x₁.run s <|> x₂.run s⟩
+  λ s, x₁ s <|> x₂ s
 
   @[inline] protected def failure [alternative m] {α : Type u} : state_t σ m α :=
-  ⟨λ s, failure⟩
+  λ s, failure
 
   instance [alternative m] : alternative (state_t σ m) :=
   { failure := @state_t.failure _ _ _ _,
     orelse  := @state_t.orelse _ _ _ _ }
 
   @[inline] protected def get : state_t σ m σ :=
-  ⟨λ s, pure (s, s)⟩
+  λ s, pure (s, s)
 
   @[inline] protected def put : σ → state_t σ m punit :=
-  λ s', ⟨λ s, pure (punit.star, s')⟩
+  λ s' s, pure (punit.star, s')
 
   @[inline] protected def modify (f : σ → σ) : state_t σ m punit :=
-  ⟨λ s, pure (punit.star, f s)⟩
+  λ s, pure (punit.star, f s)
 
   @[inline] protected def lift {α : Type u} (t : m α) : state_t σ m α :=
-  ⟨λ s, do a ← t, pure (a, s)⟩
+  λ s, do a ← t, pure (a, s)
 
   instance : has_monad_lift m (state_t σ m) :=
   ⟨@state_t.lift σ m _⟩
 
   @[inline] protected def monad_map {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) :
     state_t σ m α → state_t σ m' α :=
-  λ x, ⟨λ st, f (x.run st)⟩
+  λ x s, f (x s)
 
   instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
   ⟨@state_t.monad_map σ m m' _ _⟩
 
   @[inline] protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [monad m] (split : σ → σ' × σ'')
     (join : σ' → σ'' → σ) (x : state_t σ' m α) : state_t σ m α :=
-  ⟨λ st, do let (st, ctx) := split st,
-            (a, st') ← x.run st,
-            pure (a, join st' ctx)⟩
+  λ st, do let (st, ctx) := split st,
+           (a, st') ← x st,
+           pure (a, join st' ctx)
 
   instance (ε) [monad_except ε m] : monad_except ε (state_t σ m) :=
   { throw := λ α, state_t.lift ∘ throw,
-    catch := λ α x c, ⟨λ s, catch (x.run s) (λ e, state_t.run (c e) s)⟩ }
+    catch := λ α x c s, catch (x s) (λ e, c e s) }
 end
 end state_t
 
@@ -162,7 +163,7 @@ instance [monad m] : monad_state_adapter σ σ' (state_t σ m) (state_t σ' m) :
 end
 
 instance (σ : Type u) (m out : Type u → Type v) [functor m] [monad_run out m] : monad_run (λ α, σ → out α) (state_t σ m) :=
-⟨λ α x, run ∘ (λ σ, prod.fst <$> (x.run σ))⟩
+⟨λ α x, run ∘ (λ σ, prod.fst <$> (x σ))⟩
 
 class monad_state_runner (σ : Type u) (m m' : Type u → Type u) :=
 (run_state {} {α : Type u} : m α → σ → m' α)
@@ -175,5 +176,5 @@ instance monad_state_runner_trans {n n' : Type u → Type u} [monad_functor m m'
 ⟨λ α x s, monad_map (λ α (y : m α), (run_state y s : m' α)) x⟩
 
 instance state_t.monad_state_runner [monad m] : monad_state_runner σ (state_t σ m) m :=
-⟨λ α x s, prod.fst <$> x.run s⟩
+⟨λ α x s, prod.fst <$> x s⟩
 end

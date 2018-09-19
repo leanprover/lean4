@@ -70,42 +70,42 @@ instance : monad (except ε) :=
 end
 end except
 
+def except_t (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
+m (except ε α)
 
-structure except_t (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
-(run : m (except ε α))
-
-attribute [pp_using_anonymous_constructor] except_t
+@[inline] def except_t.run {ε : Type u} {m : Type u → Type v} {α : Type u} (x : except_t ε m α) : m (except ε α) :=
+x
 
 namespace except_t
 section
 parameters {ε : Type u} {m : Type u → Type v} [monad m]
 
 @[inline] protected def return {α : Type u} (a : α) : except_t ε m α :=
-⟨pure $ except.ok a⟩
+(pure (except.ok a) : m (except ε α))
 
 @[inline] protected def bind_cont {α β : Type u} (f : α → except_t ε m β) : except ε α → m (except ε β)
-| (except.ok a)    := (f a).run
+| (except.ok a)    := f a
 | (except.error e) := pure (except.error e)
 
 @[inline] protected def bind {α β : Type u} (ma : except_t ε m α) (f : α → except_t ε m β) : except_t ε m β :=
-⟨ma.run >>= bind_cont f⟩
+(ma >>= bind_cont f : m (except ε β))
 
 @[inline] protected def lift {α : Type u} (t : m α) : except_t ε m α :=
-⟨except.ok <$> t⟩
+(except.ok <$> t : m (except ε α))
 
 instance except_t_of_except : has_monad_lift (except ε) (except_t ε m) :=
-⟨λ α e, ⟨pure e⟩⟩
+⟨λ α e, (pure e : m (except ε α))⟩
 
 instance : has_monad_lift m (except_t ε m) :=
 ⟨@except_t.lift⟩
 
 @[inline] protected def catch {α : Type u} (ma : except_t ε m α) (handle : ε → except_t ε m α) : except_t ε m α :=
-⟨ma.run >>= λ res, match res with
-| except.ok a    := pure (except.ok a)
-| except.error e := (handle e).run⟩
+(ma >>= λ res, match res with
+ | except.ok a    := pure (except.ok a)
+ | except.error e := (handle e) : m (except ε α))
 
 @[inline] protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
-λ x, ⟨f x.run⟩
+λ x, f x
 
 instance (m') [monad m'] : monad_functor m m' (except_t ε m) (except_t ε m') :=
 ⟨@monad_map m' _⟩
@@ -114,7 +114,7 @@ instance : monad (except_t ε m) :=
 { pure := @return, bind := @bind }
 
 @[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : except_t ε m α → except_t ε' m α :=
-λ x, ⟨except.map_error f <$> x.run⟩
+λ x, (except.map_error f <$> x : m (except ε' α))
 end
 end except_t
 
@@ -142,8 +142,9 @@ end monad_except
 
 export monad_except (throw catch)
 
-instance (m ε) [monad m] : monad_except ε (except_t ε m) :=
-{ throw := λ α, except_t.mk ∘ pure ∘ except.error, catch := @except_t.catch ε _ _ }
+instance (m : Type u → Type v) (ε : Type u) [monad m] : monad_except ε (except_t ε m) :=
+{ throw := λ α e, (pure (except.error e) : m (except ε α)),
+  catch := @except_t.catch ε _ _ }
 
 instance (ε) : monad_except ε (except ε) :=
 { throw := λ α, except.error, catch := @except.catch _ }
@@ -171,8 +172,8 @@ instance [monad m] : monad_except_adapter ε ε' (except_t ε m) (except_t ε' m
 end
 
 instance (ε m out) [monad_run out m] : monad_run (λ α, out (except ε α)) (except_t ε m) :=
-⟨λ α, run ∘ except_t.run⟩
+⟨λ α, run⟩
 
 -- useful for implicit failures in do-notation
-instance (m) [monad m] : monad_fail (except_t string m) :=
+instance (m : Type → Type) [monad m] : monad_fail (except_t string m) :=
 ⟨λ _, throw⟩

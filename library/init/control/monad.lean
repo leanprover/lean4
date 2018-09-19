@@ -17,5 +17,7 @@ export has_bind (bind)
 infixl ` >>= `:55 := bind
 
 class monad (m : Type u → Type v) extends applicative m, has_bind m : Type (max (u+1) v) :=
-(map := λ α β f x, x >>= pure ∘ f)
-(seq := λ α β f x, f >>= (<$> x))
+(map       := λ α β f x, x >>= pure ∘ f)
+(seq       := λ α β f x, f >>= (<$> x))
+(seq_left  := λ α β x y, x >>= λ a, y >>= λ _, pure a)
+(seq_right := λ α β x y, x >>= λ _, y)

@@ -50,10 +50,10 @@ modify (++ (to_string a))
 def emit_line : extract_m unit :=
 emit "\n"
 
-def paren {α} (a : extract_m α) : extract_m α :=
+@[inline] def paren {α} (a : extract_m α) : extract_m α :=
 emit "(" *> a <* emit ")"
 
-def comma (a b : extract_m unit) : extract_m unit :=
+@[inline] def comma (a b : extract_m unit) : extract_m unit :=
 a *> emit ", " *> b
 
 local infix ` <+> `:65 := comma

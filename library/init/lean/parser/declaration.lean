@@ -31,7 +31,7 @@ do ((), info) ← monad_lift $ with_source_info $ str "/--" *> finish_comment_bl
    pure $ syntax.atom ⟨info, s⟩
 
 instance doc_comment.tokens : has_tokens doc_comment.parser :=
-⟨λ t, t.insert "/--" {«prefix» := "/--"}⟩
+⟨[{«prefix» := "/--"}]⟩
 instance doc_comment.view : has_view doc_comment.parser syntax :=
 default _
 

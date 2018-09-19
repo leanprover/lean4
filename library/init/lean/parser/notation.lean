@@ -30,7 +30,7 @@ def quoted_symbol.parser : term_parser :=
 do (s, info) ← with_source_info $ take_until (= '`'),
    pure $ syntax.atom ⟨info, s⟩
 
-instance quoted_symbol.tokens : parser.has_tokens quoted_symbol.parser := default _
+instance quoted_symbol.tokens : parser.has_tokens quoted_symbol.parser := ⟨[]⟩
 instance quoted_symbol.view : parser.has_view quoted_symbol.parser syntax := default _
 
 @[derive parser.has_tokens parser.has_view]

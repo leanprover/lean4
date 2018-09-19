@@ -33,7 +33,7 @@ node! term.ident [id: ident.parser, univ: monad_lift ident_univ_spec.parser?]
 namespace term
 /-- Access leading term -/
 def get_leading : trailing_term_parser := read
-instance : has_tokens get_leading := ⟨[]⟩
+instance : has_tokens get_leading := default _
 instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]
@@ -138,7 +138,7 @@ pratt_parser term.leading.parser term.trailing.parser rbp <?> "term"
 
 -- `[derive]` doesn't manage to derive these instances because of the parameter
 instance term.parser.tokens (rbp) : has_tokens (term.parser rbp) :=
-⟨has_tokens.tokens term.leading.parser ++ has_tokens.tokens term.trailing.parser⟩
+⟨has_tokens.add_tokens term.leading.parser ∘ has_tokens.add_tokens term.trailing.parser⟩
 instance term.parser.view (rbp) : has_view (term.parser rbp) syntax :=
 default _
 

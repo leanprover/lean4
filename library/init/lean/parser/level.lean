@@ -24,7 +24,7 @@ abbreviation trailing_level_parser := trailing_level_parser_m syntax
 
 /-- Access leading term -/
 def get_leading : trailing_level_parser := read
-instance : has_tokens get_leading := ⟨[]⟩
+instance : has_tokens get_leading := default _
 instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]
@@ -63,7 +63,7 @@ pratt_parser level.leading.parser level.trailing.parser rbp <?> "universe term"
 
 -- `[derive]` doesn't manage to derive these instances because of the parameter
 instance level.parser.tokens (rbp) : has_tokens (level.parser rbp) :=
-⟨has_tokens.tokens level.leading.parser ++ has_tokens.tokens level.trailing.parser⟩
+⟨has_tokens.add_tokens level.leading.parser ∘ has_tokens.add_tokens level.trailing.parser⟩
 instance level.parser.view (rbp) : has_view (level.parser rbp) syntax :=
 default _
 

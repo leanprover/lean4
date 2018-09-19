@@ -49,7 +49,7 @@ n ← remaining,
 trailing_loop trailing rbp (n+1) left
 
 instance pratt_parser.tokens [has_tokens leading] [has_tokens trailing] : has_tokens (pratt_parser leading trailing) :=
-⟨has_tokens.tokens leading ++ has_tokens.tokens trailing⟩
+⟨has_tokens.add_tokens leading ∘ has_tokens.add_tokens trailing⟩
 instance pratt_parser.view : has_view (pratt_parser leading trailing) syntax :=
 default _
 

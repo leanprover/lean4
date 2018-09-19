@@ -54,15 +54,28 @@ abbreviation monad_basic_read := has_monad_lift_t basic_parser_m
 variable {ρ : Type}
 
 class has_tokens (r : ρ) := mk {} ::
-(tokens : list token_config)
+(add_tokens : trie token_config → trie token_config)
 
-open parser.has_tokens (tokens)
+instance has_tokens.inhabited (r : ρ) : inhabited (has_tokens r) :=
+⟨⟨id⟩⟩
+
+def donotinline {α : Type} (a : α) (f : α → α := id) :=
+f (f a)
+
+-- do NOT inline this function
+def add_tokens (r : ρ) [has_tokens r] :=
+donotinline (has_tokens.add_tokens r)
 
 instance list.nil.tokens : parser.has_tokens ([] : list ρ) :=
-⟨[]⟩
+⟨id⟩
+
+def concat_tokens (r : ρ) (rs : list ρ) [parser.has_tokens r] [parser.has_tokens rs] :
+  trie token_config → trie token_config :=
+λ t, has_tokens.add_tokens rs (has_tokens.add_tokens r t)
 instance list.cons.tokens (r : ρ) (rs : list ρ) [parser.has_tokens r] [parser.has_tokens rs] :
   parser.has_tokens (r::rs) :=
-⟨tokens r ++ tokens rs⟩
+⟨λ t, has_tokens.add_tokens rs (has_tokens.add_tokens r t)⟩
+--⟨concat_tokens r rs⟩
 
 protected class has_view (r : ρ) (α : out_param Type) :=
 (view : syntax → option α)
@@ -104,7 +117,7 @@ protected def parse [monad m] (cfg : parser_config) (s : string) (r : parser_t m
   m (syntax × message_log) :=
 -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
 let builtin_tokens : list token_config := [⟨"/-", 0, none⟩, ⟨"--", 0, none⟩] in
-let trie := (tokens r ++ builtin_tokens).foldl (λ t cfg, trie.insert t cfg.prefix cfg) trie.mk in
+let trie := has_tokens.add_tokens r (builtin_tokens.foldl (λ t cfg, trie.insert t cfg.prefix cfg) trie.mk) in
 parser.run cfg ⟨trie, message_log.empty⟩ s $ do
   stx ← catch r $ λ (msg : parsec.message _), do {
     parser.log_message msg,

@@ -73,7 +73,7 @@ def commands.parser : module_parser :=
 do { rem ← remaining, commands_aux ff [] rem.succ }
 
 instance commands.tokens : parser.has_tokens commands.parser :=
-⟨tokens command.parser⟩
+⟨add_tokens command.parser⟩
 
 -- custom parser requires custom instance
 instance commands.parser.has_view : has_view commands.parser (list syntax) :=

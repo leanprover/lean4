@@ -109,20 +109,22 @@ class csimp_fn {
     }
 
     expr visit_proj(expr const & e) {
-        expr s = find(proj_expr(e));
+        expr s = proj_expr(e);
         if (is_constant(s) && should_inline(const_name(s), 0)) {
             if (optional<constant_info> info = env().find(mk_cstage1_name(const_name(s)))) {
-                s = instantiate_value_lparams(*info, const_levels(s));
+                s = visit(instantiate_value_lparams(*info, const_levels(s)));
             }
         }
-        if (is_constructor_app(env(), s)) {
+        expr new_s = find(s);
+        if (is_constructor_app(env(), new_s)) {
             buffer<expr> args;
-            expr const & k        = get_app_args(s, args);
+            expr const & k        = get_app_args(new_s, args);
             constructor_val k_val = env().get(const_name(k)).to_constructor_val();
             lean_assert(k_val.get_nparams() + proj_idx(e).get_small_value() < args.size());
             return args[k_val.get_nparams() + proj_idx(e).get_small_value()];
+        } else {
+            return update_proj(e, s);
         }
-        return e;
     }
 
     expr reduce_cases_cases(expr const & c, buffer<expr> const & args, inductive_val const & I_val, expr const & major) {

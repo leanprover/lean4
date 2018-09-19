@@ -4,8 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <unordered_set>
 #include "runtime/flet.h"
 #include "kernel/type_checker.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/constants.h"
@@ -19,6 +22,7 @@ class csimp_fn {
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
+    std::unordered_set<name, name_hash> m_used;
 
     environment const & env() const { return m_st.env(); }
 
@@ -60,6 +64,8 @@ class csimp_fn {
         return r;
     }
 
+    /* If `e` is an atom, return `e`. Otherwise, create a new let-declaration `x : t := e`
+       and return `x`. The new `x` is added to `m_fvars`. */
     expr mk_let_decl(expr const & e) {
         if (is_atom(e)) {
             return e;
@@ -69,6 +75,61 @@ class csimp_fn {
             m_fvars.push_back(fvar);
             return fvar;
         }
+    }
+
+    void collect_used(expr const & e) {
+        if (!has_fvar(e)) return;
+        for_each(e, [&](expr const & e, unsigned) {
+                if (!has_fvar(e)) return false;
+                if (is_fvar(e)) { m_used.insert(fvar_name(e)); return false; }
+                return true;
+            });
+    }
+
+    /* Create a let-expression with body `e`, and
+       all "used" let-declarations `m_fvars[i]` for `i in [old_fvars_size, m_fvars.size)`.
+
+       BTW, we also visit the lambda expressions in used let-declarations of the form
+       `x : t := fun ...`
+
+       Note that, we don't visit them when we have visit let-expressions. */
+    expr mk_let(unsigned old_fvars_size, expr e) {
+        if (old_fvars_size == m_fvars.size())
+            return e;
+        collect_used(e);
+        unsigned i = m_fvars.size();
+        buffer<std::tuple<name, expr, expr>> entries;
+        buffer<expr> used;
+        while (i > old_fvars_size) {
+            --i;
+            expr fvar = m_fvars.back();
+            m_fvars.pop_back();
+            if (m_used.find(fvar_name(fvar)) != m_used.end()) {
+                local_decl decl = m_lctx.get_local_decl(fvar);
+                expr type       = decl.get_type();
+                expr val        = *decl.get_value();
+                if (is_lambda(val)) {
+                    DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
+                    val         = visit_lambda(val);
+                    lean_assert(m_fvars.size() == saved_fvars_size);
+                }
+                used.push_back(fvar);
+                collect_used(type);
+                collect_used(val);
+                entries.emplace_back(decl.get_user_name(), type, val);
+            }
+        }
+        std::reverse(used.begin(), used.end());
+        std::reverse(entries.begin(), entries.end());
+        e = abstract(e, used.size(), used.data());
+        i = entries.size();
+        while (i > 0) {
+            --i;
+            expr new_type  = abstract(std::get<1>(entries[i]), i, used.data());
+            expr new_value = abstract(std::get<2>(entries[i]), i, used.data());
+            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
+        }
+        return e;
     }
 
     expr visit_let(expr e) {
@@ -93,7 +154,7 @@ class csimp_fn {
         lean_assert(is_lambda(e));
         expr r;
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        unsigned m_fvars_init_size = m_fvars.size();
+        unsigned old_fvars_size = m_fvars.size();
         buffer<expr> binding_fvars;
         while (is_lambda(e)) {
             /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
@@ -103,8 +164,7 @@ class csimp_fn {
             e = binding_body(e);
         }
         expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()));
-        new_body      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_body);
-        m_fvars.shrink(m_fvars_init_size);
+        new_body      = mk_let(old_fvars_size, new_body);
         return m_lctx.mk_lambda(binding_fvars, new_body);
     }
 
@@ -130,6 +190,32 @@ class csimp_fn {
     expr reduce_cases_cases(expr const & c, buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
         // TODO(Leo)
         return mk_app(c, args);
+    }
+
+    expr beta_reduce(expr fn, unsigned nargs, expr const * args) {
+        unsigned i = 0;
+        while (is_lambda(fn) && i < nargs) {
+            i++;
+            fn = binding_body(fn);
+        }
+        expr r = instantiate_rev(fn, i, args);
+        lean_assert(!is_let(r));
+        if (is_lambda(r)) {
+            lean_assert(i == nargs);
+            return r;
+        } else {
+            r = visit(r);
+            if (!is_atom(r))
+                r = mk_let_decl(r);
+            return visit_let_value(mk_app(r, nargs - i, args + i));
+        }
+    }
+
+    expr beta_reduce(expr fn, expr const & e) {
+        lean_assert(is_lambda(fn));
+        buffer<expr> args;
+        get_app_args(e, args);
+        return beta_reduce(fn, args.size(), args.data());
     }
 
     expr reduce_cases_cnstr(buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
@@ -160,7 +246,7 @@ class csimp_fn {
             expr minor            = args[minor_idx];
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
             buffer<expr> minor_fvars;
-            unsigned m_fvars_init_size = m_fvars.size();
+            unsigned old_fvars_size = m_fvars.size();
             while (is_lambda(minor)) {
                 expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
                 expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
@@ -168,12 +254,29 @@ class csimp_fn {
                 minor = binding_body(minor);
             }
             expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()));
-            new_minor = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
-            m_fvars.shrink(m_fvars_init_size);
+            new_minor = mk_let(old_fvars_size, new_minor);
             new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
             args[minor_idx] = new_minor;
         }
         return mk_let_decl(mk_app(c, args));
+    }
+
+    expr mk_cast(type_checker & tc, expr const & A, expr const & B, expr const & t) {
+        if (tc.is_def_eq(A, B)) {
+            return t;
+        } else if (is_lc_proof_app(t)) {
+            return mk_app(mk_constant(get_lc_proof_name()), B);
+        } else {
+            /* lc_cast.{u_1 u_2} : Π {α : Sort u_2} {β : Sort u_1}, α → β */
+            level u_2 = sort_level(tc.ensure_type(A));
+            level u_1 = sort_level(tc.ensure_type(B));
+            return mk_let_decl(mk_app(mk_constant(get_lc_cast_name(), {u_1, u_2}), A, B, t));
+        }
+    }
+
+    expr mk_cast(expr const & A, expr const & B, expr const & t) {
+        type_checker tc(m_st, m_lctx);
+        return mk_cast(tc, A, B, t);
     }
 
     /* We can eliminate `S.cases_on` using projections when `S` is a structure.
@@ -195,7 +298,9 @@ class csimp_fn {
             i++;
             minor = binding_body(minor);
         }
-        expr r = visit(instantiate_rev(minor, fields.size(), fields.data()));
+        expr r = instantiate_rev(minor, fields.size(), fields.data());
+        if (!is_lambda(r))
+            r = visit(r);
         expr e_type = infer_type(e);
         expr r_type = infer_type(r);
         return mk_cast(r_type, e_type, r);
@@ -210,7 +315,7 @@ class csimp_fn {
         lean_assert(major_idx < args.size());
         expr const & major       = find(args[major_idx]);
         if (I_val.get_ncnstrs() == 1) {
-            return elim_cases_struct(args[major_idx], args[major_idx + 1], e);
+           return elim_cases_struct(args[major_idx], args[major_idx + 1], e);
         } else if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major);
         } else if (is_cases_on_app(env(), major)) {
@@ -218,49 +323,6 @@ class csimp_fn {
         } else {
             return visit_cases_default(c, args);
         }
-    }
-
-    expr beta_reduce(expr fn, unsigned nargs, expr const * args) {
-        unsigned i = 0;
-        while (is_lambda(fn) && i < nargs) {
-            i++;
-            fn = binding_body(fn);
-        }
-        expr r = visit(instantiate_rev(fn, i, args));
-        lean_assert(!is_let(r));
-        if (is_lambda(r)) {
-            lean_assert(i == nargs);
-            return r;
-        } else {
-            if (!is_atom(r))
-                r = mk_let_decl(r);
-            return visit_let_value(mk_app(r, nargs - i, args + i));
-        }
-    }
-
-    expr beta_reduce(expr fn, expr const & e) {
-        lean_assert(is_lambda(fn));
-        buffer<expr> args;
-        get_app_args(e, args);
-        return beta_reduce(fn, args.size(), args.data());
-    }
-
-    expr mk_cast(type_checker & tc, expr const & A, expr const & B, expr const & t) {
-        if (tc.is_def_eq(A, B)) {
-            return t;
-        } else if (is_lc_proof_app(t)) {
-            return mk_app(mk_constant(get_lc_proof_name()), B);
-        } else {
-            /* lc_cast.{u_1 u_2} : Π {α : Sort u_2} {β : Sort u_1}, α → β */
-            level u_2 = sort_level(tc.ensure_type(A));
-            level u_1 = sort_level(tc.ensure_type(B));
-            return mk_let_decl(mk_app(mk_constant(get_lc_cast_name(), {u_1, u_2}), A, B, t));
-        }
-    }
-
-    expr mk_cast(expr const & A, expr const & B, expr const & t) {
-        type_checker tc(m_st, m_lctx);
-        return mk_cast(tc, A, B, t);
     }
 
     expr distrib_app_cases(expr const & fn, expr const & e) {
@@ -312,7 +374,7 @@ class csimp_fn {
             expr minor            = cases_args[minor_idx];
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
             buffer<expr> minor_fvars;
-            unsigned m_fvars_init_size = m_fvars.size();
+            unsigned old_fvars_size = m_fvars.size();
             while (is_lambda(minor)) {
                 expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
                 expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
@@ -328,8 +390,7 @@ class csimp_fn {
             new_minor = visit_let_value(new_minor);
             type_checker tc(m_st, m_lctx);
             new_minor = mk_cast(tc, tc.infer(new_minor), result_type, new_minor);
-            new_minor = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
-            m_fvars.shrink(m_fvars_init_size);
+            new_minor = mk_let(old_fvars_size, new_minor);
             new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
             cases_args[minor_idx] = new_minor;
         }

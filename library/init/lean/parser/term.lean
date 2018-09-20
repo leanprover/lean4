@@ -167,11 +167,18 @@ def arrow.parser : trailing_term_parser :=
 node! arrow [dom: get_leading, op: any_of [symbol "→" 25, symbol "->" 25], range: recurse 24]
 
 @[derive parser.has_tokens parser.has_view]
+def projection.parser : trailing_term_parser :=
+/- Use max_prec + 1 so that it bind more tightly than application:
+   `a (b).c` should be parsed as `a ((b).c)`. -/
+node! projection [".":max_prec.succ, proj: parser.ident.parser]
+
+@[derive parser.has_tokens parser.has_view]
 def trailing.parser : trailing_term_parser :=
 any_of [
   sort_app.parser,
   app.parser,
-  arrow.parser
+  arrow.parser,
+  projection.parser
 ] <?> "term"
 
 end term

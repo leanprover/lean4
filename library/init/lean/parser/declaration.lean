@@ -116,7 +116,9 @@ def declaration.parser : command_parser :=
 node! declaration [
   modifiers: decl_modifiers.parser,
   inner: node_choice! declaration.inner {
-    «def»: node! «def» ["def", name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
+    «def»: node! «def» ["def",
+      old_univ_params: node! old_univ_params ["{", ids: ident.parser+, "}"]?,
+      name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
     «abbreviation»: node! «abbreviation» ["abbreviation", name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
     «theorem»: node! «theorem» ["theorem", name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
     «instance»: node! «instance» ["instance", name: term.ident.parser?, sig: decl_sig.parser, val: decl_val.parser],

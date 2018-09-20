@@ -3222,6 +3222,9 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     struc << " := {syntax_node_kind . name := `" << full_macro.to_string() << "}\n"
             << "structure " << macro.to_string() << ".view :=\n";
     buffer<expr> new_args;
+    // unhygiene when nested in namespaces
+    auto opts = update(m_opts, {"pp", "full_names"}, true);
+    auto pp = ::lean::mk_pp_ctx(m_env, opts, m_ctx.mctx(), m_ctx.lctx());
     for (expr args = app_arg(e2); is_app(args); args = app_arg(args)) {
         expr r = app_arg(app_fn(args));
         std::function<expr(expr)> add_field;
@@ -3301,6 +3304,9 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
     struc << " := {syntax_node_kind . name := `" << full_macro.to_string() << "}\n"
           << "inductive " << macro.to_string() << ".view\n";
     buffer<expr> new_args;
+    // unhygiene when nested in namespaces
+    auto opts = update(m_opts, {"pp", "full_names"}, true);
+    auto pp = ::lean::mk_pp_ctx(m_env, opts, m_ctx.mctx(), m_ctx.lctx());
     for (expr e = args; is_app(e); e = app_arg(e)) {
         expr r = app_arg(app_fn(e));
         std::string fname = "«" + get_name(mdata_data(r), "fname")->to_string() + "»";

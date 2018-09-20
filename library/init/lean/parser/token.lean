@@ -156,7 +156,7 @@ lift $ try $ do {
   it ← left_over,
   stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
   when (sym ≠ sym') $
-    error "" (dlist.singleton (repr sym)) it,
+    error ("token " ++ repr sym') (dlist.singleton (repr sym)) it,
   pure stx
 } <?> repr sym
 

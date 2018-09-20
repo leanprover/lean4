@@ -141,6 +141,16 @@ def anonymous_constructor.parser : term_parser :=
 node! anonymous_constructor ["⟨":max_prec, args: sep_by (recurse 0) (symbol ","), "⟩"]
 
 @[derive parser.has_tokens parser.has_view]
+def explicit_ident.parser : term_parser :=
+node! explicit [
+  mod: node_choice! explicit_modifier {
+    explicit: symbol "@" max_prec,
+    partial_explicit: symbol "@@" max_prec
+  },
+  id: term.ident.parser
+]
+
+@[derive parser.has_tokens parser.has_view]
 def leading.parser :=
 any_of [
   term.ident.parser,
@@ -150,7 +160,8 @@ any_of [
   sort.parser,
   lambda.parser,
   pi.parser,
-  anonymous_constructor.parser
+  anonymous_constructor.parser,
+  explicit_ident.parser
 ] <?> "term"
 
 @[derive parser.has_tokens parser.has_view]
@@ -170,7 +181,14 @@ node! arrow [dom: get_leading, op: any_of [symbol "→" 25, symbol "->" 25], ran
 def projection.parser : trailing_term_parser :=
 /- Use max_prec + 1 so that it bind more tightly than application:
    `a (b).c` should be parsed as `a ((b).c)`. -/
-node! projection [".":max_prec.succ, proj: parser.ident.parser]
+node! projection [
+  term: get_leading,
+  ".":max_prec.succ,
+  proj: node_choice! projection_spec {
+    id: parser.ident.parser,
+    num: number,
+  },
+]
 
 @[derive parser.has_tokens parser.has_view]
 def trailing.parser : trailing_term_parser :=

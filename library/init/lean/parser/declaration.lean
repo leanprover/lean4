@@ -107,7 +107,7 @@ node! «structure» [
   sig: decl_sig.parser,
   «extends»: node! «extends» ["extends", parents: sep_by1 term.parser (symbol ",")]?,
   ":=",
-  ctor: node! structure_ctor [name: ident.parser, infer_mod: infer_modifier.parser, "::"]?,
+  ctor: node! structure_ctor [name: ident.parser, infer_mod: infer_modifier.parser?, "::"]?,
   fields: structure_field.parser*,
 ]
 

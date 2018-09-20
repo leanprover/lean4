@@ -234,7 +234,6 @@ class csimp_fn {
             fn = binding_body(fn);
         }
         expr r = instantiate_rev(fn, i, args);
-        lean_assert(!is_let(r));
         if (is_lambda(r)) {
             lean_assert(i == nargs);
             return r;
@@ -246,8 +245,9 @@ class csimp_fn {
         }
     }
 
+    /* Remark: if `fn` is not a lambda expression, then this function
+       will simply create the application `fn args_of(e)` */
     expr beta_reduce(expr fn, expr const & e) {
-        lean_assert(is_lambda(fn));
         buffer<expr> args;
         get_app_args(e, args);
         return beta_reduce(fn, args.size(), args.data());

@@ -200,6 +200,7 @@ set(CMAKE_CXX_FLAGS_MINSIZEREL     "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELEASE        "-DNDEBUG")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-DLEAN_DEBUG")
 set(CMAKE_CXX_FLAGS_GPROF          "-O2 -g -pg")
+set(CMAKE_CXX_FLAGS_LPROF          "-O2 -g -fprofile-instr-generate -fcoverage-mapping")
 
 # OSX .dmg generation (this is working in progress)
 set(CPACK_DMG_BACKGROUND_IMAGE "${LEAN_SOURCE_DIR}/../images/lean.png")

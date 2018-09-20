@@ -1,0 +1,2 @@
+[compiler.lcnf] tst1
+λ a, let _x_3 := nat.cases_on a (let _x_1 := nat.has_zero.0 in _x_1) (λ a, let _x_2 := id a in _x_2) in _x_3

@@ -132,6 +132,11 @@ public:
                 minor = instantiate_rev(minor, minor_fvars.size(), minor_fvars.data());
                 if (j < num_fields) {
                     minor = eta_expand(minor, num_fields - j);
+                    for (; j < num_fields; j++) {
+                        expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), binding_domain(minor), binding_info(minor));
+                        minor_fvars.push_back(new_fvar);
+                        minor = instantiate(binding_body(minor), new_fvar);
+                    }
                 }
                 flet<cache> save_cache(m_cache, m_cache);
                 unsigned old_fvars_size    = m_fvars.size();

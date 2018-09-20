@@ -30,6 +30,8 @@ public:
         m_threshold(threshold), m_out(out), m_msg(msg) {
         m_start = std::chrono::steady_clock::now();
     }
+    timeit(std::ostream & out, char const * msg, double threshold):
+        timeit(out, msg, second_duration(threshold)) {}
     timeit(std::ostream & out, char const * msg) : timeit(out, msg, second_duration(0)) {}
     ~timeit() {
         auto end = std::chrono::steady_clock::now();

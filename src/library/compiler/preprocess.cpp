@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "util/timeit.h"
 #include "kernel/declaration.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
@@ -235,9 +236,9 @@ class preprocess_fn {
 
     void exec_new_compiler(constant_info const & d) {
         name n  = get_real_name(d.get_name());
+        // timeit timer(std::cout, (sstream() << "compiling " << n).str().c_str(), 0.05);
         expr v  = unfold_aux_match(m_env, d.get_value());
         expr v1 = to_lcnf(m_env, local_ctx(), v);
-        // std::cout << "compiling " << n << "\n";
         lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v1 << "\n";);
         lean_cond_assert("compiler", check(d, v1));
         expr v2 = csimp(m_env, local_ctx(), v1);

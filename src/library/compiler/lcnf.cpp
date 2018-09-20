@@ -57,6 +57,13 @@ public:
         return fvar;
     }
 
+    expr mk_let(unsigned old_fvars_size, expr const & body) {
+        lean_assert(m_fvars.size() >= old_fvars_size);
+        expr r = m_lctx.mk_lambda(m_fvars.size() - old_fvars_size, m_fvars.data() + old_fvars_size, body);
+        m_fvars.shrink(old_fvars_size);
+        return r;
+    }
+
     expr eta_expand(expr e, unsigned num_extra) {
         lean_assert(num_extra > 0);
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
@@ -127,11 +134,9 @@ public:
                     minor = eta_expand(minor, num_fields - j);
                 }
                 flet<cache> save_cache(m_cache, m_cache);
-                unsigned m_fvars_init_size = m_fvars.size();
+                unsigned old_fvars_size    = m_fvars.size();
                 expr new_minor             = visit(minor, false);
-                // add let-decls
-                new_minor      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_minor);
-                m_fvars.shrink(m_fvars_init_size);
+                new_minor      = mk_let(old_fvars_size, new_minor);
                 new_minor      = m_lctx.mk_lambda(minor_fvars, new_minor);
                 args[i]        = new_minor;
             }
@@ -350,7 +355,7 @@ public:
         {
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
             flet<cache>     save_cache(m_cache, m_cache);
-            unsigned m_fvars_init_size = m_fvars.size();
+            unsigned old_fvars_size = m_fvars.size();
             buffer<expr> binding_fvars;
             while (is_lambda(e)) {
                 /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
@@ -360,8 +365,7 @@ public:
                 e = binding_body(e);
             }
             expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()), true);
-            new_body      = m_lctx.mk_lambda(m_fvars.size() - m_fvars_init_size, m_fvars.data() + m_fvars_init_size, new_body);
-            m_fvars.shrink(m_fvars_init_size);
+            new_body      = mk_let(old_fvars_size, new_body);
             r = m_lctx.mk_lambda(binding_fvars, new_body);
         }
         if (root)

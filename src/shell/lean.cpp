@@ -491,13 +491,21 @@ int main(int argc, char ** argv) {
             scope_message_log scope_log(l);
             auto imports = mod_mgr.get_direct_imports("<stdin>", buf.str());
             for (auto & d : imports) {
-                mod_mgr.get_module(d);
+                auto d_mod = mod_mgr.get_module(d);
+                if (d_mod->m_log.has_errors()) {
+                    message_builder msg(env, ios, "<stdin>", {1, 0}, ERROR);
+                    msg << "import " << d_mod->m_name << " has errors, aborting";
+                    msg.report();
+                    ok = false;
+                }
             }
 
-            auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
-            parser p(mod_env, ios, buf, "<stdin>");
-            // The server will obviously do something more complicated from here
-            p.parse_commands();
+            if (ok) {
+                auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
+                parser p(mod_env, ios, buf, "<stdin>");
+                // The server will obviously do something more complicated from here
+                p.parse_commands();
+            }
 
             for (auto const & msg : l.to_buffer()) {
                 if (json_output) {

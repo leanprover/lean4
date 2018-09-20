@@ -37,6 +37,12 @@ instance : has_tokens get_leading := default _
 instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]
+def paren.parser : term_parser :=
+/- Do not allow trailing comma. Looks a bit weird and would clash with
+   adding support for tuple sections (https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#tuple-sections). -/
+node! «paren» ["(":max_prec, elems: sep_by (recurse 0) (symbol ",") ff, ")"]
+
+@[derive parser.has_tokens parser.has_view]
 def hole.parser : term_parser :=
 node! hole [hole: symbol "_" max_prec]
 
@@ -139,12 +145,13 @@ def leading.parser :=
 any_of [
   term.ident.parser,
   number,
+  paren.parser,
   hole.parser,
   sort.parser,
   lambda.parser,
   pi.parser,
   anonymous_constructor.parser
-]
+] <?> "term"
 
 @[derive parser.has_tokens parser.has_view]
 def sort_app.parser : trailing_term_parser :=
@@ -165,14 +172,14 @@ any_of [
   sort_app.parser,
   app.parser,
   arrow.parser
-]
+] <?> "term"
 
 end term
 
 -- While term.parser does not actually read a command, it does share the same effect set
 -- with command parsers, introducing the term-level recursion effect only for nested parsers
 def term.parser (rbp := 0) : command_parser :=
-pratt_parser term.leading.parser term.trailing.parser rbp <?> "term"
+pratt_parser term.leading.parser term.trailing.parser rbp
 
 -- `[derive]` doesn't manage to derive these instances because of the parameter
 instance term.parser.tokens (rbp) : has_tokens (term.parser rbp) :=

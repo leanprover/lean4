@@ -70,7 +70,7 @@ universes u v
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
-  let s := (s.mk_iterator.nextn 3500).prev_to_string,
+  let s := (s.mk_iterator.nextn 4000).prev_to_string,
   st ← monad_except.lift_except $ parser.mk_parser_state (tokens module.parser),
   let k := parser.parse ⟨"foo"⟩ st s module.parser,
   io.prim.iterate_eio k $ λ k, match k.resume () with

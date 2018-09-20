@@ -87,13 +87,13 @@ node! binder_content [
 @[derive has_tokens has_view]
 def bracketed_binder.parser : term_parser :=
 node_choice! bracketed_binder {
-  explicit: node! explicit_binder ["(":max_prec, content: node_choice! explicit_binder_content {
+  explicit: node! explicit_binder ["(", content: node_choice! explicit_binder_content {
     «notation»: command.notation_like.parser,
     other: binder_content.parser
   }, right: symbol ")"],
-  implicit: node! implicit_binder ["{":max_prec, content: binder_content.parser, "}"],
+  implicit: node! implicit_binder ["{", content: binder_content.parser, "}"],
   strict_implicit: node! strict_implicit_binder [
-    left: any_of [symbol "{{" max_prec, symbol "⦃" max_prec],
+    left: any_of [symbol "{{", symbol "⦃"],
     content: binder_content.parser,
     right: any_of [symbol "}}", symbol "⦄"]
   ],

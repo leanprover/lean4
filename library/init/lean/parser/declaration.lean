@@ -77,8 +77,8 @@ node_choice! decl_val {
 @[derive has_tokens has_view]
 def infer_modifier.parser : command_parser :=
 node_choice! infer_modifier {
-  relaxed: try $ node! relaxed_infer_modifier ["{":max_prec, "}"],
-  strict: try $ node! strict_infer_modifier ["(":max_prec, ")"],
+  relaxed: try $ node! relaxed_infer_modifier ["{", "}"],
+  strict: try $ node! strict_infer_modifier ["(", ")"],
 }
 
 @[derive has_tokens has_view]
@@ -95,7 +95,7 @@ def structure_field.parser : command_parser :=
 node_choice! structure_field {
   -- TODO(Sebastian): this `try` is too coarse
   local_notation: try node! structure_notation [
-    "(":max_prec, «notation»: notation_like.parser, ")"],
+    "(", «notation»: notation_like.parser, ")"],
   field: term.bracketed_binder.parser,
 }
 

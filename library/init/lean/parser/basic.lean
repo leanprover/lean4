@@ -110,12 +110,15 @@ def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
 
 def mk_parser_state (tokens : list token_config) : except string parser_state :=
 do -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
-   let builtin_tokens : list token_config := [⟨"/-", 0, none⟩, ⟨"--", 0, none⟩],
+   let builtin_tokens : list token_config := [{«prefix» := "/-"}, {«prefix» := "--"}],
    t ← (builtin_tokens ++ tokens).mfoldl (λ (t : trie token_config) tk,
      match t.find tk.prefix with
-     | some tk' := if tk.lbp = tk'.lbp then pure t else throw $
-       "invalid token '" ++ tk.prefix ++ "', has been defined with precendences " ++
-       to_string tk.lbp ++ " and " ++ to_string tk'.lbp
+     | some tk' := (match tk.lbp, tk'.lbp with
+       | l, 0  := pure $ t.insert tk.prefix tk
+       | 0, _  := pure t
+       | l, l' := if l = l' then pure t else throw $
+         "invalid token '" ++ tk.prefix ++ "', has been defined with precedences " ++
+         to_string l ++ " and " ++ to_string l')
      | none := pure $ t.insert tk.prefix tk)
      trie.mk,
    pure ⟨t, message_log.empty⟩

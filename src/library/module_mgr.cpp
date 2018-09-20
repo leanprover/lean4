@@ -13,6 +13,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 #include "util/file_lock.h"
 #include "library/module_mgr.h"
 #include "library/module.h"
+#include "library/time_task.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
 
@@ -57,6 +58,9 @@ static void compile_olean(search_path const & path, std::shared_ptr<module_info>
 
     auto olean_fn = olean_of_lean(find_file(path, mod->m_name, {".lean"}));
     lean_trace("import", tout() << "saving " << olean_fn << "\n";);
+    time_task t(".olean serialization",
+                message_builder(environment(), get_global_ios(), mod->m_filename, pos_info(),
+                                message_severity::INFORMATION));
     exclusive_file_lock output_lock(olean_fn);
     std::ofstream out(olean_fn, std::ios_base::binary);
     write_module(*mod->m_loaded_module, out);
@@ -130,7 +134,13 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
     }
 
     std::istringstream in(contents);
-    auto env = import_modules(m_initial_env, imports, mk_loader());
+    environment env;
+    {
+        time_task t("building env from imports",
+                    message_builder(environment(), get_global_ios(), mod->m_filename, pos_info(),
+                                    message_severity::INFORMATION));
+        env = import_modules(m_initial_env, imports, mk_loader());
+    }
     parser p(env, m_ios, in, mod->m_filename);
     p.parse_commands();
     mod->m_loaded_module = std::make_shared<loaded_module const>(export_module(p.env(), mod_name));

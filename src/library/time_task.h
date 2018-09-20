@@ -19,8 +19,9 @@ class time_task {
     std::string     m_category;
     optional<xtimeit> m_timeit;
 public:
-    time_task(std::string const & category, message_builder builder, options const & opts, name decl = name()):
+    time_task(std::string const & category, message_builder builder, name decl = name()) :
             m_category(category) {
+        auto const & opts = builder.get_text_stream().get_options();
         if (get_profiler(opts)) {
             m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
                 builder.get_text_stream().get_stream() << m_category;

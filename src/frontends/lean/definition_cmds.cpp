@@ -189,7 +189,7 @@ static bool check_noncomputable(bool ignore_noncomputable, environment const & e
 static environment compile_decl(parser & p, environment const & env,
                                 name const & c_name, name const & c_real_name, pos_info const & pos) {
     try {
-        time_task _("compilation", p.mk_message(message_severity::INFORMATION), p.get_options(), c_real_name);
+        time_task _("compilation", p.mk_message(message_severity::INFORMATION), c_real_name);
         return vm_compile(env, env.get(c_real_name));
     } catch (exception & ex) {
         // FIXME(gabriel): use position from exception
@@ -308,7 +308,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
                                                      bool is_example, bool is_instance, bool is_meta, bool is_abbrev) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
-    time_task _("parsing", p.mk_message(header_pos, INFORMATION), p.get_options());
+    time_task _("parsing", p.mk_message(header_pos, INFORMATION));
     declaration_name_scope scope2;
     expr fn = parse_single_header(p, scope2, lp_names, params, is_example, is_instance);
     expr val;
@@ -380,7 +380,7 @@ static expr_pair elaborate_definition_core(elaborator & elab, decl_cmd_kind kind
 }
 
 static expr_pair elaborate_definition(parser & p, elaborator & elab, decl_cmd_kind kind, expr const & fn, expr const & val, pos_info const & pos) {
-    time_task _("elaboration", p.mk_message(pos, INFORMATION), p.get_options(), local_pp_name_p(fn));
+    time_task _("elaboration", p.mk_message(pos, INFORMATION), local_pp_name_p(fn));
     return elaborate_definition_core(elab, kind, fn, val);
 }
 
@@ -438,7 +438,7 @@ static expr elaborate_proof(
         expr val, type;
         {
             time_task _("elaboration", message_builder(tc, decl_env, get_global_ios(), file_name, header_pos, INFORMATION),
-                        opts, local_pp_name_p(fn));
+                        local_pp_name_p(fn));
             std::tie(val, type) = elab.elaborate_with_type(val0, mk_as_is(local_type_p(fn)));
         }
 
@@ -581,7 +581,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             finalize_definition(elab, new_params, type, val, lp_names);
             env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), meta, is_abbrev, header_pos);
         }
-        time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), p.get_options(), c_name);
+        time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), c_name);
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);

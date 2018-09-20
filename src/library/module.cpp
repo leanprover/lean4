@@ -24,6 +24,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/noncomputable.h"
 #include "library/constants.h"
 #include "library/module_mgr.h"
+#include "library/time_task.h"
 
 /*
 Missing features: non monotonic modifications in .olean files
@@ -219,6 +220,8 @@ bool is_candidate_olean_file(std::string const & file_name) {
 
 olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
     std::vector<module_name> imports;
+    time_task t(".olean deserialization",
+                message_builder(environment(), get_global_ios(), file_name, pos_info(), message_severity::INFORMATION));
 
     deserializer d1(in, optional<std::string>(file_name));
     std::string header, version;

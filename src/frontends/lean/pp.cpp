@@ -342,7 +342,9 @@ void pretty_fn::set_options_core(options const & _o) {
     m_binder_types      = get_pp_binder_types(o);
     m_hide_comp_irrel   = get_pp_hide_comp_irrel(o);
     m_annotations       = get_pp_annotations(o);
+    m_compact_let       = get_pp_compact_let(o);
     m_hide_full_terms   = get_formatter_hide_full_terms(o);
+
     m_num_nat_coe       = m_numerals;
     m_structure_instances = get_pp_structure_instances(o);
     m_structure_instances_qualifier = get_pp_structure_instances_qualifier(o);
@@ -1165,13 +1167,17 @@ auto pretty_fn::pp_let(expr e) -> result {
         format sep     = i < sz - 1 ? comma() : format();
         format entry   = format(n);
         format v_fmt   = pp_child(v, 0).fmt();
+        unsigned indent = m_compact_let ? 0 : m_indent;
         if (!m_binder_types || is_neutral_expr(t)) {
-            entry += space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
+            entry += space() + *g_assign_fmt + nest(indent, line() + v_fmt + sep);
         } else {
             format t_fmt   = pp_child(t, 0).fmt();
-            entry += space() + colon() + space() + t_fmt + space() + *g_assign_fmt + nest(m_indent, line() + v_fmt + sep);
+            entry += space() + colon() + space() + t_fmt + space() + *g_assign_fmt + nest(indent, line() + v_fmt + sep);
         }
-        r += nest(3 + 1, beg + group(entry));
+        if (m_compact_let)
+            r += nest(1, beg + group(entry));
+        else
+            r += nest(3 + 1, beg + group(entry));
     }
     format b = pp_child(e, 0).fmt();
     r += line() + *g_in_fmt + space() + nest(2 + 1, b);

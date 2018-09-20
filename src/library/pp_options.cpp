@@ -138,6 +138,7 @@ static name * g_pp_structure_instances_qualifier = nullptr;
 static name * g_pp_structure_projections    = nullptr;
 static name * g_pp_instantiate_mvars = nullptr;
 static name * g_pp_annotations       = nullptr;
+static name * g_pp_compact_let       = nullptr;
 static name * g_pp_all               = nullptr;
 static list<options> * g_distinguishing_pp_options = nullptr;
 
@@ -162,6 +163,7 @@ void initialize_pp_options() {
     g_pp_hide_comp_irrel   = new name{"pp", "hide_comp_irrelevant"};
     g_pp_all               = new name{"pp", "all"};
     g_pp_goal_compact      = new name{"pp", "goal", "compact"};
+    g_pp_compact_let       = new name{"pp", "compact_let"};
     g_pp_goal_max_hyps     = new name{"pp", "goal", "max_hypotheses"};
     g_pp_structure_instances = new name{"pp", "structure_instances"};
     g_pp_structure_instances_qualifier = new name{"pp", "structure_instances_qualifier"};
@@ -227,6 +229,8 @@ void initialize_pp_options() {
                          "(pretty printer) instantiate assigned metavariables before pretty printing terms and goals");
     register_bool_option(*g_pp_annotations, LEAN_DEFAULT_PP_ANNOTATIONS,
                          "(pretty printer) display internal annotations (for debugging purposes only)");
+    register_bool_option(*g_pp_compact_let, false,
+                         "(pretty printer) minimal indentation at `let`-declarations");
 
     options universes_true(*g_pp_universes, true);
     options full_names_true(*g_pp_full_names, true);
@@ -245,6 +249,7 @@ void initialize_pp_options() {
 }
 
 void finalize_pp_options() {
+    delete g_pp_compact_let;
     delete g_pp_preterm;
     delete g_pp_numerals;
     delete g_pp_strings;
@@ -314,5 +319,6 @@ bool     get_pp_structure_instances_qualifier(options const & opts) { return opt
 bool     get_pp_structure_projections(options const & opts) { return opts.get_bool(*g_pp_structure_projections, LEAN_DEFAULT_PP_STRUCTURE_PROJECTIONS); }
 bool     get_pp_instantiate_mvars(options const & o)    { return o.get_bool(*g_pp_instantiate_mvars, LEAN_DEFAULT_PP_INSTANTIATE_MVARS); }
 bool     get_pp_annotations(options const & o)          { return o.get_bool(*g_pp_annotations, LEAN_DEFAULT_PP_ANNOTATIONS); }
+bool     get_pp_compact_let(options const & opts)       { return opts.get_bool(*g_pp_compact_let, false); }
 bool     get_pp_all(options const & opts)               { return opts.get_bool(*g_pp_all, LEAN_DEFAULT_PP_ALL); }
 }

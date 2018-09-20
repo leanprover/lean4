@@ -47,6 +47,7 @@ bool     get_pp_structure_instances_qualifier(options const & opts);
 bool     get_pp_structure_projections(options const & opts);
 bool     get_pp_instantiate_mvars(options const & o);
 bool     get_pp_annotations(options const & o);
+bool     get_pp_compact_let(options const & opts);
 bool     get_pp_all(options const & opts);
 
 void initialize_pp_options();

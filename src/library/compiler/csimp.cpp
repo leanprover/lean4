@@ -168,23 +168,58 @@ class csimp_fn {
         return m_lctx.mk_lambda(binding_fvars, new_body);
     }
 
+    bool should_inline_instance(name const & n) const {
+        if (is_instance(env(), n))
+            return !has_noinline_attribute(env(), n);
+        else
+            return false;
+    }
+
+    static unsigned get_num_nested_lambdas(expr e) {
+        unsigned r = 0;
+        while (is_lambda(e)) {
+            r++;
+            e = binding_body(e);
+        }
+        return r;
+    }
+
+    optional<expr> try_inline_instance(expr const & fn, expr const & e) {
+        lean_assert(is_constant(fn));
+        optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
+        if (!info || !info->is_definition()) return none_expr();
+        if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return none_expr();
+        local_ctx saved_lctx       = m_lctx;
+        unsigned  saved_fvars_size = m_fvars.size();
+        expr new_fn = visit(instantiate_value_lparams(*info, const_levels(fn)));
+        expr r      = find(beta_reduce(new_fn, e));
+        if (!is_constructor_app(env(), r)) {
+            m_lctx = saved_lctx;
+            m_fvars.resize(saved_fvars_size);
+            return none_expr();
+        }
+        return some_expr(r);
+    }
+
+    expr proj_constructor(expr const & k_app, unsigned proj_idx) {
+        lean_assert(is_constructor_app(env(), k_app));
+        buffer<expr> args;
+        expr const & k        = get_app_args(k_app, args);
+        constructor_val k_val = env().get(const_name(k)).to_constructor_val();
+        lean_assert(k_val.get_nparams() + proj_idx < args.size());
+        return args[k_val.get_nparams() + proj_idx];
+    }
+
     expr visit_proj(expr const & e) {
-        expr s = proj_expr(e);
-        if (is_constant(s) && should_inline(const_name(s), 0)) {
-            if (optional<constant_info> info = env().find(mk_cstage1_name(const_name(s)))) {
-                s = visit(instantiate_value_lparams(*info, const_levels(s)));
-            }
+        expr s = find(proj_expr(e));
+        if (is_constructor_app(env(), s))
+            return proj_constructor(s, proj_idx(e).get_small_value());
+        expr const & s_fn = get_app_fn(s);
+        if (is_constant(s_fn) && should_inline_instance(const_name(s_fn))) {
+            if (optional<expr> k_app = try_inline_instance(s_fn, s))
+                return proj_constructor(*k_app, proj_idx(e).get_small_value());
         }
-        expr new_s = find(s);
-        if (is_constructor_app(env(), new_s)) {
-            buffer<expr> args;
-            expr const & k        = get_app_args(new_s, args);
-            constructor_val k_val = env().get(const_name(k)).to_constructor_val();
-            lean_assert(k_val.get_nparams() + proj_idx(e).get_small_value() < args.size());
-            return args[k_val.get_nparams() + proj_idx(e).get_small_value()];
-        } else {
-            return update_proj(e, s);
-        }
+        return e;
     }
 
     expr reduce_cases_cases(expr const & c, buffer<expr> const & args, inductive_val const & I_val, expr const & major) {
@@ -476,25 +511,16 @@ class csimp_fn {
         return mk_cast(tc, r_type, e_type, r);
     }
 
-    bool should_inline(name const & fn, unsigned /* nargs */) {
-        if (is_instance(env(), fn))
-            return !has_noinline_attribute(env(), fn);
-        else if (has_inline_attribute(env(), fn))
-            return true;
-        else
-            return false;
-    }
-
     expr try_inline(expr const & fn, expr const & e) {
         lean_assert(is_constant(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
-        if (should_inline(const_name(fn), get_app_num_args(e))) {
-            if (optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)))) {
-                expr new_fn = visit(instantiate_value_lparams(*info, const_levels(fn)));
-                return beta_reduce(new_fn, e);
-            }
-        }
-        return e;
+        if (has_noinline_attribute(env(), const_name(fn))) return e;
+        optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
+        if (!info || !info->is_definition()) return e;
+        /* TODO(Leo): check size and whether function is boring or not. */
+        if (!has_inline_attribute(env(), const_name(fn))) return e;
+        expr new_fn = visit(instantiate_value_lparams(*info, const_levels(fn)));
+        return beta_reduce(new_fn, e);
     }
 
     expr visit_app(expr const & e) {

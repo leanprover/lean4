@@ -275,7 +275,7 @@ public:
         buffer<expr> let_fvars;
         while (is_let(e)) {
             expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
-            expr new_val  = visit_let_value(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()));
+            expr new_val  = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()));
             expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), new_type, new_val);
             let_fvars.push_back(new_fvar);
             m_fvars.push_back(new_fvar);
@@ -347,17 +347,10 @@ public:
         return mk_app(c, args);
     }
 
-    expr visit_let_value(expr const & e) {
-        switch (e.kind()) {
-        case expr_kind::Lambda: return visit_lambda(e);
-        case expr_kind::App:    return visit_app(e);
-        default:                return e;
-        }
-    }
-
     expr visit(expr const & e) {
         switch (e.kind()) {
         case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::App:    return visit_app(e);
         case expr_kind::Let:    return visit_let(e);
         default:                return e;
         }

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <string>
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
 #include "library/attribute_manager.h"
@@ -79,5 +80,9 @@ expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr con
     type_checker tc(s, lctx);
     level lvl = sort_level(tc.ensure_type(type));
     return mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type);
+}
+
+bool is_join_point_name(name const & n) {
+    return !n.is_atomic() && n.is_string() && strncmp(n.get_string().data(), "_join", 5) == 0;
 }
 }

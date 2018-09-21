@@ -32,7 +32,8 @@ class csimp_fn {
         if (is_fvar(e)) {
             if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
                 if (optional<expr> v = decl->get_value())
-                    return find(*v, skip_mdata);
+                    if (!is_join_point_name(decl->get_user_name()))
+                        return find(*v, skip_mdata);
             }
         } else if (is_mdata(e) && skip_mdata) {
             return find(mdata_expr(e), true);
@@ -131,7 +132,9 @@ class csimp_fn {
             if (is_lcnf_atom(new_val)) {
                 let_fvars.push_back(new_val);
             } else {
-                name n = is_internal_name(let_name(e)) ? next_name() : let_name(e);
+                name n = let_name(e);
+                if (is_internal_name(n) && !is_join_point_name(n))
+                    n = next_name();
                 expr new_fvar = m_lctx.mk_local_decl(ngen(), n, new_type, new_val);
                 let_fvars.push_back(new_fvar);
                 m_fvars.push_back(new_fvar);

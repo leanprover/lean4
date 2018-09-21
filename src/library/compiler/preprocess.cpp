@@ -238,23 +238,26 @@ class preprocess_fn {
         name n  = get_real_name(d.get_name());
         // timeit timer(std::cout, (sstream() << "compiling " << n).str().c_str(), 0.05);
         expr v  = unfold_aux_match(m_env, d.get_value());
-        expr v1 = to_lcnf(m_env, local_ctx(), v);
-        lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v1 << "\n";);
-        lean_cond_assert("compiler", check(d, v1));
-        expr v2 = csimp(m_env, local_ctx(), v1);
-        lean_cond_assert("compiler", check(d, v2));
-        lean_trace(name({"compiler", "simp"}), tout() << "\n" << v2 << "\n";);
-        expr v3 = elim_dead_let(v2);
-        lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v3 << "\n";);
-        lean_cond_assert("compiler", check(d, v3));
-        expr v4 = cse(m_env, v3);
-        lean_trace(name({"compiler", "cse"}), tout() << "\n" << v4 << "\n";);
-        lean_cond_assert("compiler", check(d, v4));
+        v       = to_lcnf(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v << "\n";);
+        lean_cond_assert("compiler", check(d, v));
+        v       = cce(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "cce"}), tout() << n << "\n" << v << "\n";);
+        lean_cond_assert("compiler", check(d, v));
+        v       = csimp(m_env, local_ctx(), v);
+        lean_cond_assert("compiler", check(d, v));
+        lean_trace(name({"compiler", "simp"}), tout() << "\n" << v << "\n";);
+        v       = elim_dead_let(v);
+        lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v << "\n";);
+        lean_cond_assert("compiler", check(d, v));
+        v       = cse(m_env, v);
+        lean_trace(name({"compiler", "cse"}), tout() << "\n" << v << "\n";);
+        lean_cond_assert("compiler", check(d, v));
         // std::cout << "done compiling " << n << "\n";
-        v4 = max_sharing(v4);
-        lean_trace(name({"compiler", "stage1"}), tout() << n << "\n" << v4 << "\n";);
+        v       = max_sharing(v);
+        lean_trace(name({"compiler", "stage1"}), tout() << n << "\n" << v << "\n";);
         declaration simp_decl = mk_definition(mk_cstage1_name(n), d.get_lparams(), d.get_type(),
-                                              v4, reducibility_hints::mk_opaque(), true);
+                                              v, reducibility_hints::mk_opaque(), true);
         /* IMPORTANT: We do not need to save the auxiliary declaration in the environment.
            This is just a temporary hack.
            We should store this information in a different place. In the meantime,
@@ -349,6 +352,7 @@ void initialize_preprocess() {
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "lcnf"});
+    register_trace_class({"compiler", "cce"});
     register_trace_class({"compiler", "simp"});
     register_trace_class({"compiler", "stage1"});
     register_trace_class({"compiler", "expand_aux"});

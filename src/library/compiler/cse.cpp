@@ -6,11 +6,15 @@ Author: Leonardo de Moura
 */
 #include <algorithm>
 #include <vector>
+#include "runtime/flet.h"
 #include "util/name_generator.h"
 #include "kernel/environment.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/expr_maps.h"
+#include "kernel/expr_sets.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -129,6 +133,249 @@ public:
 
 expr cse(environment const & env, expr const & e) {
     return cse_fn(env)(e);
+}
+
+/* Common case elimination.
+
+   This transformation creates join-points for identical minor premises.
+   This is important in code such as
+   ```
+   def get_fn : expr -> tactic expr
+   | (expr.app f _) := pure f
+   | _              := throw "expr is not an application"
+   ```
+   The "else"-branch is duplicated by the equation compiler for each constructor different from `expr.app`. */
+class cce_fn {
+    type_checker::state m_st;
+    local_ctx           m_lctx;
+    buffer<expr>        m_fvars;
+    expr_map<bool>      m_cce_candidates;
+    buffer<expr>        m_cce_targets;
+    name                m_j;
+    unsigned            m_next_idx{1};
+public:
+    environment & env() { return m_st.env(); }
+
+    name_generator & ngen() { return m_st.ngen(); }
+
+    unsigned get_fvar_idx(expr const & x) {
+        return m_lctx.get_local_decl(x).get_idx();
+    }
+
+    unsigned get_max_fvar_idx(expr const & e) {
+        if (!has_fvar(e))
+            return 0;
+        unsigned r = 0;
+        for_each(e, [&](expr const & x, unsigned) {
+                if (!has_fvar(x)) return false;
+                if (is_fvar(x)) {
+                    unsigned x_idx = get_fvar_idx(x);
+                    if (x_idx > r)
+                        r = x_idx;
+                }
+                return true;
+            });
+        return r;
+    }
+
+    expr replace_target(expr const & e, expr const & target, expr const & jmp) {
+        return replace(e, [&](expr const & t, unsigned) {
+                if (target == t) {
+                    return some_expr(jmp);
+                }
+                return none_expr();
+            });
+    }
+
+    expr mk_let_lambda(unsigned old_fvars_size, expr body, bool is_let) {
+        lean_assert(m_fvars.size() >= old_fvars_size);
+        if (m_fvars.size() == old_fvars_size)
+            return body;
+        unsigned first_var_idx;
+        if (old_fvars_size == 0)
+            first_var_idx = 0;
+        else
+            first_var_idx = get_fvar_idx(m_fvars[old_fvars_size]);
+        unsigned j = 0;
+        buffer<pair<expr, expr>> target_jmp_pairs;
+        name_set new_fvar_names;
+        for (unsigned i = 0; i < m_cce_targets.size(); i++) {
+            expr const & target = m_cce_targets[i];
+            unsigned max_idx    = get_max_fvar_idx(target);
+            if (max_idx >= first_var_idx) {
+                expr target_type = cheap_beta_reduce(type_checker(m_st, m_lctx).infer(target));
+                expr unit        = mk_unit(mk_level_one());
+                expr unit_mk     = mk_unit_mk(mk_level_one());
+                expr new_val     = ::lean::mk_lambda("u", unit, target);
+                expr new_type    = ::lean::mk_arrow(unit, target_type);
+                expr new_fvar    = m_lctx.mk_local_decl(ngen(), mk_join_point_name(m_j.append_after(m_next_idx)), new_type, new_val);
+                new_fvar_names.insert(fvar_name(new_fvar));
+                expr jmp         = ::lean::mk_let("_j", target_type, mk_app(new_fvar, unit_mk), mk_bvar(0));
+                if (is_let) {
+                    /* We must insert new_fvar after fvar with idx == max_idx */
+                    m_next_idx++;
+                    unsigned k = old_fvars_size;
+                    for (; k < m_fvars.size(); k++) {
+                        expr const & fvar = m_fvars[k];
+                        if (get_fvar_idx(fvar) > max_idx) {
+                            m_fvars.insert(k, new_fvar);
+                            /* We need to save the pairs to replace the `target` on let-declarations that occurr after k */
+                            target_jmp_pairs.emplace_back(target, jmp);
+                            break;
+                        }
+                    }
+                    if (k == m_fvars.size()) {
+                        m_fvars.push_back(new_fvar);
+                    }
+                } else {
+                    lean_assert(!is_let);
+                    /* For lambda we add new free variable after lambda vars */
+                    m_fvars.push_back(new_fvar);
+                }
+                body = replace_target(body, target, jmp);
+            } else {
+                m_cce_targets[j] = target;
+                j++;
+            }
+        }
+        m_cce_targets.shrink(j);
+        if (is_let && !target_jmp_pairs.empty()) {
+            expr r     = abstract(body, m_fvars.size() - old_fvars_size, m_fvars.data() + old_fvars_size);
+            unsigned i = m_fvars.size();
+            while (i > old_fvars_size) {
+                --i;
+                expr fvar       = m_fvars[i];
+                local_decl decl = m_lctx.get_local_decl(fvar);
+                expr type = abstract(decl.get_type(), i - old_fvars_size, m_fvars.data() + old_fvars_size);
+                lean_assert(decl.get_value());
+                expr val  = *decl.get_value();
+                if ((!new_fvar_names.contains(fvar_name(fvar))) &&
+                    (is_lambda(val) || is_cases_on_app(env(), val))) {
+                    for (pair<expr, expr> const & p : target_jmp_pairs) {
+                        val = replace_target(val, p.first, p.second);
+                    }
+                }
+                val = abstract(val, i - old_fvars_size, m_fvars.data() + old_fvars_size);
+                r   = ::lean::mk_let(decl.get_user_name(), type, val, r);
+            }
+            m_fvars.shrink(old_fvars_size);
+            return r;
+        } else {
+            expr r = m_lctx.mk_lambda(m_fvars.size() - old_fvars_size, m_fvars.data() + old_fvars_size, body);
+            m_fvars.shrink(old_fvars_size);
+            return r;
+        }
+    }
+
+    expr mk_let(unsigned old_fvars_size, expr const & body) { return mk_let_lambda(old_fvars_size, body, true); }
+
+    expr mk_lambda(unsigned old_fvars_size, expr const & body) { return mk_let_lambda(old_fvars_size, body, false); }
+
+    expr visit_let(expr e) {
+        buffer<expr> let_fvars;
+        while (is_let(e)) {
+            expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
+            expr new_val  = visit_let_value(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), new_type, new_val);
+            let_fvars.push_back(new_fvar);
+            m_fvars.push_back(new_fvar);
+            e = let_body(e);
+        }
+        return instantiate_rev(e, let_fvars.size(), let_fvars.data());
+    }
+
+    expr visit_lambda(expr e) {
+        lean_assert(is_lambda(e));
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        unsigned fvars_sz1 = m_fvars.size();
+        while (is_lambda(e)) {
+            /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
+            expr new_d    = instantiate_rev(binding_domain(e), m_fvars.size() - fvars_sz1, m_fvars.data() + fvars_sz1);
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), new_d, binding_info(e));
+            m_fvars.push_back(new_fvar);
+            e = binding_body(e);
+        }
+        unsigned fvars_sz2 = m_fvars.size();
+        expr new_body      = visit(instantiate_rev(e, m_fvars.size() - fvars_sz1, m_fvars.data() + fvars_sz1));
+        new_body           = mk_let(fvars_sz2, new_body);
+        return mk_lambda(fvars_sz1, new_body);
+    }
+
+    void add_candidate(expr const & e) {
+        auto it = m_cce_candidates.find(e);
+        if (it == m_cce_candidates.end()) {
+            m_cce_candidates.insert(mk_pair(e, true));
+        } else if (it->second) {
+            m_cce_targets.push_back(e);
+            it->second = false;
+        }
+    }
+
+    expr visit_app(expr const & e) {
+        if (!is_cases_on_app(env(), e)) return e;
+        buffer<expr> args;
+        expr const & c = get_app_args(e, args);
+        lean_assert(is_constant(c));
+        inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
+        unsigned motive_idx      = I_val.get_nparams();
+        unsigned first_index     = motive_idx + 1;
+        unsigned nindices        = I_val.get_nindices();
+        unsigned major_idx       = first_index + nindices;
+        unsigned first_minor_idx = major_idx + 1;
+        unsigned nminors         = length(I_val.get_cnstrs());
+        /* visit minor premises */
+        for (unsigned i = 0; i < nminors; i++) {
+            unsigned minor_idx    = first_minor_idx + i;
+            expr minor            = args[minor_idx];
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            unsigned fvars_sz1 = m_fvars.size();
+            while (is_lambda(minor)) {
+                expr new_d    = instantiate_rev(binding_domain(minor), m_fvars.size() - fvars_sz1, m_fvars.data() + fvars_sz1);
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
+                m_fvars.push_back(new_fvar);
+                minor = binding_body(minor);
+            }
+            bool is_cce_target = !has_loose_bvars(minor);
+            unsigned fvars_sz2 = m_fvars.size();
+            expr new_minor     = visit(instantiate_rev(minor, m_fvars.size() - fvars_sz1, m_fvars.data() + fvars_sz1));
+            new_minor = mk_let(fvars_sz2, new_minor);
+            if (is_cce_target && !is_lcnf_atom(new_minor))
+                add_candidate(new_minor);
+            new_minor = mk_lambda(fvars_sz1, new_minor);
+            args[minor_idx] = new_minor;
+        }
+        return mk_app(c, args);
+    }
+
+    expr visit_let_value(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::App:    return visit_app(e);
+        default:                return e;
+        }
+    }
+
+    expr visit(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::Let:    return visit_let(e);
+        default:                return e;
+        }
+    }
+
+public:
+    cce_fn(environment const & env, local_ctx const & lctx):
+        m_st(env), m_lctx(lctx), m_j("_j") {
+    }
+
+    expr operator()(expr const & e) {
+        expr r = visit(e);
+        return mk_let(0, r);
+    }
+};
+
+expr cce(environment const & env, local_ctx const & lctx, expr const & e) {
+    return cce_fn(env, lctx)(e);
 }
 
 void initialize_cse() {

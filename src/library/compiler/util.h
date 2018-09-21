@@ -39,6 +39,9 @@ inline bool is_lc_cast_app(expr const & e) { return is_app_of(e, get_lc_cast_nam
 
 expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr const & type);
 
+inline name mk_join_point_name(name const & n) { return name(n, "_join"); }
+bool is_join_point_name(name const & n);
+
 /* Create an auxiliary names for a declaration that saves the result of the compilation
    after step simplification. */
 inline name mk_cstage1_name(name const & decl_name) {

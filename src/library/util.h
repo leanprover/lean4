@@ -161,6 +161,8 @@ expr mk_and_elim_right(abstract_type_context & ctx, expr const & H);
 
 expr mk_unit(level const & l);
 expr mk_unit_mk(level const & l);
+expr mk_unit();
+expr mk_unit_mk();
 
 expr mk_pprod(abstract_type_context & ctx, expr const & A, expr const & B);
 expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b);

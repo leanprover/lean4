@@ -204,13 +204,13 @@ public:
             unsigned max_idx    = get_max_fvar_idx(target);
             if (max_idx >= first_var_idx) {
                 expr target_type = cheap_beta_reduce(type_checker(m_st, m_lctx).infer(target));
-                expr unit        = mk_unit(mk_level_one());
-                expr unit_mk     = mk_unit_mk(mk_level_one());
+                expr unit        = mk_unit();
+                expr unit_mk     = mk_unit_mk();
                 expr new_val     = ::lean::mk_lambda("u", unit, target);
                 expr new_type    = ::lean::mk_arrow(unit, target_type);
                 expr new_fvar    = m_lctx.mk_local_decl(ngen(), mk_join_point_name(m_j.append_after(m_next_idx)), new_type, new_val);
                 new_fvar_names.insert(fvar_name(new_fvar));
-                expr jmp         = ::lean::mk_let("_j", target_type, mk_app(new_fvar, unit_mk), mk_bvar(0));
+                expr jmp         = mk_app(new_fvar, unit_mk);
                 if (is_let) {
                     /* We must insert new_fvar after fvar with idx == max_idx */
                     m_next_idx++;

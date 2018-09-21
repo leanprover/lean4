@@ -431,6 +431,17 @@ expr mk_unit_mk(level const & l) {
     return mk_constant(get_punit_star_name(), {l});
 }
 
+static expr * g_unit = nullptr;
+static expr * g_unit_mk = nullptr;
+
+expr mk_unit() {
+    return *g_unit;
+}
+
+expr mk_unit_mk() {
+    return *g_unit_mk;
+}
+
 expr mk_pprod(abstract_type_context & ctx, expr const & A, expr const & B) {
     level l1 = get_level(ctx, A);
     level l2 = get_level(ctx, B);
@@ -1020,6 +1031,8 @@ static std::string * g_version_string = nullptr;
 std::string const & get_version_string() { return *g_version_string; }
 
 void initialize_library_util() {
+    g_unit           = new expr(mk_constant(get_unit_name()));
+    g_unit_mk        = new expr(mk_constant(get_unit_star_name()));
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));
     g_and            = new expr(mk_constant(get_and_name()));
@@ -1066,5 +1079,7 @@ void finalize_library_util() {
     delete g_and_elim_left;
     delete g_and_elim_right;
     delete g_tactic_unit;
+    delete g_unit_mk;
+    delete g_unit;
 }
 }

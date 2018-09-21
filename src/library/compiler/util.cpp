@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/type_checker.h"
+#include "kernel/instantiate.h"
 #include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
+#include "library/replace_visitor.h"
 #include "library/constants.h"
 
 namespace lean {
@@ -23,6 +25,29 @@ bool has_inline_attribute(environment const & env, name const & n) {
 
 bool has_noinline_attribute(environment const & /* env */, name const & /* n */) {
     return false;
+}
+
+bool is_lcnf_atom(expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::FVar: case expr_kind::Const: case expr_kind::Lit:
+        return true;
+    default:
+        return false;
+    }
+}
+
+class elim_trivial_let_decls_fn : public replace_visitor {
+    virtual expr visit_let(expr const & e) override {
+        if (is_lcnf_atom(let_value(e))) {
+            return visit(instantiate(let_body(e), let_value(e)));
+        } else {
+            return replace_visitor::visit_let(e);
+        }
+    }
+};
+
+expr elim_trivial_let_decls(expr const & e) {
+    return elim_trivial_let_decls_fn()(e);
 }
 
 expr cheap_beta_reduce(expr const & e) {

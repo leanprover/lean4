@@ -40,15 +40,6 @@ class csimp_fn {
         return e;
     }
 
-    bool is_atom(expr const & e) {
-        switch (e.kind()) {
-        case expr_kind::FVar: case expr_kind::Const: case expr_kind::Lit:
-            return true;
-        default:
-            return false;
-        }
-    }
-
     expr infer_type(expr const & e) { return type_checker(m_st, m_lctx).infer(e); }
 
     expr whnf(expr const & e) { return type_checker(m_st, m_lctx).whnf(e); }
@@ -67,7 +58,7 @@ class csimp_fn {
     /* If `e` is an atom, return `e`. Otherwise, create a new let-declaration `x : t := e`
        and return `x`. The new `x` is added to `m_fvars`. */
     expr mk_let_decl(expr const & e) {
-        if (is_atom(e)) {
+        if (is_lcnf_atom(e)) {
             return e;
         } else {
             expr type = cheap_beta_reduce(infer_type(e));
@@ -137,7 +128,7 @@ class csimp_fn {
         while (is_let(e)) {
             expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
             expr new_val  = visit_let_value(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()));
-            if (is_atom(new_val)) {
+            if (is_lcnf_atom(new_val)) {
                 let_fvars.push_back(new_val);
             } else {
                 name n = is_internal_name(let_name(e)) ? next_name() : let_name(e);
@@ -239,7 +230,7 @@ class csimp_fn {
             return r;
         } else {
             r = visit(r);
-            if (!is_atom(r))
+            if (!is_lcnf_atom(r))
                 r = mk_let_decl(r);
             return visit_let_value(mk_app(r, nargs - i, args + i));
         }

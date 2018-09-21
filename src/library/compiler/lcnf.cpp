@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "kernel/type_checker.h"
 #include "kernel/instantiate.h"
+#include "kernel/replace_fn.h"
 #include "library/expr_lt.h"
 #include "library/util.h"
 #include "library/aux_recursors.h"
@@ -92,9 +93,21 @@ public:
         return env().get(n).to_constructor_val().get_nfields();
     }
 
+    /* Return true iff the motive is of the form `(fun is x, t)` where `t` does not depend on `is` or `x`,
+       and `is x` has size `nindices + 1`. */
+    bool is_nondep_elim(expr motive, unsigned nindices) {
+        for (unsigned i = 0; i < nindices + 1; i++) {
+            if (!is_lambda(motive))
+                return false;
+            motive = binding_body(motive);
+        }
+        return !has_loose_bvars(motive);
+    }
+
     expr visit_cases_on(expr const & fn, buffer<expr> & args, bool root) {
-        name const & rec_name = const_name(fn);
-        name const & I_name   = rec_name.get_prefix();
+        name const & rec_name       = const_name(fn);
+        levels const & rec_levels   = const_levels(fn);
+        name const & I_name         = rec_name.get_prefix();
         lean_assert(is_inductive(env(), I_name));
         constant_info I_info        = env().get(I_name);
         inductive_val I_val         = I_info.to_inductive_val();
@@ -102,7 +115,8 @@ public:
         names cnstrs                = I_val.get_cnstrs();
         unsigned nminors            = length(cnstrs);
         unsigned nindices           = I_val.get_nindices();
-        unsigned first_minor_idx    = nparams + 1 /* typeformer/motive */ + nindices + 1 /* major premise */;
+        unsigned major_idx          = nparams + 1 /* typeformer/motive */ + nindices;
+        unsigned first_minor_idx    = major_idx + 1;
         unsigned arity              = first_minor_idx + nminors;
         if (args.size() < arity) {
             return visit(eta_expand(mk_app(fn, args), arity - args.size()), root);
@@ -110,9 +124,12 @@ public:
             expr new_cases = visit(mk_app(fn, arity, args.data()), false);
             return visit(mk_app(new_cases, args.size() - arity, args.data() + arity), root);
         } else {
+            expr const & motive = args[nparams];
+            bool nondep_elim    = is_nondep_elim(motive, nindices);
             for (unsigned i = 0; i < first_minor_idx; i++) {
                 args[i] = visit(args[i], false);
             }
+            expr major = args[major_idx];
             lean_assert(first_minor_idx + nminors == arity);
             for (unsigned i = first_minor_idx; i < arity; i++) {
                 name cnstr_name     = head(cnstrs);
@@ -142,6 +159,27 @@ public:
                 unsigned old_fvars_size    = m_fvars.size();
                 expr new_minor             = visit(minor, false);
                 new_minor      = mk_let(old_fvars_size, new_minor);
+                if (nondep_elim) {
+                    /* Create a constructor application with the "fields" of the minor premise.
+                       Then, replace `k` with major premise at new_minor.
+                       This transformation is important for code like this:
+                       ```
+                       def foo : expr -> expr
+                       | (expr.app f a) := f
+                       | e              := e
+                       ```
+                       The equation compiler will "complete" the wildcard case `e := e` by expanding `e`.
+
+                       Remark: this transformation is only safe for non-dependent elimination.
+                       It may produce type incorrect terms otherwise. */
+                    expr k    = mk_app(mk_app(mk_constant(cnstr_name, tail(rec_levels)), nparams, args.data()), minor_fvars);
+                    expr new_new_minor = replace(new_minor, [&](expr const & e, unsigned) {
+                            if (e == k) return some_expr(major);
+                            else return none_expr();
+                        });
+                    if (new_new_minor != new_minor)
+                        new_minor = elim_trivial_let_decls(new_new_minor);
+                }
                 new_minor      = m_lctx.mk_lambda(minor_fvars, new_minor);
                 args[i]        = new_minor;
             }

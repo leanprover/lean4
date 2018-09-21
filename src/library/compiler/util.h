@@ -15,6 +15,10 @@ namespace lean {
    and `e` otherwise. We also reduce `(fun x_1 ... x_n, x_i) a_1 ... a_n` into `a_[n-i-1]` */
 expr cheap_beta_reduce(expr const & e);
 
+bool is_lcnf_atom(expr const & e);
+
+expr elim_trivial_let_decls(expr const & e);
+
 bool has_inline_attribute(environment const & env, name const & n);
 bool has_noinline_attribute(environment const & env, name const & n);
 

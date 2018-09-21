@@ -1,0 +1,20 @@
+[compiler.lcnf] app_of._main
+λ a, let _x_4 := term.cases_on a (λ a_1, a) (λ a_1, a) (λ a_a a_a_1, let _x_3 := app_of._main a_a in _x_3) in _x_4
+[compiler.lcnf] app_of
+app_of._main
+[compiler.lcnf] is_app._main
+λ a,
+  let _x_5 :=
+   term.cases_on a (λ a, let _x_1 := none in _x_1) (λ a, let _x_2 := none in _x_2)
+     (λ a_a a_a_1, let _x_4 := some a in _x_4)
+  in _x_5
+[compiler.lcnf] is_app
+is_app._main
+[compiler.lcnf] bin_fn._main
+λ a,
+  let _x_8 :=
+   term.cases_on a (λ a_1, a) (λ a_1, a)
+     (λ a_a a_a_1, let _x_7 := term.cases_on a_a (λ a_a, a) (λ a_a, a) (λ a_a_a a_a_a_1, a_a_a) in _x_7)
+  in _x_8
+[compiler.lcnf] bin_fn
+bin_fn._main

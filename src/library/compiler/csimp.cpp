@@ -115,9 +115,14 @@ class csimp_fn {
         i = entries.size();
         while (i > 0) {
             --i;
-            expr new_type  = abstract(std::get<1>(entries[i]), i, used.data());
             expr new_value = abstract(std::get<2>(entries[i]), i, used.data());
-            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
+            /* (let x := v in x) ==> v */
+            if (is_bvar(e, 0)) {
+                e = new_value;
+            } else {
+                expr new_type  = abstract(std::get<1>(entries[i]), i, used.data());
+                e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
+            }
         }
         return e;
     }
@@ -253,6 +258,12 @@ class csimp_fn {
         return beta_reduce(minor, k_args.size() - nparams, k_args.data() + nparams, is_let_val);
     }
 
+    /* Return `let _x := e in _x` */
+    expr mk_trivial_let(expr const & e) {
+        expr type = infer_type(e);
+        return ::lean::mk_let("_x", type, e, mk_bvar(0));
+    }
+
     /* Just simplify minor premises. */
     expr visit_cases_default(expr const & c, buffer<expr> & args) {
         inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
@@ -276,9 +287,12 @@ class csimp_fn {
                 minor = binding_body(minor);
             }
             expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()), false);
-            if (is_lambda(new_minor))
-                new_minor = mk_let_decl(new_minor);
             new_minor = mk_let(old_fvars_size, new_minor);
+            if (is_lambda(new_minor)) {
+                /* We don't want to "mix" `minor_fvars` variables with
+                   the variables of the `new_minor` lambda */
+                new_minor = mk_trivial_let(new_minor);
+            }
             new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
             args[minor_idx] = new_minor;
         }

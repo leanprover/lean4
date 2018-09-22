@@ -181,6 +181,32 @@ class csimp_fn {
         return r;
     }
 
+    expr beta_reduce(expr fn, unsigned nargs, expr const * args, bool is_let_val) {
+        unsigned i = 0;
+        while (is_lambda(fn) && i < nargs) {
+            i++;
+            fn = binding_body(fn);
+        }
+        expr r = instantiate_rev(fn, i, args);
+        if (is_lambda(r)) {
+            lean_assert(i == nargs);
+            return visit(r, is_let_val);
+        } else {
+            r = visit(r, false);
+            if (!is_lcnf_atom(r))
+                r = mk_let_decl(r);
+            return visit(mk_app(r, nargs - i, args + i), is_let_val);
+        }
+    }
+
+    /* Remark: if `fn` is not a lambda expression, then this function
+       will simply create the application `fn args_of(e)` */
+    expr beta_reduce(expr fn, expr const & e, bool is_let_val) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        return beta_reduce(fn, args.size(), args.data(), is_let_val);
+    }
+
     optional<expr> try_inline_instance(expr const & fn, expr const & e) {
         lean_assert(is_constant(fn));
         optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
@@ -188,7 +214,7 @@ class csimp_fn {
         if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return none_expr();
         local_ctx saved_lctx       = m_lctx;
         unsigned  saved_fvars_size = m_fvars.size();
-        expr new_fn = visit(instantiate_value_lparams(*info, const_levels(fn)), false);
+        expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
         expr r      = find(beta_reduce(new_fn, e, false));
         if (!is_constructor_app(env(), r)) {
             m_lctx = saved_lctx;
@@ -207,42 +233,16 @@ class csimp_fn {
         return args[k_val.get_nparams() + proj_idx];
     }
 
-    expr visit_proj(expr const & e) {
+    expr visit_proj(expr const & e, bool is_let_val) {
         expr s = find(proj_expr(e));
         if (is_constructor_app(env(), s))
             return proj_constructor(s, proj_idx(e).get_small_value());
         expr const & s_fn = get_app_fn(s);
         if (is_constant(s_fn) && should_inline_instance(const_name(s_fn))) {
             if (optional<expr> k_app = try_inline_instance(s_fn, s))
-                return proj_constructor(*k_app, proj_idx(e).get_small_value());
+                return visit(proj_constructor(*k_app, proj_idx(e).get_small_value()), is_let_val);
         }
         return e;
-    }
-
-    expr beta_reduce(expr fn, unsigned nargs, expr const * args, bool is_let_val) {
-        unsigned i = 0;
-        while (is_lambda(fn) && i < nargs) {
-            i++;
-            fn = binding_body(fn);
-        }
-        expr r = instantiate_rev(fn, i, args);
-        if (is_lambda(r)) {
-            lean_assert(i == nargs);
-            return r;
-        } else {
-            r = visit(r, false);
-            if (!is_lcnf_atom(r))
-                r = mk_let_decl(r);
-            return visit(mk_app(r, nargs - i, args + i), is_let_val);
-        }
-    }
-
-    /* Remark: if `fn` is not a lambda expression, then this function
-       will simply create the application `fn args_of(e)` */
-    expr beta_reduce(expr fn, expr const & e, bool is_let_val) {
-        buffer<expr> args;
-        get_app_args(e, args);
-        return beta_reduce(fn, args.size(), args.data(), is_let_val);
     }
 
     expr reduce_cases_cnstr(buffer<expr> const & args, inductive_val const & I_val, expr const & major, bool is_let_val) {
@@ -526,7 +526,7 @@ class csimp_fn {
         if (!info || !info->is_definition()) return e;
         /* TODO(Leo): check size and whether function is boring or not. */
         if (!has_inline_attribute(env(), const_name(fn))) return e;
-        expr new_fn = visit(instantiate_value_lparams(*info, const_levels(fn)), false);
+        expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
         return beta_reduce(new_fn, e, is_let_val);
     }
 
@@ -558,8 +558,8 @@ class csimp_fn {
         switch (e.kind()) {
         case expr_kind::Lambda: return is_let_val ? e : visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
-        case expr_kind::Proj:   return visit_proj(e);
-        case expr_kind::App:    return visit_app(e, false);
+        case expr_kind::Proj:   return visit_proj(e, is_let_val);
+        case expr_kind::App:    return visit_app(e, is_let_val);
         default:                return e;
         }
     }

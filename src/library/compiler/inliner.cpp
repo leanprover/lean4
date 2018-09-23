@@ -19,6 +19,9 @@ bool is_inline(environment const & env, name const & n) {
     if (has_attribute(env, "inline", n)) {
         return true;
     }
+    if (has_attribute(env, "macro_inline", n)) {
+        return true;
+    }
     // decl._main is an auxiliary declaration, check decl instead
     if (n.is_string() && n.get_string().data()[0] == '_') {
         return is_inline(env, n.get_prefix());
@@ -33,6 +36,14 @@ void initialize_inliner() {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
                     throw exception("invalid 'inline' use, only definitions can be marked as inline");
+            }));
+
+    register_system_attribute(basic_attribute::with_check(
+            "macro_inline", "mark definition to always be inlined before ANF conversion",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'macro_inline' use, only definitions can be marked as inline");
             }));
 }
 

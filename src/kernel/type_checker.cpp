@@ -805,6 +805,18 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
     return r;
 }
 
+expr type_checker::eta_expand(expr const & e) {
+    buffer<expr> args;
+    flet<local_ctx> save_lctx(m_lctx, m_lctx);
+    expr e_type = whnf(infer(e));
+    while (is_pi(e_type)) {
+        expr arg = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e_type), binding_domain(e_type), binding_info(e_type));
+        args.push_back(arg);
+        e_type = whnf(instantiate(binding_body(e_type), arg));
+    }
+    return m_lctx.mk_lambda(args, mk_app(e, args));
+}
+
 type_checker::type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only):
     m_st_owner(true), m_st(new state(env)),
     m_lctx(lctx), m_non_meta_only(non_meta_only), m_lparams(nullptr) {

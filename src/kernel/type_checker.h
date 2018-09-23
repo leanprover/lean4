@@ -132,6 +132,7 @@ public:
     expr ensure_sort(expr const & t) { return ensure_sort(t, t); }
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
     expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
+    expr eta_expand(expr const & e);
 };
 
 void initialize_type_checker();

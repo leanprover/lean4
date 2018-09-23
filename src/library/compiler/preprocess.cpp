@@ -236,7 +236,11 @@ class preprocess_fn {
     void exec_new_compiler(constant_info const & d) {
         name n  = get_real_name(d.get_name());
         // timeit timer(std::cout, (sstream() << "compiling " << n).str().c_str(), 0.05);
-        expr v  = to_lcnf(m_env, local_ctx(), d.get_value());
+        expr v  = d.get_value();
+        // TODO(Leo): add option for disabling eta-expansion
+        v       = type_checker(m_env, local_ctx()).eta_expand(v);
+        lean_trace(name({"compiler", "eta_expand"}), tout() << n << "\n" << v << "\n";);
+        v       = to_lcnf(m_env, local_ctx(), v);
         lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v << "\n";);
         lean_cond_assert("compiler", check(d, v));
         v       = cce(m_env, local_ctx(), v);
@@ -349,6 +353,7 @@ environment preprocess(environment const & env, buffer<constant_info> const & ds
 void initialize_preprocess() {
     register_trace_class("compiler");
     register_trace_class({"compiler", "input"});
+    register_trace_class({"compiler", "eta_expand"});
     register_trace_class({"compiler", "lcnf"});
     register_trace_class({"compiler", "cce"});
     register_trace_class({"compiler", "simp"});

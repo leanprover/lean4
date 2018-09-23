@@ -24,6 +24,17 @@ bool has_inline_attribute(environment const & env, name const & n) {
     return false;
 }
 
+bool has_macro_inline_attribute(environment const & env, name const & n) {
+    if (has_attribute(env, "macro_inline", n))
+        return true;
+    if (is_internal_name(n) && !n.is_atomic()) {
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[macro_inline]`
+           if `f` is marked. */
+        return has_macro_inline_attribute(env, n.get_prefix());
+    }
+    return false;
+}
+
 bool has_noinline_attribute(environment const & /* env */, name const & /* n */) {
     return false;
 }
@@ -49,6 +60,40 @@ class elim_trivial_let_decls_fn : public replace_visitor {
 
 expr elim_trivial_let_decls(expr const & e) {
     return elim_trivial_let_decls_fn()(e);
+}
+
+struct unfold_macro_defs_fn : public replace_visitor {
+    environment const & m_env;
+    unfold_macro_defs_fn(environment const & env):m_env(env) {}
+
+    virtual expr visit_app(expr const & e) override {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        expr new_fn   = visit(fn);
+        bool modified = !is_eqp(fn, new_fn);
+        for (expr & arg : args) {
+            expr new_arg = visit(arg);
+            if (!is_eqp(new_arg, arg))
+                modified = true;
+            arg = new_arg;
+        }
+        if (is_constant(new_fn)) {
+            name const & n = const_name(new_fn);
+            if (has_macro_inline_attribute(m_env, n)) {
+                new_fn = instantiate_value_lparams(m_env.get(n), const_levels(new_fn));
+                std::reverse(args.begin(), args.end());
+                return visit(apply_beta(new_fn, args.size(), args.data()));
+            }
+        }
+        if (!modified)
+            return e;
+        else
+            return mk_app(new_fn, args);
+    }
+};
+
+expr unfold_macro_defs(environment const & env, expr const & e) {
+    return unfold_macro_defs_fn(env)(e);
 }
 
 expr cheap_beta_reduce(expr const & e) {

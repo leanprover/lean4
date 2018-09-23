@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/constants.h"
 #include "library/projection.h"
+#include "library/aux_match.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -502,7 +503,9 @@ public:
 };
 
 expr to_lcnf(environment const & env, local_ctx const & lctx, expr const & e) {
-    return to_lcnf_fn(env, lctx)(e);
+    expr new_e = unfold_aux_match(env, e);
+    new_e      = unfold_macro_defs(env, new_e);
+    return to_lcnf_fn(env, lctx)(new_e);
 }
 
 void initialize_lcnf() {

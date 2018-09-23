@@ -603,25 +603,25 @@ attribute [elab_simple] bin_tree.node bin_tree.leaf
 
 /- Boolean operators -/
 
-@[inline] def cond {a : Type u} : bool → a → a → a
+@[macro_inline] def cond {a : Type u} : bool → a → a → a
 | tt x y := x
 | ff x y := y
 
-@[inline] def bor : bool → bool → bool
+@[macro_inline] def bor : bool → bool → bool
 | tt _  := tt
 | ff tt := tt
 | ff ff := ff
 
-@[inline] def band : bool → bool → bool
+@[macro_inline] def band : bool → bool → bool
 | ff _  := ff
 | tt ff := ff
 | tt tt := tt
 
-@[inline] def bnot : bool → bool
+@[macro_inline] def bnot : bool → bool
 | tt := ff
 | ff := tt
 
-@[inline] def bxor : bool → bool → bool
+@[macro_inline] def bxor : bool → bool → bool
 | tt ff  := tt
 | ff tt  := tt
 | _  _   := ff
@@ -639,10 +639,10 @@ assume hp, h₂ (h₁ hp)
 
 def trivial : true := ⟨⟩
 
-@[inline] def false.elim {C : Sort u} (h : false) : C :=
+@[macro_inline] def false.elim {C : Sort u} (h : false) : C :=
 false.rec (λ _, C) h
 
-@[inline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : ¬a) : b :=
+@[macro_inline] def absurd {a : Prop} {b : Sort v} (h₁ : a) (h₂ : ¬a) : b :=
 false.elim (h₂ h₁)
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a := assume ha : a, h₂ (h₁ ha)
@@ -656,10 +656,10 @@ theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 theorem id.def {α : Sort u} (a : α) : id a = a := rfl
 
-@[inline] def eq.mp {α β : Sort u} (h₁ : α = β) (h₂ : α) : β :=
+@[macro_inline] def eq.mp {α β : Sort u} (h₁ : α = β) (h₂ : α) : β :=
 eq.rec_on h₁ h₂
 
-@[inline] def eq.mpr {α β : Sort u} : (α = β) → β → α :=
+@[macro_inline] def eq.mpr {α β : Sort u} : (α = β) → β → α :=
 λ h₁ h₂, eq.rec_on (eq.symm h₁) h₂
 
 @[elab_as_eliminator]
@@ -687,7 +687,7 @@ h.symm ▸ trivial
 theorem not_of_eq_false {p : Prop} (h : p = false) : ¬p :=
 assume hp, h ▸ hp
 
-@[inline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
+@[macro_inline] def cast {α β : Sort u} (h : α = β) (a : α) : β :=
 eq.rec a h
 
 theorem cast_proof_irrel {α β : Sort u} (h₁ h₂ : α = β) (a : α) : cast h₁ a = cast h₂ a := rfl
@@ -1107,12 +1107,12 @@ is_false not_false
 
 -- We use "dependent" if-then-else to be able to communicate the if-then-else condition
 -- to the branches
-@[inline] def dite (c : Prop) [h : decidable c] {α : Sort u} : (c → α) → (¬ c → α) → α :=
+@[macro_inline] def dite (c : Prop) [h : decidable c] {α : Sort u} : (c → α) → (¬ c → α) → α :=
 λ t e, decidable.cases_on h e t
 
 /- if-then-else -/
 
-@[inline] def ite (c : Prop) [h : decidable c] {α : Sort u} (t e : unit → α) : α :=
+@[macro_inline] def ite (c : Prop) [h : decidable c] {α : Sort u} (t e : unit → α) : α :=
 decidable.cases_on h (λ hnc, e ()) (λ hc, t ())
 
 namespace decidable

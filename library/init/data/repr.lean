@@ -23,7 +23,7 @@ instance : has_repr bool :=
 ⟨λ b, cond b "tt" "ff"⟩
 
 instance {p : Prop} : has_repr (decidable p) :=
-⟨λ b : decidable p, @ite p b _ (λ _, "tt") (λ _, "ff")⟩
+⟨λ b : decidable p, @ite p b _ "tt" "ff"⟩
 
 protected def list.repr_aux {α : Type u} [has_repr α] : bool → list α → string
 | b  []      := ""

@@ -473,9 +473,9 @@ static expr parse_ite(parser & p, expr const & c, pos_info const & pos) {
     if (!p.env().find(get_ite_name()))
         throw parser_error("invalid use of 'if-then-else' expression, environment does not contain 'ite' definition", pos);
     p.check_token_next(get_then_tk(), "invalid 'if-then-else' expression, 'then' expected");
-    expr t = mk_lambda("_", mk_unit(mk_level_placeholder()), p.parse_expr(g_then_else_prec));
+    expr t = p.parse_expr(g_then_else_prec);
     p.check_token_next(get_else_tk(), "invalid 'if-then-else' expression, 'else' expected");
-    expr e = mk_lambda("_", mk_unit(mk_level_placeholder()), p.parse_expr(g_then_else_prec));
+    expr e = p.parse_expr(g_then_else_prec);
     return p.save_pos(mk_app(mk_constant(get_ite_name()), c, t, e), pos);
 }
 

@@ -1108,8 +1108,8 @@ is_false not_false
 
 /- if-then-else -/
 
-@[macro_inline] def ite (c : Prop) [h : decidable c] {α : Sort u} (t e : unit → α) : α :=
-decidable.cases_on h (λ hnc, e ()) (λ hc, t ())
+@[macro_inline] def ite (c : Prop) [h : decidable c] {α : Sort u} (t e : α) : α :=
+decidable.cases_on h (λ hnc, e) (λ hc, t)
 
 namespace decidable
 variables {p q : Prop}
@@ -1257,51 +1257,51 @@ match dec_eq a b with
 
 /- if-then-else expression theorems -/
 
-theorem if_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t e : unit → α} : (ite c t e) = t () :=
+theorem if_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t e : α} : (ite c t e) = t :=
 match h with
 | (is_true  hc)  := rfl
 | (is_false hnc) := absurd hc hnc
 
-theorem if_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t e : unit → α} : (ite c t e) = e () :=
+theorem if_neg {c : Prop} [h : decidable c] (hnc : ¬c) {α : Sort u} {t e : α} : (ite c t e) = e :=
 match h with
 | (is_true hc)   := absurd hc hnc
 | (is_false hnc) := rfl
 
-theorem if_t_t (c : Prop) [h : decidable c] {α : Sort u} (t : unit → α) : (ite c t t) = t () :=
+theorem if_t_t (c : Prop) [h : decidable c] {α : Sort u} (t : α) : (ite c t t) = t :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl
 
 theorem if_ctx_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
-                   {x y u v : unit → α}
+                   {x y u v : α}
                    (h_c : b ↔ c) (h_t : c → x = u) (h_e : ¬c → y = v) :
         ite b x y = ite c u v :=
 match dec_b, dec_c with
-| (is_false h₁), (is_false h₂) := congr_fun (h_e h₂) ()
-| (is_true h₁),  (is_true h₂)  := congr_fun (h_t h₂) ()
+| (is_false h₁), (is_false h₂) := h_e h₂
+| (is_true h₁),  (is_true h₂)  := h_t h₂
 | (is_false h₁), (is_true h₂)  := absurd h₂ (iff.mp (not_iff_not_of_iff h_c) h₁)
 | (is_true h₁),  (is_false h₂) := absurd h₁ (iff.mpr (not_iff_not_of_iff h_c) h₂)
 
 theorem if_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] [dec_c : decidable c]
-               {x y u v : unit → α}
+               {x y u v : α}
                (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
         ite b x y = ite c u v :=
 @if_ctx_congr α b c dec_b dec_c x y u v h_c (λ h, h_t) (λ h, h_e)
 
-theorem if_ctx_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] {x y u v : unit → α}
+theorem if_ctx_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] {x y u v : α}
                         (h_c : b ↔ c) (h_t : c → x = u) (h_e : ¬c → y = v) :
         ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) α u v) :=
 @if_ctx_congr α b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x y u v h_c h_t h_e
 
-theorem if_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] {x y u v : unit → α}
+theorem if_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b] {x y u v : α}
                     (h_c : b ↔ c) (h_t : x = u) (h_e : y = v) :
         ite b x y = (@ite c (decidable_of_decidable_of_iff dec_b h_c) α u v) :=
 @if_ctx_simp_congr α b c dec_b x y u v h_c (λ h, h_t) (λ h, h_e)
 
-theorem if_true {α : Sort u} {h : decidable true} (t e : unit → α) : (@ite true h α t e) = t () :=
+theorem if_true {α : Sort u} {h : decidable true} (t e : α) : (@ite true h α t e) = t :=
 if_pos trivial
 
-theorem if_false {α : Sort u} {h : decidable false} (t e : unit → α) : (@ite false h α t e) = e () :=
+theorem if_false {α : Sort u} {h : decidable false} (t e : α) : (@ite false h α t e) = e :=
 if_neg not_false
 
 theorem dif_pos {c : Prop} [h : decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = t hc :=
@@ -1335,7 +1335,7 @@ theorem dif_ctx_simp_congr {α : Sort u} {b c : Prop} [dec_b : decidable b]
 @dif_ctx_congr α b c dec_b (decidable_of_decidable_of_iff dec_b h_c) x u y v h_c h_t h_e
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
-theorem dif_eq_if (c : Prop) [h : decidable c] {α : Sort u} (t : α) (e : α) : dite c (λ h, t) (λ h, e) = ite c (λ _, t) (λ _, e) :=
+theorem dif_eq_if (c : Prop) [h : decidable c] {α : Sort u} (t : α) (e : α) : dite c (λ h, t) (λ h, e) = ite c t e :=
 match h with
 | (is_true hc)   := rfl
 | (is_false hnc) := rfl

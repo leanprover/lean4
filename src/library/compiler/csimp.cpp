@@ -524,6 +524,7 @@ class csimp_fn {
         if (has_noinline_attribute(env(), const_name(fn))) return e;
         optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
         if (!info || !info->is_definition()) return e;
+        // if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return e;
         /* TODO(Leo): check size and whether function is boring or not. */
         if (!has_inline_attribute(env(), const_name(fn))) return e;
         expr new_fn = instantiate_value_lparams(*info, const_levels(fn));

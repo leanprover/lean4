@@ -607,13 +607,11 @@ attribute [elab_simple] bin_tree.node bin_tree.leaf
 
 @[macro_inline] def bor : bool → bool → bool
 | tt _  := tt
-| ff tt := tt
-| ff ff := ff
+| ff b  := b
 
 @[macro_inline] def band : bool → bool → bool
 | ff _  := ff
-| tt ff := ff
-| tt tt := tt
+| tt b  := b
 
 @[macro_inline] def bnot : bool → bool
 | tt := ff

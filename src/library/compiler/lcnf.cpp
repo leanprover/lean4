@@ -363,13 +363,6 @@ public:
                 return visit_cases_on(fn, args, root);
             } else if (is_projection(env(), const_name(fn))) {
                 return visit_projection(fn, args, root);
-            } else if (const_name(fn) == get_id_rhs_name()) {
-                if (args.size() < 2) {
-                    return visit(eta_expand(e, 2 - args.size()), root);
-                } else {
-                    expr new_e = args[1];
-                    return visit(mk_app(new_e, args.size() - 2, args.data() + 2), root);
-                }
             } else if (is_no_confusion(env(), const_name(fn))) {
                 return visit_no_confusion(fn, args, root);
             } else if (is_constructor(env(), const_name(fn))) {

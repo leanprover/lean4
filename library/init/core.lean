@@ -121,11 +121,9 @@ a
 /-- Auxiliary declaration used to implement the notation (a : α) -/
 @[reducible] def typed_expr (α : Sort u) (a : α) : α := a
 
-/-
-  id_rhs is an auxiliary declaration used in the equation compiler to address performance
-  issues when proving equational lemmas. The equation compiler uses it as a marker.
--/
-abbreviation id_rhs (α : Sort u) (a : α) : α := a
+/- `id_rhs` is an auxiliary declaration used in the equation compiler to address performance
+   issues when proving equational lemmas. The equation compiler uses it as a marker. -/
+@[macro_inline] abbreviation id_rhs (α : Sort u) (a : α) : α := a
 
 inductive punit : Sort u
 | star : punit

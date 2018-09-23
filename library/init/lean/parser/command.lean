@@ -69,26 +69,29 @@ end parser
 
 namespace parser
 namespace «command»
-open syntax_node_kind.has_view combinators notation_spec
+open combinators notation_spec
 
 -- example macro
-def mixfix.expand (stx : syntax) : option syntax :=
-do v ← view mixfix stx,
+def mixfix.expand (stx : tysyntax mixfix.view) : option (tysyntax notation.view) :=
+do v ← view stx,
    -- TODO: reserved token case
-   notation_symbol.view.quoted {prec:=prec, ..} ← pure v.symbol,
+   notation_symbol.view.quoted quoted ← view v.symbol,
+   quoted ← view quoted,
+   prec ← view quoted.prec,
    -- `notation` allows more syntax after `:` than mixfix commands, so we have to do a small conversion
    let prec_to_action : precedence.view → action.view :=
-     λ prec, {action := action_kind.view.prec prec.prec, ..prec},
-   let spec := view.rules $ match v.kind with
-     | mixfix.kind.view.prefix _ := {
-       id := optional_view.none,
-       rules := [{
+     λ prec, {action := review $ action_kind.view.prec prec.prec, ..prec},
+   k ← view v.kind,
+   let spec := view.rules $ match k with
+     | mixfix.kind.view.prefix _ := review {
+       id := review none,
+       rules := review [review {
          symbol := v.symbol,
-         transition := optional_view.some $ transition.view.arg $ {
-           id := review ident {part := ident_part.view.default "b", suffix := optional_view.none},
-           action := prec_to_action <$> prec}}]}
+         transition := review $ some $ review $ transition.view.arg $ review {
+           id := review {part := review $ ident_part.view.default "b", suffix := review none},
+           action := review $ do prec ← prec, prec ← view prec, pure $ review $ prec_to_action prec}}]}
      | _ := sorry,
-   pure $ review «notation» ⟨"notation", spec, ":=", v.term⟩
+   pure $ review ⟨"notation", review spec, ":=", v.term⟩
 
 end «command»
 end parser

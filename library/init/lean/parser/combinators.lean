@@ -32,12 +32,12 @@ do (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
    pure $ syntax.node ⟨k, args.reverse⟩
 
 @[reducible] def seq : list parser → parser := node' none
-@[reducible] def node (k : syntax_node_kind) : list parser → parser := node' k
+@[reducible] def node (k : syntax_node_kind) (α : Type) : list parser → parser := node' k
 
 instance node'.tokens (k) (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (node' k rs) :=
 ⟨tokens rs⟩
 
-instance node.view (k) (rs : list parser) [i : syntax_node_kind.has_view k α] : parser.has_view (node k rs) α :=
+instance node.view (k) (α : Type) (rs : list parser) [i : tysyntax.is_view α] : parser.has_view (node k α rs) α :=
 { view := i.view, review := i.review }
 
 private def many1_aux (p : parser) : list syntax → nat → parser
@@ -54,12 +54,14 @@ do rem ← remaining, many1_aux r [] (rem+1)
 instance many1.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many1 r) :=
 ⟨tokens r⟩
 
-instance many1.view (r : parser) [parser.has_view r α] : parser.has_view (many1 r) (list α) :=
+instance list.is_view : tysyntax.is_view (list (tysyntax α)) :=
 { view := λ stx, match stx with
-    | syntax.missing := list.ret <$> view r syntax.missing
-    | syntax.node ⟨none, stxs⟩ := stxs.mmap (view r)
+    | syntax.node ⟨none, stxs⟩ := pure stxs
     | _ := failure,
-  review := λ as, syntax.node ⟨none, as.map (review r)⟩ }
+  review := λ as, syntax.node ⟨none, as⟩ }
+
+instance many1.view (r : parser) [parser.has_view r α] : parser.has_view (many1 r) (list (tysyntax α)) :=
+{..list.is_view}
 
 def many (r : parser) : parser :=
 many1 r <|> pure (syntax.node ⟨none, []⟩)
@@ -67,7 +69,7 @@ many1 r <|> pure (syntax.node ⟨none, []⟩)
 instance many.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many r) :=
 ⟨tokens r⟩
 
-instance many.view (r : parser) [has_view r α] : parser.has_view (many r) (list α) :=
+instance many.view (r : parser) [has_view r α] : parser.has_view (many r) (list (tysyntax α)) :=
 {..many1.view r}
 
 private def sep_by_aux (p : m syntax) (sep : parser) (allow_trailing_sep : bool) : bool → list syntax → nat → parser
@@ -134,29 +136,18 @@ do r ← optional $
 instance optional.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (optional r) :=
 ⟨tokens r⟩
 
-inductive optional_view (α : Type)
-| some (a : α) : optional_view
-| none {} : optional_view
-| missing {} : optional_view
-
-namespace optional_view
-instance : functor optional_view :=
-{ map := λ _ _ f v, match v with
-  | some a  := some (f a)
-  | none    := none
-  | missing := missing }
-end optional_view
-
-instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (optional r) (optional_view α) :=
+instance optional.is_view : tysyntax.is_view (option (tysyntax α)) :=
 { view := λ stx, match stx with
-    | syntax.missing := pure optional_view.missing
-    | syntax.node ⟨none, []⟩ := pure optional_view.none
-    | syntax.node ⟨none, [stx]⟩ := optional_view.some <$> view r stx
+    | syntax.missing := failure
+    | syntax.node ⟨none, []⟩ := pure none
+    | syntax.node ⟨none, [stx]⟩ := pure (some stx)
     | _ := failure,
   review := λ a, match a with
-    | optional_view.some a  := syntax.node ⟨none, [review r a]⟩
-    | optional_view.none    := syntax.node ⟨none, []⟩
-    | optional_view.missing := syntax.missing }
+    | some a := syntax.node ⟨none, [a]⟩
+    | none   := syntax.node ⟨none, []⟩ }
+
+instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (optional r) (option (tysyntax α)) :=
+{..optional.is_view}
 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     Note that there is NO explicit encoding of which parser was chosen;

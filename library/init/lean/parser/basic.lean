@@ -79,9 +79,16 @@ protected class has_view (r : ρ) (α : out_param Type) :=
 instance has_view.default (r : ρ) : inhabited (parser.has_view r syntax) :=
 ⟨{ view := some, review := id }⟩
 
-class syntax_node_kind.has_view (k : syntax_node_kind) (α : out_param Type) :=
-(view : syntax → option α)
-(review : α → syntax)
+abbreviation tysyntax (α : Type) := syntax
+
+class tysyntax.is_view (α : Type) :=
+(view : tysyntax α → option α)
+(review : α → tysyntax α)
+
+export tysyntax.is_view (view review)
+
+def view_with (α : Type) [tysyntax.is_view α] (stx : syntax) : option α :=
+view (stx : tysyntax α)
 
 def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.message μ) : message :=
 -- FIXME: translate position

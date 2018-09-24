@@ -2660,7 +2660,7 @@ expr elaborator::visit_inaccessible(expr const & e, optional<expr> const & expec
 elaborator::field_resolution elaborator::field_to_decl(expr const & e, expr const & s, expr const & s_type) {
     // prefer 'unknown identifier' error when lhs is a constant of non-value type
     if (is_field_notation(e)) {
-        auto lhs = mdata_expr(e);
+        auto lhs = unwrap_pos(mdata_expr(e));
         if (is_constant(lhs)) {
             type_context_old::tmp_locals locals(m_ctx);
             expr t = whnf(s_type);

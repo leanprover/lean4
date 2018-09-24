@@ -94,6 +94,10 @@ class csimp_fn {
             }
         }
         lean_assert(i == minors_begin);
+        /* The following #pragma is to disable a bogus g++ 4.9 warning at `optional<unsigned> r` */
+        #if defined(__GNUC__) && !defined(__CLANG__)
+        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+        #endif
         optional<unsigned> r;
         for (; i < minors_end; i++) {
             expr minor = args[i];

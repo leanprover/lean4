@@ -117,20 +117,17 @@ result:
       (term.ident `u []))
      (term.ident `v [])))])
  (eoi "")]
-error at line 223, column 6:
+error at line 221, column 6:
 unexpected '='
-error at line 225, column 44:
+error at line 223, column 44:
 unexpected '='
 expected ":=", "." or "|"
-error at line 228, column 63:
+error at line 226, column 63:
 unexpected '='
 expected ")"
-error at line 231, column 12:
+error at line 229, column 12:
 unexpected '▸'
 expected ":="
-error at line 233, column 8:
-unexpected end of file
-expected identifier
 partial syntax tree:
 [(module
   [(prelude "prelude")]
@@ -979,7 +976,12 @@ partial syntax tree:
         [(command.decl_type ":" (term.ident `α []))])
        (command.decl_val (0 (command.simple_decl_val ":=" (term.ident `a []))))))))
    (command.declaration
-    (command.decl_modifiers [] [] [] [] [])
+    (command.decl_modifiers
+     []
+     []
+     []
+     []
+     [(command.decl_attribute "@[" [(command.attr_instance `macro_inline [])] "]")])
     (command.declaration.inner
      (1
       (command.abbreviation
@@ -2437,9 +2439,5 @@ partial syntax tree:
     "notation"
     (command.notation_spec (1 (command.notation_spec.rules [`h1] [])))
     <missing>
-    <missing>)
-   (command.declaration
-    (command.decl_modifiers [] [] [] [] [])
-    (command.declaration.inner
-     (command.theorem "theorem" (term.ident <missing> <missing>) <missing> <missing>)))])
+    <missing>)])
  (eoi "")]

@@ -834,7 +834,7 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
             if (i > 0 || m_structure_instances_qualifier) r += line();
             name fname          = fields[i];
             unsigned field_size = fname.utf8_size();
-            format fval_fmt     = pp(args[i + num_params]).fmt();
+            format fval_fmt     = pp_child(args[i + num_params], 0).fmt();
             if (i < fields.size() - 1) fval_fmt += comma();
             r                  += format(fname) + space() + *g_assign_fmt + space() + nest(field_size + 4, fval_fmt);
         }

@@ -160,9 +160,17 @@ lift $ try $ do {
   pure stx
 } <?> repr sym
 
+instance syntax_atom.is_view : tysyntax.is_view syntax_atom :=
+{ view := λ stx, match stx with
+  | syntax.atom atom := some atom
+  | _                := none,
+  review := syntax.atom }
 instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
 ⟨[⟨sym, lbp, none⟩]⟩
-instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) syntax := default _
+instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) syntax_atom :=
+{..syntax_atom.is_view}
+instance symbol.view_default (sym lbp) : parser.has_view_default (symbol sym lbp : parser) _
+  {info := none, val := sym} := ⟨⟩
 
 def number : parser :=
 lift $ try $ do {

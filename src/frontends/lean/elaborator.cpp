@@ -3238,7 +3238,14 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             if (!inst)
                 throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << r
                                                         << "'");
-            struc << "(«" << fname << "» : tysyntax (" << instantiate_mvars(m) << "))\n";
+            auto m2 = mk_metavar(m, r);
+            auto defval_inst = m_ctx.mk_class_instance(
+                    mk_app(mk_app(mk_const(name{"lean", "parser", "has_view_default"}), exp, r, m), *inst, m2));
+            if (defval_inst)
+                struc << "(«" << fname << "» : tysyntax (" << instantiate_mvars(m) << ") := review ("
+                      << pp(instantiate_mvars(m2)) << "))\n";
+            else
+                struc << "(«" << fname << "» : tysyntax (" << instantiate_mvars(m) << "))\n";
 
             if (i != 0)
                 stx_pat << ", ";
@@ -3319,7 +3326,14 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         if (!inst)
             throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << r
                                                     << "'");
-        struc << "| " << fname << " : tysyntax (" << instantiate_mvars(m) << ") -> " << macro.to_string() << ".view\n";
+        auto m2 = mk_metavar(m, r);
+        auto defval_inst = m_ctx.mk_class_instance(
+                mk_app(mk_app(mk_const(name{"lean", "parser", "has_view_default"}), exp, r, m), *inst, m2));
+        if (defval_inst)
+            struc << "| " << fname << " : opt_param (tysyntax (" << instantiate_mvars(m) << ")) (review ("
+                    << pp(instantiate_mvars(m2)) << ")) -> " << macro.to_string() << ".view\n";
+        else
+            struc << "| " << fname << " : tysyntax (" << instantiate_mvars(m) << ") -> " << macro.to_string() << ".view\n";
 
         view_cases << "| " << i << " := " << macro.to_string() << ".view." << fname << " stx\n";
         review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
@@ -3339,6 +3353,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
           << " [match v with\n"
           << review_cases.str()
           << "]) }";
+    trace_elab_detail(tout() << "expansion of node_choice! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), in, "foo");
     p.set_imports_parsed();

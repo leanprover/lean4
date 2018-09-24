@@ -3216,7 +3216,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     if (!expected_type)
         throw elaborator_exception(e, "node!: expected type must be known");
     expr exp = expected_type.value();
-    sstream struc, stx_pat, mk_args, view_pat, reviews;
+    sstream struc, stx_pat, binds, mk_args, view_pat, reviews, default_val;
     unsigned i = 0;
     struc << "@[pattern] def " << esc_macro.to_string();
     struc << " := {syntax_node_kind . name := `" << full_macro.to_string() << "}\n"
@@ -3242,21 +3242,21 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             auto defval_inst = m_ctx.mk_class_instance(
                     mk_app(mk_app(mk_const(name{"lean", "parser", "has_view_default"}), exp, r, m), *inst, m2));
             if (defval_inst)
-                struc << "(«" << fname << "» : tysyntax (" << instantiate_mvars(m) << ") := review ("
-                      << pp(instantiate_mvars(m2)) << "))\n";
+                struc << "(«" << fname << "» : " << instantiate_mvars(m) << " := " << pp(instantiate_mvars(m2)) << ")\n";
             else
-                struc << "(«" << fname << "» : tysyntax (" << instantiate_mvars(m) << "))\n";
+                struc << "(«" << fname << "» : " << instantiate_mvars(m) << ")\n";
 
             if (i != 0)
                 stx_pat << ", ";
-            stx_pat << "stx" << i;
-            mk_args << "stx" << i << " ";
+            binds << "let (stxs, stx) := match stxs : _ -> prod (list syntax) syntax with (stx::stxs) := (stxs, stx) | _ := (stxs, syntax.missing) in\n"
+            << "let a" << i << " := parser.has_view.view (" << pp(r) << " : " << pp(exp) << ")" << " stx in\n";
+            mk_args << "a" << i << " ";
             if (i != 0)
                 view_pat << ", ";
             view_pat << "a" << i;
             if (i != 0)
                 reviews << ", ";
-            reviews << "a" << i;
+            reviews << "review (" << pp(r) << " : " << pp(exp) << ") a" << i;
             i++;
             return mk_as_is(r);
         };
@@ -3277,10 +3277,11 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                                              mk_lean_list(new_try_args))));
         }
     }
-    struc << "instance " << macro.to_string() << ".view.is_view : tysyntax.is_view " << macro.to_string() << ".view :=\n"
-            << "{ view := fun stx, do {\n"
-            << "syntax.node (syntax_node.mk " << esc_macro.to_string() << " [" << stx_pat.str() << "]) <- pure stx | failure,\n"
-            << "pure (" << macro.to_string() << ".view.mk " << mk_args.str() << ") },\n"
+    struc << "instance " << macro.to_string() << ".has_view : has_view " << esc_macro.to_string() << " " << macro.to_string() << ".view :=\n"
+            << "{ view := fun stx, let stxs : list syntax := match stx with"
+            << "| syntax.node (syntax_node.mk " << esc_macro.to_string() << " stxs) := stxs | _ := [] in\n"
+            << binds.str()
+            << macro.to_string() << ".view.mk " << mk_args.str() << ",\n"
             << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk " << esc_macro.to_string() << " [" << reviews.str() << "]) }";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
@@ -3291,10 +3292,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     p.parse_command_like();
     m_env = p.env();
     m_ctx.set_env(m_env);
-    return visit(mk_app(mk_const({"lean", "parser", "combinators", "node"}),
-                        mk_const(full_macro),
-                        mk_const(full_macro + "view"),
-                        mk_lean_list(new_args)),
+    return visit(mk_app(mk_const({"lean", "parser", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(new_args)),
                  expected_type);
 }
 
@@ -3306,7 +3304,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
     if (!expected_type)
         throw elaborator_exception(e, "node_choice!: expected type must be known");
     expr exp = expected_type.value();
-    sstream struc, view_cases, review_cases;
+    sstream struc, default_view_case, view_cases, review_cases;
     unsigned i = 0;
     struc << "@[pattern] def " << esc_macro.to_string();
     struc << " := {syntax_node_kind . name := `" << full_macro.to_string() << "}\n"
@@ -3330,25 +3328,32 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         auto defval_inst = m_ctx.mk_class_instance(
                 mk_app(mk_app(mk_const(name{"lean", "parser", "has_view_default"}), exp, r, m), *inst, m2));
         if (defval_inst)
-            struc << "| " << fname << " : opt_param (tysyntax (" << instantiate_mvars(m) << ")) (review ("
-                    << pp(instantiate_mvars(m2)) << ")) -> " << macro.to_string() << ".view\n";
+            struc << "| " << fname << " : opt_param (" << instantiate_mvars(m) << ") ("
+                    << pp(instantiate_mvars(m2)) << ") -> " << macro.to_string() << ".view\n";
         else
-            struc << "| " << fname << " : tysyntax (" << instantiate_mvars(m) << ") -> " << macro.to_string() << ".view\n";
+            struc << "| " << fname << " : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".view\n";
 
-        view_cases << "| " << i << " := " << macro.to_string() << ".view." << fname << " stx\n";
+        view_cases << "| ";
+        if (is_app(app_arg(e)))
+            view_cases << i;
+        else
+            view_cases << "_";
+        view_cases << " := " << macro.to_string() << ".view." << fname << " $ parser.has_view.view (" << pp(r)
+                << " : " << pp(exp) << ") stx\n";
         review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
                 << "syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << "))) "
-                << "[a])\n";
+                << "[review (" << pp(r) << " : " << pp(exp) << ") a])\n";
         i++;
         new_args.push_back(mk_as_is(r));
     }
-    struc << "instance " << macro.to_string() << ".view.is_view : tysyntax.is_view " << macro.to_string() << ".view :=\n"
-          << "{ view := fun stx, do {\n"
-          << "syntax.node (syntax_node.mk " << esc_macro.to_string()
-          << " [syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous i))) [stx])]) <- pure stx | failure,\n"
+    struc << "instance " << macro.to_string() << ".has_view : has_view " << esc_macro.to_string() << " "
+          << macro.to_string() << ".view :=\n"
+          << "{ view := fun stx, let (stx, i) := match stx : _ -> prod syntax nat with \n"
+          << "| syntax.node (syntax_node.mk " << esc_macro.to_string()
+          << " [syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous i))) [stx])]) := (stx, i)\n"
+          << "| _ := (syntax.missing, 0) in\n"
           << "match i with\n"
-          << view_cases.str()
-          << "| _ := none},\n"
+          << view_cases.str() << ",\n"
           << "review := fun v, syntax.node (syntax_node.mk " << esc_macro.to_string()
           << " [match v with\n"
           << review_cases.str()
@@ -3364,7 +3369,6 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
     m_ctx.set_env(m_env);
     return visit(mk_app(mk_const({"lean", "parser", "combinators", "node"}),
                         mk_const(full_macro),
-                        mk_const(full_macro + "view"),
                         mk_app(mk_const({"list", "cons"}),
                                mk_app(mk_const({"lean", "parser", "combinators", "choice"}),
                                       mk_lean_list(new_args)),

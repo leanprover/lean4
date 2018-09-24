@@ -32,12 +32,12 @@ do (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
    pure $ syntax.node ⟨k, args.reverse⟩
 
 @[reducible] def seq : list parser → parser := node' none
-@[reducible] def node (k : syntax_node_kind) (α : Type) : list parser → parser := node' k
+@[reducible] def node (k : syntax_node_kind) : list parser → parser := node' k
 
 instance node'.tokens (k) (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (node' k rs) :=
 ⟨tokens rs⟩
 
-instance node.view (k) (α : Type) (rs : list parser) [i : tysyntax.is_view α] : parser.has_view (node k α rs) α :=
+instance node.view (k) (rs : list parser) [i : has_view k α] : parser.has_view (node k rs) α :=
 { view := i.view, review := i.review }
 
 private def many1_aux (p : parser) : list syntax → nat → parser
@@ -54,14 +54,11 @@ do rem ← remaining, many1_aux r [] (rem+1)
 instance many1.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many1 r) :=
 ⟨tokens r⟩
 
-instance list.is_view : tysyntax.is_view (list (tysyntax α)) :=
+instance many1.view (r : parser) [parser.has_view r α] : parser.has_view (many1 r) (list α) :=
 { view := λ stx, match stx with
-    | syntax.node ⟨none, stxs⟩ := pure stxs
-    | _ := failure,
-  review := λ as, syntax.node ⟨none, as⟩ }
-
-instance many1.view (r : parser) [parser.has_view r α] : parser.has_view (many1 r) (list (tysyntax α)) :=
-{..list.is_view}
+    | syntax.node ⟨none, stxs⟩ := stxs.map (has_view.view r)
+    | _ := [has_view.view r syntax.missing],
+  review := λ as, syntax.node ⟨none, as.map (review r)⟩ }
 
 def many (r : parser) : parser :=
 many1 r <|> pure (syntax.node ⟨none, []⟩)
@@ -69,7 +66,7 @@ many1 r <|> pure (syntax.node ⟨none, []⟩)
 instance many.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many r) :=
 ⟨tokens r⟩
 
-instance many.view (r : parser) [has_view r α] : parser.has_view (many r) (list (tysyntax α)) :=
+instance many.view (r : parser) [has_view r α] : parser.has_view (many r) (list α) :=
 {..many1.view r}
 
 private def sep_by_aux (p : m syntax) (sep : parser) (allow_trailing_sep : bool) : bool → list syntax → nat → parser
@@ -97,16 +94,10 @@ instance sep_by.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_to
 ⟨tokens p ++ tokens sep⟩
 
 private def sep_by.view_aux {α β} (p sep : parser) [parser.has_view p α] [parser.has_view sep β] :
-  list syntax → option (list (α × option β))
-| []    := some []
-| [stx] := do
-  vp ← view p stx,
-  some [(vp, none)]
-| (stx1::stx2::stxs) := do
-  vp ← view p stx1,
-  vsep ← view sep stx2,
-  vs ← sep_by.view_aux stxs,
-  some ((vp, some vsep)::vs)
+  list syntax → list (α × option β)
+| []    := []
+| [stx] := [(has_view.view p stx, none)]
+| (stx1::stx2::stxs) := (has_view.view p stx1, some $ has_view.view sep stx2)::sep_by.view_aux stxs
 
 instance sep_by.view {α β} (p sep : parser) (a) [parser.has_view p α] [parser.has_view sep β] :
   parser.has_view (sep_by p sep a) (list (α × option β)) :=
@@ -135,20 +126,15 @@ do r ← optional $
 
 instance optional.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (optional r) :=
 ⟨tokens r⟩
-
-instance optional.is_view : tysyntax.is_view (option (tysyntax α)) :=
+instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (optional r) (option α) :=
 { view := λ stx, match stx with
-    | syntax.missing := failure
-    | syntax.node ⟨none, []⟩ := pure none
-    | syntax.node ⟨none, [stx]⟩ := pure (some stx)
-    | _ := failure,
+    | syntax.node ⟨none, []⟩ := none
+    | syntax.node ⟨none, [stx]⟩ := some $ has_view.view r stx
+    | _ := some $ has_view.view r syntax.missing,
   review := λ a, match a with
-    | some a := syntax.node ⟨none, [a]⟩
+    | some a := syntax.node ⟨none, [review r a]⟩
     | none   := syntax.node ⟨none, []⟩ }
-
-instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (optional r) (option (tysyntax α)) :=
-{..optional.is_view}
-instance optional.view_default (r : parser) [parser.has_view r α] : parser.has_view_default (optional r) (option (tysyntax α)) none := ⟨⟩
+instance optional.view_default (r : parser) [parser.has_view r α] : parser.has_view_default (optional r) (option α) none := ⟨⟩
 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     Note that there is NO explicit encoding of which parser was chosen;

@@ -160,17 +160,15 @@ lift $ try $ do {
   pure stx
 } <?> repr sym
 
-instance syntax_atom.is_view : tysyntax.is_view syntax_atom :=
+instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
+⟨[⟨sym, lbp, none⟩]⟩
+instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) (option syntax_atom) :=
 { view := λ stx, match stx with
   | syntax.atom atom := some atom
   | _                := none,
-  review := syntax.atom }
-instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
-⟨[⟨sym, lbp, none⟩]⟩
-instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) syntax_atom :=
-{..syntax_atom.is_view}
+  review := λ a, (syntax.atom <$> a).get_or_else syntax.missing }
 instance symbol.view_default (sym lbp) : parser.has_view_default (symbol sym lbp : parser) _
-  {info := none, val := sym} := ⟨⟩
+  (some {info := none, val := sym}) := ⟨⟩
 
 def number : parser :=
 lift $ try $ do {
@@ -191,7 +189,7 @@ lift $ try $ do {
 
 instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := default _
 instance ident.parser.view : parser.has_view (ident.parser : parser) ident.view :=
-{..ident.view.is_view}
+{..ident.has_view}
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
@@ -206,12 +204,11 @@ lift $ try $ do
   stx ← token,
   let sym' := match stx with
   | syntax.atom ⟨_, sym'⟩ := some sym'
-  | syntax.node ⟨ident, _⟩ := do {
-     id ← view_with ident.view stx,
-     ident_part.view.default (syntax.atom ⟨_, sym'⟩) ← view id.part | none,
-     none ← view id.suffix | none,
-     some sym'
-   }
+  | syntax.node ⟨ident, _⟩ :=
+    (match view ident stx with
+     | {part := ident_part.view.default (syntax.atom ⟨_, sym'⟩),
+        suffix := none} := some sym'
+     | _ := none)
   | _ := none,
   when (sym' ≠ some sym) $
     error "" (dlist.singleton (repr sym)) it,

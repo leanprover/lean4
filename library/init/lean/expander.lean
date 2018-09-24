@@ -15,7 +15,17 @@ open parser.term
 open parser.command
 open parser.command.notation_spec
 
-def mixfix.transform (stx : tysyntax mixfix.view) : option (tysyntax notation.view) :=
+@[derive monad]
+def transform_m := option_t $ except message
+abbreviation transformer := syntax → transform_m syntax
+
+section
+local attribute [reducible] transform_m
+instance coe_option_transform_m {α : Type} : has_coe (option α) (transform_m α) :=
+⟨λ o, match o with some a := pure a | none := failure⟩
+end
+
+def mixfix.transform (stx : tysyntax mixfix.view) : transform_m (tysyntax notation.view) :=
 do v ← view stx,
    -- TODO: reserved token case
    notation_symbol.view.quoted quoted ← view v.symbol,
@@ -41,6 +51,19 @@ do v ← view stx,
           body := review_as app.view {fn := v.term, arg := b}})
      | _ := sorry,
    pure $ review {spec := review spec, term := term}
+
+local attribute [instance] name.has_lt_quick
+
+-- TODO(Sebastian): replace with attribute
+def transformers : rbmap name transformer (<) := rbmap.from_list [
+  (mixfix.name, mixfix.transform)
+] _
+
+def expand (stx : syntax) : except message syntax :=
+--TODO(Sebastian): recursion, hygiene, error messages
+do syntax.node {kind := some k, ..} ← pure stx | pure stx,
+   some t ← pure $ transformers.find k.name | pure stx,
+   flip option.get_or_else stx <$> t stx
 
 end expander
 end lean

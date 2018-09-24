@@ -1,7 +1,7 @@
-import init.lean.parser.module init.io
+import init.lean.parser.module init.lean.expander init.io
 open lean
 open lean.parser
-open lean.parser.syntax_node_kind.has_view
+open lean.expander
 
 def show_result (p : syntax × message_log) (s : string) : except_t string io unit :=
 let (stx, msgs) := p in
@@ -57,16 +57,6 @@ universes u v
 -- parsed as `Type (max) (u) (v)`, will fail on elaboration ("max: must have at least two arguments", "function expected at 'Type'", "unknown identifier 'u'/'v'")
 #eval show_parse "#check Type max u v"
 
--- expansion example
-#eval (do {
-  (stx, ⟨[]⟩) ← monad_except.lift_except $ parse_module "prefix `+`:10 := _",
-  some {root := stx, ..} ← pure $ parser.parse.view stx,
-  some {commands := [stx], ..} ← pure $ view module stx,
-  some stx ← pure $ command.mixfix.expand stx | throw "expand fail",
-  io.println stx,
-  io.println stx.reprint
-} : except_t string io unit)
-
 -- slowly progressing...
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
@@ -77,5 +67,7 @@ universes u v
     | coroutine_result_core.done p := show_result p s *> pure (sum.inr ())
     | coroutine_result_core.yielded cmd k := do {
       --io.println "command:" *> io.println cmd,
-      pure (sum.inl k)
+      match expand cmd with
+      | except.ok cmd' := pure (sum.inl k)
+      | except.error e := throw e.text
     }

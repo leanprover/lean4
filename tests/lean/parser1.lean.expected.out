@@ -117,30 +117,6 @@ result:
       (term.ident `u []))
      (term.ident `v [])))])
  (eoi "")]
-(command.notation
- "notation"
- (command.notation_spec
-  (1
-   (command.notation_spec.rules
-    []
-    [(command.notation_spec.rule
-      (command.notation_spec.notation_symbol
-       (0
-        (command.notation_spec.notation_quoted_symbol
-         "`"
-         "+"
-         "`"
-         [(command.notation_spec.precedence ":" (base10_lit "10"))])))
-      [(command.notation_spec.transition
-        (2
-         (command.notation_spec.argument
-          `b
-          [(command.notation_spec.action
-            ":"
-            (command.notation_spec.action_kind (0 (base10_lit "10"))))])))])])))
- ":="
- (term.hole "_"))
-notation`+`:10 b:10 :=_
 error at line 223, column 6:
 unexpected '='
 error at line 225, column 44:
@@ -841,7 +817,7 @@ partial syntax tree:
          (command.simple_decl_val
           ":="
           (term.lambda
-           "λ"
+           (term.lambda_op (0 "λ"))
            [(term.binder
              (1
               (term.binder_content
@@ -1164,7 +1140,7 @@ partial syntax tree:
           (term.anonymous_constructor
            "⟨"
            [(term.lambda
-             "λ"
+             (term.lambda_op (0 "λ"))
              [(term.binder
                (1 (term.binder_content [(term.binder_id (1 (term.hole "_")))] [] [])))]
              ","
@@ -1274,7 +1250,7 @@ partial syntax tree:
           (term.anonymous_constructor
            "⟨"
            [(term.lambda
-             "λ"
+             (term.lambda_op (0 "λ"))
              [(term.binder
                (1 (term.binder_content [(term.binder_id (1 (term.hole "_")))] [] [])))]
              ","
@@ -1348,7 +1324,7 @@ partial syntax tree:
           (term.anonymous_constructor
            "⟨"
            [(term.lambda
-             "λ"
+             (term.lambda_op (0 "λ"))
              [(term.binder
                (1 (term.binder_content [(term.binder_id (1 (term.hole "_")))] [] [])))]
              ","
@@ -1438,7 +1414,7 @@ partial syntax tree:
           (term.anonymous_constructor
            "⟨"
            [(term.lambda
-             "λ"
+             (term.lambda_op (0 "λ"))
              [(term.binder
                (1 (term.binder_content [(term.binder_id (1 (term.hole "_")))] [] [])))]
              ","
@@ -1548,7 +1524,7 @@ partial syntax tree:
           (term.anonymous_constructor
            "⟨"
            [(term.lambda
-             "λ"
+             (term.lambda_op (0 "λ"))
              [(term.binder
                (1 (term.binder_content [(term.binder_id (1 (term.hole "_")))] [] [])))]
              ","
@@ -1622,7 +1598,7 @@ partial syntax tree:
           (term.anonymous_constructor
            "⟨"
            [(term.lambda
-             "λ"
+             (term.lambda_op (0 "λ"))
              [(term.binder
                (1 (term.binder_content [(term.binder_id (1 (term.hole "_")))] [] [])))]
              ","
@@ -1843,7 +1819,7 @@ partial syntax tree:
               (term.paren
                "("
                [(term.lambda
-                 "λ"
+                 (term.lambda_op (0 "λ"))
                  [(term.binder
                    (1
                     (term.binder_content
@@ -1962,7 +1938,7 @@ partial syntax tree:
                (term.paren
                 "("
                 [(term.lambda
-                  "λ"
+                  (term.lambda_op (0 "λ"))
                   [(term.binder
                     (1
                      (term.binder_content

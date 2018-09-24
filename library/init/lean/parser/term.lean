@@ -28,7 +28,7 @@ node! ident_univ_spec [".{", levels: level.parser+, "}"]
 
 @[derive parser.has_tokens parser.has_view]
 protected def term.ident.parser : term_parser :=
-node! term.ident [id: ident.parser, univ: monad_lift ident_univ_spec.parser?]
+node! term.ident [id: ident.parser, univ: (monad_lift ident_univ_spec.parser)?]
 
 namespace term
 /-- Access leading term -/

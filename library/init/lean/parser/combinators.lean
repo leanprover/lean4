@@ -148,6 +148,7 @@ instance optional.is_view : tysyntax.is_view (option (tysyntax α)) :=
 
 instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (optional r) (option (tysyntax α)) :=
 {..optional.is_view}
+instance optional.view_default (r : parser) [parser.has_view r α] : parser.has_view_default (optional r) (option (tysyntax α)) none := ⟨⟩
 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     Note that there is NO explicit encoding of which parser was chosen;

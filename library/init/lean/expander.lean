@@ -27,9 +27,8 @@ do v ← view stx,
    k ← view v.kind,
    let (spec, term) := match k : _ → (notation_spec.view × syntax) with
      | mixfix.kind.view.prefix _ :=
-       let b : tysyntax parser.ident.view := review {part := review $ ident_part.view.default "b", suffix := review none} in
+       let b : tysyntax parser.ident.view := review {part := review $ ident_part.view.default "b"} in
        (notation_spec.view.rules $ review {
-          id := review none,
           rules := review [review {
             symbol := v.symbol,
             transition := review $ some $ review $ transition.view.arg $ review {
@@ -37,8 +36,7 @@ do v ← view stx,
               action := review $ do prec ← prec, prec ← view prec, pure $ review $ prec_to_action prec}}]},
         review {lambda.view . op := review lambda_op.view.«λ», binders := review [review $
             binder.view.unbracketed $ review {
-              ids := review [review $ binder_id.view.id $ review {id := b, univ := review none}],
-              type := review none, default := review none}
+              ids := review [review $ binder_id.view.id $ review {id := b}]}
           ],
           body := review_as app.view {fn := v.term, arg := b}})
      | _ := sorry,

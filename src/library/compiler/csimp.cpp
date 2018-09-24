@@ -153,6 +153,35 @@ class csimp_fn {
             });
     }
 
+    /* Create the let-expression
+       ```
+       let x_1 := v_1
+           ...
+           x_n := v_n
+       in e
+       ```
+       Where `x_1` and `x_n` are the free variables in `fvars`. Remark: we don't use their declaration
+       at `m_lctx` to retrieve their user-name/type/value, but `entries`. We build entries because
+       the value may have been simplified by the main `mk_let` method (e.g., when the value is a lambda).
+       The main `mk_let` does not modify the user-name/type, but we store them at `entries` just for
+       convenience and to avoid additional accesses to `m_lctx`.
+
+       Remark: the buffers `fvars` and `entries` are reverted by this method. */
+    expr mk_let(buffer<expr> & fvars, buffer<std::tuple<name, expr, expr>> & entries, expr e) {
+        lean_assert(fvars.size() == entries.size());
+        std::reverse(fvars.begin(), fvars.end());
+        std::reverse(entries.begin(), entries.end());
+        e = abstract(e, fvars.size(), fvars.data());
+        unsigned i = entries.size();
+        while (i > 0) {
+            --i;
+            expr new_value = abstract(std::get<2>(entries[i]), i, fvars.data());
+            expr new_type  = abstract(std::get<1>(entries[i]), i, fvars.data());
+            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
+        }
+        return e;
+    }
+
     /* Create a let-expression with body `e`, and
        all "used" let-declarations `m_fvars[i]` for `i in [old_fvars_size, m_fvars.size)`.
 
@@ -168,10 +197,10 @@ class csimp_fn {
         collect_used(e, e_fvars);
         unsigned i = m_fvars.size();
         buffer<std::tuple<name, expr, expr>> entries;
-        buffer<expr> used;
+        buffer<expr> fvars;
         bool e_is_cases = is_cases_on_app(env(), e);
         while (i > old_fvars_size) {
-            lean_assert(entries.size() == used.size());
+            lean_assert(entries.size() == fvars.size());
             --i;
             expr fvar = m_fvars.back();
             m_fvars.pop_back();
@@ -220,22 +249,12 @@ class csimp_fn {
                     continue;
                 }
             }
-            used.push_back(fvar);
+            fvars.push_back(fvar);
             collect_used(type, entries_fvars);
             collect_used(val,  entries_fvars);
             entries.emplace_back(decl.get_user_name(), type, val);
         }
-        std::reverse(used.begin(), used.end());
-        std::reverse(entries.begin(), entries.end());
-        e = abstract(e, used.size(), used.data());
-        i = entries.size();
-        while (i > 0) {
-            --i;
-            expr new_value = abstract(std::get<2>(entries[i]), i, used.data());
-            expr new_type  = abstract(std::get<1>(entries[i]), i, used.data());
-            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
-        }
-        return e;
+        return mk_let(fvars, entries, e);
     }
 
     expr visit_let(expr e) {

@@ -302,6 +302,7 @@ public:
     }
 
     void add_candidate(expr const & e) {
+        /* TODO(Leo): we should not consider `e` if it is small */
         auto it = m_cce_candidates.find(e);
         if (it == m_cce_candidates.end()) {
             m_cce_candidates.insert(mk_pair(e, true));

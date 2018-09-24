@@ -24,7 +24,7 @@ class csimp_fn {
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
-    std::unordered_set<name, name_hash> m_used;
+    typedef std::unordered_set<name, name_hash> name_set;
 
     environment const & env() const { return m_st.env(); }
 
@@ -67,11 +67,84 @@ class csimp_fn {
         return fvar;
     }
 
-    void collect_used(expr const & e) {
+    /* Given the `cases_on` application, return [first_minor_idx, first_minor_idx + nminors) */
+    pair<unsigned, unsigned> get_cases_on_minors_range(name const & cases) {
+        inductive_val I_val = env().get(cases.get_prefix()).to_inductive_val();
+        unsigned nparams    = I_val.get_nparams();
+        unsigned nindices   = I_val.get_nindices();
+        unsigned nminors    = I_val.get_ncnstrs();
+        unsigned first_minor_idx = nparams + 1 /*motive*/ + nindices + 1 /* major */;
+        return mk_pair(first_minor_idx, first_minor_idx + nminors);
+    }
+
+    /* Given a cases_on application `c`, return `some idx` iff `fvar` only occurs
+       in the argument `idx`, this argument is a minor premise. */
+    optional<unsigned> used_in_one_minor(expr const & c, expr const & fvar) {
+        lean_assert(is_cases_on_app(env(), c));
+        lean_assert(is_fvar(fvar));
+        buffer<expr> args;
+        expr const & c_fn = get_app_args(c, args);
+        unsigned minors_begin; unsigned minors_end;
+        std::tie(minors_begin, minors_end) = get_cases_on_minors_range(const_name(c_fn));
+        unsigned i = 0;
+        for (; i < minors_begin; i++) {
+            if (has_fvar(args[i], fvar)) {
+                /* Free variable occurs in a term that is a not a minor premise. */
+                return optional<unsigned>();
+            }
+        }
+        lean_assert(i == minors_begin);
+        optional<unsigned> r;
+        for (; i < minors_end; i++) {
+            expr minor = args[i];
+            while (is_lambda(minor)) {
+                if (has_fvar(binding_domain(minor), fvar)) {
+                    /* Free variable occurs in the type of a field */
+                    return optional<unsigned>();
+                }
+                minor = binding_body(minor);
+            }
+            if (has_fvar(minor, fvar)) {
+                if (r) {
+                    /* Free variable occur in more than one minor premise. */
+                    return optional<unsigned>();
+                }
+                r = i;
+            }
+        }
+        return r;
+    }
+
+    /* Move let-decl `fvar` to the minor premise at position `minor_idx` of cases_on-application `c`. */
+    expr move_let_to_minor(expr const & c, unsigned minor_idx, expr const & fvar) {
+        lean_assert(is_cases_on_app(env(), c));
+        buffer<expr> args;
+        expr const & c_fn = get_app_args(c, args);
+        expr minor = args[minor_idx];
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> xs;
+        while (is_lambda(minor)) {
+            expr d = instantiate_rev(binding_domain(minor), xs.size(), xs.data());
+            expr x = m_lctx.mk_local_decl(ngen(), binding_name(minor), d, binding_info(minor));
+            xs.push_back(x);
+            minor  = binding_body(minor);
+        }
+        minor = instantiate_rev(minor, xs.size(), xs.data());
+        if (minor == fvar) {
+            /* `let x := v in x` ==> `v` */
+            minor = *m_lctx.get_local_decl(fvar).get_value();
+        } else {
+            xs.push_back(fvar);
+        }
+        args[minor_idx] = m_lctx.mk_lambda(xs, minor);
+        return mk_app(c_fn, args);
+    }
+
+    static void collect_used(expr const & e, name_set & S) {
         if (!has_fvar(e)) return;
         for_each(e, [&](expr const & e, unsigned) {
                 if (!has_fvar(e)) return false;
-                if (is_fvar(e)) { m_used.insert(fvar_name(e)); return false; }
+                if (is_fvar(e)) { S.insert(fvar_name(e)); return false; }
                 return true;
             });
     }
@@ -86,28 +159,67 @@ class csimp_fn {
     expr mk_let(unsigned old_fvars_size, expr e) {
         if (old_fvars_size == m_fvars.size())
             return e;
-        collect_used(e);
+        name_set e_fvars;
+        name_set entries_fvars;
+        collect_used(e, e_fvars);
         unsigned i = m_fvars.size();
         buffer<std::tuple<name, expr, expr>> entries;
         buffer<expr> used;
+        bool e_is_cases = is_cases_on_app(env(), e);
         while (i > old_fvars_size) {
+            lean_assert(entries.size() == used.size());
             --i;
             expr fvar = m_fvars.back();
             m_fvars.pop_back();
-            if (m_used.find(fvar_name(fvar)) != m_used.end()) {
-                local_decl decl = m_lctx.get_local_decl(fvar);
-                expr type       = decl.get_type();
-                expr val        = *decl.get_value();
-                if (is_lambda(val)) {
-                    DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
-                    val         = visit_lambda(val);
-                    lean_assert(m_fvars.size() == saved_fvars_size);
-                }
-                used.push_back(fvar);
-                collect_used(type);
-                collect_used(val);
-                entries.emplace_back(decl.get_user_name(), type, val);
+            bool used_in_e       = (e_fvars.find(fvar_name(fvar)) != e_fvars.end());
+            bool used_in_entries = (entries_fvars.find(fvar_name(fvar)) != entries_fvars.end());
+            if (!used_in_e && !used_in_entries) {
+                /* Skip unused variables */
+                continue;
             }
+
+            local_decl decl = m_lctx.get_local_decl(fvar);
+            expr type       = decl.get_type();
+            expr val        = *decl.get_value();
+            if (is_lambda(val)) {
+                /* We don't simplify lambdas when we visit `let`-expressions. */
+                DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
+                val         = visit_lambda(val);
+                lean_assert(m_fvars.size() == saved_fvars_size);
+            }
+
+            if (is_fvar(e) && entries.empty() && fvar_name(e) == fvar_name(fvar)) {
+                /* `let x := v in x` ==> `v` */
+                e = val;
+                collect_used(val, e_fvars);
+                e_is_cases = is_cases_on_app(env(), e);
+                continue;
+            }
+
+            if (is_cases_on_app(env(), val)) {
+                // TODO(Leo);
+            } else if (e_is_cases && used_in_e) {
+                optional<unsigned> minor_idx = used_in_one_minor(e, fvar);
+                if (minor_idx && !used_in_entries) {
+                    /* If fvar is only used in only one minor declaration,
+                       and is *not* used in any expression at entries */
+                    if (is_lambda(val)) {
+                        /* We need to create a new free variable since the new
+                           simplified value `val` */
+                        expr new_fvar = m_lctx.mk_local_decl(ngen(), decl.get_user_name(), type, val);
+                        e = replace_fvar(e, fvar, new_fvar);
+                        fvar = new_fvar;
+                    }
+                    collect_used(type, e_fvars);
+                    collect_used(val, e_fvars);
+                    e = move_let_to_minor(e, *minor_idx, fvar);
+                    continue;
+                }
+            }
+            used.push_back(fvar);
+            collect_used(type, entries_fvars);
+            collect_used(val,  entries_fvars);
+            entries.emplace_back(decl.get_user_name(), type, val);
         }
         std::reverse(used.begin(), used.end());
         std::reverse(entries.begin(), entries.end());
@@ -116,13 +228,8 @@ class csimp_fn {
         while (i > 0) {
             --i;
             expr new_value = abstract(std::get<2>(entries[i]), i, used.data());
-            /* (let x := v in x) ==> v */
-            if (is_bvar(e, 0)) {
-                e = new_value;
-            } else {
-                expr new_type  = abstract(std::get<1>(entries[i]), i, used.data());
-                e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
-            }
+            expr new_type  = abstract(std::get<1>(entries[i]), i, used.data());
+            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
         }
         return e;
     }
@@ -266,16 +373,10 @@ class csimp_fn {
 
     /* Just simplify minor premises. */
     expr visit_cases_default(expr const & c, buffer<expr> & args) {
-        inductive_val I_val      = env().get(const_name(c).get_prefix()).to_inductive_val();
-        unsigned motive_idx      = I_val.get_nparams();
-        unsigned first_index     = motive_idx + 1;
-        unsigned nindices        = I_val.get_nindices();
-        unsigned major_idx       = first_index + nindices;
-        unsigned first_minor_idx = major_idx + 1;
-        unsigned nminors         = length(I_val.get_cnstrs());
         /* simplify minor premises */
-        for (unsigned i = 0; i < nminors; i++) {
-            unsigned minor_idx    = first_minor_idx + i;
+        unsigned minor_idx; unsigned minors_end;
+        std::tie(minor_idx, minors_end) = get_cases_on_minors_range(const_name(c));
+        for (; minor_idx < minors_end; minor_idx++) {
             expr minor            = args[minor_idx];
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
             buffer<expr> minor_fvars;

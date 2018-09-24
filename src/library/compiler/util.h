@@ -49,4 +49,9 @@ bool is_join_point_name(name const & n);
 inline name mk_cstage1_name(name const & decl_name) {
     return name(decl_name, "_cstage1");
 }
+
+/* Return true if `e` contains the free variable `fvar` */
+bool has_fvar(expr const & e, expr const & fvar);
+
+expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar);
 }

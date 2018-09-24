@@ -6,6 +6,8 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "kernel/type_checker.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
@@ -129,5 +131,28 @@ expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr con
 
 bool is_join_point_name(name const & n) {
     return !n.is_atomic() && n.is_string() && strncmp(n.get_string().data(), "_join", 5) == 0;
+}
+
+bool has_fvar(expr const & e, expr const & fvar) {
+    if (!has_fvar(e)) return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_fvar(e)) return false;
+            if (found) return false;
+            if (is_fvar(e) && fvar_name(fvar) == fvar_name(e))
+                found = true;
+            return true;
+        });
+    return found;
+}
+
+expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar) {
+    if (!has_fvar(e)) return e;
+    return replace(e, [&](expr const & e, unsigned) {
+            if (!has_fvar(e)) return some_expr(e);
+            if (is_fvar(e) && fvar_name(fvar) == fvar_name(e))
+                return some_expr(new_fvar);
+            return none_expr();
+        });
 }
 }

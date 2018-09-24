@@ -121,7 +121,7 @@ end binder
 @[derive parser.has_tokens parser.has_view]
 def lambda.parser : term_parser :=
 node! lambda [
-  op: any_of [symbol "λ", symbol "fun"],
+  op: node_choice! lambda_op {"λ", "fun"},
   binders: binder.parser+,
   ",",
   body: recurse 0

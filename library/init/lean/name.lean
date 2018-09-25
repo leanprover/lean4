@@ -51,6 +51,15 @@ def update_prefix : name → name → name
 | (mk_string p s)  new_p := mk_string new_p s
 | (mk_numeral p s) new_p := mk_numeral new_p s
 
+
+def components' : name -> list name
+| anonymous                := []
+| (mk_string n s)          := mk_string anonymous s :: components' n
+| (mk_numeral n v)         := mk_numeral anonymous v :: components' n
+
+def components (n : name) : list name :=
+n.components'.reverse
+
 protected def has_dec_eq : Π a b : name, decidable (a = b)
 | anonymous          anonymous          := is_true rfl
 | (mk_string p₁ s₁)  (mk_string p₂ s₂)  :=

@@ -45,13 +45,3 @@ meta def lean.name.is_prefix_of : name → name → bool
 | p name.anonymous := ff
 | p n              :=
   if p = n then tt else lean.name.is_prefix_of p n.get_prefix
-
-open lean.name
-
-def lean.name.components' : name -> list name
-| anonymous                := []
-| (mk_string n s)          := mk_string anonymous s :: lean.name.components' n
-| (mk_numeral n v)         := mk_numeral anonymous v :: lean.name.components' n
-
-def lean.name.components (n : name) : list name :=
-n.components'.reverse

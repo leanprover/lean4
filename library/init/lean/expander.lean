@@ -19,6 +19,19 @@ open parser.command.notation_spec
 def transform_m := except_t message id
 abbreviation transformer := syntax → transform_m syntax
 
+instance coe_name_ident : has_coe name parser.ident.view :=
+⟨λ n, (n.components.foldr (λ n suffix, match n with
+  | name.mk_string _ s := some {parser.ident.view .
+      part := ident_part.view.default s,
+      suffix := ident_suffix.view.mk "." <$> review parser.ident <$> suffix}
+  | _ := some $ view parser.ident syntax.missing) none).get_or_else (view parser.ident syntax.missing)⟩
+
+instance coe_ident_term_ident : has_coe parser.ident.view term.ident.view :=
+⟨λ id, {id := id}⟩
+
+instance coe_term_ident_binder_id : has_coe term.ident.view binder_id.view :=
+⟨binder_id.view.id⟩
+
 def mixfix.transform : transformer :=
 λ stx, do
   let v := view mixfix stx,
@@ -29,18 +42,16 @@ def mixfix.transform : transformer :=
      λ prec, {action := action_kind.view.prec prec.prec, ..prec},
    do some (spec, term) ← pure (match v.kind : _ → option (notation_spec.view × syntax) with
      | mixfix.kind.view.prefix _ :=
-       let b := {parser.ident.view . part := ident_part.view.default "b"} in
        some (notation_spec.view.rules {
           rules := [{
             symbol := v.symbol,
             transition := some $ transition.view.arg {
-              id := b,
+              id := `b,
               action := prec_to_action <$> quoted.prec}}]},
         review lambda {op := lambda_op.view.«λ», binders := [
-            binder.view.unbracketed {
-              ids := [binder_id.view.id {id := b}]}
+            binder.view.unbracketed {ids := [`b]}
           ],
-          body := review app {fn := v.term, arg := review term.ident {id := b}}})
+          body := review app {fn := v.term, arg := review term.ident `b}})
      | _ := none) | pure stx,
    pure $ review «notation» {spec := spec, term := term}
 

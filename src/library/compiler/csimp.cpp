@@ -14,21 +14,43 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/class.h"
 #include "library/compiler/util.h"
+#include "library/compiler/csimp.h"
 
 #include "library/trace.h"
 
 namespace lean {
+csimp_cfg::csimp_cfg() {
+    m_inline                          = true;
+    m_inline_threshold                = 4;
+    m_float_cases                     = true;
+    m_float_cases_jp_threshold        = 3;
+    m_float_cases_jp_branch_threshold = 1;
+    m_inline_jp_threshold             = 4;
+}
+
 class csimp_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
+    csimp_cfg const &   m_cfg;
     buffer<expr>        m_fvars;
     name                m_x;
+    name                m_j;
     unsigned            m_next_idx{1};
+    unsigned            m_next_jp_idx{1};
+    expr_set            m_simplified;
     typedef std::unordered_set<name, name_hash> name_set;
 
     environment const & env() const { return m_st.env(); }
 
     name_generator & ngen() { return m_st.ngen(); }
+
+    void mark_simplified(expr const & e) {
+        m_simplified.insert(e);
+    }
+
+    bool already_simplified(expr const & e) const {
+        return m_simplified.find(e) != m_simplified.end();
+    }
 
     /* Very simple predicate used to decide whether we should inline joint-points or not.
        TODO(Leo): improve */
@@ -71,6 +93,12 @@ class csimp_fn {
         name r = m_x.append_after(m_next_idx);
         m_next_idx++;
         return r;
+    }
+
+    name next_jp_name() {
+        name r = m_j.append_after(m_next_jp_idx);
+        m_next_jp_idx++;
+        return mk_join_point_name(r);
     }
 
     /* Create a new let-declaration `x : t := e`, add `x` to `m_fvars` and return `x`. */
@@ -134,6 +162,16 @@ class csimp_fn {
         return r;
     }
 
+    expr get_minor_body(expr minor, buffer<expr> & xs) {
+        while (is_lambda(minor)) {
+            expr d = instantiate_rev(binding_domain(minor), xs.size(), xs.data());
+            expr x = m_lctx.mk_local_decl(ngen(), binding_name(minor), d, binding_info(minor));
+            xs.push_back(x);
+            minor  = binding_body(minor);
+        }
+        return instantiate_rev(minor, xs.size(), xs.data());
+    }
+
     /* Move let-decl `fvar` to the minor premise at position `minor_idx` of cases_on-application `c`. */
     expr move_let_to_minor(expr const & c, unsigned minor_idx, expr const & fvar) {
         lean_assert(is_cases_on_app(env(), c));
@@ -142,13 +180,7 @@ class csimp_fn {
         expr minor = args[minor_idx];
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> xs;
-        while (is_lambda(minor)) {
-            expr d = instantiate_rev(binding_domain(minor), xs.size(), xs.data());
-            expr x = m_lctx.mk_local_decl(ngen(), binding_name(minor), d, binding_info(minor));
-            xs.push_back(x);
-            minor  = binding_body(minor);
-        }
-        minor = instantiate_rev(minor, xs.size(), xs.data());
+        minor = get_minor_body(minor, xs);
         if (minor == fvar) {
             /* `let x := v in x` ==> `v` */
             minor = *m_lctx.get_local_decl(fvar).get_value();
@@ -200,6 +232,129 @@ class csimp_fn {
         return e;
     }
 
+    /* The `float_cases_on` transformation may produce code duplication.
+       The term `e` is "copied" in each branch of the the `cases_on` expression `c`.
+       This method creates one (or more) join-point(s) for `e` (if needed).
+       This method main fail because of dependent types. */
+    optional<expr> mk_join_point_float_cases_on(expr const & fvar, expr const & c, expr const & e) {
+        lean_assert(is_cases_on_app(env(), c));
+        expr const & c_fn = get_app_fn(c);
+        inductive_val I_val = env().get(const_name(c_fn).get_prefix()).to_inductive_val();
+        if (I_val.get_ncnstrs() == 1) {
+            /* `c` has only one case. So, only one copy of `e` may be created. */
+            return some_expr(e);
+        } else if (get_lcnf_size(env(), e) <= m_cfg.m_float_cases_jp_threshold) {
+            /* `e` is "small", copying should be ok. */
+            return some_expr(e);
+        } else if (is_cases_on_app(env(), e)) {
+            local_decl fvar_decl = m_lctx.get_local_decl(fvar);
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            bool modified = false;
+            unsigned saved_fvars_size = m_fvars.size();
+            unsigned begin_minors; unsigned end_minors;
+            std::tie(begin_minors, end_minors) = get_cases_on_minors_range(const_name(fn));
+            for (unsigned minor_idx = begin_minors; minor_idx < end_minors; minor_idx++) {
+                expr minor = args[minor_idx];
+                if (get_lcnf_size(env(), minor) > m_cfg.m_float_cases_jp_branch_threshold) {
+                    buffer<bool> used_xs; /* used_xs[i] iff `minor` uses `xs[i]` */
+                    bool         used_fvar = false; /* true iff `minor` uses `fvar` */
+                    bool         used_unit = false; /* true if we needed to add `unit ->` to joint point */
+                    expr         jp_val;
+                    /* Create join-point value: `jp-val` */
+                    {
+                        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                        buffer<expr> xs;
+                        minor                = get_minor_body(minor, xs);
+                        mark_used_fvars(minor, xs, used_xs);
+                        lean_assert(xs.size() == used_xs.size());
+                        used_fvar            = false;
+                        jp_val               = minor;
+                        buffer<expr> jp_args;
+                        if (has_fvar(minor, fvar)) {
+                            /* `fvar` is a let-decl variable, we need to convert into a lambda variable.
+                               Remark: we need to use `replace_fvar_with` because replacing the let-decl variable `fvar` with
+                               the lambda variable `new_fvar` may produce a type incorrect term. */
+                            used_fvar      = true;
+                            expr new_fvar  = m_lctx.mk_local_decl(ngen(), fvar_decl.get_user_name(), fvar_decl.get_type());
+                            jp_args.push_back(new_fvar);
+                            if (optional<expr> jp_val_opt = replace_fvar_with(m_st, m_lctx, jp_val, fvar, new_fvar)) {
+                                jp_val = *jp_val_opt;
+                            } else {
+                                m_fvars.resize(saved_fvars_size);
+                                return none_expr();
+                            }
+                        }
+                        for (unsigned i = 0; i < used_xs.size(); i++) {
+                            if (used_xs[i])
+                                jp_args.push_back(xs[i]);
+                        }
+                        if (jp_args.empty()) {
+                            jp_args.push_back(m_lctx.mk_local_decl(ngen(), "_", mk_unit()));
+                            used_unit = true;
+                        }
+                        jp_val = m_lctx.mk_lambda(jp_args, jp_val);
+                    }
+                    /* Create new jp */
+                    expr jp_type = cheap_beta_reduce(infer_type(jp_val));
+                    mark_simplified(jp_val);
+                    expr jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), jp_type, jp_val);
+                    m_fvars.push_back(jp_var);
+                    /* Replace minor with new jp */
+                    {
+                        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                        buffer<expr> xs;
+                        minor = args[minor_idx];
+                        minor = get_minor_body(minor, xs);
+                        lean_assert(xs.size() == used_xs.size());
+                        expr new_minor = jp_var;
+                        if (used_unit)
+                            new_minor = mk_app(new_minor, mk_unit_mk());
+                        if (used_fvar)
+                            new_minor = mk_app(new_minor, fvar);
+                        for (unsigned i = 0; i < used_xs.size(); i++) {
+                            if (used_xs[i])
+                                new_minor = mk_app(new_minor, xs[i]);
+                        }
+                        new_minor       = m_lctx.mk_lambda(xs, new_minor);
+                        args[minor_idx] = new_minor;
+                        modified        = true;
+                    }
+                }
+            }
+            if (!modified) {
+                return some_expr(e);
+            } else {
+                lean_trace(name({"compiler", "simp"}),
+                           tout() << "mk_join\n" << c << "\n======>\n" << mk_app(fn, args) << "\n";);
+                return some_expr(mk_app(fn, args));
+            }
+        } else {
+            /* Create jp value */
+            local_decl fvar_decl = m_lctx.get_local_decl(fvar);
+            expr jp_val          = e;
+            {
+                flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                /* `fvar` is a let-decl variable, we need to convert into a lambda variable.
+                   Remark: we need to use `replace_fvar_with` because replacing the let-decl variable `fvar` with
+                   the lambda variable `new_fvar` may produce a type incorrect term. */
+                expr new_fvar  = m_lctx.mk_local_decl(ngen(), fvar_decl.get_user_name(), fvar_decl.get_type());
+                if (optional<expr> jp_val_opt = replace_fvar_with(m_st, m_lctx, jp_val, fvar, new_fvar)) {
+                    jp_val = *jp_val_opt;
+                } else {
+                    return none_expr();
+                }
+                jp_val = m_lctx.mk_lambda(new_fvar, jp_val);
+            }
+            /* Create new jp */
+            expr jp_type = cheap_beta_reduce(infer_type(jp_val));
+            mark_simplified(jp_val);
+            expr jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), jp_type, jp_val);
+            m_fvars.push_back(jp_var);
+            return some_expr(mk_app(jp_var, fvar));
+        }
+    }
+
     /* Float cases transformation
       ```
       let x := cases_on m (fun y_1, let ... in e_1)
@@ -213,8 +368,12 @@ class csimp_fn {
       ...
       (fun y_n, let ... x := e_n in e)
       ``` */
-    optional<expr> float_cases_on(expr const & fvar, expr const & c, expr const & e) {
+    optional<expr> float_cases_on(expr const & fvar, expr const & c, expr e) {
         lean_assert(is_cases_on_app(env(), c));
+        if (optional<expr> new_e = mk_join_point_float_cases_on(fvar, c, e))
+            e = *new_e;
+        else
+            return none_expr();
         local_decl fvar_decl     = m_lctx.get_local_decl(fvar);
         expr result_type         = whnf_infer_type(e);
         buffer<expr> c_args;
@@ -279,30 +438,31 @@ class csimp_fn {
             new_minor           = m_lctx.mk_lambda(minor_fvars, new_minor);
             c_args[minor_idx] = new_minor;
         }
+        lean_trace(name({"compiler", "simp"}),
+                   tout() << "float_cases_on\n" << c << "\n----\n" << e << "\n=====>\n"
+                   << mk_app(c_fn, c_args) << "\n";);
         return some_expr(mk_app(c_fn, c_args));
     }
 
     /* Create a let-expression with body `e`, and
-       all "used" let-declarations `m_fvars[i]` for `i in [old_fvars_size, m_fvars.size)`.
+       all "used" let-declarations `m_fvars[i]` for `i in [saved_fvars_size, m_fvars.size)`.
 
        BTW, we also visit the lambda expressions in used let-declarations of the form
        `x : t := fun ...`
 
        Note that, we don't visit them when we have visit let-expressions. */
-    expr mk_let(unsigned old_fvars_size, expr e) {
-        if (old_fvars_size == m_fvars.size())
+    expr mk_let(unsigned saved_fvars_size, expr e) {
+        if (saved_fvars_size == m_fvars.size())
             return e;
         name_set e_fvars;
         name_set entries_fvars;
         collect_used(e, e_fvars);
-        unsigned i = m_fvars.size();
         buffer<std::tuple<name, expr, expr>> entries;
         buffer<expr> fvars;
         bool e_is_cases = is_cases_on_app(env(), e);
-        while (i > old_fvars_size) {
+        while (m_fvars.size() > saved_fvars_size) {
             lean_assert(entries.size() == fvars.size());
-            --i;
-            expr fvar = m_fvars.back();
+            expr fvar            = m_fvars.back();
             m_fvars.pop_back();
             bool used_in_e       = (e_fvars.find(fvar_name(fvar)) != e_fvars.end());
             bool used_in_entries = (entries_fvars.find(fvar_name(fvar)) != entries_fvars.end());
@@ -310,14 +470,35 @@ class csimp_fn {
                 /* Skip unused variables */
                 continue;
             }
-
             local_decl decl = m_lctx.get_local_decl(fvar);
             expr type       = decl.get_type();
             expr val        = *decl.get_value();
+            bool modified_val = false;
             if (is_lambda(val)) {
+                /* We first try to move the lambda up */
+                unsigned i = m_fvars.size();
+                bool should_move = false;
+                while (i > saved_fvars_size) {
+                    expr const & x = m_fvars[i-1];
+                    if (has_fvar(val, x) || has_fvar(type, x)) {
+                        /* `fvar` depends on `curr` */
+                        break;
+                    }
+                    if (!is_lambda(*m_lctx.get_local_decl(x).get_value())) {
+                        /* Found `let x := v` s.t. `v` is not a lambda expression,
+                           and `fvar` does not depend on `x`. So, it is worth to move `fvar`. */
+                        should_move = true;
+                    }
+                    --i;
+                }
+                if (should_move) {
+                    m_fvars.insert(i, fvar);
+                    continue;
+                }
                 /* We don't simplify lambdas when we visit `let`-expressions. */
                 DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
-                val         = visit_lambda(val);
+                val          = visit_lambda(val);
+                modified_val = true;
                 lean_assert(m_fvars.size() == saved_fvars_size);
             }
 
@@ -329,22 +510,23 @@ class csimp_fn {
                 continue;
             }
 
-            /* TODO(Leo): enable "float cases" as soon as it has descent performance */
-            if (false && is_cases_on_app(env(), val)) {
+            if (is_cases_on_app(env(), val)) {
                 /* Float cases transformation. */
-                DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
-                expr new_e = mk_let(fvars, entries, e);
-                /* TODO(Leo): create new joint point if `e` is too big */
-                if (optional<expr> new_e_opt = float_cases_on(fvar, val, new_e)) {
-                    e = *new_e_opt;
-                    fvars.clear();   entries.clear();
-                    e_fvars.clear(); entries_fvars.clear();
-                    collect_used(e, e_fvars);
-                    lean_assert(m_fvars.size() == saved_fvars_size);
-                    continue;
-                } else {
-                    lean_assert(m_fvars.size() == saved_fvars_size);
+                unsigned saved_fvars_size = m_fvars.size();
+                if (m_cfg.m_float_cases) {
+                    expr new_e = mk_let(fvars, entries, e);
+                    if (optional<expr> new_e_opt = float_cases_on(fvar, val, new_e)) {
+                        e = *new_e_opt;
+                        fvars.clear();   entries.clear();
+                        e_fvars.clear(); entries_fvars.clear();
+                        collect_used(e, e_fvars);
+                        continue;
+                    } else {
+                        m_fvars.resize(saved_fvars_size);
+                    }
                 }
+                val          = visit_cases_default(val);
+                modified_val = true;
             }
 
             if (e_is_cases && used_in_e) {
@@ -352,7 +534,7 @@ class csimp_fn {
                 if (minor_idx && !used_in_entries) {
                     /* If fvar is only used in only one minor declaration,
                        and is *not* used in any expression at entries */
-                    if (is_lambda(val)) {
+                    if (modified_val) {
                         /* We need to create a new free variable since the new
                            simplified value `val` */
                         expr new_fvar = m_lctx.mk_local_decl(ngen(), decl.get_user_name(), type, val);
@@ -396,9 +578,10 @@ class csimp_fn {
 
     expr visit_lambda(expr e) {
         lean_assert(is_lambda(e));
-        expr r;
+        if (already_simplified(e))
+            return e;
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        unsigned old_fvars_size = m_fvars.size();
+        unsigned saved_fvars_size = m_fvars.size();
         buffer<expr> binding_fvars;
         while (is_lambda(e)) {
             /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
@@ -408,8 +591,10 @@ class csimp_fn {
             e = binding_body(e);
         }
         expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()), false);
-        new_body      = mk_let(old_fvars_size, new_body);
-        return m_lctx.mk_lambda(binding_fvars, new_body);
+        new_body      = mk_let(saved_fvars_size, new_body);
+        expr r        = m_lctx.mk_lambda(binding_fvars, new_body);
+        mark_simplified(r);
+        return r;
     }
 
     bool should_inline_instance(name const & n) const {
@@ -512,32 +697,34 @@ class csimp_fn {
     }
 
     /* Just simplify minor premises. */
-    expr visit_cases_default(expr const & c, buffer<expr> & args) {
+    expr visit_cases_default(expr const & e) {
+        if (already_simplified(e))
+            return e;
+        lean_assert(is_cases_on_app(env(), e));
+        buffer<expr> args;
+        expr const & c = get_app_args(e, args);
         /* simplify minor premises */
         unsigned minor_idx; unsigned minors_end;
         std::tie(minor_idx, minors_end) = get_cases_on_minors_range(const_name(c));
         for (; minor_idx < minors_end; minor_idx++) {
-            expr minor            = args[minor_idx];
+            expr minor                = args[minor_idx];
+            unsigned saved_fvars_size = m_fvars.size();
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
-            buffer<expr> minor_fvars;
-            unsigned old_fvars_size = m_fvars.size();
-            while (is_lambda(minor)) {
-                expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
-                minor_fvars.push_back(new_fvar);
-                minor = binding_body(minor);
-            }
-            expr new_minor = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()), false);
-            new_minor = mk_let(old_fvars_size, new_minor);
+            buffer<expr> xs;
+            minor          = get_minor_body(minor, xs);
+            expr new_minor = visit(minor, false);
+            new_minor = mk_let(saved_fvars_size, new_minor);
             if (is_lambda(new_minor)) {
-                /* We don't want to "mix" `minor_fvars` variables with
+                /* We don't want to "mix" `xs` variables with
                    the variables of the `new_minor` lambda */
                 new_minor = mk_trivial_let(new_minor);
             }
-            new_minor = m_lctx.mk_lambda(minor_fvars, new_minor);
+            new_minor = m_lctx.mk_lambda(xs, new_minor);
             args[minor_idx] = new_minor;
         }
-        return mk_app(c, args);
+        expr r = mk_app(c, args);
+        mark_simplified(r);
+        return r;
     }
 
     expr mk_cast(type_checker & tc, expr const & A, expr const & B, expr t) {
@@ -612,7 +799,7 @@ class csimp_fn {
         // } else if (is_cases_on_app(env(), major)) {
         // return reduce_cases_cases(c, args, I_val, major);
         } else if (!is_let_val) {
-            return visit_cases_default(c, args);
+            return visit_cases_default(e);
         } else {
             return e;
         }
@@ -735,15 +922,15 @@ class csimp_fn {
     }
 
 public:
-    csimp_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx), m_x("_x") {}
+    csimp_fn(environment const & env, local_ctx const & lctx, csimp_cfg const & cfg):
+        m_st(env), m_lctx(lctx), m_cfg(cfg), m_x("_x"), m_j("j") {}
 
     expr operator()(expr const & e) {
         expr r = visit(e, false);
         return m_lctx.mk_lambda(m_fvars, r);
     }
 };
-expr csimp(environment const & env, local_ctx const & lctx, expr const & e) {
-    return csimp_fn(env, lctx)(e);
+expr csimp(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg) {
+    return csimp_fn(env, lctx, cfg)(e);
 }
 }

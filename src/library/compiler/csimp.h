@@ -7,5 +7,16 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-expr csimp(environment const & env, local_ctx const & lctx, expr const & e);
+struct csimp_cfg {
+    bool     m_inline;
+    unsigned m_inline_threshold;
+    bool     m_float_cases;
+    unsigned m_float_cases_jp_threshold;
+    unsigned m_float_cases_jp_branch_threshold;
+    unsigned m_inline_jp_threshold;
+public:
+    csimp_cfg();
+};
+
+expr csimp(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg = csimp_cfg());
 }

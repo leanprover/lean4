@@ -9,10 +9,12 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
+#include "library/util.h"
 #include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"
+#include "library/compiler/util.h"
 
 namespace lean {
 bool has_inline_attribute(environment const & env, name const & n) {
@@ -144,6 +146,30 @@ bool has_fvar(expr const & e, expr const & fvar) {
             return true;
         });
     return found;
+}
+
+void mark_used_fvars(expr const & e, buffer<expr> const & fvars, buffer<bool> & used) {
+    used.resize(fvars.size(), false);
+    if (!has_fvar(e) || fvars.empty())
+        return;
+    bool all_used = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_fvar(e)) return false;
+            if (all_used) return false;
+            if (is_fvar(e)) {
+                all_used = true;
+                for (unsigned i = 0; i < fvars.size(); i++) {
+                    if (!used[i]) {
+                        all_used = false;
+                        if (fvar_name(fvars[i]) == fvar_name(e)) {
+                            used[i] = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            return true;
+        });
 }
 
 expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar) {
@@ -303,5 +329,52 @@ optional<expr> replace_fvar_with(type_checker::state & st, local_ctx const & lct
     } catch (replace_fvar_with_fn::failed ex) {
         return none_expr();
     }
+}
+
+unsigned get_lcnf_size(environment const & env, expr e) {
+    unsigned r = 0;
+    switch (e.kind()) {
+    case expr_kind::BVar:  case expr_kind::MVar:
+    case expr_kind::Sort:
+    case expr_kind::Lit:   case expr_kind::FVar:
+    case expr_kind::Pi:    case expr_kind::Proj:
+    case expr_kind::MData:
+        return 1;
+    case expr_kind::Const:
+        if (is_constructor(env, const_name(e)))
+            return 0;
+        else
+            return 1;
+    case expr_kind::Lambda:
+        r = 1;
+        while (is_lambda(e)) {
+            e = binding_body(e);
+        }
+        return get_lcnf_size(env, e);
+    case expr_kind::App:
+        if (is_cases_on_app(env, e)) {
+            expr const & c_fn   = get_app_fn(e);
+            inductive_val I_val = env.get(const_name(c_fn).get_prefix()).to_inductive_val();
+            unsigned nminors    = I_val.get_ncnstrs();
+            r = 1;
+            for (unsigned i = 0; i < nminors; i++) {
+                lean_assert(is_app(e));
+                r += get_lcnf_size(env, app_arg(e));
+                e = app_fn(e);
+            }
+            return r;
+        } else if (is_constructor_app(env, e)) {
+            return 0;
+        } else {
+            return 1;
+        }
+    case expr_kind::Let:
+        while (is_let(e)) {
+            r += get_lcnf_size(env, let_value(e));
+            e = let_body(e);
+        }
+        return r + get_lcnf_size(env, e);
+    }
+    lean_unreachable();
 }
 }

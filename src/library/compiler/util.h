@@ -50,6 +50,9 @@ inline name mk_cstage1_name(name const & decl_name) {
     return name(decl_name, "_cstage1");
 }
 
+/* Set `used[i] = true` if `fvars[i]` occurs in `e` */
+void mark_used_fvars(expr const & e, buffer<expr> const & fvars, buffer<bool> & used);
+
 /* Return true if `e` contains the free variable `fvar` */
 bool has_fvar(expr const & e, expr const & fvar);
 
@@ -62,4 +65,7 @@ expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar);
    This procedure guarantees that if the result is not `none`, then
    it is type correct IF `fvar` and `t` have the same type. */
 optional<expr> replace_fvar_with(type_checker::state & st, local_ctx const & lctx, expr const & e, expr const & fvar, expr const & t);
+
+/* Return the "code" size for `e` */
+unsigned get_lcnf_size(environment const & env, expr e);
 }

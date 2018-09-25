@@ -42,13 +42,13 @@ def mixfix.transform : transformer :=
    notation_symbol.view.quoted quoted ← pure v.symbol,
    -- `notation` allows more syntax after `:` than mixfix commands, so we have to do a small conversion
    let prec_to_action : precedence.view → action.view :=
-     λ prec, {action := action_kind.view.prec prec.prec, ..prec},
+     λ prec, {action := action_kind.view.prec prec.prec},
    do some (spec, term) ← pure (match v.kind : _ → option (notation_spec.view × syntax) with
      | mixfix.kind.view.prefix _ :=
        some (notation_spec.view.rules {
           rules := [{
             symbol := v.symbol,
-            transition := some $ transition.view.arg {
+            transition := transition.view.arg {
               id := `b,
               action := prec_to_action <$> quoted.prec}}]},
         review lambda {binders := [`b],

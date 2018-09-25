@@ -168,7 +168,7 @@ together.
 ```
 Without the `try` combinator we will not be able to backtrack on the `let` keyword.
 -/
-def try (p : parsec_t μ m α) : parsec_t μ m α :=
+@[inline] def try (p : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   pure $ match r with
@@ -187,7 +187,7 @@ def try (p : parsec_t μ m α) : parsec_t μ m α :=
      combine their error messages (even if one of
      them succeeded).
 -/
-protected def orelse (p q : parsec_t μ m α) : parsec_t μ m α :=
+@[inline] protected def orelse (p q : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   match r with

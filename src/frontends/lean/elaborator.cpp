@@ -2002,7 +2002,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     } else if (is_equations(ufn)) {
         return visit_convoy(e, expected_type);
     } else {
-        return visit_app_core(fn, args, expected_type, e);
+        return visit_app_core(fn, args, expected_type, fn);
     }
 }
 

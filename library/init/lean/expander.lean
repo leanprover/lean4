@@ -51,8 +51,7 @@ def mixfix.transform : transformer :=
             transition := transition.view.arg {
               id := `b,
               action := prec_to_action <$> quoted.prec}}]},
-        review lambda {binders := [`b],
-          body := review app {fn := v.term, arg := review term.ident `b}})
+        review app {fn := v.term, arg := review term.ident `b})
      | _ := none) | pure stx,
    pure $ review «notation» {spec := spec, term := term}
 

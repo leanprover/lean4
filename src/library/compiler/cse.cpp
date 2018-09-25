@@ -40,7 +40,7 @@ public:
                 fvars.push_back(it->second);
             } else {
                 expr type      = instantiate_rev(let_type(e), fvars.size(), fvars.data());
-                expr new_value = visit_let_value(value);
+                expr new_value = visit(value);
                 expr fvar      = mk_fvar(m_ngen.next());
                 fvars.push_back(fvar);
                 to_keep_fvars.push_back(fvar);
@@ -52,7 +52,7 @@ public:
             }
             e = let_body(e);
         }
-        e = instantiate_rev(e, fvars.size(), fvars.data());
+        e = visit(instantiate_rev(e, fvars.size(), fvars.data()));
         e = abstract(e, to_keep_fvars.size(), to_keep_fvars.data());
         lean_assert(entries.size() == to_keep_fvars.size());
         unsigned i = entries.size();
@@ -107,17 +107,10 @@ public:
         }
     }
 
-    expr visit_let_value(expr const & e) {
-        switch (e.kind()) {
-        case expr_kind::Lambda: return visit_lambda(e);
-        case expr_kind::App:    return visit_app(e);
-        default:                return e;
-        }
-    }
-
     expr visit(expr const & e) {
         switch (e.kind()) {
         case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::App:    return visit_app(e);
         case expr_kind::Let:    return visit_let(e);
         default:                return e;
         }

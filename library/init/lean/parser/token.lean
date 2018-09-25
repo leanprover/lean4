@@ -218,5 +218,13 @@ instance symbol_or_ident.tokens (sym) : parser.has_tokens (symbol_or_ident sym :
 default _
 instance symbol_or_ident.view (sym) : parser.has_view (symbol_or_ident sym : parser) syntax := default _
 
+/-- A unicode symbol with an ASCII fallback -/
+@[derive has_tokens has_view]
+def unicode_symbol (unicode ascii : string) (lbp := 0) : parser :=
+lift $ any_of [symbol unicode lbp, symbol ascii lbp]
+-- use unicode variant by default
+instance unicode_symbol.view_default (u a lbp) : parser.has_view_default (unicode_symbol u a lbp : parser) _
+  (u : syntax) := ⟨⟩
+
 end «parser»
 end lean

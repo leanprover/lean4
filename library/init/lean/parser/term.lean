@@ -99,9 +99,9 @@ node_choice! bracketed_binder {
   }, right: symbol ")"],
   implicit: node! implicit_binder ["{", content: binder_content.parser, "}"],
   strict_implicit: node! strict_implicit_binder [
-    left: any_of [symbol "{{", symbol "⦃"],
+    left: unicode_symbol "⦃" "{{",
     content: binder_content.parser,
-    right: any_of [symbol "}}", symbol "⦄"]
+    right: unicode_symbol "⦄" "}}",
   ],
   inst_implicit: node! inst_implicit_binder ["[":max_prec, content: longest_match [
     node! inst_implicit_named_binder [id: ident.parser, type: recurse 0],
@@ -121,7 +121,7 @@ end binder
 @[derive parser.has_tokens parser.has_view]
 def lambda.parser : term_parser :=
 node! lambda [
-  op: node_choice! lambda_op {"λ", "fun"},
+  op: unicode_symbol "λ" "fun" max_prec,
   binders: binder.parser+,
   ",",
   body: recurse 0
@@ -130,7 +130,7 @@ node! lambda [
 @[derive parser.has_tokens parser.has_view]
 def pi.parser : term_parser :=
 node! pi [
-  op: any_of [symbol "Π", symbol "Pi"],
+  op: unicode_symbol "Π" "Pi" max_prec,
   binders: binder.parser+,
   ",",
   range: recurse 0
@@ -175,7 +175,7 @@ node! app [fn: get_leading, arg: recurse max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def arrow.parser : trailing_term_parser :=
-node! arrow [dom: get_leading, op: any_of [symbol "→" 25, symbol "->" 25], range: recurse 24]
+node! arrow [dom: get_leading, op: unicode_symbol "→" "->" 25, range: recurse 24]
 
 @[derive parser.has_tokens parser.has_view]
 def projection.parser : trailing_term_parser :=

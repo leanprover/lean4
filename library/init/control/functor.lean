@@ -18,3 +18,7 @@ infixr ` <$ `:100  := functor.map_const
 @[reducible] def functor.map_const_rev {f : Type u → Type v} [functor f] {α β : Type u} : f β → α → f α :=
 λ a b, b <$ a
 infixr ` $> `:100  := functor.map_const_rev
+
+@[reducible] def functor.map_rev {f : Type u → Type v} [functor f] {α β : Type u} : f α → (α → β) → f β :=
+λ a f, f <$> a
+infixl ` <&> `:100  := functor.map_rev

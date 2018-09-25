@@ -3720,7 +3720,7 @@ bool elaborator::synthesize_type_class_instance_core(expr const & mvar, expr con
                                           "inferred by typing rules, synthesized")
                                    + pp_indent(pp_fn, synthesized_inst)
                                    + line() + format("inferred")
-                                   + pp_indent(pp_fn, inferred_inst));
+                                   + pp_indent(pp_fn, inferred_inst)).ignore_if(has_synth_sorry(synthesized_inst));
     }
     return true;
 }

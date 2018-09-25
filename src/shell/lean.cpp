@@ -501,10 +501,16 @@ int main(int argc, char ** argv) {
             }
 
             if (ok) {
-                auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
-                parser p(mod_env, ios, buf, "<stdin>");
-                // The server will obviously do something more complicated from here
-                p.parse_commands();
+                try {
+                    auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
+                    parser p(mod_env, ios, buf, "<stdin>");
+                    // The server will obviously do something more complicated from here
+                    p.parse_commands();
+                } catch (exception const & ex) {
+                    message_builder msg(env, ios, "<stdin>", {1, 0}, ERROR);
+                    msg.set_exception(ex);
+                    report_message(msg.build());
+                }
             }
 
             for (auto const & msg : l.to_buffer()) {

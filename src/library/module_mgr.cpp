@@ -109,7 +109,13 @@ void module_mgr::build_module(module_name const & mod_name, bool can_use_olean, 
         mod->m_loaded_module = std::make_shared<loaded_module const>(lm);
         m_modules[mod_name] = mod;
     } else if (mod->m_source == module_src::LEAN) {
-        build_lean(mod, module_stack);
+        try {
+            build_lean(mod, module_stack);
+        } catch (exception const & ex) {
+            message_builder msg(m_initial_env, m_ios, mod->m_filename, {1, 0}, ERROR);
+            msg.set_exception(ex);
+            report_message(msg.build());
+        }
         m_modules[mod_name] = mod;
     } else {
         throw exception("unknown module source");

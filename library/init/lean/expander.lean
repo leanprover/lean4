@@ -32,6 +32,9 @@ instance coe_ident_term_ident : has_coe parser.ident.view term.ident.view :=
 instance coe_term_ident_binder_id : has_coe term.ident.view binder_id.view :=
 ⟨binder_id.view.id⟩
 
+instance coe_binders {α : Type} [has_coe_t α binder_id.view] : has_coe (list α) term.binders.view :=
+⟨λ ids, binders.view.unbracketed {ids := ids.map coe}⟩
+
 def mixfix.transform : transformer :=
 λ stx, do
   let v := view mixfix stx,
@@ -48,9 +51,7 @@ def mixfix.transform : transformer :=
             transition := some $ transition.view.arg {
               id := `b,
               action := prec_to_action <$> quoted.prec}}]},
-        review lambda {binders := [
-            binder.view.unbracketed {ids := [`b]}
-          ],
+        review lambda {binders := [`b],
           body := review app {fn := v.term, arg := review term.ident `b}})
      | _ := none) | pure stx,
    pure $ review «notation» {spec := spec, term := term}

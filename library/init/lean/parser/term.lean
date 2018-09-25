@@ -110,10 +110,10 @@ node_choice! bracketed_binder {
 }
 
 @[derive has_tokens has_view]
-def binder.parser : term_parser :=
-node_choice! binder {
-  bracketed: bracketed_binder.parser,
-  unbracketed: binder_content.parser
+def binders.parser : term_parser :=
+node_choice! binders {
+  bracketed: bracketed_binder.parser+,
+  unbracketed: binder_content.parser,
 }
 
 end binder
@@ -122,7 +122,7 @@ end binder
 def lambda.parser : term_parser :=
 node! lambda [
   op: unicode_symbol "λ" "fun" max_prec,
-  binders: binder.parser+,
+  binders: binders.parser,
   ",",
   body: recurse 0
 ]
@@ -131,7 +131,7 @@ node! lambda [
 def pi.parser : term_parser :=
 node! pi [
   op: unicode_symbol "Π" "Pi" max_prec,
-  binders: binder.parser+,
+  binders: binders.parser,
   ",",
   range: recurse 0
 ]

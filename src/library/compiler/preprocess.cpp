@@ -355,6 +355,7 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "input"});
     register_trace_class({"compiler", "eta_expand"});
     register_trace_class({"compiler", "lcnf"});
+    register_trace_class({"compiler", "elim_dead_let"});
     register_trace_class({"compiler", "cce"});
     register_trace_class({"compiler", "simp"});
     register_trace_class({"compiler", "stage1"});

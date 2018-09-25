@@ -3277,16 +3277,18 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                                              mk_lean_list(new_try_args))));
         }
     }
-    struc << "instance " << macro.to_string() << ".has_view : has_view " << esc_macro.to_string() << " " << macro.to_string() << ".view :=\n"
+    struc << "def " << macro.to_string() << ".has_view' : has_view " << esc_macro.to_string() << " " << macro.to_string() << ".view :=\n"
             << "{ view := fun stx, let stxs : list syntax := match stx with"
             << "| syntax.node (syntax_node.mk " << esc_macro.to_string() << " stxs) := stxs | _ := [] in\n"
             << binds.str()
             << macro.to_string() << ".view.mk " << mk_args.str() << ",\n"
             << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk " << esc_macro.to_string() << " [" << reviews.str() << "]) }";
+    struc << "instance " << macro.to_string() << ".has_view := " << macro.to_string() << ".has_view'";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), in, "foo");
     p.set_imports_parsed();
+    p.parse_command_like();
     p.parse_command_like();
     p.parse_command_like();
     p.parse_command_like();
@@ -3346,7 +3348,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         i++;
         new_args.push_back(mk_as_is(r));
     }
-    struc << "instance " << macro.to_string() << ".has_view : has_view " << esc_macro.to_string() << " "
+    struc << "def " << macro.to_string() << ".has_view' : has_view " << esc_macro.to_string() << " "
           << macro.to_string() << ".view :=\n"
           << "{ view := fun stx, let (stx, i) := match stx : _ -> prod syntax nat with \n"
           << "| syntax.node (syntax_node.mk " << esc_macro.to_string()
@@ -3358,10 +3360,12 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
           << " [match v with\n"
           << review_cases.str()
           << "]) }";
+    struc << "instance " << macro.to_string() << ".has_view := " << macro.to_string() << ".has_view'";
     trace_elab_detail(tout() << "expansion of node_choice! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), in, "foo");
     p.set_imports_parsed();
+    p.parse_command_like();
     p.parse_command_like();
     p.parse_command_like();
     p.parse_command_like();

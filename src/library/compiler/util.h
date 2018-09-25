@@ -54,4 +54,12 @@ inline name mk_cstage1_name(name const & decl_name) {
 bool has_fvar(expr const & e, expr const & fvar);
 
 expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar);
+
+/* Version of `replace_fvar` that should be used when `fvar` and `t` are not definitionally equal,
+   but have the same type.
+   Example: `fvar : nat := nat.add a b` and `t : nat := nat.add b a`.
+   By replacing `fvar` with `t` in `e`, a type incorrect term may be produced.
+   This procedure guarantees that if the result is not `none`, then
+   it is type correct IF `fvar` and `t` have the same type. */
+optional<expr> replace_fvar_with(type_checker::state & st, local_ctx const & lctx, expr const & e, expr const & fvar, expr const & t);
 }

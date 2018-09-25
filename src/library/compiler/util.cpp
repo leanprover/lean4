@@ -155,4 +155,153 @@ expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar) {
             return none_expr();
         });
 }
+
+class replace_fvar_with_fn {
+public:
+    struct failed {};
+private:
+    typedef expr_map<pair<expr, bool>> cache;
+    type_checker::state & m_st;
+    local_ctx             m_lctx;
+    cache                 m_cache;
+    expr                  m_x;
+    expr                  m_t;
+
+    name_generator & ngen() { return m_st.ngen(); }
+
+    void check_has_no_x(expr const & e) {
+        if (has_fvar(e, m_x))
+            throw failed();
+    }
+
+    pair<expr, bool> visit_fvar(expr const & e) {
+        if (e == m_x)
+            return mk_pair(m_t, false);
+        else
+            return mk_pair(e, false);
+    }
+
+    pair<expr, bool> visit_mdata(expr const & e) {
+        pair<expr, bool> p = visit(mdata_expr(e));
+        return mk_pair(update_mdata(e, p.first), p.second);
+    }
+
+    pair<expr, bool> visit_proj(expr const & e) {
+        pair<expr, bool> p = visit(proj_expr(e));
+        return mk_pair(update_proj(e, p.first), p.second);
+    }
+
+    pair<expr, bool> visit_pi(expr const & e) {
+        check_has_no_x(e);
+        return mk_pair(e, false);
+    }
+
+    pair<expr, bool> visit_lambda(expr e) {
+        lean_assert(is_lambda(e));
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> binding_fvars;
+        while (is_lambda(e)) {
+            check_has_no_x(binding_domain(e));
+            expr new_d    = instantiate_rev(binding_domain(e), binding_fvars.size(), binding_fvars.data());
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), new_d, binding_info(e));
+            binding_fvars.push_back(new_fvar);
+            e = binding_body(e);
+        }
+        pair<expr, bool> p = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()));
+        return mk_pair(m_lctx.mk_lambda(binding_fvars, p.first), p.second);
+    }
+
+    pair<expr, bool> visit_let(expr e) {
+        lean_assert(is_let(e));
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> let_fvars;
+        while (is_let(e)) {
+            check_has_no_x(let_type(e));
+            expr new_type = instantiate_rev(let_type(e), let_fvars.size(), let_fvars.data());
+            expr new_val; bool type_changed;
+            std::tie(new_val, type_changed) = visit(instantiate_rev(let_value(e), let_fvars.size(), let_fvars.data()));
+            if (type_changed) {
+                type_checker tc(m_st, m_lctx);
+                expr new_val_type = tc.infer(new_val);
+                if (!tc.is_def_eq(new_type, new_val_type))
+                    throw failed();
+            }
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), new_type, new_val);
+            let_fvars.push_back(new_fvar);
+            e = let_body(e);
+        }
+        pair<expr, bool> p = visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()));
+        return mk_pair(m_lctx.mk_lambda(let_fvars, p.first), p.second);
+    }
+
+    pair<expr, bool> visit_app(expr const & e) {
+        expr new_fn; expr new_arg;
+        bool type_changed_fn; bool type_changed_arg;
+        std::tie(new_fn, type_changed_fn)   = visit(app_fn(e));
+        std::tie(new_arg, type_changed_arg) = visit(app_arg(e));
+        if (type_changed_fn || type_changed_arg || app_arg(e) == m_x) {
+            type_checker tc(m_st, m_lctx);
+            expr new_fn_type  = tc.ensure_pi(tc.infer(new_fn));
+            expr new_arg_type = tc.infer(new_arg);
+            if (!tc.is_def_eq(binding_domain(new_fn_type), new_arg_type)) {
+                throw failed();
+            }
+            expr new_e        = mk_app(new_fn, new_arg);
+            expr e_type       = tc.infer(e);
+            expr new_e_type   = tc.infer(new_e);
+            bool type_changed = !tc.is_def_eq(e_type, new_e_type);
+            return mk_pair(new_e, type_changed);
+        } else {
+            return mk_pair(mk_app(new_fn, new_arg), false);
+        }
+    }
+
+    pair<expr, bool> cache_result(expr const & e, pair<expr, bool> const & p, bool shared) {
+        if (shared)
+            m_cache.insert(mk_pair(e, p));
+        return p;
+    }
+
+    pair<expr, bool> visit(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::BVar:  case expr_kind::MVar:
+            lean_unreachable();
+        case expr_kind::Sort:  case expr_kind::Const:
+        case expr_kind::Lit:
+            return mk_pair(e, false);
+        default:
+            break;
+        }
+
+        bool shared = is_shared(e);
+        if (shared) {
+            auto it = m_cache.find(e);
+            if (it != m_cache.end())
+                return it->second;
+        }
+
+        switch (e.kind()) {
+        case expr_kind::FVar:   return cache_result(e, visit_fvar(e), shared);
+        case expr_kind::App:    return cache_result(e, visit_app(e), shared);
+        case expr_kind::Proj:   return cache_result(e, visit_proj(e), shared);
+        case expr_kind::MData:  return cache_result(e, visit_mdata(e), shared);
+        case expr_kind::Lambda: return cache_result(e, visit_lambda(e), shared);
+        case expr_kind::Pi:     return cache_result(e, visit_pi(e), shared);
+        case expr_kind::Let:    return cache_result(e, visit_let(e), shared);
+        default: lean_unreachable();
+        }
+    }
+public:
+    replace_fvar_with_fn(type_checker::state & st, local_ctx const & lctx, expr const & x, expr const & t):
+        m_st(st), m_lctx(lctx), m_x(x), m_t(t) {}
+    expr operator()(expr const & e) { return visit(e).first; }
+};
+
+optional<expr> replace_fvar_with(type_checker::state & st, local_ctx const & lctx, expr const & e, expr const & fvar, expr const & t) {
+    try {
+        return some_expr(replace_fvar_with_fn(st, lctx, fvar, t)(e));
+    } catch (replace_fvar_with_fn::failed ex) {
+        return none_expr();
+    }
+}
 }

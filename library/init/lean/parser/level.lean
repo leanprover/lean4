@@ -38,7 +38,7 @@ node_choice! leading {
   imax: symbol_or_ident "imax",
   hole: symbol "_" max_prec,
   paren: paren.parser,
-  lit: number,
+  lit: number.parser,
   var: ident.parser
 }
 
@@ -48,7 +48,7 @@ node! app [fn: get_leading, arg: recurse max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def add_lit.parser : trailing_level_parser :=
-node! add_lit [lhs: get_leading, "+", rhs: number]
+node! add_lit [lhs: get_leading, "+", rhs: number.parser]
 
 @[derive parser.has_tokens parser.has_view]
 def trailing.parser : trailing_level_parser :=

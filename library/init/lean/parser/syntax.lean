@@ -26,7 +26,7 @@ structure source_info :=
 (trailing : substring)
 
 structure syntax_atom :=
-(info : option source_info) (val : string)
+(info : option source_info := none) (val : string)
 
 /-- A simple wrapper that should remind you to use the static declaration instead
     of hard-coding the node name. -/

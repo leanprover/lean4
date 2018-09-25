@@ -89,13 +89,6 @@ instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) synta
 
 end
 
-@[pattern] def base10_lit : syntax_node_kind := ⟨`lean.parser.base10_lit⟩
-
---TODO(Sebastian): other bases
-private def number' : basic_parser_m (source_info → syntax) :=
-do num ← take_while1 char.is_digit,
-   pure $ λ i, syntax.node ⟨base10_lit, [syntax.atom ⟨i, num⟩]⟩
-
 set_option class.instance_max_depth 200
 
 @[derive has_tokens has_view]
@@ -140,6 +133,13 @@ do tk ← match_token,
    | some ⟨tk, _, some r⟩ := error "symbol': not implemented" --str tk *> monad_parsec.lift r
    | none                 := monad_parsec.eoi *> error "end of file" <|> error "token"
 
+--TODO(Sebastian): other bases
+def number' : basic_parser_m (source_info → syntax) :=
+do stx ← (node_choice! number {
+     base10: raw (take_while1 char.is_digit),
+   } : basic_parser),
+   pure $ λ info, update_trailing info.trailing stx
+
 def token : basic_parser_m syntax :=
 do (r, i) ← with_source_info $ do {
      -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
@@ -170,15 +170,24 @@ instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) (opti
 instance symbol.view_default (sym lbp) : parser.has_view_default (symbol sym lbp : parser) _
   (some {info := none, val := sym}) := ⟨⟩
 
-def number : parser :=
+def number.parser : parser :=
 lift $ try $ do {
   it ← left_over,
-  stx@(syntax.node ⟨base10_lit, _⟩) ← token | error "" (dlist.singleton "number") it,
+  stx ← token,
+  some _ ← pure $ try_view number stx | error "" (dlist.singleton "number") it,
   pure stx
 } <?> "number"
 
-instance number.tokens : parser.has_tokens (number : parser) := default _
-instance number.view : parser.has_view (number : parser) syntax := default _
+instance number.parser.tokens : parser.has_tokens (number.parser : parser) := default _
+instance number.parser.view : parser.has_view (number.parser : parser) number.view :=
+{..number.has_view}
+
+def number.view.to_nat : number.view → nat
+| (number.view.base10 (syntax.atom a)) := a.val.to_nat
+| _ := 1138 -- should never happen, but let's still choose a grep-able number
+
+def number.view.of_nat (n : nat) : number.view :=
+number.view.base10 (syntax.atom {val := to_string n})
 
 def ident.parser : parser :=
 lift $ try $ do {

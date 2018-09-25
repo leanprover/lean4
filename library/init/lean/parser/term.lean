@@ -154,7 +154,7 @@ node! explicit [
 def leading.parser :=
 any_of [
   term.ident.parser,
-  number,
+  number.parser,
   paren.parser,
   hole.parser,
   sort.parser,
@@ -186,7 +186,7 @@ node! projection [
   ".":max_prec.succ,
   proj: node_choice! projection_spec {
     id: parser.ident.parser,
-    num: number,
+    num: number.parser,
   },
 ]
 

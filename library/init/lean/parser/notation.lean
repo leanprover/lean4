@@ -24,7 +24,7 @@ set_option class.instance_max_depth 100
 namespace notation_spec
 @[derive parser.has_tokens parser.has_view]
 def precedence.parser : term_parser :=
-node! «precedence» [":", prec: number]/-TODO <|> expr-/
+node! «precedence» [":", prec: number.parser]/-TODO <|> expr-/
 
 def quoted_symbol.parser : term_parser :=
 do (s, info) ← with_source_info $ take_until (= '`'),
@@ -52,7 +52,7 @@ node_choice! notation_symbol {
 @[derive parser.has_tokens parser.has_view]
 def action.parser : term_parser :=
 node! action [":", action: node_choice! action_kind {
-  prec: number,
+  prec: number.parser,
   max: symbol_or_ident "max",
   prev: symbol_or_ident "prev",
   scoped: symbol_or_ident "scoped"
@@ -79,7 +79,7 @@ end notation_spec
 @[derive parser.has_tokens parser.has_view]
 def notation_spec.parser : term_parser :=
 node_choice! notation_spec {
-  number_literal: number,
+  number_literal: number.parser,
   rules: node! notation_spec.rules [id: ident.parser?, rules: notation_spec.rule.parser*]
 }
 

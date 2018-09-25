@@ -62,12 +62,12 @@ universes u v
   s ← io.fs.read_file "../../library/init/core.lean",
   let s := (s.mk_iterator.nextn 6500).prev_to_string,
   st ← monad_except.lift_except $ parser.mk_parser_state (tokens module.parser),
-  let k := parser.parse ⟨"foo"⟩ st s module.parser,
+  let k := parser.parse ⟨"init/core.lean"⟩ st s module.parser,
   io.prim.iterate_eio k $ λ k, match k.resume () with
     | coroutine_result_core.done p := show_result p s *> pure (sum.inr ())
     | coroutine_result_core.yielded cmd k := do {
       --io.println "command:" *> io.println cmd,
-      match expand cmd with
+      match (expand cmd).run {filename := "init/core.lean"} with
       | except.ok cmd' := pure (sum.inl k)
       | except.error e := throw e.text
     }

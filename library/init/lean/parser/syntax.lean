@@ -101,6 +101,17 @@ with update_leading_lst : list syntax → state string.iterator (list syntax)
 def update_leading (source : string) : syntax → syntax :=
 λ stx, prod.fst $ (update_leading_aux stx).run source.mk_iterator
 
+/-- Retrieve the left-most leaf in the syntax tree -/
+def get_head_atom : syntax → option syntax_atom
+| (atom a) := some a
+| (node ⟨_, n::_⟩) := n.get_head_atom
+| _ := none
+
+def get_pos (stx : syntax) : option parsec.position :=
+do a ← stx.get_head_atom,
+   i ← a.info,
+   pure i.pos
+
 def reprint_with_info : option source_info → string → string
 | (some info) inner := info.leading.to_string ++ inner ++ info.trailing.to_string
 | none        inner := inner

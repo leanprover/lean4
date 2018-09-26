@@ -440,7 +440,7 @@ class csimp_fn {
             c_args[minor_idx] = new_minor;
         }
         lean_trace(name({"compiler", "simp"}),
-                   tout() << "float_cases_on\n" << c << "\n----\n" << e << "\n=====>\n"
+                   tout() << "float_cases_on [" << get_lcnf_size(env(), e) << "]\n" << c << "\n----\n" << e << "\n=====>\n"
                    << mk_app(c_fn, c_args) << "\n";);
         return some_expr(mk_app(c_fn, c_args));
     }

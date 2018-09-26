@@ -2077,51 +2077,40 @@ theorem some_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (some h) 
 
 /- Diaconescu's theorem: using function extensionality and propositional extensionality,
    we can get excluded middle from this. -/
-section diaconescu
-parameter  p : Prop
-
-private def U (x : Prop) : Prop := x = true ∨ p
-private def V (x : Prop) : Prop := x = false ∨ p
-
-private theorem exU : ∃ x, U x := ⟨true, or.inl rfl⟩
-private theorem exV : ∃ x, V x := ⟨false, or.inl rfl⟩
-
-private theorem u : Prop := some exU
-private theorem v : Prop := some exV
-
-set_option type_context.unfold_lemmas true
-private theorem u_def : U u := some_spec exU
-private theorem v_def : V v := some_spec exV
-
-private theorem not_uv_or_p : u ≠ v ∨ p :=
-or.elim u_def
-  (assume hut : u = true,
-    or.elim v_def
-      (assume hvf : v = false,
-        have hne : u ≠ v, from hvf.symm ▸ hut.symm ▸ true_ne_false,
-        or.inl hne)
-      or.inr)
-  or.inr
-
-private theorem p_implies_uv (hp : p) : u = v :=
-have hpred : U = V, from
-  funext (assume x : Prop,
-    have hl : (x = true ∨ p) → (x = false ∨ p), from
-      assume a, or.inr hp,
-    have hr : (x = false ∨ p) → (x = true ∨ p), from
-      assume a, or.inr hp,
-    show (x = true ∨ p) = (x = false ∨ p), from
-      propext (iff.intro hl hr)),
-have h₀ : ∀ exU exV,
-    @some _ U exU = @some _ V exV,
-  from hpred ▸ λ exU exV, rfl,
-show u = v, from h₀ _ _
-
-theorem em : p ∨ ¬p :=
+theorem em (p : Prop) : p ∨ ¬p :=
+let U (x : Prop) : Prop := x = true ∨ p in
+let V (x : Prop) : Prop := x = false ∨ p in
+have exU : ∃ x, U x, from ⟨true, or.inl rfl⟩,
+have exV : ∃ x, V x, from ⟨false, or.inl rfl⟩,
+let u : Prop := some exU in
+let v : Prop := some exV in
+have u_def : U u, from some_spec exU,
+have v_def : V v, from some_spec exV,
+have not_uv_or_p : u ≠ v ∨ p, from
+  or.elim u_def
+    (assume hut : u = true,
+      or.elim v_def
+        (assume hvf : v = false,
+          have hne : u ≠ v, from hvf.symm ▸ hut.symm ▸ true_ne_false,
+          or.inl hne)
+        or.inr)
+    or.inr,
+have p_implies_uv : p → u = v, from
+  assume hp : p,
+  have hpred : U = V, from
+    funext $ assume x : Prop,
+      have hl : (x = true ∨ p) → (x = false ∨ p), from
+        assume a, or.inr hp,
+      have hr : (x = false ∨ p) → (x = true ∨ p), from
+        assume a, or.inr hp,
+      show (x = true ∨ p) = (x = false ∨ p), from
+        propext (iff.intro hl hr),
+  have h₀ : ∀ exU exV, @some _ U exU = @some _ V exV, from
+    hpred ▸ λ exU exV, rfl,
+  show u = v, from h₀ _ _,
 or.elim not_uv_or_p
   (assume hne : u ≠ v, or.inr (mt p_implies_uv hne))
   or.inl
-end diaconescu
 
 theorem exists_true_of_nonempty {α : Sort u} : nonempty α → ∃ x : α, true
 | ⟨x⟩ := ⟨x, trivial⟩

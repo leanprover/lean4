@@ -43,16 +43,14 @@ def apply {α : Sort u} {r : α → α → Prop} (wf : well_founded r) : ∀ a, 
 assume a, well_founded.rec_on wf (λ p, p) a
 
 section
-parameters {α : Sort u} {r : α → α → Prop}
+variables {α : Sort u} {r : α → α → Prop} (hwf : well_founded r)
 local infix `≺`:50    := r
-
-parameter hwf : well_founded r
 
 theorem recursion {C : α → Sort v} (a : α) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
 acc.rec_on (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)
 
 theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=
-recursion a h
+recursion hwf a h
 
 variable {C : α → Sort v}
 variable F : Π x, (Π y, y ≺ x → C y) → C x
@@ -86,43 +84,34 @@ well_founded.intro (λ (a : α),
 
 -- Subrelation of a well-founded relation is well-founded
 namespace subrelation
-section
-parameters {α : Sort u} {r Q : α → α → Prop}
-parameters (h₁ : subrelation Q r)
-parameters (h₂ : well_founded r)
+variables {α : Sort u} {r Q : α → α → Prop}
 
-def accessible {a : α} (ac : acc r a) : acc Q a :=
+def accessible {a : α} (h₁ : subrelation Q r) (ac : acc r a) : acc Q a :=
 acc.rec_on ac (λ x ax ih,
   acc.intro x (λ (y : α) (lt : Q y x), ih y (h₁ lt)))
 
-def wf : well_founded Q :=
-⟨λ a, accessible (apply h₂ a)⟩
-end
+def wf (h₁ : subrelation Q r) (h₂ : well_founded r) : well_founded Q :=
+⟨λ a, accessible h₁ (apply h₂ a)⟩
 end subrelation
 
 -- The inverse image of a well-founded relation is well-founded
 namespace inv_image
-section
-parameters {α : Sort u} {β : Sort v} {r : β → β → Prop}
-parameters (f : α → β)
-parameters (h : well_founded r)
+variables {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
-private def acc_aux {b : β} (ac : acc r b) : ∀ (x : α), f x = b → acc (inv_image r f) x :=
+private def acc_aux (f : α → β) {b : β} (ac : acc r b) : ∀ (x : α), f x = b → acc (inv_image r f) x :=
 acc.ndrec_on ac (λ x acx ih z e,
   acc.intro z (λ y lt, eq.ndrec_on e (λ acx ih, ih (f y) lt y rfl) acx ih))
 
-def accessible {a : α} (ac : acc r (f a)) : acc (inv_image r f) a :=
-acc_aux ac a rfl
+def accessible {a : α} (f : α → β) (ac : acc r (f a)) : acc (inv_image r f) a :=
+acc_aux f ac a rfl
 
-def wf : well_founded (inv_image r f) :=
-⟨λ a, accessible (apply h (f a))⟩
-end
+def wf (f : α → β) (h : well_founded r) : well_founded (inv_image r f) :=
+⟨λ a, accessible f (apply h (f a))⟩
 end inv_image
 
 -- The transitive closure of a well-founded relation is well-founded
 namespace tc
-section
-parameters {α : Sort u} {r : α → α → Prop}
+variables {α : Sort u} {r : α → α → Prop}
 local notation `r⁺` := tc r
 
 def accessible {z : α} (ac : acc r z) : acc (tc r) z :=
@@ -135,7 +124,6 @@ acc.ndrec_on ac (λ x acx ih,
 
 def wf (h : well_founded r) : well_founded r⁺ :=
 ⟨λ a, accessible (apply h a)⟩
-end
 end tc
 
 -- less-than is well-founded
@@ -180,8 +168,8 @@ inductive rprod : α × β → α × β → Prop
 end
 
 section
-parameters {α : Type u} {β : Type v}
-parameters {ra  : α → α → Prop} {rb  : β → β → Prop}
+variables {α : Type u} {β : Type v}
+variables {ra  : α → α → Prop} {rb  : β → β → Prop}
 local infix `≺`:50 := lex ra rb
 
 def lex_accessible {a} (aca : acc ra a) (acb : ∀ b, acc rb b): ∀ b, acc (lex ra rb) (a, b) :=
@@ -226,8 +214,8 @@ inductive lex : psigma β → psigma β → Prop
 end
 
 section
-parameters {α : Sort u} {β : α → Sort v}
-parameters {r  : α → α → Prop} {s : Π a : α, β a → β a → Prop}
+variables {α : Sort u} {β : α → Sort v}
+variables {r  : α → α → Prop} {s : Π a : α, β a → β a → Prop}
 local infix `≺`:50 := lex r s
 
 def lex_accessible {a} (aca : acc r a) (acb : ∀ a, well_founded (s a))
@@ -265,7 +253,7 @@ well_founded.intro $ λ ⟨a, b⟩, lex_accessible (well_founded.apply ha a) hb 
 end
 
 section
-parameters {α : Sort u} {β : Sort v}
+variables {α : Sort u} {β : Sort v}
 
 def lex_ndep (r : α → α → Prop) (s : β → β → Prop) :=
 lex r (λ a : α, s)
@@ -277,19 +265,17 @@ end
 
 section
 variables {α : Sort u} {β : Sort v}
-variable  (r  : α → α → Prop)
-variable  (s  : β → β → Prop)
 
 -- Reverse lexicographical order based on r and s
-inductive rev_lex : @psigma α (λ a, β) → @psigma α (λ a, β) → Prop
+inductive rev_lex (r  : α → α → Prop) (s  : β → β → Prop) : @psigma α (λ a, β) → @psigma α (λ a, β) → Prop
 | left  : ∀ {a₁ a₂ : α} (b : β), r a₁ a₂ → rev_lex ⟨a₁, b⟩ ⟨a₂, b⟩
 | right : ∀ (a₁ : α) {b₁ : β} (a₂ : α) {b₂ : β}, s b₁ b₂ → rev_lex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 end
 
 section
 open well_founded
-parameters {α : Sort u} {β : Sort v}
-parameters {r  : α → α → Prop} {s : β → β → Prop}
+variables {α : Sort u} {β : Sort v}
+variables {r  : α → α → Prop} {s : β → β → Prop}
 local infix `≺`:50 := rev_lex r s
 
 def rev_lex_accessible {b} (acb : acc s b) (aca : ∀ a, acc r a): ∀ a, acc (rev_lex r s) ⟨a, b⟩ :=

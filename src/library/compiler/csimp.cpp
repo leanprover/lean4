@@ -592,7 +592,6 @@ class csimp_fn {
                                   fvars_dep_curr,  entries_dep_curr,
                                   fvars_ndep_curr, entries_ndep_curr);
                     expr new_e = mk_let(fvars_dep_curr, entries_dep_curr, e);
-                    tout() << ">> new_e: " << new_e << "\n";
                     if (optional<expr> new_e_opt = float_cases_on(fvar, val, new_e)) {
                         e       = *new_e_opt;
                         fvars   = fvars_ndep_curr;

@@ -969,7 +969,7 @@ class csimp_fn {
         } else if (is_cases_on_app(env(), fn) && m_cfg.m_float_cases_app) {
             lean_assert(is_fvar(get_app_fn(e)));
             /* float cases_on from application */
-            if (optional<expr> new_e = float_cases_on(get_app_fn(e), fn, e)) {
+            if (optional<expr> new_e = float_cases_on_core(get_app_fn(e), fn, e)) {
                 mark_simplified(*new_e);
                 return *new_e;
             } else {

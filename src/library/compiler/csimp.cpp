@@ -833,42 +833,6 @@ class csimp_fn {
         return mk_cast(tc, A, B, t);
     }
 
-    /* We can eliminate `S.cases_on` using projections when `S` is a structure.
-       Example:
-       ```
-       prod.cases_on M (\fun a b, t)
-       ```
-       ==>
-       ```
-       let a := M.0 in
-       let b := M.1 in
-       t
-
-       May kill the cases on cases optimization
-
-       let v := cases_on ... (fun, ... (mk ...))
-       let y := prod.cases_on v (fun a b, ...)
-       ==>
-       let v := cases_on ... (fun, ... (mk ...))
-       let y := prod.cases_on v (fun a b, ...)
-
-       ``` */
-    // expr elim_cases_struct(expr const & major, expr minor, expr const & e) {
-    //     unsigned i = 0;
-    //     buffer<expr> fields;
-    //     while (is_lambda(minor)) {
-    //         fields.push_back(mk_let_decl(mk_proj(i, major)));
-    //         i++;
-    //         minor = binding_body(minor);
-    //     }
-    //     expr r = instantiate_rev(minor, fields.size(), fields.data());
-    //     if (!is_lambda(r))
-    //         r = visit(r);
-    //     expr e_type = infer_type(e);
-    //     expr r_type = infer_type(r);
-    //     return mk_cast(r_type, e_type, r);
-    // }
-
     expr visit_cases(expr const & e, bool is_let_val) {
         buffer<expr> args;
         expr const & c = get_app_args(e, args);
@@ -877,13 +841,8 @@ class csimp_fn {
         unsigned major_idx       = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices();
         lean_assert(major_idx < args.size());
         expr const & major       = find(args[major_idx]);
-        // if (I_val.get_ncnstrs() == 1) {
-        //   return elim_cases_struct(args[major_idx], args[major_idx + 1], e);
-        // } else
         if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major, is_let_val);
-        // } else if (is_cases_on_app(env(), major)) {
-        // return reduce_cases_cases(c, args, I_val, major);
         } else if (!is_let_val) {
             return visit_cases_default(e);
         } else {

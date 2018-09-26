@@ -93,14 +93,16 @@ def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.me
 
 section
 local attribute [reducible] parser_t
-protected def run {m : Type → Type} [monad m] (cfg : parser_config) (st : parser_state) (s : string) (r : parser_t m syntax) :
-m (syntax × message_log) :=
+/-- Run parser stack, returning a partial syntax tree in case of a fatal error -/
+protected def run {m : Type → Type} {α : Type} [monad m] (cfg : parser_config) (st : parser_state) (s : string) (r : parser_t m α) :
+m (sum α syntax × message_log) :=
 do r ← ((r.run cfg).run st).parse_with_eoi s,
 pure $ match r with
-| except.ok (stx, st) := (stx.update_leading s, st.messages)
-| except.error msg  := (msg.custom.update_leading s, message_log.empty.add (message_of_parsec_message cfg msg))
+| except.ok (a, st) := (sum.inl a, st.messages)
+| except.error msg  := (sum.inr msg.custom, message_log.empty.add (message_of_parsec_message cfg msg))
 end
 
+open coroutine
 open monad_parsec
 open parser.has_view
 variables {α : Type} {m : Type → Type}
@@ -109,8 +111,6 @@ local notation `parser` := m syntax
 def log_message {μ : Type} [monad m] [monad_reader parser_config m] [monad_state parser_state m] (msg : parsec.message μ) : m unit :=
 do cfg ← read,
    modify (λ st, {st with messages := st.messages.add (message_of_parsec_message cfg msg)})
-
-def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
 
 def mk_parser_state (tokens : list token_config) : except string parser_state :=
 do -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
@@ -126,21 +126,6 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
      | none := pure $ t.insert tk.prefix tk)
      trie.mk,
    pure ⟨t, message_log.empty⟩
-
-protected def parse [monad m] (cfg : parser_config) (st : parser_state) (s : string) (r : parser_t m syntax) [parser.has_tokens r] :
-  m (syntax × message_log) :=
-parser.run cfg st s $ do
-  stx ← catch r $ λ (msg : parsec.message _), do {
-    parser.log_message msg,
-    pure msg.custom
-  },
-  -- add `eoi` node
-  catch monad_parsec.eoi parser.log_message,
-  let stop := s.mk_iterator.to_end,
-  pure $ syntax.node ⟨none, [
-    stx,
-    syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]⟩
-  ]⟩
 
 structure parse.view_ty :=
 (root : syntax)

@@ -328,7 +328,9 @@ class csimp_fn {
                 return some_expr(mk_app(fn, args));
             }
         } else {
-            /* Create jp value */
+            /* Create jp value for `e`
+               This kind of join-point is not very useful. It will only help if we decide
+               to inline the join-point later in some of the branches. */
             local_decl fvar_decl = m_lctx.get_local_decl(fvar);
             expr jp_val          = e;
             {

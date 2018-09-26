@@ -74,16 +74,7 @@ static environment universes_cmd(parser & p) {
     return universes_cmd_core(p, false);
 }
 
-enum class variable_kind { Constant, Parameter, Variable, Axiom };
-
-static void check_parameter_type(parser & p, name const & n, expr const & type, pos_info const & pos) {
-    for_each(type, [&](expr const & e, unsigned) {
-            if (is_local(e) && p.is_local_variable(e))
-                throw parser_error(sstream() << "invalid parameter declaration '" << n << "', it depends on " <<
-                                   "variable '" << local_pp_name(e) << "'", pos);
-            return true;
-        });
-}
+enum class variable_kind { Constant, Variable, Axiom };
 
 static environment declare_var(parser & p, environment env,
                                name const & n, names const & ls, expr const & type,
@@ -91,20 +82,13 @@ static environment declare_var(parser & p, environment env,
                                cmd_meta const & meta) {
     binder_info bi;
     if (_bi) bi = *_bi; else bi = mk_binder_info();
-    if (k == variable_kind::Parameter || k == variable_kind::Variable) {
-        if (k == variable_kind::Parameter) {
-            check_in_section(p);
-            check_parameter_type(p, n, type, pos);
-        }
+    if (k == variable_kind::Variable) {
         if (p.get_local(n))
-            throw parser_error(sstream() << "invalid parameter/variable declaration, '"
+            throw parser_error(sstream() << "invalid variable declaration, '"
                                << n << "' has already been declared", pos);
         name u = p.next_name();
         expr l = p.save_pos(mk_local(u, n, type, bi), pos);
-        if (k == variable_kind::Parameter)
-            p.add_parameter(n, l);
-        else
-            p.add_variable(n, l);
+        p.add_variable(n, l);
         return env;
     } else {
         lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
@@ -143,8 +127,8 @@ static void update_local_levels(parser & p, names const & new_ls, bool is_variab
 
 optional<binder_info> parse_binder_info(parser & p, variable_kind k) {
     optional<binder_info> bi = p.parse_optional_binder_info();
-    if (bi && k != variable_kind::Parameter && k != variable_kind::Variable)
-        parser_error("invalid binder annotation, it can only be used to declare variables/parameters", p.pos());
+    if (bi && k != variable_kind::Variable)
+        parser_error("invalid binder annotation, it can only be used to declare variables", p.pos());
     return bi;
 }
 
@@ -153,28 +137,16 @@ static void check_variable_kind(parser & p, variable_kind k) {
         if (k == variable_kind::Axiom || k == variable_kind::Constant)
             throw parser_error("invalid declaration, 'constant/axiom' cannot be used in sections",
                                p.pos());
-    } else if (!in_section(p.env()) && k == variable_kind::Parameter) {
-        throw parser_error("invalid declaration, 'parameter/hypothesis/conjecture' "
-                           "can only be used in sections", p.pos());
     }
 }
 
-static void update_local_binder_info(parser & p, variable_kind k, name const & n,
+static void update_local_binder_info(parser & p, variable_kind /* k */, name const & n,
                                      optional<binder_info> const & bi, pos_info const & pos) {
     binder_info new_bi;
     if (bi) new_bi = *bi; else new_bi = mk_binder_info();
-    if (k == variable_kind::Parameter) {
-        if (p.is_local_variable_user_name(n))
-            throw parser_error(sstream() << "invalid parameter binder type update, '"
-                               << n << "' is a variable", pos);
-        if (!p.update_local_binder_info(n, new_bi))
-            throw parser_error(sstream() << "invalid parameter binder type update, '"
-                               << n << "' is not a parameter", pos);
-    } else {
-        if (!p.update_local_binder_info(n, new_bi) || !p.is_local_variable_user_name(n))
-            throw parser_error(sstream() << "invalid variable binder type update, '"
-                               << n << "' is not a variable", pos);
-    }
+    if (!p.update_local_binder_info(n, new_bi) || !p.is_local_variable_user_name(n))
+        throw parser_error(sstream() << "invalid variable binder type update, '"
+                           << n << "' is not a variable", pos);
 }
 
 static bool curr_is_binder_annotation(parser & p) {
@@ -182,7 +154,7 @@ static bool curr_is_binder_annotation(parser & p) {
            p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk());
 }
 
-/* Auxiliary class to setup naming scopes for a variable/parameter/constant/axiom command.
+/* Auxiliary class to setup naming scopes for a variable/constant/axiom command.
 
    We need the private_name_scope because the type may contain match-expressions.
    These match expressions produce private definitions, and we need to make sure
@@ -205,13 +177,13 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
     check_variable_kind(p, k);
     auto pos = p.pos();
     optional<binder_info> bi;
-    if (k == variable_kind::Parameter || k == variable_kind::Variable)
+    if (k == variable_kind::Variable)
         bi = parse_binder_info(p, k);
     optional<parser::local_scope> scope1;
     name n;
     expr type;
     buffer<name> ls_buffer;
-    if (bi && is_inst_implicit(*bi) && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
+    if (bi && is_inst_implicit(*bi) && (k == variable_kind::Variable)) {
         var_decl_scope var_scope(p, meta.m_modifiers);
         /* instance implicit */
         if (p.curr_is_identifier()) {
@@ -257,14 +229,14 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
     } else {
         var_decl_scope var_scope(p, meta.m_modifiers);
         /* non instance implicit cases */
-        if (p.curr_is_token(get_lcurly_tk()) && (k == variable_kind::Parameter || k == variable_kind::Variable))
+        if (p.curr_is_token(get_lcurly_tk()) && (k == variable_kind::Variable))
             throw parser_error("invalid declaration, only constants/axioms can be universe polymorphic", p.pos());
         if (k == variable_kind::Constant || k == variable_kind::Axiom)
             scope1.emplace(p);
         parse_univ_params(p, ls_buffer);
         n = p.check_decl_id_next("invalid declaration, identifier expected");
         if (!p.curr_is_token(get_colon_tk())) {
-            if (!curr_is_binder_annotation(p) && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
+            if (!curr_is_binder_annotation(p) && (k == variable_kind::Variable)) {
                 p.parse_close_binder_info(bi);
                 update_local_binder_info(p, k, n, bi, pos);
                 return p.env();
@@ -294,7 +266,7 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
     names new_ls;
     list<expr> ctx = p.locals_to_context();
     std::tie(type, new_ls) = p.elaborate_type("_variable", ctx, type);
-    if (k == variable_kind::Variable || k == variable_kind::Parameter)
+    if (k == variable_kind::Variable)
         update_local_levels(p, new_ls, k == variable_kind::Variable);
     return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, meta);
 }
@@ -309,26 +281,22 @@ static environment axiom_cmd(parser & p, cmd_meta const & meta)    {
 static environment constant_cmd(parser & p, cmd_meta const & meta)    {
     return variable_cmd_core(p, variable_kind::Constant, meta);
 }
-static environment parameter_cmd(parser & p, cmd_meta const & meta)    {
-    return variable_cmd_core(p, variable_kind::Parameter, meta);
-}
 
 /*
 Remark: we currently do not support declarations such as:
 
-  parameters P Q : match ... end
+  variables P Q : match ... end
 
 User should use
 
-  parameter P : match ... end
-  parameter Q : match ... end
+  variable P : match ... end
+  variable Q : match ... end
 
 instead.
 */
 static void ensure_no_match_in_variables_cmd(pos_info const & pos) {
     if (used_match_idx()) {
-        throw parser_error("match-expressions are not supported in `parameters/variables/constants` commands "
-                           "(solution use `parameter/variable/constant` commands)", pos);
+        throw parser_error("match-expressions are not supported in `variables/constants` commands", pos);
     }
 }
 
@@ -340,7 +308,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
     buffer<name> ids;
     optional<parser::local_scope> scope1;
     expr type;
-    if (bi && is_inst_implicit(*bi) && (k == variable_kind::Parameter || k == variable_kind::Variable)) {
+    if (bi && is_inst_implicit(*bi) && (k == variable_kind::Variable)) {
         /* instance implicit */
         if (p.curr_is_identifier()) {
             auto id_pos = p.pos();
@@ -391,7 +359,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
         } else {
             /* binder annotation update */
             /* example: variables (A) */
-            if (k == variable_kind::Parameter || k == variable_kind::Variable) {
+            if (k == variable_kind::Variable) {
                 p.parse_close_binder_info(bi);
                 for (name const & id : ids) {
                     update_local_binder_info(p, k, id, bi, pos);
@@ -420,7 +388,7 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
         expr new_type;
         check_command_period_open_binder_or_eof(p);
         std::tie(new_type, new_ls) = p.elaborate_type("_variables", ctx, type);
-        if (k == variable_kind::Variable || k == variable_kind::Parameter)
+        if (k == variable_kind::Variable)
             update_local_levels(p, new_ls, k == variable_kind::Variable);
         new_ls = append(ls, new_ls);
         env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, meta);
@@ -440,9 +408,6 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
 }
 static environment variables_cmd(parser & p, cmd_meta const & meta) {
     return variables_cmd_core(p, variable_kind::Variable, meta);
-}
-static environment parameters_cmd(parser & p, cmd_meta const & meta) {
-    return variables_cmd_core(p, variable_kind::Parameter, meta);
 }
 static environment constants_cmd(parser & p, cmd_meta const & meta) {
     return variables_cmd_core(p, variable_kind::Constant, meta);
@@ -560,7 +525,7 @@ static environment include_cmd_core(parser & p, bool include) {
         name n = p.get_name_val();
         p.next();
         if (!p.get_local(n))
-            throw parser_error(sstream() << "invalid include/omit command, '" << n << "' is not a parameter/variable", pos);
+            throw parser_error(sstream() << "invalid include/omit command, '" << n << "' is not a variable", pos);
         if (include) {
             if (p.is_include_variable(n))
                 throw parser_error(sstream() << "invalid include command, '" << n << "' has already been included", pos);
@@ -586,11 +551,9 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universe",        "declare a universe level", universe_cmd));
     add_cmd(r, cmd_info("universes",       "declare universe levels", universes_cmd));
     add_cmd(r, cmd_info("variable",        "declare a new variable", variable_cmd));
-    add_cmd(r, cmd_info("parameter",       "declare a new parameter", parameter_cmd));
     add_cmd(r, cmd_info("constant",        "declare a new constant (aka top-level variable)", constant_cmd));
     add_cmd(r, cmd_info("axiom",           "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("variables",       "declare new variables", variables_cmd));
-    add_cmd(r, cmd_info("parameters",      "declare new parameters", parameters_cmd));
     add_cmd(r, cmd_info("constants",       "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
     add_cmd(r, cmd_info("meta",            "add new meta declaration", modifiers_cmd, false));
@@ -603,7 +566,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("instance",        "add new instance", instance_cmd));
     add_cmd(r, cmd_info("abbreviation",    "add new abbreviation", abbreviation_cmd));
     add_cmd(r, cmd_info("example",         "add new example", example_cmd));
-    add_cmd(r, cmd_info("include",         "force section parameter/variable to be included", include_cmd));
+    add_cmd(r, cmd_info("include",         "force section variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("@[",              "declaration attributes", compact_attribute_cmd));
     add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));

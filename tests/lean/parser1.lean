@@ -67,7 +67,7 @@ universes u v
 #eval show_parse "#check Type max u v"
 
 #eval do
-  [nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
+  [header, nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
   except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean"} | throw "heh",
   pure cmd'.reprint
 

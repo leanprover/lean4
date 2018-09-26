@@ -32,25 +32,30 @@ abbreviation module_parser := module_parser_m syntax
 instance module_parser_m.lift_basic_parser_m : monad_basic_read module_parser_m :=
 { monad_lift := λ α x r st it, pure (((x.run r).run st) it) }
 
+namespace module
 def yield_command (cmd : syntax) : module_parser_m unit :=
 do st ← get,
    yield {cmd := cmd, messages := st.messages},
    modify $ λ st, {st with messages := message_log.empty}
 
 @[derive parser.has_view parser.has_tokens]
-def prelude.parser : module_parser :=
+def prelude.parser : basic_parser :=
 node! «prelude» ["prelude"]
 
 @[derive parser.has_view parser.has_tokens]
-def import_path.parser : module_parser :=
+def import_path.parser : basic_parser :=
 -- use `raw` to ignore registered tokens like ".."
 node! import_path [
   dirups: (raw $ ch '.')*,
   module: ident.parser]
 
 @[derive parser.has_view parser.has_tokens]
-def import.parser : module_parser :=
+def import.parser : basic_parser :=
 node! «import» ["import", imports: import_path.parser+]
+
+@[derive parser.has_view parser.has_tokens]
+def header.parser : basic_parser :=
+node! «header» [«prelude»: prelude.parser?, imports: import.parser*]
 
 /-- Read commands, recovering from errors inside commands (attach partial syntax tree)
     as well as unknown commands (skip input). -/
@@ -89,21 +94,18 @@ instance commands.parser.has_view : has_view commands.parser (list syntax) :=
 {..many.view command.parser}
 
 def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
+end module
+open module
 
 def module.parser : module_parser_m unit := do
   catch (do
     -- `token` assumes that there is no leading whitespace
     monad_lift whitespace,
-    pre ← _root_.optional prelude.parser,
-    match pre with
-    | some pre := yield_command pre
-    | none := pure (),
-    imports ← monad_parsec.many import.parser,
-    imports.mmap yield_command,
+    monad_lift header.parser >>= yield_command,
     commands.parser,
     monad_parsec.eoi
   ) $ λ msg, do {
-    -- fatal error (should only come from import.parser or eoi), yield partial syntax tree and stop
+    -- fatal error (should only come from header.parser or eoi), yield partial syntax tree and stop
     log_message msg,
     yield_command msg.custom
   },

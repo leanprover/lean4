@@ -405,13 +405,12 @@ class csimp_fn {
             levels new_cases_lvls  = levels(result_lvl, tail(const_levels(c_fn)));
             c_fn = update_constant(c_fn, new_cases_lvls);
         }
-        flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        unsigned  saved_fvars_size = m_fvars.size();
         /* Update minor premises */
         for (unsigned i = 0; i < nminors; i++) {
             unsigned minor_idx    = first_minor_idx + i;
             expr minor            = c_args[minor_idx];
             buffer<expr> minor_fvars;
+            flet<local_ctx> save_lctx(m_lctx, m_lctx);
             unsigned old_fvars_size = m_fvars.size();
             while (is_lambda(minor)) {
                 expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
@@ -424,14 +423,10 @@ class csimp_fn {
             expr minor_val_type = infer_type(minor_val);
             minor_val           = mk_cast(minor_val_type, fvar_decl.get_type(), minor_val);
             expr new_fvar       = m_lctx.mk_local_decl(ngen(), fvar_decl.get_user_name(), fvar_decl.get_type(), minor_val);
+            optional<expr> new_minor_opt = replace_fvar_with(m_st, m_lctx, e, fvar, new_fvar);
+            if (!new_minor_opt) return none_expr(); /* Failed to produce type correct `new_minor` */
+            expr new_minor      = *new_minor_opt;
             m_fvars.push_back(new_fvar);
-            expr new_minor;
-            if (optional<expr> new_minor_opt = replace_fvar_with(m_st, m_lctx, e, fvar, new_fvar)) {
-                new_minor = *new_minor_opt;
-            } else {
-                m_fvars.resize(saved_fvars_size);
-                return none_expr(); /* Failed to produce type correct `new_minor` */
-            }
             new_minor           = visit(new_minor, false);
             expr new_minor_type = infer_type(new_minor);
             new_minor           = mk_cast(new_minor_type, result_type, new_minor);

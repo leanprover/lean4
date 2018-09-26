@@ -66,6 +66,11 @@ universes u v
 -- parsed as `Type (max) (u) (v)`, will fail on elaboration ("max: must have at least two arguments", "function expected at 'Type'", "unknown identifier 'u'/'v'")
 #eval show_parse "#check Type max u v"
 
+#eval do
+  [nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
+  except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean"} | throw "heh",
+  pure cmd'.reprint
+
 -- slowly progressing...
 #eval (do {
   s ← io.fs.read_file "../../library/init/core.lean",

@@ -90,6 +90,7 @@ result:
     (term.ident `u []))
    (term.ident `v [])))
  (eoi "")]
+(ok "notationa`+`:65 b:65 :=nat.addab")
 error at line 221, column 6:
 unexpected '='
 error at line 223, column 44:

@@ -363,8 +363,6 @@ unsigned get_lcnf_size(environment const & env, expr e) {
                 e = app_fn(e);
             }
             return r;
-        } else if (is_constructor_app(env, e)) {
-            return 0;
         } else {
             return 1;
         }

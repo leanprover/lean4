@@ -407,32 +407,26 @@ class csimp_fn {
         }
         /* Update minor premises */
         for (unsigned i = 0; i < nminors; i++) {
-            unsigned minor_idx    = first_minor_idx + i;
-            expr minor            = c_args[minor_idx];
-            buffer<expr> minor_fvars;
+            unsigned minor_idx      = first_minor_idx + i;
+            expr minor              = c_args[minor_idx];
+            buffer<expr> xs;
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
             unsigned old_fvars_size = m_fvars.size();
-            while (is_lambda(minor)) {
-                expr new_d    = instantiate_rev(binding_domain(minor), minor_fvars.size(), minor_fvars.data());
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(minor), new_d, binding_info(minor));
-                minor_fvars.push_back(new_fvar);
-                minor = binding_body(minor);
-            }
-            expr minor_val = visit(instantiate_rev(minor, minor_fvars.size(), minor_fvars.data()), true);
+            expr minor_val          = visit(get_minor_body(minor, xs), false);
             /* TODO(Leo): We need to preserve join points. */
-            expr minor_val_type = infer_type(minor_val);
-            minor_val           = mk_cast(minor_val_type, fvar_decl.get_type(), minor_val);
-            expr new_fvar       = m_lctx.mk_local_decl(ngen(), fvar_decl.get_user_name(), fvar_decl.get_type(), minor_val);
+            expr minor_val_type     = infer_type(minor_val);
+            minor_val               = mk_cast(minor_val_type, fvar_decl.get_type(), minor_val);
+            expr new_fvar           = m_lctx.mk_local_decl(ngen(), fvar_decl.get_user_name(), fvar_decl.get_type(), minor_val);
             optional<expr> new_minor_opt = replace_fvar_with(m_st, m_lctx, e, fvar, new_fvar);
             if (!new_minor_opt) return none_expr(); /* Failed to produce type correct `new_minor` */
-            expr new_minor      = *new_minor_opt;
+            expr new_minor          = *new_minor_opt;
             m_fvars.push_back(new_fvar);
-            new_minor           = visit(new_minor, false);
-            expr new_minor_type = infer_type(new_minor);
-            new_minor           = mk_cast(new_minor_type, result_type, new_minor);
-            new_minor           = mk_let(old_fvars_size, new_minor);
-            new_minor           = mk_minor_lambda(minor_fvars, new_minor);
-            c_args[minor_idx] = new_minor;
+            new_minor               = visit(new_minor, false);
+            expr new_minor_type     = infer_type(new_minor);
+            new_minor               = mk_cast(new_minor_type, result_type, new_minor);
+            new_minor               = mk_let(old_fvars_size, new_minor);
+            new_minor               = mk_minor_lambda(xs, new_minor);
+            c_args[minor_idx]       = new_minor;
         }
         lean_trace(name({"compiler", "simp"}),
                    tout() << "float_cases_on [" << get_lcnf_size(env(), e) << "]\n" << c << "\n----\n" << e << "\n=====>\n"
@@ -455,36 +449,39 @@ class csimp_fn {
         return none_expr();
     }
 
-    /* Create the let-expression
+    /* Given the buffer `entries`: `[(x_1, w_1), ..., (x_n, w_n)]`, and `e`.
+       Create the let-expression
        ```
-       let x_1 := v_1
+       let x_n := w_n
            ...
-           x_n := v_n
+           x_1 := w_1
        in e
        ```
-       Where `x_1` and `x_n` are the free variables in `fvars`. Remark: we don't use their declaration
-       at `m_lctx` to retrieve their user-name/type/value, but `entries`. We build entries because
-       the value may have been simplified by the main `mk_let` method (e.g., when the value is a lambda or a cases).
-       The main `mk_let` does not modify the user-name/type, but we store them at `entries` just for
-       convenience and to avoid additional accesses to `m_lctx`.
-
-       Remark: `fvars` and `entries` are not modified.
+       The values `w_i` are the "simplified values" for the let-declaration `x_i`.
     */
-    expr mk_let(buffer<expr> & fvars, buffer<std::tuple<name, expr, expr>> & entries, expr e) {
-        lean_assert(fvars.size() == entries.size());
-        std::reverse(fvars.begin(), fvars.end());
-        std::reverse(entries.begin(), entries.end());
-        e = abstract(e, fvars.size(), fvars.data());
+    expr mk_let(buffer<pair<expr, expr>> const & entries, expr e) {
+        buffer<expr> fvars;
+        buffer<name> user_names;
+        buffer<expr> types;
+        buffer<expr> vals;
         unsigned i = entries.size();
         while (i > 0) {
             --i;
-            expr new_value = abstract(std::get<2>(entries[i]), i, fvars.data());
-            expr new_type  = abstract(std::get<1>(entries[i]), i, fvars.data());
-            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
+            expr const & fvar = entries[i].first;
+            fvars.push_back(fvar);
+            vals.push_back(entries[i].second);
+            local_decl fvar_decl = m_lctx.get_local_decl(fvar);
+            user_names.push_back(fvar_decl.get_user_name());
+            types.push_back(fvar_decl.get_type());
         }
-        /* Restore `fvars` and `entries` */
-        std::reverse(fvars.begin(), fvars.end());
-        std::reverse(entries.begin(), entries.end());
+        e = abstract(e, fvars.size(), fvars.data());
+        i = fvars.size();
+        while (i > 0) {
+            --i;
+            expr new_value = abstract(vals[i], i, fvars.data());
+            expr new_type  = abstract(types[i], i, fvars.data());
+            e = ::lean::mk_let(user_names[i], new_type, new_value, e);
+        }
         return e;
     }
 
@@ -503,37 +500,44 @@ class csimp_fn {
         return found;
     }
 
-    /* Split `fvars/entries` into two groups: `fvars_dep_x/entries_dep_x` and `fvars_ndep_x/entries_ndep_x`.
+    /* Split `entries` into two groups: `entries_dep_x` and `entries_ndep_x`.
        The first group contains the entries that depend on `x` and the second the ones that doesn't.
-       This auxiliary method is used float cases_on over expressions.
-       See `mk_let` above to understand why we use a buffer of tuples. */
-    void split_entries(buffer<expr> const & fvars,  buffer<std::tuple<name, expr, expr>> const & entries,
+       This auxiliary method is used to float cases_on over expressions.
+
+       `entries` is of the form `[(x_1, w_1), ..., (x_n, w_n)]`, where `x_i`s are
+       let-decl free variables, and `w_i`s their new values. We use `entries`
+       and an expression `e` to create a `let` expression:
+       ```
+       let x_n := w_n
+           ...
+           x_1 := w_1
+       in e
+       ```
+    */
+    void split_entries(buffer<pair<expr, expr>> const & entries,
                        expr const & x,
-                       buffer<expr> & fvars_dep_x,  buffer<std::tuple<name, expr, expr>> & entries_dep_x,
-                       buffer<expr> & fvars_ndep_x, buffer<std::tuple<name, expr, expr>> & entries_ndep_x) {
-        lean_assert(fvars.size() == entries.size());
-        if (fvars.empty())
+                       buffer<pair<expr, expr>> & entries_dep_x,
+                       buffer<pair<expr, expr>> & entries_ndep_x) {
+        if (entries.empty())
             return;
         name_set deps;
         deps.insert(fvar_name(x));
-        /* Recall that `fvars/entries` are in reverse order. That is, pos 0 is the inner most variable. */
-        unsigned i = fvars.size();
+        /* Recall that `entries` are in reverse order. That is, pos 0 is the inner most variable. */
+        unsigned i = entries.size();
         while (i > 0) {
             --i;
-            std::tuple<name, expr, expr> const & entry = entries[i];
-            if (depends_on(std::get<1>(entry), deps) ||
-                depends_on(std::get<2>(entry), deps)) {
-                deps.insert(fvar_name(fvars[i]));
-                fvars_dep_x.push_back(fvars[i]);
+            expr const & fvar = entries[i].first;
+            expr fvar_type    = m_lctx.get_type(fvar);
+            expr fvar_new_val = entries[i].second;
+            if (depends_on(fvar_type, deps) ||
+                depends_on(fvar_new_val, deps)) {
+                deps.insert(fvar_name(fvar));
                 entries_dep_x.push_back(entries[i]);
             } else {
-                fvars_ndep_x.push_back(fvars[i]);
                 entries_ndep_x.push_back(entries[i]);
             }
         }
-        std::reverse(fvars_dep_x.begin(), fvars_dep_x.end());
         std::reverse(entries_dep_x.begin(), entries_dep_x.end());
-        std::reverse(fvars_ndep_x.begin(), fvars_ndep_x.end());
         std::reverse(entries_ndep_x.begin(), entries_ndep_x.end());
     }
 
@@ -547,14 +551,15 @@ class csimp_fn {
     expr mk_let(unsigned saved_fvars_size, expr e) {
         if (saved_fvars_size == m_fvars.size())
             return e;
-        name_set e_fvars;
-        name_set entries_fvars;
+        /* `entries` contains pairs (let-decl fvar, new value) for building the resultant let-declaration.
+           We simplify the value of some let-declarations in this method, but we don't want to create
+           a new temporary declaration just for this. */
+        buffer<pair<expr, expr>> entries;
+        name_set e_fvars; /* Set of free variables names used in `e` */
+        name_set entries_fvars; /* Set of free variable names used in `entries` */
         collect_used(e, e_fvars);
-        buffer<std::tuple<name, expr, expr>> entries;
-        buffer<expr> fvars;
         bool e_is_cases = is_cases_on_app(env(), e);
         while (m_fvars.size() > saved_fvars_size) {
-            lean_assert(entries.size() == fvars.size());
             expr fvar            = m_fvars.back();
             m_fvars.pop_back();
             bool used_in_e       = (e_fvars.find(fvar_name(fvar)) != e_fvars.end());
@@ -589,37 +594,32 @@ class csimp_fn {
                     unsigned m_fvars_init_size = m_fvars.size();
                     /* We first create a let-declaration with all entries that depends on the current
                        `fvar` which is a cases_on application. */
-                    buffer<expr> fvars_dep_curr;  buffer<std::tuple<name, expr, expr>> entries_dep_curr;
-                    buffer<expr> fvars_ndep_curr; buffer<std::tuple<name, expr, expr>> entries_ndep_curr;
-                    split_entries(fvars, entries, fvar,
-                                  fvars_dep_curr,  entries_dep_curr,
-                                  fvars_ndep_curr, entries_ndep_curr);
-                    expr new_e = mk_let(fvars_dep_curr, entries_dep_curr, e);
+                    buffer<pair<expr, expr>> entries_dep_curr;
+                    buffer<pair<expr, expr>> entries_ndep_curr;
+                    split_entries(entries, fvar, entries_dep_curr, entries_ndep_curr);
+                    expr new_e = mk_let(entries_dep_curr, e);
                     if (optional<expr> new_e_opt = float_cases_on(fvar, val, new_e)) {
                         e       = *new_e_opt;
                         /* Reset `e_fvars` and `entries_fvars`, we need to reconstruct them. */
                         e_fvars.clear(); entries_fvars.clear();
                         collect_used(e, e_fvars);
-                        /* Join points may have been generated, we move them to fvars/entries. */
-                        fvars.clear(); entries.clear();
+                        /* Join points may have been generated, we move them to entries. */
+                        entries.clear();
                         while (m_fvars.size() > m_fvars_init_size) {
                             expr jp_fvar = m_fvars.back();
                             m_fvars.pop_back();
                             local_decl jp_decl = m_lctx.get_local_decl(jp_fvar);
-                            fvars.push_back(jp_fvar);
                             expr jp_type       = jp_decl.get_type();
                             expr jp_val        = *jp_decl.get_value();
                             collect_used(jp_type, entries_fvars);
                             collect_used(jp_val, entries_fvars);
-                            entries.emplace_back(jp_decl.get_user_name(), jp_type, jp_val);
+                            entries.emplace_back(jp_fvar, jp_val);
                         }
-                        /* Copy `fvars_ndep_curr/entries_ndep_curr` to `fvars/entries` */
-                        for (unsigned i = 0; i < fvars_ndep_curr.size(); i++) {
-                            fvars.push_back(fvars_ndep_curr[i]);
-                            auto const & ndep_entry = entries_ndep_curr[i];
+                        /* Copy `entries_ndep_curr` to `entries` */
+                        for (unsigned i = 0; i < entries_ndep_curr.size(); i++) {
+                            pair<expr, expr> const & ndep_entry = entries_ndep_curr[i];
                             entries.push_back(ndep_entry);
-                            collect_used(std::get<1>(ndep_entry), entries_fvars);
-                            collect_used(std::get<2>(ndep_entry), entries_fvars);
+                            collect_used(ndep_entry.second, entries_fvars);
                         }
                         continue;
                     }
@@ -646,13 +646,11 @@ class csimp_fn {
                     continue;
                 }
             }
-
-            fvars.push_back(fvar);
             collect_used(type, entries_fvars);
             collect_used(val,  entries_fvars);
-            entries.emplace_back(decl.get_user_name(), type, val);
+            entries.emplace_back(fvar, val);
         }
-        return mk_let(fvars, entries, e);
+        return mk_let(entries, e);
     }
 
     expr visit_let(expr e) {

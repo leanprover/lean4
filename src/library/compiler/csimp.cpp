@@ -584,6 +584,7 @@ class csimp_fn {
             if (is_cases_on_app(env(), val)) {
                 /* Float cases transformation. */
                 if (m_cfg.m_float_cases) {
+                    unsigned m_fvars_init_size = m_fvars.size();
                     /* We first create a let-declaration with all entries that depends on the current
                        `fvar` which is a cases_on application. */
                     buffer<expr> fvars_dep_curr;  buffer<std::tuple<name, expr, expr>> entries_dep_curr;
@@ -594,15 +595,30 @@ class csimp_fn {
                     expr new_e = mk_let(fvars_dep_curr, entries_dep_curr, e);
                     if (optional<expr> new_e_opt = float_cases_on(fvar, val, new_e)) {
                         e       = *new_e_opt;
-                        fvars   = fvars_ndep_curr;
-                        entries = entries_ndep_curr;
-                        /* Update `e_fvars` and `entries_fvars` */
+                        /* Reset `e_fvars` and `entries_fvars`, we need to reconstruct them. */
                         e_fvars.clear(); entries_fvars.clear();
-                        for (auto const & entry : entries) {
-                            collect_used(std::get<1>(entry), entries_fvars);
-                            collect_used(std::get<2>(entry), entries_fvars);
-                        }
                         collect_used(e, e_fvars);
+                        /* Join points may have been generated, we move them to fvars/entries. */
+                        fvars.clear(); entries.clear();
+                        while (m_fvars.size() > m_fvars_init_size) {
+                            expr jp_fvar = m_fvars.back();
+                            m_fvars.pop_back();
+                            local_decl jp_decl = m_lctx.get_local_decl(jp_fvar);
+                            fvars.push_back(jp_fvar);
+                            expr jp_type       = jp_decl.get_type();
+                            expr jp_val        = *jp_decl.get_value();
+                            collect_used(jp_type, entries_fvars);
+                            collect_used(jp_val, entries_fvars);
+                            entries.emplace_back(jp_decl.get_user_name(), jp_type, jp_val);
+                        }
+                        /* Copy `fvars_ndep_curr/entries_ndep_curr` to `fvars/entries` */
+                        for (unsigned i = 0; i < fvars_ndep_curr.size(); i++) {
+                            fvars.push_back(fvars_ndep_curr[i]);
+                            auto const & ndep_entry = entries_ndep_curr[i];
+                            entries.push_back(ndep_entry);
+                            collect_used(std::get<1>(ndep_entry), entries_fvars);
+                            collect_used(std::get<2>(ndep_entry), entries_fvars);
+                        }
                         continue;
                     }
                 }

@@ -229,38 +229,6 @@ class csimp_fn {
             });
     }
 
-    /* Create the let-expression
-       ```
-       let x_1 := v_1
-           ...
-           x_n := v_n
-       in e
-       ```
-       Where `x_1` and `x_n` are the free variables in `fvars`. Remark: we don't use their declaration
-       at `m_lctx` to retrieve their user-name/type/value, but `entries`. We build entries because
-       the value may have been simplified by the main `mk_let` method (e.g., when the value is a lambda).
-       The main `mk_let` does not modify the user-name/type, but we store them at `entries` just for
-       convenience and to avoid additional accesses to `m_lctx`.
-
-       Remark: `fvars` and `entries` are not modified. */
-    expr mk_let(buffer<expr> & fvars, buffer<std::tuple<name, expr, expr>> & entries, expr e) {
-        lean_assert(fvars.size() == entries.size());
-        std::reverse(fvars.begin(), fvars.end());
-        std::reverse(entries.begin(), entries.end());
-        e = abstract(e, fvars.size(), fvars.data());
-        unsigned i = entries.size();
-        while (i > 0) {
-            --i;
-            expr new_value = abstract(std::get<2>(entries[i]), i, fvars.data());
-            expr new_type  = abstract(std::get<1>(entries[i]), i, fvars.data());
-            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
-        }
-        /* Restore `fvars` and `entries` */
-        std::reverse(fvars.begin(), fvars.end());
-        std::reverse(entries.begin(), entries.end());
-        return e;
-    }
-
     /* The `float_cases_on` transformation may produce code duplication.
        The term `e` is "copied" in each branch of the the `cases_on` expression `c`.
        This method creates one (or more) join-point(s) for `e` (if needed).
@@ -490,6 +458,81 @@ class csimp_fn {
         return none_expr();
     }
 
+    /* Create the let-expression
+       ```
+       let x_1 := v_1
+           ...
+           x_n := v_n
+       in e
+       ```
+       Where `x_1` and `x_n` are the free variables in `fvars`. Remark: we don't use their declaration
+       at `m_lctx` to retrieve their user-name/type/value, but `entries`. We build entries because
+       the value may have been simplified by the main `mk_let` method (e.g., when the value is a lambda or a cases).
+       The main `mk_let` does not modify the user-name/type, but we store them at `entries` just for
+       convenience and to avoid additional accesses to `m_lctx`.
+
+       Remark: `fvars` and `entries` are not modified.
+    */
+    expr mk_let(buffer<expr> & fvars, buffer<std::tuple<name, expr, expr>> & entries, expr e) {
+        lean_assert(fvars.size() == entries.size());
+        std::reverse(fvars.begin(), fvars.end());
+        std::reverse(entries.begin(), entries.end());
+        e = abstract(e, fvars.size(), fvars.data());
+        unsigned i = entries.size();
+        while (i > 0) {
+            --i;
+            expr new_value = abstract(std::get<2>(entries[i]), i, fvars.data());
+            expr new_type  = abstract(std::get<1>(entries[i]), i, fvars.data());
+            e = ::lean::mk_let(std::get<0>(entries[i]), new_type, new_value, e);
+        }
+        /* Restore `fvars` and `entries` */
+        std::reverse(fvars.begin(), fvars.end());
+        std::reverse(entries.begin(), entries.end());
+        return e;
+    }
+
+    /* Return true iff `e` contains a free variable in `s` */
+    bool depends_on(expr const & e, name_set const & s) {
+        if (!has_fvar(e)) return false;
+        bool found = false;
+        for_each(e, [&](expr const & e, unsigned) {
+                if (!has_fvar(e)) return false;
+                if (found) return false;
+                if (is_fvar(e) && s.find(fvar_name(e)) != s.end()) {
+                    found = true;
+                }
+                return true;
+            });
+        return found;
+    }
+
+    /* Split `fvars/entries` into two groups: `fvars_dep_x/entries_dep_x` and `fvars_ndep_x/entries_ndep_x`.
+       The first group contains the entries that depend on `x` and the second the ones that doesn't.
+       This auxiliary method is used float cases_on over expressions.
+       See `mk_let` above to understand why we use a buffer of tuples. */
+    void split_entries(buffer<expr> const & fvars,  buffer<std::tuple<name, expr, expr>> const & entries,
+                       expr const & x,
+                       buffer<expr> & fvars_dep_x,  buffer<std::tuple<name, expr, expr>> & entries_dep_x,
+                       buffer<expr> & fvars_ndep_x, buffer<std::tuple<name, expr, expr>> & entries_ndep_x) {
+        lean_assert(fvars.size() == entries.size());
+        if (fvars.empty())
+            return;
+        name_set deps;
+        deps.insert(fvar_name(x));
+        for (unsigned i = 0; i < fvars.size(); i++) {
+            std::tuple<name, expr, expr> const & entry = entries[i];
+            if (depends_on(std::get<1>(entry), deps) ||
+                depends_on(std::get<2>(entry), deps)) {
+                deps.insert(fvar_name(fvars[i]));
+                fvars_dep_x.push_back(fvars[i]);
+                entries_dep_x.push_back(entries[i]);
+            } else {
+                fvars_ndep_x.push_back(fvars[i]);
+                entries_ndep_x.push_back(entries[i]);
+            }
+        }
+    }
+
     /* Create a let-expression with body `e`, and
        all "used" let-declarations `m_fvars[i]` for `i in [saved_fvars_size, m_fvars.size)`.
 
@@ -521,26 +564,6 @@ class csimp_fn {
             expr val        = *decl.get_value();
             bool modified_val = false;
             if (is_lambda(val)) {
-                /* We first try to move the lambda up */
-                unsigned i = m_fvars.size();
-                bool should_move = false;
-                while (i > saved_fvars_size) {
-                    expr const & x = m_fvars[i-1];
-                    if (has_fvar(val, x) || has_fvar(type, x)) {
-                        /* `fvar` depends on `curr` */
-                        break;
-                    }
-                    if (!is_lambda(*m_lctx.get_local_decl(x).get_value())) {
-                        /* Found `let x := v` s.t. `v` is not a lambda expression,
-                           and `fvar` does not depend on `x`. So, it is worth to move `fvar`. */
-                        should_move = true;
-                    }
-                    --i;
-                }
-                if (should_move) {
-                    m_fvars.insert(i, fvar);
-                    continue;
-                }
                 /* We don't simplify lambdas when we visit `let`-expressions. */
                 DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
                 val          = visit_lambda(val);
@@ -559,11 +582,25 @@ class csimp_fn {
             if (is_cases_on_app(env(), val)) {
                 /* Float cases transformation. */
                 if (m_cfg.m_float_cases) {
-                    expr new_e = mk_let(fvars, entries, e);
+                    /* We first create a let-declaration with all entries that depends on the current
+                       `fvar` which is a cases_on application. */
+                    buffer<expr> fvars_dep_curr;  buffer<std::tuple<name, expr, expr>> entries_dep_curr;
+                    buffer<expr> fvars_ndep_curr; buffer<std::tuple<name, expr, expr>> entries_ndep_curr;
+                    split_entries(fvars, entries, fvar,
+                                  fvars_dep_curr,  entries_dep_curr,
+                                  fvars_ndep_curr, entries_ndep_curr);
+                    expr new_e = mk_let(fvars_dep_curr, entries_dep_curr, e);
+                    tout() << ">> new_e: " << new_e << "\n";
                     if (optional<expr> new_e_opt = float_cases_on(fvar, val, new_e)) {
-                        e = *new_e_opt;
-                        fvars.clear();   entries.clear();
+                        e       = *new_e_opt;
+                        fvars   = fvars_ndep_curr;
+                        entries = entries_ndep_curr;
+                        /* Update `e_fvars` and `entries_fvars` */
                         e_fvars.clear(); entries_fvars.clear();
+                        for (auto const & entry : entries) {
+                            collect_used(std::get<1>(entry), entries_fvars);
+                            collect_used(std::get<2>(entry), entries_fvars);
+                        }
                         collect_used(e, e_fvars);
                         continue;
                     }

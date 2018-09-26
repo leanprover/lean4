@@ -516,7 +516,10 @@ class csimp_fn {
             return;
         name_set deps;
         deps.insert(fvar_name(x));
-        for (unsigned i = 0; i < fvars.size(); i++) {
+        /* Recall that `fvars/entries` are in reverse order. That is, pos 0 is the inner most variable. */
+        unsigned i = fvars.size();
+        while (i > 0) {
+            --i;
             std::tuple<name, expr, expr> const & entry = entries[i];
             if (depends_on(std::get<1>(entry), deps) ||
                 depends_on(std::get<2>(entry), deps)) {
@@ -528,6 +531,10 @@ class csimp_fn {
                 entries_ndep_x.push_back(entries[i]);
             }
         }
+        std::reverse(fvars_dep_x.begin(), fvars_dep_x.end());
+        std::reverse(entries_dep_x.begin(), entries_dep_x.end());
+        std::reverse(fvars_ndep_x.begin(), fvars_ndep_x.end());
+        std::reverse(entries_ndep_x.begin(), entries_ndep_x.end());
     }
 
     /* Create a let-expression with body `e`, and

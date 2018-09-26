@@ -22,9 +22,10 @@ namespace lean {
 csimp_cfg::csimp_cfg() {
     m_inline                          = true;
     m_inline_threshold                = 4;
-    m_float_cases                     = true;
+    m_float_cases_app                 = true;
+    m_float_cases                     = false;
     m_float_cases_jp_threshold        = 3;
-    m_float_cases_jp_branch_threshold = 1;
+    m_float_cases_jp_branch_threshold = 3;
     m_inline_jp_threshold             = 4;
 }
 
@@ -389,23 +390,21 @@ class csimp_fn {
 
     /* Float cases transformation
       ```
-      let x := cases_on m (fun y_1, let ... in e_1)
-      ...
-      (fun y_n, let ... in e_n))
+      let x := cases_on m
+                 (fun y_1, let ... in e_1)
+                 ...
+                 (fun y_n, let ... in e_n)
       in e
       ```
       ==>
       ```
-      cases_on m (fun y_1, let ... x := e_1 in e)
-      ...
-      (fun y_n, let ... x := e_n in e)
+      cases_on m
+        (fun y_1, let ... x := e_1 in e)
+        ...
+        (fun y_n, let ... x := e_n in e)
       ``` */
-    optional<expr> float_cases_on(expr const & fvar, expr const & c, expr e) {
+    optional<expr> float_cases_on_core(expr const & fvar, expr const & c, expr e) {
         lean_assert(is_cases_on_app(env(), c));
-        if (optional<expr> new_e = mk_join_point_float_cases_on(fvar, c, e))
-            e = *new_e;
-        else
-            return none_expr();
         local_decl fvar_decl     = m_lctx.get_local_decl(fvar);
         expr result_type         = whnf_infer_type(e);
         buffer<expr> c_args;
@@ -476,6 +475,21 @@ class csimp_fn {
         return some_expr(mk_app(c_fn, c_args));
     }
 
+    /* Float cases transformation (see: `float_cases_on_core`).
+       This version may create join points if `e` is big, or "good" join-points could not be created. */
+    optional<expr> float_cases_on(expr const & fvar, expr const & c, expr const & e) {
+        unsigned  saved_fvars_size = m_fvars.size();
+        local_ctx saved_lctx       = m_lctx;
+        if (optional<expr> new_e = mk_join_point_float_cases_on(fvar, c, e)) {
+            if (optional<expr> r = float_cases_on_core(fvar, c, *new_e)) {
+                return r;
+            }
+        }
+        m_fvars.shrink(saved_fvars_size);
+        m_lctx = saved_lctx;
+        return none_expr();
+    }
+
     /* Create a let-expression with body `e`, and
        all "used" let-declarations `m_fvars[i]` for `i in [saved_fvars_size, m_fvars.size)`.
 
@@ -544,7 +558,6 @@ class csimp_fn {
 
             if (is_cases_on_app(env(), val)) {
                 /* Float cases transformation. */
-                unsigned saved_fvars_size = m_fvars.size();
                 if (m_cfg.m_float_cases) {
                     expr new_e = mk_let(fvars, entries, e);
                     if (optional<expr> new_e_opt = float_cases_on(fvar, val, new_e)) {
@@ -553,8 +566,6 @@ class csimp_fn {
                         e_fvars.clear(); entries_fvars.clear();
                         collect_used(e, e_fvars);
                         continue;
-                    } else {
-                        m_fvars.resize(saved_fvars_size);
                     }
                 }
                 val          = visit_cases_default(val);
@@ -917,8 +928,16 @@ class csimp_fn {
         expr fn = find(get_app_fn(e));
         if (is_lambda(fn)) {
             return beta_reduce(fn, e, is_let_val);
-        // } else if (is_cases_on_app(env(), fn)) {
-        // return distrib_app_cases(fn, e);
+        } else if (is_cases_on_app(env(), fn) && m_cfg.m_float_cases_app) {
+            lean_assert(is_fvar(get_app_fn(e)));
+            /* float cases_on from application */
+            if (optional<expr> new_e = float_cases_on(get_app_fn(e), fn, e)) {
+                mark_simplified(*new_e);
+                return *new_e;
+            } else {
+                mark_simplified(e);
+                return e;
+            }
         } else if (is_lc_cast_app(fn)) {
             return reduce_cast_app_app(fn, e, is_let_val);
         } else if (is_lc_unreachable_app(fn)) {

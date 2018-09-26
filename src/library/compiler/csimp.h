@@ -10,6 +10,7 @@ namespace lean {
 struct csimp_cfg {
     bool     m_inline;
     unsigned m_inline_threshold;
+    bool     m_float_cases_app;
     bool     m_float_cases;
     unsigned m_float_cases_jp_threshold;
     unsigned m_float_cases_jp_branch_threshold;

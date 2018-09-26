@@ -12,18 +12,19 @@ namespace lean.parser
 open monad_parsec combinators
 
 variables {base_m : Type → Type}
-variables [monad base_m] [monad_basic_read base_m] [monad_state parser_state base_m] [monad_parsec syntax base_m]
+variables [monad base_m] [monad_basic_read base_m] [monad_state parser_state base_m] [monad_parsec syntax base_m] [monad_reader parser_config base_m]
 
 local notation `m` := rec_t nat syntax base_m
 local notation `parser` := m syntax
 
 def curr_lbp : m nat :=
 do st ← get,
+   -- suppress error messages
    except.ok tk ← (monad_lift $ observing $ lookahead token) <* put st | pure 0 <* put st,
    match tk with
    | syntax.atom ⟨_, sym⟩ := do
-     st ← get,
-     some ⟨_, tk_cfg⟩ ← pure (st.tokens.match_prefix sym.mk_iterator) | error "curr_lbp: unreachable",
+     cfg ← read,
+     some ⟨_, tk_cfg⟩ ← pure (cfg.tokens.match_prefix sym.mk_iterator) | error "curr_lbp: unreachable",
      pure tk_cfg.lbp
    | syntax.node ⟨@number, _⟩ := pure max_prec
    | syntax.node ⟨@ident, _⟩ := pure max_prec

@@ -11,6 +11,7 @@ import init.control.coroutine
 
 namespace lean
 namespace parser
+
 open combinators monad_parsec coroutine
 open parser.has_tokens parser.has_view
 
@@ -21,22 +22,24 @@ local postfix +:10000 := combinators.many1
 structure module_parser_output :=
 (cmd : syntax)
 (messages : message_log)
+(cfg : parser_config)
 
-section
-local attribute [reducible] parser_t
+-- NOTE: missing the `reader_t` from `parser_t` because the `coroutine` already provides `monad_reader parser_config`
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_coroutine]
-def module_parser_m := parser_t (coroutine unit module_parser_output)
-end
+def module_parser_m := state_t parser_state $ parsec_t syntax $ coroutine parser_config module_parser_output
 abbreviation module_parser := module_parser_m syntax
 
 instance module_parser_m.lift_basic_parser_m : monad_basic_read module_parser_m :=
-{ monad_lift := λ α x r st it, pure (((x.run r).run st) it) }
+{ monad_lift := λ α x st it, do
+    cfg ← read,
+    pure (((x.run cfg).run st) it) }
 
 namespace module
 def yield_command (cmd : syntax) : module_parser_m unit :=
 do st ← get,
-   yield {cmd := cmd, messages := st.messages},
-   modify $ λ st, {st with messages := message_log.empty}
+   cfg ← read,
+   yield {cmd := cmd, messages := st.messages, cfg := cfg},
+   put {st with messages := message_log.empty}
 
 @[derive parser.has_view parser.has_tokens]
 def prelude.parser : basic_parser :=

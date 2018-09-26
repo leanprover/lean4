@@ -25,8 +25,9 @@ match msgs with
   io.println (to_string stx)
 
 def parse_module (s : string) : except string (list module_parser_output) :=
-do st ← parser.mk_parser_state (parser.tokens module.parser),
-   (outputs, sum.inl (), ⟨[]⟩) ← pure $ coroutine.finish (λ cmd, ()) (parser.run ⟨"<unknown>"⟩ st s module.parser) ()
+do t ← parser.mk_token_trie (parser.tokens module.parser),
+   (outputs, except.ok ((), ⟨⟨[]⟩⟩)) ← pure $ coroutine.finish (λ out : module_parser_output, out.cfg)
+     ((module.parser.run ⟨message_log.empty⟩).parse s) {filename := "<unknown", tokens := t}
      | except.error "final parser output should be empty!",
    pure outputs
 
@@ -75,9 +76,10 @@ universes u v
 #eval (do {
   s ← io.fs.read_file "../../library/init/core.lean",
   let s := (s.mk_iterator.nextn 6500).prev_to_string,
-  st ← monad_except.lift_except $ parser.mk_parser_state (tokens module.parser),
-  let k := parser.run ⟨"init/core.lean"⟩ st s module.parser,
-  outs ← io.prim.iterate_eio (k, ([] : list module_parser_output)) $ λ ⟨k, outs⟩, match k.resume () with
+  t ← monad_except.lift_except $ parser.mk_token_trie (tokens module.parser),
+  let k := (module.parser.run ⟨message_log.empty⟩).parse s,
+  let cfg : parser_config := {filename := "init/core.lean", tokens := t},
+  outs ← io.prim.iterate_eio (k, cfg, ([] : list module_parser_output)) $ λ ⟨k, cfg, outs⟩, match k.resume cfg with
     | coroutine_result_core.done p := pure (sum.inr outs.reverse)
     | coroutine_result_core.yielded out k := do {
       match out.messages.to_list with
@@ -90,7 +92,7 @@ universes u v
         io.println (to_string out.cmd)-/
       },
       match (expand out.cmd).run {filename := "init/core.lean"} with
-      | except.ok cmd' := pure (sum.inl (k, out :: outs))
+      | except.ok cmd' := pure (sum.inl (k, out.cfg, out :: outs))
       | except.error e := throw e.text
     },
   check_reprint outs s,

@@ -20,9 +20,9 @@ namespace parser
 open monad_parsec combinators string has_view
 
 def match_token : basic_parser_m (option token_config) :=
-do st ← get,
+do cfg ← read,
    it ← left_over,
-   pure $ prod.snd <$> st.tokens.match_prefix it
+   pure $ prod.snd <$> cfg.tokens.match_prefix it
 
 private def finish_comment_block_aux : nat → nat → basic_parser_m unit
 | nesting (n+1) :=

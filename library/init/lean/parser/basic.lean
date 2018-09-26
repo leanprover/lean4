@@ -38,10 +38,10 @@ structure token_config :=
 (suffix_parser : option (parsec' (source_info → syntax)) := none)
 
 structure parser_state :=
-(tokens : trie token_config)
 (messages : message_log)
 
 structure parser_config :=
+(tokens : trie token_config)
 (filename : string)
 
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
@@ -112,7 +112,7 @@ def log_message {μ : Type} [monad m] [monad_reader parser_config m] [monad_stat
 do cfg ← read,
    modify (λ st, {st with messages := st.messages.add (message_of_parsec_message cfg msg)})
 
-def mk_parser_state (tokens : list token_config) : except string parser_state :=
+def mk_token_trie (tokens : list token_config) : except string (trie token_config) :=
 do -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
    let builtin_tokens : list token_config := [{«prefix» := "/-"}, {«prefix» := "--"}],
    t ← (builtin_tokens ++ tokens).mfoldl (λ (t : trie token_config) tk,
@@ -125,7 +125,7 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
          to_string l ++ " and " ++ to_string l')
      | none := pure $ t.insert tk.prefix tk)
      trie.mk,
-   pure ⟨t, message_log.empty⟩
+   pure t
 
 structure parse.view_ty :=
 (root : syntax)

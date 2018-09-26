@@ -44,6 +44,14 @@ class csimp_fn {
 
     name_generator & ngen() { return m_st.ngen(); }
 
+    void check(expr const & e) {
+        try {
+            type_checker(m_st, m_lctx).check(e);
+        } catch (exception &) {
+            lean_unreachable();
+        }
+    }
+
     void mark_simplified(expr const & e) {
         m_simplified.insert(e);
     }
@@ -162,6 +170,26 @@ class csimp_fn {
         return r;
     }
 
+    /* Return `let _x := e in _x` */
+    expr mk_trivial_let(expr const & e) {
+        expr type = infer_type(e);
+        return ::lean::mk_let("_x", type, e, mk_bvar(0));
+    }
+
+    /* Create minor premise in LCNF.
+       The minor premise is of the form `fun xs, e`.
+       However, if `e` is a lambda, we create `fun xs, let _x := e in _x`.
+       Thus, we don't "mix" `xs` variables with
+       the variables of the `new_minor` lambda */
+    expr mk_minor_lambda(buffer<expr> const & xs, expr e) {
+        if (is_lambda(e)) {
+            /* We don't want to "mix" `xs` variables with
+               the variables of the `new_minor` lambda */
+            e = mk_trivial_let(e);
+        }
+        return m_lctx.mk_lambda(xs, e);
+    }
+
     expr get_minor_body(expr minor, buffer<expr> & xs) {
         while (is_lambda(minor)) {
             expr d = instantiate_rev(binding_domain(minor), xs.size(), xs.data());
@@ -187,7 +215,7 @@ class csimp_fn {
         } else {
             xs.push_back(fvar);
         }
-        args[minor_idx] = m_lctx.mk_lambda(xs, minor);
+        args[minor_idx] = mk_minor_lambda(xs, minor);
         return mk_app(c_fn, args);
     }
 
@@ -316,7 +344,7 @@ class csimp_fn {
                             if (used_xs[i])
                                 new_minor = mk_app(new_minor, xs[i]);
                         }
-                        new_minor       = m_lctx.mk_lambda(xs, new_minor);
+                        new_minor       = mk_minor_lambda(xs, new_minor);
                         args[minor_idx] = new_minor;
                         modified        = true;
                     }
@@ -326,7 +354,8 @@ class csimp_fn {
                 return some_expr(e);
             } else {
                 lean_trace(name({"compiler", "simp"}),
-                           tout() << "mk_join\n" << c << "\n======>\n" << mk_app(fn, args) << "\n";);
+                           tout() << "mk_join " << fvar << "\n" << c << "\n---\n"
+                           << e << "\n======>\n" << mk_app(fn, args) << "\n";);
                 return some_expr(mk_app(fn, args));
             }
         } else {
@@ -351,6 +380,9 @@ class csimp_fn {
             mark_simplified(jp_val);
             expr jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), jp_type, jp_val);
             m_fvars.push_back(jp_var);
+            lean_trace(name({"compiler", "simp"}),
+                       tout() << "mk_join " << fvar << "\n" << c << "\n---\n"
+                       << e << "\n======>\n" << mk_app(jp_var, fvar) << "\n";);
             return some_expr(mk_app(jp_var, fvar));
         }
     }
@@ -435,7 +467,7 @@ class csimp_fn {
             expr new_minor_type = infer_type(new_minor);
             new_minor           = mk_cast(new_minor_type, result_type, new_minor);
             new_minor           = mk_let(old_fvars_size, new_minor);
-            new_minor           = m_lctx.mk_lambda(minor_fvars, new_minor);
+            new_minor           = mk_minor_lambda(minor_fvars, new_minor);
             c_args[minor_idx] = new_minor;
         }
         lean_trace(name({"compiler", "simp"}),
@@ -690,12 +722,6 @@ class csimp_fn {
         return beta_reduce(minor, k_args.size() - nparams, k_args.data() + nparams, is_let_val);
     }
 
-    /* Return `let _x := e in _x` */
-    expr mk_trivial_let(expr const & e) {
-        expr type = infer_type(e);
-        return ::lean::mk_let("_x", type, e, mk_bvar(0));
-    }
-
     /* Just simplify minor premises. */
     expr visit_cases_default(expr const & e) {
         if (already_simplified(e))
@@ -714,12 +740,7 @@ class csimp_fn {
             minor          = get_minor_body(minor, xs);
             expr new_minor = visit(minor, false);
             new_minor = mk_let(saved_fvars_size, new_minor);
-            if (is_lambda(new_minor)) {
-                /* We don't want to "mix" `xs` variables with
-                   the variables of the `new_minor` lambda */
-                new_minor = mk_trivial_let(new_minor);
-            }
-            new_minor = m_lctx.mk_lambda(xs, new_minor);
+            new_minor = mk_minor_lambda(xs, new_minor);
             args[minor_idx] = new_minor;
         }
         expr r = mk_app(c, args);

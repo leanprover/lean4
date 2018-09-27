@@ -18,10 +18,11 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
-@[derive parser.has_view parser.has_tokens]
-def command_parser.recurse : command_parser := recurse ()
+set_option class.instance_max_depth 300
 
-set_option class.instance_max_depth 200
+@[derive parser.has_view parser.has_tokens]
+def command.parser : command_parser :=
+recurse () <?> "command"
 
 namespace «command»
 
@@ -41,7 +42,7 @@ node! «open» ["open", spec: open_spec.parser]
 
 @[derive parser.has_tokens]
 def section.parser : command_parser :=
-node! «section» ["section", name: ident.parser?, commands: command_parser.recurse*, "end", end_name: ident.parser?]
+node! «section» ["section", name: ident.parser?, commands: command.parser*, "end", end_name: ident.parser?]
 
 @[derive parser.has_tokens]
 def universe.parser : command_parser :=
@@ -56,14 +57,16 @@ any_of [
 @[derive parser.has_tokens parser.has_view]
 def check.parser : command_parser :=
 node! check ["#check", term: term.parser]
+
+@[derive has_tokens]
+def builtin_command_parsers : list command_parser := [
+  open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
+  mixfix.parser, reserve_mixfix.parser, check.parser, declaration.parser]
 end «command»
 
-open «command»
-
-@[derive parser.has_tokens parser.has_view]
-def command.parser : command_parser :=
-any_of [open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
-  mixfix.parser, reserve_mixfix.parser, check.parser, declaration.parser] <?> "command"
+def command_parser.run (commands : list command_parser) (p : command_parser)
+  : parser_t command_parser_config id syntax :=
+λ cfg, (p.run cfg).run_parsec $ λ _, any_of $ commands.map (λ p, p.run cfg)
 
 end parser
 end lean

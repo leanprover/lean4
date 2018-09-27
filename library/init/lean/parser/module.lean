@@ -19,20 +19,28 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
+structure module_parser_config extends command_parser_config :=
+(command_parsers : list command_parser)
+
+instance module_parser_config_coe : has_coe module_parser_config command_parser_config :=
+⟨module_parser_config.to_command_parser_config⟩
+
 structure module_parser_output :=
 (cmd : syntax)
 (messages : message_log)
-(cfg : parser_config)
+(cfg : module_parser_config)
 
--- NOTE: missing the `reader_t` from `parser_t` because the `coroutine` already provides `monad_reader parser_config`
+/- NOTE: missing the `reader_t` from `parser_t` because the `coroutine` already provides
+   `monad_reader module_parser_config`. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_coroutine]
-def module_parser_m := state_t parser_state $ parsec_t syntax $ coroutine parser_config module_parser_output
+def module_parser_m := state_t parser_state $ parsec_t syntax $ coroutine module_parser_config module_parser_output
 abbreviation module_parser := module_parser_m syntax
 
-instance module_parser_m.lift_basic_parser_m : monad_basic_read module_parser_m :=
+instance module_parser_m.lift_parser_t (ρ : Type) [has_lift_t module_parser_config ρ] :
+  has_monad_lift (parser_t ρ id) module_parser_m :=
 { monad_lift := λ α x st it, do
     cfg ← read,
-    pure (((x.run cfg).run st) it) }
+    pure (((x.run ↑cfg).run st) it) }
 
 namespace module
 def yield_command (cmd : syntax) : module_parser_m unit :=
@@ -67,7 +75,8 @@ private def commands_aux : bool → nat → module_parser_m unit
 -- on end of input, return list of parsed commands
 | recovering (nat.succ n) := monad_parsec.eoi <|> do
   (recovering, c) ← catch (do {
-    c ← monad_lift $ with_recurse () $ λ _, command.parser,
+    cfg ← read,
+    c ← monad_lift $ command.parser.run cfg.command_parsers,
     pure (ff, some c)
   } <|> do {
       -- unknown command: try to skip token, or else single character

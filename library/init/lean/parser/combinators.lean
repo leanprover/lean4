@@ -154,7 +154,9 @@ instance any_of.view (rs : list parser) : parser.has_view (any_of rs) syntax := 
     parsers should instead produce distinct node names for disambiguation. -/
 def longest_match (rs : list parser) : parser :=
 do stxs ← monad_parsec.longest_match rs,
-   pure $ syntax.node ⟨choice, stxs⟩
+   match stxs with
+   | [stx] := pure stx
+   | _     := pure $ syntax.node ⟨choice, stxs⟩
 
 instance longest_match.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (longest_match rs) :=
 ⟨tokens rs⟩
@@ -190,16 +192,6 @@ instance dbg.view (r  : parser) (l) [i : parser.has_view r α] : parser.has_view
 instance recurse.tokens (α δ m a) [monad_rec α δ m] : parser.has_tokens (recurse a : m δ) :=
 default _ -- recursive use should not contribute any new tokens
 instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view (recurse a : m δ) syntax := default _
-
-def with_recurse {α : Type} (init : α) (r : α → rec_t α syntax m syntax) : parser :=
-rec_t.run (λ _, error "recursion limit") r init
-
-instance with_recurse.tokens {α} (init : α) (r : α → _) [has_tokens (r init)] :
-  parser.has_tokens (with_recurse init r : parser) :=
-⟨tokens (r init)⟩
-instance with_recurse.view {α β} (init : α) (r : α → _) [i : has_view (r init) β] :
-  parser.has_view (with_recurse init r : parser) β :=
-{..i}
 
 instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [parser.has_tokens r] :
   parser.has_tokens (monad_lift r : m' syntax) :=

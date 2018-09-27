@@ -66,7 +66,7 @@ do start ← left_over,
    stop ← left_over,
    pure ⟨start, stop⟩
 
-variables [monad_state parser_state m] [monad_basic_read m]
+variables [monad_state parser_state m] [monad_basic_parser m]
 
 def with_source_info {α : Type} (r : m α) (trailing_ws := tt) : m (α × source_info) :=
 do it ← left_over,
@@ -118,8 +118,11 @@ with update_trailing_lst : substring → list syntax → list syntax
 | trailing [stx] := [update_trailing trailing stx]
 | trailing (stx::stxs) := stx :: update_trailing_lst trailing stxs
 
-def ident' : basic_parser_m (source_info → syntax) :=
-do stx ← with_recurse () $ λ _, node! ident [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser],
+def ident'' : rec_t unit syntax basic_parser_m syntax :=
+node! ident [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser]
+
+private def ident' : basic_parser_m (source_info → syntax) :=
+do stx ← rec_t.run_parsec ident'' $ λ _, ident'',
    pure $ λ info, update_trailing info.trailing stx
 
 private def symbol' : basic_parser_m (source_info → syntax) :=
@@ -149,7 +152,7 @@ do (r, i) ← with_source_info $ do {
    },
    pure (r i)
 
-variable [monad_basic_read m]
+variable [monad_basic_parser m]
 
 def symbol (sym : string) (lbp := 0) : parser :=
 lift $ try $ do {

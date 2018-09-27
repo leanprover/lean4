@@ -16,11 +16,7 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
-
-/-- A term parser for a suffix or infix notation that accepts a preceding term. -/
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
-def trailing_term_parser_m := reader_t syntax term_parser_m
-abbreviation trailing_term_parser := trailing_term_parser_m syntax
+set_option class.instance_max_depth 200
 
 @[derive parser.has_tokens parser.has_view]
 def ident_univ_spec.parser : basic_parser :=
@@ -40,7 +36,7 @@ instance : has_view get_leading syntax := default _
 def paren.parser : term_parser :=
 /- Do not allow trailing comma. Looks a bit weird and would clash with
    adding support for tuple sections (https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#tuple-sections). -/
-node! «paren» ["(":max_prec, elems: sep_by (recurse 0) (symbol ",") ff, ")"]
+node! «paren» ["(":max_prec, elems: sep_by (term.parser 0) (symbol ",") ff, ")"]
 
 @[derive parser.has_tokens parser.has_view]
 def hole.parser : term_parser :=
@@ -50,17 +46,15 @@ node! hole [hole: symbol "_" max_prec]
 def sort.parser : term_parser :=
 node_choice! sort {"Sort":max_prec, "Type":max_prec}
 
-set_option class.instance_max_depth 200
-
 section binder
 @[derive has_tokens has_view]
 def binder_content.parser : term_parser :=
 node! binder_content [
   ids: (node_choice! binder_id {id: ident.parser, hole: hole.parser})+,
-  type: node! binder_content_type [":", type: recurse 0]?,
+  type: node! binder_content_type [":", type: term.parser 0]?,
   default: node_choice! binder_default {
-    val: node! binder_default_val [":=", term: recurse 0],
-    tac: node! binder_default_tac [".", term: recurse 0]
+    val: node! binder_default_val [":=", term: term.parser 0],
+    tac: node! binder_default_tac [".", term: term.parser 0]
   }?
 ]
 
@@ -104,8 +98,8 @@ node_choice! bracketed_binder {
     right: unicode_symbol "⦄" "}}",
   ],
   inst_implicit: node! inst_implicit_binder ["[":max_prec, content: longest_match [
-    node! inst_implicit_named_binder [id: ident.parser, type: recurse 0],
-    node! inst_implicit_anonymous_binder [type: recurse 0]
+    node! inst_implicit_named_binder [id: ident.parser, type: term.parser 0],
+    node! inst_implicit_anonymous_binder [type: term.parser 0]
   ], "]"]
 }
 
@@ -124,7 +118,7 @@ node! lambda [
   op: unicode_symbol "λ" "fun" max_prec,
   binders: binders.parser,
   ",",
-  body: recurse 0
+  body: term.parser 0
 ]
 
 @[derive parser.has_tokens parser.has_view]
@@ -133,12 +127,12 @@ node! pi [
   op: unicode_symbol "Π" "Pi" max_prec,
   binders: binders.parser,
   ",",
-  range: recurse 0
+  range: term.parser 0
 ]
 
 @[derive parser.has_tokens parser.has_view]
 def anonymous_constructor.parser : term_parser :=
-node! anonymous_constructor ["⟨":max_prec, args: sep_by (recurse 0) (symbol ","), "⟩"]
+node! anonymous_constructor ["⟨":max_prec, args: sep_by (term.parser 0) (symbol ","), "⟩"]
 
 @[derive parser.has_tokens parser.has_view]
 def explicit_ident.parser : term_parser :=
@@ -150,9 +144,9 @@ node! explicit [
   id: term.ident.parser
 ]
 
-@[derive parser.has_tokens parser.has_view]
-def leading.parser :=
-any_of [
+-- TODO(Sebastian): replace with attribute
+@[derive has_tokens]
+def builtin_leading_parsers : list term_parser := [
   term.ident.parser,
   number.parser,
   paren.parser,
@@ -162,20 +156,20 @@ any_of [
   pi.parser,
   anonymous_constructor.parser,
   explicit_ident.parser
-] <?> "term"
+]
 
 @[derive parser.has_tokens parser.has_view]
 def sort_app.parser : trailing_term_parser :=
 do { l ← get_leading, guard (try_view sort l).is_some } *>
-node! sort_app [fn: get_leading, arg: monad_lift (level.parser max_prec)]
+node! sort_app [fn: get_leading, arg: monad_lift (level.parser max_prec).run]
 
 @[derive parser.has_tokens parser.has_view]
 def app.parser : trailing_term_parser :=
-node! app [fn: get_leading, arg: recurse max_prec]
+node! app [fn: get_leading, arg: term.parser max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def arrow.parser : trailing_term_parser :=
-node! arrow [dom: get_leading, op: unicode_symbol "→" "->" 25, range: recurse 24]
+node! arrow [dom: get_leading, op: unicode_symbol "→" "->" 25, range: term.parser 24]
 
 @[derive parser.has_tokens parser.has_view]
 def projection.parser : trailing_term_parser :=
@@ -190,27 +184,19 @@ node! projection [
   },
 ]
 
-@[derive parser.has_tokens parser.has_view]
-def trailing.parser : trailing_term_parser :=
-any_of [
+@[derive has_tokens]
+def builtin_trailing_parsers : list trailing_term_parser := [
   sort_app.parser,
   app.parser,
   arrow.parser,
   projection.parser
-] <?> "term"
+]
 
 end term
 
--- While term.parser does not actually read a command, it does share the same effect set
--- with command parsers, introducing the term-level recursion effect only for nested parsers
-def term.parser (rbp := 0) : command_parser :=
-pratt_parser term.leading.parser term.trailing.parser rbp
-
--- `[derive]` doesn't manage to derive these instances because of the parameter
-instance term.parser.tokens (rbp) : has_tokens (term.parser rbp) :=
-⟨has_tokens.tokens term.leading.parser ++ has_tokens.tokens term.trailing.parser⟩
-instance term.parser.view (rbp) : has_view (term.parser rbp) syntax :=
-default _
+def term_parser.run (p : term_parser) : command_parser :=
+do cfg ← read,
+   adapt_reader coe $ pratt_parser (any_of cfg.leading_term_parsers) (any_of cfg.trailing_term_parsers) p
 
 end parser
 end lean

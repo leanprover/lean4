@@ -45,10 +45,10 @@ structure parser_config :=
 (filename : string)
 
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
-def parser_t (m : Type → Type) [monad m] := reader_t parser_config $ state_t parser_state $ parsec_t syntax m
-abbreviation basic_parser_m := parser_t id
+def parser_t (ρ : Type) (m : Type → Type) [monad m] := reader_t ρ $ state_t parser_state $ parsec_t syntax m
+abbreviation basic_parser_m := parser_t parser_config id
 abbreviation basic_parser := basic_parser_m syntax
-abbreviation monad_basic_read := has_monad_lift_t basic_parser_m
+abbreviation monad_basic_parser := has_monad_lift_t basic_parser_m
 
  -- an arbitrary `parser` type; parsers are usually some monad stack based on `basic_parser_m` returning `syntax`
 variable {ρ : Type}
@@ -94,7 +94,7 @@ def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.me
 section
 local attribute [reducible] parser_t
 /-- Run parser stack, returning a partial syntax tree in case of a fatal error -/
-protected def run {m : Type → Type} {α : Type} [monad m] (cfg : parser_config) (st : parser_state) (s : string) (r : parser_t m α) :
+protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ parser_config] (cfg : ρ) (st : parser_state) (s : string) (r : parser_t ρ m α) :
 m (sum α syntax × message_log) :=
 do r ← ((r.run cfg).run st).parse_with_eoi s,
 pure $ match r with
@@ -108,9 +108,10 @@ open parser.has_view
 variables {α : Type} {m : Type → Type}
 local notation `parser` := m syntax
 
-def log_message {μ : Type} [monad m] [monad_reader parser_config m] [monad_state parser_state m] (msg : parsec.message μ) : m unit :=
+def log_message {μ : Type} [monad m] [monad_reader ρ m] [has_lift_t ρ parser_config] [monad_state parser_state m]
+  (msg : parsec.message μ) : m unit :=
 do cfg ← read,
-   modify (λ st, {st with messages := st.messages.add (message_of_parsec_message cfg msg)})
+   modify (λ st, {st with messages := st.messages.add (message_of_parsec_message ↑cfg msg)})
 
 def mk_token_trie (tokens : list token_config) : except string (trie token_config) :=
 do -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
@@ -138,13 +139,42 @@ def parse.view : syntax → option parse.view_ty
 
 /- Monad stacks used in multiple files -/
 
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
-def command_parser_m := rec_t unit syntax basic_parser_m
-abbreviation command_parser := command_parser_m syntax
+/- NOTE: we move `rec_t` under `parser_t`'s `reader_t` so that `term_parser`, which does not
+   have access to `command_parser`'s ρ (=`command_parser_config`) can still recurse into it
+   (for command quotations). -/
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
+def command_parser_m (ρ : Type) := reader_t ρ $ rec_t unit syntax $ state_t parser_state $ parsec_t syntax id
 
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
-def term_parser_m := rec_t nat syntax command_parser_m
+section
+local attribute [reducible] parser_t command_parser_m
+instance command_parser_m.monad_reader_adapter (ρ ρ' : Type) :
+  monad_reader_adapter ρ ρ' (command_parser_m ρ) (command_parser_m ρ') :=
+infer_instance
+instance command_parser_m.basic_parser (ρ : Type) [has_lift_t ρ parser_config] : monad_basic_parser (command_parser_m ρ) :=
+⟨λ _ x cfg rec, x.run ↑cfg⟩
+end
+
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
+def term_parser_m := rec_t nat syntax $ command_parser_m parser_config
 abbreviation term_parser := term_parser_m syntax
+
+/-- A term parser for a suffix or infix notation that accepts a preceding term. -/
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
+def trailing_term_parser_m := reader_t syntax term_parser_m
+abbreviation trailing_term_parser := trailing_term_parser_m syntax
+
+instance trailing_term_parser_coe : has_coe term_parser trailing_term_parser :=
+⟨λ x _, x⟩
+
+-- This needs to be a separate structure since `term_parser`s cannot contain themselves in their config
+structure command_parser_config extends parser_config :=
+(leading_term_parsers : list term_parser)
+(trailing_term_parsers : list trailing_term_parser)
+
+instance command_parser_config_coe_parser_config : has_coe command_parser_config parser_config :=
+⟨command_parser_config.to_parser_config⟩
+
+abbreviation command_parser := command_parser_m command_parser_config syntax
 
 end «parser»
 end lean

@@ -10,7 +10,6 @@ import init.lean.parser.token
 
 namespace lean
 namespace parser
-namespace «command»
 
 open combinators monad_parsec
 open parser.has_tokens parser.has_view
@@ -19,8 +18,13 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
+@[derive parser.has_tokens parser.has_view]
+def term.parser (rbp := 0) : term_parser :=
+recurse rbp <?> "term"
+
 set_option class.instance_max_depth 100
 
+namespace «command»
 namespace notation_spec
 @[derive parser.has_tokens parser.has_view]
 def precedence.parser : term_parser :=
@@ -85,7 +89,7 @@ node_choice! notation_spec {
 
 @[derive parser.has_tokens parser.has_view]
 def notation.parser : term_parser :=
-node! «notation» ["notation", spec: notation_spec.parser, ":=", term: recurse 0]
+node! «notation» ["notation", spec: notation_spec.parser, ":=", term: term.parser]
 
 @[derive parser.has_tokens parser.has_view]
 def reserve_notation.parser : term_parser :=
@@ -99,7 +103,7 @@ node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 def mixfix.parser : term_parser :=
 node! «mixfix» [
   kind: mixfix.kind.parser,
-  symbol: notation_spec.notation_symbol.parser, ":=", term: recurse 0]
+  symbol: notation_spec.notation_symbol.parser, ":=", term: term.parser]
 
 @[derive parser.has_tokens parser.has_view]
 def notation_like.parser : term_parser :=

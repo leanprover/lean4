@@ -10,18 +10,25 @@ import init.lean.parser.pratt
 
 namespace lean
 namespace parser
-namespace level
 open combinators parser.has_view monad_parsec
 
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
 def level_parser_m := rec_t nat syntax basic_parser_m
 abbreviation level_parser := level_parser_m syntax
 
 /-- A term parser for a suffix or infix notation that accepts a preceding term. -/
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_read]
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
 def trailing_level_parser_m := reader_t syntax level_parser_m
 abbreviation trailing_level_parser := trailing_level_parser_m syntax
 
+instance trailing_level_parser_coe : has_coe level_parser trailing_level_parser :=
+⟨λ x _, x⟩
+
+@[derive parser.has_tokens parser.has_view]
+def level.parser (rbp := 0) : level_parser :=
+recurse rbp <?> "universe level"
+
+namespace level
 /-- Access leading term -/
 def get_leading : trailing_level_parser := read
 instance : has_tokens get_leading := default _
@@ -29,7 +36,7 @@ instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]
 def paren.parser : level_parser :=
-node! «paren» ["(":max_prec, inner: recurse 0, ")"]
+node! «paren» ["(":max_prec, inner: level.parser 0, ")"]
 
 @[derive parser.has_tokens parser.has_view]
 def leading.parser : level_parser :=
@@ -44,7 +51,7 @@ node_choice! leading {
 
 @[derive parser.has_tokens parser.has_view]
 def app.parser : trailing_level_parser :=
-node! app [fn: get_leading, arg: recurse max_prec]
+node! app [fn: get_leading, arg: level.parser max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def add_lit.parser : trailing_level_parser :=
@@ -58,14 +65,12 @@ node_choice! trailing {
 }
 end level
 
-def level.parser (rbp := 0) : basic_parser :=
-pratt_parser level.leading.parser level.trailing.parser rbp <?> "universe term"
+@[derive parser.has_tokens parser.has_view]
+def level_parser.run (p : level_parser) : basic_parser :=
+pratt_parser level.leading.parser level.trailing.parser p
 
--- `[derive]` doesn't manage to derive these instances because of the parameter
-instance level.parser.tokens (rbp) : has_tokens (level.parser rbp) :=
-⟨has_tokens.tokens level.leading.parser ++ has_tokens.tokens level.trailing.parser⟩
-instance level.parser.view (rbp) : has_view (level.parser rbp) syntax :=
-default _
+instance level_parser_coe : has_coe level_parser basic_parser :=
+⟨level_parser.run⟩
 
 end parser
 end lean

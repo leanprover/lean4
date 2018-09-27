@@ -12,7 +12,7 @@ namespace lean.parser
 open monad_parsec combinators
 
 variables {base_m : Type → Type}
-variables [monad base_m] [monad_basic_read base_m] [monad_state parser_state base_m] [monad_parsec syntax base_m] [monad_reader parser_config base_m]
+variables [monad base_m] [monad_basic_parser base_m] [monad_state parser_state base_m] [monad_parsec syntax base_m] [monad_reader parser_config base_m]
 
 local notation `m` := rec_t nat syntax base_m
 local notation `parser` := m syntax
@@ -41,17 +41,17 @@ else
   pure left
 
 variables [monad_except (parsec.message syntax) base_m] [alternative base_m]
-variables (leading : m syntax) (trailing : reader_t syntax m syntax)
+variables (leading : m syntax) (trailing : reader_t syntax m syntax) (p : m syntax)
 
-def pratt_parser (rbp := 0) : base_m syntax :=
-with_recurse rbp $ λ rbp, do
+def pratt_parser : base_m syntax :=
+rec_t.run_parsec p $ λ rbp, do
 left ← leading,
 n ← remaining,
 trailing_loop trailing rbp (n+1) left
 
-instance pratt_parser.tokens [has_tokens leading] [has_tokens trailing] : has_tokens (pratt_parser leading trailing) :=
+instance pratt_parser.tokens [has_tokens leading] [has_tokens trailing] : has_tokens (pratt_parser leading trailing p) :=
 ⟨has_tokens.tokens leading ++ has_tokens.tokens trailing⟩
-instance pratt_parser.view : has_view (pratt_parser leading trailing) syntax :=
+instance pratt_parser.view : has_view (pratt_parser leading trailing p) syntax :=
 default _
 
 end lean.parser

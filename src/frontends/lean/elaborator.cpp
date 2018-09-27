@@ -3232,6 +3232,8 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             name fname = *get_name(mdata_data(r), "fname");
             r = mdata_expr(r);
             r = visit(r, expected_type);
+            if (expected_type)
+                r = enforce_type(r, *expected_type, "type mismatch", r);
             synthesize_type_class_instances();
             auto m = mk_metavar(mk_Type(), r);
             auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, r, m));

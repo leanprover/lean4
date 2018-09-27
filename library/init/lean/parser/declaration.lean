@@ -16,8 +16,7 @@ open combinators monad_parsec
 open parser.has_tokens parser.has_view
 
 instance term_parser_command_parser_coe : has_coe term_parser command_parser :=
--- run `p` directly, but use the general `term.parser` for recursion
-⟨λ p, reader_t.run p $ λ rbp, term.parser rbp⟩
+⟨λ p, adapt_reader coe $ p.run⟩
 
 namespace «command»
 

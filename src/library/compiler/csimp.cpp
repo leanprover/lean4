@@ -455,7 +455,6 @@ class csimp_fn {
         buffer<expr> zs;
         unsigned saved_fvars_size = m_fvars.size();
         jp_val = visit(get_lambda_body(jp_val, zs), false);
-        expr new_jp_val;
         expr e_y;
         if (is_join_point_app(jp_val)) {
             buffer<expr> jp2_args;
@@ -472,13 +471,12 @@ class csimp_fn {
             if (!e_y_opt) return none_expr();
             e_y = *e_y_opt;
         }
-        expr e_y_type    = infer_type(e_y);
-        expr jp_val_type = infer_type(jp_val);
-        new_jp_val       = mk_cast(e_y_type, jp_val_type, e_y);
+        expr new_jp_val  = e_y;
         new_jp_val = mk_let(saved_fvars_size, new_jp_val);
         new_jp_val = m_lctx.mk_lambda(zs, new_jp_val);
         mark_simplified(new_jp_val);
-        expr new_jp_var = m_lctx.mk_local_decl(ngen(), next_jp_name(), jp_decl.get_type(), new_jp_val);
+        expr new_jp_type = cheap_beta_reduce(infer_type(new_jp_val));
+        expr new_jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), new_jp_type, new_jp_val);
         new_jps.push_back(new_jp_var);
         new_jp_cache.insert(mk_pair(jp, new_jp_var));
         return some_expr(new_jp_var);

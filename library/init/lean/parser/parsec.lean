@@ -94,16 +94,16 @@ def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
 
 private def bind_1 (r : result μ β) : result μ β :=
-        match r with
-        | ok_eps b it msg₂ := ok b it
-        | error msg ff     := error msg tt
-        | other            := other
+match r with
+| ok_eps b it msg₂ := ok b it
+| error msg ff     := error msg tt
+| other            := other
 
 private def bind_2 (ex₁) (r : result μ β) : result μ β :=
-        match r with
-        | ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
-        | error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
-        | other           := other
+match r with
+| ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
+| error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
+| other           := other
 
 /--
   The `bind p q` combinator behaves as follows:
@@ -113,11 +113,12 @@ private def bind_2 (ex₁) (r : result μ β) : result μ β :=
      and merge error messages if both do not consume any input.
 -/
 @[inline] protected def bind (p : parsec_t μ m α) (q : α → parsec_t μ m β) : parsec_t μ m β :=
-λ it, do r ← p it,
-      match r with
-      | ok a it := bind_1 <$> q a it
-      | ok_eps a it ex₁ := bind_2 ex₁ <$> q a it
-      | error msg c := pure (error msg c)
+λ it, do
+ r ← p it,
+ match r with
+ | ok a it := bind_1 <$> q a it
+ | ok_eps a it ex₁ := bind_2 ex₁ <$> q a it
+ | error msg c := pure (error msg c)
 
 instance : monad (parsec_t μ m) :=
 { bind := λ _ _, parsec_t.bind, pure := λ _, parsec_t.pure }
@@ -175,6 +176,12 @@ Without the `try` combinator we will not be able to backtrack on the `let` keywo
   | error msg _  := error msg ff
   | other        := other
 
+private def orelse_cont (msg₁ : message μ) (r : result μ α) : result μ α :=
+match r with
+| ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
+| error msg₂ ff    := error (merge msg₁ msg₂) ff
+| other            := other
+
 /--
   The `orelse p q` combinator behaves as follows:
   1- If `p` succeeds *or* consumes input, return
@@ -191,13 +198,8 @@ Without the `try` combinator we will not be able to backtrack on the `let` keywo
 λ it, do
   r ← p it,
   match r with
-  | error msg₁ ff := do {
-    r ← q it,
-    pure $ match r with
-    | ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
-    | error msg₂ ff    := error (merge msg₁ msg₂) ff
-    | other            := other }
-  | other              := pure other
+  | error msg₁ ff := do { r ← q it, pure $ orelse_cont msg₁ r }
+  | other         := pure other
 
 instance [inhabited μ] : alternative (parsec_t μ m) :=
 { orelse  := λ _, parsec_t.orelse,

@@ -60,7 +60,7 @@ hidden $ do
 section
 variables [monad m] [monad_parsec syntax m]
 
-def as_substring {α : Type} (p : m α) : m substring :=
+@[inline] def as_substring {α : Type} (p : m α) : m substring :=
 do start ← left_over,
    p,
    stop ← left_over,
@@ -68,7 +68,7 @@ do start ← left_over,
 
 variables [monad_state parser_state m] [monad_basic_parser m]
 
-def with_source_info {α : Type} (r : m α) (trailing_ws := tt) : m (α × source_info) :=
+@[inline] def with_source_info {α : Type} (r : m α) (trailing_ws := tt) : m (α × source_info) :=
 do it ← left_over,
    let leading : substring := ⟨it, it⟩, -- NOTE: will be adjusted by `syntax.update_leading`
    a ← r,
@@ -79,7 +79,7 @@ do it ← left_over,
    pure (a, ⟨leading, it.offset, trailing⟩)
 
 /-- Match an arbitrary parser and return the consumed string in a `syntax.atom`. -/
-def raw {α : Type} (p : m α) (trailing_ws := ff) : parser :=
+@[inline] def raw {α : Type} (p : m α) (trailing_ws := ff) : parser :=
 try $ do
   (ss, info) ← with_source_info (as_substring p) trailing_ws,
   pure $ syntax.atom ⟨info, ss.to_string⟩

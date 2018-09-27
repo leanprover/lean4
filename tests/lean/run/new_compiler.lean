@@ -58,10 +58,10 @@ do it ← left_over,
          a ← p,
          it ← left_over,
          pure $ match r with
-         | result.ok as it' := if it'.offset > it.offset then r
-             else if it.offset > it'.offset then result.ok [a] it
-             else result.ok (a::as) it
-         | _                := result.ok [a] it)
+         | result.ok as it' none := if it'.offset > it.offset then r
+             else if it.offset > it'.offset then result.ok [a] it none
+             else result.ok (a::as) it none
+         | _                := result.ok [a] it none)
        (λ msg, pure $ match r with
            | result.error msg' _ := if nat.lt msg.it.offset msg'.it.offset then r -- FIXME
              else if nat.lt msg'.it.offset msg.it.offset then result.error msg tt

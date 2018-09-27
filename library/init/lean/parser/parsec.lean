@@ -53,12 +53,11 @@ They contain the error that would have occurred if a
 successful "epsilon" alternative was not taken.
 -/
 inductive result (μ α : Type)
-| ok {} (a : α) (it : iterator)                               : result
-| ok_eps {} (a : α) (it : iterator) (expected : dlist string) : result
-| error {} (msg : message μ) (consumed : bool)                : result
+| ok {} (a : α) (it : iterator) (expected : option $ dlist string) : result
+| error {} (msg : message μ) (consumed : bool)                     : result
 
 @[inline] def result.mk_eps {μ α : Type} (a : α) (it : iterator) : result μ α :=
-result.ok_eps a it dlist.empty
+result.ok a it (some dlist.empty)
 end parsec
 
 open parsec
@@ -77,8 +76,7 @@ variables {m : Type → Type} [monad m] {μ α β : Type}
 def run (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) α) :=
 do r ← p s.mk_iterator,
    pure $ match r with
-   | ok a _       := except.ok a
-   | ok_eps a _ _ := except.ok a
+   | ok a _ _     := except.ok a
    | error msg _  := except.error msg
 
 @[inline] protected def pure (a : α) : parsec_t μ m α :=
@@ -93,17 +91,13 @@ protected def failure [inhabited μ] : parsec_t μ m α :=
 def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
 
-private def bind_mk_res_ok (r : result μ β) : result μ β :=
-match r with
-| ok_eps b it msg₂ := ok b it
-| error msg ff     := error msg tt
-| other            := other
-
-private def bind_mk_res_ok_eps (ex₁) (r : result μ β) : result μ β :=
-match r with
-| ok_eps b it ex₂ := ok_eps b it (ex₁ ++ ex₂)
-| error msg₂ ff   := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
-| other           := other
+private def bind_mk_res (ex₁ : option (dlist string)) (r : result μ β) : result μ β :=
+match ex₁, r with
+| none,     ok b it _          := ok b it none
+| none,     error msg _        := error msg tt
+| some ex₁, ok b it (some ex₂) := ok b it (some $ ex₁ ++ ex₂)
+| some ex₁, error msg₂ ff      := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
+| some ex₁, other              := other
 
 /--
   The `bind p q` combinator behaves as follows:
@@ -116,9 +110,8 @@ match r with
 λ it, do
  r ← p it,
  match r with
- | ok a it         := bind_mk_res_ok <$> q a it
- | ok_eps a it ex₁ := bind_mk_res_ok_eps ex₁ <$> q a it
- | error msg c     := pure (error msg c)
+ | ok a it ex₁  := bind_mk_res ex₁ <$> q a it
+ | error msg c  := pure (error msg c)
 
 instance : monad (parsec_t μ m) :=
 { bind := λ _ _, parsec_t.bind, pure := λ _, parsec_t.pure }
@@ -146,9 +139,9 @@ def expect (msg : message μ) (exp : string) : message μ :=
 
 private def labels_mk_res (r : result μ α) (lbls : dlist string) : result μ α :=
 match r with
-  | ok_eps a it _  := ok_eps a it lbls
-  | error msg ff   := error {expected := lbls, ..msg} ff
-  | other          := other
+  | ok a it (some _) := ok a it (some lbls)
+  | error msg ff     := error {expected := lbls, ..msg} ff
+  | other            := other
 
 @[inline] def labels (p : parsec_t μ m α) (lbls : dlist string) : parsec_t μ m α :=
 λ it, do
@@ -184,9 +177,9 @@ Without the `try` combinator we will not be able to backtrack on the `let` keywo
 
 private def orelse_mk_res (msg₁ : message μ) (r : result μ α) : result μ α :=
 match r with
-| ok_eps a it' ex₂ := ok_eps a it' (msg₁.expected ++ ex₂)
-| error msg₂ ff    := error (merge msg₁ msg₂) ff
-| other            := other
+| ok a it' (some ex₂) := ok a it' (some $ msg₁.expected ++ ex₂)
+| error msg₂ ff       := error (merge msg₁ msg₂) ff
+| other               := other
 
 /--
   The `orelse p q` combinator behaves as follows:
@@ -216,24 +209,23 @@ def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   pure $ match r with
-  | ok a s' := mk_eps a it
-  | other   := other
+  | ok a s' none := mk_eps a it
+  | other        := other
 
 /-- `not_followed_by p` succeeds when parser `p` fails -/
 def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
 λ it, do
   r ← p it,
   pure $ match r with
-  | ok _ _       := error { it := it, unexpected := msg, custom := () } ff
-  | ok_eps _ _ _ := error { it := it, unexpected := msg, custom := () } ff
+  | ok _ _ _     := error { it := it, unexpected := msg, custom := () } ff
   | error _ _    := mk_eps () it
 
 def dbg (label : string) (p : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   pure $ trace ("DBG " ++ label ++ ": \"" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "\"") $ match r : _ → result μ α with
-  | ok a it' := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it'
-  | ok_eps a it' ex := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok_eps μ α a it' ex
+  | ok a it' none      := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it' none
+  | ok a it' (some ex) := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it' (some ex)
   | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg tt
   | error msg ff := trace ("empty error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg ff
 
@@ -335,7 +327,7 @@ generate error message with current position and character. -/
 do it ← left_over,
    if !it.has_next then error "end of input"
    else let c := it.curr in
-       if p c then lift $ λ _, result.ok c it.next
+       if p c then lift $ λ _, result.ok c it.next none
        else error (repr c)
 
 def ch (c : char) : m char :=
@@ -371,11 +363,11 @@ as this one is all-or-nothing.
 def str (s : string) : m string :=
 if s.is_empty then pure ""
 else lift $ λ it, match str_aux s.length s.mk_iterator it with
-  | some it' := result.ok s it'
+  | some it' := result.ok s it' none
   | none     := result.error { it := it, expected := dlist.singleton (repr s), custom := default μ } ff
 
 private def take_aux : nat → string → iterator → result μ string
-| 0     r it := result.ok r it
+| 0     r it := result.ok r it none
 | (n+1) r it :=
   if !it.has_next then eoi_error it
   else take_aux n (r.push (it.curr)) it.next
@@ -387,7 +379,7 @@ else lift $ take_aux n ""
 
 @[inline] private def mk_string_result (r : string) (it : iterator) : result μ string :=
 if r.is_empty then result.mk_eps r it
-else result.ok r it
+else result.ok r it none
 
 private def take_while_aux (p : char → bool) : nat → string → iterator → result μ string
 | 0     r it := mk_string_result r it
@@ -424,7 +416,7 @@ def take_until1 (p : char → bool) : m string :=
 take_while1 (λ c, !p c)
 
 @[inline] private def mk_consumed_result (consumed : bool) (it : iterator) : result μ unit :=
-if consumed then result.ok () it
+if consumed then result.ok () it none
 else result.mk_eps () it
 
 private def take_while_aux' (p : char → bool) : nat → bool → iterator → result μ unit
@@ -545,10 +537,10 @@ do it ← left_over,
          a ← p,
          it ← left_over,
          pure $ match r with
-         | result.ok as it' := if it'.offset > it.offset then r
-             else if it.offset > it'.offset then result.ok [a] it
-             else result.ok (a::as) it
-         | _                := result.ok [a] it)
+         | result.ok as it' none := if it'.offset > it.offset then r
+             else if it.offset > it'.offset then result.ok [a] it none
+             else result.ok (a::as) it none
+         | _                     := result.ok [a] it none)
        (λ msg, pure $ match r with
            | result.error msg' _ := if msg.it.offset > msg.it.offset then r
              else if msg.it.offset > msg'.it.offset then result.error msg tt

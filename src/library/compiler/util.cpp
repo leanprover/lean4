@@ -125,6 +125,23 @@ bool is_cases_on_recursor(environment const & env, name const & n) {
     return ::lean::is_aux_recursor(env, n) && n.get_string() == "cases_on";
 }
 
+expr get_cases_on_app_major(environment const & env, expr const & c) {
+    lean_assert(is_cases_on_app(env, c));
+    buffer<expr> args;
+    expr const & fn = get_app_args(c, args);
+    inductive_val I_val = get_cases_on_inductive_val(env, fn);
+    return args[I_val.get_nparams() + 1 /* motive */ + I_val.get_nindices()];
+}
+
+pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c) {
+    inductive_val I_val = get_cases_on_inductive_val(env, c);
+    unsigned nparams    = I_val.get_nparams();
+    unsigned nindices   = I_val.get_nindices();
+    unsigned nminors    = I_val.get_ncnstrs();
+    unsigned first_minor_idx = nparams + 1 /*motive*/ + nindices + 1 /* major */;
+    return mk_pair(first_minor_idx, first_minor_idx + nminors);
+}
+
 expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr const & type) {
     type_checker tc(s, lctx);
     level lvl = sort_level(tc.ensure_type(type));

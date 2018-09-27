@@ -30,10 +30,26 @@ expr unfold_macro_defs(environment const & env, expr const & e);
 inline bool is_lc_mdata(expr const &) { return false; }
 
 bool is_cases_on_recursor(environment const & env, name const & n);
+/* Return the `inductive_val` for the cases_on constant `c`. */
+inline inductive_val get_cases_on_inductive_val(environment const & env, name const & c) {
+    lean_assert(is_cases_on_recursor(env, c));
+    return env.get(c.get_prefix()).to_inductive_val();
+}
+inline inductive_val get_cases_on_inductive_val(environment const & env, expr const & c) {
+    lean_assert(is_constant(c));
+    return get_cases_on_inductive_val(env, const_name(c));
+}
 inline bool is_cases_on_app(environment const & env, expr const & e) {
     expr const & fn = get_app_fn(e);
     return is_constant(fn) && is_cases_on_recursor(env, const_name(fn));
 }
+/* Return the major premise of a cases_on-application.
+   \pre is_cases_on_app(env, c) */
+expr get_cases_on_app_major(environment const & env, expr const & c);
+/* Return the pair `(b, e)` such that `i in [b, e)` is argument `i` in a `c` cases_on
+   application is a minor premise.
+   \pre is_cases_on_recursor(env, c) */
+pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c);
 
 inline bool is_lc_unreachable_app(expr const & e) { return is_app_of(e, get_lc_unreachable_name(), 1); }
 inline bool is_lc_proof_app(expr const & e) { return is_app_of(e, get_lc_proof_name(), 1); }

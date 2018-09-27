@@ -12,8 +12,7 @@ struct csimp_cfg {
     unsigned m_inline_threshold;
     bool     m_float_cases_app;
     bool     m_float_cases;
-    unsigned m_float_cases_jp_threshold;
-    unsigned m_float_cases_jp_branch_threshold;
+    unsigned m_float_cases_threshold;
     unsigned m_inline_jp_threshold;
 public:
     csimp_cfg();

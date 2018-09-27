@@ -92,6 +92,8 @@ static optional<mpz> to_num(expr const & e, bool first) {
         return first ? some(mpz(0)) : optional<mpz>();
     } else if (is_one(e)) {
         return some(mpz(1));
+    } else if (is_lit(e) && lit_value(e).kind() == literal_kind::Nat) {
+        return some(lit_value(e).get_nat().to_mpz());
     } else if (auto a = is_bit0(e)) {
         if (auto r = to_num(*a, false))
             return some(2*(*r));

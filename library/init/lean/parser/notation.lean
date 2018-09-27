@@ -82,10 +82,7 @@ end notation_spec
 
 @[derive parser.has_tokens parser.has_view]
 def notation_spec.parser : term_parser :=
-node_choice! notation_spec {
-  number_literal: number.parser,
-  rules: node! notation_spec.rules [id: ident.parser?, rules: notation_spec.rule.parser*]
-}
+node! notation_spec [prefix_arg: ident.parser?, rules: notation_spec.rule.parser*]
 
 @[derive parser.has_tokens parser.has_view]
 def notation.parser : term_parser :=

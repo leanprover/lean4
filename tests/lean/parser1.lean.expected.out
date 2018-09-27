@@ -122,36 +122,32 @@ result:
  (command.notation
   "notation"
   (command.notation_spec
-   (1
-    (command.notation_spec.rules
-     []
-     [(command.notation_spec.rule
-       (command.notation_spec.notation_symbol
-        (0 (command.notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
-       [])])))
+   []
+   [(command.notation_spec.rule
+     (command.notation_spec.notation_symbol
+      (0 (command.notation_spec.notation_quoted_symbol "`" "Prop" "`" [])))
+     [])])
   ":="
   (term.sort_app (term.sort (0 "Sort")) (level.leading (4 (number (0 "0"))))))
  (command.notation
   "notation"
   (command.notation_spec
-   (1
-    (command.notation_spec.rules
-     [`f]
-     [(command.notation_spec.rule
-       (command.notation_spec.notation_symbol
-        (0
-         (command.notation_spec.notation_quoted_symbol
-          "`"
-          " $ "
-          "`"
-          [(command.notation_spec.precedence ":" (number (0 "1")))])))
-       [(command.notation_spec.transition
-         (2
-          (command.notation_spec.argument
-           `a
-           [(command.notation_spec.action
-             ":"
-             (command.notation_spec.action_kind (0 (number (0 "0")))))])))])])))
+   [`f]
+   [(command.notation_spec.rule
+     (command.notation_spec.notation_symbol
+      (0
+       (command.notation_spec.notation_quoted_symbol
+        "`"
+        " $ "
+        "`"
+        [(command.notation_spec.precedence ":" (number (0 "1")))])))
+     [(command.notation_spec.transition
+       (2
+        (command.notation_spec.argument
+         `a
+         [(command.notation_spec.action
+           ":"
+           (command.notation_spec.action_kind (0 (number (0 "0")))))])))])])
   ":="
   (term.app (term.ident `f []) (term.ident `a [])))
  (command.reserve_mixfix
@@ -2424,7 +2420,7 @@ result:
     <missing>)))
  (command.notation
   "notation"
-  (command.notation_spec (1 (command.notation_spec.rules [`h1] [])))
+  (command.notation_spec [`h1] [])
   <missing>
   <missing>)
  (eoi "")]

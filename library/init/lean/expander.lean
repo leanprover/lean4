@@ -52,15 +52,15 @@ let prec_to_action := λ prec, {action.view . action := action_kind.view.prec pr
 match k with
 | mixfix.kind.view.prefix _ :=
   -- `prefix tk:prec` ~> `notation tk:prec b:prec`
-  pure $ notation_spec.view.rules {
+  pure {
     rules := [{
       symbol := sym,
       transition := transition.view.arg {id := `b,
         action := prec_to_action <$> precedence.view.prec <$> prec}}]}
 | mixfix.kind.view.postfix _ :=
   -- `postfix tk:prec` ~> `notation tk:prec b:prec`
-  pure $ notation_spec.view.rules {
-    id := `a,
+  pure {
+    prefix_arg := `a,
     rules := [{symbol := sym}]}
 | mixfix.kind.view.infixr _ := do
   -- `infixr tk:prec` ~> `notation a tk:prec b:(prec-1)`
@@ -69,16 +69,16 @@ match k with
     then error (review «precedence» prec) "invalid `infixr` declaration, given precedence must greater than zero"
     else pure $ some $ prec_to_action $ number.view.of_nat $ prec.prec.to_nat - 1
   | none := pure none,
-  pure $ notation_spec.view.rules {
-    id := `a,
+  pure {
+    prefix_arg := `a,
     rules := [{
       symbol := sym,
       transition := transition.view.arg {id := `b,
         action := act}}]}
 | _ :=
   -- `infix/infixl tk:prec` ~> `notation a tk:prec b:prec`
-  pure $ notation_spec.view.rules {
-    id := `a,
+  pure {
+    prefix_arg := `a,
     rules := [{
       symbol := sym,
       transition := transition.view.arg {id := `b,
@@ -102,8 +102,8 @@ def mixfix.transform : transformer :=
 def reserve_mixfix.transform : transformer :=
 λ stx, do
   let v := view reserve_mixfix stx,
-   spec ← mixfix_to_notation_spec v.kind v.symbol,
-   pure $ review reserve_notation {spec := spec}
+  spec ← mixfix_to_notation_spec v.kind v.symbol,
+  pure $ review reserve_notation {spec := spec}
 
 local attribute [instance] name.has_lt_quick
 

@@ -397,33 +397,9 @@ class csimp_fn {
                 return some_expr(mk_app(fn, args));
             }
         } else {
-            /* Create jp value for `e`
-               This kind of join-point is not very useful. It will only help if we decide
-               to inline the join-point later in some of the branches. */
-            local_decl fvar_decl = m_lctx.get_local_decl(fvar);
-            expr jp_val          = e;
-            {
-                flet<local_ctx> save_lctx(m_lctx, m_lctx);
-                /* `fvar` is a let-decl variable, we need to convert into a lambda variable.
-                   Remark: we need to use `replace_fvar_with` because replacing the let-decl variable `fvar` with
-                   the lambda variable `new_fvar` may produce a type incorrect term. */
-                expr new_fvar  = m_lctx.mk_local_decl(ngen(), fvar_decl.get_user_name(), fvar_decl.get_type());
-                if (optional<expr> jp_val_opt = replace_fvar_with(m_st, m_lctx, jp_val, fvar, new_fvar)) {
-                    jp_val = *jp_val_opt;
-                } else {
-                    return none_expr();
-                }
-                jp_val = m_lctx.mk_lambda(new_fvar, jp_val);
-            }
-            /* Create new jp */
-            expr jp_type = cheap_beta_reduce(infer_type(jp_val));
-            mark_simplified(jp_val);
-            expr jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), jp_type, jp_val);
-            new_jps.push_back(jp_var);
-            lean_trace(name({"compiler", "simp"}),
-                       tout() << "mk_join " << fvar << "\n" << c << "\n---\n"
-                       << e << "\n======>\n" << mk_app(jp_var, fvar) << "\n";);
-            return some_expr(mk_app(jp_var, fvar));
+            /* It is worthwhile to create a join point for the whole `e` since we will not
+               be able to perform any simplification. */
+            return none_expr();
         }
     }
 

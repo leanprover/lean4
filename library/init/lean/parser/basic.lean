@@ -139,9 +139,11 @@ def parse.view : syntax → option parse.view_ty
 
 /- Monad stacks used in multiple files -/
 
-/- NOTE: we move `rec_t` under `parser_t`'s `reader_t` so that `term_parser`, which does not
+/- NOTE: We move `rec_t` under `parser_t`'s `reader_t` so that `term_parser`, which does not
    have access to `command_parser`'s ρ (=`command_parser_config`) can still recurse into it
-   (for command quotations). -/
+   (for command quotations). This means that the `command_parser_config` will be reset
+   on a recursive call to `command.parser`, i.e. it forgets about locally registered parsers,
+   but that's not an issue for our intended uses of it. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
 def command_parser_m (ρ : Type) := reader_t ρ $ rec_t unit syntax $ state_t parser_state $ parsec_t syntax id
 

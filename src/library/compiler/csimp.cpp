@@ -507,7 +507,7 @@ class csimp_fn {
                 optional<expr> new_jp_opt     = mk_new_join_point(x, e, jp, new_jps, new_jp_cache);
                 if (!new_jp_opt) return none_expr();
                 expr new_jp                   = *new_jp_opt;
-                new_minor = mk_app(new_jp, jp_args);
+                new_minor = visit(mk_app(new_jp, jp_args), false);
             } else {
                 optional<expr> e_y_opt = apply_at(x, e, minor_val);
                 if (!e_y_opt) return none_expr();

@@ -143,14 +143,30 @@ do stx ← (node_choice! number {
    } : basic_parser),
    pure $ λ info, update_trailing info.trailing stx
 
-def token : basic_parser_m syntax :=
-do (r, i) ← with_source_info $ do {
-     -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
-     -- we want it to be recognized as a symbol
-     f::_ ← longest_match [symbol', ident'] <|> list.ret <$> number' | error "token: unreachable",
-     pure f
-   },
-   pure (r i)
+def token : basic_parser :=
+do it ← left_over,
+   cache ← get_cache,
+   -- NOTE: using `catch` instead of `<|>` so that error messages from the second block are preferred
+   catch (do
+     -- check token cache
+     some tkc ← pure cache.token_cache | failure,
+     guard (it.offset = tkc.start_it.offset),
+     -- hackishly update parsec position
+     monad_parsec.lift (λ it, parsec.result.ok () tkc.stop_it none),
+     pure tkc.tk
+   ) (λ _, do
+     -- cache failed, update cache
+     (r, i) ← with_source_info $ do {
+       -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
+       -- we want it to be recognized as a symbol
+       f::_ ← longest_match [symbol', ident'] <|> list.ret <$> number' | error "token: unreachable",
+       pure f
+     },
+     let tk := r i,
+     new_it ← left_over,
+     put_cache {cache with token_cache := some ⟨it, new_it, tk⟩},
+     pure tk
+   )
 
 variable [monad_basic_parser m]
 

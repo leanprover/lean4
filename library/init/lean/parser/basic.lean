@@ -37,18 +37,40 @@ structure token_config :=
    by the `token` parser. -/
 (suffix_parser : option (parsec' (source_info → syntax)) := none)
 
+-- Backtrackable state
 structure parser_state :=
 (messages : message_log)
+
+structure token_cache_entry :=
+(start_it stop_it : string.iterator)
+(tk : syntax)
+
+-- Non-backtrackable state
+structure parser_cache :=
+(token_cache : option token_cache_entry := none)
 
 structure parser_config :=
 (tokens : trie token_config)
 (filename : string)
 
+@[derive monad alternative monad_state monad_parsec monad_except]
+def parser_core_t (m : Type → Type) [monad m] :=
+state_t parser_state $ parsec_t syntax $ state_t parser_cache $ m
+
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
-def parser_t (ρ : Type) (m : Type → Type) [monad m] := reader_t ρ $ state_t parser_state $ parsec_t syntax m
+def parser_t (ρ : Type) (m : Type → Type) [monad m] := reader_t ρ $ parser_core_t m
 abbreviation basic_parser_m := parser_t parser_config id
 abbreviation basic_parser := basic_parser_m syntax
 abbreviation monad_basic_parser := has_monad_lift_t basic_parser_m
+
+section
+local attribute [reducible] parser_t parser_core_t
+def get_cache : basic_parser_m parser_cache :=
+monad_lift (get : state_t parser_cache id _)
+
+def put_cache : parser_cache → basic_parser_m punit :=
+λ c, monad_lift (put c : state_t parser_cache id _)
+end
 
  -- an arbitrary `parser` type; parsers are usually some monad stack based on `basic_parser_m` returning `syntax`
 variable {ρ : Type}
@@ -91,16 +113,13 @@ def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.me
 -- FIXME: translate position
 {filename := cfg.filename, pos := ⟨0, 0⟩, text := to_string msg}
 
-section
-local attribute [reducible] parser_t
 /-- Run parser stack, returning a partial syntax tree in case of a fatal error -/
-protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ parser_config] (cfg : ρ) (st : parser_state) (s : string) (r : parser_t ρ m α) :
+protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ parser_config] (cfg : ρ) (s : string) (r : parser_t ρ m α) :
 m (sum α syntax × message_log) :=
-do r ← ((r.run cfg).run st).parse_with_eoi s,
+do (r, _) ← (((r.run cfg).run {messages:=message_log.empty}).parse s).run {},
 pure $ match r with
 | except.ok (a, st) := (sum.inl a, st.messages)
 | except.error msg  := (sum.inr msg.custom, message_log.empty.add (message_of_parsec_message cfg msg))
-end
 
 open coroutine
 open monad_parsec
@@ -145,7 +164,7 @@ def parse.view : syntax → option parse.view_ty
    on a recursive call to `command.parser`, i.e. it forgets about locally registered parsers,
    but that's not an issue for our intended uses of it. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
-def command_parser_m (ρ : Type) := reader_t ρ $ rec_t unit syntax $ state_t parser_state $ parsec_t syntax id
+def command_parser_m (ρ : Type) := reader_t ρ $ rec_t unit syntax $ parser_core_t id
 
 section
 local attribute [reducible] parser_t command_parser_m

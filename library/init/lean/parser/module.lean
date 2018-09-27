@@ -30,17 +30,20 @@ structure module_parser_output :=
 (messages : message_log)
 (cfg : module_parser_config)
 
+section
+local attribute [reducible] parser_core_t
 /- NOTE: missing the `reader_t` from `parser_t` because the `coroutine` already provides
    `monad_reader module_parser_config`. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_coroutine]
-def module_parser_m := state_t parser_state $ parsec_t syntax $ coroutine module_parser_config module_parser_output
+def module_parser_m := parser_core_t $ coroutine module_parser_config module_parser_output
 abbreviation module_parser := module_parser_m syntax
+end
 
 instance module_parser_m.lift_parser_t (ρ : Type) [has_lift_t module_parser_config ρ] :
   has_monad_lift (parser_t ρ id) module_parser_m :=
-{ monad_lift := λ α x st it, do
+{ monad_lift := λ α x st it nb_st, do
     cfg ← read,
-    pure (((x.run ↑cfg).run st) it) }
+    pure ((((x.run ↑cfg).run st) it).run nb_st) }
 
 namespace module
 def yield_command (cmd : syntax) : module_parser_m unit :=

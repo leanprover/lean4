@@ -31,7 +31,7 @@ do t ← parser.mk_token_trie $
     parser.tokens term.builtin_leading_parsers ++
     parser.tokens term.builtin_trailing_parsers,
    pure $ {
-     filename := "<unknown", tokens := t,
+     filename := "<unknown>", tokens := t,
      command_parsers := command.builtin_command_parsers,
      leading_term_parsers := term.builtin_leading_parsers,
      trailing_term_parsers := term.builtin_trailing_parsers,
@@ -39,8 +39,8 @@ do t ← parser.mk_token_trie $
 
 def parse_module (s : string) : except string (list module_parser_output) :=
 do cfg ← mk_config,
-   (outputs, except.ok ((), ⟨⟨[]⟩⟩)) ← pure $ coroutine.finish (λ out : module_parser_output, out.cfg)
-     ((module.parser.run ⟨message_log.empty⟩).parse s) cfg
+   (outputs, sum.inl (), ⟨[]⟩) ← pure $ coroutine.finish (λ out : module_parser_output, out.cfg)
+     (parser.run cfg s (λ _, module.parser)) cfg
      | except.error "final parser output should be empty!",
    pure outputs
 
@@ -90,7 +90,7 @@ universes u v
   s ← io.fs.read_file "../../library/init/core.lean",
   let s := (s.mk_iterator.nextn 6500).prev_to_string,
   cfg ← monad_except.lift_except $ mk_config,
-  let k := (module.parser.run ⟨message_log.empty⟩).parse s,
+  let k := parser.run cfg s (λ _, module.parser),
   outs ← io.prim.iterate_eio (k, cfg, ([] : list module_parser_output)) $ λ ⟨k, cfg, outs⟩, match k.resume cfg with
     | coroutine_result_core.done p := pure (sum.inr outs.reverse)
     | coroutine_result_core.yielded out k := do {

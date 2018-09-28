@@ -33,11 +33,9 @@ do cfg ← read,
 
 local attribute [instance] name.has_lt_quick
 
-def max_prec := 1024
-
--- TODO(Sebastian): should these actually be macros?
-def preprocess_notation_spec (spec : notation_spec.view) : notation_spec.view :=
+def postprocess_notation_spec (spec : notation_spec.view) : notation_spec.view :=
 -- default leading tokens to `max`
+-- NOTE: should happen after copying precedences from reserved notation
 match spec with
 | {prefix_arg := none, rules := r@{symbol := notation_symbol.view.quoted sym@{prec := none, ..}, ..}::rs} :=
   {spec with rules := {r with symbol := notation_symbol.view.quoted {sym with prec := some {prec := number.view.of_nat max_prec}}}::rs}
@@ -46,7 +44,7 @@ match spec with
 def reserve_notation.elaborate : elaborator :=
 λ stx, do
   let v := view reserve_notation stx,
-  let v := {v with spec := preprocess_notation_spec v.spec},
+  let v := {v with spec := postprocess_notation_spec v.spec},
   -- TODO: sanity checks?
   st ← get,
   cfg ← match command_parser_config.register_notation_tokens v.spec st.parser_cfg with
@@ -96,7 +94,6 @@ do guard $ spec.prefix_arg.is_some = reserved.prefix_arg.is_some,
 def notation.elaborate : elaborator :=
 λ stx, do
   let nota := view «notation» stx,
-  let nota := {nota with spec := preprocess_notation_spec nota.spec},
   st ← get,
 
   -- check reserved notations
@@ -106,6 +103,7 @@ def notation.elaborate : elaborator :=
   | [matched] := pure {nota with spec := matched}
   | []        := pure nota
   | _         := error stx "invalid notation, matches multiple reserved notations",
+  let nota := {nota with spec := postprocess_notation_spec nota.spec},
 
   cfg ← match command_parser_config.register_notation_tokens nota.spec st.parser_cfg >>=
               command_parser_config.register_notation_parser nota.spec with

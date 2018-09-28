@@ -341,7 +341,6 @@ class has_zero     (α : Type u) := (zero : α)
 class has_one      (α : Type u) := (one : α)
 class has_add      (α : Type u) := (add : α → α → α)
 class has_mul      (α : Type u) := (mul : α → α → α)
-class has_inv      (α : Type u) := (inv : α → α)
 class has_neg      (α : Type u) := (neg : α → α)
 class has_sub      (α : Type u) := (sub : α → α → α)
 class has_div      (α : Type u) := (div : α → α → α)
@@ -471,9 +470,6 @@ be stronger than application.
 -/
 
 def std.prec.max_plus : nat := std.prec.max + 10
-
-reserve postfix `⁻¹`:std.prec.max_plus  -- input with \sy or \-1 or \inv
-postfix ⁻¹     := has_inv.inv
 
 notation α × β := prod α β
 -- notation for n-ary tuples
@@ -1535,7 +1531,7 @@ variable f : α → α → α
 variable inv : α → α
 variable one : α
 local notation a * b := f a b
-local notation a ⁻¹  := inv a
+local postfix `⁻¹`:max := inv
 variable g : α → α → α
 local notation a + b := g a b
 

@@ -171,6 +171,7 @@ do it ← left_over,
 variable [monad_basic_parser m]
 
 def symbol (sym : string) (lbp := 0) : parser :=
+let sym := sym.trim in
 lift $ try $ do {
   it ← left_over,
   stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,

@@ -138,7 +138,7 @@ def command_parser_config.register_notation_tokens (spec : notation_spec.view) (
   except string command_parser_config :=
 do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
    | notation_symbol.view.quoted {symbol := syntax.atom a, prec := some prec, ..} :=
-     pure {cfg with tokens := cfg.tokens.insert a.val {«prefix» := a.val}}
+     pure {cfg with tokens := cfg.tokens.insert a.val {«prefix» := a.val.trim}}
    | _ := throw "register_notation: unreachable") cfg
 
 def command_parser_config.register_notation_parser (spec : notation_spec.view) (cfg : command_parser_config) :

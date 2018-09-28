@@ -208,6 +208,30 @@ def popn_back (s : string) (n : nat) : string :=
 def backn (s : string) (n : nat) : string :=
 (s.mk_iterator.to_end.prevn n).remaining_to_string
 
+private def trim_left_aux : nat → iterator → iterator
+| 0 it := it
+| (n+1) it :=
+  if it.curr.is_whitespace then trim_left_aux n it.next
+  else it
+
+def trim_left (s : string) : string :=
+(trim_left_aux s.length s.mk_iterator).remaining_to_string
+
+private def trim_right_aux : nat → iterator → iterator
+| 0 it := it
+| (n+1) it :=
+  let it' := it.prev in
+  if it'.curr.is_whitespace then trim_right_aux n it'
+  else it
+
+def trim_right (s : string) : string :=
+(trim_right_aux s.length s.mk_iterator.to_end).prev_to_string
+
+def trim (s : string) : string :=
+let l := trim_left_aux s.length s.mk_iterator in
+let r := trim_right_aux s.length s.mk_iterator.to_end in
+(l.extract r).get_or_else ""
+
 private def line_column_aux : nat → string.iterator → nat × nat → nat × nat
 | 0     it r           := r
 | (k+1) it r@(line, col) :=

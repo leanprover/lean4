@@ -40,7 +40,7 @@ do t ← parser.mk_token_trie $
 
 def parse_module (s : string) : except string (list module_parser_output) :=
 do cfg ← mk_config,
-   (outputs, sum.inl (), ⟨[]⟩) ← pure $ coroutine.finish (λ out : module_parser_output, out.cfg)
+   (outputs, sum.inl (), ⟨[]⟩) ← pure $ coroutine.finish (λ_, cfg)
      (parser.run cfg s (λ _, module.parser)) cfg
      | except.error "final parser output should be empty!",
    pure outputs
@@ -89,7 +89,7 @@ universes u v
 -- slowly progressing...
 #eval (do {
   s ← io.fs.read_file "../../library/init/core.lean",
-  let s := (s.mk_iterator.nextn 6500).prev_to_string,
+  let s := (s.mk_iterator.nextn 7000).prev_to_string,
   parser_cfg ← monad_except.lift_except $ mk_config,
   let cfg : elaborator_config := {filename := "foo"},
   let st : elaborator_state := {parser_cfg := {..parser_cfg}},
@@ -110,7 +110,7 @@ universes u v
       match (expand out.cmd).run {filename := "init/core.lean"} with
       | except.ok cmd' := do {
         --io.println cmd',
-        match ((elaborate cmd').run cfg).run {st with parser_cfg := out.cfg} with
+        match ((elaborate cmd').run cfg).run st with
         | except.ok ((), st) := pure (sum.inl (k, st, out :: outs))
         | except.error e := throw e.text
       }

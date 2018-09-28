@@ -51,30 +51,29 @@ def reserve_notation.elaborate : elaborator :=
   | except.ok cfg  := pure cfg
   | except.error e := error stx e,
   put {st with reserved_notations := v::st.reserved_notations,
-    parser_cfg := {..cfg, ..st.parser_cfg}}
+    parser_cfg := {st.parser_cfg with to_command_parser_config := cfg}}
 
-def match_precedence : option precedence.view → option precedence.view → option precedence.view
-| none      (some rp) := pure rp
-| (some sp) (some rp) := guard (sp.prec.to_nat = rp.prec.to_nat) *> pure rp
-| _         _         := failure
+def match_precedence : option precedence.view → option precedence.view → bool
+| none      (some rp) := tt
+| (some sp) (some rp) := sp.prec.to_nat = rp.prec.to_nat
+| _         _         := ff
 
 /-- Check if a notation is compatible with a reserved notation, and if so, copy missing
     precedences in the notation from the reserved notation. -/
 def match_spec (spec reserved : notation_spec.view) : option notation_spec.view :=
 do guard $ spec.prefix_arg.is_some = reserved.prefix_arg.is_some,
    rules ← (spec.rules.zip reserved.rules).mmap $ λ ⟨sr, rr⟩, do {
-     -- TODO(Sebastian): unquoted symbols?
      notation_symbol.view.quoted sq@{symbol := syntax.atom sa, ..} ← pure sr.symbol
        | failure,
      notation_symbol.view.quoted rq@{symbol := syntax.atom ra, ..} ← pure rr.symbol
        | failure,
-     guard $ sa.val = ra.val,
-     sp ← match_precedence sq.prec rq.prec,
+     guard $ sa.val.trim = ra.val.trim,
+     guard $ match_precedence sq.prec rq.prec,
      st ← match sr.transition, rr.transition with
      | some (transition.view.binder sb), some (transition.view.binder rb) :=
-       match_precedence sb.prec rb.prec <&> λ p, some $ transition.view.binder {sb with prec := p}
+       guard (match_precedence sb.prec rb.prec) *> pure rr.transition
      | some (transition.view.binders sb), some (transition.view.binders rb) :=
-       match_precedence sb.prec rb.prec <&> λ p, some $ transition.view.binders {sb with prec := p}
+       guard (match_precedence sb.prec rb.prec) *> pure rr.transition
      | some (transition.view.arg sarg), some (transition.view.arg rarg) := do
        sact ← match action.view.action <$> sarg.action, action.view.action <$> rarg.action with
        | some (action_kind.view.prec sp), some (action_kind.view.prec rp) :=
@@ -86,7 +85,7 @@ do guard $ spec.prefix_arg.is_some = reserved.prefix_arg.is_some,
      | none,    none    := pure none
      | _,       _       := failure,
      pure $ {rule.view .
-       symbol := notation_symbol.view.quoted {sq with prec := sp},
+       symbol := notation_symbol.view.quoted rq,
        transition := st}
    },
    pure $ {spec with rules := rules}
@@ -104,12 +103,13 @@ def notation.elaborate : elaborator :=
   | []        := pure nota
   | _         := error stx "invalid notation, matches multiple reserved notations",
   let nota := {nota with spec := postprocess_notation_spec nota.spec},
+  -- TODO: sanity checks
 
   cfg ← match command_parser_config.register_notation_tokens nota.spec st.parser_cfg >>=
               command_parser_config.register_notation_parser nota.spec with
   | except.ok cfg  := pure cfg
   | except.error e := error stx e,
-  put {st with parser_cfg := {..cfg, ..st.parser_cfg}}
+  put {st with parser_cfg := {st.parser_cfg with to_command_parser_config := cfg}}
 
 -- TODO(Sebastian): replace with attribute
 def elaborators : rbmap name elaborator (<) := rbmap.from_list [

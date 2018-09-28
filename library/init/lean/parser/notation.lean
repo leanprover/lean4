@@ -138,7 +138,7 @@ def command_parser_config.register_notation_tokens (spec : notation_spec.view) (
   except string command_parser_config :=
 do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
    | notation_symbol.view.quoted {symbol := syntax.atom a, prec := some prec, ..} :=
-     pure {cfg with tokens := cfg.tokens.insert a.val {«prefix» := a.val.trim}}
+     pure {cfg with tokens := cfg.tokens.insert a.val.trim {«prefix» := a.val.trim, lbp := prec.prec.to_nat}}
    | _ := throw "register_notation: unreachable") cfg
 
 def command_parser_config.register_notation_parser (spec : notation_spec.view) (cfg : command_parser_config) :
@@ -151,7 +151,8 @@ do -- build and register parser
        pure (symbol a.val : term_parser)
      | _ := throw "register_notation: unreachable",
      ptrans ← match r.transition with
-     | some (transition.view.arg arg) := pure $ some term.parser
+     | some (transition.view.arg {action := some {action := action_kind.view.prec prec}, ..}) :=
+       pure $ some $ term.parser prec.to_nat
      | none := pure $ none
      | _ := throw "register_notation: unimplemented",
      pure $ psym::ptrans.to_monad

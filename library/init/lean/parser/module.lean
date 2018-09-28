@@ -28,7 +28,6 @@ instance module_parser_config_coe : has_coe module_parser_config command_parser_
 structure module_parser_output :=
 (cmd : syntax)
 (messages : message_log)
-(cfg : module_parser_config)
 
 section
 local attribute [reducible] parser_core_t
@@ -48,8 +47,7 @@ instance module_parser_m.lift_parser_t (ρ : Type) [has_lift_t module_parser_con
 namespace module
 def yield_command (cmd : syntax) : module_parser_m unit :=
 do st ← get,
-   cfg ← read,
-   yield {cmd := cmd, messages := st.messages, cfg := cfg},
+   yield {cmd := cmd, messages := st.messages},
    put {st with messages := message_log.empty}
 
 @[derive parser.has_view parser.has_tokens]

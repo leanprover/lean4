@@ -58,7 +58,7 @@ match k with
       transition := transition.view.arg {id := `b,
         action := prec_to_action <$> precedence.view.prec <$> prec}}]}
 | mixfix.kind.view.postfix _ :=
-  -- `postfix tk:prec` ~> `notation tk:prec b:prec`
+  -- `postfix tk:prec` ~> `notation a tk:prec`
   pure {
     prefix_arg := `a,
     rules := [{symbol := sym}]}
@@ -87,17 +87,21 @@ match k with
 def mixfix.transform : transformer :=
 λ stx, do
   let v := view mixfix stx,
-   spec ← mixfix_to_notation_spec v.kind v.symbol,
-   let term := match v.kind with
-   | mixfix.kind.view.prefix _ :=
-     -- `prefix tk:prec? := e` ~> `notation tk:prec? b:prec? := e b`
-     review app {fn := v.term, arg := review term.ident `b}
-   | mixfix.kind.view.postfix _ :=
-     -- `postfix tk:prec? := e` ~> `notation tk:prec? b:prec? := e b`
-     review app {fn := v.term, arg := review term.ident `a}
-   | _ :=
-     review app {fn := review app {fn := v.term, arg := review term.ident `a}, arg := review term.ident `b},
-   pure $ review «notation» {spec := spec, term := term}
+  let nota_sym := match v.symbol with
+  | mixfix_symbol.view.quoted q := notation_symbol.view.quoted q
+  | mixfix_symbol.view.unquoted u := notation_symbol.view.quoted {
+    left_quote := "`", symbol := u, right_quote := "`"},
+  spec ← mixfix_to_notation_spec v.kind nota_sym,
+  let term := match v.kind with
+  | mixfix.kind.view.prefix _ :=
+    -- `prefix tk:prec? := e` ~> `notation tk:prec? b:prec? := e b`
+    review app {fn := v.term, arg := review term.ident `b}
+  | mixfix.kind.view.postfix _ :=
+    -- `postfix tk:prec? := e` ~> `notation tk:prec? b:prec? := e b`
+    review app {fn := v.term, arg := review term.ident `a}
+  | _ :=
+    review app {fn := review app {fn := v.term, arg := review term.ident `a}, arg := review term.ident `b},
+  pure $ review «notation» {spec := spec, term := term}
 
 def reserve_mixfix.transform : transformer :=
 λ stx, do

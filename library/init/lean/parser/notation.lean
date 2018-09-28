@@ -45,12 +45,30 @@ node! notation_quoted_symbol [
   right_quote: raw (ch '`') tt, -- consume trailing ws
   prec: precedence.parser?]
 
+def unquoted_symbol.parser : term_parser :=
+try $ do {
+  it ← left_over,
+  stx@(syntax.atom _) ← monad_lift token | error "" (dlist.singleton "symbol") it,
+  pure stx
+} <?> "symbol"
+
+instance unquoted_symbol.tokens : parser.has_tokens unquoted_symbol.parser := ⟨[]⟩
+instance unquoted_symbol.view : parser.has_view unquoted_symbol.parser syntax := default _
+
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems
 @[derive parser.has_tokens parser.has_view]
 def notation_symbol.parser : term_parser :=
 node_choice! notation_symbol {
-  quoted: symbol_quote.parser
-  --TODO, {read := do tk ← token, /- check if reserved token-/}
+  quoted: symbol_quote.parser,
+  --TODO(Sebastian): decide if we want this in notations
+  --unquoted: unquoted_symbol.parser
+}
+
+@[derive parser.has_tokens parser.has_view]
+def mixfix_symbol.parser : term_parser :=
+node_choice! mixfix_symbol {
+  quoted: symbol_quote.parser,
+  unquoted: unquoted_symbol.parser
 }
 
 @[derive parser.has_tokens parser.has_view]
@@ -100,7 +118,7 @@ node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 def mixfix.parser : term_parser :=
 node! «mixfix» [
   kind: mixfix.kind.parser,
-  symbol: notation_spec.notation_symbol.parser, ":=", term: term.parser]
+  symbol: notation_spec.mixfix_symbol.parser, ":=", term: term.parser]
 
 @[derive parser.has_tokens parser.has_view]
 def notation_like.parser : term_parser :=

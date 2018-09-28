@@ -3216,7 +3216,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     if (!expected_type)
         throw elaborator_exception(e, "node!: expected type must be known");
     expr exp = expected_type.value();
-    sstream struc, stx_pat, binds, mk_args, view_pat, reviews, default_val;
+    sstream struc, binds, mk_args, view_pat, reviews, default_val;
     unsigned i = 0;
     struc << "@[pattern] def " << esc_macro.to_string();
     struc << " := {syntax_node_kind . name := `" << full_macro.to_string() << "}\n"
@@ -3248,8 +3248,6 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             else
                 struc << "(«" << fname << "» : " << instantiate_mvars(m) << ")\n";
 
-            if (i != 0)
-                stx_pat << ", ";
             binds << "let (stxs, stx) := match stxs : _ -> prod (list syntax) syntax with (stx::stxs) := (stxs, stx) | _ := (stxs, syntax.missing) in\n"
             << "let a" << i << " := parser.has_view.view (" << pp(r) << " : " << pp(exp) << ")" << " stx in\n";
             mk_args << "a" << i << " ";
@@ -3265,14 +3263,13 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
         if (is_mdata(r)) {
             new_args.push_back(add_field(r));
         } else {// try block
-            stx_pat << "syntax.node (syntax_node.mk _ [";
+            binds << "let stxs := match stxs with (syntax.node (syntax_node.mk _ stxs))::sstxs := stxs ++ sstxs | _ := stxs in\n";
             reviews << "syntax.node (syntax_node.mk none [";
             buffer<expr> new_try_args;
             for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args)) {
                 expr r = app_arg(app_fn(args));
                 new_try_args.push_back(add_field(r));
             }
-            stx_pat << "])";
             reviews << "])";
             new_args.push_back(mk_app(mk_const({"lean", "parser", "monad_parsec", "try"}),
                                       mk_app(mk_const({"lean", "parser", "combinators", "seq"}),

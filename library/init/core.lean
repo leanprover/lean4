@@ -226,7 +226,7 @@ infix = := eq
 theorem eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
 eq.ndrec h₂ h₁
 
-notation h1 ▸ h2 := eq.subst h1 h2
+infixr ▸ := eq.subst
 
 theorem eq.trans {α : Sort u} {a b c : α} (h₁ : a = b) (h₂ : b = c) : a = c :=
 h₂ ▸ h₁

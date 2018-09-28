@@ -358,10 +358,7 @@ unsigned get_lcnf_size(environment const & env, expr e) {
     case expr_kind::MData:
         return 1;
     case expr_kind::Const:
-        if (is_constructor(env, const_name(e)))
-            return 0;
-        else
-            return 1;
+        return 1;
     case expr_kind::Lambda:
         r = 1;
         while (is_lambda(e)) {

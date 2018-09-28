@@ -5,7 +5,12 @@ Author: Sebastian Ullrich
 
 Trie for tokenizing the Lean language
 -/
-namespace lean.parser
+prelude
+import init.data.rbmap
+import init.lean.format
+
+namespace lean
+namespace parser
 
 inductive trie (α : Type)
 | node : option α → rbnode (char × trie) → trie
@@ -44,6 +49,14 @@ private def match_prefix_aux : nat → trie α → string.iterator → option (s
 
 def match_prefix {α : Type} (t : trie α) (it : string.iterator) : option (string.iterator × α) :=
 match_prefix_aux it.remaining t it none
+
+private def to_string_aux {α : Type} : trie α → list format
+| (trie.node val map) := flip rbnode.fold map (λ ⟨c, t⟩ fs,
+  to_format (repr c) :: (format.group $ format.nest 2 $ flip format.join_sep format.line $ to_string_aux t) :: fs) []
+
+instance {α : Type} : has_to_string (trie α) :=
+⟨λ t, (flip format.join_sep format.line $ to_string_aux t).pretty 0⟩
 end trie
 
-end lean.parser
+end parser
+end lean

@@ -9,6 +9,7 @@ prelude
 import init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec
 import init.lean.parser.trie
 import init.lean.parser.identifier init.data.rbmap init.lean.message
+import init.control.coroutine
 
 namespace lean
 namespace parser

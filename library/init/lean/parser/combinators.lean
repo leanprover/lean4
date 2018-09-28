@@ -7,6 +7,7 @@ Syntax-tree creating parser combinators
 -/
 prelude
 import init.lean.parser.basic
+import init.data.list.instances
 
 namespace lean
 namespace parser

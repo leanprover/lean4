@@ -28,6 +28,47 @@ static expr * g_dont_care = nullptr;
 ctype_checker::state::state(environment const & env):
     m_env(env), m_ngen(*g_rtc_fresh) {}
 
+bool ctype_checker::is_inductive_type(expr const & t) {
+    expr const & I = get_app_fn(t);
+    if (!is_constant(I)) return false;
+    optional<constant_info> info = env().find(const_name(I));
+    if (!info || !info->is_inductive()) return false;
+    inductive_val I_val = info->to_inductive_val();
+    return I_val.get_nparams() + I_val.get_nindices() == get_app_num_args(t);
+}
+
+bool ctype_checker::is_stuck_type(expr const & t) {
+    /* `e` is in weak head normal form. */
+    switch (t.kind()) {
+    case expr_kind::MVar:
+        throw kernel_exception(env(), "compiler type checker does not support meta variables");
+    case expr_kind::BVar:
+        lean_unreachable();
+    case expr_kind::Lit:
+        lean_unreachable();  /* literals are not types */
+    case expr_kind::Lambda:
+        lean_unreachable();  /* lambdas are not types */
+    case expr_kind::MData:
+        lean_unreachable();  /* `e` is in weak head normal form. */
+    case expr_kind::Let:
+        lean_unreachable();  /* `e` is in weak head normal form. */
+    case expr_kind::Sort:
+        return false;
+    case expr_kind::Pi:
+        return false;
+    case expr_kind::FVar:
+        lean_assert(!lctx.find(e).get_value());
+        return true;         /* e is in weak head normal form. */
+    case expr_kind::Proj:
+        return true;         /* `e` is in weak head normal form. */
+    case expr_kind::Const:
+        return !is_inductive_type(t);
+    case expr_kind::App:
+        return !is_inductive_type(t);
+    }
+    lean_unreachable();
+}
+
 /** \brief Make sure \c e "is" a sort, and return the corresponding sort.
     If \c e is not a sort, then the whnf procedure is invoked.
 

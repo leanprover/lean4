@@ -41,18 +41,12 @@ namespace lean {
       and the remaining are the minor premises. This type checker has
       support for reducing and type checking this kind of application.
 
-    - We say a term `t` is stuck IF
-       1) `t` is a free variable or axiom (i.e., constant_info is axiom_info).
-       2) `t` is an application `f a`, and `f` is stuck.
-       3) `t` is an projection `p.i`, and `p` is stuck.
-       4) `t` is a recursor application `I.rec ... m ...` where `m` is the major premise,
-          and `m` is stuck. We also consider partially applied
-          `I.rec ...` applications to be stuck.
-       5) Similar to item 3, but with `I._cases` instead of `I.rec`.
+    - We say a type `t` is a stuck_type IF `t` is in weak-head-normal-form, and
+       1) `t` is not `Sort u`, and
+       2) `t` is not `Pi x : A, B x`
+       3) `t` is not an inductive datatype `I As js`
 
-    - We say a type `t` is type_stuck if it is stuck and it is an application or projection.
-
-    - Given types `t` and `s`, we consider them to be definitionally equal if `t` or `s` is type_stuck, or
+    - Given types `t` and `s`, we consider them to be definitionally equal if `t` or `s` is stuck_type, or
       `t` or `s` is `lc_any`.
 
     - We propagate `lc_any` when inferring types. Examples:
@@ -63,7 +57,7 @@ namespace lean {
       We say a structure `I As` is trivial if it has only constructor,
       the constructor has only one relevant field, and the type of this field is `C As` and
       doesn't depend on other fields. Moreover, we consider the types `I As` and `C As` to be
-      definitionally equal, and the constructor to be the identity function.
+      definitionally equal, and the constructor and recursor are treated like the identity function.
 
     - `quot A r` and `A` are considered definitionally equal.
 
@@ -89,6 +83,9 @@ private:
     bool                      m_st_owner;
     state *                   m_st;
     local_ctx                 m_lctx;
+
+    bool is_inductive_type(expr const & t);
+    bool is_stuck_type(expr const & t);
 
     expr ensure_sort_core(expr e, expr const & s);
     expr ensure_pi_core(expr e, expr const & s);

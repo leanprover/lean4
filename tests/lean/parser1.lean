@@ -1,7 +1,8 @@
-import init.lean.parser.module init.lean.expander init.io
+import init.lean.parser.module init.lean.expander init.lean.elaborator init.io
 open lean
 open lean.parser
 open lean.expander
+open lean.elaborator
 
 def check_reprint (p : list module_parser_output) (s : string) : except_t string io unit :=
 let stx := syntax.node ⟨none, p.map (λ o, o.cmd)⟩ in
@@ -89,9 +90,11 @@ universes u v
 #eval (do {
   s ← io.fs.read_file "../../library/init/core.lean",
   let s := (s.mk_iterator.nextn 6500).prev_to_string,
-  cfg ← monad_except.lift_except $ mk_config,
-  let k := parser.run cfg s (λ _, module.parser),
-  outs ← io.prim.iterate_eio (k, cfg, ([] : list module_parser_output)) $ λ ⟨k, cfg, outs⟩, match k.resume cfg with
+  parser_cfg ← monad_except.lift_except $ mk_config,
+  let cfg : elaborator_config := {filename := "foo"},
+  let st : elaborator_state := {parser_cfg := {..parser_cfg}},
+  let k := parser.run parser_cfg s (λ _, module.parser),
+  outs ← io.prim.iterate_eio (k, st, ([] : list module_parser_output)) $ λ ⟨k, st, outs⟩, match k.resume st.parser_cfg with
     | coroutine_result_core.done p := pure (sum.inr outs.reverse)
     | coroutine_result_core.yielded out k := do {
       match out.messages.to_list with
@@ -103,8 +106,14 @@ universes u v
         io.println "partial syntax tree:",
         io.println (to_string out.cmd)-/
       },
+      --io.println out.cmd,
       match (expand out.cmd).run {filename := "init/core.lean"} with
-      | except.ok cmd' := pure (sum.inl (k, out.cfg, out :: outs))
+      | except.ok cmd' := do {
+        --io.println cmd',
+        match ((elaborate cmd').run cfg).run {st with parser_cfg := out.cfg} with
+        | except.ok ((), st) := pure (sum.inl (k, st, out :: outs))
+        | except.error e := throw e.text
+      }
       | except.error e := throw e.text
     },
   check_reprint outs s,

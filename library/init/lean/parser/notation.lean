@@ -113,5 +113,36 @@ node! «reserve_mixfix» [
   symbol: notation_spec.notation_symbol.parser]
 
 end «command»
+open «command»
+open command.notation_spec
+
+def command_parser_config.register_notation_tokens (spec : notation_spec.view) (cfg : command_parser_config) :
+  except string command_parser_config :=
+do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
+   | notation_symbol.view.quoted {symbol := syntax.atom a, prec := some prec, ..} :=
+     pure {cfg with tokens := cfg.tokens.insert a.val {«prefix» := a.val}}
+   | _ := throw "register_notation: unreachable") cfg
+
+def command_parser_config.register_notation_parser (spec : notation_spec.view) (cfg : command_parser_config) :
+  except string command_parser_config :=
+do -- build and register parser
+   let k : syntax_node_kind := {name := "notation<TODO>"},
+   ps ← spec.rules.mmap (λ r : rule.view, do
+     psym ← match r.symbol with
+     | notation_symbol.view.quoted {symbol := syntax.atom a ..} :=
+       pure (symbol a.val : term_parser)
+     | _ := throw "register_notation: unreachable",
+     ptrans ← match r.transition with
+     | some (transition.view.arg arg) := pure $ some term.parser
+     | none := pure $ none
+     | _ := throw "register_notation: unimplemented",
+     pure $ psym::ptrans.to_monad
+   ),
+   let ps := ps.bind id,
+   cfg ← match spec.prefix_arg with
+   | none   := pure {cfg with leading_term_parsers := node k ps::cfg.leading_term_parsers}
+   | some _ := pure {cfg with trailing_term_parsers := node k (read::ps.map coe)::cfg.trailing_term_parsers},
+   pure cfg
+
 end parser
 end lean

@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_recursors.h"
 #include "library/compiler/vm_compiler.h"
 
+#include "library/compiler/ctype_checker.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/cse.h"
@@ -28,6 +29,7 @@ void initialize_compiler_module() {
     initialize_vm_compiler();
     initialize_elim_recursors();
     //======
+    initialize_ctype_checker();
     initialize_lcnf();
     initialize_elim_dead_let();
     initialize_cse();
@@ -37,6 +39,7 @@ void finalize_compiler_module() {
     finalize_cse();
     finalize_elim_dead_let();
     finalize_lcnf();
+    finalize_ctype_checker();
     //======
     finalize_elim_recursors();
     finalize_vm_compiler();

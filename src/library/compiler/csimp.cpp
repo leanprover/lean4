@@ -233,7 +233,9 @@ class csimp_fn {
                 if (is_proj(s) && proj_expr(s) == x) {
                     found = true;
                     return false;
-                } else if (is_cases_on_app(env(), s) && get_cases_on_app_major(env(), s) == x) {
+                } else if (is_cases_on_app(env(), s) &&
+                           get_app_num_args(s) == get_cases_on_arity(env(), const_name(get_app_fn(s))) &&
+                           get_cases_on_app_major(env(), s) == x) {
                     found = true;
                     return false;
                 }

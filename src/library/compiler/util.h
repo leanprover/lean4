@@ -30,6 +30,16 @@ expr unfold_macro_defs(environment const & env, expr const & e);
 inline bool is_lc_mdata(expr const &) { return false; }
 
 bool is_cases_on_recursor(environment const & env, name const & n);
+/* We defined the "arity" of a cases_on application as the sum:
+   ```
+     number of inductive parameters +
+     1 +    // motive
+     number of inductive indices +
+     1 +    // major premise
+     number of constructors // cases_on has a minor premise for each constructor
+   ```
+   \pre is_cases_on_recursor(env, c) */
+unsigned get_cases_on_arity(environment const & env, name const & c);
 /* Return the `inductive_val` for the cases_on constant `c`. */
 inline inductive_val get_cases_on_inductive_val(environment const & env, name const & c) {
     lean_assert(is_cases_on_recursor(env, c));

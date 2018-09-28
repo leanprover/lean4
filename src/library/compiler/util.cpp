@@ -125,6 +125,15 @@ bool is_cases_on_recursor(environment const & env, name const & n) {
     return ::lean::is_aux_recursor(env, n) && n.get_string() == "cases_on";
 }
 
+unsigned get_cases_on_arity(environment const & env, name const & c) {
+    lean_assert(is_cases_on_recursor(env, c));
+    inductive_val I_val = get_cases_on_inductive_val(env, c);
+    unsigned nparams    = I_val.get_nparams();
+    unsigned nindices   = I_val.get_nindices();
+    unsigned nminors    = I_val.get_ncnstrs();
+    return nparams + 1 /* motive */ + nindices + 1 /* major */ + nminors;
+}
+
 expr get_cases_on_app_major(environment const & env, expr const & c) {
     lean_assert(is_cases_on_app(env, c));
     buffer<expr> args;

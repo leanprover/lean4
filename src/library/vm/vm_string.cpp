@@ -488,7 +488,7 @@ vm_obj string_iterator_extract(vm_obj const & it1, vm_obj const & it2) {
     size_t pos2 = it_pos(it2);
     if (pos2 < pos1)
         return mk_vm_none();
-    return mk_vm_some(to_obj(s1.m_value.substr(pos1, pos2 - pos1), pos2 - pos1));
+    return mk_vm_some(to_obj(s1.m_value.substr(pos1, pos2 - pos1), it_remaining(it1) - it_remaining(it2)));
 }
 
 vm_obj string_hash(vm_obj const & s) {

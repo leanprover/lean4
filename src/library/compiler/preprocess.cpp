@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "library/compiler/nat_value.h"
 #include "library/compiler/eta_expansion.h"
 #include "library/compiler/inliner.h"
-#include "library/compiler/elim_recursors.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/reduce_arity.h"
 #include "library/compiler/lambda_lifting.h"
@@ -288,6 +287,9 @@ public:
         lean_trace(name({"compiler", "input"}), tout() << d.get_name() << "\n";);
         if (compile_irrelevant(d, procs))
             return m_env;
+
+
+
         exec_new_compiler(d);
         expr v = d.get_value();
         v = remove_meta_rec(v);
@@ -306,10 +308,7 @@ public:
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
         name n = get_real_name(d.get_name());
-        v = elim_recursors(m_env, m_cache, n, v, procs);
         procs.emplace_back(n, optional<pos_info>(), v);
-        lean_cond_assert("compiler", check(d, procs.back().m_code));
-        lean_trace(name({"compiler", "elim_recursors"}), tout() << "\n"; display(procs););
         erase_irrelevant(procs);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
         reduce_arity(m_env, m_cache, procs);
@@ -357,7 +356,6 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "eta_expansion"});
     register_trace_class({"compiler", "inline"});
-    register_trace_class({"compiler", "elim_recursors"});
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "reduce_arity"});
     register_trace_class({"compiler", "erase_trivial_structures"});

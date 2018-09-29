@@ -314,7 +314,7 @@ class decidable_eq (α : Sort u) :=
 
 export decidable_eq (dec_eq)
 
-instance decidable_of_decidable_eq {α : Sort u} (a b : α) [decidable_eq α] : decidable (a = b) :=
+@[inline] instance decidable_of_decidable_eq {α : Sort u} (a b : α) [decidable_eq α] : decidable (a = b) :=
 dec_eq a b
 
 inductive option (α : Type u)

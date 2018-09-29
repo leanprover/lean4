@@ -1080,7 +1080,7 @@ theorem forall_not_of_not_exists {α : Sort u} {p : α → Prop} : ¬(∃ x, p x
 
 /- Decidable -/
 
-def decidable.to_bool (p : Prop) [h : decidable p] : bool :=
+@[macro_inline] def decidable.to_bool (p : Prop) [h : decidable p] : bool :=
 decidable.cases_on h (λ h₁, bool.ff) (λ h₂, bool.tt)
 
 export decidable (is_true is_false to_bool)
@@ -1118,7 +1118,7 @@ def rec_on_false [h : decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u}
     : (decidable.rec_on h h₂ h₁ : Sort u) :=
 decidable.cases_on h (λ h, h₄) (λ h, false.rec _ (h₃ h))
 
-def by_cases {q : Sort u} [s : decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
+@[macro_inline] def by_cases {q : Sort u} [s : decidable p] (h1 : p → q) (h2 : ¬p → q) : q :=
 match s with
 | is_true h  := h1 h
 | is_false h := h2 h
@@ -1163,8 +1163,9 @@ else is_false (iff.mp (not_iff_not_of_iff h) hp)
 def  decidable_of_decidable_of_eq (hp : decidable p) (h : p = q) : decidable q :=
 decidable_of_decidable_of_iff hp h.to_iff
 
+@[macro_inline]
 protected def or.by_cases [decidable p] [decidable q] {α : Sort u}
-                                 (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
+                          (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
 if hp : p then h₁ hp else
   if hq : q then h₂ hq else
     false.rec _ (or.elim h hp hq)
@@ -1173,13 +1174,13 @@ end
 section
 variables {p q : Prop}
 
-instance [decidable p] [decidable q] : decidable (p ∧ q) :=
+@[macro_inline] instance [decidable p] [decidable q] : decidable (p ∧ q) :=
 if hp : p then
   if hq : q then is_true ⟨hp, hq⟩
   else is_false (assume h : p ∧ q, hq (and.right h))
 else is_false (assume h : p ∧ q, hp (and.left h))
 
-instance [decidable p] [decidable q] : decidable (p ∨ q) :=
+@[macro_inline] instance [decidable p] [decidable q] : decidable (p ∨ q) :=
 if hp : p then is_true (or.inl hp) else
   if hq : q then is_true (or.inr hq) else
     is_false (λ h, or.elim h hp hq)
@@ -1187,7 +1188,7 @@ if hp : p then is_true (or.inl hp) else
 instance [decidable p] : decidable (¬p) :=
 if hp : p then is_false (absurd hp) else is_true hp
 
-instance implies.decidable [decidable p] [decidable q] : decidable (p → q) :=
+@[macro_inline] instance implies.decidable [decidable p] [decidable q] : decidable (p → q) :=
 if hp : p then
   if hq : q then is_true (assume h, hq)
   else is_false (assume h : p → q, absurd (h hp) hq)

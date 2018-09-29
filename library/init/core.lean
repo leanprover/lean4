@@ -328,7 +328,7 @@ inductive list (T : Type u)
 | nil {} : list
 | cons (hd : T) (tl : list) : list
 
-notation h :: t  := list.cons h t
+infixr :: := list.cons
 notation `[` l:(foldr `, ` (h t, list.cons h t) list.nil `]`) := l
 
 inductive nat
@@ -375,7 +375,7 @@ export has_andthen (andthen)
 export has_pow (pow)
 
 infix ∈        := has_mem.mem
-notation a ∉ s := ¬ has_mem.mem a s
+notation a ` ∉ ` s := ¬ has_mem.mem a s
 infix +        := has_add.add
 infix *        := has_mul.mul
 infix -        := has_sub.sub
@@ -471,7 +471,7 @@ be stronger than application.
 
 def std.prec.max_plus : nat := std.prec.max + 10
 
-notation α × β := prod α β
+infixr × := prod
 -- notation for n-ary tuples
 
 /- sizeof -/
@@ -618,9 +618,9 @@ attribute [elab_simple] bin_tree.node bin_tree.leaf
 | ff tt  := tt
 | _  _   := ff
 
-notation !x     := bnot x
-notation x || y := bor x y
-notation x && y := band x y
+prefix ! := bnot
+infix || := bor
+infix && := band
 
 /- Logical connectives an equality -/
 
@@ -687,7 +687,7 @@ theorem cast_proof_irrel {α β : Sort u} (h₁ h₂ : α = β) (a : α) : cast 
 theorem cast_eq {α : Sort u} (h : α = α) (a : α) : cast h a = a := rfl
 
 @[reducible] def ne {α : Sort u} (a b : α) := ¬(a = b)
-notation a ≠ b := ne a b
+infix ≠ := ne
 
 theorem ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) := rfl
 
@@ -1530,10 +1530,10 @@ variables {α : Type u} {β : Type v}
 variable f : α → α → α
 variable inv : α → α
 variable one : α
-local notation a * b := f a b
+local infix * := f
 local postfix `⁻¹`:max := inv
 variable g : α → α → α
-local notation a + b := g a b
+local infix + := g
 
 def commutative        := ∀ a b, a * b = b * a
 def associative        := ∀ a b c, (a * b) * c = a * (b * c)

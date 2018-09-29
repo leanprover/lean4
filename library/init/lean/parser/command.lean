@@ -41,8 +41,28 @@ def open.parser : command_parser :=
 node! «open» ["open", spec: open_spec.parser]
 
 @[derive parser.has_tokens]
+def export.parser : command_parser :=
+node! «export» ["export", spec: open_spec.parser]
+
+@[derive parser.has_tokens]
 def section.parser : command_parser :=
-node! «section» ["section", name: ident.parser?, commands: command.parser*, "end", end_name: ident.parser?]
+node! «section» ["section", name: ident.parser?]
+
+@[derive parser.has_tokens]
+def namespace.parser : command_parser :=
+node! «namespace» ["namespace", name: ident.parser]
+
+@[derive parser.has_tokens]
+def variable.parser : command_parser :=
+node! «variable» ["variable", binder: term.bracketed_binder.parser]
+
+@[derive parser.has_tokens]
+def variables.parser : command_parser :=
+node! «variables» ["variables", binders: term.bracketed_binder.parser+]
+
+@[derive parser.has_tokens]
+def end.parser : command_parser :=
+node! «end» ["end", name: ident.parser?]
 
 @[derive parser.has_tokens]
 def universe.parser : command_parser :=
@@ -58,10 +78,22 @@ any_of [
 def check.parser : command_parser :=
 node! check ["#check", term: term.parser]
 
+@[derive parser.has_tokens parser.has_view]
+def attribute.parser : command_parser :=
+node! «attribute» [
+  «local»: (symbol "local ")?,
+  "attribute ",
+  "[",
+  attrs: sep_by1 attr_instance.parser (symbol ", "),
+  "] ",
+  ids: ident.parser*
+]
+
 @[derive has_tokens]
 def builtin_command_parsers : list command_parser := [
   open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
-  mixfix.parser, reserve_mixfix.parser, check.parser, declaration.parser]
+  mixfix.parser, reserve_mixfix.parser, check.parser, declaration.parser, attribute.parser,
+  export.parser, namespace.parser, end.parser, variable.parser, variables.parser]
 end «command»
 
 def command_parser.run (commands : list command_parser) (p : command_parser)

@@ -37,11 +37,11 @@ instance coe_name_ident : has_coe name parser.ident.view :=
 instance coe_ident_term_ident : has_coe parser.ident.view term.ident.view :=
 ⟨λ id, {id := id}⟩
 
-instance coe_term_ident_binder_id : has_coe term.ident.view binder_id.view :=
-⟨binder_id.view.id⟩
+instance coe_term_ident_binder_id : has_coe term.ident.view binder_ident.view :=
+⟨binder_ident.view.id⟩
 
-instance coe_binders {α : Type} [has_coe_t α binder_id.view] : has_coe (list α) term.binders.view :=
-⟨λ ids, binders.view.unbracketed {ids := ids.map coe}⟩
+instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=
+⟨λ ids, {leading_ids := ids.map coe}⟩
 
 def mixfix_to_notation_spec (k : mixfix.kind.view) (sym : notation_symbol.view) : transform_m notation_spec.view :=
 let prec := match sym with

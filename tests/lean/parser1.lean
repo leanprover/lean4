@@ -87,9 +87,10 @@ universes u v
   pure cmd'.reprint
 
 -- slowly progressing...
+--set_option profiler true
 #eval (do {
   s ← io.fs.read_file "../../library/init/core.lean",
-  let s := (s.mk_iterator.nextn 7000).prev_to_string,
+  let s := (s.mk_iterator.nextn 50000).prev_to_string,
   parser_cfg ← monad_except.lift_except $ mk_config,
   let cfg : elaborator_config := {filename := "foo"},
   let st : elaborator_state := {parser_cfg := {..parser_cfg}},
@@ -112,13 +113,13 @@ universes u v
         --io.println cmd',
         match ((elaborate cmd').run cfg).run st with
         | except.ok ((), st) := pure (sum.inl (k, st, out :: outs))
-        | except.error e := throw e.text
+        | except.error e := io.println e.text *> pure (sum.inl (k, st, out :: outs))
       }
-      | except.error e := throw e.text
+      | except.error e := io.println e.text *> pure (sum.inl (k, st, out :: outs))
     },
-  check_reprint outs s,
+  check_reprint outs s/-,
   let stx := syntax.node ⟨none, outs.map (λ r, r.cmd)⟩,
   let stx := stx.update_leading s,
   io.println "result:",
-  io.println (to_string stx)
+  io.println (to_string stx)-/
 } : except_t string io unit)

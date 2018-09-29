@@ -40,7 +40,7 @@ node! attr_instance [name: ident.parser, args: term.parser*]
 
 @[derive has_tokens has_view]
 def decl_attributes.parser : command_parser :=
--- TODO(Seabstian): custom attribute parsers
+-- TODO(Sebastian): custom attribute parsers
 node! decl_attribute ["@[", attrs: sep_by1 attr_instance.parser (symbol ","), "]"]
 
 set_option class.instance_max_depth 300
@@ -115,17 +115,18 @@ def declaration.parser : command_parser :=
 node! declaration [
   modifiers: decl_modifiers.parser,
   inner: node_choice! declaration.inner {
-    «def»: node! «def» ["def",
+    «def_like»: node! «def_like» [
+      kind: node_choice! def_like.kind {"def", "abbreviation", "theorem"},
       old_univ_params: node! old_univ_params ["{", ids: ident.parser+, "}"]?,
       name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
-    «abbreviation»: node! «abbreviation» ["abbreviation", name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
-    «theorem»: node! «theorem» ["theorem", name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
     «instance»: node! «instance» ["instance", name: term.ident.parser?, sig: decl_sig.parser, val: decl_val.parser],
     «example»: node! «example» ["example", sig: decl_sig.parser, val: decl_val.parser],
     «constant»: node! «constant» ["constant", name: term.ident.parser, sig: decl_sig.parser],
     «axiom»: node! «axiom» ["axiom", name: term.ident.parser, sig: decl_sig.parser],
 
-    «inductive»: node! «inductive» ["inductive", name: term.ident.parser, sig: decl_sig.parser,
+    «inductive»: node! «inductive» [try [«class»: (symbol "class")?, "inductive"],
+      name: term.ident.parser,
+      sig: decl_sig.parser,
       local_notation: notation_like.parser?,
       intro_rules: intro_rule.parser*],
     «structure»: structure.parser,

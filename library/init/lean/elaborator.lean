@@ -33,6 +33,46 @@ do cfg ← read,
 
 local attribute [instance] name.has_lt_quick
 
+def prec_to_nat (prec : option precedence.view) : nat :=
+(prec <&> λ p, p.prec.to_nat).get_or_else 0
+
+def command_parser_config.register_notation_tokens (spec : notation_spec.view) (cfg : command_parser_config) :
+  except string command_parser_config :=
+do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
+   | notation_symbol.view.quoted {symbol := syntax.atom a, prec := prec, ..} :=
+     pure {cfg with tokens := cfg.tokens.insert a.val.trim {«prefix» := a.val.trim, lbp := prec_to_nat prec}}
+   | _ := throw "register_notation_tokens: unreachable") cfg
+
+def command_parser_config.register_notation_parser (spec : notation_spec.view) (cfg : command_parser_config) :
+  except string command_parser_config :=
+do -- build and register parser
+   let k : syntax_node_kind := {name := "notation<TODO>"},
+   ps ← spec.rules.mmap (λ r : rule.view, do
+     psym ← match r.symbol with
+     | notation_symbol.view.quoted {symbol := syntax.atom a ..} :=
+       pure (symbol a.val : term_parser)
+     | _ := throw "register_notation_parser: unreachable",
+     ptrans ← match r.transition with
+     | some (transition.view.binders b) :=
+       pure $ some $ term.binders.parser
+     | some (transition.view.arg {action := none, ..}) :=
+       pure $ some term.parser
+     | some (transition.view.arg {action := some {action := action_kind.view.prec prec}, ..}) :=
+       pure $ some $ term.parser prec.to_nat
+     | some (transition.view.arg {action := some {action := action_kind.view.scoped sc}, ..}) :=
+       pure $ some $ term.parser $ prec_to_nat sc.prec
+     | none := pure $ none
+     | _ := throw "register_notation_parser: unimplemented",
+     pure $ psym::ptrans.to_monad
+   ),
+   let ps := ps.bind id,
+   cfg ← match spec.prefix_arg with
+   | none   := pure {cfg with leading_term_parsers :=
+     parser.combinators.node k ps::cfg.leading_term_parsers}
+   | some _ := pure {cfg with trailing_term_parsers :=
+     parser.combinators.node k (read::ps.map coe)::cfg.trailing_term_parsers},
+   pure cfg
+
 def postprocess_notation_spec (spec : notation_spec.view) : notation_spec.view :=
 -- default leading tokens to `max`
 -- NOTE: should happen after copying precedences from reserved notation

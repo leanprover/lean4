@@ -34,9 +34,18 @@ instance : has_view get_leading syntax := default _
 
 @[derive parser.has_tokens parser.has_view]
 def paren.parser : term_parser :=
-/- Do not allow trailing comma. Looks a bit weird and would clash with
-   adding support for tuple sections (https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#tuple-sections). -/
-node! «paren» ["(":max_prec, elems: sep_by (term.parser 0) (symbol ",") ff, ")"]
+node! «paren» ["(":max_prec,
+  content: node! paren_content [
+    term: term.parser,
+    special: node_choice! paren_special {
+      /- Do not allow trailing comma. Looks a bit weird and would clash with
+      adding support for tuple sections (https://downloads.haskell.org/~ghc/8.2.1/docs/html/users_guide/glasgow_exts.html#tuple-sections). -/
+      tuple: node! tuple [", ", tail: sep_by (term.parser 0) (symbol ", ") ff],
+      typed: node! typed [" : ", type: term.parser],
+    }?,
+  ]?,
+  ")"
+]
 
 @[derive parser.has_tokens parser.has_view]
 def hole.parser : term_parser :=
@@ -48,15 +57,23 @@ node_choice! sort {"Sort":max_prec, "Type":max_prec}
 
 section binder
 @[derive has_tokens has_view]
+def binder_ident.parser : term_parser :=
+node_choice! binder_ident {id: ident.parser, hole: hole.parser}
+
+@[derive has_tokens has_view]
 def binder_content.parser : term_parser :=
 node! binder_content [
-  ids: (node_choice! binder_id {id: ident.parser, hole: hole.parser})+,
+  ids: binder_ident.parser+,
   type: node! binder_content_type [":", type: term.parser 0]?,
   default: node_choice! binder_default {
     val: node! binder_default_val [":=", term: term.parser 0],
     tac: node! binder_default_tac [".", term: term.parser 0]
   }?
 ]
+
+@[derive parser.has_tokens parser.has_view]
+def anonymous_constructor.parser : term_parser :=
+node! anonymous_constructor ["⟨":max_prec, args: sep_by (term.parser 0) (symbol ","), "⟩"]
 
 /- All binders must be surrounded with some kind of bracket. (e.g., '()', '{}', '[]').
    We use this feature when parsing examples/definitions/theorems. The goal is to avoid counter-intuitive
@@ -98,17 +115,25 @@ node_choice! bracketed_binder {
     right: unicode_symbol "⦄" "}}",
   ],
   inst_implicit: node! inst_implicit_binder ["[":max_prec, content: longest_match [
-    node! inst_implicit_named_binder [id: ident.parser, type: term.parser 0],
+    node! inst_implicit_named_binder [id: ident.parser, " : ", type: term.parser 0],
     node! inst_implicit_anonymous_binder [type: term.parser 0]
-  ], "]"]
+  ], "]"],
+  anonymous_constructor: anonymous_constructor.parser,
 }
 
 @[derive has_tokens has_view]
 def binders.parser : term_parser :=
-node_choice! binders {
-  bracketed: bracketed_binder.parser+,
-  unbracketed: binder_content.parser,
-}
+node! binders [
+  leading_ids: binder_ident.parser*,
+  remainder: node_choice! binders_remainder {
+    type: node! binders_types [":", type: term.parser 0],
+    -- we allow mixing like in `a (b : β) c`, but not `a : α (b : β) c : γ`
+    mixed: node_choice! mixed_binder {
+      bracketed: bracketed_binder.parser,
+      id: ident.parser,
+    }+,
+  }?
+]
 
 end binder
 
@@ -122,17 +147,25 @@ node! lambda [
 ]
 
 @[derive parser.has_tokens parser.has_view]
+def assume.parser : term_parser :=
+node! «assume» [
+  "assume ":max_prec,
+  binders: node_choice! assume_binders {
+    anonymous: node! assume_anonymous [": ", type: term.parser],
+    binders: binders.parser
+  },
+  ", ",
+  body: term.parser 0
+]
+
+@[derive parser.has_tokens parser.has_view]
 def pi.parser : term_parser :=
 node! pi [
-  op: unicode_symbol "Π" "Pi" max_prec,
+  op: any_of [unicode_symbol "Π" "Pi" max_prec, unicode_symbol "∀" "forall" max_prec],
   binders: binders.parser,
   ",",
   range: term.parser 0
 ]
-
-@[derive parser.has_tokens parser.has_view]
-def anonymous_constructor.parser : term_parser :=
-node! anonymous_constructor ["⟨":max_prec, args: sep_by (term.parser 0) (symbol ","), "⟩"]
 
 @[derive parser.has_tokens parser.has_view]
 def explicit_ident.parser : term_parser :=
@@ -142,6 +175,59 @@ node! explicit [
     partial_explicit: symbol "@@" max_prec
   },
   id: term.ident.parser
+]
+
+@[derive parser.has_tokens parser.has_view]
+def from.parser : term_parser :=
+node! «from» ["from ", proof: term.parser]
+
+@[derive parser.has_tokens parser.has_view]
+def have.parser : term_parser :=
+node! «have» [
+  "have ",
+  id: (try node! have_id [id: ident.parser, " : "])?,
+  prop: term.parser,
+  proof: node_choice! have_proof {
+    term: node! have_term [" := ", term: term.parser],
+    «from»: node! have_from [", ", «from»: from.parser],
+  },
+  ", ",
+  body: term.parser,
+]
+
+@[derive parser.has_tokens parser.has_view]
+def show.parser : term_parser :=
+node! «show» [
+  "show ",
+  prop: term.parser,
+  ", ",
+  «from»: from.parser,
+]
+
+@[derive parser.has_tokens parser.has_view]
+def match.parser : term_parser :=
+node! «match» [
+  "match ",
+  scrutinees: sep_by1 term.parser (symbol ", ") ff,
+  type: node! match_type [" : ", type: term.parser]?,
+  " with ",
+  opt_bar: (symbol " | ")?,
+  equations: sep_by1
+    node! «match_equation» [
+      lhs: sep_by1 term.parser (symbol ", ") ff, ":=", rhs: term.parser]
+    (symbol " | ") ff,
+]
+
+@[derive parser.has_tokens parser.has_view]
+def if.parser : term_parser :=
+node! «if» [
+  "if ",
+  id: (try node! if_id [id: ident.parser, " : "])?,
+  prop: term.parser,
+  " then ",
+  then_branch: term.parser,
+  " else ",
+  else_branch: term.parser,
 ]
 
 -- TODO(Sebastian): replace with attribute
@@ -155,7 +241,12 @@ def builtin_leading_parsers : list term_parser := [
   lambda.parser,
   pi.parser,
   anonymous_constructor.parser,
-  explicit_ident.parser
+  explicit_ident.parser,
+  have.parser,
+  show.parser,
+  assume.parser,
+  match.parser,
+  if.parser
 ]
 
 @[derive parser.has_tokens parser.has_view]

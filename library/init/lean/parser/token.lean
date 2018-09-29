@@ -40,7 +40,7 @@ do r ← remaining,
 private def whitespace_aux : nat → basic_parser_m unit
 | (n+1) :=
 do whitespace,
-   str "--" *> take_while' (= '\n') *> whitespace_aux n <|>
+   str "--" *> take_while' (≠ '\n') *> whitespace_aux n <|>
    -- a "/--" doc comment is an actual token, not whitespace
    try (str "/-" *> not_followed_by (str "-")) *> finish_comment_block *> whitespace_aux n <|>
    pure ()
@@ -181,14 +181,14 @@ lift $ try $ do {
 } <?> repr sym
 
 instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
-⟨[⟨sym, lbp, none⟩]⟩
+⟨[⟨sym.trim, lbp, none⟩]⟩
 instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) (option syntax_atom) :=
 { view := λ stx, match stx with
   | syntax.atom atom := some atom
   | _                := none,
   review := λ a, (syntax.atom <$> a).get_or_else syntax.missing }
 instance symbol.view_default (sym lbp) : parser.has_view_default (symbol sym lbp : parser) _
-  (some {info := none, val := sym}) := ⟨⟩
+  (some {info := none, val := sym.trim}) := ⟨⟩
 
 def number.parser : parser :=
 lift $ try $ do {

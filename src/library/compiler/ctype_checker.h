@@ -34,13 +34,6 @@ namespace lean {
 
     - Universes levels are not checked, but we propagate them when inferring types.
 
-    - Support for `I._cases` terms. They are encoded as
-      applications of auxiliary `I._cases` constants, where the number
-      of arguments is 2 + number of constructors of `I`.  The first
-      argument is the resulting type, the second is the major premise,
-      and the remaining are the minor premises. This type checker has
-      support for reducing and type checking this kind of application.
-
     - We say a type `t` is a stuck_type IF `t` is in weak-head-normal-form, and
        1) `t` is not `Sort u`, and
        2) `t` is not `Pi x : A, B x`
@@ -49,21 +42,17 @@ namespace lean {
     - Given types `t` and `s`, we consider them to be definitionally equal if `t` or `s` is stuck_type, or
       `t` or `s` is `lc_any`.
 
+    - We check whether `I a_1 ... a_n` is definitionally equal to `I b_1 ... b_n` where `I` is an inductive datatype,
+      by checking each `a_i =?= b_i` if they are types. So, this type checker will consider types such as
+      `vec (n+1) nat` to be definitionally equal to `vec m nat`.
+
+    - We check whether `Pi x : A, B x` is definitionally equal to `Pi x : A', B' x` by checking `A =?= A'` and
+      `B x =?= B' x`. This rule is essentially identical to the on in the kernel.
+
     - We propagate `lc_any` when inferring types. Examples:
       * When inferring the type of `f a`, if the type of `f` is stuck or is `lc_any`, the result is `lc_any`.
       * When inferring the type of `p.i`, if the type of `p` is stuck or is `lc_any`, the result is `lc_any`.
-
-    - Support for trivial structures.
-      We say a structure `I As` is trivial if it has only constructor,
-      the constructor has only one relevant field, and the type of this field is `C As` and
-      doesn't depend on other fields. Moreover, we consider the types `I As` and `C As` to be
-      definitionally equal, and the constructor and recursor are treated like the identity function.
-
-    - `quot A r` and `A` are considered definitionally equal.
-
-    - `quot.mk` is treated as the identity function.
-
-    - `@quot.lift α r β f h a` reduces to `f a`. */
+ */
 class ctype_checker {
 public:
     class state {

@@ -57,7 +57,7 @@ bool ctype_checker::is_stuck_type(expr const & t) {
     case expr_kind::Pi:
         return false;
     case expr_kind::FVar:
-        lean_assert(!lctx.find(e).get_value());
+        lean_assert(!m_lctx.get_local_decl(t).get_value());
         return true;         /* e is in weak head normal form. */
     case expr_kind::Proj:
         return true;         /* `e` is in weak head normal form. */

@@ -129,8 +129,6 @@ public:
             expr new_cases = visit(mk_app(fn, arity, args.data()), false);
             return visit(mk_app(new_cases, args.size() - arity, args.data() + arity), root);
         } else {
-            expr const & motive = args[nparams];
-            bool nondep_elim    = is_nondep_elim(motive, nindices);
             for (unsigned i = 0; i < first_minor_idx; i++) {
                 args[i] = visit(args[i], false);
             }
@@ -166,27 +164,25 @@ public:
                 if (is_lambda(new_minor))
                     new_minor = mk_let_decl(new_minor, false);
                 new_minor      = mk_let(old_fvars_size, new_minor);
-                if (nondep_elim) {
-                    /* Create a constructor application with the "fields" of the minor premise.
-                       Then, replace `k` with major premise at new_minor.
-                       This transformation is important for code like this:
-                       ```
-                       def foo : expr -> expr
-                       | (expr.app f a) := f
-                       | e              := e
-                       ```
-                       The equation compiler will "complete" the wildcard case `e := e` by expanding `e`.
+                /* Create a constructor application with the "fields" of the minor premise.
+                   Then, replace `k` with major premise at new_minor.
+                   This transformation is important for code like this:
+                   ```
+                   def foo : expr -> expr
+                   | (expr.app f a) := f
+                   | e              := e
+                   ```
+                   The equation compiler will "complete" the wildcard case `e := e` by expanding `e`.
 
-                       Remark: this transformation is only safe for non-dependent elimination.
-                       It may produce type incorrect terms otherwise. */
-                    expr k    = mk_app(mk_app(mk_constant(cnstr_name, tail(rec_levels)), nparams, args.data()), minor_fvars);
-                    expr new_new_minor = replace(new_minor, [&](expr const & e, unsigned) {
-                            if (e == k) return some_expr(major);
-                            else return none_expr();
-                        });
-                    if (new_new_minor != new_minor)
-                        new_minor = elim_trivial_let_decls(new_new_minor);
-                }
+                   Remark: this transformation is only safe for non-dependent elimination.
+                   It may produce type incorrect terms otherwise. We ignore this issue in the compiler. */
+                expr k    = mk_app(mk_app(mk_constant(cnstr_name, tail(rec_levels)), nparams, args.data()), minor_fvars);
+                expr new_new_minor = replace(new_minor, [&](expr const & e, unsigned) {
+                        if (e == k) return some_expr(major);
+                        else return none_expr();
+                    });
+                if (new_new_minor != new_minor)
+                    new_minor = elim_trivial_let_decls(new_new_minor);
                 new_minor      = m_lctx.mk_lambda(minor_fvars, new_minor);
                 args[i]        = new_minor;
             }
@@ -254,17 +250,9 @@ public:
                 minor_idx = 3;
             type_checker tc(m_st, m_lctx);
             expr minor       = args[minor_idx];
-            expr minor_type  = tc.whnf(tc.infer(minor));
-            expr eq_rec_type = tc.whnf(tc.infer(mk_app(fn, eq_rec_nargs, args.data())));
-            expr new_e;
-            if (tc.is_def_eq(minor_type, eq_rec_type)) {
-                /* Type cast is not needed */
-                new_e = minor;
-            } else {
-                level minor_lvl  = sort_level(tc.ensure_type(minor_type));
-                level eq_rec_lvl = sort_level(tc.ensure_type(eq_rec_type));
-                new_e            = visit(mk_app(mk_constant(get_lc_cast_name(), {eq_rec_lvl, minor_lvl}), minor_type, eq_rec_type, minor), false);
-            }
+            /* Remark: this reduction may introduce a type incorrect term here since
+               type of minor may not be definitionally equal to the type of `mk_app(fn, args)`. */
+            expr new_e       = minor;
             new_e            = mk_app(new_e, args.size() - eq_rec_nargs, args.data() + eq_rec_nargs);
             return visit(new_e, root);
         }

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/expr_lt.h"
 #include "library/util.h"
+#include "library/num.h"
 #include "library/aux_recursors.h"
 #include "library/constants.h"
 #include "library/projection.h"
@@ -337,6 +338,13 @@ public:
     }
 
     expr visit_app(expr const & e, bool root) {
+        /* TODO(Leo): remove after we add support for literals in the front-end */
+        if (optional<mpz> v = to_num(e)) {
+            expr type = whnf_infer_type(e);
+            if (is_nat_type(type)) {
+                return mk_lit(literal(*v));
+            }
+        }
         buffer<expr> args;
         expr fn = get_app_args(e, args);
         if (is_constant(fn)) {

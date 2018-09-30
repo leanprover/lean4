@@ -332,10 +332,14 @@ public:
     }
 
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
-        for (expr & arg : args) {
-            arg = visit(arg, false);
+        if (args.empty()) {
+            return mk_let_decl(fn, root);
+        } else {
+            for (expr & arg : args) {
+                arg = visit(arg, false);
+            }
+            return mk_let_decl(mk_app(fn, args), root);
         }
-        return mk_let_decl(mk_app(fn, args), root);
     }
 
     expr visit_quot(expr const & fn, buffer<expr> & args, bool root) {
@@ -357,6 +361,37 @@ public:
         }
     }
 
+    expr visit_constant_core(expr fn, buffer<expr> & args, bool root) {
+        if (const_name(fn) == get_and_rec_name() || const_name(fn) == get_and_cases_on_name()) {
+            return visit_and_rec(fn, args, root);
+        } else if (const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name() ||
+                   const_name(fn) == get_eq_cases_on_name() || const_name(fn) == get_eq_rec_on_name()) {
+            return visit_eq_rec(fn, args, root);
+        } else if (const_name(fn) == get_false_rec_name() || const_name(fn) == get_false_cases_on_name()) {
+            return visit_false_rec(fn, args, root);
+        } else if (is_cases_on_recursor(env(), const_name(fn))) {
+            return visit_cases_on(fn, args, root);
+        } else if (is_projection(env(), const_name(fn))) {
+            return visit_projection(fn, args, root);
+        } else if (is_no_confusion(env(), const_name(fn))) {
+            return visit_no_confusion(fn, args, root);
+        } else if (is_constructor(env(), const_name(fn))) {
+            return visit_constructor(fn, args, root);
+        } else if (optional<name> n = is_meta_rec_name(const_name(fn))) {
+            fn = mk_constant(*n, const_levels(fn));
+            return visit_app_default(fn, args, root);
+        } else if (is_quot_primitive(env(), const_name(fn))) {
+            return visit_quot(fn, args, root);
+        } else {
+            return visit_app_default(fn, args, root);
+        }
+    }
+
+    expr visit_constant(expr const & e, bool root) {
+        buffer<expr> args;
+        return visit_constant_core(e, args, root);
+    }
+
     expr visit_app(expr const & e, bool root) {
         /* TODO(Leo): remove after we add support for literals in the front-end */
         if (optional<mpz> v = to_num(e)) {
@@ -368,30 +403,11 @@ public:
         buffer<expr> args;
         expr fn = get_app_args(e, args);
         if (is_constant(fn)) {
-            if (const_name(fn) == get_and_rec_name() || const_name(fn) == get_and_cases_on_name()) {
-                return visit_and_rec(fn, args, root);
-            } else if (const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name() ||
-                       const_name(fn) == get_eq_cases_on_name() || const_name(fn) == get_eq_rec_on_name()) {
-                return visit_eq_rec(fn, args, root);
-            } else if (const_name(fn) == get_false_rec_name() || const_name(fn) == get_false_cases_on_name()) {
-                return visit_false_rec(fn, args, root);
-            } else if (is_cases_on_recursor(env(), const_name(fn))) {
-                return visit_cases_on(fn, args, root);
-            } else if (is_projection(env(), const_name(fn))) {
-                return visit_projection(fn, args, root);
-            } else if (is_no_confusion(env(), const_name(fn))) {
-                return visit_no_confusion(fn, args, root);
-            } else if (is_constructor(env(), const_name(fn))) {
-                return visit_constructor(fn, args, root);
-            } else if (optional<name> n = is_meta_rec_name(const_name(fn))) {
-                fn = mk_constant(*n, const_levels(fn));
-                return visit_app_default(fn, args, root);
-            } else if (is_quot_primitive(env(), const_name(fn))) {
-                return visit_quot(fn, args, root);
-            }
+            return visit_constant_core(fn, args, root);
+        } else {
+            fn = visit(fn, false);
+            return visit_app_default(fn, args, root);
         }
-        fn = visit(fn, false);
-        return visit_app_default(fn, args, root);
     }
 
     expr visit_proj(expr const & e, bool root) {
@@ -460,8 +476,7 @@ public:
         case expr_kind::BVar:  case expr_kind::MVar:
             lean_unreachable();
         case expr_kind::FVar:  case expr_kind::Sort:
-        case expr_kind::Const: case expr_kind::Lit:
-        case expr_kind::Pi:
+        case expr_kind::Lit:   case expr_kind::Pi:
             return e;
         default:
             break;
@@ -498,6 +513,7 @@ public:
         }
 
         switch (e.kind()) {
+        case expr_kind::Const:  return cache_result(e, visit_constant(e, root), shared);
         case expr_kind::App:    return cache_result(e, visit_app(e, root), shared);
         case expr_kind::Proj:   return cache_result(e, visit_proj(e, root), shared);
         case expr_kind::MData:  return cache_result(e, visit_mdata(e, root), shared);

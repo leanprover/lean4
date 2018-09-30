@@ -806,15 +806,26 @@ bool type_checker::is_def_eq(expr const & t, expr const & s) {
 }
 
 expr type_checker::eta_expand(expr const & e) {
-    buffer<expr> args;
+    buffer<expr> fvars;
     flet<local_ctx> save_lctx(m_lctx, m_lctx);
-    expr e_type = whnf(infer(e));
-    while (is_pi(e_type)) {
-        expr arg = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(e_type), binding_domain(e_type), binding_info(e_type));
-        args.push_back(arg);
-        e_type = whnf(instantiate(binding_body(e_type), arg));
+    expr it = e;
+    while (is_lambda(it)) {
+        expr d = instantiate_rev(binding_domain(it), fvars.size(), fvars.data());
+        fvars.push_back(m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it), d, binding_info(it)));
+        it     = binding_body(it);
     }
-    return m_lctx.mk_lambda(args, mk_app(e, args));
+    it = instantiate_rev(it, fvars.size(), fvars.data());
+    expr it_type = whnf(infer(it));
+    if (!is_pi(it_type)) return e;
+    buffer<expr> args;
+    while (is_pi(it_type)) {
+        expr arg = m_lctx.mk_local_decl(m_st->m_ngen, binding_name(it_type), binding_domain(it_type), binding_info(it_type));
+        args.push_back(arg);
+        fvars.push_back(arg);
+        it_type  = whnf(instantiate(binding_body(it_type), arg));
+    }
+    expr r = mk_app(it, args);
+    return m_lctx.mk_lambda(fvars, r);
 }
 
 type_checker::type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only):

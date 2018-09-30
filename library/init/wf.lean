@@ -8,6 +8,8 @@ import init.data.nat.basic
 
 universes u v
 
+set_option codegen false
+
 inductive acc {α : Sort u} (r : α → α → Prop) : α → Prop
 | intro (x : α) (h : ∀ y, r y x → acc y) : acc x
 

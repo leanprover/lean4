@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "runtime/sstream.h"
 #include "util/fresh_name.h"
+#include "util/sexpr/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "library/sorry.h"
 #include "library/noncomputable.h"
@@ -365,7 +366,11 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
     return new_env;
 }
 
-environment vm_compile(environment const & env, options const &, buffer<constant_info> const & ds, bool optimize_bytecode) {
+static name * g_codegen = nullptr;
+
+environment vm_compile(environment const & env, options const & opts, buffer<constant_info> const & ds, bool optimize_bytecode) {
+    if (!opts.get_bool(*g_codegen, true))
+        return env;
     for (constant_info const & info : ds) {
         if (!info.is_definition() || is_noncomputable(env, info.get_name()) || is_vm_builtin_function(info.get_name()))
             return env;
@@ -386,9 +391,12 @@ void initialize_vm_compiler() {
     register_name_generator_prefix(*g_vm_compiler_fresh);
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
+    g_codegen = new name("codegen");
+    register_bool_option(*g_codegen, true, "(compiler) enable/disable code generation");
 }
 
 void finalize_vm_compiler() {
+    delete g_codegen;
     delete g_vm_compiler_fresh;
 }
 }

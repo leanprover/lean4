@@ -283,8 +283,9 @@ class vm_compiler_fn {
         }
     }
 
-    void compile_proj_cnstr(expr const & /* e */, unsigned /* bpz */, name_map<unsigned> const & /* m */) {
-        lean_unreachable();
+    void compile_proj_cnstr(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
+        compile(proj_expr(e), bpz, m);
+        emit(mk_proj_instr(proj_idx(e).get_small_value()));
     }
 
     void compile(expr const & e, unsigned bpz, name_map<unsigned> const & m) {

@@ -1768,7 +1768,7 @@ rfl
 protected theorem ind_beta {α : Sort u} {r : α → α → Prop} {β : quot r → Prop} (p : ∀ a, β (quot.mk r a)) (a : α) : (ind p (quot.mk r a) : β (quot.mk r a)) = p a :=
 rfl
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def lift_on {α : Sort u} {β : Sort v} {r : α → α → Prop} (q : quot r) (f : α → β) (c : ∀ a b, r a b → f a = f b) : β :=
 lift f c q
 
@@ -1786,7 +1786,7 @@ variable {β : quot r → Sort v}
 
 local notation `⟦`:max a `⟧` := quot.mk r a
 
-@[reducible]
+@[reducible, macro_inline]
 protected def indep (f : Π a, β ⟦a⟧) (a : α) : psigma β :=
 ⟨⟦a⟧, f a⟩
 
@@ -1800,23 +1800,23 @@ protected theorem lift_indep_pr1
   (q : quot r) : (lift (quot.indep f) (quot.indep_coherent f h) q).1 = q  :=
 quot.ind (λ (a : α), eq.refl (quot.indep f a).1) q
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def rec
    (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
    (q : quot r) : β q :=
 eq.ndrec_on (quot.lift_indep_pr1 f h q) ((lift (quot.indep f) (quot.indep_coherent f h) q).2)
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def rec_on
    (q : quot r) (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (eq.rec (f a) (sound p) : β ⟦b⟧) = f b) : β q :=
 quot.rec f h q
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def rec_on_subsingleton
    [h : ∀ a, subsingleton (β ⟦a⟧)] (q : quot r) (f : Π a, β ⟦a⟧) : β q :=
 quot.rec f (λ a b h, subsingleton.elim _ (f b)) q
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def hrec_on
    (q : quot r) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : r a b), f a == f b) : β q :=
 quot.rec_on q f $
@@ -1832,6 +1832,7 @@ def quotient {α : Sort u} (s : setoid α) :=
 
 namespace quotient
 
+@[inline]
 protected def mk {α : Sort u} [s : setoid α] (a : α) : quotient s :=
 quot.mk setoid.r a
 
@@ -1848,7 +1849,7 @@ quot.lift f
 protected theorem ind {α : Sort u} [s : setoid α] {β : quotient s → Prop} : (∀ a, β ⟦a⟧) → ∀ q, β q :=
 quot.ind
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def lift_on {α : Sort u} {β : Sort v} [s : setoid α] (q : quotient s) (f : α → β) (c : ∀ a b, a ≈ b → f a = f b) : β :=
 quot.lift_on q f c
 
@@ -1864,22 +1865,23 @@ variable {α : Sort u}
 variable [s : setoid α]
 variable {β : quotient s → Sort v}
 
+@[inline]
 protected def rec
    (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : a ≈ b), (eq.rec (f a) (quotient.sound p) : β ⟦b⟧) = f b)
    (q : quotient s) : β q :=
 quot.rec f h q
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def rec_on
    (q : quotient s) (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : a ≈ b), (eq.rec (f a) (quotient.sound p) : β ⟦b⟧) = f b) : β q :=
 quot.rec_on q f h
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def rec_on_subsingleton
    [h : ∀ a, subsingleton (β ⟦a⟧)] (q : quotient s) (f : Π a, β ⟦a⟧) : β q :=
 @quot.rec_on_subsingleton _ _ _ h q f
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def hrec_on
    (q : quotient s) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : a ≈ b), f a == f b) : β q :=
 quot.hrec_on q f c
@@ -1891,7 +1893,7 @@ variables {α : Sort u_a} {β : Sort u_b} {φ : Sort u_c}
 variables [s₁ : setoid α] [s₂ : setoid β]
 include s₁ s₂
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def lift₂
    (f : α → β → φ)(c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂)
    (q₁ : quotient s₁) (q₂ : quotient s₂) : φ :=
@@ -1907,7 +1909,7 @@ quotient.lift
        q₂)
   q₁
 
-@[reducible, elab_as_eliminator]
+@[reducible, elab_as_eliminator, inline]
 protected def lift_on₂
   (q₁ : quotient s₁) (q₂ : quotient s₂) (f : α → β → φ) (c : ∀ a₁ a₂ b₁ b₂, a₁ ≈ b₁ → a₂ ≈ b₂ → f a₁ a₂ = f b₁ b₂) : φ :=
 quotient.lift₂ f c q₁ q₂

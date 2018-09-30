@@ -187,7 +187,7 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             new_decls.push_back(env.get(n));
         }
         try {
-            env = vm_compile(env, new_decls);
+            env = vm_compile(env, elab.get_options(), new_decls);
         } catch (exception & ex) {
             sstream ss;
             ss << "equation compiler failed to generate bytecode for";

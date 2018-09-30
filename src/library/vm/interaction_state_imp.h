@@ -228,9 +228,9 @@ environment interaction_monad<State>::evaluator::compile(name const & interactio
                                        get_pos_info_provider()->get_pos_info_or_some(interaction),
                                        INFORMATION);
             time_task _("elaboration: tactic compilation", out);
-            return vm_compile(new_env, new_env.get(interaction_name), optimize_bytecode);
+            return vm_compile(new_env, get_global_ios().get_options(), new_env.get(interaction_name), optimize_bytecode);
         } else {
-            return vm_compile(new_env, new_env.get(interaction_name), optimize_bytecode);
+            return vm_compile(new_env, get_global_ios().get_options(), new_env.get(interaction_name), optimize_bytecode);
         }
     } catch (exception & ex) {
         throw formatted_exception(some(interaction), format(ex.what()));

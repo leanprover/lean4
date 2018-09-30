@@ -50,7 +50,7 @@ void decl_attributes::parse_core(parser & p, bool compact) {
             pre_val = mk_typed_expr(mk_constant(get_nat_name()), pre_val);
             expr nat = mk_constant(get_nat_name());
             expr val = p.elaborate("_attribute", list<expr>(), pre_val).first;
-            vm_obj prio = eval_closed_expr(p.env(), "_attribute", nat, val, pos);
+            vm_obj prio = eval_closed_expr(p.env(), p.get_options(), "_attribute", nat, val, pos);
             if (optional<unsigned> _prio = try_to_unsigned(prio)) {
                 m_prio = _prio;
             } else {

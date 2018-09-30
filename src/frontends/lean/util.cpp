@@ -467,15 +467,15 @@ void initialize_frontend_lean_util() {
     g_field_notation_name   = new name("field_notation");
 }
 
-environment compile_expr(environment const & env, name const & n, names const & ls, expr const & type, expr const & e, pos_info const & /* pos */) {
+environment compile_expr(environment const & env, options const & opts, name const & n, names const & ls, expr const & type, expr const & e, pos_info const & /* pos */) {
     environment new_env = env;
     bool is_meta        = true;
     new_env = new_env.add(mk_definition(new_env, n, ls, type, e, is_meta));
-    return vm_compile(new_env, new_env.get(n));
+    return vm_compile(new_env, opts, new_env.get(n));
 }
 
-vm_obj eval_closed_expr(environment const & env, name const & n, expr const & type, expr const & e, pos_info const & pos) {
-    environment new_env = compile_expr(env, n, {}, type, e, pos);
+vm_obj eval_closed_expr(environment const & env, options const & opts, name const & n, expr const & type, expr const & e, pos_info const & pos) {
+    environment new_env = compile_expr(env, opts, n, {}, type, e, pos);
     vm_state vm(new_env, {});
     return vm.invoke(n, 0, nullptr);
 }

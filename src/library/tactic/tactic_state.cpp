@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/interaction_state_imp.h"
-#include "library/compiler/vm_compiler.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/tactic_evaluator.h"
 
@@ -258,28 +257,7 @@ type_context_old mk_cacheless_type_context_for(tactic_state const & s, transpare
 }
 
 format tactic_state::pp() const {
-    type_context_old ctx = mk_cacheless_type_context_for(*this, transparency_mode::Semireducible);
-    expr ts_expr     = mk_constant("tactic_state");
-    optional<expr> to_fmt_inst = ctx.mk_class_instance(mk_app(mk_constant("has_to_format", {mk_level_zero()}), ts_expr));
-    if (!to_fmt_inst) {
-        return pp_core();
-    } else {
-        try {
-            expr code            = mk_app(mk_constant("to_fmt", {mk_level_zero()}), ts_expr, *to_fmt_inst);
-            expr type            = ctx.infer(code);
-            environment new_env  = ctx.env();
-            bool is_meta         = true;
-            name pp_name("_pp_tactic_state");
-            new_env              = new_env.add(mk_definition(new_env, pp_name, {}, type, code, is_meta));
-            new_env              = vm_compile(new_env, new_env.get(pp_name));
-            vm_state S(new_env, get_options());
-            vm_obj r             = S.invoke(pp_name, to_obj(*this));
-            std::ostringstream ss;
-            return to_format(r);
-        } catch (exception &) {
-            return pp_core();
-        }
-    }
+    return pp_core();
 }
 
 vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {

@@ -1248,7 +1248,7 @@ struct structure_cmd_fn {
                                                                           coercion_type, coercion_value);
             m_env = module::add(m_env, coercion_decl);
             add_alias(coercion_name);
-            m_env = vm_compile(m_env, m_env.get(coercion_name));
+            m_env = vm_compile(m_env, m_p.get_options(), m_env.get(coercion_name));
             if (!m_private_parents[i]) {
                 if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance

@@ -365,7 +365,7 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
     return new_env;
 }
 
-environment vm_compile(environment const & env, buffer<constant_info> const & ds, bool optimize_bytecode) {
+environment vm_compile(environment const & env, options const &, buffer<constant_info> const & ds, bool optimize_bytecode) {
     for (constant_info const & info : ds) {
         if (!info.is_definition() || is_noncomputable(env, info.get_name()) || is_vm_builtin_function(info.get_name()))
             return env;
@@ -375,10 +375,10 @@ environment vm_compile(environment const & env, buffer<constant_info> const & ds
     return vm_compile(new_env, procs, optimize_bytecode);
 }
 
-environment vm_compile(environment const & env, constant_info const & info, bool optimize_bytecode) {
+environment vm_compile(environment const & env, options const & opts, constant_info const & info, bool optimize_bytecode) {
     buffer<constant_info> infos;
     infos.push_back(info);
-    return vm_compile(env, infos, optimize_bytecode);
+    return vm_compile(env, opts, infos, optimize_bytecode);
 }
 
 void initialize_vm_compiler() {

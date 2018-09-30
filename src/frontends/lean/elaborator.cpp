@@ -2256,7 +2256,7 @@ expr elaborator::mk_aux_meta_def(expr const & e, expr const & ref) {
     if (!is_constant(new_c)) {
         throw elaborator_exception(ref, "failed to create auxiliary definition");
     }
-    m_env = vm_compile(m_env, m_env.get(const_name(new_c)));
+    m_env = vm_compile(m_env, m_opts, m_env.get(const_name(new_c)));
     m_ctx.set_env(m_env);
     m_ctx.set_mctx(mctx);
     return new_c;

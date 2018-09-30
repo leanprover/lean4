@@ -135,7 +135,7 @@ static environment derive(environment env, options const & opts, name const & n,
                                              ctx.instantiate_mvars(tgt), inst2, d.is_meta()));
         env = add_instance(env, new_n, LEAN_DEFAULT_PRIORITY, true);
         env = add_protected(env, new_n);
-        env = vm_compile(env, env.get(new_n));
+        env = vm_compile(env, opts, env.get(new_n));
     }
     return env;
 }

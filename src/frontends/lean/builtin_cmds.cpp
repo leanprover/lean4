@@ -398,7 +398,7 @@ static environment compile_cmd(parser & p) {
     constant_info d = p.env().get(n);
     if (!d.is_definition())
         throw parser_error("invalid #compile command, declaration is not a definition", pos);
-    return vm_compile(p.env(), d);
+    return vm_compile(p.env(), p.get_options(), d);
 }
 
 static environment eval_cmd(parser & p) {
@@ -446,7 +446,7 @@ static environment eval_cmd(parser & p) {
     }
 
     name fn_name = "_main";
-    auto new_env = compile_expr(p.env(), fn_name, ls, type, e, pos);
+    auto new_env = compile_expr(p.env(), p.get_options(), fn_name, ls, type, e, pos);
 
     auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
     out.set_caption("eval result");

@@ -48,7 +48,8 @@ static unsigned parse_precedence_core(parser & p) {
         expr nat = mk_constant(get_nat_name());
         pre_val  = mk_typed_expr(nat, pre_val);
         expr val = p.elaborate("notation", list<expr>(), pre_val).first;
-        vm_obj p = eval_closed_expr(env, "_precedence", nat, val, pos);
+        options opts = p.get_options();
+        vm_obj p = eval_closed_expr(env, opts, "_precedence", nat, val, pos);
         if (optional<unsigned> _p = try_to_unsigned(p)) {
             return *_p;
         } else {

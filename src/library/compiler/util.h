@@ -61,6 +61,11 @@ expr get_cases_on_app_major(environment const & env, expr const & c);
    \pre is_cases_on_recursor(env, c) */
 pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c);
 
+inline bool is_quot_primitive(environment const & env, name const & n) {
+    optional<constant_info> info = env.find(n);
+    return info && info->is_quot();
+}
+
 inline bool is_lc_unreachable_app(expr const & e) { return is_app_of(e, get_lc_unreachable_name(), 1); }
 inline bool is_lc_proof_app(expr const & e) { return is_app_of(e, get_lc_proof_name(), 1); }
 inline bool is_lc_cast_app(expr const & e) { return is_app_of(e, get_lc_cast_name(), 3); }

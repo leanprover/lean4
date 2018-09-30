@@ -46,6 +46,7 @@ name const & get_empty_name();
 name const & get_Exists_name();
 name const & get_eq_name();
 name const & get_eq_cases_on_name();
+name const & get_eq_rec_on_name();
 name const & get_eq_rec_name();
 name const & get_eq_mp_name();
 name const & get_eq_mpr_name();

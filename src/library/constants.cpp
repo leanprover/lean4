@@ -44,6 +44,7 @@ name const * g_empty = nullptr;
 name const * g_Exists = nullptr;
 name const * g_eq = nullptr;
 name const * g_eq_cases_on = nullptr;
+name const * g_eq_rec_on = nullptr;
 name const * g_eq_rec = nullptr;
 name const * g_eq_mp = nullptr;
 name const * g_eq_mpr = nullptr;
@@ -301,6 +302,7 @@ void initialize_constants() {
     g_Exists = new name{"Exists"};
     g_eq = new name{"eq"};
     g_eq_cases_on = new name{"eq", "cases_on"};
+    g_eq_rec_on = new name{"eq", "rec_on"};
     g_eq_rec = new name{"eq", "rec"};
     g_eq_mp = new name{"eq", "mp"};
     g_eq_mpr = new name{"eq", "mpr"};
@@ -559,6 +561,7 @@ void finalize_constants() {
     delete g_Exists;
     delete g_eq;
     delete g_eq_cases_on;
+    delete g_eq_rec_on;
     delete g_eq_rec;
     delete g_eq_mp;
     delete g_eq_mpr;
@@ -816,6 +819,7 @@ name const & get_empty_name() { return *g_empty; }
 name const & get_Exists_name() { return *g_Exists; }
 name const & get_eq_name() { return *g_eq; }
 name const & get_eq_cases_on_name() { return *g_eq_cases_on; }
+name const & get_eq_rec_on_name() { return *g_eq_rec_on; }
 name const & get_eq_rec_name() { return *g_eq_rec; }
 name const & get_eq_mp_name() { return *g_eq_mp; }
 name const & get_eq_mpr_name() { return *g_eq_mpr; }

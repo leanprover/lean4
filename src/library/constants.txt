@@ -39,6 +39,7 @@ empty
 Exists
 eq
 eq.cases_on
+eq.rec_on
 eq.rec
 eq.mp
 eq.mpr

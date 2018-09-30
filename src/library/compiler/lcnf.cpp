@@ -239,13 +239,14 @@ public:
     expr visit_eq_rec(expr const & fn, buffer<expr> & args, bool root) {
         lean_assert(const_name(fn) == get_eq_rec_name() ||
                     const_name(fn) == get_eq_ndrec_name() ||
-                    const_name(fn) == get_eq_cases_on_name());
+                    const_name(fn) == get_eq_cases_on_name() ||
+                    const_name(fn) == get_eq_rec_on_name());
         if (args.size() < 6) {
             return visit(eta_expand(mk_app(fn, args), 6 - args.size()), root);
         } else {
             unsigned eq_rec_nargs = 6;
             unsigned minor_idx;
-            if (const_name(fn) == get_eq_cases_on_name())
+            if (const_name(fn) == get_eq_cases_on_name() || const_name(fn) == get_eq_rec_on_name())
                 minor_idx = 5;
             else
                 minor_idx = 3;
@@ -337,6 +338,25 @@ public:
         return mk_let_decl(mk_app(fn, args), root);
     }
 
+    expr visit_quot(expr const & fn, buffer<expr> & args, bool root) {
+        constant_info info = env().get(const_name(fn));
+        lean_assert(info.is_quot());
+        unsigned arity = 0;
+        switch (info.to_quot_val().get_quot_kind()) {
+        case quot_kind::Type: case quot_kind::Ind:
+            return visit_app_default(fn, args, root);
+        case quot_kind::Mk:
+            arity = 3; break;
+        case quot_kind::Lift:
+            arity = 6; break;
+        }
+        if (args.size() < arity) {
+            return visit(eta_expand(mk_app(fn, args), arity - args.size()), root);
+        } else {
+            return visit_app_default(fn, args, root);
+        }
+    }
+
     expr visit_app(expr const & e, bool root) {
         /* TODO(Leo): remove after we add support for literals in the front-end */
         if (optional<mpz> v = to_num(e)) {
@@ -351,7 +371,7 @@ public:
             if (const_name(fn) == get_and_rec_name() || const_name(fn) == get_and_cases_on_name()) {
                 return visit_and_rec(fn, args, root);
             } else if (const_name(fn) == get_eq_rec_name() || const_name(fn) == get_eq_ndrec_name() ||
-                       const_name(fn) == get_eq_cases_on_name()) {
+                       const_name(fn) == get_eq_cases_on_name() || const_name(fn) == get_eq_rec_on_name()) {
                 return visit_eq_rec(fn, args, root);
             } else if (const_name(fn) == get_false_rec_name() || const_name(fn) == get_false_cases_on_name()) {
                 return visit_false_rec(fn, args, root);
@@ -366,6 +386,8 @@ public:
             } else if (optional<name> n = is_meta_rec_name(const_name(fn))) {
                 fn = mk_constant(*n, const_levels(fn));
                 return visit_app_default(fn, args, root);
+            } else if (is_quot_primitive(env(), const_name(fn))) {
+                return visit_quot(fn, args, root);
             }
         }
         fn = visit(fn, false);

@@ -429,6 +429,7 @@ public:
     bool is_inductive() const { return kind() == constant_info_kind::Inductive; }
     bool is_constructor() const { return kind() == constant_info_kind::Constructor; }
     bool is_recursor() const { return kind() == constant_info_kind::Recursor; }
+    bool is_quot() const { return kind() == constant_info_kind::Quot; }
 
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
@@ -444,6 +445,7 @@ public:
     inductive_val const & to_inductive_val() const { lean_assert(is_inductive()); return static_cast<inductive_val const &>(to_val()); }
     constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }
     recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }
+    quot_val const & to_quot_val() const { lean_assert(is_quot()); return static_cast<quot_val const &>(to_val()); }
 };
 
 inline optional<constant_info> none_constant_info() { return optional<constant_info>(); }

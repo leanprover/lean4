@@ -82,6 +82,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
     virtual expr visit_constant(expr const & e) override {
         if (is_comp_irrelevant(e)) {
             return *g_neutral_expr;
+        } else if (const_name(e) == get_lc_unreachable_name()) {
+            return *g_unreachable_expr;
         } else {
             /* Erase universe level information */
             return mk_constant(const_name(e));
@@ -395,6 +397,8 @@ class erase_irrelevant_fn : public compiler_step_visitor {
                 return visit_subtype_mk(args);
             } else if (n == get_subtype_val_name()) {
                 return visit_subtype_val(args);
+            } else if (n == get_lc_unreachable_name()) {
+                return *g_unreachable_expr;
             }
         }
         return compiler_step_visitor::visit_app(e);

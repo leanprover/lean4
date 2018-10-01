@@ -209,8 +209,8 @@ def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   pure $ match r with
-  | ok a s' none := mk_eps a it
-  | other        := other
+  | ok a s' _ := mk_eps a it
+  | other     := other
 
 /-- `not_followed_by p` succeeds when parser `p` fails -/
 def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
@@ -542,7 +542,7 @@ do it ← left_over,
              else result.ok (a::as) it none
          | _                     := result.ok [a] it none)
        (λ msg, pure $ match r with
-           | result.error msg' _ := if msg.it.offset > msg.it.offset then r
+           | result.error msg' _ := if msg'.it.offset > msg.it.offset then r
              else if msg.it.offset > msg'.it.offset then result.error msg tt
              else result.error (merge msg msg') (msg.it.offset > it.offset)
            | _ := r))

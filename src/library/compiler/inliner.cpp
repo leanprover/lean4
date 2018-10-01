@@ -50,6 +50,12 @@ void initialize_inliner() {
 void finalize_inliner() {
 }
 
+static bool is_aux_pack_constant(expr const & e) {
+    if (!is_constant(e)) return false;
+    name const & n = const_name(e);
+    return is_internal_name(n) && n.is_string() && n.get_string() == "_pack";
+}
+
 class inline_simple_definitions_fn : public compiler_step_visitor {
     /* Return true iff v is of the form (g y_1 ... y_n) where
        y_i is a constant or a variable.
@@ -60,6 +66,8 @@ class inline_simple_definitions_fn : public compiler_step_visitor {
         expr const & g = get_app_args(v, ys);
         if (!is_constant(g) && !is_var(g))
             return false;
+        if (is_aux_pack_constant(g))
+            return false; // we don't want to inline auxiliary definitions produced by eqn compiler
         for (expr const & y : ys) {
             if (!is_bvar(y) && !is_constant(y))
                 return false;

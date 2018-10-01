@@ -34,6 +34,8 @@ structure syntax_node_kind :=
 -- should be equal to the name of the declaration this structure instance was bound to
 (name : name)
 
+@[pattern] def choice : syntax_node_kind := ⟨`lean.parser.choice⟩
+
 structure syntax_node (syntax : Type) :=
 (kind : option syntax_node_kind) (args : list syntax)
 
@@ -117,13 +119,27 @@ def reprint_with_info : option source_info → string → string
 | none        inner := inner
 
 mutual def reprint, reprint_lst
-with reprint : syntax → string
+with reprint : syntax → option string
 | (atom ⟨info, s⟩) := reprint_with_info info s
-| (node n) := reprint_lst n.args
+| (node ⟨some k, ns⟩) :=
+  if k.name = choice.name then match ns with
+  -- should never happen
+  | [] := failure
+  -- check that every choice prints the same
+  | n::ns := do
+    s ← reprint n,
+    ss ← reprint_lst ns,
+    guard $ ss.all (= s),
+    pure s
+  else string.join <$> reprint_lst ns
+| (node ⟨_, ns⟩) := string.join <$> reprint_lst ns
 | missing := ""
-with reprint_lst : list syntax → string
-| []      := ""
-| (s::ss) := reprint s ++ reprint_lst ss
+with reprint_lst : list syntax → option (list string)
+| []      := pure []
+| (n::ns) := do
+  s ← reprint n,
+  ss ← reprint_lst ns,
+  pure $ s::ss
 end syntax
 
 instance : has_to_format syntax := ⟨syntax.to_format⟩

@@ -102,7 +102,7 @@ result:
     (term.ident `u []))
    (term.ident `v [])))
  (eoi "")]
-(ok "notationa`+`:65 b:65 :=nat.addab")
+(ok (some "notationa`+`:65 b:65 :=nat.addab"))
 error at line 332, column 16:
 expected "scoped"
 register_notation_tokens: unreachable

@@ -12,8 +12,6 @@ import init.data.list.instances
 namespace lean
 namespace parser
 
-@[pattern] def choice := {syntax_node_kind . name := `lean.parser.choice}
-
 namespace combinators
 open has_tokens has_view monad_parsec
 

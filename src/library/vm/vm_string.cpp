@@ -55,7 +55,7 @@ static pair<std::string, size_t> list_as_string(vm_obj const & lst) {
     return mk_pair(s, len);
 }
 
-vm_obj string_imp_mk(vm_obj const & lst) {
+vm_obj string_mk(vm_obj const & lst) {
     std::string s;
     size_t len;
     std::tie(s, len) = list_as_string(lst);
@@ -116,12 +116,12 @@ vm_obj string_to_list(vm_obj const & s) {
     return string_to_list_core(to_vm_string(s).m_value);
 }
 
-unsigned string_imp_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
+unsigned string_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     data.push_back(string_to_list(o));
     return 0;
 }
 
-vm_obj string_imp_data(vm_obj const & s) {
+vm_obj string_data(vm_obj const & s) {
     return string_to_list(s);
 }
 
@@ -497,9 +497,9 @@ vm_obj string_hash(vm_obj const & s) {
 }
 
 void initialize_vm_string() {
-    DECLARE_VM_BUILTIN(name({"string_imp", "mk"}),             string_imp_mk);
-    DECLARE_VM_BUILTIN(name({"string_imp", "data"}),           string_imp_data);
-    DECLARE_VM_CASES_BUILTIN(name({"string_imp", "cases_on"}), string_imp_cases_on);
+    DECLARE_VM_BUILTIN(name({"string", "mk"}),             string_mk);
+    DECLARE_VM_BUILTIN(name({"string", "data"}),           string_data);
+    DECLARE_VM_CASES_BUILTIN(name({"string", "cases_on"}), string_cases_on);
 
     DECLARE_VM_BUILTIN(name({"string", "length"}),            string_length);
     DECLARE_VM_BUILTIN(name({"string", "empty"}),             string_empty);

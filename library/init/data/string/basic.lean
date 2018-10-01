@@ -9,19 +9,14 @@ import init.data.char.basic
 import init.data.option.basic
 
 /- In the VM, strings are implemented using a dynamic array and UTF-8 encoding.
-
-   TODO: we currently cannot mark string_imp as private because
-   we need to bind string_imp.mk and string_imp.cases_on in the VM.
--/
-structure string_imp :=
+   TODO: mark as opaque -/
+structure string :=
 (data : list char)
-
-def string := string_imp
 
 instance : decidable_eq string :=
 {dec_eq := λ ⟨s₁⟩ ⟨s₂⟩,
  if h : s₁ = s₂ then is_true (congr_arg _ h)
- else is_false (λ h', string_imp.no_confusion h' (λ h', absurd h' h))}
+ else is_false (λ h', string.no_confusion h' (λ h', absurd h' h))}
 
 def list.as_string (s : list char) : string :=
 ⟨s⟩
@@ -265,8 +260,8 @@ private lemma nil_ne_append_singleton : ∀ (c : char) (l : list char), [] ≠ l
 
 lemma empty_ne_str : ∀ (c : char) (s : string), empty ≠ str s c
 | c ⟨l⟩ :=
-  λ h : string_imp.mk [] = string_imp.mk (l ++ [c]),
-    string_imp.no_confusion h $ λ h, nil_ne_append_singleton _ _ h
+  λ h : string.mk [] = string.mk (l ++ [c]),
+    string.no_confusion h $ λ h, nil_ne_append_singleton _ _ h
 
 lemma str_ne_empty (c : char) (s : string) : str s c ≠ empty :=
 (empty_ne_str c s).symm
@@ -287,8 +282,8 @@ private lemma str_ne_str_left_aux : ∀ {c₁ c₂ : char} (l₁ l₂ : list cha
   absurd this (str_ne_str_left_aux l₁ l₂ h₁)
 
 lemma str_ne_str_left : ∀ {c₁ c₂ : char} (s₁ s₂ : string), c₁ ≠ c₂ → str s₁ c₁ ≠ str s₂ c₂
-| c₁ c₂ (string_imp.mk l₁) (string_imp.mk l₂) h₁ h₂ :=
-  have l₁ ++ [c₁] = l₂ ++ [c₂], from string_imp.no_confusion h₂ id,
+| c₁ c₂ (string.mk l₁) (string.mk l₂) h₁ h₂ :=
+  have l₁ ++ [c₁] = l₂ ++ [c₂], from string.no_confusion h₂ id,
   absurd this (str_ne_str_left_aux l₁ l₂ h₁)
 
 private lemma str_ne_str_right_aux : ∀ (c₁ c₂ : char) {l₁ l₂ : list char}, l₁ ≠ l₂ → l₁ ++ [c₁] ≠ l₂ ++ [c₂]
@@ -311,11 +306,11 @@ private lemma str_ne_str_right_aux : ∀ (c₁ c₂ : char) {l₁ l₂ : list ch
   absurd this (str_ne_str_right_aux c₁ c₂ aux₂)
 
 lemma str_ne_str_right : ∀ (c₁ c₂ : char) {s₁ s₂ : string}, s₁ ≠ s₂ → str s₁ c₁ ≠ str s₂ c₂
-| c₁ c₂ (string_imp.mk l₁) (string_imp.mk l₂) h₁ h₂ :=
+| c₁ c₂ (string.mk l₁) (string.mk l₂) h₁ h₂ :=
   have aux : l₁ ≠ l₂, from λ h,
-    have string_imp.mk l₁ = string_imp.mk l₂, from eq.subst h rfl,
+    have string.mk l₁ = string.mk l₂, from eq.subst h rfl,
     absurd this h₁,
-  have l₁ ++ [c₁] = l₂ ++ [c₂], from string_imp.no_confusion h₂ id,
+  have l₁ ++ [c₁] = l₂ ++ [c₂], from string.no_confusion h₂ id,
   absurd this (str_ne_str_right_aux c₁ c₂ aux)
 
 end string

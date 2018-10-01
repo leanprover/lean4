@@ -54,10 +54,10 @@ section
   @[inline] protected def adapt {ρ' : Type u} [monad m] {α : Type u} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
   λ x r, x (f r)
 
-  protected def orelse [alternative m] {α : Type u} (x₁ x₂ : reader_t ρ m α) : reader_t ρ m α :=
+  @[inline] protected def orelse [alternative m] {α : Type u} (x₁ x₂ : reader_t ρ m α) : reader_t ρ m α :=
   λ s, x₁ s <|> x₂ s
 
-  protected def failure [alternative m] {α : Type u} : reader_t ρ m α :=
+  @[inline] protected def failure [alternative m] {α : Type u} : reader_t ρ m α :=
   λ s, failure
 
   instance [alternative m] : alternative (reader_t ρ m) :=

@@ -1220,8 +1220,10 @@ if h : p then decidable_of_decidable_of_iff (DP h)
   ⟨λ h2 _, h2, λal, al h⟩ else is_true (λ h2, absurd h2 h)
 end
 
-instance {α : Sort u} [decidable_eq α] (a b : α) : decidable (a ≠ b) :=
-implies.decidable
+@[inline] instance {α : Sort u} [decidable_eq α] (a b : α) : decidable (a ≠ b) :=
+match dec_eq a b with
+| is_true h := is_false $ λ h', absurd h h'
+| is_false h := is_true h
 
 theorem bool.ff_ne_tt : ff = tt → false
 .

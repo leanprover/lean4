@@ -277,8 +277,6 @@ node! projection [
 
 @[derive has_tokens]
 def builtin_trailing_parsers : list trailing_term_parser := [
-  sort_app.parser,
-  app.parser,
   arrow.parser,
   projection.parser
 ]
@@ -287,7 +285,13 @@ end term
 
 def term_parser.run (p : term_parser) : command_parser :=
 do cfg ← read,
-   adapt_reader coe $ pratt_parser (any_of cfg.leading_term_parsers) (any_of cfg.trailing_term_parsers) p
+   let trailing : trailing_term_parser := (longest_match cfg.trailing_term_parsers) <|>
+     -- The application parsers should only be tried as a fall-back;
+     -- e.g. `a + b` should not be parsed as `a (+ b)`.
+     --TODO(Sebastian): We should be able to remove this workaround using
+     -- the proposed more robust precedence handling
+     any_of [term.sort_app.parser, term.app.parser],
+   adapt_reader coe $ pratt_parser (longest_match cfg.leading_term_parsers) trailing p
 
 end parser
 end lean

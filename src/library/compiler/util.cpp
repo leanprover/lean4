@@ -253,19 +253,19 @@ unsigned get_lcnf_size(environment const & env, expr e) {
 static expr * g_neutral_expr     = nullptr;
 static expr * g_unreachable_expr = nullptr;
 
-expr mk_unreachable_expr() {
+expr mk_enf_unreachable() {
     return *g_unreachable_expr;
 }
 
-expr mk_neutral_expr() {
+expr mk_enf_neutral() {
     return *g_neutral_expr;
 }
 
-bool is_neutral_expr(expr const & e) {
+bool is_enf_neutral(expr const & e) {
     return e == *g_neutral_expr;
 }
 
-bool is_unreachable_expr(expr const & e) {
+bool is_enf_unreachable(expr const & e) {
     return e == *g_unreachable_expr;
 }
 

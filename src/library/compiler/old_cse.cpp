@@ -180,7 +180,7 @@ class old_cse_fn : public compiler_step_visitor {
                     expr new_v = process(s, some_expr(s));
                     name n = name("_c").append_after(m_counter);
                     m_counter++;
-                    expr l = m_all_locals.push_let(n, mk_neutral_expr(), new_v);
+                    expr l = m_all_locals.push_let(n, mk_enf_neutral(), new_v);
                     m_common_subexpr_to_local.insert(mk_pair(s, l));
                     return some_expr(l);
                 });

@@ -95,12 +95,15 @@ unsigned get_lcnf_size(environment const & env, expr e);
 // =======================================
 // Auxiliary expressions for erasure.
 // We use them after we have erased proofs and unnecessary type information.
+// `enf` stands for "erasure normal form". It is LCNF after erasure.
 
-expr mk_neutral_expr();
-expr mk_unreachable_expr();
+/* Create a neutral expression used at ENF */
+expr mk_enf_neutral();
+/* Create an unreachable expression used at ENF */
+expr mk_enf_unreachable();
 
-bool is_neutral_expr(expr const & e);
-bool is_unreachable_expr(expr const & e);
+bool is_enf_neutral(expr const & e);
+bool is_enf_unreachable(expr const & e);
 
 // =======================================
 

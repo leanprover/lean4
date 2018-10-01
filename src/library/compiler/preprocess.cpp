@@ -214,7 +214,7 @@ class preprocess_fn {
             type       = instantiate(binding_body(type), local);
         }
         if (ctx.is_prop(type) || is_sort(type)) {
-            expr r = locals.mk_lambda(mk_neutral_expr());
+            expr r = locals.mk_lambda(mk_enf_neutral());
             procs.emplace_back(d.get_name(), optional<pos_info>(), r);
             return true;
         } else {

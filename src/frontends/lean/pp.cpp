@@ -675,9 +675,9 @@ format pretty_fn::escape(name const & n) {
 }
 
 auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ_params) -> result {
-    if (is_neutral_expr(e) && m_unicode)
+    if (is_enf_neutral(e) && m_unicode)
         return format("◾");
-    if (is_unreachable_expr(e) && m_unicode)
+    if (is_enf_unreachable(e) && m_unicode)
         return format("⊥");
     name n = const_name(e);
     if (m_notation && n == get_unit_star_name())
@@ -1168,7 +1168,7 @@ auto pretty_fn::pp_let(expr e) -> result {
         format entry   = format(n);
         format v_fmt   = pp_child(v, 0).fmt();
         unsigned indent = m_compact_let ? 0 : m_indent;
-        if (!m_binder_types || is_neutral_expr(t)) {
+        if (!m_binder_types || is_enf_neutral(t)) {
             entry += space() + *g_assign_fmt + nest(indent, line() + v_fmt + sep);
         } else {
             format t_fmt   = pp_child(t, 0).fmt();

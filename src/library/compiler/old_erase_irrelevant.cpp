@@ -18,11 +18,11 @@ Author: Leonardo de Moura
 namespace lean {
 class old_erase_irrelevant_fn : public compiler_step_visitor {
     virtual expr visit_sort(expr const &) override {
-        return mk_neutral_expr();
+        return mk_enf_neutral();
     }
 
     virtual expr visit_pi(expr const &) override {
-        return mk_neutral_expr();
+        return mk_enf_neutral();
     }
 
     bool is_comp_irrelevant(expr const & e) {
@@ -45,9 +45,9 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_mdata(expr const & e) override {
         if (is_marked_as_comp_irrelevant(e)) {
-            return mk_neutral_expr();
+            return mk_enf_neutral();
         } else if (is_comp_irrelevant(e)) {
-            return mk_neutral_expr();
+            return mk_enf_neutral();
         } else {
             return visit(mdata_expr(e));
         }
@@ -55,16 +55,16 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_local(expr const & e) override {
         if (is_comp_irrelevant(e))
-            return mk_neutral_expr();
+            return mk_enf_neutral();
         else
             return e;
     }
 
     virtual expr visit_constant(expr const & e) override {
         if (is_comp_irrelevant(e)) {
-            return mk_neutral_expr();
+            return mk_enf_neutral();
         } else if (const_name(e) == get_lc_unreachable_name()) {
-            return mk_unreachable_expr();
+            return mk_enf_unreachable();
         } else {
             /* Erase universe level information */
             return mk_constant(const_name(e));
@@ -75,7 +75,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
         if (!has_loose_bvars(e) && !has_local(e))
             return e; // keep closed types for runtime debugger
         else
-            return mk_neutral_expr();
+            return mk_enf_neutral();
     }
 
     static bool is_irrelevant_lambda_let_body(expr e) {
@@ -85,7 +85,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
             else if (is_let(e))
                 e = let_body(e);
             else
-                return is_neutral_expr(e);
+                return is_enf_neutral(e);
         }
     }
 
@@ -102,7 +102,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
 
     expr erase_lambda_let_types_when_irrelevant(expr const & e) {
         if (is_lambda(e)) {
-            return mk_lambda(binding_name(e), mk_neutral_expr(),
+            return mk_lambda(binding_name(e), mk_enf_neutral(),
                              erase_lambda_let_types_when_irrelevant(binding_body(e)));
         } else if (is_let(e)) {
             return erase_lambda_let_types_when_irrelevant(let_body(e));
@@ -162,7 +162,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
         if (I_name == get_false_name())
-            return mk_unreachable_expr();
+            return mk_enf_unreachable();
         constant_info I_info        = env().get(I_name);
         inductive_val I_val         = I_info.to_inductive_val();
         unsigned nparams            = I_val.get_nparams();
@@ -190,7 +190,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
         if (I_name == get_false_name())
-            return mk_unreachable_expr();
+            return mk_enf_unreachable();
 
         /* This preprocessing step assumes that recursive recursors have already been eliminated */
         lean_assert(!is_recursive_datatype(env(), I_name));
@@ -255,7 +255,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
         if (!lhs_constructor || !rhs_constructor)
             throw exception(sstream() << "code generation failed, unsupported occurrence of '" << no_confusion_name << "', constructors expected");
         if (lhs_constructor != rhs_constructor)
-            return mk_unreachable_expr();
+            return mk_enf_unreachable();
         lean_assert(args.size() >= basic_arity + 1);
         expr major = args[nparams + nindices + 4];
         type_context_old::tmp_locals locals(ctx());
@@ -266,7 +266,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
 
         unsigned c_data_sz = get_constructor_arity(env(), *lhs_constructor) - nparams;
         for (unsigned i = 0; i < c_data_sz; i++)
-            r = mk_app(r, mk_neutral_expr()); // add dummy proofs
+            r = mk_app(r, mk_enf_neutral()); // add dummy proofs
         /* add remaining arguments */
         return add_args(r, nparams + nindices + 5, args);
     }
@@ -283,7 +283,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
         lean_assert(args.size() >= 5);
         expr minor = visit(args[3]);
         expr major = visit(args[4]);
-        expr r     = mk_app(minor, major, mk_neutral_expr());
+        expr r     = mk_app(minor, major, mk_enf_neutral());
         return add_args(r, 5, args);
     }
 
@@ -305,7 +305,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
            We replace an acc.cases_on application with the minor premise
            applied to {a : A} and an comp irrelevant term.
         */
-        expr r = beta_reduce(mk_app(minor, a, mk_neutral_expr()));
+        expr r = beta_reduce(mk_app(minor, a, mk_enf_neutral()));
         return add_args(r, 6, args);
     }
 
@@ -317,7 +317,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
 
            We replace an and.cases_on application with the minor premise
            applied to neutral elements. */
-        expr r = beta_reduce(mk_app(minor, mk_neutral_expr(), mk_neutral_expr()));
+        expr r = beta_reduce(mk_app(minor, mk_enf_neutral(), mk_enf_neutral()));
         return add_args(r, 5, args);
     }
 
@@ -325,7 +325,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
     expr visit_and_rec(buffer<expr> & args) {
         lean_assert(args.size() >= 5);
         expr minor = visit(args[3]);
-        expr r = beta_reduce(mk_app(minor, mk_neutral_expr(), mk_neutral_expr()));
+        expr r = beta_reduce(mk_app(minor, mk_enf_neutral(), mk_enf_neutral()));
         return add_args(r, 5, args);
     }
 
@@ -345,7 +345,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_app(expr const & e) override {
         if (is_comp_irrelevant(e))
-            return mk_neutral_expr();
+            return mk_enf_neutral();
         if (auto n = to_nat_value(ctx(), e))
             return *n;
         buffer<expr> args;
@@ -379,7 +379,7 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
             } else if (n == get_subtype_val_name()) {
                 return visit_subtype_val(args);
             } else if (n == get_lc_unreachable_name()) {
-                return mk_unreachable_expr();
+                return mk_enf_unreachable();
             }
         }
         return compiler_step_visitor::visit_app(e);

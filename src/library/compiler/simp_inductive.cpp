@@ -90,11 +90,11 @@ protected:
                 expr l = locals.push_local_from_binding(e);
                 e = instantiate(binding_body(e), l);
             } else {
-                e = instantiate(binding_body(e), mk_neutral_expr());
+                e = instantiate(binding_body(e), mk_enf_neutral());
             }
         }
         e = visit(e);
-        bool unreachable = is_unreachable_expr(e);
+        bool unreachable = is_enf_unreachable(e);
         return mk_pair(locals.mk_lambda(e), unreachable);
     }
 
@@ -292,7 +292,7 @@ class simp_inductive_fn : public simp_inductive_core_fn {
         }
 
         if (num_reachable == 0) {
-            return mk_unreachable_expr();
+            return mk_enf_unreachable();
         } else if (num_reachable == 1 && !is_builtin) {
             /* Use _cases.1 */
             return mk_app(mk_cases(1), args[0], reachable_case);

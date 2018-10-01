@@ -40,7 +40,7 @@ class vm_compiler_fn {
     }
 
     expr mk_local(name const & n) {
-        return ::lean::mk_local(n, mk_neutral_expr());
+        return ::lean::mk_local(n, mk_enf_neutral());
     }
 
     void compile_args(unsigned nargs, expr const * args, unsigned bpz, name_map<unsigned> const & m) {
@@ -85,9 +85,9 @@ class vm_compiler_fn {
 
     void compile_constant(expr const & e) {
         name const & n = const_name(e);
-        if (is_neutral_expr(e)) {
+        if (is_enf_neutral(e)) {
             emit(mk_sconstructor_instr(0));
-        } else if (is_unreachable_expr(e)) {
+        } else if (is_enf_unreachable(e)) {
             emit(mk_unreachable_instr());
         } else if (n == get_nat_zero_name()) {
             emit(mk_num_instr(mpz(0)));
@@ -208,9 +208,9 @@ class vm_compiler_fn {
             emit_apply_instr(args.size());
             return;
         } else if (is_constant(fn)) {
-            if (is_neutral_expr(fn)) {
+            if (is_enf_neutral(fn)) {
                 emit(mk_sconstructor_instr(0));
-            } else if (is_unreachable_expr(fn)) {
+            } else if (is_enf_unreachable(fn)) {
                 emit(mk_unreachable_instr());
             } else if (optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn))) {
                 compile_global(*decl, args.size(), args.data(), bpz, m);
@@ -247,7 +247,7 @@ class vm_compiler_fn {
     };
 
     optional<expr> to_type_info(expr const & t) {
-        if (!is_neutral_expr(t) && !has_loose_bvars(t) && !has_param_univ(t)) {
+        if (!is_enf_neutral(t) && !has_loose_bvars(t) && !has_param_univ(t)) {
             return some_expr(elim_comp_irrelevant_marks_fn()(t));
         } else {
             return none_expr();

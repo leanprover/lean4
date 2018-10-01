@@ -142,7 +142,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
                 expr l = locals.push_local_from_binding(e);
                 e = instantiate(binding_body(e), l);
             } else {
-                expr l = locals.push_local("a", mk_neutral_expr());
+                expr l = locals.push_local("a", mk_enf_neutral());
                 e = mk_app(e, l);
             }
         }

@@ -86,6 +86,7 @@ universes u v
   [header, nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
   except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean"} | throw "heh",
   pure cmd'.reprint
+#exit
 
 -- slowly progressing...
 --set_option profiler true

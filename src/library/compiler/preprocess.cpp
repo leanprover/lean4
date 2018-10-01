@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/cse.h"
+#include "library/compiler/erase_irrelevant.h"
 
 namespace lean {
 class expand_aux_fn : public compiler_step_visitor {
@@ -191,7 +192,7 @@ class preprocess_fn {
         }
     }
 
-    void erase_irrelevant(buffer<procedure> & procs) {
+    void old_erase_irrelevant(buffer<procedure> & procs) {
         for (procedure & p : procs) {
             p.m_code = ::lean::old_erase_irrelevant(m_env, m_cache, p.m_code);
         }
@@ -259,7 +260,9 @@ class preprocess_fn {
            We should store this information in a different place. In the meantime,
            I just invoke `module::add` with `check = false`. This is a temporary
            solution since we will not have this parameter in the final version. */
-        m_env = module::add(m_env, simp_decl, false);
+        m_env   = module::add(m_env, simp_decl, false);
+        v       = erase_irrelevant(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
     }
 
     name get_real_name(name const & n) {
@@ -309,7 +312,7 @@ public:
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
         name n = get_real_name(d.get_name());
         procs.emplace_back(n, optional<pos_info>(), v);
-        erase_irrelevant(procs);
+        old_erase_irrelevant(procs);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
         reduce_arity(m_env, m_cache, procs);
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););

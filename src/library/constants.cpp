@@ -12,6 +12,7 @@ name const * g_and_elim_right = nullptr;
 name const * g_and_intro = nullptr;
 name const * g_and_rec = nullptr;
 name const * g_and_cases_on = nullptr;
+name const * g_array = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
@@ -255,6 +256,7 @@ name const * g_uint8 = nullptr;
 name const * g_uint16 = nullptr;
 name const * g_uint32 = nullptr;
 name const * g_uint64 = nullptr;
+name const * g_usize = nullptr;
 name const * g_user_attribute = nullptr;
 name const * g_user_attribute_parse_reflect = nullptr;
 name const * g_well_founded_fix = nullptr;
@@ -274,6 +276,7 @@ void initialize_constants() {
     g_and_intro = new name{"and", "intro"};
     g_and_rec = new name{"and", "rec"};
     g_and_cases_on = new name{"and", "cases_on"};
+    g_array = new name{"array"};
     g_auto_param = new name{"auto_param"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
@@ -517,6 +520,7 @@ void initialize_constants() {
     g_uint16 = new name{"uint16"};
     g_uint32 = new name{"uint32"};
     g_uint64 = new name{"uint64"};
+    g_usize = new name{"usize"};
     g_user_attribute = new name{"user_attribute"};
     g_user_attribute_parse_reflect = new name{"user_attribute", "parse_reflect"};
     g_well_founded_fix = new name{"well_founded", "fix"};
@@ -537,6 +541,7 @@ void finalize_constants() {
     delete g_and_intro;
     delete g_and_rec;
     delete g_and_cases_on;
+    delete g_array;
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
@@ -780,6 +785,7 @@ void finalize_constants() {
     delete g_uint16;
     delete g_uint32;
     delete g_uint64;
+    delete g_usize;
     delete g_user_attribute;
     delete g_user_attribute_parse_reflect;
     delete g_well_founded_fix;
@@ -799,6 +805,7 @@ name const & get_and_elim_right_name() { return *g_and_elim_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
 name const & get_and_rec_name() { return *g_and_rec; }
 name const & get_and_cases_on_name() { return *g_and_cases_on; }
+name const & get_array_name() { return *g_array; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
@@ -1042,6 +1049,7 @@ name const & get_uint8_name() { return *g_uint8; }
 name const & get_uint16_name() { return *g_uint16; }
 name const & get_uint32_name() { return *g_uint32; }
 name const & get_uint64_name() { return *g_uint64; }
+name const & get_usize_name() { return *g_usize; }
 name const & get_user_attribute_name() { return *g_user_attribute; }
 name const & get_user_attribute_parse_reflect_name() { return *g_user_attribute_parse_reflect; }
 name const & get_well_founded_fix_name() { return *g_well_founded_fix; }

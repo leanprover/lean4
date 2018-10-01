@@ -7,6 +7,7 @@ and.elim_right
 and.intro
 and.rec
 and.cases_on
+array
 auto_param
 bit0
 bit1
@@ -250,6 +251,7 @@ uint8
 uint16
 uint32
 uint64
+usize
 user_attribute
 user_attribute.parse_reflect
 well_founded.fix

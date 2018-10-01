@@ -252,6 +252,7 @@ unsigned get_lcnf_size(environment const & env, expr e) {
 
 static expr * g_neutral_expr     = nullptr;
 static expr * g_unreachable_expr = nullptr;
+static expr * g_object_type      = nullptr;
 
 expr mk_enf_unreachable() {
     return *g_unreachable_expr;
@@ -259,6 +260,10 @@ expr mk_enf_unreachable() {
 
 expr mk_enf_neutral() {
     return *g_neutral_expr;
+}
+
+expr mk_enf_object_type() {
+    return *g_object_type;
 }
 
 bool is_enf_neutral(expr const & e) {
@@ -269,13 +274,19 @@ bool is_enf_unreachable(expr const & e) {
     return e == *g_unreachable_expr;
 }
 
+bool is_enf_object_type(expr const & e) {
+    return e == *g_object_type;
+}
+
 void initialize_compiler_util() {
     g_neutral_expr     = new expr(mk_constant("_neutral_"));
     g_unreachable_expr = new expr(mk_constant("_unreachable_"));
+    g_object_type      = new expr(mk_constant("_obj_"));
 }
 
 void finalize_compiler_util() {
     delete g_neutral_expr;
     delete g_unreachable_expr;
+    delete g_object_type;
 }
 }

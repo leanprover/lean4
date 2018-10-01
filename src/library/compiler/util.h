@@ -101,9 +101,11 @@ unsigned get_lcnf_size(environment const & env, expr e);
 expr mk_enf_neutral();
 /* Create an unreachable expression used at ENF */
 expr mk_enf_unreachable();
+expr mk_enf_object_type();
 
 bool is_enf_neutral(expr const & e);
 bool is_enf_unreachable(expr const & e);
+bool is_enf_object_type(expr const & e);
 
 // =======================================
 

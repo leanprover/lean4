@@ -330,7 +330,7 @@ do it ← left_over,
        if p c then lift $ λ _, result.ok c it.next none
        else error (repr c)
 
-def ch (c : char) : m char :=
+@[inline] def ch (c : char) : m char :=
 satisfy (= c)
 
 def alpha : m char :=
@@ -345,7 +345,7 @@ satisfy char.is_upper
 def lower : m char :=
 satisfy char.is_lower
 
-def any : m char :=
+@[inline] def any : m char :=
 satisfy (λ _, true)
 
 private def str_aux : nat → iterator → iterator → option iterator
@@ -360,7 +360,7 @@ This parser consumes no input if it fails (even if a partial match).
 Note: The behaviour of this parser is different to that the `string` parser in the Parsec_t Μ M Haskell library,
 as this one is all-or-nothing.
 -/
-def str (s : string) : m string :=
+@[inline] def str (s : string) : m string :=
 if s.is_empty then pure ""
 else lift $ λ it, match str_aux s.length s.mk_iterator it with
   | some it' := result.ok s it' none

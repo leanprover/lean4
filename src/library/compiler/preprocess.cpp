@@ -29,7 +29,7 @@ Author: Leonardo de Moura
 #include "library/compiler/nat_value.h"
 #include "library/compiler/eta_expansion.h"
 #include "library/compiler/inliner.h"
-#include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/old_erase_irrelevant.h"
 #include "library/compiler/reduce_arity.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
@@ -193,7 +193,7 @@ class preprocess_fn {
 
     void erase_irrelevant(buffer<procedure> & procs) {
         for (procedure & p : procs) {
-            p.m_code = ::lean::erase_irrelevant(m_env, m_cache, p.m_code);
+            p.m_code = ::lean::old_erase_irrelevant(m_env, m_cache, p.m_code);
         }
     }
 

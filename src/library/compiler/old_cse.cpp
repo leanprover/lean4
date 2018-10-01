@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/vm/vm.h"
 #include "library/compiler/procedure.h"
-#include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/util.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/simp_inductive.h"
 

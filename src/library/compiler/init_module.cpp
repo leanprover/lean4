@@ -8,10 +8,10 @@ Author: Leonardo de Moura
 #include "library/compiler/nat_value.h"
 #include "library/compiler/comp_irrelevant.h"
 #include "library/compiler/inliner.h"
-#include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/vm_compiler.h"
 
+#include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/cse.h"
@@ -22,10 +22,10 @@ void initialize_compiler_module() {
     initialize_nat_value();
     initialize_comp_irrelevant();
     initialize_inliner();
-    initialize_erase_irrelevant();
     initialize_simp_inductive();
     initialize_vm_compiler();
     //======
+    initialize_compiler_util();
     initialize_lcnf();
     initialize_elim_dead_let();
     initialize_cse();
@@ -35,10 +35,10 @@ void finalize_compiler_module() {
     finalize_cse();
     finalize_elim_dead_let();
     finalize_lcnf();
+    finalize_compiler_util();
     //======
     finalize_vm_compiler();
     finalize_simp_inductive();
-    finalize_erase_irrelevant();
     finalize_inliner();
     finalize_comp_irrelevant();
     finalize_nat_value();

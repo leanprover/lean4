@@ -13,14 +13,5 @@ class abstract_context_cache;
 
     \remark The resultant term cannot be type checked. So, any preprocessing step
     that requires type inference cannot be applied after this transformation.  */
-expr erase_irrelevant(environment const & env, abstract_context_cache & cache, expr const & e);
-/** \brief Neutral auxiliary term. */
-bool is_neutral_expr(expr const & e);
-bool is_unreachable_expr(expr const & e);
-
-expr mk_neutral_expr();
-expr mk_unreachable_expr();
-
-void initialize_erase_irrelevant();
-void finalize_erase_irrelevant();
+expr old_erase_irrelevant(environment const & env, abstract_context_cache & cache, expr const & e);
 }

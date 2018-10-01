@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/optimize.h"
 #include "library/compiler/simp_inductive.h"
-#include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/util.h"
 #include "library/compiler/nat_value.h"
 #include "library/compiler/preprocess.h"
 #include "library/compiler/comp_irrelevant.h"

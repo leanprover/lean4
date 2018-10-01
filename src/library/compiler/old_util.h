@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "library/compiler/util.h"
 namespace lean {
 class type_context_old;
 /** \brief Create a new name of the form prefix.suffix_idx that is not the name of a declaration and/or VM function.

@@ -16,32 +16,13 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler_step_visitor.h"
 
 namespace lean {
-static expr * g_neutral_expr     = nullptr;
-static expr * g_unreachable_expr = nullptr;
-
-expr mk_unreachable_expr() {
-    return *g_unreachable_expr;
-}
-
-expr mk_neutral_expr() {
-    return *g_neutral_expr;
-}
-
-bool is_neutral_expr(expr const & e) {
-    return e == *g_neutral_expr;
-}
-
-bool is_unreachable_expr(expr const & e) {
-    return e == *g_unreachable_expr;
-}
-
-class erase_irrelevant_fn : public compiler_step_visitor {
+class old_erase_irrelevant_fn : public compiler_step_visitor {
     virtual expr visit_sort(expr const &) override {
-        return *g_neutral_expr;
+        return mk_neutral_expr();
     }
 
     virtual expr visit_pi(expr const &) override {
-        return *g_neutral_expr;
+        return mk_neutral_expr();
     }
 
     bool is_comp_irrelevant(expr const & e) {
@@ -64,9 +45,9 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_mdata(expr const & e) override {
         if (is_marked_as_comp_irrelevant(e)) {
-            return *g_neutral_expr;
+            return mk_neutral_expr();
         } else if (is_comp_irrelevant(e)) {
-            return *g_neutral_expr;
+            return mk_neutral_expr();
         } else {
             return visit(mdata_expr(e));
         }
@@ -74,16 +55,16 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_local(expr const & e) override {
         if (is_comp_irrelevant(e))
-            return *g_neutral_expr;
+            return mk_neutral_expr();
         else
             return e;
     }
 
     virtual expr visit_constant(expr const & e) override {
         if (is_comp_irrelevant(e)) {
-            return *g_neutral_expr;
+            return mk_neutral_expr();
         } else if (const_name(e) == get_lc_unreachable_name()) {
-            return *g_unreachable_expr;
+            return mk_unreachable_expr();
         } else {
             /* Erase universe level information */
             return mk_constant(const_name(e));
@@ -94,7 +75,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         if (!has_loose_bvars(e) && !has_local(e))
             return e; // keep closed types for runtime debugger
         else
-            return *g_neutral_expr;
+            return mk_neutral_expr();
     }
 
     static bool is_irrelevant_lambda_let_body(expr e) {
@@ -181,7 +162,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
         if (I_name == get_false_name())
-            return *g_unreachable_expr;
+            return mk_unreachable_expr();
         constant_info I_info        = env().get(I_name);
         inductive_val I_val         = I_info.to_inductive_val();
         unsigned nparams            = I_val.get_nparams();
@@ -209,7 +190,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         name const & rec_name       = const_name(fn);
         name const & I_name         = rec_name.get_prefix();
         if (I_name == get_false_name())
-            return *g_unreachable_expr;
+            return mk_unreachable_expr();
 
         /* This preprocessing step assumes that recursive recursors have already been eliminated */
         lean_assert(!is_recursive_datatype(env(), I_name));
@@ -274,7 +255,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         if (!lhs_constructor || !rhs_constructor)
             throw exception(sstream() << "code generation failed, unsupported occurrence of '" << no_confusion_name << "', constructors expected");
         if (lhs_constructor != rhs_constructor)
-            return *g_unreachable_expr;
+            return mk_unreachable_expr();
         lean_assert(args.size() >= basic_arity + 1);
         expr major = args[nparams + nindices + 4];
         type_context_old::tmp_locals locals(ctx());
@@ -285,7 +266,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
         unsigned c_data_sz = get_constructor_arity(env(), *lhs_constructor) - nparams;
         for (unsigned i = 0; i < c_data_sz; i++)
-            r = mk_app(r, *g_neutral_expr); // add dummy proofs
+            r = mk_app(r, mk_neutral_expr()); // add dummy proofs
         /* add remaining arguments */
         return add_args(r, nparams + nindices + 5, args);
     }
@@ -302,7 +283,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
         lean_assert(args.size() >= 5);
         expr minor = visit(args[3]);
         expr major = visit(args[4]);
-        expr r     = mk_app(minor, major, *g_neutral_expr);
+        expr r     = mk_app(minor, major, mk_neutral_expr());
         return add_args(r, 5, args);
     }
 
@@ -364,7 +345,7 @@ class erase_irrelevant_fn : public compiler_step_visitor {
 
     virtual expr visit_app(expr const & e) override {
         if (is_comp_irrelevant(e))
-            return *g_neutral_expr;
+            return mk_neutral_expr();
         if (auto n = to_nat_value(ctx(), e))
             return *n;
         buffer<expr> args;
@@ -398,28 +379,18 @@ class erase_irrelevant_fn : public compiler_step_visitor {
             } else if (n == get_subtype_val_name()) {
                 return visit_subtype_val(args);
             } else if (n == get_lc_unreachable_name()) {
-                return *g_unreachable_expr;
+                return mk_unreachable_expr();
             }
         }
         return compiler_step_visitor::visit_app(e);
     }
 
 public:
-    erase_irrelevant_fn(environment const & env, abstract_context_cache & cache):
+    old_erase_irrelevant_fn(environment const & env, abstract_context_cache & cache):
         compiler_step_visitor(env, cache) {}
 };
 
-expr erase_irrelevant(environment const & env, abstract_context_cache & cache, expr const & e) {
-    return erase_irrelevant_fn(env, cache)(e);
-}
-
-void initialize_erase_irrelevant() {
-    g_neutral_expr     = new expr(mk_constant("_neutral_"));
-    g_unreachable_expr = new expr(mk_constant("_unreachable_"));
-}
-
-void finalize_erase_irrelevant() {
-    delete g_neutral_expr;
-    delete g_unreachable_expr;
+expr old_erase_irrelevant(environment const & env, abstract_context_cache & cache, expr const & e) {
+    return old_erase_irrelevant_fn(env, cache)(e);
 }
 }

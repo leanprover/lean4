@@ -91,4 +91,19 @@ expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar);
 
 /* Return the "code" size for `e` */
 unsigned get_lcnf_size(environment const & env, expr e);
+
+// =======================================
+// Auxiliary expressions for erasure.
+// We use them after we have erased proofs and unnecessary type information.
+
+expr mk_neutral_expr();
+expr mk_unreachable_expr();
+
+bool is_neutral_expr(expr const & e);
+bool is_unreachable_expr(expr const & e);
+
+// =======================================
+
+void initialize_compiler_util();
+void finalize_compiler_util();
 }

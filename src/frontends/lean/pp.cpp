@@ -35,7 +35,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/equations.h"
 #include "library/tactic/tactic_state.h"
 #include "library/compiler/comp_irrelevant.h"
-#include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/util.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/prenum.h"

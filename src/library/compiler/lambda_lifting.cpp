@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/sorry.h"
 #include "library/compiler/old_util.h"
-#include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/procedure.h"
 

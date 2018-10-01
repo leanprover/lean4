@@ -249,4 +249,33 @@ unsigned get_lcnf_size(environment const & env, expr e) {
     }
     lean_unreachable();
 }
+
+static expr * g_neutral_expr     = nullptr;
+static expr * g_unreachable_expr = nullptr;
+
+expr mk_unreachable_expr() {
+    return *g_unreachable_expr;
+}
+
+expr mk_neutral_expr() {
+    return *g_neutral_expr;
+}
+
+bool is_neutral_expr(expr const & e) {
+    return e == *g_neutral_expr;
+}
+
+bool is_unreachable_expr(expr const & e) {
+    return e == *g_unreachable_expr;
+}
+
+void initialize_compiler_util() {
+    g_neutral_expr     = new expr(mk_constant("_neutral_"));
+    g_unreachable_expr = new expr(mk_constant("_unreachable_"));
+}
+
+void finalize_compiler_util() {
+    delete g_neutral_expr;
+    delete g_unreachable_expr;
+}
 }

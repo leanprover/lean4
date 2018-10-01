@@ -246,6 +246,10 @@ typed_expr
 unit
 unit.star
 monad_from_pure_bind
+uint8
+uint16
+uint32
+uint64
 user_attribute
 user_attribute.parse_reflect
 well_founded.fix

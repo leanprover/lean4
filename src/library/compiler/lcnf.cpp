@@ -88,11 +88,19 @@ public:
         return m_lctx.mk_lambda(args, mk_app(e, args));
     }
 
-    expr visit_projection(expr const & fn, buffer<expr> & args, bool root) {
-        constant_info info = env().get(const_name(fn));
-        expr fn_val        = instantiate_value_lparams(info, const_levels(fn));
-        std::reverse(args.begin(), args.end());
-        return visit(apply_beta(fn_val, args.size(), args.data()), root);
+    expr visit_projection(expr const & fn, projection_info const & pinfo, buffer<expr> & args, bool root) {
+        name const & k        = pinfo.m_constructor;
+        constructor_val k_val = env().get(k).to_constructor_val();
+        name const & I_name   = k_val.get_induct();
+        if (is_runtime_builtin_type(I_name)) {
+            /* We should not expand projections of runtime builtin types */
+            return visit_app_default(fn, args, root);
+        } else {
+            constant_info info = env().get(const_name(fn));
+            expr fn_val        = instantiate_value_lparams(info, const_levels(fn));
+            std::reverse(args.begin(), args.end());
+            return visit(apply_beta(fn_val, args.size(), args.data()), root);
+        }
     }
 
     unsigned get_constructor_nfields(name const & n) {
@@ -371,8 +379,8 @@ public:
             return visit_false_rec(fn, args, root);
         } else if (is_cases_on_recursor(env(), const_name(fn))) {
             return visit_cases_on(fn, args, root);
-        } else if (is_projection(env(), const_name(fn))) {
-            return visit_projection(fn, args, root);
+        } else if (projection_info const * pinfo = get_projection_info(env(), const_name(fn))) {
+            return visit_projection(fn, *pinfo, args, root);
         } else if (is_no_confusion(env(), const_name(fn))) {
             return visit_no_confusion(fn, args, root);
         } else if (is_constructor(env(), const_name(fn))) {

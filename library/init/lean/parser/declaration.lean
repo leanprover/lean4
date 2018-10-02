@@ -99,9 +99,14 @@ node_choice! structure_field {
 }
 
 @[derive has_tokens has_view]
+def old_univ_params.parser : command_parser :=
+node! old_univ_params ["{", ids: ident.parser+, "}"]
+
+@[derive has_tokens has_view]
 def structure.parser : command_parser :=
 node! «structure» [
   keyword: any_of [symbol "structure", symbol "class"],
+  old_univ_params: old_univ_params.parser?,
   name: term.ident.parser,
   sig: decl_sig.parser,
   «extends»: node! «extends» ["extends", parents: sep_by1 term.parser (symbol ",")]?,
@@ -117,7 +122,7 @@ node! declaration [
   inner: node_choice! declaration.inner {
     «def_like»: node! «def_like» [
       kind: node_choice! def_like.kind {"def", "abbreviation", "theorem"},
-      old_univ_params: node! old_univ_params ["{", ids: ident.parser+, "}"]?,
+      old_univ_params: old_univ_params.parser?,
       name: term.ident.parser, sig: decl_sig.parser, val: decl_val.parser],
     «instance»: node! «instance» ["instance", name: term.ident.parser?, sig: decl_sig.parser, val: decl_val.parser],
     «example»: node! «example» ["example", sig: decl_sig.parser, val: decl_val.parser],
@@ -125,6 +130,7 @@ node! declaration [
     «axiom»: node! «axiom» ["axiom", name: term.ident.parser, sig: decl_sig.parser],
 
     «inductive»: node! «inductive» [try [«class»: (symbol "class")?, "inductive"],
+      old_univ_params: old_univ_params.parser?,
       name: term.ident.parser,
       sig: decl_sig.parser,
       local_notation: notation_like.parser?,

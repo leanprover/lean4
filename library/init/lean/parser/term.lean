@@ -182,6 +182,19 @@ def from.parser : term_parser :=
 node! «from» ["from ", proof: term.parser]
 
 @[derive parser.has_tokens parser.has_view]
+def let.parser : term_parser :=
+node! «let» [
+  "let ",
+  id: ident.parser,
+  binders: bracketed_binder.parser*,
+  type: node! let_type [" : ", type: term.parser]?,
+  " := ",
+  value: term.parser,
+  " in ",
+  body: term.parser,
+]
+
+@[derive parser.has_tokens parser.has_view]
 def have.parser : term_parser :=
 node! «have» [
   "have ",
@@ -230,6 +243,19 @@ node! «if» [
   else_branch: term.parser,
 ]
 
+@[derive parser.has_tokens parser.has_view]
+def struct_inst.parser : term_parser :=
+node! struct_inst [
+  "{":max_prec,
+  type: (try node! struct_inst_type [id: ident.parser, " . "])?,
+  «with»: (try node! struct_inst_with [source: term.parser, " with "])?,
+  items: sep_by node_choice! struct_inst_item {
+    field: node! struct_inst_field [id: ident.parser, " := ", val: term.parser],
+    source: node! struct_inst_source ["..", source: term.parser],
+  } (symbol ", "),
+  "}",
+]
+
 -- TODO(Sebastian): replace with attribute
 @[derive has_tokens]
 def builtin_leading_parsers : list term_parser := [
@@ -242,11 +268,13 @@ def builtin_leading_parsers : list term_parser := [
   pi.parser,
   anonymous_constructor.parser,
   explicit_ident.parser,
+  let.parser,
   have.parser,
   show.parser,
   assume.parser,
   match.parser,
-  if.parser
+  if.parser,
+  struct_inst.parser
 ]
 
 @[derive parser.has_tokens parser.has_view]

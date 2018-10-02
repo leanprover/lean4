@@ -138,7 +138,7 @@ private:
     optional<expr> mk_coercion_core(expr const & e, expr const & e_type, expr const & type, expr const & ref);
     bool is_monad(expr const & e);
     bool is_monad_fail(expr const & e);
-    optional<expr> try_monad_coercion(expr const & e, expr const & e_type, expr type, expr const & ref);
+    optional<expr> try_monad_coercion(expr const & e, expr e_type, expr type, expr const & ref);
     optional<expr> mk_coercion(expr const & e, expr e_type, expr type, expr const & ref);
 
     void trace_coercion_fn_sort_failure(bool is_fn, expr const & e_type, expr const & ref, char const * error_msg);

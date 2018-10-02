@@ -662,7 +662,7 @@ bool elaborator::is_monad_fail(expr const & e) {
           tactic ?a    ===> smt_tactic unit
 
    TODO(leo): can/should we generalize this approach? */
-optional<expr> elaborator::try_monad_coercion(expr const & e, expr const & e_type, expr type, expr const & ref) {
+optional<expr> elaborator::try_monad_coercion(expr const & e, expr e_type, expr type, expr const & ref) {
     if ((has_expr_metavar(e_type) && has_expr_metavar(type))
         || (!has_expr_metavar(e_type) && !has_expr_metavar(type))
         || !is_app(e_type)
@@ -677,6 +677,7 @@ optional<expr> elaborator::try_monad_coercion(expr const & e, expr const & e_typ
     }
     if (!m_ctx.is_def_eq(app_arg(e_type), app_arg(type)))
         return none_expr();
+    e_type = instantiate_mvars(e_type);
     type   = instantiate_mvars(type);
     return mk_coercion_core(e, e_type, type, ref);
 }

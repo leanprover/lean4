@@ -85,7 +85,19 @@ try $ do
   pure $ syntax.atom ⟨info, ss.to_string⟩
 
 instance raw.tokens {α} (p : m α) (t) : parser.has_tokens (raw p t : parser) := default _
-instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) syntax := default _
+instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) (option syntax_atom) :=
+{ view := λ stx, match stx with
+  | syntax.atom atom := some atom
+  | _                := none,
+  review := λ a, (syntax.atom <$> a).get_or_else syntax.missing }
+
+/-- Like `raw (str s)`, but default to `s` in views. -/
+@[inline, derive has_tokens has_view]
+def raw_str (s : string) (trailing_ws := ff) : parser :=
+raw (str s) trailing_ws
+
+instance raw_str.view_default (s) (t) : parser.has_view_default (raw_str s t : parser) (option syntax_atom)
+  (some {val := s}) := ⟨⟩
 
 end
 
@@ -95,9 +107,9 @@ set_option class.instance_max_depth 200
 def ident_part.parser : basic_parser_m syntax :=
 node_choice! ident_part {
   escaped: node! ident_part_escaped [
-    esc_begin: raw $ ch id_begin_escape,
+    esc_begin: raw_str id_begin_escape.to_string,
     escaped: raw $ take_until1 is_id_end_escape,
-    esc_end: raw $ ch id_end_escape
+    esc_end: raw_str id_end_escape.to_string,
   ],
   default: lookahead (satisfy is_id_first) *> raw (take_while is_id_rest)
 }
@@ -106,7 +118,7 @@ node_choice! ident_part {
 def ident_suffix.parser : rec_t unit syntax basic_parser_m syntax :=
 -- consume '.' only when followed by a character starting an ident_part
 try (lookahead (ch '.' *> (ch id_begin_escape *> pure () <|> satisfy is_id_first *> pure ()))) *>
-node! ident_suffix [«.»: raw $ ch '.', ident: recurse ()]
+node! ident_suffix [«.»: raw_str ".", ident: recurse ()]
 
 private mutual def update_trailing, update_trailing_lst
 with update_trailing : substring → syntax → syntax
@@ -203,11 +215,11 @@ instance number.parser.view : parser.has_view (number.parser : parser) number.vi
 {..number.has_view}
 
 def number.view.to_nat : number.view → nat
-| (number.view.base10 (syntax.atom a)) := a.val.to_nat
+| (number.view.base10 (some atom)) := atom.val.to_nat
 | _ := 1138 -- should never happen, but let's still choose a grep-able number
 
 def number.view.of_nat (n : nat) : number.view :=
-number.view.base10 (syntax.atom {val := to_string n})
+number.view.base10 (some {val := to_string n})
 
 def ident.parser : parser :=
 lift $ try $ do {
@@ -235,7 +247,7 @@ lift $ try $ do
   | syntax.atom ⟨_, sym'⟩ := some sym'
   | syntax.node ⟨ident, _⟩ :=
     (match view ident stx with
-     | {part := ident_part.view.default (syntax.atom ⟨_, sym'⟩),
+     | {part := ident_part.view.default (some ⟨_, sym'⟩),
         suffix := none} := some sym'
      | _ := none)
   | _ := none,

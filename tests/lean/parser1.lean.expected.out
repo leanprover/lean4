@@ -9,7 +9,7 @@ partial syntax tree:
 [(module.header [] []) (eoi "")]
 error at line 1, column 6:
 unexpected end of file
-expected identifier
+expected "." or identifier
 partial syntax tree:
 [(module.header
   []

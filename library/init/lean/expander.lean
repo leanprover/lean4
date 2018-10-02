@@ -30,8 +30,8 @@ do cfg ← read,
 instance coe_name_ident : has_coe name parser.ident.view :=
 ⟨λ n, (n.components.foldr (λ n suffix, match n with
   | name.mk_string _ s := some {parser.ident.view .
-      part := ident_part.view.default s,
-      suffix := ident_suffix.view.mk "." <$> review parser.ident <$> suffix}
+      part := ident_part.view.default (some {val := s}),
+      suffix := suffix <&> λ suffix, {ident := review parser.ident suffix}}
   | _ := some $ view parser.ident syntax.missing) none).get_or_else (view parser.ident syntax.missing)⟩
 
 instance coe_ident_term_ident : has_coe parser.ident.view term.ident.view :=
@@ -89,8 +89,7 @@ def mixfix.transform : transformer :=
   let v := view mixfix stx,
   let nota_sym := match v.symbol with
   | mixfix_symbol.view.quoted q := notation_symbol.view.quoted q
-  | mixfix_symbol.view.unquoted u := notation_symbol.view.quoted {
-    left_quote := "`", symbol := u, right_quote := "`"},
+  | mixfix_symbol.view.unquoted u := notation_symbol.view.quoted {symbol := u},
   spec ← mixfix_to_notation_spec v.kind nota_sym,
   let term := match v.kind with
   | mixfix.kind.view.prefix _ :=

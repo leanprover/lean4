@@ -103,6 +103,12 @@ class erase_irrelevant_fn {
 
     expr visit_constant(expr const & e) {
         lean_assert(!is_enf_neutral(e));
+        name const & c = const_name(e);
+        if (c == get_lc_unreachable_name()) {
+            return mk_enf_unreachable();
+        } else if (c == get_lc_proof_name()) {
+            return mk_enf_neutral();
+        }
         try {
             type_checker tc(m_st, m_lctx);
             expr e_type = tc.whnf(tc.infer(e));
@@ -256,7 +262,7 @@ class erase_irrelevant_fn {
         if (optional<unsigned> fidx = has_trivial_structure(I_name)) {
             unsigned nparams      = c_val.get_nparams();
             lean_assert(nparams + *fidx < args.size());
-            return args[nparams + *fidx];
+            return visit(args[nparams + *fidx]);
         } else {
             return visit_app_default(fn, args);
         }
@@ -264,11 +270,13 @@ class erase_irrelevant_fn {
 
     expr visit_app(expr const & e) {
         buffer<expr> args;
-        expr f = visit(get_app_args(e, args));
+        expr f = get_app_args(e, args);
         if (is_constant(f)) {
             name const & fn = const_name(f);
             if (fn == get_lc_proof_name()) {
                 return mk_enf_neutral();
+            } else if (fn == get_lc_unreachable_name()) {
+                return mk_enf_unreachable();
             } else if (is_constructor(env(), fn)) {
                 return visit_constructor(f, args);
             } else if (is_cases_on_recursor(env(), fn)) {
@@ -279,6 +287,7 @@ class erase_irrelevant_fn {
                 return visit_quot_lift(args);
             }
         }
+        f = visit(f);
         return visit_app_default(f, args);
     }
 
@@ -287,7 +296,7 @@ class erase_irrelevant_fn {
             if (*fidx != proj_idx(e).get_small_value())
                 return mk_enf_neutral();
             else
-                return proj_expr(e);
+                return visit(proj_expr(e));
         } else {
             return e;
         }

@@ -411,7 +411,7 @@ static pair<std::string, size_t> rev_list_as_string(vm_obj const & lst) {
     return mk_pair(s, len);
 }
 
-vm_obj string_iterator_imp_mk(vm_obj const & l1, vm_obj const & l2) {
+vm_obj string_iterator_mk(vm_obj const & l1, vm_obj const & l2) {
     pair<std::string, size_t> p1 = rev_list_as_string(l1);
     pair<std::string, size_t> p2 = list_as_string(l2);
     std::string s = p1.first;
@@ -421,7 +421,7 @@ vm_obj string_iterator_imp_mk(vm_obj const & l1, vm_obj const & l2) {
     return mk_vm_pair(new_s, mk_vm_nat(p1.second));
 }
 
-unsigned string_iterator_imp_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
+unsigned string_iterator_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     vm_obj p = string_iterator_prev_to_string(o);
     vm_obj n = string_iterator_remaining_to_string(o);
     data.push_back(string_to_list_core(to_vm_string(p).m_value, true /* reverse */));
@@ -429,12 +429,12 @@ unsigned string_iterator_imp_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
     return 0;
 }
 
-vm_obj string_iterator_imp_fst(vm_obj const & o) {
+vm_obj string_iterator_fst(vm_obj const & o) {
     vm_obj p = string_iterator_prev_to_string(o);
     return string_to_list_core(to_vm_string(p).m_value, true /* reverse */);
 }
 
-vm_obj string_iterator_imp_snd(vm_obj const & o) {
+vm_obj string_iterator_snd(vm_obj const & o) {
     vm_obj n = string_iterator_remaining_to_string(o);
     return string_to_list_core(to_vm_string(n).m_value);
 }
@@ -529,10 +529,10 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "prev_to_string"}), string_iterator_prev_to_string);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "extract"}),        string_iterator_extract);
 
-    DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "mk"}),              string_iterator_imp_mk);
-    DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "fst"}),             string_iterator_imp_fst);
-    DECLARE_VM_BUILTIN(name({"string", "iterator_imp", "snd"}),             string_iterator_imp_snd);
-    DECLARE_VM_CASES_BUILTIN(name({"string", "iterator_imp", "cases_on"}),  string_iterator_imp_cases_on);
+    DECLARE_VM_BUILTIN(name({"string", "iterator", "mk"}),              string_iterator_mk);
+    DECLARE_VM_BUILTIN(name({"string", "iterator", "fst"}),             string_iterator_fst);
+    DECLARE_VM_BUILTIN(name({"string", "iterator", "snd"}),             string_iterator_snd);
+    DECLARE_VM_CASES_BUILTIN(name({"string", "iterator", "cases_on"}),  string_iterator_cases_on);
 }
 
 void finalize_vm_string() {

@@ -219,6 +219,7 @@ sizeof
 sorry_ax
 string
 string.empty
+string.iterator
 string.str
 string.empty_ne_str
 string.str_ne_empty

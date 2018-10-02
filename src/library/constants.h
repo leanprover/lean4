@@ -226,6 +226,7 @@ name const & get_sizeof_name();
 name const & get_sorry_ax_name();
 name const & get_string_name();
 name const & get_string_empty_name();
+name const & get_string_iterator_name();
 name const & get_string_str_name();
 name const & get_string_empty_ne_str_name();
 name const & get_string_str_ne_empty_name();

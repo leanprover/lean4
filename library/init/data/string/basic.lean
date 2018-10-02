@@ -53,14 +53,9 @@ def fold {α} (a : α) (f : α → char → α) (s : string) : α :=
 s.to_list.foldl f a
 
 /- In the VM, the string iterator is implemented as a pointer to the string being iterated + index.
-
-   TODO: we currently cannot mark interator_imp as private because
-   we need to bind string_imp.mk and string_imp.cases_on in the VM.
--/
-structure iterator_imp :=
+   TODO: mark it opaque. -/
+structure iterator :=
 (fst : list char) (snd : list char)
-
-def iterator := iterator_imp
 
 def mk_iterator : string → iterator
 | ⟨s⟩ := ⟨[], s⟩

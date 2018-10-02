@@ -224,6 +224,7 @@ name const * g_sizeof = nullptr;
 name const * g_sorry_ax = nullptr;
 name const * g_string = nullptr;
 name const * g_string_empty = nullptr;
+name const * g_string_iterator = nullptr;
 name const * g_string_str = nullptr;
 name const * g_string_empty_ne_str = nullptr;
 name const * g_string_str_ne_empty = nullptr;
@@ -488,6 +489,7 @@ void initialize_constants() {
     g_sorry_ax = new name{"sorry_ax"};
     g_string = new name{"string"};
     g_string_empty = new name{"string", "empty"};
+    g_string_iterator = new name{"string", "iterator"};
     g_string_str = new name{"string", "str"};
     g_string_empty_ne_str = new name{"string", "empty_ne_str"};
     g_string_str_ne_empty = new name{"string", "str_ne_empty"};
@@ -753,6 +755,7 @@ void finalize_constants() {
     delete g_sorry_ax;
     delete g_string;
     delete g_string_empty;
+    delete g_string_iterator;
     delete g_string_str;
     delete g_string_empty_ne_str;
     delete g_string_str_ne_empty;
@@ -1017,6 +1020,7 @@ name const & get_sizeof_name() { return *g_sizeof; }
 name const & get_sorry_ax_name() { return *g_sorry_ax; }
 name const & get_string_name() { return *g_string; }
 name const & get_string_empty_name() { return *g_string_empty; }
+name const & get_string_iterator_name() { return *g_string_iterator; }
 name const & get_string_str_name() { return *g_string_str; }
 name const & get_string_empty_ne_str_name() { return *g_string_empty_ne_str; }
 name const & get_string_str_ne_empty_name() { return *g_string_str_ne_empty; }

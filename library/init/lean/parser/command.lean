@@ -54,7 +54,7 @@ node! «namespace» ["namespace", name: ident.parser]
 
 @[derive parser.has_tokens]
 def variable.parser : command_parser :=
-node! «variable» ["variable", binder: term.bracketed_binder.parser]
+node! «variable» ["variable", binder: term.binder.parser]
 
 @[derive parser.has_tokens]
 def variables.parser : command_parser :=

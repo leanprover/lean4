@@ -122,6 +122,13 @@ node_choice! bracketed_binder {
 }
 
 @[derive has_tokens has_view]
+def binder.parser : term_parser :=
+node_choice! binder {
+  bracketed: bracketed_binder.parser,
+  unbracketed: binder_content.parser,
+}
+
+@[derive has_tokens has_view]
 def binders.parser : term_parser :=
 node! binders [
   leading_ids: binder_ident.parser*,

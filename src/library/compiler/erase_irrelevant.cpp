@@ -33,11 +33,7 @@ class erase_irrelevant_fn {
     }
 
     expr infer_type(expr const & e) {
-        try {
-            return type_checker(m_st, m_lctx).infer(e);
-        } catch (kernel_exception &) {
-            return mk_enf_object_type();
-        }
+        return type_checker(m_st, m_lctx).infer(e);
     }
 
     void get_constructor_info(name const & n, buffer<bool> & rel_fields) {
@@ -201,50 +197,49 @@ class erase_irrelevant_fn {
             expr major = visit(args[minors_begin - 1]);
             lean_assert(is_atom(major));
             expr minor = args[minors_begin];
-            if (optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix())) {
-                lean_assert(minors_begin + 1 == minors_end);
-                unsigned i = 0;
-                buffer<expr> fields;
-                while (is_lambda(minor)) {
-                    if (i == *fidx) {
-                        fields.push_back(major);
+            optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix());
+            /*
+              ```
+              prod.cases_on M (\fun a b, t)
+              ```
+              ==>
+              ```
+              let a := M.0 in
+              let b := M.1 in
+              t
+              ```
+              Remark: if `fidx` is not none, we use neutral element for irrelevant fields,
+              and major for the relevant one.
+            */
+            unsigned i = 0;
+            buffer<expr> fields;
+            while (is_lambda(minor)) {
+                expr v = mk_proj(I_name, i, major);
+                expr t = infer_type(v);
+                name n = next_name();
+                expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
+                fields.push_back(fvar);
+                expr new_t; expr new_v;
+                if (fidx) {
+                    if (*fidx == i) {
+                        expr major_type = infer_type(major);
+                        new_t = mk_runtime_type(major_type);
+                        new_v = visit(major);
                     } else {
-                        fields.push_back(mk_enf_neutral());
+                        new_t = mk_enf_object_type();
+                        new_v = mk_enf_neutral();
                     }
-                    i++;
-                    minor = binding_body(minor);
+                } else {
+                    new_t = mk_runtime_type(t);
+                    new_v = visit(v);
                 }
-                expr r = instantiate_rev(minor, fields.size(), fields.data());
-                return visit(r);
-            } else {
-                /*
-                  ```
-                  prod.cases_on M (\fun a b, t)
-                  ```
-                  ==>
-                  ```
-                  let a := M.0 in
-                  let b := M.1 in
-                  t
-                */
-                unsigned i = 0;
-                buffer<expr> fields;
-                while (is_lambda(minor)) {
-                    expr v = mk_proj(I_name, i, major);
-                    expr t = infer_type(v);
-                    name n = next_name();
-                    expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
-                    fields.push_back(fvar);
-                    expr new_t = mk_runtime_type(t);
-                    expr new_v = visit(v);
-                    m_let_fvars.push_back(fvar);
-                    m_let_entries.emplace_back(n, new_t, new_v);
-                    i++;
-                    minor = binding_body(minor);
-                }
-                expr r = instantiate_rev(minor, fields.size(), fields.data());
-                return visit(r);
+                m_let_fvars.push_back(fvar);
+                m_let_entries.emplace_back(n, new_t, new_v);
+                i++;
+                minor = binding_body(minor);
             }
+            expr r = instantiate_rev(minor, fields.size(), fields.data());
+            return visit(r);
         } else {
             buffer<expr> new_args;
             new_args.push_back(visit(args[minors_begin - 1]));

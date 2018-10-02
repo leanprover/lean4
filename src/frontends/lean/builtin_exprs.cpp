@@ -892,7 +892,7 @@ static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
             name fname;
             expr reader;
             if (p.curr_is_string()) {
-                fname = p.get_str_val();
+                fname = utf8_trim(p.get_str_val());
                 p.next();
                 reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
                 if (p.curr_is_token(":")) {
@@ -934,7 +934,7 @@ static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
         name fname;
         expr reader;
         if (p.curr_is_string()) {
-            fname = p.get_str_val();
+            fname = utf8_trim(p.get_str_val());
             p.next();
             reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
             if (p.curr_is_token(":")) {

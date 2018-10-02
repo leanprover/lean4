@@ -813,13 +813,6 @@ class csimp_fn {
         return r;
     }
 
-    bool should_inline_instance(name const & n) const {
-        if (is_instance(env(), n))
-            return !has_noinline_attribute(env(), n);
-        else
-            return false;
-    }
-
     static unsigned get_num_nested_lambdas(expr e) {
         unsigned r = 0;
         while (is_lambda(e)) {
@@ -855,7 +848,16 @@ class csimp_fn {
         return beta_reduce(fn, args.size(), args.data(), is_let_val);
     }
 
+    bool should_inline_instance(name const & n) const {
+        if (is_instance(env(), n))
+            return !has_noinline_attribute(env(), n);
+        else
+            return false;
+    }
+
     optional<expr> try_inline_instance(expr const & fn, expr const & e) {
+        if (!is_constant(fn) || !should_inline_instance(const_name(fn)))
+            return none_expr();
         lean_assert(is_constant(fn));
         optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
         if (!info || !info->is_definition()) return none_expr();
@@ -864,12 +866,16 @@ class csimp_fn {
         unsigned  saved_fvars_size = m_fvars.size();
         expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
         expr r      = find(beta_reduce(new_fn, e, false));
-        if (!is_constructor_app(env(), r)) {
+        if (is_constructor_app(env(), r)) {
+            return some_expr(r);
+        } else if (optional<expr> new_r = try_inline_instance(get_app_fn(r), r)) {
+            return new_r;
+        } else {
+            lean_trace(name({"compiler", "erase_irrelevant"}), tout() << ">> r: " << r << "\n";);
             m_lctx = saved_lctx;
             m_fvars.resize(saved_fvars_size);
             return none_expr();
         }
-        return some_expr(r);
     }
 
     expr proj_constructor(expr const & k_app, unsigned proj_idx) {
@@ -886,10 +892,8 @@ class csimp_fn {
         if (is_constructor_app(env(), s))
             return proj_constructor(s, proj_idx(e).get_small_value());
         expr const & s_fn = get_app_fn(s);
-        if (is_constant(s_fn) && should_inline_instance(const_name(s_fn))) {
-            if (optional<expr> k_app = try_inline_instance(s_fn, s))
-                return visit(proj_constructor(*k_app, proj_idx(e).get_small_value()), is_let_val);
-        }
+        if (optional<expr> k_app = try_inline_instance(s_fn, s))
+            return visit(proj_constructor(*k_app, proj_idx(e).get_small_value()), is_let_val);
         return e;
     }
 

@@ -330,7 +330,7 @@ do it ← left_over,
        if p c then lift $ λ _, result.ok c it.next none
        else error (repr c)
 
-@[inline] def ch (c : char) : m char :=
+def ch (c : char) : m char :=
 satisfy (= c)
 
 def alpha : m char :=
@@ -345,7 +345,7 @@ satisfy char.is_upper
 def lower : m char :=
 satisfy char.is_lower
 
-@[inline] def any : m char :=
+def any : m char :=
 satisfy (λ _, true)
 
 private def str_aux : nat → iterator → iterator → option iterator

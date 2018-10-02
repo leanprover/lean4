@@ -109,6 +109,12 @@ bool is_enf_object_type(expr const & e);
 
 // =======================================
 
+/* Return true if `n` is the name of a type with builtin support in the code generator. */
+bool is_runtime_builtin_type(name const & n);
+
+/* Return true if `n` is the name of a type that is treated as a scalar type by the code generator. */
+bool is_runtime_scalar_type(name const & n);
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

@@ -278,6 +278,31 @@ bool is_enf_object_type(expr const & e) {
     return e == *g_object_type;
 }
 
+bool is_runtime_builtin_type(name const & n) {
+    /* TODO(Leo): use an attribute? */
+    return
+        n == get_string_name() ||
+        n == get_uint8_name()  ||
+        n == get_uint16_name() ||
+        n == get_uint32_name() ||
+        n == get_uint64_name() ||
+        n == get_usize_name()  ||
+        n == get_array_name()  ||
+        n == get_nat_name()    ||
+        n == get_int_name();
+}
+
+bool is_runtime_scalar_type(name const & n) {
+    return
+        n == get_uint8_name()  ||
+        n == get_uint16_name() ||
+        n == get_uint32_name() ||
+        n == get_uint64_name() ||
+        n == get_usize_name()  ||
+        n == get_bool_name()   ||
+        n == get_unit_name();
+}
+
 void initialize_compiler_util() {
     g_neutral_expr     = new expr(mk_constant("_neutral_"));
     g_unreachable_expr = new expr(mk_constant("_unreachable_"));

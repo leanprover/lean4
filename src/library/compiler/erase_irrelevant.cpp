@@ -11,18 +11,6 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 
 namespace lean {
-static bool is_runtime_atomic_type(name const & n) {
-    return
-        n == get_uint8_name() ||
-        n == get_uint16_name() ||
-        n == get_uint32_name() ||
-        n == get_uint64_name() ||
-        n == get_usize_name() ||
-        n == get_bool_name() ||
-        n == get_unit_name() ||
-        n == get_string_name();
-}
-
 class erase_irrelevant_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
@@ -36,7 +24,7 @@ class erase_irrelevant_fn {
         e = tc.whnf(e);
         if (is_constant(e)) {
             name const & c = const_name(e);
-            if (is_runtime_atomic_type(c))
+            if (is_runtime_scalar_type(c))
                 return e;
             else if (c == get_char_name())
                 return mk_constant(get_uint32_name());

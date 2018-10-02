@@ -279,8 +279,8 @@ class vm_compiler_fn {
             emit(mk_num_instr(lit_value(e).get_nat().to_mpz()));
             break;
         case literal_kind::String:
-            // TODO(Leo):
-            lean_unreachable();
+            emit(mk_string_instr(lit_value(e).get_string().to_std_string()));
+            break;
         }
     }
 

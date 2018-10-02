@@ -314,7 +314,7 @@ typedef pair<name, optional<expr>> vm_local_info;
 /** \brief VM instruction opcode */
 enum class opcode {
     Push, Move, Ret, Drop, Goto,
-    SConstructor, Constructor, Num,
+    SConstructor, Constructor, Num, String,
     Destruct, Cases2, CasesN, NatCases, BuiltinCases, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
     Closure, Unreachable, Expr, LocalInfo
@@ -348,6 +348,8 @@ class vm_instr {
         };
         /* Num */
         mpz * m_mpz;
+        /* String */
+        std::string * m_str;
         /* Expr */
         expr * m_expr;
         /* LocalInfo */
@@ -365,6 +367,7 @@ class vm_instr {
     friend vm_instr mk_sconstructor_instr(unsigned cidx);
     friend vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
     friend vm_instr mk_num_instr(mpz const & v);
+    friend vm_instr mk_string_instr(std::string const & v);
     friend vm_instr mk_ret_instr();
     friend vm_instr mk_destruct_instr();
     friend vm_instr mk_unreachable_instr();
@@ -474,6 +477,11 @@ public:
         return *m_mpz;
     }
 
+    std::string const & get_string() const {
+        lean_assert(m_op == opcode::String);
+        return *m_str;
+    }
+
     expr const & get_expr() const {
         lean_assert(m_op == opcode::Expr);
         return *m_expr;
@@ -506,6 +514,7 @@ vm_instr mk_goto_instr(unsigned pc);
 vm_instr mk_sconstructor_instr(unsigned cidx);
 vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
 vm_instr mk_num_instr(mpz const & v);
+vm_instr mk_string_instr(std::string const & v);
 vm_instr mk_ret_instr();
 vm_instr mk_destruct_instr();
 vm_instr mk_unreachable_instr();

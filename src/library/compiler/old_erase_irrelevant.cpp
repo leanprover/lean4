@@ -36,13 +36,6 @@ class old_erase_irrelevant_fn : public compiler_step_visitor {
         }
     }
 
-    virtual expr visit_lit(expr const & e) override {
-        if (is_string_literal(e))
-            return visit(*expand_string_literal(e));
-        else
-            return e;
-    }
-
     virtual expr visit_mdata(expr const & e) override {
         if (is_marked_as_comp_irrelevant(e)) {
             return mk_enf_neutral();

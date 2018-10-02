@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/time_task.h"
 #include "library/vm/vm.h"
+#include "library/vm/vm_string.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
 
@@ -535,6 +536,7 @@ void vm_instr::display(std::ostream & out) const {
     case opcode::SConstructor:  out << "scnstr #" << m_cidx; break;
     case opcode::Constructor:   out << "cnstr #" << m_cidx << " " << m_nfields; break;
     case opcode::Num:           out << "num " << *m_mpz; break;
+    case opcode::String:        out << "str_lit \"" << *m_str << "\""; break;
     case opcode::Unreachable:   out << "unreachable"; break;
     case opcode::Destruct:      out << "destruct"; break;
     case opcode::Cases2:        out << "cases2 " << m_pc[1]; break;
@@ -673,6 +675,12 @@ vm_instr mk_num_instr(mpz const & v) {
     }
 }
 
+vm_instr mk_string_instr(std::string const & v) {
+    vm_instr r(opcode::String);
+    r.m_str = new std::string(v);
+    return r;
+}
+
 vm_instr mk_expr_instr(expr const &v) {
     vm_instr r(opcode::Expr);
     r.m_expr = new expr(v);
@@ -763,6 +771,9 @@ void vm_instr::release_memory() {
     case opcode::Num:
         delete m_mpz;
         break;
+    case opcode::String:
+        delete m_str;
+        break;
     case opcode::Expr:
         delete m_expr;
         break;
@@ -813,6 +824,9 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Num:
         m_mpz = new mpz(*i.m_mpz);
         break;
+    case opcode::String:
+        m_str = new std::string(*i.m_str);
+        break;
     case opcode::Expr:
         m_expr = new expr(*i.m_expr);
         break;
@@ -837,6 +851,10 @@ vm_instr::vm_instr(vm_instr && i):
     case opcode::Num:
         m_mpz    = i.m_mpz;
         i.m_mpz  = nullptr;
+        break;
+    case opcode::String:
+        m_str    = i.m_str;
+        i.m_str  = nullptr;
         break;
     case opcode::CasesN: case opcode::BuiltinCases:
         m_npcs      = i.m_npcs;
@@ -867,6 +885,10 @@ vm_instr & vm_instr::operator=(vm_instr && s) {
     case opcode::Num:
         m_mpz    = s.m_mpz;
         s.m_mpz  = nullptr;
+        break;
+    case opcode::String:
+        m_str    = s.m_str;
+        s.m_str  = nullptr;
         break;
     case opcode::CasesN: case opcode::BuiltinCases:
         m_cases_idx = s.m_cases_idx;
@@ -918,6 +940,9 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
         break;
     case opcode::Num:
         s << *m_mpz;
+        break;
+    case opcode::String:
+        s << *m_str;
         break;
     case opcode::Expr:
         s << *m_expr;
@@ -990,6 +1015,8 @@ static vm_instr read_vm_instr(deserializer & d) {
         return mk_constructor_instr(idx, d.read_unsigned());
     case opcode::Num:
         return mk_num_instr(d.read_mpz());
+    case opcode::String:
+        return mk_string_instr(d.read_string());
     case opcode::Expr:
         return mk_expr_instr(read_expr(d));
     case opcode::LocalInfo: {
@@ -2975,6 +3002,18 @@ void vm_state::run() {
                                    n
             */
             m_stack.push_back(mk_vm_mpz(instr.get_mpz()));
+            m_pc++;
+            goto main_loop;
+        case opcode::String:
+            /** Instruction: str_lit s
+
+                stack before,      after
+                ...                ...
+                v    ==>           v
+                                   s
+            */
+            m_stack.push_back(to_obj(instr.get_string()));
+            lean_assert(is_string(m_stack.back()));
             m_pc++;
             goto main_loop;
         case opcode::LocalInfo:

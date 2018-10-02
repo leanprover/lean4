@@ -97,35 +97,6 @@ class erase_irrelevant_fn {
         }
     }
 
-    expr visit_constant(expr const & e) {
-        lean_assert(!is_enf_neutral(e));
-        name const & c = const_name(e);
-        if (c == get_lc_unreachable_name()) {
-            return mk_enf_unreachable();
-        } else if (c == get_lc_proof_name()) {
-            return mk_enf_neutral();
-        }
-        try {
-            type_checker tc(m_st, m_lctx);
-            expr e_type = tc.whnf(tc.infer(e));
-            if (tc.is_prop(e_type) || is_sort(e_type))
-                return mk_enf_neutral();
-            else
-                return mk_constant(const_name(e));
-        } catch (kernel_exception &) {
-            return mk_constant(const_name(e));
-        }
-    }
-
-    bool is_atom(expr const & e) {
-        switch (e.kind()) {
-        case expr_kind::FVar:   return true;
-        case expr_kind::Lit:    return true;
-        case expr_kind::Const:  return true;
-        default: return false;
-        }
-    }
-
     bool is_irrelevant(expr const & e) {
         try {
             type_checker tc(m_st, m_lctx);
@@ -145,6 +116,30 @@ class erase_irrelevant_fn {
         } catch (kernel_exception &) {
             /* failed to infer type or normalize, assume it is relevant */
             return false;
+        }
+    }
+
+    expr visit_constant(expr const & e) {
+        lean_assert(!is_enf_neutral(e));
+        name const & c = const_name(e);
+        if (c == get_lc_unreachable_name()) {
+            return mk_enf_unreachable();
+        } else if (c == get_lc_proof_name()) {
+            return mk_enf_neutral();
+        }
+        if (is_irrelevant(e)) {
+            return mk_enf_neutral();
+        } else {
+            return mk_constant(const_name(e));
+        }
+    }
+
+    bool is_atom(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::FVar:   return true;
+        case expr_kind::Lit:    return true;
+        case expr_kind::Const:  return true;
+        default: return false;
         }
     }
 

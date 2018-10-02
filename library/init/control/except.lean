@@ -71,6 +71,9 @@ end except
 def except_t (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
 m (except ε α)
 
+@[inline] def except_t.mk {ε : Type u} {m : Type u → Type v} {α : Type u} (x : m (except ε α)) : except_t ε m α :=
+x
+
 @[inline] def except_t.run {ε : Type u} {m : Type u → Type v} {α : Type u} (x : except_t ε m α) : m (except ε α) :=
 x
 
@@ -78,28 +81,28 @@ namespace except_t
 variables {ε : Type u} {m : Type u → Type v} [monad m]
 
 @[inline] protected def return {α : Type u} (a : α) : except_t ε m α :=
-(pure (except.ok a) : m (except ε α))
+except_t.mk $ pure (except.ok a)
 
 @[inline] protected def bind_cont {α β : Type u} (f : α → except_t ε m β) : except ε α → m (except ε β)
 | (except.ok a)    := f a
 | (except.error e) := pure (except.error e)
 
 @[inline] protected def bind {α β : Type u} (ma : except_t ε m α) (f : α → except_t ε m β) : except_t ε m β :=
-(ma >>= except_t.bind_cont f : m (except ε β))
+except_t.mk $ ma >>= except_t.bind_cont f
 
 @[inline] protected def lift {α : Type u} (t : m α) : except_t ε m α :=
-(except.ok <$> t : m (except ε α))
+except_t.mk $ except.ok <$> t
 
 instance except_t_of_except : has_monad_lift (except ε) (except_t ε m) :=
-⟨λ α e, (pure e : m (except ε α))⟩
+⟨λ α e, except_t.mk $ pure e⟩
 
 instance : has_monad_lift m (except_t ε m) :=
 ⟨@except_t.lift _ _ _⟩
 
 @[inline] protected def catch {α : Type u} (ma : except_t ε m α) (handle : ε → except_t ε m α) : except_t ε m α :=
-(ma >>= λ res, match res with
+except_t.mk $ ma >>= λ res, match res with
  | except.ok a    := pure (except.ok a)
- | except.error e := (handle e) : m (except ε α))
+ | except.error e := (handle e)
 
 @[inline] protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
 λ x, f x
@@ -111,7 +114,7 @@ instance : monad (except_t ε m) :=
 { pure := @except_t.return _ _ _, bind := @except_t.bind _ _ _ }
 
 @[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : except_t ε m α → except_t ε' m α :=
-λ x, (except.map_error f <$> x : m (except ε' α))
+λ x, except_t.mk $ except.map_error f <$> x
 end except_t
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
@@ -138,7 +141,7 @@ end monad_except
 export monad_except (throw catch)
 
 instance (m : Type u → Type v) (ε : Type u) [monad m] : monad_except ε (except_t ε m) :=
-{ throw := λ α e, (pure (except.error e) : m (except ε α)),
+{ throw := λ α e, except_t.mk $ pure (except.error e),
   catch := @except_t.catch ε _ _ }
 
 instance (ε) : monad_except ε (except ε) :=

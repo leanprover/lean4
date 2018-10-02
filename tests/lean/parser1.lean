@@ -94,12 +94,11 @@ universes u v
   s ← io.fs.read_file "../../library/init/core.lean",
   let s := (s.mk_iterator.nextn 50000).prev_to_string,
   parser_cfg ← monad_except.lift_except $ mk_config,
-  let cfg : elaborator_config := {filename := "foo"},
-  let st : elaborator_state := {parser_cfg := {..parser_cfg}},
-  let k := parser.run parser_cfg s (λ _, module.parser),
-  outs ← io.prim.iterate_eio (k, st, ([] : list module_parser_output)) $ λ ⟨k, st, outs⟩, match k.resume st.parser_cfg with
+  let parser_k := parser.run parser_cfg s (λ _, module.parser),
+  let elab_k := elaborator.run {filename := "foo"} parser_cfg,
+  outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, outs⟩, match parser_k.resume parser_cfg with
     | coroutine_result_core.done p := pure (sum.inr outs.reverse)
-    | coroutine_result_core.yielded out k := do {
+    | coroutine_result_core.yielded out parser_k := do {
       match out.messages.to_list with
       | [] := pure () /-do
         io.println "result:",
@@ -113,11 +112,14 @@ universes u v
       match (expand out.cmd).run {filename := "init/core.lean"} with
       | except.ok cmd' := do {
         --io.println cmd',
-        match ((elaborate cmd').run cfg).run st with
-        | except.ok ((), st) := pure (sum.inl (k, st, out :: outs))
-        | except.error e := io.println e.text *> pure (sum.inl (k, st, out :: outs))
+        match elab_k.resume cmd' with
+        | coroutine_result_core.done p := io.println "elaborator died!!" *> pure (sum.inr outs.reverse)
+        | coroutine_result_core.yielded elab_out elab_k := do {
+          elab_out.messages.to_list.mfor $ λ e, io.println e.text,
+          pure (sum.inl (parser_k, elab_k, elab_out.parser_cfg, out :: outs))
+        }
       }
-      | except.error e := io.println e.text *> pure (sum.inl (k, st, out :: outs))
+      | except.error e := io.println e.text *> pure (sum.inl (parser_k, elab_k, parser_cfg, out :: outs))
     },
   check_reprint outs s/-,
   let stx := syntax.node ⟨none, outs.map (λ r, r.cmd)⟩,

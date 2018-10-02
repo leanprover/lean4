@@ -130,6 +130,8 @@ instance : monad (coroutine α δ) :=
 instance : monad_reader α (coroutine α δ) :=
 { read := @coroutine.read _ _ }
 
+end coroutine
+
 /-- Auxiliary class for lifiting `yield` -/
 class monad_coroutine (α : out_param (Type u)) (δ : out_param (Type v)) (m : Type w → Type r) :=
 (yield {} : δ → m punit)
@@ -142,5 +144,3 @@ instance monad_coroutine_trans (α : Type u) (δ : Type v) (m : Type w → Type 
 { yield := λ d, monad_lift (monad_coroutine.yield d : m _) }
 
 export monad_coroutine (yield)
-
-end coroutine

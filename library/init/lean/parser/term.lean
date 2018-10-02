@@ -114,7 +114,7 @@ node_choice! bracketed_binder {
     content: binder_content.parser,
     right: unicode_symbol "⦄" "}}",
   ],
-  inst_implicit: node! inst_implicit_binder ["[":max_prec, content: longest_match [
+  inst_implicit: node! inst_implicit_binder ["[", content: longest_match [
     node! inst_implicit_named_binder [id: ident.parser, " : ", type: term.parser 0],
     node! inst_implicit_anonymous_binder [type: term.parser 0]
   ], "]"],

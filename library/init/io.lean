@@ -369,7 +369,7 @@ instance : monad (coroutine_io α δ) :=
 instance : monad_reader α (coroutine_io α δ) :=
 { read := @coroutine_io.read _ _ }
 
-instance (α δ : Type) : coroutine.monad_coroutine α δ (coroutine_io α δ) :=
+instance (α δ : Type) : monad_coroutine α δ (coroutine_io α δ) :=
 { yield  := coroutine_io.yield }
 
 instance : monad_io (coroutine_io α δ) :=

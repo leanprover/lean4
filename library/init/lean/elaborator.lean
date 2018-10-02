@@ -3,7 +3,7 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Elaborator for the Lean language
+Elaborator for the Lean language: takes commands and produces side effects
 -/
 prelude
 import init.lean.parser.module
@@ -20,11 +20,39 @@ structure elaborator_config :=
 
 structure elaborator_state :=
 (reserved_notations : list reserve_notation.view := [])
+(messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 
 @[derive monad monad_reader monad_state monad_except]
-def elaborator_m := reader_t elaborator_config $ state_t elaborator_state $ except_t message id
+def elaborator_t (m : Type → Type) [monad m] := reader_t elaborator_config $ state_t elaborator_state $ except_t message m
+abbreviation elaborator_m := elaborator_t id
 abbreviation elaborator := syntax → elaborator_m unit
+/-- An elaborator in a coroutine. Can accept and process multiple commands asynchronously
+    (e.g. `section`) -/
+abbreviation coelaborator_m := rec_t unit unit $ elaborator_t $ coroutine syntax elaborator_state
+abbreviation coelaborator := coelaborator_m unit
+
+/-- Recursively elaborate any command. -/
+def command.elaborate : coelaborator := recurse ()
+
+section
+local attribute [reducible] elaborator_t
+attribute [derive monad_coroutine] coelaborator_m
+def current_command : coelaborator_m syntax := monad_lift (coroutine.read : coroutine syntax elaborator_state _)
+
+def yield_to_outside : coelaborator_m unit :=
+do st ← get,
+   yield st,
+   -- reset messages for next command
+   put {st with messages := message_log.empty}
+
+end
+
+instance elaborator_m_coe_coelaborator_m {α : Type} : has_coe (elaborator_m α) (coelaborator_m α) :=
+⟨λ x rec cfg st, except_t.mk $ pure $ x cfg st⟩
+
+instance elaborator_coe_coelaborator : has_coe elaborator coelaborator :=
+⟨λ x, do stx ← current_command, x stx⟩
 
 def error {α : Type} (context : syntax) (text : string) : elaborator_m α :=
 do cfg ← read,
@@ -153,16 +181,71 @@ def notation.elaborate : elaborator :=
   | except.error e := error stx e,
   put {st with parser_cfg := {st.parser_cfg with to_command_parser_config := cfg}}
 
+def commands.elaborate : ℕ → coelaborator
+| 0 := do cmd ← current_command, error cmd "commands.elaborate: out of fuel"
+| (n+1) := do
+  command.elaborate,
+  yield_to_outside,
+  commands.elaborate n
+
+def section.elaborate_commands : ℕ → coelaborator
+| 0 := do cmd ← current_command, error cmd "section.elaborate_commands: out of fuel"
+| (n+1) := do
+  cmd ← current_command,
+  match cmd with
+  | syntax.node ⟨«end», _⟩ := pure ()
+  | _ := do
+    command.elaborate,
+    yield_to_outside,
+    section.elaborate_commands n
+
+def section.elaborate : coelaborator :=
+do sec ← view «section» <$> current_command,
+   let sec_name := ident.view.to_name <$> sec.name,
+   section.elaborate_commands 1000,
+   end_sec ← view «end» <$> current_command,
+   let end_sec_name := ident.view.to_name <$> end_sec.name,
+   when (sec_name ≠ end_sec_name) $
+     error (review «end» end_sec) $ "invalid end of section, expected name '" ++
+       to_string (sec_name.get_or_else name.anonymous) ++ "'"
+
+def namespace.elaborate : coelaborator :=
+do ns ← view «namespace» <$> current_command,
+   let ns_name := ident.view.to_name ns.name,
+   section.elaborate_commands 1000,
+   end_ns ← view «end» <$> current_command,
+   let end_ns_name := ident.view.to_name <$> end_ns.name,
+   when (some ns_name ≠ end_ns_name) $
+     error (review «end» end_ns) $ "invalid end of namespace, expected name '" ++
+       to_string ns_name ++ "'"
+
 -- TODO(Sebastian): replace with attribute
-def elaborators : rbmap name elaborator (<) := rbmap.from_list [
+def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (notation.name, notation.elaborate),
-  (reserve_notation.name, reserve_notation.elaborate)
+  (reserve_notation.name, reserve_notation.elaborate),
+  (section.name, section.elaborate),
+  (namespace.name, namespace.elaborate)
 ] _
 
-def elaborate (stx : syntax) : elaborator_m unit :=
-do syntax.node {kind := some k, ..} ← pure stx | pure (),
-   some t ← pure $ elaborators.find k.name | pure (),
-   t stx
+protected def max_recursion := 100
+protected def max_commands := 10000
+
+protected def run (cfg : elaborator_config) (parser_cfg : module_parser_config) : coroutine syntax elaborator_state unit :=
+do
+  -- NOTE: ignores errors outside in the final output (should never happen) and the final state
+  except_t.run $ flip state_t.run {elaborator_state . parser_cfg:=parser_cfg} $ flip reader_t.run cfg $ rec_t.run
+    (commands.elaborate elaborator.max_commands)
+    -- TODO(Sebastian): "out of fuel" error
+    (λ _, pure ())
+    (λ _, do
+      cmd ← current_command,
+      -- TODO(Sebastian): throw error on unknown command when we get serious
+      syntax.node {kind := some k, ..} ← pure cmd | pure (),
+      some elab ← pure $ elaborators.find k.name | pure (),
+      catch elab $ λ e,
+        modify $ λ st, {st with messages := st.messages.add e})
+    elaborator.max_recursion,
+  pure ()
 
 end elaborator
 end lean

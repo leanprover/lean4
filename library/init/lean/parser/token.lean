@@ -232,6 +232,18 @@ instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := defa
 instance ident.parser.view : parser.has_view (ident.parser : parser) ident.view :=
 {..ident.has_view}
 
+def ident_part.view.to_string : ident_part.view → string
+| (ident_part.view.default (some atom)) := atom.val
+| (ident_part.view.escaped {escaped := some atom, ..}) := atom.val
+| _ := "ident_part.view: invalid input"
+
+def ident.view.components : ident.view → list string
+| {part := part, suffix := none} := [part.to_string]
+| {part := part, suffix := some suffix} := part.to_string :: (view ident suffix.ident).components
+
+def ident.view.to_name (id : ident.view) : name :=
+id.components.foldl name.mk_string name.anonymous
+
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
     been so by some unrelated code).

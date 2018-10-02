@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
-#include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/interaction_state_imp.h"

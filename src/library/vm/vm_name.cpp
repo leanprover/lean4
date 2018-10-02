@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_ordering.h"
-#include "library/vm/vm_list.h"
 
 namespace lean {
 struct vm_name : public vm_external {

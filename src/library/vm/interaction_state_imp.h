@@ -18,7 +18,6 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 #include "library/vm/vm_options.h"
 #include "library/vm/vm_name.h"
 #include "library/vm/vm_nat.h"
-#include "library/vm/vm_list.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_pos_info.h"
 #include "library/compiler/vm_compiler.h"

@@ -32,7 +32,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_io.h"
-#include "library/vm/vm_list.h"
 
 namespace lean {
 static vm_obj const REAL_WORLD = mk_vm_simple(0);
@@ -323,10 +322,17 @@ static vm_obj io_set_cwd(vm_obj const & cwd, vm_obj const &) {
 
 static std::vector<std::string> * g_cmdline_args = nullptr;
 
+static vm_obj to_list(buffer<vm_obj> const & ls) {
+    vm_obj obj = mk_vm_simple(0);
+    for (unsigned i = ls.size(); i > 0; i--)
+        obj = mk_vm_constructor(1, ls[i - 1], obj);
+    return obj;
+}
+
 static vm_obj io_cmdline_args() {
     buffer<vm_obj> objs;
     for (auto & s : *g_cmdline_args) objs.push_back(to_obj(s));
-    return to_obj(objs);
+    return to_list(objs);
 }
 
 void set_io_cmdline_args(std::vector<std::string> const & args) {

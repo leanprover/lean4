@@ -34,7 +34,7 @@ do cfg ← read,
 local attribute [instance] name.has_lt_quick
 
 def prec_to_nat (prec : option precedence.view) : nat :=
-(prec <&> λ p, p.prec.to_nat).get_or_else 0
+(prec <&> λ p, p.term.to_nat).get_or_else 0
 
 def command_parser_config.register_notation_tokens (spec : notation_spec.view) (cfg : command_parser_config) :
   except string command_parser_config :=
@@ -78,7 +78,9 @@ def postprocess_notation_spec (spec : notation_spec.view) : notation_spec.view :
 -- NOTE: should happen after copying precedences from reserved notation
 match spec with
 | {prefix_arg := none, rules := r@{symbol := notation_symbol.view.quoted sym@{prec := none, ..}, ..}::rs} :=
-  {spec with rules := {r with symbol := notation_symbol.view.quoted {sym with prec := some {prec := number.view.of_nat max_prec}}}::rs}
+  {spec with rules := {r with symbol := notation_symbol.view.quoted {sym with prec := some
+    {term := precedence_term.view.lit $ precedence_lit.view.num $ number.view.of_nat max_prec}
+  }}::rs}
 | _ := spec
 
 def reserve_notation.elaborate : elaborator :=
@@ -95,7 +97,7 @@ def reserve_notation.elaborate : elaborator :=
 
 def match_precedence : option precedence.view → option precedence.view → bool
 | none      (some rp) := tt
-| (some sp) (some rp) := sp.prec.to_nat = rp.prec.to_nat
+| (some sp) (some rp) := sp.term.to_nat = rp.term.to_nat
 | _         _         := ff
 
 /-- Check if a notation is compatible with a reserved notation, and if so, copy missing

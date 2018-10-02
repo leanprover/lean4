@@ -27,8 +27,37 @@ set_option class.instance_max_depth 100
 namespace «command»
 namespace notation_spec
 @[derive parser.has_tokens parser.has_view]
+def precedence_lit.parser : term_parser :=
+node_choice! precedence_lit {
+  num: number.parser,
+  max: symbol_or_ident "max",
+  -- TODO(Sebastian): `prec_of`?
+}
+
+def precedence_lit.view.to_nat : precedence_lit.view → nat
+| (precedence_lit.view.num n) := n.to_nat
+| (precedence_lit.view.max _) := max_prec
+
+@[derive parser.has_tokens parser.has_view]
+def precedence_term.parser : term_parser :=
+node_choice! precedence_term {
+  lit: precedence_lit.parser,
+  offset: node! precedence_offset ["(", lit: precedence_lit.parser,
+    op: node_choice! precedence_offset_op {" + ", " - "},
+    offset: number.parser,
+    ")",
+  ]
+}
+
+def precedence_term.view.to_nat : precedence_term.view → nat
+| (precedence_term.view.lit l) := l.to_nat
+| (precedence_term.view.offset o) := match o.op with
+  | (precedence_offset_op.view.«+» _) := o.lit.to_nat.add o.offset.to_nat
+  | (precedence_offset_op.view.«-» _) := o.lit.to_nat - o.offset.to_nat
+
+@[derive parser.has_tokens parser.has_view]
 def precedence.parser : term_parser :=
-node! «precedence» [":", prec: number.parser]/-TODO <|> expr-/
+node! «precedence» [":", term: precedence_term.parser]
 
 def quoted_symbol.parser : term_parser :=
 do (s, info) ← with_source_info $ take_until (= '`'),
@@ -74,8 +103,7 @@ node_choice! mixfix_symbol {
 @[derive parser.has_tokens parser.has_view]
 def action.parser : term_parser :=
 node! action [":", action: node_choice! action_kind {
-  prec: number.parser,
-  max: symbol_or_ident "max",
+  prec: try precedence_term.parser,
   prev: symbol_or_ident "prev",
   scoped: node! scoped_action [
     "(",

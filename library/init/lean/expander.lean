@@ -56,7 +56,7 @@ match k with
     rules := [{
       symbol := sym,
       transition := transition.view.arg {id := `b,
-        action := prec_to_action <$> precedence.view.prec <$> prec}}]}
+        action := prec_to_action <$> precedence.view.term <$> prec}}]}
 | mixfix.kind.view.postfix _ :=
   -- `postfix tk:prec` ~> `notation a tk:prec`
   pure {
@@ -65,9 +65,9 @@ match k with
 | mixfix.kind.view.infixr _ := do
   -- `infixr tk:prec` ~> `notation a tk:prec b:(prec-1)`
   act ← match prec with
-  | some prec := if prec.prec.to_nat = 0
+  | some prec := if prec.term.to_nat = 0
     then error (review «precedence» prec) "invalid `infixr` declaration, given precedence must greater than zero"
-    else pure $ some $ prec_to_action $ number.view.of_nat $ prec.prec.to_nat - 1
+    else pure $ some $ prec_to_action $ precedence_term.view.lit $ precedence_lit.view.num $ number.view.of_nat $ prec.term.to_nat - 1
   | none := pure none,
   pure {
     prefix_arg := `a,
@@ -82,7 +82,7 @@ match k with
     rules := [{
       symbol := sym,
       transition := transition.view.arg {id := `b,
-        action := prec_to_action <$> precedence.view.prec <$> prec}}]}
+        action := prec_to_action <$> precedence.view.term <$> prec}}]}
 
 def mixfix.transform : transformer :=
 λ stx, do

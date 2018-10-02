@@ -48,10 +48,10 @@ set_option class.instance_max_depth 300
 def decl_modifiers.parser : command_parser :=
 node! decl_modifiers [
   doc_comment: doc_comment.parser?,
+  attrs: decl_attributes.parser?,
   visibility: node_choice! visibility {"private", "protected"}?,
   «noncomputable»: (symbol "noncomputable")?,
   «meta»: (symbol "meta")?,
-  attrs: decl_attributes.parser?
 ]
 
 @[derive has_tokens has_view]

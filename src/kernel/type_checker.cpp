@@ -224,7 +224,10 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     expr const & I = get_app_args(type, args);
     if (!is_constant(I))
         throw invalid_proj_exception(env(), m_lctx, e);
-    constant_info I_info = env().get(const_name(I));
+    name const & I_name  = const_name(I);
+    if (I_name != proj_sname(e))
+        throw invalid_proj_exception(env(), m_lctx, e);
+    constant_info I_info = env().get(I_name);
     if (!I_info.is_inductive())
         throw invalid_proj_exception(env(), m_lctx, e);
     inductive_val I_val = I_info.to_inductive_val();
@@ -242,7 +245,7 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         if (has_loose_bvars(binding_body(r)))
-            r = instantiate(binding_body(r), mk_proj(i, proj_expr(e)));
+            r = instantiate(binding_body(r), mk_proj(I_name, i, proj_expr(e)));
         else
             r = binding_body(r);
     }

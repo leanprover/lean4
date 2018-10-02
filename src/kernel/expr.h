@@ -85,7 +85,7 @@ inductive expr
 | elet  : name → expr → expr → expr → expr
 | lit   : literal → expr
 | mdata : kvmap → expr → expr
-| proj  : nat → expr → expr
+| proj  : name → nat → expr → expr
 -- The following constructor will be deleted
 | quote : bool → expr → expr
 
@@ -97,7 +97,7 @@ class expr : public object_ref {
 
     friend expr mk_lit(literal const & lit);
     friend expr mk_mdata(kvmap const & d, expr const & e);
-    friend expr mk_proj(nat const & idx, expr const & e);
+    friend expr mk_proj(name const & s, nat const & idx, expr const & e);
     friend expr mk_bvar(nat const & idx);
     friend expr mk_mvar(name const & n, expr const & t);
     friend expr mk_const(name const & n, levels const & ls);
@@ -182,8 +182,8 @@ bool is_default_var_name(name const & n);
 // Constructors
 expr mk_lit(literal const & lit);
 expr mk_mdata(kvmap const & d, expr const & e);
-expr mk_proj(nat const & idx, expr const & e);
-inline expr mk_proj(unsigned idx, expr const & e) { return mk_proj(nat(idx), e); }
+expr mk_proj(name const & s, nat const & idx, expr const & e);
+inline expr mk_proj(name const & s, unsigned idx, expr const & e) { return mk_proj(s, nat(idx), e); }
 expr mk_bvar(nat const & idx);
 inline expr mk_bvar(unsigned idx) { return mk_bvar(nat(idx)); }
 expr mk_fvar(name const & n);
@@ -222,8 +222,9 @@ inline literal const & lit_value(expr const & e)             { lean_assert(is_li
 expr const & lit_type(expr const & e);
 inline kvmap const &   mdata_data(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<kvmap const &>(cnstr_get_ref(e, 0)); }
 inline expr const &    mdata_expr(expr const & e)            { lean_assert(is_mdata(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
-inline nat const &     proj_idx(expr const & e)              { lean_assert(is_proj(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
-inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 1)); }
+inline name const &    proj_sname(expr const & e)            { lean_assert(is_proj(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }
+inline nat const &     proj_idx(expr const & e)              { lean_assert(is_proj(e)); return static_cast<nat const &>(cnstr_get_ref(e, 1)); }
+inline expr const &    proj_expr(expr const & e)             { lean_assert(is_proj(e)); return static_cast<expr const &>(cnstr_get_ref(e, 2)); }
 inline nat const &     bvar_idx(expr const & e)              { lean_assert(is_bvar(e)); return static_cast<nat const &>(cnstr_get_ref(e, 0)); }
 inline bool            is_bvar(expr const & e, unsigned i)   { return is_bvar(e) && bvar_idx(e) == i; }
 inline name const &    fvar_name(expr const & e)             { lean_assert(is_fvar(e)); return static_cast<name const &>(cnstr_get_ref(e, 0)); }

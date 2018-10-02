@@ -412,7 +412,7 @@ public:
 
     expr visit_proj(expr const & e, bool root) {
         expr v = visit(proj_expr(e), false);
-        expr r = mk_proj(proj_idx(e), v);
+        expr r = update_proj(e, v);
         return mk_let_decl(r, root);
     }
 

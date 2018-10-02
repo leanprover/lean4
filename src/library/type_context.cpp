@@ -962,7 +962,7 @@ expr type_context_old::infer_proj(expr const & e) {
         r = whnf(r);
         if (!is_pi(r)) throw_invalid_projection(e);
         if (has_loose_bvars(binding_body(r)))
-            r = instantiate(binding_body(r), mk_proj(i, proj_expr(e)));
+            r = instantiate(binding_body(r), mk_proj(const_name(I), i, proj_expr(e)));
         else
             r = binding_body(r);
     }

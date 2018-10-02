@@ -114,7 +114,7 @@ inline constexpr unsigned num_obj_fields(expr_kind k) {
         k == expr_kind::Sort    ?  1 :
         k == expr_kind::Lit     ?  1 :
         k == expr_kind::MData   ?  2 :
-        k == expr_kind::Proj    ?  2 :
+        k == expr_kind::Proj    ?  3 :
         /* k == expr_kind::Quote */ 1;
 }
 
@@ -302,8 +302,8 @@ expr mk_mdata(kvmap const & m, expr const & e) {
     return r;
 }
 
-expr mk_proj(nat const & idx, expr const & e) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Proj), idx, e, rec_expr_scalar_size(expr_kind::Proj)));
+expr mk_proj(name const & s, nat const & idx, expr const & e) {
+    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Proj), s, idx, e, rec_expr_scalar_size(expr_kind::Proj)));
     unsigned w    = safe_inc(get_weight(e));
     unsigned d    = get_depth(e) + 1;
     unsigned h    = hash(hash(e), hash(idx.hash(), w));
@@ -546,7 +546,7 @@ expr update_mdata(expr const & e, expr const & t) {
 
 expr update_proj(expr const & e, expr const & t) {
     if (!is_eqp(proj_expr(e), t))
-        return mk_proj(proj_idx(e), t);
+        return mk_proj(proj_sname(e), proj_idx(e), t);
     else
         return e;
 }

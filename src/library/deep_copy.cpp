@@ -13,7 +13,7 @@ expr copy(expr const & a) {
     switch (a.kind()) {
     case expr_kind::Lit:    return mk_lit(lit_value(a));
     case expr_kind::MData:  return mk_mdata(mdata_data(a), mdata_expr(a));
-    case expr_kind::Proj:   return mk_proj(proj_idx(a), proj_expr(a));
+    case expr_kind::Proj:   return mk_proj(proj_sname(a), proj_idx(a), proj_expr(a));
     case expr_kind::BVar:   return mk_bvar(bvar_idx(a));
     case expr_kind::FVar:   return mk_local(local_name(a), local_pp_name(a), local_type(a), local_info(a));
     case expr_kind::Const:  return mk_const(const_name(a), const_levels(a));

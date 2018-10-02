@@ -44,7 +44,7 @@ inductive expr
 | elet  : name → expr → expr → expr → expr          -- let expressions
 | lit   : literal → expr                            -- literals
 | mdata : kvmap → expr → expr                       -- metadata
-| proj  : nat → expr → expr                         -- projection
+| proj  : name → nat → expr → expr                  -- projection
 
 instance expr_is_inhabited : inhabited expr :=
 ⟨expr.sort level.zero⟩

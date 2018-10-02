@@ -130,6 +130,28 @@ class erase_irrelevant_fn {
         }
     }
 
+    bool is_irrelevant(expr const & e) {
+        try {
+            type_checker tc(m_st, m_lctx);
+            expr type = tc.whnf(tc.infer(e));
+            if (is_sort(type) || tc.is_prop(type))
+                return true;
+            if (is_pi(type)) {
+                flet<local_ctx> save_lctx(m_lctx, m_lctx);
+                while (is_pi(type)) {
+                    expr fvar = m_lctx.mk_local_decl(ngen(), binding_name(type), binding_domain(type));
+                    type = type_checker(m_st, m_lctx).whnf(instantiate(binding_body(type), fvar));
+                }
+                if (is_sort(type))
+                    return true;
+            }
+            return false;
+        } catch (kernel_exception &) {
+            /* failed to infer type or normalize, assume it is relevant */
+            return false;
+        }
+    }
+
     expr visit_lambda_core(expr e, bool is_minor) {
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> bfvars;
@@ -144,7 +166,10 @@ class erase_irrelevant_fn {
         }
         unsigned saved_let_fvars_size = m_let_fvars.size();
         lean_assert(m_let_entries.size() == m_let_fvars.size());
-        expr r = visit(instantiate_rev(e, bfvars.size(), bfvars.data()));
+        e = instantiate_rev(e, bfvars.size(), bfvars.data());
+        if (is_irrelevant(e))
+            return mk_enf_neutral();
+        expr r = visit(e);
         r      = mk_let(saved_let_fvars_size, r);
         if (is_minor && is_lambda(r)) {
             /* Remark: we don't want to mix the lambda for minor premise fields, with the result. */

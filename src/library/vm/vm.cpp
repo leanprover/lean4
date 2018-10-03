@@ -2872,11 +2872,8 @@ void vm_state::run() {
                 lean_trace(name({"vm", "run"}),
                            tout() << m_decl_vector[m_fn_idx].get_name() << " @ " << m_pc << ": ";
                            instr.display(tout().get_stream());
-                           tout() << "\n";
-                           // display_stack(tout().get_stream());
-                           //tout() << "\n";
-                    )
-                    });
+                           tout() << "\n";);
+            });
         switch (instr.op()) {
         case opcode::Push:
             /* Instruction: push i

@@ -244,6 +244,16 @@ def ident.view.components : ident.view → list string
 def ident.view.to_name (id : ident.view) : name :=
 id.components.foldl name.mk_string name.anonymous
 
+/-- Read identifier without consulting the token table. -/
+def raw_ident.parser : parser :=
+lift $ do
+  (f, info) ← lift $ with_source_info ident',
+  pure $ f info
+
+instance raw_ident.parser.tokens : parser.has_tokens (raw_ident.parser : parser) := default _
+instance raw_ident.parser.view : parser.has_view (raw_ident.parser : parser) ident.view :=
+{..ident.has_view}
+
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
     been so by some unrelated code).

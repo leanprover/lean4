@@ -109,11 +109,7 @@ node_choice! bracketed_binder {
     other: binder_content.parser
   }, right: symbol ")"],
   implicit: node! implicit_binder ["{", content: binder_content.parser, "}"],
-  strict_implicit: node! strict_implicit_binder [
-    left: unicode_symbol "⦃" "{{",
-    content: binder_content.parser,
-    right: unicode_symbol "⦄" "}}",
-  ],
+  strict_implicit: node! strict_implicit_binder ["⦃", content: binder_content.parser, "⦄"],
   inst_implicit: node! inst_implicit_binder ["[", content: longest_match [
     node! inst_implicit_named_binder [id: ident.parser, " : ", type: term.parser 0],
     node! inst_implicit_anonymous_binder [type: term.parser 0]
@@ -192,9 +188,14 @@ node! «from» ["from ", proof: term.parser]
 def let.parser : term_parser :=
 node! «let» [
   "let ",
-  id: ident.parser,
-  binders: bracketed_binder.parser*,
-  type: node! let_type [" : ", type: term.parser]?,
+  lhs: node_choice! let_lhs {
+    id: node! let_lhs_id [
+      id: ident.parser,
+      binders: bracketed_binder.parser*,
+      type: node! let_type [" : ", type: term.parser]?
+    ],
+    pattern: term.parser
+  },
   " := ",
   value: term.parser,
   " in ",
@@ -202,10 +203,14 @@ node! «let» [
 ]
 
 @[derive parser.has_tokens parser.has_view]
+def opt_ident.parser : term_parser :=
+(try node! opt_ident [id: ident.parser, " : "])?
+
+@[derive parser.has_tokens parser.has_view]
 def have.parser : term_parser :=
 node! «have» [
   "have ",
-  id: (try node! have_id [id: ident.parser, " : "])?,
+  id: opt_ident.parser,
   prop: term.parser,
   proof: node_choice! have_proof {
     term: node! have_term [" := ", term: term.parser],
@@ -242,7 +247,7 @@ node! «match» [
 def if.parser : term_parser :=
 node! «if» [
   "if ",
-  id: (try node! if_id [id: ident.parser, " : "])?,
+  id: opt_ident.parser,
   prop: term.parser,
   " then ",
   then_branch: term.parser,
@@ -263,6 +268,25 @@ node! struct_inst [
   "}",
 ]
 
+@[derive parser.has_tokens parser.has_view]
+def subtype.parser : term_parser :=
+node! subtype [
+  "{":max_prec,
+  id: opt_ident.parser,
+  val: term.parser,
+  "//",
+  prop: term.parser,
+  "}"
+]
+
+@[derive parser.has_tokens parser.has_view]
+def inaccessible.parser : term_parser :=
+node! inaccessible [".(":max_prec, term: term.parser, ")"]
+
+@[derive parser.has_tokens parser.has_view]
+def anonymous_inaccessible.parser : term_parser :=
+node! anonymous_inaccessible ["._":max_prec]
+
 -- TODO(Sebastian): replace with attribute
 @[derive has_tokens]
 def builtin_leading_parsers : list term_parser := [
@@ -281,7 +305,10 @@ def builtin_leading_parsers : list term_parser := [
   assume.parser,
   match.parser,
   if.parser,
-  struct_inst.parser
+  struct_inst.parser,
+  subtype.parser,
+  inaccessible.parser,
+  anonymous_inaccessible.parser
 ]
 
 @[derive parser.has_tokens parser.has_view]
@@ -297,18 +324,23 @@ node! app [fn: get_leading, arg: term.parser max_prec]
 def arrow.parser : trailing_term_parser :=
 node! arrow [dom: get_leading, op: unicode_symbol "→" "->" 25, range: term.parser 24]
 
-@[derive parser.has_tokens parser.has_view]
+@[derive parser.has_view]
 def projection.parser : trailing_term_parser :=
 /- Use max_prec + 1 so that it bind more tightly than application:
    `a (b).c` should be parsed as `a ((b).c)`. -/
-node! projection [
+try $ node! projection [
   term: get_leading,
-  ".":max_prec.succ,
+  -- do not consume trailing whitespace
+  «.»: raw_str ".",
   proj: node_choice! projection_spec {
     id: parser.ident.parser,
     num: number.parser,
   },
 ]
+
+-- register '.' manually because of `raw_str`
+instance projection.tokens : has_tokens projection.parser :=
+⟨[{«prefix» := ".", lbp := max_prec}]⟩
 
 @[derive has_tokens]
 def builtin_trailing_parsers : list trailing_term_parser := [

@@ -88,9 +88,9 @@ do -- build and register parser
        pure $ some $ term.binders.parser
      | some (transition.view.arg {action := none, ..}) :=
        pure $ some term.parser
-     | some (transition.view.arg {action := some {action := action_kind.view.prec prec}, ..}) :=
+     | some (transition.view.arg {action := some {kind := action_kind.view.prec prec}, ..}) :=
        pure $ some $ term.parser prec.to_nat
-     | some (transition.view.arg {action := some {action := action_kind.view.scoped sc}, ..}) :=
+     | some (transition.view.arg {action := some {kind := action_kind.view.scoped sc}, ..}) :=
        pure $ some $ term.parser $ prec_to_nat sc.prec
      | none := pure $ none
      | _ := throw "register_notation_parser: unimplemented",
@@ -167,7 +167,7 @@ do guard $ spec.prefix_arg.is_some = reserved.prefix_arg.is_some,
      | some (transition.view.binders sb), some (transition.view.binders rb) :=
        guard (match_precedence sb.prec rb.prec) *> pure rr.transition
      | some (transition.view.arg sarg), some (transition.view.arg rarg) := do
-       sact ← match action.view.action <$> sarg.action, action.view.action <$> rarg.action with
+       sact ← match action.view.kind <$> sarg.action, action.view.kind <$> rarg.action with
        | some (action_kind.view.prec sp), some (action_kind.view.prec rp) :=
          guard (sp.to_nat = rp.to_nat) *> pure sarg.action
        | none,                            some (action_kind.view.prec rp) :=
@@ -200,9 +200,19 @@ def notation.elaborate : elaborator :=
   let nota := view «notation» stx,
   when nota.local.is_some $
     error stx "notation.elaborate: unexpected local notation",
-  nota ← notation.elaborate_aux nota,
-  modify $ λ st, {st with nonlocal_notations := nota::st.nonlocal_notations},
-  update_parser_config
+  -- HACK: ignore list literal notation using :fold
+  let uses_fold := nota.spec.rules.any $ λ r, match r.transition with
+    | some (transition.view.arg {action := some {kind := action_kind.view.fold _, ..}, ..}) := tt
+    | _ := ff,
+  if uses_fold then do {
+    cfg ← read,
+    modify $ λ st, {st with messages := st.messages.add {filename := cfg.filename, pos := ⟨1,0⟩,
+      severity := message_severity.warning, text := "ignoring notation using 'fold' action"}}
+  } else do {
+    nota ← notation.elaborate_aux nota,
+    modify $ λ st, {st with nonlocal_notations := nota::st.nonlocal_notations},
+    update_parser_config
+  }
 
 def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
 | 0 := do cmd ← current_command, error cmd "commands.elaborate: out of fuel"

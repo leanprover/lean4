@@ -61,6 +61,14 @@ def variables.parser : command_parser :=
 node! «variables» ["variables", binders: term.bracketed_binder.parser+]
 
 @[derive parser.has_tokens]
+def include.parser : command_parser :=
+node! «include» ["include ", ids: ident.parser+]
+
+@[derive parser.has_tokens]
+def omit.parser : command_parser :=
+node! «omit» ["omit ", ids: ident.parser+]
+
+@[derive parser.has_tokens]
 def end.parser : command_parser :=
 node! «end» ["end", name: ident.parser?]
 
@@ -92,7 +100,8 @@ node! «attribute» [
 def builtin_command_parsers : list command_parser := [
   open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
   mixfix.parser, reserve_mixfix.parser, check.parser, declaration.parser, attribute.parser,
-  export.parser, namespace.parser, end.parser, variable.parser, variables.parser]
+  export.parser, namespace.parser, end.parser, variable.parser, variables.parser, include.parser,
+  omit.parser]
 end «command»
 
 def command_parser.run (commands : list command_parser) (p : command_parser)

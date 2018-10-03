@@ -48,7 +48,7 @@ let prec := match sym with
 | notation_symbol.view.quoted q := q.prec
 /-| _ := none -/ in
 -- `notation` allows more syntax after `:` than mixfix commands, so we have to do a small conversion
-let prec_to_action := λ prec, {action.view . action := action_kind.view.prec prec} in
+let prec_to_action := λ prec, {action.view . kind := action_kind.view.prec prec} in
 match k with
 | mixfix.kind.view.prefix _ :=
   -- `prefix tk:prec` ~> `notation tk:prec b:prec`

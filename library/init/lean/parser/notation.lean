@@ -101,24 +101,39 @@ node_choice! mixfix_symbol {
 }
 
 @[derive parser.has_tokens parser.has_view]
+def fold_action.parser : term_parser :=
+node! fold_action [
+  "(",
+  op: any_of [symbol_or_ident "foldl", symbol_or_ident "foldr"],
+  sep: notation_symbol.parser,
+  folder: node! fold_action_folder [
+    "(",
+    arg1: ident.parser,
+    arg2: ident.parser,
+    ",",
+    rhs: term.parser,
+    ")"
+  ],
+  init: term.parser,
+  end_tk: notation_symbol.parser,
+  ")"
+]
+
+@[derive parser.has_tokens parser.has_view]
 def action.parser : term_parser :=
-node! action [":", action: node_choice! action_kind {
+node! action [":", kind: node_choice! action_kind {
   prec: try precedence_term.parser,
   prev: symbol_or_ident "prev",
   scoped: node! scoped_action [
-    "(",
-    scoped: symbol_or_ident "scoped",
+    try ["(", scoped: symbol_or_ident "scoped"],
     prec: precedence.parser?,
     id: ident.parser,
     ", ",
     term: term.parser,
     ")",
   ],
-  /-TODO seq [
-    "(",
-    any_of ["foldl", "foldr"],
-    optional prec,
-    notation_tk,-/}]
+  fold: fold_action.parser
+}]
 
 @[derive parser.has_tokens parser.has_view]
 def transition.parser : term_parser :=

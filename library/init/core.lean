@@ -1576,7 +1576,7 @@ end subtype
 
 /- Sum -/
 
-notation α ⊕ β := sum α β
+infixr ⊕ := sum
 
 section
 variables {α : Type u} {β : Type v}

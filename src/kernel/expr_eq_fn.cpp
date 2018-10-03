@@ -79,6 +79,7 @@ class expr_eq_fn {
         case expr_kind::Proj:
             return
                 apply(proj_expr(a), proj_expr(b)) &&
+                proj_sname(a) == proj_sname(b) &&
                 proj_idx(a) == proj_idx(b);
         case expr_kind::Lit:
             return lit_value(a) == lit_value(b);

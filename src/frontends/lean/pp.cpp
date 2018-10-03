@@ -1142,6 +1142,7 @@ auto pretty_fn::pp_proj(expr const & e) -> result {
     format arg_fmt = pp_child(proj_expr(e), max_bp()).fmt();
     format idx_fmt(proj_idx(e).get_small_value() + 1);
     return result(arg_fmt + format(".") + idx_fmt);
+    // return result(arg_fmt + format("[") + format(proj_sname(e)) + format("].") + idx_fmt);
 }
 
 auto pretty_fn::pp_let(expr e) -> result {

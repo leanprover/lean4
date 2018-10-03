@@ -39,7 +39,14 @@ bool has_macro_inline_attribute(environment const & env, name const & n) {
     return false;
 }
 
-bool has_noinline_attribute(environment const & /* env */, name const & /* n */) {
+bool has_noinline_attribute(environment const & env, name const & n) {
+    if (has_attribute(env, "noinline", n))
+        return true;
+    if (is_internal_name(n) && !n.is_atomic()) {
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline]`
+           if `f` is marked. */
+        return has_noinline_attribute(env, n.get_prefix());
+    }
     return false;
 }
 
@@ -308,6 +315,30 @@ void initialize_compiler_util() {
     g_neutral_expr     = new expr(mk_constant("_neutral_"));
     g_unreachable_expr = new expr(mk_constant("_unreachable_"));
     g_object_type      = new expr(mk_constant("_obj_"));
+
+    register_system_attribute(basic_attribute::with_check(
+            "inline", "mark definition to always be inlined",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'inline' use, only definitions can be marked as inline");
+            }));
+
+    register_system_attribute(basic_attribute::with_check(
+            "noinline", "mark definition to never be inlined",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'noinline' use, only definitions can be marked as noinline");
+            }));
+
+    register_system_attribute(basic_attribute::with_check(
+            "macro_inline", "mark definition to always be inlined before ANF conversion",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'macro_inline' use, only definitions can be marked as macro_inline");
+            }));
 }
 
 void finalize_compiler_util() {

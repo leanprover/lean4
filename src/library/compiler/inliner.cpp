@@ -30,21 +30,6 @@ bool is_inline(environment const & env, name const & n) {
 }
 
 void initialize_inliner() {
-    register_system_attribute(basic_attribute::with_check(
-            "inline", "mark definition to always be inlined",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'inline' use, only definitions can be marked as inline");
-            }));
-
-    register_system_attribute(basic_attribute::with_check(
-            "macro_inline", "mark definition to always be inlined before ANF conversion",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'macro_inline' use, only definitions can be marked as inline");
-            }));
 }
 
 void finalize_inliner() {

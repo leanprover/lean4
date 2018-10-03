@@ -95,7 +95,7 @@ universes u v
   let s := (s.mk_iterator.nextn 50000).prev_to_string,
   parser_cfg ← monad_except.lift_except $ mk_config,
   let parser_k := parser.run parser_cfg s (λ _, module.parser),
-  let elab_k := elaborator.run {filename := "foo"} parser_cfg,
+  let elab_k := elaborator.run {filename := "foo", initial_parser_cfg := parser_cfg},
   outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, outs⟩, match parser_k.resume parser_cfg with
     | coroutine_result_core.done p := pure (sum.inr outs.reverse)
     | coroutine_result_core.yielded out parser_k := do {

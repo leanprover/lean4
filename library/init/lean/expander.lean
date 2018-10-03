@@ -100,7 +100,7 @@ def mixfix.transform : transformer :=
     review app {fn := v.term, arg := review term.ident `a}
   | _ :=
     review app {fn := review app {fn := v.term, arg := review term.ident `a}, arg := review term.ident `b},
-  pure $ review «notation» {spec := spec, term := term}
+  pure $ review «notation» {«local» := v.local, spec := spec, term := term}
 
 def reserve_mixfix.transform : transformer :=
 λ stx, do

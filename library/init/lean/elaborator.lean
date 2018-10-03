@@ -17,9 +17,14 @@ open parser.command.notation_spec
 
 structure elaborator_config :=
 (filename : string)
+(local_notations : list notation.view := [])
+(initial_parser_cfg : module_parser_config)
 
 structure elaborator_state :=
+-- TODO(Sebastian): retrieve from environment
 (reserved_notations : list reserve_notation.view := [])
+-- TODO(Sebastian): retrieve from environment
+(nonlocal_notations : list notation.view := [])
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 
@@ -38,14 +43,10 @@ def command.elaborate : coelaborator := recurse ()
 section
 local attribute [reducible] elaborator_t
 attribute [derive monad_coroutine] coelaborator_m
+instance elaborator_t.monad_reader_adapter (m : Type → Type) [monad m] :
+  monad_reader_adapter elaborator_config elaborator_config (elaborator_t m) (elaborator_t m) :=
+infer_instance
 def current_command : coelaborator_m syntax := monad_lift (coroutine.read : coroutine syntax elaborator_state _)
-
-def yield_to_outside : coelaborator_m unit :=
-do st ← get,
-   yield st,
-   -- reset messages for next command
-   put {st with messages := message_log.empty}
-
 end
 
 instance elaborator_m_coe_coelaborator_m {α : Type} : has_coe (elaborator_m α) (coelaborator_m α) :=
@@ -61,9 +62,11 @@ do cfg ← read,
 
 local attribute [instance] name.has_lt_quick
 
-def prec_to_nat (prec : option precedence.view) : nat :=
-(prec <&> λ p, p.term.to_nat).get_or_else 0
+def prec_to_nat : option precedence.view → nat
+| (some prec) := prec.term.to_nat
+| none        := 0
 
+-- TODO(Sebastian): Command parsers like `structure` will need access to these
 def command_parser_config.register_notation_tokens (spec : notation_spec.view) (cfg : command_parser_config) :
   except string command_parser_config :=
 do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
@@ -101,6 +104,29 @@ do -- build and register parser
      parser.combinators.node k (read::ps.map coe)::cfg.trailing_term_parsers},
    pure cfg
 
+/-- Recreate `elaborator_state.parser_cfg` from the elaborator state and the initial config,
+    effectively treating it as a cache. -/
+def update_parser_config : elaborator_m unit :=
+do st ← get,
+   cfg ← read,
+   let ccfg := cfg.initial_parser_cfg.to_command_parser_config,
+   ccfg ← st.reserved_notations.mfoldl (λ ccfg rnota,
+     match command_parser_config.register_notation_tokens rnota.spec ccfg with
+     | except.ok ccfg := pure ccfg
+     | except.error e := error (review reserve_notation rnota) e) ccfg,
+   ccfg ← (st.nonlocal_notations ++ cfg.local_notations).mfoldl (λ ccfg nota,
+     match command_parser_config.register_notation_tokens nota.spec ccfg >>=
+               command_parser_config.register_notation_parser nota.spec with
+     | except.ok ccfg := pure ccfg
+     | except.error e := error (review «notation» nota) e) ccfg,
+   put {st with parser_cfg := {cfg.initial_parser_cfg with to_command_parser_config := ccfg}}
+
+def yield_to_outside : coelaborator_m unit :=
+do st ← get,
+   yield st,
+   -- reset messages for next command
+   put {st with messages := message_log.empty}
+
 def postprocess_notation_spec (spec : notation_spec.view) : notation_spec.view :=
 -- default leading tokens to `max`
 -- NOTE: should happen after copying precedences from reserved notation
@@ -116,12 +142,8 @@ def reserve_notation.elaborate : elaborator :=
   let v := view reserve_notation stx,
   let v := {v with spec := postprocess_notation_spec v.spec},
   -- TODO: sanity checks?
-  st ← get,
-  cfg ← match command_parser_config.register_notation_tokens v.spec st.parser_cfg with
-  | except.ok cfg  := pure cfg
-  | except.error e := error stx e,
-  put {st with reserved_notations := v::st.reserved_notations,
-    parser_cfg := {st.parser_cfg with to_command_parser_config := cfg}}
+  modify $ λ st, {st with reserved_notations := v::st.reserved_notations},
+  update_parser_config
 
 def match_precedence : option precedence.view → option precedence.view → bool
 | none      (some rp) := tt
@@ -160,49 +182,64 @@ do guard $ spec.prefix_arg.is_some = reserved.prefix_arg.is_some,
    },
    pure $ {spec with rules := rules}
 
-def notation.elaborate : elaborator :=
-λ stx, do
-  let nota := view «notation» stx,
+def notation.elaborate_aux : notation.view → elaborator_m notation.view :=
+λ nota, do
   st ← get,
-
   -- check reserved notations
   matched ← pure $ st.reserved_notations.filter_map $
     λ rnota, match_spec nota.spec rnota.spec,
   nota ← match matched with
   | [matched] := pure {nota with spec := matched}
   | []        := pure nota
-  | _         := error stx "invalid notation, matches multiple reserved notations",
-  let nota := {nota with spec := postprocess_notation_spec nota.spec},
+  | _         := error (review «notation» nota) "invalid notation, matches multiple reserved notations",
   -- TODO: sanity checks
+  pure {nota with spec := postprocess_notation_spec nota.spec}
 
-  cfg ← match command_parser_config.register_notation_tokens nota.spec st.parser_cfg >>=
-              command_parser_config.register_notation_parser nota.spec with
-  | except.ok cfg  := pure cfg
-  | except.error e := error stx e,
-  put {st with parser_cfg := {st.parser_cfg with to_command_parser_config := cfg}}
+def notation.elaborate : elaborator :=
+λ stx, do
+  let nota := view «notation» stx,
+  when nota.local.is_some $
+    error stx "notation.elaborate: unexpected local notation",
+  nota ← notation.elaborate_aux nota,
+  modify $ λ st, {st with nonlocal_notations := nota::st.nonlocal_notations},
+  update_parser_config
 
-def commands.elaborate : ℕ → coelaborator
+def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
 | 0 := do cmd ← current_command, error cmd "commands.elaborate: out of fuel"
 | (n+1) := do
-  command.elaborate,
-  yield_to_outside,
-  commands.elaborate n
-
-def section.elaborate_commands : ℕ → coelaborator
-| 0 := do cmd ← current_command, error cmd "section.elaborate_commands: out of fuel"
-| (n+1) := do
   cmd ← current_command,
-  match cmd with
-  | syntax.node ⟨«end», _⟩ := pure ()
-  | _ := do
+  let elab_and_recurse : coelaborator := do {
     command.elaborate,
     yield_to_outside,
-    section.elaborate_commands n
+    commands.elaborate n
+  },
+  match cmd with
+  | syntax.node ⟨@«end», _⟩ :=
+    if stop_on_end_cmd then
+      pure ()
+    else
+      -- TODO(Sebastian): should recover
+      error cmd "invalid 'end', there is no open scope to end"
+  | syntax.node ⟨@«notation», _⟩ := do
+    let nota := view «notation» cmd,
+    if nota.local.is_some then do {
+      nota ← notation.elaborate_aux nota,
+      -- add local notation scoped to the remaining commands
+      adapt_reader (λ cfg : elaborator_config, {cfg with local_notations := nota::cfg.local_notations}) $ do {
+        (update_parser_config : coelaborator),
+        yield_to_outside,
+        commands.elaborate n
+      }
+    } else elab_and_recurse
+  | _ := elab_and_recurse
 
 def section.elaborate : coelaborator :=
 do sec ← view «section» <$> current_command,
    let sec_name := ident.view.to_name <$> sec.name,
-   section.elaborate_commands 1000,
+   yield_to_outside,
+   commands.elaborate tt 1000,
+   -- local notations may have vanished
+   update_parser_config,
    end_sec ← view «end» <$> current_command,
    let end_sec_name := ident.view.to_name <$> end_sec.name,
    when (sec_name ≠ end_sec_name) $
@@ -212,7 +249,10 @@ do sec ← view «section» <$> current_command,
 def namespace.elaborate : coelaborator :=
 do ns ← view «namespace» <$> current_command,
    let ns_name := ident.view.to_name ns.name,
-   section.elaborate_commands 1000,
+   yield_to_outside,
+   commands.elaborate tt 1000,
+   -- local notations may have vanished
+   update_parser_config,
    end_ns ← view «end» <$> current_command,
    let end_ns_name := ident.view.to_name <$> end_ns.name,
    when (some ns_name ≠ end_ns_name) $
@@ -230,11 +270,12 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
 protected def max_recursion := 100
 protected def max_commands := 10000
 
-protected def run (cfg : elaborator_config) (parser_cfg : module_parser_config) : coroutine syntax elaborator_state unit :=
+protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state unit :=
 do
+  let st := {elaborator_state . parser_cfg := cfg.initial_parser_cfg},
   -- NOTE: ignores errors outside in the final output (should never happen) and the final state
-  except_t.run $ flip state_t.run {elaborator_state . parser_cfg:=parser_cfg} $ flip reader_t.run cfg $ rec_t.run
-    (commands.elaborate elaborator.max_commands)
+  except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
+    (commands.elaborate ff elaborator.max_commands)
     -- TODO(Sebastian): "out of fuel" error
     (λ _, pure ())
     (λ _, do

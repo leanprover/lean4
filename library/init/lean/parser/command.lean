@@ -81,8 +81,7 @@ node! check ["#check", term: term.parser]
 @[derive parser.has_tokens parser.has_view]
 def attribute.parser : command_parser :=
 node! «attribute» [
-  «local»: (symbol "local ")?,
-  "attribute ",
+  try [«local»: (symbol "local ")?, "attribute "],
   "[",
   attrs: sep_by1 attr_instance.parser (symbol ", "),
   "] ",

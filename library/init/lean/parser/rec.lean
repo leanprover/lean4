@@ -45,6 +45,9 @@ instance : has_monad_lift m (rec_t α δ m) := infer_instance
 instance (ε) [monad_except ε m] : monad_except ε (rec_t α δ m) := infer_instance
 instance (μ) [monad_parsec μ m] : monad_parsec μ (rec_t α δ m) :=
 infer_instance
+-- NOTE: does not allow to vary `m` because of its occurrence in the reader state
+instance [monad m] : monad_functor m m (rec_t α δ m) (rec_t α δ m) :=
+infer_instance
 end rec_t
 
 class monad_rec (α δ : out_param Type) (m : Type → Type) :=

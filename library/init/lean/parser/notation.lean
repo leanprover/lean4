@@ -140,7 +140,9 @@ node! notation_spec [prefix_arg: ident.parser?, rules: notation_spec.rule.parser
 
 @[derive parser.has_tokens parser.has_view]
 def notation.parser : term_parser :=
-node! «notation» ["notation", spec: notation_spec.parser, ":=", term: term.parser]
+node! «notation» [
+  try [«local»: (symbol "local ")?, "notation"],
+  spec: notation_spec.parser, ":=", term: term.parser]
 
 @[derive parser.has_tokens parser.has_view]
 def reserve_notation.parser : term_parser :=
@@ -153,7 +155,7 @@ node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 @[derive parser.has_tokens parser.has_view]
 def mixfix.parser : term_parser :=
 node! «mixfix» [
-  kind: mixfix.kind.parser,
+  try [«local»: (symbol "local ")?, kind: mixfix.kind.parser],
   symbol: notation_spec.mixfix_symbol.parser, ":=", term: term.parser]
 
 @[derive parser.has_tokens parser.has_view]

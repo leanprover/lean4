@@ -233,38 +233,6 @@ class preprocess_fn {
             });
     }
 
-    void exec_new_compiler(constant_info const & d) {
-        name n  = get_real_name(d.get_name());
-        // timeit timer(std::cout, (sstream() << "compiling " << n).str().c_str(), 0.05);
-        expr v  = d.get_value();
-        // TODO(Leo): add option for disabling eta-expansion
-        v       = type_checker(m_env, local_ctx()).eta_expand(v);
-        lean_trace(name({"compiler", "eta_expand"}), tout() << n << "\n" << v << "\n";);
-        v       = to_lcnf(m_env, local_ctx(), v);
-        lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v << "\n";);
-        v       = cce(m_env, local_ctx(), v);
-        lean_trace(name({"compiler", "cce"}), tout() << n << "\n" << v << "\n";);
-        v       = csimp(m_env, local_ctx(), v);
-        lean_trace(name({"compiler", "simp"}), tout() << "\n" << v << "\n";);
-        v       = elim_dead_let(v);
-        lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v << "\n";);
-        v       = cse(m_env, v);
-        lean_trace(name({"compiler", "cse"}), tout() << "\n" << v << "\n";);
-        // std::cout << "done compiling " << n << "\n";
-        v       = max_sharing(v);
-        lean_trace(name({"compiler", "stage1"}), tout() << n << "\n" << v << "\n";);
-        declaration simp_decl = mk_definition(mk_cstage1_name(n), d.get_lparams(), d.get_type(),
-                                              v, reducibility_hints::mk_opaque(), true);
-        /* IMPORTANT: We do not need to save the auxiliary declaration in the environment.
-           This is just a temporary hack.
-           We should store this information in a different place. In the meantime,
-           I just invoke `module::add` with `check = false`. This is a temporary
-           solution since we will not have this parameter in the final version. */
-        m_env   = module::add(m_env, simp_decl, false);
-        v       = erase_irrelevant(m_env, local_ctx(), v);
-        lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
-    }
-
     name get_real_name(name const & n) {
         if (optional<name> new_n = is_meta_rec_name(n))
             return *new_n;
@@ -305,7 +273,6 @@ public:
         lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v << "\n";);
         v       = cse(m_env, v);
         lean_trace(name({"compiler", "cse"}), tout() << "\n" << v << "\n";);
-        // std::cout << "done compiling " << n << "\n";
         v       = max_sharing(v);
         lean_trace(name({"compiler", "stage1"}), tout() << n << "\n" << v << "\n";);
         declaration simp_decl = mk_definition(mk_cstage1_name(n), d.get_lparams(), d.get_type(),

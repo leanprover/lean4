@@ -212,6 +212,26 @@ class erase_trivial_structures_fn : public simp_inductive_core_fn {
         }
     }
 
+    virtual expr visit_proj(expr const & e) override {
+        name const & S = proj_sname(e);
+        inductive_val S_val = env().get(S).to_inductive_val();
+        lean_assert(S_val.get_ncnstrs() == 1);
+        name const & k = head(S_val.get_cnstrs());
+        buffer<bool> rel_fields;
+        get_constructor_info(k, rel_fields);
+        unsigned idx = proj_idx(e).get_small_value();
+        lean_assert(idx < rel_fields.size());
+        if (!rel_fields[idx])
+            return mk_enf_neutral();
+        unsigned new_idx = 0;
+        for (unsigned j = 0; j < idx; j++) {
+            if (rel_fields[j])
+                new_idx++;
+        }
+        expr new_s = visit(proj_expr(e));
+        return mk_proj(S, new_idx, new_s);
+    }
+
     virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
@@ -227,6 +247,7 @@ class erase_trivial_structures_fn : public simp_inductive_core_fn {
         }
         return compiler_step_visitor::visit_app(e);
     }
+
 public:
     erase_trivial_structures_fn(environment const & env, abstract_context_cache & cache):
         simp_inductive_core_fn(env, cache) {}

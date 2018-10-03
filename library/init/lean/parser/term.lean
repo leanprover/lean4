@@ -286,7 +286,7 @@ def builtin_leading_parsers : list term_parser := [
 
 @[derive parser.has_tokens parser.has_view]
 def sort_app.parser : trailing_term_parser :=
-do { l ← get_leading, guard (try_view sort l).is_some } *>
+do { l ← get_leading, guard $ l.is_of_kind sort } *>
 node! sort_app [fn: get_leading, arg: monad_lift (level.parser max_prec).run]
 
 @[derive parser.has_tokens parser.has_view]

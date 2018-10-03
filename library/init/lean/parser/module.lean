@@ -106,7 +106,7 @@ instance commands.tokens : parser.has_tokens commands.parser :=
 instance commands.parser.has_view : has_view commands.parser (list syntax) :=
 {..many.view command.parser}
 
-def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
+@[pattern] def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
 end module
 open module
 

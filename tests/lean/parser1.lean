@@ -86,18 +86,16 @@ universes u v
   [header, nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
   except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean"} | throw "heh",
   pure cmd'.reprint
-#exit
 
--- slowly progressing...
---set_option profiler true
-#eval (do {
-  s ← io.fs.read_file "../../library/init/core.lean",
-  let s := (s.mk_iterator.nextn 50000).prev_to_string,
+def run_frontend (input : string) : except_t string io unit := do
   parser_cfg ← monad_except.lift_except $ mk_config,
-  let parser_k := parser.run parser_cfg s (λ _, module.parser),
+  let parser_k := parser.run parser_cfg input (λ _, module.parser),
   let elab_k := elaborator.run {filename := "foo", initial_parser_cfg := parser_cfg},
   outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, outs⟩, match parser_k.resume parser_cfg with
-    | coroutine_result_core.done p := pure (sum.inr outs.reverse)
+    | coroutine_result_core.done p := do {
+      io.println "parser died!!",
+      pure (sum.inr outs.reverse)
+    }
     | coroutine_result_core.yielded out parser_k := do {
       match out.messages.to_list with
       | [] := pure () /-do
@@ -113,7 +111,12 @@ universes u v
       | except.ok cmd' := do {
         --io.println cmd',
         match elab_k.resume cmd' with
-        | coroutine_result_core.done p := io.println "elaborator died!!" *> pure (sum.inr outs.reverse)
+        | coroutine_result_core.done msgs := do {
+          when ¬(cmd'.is_of_kind module.eoi) $
+            io.println "elaborator died!!",
+          msgs.to_list.mfor $ λ e, io.println e.text,
+          pure (sum.inr outs.reverse)
+        }
         | coroutine_result_core.yielded elab_out elab_k := do {
           elab_out.messages.to_list.mfor $ λ e, io.println e.text,
           pure (sum.inl (parser_k, elab_k, elab_out.parser_cfg, out :: outs))
@@ -121,9 +124,15 @@ universes u v
       }
       | except.error e := io.println e.text *> pure (sum.inl (parser_k, elab_k, parser_cfg, out :: outs))
     },
-  check_reprint outs s/-,
+  check_reprint outs input/-,
   let stx := syntax.node ⟨none, outs.map (λ r, r.cmd)⟩,
   let stx := stx.update_leading s,
   io.println "result:",
   io.println (to_string stx)-/
-} : except_t string io unit)
+#exit
+
+-- slowly progressing...
+set_option profiler true
+#eval do
+  s ← io.fs.read_file "../../library/init/core.lean",
+  run_frontend s

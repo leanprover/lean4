@@ -57,6 +57,10 @@ def substring.to_string (s : substring) : string :=
 namespace syntax
 open lean.format
 
+def is_of_kind (k : syntax_node_kind) : syntax → bool
+| (syntax.node ⟨some k', _⟩) := k.name = k'.name
+| _ := ff
+
 private def ident_to_format : syntax → format
 | stx := option.get_or_else (do
   syntax.node ⟨_, [syntax.node ⟨_, [syntax.node ⟨some ⟨idx⟩, part⟩]⟩, suffix]⟩ ← pure stx | failure,

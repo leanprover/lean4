@@ -101,9 +101,8 @@ class has_view (r : ρ) (α : out_param Type) :=
 
 export has_view (view review)
 
-def try_view {α : Type} (k : syntax_node_kind) [has_view k α] : syntax → option α
-| stx@(syntax.node ⟨some k', _⟩) := if k.name = k'.name then some (has_view.view k stx) else none
-| _ := none
+def try_view {α : Type} (k : syntax_node_kind) [has_view k α] (stx : syntax) : option α :=
+if stx.is_of_kind k then some (has_view.view k stx) else none
 
 instance has_view.default (r : ρ) : inhabited (parser.has_view r syntax) :=
 ⟨{ view := id, review := id }⟩

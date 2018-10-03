@@ -220,6 +220,11 @@ def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
     else
       -- TODO(Sebastian): should recover
       error cmd "invalid 'end', there is no open scope to end"
+  | syntax.node ⟨module.eoi, _⟩ :=
+    if stop_on_end_cmd then
+      error cmd "invalid end of input, expected 'end'"
+    else
+      pure ()
   | syntax.node ⟨@«notation», _⟩ := do
     let nota := view «notation» cmd,
     if nota.local.is_some then do {
@@ -270,14 +275,12 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
 protected def max_recursion := 100
 protected def max_commands := 10000
 
-protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state unit :=
+protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state message_log :=
 do
   let st := {elaborator_state . parser_cfg := cfg.initial_parser_cfg},
-  -- NOTE: ignores errors outside in the final output (should never happen) and the final state
-  except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
+  p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
     (commands.elaborate ff elaborator.max_commands)
-    -- TODO(Sebastian): "out of fuel" error
-    (λ _, pure ())
+    (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})
     (λ _, do
       cmd ← current_command,
       -- TODO(Sebastian): throw error on unknown command when we get serious
@@ -286,7 +289,9 @@ do
       catch elab $ λ e,
         modify $ λ st, {st with messages := st.messages.add e})
     elaborator.max_recursion,
-  pure ()
+  match p with
+  | except.ok ((), st) := pure st.messages
+  | except.error e     := pure $ message_log.empty.add e
 
 end elaborator
 end lean

@@ -166,7 +166,7 @@ public:
         m_decl_names(decl_names) {}
 };
 
-static expr expand_aux(environment const & env, name_set const & ns, abstract_context_cache & cache, expr const & e) {
+expr expand_aux(environment const & env, name_set const & ns, abstract_context_cache & cache, expr const & e) {
     return expand_aux_fn(env, ns, cache)(e);
 }
 
@@ -290,11 +290,36 @@ public:
         lean_trace(name({"compiler", "input"}), tout() << d.get_name() << "\n";);
         if (compile_irrelevant(d, procs))
             return m_env;
-
-
-
-        exec_new_compiler(d);
+        name n = get_real_name(d.get_name());
         expr v = d.get_value();
+#if 1
+        v       = type_checker(m_env, local_ctx()).eta_expand(v);
+        lean_trace(name({"compiler", "eta_expand"}), tout() << n << "\n" << v << "\n";);
+        v       = to_lcnf(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v << "\n";);
+        v       = cce(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "cce"}), tout() << n << "\n" << v << "\n";);
+        v       = csimp(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "simp"}), tout() << "\n" << v << "\n";);
+        v       = elim_dead_let(v);
+        lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v << "\n";);
+        v       = cse(m_env, v);
+        lean_trace(name({"compiler", "cse"}), tout() << "\n" << v << "\n";);
+        // std::cout << "done compiling " << n << "\n";
+        v       = max_sharing(v);
+        lean_trace(name({"compiler", "stage1"}), tout() << n << "\n" << v << "\n";);
+        declaration simp_decl = mk_definition(mk_cstage1_name(n), d.get_lparams(), d.get_type(),
+                                              v, reducibility_hints::mk_opaque(), true);
+        /* IMPORTANT: We do not need to save the auxiliary declaration in the environment.
+           This is just a temporary hack.
+           We should store this information in a different place. In the meantime,
+           I just invoke `module::add` with `check = false`. This is a temporary
+           solution since we will not have this parameter in the final version. */
+        m_env   = module::add(m_env, simp_decl, false);
+        v       = erase_irrelevant(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
+        procs.emplace_back(n, optional<pos_info>(), v);
+#else
         v = remove_meta_rec(v);
         lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
         v = inline_simple_definitions(m_env, m_cache, v);
@@ -310,10 +335,10 @@ public:
         v = eta_expand(m_env, m_cache, v);
         lean_cond_assert("compiler", check(d, v));
         lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
-        name n = get_real_name(d.get_name());
         procs.emplace_back(n, optional<pos_info>(), v);
         old_erase_irrelevant(procs);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
+#endif
         reduce_arity(m_env, m_cache, procs);
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
         erase_trivial_structures(m_env, m_cache, procs);

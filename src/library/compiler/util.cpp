@@ -77,29 +77,39 @@ struct unfold_macro_defs_fn : public replace_visitor {
     environment const & m_env;
     unfold_macro_defs_fn(environment const & env):m_env(env) {}
 
+
     virtual expr visit_app(expr const & e) override {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
-        expr new_fn   = visit(fn);
-        bool modified = !is_eqp(fn, new_fn);
+        bool modified = false;
         for (expr & arg : args) {
             expr new_arg = visit(arg);
             if (!is_eqp(new_arg, arg))
                 modified = true;
             arg = new_arg;
         }
-        if (is_constant(new_fn)) {
-            name const & n = const_name(new_fn);
+        if (is_constant(fn)) {
+            name const & n = const_name(fn);
             if (has_macro_inline_attribute(m_env, n)) {
-                new_fn = instantiate_value_lparams(m_env.get(n), const_levels(new_fn));
+                expr new_fn = instantiate_value_lparams(m_env.get(n), const_levels(fn));
                 std::reverse(args.begin(), args.end());
                 return visit(apply_beta(new_fn, args.size(), args.data()));
             }
         }
-        if (!modified)
+        expr new_fn = visit(fn);
+        if (!modified && is_eqp(new_fn, fn))
             return e;
         else
             return mk_app(new_fn, args);
+    }
+
+    virtual expr visit_constant(expr const & e) override {
+        name const & n = const_name(e);
+        if (has_macro_inline_attribute(m_env, n)) {
+            return visit(instantiate_value_lparams(m_env.get(n), const_levels(e)));
+        } else {
+            return e;
+        }
     }
 };
 

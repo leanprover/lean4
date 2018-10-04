@@ -1035,7 +1035,7 @@ public:
 
     expr operator()(expr const & e) {
         expr r = visit(e, false);
-        return m_lctx.mk_lambda(m_fvars, r);
+        return mk_let(0, r);
     }
 };
 expr csimp(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg) {

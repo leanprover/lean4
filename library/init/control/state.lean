@@ -60,12 +60,8 @@ section
   instance : has_monad_lift m (state_t σ m) :=
   ⟨@state_t.lift σ m _⟩
 
-  @[inline] protected def monad_map {σ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) :
-    state_t σ m α → state_t σ m' α :=
-  λ x s, f (x s)
-
   instance (σ m m') [monad m] [monad m'] : monad_functor m m' (state_t σ m) (state_t σ m') :=
-  ⟨@state_t.monad_map σ m m' _ _⟩
+  ⟨λ _ f x s, f (x s)⟩
 
   @[inline] protected def adapt {σ σ' σ'' α : Type u} {m : Type u → Type v} [monad m] (split : σ → σ' × σ'')
     (join : σ' → σ'' → σ) (x : state_t σ' m α) : state_t σ m α :=

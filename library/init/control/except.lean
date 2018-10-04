@@ -104,11 +104,8 @@ except_t.mk $ ma >>= λ res, match res with
  | except.ok a    := pure (except.ok a)
  | except.error e := (handle e)
 
-@[inline] protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : except_t ε m α → except_t ε m' α :=
-λ x, f x
-
 instance (m') [monad m'] : monad_functor m m' (except_t ε m) (except_t ε m') :=
-⟨@except_t.monad_map _ _ _ m' _⟩
+⟨λ _ f x, f x⟩
 
 instance : monad (except_t ε m) :=
 { pure := @except_t.return _ _ _, bind := @except_t.bind _ _ _ }

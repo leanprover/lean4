@@ -45,11 +45,8 @@ section
   instance (m) [monad m] : has_monad_lift m (reader_t ρ m) :=
   ⟨@reader_t.lift ρ m _⟩
 
-  @[inline] protected def monad_map {ρ m m'} [monad m] [monad m'] {α} (f : Π {α}, m α → m' α) : reader_t ρ m α → reader_t ρ m' α :=
-  λ x, λ r, f (x r)
-
   instance (ρ m m') [monad m] [monad m'] : monad_functor m m' (reader_t ρ m) (reader_t ρ m') :=
-  ⟨@reader_t.monad_map ρ m m' _ _⟩
+  ⟨λ _ f x, λ r, f (x r)⟩
 
   @[inline] protected def adapt {ρ' : Type u} [monad m] {α : Type u} (f : ρ' → ρ) : reader_t ρ m α → reader_t ρ' m α :=
   λ x r, x (f r)

@@ -38,7 +38,7 @@ protected def dec_eq (n m : nat) : decidable (n = m) :=
 if h : beq n m = tt then is_true (eq_of_beq_eq_tt h)
 else is_false (ne_of_beq_eq_ff (eq_ff_of_ne_tt h))
 
-instance : decidable_eq nat :=
+@[inline] instance : decidable_eq nat :=
 {dec_eq := nat.dec_eq}
 
 def ble : nat → nat → bool

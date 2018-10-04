@@ -22,9 +22,9 @@ variables [monad m] [monad_except (parsec.message syntax) m] [monad_parsec synta
 def node' (k : option syntax_node_kind) (rs : list parser) : parser :=
 do (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
      (args, remaining) ← pure p,
-     -- on error, append partial syntax tree and `missing` objects to previous successful parses and rethrow
+     -- on error, append partial syntax tree to previous successful parses and rethrow
      a ← catch r $ λ msg,
-       let args := list.repeat syntax.missing (remaining-1) ++ msg.custom :: args in
+       let args := msg.custom :: args in
        throw {msg with custom := syntax.node ⟨k, args.reverse⟩},
      pure (a::args, remaining - 1)
    ) ([], rs.length),

@@ -60,14 +60,8 @@ unexpected end of file
 expected identifier
 partial syntax tree:
 [(module.header [] [])
- (command.open
-  "open"
-  [(command.open_spec <missing> <missing> <missing> <missing> <missing>)
-   <missing>])
- (command.open
-  "open"
-  [(command.open_spec <missing> <missing> <missing> <missing> <missing>)
-   <missing>])
+ (command.open "open" [(command.open_spec <missing>) <missing>])
+ (command.open "open" [(command.open_spec <missing>) <missing>])
  (eoi "")]
 error at line 1, column 8:
 expected command

@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/compiler/lcnf.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/cse.h"
+#include "library/compiler/specialize.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -29,9 +30,11 @@ void initialize_compiler_module() {
     initialize_lcnf();
     initialize_elim_dead_let();
     initialize_cse();
+    initialize_specialize();
 }
 
 void finalize_compiler_module() {
+    finalize_specialize();
     finalize_cse();
     finalize_elim_dead_let();
     finalize_lcnf();

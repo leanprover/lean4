@@ -42,6 +42,7 @@ Author: Leonardo de Moura
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/cse.h"
+#include "library/compiler/specialize.h"
 #include "library/compiler/erase_irrelevant.h"
 
 namespace lean {
@@ -273,6 +274,8 @@ public:
         lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v << "\n";);
         v       = cse(m_env, v);
         lean_trace(name({"compiler", "cse"}), tout() << "\n" << v << "\n";);
+        std::tie(m_env, v) = specialize(m_env, local_ctx(), v);
+        lean_trace(name({"compiler", "specialize"}), tout() << "\n" << v << "\n";);
         v       = max_sharing(v);
         lean_trace(name({"compiler", "stage1"}), tout() << n << "\n" << v << "\n";);
         declaration simp_decl = mk_definition(mk_cstage1_name(n), d.get_lparams(), d.get_type(),
@@ -348,6 +351,7 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "cce"});
     register_trace_class({"compiler", "simp"});
     register_trace_class({"compiler", "stage1"});
+    register_trace_class({"compiler", "specialize"});
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "eta_expansion"});
     register_trace_class({"compiler", "inline"});

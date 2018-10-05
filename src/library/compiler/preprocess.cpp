@@ -25,7 +25,6 @@ Author: Leonardo de Moura
 #include "library/compiler/old_util.h"
 #include "library/compiler/preprocess.h"
 #include "library/compiler/compiler_step_visitor.h"
-#include "library/compiler/reduce_arity.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/elim_unused_lets.h"
@@ -143,8 +142,6 @@ public:
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
         procs.emplace_back(n, optional<pos_info>(), v);
 
-        reduce_arity(m_env, m_cache, procs);
-        lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
         lambda_lifting(m_env, m_cache, n, procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
         simp_inductive(m_env, m_cache, procs);
@@ -187,7 +184,6 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "erase_irrelevant"});
-    register_trace_class({"compiler", "reduce_arity"});
     register_trace_class({"compiler", "erase_trivial_structures"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "simplify_inductive"});

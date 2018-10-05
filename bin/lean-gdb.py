@@ -82,12 +82,12 @@ class LeanExprPrinter:
         ('sort', ['level']),
         ('const', ['name', ('levels', 'list_ref<lean::level>')]),
         ('app', [('fn', 'expr'), ('arg', 'expr')]),
-        ('lam', ['name', 'binder_info', ('type', 'expr'), ('body', 'expr')]),
-        ('pi', ['name', 'binder_info', ('type', 'expr'), ('body', 'expr')]),
+        ('lam', ['name', ('type', 'expr'), ('body', 'expr')]),
+        ('pi', ['name', ('type', 'expr'), ('body', 'expr')]),
         ('let', ['name', ('type', 'expr'), ('val', 'expr'), ('body', 'expr')]),
         ('lit', ['literal']),
         ('mdata', ['kvmap', 'expr']),
-        ('proj', ['nat', 'expr']),
+        ('proj', ['name', 'nat', 'expr']),
     ]
 
 

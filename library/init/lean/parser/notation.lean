@@ -59,12 +59,9 @@ def precedence_term.view.to_nat : precedence_term.view → nat
 def precedence.parser : term_parser :=
 node! «precedence» [":", term: precedence_term.parser]
 
+@[derive parser.has_tokens parser.has_view]
 def quoted_symbol.parser : term_parser :=
-do (s, info) ← with_source_info $ take_until (= '`'),
-   pure $ syntax.atom ⟨info, s⟩
-
-instance quoted_symbol.tokens : parser.has_tokens quoted_symbol.parser := ⟨[]⟩
-instance quoted_symbol.view : parser.has_view quoted_symbol.parser syntax := default _
+raw $ take_until (= '`')
 
 @[derive parser.has_tokens parser.has_view]
 def symbol_quote.parser : term_parser :=
@@ -82,7 +79,11 @@ try $ do {
 } <?> "symbol"
 
 instance unquoted_symbol.tokens : parser.has_tokens unquoted_symbol.parser := ⟨[]⟩
-instance unquoted_symbol.view : parser.has_view unquoted_symbol.parser syntax := default _
+instance unquoted_symbol.view : parser.has_view unquoted_symbol.parser (option syntax_atom) :=
+{ view := λ stx, match stx with
+  | syntax.atom atom := some atom
+  | _                := none,
+  review := λ a, (syntax.atom <$> a).get_or_else syntax.missing }
 
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems
 @[derive parser.has_tokens parser.has_view]

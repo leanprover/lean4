@@ -24,15 +24,12 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
+@[derive has_view]
 def doc_comment.parser : command_parser :=
-do ((), info) ← monad_lift $ with_source_info $ str "/--" *> finish_comment_block,
-   let s := (info.leading.stop.extract info.trailing.start).get_or_else "doc_comment: unreachable",
-   pure $ syntax.atom ⟨info, s⟩
+raw (str "/--" *> monad_lift finish_comment_block) tt
 
 instance doc_comment.tokens : has_tokens doc_comment.parser :=
 ⟨[{«prefix» := "/--"}]⟩
-instance doc_comment.view : has_view doc_comment.parser syntax :=
-default _
 
 @[derive has_tokens has_view]
 def attr_instance.parser : command_parser :=

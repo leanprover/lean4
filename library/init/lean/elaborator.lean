@@ -70,7 +70,7 @@ def prec_to_nat : option precedence.view → nat
 def command_parser_config.register_notation_tokens (spec : notation_spec.view) (cfg : command_parser_config) :
   except string command_parser_config :=
 do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
-   | notation_symbol.view.quoted {symbol := syntax.atom a, prec := prec, ..} :=
+   | notation_symbol.view.quoted {symbol := some a, prec := prec, ..} :=
      pure {cfg with tokens := cfg.tokens.insert a.val.trim {«prefix» := a.val.trim, lbp := prec_to_nat prec}}
    | _ := throw "register_notation_tokens: unreachable") cfg
 
@@ -80,7 +80,7 @@ do -- build and register parser
    let k : syntax_node_kind := {name := "notation<TODO>"},
    ps ← spec.rules.mmap (λ r : rule.view, do
      psym ← match r.symbol with
-     | notation_symbol.view.quoted {symbol := syntax.atom a ..} :=
+     | notation_symbol.view.quoted {symbol := some a ..} :=
        pure (symbol a.val : term_parser)
      | _ := throw "register_notation_parser: unreachable",
      ptrans ← match r.transition with
@@ -155,9 +155,9 @@ def match_precedence : option precedence.view → option precedence.view → boo
 def match_spec (spec reserved : notation_spec.view) : option notation_spec.view :=
 do guard $ spec.prefix_arg.is_some = reserved.prefix_arg.is_some,
    rules ← (spec.rules.zip reserved.rules).mmap $ λ ⟨sr, rr⟩, do {
-     notation_symbol.view.quoted sq@{symbol := syntax.atom sa, ..} ← pure sr.symbol
+     notation_symbol.view.quoted sq@{symbol := some sa, ..} ← pure sr.symbol
        | failure,
-     notation_symbol.view.quoted rq@{symbol := syntax.atom ra, ..} ← pure rr.symbol
+     notation_symbol.view.quoted rq@{symbol := some ra, ..} ← pure rr.symbol
        | failure,
      guard $ sa.val.trim = ra.val.trim,
      guard $ match_precedence sq.prec rq.prec,

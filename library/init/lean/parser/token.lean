@@ -68,21 +68,29 @@ do start ← left_over,
 
 variables [monad_state parser_state m] [monad_basic_parser m]
 
-@[inline] def with_source_info {α : Type} (r : m α) (trailing_ws := tt) : m (α × source_info) :=
-do it ← left_over,
-   let leading : substring := ⟨it, it⟩, -- NOTE: will be adjusted by `syntax.update_leading`
-   a ← r,
-   -- TODO(Sebastian): less greedy, more natural whitespace assignment
+private mutual def update_trailing, update_trailing_lst
+with update_trailing : substring → syntax → syntax
+| trailing (syntax.atom a@⟨some info, _⟩) := syntax.atom {a with info := some {info with trailing := trailing}}
+| trailing (syntax.node n@⟨k, args⟩) := syntax.node {n with args := update_trailing_lst trailing args}
+| trailing stx := stx
+with update_trailing_lst : substring → list syntax → list syntax
+| trailing [] := []
+| trailing [stx] := [update_trailing trailing stx]
+| trailing (stx::stxs) := stx :: update_trailing_lst trailing stxs
+
+@[inline] def with_trailing (stx : syntax) : m syntax :=
+do -- TODO(Sebastian): less greedy, more natural whitespace assignment
    -- E.g. only read up to the next line break
-   trailing ← lift $ as_substring $ if trailing_ws then whitespace else pure (),
-   it2 ← left_over,
-   pure (a, ⟨leading, it.offset, trailing⟩)
+   trailing ← lift $ as_substring $ whitespace,
+   pure $ update_trailing trailing stx
 
 /-- Match an arbitrary parser and return the consumed string in a `syntax.atom`. -/
 @[inline] def raw {α : Type} (p : m α) (trailing_ws := ff) : parser :=
 try $ do
-  (ss, info) ← with_source_info (as_substring p) trailing_ws,
-  pure $ syntax.atom ⟨info, ss.to_string⟩
+  it ← left_over,
+  ss ← as_substring p,
+  let stx := syntax.atom ⟨some {leading := ⟨it, it⟩, pos := it.offset, trailing := ⟨it, it⟩}, ss.to_string⟩,
+  if trailing_ws then with_trailing stx else pure stx
 
 instance raw.tokens {α} (p : m α) (t) : parser.has_tokens (raw p t : parser) := default _
 instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) (option syntax_atom) :=
@@ -120,40 +128,27 @@ def ident_suffix.parser : rec_t unit syntax basic_parser_m syntax :=
 try (lookahead (ch '.' *> (ch id_begin_escape *> pure () <|> satisfy is_id_first *> pure ()))) *>
 node! ident_suffix [«.»: raw_str ".", ident: recurse ()]
 
-private mutual def update_trailing, update_trailing_lst
-with update_trailing : substring → syntax → syntax
-| trailing (syntax.atom a@⟨some info, _⟩) := syntax.atom {a with info := some {info with trailing := trailing}}
-| trailing (syntax.node n@⟨k, args⟩) := syntax.node {n with args := update_trailing_lst trailing args}
-| trailing stx := stx
-with update_trailing_lst : substring → list syntax → list syntax
-| trailing [] := []
-| trailing [stx] := [update_trailing trailing stx]
-| trailing (stx::stxs) := stx :: update_trailing_lst trailing stxs
-
 def ident'' : rec_t unit syntax basic_parser_m syntax :=
 node! ident [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser]
 
-private def ident' : basic_parser_m (source_info → syntax) :=
-do stx ← rec_t.run_parsec ident'' $ λ _, ident'',
-   pure $ λ info, update_trailing info.trailing stx
+private def ident' : basic_parser_m syntax :=
+rec_t.run_parsec ident'' $ λ _, ident''
 
-private def symbol' : basic_parser_m (source_info → syntax) :=
+private def symbol' : basic_parser_m syntax :=
 do tk ← match_token,
    match tk with
    -- constant-length token
    | some ⟨tk, _, none⟩   :=
-     do str tk,
-        pure $ λ i, syntax.atom ⟨some i, tk⟩
+     raw (str tk)
    -- variable-length token
    | some ⟨tk, _, some r⟩ := error "symbol': not implemented" --str tk *> monad_parsec.lift r
    | none                 := monad_parsec.eoi *> error "end of file" <|> error "token"
 
 --TODO(Sebastian): other bases
-def number' : basic_parser_m (source_info → syntax) :=
-do stx ← (node_choice! number {
-     base10: raw (take_while1 char.is_digit),
-   } : basic_parser),
-   pure $ λ info, update_trailing info.trailing stx
+def number' : basic_parser :=
+node_choice! number {
+  base10: raw (take_while1 char.is_digit),
+}
 
 def token : basic_parser :=
 do it ← left_over,
@@ -168,13 +163,11 @@ do it ← left_over,
      pure tkc.tk
    ) (λ _, do
      -- cache failed, update cache
-     (r, i) ← with_source_info $ do {
-       -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
-       -- we want it to be recognized as a symbol
-       f::_ ← longest_match [symbol', ident'] <|> list.ret <$> number' | error "token: unreachable",
-       pure f
-     },
-     let tk := r i,
+
+     -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
+     -- we want it to be recognized as a symbol
+     tk::_ ← monad_parsec.longest_match [symbol', ident'] <|> list.ret <$> number' | error "token: unreachable",
+     tk ← with_trailing tk,
      new_it ← left_over,
      put_cache {cache with token_cache := some ⟨it, new_it, tk⟩},
      pure tk
@@ -246,9 +239,7 @@ id.components.foldl name.mk_string name.anonymous
 
 /-- Read identifier without consulting the token table. -/
 def raw_ident.parser : parser :=
-lift $ do
-  (f, info) ← lift $ with_source_info ident',
-  pure $ f info
+lift ident'
 
 instance raw_ident.parser.tokens : parser.has_tokens (raw_ident.parser : parser) := default _
 instance raw_ident.parser.view : parser.has_view (raw_ident.parser : parser) ident.view :=

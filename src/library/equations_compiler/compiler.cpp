@@ -373,9 +373,9 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
     }
 }
 
-void initialize_compiler() {
+void initialize_eqn_compiler() {
 }
 
-void finalize_compiler() {
+void finalize_eqn_compiler() {
 }
 }

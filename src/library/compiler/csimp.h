@@ -23,8 +23,12 @@ struct csimp_cfg {
     /* We inline join-points that are smaller m_inline_threshold. */
     unsigned m_inline_jp_threshold;
 public:
+    csimp_cfg(options const & opts);
     csimp_cfg();
 };
 
-expr csimp(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg = csimp_cfg());
+expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg);
+inline expr csimp(environment const & env, expr const & e, csimp_cfg const & cfg = csimp_cfg()) {
+    return csimp_core(env, local_ctx(), e, cfg);
+}
 }

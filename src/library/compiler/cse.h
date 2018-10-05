@@ -10,7 +10,8 @@ namespace lean {
 /* Common subexpression elimination */
 expr cse(environment const & env, expr const & e);
 /* Common case elimination */
-expr cce(environment const & env, local_ctx const & lctx, expr const & e);
+expr cce_core(environment const & env, local_ctx const & lctx, expr const & e);
+inline expr cce(environment const & env, expr const & e) { return cce_core(env, local_ctx(), e); }
 void initialize_cse();
 void finalize_cse();
 }

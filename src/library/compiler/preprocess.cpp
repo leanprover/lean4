@@ -117,11 +117,11 @@ public:
 
         v       = type_checker(m_env, local_ctx()).eta_expand(v);
         lean_trace(name({"compiler", "eta_expand"}), tout() << n << "\n" << v << "\n";);
-        v       = to_lcnf(m_env, local_ctx(), v);
+        v       = to_lcnf(m_env, v);
         lean_trace(name({"compiler", "lcnf"}), tout() << n << "\n" << v << "\n";);
-        v       = cce(m_env, local_ctx(), v);
+        v       = cce(m_env, v);
         lean_trace(name({"compiler", "cce"}), tout() << n << "\n" << v << "\n";);
-        v       = csimp(m_env, local_ctx(), v);
+        v       = csimp(m_env, v);
         lean_trace(name({"compiler", "simp"}), tout() << "\n" << v << "\n";);
         v       = elim_dead_let(v);
         lean_trace(name({"compiler", "elim_dead_let"}), tout() << "\n" << v << "\n";);
@@ -139,14 +139,12 @@ public:
            I just invoke `module::add` with `check = false`. This is a temporary
            solution since we will not have this parameter in the final version. */
         m_env   = module::add(m_env, simp_decl, false);
-        v       = erase_irrelevant(m_env, local_ctx(), v);
+        v       = erase_irrelevant(m_env, v);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
         procs.emplace_back(n, optional<pos_info>(), v);
 
         reduce_arity(m_env, m_cache, procs);
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
-        erase_trivial_structures(m_env, m_cache, procs);
-        lean_trace(name({"compiler", "erase_trivial_structures"}), tout() << "\n"; display(procs););
         lambda_lifting(m_env, m_cache, n, procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
         simp_inductive(m_env, m_cache, procs);

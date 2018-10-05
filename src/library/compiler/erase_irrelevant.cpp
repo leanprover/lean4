@@ -406,7 +406,7 @@ public:
     }
 };
 
-expr erase_irrelevant(environment const & env, local_ctx const & lctx, expr const & e) {
+expr erase_irrelevant_core(environment const & env, local_ctx const & lctx, expr const & e) {
     return erase_irrelevant_fn(env, lctx)(e);
 }
 }

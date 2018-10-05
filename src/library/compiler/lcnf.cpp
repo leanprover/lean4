@@ -537,7 +537,7 @@ public:
     }
 };
 
-expr to_lcnf(environment const & env, local_ctx const & lctx, expr const & e) {
+expr to_lcnf_core(environment const & env, local_ctx const & lctx, expr const & e) {
     expr new_e = unfold_aux_match(env, e);
     new_e      = unfold_macro_defs(env, new_e);
     return to_lcnf_fn(env, lctx)(new_e);

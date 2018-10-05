@@ -20,6 +20,10 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 
 namespace lean {
+csimp_cfg::csimp_cfg(options const &):
+    csimp_cfg() {
+}
+
 csimp_cfg::csimp_cfg() {
     m_inline                          = true;
     m_inline_threshold                = 1;
@@ -1038,7 +1042,7 @@ public:
         return mk_let(0, r);
     }
 };
-expr csimp(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg) {
+expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg) {
     return csimp_fn(env, lctx, cfg)(e);
 }
 }

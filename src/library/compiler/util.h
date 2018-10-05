@@ -5,12 +5,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include "util/pair_ref.h"
+#include "util/list_ref.h"
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"
 #include "library/constants.h"
 #include "library/util.h"
 
 namespace lean {
+/* A "compiler" declaration `v := e` */
+typedef pair_ref<name, expr> cdecl;
+typedef list_ref<cdecl> cdecls;
+
 /* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,
    and `e` otherwise. We also reduce `(fun x_1 ... x_n, x_i) a_1 ... a_n` into `a_[n-i-1]` */
 expr cheap_beta_reduce(expr const & e);

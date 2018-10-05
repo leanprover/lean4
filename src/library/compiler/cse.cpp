@@ -361,7 +361,7 @@ public:
     }
 };
 
-expr cce(environment const & env, local_ctx const & lctx, expr const & e) {
+expr cce_core(environment const & env, local_ctx const & lctx, expr const & e) {
     return cce_fn(env, lctx)(e);
 }
 

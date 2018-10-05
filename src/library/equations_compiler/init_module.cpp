@@ -20,11 +20,11 @@ void initialize_equations_compiler_module() {
     initialize_structural_rec();
     initialize_wf_rec();
     initialize_elim_match();
-    initialize_compiler();
+    initialize_eqn_compiler();
 }
 
 void finalize_equations_compiler_module() {
-    finalize_compiler();
+    finalize_eqn_compiler();
     finalize_elim_match();
     finalize_structural_rec();
     finalize_wf_rec();

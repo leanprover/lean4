@@ -186,11 +186,11 @@ def symbol (sym : string) (lbp := 0) : parser :=
 let sym := sym.trim in
 lift $ try $ do {
   it ← left_over,
-  stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" (dlist.singleton (repr sym)) it,
+  stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" (dlist.singleton sym) it,
   when (sym ≠ sym') $
-    error ("token " ++ repr sym') (dlist.singleton (repr sym)) it,
+    error ("token " ++ sym') (dlist.singleton sym) it,
   pure stx
-} <?> repr sym
+} <?> sym
 
 instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
 ⟨[⟨sym.trim, lbp, none⟩]⟩

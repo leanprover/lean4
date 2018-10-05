@@ -184,7 +184,6 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "expand_aux"});
     register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "erase_irrelevant"});
-    register_trace_class({"compiler", "erase_trivial_structures"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "simplify_inductive"});
     register_trace_class({"compiler", "elim_unused_lets"});

@@ -9,15 +9,6 @@ Author: Leonardo de Moura
 #include "library/abstract_context_cache.h"
 #include "library/compiler/procedure.h"
 namespace lean {
-
-/* \brief Remove constructor/projection/cases_on applications of trivial structures.
-
-   We say a structure is trivial if it has only constructor and
-   the constructor has only one relevant field.
-   In this case, we use a simple optimization where we represent elements of this inductive
-   datatype as the only relevant element. */
-void erase_trivial_structures(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs);
-
 /** \brief Replaces cases_on, projections and constructor applications with _cases.idx, _proj.idx and _cnstr.idx
     It also removes irrelevant fields from constructors.
     \remark nat.cases_on, nat.succ and nat.zero are ignored. */

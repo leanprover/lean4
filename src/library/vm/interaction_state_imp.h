@@ -220,16 +220,15 @@ environment interaction_monad<State>::evaluator::compile(name const & interactio
     bool is_meta      = true;
     new_env = new_env.add(mk_definition(new_env, interaction_name, {}, interaction_type, interaction, is_meta));
     try {
-        bool optimize_bytecode = false;
         if (provider) {
             auto out = message_builder(environment(), get_global_ios(),
                                        get_pos_info_provider()->get_file_name(),
                                        get_pos_info_provider()->get_pos_info_or_some(interaction),
                                        INFORMATION);
             time_task _("elaboration: tactic compilation", out);
-            return vm_compile(new_env, get_global_ios().get_options(), new_env.get(interaction_name), optimize_bytecode);
+            return vm_compile(new_env, get_global_ios().get_options(), new_env.get(interaction_name));
         } else {
-            return vm_compile(new_env, get_global_ios().get_options(), new_env.get(interaction_name), optimize_bytecode);
+            return vm_compile(new_env, get_global_ios().get_options(), new_env.get(interaction_name));
         }
     } catch (exception & ex) {
         throw formatted_exception(some(interaction), format(ex.what()));

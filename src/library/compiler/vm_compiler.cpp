@@ -337,7 +337,7 @@ public:
     }
 };
 
-static environment vm_compile(environment const & env, buffer<procedure> const & procs, bool optimize_bytecode) {
+static environment vm_compile(environment const & env, buffer<procedure> const & procs) {
     environment new_env = env;
     for (auto const & p : procs) {
         new_env = reserve_vm_index(new_env, p.m_name, p.m_code);
@@ -351,11 +351,9 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
         std::tie(arity, args_info) = gen(p.m_code);
         lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.m_name << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), code.size(), code.data()););
-        if (optimize_bytecode) {
-            optimize(new_env, code);
-            lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
-                       display_vm_code(tout().get_stream(), code.size(), code.data()););
-        }
+        optimize(new_env, code);
+        lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
+                   display_vm_code(tout().get_stream(), code.size(), code.data()););
         new_env = update_vm_code(new_env, p.m_name, code.size(), code.data(), args_info, p.m_pos);
     }
     return new_env;
@@ -363,7 +361,7 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
 
 static name * g_codegen = nullptr;
 
-environment vm_compile(environment const & env, options const & opts, buffer<constant_info> const & ds, bool optimize_bytecode) {
+environment vm_compile(environment const & env, options const & opts, buffer<constant_info> const & ds) {
     if (!opts.get_bool(*g_codegen, true))
         return env;
     for (constant_info const & info : ds) {
@@ -372,13 +370,13 @@ environment vm_compile(environment const & env, options const & opts, buffer<con
     }
     buffer<procedure> procs;
     environment new_env = preprocess(env, ds, procs);
-    return vm_compile(new_env, procs, optimize_bytecode);
+    return vm_compile(new_env, procs);
 }
 
-environment vm_compile(environment const & env, options const & opts, constant_info const & info, bool optimize_bytecode) {
+environment vm_compile(environment const & env, options const & opts, constant_info const & info) {
     buffer<constant_info> infos;
     infos.push_back(info);
-    return vm_compile(env, opts, infos, optimize_bytecode);
+    return vm_compile(env, opts, infos);
 }
 
 void initialize_vm_compiler() {

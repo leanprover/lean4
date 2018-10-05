@@ -15,8 +15,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/type_context.h"
 #include "library/vm/vm.h"
-// TODO(Leo): move inline attribute declaration to library
-#include "library/compiler/inliner.h"
 namespace lean {
 struct noncomputable_ext : public environment_extension {
     name_set m_noncomputable;
@@ -142,7 +140,7 @@ struct get_noncomputable_reason_fn {
         if (should_visit(e)) {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
-            if (is_constant(fn) && is_inline(m_tc.env(), const_name(fn))) {
+            if (is_constant(fn)) {
                 if (auto new_e = unfold_app(m_tc.env(), e)) {
                     visit(*new_e);
                     return;

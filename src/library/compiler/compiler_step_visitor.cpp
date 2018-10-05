@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/compiler/compiler_step_visitor.h"
-#include "library/compiler/comp_irrelevant.h"
 
 namespace lean {
 compiler_step_visitor::compiler_step_visitor(environment const & env, abstract_context_cache & cache):
@@ -49,10 +48,7 @@ expr compiler_step_visitor::visit_let(expr const & e) {
 }
 
 expr compiler_step_visitor::visit_mdata(expr const & e) {
-    if (is_marked_as_comp_irrelevant(e))
-        return e;
-    else
-        return replace_visitor::visit_mdata(e);
+    return replace_visitor::visit_mdata(e);
 }
 
 expr compiler_step_visitor::visit_app(expr const & e) {

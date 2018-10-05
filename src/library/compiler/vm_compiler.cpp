@@ -19,9 +19,7 @@ Author: Leonardo de Moura
 #include "library/vm/optimize.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/util.h"
-#include "library/compiler/nat_value.h"
 #include "library/compiler/preprocess.h"
-#include "library/compiler/comp_irrelevant.h"
 
 namespace lean {
 static name * g_vm_compiler_fresh = nullptr;
@@ -239,10 +237,7 @@ class vm_compiler_fn {
 
     class elim_comp_irrelevant_marks_fn : public replace_visitor {
         virtual expr visit_mdata(expr const & e) override {
-            if (is_marked_as_comp_irrelevant(e))
-                return visit(get_annotation_arg(e));
-            else
-                return replace_visitor::visit_mdata(e);
+            return replace_visitor::visit_mdata(e);
         }
     };
 

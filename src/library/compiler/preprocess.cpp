@@ -25,11 +25,6 @@ Author: Leonardo de Moura
 #include "library/compiler/old_util.h"
 #include "library/compiler/preprocess.h"
 #include "library/compiler/compiler_step_visitor.h"
-#include "library/compiler/comp_irrelevant.h"
-#include "library/compiler/nat_value.h"
-#include "library/compiler/eta_expansion.h"
-#include "library/compiler/inliner.h"
-#include "library/compiler/old_erase_irrelevant.h"
 #include "library/compiler/reduce_arity.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
@@ -46,131 +41,6 @@ Author: Leonardo de Moura
 #include "library/compiler/erase_irrelevant.h"
 
 namespace lean {
-class expand_aux_fn : public compiler_step_visitor {
-    name_set m_decl_names; /* functions being compiled */
-
-    enum class recursor_kind { Aux, CasesOn, NotRecursor };
-    /* We only expand auxiliary recursors and user-defined recursors.
-       However, we don't unfold recursors of the form C.cases_on if C != eq. */
-    recursor_kind get_recursor_app_kind(expr const & e) const {
-        if (!is_app(e))
-            return recursor_kind::NotRecursor;
-        expr const & fn = get_app_fn(e);
-        if (!is_constant(fn))
-            return recursor_kind::NotRecursor;
-        name const & n = const_name(fn);
-        if (is_cases_on_recursor(env(), n) && n != get_eq_cases_on_name()) {
-            return recursor_kind::CasesOn;
-        } else if (::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n)) {
-            return recursor_kind::Aux;
-        } else {
-            return recursor_kind::NotRecursor;
-        }
-    }
-
-    bool is_aux_recursor(expr const & e) const {
-        return get_recursor_app_kind(e) == recursor_kind::Aux;
-    }
-
-    expr visit_cases_on(expr const & e) {
-        /* Try to reduce cases_on.
-           Remark: we only unfold reducible constants. */
-        type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
-        if (auto r1 = ctx().reduce_aux_recursor(e)) {
-            if (auto r2 = ctx().reduce_recursor(*r1)) {
-                return compiler_step_visitor::visit(*r2);
-            }
-        }
-        return compiler_step_visitor::visit_app(e);
-    }
-
-    bool is_not_vm_function(expr const & e) {
-        expr const & fn = get_app_fn(e);
-        if (!is_constant(fn))
-            return false;
-        name const & n  = const_name(fn);
-        constant_info info = env().get(n);
-        if (!info.is_definition() || is_projection(env(), n) || is_no_confusion(env(), n) ||
-            ::lean::is_aux_recursor(env(), n) || is_user_defined_recursor(env(), n))
-            return false;
-        return !is_vm_function(env(), n);
-    }
-
-    bool is_noncomputable_const(expr const & e) {
-        return is_constant(e) && is_noncomputable(env(), const_name(e));
-    }
-
-    bool is_inline(expr const & e) {
-        return is_constant(e) && ::lean::is_inline(env(), const_name(e));
-    }
-
-    bool is_function_being_compiled(expr const & e) const {
-        expr const & f = get_app_fn(e);
-        return is_constant(f) && m_decl_names.contains(const_name(f));
-    }
-
-    bool should_unfold(expr const & e) {
-        return
-            !is_function_being_compiled(e) &&
-            ((is_not_vm_function(e) && !ctx().is_proof(e) && !is_noncomputable_const(e)) ||
-             (is_inline(e)));
-    }
-
-    expr unfold(expr const & e) {
-        if (auto r = unfold_term(env(), e)) {
-            return visit(*r);
-        } else {
-            throw exception(sstream() << "failed to generate bytecode, VM does not have code for '" << get_app_fn(e) << "'");
-        }
-    }
-
-    virtual expr visit_constant(expr const & e) override {
-        type_context_old::nozeta_scope scope(ctx());
-        if (should_unfold(e))
-            return visit(unfold(e));
-        else
-            return e;
-    }
-
-    virtual expr visit_app(expr const & e) override {
-        type_context_old::nozeta_scope scope(ctx());
-        switch (get_recursor_app_kind(e)) {
-        case recursor_kind::NotRecursor: {
-            if (should_unfold(e))
-                return visit(unfold(e));
-            expr new_e;
-            {
-                type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
-                new_e = ctx().whnf_head_pred(e, [&](expr const & e) { return get_recursor_app_kind(e) == recursor_kind::NotRecursor; });
-            }
-            if (is_eqp(new_e, e))
-                return compiler_step_visitor::visit_app(new_e);
-            else
-                return compiler_step_visitor::visit(new_e);
-        }
-        case recursor_kind::CasesOn:
-            return visit_cases_on(e);
-        case recursor_kind::Aux:
-            expr new_e;
-            {
-                type_context_old::transparency_scope scope(ctx(), transparency_mode::Reducible);
-                new_e = ctx().whnf_head_pred(e, [&](expr const & e) { return is_aux_recursor(e); });
-            }
-            return compiler_step_visitor::visit(new_e);
-        }
-        lean_unreachable();
-    }
-
-public:
-    expand_aux_fn(environment const & env, name_set const & decl_names, abstract_context_cache & cache):
-        compiler_step_visitor(env, cache),
-        m_decl_names(decl_names) {}
-};
-
-expr expand_aux(environment const & env, name_set const & ns, abstract_context_cache & cache, expr const & e) {
-    return expand_aux_fn(env, ns, cache)(e);
-}
-
 static name * g_tmp_prefix = nullptr;
 
 class preprocess_fn {
@@ -178,24 +48,9 @@ class preprocess_fn {
     context_cache  m_cache;
     name_set       m_decl_names; /* name of the functions being compiled */
 
-    bool check(constant_info const & d, expr const & v) {
-        bool non_meta_only = false;
-        type_checker tc(m_env, non_meta_only);
-        expr t = tc.check(v, d.get_lparams());
-        if (!tc.is_def_eq(d.get_type(), t))
-            throw exception("preprocess failed");
-        return true;
-    }
-
     void display(buffer<procedure> const & procs) {
         for (auto const & p : procs) {
             tout() << ">> " << p.m_name << "\n" << p.m_code << "\n";
-        }
-    }
-
-    void old_erase_irrelevant(buffer<procedure> & procs) {
-        for (procedure & p : procs) {
-            p.m_code = ::lean::old_erase_irrelevant(m_env, m_cache, p.m_code);
         }
     }
 
@@ -261,7 +116,7 @@ public:
             return m_env;
         name n = get_real_name(d.get_name());
         expr v = d.get_value();
-#if 1
+
         v       = type_checker(m_env, local_ctx()).eta_expand(v);
         lean_trace(name({"compiler", "eta_expand"}), tout() << n << "\n" << v << "\n";);
         v       = to_lcnf(m_env, local_ctx(), v);
@@ -289,26 +144,7 @@ public:
         v       = erase_irrelevant(m_env, local_ctx(), v);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
         procs.emplace_back(n, optional<pos_info>(), v);
-#else
-        v = remove_meta_rec(v);
-        lean_trace(name({"compiler", "input"}), tout() << "\n" << v << "\n";);
-        v = inline_simple_definitions(m_env, m_cache, v);
-        lean_cond_assert("compiler", check(d, v));
-        lean_trace(name({"compiler", "inline"}), tout() << "\n" << v << "\n";);
-        v = expand_aux(m_env, m_decl_names, m_cache, v);
-        lean_cond_assert("compiler", check(d, v));
-        lean_trace(name({"compiler", "expand_aux"}), tout() << "\n" << v << "\n";);
-        v = mark_comp_irrelevant_subterms(m_env, m_cache, v);
-        lean_cond_assert("compiler", check(d, v));
-        v = find_nat_values(m_env, v);
-        lean_cond_assert("compiler", check(d, v));
-        v = eta_expand(m_env, m_cache, v);
-        lean_cond_assert("compiler", check(d, v));
-        lean_trace(name({"compiler", "eta_expansion"}), tout() << "\n" << v << "\n";);
-        procs.emplace_back(n, optional<pos_info>(), v);
-        old_erase_irrelevant(procs);
-        lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n"; display(procs););
-#endif
+
         reduce_arity(m_env, m_cache, procs);
         lean_trace(name({"compiler", "reduce_arity"}), tout() << "\n"; display(procs););
         erase_trivial_structures(m_env, m_cache, procs);
@@ -353,7 +189,6 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "stage1"});
     register_trace_class({"compiler", "specialize"});
     register_trace_class({"compiler", "expand_aux"});
-    register_trace_class({"compiler", "eta_expansion"});
     register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "reduce_arity"});

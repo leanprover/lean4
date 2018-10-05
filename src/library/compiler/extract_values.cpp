@@ -25,7 +25,7 @@ class extract_values_fn : public compiler_step_visitor {
         if (it != m_cache.end())
             return it->second;
         name aux = mk_compiler_unused_name(env(), m_prefix, "_val", m_idx);
-        m_new_procs.push_back(procedure(aux, m_pos, e));
+        m_new_procs.push_back(procedure(aux, e));
         expr r   = mk_constant(aux);
         m_cache.insert(mk_pair(e, r));
         return r;
@@ -54,7 +54,6 @@ public:
 
     void operator()(procedure p) {
         m_root   = p.m_code;
-        m_pos    = p.m_pos;
         p.m_code = visit(p.m_code);
         m_new_procs.push_back(p);
     }

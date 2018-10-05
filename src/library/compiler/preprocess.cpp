@@ -67,7 +67,7 @@ class preprocess_fn {
         }
         if (ctx.is_prop(type) || is_sort(type)) {
             expr r = locals.mk_lambda(mk_enf_neutral());
-            procs.emplace_back(d.get_name(), optional<pos_info>(), r);
+            procs.emplace_back(d.get_name(), r);
             return true;
         } else {
             return false;
@@ -138,7 +138,7 @@ public:
         m_env   = module::add(m_env, simp_decl, false);
         v       = erase_irrelevant(m_env, v);
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
-        procs.emplace_back(n, optional<pos_info>(), v);
+        procs.emplace_back(n, v);
 
         lambda_lifting(m_env, m_cache, n, procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););

@@ -9,9 +9,8 @@ Author: Leonardo de Moura
 namespace lean {
 struct procedure {
     name               m_name;
-    optional<pos_info> m_pos;
     expr               m_code;
-    procedure(name const & n, optional<pos_info> const & pos, expr const & code):
-        m_name(n), m_pos(pos), m_code(code) {}
+    procedure(name const & n, expr const & code):
+        m_name(n), m_code(code) {}
 };
 }

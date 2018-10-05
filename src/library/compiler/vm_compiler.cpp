@@ -353,7 +353,7 @@ static environment vm_compile(environment const & env, buffer<procedure> const &
         optimize(new_env, code);
         lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), code.size(), code.data()););
-        new_env = update_vm_code(new_env, p.m_name, code.size(), code.data(), args_info, p.m_pos);
+        new_env = update_vm_code(new_env, p.m_name, code.size(), code.data(), args_info);
     }
     return new_env;
 }

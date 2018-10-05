@@ -117,7 +117,7 @@ class lambda_lifting_fn : public compiler_step_visitor {
         buffer<expr> locals;
         new_e = abstract_locals(new_e, locals);
         name aux_name = mk_compiler_unused_name(env(), m_prefix, "_lambda", m_idx);
-        m_new_procs.emplace_back(aux_name, get_pos_info(e), new_e);
+        m_new_procs.emplace_back(aux_name, new_e);
         return mk_rev_app(mk_constant(aux_name), locals);
     }
 
@@ -203,7 +203,7 @@ public:
         for (auto p : procs) {
             expr val     = p.m_code;
             expr new_val = is_lambda(val) ? visit_lambda_core(val) : visit(val);
-            m_new_procs.emplace_back(p.m_name, p.m_pos, new_val);
+            m_new_procs.emplace_back(p.m_name, new_val);
         }
         procs.clear();
         procs.append(m_new_procs);

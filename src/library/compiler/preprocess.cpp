@@ -41,8 +41,6 @@ Author: Leonardo de Moura
 #include "library/compiler/erase_irrelevant.h"
 
 namespace lean {
-static name * g_tmp_prefix = nullptr;
-
 class preprocess_fn {
     environment    m_env;
     context_cache  m_cache;
@@ -199,10 +197,8 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "extract_values"});
     register_trace_class({"compiler", "cse"});
     register_trace_class({"compiler", "preprocess"});
-    g_tmp_prefix = new name(name::mk_internal_unique_name());
 }
 
 void finalize_preprocess() {
-    delete g_tmp_prefix;
 }
 }

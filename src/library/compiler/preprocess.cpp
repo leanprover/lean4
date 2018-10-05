@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/max_sharing.h"
 #include "library/vm/vm.h"
-#include "library/compiler/old_util.h"
 #include "library/compiler/preprocess.h"
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/lambda_lifting.h"

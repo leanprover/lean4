@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
-#include "library/compiler/extract_values.h"
 
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
@@ -148,9 +147,6 @@ public:
             p.m_code = cse(m_env, p.m_code);
         }
 
-        extract_values(m_env, m_cache, n, procs);
-        lean_trace(name({"compiler", "extract_values"}), tout() << "\n"; display(procs););
-
         simp_inductive(m_env, m_cache, procs);
         lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
         return m_env;
@@ -184,7 +180,6 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "simplify_inductive"});
-    register_trace_class({"compiler", "extract_values"});
     register_trace_class({"compiler", "cse"});
 }
 

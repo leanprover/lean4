@@ -140,7 +140,7 @@ list_ref<To> map2(list_ref<From> const & l, F && f) {
         return list_ref<To>();
     } else {
         buffer<To> new_vs;
-        for (To const & v : l)
+        for (From const & v : l)
             new_vs.push_back(f(v));
         return list_ref<To>(new_vs);
     }

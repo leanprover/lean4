@@ -27,9 +27,7 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
-#include "library/compiler/elim_unused_lets.h"
 #include "library/compiler/extract_values.h"
-#include "library/compiler/old_cse.h"
 
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
@@ -144,15 +142,17 @@ public:
 
         lambda_lifting(m_env, m_cache, n, procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
-        simp_inductive(m_env, m_cache, procs);
-        lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
-        elim_unused_lets(m_env, m_cache, procs);
-        lean_trace(name({"compiler", "elim_unused_lets"}), tout() << "\n"; display(procs););
+
+        for (procedure & p : procs) {
+            p.m_code = elim_dead_let(p.m_code);
+            p.m_code = cse(m_env, p.m_code);
+        }
+
         extract_values(m_env, m_cache, n, procs);
         lean_trace(name({"compiler", "extract_values"}), tout() << "\n"; display(procs););
-        old_cse(m_env, m_cache, procs);
-        lean_trace(name({"compiler", "cse"}), tout() << "\n"; display(procs););
-        lean_trace(name({"compiler", "preprocess"}), tout() << "\n"; display(procs););
+
+        simp_inductive(m_env, m_cache, procs);
+        lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
         return m_env;
     }
 };
@@ -181,15 +181,11 @@ void initialize_preprocess() {
     register_trace_class({"compiler", "simp"});
     register_trace_class({"compiler", "stage1"});
     register_trace_class({"compiler", "specialize"});
-    register_trace_class({"compiler", "expand_aux"});
-    register_trace_class({"compiler", "inline"});
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "simplify_inductive"});
-    register_trace_class({"compiler", "elim_unused_lets"});
     register_trace_class({"compiler", "extract_values"});
     register_trace_class({"compiler", "cse"});
-    register_trace_class({"compiler", "preprocess"});
 }
 
 void finalize_preprocess() {

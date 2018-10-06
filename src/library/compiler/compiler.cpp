@@ -22,8 +22,8 @@ bool is_codegen_enabled(options const & opts) {
     return opts.get_bool(*g_codegen, true);
 }
 
-static cdecls to_cdecls(environment const & env, names const & cs) {
-    return map2<cdecl>(cs, [&](name const & n) { return cdecl(n, env.get(n).get_value()); });
+static comp_decls to_comp_decls(environment const & env, names const & cs) {
+    return map2<comp_decl>(cs, [&](name const & n) { return comp_decl(n, env.get(n).get_value()); });
 }
 
 static expr eta_expand(environment const & env, expr const & e) {
@@ -31,13 +31,13 @@ static expr eta_expand(environment const & env, expr const & e) {
 }
 
 template<typename F>
-cdecls apply(F && f, environment const & env, cdecls const & ds) {
-    return map(ds, [&](cdecl const & d) { return cdecl(d.fst(), f(env, d.snd())); });
+comp_decls apply(F && f, environment const & env, comp_decls const & ds) {
+    return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(env, d.snd())); });
 }
 
 template<typename F>
-cdecls apply(F && f, cdecls const & ds) {
-    return map(ds, [&](cdecl const & d) { return cdecl(d.fst(), f(d.snd())); });
+comp_decls apply(F && f, comp_decls const & ds) {
+    return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(d.snd())); });
 }
 
 environment compile(environment const & env, options const & opts, names const & cs) {
@@ -49,7 +49,7 @@ environment compile(environment const & env, options const & opts, names const &
             return env;
     }
 
-    cdecls ds = to_cdecls(env, cs);
+    comp_decls ds = to_comp_decls(env, cs);
     auto simp = [&](environment const & env, expr const & e) { return csimp(env, e, csimp_cfg(opts)); };
 
     ds = apply(eta_expand, env, ds);

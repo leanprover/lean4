@@ -55,6 +55,7 @@ private:
 
     /* Last encountered position information in `visit`. Hacky, but seems to be more or less accurate. */
     optional<pos_info>  m_last_pos;
+    expr_map<pos_info>  m_mvar_pos;
 
     struct snapshot {
         metavar_context        m_saved_mctx;

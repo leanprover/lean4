@@ -250,12 +250,15 @@ level elaborator::mk_univ_metavar() {
     return m_ctx.mk_univ_metavar_decl();
 }
 
-expr elaborator::mk_metavar(expr const & A, expr const &) {
-    return m_ctx.mk_metavar_decl(m_ctx.lctx(), A);
+expr elaborator::mk_metavar(expr const & A, expr const & ref) {
+    return mk_metavar(name(), A, ref);
 }
 
 expr elaborator::mk_metavar(name const & pp_n, expr const & A, expr const &) {
-    return m_ctx.mk_metavar_decl(pp_n, m_ctx.lctx(), A);
+    auto m = m_ctx.mk_metavar_decl(pp_n, m_ctx.lctx(), A);
+    if (m_last_pos)
+        m_mvar_pos[m] = *m_last_pos;
+    return m;
 }
 
 expr elaborator::mk_metavar(optional<expr> const & A, expr const & ref) {
@@ -3791,28 +3794,26 @@ void elaborator::report_error(tactic_state const & s, char const * state_header,
 }
 
 void elaborator::ensure_no_unassigned_metavars(expr & e) {
-    // TODO(gabriel): this needs to change e
-    if (!has_expr_metavar(e)) return;
-    for_each(e, [&](expr const & e, unsigned) {
-            if (!has_expr_metavar(e)) return false;
-            if (is_metavar_decl_ref(e) && !m_ctx.is_assigned(e)) {
-                tactic_state s = mk_tactic_state_for(e);
-                if (m_recover_from_errors) {
-                    auto ty = m_ctx.mctx().get_metavar_decl(e).get_type();
-                    if (!has_synth_sorry(ty))
-                        report_error(s, "context:", "don't know how to synthesize placeholder", e);
-                    m_ctx.assign(e, mk_sorry(ty));
-                    ensure_no_unassigned_metavars(ty);
-
-                    auto val = instantiate_mvars(e);
-                    ensure_no_unassigned_metavars(val);
-                } else {
-                    throw failed_to_synthesize_placeholder_exception(e, s);
-                }
+    for (auto p : m_mvar_pos) {
+        auto m = p.first;
+        auto m2 = get_app_fn(instantiate_mvars(p.first));
+        // `m2` is still `m`, or it looks like a helper mvar introduced by the type_context_old
+        if (is_mvar(m2)) {
+            tactic_state s = mk_tactic_state_for(m);
+            if (m_recover_from_errors) {
+                // report error at `m`, but put `sorry` in `m2`
+                if (!has_synth_sorry(infer_type(m)))
+                    report_error(s, "context:", "don't know how to synthesize placeholder", save_pos(m, p.second));
+                m_ctx.assign(m2, mk_sorry(infer_type(m2)));
+            } else {
+                throw failed_to_synthesize_placeholder_exception(m, s);
             }
-            return true;
-        });
+        }
+    }
     e = instantiate_mvars(e);
+    /* If we still have an unassigned mvar, it means the mvar doesn't directly correspond to a user-facing mvar
+     * in `mvar_pos`. That's bad (because we can't generate a sensible error message) and shouldn't happen. */
+    lean_always_assert(!has_expr_metavar(e));
 }
 
 elaborator::snapshot::snapshot(elaborator const & e) {

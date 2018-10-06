@@ -1207,8 +1207,8 @@ match dec_eq a b with
 | is_true h := is_false $ λ h', absurd h h'
 | is_false h := is_true h
 
-theorem bool.ff_ne_tt : ff = tt → false
-.
+theorem bool.ff_ne_tt (h : ff = tt) : false :=
+bool.no_confusion h
 
 def is_dec_eq {α : Sort u} (p : α → α → bool) : Prop   := ∀ ⦃x y : α⦄, p x y = tt → x = y
 def is_dec_refl {α : Sort u} (p : α → α → bool) : Prop := ∀ x, p x x = tt

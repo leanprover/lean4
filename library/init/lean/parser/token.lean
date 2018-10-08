@@ -239,7 +239,7 @@ id.components.foldl name.mk_string name.anonymous
 
 /-- Read identifier without consulting the token table. -/
 def raw_ident.parser : parser :=
-lift ident'
+lift $ ident' >>= with_trailing
 
 instance raw_ident.parser.tokens : parser.has_tokens (raw_ident.parser : parser) := default _
 instance raw_ident.parser.view : parser.has_view (raw_ident.parser : parser) ident.view :=

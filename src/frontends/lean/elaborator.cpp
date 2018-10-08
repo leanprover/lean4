@@ -3794,11 +3794,21 @@ void elaborator::report_error(tactic_state const & s, char const * state_header,
 }
 
 void elaborator::ensure_no_unassigned_metavars(expr & e) {
+    e = instantiate_mvars(e);
+    if (!has_expr_metavar(e))
+        return;
+    name_set unassigned;
+    for_each(e, [&](expr const & e, unsigned) {
+        if (is_metavar_decl_ref(e))
+            unassigned.insert(mvar_name(e));
+        return true;
+    });
+
     for (auto p : m_mvar_pos) {
         auto m = p.first;
         auto m2 = get_app_fn(instantiate_mvars(p.first));
         // `m2` is still `m`, or it looks like a helper mvar introduced by the type_context_old
-        if (is_mvar(m2)) {
+        if (is_mvar(m2) && unassigned.contains(mvar_name(m2))) {
             tactic_state s = mk_tactic_state_for(m);
             if (m_recover_from_errors) {
                 // report error at `m`, but put `sorry` in `m2`

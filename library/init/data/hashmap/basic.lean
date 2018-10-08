@@ -24,7 +24,7 @@ let n := if nbuckets = 0 then 8 else nbuckets in
 { size       := 0,
   buckets    :=
   ⟨ mk_array n [],
-    have p₁ : (mk_array n []).sz = n, from sz_mk_array_eq _ _,
+    have p₁ : (mk_array n ([] : list (Σ a, β a))).sz = n, from sz_mk_array_eq _ _,
     have p₂ : n = (if nbuckets = 0 then 8 else nbuckets), from rfl,
     have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0, from
               match nbuckets with

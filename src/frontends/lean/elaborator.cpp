@@ -255,9 +255,8 @@ expr elaborator::mk_metavar(expr const & A, expr const & ref) {
 }
 
 expr elaborator::mk_metavar(name const & pp_n, expr const & A, expr const &) {
-    auto m = m_ctx.mk_metavar_decl(pp_n, m_ctx.lctx(), A);
-    if (m_last_pos)
-        m_mvar_pos[m] = *m_last_pos;
+    auto m = m_ctx.mk_metavar_decl(pp_n.is_anonymous() ? pp_n : pp_n.append_before("?"), m_ctx.lctx(), A);
+    m_user_mvars[m] = user_mvar_info {m_last_pos ? *m_last_pos : pos_info {1, 0}};
     return m;
 }
 
@@ -1261,7 +1260,7 @@ void elaborator::first_pass(expr const & fn, buffer<expr> const & args,
             expr new_arg;
             if (!is_explicit(bi)) {
                 // implicit argument
-                new_arg = mk_metavar(d, ref);
+                new_arg = mk_metavar(binding_name(type), d, ref);
                 if (is_inst_implicit(bi))
                     info.new_instances.push_back(new_arg);
                 new_arg = post_process_implicit_arg(new_arg, ref);
@@ -1411,7 +1410,11 @@ expr elaborator::second_pass(expr const & fn, buffer<expr> const & args,
         if (!try_synthesize_type_class_instance(mvar))
             m_instances = cons(mvar, m_instances);
     }
-    return Fun(info.eta_args, mk_app(fn, info.new_args.size(), info.new_args.data()));
+    expr e = Fun(info.eta_args, mk_app(fn, info.new_args.size(), info.new_args.data()));
+    for (auto const & new_arg : info.new_args)
+        if (m_user_mvars.count(new_arg))
+            m_user_mvars[new_arg].m_context = some_expr(e);
+    return e;
 }
 
 bool elaborator::is_with_expected_candidate(expr const & fn) {
@@ -1459,7 +1462,7 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
                     if (is_inst_implicit(bi))
                         new_arg = mk_instance(d, ref);
                     else
-                        new_arg = mk_metavar(d, ref);
+                        new_arg = mk_metavar(binding_name(type), d, ref);
                     new_arg = post_process_implicit_arg(new_arg, ref);
                 } else if (i < args.size()) {
                     expr expected_type = d;
@@ -1559,6 +1562,9 @@ expr elaborator::visit_base_app_simple(expr const & _fn, arg_mask amask, buffer<
     }
 
     expr r = Fun(eta_args, mk_app(fn, new_args.size(), new_args.data()));
+    for (auto const & new_arg : new_args)
+        if (m_user_mvars.count(new_arg))
+            m_user_mvars[new_arg].m_context = some_expr(r);
     if (expected_type) {
         if (auto new_r = ensure_has_type(r, type, *expected_type, ref)) {
             return *new_r;
@@ -2006,7 +2012,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
     } else if (is_equations(ufn)) {
         return visit_convoy(e, expected_type);
     } else {
-        return visit_app_core(fn, args, expected_type, fn);
+        return visit_app_core(fn, args, expected_type, e);
     }
 }
 
@@ -2927,7 +2933,7 @@ class visit_structure_instance_fn {
                 c_arg = m_elab.mk_metavar(d, m_ref);
             } else {
                 /* struct field */
-                c_arg = m_elab.mk_metavar(S_fname.append_before("?"), d, m_ref);
+                c_arg = m_elab.mk_metavar(S_fname, d, m_ref);
 
                 /* Try to find field value, in the following order:
                  * 1) explicit value from m_fvalues
@@ -3781,18 +3787,6 @@ void elaborator::synthesize() {
     synthesize_type_class_instances();
 }
 
-void elaborator::report_error(tactic_state const & s, char const * state_header,
-                              char const * msg, expr const & ref) {
-    auto tc = std::make_shared<type_context_old>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
-    auto pip = get_pos_info_provider();
-    if (!pip) return;
-    message_builder out(tc, m_env, get_global_ios(), pip->get_file_name(),
-                        pip->get_pos_info_or_some(ref), ERROR);
-    out << msg << "\n" << state_header << "\n" << mk_pair(s.pp(), m_opts);
-    out.report();
-    m_has_errors = true;
-}
-
 void elaborator::ensure_no_unassigned_metavars(expr & e) {
     e = instantiate_mvars(e);
     if (!has_expr_metavar(e))
@@ -3804,16 +3798,27 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
         return true;
     });
 
-    for (auto p : m_mvar_pos) {
-        auto m = p.first;
-        auto m2 = get_app_fn(instantiate_mvars(p.first));
+    for (auto p : m_user_mvars) {
+        auto const & m = p.first;
+        auto const & info = p.second;
+        auto m2 = get_app_fn(instantiate_mvars(m));
         // `m2` is still `m`, or it looks like a helper mvar introduced by the type_context_old
         if (is_mvar(m2) && unassigned.contains(mvar_name(m2))) {
             tactic_state s = mk_tactic_state_for(m);
             if (m_recover_from_errors) {
                 // report error at `m`, but put `sorry` in `m2`
-                if (!has_synth_sorry(infer_type(m)))
-                    report_error(s, "context:", "don't know how to synthesize placeholder", save_pos(m, p.second));
+                if (!has_synth_sorry(infer_type(m))) {
+                    auto tc = std::make_shared<type_context_old>(m_env, m_opts, m_ctx.mctx(), m_ctx.lctx());
+                    message_builder out(tc, m_env, get_global_ios(), get_pos_info_provider()->get_file_name(),
+                                        info.m_pos, ERROR);
+                    out << "don't know how to synthesize placeholder";
+                    if (info.m_context)
+                        out << pp_until_meta_visible(mk_fmt_ctx(), *info.m_context);
+                    out << "\n";
+                    out << "context:\n" << mk_pair(s.pp(), m_opts);
+                    out.report();
+                    m_has_errors = true;
+                }
                 m_ctx.assign(m2, mk_sorry(infer_type(m2)));
             } else {
                 throw failed_to_synthesize_placeholder_exception(m, s);
@@ -3821,8 +3826,8 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
         }
     }
     e = instantiate_mvars(e);
-    /* If we still have an unassigned mvar, it means the mvar doesn't directly correspond to a user-facing mvar
-     * in `mvar_pos`. That's bad (because we can't generate a sensible error message) and shouldn't happen. */
+    /* If we still have an unassigned mvar, it means the mvar doesn't directly correspond to a user-facing mvar.
+     * That's bad (because we can't generate a sensible error message) and shouldn't happen. */
     lean_always_assert(!has_expr_metavar(e));
 }
 

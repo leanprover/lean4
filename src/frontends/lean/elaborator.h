@@ -55,7 +55,14 @@ private:
 
     /* Last encountered position information in `visit`. Hacky, but seems to be more or less accurate. */
     optional<pos_info>  m_last_pos;
-    expr_map<pos_info>  m_mvar_pos;
+
+    /* Metavariables created directly from the preterm (holes, elided parameters, ...). These should be the only
+     * metavariables that we report back as uninstantiated to the user. */
+    struct user_mvar_info {
+        pos_info m_pos;
+        optional<expr> m_context = none_expr();
+    };
+    expr_map<user_mvar_info> m_user_mvars;
 
     struct snapshot {
         metavar_context        m_saved_mctx;
@@ -305,8 +312,6 @@ public:
     expr elaborate(expr const & e);
     expr elaborate_type(expr const & e);
     expr_pair elaborate_with_type(expr const & e, expr const & e_type);
-    void report_error(tactic_state const & s, char const * state_header,
-                      char const * msg, expr const & ref);
     void ensure_no_unassigned_metavars(expr & e);
     /**
        \brief Finalize all expressions in \c es.

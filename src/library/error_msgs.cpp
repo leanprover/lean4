@@ -193,7 +193,7 @@ static format pp_until_meta_visible(formatter const & fmt, expr const & e, list<
         format r = pp_indent_expr(fmt1, e);
         std::ostringstream out;
         out << mk_pair(r, fmt1.get_options());
-        if (out.str().find("?M") != std::string::npos)
+        if (out.str().find("?") != std::string::npos)
             return r;
         if (!extra)
             return pp_indent_expr(fmt.update_options(o), e);

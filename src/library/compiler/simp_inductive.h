@@ -9,15 +9,13 @@ Author: Leonardo de Moura
 #include "library/abstract_context_cache.h"
 #include "library/compiler/procedure.h"
 namespace lean {
-/** \brief Replaces cases_on, projections and constructor applications with _cases.idx, _proj.idx and _cnstr.idx
-    It also removes irrelevant fields from constructors.
+/** \brief Replaces cases_on, projections and constructor applications with _cases.idx and _cnstr.idx.
+    Projections are adjusted to take only relevant fields into account.
     \remark nat.cases_on, nat.succ and nat.zero are ignored. */
-void simp_inductive(environment const & env, abstract_context_cache & cache, buffer<procedure> & procs);
+expr simp_inductive(environment const & env, expr const & e);
 
 /** \brief Return non-none idx iff \c e is of the form _cnstr.idx */
 optional<unsigned> is_internal_cnstr(expr const & e);
-/** \brief Return non-none idx iff \c e is of the form _proj.idx */
-optional<unsigned> is_internal_proj(expr const & e);
 /** \brief Return non-none n iff \c e is of the form _cases.n */
 optional<unsigned> is_internal_cases(expr const & e);
 

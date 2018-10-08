@@ -174,19 +174,6 @@ class vm_compiler_fn {
         emit(mk_constructor_instr(cidx, get_app_num_args(e)));
     }
 
-    void compile_proj(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
-        buffer<expr> args;
-        expr const & fn = get_app_args(e, args);
-        lean_assert(is_internal_proj(fn));
-        unsigned idx = *is_internal_proj(fn);
-        lean_assert(args.size() >= 1);
-        compile_rev_args(args.size() - 1, args.data() + 1, bpz, m);
-        bpz += args.size() - 1;
-        compile(args[0], bpz, m);
-        emit(mk_proj_instr(idx));
-        emit_apply_instr(args.size() - 1);
-    }
-
     void compile_external(name const & n, buffer<expr> & args, unsigned bpz, name_map<unsigned> const & m) {
         // Not sure if this is the best approach, trying to lazy load the required
         // dynamic libraries.
@@ -225,8 +212,6 @@ class vm_compiler_fn {
             compile_cases_on(e, bpz, m);
         } else if (is_internal_cnstr(fn)) {
             compile_cnstr(e, bpz, m);
-        } else if (is_internal_proj(fn)) {
-            compile_proj(e, bpz, m);
         } else if (is_sorry(e)) {
             compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {

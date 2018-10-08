@@ -9,23 +9,14 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
-#include "kernel/for_each_fn.h"
-#include "library/scope_pos_info_provider.h"
 #include "library/trace.h"
-#include "library/projection.h"
 #include "library/constants.h"
-#include "library/aux_recursors.h"
-#include "library/user_recursors.h"
 #include "library/util.h"
-#include "library/noncomputable.h"
-#include "library/context_cache.h"
 #include "library/module.h"
 #include "library/max_sharing.h"
 #include "library/vm/vm.h"
 #include "library/compiler/preprocess.h"
-#include "library/compiler/compiler_step_visitor.h"
 #include "library/compiler/simp_inductive.h"
-
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/csimp.h"
@@ -48,39 +39,20 @@ static void lambda_lifting(environment const & env, buffer<procedure> & procs) {
     procs.append(r);
 }
 
+/* Temporary adapter */
+static void simp_inductive(environment const & env, buffer<procedure> & procs) {
+    for (procedure & p : procs) {
+        p.m_code = simp_inductive(env, p.m_code);
+    }
+}
+
 class preprocess_fn {
     environment    m_env;
-    context_cache  m_cache;
     name_set       m_decl_names; /* name of the functions being compiled */
 
     void display(buffer<procedure> const & procs) {
         for (auto const & p : procs) {
             tout() << ">> " << p.m_name << "\n" << p.m_code << "\n";
-        }
-    }
-
-    /* If type of d is a proposition or return a type, we don't need to compile it.
-       We can just generate (fun args, neutral_expr)
-
-       This procedure returns true if type of d is a proposition or return a type,
-       and store the dummy code above in */
-    bool compile_irrelevant(constant_info const & d, buffer<procedure> & procs) {
-        type_context_old ctx(m_env, transparency_mode::All);
-        expr type = d.get_type();
-        type_context_old::tmp_locals locals(ctx);
-        while (true) {
-            type = ctx.relaxed_whnf(type);
-            if (!is_pi(type))
-                break;
-            expr local = locals.push_local_from_binding(type);
-            type       = instantiate(binding_body(type), local);
-        }
-        if (ctx.is_prop(type) || is_sort(type)) {
-            expr r = locals.mk_lambda(mk_enf_neutral());
-            procs.emplace_back(d.get_name(), r);
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -117,8 +89,6 @@ public:
 
     environment operator()(constant_info const & d, buffer<procedure> & procs) {
         lean_trace(name({"compiler", "input"}), tout() << d.get_name() << "\n";);
-        if (compile_irrelevant(d, procs))
-            return m_env;
         name n = get_real_name(d.get_name());
         expr v = d.get_value();
 
@@ -158,7 +128,7 @@ public:
             p.m_code = cse(m_env, p.m_code);
         }
 
-        simp_inductive(m_env, m_cache, procs);
+        simp_inductive(m_env, procs);
         lean_trace(name({"compiler", "simplify_inductive"}), tout() << "\n"; display(procs););
         return m_env;
     }

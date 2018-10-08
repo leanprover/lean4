@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/lambda_lifting.h"
+#include "library/compiler/simp_inductive.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -92,6 +93,8 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "cse"}), ds);
     ds = lambda_lifting(env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
+    ds = apply(simp_inductive, env, ds);
+    trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     // TODO(Leo)
     return env;
 }

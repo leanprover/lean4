@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/compiler/preprocess.h"
 #include "library/compiler/compiler_step_visitor.h"
-#include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
 
 #include "library/compiler/util.h"
@@ -34,8 +33,21 @@ Author: Leonardo de Moura
 #include "library/compiler/cse.h"
 #include "library/compiler/specialize.h"
 #include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/lambda_lifting.h"
 
 namespace lean {
+/* Temporary adapter */
+static void lambda_lifting(environment const & env, buffer<procedure> & procs) {
+    buffer<procedure> r;
+    for (procedure const & p : procs) {
+        comp_decls new_cdecls = lambda_lifting(env, comp_decl(p.m_name, p.m_code));
+        for (comp_decl const & cdecl : new_cdecls)
+            r.emplace_back(procedure(cdecl.fst(), cdecl.snd()));
+    }
+    procs.clear();
+    procs.append(r);
+}
+
 class preprocess_fn {
     environment    m_env;
     context_cache  m_cache;
@@ -138,7 +150,7 @@ public:
         lean_trace(name({"compiler", "erase_irrelevant"}), tout() << "\n" << v << "\n";);
         procs.emplace_back(n, v);
 
-        lambda_lifting(m_env, m_cache, n, procs);
+        lambda_lifting(m_env, procs);
         lean_trace(name({"compiler", "lambda_lifting"}), tout() << "\n"; display(procs););
 
         for (procedure & p : procs) {

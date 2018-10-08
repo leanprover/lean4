@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/lambda_lifting.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -40,6 +41,14 @@ comp_decls apply(F && f, comp_decls const & ds) {
     return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(d.snd())); });
 }
 
+static comp_decls lambda_lifting(environment const & env, comp_decls const & ds) {
+    comp_decls r;
+    for (comp_decl const & d : ds) {
+        r = append(r, lambda_lifting(env, d));
+    }
+    return r;
+}
+
 environment compile(environment const & env, options const & opts, names const & cs) {
     if (!is_codegen_enabled(opts))
         return env;
@@ -60,7 +69,9 @@ environment compile(environment const & env, options const & opts, names const &
     ds = apply(cse, env, ds);
     ds = apply(max_sharing, ds);
     ds = apply(erase_irrelevant, env, ds);
-
+    ds = apply(elim_dead_let, ds);
+    ds = apply(cse, env, ds);
+    ds = lambda_lifting(env, ds);
     // TODO(Leo)
     return env;
 }

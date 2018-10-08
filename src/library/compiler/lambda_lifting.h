@@ -1,15 +1,13 @@
 /*
-Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
-#include "library/abstract_context_cache.h"
-#include "library/compiler/procedure.h"
+#include "library/compiler/util.h"
 namespace lean {
-/** \brief Lift lambda expressions in \c procs. New declarations are added to procs.
-    \remark This procedure assumes erase_irrelevant was already applied. */
-void lambda_lifting(environment const & env, abstract_context_cache & cache, name const & prefix, buffer<procedure> & procs);
+/** \brief Lift lambda expressions in `cdecl`. The result contains `cdecl` after lambda lifting and the new auxiliary declarations that have been generated. */
+comp_decls lambda_lifting(environment const & env, comp_decl const & cdecl);
 };

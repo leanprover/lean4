@@ -1,216 +1,166 @@
 /*
-Copyright (c) 2016 Microsoft Corporation. All rights reserved.
+Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <unordered_set>
+#include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
-#include "library/util.h"
-#include "library/trace.h"
-#include "library/scope_pos_info_provider.h"
-#include "library/module.h"
-#include "library/vm/vm.h"
-#include "library/sorry.h"
-#include "library/compiler/old_util.h"
-#include "library/compiler/compiler_step_visitor.h"
-#include "library/compiler/procedure.h"
+#include "library/compiler/util.h"
 
 namespace lean {
-class lambda_lifting_fn : public compiler_step_visitor {
-    buffer<procedure> m_new_procs;
-    name              m_prefix;
-    unsigned          m_idx;
-    bool              m_saw_sorry = false;
+class lambda_lifting_fn {
+    type_checker::state m_st;
+    local_ctx           m_lctx;
+    buffer<comp_decl>   m_new_decls;
+    name                m_base_name;
+    unsigned            m_next_idx{1};
+    typedef std::unordered_set<name, name_hash> name_set;
 
-    optional<pos_info> get_pos_info(expr ) {
-        return optional<pos_info>();
+    environment const & env() { return m_st.env(); }
+
+    name_generator & ngen() { return m_st.ngen(); }
+
+    expr visit_lambda_core(expr e) {
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> fvars;
+        while (is_lambda(e)) {
+            lean_assert(!has_loose_bvars(binding_domain(e)));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), binding_domain(e));
+            fvars.push_back(new_fvar);
+            e = binding_body(e);
+        }
+        expr r = visit(instantiate_rev(e, fvars.size(), fvars.data()));
+        return m_lctx.mk_lambda(fvars, r);
     }
 
-    typedef rb_map<unsigned, local_decl, unsigned_rev_cmp> idx2decls;
+    expr visit_let(expr e) {
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> fvars;
+        while (is_let(e)) {
+            lean_assert(!has_loose_bvars(let_type(e)));
+            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), let_type(e), new_val);
+            fvars.push_back(new_fvar);
+            e = let_body(e);
+        }
+        expr r = visit(instantiate_rev(e, fvars.size(), fvars.data()));
+        return m_lctx.mk_lambda(fvars, r);
+    }
 
-    void collect_locals(expr const & e, idx2decls & r) {
-        local_context const & lctx = ctx().lctx();
-        for_each(e, [&](expr const & e, unsigned) {
-                if (is_local_decl_ref(e)) {
-                    local_decl d = lctx.get_local_decl(e);
-                    r.insert(d.get_idx(), d);
+    expr visit_cases_on(expr const & e) {
+        lean_assert(is_cases_on_app(env(), e));
+        buffer<expr> args;
+        expr const & c = get_app_args(e, args);
+        /* Remark: lambda lifting is applied after we have erased most type information,
+           and `cases_on` applications have major premise and minor premises only. */
+        for (unsigned i = 1; i < args.size(); i++) {
+            args[i] = visit_lambda_core(args[i]);
+        }
+        return mk_app(c, args);
+    }
+
+    expr visit_app(expr const & e) {
+        if (is_cases_on_app(env(), e)) {
+            return visit_cases_on(e);
+        } else {
+            return e;
+        }
+    }
+
+    void collect_fvars(expr const & e, buffer<expr> & fvars) {
+        if (!has_fvar(e)) return;
+        name_set collected;
+        for_each(e, [&](expr const & x, unsigned) {
+                if (!has_fvar(x)) return false;
+                if (is_fvar(x)) {
+                    if (collected.find(fvar_name(x)) == collected.end()) {
+                        collected.insert(fvar_name(x));
+                        fvars.push_back(x);
+                    }
                 }
                 return true;
             });
     }
 
-    expr visit_lambda_core(expr const & e) {
-        type_context_old::tmp_locals locals(m_ctx);
-        expr t = e;
-        while (is_lambda(t)) {
-            lean_assert(is_enf_neutral(binding_domain(t)) || !has_loose_bvars(binding_domain(t)));
-            locals.push_local(binding_name(t), binding_domain(t), binding_info(t));
-            t = binding_body(t);
+    /* Try to apply eta-reduction to reduce number of auxiliary declarations. */
+    optional<expr> try_eta_reduction(expr const & e) {
+        expr r = ::lean::try_eta(e);
+        expr const & f = get_app_fn(r);
+
+        if (is_fvar(f))
+            return some_expr(r);
+
+        if (is_constant(f)) {
+            name const & n = const_name(f);
+            if (!is_constructor(env(), n) && !is_cases_on_recursor(env(), n))
+                return some_expr(r);
         }
-        t = instantiate_rev(t, locals.size(), locals.data());
-        t = visit(t);
-        return locals.mk_lambda(t);
-    }
-
-    expr abstract_locals(expr e, buffer<expr> & locals) {
-        idx2decls map;
-        collect_locals(e, map);
-        if (map.empty()) {
-            return e;
-        } else {
-            while (!map.empty()) {
-                /* Remove local_decl with biggest idx */
-                local_decl d = map.erase_min();
-                /* Remark: lambda lifting is applied after the erase_irrelevant step.
-                   So, we don't need to make sure the result can be type checked by the Lean kernel.
-                   Therefore, we don't need to be concerned about let-expressions when performing
-                   lambda lifting. That is, we don't need to be concerned about
-                   the case where
-
-                      (let x := v in f[x]) is type correct, but
-                      ((fun x, f [x]) v) isn't.
-
-                   In the past, we would expand let-expressions to avoid this non-issue,
-                   and it would create performance problems in the generated code.
-                */
-                expr l       = d.mk_ref();
-                locals.push_back(l);
-                e = abstract(e, l);
-                e = mk_lambda(d.get_user_name(), d.get_type(), e);
-            }
-            return e;
-        }
-    }
-
-    /* Auxiliary function for visit_lambda. It is used to avoid unnecessary aux decl by
-       1- Apply eta-reduction (unless there is a sorry)
-       2- Check if the result is of the form (f ...) where f is
-         a) not VM builtin functions NOR
-         b) A function without builtin support (i.e., it is not a constructor, cases_on or projection) */
-    optional<expr> try_eta(expr const & value) {
-        if (m_saw_sorry && has_sorry(value))
-            return none_expr();
-
-        expr new_value = ::lean::try_eta(value);
-        expr const & fn = get_app_fn(new_value);
-
-        if (is_local(fn))
-            return some_expr(new_value);
-
-        if (is_constant(fn)) {
-            name const & n = const_name(fn);
-            if (!is_constructor(env(), n) && !is_cases_on_recursor(env(), n) && !is_projection(env(), n))
-                return some_expr(new_value);
-        }
-
         return none_expr();
     }
 
-    virtual expr visit_lambda(expr const & e) override {
-        expr new_e = visit_lambda_core(e);
+    name next_name() {
+        name r(m_base_name, "_lambda");
+        r = r.append_after(m_next_idx);
+        m_next_idx++;
+        return r;
+    }
 
-        if (auto r = try_eta(new_e))
+    /* Creates `fun <fvar>, e`. Remark: it is different from `m_lctx.mk_lambda` because
+       it will create a lambda expression even if for free variables in `fvars` that correspond
+       to let declarations. */
+    expr mk_lambda(buffer<expr> const & fvars, expr e) {
+        e = abstract(e, fvars.size(), fvars.data());
+        unsigned i = fvars.size();
+        while (i > 0) {
+            --i;
+            expr const & fvar = fvars[i];
+            local_decl decl   = m_lctx.get_local_decl(fvar);
+            lean_assert(!has_loose_bvars(decl.get_type()));
+            e = ::lean::mk_lambda(decl.get_user_name(), decl.get_type(), e);
+        }
+        return e;
+    }
+
+    expr visit_lambda(expr e, bool root) {
+        e = visit_lambda_core(e);
+        if (root)
+            return e;
+        if (optional<expr> r = try_eta_reduction(e))
             return *r;
-
-        buffer<expr> locals;
-        new_e = abstract_locals(new_e, locals);
-        name aux_name = mk_compiler_unused_name(env(), m_prefix, "_lambda", m_idx);
-        m_new_procs.emplace_back(aux_name, new_e);
-        return mk_rev_app(mk_constant(aux_name), locals);
+        buffer<expr> fvars;
+        collect_fvars(e, fvars);
+        e = mk_lambda(fvars, e);
+        name new_fn = next_name();
+        m_new_decls.push_back(comp_decl(new_fn, e));
+        return mk_app(mk_constant(new_fn), fvars);
     }
 
-    virtual expr visit_let(expr const & e) override {
-        type_context_old::tmp_locals locals(m_ctx);
-        expr t = e;
-        while (is_let(t)) {
-            lean_assert(is_enf_neutral(let_type(t)) || !has_loose_bvars(let_type(t)));
-            expr v = visit(instantiate_rev(let_value(t), locals.size(), locals.data()));
-            locals.push_let(let_name(t), let_type(t), v);
-            t = let_body(t);
-        }
-        t = instantiate_rev(t, locals.size(), locals.data());
-        t = visit(t);
-        return locals.mk_let(t);
-    }
-
-    expr visit_cases_on_minor(unsigned data_sz, expr e) {
-        type_context_old::tmp_locals locals(ctx());
-        for (unsigned i = 0; i < data_sz; i++) {
-            if (is_lambda(e)) {
-                expr l = locals.push_local_from_binding(e);
-                e = instantiate(binding_body(e), l);
-            } else {
-                expr l = locals.push_local("a", mk_enf_neutral());
-                e = mk_app(e, l);
-            }
-        }
-        e = visit(e);
-        return locals.mk_lambda(e);
-    }
-
-    /* We should preserve the lambda's in minor premises */
-    expr visit_cases_on_app(expr const & e) {
-        buffer<expr> args;
-        expr const & fn = get_app_args(e, args);
-        lean_assert(is_constant(fn));
-        name const & rec_name       = const_name(fn);
-        name const & I_name         = rec_name.get_prefix();
-        /* erase_irrelevant already removed parameters and indices from cases_on applications */
-        constant_info I_info        = env().get(I_name);
-        inductive_val I_val         = I_info.to_inductive_val();
-        unsigned nminors            = length(I_val.get_cnstrs());
-        unsigned nparams            = I_val.get_nparams();
-        unsigned arity              = nminors + 1 /* major premise */;
-        unsigned major_idx          = 0;
-        unsigned first_minor_idx    = 1;
-        /* This transformation assumes eta-expansion have already been applied.
-           So, we should have a sufficient number of arguments. */
-        lean_assert(args.size() >= arity);
-        buffer<name> cnames;
-        get_constructor_names(env(), I_name, cnames);
-        /* Process major premise */
-        args[major_idx]        = visit(args[major_idx]);
-        /* Process extra arguments */
-        for (unsigned i = arity; i < args.size(); i++)
-            args[i] = visit(args[i]);
-        /* Process minor premises */
-        for (unsigned i = 0, j = first_minor_idx; i < cnames.size(); i++, j++) {
-            unsigned carity   = get_constructor_arity(env(), cnames[i]);
-            lean_assert(carity >= nparams);
-            unsigned cdata_sz = carity - nparams;
-            args[j] = visit_cases_on_minor(cdata_sz, args[j]);
-        }
-        return mk_app(fn, args);
-    }
-
-    virtual expr visit_app(expr const & e) override {
-        expr const & fn = get_app_fn(e);
-        if (is_constant(fn) && is_cases_on_recursor(env(), const_name(fn))) {
-            return visit_cases_on_app(e);
-        } else {
-            return compiler_step_visitor::visit_app(head_beta_reduce(e));
+    expr visit(expr const & e, bool root = false) {
+        switch (e.kind()) {
+        case expr_kind::App:    return visit_app(e);
+        case expr_kind::Lambda: return visit_lambda(e, root);
+        case expr_kind::Let:    return visit_let(e);
+        default:                return e;
         }
     }
 
 public:
-    lambda_lifting_fn(environment const & env, abstract_context_cache & cache, name const & prefix):
-        compiler_step_visitor(env, cache), m_prefix(prefix), m_idx(1) {
-    }
+    lambda_lifting_fn(environment const & env):
+        m_st(env) {}
 
-    void operator()(buffer<procedure> & procs) {
-        for (auto p : procs) {
-            expr val     = p.m_code;
-            expr new_val = is_lambda(val) ? visit_lambda_core(val) : visit(val);
-            m_new_procs.emplace_back(p.m_name, new_val);
-        }
-        procs.clear();
-        procs.append(m_new_procs);
+    comp_decls operator()(comp_decl const & cdecl) {
+        m_base_name = cdecl.fst();
+        expr r = visit(cdecl.snd(), true);
+        comp_decl new_cdecl(cdecl.fst(), r);
+        return comp_decls(new_cdecl, comp_decls(m_new_decls));
     }
 };
 
-void lambda_lifting(environment const & env, abstract_context_cache & cache, name const & prefix, buffer<procedure> & procs) {
-    return lambda_lifting_fn(env, cache, prefix)(procs);
+comp_decls lambda_lifting(environment const & env, comp_decl const & cdecl) {
+    return lambda_lifting_fn(env)(cdecl);
 }
 }

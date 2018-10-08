@@ -256,7 +256,7 @@ expr elaborator::mk_metavar(expr const & A, expr const & ref) {
 
 expr elaborator::mk_metavar(name const & pp_n, expr const & A, expr const &) {
     auto m = m_ctx.mk_metavar_decl(pp_n.is_anonymous() ? pp_n : pp_n.append_before("?"), m_ctx.lctx(), A);
-    m_user_mvars[m] = user_mvar_info {m_last_pos ? *m_last_pos : pos_info {1, 0}};
+    m_user_mvars.insert(mk_pair(m, user_mvar_info(m_last_pos ? *m_last_pos : pos_info(1, 0))));
     return m;
 }
 

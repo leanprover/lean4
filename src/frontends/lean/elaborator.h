@@ -61,6 +61,8 @@ private:
     struct user_mvar_info {
         pos_info m_pos;
         optional<expr> m_context = none_expr();
+        user_mvar_info():m_pos(1, 0) {}
+        user_mvar_info(pos_info const & pinfo):m_pos(pinfo) {}
     };
     expr_map<user_mvar_info> m_user_mvars;
 

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/noncomputable.h" // TODO(Leo): remove
 #include "library/max_sharing.h"
+#include "library/trace.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/cse.h"
@@ -49,6 +50,14 @@ static comp_decls lambda_lifting(environment const & env, comp_decls const & ds)
     return r;
 }
 
+static void trace(comp_decls const & ds) {
+    for (comp_decl const & d : ds) {
+        tout() << ">> " << d.fst() << "\n" << d.snd() << "\n";
+    }
+}
+
+#define trace_compiler(k, ds) lean_trace(k, trace(ds);)
+
 environment compile(environment const & env, options const & opts, names const & cs) {
     if (!is_codegen_enabled(opts))
         return env;
@@ -62,16 +71,27 @@ environment compile(environment const & env, options const & opts, names const &
     auto simp = [&](environment const & env, expr const & e) { return csimp(env, e, csimp_cfg(opts)); };
 
     ds = apply(eta_expand, env, ds);
+    trace_compiler(name({"compiler", "eta_expand"}), ds);
     ds = apply(to_lcnf, env, ds);
+    trace_compiler(name({"compiler", "lcnf"}), ds);
     ds = apply(cce, env, ds);
+    trace_compiler(name({"compiler", "cce"}), ds);
     ds = apply(simp, env, ds);
+    trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(elim_dead_let, ds);
+    trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(cse, env, ds);
+    trace_compiler(name({"compiler", "cse"}), ds);
     ds = apply(max_sharing, ds);
+    trace_compiler(name({"compiler", "stage1"}), ds);
     ds = apply(erase_irrelevant, env, ds);
+    trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
     ds = apply(elim_dead_let, ds);
+    trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(cse, env, ds);
+    trace_compiler(name({"compiler", "cse"}), ds);
     ds = lambda_lifting(env, ds);
+    trace_compiler(name({"compiler", "lambda_lifting"}), ds);
     // TODO(Leo)
     return env;
 }

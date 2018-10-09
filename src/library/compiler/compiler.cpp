@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/erase_irrelevant.h"
+#include "library/compiler/specialize.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/emit_bytecode.h"
@@ -53,6 +54,16 @@ comp_decls apply(F && f, environment const & env, comp_decls const & ds) {
 template<typename F>
 comp_decls apply(F && f, comp_decls const & ds) {
     return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(d.snd())); });
+}
+
+static pair<environment, comp_decls> specialize(environment env, comp_decls const & ds) {
+    comp_decls r;
+    for (comp_decl const & d : ds) {
+        comp_decls new_ds;
+        std::tie(env, new_ds) = specialize(env, d);
+        r = append(r, new_ds);
+    }
+    return mk_pair(env, r);
 }
 
 static comp_decls lambda_lifting(environment const & env, comp_decls const & ds) {
@@ -109,9 +120,14 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(cse, env, ds);
     trace_compiler(name({"compiler", "cse"}), ds);
+    environment new_env = env;
+    std::tie(new_env, ds) = specialize(new_env, ds);
+    trace_compiler(name({"compiler", "specialize"}), ds);
+    ds = apply(elim_dead_let, ds);
+    trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);
-    environment new_env = cache_stage1(env, ds);
+    new_env = cache_stage1(new_env, ds);
     ds = apply(erase_irrelevant, new_env, ds);
     trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
     ds = apply(elim_dead_let, ds);
@@ -136,6 +152,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "lcnf"});
     register_trace_class({"compiler", "cce"});
     register_trace_class({"compiler", "simp"});
+    register_trace_class({"compiler", "simp_detail"});
     register_trace_class({"compiler", "elim_dead_let"});
     register_trace_class({"compiler", "cse"});
     register_trace_class({"compiler", "specialize"});

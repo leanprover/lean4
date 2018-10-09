@@ -6,8 +6,9 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "library/compiler/util.h"
 namespace lean {
-pair<environment, expr> specialize(environment const & env, local_ctx const & lctx, expr const & e);
+pair<environment, comp_decls> specialize(environment const & env, comp_decl const & d);
 void initialize_specialize();
 void finalize_specialize();
 }

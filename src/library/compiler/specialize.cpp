@@ -14,6 +14,8 @@ namespace lean {
 class specialize_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
+    buffer<comp_decl>   m_new_decls;
+    name                m_base_name;
 
     environment const & env() { return m_st.env(); }
 
@@ -66,6 +68,7 @@ class specialize_fn {
             buffer<expr> args;
             expr fn = get_app_args(e, args);
             if (!is_constant(fn)) return e;
+            lean_trace(name({"compiler", "specialize"}), tout() << e << "\n";);
             // TODO(Leo):
             return e;
         }
@@ -81,17 +84,19 @@ class specialize_fn {
     }
 
 public:
-    specialize_fn(environment const & env, local_ctx const & lctx):
-        m_st(env), m_lctx(lctx) {}
+    specialize_fn(environment const & env):
+        m_st(env) {}
 
-    pair<environment, expr> operator()(expr const & e) {
-        expr r = visit(e);
-        return mk_pair(m_st.env(), r);
+    pair<environment, comp_decls> operator()(comp_decl const & d) {
+        m_base_name = d.fst();
+        expr new_v = visit(d.snd());
+        comp_decl new_d(d.fst(), new_v);
+        return mk_pair(m_st.env(), comp_decls(new_d, comp_decls(m_new_decls)));
     }
 };
 
-pair<environment, expr> specialize(environment const & env, local_ctx const & lctx, expr const & e) {
-    return specialize_fn(env, lctx)(e);
+pair<environment, comp_decls> specialize(environment const & env, comp_decl const & d) {
+    return specialize_fn(env)(d);
 }
 
 void initialize_specialize() {

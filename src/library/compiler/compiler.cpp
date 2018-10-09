@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "library/noncomputable.h" // TODO(Leo): remove
 #include "library/max_sharing.h"
 #include "library/trace.h"
+#include "library/module.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
 #include "library/compiler/cse.h"
@@ -57,6 +58,18 @@ static void trace(comp_decls const & ds) {
     }
 }
 
+static environment cache_stage1(environment env, comp_decls const & ds) {
+    type_checker tc(env);
+    for (comp_decl const & d : ds) {
+        name n = d.fst();
+        expr v = d.snd();
+        expr t = cheap_beta_reduce(tc.infer(v));
+        declaration aux_decl = mk_definition(mk_cstage1_name(n), names(), t, v, reducibility_hints::mk_opaque(), true);
+        env = module::add(env, aux_decl, false);
+    }
+    return env;
+}
+
 #define trace_compiler(k, ds) lean_trace(k, trace(ds);)
 
 environment compile(environment const & env, options const & opts, names const & cs) {
@@ -85,18 +98,19 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "cse"}), ds);
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);
-    ds = apply(erase_irrelevant, env, ds);
+    environment new_env = cache_stage1(env, ds);
+    ds = apply(erase_irrelevant, new_env, ds);
     trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
-    ds = apply(cse, env, ds);
+    ds = apply(cse, new_env, ds);
     trace_compiler(name({"compiler", "cse"}), ds);
-    ds = lambda_lifting(env, ds);
+    ds = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
-    ds = apply(simp_inductive, env, ds);
+    ds = apply(simp_inductive, new_env, ds);
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     // TODO(Leo)
-    return env;
+    return new_env;
 }
 
 void initialize_compiler() {

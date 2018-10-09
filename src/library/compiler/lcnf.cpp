@@ -436,7 +436,6 @@ public:
 
     expr visit_lambda(expr e, bool root) {
         lean_assert(is_lambda(e));
-        e = type_checker(m_st, m_lctx).eta_expand(e);
         expr r;
         {
             flet<local_ctx> save_lctx(m_lctx, m_lctx);

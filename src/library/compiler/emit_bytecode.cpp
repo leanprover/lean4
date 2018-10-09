@@ -18,12 +18,9 @@ Author: Leonardo de Moura
 #include "library/vm/optimize.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/util.h"
-#include "library/compiler/preprocess.h"
 
 namespace lean {
-static name * g_vm_compiler_fresh = nullptr;
-
-class vm_compiler_fn {
+class emit_bytecode_fn {
     environment        m_env;
     name_generator     m_ngen;
     buffer<vm_instr> & m_code;
@@ -295,8 +292,8 @@ class vm_compiler_fn {
     }
 
 public:
-    vm_compiler_fn(environment const & env, buffer<vm_instr> & code):
-        m_env(env), m_ngen(*g_vm_compiler_fresh), m_code(code) {}
+    emit_bytecode_fn(environment const & env, buffer<vm_instr> & code):
+        m_env(env), m_code(code) {}
 
     pair<unsigned, list<vm_local_info>> operator()(expr e) {
         buffer<expr> locals;
@@ -321,56 +318,25 @@ public:
     }
 };
 
-static environment vm_compile(environment const & env, buffer<procedure> const & procs) {
+environment emit_bytecode(environment const & env, comp_decls const & ds) {
     environment new_env = env;
-    for (auto const & p : procs) {
-        new_env = reserve_vm_index(new_env, p.m_name, p.m_code);
+    for (comp_decl const & d : ds) {
+        new_env = reserve_vm_index(new_env, d.fst(), d.snd());
     }
 
-    for (auto const & p : procs) {
+    for (comp_decl const & d : ds) {
         buffer<vm_instr> code;
-        vm_compiler_fn gen(new_env, code);
+        emit_bytecode_fn emitter(new_env, code);
         list<vm_local_info> args_info;
         unsigned arity;
-        std::tie(arity, args_info) = gen(p.m_code);
-        lean_trace(name({"compiler", "code_gen"}), tout() << " " << p.m_name << " " << arity << "\n";
+        std::tie(arity, args_info) = emitter(d.snd());
+        lean_trace(name({"compiler", "code_gen"}), tout() << " " << d.fst() << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), code.size(), code.data()););
         optimize(new_env, code);
-        lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << p.m_name << " " << arity << "\n";
+        lean_trace(name({"compiler", "optimize_bytecode"}), tout() << " " << d.fst() << " " << arity << "\n";
                    display_vm_code(tout().get_stream(), code.size(), code.data()););
-        new_env = update_vm_code(new_env, p.m_name, code.size(), code.data(), args_info);
+        new_env = update_vm_code(new_env, d.fst(), code.size(), code.data(), args_info);
     }
     return new_env;
-}
-
-bool is_codegen_enabled(options const & opts);
-
-environment vm_compile(environment const & env, options const & opts, buffer<constant_info> const & ds) {
-    if (!is_codegen_enabled(opts))
-        return env;
-    for (constant_info const & info : ds) {
-        if (!info.is_definition() || is_noncomputable(env, info.get_name()) || is_vm_builtin_function(info.get_name()))
-            return env;
-    }
-    buffer<procedure> procs;
-    environment new_env = preprocess(env, ds, procs);
-    return vm_compile(new_env, procs);
-}
-
-environment vm_compile(environment const & env, options const & opts, constant_info const & info) {
-    buffer<constant_info> infos;
-    infos.push_back(info);
-    return vm_compile(env, opts, infos);
-}
-
-void initialize_vm_compiler() {
-    g_vm_compiler_fresh = new name ("_vmc_fresh");
-    register_name_generator_prefix(*g_vm_compiler_fresh);
-    register_trace_class({"compiler", "optimize_bytecode"});
-    register_trace_class({"compiler", "code_gen"});
-}
-
-void finalize_vm_compiler() {
-    delete g_vm_compiler_fresh;
 }
 }

@@ -33,7 +33,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_string.h"
-#include "library/compiler/vm_compiler.h"
+#include "library/compiler/compiler.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/notation_cmd.h"
@@ -398,7 +398,7 @@ static environment compile_cmd(parser & p) {
     constant_info d = p.env().get(n);
     if (!d.is_definition())
         throw parser_error("invalid #compile command, declaration is not a definition", pos);
-    return vm_compile(p.env(), p.get_options(), d);
+    return compile(p.env(), p.get_options(), n);
 }
 
 static environment eval_cmd(parser & p) {

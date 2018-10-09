@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/metavar_context.h"
 #include "library/replace_visitor.h"
-#include "library/compiler/vm_compiler.h"
+#include "library/compiler/compiler.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove
@@ -471,7 +471,7 @@ environment compile_expr(environment const & env, options const & opts, name con
     environment new_env = env;
     bool is_meta        = true;
     new_env = new_env.add(mk_definition(new_env, n, ls, type, e, is_meta));
-    return vm_compile(new_env, opts, new_env.get(n));
+    return compile(new_env, opts, n);
 }
 
 vm_obj eval_closed_expr(environment const & env, options const & opts, name const & n, expr const & type, expr const & e, pos_info const & pos) {

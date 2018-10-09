@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/aux_definition.h"
 #include "library/module.h"
-#include "library/compiler/vm_compiler.h"
+#include "library/compiler/compiler.h"
 #include "library/vm/vm.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
@@ -182,12 +182,8 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
 
         /* 5. Compile. Remark: we need a separate pass because we need to reserve the functions
            and their arities in the VM. */
-        buffer<constant_info> new_decls;
-        for (name const & n : header.m_fn_actual_names) {
-            new_decls.push_back(env.get(n));
-        }
         try {
-            env = vm_compile(env, elab.get_options(), new_decls);
+            env = compile(env, elab.get_options(), header.m_fn_actual_names);
         } catch (exception & ex) {
             sstream ss;
             ss << "equation compiler failed to generate bytecode for";

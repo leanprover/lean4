@@ -1,5 +1,5 @@
 add_library(compiler OBJECT
-  preprocess.cpp vm_compiler.cpp simp_inductive.cpp init_module.cpp
+  emit_bytecode.cpp simp_inductive.cpp init_module.cpp
   ## New compiler
   util.cpp lcnf.cpp csimp.cpp elim_dead_let.cpp cse.cpp erase_irrelevant.cpp
   specialize.cpp compiler.cpp lambda_lifting.cpp

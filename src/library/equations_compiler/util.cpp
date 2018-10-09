@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
 #include "library/comp_val.h"
-#include "library/compiler/vm_compiler.h"
+#include "library/compiler/compiler.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/wf_rec.h"
@@ -261,7 +261,7 @@ static void throw_mk_aux_definition_error(local_context const & lctx, name const
 void compile_aux_definition(environment & env, options const & opts, equations_header const & header, name const & user_name, name const & actual_name) {
     if (header.m_gen_code) {
         try {
-            env = vm_compile(env, opts, env.get(actual_name));
+            env = compile(env, opts, actual_name);
         } catch (exception & ex) {
             if (!header.m_prev_errors) {
                 throw nested_exception(sstream() << "equation compiler failed to generate bytecode for "

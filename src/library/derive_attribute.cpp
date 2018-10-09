@@ -17,7 +17,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/protected.h"
 #include "library/sorry.h"
-#include "library/compiler/vm_compiler.h"
+#include "library/compiler/compiler.h"
 
 namespace lean {
 struct exprs_attribute_data : public attr_data {
@@ -133,7 +133,7 @@ static environment derive(environment env, options const & opts, name const & n,
                                              ctx.instantiate_mvars(tgt), inst2, d.is_meta()));
         env = add_instance(env, new_n, LEAN_DEFAULT_PRIORITY, true);
         env = add_protected(env, new_n);
-        env = vm_compile(env, opts, env.get(new_n));
+        env = compile(env, opts, new_n);
     }
     return env;
 }

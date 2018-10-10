@@ -14,10 +14,9 @@ Author: Leonardo de Moura
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/class.h"
+#include "library/trace.h"
 #include "library/compiler/util.h"
 #include "library/compiler/csimp.h"
-
-#include "library/trace.h"
 
 namespace lean {
 csimp_cfg::csimp_cfg(options const &):
@@ -692,7 +691,8 @@ class csimp_fn {
             if (is_lambda(val)) {
                 /* We don't simplify lambdas when we visit `let`-expressions. */
                 DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
-                val          = visit_lambda(val);
+                bool is_jp   = is_join_point_name(x_decl.get_user_name());
+                val          = visit_lambda(val, is_jp);
                 modified_val = true;
                 lean_assert(m_fvars.size() == saved_fvars_size);
             }
@@ -796,12 +796,11 @@ class csimp_fn {
         return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()), false);
     }
 
-    expr visit_lambda(expr e) {
+    expr visit_lambda(expr e, bool is_join_point_def) {
         lean_assert(is_lambda(e));
         if (already_simplified(e))
             return e;
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        unsigned saved_fvars_size = m_fvars.size();
         buffer<expr> binding_fvars;
         while (is_lambda(e)) {
             /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
@@ -810,9 +809,44 @@ class csimp_fn {
             binding_fvars.push_back(new_fvar);
             e = binding_body(e);
         }
-        expr new_body = visit(instantiate_rev(e, binding_fvars.size(), binding_fvars.data()), false);
+        e = instantiate_rev(e, binding_fvars.size(), binding_fvars.data());
+        /* We eta-expand all lambdas which are not join points. */
+        buffer<expr> eta_args;
+        if (!is_join_point_def) {
+            expr e_type = whnf_infer_type(e);
+            while (is_pi(e_type)) {
+                expr arg = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
+                eta_args.push_back(arg);
+                e_type = whnf(instantiate(binding_body(e_type), arg));
+            }
+        }
+        unsigned saved_fvars_size = m_fvars.size();
+        expr new_body             = visit(e, false);
+        if (!eta_args.empty()) {
+            if (is_join_point_app(new_body)) {
+                /* Remark: we cannot simply set
+                   ```
+                   new_body = mk_app(new_body, eta_args);
+                   ```
+                   when `new_body` is a join-point, because the result will not be a valid LCNF term.
+                   We could expand the join-point, but it this will create a copy.
+                   So, for now, we simply avoid eta-expansion.
+                */
+                eta_args.clear();
+            } else {
+                if (is_lcnf_atom(new_body)) {
+                    new_body = mk_app(new_body, eta_args);
+                } else if (is_app(new_body) && !is_cases_on_app(env(), new_body)) {
+                    new_body = mk_app(new_body, eta_args);
+                } else {
+                    expr f   = mk_let_decl(new_body);
+                    new_body = mk_app(f, eta_args);
+                }
+                new_body = visit(new_body, false);
+            }
+        }
         new_body      = mk_let(saved_fvars_size, new_body);
-        expr r        = m_lctx.mk_lambda(binding_fvars, new_body);
+        expr r        = m_lctx.mk_lambda(binding_fvars, m_lctx.mk_lambda(eta_args, new_body));
         mark_simplified(r);
         return r;
     }
@@ -1042,7 +1076,7 @@ class csimp_fn {
 
     expr visit(expr const & e, bool is_let_val) {
         switch (e.kind()) {
-        case expr_kind::Lambda: return is_let_val ? e : visit_lambda(e);
+        case expr_kind::Lambda: return is_let_val ? e : visit_lambda(e, false);
         case expr_kind::Let:    return visit_let(e);
         case expr_kind::Proj:   return visit_proj(e, is_let_val);
         case expr_kind::App:    return visit_app(e, is_let_val);

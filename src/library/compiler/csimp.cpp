@@ -407,6 +407,24 @@ class csimp_fn {
         return visit(e_y, false);
     }
 
+    /* Some of the new join points in `new_jps` may be replacing join points defined in the range `[saved_fvars_size, m_fvars.size())`.
+       So, we must insert them after the old one, and remove them from `new_jps` and `new_jp_cache`. */
+    void update_local_join_points(unsigned saved_fvars_size, buffer<expr> & new_jps, expr_map<expr> & new_jp_cache) {
+        unsigned i = saved_fvars_size;
+        while (i < m_fvars.size()) {
+            expr curr = m_fvars[i];
+            auto it = new_jp_cache.find(curr);
+            if (it != new_jp_cache.end()) {
+                m_fvars.insert(i+1, it->second);
+                new_jp_cache.erase(curr);
+                new_jps.erase_elem(curr);
+                i = i + 2;
+            } else {
+                i = i + 1;
+            }
+        }
+    }
+
     /*
       Given `e[x]`
       ```
@@ -456,21 +474,7 @@ class csimp_fn {
             e_y = apply_at(x, e, jp_val);
         }
         expr new_jp_val  = e_y;
-        /* Some of the new join points in `new_jps` may be replacing join points defined at jp_decl.
-           So, we must insert them after the old one, and remove them from `new_jps` and `new_jp_cache`. */
-        unsigned i = saved_fvars_size;
-        while (i < m_fvars.size()) {
-            expr curr = m_fvars[i];
-            auto it = new_jp_cache.find(curr);
-            if (it != new_jp_cache.end()) {
-                m_fvars.insert(i+i, it->second);
-                new_jp_cache.erase(curr);
-                new_jps.erase_elem(curr);
-                i = i + 2;
-            } else {
-                i = i + 1;
-            }
-        }
+        update_local_join_points(saved_fvars_size, new_jps, new_jp_cache);
         new_jp_val = mk_let(saved_fvars_size, new_jp_val);
         new_jp_val = m_lctx.mk_lambda(zs, new_jp_val);
         mark_simplified(new_jp_val);
@@ -543,6 +547,7 @@ class csimp_fn {
             } else {
                 new_minor       = apply_at(x, e, minor_val);
             }
+            update_local_join_points(saved_fvars_size, new_jps, new_jp_cache);
             new_minor                 = mk_let(saved_fvars_size, new_minor);
             new_minor                 = mk_minor_lambda(zs, new_minor);
             c_args[minor_idx]         = new_minor;

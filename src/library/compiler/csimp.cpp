@@ -838,9 +838,25 @@ class csimp_fn {
             return visit(r, is_let_val);
         } else {
             r = visit(r, false);
-            if (!is_lcnf_atom(r))
-                r = mk_let_decl(r);
-            return visit(mk_app(r, nargs - i, args + i), is_let_val);
+            if (i == nargs)
+                return r;
+            lean_assert(i < nargs);
+            if (is_join_point_app(r)) {
+                /* Expand joint-point */
+                lean_assert(!is_let_val);
+                buffer<expr> new_args;
+                expr const & jp = get_app_args(r, new_args);
+                lean_assert(is_fvar(jp));
+                for (; i < nargs; i++)
+                    new_args.push_back(args[i]);
+                expr jp_val     = *m_lctx.get_local_decl(jp).get_value();
+                lean_assert(is_lambda(jp_val));
+                return beta_reduce(jp_val, new_args.size(), new_args.data(), false);
+            } else {
+                if (!is_lcnf_atom(r))
+                    r = mk_let_decl(r);
+                return visit(mk_app(r, nargs - i, args + i), is_let_val);
+            }
         }
     }
 
@@ -960,6 +976,7 @@ class csimp_fn {
     expr merge_app_app(expr const & fn, expr const & e, bool is_let_val) {
         lean_assert(is_app(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
+        lean_assert(!is_join_point_app(fn));
         if (!is_cases_on_app(env(), fn)) {
             buffer<expr> args;
             get_app_args(e, args);

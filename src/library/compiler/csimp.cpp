@@ -29,7 +29,7 @@ csimp_cfg::csimp_cfg() {
     m_inline_threshold                = 1;
     m_float_cases_app                 = true;
     m_float_cases                     = true;
-    m_float_cases_threshold           = 40;
+    m_float_cases_threshold           = 10;
     m_inline_jp_threshold             = 2;
 }
 

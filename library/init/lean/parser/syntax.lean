@@ -9,10 +9,6 @@ import init.lean.name init.lean.parser.parsec
 namespace lean
 namespace parser
 
-/-- De Bruijn index relative to surrounding 'bind' macros -/
-@[reducible] def var_offset := ℕ
-@[reducible] def macro_scope_id := ℕ
-
 --TODO(Sebastian): move
 structure substring :=
 (start : string.iterator)
@@ -36,20 +32,24 @@ structure syntax_node_kind :=
 
 @[pattern] def choice : syntax_node_kind := ⟨`lean.parser.choice⟩
 
+/-
+Parsers create `syntax_node`'s with the following property:
+- If `args` contains a `syntax.missing`, then all subsequent elements are also `syntax.missing`.
+- We believe the first argument in `args` is not `syntax.missing`. TODO: check this.
+
+Remark: We do create `syntax_node`'s with an empty `args` field.
+-/
 structure syntax_node (syntax : Type) :=
+-- TODO: add `lean.parser.list` kind, and remove option. Then `none` = `lean.parser.seq`
 (kind : option syntax_node_kind) (args : list syntax)
 
 inductive syntax
-/- any non-ident atom -/
 | atom (val : syntax_atom)
 | node (val : syntax_node syntax)
 | missing
 
 instance : inhabited syntax :=
 ⟨syntax.missing⟩
-
-instance coe_string_syntax : has_coe string syntax :=
-⟨λ s, syntax.atom ⟨none, s⟩⟩
 
 def substring.to_string (s : substring) : string :=
 (s.start.extract s.stop).get_or_else ""
@@ -61,6 +61,9 @@ def is_of_kind (k : syntax_node_kind) : syntax → bool
 | (syntax.node ⟨some k', _⟩) := k.name = k'.name
 | _ := ff
 
+-- Remark: this function must be updated whenever `ident` parser is modified.
+-- This function was defined before we had the `ident` parser.
+-- TODO: move it to the `ident` parser file and use the view defined there.
 private def ident_to_format : syntax → format
 | stx := option.get_or_else (do
   syntax.node ⟨_, [syntax.node ⟨_, [syntax.node ⟨some ⟨idx⟩, part⟩]⟩, suffix]⟩ ← pure stx | failure,
@@ -82,12 +85,15 @@ with to_format : syntax → format
 | stx@(node {kind := some kind, args := args, ..}) :=
   if kind.name = `lean.parser.ident
   then to_fmt "`" ++ ident_to_format stx
-  else paren $ join_sep (to_fmt (kind.name.replace_prefix `lean.parser name.anonymous) :: to_format_lst args) line
+  else let shorter_name := kind.name.replace_prefix `lean.parser name.anonymous
+       in paren $ join_sep (to_fmt shorter_name :: to_format_lst args) line
 | missing := "<missing>"
 with to_format_lst : list syntax → list format
 | []      := []
 | (s::ss) := to_format s :: to_format_lst ss
 
+/- Remark: the state `string.iterator` is the `source_info.trailing.stop` of the previous token,
+   or the beginning of the string. -/
 private mutual def update_leading_aux, update_leading_lst
 with update_leading_aux : syntax → state string.iterator syntax
 | (atom a@{info := some info, ..}) := do
@@ -103,14 +109,27 @@ with update_leading_lst : list syntax → state string.iterator (list syntax)
 /-- Set `source_info.leading` according to the trailing stop of the preceding token.
     The result is a round-tripping syntax tree IF, in the input syntax tree,
     * all leading stops, atom contents, and trailing starts are correct
-    * trailing stops are between the trailing start and the next leading stop. -/
+    * trailing stops are between the trailing start and the next leading stop.
+
+    Remark: after parsing all `source_info.leading` fields are empty.
+    The syntax argument is the output produced by the parser for `source`.
+    This function "fixes" the `source.leanding` field.
+
+    Note that, the `source_info.trailing` fields are correct.
+    The implementation of this function relies on this property. -/
 def update_leading (source : string) : syntax → syntax :=
 λ stx, prod.fst $ (update_leading_aux stx).run source.mk_iterator
 
-/-- Retrieve the left-most leaf in the syntax tree -/
+def is_empty_node : syntax → bool
+| (node ⟨_, []⟩) := tt
+| _              := ff
+
+/-- Retrieve the left-most leaf in the syntax tree. -/
 def get_head_atom : syntax → option syntax_atom
 | (atom a) := some a
-| (node ⟨_, n::_⟩) := n.get_head_atom
+-- TODO: handle case where `n` is an empty `syntax_node`
+-- We will have to create a mutual recursion here Arghhhh
+| (node ⟨_, n::ns⟩) := n.get_head_atom
 | _ := none
 
 def get_pos (stx : syntax) : option parsec.position :=
@@ -118,13 +137,13 @@ do a ← stx.get_head_atom,
    i ← a.info,
    pure i.pos
 
-def reprint_with_info : option source_info → string → string
-| (some info) inner := info.leading.to_string ++ inner ++ info.trailing.to_string
-| none        inner := inner
+def reprint_atom : syntax_atom → string
+| ⟨some info, s⟩ := info.leading.to_string ++ s ++ info.trailing.to_string
+| ⟨none, s⟩      := s
 
 mutual def reprint, reprint_lst
 with reprint : syntax → option string
-| (atom ⟨info, s⟩) := reprint_with_info info s
+| (atom a) := reprint_atom a
 | (node ⟨some k, ns⟩) :=
   if k.name = choice.name then match ns with
   -- should never happen

@@ -35,7 +35,12 @@ structure token_config :=
 /- An optional parser that is activated after matching `prefix`.
    It should return a syntax tree with a "hole" for the
    `source_info` surrounding the token, which will be supplied
-   by the `token` parser. -/
+   by the `token` parser.
+
+   Remark: `suffix_parser` has many applications for example for parsing
+   hexdecimal numbers, `prefix` is `0x` and `suffix_parser` is the parser `digit*`.
+   We also use it to parse string literals: here `prefix` is just `"`.
+-/
 (suffix_parser : option (parsec' (source_info → syntax)) := none)
 
 -- Backtrackable state
@@ -50,6 +55,7 @@ structure token_cache_entry :=
 structure parser_cache :=
 (token_cache : option token_cache_entry := none)
 
+/- Remark: if we have a node in the trie with `some token_config`, the string induced by the path is equal to the `token_config.prefix`. -/
 structure parser_config :=
 (tokens : trie token_config)
 (filename : string)
@@ -80,12 +86,8 @@ variable {ρ : Type}
 class has_tokens (r : ρ) := mk {} ::
 (tokens : list token_config)
 
-def donotinline {α : Type} (a : α) (f : α → α := id) :=
-f (f a)
-
--- do NOT inline this function
-def tokens (r : ρ) [has_tokens r] :=
-donotinline (has_tokens.tokens r)
+@[noinline] def tokens (r : ρ) [has_tokens r] :=
+has_tokens.tokens r
 
 instance has_tokens.inhabited (r : ρ) : inhabited (has_tokens r) :=
 ⟨⟨[]⟩⟩
@@ -176,6 +178,7 @@ instance command_parser_m.basic_parser (ρ : Type) [has_lift_t ρ parser_config]
 ⟨λ _ x cfg rec, x.run ↑cfg⟩
 end
 
+/- The `nat` at `rec_t` is the lbp` -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
 def term_parser_m := rec_t nat syntax $ command_parser_m parser_config
 abbreviation term_parser := term_parser_m syntax
@@ -189,6 +192,7 @@ instance trailing_term_parser_coe : has_coe term_parser trailing_term_parser :=
 ⟨λ x _, x⟩
 
 -- This needs to be a separate structure since `term_parser`s cannot contain themselves in their config
+-- TODO: we need indexing here.
 structure command_parser_config extends parser_config :=
 (leading_term_parsers : list term_parser)
 (trailing_term_parsers : list trailing_term_parser)

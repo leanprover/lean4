@@ -20,24 +20,26 @@ local notation `parser` := m syntax
 variables [monad m] [monad_except (parsec.message syntax) m] [monad_parsec syntax m] [alternative m]
 
 def node' (k : option syntax_node_kind) (rs : list parser) : parser :=
-do (args, _) ← rs.mfoldl (λ (p : list syntax × nat) r, do
-     (args, remaining) ← pure p,
+do args ← rs.mfoldl (λ (p : list syntax) r, do
+     args ← pure p,
      -- on error, append partial syntax tree to previous successful parses and rethrow
      a ← catch r $ λ msg,
        let args := msg.custom :: args in
        throw {msg with custom := syntax.node ⟨k, args.reverse⟩},
-     pure (a::args, remaining - 1)
-   ) ([], rs.length),
+     pure (a::args)
+   ) [],
    pure $ syntax.node ⟨k, args.reverse⟩
 
 @[reducible] def seq : list parser → parser := node' none
-@[reducible] def node (k : syntax_node_kind) : list parser → parser := node' k
+@[reducible] def node (k : syntax_node_kind) : list parser → parser := node' (some k)
 
 instance node'.tokens (k) (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (node' k rs) :=
 ⟨tokens rs⟩
 
 instance node.view (k) (rs : list parser) [i : has_view k α] : parser.has_view (node k rs) α :=
 { view := i.view, review := i.review }
+
+-- Each parser combinator comes equipped with `has_view` and `has_tokens` instances
 
 private def many1_aux (p : parser) : list syntax → nat → parser
 | as 0     := error "unreachable"
@@ -66,6 +68,7 @@ instance many.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (man
 ⟨tokens r⟩
 
 instance many.view (r : parser) [has_view r α] : parser.has_view (many r) (list α) :=
+/- Remark: `many1.view` can handle empty list. -/
 {..many1.view r}
 
 private def sep_by_aux (p : m syntax) (sep : parser) (allow_trailing_sep : bool) : bool → list syntax → nat → parser
@@ -164,14 +167,21 @@ instance longest_match.view (rs : list parser) : parser.has_view (longest_match 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     The result will be wrapped in a node with the the index of the successful
     parser as the name. -/
+def choice_aux : list parser → nat → parser
+| []      _ := error "choice: empty list"
+| (r::rs) i :=
+  do { stx ← r,
+       pure $ syntax.node ⟨some ⟨name.mk_numeral name.anonymous i⟩, [stx]⟩ }
+  <|> choice_aux rs (i+1)
+
 def choice (rs : list parser) : parser :=
-rs.enum.foldr
-  (λ ⟨i, r⟩ r', (λ stx, syntax.node ⟨some ⟨name.mk_numeral name.anonymous i⟩, [stx]⟩) <$> r <|> r')
-  -- use `foldr` so that any other error is preferred over this one
-  (error "choice: empty list")
+choice_aux rs 0
 
 instance choice.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (choice rs) :=
 ⟨tokens rs⟩
+
+/- Remark: `choice` does not have `has_view` instance because we only use it at the pratt combinator
+   which doesn't need the view. -/
 
 instance try.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (try r) :=
 ⟨tokens r⟩

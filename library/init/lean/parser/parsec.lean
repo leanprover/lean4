@@ -256,10 +256,10 @@ namespace monad_parsec
 open parsec_t
 variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
 
-@[inline] def error {α : Type} (unexpected : string) (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
+def error {α : Type} (unexpected : string) (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
 lift $ λ it', result.error { unexpected := unexpected, expected := expected, it := it.get_or_else it', custom := custom } ff
 
-@[inline] def left_over : m iterator :=
+def left_over : m iterator :=
 lift $ λ it, result.mk_eps it it
 
 /-- Return the number of characters left to be parsed. -/
@@ -310,7 +310,7 @@ do it ← left_over,
        if p c then error (repr c)
        else pure ()
 
-@[inline] def eoi_error (it : iterator) : result μ α :=
+def eoi_error (it : iterator) : result μ α :=
 result.error { it := it, unexpected := "end of input", custom := default _ } ff
 
 def curr : m char :=
@@ -360,7 +360,7 @@ This parser consumes no input if it fails (even if a partial match).
 Note: The behaviour of this parser is different to that the `string` parser in the Parsec_t Μ M Haskell library,
 as this one is all-or-nothing.
 -/
-@[inline] def str (s : string) : m string :=
+def str (s : string) : m string :=
 if s.is_empty then pure ""
 else lift $ λ it, match str_aux s.length s.mk_iterator it with
   | some it' := result.ok s it' none
@@ -377,7 +377,7 @@ def take (n : nat) : m string :=
 if n = 0 then pure ""
 else lift $ take_aux n ""
 
-@[inline] private def mk_string_result (r : string) (it : iterator) : result μ string :=
+private def mk_string_result (r : string) (it : iterator) : result μ string :=
 if r.is_empty then result.mk_eps r it
 else result.ok r it none
 
@@ -415,7 +415,7 @@ take_while (λ c, !p c)
 def take_until1 (p : char → bool) : m string :=
 take_while1 (λ c, !p c)
 
-@[inline] private def mk_consumed_result (consumed : bool) (it : iterator) : result μ unit :=
+private def mk_consumed_result (consumed : bool) (it : iterator) : result μ unit :=
 if consumed then result.ok () it none
 else result.mk_eps () it
 

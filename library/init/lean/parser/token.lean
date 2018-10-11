@@ -26,10 +26,12 @@ do cfg ← read,
 
 private def finish_comment_block_aux : nat → nat → basic_parser_m unit
 | nesting (n+1) :=
-  str "/-" *> finish_comment_block_aux (nesting + 1) n <|>
+  str "/-" *> finish_comment_block_aux (nesting + 1) n
+  <|>
   str "-/" *>
-    (if nesting = 1 then pure ()
-     else finish_comment_block_aux (nesting - 1) n) <|>
+  if nesting = 1 then pure ()
+  else finish_comment_block_aux (nesting - 1) n
+  <|>
   any *> finish_comment_block_aux nesting n
 | _ _ := error "unreachable"
 
@@ -40,9 +42,11 @@ do r ← remaining,
 private def whitespace_aux : nat → basic_parser_m unit
 | (n+1) :=
 do whitespace,
-   str "--" *> take_while' (≠ '\n') *> whitespace_aux n <|>
+   str "--" *> take_while' (≠ '\n') *> whitespace_aux n
+   <|>
    -- a "/--" doc comment is an actual token, not whitespace
-   try (str "/-" *> not_followed_by (str "-")) *> finish_comment_block *> whitespace_aux n <|>
+   try (str "/-" *> not_followed_by (str "-")) *> finish_comment_block *> whitespace_aux n
+   <|>
    pure ()
 | 0 := error "unreachable"
 
@@ -78,18 +82,23 @@ with update_trailing_lst : substring → list syntax → list syntax
 | trailing [stx] := [update_trailing trailing stx]
 | trailing (stx::stxs) := stx :: update_trailing_lst trailing stxs
 
-@[inline] def with_trailing (stx : syntax) : m syntax :=
+def with_trailing (stx : syntax) : m syntax :=
 do -- TODO(Sebastian): less greedy, more natural whitespace assignment
    -- E.g. only read up to the next line break
    trailing ← lift $ as_substring $ whitespace,
    pure $ update_trailing trailing stx
 
+def mk_raw_res (start stop : string.iterator) : syntax :=
+let ss : substring := ⟨start, stop⟩ in
+syntax.atom ⟨some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩}, ss.to_string⟩
+
 /-- Match an arbitrary parser and return the consumed string in a `syntax.atom`. -/
 @[inline] def raw {α : Type} (p : m α) (trailing_ws := ff) : parser :=
 try $ do
-  it ← left_over,
-  ss ← as_substring p,
-  let stx := syntax.atom ⟨some {leading := ⟨it, it⟩, pos := it.offset, trailing := ⟨it, it⟩}, ss.to_string⟩,
+  start ← left_over,
+  p,
+  stop ← left_over,
+  let stx := mk_raw_res start stop,
   if trailing_ws then with_trailing stx else pure stx
 
 instance raw.tokens {α} (p : m α) (t) : parser.has_tokens (raw p t : parser) := default _
@@ -100,12 +109,12 @@ instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) (opti
   review := λ a, (syntax.atom <$> a).get_or_else syntax.missing }
 
 /-- Like `raw (str s)`, but default to `s` in views. -/
-@[inline, derive has_tokens has_view]
+@[derive has_tokens has_view]
 def raw_str (s : string) (trailing_ws := ff) : parser :=
 raw (str s) trailing_ws
 
-instance raw_str.view_default (s) (t) : parser.has_view_default (raw_str s t : parser) (option syntax_atom)
-  (some {val := s}) := ⟨⟩
+instance raw_str.view_default (s) (t) : parser.has_view_default (raw_str s t : parser) (option syntax_atom) (some {val := s}) :=
+⟨⟩
 
 end
 
@@ -119,14 +128,14 @@ node_choice! ident_part {
     escaped: raw $ take_until1 is_id_end_escape,
     esc_end: raw_str id_end_escape.to_string,
   ],
-  default: lookahead (satisfy is_id_first) *> raw (take_while is_id_rest)
+  default: raw $ satisfy is_id_first *> take_while is_id_rest
 }
 
 @[derive has_tokens has_view]
 def ident_suffix.parser : rec_t unit syntax basic_parser_m syntax :=
 -- consume '.' only when followed by a character starting an ident_part
-try (lookahead (ch '.' *> (ch id_begin_escape *> pure () <|> satisfy is_id_first *> pure ()))) *>
-node! ident_suffix [«.»: raw_str ".", ident: recurse ()]
+try (lookahead (ch '.' *> (ch id_begin_escape <|> satisfy is_id_first)))
+*> node! ident_suffix [«.»: raw_str ".", ident: recurse ()]
 
 def ident'' : rec_t unit syntax basic_parser_m syntax :=
 node! ident [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser]
@@ -277,8 +286,7 @@ instance symbol_or_ident.view (sym) : parser.has_view (symbol_or_ident sym : par
 def unicode_symbol (unicode ascii : string) (lbp := 0) : parser :=
 lift $ any_of [symbol unicode lbp, symbol ascii lbp]
 -- use unicode variant by default
-instance unicode_symbol.view_default (u a lbp) : parser.has_view_default (unicode_symbol u a lbp : parser) _
-  (u : syntax) := ⟨⟩
+instance unicode_symbol.view_default (u a lbp) : parser.has_view_default (unicode_symbol u a lbp : parser) _ (syntax.atom ⟨none, u⟩) := ⟨⟩
 
 end «parser»
 end lean

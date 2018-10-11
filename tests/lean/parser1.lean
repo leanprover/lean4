@@ -7,10 +7,10 @@ open lean.elaborator
 def check_reprint (p : list module_parser_output) (s : string) : except_t string io unit :=
 do let stx := syntax.node ⟨none, p.map (λ o, o.cmd)⟩,
    let stx := stx.update_leading s,
-   some s ← pure $ stx.reprint | io.println "reprint fail: choice node",
-   when (stx.reprint ≠ some s) (
+   some s' ← pure $ stx.reprint | io.println "reprint fail: choice node",
+   when (s ≠ s') (
      io.println "reprint fail:" *>
-     io.println stx.reprint
+     io.println s'
    )
 
 def show_result (p : list module_parser_output) (s : string) : except_t string io unit :=

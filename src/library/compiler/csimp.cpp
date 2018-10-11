@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
+#include "kernel/inductive.h"
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/class.h"
@@ -1002,7 +1003,9 @@ class csimp_fn {
         inductive_val I_val      = get_cases_on_inductive_val(env(), c);
         unsigned major_idx       = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices();
         lean_assert(major_idx < args.size());
-        expr const & major       = find(args[major_idx]);
+        expr major               = find(args[major_idx]);
+        if (is_nat_lit(major))
+            major = nat_lit_to_constructor(major);
         if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major, is_let_val);
         } else if (!is_let_val) {

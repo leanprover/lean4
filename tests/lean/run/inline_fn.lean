@@ -13,3 +13,6 @@ inline f x
 
 def g2 (x : nat) :=
 inline h x
+
+def g3 :=
+inline h 2

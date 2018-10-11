@@ -1100,10 +1100,24 @@ environment environment::add_inductive(declaration const & d) const {
     }
 }
 
+static expr * g_nat_zero = nullptr;
+static expr * g_nat_succ = nullptr;
+
+expr nat_lit_to_constructor(expr const & e) {
+    lean_assert(is_nat_lit(e));
+    nat const & v = lit_value(e).get_nat();
+    if (v == 0)
+        return *g_nat_zero;
+    else
+        return mk_app(*g_nat_succ, mk_lit(literal(v - nat(1))));
+}
+
 void initialize_inductive() {
     g_nested        = new name("_nested");
     g_ind_fresh     = new name("_ind_fresh");
     g_nested_fresh  = new name("_nested_fresh");
+    g_nat_zero      = new expr(mk_constant(name{"nat", "zero"}));
+    g_nat_succ      = new expr(mk_constant(name{"nat", "succ"}));
     register_name_generator_prefix(*g_ind_fresh);
     register_name_generator_prefix(*g_nested_fresh);
 }
@@ -1112,5 +1126,7 @@ void finalize_inductive() {
     delete g_nested;
     delete g_ind_fresh;
     delete g_nested_fresh;
+    delete g_nat_succ;
+    delete g_nat_zero;
 }
 }

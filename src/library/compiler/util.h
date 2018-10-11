@@ -74,7 +74,6 @@ inline bool is_quot_primitive(environment const & env, name const & n) {
 
 inline bool is_lc_unreachable_app(expr const & e) { return is_app_of(e, get_lc_unreachable_name(), 1); }
 inline bool is_lc_proof_app(expr const & e) { return is_app_of(e, get_lc_proof_name(), 1); }
-inline bool is_lc_cast_app(expr const & e) { return is_app_of(e, get_lc_cast_name(), 3); }
 
 expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr const & type);
 

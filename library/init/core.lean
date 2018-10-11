@@ -86,10 +86,10 @@ universes u v w
 meta constant lc_proof {α : Prop} : α
 /-- Auxiliary meta constant used by the compiler to mark unreachable code. -/
 meta constant lc_unreachable {α : Sort u} : α
-/-- Auxiliary meta constant used by the compiler to mark type casting. -/
-meta constant lc_cast {α : Sort u} {β : Sort v} : α → β
 
 @[inline] def id {α : Sort u} (a : α) : α := a
+
+def inline {α : Sort u} (a : α) : α := a
 
 @[inline] def flip {α : Sort u} {β : Sort v} {φ : Sort w} (f : α → β → φ) : β → α → φ :=
 λ b a, f a b

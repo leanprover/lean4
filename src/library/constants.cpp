@@ -131,10 +131,10 @@ name const * g_monad_io_file_system_impl = nullptr;
 name const * g_monad_io_environment_impl = nullptr;
 name const * g_monad_io_process_impl = nullptr;
 name const * g_monad_io_random_impl = nullptr;
+name const * g_inline = nullptr;
 name const * g_io = nullptr;
 name const * g_ite = nullptr;
 name const * g_lc_proof = nullptr;
-name const * g_lc_cast = nullptr;
 name const * g_lc_unreachable = nullptr;
 name const * g_list = nullptr;
 name const * g_list_nil = nullptr;
@@ -396,10 +396,10 @@ void initialize_constants() {
     g_monad_io_environment_impl = new name{"monad_io_environment_impl"};
     g_monad_io_process_impl = new name{"monad_io_process_impl"};
     g_monad_io_random_impl = new name{"monad_io_random_impl"};
+    g_inline = new name{"inline"};
     g_io = new name{"io"};
     g_ite = new name{"ite"};
     g_lc_proof = new name{"lc_proof"};
-    g_lc_cast = new name{"lc_cast"};
     g_lc_unreachable = new name{"lc_unreachable"};
     g_list = new name{"list"};
     g_list_nil = new name{"list", "nil"};
@@ -662,10 +662,10 @@ void finalize_constants() {
     delete g_monad_io_environment_impl;
     delete g_monad_io_process_impl;
     delete g_monad_io_random_impl;
+    delete g_inline;
     delete g_io;
     delete g_ite;
     delete g_lc_proof;
-    delete g_lc_cast;
     delete g_lc_unreachable;
     delete g_list;
     delete g_list_nil;
@@ -927,10 +927,10 @@ name const & get_monad_io_file_system_impl_name() { return *g_monad_io_file_syst
 name const & get_monad_io_environment_impl_name() { return *g_monad_io_environment_impl; }
 name const & get_monad_io_process_impl_name() { return *g_monad_io_process_impl; }
 name const & get_monad_io_random_impl_name() { return *g_monad_io_random_impl; }
+name const & get_inline_name() { return *g_inline; }
 name const & get_io_name() { return *g_io; }
 name const & get_ite_name() { return *g_ite; }
 name const & get_lc_proof_name() { return *g_lc_proof; }
-name const & get_lc_cast_name() { return *g_lc_cast; }
 name const & get_lc_unreachable_name() { return *g_lc_unreachable; }
 name const & get_list_name() { return *g_list; }
 name const & get_list_nil_name() { return *g_list_nil; }

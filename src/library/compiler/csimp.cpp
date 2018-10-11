@@ -1052,9 +1052,46 @@ class csimp_fn {
         return beta_reduce(new_fn, e, is_let_val);
     }
 
+    expr visit_inline_app(expr const & e, bool is_let_val) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        lean_assert(!args.empty());
+        if (args.size() < 2)
+            return e;
+        buffer<expr> new_args;
+        expr fn = get_app_args(find(args[1]), new_args);
+        new_args.append(args.size() - 2, args.data() + 2);
+        expr r  = mk_app(fn, new_args);
+        if (!m_cfg.m_inline || !is_constant(fn))
+            return visit(r, is_let_val);
+        name main  = const_name(fn);
+        bool first = true;
+        while (true) {
+            name c = mk_cstage1_name(const_name(fn));
+            optional<constant_info> info = env().find(c);
+            if (!info || !info->is_definition())
+                return first ? visit(r, is_let_val) : r;
+            expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
+            r = beta_reduce(new_fn, new_args.size(), new_args.data(), is_let_val);
+            if (!is_app(r)) return r;
+            fn = get_app_fn(r);
+            /* If `r` is an application of the form `g ...` where
+               `g` is an interal name and `g` prefix of the main function, we unfold this
+               application too. */
+            if (!is_constant(fn) || !is_internal_name(const_name(fn)) ||
+                const_name(fn).get_prefix() != main)
+                return r;
+            new_args.clear();
+            get_app_args(r, new_args);
+            first = false;
+        }
+    }
+
     expr visit_app(expr const & e, bool is_let_val) {
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e, is_let_val);
+        } else if (is_app_of(e, get_inline_name())) {
+            return visit_inline_app(e, is_let_val);
         }
         expr fn = find(get_app_fn(e));
         if (is_lambda(fn)) {

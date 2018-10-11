@@ -126,10 +126,10 @@ monad_io_file_system_impl
 monad_io_environment_impl
 monad_io_process_impl
 monad_io_random_impl
+inline
 io
 ite
 lc_proof
-lc_cast
 lc_unreachable
 list
 list.nil

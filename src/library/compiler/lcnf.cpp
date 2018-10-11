@@ -341,7 +341,7 @@ public:
 
     expr visit_app_default(expr const & fn, buffer<expr> & args, bool root) {
         if (args.empty()) {
-            return mk_let_decl(fn, root);
+            return fn;
         } else {
             for (expr & arg : args) {
                 arg = visit(arg, false);

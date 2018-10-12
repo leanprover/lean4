@@ -350,12 +350,6 @@ public:
       It takes a `type_context_old` `ctx` as argument.
       We use `(tmp-match) lctx | t =?= s` where `lctx` is `ctx.lctx()`
 
-      - Simplifier and Ematcher. They solve nested matching problems.
-      We use the `tmp_type_context` trick to be able to use multiple temporary assignments,
-      and avoiding an explicit `lift` operation. This trick works because the nested
-      problems are independent. So, we use `(tmp-match) lctx | t =?= s`.
-      Note that, `s` does not contain temporary metavariables. It is a term from the current goal.
-
       - (Internal) Type class resolution: we use temporary metavariables and unification.
       Before trying to synthesize `?m : C a_1 ... a_n`,
       we use a preprocessing step that creates `C a_1' ... a_n'` where `a_i'` contains
@@ -1051,41 +1045,6 @@ public:
         expr mk_let(expr const & e) { lean_assert(all_let_decls()); return m_ctx.mk_lambda(m_locals, e); }
     };
     friend class tmp_locals;
-};
-
-class tmp_type_context : public abstract_type_context {
-    type_context_old &          m_ctx;
-    buffer<optional<level>> m_tmp_uassignment;
-    buffer<optional<expr>>  m_tmp_eassignment;
-    type_context_old::tmp_data  m_tmp_data;
-public:
-    tmp_type_context(type_context_old & ctx, unsigned num_umeta = 0, unsigned num_emeta = 0);
-    type_context_old & ctx() const { return m_ctx; }
-
-    virtual environment const & env() const override { return m_ctx.env(); }
-    virtual expr infer(expr const & e) override;
-    virtual expr whnf(expr const & e) override;
-    virtual bool is_def_eq(expr const & e1, expr const & e2) override;
-    virtual name next_name() override { return m_ctx.next_name(); }
-
-    bool match(expr const & e1, expr const & e2);
-
-    expr mk_lambda(buffer<expr> const & locals, expr const & e);
-    expr mk_pi(buffer<expr> const & locals, expr const & e);
-    expr mk_lambda(expr const & local, expr const & e);
-    expr mk_pi(expr const & local, expr const & e);
-    expr mk_lambda(std::initializer_list<expr> const & locals, expr const & e);
-    expr mk_pi(std::initializer_list<expr> const & locals, expr const & e);
-
-    bool is_prop(expr const & e);
-    void assign(expr const & m, expr const & v);
-
-    level mk_tmp_univ_mvar();
-    expr mk_tmp_mvar(expr const & type);
-    bool is_uassigned(unsigned i) const;
-    bool is_eassigned(unsigned i) const;
-    void clear_eassignment();
-    expr instantiate_mvars(expr const & e);
 };
 
 /** Create a formatting function that can 'decode' metavar_decl_refs and local_decl_refs

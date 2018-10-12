@@ -19,79 +19,48 @@ def symbol (s : string) : parsec' unit :=
 def keyword (s : string) : parsec' unit :=
 (try $ str s *> not_followed_by_sat is_id_rest *> whitespace) <?> ("'" ++ s ++ "'")
 
+def parse_key2val {α : Type} (msg : string) : list (string × α) → parsec' α
+| []              := error msg
+| ((s, v) :: kvs) := (keyword s *> pure v) <|> parse_key2val kvs
+
+def str2type : list (string × type) :=
+[ ("object", type.object), ("bool", type.bool), ("byte", type.byte),
+  ("uint16", type.uint16), ("uint32", type.uint32), ("uint64", type.uint64), ("usize", type.usize),
+  ("int16", type.int16), ("int32", type.int32), ("int64", type.int64),
+  ("float", type.float), ("double", type.double) ]
+
 def parse_type : parsec' type :=
-    (keyword "bool" *> pure type.bool)
-<|> (keyword "byte" *> pure type.byte)
-<|> (keyword "uint16" *> pure type.uint16)
-<|> (keyword "uint32" *> pure type.uint32)
-<|> (keyword "uint64" *> pure type.uint64)
-<|> (keyword "usize" *> pure type.usize)
-<|> (keyword "int16" *> pure type.int16)
-<|> (keyword "int32" *> pure type.int32)
-<|> (keyword "int64" *> pure type.int64)
-<|> (keyword "float" *> pure type.float)
-<|> (keyword "double" *> pure type.double)
-<|> (keyword "object" *> pure type.object)
+parse_key2val "type" str2type
+
+def str2aunop : list (string × assign_unop) :=
+[ ("not", assign_unop.not), ("neg", assign_unop.neg), ("ineg", assign_unop.ineg), ("nat2int", assign_unop.nat2int),
+  ("is_scalar", assign_unop.is_scalar), ("is_shared", assign_unop.is_shared), ("is_null", assign_unop.is_null),
+  ("array_copy", assign_unop.array_copy), ("sarray_copy", assign_unop.sarray_copy), ("box", assign_unop.box),
+  ("unbox", assign_unop.unbox), ("cast", assign_unop.cast), ("array_size", assign_unop.array_size),
+  ("sarray_size", assign_unop.sarray_size), ("string_len", assign_unop.string_len), ("succ", assign_unop.succ),
+  ("tag", assign_unop.tag), ("tag_ref", assign_unop.tag_ref) ]
 
 def parse_assign_unop : parsec' assign_unop :=
-    (keyword "not" *> pure assign_unop.not)
-<|> (keyword "neg" *> pure assign_unop.neg)
-<|> (keyword "ineg" *> pure assign_unop.ineg)
-<|> (keyword "nat2int" *> pure assign_unop.nat2int)
-<|> (keyword "is_scalar" *> pure assign_unop.is_scalar)
-<|> (keyword "is_shared" *> pure assign_unop.is_shared)
-<|> (keyword "is_null" *> pure assign_unop.is_null)
-<|> (keyword "array_copy" *> pure assign_unop.array_copy)
-<|> (keyword "sarray_copy" *> pure assign_unop.sarray_copy)
-<|> (keyword "box" *> pure assign_unop.box)
-<|> (keyword "unbox" *> pure assign_unop.unbox)
-<|> (keyword "cast" *> pure assign_unop.cast)
-<|> (keyword "array_size" *> pure assign_unop.array_size)
-<|> (keyword "sarray_size" *> pure assign_unop.sarray_size)
-<|> (keyword "string_len" *> pure assign_unop.string_len)
-<|> (keyword "succ" *> pure assign_unop.succ)
-<|> (keyword "tag" *> pure assign_unop.tag)
-<|> (keyword "tag_ref" *> pure assign_unop.tag_ref)
+parse_key2val "unary operator" str2aunop
+
+def str2abinop : list (string × assign_binop) :=
+[ ("add", assign_binop.add), ("sub", assign_binop.sub), ("mul", assign_binop.mul), ("div", assign_binop.div), ("mod", assign_binop.mod),
+  ("iadd", assign_binop.iadd), ("isub", assign_binop.isub), ("imul", assign_binop.imul), ("idiv", assign_binop.idiv), ("imod", assign_binop.imod),
+  ("shl", assign_binop.shl), ("shr", assign_binop.shr), ("and", assign_binop.and), ("or", assign_binop.or), ("xor", assign_binop.xor), ("le", assign_binop.le),
+  ("lt", assign_binop.lt), ("eq", assign_binop.eq), ("ne", assign_binop.ne), ("ile", assign_binop.ile), ("ilt", assign_binop.ilt), ("ieq", assign_binop.ieq),
+  ("ine", assign_binop.ine), ("array_read", assign_binop.array_read), ("array_push", assign_binop.array_push), ("string_push", assign_binop.string_push),
+  ("string_append", assign_binop.string_append) ]
 
 def parse_assign_binop : parsec' assign_binop :=
-    (keyword "add" *> pure assign_binop.add)
-<|> (keyword "sub" *> pure assign_binop.sub)
-<|> (keyword "mul" *> pure assign_binop.mul)
-<|> (keyword "div" *> pure assign_binop.div)
-<|> (keyword "mod" *> pure assign_binop.mod)
-<|> (keyword "iadd" *> pure assign_binop.iadd)
-<|> (keyword "isub" *> pure assign_binop.isub)
-<|> (keyword "imul" *> pure assign_binop.imul)
-<|> (keyword "idiv" *> pure assign_binop.idiv)
-<|> (keyword "imod" *> pure assign_binop.imod)
-<|> (keyword "shl" *> pure assign_binop.shl)
-<|> (keyword "shr" *> pure assign_binop.shr)
-<|> (keyword "and" *> pure assign_binop.and)
-<|> (keyword "or" *> pure assign_binop.or)
-<|> (keyword "xor" *> pure assign_binop.xor)
-<|> (keyword "le" *> pure assign_binop.le)
-<|> (keyword "lt" *> pure assign_binop.lt)
-<|> (keyword "eq" *> pure assign_binop.eq)
-<|> (keyword "ne" *> pure assign_binop.ne)
-<|> (keyword "ile" *> pure assign_binop.ile)
-<|> (keyword "ilt" *> pure assign_binop.ilt)
-<|> (keyword "ieq" *> pure assign_binop.ieq)
-<|> (keyword "ine" *> pure assign_binop.ine)
-<|> (keyword "array_read" *> pure assign_binop.array_read)
-<|> (keyword "array_push" *> pure assign_binop.array_push)
-<|> (keyword "string_push" *> pure assign_binop.string_push)
-<|> (keyword "string_append" *> pure assign_binop.string_append)
+parse_key2val "binary operator" str2abinop
+
+def str2unop : list (string × unop) :=
+[ ("inc_ref", unop.inc_ref), ("dec_ref", unop.dec_ref), ("inc", unop.inc), ("dec", unop.dec),
+  ("dec_sref", unop.dec_sref), ("free", unop.free), ("dealloc", unop.dealloc), ("array_pop", unop.array_pop),
+  ("sarray_pop", unop.sarray_pop) ]
 
 def parse_unop : parsec' unop :=
-    (keyword "inc_ref" *> pure unop.inc_ref)
-<|> (keyword "dec_ref" *> pure unop.dec_ref)
-<|> (keyword "inc" *> pure unop.inc)
-<|> (keyword "dec" *> pure unop.dec)
-<|> (keyword "dec_sref" *> pure unop.dec_sref)
-<|> (keyword "free" *> pure unop.free)
-<|> (keyword "dealloc" *> pure unop.dealloc)
-<|> (keyword "array_pop" *> pure unop.array_pop)
-<|> (keyword "sarray_pop" *> pure unop.sarray_pop)
+parse_key2val "unary operator" str2unop
 
 def parse_literal : parsec' literal :=
     (keyword "tt" *> pure (literal.bool tt))

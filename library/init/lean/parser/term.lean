@@ -23,8 +23,8 @@ def ident_univ_spec.parser : basic_parser :=
 node! ident_univ_spec [".{", levels: level.parser+, "}"]
 
 @[derive parser.has_tokens parser.has_view]
-protected def term.ident.parser : term_parser :=
-node! term.ident [id: ident.parser, univ: (monad_lift ident_univ_spec.parser)?]
+def ident_univs.parser : term_parser :=
+node! ident_univs [id: ident.parser, univ: (monad_lift ident_univ_spec.parser)?]
 
 namespace term
 /-- Access leading term -/
@@ -177,7 +177,7 @@ node! explicit [
     explicit: symbol "@" max_prec,
     partial_explicit: symbol "@@" max_prec
   },
-  id: term.ident.parser
+  id: ident_univs.parser
 ]
 
 @[derive parser.has_tokens parser.has_view]
@@ -290,7 +290,7 @@ node! anonymous_inaccessible ["._":max_prec]
 -- TODO(Sebastian): replace with attribute
 @[derive has_tokens]
 def builtin_leading_parsers : list term_parser := [
-  term.ident.parser,
+  ident_univs.parser,
   number.parser,
   paren.parser,
   hole.parser,

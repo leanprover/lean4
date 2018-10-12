@@ -34,10 +34,10 @@ instance coe_name_ident : has_coe name parser.ident.view :=
       suffix := suffix <&> λ suffix, {ident := review parser.ident suffix}}
   | _ := some $ view parser.ident syntax.missing) none).get_or_else (view parser.ident syntax.missing)⟩
 
-instance coe_ident_term_ident : has_coe parser.ident.view term.ident.view :=
+instance coe_ident_ident_univs : has_coe parser.ident.view ident_univs.view :=
 ⟨λ id, {id := id}⟩
 
-instance coe_term_ident_binder_id : has_coe term.ident.view binder_ident.view :=
+instance coe_ident_binder_id : has_coe ident.view binder_ident.view :=
 ⟨binder_ident.view.id⟩
 
 instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=
@@ -94,12 +94,12 @@ def mixfix.transform : transformer :=
   let term := match v.kind with
   | mixfix.kind.view.prefix _ :=
     -- `prefix tk:prec? := e` ~> `notation tk:prec? b:prec? := e b`
-    review app {fn := v.term, arg := review term.ident `b}
+    review app {fn := v.term, arg := review ident_univs `b}
   | mixfix.kind.view.postfix _ :=
     -- `postfix tk:prec? := e` ~> `notation tk:prec? b:prec? := e b`
-    review app {fn := v.term, arg := review term.ident `a}
+    review app {fn := v.term, arg := review ident_univs `a}
   | _ :=
-    review app {fn := review app {fn := v.term, arg := review term.ident `a}, arg := review term.ident `b},
+    review app {fn := review app {fn := v.term, arg := review ident_univs `a}, arg := review ident_univs `b},
   pure $ review «notation» {«local» := v.local, spec := spec, term := term}
 
 def reserve_mixfix.transform : transformer :=

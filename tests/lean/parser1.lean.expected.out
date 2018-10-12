@@ -93,8 +93,8 @@ result:
   (term.app
    (term.app
     (term.sort_app (term.sort (1 "Type")) (level.leading (0 `max)))
-    (term.ident `u []))
-   (term.ident `v [])))
+    (ident_univs `u []))
+   (ident_univs `v [])))
  (eoi "")]
 (ok (some "notationa`+`:65 b:65 :=nat.addab"))
 parser1.lean:132:0: warning: using 'exit' to interrupt Lean

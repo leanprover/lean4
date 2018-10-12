@@ -42,7 +42,8 @@ structure extract_env :=
 (cfg : extract_cpp_config)
 (ctx : context := mk_context)
 
-@[reducible] def extract_m := reader_t extract_env (except_t format (state_t string id))
+@[derive monad monad_except monad_state monad_reader monad_run]
+def extract_m := reader_t extract_env (except_t format (state_t string id))
 
 def emit {α} [has_to_string α] (a : α) : extract_m unit :=
 modify (++ (to_string a))
@@ -378,11 +379,14 @@ match d with
   when (need_uncurry d) (emit_uncurry d)
 | _ := pure ()
 
+section
+local attribute [reducible] extract_m
 def emit_def (d : decl) : extract_m unit :=
 do env ← read,
    ctx ← monad_lift $ infer_types d env.cfg.env,
    adapt_reader (λ env : extract_env, {ctx := ctx, ..env}) $
      emit_def_core d
+end
 
 def collect_used (d : list decl) : fnid_set :=
 d.foldl (λ s d, match d with

@@ -13,7 +13,7 @@ the input string, we still use a "tokenizer" parser in the Lean parser in some c
 -/
 
 prelude
-import init.lean.parser.combinators
+import init.lean.parser.combinators init.lean.parser.string_literal
 
 namespace lean
 namespace parser
@@ -159,6 +159,9 @@ node_choice! number {
   base10: raw (take_while1 char.is_digit),
 }
 
+def string_lit' : basic_parser :=
+node! string_lit [val: raw parse_string_literal]
+
 def token : basic_parser :=
 do it ← left_over,
    cache ← get_cache,
@@ -175,7 +178,9 @@ do it ← left_over,
 
      -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
      -- we want it to be recognized as a symbol
-     tk::_ ← monad_parsec.longest_match [symbol', ident'] <|> list.ret <$> number' | error "token: unreachable",
+     tk::_ ← monad_parsec.longest_match [symbol', ident'] <|>
+       list.ret <$> any_of [number', string_lit']
+       | error "token: unreachable",
      tk ← with_trailing tk,
      new_it ← left_over,
      put_cache {cache with token_cache := some ⟨it, new_it, tk⟩},
@@ -222,6 +227,18 @@ def number.view.to_nat : number.view → nat
 
 def number.view.of_nat (n : nat) : number.view :=
 number.view.base10 (some {val := to_string n})
+
+def string_lit.parser : parser :=
+lift $ try $ do {
+  it ← left_over,
+  stx ← token,
+  some _ ← pure $ try_view string_lit stx | error "" (dlist.singleton "number") it,
+  pure stx
+} <?> "string"
+
+instance string_lit.parser.tokens : parser.has_tokens (string_lit.parser : parser) := default _
+instance string_lit.parser.view : parser.has_view (string_lit.parser : parser) string_lit.view :=
+{..string_lit.has_view}
 
 def ident.parser : parser :=
 lift $ try $ do {

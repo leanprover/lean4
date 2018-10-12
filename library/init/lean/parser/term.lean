@@ -292,6 +292,7 @@ node! anonymous_inaccessible ["._":max_prec]
 def builtin_leading_parsers : list term_parser := [
   ident_univs.parser,
   number.parser,
+  string_lit.parser,
   paren.parser,
   hole.parser,
   sort.parser,

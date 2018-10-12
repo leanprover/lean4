@@ -28,6 +28,7 @@ do st ← get,
      pure tk_cfg.lbp
    | syntax.node ⟨@number, _⟩ := pure max_prec
    | syntax.node ⟨@ident, _⟩ := pure max_prec
+   | syntax.node ⟨@string_lit, _⟩ := pure max_prec
    | _ := error "curr_lbp: unknown token kind"
 
 private def trailing_loop (trailing : reader_t syntax m syntax) (rbp : nat) : nat → syntax → parser

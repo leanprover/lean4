@@ -16,7 +16,7 @@ open combinators parser.has_view monad_parsec
 def level_parser_m := rec_t nat syntax basic_parser_m
 abbreviation level_parser := level_parser_m syntax
 
-/-- A term parser for a suffix or infix notation that accepts a preceding term. -/
+/-- A level parser for a suffix or infix notation that accepts a preceding term level. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
 def trailing_level_parser_m := reader_t syntax level_parser_m
 abbreviation trailing_level_parser := trailing_level_parser_m syntax

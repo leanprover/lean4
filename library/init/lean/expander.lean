@@ -51,7 +51,7 @@ let prec := match sym with
 let prec_to_action := λ prec, {action.view . kind := action_kind.view.prec prec} in
 match k with
 | mixfix.kind.view.prefix _ :=
-  -- `prefix tk:prec` ~> `notation tk:prec b:prec`
+  -- `prefix sym:prec` ~> `notation sym:prec b:prec`
   pure {
     rules := [{
       symbol := sym,

@@ -116,6 +116,8 @@ public:
     }
 };
 
+typedef list_ref<object_ref> objects;
+
 template<typename T> list_ref<T> const & tail(object * o) { return static_cast<list_ref<T> const &>(cnstr_get_ref(o, 1)); }
 
 template<typename T> size_t length(list_ref<T> const & l) {

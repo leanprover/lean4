@@ -115,7 +115,7 @@ def run_frontend (input : string) : except_t string io unit := do
           when ¬(cmd'.is_of_kind module.eoi) $
             io.println "elaborator died!!",
           msgs.to_list.mfor $ λ e, io.println e.text,
-          pure (sum.inr outs.reverse)
+          pure $ sum.inr (out::outs).reverse
         }
         | coroutine_result_core.yielded elab_out elab_k := do {
           elab_out.messages.to_list.mfor $ λ e, io.println e.text,
@@ -126,7 +126,7 @@ def run_frontend (input : string) : except_t string io unit := do
     },
   check_reprint outs input/-,
   let stx := syntax.node ⟨none, outs.map (λ r, r.cmd)⟩,
-  let stx := stx.update_leading s,
+  let stx := stx.update_leading input,
   io.println "result:",
   io.println (to_string stx)-/
 #exit

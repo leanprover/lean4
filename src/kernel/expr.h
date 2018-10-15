@@ -350,9 +350,6 @@ inline expr const & local_type(expr const & e) { lean_assert(is_local(e)); retur
 inline expr mk_constant(name const & n, levels const & ls) { return mk_const(n, ls); }
 inline expr mk_constant(name const & n) { return mk_constant(n, levels()); }
 inline bool is_constant(expr const & e) { return is_const(e); }
-expr mk_quote(bool is_reflected, expr const & e);
-inline expr const & quote_value(expr const & e) { return static_cast<expr const &>(cnstr_get_ref(e, 0)); }
-bool quote_is_reflected(expr const & e);
 expr update_local(expr const & e, expr const & new_type, binder_info bi);
 expr update_local(expr const & e, expr const & new_type);
 expr update_local(expr const & e, binder_info bi);

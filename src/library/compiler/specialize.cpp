@@ -7,11 +7,23 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "library/module.h"
+#include "library/attribute_manager.h"
 #include "library/compiler/util.h"
 
 #include "library/trace.h"
 
 namespace lean {
+bool has_specialize_attribute(environment const & env, name const & n) {
+    if (has_attribute(env, "specialize", n))
+        return true;
+    if (is_internal_name(n) && !n.is_atomic()) {
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[specialize]`
+           if `f` is marked. */
+        return has_specialize_attribute(env, n.get_prefix());
+    }
+    return false;
+}
+
 enum class spec_arg_kind { Fixed, FixedInst, Other };
 static spec_arg_kind to_spec_arg_kind(object_ref const & r) {
     lean_assert(is_scalar(r)); return static_cast<spec_arg_kind>(unbox(r.raw()));
@@ -305,6 +317,14 @@ void initialize_specialize() {
     g_ext = new specialize_ext_reg();
     spec_info_modification::init();
     register_trace_class({"compiler", "spec_info"});
+
+    register_system_attribute(basic_attribute::with_check(
+            "specialize", "mark definition to always be specialized",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'specialize' use, only definitions can be marked as specialize");
+            }));
 }
 
 void finalize_specialize() {

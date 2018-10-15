@@ -113,11 +113,11 @@ def reverse_core : list α → list α → list α
 def reverse : list α → list α :=
 λ l, reverse_core l []
 
-def map (f : α → β) : list α → list β
+@[specialize] def map (f : α → β) : list α → list β
 | []       := []
 | (a :: l) := f a :: map l
 
-def map₂ (f : α → β → γ) : list α → list β → list γ
+@[specialize] def map₂ (f : α → β → γ) : list α → list β → list γ
 | []      _       := []
 | _       []      := []
 | (x::xs) (y::ys) := f x y :: map₂ xs ys
@@ -183,18 +183,18 @@ def take : ℕ → list α → list α
 | (succ n) []       := []
 | (succ n) (x :: r) := x :: take n r
 
-def foldl (f : α → β → α) : α → list β → α
+@[specialize] def foldl (f : α → β → α) : α → list β → α
 | a []       := a
 | a (b :: l) := foldl (f a b) l
 
-def foldr (f : α → β → β) (b : β) : list α → β
+@[specialize] def foldr (f : α → β → β) (b : β) : list α → β
 | []       := b
 | (a :: l) := f a (foldr l)
 
-def any (l : list α) (p : α → bool) : bool :=
+@[inline] def any (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a || r) ff l
 
-def all (l : list α) (p : α → bool) : bool :=
+@[inline] def all (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a && r) tt l
 
 def bor  (l : list bool) : bool := any l id

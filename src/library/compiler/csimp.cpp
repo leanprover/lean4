@@ -29,7 +29,7 @@ csimp_cfg::csimp_cfg() {
     m_inline_threshold                = 1;
     m_float_cases_app                 = true;
     m_float_cases                     = true;
-    m_float_cases_threshold           = 10;
+    m_float_cases_threshold           = 20;
     m_inline_jp_threshold             = 2;
 }
 
@@ -248,9 +248,18 @@ class csimp_fn {
         return found;
     }
 
-    /* Auxiliary method for `may_return_constructor`. `visited` contains the set of join points that
-       have already been visited. */
-    bool may_return_constructor_core(expr e, name_set & visited) {
+    /* Collect information for deciding whether `float_cases_on` is useful or not, and control
+       code blowup. */
+    struct cases_info_result {
+        /* The number of branches takes into account join-points too. That is,
+           it is not just the number of minor premises. */
+        unsigned m_num_branches{0};
+        /* The number of branches that return a constructor application. */
+        unsigned m_num_cnstr_results{0};
+        name_set m_visited_jps;
+    };
+
+    void collect_cases_info(expr e, cases_info_result & result) {
         while (true) {
             if (is_lambda(e))
                 e = binding_body(e);
@@ -260,42 +269,27 @@ class csimp_fn {
                 break;
         }
         if (is_constructor_app(env(), e)) {
-            return true;
+            result.m_num_branches++;
+            result.m_num_cnstr_results++;
         } else if (is_cases_on_app(env(), e)) {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
             unsigned begin_minors; unsigned end_minors;
             std::tie(begin_minors, end_minors) = get_cases_on_minors_range(env(), const_name(fn));
             for (unsigned i = begin_minors; i < end_minors; i++) {
-                if (may_return_constructor_core(args[i], visited))
-                    return true;
+                collect_cases_info(args[i], result);
             }
-            return false;
         } else if (is_join_point_app(e)) {
             expr const & fn = get_app_fn(e);
             lean_assert(is_fvar(fn));
-            if (visited.find(fvar_name(fn)) != visited.end())
-                return false;
-            visited.insert(fvar_name(fn));
+            if (result.m_visited_jps.find(fvar_name(fn)) != result.m_visited_jps.end())
+                return;
+            result.m_visited_jps.insert(fvar_name(fn));
             local_decl decl = m_lctx.get_local_decl(fn);
-            return may_return_constructor_core(*decl.get_value(), visited);
+            collect_cases_info(*decl.get_value(), result);
         } else {
-            return false;
+            result.m_num_branches++;
         }
-    }
-
-    /* Return true if `e` may return a constructor application. We say "may" because the
-       result may be a `cases_on`-application and we return true if one of the branches return a constructor. */
-    bool may_return_constructor(expr const & e) {
-        name_set visited;
-        return may_return_constructor_core(e, visited);
-    }
-
-    bool is_float_cases_on_worthwhile(expr const & x, expr const & e, expr const & c) {
-        lean_assert(is_cases_on_app(env(), c));
-        return
-            is_proj_or_cases_on_arg_at(x, e) &&
-            may_return_constructor(c);
     }
 
     /* The `float_cases_on` transformation may produce code duplication.
@@ -305,12 +299,23 @@ class csimp_fn {
        Remark: it may produce type incorrect terms. */
     optional<expr> mk_join_point_float_cases_on(expr const & fvar, expr const & e, expr const & c, buffer<expr> & new_jps) {
         lean_assert(is_cases_on_app(env(), c));
-        expr const & c_fn = get_app_fn(c);
-        inductive_val I_val    = get_cases_on_inductive_val(env(), c_fn);
-        unsigned code_increase = get_lcnf_size(env(), e)*(I_val.get_ncnstrs() - 1);
+        if (!is_proj_or_cases_on_arg_at(fvar, e)) {
+            /* It is not worthwhile to apply `float_cases_on` since `e` does not project or destruct the result produced
+               by `c`. */
+            return none_expr();
+        }
+        cases_info_result c_info;
+        collect_cases_info(c, c_info);
+        if (c_info.m_num_cnstr_results == 0) {
+            /* It is not worthwhile to apply `float_cases_on` since none of `c` branches return a constructor. */
+            return none_expr();
+        }
+        lean_assert(c_info.m_num_branches > 0);
+        lean_assert(c_info.m_num_cnstr_results < c_info.m_num_branches);
+        unsigned e_size        = get_lcnf_size(env(), e);
+        unsigned code_increase = e_size*(c_info.m_num_branches - 1);
         if (code_increase <= m_cfg.m_float_cases_threshold) {
-            /* It is "small", copying should be ok. */
-            return some_expr(e);
+            return some(e);
         } else if (is_cases_on_app(env(), e)) {
             local_decl fvar_decl = m_lctx.get_local_decl(fvar);
             buffer<expr> args;
@@ -320,9 +325,11 @@ class csimp_fn {
                In the worst case, each branch becomes a join point jump, and the
                "compressed size" is equal to the number of branches + 1 for the cases_on application. */
             unsigned e_compressed_size = e_I_val.get_ncnstrs() + 1;
-            unsigned new_code_increase     = e_compressed_size*(I_val.get_ncnstrs() - 1);
+            /* We can ignore the cost of branches that return constructors since they will in the worst case become
+               join point jumps. */
+            unsigned new_code_increase = e_compressed_size*(c_info.m_num_branches - c_info.m_num_cnstr_results);
             if (new_code_increase <= m_cfg.m_float_cases_threshold) {
-                unsigned branch_threshold = m_cfg.m_float_cases_threshold / (I_val.get_ncnstrs() - 1);
+                unsigned branch_threshold = m_cfg.m_float_cases_threshold / (c_info.m_num_branches - 1);
                 unsigned begin_minors; unsigned end_minors;
                 std::tie(begin_minors, end_minors) = get_cases_on_minors_range(env(), const_name(fn));
                 for (unsigned minor_idx = begin_minors; minor_idx < end_minors; minor_idx++) {
@@ -720,33 +727,31 @@ class csimp_fn {
                     buffer<pair<expr, expr>> entries_ndep_curr;
                     split_entries(entries, x, entries_dep_curr, entries_ndep_curr);
                     expr new_e = mk_let(entries_dep_curr, e);
-                    if (is_float_cases_on_worthwhile(x, new_e, val)) {
-                        buffer<expr> new_jps;
-                        if (optional<expr> new_e_opt = float_cases_on(x, new_e, val, new_jps)) {
-                            e       = *new_e_opt;
-                            /* Reset `e_fvars` and `entries_fvars`, we need to reconstruct them. */
-                            e_fvars.clear(); entries_fvars.clear();
-                            collect_used(e, e_fvars);
-                            /* Join points may have been generated, we move them to entries. */
-                            entries.clear();
-                            while (!new_jps.empty()) {
-                                expr jp_fvar = new_jps.back();
-                                new_jps.pop_back();
-                                local_decl jp_decl = m_lctx.get_local_decl(jp_fvar);
-                                expr jp_type       = jp_decl.get_type();
-                                expr jp_val        = *jp_decl.get_value();
-                                collect_used(jp_type, entries_fvars);
-                                collect_used(jp_val, entries_fvars);
-                                entries.emplace_back(jp_fvar, jp_val);
-                            }
-                            /* Copy `entries_ndep_curr` to `entries` */
-                            for (unsigned i = 0; i < entries_ndep_curr.size(); i++) {
-                                pair<expr, expr> const & ndep_entry = entries_ndep_curr[i];
-                                entries.push_back(ndep_entry);
-                                collect_used(ndep_entry.second, entries_fvars);
-                            }
-                            continue;
+                    buffer<expr> new_jps;
+                    if (optional<expr> new_e_opt = float_cases_on(x, new_e, val, new_jps)) {
+                        e       = *new_e_opt;
+                        /* Reset `e_fvars` and `entries_fvars`, we need to reconstruct them. */
+                        e_fvars.clear(); entries_fvars.clear();
+                        collect_used(e, e_fvars);
+                        /* Join points may have been generated, we move them to entries. */
+                        entries.clear();
+                        while (!new_jps.empty()) {
+                            expr jp_fvar = new_jps.back();
+                            new_jps.pop_back();
+                            local_decl jp_decl = m_lctx.get_local_decl(jp_fvar);
+                            expr jp_type       = jp_decl.get_type();
+                            expr jp_val        = *jp_decl.get_value();
+                            collect_used(jp_type, entries_fvars);
+                            collect_used(jp_val, entries_fvars);
+                            entries.emplace_back(jp_fvar, jp_val);
                         }
+                        /* Copy `entries_ndep_curr` to `entries` */
+                        for (unsigned i = 0; i < entries_ndep_curr.size(); i++) {
+                            pair<expr, expr> const & ndep_entry = entries_ndep_curr[i];
+                            entries.push_back(ndep_entry);
+                            collect_used(ndep_entry.second, entries_fvars);
+                        }
+                        continue;
                     }
                 }
                 val          = visit_cases_default(val);

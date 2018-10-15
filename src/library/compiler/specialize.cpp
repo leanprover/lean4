@@ -38,6 +38,13 @@ static spec_arg_kinds to_spec_arg_kinds(buffer<spec_arg_kind> const & ks) {
     }
     return r;
 }
+static bool has_fixed_inst_arg(spec_arg_kinds ks) {
+    for (object_ref const & k : ks) {
+        if (to_spec_arg_kind(k) == spec_arg_kind::FixedInst)
+            return true;
+    }
+    return false;
+}
 
 char const * to_str(spec_arg_kind k) {
     switch (k) {
@@ -100,6 +107,7 @@ struct spec_info_modification : public modification {
     void perform(environment & env) const override {
         specialize_ext ext = get_extension(env);
         ext.m_spec_info.insert(m_name, m_spec_info);
+        env = update(env, ext);
     }
 
     void serialize(serializer & s) const override {
@@ -264,6 +272,19 @@ class specialize_fn {
         return mk_app(c, args);
     }
 
+    expr find(expr const & e) {
+        if (is_fvar(e)) {
+            if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
+                if (optional<expr> v = decl->get_value()) {
+                    return find(*v);
+                }
+            }
+        } else if (is_mdata(e)) {
+            return find(mdata_expr(e));
+        }
+        return e;
+    }
+
     expr visit_app(expr const & e) {
         if (is_cases_on_app(env(), e)) {
             return visit_cases_on(e);
@@ -271,7 +292,51 @@ class specialize_fn {
             buffer<expr> args;
             expr fn = get_app_args(e, args);
             if (!is_constant(fn)) return e;
-            lean_trace(name({"compiler", "specialize"}), tout() << e << "\n";);
+            specialize_ext ext     = get_extension(env());
+            spec_info const * info = ext.m_spec_info.find(const_name(fn));
+            if (!info) return e;
+            bool has_attr          = has_specialize_attribute(env(), const_name(fn));
+            /* If `has_attr` is false, then we specialize if some fixed instance argument reduces
+               to a constructor application. Otherwise, we specialize if some fixed argument is
+               a lambda or constant application. */
+            spec_arg_kinds kinds   = info->get_arg_kinds();
+            if (!has_attr && !has_fixed_inst_arg(kinds))
+                return e; /* Nothing to specialize */
+            type_checker tc(m_st, m_lctx);
+            bool is_candidate      = false;
+            for (unsigned i = 0; i < args.size(); i++) {
+                if (empty(kinds))
+                    break;
+                spec_arg_kind k = to_spec_arg_kind(head(kinds));
+                kinds           = tail(kinds);
+                if (!is_lcnf_atom(args[i]))
+                    continue; /* In LCNF, non-atomic arguments are computationally irrelevant. */
+                expr w;
+                switch (k) {
+                case spec_arg_kind::Fixed:
+                    /* It is not feasible to invoke whnf to `args[i]`
+                       since it may consume a lot of time. */
+                    w = find(args[i]);
+                    if (is_lambda(w) || is_constant(get_app_fn(w)))
+                        is_candidate = true;
+                    break;
+                case spec_arg_kind::FixedInst:
+                    /* Type class instances arguments are usually free variables bound to lambda declarations,
+                       or quickly reduce to constructor applications. So, the following `whnf` is probably
+                       harmless. */
+                    w = tc.whnf(args[i]);
+                    if (is_constructor_app(env(), w))
+                        is_candidate = true;
+                    break;
+                case spec_arg_kind::Other:
+                    break;
+                }
+                if (is_candidate)
+                    break;
+            }
+            if (!is_candidate)
+                return e;
+            lean_trace(name({"compiler", "specialize"}), tout() << "candidate: " << e << "\n";);
             // TODO(Leo):
             return e;
         }

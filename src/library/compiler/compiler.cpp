@@ -110,14 +110,13 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(cse, env, ds);
     trace_compiler(name({"compiler", "cse"}), ds);
-    environment new_env = env;
+    ds = apply(max_sharing, ds);
+    trace_compiler(name({"compiler", "stage1"}), ds);
+    environment new_env = cache_stage1(env, ds);
     std::tie(new_env, ds) = specialize(new_env, ds);
     trace_compiler(name({"compiler", "specialize"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
-    ds = apply(max_sharing, ds);
-    trace_compiler(name({"compiler", "stage1"}), ds);
-    new_env = cache_stage1(new_env, ds);
     ds = apply(erase_irrelevant, new_env, ds);
     trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
     ds = apply(elim_dead_let, ds);

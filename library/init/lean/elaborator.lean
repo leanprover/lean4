@@ -96,12 +96,17 @@ do -- build and register parser
      | _ := throw "register_notation_parser: unimplemented",
      pure $ psym::ptrans.to_monad
    ),
+   first_rule::_ ← pure spec.rules | throw "register_notation_parser: unreachable",
+   first_tk ← match first_rule.symbol with
+   | notation_symbol.view.quoted {symbol := some a ..} :=
+     pure a.val.trim
+   | _ := throw "register_notation_parser: unreachable",
    let ps := ps.bind id,
    cfg ← match spec.prefix_arg with
    | none   := pure {cfg with leading_term_parsers :=
-     parser.combinators.node k ps::cfg.leading_term_parsers}
+     cfg.leading_term_parsers.insert first_tk $ parser.combinators.node k ps}
    | some _ := pure {cfg with trailing_term_parsers :=
-     parser.combinators.node k (read::ps.map coe)::cfg.trailing_term_parsers},
+     cfg.trailing_term_parsers.insert first_tk $ parser.combinators.node k (read::ps.map coe)},
    pure cfg
 
 /-- Recreate `elaborator_state.parser_cfg` from the elaborator state and the initial config,

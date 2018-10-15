@@ -191,11 +191,29 @@ abbreviation trailing_term_parser := trailing_term_parser_m syntax
 instance trailing_term_parser_coe : has_coe term_parser trailing_term_parser :=
 ⟨λ x _, x⟩
 
+local attribute [instance] name.has_lt_quick
+/-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
+def token_map (α : Type) := rbmap name (list α) (<)
+
+def token_map.insert {α : Type} (map : token_map α) (k : name) (v : α) : token_map α :=
+match map.find k with
+| none    := map.insert k [v]
+| some vs := map.insert k (v::vs)
+
+def token_map.of_list {α : Type} : list (name × α) → token_map α
+| []          := mk_rbmap _ _ _
+| (⟨k,v⟩::xs) := (token_map.of_list xs).insert k v
+
+instance token_map_nil.tokens : parser.has_tokens $ @token_map.of_list ρ [] :=
+default _
+instance token_map_cons.tokens (k : name) (r : ρ) (rs : list (name × ρ)) [parser.has_tokens r] [parser.has_tokens $ token_map.of_list rs] :
+  parser.has_tokens $ token_map.of_list ((k,r)::rs) :=
+⟨tokens r ++ tokens (token_map.of_list rs)⟩
+
 -- This needs to be a separate structure since `term_parser`s cannot contain themselves in their config
--- TODO: we need indexing here.
 structure command_parser_config extends parser_config :=
-(leading_term_parsers : list term_parser)
-(trailing_term_parsers : list trailing_term_parser)
+(leading_term_parsers : token_map term_parser)
+(trailing_term_parsers : token_map trailing_term_parser)
 
 instance command_parser_config_coe_parser_config : has_coe command_parser_config parser_config :=
 ⟨command_parser_config.to_parser_config⟩

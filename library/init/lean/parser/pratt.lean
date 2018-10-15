@@ -18,9 +18,7 @@ local notation `m` := rec_t nat syntax base_m
 local notation `parser` := m syntax
 
 def curr_lbp : m nat :=
-do st ← get,
-   -- suppress error messages
-   except.ok tk ← (monad_lift $ observing $ lookahead token) <* put st | pure 0 <* put st,
+do except.ok tk ← monad_lift peek_token | pure 0,
    match tk with
    | syntax.atom ⟨_, sym⟩ := do
      cfg ← read,

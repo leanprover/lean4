@@ -185,6 +185,10 @@ do it ← left_over,
      pure tk
    )
 
+def peek_token : basic_parser_m (except (parsec.message syntax) syntax) :=
+do st ← get,
+   observing (try (lookahead token)) <* put st
+
 variable [monad_basic_parser m]
 
 def symbol (sym : string) (lbp := 0) : parser :=
@@ -302,6 +306,15 @@ def unicode_symbol (unicode ascii : string) (lbp := 0) : parser :=
 lift $ any_of [symbol unicode lbp, symbol ascii lbp]
 -- use unicode variant by default
 instance unicode_symbol.view_default (u a lbp) : parser.has_view_default (unicode_symbol u a lbp : parser) _ (syntax.atom ⟨none, u⟩) := ⟨⟩
+
+def indexed {α : Type} (map : token_map α) : m (list α) :=
+lift $ do
+  except.ok tk ← peek_token | error "",
+  n ← match tk with
+  | syntax.atom ⟨_, s⟩ := pure $ mk_simple_name s
+  | syntax.node ⟨some k, _⟩ := pure k.name
+  | _ := error "",
+  option.to_monad $ map.find n
 
 end «parser»
 end lean

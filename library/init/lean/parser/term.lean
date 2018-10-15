@@ -53,7 +53,11 @@ node! hole [hole: symbol "_" max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def sort.parser : term_parser :=
-node_choice! sort {"Sort":max_prec, "Type":max_prec}
+node! sort ["Sort":max_prec]
+
+@[derive parser.has_tokens parser.has_view]
+def type.parser : term_parser :=
+node! type ["Type":max_prec]
 
 section binder
 @[derive has_tokens has_view]
@@ -289,27 +293,33 @@ node! anonymous_inaccessible ["._":max_prec]
 
 -- TODO(Sebastian): replace with attribute
 @[derive has_tokens]
-def builtin_leading_parsers : list term_parser := [
-  ident_univs.parser,
-  number.parser,
-  string_lit.parser,
-  paren.parser,
-  hole.parser,
-  sort.parser,
-  lambda.parser,
-  pi.parser,
-  anonymous_constructor.parser,
-  explicit_ident.parser,
-  let.parser,
-  have.parser,
-  show.parser,
-  assume.parser,
-  match.parser,
-  if.parser,
-  struct_inst.parser,
-  subtype.parser,
-  inaccessible.parser,
-  anonymous_inaccessible.parser
+def builtin_leading_parsers : token_map term_parser := token_map.of_list [
+  (ident.name, ident_univs.parser),
+  (number.name, number.parser),
+  (string_lit.name, string_lit.parser),
+  ("(", paren.parser),
+  ("_", hole.parser),
+  ("Sort", sort.parser),
+  ("Type", type.parser),
+  ("λ", lambda.parser),
+  ("fun", lambda.parser),
+  ("Π", pi.parser),
+  ("Pi", pi.parser),
+  ("∀", pi.parser),
+  ("forall", pi.parser),
+  ("⟨", anonymous_constructor.parser),
+  ("@", explicit_ident.parser),
+  ("@@", explicit_ident.parser),
+  ("let", let.parser),
+  ("have", have.parser),
+  ("show", show.parser),
+  ("assume", assume.parser),
+  ("match", match.parser),
+  ("if", if.parser),
+  ("{", struct_inst.parser),
+  ("{", subtype.parser),
+  (".(", inaccessible.parser),
+  ("._", anonymous_inaccessible.parser)
 ]
 
 @[derive parser.has_tokens parser.has_view]
@@ -327,8 +337,6 @@ node! arrow [dom: get_leading, op: unicode_symbol "→" "->" 25, range: term.par
 
 @[derive parser.has_view]
 def projection.parser : trailing_term_parser :=
-/- Use max_prec + 1 so that it bind more tightly than application:
-   `a (b).c` should be parsed as `a ((b).c)`. -/
 try $ node! projection [
   term: get_leading,
   -- do not consume trailing whitespace
@@ -341,25 +349,28 @@ try $ node! projection [
 
 -- register '.' manually because of `raw_str`
 instance projection.tokens : has_tokens projection.parser :=
-⟨[{«prefix» := ".", lbp := max_prec}]⟩
+/- Use max_prec + 1 so that it bind more tightly than application:
+   `a (b).c` should be parsed as `a ((b).c)`. -/
+⟨[{«prefix» := ".", lbp := max_prec.succ}]⟩
 
 @[derive has_tokens]
-def builtin_trailing_parsers : list trailing_term_parser := [
-  arrow.parser,
-  projection.parser
+def builtin_trailing_parsers : token_map trailing_term_parser := token_map.of_list [
+  ("→", arrow.parser),
+  ("->", arrow.parser),
+  (".", projection.parser)
 ]
 
 end term
 
 def term_parser.run (p : term_parser) : command_parser :=
 do cfg ← read,
-   let trailing : trailing_term_parser := (longest_match cfg.trailing_term_parsers) <|>
+   let trailing : trailing_term_parser := (indexed cfg.trailing_term_parsers >>= longest_match) <|>
      -- The application parsers should only be tried as a fall-back;
      -- e.g. `a + b` should not be parsed as `a (+ b)`.
      --TODO(Sebastian): We should be able to remove this workaround using
      -- the proposed more robust precedence handling
      any_of [term.sort_app.parser, term.app.parser],
-   adapt_reader coe $ pratt_parser (longest_match cfg.leading_term_parsers) trailing p
+   adapt_reader coe $ pratt_parser (indexed cfg.leading_term_parsers >>= longest_match) trailing p
 
 end parser
 end lean

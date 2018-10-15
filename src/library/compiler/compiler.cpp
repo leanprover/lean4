@@ -56,16 +56,6 @@ comp_decls apply(F && f, comp_decls const & ds) {
     return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(d.snd())); });
 }
 
-static pair<environment, comp_decls> specialize(environment env, comp_decls const & ds) {
-    comp_decls r;
-    for (comp_decl const & d : ds) {
-        comp_decls new_ds;
-        std::tie(env, new_ds) = specialize(env, d);
-        r = append(r, new_ds);
-    }
-    return mk_pair(env, r);
-}
-
 static comp_decls lambda_lifting(environment const & env, comp_decls const & ds) {
     comp_decls r;
     for (comp_decl const & d : ds) {

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/compiler/util.h"
 namespace lean {
-pair<environment, comp_decls> specialize(environment const & env, comp_decl const & d);
+pair<environment, comp_decls> specialize(environment env, comp_decls const & ds);
 void initialize_specialize();
 void finalize_specialize();
 }

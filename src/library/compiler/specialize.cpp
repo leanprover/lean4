@@ -24,7 +24,12 @@ bool has_specialize_attribute(environment const & env, name const & n) {
     return false;
 }
 
-enum class spec_arg_kind { Fixed, FixedInst, Other };
+enum class spec_arg_kind { Fixed,
+                           FixedNeutral, /* computationally neutral */
+                           FixedHO,      /* higher order */
+                           FixedInst,    /* type class instance */
+                           Other };
+
 static spec_arg_kind to_spec_arg_kind(object_ref const & r) {
     lean_assert(is_scalar(r)); return static_cast<spec_arg_kind>(unbox(r.raw()));
 }
@@ -48,9 +53,11 @@ static bool has_fixed_inst_arg(spec_arg_kinds ks) {
 
 char const * to_str(spec_arg_kind k) {
     switch (k) {
-    case spec_arg_kind::Fixed:     return "F";
-    case spec_arg_kind::FixedInst: return "I";
-    case spec_arg_kind::Other:     return "X";
+    case spec_arg_kind::Fixed:        return "F";
+    case spec_arg_kind::FixedNeutral: return "N";
+    case spec_arg_kind::FixedHO:      return "H";
+    case spec_arg_kind::FixedInst:    return "I";
+    case spec_arg_kind::Other:        return "X";
     }
     lean_unreachable();
 }
@@ -175,6 +182,7 @@ static void update_info_buffer(environment const & env, expr e, name_set const &
 environment update_spec_info(environment const & env, comp_decls const & ds) {
     name_set S;
     spec_info_buffer d_infos;
+    name_generator ngen;
     /* Initialzie d_infos and S */
     for (comp_decl const & d : ds) {
         S.insert(d.fst());
@@ -182,11 +190,34 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
         auto & info = d_infos.back();
         info.first = d.fst();
         expr code  = d.snd();
+        buffer<expr> fvars;
+        local_ctx lctx;
         while (is_lambda(code)) {
-            if (is_inst_implicit(binding_info(code)))
+            expr type = instantiate_rev(binding_domain(code), fvars.size(), fvars.data());
+            expr fvar = lctx.mk_local_decl(ngen, binding_name(code), type);
+            fvars.push_back(fvar);
+            if (is_inst_implicit(binding_info(code))) {
                 info.second.push_back(spec_arg_kind::FixedInst);
-            else
-                info.second.push_back(spec_arg_kind::Fixed);
+            } else {
+                type_checker tc(env, lctx);
+                type = tc.whnf(type);
+                if (is_sort(type) || tc.is_prop(type)) {
+                    info.second.push_back(spec_arg_kind::FixedNeutral);
+                } else if (is_pi(type)) {
+                    while (is_pi(type)) {
+                        expr fvar = lctx.mk_local_decl(ngen, binding_name(type), binding_domain(type));
+                        type = type_checker(env, lctx).whnf(instantiate(binding_body(type), fvar));
+                    }
+                    if (is_sort(type)) {
+                        /* Functions that return types are not relevant */
+                        info.second.push_back(spec_arg_kind::FixedNeutral);
+                    } else {
+                        info.second.push_back(spec_arg_kind::FixedHO);
+                    }
+                } else {
+                    info.second.push_back(spec_arg_kind::FixedNeutral);
+                }
+            }
             code = binding_body(code);
         }
     }
@@ -296,9 +327,6 @@ class specialize_fn {
             spec_info const * info = ext.m_spec_info.find(const_name(fn));
             if (!info) return e;
             bool has_attr          = has_specialize_attribute(env(), const_name(fn));
-            /* If `has_attr` is false, then we specialize if some fixed instance argument reduces
-               to a constructor application. Otherwise, we specialize if some fixed argument is
-               a lambda or constant application. */
             spec_arg_kinds kinds   = info->get_arg_kinds();
             if (!has_attr && !has_fixed_inst_arg(kinds))
                 return e; /* Nothing to specialize */
@@ -309,23 +337,33 @@ class specialize_fn {
                     break;
                 spec_arg_kind k = to_spec_arg_kind(head(kinds));
                 kinds           = tail(kinds);
-                if (!is_lcnf_atom(args[i]))
-                    continue; /* In LCNF, non-atomic arguments are computationally irrelevant. */
                 expr w;
                 switch (k) {
-                case spec_arg_kind::Fixed:
-                    /* It is not feasible to invoke whnf to `args[i]`
-                       since it may consume a lot of time. */
-                    w = find(args[i]);
-                    if (is_lambda(w) || is_constant(get_app_fn(w)))
-                        is_candidate = true;
+                case spec_arg_kind::FixedNeutral:
                     break;
                 case spec_arg_kind::FixedInst:
-                    /* Type class instances arguments are usually free variables bound to lambda declarations,
+                    /* We specialize this kind of argument if it reduces to a constructor application.
+                       Type class instances arguments are usually free variables bound to lambda declarations,
                        or quickly reduce to constructor applications. So, the following `whnf` is probably
                        harmless. */
                     w = tc.whnf(args[i]);
                     if (is_constructor_app(env(), w))
+                        is_candidate = true;
+                    break;
+                case spec_arg_kind::FixedHO:
+                    /* We specialize higher-order arguments if they are lambda applications or
+                       a constant application.
+
+                       Remark: it is not feasible to invoke whnf since it may consume a lot of time. */
+                    w = find(args[i]);
+                    if (is_lambda(w) || is_constant(get_app_fn(w)))
+                        is_candidate = true;
+                    break;
+                case spec_arg_kind::Fixed:
+                    /* We specialize this kind of argument if they are constructor applications or literals.
+                       Remark: it is not feasible to invoke whnf since it may consume a lot of time. */
+                    w = find(args[i]);
+                    if (is_constructor_app(env(), w) || is_lit(w))
                         is_candidate = true;
                     break;
                 case spec_arg_kind::Other:

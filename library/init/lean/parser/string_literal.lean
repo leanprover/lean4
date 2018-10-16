@@ -23,8 +23,8 @@ do it ← left_over,
    if c = '\\'      then pure '\\'
    else if c = '\"' then pure '\"'
    else if c = '\'' then pure '\''
-   else if c = '\n' then pure '\n'
-   else if c = '\t' then pure '\t'
+   else if c = 'n' then pure '\n'
+   else if c = 't' then pure '\t'
    else if c = 'x'  then do {
      d₁ ← parse_hex_digit,
      d₂ ← parse_hex_digit,

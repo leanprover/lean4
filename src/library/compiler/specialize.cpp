@@ -70,6 +70,19 @@ static bool has_fixed_inst_arg(buffer<spec_arg_kind> const & ks) {
     return false;
 }
 
+/* The "specialization arity" it the position of the last fixed argument + 1.
+   Example: "F F I X X" has arity 3. */
+static unsigned get_specialization_arity(buffer<spec_arg_kind> const & ks) {
+    unsigned i  = ks.size();
+    while (i > 0) {
+        if (ks[i-1] != spec_arg_kind::Other)
+            return i;
+        else
+            i--;
+    }
+    return 0;
+}
+
 char const * to_str(spec_arg_kind k) {
     switch (k) {
     case spec_arg_kind::Fixed:        return "F";
@@ -358,11 +371,12 @@ class specialize_fn {
         }
     }
 
-    expr specialize(expr const & fn, buffer<expr> const & args, names const & mutual, buffer<spec_arg_kind> const & kinds, bool has_attr) {
+    optional<expr> specialize(expr const & fn, buffer<expr> const & args, names const & mutual, buffer<spec_arg_kind> const & kinds, bool has_attr) {
         name_set collected;
         buffer<expr> new_params;
         buffer<expr> let_vars;
-        unsigned sz     = std::min(args.size(), kinds.size());
+        unsigned sz     = get_specialization_arity(kinds);
+        lean_assert(sz <= args.size());
         unsigned i      = sz;
         buffer<bool> mask;
         mask.resize(args.size(), false);
@@ -399,7 +413,7 @@ class specialize_fn {
                    for (bool m : mask) tout() << " " << m;
                    tout() << "\n";);
         // TODO(Leo):
-        return mk_app(fn, args);
+        return none_expr();
     }
 
     expr visit_app(expr const & e) {
@@ -421,6 +435,14 @@ class specialize_fn {
             to_buffer(info->get_arg_kinds(), kinds);
             if (!has_attr && !has_fixed_inst_arg(kinds))
                 return e; /* Nothing to specialize */
+            unsigned spec_arity    = get_specialization_arity(kinds);
+            if (spec_arity == 0)
+                return e; /* Nothing to specialize */
+            if (spec_arity > args.size()) {
+                /* We do not perform partial specialization.
+                   We only specialize if all fixed arguments have been provided. */
+                return e;
+            }
             type_checker tc(m_st, m_lctx);
             bool is_candidate      = false;
             for (unsigned i = 0; i < args.size(); i++) {
@@ -464,7 +486,10 @@ class specialize_fn {
             }
             if (!is_candidate)
                 return e;
-            return specialize(fn, args, info->get_mutual_decls(), kinds, has_attr);
+            if (optional<expr> r = specialize(fn, args, info->get_mutual_decls(), kinds, has_attr))
+                return *r;
+            else
+                return e;
         }
     }
 

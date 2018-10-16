@@ -12,8 +12,7 @@ universes u v
 class has_to_string (α : Type u) :=
 (to_string : α → string)
 
-def to_string {α : Type u} [has_to_string α] : α → string :=
-has_to_string.to_string
+export has_to_string (to_string)
 
 -- This instance is needed because `id` is not reducible
 instance {α : Type u} [has_to_string α] : has_to_string (id α) :=

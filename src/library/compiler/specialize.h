@@ -7,8 +7,9 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 #include "library/compiler/util.h"
+#include "library/compiler/csimp.h"
 namespace lean {
-pair<environment, comp_decls> specialize(environment env, comp_decls const & ds);
+pair<environment, comp_decls> specialize(environment env, comp_decls const & ds, csimp_cfg const & cfg);
 void initialize_specialize();
 void finalize_specialize();
 }

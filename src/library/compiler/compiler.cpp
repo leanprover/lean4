@@ -96,7 +96,8 @@ environment compile(environment const & env, options const & opts, names const &
     }
 
     comp_decls ds = to_comp_decls(env, cs);
-    auto simp = [&](environment const & env, expr const & e) { return csimp(env, e, csimp_cfg(opts)); };
+    csimp_cfg cfg(opts);
+    auto simp = [&](environment const & env, expr const & e) { return csimp(env, e, cfg); };
     trace_compiler(name({"compiler", "input"}), ds);
     ds = apply(eta_expand, env, ds);
     trace_compiler(name({"compiler", "eta_expand"}), ds);
@@ -113,7 +114,7 @@ environment compile(environment const & env, options const & opts, names const &
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);
     environment new_env = cache_stage1(env, ds);
-    std::tie(new_env, ds) = specialize(new_env, ds);
+    std::tie(new_env, ds) = specialize(new_env, ds, cfg);
     trace_compiler(name({"compiler", "specialize"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);

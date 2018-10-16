@@ -49,13 +49,15 @@ protected:
 
     template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
 
-    local_decl mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi);
-    local_decl mk_local_decl(name const & n, name const & un, expr const & type, expr const & value);
-
 public:
     local_ctx():m_next_idx(0) {}
 
     bool empty() const { return m_idx2local_decl.empty(); }
+
+    /* Low level `mk_local_decl` */
+    local_decl mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi);
+    /* Low level `mk_local_decl` */
+    local_decl mk_local_decl(name const & n, name const & un, expr const & type, expr const & value);
 
     expr mk_local_decl(name_generator & g, name const & un, expr const & type, binder_info bi = mk_binder_info()) {
         return mk_local_decl(g.next(), un, type, bi).mk_ref();

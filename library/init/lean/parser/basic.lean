@@ -92,11 +92,9 @@ has_tokens.tokens r
 instance has_tokens.inhabited (r : ρ) : inhabited (has_tokens r) :=
 ⟨⟨[]⟩⟩
 
-@[nospecialize]
 instance list.nil.tokens : parser.has_tokens ([] : list ρ) :=
 default _
 
-@[nospecialize]
 instance list.cons.tokens (r : ρ) (rs : list ρ) [parser.has_tokens r] [parser.has_tokens rs] :
   parser.has_tokens (r::rs) :=
 ⟨tokens r ++ tokens rs⟩
@@ -207,11 +205,9 @@ def token_map.of_list {α : Type} : list (name × α) → token_map α
 | []          := mk_rbmap _ _ _
 | (⟨k,v⟩::xs) := (token_map.of_list xs).insert k v
 
-@[nospecialize]
 instance token_map_nil.tokens : parser.has_tokens $ @token_map.of_list ρ [] :=
 default _
 
-@[nospecialize]
 instance token_map_cons.tokens (k : name) (r : ρ) (rs : list (name × ρ)) [parser.has_tokens r] [parser.has_tokens $ token_map.of_list rs] :
   parser.has_tokens $ token_map.of_list ((k,r)::rs) :=
 ⟨tokens r ++ tokens (token_map.of_list rs)⟩

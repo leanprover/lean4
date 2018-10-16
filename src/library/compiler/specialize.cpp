@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
+#include "library/class.h"
 #include "library/module.h"
 #include "library/attribute_manager.h"
 #include "library/compiler/util.h"
@@ -394,6 +395,8 @@ class specialize_fn {
                    tout() << "candidate: " << mk_app(fn, args) << "\nclosure:";
                    for (expr const & p : new_params) tout() << " " << p;
                    for (expr const & x : let_vars) tout() << " " << x;
+                   tout() << "\nmask:";
+                   for (bool m : mask) tout() << " " << m;
                    tout() << "\n";);
         // TODO(Leo):
         return mk_app(fn, args);
@@ -405,8 +408,11 @@ class specialize_fn {
         } else {
             buffer<expr> args;
             expr fn = get_app_args(e, args);
-            if (!is_constant(fn) || has_nospecialize_attribute(env(), const_name(fn)))
+            if (!is_constant(fn)
+                || has_nospecialize_attribute(env(), const_name(fn))
+                || (is_instance(env(), const_name(fn)) && !has_specialize_attribute(env(), const_name(fn)))) {
                 return e;
+            }
             specialize_ext ext     = get_extension(env());
             spec_info const * info = ext.m_spec_info.find(const_name(fn));
             if (!info) return e;

@@ -709,9 +709,9 @@ class specialize_fn {
             expr new_fvar = m_lctx.mk_local_decl(fvar_name(fvars[i]), y.append_after(i+1), type, fvar_vals[i]).mk_ref();
             new_let_decls.push_back(new_fvar);
         }
+        code = m_lctx.mk_lambda(new_fvars, code);
         code = m_lctx.mk_lambda(new_let_decls, code);
         code = m_lctx.mk_lambda(ctx.m_let_vars, code);
-        code = m_lctx.mk_lambda(new_fvars, code);
         code = m_lctx.mk_lambda(ctx.m_params, code);
         lean_assert(!has_fvar(code));
         code = csimp(env(), code, m_cfg);

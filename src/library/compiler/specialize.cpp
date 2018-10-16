@@ -32,7 +32,7 @@ enum class spec_arg_kind { Fixed,
                            Other };
 
 static spec_arg_kind to_spec_arg_kind(object_ref const & r) {
-    lean_assert(is_scalar(r)); return static_cast<spec_arg_kind>(unbox(r.raw()));
+    lean_assert(is_scalar(r.raw())); return static_cast<spec_arg_kind>(unbox(r.raw()));
 }
 typedef objects spec_arg_kinds;
 static spec_arg_kinds to_spec_arg_kinds(buffer<spec_arg_kind> const & ks) {

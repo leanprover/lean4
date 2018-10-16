@@ -311,7 +311,7 @@ class csimp_fn {
             return none_expr();
         }
         lean_assert(c_info.m_num_branches > 0);
-        lean_assert(c_info.m_num_cnstr_results < c_info.m_num_branches);
+        lean_assert(c_info.m_num_cnstr_results <= c_info.m_num_branches);
         unsigned e_size        = get_lcnf_size(env(), e);
         unsigned code_increase = e_size*(c_info.m_num_branches - 1);
         if (code_increase <= m_cfg.m_float_cases_threshold) {

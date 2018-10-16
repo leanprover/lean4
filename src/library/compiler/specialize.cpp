@@ -234,7 +234,7 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
                         info.second.push_back(spec_arg_kind::FixedHO);
                     }
                 } else {
-                    info.second.push_back(spec_arg_kind::FixedNeutral);
+                    info.second.push_back(spec_arg_kind::Fixed);
                 }
             }
             code = binding_body(code);

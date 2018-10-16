@@ -25,6 +25,17 @@ bool has_specialize_attribute(environment const & env, name const & n) {
     return false;
 }
 
+bool has_nospecialize_attribute(environment const & env, name const & n) {
+    if (has_attribute(env, "nospecialize", n))
+        return true;
+    if (is_internal_name(n) && !n.is_atomic()) {
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[nospecialize]`
+           if `f` is marked. */
+        return has_nospecialize_attribute(env, n.get_prefix());
+    }
+    return false;
+}
+
 enum class spec_arg_kind { Fixed,
                            FixedNeutral, /* computationally neutral */
                            FixedHO,      /* higher order */
@@ -379,7 +390,7 @@ class specialize_fn {
                   [&](expr const & x, expr const & y) { return m_lctx.get_local_decl(x).get_idx() < m_lctx.get_local_decl(y).get_idx(); });
         std::sort(let_vars.begin(), let_vars.end(),
                   [&](expr const & x, expr const & y) { return m_lctx.get_local_decl(x).get_idx() < m_lctx.get_local_decl(y).get_idx(); });
-        lean_trace(name({"compiler", "specialize"}),
+        lean_trace(name({"compiler", "spec_candidate"}),
                    tout() << "candidate: " << mk_app(fn, args) << "\nclosure:";
                    for (expr const & p : new_params) tout() << " " << p;
                    for (expr const & x : let_vars) tout() << " " << x;
@@ -394,7 +405,8 @@ class specialize_fn {
         } else {
             buffer<expr> args;
             expr fn = get_app_args(e, args);
-            if (!is_constant(fn)) return e;
+            if (!is_constant(fn) || has_nospecialize_attribute(env(), const_name(fn)))
+                return e;
             specialize_ext ext     = get_extension(env());
             spec_info const * info = ext.m_spec_info.find(const_name(fn));
             if (!info) return e;
@@ -490,6 +502,7 @@ void initialize_specialize() {
     g_ext = new specialize_ext_reg();
     spec_info_modification::init();
     register_trace_class({"compiler", "spec_info"});
+    register_trace_class({"compiler", "spec_candidate"});
 
     register_system_attribute(basic_attribute::with_check(
             "specialize", "mark definition to always be specialized",
@@ -497,6 +510,14 @@ void initialize_specialize() {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
                     throw exception("invalid 'specialize' use, only definitions can be marked as specialize");
+            }));
+
+    register_system_attribute(basic_attribute::with_check(
+            "nospecialize", "mark definition to never be specialized",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'nospecialize' use, only definitions can be marked as nospecialize");
             }));
 }
 

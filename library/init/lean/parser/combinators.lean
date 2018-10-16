@@ -33,6 +33,7 @@ do args ← rs.mfoldl (λ (p : list syntax) r, do
 @[reducible] def seq : list parser → parser := node' none
 @[reducible] def node (k : syntax_node_kind) : list parser → parser := node' (some k)
 
+@[nospecialize]
 instance node'.tokens (k) (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (node' k rs) :=
 ⟨tokens rs⟩
 
@@ -52,6 +53,7 @@ private def many1_aux (p : parser) : list syntax → nat → parser
 def many1 (r : parser) : parser :=
 do rem ← remaining, many1_aux r [] (rem+1)
 
+@[nospecialize]
 instance many1.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many1 r) :=
 ⟨tokens r⟩
 
@@ -64,6 +66,7 @@ instance many1.view (r : parser) [parser.has_view r α] : parser.has_view (many1
 def many (r : parser) : parser :=
 many1 r <|> pure (syntax.node ⟨none, []⟩)
 
+@[nospecialize]
 instance many.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many r) :=
 ⟨tokens r⟩
 
@@ -91,6 +94,7 @@ do rem ← remaining, sep_by_aux p sep allow_trailing_sep tt [] (rem+1)
 def sep_by1 (p sep : parser) (allow_trailing_sep := tt) : parser :=
 do rem ← remaining, sep_by_aux p sep allow_trailing_sep ff [] (rem+1)
 
+@[nospecialize]
 instance sep_by.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_tokens sep] :
   parser.has_tokens (sep_by p sep a) :=
 ⟨tokens p ++ tokens sep⟩
@@ -110,6 +114,7 @@ instance sep_by.view {α β} (p sep : parser) (a) [parser.has_view p α] [parser
     | ⟨v, some vsep⟩ := [review p v, review sep vsep]
     | ⟨v, none⟩      := [review p v])⟩ }
 
+@[nospecialize]
 instance sep_by1.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_tokens sep] :
   parser.has_tokens (sep_by1 p sep a) :=
 ⟨tokens (sep_by p sep a)⟩
@@ -126,6 +131,7 @@ do r ← optional $
    | some r := syntax.node ⟨none, [r]⟩
    | none   := syntax.node ⟨none, []⟩
 
+@[nospecialize]
 instance optional.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (optional r) :=
 ⟨tokens r⟩
 instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (optional r) (option α) :=
@@ -146,6 +152,7 @@ match rs with
 | [] := error "any_of"
 | (r::rs) := rs.foldl (<|>) r
 
+@[nospecialize]
 instance any_of.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (any_of rs) :=
 ⟨tokens rs⟩
 instance any_of.view (rs : list parser) : parser.has_view (any_of rs) syntax := default _
@@ -160,6 +167,7 @@ do stxs ← monad_parsec.longest_match rs,
    | [stx] := pure stx
    | _     := pure $ syntax.node ⟨choice, stxs⟩
 
+@[nospecialize]
 instance longest_match.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (longest_match rs) :=
 ⟨tokens rs⟩
 instance longest_match.view (rs : list parser) : parser.has_view (longest_match rs) syntax := default _
@@ -177,31 +185,37 @@ def choice_aux : list parser → nat → parser
 def choice (rs : list parser) : parser :=
 choice_aux rs 0
 
+@[nospecialize]
 instance choice.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (choice rs) :=
 ⟨tokens rs⟩
 
 /- Remark: `choice` does not have `has_view` instance because we only use it at the pratt combinator
    which doesn't need the view. -/
 
+@[nospecialize]
 instance try.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (try r) :=
 ⟨tokens r⟩
 instance try.view (r : parser) [i : parser.has_view r α] : parser.has_view (try r) α :=
 {..i}
 
+@[nospecialize]
 instance label.tokens (r : parser) (l) [parser.has_tokens r] : parser.has_tokens (label r l) :=
 ⟨tokens r⟩
 instance label.view (r : parser) (l) [i : parser.has_view r α] : parser.has_view (label r l) α :=
 {..i}
 
+@[nospecialize]
 instance dbg.tokens (r : parser) (l) [parser.has_tokens r] : parser.has_tokens (dbg l r) :=
 ⟨tokens r⟩
 instance dbg.view (r  : parser) (l) [i : parser.has_view r α] : parser.has_view (dbg l r) α :=
 {..i}
 
+@[nospecialize]
 instance recurse.tokens (α δ m a) [monad_rec α δ m] : parser.has_tokens (recurse a : m δ) :=
 default _ -- recursive use should not contribute any new tokens
 instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view (recurse a : m δ) syntax := default _
 
+@[nospecialize]
 instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [parser.has_tokens r] :
   parser.has_tokens (monad_lift r : m' syntax) :=
 ⟨tokens r⟩
@@ -209,16 +223,19 @@ instance monad_lift.view {m' : Type → Type} [has_monad_lift_t m m'] (r : m syn
   parser.has_view (monad_lift r : m' syntax) α :=
 {..i}
 
+@[nospecialize]
 instance seq_left.tokens {α : Type} (x : m α) (p : m syntax) [parser.has_tokens p] : parser.has_tokens (p <* x) :=
 ⟨tokens p⟩
 instance seq_left.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view p β] : parser.has_view (p <* x) β :=
 {..i}
 
+@[nospecialize]
 instance seq_right.tokens {α : Type} (x : m α) (p : m syntax) [parser.has_tokens p] : parser.has_tokens (x *> p) :=
 ⟨tokens p⟩
 instance seq_right.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view p β] : parser.has_view (x *> p) β :=
 {..i}
 
+@[nospecialize]
 instance coe.tokens {β} (r : parser) [parser.has_tokens r] [has_coe_t parser β]: parser.has_tokens (coe r : β) :=
 ⟨tokens r⟩
 instance coe.view {β} (r : parser) [i : parser.has_view r α] [has_coe_t parser β] : parser.has_view (coe r : β) α :=

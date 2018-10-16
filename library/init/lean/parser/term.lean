@@ -53,11 +53,7 @@ node! hole [hole: symbol "_" max_prec]
 
 @[derive parser.has_tokens parser.has_view]
 def sort.parser : term_parser :=
-node! sort ["Sort":max_prec]
-
-@[derive parser.has_tokens parser.has_view]
-def type.parser : term_parser :=
-node! type ["Type":max_prec]
+node_choice! sort {"Sort":max_prec, "Type":max_prec}
 
 section binder
 @[derive has_tokens has_view]
@@ -300,7 +296,7 @@ def builtin_leading_parsers : token_map term_parser := token_map.of_list [
   ("(", paren.parser),
   ("_", hole.parser),
   ("Sort", sort.parser),
-  ("Type", type.parser),
+  ("Type", sort.parser),
   ("λ", lambda.parser),
   ("fun", lambda.parser),
   ("Π", pi.parser),

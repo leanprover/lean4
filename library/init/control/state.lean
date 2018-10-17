@@ -43,7 +43,8 @@ section
 
   instance [alternative m] : alternative (state_t σ m) :=
   { failure := @state_t.failure _ _ _ _,
-    orelse  := @state_t.orelse _ _ _ _ }
+    orelse  := @state_t.orelse _ _ _ _,
+    ..state_t.monad }
 
   @[inline] protected def get : state_t σ m σ :=
   λ s, pure (s, s)

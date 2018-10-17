@@ -201,8 +201,9 @@ match r with
   | other         := pure other
 
 instance [inhabited μ] : alternative (parsec_t μ m) :=
-{ orelse  := λ _, parsec_t.orelse,
-  failure := λ _, parsec_t.failure }
+{ orelse         := λ _, parsec_t.orelse,
+  failure        := λ _, parsec_t.failure,
+  ..parsec_t.monad }
 
 /-- Parse `p` without consuming any input. -/
 def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=

@@ -55,7 +55,8 @@ protected def orelse {α : Type u} : option α → option α → option α
 
 instance : alternative option :=
 { failure := @none,
-  orelse  := @option.orelse }
+  orelse  := @option.orelse,
+  ..option.monad }
 
 protected def lt {α : Type u} (r : α → α → Prop) : option α → option α → Prop
 | none (some x)     := true

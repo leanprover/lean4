@@ -59,7 +59,8 @@ section
 
   instance [alternative m] : alternative (reader_t ρ m) :=
   { failure := @reader_t.failure _ _ _ _,
-    orelse  := @reader_t.orelse _ _ _ _ }
+    orelse  := @reader_t.orelse _ _ _ _,
+    ..reader_t.monad }
 
   instance (ε) [monad m] [monad_except ε m] : monad_except ε (reader_t ρ m) :=
   { throw := λ α, reader_t.lift ∘ throw,

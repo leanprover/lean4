@@ -7,7 +7,7 @@ prelude
 import init.data.nat.basic
 
 open nat
-@[reducible] def is_valid_char (n : nat) : Prop :=
+@[inline, reducible] def is_valid_char (n : nat) : Prop :=
 n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
 lemma is_valid_char_range_1 (n : nat) (h : n < 0xd800) : is_valid_char n :=
@@ -47,10 +47,10 @@ nat.zero_lt_bit0 $ nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $
 nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $
 nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit0_ne_zero $ nat.bit1_ne_zero 13
 
-@[pattern] def of_nat (n : nat) : char :=
+@[inline, pattern] def of_nat (n : nat) : char :=
 if h : is_valid_char n then {val := n, valid := h} else {val := 0, valid := or.inl zero_lt_d800}
 
-def to_nat (c : char) : nat :=
+@[inline] def to_nat (c : char) : nat :=
 c.val
 
 lemma eq_of_veq : ∀ {c d : char}, c.val = d.val → c = d

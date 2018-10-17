@@ -403,16 +403,15 @@ infix >        := gt
 infix ⊇        := superset
 infix ⊃        := ssuperset
 
-def bit0 {α : Type u} [s  : has_add α] (a  : α)                 : α := a + a
-def bit1 {α : Type u} [s₁ : has_one α] [s₂ : has_add α] (a : α) : α := (bit0 a) + 1
+@[inline] def bit0 {α : Type u} [s  : has_add α] (a  : α)                 : α := a + a
+@[inline] def bit1 {α : Type u} [s₁ : has_one α] [s₂ : has_add α] (a : α) : α := (bit0 a) + 1
 
 attribute [pattern] has_zero.zero has_one.one bit0 bit1 has_add.add has_neg.neg
 
-def insert {α : Type u} {γ : Type v} [has_insert α γ] : α → γ → γ :=
-has_insert.insert
+export has_insert (insert)
 
 /- The empty collection -/
-def singleton {α : Type u} {γ : Type v} [has_emptyc γ] [has_insert α γ] (a : α) : γ :=
+@[inline] def singleton {α : Type u} {γ : Type v} [has_emptyc γ] [has_insert α γ] (a : α) : γ :=
 has_insert.insert a ∅
 
 /- nat basic instances -/
@@ -461,8 +460,7 @@ infixr × := prod
 class has_sizeof (α : Sort u) :=
 (sizeof : α → nat)
 
-def sizeof {α : Sort u} [s : has_sizeof α] : α → nat :=
-has_sizeof.sizeof
+export has_sizeof (sizeof)
 
 /-
 Declare sizeof instances and lemmas for types declared before has_sizeof.
@@ -992,16 +990,16 @@ theorem not_or {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
 
 /- or resolution rulses -/
 
-def resolve_left {a b : Prop} (h : a ∨ b) (na : ¬ a) : b :=
+theorem resolve_left {a b : Prop} (h : a ∨ b) (na : ¬ a) : b :=
 or.elim h (λ ha, absurd ha na) id
 
-def neg_resolve_left {a b : Prop} (h : ¬ a ∨ b) (ha : a) : b :=
+theorem neg_resolve_left {a b : Prop} (h : ¬ a ∨ b) (ha : a) : b :=
 or.elim h (λ na, absurd ha na) id
 
-def resolve_right {a b : Prop} (h : a ∨ b) (nb : ¬ b) : a :=
+theorem resolve_right {a b : Prop} (h : a ∨ b) (nb : ¬ b) : a :=
 or.elim h id (λ hb, absurd hb nb)
 
-def neg_resolve_right {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
+theorem neg_resolve_right {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
 or.elim h id (λ nb, absurd hb nb)
 
 /- iff simp rules -/
@@ -1138,11 +1136,11 @@ end decidable
 
 section
 variables {p q : Prop}
-def  decidable_of_decidable_of_iff (hp : decidable p) (h : p ↔ q) : decidable q :=
+@[inline] def  decidable_of_decidable_of_iff (hp : decidable p) (h : p ↔ q) : decidable q :=
 if hp : p then is_true (iff.mp h hp)
 else is_false (iff.mp (not_iff_not_of_iff h) hp)
 
-def  decidable_of_decidable_of_eq (hp : decidable p) (h : p = q) : decidable q :=
+@[inline] def  decidable_of_decidable_of_eq (hp : decidable p) (h : p = q) : decidable q :=
 decidable_of_decidable_of_iff hp h.to_iff
 
 @[macro_inline]
@@ -1220,6 +1218,7 @@ instance : decidable_eq bool :=
  | tt, ff := is_false (ne.symm bool.ff_ne_tt)
  | tt, tt := is_true rfl}
 
+@[inline]
 def decidable_eq_of_bool_pred {α : Sort u} {p : α → α → bool} (h₁ : is_dec_eq p) (h₂ : is_dec_refl p) : decidable_eq α :=
 {dec_eq := λ x y : α,
  if hp : p x y = tt then is_true (h₁ hp)

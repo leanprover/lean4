@@ -2051,23 +2051,22 @@ noncomputable def indefinite_description {α : Sort u} (p : α → Prop)
   (h : ∃ x, p x) : {x // p x} :=
 choice $ let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩
 
-noncomputable def some {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
+noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
 (indefinite_description p h).val
 
-theorem some_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (some h) :=
+theorem choose_spec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
 (indefinite_description p h).property
 
-/- Diaconescu's theorem: using function extensionality and propositional extensionality,
-   we can get excluded middle from this. -/
+/- Diaconescu's theorem: excluded middle from choice, function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
 let U (x : Prop) : Prop := x = true ∨ p in
 let V (x : Prop) : Prop := x = false ∨ p in
 have exU : ∃ x, U x, from ⟨true, or.inl rfl⟩,
 have exV : ∃ x, V x, from ⟨false, or.inl rfl⟩,
-let u : Prop := some exU in
-let v : Prop := some exV in
-have u_def : U u, from some_spec exU,
-have v_def : V v, from some_spec exV,
+let u : Prop := choose exU in
+let v : Prop := choose exV in
+have u_def : U u, from choose_spec exU,
+have v_def : V v, from choose_spec exV,
 have not_uv_or_p : u ≠ v ∨ p, from
   or.elim u_def
     (assume hut : u = true,
@@ -2087,7 +2086,7 @@ have p_implies_uv : p → u = v, from
         assume a, or.inr hp,
       show (x = true ∨ p) = (x = false ∨ p), from
         propext (iff.intro hl hr),
-  have h₀ : ∀ exU exV, @some _ U exU = @some _ V exV, from
+  have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV, from
     hpred ▸ λ exU exV, rfl,
   show u = v, from h₀ _ _,
 or.elim not_uv_or_p
@@ -2150,7 +2149,7 @@ theorem epsilon_singleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (λ y, y 
 
 theorem axiom_of_choice {α : Sort u} {β : α → Sort v} {r : Π x, β x → Prop} (h : ∀ x, ∃ y, r x y) :
   ∃ (f : Π x, β x), ∀ x, r x (f x) :=
-⟨_, λ x, some_spec (h x)⟩
+⟨_, λ x, choose_spec (h x)⟩
 
 theorem skolem {α : Sort u} {b : α → Sort v} {p : Π x, b x → Prop} :
   (∀ x, ∃ y, p x y) ↔ ∃ (f : Π x, b x), ∀ x, p x (f x) :=

@@ -40,6 +40,8 @@ name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
 name const * g_decidable = nullptr;
 name const * g_decidable_to_bool = nullptr;
+name const * g_decidable_is_true = nullptr;
+name const * g_decidable_is_false = nullptr;
 name const * g_dite = nullptr;
 name const * g_empty = nullptr;
 name const * g_Exists = nullptr;
@@ -184,6 +186,12 @@ name const * g_nat_one_lt_bit0 = nullptr;
 name const * g_nat_one_lt_bit1 = nullptr;
 name const * g_nat_le_of_lt = nullptr;
 name const * g_nat_le_refl = nullptr;
+name const * g_nat_decidable_lt = nullptr;
+name const * g_nat_dec_eq = nullptr;
+name const * g_nat_mul = nullptr;
+name const * g_nat_sub = nullptr;
+name const * g_nat_beq = nullptr;
+name const * g_nat_ble = nullptr;
 name const * g_ne = nullptr;
 name const * g_neq_of_not_iff = nullptr;
 name const * g_not = nullptr;
@@ -305,6 +313,8 @@ void initialize_constants() {
     g_congr_fun = new name{"congr_fun"};
     g_decidable = new name{"decidable"};
     g_decidable_to_bool = new name{"decidable", "to_bool"};
+    g_decidable_is_true = new name{"decidable", "is_true"};
+    g_decidable_is_false = new name{"decidable", "is_false"};
     g_dite = new name{"dite"};
     g_empty = new name{"empty"};
     g_Exists = new name{"Exists"};
@@ -449,6 +459,12 @@ void initialize_constants() {
     g_nat_one_lt_bit1 = new name{"nat", "one_lt_bit1"};
     g_nat_le_of_lt = new name{"nat", "le_of_lt"};
     g_nat_le_refl = new name{"nat", "le_refl"};
+    g_nat_decidable_lt = new name{"nat", "decidable_lt"};
+    g_nat_dec_eq = new name{"nat", "dec_eq"};
+    g_nat_mul = new name{"nat", "mul"};
+    g_nat_sub = new name{"nat", "sub"};
+    g_nat_beq = new name{"nat", "beq"};
+    g_nat_ble = new name{"nat", "ble"};
     g_ne = new name{"ne"};
     g_neq_of_not_iff = new name{"neq_of_not_iff"};
     g_not = new name{"not"};
@@ -571,6 +587,8 @@ void finalize_constants() {
     delete g_congr_fun;
     delete g_decidable;
     delete g_decidable_to_bool;
+    delete g_decidable_is_true;
+    delete g_decidable_is_false;
     delete g_dite;
     delete g_empty;
     delete g_Exists;
@@ -715,6 +733,12 @@ void finalize_constants() {
     delete g_nat_one_lt_bit1;
     delete g_nat_le_of_lt;
     delete g_nat_le_refl;
+    delete g_nat_decidable_lt;
+    delete g_nat_dec_eq;
+    delete g_nat_mul;
+    delete g_nat_sub;
+    delete g_nat_beq;
+    delete g_nat_ble;
     delete g_ne;
     delete g_neq_of_not_iff;
     delete g_not;
@@ -836,6 +860,8 @@ name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }
 name const & get_decidable_name() { return *g_decidable; }
 name const & get_decidable_to_bool_name() { return *g_decidable_to_bool; }
+name const & get_decidable_is_true_name() { return *g_decidable_is_true; }
+name const & get_decidable_is_false_name() { return *g_decidable_is_false; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_Exists_name() { return *g_Exists; }
@@ -980,6 +1006,12 @@ name const & get_nat_one_lt_bit0_name() { return *g_nat_one_lt_bit0; }
 name const & get_nat_one_lt_bit1_name() { return *g_nat_one_lt_bit1; }
 name const & get_nat_le_of_lt_name() { return *g_nat_le_of_lt; }
 name const & get_nat_le_refl_name() { return *g_nat_le_refl; }
+name const & get_nat_decidable_lt_name() { return *g_nat_decidable_lt; }
+name const & get_nat_dec_eq_name() { return *g_nat_dec_eq; }
+name const & get_nat_mul_name() { return *g_nat_mul; }
+name const & get_nat_sub_name() { return *g_nat_sub; }
+name const & get_nat_beq_name() { return *g_nat_beq; }
+name const & get_nat_ble_name() { return *g_nat_ble; }
 name const & get_ne_name() { return *g_ne; }
 name const & get_neq_of_not_iff_name() { return *g_neq_of_not_iff; }
 name const & get_not_name() { return *g_not; }

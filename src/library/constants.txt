@@ -35,6 +35,8 @@ congr_arg
 congr_fun
 decidable
 decidable.to_bool
+decidable.is_true
+decidable.is_false
 dite
 empty
 Exists
@@ -179,6 +181,12 @@ nat.one_lt_bit0
 nat.one_lt_bit1
 nat.le_of_lt
 nat.le_refl
+nat.decidable_lt
+nat.dec_eq
+nat.mul
+nat.sub
+nat.beq
+nat.ble
 ne
 neq_of_not_iff
 not

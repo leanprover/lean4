@@ -1095,6 +1095,109 @@ class csimp_fn {
         }
     }
 
+    bool get_unary_lit(expr const & e, literal & a) {
+        if (get_app_num_args(e) != 1) return false;
+        expr arg = find(app_arg(e));
+        if (!is_lit(arg)) return false;
+        a = lit_value(arg);
+        return true;
+    }
+
+    bool get_unary_nat_lit(expr const & e, nat & a) {
+        literal l;
+        if (!get_unary_lit(e, l)) return false;
+        if (l.kind() != literal_kind::Nat) return false;
+        a = l.get_nat();
+        return true;
+    }
+
+    bool get_binary_lits(expr const & e, literal & a, literal & b) {
+        if (get_app_num_args(e) != 2) return false;
+        expr arg2 = find(app_arg(e));
+        if (!is_lit(arg2)) return false;
+        expr arg1 = find(app_arg(app_fn(e)));
+        if (!is_lit(arg1)) return false;
+        a = lit_value(arg1);
+        b = lit_value(arg2);
+        return true;
+    }
+
+    bool get_binary_nat_lits(expr const & e, nat & a, nat & b) {
+        literal l1, l2;
+        if (!get_binary_lits(e, l1, l2)) return false;
+        if (l1.kind() != literal_kind::Nat) return false;
+        if (l2.kind() != literal_kind::Nat) return false;
+        a = l1.get_nat();
+        b = l2.get_nat();
+        return true;
+    }
+
+    expr to_nat_expr(nat const & n) {
+        return mk_lit(literal(n));
+    }
+
+    expr visit_nat_succ(expr const & e) {
+        nat a;
+        if (!get_unary_nat_lit(e, a)) return e;
+        return to_nat_expr(a+nat(1));
+    }
+
+    expr visit_nat_add(expr const & e) {
+        nat a, b;
+        if (!get_binary_nat_lits(e, a, b)) return e;
+        return to_nat_expr(a+b);
+    }
+
+    expr visit_nat_mul(expr const & e) {
+        nat a, b;
+        if (!get_binary_nat_lits(e, a, b)) return e;
+        return to_nat_expr(a*b);
+    }
+
+    expr visit_nat_sub(expr const & e) {
+        nat a, b;
+        if (!get_binary_nat_lits(e, a, b)) return e;
+        return to_nat_expr(a-b);
+    }
+
+    expr to_bool_expr(bool b) {
+        return b ? mk_bool_tt() : mk_bool_ff();
+    }
+
+    expr visit_nat_beq(expr const & e) {
+        nat a, b;
+        if (!get_binary_nat_lits(e, a, b)) return e;
+        return to_bool_expr(a == b);
+    }
+
+    expr visit_nat_ble(expr const & e) {
+        nat a, b;
+        if (!get_binary_nat_lits(e, a, b)) return e;
+        return to_bool_expr(a <= b);
+    }
+
+    expr to_decidable_expr(bool b, expr const & p) {
+        if (b) {
+            return mk_app(mk_constant(get_decidable_is_true_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
+        } else {
+            return mk_app(mk_constant(get_decidable_is_false_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
+        }
+    }
+
+    expr visit_nat_dec_eq(expr const & e) {
+        nat a, b;
+        if (!get_binary_nat_lits(e, a, b)) return e;
+        expr type = whnf_infer_type(e);
+        return to_decidable_expr(a == b, app_arg(type));
+    }
+
+    expr visit_nat_decidable_lt(expr const & e) {
+        nat a, b;
+        if (!get_binary_nat_lits(e, a, b)) return e;
+        expr type = whnf_infer_type(e);
+        return to_decidable_expr(a < b, app_arg(type));
+    }
+
     expr visit_app(expr const & e, bool is_let_val) {
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e, is_let_val);
@@ -1119,7 +1222,28 @@ class csimp_fn {
         } else if (is_app(fn)) {
             return merge_app_app(fn, e, is_let_val);
         } else if (is_constant(fn)) {
-            return try_inline(fn, e, is_let_val);
+            name const & n = const_name(fn);
+            if (n == get_nat_add_name()) {
+                return visit_nat_add(e);
+            } else if (n == get_nat_mul_name()) {
+                return visit_nat_mul(e);
+            } else if (n == get_nat_sub_name()) {
+                return visit_nat_sub(e);
+            } else if (n == get_nat_dec_eq_name()) {
+                return visit_nat_dec_eq(e);
+            } else if (n == get_nat_decidable_lt_name()) {
+                return visit_nat_decidable_lt(e);
+            } else if (n == get_nat_beq_name()) {
+                return visit_nat_beq(e);
+            } else if (n == get_nat_ble_name()) {
+                return visit_nat_ble(e);
+            } else if (n == get_nat_succ_name()) {
+                return visit_nat_succ(e);
+            } else if (n == get_nat_zero_name()) {
+                return mk_lit(literal(nat(0)));
+            } else {
+                return try_inline(fn, e, is_let_val);
+            }
         }
         return e;
     }

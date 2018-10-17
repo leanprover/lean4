@@ -244,7 +244,6 @@ local_context erase_inaccessible_annotations(local_context const & lctx) {
             auto new_d = local_context::update_local_decl(d, new_type, new_value);
             r.m_name2local_decl.insert(d.get_name(), new_d);
             r.m_idx2local_decl.insert(d.get_idx(), new_d);
-            r.insert_user_name(d);
         });
     return r;
 }

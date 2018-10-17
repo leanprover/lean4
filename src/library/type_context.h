@@ -669,7 +669,7 @@ public:
 
     virtual void pop_local() override;
     virtual bool is_local_user_name(name const & n) const override {
-        return static_cast<bool>(m_lctx.m_user_name2idxs.find(n));
+        return static_cast<bool>(m_lctx.uses_user_name(n));
     }
 
     /** Similar to whnf, but invokes the given predicate before unfolding constant symbols in the head.

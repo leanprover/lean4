@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/local_ctx.h"
 #include "kernel/expr.h"
 #include "library/formatter.h"
-#include "library/subscripted_name_set.h"
 
 namespace lean {
 bool is_local_decl_ref(expr const & e);
@@ -39,14 +38,7 @@ class metavar_context;
 /* Extend kernel local context object with support for generating "unused" user-names and
    "freezing" local instances. */
 class local_context : public local_ctx {
-    typedef rb_tree<unsigned, unsigned_cmp> unsigned_set;
-    /* support for user names */
-    subscripted_name_set      m_user_names;
-    name_map<unsigned_set>    m_user_name2idxs;
     friend class type_context_old;
-
-    void insert_user_name(local_decl const & d);
-    void erase_user_name(local_decl const & d);
 
     local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & un, expr const & type,
@@ -56,6 +48,9 @@ class local_context : public local_ctx {
         if (v) return local_decl(d, t, *v);
         else return local_decl(d, t);
     }
+
+    optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const;
+
 public:
     local_context() {}
     explicit local_context(local_ctx const & lctx): local_ctx(lctx) {}
@@ -97,9 +92,6 @@ public:
     name get_unused_name(name const & suggestion) const;
     /** \brief Return true iff the given name is a hypothesis "user name". */
     bool uses_user_name(name const & n) const;
-
-    /** \brief Remove the given local decl. */
-    void clear(local_decl const & d);
 
     /** \brief Return true iff all locals in this context are in the set \c ls. */
     bool is_subset_of(name_set const & ls) const;

@@ -9,7 +9,7 @@ add_library(library OBJECT deep_copy.cpp expr_lt.cpp io_state.cpp
   attribute_manager.cpp local_context.cpp metavar_context.cpp
   type_context.cpp export_decl.cpp fun_info.cpp
   replace_visitor_with_tc.cpp aux_definition.cpp pattern_attribute.cpp
-  locals.cpp subscripted_name_set.cpp eval_helper.cpp messages.cpp
+  locals.cpp eval_helper.cpp messages.cpp
   message_builder.cpp module_mgr.cpp comp_val.cpp check.cpp parray.cpp
   process.cpp pipe.cpp handle.cpp profiling.cpp time_task.cpp
   abstract_context_cache.cpp context_cache.cpp

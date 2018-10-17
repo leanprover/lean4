@@ -683,7 +683,7 @@ class specialize_fn {
         new_code = *c;
         new_code = m_lctx.mk_lambda(new_fvars, new_code);
         ctx.m_pre_decls.push_back(comp_decl(new_name, new_code));
-        lean_trace(name({"compiler", "specialize"}), tout() << "new specialization " << new_name << " :=\n" << new_code << "\n";);
+        // lean_trace(name({"compiler", "specialize"}), tout() << "new specialization " << new_name << " :=\n" << new_code << "\n";);
         return optional<name>(new_name);
     }
 
@@ -716,7 +716,6 @@ class specialize_fn {
         lean_assert(!has_fvar(code));
         code = csimp(env(), code, m_cfg);
         code = visit(code);
-        tout() << n << " :=\n" << code << "\n";
         m_new_decls.push_back(comp_decl(n, code));
     }
 

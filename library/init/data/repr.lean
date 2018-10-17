@@ -12,8 +12,7 @@ universes u v
 class has_repr (α : Type u) :=
 (repr : α → string)
 
-def repr {α : Type u} [has_repr α] : α → string :=
-has_repr.repr
+export has_repr (repr)
 
 -- This instance is needed because `id` is not reducible
 instance {α : Type u} [has_repr α] : has_repr (id α) :=

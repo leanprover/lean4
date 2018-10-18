@@ -117,8 +117,9 @@ deserializer & operator>>(deserializer & d, spec_info & si) { si = spec_info::de
 /* Information for executing code specialization.
    TODO(Leo): use the to be implemented new module system. */
 struct specialize_ext : public environment_extension {
+    typedef rb_expr_map<name> cache;
     name_map<spec_info> m_spec_info;
-    // TODO(Leo): cache specialization results
+    cache               m_cache;
 };
 
 struct specialize_ext_reg {
@@ -285,6 +286,33 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
     }
     return update(new_env, ext);
 }
+
+/* Support for old module manager.
+   Remark: this code will be deleted in the future */
+struct spec_cache_modification : public modification {
+    LEAN_MODIFICATION("specc")
+
+    expr      m_key;
+    name      m_fn_name;
+
+    spec_cache_modification(expr const & k, name const & fn) : m_key(k), m_fn_name(fn) {}
+
+    void perform(environment & env) const override {
+        specialize_ext ext = get_extension(env);
+        ext.m_cache.insert(m_key, m_fn_name);
+        env = update(env, ext);
+    }
+
+    void serialize(serializer & s) const override {
+        s << m_key << m_fn_name;
+    }
+
+    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+        expr k; name f;
+        d >> k >> f;
+        return std::make_shared<spec_cache_modification>(k, f);
+    }
+};
 
 class specialize_fn {
     type_checker::state m_st;
@@ -737,6 +765,58 @@ class specialize_fn {
         m_new_decls.push_back(comp_decl(n, code));
     }
 
+    optional<expr> get_closed(expr const & e) {
+        if (has_univ_param(e)) return none_expr();
+        switch (e.kind()) {
+        case expr_kind::MVar:  lean_unreachable();
+        case expr_kind::Lit:   return some_expr(e);
+        case expr_kind::BVar:  return some_expr(e);
+        case expr_kind::Sort:  return some_expr(e);
+        case expr_kind::Const: return some_expr(e);
+        case expr_kind::FVar:
+            if (auto v = m_lctx.get_local_decl(e).get_value()) {
+                return get_closed(*v);
+            } else {
+                return none_expr();
+            }
+        case expr_kind::MData: return get_closed(mdata_expr(e));
+        case expr_kind::Proj:  {
+            optional<expr> new_s = get_closed(proj_expr(e));
+            if (!new_s) return none_expr();
+            return some_expr(update_proj(e, *new_s));
+        }
+        case expr_kind::Pi: case expr_kind::Lambda: {
+            optional<expr> dom  = get_closed(binding_domain(e));
+            if (!dom) return none_expr();
+            optional<expr> body = get_closed(binding_body(e));
+            if (!body) return none_expr();
+            return some_expr(update_binding(e, *dom, *body));
+        }
+        case expr_kind::App: {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            optional<expr> new_fn = get_closed(fn);
+            if (!new_fn) return none_expr();
+            for (expr & arg : args) {
+                optional<expr> new_arg = get_closed(arg);
+                if (!new_arg) return none_expr();
+                arg = *new_arg;
+            }
+            return some_expr(mk_app(*new_fn, args));
+        }
+        case expr_kind::Let: {
+            optional<expr> type  = get_closed(let_type(e));
+            if (!type) return none_expr();
+            optional<expr> val   = get_closed(let_value(e));
+            if (!val) return none_expr();
+            optional<expr> body = get_closed(let_body(e));
+            if (!body) return none_expr();
+            return some_expr(update_let(e, *type, *val, *body));
+        }
+        }
+        lean_unreachable();
+    }
+
     optional<expr> specialize(expr const & fn, buffer<expr> const & args, spec_ctx & ctx) {
         if (!is_specialize_candidate(fn, args))
             return none_expr();
@@ -746,8 +826,21 @@ class specialize_fn {
         buffer<optional<expr>> mask;
         buffer<expr> fvars;
         buffer<expr> fvar_vals;
+        /* We only try to cache specialization for type class instances.
+           For functions marked with the attribute `@[specialize]`, we also specialize other
+           fixed arguments (e.g., closures), and most of the time it is not worth to cache the result. */
+        bool gcache_enabled = !has_specialize_attribute(env(), const_name(fn));
+        buffer<expr> gcache_key_args;
         for (unsigned i = 0; i < bmask.size(); i++) {
             if (bmask[i]) {
+                if (gcache_enabled) {
+                    if (optional<expr> c = get_closed(args[i])) {
+                        gcache_key_args.push_back(*c);
+                    } else {
+                        /* We only cache specialization results if arguments (expanded by the specializer) are closed. */
+                        gcache_enabled = false;
+                    }
+                }
                 name n    = ngen().next();
                 expr fvar = mk_fvar(n);
                 fvars.push_back(fvar);
@@ -755,13 +848,29 @@ class specialize_fn {
                 mask.push_back(some_expr(fvar));
             } else {
                 mask.push_back(none_expr());
+                if (gcache_enabled)
+                    gcache_key_args.push_back(expr());
             }
         }
-        optional<name> new_fn_name = spec_preprocess(fn, mask, ctx);
-        if (!new_fn_name)
-            return none_expr();
-        for (comp_decl const & pre_decl : ctx.m_pre_decls) {
-            mk_new_decl(pre_decl, fvars, fvar_vals, ctx);
+        optional<name> new_fn_name;
+        expr key;
+        if (gcache_enabled) {
+            key = mk_app(fn, gcache_key_args);
+            if (name const * it = m_ext.m_cache.find(key))
+                new_fn_name = *it;
+        }
+        if (!new_fn_name) {
+            /* Cache does not contain specialization result */
+            new_fn_name = spec_preprocess(fn, mask, ctx);
+            if (!new_fn_name)
+                return none_expr();
+            for (comp_decl const & pre_decl : ctx.m_pre_decls) {
+                mk_new_decl(pre_decl, fvars, fvar_vals, ctx);
+            }
+            if (gcache_enabled) {
+                m_ext.m_cache.insert(key, *new_fn_name);
+                m_st.env() = module::add(env(), std::make_shared<spec_cache_modification>(key, *new_fn_name));
+            }
         }
         expr r = mk_constant(*new_fn_name);
         r = mk_app(r, ctx.m_params);
@@ -814,14 +923,13 @@ public:
         m_base_name = d.fst();
         expr new_v = visit(d.snd());
         comp_decl new_d(d.fst(), new_v);
-        return mk_pair(m_st.env(), comp_decls(new_d, comp_decls(m_new_decls)));
+        environment new_env = update(env(), m_ext);
+        return mk_pair(new_env, comp_decls(new_d, comp_decls(m_new_decls)));
     }
 };
 
 pair<environment, comp_decls> specialize_core(environment const & env, comp_decl const & d, csimp_cfg const & cfg) {
-    // TODO(Leo): we still need to implement main cache.
-    // return specialize_fn(env, cfg)(d);
-    return mk_pair(env, comp_decls(d));
+    return specialize_fn(env, cfg)(d);
 }
 
 pair<environment, comp_decls> specialize(environment env, comp_decls const & ds, csimp_cfg const & cfg) {
@@ -838,6 +946,7 @@ pair<environment, comp_decls> specialize(environment env, comp_decls const & ds,
 void initialize_specialize() {
     g_ext = new specialize_ext_reg();
     spec_info_modification::init();
+    spec_cache_modification::init();
     register_trace_class({"compiler", "spec_info"});
     register_trace_class({"compiler", "spec_candidate"});
 
@@ -860,6 +969,7 @@ void initialize_specialize() {
 
 void finalize_specialize() {
     spec_info_modification::finalize();
+    spec_cache_modification::finalize();
     delete g_ext;
 }
 }

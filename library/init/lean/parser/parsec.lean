@@ -206,7 +206,7 @@ instance [inhabited μ] : alternative (parsec_t μ m) :=
   ..parsec_t.monad }
 
 /-- Parse `p` without consuming any input. -/
-def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=
+@[specialize] def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   pure $ match r with
@@ -214,7 +214,7 @@ def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=
   | other     := other
 
 /-- `not_followed_by p` succeeds when parser `p` fails -/
-def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
+@[specialize] def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
 λ it, do
   r ← p it,
   pure $ match r with
@@ -382,6 +382,7 @@ private def mk_string_result (r : string) (it : iterator) : result μ string :=
 if r.is_empty then result.mk_eps r it
 else result.ok r it none
 
+@[specialize]
 private def take_while_aux (p : char → bool) : nat → string → iterator → result μ string
 | 0     r it := mk_string_result r it
 | (n+1) r it :=
@@ -394,33 +395,33 @@ private def take_while_aux (p : char → bool) : nat → string → iterator →
 Consume input as long as the predicate returns `tt`, and return the consumed input.
 This parser does not fail. It will return an empty string if the predicate
 returns `ff` on the current character. -/
-def take_while (p : char → bool) : m string :=
+@[specialize] def take_while (p : char → bool) : m string :=
 lift $ λ it, take_while_aux p it.remaining "" it
 
-def take_while_cont (p : char → bool) (ini : string) : m string :=
+@[specialize] def take_while_cont (p : char → bool) (ini : string) : m string :=
 lift $ λ it, take_while_aux p it.remaining ini it
 
 /--
 Consume input as long as the predicate returns `tt`, and return the consumed input.
 This parser requires the predicate to succeed on at least once. -/
-def take_while1 (p : char → bool) : m string :=
+@[specialize] def take_while1 (p : char → bool) : m string :=
 do c ← satisfy p,
    take_while_cont p (to_string c)
 
 /--
 Consume input as long as the predicate returns `ff` (i.e. until it returns `tt`), and return the consumed input.
 This parser does not fail. -/
-def take_until (p : char → bool) : m string :=
+@[inline] def take_until (p : char → bool) : m string :=
 take_while (λ c, !p c)
 
-def take_until1 (p : char → bool) : m string :=
+@[inline] def take_until1 (p : char → bool) : m string :=
 take_while1 (λ c, !p c)
 
 private def mk_consumed_result (consumed : bool) (it : iterator) : result μ unit :=
 if consumed then result.ok () it none
 else result.mk_eps () it
 
-private def take_while_aux' (p : char → bool) : nat → bool → iterator → result μ unit
+@[specialize] private def take_while_aux' (p : char → bool) : nat → bool → iterator → result μ unit
 | 0     consumed it := mk_consumed_result consumed it
 | (n+1) consumed it :=
   if !it.has_next then mk_consumed_result consumed it
@@ -429,11 +430,11 @@ private def take_while_aux' (p : char → bool) : nat → bool → iterator → 
        else mk_consumed_result consumed it
 
 /-- Similar to `take_while` but it does not return the consumed input. -/
-def take_while' (p : char → bool) : m unit :=
+@[specialize] def take_while' (p : char → bool) : m unit :=
 lift $ λ it, take_while_aux' p it.remaining ff it
 
 /-- Similar to `take_while1` but it does not return the consumed input. -/
-def take_while1' (p : char → bool) : m unit :=
+@[specialize] def take_while1' (p : char → bool) : m unit :=
 satisfy p *> take_while' p
 
 /-- Consume zero or more whitespaces. -/
@@ -441,7 +442,7 @@ def whitespace : m unit :=
 take_while' char.is_whitespace
 
 /-- Shorthand for `p <* whitespace` -/
-def lexeme (p : m α) : m α :=
+@[inline] def lexeme (p : m α) : m α :=
 p <* whitespace
 
 /-- Parse a numeral in decimal. -/
@@ -468,56 +469,56 @@ do it ← left_over,
    if it.remaining = 0 then pure ()
    else error (repr it.curr) (dlist.singleton ("end of input"))
 
-def many1_aux [alternative m] (p : m α) : nat → m (list α)
+@[specialize] def many1_aux [alternative m] (p : m α) : nat → m (list α)
 | 0     := do a ← p, pure [a]
 | (n+1) := do a ← p,
               as ← (many1_aux n <|> pure []),
               pure (a::as)
 
-def many1 [alternative m] (p : m α) : m (list α) :=
+@[specialize] def many1 [alternative m] (p : m α) : m (list α) :=
 do r ← remaining, many1_aux p r
 
-def many [alternative m] (p : m α) : m (list α) :=
+@[specialize] def many [alternative m] (p : m α) : m (list α) :=
 many1 p <|> pure []
 
-def many1_aux' [alternative m] (p : m α) : nat → m unit
+@[specialize] def many1_aux' [alternative m] (p : m α) : nat → m unit
 | 0     := p *> pure ()
 | (n+1) := p *> (many1_aux' n <|> pure ())
 
-def many1' [alternative m] (p : m α) : m unit :=
+@[inline] def many1' [alternative m] (p : m α) : m unit :=
 do r ← remaining, many1_aux' p r
 
-def many' [alternative m] (p : m α) : m unit :=
+@[specialize] def many' [alternative m] (p : m α) : m unit :=
 many1' p <|> pure ()
 
-def sep_by1 [alternative m] (p : m α) (sep : m β) : m (list α) :=
+@[specialize] def sep_by1 [alternative m] (p : m α) (sep : m β) : m (list α) :=
 (::) <$> p <*> many (sep *> p)
 
-def sep_by [alternative m] (p : m α) (sep : m β) : m (list α) :=
+@[specialize] def sep_by [alternative m] (p : m α) (sep : m β) : m (list α) :=
 sep_by1 p sep <|> pure []
 
-def fix_aux [alternative m] (f : m α → m α) : nat → m α
+@[specialize] def fix_aux [alternative m] (f : m α → m α) : nat → m α
 | 0     := error "fix_aux: no progress"
 | (n+1) := f (fix_aux n)
 
-def fix [alternative m] (f : m α → m α) : m α :=
+@[specialize] def fix [alternative m] (f : m α → m α) : m α :=
 do n ← remaining, fix_aux f (n+1)
 
-def foldr_aux [alternative m] (f : α → β → β) (p : m α) (b : β) : nat → m β
+@[specialize] def foldr_aux [alternative m] (f : α → β → β) (p : m α) (b : β) : nat → m β
 | 0     := pure b
 | (n+1) := (f <$> p <*> foldr_aux n) <|> pure b
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
-def foldr [alternative m] (f : α → β → β) (p : m α) (b : β) : m β :=
+@[specialize] def foldr [alternative m] (f : α → β → β) (p : m α) (b : β) : m β :=
 do it ← left_over,
    foldr_aux f p b it.remaining
 
-def foldl_aux [alternative m] (f : α → β → α) (p : m β) : α → nat → m α
+@[specialize] def foldl_aux [alternative m] (f : α → β → α) (p : m β) : α → nat → m α
 | a 0     := pure a
 | a (n+1) := (do x ← p, foldl_aux (f a x) n) <|> pure a
 
 /-- Matches zero or more occurrences of `p`, and folds the result. -/
-def foldl [alternative m] (f : α → β → α) (a : α) (p : m β) : m α :=
+@[specialize] def foldl [alternative m] (f : α → β → α) (a : α) (p : m β) : m α :=
 do it ← left_over,
    foldl_aux f p a it.remaining
 
@@ -530,6 +531,7 @@ error msg dlist.empty it
 /- Execute all parsers in `ps` and return the result of the longest parse(s) if any,
    or else the result of the furthest error. If there are two parses of
    equal length, the first parse wins. -/
+@[specialize]
 def longest_match [monad_except (message μ) m] (ps : list (m α)) : m (list α) :=
 do it ← left_over,
    r ← ps.mfoldr (λ p (r : result μ (list α)),
@@ -554,6 +556,7 @@ do it ← left_over,
 def dbg (label : string) (p : m α) : m α :=
 map (λ m' inst β, @parsec_t.dbg m' inst μ β label) p
 
+@[specialize]
 def observing [monad_except (message μ) m] (p : m α) : m (except (message μ) α) :=
 catch (except.ok <$> p) $ λ msg, pure (except.error msg)
 

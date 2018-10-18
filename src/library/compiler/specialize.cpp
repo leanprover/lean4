@@ -715,6 +715,54 @@ class specialize_fn {
         return optional<name>(new_name);
     }
 
+    /* Return true if `e` is of the form `let ... in fun ...` */
+    static bool is_let_lambda(expr e) {
+        while (is_let(e)) {
+            e = let_body(e);
+        }
+        return is_lambda(e);
+    }
+
+    expr eta_expand_specialization(expr e) {
+        /* Remark: we do not use `type_checker.eta_expand` because it does not preserve LCNF */
+        if (is_let_lambda(e)) {
+            /* csimp will take care of it */
+            return e;
+        }
+        try {
+            buffer<expr> args;
+            type_checker tc(m_st);
+            expr e_type = tc.whnf(tc.infer(e));
+            local_ctx lctx;
+            while (is_pi(e_type)) {
+                expr arg = lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
+                args.push_back(arg);
+                e_type = type_checker(m_st, lctx).whnf(instantiate(binding_body(e_type), arg));
+            }
+            if (args.empty())
+                return e;
+            buffer<expr> fvars;
+            while (is_let(e)) {
+                expr type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
+                expr val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
+                expr fvar = lctx.mk_local_decl(ngen(), let_name(e), type, val);
+                fvars.push_back(fvar);
+                e         = let_body(e);
+            }
+            e = instantiate_rev(e, fvars.size(), fvars.data());
+            if (!is_lcnf_atom(e)) {
+                e = lctx.mk_local_decl(ngen(), "_e", type_checker(m_st, lctx).infer(e), e);
+                fvars.push_back(e);
+            }
+            e = mk_app(e, args);
+            return lctx.mk_lambda(args, lctx.mk_lambda(fvars, e));
+        } catch (exception &) {
+            /* This can happen since previous compilation steps may have
+               produced type incorrect terms. */
+            return e;
+        }
+    }
+
     void mk_new_decl(comp_decl const & pre_decl, buffer<expr> const & fvars, buffer<expr> const & fvar_vals, spec_ctx & ctx) {
         lean_assert(fvars.size() == fvar_vals.size());
         name n = pre_decl.fst();
@@ -760,6 +808,7 @@ class specialize_fn {
             declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
             m_st.env() = module::add(env(), aux_ax, false);
         }
+        code = eta_expand_specialization(code);
         code = csimp(env(), code, m_cfg);
         code = visit(code);
         m_new_decls.push_back(comp_decl(n, code));

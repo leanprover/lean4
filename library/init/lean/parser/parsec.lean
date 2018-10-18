@@ -438,7 +438,7 @@ lift $ λ it, take_while_aux' p it.remaining ff it
 satisfy p *> take_while' p
 
 /-- Consume zero or more whitespaces. -/
-def whitespace : m unit :=
+@[noinline] def whitespace : m unit :=
 take_while' char.is_whitespace
 
 /-- Shorthand for `p <* whitespace` -/
@@ -446,7 +446,7 @@ take_while' char.is_whitespace
 p <* whitespace
 
 /-- Parse a numeral in decimal. -/
-def num : m nat :=
+@[noinline] def num : m nat :=
 string.to_nat <$> (take_while1 char.is_digit)
 
 /-- Succeed only if there are at least `n` characters left. -/

@@ -714,6 +714,24 @@ class specialize_fn {
         code = m_lctx.mk_lambda(ctx.m_let_vars, code);
         code = m_lctx.mk_lambda(ctx.m_params, code);
         lean_assert(!has_fvar(code));
+        /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
+           This is a hack to make sure we can use `csimp` to simplify `code` and
+           other definitions that use `n`. `csimp` uses the kernel type checker to infer
+           types, and it will fail to infer the type of `n`-applications if we do not have
+           an entry in the environment.
+
+           Remark: we mark the axiom as `meta` to make sure it does not polute the environment
+           regular definitions.
+
+           We also considered the following cleaner solution: modify `csimp` to use a custom
+           type checker that takes the types of auxiliary declarations such as `n` into account.
+           A custom type checker would be extra work, but it has other benefits. For example,
+           it could have better support for type errors introduced by `csimp`. */
+        {
+            expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
+            declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
+            m_st.env() = module::add(env(), aux_ax, false);
+        }
         code = csimp(env(), code, m_cfg);
         code = visit(code);
         m_new_decls.push_back(comp_decl(n, code));

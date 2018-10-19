@@ -315,6 +315,7 @@ int main(int argc, char ** argv) {
     bool use_stdin          = false;
     bool recursive          = false;
     unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
+    bool only_deps          = false;
     bool test_suite         = false;
     // unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
@@ -373,6 +374,9 @@ int main(int argc, char ** argv) {
             break;
         case 'q':
             opts = opts.update(lean::get_verbose_opt_name(), false);
+            break;
+        case 'd':
+            only_deps = true;
             break;
         case 'D':
             try {
@@ -467,6 +471,21 @@ int main(int argc, char ** argv) {
         }
         std::vector<std::string> module_args;
         for (auto & f : args) module_args.push_back(lrealpath(f));
+
+        if (only_deps) {
+            for (auto const & mod_fn : module_args) {
+                auto contents = read_file(mod_fn);
+                for (auto const & import : mod_mgr.get_direct_imports(mod_fn, contents)) {
+                    std::string m_name = find_file(path.get_path(), import, {".lean"});
+                    auto last_idx = m_name.find_last_of(".");
+                    std::string rawname = m_name.substr(0, last_idx);
+                    std::string ext = m_name.substr(last_idx);
+                    m_name = rawname + ".olean";
+                    std::cout << m_name << "\n";
+                }
+            }
+            return 0;
+        }
 
         struct input_mod {
             std::string m_file_name;

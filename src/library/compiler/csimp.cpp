@@ -36,6 +36,7 @@ csimp_cfg::csimp_cfg() {
 class csimp_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
+    bool                m_before_erasure;
     csimp_cfg           m_cfg;
     buffer<expr>        m_fvars;
     name                m_x;
@@ -50,10 +51,12 @@ class csimp_fn {
     name_generator & ngen() { return m_st.ngen(); }
 
     void check(expr const & e) {
-        try {
-            type_checker(m_st, m_lctx).check(e);
-        } catch (exception &) {
-            lean_unreachable();
+        if (m_before_erasure) {
+            try {
+                type_checker(m_st, m_lctx).check(e);
+            } catch (exception &) {
+                lean_unreachable();
+            }
         }
     }
 
@@ -93,13 +96,28 @@ class csimp_fn {
         return e;
     }
 
-    type_checker tc() { return type_checker(m_st, m_lctx); }
+    type_checker tc() {
+        lean_assert(m_before_erasure);
+        return type_checker(m_st, m_lctx);
+    }
 
-    expr infer_type(expr const & e) { return type_checker(m_st, m_lctx).infer(e); }
+    expr infer_type(expr const & e) {
+        if (m_before_erasure)
+            return type_checker(m_st, m_lctx).infer(e);
+        else
+            return mk_enf_object_type();
+    }
 
-    expr whnf(expr const & e) { return type_checker(m_st, m_lctx).whnf(e); }
+    expr whnf(expr const & e) {
+        lean_assert(m_before_erasure);
+        return type_checker(m_st, m_lctx).whnf(e);
+    }
 
-    expr whnf_infer_type(expr const & e) { type_checker tc(m_st, m_lctx); return tc.whnf(tc.infer(e)); }
+    expr whnf_infer_type(expr const & e) {
+        lean_assert(m_before_erasure);
+        type_checker tc(m_st, m_lctx);
+        return tc.whnf(tc.infer(e));
+    }
 
     name next_name() {
         /* Remark: we use `m_x.append_after(m_next_idx)` instead of `name(m_x, m_next_idx)`
@@ -133,7 +151,7 @@ class csimp_fn {
         buffer<expr> args;
         expr const & c_fn = get_app_args(c, args);
         unsigned minors_begin; unsigned minors_end;
-        std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c_fn));
+        std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c_fn), m_before_erasure);
         unsigned i = 0;
         for (; i < minors_begin; i++) {
             if (has_fvar(args[i], fvar)) {
@@ -228,6 +246,7 @@ class csimp_fn {
     /* Return true iff the free variable `x` occurs in a projection or is the major premise of
        a `cases_on` application in `e`. */
     bool is_proj_or_cases_on_arg_at(expr const & x, expr const & e) {
+        lean_assert(m_before_erasure);
         lean_assert(is_fvar(x));
         if (!has_fvar(e)) return false;
         bool found = false;
@@ -238,8 +257,8 @@ class csimp_fn {
                     found = true;
                     return false;
                 } else if (is_cases_on_app(env(), s) &&
-                           get_app_num_args(s) == get_cases_on_arity(env(), const_name(get_app_fn(s))) &&
-                           get_cases_on_app_major(env(), s) == x) {
+                           get_app_num_args(s) == get_cases_on_arity(env(), const_name(get_app_fn(s)), m_before_erasure) &&
+                           get_cases_on_app_major(env(), s, m_before_erasure) == x) {
                     found = true;
                     return false;
                 }
@@ -260,6 +279,7 @@ class csimp_fn {
     };
 
     void collect_cases_info(expr e, cases_info_result & result) {
+        lean_assert(m_before_erasure);
         while (true) {
             if (is_lambda(e))
                 e = binding_body(e);
@@ -275,7 +295,7 @@ class csimp_fn {
             buffer<expr> args;
             expr const & fn = get_app_args(e, args);
             unsigned begin_minors; unsigned end_minors;
-            std::tie(begin_minors, end_minors) = get_cases_on_minors_range(env(), const_name(fn));
+            std::tie(begin_minors, end_minors) = get_cases_on_minors_range(env(), const_name(fn), m_before_erasure);
             for (unsigned i = begin_minors; i < end_minors; i++) {
                 collect_cases_info(args[i], result);
             }
@@ -298,6 +318,7 @@ class csimp_fn {
        Return `none` if the code size increase is above the threshold.
        Remark: it may produce type incorrect terms. */
     optional<expr> mk_join_point_float_cases_on(expr const & fvar, expr const & e, expr const & c, buffer<expr> & new_jps) {
+        lean_assert(m_before_erasure);
         lean_assert(is_cases_on_app(env(), c));
         if (!is_proj_or_cases_on_arg_at(fvar, e)) {
             /* It is not worthwhile to apply `float_cases_on` since `e` does not project or destruct the result produced
@@ -330,8 +351,9 @@ class csimp_fn {
             unsigned new_code_increase = e_compressed_size*(c_info.m_num_branches - c_info.m_num_cnstr_results);
             if (new_code_increase <= m_cfg.m_float_cases_threshold) {
                 unsigned branch_threshold = m_cfg.m_float_cases_threshold / (c_info.m_num_branches - 1);
+                lean_assert(m_before_erasure);
                 unsigned begin_minors; unsigned end_minors;
-                std::tie(begin_minors, end_minors) = get_cases_on_minors_range(env(), const_name(fn));
+                std::tie(begin_minors, end_minors) = get_cases_on_minors_range(env(), const_name(fn), m_before_erasure);
                 for (unsigned minor_idx = begin_minors; minor_idx < end_minors; minor_idx++) {
                     expr minor = args[minor_idx];
                     if (get_lcnf_size(env(), minor) > branch_threshold) {
@@ -369,6 +391,7 @@ class csimp_fn {
                             jp_val = m_lctx.mk_lambda(jp_args, jp_val);
                         }
                         /* Create new jp */
+                        lean_assert(m_before_erasure);
                         expr jp_type = cheap_beta_reduce(infer_type(jp_val));
                         mark_simplified(jp_val);
                         expr jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), jp_type, jp_val);
@@ -510,20 +533,19 @@ class csimp_fn {
     expr float_cases_on_core(expr const & x, expr const & e, expr const & c, buffer<expr> & new_jps, expr_map<expr> & new_jp_cache) {
         lean_assert(is_cases_on_app(env(), c));
         local_decl x_decl     = m_lctx.get_local_decl(x);
-        expr result_type         = whnf_infer_type(e);
         buffer<expr> c_args;
-        expr c_fn = get_app_args(c, c_args);
-        inductive_val I_val      = get_cases_on_inductive_val(env(), c_fn);
-        unsigned motive_idx      = I_val.get_nparams();
-        unsigned first_index     = motive_idx + 1;
-        unsigned nindices        = I_val.get_nindices();
-        unsigned major_idx       = first_index + nindices;
-        unsigned first_minor_idx = major_idx + 1;
-        unsigned nminors         = I_val.get_ncnstrs();
-        /* Update motive */
-        {
+        expr c_fn             = get_app_args(c, c_args);
+        inductive_val I_val   = get_cases_on_inductive_val(env(), c_fn);
+        unsigned major_idx;
+        /* Update motive and get major_idx */
+        if (m_before_erasure) {
             flet<local_ctx> save_lctx(m_lctx, m_lctx);
+            unsigned motive_idx      = I_val.get_nparams();
+            unsigned first_index     = motive_idx + 1;
+            unsigned nindices        = I_val.get_nindices();
+            major_idx                = first_index + nindices;
             buffer<expr> zs;
+            expr result_type         = whnf_infer_type(e);
             expr motive              = c_args[motive_idx];
             expr motive_type         = whnf_infer_type(motive);
             for (unsigned i = 0; i < nindices + 1; i++) {
@@ -538,8 +560,13 @@ class csimp_fn {
             /* We need to update the resultant universe. */
             levels new_cases_lvls  = levels(result_lvl, tail(const_levels(c_fn)));
             c_fn = update_constant(c_fn, new_cases_lvls);
+        } else {
+            /* After erasure, we keep only major and minor premises. */
+            major_idx = 0;
         }
         /* Update minor premises */
+        unsigned first_minor_idx = major_idx + 1;
+        unsigned nminors         = I_val.get_ncnstrs();
         for (unsigned i = 0; i < nminors; i++) {
             unsigned minor_idx        = first_minor_idx + i;
             expr minor                = c_args[minor_idx];
@@ -569,6 +596,7 @@ class csimp_fn {
     /* Float cases transformation (see: `float_cases_on_core`).
        This version may create join points if `e` is big, or "good" join-points could not be created. */
     optional<expr> float_cases_on(expr const & x, expr const & e, expr const & c, buffer<expr> & new_jps) {
+        lean_assert(m_before_erasure);
         expr_map<expr> new_jp_cache;
         unsigned  saved_fvars_size = m_fvars.size();
         local_ctx saved_lctx       = m_lctx;
@@ -720,7 +748,7 @@ class csimp_fn {
 
             if (is_cases_on_app(env(), val)) {
                 /* Float cases transformation. */
-                if (m_cfg.m_float_cases) {
+                if (m_cfg.m_float_cases && m_before_erasure) {
                     /* We first create a let-declaration with all entries that depends on the current
                        `x` which is a cases_on application. */
                     buffer<pair<expr, expr>> entries_dep_curr;
@@ -821,9 +849,9 @@ class csimp_fn {
             e = binding_body(e);
         }
         e = instantiate_rev(e, binding_fvars.size(), binding_fvars.data());
-        /* We eta-expand all lambdas which are not join points. */
+        /* When we simplify before erasure, we eta-expand all lambdas which are not join points. */
         buffer<expr> eta_args;
-        if (!is_join_point_def) {
+        if (m_before_erasure && !is_join_point_def) {
             expr e_type = whnf_infer_type(e);
             while (is_pi(e_type)) {
                 expr arg = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type), binding_info(e_type));
@@ -921,6 +949,8 @@ class csimp_fn {
     }
 
     optional<expr> try_inline_instance(expr const & fn, expr const & e) {
+        if (!m_before_erasure)
+            return none_expr();
         if (!is_constant(fn) || !should_inline_instance(const_name(fn)))
             return none_expr();
         lean_assert(is_constant(fn));
@@ -969,7 +999,7 @@ class csimp_fn {
         expr const & k   = get_app_args(major, k_args);
         lean_assert(is_constant(k));
         lean_assert(nparams <= k_args.size());
-        unsigned first_minor_idx = nparams + 1 /* typeformer/motive */ + I_val.get_nindices() + 1 /* major */;
+        unsigned first_minor_idx = m_before_erasure ? (nparams + 1 /* typeformer/motive */ + I_val.get_nindices() + 1 /* major */) : 1;
         constructor_val k_val = env().get(const_name(k)).to_constructor_val();
         expr const & minor    = args[first_minor_idx + k_val.get_cidx()];
         return beta_reduce(minor, k_args.size() - nparams, k_args.data() + nparams, is_let_val);
@@ -984,7 +1014,7 @@ class csimp_fn {
         expr const & c = get_app_args(e, args);
         /* simplify minor premises */
         unsigned minor_idx; unsigned minors_end;
-        std::tie(minor_idx, minors_end) = get_cases_on_minors_range(env(), const_name(c));
+        std::tie(minor_idx, minors_end) = get_cases_on_minors_range(env(), const_name(c), m_before_erasure);
         for (; minor_idx < minors_end; minor_idx++) {
             expr minor                = args[minor_idx];
             unsigned saved_fvars_size = m_fvars.size();
@@ -1006,7 +1036,7 @@ class csimp_fn {
         expr const & c = get_app_args(e, args);
         lean_assert(is_constant(c));
         inductive_val I_val      = get_cases_on_inductive_val(env(), c);
-        unsigned major_idx       = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices();
+        unsigned major_idx       = get_cases_on_major_idx(env(), const_name(c), m_before_erasure);
         lean_assert(major_idx < args.size());
         expr major               = find(args[major_idx]);
         if (is_nat_lit(major))
@@ -1046,6 +1076,7 @@ class csimp_fn {
     expr try_inline(expr const & fn, expr const & e, bool is_let_val) {
         lean_assert(is_constant(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
+        if (!m_before_erasure) return e;
         if (!m_cfg.m_inline) return e;
         if (has_noinline_attribute(env(), const_name(fn))) return e;
         name c = mk_cstage1_name(const_name(fn));
@@ -1176,26 +1207,34 @@ class csimp_fn {
         return to_bool_expr(a <= b);
     }
 
-    expr to_decidable_expr(bool b, expr const & p) {
-        if (b) {
-            return mk_app(mk_constant(get_decidable_is_true_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
+    expr to_decidable_expr(bool b, expr const & e) {
+        if (m_before_erasure) {
+            expr type = whnf_infer_type(e);
+            expr const & p = app_arg(type);
+            if (b) {
+                return mk_app(mk_constant(get_decidable_is_true_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
+            } else {
+                return mk_app(mk_constant(get_decidable_is_false_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
+            }
         } else {
-            return mk_app(mk_constant(get_decidable_is_false_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
+            if (b) {
+                return mk_app(mk_constant(get_decidable_is_true_name()), mk_enf_neutral(), mk_enf_neutral());
+            } else {
+                return mk_app(mk_constant(get_decidable_is_false_name()), mk_enf_neutral(), mk_enf_neutral());
+            }
         }
     }
 
     expr visit_nat_dec_eq(expr const & e) {
         nat a, b;
         if (!get_binary_nat_lits(e, a, b)) return e;
-        expr type = whnf_infer_type(e);
-        return to_decidable_expr(a == b, app_arg(type));
+        return to_decidable_expr(a == b, e);
     }
 
     expr visit_nat_decidable_lt(expr const & e) {
         nat a, b;
         if (!get_binary_nat_lits(e, a, b)) return e;
-        expr type = whnf_infer_type(e);
-        return to_decidable_expr(a < b, app_arg(type));
+        return to_decidable_expr(a < b, e);
     }
 
     expr visit_app(expr const & e, bool is_let_val) {
@@ -1217,6 +1256,7 @@ class csimp_fn {
             m_fvars.append(new_jps);
             return new_e;
         } else if (is_lc_unreachable_app(fn)) {
+            lean_assert(m_before_erasure);
             expr type = infer_type(e);
             return mk_lc_unreachable(m_st, m_lctx, type);
         } else if (is_app(fn)) {
@@ -1259,15 +1299,15 @@ class csimp_fn {
     }
 
 public:
-    csimp_fn(environment const & env, local_ctx const & lctx, csimp_cfg const & cfg):
-        m_st(env), m_lctx(lctx), m_cfg(cfg), m_x("_x"), m_j("j") {}
+    csimp_fn(environment const & env, local_ctx const & lctx, bool before_erasure, csimp_cfg const & cfg):
+        m_st(env), m_lctx(lctx), m_before_erasure(before_erasure), m_cfg(cfg), m_x("_x"), m_j("j") {}
 
     expr operator()(expr const & e) {
         expr r = visit(e, false);
         return mk_let(0, r);
     }
 };
-expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg) {
-    return csimp_fn(env, lctx, cfg)(e);
+expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, bool before_erasure, csimp_cfg const & cfg) {
+    return csimp_fn(env, lctx, before_erasure, cfg)(e);
 }
 }

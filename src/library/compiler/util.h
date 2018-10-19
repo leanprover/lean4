@@ -45,7 +45,7 @@ bool is_cases_on_recursor(environment const & env, name const & n);
      number of constructors // cases_on has a minor premise for each constructor
    ```
    \pre is_cases_on_recursor(env, c) */
-unsigned get_cases_on_arity(environment const & env, name const & c);
+unsigned get_cases_on_arity(environment const & env, name const & c, bool before_erasure = true);
 /* Return the `inductive_val` for the cases_on constant `c`. */
 inline inductive_val get_cases_on_inductive_val(environment const & env, name const & c) {
     lean_assert(is_cases_on_recursor(env, c));
@@ -61,11 +61,12 @@ inline bool is_cases_on_app(environment const & env, expr const & e) {
 }
 /* Return the major premise of a cases_on-application.
    \pre is_cases_on_app(env, c) */
-expr get_cases_on_app_major(environment const & env, expr const & c);
+expr get_cases_on_app_major(environment const & env, expr const & c, bool before_erasure = true);
+unsigned get_cases_on_major_idx(environment const & env, name const & c, bool before_erasure = true);
 /* Return the pair `(b, e)` such that `i in [b, e)` is argument `i` in a `c` cases_on
    application is a minor premise.
    \pre is_cases_on_recursor(env, c) */
-pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c);
+pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c, bool before_erasure = true);
 
 inline bool is_quot_primitive(environment const & env, name const & n) {
     optional<constant_info> info = env.find(n);

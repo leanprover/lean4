@@ -27,8 +27,11 @@ public:
     csimp_cfg();
 };
 
-expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, csimp_cfg const & cfg);
+expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, bool before_erasure, csimp_cfg const & cfg);
 inline expr csimp(environment const & env, expr const & e, csimp_cfg const & cfg = csimp_cfg()) {
-    return csimp_core(env, local_ctx(), e, cfg);
+    return csimp_core(env, local_ctx(), e, true, cfg);
+}
+inline expr cesimp(environment const & env, expr const & e, csimp_cfg const & cfg = csimp_cfg()) {
+    return csimp_core(env, local_ctx(), e, false, cfg);
 }
 }

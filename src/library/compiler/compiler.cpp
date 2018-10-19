@@ -97,7 +97,8 @@ environment compile(environment const & env, options const & opts, names const &
 
     comp_decls ds = to_comp_decls(env, cs);
     csimp_cfg cfg(opts);
-    auto simp = [&](environment const & env, expr const & e) { return csimp(env, e, cfg); };
+    auto simp  = [&](environment const & env, expr const & e) { return csimp(env, e, cfg); };
+    auto esimp = [&](environment const & env, expr const & e) { return cesimp(env, e, cfg); };
     trace_compiler(name({"compiler", "input"}), ds);
     ds = apply(eta_expand, env, ds);
     trace_compiler(name({"compiler", "eta_expand"}), ds);
@@ -120,6 +121,8 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(erase_irrelevant, new_env, ds);
     trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
+    ds = apply(esimp, env, ds);
+    trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(cse, new_env, ds);

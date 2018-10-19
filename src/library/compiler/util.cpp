@@ -142,30 +142,46 @@ bool is_cases_on_recursor(environment const & env, name const & n) {
     return ::lean::is_aux_recursor(env, n) && n.get_string() == "cases_on";
 }
 
-unsigned get_cases_on_arity(environment const & env, name const & c) {
+unsigned get_cases_on_arity(environment const & env, name const & c, bool before_erasure) {
     lean_assert(is_cases_on_recursor(env, c));
     inductive_val I_val = get_cases_on_inductive_val(env, c);
-    unsigned nparams    = I_val.get_nparams();
-    unsigned nindices   = I_val.get_nindices();
     unsigned nminors    = I_val.get_ncnstrs();
-    return nparams + 1 /* motive */ + nindices + 1 /* major */ + nminors;
+    if (before_erasure) {
+        unsigned nparams    = I_val.get_nparams();
+        unsigned nindices   = I_val.get_nindices();
+        return nparams + 1 /* motive */ + nindices + 1 /* major */ + nminors;
+    } else {
+        return 1 /* major */ + nminors;
+    }
 }
 
-expr get_cases_on_app_major(environment const & env, expr const & c) {
+unsigned get_cases_on_major_idx(environment const & env, name const & c, bool before_erasure) {
+    if (before_erasure) {
+        inductive_val I_val = get_cases_on_inductive_val(env, c);
+        return I_val.get_nparams() + 1 /* motive */ + I_val.get_nindices();
+    } else {
+        return 0;
+    }
+}
+
+expr get_cases_on_app_major(environment const & env, expr const & c, bool before_erasure) {
     lean_assert(is_cases_on_app(env, c));
     buffer<expr> args;
     expr const & fn = get_app_args(c, args);
-    inductive_val I_val = get_cases_on_inductive_val(env, fn);
-    return args[I_val.get_nparams() + 1 /* motive */ + I_val.get_nindices()];
+    return args[get_cases_on_major_idx(env, const_name(fn), before_erasure)];
 }
 
-pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c) {
+pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name const & c, bool before_erasure) {
     inductive_val I_val = get_cases_on_inductive_val(env, c);
-    unsigned nparams    = I_val.get_nparams();
-    unsigned nindices   = I_val.get_nindices();
     unsigned nminors    = I_val.get_ncnstrs();
-    unsigned first_minor_idx = nparams + 1 /*motive*/ + nindices + 1 /* major */;
-    return mk_pair(first_minor_idx, first_minor_idx + nminors);
+    if (before_erasure) {
+        unsigned nparams    = I_val.get_nparams();
+        unsigned nindices   = I_val.get_nindices();
+        unsigned first_minor_idx = nparams + 1 /*motive*/ + nindices + 1 /* major */;
+        return mk_pair(first_minor_idx, first_minor_idx + nminors);
+    } else {
+        return mk_pair(1, 1+nminors);
+    }
 }
 
 expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr const & type) {

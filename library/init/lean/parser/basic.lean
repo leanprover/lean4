@@ -67,12 +67,12 @@ state_t parser_state $ parsec_t syntax $ state_t parser_cache $ m
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
 def parser_t (ρ : Type) (m : Type → Type) [monad m] := reader_t ρ $ parser_core_t m
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
-abbreviation basic_parser_m := parser_t parser_config id
+def basic_parser_m := parser_t parser_config id
 abbreviation basic_parser := basic_parser_m syntax
 abbreviation monad_basic_parser := has_monad_lift_t basic_parser_m
 
 section
-local attribute [reducible] parser_t parser_core_t
+local attribute [reducible] basic_parser_m parser_t parser_core_t
 @[inline] def get_cache : basic_parser_m parser_cache :=
 monad_lift (get : state_t parser_cache id _)
 

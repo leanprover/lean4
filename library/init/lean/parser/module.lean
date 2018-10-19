@@ -44,6 +44,13 @@ instance module_parser_m.lift_parser_t (ρ : Type) [has_lift_t module_parser_con
     cfg ← read,
     pure ((((x.run ↑cfg).run st) it).run nb_st) }
 
+section
+local attribute [reducible] basic_parser_m
+instance module_parser_m.basic_parser_m (ρ : Type) [has_lift_t module_parser_config ρ] :
+  has_monad_lift basic_parser_m module_parser_m :=
+  infer_instance
+end
+
 namespace module
 def yield_command (cmd : syntax) : module_parser_m unit :=
 do st ← get,

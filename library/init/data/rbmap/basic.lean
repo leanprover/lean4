@@ -8,43 +8,43 @@ import init.data.rbtree.basic
 
 universes u v w w'
 
-def rbmap_lt {α : Type u} {β : Type v} (lt : α → α → Prop) (a b : α × β) : Prop :=
+@[inline] def rbmap_lt {α : Type u} {β : Type v} (lt : α → α → Prop) (a b : α × β) : Prop :=
 lt a.1 b.1
 
-def rbmap_lt_dec {α : Type u} {β : Type v} {lt : α → α → Prop} [h : decidable_rel lt] : decidable_rel (@rbmap_lt α β lt) :=
+@[inline] def rbmap_lt_dec {α : Type u} {β : Type v} {lt : α → α → Prop} [h : decidable_rel lt] : decidable_rel (@rbmap_lt α β lt) :=
 λ a b, h a.1 b.1
 
 def rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v) :=
 rbtree (α × β) (rbmap_lt lt)
 
-def mk_rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : rbmap α β lt :=
+@[inline] def mk_rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : rbmap α β lt :=
 mk_rbtree (α × β) (rbmap_lt lt)
 
 namespace rbmap
 variables {α : Type u} {β : Type v} {δ : Type w} {lt : α → α → Prop}
 
-def empty (m : rbmap α β lt) : bool :=
+@[inline] def empty (m : rbmap α β lt) : bool :=
 m.empty
 
-def to_list (m : rbmap α β lt) : list (α × β) :=
+@[inline] def to_list (m : rbmap α β lt) : list (α × β) :=
 m.to_list
 
-def min (m : rbmap α β lt) : option (α × β) :=
+@[inline] def min (m : rbmap α β lt) : option (α × β) :=
 m.min
 
-def max (m : rbmap α β lt) : option (α × β) :=
+@[inline] def max (m : rbmap α β lt) : option (α × β) :=
 m.max
 
-def fold (f : α → β → δ → δ) (m : rbmap α β lt) (d : δ) : δ :=
+@[specialize] def fold (f : α → β → δ → δ) (m : rbmap α β lt) (d : δ) : δ :=
 m.fold (λ e, f e.1 e.2) d
 
-def rev_fold (f : α → β → δ → δ) (m : rbmap α β lt) (d : δ) : δ :=
+@[specialize] def rev_fold (f : α → β → δ → δ) (m : rbmap α β lt) (d : δ) : δ :=
 m.rev_fold (λ e, f e.1 e.2) d
 
-def mfold {m : Type w → Type w'} [monad m] (f : α → β → δ → m δ) (mp : rbmap α β lt) (d : δ) : m δ :=
+@[specialize] def mfold {m : Type w → Type w'} [monad m] (f : α → β → δ → m δ) (mp : rbmap α β lt) (d : δ) : m δ :=
 mp.mfold (λ e, f e.1 e.2) d
 
-def mfor {m : Type w → Type w'} [monad m] (f : α → β → m δ) (mp : rbmap α β lt) : m punit :=
+@[specialize] def mfor {m : Type w → Type w'} [monad m] (f : α → β → m δ) (mp : rbmap α β lt) : m punit :=
 mp.mfold (λ a b _, f a b *> pure ⟨⟩) ⟨⟩
 
 /-
@@ -68,30 +68,30 @@ instance [has_repr α] [has_repr β] : has_repr (rbmap α β lt) :=
 
 variable [decidable_rel lt]
 
-def insert (m : rbmap α β lt) (k : α) (v : β) : rbmap α β lt :=
+@[inline] def insert (m : rbmap α β lt) (k : α) (v : β) : rbmap α β lt :=
 @rbtree.insert _ _ rbmap_lt_dec m (k, v)
 
-def find_entry (m : rbmap α β lt) (k : α) : option (α × β) :=
+@[inline] def find_entry (m : rbmap α β lt) (k : α) : option (α × β) :=
 match m.val with
 | rbnode.leaf             := none
 | rbnode.red_node _ e _   := @rbtree.find _ _ rbmap_lt_dec m (k, e.2)
 | rbnode.black_node _ e _ := @rbtree.find _ _ rbmap_lt_dec m (k, e.2)
 
-def to_value : option (α × β) → option β
+@[inline] def to_value : option (α × β) → option β
 | none     := none
 | (some e) := some e.2
 
-def find (m : rbmap α β lt) (k : α) : option β :=
+@[inline] def find (m : rbmap α β lt) (k : α) : option β :=
 to_value (m.find_entry k)
 
-def contains (m : rbmap α β lt) (k : α) : bool :=
+@[inline] def contains (m : rbmap α β lt) (k : α) : bool :=
 (find_entry m k).is_some
 
 def from_list (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=
 l.foldl (λ m p, insert m p.1 p.2)  (mk_rbmap α β lt)
 
 -- TODO: replace with more efficient, structure-preserving implementation (needs wf proof)
-def map (f : α → β → δ) (m : rbmap α β lt) : rbmap α δ lt :=
+@[specialize] def map (f : α → β → δ) (m : rbmap α β lt) : rbmap α δ lt :=
 m.fold (λ a b m, rbmap.insert m a (f a b)) (mk_rbmap α δ lt)
 
 end rbmap
@@ -104,26 +104,26 @@ rbmap.from_list l lt
 namespace rbmap_core
 variables {α : Type u} {β : Type v}
 
-def empty (m : rbnode (α × β)) : bool :=
+@[inline] def empty (m : rbnode (α × β)) : bool :=
 match m with
 | rbnode.leaf := tt
 | _           := ff
 
 variables (lt : α → α → Prop) [decidable_rel lt]
 
-def insert (m : rbnode (α × β)) (k : α) (v : β) : rbnode (α × β) :=
+@[inline] def insert (m : rbnode (α × β)) (k : α) (v : β) : rbnode (α × β) :=
 @rbnode.insert (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, v)
 
-def find_entry (m : rbnode (α × β)) (k : α) : option (α × β) :=
+@[inline] def find_entry (m : rbnode (α × β)) (k : α) : option (α × β) :=
 match m with
 | rbnode.leaf             := none
 | rbnode.red_node _ e _   := @rbnode.find (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, e.2)
 | rbnode.black_node _ e _ := @rbnode.find (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, e.2)
 
-def find (m : rbnode (α × β)) (k : α) : option β :=
+@[inline] def find (m : rbnode (α × β)) (k : α) : option β :=
 rbmap.to_value (rbmap_core.find_entry lt m k)
 
-def contains (m : rbnode (α × β)) (k : α) : bool :=
+@[inline] def contains (m : rbnode (α × β)) (k : α) : bool :=
 (find_entry lt m k).is_some
 
 def from_list (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbnode (α × β) :=

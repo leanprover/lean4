@@ -45,27 +45,27 @@ protected def max : rbnode α → option α
 | (red_node _ v r)      := max r
 | (black_node _ v r)    := max r
 
-def fold (f : α → β → β) : rbnode α → β → β
+@[specialize] def fold (f : α → β → β) : rbnode α → β → β
 | leaf b               := b
 | (red_node l v r)   b := fold r (f v (fold l b))
 | (black_node l v r) b := fold r (f v (fold l b))
 
-def mfold {m : Type v → Type w} [monad m] (f : α → β → m β) : rbnode α → β → m β
+@[specialize] def mfold {m : Type v → Type w} [monad m] (f : α → β → m β) : rbnode α → β → m β
 | leaf b               := pure b
 | (red_node l v r) b   := do b₁ ← mfold l b, b₂ ← f v b₁, mfold r b₂
 | (black_node l v r) b := do b₁ ← mfold l b, b₂ ← f v b₁, mfold r b₂
 
-def rev_fold (f : α → β → β) : rbnode α → β → β
+@[specialize] def rev_fold (f : α → β → β) : rbnode α → β → β
 | leaf b               := b
 | (red_node l v r)   b := rev_fold l (f v (rev_fold r b))
 | (black_node l v r) b := rev_fold l (f v (rev_fold r b))
 
-def all (p : α → bool) : rbnode α → bool
+@[specialize] def all (p : α → bool) : rbnode α → bool
 | leaf                 := tt
 | (red_node l v r)     := p v && all l && all r
 | (black_node l v r)   := p v && all l && all r
 
-def any (p : α → bool) : rbnode α → bool
+@[specialize] def any (p : α → bool) : rbnode α → bool
 | leaf                 := ff
 | (red_node l v r)     := p v || any l || any r
 | (black_node l v r)   := p v || any l || any r
@@ -166,7 +166,7 @@ open rbnode
 def rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
 {t : rbnode α // t.well_formed lt }
 
-def mk_rbtree (α : Type u) (lt : α → α → Prop) : rbtree α lt :=
+@[inline] def mk_rbtree (α : Type u) (lt : α → α → Prop) : rbtree α lt :=
 ⟨leaf, well_formed.leaf_wff lt⟩
 
 namespace rbtree
@@ -184,29 +184,29 @@ rbnode.mem_exact a t.val
 def depth (f : nat → nat → nat) (t : rbtree α lt) : nat :=
 t.val.depth f
 
-def fold (f : α → β → β) : rbtree α lt → β →  β
+@[inline] def fold (f : α → β → β) : rbtree α lt → β →  β
 | ⟨t, _⟩ b := t.fold f b
 
-def rev_fold (f : α → β → β) : rbtree α lt → β →  β
+@[inline] def rev_fold (f : α → β → β) : rbtree α lt → β →  β
 | ⟨t, _⟩ b := t.rev_fold f b
 
-def mfold {m : Type v → Type w} [monad m] (f : α → β → m β) : rbtree α lt → β → m β
+@[inline] def mfold {m : Type v → Type w} [monad m] (f : α → β → m β) : rbtree α lt → β → m β
 | ⟨t, _⟩ b := t.mfold f b
 
-def mfor {m : Type v → Type w} [monad m] (f : α → m β) (t : rbtree α lt) : m punit :=
+@[inline] def mfor {m : Type v → Type w} [monad m] (f : α → m β) (t : rbtree α lt) : m punit :=
 t.mfold (λ a _, f a *> pure ⟨⟩) ⟨⟩
 
-def empty : rbtree α lt → bool
+@[inline] def empty : rbtree α lt → bool
 | ⟨leaf, _⟩ := tt
 | _         := ff
 
-def to_list : rbtree α lt → list α
+@[specialize] def to_list : rbtree α lt → list α
 | ⟨t, _⟩ := t.rev_fold (::) []
 
-protected def min : rbtree α lt → option α
+@[inline] protected def min : rbtree α lt → option α
 | ⟨t, _⟩ := t.min
 
-protected def max : rbtree α lt → option α
+@[inline] protected def max : rbtree α lt → option α
 | ⟨t, _⟩ := t.max
 
 instance [has_repr α] : has_repr (rbtree α lt) :=
@@ -220,16 +220,16 @@ def insert : rbtree α lt → α → rbtree α lt
 def find : rbtree α lt → α → option α
 | ⟨t, _⟩ x := t.find lt x
 
-def contains (t : rbtree α lt) (a : α) : bool :=
+@[inline] def contains (t : rbtree α lt) (a : α) : bool :=
 (t.find a).is_some
 
 def from_list (l : list α) (lt : α → α → Prop) [decidable_rel lt] : rbtree α lt :=
 l.foldl insert (mk_rbtree α lt)
 
-def all : rbtree α lt → (α → bool) → bool
+@[inline] def all : rbtree α lt → (α → bool) → bool
 | ⟨t, _⟩ p := t.all p
 
-def any : rbtree α lt → (α → bool) → bool
+@[inline] def any : rbtree α lt → (α → bool) → bool
 | ⟨t, _⟩ p := t.any p
 
 def subset (t₁ t₂ : rbtree α lt) : bool :=

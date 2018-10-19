@@ -107,10 +107,10 @@ def quick_lt : name → name → bool
 | _                _                  := ff
 
 /- Alternative has_lt instance. -/
-protected def has_lt_quick : has_lt name :=
+@[inline] protected def has_lt_quick : has_lt name :=
 ⟨λ a b, name.quick_lt a b = tt⟩
 
-instance : decidable_rel (@has_lt.lt name name.has_lt_quick) :=
+@[inline] instance : decidable_rel (@has_lt.lt name name.has_lt_quick) :=
 infer_instance_as (decidable_rel (λ a b, name.quick_lt a b = tt))
 
 def to_string_with_sep (sep : string) : name → string

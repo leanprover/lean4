@@ -467,7 +467,7 @@ endif ()
 
 add_custom_target(
     standard_lib ALL
-    COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
+    COMMAND make -j4 -e LEAN="${LEAN_SOURCE_DIR}/../bin/lean ${LEAN_EXTRA_MAKE_OPTS}"
     DEPENDS bin_lean
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )
@@ -481,7 +481,7 @@ add_custom_target(
 
 add_custom_target(clean-std-lib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"
+  COMMAND make clean
   )
 
 add_custom_target(clean-leanpkg

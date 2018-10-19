@@ -13,16 +13,17 @@ Author: Leonardo de Moura
 
 namespace lean {
 class lambda_lifting_fn {
-    type_checker::state m_st;
+    environment         m_env;
+    name_generator      m_ngen;
     local_ctx           m_lctx;
     buffer<comp_decl>   m_new_decls;
     name                m_base_name;
     unsigned            m_next_idx{1};
     typedef std::unordered_set<name, name_hash> name_set;
 
-    environment const & env() { return m_st.env(); }
+    environment const & env() { return m_env; }
 
-    name_generator & ngen() { return m_st.ngen(); }
+    name_generator & ngen() { return m_ngen; }
 
     expr visit_lambda_core(expr e) {
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
@@ -150,7 +151,7 @@ class lambda_lifting_fn {
 
 public:
     lambda_lifting_fn(environment const & env):
-        m_st(env) {}
+        m_env(env) {}
 
     comp_decls operator()(comp_decl const & cdecl) {
         m_base_name = cdecl.fst();

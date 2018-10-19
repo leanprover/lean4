@@ -479,12 +479,12 @@ class specialize_fn {
             case spec_arg_kind::FixedNeutral:
                 break;
             case spec_arg_kind::FixedInst:
-                /* We specialize this kind of argument if it reduces to a constructor application.
+                /* We specialize this kind of argument if it reduces to a constructor application or lambda.
                    Type class instances arguments are usually free variables bound to lambda declarations,
-                   or quickly reduce to constructor applications. So, the following `whnf` is probably
-                   harmless. */
+                   or quickly reduce to constructor application or lambda. So, the following `whnf` is probably
+                   harmless. We need to consider the lambda case because of arguments such as `[decidable_rel lt]` */
                 w = tc.whnf(args[i]);
-                if (is_constructor_app(env(), w))
+                if (is_constructor_app(env(), w) || is_lambda(w))
                     return true;
                 break;
             case spec_arg_kind::FixedHO:

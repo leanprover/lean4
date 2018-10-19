@@ -13,10 +13,10 @@ all: $(OBJS)
 depends: $(DEPS)
 
 %.depend: %.lean
-	@echo $(<:.lean=.olean): `lean --deps $< | python relative.py` > $@
+	@echo $(<:.lean=.olean): `$(LEAN) --deps $< | python relative.py` > $@
 
 %.olean: %.lean %.depend
-	lean --make $<
+	$(LEAN) --make $<
 
 clean:
 	find . -name *.olean -delete

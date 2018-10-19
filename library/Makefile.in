@@ -5,7 +5,7 @@ LEAN = ../bin/lean
 SRCS = $(shell find . -name '*.lean')
 OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
-OPTS = -s40000
+OPTS = @LEAN_EXTRA_MAKE_OPTS@
 
 .PHONY: all clean
 

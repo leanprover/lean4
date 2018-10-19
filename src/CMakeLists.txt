@@ -385,9 +385,16 @@ else()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
+# OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
+# See issue #1721
+if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
+  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
+endif ()
+
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 configure_file("${LEAN_SOURCE_DIR}/../library/init/version.lean.in" "${LEAN_SOURCE_DIR}/../library/init/version.lean")
+configure_file("${LEAN_SOURCE_DIR}/../library/Makefile.in" "${LEAN_SOURCE_DIR}/../library/Makefile")
 
 include_directories("${LEAN_BINARY_DIR}")
 add_subdirectory(runtime)
@@ -459,15 +466,9 @@ add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
 
-# OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
-# See issue #1721
-if ((${MULTI_THREAD} MATCHES "ON") AND (${CMAKE_SYSTEM_NAME} MATCHES "Darwin"))
-  set(LEAN_EXTRA_MAKE_OPTS -s40000 ${LEAN_EXTRA_MAKE_OPTS})
-endif ()
-
 add_custom_target(
     standard_lib ALL
-    COMMAND make -j4 -e "LEAN=${LEAN_SOURCE_DIR}/../bin/lean ${LEAN_EXTRA_MAKE_OPTS}"
+    COMMAND make -j4
     DEPENDS bin_lean
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )

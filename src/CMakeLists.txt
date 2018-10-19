@@ -467,7 +467,7 @@ endif ()
 
 add_custom_target(
     standard_lib ALL
-    COMMAND make -j4 -e LEAN="${LEAN_SOURCE_DIR}/../bin/lean" "${LEAN_EXTRA_MAKE_OPTS}"
+    COMMAND make -j4 -e "LEAN=${LEAN_SOURCE_DIR}/../bin/lean ${LEAN_EXTRA_MAKE_OPTS}"
     DEPENDS bin_lean
     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
     )

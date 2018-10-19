@@ -43,7 +43,9 @@ class lambda_lifting_fn {
         buffer<expr> fvars;
         while (is_let(e)) {
             lean_assert(!has_loose_bvars(let_type(e)));
-            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
+            bool not_root = false;
+            bool jp       = is_join_point_name(let_name(e));
+            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()), not_root, jp);
             expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), let_type(e), new_val);
             fvars.push_back(new_fvar);
             e = let_body(e);
@@ -103,8 +105,8 @@ class lambda_lifting_fn {
         return none_expr();
     }
 
-    name next_name() {
-        name r(m_base_name, "_lambda");
+    name next_name(bool join_point) {
+        name r(m_base_name, join_point ? "_join_point" : "_lambda");
         r = r.append_after(m_next_idx);
         m_next_idx++;
         return r;
@@ -126,7 +128,7 @@ class lambda_lifting_fn {
         return e;
     }
 
-    expr visit_lambda(expr e, bool root) {
+    expr visit_lambda(expr e, bool root, bool join_point) {
         e = visit_lambda_core(e);
         if (root)
             return e;
@@ -135,15 +137,15 @@ class lambda_lifting_fn {
         buffer<expr> fvars;
         collect_fvars(e, fvars);
         e = mk_lambda(fvars, e);
-        name new_fn = next_name();
+        name new_fn = next_name(join_point);
         m_new_decls.push_back(comp_decl(new_fn, e));
         return mk_app(mk_constant(new_fn), fvars);
     }
 
-    expr visit(expr const & e, bool root = false) {
+    expr visit(expr const & e, bool root = false, bool join_point = false) {
         switch (e.kind()) {
         case expr_kind::App:    return visit_app(e);
-        case expr_kind::Lambda: return visit_lambda(e, root);
+        case expr_kind::Lambda: return visit_lambda(e, root, join_point);
         case expr_kind::Let:    return visit_let(e);
         default:                return e;
         }

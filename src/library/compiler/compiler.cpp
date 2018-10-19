@@ -129,6 +129,8 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "cse"}), ds);
     ds = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
+    ds = apply(esimp, env, ds);
+    trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(simp_inductive, new_env, ds);
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     new_env = emit_bytecode(new_env, ds);

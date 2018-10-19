@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/specialize.h"
 #include "library/compiler/lambda_lifting.h"
+#include "library/compiler/extract_closed.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/emit_bytecode.h"
 
@@ -131,6 +132,8 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
     ds = apply(esimp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
+    std::tie(new_env, ds) = extract_closed(new_env, ds);
+    trace_compiler(name({"compiler", "extract_closed"}), ds);
     ds = apply(simp_inductive, new_env, ds);
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     new_env = emit_bytecode(new_env, ds);
@@ -154,6 +157,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "stage1"});
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "lambda_lifting"});
+    register_trace_class({"compiler", "extract_closed"});
     register_trace_class({"compiler", "simplify_inductive"});
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});

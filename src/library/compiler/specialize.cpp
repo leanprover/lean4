@@ -71,17 +71,13 @@ static bool has_fixed_inst_arg(buffer<spec_arg_kind> const & ks) {
     return false;
 }
 
-/* The "specialization arity" it the position of the last fixed argument + 1.
-   Example: "F F I X X" has arity 3. */
-static unsigned get_specialization_arity(buffer<spec_arg_kind> const & ks) {
-    unsigned i  = ks.size();
-    while (i > 0) {
-        if (ks[i-1] != spec_arg_kind::Other)
-            return i;
-        else
-            i--;
+/* Return true if `ks` contains kind != Other */
+static bool has_kind_ne_other(buffer<spec_arg_kind> const & ks) {
+    for (spec_arg_kind k : ks) {
+        if (k != spec_arg_kind::Other)
+            return true;
     }
-    return 0;
+    return false;
 }
 
 char const * to_str(spec_arg_kind k) {
@@ -461,14 +457,8 @@ class specialize_fn {
         get_arg_kinds(const_name(fn), kinds);
         if (!has_specialize_attribute(env(), const_name(fn)) && !has_fixed_inst_arg(kinds))
             return false; /* Nothing to specialize */
-        unsigned spec_arity    = get_specialization_arity(kinds);
-        if (spec_arity == 0)
+        if (!has_kind_ne_other(kinds))
             return false; /* Nothing to specialize */
-        if (spec_arity > args.size()) {
-            /* We do not perform partial specialization.
-               We only specialize if all fixed arguments have been provided. */
-            return false;
-        }
         type_checker tc(m_st, m_lctx);
         for (unsigned i = 0; i < args.size(); i++) {
             if (i >= kinds.size())

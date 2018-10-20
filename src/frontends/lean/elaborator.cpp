@@ -3245,7 +3245,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                 r = enforce_type(r, *expected_type, "type mismatch", r);
             synthesize_type_class_instances();
             auto m = mk_metavar(mk_Type(), r);
-            auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, r, m));
+            auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, m, r));
             if (!inst)
                 throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << r
                                                         << "'");
@@ -3285,7 +3285,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                                              mk_lean_list(new_try_args))));
         }
     }
-    struc << "def " << macro.to_string() << ".has_view' : has_view " << esc_macro.to_string() << " " << macro.to_string() << ".view :=\n"
+    struc << "def " << macro.to_string() << ".has_view' : has_view " << macro.to_string() << ".view " << esc_macro.to_string() << " :=\n"
             << "{ view := fun stx, let stxs : list syntax := match stx with"
             << "| syntax.node (syntax_node.mk " << esc_macro.to_string() << " stxs) := stxs | _ := [] in\n"
             << binds.str()
@@ -3330,9 +3330,9 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         auto m = mk_metavar(mk_Type(), r);
         r = visit(r, expected_type);
         synthesize_type_class_instances();
-        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, r, m));
+        auto inst = m_ctx.mk_class_instance(mk_app(mk_const(name{"lean", "parser", "has_view"}), exp, m, r));
         if (!inst)
-            throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << r
+            throw elaborator_exception(e, sstream() << "Could not infer instance of parser.has_view for '" << instantiate_mvars(r)
                                                     << "'");
         auto m2 = mk_metavar(m, r);
         auto defval_inst = m_ctx.mk_class_instance(
@@ -3356,8 +3356,8 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         i++;
         new_args.push_back(mk_as_is(r));
     }
-    struc << "def " << macro.to_string() << ".has_view' : has_view " << esc_macro.to_string() << " "
-          << macro.to_string() << ".view :=\n"
+    struc << "def " << macro.to_string() << ".has_view' : has_view " << macro.to_string() << ".view "
+          << esc_macro.to_string() << " :=\n"
           << "{ view := fun stx, let (stx, i) := match stx : _ -> prod syntax nat with \n"
           << "| syntax.node (syntax_node.mk " << esc_macro.to_string()
           << " [syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous i))) [stx])]) := (stx, i)\n"

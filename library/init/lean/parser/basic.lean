@@ -99,19 +99,19 @@ instance list.cons.tokens (r : ρ) (rs : list ρ) [parser.has_tokens r] [parser.
   parser.has_tokens (r::rs) :=
 ⟨tokens r ++ tokens rs⟩
 
-class has_view (r : ρ) (α : out_param Type) :=
+class has_view (α : out_param Type) (r : ρ) :=
 (view : syntax → α)
 (review : α → syntax)
 
 export has_view (view review)
 
-def try_view {α : Type} (k : syntax_node_kind) [has_view k α] (stx : syntax) : option α :=
+def try_view {α : Type} (k : syntax_node_kind) [has_view α k] (stx : syntax) : option α :=
 if stx.is_of_kind k then some (has_view.view k stx) else none
 
-instance has_view.default (r : ρ) : inhabited (parser.has_view r syntax) :=
+instance has_view.default (r : ρ) : inhabited (parser.has_view syntax r) :=
 ⟨{ view := id, review := id }⟩
 
-class has_view_default (r : ρ) (α : out_param Type) [has_view r α] (default : α) := mk {}
+class has_view_default (r : ρ) (α : out_param Type) [has_view α r] (default : α) := mk {}
 
 def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.message μ) : message :=
 -- FIXME: translate position

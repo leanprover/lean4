@@ -36,7 +36,7 @@ do args ← rs.mfoldl (λ (p : list syntax) r, do
 instance node'.tokens (k) (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (node' k rs) :=
 ⟨tokens rs⟩
 
-instance node.view (k) (rs : list parser) [i : has_view k α] : parser.has_view (node k rs) α :=
+instance node.view (k) (rs : list parser) [i : has_view α k] : parser.has_view α (node k rs) :=
 { view := i.view, review := i.review }
 
 -- Each parser combinator comes equipped with `has_view` and `has_tokens` instances
@@ -55,7 +55,7 @@ do rem ← remaining, many1_aux r [] (rem+1)
 instance many1.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many1 r) :=
 ⟨tokens r⟩
 
-instance many1.view (r : parser) [parser.has_view r α] : parser.has_view (many1 r) (list α) :=
+instance many1.view (r : parser) [parser.has_view α r] : parser.has_view (list α) (many1 r) :=
 { view := λ stx, match stx with
     | syntax.node ⟨none, stxs⟩ := stxs.map (has_view.view r)
     | _ := [has_view.view r syntax.missing],
@@ -67,7 +67,7 @@ many1 r <|> pure (syntax.node ⟨none, []⟩)
 instance many.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many r) :=
 ⟨tokens r⟩
 
-instance many.view (r : parser) [has_view r α] : parser.has_view (many r) (list α) :=
+instance many.view (r : parser) [has_view α r] : parser.has_view (list α) (many r) :=
 /- Remark: `many1.view` can handle empty list. -/
 {..many1.view r}
 
@@ -95,14 +95,14 @@ instance sep_by.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_to
   parser.has_tokens (sep_by p sep a) :=
 ⟨tokens p ++ tokens sep⟩
 
-private def sep_by.view_aux {α β} (p sep : parser) [parser.has_view p α] [parser.has_view sep β] :
+private def sep_by.view_aux {α β} (p sep : parser) [parser.has_view α p] [parser.has_view β sep] :
   list syntax → list (α × option β)
 | []    := []
 | [stx] := [(has_view.view p stx, none)]
 | (stx1::stx2::stxs) := (has_view.view p stx1, some $ has_view.view sep stx2)::sep_by.view_aux stxs
 
-instance sep_by.view {α β} (p sep : parser) (a) [parser.has_view p α] [parser.has_view sep β] :
-  parser.has_view (sep_by p sep a) (list (α × option β)) :=
+instance sep_by.view {α β} (p sep : parser) (a) [parser.has_view α p] [parser.has_view β sep] :
+  parser.has_view (list (α × option β)) (sep_by p sep a) :=
 { view := λ stx, match stx with
     | syntax.node ⟨none, stxs⟩ := sep_by.view_aux p sep stxs
     | _ := failure,
@@ -114,8 +114,8 @@ instance sep_by1.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_t
   parser.has_tokens (sep_by1 p sep a) :=
 ⟨tokens (sep_by p sep a)⟩
 
-instance sep_by1.view {α β} (p sep : parser) (a) [parser.has_view p α] [parser.has_view sep β] :
-  parser.has_view (sep_by1 p sep a) (list (α × option β)) :=
+instance sep_by1.view {α β} (p sep : parser) (a) [parser.has_view α p] [parser.has_view β sep] :
+  parser.has_view (list (α × option β)) (sep_by1 p sep a) :=
 {..sep_by.view p sep a}
 
 def optional (r : parser) : parser :=
@@ -128,7 +128,7 @@ do r ← optional $
 
 instance optional.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (optional r) :=
 ⟨tokens r⟩
-instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (optional r) (option α) :=
+instance optional.view (r : parser) [parser.has_view α r] : parser.has_view (option α) (optional r) :=
 { view := λ stx, match stx with
     | syntax.node ⟨none, []⟩ := none
     | syntax.node ⟨none, [stx]⟩ := some $ has_view.view r stx
@@ -136,7 +136,7 @@ instance optional.view (r : parser) [parser.has_view r α] : parser.has_view (op
   review := λ a, match a with
     | some a := syntax.node ⟨none, [review r a]⟩
     | none   := syntax.node ⟨none, []⟩ }
-instance optional.view_default (r : parser) [parser.has_view r α] : parser.has_view_default (optional r) (option α) none := ⟨⟩
+instance optional.view_default (r : parser) [parser.has_view α r] : parser.has_view_default (optional r) (option α) none := ⟨⟩
 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     Note that there is NO explicit encoding of which parser was chosen;
@@ -148,7 +148,7 @@ match rs with
 
 instance any_of.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (any_of rs) :=
 ⟨tokens rs⟩
-instance any_of.view (rs : list parser) : parser.has_view (any_of rs) syntax := default _
+instance any_of.view (rs : list parser) : parser.has_view syntax (any_of rs) := default _
 
 /-- Parse a list `[p1, ..., pn]` of parsers with `monad_parsec.longest_match`.
     If the result is ambiguous, wrap it in a `choice` node.
@@ -162,7 +162,7 @@ do stxs ← monad_parsec.longest_match rs,
 
 instance longest_match.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (longest_match rs) :=
 ⟨tokens rs⟩
-instance longest_match.view (rs : list parser) : parser.has_view (longest_match rs) syntax := default _
+instance longest_match.view (rs : list parser) : parser.has_view syntax (longest_match rs) := default _
 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     The result will be wrapped in a node with the the index of the successful
@@ -185,43 +185,43 @@ instance choice.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_to
 
 instance try.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (try r) :=
 ⟨tokens r⟩
-instance try.view (r : parser) [i : parser.has_view r α] : parser.has_view (try r) α :=
+instance try.view (r : parser) [i : parser.has_view α r] : parser.has_view α (try r) :=
 {..i}
 
 instance label.tokens (r : parser) (l) [parser.has_tokens r] : parser.has_tokens (label r l) :=
 ⟨tokens r⟩
-instance label.view (r : parser) (l) [i : parser.has_view r α] : parser.has_view (label r l) α :=
+instance label.view (r : parser) (l) [i : parser.has_view α r] : parser.has_view α (label r l) :=
 {..i}
 
 instance dbg.tokens (r : parser) (l) [parser.has_tokens r] : parser.has_tokens (dbg l r) :=
 ⟨tokens r⟩
-instance dbg.view (r  : parser) (l) [i : parser.has_view r α] : parser.has_view (dbg l r) α :=
+instance dbg.view (r  : parser) (l) [i : parser.has_view α r] : parser.has_view α (dbg l r) :=
 {..i}
 
 instance recurse.tokens (α δ m a) [monad_rec α δ m] : parser.has_tokens (recurse a : m δ) :=
 default _ -- recursive use should not contribute any new tokens
-instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view (recurse a : m δ) syntax := default _
+instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view syntax (recurse a : m δ) := default _
 
 instance monad_lift.tokens {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [parser.has_tokens r] :
   parser.has_tokens (monad_lift r : m' syntax) :=
 ⟨tokens r⟩
-instance monad_lift.view {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [i : parser.has_view r α] :
-  parser.has_view (monad_lift r : m' syntax) α :=
+instance monad_lift.view {m' : Type → Type} [has_monad_lift_t m m'] (r : m syntax) [i : parser.has_view α r] :
+  parser.has_view α (monad_lift r : m' syntax) :=
 {..i}
 
 instance seq_left.tokens {α : Type} (x : m α) (p : m syntax) [parser.has_tokens p] : parser.has_tokens (p <* x) :=
 ⟨tokens p⟩
-instance seq_left.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view p β] : parser.has_view (p <* x) β :=
+instance seq_left.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view β p] : parser.has_view β (p <* x) :=
 {..i}
 
 instance seq_right.tokens {α : Type} (x : m α) (p : m syntax) [parser.has_tokens p] : parser.has_tokens (x *> p) :=
 ⟨tokens p⟩
-instance seq_right.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view p β] : parser.has_view (x *> p) β :=
+instance seq_right.view {α β : Type} (x : m α) (p : m syntax) [i : parser.has_view β p] : parser.has_view β (x *> p) :=
 {..i}
 
 instance coe.tokens {β} (r : parser) [parser.has_tokens r] [has_coe_t parser β]: parser.has_tokens (coe r : β) :=
 ⟨tokens r⟩
-instance coe.view {β} (r : parser) [i : parser.has_view r α] [has_coe_t parser β] : parser.has_view (coe r : β) α :=
+instance coe.view {β} (r : parser) [i : parser.has_view α r] [has_coe_t parser β] : parser.has_view α (coe r : β) :=
 {..i}
 
 end combinators

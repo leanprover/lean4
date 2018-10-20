@@ -110,7 +110,7 @@ instance commands.tokens : parser.has_tokens commands.parser :=
 ⟨tokens command.parser⟩
 
 -- custom parser requires custom instance
-instance commands.parser.has_view : has_view commands.parser (list syntax) :=
+instance commands.parser.has_view : has_view (list syntax) commands.parser :=
 {..many.view command.parser}
 
 @[pattern] def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩

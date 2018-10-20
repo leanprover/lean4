@@ -79,7 +79,7 @@ try $ do {
 } <?> "symbol"
 
 instance unquoted_symbol.tokens : parser.has_tokens unquoted_symbol.parser := ⟨[]⟩
-instance unquoted_symbol.view : parser.has_view unquoted_symbol.parser (option syntax_atom) :=
+instance unquoted_symbol.view : parser.has_view (option syntax_atom) unquoted_symbol.parser :=
 { view := λ stx, match stx with
   | syntax.atom atom := some atom
   | _                := none,

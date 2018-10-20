@@ -32,7 +32,7 @@ namespace level
 /-- Access leading term -/
 def get_leading : trailing_level_parser := read
 instance : has_tokens get_leading := default _
-instance : has_view get_leading syntax := default _
+instance : has_view syntax get_leading := default _
 
 @[derive parser.has_tokens parser.has_view]
 def paren.parser : level_parser :=

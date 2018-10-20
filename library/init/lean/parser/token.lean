@@ -100,7 +100,7 @@ try $ do
   if trailing_ws then with_trailing stx else pure stx
 
 instance raw.tokens {α} (p : m α) (t) : parser.has_tokens (raw p t : parser) := default _
-instance raw.view {α} (p : m α) (t) : parser.has_view (raw p t : parser) (option syntax_atom) :=
+instance raw.view {α} (p : m α) (t) : parser.has_view (option syntax_atom) (raw p t : parser) :=
 { view := λ stx, match stx with
   | syntax.atom atom := some atom
   | _                := none,
@@ -208,7 +208,7 @@ lift $ try $ do {
 
 instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
 ⟨[⟨sym.trim, lbp, none⟩]⟩
-instance symbol.view (sym lbp) : parser.has_view (symbol sym lbp : parser) (option syntax_atom) :=
+instance symbol.view (sym lbp) : parser.has_view (option syntax_atom) (symbol sym lbp : parser) :=
 { view := λ stx, match stx with
   | syntax.atom atom := some atom
   | _                := none,
@@ -225,7 +225,7 @@ lift $ try $ do {
 } <?> "number"
 
 instance number.parser.tokens : parser.has_tokens (number.parser : parser) := default _
-instance number.parser.view : parser.has_view (number.parser : parser) number.view :=
+instance number.parser.view : parser.has_view number.view (number.parser : parser) :=
 {..number.has_view}
 
 def number.view.to_nat : number.view → nat
@@ -244,7 +244,7 @@ lift $ try $ do {
 } <?> "string"
 
 instance string_lit.parser.tokens : parser.has_tokens (string_lit.parser : parser) := default _
-instance string_lit.parser.view : parser.has_view (string_lit.parser : parser) string_lit.view :=
+instance string_lit.parser.view : parser.has_view string_lit.view (string_lit.parser : parser) :=
 {..string_lit.has_view}
 
 def ident.parser : parser :=
@@ -255,7 +255,7 @@ lift $ try $ do {
 } <?> "identifier"
 
 instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := default _
-instance ident.parser.view : parser.has_view (ident.parser : parser) ident.view :=
+instance ident.parser.view : parser.has_view ident.view (ident.parser : parser) :=
 {..ident.has_view}
 
 def ident_part.view.to_string : ident_part.view → string
@@ -275,7 +275,7 @@ def raw_ident.parser : parser :=
 lift $ ident' >>= with_trailing
 
 instance raw_ident.parser.tokens : parser.has_tokens (raw_ident.parser : parser) := default _
-instance raw_ident.parser.view : parser.has_view (raw_ident.parser : parser) ident.view :=
+instance raw_ident.parser.view : parser.has_view ident.view (raw_ident.parser : parser) :=
 {..ident.has_view}
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
@@ -303,7 +303,7 @@ lift $ try $ do
 
 instance symbol_or_ident.tokens (sym) : parser.has_tokens (symbol_or_ident sym : parser) :=
 default _
-instance symbol_or_ident.view (sym) : parser.has_view (symbol_or_ident sym : parser) syntax := default _
+instance symbol_or_ident.view (sym) : parser.has_view syntax (symbol_or_ident sym : parser) := default _
 
 /-- A unicode symbol with an ASCII fallback -/
 @[derive has_tokens has_view]

@@ -241,6 +241,13 @@ expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar) {
         });
 }
 
+void sort_fvars(local_ctx const & lctx, buffer<expr> & fvars) {
+    std::sort(fvars.begin(), fvars.end(),
+              [&](expr const & x, expr const & y) {
+                  return lctx.get_local_decl(x).get_idx() < lctx.get_local_decl(y).get_idx();
+              });
+}
+
 unsigned get_lcnf_size(environment const & env, expr e) {
     unsigned r = 0;
     switch (e.kind()) {

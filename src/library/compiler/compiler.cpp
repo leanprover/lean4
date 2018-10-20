@@ -133,6 +133,7 @@ environment compile(environment const & env, options const & opts, names const &
     ds = apply(esimp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     std::tie(new_env, ds) = extract_closed(new_env, ds);
+    ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "extract_closed"}), ds);
     ds = apply(simp_inductive, new_env, ds);
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);

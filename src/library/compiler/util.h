@@ -95,6 +95,8 @@ bool has_fvar(expr const & e, expr const & fvar);
 
 expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar);
 
+void sort_fvars(local_ctx const & lctx, buffer<expr> & fvars);
+
 /* Return the "code" size for `e` */
 unsigned get_lcnf_size(environment const & env, expr e);
 

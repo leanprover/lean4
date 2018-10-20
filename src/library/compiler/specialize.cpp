@@ -534,10 +534,7 @@ class specialize_fn {
     }
 
     void sort_fvars(buffer<expr> & fvars) {
-        std::sort(fvars.begin(), fvars.end(),
-                  [&](expr const & x, expr const & y) {
-                      return m_lctx.get_local_decl(x).get_idx() < m_lctx.get_local_decl(y).get_idx();
-                  });
+        ::lean::sort_fvars(m_lctx, fvars);
     }
 
     /* Initialize `spec_ctx` fields: `m_params`, `m_let_vars`. */

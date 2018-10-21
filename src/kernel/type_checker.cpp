@@ -198,6 +198,7 @@ expr type_checker::infer_let(expr const & _e, bool infer_only) {
         e = let_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
+    r = cheap_beta_reduce(r); // use `cheap_beta_reduce` (to try) to reduce number of dependencies
     buffer<bool, 128> used;
     used.resize(fvars.size(), false);
     mark_used(fvars.size(), fvars.data(), r, used.data());

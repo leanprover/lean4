@@ -27,10 +27,12 @@ inline expr instantiate_rev(expr const & e, buffer<expr> const & s) {
 expr apply_beta(expr f, unsigned num_args, expr const * args);
 bool is_head_beta(expr const & t);
 expr head_beta_reduce(expr const & t);
+/* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,
+   and `e` otherwise. We also reduce `(fun x_1 ... x_n, x_i) a_1 ... a_n` into `a_[n-i-1]` */
+expr cheap_beta_reduce(expr const & e);
 
 /** \brief Instantiate the universe level parameters \c ps occurring in \c e with the levels \c ls.
-    \pre length(ps) == length(ls)
-*/
+    \pre length(ps) == length(ls) */
 expr instantiate_lparams(expr const & e, names const & ps, levels const & ls);
 
 class constant_info;

@@ -120,6 +120,27 @@ expr head_beta_reduce(expr const & t) {
     }
 }
 
+expr cheap_beta_reduce(expr const & e) {
+    if (!is_app(e)) return e;
+    expr fn = get_app_fn(e);
+    if (!is_lambda(fn)) return e;
+    buffer<expr> args;
+    get_app_args(e, args);
+    unsigned i = 0;
+    while (is_lambda(fn) && i < args.size()) {
+        i++;
+        fn = binding_body(fn);
+    }
+    if (!has_loose_bvars(fn)) {
+        return mk_app(fn, args.size() - i, args.data() + i);
+    } else if (is_bvar(fn)) {
+        lean_assert(bvar_idx(fn) < i);
+        return mk_app(args[i - bvar_idx(fn).get_small_value() - 1], args.size() - i, args.data() + i);
+    } else {
+        return e;
+    }
+}
+
 expr instantiate_lparams(expr const & e, names const & lps, levels const & ls) {
     if (!has_param_univ(e))
         return e;

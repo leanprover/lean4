@@ -17,10 +17,6 @@ namespace lean {
 typedef pair_ref<name, expr> comp_decl;
 typedef list_ref<comp_decl> comp_decls;
 
-/* If `e` is of the form `(fun x, t) a` return `head_beta_const_fn(t)` if `t` does not depend on `x`,
-   and `e` otherwise. We also reduce `(fun x_1 ... x_n, x_i) a_1 ... a_n` into `a_[n-i-1]` */
-expr cheap_beta_reduce(expr const & e);
-
 bool is_lcnf_atom(expr const & e);
 
 expr elim_trivial_let_decls(expr const & e);

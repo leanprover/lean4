@@ -23,7 +23,7 @@ structure message (μ : Type := unit) :=
 (it         : iterator)
 (unexpected : string       := "")          -- unexpected input
 (expected   : dlist string := dlist.empty) -- expected productions
-(custom     : μ)
+(custom     : option μ)
 
 def expected.to_string : list string → string
 | []       := ""
@@ -85,8 +85,8 @@ do r ← p s.mk_iterator,
 def eps : parsec_t μ m unit :=
 parsec_t.pure ()
 
-protected def failure [inhabited μ] : parsec_t μ m α :=
-λ it, pure (error { unexpected := "failure", it := it, custom := default μ } ff)
+protected def failure : parsec_t μ m α :=
+λ it, pure (error { unexpected := "failure", it := it, custom := none } ff)
 
 def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
@@ -200,7 +200,7 @@ match r with
   | error msg₁ ff := do { r ← q it, pure $ orelse_mk_res msg₁ r }
   | other         := pure other
 
-instance [inhabited μ] : alternative (parsec_t μ m) :=
+instance : alternative (parsec_t μ m) :=
 { orelse         := λ _, parsec_t.orelse,
   failure        := λ _, parsec_t.failure,
   ..parsec_t.monad }
@@ -255,9 +255,10 @@ instance monad_parsec_trans {m n : Type → Type} [has_monad_lift m n] [monad_fu
 
 namespace monad_parsec
 open parsec_t
-variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
+variables {m : Type → Type} [monad m] [monad_parsec μ m] {α β : Type}
 
-def error {α : Type} (unexpected : string) (expected : dlist string := dlist.empty) (it : option iterator := none) (custom : μ := default _) : m α :=
+def error {α : Type} (unexpected : string) (expected : dlist string := dlist.empty)
+          (it : option iterator := none) (custom : option μ := none) : m α :=
 lift $ λ it', result.error { unexpected := unexpected, expected := expected, it := it.get_or_else it', custom := custom } ff
 
 def left_over : m iterator :=
@@ -365,7 +366,7 @@ def str (s : string) : m string :=
 if s.is_empty then pure ""
 else lift $ λ it, match str_aux s.length s.mk_iterator it with
   | some it' := result.ok s it' none
-  | none     := result.error { it := it, expected := dlist.singleton (repr s), custom := default μ } ff
+  | none     := result.error { it := it, expected := dlist.singleton (repr s), custom := none } ff
 
 private def take_aux : nat → string → iterator → result μ string
 | 0     r it := result.ok r it none
@@ -575,10 +576,10 @@ variables {m : Type → Type} [monad m] {α β : Type}
 def parse (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) α) :=
 run p s fname
 
-def parse_with_eoi [inhabited μ] (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) α) :=
+def parse_with_eoi (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) α) :=
 run (p <* eoi) s fname
 
-def parse_with_left_over [inhabited μ] (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) (α × iterator)) :=
+def parse_with_left_over (p : parsec_t μ m α) (s : string) (fname := "") : m (except (message μ) (α × iterator)) :=
 run (prod.mk <$> p <*> left_over) s fname
 
 end parsec_t

@@ -33,7 +33,7 @@ private def run_aux (base : α → m δ) (rec : α → rec_t α δ m δ) : nat �
 protected def run (x : rec_t α δ m β) (base : α → m δ) (rec : α → rec_t α δ m δ) (max_rec : ℕ) : m β :=
 x.run (run_aux base rec max_rec)
 
-protected def run_parsec {γ : Type} [inhabited γ] [monad_parsec γ m] (x : rec_t α δ m β)
+protected def run_parsec {γ : Type} [monad_parsec γ m] (x : rec_t α δ m β)
   (rec : α → rec_t α δ m δ) : m β :=
 do it ← monad_parsec.left_over,
    rec_t.run x (λ _, monad_parsec.error "rec_t.run_parsec: no progress") rec (it.remaining+1)

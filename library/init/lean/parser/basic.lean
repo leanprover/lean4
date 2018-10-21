@@ -123,7 +123,7 @@ m (sum α syntax × message_log) :=
 do (r, _) ← (((r.run cfg).run {messages:=message_log.empty}).parse s).run {},
 pure $ match r with
 | except.ok (a, st) := (sum.inl a, st.messages)
-| except.error msg  := (sum.inr msg.custom, message_log.empty.add (message_of_parsec_message cfg msg))
+| except.error msg  := (sum.inr msg.custom.get, message_log.empty.add (message_of_parsec_message cfg msg))
 
 open coroutine
 open monad_parsec

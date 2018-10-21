@@ -19,6 +19,10 @@ def get_or_else {α : Type u} : option α → α → α
 | (some x) _ := x
 | none     e := e
 
+def get {α : Type u} [inhabited α] : option α → α
+| (some x) := x
+| none     := default α
+
 def to_bool {α : Type u} : option α → bool
 | (some _) := tt
 | none     := ff
@@ -30,10 +34,6 @@ def is_some {α : Type u} : option α → bool
 def is_none {α : Type u} : option α → bool
 | (some _) := ff
 | none     := tt
-
-def get {α : Type u} : Π {o : option α}, is_some o → α
-| (some x) h := x
-| none     h := false.rec _ $ bool.ff_ne_tt h
 
 @[inline] protected def bind {α : Type u} {β : Type v} : option α → (α → option β) → option β
 | none     b := none

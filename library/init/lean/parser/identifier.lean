@@ -38,7 +38,7 @@ def is_id_end_escape (c : char) : bool :=
 c = id_end_escape
 
 namespace parser
-variables {m : Type → Type} {μ : Type} [monad m] [monad_parsec μ m] [alternative m] [inhabited μ]
+variables {m : Type → Type} {μ : Type} [monad m] [monad_parsec μ m] [alternative m]
 open monad_parsec
 
 def id_part_default : m string :=

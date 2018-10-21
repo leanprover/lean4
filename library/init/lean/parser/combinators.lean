@@ -24,7 +24,7 @@ do args ← rs.mfoldl (λ (p : list syntax) r, do
      args ← pure p,
      -- on error, append partial syntax tree to previous successful parses and rethrow
      a ← catch r $ λ msg,
-       let args := msg.custom :: args in
+       let args := msg.custom.get :: args in
        throw {msg with custom := syntax.node ⟨k, args.reverse⟩},
      pure (a::args)
    ) [],
@@ -46,7 +46,7 @@ private def many1_aux (p : parser) : list syntax → nat → parser
 | as (n+1) := do
   a ← catch p (λ msg, throw {msg with custom :=
     -- append `syntax.missing` to make clear that list is incomplete
-    syntax.node ⟨none, (syntax.missing::msg.custom::as).reverse⟩}),
+    syntax.node ⟨none, (syntax.missing::msg.custom.get::as).reverse⟩}),
   many1_aux (a::as) n <|> pure (syntax.node ⟨none, (a::as).reverse⟩)
 
 def many1 (r : parser) : parser :=
@@ -77,7 +77,7 @@ private def sep_by_aux (p : m syntax) (sep : parser) (allow_trailing_sep : bool)
   let p := if p_opt then some <$> p <|> pure none else some <$> p,
   some a ← catch p (λ msg, throw {msg with custom :=
     -- append `syntax.missing` to make clear that list is incomplete
-    syntax.node ⟨none, (syntax.missing::msg.custom::as).reverse⟩})
+    syntax.node ⟨none, (syntax.missing::msg.custom.get::as).reverse⟩})
     | pure (syntax.node ⟨none, as.reverse⟩),
   -- I don't want to think about what the output on a failed separator parse should look like
   let sep := try sep,
@@ -121,7 +121,7 @@ instance sep_by1.view {α β} (p sep : parser) (a) [parser.has_view p α] [parse
 def optional (r : parser) : parser :=
 do r ← optional $
      -- on error, wrap in "some"
-     catch r (λ msg, throw {msg with custom := syntax.node ⟨none, [msg.custom]⟩}),
+     catch r (λ msg, throw {msg with custom := syntax.node ⟨none, [msg.custom.get]⟩}),
    pure $ match r with
    | some r := syntax.node ⟨none, [r]⟩
    | none   := syntax.node ⟨none, []⟩

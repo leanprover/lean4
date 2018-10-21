@@ -83,14 +83,14 @@ private def commands_aux : bool → nat → module_parser_m unit
       -- unknown command: try to skip token, or else single character
       when (¬ recovering) $ do {
         it ← left_over,
-        log_message {expected := dlist.singleton "command", it := it, custom := ()}
+        log_message {expected := dlist.singleton "command", it := it, custom := some ()}
       },
       try (monad_lift token *> pure ()) <|> (any *> pure ()),
       pure (tt, none)
     }) $ λ msg, do {
       -- error inside command: log error, return partial syntax tree
       log_message msg,
-      pure (tt, some msg.custom)
+      pure (tt, some msg.custom.get)
     },
   match c with
   | some c := yield_command c *> commands_aux recovering n
@@ -120,7 +120,7 @@ def module.parser : module_parser_m unit := do
   ) $ λ msg, do {
     -- fatal error (should only come from header.parser or eoi), yield partial syntax tree and stop
     log_message msg,
-    yield_command msg.custom
+    yield_command msg.custom.get
   },
   it ← left_over,
   -- add `eoi` node for left-over input

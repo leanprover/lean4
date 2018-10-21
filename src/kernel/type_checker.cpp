@@ -105,6 +105,7 @@ expr type_checker::infer_lambda(expr const & _e, bool infer_only) {
         e = binding_body(e);
     }
     expr r = infer_type_core(instantiate_rev(e, fvars.size(), fvars.data()), infer_only);
+    r = cheap_beta_reduce(r);
     return m_lctx.mk_pi(fvars, r);
 }
 

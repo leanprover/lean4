@@ -193,13 +193,25 @@ public:
         buffer<pair<expr, expr>> target_jmp_pairs;
         name_set new_fvar_names;
         for (unsigned i = 0; i < m_cce_targets.size(); i++) {
-            expr const & target = m_cce_targets[i];
+            expr target = m_cce_targets[i];
             unsigned max_idx    = get_max_fvar_idx(target);
             if (max_idx >= first_var_idx) {
                 expr target_type = cheap_beta_reduce(type_checker(m_st, m_lctx).infer(target));
                 expr unit        = mk_unit();
                 expr unit_mk     = mk_unit_mk();
-                expr new_val     = ::lean::mk_lambda("u", unit, target);
+                expr target_val  = target;
+                if (is_lambda(target_val)) {
+                    /* Make sure we don't change the arity of the joint point.
+                       We use a "trivial let" to encode a joint point that returns a
+                       lambda:
+                       ```
+                          jp : unit -> target_type :=
+                          fun _ : unit, let _x : target_type := target_val in _x
+                       ```
+                    */
+                    target_val = ::lean::mk_let("_x", target_type, target_val, mk_bvar(0));
+                }
+                expr new_val     = ::lean::mk_lambda("u", unit, target_val);
                 expr new_type    = ::lean::mk_arrow(unit, target_type);
                 expr new_fvar    = m_lctx.mk_local_decl(ngen(), mk_join_point_name(m_j.append_after(m_next_idx)), new_type, new_val);
                 new_fvar_names.insert(fvar_name(new_fvar));

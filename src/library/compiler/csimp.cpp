@@ -205,6 +205,11 @@ class csimp_fn {
         return m_lctx.mk_lambda(xs, e);
     }
 
+    /* See `mk_minor_lambda`. We want to preserve the arity of join-points. */
+    expr mk_join_point_lambda(buffer<expr> const & xs, expr e) {
+        return mk_minor_lambda(xs, e);
+    }
+
     expr get_lambda_body(expr e, buffer<expr> & xs) {
         while (is_lambda(e)) {
             expr d = instantiate_rev(binding_domain(e), xs.size(), xs.data());
@@ -388,7 +393,7 @@ class csimp_fn {
                                 jp_args.push_back(m_lctx.mk_local_decl(ngen(), "_", mk_unit()));
                                 used_unit = true;
                             }
-                            jp_val = m_lctx.mk_lambda(jp_args, jp_val);
+                            jp_val = mk_join_point_lambda(jp_args, jp_val);
                         }
                         /* Create new jp */
                         lean_assert(m_before_erasure);
@@ -507,7 +512,7 @@ class csimp_fn {
         expr new_jp_val  = e_y;
         update_local_join_points(saved_fvars_size, new_jps, new_jp_cache);
         new_jp_val = mk_let(saved_fvars_size, new_jp_val);
-        new_jp_val = m_lctx.mk_lambda(zs, new_jp_val);
+        new_jp_val = mk_join_point_lambda(zs, new_jp_val);
         mark_simplified(new_jp_val);
         expr new_jp_type = cheap_beta_reduce(infer_type(new_jp_val));
         expr new_jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), new_jp_type, new_jp_val);
@@ -885,7 +890,13 @@ class csimp_fn {
             }
         }
         new_body      = mk_let(saved_fvars_size, new_body);
-        expr r        = m_lctx.mk_lambda(binding_fvars, m_lctx.mk_lambda(eta_args, new_body));
+        expr r;
+        if (is_join_point_def) {
+            lean_assert(eta_args.empty());
+            r = mk_join_point_lambda(binding_fvars, new_body);
+        } else {
+            r = m_lctx.mk_lambda(binding_fvars, m_lctx.mk_lambda(eta_args, new_body));
+        }
         mark_simplified(r);
         return r;
     }

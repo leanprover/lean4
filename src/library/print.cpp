@@ -183,12 +183,13 @@ struct print_expr_fn {
     }
 
     void print_let(expr const & e) {
-        out() << "let " << let_name(e) << " : ";
+        auto p = let_body_fresh(e);
+        out() << "let " << p.second << " : ";
         print(let_type(e));
         out() << " := ";
         print(let_value(e));
         out() << " in ";
-        print(let_body(e));
+        print(p.first);
     }
 
     void print_const(expr const & a) {

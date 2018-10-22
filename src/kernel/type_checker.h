@@ -65,10 +65,8 @@ private:
     optional<expr> reduce_recursor(expr const & e);
     optional<expr> reduce_proj(expr const & e);
     expr whnf_fvar(expr const & e);
-    expr whnf_core(expr const & e);
     optional<constant_info> is_delta(expr const & e) const;
     optional<expr> unfold_definition_core(expr const & e);
-    optional<expr> unfold_definition(expr const & e);
 
     bool is_def_eq_binding(expr t, expr s);
     bool is_def_eq(level const & l1, level const & l2);
@@ -133,6 +131,9 @@ public:
     /** \brief Mare sure type of \c e is a sort, and return it. Throw an exception otherwise. */
     expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
     expr eta_expand(expr const & e);
+
+    expr whnf_core(expr const & e);
+    optional<expr> unfold_definition(expr const & e);
 };
 
 void initialize_type_checker();

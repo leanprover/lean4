@@ -71,10 +71,27 @@ class erase_irrelevant_fn {
         return result;
     }
 
+    bool is_prop(expr const & e) {
+        return type_checker(m_st, m_lctx).is_prop(e);
+    }
+
+    expr whnf_type(expr e) {
+        type_checker tc(m_st, m_lctx);
+        while (true) {
+            expr e1 = tc.whnf_core(e);
+            if (is_runtime_builtin_type(e1))
+                return e1;
+            if (auto next_e = tc.unfold_definition(e1)) {
+                e = *next_e;
+            } else {
+                return e;
+            }
+        }
+    }
+
     expr mk_runtime_type(expr e, bool atomic_only = false) {
         try {
-            type_checker tc(m_st, m_lctx);
-            e = tc.whnf(e);
+            e = whnf_type(e);
             if (is_constant(e)) {
                 name const & c = const_name(e);
                 if (is_runtime_scalar_type(c))
@@ -88,7 +105,7 @@ class erase_irrelevant_fn {
                 return mk_app(app_fn(e), t);
             } else if (is_sort(e)) {
                 return is_zero(sort_level(e)) ? mk_Prop() : mk_Type();
-            } else if (tc.is_prop(e)) {
+            } else if (is_prop(e)) {
                 return mk_true();
             } else {
                 return mk_enf_object_type();

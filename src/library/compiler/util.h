@@ -17,6 +17,8 @@ namespace lean {
 typedef pair_ref<name, expr> comp_decl;
 typedef list_ref<comp_decl> comp_decls;
 
+unsigned get_num_nested_lambdas(expr e);
+
 bool is_lcnf_atom(expr const & e);
 
 expr elim_trivial_let_decls(expr const & e);

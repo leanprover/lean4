@@ -901,15 +901,6 @@ class csimp_fn {
         return r;
     }
 
-    static unsigned get_num_nested_lambdas(expr e) {
-        unsigned r = 0;
-        while (is_lambda(e)) {
-            r++;
-            e = binding_body(e);
-        }
-        return r;
-    }
-
     expr beta_reduce(expr fn, unsigned nargs, expr const * args, bool is_let_val) {
         unsigned i = 0;
         while (is_lambda(fn) && i < nargs) {

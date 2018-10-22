@@ -17,6 +17,15 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 
 namespace lean {
+unsigned get_num_nested_lambdas(expr e) {
+    unsigned r = 0;
+    while (is_lambda(e)) {
+        r++;
+        e = binding_body(e);
+    }
+    return r;
+}
+
 bool has_inline_attribute(environment const & env, name const & n) {
     if (has_attribute(env, "inline", n))
         return true;

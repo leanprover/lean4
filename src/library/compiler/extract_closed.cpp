@@ -226,10 +226,20 @@ class extract_closed_fn {
         sort_fvars(m_lctx, fvars);
     }
 
+    bool arity_eq_0(name c) {
+        c = mk_cstage2_name(c);
+        optional<constant_info> info = env().find(c);
+        if (!info || !info->is_definition()) return false;
+        return !is_lambda(info->get_value());
+    }
+
     expr mk_aux_constant(expr const & e0) {
         expr e = find(e0);
-        if (is_constant(e)) {
-            /* TODO(Leo): if a constant `C` has arity > 0, then it is worth creating a new constant with arity 0 that
+        if (is_enf_neutral(e)) {
+            return e0;
+        }
+        if (is_constant(e) && arity_eq_0(const_name(e))) {
+            /* Remarr: if a constant `C` has arity > 0, then it is worth creating a new constant with arity 0 that
                just returns `C`. In this way, we cache the closure allocation.
                To implement this optimization we need to first store the definitions after erasure. */
             return e0;

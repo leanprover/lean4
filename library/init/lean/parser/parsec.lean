@@ -91,7 +91,7 @@ protected def failure : parsec_t μ m α :=
 def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
 
-private def bind_mk_res (ex₁ : option (dlist string)) (r : result μ β) : result μ β :=
+@[inline] private def bind_mk_res (ex₁ : option (dlist string)) (r : result μ β) : result μ β :=
 match ex₁, r with
 | none,     ok b it _          := ok b it none
 | none,     error msg _        := error msg tt
@@ -175,7 +175,7 @@ Without the `try` combinator we will not be able to backtrack on the `let` keywo
   r ← p it,
   pure $ try_mk_res r
 
-private def orelse_mk_res (msg₁ : message μ) (r : result μ α) : result μ α :=
+@[inline] private def orelse_mk_res (msg₁ : message μ) (r : result μ α) : result μ α :=
 match r with
 | ok a it' (some ex₂) := ok a it' (some $ msg₁.expected ++ ex₂)
 | error msg₂ ff       := error (merge msg₁ msg₂) ff

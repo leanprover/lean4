@@ -3477,6 +3477,39 @@ vm_state::profiler::~profiler() {
     stop();
 }
 
+name vm_state::profiler::prettify_decl_name(name decl_name) {
+    /* Remove unnecessary suffixes. */
+    while (true) {
+        if (decl_name.is_atomic()) break;
+        if (!decl_name.is_string()) break;
+        char const * str = decl_name.get_string().data(); // <<< HACK: processing Lean string as C string
+        if (str[0] != '_') break;
+        if (strncmp(str, "_lambda", 7) == 0) break;
+        decl_name = decl_name.get_prefix();
+    }
+    if (auto prv = hidden_to_user_name(m_state.env(), decl_name))
+        decl_name = *prv;
+    return decl_name;
+}
+
+void vm_state::profiler::save_perf_script(std::string const & filename) {
+    stop();
+    std::ofstream out(filename);
+    second_duration total_time;
+    for (snapshot_core const & s : m_snapshots) {
+        total_time        += s.m_duration;
+        out << "lean 0 " << total_time.count() << " " << s.m_duration.count() << " cycles:uppp:\n";
+        for (int i = s.m_stack.size() - 1; i >= 0; i--) {
+            auto const & p = s.m_stack[i];
+            vm_decl const * decl = m_state.m_decl_map.find(p.first);
+            lean_assert(decl);
+            name decl_name = prettify_decl_name(decl->get_name());
+            out << "\t0 " << decl_name << " ()\n";
+        }
+        out << "\n";
+    }
+}
+
 auto vm_state::profiler::get_snapshots() -> snapshots {
     stop();
     snapshots r;
@@ -3493,18 +3526,7 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
             auto const & p = s.m_stack[i];
             vm_decl const * decl = m_state.m_decl_map.find(p.first);
             lean_assert(decl);
-            name decl_name = decl->get_name();
-            /* Remove unnecessary suffixes. */
-            while (true) {
-                if (decl_name.is_atomic()) break;
-                if (!decl_name.is_string()) break;
-                char const * str = decl_name.get_string().data(); // <<< HACK: processing Lean string as C string
-                if (str[0] != '_') break;
-                if (strncmp(str, "_lambda", 7) == 0) break;
-                decl_name = decl_name.get_prefix();
-            }
-            if (auto prv = hidden_to_user_name(m_state.env(), decl_name))
-                decl_name = *prv;
+            name decl_name = prettify_decl_name(decl->get_name());
             if (new_stack.empty() || decl_name != new_stack.back().first)
                 new_stack.emplace_back(decl_name, p.second);
 
@@ -3719,6 +3741,7 @@ void initialize_vm() {
 #if defined(LEAN_MULTI_THREAD)
     g_profiler_freq  = new name{"profiler", "freq"};
     register_unsigned_option(*g_profiler_freq, LEAN_DEFAULT_PROFILER_FREQ, "(profiler) sampling frequency in milliseconds");
+    register_string_option(name({"profiler", "perf_script_file"}), "", "(profiler) save profile in `perf script` format");
 #endif
     g_debugger       = new name{"debugger"};
     register_bool_option(*g_debugger, false, "(debugger) debug code using VM monitors");

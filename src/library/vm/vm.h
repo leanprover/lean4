@@ -825,6 +825,7 @@ public:
         thread_ptr                 m_thread_ptr;
         std::vector<snapshot_core> m_snapshots;
         void stop();
+        name prettify_decl_name(name decl_name);
     public:
         profiler(vm_state & s, options const & opts);
         ~profiler();
@@ -849,6 +850,7 @@ public:
         };
         bool enabled() const { return m_thread_ptr.get() != nullptr; }
         snapshots get_snapshots();
+        void save_perf_script(std::string const & filename);
     };
 
     /* performance counters */

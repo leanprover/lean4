@@ -474,6 +474,8 @@ static environment eval_cmd(parser & p) {
         if (fn.get_profiler().enabled()) {
             if (fn.get_profiler().get_snapshots().display("#eval", p.get_options(), out.get_text_stream().get_stream()))
                 should_report = true;
+            if (auto filename = p.get_options().get_string({"profiler", "perf_script_file"}))
+                fn.get_profiler().save_perf_script(filename);
         }
     };
 

@@ -141,16 +141,6 @@ node! ident [part: monad_lift ident_part.parser, suffix: optional ident_suffix.p
 private def ident' : basic_parser_m syntax :=
 rec_t.run_parsec ident'' $ λ _, ident''
 
-private def symbol' : basic_parser_m syntax :=
-do tk ← match_token,
-   match tk with
-   -- constant-length token
-   | some ⟨tk, _, none⟩   :=
-     raw (str tk)
-   -- variable-length token
-   | some ⟨tk, _, some r⟩ := error "symbol': not implemented" --str tk *> monad_parsec.lift r
-   | none                 := monad_parsec.eoi *> error "end of file" <|> error "token"
-
 --TODO(Sebastian): other bases
 def number' : basic_parser :=
 node_choice! number {
@@ -159,6 +149,10 @@ node_choice! number {
 
 def string_lit' : basic_parser :=
 node! string_lit [val: raw parse_string_literal]
+
+private def mk_consume_token (tk : token_config) (it : string.iterator) : basic_parser :=
+let it' := it.nextn tk.prefix.length in
+monad_parsec.lift $ λ _, parsec.result.ok (mk_raw_res it it') it' none
 
 def token : basic_parser :=
 do it ← left_over,
@@ -174,11 +168,22 @@ do it ← left_over,
    ) (λ _, do
      -- cache failed, update cache
 
-     -- NOTE the order: if a token is both a symbol and a valid identifier (i.e. a keyword),
-     -- we want it to be recognized as a symbol
-     tk::_ ← monad_parsec.longest_match [symbol', ident'] <|>
-       list.ret <$> any_of [number', string_lit']
-       | error "token: unreachable",
+     ident_start ← observing $ lookahead (satisfy is_id_first <|> ch id_begin_escape),
+     tk ← match_token,
+     tk ← match tk, ident_start with
+     | some tk@{suffix_parser := some _, ..}, _ :=
+       error "token: not implemented" --str tk *> monad_parsec.lift r
+     | some tk, except.ok _ := do
+       id ← ident',
+       it' ← left_over,
+       -- if a token is both a symbol and a valid identifier (i.e. a keyword),
+       -- we want it to be recognized as a symbol
+       if it.offset + tk.prefix.length ≥ it'.offset then
+         mk_consume_token tk it
+       else pure id
+     | some tk, except.error _ := mk_consume_token tk it
+     | none, except.ok _ := ident'
+     | none, except.error _ := number' <|> string_lit',
      tk ← with_trailing tk,
      new_it ← left_over,
      put_cache {cache with token_cache := some ⟨it, new_it, tk⟩},

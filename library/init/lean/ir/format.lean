@@ -166,22 +166,22 @@ def decl.to_format : decl → format
 instance decl.has_to_format : has_to_format decl := ⟨decl.to_format⟩
 instance decl.has_to_string : has_to_string decl := ⟨pretty ∘ to_fmt⟩
 
-def phi.decorate_error {α m} [monad_except format m] (p : phi) (a : m α) : m α :=
+@[inline] def phi.decorate_error {α m} [monad_except format m] (p : phi) (a : m α) : m α :=
 catch a (λ e, throw ("at phi '" ++ to_fmt p ++ "'" ++ line ++ e))
 
-def instr.decorate_error {α m} [monad_except format m] (ins : instr) (a : m α) : m α :=
+@[inline] def instr.decorate_error {α m} [monad_except format m] (ins : instr) (a : m α) : m α :=
 catch a (λ e, throw ("at instruction '" ++ to_fmt ins ++ "'" ++ line ++ e))
 
-def terminator.decorate_error {α m} [monad_except format m] (t : terminator) (a : m α) : m α :=
+@[inline] def terminator.decorate_error {α m} [monad_except format m] (t : terminator) (a : m α) : m α :=
 catch a (λ e, throw ("at terminator '" ++ to_fmt t ++ "'" ++ line ++ e))
 
-def block.decorate_error {α m} [monad_except format m] (b : block) (a : m α) : m α :=
+@[inline] def block.decorate_error {α m} [monad_except format m] (b : block) (a : m α) : m α :=
 catch a (λ e, throw ("at block '" ++ to_fmt b.id ++ "'" ++ line ++ e))
 
-def header.decorate_error {α m} [monad_except format m] (h : header) (a : m α) : m α :=
+@[inline] def header.decorate_error {α m} [monad_except format m] (h : header) (a : m α) : m α :=
 catch a (λ e, throw ("error at declaration '" ++ to_fmt h.name ++ "'" ++ line ++ e))
 
-def decl.decorate_error {α m} [monad_except format m] (d : decl) (a : m α) : m α :=
+@[inline] def decl.decorate_error {α m} [monad_except format m] (d : decl) (a : m α) : m α :=
 d.header.decorate_error a
 
 end ir

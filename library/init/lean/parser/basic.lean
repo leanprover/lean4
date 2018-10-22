@@ -73,10 +73,10 @@ abbreviation monad_basic_parser := has_monad_lift_t basic_parser_m
 
 section
 local attribute [reducible] parser_t parser_core_t
-def get_cache : basic_parser_m parser_cache :=
+@[inline] def get_cache : basic_parser_m parser_cache :=
 monad_lift (get : state_t parser_cache id _)
 
-def put_cache : parser_cache → basic_parser_m punit :=
+@[inline] def put_cache : parser_cache → basic_parser_m punit :=
 λ c, monad_lift (put c : state_t parser_cache id _)
 end
 

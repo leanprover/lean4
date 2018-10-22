@@ -261,11 +261,11 @@ def error {α : Type} (unexpected : string) (expected : dlist string := dlist.em
           (it : option iterator := none) (custom : option μ := none) : m α :=
 lift $ λ it', result.error { unexpected := unexpected, expected := expected, it := it.get_or_else it', custom := custom } ff
 
-def left_over : m iterator :=
+@[inline] def left_over : m iterator :=
 lift $ λ it, result.mk_eps it it
 
 /-- Return the number of characters left to be parsed. -/
-def remaining : m nat :=
+@[inline] def remaining : m nat :=
 string.iterator.remaining <$> left_over
 
 @[inline] def labels (p : m α) (lbls : dlist string) : m α :=

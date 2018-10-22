@@ -168,24 +168,6 @@ static void finalize_definition(elaborator & elab, buffer<expr> const & params, 
     lp_names.append(implicit_lp_names);
 }
 
-static bool check_noncomputable(bool ignore_noncomputable, environment const & env, name const & c_name, name const & c_real_name, bool is_noncomputable,
-                                std::string const & file_name, pos_info const & pos) {
-    if (ignore_noncomputable)
-        return true;
-    if (!is_noncomputable && is_marked_noncomputable(env, c_real_name)) {
-        auto reason = get_noncomputable_reason(env, c_real_name);
-        lean_assert(reason);
-        report_message(message(file_name, pos, ERROR,
-                               (sstream() << "definition '" << c_name << "' is noncomputable, it depends on '" << *reason << "'").str()));
-        return false;
-    }
-    if (is_noncomputable && !is_marked_noncomputable(env, c_real_name)) {
-        report_message(message(file_name, pos, WARNING,
-                               (sstream() << "definition '" << c_name << "' was incorrectly marked as noncomputable").str()));
-    }
-    return true;
-}
-
 static environment compile_decl(parser & p, environment const & env,
                                 name const & c_name, name const & c_real_name, pos_info const & pos) {
     try {
@@ -229,8 +211,6 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
           mk_definition(new_env, c_real_name, names(lp_names), type, *val, is_meta)));
     new_env           = module::add(new_env, def);
 
-    check_noncomputable(p.ignore_noncomputable(), new_env, c_name, c_real_name, meta.m_modifiers.m_is_noncomputable, p.get_file_name(), pos);
-
     if (meta.m_modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
 
@@ -240,7 +220,8 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
         new_env = ensure_decl_namespaces(new_env, c_real_name);
     }
 
-    new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
+    if (!meta.m_modifiers.m_is_noncomputable)
+        new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
     return mk_pair(new_env, c_real_name);
 }
 
@@ -456,7 +437,7 @@ static expr elaborate_proof(
 }
 
 static void check_example(environment const & decl_env, options const & opts,
-                          decl_modifiers modifiers, bool noncomputable_theory,
+                          decl_modifiers modifiers, bool /* noncomputable_theory */,
                           names const & univ_params, list<expr> const & params,
                           expr const & fn, expr const & val0,
                           metavar_context const & mctx, local_context const & lctx,
@@ -482,8 +463,6 @@ static void check_example(environment const & decl_env, options const & opts,
         auto new_env = elab.env();
         declaration def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_meta);
         new_env = module::add(new_env, def);
-        check_noncomputable(noncomputable_theory, new_env, decl_name, decl_name, modifiers.m_is_noncomputable,
-                                 pos_provider.get_file_name(), pos_provider.get_some_pos());
     } catch (throwable & ex) {
         message_builder error_msg(tc, decl_env, get_global_ios(),
                                   pos_provider.get_file_name(), pos_provider.get_some_pos(),

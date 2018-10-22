@@ -194,11 +194,6 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
 
 environment add(environment const & env, declaration const & d, bool check) {
     environment new_env = env.add(d, check);
-    if (d.is_definition()) {
-        definition_val const & v = d.to_definition_val();
-        if (!check_computable(new_env, v.get_name()))
-            new_env = mark_noncomputable(new_env, v.get_name());
-    }
     return add(new_env, std::make_shared<decl_modification>(d));
 }
 } // end of namespace module

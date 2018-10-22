@@ -134,7 +134,7 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(erase_irrelevant, new_env, ds);
     trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
-    ds = apply(esimp, env, ds);
+    ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
@@ -142,13 +142,15 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "cse"}), ds);
     ds = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
-    ds = apply(esimp, env, ds);
+    ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     std::tie(new_env, ds) = extract_closed(new_env, ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "extract_closed"}), ds);
     new_env = cache_stage2(new_env, ds);
     trace_compiler(name({"compiler", "stage2"}), ds);
+    ds = apply(esimp, new_env, ds);
+    trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(simp_inductive, new_env, ds);
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     new_env = emit_bytecode(new_env, ds);

@@ -1087,19 +1087,30 @@ class csimp_fn {
     expr try_inline(expr const & fn, expr const & e, bool is_let_val) {
         lean_assert(is_constant(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
-        if (!m_before_erasure) return e;
         if (!m_cfg.m_inline) return e;
         if (has_noinline_attribute(env(), const_name(fn))) return e;
-        name c = mk_cstage1_name(const_name(fn));
-        optional<constant_info> info = env().find(c);
-        if (!info || !info->is_definition()) return e;
-        if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return e;
-        if (!has_inline_attribute(env(), const_name(fn)) &&
-            get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold)
-            return e;
-        if (is_recursive(c)) return e;
-        expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
-        return beta_reduce(new_fn, e, is_let_val);
+        if (m_before_erasure) {
+            name c = mk_cstage1_name(const_name(fn));
+            optional<constant_info> info = env().find(c);
+            if (!info || !info->is_definition()) return e;
+            if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return e;
+            if (!has_inline_attribute(env(), const_name(fn)) &&
+                get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold)
+                return e;
+            if (is_recursive(c)) return e;
+            expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
+            return beta_reduce(new_fn, e, is_let_val);
+        } else {
+            name c = mk_cstage2_name(const_name(fn));
+            optional<constant_info> info = env().find(c);
+            if (!info || !info->is_definition()) return e;
+            unsigned arity = get_num_nested_lambdas(info->get_value());
+            if (arity == 0 || get_app_num_args(e) < arity) return e;
+            if (get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold)
+                return e;
+            if (is_recursive(c)) return e;
+            return beta_reduce(info->get_value(), e, is_let_val);
+        }
     }
 
     expr visit_inline_app(expr const & e, bool is_let_val) {

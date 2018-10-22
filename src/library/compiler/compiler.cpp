@@ -84,6 +84,19 @@ static environment cache_stage1(environment env, comp_decls const & ds) {
     return env;
 }
 
+static environment cache_stage2(environment env, comp_decls const & ds) {
+    for (comp_decl const & d : ds) {
+        name n = d.fst();
+        expr v = d.snd();
+        /* This a temporary hack to store Stage2 intermediate result.
+           We should not store this information as a declaration. */
+        declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), mk_enf_object_type(),
+                                             v, reducibility_hints::mk_opaque(), true);
+        env = module::add(env, aux_decl, false);
+    }
+    return env;
+}
+
 #define trace_compiler(k, ds) lean_trace(k, trace(ds);)
 
 environment compile(environment const & env, options const & opts, names const & cs) {
@@ -134,6 +147,8 @@ environment compile(environment const & env, options const & opts, names const &
     std::tie(new_env, ds) = extract_closed(new_env, ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "extract_closed"}), ds);
+    new_env = cache_stage2(new_env, ds);
+    trace_compiler(name({"compiler", "stage2"}), ds);
     ds = apply(simp_inductive, new_env, ds);
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     new_env = emit_bytecode(new_env, ds);
@@ -155,6 +170,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "cse"});
     register_trace_class({"compiler", "specialize"});
     register_trace_class({"compiler", "stage1"});
+    register_trace_class({"compiler", "stage2"});
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "extract_closed"});

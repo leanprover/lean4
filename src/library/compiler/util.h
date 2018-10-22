@@ -83,6 +83,12 @@ inline name mk_cstage1_name(name const & decl_name) {
     return name(decl_name, "_cstage1");
 }
 
+/* Create an auxiliary names for a declaration that saves the result of the compilation
+   after step erasure. */
+inline name mk_cstage2_name(name const & decl_name) {
+    return name(decl_name, "_cstage2");
+}
+
 /* Set `used[i] = true` if `fvars[i]` occurs in `e` */
 void mark_used_fvars(expr const & e, buffer<expr> const & fvars, buffer<bool> & used);
 

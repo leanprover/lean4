@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/private.h"
 #include "library/protected.h"
-#include "library/noncomputable.h"
 #include "library/module.h"
 #include "library/aux_definition.h"
 #include "library/scope_pos_info_provider.h"

@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/attribute_manager.h"
 #include "library/user_recursors.h"
-#include "library/noncomputable.h"
 #include "library/type_context.h"
 #include "library/reducible.h"
 #include "frontends/lean/parser.h"
@@ -256,8 +255,6 @@ static bool print_constant(parser const & p, message_builder & out, char const *
     print_attributes(p, out, d.get_name());
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
-    if (d.is_definition() && is_marked_noncomputable(p.env(), d.get_name()))
-        out << "noncomputable ";
     if (d.is_meta())
         out << "meta ";
     out << kind << " " << to_user_name(p.env(), d.get_name());

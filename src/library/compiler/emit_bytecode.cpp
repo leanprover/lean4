@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "util/fresh_name.h"
 #include "kernel/instantiate.h"
 #include "library/sorry.h"
-#include "library/noncomputable.h"
 #include "library/constants.h"
 #include "library/trace.h"
 #include "library/annotation.h"

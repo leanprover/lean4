@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/pp_options.h"
 #include "library/projection.h"
 #include "library/user_recursors.h"
-#include "library/noncomputable.h"
 #include "library/aux_recursors.h"
 #include "library/abstract_context_cache.h"
 #include "library/type_context.h"
@@ -99,7 +98,6 @@ void initialize_library_module() {
     initialize_pp_options();
     initialize_projection();
     initialize_user_recursors();
-    initialize_noncomputable();
     initialize_aux_recursors();
     initialize_app_builder();
     initialize_fun_info();
@@ -123,7 +121,6 @@ void finalize_library_module() {
     finalize_fun_info();
     finalize_app_builder();
     finalize_aux_recursors();
-    finalize_noncomputable();
     finalize_user_recursors();
     finalize_projection();
     finalize_pp_options();

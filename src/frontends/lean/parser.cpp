@@ -40,7 +40,6 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/sorry.h"
 #include "library/pp_options.h"
-#include "library/noncomputable.h"
 #include "library/replace_visitor.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/type_context.h"

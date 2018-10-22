@@ -6,7 +6,6 @@ Author: Leonardo de Moura
 */
 #include "util/sexpr/option_declarations.h"
 #include "kernel/type_checker.h"
-#include "library/noncomputable.h" // TODO(Leo): remove
 #include "library/max_sharing.h"
 #include "library/trace.h"
 #include "library/module.h"
@@ -92,7 +91,7 @@ environment compile(environment const & env, options const & opts, names const &
         return env;
 
     for (name const & c : cs) {
-        if (!env.get(c).is_definition() || is_noncomputable(env, c) || is_vm_builtin_function(c))
+        if (!env.get(c).is_definition() || is_vm_builtin_function(c))
             return env;
     }
 

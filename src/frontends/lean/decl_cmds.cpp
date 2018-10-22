@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/private.h"
 #include "library/protected.h"
-#include "library/noncomputable.h"
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"

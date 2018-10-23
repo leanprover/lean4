@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_aux.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_string.h"
-#include "library/vm/vm_platform.h"
 
 namespace lean {
 void initialize_vm_core_module() {
@@ -20,11 +19,9 @@ void initialize_vm_core_module() {
     initialize_vm_aux();
     initialize_vm_io();
     initialize_vm_string();
-    initialize_vm_platform();
 }
 
 void finalize_vm_core_module() {
-    finalize_vm_platform();
     finalize_vm_string();
     finalize_vm_io();
     finalize_vm_aux();

@@ -3,10 +3,8 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 -/
-
 prelude
 import init.control.state init.control.except init.data.string.basic init.control.coroutine
-import init.meta.tactic
 
 /-- Like https://hackage.haskell.org/package/ghc-prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `io` operations. -/
@@ -161,17 +159,6 @@ monad_io_process.wait c
 end proc
 -/
 end io
-
-meta constant format.print_using : format → options → io unit
-
-meta definition format.print (fmt : format) : io unit :=
-format.print_using fmt options.mk
-
-meta definition pp_using {α : Type} [has_to_format α] (a : α) (o : options) : io unit :=
-format.print_using (to_fmt a) o
-
-meta definition pp {α : Type} [has_to_format α] (a : α) : io unit :=
-format.print (to_fmt a)
 
 /-
 /-- Run the external process specified by `args`.

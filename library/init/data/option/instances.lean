@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.option.basic
-import init.meta.tactic
 
 universes u v
 

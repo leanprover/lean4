@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/process.h"
 #include "library/tactic/tactic_state.h"
 #include "library/vm/vm.h"
-#include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_option.h"

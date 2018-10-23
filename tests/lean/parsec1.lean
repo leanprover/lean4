@@ -103,7 +103,7 @@ do cmd ← lean.ir.parse_instr,
 #eval test parse_instr_pp "x :    uint32 :=  10" "x : uint32 := 10"
 #eval test parse_instr_pp "x : bool:=not y" "x : bool := not y"
 #eval test parse_instr_pp "x : bool := and z   y" "x : bool := and z y"
-#eval test parse_instr_pp "x y := call f z w" "x y := call f z w"
+#eval test parse_instr_pp "x := call f z w" "x := call f z w"
 #eval test parse_instr_pp "x := call f z   w" "x := call f z w"
 #eval test parse_instr_pp "o := cnstr 0   3   0" "o := cnstr 0 3 0"
 #eval test parse_instr_pp "set o 0 x" "set o 0 x"

@@ -187,76 +187,42 @@ do child ← io.proc.spawn { stdout := io.process.stdio.piped, ..args },
   pure s
 -/
 
-/--
-This is the "back door" into the `io` monad, allowing IO computation to be performed during tactic execution.
-For this to be safe, the IO computation should be ideally free of side effects and independent of its environment.
-This primitive is used to invoke external tools (e.g., SAT and SMT solvers) from a tactic.
-
-IMPORTANT: this primitive can be used to implement `unsafe_perform_io {α : Type} : io α → option α`
-or `unsafe_perform_io {α : Type} [inhabited α] : io α → α`. This can be accomplished by executing
-the resulting tactic using an empty `tactic_state` (we have `tactic_state.mk_empty`).
-If `unsafe_perform_io` is defined, and used to perform side-effects, users need to take the following
-precautions:
-
-- Use `@[noinline]` attribute in any function to invokes `tactic.unsafe_perform_io`.
-  Reason: if the call is inlined, the IO may be performed more than once.
-
-- Set `set_option compiler.cse false` before any function that invokes `tactic.unsafe_perform_io`.
-  This option disables common subexpression elimination. Common subexpression elimination
-  might combine two side effects that were meant to be separate.
-
-TODO[Leo]: add `[noinline]` attribute and option `compiler.cse`.
--/
-meta constant tactic.unsafe_run_io {α : Type} : io α → tactic α
-
-/--
-   Execute the given tactic with a tactic_state object that contains:
-   - The current environment in the virtual machine.
-   - The current set of options in the virtual machine.
-   - Empty metavariable and local contexts.
-   - One single goal of the form `⊢ true`.
-   This action is mainly useful for writing tactics that inspect
-   the environment. -/
-meta constant io.run_tactic {α : Type} (a : tactic α) : except_t format io α
-
-
 universe u
+
+@[inline] def from_eio (x : eio unit) : io unit :=
+x.run *> pure ()
+
+def io.println' (x : string) : io unit :=
+from_eio $ io.println x
 
 /-- Typeclass used for presenting the output of an `#eval` command. -/
 meta class has_eval (α : Type u) :=
-(eval : α → tactic unit)
+(eval : α → io unit)
 
 meta instance has_repr.has_eval {α : Type u} [has_repr α] : has_eval α :=
-⟨tactic.trace ∘ repr⟩
-
-meta instance tactic.has_eval {α : Type} [has_eval α] : has_eval (tactic α) :=
-⟨(>>= has_eval.eval)⟩
-
--- special case: do not print `()`
-meta instance tactic_unit.has_eval : has_eval (tactic unit) :=
-⟨id⟩
+⟨λ a, io.println' (repr a)⟩
 
 meta instance io.has_eval {α : Type} [has_eval α] : has_eval (io α) :=
-⟨λ x, tactic.unsafe_run_io x >>= has_eval.eval⟩
+⟨λ x, do a ← x, has_eval.eval a⟩
 
 -- special case: do not print `()`
 meta instance io_unit.has_eval : has_eval (io unit) :=
-⟨tactic.unsafe_run_io⟩
+⟨λ x, x⟩
 
-meta instance eio.has_eval {ε α : Type} [has_to_format ε] [has_eval α] : has_eval (except_t ε io α) :=
+meta instance eio.has_eval {ε α : Type} [has_to_string ε] [has_eval α] : has_eval (except_t ε io α) :=
 ⟨λ x, do
-  r ← tactic.unsafe_run_io x.run,
-  match r with
-  | except.error e := tactic.fail e
-  | except.ok a    := has_eval.eval a⟩
+   e : except ε α ← x.run,
+   match e with
+   | except.ok a    := has_eval.eval a
+   | except.error e := io.println' ("Error: " ++ to_string e)⟩
 
 -- special case: do not print `()`
-meta instance eio_unit.has_eval {ε : Type} [has_to_format ε] : has_eval (except_t ε io unit) :=
+meta instance eio_unit.has_eval {ε : Type} [has_to_string ε] : has_eval (except_t ε io unit) :=
 ⟨λ x, do
-  r ← tactic.unsafe_run_io x.run,
-  match r with
-  | except.error e := tactic.fail e
-  | except.ok a    := pure ()⟩
+   e : except ε unit ← monad_lift $ x.run,
+   match e with
+   | except.ok _    := pure ()
+   | except.error e := io.println' ("Error: " ++ to_string e)⟩
 
 local attribute [reducible] io
 /-- A variant of `coroutine` on top of `io`

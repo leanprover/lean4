@@ -10,8 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/metavar_context.h"
 #include "library/type_context.h"
-#include "library/vm/vm.h"
-#include "library/vm/interaction_state.h"
 
 namespace lean {
 class tactic_state_cell {
@@ -108,15 +106,6 @@ tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
    \remark It returns s is is_eqp(s.mctx(), mctx) and is_decl_eqp(s.get_main_goal_decl()->get_context(), lctx) */
 tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx);
 
-typedef interaction_monad<tactic_state> tactic;
-
-vm_obj to_obj(tactic_state const & s);
-
-transparency_mode to_transparency_mode(vm_obj const & o);
-vm_obj to_obj(transparency_mode m);
-
-vm_obj mk_no_goals_exception(tactic_state const & s);
-
 format pp_expr(tactic_state const & s, expr const & e);
 format pp_indented_expr(tactic_state const & s, expr const & e);
 
@@ -124,8 +113,6 @@ type_context_old mk_type_context_for(tactic_state const & s, transparency_mode m
 type_context_old mk_type_context_for(tactic_state const & s, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
 type_context_old mk_type_context_for(environment const & env, options const & o,
                                  metavar_context const & mctx, local_context const & lctx, transparency_mode m = transparency_mode::Semireducible);
-type_context_old mk_type_context_for(vm_obj const & s);
-type_context_old mk_type_context_for(vm_obj const & s, vm_obj const & m);
 
 type_context_old mk_cacheless_type_context_for(tactic_state const & s, transparency_mode m = transparency_mode::Semireducible);
 

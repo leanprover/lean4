@@ -8,7 +8,6 @@ Author: Gabriel Ebner
 #include "library/util.h"
 #include "library/eval_helper.h"
 #include "library/io_state.h"
-#include "library/tactic/tactic_state.h"
 
 namespace lean {
 
@@ -54,25 +53,8 @@ optional<vm_obj> eval_helper::try_exec_io() {
     return optional<vm_obj>();
 }
 
-optional<vm_obj> eval_helper::try_exec_tac() {
-    if (is_constant(get_app_fn(m_ty), get_tactic_name())) {
-        auto tac_st = mk_tactic_state_for(m_env, m_opts, m_fn, m_tc.mctx(), m_tc.lctx(), mk_true());
-        m_args.push_back(tactic::to_obj(tac_st));
-        auto r = invoke_fn();
-        if (tactic::is_result_success(r)) {
-            return optional<vm_obj>(tactic::get_success_value(r));
-        } else if (auto ex = tactic::is_exception(m_vms, r)) {
-            throw formatted_exception(std::get<1>(*ex), std::get<0>(*ex));
-        } else {
-            throw exception("tactic failed");
-        }
-    }
-    return optional<vm_obj>();
-}
-
 optional<vm_obj> eval_helper::try_exec() {
     if (auto res = try_exec_io()) return res;
-    if (auto res = try_exec_tac()) return res;
     return optional<vm_obj>();
 }
 

@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/metavar_context.h"
 #include "library/replace_visitor.h"
 #include "library/compiler/compiler.h"
+#include "library/vm/vm.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/decl_util.h" // TODO(Leo): remove

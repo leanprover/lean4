@@ -14,19 +14,8 @@ meta constant tactic_state : Type
 universes u v
 
 namespace tactic_state
-/-- Format the given tactic state. If `target_lhs_only` is true and the target
-    is of the form `lhs ~ rhs`, where `~` is a simplification relation,
-    then only the `lhs` is displayed.
-
-    Remark: the parameter `target_lhs_only` is a temporary hack used to implement
-    the `conv` monad. It will be removed in the future. -/
-meta constant to_format   (s : tactic_state) (target_lhs_only : bool := ff) : format
-meta constant get_options : tactic_state → options
-meta constant set_options : tactic_state → options → tactic_state
 end tactic_state
 
-meta instance : has_to_format tactic_state :=
-⟨tactic_state.to_format⟩
 
 @[reducible] meta def tactic := interaction_monad tactic_state
 @[reducible] meta def tactic_result := interaction_monad.result tactic_state

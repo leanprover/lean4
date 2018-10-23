@@ -17,21 +17,10 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/check.h"
 #include "library/aux_definition.h"
-#include "library/vm/vm_format.h"
-#include "library/vm/vm_string.h"
-#include "library/vm/vm_options.h"
-#include "library/vm/vm_name.h"
-#include "library/vm/vm_nat.h"
-#include "library/vm/vm_option.h"
-#include "library/vm/vm_io.h"
-#include "library/vm/interaction_state_imp.h"
 #include "library/tactic/tactic_state.h"
 #include "library/tactic/tactic_evaluator.h"
 
 namespace lean {
-/* is_ts_safe is required by the interaction_state implementation. */
-template struct interaction_monad<tactic_state>;
-
 void tactic_state_cell::dealloc() {
     delete this;
 }
@@ -184,22 +173,6 @@ format tactic_state::pp_goal(expr const & g) const {
     return pp_goal(fmtf, g);
 }
 
-vm_obj to_obj(tactic_state const & s) {
-    return tactic::to_obj(s);
-}
-
-transparency_mode to_transparency_mode(vm_obj const & o) {
-    return static_cast<transparency_mode>(cidx(o));
-}
-
-vm_obj to_obj(transparency_mode m) {
-    return mk_vm_simple(static_cast<unsigned>(m));
-}
-
-vm_obj tactic_state_to_format(vm_obj const & s, vm_obj const & target_lhs_only) {
-    return to_obj(tactic::to_state(s).pp_core(to_bool(target_lhs_only)));
-}
-
 format pp_expr(tactic_state const & s, expr const & e) {
     expr new_e      = e;
     bool inst_mvars = get_pp_instantiate_mvars(s.get_options());
@@ -213,23 +186,8 @@ format pp_indented_expr(tactic_state const & s, expr const & e) {
     return nest(get_pp_indent(s.get_options()), line() + s.pp_expr(fmtf, e));
 }
 
-vm_obj mk_no_goals_exception(tactic_state const & s) {
-    return tactic::mk_exception("tactic failed, there are no goals to be solved", s);
-}
-
-vm_obj tactic_format_result(vm_obj const & o) {
-    tactic_state const & s = tactic::to_state(o);
-    metavar_context mctx = s.mctx();
-    expr r = mctx.instantiate_mvars(s.main());
-    metavar_decl main_decl = mctx.get_metavar_decl(s.main());
-    type_context_old ctx(s.env(), s.get_options(), mctx, main_decl.get_context(), transparency_mode::All);
-    formatter_factory const & fmtf = get_global_ios().get_formatter_factory();
-    formatter fmt = fmtf(s.env(), s.get_options(), ctx);
-    return tactic::mk_success(to_obj(fmt(r)), s);
-}
-
 type_context_old mk_type_context_for(environment const & env, options const & o, metavar_context const & mctx,
-                                 local_context const & lctx, transparency_mode m) {
+                                     local_context const & lctx, transparency_mode m) {
     return type_context_old(env, o, mctx, lctx, m);
 }
 
@@ -243,14 +201,6 @@ type_context_old mk_type_context_for(tactic_state const & s, transparency_mode m
     return mk_type_context_for(s, lctx, m);
 }
 
-type_context_old mk_type_context_for(vm_obj const & s) {
-    return mk_type_context_for(tactic::to_state(s));
-}
-
-type_context_old mk_type_context_for(vm_obj const & s, vm_obj const & m) {
-    return mk_type_context_for(tactic::to_state(s), to_transparency_mode(m));
-}
-
 type_context_old mk_cacheless_type_context_for(tactic_state const & s, transparency_mode m) {
     return mk_type_context_for(s, m);
 }
@@ -259,26 +209,7 @@ format tactic_state::pp() const {
     return pp_core();
 }
 
-vm_obj tactic_unsafe_run_io(vm_obj const &, vm_obj const & a, vm_obj const & s) {
-    return tactic::mk_success(run_io(a), s);
-}
-
-vm_obj io_run_tactic(vm_obj const &, vm_obj const & tac, vm_obj const &) {
-    vm_state & vm  = get_vm_state();
-    tactic_state s = mk_tactic_state_for(vm.env(), vm.get_options(), "_io_run_tactic",
-                                         metavar_context(), local_context(), mk_true());
-    vm_obj r = invoke(tac, to_obj(s));
-    if (auto ex = tactic::is_exception(vm, r))
-        return mk_ioe_failure(to_obj(mk_tactic_error_msg(std::get<2>(*ex), std::get<0>(*ex))));
-    else
-        return mk_ioe_result(tactic::get_success_value(r));
-}
-
 void initialize_tactic_state() {
-    DECLARE_VM_BUILTIN(name({"tactic_state", "to_format"}),      tactic_state_to_format);
-    DECLARE_VM_BUILTIN(name({"tactic", "format_result"}),        tactic_format_result);
-    DECLARE_VM_BUILTIN(name({"tactic", "unsafe_run_io"}),        tactic_unsafe_run_io);
-    DECLARE_VM_BUILTIN(name({"io", "run_tactic"}),               io_run_tactic);
 }
 
 void finalize_tactic_state() {

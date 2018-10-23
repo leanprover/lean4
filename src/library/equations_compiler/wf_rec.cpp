@@ -189,6 +189,8 @@ struct wf_rec_fn {
                                            std::current_exception());
                 }
             } else {
+                throw exception("tactic framework has been deleted");
+#if 0
                 expr y_R_x = mk_app(m_parent.m_R, y, m_x);
                 metavar_context mctx = m_ctx.mctx();
                 tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.get_options(),
@@ -233,6 +235,7 @@ struct wf_rec_fn {
                     if (!m_parent.m_elab.try_report(ex2)) throw ex2;
                 }
                 return m_parent.m_elab.mk_sorry(y_R_x);
+#endif
             }
         }
 

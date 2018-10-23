@@ -32,25 +32,4 @@ elaborator_exception unsolved_tactic_state(tactic_state const & ts, char const *
 [[noreturn]] void throw_unsolved_tactic_state(tactic_state const & ts, char const * msg, expr const & ref) {
     throw_unsolved_tactic_state(ts, format(msg), ref);
 }
-
-void tactic_evaluator::process_failure(vm_state & S, vm_obj const & r) {
-    if (optional<tactic::exception_info> ex = tactic::is_exception(S, r)) {
-        auto msg = mk_tactic_error_msg(std::get<2>(*ex), std::get<0>(*ex));
-        if (optional<pos_info> pos = std::get<1>(*ex)) {
-            throw elaborator_exception(pos, msg);
-        } else {
-            throw elaborator_exception(m_ref, msg);
-        }
-    }
-    /* Do nothing if it is a silent failure */
-    lean_assert(tactic::is_silent_exception(r));
-}
-
-vm_obj tactic_evaluator::operator()(expr const & tactic, buffer<vm_obj> const & args, tactic_state const & s) {
-    vm_obj r = tactic::evaluator::operator()(tactic, args, s);
-    if (auto s = tactic::is_success(r))
-        if (s->goals())
-            throw_unsolved_tactic_state(*s, "tactic failed, there are unsolved goals", m_ref);
-    return r;
-}
 }

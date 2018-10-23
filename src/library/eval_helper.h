@@ -34,7 +34,6 @@ public:
     vm_state::profiler & get_profiler() { return m_prof; }
 
     optional<vm_obj> try_exec_io();
-    optional<vm_obj> try_exec_tac();
     optional<vm_obj> try_exec();
 };
 

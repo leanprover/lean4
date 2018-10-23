@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/vm/vm_aux.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_name.h"
-#include "library/vm/vm_options.h"
 #include "library/vm/vm_array.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_platform.h"
@@ -23,7 +22,6 @@ void initialize_vm_core_module() {
     initialize_vm_aux();
     initialize_vm_io();
     initialize_vm_name();
-    initialize_vm_options();
     initialize_vm_array();
     initialize_vm_string();
     initialize_vm_platform();
@@ -33,7 +31,6 @@ void finalize_vm_core_module() {
     finalize_vm_platform();
     finalize_vm_string();
     finalize_vm_array();
-    finalize_vm_options();
     finalize_vm_name();
     finalize_vm_io();
     finalize_vm_aux();

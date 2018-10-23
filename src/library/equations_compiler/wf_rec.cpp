@@ -174,7 +174,7 @@ struct wf_rec_fn {
         }
 
         /* Prove that y < x */
-        expr mk_dec_proof(expr const & y, expr const & ref) {
+        expr mk_dec_proof(expr const & y, expr const & /* ref */) {
             if (!m_parent.m_dec_tac) {
                 /* Structure `well_founded_tactics` has not been defined yet.
 

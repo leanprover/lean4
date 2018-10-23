@@ -213,7 +213,7 @@ inductive instr
 | assign_unop  (x : var) (ty : type) (op : assign_unop) (y : var)    -- x : ty := op y
 | assign_binop (x : var) (ty : type) (op : assign_binop) (y z : var) -- x : ty := op y z
 | unop         (op : unop) (x : var)                                 -- op x
-| call         (xs : list var) (f : fnid) (ys : list var)            -- Function call:  xs := f ys
+| call         (x : var) (f : fnid) (ys : list var)                  -- Function call:  x := f ys
 /- Constructor objects -/
 | cnstr   (o : var) (tag : tag) (nobjs : uint16) (ssz : usize)       -- Create constructor object
 | set     (o : var) (i : uint16) (x : var)                           -- Set object field:          set o i x
@@ -232,7 +232,7 @@ structure phi :=
 (x : var) (ty : type) (ys : list var)
 
 inductive terminator
-| ret  (ys : list var)
+| ret  (y : var)
 | case (x : var) (bs : list blockid)
 | jmp  (b : blockid)
 
@@ -251,7 +251,7 @@ If `is_const` is `tt` than it is a constant declaration.
 The result of this kind of function (when `args = []`) is precomputed
 during compilation unit initialization. -/
 structure header :=
-(name : fnid) (args : list arg) (return : list result) (is_const : bool)
+(name : fnid) (args : list arg) (return : result) (is_const : bool)
 
 inductive decl
 | external (h : header)

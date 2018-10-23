@@ -20,7 +20,7 @@ def instr.declare_vars : instr → reader_t blockid ssa_pre_m unit
 | (instr.assign_lit x _ _)       := x.declare
 | (instr.assign_unop x _ _ _)    := x.declare
 | (instr.assign_binop x _ _ _ _) := x.declare
-| (instr.call xs _ _)            := xs.mfor var.declare
+| (instr.call x _ _)             := x.declare
 | (instr.cnstr o _ _ _)          := o.declare
 | (instr.get x _ _)              := x.declare
 | (instr.sget x _ _ _)           := x.declare
@@ -88,7 +88,7 @@ match ins with
 | (instr.assign_unop x _ _ y)    := x.define *> y.defined
 | (instr.assign_binop x _ _ y z) := x.define *> y.defined *> z.defined
 | (instr.unop _ x)               := x.defined
-| (instr.call xs _ ys)           := xs.mfor var.define *> ys.mfor var.defined
+| (instr.call x _ ys)            := x.define *> ys.mfor var.defined
 | (instr.cnstr o _ _ _)          := o.define
 | (instr.set o _ x)              := o.defined *> x.defined
 | (instr.get x y _)              := x.define *> y.defined
@@ -103,7 +103,7 @@ match ins with
 def terminator.valid_ssa (term : terminator) : ssa_valid_m unit :=
 term.decorate_error $
 match term with
-| (terminator.ret ys)     := ys.mfor var.defined
+| (terminator.ret y)      := y.defined
 | (terminator.case x _)   := x.defined
 | (terminator.jmp _)      := pure ()
 

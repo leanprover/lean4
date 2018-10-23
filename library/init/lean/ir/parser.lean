@@ -99,14 +99,6 @@ lexeme identifier <?> "function name"
 def parse_blockid : parsec' blockid :=
 lexeme identifier <?> "label"
 
-def parse_nary_call (x : var) : parsec' instr :=
-do xs  ← many1 parse_var,
-   symbol ":=",
-   keyword "call",
-   fid ← parse_fnid,
-   ys  ← many parse_var,
-   pure $ instr.call ([x] ++ xs) fid ys
-
 def parse_typed_assignment (x : var) : parsec' instr :=
 do  symbol ":",
     ty ← parse_type,
@@ -122,22 +114,19 @@ do  symbol ":=",
     (keyword "closure" *> instr.closure x <$> parse_fnid <*> many parse_var)
 <|> (keyword "apply"   *> instr.apply x <$> many1 parse_var)
 <|> (keyword "get"     *> instr.get x <$> parse_var <*> parse_uint16)
-<|> (keyword "call"    *> instr.call [x] <$> parse_fnid <*> many parse_var)
+<|> (keyword "call"    *> instr.call x <$> parse_fnid <*> many parse_var)
 <|> (keyword "cnstr"   *> instr.cnstr x <$> parse_uint16 <*> parse_uint16 <*> parse_usize)
 <|> (keyword "array"   *> instr.array x <$> parse_var <*> parse_var)
 <|> (keyword "sarray"  *> instr.sarray x <$> parse_type <*> parse_var <*> parse_var)
 
 def parse_assignment : parsec' instr :=
 do x ← parse_var,
-   c ← curr,
-   if c = ':' then (parse_untyped_assignment x <|> parse_typed_assignment x)
-   else parse_nary_call x
+   (parse_untyped_assignment x <|> parse_typed_assignment x)
 
 def parse_instr : parsec' instr :=
     (keyword "array_write" *> instr.array_write <$> parse_var <*> parse_var <*> parse_var)
 <|> (keyword "set" *> instr.set <$> parse_var <*> parse_uint16 <*> parse_var)
 <|> (keyword "sset" *> instr.sset <$> parse_var <*> parse_usize <*> parse_var)
-<|> (keyword "call" *> instr.call [] <$> parse_fnid <*> many parse_var)
 <|> (instr.unop <$> parse_unop <*> parse_var)
 <|> parse_assignment
 
@@ -148,7 +137,7 @@ do (x, ty) ← try $ do { x ← parse_var, symbol ":", ty ← parse_type, symbol
 
 def parse_terminator : parsec' terminator :=
     (keyword "jmp" *> terminator.jmp <$> parse_blockid)
-<|> (keyword "ret" *> terminator.ret <$> many parse_var)
+<|> (keyword "ret" *> terminator.ret <$> parse_var)
 <|> (keyword "case" *> terminator.case <$> parse_var <*> (symbol "[" *> sep_by1 parse_blockid (symbol ",") <* symbol "]"))
 
 def parse_block : parsec' block :=
@@ -164,9 +153,7 @@ do symbol "(", x ← parse_var, symbol ":", ty ← parse_type, symbol ")", pure 
 def parse_header (is_const : bool) : parsec' header :=
 do n ← parse_fnid,
    as ← if is_const then pure [] else many parse_arg,
-   r ← if is_const
-       then do symbol ":", t ← parse_type, pure [result.mk t]
-       else try (symbol ":" *> many1 (result.mk <$> parse_type)) <|> pure [],
+   r ← symbol ":" *> result.mk <$> parse_type,
    pure { name := n, args := as, return := r, is_const := is_const }
 
 def parse_def : parsec' decl :=

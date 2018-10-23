@@ -113,22 +113,12 @@ emit "<" *> emit_sep ts emit_type *> emit ">"
 def emit_template_param (t : type) : extract_m unit :=
 emit_template_params [t]
 
-def emit_return : list result → extract_m unit
-| []  := emit "void"
-| [r] := emit_type r.ty
-| rs  := emit "std::tuple" *> emit_template_params (rs.map result.ty)
-
 def emit_arg_list (args : list arg) : extract_m unit :=
 emit_sep args $ λ a, emit_type a.ty *> emit " " *> emit_var a.n
 
 /-- Emit end-of-statement -/
 def emit_eos : extract_m unit :=
 emit ";" *> emit_line
-
-def emit_return_vars : list var → extract_m unit
-| []  := pure ()
-| [x] := emit_var x
-| xs  := emit "std::make_tuple" *> paren(emit_var_list xs)
 
 def emit_cases : list blockid → nat → extract_m unit
 | []      n := throw "ill-formed case terminator"
@@ -154,13 +144,8 @@ def emit_terminator (term : terminator) : extract_m unit :=
 term.decorate_error $
 match term with
 | (terminator.jmp b)     := emit "goto " *> emit_blockid b *> emit_eos
-| (terminator.ret xs)    := emit "return " *> emit_return_vars xs *> emit_eos
+| (terminator.ret x)     := emit "return " *> emit_var x *> emit_eos
 | (terminator.case x bs) := emit_case x bs
-
-def emit_call_lhs : list var → extract_m unit
-| []  := pure ()
-| [x] := emit_var x *> emit " = "
-| xs  := emit "std::tie" *> paren(emit_var_list xs) *> emit " = "
 
 def emit_type_size (ty : type) : extract_m unit :=
 emit "sizeof" *> paren(emit_type ty)
@@ -317,8 +302,9 @@ ins.decorate_error $
  | (instr.assign_unop x t op y)     := emit_assign_unop x t op y
  | (instr.assign_binop x t op y z)  := emit_assign_binop x t op y z
  | (instr.unop op x)                := emit_unop op x
- | (instr.call xs f ys)      := do
-   emit_call_lhs xs, c ← is_const f,
+ | (instr.call x f ys)      := do
+   emit_var x *> emit " = ",
+   c ← is_const f,
    if c then emit_global f
    else (emit_fnid f *> paren(emit_var_list ys))
  | (instr.cnstr o t n sz)    := emit_var o *> emit " = lean::alloc_cnstr" *> paren(emit t <+> emit n <+> emit sz)
@@ -344,7 +330,7 @@ def emit_block (b : block) : extract_m unit :=
 *> emit_terminator b.term
 
 def emit_header (h : header) : extract_m unit :=
-emit_return h.return *> emit " " *> emit_fnid h.name *> paren(emit_arg_list h.args)
+emit_type h.return.ty *> emit " " *> emit_fnid h.name *> paren(emit_arg_list h.args)
 
 def decl_local (x : var) (ty : type) : extract_m unit :=
 emit_type ty *> emit " " *> emit_var x *> emit_eos
@@ -356,8 +342,7 @@ do env ← read,
 
 def need_uncurry (d : decl) : bool :=
 d.header.args.length > lean.closure_max_args &&
-d.header.return.length = 1 &&
-d.header.return.all (λ a, a.ty = type.object) &&
+d.header.return.ty = type.object &&
 d.header.args.all (λ a, a.ty = type.object)
 
 def emit_uncurry_header (d : decl) : extract_m unit :=
@@ -407,7 +392,7 @@ used.mfor (λ fid, match env.cfg.env fid with
 
 def emit_global_var_decls (ds : list decl) : extract_m unit :=
 ds.mfor $ λ d, when d.header.is_const $
-  emit_type d.header.return.head.ty *> emit " " *> emit_global d.header.name *> emit ";\n"
+  emit_type d.header.return.ty *> emit " " *> emit_global d.header.name *> emit ";\n"
 
 def emit_initialize_proc (ds : list decl) : extract_m unit :=
 do env ← read,
@@ -425,7 +410,7 @@ do env ← read,
    emit "if (_G_finalized) return;\n",
    emit "_G_finalized = true;\n",
    env.cfg.unit_deps.mfor $ λ dep, emit finalize_prefix *> emit dep *> emit "();\n",
-   ds.mfor $ λ d, when (d.header.is_const && d.header.return.head.ty = type.object) $
+   ds.mfor $ λ d, when (d.header.is_const && d.header.return.ty = type.object) $
      emit "if (!is_scalar(" *> emit_global d.header.name *> emit ")) lean::dec_ref(" *> emit_global d.header.name *> emit ");\n",
    emit "}\n"
 
@@ -436,7 +421,7 @@ do env ← read,
      (match env.cfg.env fid with
       | some d :=
         unless (d.header.args.length = 0) (throw $ "invalid main function '" ++ to_string fid ++ "', it must not take any arguments")
-        *> unless (d.header.return.length = 1 && d.header.return.head.ty = type.int32) (throw $ "invalid main function '" ++ to_string fid ++ "', return type must be int32")
+        *> unless (d.header.return.ty = type.int32) (throw $ "invalid main function '" ++ to_string fid ++ "', return type must be int32")
         *> emit "int main() {\n"
         *> emit initialize_prefix *> emit env.cfg.unit_name *> emit "();\n"
         *> emit "int r = " *> emit_fnid fid *> emit "();\n"

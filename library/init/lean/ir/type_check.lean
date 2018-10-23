@@ -92,9 +92,9 @@ match op with
 | assign_binop.string_push   := r = type.object && t₁ = type.object && t₂ = type.uint32
 | assign_binop.string_append := r = type.object && t₁ = type.object && t₂ = type.object
 
-@[reducible] def type_checker_m := except_t format (reader_t (environment × list result) (state_t context id))
+@[reducible] def type_checker_m := except_t format (reader_t (environment × result) (state_t context id))
 
-def type_checker_m.run {α} (a : type_checker_m α) (env : environment) (r : list result) : except format α :=
+def type_checker_m.run {α} (a : type_checker_m α) (env : environment) (r : result) : except format α :=
 run a (env, r) mk_context
 
 def match_type (x : var) (t expected : type) : type_checker_m unit :=
@@ -143,10 +143,8 @@ do (env, _) ← read,
    | some d := pure d
    | none   := throw ("unknown function `" ++ to_fmt f ++ "`")
 
-def set_result_types : list var → list result → type_checker_m unit
-| []      []      := pure ()
-| (x::xs) (t::ts) := set_type x t.ty *> set_result_types xs ts
-| _       _       := throw "unexpected number of return values"
+def set_result_types : var → result → type_checker_m unit
+| x ⟨t⟩ := set_type x t
 
 def instr.infer_types (ins : instr) : type_checker_m unit :=
 ins.decorate_error $
@@ -155,7 +153,7 @@ match ins with
 | (instr.assign_lit x t l)        := set_type x t
 | (instr.assign_unop x t op y)    := set_type x t
 | (instr.assign_binop x t op y z) := set_type x t
-| (instr.call xs f ys)     := do d ← get_decl f, set_result_types xs d.header.return
+| (instr.call x f ys)      := do d ← get_decl f, set_result_types x d.header.return
 | (instr.cnstr o _ _ _)    := set_type o type.object
 | (instr.get x o _)        := set_type x type.object
 | (instr.sget x t o _)     := set_type x t
@@ -205,7 +203,6 @@ match ins with
 | (instr.sset o _ x)        := check_type o type.object *> check_ne_type x type.object
 | (instr.sget x t o _)      := check_type o type.object *> check_ne_type x type.object
 | (instr.closure x f ys)    := do ys.mfor (flip check_type type.object), d ← get_decl f,
-                                 unless (d.header.return.length = 1) $ throw "unexpected number of return values",
                                  unless (d.header.args.length ≥ ys.length) $ throw "too many arguments",
                                  d.header.args.mfor (λ a, unless (a.ty = type.object) $ throw "invalid closure, arguments must have type object")
 | (instr.apply x ys)        := ys.mfor (flip check_type type.object)
@@ -216,15 +213,13 @@ match ins with
 def phi.check (p : phi) : type_checker_m unit :=
 p.decorate_error $ p.ys.mfor (flip check_type p.ty)
 
-def check_result_types : list var → list result → type_checker_m unit
-| []      []      := pure ()
-| (x::xs) (t::ts) := check_type x t.ty *> check_result_types xs ts
-| _       _       := throw "unexpected number of return values"
+def check_result_type : var → result → type_checker_m unit
+| x ⟨t⟩ := check_type x t
 
 def terminator.check (term : terminator) : type_checker_m unit :=
 term.decorate_error $
 match term with
-| (terminator.ret ys)   := do (_, rs) ← read, check_result_types ys rs
+| (terminator.ret y)    := do (_, r) ← read, check_result_type y r
 | (terminator.case x _) := do t ← get_type x, unless (t = type.bool || t = type.uint32) $ throw "variable must be an uint32 or bool"
 | (terminator.jmp _)    := pure ()
 
@@ -232,9 +227,7 @@ def block.check (b : block) : type_checker_m unit :=
 b.decorate_error $ b.phis.mfor phi.check *> b.instrs.mfor instr.check *> b.term.check
 
 def decl.check : decl → type_checker_m unit
-| (decl.defn h bs) := h.decorate_error $
-  when (h.is_const && (h.return.length ≠ 1 || h.args.length ≠ 0)) (throw "invalid constant definition")
-  *> bs.mfor block.check
+| (decl.defn h bs) := bs.mfor block.check
 | _                := pure ()
 
 def type_check (d : decl) (env : environment := λ _, none) : except format context :=

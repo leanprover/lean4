@@ -37,7 +37,7 @@ def instr.replace_vars : instr → elim_phi_m instr
 | (instr.assign_unop x ty op y)    := instr.assign_unop <$> find x <*> pure ty <*> pure op <*> find y
 | (instr.assign_binop x ty op y z) := instr.assign_binop <$> find x <*> pure ty <*> pure op <*> find y <*> find z
 | (instr.unop op x)                := instr.unop op <$> find x
-| (instr.call xs f ys)             := instr.call <$> xs.mmap find <*> pure f <*> ys.mmap find
+| (instr.call x f ys)              := instr.call <$> find x <*> pure f <*> ys.mmap find
 | (instr.cnstr o tag n s)          := instr.cnstr <$> find o <*> pure tag <*> pure n <*> pure s
 | (instr.set o i x)                := instr.set <$> find o <*> pure i <*> find x
 | (instr.get x o i)                := instr.get <$> find x <*> find o <*> pure i
@@ -50,7 +50,7 @@ def instr.replace_vars : instr → elim_phi_m instr
 | (instr.sarray a ty sz c)         := instr.sarray <$> find a <*> pure ty <*> find sz <*> find c
 
 def terminator.replace_vars : terminator → elim_phi_m terminator
-| (terminator.ret xs)    := terminator.ret <$> xs.mmap find
+| (terminator.ret x)    := terminator.ret <$> find x
 | (terminator.case x bs) := terminator.case <$> find x <*> pure bs
 | j@(terminator.jmp _)   := pure j
 

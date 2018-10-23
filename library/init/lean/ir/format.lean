@@ -105,7 +105,7 @@ def instr.to_format : instr → format
 | (instr.assign_unop x ty op y)     := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y
 | (instr.assign_binop x ty op y z)  := to_fmt x ++ " : " ++ to_fmt ty ++ " := " ++ to_fmt op ++ " " ++ to_fmt y ++ " " ++ to_fmt z
 | (instr.unop op x)                 := to_fmt op ++ " " ++ to_fmt x
-| (instr.call xs fn ys)             := join_sep xs " " ++ " := call " ++ to_fmt fn ++ prefix_join " " ys
+| (instr.call x fn ys)              := to_fmt x ++ " := call " ++ to_fmt fn ++ prefix_join " " ys
 | (instr.cnstr o t n sz)            := to_fmt o ++ " := cnstr " ++ to_fmt t ++ " " ++ to_fmt n ++ " " ++ to_fmt sz
 | (instr.set o i x)                 := to_fmt "set " ++ to_fmt o ++ " " ++ to_fmt i ++ " " ++ to_fmt x
 | (instr.get x o i)                 := to_fmt x ++ " := get " ++ to_fmt o ++ " " ++ to_fmt i
@@ -127,7 +127,7 @@ instance phi.has_to_format : has_to_format phi := ⟨phi.to_format⟩
 instance phi.has_to_string : has_to_string phi := ⟨pretty ∘ to_fmt⟩
 
 def terminator.to_format : terminator → format
-| (terminator.ret ys)    := "ret " ++ join_sep ys " "
+| (terminator.ret y)     := "ret " ++ to_fmt y
 | (terminator.case x bs) := "case " ++ to_fmt x ++ " " ++ to_fmt bs
 | (terminator.jmp b)     := "jmp " ++ to_fmt b
 
@@ -154,7 +154,7 @@ instance result.has_to_format : has_to_format result := ⟨result.to_format⟩
 instance result.has_to_string : has_to_string result := ⟨pretty ∘ to_fmt⟩
 
 def header.to_format (h : header) : format :=
-to_fmt h.name ++ " " ++ join_sep h.args " " ++ " : " ++ join_sep h.return " "
+to_fmt h.name ++ " " ++ join_sep h.args " " ++ " : " ++ to_fmt h.return
 
 instance header.has_to_format : has_to_format header := ⟨header.to_format⟩
 instance header.has_to_string : has_to_string header := ⟨pretty ∘ to_fmt⟩

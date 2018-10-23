@@ -27,7 +27,6 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
-#include "library/vm/vm_name.h"
 #include "library/vm/vm_option.h"
 
 #ifndef LEAN_DEFAULT_PROFILER_FREQ

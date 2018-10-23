@@ -38,7 +38,6 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/aux_definition.h"
 #include "library/check.h"
-#include "library/vm/vm_name.h"
 #include "library/compiler/compiler.h"
 #include "library/tactic/kabstract.h"
 #include "library/tactic/tactic_state.h"

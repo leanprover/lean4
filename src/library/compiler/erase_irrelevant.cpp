@@ -220,65 +220,151 @@ class erase_irrelevant_fn {
         return visit_lambda_core(e, true);
     }
 
+    expr mk_simple_decl(expr const & e, expr const & e_type) {
+        name n         = next_name();
+        expr x         = m_lctx.mk_local_decl(ngen(), n, e_type, e);
+        m_let_fvars.push_back(x);
+        m_let_entries.emplace_back(n, mk_runtime_type(e_type), e);
+        return x;
+    }
+
+    static expr mk_list_char() {
+        return mk_app(mk_constant(get_list_name(), {mk_level_zero()}), mk_constant(get_char_name()));
+    }
+
+    expr elim_string_cases(buffer<expr> & args) {
+        lean_assert(args.size() == 3);
+        expr major     = visit(args[1]);
+        expr x         = mk_simple_decl(mk_app(mk_constant(get_string_to_list_name()), major), mk_list_char());
+        expr minor     = args[2];
+        minor = instantiate(binding_body(minor), x);
+        return visit(minor);
+    }
+
+    expr elim_string_iterator_cases(buffer<expr> & args) {
+        lean_assert(args.size() == 3);
+        expr major     = visit(args[1]);
+        expr fst       = mk_simple_decl(mk_app(mk_constant(get_string_iterator_fst_name()), major), mk_list_char());
+        expr snd       = mk_simple_decl(mk_app(mk_constant(get_string_iterator_snd_name()), major), mk_list_char());
+        expr minor     = args[2];
+        minor = instantiate(binding_body(minor), fst);
+        minor = instantiate(binding_body(minor), snd);
+        return visit(minor);
+    }
+
+    expr elim_nat_cases(buffer<expr> & args) {
+        lean_assert(args.size() == 4);
+        expr major       = visit(args[1]);
+        expr zero        = mk_lit(literal(nat(0)));
+        expr one         = mk_lit(literal(nat(1)));
+        expr nat_type    = mk_constant(get_nat_name());
+        expr eq          = mk_app(mk_constant(get_eq_name(), {mk_level_one()}), nat_type, major, zero);
+        expr dec_eq      = mk_app(mk_constant(get_nat_dec_eq_name()), major, zero);
+        expr dec_eq_type = mk_app(mk_constant(get_decidable_name(), {mk_level_one()}), eq);
+        expr c           = mk_simple_decl(dec_eq, dec_eq_type);
+        expr minor_z     = args[2];
+        minor_z          = visit_minor(mk_lambda(next_name(), eq, minor_z));
+        expr minor_s     = args[3];
+        expr pred        = mk_app(mk_constant(get_nat_sub_name()), major, one);
+        minor_s          = ::lean::mk_let(next_name(), nat_type, pred, binding_body(minor_s));
+        minor_s          = visit_minor(mk_lambda(next_name(), mk_not(eq), minor_s));
+        return mk_app(mk_constant(get_decidable_cases_on_name()), c, minor_s, minor_z);
+    }
+
+    expr elim_int_cases(buffer<expr> & args) {
+        lean_assert(args.size() == 4);
+        expr major       = visit(args[1]);
+        expr zero        = mk_lit(literal(nat(0)));
+        expr int_type    = mk_constant(get_int_name());
+        expr nat_type    = mk_constant(get_nat_name());
+        expr izero       = mk_simple_decl(mk_app(mk_constant(get_int_of_nat_name()), zero), int_type);
+        expr lt          = mk_app(mk_constant(get_int_lt_name()), major, izero);
+        expr dec_lt      = mk_app(mk_constant(get_int_decidable_lt_name()), major, izero);
+        expr dec_lt_type = mk_app(mk_constant(get_decidable_name(), {mk_level_one()}), lt);
+        expr c           = mk_simple_decl(dec_lt, dec_lt_type);
+        expr abs         = mk_app(mk_constant(get_int_nat_abs_name()), major);
+        expr minor_p     = args[2];
+        minor_p          = ::lean::mk_let(next_name(), nat_type, abs, binding_body(minor_p));
+        minor_p          = visit_minor(mk_lambda(next_name(), mk_not(lt), minor_p));
+        expr one         = mk_lit(literal(nat(1)));
+        expr minor_n     = args[3];
+        minor_n          = ::lean::mk_let(next_name(), nat_type, abs,
+                           ::lean::mk_let(next_name(), nat_type, mk_app(mk_constant(get_nat_sub_name()), mk_bvar(0), one),
+                                          binding_body(minor_n)));
+        minor_n          = visit_minor(mk_lambda(next_name(), lt, minor_n));
+        return mk_app(mk_constant(get_decidable_cases_on_name()), c, minor_p, minor_n);
+    }
+
     /* Remark: we only keep major and minor premises. */
     expr visit_cases_on(expr const & c, buffer<expr> & args) {
         name const & I_name = const_name(c).get_prefix();
-        unsigned minors_begin; unsigned minors_end;
-        std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c));
-        if (!is_runtime_builtin_type(I_name) && minors_end == minors_begin + 1) {
-            expr major = args[minors_begin - 1];
-            lean_assert(is_atom(major));
-            expr minor = args[minors_begin];
-            optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix());
-            /*
-              ```
-              prod.cases_on M (\fun a b, t)
-              ```
-              ==>
-              ```
-              let a := M.0 in
-              let b := M.1 in
-              t
-              ```
-              Remark: if `fidx` is not none, we use neutral element for irrelevant fields,
-              and major for the relevant one.
-            */
-            unsigned i = 0;
-            buffer<expr> fields;
-            while (is_lambda(minor)) {
-                expr v = mk_proj(I_name, i, major);
-                expr t = infer_type(v);
-                name n = next_name();
-                expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
-                fields.push_back(fvar);
-                expr new_t; expr new_v;
-                if (fidx) {
-                    if (*fidx == i) {
-                        expr major_type = infer_type(major);
-                        new_t = mk_runtime_type(major_type);
-                        new_v = visit(major);
-                    } else {
-                        new_t = mk_enf_object_type();
-                        new_v = mk_enf_neutral();
-                    }
-                } else {
-                    new_t = mk_runtime_type(t);
-                    new_v = visit(v);
-                }
-                m_let_fvars.push_back(fvar);
-                m_let_entries.emplace_back(n, new_t, new_v);
-                i++;
-                minor = binding_body(minor);
-            }
-            expr r = instantiate_rev(minor, fields.size(), fields.data());
-            return visit(r);
+        if (I_name == get_string_name()) {
+            return elim_string_cases(args);
+        } else if (I_name == get_string_iterator_name()) {
+            return elim_string_iterator_cases(args);
+        } else if (I_name == get_nat_name()) {
+            return elim_nat_cases(args);
+        } else if (I_name == get_int_name()) {
+            return elim_int_cases(args);
         } else {
-            buffer<expr> new_args;
-            new_args.push_back(visit(args[minors_begin - 1]));
-            for (unsigned i = minors_begin; i < minors_end; i++) {
-                new_args.push_back(visit_minor(args[i]));
+            unsigned minors_begin; unsigned minors_end;
+            std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c));
+
+            if (!is_runtime_builtin_type(I_name) && minors_end == minors_begin + 1) {
+                expr major = args[minors_begin - 1];
+                lean_assert(is_atom(major));
+                expr minor = args[minors_begin];
+                optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix());
+                /*
+                  ```
+                  prod.cases_on M (\fun a b, t)
+                  ```
+                  ==>
+                  ```
+                  let a := M.0 in
+                  let b := M.1 in
+                  t
+                  ```
+                  Remark: if `fidx` is not none, we use neutral element for irrelevant fields,
+                  and major for the relevant one.
+                */
+                unsigned i = 0;
+                buffer<expr> fields;
+                while (is_lambda(minor)) {
+                    expr v = mk_proj(I_name, i, major);
+                    expr t = infer_type(v);
+                    name n = next_name();
+                    expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
+                    fields.push_back(fvar);
+                    expr new_t; expr new_v;
+                    if (fidx) {
+                        if (*fidx == i) {
+                            expr major_type = infer_type(major);
+                            new_t = mk_runtime_type(major_type);
+                            new_v = visit(major);
+                        } else {
+                            new_t = mk_enf_object_type();
+                            new_v = mk_enf_neutral();
+                        }
+                    } else {
+                        new_t = mk_runtime_type(t);
+                        new_v = visit(v);
+                    }
+                    m_let_fvars.push_back(fvar);
+                    m_let_entries.emplace_back(n, new_t, new_v);
+                    i++;
+                    minor = binding_body(minor);
+                }
+                expr r = instantiate_rev(minor, fields.size(), fields.data());
+                return visit(r);
+            } else {
+                buffer<expr> new_args;
+                new_args.push_back(visit(args[minors_begin - 1]));
+                for (unsigned i = minors_begin; i < minors_end; i++) {
+                    new_args.push_back(visit_minor(args[i]));
+                }
+                return mk_app(c, new_args);
             }
-            return mk_app(c, new_args);
         }
     }
 

@@ -39,6 +39,7 @@ name const * g_congr = nullptr;
 name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
 name const * g_decidable = nullptr;
+name const * g_decidable_cases_on = nullptr;
 name const * g_decidable_to_bool = nullptr;
 name const * g_decidable_is_true = nullptr;
 name const * g_decidable_is_false = nullptr;
@@ -124,6 +125,10 @@ name const * g_implies = nullptr;
 name const * g_implies_of_if_neg = nullptr;
 name const * g_implies_of_if_pos = nullptr;
 name const * g_int = nullptr;
+name const * g_int_nat_abs = nullptr;
+name const * g_int_lt = nullptr;
+name const * g_int_decidable_lt = nullptr;
+name const * g_int_of_nat = nullptr;
 name const * g_interactive_param_desc = nullptr;
 name const * g_interactive_parse = nullptr;
 name const * g_io_core = nullptr;
@@ -231,8 +236,11 @@ name const * g_singleton = nullptr;
 name const * g_sizeof = nullptr;
 name const * g_sorry_ax = nullptr;
 name const * g_string = nullptr;
+name const * g_string_to_list = nullptr;
 name const * g_string_empty = nullptr;
 name const * g_string_iterator = nullptr;
+name const * g_string_iterator_fst = nullptr;
+name const * g_string_iterator_snd = nullptr;
 name const * g_string_str = nullptr;
 name const * g_string_empty_ne_str = nullptr;
 name const * g_string_str_ne_empty = nullptr;
@@ -312,6 +320,7 @@ void initialize_constants() {
     g_congr_arg = new name{"congr_arg"};
     g_congr_fun = new name{"congr_fun"};
     g_decidable = new name{"decidable"};
+    g_decidable_cases_on = new name{"decidable", "cases_on"};
     g_decidable_to_bool = new name{"decidable", "to_bool"};
     g_decidable_is_true = new name{"decidable", "is_true"};
     g_decidable_is_false = new name{"decidable", "is_false"};
@@ -397,6 +406,10 @@ void initialize_constants() {
     g_implies_of_if_neg = new name{"implies_of_if_neg"};
     g_implies_of_if_pos = new name{"implies_of_if_pos"};
     g_int = new name{"int"};
+    g_int_nat_abs = new name{"int", "nat_abs"};
+    g_int_lt = new name{"int", "lt"};
+    g_int_decidable_lt = new name{"int", "decidable_lt"};
+    g_int_of_nat = new name{"int", "of_nat"};
     g_interactive_param_desc = new name{"interactive", "param_desc"};
     g_interactive_parse = new name{"interactive", "parse"};
     g_io_core = new name{"io_core"};
@@ -504,8 +517,11 @@ void initialize_constants() {
     g_sizeof = new name{"sizeof"};
     g_sorry_ax = new name{"sorry_ax"};
     g_string = new name{"string"};
+    g_string_to_list = new name{"string", "to_list"};
     g_string_empty = new name{"string", "empty"};
     g_string_iterator = new name{"string", "iterator"};
+    g_string_iterator_fst = new name{"string", "iterator", "fst"};
+    g_string_iterator_snd = new name{"string", "iterator", "snd"};
     g_string_str = new name{"string", "str"};
     g_string_empty_ne_str = new name{"string", "empty_ne_str"};
     g_string_str_ne_empty = new name{"string", "str_ne_empty"};
@@ -586,6 +602,7 @@ void finalize_constants() {
     delete g_congr_arg;
     delete g_congr_fun;
     delete g_decidable;
+    delete g_decidable_cases_on;
     delete g_decidable_to_bool;
     delete g_decidable_is_true;
     delete g_decidable_is_false;
@@ -671,6 +688,10 @@ void finalize_constants() {
     delete g_implies_of_if_neg;
     delete g_implies_of_if_pos;
     delete g_int;
+    delete g_int_nat_abs;
+    delete g_int_lt;
+    delete g_int_decidable_lt;
+    delete g_int_of_nat;
     delete g_interactive_param_desc;
     delete g_interactive_parse;
     delete g_io_core;
@@ -778,8 +799,11 @@ void finalize_constants() {
     delete g_sizeof;
     delete g_sorry_ax;
     delete g_string;
+    delete g_string_to_list;
     delete g_string_empty;
     delete g_string_iterator;
+    delete g_string_iterator_fst;
+    delete g_string_iterator_snd;
     delete g_string_str;
     delete g_string_empty_ne_str;
     delete g_string_str_ne_empty;
@@ -859,6 +883,7 @@ name const & get_congr_name() { return *g_congr; }
 name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }
 name const & get_decidable_name() { return *g_decidable; }
+name const & get_decidable_cases_on_name() { return *g_decidable_cases_on; }
 name const & get_decidable_to_bool_name() { return *g_decidable_to_bool; }
 name const & get_decidable_is_true_name() { return *g_decidable_is_true; }
 name const & get_decidable_is_false_name() { return *g_decidable_is_false; }
@@ -944,6 +969,10 @@ name const & get_implies_name() { return *g_implies; }
 name const & get_implies_of_if_neg_name() { return *g_implies_of_if_neg; }
 name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
 name const & get_int_name() { return *g_int; }
+name const & get_int_nat_abs_name() { return *g_int_nat_abs; }
+name const & get_int_lt_name() { return *g_int_lt; }
+name const & get_int_decidable_lt_name() { return *g_int_decidable_lt; }
+name const & get_int_of_nat_name() { return *g_int_of_nat; }
 name const & get_interactive_param_desc_name() { return *g_interactive_param_desc; }
 name const & get_interactive_parse_name() { return *g_interactive_parse; }
 name const & get_io_core_name() { return *g_io_core; }
@@ -1051,8 +1080,11 @@ name const & get_singleton_name() { return *g_singleton; }
 name const & get_sizeof_name() { return *g_sizeof; }
 name const & get_sorry_ax_name() { return *g_sorry_ax; }
 name const & get_string_name() { return *g_string; }
+name const & get_string_to_list_name() { return *g_string_to_list; }
 name const & get_string_empty_name() { return *g_string_empty; }
 name const & get_string_iterator_name() { return *g_string_iterator; }
+name const & get_string_iterator_fst_name() { return *g_string_iterator_fst; }
+name const & get_string_iterator_snd_name() { return *g_string_iterator_snd; }
 name const & get_string_str_name() { return *g_string_str; }
 name const & get_string_empty_ne_str_name() { return *g_string_empty_ne_str; }
 name const & get_string_str_ne_empty_name() { return *g_string_str_ne_empty; }

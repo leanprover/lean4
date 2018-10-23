@@ -15,6 +15,16 @@ inductive int : Type
 | of_nat : nat → int
 | neg_succ_of_nat : nat → int
 
+notation `ℤ` := int
+
+instance : has_coe nat int := ⟨int.of_nat⟩
+
+notation `-[1+ ` n `]` := int.neg_succ_of_nat n
+
+def int.nat_abs : int → nat
+| (int.of_nat m)          := m
+| (int.neg_succ_of_nat m) := nat.succ m
+
 instance : decidable_eq int :=
 {dec_eq := λ a b, match a, b with
  | (int.of_nat a), (int.of_nat b) :=
@@ -25,12 +35,6 @@ instance : decidable_eq int :=
    else is_false (λ h', int.no_confusion h' (λ h', absurd h' h))
  | (int.of_nat a), (int.neg_succ_of_nat b) := is_false (λ h, int.no_confusion h)
  | (int.neg_succ_of_nat a), (int.of_nat b) := is_false (λ h, int.no_confusion h)}
-
-notation `ℤ` := int
-
-instance : has_coe nat int := ⟨int.of_nat⟩
-
-notation `-[1+ ` n `]` := int.neg_succ_of_nat n
 
 protected def int.repr : int → string
 | (int.of_nat n)          := repr n
@@ -83,10 +87,6 @@ protected def sub (m n : int) : int :=
 m + -n
 
 instance : has_sub int := ⟨int.sub⟩
-
-def nat_abs : int → ℕ
-| (of_nat m) := m
-| -[1+ m]    := succ m
 
 def sign : int → int
 | (n+1:ℕ) := 1

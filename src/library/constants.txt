@@ -34,6 +34,7 @@ congr
 congr_arg
 congr_fun
 decidable
+decidable.cases_on
 decidable.to_bool
 decidable.is_true
 decidable.is_false
@@ -119,6 +120,10 @@ implies
 implies_of_if_neg
 implies_of_if_pos
 int
+int.nat_abs
+int.lt
+int.decidable_lt
+int.of_nat
 interactive.param_desc
 interactive.parse
 io_core
@@ -226,8 +231,11 @@ singleton
 sizeof
 sorry_ax
 string
+string.to_list
 string.empty
 string.iterator
+string.iterator.fst
+string.iterator.snd
 string.str
 string.empty_ne_str
 string.str_ne_empty

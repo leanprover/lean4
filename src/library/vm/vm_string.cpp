@@ -116,11 +116,6 @@ vm_obj string_to_list(vm_obj const & s) {
     return string_to_list_core(to_vm_string(s).m_value);
 }
 
-unsigned string_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
-    data.push_back(string_to_list(o));
-    return 0;
-}
-
 vm_obj string_data(vm_obj const & s) {
     return string_to_list(s);
 }
@@ -499,7 +494,6 @@ vm_obj string_hash(vm_obj const & s) {
 void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "mk"}),             string_mk);
     DECLARE_VM_BUILTIN(name({"string", "data"}),           string_data);
-    DECLARE_VM_CASES_BUILTIN(name({"string", "cases_on"}), string_cases_on);
 
     DECLARE_VM_BUILTIN(name({"string", "length"}),            string_length);
     DECLARE_VM_BUILTIN(name({"string", "empty"}),             string_empty);
@@ -532,7 +526,6 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "iterator", "mk"}),              string_iterator_mk);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "fst"}),             string_iterator_fst);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "snd"}),             string_iterator_snd);
-    DECLARE_VM_CASES_BUILTIN(name({"string", "iterator", "cases_on"}),  string_iterator_cases_on);
 }
 
 void finalize_vm_string() {

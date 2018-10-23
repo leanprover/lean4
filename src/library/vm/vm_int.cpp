@@ -156,91 +156,6 @@ vm_obj int_gcd(vm_obj const & a1, vm_obj const & a2) {
     return mk_vm_nat(r);
 }
 
-vm_obj int_shiftl(vm_obj const & a1, vm_obj const & a2) {
-    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
-        int v1 = to_small_int(a1);
-        int v2 = to_small_int(a2);
-
-        if (v1 >= 0) {
-            if (v2 >= 0) {
-                if (v2 <= 30 && v1 >> (30 - v2) == 0) // LEAN_VM_MAX_SMALL_INT = 1 >> 30
-                    return mk_vm_int(v1 << v2);
-            } else if (-v2 < 32) {
-                return mk_vm_int(v1 >> -v2);
-            } else {
-                return mk_vm_int(0);
-            }
-        }
-    }
-    mpz v1 = to_mpz1(a1);
-    if (auto v2 = try_to_int(a2)) {
-        if (*v2 >= 0) {
-            mul2k(v1, v1, *v2);
-        } else if (v1 < 0) {
-            div2k(v1, v1 + 1, -*v2);
-            v1--;
-        } else {
-            div2k(v1, v1, -*v2);
-        }
-        return mk_vm_int(v1);
-    } else {
-        throw exception("int.shiftl: second argument is larger than 2^31");
-    }
-}
-
-vm_obj int_land(vm_obj const & a1, vm_obj const & a2) {
-    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
-        return mk_vm_int(to_small_int(a1) & to_small_int(a2));
-    } else {
-        return mk_vm_int(to_mpz1(a1) & to_mpz2(a2));
-    }
-}
-
-vm_obj int_lor(vm_obj const & a1, vm_obj const & a2) {
-    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
-        return mk_vm_int(to_small_int(a1) | to_small_int(a2));
-    } else {
-        return mk_vm_int(to_mpz1(a1) | to_mpz2(a2));
-    }
-}
-
-vm_obj int_lxor(vm_obj const & a1, vm_obj const & a2) {
-    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
-        return mk_vm_int(to_small_int(a1) ^ to_small_int(a2));
-    } else {
-        return mk_vm_int(to_mpz1(a1) ^ to_mpz2(a2));
-    }
-}
-
-vm_obj int_lnot(vm_obj const & a) {
-    if (LEAN_LIKELY(is_simple(a))) {
-        return mk_vm_int(~to_small_int(a));
-    } else {
-        return mk_vm_int(~to_mpz1(a));
-    }
-}
-
-vm_obj int_ldiff(vm_obj const & a1, vm_obj const & a2) {
-    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
-        return mk_vm_int(to_small_int(a1) & ~to_small_int(a2));
-    } else {
-        return mk_vm_int(to_mpz1(a1) & ~to_mpz2(a2));
-    }
-}
-
-vm_obj int_test_bit(vm_obj const & a1, vm_obj const & a2) {
-    if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
-        return mk_vm_bool((to_small_int(a1) & (1 << cidx(a2))) != 0);
-    } else {
-        mpz const & v1 = to_mpz1(a1);
-        mpz const & v2 = to_mpz2(a2);
-        if (v2.is_unsigned_long_int())
-            return mk_vm_bool(v1.test_bit(v2.get_unsigned_long_int()));
-        else
-            return mk_vm_bool(false);
-    }
-}
-
 vm_obj int_decidable_eq(vm_obj const & a1, vm_obj const & a2) {
     if (is_simple(a1) && is_simple(a2)) {
         return mk_vm_bool(to_small_int(a1) == to_small_int(a2));
@@ -273,6 +188,16 @@ vm_obj int_neg(vm_obj const & a) {
     }
 }
 
+vm_obj int_nat_abs(vm_obj const & a) {
+    if (is_simple(a)) {
+        int n = to_small_int(a);
+        return mk_vm_nat(n < 0 ? -n : n);
+    } else {
+        mpz z = to_mpz1(a);
+        return mk_vm_nat(z < 0 ? (0 - z) : z);
+    }
+}
+
 vm_obj int_of_nat(vm_obj const & a) {
     if (is_simple(a)) {
         return mk_vm_int(cidx(a));
@@ -289,41 +214,9 @@ vm_obj int_neg_succ_of_nat(vm_obj const & a) {
     }
 }
 
-
-void int_rec(vm_state &) {
-    /* recursors are implemented by the compiler */
-    lean_unreachable();
-}
-
-void int_no_confusion(vm_state &) {
-    /* no_confusion is implemented by the compiler */
-    lean_unreachable();
-}
-
-unsigned int_cases_on(vm_obj const & o, buffer<vm_obj> & data) {
-    if (is_simple(o)) {
-        int v = to_small_int(o);
-        if (v >= 0) {
-            data.push_back(mk_vm_nat(v));
-            return 0;
-        } else {
-            data.push_back(mk_vm_nat(-v - 1));
-            return 1;
-        }
-    } else {
-        mpz const & v = to_mpz1(o);
-        if (v >= 0) {
-            data.push_back(mk_vm_nat(v));
-            return 0;
-        } else {
-            data.push_back(mk_vm_nat(0 - v - 1));
-            return 1;
-        }
-    }
-}
-
 void initialize_vm_int() {
     DECLARE_VM_BUILTIN(name({"int", "of_nat"}),           int_of_nat);
+    DECLARE_VM_BUILTIN(name({"int", "nat_abs"}),          int_nat_abs);
     DECLARE_VM_BUILTIN(name({"int", "neg_succ_of_nat"}),  int_neg_succ_of_nat);
     DECLARE_VM_BUILTIN(name({"int", "add"}),              int_add);
     DECLARE_VM_BUILTIN(name({"int", "mul"}),              int_mul);
@@ -334,19 +227,6 @@ void initialize_vm_int() {
     DECLARE_VM_BUILTIN(name({"int", "decidable_eq"}),     int_decidable_eq);
     DECLARE_VM_BUILTIN(name({"int", "decidable_le"}),     int_decidable_le);
     DECLARE_VM_BUILTIN(name({"int", "decidable_lt"}),     int_decidable_lt);
-    DECLARE_VM_BUILTIN(name({"int", "shiftl"}),           int_shiftl);
-    DECLARE_VM_BUILTIN(name({"int", "lor"}),              int_lor);
-    DECLARE_VM_BUILTIN(name({"int", "land"}),             int_land);
-    DECLARE_VM_BUILTIN(name({"int", "ldiff"}),            int_ldiff);
-    DECLARE_VM_BUILTIN(name({"int", "lnot"}),             int_lnot);
-    DECLARE_VM_BUILTIN(name({"int", "lxor"}),             int_lxor);
-    DECLARE_VM_BUILTIN(name({"int", "test_bit"}),         int_test_bit);
-
-    DECLARE_VM_CASES_BUILTIN(name({"int", "cases_on"}),   int_cases_on);
-
-    declare_vm_builtin(name({"int", "rec_on"}),            "int_rec",          4, int_rec);
-    declare_vm_builtin(name({"int", "no_confusion"}),      "int_no_confusion", 5, int_no_confusion);
-    declare_vm_builtin(name({"int", "no_confusion_type"}), "int_no_confusion", 3, int_no_confusion);
 }
 
 void finalize_vm_int() {

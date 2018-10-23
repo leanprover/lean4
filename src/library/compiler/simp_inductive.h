@@ -19,14 +19,6 @@ optional<unsigned> is_internal_cnstr(expr const & e);
 /** \brief Return non-none n iff \c e is of the form _cases.n */
 optional<unsigned> is_internal_cases(expr const & e);
 
-/** \brief Return true iff 'e' is an internal cases, a nat.cases_on,
-    or a VM builtin cases. That is, it returns true for constants
-    that produce branching during code generation. */
-bool is_vm_supported_cases(environment const & env, expr const & e);
-
-/** \brief Return the number of minor premises for a vm supported cases construct. */
-unsigned get_vm_supported_cases_num_minors(environment const & env, expr const & fn);
-
 void initialize_simp_inductive();
 void finalize_simp_inductive();
 }

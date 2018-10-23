@@ -109,11 +109,11 @@ class live_vars_fn {
             s = collect(pc+1);
             s.insert(instr.get_idx());
             break;
-        case opcode::Cases2: case opcode::NatCases:
+        case opcode::Cases2:
             s = collect(instr.get_cases2_pc(0));
             s.merge(collect(instr.get_cases2_pc(1)));
             break;
-        case opcode::CasesN: case opcode::BuiltinCases:
+        case opcode::CasesN:
             s = collect(instr.get_casesn_pc(0));
             for (unsigned i = 1; i < instr.get_casesn_size(); i++)
                 s.merge(collect(instr.get_casesn_pc(i)));

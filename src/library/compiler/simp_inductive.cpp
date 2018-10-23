@@ -43,29 +43,6 @@ optional<unsigned> is_internal_cases(expr const & e) {
     return is_internal_symbol(e, *g_cases);
 }
 
-bool is_vm_supported_cases(environment const & env, expr const & e) {
-    return
-        is_internal_cases(e) ||
-        is_constant(e, get_nat_cases_on_name()) ||
-        (is_constant(e) && get_vm_builtin_cases_idx(env, const_name(e)));
-}
-
-unsigned get_vm_supported_cases_num_minors(environment const & env, expr const & fn) {
-    name const & fn_name = const_name(fn);
-    if (fn_name == get_nat_cases_on_name()) {
-        return 2;
-    } else {
-        optional<unsigned> builtin_cases_idx = get_vm_builtin_cases_idx(env, fn_name);
-        if (builtin_cases_idx) {
-            name const & I_name = fn_name.get_prefix();
-            return get_num_constructors(env, I_name);
-        } else {
-            lean_assert(is_internal_cases(fn));
-            return *is_internal_cases(fn);
-        }
-    }
-}
-
 class simp_inductive_fn {
     type_checker::state  m_st;
     local_ctx            m_lctx;

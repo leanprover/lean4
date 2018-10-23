@@ -102,8 +102,7 @@ class emit_bytecode_fn {
         buffer<expr> args;
         expr fn = get_app_args(e, args);
         lean_assert(is_constant(fn));
-        name const & fn_name = const_name(fn);
-        unsigned num = get_vm_supported_cases_num_minors(m_env, fn);
+        unsigned num = *is_internal_cases(fn);
         lean_assert(args.size() == num + 1);
         lean_assert(num >= 1);
         /** compile major premise */
@@ -112,14 +111,7 @@ class emit_bytecode_fn {
         buffer<unsigned> cases_args;
         buffer<unsigned> goto_pcs;
         cases_args.resize(num, 0);
-        if (fn_name == get_nat_cases_on_name()) {
-            emit(mk_nat_cases_instr(0, 0));
-        } else if (optional<unsigned> builtin_cases_idx = get_vm_builtin_cases_idx(m_env, fn_name)) {
-            #if defined(__GNUC__) && !defined(__CLANG__)
-            #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-            #endif
-            emit(mk_builtin_cases_instr(*builtin_cases_idx, cases_args.size(), cases_args.data()));
-        } else if (num == 1) {
+        if (num == 1) {
             emit(mk_destruct_instr());
         } else if (num == 2) {
             emit(mk_cases2_instr(0, 0));
@@ -150,7 +142,7 @@ class emit_bytecode_fn {
             }
         }
         /* Fix cases instruction pc's */
-        if (num >= 2 || get_vm_builtin_cases_idx(m_env, fn_name)) {
+        if (num >= 2) {
             for (unsigned i = 0; i < cases_args.size(); i++)
                 m_code[cases_pos].set_pc(i, cases_args[i]);
         }
@@ -204,7 +196,7 @@ class emit_bytecode_fn {
 
     void compile_app(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         expr const & fn = get_app_fn(e);
-        if (is_vm_supported_cases(m_env, fn)) {
+        if (is_internal_cases(fn)) {
             compile_cases_on(e, bpz, m);
         } else if (is_internal_cnstr(fn)) {
             compile_cnstr(e, bpz, m);

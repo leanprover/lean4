@@ -521,10 +521,6 @@ static void display_fn(std::ostream & out, unsigned fn_idx) {
         out << fn_idx;
 }
 
-static void display_builtin_cases(std::ostream & out, unsigned cases_idx) {
-    display_fn(out, cases_idx);
-}
-
 void vm_instr::display(std::ostream & out) const {
     switch (m_op) {
     case opcode::Push:          out << "push " << m_idx; break;
@@ -544,14 +540,6 @@ void vm_instr::display(std::ostream & out) const {
         for (unsigned i = 0; i < get_casesn_size(); i++)
             out << " " << get_casesn_pc(i);
         break;
-    case opcode::BuiltinCases:
-        out << "builtin_cases ";
-        display_builtin_cases(out, get_cases_idx());
-        out << ",";
-        for (unsigned i = 0; i < get_casesn_size(); i++)
-            out << " " << get_casesn_pc(i);
-        break;
-    case opcode::NatCases:      out << "nat_cases " << m_pc[1]; break;
     case opcode::Proj:          out << "proj " << m_idx; break;
     case opcode::Apply:         out << "apply"; break;
     case opcode::InvokeGlobal:
@@ -582,9 +570,9 @@ unsigned vm_instr::get_num_pcs() const {
     switch (m_op) {
     case opcode::Goto:
         return 1;
-    case opcode::Cases2: case opcode::NatCases:
+    case opcode::Cases2:
         return 2;
-    case opcode::CasesN: case opcode::BuiltinCases:
+    case opcode::CasesN:
         return get_casesn_size();
     default:
         return 0;
@@ -595,9 +583,9 @@ unsigned vm_instr::get_pc(unsigned i) const {
     lean_assert(i < get_num_pcs());
     switch (m_op) {
     case opcode::Goto:
-    case opcode::Cases2: case opcode::NatCases:
+    case opcode::Cases2:
         return m_pc[i];
-    case opcode::CasesN: case opcode::BuiltinCases:
+    case opcode::CasesN:
         return get_casesn_pc(i);
     default:
         lean_unreachable();
@@ -608,10 +596,10 @@ void vm_instr::set_pc(unsigned i, unsigned pc) {
     lean_assert(i < get_num_pcs());
     switch (m_op) {
     case opcode::Goto:
-    case opcode::Cases2: case opcode::NatCases:
+    case opcode::Cases2:
         m_pc[i] = pc;
         break;
-    case opcode::CasesN: case opcode::BuiltinCases:
+    case opcode::CasesN:
         set_casesn_pc(i, pc);
         break;
     default:
@@ -701,13 +689,6 @@ vm_instr mk_unreachable_instr() { return vm_instr(opcode::Unreachable); }
 
 vm_instr mk_apply_instr() { return vm_instr(opcode::Apply); }
 
-vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2) {
-    vm_instr r(opcode::NatCases);
-    r.m_pc[0] = pc1;
-    r.m_pc[1] = pc2;
-    return r;
-}
-
 vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2) {
     vm_instr r(opcode::Cases2);
     r.m_pc[0] = pc1;
@@ -718,19 +699,8 @@ vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2) {
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs) {
     lean_assert(num_pc >= 2);
     vm_instr r(opcode::CasesN);
-    r.m_cases_idx = 0; /* not really needed, but it avoids a valgrind warning. */
     r.m_npcs = new unsigned[num_pc + 1];
     r.m_npcs[0] = num_pc;
-    for (unsigned i = 0; i < num_pc; i++)
-        r.m_npcs[i+1] = pcs[i];
-    return r;
-}
-
-vm_instr mk_builtin_cases_instr(unsigned cases_idx, unsigned num_pc, unsigned const * pcs) {
-    vm_instr r(opcode::BuiltinCases);
-    r.m_cases_idx = cases_idx;
-    r.m_npcs      = new unsigned[num_pc + 1];
-    r.m_npcs[0]   = num_pc;
     for (unsigned i = 0; i < num_pc; i++)
         r.m_npcs[i+1] = pcs[i];
     return r;
@@ -764,7 +734,6 @@ vm_instr mk_closure_instr(unsigned fn_idx, unsigned n) {
 void vm_instr::release_memory() {
     switch (m_op) {
     case opcode::CasesN:
-    case opcode::BuiltinCases:
         delete[] m_npcs;
         break;
     case opcode::Num:
@@ -802,16 +771,14 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::Goto:
         m_pc[0] = i.m_pc[0];
         break;
-    case opcode::Cases2: case opcode::NatCases:
+    case opcode::Cases2:
         m_pc[0] = i.m_pc[0];
         m_pc[1] = i.m_pc[1];
         break;
     case opcode::CasesN:
-    case opcode::BuiltinCases:
         m_npcs = new unsigned[i.m_npcs[0] + 1];
         for (unsigned j = 0; j < i.m_npcs[0] + 1; j++)
             m_npcs[j] = i.m_npcs[j];
-        m_cases_idx = i.m_cases_idx;
         break;
     case opcode::SConstructor:
         m_cidx = i.m_cidx;
@@ -855,9 +822,8 @@ vm_instr::vm_instr(vm_instr && i):
         m_str    = i.m_str;
         i.m_str  = nullptr;
         break;
-    case opcode::CasesN: case opcode::BuiltinCases:
+    case opcode::CasesN:
         m_npcs      = i.m_npcs;
-        m_cases_idx = i.m_cases_idx;
         i.m_npcs    = nullptr;
         break;
     default:
@@ -889,8 +855,7 @@ vm_instr & vm_instr::operator=(vm_instr && s) {
         m_str    = s.m_str;
         s.m_str  = nullptr;
         break;
-    case opcode::CasesN: case opcode::BuiltinCases:
-        m_cases_idx = s.m_cases_idx;
+    case opcode::CasesN:
         m_npcs      = s.m_npcs;
         s.m_npcs    = nullptr;
         break;
@@ -919,13 +884,10 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Goto:
         s << m_pc[0];
         break;
-    case opcode::Cases2: case opcode::NatCases:
+    case opcode::Cases2:
         s << m_pc[0];
         s << m_pc[1];
         break;
-    case opcode::BuiltinCases:
-        s << idx2name(m_cases_idx);
-        /* fall-thru */
     case opcode::CasesN:
         s << m_npcs[0];
         for (unsigned j = 1; j < m_npcs[0] + 1; j++)
@@ -993,19 +955,10 @@ static vm_instr read_vm_instr(deserializer & d) {
     case opcode::Cases2:
         pc = d.read_unsigned();
         return mk_cases2_instr(pc, d.read_unsigned());
-    case opcode::NatCases:
-        pc = d.read_unsigned();
-        return mk_nat_cases_instr(pc, d.read_unsigned());
     case opcode::CasesN: {
         buffer<unsigned> pcs;
         read_cases_pcs(d, pcs);
         return mk_casesn_instr(pcs.size(), pcs.data());
-    }
-    case opcode::BuiltinCases: {
-        idx = get_vm_index(read_name(d));
-        buffer<unsigned> pcs;
-        read_cases_pcs(d, pcs);
-        return mk_builtin_cases_instr(idx, pcs.size(), pcs.data());
     }
     case opcode::SConstructor:
         return mk_sconstructor_instr(d.read_unsigned());
@@ -1065,7 +1018,6 @@ void vm_decl_cell::dealloc() {
 /** \brief VM builtin functions */
 static name_map<std::tuple<unsigned, char const *, vm_function>> * g_vm_builtins = nullptr;
 static name_map<std::tuple<unsigned, char const *, vm_cfunction>> * g_vm_cbuiltins = nullptr;
-static name_map<std::tuple<char const *, vm_cases_function>> * g_vm_cases_builtins = nullptr;
 static bool g_may_update_vm_builtins = true;
 
 void declare_vm_builtin(name const & n, char const * i, unsigned arity, vm_function fn) {
@@ -1124,26 +1076,16 @@ void declare_vm_builtin(name const & n, char const * i, unsigned arity, vm_cfunc
 }
 
 bool is_vm_builtin_function(name const & fn) {
-    return g_vm_builtins->contains(fn) || g_vm_cbuiltins->contains(fn) || g_vm_cases_builtins->contains(fn);
-}
-
-void declare_vm_cases_builtin(name const & n, char const * i, vm_cases_function fn) {
-    lean_assert(g_may_update_vm_builtins);
-    g_vm_cases_builtins->insert(n, std::make_tuple(i, fn));
+    return g_vm_builtins->contains(fn) || g_vm_cbuiltins->contains(fn);
 }
 
 /** \brief VM function/constant declarations are stored in an environment extension. */
 struct vm_decls : public environment_extension {
     unsigned_map<vm_decl>           m_decls;
-    unsigned_map<vm_cases_function> m_cases;
 
     name                            m_monitor;
 
     vm_decls() {
-        g_vm_cases_builtins->for_each([&](name const & n, std::tuple<char const *, vm_cases_function> const & p) {
-                unsigned idx = get_vm_index(n);
-                m_cases.insert(idx, std::get<1>(p));
-            });
         g_vm_builtins->for_each([&](name const & n, std::tuple<unsigned, char const *, vm_function> const & p) {
                 add_core(vm_decl(n, get_vm_index(n), std::get<0>(p), std::get<2>(p)));
             });
@@ -1395,15 +1337,6 @@ optional<vm_decl> get_vm_decl(environment const & env, name const & n) {
         return optional<vm_decl>();
 }
 
-optional<unsigned> get_vm_builtin_cases_idx(environment const & env, name const & n) {
-    vm_decls const & ext = get_extension(env);
-    auto idx = get_vm_index(n);
-    if (ext.m_cases.contains(idx))
-        return optional<unsigned>(idx);
-    else
-        return optional<unsigned>();
-}
-
 constexpr unsigned g_null_fn_idx = -1;
 
 static name * g_debugger = nullptr;
@@ -1421,8 +1354,6 @@ vm_state::vm_state(environment const & env, options const & opts):
     m_options(opts),
     m_decl_map(get_extension(m_env).m_decls),
     m_decl_vector(get_vm_index_bound()),
-    m_builtin_cases_map(get_extension(m_env).m_cases),
-    m_builtin_cases_vector(get_vm_index_bound()),
     m_code(nullptr),
     m_fn_idx(g_null_fn_idx),
     m_bp(0) {
@@ -1445,19 +1376,6 @@ vm_decl const & vm_state::get_decl(unsigned idx) const {
     }
     return m_decl_vector[idx];
 }
-
-vm_cases_function const & vm_state::get_builtin_cases(unsigned idx) const {
-    lean_assert(idx < m_builtin_cases_vector.size());
-    vm_cases_function const & fn = m_builtin_cases_vector[idx];
-    if (fn != nullptr) return fn;
-    if (auto fn_ = m_builtin_cases_map.find(idx)) {
-        const_cast<vm_state *>(this)->m_builtin_cases_vector[idx] = *fn_;
-    } else {
-        lean_unreachable();
-    }
-    return m_builtin_cases_vector[idx];
-}
-
 
 struct vm_state::debugger_state {
     vm_state m_vm;
@@ -1512,7 +1430,6 @@ void vm_state::update_env(environment const & env) {
     m_decl_map    = ext.m_decls;
     m_decl_vector.resize(get_vm_index_bound());
     m_was_updated = true;
-    lean_assert(is_eqp(m_builtin_cases_map, ext.m_cases));
 }
 
 void vm_state::push_fields(vm_obj const & obj) {
@@ -3053,45 +2970,6 @@ void vm_state::run() {
             m_pc = instr.get_cases2_pc(cidx(top));
             goto main_loop;
         }
-        case opcode::NatCases: {
-            /** Instruction: natcases pc1 pc2
-
-                stack before,              after (if n = 0)    after (if n > 0)
-                ...                        ...                 ...
-                v                 ==>      v                   v
-                n                                              n-1
-
-                m_pc := pc1  if  n == 0
-                := pc2  if  otherwise
-            */
-            vm_obj & top = m_stack.back();
-            if (is_simple(top)) {
-                unsigned val = cidx(top);
-                if (val == 0) {
-                    stack_pop_back();
-                    m_pc++;
-                    goto main_loop;
-                } else {
-                    vm_obj new_value = mk_vm_simple(val - 1);
-                    swap(top, new_value);
-                    m_pc = instr.get_cases2_pc(1);
-                    goto main_loop;
-                }
-            } else {
-                /* to_mpz checks lean_vm_check(is_mpz(top)) */
-                mpz const & val = to_mpz(top);
-                if (val == 0) {
-                    stack_pop_back();
-                    m_pc++;
-                    goto main_loop;
-                } else {
-                    vm_obj new_value = mk_vm_mpz(val - 1);
-                    swap(top, new_value);
-                    m_pc = instr.get_cases2_pc(1);
-                    goto main_loop;
-                }
-            }
-        }
         case opcode::CasesN: {
             /** Instruction: casesn pc_0 ... pc_[n-1]
 
@@ -3108,19 +2986,6 @@ void vm_state::run() {
             stack_pop_back();
             push_fields(top);
             m_pc = instr.get_casesn_pc(cidx(top));
-            goto main_loop;
-        }
-        case opcode::BuiltinCases: {
-            /** Instruction: builtin_cases
-                It is similar to CasesN, but uses the vm_cases_function to extract the data.
-            */
-            vm_obj top = m_stack.back();
-            stack_pop_back();
-            vm_cases_function fn = get_builtin_cases(instr.get_cases_idx());
-            buffer<vm_obj> data;
-            unsigned cidx = fn(top, data);
-            std::copy(data.begin(), data.end(), std::back_inserter(m_stack));
-            m_pc = instr.get_casesn_pc(cidx);
             goto main_loop;
         }
         case opcode::Proj: {
@@ -3623,8 +3488,6 @@ char const * get_vm_builtin_internal_name(name const & fn) {
         return std::get<1>(*p);
     if (auto p = g_vm_cbuiltins->find(fn))
         return std::get<1>(*p);
-    if (auto p = g_vm_cases_builtins->find(fn))
-        return std::get<0>(*p);
     return nullptr;
 }
 
@@ -3633,8 +3496,6 @@ vm_builtin_kind get_vm_builtin_kind(name const & fn) {
         return vm_builtin_kind::VMFun;
     if (g_vm_cbuiltins->contains(fn))
         return vm_builtin_kind::CFun;
-    if (g_vm_cases_builtins->contains(fn))
-        return vm_builtin_kind::Cases;
     lean_unreachable();
 }
 
@@ -3715,7 +3576,6 @@ void initialize_vm_core() {
     g_vm_index_manager = new vm_index_manager;
     g_vm_builtins = new name_map<std::tuple<unsigned, char const *, vm_function>>();
     g_vm_cbuiltins = new name_map<std::tuple<unsigned, char const *, vm_cfunction>>();
-    g_vm_cases_builtins = new name_map<std::tuple<char const *, vm_cases_function>>();
     g_may_update_vm_builtins = true;
     DEBUG_CODE({
             /* We only trace VM in debug mode because it produces a 10% performance penalty */
@@ -3727,7 +3587,6 @@ void initialize_vm_core() {
 void finalize_vm_core() {
     delete g_vm_builtins;
     delete g_vm_cbuiltins;
-    delete g_vm_cases_builtins;
     delete g_vm_index_manager;
 }
 

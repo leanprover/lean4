@@ -305,17 +305,13 @@ class vm_state;
 /** Builtin functions that take arguments from the VM stack. */
 typedef void (*vm_function)(vm_state & s);
 
-/** Custom 'cases' operators. Given an object \c o, it returns the constructor index and stores
-    the data stored in the object in the buffer \c data. */
-typedef unsigned (*vm_cases_function)(vm_obj const & o, buffer<vm_obj> & data);
-
 typedef pair<name, optional<expr>> vm_local_info;
 
 /** \brief VM instruction opcode */
 enum class opcode {
     Push, Move, Ret, Drop, Goto,
     SConstructor, Constructor, Num, String,
-    Destruct, Cases2, CasesN, NatCases, BuiltinCases, Proj,
+    Destruct, Cases2, CasesN, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
     Closure, Unreachable, Expr, LocalInfo
 };
@@ -332,13 +328,12 @@ class vm_instr {
         unsigned m_idx;
         /* Drop */
         unsigned m_num;
-        /* Goto, Cases2 and NatCases */
+        /* Goto and Cases2 */
         struct {
             unsigned m_pc[2];
         };
-        /* CasesN and BuiltinCases */
+        /* CasesN */
         struct {
-            unsigned   m_cases_idx; /* only used for BuiltinCases */
             unsigned * m_npcs;
         };
         /* Constructor, SConstructor */
@@ -371,10 +366,8 @@ class vm_instr {
     friend vm_instr mk_ret_instr();
     friend vm_instr mk_destruct_instr();
     friend vm_instr mk_unreachable_instr();
-    friend vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
     friend vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
     friend vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
-    friend vm_instr mk_builtin_cases_instr(unsigned cases_idx, unsigned num_pc, unsigned const * pcs);
     friend vm_instr mk_apply_instr();
     friend vm_instr mk_invoke_global_instr(unsigned fn_idx);
     friend vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
@@ -429,35 +422,30 @@ public:
     }
 
     unsigned get_cases2_pc(unsigned i) const {
-        lean_assert(m_op == opcode::Cases2 || m_op == opcode::NatCases);
+        lean_assert(m_op == opcode::Cases2);
         lean_vm_check(i < 2);
         return m_pc[i];
     }
 
     void set_cases2_pc(unsigned i, unsigned pc) {
-        lean_assert(m_op == opcode::Cases2 || m_op == opcode::NatCases);
+        lean_assert(m_op == opcode::Cases2);
         lean_vm_check(i < 2);
         m_pc[i] = pc;
     }
 
-    unsigned get_cases_idx() const {
-        lean_assert(m_op == opcode::BuiltinCases);
-        return m_cases_idx;
-    }
-
     unsigned get_casesn_size() const {
-        lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
+        lean_assert(m_op == opcode::CasesN);
         return m_npcs[0];
     }
 
     unsigned get_casesn_pc(unsigned i) const {
-        lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
+        lean_assert(m_op == opcode::CasesN);
         lean_vm_check(i < get_casesn_size());
         return m_npcs[i+1];
     }
 
     void set_casesn_pc(unsigned i, unsigned pc) const {
-        lean_assert(m_op == opcode::CasesN || m_op == opcode::BuiltinCases);
+        lean_assert(m_op == opcode::CasesN);
         lean_vm_check(i < get_casesn_size());
         m_npcs[i+1] = pc;
     }
@@ -518,10 +506,8 @@ vm_instr mk_string_instr(std::string const & v);
 vm_instr mk_ret_instr();
 vm_instr mk_destruct_instr();
 vm_instr mk_unreachable_instr();
-vm_instr mk_nat_cases_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
-vm_instr mk_builtin_cases_instr(unsigned cases_idx, unsigned num_pc, unsigned const * pcs);
 vm_instr mk_apply_instr();
 vm_instr mk_invoke_global_instr(unsigned fn_idx);
 vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
@@ -614,15 +600,11 @@ public:
     typedef std::vector<vm_decl> decl_vector;
     typedef std::vector<optional<vm_obj>> cache_vector;
     typedef unsigned_map<vm_decl> decl_map;
-    typedef std::vector<vm_cases_function> builtin_cases_vector;
-    typedef unsigned_map<vm_cases_function> builtin_cases_map;
     environment                 m_env;
     options                     m_options;
     decl_map                    m_decl_map;
     decl_vector                 m_decl_vector;
     cache_vector                m_cache_vector; /* for 0-ary declarations */
-    builtin_cases_map           m_builtin_cases_map;
-    builtin_cases_vector        m_builtin_cases_vector;
     vm_instr const *            m_code;   /* code of the current function being executed */
     unsigned                    m_fn_idx; /* function idx being executed */
     unsigned                    m_pc;     /* program counter */
@@ -675,8 +657,6 @@ public:
     vm_obj invoke_closure(vm_obj const & fn, unsigned nargs);
 
     vm_decl const & get_decl(unsigned idx) const;
-
-    vm_cases_function const & get_builtin_cases(unsigned idx) const;
 
 public:
     vm_state(environment const & env, options const & opts);
@@ -891,14 +871,6 @@ void declare_vm_builtin(name const & n, char const * internal_name, unsigned ari
 
 #define DECLARE_VM_BUILTIN(n, fn) declare_vm_builtin(n, #fn, fn)
 
-/** \brief Add builtin implementation for a cases_on */
-void declare_vm_cases_builtin(name const & n, char const * internal_name, vm_cases_function fn);
-
-#define DECLARE_VM_CASES_BUILTIN(n, fn) declare_vm_cases_builtin(n, #fn, fn)
-
-/** \brief Return builtin cases internal index. */
-optional<unsigned> get_vm_builtin_cases_idx(environment const & env, name const & n);
-
 /** Register in the given environment \c fn as the implementation for function \c n.
     These APIs should be used when we dynamically load native code stored in a shared object (aka DLL)
     that implements lean functions. */
@@ -958,7 +930,7 @@ bool is_vm_builtin_function(name const & fn);
     Return nullptr if \c fn is not a builtin. */
 char const * get_vm_builtin_internal_name(name const & fn);
 
-enum class vm_builtin_kind { VMFun, CFun, Cases };
+enum class vm_builtin_kind { VMFun, CFun };
 
 /** \brief Return the kind of a builtin function.
     \pre is_vm_builtin_function(fn) */

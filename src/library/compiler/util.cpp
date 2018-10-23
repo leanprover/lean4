@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <algorithm>
 #include <string>
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"

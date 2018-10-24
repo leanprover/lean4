@@ -42,17 +42,14 @@ public:
 /* Plain local context object used by the kernel type checker. */
 class local_ctx {
 protected:
-    typedef unsigned_map<local_decl> idx2local_decl;
     unsigned                  m_next_idx;
-    idx2local_decl            m_idx2local_decl;
     name_map<local_decl>      m_name2local_decl; // mapping from unique identifier to local_decl
 
     template<bool is_lambda> expr mk_binding(unsigned num, expr const * fvars, expr const & b) const;
-
 public:
     local_ctx():m_next_idx(0) {}
 
-    bool empty() const { return m_idx2local_decl.empty(); }
+    bool empty() const { return m_name2local_decl.empty(); }
 
     /* Low level `mk_local_decl` */
     local_decl mk_local_decl(name const & n, name const & un, expr const & type, binder_info bi);
@@ -79,11 +76,6 @@ public:
     /* \brief Return type of the given free variable.
        \pre is_fvar(e) */
     expr get_type(expr const & e) const { return get_local_decl(e).get_type(); }
-
-    /** \brief Traverse local declarations based on the order they were created */
-    void for_each(std::function<void(local_decl const &)> const & fn) const;
-    optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
-    optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
 
     /** Return the free variable associated with the given name.
         \pre get_local_decl(n) */

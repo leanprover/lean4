@@ -52,7 +52,6 @@ local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const 
     m_next_idx++;
     local_decl d(idx, n, un, type, value);
     m_name2local_decl.insert(n, d);
-    m_idx2local_decl.insert(idx, d);
     return d;
 }
 
@@ -62,7 +61,6 @@ local_decl local_ctx::mk_local_decl(name const & n, name const & un, expr const 
     m_next_idx++;
     local_decl d(idx, n, un, type, bi);
     m_name2local_decl.insert(n, d);
-    m_idx2local_decl.insert(idx, d);
     return d;
 }
 
@@ -89,21 +87,8 @@ expr local_ctx::get_local(name const & n) const {
     return get_local_decl(n).mk_ref();
 }
 
-void local_ctx::for_each(std::function<void(local_decl const &)> const & fn) const {
-    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) { fn(d); });
-}
-
-optional<local_decl> local_ctx::find_if(std::function<bool(local_decl const &)> const & pred) const {
-    return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
-}
-
-optional<local_decl> local_ctx::back_find_if(std::function<bool(local_decl const &)> const & pred) const {
-    return m_idx2local_decl.back_find_if([&](unsigned, local_decl const & d) { return pred(d); });
-}
-
 void local_ctx::clear(local_decl const & d) {
     lean_assert(find_local_decl(d.get_name()));
-    m_idx2local_decl.erase(d.get_idx());
     m_name2local_decl.erase(d.get_name());
 }
 

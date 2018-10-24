@@ -39,6 +39,8 @@ class metavar_context;
    "freezing" local instances. */
 class local_context : public local_ctx {
     friend class type_context_old;
+    typedef unsigned_map<local_decl> idx2local_decl;
+    idx2local_decl m_idx2local_decl;
 
     local_context remove(buffer<expr> const & locals) const;
     expr mk_local_decl(name const & n, name const & un, expr const & type,
@@ -48,8 +50,6 @@ class local_context : public local_ctx {
         if (v) return local_decl(d, t, *v);
         else return local_decl(d, t);
     }
-
-    optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const;
 
 public:
     local_context() {}
@@ -100,6 +100,11 @@ public:
 
     void pop_local_decl();
 
+    /** \brief Traverse local declarations based on the order they were created */
+    void for_each(std::function<void(local_decl const &)> const & fn) const;
+    optional<local_decl> find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
+    optional<local_decl> back_find_if(std::function<bool(local_decl const &)> const & pred) const; // NOLINT
+
     /** \brief We say a local context is well-formed iff all local declarations only
         contain local_decl references that were defined before them.
 
@@ -121,6 +126,9 @@ public:
         and for instantiating metavariables created by the elaborator before
         invoking the tactic framework. */
     local_context instantiate_mvars(metavar_context & ctx) const;
+
+    /** \brief Remove the given local decl. */
+    void clear(local_decl const & d);
 
     friend bool is_decl_eqp(local_context const & ctx1, local_context const & ctx2) {
         return is_eqp(ctx1.m_name2local_decl, ctx2.m_name2local_decl);

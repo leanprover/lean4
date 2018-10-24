@@ -127,6 +127,7 @@ bool depends_on(expr const & e, metavar_context const & mctx, local_context cons
 
 expr local_context::mk_local_decl(name const & n, name const & un, expr const & type, optional<expr> const & value, binder_info bi) {
     local_decl d = value ? local_ctx::mk_local_decl(n, un, type, *value) : local_ctx::mk_local_decl(n, un, type, bi);
+    m_idx2local_decl.insert(d.get_idx(), d);
     return d.mk_ref();
 }
 
@@ -160,6 +161,12 @@ optional<local_decl> local_context::back_find_if(std::function<bool(local_decl c
     return m_idx2local_decl.back_find_if([&](unsigned, local_decl const & d) { return pred(d); });
 }
 
+void local_context::clear(local_decl const & d) {
+    lean_assert(find_local_decl(d.get_name()));
+    local_ctx::clear(d);
+    m_idx2local_decl.erase(d.get_idx());
+}
+
 optional<local_decl> local_context::find_local_decl_from_user_name(name const & n) const {
     return back_find_if([&](local_decl const & d) { return d.get_user_name() == n; });
 }
@@ -172,6 +179,14 @@ optional<local_decl> local_context::find_last_local_decl() const {
 local_decl local_context::get_last_local_decl() const {
     if (m_idx2local_decl.empty()) throw("unknown local constant, context is empty");
     return m_idx2local_decl.max();
+}
+
+void local_context::for_each(std::function<void(local_decl const &)> const & fn) const {
+    m_idx2local_decl.for_each([&](unsigned, local_decl const & d) { fn(d); });
+}
+
+optional<local_decl> local_context::find_if(std::function<bool(local_decl const &)> const & pred) const {
+    return m_idx2local_decl.find_if([&](unsigned, local_decl const & d) { return pred(d); });
 }
 
 void local_context::for_each_after(local_decl const & d, std::function<void(local_decl const &)> const & fn) const {

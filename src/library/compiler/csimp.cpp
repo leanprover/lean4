@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <unordered_set>
+#include <unordered_map>
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
@@ -15,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/class.h"
 #include "library/trace.h"
+#include "library/expr_pair_maps.h"
 #include "library/compiler/util.h"
 #include "library/compiler/csimp.h"
 
@@ -33,21 +35,82 @@ csimp_cfg::csimp_cfg() {
 }
 
 class csimp_fn {
-    type_checker::state m_st;
-    local_ctx           m_lctx;
-    bool                m_before_erasure;
-    csimp_cfg           m_cfg;
-    buffer<expr>        m_fvars;
-    name                m_x;
-    name                m_j;
-    unsigned            m_next_idx{1};
-    unsigned            m_next_jp_idx{1};
-    expr_set            m_simplified;
+    typedef expr_pair_struct_map<expr> jp_cache;
+    type_checker::state      m_st;
+    local_ctx                m_lctx;
+    bool                     m_before_erasure;
+    csimp_cfg                m_cfg;
+    buffer<expr>             m_fvars;
+    name                     m_x;
+    name                     m_j;
+    unsigned                 m_next_idx{1};
+    unsigned                 m_next_jp_idx{1};
+    expr_set                 m_simplified;
+    /* Cache for the method `mk_new_join_point`. It maps the pair `(jp, lambda(x, e))` to the new joint point. */
+    jp_cache                 m_jp_cache;
+    /* Maps a free variables to a list of joint points that must be inserted after it. */
+    expr_map<exprs>          m_fvar2jps;
+    /* Maps a new join point to the free variable it must be defined after.
+       It is the "inverse" of m_fvar2jps. It maps to `none` if the joint point is in `m_closed_jps` */
+    expr_map<optional<expr>> m_jp2fvar;
+    /* Join points that do not depend on any free variable. */
+    exprs                    m_closed_jps;
     typedef std::unordered_set<name, name_hash> name_set;
 
     environment const & env() const { return m_st.env(); }
 
     name_generator & ngen() { return m_st.ngen(); }
+
+    unsigned get_fvar_idx(expr const & x) {
+        lean_assert(is_fvar(x));
+        return m_lctx.get_local_decl(x).get_idx();
+    }
+
+    optional<expr> find_max_fvar(expr const & e) {
+        if (!has_fvar(e)) return none_expr();
+        unsigned max_idx = 0;
+        optional<expr> r;
+        for_each(e, [&](expr const & x, unsigned) {
+                if (!has_fvar(x)) return false;
+                if (is_fvar(x)) {
+                    auto it = m_jp2fvar.find(x);
+                    expr y;
+                    if (it != m_jp2fvar.end()) {
+                        if (!it->second) {
+                            /* `x` is a join point in `m_closed_jps`. */
+                            return false;
+                        }
+                        y = *it->second;
+                    } else {
+                        y = x;
+                    }
+                    unsigned curr_idx = get_fvar_idx(y);
+                    if (!r || curr_idx > max_idx) {
+                        r = y;
+                        max_idx = curr_idx;
+                    }
+                }
+                return true;
+            });
+        return r;
+    }
+
+    void register_new_jp(expr const & jp) {
+        local_decl jp_decl   = m_lctx.get_local_decl(jp);
+        expr jp_val          = *jp_decl.get_value();
+        if (optional<expr> max_var = find_max_fvar(jp_val)) {
+            m_jp2fvar.insert(mk_pair(jp, some_expr(*max_var)));
+            auto it = m_fvar2jps.find(*max_var);
+            if (it == m_fvar2jps.end()) {
+                m_fvar2jps.insert(mk_pair(*max_var, exprs(jp)));
+            } else {
+                it->second = exprs(jp, it->second);
+            }
+        } else {
+            m_jp2fvar.insert(mk_pair(jp, none_expr()));
+            m_closed_jps = exprs(jp, m_closed_jps);
+        }
+    }
 
     void check(expr const & e) {
         if (m_before_erasure) {
@@ -320,7 +383,7 @@ class csimp_fn {
        This method creates one (or more) join-point(s) for `e` (if needed).
        Return `none` if the code size increase is above the threshold.
        Remark: it may produce type incorrect terms. */
-    optional<expr> mk_join_point_float_cases_on(expr const & fvar, expr const & e, expr const & c, buffer<expr> & new_jps) {
+    optional<expr> mk_join_point_float_cases_on(expr const & fvar, expr const & e, expr const & c) {
         lean_assert(m_before_erasure);
         lean_assert(is_cases_on_app(env(), c));
         if (!is_proj_or_cases_on_arg_at(fvar, e)) {
@@ -397,7 +460,7 @@ class csimp_fn {
                         expr jp_type = cheap_beta_reduce(infer_type(jp_val));
                         mark_simplified(jp_val);
                         expr jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), jp_type, jp_val);
-                        new_jps.push_back(jp_var);
+                        register_new_jp(jp_var);
                         /* Replace minor with new jp */
                         {
                             buffer<expr> zs;
@@ -439,22 +502,10 @@ class csimp_fn {
         return visit(e_y, false);
     }
 
-    /* Some of the new join points in `new_jps` may be replacing join points defined in the range `[saved_fvars_size, m_fvars.size())`.
-       So, we must insert them after the old one, and remove them from `new_jps` and `new_jp_cache`. */
-    void update_local_join_points(unsigned saved_fvars_size, buffer<expr> & new_jps, expr_map<expr> & new_jp_cache) {
-        unsigned i = saved_fvars_size;
-        while (i < m_fvars.size()) {
-            expr curr = m_fvars[i];
-            auto it = new_jp_cache.find(curr);
-            if (it != new_jp_cache.end()) {
-                m_fvars.insert(i+1, it->second);
-                new_jp_cache.erase(curr);
-                new_jps.erase_elem(curr);
-                i = i + 2;
-            } else {
-                i = i + 1;
-            }
-        }
+    expr_pair mk_jp_cache_key(expr const & x, expr const & e, expr const & jp) {
+        expr x_type = m_lctx.get_local_decl(x).get_type();
+        expr abst_e = ::lean::mk_lambda("_x", x_type, abstract(e, x));
+        return mk_pair(abst_e, jp);
     }
 
     /*
@@ -484,9 +535,10 @@ class csimp_fn {
       ```
 
       Remark: this method may produce type incorrect terms because of dependent types. */
-    expr mk_new_join_point(expr const & x, expr const & e, expr const & jp, buffer<expr> & new_jps, expr_map<expr> & new_jp_cache) {
-        auto it = new_jp_cache.find(jp);
-        if (it != new_jp_cache.end())
+    expr mk_new_join_point(expr const & x, expr const & e, expr const & jp) {
+        expr_pair key = mk_jp_cache_key(x, e, jp);
+        auto it = m_jp_cache.find(key);
+        if (it != m_jp_cache.end())
             return it->second;
         local_decl jp_decl = m_lctx.get_local_decl(jp);
         lean_assert(is_join_point_name(jp_decl.get_user_name()));
@@ -498,22 +550,21 @@ class csimp_fn {
         if (is_join_point_app(jp_val)) {
             buffer<expr> jp2_args;
             expr const & jp2  = get_app_args(jp_val, jp2_args);
-            expr new_jp2      = mk_new_join_point(x, e, jp2, new_jps, new_jp_cache);
+            expr new_jp2      = mk_new_join_point(x, e, jp2);
             e_y = mk_app(new_jp2, jp2_args);
         } else if (is_cases_on_app(env(), jp_val)) {
-            e_y = float_cases_on_core(x, e, jp_val, new_jps, new_jp_cache);
+            e_y = float_cases_on_core(x, e, jp_val);
         } else {
             e_y = apply_at(x, e, jp_val);
         }
         expr new_jp_val  = e_y;
-        update_local_join_points(saved_fvars_size, new_jps, new_jp_cache);
-        new_jp_val = mk_let(saved_fvars_size, new_jp_val);
+        new_jp_val = mk_let(zs, saved_fvars_size, new_jp_val, false);
         new_jp_val = mk_join_point_lambda(zs, new_jp_val);
         mark_simplified(new_jp_val);
         expr new_jp_type = cheap_beta_reduce(infer_type(new_jp_val));
         expr new_jp_var  = m_lctx.mk_local_decl(ngen(), next_jp_name(), new_jp_type, new_jp_val);
-        new_jps.push_back(new_jp_var);
-        new_jp_cache.insert(mk_pair(jp, new_jp_var));
+        register_new_jp(new_jp_var);
+        m_jp_cache.insert(mk_pair(key, new_jp_var));
         return new_jp_var;
     }
 
@@ -531,7 +582,7 @@ class csimp_fn {
         ...
         (fun y_n, let ... y := e_n in e[y])
       ``` */
-    expr float_cases_on_core(expr const & x, expr const & e, expr const & c, buffer<expr> & new_jps, expr_map<expr> & new_jp_cache) {
+    expr float_cases_on_core(expr const & x, expr const & e, expr const & c) {
         lean_assert(is_cases_on_app(env(), c));
         local_decl x_decl     = m_lctx.get_local_decl(x);
         buffer<expr> c_args;
@@ -577,13 +628,12 @@ class csimp_fn {
             if (is_join_point_app(minor_val)) {
                 buffer<expr> jp_args;
                 expr const & jp = get_app_args(minor_val, jp_args);
-                expr new_jp     = mk_new_join_point(x, e, jp, new_jps, new_jp_cache);
+                expr new_jp     = mk_new_join_point(x, e, jp);
                 new_minor       = visit(mk_app(new_jp, jp_args), false);
             } else {
                 new_minor       = apply_at(x, e, minor_val);
             }
-            update_local_join_points(saved_fvars_size, new_jps, new_jp_cache);
-            new_minor                 = mk_let(saved_fvars_size, new_minor);
+            new_minor                 = mk_let(zs, saved_fvars_size, new_minor, false);
             new_minor                 = mk_minor_lambda(zs, new_minor);
             c_args[minor_idx]         = new_minor;
         }
@@ -595,12 +645,11 @@ class csimp_fn {
 
     /* Float cases transformation (see: `float_cases_on_core`).
        This version may create join points if `e` is big, or "good" join-points could not be created. */
-    optional<expr> float_cases_on(expr const & x, expr const & e, expr const & c, buffer<expr> & new_jps) {
+    optional<expr> float_cases_on(expr const & x, expr const & e, expr const & c) {
         lean_assert(m_before_erasure);
-        expr_map<expr> new_jp_cache;
         unsigned  saved_fvars_size = m_fvars.size();
-        if (optional<expr> new_e = mk_join_point_float_cases_on(x, e, c, new_jps)) {
-            return some_expr(float_cases_on_core(x, *new_e, c, new_jps, new_jp_cache));
+        if (optional<expr> new_e = mk_join_point_float_cases_on(x, e, c)) {
+            return some_expr(float_cases_on_core(x, *new_e, c));
         }
         m_fvars.shrink(saved_fvars_size);
         return none_expr();
@@ -615,7 +664,7 @@ class csimp_fn {
        in e
        ```
        The values `w_i` are the "simplified values" for the let-declaration `x_i`. */
-    expr mk_let(buffer<pair<expr, expr>> const & entries, expr e) {
+    expr mk_let_core(buffer<pair<expr, expr>> const & entries, expr e) {
         buffer<expr> fvars;
         buffer<name> user_names;
         buffer<expr> types;
@@ -696,26 +745,116 @@ class csimp_fn {
         std::reverse(entries_ndep_x.begin(), entries_ndep_x.end());
     }
 
+    bool push_dep_jps(expr const & fvar) {
+        lean_assert(is_fvar(fvar));
+        auto it = m_fvar2jps.find(fvar);
+        if (it == m_fvar2jps.end())
+            return false;
+        buffer<expr> tmp;
+        to_buffer(it->second, tmp);
+        m_fvar2jps.erase(fvar);
+        std::reverse(tmp.begin(), tmp.end());
+        m_fvars.append(tmp);
+        return true;
+    }
+
+    bool push_dep_jps(buffer<expr> const & zs, bool top) {
+        buffer<expr> tmp;
+        if (top) {
+            to_buffer(m_closed_jps, tmp);
+            m_closed_jps = exprs();
+        }
+        for (expr const & z : zs) {
+            auto it = m_fvar2jps.find(z);
+            if (it != m_fvar2jps.end()) {
+                to_buffer(it->second, tmp);
+                m_fvar2jps.erase(z);
+            }
+        }
+        if (tmp.empty())
+            return false;
+        sort_fvars(m_lctx, tmp);
+        m_fvars.append(tmp);
+        return true;
+    }
+
+    /* Copy `src_entries` and the new joint points that depend on them to `entries`, and update `entries_fvars`.
+       This method is used after we perform a `float_cases_on`. */
+    void move_to_entries(buffer<expr_pair> const & src_entries, buffer<expr_pair> & entries, name_set & entries_fvars) {
+        buffer<expr_pair> todo;
+        for (unsigned i = 0; i < src_entries.size(); i++) {
+            expr_pair const & entry = src_entries[i];
+            /* New join points may have been attached to `ndep_entry` */
+            todo.push_back(entry);
+            while (!todo.empty()) {
+                expr_pair const & curr = todo.back();
+                auto it = m_fvar2jps.find(curr.first);
+                if (it != m_fvar2jps.end()) {
+                    for (expr const & jp : it->second) {
+                        /* Recall that new joint points have already been simplified.
+                           So, it is ok to move them to `entries`. */
+                        todo.emplace_back(jp, *m_lctx.get_local_decl(jp).get_value());
+                    }
+                    m_fvar2jps.erase(curr.first);
+                } else {
+                    entries.push_back(curr);
+                    collect_used(curr.second, entries_fvars);
+                    todo.pop_back();
+                }
+            }
+        }
+    }
+
     /* Create a let-expression with body `e`, and
        all "used" let-declarations `m_fvars[i]` for `i in [saved_fvars_size, m_fvars.size)`.
+       We also include all joint points that depends on these free variables,
+       nad join points that depends on `zs`. The buffer `zs` (when non empty) contains
+       the free variables for a lambda expression that will be created around the let-expression.
 
        BTW, we also visit the lambda expressions in used let-declarations of the form
        `x : t := fun ...`
 
+
        Note that, we don't visit them when we have visit let-expressions. */
-    expr mk_let(unsigned saved_fvars_size, expr e) {
-        if (saved_fvars_size == m_fvars.size())
-            return e;
+    expr mk_let(buffer<expr> const & zs, unsigned saved_fvars_size, expr e, bool top) {
+        if (saved_fvars_size == m_fvars.size()) {
+            if (!push_dep_jps(zs, top))
+                return e;
+        }
         /* `entries` contains pairs (let-decl fvar, new value) for building the resultant let-declaration.
            We simplify the value of some let-declarations in this method, but we don't want to create
            a new temporary declaration just for this. */
-        buffer<pair<expr, expr>> entries;
+        buffer<expr_pair> entries;
         name_set e_fvars; /* Set of free variables names used in `e` */
         name_set entries_fvars; /* Set of free variable names used in `entries` */
         collect_used(e, e_fvars);
-        bool e_is_cases = is_cases_on_app(env(), e);
-        while (m_fvars.size() > saved_fvars_size) {
+        bool e_is_cases      = is_cases_on_app(env(), e);
+        /*
+          Recall that all free variables in `m_fvars` are let-declarations.
+          In the following loop, we have the following "order" for the let-declarations:
+          ```
+             m_fvars[saved_fvars_size]
+             ...
+             m_fvars[m_fvars.size() - 1]
+
+             entries[entries.size() - 1]
+             ...
+             entries[0]
+          ```
+          The "body" of the let-declaration is `e`.
+          The mapping `m_fvar2jps` maps a free variable `x to join points that must be inserted after `x`.
+        */
+        while (true) {
+            if (m_fvars.size() == saved_fvars_size) {
+                if (!push_dep_jps(zs, top))
+                    break;
+            }
+            lean_assert(m_fvars.size() > saved_fvars_size);
             expr x               = m_fvars.back();
+            if (push_dep_jps(x)) {
+                /* We must process the join points that depend on `x` before we process `x`. */
+                continue;
+            }
             m_fvars.pop_back();
             bool used_in_e       = (e_fvars.find(fvar_name(x)) != e_fvars.end());
             bool used_in_entries = (entries_fvars.find(fvar_name(x)) != entries_fvars.end());
@@ -726,12 +865,13 @@ class csimp_fn {
             local_decl x_decl = m_lctx.get_local_decl(x);
             expr type       = x_decl.get_type();
             expr val        = *x_decl.get_value();
+            bool is_jp      = false;
             bool modified_val = false;
             if (is_lambda(val)) {
                 /* We don't simplify lambdas when we visit `let`-expressions. */
                 DEBUG_CODE(unsigned saved_fvars_size = m_fvars.size(););
-                bool is_jp   = is_join_point_name(x_decl.get_user_name());
-                val          = visit_lambda(val, is_jp);
+                is_jp        = is_join_point_name(x_decl.get_user_name());
+                val          = visit_lambda(val, is_jp, false);
                 modified_val = true;
                 lean_assert(m_fvars.size() == saved_fvars_size);
             }
@@ -752,31 +892,19 @@ class csimp_fn {
                     buffer<pair<expr, expr>> entries_dep_curr;
                     buffer<pair<expr, expr>> entries_ndep_curr;
                     split_entries(entries, x, entries_dep_curr, entries_ndep_curr);
-                    expr new_e = mk_let(entries_dep_curr, e);
-                    buffer<expr> new_jps;
-                    if (optional<expr> new_e_opt = float_cases_on(x, new_e, val, new_jps)) {
+                    lean_assert(entries_ndep_curr.empty());
+                    expr new_e = mk_let_core(entries_dep_curr, e);
+                    if (optional<expr> new_e_opt = float_cases_on(x, new_e, val)) {
                         e       = *new_e_opt;
+                        lean_assert(is_cases_on_app(env(), e));
+                        e_is_cases = true;
                         /* Reset `e_fvars` and `entries_fvars`, we need to reconstruct them. */
                         e_fvars.clear(); entries_fvars.clear();
                         collect_used(e, e_fvars);
                         /* Join points may have been generated, we move them to entries. */
                         entries.clear();
-                        while (!new_jps.empty()) {
-                            expr jp_fvar = new_jps.back();
-                            new_jps.pop_back();
-                            local_decl jp_decl = m_lctx.get_local_decl(jp_fvar);
-                            expr jp_type       = jp_decl.get_type();
-                            expr jp_val        = *jp_decl.get_value();
-                            collect_used(jp_type, entries_fvars);
-                            collect_used(jp_val, entries_fvars);
-                            entries.emplace_back(jp_fvar, jp_val);
-                        }
                         /* Copy `entries_ndep_curr` to `entries` */
-                        for (unsigned i = 0; i < entries_ndep_curr.size(); i++) {
-                            pair<expr, expr> const & ndep_entry = entries_ndep_curr[i];
-                            entries.push_back(ndep_entry);
-                            collect_used(ndep_entry.second, entries_fvars);
-                        }
+                        move_to_entries(entries_ndep_curr, entries, entries_fvars);
                         continue;
                     }
                 }
@@ -784,7 +912,7 @@ class csimp_fn {
                 modified_val = true;
             }
 
-            if (e_is_cases && used_in_e) {
+            if (!is_jp && e_is_cases && used_in_e) {
                 optional<unsigned> minor_idx = used_in_one_minor(e, x);
                 if (minor_idx && !used_in_entries) {
                     /* If x is only used in only one minor declaration,
@@ -802,11 +930,12 @@ class csimp_fn {
                     continue;
                 }
             }
+
             collect_used(type, entries_fvars);
             collect_used(val,  entries_fvars);
             entries.emplace_back(x, val);
         }
-        return mk_let(entries, e);
+        return mk_let_core(entries, e);
     }
 
     expr visit_let(expr e) {
@@ -833,8 +962,12 @@ class csimp_fn {
         return visit(instantiate_rev(e, let_fvars.size(), let_fvars.data()), false);
     }
 
-    expr visit_lambda(expr e, bool is_join_point_def) {
+    /* - `is_join_point_def` is true if the lambda is the value of a join point.
+       - `root` is true if the lambda is the value of a definition. */
+    expr visit_lambda(expr e, bool is_join_point_def, bool top) {
         lean_assert(is_lambda(e));
+        lean_assert(!top || m_fvars.size() == 0);
+        lean_assert(!top || !already_simplified(e));
         if (already_simplified(e))
             return e;
         buffer<expr> binding_fvars;
@@ -880,14 +1013,15 @@ class csimp_fn {
                 }
                 new_body = visit(new_body, false);
             }
+            binding_fvars.append(eta_args);
         }
-        new_body      = mk_let(saved_fvars_size, new_body);
+        new_body      = mk_let(binding_fvars, saved_fvars_size, new_body, top);
         expr r;
         if (is_join_point_def) {
             lean_assert(eta_args.empty());
             r = mk_join_point_lambda(binding_fvars, new_body);
         } else {
-            r = m_lctx.mk_lambda(binding_fvars, m_lctx.mk_lambda(eta_args, new_body));
+            r = m_lctx.mk_lambda(binding_fvars, new_body);
         }
         mark_simplified(r);
         return r;
@@ -1013,7 +1147,7 @@ class csimp_fn {
             buffer<expr> zs;
             minor          = get_lambda_body(minor, zs);
             expr new_minor = visit(minor, false);
-            new_minor = mk_let(saved_fvars_size, new_minor);
+            new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
             new_minor = mk_minor_lambda(zs, new_minor);
             args[minor_idx] = new_minor;
         }
@@ -1250,12 +1384,9 @@ class csimp_fn {
             return beta_reduce(fn, e, is_let_val);
         } else if (is_cases_on_app(env(), fn) && m_cfg.m_float_cases_app) {
             lean_assert(is_fvar(get_app_fn(e)));
-            buffer<expr> new_jps;
             /* float cases_on from application */
-            expr_map<expr> new_jp_cache;
-            expr new_e = float_cases_on_core(get_app_fn(e), e, fn, new_jps, new_jp_cache);
+            expr new_e = float_cases_on_core(get_app_fn(e), e, fn);
             mark_simplified(new_e);
-            m_fvars.append(new_jps);
             return new_e;
         } else if (is_lc_unreachable_app(fn)) {
             lean_assert(m_before_erasure);
@@ -1292,7 +1423,7 @@ class csimp_fn {
 
     expr visit(expr const & e, bool is_let_val) {
         switch (e.kind()) {
-        case expr_kind::Lambda: return is_let_val ? e : visit_lambda(e, false);
+        case expr_kind::Lambda: return is_let_val ? e : visit_lambda(e, false, false);
         case expr_kind::Let:    return visit_let(e);
         case expr_kind::Proj:   return visit_proj(e, is_let_val);
         case expr_kind::App:    return visit_app(e, is_let_val);
@@ -1305,8 +1436,13 @@ public:
         m_st(env), m_lctx(lctx), m_before_erasure(before_erasure), m_cfg(cfg), m_x("_x"), m_j("j") {}
 
     expr operator()(expr const & e) {
-        expr r = visit(e, false);
-        return mk_let(0, r);
+        if (is_lambda(e)) {
+            return visit_lambda(e, false, true);
+        } else {
+            buffer<expr> empty_xs;
+            expr r = visit(e, false);
+            return mk_let(empty_xs, 0, r, true);
+        }
     }
 };
 expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e, bool before_erasure, csimp_cfg const & cfg) {

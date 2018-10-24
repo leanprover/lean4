@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <unordered_set>
-#include "runtime/flet.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
@@ -226,7 +225,6 @@ class csimp_fn {
         buffer<expr> args;
         expr const & c_fn = get_app_args(c, args);
         expr minor = args[minor_idx];
-        flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> xs;
         minor = get_lambda_body(minor, xs);
         if (minor == fvar) {
@@ -368,7 +366,6 @@ class csimp_fn {
                         expr         jp_val;
                         /* Create join-point value: `jp-val` */
                         {
-                            flet<local_ctx> save_lctx(m_lctx, m_lctx);
                             buffer<expr> zs;
                             minor                = get_lambda_body(minor, zs);
                             mark_used_fvars(minor, zs, used_zs);
@@ -403,7 +400,6 @@ class csimp_fn {
                         new_jps.push_back(jp_var);
                         /* Replace minor with new jp */
                         {
-                            flet<local_ctx> save_lctx(m_lctx, m_lctx);
                             buffer<expr> zs;
                             minor = args[minor_idx];
                             minor = get_lambda_body(minor, zs);
@@ -544,7 +540,6 @@ class csimp_fn {
         unsigned major_idx;
         /* Update motive and get major_idx */
         if (m_before_erasure) {
-            flet<local_ctx> save_lctx(m_lctx, m_lctx);
             unsigned motive_idx      = I_val.get_nparams();
             unsigned first_index     = motive_idx + 1;
             unsigned nindices        = I_val.get_nindices();
@@ -604,12 +599,10 @@ class csimp_fn {
         lean_assert(m_before_erasure);
         expr_map<expr> new_jp_cache;
         unsigned  saved_fvars_size = m_fvars.size();
-        local_ctx saved_lctx       = m_lctx;
         if (optional<expr> new_e = mk_join_point_float_cases_on(x, e, c, new_jps)) {
             return some_expr(float_cases_on_core(x, *new_e, c, new_jps, new_jp_cache));
         }
         m_fvars.shrink(saved_fvars_size);
-        m_lctx = saved_lctx;
         return none_expr();
     }
 
@@ -844,7 +837,6 @@ class csimp_fn {
         lean_assert(is_lambda(e));
         if (already_simplified(e))
             return e;
-        flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> binding_fvars;
         while (is_lambda(e)) {
             /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
@@ -959,7 +951,6 @@ class csimp_fn {
         optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
         if (!info || !info->is_definition()) return none_expr();
         if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return none_expr();
-        local_ctx saved_lctx       = m_lctx;
         unsigned  saved_fvars_size = m_fvars.size();
         expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
         expr r      = find(beta_reduce(new_fn, e, false));
@@ -969,7 +960,6 @@ class csimp_fn {
             return new_r;
         } else {
             lean_trace(name({"compiler", "erase_irrelevant"}), tout() << ">> r: " << r << "\n";);
-            m_lctx = saved_lctx;
             m_fvars.resize(saved_fvars_size);
             return none_expr();
         }
@@ -1020,7 +1010,6 @@ class csimp_fn {
         for (; minor_idx < minors_end; minor_idx++) {
             expr minor                = args[minor_idx];
             unsigned saved_fvars_size = m_fvars.size();
-            flet<local_ctx> save_lctx(m_lctx, m_lctx);
             buffer<expr> zs;
             minor          = get_lambda_body(minor, zs);
             expr new_minor = visit(minor, false);

@@ -895,7 +895,6 @@ class csimp_fn {
                     buffer<pair<expr, expr>> entries_dep_curr;
                     buffer<pair<expr, expr>> entries_ndep_curr;
                     split_entries(entries, x, entries_dep_curr, entries_ndep_curr);
-                    lean_assert(entries_ndep_curr.empty());
                     expr new_e = mk_let_core(entries_dep_curr, e);
                     if (optional<expr> new_e_opt = float_cases_on(x, new_e, val)) {
                         e       = *new_e_opt;

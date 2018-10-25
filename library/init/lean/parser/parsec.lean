@@ -91,7 +91,7 @@ protected def failure : parsec_t μ m α :=
 def merge (msg₁ msg₂ : message μ) : message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
 
-@[inline_if_reduce] private def bind_mk_res (ex₁ : option (dlist string)) (r : result μ β) : result μ β :=
+@[inline_if_reduce] def bind_mk_res (ex₁ : option (dlist string)) (r : result μ β) : result μ β :=
 match ex₁, r with
 | none,     ok b it _          := ok b it none
 | none,     error msg _        := error msg tt
@@ -137,7 +137,7 @@ instance : has_monad_lift m (parsec_t μ m) :=
 def expect (msg : message μ) (exp : string) : message μ :=
 {expected := dlist.singleton exp, ..msg}
 
-private def labels_mk_res (r : result μ α) (lbls : dlist string) : result μ α :=
+@[inline_if_reduce] def labels_mk_res (r : result μ α) (lbls : dlist string) : result μ α :=
 match r with
   | ok a it (some _) := ok a it (some lbls)
   | error msg ff     := error {expected := lbls, ..msg} ff
@@ -148,8 +148,7 @@ match r with
   r ← p it,
   pure $ labels_mk_res r lbls
 
-@[inline_if_reduce]
-private def try_mk_res (r : result μ α) : result μ α :=
+@[inline_if_reduce] def try_mk_res (r : result μ α) : result μ α :=
 match r with
 | error msg _  := error msg ff
 | other        := other
@@ -176,7 +175,7 @@ Without the `try` combinator we will not be able to backtrack on the `let` keywo
   r ← p it,
   pure $ try_mk_res r
 
-@[inline_if_reduce] private def orelse_mk_res (msg₁ : message μ) (r : result μ α) : result μ α :=
+@[inline_if_reduce] def orelse_mk_res (msg₁ : message μ) (r : result μ α) : result μ α :=
 match r with
 | ok a it' (some ex₂) := ok a it' (some $ msg₁.expected ++ ex₂)
 | error msg₂ ff       := error (merge msg₁ msg₂) ff

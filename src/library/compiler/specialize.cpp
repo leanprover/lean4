@@ -382,7 +382,12 @@ class specialize_fn {
         typedef rb_expr_map<name> cache;
         names                 m_mutual;
         buffer<expr>          m_params;
-        buffer<expr>          m_let_vars;
+        /* `m_vars` contains `m_params` plus all let-declarations.
+
+           Remark: we used to keep m_params and let-declarations in separate buffers.
+           This produced incorrect results when the type of a variable in `m_params` depended on a
+           let-declaration. */
+        buffer<expr>          m_vars;
         cache                 m_cache;
         buffer<comp_decl>     m_pre_decls;
 
@@ -507,12 +512,14 @@ class specialize_fn {
                     if (!has_fvar(x)) return false;
                     if (is_fvar(x) && !collected.contains(fvar_name(x))) {
                         collected.insert(fvar_name(x));
-                        if (optional<expr> v = m_lctx.get_local_decl(x).get_value()) {
-                            ctx.m_let_vars.push_back(x);
+                        local_decl decl = m_lctx.get_local_decl(x);
+                        todo.push_back(decl.get_type());
+                        if (optional<expr> v = decl.get_value()) {
                             todo.push_back(*v);
                         } else {
                             ctx.m_params.push_back(x);
                         }
+                        ctx.m_vars.push_back(x);
                     }
                     return true;
                 });
@@ -527,7 +534,7 @@ class specialize_fn {
         ::lean::sort_fvars(m_lctx, fvars);
     }
 
-    /* Initialize `spec_ctx` fields: `m_params`, `m_let_vars`. */
+    /* Initialize `spec_ctx` fields: `m_vars`. */
     void specialize_init_deps(expr const & fn, buffer<expr> const & args, spec_ctx & ctx) {
         lean_assert(is_constant(fn));
         buffer<spec_arg_kind> kinds;
@@ -555,12 +562,11 @@ class specialize_fn {
                 break;
             }
         }
+        sort_fvars(ctx.m_vars);
         sort_fvars(ctx.m_params);
-        sort_fvars(ctx.m_let_vars);
         lean_trace(name({"compiler", "spec_candidate"}),
                    tout() << "candidate: " << mk_app(fn, args) << "\nclosure:";
-                   for (expr const & p : ctx.m_params) tout() << " " << p;
-                   for (expr const & x : ctx.m_let_vars) tout() << " " << x;
+                   for (expr const & p : ctx.m_vars) tout() << " " << p;
                    tout() << "\n";);
     }
 
@@ -774,8 +780,7 @@ class specialize_fn {
         }
         code = m_lctx.mk_lambda(new_fvars, code);
         code = m_lctx.mk_lambda(new_let_decls, code);
-        code = m_lctx.mk_lambda(ctx.m_let_vars, code);
-        code = m_lctx.mk_lambda(ctx.m_params, code);
+        code = m_lctx.mk_lambda(ctx.m_vars, code);
         lean_assert(!has_fvar(code));
         /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
            This is a hack to make sure we can use `csimp` to simplify `code` and

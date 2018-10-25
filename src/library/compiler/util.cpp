@@ -38,6 +38,17 @@ bool has_inline_attribute(environment const & env, name const & n) {
     return false;
 }
 
+bool has_inline_if_reduce_attribute(environment const & env, name const & n) {
+    if (has_attribute(env, "inline_if_reduce", n))
+        return true;
+    if (is_internal_name(n) && !n.is_atomic()) {
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline_if_reduce]`
+           if `f` is marked. */
+        return has_inline_if_reduce_attribute(env, n.get_prefix());
+    }
+    return false;
+}
+
 bool has_macro_inline_attribute(environment const & env, name const & n) {
     if (has_attribute(env, "macro_inline", n))
         return true;
@@ -53,7 +64,7 @@ bool has_noinline_attribute(environment const & env, name const & n) {
     if (has_attribute(env, "noinline", n))
         return true;
     if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline]`
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[noinline]`
            if `f` is marked. */
         return has_noinline_attribute(env, n.get_prefix());
     }
@@ -343,7 +354,15 @@ void initialize_compiler_util() {
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
-                    throw exception("invalid 'inline' use, only definitions can be marked as inline");
+                    throw exception("invalid 'inline' use, only definitions can be marked as [inline]");
+            }));
+
+    register_system_attribute(basic_attribute::with_check(
+            "inline_if_reduce", "mark definition to be inlined when resultant term after reduction is not a `cases_on` application.",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'inline_if_reduce' use, only definitions can be marked as [inline_if_reduce]");
             }));
 
     register_system_attribute(basic_attribute::with_check(
@@ -351,7 +370,7 @@ void initialize_compiler_util() {
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
-                    throw exception("invalid 'noinline' use, only definitions can be marked as noinline");
+                    throw exception("invalid 'noinline' use, only definitions can be marked as [noinline]");
             }));
 
     register_system_attribute(basic_attribute::with_check(
@@ -359,7 +378,7 @@ void initialize_compiler_util() {
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
-                    throw exception("invalid 'macro_inline' use, only definitions can be marked as macro_inline");
+                    throw exception("invalid 'macro_inline' use, only definitions can be marked as [macro_inline]");
             }));
 }
 

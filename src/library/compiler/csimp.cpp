@@ -1027,6 +1027,30 @@ class csimp_fn {
         return r;
     }
 
+    /* Auxiliary method for `beta_reduce` and `beta_reduce_if_not_cases` */
+    expr beta_reduce_cont(expr r, unsigned i, unsigned nargs, expr const * args, bool is_let_val) {
+        r = visit(r, false);
+        if (i == nargs)
+            return r;
+        lean_assert(i < nargs);
+        if (is_join_point_app(r)) {
+            /* Expand joint-point */
+            lean_assert(!is_let_val);
+            buffer<expr> new_args;
+            expr const & jp = get_app_args(r, new_args);
+            lean_assert(is_fvar(jp));
+            for (; i < nargs; i++)
+                new_args.push_back(args[i]);
+            expr jp_val     = *m_lctx.get_local_decl(jp).get_value();
+            lean_assert(is_lambda(jp_val));
+            return beta_reduce(jp_val, new_args.size(), new_args.data(), false);
+        } else {
+            if (!is_lcnf_atom(r))
+                r = mk_let_decl(r);
+            return visit(mk_app(r, nargs - i, args + i), is_let_val);
+        }
+    }
+
     expr beta_reduce(expr fn, unsigned nargs, expr const * args, bool is_let_val) {
         unsigned i = 0;
         while (is_lambda(fn) && i < nargs) {
@@ -1038,26 +1062,7 @@ class csimp_fn {
             lean_assert(i == nargs);
             return visit(r, is_let_val);
         } else {
-            r = visit(r, false);
-            if (i == nargs)
-                return r;
-            lean_assert(i < nargs);
-            if (is_join_point_app(r)) {
-                /* Expand joint-point */
-                lean_assert(!is_let_val);
-                buffer<expr> new_args;
-                expr const & jp = get_app_args(r, new_args);
-                lean_assert(is_fvar(jp));
-                for (; i < nargs; i++)
-                    new_args.push_back(args[i]);
-                expr jp_val     = *m_lctx.get_local_decl(jp).get_value();
-                lean_assert(is_lambda(jp_val));
-                return beta_reduce(jp_val, new_args.size(), new_args.data(), false);
-            } else {
-                if (!is_lcnf_atom(r))
-                    r = mk_let_decl(r);
-                return visit(mk_app(r, nargs - i, args + i), is_let_val);
-            }
+            return beta_reduce_cont(r, i, nargs, args, is_let_val);
         }
     }
 
@@ -1198,22 +1203,68 @@ class csimp_fn {
                 }));
     }
 
+    bool is_stuck_at_cases(expr e) {
+        type_checker tc(m_st, m_lctx);
+        while (true) {
+            expr e1 = tc.whnf_core(e);
+            expr const & fn = get_app_fn(e1);
+            if (!is_constant(fn)) return false;
+            if (is_recursor(env(), const_name(fn))) return true;
+            if (!is_cases_on_recursor(env(), const_name(fn))) return false;
+            auto next_e = tc.unfold_definition(e1);
+            if (!next_e) return true;
+            e = *next_e;
+        }
+    }
+
+    optional<expr> beta_reduce_if_not_cases(expr fn, unsigned nargs, expr const * args, bool is_let_val) {
+        unsigned i = 0;
+        while (is_lambda(fn) && i < nargs) {
+            i++;
+            fn = binding_body(fn);
+        }
+        expr r = instantiate_rev(fn, i, args);
+        if (is_lambda(r) || is_stuck_at_cases(r)) return none_expr();
+        return some_expr(beta_reduce_cont(r, i, nargs, args, is_let_val));
+    }
+
+    /* Auxiliary method used to inline functions marked with `[inline_if_reduce]`. It is similar to `beta_reduce`
+       but it fails if the head is a `cases_on` application after `whnf_core`. */
+    optional<expr> beta_reduce_if_not_cases(expr fn, expr const & e, bool is_let_val) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        return beta_reduce_if_not_cases(fn, args.size(), args.data(), is_let_val);
+    }
+
     expr try_inline(expr const & fn, expr const & e, bool is_let_val) {
         lean_assert(is_constant(fn));
         lean_assert(is_eqp(find(get_app_fn(e)), fn));
         if (!m_cfg.m_inline) return e;
         if (has_noinline_attribute(env(), const_name(fn))) return e;
         if (m_before_erasure) {
+            if (already_simplified(e)) return e;
             name c = mk_cstage1_name(const_name(fn));
             optional<constant_info> info = env().find(c);
             if (!info || !info->is_definition()) return e;
             if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return e;
-            if (!has_inline_attribute(env(), const_name(fn)) &&
-                get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold)
+            bool inline_attr           = has_inline_attribute(env(), const_name(fn));
+            bool inline_if_reduce_attr = has_inline_if_reduce_attribute(env(), const_name(fn));
+            if (!inline_attr && !inline_if_reduce_attr &&
+                get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold) {
                 return e;
+            }
             if (is_recursive(c)) return e;
             expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
-            return beta_reduce(new_fn, e, is_let_val);
+            if (inline_if_reduce_attr && !inline_attr) {
+                if (optional<expr> r = beta_reduce_if_not_cases(new_fn, e, is_let_val)) {
+                    return *r;
+                } else {
+                    mark_simplified(e);
+                    return e;
+                }
+            } else {
+                return beta_reduce(new_fn, e, is_let_val);
+            }
         } else {
             name c = mk_cstage2_name(const_name(fn));
             optional<constant_info> info = env().find(c);

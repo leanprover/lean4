@@ -386,6 +386,10 @@ class csimp_fn {
     optional<expr> mk_join_point_float_cases_on(expr const & fvar, expr const & e, expr const & c) {
         lean_assert(m_before_erasure);
         lean_assert(is_cases_on_app(env(), c));
+        unsigned e_size = get_lcnf_size(env(), e);
+        if (e_size == 1) {
+            return some_expr(e);
+        }
         if (!is_proj_or_cases_on_arg_at(fvar, e)) {
             /* It is not worthwhile to apply `float_cases_on` since `e` does not project or destruct the result produced
                by `c`. */
@@ -399,7 +403,6 @@ class csimp_fn {
         }
         lean_assert(c_info.m_num_branches > 0);
         lean_assert(c_info.m_num_cnstr_results <= c_info.m_num_branches);
-        unsigned e_size        = get_lcnf_size(env(), e);
         unsigned code_increase = e_size*(c_info.m_num_branches - 1);
         if (code_increase <= m_cfg.m_float_cases_threshold) {
             return some(e);

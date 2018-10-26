@@ -86,7 +86,6 @@ class simp_inductive_fn {
         name const & I_name = const_name(fn).get_prefix();
         if (is_inductive_predicate(env(), I_name))
             throw exception(sstream() << "code generation failed, inductive predicate '" << I_name << "' is not supported");
-        bool is_builtin = is_vm_builtin_function(const_name(fn));
         buffer<name> cnames;
         get_constructor_names(env(), I_name, cnames);
         lean_assert(args.size() == cnames.size() + 1);
@@ -111,11 +110,9 @@ class simp_inductive_fn {
 
         if (num_reachable == 0) {
             return mk_enf_unreachable();
-        } else if (num_reachable == 1 && !is_builtin) {
+        } else if (num_reachable == 1) {
             /* Use _cases.1 */
             return mk_app(mk_cases(1), args[0], reachable_case);
-        } else if (is_builtin) {
-            return mk_app(fn, args);
         } else {
             if (last_reachable_idx != cnames.size()) {
                 /* Compress number of cases by removing the tail of unreachable cases */

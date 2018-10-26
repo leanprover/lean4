@@ -756,8 +756,12 @@ class csimp_fn {
                 expr_pair const & curr = todo.back();
                 auto it = m_fvar2jps.find(curr.first);
                 if (it != m_fvar2jps.end()) {
-                    for (expr const & jp : it->second) {
-                        /* Recall that new joint points have already been simplified.
+                    /* Recall that the first join point at `it->second` is the oldest. */
+                    buffer<expr> tmp;
+                    to_buffer(it->second, tmp);
+                    std::reverse(tmp.begin(), tmp.end());
+                    for (expr const & jp : tmp) {
+                        /* Recall that new join points have already been simplified.
                            So, it is ok to move them to `entries`. */
                         todo.emplace_back(jp, *m_lctx.get_local_decl(jp).get_value());
                     }
@@ -773,7 +777,7 @@ class csimp_fn {
 
     /* Create a let-expression with body `e`, and
        all "used" let-declarations `m_fvars[i]` for `i in [saved_fvars_size, m_fvars.size)`.
-       We also include all joint points that depends on these free variables,
+       We also include all join points that depends on these free variables,
        nad join points that depends on `zs`. The buffer `zs` (when non empty) contains
        the free variables for a lambda expression that will be created around the let-expression.
 
@@ -855,16 +859,14 @@ class csimp_fn {
                    `x` which is a cases_on application. */
                 buffer<pair<expr, expr>> entries_dep_curr;
                 buffer<pair<expr, expr>> entries_ndep_curr;
-                // split_entries(entries, x, entries_dep_curr, entries_ndep_curr);
-                // expr new_e = mk_let_core(entries_dep_curr, e);
-                expr new_e = mk_let_core(entries, e);
+                split_entries(entries, x, entries_dep_curr, entries_ndep_curr);
+                expr new_e = mk_let_core(entries_dep_curr, e);
                 e = float_cases_on(x, new_e, val);
                 lean_assert(is_cases_on_app(env(), e));
                 e_is_cases = true;
                 /* Reset `e_fvars` and `entries_fvars`, we need to reconstruct them. */
                 e_fvars.clear(); entries_fvars.clear();
                 collect_used(e, e_fvars);
-                /* Join points may have been generated, we move them to entries. */
                 entries.clear();
                 /* Copy `entries_ndep_curr` to `entries` */
                 move_to_entries(entries_ndep_curr, entries, entries_fvars);
@@ -993,7 +995,7 @@ class csimp_fn {
             return r;
         lean_assert(i < nargs);
         if (is_join_point_app(r)) {
-            /* Expand joint-point */
+            /* Expand join-point */
             lean_assert(!is_let_val);
             buffer<expr> new_args;
             expr const & jp = get_app_args(r, new_args);

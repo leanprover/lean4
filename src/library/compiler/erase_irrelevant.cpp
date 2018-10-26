@@ -309,25 +309,12 @@ class erase_irrelevant_fn {
         } else {
             unsigned minors_begin; unsigned minors_end;
             std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c));
-
-            if (!is_runtime_builtin_type(I_name) && minors_end == minors_begin + 1) {
+            if (optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix())) {
+                /* Eliminate `cases_on` of trivial structure */
+                lean_assert(minors_end == minors_begin + 1);
                 expr major = args[minors_begin - 1];
                 lean_assert(is_atom(major));
                 expr minor = args[minors_begin];
-                optional<unsigned> fidx = has_trivial_structure(const_name(c).get_prefix());
-                /*
-                  ```
-                  prod.cases_on M (\fun a b, t)
-                  ```
-                  ==>
-                  ```
-                  let a := M.0 in
-                  let b := M.1 in
-                  t
-                  ```
-                  Remark: if `fidx` is not none, we use neutral element for irrelevant fields,
-                  and major for the relevant one.
-                */
                 unsigned i = 0;
                 buffer<expr> fields;
                 while (is_lambda(minor)) {
@@ -337,18 +324,13 @@ class erase_irrelevant_fn {
                     expr fvar = m_lctx.mk_local_decl(ngen(), n, t, v);
                     fields.push_back(fvar);
                     expr new_t; expr new_v;
-                    if (fidx) {
-                        if (*fidx == i) {
-                            expr major_type = infer_type(major);
-                            new_t = mk_runtime_type(major_type);
-                            new_v = visit(major);
-                        } else {
-                            new_t = mk_enf_object_type();
-                            new_v = mk_enf_neutral();
-                        }
+                    if (*fidx == i) {
+                        expr major_type = infer_type(major);
+                        new_t = mk_runtime_type(major_type);
+                        new_v = visit(major);
                     } else {
-                        new_t = mk_runtime_type(t);
-                        new_v = visit(v);
+                        new_t = mk_enf_object_type();
+                        new_v = mk_enf_neutral();
                     }
                     m_let_fvars.push_back(fvar);
                     m_let_entries.emplace_back(n, new_t, new_v);

@@ -44,13 +44,14 @@ optional<unsigned> is_internal_cases(expr const & e) {
 }
 
 class simp_inductive_fn {
-    type_checker::state  m_st;
+    environment          m_env;
+    name_generator       m_ngen;
     local_ctx            m_lctx;
     name_map<list<bool>> m_constructor_info;
 
-    environment const & env() { return m_st.env(); }
+    environment const & env() { return m_env; }
 
-    name_generator & ngen() { return m_st.ngen(); }
+    name_generator & ngen() { return m_ngen; }
 
     /* Return new minor premise and a flag indicating whether the body is unreachable or not */
     pair<expr, bool> visit_minor_premise(expr e, buffer<bool> const & rel_fields) {
@@ -239,7 +240,7 @@ class simp_inductive_fn {
 
 public:
     simp_inductive_fn(environment const & env):
-        m_st(env) {}
+        m_env(env) {}
 
     expr operator()(expr const & e) { return visit(e); }
 };

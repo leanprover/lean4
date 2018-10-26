@@ -228,7 +228,6 @@ class emit_bytecode_fn {
         while (is_let(e)) {
             counter++;
             compile(instantiate_rev(let_value(e), locals.size(), locals.data()), bpz, new_m);
-            emit(mk_local_info_instr(bpz, let_name(e), to_type_info(let_type(e))));
             name n = m_ngen.next();
             new_m.insert(n, bpz);
             locals.push_back(mk_local(n));

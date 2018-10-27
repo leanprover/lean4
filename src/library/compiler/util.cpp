@@ -334,6 +334,19 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_int_name();
 }
 
+expr whnf_upto_runtime_type(type_checker & tc, expr e) {
+    while (true) {
+        expr e1 = tc.whnf_core(e);
+        if (is_runtime_builtin_type(e1))
+            return e1;
+        if (auto next_e = tc.unfold_definition(e1)) {
+            e = *next_e;
+        } else {
+            return e;
+        }
+    }
+}
+
 bool is_runtime_scalar_type(name const & n) {
     return
         n == get_uint8_name()  ||
@@ -343,6 +356,21 @@ bool is_runtime_scalar_type(name const & n) {
         n == get_usize_name()  ||
         n == get_bool_name()   ||
         n == get_unit_name();
+}
+
+bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type) {
+    if (is_sort(type) || type_checker(st, lctx).is_prop(type))
+        return true;
+    expr type_it = type;
+    if (is_pi(type_it)) {
+        while (is_pi(type_it)) {
+            expr fvar = lctx.mk_local_decl(st.ngen(), binding_name(type_it), binding_domain(type_it));
+            type_it = type_checker(st, lctx).whnf(instantiate(binding_body(type_it), fvar));
+        }
+        if (is_sort(type_it))
+            return true;
+    }
+    return false;
 }
 
 void collect_used(expr const & e, std::unordered_set<name, name_hash> & S) {

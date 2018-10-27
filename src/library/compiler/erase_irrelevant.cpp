@@ -75,18 +75,9 @@ class erase_irrelevant_fn {
         return type_checker(m_st, m_lctx).is_prop(e);
     }
 
-    expr whnf_type(expr e) {
+    expr whnf_type(expr const & e) {
         type_checker tc(m_st, m_lctx);
-        while (true) {
-            expr e1 = tc.whnf_core(e);
-            if (is_runtime_builtin_type(e1))
-                return e1;
-            if (auto next_e = tc.unfold_definition(e1)) {
-                e = *next_e;
-            } else {
-                return e;
-            }
-        }
+        return whnf_upto_runtime_type(tc, e);
     }
 
     expr mk_runtime_type(expr e, bool atomic_only = false) {
@@ -130,19 +121,8 @@ class erase_irrelevant_fn {
         try {
             type_checker tc(m_st, m_lctx);
             expr type = tc.whnf(tc.infer(e));
-            if (is_sort(type) || tc.is_prop(type))
-                return cache_is_irrelevant(e, true);
-            expr type_it = type;
-            if (is_pi(type_it)) {
-                flet<local_ctx> save_lctx(m_lctx, m_lctx);
-                while (is_pi(type_it)) {
-                    expr fvar = m_lctx.mk_local_decl(ngen(), binding_name(type_it), binding_domain(type_it));
-                    type_it = type_checker(m_st, m_lctx).whnf(instantiate(binding_body(type_it), fvar));
-                }
-                if (is_sort(type_it))
-                    return cache_is_irrelevant(e, true);
-            }
-            return cache_is_irrelevant(e, false);
+            bool r    = is_irrelevant_type(m_st, m_lctx, type);
+            return cache_is_irrelevant(e, r);
         } catch (kernel_exception &) {
             /* failed to infer type or normalize, assume it is relevant */
             return cache_is_irrelevant(e, false);

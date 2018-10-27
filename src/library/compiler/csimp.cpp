@@ -298,15 +298,6 @@ class csimp_fn {
         return mk_app(c_fn, args);
     }
 
-    static void collect_used(expr const & e, name_set & S) {
-        if (!has_fvar(e)) return;
-        for_each(e, [&](expr const & e, unsigned) {
-                if (!has_fvar(e)) return false;
-                if (is_fvar(e)) { S.insert(fvar_name(e)); return false; }
-                return true;
-            });
-    }
-
     /* Collect information for deciding whether `float_cases_on` is useful or not, and control
        code blowup. */
     struct cases_info_result {

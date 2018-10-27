@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <unordered_set>
 #include <algorithm>
 #include <string>
 #include "kernel/type_checker.h"
@@ -342,6 +343,15 @@ bool is_runtime_scalar_type(name const & n) {
         n == get_usize_name()  ||
         n == get_bool_name()   ||
         n == get_unit_name();
+}
+
+void collect_used(expr const & e, std::unordered_set<name, name_hash> & S) {
+    if (!has_fvar(e)) return;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_fvar(e)) return false;
+            if (is_fvar(e)) { S.insert(fvar_name(e)); return false; }
+            return true;
+        });
 }
 
 void initialize_compiler_util() {

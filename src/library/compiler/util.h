@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#include <unordered_set>
 #include "util/pair_ref.h"
 #include "util/list_ref.h"
 #include "kernel/expr.h"
@@ -130,6 +131,8 @@ inline bool is_runtime_builtin_type(expr const & e) {
 
 /* Return true if `n` is the name of a type that is treated as a scalar type by the code generator. */
 bool is_runtime_scalar_type(name const & n);
+
+void collect_used(expr const & e, std::unordered_set<name, name_hash> & S);
 
 void initialize_compiler_util();
 void finalize_compiler_util();

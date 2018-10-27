@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/extract_closed.h"
+#include "library/compiler/llnf.h"
 #include "library/compiler/simp_inductive.h"
 #include "library/compiler/emit_bytecode.h"
 
@@ -152,6 +153,12 @@ environment compile(environment const & env, options const & opts, names const &
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(simp_inductive, new_env, ds);
+
+    /* TODO(Leo): llnf is not integrated yet. We are only using it here for debugging. */
+    auto to_llnf_box  = [&](environment const & env, expr const & e) { return to_llnf(env, e, true); };
+    comp_decls aux_ds = apply(to_llnf_box, new_env, ds);
+    trace_compiler(name({"compiler", "llnf"}), aux_ds);
+
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     new_env = emit_bytecode(new_env, ds);
     return new_env;
@@ -176,6 +183,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "extract_closed"});
+    register_trace_class({"compiler", "llnf"});
     register_trace_class({"compiler", "simplify_inductive"});
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});

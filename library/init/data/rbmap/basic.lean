@@ -4,129 +4,239 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.rbtree.basic
+import init.data.ordering.basic init.coe init.data.option.basic
 
 universes u v w w'
 
-@[inline] def rbmap_lt {α : Type u} {β : Type v} (lt : α → α → Prop) (a b : α × β) : Prop :=
-lt a.1 b.1
+inductive rbnode (α : Type u) (β : α → Type v)
+| leaf  {}                                                               : rbnode
+| red_node   (lchild : rbnode) (key : α) (val : β key) (rchild : rbnode) : rbnode
+| black_node (lchild : rbnode) (key : α) (val : β key) (rchild : rbnode) : rbnode
 
-@[inline] def rbmap_lt_dec {α : Type u} {β : Type v} {lt : α → α → Prop} [h : decidable_rel lt] : decidable_rel (@rbmap_lt α β lt) :=
-λ a b, h a.1 b.1
+namespace rbnode
+variables {α : Type u} {β : α → Type v} {σ : Type w}
+
+inductive color
+| red | black
+
+open color nat
+
+instance color.decidable_eq : decidable_eq color :=
+{dec_eq := λ a b, color.cases_on a
+  (color.cases_on b (is_true rfl) (is_false (λ h, color.no_confusion h)))
+  (color.cases_on b (is_false (λ h, color.no_confusion h)) (is_true rfl))}
+
+def depth (f : nat → nat → nat) : rbnode α β → nat
+| leaf                 := 0
+| (red_node l _ _ r)   := succ (f (depth l) (depth r))
+| (black_node l _ _ r) := succ (f (depth l) (depth r))
+
+protected def min : rbnode α β → option (Σ k : α, β k)
+| leaf                    := none
+| (red_node leaf k v _)   := some ⟨k, v⟩
+| (black_node leaf k v _) := some ⟨k, v⟩
+| (red_node l k v _)      := min l
+| (black_node l k v _)    := min l
+
+protected def max : rbnode α β → option (Σ k : α, β k)
+| leaf                    := none
+| (red_node _ k v leaf)   := some ⟨k, v⟩
+| (black_node _ k v leaf) := some ⟨k, v⟩
+| (red_node _ k v r)      := max r
+| (black_node _ k v r)    := max r
+
+@[specialize] def fold (f : Π (k : α), β k → σ → σ) : rbnode α β → σ → σ
+| leaf b               := b
+| (red_node l k v r)   b := fold r (f k v (fold l b))
+| (black_node l k v r) b := fold r (f k v (fold l b))
+
+@[specialize] def mfold {m : Type w → Type w'} [monad m] (f : Π (k : α), β k → σ → m σ) : rbnode α β → σ → m σ
+| leaf b                 := pure b
+| (red_node l k v r) b   := do b₁ ← mfold l b, b₂ ← f k v b₁, mfold r b₂
+| (black_node l k v r) b := do b₁ ← mfold l b, b₂ ← f k v b₁, mfold r b₂
+
+@[specialize] def rev_fold (f : Π (k : α), β k → σ → σ) : rbnode α β → σ → σ
+| leaf b                 := b
+| (red_node l k v r)   b := rev_fold l (f k v (rev_fold r b))
+| (black_node l k v r) b := rev_fold l (f k v (rev_fold r b))
+
+@[specialize] def all (p : Π k : α, β k → bool) : rbnode α β → bool
+| leaf                   := tt
+| (red_node l k v r)     := p k v && all l && all r
+| (black_node l k v r)   := p k v && all l && all r
+
+@[specialize] def any (p : Π k : α, β k → bool) : rbnode α β → bool
+| leaf                 := ff
+| (red_node l k v r)   := p k v || any l || any r
+| (black_node l k v r) := p k v || any l || any r
+
+def balance1 : rbnode α β → Π (k : α), β k → rbnode α β → Π (k' : α), β k' → rbnode α β → rbnode α β
+| (red_node l kx vx r₁) ky vy r₂  kv vv t := red_node (black_node l kx vx r₁) ky vy (black_node r₂ kv vv t)
+| l₁ ky vy (red_node l₂ kx vx r)  kv vv t := red_node (black_node l₁ ky vy l₂) kx vx (black_node r kv vv t)
+| l  ky vy r                      kv vv t := black_node (red_node l ky vy r) kv vv t
+
+def balance1_node : rbnode α β → Π (k : α), β k → rbnode α β → rbnode α β
+| (red_node l kx vx r)   kv vv t := balance1 l kx vx r kv vv t
+| (black_node l kx vx r) kv vv t := balance1 l kx vx r kv vv t
+| leaf                   kv vv t := t  /- dummy value -/
+
+def balance2 : rbnode α β → Π k : α, β k → rbnode α β → Π k' : α, β k' → rbnode α β → rbnode α β
+| (red_node l kx₁ vx₁ r₁) ky vy r₂  kv vv t := red_node (black_node t kv vv l) kx₁ vx₁ (black_node r₁ ky vy r₂)
+| l₁ ky vy (red_node l₂ kx₂ vx₂ r₂) kv vv t := red_node (black_node t kv vv l₁) ky vy (black_node l₂ kx₂ vx₂ r₂)
+| l  ky vy r                        kv vv t := black_node t kv vv (red_node l ky vy r)
+
+def balance2_node : rbnode α β → Π k : α, β k → rbnode α β → rbnode α β
+| (red_node l kx vx r)   kv vv t := balance2 l kx vx r kv vv t
+| (black_node l kx vx r) kv vv t := balance2 l kx vx r kv vv t
+| leaf                   kv vv t := t /- dummy -/
+
+def get_color : rbnode α β → color
+| (red_node _ _ _ _) := red
+| _                  := black
+
+section insert
+
+variables (lt : α → α → Prop) [decidable_rel lt]
+
+def ins : rbnode α β → Π k : α, β k → rbnode α β
+| leaf                 kx vx := red_node leaf kx vx leaf
+| (red_node a ky vy b) kx vx :=
+   (match cmp_using lt kx ky with
+    | ordering.lt := red_node (ins a kx vx) ky vy b
+    | ordering.eq := red_node a kx vx b
+    | ordering.gt := red_node a ky vy (ins b kx vx))
+| (black_node a ky vy b) kx vx :=
+    match cmp_using lt kx ky with
+    | ordering.lt :=
+      if a.get_color = red then balance1_node (ins a kx vx) ky vy b
+      else black_node (ins a kx vx) ky vy b
+    | ordering.eq := black_node a kx vx b
+    | ordering.gt :=
+      if b.get_color = red then balance2_node (ins b kx vx) ky vy a
+      else black_node a ky vy (ins b kx vx)
+
+def mk_insert_result : color → rbnode α β → rbnode α β
+| red (red_node l kv vv r)   := black_node l kv vv r
+| _   t                      := t
+
+def insert (t : rbnode α β) (k : α) (v : β k) : rbnode α β :=
+mk_insert_result (get_color t) (ins lt t k v)
+
+end insert
+
+section membership
+variable (lt : α → α → Prop)
+
+variable [decidable_rel lt]
+
+def find_core : rbnode α β → Π k : α, option (Σ k : α, β k)
+| leaf                 x := none
+| (red_node a ky vy b) x :=
+  (match cmp_using lt x ky with
+   | ordering.lt := find_core a x
+   | ordering.eq := some ⟨ky, vy⟩
+   | ordering.gt := find_core b x)
+| (black_node a ky vy b) x :=
+  (match cmp_using lt x ky with
+   | ordering.lt := find_core a x
+   | ordering.eq := some ⟨ky, vy⟩
+   | ordering.gt := find_core b x)
+
+def find {β : Type v} : rbnode α (λ _, β) → α → option β
+| leaf                 x := none
+| (red_node a ky vy b) x :=
+  (match cmp_using lt x ky with
+   | ordering.lt := find a x
+   | ordering.eq := some vy
+   | ordering.gt := find b x)
+| (black_node a ky vy b) x :=
+  (match cmp_using lt x ky with
+   | ordering.lt := find a x
+   | ordering.eq := some vy
+   | ordering.gt := find b x)
+
+end membership
+
+inductive well_formed (lt : α → α → Prop) : rbnode α β → Prop
+| leaf_wff : well_formed leaf
+| insert_wff {n n' : rbnode α β} {k : α} {v : β k} [decidable_rel lt] : well_formed n → n' = insert lt n k v → well_formed n'
+
+end rbnode
+
+open rbnode
+
+/- TODO(Leo): define d_rbmap -/
 
 def rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v) :=
-rbtree (α × β) (rbmap_lt lt)
+{t : rbnode α (λ _, β) // t.well_formed lt }
 
 @[inline] def mk_rbmap (α : Type u) (β : Type v) (lt : α → α → Prop) : rbmap α β lt :=
-mk_rbtree (α × β) (rbmap_lt lt)
+⟨leaf, well_formed.leaf_wff lt⟩
 
 namespace rbmap
-variables {α : Type u} {β : Type v} {δ : Type w} {lt : α → α → Prop}
+variables {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Prop}
 
-@[inline] def empty (m : rbmap α β lt) : bool :=
-m.empty
+def depth (f : nat → nat → nat) (t : rbmap α β lt) : nat :=
+t.val.depth f
 
-@[inline] def to_list (m : rbmap α β lt) : list (α × β) :=
-m.to_list
+@[inline] def fold (f : α → β → σ → σ) : rbmap α β lt → σ → σ
+| ⟨t, _⟩ b := t.fold f b
 
-@[inline] def min (m : rbmap α β lt) : option (α × β) :=
-m.min
+@[inline] def rev_fold (f : α → β → σ → σ) : rbmap α β lt → σ → σ
+| ⟨t, _⟩ b := t.rev_fold f b
 
-@[inline] def max (m : rbmap α β lt) : option (α × β) :=
-m.max
+@[inline] def mfold {m : Type w → Type w'} [monad m] (f : α → β → σ → m σ) : rbmap α β lt → σ → m σ
+| ⟨t, _⟩ b := t.mfold f b
 
-@[specialize] def fold (f : α → β → δ → δ) (m : rbmap α β lt) (d : δ) : δ :=
-m.fold (λ e, f e.1 e.2) d
+@[inline] def mfor {m : Type w → Type w'} [monad m] (f : α → β → m σ) (t : rbmap α β lt) : m punit :=
+t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
 
-@[specialize] def rev_fold (f : α → β → δ → δ) (m : rbmap α β lt) (d : δ) : δ :=
-m.rev_fold (λ e, f e.1 e.2) d
+@[inline] def empty : rbmap α β lt → bool
+| ⟨leaf, _⟩ := tt
+| _         := ff
 
-@[specialize] def mfold {m : Type w → Type w'} [monad m] (f : α → β → δ → m δ) (mp : rbmap α β lt) (d : δ) : m δ :=
-mp.mfold (λ e, f e.1 e.2) d
+@[specialize] def to_list : rbmap α β lt → list (α × β)
+| ⟨t, _⟩ := t.rev_fold (λ k v ps, (k, v)::ps) []
 
-@[specialize] def mfor {m : Type w → Type w'} [monad m] (f : α → β → m δ) (mp : rbmap α β lt) : m punit :=
-mp.mfold (λ a b _, f a b *> pure ⟨⟩) ⟨⟩
+@[inline] protected def min : rbmap α β lt → option (α × β)
+| ⟨t, _⟩ :=
+  match t.min with
+  | some ⟨k, v⟩ := some (k, v)
+  | none        := none
 
-/-
-We don't assume β is inhabited when in membership predicate `mem` and
-function find_entry to make this module more convenient to use.
-If we had assumed β to be inhabited we could use the following simpler
-definition: (k, default β) ∈ m
--/
-
-protected def mem (k : α) (m : rbmap α β lt) : Prop :=
-match m.val with
-| rbnode.leaf             := false
-| rbnode.red_node _ e _   := rbtree.mem (k, e.2) m
-| rbnode.black_node _ e _ := rbtree.mem (k, e.2) m
-
-instance : has_mem α (rbmap α β lt) :=
-⟨rbmap.mem⟩
+@[inline] protected def max : rbmap α β lt → option (α × β)
+| ⟨t, _⟩ :=
+  match t.max with
+  | some ⟨k, v⟩ := some (k, v)
+  | none        := none
 
 instance [has_repr α] [has_repr β] : has_repr (rbmap α β lt) :=
 ⟨λ t, "rbmap_of " ++ repr t.to_list⟩
 
-variable [decidable_rel lt]
+variables [decidable_rel lt]
 
-@[inline] def insert (m : rbmap α β lt) (k : α) (v : β) : rbmap α β lt :=
-@rbtree.insert _ _ rbmap_lt_dec m (k, v)
+def insert : rbmap α β lt → α → β → rbmap α β lt
+| ⟨t, w⟩   k v := ⟨t.insert lt k v, well_formed.insert_wff w rfl⟩
 
-@[inline] def find_entry (m : rbmap α β lt) (k : α) : option (α × β) :=
-match m.val with
-| rbnode.leaf             := none
-| rbnode.red_node _ e _   := @rbtree.find _ _ rbmap_lt_dec m (k, e.2)
-| rbnode.black_node _ e _ := @rbtree.find _ _ rbmap_lt_dec m (k, e.2)
+def find_core : rbmap α β lt → α → option (Σ k : α, β)
+| ⟨t, _⟩ x := t.find_core lt x
 
-@[inline] def to_value : option (α × β) → option β
-| none     := none
-| (some e) := some e.2
+def find : rbmap α β lt → α → option β
+| ⟨t, _⟩ x := t.find lt x
 
-@[inline] def find (m : rbmap α β lt) (k : α) : option β :=
-to_value (m.find_entry k)
-
-@[inline] def contains (m : rbmap α β lt) (k : α) : bool :=
-(find_entry m k).is_some
+@[inline] def contains (t : rbmap α β lt) (a : α) : bool :=
+(t.find a).is_some
 
 def from_list (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=
-l.foldl (λ m p, insert m p.1 p.2)  (mk_rbmap α β lt)
+l.foldl (λ r p, r.insert p.1 p.2) (mk_rbmap α β lt)
 
--- TODO: replace with more efficient, structure-preserving implementation (needs wf proof)
-@[specialize] def map (f : α → β → δ) (m : rbmap α β lt) : rbmap α δ lt :=
-m.fold (λ a b m, rbmap.insert m a (f a b)) (mk_rbmap α δ lt)
+@[inline] def all : rbmap α β lt → (α → β → bool) → bool
+| ⟨t, _⟩ p := t.all p
+
+@[inline] def any : rbmap α β lt → (α → β → bool) → bool
+| ⟨t, _⟩ p := t.any p
 
 end rbmap
 
 def rbmap_of {α : Type u} {β : Type v} (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbmap α β lt :=
 rbmap.from_list l lt
-
-/- Low level functions that process `rbnode`'s directly.
-   It is useful when we need a mapping in a nested inductive datatypes. -/
-namespace rbmap_core
-variables {α : Type u} {β : Type v}
-
-@[inline] def empty (m : rbnode (α × β)) : bool :=
-match m with
-| rbnode.leaf := tt
-| _           := ff
-
-variables (lt : α → α → Prop) [decidable_rel lt]
-
-@[inline] def insert (m : rbnode (α × β)) (k : α) (v : β) : rbnode (α × β) :=
-@rbnode.insert (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, v)
-
-@[inline] def find_entry (m : rbnode (α × β)) (k : α) : option (α × β) :=
-match m with
-| rbnode.leaf             := none
-| rbnode.red_node _ e _   := @rbnode.find (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, e.2)
-| rbnode.black_node _ e _ := @rbnode.find (α × β) (rbmap_lt lt) rbmap_lt_dec m (k, e.2)
-
-@[inline] def find (m : rbnode (α × β)) (k : α) : option β :=
-rbmap.to_value (rbmap_core.find_entry lt m k)
-
-@[inline] def contains (m : rbnode (α × β)) (k : α) : bool :=
-(find_entry lt m k).is_some
-
-def from_list (l : list (α × β)) (lt : α → α → Prop) [decidable_rel lt] : rbnode (α × β) :=
-l.foldl (λ m p, insert lt m p.1 p.2) rbnode.leaf
-
-end rbmap_core

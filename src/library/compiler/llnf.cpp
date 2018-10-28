@@ -10,17 +10,18 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 
 namespace lean {
-static expr * g_cases    = nullptr;
-static name * g_cnstr    = nullptr;
-static name * g_updt     = nullptr;
-static name * g_updt_u8  = nullptr;
-static name * g_updt_u16 = nullptr;
-static name * g_updt_u32 = nullptr;
-static name * g_updt_u64 = nullptr;
-static name * g_proj_u8  = nullptr;
-static name * g_proj_u16 = nullptr;
-static name * g_proj_u32 = nullptr;
-static name * g_proj_u64 = nullptr;
+static expr * g_cases     = nullptr;
+static name * g_cnstr     = nullptr;
+static name * g_updt      = nullptr;
+static name * g_updt_cidx = nullptr;
+static name * g_updt_u8   = nullptr;
+static name * g_updt_u16  = nullptr;
+static name * g_updt_u32  = nullptr;
+static name * g_updt_u64  = nullptr;
+static name * g_proj_u8   = nullptr;
+static name * g_proj_u16  = nullptr;
+static name * g_proj_u32  = nullptr;
+static name * g_proj_u64  = nullptr;
 
 expr mk_llnf_cases() {
     return *g_cases;
@@ -55,6 +56,9 @@ static bool is_llnf_primitive(expr const & e, name const & prefix, unsigned & i)
 
 expr mk_llnf_updt(unsigned i) { return mk_constant(name(*g_updt, i)); }
 bool is_llnf_updt(expr const & e, unsigned & i) { return is_llnf_primitive(e, *g_updt, i); }
+
+expr mk_llnf_updt_cidx(unsigned cidx) { return mk_constant(name(*g_updt_cidx, cidx)); }
+bool is_llnf_updt_cidx(expr const & e, unsigned & cidx) { return is_llnf_primitive(e, *g_updt_cidx, cidx); }
 
 expr mk_llnf_updt_u8(unsigned offset) { return mk_constant(name(*g_updt_u8, offset)); }
 bool is_llnf_updt_u8(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_updt_u8, offset); }
@@ -350,17 +354,18 @@ expr to_llnf(environment const & env, expr const & e, bool unboxed) {
 }
 
 void initialize_llnf() {
-    g_cases    = new expr(mk_constant("_cases"));
-    g_cnstr    = new name("_cnstr");
-    g_updt     = new name("_updt");
-    g_updt_u8  = new name("_updt_u8");
-    g_updt_u16 = new name("_updt_u16");
-    g_updt_u32 = new name("_updt_u32");
-    g_updt_u64 = new name("_updt_u64");
-    g_proj_u8  = new name("_proj_u8");
-    g_proj_u16 = new name("_proj_u16");
-    g_proj_u32 = new name("_proj_u32");
-    g_proj_u64 = new name("_proj_u64");
+    g_cases     = new expr(mk_constant("_cases"));
+    g_cnstr     = new name("_cnstr");
+    g_updt      = new name("_updt");
+    g_updt_cidx = new name("_updt_cidx");
+    g_updt_u8   = new name("_updt_u8");
+    g_updt_u16  = new name("_updt_u16");
+    g_updt_u32  = new name("_updt_u32");
+    g_updt_u64  = new name("_updt_u64");
+    g_proj_u8   = new name("_proj_u8");
+    g_proj_u16  = new name("_proj_u16");
+    g_proj_u32  = new name("_proj_u32");
+    g_proj_u64  = new name("_proj_u64");
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
     g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);

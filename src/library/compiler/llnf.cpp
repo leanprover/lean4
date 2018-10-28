@@ -87,9 +87,16 @@ bool is_llnf_proj_u64(expr const & e, unsigned & offset) { return is_llnf_primit
 struct field_info {
     enum kind { Irrelevant, Object, Scalar };
     kind     m_kind;
-    unsigned m_idx;
+    union {
+        unsigned m_idx;
+        struct {
+            unsigned m_offset;
+            unsigned m_size;
+        };
+    };
     field_info():m_kind(Irrelevant), m_idx(0) {}
-    field_info(kind k, unsigned idx):m_kind(k), m_idx(idx) {}
+    field_info(unsigned idx):m_kind(Object), m_idx(idx) {}
+    field_info(unsigned offset, unsigned sz):m_kind(Scalar), m_offset(offset), m_size(sz) {}
 };
 
 struct cnstr_info {
@@ -184,17 +191,17 @@ class to_llnf_fn {
                 type_checker tc(m_st, lctx);
                 ftype = whnf_upto_runtime_type(tc, ftype);
                 if (optional<unsigned> sz = is_builtin_scalar(ftype)) {
-                    result.push_back(field_info(field_info::Scalar, next_offset));
+                    result.push_back(field_info(next_offset, *sz));
                     next_offset += *sz;
                 } else if (optional<unsigned> sz = is_enum_type(ftype)) {
-                    result.push_back(field_info(field_info::Scalar, next_offset));
+                    result.push_back(field_info(next_offset, *sz));
                     next_offset += *sz;
                 } else {
-                    result.push_back(field_info(field_info::Object, next_idx));
+                    result.push_back(field_info(next_idx));
                     next_idx++;
                 }
             } else {
-                result.push_back(field_info(field_info::Object, next_idx));
+                result.push_back(field_info(next_idx));
                 next_idx++;
             }
         }
@@ -204,7 +211,7 @@ class to_llnf_fn {
             /* Remark: scalar data is stored after object pointers */
             for (field_info & info : result) {
                 if (info.m_kind == field_info::Scalar) {
-                    info.m_idx += nobjs * sizeof(void*);
+                    info.m_offset += nobjs * sizeof(void*);
                 }
             }
         }

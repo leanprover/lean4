@@ -527,7 +527,7 @@ void driver(unsigned max_sz, unsigned max_val, unsigned num_it,
     dec_ref(v1);
 }
 
-static void tst16() {
+void tst16() {
     driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.1);
     driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.1);
     driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.5);
@@ -715,6 +715,105 @@ void tst17(unsigned n, unsigned sz) {
     }
 }
 
+inline object * get(object * o, unsigned idx) {
+    object * r = cnstr_get(o, idx);
+    inc(r);
+    return r;
+}
+
+object * map_add1(object * l) {
+    if (is_scalar(l)) {
+        return l;
+    } else {
+        object * h     = cnstr_get(l, 0); inc(h);
+        object * t     = cnstr_get(l, 1); inc(t);
+        dec(l);
+        object * new_h = box(unbox(h)+1);
+        object * new_t = map_add1(t);
+        object * r     = alloc_cnstr(1, 2, 0);
+        cnstr_set(r, 0, new_h);
+        cnstr_set(r, 1, new_t);
+        return r;
+    }
+}
+
+object * map_add1_reuse(object * l) {
+    if (is_scalar(l)) {
+        return l;
+    } else {
+        object * h = cnstr_get(l, 0); inc(h);
+        object * t = cnstr_get(l, 1); inc(t);
+        object * r;
+        if (is_shared(l)) {
+            dec(l);
+            r = alloc_cnstr(1, 2, 0);
+        } else {
+            r = l;
+            dec(h);
+            dec(t);
+        }
+        cnstr_set(r, 0, box(0));
+        cnstr_set(r, 1, box(0));
+        object * new_h = box(unbox(h)+1);
+        object * new_t = map_add1_reuse(t);
+        cnstr_set(r, 0, new_h);
+        cnstr_set(r, 1, new_t);
+        return r;
+    }
+}
+
+object * map_add1_reuse_opt(object * l) {
+    if (is_scalar(l)) {
+        return l;
+    } else {
+        object * h = cnstr_get(l, 0);
+        object * t = cnstr_get(l, 1);
+        object * r;
+        if (is_shared(l)) {
+            inc(h);
+            inc(t);
+            dec(l);
+            r = alloc_cnstr(1, 2, 0);
+        } else {
+            r = l;
+        }
+        object * new_h = box(unbox(h)+1);
+        object * new_t = map_add1_reuse_opt(t);
+        cnstr_set(r, 0, new_h);
+        cnstr_set(r, 1, new_t);
+        return r;
+    }
+}
+
+void tst18(unsigned n, unsigned sz) {
+    {
+        timeit timer(std::cout, "map");
+        object * l = mk_list(sz);
+        for (unsigned i = 0; i < n; i++) {
+            lean_assert(!is_shared(l));
+            l = map_add1(l);
+        }
+        dec(l);
+    }
+    {
+        timeit timer(std::cout, "map_reuse");
+        object * l = mk_list(sz);
+        for (unsigned i = 0; i < n; i++) {
+            lean_assert(!is_shared(l));
+            l = map_add1_reuse(l);
+        }
+        dec(l);
+    }
+    {
+        timeit timer(std::cout, "map_opt");
+        object * l = mk_list(sz);
+        for (unsigned i = 0; i < n; i++) {
+            lean_assert(!is_shared(l));
+            l = map_add1_reuse_opt(l);
+        }
+        dec(l);
+    }
+}
 
 int main() {
     save_stack_info();
@@ -737,6 +836,8 @@ int main() {
     tst16();
     // tst17(40000, 3000);
     tst17(400, 30);
+    // tst18(4000, 3000);
+    tst18(400, 30);
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

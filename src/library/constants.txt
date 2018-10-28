@@ -124,6 +124,7 @@ int.nat_abs
 int.lt
 int.decidable_lt
 int.of_nat
+int.neg_succ_of_nat
 interactive.param_desc
 interactive.parse
 io_core
@@ -231,9 +232,11 @@ singleton
 sizeof
 sorry_ax
 string
+string.mk
 string.to_list
 string.empty
 string.iterator
+string.iterator.mk
 string.iterator.fst
 string.iterator.snd
 string.str

@@ -358,6 +358,19 @@ bool is_runtime_scalar_type(name const & n) {
         n == get_unit_name();
 }
 
+bool is_runtime_builtin_cnstr(name const & n) {
+    // TODO(Leo): add array type constructors, thunk constructor,
+    // universe level constructors, and expression constructors.
+
+    /* Remark: we don't need to include nat.zero and nat.succ since
+       compiler convert them into literals. */
+    return
+        n == get_string_mk_name() ||
+        n == get_string_iterator_mk_name() ||
+        n == get_int_of_nat_name() ||
+        n == get_int_neg_succ_of_nat_name();
+}
+
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type) {
     if (is_sort(type) || type_checker(st, lctx).is_prop(type))
         return true;

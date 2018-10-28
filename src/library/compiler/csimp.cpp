@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <unordered_set>
 #include <unordered_map>
+#include "runtime/flet.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/find_fn.h"
@@ -53,6 +54,17 @@ class csimp_fn {
     expr_map<optional<expr>> m_jp2fvar;
     /* Join points that do not depend on any free variable. */
     exprs                    m_closed_jps;
+    /* Mapping from projection to eliminated variable.
+       Example: at
+       ```
+       prod.cases_on p
+         (λ (p_fst : A) (p_snd : B),
+            t[p.1, p.2])
+       ```
+       replace `p.1` with `p_fst` and `p.2` with `p_snd`.
+    */
+    typedef rb_map<pair<expr, unsigned>, expr, pair_cmp<expr_quick_cmp, unsigned_cmp>> proj2var;
+    proj2var                 m_proj2var;
     typedef std::unordered_set<name, name_hash> name_set;
 
     environment const & env() const { return m_st.env(); }
@@ -275,6 +287,19 @@ class csimp_fn {
             expr d = instantiate_rev(binding_domain(e), xs.size(), xs.data());
             expr x = m_lctx.mk_local_decl(ngen(), binding_name(e), d, binding_info(e));
             xs.push_back(x);
+            e  = binding_body(e);
+        }
+        return instantiate_rev(e, xs.size(), xs.data());
+    }
+
+    expr get_minor_body(expr const & major, expr e, buffer<expr> & xs) {
+        unsigned i = 0;
+        while (is_lambda(e)) {
+            expr d = instantiate_rev(binding_domain(e), xs.size(), xs.data());
+            expr x = m_lctx.mk_local_decl(ngen(), binding_name(e), d, binding_info(e));
+            xs.push_back(x);
+            m_proj2var.insert(mk_pair(major, i), x);
+            i++;
             e  = binding_body(e);
         }
         return instantiate_rev(e, xs.size(), xs.data());
@@ -578,6 +603,7 @@ class csimp_fn {
             major_idx = 0;
         }
         /* Update minor premises */
+        expr const & major = c_args[major_idx];
         unsigned first_minor_idx = major_idx + 1;
         unsigned nminors         = I_val.get_ncnstrs();
         for (unsigned i = 0; i < nminors; i++) {
@@ -585,7 +611,8 @@ class csimp_fn {
             expr minor                = c_args[minor_idx];
             buffer<expr> zs;
             unsigned saved_fvars_size = m_fvars.size();
-            expr minor_val            = visit(get_lambda_body(minor, zs), false);
+            flet<proj2var> save_proj2var(m_proj2var, m_proj2var);
+            expr minor_val            = visit(get_minor_body(major, minor, zs), false);
             expr new_minor;
             if (is_join_point_app(minor_val)) {
                 buffer<expr> jp_args;
@@ -1072,6 +1099,10 @@ class csimp_fn {
         expr const & s_fn = get_app_fn(s);
         if (optional<expr> k_app = try_inline_instance(s_fn, s))
             return visit(proj_constructor(*k_app, proj_idx(e).get_small_value()), is_let_val);
+        if (proj_idx(e).is_small()) {
+            if (expr const * x = m_proj2var.find(mk_pair(s, proj_idx(e).get_small_value())))
+                return *x;
+        }
         return e;
     }
 
@@ -1098,11 +1129,13 @@ class csimp_fn {
         /* simplify minor premises */
         unsigned minor_idx; unsigned minors_end;
         std::tie(minor_idx, minors_end) = get_cases_on_minors_range(env(), const_name(c), m_before_erasure);
+        expr const & major = args[minor_idx-1];
         for (; minor_idx < minors_end; minor_idx++) {
             expr minor                = args[minor_idx];
             unsigned saved_fvars_size = m_fvars.size();
+            flet<proj2var> save_proj2var(m_proj2var, m_proj2var);
             buffer<expr> zs;
-            minor          = get_lambda_body(minor, zs);
+            minor          = get_minor_body(major, minor, zs);
             expr new_minor = visit(minor, false);
             new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
             new_minor = mk_minor_lambda(zs, new_minor);

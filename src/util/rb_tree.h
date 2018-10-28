@@ -591,15 +591,29 @@ template<typename T, typename CMP>
 rb_tree<T, CMP> erase(rb_tree<T, CMP> const & t, T const & v) { rb_tree<T, CMP> r(t); r.erase(v); return r; }
 
 struct unsigned_cmp {
+    typedef unsigned type;
     int operator()(unsigned i1, unsigned i2) const { return i1 < i2 ? -1 : (i1 == i2 ? 0 : 1); }
 };
 struct unsigned_rev_cmp {
+    typedef unsigned type;
     int operator()(unsigned i1, unsigned i2) const { return i1 > i2 ? -1 : (i1 == i2 ? 0 : 1); }
 };
 struct int_cmp {
+    typedef int type;
     int operator()(int i1, int i2) const { return i1 < i2 ? -1 : (i1 == i2 ? 0 : 1); }
 };
 struct double_cmp {
+    typedef double type;
     int operator()(double i1, double i2) const { return i1 < i2 ? -1 : (i1 > i2 ? 1 : 0); }
+};
+template<typename C1, typename C2>
+struct pair_cmp : private C1, private C2 {
+    typedef std::pair<typename C1::type, typename C2::type> type;
+    int operator()(type const & p1, type const & p2) const {
+        int r1 = C1::operator()(p1.first, p2.first);
+        if (r1 != 0) return r1;
+        return C2::operator()(p1.second, p2.second);
+    }
+    pair_cmp(C1 const & c1 = C1(), C2 const & c2 = C2()):C1(c1), C2(c2) {}
 };
 }

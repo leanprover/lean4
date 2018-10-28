@@ -26,7 +26,10 @@ inline bool operator<(expr const & a, expr const & b)  { return is_lt(a, b, true
 inline bool operator>(expr const & a, expr const & b)  { return is_lt(b, a, true); }
 inline bool operator<=(expr const & a, expr const & b) { return !is_lt(b, a, true); }
 inline bool operator>=(expr const & a, expr const & b) { return !is_lt(a, b, true); }
-struct expr_quick_cmp { int operator()(expr const & e1, expr const & e2) const { return is_lt(e1, e2, true) ? -1 : (e1 == e2 ? 0 : 1); } };
+struct expr_quick_cmp {
+    typedef expr type;
+    int operator()(expr const & e1, expr const & e2) const { return is_lt(e1, e2, true) ? -1 : (e1 == e2 ? 0 : 1); }
+};
 struct expr_cmp_no_level_params { int operator()(expr const & e1, expr const & e2) const; };
 
 template<typename T>

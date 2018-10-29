@@ -1341,8 +1341,12 @@ class csimp_fn {
 
     expr visit_nat_succ(expr const & e) {
         nat a;
-        if (!get_unary_nat_lit(e, a)) return visit_app_default(e);
-        return to_nat_expr(a+nat(1));
+        if (get_unary_nat_lit(e, a)) {
+            return to_nat_expr(a+nat(1));
+        } else {
+            expr arg = visit(app_arg(e), false);
+            return mk_app(mk_constant(get_nat_add_name()), arg, mk_lit(literal(nat(1))));
+        }
     }
 
     expr visit_nat_add(expr const & e) {

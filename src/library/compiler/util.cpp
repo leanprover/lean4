@@ -362,14 +362,13 @@ bool is_runtime_builtin_cnstr(name const & n) {
     // TODO(Leo): add array type constructors, thunk constructor,
     // universe level constructors, and expression constructors.
 
-    /* Remark: we don't need to include nat.zero since
-       compiler convert it into a literal. */
+    /* Remark: we don't need to include `nat.zero` and `nat.zero` because
+       they are converted into literals or addition. */
     return
         n == get_string_mk_name() ||
         n == get_string_iterator_mk_name() ||
         n == get_int_of_nat_name() ||
-        n == get_int_neg_succ_of_nat_name() ||
-        n == get_nat_succ_name();
+        n == get_int_neg_succ_of_nat_name();
 }
 
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type) {

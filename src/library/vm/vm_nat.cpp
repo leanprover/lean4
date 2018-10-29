@@ -91,14 +91,6 @@ mpz const & vm_nat_to_mpz2(vm_obj const & o) {
     return to_mpz2(o);
 }
 
-vm_obj nat_succ(vm_obj const & a) {
-    if (LEAN_LIKELY(is_simple(a))) {
-        return mk_vm_nat(cidx(a) + 1);
-    } else {
-        return mk_vm_mpz(to_mpz1(a) + 1);
-    }
-}
-
 vm_obj nat_add(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_nat(cidx(a1) + cidx(a2));
@@ -216,7 +208,6 @@ vm_obj mix_hash(vm_obj const & u1, vm_obj const & u2) {
 }
 
 void initialize_vm_nat() {
-    DECLARE_VM_BUILTIN(name({"nat", "succ"}),             nat_succ);
     DECLARE_VM_BUILTIN(name({"nat", "add"}),              nat_add);
     DECLARE_VM_BUILTIN(name({"nat", "mul"}),              nat_mul);
     DECLARE_VM_BUILTIN(name({"nat", "sub"}),              nat_sub);

@@ -2966,7 +2966,6 @@ void vm_state::run() {
             */
             vm_obj top = m_stack.back();
             stack_pop_back();
-            push_fields(top);
             m_pc = instr.get_cases2_pc(cidx(top));
             goto main_loop;
         }
@@ -2984,7 +2983,6 @@ void vm_state::run() {
             */
             vm_obj top = m_stack.back();
             stack_pop_back();
-            push_fields(top);
             m_pc = instr.get_casesn_pc(cidx(top));
             goto main_loop;
         }

@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/vm/vm.h"
 #include "library/vm/optimize.h"
-#include "library/compiler/simp_inductive.h"
+#include "library/compiler/llnf.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -76,16 +76,22 @@ class emit_bytecode_fn {
             emit(mk_apply_instr());
     }
 
+    [[ noreturn ]] void throw_no_unboxed_support() {
+        throw exception("code generation failed, old VM has no support for unboxed data");
+    }
+
     void compile_constant(expr const & e) {
         name const & n = const_name(e);
+        unsigned cidx; unsigned ssz;
         if (is_enf_neutral(e)) {
             emit(mk_sconstructor_instr(0));
         } else if (is_enf_unreachable(e)) {
             emit(mk_unreachable_instr());
         } else if (n == get_nat_zero_name()) {
             emit(mk_num_instr(mpz(0)));
-        } else if (auto idx = is_internal_cnstr(e)) {
-            emit(mk_sconstructor_instr(*idx));
+        } else if (is_llnf_cnstr(e, cidx, ssz)) {
+            if (ssz != 0) throw_no_unboxed_support();
+            emit(mk_sconstructor_instr(cidx));
         } else if (optional<vm_decl> decl = get_vm_decl(m_env, n)) {
             compile_global(*decl, 0, nullptr, 0, name_map<unsigned>());
         } else {
@@ -101,19 +107,15 @@ class emit_bytecode_fn {
     void compile_cases_on(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         buffer<expr> args;
         expr fn = get_app_args(e, args);
-        lean_assert(is_constant(fn));
-        unsigned num = *is_internal_cases(fn);
-        lean_assert(args.size() == num + 1);
-        lean_assert(num >= 1);
+        lean_assert(args.size() >= 3); /* major + at least 2 minor premises */
         /** compile major premise */
         compile(args[0], bpz, m);
+        unsigned num       = args.size() - 1;
         unsigned cases_pos = next_pc();
         buffer<unsigned> cases_args;
         buffer<unsigned> goto_pcs;
         cases_args.resize(num, 0);
-        if (num == 1) {
-            emit(mk_destruct_instr());
-        } else if (num == 2) {
+        if (num == 2) {
             emit(mk_cases2_instr(0, 0));
         } else {
             emit(mk_casesn_instr(cases_args.size(), cases_args.data()));
@@ -156,8 +158,10 @@ class emit_bytecode_fn {
     void compile_cnstr(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
-        lean_assert(is_internal_cnstr(fn));
-        unsigned cidx = *is_internal_cnstr(fn);
+        lean_assert(is_llnf_cnstr(fn));
+        unsigned cidx, ssz;
+        is_llnf_cnstr(fn, cidx, ssz);
+        if (ssz != 0) throw_no_unboxed_support();
         compile_args(args.size(), args.data(), bpz, m);
         emit(mk_constructor_instr(cidx, get_app_num_args(e)));
     }
@@ -194,12 +198,24 @@ class emit_bytecode_fn {
         }
     }
 
+    void compile_proj(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
+        expr const & p = app_fn(e);
+        lean_assert(is_llnf_proj(p));
+        expr const & a = app_arg(e);
+        compile(a, bpz, m);
+        unsigned idx;
+        is_llnf_proj(p, idx);
+        emit(mk_proj_instr(idx));
+    }
+
     void compile_app(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         expr const & fn = get_app_fn(e);
-        if (is_internal_cases(fn)) {
+        if (is_cases_on_app(m_env, fn)) {
             compile_cases_on(e, bpz, m);
-        } else if (is_internal_cnstr(fn)) {
+        } else if (is_llnf_cnstr(fn)) {
             compile_cnstr(e, bpz, m);
+        } else if (is_llnf_proj(fn)) {
+            compile_proj(e, bpz, m);
         } else if (is_sorry(e)) {
             compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {
@@ -250,11 +266,6 @@ class emit_bytecode_fn {
         }
     }
 
-    void compile_proj_cnstr(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
-        compile(proj_expr(e), bpz, m);
-        emit(mk_proj_instr(proj_idx(e).get_small_value()));
-    }
-
     void compile(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         switch (e.kind()) {
         case expr_kind::BVar:     lean_unreachable();
@@ -262,8 +273,8 @@ class emit_bytecode_fn {
         case expr_kind::MVar:     lean_unreachable();
         case expr_kind::Pi:       lean_unreachable();
         case expr_kind::Lambda:   lean_unreachable();
+        case expr_kind::Proj:     lean_unreachable();
         case expr_kind::MData:    compile(mdata_expr(e), bpz, m); break;
-        case expr_kind::Proj:     compile_proj_cnstr(e, bpz, m);  break;
         case expr_kind::Const:    compile_constant(e);       break;
         case expr_kind::FVar:     compile_local(e, m);       break;
         case expr_kind::App:      compile_app(e, bpz, m);    break;

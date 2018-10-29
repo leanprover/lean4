@@ -235,7 +235,7 @@ class extract_closed_fn {
 
     expr mk_aux_constant(expr const & e0) {
         expr e = find(e0);
-        if (is_enf_neutral(e)) {
+        if (is_enf_neutral(e) || is_enf_unreachable(e)) {
             return e0;
         }
         if (is_constant(e) && arity_eq_0(const_name(e))) {

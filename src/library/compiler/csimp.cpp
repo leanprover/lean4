@@ -1103,7 +1103,11 @@ class csimp_fn {
             if (expr const * x = m_proj2var.find(mk_pair(s, proj_idx(e).get_small_value())))
                 return *x;
         }
-        return e;
+        expr new_arg = visit_arg(proj_expr(e));
+        if (is_eqp(proj_expr(e), new_arg))
+            return e;
+        else
+            return update_proj(e, new_arg);
     }
 
     expr reduce_cases_cnstr(buffer<expr> const & args, inductive_val const & I_val, expr const & major, bool is_let_val) {
@@ -1221,45 +1225,41 @@ class csimp_fn {
         return beta_reduce_if_not_cases(fn, args.size(), args.data(), is_let_val);
     }
 
-    expr try_inline(expr const & fn, expr const & e, bool is_let_val) {
+    optional<expr> try_inline(expr const & fn, expr const & e, bool is_let_val) {
         lean_assert(is_constant(fn));
-        lean_assert(is_eqp(find(get_app_fn(e)), fn));
-        if (!m_cfg.m_inline) return e;
-        if (has_noinline_attribute(env(), const_name(fn))) return e;
+        lean_assert(is_constant(e) || is_eqp(find(get_app_fn(e)), fn));
+        if (!m_cfg.m_inline) return none_expr();
+        if (has_noinline_attribute(env(), const_name(fn))) return none_expr();
         if (m_before_erasure) {
-            if (already_simplified(e)) return e;
+            if (already_simplified(e)) return none_expr();
             name c = mk_cstage1_name(const_name(fn));
             optional<constant_info> info = env().find(c);
-            if (!info || !info->is_definition()) return e;
-            if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return e;
+            if (!info || !info->is_definition()) return none_expr();
+            if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return none_expr();
             bool inline_attr           = has_inline_attribute(env(), const_name(fn));
             bool inline_if_reduce_attr = has_inline_if_reduce_attribute(env(), const_name(fn));
             if (!inline_attr && !inline_if_reduce_attr &&
-                get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold) {
-                return e;
+                (get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold ||
+                 is_constant(e))) { /* We only inline constants if they are marked with the `[inline]` or `[inline_if_reduce]` attrs */
+                return none_expr();
             }
-            if (is_recursive(c)) return e;
+            if (is_recursive(c)) return none_expr();
             expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
             if (inline_if_reduce_attr && !inline_attr) {
-                if (optional<expr> r = beta_reduce_if_not_cases(new_fn, e, is_let_val)) {
-                    return *r;
-                } else {
-                    mark_simplified(e);
-                    return e;
-                }
+                return beta_reduce_if_not_cases(new_fn, e, is_let_val);
             } else {
-                return beta_reduce(new_fn, e, is_let_val);
+                return some_expr(beta_reduce(new_fn, e, is_let_val));
             }
         } else {
+            if (is_constant(e)) return none_expr(); /* We don't inline constants after erasure */
             name c = mk_cstage2_name(const_name(fn));
             optional<constant_info> info = env().find(c);
-            if (!info || !info->is_definition()) return e;
+            if (!info || !info->is_definition()) return none_expr();
             unsigned arity = get_num_nested_lambdas(info->get_value());
-            if (arity == 0 || get_app_num_args(e) < arity) return e;
-            if (get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold)
-                return e;
-            if (is_recursive(c)) return e;
-            return beta_reduce(info->get_value(), e, is_let_val);
+            if (arity == 0 || get_app_num_args(e) < arity) return none_expr();
+            if (get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold) return none_expr();
+            if (is_recursive(c)) return none_expr();
+            return some_expr(beta_reduce(info->get_value(), e, is_let_val));
         }
     }
 
@@ -1268,7 +1268,7 @@ class csimp_fn {
         get_app_args(e, args);
         lean_assert(!args.empty());
         if (args.size() < 2)
-            return e;
+            return visit_app_default(e);
         buffer<expr> new_args;
         expr fn = get_app_args(find(args[1]), new_args);
         new_args.append(args.size() - 2, args.data() + 2);
@@ -1341,25 +1341,25 @@ class csimp_fn {
 
     expr visit_nat_succ(expr const & e) {
         nat a;
-        if (!get_unary_nat_lit(e, a)) return e;
+        if (!get_unary_nat_lit(e, a)) return visit_app_default(e);
         return to_nat_expr(a+nat(1));
     }
 
     expr visit_nat_add(expr const & e) {
         nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return e;
+        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
         return to_nat_expr(a+b);
     }
 
     expr visit_nat_mul(expr const & e) {
         nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return e;
+        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
         return to_nat_expr(a*b);
     }
 
     expr visit_nat_sub(expr const & e) {
         nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return e;
+        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
         return to_nat_expr(a-b);
     }
 
@@ -1369,13 +1369,13 @@ class csimp_fn {
 
     expr visit_nat_beq(expr const & e) {
         nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return e;
+        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
         return to_bool_expr(a == b);
     }
 
     expr visit_nat_ble(expr const & e) {
         nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return e;
+        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
         return to_bool_expr(a <= b);
     }
 
@@ -1399,14 +1399,30 @@ class csimp_fn {
 
     expr visit_nat_dec_eq(expr const & e) {
         nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return e;
+        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
         return to_decidable_expr(a == b, e);
     }
 
     expr visit_nat_decidable_lt(expr const & e) {
         nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return e;
+        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
         return to_decidable_expr(a < b, e);
+    }
+
+    expr visit_app_default(expr const & e) {
+        if (already_simplified(e)) return e;
+        buffer<expr> args;
+        bool modified   = true;
+        expr const & fn = get_app_args(e, args);
+        for (expr & arg : args) {
+            expr new_arg = visit_arg(arg);
+            if (!is_eqp(arg, new_arg))
+                modified = true;
+            arg = new_arg;
+        }
+        expr new_e = modified ? mk_app(fn, args) : e;
+        mark_simplified(new_e);
+        return new_e;
     }
 
     expr visit_app(expr const & e, bool is_let_val) {
@@ -1444,11 +1460,33 @@ class csimp_fn {
                 return visit_nat_succ(e);
             } else if (n == get_nat_zero_name()) {
                 return mk_lit(literal(nat(0)));
+            } else if (optional<expr> r = try_inline(fn, e, is_let_val)) {
+                return *r;
             } else {
-                return try_inline(fn, e, is_let_val);
+                return visit_app_default(e);
             }
+        } else {
+            return visit_app_default(e);
         }
-        return e;
+    }
+
+    expr visit_constant(expr const & e, bool is_let_val) {
+        if (optional<expr> r = try_inline(e, e, is_let_val))
+            return *r;
+        else
+            return e;
+    }
+
+    expr visit_arg(expr const & e) {
+        if (!is_lcnf_atom(e)) {
+            /* non-atomic arguments are irrelevant in LCNF */
+            return e;
+        }
+        expr new_e = visit(e, false);
+        if (is_lcnf_atom(new_e))
+            return new_e;
+        else
+            return mk_let_decl(new_e);
     }
 
     expr visit(expr const & e, bool is_let_val) {
@@ -1457,6 +1495,7 @@ class csimp_fn {
         case expr_kind::Let:    return visit_let(e);
         case expr_kind::Proj:   return visit_proj(e, is_let_val);
         case expr_kind::App:    return visit_app(e, is_let_val);
+        case expr_kind::Const:  return visit_constant(e, is_let_val);
         default:                return e;
         }
     }

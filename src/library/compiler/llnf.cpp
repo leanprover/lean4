@@ -278,6 +278,12 @@ class to_llnf_fn {
             }
             local_decl x_decl = m_lctx.get_local_decl(x);
             expr val          = *x_decl.get_value();
+            if (used.empty() && r == x) {
+                /* `let x := v in x` ==> `v` */
+                r = val;
+                collect_used(r, used_fvars);
+                continue;
+            }
             collect_used(val,  used_fvars);
             used.push_back(x);
         }
@@ -376,6 +382,17 @@ class to_llnf_fn {
         expr reachable_case;
         unsigned num_reachable = 0;
         expr some_reachable;
+        /* We use `is_id` to track whether this "cases_on"-application is of the form
+           ```
+           C.cases_on major (fun ..., _cnstr.0.0) ... (fun ..., _cnstr.(n-1).0)
+           ```
+           This kind of application reduces to `major`. This optimization is useful
+           for code such as:
+           ```
+           @decidable.cases_on t _cnstr.0.0 _cnstr.1.0
+           ```
+           which reduces to `t`. */
+        bool is_id = true;
         /* Process minor premises */
         for (unsigned i = 0; i < cnames.size(); i++) {
             unsigned saved_fvars_size = m_fvars.size();
@@ -405,6 +422,11 @@ class to_llnf_fn {
             minor     = visit(minor);
             if (!is_enf_unreachable(minor)) {
                 num_reachable++;
+                /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */
+                unsigned cidx, ssz;
+                if (!(is_llnf_cnstr(minor, cidx, ssz) && cidx == i && ssz == 0)) {
+                    is_id = false;
+                }
                 minor          = mk_let(saved_fvars_size, minor);
                 some_reachable = minor;
                 args[i+1]      = minor;
@@ -415,6 +437,8 @@ class to_llnf_fn {
         /* TODO(Leo): check whether all reachable cases are equal or not. */
         if (num_reachable == 0) {
             return mk_enf_unreachable();
+        } else if (is_id) {
+            return major;
         } else if (num_reachable == 1) {
             return some_reachable;
         } else {

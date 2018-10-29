@@ -392,7 +392,9 @@ class to_llnf_fn {
            @decidable.cases_on t _cnstr.0.0 _cnstr.1.0
            ```
            which reduces to `t`. */
-        bool is_id = true;
+        bool is_id  = true;
+        /* We use `all_eq` to track whether all reachable cases are equal or not. */
+        bool all_eq = true;
         /* Process minor premises */
         for (unsigned i = 0; i < cnames.size(); i++) {
             unsigned saved_fvars_size = m_fvars.size();
@@ -421,26 +423,40 @@ class to_llnf_fn {
             minor     = instantiate_rev(minor, fields.size(), fields.data());
             minor     = visit(minor);
             if (!is_enf_unreachable(minor)) {
-                num_reachable++;
                 /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */
                 unsigned cidx, ssz;
                 if (!(is_llnf_cnstr(minor, cidx, ssz) && cidx == i && ssz == 0)) {
                     is_id = false;
                 }
                 minor          = mk_let(saved_fvars_size, minor);
+                if (num_reachable > 0 && minor != some_reachable) {
+                    all_eq = false;
+                }
                 some_reachable = minor;
                 args[i+1]      = minor;
+                num_reachable++;
             } else {
                 args[i+1]      = minor;
             }
         }
-        /* TODO(Leo): check whether all reachable cases are equal or not. */
         if (num_reachable == 0) {
             return mk_enf_unreachable();
         } else if (is_id) {
             return major;
         } else if (num_reachable == 1) {
             return some_reachable;
+        } else if (all_eq) {
+            expr r = some_reachable;
+            /* Flat `r` if it is a let-declaration */
+            buffer<expr> fvars;
+            while (is_let(r)) {
+                expr val  = instantiate_rev(let_value(r), fvars.size(), fvars.data());
+                expr fvar = m_lctx.mk_local_decl(ngen(), let_name(r), let_type(r), val);
+                fvars.push_back(fvar);
+                m_fvars.push_back(fvar);
+                r = let_body(r);
+            }
+            return instantiate_rev(r, fvars.size(), fvars.data());
         } else {
             return mk_app(fn, args);
         }

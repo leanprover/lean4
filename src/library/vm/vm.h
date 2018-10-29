@@ -311,7 +311,7 @@ typedef pair<name, optional<expr>> vm_local_info;
 enum class opcode {
     Push, Move, Ret, Drop, Goto,
     SConstructor, Constructor, Num, String,
-    Destruct, Cases2, CasesN, Proj,
+    Cases2, CasesN, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
     Closure, Unreachable, Expr, LocalInfo
 };
@@ -353,7 +353,7 @@ class vm_instr {
             vm_local_info * m_local_info;
         };
     };
-    /* Apply, Ret, Destruct and Unreachable do not have arguments */
+    /* Apply, Ret and Unreachable do not have arguments */
     friend vm_instr mk_push_instr(unsigned idx);
     friend vm_instr mk_move_instr(unsigned idx);
     friend vm_instr mk_drop_instr(unsigned n);
@@ -364,7 +364,6 @@ class vm_instr {
     friend vm_instr mk_num_instr(mpz const & v);
     friend vm_instr mk_string_instr(std::string const & v);
     friend vm_instr mk_ret_instr();
-    friend vm_instr mk_destruct_instr();
     friend vm_instr mk_unreachable_instr();
     friend vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
     friend vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);
@@ -504,7 +503,6 @@ vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
 vm_instr mk_num_instr(mpz const & v);
 vm_instr mk_string_instr(std::string const & v);
 vm_instr mk_ret_instr();
-vm_instr mk_destruct_instr();
 vm_instr mk_unreachable_instr();
 vm_instr mk_cases2_instr(unsigned pc1, unsigned pc2);
 vm_instr mk_casesn_instr(unsigned num_pc, unsigned const * pcs);

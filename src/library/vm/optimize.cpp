@@ -99,8 +99,7 @@ class live_vars_fn {
             break;
         case opcode::Drop: case opcode::SConstructor:
         case opcode::Constructor: case opcode::Num: case opcode::String:
-        case opcode::Destruct: case opcode::Proj:
-        case opcode::Apply: case opcode::InvokeGlobal:
+        case opcode::Proj: case opcode::Apply: case opcode::InvokeGlobal:
         case opcode::InvokeBuiltin: case opcode::InvokeCFun:
         case opcode::Closure: case opcode::Expr: case opcode::LocalInfo:
             s = collect(pc+1);

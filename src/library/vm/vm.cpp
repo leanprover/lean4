@@ -533,7 +533,6 @@ void vm_instr::display(std::ostream & out) const {
     case opcode::Num:           out << "num " << *m_mpz; break;
     case opcode::String:        out << "str_lit \"" << *m_str << "\""; break;
     case opcode::Unreachable:   out << "unreachable"; break;
-    case opcode::Destruct:      out << "destruct"; break;
     case opcode::Cases2:        out << "cases2 " << m_pc[1]; break;
     case opcode::CasesN:
         out << "cases";
@@ -683,8 +682,6 @@ vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const 
 
 vm_instr mk_ret_instr() { return vm_instr(opcode::Ret); }
 
-vm_instr mk_destruct_instr() { return vm_instr(opcode::Destruct); }
-
 vm_instr mk_unreachable_instr() { return vm_instr(opcode::Unreachable); }
 
 vm_instr mk_apply_instr() { return vm_instr(opcode::Apply); }
@@ -800,7 +797,7 @@ void vm_instr::copy_args(vm_instr const & i) {
         m_local_idx  = i.m_local_idx;
         m_local_info = new vm_local_info(*i.m_local_info);
         break;
-    case opcode::Ret:         case opcode::Destruct:
+    case opcode::Ret:
     case opcode::Unreachable: case opcode::Apply:
         break;
     }
@@ -911,7 +908,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::LocalInfo:
         s << m_local_idx << m_local_info->first << m_local_info->second;
         break;
-    case opcode::Ret:         case opcode::Destruct:
+    case opcode::Ret:
     case opcode::Unreachable: case opcode::Apply:
         break;
     }
@@ -979,8 +976,6 @@ static vm_instr read_vm_instr(deserializer & d) {
     }
     case opcode::Ret:
         return mk_ret_instr();
-    case opcode::Destruct:
-        return mk_destruct_instr();
     case opcode::Unreachable:
         return mk_unreachable_instr();
     case opcode::Apply:
@@ -2935,22 +2930,6 @@ void vm_state::run() {
                 push_local_info(instr.get_local_idx(), instr.get_local_info());
             m_pc++;
             goto main_loop;
-        case opcode::Destruct: {
-            /** Instruction: destruct
-
-                stack before,              after
-                ...                        ...
-                v                 ==>      v
-                (#i a_1 ... a_n)           a_1
-                ...
-                a_n
-            */
-            vm_obj top = m_stack.back();
-            stack_pop_back();
-            push_fields(top);
-            m_pc++;
-            goto main_loop;
-        }
         case opcode::Cases2: {
             /** Instruction: cases2 pc1 pc2
 

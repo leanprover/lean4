@@ -11,6 +11,10 @@ namespace lean {
 /* Convert expression to Low Level Normal Form (LLNF). This is the last normal form
    before converting to the IR. */
 expr to_llnf(environment const & env, expr const & e, bool unboxed_data = false);
+
+bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz);
+bool is_llnf_proj(expr const & e, unsigned & idx);
+
 void initialize_llnf();
 void finalize_llnf();
 }

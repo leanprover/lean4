@@ -152,13 +152,13 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "stage2"}), ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
-    ds = apply(simp_inductive, new_env, ds);
 
     /* TODO(Leo): llnf is not integrated yet. We are only using it here for debugging. */
     auto to_llnf_box  = [&](environment const & env, expr const & e) { return to_llnf(env, e, true); };
     comp_decls aux_ds = apply(to_llnf_box, new_env, ds);
     trace_compiler(name({"compiler", "llnf"}), aux_ds);
 
+    ds = apply(simp_inductive, new_env, ds);
     trace_compiler(name({"compiler", "simplify_inductive"}), ds);
     new_env = emit_bytecode(new_env, ds);
     return new_env;

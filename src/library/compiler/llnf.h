@@ -14,6 +14,8 @@ expr to_llnf(environment const & env, expr const & e, bool unboxed_data = false)
 
 bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz);
 bool is_llnf_proj(expr const & e, unsigned & idx);
+inline bool is_llnf_cnstr(expr const & e) { unsigned d1, d2; return is_llnf_cnstr(e, d1, d2); }
+inline bool is_llnf_proj(expr const & e) { unsigned d; return is_llnf_proj(e, d); }
 
 void initialize_llnf();
 void finalize_llnf();

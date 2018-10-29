@@ -35,7 +35,7 @@ bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz) {
     if (!is_internal_name(n) || n.is_atomic() || !n.is_numeral()) return false;
     ssz = n.get_numeral().get_small_value();
     name const & p = n.get_prefix();
-    if (p.is_atomic() || !p.is_numeral() || p.get_prefix() != g_cnstr) return false;
+    if (p.is_atomic() || !p.is_numeral() || p.get_prefix() != *g_cnstr) return false;
     cidx = p.get_numeral().get_small_value();
     return true;
 }
@@ -424,6 +424,8 @@ class to_llnf_fn {
         buffer<expr> args;
         expr const & k = get_app_args(e, args);
         lean_assert(is_constant(k));
+        if (is_runtime_builtin_cnstr(const_name(k)))
+            return visit_app_default(e);
         constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
         cnstr_info k_info      = get_cnstr_info(const_name(k));
         unsigned nparams       = k_val.get_nparams();
@@ -496,13 +498,21 @@ class to_llnf_fn {
         }
     }
 
+    expr visit_app_default(expr const & e) {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        for (expr & arg : args)
+            arg = visit(arg);
+        return mk_app(fn, args);
+    }
+
     expr visit_app(expr const & e) {
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e);
         } else if (is_constructor_app(env(), e)) {
             return visit_constructor(e);
         } else {
-            return e;
+            return visit_app_default(e);
         }
     }
 

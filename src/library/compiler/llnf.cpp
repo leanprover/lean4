@@ -523,7 +523,8 @@ public:
     }
 
     expr operator()(expr const & e) {
-        return visit(e);
+        expr r = visit(e);
+        return mk_let(0, r);
     }
 };
 

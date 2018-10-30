@@ -122,6 +122,8 @@ class vm_composite : public vm_obj_cell {
     }
     friend vm_obj_cell;
     void dealloc(buffer<vm_obj_cell*> & todelete);
+    friend vm_obj update(vm_obj const & o, unsigned idx, vm_obj const & v);
+    friend vm_obj update_cidx(vm_obj const & o, unsigned cidx);
 public:
     vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data);
     unsigned size() const { return m_size; }
@@ -313,7 +315,8 @@ enum class opcode {
     SConstructor, Constructor, Num, String,
     Cases2, CasesN, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
-    Closure, Unreachable, Expr, LocalInfo
+    Closure, Unreachable, Expr, LocalInfo,
+    Updt, UpdtCidx
 };
 
 /** \brief VM instructions */
@@ -324,7 +327,7 @@ class vm_instr {
             unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin, InvokeCFun and Closure. */
             unsigned m_nargs;   /* Closure */
         };
-        /* Push, Move, Proj */
+        /* Push, Move, Proj, Updt, UpdtCidx */
         unsigned m_idx;
         /* Drop */
         unsigned m_num;
@@ -374,6 +377,8 @@ class vm_instr {
     friend vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
     friend vm_instr mk_expr_instr(expr const &e);
     friend vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
+    friend vm_instr mk_updt_instr(unsigned idx);
+    friend vm_instr mk_updt_cidx_instr(unsigned cidx);
 
     void release_memory();
     void copy_args(vm_instr const & i);
@@ -391,7 +396,7 @@ public:
 
     unsigned get_fn_idx() const {
         lean_assert(m_op == opcode::InvokeGlobal || m_op == opcode::InvokeBuiltin ||
-                    m_op == opcode::InvokeCFun || m_op == opcode::Closure);
+                    m_op == opcode::InvokeCFun || m_op == opcode::Closure)
         return m_fn_idx;
     }
 
@@ -401,7 +406,8 @@ public:
     }
 
     unsigned get_idx() const {
-        lean_assert(m_op == opcode::Push || m_op == opcode::Move || m_op == opcode::Proj);
+        lean_assert(m_op == opcode::Push || m_op == opcode::Move || m_op == opcode::Proj ||
+                    m_op == opcode::Updt || m_op == opcode::UpdtCidx);
         return m_idx;
     }
 
@@ -513,6 +519,8 @@ vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 vm_instr mk_expr_instr(expr const &e);
 vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
+vm_instr mk_updt_instr(unsigned idx);
+vm_instr mk_updt_cidx_instr(unsigned cidx);
 
 class vm_state;
 class vm_instr;

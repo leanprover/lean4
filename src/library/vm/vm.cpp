@@ -525,6 +525,8 @@ void vm_instr::display(std::ostream & out) const {
     switch (m_op) {
     case opcode::Push:          out << "push " << m_idx; break;
     case opcode::Move:          out << "move " << m_idx; break;
+    case opcode::Updt:          out << "updt " << m_idx; break;
+    case opcode::UpdtCidx:      out << "updt_cidx " << m_idx; break;
     case opcode::Ret:           out << "ret"; break;
     case opcode::Drop:          out << "drop " << m_num; break;
     case opcode::Goto:          out << "goto " << m_pc[0]; break;
@@ -614,6 +616,18 @@ vm_instr mk_push_instr(unsigned idx) {
 
 vm_instr mk_move_instr(unsigned idx) {
     vm_instr r(opcode::Move);
+    r.m_idx = idx;
+    return r;
+};
+
+vm_instr mk_updt_instr(unsigned idx) {
+    vm_instr r(opcode::Updt);
+    r.m_idx = idx;
+    return r;
+};
+
+vm_instr mk_updt_cidx_instr(unsigned idx) {
+    vm_instr r(opcode::UpdtCidx);
     r.m_idx = idx;
     return r;
 };
@@ -760,6 +774,7 @@ void vm_instr::copy_args(vm_instr const & i) {
         m_nargs  = i.m_nargs;
         break;
     case opcode::Push: case opcode::Move: case opcode::Proj:
+    case opcode::Updt: case opcode::UpdtCidx:
         m_idx  = i.m_idx;
         break;
     case opcode::Drop:
@@ -873,6 +888,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
         s << idx2name(m_fn_idx) << m_nargs;
         break;
     case opcode::Push: case opcode::Move: case opcode::Proj:
+    case opcode::Updt: case opcode::UpdtCidx:
         s << m_idx;
         break;
     case opcode::Drop:
@@ -943,6 +959,10 @@ static vm_instr read_vm_instr(deserializer & d) {
         return mk_push_instr(d.read_unsigned());
     case opcode::Move:
         return mk_move_instr(d.read_unsigned());
+    case opcode::Updt:
+        return mk_updt_instr(d.read_unsigned());
+    case opcode::UpdtCidx:
+        return mk_updt_cidx_instr(d.read_unsigned());
     case opcode::Proj:
         return mk_proj_instr(d.read_unsigned());
     case opcode::Drop:
@@ -2768,6 +2788,31 @@ void vm_state::display_registers(std::ostream & out) const {
     out << "pc: " << m_pc << ", bp: " << m_bp << "\n";
 }
 
+vm_obj update(vm_obj const & o, unsigned idx, vm_obj const & v) {
+    lean_vm_check(idx < csize(o));
+    vm_obj r;
+    if (o.raw()->get_rc() > 1) {
+        r = mk_vm_constructor(cidx(o), csize(o), cfields(o));
+    } else {
+        r = o;
+    }
+    vm_obj * fields = const_cast<vm_obj*>(to_composite(r)->fields());
+    fields[idx] = v;
+    return r;
+}
+
+vm_obj update_cidx(vm_obj const & o, unsigned idx) {
+    lean_vm_check(is_composite(o));
+    vm_obj r;
+    if (o.raw()->get_rc() > 1) {
+        r = mk_vm_constructor(cidx(o), csize(o), cfields(o));
+    } else {
+        r = o;
+    }
+    const_cast<vm_composite*>(to_composite(r))->m_idx = idx;
+    return r;
+}
+
 void vm_state::run() {
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
@@ -2841,6 +2886,35 @@ void vm_state::run() {
             swap(m_stack[sz - num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - num);
             if (m_debugging) shrink_stack_info();
+            m_pc++;
+            goto main_loop;
+        }
+        case opcode::Updt: {
+            /* Instruction: updt idx
+
+               stack before,   after
+               ...           ...
+               a             a'  (a.idx := v)
+               v       ==>
+            */
+            unsigned idx = instr.get_idx();
+            unsigned sz  = m_stack.size();
+            vm_obj r     = update(m_stack[sz-2], idx, m_stack[sz-1]);
+            m_stack.pop_back();
+            m_stack.back() = r;
+            m_pc++;
+            goto main_loop;
+        }
+        case opcode::UpdtCidx: {
+            /* Instruction: updt_cidx cidx
+
+               stack before,   after
+               ...           ...
+               a       ==>   a'  (a.cidx := cidx)
+            */
+            unsigned cidx = instr.get_idx();
+            vm_obj & top  = m_stack.back();
+            top           = update_cidx(top, cidx);
             m_pc++;
             goto main_loop;
         }

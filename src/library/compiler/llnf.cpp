@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <algorithm>
 #include <unordered_set>
+#include "runtime/flet.h"
 #include "runtime/sstream.h"
 #include "kernel/instantiate.h"
 #include "library/util.h"
@@ -129,6 +130,15 @@ struct cnstr_info {
                 m_scalar_sz += info.m_size;
         }
     }
+
+    unsigned get_num_relevant() const {
+        unsigned r = 0;
+        for (field_info const & info : m_field_info) {
+            if (info.m_kind != field_info::Irrelevant)
+                r++;
+        }
+        return r;
+    }
 };
 
 std::vector<pair<name, unsigned>> * g_builtin_scalar_size = nullptr;
@@ -147,6 +157,8 @@ class to_llnf_fn {
     typedef std::unordered_set<name, name_hash> name_set;
     typedef std::unordered_map<name, cnstr_info, name_hash> cnstr_info_cache;
     typedef std::unordered_map<name, optional<unsigned>, name_hash> enum_cache;
+    typedef list<pair<expr, unsigned>> reuse_candidates;
+    typedef rb_map<pair<unsigned, unsigned>, reuse_candidates, pair_cmp<unsigned_cmp, unsigned_cmp>> reuse_cnstr_map;
     type_checker::state   m_st;
     bool                  m_unboxed;
     local_ctx             m_lctx;
@@ -157,6 +169,10 @@ class to_llnf_fn {
     unsigned              m_next_jp_idx{1};
     cnstr_info_cache      m_cnstr_info_cache;
     enum_cache            m_enum_cache;
+    /* Map a pair `(num_object, scalar_size)` to a list of pairs `(x, cidx)` where
+       `x` is an object that has `num_object` pointers to objects, and scalar area of size `scalar_size`,
+       and `cidx` is the constructor id for `x`. */
+    reuse_cnstr_map       m_reuse_cnstr_map;
 
     environment const & env() { return m_st.env(); }
 
@@ -295,7 +311,7 @@ class to_llnf_fn {
         buffer<expr> fvars;
         while (is_let(e)) {
             lean_assert(!has_loose_bvars(let_type(e)));
-            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
+            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()), some_expr(let_body(e)));
             if (is_lcnf_atom(new_val)) {
                 fvars.push_back(new_val);
             } else {
@@ -366,6 +382,24 @@ class to_llnf_fn {
         }
     }
 
+    expr mk_updt(expr const & major, unsigned idx, expr const & v) {
+        return mk_app(mk_llnf_updt(idx), major, v);
+    }
+
+    expr mk_updt_cidx(expr const & major, unsigned cidx) {
+        return mk_app(mk_llnf_updt_cidx(cidx), major);
+    }
+
+    void register_reuse_candidate(expr const & major, cnstr_info const & cinfo) {
+        if (!is_fvar(major)) return;
+        pair<unsigned, unsigned> key(cinfo.m_num_objs, cinfo.m_scalar_sz);
+        if (reuse_candidates const * candidates = m_reuse_cnstr_map.find(key)) {
+            m_reuse_cnstr_map.insert(key, reuse_candidates(mk_pair(major, cinfo.m_cidx), *candidates));
+        } else {
+            m_reuse_cnstr_map.insert(key, reuse_candidates(mk_pair(major, cinfo.m_cidx)));
+        }
+    }
+
     expr visit_cases(expr const & e) {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
@@ -400,6 +434,8 @@ class to_llnf_fn {
             unsigned saved_fvars_size = m_fvars.size();
             expr minor           = args[i+1];
             cnstr_info cinfo     = get_cnstr_info(cnames[i]);
+            flet<reuse_cnstr_map> save_reuse_map(m_reuse_cnstr_map, m_reuse_cnstr_map);
+            register_reuse_candidate(major, cinfo);
             unsigned next_idx    = 0;
             unsigned next_offset = cinfo.m_num_objs * sizeof(void*);
             buffer<expr> fields;
@@ -462,7 +498,50 @@ class to_llnf_fn {
         }
     }
 
-    expr visit_constructor(expr const & e) {
+    expr find(expr const & e) const {
+        if (is_fvar(e)) {
+            if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
+                optional<expr> v = decl->get_value();
+                if (v) return find(*v);
+            }
+        } else if (is_mdata(e)) {
+            return find(mdata_expr(e));
+        }
+        return e;
+    }
+
+    /* Return true if `a` is of the form `_proj.<idx> e` */
+    bool is_proj_of(expr a, expr const & e, unsigned idx) {
+        a = find(a);
+        unsigned a_idx;
+        return is_app(a) && is_llnf_proj(app_fn(a), a_idx) && a_idx == idx && app_arg(a) == e;
+    }
+
+    /* Return true if `a` is of the form `_proj_u<size>.<offset> e` */
+    bool is_scalar_proj_of(expr a, expr const & e, unsigned size, unsigned offset) {
+        a = find(a);
+        unsigned a_offset;
+        if (!is_app(a) || app_arg(a) != e) return false;
+        switch (size) {
+        case 1: return is_llnf_proj_u8(app_fn(a), a_offset) && a_offset == offset;
+        case 2: return is_llnf_proj_u16(app_fn(a), a_offset) && a_offset == offset;
+        case 4: return is_llnf_proj_u32(app_fn(a), a_offset) && a_offset == offset;
+        case 8: return is_llnf_proj_u64(app_fn(a), a_offset) && a_offset == offset;
+        }
+        return false;
+    }
+
+    reuse_candidates erase_candidate(reuse_candidates const & cs, expr const & c) {
+        buffer<pair<expr, unsigned>> new_cs;
+        for (pair<expr, unsigned> const & p : cs) {
+            if (p.first != c) {
+                new_cs.push_back(p);
+            }
+        }
+        return to_list(new_cs);
+    }
+
+    expr visit_constructor(expr const & e, optional<expr> const & cont) {
         buffer<expr> args;
         expr const & k = get_app_args(e, args);
         lean_assert(is_constant(k));
@@ -483,6 +562,97 @@ class to_llnf_fn {
             }
             j++;
         }
+        /* Check if we can reuse a memory cell from `m_reuse_cnstr_map` */
+        if (k_info.m_num_objs > 0 || k_info.m_scalar_sz > 0) {
+            pair<unsigned, unsigned> key(k_info.m_num_objs, k_info.m_scalar_sz);
+            if (reuse_candidates const * candidates = m_reuse_cnstr_map.find(key)) {
+                bool found = false;
+                expr target;
+                unsigned target_cidx = 0;
+                unsigned target_num_updates = 0;
+                for (pair<expr, unsigned> const & p : *candidates) {
+                    expr const & candidate  = p.first;
+                    unsigned candidate_cidx = p.second;
+                    unsigned num_updates;
+                    /* Remark: make sure candidate does not occur in the continuation `cont`.
+                       If the candidate occurs in `cont`, then it is pointless to try to reuse
+                       it because its RC will be greater than 1. */
+                    if (!cont || !has_fvar(*cont, candidate)) {
+                        if (candidate_cidx == cidx) {
+                            num_updates = 0;
+                            unsigned j      = nparams;
+                            unsigned idx    = 0;
+                            unsigned offset = k_info.m_num_objs * sizeof(void*);
+                            for (field_info const & info : k_info.m_field_info) {
+                                switch (info.m_kind) {
+                                case field_info::Irrelevant:
+                                    break;
+                                case field_info::Object:
+                                    if (!is_proj_of(args[j], candidate, idx))
+                                        num_updates++;
+                                    idx++;
+                                    break;
+                                case field_info::Scalar:
+                                    if (!is_scalar_proj_of(args[j], candidate, info.m_size, offset))
+                                        num_updates++;
+                                    offset += info.m_size;
+                                    break;
+                                }
+                                j++;
+                            }
+                        } else {
+                            num_updates = 1 /* must updated cidx */ + k_info.get_num_relevant();
+                        }
+                        if (!found || num_updates < target_num_updates) {
+                            target             = candidate;
+                            target_cidx        = candidate_cidx;
+                            target_num_updates = num_updates;
+                            found              = true;
+                        }
+                    }
+                }
+                if (found) {
+                    /* We can build the result value by reusing `target` with a series of updates. */
+                    m_reuse_cnstr_map.insert(key, erase_candidate(*candidates, target));
+                    if (target_num_updates == 0)
+                        return target;
+                    expr r          = target;
+                    lean_assert(is_fvar(r));
+                    if (cidx != target_cidx) {
+                        r           = mk_updt_cidx(r, cidx);
+                        r           = mk_let_decl(mk_enf_object_type(), r);
+                    }
+                    unsigned j      = nparams;
+                    unsigned idx    = 0;
+                    unsigned offset = k_info.m_num_objs * sizeof(void*);
+                    for (field_info const & info : k_info.m_field_info) {
+                        switch (info.m_kind) {
+                        case field_info::Irrelevant:
+                            break;
+                        case field_info::Object:
+                            if (!is_proj_of(args[j], target, idx)) {
+                                r   = mk_updt(r, idx, args[j]);
+                            }
+                            idx++;
+                            break;
+                        case field_info::Scalar:
+                            if (!is_scalar_proj_of(args[j], target, info.m_size, offset)) {
+                                r   = mk_scalar_updt(r, info.m_size, offset, args[j]);
+                            }
+                            offset += info.m_size;
+                            break;
+                        }
+                        j++;
+                        if (!is_lcnf_atom(r)) {
+                            r = mk_let_decl(mk_enf_object_type(), r);
+                        }
+                    }
+                    return r;
+                }
+            }
+        }
+        /* There is no compatible memory cell at `m_reuse_cnstr_map`. So,
+           we create a new constructor object. */
         expr r = mk_app(mk_llnf_cnstr(cidx, k_info.m_scalar_sz), obj_args);
         j = nparams;
         unsigned offset = k_info.m_num_objs * sizeof(void*);
@@ -534,7 +704,7 @@ class to_llnf_fn {
 
     expr visit_constant(expr const & e) {
         if (is_constructor(env(), const_name(e))) {
-            return visit_constructor(e);
+            return visit_constructor(e, none_expr());
         } else {
             return e;
         }
@@ -548,19 +718,19 @@ class to_llnf_fn {
         return mk_app(fn, args);
     }
 
-    expr visit_app(expr const & e) {
+    expr visit_app(expr const & e, optional<expr> const & cont) {
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e);
         } else if (is_constructor_app(env(), e)) {
-            return visit_constructor(e);
+            return visit_constructor(e, cont);
         } else {
             return visit_app_default(e);
         }
     }
 
-    expr visit(expr const & e) {
+    expr visit(expr const & e, optional<expr> const & cont = optional<expr>()) {
         switch (e.kind()) {
-        case expr_kind::App:    return visit_app(e);
+        case expr_kind::App:    return visit_app(e, cont);
         case expr_kind::Lambda: return visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
         case expr_kind::Proj:   return visit_proj(e);

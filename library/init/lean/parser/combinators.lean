@@ -19,7 +19,7 @@ variables {α : Type} {m : Type → Type}
 local notation `parser` := m syntax
 variables [monad m] [monad_except (parsec.message syntax) m] [monad_parsec syntax m] [alternative m]
 
-def node' (k : option syntax_node_kind) (rs : list parser) : parser :=
+def node (k : syntax_node_kind) (rs : list parser) : parser :=
 do args ← rs.mfoldl (λ (p : list syntax) r, do
      args ← pure p,
      -- on error, append partial syntax tree to previous successful parses and rethrow
@@ -30,10 +30,9 @@ do args ← rs.mfoldl (λ (p : list syntax) r, do
    ) [],
    pure $ syntax.node ⟨k, args.reverse⟩
 
-@[reducible] def seq : list parser → parser := node' none
-@[reducible] def node (k : syntax_node_kind) : list parser → parser := node' (some k)
+@[reducible] def seq : list parser → parser := node no_kind
 
-instance node'.tokens (k) (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (node' k rs) :=
+instance node.tokens (k) (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (node k rs) :=
 ⟨tokens rs⟩
 
 instance node.view (k) (rs : list parser) [i : has_view α k] : parser.has_view α (node k rs) :=

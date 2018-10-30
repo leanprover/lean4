@@ -31,6 +31,8 @@ structure syntax_node_kind :=
 (name : name)
 
 @[pattern] def choice : syntax_node_kind := ⟨`lean.parser.choice⟩
+-- TODO(Sebastian): replace `option syntax_kind` using this special kind
+@[pattern] def no_kind : syntax_node_kind := ⟨`lean.parser.no_kind⟩
 
 /-
 Parsers create `syntax_node`'s with the following property:
@@ -83,8 +85,8 @@ with to_format : syntax → format
 | (node {kind := none, args := args, ..}) :=
   sbracket $ join_sep (to_format_lst args) line
 | stx@(node {kind := some kind, args := args, ..}) :=
-  if kind.name = `lean.parser.ident
-  then to_fmt "`" ++ ident_to_format stx
+  if kind.name = `lean.parser.no_kind then sbracket $ join_sep (to_format_lst args) line
+  else if kind.name = `lean.parser.ident then to_fmt "`" ++ ident_to_format stx
   else let shorter_name := kind.name.replace_prefix `lean.parser name.anonymous
        in paren $ join_sep (to_fmt shorter_name :: to_format_lst args) line
 | missing := "<missing>"

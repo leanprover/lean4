@@ -3827,7 +3827,7 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
     e = instantiate_mvars(e);
     /* If we still have an unassigned mvar, it means the mvar doesn't directly correspond to a user-facing mvar.
      * That's bad (because we can't generate a sensible error message) and shouldn't happen. */
-    lean_always_assert(!has_expr_metavar(e));
+    lean_assert(has_synth_sorry(e) || !has_expr_metavar(e));
 }
 
 elaborator::snapshot::snapshot(elaborator const & e) {

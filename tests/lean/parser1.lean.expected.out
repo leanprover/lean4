@@ -13,7 +13,7 @@ expected "." or identifier
 partial syntax tree:
 [(module.header
   []
-  [(module.import "import" [(module.import_path [] (number <missing>)) <missing>])
+  [(module.import "import" [(module.import_path [] <missing>) <missing>])
    <missing>])
  (eoi "")]
 result:
@@ -60,8 +60,8 @@ unexpected end of input
 expected identifier
 partial syntax tree:
 [(module.header [] [])
- (command.open "open" [(command.open_spec <missing>) <missing>])
- (command.open "open" [(command.open_spec (number <missing>)) <missing>])
+ (command.open "open" [<missing> <missing>])
+ (command.open "open" [<missing> <missing>])
  (eoi "")]
 error at line 1, column 8:
 expected command

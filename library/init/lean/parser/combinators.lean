@@ -23,9 +23,12 @@ def node (k : syntax_node_kind) (rs : list parser) : parser :=
 do args ← rs.mfoldl (λ (p : list syntax) r, do
      args ← pure p,
      -- on error, append partial syntax tree to previous successful parses and rethrow
-     a ← catch r $ λ msg,
-       let args := msg.custom.get :: args in
-       throw {msg with custom := syntax.node ⟨k, args.reverse⟩},
+     a ← catch r $ λ msg, match args with
+       -- do not wrap an error in the first argument to uphold the invariant documented at `syntax_node`
+       | [] := throw msg
+       | _  :=
+         let args := msg.custom.get :: args in
+         throw {msg with custom := syntax.node ⟨k, args.reverse⟩},
      pure (a::args)
    ) [],
    pure $ syntax.node ⟨k, args.reverse⟩

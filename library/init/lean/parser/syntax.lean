@@ -35,11 +35,11 @@ structure syntax_node_kind :=
 @[pattern] def no_kind : syntax_node_kind := ⟨`lean.parser.no_kind⟩
 
 /-
-Parsers create `syntax_node`'s with the following property:
+Parsers create `syntax_node`'s with the following properties (see implementation of `combinators.node`):
 - If `args` contains a `syntax.missing`, then all subsequent elements are also `syntax.missing`.
-- We believe the first argument in `args` is not `syntax.missing`. TODO: check this.
+- The first argument in `args` is not `syntax.missing`
 
-Remark: We do create `syntax_node`'s with an empty `args` field.
+Remark: We do create `syntax_node`'s with an empty `args` field (e.g. for representing `option.none`).
 -/
 structure syntax_node (syntax : Type) :=
 -- TODO: add `lean.parser.list` kind, and remove option. Then `none` = `lean.parser.seq`

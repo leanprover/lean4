@@ -2797,31 +2797,6 @@ void vm_state::display_registers(std::ostream & out) const {
     out << "pc: " << m_pc << ", bp: " << m_bp << "\n";
 }
 
-vm_obj update(vm_obj const & o, unsigned idx, vm_obj const & v) {
-    lean_vm_check(idx < csize(o));
-    vm_obj r;
-    if (o.raw()->get_rc() > 1) {
-        r = mk_vm_constructor(cidx(o), csize(o), cfields(o));
-    } else {
-        r = o;
-    }
-    vm_obj * fields = const_cast<vm_obj*>(to_composite(r)->fields());
-    fields[idx] = v;
-    return r;
-}
-
-vm_obj update_cidx(vm_obj const & o, unsigned idx) {
-    lean_vm_check(is_composite(o));
-    vm_obj r;
-    if (o.raw()->get_rc() > 1) {
-        r = mk_vm_constructor(cidx(o), csize(o), cfields(o));
-    } else {
-        r = o;
-    }
-    const_cast<vm_composite*>(to_composite(r))->m_idx = idx;
-    return r;
-}
-
 void vm_state::run() {
     lean_assert(m_code);
     unsigned init_call_stack_sz = m_call_stack.size();
@@ -2903,14 +2878,14 @@ void vm_state::run() {
 
                stack before,   after
                ...           ...
-               a             a'  (a.idx := ())
+               s             s'  (s.idx := ())
             */
             unsigned idx = instr.get_idx();
-            vm_obj & top = m_stack.back();
-            if (top.raw()->get_rc() > 1) {
-                top = mk_vm_constructor(cidx(top), csize(top), cfields(top));
+            vm_obj & s = m_stack.back();
+            if (s.raw()->get_rc() > 1) {
+                s = mk_vm_constructor(cidx(s), csize(s), cfields(s));
             }
-            const_cast<vm_obj*>(to_composite(top)->fields())[idx] = mk_vm_simple(0);
+            const_cast<vm_obj*>(to_composite(s)->fields())[idx] = mk_vm_simple(0);
             m_pc++;
             goto main_loop;
         }
@@ -2919,14 +2894,18 @@ void vm_state::run() {
 
                stack before,   after
                ...           ...
-               a             a'  (a.idx := v)
+               s             s'  (s.idx := v)
                v       ==>
             */
             unsigned idx = instr.get_idx();
             unsigned sz  = m_stack.size();
-            vm_obj r     = update(m_stack[sz-2], idx, m_stack[sz-1]);
+            vm_obj & s   = m_stack[sz-2];
+            vm_obj & v   = m_stack[sz-1];
+            if (s.raw()->get_rc() > 1) {
+                s = mk_vm_constructor(cidx(s), csize(s), cfields(s));
+            }
+            std::swap(const_cast<vm_obj*>(to_composite(s)->fields())[idx], v);
             m_stack.pop_back();
-            m_stack.back() = r;
             m_pc++;
             goto main_loop;
         }
@@ -2935,11 +2914,14 @@ void vm_state::run() {
 
                stack before,   after
                ...           ...
-               a       ==>   a'  (a.cidx := cidx)
+               s       ==>   s'  (s.cidx := cidx)
             */
-            unsigned cidx = instr.get_idx();
-            vm_obj & top  = m_stack.back();
-            top           = update_cidx(top, cidx);
+            unsigned idx = instr.get_idx();
+            vm_obj & s    = m_stack.back();
+            if (s.raw()->get_rc() > 1) {
+                s = mk_vm_constructor(cidx(s), csize(s), cfields(s));
+            }
+            const_cast<vm_composite*>(to_composite(s))->m_idx = idx;
             m_pc++;
             goto main_loop;
         }

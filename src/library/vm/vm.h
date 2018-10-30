@@ -122,8 +122,7 @@ class vm_composite : public vm_obj_cell {
     }
     friend vm_obj_cell;
     void dealloc(buffer<vm_obj_cell*> & todelete);
-    friend vm_obj update(vm_obj const & o, unsigned idx, vm_obj const & v);
-    friend vm_obj update_cidx(vm_obj const & o, unsigned cidx);
+    friend class vm_state;
 public:
     vm_composite(vm_obj_kind k, unsigned idx, unsigned sz, vm_obj const * data);
     unsigned size() const { return m_size; }

@@ -32,6 +32,7 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/check.h"
 #include "library/aux_match.h"
+#include "library/time_task.h"
 
 namespace lean {
 bool is_at_least_semireducible(transparency_mode m) {
@@ -3658,6 +3659,8 @@ struct instance_synthesizer {
     optional<expr> operator()(expr const & type) {
         flet<bool> scope_left(m_ctx.m_update_left, true);
         flet<bool> scope_right(m_ctx.m_update_right, true);
+        time_task t("typeclass inference",
+                    message_builder(environment(), get_global_ios(), "foo", pos_info(), message_severity::INFORMATION));
         if (is_trace_enabled() && !is_trace_class_enabled("class_instances")) {
             scope_trace_silent scope(true);
             return main(type);

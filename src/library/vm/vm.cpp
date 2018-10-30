@@ -2722,28 +2722,6 @@ void vm_state::invoke_global(vm_decl const & d) {
     m_code            = d.get_code();
     m_pc              = 0;
     m_bp              = m_stack.size() - d.get_arity();
-    if (m_debugging) {
-        m_stack_info.resize(m_stack.size());
-        unsigned i = 0;
-        for (auto const & info : d.get_args_info()) {
-            m_stack_info[m_bp + i] = info;
-            i++;
-        }
-    }
-#if 0
-    std::cout << d.get_name() << "\n";
-    for (auto info : d.get_args_info()) {
-        std::cout << info.first << " : ";
-        if (info.second)
-            std::cout << *info.second;
-        else
-            std::cout << "none";
-        std::cout << "\n";
-    }
-    std::cout << "----------\n";
-    display_stack(std::cout);
-    std::cout << "============\n";
-#endif
 }
 
 void vm_state::invoke_cfun(vm_decl const & d) {
@@ -2844,12 +2822,8 @@ void vm_state::run() {
             */
             unsigned off = m_bp + instr.get_idx();
             lean_vm_check(off < m_stack.size());
-            if (LEAN_UNLIKELY(m_debugging)) {
-                m_stack.push_back(m_stack[off]);
-            } else {
-                m_stack.push_back(mk_vm_unit());
-                swap(m_stack.back(), m_stack[off]);
-            }
+            m_stack.push_back(mk_vm_unit());
+            swap(m_stack.back(), m_stack[off]);
             m_pc++;
             goto main_loop;
         }

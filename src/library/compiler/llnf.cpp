@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "runtime/sstream.h"
 #include "kernel/instantiate.h"
+#include "kernel/for_each_fn.h"
 #include "library/util.h"
 #include "library/compiler/util.h"
 
@@ -429,10 +430,11 @@ class to_llnf_fn {
 
     /* Auxiliary functor for replacing constructor applications with update operations. */
     class replace_cnstr_fn {
-        to_llnf_fn &        m_owner;
-        expr const &        m_major;
-        cnstr_info const &  m_cinfo;
-        bool                m_replaced{false};
+        to_llnf_fn &         m_owner;
+        expr const &         m_major;
+        cnstr_info const &   m_cinfo;
+        buffer<bool> const & m_used_fields; /* `m_used_fields[i]` is true if the field `i` is used in the minor premise. */
+        bool                 m_replaced{false};
 
         environment const & env() { return m_owner.env(); }
 
@@ -451,21 +453,25 @@ class to_llnf_fn {
             }
             constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
             unsigned nparams       = k_val.get_nparams();
-            /* Reset object fields that are updated. By resetting them, we make sure we decrease the object
-               RC stored in these fields. This has two benefits:
+            /* Reset object fields that are updated and have been used somewhere in the minor premise.
+               By resetting them, we make sure we decrease the object RC stored in these fields.
+               This has two benefits:
                1) Reduce memory contention.
                2) Create new opportunities for destructive updates. */
             expr r          = m_major;
             unsigned j      = nparams;
+            unsigned i      = 0;
             unsigned idx    = 0;
             for (field_info const & info : k_info.m_field_info) {
+                lean_assert(j == i + nparams);
                 if (info.m_kind == field_info::Object) {
-                    if (!m_owner.is_proj_of(args[j], m_major, idx)) {
+                    if (!m_owner.is_proj_of(args[j], m_major, idx) && m_used_fields[i]) {
                         expr new_updt = m_owner.mk_updt(r, idx, mk_llnf_cnstr(0, 0));
                         r             = m_owner.mk_let_decl(mk_enf_object_type(), new_updt);
                     }
                     idx++;
                 }
+                i++;
                 j++;
             }
             /* Remark: note that we do not create let-declarations here for the following updates.
@@ -543,16 +549,28 @@ class to_llnf_fn {
         }
 
     public:
-        replace_cnstr_fn(to_llnf_fn & owner, expr const & major, cnstr_info const & cinfo):
-            m_owner(owner), m_major(major), m_cinfo(cinfo) {}
+        replace_cnstr_fn(to_llnf_fn & owner, expr const & major, cnstr_info const & cinfo, buffer<bool> const & used_fields):
+            m_owner(owner), m_major(major), m_cinfo(cinfo), m_used_fields(used_fields) {}
         expr operator()(expr const & e) { return visit(e); }
     };
 
-    expr try_update_opt(expr const & minor, expr const & major, cnstr_info const & cinfo) {
+    expr try_update_opt(expr const & minor, expr const & major, cnstr_info const & cinfo, buffer<expr> const & fields) {
         if (cinfo.m_num_objs == 0 && cinfo.m_scalar_sz == 0) return minor;
         if (!is_fvar(major)) return minor;
         if (has_fvar(minor, major)) return minor;
-        return replace_cnstr_fn(*this, major, cinfo)(minor);
+        buffer<bool> used_fields;
+        used_fields.resize(fields.size(), false);
+        for_each(minor, [&](expr const & e, unsigned) {
+                if (!has_fvar(e)) return false;
+                if (is_fvar(e)) {
+                    for (unsigned i = 0; i < fields.size(); i++) {
+                        if (is_fvar(fields[i]) && e == fields[i])
+                            used_fields[i] = true;
+                    }
+                }
+                return true;
+            });
+        return replace_cnstr_fn(*this, major, cinfo, used_fields)(minor);
     }
 
     expr visit_cases(expr const & e) {
@@ -610,7 +628,7 @@ class to_llnf_fn {
                 minor = binding_body(minor);
             }
             minor     = instantiate_rev(minor, fields.size(), fields.data());
-            minor     = try_update_opt(minor, major, cinfo);
+            minor     = try_update_opt(minor, major, cinfo, fields);
             minor     = visit(minor);
             if (!is_enf_unreachable(minor)) {
                 /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */

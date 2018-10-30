@@ -102,7 +102,7 @@ class live_vars_fn {
         case opcode::Proj: case opcode::Apply: case opcode::InvokeGlobal:
         case opcode::InvokeBuiltin: case opcode::InvokeCFun:
         case opcode::Closure: case opcode::Expr: case opcode::LocalInfo:
-        case opcode::Updt: case opcode::UpdtCidx:
+        case opcode::Reset: case opcode::Updt: case opcode::UpdtCidx:
             s = collect(pc+1);
             break;
         case opcode::Push: case opcode::Move:

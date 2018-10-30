@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_cnstr     = nullptr;
+static name * g_reset     = nullptr;
 static name * g_updt      = nullptr;
 static name * g_updt_cidx = nullptr;
 static name * g_updt_u8   = nullptr;
@@ -51,6 +52,9 @@ static bool is_llnf_primitive(expr const & e, name const & prefix, unsigned & i)
     i = n.get_numeral().get_small_value();
     return true;
 }
+
+expr mk_llnf_reset(unsigned i) { return mk_constant(name(*g_reset, i)); }
+bool is_llnf_reset(expr const & e, unsigned & i) { return is_llnf_primitive(e, *g_reset, i); }
 
 expr mk_llnf_updt(unsigned i) { return mk_constant(name(*g_updt, i)); }
 bool is_llnf_updt(expr const & e, unsigned & i) { return is_llnf_primitive(e, *g_updt, i); }
@@ -377,6 +381,10 @@ class to_llnf_fn {
         }
     }
 
+    expr mk_reset(expr const & major, unsigned idx) {
+        return mk_app(mk_llnf_reset(idx), major);
+    }
+
     expr mk_updt(expr const & major, unsigned idx, expr const & v) {
         return mk_app(mk_llnf_updt(idx), major, v);
     }
@@ -466,7 +474,7 @@ class to_llnf_fn {
                 lean_assert(j == i + nparams);
                 if (info.m_kind == field_info::Object) {
                     if (!m_owner.is_proj_of(args[j], m_major, idx) && m_used_fields[i]) {
-                        expr new_updt = m_owner.mk_updt(r, idx, mk_llnf_cnstr(0, 0));
+                        expr new_updt = m_owner.mk_reset(r, idx);
                         r             = m_owner.mk_let_decl(mk_enf_object_type(), new_updt);
                     }
                     idx++;
@@ -810,6 +818,7 @@ expr to_llnf(environment const & env, expr const & e, bool unboxed) {
 
 void initialize_llnf() {
     g_cnstr     = new name("_cnstr");
+    g_reset     = new name("_reset");
     g_updt      = new name("_updt");
     g_updt_cidx = new name("_updt_cidx");
     g_updt_u8   = new name("_updt_u8");
@@ -830,6 +839,7 @@ void initialize_llnf() {
 
 void finalize_llnf() {
     delete g_cnstr;
+    delete g_reset;
     delete g_updt;
     delete g_updt_u8;
     delete g_updt_u16;

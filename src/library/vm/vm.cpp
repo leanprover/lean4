@@ -525,6 +525,7 @@ void vm_instr::display(std::ostream & out) const {
     switch (m_op) {
     case opcode::Push:          out << "push " << m_idx; break;
     case opcode::Move:          out << "move " << m_idx; break;
+    case opcode::Reset:         out << "reset " << m_idx; break;
     case opcode::Updt:          out << "updt " << m_idx; break;
     case opcode::UpdtCidx:      out << "updt_cidx " << m_idx; break;
     case opcode::Ret:           out << "ret"; break;
@@ -616,6 +617,12 @@ vm_instr mk_push_instr(unsigned idx) {
 
 vm_instr mk_move_instr(unsigned idx) {
     vm_instr r(opcode::Move);
+    r.m_idx = idx;
+    return r;
+};
+
+vm_instr mk_reset_instr(unsigned idx) {
+    vm_instr r(opcode::Reset);
     r.m_idx = idx;
     return r;
 };
@@ -773,8 +780,8 @@ void vm_instr::copy_args(vm_instr const & i) {
         m_fn_idx = i.m_fn_idx;
         m_nargs  = i.m_nargs;
         break;
-    case opcode::Push: case opcode::Move: case opcode::Proj:
-    case opcode::Updt: case opcode::UpdtCidx:
+    case opcode::Push:  case opcode::Move: case opcode::Proj:
+    case opcode::Reset: case opcode::Updt: case opcode::UpdtCidx:
         m_idx  = i.m_idx;
         break;
     case opcode::Drop:
@@ -887,8 +894,8 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::Closure:
         s << idx2name(m_fn_idx) << m_nargs;
         break;
-    case opcode::Push: case opcode::Move: case opcode::Proj:
-    case opcode::Updt: case opcode::UpdtCidx:
+    case opcode::Push:  case opcode::Move: case opcode::Proj:
+    case opcode::Reset: case opcode::Updt: case opcode::UpdtCidx:
         s << m_idx;
         break;
     case opcode::Drop:
@@ -959,6 +966,8 @@ static vm_instr read_vm_instr(deserializer & d) {
         return mk_push_instr(d.read_unsigned());
     case opcode::Move:
         return mk_move_instr(d.read_unsigned());
+    case opcode::Reset:
+        return mk_reset_instr(d.read_unsigned());
     case opcode::Updt:
         return mk_updt_instr(d.read_unsigned());
     case opcode::UpdtCidx:
@@ -2886,6 +2895,22 @@ void vm_state::run() {
             swap(m_stack[sz - num - 1], m_stack[sz - 1]);
             m_stack.resize(sz - num);
             if (m_debugging) shrink_stack_info();
+            m_pc++;
+            goto main_loop;
+        }
+        case opcode::Reset: {
+            /* Instruction: reset idx
+
+               stack before,   after
+               ...           ...
+               a             a'  (a.idx := ())
+            */
+            unsigned idx = instr.get_idx();
+            vm_obj & top = m_stack.back();
+            if (top.raw()->get_rc() > 1) {
+                top = mk_vm_constructor(cidx(top), csize(top), cfields(top));
+            }
+            const_cast<vm_obj*>(to_composite(top)->fields())[idx] = mk_vm_simple(0);
             m_pc++;
             goto main_loop;
         }

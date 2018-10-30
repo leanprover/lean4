@@ -316,7 +316,7 @@ enum class opcode {
     Cases2, CasesN, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
     Closure, Unreachable, Expr, LocalInfo,
-    Updt, UpdtCidx
+    Reset, Updt, UpdtCidx
 };
 
 /** \brief VM instructions */
@@ -327,7 +327,7 @@ class vm_instr {
             unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin, InvokeCFun and Closure. */
             unsigned m_nargs;   /* Closure */
         };
-        /* Push, Move, Proj, Updt, UpdtCidx */
+        /* Push, Move, Proj, Reset, Updt, UpdtCidx */
         unsigned m_idx;
         /* Drop */
         unsigned m_num;
@@ -378,6 +378,7 @@ class vm_instr {
     friend vm_instr mk_expr_instr(expr const &e);
     friend vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
     friend vm_instr mk_updt_instr(unsigned idx);
+    friend vm_instr mk_reset_instr(unsigned idx);
     friend vm_instr mk_updt_cidx_instr(unsigned cidx);
 
     void release_memory();
@@ -407,7 +408,7 @@ public:
 
     unsigned get_idx() const {
         lean_assert(m_op == opcode::Push || m_op == opcode::Move || m_op == opcode::Proj ||
-                    m_op == opcode::Updt || m_op == opcode::UpdtCidx);
+                    m_op == opcode::Reset || m_op == opcode::Updt || m_op == opcode::UpdtCidx);
         return m_idx;
     }
 
@@ -519,6 +520,7 @@ vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 vm_instr mk_expr_instr(expr const &e);
 vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
+vm_instr mk_reset_instr(unsigned idx);
 vm_instr mk_updt_instr(unsigned idx);
 vm_instr mk_updt_cidx_instr(unsigned cidx);
 

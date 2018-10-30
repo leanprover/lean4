@@ -34,7 +34,7 @@ instance doc_comment.tokens : has_tokens doc_comment.parser :=
 @[derive has_tokens has_view]
 def attr_instance.parser : command_parser :=
 -- use `raw_ident` because of attribute names such as `instance`
-node! attr_instance [name: raw_ident.parser, args: term.parser*]
+node! attr_instance [name: raw_ident.parser, args: (term.parser max_prec)*]
 
 @[derive has_tokens has_view]
 def decl_attributes.parser : command_parser :=

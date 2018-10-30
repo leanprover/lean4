@@ -89,7 +89,7 @@ static environment derive(environment env, options const & opts, name const & n,
         for (unsigned i = 0; i < tgt_num_args - expected_tgt_num_args && is_binding(tgt_ty); i++) {
             auto param = ctx.push_local_from_binding(tgt_ty);
             tgt = mk_app(tgt, param);
-            real_tgt = mk_app(real_tgt, param);
+            real_tgt = beta_reduce(mk_app(real_tgt, param));
             params.push_back(param);
             tgt_ty = instantiate(binding_body(tgt_ty), param);
         }

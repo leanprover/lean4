@@ -40,40 +40,6 @@ def add' : nat → nat → nat
 | 0 b     := nat.succ b
 | (a+1) b := nat.succ (nat.succ (add' a b))
 
-namespace lean
-namespace parser
-namespace monad_parsec
-open parsec_t
-
-variables {μ : Type}
-variables {m : Type → Type} [monad m] [monad_parsec μ m] [inhabited μ] {α β : Type}
-
-open parsec
-
-def longest_match' [monad_except (message μ) m] (ps : list (m α)) : m (list α) :=
-do it ← left_over,
-   r ← ps.mfoldr (λ p (r : result μ (list α)),
-     lookahead $ catch
-       (do
-         a ← p,
-         it ← left_over,
-         pure $ match r with
-         | result.ok as it' none := if it'.offset > it.offset then r
-             else if it.offset > it'.offset then result.ok [a] it none
-             else result.ok (a::as) it none
-         | _                := result.ok [a] it none)
-       (λ msg, pure $ match r with
-           | result.error msg' _ := if nat.lt msg.it.offset msg'.it.offset then r -- FIXME
-             else if nat.lt msg'.it.offset msg.it.offset then result.error msg tt
-             else result.error (merge msg msg') tt
-           | _ := r))
-    ((error "longest_match: empty list" : parsec _ _) it),
-    lift $ λ _, r
-
-end monad_parsec
-end parser
-end lean
-
 def aux (i : nat) (h : i > 0) :=
 i
 

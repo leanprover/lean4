@@ -403,6 +403,7 @@ class to_llnf_fn {
     /* Auxiliary functor for replacing constructor applications with update operations. */
     class replace_cnstr_fn {
         to_llnf_fn &         m_owner;
+        name const &         m_I_name;
         expr const &         m_major;
         cnstr_info const &   m_cinfo;
         /* `m_major` may be replaced/reused many times in different branches, but we
@@ -447,12 +448,28 @@ class to_llnf_fn {
                 /* Optimization is not applicable to runtime builtin constructors. */
                 return e;
             }
+            constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
+            if (k_val.get_induct() != m_I_name) {
+                /* Heuristic: we don't want to reuse cells from different types even when they are compatible
+                   because it produces counterintuitive behavior. Here is an example:
+                   ```
+                   @list.cases_on a
+                     (@prod.cases_on a_1 (λ fst snd, (punit.star, snd)))
+                     (λ a_hd a_tl,
+                         @prod.cases_on a_1
+                           (λ fst snd,
+                              let _x_1 := nat.add snd a_hd,
+                                  _x_2 := (punit.star, _x_1)
+                              in list.mmap'._main._at.accum._spec_1 a_tl _x_2))
+                   ```
+                   Without this heuristic, we will try ton construct `(punit.star, _x_1)` re-using `a` instead of `a_1`. */
+                return e;
+            }
             cnstr_info k_info      = m_owner.get_cnstr_info(const_name(k));
             if (k_info.m_num_objs  != m_cinfo.m_num_objs || k_info.m_scalar_sz != m_cinfo.m_scalar_sz) {
                 /* This constructor is not compatible with major premise */
                 return e;
             }
-            constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
             unsigned nparams       = k_val.get_nparams();
             if (!m_reset) {
                 m_major_after_reset = m_owner.mk_reset(m_major, k_info.m_num_objs);
@@ -533,16 +550,16 @@ class to_llnf_fn {
         }
 
     public:
-        replace_cnstr_fn(to_llnf_fn & owner, expr const & major, cnstr_info const & cinfo):
-            m_owner(owner), m_major(major), m_cinfo(cinfo) {}
+        replace_cnstr_fn(to_llnf_fn & owner, name const & I_name, expr const & major, cnstr_info const & cinfo):
+            m_owner(owner), m_I_name(I_name), m_major(major), m_cinfo(cinfo) {}
         expr operator()(expr const & e) { return visit(e); }
     };
 
-    expr try_update_opt(expr const & minor, expr const & major, cnstr_info const & cinfo) {
+    expr try_update_opt(name const & I_name, expr const & minor, expr const & major, cnstr_info const & cinfo) {
         if (cinfo.m_num_objs == 0 && cinfo.m_scalar_sz == 0) return minor;
         if (!is_fvar(major)) return minor;
         if (has_fvar(minor, major)) return minor;
-        return replace_cnstr_fn(*this, major, cinfo)(minor);
+        return replace_cnstr_fn(*this, I_name, major, cinfo)(minor);
     }
 
     expr visit_cases(expr const & e) {
@@ -600,7 +617,7 @@ class to_llnf_fn {
                 minor = binding_body(minor);
             }
             minor     = instantiate_rev(minor, fields.size(), fields.data());
-            minor     = try_update_opt(minor, major, cinfo);
+            minor     = try_update_opt(I_name, minor, major, cinfo);
             minor     = visit(minor);
             if (!is_enf_unreachable(minor)) {
                 /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */

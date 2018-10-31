@@ -77,7 +77,7 @@ instance : has_sub nat :=
 instance : has_mul nat :=
 ⟨nat.mul⟩
 
-def {u} repeat {α : Type u} (f : nat → α → α) : nat → α → α
+@[specialize] def {u} repeat {α : Type u} (f : nat → α → α) : nat → α → α
 | 0         m := m
 | (succ n)  m := f n (repeat n m)
 

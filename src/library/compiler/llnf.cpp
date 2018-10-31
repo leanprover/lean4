@@ -441,7 +441,12 @@ class to_llnf_fn {
         to_llnf_fn &         m_owner;
         expr const &         m_major;
         cnstr_info const &   m_cinfo;
-        buffer<bool> const & m_used_fields; /* `m_used_fields[i]` is true if the field `i` is used in the minor premise. */
+        /* `m_used_fields[i]` is true if the field `i` is used in the minor premise. */
+        buffer<bool> const & m_to_reset_fields;
+        /* `m_major` may be replaced/reused many times in different branches, but we
+           only have to reset fields once. */
+        bool                 m_reset{false};
+        expr                 m_major_after_reset;
         bool                 m_replaced{false};
 
         environment const & env() { return m_owner.env(); }
@@ -461,26 +466,29 @@ class to_llnf_fn {
             }
             constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
             unsigned nparams       = k_val.get_nparams();
-            /* Reset object fields that are updated and have been used somewhere in the minor premise.
-               By resetting them, we make sure we decrease the object RC stored in these fields.
-               This has two benefits:
-               1) Reduce memory contention.
-               2) Create new opportunities for destructive updates. */
-            expr r          = m_major;
-            unsigned j      = nparams;
-            unsigned i      = 0;
-            unsigned idx    = 0;
-            for (field_info const & info : k_info.m_field_info) {
-                lean_assert(j == i + nparams);
-                if (info.m_kind == field_info::Object) {
-                    if (!m_owner.is_proj_of(args[j], m_major, idx) && m_used_fields[i]) {
-                        expr new_updt = m_owner.mk_reset(r, idx);
-                        r             = m_owner.mk_let_decl(mk_enf_object_type(), new_updt);
+            /* See `mark_to_reset_fields` */
+            expr r;
+            if (!m_reset) {
+                r               = m_major;
+                unsigned j      = nparams;
+                unsigned i      = 0;
+                unsigned idx    = 0;
+                for (field_info const & info : k_info.m_field_info) {
+                    lean_assert(j == i + nparams);
+                    if (info.m_kind == field_info::Object) {
+                        if (m_to_reset_fields[i]) {
+                            expr new_updt = m_owner.mk_reset(r, idx);
+                            r             = m_owner.mk_let_decl(mk_enf_object_type(), new_updt);
+                        }
+                        idx++;
                     }
-                    idx++;
+                    i++;
+                    j++;
                 }
-                i++;
-                j++;
+                m_reset             = true;
+                m_major_after_reset = r;
+            } else {
+                r = m_major_after_reset;
             }
             /* Remark: note that we do not create let-declarations here for the following updates.
                We will flatten them later when we visit the minor premise. */
@@ -491,14 +499,16 @@ class to_llnf_fn {
             }
             /* Update fields with new values. */
             unsigned offset = k_info.m_num_objs * sizeof(void*);
-            j               = nparams;
-            idx             = 0;
+            unsigned j      = nparams;
+            unsigned i      = 0;
+            unsigned idx    = 0;
             for (field_info const & info : k_info.m_field_info) {
+                lean_assert(j == i + nparams);
                 switch (info.m_kind) {
                 case field_info::Irrelevant:
                     break;
                 case field_info::Object:
-                    if (!m_owner.is_proj_of(args[j], m_major, idx)) {
+                    if (m_to_reset_fields[i] || !m_owner.is_proj_of(args[j], m_major, idx)) {
                         r = m_owner.mk_updt(r, idx, args[j]);
                     }
                     idx++;
@@ -511,6 +521,7 @@ class to_llnf_fn {
                     break;
                 }
                 j++;
+                i++;
             }
             m_replaced = true;
             return r;
@@ -520,15 +531,23 @@ class to_llnf_fn {
             if (is_constructor_app(env(), e)) {
                 return visit_constructor(e);
             } else if (is_cases_on_app(env(), e)) {
+                lean_assert(!m_replaced);
                 buffer<expr> args;
-                expr const & fn = get_app_args(e, args);
-                bool modified   = false;
+                expr const & fn   = get_app_args(e, args);
+                bool modified     = false;
+                bool new_replaced = false;
                 for (expr & arg : args) {
+                    /* `m_major` can be reused in each branch. */
+                    m_replaced   = false;
                     expr new_arg = visit(arg);
+                    if (m_replaced)
+                        new_replaced = true;
                     if (!is_eqp(arg, new_arg))
                         modified = true;
                     arg = new_arg;
                 }
+                /* We assume that `m_major` has be reused IF it was reused in one of the branches. */
+                m_replaced = new_replaced;
                 return modified ? mk_app(fn, args) : e;
             } else {
                 return e;
@@ -557,28 +576,98 @@ class to_llnf_fn {
         }
 
     public:
-        replace_cnstr_fn(to_llnf_fn & owner, expr const & major, cnstr_info const & cinfo, buffer<bool> const & used_fields):
-            m_owner(owner), m_major(major), m_cinfo(cinfo), m_used_fields(used_fields) {}
+        replace_cnstr_fn(to_llnf_fn & owner, expr const & major, cnstr_info const & cinfo, buffer<bool> const & to_reset_fields):
+            m_owner(owner), m_major(major), m_cinfo(cinfo), m_to_reset_fields(to_reset_fields) {}
         expr operator()(expr const & e) { return visit(e); }
     };
+
+    /* Auxiliary methods used to implement `try_update_opt`. We say a field needs to be reset at the beginning of a major
+       premise if it is used in a non tail call.
+       We "reset" the field to create new opportunites for destructive updates.
+       For example, consider the following sequence of instructions in low-level normal form without `reset` operations.
+       ```
+       map_add_1 :=
+       λ xs, @list.cases_on xs
+         _cnstr.0.0
+         (let _x_1 := _proj.0 xs,
+              _x_2 := _proj.1 xs,
+              _x_5 := nat.add _x_1 1,
+              _x_6 := map_add_1 _x_2,
+              _x_7 := _updt.0 xs _x_5
+              in _updt.1 _x_7 _x_6)
+       ```
+       After the instruction `_x_2 := _proj.1 xs`, there are at least two references to the tail of `xs`: `_x_2` and the one
+       on `xs`. So, the recursive call `map_add_1 _x_2` will not be able to perform destructive updates.
+       Now consider the version that uses `reset` operations.
+       ```
+       map_add_1 :=
+       λ xs, @list.cases_on xs
+         _cnstr.0.0
+         (let _x_1 := _proj.0 xs,
+              _x_2 := _proj.1 xs,
+              _x_3 := _reset.0 xs,
+              _x_4 := _reset.1 _x_3,
+              _x_5 := nat.add _x_1 1,
+              _x_6 := map_add_1 _x_2,
+              _x_7 := _updt.0 _x_4_x_5
+              in _updt.1 _x_7 _x_6)
+       ```
+       The reset operations will decrease the reference counter of `xs` head and tail.
+       Note that the operation `_x_3 := _reset.0 xs` is wasteful since `nat.add` never performs destructive updates.
+       In the future, we may consider a better `mark_to_reset_fields` that avoids these unnecessary reset operations.
+
+       Remark: `reset` operations may also help to reduce memory contention.
+    */
+    void mark_to_reset_fields(expr const & e0, buffer<expr> const & fields, buffer<bool> & result) {
+        buffer<pair<expr, bool>> todo;
+        todo.emplace_back(e0, true);
+        expr e; bool tail;
+        while (!todo.empty()) {
+            std::tie(e, tail) = todo.back();
+            todo.pop_back();
+            if (!has_fvar(e))
+                continue;
+            switch (e.kind()) {
+            case expr_kind::FVar:
+                if (!tail) {
+                    for (unsigned i = 0; i < fields.size(); i++) {
+                        if (is_fvar(fields[i]) && e == fields[i])
+                            result[i] = true;
+                    }
+                }
+                break;
+            case expr_kind::Let:
+                todo.emplace_back(let_body(e), tail);
+                todo.emplace_back(let_value(e), false);
+                break;
+            case expr_kind::Lambda:
+                todo.emplace_back(binding_body(e), tail);
+                break;
+            case expr_kind::Proj:
+                todo.emplace_back(proj_expr(e), tail);
+                break;
+            case expr_kind::App: {
+                buffer<expr> args;
+                expr const & fn = get_app_args(e, args);
+                todo.emplace_back(fn, tail);
+                for (expr const & arg : args)
+                    todo.emplace_back(arg, tail);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
 
     expr try_update_opt(expr const & minor, expr const & major, cnstr_info const & cinfo, buffer<expr> const & fields) {
         if (cinfo.m_num_objs == 0 && cinfo.m_scalar_sz == 0) return minor;
         if (!is_fvar(major)) return minor;
         if (has_fvar(minor, major)) return minor;
-        buffer<bool> used_fields;
-        used_fields.resize(fields.size(), false);
-        for_each(minor, [&](expr const & e, unsigned) {
-                if (!has_fvar(e)) return false;
-                if (is_fvar(e)) {
-                    for (unsigned i = 0; i < fields.size(); i++) {
-                        if (is_fvar(fields[i]) && e == fields[i])
-                            used_fields[i] = true;
-                    }
-                }
-                return true;
-            });
-        return replace_cnstr_fn(*this, major, cinfo, used_fields)(minor);
+        buffer<bool> to_reset_fields;
+        to_reset_fields.resize(fields.size(), false);
+        mark_to_reset_fields(minor, fields, to_reset_fields);
+        return replace_cnstr_fn(*this, major, cinfo, to_reset_fields)(minor);
     }
 
     expr visit_cases(expr const & e) {

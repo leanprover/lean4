@@ -762,6 +762,13 @@ class csimp_fn {
         return true;
     }
 
+    void sort_entries(buffer<expr_pair> & entries) {
+        std::sort(entries.begin(), entries.end(), [&](expr_pair const & p1, expr_pair const & p2) {
+                /* We use `>` because entries in `entries` are in reverse dependency order */
+                return m_lctx.get_local_decl(p1.first).get_idx() > m_lctx.get_local_decl(p2.first).get_idx();
+            });
+    }
+
     /* Copy `src_entries` and the new joint points that depend on them to `entries`, and update `entries_fvars`.
        This method is used after we perform a `float_cases_on`. */
     void move_to_entries(buffer<expr_pair> const & src_entries, buffer<expr_pair> & entries, name_set & entries_fvars) {
@@ -774,10 +781,8 @@ class csimp_fn {
                 expr_pair const & curr = todo.back();
                 auto it = m_fvar2jps.find(curr.first);
                 if (it != m_fvar2jps.end()) {
-                    /* Recall that the first join point at `it->second` is the oldest. */
                     buffer<expr> tmp;
                     to_buffer(it->second, tmp);
-                    std::reverse(tmp.begin(), tmp.end());
                     for (expr const & jp : tmp) {
                         /* Recall that new join points have already been simplified.
                            So, it is ok to move them to `entries`. */
@@ -791,6 +796,16 @@ class csimp_fn {
                 }
             }
         }
+        /* The following sorting operation is necessary because of non trivial dependencies between entries.
+           For example, consider the following scenario. When starting a `float_cases_on` operation, we determine
+           that the already processed entries `[_j_1._join, _x_1]` do not depend on the operation.
+           Moreover, `_j_1._join` is a new join-point that depends on `_x_1`. Recall that entries are in reverse
+           dependecy order, and this is why `_j_1._join` occurs before `_x_1`.
+           Then, during the actual execution of the `float_cases_on` operation, we create a new joint point `_j_2._join` that depends on `_j_1._join`,
+           and is consequently attached to `_x_1`, that is, `m_fvar2jps[_x_1]` contains `_j_2._join`.
+           After executing this procedure, `entries` will contain `[_j_1._join, _j_2._join, _x_1]` which is incorrect
+           since `_j_2._join` depends on `_j_1._join`. */
+        sort_entries(entries);
     }
 
     /* Create a let-expression with body `e`, and

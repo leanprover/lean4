@@ -18,25 +18,10 @@ void display_cumulative_profiling_times(std::ostream & out);
 class time_task {
     std::string     m_category;
     optional<xtimeit> m_timeit;
+    time_task *     m_parent_task;
 public:
-    time_task(std::string const & category, message_builder builder, name decl = name()) :
-            m_category(category) {
-        auto const & opts = builder.get_text_stream().get_options();
-        if (get_profiler(opts)) {
-            m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
-                builder.get_text_stream().get_stream() << m_category;
-                if (decl)
-                    builder.get_text_stream().get_stream() << " of " << decl;
-                builder.get_text_stream().get_stream() << " took " << display_profiling_time{duration} << "\n";
-                builder.report();
-            });
-        }
-    }
-
-    ~time_task() {
-        if (m_timeit)
-            report_profiling_time(m_category, m_timeit->get_elapsed());
-    }
+    time_task(std::string const & category, message_builder builder, name decl = name());
+    ~time_task();
 };
 
 void initialize_time_task();

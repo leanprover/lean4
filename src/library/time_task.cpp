@@ -12,6 +12,7 @@ namespace lean {
 
 static std::map<std::string, second_duration> * g_cum_times;
 static mutex * g_cum_times_mutex;
+LEAN_THREAD_PTR(time_task, g_current_time_task);
 
 void report_profiling_time(std::string const & category, second_duration time) {
     lock_guard<mutex> _(*g_cum_times_mutex);
@@ -34,5 +35,32 @@ void initialize_time_task() {
 void finalize_time_task() {
     delete g_cum_times;
     delete g_cum_times_mutex;
+}
+
+time_task::time_task(std::string const & category, message_builder builder, name decl) :
+        m_category(category) {
+    auto const & opts = builder.get_text_stream().get_options();
+    if (get_profiler(opts)) {
+        m_timeit = optional<xtimeit>(get_profiling_threshold(opts), [=](second_duration duration) mutable {
+            builder.get_text_stream().get_stream() << m_category;
+            if (decl)
+                builder.get_text_stream().get_stream() << " of " << decl;
+            builder.get_text_stream().get_stream() << " took " << display_profiling_time{duration} << "\n";
+            builder.report();
+        });
+        m_parent_task = g_current_time_task;
+        g_current_time_task = this;
+    }
+}
+
+time_task::~time_task() {
+    if (m_timeit) {
+        g_current_time_task = m_parent_task;
+        auto time = m_timeit->get_elapsed();
+        report_profiling_time(m_category, time);
+        if (m_parent_task)
+            // do not report inclusive times
+            report_profiling_time(m_parent_task->m_category, -time);
+    }
 }
 }

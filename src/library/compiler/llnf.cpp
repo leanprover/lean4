@@ -30,22 +30,7 @@ static name * g_proj_u16  = nullptr;
 static name * g_proj_u32  = nullptr;
 static name * g_proj_u64  = nullptr;
 
-expr mk_llnf_cnstr(unsigned cidx, unsigned scalar_sz) {
-    return mk_constant(name(name(*g_cnstr, cidx), scalar_sz));
-}
-
-bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz) {
-    if (!is_constant(e)) return false;
-    name const & n = const_name(e);
-    if (!is_internal_name(n) || n.is_atomic() || !n.is_numeral()) return false;
-    ssz = n.get_numeral().get_small_value();
-    name const & p = n.get_prefix();
-    if (p.is_atomic() || !p.is_numeral() || p.get_prefix() != *g_cnstr) return false;
-    cidx = p.get_numeral().get_small_value();
-    return true;
-}
-
-static bool is_llnf_primitive(expr const & e, name const & prefix, unsigned & i) {
+static bool is_llnf_unary_primitive(expr const & e, name const & prefix, unsigned & i) {
     if (!is_constant(e)) return false;
     name const & n = const_name(e);
     if (!is_internal_name(n) || n.is_atomic() || !n.is_numeral() || n.get_prefix() != prefix) return false;
@@ -53,41 +38,55 @@ static bool is_llnf_primitive(expr const & e, name const & prefix, unsigned & i)
     return true;
 }
 
+static bool is_llnf_binary_primitive(expr const & e, name const & prefix, unsigned & i1, unsigned & i2) {
+    if (!is_constant(e)) return false;
+    name const & n = const_name(e);
+    if (!is_internal_name(n) || n.is_atomic() || !n.is_numeral()) return false;
+    i2 = n.get_numeral().get_small_value();
+    name const & p = n.get_prefix();
+    if (p.is_atomic() || !p.is_numeral() || p.get_prefix() != prefix) return false;
+    i1 = p.get_numeral().get_small_value();
+    return true;
+}
+
+expr mk_llnf_cnstr(unsigned cidx, unsigned scalar_sz) { return mk_constant(name(name(*g_cnstr, cidx), scalar_sz)); }
+bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz) { return is_llnf_binary_primitive(e, *g_cnstr, cidx, ssz); }
+
 expr mk_llnf_reset(unsigned i) { return mk_constant(name(*g_reset, i)); }
-bool is_llnf_reset(expr const & e, unsigned & i) { return is_llnf_primitive(e, *g_reset, i); }
+bool is_llnf_reset(expr const & e, unsigned & i) { return is_llnf_unary_primitive(e, *g_reset, i); }
 
 expr mk_llnf_updt(unsigned i) { return mk_constant(name(*g_updt, i)); }
-bool is_llnf_updt(expr const & e, unsigned & i) { return is_llnf_primitive(e, *g_updt, i); }
+bool is_llnf_updt(expr const & e, unsigned & i) { return is_llnf_unary_primitive(e, *g_updt, i); }
 
 expr mk_llnf_updt_cidx(unsigned cidx) { return mk_constant(name(*g_updt_cidx, cidx)); }
-bool is_llnf_updt_cidx(expr const & e, unsigned & cidx) { return is_llnf_primitive(e, *g_updt_cidx, cidx); }
+bool is_llnf_updt_cidx(expr const & e, unsigned & cidx) { return is_llnf_unary_primitive(e, *g_updt_cidx, cidx); }
 
 expr mk_llnf_updt_u8(unsigned offset) { return mk_constant(name(*g_updt_u8, offset)); }
-bool is_llnf_updt_u8(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_updt_u8, offset); }
+bool is_llnf_updt_u8(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u8, offset); }
 
 expr mk_llnf_updt_u16(unsigned offset) { return mk_constant(name(*g_updt_u16, offset)); }
-bool is_llnf_updt_u16(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_updt_u16, offset); }
+bool is_llnf_updt_u16(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u16, offset); }
 
 expr mk_llnf_updt_u32(unsigned offset) { return mk_constant(name(*g_updt_u32, offset)); }
-bool is_llnf_updt_u32(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_updt_u32, offset); }
+bool is_llnf_updt_u32(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u32, offset); }
 
 expr mk_llnf_updt_u64(unsigned offset) { return mk_constant(name(*g_updt_u64, offset)); }
-bool is_llnf_updt_u64(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_updt_u64, offset); }
+bool is_llnf_updt_u64(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u64, offset); }
 
 expr mk_llnf_proj(unsigned idx) { return mk_constant(name(*g_proj, idx)); }
-bool is_llnf_proj(expr const & e, unsigned & idx) { return is_llnf_primitive(e, *g_proj, idx); }
+bool is_llnf_proj(expr const & e, unsigned & idx) { return is_llnf_unary_primitive(e, *g_proj, idx); }
 
 expr mk_llnf_proj_u8(unsigned offset) { return mk_constant(name(*g_proj_u8, offset)); }
-bool is_llnf_proj_u8(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_proj_u8, offset); }
+bool is_llnf_proj_u8(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u8, offset); }
 
 expr mk_llnf_proj_u16(unsigned offset) { return mk_constant(name(*g_proj_u16, offset)); }
-bool is_llnf_proj_u16(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_proj_u16, offset); }
+bool is_llnf_proj_u16(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u16, offset); }
 
 expr mk_llnf_proj_u32(unsigned offset) { return mk_constant(name(*g_proj_u32, offset)); }
-bool is_llnf_proj_u32(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_proj_u32, offset); }
+bool is_llnf_proj_u32(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u32, offset); }
 
 expr mk_llnf_proj_u64(unsigned offset) { return mk_constant(name(*g_proj_u64, offset)); }
-bool is_llnf_proj_u64(expr const & e, unsigned & offset) { return is_llnf_primitive(e, *g_proj_u64, offset); }
+bool is_llnf_proj_u64(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u64, offset); }
 
 [[ noreturn ]] static void throw_unsupported_field_size() {
     throw exception("code generation failed, unsupported field size");

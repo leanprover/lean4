@@ -315,7 +315,7 @@ enum class opcode {
     Cases2, CasesN, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
     Closure, Unreachable, Expr, LocalInfo,
-    Reset, Updt, UpdtCidx
+    Reset, Reuse
 };
 
 /** \brief VM instructions */
@@ -326,9 +326,9 @@ class vm_instr {
             unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin, InvokeCFun and Closure. */
             unsigned m_nargs;   /* Closure */
         };
-        /* Push, Move, Proj, Reset, Updt, UpdtCidx */
+        /* Push, Move, Proj */
         unsigned m_idx;
-        /* Drop */
+        /* Drop, Reset */
         unsigned m_num;
         /* Goto and Cases2 */
         struct {
@@ -338,10 +338,10 @@ class vm_instr {
         struct {
             unsigned * m_npcs;
         };
-        /* Constructor, SConstructor */
+        /* Constructor, SConstructor, Reuse */
         struct {
             unsigned m_cidx;
-            unsigned m_nfields; /* only used by Constructor */
+            unsigned m_nfields; /* only used by Constructor and Reuse */
         };
         /* Num */
         mpz * m_mpz;
@@ -363,6 +363,7 @@ class vm_instr {
     friend vm_instr mk_goto_instr(unsigned pc);
     friend vm_instr mk_sconstructor_instr(unsigned cidx);
     friend vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
+    friend vm_instr mk_reuse_instr(unsigned cidx, unsigned nfields);
     friend vm_instr mk_num_instr(mpz const & v);
     friend vm_instr mk_string_instr(std::string const & v);
     friend vm_instr mk_ret_instr();
@@ -376,9 +377,7 @@ class vm_instr {
     friend vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
     friend vm_instr mk_expr_instr(expr const &e);
     friend vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
-    friend vm_instr mk_updt_instr(unsigned idx);
-    friend vm_instr mk_reset_instr(unsigned idx);
-    friend vm_instr mk_updt_cidx_instr(unsigned cidx);
+    friend vm_instr mk_reset_instr(unsigned n);
 
     void release_memory();
     void copy_args(vm_instr const & i);
@@ -406,13 +405,12 @@ public:
     }
 
     unsigned get_idx() const {
-        lean_assert(m_op == opcode::Push || m_op == opcode::Move || m_op == opcode::Proj ||
-                    m_op == opcode::Reset || m_op == opcode::Updt || m_op == opcode::UpdtCidx);
+        lean_assert(m_op == opcode::Push || m_op == opcode::Move || m_op == opcode::Proj);
         return m_idx;
     }
 
     unsigned get_num() const {
-        lean_assert(m_op == opcode::Drop);
+        lean_assert(m_op == opcode::Drop || m_op == opcode::Reset);
         return m_num;
     }
 
@@ -456,12 +454,12 @@ public:
     }
 
     unsigned get_cidx() const {
-        lean_assert(m_op == opcode::Constructor || m_op == opcode::SConstructor);
+        lean_assert(m_op == opcode::Constructor || m_op == opcode::SConstructor || m_op == opcode::Reuse);
         return m_cidx;
     }
 
     unsigned get_nfields() const {
-        lean_assert(m_op == opcode::Constructor);
+        lean_assert(m_op == opcode::Constructor || m_op == opcode::Reuse);
         return m_nfields;
     }
 
@@ -506,6 +504,7 @@ vm_instr mk_proj_instr(unsigned n);
 vm_instr mk_goto_instr(unsigned pc);
 vm_instr mk_sconstructor_instr(unsigned cidx);
 vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields);
+vm_instr mk_reuse_instr(unsigned cidx, unsigned nfields);
 vm_instr mk_num_instr(mpz const & v);
 vm_instr mk_string_instr(std::string const & v);
 vm_instr mk_ret_instr();
@@ -519,9 +518,7 @@ vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 vm_instr mk_expr_instr(expr const &e);
 vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
-vm_instr mk_reset_instr(unsigned idx);
-vm_instr mk_updt_instr(unsigned idx);
-vm_instr mk_updt_cidx_instr(unsigned cidx);
+vm_instr mk_reset_instr(unsigned n);
 
 class vm_state;
 class vm_instr;

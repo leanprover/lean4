@@ -166,6 +166,17 @@ class emit_bytecode_fn {
         emit(mk_constructor_instr(cidx, get_app_num_args(e)));
     }
 
+    void compile_reuse(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
+        buffer<expr> args;
+        expr const & fn = get_app_args(e, args);
+        lean_assert(is_llnf_reuse(fn));
+        unsigned cidx, ssz;
+        is_llnf_reuse(fn, cidx, ssz);
+        if (ssz != 0) throw_no_unboxed_support();
+        compile_args(args.size(), args.data(), bpz, m);
+        emit(mk_reuse_instr(cidx, get_app_num_args(e) - 1));
+    }
+
     void compile_external(name const & n, buffer<expr> & args, unsigned bpz, name_map<unsigned> const & m) {
         // Not sure if this is the best approach, trying to lazy load the required
         // dynamic libraries.
@@ -208,34 +219,13 @@ class emit_bytecode_fn {
         emit(mk_proj_instr(idx));
     }
 
-    void compile_updt(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
-        expr fn = app_fn(app_fn(e));
-        expr s  = app_arg(app_fn(e));
-        expr v  = app_arg(e);
-        unsigned idx;
-        is_llnf_updt(fn, idx);
-        compile(s, bpz, m);
-        bpz++;
-        compile(v, bpz, m);
-        emit(mk_updt_instr(idx));
-    }
-
-    void compile_updt_cidx(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
-        expr fn = app_fn(e);
-        expr s  = app_arg(e);
-        unsigned idx;
-        is_llnf_updt_cidx(fn, idx);
-        compile(s, bpz, m);
-        emit(mk_updt_cidx_instr(idx));
-    }
-
     void compile_reset(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
         expr fn = app_fn(e);
         expr s  = app_arg(e);
-        unsigned idx;
-        is_llnf_reset(fn, idx);
+        unsigned n;
+        is_llnf_reset(fn, n);
         compile(s, bpz, m);
-        emit(mk_reset_instr(idx));
+        emit(mk_reset_instr(n));
     }
 
     void compile_app(expr const & e, unsigned bpz, name_map<unsigned> const & m) {
@@ -244,12 +234,10 @@ class emit_bytecode_fn {
             compile_cases_on(e, bpz, m);
         } else if (is_llnf_cnstr(fn)) {
             compile_cnstr(e, bpz, m);
+        } else if (is_llnf_reuse(fn)) {
+            compile_reuse(e, bpz, m);
         } else if (is_llnf_proj(fn)) {
             compile_proj(e, bpz, m);
-        } else if (is_llnf_updt(fn)) {
-            compile_updt(e, bpz, m);
-        } else if (is_llnf_updt_cidx(fn)) {
-            compile_updt_cidx(e, bpz, m);
         } else if (is_llnf_reset(fn)) {
             compile_reset(e, bpz, m);
         } else if (is_sorry(e)) {

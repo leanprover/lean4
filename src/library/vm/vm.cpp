@@ -525,14 +525,13 @@ void vm_instr::display(std::ostream & out) const {
     switch (m_op) {
     case opcode::Push:          out << "push " << m_idx; break;
     case opcode::Move:          out << "move " << m_idx; break;
-    case opcode::Reset:         out << "reset " << m_idx; break;
-    case opcode::Updt:          out << "updt " << m_idx; break;
-    case opcode::UpdtCidx:      out << "updt_cidx " << m_idx; break;
+    case opcode::Reset:         out << "reset " << m_num; break;
     case opcode::Ret:           out << "ret"; break;
     case opcode::Drop:          out << "drop " << m_num; break;
     case opcode::Goto:          out << "goto " << m_pc[0]; break;
     case opcode::SConstructor:  out << "scnstr #" << m_cidx; break;
     case opcode::Constructor:   out << "cnstr #" << m_cidx << " " << m_nfields; break;
+    case opcode::Reuse:         out << "reuse #" << m_cidx << " " << m_nfields; break;
     case opcode::Num:           out << "num " << *m_mpz; break;
     case opcode::String:        out << "str_lit \"" << *m_str << "\""; break;
     case opcode::Unreachable:   out << "unreachable"; break;
@@ -621,21 +620,9 @@ vm_instr mk_move_instr(unsigned idx) {
     return r;
 };
 
-vm_instr mk_reset_instr(unsigned idx) {
+vm_instr mk_reset_instr(unsigned n) {
     vm_instr r(opcode::Reset);
-    r.m_idx = idx;
-    return r;
-};
-
-vm_instr mk_updt_instr(unsigned idx) {
-    vm_instr r(opcode::Updt);
-    r.m_idx = idx;
-    return r;
-};
-
-vm_instr mk_updt_cidx_instr(unsigned idx) {
-    vm_instr r(opcode::UpdtCidx);
-    r.m_idx = idx;
+    r.m_num = n;
     return r;
 };
 
@@ -665,6 +652,13 @@ vm_instr mk_sconstructor_instr(unsigned cidx) {
 
 vm_instr mk_constructor_instr(unsigned cidx, unsigned nfields) {
     vm_instr r(opcode::Constructor);
+    r.m_cidx    = cidx;
+    r.m_nfields = nfields;
+    return r;
+}
+
+vm_instr mk_reuse_instr(unsigned cidx, unsigned nfields) {
+    vm_instr r(opcode::Reuse);
     r.m_cidx    = cidx;
     r.m_nfields = nfields;
     return r;
@@ -781,10 +775,9 @@ void vm_instr::copy_args(vm_instr const & i) {
         m_nargs  = i.m_nargs;
         break;
     case opcode::Push:  case opcode::Move: case opcode::Proj:
-    case opcode::Reset: case opcode::Updt: case opcode::UpdtCidx:
         m_idx  = i.m_idx;
         break;
-    case opcode::Drop:
+    case opcode::Drop: case opcode::Reset:
         m_num = i.m_num;
         break;
     case opcode::Goto:
@@ -802,7 +795,7 @@ void vm_instr::copy_args(vm_instr const & i) {
     case opcode::SConstructor:
         m_cidx = i.m_cidx;
         break;
-    case opcode::Constructor:
+    case opcode::Constructor: case opcode::Reuse:
         m_cidx    = i.m_cidx;
         m_nfields = i.m_nfields;
         break;
@@ -895,10 +888,9 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
         s << idx2name(m_fn_idx) << m_nargs;
         break;
     case opcode::Push:  case opcode::Move: case opcode::Proj:
-    case opcode::Reset: case opcode::Updt: case opcode::UpdtCidx:
         s << m_idx;
         break;
-    case opcode::Drop:
+    case opcode::Drop: case opcode::Reset:
         s << m_num;
         break;
     case opcode::Goto:
@@ -916,7 +908,7 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::SConstructor:
         s << m_cidx;
         break;
-    case opcode::Constructor:
+    case opcode::Constructor: case opcode::Reuse:
         s << m_cidx << m_nfields;
         break;
     case opcode::Num:
@@ -968,10 +960,6 @@ static vm_instr read_vm_instr(deserializer & d) {
         return mk_move_instr(d.read_unsigned());
     case opcode::Reset:
         return mk_reset_instr(d.read_unsigned());
-    case opcode::Updt:
-        return mk_updt_instr(d.read_unsigned());
-    case opcode::UpdtCidx:
-        return mk_updt_cidx_instr(d.read_unsigned());
     case opcode::Proj:
         return mk_proj_instr(d.read_unsigned());
     case opcode::Drop:
@@ -991,6 +979,9 @@ static vm_instr read_vm_instr(deserializer & d) {
     case opcode::Constructor:
         idx = d.read_unsigned();
         return mk_constructor_instr(idx, d.read_unsigned());
+    case opcode::Reuse:
+        idx = d.read_unsigned();
+        return mk_reuse_instr(idx, d.read_unsigned());
     case opcode::Num:
         return mk_num_instr(d.read_mpz());
     case opcode::String:
@@ -2848,54 +2839,22 @@ void vm_state::run() {
             goto main_loop;
         }
         case opcode::Reset: {
-            /* Instruction: reset idx
+            /* Instruction: reset n
 
                stack before,   after
                ...           ...
-               s             s'  (s.idx := ())
+               s             s'
             */
-            unsigned idx = instr.get_idx();
+            unsigned n = instr.get_num();
             vm_obj & s = m_stack.back();
             if (s.raw()->get_rc() > 1) {
-                s = mk_vm_constructor(cidx(s), csize(s), cfields(s));
+                s = mk_vm_simple(0);
+            } else {
+                vm_obj * fields = const_cast<vm_obj*>(to_composite(s)->fields());
+                for (unsigned i = 0; i < n; i++) {
+                    fields[i] = mk_vm_simple(0);
+                }
             }
-            const_cast<vm_obj*>(to_composite(s)->fields())[idx] = mk_vm_simple(0);
-            m_pc++;
-            goto main_loop;
-        }
-        case opcode::Updt: {
-            /* Instruction: updt idx
-
-               stack before,   after
-               ...           ...
-               s             s'  (s.idx := v)
-               v       ==>
-            */
-            unsigned idx = instr.get_idx();
-            unsigned sz  = m_stack.size();
-            vm_obj & s   = m_stack[sz-2];
-            vm_obj & v   = m_stack[sz-1];
-            if (s.raw()->get_rc() > 1) {
-                s = mk_vm_constructor(cidx(s), csize(s), cfields(s));
-            }
-            std::swap(const_cast<vm_obj*>(to_composite(s)->fields())[idx], v);
-            m_stack.pop_back();
-            m_pc++;
-            goto main_loop;
-        }
-        case opcode::UpdtCidx: {
-            /* Instruction: updt_cidx cidx
-
-               stack before,   after
-               ...           ...
-               s       ==>   s'  (s.cidx := cidx)
-            */
-            unsigned idx = instr.get_idx();
-            vm_obj & s    = m_stack.back();
-            if (s.raw()->get_rc() > 1) {
-                s = mk_vm_constructor(cidx(s), csize(s), cfields(s));
-            }
-            const_cast<vm_composite*>(to_composite(s))->m_idx = idx;
             m_pc++;
             goto main_loop;
         }
@@ -2933,7 +2892,37 @@ void vm_state::run() {
             vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, m_stack.data() + sz - nfields);
             m_stack.resize(sz - nfields + 1);
             swap(m_stack.back(), new_value);
-            if (m_debugging) shrink_stack_info();
+            m_pc++;
+            goto main_loop;
+        }
+        case opcode::Reuse: {
+            /** Instruction: reuse i n
+
+                stack before,      after
+                ...                ...
+                v      ==>         v
+                cell               (#i a_1 ... a_n)
+                a_1
+                ...
+                a_n
+            */
+            unsigned nfields   = instr.get_nfields();
+            unsigned sz        = m_stack.size();
+            lean_vm_check(nfields + 1 <= sz);
+            vm_obj & cell      = m_stack[sz - nfields - 1];
+            vm_obj * src       = m_stack.data() + sz - nfields;
+            if (is_simple(cell)) {
+                vm_obj new_value = mk_vm_constructor(instr.get_cidx(), nfields, src);
+                m_stack.resize(sz - nfields);
+                swap(m_stack.back(), new_value);
+            } else {
+                const_cast<vm_composite*>(to_composite(cell))->m_idx = instr.get_cidx();
+                vm_obj * fields = const_cast<vm_obj*>(to_composite(cell)->fields());
+                for (unsigned i = 0; i < nfields; i++) {
+                    swap(fields[i], src[i]);
+                }
+                m_stack.resize(sz - nfields);
+            }
             m_pc++;
             goto main_loop;
         }

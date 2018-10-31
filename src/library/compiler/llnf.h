@@ -13,16 +13,14 @@ namespace lean {
 expr to_llnf(environment const & env, expr const & e, bool unboxed_data = false);
 
 bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz);
-bool is_llnf_reset(expr const & e, unsigned & i);
+bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & ssz);
+bool is_llnf_reset(expr const & e, unsigned & n);
 bool is_llnf_proj(expr const & e, unsigned & idx);
-bool is_llnf_updt(expr const & e, unsigned & i);
-bool is_llnf_updt_cidx(expr const & e, unsigned & cidx);
 
 inline bool is_llnf_cnstr(expr const & e) { unsigned d1, d2; return is_llnf_cnstr(e, d1, d2); }
+inline bool is_llnf_reuse(expr const & e) { unsigned d1, d2; return is_llnf_reuse(e, d1, d2); }
 inline bool is_llnf_reset(expr const & e) { unsigned i; return is_llnf_reset(e, i); }
 inline bool is_llnf_proj(expr const & e) { unsigned d; return is_llnf_proj(e, d); }
-inline bool is_llnf_updt(expr const & e) { unsigned i; return is_llnf_updt(e, i); }
-inline bool is_llnf_updt_cidx(expr const & e) { unsigned i; return is_llnf_updt_cidx(e, i); }
 
 void initialize_llnf();
 void finalize_llnf();

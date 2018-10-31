@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static name * g_cnstr     = nullptr;
+static name * g_reuse     = nullptr;
 static name * g_reset     = nullptr;
 static name * g_updt      = nullptr;
 static name * g_updt_cidx = nullptr;
@@ -52,14 +53,11 @@ static bool is_llnf_binary_primitive(expr const & e, name const & prefix, unsign
 expr mk_llnf_cnstr(unsigned cidx, unsigned scalar_sz) { return mk_constant(name(name(*g_cnstr, cidx), scalar_sz)); }
 bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz) { return is_llnf_binary_primitive(e, *g_cnstr, cidx, ssz); }
 
-expr mk_llnf_reset(unsigned i) { return mk_constant(name(*g_reset, i)); }
-bool is_llnf_reset(expr const & e, unsigned & i) { return is_llnf_unary_primitive(e, *g_reset, i); }
+expr mk_llnf_reuse(unsigned cidx, unsigned scalar_sz) { return mk_constant(name(name(*g_reuse, cidx), scalar_sz)); }
+bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & ssz) { return is_llnf_binary_primitive(e, *g_reuse, cidx, ssz); }
 
-expr mk_llnf_updt(unsigned i) { return mk_constant(name(*g_updt, i)); }
-bool is_llnf_updt(expr const & e, unsigned & i) { return is_llnf_unary_primitive(e, *g_updt, i); }
-
-expr mk_llnf_updt_cidx(unsigned cidx) { return mk_constant(name(*g_updt_cidx, cidx)); }
-bool is_llnf_updt_cidx(expr const & e, unsigned & cidx) { return is_llnf_unary_primitive(e, *g_updt_cidx, cidx); }
+expr mk_llnf_reset(unsigned n) { return mk_constant(name(*g_reset, n)); }
+bool is_llnf_reset(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_reset, n); }
 
 expr mk_llnf_updt_u8(unsigned offset) { return mk_constant(name(*g_updt_u8, offset)); }
 bool is_llnf_updt_u8(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u8, offset); }
@@ -384,55 +382,22 @@ class to_llnf_fn {
         return mk_app(mk_llnf_reset(idx), major);
     }
 
-    expr mk_updt(expr const & major, unsigned idx, expr const & v) {
-        return mk_app(mk_llnf_updt(idx), major, v);
+    bool is_reuse_app(expr const & e) {
+        unsigned i, s;
+        return is_llnf_reuse(get_app_fn(e), i, s) && get_app_num_args(e) == 2;
     }
 
-    expr mk_updt_cidx(expr const & major, unsigned cidx) {
-        return mk_app(mk_llnf_updt_cidx(cidx), major);
-    }
-
-    bool is_updt_app(expr const & e) {
+    bool is_updt_scalar(expr const & e) {
         unsigned x;
-        return is_llnf_updt(get_app_fn(e), x) && get_app_num_args(e) == 2;
+        return
+            is_llnf_updt_u8(e, x) ||
+            is_llnf_updt_u16(e, x) ||
+            is_llnf_updt_u32(e, x) ||
+            is_llnf_updt_u64(e, x);
     }
 
-    bool is_updt_cidx_app(expr const & e) {
-        unsigned x;
-        return is_llnf_updt_cidx(get_app_fn(e), x) && get_app_num_args(e) == 1;
-    }
-
-    expr find(expr const & e) const {
-        if (is_fvar(e)) {
-            if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
-                optional<expr> v = decl->get_value();
-                if (v) return find(*v);
-            }
-        } else if (is_mdata(e)) {
-            return find(mdata_expr(e));
-        }
-        return e;
-    }
-
-    /* Return true if `a` is of the form `_proj.<idx> e` */
-    bool is_proj_of(expr a, expr const & e, unsigned idx) {
-        a = find(a);
-        unsigned a_idx;
-        return is_app(a) && is_llnf_proj(app_fn(a), a_idx) && a_idx == idx && app_arg(a) == e;
-    }
-
-    /* Return true if `a` is of the form `_proj_u<size>.<offset> e` */
-    bool is_scalar_proj_of(expr a, expr const & e, unsigned size, unsigned offset) {
-        a = find(a);
-        unsigned a_offset;
-        if (!is_app(a) || app_arg(a) != e) return false;
-        switch (size) {
-        case 1: return is_llnf_proj_u8(app_fn(a), a_offset) && a_offset == offset;
-        case 2: return is_llnf_proj_u16(app_fn(a), a_offset) && a_offset == offset;
-        case 4: return is_llnf_proj_u32(app_fn(a), a_offset) && a_offset == offset;
-        case 8: return is_llnf_proj_u64(app_fn(a), a_offset) && a_offset == offset;
-        }
-        return false;
+    bool is_updt_scalar_app(expr const & e) {
+        return is_updt_scalar(get_app_fn(e)) && get_app_num_args(e) == 1;
     }
 
     /* Auxiliary functor for replacing constructor applications with update operations. */
@@ -440,8 +405,6 @@ class to_llnf_fn {
         to_llnf_fn &         m_owner;
         expr const &         m_major;
         cnstr_info const &   m_cinfo;
-        /* `m_used_fields[i]` is true if the field `i` is used in the minor premise. */
-        buffer<bool> const & m_to_reset_fields;
         /* `m_major` may be replaced/reused many times in different branches, but we
            only have to reset fields once. */
         bool                 m_reset{false};
@@ -449,6 +412,32 @@ class to_llnf_fn {
         bool                 m_replaced{false};
 
         environment const & env() { return m_owner.env(); }
+
+        expr find(expr const & e) const {
+            if (is_fvar(e)) {
+                if (optional<local_decl> decl = m_owner.m_lctx.find_local_decl(e)) {
+                    optional<expr> v = decl->get_value();
+                    if (v) return find(*v);
+                }
+            } else if (is_mdata(e)) {
+                return find(mdata_expr(e));
+            }
+            return e;
+        }
+
+        /* Return true if `a` is of the form `_proj_u<size>.<offset> e` */
+        bool is_scalar_proj_of(expr a, expr const & e, unsigned size, unsigned offset) {
+            a = find(a);
+            unsigned a_offset;
+            if (!is_app(a) || app_arg(a) != e) return false;
+            switch (size) {
+            case 1: return is_llnf_proj_u8(app_fn(a), a_offset) && a_offset == offset;
+            case 2: return is_llnf_proj_u16(app_fn(a), a_offset) && a_offset == offset;
+            case 4: return is_llnf_proj_u32(app_fn(a), a_offset) && a_offset == offset;
+            case 8: return is_llnf_proj_u64(app_fn(a), a_offset) && a_offset == offset;
+            }
+            return false;
+        }
 
         expr visit_constructor(expr const & e) {
             buffer<expr> args;
@@ -465,62 +454,31 @@ class to_llnf_fn {
             }
             constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
             unsigned nparams       = k_val.get_nparams();
-            /* See `mark_to_reset_fields` */
-            expr r;
             if (!m_reset) {
-                r               = m_major;
-                unsigned j      = nparams;
-                unsigned i      = 0;
-                unsigned idx    = 0;
-                for (field_info const & info : k_info.m_field_info) {
-                    lean_assert(j == i + nparams);
-                    if (info.m_kind == field_info::Object) {
-                        if (m_to_reset_fields[i]) {
-                            expr new_updt = m_owner.mk_reset(r, idx);
-                            r             = m_owner.mk_let_decl(mk_enf_object_type(), new_updt);
-                        }
-                        idx++;
-                    }
-                    i++;
-                    j++;
-                }
+                m_major_after_reset = m_owner.mk_reset(m_major, k_info.m_num_objs);
+                m_major_after_reset = m_owner.mk_let_decl(mk_enf_object_type(), m_major_after_reset);
                 m_reset             = true;
-                m_major_after_reset = r;
-            } else {
-                r = m_major_after_reset;
             }
+            expr r = m_major_after_reset;
             /* Remark: note that we do not create let-declarations here for the following updates.
                We will flatten them later when we visit the minor premise. */
-
-            /* Update constructor cidx if needed. */
-            if (k_info.m_cidx != m_cinfo.m_cidx) {
-                r = m_owner.mk_updt_cidx(r, k_info.m_cidx);
-            }
-            /* Update fields with new values. */
-            unsigned offset = k_info.m_num_objs * sizeof(void*);
+            buffer<expr> obj_args;
             unsigned j      = nparams;
-            unsigned i      = 0;
-            unsigned idx    = 0;
             for (field_info const & info : k_info.m_field_info) {
-                lean_assert(j == i + nparams);
-                switch (info.m_kind) {
-                case field_info::Irrelevant:
-                    break;
-                case field_info::Object:
-                    if (m_to_reset_fields[i] || !m_owner.is_proj_of(args[j], m_major, idx)) {
-                        r = m_owner.mk_updt(r, idx, args[j]);
-                    }
-                    idx++;
-                    break;
-                case field_info::Scalar:
-                    if (!m_owner.is_scalar_proj_of(args[j], m_major, info.m_size, offset)) {
+                if (info.m_kind == field_info::Object) {
+                    obj_args.push_back(args[j]);
+                }
+                j++;
+            }
+            r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_scalar_sz), r), obj_args);
+            unsigned offset = k_info.m_num_objs * sizeof(void*);
+            for (field_info const & info : k_info.m_field_info) {
+                if (info.m_kind == field_info::Scalar) {
+                    if (!is_scalar_proj_of(args[j], m_major, info.m_size, offset)) {
                         r = m_owner.mk_scalar_updt(r, info.m_size, offset, args[j]);
                     }
                     offset += info.m_size;
-                    break;
                 }
-                j++;
-                i++;
             }
             m_replaced = true;
             return r;
@@ -575,98 +533,16 @@ class to_llnf_fn {
         }
 
     public:
-        replace_cnstr_fn(to_llnf_fn & owner, expr const & major, cnstr_info const & cinfo, buffer<bool> const & to_reset_fields):
-            m_owner(owner), m_major(major), m_cinfo(cinfo), m_to_reset_fields(to_reset_fields) {}
+        replace_cnstr_fn(to_llnf_fn & owner, expr const & major, cnstr_info const & cinfo):
+            m_owner(owner), m_major(major), m_cinfo(cinfo) {}
         expr operator()(expr const & e) { return visit(e); }
     };
 
-    /* Auxiliary methods used to implement `try_update_opt`. We say a field needs to be reset at the beginning of a major
-       premise if it is used in a non tail call.
-       We "reset" the field to create new opportunites for destructive updates.
-       For example, consider the following sequence of instructions in low-level normal form without `reset` operations.
-       ```
-       map_add_1 :=
-       λ xs, @list.cases_on xs
-         _cnstr.0.0
-         (let _x_1 := _proj.0 xs,
-              _x_2 := _proj.1 xs,
-              _x_5 := nat.add _x_1 1,
-              _x_6 := map_add_1 _x_2,
-              _x_7 := _updt.0 xs _x_5
-              in _updt.1 _x_7 _x_6)
-       ```
-       After the instruction `_x_2 := _proj.1 xs`, there are at least two references to the tail of `xs`: `_x_2` and the one
-       on `xs`. So, the recursive call `map_add_1 _x_2` will not be able to perform destructive updates.
-       Now consider the version that uses `reset` operations.
-       ```
-       map_add_1 :=
-       λ xs, @list.cases_on xs
-         _cnstr.0.0
-         (let _x_1 := _proj.0 xs,
-              _x_2 := _proj.1 xs,
-              _x_3 := _reset.0 xs,
-              _x_4 := _reset.1 _x_3,
-              _x_5 := nat.add _x_1 1,
-              _x_6 := map_add_1 _x_2,
-              _x_7 := _updt.0 _x_4_x_5
-              in _updt.1 _x_7 _x_6)
-       ```
-       The reset operations will decrease the reference counter of `xs` head and tail.
-       Note that the operation `_x_3 := _reset.0 xs` is wasteful since `nat.add` never performs destructive updates.
-       In the future, we may consider a better `mark_to_reset_fields` that avoids these unnecessary reset operations.
-
-       Remark: `reset` operations may also help to reduce memory contention.
-    */
-    void mark_to_reset_fields(expr const & e0, buffer<expr> const & fields, buffer<bool> & result) {
-        buffer<pair<expr, bool>> todo;
-        todo.emplace_back(e0, true);
-        expr e; bool tail;
-        while (!todo.empty()) {
-            std::tie(e, tail) = todo.back();
-            todo.pop_back();
-            if (!has_fvar(e))
-                continue;
-            switch (e.kind()) {
-            case expr_kind::FVar:
-                if (!tail) {
-                    for (unsigned i = 0; i < fields.size(); i++) {
-                        if (is_fvar(fields[i]) && e == fields[i])
-                            result[i] = true;
-                    }
-                }
-                break;
-            case expr_kind::Let:
-                todo.emplace_back(let_body(e), tail);
-                todo.emplace_back(let_value(e), false);
-                break;
-            case expr_kind::Lambda:
-                todo.emplace_back(binding_body(e), tail);
-                break;
-            case expr_kind::Proj:
-                todo.emplace_back(proj_expr(e), tail);
-                break;
-            case expr_kind::App: {
-                buffer<expr> args;
-                expr const & fn = get_app_args(e, args);
-                todo.emplace_back(fn, tail);
-                for (expr const & arg : args)
-                    todo.emplace_back(arg, tail);
-                break;
-            }
-            default:
-                break;
-            }
-        }
-    }
-
-    expr try_update_opt(expr const & minor, expr const & major, cnstr_info const & cinfo, buffer<expr> const & fields) {
+    expr try_update_opt(expr const & minor, expr const & major, cnstr_info const & cinfo) {
         if (cinfo.m_num_objs == 0 && cinfo.m_scalar_sz == 0) return minor;
         if (!is_fvar(major)) return minor;
         if (has_fvar(minor, major)) return minor;
-        buffer<bool> to_reset_fields;
-        to_reset_fields.resize(fields.size(), false);
-        mark_to_reset_fields(minor, fields, to_reset_fields);
-        return replace_cnstr_fn(*this, major, cinfo, to_reset_fields)(minor);
+        return replace_cnstr_fn(*this, major, cinfo)(minor);
     }
 
     expr visit_cases(expr const & e) {
@@ -724,7 +600,7 @@ class to_llnf_fn {
                 minor = binding_body(minor);
             }
             minor     = instantiate_rev(minor, fields.size(), fields.data());
-            minor     = try_update_opt(minor, major, cinfo, fields);
+            minor     = try_update_opt(minor, major, cinfo);
             minor     = visit(minor);
             if (!is_enf_unreachable(minor)) {
                 /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */
@@ -869,9 +745,9 @@ class to_llnf_fn {
             return visit_cases(e);
         } else if (is_constructor_app(env(), e)) {
             return visit_constructor(e);
-        } else if (is_updt_app(e)) {
+        } else if (is_updt_scalar_app(e)) {
             return flat_app(e);
-        } else if (is_updt_cidx_app(e)) {
+        } else if (is_reuse_app(e)) {
             return flat_app(e);
         } else {
             return visit_app_default(e);
@@ -906,6 +782,7 @@ expr to_llnf(environment const & env, expr const & e, bool unboxed) {
 
 void initialize_llnf() {
     g_cnstr     = new name("_cnstr");
+    g_reuse     = new name("_reuse");
     g_reset     = new name("_reset");
     g_updt      = new name("_updt");
     g_updt_cidx = new name("_updt_cidx");
@@ -927,6 +804,7 @@ void initialize_llnf() {
 
 void finalize_llnf() {
     delete g_cnstr;
+    delete g_reuse;
     delete g_reset;
     delete g_updt;
     delete g_updt_u8;

@@ -503,7 +503,7 @@ class to_llnf_fn {
                         modified = true;
                     arg = new_arg;
                 }
-                /* We assume that `m_major` has be reused IF it was reused in one of the branches. */
+                /* We assume that `m_major` has been reused IF it was reused in one of the branches. */
                 m_replaced = new_replaced;
                 return modified ? mk_app(fn, args) : e;
             } else {

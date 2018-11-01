@@ -315,7 +315,7 @@ enum class opcode {
     Cases2, CasesN, Proj,
     Apply, InvokeGlobal, InvokeBuiltin, InvokeCFun,
     Closure, Unreachable, Expr, LocalInfo,
-    Reset, Reuse
+    Reset, Reuse, InvokeJP
 };
 
 /** \brief VM instructions */
@@ -325,6 +325,11 @@ class vm_instr {
         struct {
             unsigned m_fn_idx;  /* InvokeGlobal, InvokeBuiltin, InvokeCFun and Closure. */
             unsigned m_nargs;   /* Closure */
+        };
+        struct { /* InvokeJP */
+            unsigned m_jp_pc;
+            unsigned m_jp_bp;
+            unsigned m_jp_arity;
         };
         /* Push, Move, Proj */
         unsigned m_idx;
@@ -374,6 +379,7 @@ class vm_instr {
     friend vm_instr mk_invoke_global_instr(unsigned fn_idx);
     friend vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
     friend vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
+    friend vm_instr mk_invoke_jp_instr(unsigned pc, unsigned bp, unsigned arity);
     friend vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
     friend vm_instr mk_expr_instr(expr const &e);
     friend vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);
@@ -398,6 +404,10 @@ public:
                     m_op == opcode::InvokeCFun || m_op == opcode::Closure)
         return m_fn_idx;
     }
+
+    unsigned get_jp_pc() const { lean_assert(m_op == opcode::InvokeJP); return m_jp_pc; }
+    unsigned get_jp_bp() const { lean_assert(m_op == opcode::InvokeJP); return m_jp_bp; }
+    unsigned get_jp_arity() const { lean_assert(m_op == opcode::InvokeJP); return m_jp_arity; }
 
     unsigned get_nargs() const {
         lean_assert(m_op == opcode::Closure);
@@ -515,6 +525,7 @@ vm_instr mk_apply_instr();
 vm_instr mk_invoke_global_instr(unsigned fn_idx);
 vm_instr mk_invoke_cfun_instr(unsigned fn_idx);
 vm_instr mk_invoke_builtin_instr(unsigned fn_idx);
+vm_instr mk_invoke_jp_instr(unsigned pc, unsigned bp, unsigned arity);
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n);
 vm_instr mk_expr_instr(expr const &e);
 vm_instr mk_local_info_instr(unsigned idx, name const & n, optional<expr> const & e);

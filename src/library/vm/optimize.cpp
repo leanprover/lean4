@@ -105,6 +105,9 @@ class live_vars_fn {
         case opcode::Reset: case opcode::Reuse:
             s = collect(pc+1);
             break;
+        case opcode::InvokeJP:
+            s = collect(instr.get_jp_pc());
+            break;
         case opcode::Push: case opcode::Move:
             s = collect(pc+1);
             s.insert(instr.get_idx());

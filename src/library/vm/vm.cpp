@@ -555,6 +555,8 @@ void vm_instr::display(std::ostream & out) const {
         out << "cfun ";
         display_fn(out, m_fn_idx);
         break;
+    case opcode::InvokeJP:
+        out << "jp " << m_jp_pc << " " << m_jp_bp << " " << m_jp_arity; break;
     case opcode::Closure:
         out << "closure ";
         display_fn(out, m_fn_idx);
@@ -736,6 +738,14 @@ vm_instr mk_invoke_cfun_instr(unsigned fn_idx) {
     return r;
 }
 
+vm_instr mk_invoke_jp_instr(unsigned pc, unsigned bp, unsigned arity) {
+    vm_instr r(opcode::InvokeJP);
+    r.m_jp_pc    = pc;
+    r.m_jp_bp    = bp;
+    r.m_jp_arity = arity;
+    return r;
+}
+
 vm_instr mk_closure_instr(unsigned fn_idx, unsigned n) {
     vm_instr r(opcode::Closure);
     r.m_fn_idx = fn_idx;
@@ -769,6 +779,11 @@ void vm_instr::copy_args(vm_instr const & i) {
     switch (i.m_op) {
     case opcode::InvokeGlobal: case opcode::InvokeBuiltin: case opcode::InvokeCFun:
         m_fn_idx = i.m_fn_idx;
+        break;
+    case opcode::InvokeJP:
+        m_jp_pc    = i.m_jp_pc;
+        m_jp_bp    = i.m_jp_bp;
+        m_jp_arity = i.m_jp_arity;
         break;
     case opcode::Closure:
         m_fn_idx = i.m_fn_idx;
@@ -884,6 +899,9 @@ void vm_instr::serialize(serializer & s, std::function<name(unsigned)> const & i
     case opcode::InvokeGlobal: case opcode::InvokeBuiltin: case opcode::InvokeCFun:
         s << idx2name(m_fn_idx);
         break;
+    case opcode::InvokeJP:
+        s << m_jp_pc << m_jp_bp << m_jp_arity;
+        break;
     case opcode::Closure:
         s << idx2name(m_fn_idx) << m_nargs;
         break;
@@ -954,6 +972,10 @@ static vm_instr read_vm_instr(deserializer & d) {
     case opcode::Closure:
         idx = read_fn_idx(d);
         return mk_closure_instr(idx, d.read_unsigned());
+    case opcode::InvokeJP:
+        pc  = d.read_unsigned();
+        idx = d.read_unsigned();
+        return mk_invoke_jp_instr(pc, idx, d.read_unsigned());
     case opcode::Push:
         return mk_push_instr(d.read_unsigned());
     case opcode::Move:
@@ -2781,7 +2803,8 @@ void vm_state::run() {
                 lean_trace(name({"vm", "run"}),
                            tout() << m_decl_vector[m_fn_idx].get_name() << " @ " << m_pc << ": ";
                            instr.display(tout().get_stream());
-                           tout() << "\n";);
+                           tout() << "\n";
+                           display_stack(tout().get_stream()););
             });
         switch (instr.op()) {
         case opcode::Push:
@@ -3184,6 +3207,28 @@ void vm_state::run() {
                 }
             }
             invoke_global(decl);
+            goto main_loop;
+        }
+        case opcode::InvokeJP: {
+            /* Join point call: jmp pc bp n
+
+                  stack before        after
+                  ...
+             bp=> ...                 a_1
+                  ...                 ...
+                  a_1                 a_n
+                  ...
+                  a_n
+            */
+            unsigned jp_bp    = instr.get_jp_bp();
+            unsigned jp_arity = instr.get_jp_arity();
+            unsigned i        = m_bp + jp_bp;
+            unsigned j        = m_stack.size() - jp_arity;
+            for (; j < m_stack.size(); j++, i++) {
+                std::swap(m_stack[i], m_stack[j]);
+            }
+            m_pc = instr.get_jp_pc();
+            m_stack.resize(m_bp + jp_bp + jp_arity);
             goto main_loop;
         }
         case opcode::InvokeBuiltin: {

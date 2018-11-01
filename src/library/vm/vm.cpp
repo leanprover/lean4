@@ -577,6 +577,8 @@ unsigned vm_instr::get_num_pcs() const {
         return 2;
     case opcode::CasesN:
         return get_casesn_size();
+    case opcode::InvokeJP:
+        return 1;
     default:
         return 0;
     }
@@ -590,6 +592,8 @@ unsigned vm_instr::get_pc(unsigned i) const {
         return m_pc[i];
     case opcode::CasesN:
         return get_casesn_pc(i);
+    case opcode::InvokeJP:
+        return m_jp_pc;
     default:
         lean_unreachable();
     }
@@ -604,6 +608,9 @@ void vm_instr::set_pc(unsigned i, unsigned pc) {
         break;
     case opcode::CasesN:
         set_casesn_pc(i, pc);
+        break;
+    case opcode::InvokeJP:
+        m_jp_pc = pc;
         break;
     default:
         lean_unreachable();

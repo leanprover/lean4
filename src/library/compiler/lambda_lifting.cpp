@@ -19,6 +19,10 @@ class lambda_lifting_fn {
     buffer<comp_decl>   m_new_decls;
     name                m_base_name;
     unsigned            m_next_idx{1};
+    name                m_y;
+    unsigned            m_next_let_idx{1};
+
+
     typedef std::unordered_set<name, name_hash> name_set;
 
     environment const & env() { return m_env; }
@@ -38,6 +42,12 @@ class lambda_lifting_fn {
         return m_lctx.mk_lambda(fvars, r);
     }
 
+    name next_let_name() {
+        name r = m_y.append_after(m_next_let_idx);
+        m_next_let_idx++;
+        return r;
+    }
+
     expr visit_let(expr e) {
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> fvars;
@@ -46,7 +56,7 @@ class lambda_lifting_fn {
             bool not_root = false;
             bool jp       = is_join_point_name(let_name(e));
             expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()), not_root, jp);
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), let_type(e), new_val);
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), next_let_name(), let_type(e), new_val);
             fvars.push_back(new_fvar);
             e = let_body(e);
         }
@@ -153,7 +163,7 @@ class lambda_lifting_fn {
 
 public:
     lambda_lifting_fn(environment const & env):
-        m_env(env) {}
+        m_env(env), m_y("_y") {}
 
     comp_decls operator()(comp_decl const & cdecl) {
         m_base_name = cdecl.fst();

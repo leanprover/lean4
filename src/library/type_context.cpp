@@ -3450,16 +3450,20 @@ struct instance_synthesizer {
              * and both nonreducible.
              * Furthermore, we don't even list these "trivially non-applicable instances" in the class_instances trace,
              * which can drastically reduce the noise in it. */
-            if (is_app(mvar_type) && const_name(get_app_fn(mvar_type)) == const_name(get_app_fn(type))) {
-                auto const & m_head = beta_reduce(get_app_fn(m_ctx.instantiate_mvars(app_arg(mvar_type))));
-                auto const & t_head = get_app_fn(app_arg(type));
-                if (is_const(m_head) && is_const(t_head) && const_name(m_head) != const_name(t_head) &&
+            if (is_app(mvar_type)) {
+                expr const & mvar_type_fn = get_app_fn(mvar_type);
+                expr const & type_fn      = get_app_fn(type);
+                if (is_const(mvar_type_fn) && is_const(type_fn) && const_name(mvar_type_fn) == const_name(type_fn)) {
+                    auto const & m_head = beta_reduce(get_app_fn(m_ctx.instantiate_mvars(app_arg(mvar_type))));
+                    auto const & t_head = get_app_fn(app_arg(type));
+                    if (is_const(m_head) && is_const(t_head) && const_name(m_head) != const_name(t_head) &&
                         !m_ctx.is_delta(m_head) && !m_ctx.is_projection(m_head) &&
                         !m_ctx.is_delta(t_head) && !m_ctx.is_projection(t_head)) {
-                    // lean_trace_plain("class_instances",
-                    //                  scope_trace_env scope(m_ctx.env(), m_ctx);
-                    //                  tout() << "PRE-FILTER: " << const_name(m_head) << " " << const_name(t_head) << "\n";);
-                    return false;
+                        // lean_trace_plain("class_instances",
+                        //                  scope_trace_env scope(m_ctx.env(), m_ctx);
+                        //                  tout() << "PRE-FILTER: " << const_name(m_head) << " " << const_name(t_head) << "\n";);
+                        return false;
+                    }
                 }
             }
 

@@ -396,8 +396,12 @@ public:
     }
 
     expr visit_constant(expr const & e, bool root) {
-        buffer<expr> args;
-        return visit_constant_core(e, args, root);
+        if (const_name(e) == get_nat_zero_name()) {
+            return mk_lit(literal(nat(0)));
+        } else {
+            buffer<expr> args;
+            return visit_constant_core(e, args, root);
+        }
     }
 
     expr visit_app(expr const & e, bool root) {

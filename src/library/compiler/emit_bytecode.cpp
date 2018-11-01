@@ -186,14 +186,6 @@ class emit_bytecode_fn {
         emit(mk_reuse_instr(cidx, get_app_num_args(e) - 1));
     }
 
-    void compile_external(name const & n, buffer<expr> & args, unsigned bpz, vdecls const & m) {
-        // Not sure if this is the best approach, trying to lazy load the required
-        // dynamic libraries.
-        optional<vm_decl> decl = get_vm_decl(m_env, n);
-        lean_assert(decl);
-        compile_global(*decl, args.size(), args.data(), bpz, m);
-    }
-
     void compile_fn_call(expr const & e, unsigned bpz, vdecls const & m) {
         buffer<expr> args;
         expr fn = get_app_args(e, args);

@@ -265,6 +265,7 @@ name const & get_tactic_name();
 name const & get_tactic_try_name();
 name const & get_tactic_triv_name();
 name const & get_tactic_mk_inj_eq_name();
+name const & get_task_name();
 name const & get_thunk_name();
 name const & get_trans_rel_left_name();
 name const & get_trans_rel_right_name();

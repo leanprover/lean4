@@ -138,25 +138,25 @@ abbreviation unit : Type := punit
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure thunk (α : Type u) : Type u :=
 (fn : unit → α)
-protected def thunk.pure {α : Type u} (a : α) : thunk α :=
+@[noinline] protected def thunk.pure {α : Type u} (a : α) : thunk α :=
 ⟨λ _, a⟩
-protected def thunk.get {α : Type u} (x : thunk α) : α :=
+@[noinline] protected def thunk.get {α : Type u} (x : thunk α) : α :=
 x.fn ()
-protected def thunk.map {α : Type u} {β : Type v} (f : α → β) (x : thunk α) : thunk β :=
+@[noinline] protected def thunk.map {α : Type u} {β : Type v} (f : α → β) (x : thunk α) : thunk β :=
 ⟨λ _, f x.get⟩
-protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → thunk β) : thunk β :=
+@[noinline] protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → thunk β) : thunk β :=
 ⟨λ _, (f x.get).get⟩
 
 /- Remark: tasks have an efficient implementation in the runtime. -/
 structure task (α : Type u) : Type u :=
 (fn : unit → α)
-protected def task.pure {α : Type u} (a : α) : task α :=
+@[noinline] protected def task.pure {α : Type u} (a : α) : task α :=
 ⟨λ _, a⟩
-protected def task.get {α : Type u} (x : task α) : α :=
+@[noinline] protected def task.get {α : Type u} (x : task α) : α :=
 x.fn ()
-protected def task.map {α : Type u} {β : Type v} (f : α → β) (x : task α) : task β :=
+@[noinline] protected def task.map {α : Type u} {β : Type v} (f : α → β) (x : task α) : task β :=
 ⟨λ _, f x.get⟩
-protected def task.bind {α : Type u} {β : Type v} (x : task α) (f : α → task β) : task β :=
+@[noinline] protected def task.bind {α : Type u} {β : Type v} (x : task α) (f : α → task β) : task β :=
 ⟨λ _, (f x.get).get⟩
 
 inductive true : Prop

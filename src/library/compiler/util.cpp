@@ -329,6 +329,8 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_uint32_name() ||
         n == get_uint64_name() ||
         n == get_usize_name()  ||
+        // n == get_thunk_name()  ||  TODO(Leo): enable
+        // n == get_task_name()   ||  TODO(Leo): enable
         // n == get_array_name()  ||  TODO(Leo): enable
         n == get_nat_name()    ||
         n == get_int_name();

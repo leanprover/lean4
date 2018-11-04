@@ -2525,6 +2525,7 @@ expr elaborator::visit_equation(expr const & e, unsigned num_fns) {
         expr new_lhs;
         {
             flet<bool> set(m_in_pattern, true);
+            flet<bool> dont_recover(m_recover_from_errors, false);
             /* Note that pattern elaboration is more sensitive than standard elaboration:
              * mvars in `new_lhs` will be turned into pattern variables below, so care must be taken when instantiating
              * or introducing them. See the very end of `visit_structure_instance` for an example. */

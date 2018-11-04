@@ -18,6 +18,8 @@ depends: $(DEPS)
 
 %.olean: %.lean %.depend
 	$(LEAN) $(OPTS) --make $<
+	# make sure the .olean file is newer than the .depend file to prevent infinite make cycles
+	@touch $@
 
 clean:
 	find . -name *.olean -delete

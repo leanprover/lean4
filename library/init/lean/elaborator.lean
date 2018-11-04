@@ -299,8 +299,8 @@ do
     (λ _, do
       cmd ← current_command,
       -- TODO(Sebastian): throw error on unknown command when we get serious
-      syntax.node {kind := some k, ..} ← pure cmd | pure (),
-      some elab ← pure $ elaborators.find k.name | pure (),
+      syntax.node n ← pure cmd | pure (),
+      some elab ← pure $ elaborators.find n.kind.name | pure (),
       catch elab $ λ e,
         modify $ λ st, {st with messages := st.messages.add e})
     elaborator.max_recursion,

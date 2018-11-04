@@ -30,8 +30,13 @@ structure syntax_node_kind :=
 -- should be equal to the name of the declaration this structure instance was bound to
 (name : name)
 
+/-- Signifies ambiguous syntax to be disambiguated by the elaborator. Should have at least two children.
+
+    This node kind is special-cased by `syntax.reprint` since its children's outputs should not be concatenated. -/
 @[pattern] def choice : syntax_node_kind := ⟨`lean.parser.choice⟩
--- TODO(Sebastian): replace `option syntax_kind` using this special kind
+/-- A nondescriptive kind that can be used for merely grouping syntax trees into a node.
+
+    This node kind is special-cased by `syntax.format` to be printed as brackets `[...]` without a node kind. -/
 @[pattern] def no_kind : syntax_node_kind := ⟨`lean.parser.no_kind⟩
 
 /-
@@ -42,8 +47,7 @@ Parsers create `syntax_node`'s with the following properties (see implementation
 Remark: We do create `syntax_node`'s with an empty `args` field (e.g. for representing `option.none`).
 -/
 structure syntax_node (syntax : Type) :=
--- TODO: add `lean.parser.list` kind, and remove option. Then `none` = `lean.parser.seq`
-(kind : option syntax_node_kind) (args : list syntax)
+(kind : syntax_node_kind) (args : list syntax)
 
 inductive syntax
 | atom (val : syntax_atom)
@@ -59,8 +63,11 @@ def substring.to_string (s : substring) : string :=
 namespace syntax
 open lean.format
 
+protected def list (args : list syntax) :=
+syntax.node ⟨no_kind, args⟩
+
 def is_of_kind (k : syntax_node_kind) : syntax → bool
-| (syntax.node ⟨some k', _⟩) := k.name = k'.name
+| (syntax.node ⟨k', _⟩) := k.name = k'.name
 | _ := ff
 
 -- Remark: this function must be updated whenever `ident` parser is modified.
@@ -68,7 +75,7 @@ def is_of_kind (k : syntax_node_kind) : syntax → bool
 -- TODO: move it to the `ident` parser file and use the view defined there.
 private def ident_to_format : syntax → format
 | stx := option.get_or_else (do
-  syntax.node ⟨_, [syntax.node ⟨_, [syntax.node ⟨some ⟨idx⟩, part⟩]⟩, suffix]⟩ ← pure stx | failure,
+  syntax.node ⟨_, [syntax.node ⟨_, [syntax.node ⟨⟨idx⟩, part⟩]⟩, suffix]⟩ ← pure stx | failure,
   part ← match idx, part with
   | name.mk_numeral name.anonymous 0, [syntax.node ⟨_, [_, syntax.atom ⟨_, s⟩, _]⟩] := pure $ to_fmt "«" ++ s ++ "»"
   | name.mk_numeral name.anonymous 1, [syntax.atom ⟨_, s⟩] := pure $ s
@@ -82,9 +89,7 @@ private def ident_to_format : syntax → format
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
 | (atom ⟨_, s⟩) := to_fmt $ repr s
-| (node {kind := none, args := args, ..}) :=
-  sbracket $ join_sep (to_format_lst args) line
-| stx@(node {kind := some kind, args := args, ..}) :=
+| stx@(node {kind := kind, args := args, ..}) :=
   if kind.name = `lean.parser.no_kind then sbracket $ join_sep (to_format_lst args) line
   else if kind.name = `lean.parser.ident then to_fmt "`" ++ ident_to_format stx
   else let shorter_name := kind.name.replace_prefix `lean.parser name.anonymous
@@ -146,7 +151,7 @@ def reprint_atom : syntax_atom → string
 mutual def reprint, reprint_lst
 with reprint : syntax → option string
 | (atom a) := reprint_atom a
-| (node ⟨some k, ns⟩) :=
+| (node ⟨k, ns⟩) :=
   if k.name = choice.name then match ns with
   -- should never happen
   | [] := failure
@@ -157,7 +162,6 @@ with reprint : syntax → option string
     guard $ ss.all (= s),
     pure s
   else string.join <$> reprint_lst ns
-| (node ⟨_, ns⟩) := string.join <$> reprint_lst ns
 | missing := ""
 with reprint_lst : list syntax → option (list string)
 | []      := pure []

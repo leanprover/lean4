@@ -317,7 +317,7 @@ lift $ do
   except.ok tk ← peek_token | error "",
   n ← match tk with
   | syntax.atom ⟨_, s⟩ := pure $ mk_simple_name s
-  | syntax.node ⟨some k, _⟩ := pure k.name
+  | syntax.node ⟨k, _⟩ := pure k.name
   | _ := error "",
   option.to_monad $ map.find n
 

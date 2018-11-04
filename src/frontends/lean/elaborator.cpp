@@ -3274,13 +3274,13 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             new_args.push_back(add_field(r));
         } else {// try block
             binds << "let stxs := match stxs with (syntax.node (syntax_node.mk _ stxs))::sstxs := stxs ++ sstxs | _ := stxs in\n";
-            reviews << "syntax.node (syntax_node.mk none [";
+            reviews << "syntax.list [";
             buffer<expr> new_try_args;
             for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args)) {
                 expr r = app_arg(app_fn(args));
                 new_try_args.push_back(add_field(r));
             }
-            reviews << "])";
+            reviews << "]";
             new_args.push_back(mk_app(mk_const({"lean", "parser", "monad_parsec", "try"}),
                                       mk_app(mk_const({"lean", "parser", "combinators", "seq"}),
                                              mk_lean_list(new_try_args))));
@@ -3352,7 +3352,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         view_cases << " := " << macro.to_string() << ".view." << fname << " $ parser.has_view.view (" << pp(r)
                 << " : " << pp(exp) << ") stx\n";
         review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
-                << "syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << "))) "
+                << "syntax.node (syntax_node.mk (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << ")) "
                 << "[review (" << pp(r) << " : " << pp(exp) << ") a])\n";
         i++;
         new_args.push_back(mk_as_is(r));
@@ -3361,7 +3361,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
           << esc_macro.to_string() << " :=\n"
           << "{ view := fun stx, let (stx, i) := match stx : _ -> prod syntax nat with \n"
           << "| syntax.node (syntax_node.mk " << esc_macro.to_string()
-          << " [syntax.node (syntax_node.mk (some (syntax_node_kind.mk (name.mk_numeral name.anonymous i))) [stx])]) := (stx, i)\n"
+          << " [syntax.node (syntax_node.mk (syntax_node_kind.mk (name.mk_numeral name.anonymous i)) [stx])]) := (stx, i)\n"
           << "| _ := (syntax.missing, 0) in\n"
           << "match i with\n"
           << view_cases.str() << ",\n"

@@ -156,7 +156,7 @@ structure parse.view_ty :=
 (eoi  : syntax)
 
 def parse.view : syntax → option parse.view_ty
-| (syntax.node ⟨none, [root, eoi]⟩) := some ⟨root, eoi⟩
+| (syntax.node ⟨@no_kind, [root, eoi]⟩) := some ⟨root, eoi⟩
 | _ := none
 
 

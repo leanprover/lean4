@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/extract_closed.h"
 #include "library/compiler/llnf.h"
+#include "library/compiler/ir.h"
 #include "library/compiler/compiler.h"
 
 namespace lean {
@@ -22,11 +23,13 @@ void initialize_compiler_module() {
     initialize_specialize();
     initialize_extract_closed();
     initialize_llnf();
+    initialize_ir();
     initialize_compiler();
 }
 
 void finalize_compiler_module() {
     finalize_compiler();
+    finalize_ir();
     finalize_llnf();
     finalize_extract_closed();
     finalize_specialize();

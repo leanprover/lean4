@@ -70,35 +70,6 @@ def is_of_kind (k : syntax_node_kind) : syntax → bool
 | (syntax.node ⟨k', _⟩) := k.name = k'.name
 | _ := ff
 
--- Remark: this function must be updated whenever `ident` parser is modified.
--- This function was defined before we had the `ident` parser.
--- TODO: move it to the `ident` parser file and use the view defined there.
-private def ident_to_format : syntax → format
-| stx := option.get_or_else (do
-  syntax.node ⟨_, [syntax.node ⟨_, [syntax.node ⟨⟨idx⟩, part⟩]⟩, suffix]⟩ ← pure stx | failure,
-  part ← match idx, part with
-  | name.mk_numeral name.anonymous 0, [syntax.node ⟨_, [_, syntax.atom ⟨_, s⟩, _]⟩] := pure $ to_fmt "«" ++ s ++ "»"
-  | name.mk_numeral name.anonymous 1, [syntax.atom ⟨_, s⟩] := pure $ s
-  | _, _ := failure,
-  match suffix with
-  | syntax.node ⟨_, []⟩ := pure $ to_fmt part
-  | syntax.node ⟨_, [syntax.node ⟨_, [_, id]⟩]⟩ := pure $ to_fmt part ++ "." ++ ident_to_format id
-  | _ := failure
-) "syntax.to_format: unexpected `ident` node content"
-
-protected mutual def to_format, to_format_lst
-with to_format : syntax → format
-| (atom ⟨_, s⟩) := to_fmt $ repr s
-| stx@(node {kind := kind, args := args, ..}) :=
-  if kind.name = `lean.parser.no_kind then sbracket $ join_sep (to_format_lst args) line
-  else if kind.name = `lean.parser.ident then to_fmt "`" ++ ident_to_format stx
-  else let shorter_name := kind.name.replace_prefix `lean.parser name.anonymous
-       in paren $ join_sep (to_fmt shorter_name :: to_format_lst args) line
-| missing := "<missing>"
-with to_format_lst : list syntax → list format
-| []      := []
-| (s::ss) := to_format s :: to_format_lst ss
-
 /- Remark: the state `string.iterator` is the `source_info.trailing.stop` of the previous token,
    or the beginning of the string. -/
 private mutual def update_leading_aux, update_leading_lst
@@ -170,9 +141,6 @@ with reprint_lst : list syntax → option (list string)
   ss ← reprint_lst ns,
   pure $ s::ss
 end syntax
-
-instance : has_to_format syntax := ⟨syntax.to_format⟩
-instance : has_to_string syntax := ⟨to_string ∘ to_fmt⟩
 
 end parser
 end lean

@@ -321,5 +321,26 @@ lift $ do
   | _ := error "",
   option.to_monad $ map.find n
 
+namespace syntax
+open lean.format
+
+-- Now that we have `ident.view`, this function is much easier to define
+protected mutual def to_format, to_format_lst
+with to_format : syntax → format
+| (atom ⟨_, s⟩) := to_fmt $ repr s
+| stx@(node {kind := kind, args := args, ..}) :=
+  if kind.name = `lean.parser.no_kind then sbracket $ join_sep (to_format_lst args) line
+  else if kind.name = `lean.parser.ident then to_fmt "`" ++ to_fmt (view ident stx).to_name
+  else let shorter_name := kind.name.replace_prefix `lean.parser name.anonymous
+       in paren $ join_sep (to_fmt shorter_name :: to_format_lst args) line
+| missing := "<missing>"
+with to_format_lst : list syntax → list format
+| []      := []
+| (s::ss) := to_format s :: to_format_lst ss
+
+instance : has_to_format syntax := ⟨syntax.to_format⟩
+instance : has_to_string syntax := ⟨to_string ∘ to_fmt⟩
+
+end syntax
 end «parser»
 end lean

@@ -5,7 +5,7 @@ open lean.expander
 open lean.elaborator
 
 def check_reprint (p : list module_parser_output) (s : string) : except_t string io unit :=
-do let stx := syntax.node ⟨none, p.map (λ o, o.cmd)⟩,
+do let stx := syntax.list $ p.map (λ o, o.cmd),
    let stx := stx.update_leading s,
    some s' ← pure $ stx.reprint | io.println "reprint fail: choice node",
    when (s ≠ s') (
@@ -14,7 +14,7 @@ do let stx := syntax.node ⟨none, p.map (λ o, o.cmd)⟩,
    )
 
 def show_result (p : list module_parser_output) (s : string) : except_t string io unit :=
-let stx := syntax.node ⟨none, p.map (λ r, r.cmd)⟩ in
+let stx := syntax.list $ p.map (λ r, r.cmd) in
 let stx := stx.update_leading s in
 let msgs := (do r ← p, r.messages.to_list) in
 match msgs with

@@ -163,33 +163,13 @@ class to_llnf_fn {
 
     name_generator & ngen() { return m_st.ngen(); }
 
-    optional<unsigned> is_enum_type_core(name const & I) {
-        constant_info info  = env().get(I);
-        if (!info.is_inductive()) return optional<unsigned>();
-        unsigned n = 0;
-        for (name const & c : info.to_inductive_val().get_cnstrs()) {
-            if (is_pi(env().get(c).get_type()))
-                return optional<unsigned>();
-            if (n == std::numeric_limits<unsigned>::max())
-                return optional<unsigned>();
-            n++;
-        }
-        if (n < (1u << 8)) {
-            return optional<unsigned>(1);
-        } else if (n < (1u << 16)) {
-            return optional<unsigned>(2);
-        } else {
-            return optional<unsigned>(4);
-        }
-    }
-
     optional<unsigned> is_enum_type(expr const & type) {
         expr const & I = get_app_fn(type);
         if (!is_constant(I)) return optional<unsigned>();
         auto it = m_enum_cache.find(const_name(I));
         if (it != m_enum_cache.end())
             return it->second;
-        optional<unsigned> r = is_enum_type_core(const_name(I));
+        optional<unsigned> r = ::lean::is_enum_type(env(), const_name(I));
         m_enum_cache.insert(mk_pair(const_name(I), r));
         return r;
     }

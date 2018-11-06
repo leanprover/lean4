@@ -19,6 +19,26 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 
 namespace lean {
+optional<unsigned> is_enum_type(environment const & env, name const & I) {
+    constant_info info  = env.get(I);
+    if (!info.is_inductive()) return optional<unsigned>();
+    unsigned n = 0;
+    for (name const & c : info.to_inductive_val().get_cnstrs()) {
+        if (is_pi(env.get(c).get_type()))
+            return optional<unsigned>();
+        if (n == std::numeric_limits<unsigned>::max())
+            return optional<unsigned>();
+        n++;
+    }
+    if (n < (1u << 8)) {
+        return optional<unsigned>(1);
+    } else if (n < (1u << 16)) {
+        return optional<unsigned>(2);
+    } else {
+        return optional<unsigned>(4);
+    }
+}
+
 unsigned get_num_nested_lambdas(expr e) {
     unsigned r = 0;
     while (is_lambda(e)) {

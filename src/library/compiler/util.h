@@ -14,6 +14,12 @@ Author: Leonardo de Moura
 #include "library/util.h"
 
 namespace lean {
+/* Return the `some(n)` if `I` is the name of an inductive datatype that contains only constructors with 0-arguments,
+   and `n` is `1`, `2` or `4`, i.e., the number of bytes that should be used to store a value of this type.
+   Otherwise, it return `none`.
+   Remark: if the inductive datatype `I` has more than `2^32` constructors (very unlikely), the result is also `none`. */
+optional<unsigned> is_enum_type(environment const & env, name const & I);
+
 /* A "compiler" declaration `x := e` */
 typedef pair_ref<name, expr> comp_decl;
 typedef list_ref<comp_decl> comp_decls;

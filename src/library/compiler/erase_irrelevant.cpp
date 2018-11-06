@@ -13,6 +13,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class erase_irrelevant_fn {
+    typedef std::unordered_map<name, bool, name_hash> is_enum_cache;
     typedef std::tuple<name, expr, expr> let_entry;
     type_checker::state  m_st;
     local_ctx            m_lctx;
@@ -22,6 +23,7 @@ class erase_irrelevant_fn {
     name                 m_x;
     unsigned             m_next_idx{1};
     expr_map<bool>       m_irrelevant_cache;
+    is_enum_cache        m_is_enum_cache;
 
     environment & env() { return m_st.env(); }
 
@@ -44,6 +46,15 @@ class erase_irrelevant_fn {
             get_constructor_relevant_fields(env(), n, rel_fields);
             m_constructor_info.insert(n, to_list(rel_fields));
         }
+    }
+
+    bool is_enum_type(name const & I) {
+        auto it = m_is_enum_cache.find(I);
+        if (it != m_is_enum_cache.end())
+            return it->second;
+        bool r = static_cast<bool>(lean::is_enum_type(env(), I));
+        m_is_enum_cache.insert(mk_pair(I, r));
+        return r;
     }
 
     /* Return (some idx) iff inductive datatype `I_name` has only one constructor,
@@ -84,6 +95,8 @@ class erase_irrelevant_fn {
                     return e;
                 else if (c == get_char_name())
                     return mk_constant(get_uint32_name());
+                else if (is_enum_type(c))
+                    return e;
                 else
                     return mk_enf_object_type();
             } else if (!atomic_only && is_app_of(e, get_array_name(), 1)) {

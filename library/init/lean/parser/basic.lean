@@ -64,7 +64,7 @@ structure parser_config :=
 
 @[derive monad alternative monad_state monad_parsec monad_except]
 def parser_core_t (m : Type → Type) [monad m] :=
-state_t parser_state $ parsec_t syntax $ state_t parser_cache $ m
+parsec_t syntax $ state_t parser_cache $ m
 
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
 def parser_t (ρ : Type) (m : Type → Type) [monad m] := reader_t ρ $ parser_core_t m
@@ -120,9 +120,9 @@ def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.me
 {filename := cfg.filename, pos := ⟨0, 0⟩, text := to_string msg}
 
 /-- Run parser stack, returning a partial syntax tree in case of a fatal error -/
-protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ parser_config] (cfg : ρ) (s : string) (r : parser_t ρ m α) :
+protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ parser_config] (cfg : ρ) (s : string) (r : state_t parser_state (parser_t ρ m) α) :
 m (sum α syntax × message_log) :=
-do (r, _) ← (((r.run cfg).run {messages:=message_log.empty}).parse s).run {},
+do (r, _) ← (((r.run {messages:=message_log.empty}).run cfg).parse s).run {},
 pure $ match r with
 | except.ok (a, st) := (sum.inl a, st.messages)
 | except.error msg  := (sum.inr msg.custom.get, message_log.empty.add (message_of_parsec_message cfg msg))

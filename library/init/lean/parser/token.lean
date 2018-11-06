@@ -192,8 +192,7 @@ do it ← left_over,
    )
 
 def peek_token : basic_parser_m (except (parsec.message syntax) syntax) :=
-do st ← get,
-   observing (try (lookahead token)) <* put st
+observing (try (lookahead token))
 
 variable [monad_basic_parser m]
 

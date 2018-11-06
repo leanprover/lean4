@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include <algorithm>
 #include <string>
+#include <limits>
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"

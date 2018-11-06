@@ -75,14 +75,9 @@ class erase_irrelevant_fn {
         return type_checker(m_st, m_lctx).is_prop(e);
     }
 
-    expr whnf_type(expr const & e) {
-        type_checker tc(m_st, m_lctx);
-        return whnf_upto_runtime_type(tc, e);
-    }
-
     expr mk_runtime_type(expr e, bool atomic_only = false) {
         try {
-            e = whnf_type(e);
+            e = type_checker(m_st, m_lctx).whnf(e);
             if (is_constant(e)) {
                 name const & c = const_name(e);
                 if (is_runtime_scalar_type(c))

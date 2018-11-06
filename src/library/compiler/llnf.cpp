@@ -193,7 +193,7 @@ class to_llnf_fn {
                 result.push_back(field_info());
             } else if (m_unboxed) {
                 type_checker tc(m_st, lctx);
-                ftype = whnf_upto_runtime_type(tc, ftype);
+                ftype = tc.whnf(ftype);
                 if (optional<unsigned> sz = is_builtin_scalar(ftype)) {
                     result.push_back(field_info(next_offset, *sz));
                     next_offset += *sz;

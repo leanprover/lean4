@@ -356,19 +356,6 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_int_name();
 }
 
-expr whnf_upto_runtime_type(type_checker & tc, expr e) {
-    while (true) {
-        expr e1 = tc.whnf_core(e);
-        if (is_runtime_builtin_type(e1))
-            return e1;
-        if (auto next_e = tc.unfold_definition(e1)) {
-            e = *next_e;
-        } else {
-            return e;
-        }
-    }
-}
-
 bool is_runtime_scalar_type(name const & n) {
     return
         n == get_uint8_name()  ||

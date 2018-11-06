@@ -113,7 +113,7 @@ instance commands.tokens : parser.has_tokens commands.parser :=
 instance commands.parser.has_view : has_view (list syntax) commands.parser :=
 {..many.view command.parser}
 
-@[pattern] def eoi : syntax_node_kind := ⟨`lean.parser.eoi⟩
+@[pattern] def eoi : syntax_node_kind := ⟨`lean.parser.module.eoi⟩
 end module
 open module
 
@@ -132,7 +132,7 @@ def module.parser : module_parser_m unit := do
   it ← left_over,
   -- add `eoi` node for left-over input
   let stop := it.to_end,
-  yield_command $ syntax.node ⟨eoi, [syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]⟩
+  yield_command $ syntax.mk_node eoi [syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]
 
 instance module.tokens : has_tokens module.parser :=
 ⟨tokens prelude.parser ++ tokens import.parser ++ tokens commands.parser⟩

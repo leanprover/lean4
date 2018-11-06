@@ -3273,7 +3273,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
         if (is_mdata(r)) {
             new_args.push_back(add_field(r));
         } else {// try block
-            binds << "let stxs := match stxs with (syntax.node (syntax_node.mk _ stxs))::sstxs := stxs ++ sstxs | _ := stxs in\n";
+            binds << "let stxs := match stxs with stx::stxs := (match stx.as_node with some n := n.args ++ stxs | _ := stxs) | _ := stxs in\n";
             reviews << "syntax.list [";
             buffer<expr> new_try_args;
             for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args)) {
@@ -3287,11 +3287,11 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
         }
     }
     struc << "def " << macro.to_string() << ".has_view' : has_view " << macro.to_string() << ".view " << esc_macro.to_string() << " :=\n"
-            << "{ view := fun stx, let stxs : list syntax := match stx with"
-            << "| syntax.node (syntax_node.mk " << esc_macro.to_string() << " stxs) := stxs | _ := [] in\n"
+            << "{ view := fun stx, let stxs : list syntax := match stx.as_node with"
+            << "| some n := n.args | _ := [] in\n"
             << binds.str()
             << macro.to_string() << ".view.mk " << mk_args.str() << ",\n"
-            << "review := fun ⟨" << view_pat.str() << "⟩, syntax.node (syntax_node.mk " << esc_macro.to_string() << " [" << reviews.str() << "]) }";
+            << "review := fun ⟨" << view_pat.str() << "⟩, syntax.mk_node " << esc_macro.to_string() << " [" << reviews.str() << "] }";
     struc << "instance " << macro.to_string() << ".has_view := " << macro.to_string() << ".has_view'";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
@@ -3352,23 +3352,24 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
         view_cases << " := " << macro.to_string() << ".view." << fname << " $ parser.has_view.view (" << pp(r)
                 << " : " << pp(exp) << ") stx\n";
         review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
-                << "syntax.node (syntax_node.mk (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << ")) "
-                << "[review (" << pp(r) << " : " << pp(exp) << ") a])\n";
+                << "syntax.mk_node (syntax_node_kind.mk (name.mk_numeral name.anonymous " << i << ")) "
+                << "[review (" << pp(r) << " : " << pp(exp) << ") a]\n";
         i++;
         new_args.push_back(mk_as_is(r));
     }
     struc << "def " << macro.to_string() << ".has_view' : has_view " << macro.to_string() << ".view "
           << esc_macro.to_string() << " :=\n"
-          << "{ view := fun stx, let (stx, i) := match stx : _ -> prod syntax nat with \n"
-          << "| syntax.node (syntax_node.mk " << esc_macro.to_string()
-          << " [syntax.node (syntax_node.mk (syntax_node_kind.mk (name.mk_numeral name.anonymous i)) [stx])]) := (stx, i)\n"
+          << "{ view := fun stx, let (stx, i) := match stx.as_node : _ -> prod syntax nat with\n"
+          << "| some {kind := " << esc_macro.to_string() << ", args := [stx], ..} := (match stx.as_node  : _ -> prod syntax nat with\n"
+          << "  | some {kind := syntax_node_kind.mk (name.mk_numeral name.anonymous i), args := [stx], ..} := (stx, i)\n"
+          << "  | _ := (syntax.missing, 0))\n"
           << "| _ := (syntax.missing, 0) in\n"
           << "match i with\n"
           << view_cases.str() << ",\n"
-          << "review := fun v, syntax.node (syntax_node.mk " << esc_macro.to_string()
+          << "review := fun v, syntax.mk_node " << esc_macro.to_string()
           << " [match v with\n"
           << review_cases.str()
-          << "]) }";
+          << "] }";
     struc << "instance " << macro.to_string() << ".has_view := " << macro.to_string() << ".has_view'";
     trace_elab_detail(tout() << "expansion of node_choice! macro:\n" << struc.str(););
     std::istringstream in(struc.str());

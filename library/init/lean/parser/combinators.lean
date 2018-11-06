@@ -28,10 +28,10 @@ do args ← rs.mfoldl (λ (p : list syntax) r, do
        | [] := throw msg
        | _  :=
          let args := msg.custom.get :: args in
-         throw {msg with custom := syntax.node ⟨k, args.reverse⟩},
+         throw {msg with custom := syntax.mk_node k args.reverse},
      pure (a::args)
    ) [],
-   pure $ syntax.node ⟨k, args.reverse⟩
+   pure $ syntax.mk_node k args.reverse
 
 @[reducible] def seq : list parser → parser := node no_kind
 
@@ -48,8 +48,8 @@ private def many1_aux (p : parser) : list syntax → nat → parser
 | as (n+1) := do
   a ← catch p (λ msg, throw {msg with custom :=
     -- append `syntax.missing` to make clear that list is incomplete
-    syntax.node ⟨no_kind, (syntax.missing::msg.custom.get::as).reverse⟩}),
-  many1_aux (a::as) n <|> pure (syntax.node ⟨no_kind, (a::as).reverse⟩)
+    syntax.list (syntax.missing::msg.custom.get::as).reverse}),
+  many1_aux (a::as) n <|> pure (syntax.list (a::as).reverse)
 
 def many1 (r : parser) : parser :=
 do rem ← remaining, many1_aux r [] (rem+1)
@@ -58,13 +58,13 @@ instance many1.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (ma
 ⟨tokens r⟩
 
 instance many1.view (r : parser) [parser.has_view α r] : parser.has_view (list α) (many1 r) :=
-{ view := λ stx, match stx with
-    | syntax.node ⟨@no_kind, stxs⟩ := stxs.map (has_view.view r)
+{ view := λ stx, match stx.as_node with
+    | some n := n.args.map (has_view.view r)
     | _ := [has_view.view r syntax.missing],
-  review := λ as, syntax.node ⟨no_kind, as.map (review r)⟩ }
+  review := λ as, syntax.list $ as.map (review r) }
 
 def many (r : parser) : parser :=
-many1 r <|> pure (syntax.node ⟨no_kind, []⟩)
+many1 r <|> pure (syntax.list [])
 
 instance many.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (many r) :=
 ⟨tokens r⟩
@@ -79,12 +79,12 @@ private def sep_by_aux (p : m syntax) (sep : parser) (allow_trailing_sep : bool)
   let p := if p_opt then some <$> p <|> pure none else some <$> p,
   some a ← catch p (λ msg, throw {msg with custom :=
     -- append `syntax.missing` to make clear that list is incomplete
-    syntax.node ⟨no_kind, (syntax.missing::msg.custom.get::as).reverse⟩})
-    | pure (syntax.node ⟨no_kind, as.reverse⟩),
+    syntax.list (syntax.missing::msg.custom.get::as).reverse})
+    | pure (syntax.list as.reverse),
   -- I don't want to think about what the output on a failed separator parse should look like
   let sep := try sep,
   some s ← some <$> sep <|> pure none
-    | pure (syntax.node ⟨no_kind, (a::as).reverse⟩),
+    | pure (syntax.list (a::as).reverse),
   sep_by_aux allow_trailing_sep (s::a::as) n
 
 def sep_by (p sep : parser) (allow_trailing_sep := tt) : parser :=
@@ -105,12 +105,12 @@ private def sep_by.view_aux {α β} (p sep : parser) [parser.has_view α p] [par
 
 instance sep_by.view {α β} (p sep : parser) (a) [parser.has_view α p] [parser.has_view β sep] :
   parser.has_view (list (α × option β)) (sep_by p sep a) :=
-{ view := λ stx, match stx with
-    | syntax.node ⟨@no_kind, stxs⟩ := sep_by.view_aux p sep stxs
-    | _ := failure,
-  review := λ as, syntax.node ⟨no_kind, as.bind (λ a, match a with
+{ view := λ stx, match stx.as_node with
+    | some n := sep_by.view_aux p sep n.args
+    | _ := [(view p syntax.missing, none)],
+  review := λ as, syntax.list $ as.bind (λ a, match a with
     | ⟨v, some vsep⟩ := [review p v, review sep vsep]
-    | ⟨v, none⟩      := [review p v])⟩ }
+    | ⟨v, none⟩      := [review p v]) }
 
 instance sep_by1.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_tokens sep] :
   parser.has_tokens (sep_by1 p sep a) :=
@@ -123,21 +123,21 @@ instance sep_by1.view {α β} (p sep : parser) (a) [parser.has_view α p] [parse
 def optional (r : parser) : parser :=
 do r ← optional $
      -- on error, wrap in "some"
-     catch r (λ msg, throw {msg with custom := syntax.node ⟨no_kind, [msg.custom.get]⟩}),
+     catch r (λ msg, throw {msg with custom := syntax.list [msg.custom.get]}),
    pure $ match r with
-   | some r := syntax.node ⟨no_kind, [r]⟩
-   | none   := syntax.node ⟨no_kind, []⟩
+   | some r := syntax.list [r]
+   | none   := syntax.list []
 
 instance optional.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (optional r) :=
 ⟨tokens r⟩
 instance optional.view (r : parser) [parser.has_view α r] : parser.has_view (option α) (optional r) :=
-{ view := λ stx, match stx with
-    | syntax.node ⟨no_kind, []⟩ := none
-    | syntax.node ⟨no_kind, [stx]⟩ := some $ has_view.view r stx
-    | _ := some $ has_view.view r syntax.missing,
+{ view := λ stx, match stx.as_node with
+    | some {args := [], ..} := none
+    | some {args := [stx], ..} := some $ has_view.view r stx
+    | _ := some $ view r syntax.missing,
   review := λ a, match a with
-    | some a := syntax.node ⟨no_kind, [review r a]⟩
-    | none   := syntax.node ⟨no_kind, []⟩ }
+    | some a := syntax.list [review r a]
+    | none   := syntax.list [] }
 instance optional.view_default (r : parser) [parser.has_view α r] : parser.has_view_default (optional r) (option α) none := ⟨⟩
 
 /-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
@@ -160,7 +160,7 @@ def longest_match (rs : list parser) : parser :=
 do stxs ← monad_parsec.longest_match rs,
    match stxs with
    | [stx] := pure stx
-   | _     := pure $ syntax.node ⟨choice, stxs⟩
+   | _     := pure $ syntax.mk_node choice stxs
 
 instance longest_match.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (longest_match rs) :=
 ⟨tokens rs⟩
@@ -173,7 +173,7 @@ def choice_aux : list parser → nat → parser
 | []      _ := error "choice: empty list"
 | (r::rs) i :=
   do { stx ← r,
-       pure $ syntax.node ⟨⟨name.mk_numeral name.anonymous i⟩, [stx]⟩ }
+       pure $ syntax.mk_node ⟨name.mk_numeral name.anonymous i⟩ [stx] }
   <|> choice_aux rs (i+1)
 
 def choice (rs : list parser) : parser :=

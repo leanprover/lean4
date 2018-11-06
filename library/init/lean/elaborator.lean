@@ -228,19 +228,19 @@ def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
     yield_to_outside,
     commands.elaborate n
   },
-  match cmd with
-  | syntax.node ⟨@«end», _⟩ :=
+  match syntax_node.kind <$> cmd.as_node with
+  | @«end» :=
     if stop_on_end_cmd then
       pure ()
     else
       -- TODO(Sebastian): should recover
       error cmd "invalid 'end', there is no open scope to end"
-  | syntax.node ⟨module.eoi, _⟩ :=
+  | module.eoi :=
     if stop_on_end_cmd then
       error cmd "invalid end of input, expected 'end'"
     else
       pure ()
-  | syntax.node ⟨@«notation», _⟩ := do
+  | @«notation» := do
     let nota := view «notation» cmd,
     if nota.local.is_some then do {
       nota ← notation.elaborate_aux nota,
@@ -299,7 +299,7 @@ do
     (λ _, do
       cmd ← current_command,
       -- TODO(Sebastian): throw error on unknown command when we get serious
-      syntax.node n ← pure cmd | pure (),
+      some n ← pure cmd.as_node | pure (),
       some elab ← pure $ elaborators.find n.kind.name | pure (),
       catch elab $ λ e,
         modify $ λ st, {st with messages := st.messages.add e})

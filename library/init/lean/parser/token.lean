@@ -73,7 +73,7 @@ variables [monad_state parser_state m] [monad_basic_parser m]
 private mutual def update_trailing, update_trailing_lst
 with update_trailing : substring → syntax → syntax
 | trailing (syntax.atom a@⟨some info, _⟩) := syntax.atom {a with info := some {info with trailing := trailing}}
-| trailing (syntax.node n@⟨k, args⟩) := syntax.node {n with args := update_trailing_lst trailing args}
+| trailing (syntax.raw_node n) := syntax.raw_node {n with args := update_trailing_lst trailing n.args}
 | trailing stx := stx
 with update_trailing_lst : substring → list syntax → list syntax
 | trailing [] := []
@@ -250,8 +250,9 @@ instance string_lit.parser.view : parser.has_view string_lit.view (string_lit.pa
 def ident.parser : parser :=
 lift $ try $ do {
   it ← left_over,
-  stx@(syntax.node ⟨ident, _⟩) ← token | error "" (dlist.singleton "identifier") it,
-  pure stx
+  stx ← token,
+  if stx.is_of_kind ident then pure stx
+  else error "" (dlist.singleton "identifier") it
 } <?> "identifier"
 
 instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := default _
@@ -291,7 +292,7 @@ lift $ try $ do
   stx ← token,
   let sym' := match stx with
   | syntax.atom ⟨_, sym'⟩ := some sym'
-  | syntax.node ⟨ident, _⟩ :=
+  | syntax.raw_node {kind := @ident, ..} :=
     (match view ident stx with
      | {part := ident_part.view.default (some ⟨_, sym'⟩),
         suffix := none} := some sym'
@@ -317,7 +318,7 @@ lift $ do
   except.ok tk ← peek_token | error "",
   n ← match tk with
   | syntax.atom ⟨_, s⟩ := pure $ mk_simple_name s
-  | syntax.node ⟨k, _⟩ := pure k.name
+  | syntax.raw_node n := pure n.kind.name
   | _ := error "",
   option.to_monad $ map.find n
 
@@ -328,11 +329,13 @@ open lean.format
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
 | (atom ⟨_, s⟩) := to_fmt $ repr s
-| stx@(node {kind := kind, args := args, ..}) :=
-  if kind.name = `lean.parser.no_kind then sbracket $ join_sep (to_format_lst args) line
-  else if kind.name = `lean.parser.ident then to_fmt "`" ++ to_fmt (view ident stx).to_name
-  else let shorter_name := kind.name.replace_prefix `lean.parser name.anonymous
-       in paren $ join_sep (to_fmt shorter_name :: to_format_lst args) line
+| stx@(raw_node n) :=
+  let scopes := match n.scopes with [] := to_fmt "" | _ := bracket "{" (join_sep n.scopes ", ") "}" in
+  if n.kind.name = `lean.parser.no_kind then sbracket $ scopes ++ join_sep (to_format_lst n.args) line
+  else if n.kind.name = `lean.parser.ident then
+    to_fmt "`" ++ to_fmt (view ident stx).to_name ++ scopes
+  else let shorter_name := n.kind.name.replace_prefix `lean.parser name.anonymous
+       in paren $ join_sep ((to_fmt shorter_name ++ scopes) :: to_format_lst n.args) line
 | missing := "<missing>"
 with to_format_lst : list syntax → list format
 | []      := []

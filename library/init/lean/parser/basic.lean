@@ -151,14 +151,6 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
      trie.mk,
    pure t
 
-structure parse.view_ty :=
-(root : syntax)
-(eoi  : syntax)
-
-def parse.view : syntax → option parse.view_ty
-| (syntax.node ⟨@no_kind, [root, eoi]⟩) := some ⟨root, eoi⟩
-| _ := none
-
 
 /- Monad stacks used in multiple files -/
 

@@ -39,6 +39,10 @@ structure syntax_node_kind :=
     This node kind is special-cased by `syntax.format` to be printed as brackets `[...]` without a node kind. -/
 @[pattern] def no_kind : syntax_node_kind := ⟨`lean.parser.no_kind⟩
 
+/-- A hygiene marker introduced by a macro expansion. -/
+@[irreducible, derive decidable_eq has_to_format]
+def macro_scope := nat
+
 /-
 Parsers create `syntax_node`'s with the following properties (see implementation of `combinators.node`):
 - If `args` contains a `syntax.missing`, then all subsequent elements are also `syntax.missing`.
@@ -47,11 +51,18 @@ Parsers create `syntax_node`'s with the following properties (see implementation
 Remark: We do create `syntax_node`'s with an empty `args` field (e.g. for representing `option.none`).
 -/
 structure syntax_node (syntax : Type) :=
-(kind : syntax_node_kind) (args : list syntax)
+(kind : syntax_node_kind)
+(args : list syntax)
+-- Lazily propagated scopes. Scopes are pushed inwards when a node is destructed via `syntax.as_node`,
+-- until an `ident` node or an atom (in which the scopes vanish) is reached
+-- TODO(Sebastian): make sure scopes are not pushed inside of an `ident` node
+(scopes : list macro_scope := [])
 
 inductive syntax
 | atom (val : syntax_atom)
-| node (val : syntax_node syntax)
+-- note: use `syntax.as_node` instead of matching against this constructor so that
+-- macro scopes are propagated
+| raw_node (val : syntax_node syntax)
 | missing
 
 instance : inhabited syntax :=
@@ -63,11 +74,25 @@ def substring.to_string (s : substring) : string :=
 namespace syntax
 open lean.format
 
+/-- Lazily flip the given list of scopes on this subtree. -/
+def flip_scopes (scopes : list macro_scope) : syntax → syntax
+| (syntax.raw_node n) := syntax.raw_node {n with scopes :=
+  n.scopes.filter (λ sc, ¬ (sc ∈ scopes)) ++ scopes.filter (λ sc, ¬ (sc ∈ n.scopes))}
+| stx := stx
+
+def mk_node (kind : syntax_node_kind) (args : list syntax) :=
+syntax.raw_node { kind := kind, args := args }
+
+/-- Match against `syntax.raw_node`, propagating lazy macro scopes. -/
+def as_node : syntax → option (syntax_node syntax)
+| (syntax.raw_node n) := some {n with args := n.args.map (flip_scopes n.scopes), scopes := []}
+| _                   := none
+
 protected def list (args : list syntax) :=
-syntax.node ⟨no_kind, args⟩
+mk_node no_kind args
 
 def is_of_kind (k : syntax_node_kind) : syntax → bool
-| (syntax.node ⟨k', _⟩) := k.name = k'.name
+| (syntax.raw_node n) := k.name = n.kind.name
 | _ := ff
 
 /- Remark: the state `string.iterator` is the `source_info.trailing.stop` of the previous token,
@@ -78,7 +103,7 @@ with update_leading_aux : syntax → state string.iterator syntax
   last ← get,
   put info.trailing.stop,
   pure $ atom {a with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
-| (node n) := do args ← update_leading_lst n.args, pure $ node {n with args := args}
+| (raw_node n) := do args ← update_leading_lst n.args, pure $ raw_node {n with args := args}
 | stx := pure stx
 with update_leading_lst : list syntax → state string.iterator (list syntax)
 | []      := pure []
@@ -98,16 +123,12 @@ with update_leading_lst : list syntax → state string.iterator (list syntax)
 def update_leading (source : string) : syntax → syntax :=
 λ stx, prod.fst $ (update_leading_aux stx).run source.mk_iterator
 
-def is_empty_node : syntax → bool
-| (node ⟨_, []⟩) := tt
-| _              := ff
-
 /-- Retrieve the left-most leaf in the syntax tree. -/
 def get_head_atom : syntax → option syntax_atom
 | (atom a) := some a
 -- TODO: handle case where `n` is an empty `syntax_node`
 -- We will have to create a mutual recursion here Arghhhh
-| (node ⟨_, n::ns⟩) := n.get_head_atom
+| (raw_node {args:=n::ns, ..}) := n.get_head_atom
 | _ := none
 
 def get_pos (stx : syntax) : option parsec.position :=
@@ -122,8 +143,8 @@ def reprint_atom : syntax_atom → string
 mutual def reprint, reprint_lst
 with reprint : syntax → option string
 | (atom a) := reprint_atom a
-| (node ⟨k, ns⟩) :=
-  if k.name = choice.name then match ns with
+| (raw_node n) :=
+  if n.kind.name = choice.name then match n.args with
   -- should never happen
   | [] := failure
   -- check that every choice prints the same
@@ -132,7 +153,7 @@ with reprint : syntax → option string
     ss ← reprint_lst ns,
     guard $ ss.all (= s),
     pure s
-  else string.join <$> reprint_lst ns
+  else string.join <$> reprint_lst n.args
 | missing := ""
 with reprint_lst : list syntax → option (list string)
 | []      := pure []

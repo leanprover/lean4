@@ -118,7 +118,7 @@ def transformers : rbmap name transformer (<) := rbmap.from_list [
 
 def expand (stx : syntax) : reader_t expander_config (except message) syntax :=
 --TODO(Sebastian): recursion, hygiene
-do syntax.node n ← pure stx | pure stx,
+do syntax.raw_node n ← pure stx | pure stx,
    some t ← pure $ transformers.find n.kind.name | pure stx,
    t stx
 

@@ -24,9 +24,9 @@ do except.ok tk ← monad_lift peek_token | pure 0,
      cfg ← read,
      some ⟨_, tk_cfg⟩ ← pure (cfg.tokens.match_prefix sym.mk_iterator) | error "curr_lbp: unreachable",
      pure tk_cfg.lbp
-   | syntax.node ⟨@number, _⟩ := pure max_prec
-   | syntax.node ⟨@ident, _⟩ := pure max_prec
-   | syntax.node ⟨@string_lit, _⟩ := pure max_prec
+   | syntax.raw_node {kind := @number, ..} := pure max_prec
+   | syntax.raw_node {kind := @ident, ..} := pure max_prec
+   | syntax.raw_node {kind := @string_lit, ..} := pure max_prec
    | _ := error "curr_lbp: unknown token kind"
 
 private def trailing_loop (trailing : reader_t syntax m syntax) (rbp : nat) : nat → syntax → parser

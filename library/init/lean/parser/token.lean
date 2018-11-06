@@ -68,7 +68,7 @@ do start ← left_over,
    stop ← left_over,
    pure ⟨start, stop⟩
 
-variables [monad_state parser_state m] [monad_basic_parser m]
+variables [monad_basic_parser m]
 
 private mutual def update_trailing, update_trailing_lst
 with update_trailing : substring → syntax → syntax

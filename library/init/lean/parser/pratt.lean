@@ -12,7 +12,7 @@ namespace lean.parser
 open monad_parsec combinators
 
 variables {base_m : Type → Type}
-variables [monad base_m] [monad_basic_parser base_m] [monad_state parser_state base_m] [monad_parsec syntax base_m] [monad_reader parser_config base_m]
+variables [monad base_m] [monad_basic_parser base_m] [monad_parsec syntax base_m] [monad_reader parser_config base_m]
 
 local notation `m` := rec_t nat syntax base_m
 local notation `parser` := m syntax

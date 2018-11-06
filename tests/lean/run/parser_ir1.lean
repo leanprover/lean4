@@ -50,6 +50,8 @@ do d ← monad_except.lift_except $ parsec.parse (whitespace *> parse_def) s,
    check_decl d,
    io.println (lean.to_fmt (elim_phi d))
 
+#exit
+
 #eval tst_elim_phi IR2
 
 def IR3 := "

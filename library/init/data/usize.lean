@@ -7,34 +7,44 @@ prelude
 import init.data.uint init.platform init.data.fin
 
 def usize_sz : nat := (2:nat) ^ system.platform.nbits
-def usize : Type := fin usize_sz
+structure usize :=
+(val : fin usize_sz)
 
-instance : decidable_eq usize :=
-fin.decidable_eq usize_sz
+def usize.of_nat (n : nat) : usize := ⟨fin.of_nat n⟩
+def usize.to_nat : usize → nat | ⟨a⟩ := a.val
+def usize.add  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a + b⟩
+def usize.sub  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a - b⟩
+def usize.mul  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a * b⟩
+def usize.div  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a / b⟩
+def usize.mod  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a % b⟩
+def usize.modn : usize → nat → usize   | ⟨a⟩  b  := ⟨a %ₙ b⟩
+def usize.lt   : usize → usize → Prop  | ⟨a⟩ ⟨b⟩ := a < b
+def usize.le   : usize → usize → Prop  | ⟨a⟩ ⟨b⟩ := a ≤ b
 
-theorem usize_sz_pos : usize_sz > 0 :=
-show 0 < (2:nat) ^ system.platform.nbits, from
-nat.pos_pow_of_pos _ (nat.zero_lt_bit0 nat.one_ne_zero)
+instance : has_zero usize     := ⟨⟨fin.of_nat 0⟩⟩
+instance : has_one usize      := ⟨⟨fin.of_nat 1⟩⟩
+instance : has_add usize      := ⟨usize.add⟩
+instance : has_sub usize      := ⟨usize.sub⟩
+instance : has_mul usize      := ⟨usize.mul⟩
+instance : has_mod usize      := ⟨usize.mod⟩
+instance : has_modn usize     := ⟨usize.modn⟩
+instance : has_div usize      := ⟨usize.div⟩
+instance : has_lt usize       := ⟨usize.lt⟩
+instance : has_le usize       := ⟨usize.le⟩
+instance : inhabited usize    := ⟨0⟩
 
-def usize.of_nat (a : nat) : usize :=
-⟨a % usize_sz, nat.mod_lt _ usize_sz_pos⟩
+def usize.dec_eq : Π (a b : usize), decidable (a = b)
+| ⟨a⟩ ⟨b⟩ := if h : a = b then is_true (h ▸ rfl) else is_false (λ h', usize.no_confusion h' (λ h', absurd h' h))
 
-def usize.to_nat (u : usize) : nat :=
-u.val
+def usize.dec_lt : Π (a b : usize), decidable (a < b)
+| ⟨a⟩ ⟨b⟩ := infer_instance_as (decidable (a < b))
 
-instance : has_zero usize  := ⟨usize.of_nat 0⟩
-instance : has_one usize   := ⟨usize.of_nat 1⟩
-instance : has_add usize   := ⟨fin.add⟩
-instance : has_sub usize   := ⟨fin.sub⟩
-instance : has_mul usize   := ⟨fin.mul⟩
-instance : has_mod usize   := ⟨fin.mod⟩
-instance : has_modn usize  := ⟨fin.modn⟩
-instance : has_div usize   := ⟨fin.div⟩
-instance : has_lt usize    := ⟨fin.lt⟩
-instance : has_le usize    := ⟨fin.le⟩
-instance : inhabited usize := ⟨0⟩
+def usize.dec_le : Π (a b : usize), decidable (a ≤ b)
+| ⟨a⟩ ⟨b⟩ := infer_instance_as (decidable (a ≤ b))
 
-theorem usize.modn_lt {m : nat} (u : usize) (h : m > 0) : (u %ₙ m).val < m :=
-fin.modn_lt u h
+instance : decidable_eq usize := {dec_eq := usize.dec_eq}
+instance usize.has_decidable_lt (a b : usize) : decidable (a < b) := usize.dec_lt a b
+instance usize.has_decidable_le (a b : usize) : decidable (a ≤ b) := usize.dec_le a b
 
-attribute [irreducible] usize
+theorem usize.modn_lt {m : nat} : ∀ (u : usize), m > 0 → usize.to_nat (u %ₙ m) < m
+| ⟨u⟩ h := fin.modn_lt u h

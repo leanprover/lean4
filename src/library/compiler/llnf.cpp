@@ -19,16 +19,9 @@ namespace lean {
 static name * g_cnstr     = nullptr;
 static name * g_reuse     = nullptr;
 static name * g_reset     = nullptr;
-static name * g_updt      = nullptr;
-static name * g_updt_u8   = nullptr;
-static name * g_updt_u16  = nullptr;
-static name * g_updt_u32  = nullptr;
-static name * g_updt_u64  = nullptr;
+static name * g_sset      = nullptr;
 static name * g_proj      = nullptr;
-static name * g_proj_u8   = nullptr;
-static name * g_proj_u16  = nullptr;
-static name * g_proj_u32  = nullptr;
-static name * g_proj_u64  = nullptr;
+static name * g_sproj     = nullptr;
 
 static bool is_llnf_unary_primitive(expr const & e, name const & prefix, unsigned & i) {
     if (!is_constant(e)) return false;
@@ -49,6 +42,21 @@ static bool is_llnf_binary_primitive(expr const & e, name const & prefix, unsign
     return true;
 }
 
+static bool is_llnf_ternary_primitive(expr const & e, name const & prefix, unsigned & i1, unsigned & i2, unsigned & i3) {
+    if (!is_constant(e)) return false;
+    name const & n3  = const_name(e);
+    if (!is_internal_name(n3)) return false;
+    if (n3.is_atomic() || !n3.is_numeral()) return false;
+    i3 = n3.get_numeral().get_small_value();
+    name const & n2 = n3.get_prefix();
+    if (n2.is_atomic() || !n2.is_numeral()) return false;
+    i2 = n2.get_numeral().get_small_value();
+    name const & n1 = n2.get_prefix();
+    if (n1.is_atomic() || !n1.is_numeral() || n1.get_prefix() != prefix) return false;
+    i1 = n1.get_numeral().get_small_value();
+    return true;
+}
+
 expr mk_llnf_cnstr(unsigned cidx, unsigned scalar_sz) { return mk_constant(name(name(*g_cnstr, cidx), scalar_sz)); }
 bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz) { return is_llnf_binary_primitive(e, *g_cnstr, cidx, ssz); }
 
@@ -58,32 +66,14 @@ bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & ssz) { return is_
 expr mk_llnf_reset(unsigned n) { return mk_constant(name(*g_reset, n)); }
 bool is_llnf_reset(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_reset, n); }
 
-expr mk_llnf_updt_u8(unsigned offset) { return mk_constant(name(*g_updt_u8, offset)); }
-bool is_llnf_updt_u8(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u8, offset); }
-
-expr mk_llnf_updt_u16(unsigned offset) { return mk_constant(name(*g_updt_u16, offset)); }
-bool is_llnf_updt_u16(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u16, offset); }
-
-expr mk_llnf_updt_u32(unsigned offset) { return mk_constant(name(*g_updt_u32, offset)); }
-bool is_llnf_updt_u32(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u32, offset); }
-
-expr mk_llnf_updt_u64(unsigned offset) { return mk_constant(name(*g_updt_u64, offset)); }
-bool is_llnf_updt_u64(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_updt_u64, offset); }
+expr mk_llnf_sset(unsigned sz, unsigned n, unsigned offset) { return mk_constant(name(name(name(*g_sset, sz), n), offset)); }
+bool is_llnf_sset(expr const & e, unsigned & sz, unsigned & n, unsigned & offset) { return is_llnf_ternary_primitive(e, *g_sset, sz, n, offset); }
 
 expr mk_llnf_proj(unsigned idx) { return mk_constant(name(*g_proj, idx)); }
 bool is_llnf_proj(expr const & e, unsigned & idx) { return is_llnf_unary_primitive(e, *g_proj, idx); }
 
-expr mk_llnf_proj_u8(unsigned offset) { return mk_constant(name(*g_proj_u8, offset)); }
-bool is_llnf_proj_u8(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u8, offset); }
-
-expr mk_llnf_proj_u16(unsigned offset) { return mk_constant(name(*g_proj_u16, offset)); }
-bool is_llnf_proj_u16(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u16, offset); }
-
-expr mk_llnf_proj_u32(unsigned offset) { return mk_constant(name(*g_proj_u32, offset)); }
-bool is_llnf_proj_u32(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u32, offset); }
-
-expr mk_llnf_proj_u64(unsigned offset) { return mk_constant(name(*g_proj_u64, offset)); }
-bool is_llnf_proj_u64(expr const & e, unsigned & offset) { return is_llnf_unary_primitive(e, *g_proj_u64, offset); }
+expr mk_llnf_sproj(unsigned sz, unsigned n, unsigned offset) { return mk_constant(name(name(name(*g_sproj, sz), n), offset)); }
+bool is_llnf_sproj(expr const & e, unsigned & sz, unsigned & n, unsigned & offset) { return is_llnf_ternary_primitive(e, *g_sproj, sz, n, offset); }
 
 [[ noreturn ]] static void throw_unsupported_field_size() {
     throw exception("code generation failed, unsupported field size");
@@ -347,34 +337,12 @@ class to_llnf_fn {
         return fvar;
     }
 
-    expr mk_scalar_proj(expr const & major, unsigned size, unsigned offset) {
-        switch (size) {
-        case 1:
-            return mk_app(mk_llnf_proj_u8(offset), major);
-        case 2:
-            return mk_app(mk_llnf_proj_u16(offset), major);
-        case 4:
-            return mk_app(mk_llnf_proj_u32(offset), major);
-        case 8:
-            return mk_app(mk_llnf_proj_u64(offset), major);
-        default:
-            throw_unsupported_field_size();
-        }
+    expr mk_sproj(expr const & major, unsigned size, unsigned num, unsigned offset) {
+        return mk_app(mk_llnf_sproj(size, num, offset), major);
     }
 
-    expr mk_scalar_updt(expr const & major, unsigned size, unsigned offset, expr const & v) {
-        switch (size) {
-        case 1:
-            return mk_app(mk_llnf_updt_u8(offset), major, v);
-        case 2:
-            return mk_app(mk_llnf_updt_u16(offset), major, v);
-        case 4:
-            return mk_app(mk_llnf_updt_u32(offset), major, v);
-        case 8:
-            return mk_app(mk_llnf_updt_u64(offset), major, v);
-        default:
-            throw_unsupported_field_size();
-        }
+    expr mk_sset(expr const & major, unsigned size, unsigned num, unsigned offset, expr const & v) {
+        return mk_app(mk_llnf_sset(size, num, offset), major, v);
     }
 
     expr mk_reset(expr const & major, unsigned idx) {
@@ -386,17 +354,13 @@ class to_llnf_fn {
         return is_llnf_reuse(get_app_fn(e), i, s) && get_app_num_args(e) == 2;
     }
 
-    bool is_updt_scalar(expr const & e) {
-        unsigned x;
-        return
-            is_llnf_updt_u8(e, x) ||
-            is_llnf_updt_u16(e, x) ||
-            is_llnf_updt_u32(e, x) ||
-            is_llnf_updt_u64(e, x);
+    bool is_sset(expr const & e) {
+        unsigned sz, n, offset;
+        return is_llnf_sset(e, sz, n, offset);
     }
 
-    bool is_updt_scalar_app(expr const & e) {
-        return is_updt_scalar(get_app_fn(e)) && get_app_num_args(e) == 1;
+    bool is_sset_app(expr const & e) {
+        return is_sset(get_app_fn(e)) && get_app_num_args(e) == 1;
     }
 
     /* Auxiliary functor for replacing constructor applications with update operations. */
@@ -425,18 +389,12 @@ class to_llnf_fn {
             return e;
         }
 
-        /* Return true if `a` is of the form `_proj_u<size>.<offset> e` */
-        bool is_scalar_proj_of(expr a, expr const & e, unsigned size, unsigned offset) {
+        /* Return true if `a` is of the form `_sproj<sz>.<num>.<offset> e` */
+        bool is_sproj_of(expr a, expr const & e, unsigned sz, unsigned num, unsigned offset) {
             a = find(a);
-            unsigned a_offset;
             if (!is_app(a) || app_arg(a) != e) return false;
-            switch (size) {
-            case 1: return is_llnf_proj_u8(app_fn(a), a_offset) && a_offset == offset;
-            case 2: return is_llnf_proj_u16(app_fn(a), a_offset) && a_offset == offset;
-            case 4: return is_llnf_proj_u32(app_fn(a), a_offset) && a_offset == offset;
-            case 8: return is_llnf_proj_u64(app_fn(a), a_offset) && a_offset == offset;
-            }
-            return false;
+            unsigned a_sz, a_num, a_offset;
+            return is_llnf_sproj(a, a_sz, a_num, a_offset) && a_sz == sz && a_num == num && a_offset == offset;
         }
 
         expr visit_constructor(expr const & e) {
@@ -487,11 +445,11 @@ class to_llnf_fn {
                 j++;
             }
             r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_scalar_sz), r), obj_args);
-            unsigned offset = k_info.m_num_objs * sizeof(void*);
+            unsigned offset = 0;
             for (field_info const & info : k_info.m_field_info) {
                 if (info.m_kind == field_info::Scalar) {
-                    if (!is_scalar_proj_of(args[j], m_major, info.m_size, offset)) {
-                        r = m_owner.mk_scalar_updt(r, info.m_size, offset, args[j]);
+                    if (!is_sproj_of(args[j], m_major, info.m_size, k_info.m_num_objs, offset)) {
+                        r = m_owner.mk_sset(r, info.m_size, k_info.m_num_objs, offset, args[j]);
                     }
                     offset += info.m_size;
                 }
@@ -596,7 +554,7 @@ class to_llnf_fn {
             expr minor           = args[i+1];
             cnstr_info cinfo     = get_cnstr_info(cnames[i]);
             unsigned next_idx    = 0;
-            unsigned next_offset = cinfo.m_num_objs * sizeof(void*);
+            unsigned next_offset = 0;
             buffer<expr> fields;
             for (field_info const & info : cinfo.m_field_info) {
                 lean_assert(is_lambda(minor));
@@ -609,7 +567,7 @@ class to_llnf_fn {
                     next_idx++;
                     break;
                 case field_info::Scalar:
-                    fields.push_back(mk_let_decl(binding_domain(minor), mk_scalar_proj(major, info.m_size, next_offset)));
+                    fields.push_back(mk_let_decl(binding_domain(minor), mk_sproj(major, info.m_size, cinfo.m_num_objs, next_offset)));
                     next_offset += info.m_size;
                     break;
                 }
@@ -681,14 +639,14 @@ class to_llnf_fn {
         }
         expr r = mk_app(mk_llnf_cnstr(cidx, k_info.m_scalar_sz), obj_args);
         j = nparams;
-        unsigned offset = k_info.m_num_objs * sizeof(void*);
+        unsigned offset = 0;
         bool first      = true;
         for (field_info const & info : k_info.m_field_info) {
             if (info.m_kind == field_info::Scalar) {
                 if (first && obj_args.size() > 0) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
-                r = mk_let_decl(info.get_type(), mk_scalar_updt(r, info.m_size, offset, args[j]));
+                r = mk_let_decl(info.get_type(), mk_sset(r, info.m_size, k_info.m_num_objs, offset, args[j]));
                 offset += info.m_size;
                 first = false;
             }
@@ -704,7 +662,7 @@ class to_llnf_fn {
         name k_name = head(S_val.get_cnstrs());
         cnstr_info k_info = get_cnstr_info(k_name);
         unsigned idx      = 0;
-        unsigned offset   = k_info.m_num_objs * sizeof(void*);
+        unsigned offset   = 0;
         unsigned i        = 0;
         for (field_info const & info : k_info.m_field_info) {
             switch (info.m_kind) {
@@ -719,7 +677,7 @@ class to_llnf_fn {
                 break;
             case field_info::Scalar:
                 if (proj_idx(e) == i)
-                    return mk_scalar_proj(visit(proj_expr(e)), info.m_size, offset);
+                    return mk_sproj(visit(proj_expr(e)), info.m_size, k_info.m_num_objs, offset);
                 offset += info.m_size;
                 break;
             }
@@ -761,7 +719,7 @@ class to_llnf_fn {
             return visit_cases(e);
         } else if (is_constructor_app(env(), e)) {
             return visit_constructor(e);
-        } else if (is_updt_scalar_app(e)) {
+        } else if (is_sset_app(e)) {
             return flat_app(e);
         } else if (is_reuse_app(e)) {
             return flat_app(e);
@@ -800,16 +758,9 @@ void initialize_llnf() {
     g_cnstr     = new name("_cnstr");
     g_reuse     = new name("_reuse");
     g_reset     = new name("_reset");
-    g_updt      = new name("_updt");
-    g_updt_u8   = new name("_updt_u8");
-    g_updt_u16  = new name("_updt_u16");
-    g_updt_u32  = new name("_updt_u32");
-    g_updt_u64  = new name("_updt_u64");
+    g_sset      = new name("_sset");
     g_proj      = new name("_proj");
-    g_proj_u8   = new name("_proj_u8");
-    g_proj_u16  = new name("_proj_u16");
-    g_proj_u32  = new name("_proj_u32");
-    g_proj_u64  = new name("_proj_u64");
+    g_sproj     = new name("_sproj");
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
     g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
@@ -821,15 +772,8 @@ void finalize_llnf() {
     delete g_cnstr;
     delete g_reuse;
     delete g_reset;
-    delete g_updt;
-    delete g_updt_u8;
-    delete g_updt_u16;
-    delete g_updt_u32;
-    delete g_updt_u64;
+    delete g_sset;
     delete g_proj;
-    delete g_proj_u8;
-    delete g_proj_u16;
-    delete g_proj_u32;
-    delete g_proj_u64;
+    delete g_sproj;
 }
 }

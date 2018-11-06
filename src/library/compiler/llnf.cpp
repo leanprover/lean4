@@ -20,7 +20,6 @@ static name * g_cnstr     = nullptr;
 static name * g_reuse     = nullptr;
 static name * g_reset     = nullptr;
 static name * g_updt      = nullptr;
-static name * g_updt_cidx = nullptr;
 static name * g_updt_u8   = nullptr;
 static name * g_updt_u16  = nullptr;
 static name * g_updt_u32  = nullptr;
@@ -802,7 +801,6 @@ void initialize_llnf() {
     g_reuse     = new name("_reuse");
     g_reset     = new name("_reset");
     g_updt      = new name("_updt");
-    g_updt_cidx = new name("_updt_cidx");
     g_updt_u8   = new name("_updt_u8");
     g_updt_u16  = new name("_updt_u16");
     g_updt_u32  = new name("_updt_u32");

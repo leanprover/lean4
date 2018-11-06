@@ -129,14 +129,15 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
     for (auto & d : imports) {
         build_module(d, true, module_stack);
         std::shared_ptr<module_info> d_mod = m_modules[d];
+        mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
+        mod->m_deps.push_back(module_info::dependency { d, d_mod });
         if (d_mod->m_log.has_errors()) {
             message_builder msg(m_initial_env, m_ios, mod->m_filename, {1, 0}, ERROR);
             msg << "import " << d_mod->m_name << " has errors, aborting";
             msg.report();
+            // NOTE: return _after_ setting m_trans_time, otherwise dependencies will think we're up to date
             return;
         }
-        mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
-        mod->m_deps.push_back(module_info::dependency { d, d_mod });
     }
 
     std::istringstream in(contents);

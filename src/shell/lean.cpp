@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <utility>
 #include <vector>
+#include <set>
 #include "runtime/stackinfo.h"
 #include "runtime/interrupt.h"
 #include "runtime/memory.h"
@@ -509,14 +510,21 @@ int main(int argc, char ** argv) {
             message_log l;
             scope_message_log scope_log(l);
             auto imports = mod_mgr.get_direct_imports("<stdin>", buf.str());
+            std::set<module_name> failed_imports;
             for (auto & d : imports) {
                 auto d_mod = mod_mgr.get_module(d);
-                if (d_mod->m_log.has_errors()) {
-                    message_builder msg(env, ios, "<stdin>", {1, 0}, ERROR);
-                    msg << "import " << d_mod->m_name << " has errors, aborting";
-                    msg.report();
-                    ok = false;
-                }
+                if (d_mod->m_log.has_errors())
+                    // error in this import
+                    failed_imports.insert(d_mod->m_name);
+                else
+                    // errors (maybe 0) in a transitive import
+                    failed_imports.insert(d_mod->m_failed_deps.begin(), d_mod->m_failed_deps.end());
+            }
+            for (auto const & d : failed_imports) {
+                message_builder msg(env, ios, "<stdin>", {1, 0}, ERROR);
+                msg << "import " << d << " has errors, aborting";
+                msg.report();
+                ok = false;
             }
 
             if (ok) {
@@ -554,7 +562,7 @@ int main(int argc, char ** argv) {
             }
             if (test_suite) {
                 std::ofstream status(mod.m_file_name + ".status");
-                status << (!mod.m_mod_info->m_log.has_errors() ? 0 : 1);
+                status << (!mod.m_mod_info->has_errors() ? 0 : 1);
             }
         }
 
@@ -572,7 +580,7 @@ int main(int argc, char ** argv) {
                         std::cout << msg;
                     }
                 }
-                if (mod.m_mod_info->m_log.has_errors())
+                if (mod.m_mod_info->has_errors())
                     ok = false;
             }
         }

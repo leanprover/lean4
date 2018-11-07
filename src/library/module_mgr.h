@@ -10,6 +10,7 @@ Authors: Gabriel Ebner, Sebastian Ullrich
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <set>
 #include "util/unit.h"
 #include "util/name.h"
 #include "kernel/environment.h"
@@ -39,7 +40,10 @@ struct module_info {
     std::vector<dependency> m_deps;
 
     message_log m_log;
+    std::set<module_name> m_failed_deps;
     std::shared_ptr<loaded_module const> m_loaded_module;
+
+    bool has_errors() const { return m_log.has_errors() || m_failed_deps.size(); }
 
     module_info(module_name const & name, std::string const & filename, module_src src, time_t mtime)
             : m_name(name), m_filename(filename), m_source(src), m_mtime(mtime), m_trans_mtime(mtime) {}

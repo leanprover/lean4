@@ -53,7 +53,7 @@ load_module(search_path const & path, module_name const & mod_name, bool can_use
 
 static void compile_olean(search_path const & path, std::shared_ptr<module_info> const & mod) {
     lean_assert(mod->m_source == module_src::LEAN);
-    if (mod->m_log.has_errors())
+    if (mod->has_errors())
         return;
 
     auto olean_fn = olean_of_lean(find_file(path, mod->m_name, {".lean"}));
@@ -131,14 +131,15 @@ void module_mgr::build_lean(std::shared_ptr<module_info> const & mod, name_set c
         std::shared_ptr<module_info> d_mod = m_modules[d];
         mod->m_trans_mtime = std::max(mod->m_trans_mtime, d_mod->m_trans_mtime);
         mod->m_deps.push_back(module_info::dependency { d, d_mod });
-        if (d_mod->m_log.has_errors()) {
-            message_builder msg(m_initial_env, m_ios, mod->m_filename, {1, 0}, ERROR);
-            msg << "import " << d_mod->m_name << " has errors, aborting";
-            msg.report();
-            // NOTE: return _after_ setting m_trans_time, otherwise dependencies will think we're up to date
-            return;
-        }
+        if (d_mod->m_failed_deps.size())
+            mod->m_failed_deps.insert(d_mod->m_failed_deps.begin(), d_mod->m_failed_deps.end());
+        else if (d_mod->m_log.has_errors())
+            mod->m_failed_deps.insert(d);
     }
+    if (mod->m_failed_deps.size())
+        // NOTE: Do not log an error by default. In batch mode, the errors will be shown on the actual file. In server
+        // mode, lean.cpp will show a custom error.
+        return;
 
     std::istringstream in(contents);
     environment env;

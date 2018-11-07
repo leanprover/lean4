@@ -151,6 +151,10 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "stage2"}), ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
+    lean_trace(name({"compiler", "boxed"}),
+               auto to_llnf_unbox  = [&](environment const & env, expr const & e) { return to_llnf(env, e, true); };
+               auto aux_ds = apply(to_llnf_unbox, new_env, ds);
+               trace(aux_ds););
     /* emit_bytecode has no support for unboxed data */
     auto to_llnf_no_unbox  = [&](environment const & env, expr const & e) { return to_llnf(env, e, false); };
     ds = apply(to_llnf_no_unbox, new_env, ds);
@@ -179,6 +183,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "extract_closed"});
     register_trace_class({"compiler", "llnf"});
+    register_trace_class({"compiler", "boxed"});
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
 }

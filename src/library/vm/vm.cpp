@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/profiling.h"
 #include "library/util.h"
 #include "library/time_task.h"
+#include "library/compiler/util.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
 #include "library/vm/vm_option.h"
@@ -1339,16 +1340,6 @@ struct vm_monitor_modification : public modification {
 
 environment reserve_vm_index(environment const & env, name const & fn, unsigned arity) {
     return module::add_and_perform(env, std::make_shared<vm_reserve_modification>(fn, arity));
-}
-
-unsigned get_num_nested_lambdas(expr const & e) {
-    unsigned r = 0;
-    expr it = e;
-    while (is_lambda(it)) {
-        r++;
-        it = binding_body(it);
-    }
-    return r;
 }
 
 environment reserve_vm_index(environment const & env, name const & fn, expr const & e) {

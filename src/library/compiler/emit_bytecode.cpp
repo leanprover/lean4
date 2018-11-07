@@ -61,18 +61,13 @@ class emit_bytecode_fn {
 
     void compile_global(vm_decl const & decl, unsigned nargs, expr const * args, unsigned bpz, vdecls const & m) {
         compile_rev_args(nargs, args, bpz, m);
-        if (decl.get_arity() <= nargs) {
-            if (decl.is_builtin())
-                emit(mk_invoke_builtin_instr(decl.get_idx()));
-            else if (decl.is_cfun())
-                emit(mk_invoke_cfun_instr(decl.get_idx()));
-            else
-                emit(mk_invoke_global_instr(decl.get_idx()));
-            emit_apply_instr(nargs - decl.get_arity());
-        } else {
-            lean_assert(decl.get_arity() > nargs);
-            emit(mk_closure_instr(decl.get_idx(), nargs));
-        }
+        lean_assert(decl.get_arity() == nargs);
+        if (decl.is_builtin())
+            emit(mk_invoke_builtin_instr(decl.get_idx()));
+        else if (decl.is_cfun())
+            emit(mk_invoke_cfun_instr(decl.get_idx()));
+        else
+            emit(mk_invoke_global_instr(decl.get_idx()));
     }
 
     [[ noreturn ]] void throw_unknown_constant(name const & n) {
@@ -86,6 +81,25 @@ class emit_bytecode_fn {
 
     [[ noreturn ]] void throw_no_unboxed_support() {
         throw exception("code generation failed, old VM has no support for unboxed data");
+    }
+
+    void compile_apply(expr const & e, unsigned bpz, vdecls const & m) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        lean_assert(args.size() >= 2);
+        compile_rev_args(args.size(), args.data(), bpz, m);
+        emit_apply_instr(args.size() - 1);
+    }
+
+    void compile_closure(expr const & e, unsigned bpz, vdecls const & m) {
+        buffer<expr> args;
+        get_app_args(e, args);
+        lean_assert(is_constant(args[0]));
+        optional<vm_decl> decl = get_vm_decl(m_env, const_name(args[0]));
+        if (!decl) throw_unknown_constant(const_name(args[0]));
+        lean_assert(decl->get_arity() > args.size() - 1);
+        compile_rev_args(args.size() - 1, args.data() + 1, bpz, m);
+        emit(mk_closure_instr(decl->get_idx(), args.size() - 1));
     }
 
     void compile_constant(expr const & e) {
@@ -186,29 +200,6 @@ class emit_bytecode_fn {
         emit(mk_reuse_instr(cidx, get_app_num_args(e) - 1));
     }
 
-    void compile_fn_call(expr const & e, unsigned bpz, vdecls const & m) {
-        buffer<expr> args;
-        expr fn = get_app_args(e, args);
-        if (!is_constant(fn)) {
-            compile_rev_args(args.size(), args.data(), bpz, m);
-            compile(fn, bpz + args.size(), m);
-            emit_apply_instr(args.size());
-            return;
-        } else if (is_constant(fn)) {
-            if (is_enf_neutral(fn)) {
-                emit(mk_sconstructor_instr(0));
-            } else if (is_enf_unreachable(fn)) {
-                emit(mk_unreachable_instr());
-            } else if (optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn))) {
-                compile_global(*decl, args.size(), args.data(), bpz, m);
-            } else {
-                throw_unknown_constant(const_name(fn));
-            }
-        } else {
-            lean_unreachable();
-        }
-    }
-
     void compile_proj(expr const & e, unsigned bpz, vdecls const & m) {
         expr const & p = app_fn(e);
         lean_assert(is_llnf_proj(p));
@@ -249,6 +240,10 @@ class emit_bytecode_fn {
             compile_proj(e, bpz, m);
         } else if (is_llnf_reset(fn)) {
             compile_reset(e, bpz, m);
+        } else if (is_llnf_apply(fn)) {
+            compile_apply(e, bpz, m);
+        } else if (is_llnf_closure(fn)) {
+            compile_closure(e, bpz, m);
         } else if (is_sorry(e)) {
             compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else if (optional<vdecl> d = is_jp(m, fn)) {
@@ -257,7 +252,14 @@ class emit_bytecode_fn {
             compile_rev_args(args.size(), args.data(), bpz, m);
             emit(mk_invoke_jp_instr(d->m_pc, d->m_idx, args.size()));
         } else {
-            compile_fn_call(e, bpz, m);
+            buffer<expr> args;
+            get_app_args(e, args);
+            lean_assert(is_constant(fn));
+            lean_assert(!is_enf_neutral(fn));
+            lean_assert(!is_enf_unreachable(fn));
+            optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn));
+            if (!decl) throw_unknown_constant(const_name(fn));
+            compile_global(*decl, args.size(), args.data(), bpz, m);
         }
     }
 

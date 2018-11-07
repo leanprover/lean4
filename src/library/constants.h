@@ -239,6 +239,7 @@ name const & get_singleton_name();
 name const & get_sizeof_name();
 name const & get_sorry_ax_name();
 name const & get_string_name();
+name const & get_string_decidable_eq_name();
 name const & get_string_mk_name();
 name const & get_string_to_list_name();
 name const & get_string_empty_name();

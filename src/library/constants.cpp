@@ -237,6 +237,7 @@ name const * g_singleton = nullptr;
 name const * g_sizeof = nullptr;
 name const * g_sorry_ax = nullptr;
 name const * g_string = nullptr;
+name const * g_string_decidable_eq = nullptr;
 name const * g_string_mk = nullptr;
 name const * g_string_to_list = nullptr;
 name const * g_string_empty = nullptr;
@@ -522,6 +523,7 @@ void initialize_constants() {
     g_sizeof = new name{"sizeof"};
     g_sorry_ax = new name{"sorry_ax"};
     g_string = new name{"string"};
+    g_string_decidable_eq = new name{"string", "decidable_eq"};
     g_string_mk = new name{"string", "mk"};
     g_string_to_list = new name{"string", "to_list"};
     g_string_empty = new name{"string", "empty"};
@@ -808,6 +810,7 @@ void finalize_constants() {
     delete g_sizeof;
     delete g_sorry_ax;
     delete g_string;
+    delete g_string_decidable_eq;
     delete g_string_mk;
     delete g_string_to_list;
     delete g_string_empty;
@@ -1093,6 +1096,7 @@ name const & get_singleton_name() { return *g_singleton; }
 name const & get_sizeof_name() { return *g_sizeof; }
 name const & get_sorry_ax_name() { return *g_sorry_ax; }
 name const & get_string_name() { return *g_string; }
+name const & get_string_decidable_eq_name() { return *g_string_decidable_eq; }
 name const & get_string_mk_name() { return *g_string_mk; }
 name const & get_string_to_list_name() { return *g_string_to_list; }
 name const & get_string_empty_name() { return *g_string_empty; }

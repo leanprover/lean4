@@ -913,8 +913,6 @@ environment reserve_vm_index(environment const & env, name const & fn, expr cons
 /** Lower level version of the previous function. */
 environment reserve_vm_index(environment const & env, name const & fn, unsigned arity);
 
-unsigned get_num_nested_lambdas(expr const & e);
-
 /** \brief Add bytcode for the function named \c fn in \c env.
     \remark The index for \c fn must have been reserved using reserve_vm_index. */
 environment update_vm_code(environment const & env, name const & fn, unsigned code_sz, vm_instr const * code,

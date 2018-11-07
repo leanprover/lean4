@@ -14,8 +14,13 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/util.h"
 #include "library/compiler/util.h"
+#include "library/compiler/llnf.h"
+
+#include "library/vm/vm.h" // TODO(Leo): delete after we add the new `builtin` management module
 
 namespace lean {
+static expr * g_apply     = nullptr;
+static expr * g_closure   = nullptr;
 static name * g_cnstr     = nullptr;
 static name * g_reuse     = nullptr;
 static name * g_reset     = nullptr;
@@ -24,6 +29,12 @@ static name * g_uset      = nullptr;
 static name * g_proj      = nullptr;
 static name * g_sproj     = nullptr;
 static name * g_uproj     = nullptr;
+
+expr mk_llnf_apply() { return *g_apply; }
+bool is_llnf_apply(expr const & e) { return e == *g_apply; }
+
+expr mk_llnf_closure() { return *g_closure; }
+bool is_llnf_closure(expr const & e) { return e == *g_closure; }
 
 static bool is_llnf_unary_primitive(expr const & e, name const & prefix, unsigned & i) {
     if (!is_constant(e)) return false;
@@ -92,6 +103,20 @@ bool is_llnf_sproj(expr const & e, unsigned & sz, unsigned & n, unsigned & offse
 /* The `_uproj.<idx>` instruction retrieves an `usize` field in a constructor ojbect at offset `sizeof(void*)*idx` */
 expr mk_llnf_uproj(unsigned idx) { return mk_constant(name(*g_uproj, idx)); }
 bool is_llnf_uproj(expr const & e, unsigned & idx) { return is_llnf_unary_primitive(e, *g_uproj, idx); }
+
+bool is_llnf_op(expr const & e) {
+    return
+        is_llnf_closure(e) ||
+        is_llnf_apply(e)   ||
+        is_llnf_cnstr(e)   ||
+        is_llnf_reuse(e)   ||
+        is_llnf_reset(e)   ||
+        is_llnf_sset(e)    ||
+        is_llnf_uset(e)    ||
+        is_llnf_proj(e)    ||
+        is_llnf_sproj(e)   ||
+        is_llnf_uproj(e);
+}
 
 [[ noreturn ]] static void throw_unsupported_field_size() {
     throw exception("code generation failed, unsupported field size");
@@ -164,7 +189,7 @@ class to_llnf_fn {
     cnstr_info_cache      m_cnstr_info_cache;
     enum_cache            m_enum_cache;
 
-    environment const & env() { return m_st.env(); }
+    environment const & env() const { return m_st.env(); }
 
     name_generator & ngen() { return m_st.ngen(); }
 
@@ -236,6 +261,55 @@ class to_llnf_fn {
                     break;
                 default:
                     break;
+                }
+            }
+        }
+    }
+
+    unsigned get_arity(name const & n) const {
+        /* First, try to infer arity from `_cstage2` auxiliary definition. */
+        name c = mk_cstage2_name(n);
+        optional<constant_info> info = env().find(c);
+        if (info && info->is_definition()) {
+            return get_num_nested_lambdas(info->get_value());
+        }
+
+        /* If `_cstage2` declaration is not available, then use the VM decl.
+
+           TODO(Leo): add new builtin management module. */
+        optional<vm_decl> decl = get_vm_decl(env(), n);
+        if (!decl) throw exception(sstream() << "code generation failed, unknown '" << n << "'");
+        return decl->get_arity();
+    }
+
+    expr mk_llnf_app(expr const & fn, buffer<expr> const & args) {
+        lean_assert(is_fvar(fn) || is_constant(fn));
+        if (is_fvar(fn)) {
+            local_decl d = m_lctx.get_local_decl(fn);
+            if (is_join_point_name(d.get_user_name())) {
+                return mk_app(fn, args);
+            } else {
+                return mk_app(mk_app(mk_llnf_apply(), fn), args);
+            }
+        } else {
+            lean_assert(is_constant(fn));
+            if (is_enf_neutral(fn)) {
+                return mk_enf_neutral();
+            } else if (is_enf_unreachable(fn)) {
+                return mk_enf_unreachable();
+            } else {
+                unsigned arity = get_arity(const_name(fn));
+                if (args.size() == arity) {
+                    return mk_app(fn, args);
+                } else if (args.size() < arity) {
+                    /* Under application: create closure. */
+                    return mk_app(mk_app(mk_llnf_closure(), fn), args);
+                } else {
+                    /* Over application. */
+                    lean_assert(args.size() > arity);
+                    expr new_fn = m_lctx.mk_local_decl(ngen(), next_name(), mk_enf_object_type(), mk_app(fn, arity, args.data()));
+                    m_fvars.push_back(new_fn);
+                    return mk_app(mk_app(mk_llnf_apply(), new_fn), args.size() - arity, args.data() + arity);
                 }
             }
         }
@@ -356,20 +430,6 @@ class to_llnf_fn {
 
     expr mk_reset(expr const & major, unsigned idx) {
         return mk_app(mk_llnf_reset(idx), major);
-    }
-
-    bool is_reuse_app(expr const & e) {
-        unsigned i, n, s;
-        return is_llnf_reuse(get_app_fn(e), i, n, s) && get_app_num_args(e) == 2;
-    }
-
-    bool is_sset(expr const & e) {
-        unsigned sz, n, offset;
-        return is_llnf_sset(e, sz, n, offset);
-    }
-
-    bool is_sset_app(expr const & e) {
-        return is_sset(get_app_fn(e)) && get_app_num_args(e) == 1;
     }
 
     /* Auxiliary functor for replacing constructor applications with update operations. */
@@ -742,8 +802,15 @@ class to_llnf_fn {
     expr visit_constant(expr const & e) {
         if (is_constructor(env(), const_name(e))) {
             return visit_constructor(e);
-        } else {
+        } else if (is_enf_neutral(e) || is_enf_unreachable(e) || is_llnf_op(e)) {
             return e;
+        } else {
+            unsigned arity = get_arity(const_name(e));
+            if (arity == 0) {
+                return e;
+            } else {
+                return mk_app(mk_llnf_closure(), e);
+            }
         }
     }
 
@@ -752,7 +819,7 @@ class to_llnf_fn {
         expr const & fn = get_app_args(e, args);
         for (expr & arg : args)
             arg = visit(arg);
-        return mk_app(fn, args);
+        return mk_llnf_app(fn, args);
     }
 
     expr flat_app(expr const & e) {
@@ -768,14 +835,15 @@ class to_llnf_fn {
     }
 
     expr visit_app(expr const & e) {
+        expr const & fn = get_app_fn(e);
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e);
         } else if (is_constructor_app(env(), e)) {
             return visit_constructor(e);
-        } else if (is_sset_app(e)) {
+        } else if (is_llnf_sset(fn) || is_llnf_uset(fn) || is_llnf_reuse(fn)) {
             return flat_app(e);
-        } else if (is_reuse_app(e)) {
-            return flat_app(e);
+        } else if (is_llnf_op(fn)) {
+            return e;
         } else {
             return visit_app_default(e);
         }
@@ -808,6 +876,8 @@ expr to_llnf(environment const & env, expr const & e, bool unboxed) {
 }
 
 void initialize_llnf() {
+    g_apply     = new expr(mk_constant("_apply"));
+    g_closure   = new expr(mk_constant("_closure"));
     g_cnstr     = new name("_cnstr");
     g_reuse     = new name("_reuse");
     g_reset     = new name("_reset");
@@ -824,6 +894,8 @@ void initialize_llnf() {
 }
 
 void finalize_llnf() {
+    delete g_closure;
+    delete g_apply;
     delete g_cnstr;
     delete g_reuse;
     delete g_reset;

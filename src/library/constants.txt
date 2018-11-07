@@ -232,6 +232,7 @@ singleton
 sizeof
 sorry_ax
 string
+string.decidable_eq
 string.mk
 string.to_list
 string.empty

@@ -40,6 +40,21 @@ optional<unsigned> is_enum_type(environment const & env, name const & I) {
     }
 }
 
+static expr * g_uint8  = nullptr;
+static expr * g_uint16 = nullptr;
+static expr * g_uint32 = nullptr;
+static expr * g_uint64 = nullptr;
+
+optional<expr> to_uint_type(unsigned nbytes) {
+    switch (nbytes) {
+    case 1:  return some_expr(*g_uint8);
+    case 2:  return some_expr(*g_uint16);
+    case 4:  return some_expr(*g_uint32);
+    case 8:  return some_expr(*g_uint64);
+    default: return none_expr();
+    }
+}
+
 unsigned get_num_nested_lambdas(expr e) {
     unsigned r = 0;
     while (is_lambda(e)) {
@@ -363,9 +378,7 @@ bool is_runtime_scalar_type(name const & n) {
         n == get_uint16_name() ||
         n == get_uint32_name() ||
         n == get_uint64_name() ||
-        n == get_usize_name()  ||
-        n == get_bool_name()   ||
-        n == get_unit_name();
+        n == get_usize_name();
 }
 
 bool is_runtime_builtin_cnstr(name const & n) {
@@ -409,6 +422,10 @@ void initialize_compiler_util() {
     g_neutral_expr     = new expr(mk_constant("_neutral_"));
     g_unreachable_expr = new expr(mk_constant("_unreachable_"));
     g_object_type      = new expr(mk_constant("_obj_"));
+    g_uint8            = new expr(mk_constant(get_uint8_name()));
+    g_uint16           = new expr(mk_constant(get_uint16_name()));
+    g_uint32           = new expr(mk_constant(get_uint32_name()));
+    g_uint64           = new expr(mk_constant(get_uint64_name()));
 
     register_system_attribute(basic_attribute::with_check(
             "inline", "mark definition to always be inlined",
@@ -447,5 +464,9 @@ void finalize_compiler_util() {
     delete g_neutral_expr;
     delete g_unreachable_expr;
     delete g_object_type;
+    delete g_uint8;
+    delete g_uint16;
+    delete g_uint32;
+    delete g_uint64;
 }
 }

@@ -20,6 +20,8 @@ namespace lean {
    Remark: if the inductive datatype `I` has more than `2^32` constructors (very unlikely), the result is also `none`. */
 optional<unsigned> is_enum_type(environment const & env, name const & I);
 
+optional<expr> to_uint_type(unsigned nbytes);
+
 /* A "compiler" declaration `x := e` */
 typedef pair_ref<name, expr> comp_decl;
 typedef list_ref<comp_decl> comp_decls;

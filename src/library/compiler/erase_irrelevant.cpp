@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 class erase_irrelevant_fn {
-    typedef std::unordered_map<name, bool, name_hash> is_enum_cache;
+    typedef std::unordered_map<name, optional<expr>, name_hash> is_enum_cache;
     typedef std::tuple<name, expr, expr> let_entry;
     type_checker::state  m_st;
     local_ctx            m_lctx;
@@ -48,11 +48,14 @@ class erase_irrelevant_fn {
         }
     }
 
-    bool is_enum_type(name const & I) {
+    optional<expr> is_enum_type(name const & I) {
         auto it = m_is_enum_cache.find(I);
         if (it != m_is_enum_cache.end())
             return it->second;
-        bool r = static_cast<bool>(lean::is_enum_type(env(), I));
+        optional<unsigned> nbytes = lean::is_enum_type(env(), I);
+        if (!nbytes) return none_expr();
+        optional<expr> r = to_uint_type(*nbytes);
+        if (!r) return none_expr();
         m_is_enum_cache.insert(mk_pair(I, r));
         return r;
     }
@@ -95,8 +98,8 @@ class erase_irrelevant_fn {
                     return e;
                 else if (c == get_char_name())
                     return mk_constant(get_uint32_name());
-                else if (is_enum_type(c))
-                    return e;
+                else if (optional<expr> uint = is_enum_type(c))
+                    return *uint;
                 else
                     return mk_enf_object_type();
             } else if (!atomic_only && is_app_of(e, get_array_name(), 1)) {

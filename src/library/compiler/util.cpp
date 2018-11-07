@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
 #include "kernel/instantiate.h"
+#include "kernel/kernel_exception.h"
 #include "library/util.h"
 #include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
@@ -420,6 +421,31 @@ void collect_used(expr const & e, std::unordered_set<name, name_hash> & S) {
             if (is_fvar(e)) { S.insert(fvar_name(e)); return false; }
             return true;
         });
+}
+
+expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
+    try {
+        type_checker tc(st, lctx);
+        e = tc.whnf(e);
+        if (is_constant(e)) {
+            name const & c = const_name(e);
+            if (is_runtime_scalar_type(c)) {
+                return e;
+            } else if (c == get_char_name()) {
+                return mk_constant(get_uint32_name());
+            } else if (optional<unsigned> nbytes = is_enum_type(st.env(), c)) {
+                return *to_uint_type(*nbytes);
+            } else {
+                return mk_enf_object_type();
+            }
+        } else if (is_sort(e) || tc.is_prop(e)) {
+            return mk_enf_neutral_type();
+        } else {
+            return mk_enf_object_type();
+        }
+    } catch (kernel_exception &) {
+        return mk_enf_object_type();
+    }
 }
 
 void initialize_compiler_util() {

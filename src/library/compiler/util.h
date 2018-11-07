@@ -130,6 +130,8 @@ bool is_enf_neutral(expr const & e);
 bool is_enf_unreachable(expr const & e);
 bool is_enf_object_type(expr const & e);
 
+expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e);
+
 // =======================================
 
 /* Return true if `n` is the name of a type with builtin support in the code generator. */

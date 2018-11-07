@@ -13,7 +13,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 class erase_irrelevant_fn {
-    typedef std::unordered_map<name, optional<expr>, name_hash> is_enum_cache;
     typedef std::tuple<name, expr, expr> let_entry;
     type_checker::state  m_st;
     local_ctx            m_lctx;
@@ -23,7 +22,6 @@ class erase_irrelevant_fn {
     name                 m_x;
     unsigned             m_next_idx{1};
     expr_map<bool>       m_irrelevant_cache;
-    is_enum_cache        m_is_enum_cache;
 
     environment & env() { return m_st.env(); }
 
@@ -46,18 +44,6 @@ class erase_irrelevant_fn {
             get_constructor_relevant_fields(env(), n, rel_fields);
             m_constructor_info.insert(n, to_list(rel_fields));
         }
-    }
-
-    optional<expr> is_enum_type(name const & I) {
-        auto it = m_is_enum_cache.find(I);
-        if (it != m_is_enum_cache.end())
-            return it->second;
-        optional<unsigned> nbytes = lean::is_enum_type(env(), I);
-        if (!nbytes) return none_expr();
-        optional<expr> r = to_uint_type(*nbytes);
-        if (!r) return none_expr();
-        m_is_enum_cache.insert(mk_pair(I, r));
-        return r;
     }
 
     /* Return (some idx) iff inductive datatype `I_name` has only one constructor,
@@ -85,31 +71,8 @@ class erase_irrelevant_fn {
         return result;
     }
 
-    bool is_prop(expr const & e) {
-        return type_checker(m_st, m_lctx).is_prop(e);
-    }
-
     expr mk_runtime_type(expr e) {
-        try {
-            e = type_checker(m_st, m_lctx).whnf(e);
-            if (is_constant(e)) {
-                name const & c = const_name(e);
-                if (is_runtime_scalar_type(c))
-                    return e;
-                else if (c == get_char_name())
-                    return mk_constant(get_uint32_name());
-                else if (optional<expr> uint = is_enum_type(c))
-                    return *uint;
-                else
-                    return mk_enf_object_type();
-            } else if (is_sort(e) || is_prop(e)) {
-                return mk_enf_neutral_type();
-            } else {
-                return mk_enf_object_type();
-            }
-        } catch (kernel_exception &) {
-            return mk_enf_object_type();
-        }
+        return ::lean::mk_runtime_type(m_st, m_lctx, e);
     }
 
     bool cache_is_irrelevant(expr const & e, bool r) {

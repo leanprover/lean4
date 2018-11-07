@@ -89,7 +89,7 @@ class erase_irrelevant_fn {
         return type_checker(m_st, m_lctx).is_prop(e);
     }
 
-    expr mk_runtime_type(expr e, bool atomic_only = false) {
+    expr mk_runtime_type(expr e) {
         try {
             e = type_checker(m_st, m_lctx).whnf(e);
             if (is_constant(e)) {
@@ -102,13 +102,8 @@ class erase_irrelevant_fn {
                     return *uint;
                 else
                     return mk_enf_object_type();
-            } else if (!atomic_only && is_app_of(e, get_array_name(), 1)) {
-                expr t = mk_runtime_type(app_arg(e), true);
-                return mk_app(app_fn(e), t);
-            } else if (is_sort(e)) {
-                return is_zero(sort_level(e)) ? mk_Prop() : mk_Type();
-            } else if (is_prop(e)) {
-                return mk_true();
+            } else if (is_sort(e) || is_prop(e)) {
+                return mk_enf_neutral_type();
             } else {
                 return mk_enf_object_type();
             }

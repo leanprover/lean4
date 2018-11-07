@@ -124,6 +124,7 @@ expr mk_enf_neutral();
 /* Create an unreachable expression used at ENF */
 expr mk_enf_unreachable();
 expr mk_enf_object_type();
+expr mk_enf_neutral_type();
 
 bool is_enf_neutral(expr const & e);
 bool is_enf_unreachable(expr const & e);

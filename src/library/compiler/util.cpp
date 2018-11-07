@@ -343,6 +343,10 @@ expr mk_enf_object_type() {
     return *g_object_type;
 }
 
+expr mk_enf_neutral_type() {
+    return *g_neutral_expr;
+}
+
 bool is_enf_neutral(expr const & e) {
     return e == *g_neutral_expr;
 }

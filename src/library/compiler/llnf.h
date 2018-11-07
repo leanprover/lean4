@@ -12,13 +12,13 @@ namespace lean {
    before converting to the IR. */
 expr to_llnf(environment const & env, expr const & e, bool unboxed_data = false);
 
-bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz);
-bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & ssz);
+bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & nusize, unsigned & ssz);
+bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & nusize, unsigned & ssz);
 bool is_llnf_reset(expr const & e, unsigned & n);
 bool is_llnf_proj(expr const & e, unsigned & idx);
 
-inline bool is_llnf_cnstr(expr const & e) { unsigned d1, d2; return is_llnf_cnstr(e, d1, d2); }
-inline bool is_llnf_reuse(expr const & e) { unsigned d1, d2; return is_llnf_reuse(e, d1, d2); }
+inline bool is_llnf_cnstr(expr const & e) { unsigned d1, d2, d3; return is_llnf_cnstr(e, d1, d2, d3); }
+inline bool is_llnf_reuse(expr const & e) { unsigned d1, d2, d3; return is_llnf_reuse(e, d1, d2, d3); }
 inline bool is_llnf_reset(expr const & e) { unsigned i; return is_llnf_reset(e, i); }
 inline bool is_llnf_proj(expr const & e) { unsigned d; return is_llnf_proj(e, d); }
 

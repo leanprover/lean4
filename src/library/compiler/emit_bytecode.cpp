@@ -90,14 +90,14 @@ class emit_bytecode_fn {
 
     void compile_constant(expr const & e) {
         name const & n = const_name(e);
-        unsigned cidx; unsigned ssz;
+        unsigned cidx; unsigned nusizes; unsigned ssz;
         if (is_enf_neutral(e)) {
             emit(mk_sconstructor_instr(0));
         } else if (is_enf_unreachable(e)) {
             emit(mk_unreachable_instr());
         } else if (n == get_nat_zero_name()) {
             emit(mk_num_instr(mpz(0)));
-        } else if (is_llnf_cnstr(e, cidx, ssz)) {
+        } else if (is_llnf_cnstr(e, cidx, nusizes, ssz)) {
             if (ssz != 0) throw_no_unboxed_support();
             emit(mk_sconstructor_instr(cidx));
         } else if (optional<vm_decl> decl = get_vm_decl(m_env, n)) {
@@ -168,9 +168,9 @@ class emit_bytecode_fn {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         lean_assert(is_llnf_cnstr(fn));
-        unsigned cidx, ssz;
-        is_llnf_cnstr(fn, cidx, ssz);
-        if (ssz != 0) throw_no_unboxed_support();
+        unsigned cidx, nusizes, ssz;
+        is_llnf_cnstr(fn, cidx, nusizes, ssz);
+        if (ssz != 0 || nusizes != 0) throw_no_unboxed_support();
         compile_args(args.size(), args.data(), bpz, m);
         emit(mk_constructor_instr(cidx, get_app_num_args(e)));
     }
@@ -179,9 +179,9 @@ class emit_bytecode_fn {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         lean_assert(is_llnf_reuse(fn));
-        unsigned cidx, ssz;
-        is_llnf_reuse(fn, cidx, ssz);
-        if (ssz != 0) throw_no_unboxed_support();
+        unsigned cidx, nusizes, ssz;
+        is_llnf_reuse(fn, cidx, nusizes, ssz);
+        if (ssz != 0 || nusizes != 0) throw_no_unboxed_support();
         compile_args(args.size(), args.data(), bpz, m);
         emit(mk_reuse_instr(cidx, get_app_num_args(e) - 1));
     }

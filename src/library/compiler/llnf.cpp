@@ -20,25 +20,16 @@ static name * g_cnstr     = nullptr;
 static name * g_reuse     = nullptr;
 static name * g_reset     = nullptr;
 static name * g_sset      = nullptr;
+static name * g_uset      = nullptr;
 static name * g_proj      = nullptr;
 static name * g_sproj     = nullptr;
+static name * g_uproj     = nullptr;
 
 static bool is_llnf_unary_primitive(expr const & e, name const & prefix, unsigned & i) {
     if (!is_constant(e)) return false;
     name const & n = const_name(e);
     if (!is_internal_name(n) || n.is_atomic() || !n.is_numeral() || n.get_prefix() != prefix) return false;
     i = n.get_numeral().get_small_value();
-    return true;
-}
-
-static bool is_llnf_binary_primitive(expr const & e, name const & prefix, unsigned & i1, unsigned & i2) {
-    if (!is_constant(e)) return false;
-    name const & n = const_name(e);
-    if (!is_internal_name(n) || n.is_atomic() || !n.is_numeral()) return false;
-    i2 = n.get_numeral().get_small_value();
-    name const & p = n.get_prefix();
-    if (p.is_atomic() || !p.is_numeral() || p.get_prefix() != prefix) return false;
-    i1 = p.get_numeral().get_small_value();
     return true;
 }
 
@@ -57,78 +48,92 @@ static bool is_llnf_ternary_primitive(expr const & e, name const & prefix, unsig
     return true;
 }
 
-expr mk_llnf_cnstr(unsigned cidx, unsigned scalar_sz) { return mk_constant(name(name(*g_cnstr, cidx), scalar_sz)); }
-bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & ssz) { return is_llnf_binary_primitive(e, *g_cnstr, cidx, ssz); }
+/*
+A constructor object contains a header, then a sequence of pointers to other Lean objects,
+a sequence of `usize` (i.e., `size_t`) scalar values, and a sequence of other scalar values.
+We store pointer and `usize` objects before other scalar values to simplify how we compute
+the position where data is stored. For example, the "instruction" `_sproj.4.2.3 o` access
+a value of size 4 at offset `sizeof(void*)*2+3`.
+We have considered a simpler representation where we just have the size and offset,
+we decided to not used it because we would have to generate different C++ code for 32 and
+64 bit machines. This would complicate the bootstrapping process.
+We store the `usize` scalar values before other scalar values because their size is platform
+specific. We also have custom instructions (`_uset` and `_uproj`) to set and retrieve `usize`
+scalar fields.
+*/
 
-expr mk_llnf_reuse(unsigned cidx, unsigned scalar_sz) { return mk_constant(name(name(*g_reuse, cidx), scalar_sz)); }
-bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & ssz) { return is_llnf_binary_primitive(e, *g_reuse, cidx, ssz); }
+/* The `_cnstr.<cidx>.<num_usizes>.<num_bytes>` instruction constructs a constructor object with tag `cidx`, and scalar area with space for `num_usize` `usize` values + `num_bytes` bytes. */
+expr mk_llnf_cnstr(unsigned cidx, unsigned num_usizes, unsigned num_bytes) { return mk_constant(name(name(name(*g_cnstr, cidx), num_usizes), num_bytes)); }
+bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) { return is_llnf_ternary_primitive(e, *g_cnstr, cidx, num_usizes, num_bytes); }
+
+/* The `_reuse.<cidx>.<num_usizes>.<num_bytes>` is similar to `_cnstr.<cidx>.<num_usize>.<num_bytes>`, but it takes an extra argument: a memory cell that may be reused. */
+expr mk_llnf_reuse(unsigned cidx, unsigned num_usizes, unsigned num_bytes) { return mk_constant(name(name(name(*g_reuse, cidx), num_usizes), num_bytes)); }
+bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) { return is_llnf_ternary_primitive(e, *g_reuse, cidx, num_usizes, num_bytes); }
 
 expr mk_llnf_reset(unsigned n) { return mk_constant(name(*g_reset, n)); }
 bool is_llnf_reset(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_reset, n); }
 
+/* The `_sset.<sz>.<n>.<offset>` instruction sets a scalar value of size `sz` (in bytes) at offset `sizeof(void*)*n + offset`. The value `n` is the number of pointer and `usize` fields. */
 expr mk_llnf_sset(unsigned sz, unsigned n, unsigned offset) { return mk_constant(name(name(name(*g_sset, sz), n), offset)); }
 bool is_llnf_sset(expr const & e, unsigned & sz, unsigned & n, unsigned & offset) { return is_llnf_ternary_primitive(e, *g_sset, sz, n, offset); }
 
+/* The `_uset.<n>` instruction sets a `usize` value in a constructor object at offset `sizeof(void*)*n`. */
+expr mk_llnf_uset(unsigned n) { return mk_constant(name(*g_uset, n)); }
+bool is_llnf_uset(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_uset, n); }
+
+/* The `_proj.<idx>` instruction retrieves an object field in a constructor object at offset `sizeof(void*)*idx` */
 expr mk_llnf_proj(unsigned idx) { return mk_constant(name(*g_proj, idx)); }
 bool is_llnf_proj(expr const & e, unsigned & idx) { return is_llnf_unary_primitive(e, *g_proj, idx); }
 
+/* The `_sproj.<sz>.<n>.<offset>` instruction retrieves a scalar field of size `sz` (in bytes) in a constructor object at offset `sizeof(void*)*n + offset`. The value `n` is the number of pointer and `usize` fields. */
 expr mk_llnf_sproj(unsigned sz, unsigned n, unsigned offset) { return mk_constant(name(name(name(*g_sproj, sz), n), offset)); }
 bool is_llnf_sproj(expr const & e, unsigned & sz, unsigned & n, unsigned & offset) { return is_llnf_ternary_primitive(e, *g_sproj, sz, n, offset); }
+
+/* The `_uproj.<idx>` instruction retrieves an `usize` field in a constructor ojbect at offset `sizeof(void*)*idx` */
+expr mk_llnf_uproj(unsigned idx) { return mk_constant(name(*g_uproj, idx)); }
+bool is_llnf_uproj(expr const & e, unsigned & idx) { return is_llnf_unary_primitive(e, *g_uproj, idx); }
 
 [[ noreturn ]] static void throw_unsupported_field_size() {
     throw exception("code generation failed, unsupported field size");
 }
 
 struct field_info {
-    enum kind { Irrelevant, Object, Scalar };
+    /* Remark: the position of a scalar value in
+       a constructor object is: `sizeof(void*)*m_idx + m_offset` */
+    enum kind { Irrelevant, Object, USize, Scalar };
     kind     m_kind;
-    union {
-        unsigned m_idx;
-        struct {
-            unsigned m_offset;
-            unsigned m_size;
-        };
-    };
-    field_info():m_kind(Irrelevant), m_idx(0) {}
-    field_info(unsigned idx):m_kind(Object), m_idx(idx) {}
-    field_info(unsigned offset, unsigned sz):m_kind(Scalar), m_offset(offset), m_size(sz) {}
-    expr get_type() const {
-        if (m_kind == Scalar) {
-            switch (m_size) {
-            case 1: return mk_constant(get_uint8_name());
-            case 2: return mk_constant(get_uint16_name());
-            case 4: return mk_constant(get_uint32_name());
-            case 8: return mk_constant(get_uint64_name());
-            default: throw_unsupported_field_size();
-            }
-        } else {
-            return mk_enf_object_type();
-        }
-    }
+    unsigned m_size;   // it is used only if `m_kind == Scalar`
+    unsigned m_idx;
+    unsigned m_offset; // it is used only if `m_kind == Scalar`
+    expr     m_type;
+    field_info():m_kind(Irrelevant), m_idx(0), m_type(mk_enf_neutral()) {}
+    field_info(unsigned idx):m_kind(Object), m_idx(idx), m_type(mk_enf_object_type()) {}
+    field_info(unsigned num, bool):m_kind(USize), m_idx(num), m_type(mk_constant(get_usize_name())) {}
+    field_info(unsigned sz, unsigned num, unsigned offset, expr const & type):
+        m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type) {}
+    expr get_type() const { return m_type; }
+    static field_info mk_irrelevant() { return field_info(); }
+    static field_info mk_object(unsigned idx) { return field_info(idx); }
+    static field_info mk_usize(unsigned n) { return field_info(n, true); }
+    static field_info mk_scalar(unsigned sz, unsigned offset, expr const & type) { return field_info(sz, 0, offset, type); }
 };
 
 struct cnstr_info {
     unsigned         m_cidx;
     list<field_info> m_field_info;
-    unsigned         m_num_objs;
-    unsigned         m_scalar_sz;
+    unsigned         m_num_objs{0};
+    unsigned         m_num_usizes{0};
+    unsigned         m_scalar_sz{0};
     cnstr_info(unsigned cidx, list<field_info> const & finfo):
-        m_cidx(cidx), m_field_info(finfo), m_num_objs(0), m_scalar_sz(0) {
+        m_cidx(cidx), m_field_info(finfo) {
         for (field_info const & info : finfo) {
             if (info.m_kind == field_info::Object)
                 m_num_objs++;
+            else if (info.m_kind == field_info::USize)
+                m_num_usizes++;
             else if (info.m_kind == field_info::Scalar)
                 m_scalar_sz += info.m_size;
         }
-    }
-
-    unsigned get_num_relevant() const {
-        unsigned r = 0;
-        for (field_info const & info : m_field_info) {
-            if (info.m_kind != field_info::Irrelevant)
-                r++;
-        }
-        return r;
     }
 };
 
@@ -183,38 +188,54 @@ class to_llnf_fn {
         unsigned nparams    = val.get_nparams();
         local_ctx lctx;
         buffer<expr> telescope;
-        unsigned next_idx = 0;
+        unsigned next_object = 0;
+        unsigned next_usize  = 0;
         unsigned next_offset = 0;
         to_telescope(env(), lctx, ngen(), type, telescope);
         lean_assert(telescope.size() >= nparams);
         for (unsigned i = nparams; i < telescope.size(); i++) {
             expr ftype = lctx.get_type(telescope[i]);
             if (is_irrelevant_type(m_st, lctx, ftype)) {
-                result.push_back(field_info());
+                result.push_back(field_info::mk_irrelevant());
             } else if (m_unboxed) {
                 type_checker tc(m_st, lctx);
                 ftype = tc.whnf(ftype);
-                if (optional<unsigned> sz = is_builtin_scalar(ftype)) {
-                    result.push_back(field_info(next_offset, *sz));
+                if (is_constant(ftype, get_usize_name())) {
+                    result.push_back(field_info::mk_usize(next_usize));
+                    next_usize++;
+                } else if (optional<unsigned> sz = is_builtin_scalar(ftype)) {
+                    result.push_back(field_info::mk_scalar(*sz, next_offset, ftype));
                     next_offset += *sz;
                 } else if (optional<unsigned> sz = is_enum_type(ftype)) {
-                    result.push_back(field_info(next_offset, *sz));
+                    optional<expr> uint = to_uint_type(*sz);
+                    if (!uint) throw exception("code generation failed, enumeration type is too big");
+                    result.push_back(field_info::mk_scalar(*sz, next_offset, *uint));
                     next_offset += *sz;
                 } else {
-                    result.push_back(field_info(next_idx));
-                    next_idx++;
+                    result.push_back(field_info::mk_object(next_object));
+                    next_object++;
                 }
             } else {
-                result.push_back(field_info(next_idx));
-                next_idx++;
+                result.push_back(field_info::mk_object(next_object));
+                next_object++;
             }
         }
-        unsigned nobjs     = next_idx;
+        unsigned nobjs     = next_object;
+        unsigned nusizes   = next_usize;
         if (m_unboxed) {
-            /* Remark: scalar data is stored after object pointers */
+            /* Remark:
+               - usize fields are stored after object fields.
+               - regular scalar fields are stored after object and usize fields */
             for (field_info & info : result) {
-                if (info.m_kind == field_info::Scalar) {
+                switch (info.m_kind) {
+                case field_info::Scalar:
+                    info.m_offset += (nobjs + nusizes) * sizeof(void*);
+                    break;
+                case field_info::USize:
                     info.m_offset += nobjs * sizeof(void*);
+                    break;
+                default:
+                    break;
                 }
             }
         }
@@ -321,8 +342,16 @@ class to_llnf_fn {
         return mk_app(mk_llnf_sproj(size, num, offset), major);
     }
 
+    expr mk_uproj(expr const & major, unsigned idx) {
+        return mk_app(mk_llnf_uproj(idx), major);
+    }
+
     expr mk_sset(expr const & major, unsigned size, unsigned num, unsigned offset, expr const & v) {
         return mk_app(mk_llnf_sset(size, num, offset), major, v);
+    }
+
+    expr mk_uset(expr const & major, unsigned idx, expr const & v) {
+        return mk_app(mk_llnf_uset(idx), major, v);
     }
 
     expr mk_reset(expr const & major, unsigned idx) {
@@ -330,8 +359,8 @@ class to_llnf_fn {
     }
 
     bool is_reuse_app(expr const & e) {
-        unsigned i, s;
-        return is_llnf_reuse(get_app_fn(e), i, s) && get_app_num_args(e) == 2;
+        unsigned i, n, s;
+        return is_llnf_reuse(get_app_fn(e), i, n, s) && get_app_num_args(e) == 2;
     }
 
     bool is_sset(expr const & e) {
@@ -369,12 +398,20 @@ class to_llnf_fn {
             return e;
         }
 
-        /* Return true if `a` is of the form `_sproj<sz>.<num>.<offset> e` */
+        /* Return true if `a` is of the form `_sproj.<sz>.<num>.<offset> e` */
         bool is_sproj_of(expr a, expr const & e, unsigned sz, unsigned num, unsigned offset) {
             a = find(a);
             if (!is_app(a) || app_arg(a) != e) return false;
             unsigned a_sz, a_num, a_offset;
             return is_llnf_sproj(a, a_sz, a_num, a_offset) && a_sz == sz && a_num == num && a_offset == offset;
+        }
+
+        /* Return true if `a` is of the form `_uproj.<idx> e` */
+        bool is_uproj_of(expr a, expr const & e, unsigned idx) {
+            a = find(a);
+            if (!is_app(a) || app_arg(a) != e) return false;
+            unsigned a_idx;
+            return is_llnf_uproj(a, a_idx) && a_idx == idx;
         }
 
         expr visit_constructor(expr const & e) {
@@ -403,7 +440,7 @@ class to_llnf_fn {
                 return e;
             }
             cnstr_info k_info      = m_owner.get_cnstr_info(const_name(k));
-            if (k_info.m_num_objs  != m_cinfo.m_num_objs || k_info.m_scalar_sz != m_cinfo.m_scalar_sz) {
+            if (k_info.m_num_objs  != m_cinfo.m_num_objs || k_info.m_num_usizes != m_cinfo.m_num_usizes || k_info.m_scalar_sz != m_cinfo.m_scalar_sz) {
                 /* This constructor is not compatible with major premise */
                 return e;
             }
@@ -424,14 +461,25 @@ class to_llnf_fn {
                 }
                 j++;
             }
-            r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_scalar_sz), r), obj_args);
+            r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_num_usizes, k_info.m_scalar_sz), r), obj_args);
+            unsigned uidx   = 0;
             unsigned offset = 0;
             for (field_info const & info : k_info.m_field_info) {
-                if (info.m_kind == field_info::Scalar) {
-                    if (!is_sproj_of(args[j], m_major, info.m_size, k_info.m_num_objs, offset)) {
-                        r = m_owner.mk_sset(r, info.m_size, k_info.m_num_objs, offset, args[j]);
+                switch (info.m_kind) {
+                case field_info::Scalar:
+                    if (!is_sproj_of(args[j], m_major, info.m_size, k_info.m_num_objs + k_info.m_num_usizes, offset)) {
+                        r = m_owner.mk_sset(r, info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset, args[j]);
                     }
                     offset += info.m_size;
+                    break;
+                case field_info::USize:
+                    if (!is_uproj_of(args[j], m_major, (k_info.m_num_objs + uidx))) {
+                        r = m_owner.mk_uset(r, k_info.m_num_objs + uidx, args[j]);
+                    }
+                    uidx++;
+                    break;
+                default:
+                    break;
                 }
             }
             m_replaced = true;
@@ -493,7 +541,7 @@ class to_llnf_fn {
     };
 
     expr try_update_opt(name const & I_name, expr const & minor, expr const & major, cnstr_info const & cinfo) {
-        if (cinfo.m_num_objs == 0 && cinfo.m_scalar_sz == 0) return minor;
+        if (cinfo.m_num_objs == 0 && cinfo.m_num_usizes == 0 && cinfo.m_scalar_sz == 0) return minor;
         if (!is_fvar(major)) return minor;
         if (has_fvar(minor, major)) return minor;
         return replace_cnstr_fn(*this, I_name, major, cinfo)(minor);
@@ -534,6 +582,7 @@ class to_llnf_fn {
             expr minor           = args[i+1];
             cnstr_info cinfo     = get_cnstr_info(cnames[i]);
             unsigned next_idx    = 0;
+            unsigned next_usize  = 0;
             unsigned next_offset = 0;
             buffer<expr> fields;
             for (field_info const & info : cinfo.m_field_info) {
@@ -546,8 +595,12 @@ class to_llnf_fn {
                     fields.push_back(mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_proj(next_idx), major)));
                     next_idx++;
                     break;
+                case field_info::USize:
+                    fields.push_back(mk_let_decl(info.get_type(), mk_uproj(major, (cinfo.m_num_objs + next_usize))));
+                    next_usize++;
+                    break;
                 case field_info::Scalar:
-                    fields.push_back(mk_let_decl(binding_domain(minor), mk_sproj(major, info.m_size, cinfo.m_num_objs, next_offset)));
+                    fields.push_back(mk_let_decl(info.get_type(), mk_sproj(major, info.m_size, (cinfo.m_num_objs + cinfo.m_num_usizes), next_offset)));
                     next_offset += info.m_size;
                     break;
                 }
@@ -558,8 +611,8 @@ class to_llnf_fn {
             minor     = visit(minor);
             if (!is_enf_unreachable(minor)) {
                 /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */
-                unsigned cidx, ssz;
-                if (!(is_llnf_cnstr(minor, cidx, ssz) && cidx == i && ssz == 0)) {
+                unsigned cidx, nusizes, ssz;
+                if (!(is_llnf_cnstr(minor, cidx, nusizes, ssz) && cidx == i && nusizes == 0 && ssz == 0)) {
                     is_id = false;
                 }
                 minor          = mk_let(saved_fvars_size, minor);
@@ -617,18 +670,32 @@ class to_llnf_fn {
             }
             j++;
         }
-        expr r = mk_app(mk_llnf_cnstr(cidx, k_info.m_scalar_sz), obj_args);
+        expr r = mk_app(mk_llnf_cnstr(cidx, k_info.m_num_usizes, k_info.m_scalar_sz), obj_args);
         j = nparams;
         unsigned offset = 0;
+        unsigned uidx   = 0;
         bool first      = true;
         for (field_info const & info : k_info.m_field_info) {
-            if (info.m_kind == field_info::Scalar) {
+            switch (info.m_kind) {
+            case field_info::Scalar:
                 if (first && obj_args.size() > 0) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
-                r = mk_let_decl(info.get_type(), mk_sset(r, info.m_size, k_info.m_num_objs, offset, args[j]));
+                r = mk_let_decl(info.get_type(), mk_sset(r, info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset, args[j]));
                 offset += info.m_size;
                 first = false;
+                break;
+            case field_info::USize:
+                if (first && obj_args.size() > 0) {
+                    r = mk_let_decl(mk_enf_object_type(), r);
+                }
+                r = mk_let_decl(info.get_type(), mk_uset(r, k_info.m_num_objs + uidx, args[j]));
+                uidx++;
+                first = false;
+                break;
+
+            default:
+                break;
             }
             j++;
         }
@@ -643,6 +710,7 @@ class to_llnf_fn {
         cnstr_info k_info = get_cnstr_info(k_name);
         unsigned idx      = 0;
         unsigned offset   = 0;
+        unsigned uidx     = 0;
         unsigned i        = 0;
         for (field_info const & info : k_info.m_field_info) {
             switch (info.m_kind) {
@@ -655,9 +723,14 @@ class to_llnf_fn {
                     return mk_app(mk_llnf_proj(idx), visit(proj_expr(e)));
                 idx++;
                 break;
+            case field_info::USize:
+                if (proj_idx(e) == i)
+                    return mk_app(mk_llnf_uproj(k_info.m_num_objs + uidx), visit(proj_expr(e)));
+                uidx++;
+                break;
             case field_info::Scalar:
                 if (proj_idx(e) == i)
-                    return mk_sproj(visit(proj_expr(e)), info.m_size, k_info.m_num_objs, offset);
+                    return mk_sproj(visit(proj_expr(e)), info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset);
                 offset += info.m_size;
                 break;
             }
@@ -739,8 +812,10 @@ void initialize_llnf() {
     g_reuse     = new name("_reuse");
     g_reset     = new name("_reset");
     g_sset      = new name("_sset");
+    g_uset      = new name("_uset");
     g_proj      = new name("_proj");
     g_sproj     = new name("_sproj");
+    g_uproj     = new name("_uproj");
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
     g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
@@ -755,5 +830,7 @@ void finalize_llnf() {
     delete g_sset;
     delete g_proj;
     delete g_sproj;
+    delete g_uset;
+    delete g_uproj;
 }
 }

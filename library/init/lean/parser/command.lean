@@ -98,10 +98,10 @@ node! «attribute» [
 
 @[derive has_tokens]
 def builtin_command_parsers : list command_parser := [
+  declaration.parser, variable.parser, variables.parser, namespace.parser, end.parser,
   open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
-  mixfix.parser, reserve_mixfix.parser, check.parser, declaration.parser, attribute.parser,
-  export.parser, namespace.parser, end.parser, variable.parser, variables.parser, include.parser,
-  omit.parser]
+  mixfix.parser, reserve_mixfix.parser, check.parser, attribute.parser,
+  export.parser, include.parser, omit.parser]
 end «command»
 
 def command_parser.run (commands : list command_parser) (p : command_parser)

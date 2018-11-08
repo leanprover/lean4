@@ -196,15 +196,18 @@ observing (try (lookahead token))
 
 variable [monad_basic_parser m]
 
-def symbol (sym : string) (lbp := 0) : parser :=
-let sym := sym.trim in
+def symbol_core (sym : string) (lbp : nat) (ex : dlist string) : parser :=
 lift $ try $ do {
   it ← left_over,
-  stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" (dlist.singleton sym) it,
+  stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" ex it,
   when (sym ≠ sym') $
-    error ("token " ++ sym') (dlist.singleton sym) it,
+    error sym' ex it,
   pure stx
 } <?> sym
+
+@[inline] def symbol (sym : string) (lbp := 0) : parser :=
+let sym := sym.trim in
+symbol_core sym lbp (dlist.singleton sym)
 
 instance symbol.tokens (sym lbp) : parser.has_tokens (symbol sym lbp : parser) :=
 ⟨[⟨sym.trim, lbp, none⟩]⟩

@@ -708,20 +708,8 @@ class specialize_fn {
         return optional<name>(new_name);
     }
 
-    /* Return true if `e` is of the form `let ... in fun ...` */
-    static bool is_let_lambda(expr e) {
-        while (is_let(e)) {
-            e = let_body(e);
-        }
-        return is_lambda(e);
-    }
-
     expr eta_expand_specialization(expr e) {
         /* Remark: we do not use `type_checker.eta_expand` because it does not preserve LCNF */
-        if (is_let_lambda(e)) {
-            /* csimp will take care of it */
-            return e;
-        }
         try {
             buffer<expr> args;
             type_checker tc(m_st);

@@ -118,10 +118,6 @@ bool is_llnf_op(expr const & e) {
         is_llnf_uproj(e);
 }
 
-[[ noreturn ]] static void throw_unsupported_field_size() {
-    throw exception("code generation failed, unsupported field size");
-}
-
 struct field_info {
     /* Remark: the position of a scalar value in
        a constructor object is: `sizeof(void*)*m_idx + m_offset` */

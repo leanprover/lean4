@@ -371,21 +371,17 @@ class to_llnf_fn {
         buffer<expr> fvars;
         while (is_let(e)) {
             lean_assert(!has_loose_bvars(let_type(e)));
-            expr new_val  = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
-            if (is_lcnf_atom(new_val)) {
-                fvars.push_back(new_val);
-            } else {
-                name n = let_name(e);
-                if (is_internal_name(n)) {
-                    if (is_join_point_name(n))
-                        n = next_jp_name();
-                    else
-                        n = next_name();
-                }
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), new_val);
-                fvars.push_back(new_fvar);
-                m_fvars.push_back(new_fvar);
+            expr new_val = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
+            name n       = let_name(e);
+            if (is_internal_name(n)) {
+                if (is_join_point_name(n))
+                    n = next_jp_name();
+                else
+                    n = next_name();
             }
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), new_val);
+            fvars.push_back(new_fvar);
+            m_fvars.push_back(new_fvar);
             e = let_body(e);
         }
         return visit(instantiate_rev(e, fvars.size(), fvars.data()));

@@ -164,6 +164,7 @@ do it ← left_over,
      guard (it.offset = tkc.start_it.offset),
      -- hackishly update parsec position
      monad_parsec.lift (λ it, parsec.result.ok () tkc.stop_it none),
+     put_cache {cache with hit := cache.hit + 1},
      pure tkc.tk
    ) (λ _, do
      -- cache failed, update cache
@@ -186,7 +187,7 @@ do it ← left_over,
      | none, except.error _ := number' <|> string_lit',
      tk ← with_trailing tk,
      new_it ← left_over,
-     put_cache {cache with token_cache := some ⟨it, new_it, tk⟩},
+     put_cache {cache with token_cache := some ⟨it, new_it, tk⟩, miss := cache.miss + 1},
      pure tk
    )
 

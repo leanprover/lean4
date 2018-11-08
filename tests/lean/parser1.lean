@@ -115,6 +115,8 @@ def run_frontend (input : string) : except_t string io unit := do
           when ¬(cmd'.is_of_kind module.eoi) $
             io.println "elaborator died!!",
           msgs.to_list.mfor $ λ e, io.println e.text,
+          io.println $ "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
+            to_string (out.cache.hit + out.cache.miss),
           pure $ sum.inr (out::outs).reverse
         }
         | coroutine_result_core.yielded elab_out elab_k := do {

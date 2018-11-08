@@ -54,6 +54,8 @@ structure token_cache_entry :=
 -- Non-backtrackable state
 structure parser_cache :=
 (token_cache : option token_cache_entry := none)
+-- for profiling
+(hit miss : nat := 0)
 
 /- Remark: if we have a node in the trie with `some token_config`, the string induced by the path is equal to the `token_config.prefix`. -/
 structure parser_config :=

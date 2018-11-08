@@ -62,13 +62,13 @@ structure parser_config :=
 (tokens : trie token_config)
 (filename : string)
 
-@[derive monad alternative monad_state monad_parsec monad_except]
+@[derive monad alternative monad_parsec monad_except]
 def parser_core_t (m : Type → Type) [monad m] :=
 parsec_t syntax $ state_t parser_cache $ m
 
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except]
+@[derive monad alternative monad_reader monad_parsec monad_except]
 def parser_t (ρ : Type) (m : Type → Type) [monad m] := reader_t ρ $ parser_core_t m
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except]
+@[derive monad alternative monad_reader monad_parsec monad_except]
 def basic_parser_m := parser_t parser_config id
 abbreviation basic_parser := basic_parser_m syntax
 abbreviation monad_basic_parser := has_monad_lift_t basic_parser_m
@@ -161,7 +161,7 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
    (for command quotations). This means that the `command_parser_config` will be reset
    on a recursive call to `command.parser`, i.e. it forgets about locally registered parsers,
    but that's not an issue for our intended uses of it. -/
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec]
+@[derive monad alternative monad_reader monad_parsec monad_except monad_rec]
 def command_parser_m (ρ : Type) := reader_t ρ $ rec_t unit syntax $ parser_core_t id
 
 section
@@ -174,12 +174,12 @@ instance command_parser_m.basic_parser (ρ : Type) [has_lift_t ρ parser_config]
 end
 
 /- The `nat` at `rec_t` is the lbp` -/
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
+@[derive monad alternative monad_reader monad_parsec monad_except monad_rec monad_basic_parser]
 def term_parser_m := rec_t nat syntax $ command_parser_m parser_config
 abbreviation term_parser := term_parser_m syntax
 
 /-- A term parser for a suffix or infix notation that accepts a preceding term. -/
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_rec monad_basic_parser]
+@[derive monad alternative monad_reader monad_parsec monad_except monad_rec monad_basic_parser]
 def trailing_term_parser_m := reader_t syntax term_parser_m
 abbreviation trailing_term_parser := trailing_term_parser_m syntax
 

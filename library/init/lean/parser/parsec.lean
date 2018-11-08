@@ -362,11 +362,14 @@ This parser consumes no input if it fails (even if a partial match).
 Note: The behaviour of this parser is different to that the `string` parser in the Parsec_t Μ M Haskell library,
 as this one is all-or-nothing.
 -/
-def str (s : string) : m string :=
+def str_core (s : string) (ex : dlist string) : m string :=
 if s.is_empty then pure ""
 else lift $ λ it, match str_aux s.length s.mk_iterator it with
   | some it' := result.ok s it' none
-  | none     := result.error { it := it, expected := dlist.singleton (repr s), custom := none } ff
+  | none     := result.error { it := it, expected := ex, custom := none } ff
+
+@[inline] def str (s : string) : m string :=
+str_core s (dlist.singleton (repr s))
 
 private def take_aux : nat → string → iterator → result μ string
 | 0     r it := result.ok r it none

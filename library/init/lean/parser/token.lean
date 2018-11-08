@@ -107,7 +107,7 @@ instance raw.view {α} (p : m α) (t) : parser.has_view (option syntax_atom) (ra
   review := λ a, (syntax.atom <$> a).get_or_else syntax.missing }
 
 /-- Like `raw (str s)`, but default to `s` in views. -/
-@[derive has_tokens has_view]
+@[inline, derive has_tokens has_view]
 def raw_str (s : string) (trailing_ws := ff) : parser :=
 raw (str s) trailing_ws
 

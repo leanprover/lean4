@@ -20,8 +20,7 @@ local notation `parser` := m syntax
 variables [monad m] [monad_except (parsec.message syntax) m] [monad_parsec syntax m] [alternative m]
 
 def node (k : syntax_node_kind) (rs : list parser) : parser :=
-do args ← rs.mfoldl (λ (p : list syntax) r, do
-     args ← pure p,
+do args ← rs.mfoldl (λ (args : list syntax) r, do
      -- on error, append partial syntax tree to previous successful parses and rethrow
      a ← catch r $ λ msg, match args with
        -- do not wrap an error in the first argument to uphold the invariant documented at `syntax_node`

@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/extract_closed.h"
+#include "library/compiler/simp_app_args.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/emit_bytecode.h"
 
@@ -87,10 +88,11 @@ static environment cache_stage1(environment env, comp_decls const & ds) {
 static environment cache_stage2(environment env, comp_decls const & ds) {
     for (comp_decl const & d : ds) {
         name n = d.fst();
+        expr t = mk_enf_object_type(); // TODO(Leo): make it more precise
         expr v = d.snd();
         /* This a temporary hack to store Stage2 intermediate result.
            We should not store this information as a declaration. */
-        declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), mk_enf_object_type(),
+        declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), t,
                                              v, reducibility_hints::mk_opaque(), true);
         env = module::add(env, aux_decl, false);
     }
@@ -151,6 +153,10 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "stage2"}), ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
+    ds = apply(simp_app_args, new_env, ds);
+    ds = apply(ecse, new_env, ds);
+    ds = apply(elim_dead_let, ds);
+    trace_compiler(name({"compiler", "simp_app_args"}), ds);
     lean_trace(name({"compiler", "boxed"}),
                auto to_llnf_unbox  = [&](environment const & env, expr const & e) { return to_llnf(env, e, true); };
                auto aux_ds = apply(to_llnf_unbox, new_env, ds);
@@ -182,6 +188,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "extract_closed"});
+    register_trace_class({"compiler", "simp_app_args"});
     register_trace_class({"compiler", "llnf"});
     register_trace_class({"compiler", "boxed"});
     register_trace_class({"compiler", "optimize_bytecode"});

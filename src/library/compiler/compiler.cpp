@@ -138,7 +138,7 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
-    ds = apply(cse, new_env, ds);
+    ds = apply(ecse, new_env, ds);
     trace_compiler(name({"compiler", "cse"}), ds);
     ds = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);

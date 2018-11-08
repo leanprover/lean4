@@ -8,7 +8,9 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 namespace lean {
 /* Common subexpression elimination */
-expr cse(environment const & env, expr const & e);
+expr cse_core(environment const & env, expr const & e, bool before_erasure);
+inline expr cse(environment const & env, expr const & e) { return cse_core(env, e, true); }
+inline expr ecse(environment const & env, expr const & e) { return cse_core(env, e, false); }
 /* Common case elimination */
 expr cce_core(environment const & env, local_ctx const & lctx, expr const & e);
 inline expr cce(environment const & env, expr const & e) { return cce_core(env, local_ctx(), e); }

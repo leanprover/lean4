@@ -23,6 +23,7 @@ static name * g_cse_fresh = nullptr;
 class cse_fn {
     environment       m_env;
     name_generator    m_ngen;
+    bool              m_before_erasure;
     expr_map<expr>    m_lval2fvar;
     std::vector<expr> m_lvals;
 
@@ -96,9 +97,9 @@ public:
             buffer<expr> args;
             expr const & c = get_app_args(e, args);
             lean_assert(is_constant(c));
-            inductive_val I_val      = m_env.get(const_name(c).get_prefix()).to_inductive_val();
-            unsigned first_minor_idx = I_val.get_nparams() + 1 /* typeformer/motive */ + I_val.get_nindices() + 1;
-            for (unsigned i = first_minor_idx; i < args.size(); i++) {
+            unsigned minor_idx; unsigned minors_end;
+            std::tie(minor_idx, minors_end) = get_cases_on_minors_range(m_env, const_name(c), m_before_erasure);
+            for (unsigned i = minor_idx; i < minors_end; i++) {
                 args[i] = visit(args[i]);
             }
             return mk_app(c, args);
@@ -117,15 +118,15 @@ public:
     }
 
 public:
-    cse_fn(environment const & env):
-        m_env(env), m_ngen(*g_cse_fresh) {
+    cse_fn(environment const & env, bool before_erasure):
+        m_env(env), m_ngen(*g_cse_fresh), m_before_erasure(before_erasure) {
     }
 
     expr operator()(expr const & e) { return visit(e); }
 };
 
-expr cse(environment const & env, expr const & e) {
-    return cse_fn(env)(e);
+expr cse_core(environment const & env, expr const & e, bool before_erasure) {
+    return cse_fn(env, before_erasure)(e);
 }
 
 /* Common case elimination.

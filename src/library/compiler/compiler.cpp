@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/extract_closed.h"
+#include "library/compiler/reduce_arity.h"
 #include "library/compiler/ll_infer_type.h"
 #include "library/compiler/simp_app_args.h"
 #include "library/compiler/llnf.h"
@@ -144,6 +145,8 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(ecse, new_env, ds);
     trace_compiler(name({"compiler", "cse"}), ds);
+    ds = reduce_arity(ds);
+    trace_compiler(name({"compiler", "reduce_arity"}), ds);
     ds = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
     ds = apply(esimp, new_env, ds);
@@ -190,6 +193,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "erase_irrelevant"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "extract_closed"});
+    register_trace_class({"compiler", "reduce_arity"});
     register_trace_class({"compiler", "simp_app_args"});
     register_trace_class({"compiler", "llnf"});
     register_trace_class({"compiler", "boxed"});

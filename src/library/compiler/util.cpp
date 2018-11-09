@@ -298,7 +298,6 @@ unsigned get_lcnf_size(environment const & env, expr e) {
     case expr_kind::Const:
         return 1;
     case expr_kind::Lambda:
-        r = 1;
         while (is_lambda(e)) {
             e = binding_body(e);
         }

@@ -154,6 +154,18 @@ private def mk_consume_token (tk : token_config) (it : string.iterator) : basic_
 let it' := it.nextn tk.prefix.length in
 monad_parsec.lift $ λ _, parsec.result.ok (mk_raw_res it it') it' none
 
+def number_or_string_lit : basic_parser :=
+number' <|> string_lit'
+
+def token_cont (it : string.iterator) (tk : token_config) : basic_parser :=
+do id ← ident',
+   it' ← left_over,
+   -- if a token is both a symbol and a valid identifier (i.e. a keyword),
+   -- we want it to be recognized as a symbol
+   if it.offset + tk.prefix.length ≥ it'.offset then
+      mk_consume_token tk it
+   else pure id
+
 def token : basic_parser :=
 do it ← left_over,
    cache ← get_cache,
@@ -174,17 +186,10 @@ do it ← left_over,
      tk ← match tk, ident_start with
      | some tk@{suffix_parser := some _, ..}, _ :=
        error "token: not implemented" --str tk *> monad_parsec.lift r
-     | some tk, except.ok _ := do
-       id ← ident',
-       it' ← left_over,
-       -- if a token is both a symbol and a valid identifier (i.e. a keyword),
-       -- we want it to be recognized as a symbol
-       if it.offset + tk.prefix.length ≥ it'.offset then
-         mk_consume_token tk it
-       else pure id
+     | some tk, except.ok _    := token_cont it tk
      | some tk, except.error _ := mk_consume_token tk it
-     | none, except.ok _ := ident'
-     | none, except.error _ := number' <|> string_lit',
+     | none, except.ok _       := ident'
+     | none, except.error _    := number_or_string_lit,
      tk ← with_trailing tk,
      new_it ← left_over,
      put_cache {cache with token_cache := some ⟨it, new_it, tk⟩, miss := cache.miss + 1},

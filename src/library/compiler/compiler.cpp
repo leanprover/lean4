@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/extract_closed.h"
+#include "library/compiler/ll_infer_type.h"
 #include "library/compiler/simp_app_args.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/emit_bytecode.h"
@@ -88,8 +89,9 @@ static environment cache_stage1(environment env, comp_decls const & ds) {
 static environment cache_stage2(environment env, comp_decls const & ds) {
     for (comp_decl const & d : ds) {
         name n = d.fst();
-        expr t = mk_enf_object_type(); // TODO(Leo): make it more precise
         expr v = d.snd();
+        expr t = ll_infer_type(env, v);
+        lean_trace(name({"compiler", "stage2"}), tout() << n << " : " << t << "\n";);
         /* This a temporary hack to store Stage2 intermediate result.
            We should not store this information as a declaration. */
         declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), t,

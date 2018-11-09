@@ -358,15 +358,21 @@ def builtin_trailing_parsers : token_map trailing_term_parser := token_map.of_li
 
 end term
 
+private def trailing (cfg : command_parser_config) : trailing_term_parser :=
+(do ps ← indexed cfg.trailing_term_parsers, longest_match ps)
+<|>
+-- The application parsers should only be tried as a fall-back;
+-- e.g. `a + b` should not be parsed as `a (+ b)`.
+-- TODO(Sebastian): We should be able to remove this workaround using
+-- the proposed more robust precedence handling
+any_of [term.sort_app.parser, term.app.parser]
+
+private def leading (cfg : command_parser_config) : term_parser :=
+do ps ← indexed cfg.leading_term_parsers, longest_match ps
+
 def term_parser.run (p : term_parser) : command_parser :=
 do cfg ← read,
-   let trailing : trailing_term_parser := (indexed cfg.trailing_term_parsers >>= longest_match) <|>
-     -- The application parsers should only be tried as a fall-back;
-     -- e.g. `a + b` should not be parsed as `a (+ b)`.
-     --TODO(Sebastian): We should be able to remove this workaround using
-     -- the proposed more robust precedence handling
-     any_of [term.sort_app.parser, term.app.parser],
-   adapt_reader coe $ pratt_parser (indexed cfg.leading_term_parsers >>= longest_match) trailing p
+   adapt_reader coe $ pratt_parser (leading cfg) (trailing cfg) p
 
 end parser
 end lean

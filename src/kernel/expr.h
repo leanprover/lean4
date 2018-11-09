@@ -87,9 +87,6 @@ inductive expr
 | lit   : literal → expr
 | mdata : kvmap → expr → expr
 | proj  : name → nat → expr → expr
--- The following constructor will be deleted
-| quote : bool → expr → expr
-
 */
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
@@ -108,7 +105,6 @@ class expr : public object_ref {
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
     /* legacy constructors */
     friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
-    friend expr mk_quote(bool reflected, expr const & val);
 public:
     expr();
     expr(expr const & other):object_ref(other) {}

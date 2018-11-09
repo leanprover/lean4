@@ -481,13 +481,20 @@ class csimp_fn {
     }
 
     /* Given `e[x]`, create a let-decl `y := v`, and return `e[y]`
-       Note that, this transformation may produce type incorrect terms. */
+       Note that, this transformation may produce type incorrect terms.
+
+       Remove: if `v` is an atom, we do not create `y`. */
     expr apply_at(expr const & x, expr const & e, expr const & v) {
-        local_decl x_decl      = m_lctx.get_local_decl(x);
-        expr y                 = m_lctx.mk_local_decl(ngen(), x_decl.get_user_name(), x_decl.get_type(), v);
-        expr e_y               = replace_fvar(e, x, y);
-        m_fvars.push_back(y);
-        return visit(e_y, false);
+        if (is_lcnf_atom(v)) {
+            expr e_v = replace_fvar(e, x, v);
+            return visit(e_v, false);
+        } else {
+            local_decl x_decl      = m_lctx.get_local_decl(x);
+            expr y                 = m_lctx.mk_local_decl(ngen(), x_decl.get_user_name(), x_decl.get_type(), v);
+            expr e_y               = replace_fvar(e, x, y);
+            m_fvars.push_back(y);
+            return visit(e_y, false);
+        }
     }
 
     expr_pair mk_jp_cache_key(expr const & x, expr const & e, expr const & jp) {

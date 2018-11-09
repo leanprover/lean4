@@ -269,12 +269,12 @@ void mark_used_fvars(expr const & e, buffer<expr> const & fvars, buffer<bool> & 
         });
 }
 
-expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar) {
+expr replace_fvar(expr const & e, expr const & fvar, expr const & new_term) {
     if (!has_fvar(e)) return e;
     return replace(e, [&](expr const & e, unsigned) {
             if (!has_fvar(e)) return some_expr(e);
             if (is_fvar(e) && fvar_name(fvar) == fvar_name(e))
-                return some_expr(new_fvar);
+                return some_expr(new_term);
             return none_expr();
         });
 }

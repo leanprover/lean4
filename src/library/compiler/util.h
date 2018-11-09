@@ -107,7 +107,7 @@ void mark_used_fvars(expr const & e, buffer<expr> const & fvars, buffer<bool> & 
 /* Return true if `e` contains the free variable `fvar` */
 bool has_fvar(expr const & e, expr const & fvar);
 
-expr replace_fvar(expr const & e, expr const & fvar, expr const & new_fvar);
+expr replace_fvar(expr const & e, expr const & fvar, expr const & new_term);
 
 void sort_fvars(local_ctx const & lctx, buffer<expr> & fvars);
 

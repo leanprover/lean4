@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
 #include "library/compiler/util.h"
+#include "library/compiler/ll_infer_type.h"
 
 namespace lean {
 /* Make sure every argument of applications and projections is a free variable (or neutral element). */
@@ -75,11 +76,7 @@ class simp_app_args_fn {
             m_fvars.push_back(fvar);
             return fvar;
         } else if (is_constant(e)) {
-            expr type;
-            if (optional<constant_info> info = env().find(const_name(e)))
-                type = mk_runtime_type(m_st, m_lctx, info->get_type());
-            else
-                type = mk_enf_object_type(); // TODO(Leo): improve
+            expr type = ll_infer_type(env(), e);
             expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
             m_fvars.push_back(fvar);
             return fvar;

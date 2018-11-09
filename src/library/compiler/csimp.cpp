@@ -1266,7 +1266,7 @@ class csimp_fn {
                  is_constant(e))) { /* We only inline constants if they are marked with the `[inline]` or `[inline_if_reduce]` attrs */
                 return none_expr();
             }
-            if (is_recursive(c)) return none_expr();
+            if (!inline_if_reduce_attr && is_recursive(c)) return none_expr();
             expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
             if (inline_if_reduce_attr && !inline_attr) {
                 return beta_reduce_if_not_cases(new_fn, e, is_let_val);

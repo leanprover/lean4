@@ -7,4 +7,7 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 namespace lean {
 comp_decls reduce_arity(comp_decls const & cdecls);
+/* Return true if the `cdecl` is of the form `f := fun xs, f._rarg ...`.
+   That is, `f`s arity "was reduced" and an auxiliary declaration `f._rarg` was created to replace it. */
+bool arity_was_reduced(comp_decl const & cdecl);
 }

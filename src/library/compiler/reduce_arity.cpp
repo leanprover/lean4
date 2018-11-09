@@ -4,9 +4,22 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/instantiate.h"
+#include "library/util.h"
 #include "library/compiler/util.h"
 
 namespace lean {
+#define REDUCE_ARITY_SUFFIX "_rarg"
+
+bool arity_was_reduced(comp_decl const & cdecl) {
+    expr v = cdecl.snd();
+    while (is_lambda(v))
+        v = binding_body(v);
+    expr const & f = get_app_fn(v);
+    if (!is_constant(f)) return false;
+    name const & n = const_name(f);
+    return n.is_string() && !n.is_atomic() && strcmp(n.get_string().data(), REDUCE_ARITY_SUFFIX) == 0;
+}
+
 comp_decls reduce_arity(comp_decl const & cdecl) {
     expr code    = cdecl.snd();
     buffer<expr> fvars;
@@ -29,13 +42,13 @@ comp_decls reduce_arity(comp_decl const & cdecl) {
         /* Do nothing, all arguments are used. */
         return comp_decls(cdecl);
     }
-    name red_fn   = name(cdecl.fst(), "_rarg");
+    name red_fn   = name(cdecl.fst(), REDUCE_ARITY_SUFFIX);
     expr red_code = lctx.mk_lambda(new_fvars, code);
     comp_decl red_decl(red_fn, red_code);
     /* Replace `cdecl` code with a call to `red_fn`.
        We rely on inlining to reduce calls to `cdecl` into calls to `red_decl`. */
     expr new_code = mk_app(mk_constant(red_fn), new_fvars);
-    new_code      = lctx.mk_lambda(fvars, new_code);
+    new_code      = try_eta(lctx.mk_lambda(fvars, new_code));
     comp_decl new_decl(cdecl.fst(), new_code);
     return comp_decls(red_decl, comp_decls(new_decl));
 }

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/compiler/util.h"
+#include "library/compiler/reduce_arity.h"
 
 namespace lean {
 /* Cache closed term => global constant.
@@ -317,6 +318,10 @@ public:
     }
 
     pair<environment, comp_decls> operator()(comp_decl const & d) {
+        if (arity_was_reduced(d)) {
+            /* Do nothing since `d` will be inlined. */
+            return mk_pair(env(), comp_decls(d));
+        }
         expr v      = d.snd();
         if (!is_lambda(v)) {
             /* `d` already has arity 0. */

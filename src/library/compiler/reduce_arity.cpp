@@ -33,11 +33,26 @@ comp_decls reduce_arity(comp_decl const & cdecl) {
     }
     code = instantiate_rev(code, fvars.size(), fvars.data());
     buffer<expr> new_fvars;
+#if 1
+    /* For now, we remove just the prefix.
+       Removing unused variables that occur in other parts of the declaration seem to create problems.
+       Example: we may create more closures if the function is partially applied.
+       By eliminating just a prefix, we get the most common case: a function that starts with a sequence of type variables.
+       TODO(Leo): improve this. */
+    bool found_used = false;
+    for (expr & fvar : fvars) {
+        if (found_used || has_fvar(code, fvar)) {
+            found_used = true;
+            new_fvars.push_back(fvar);
+        }
+    }
+#else
     for (expr & fvar : fvars) {
         if (has_fvar(code, fvar)) {
             new_fvars.push_back(fvar);
         }
     }
+#endif
     if (fvars.size() == new_fvars.size()) {
         /* Do nothing, all arguments are used. */
         return comp_decls(cdecl);

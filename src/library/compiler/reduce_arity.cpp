@@ -26,7 +26,7 @@ comp_decls reduce_arity(comp_decl const & cdecl) {
     name_generator ngen;
     local_ctx lctx;
     while (is_lambda(code)) {
-        lean_assert(!has_loose_bvars(code));
+        lean_assert(!has_loose_bvars(binding_domain(code)));
         expr fvar = lctx.mk_local_decl(ngen, binding_name(code), binding_domain(code));
         fvars.push_back(fvar);
         code = binding_body(code);

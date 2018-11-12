@@ -6,11 +6,12 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include "kernel/environment.h"
+#include "library/compiler/util.h"
 
 namespace lean {
 /* Convert expression to Low Level Normal Form (LLNF). This is the last normal form
    before converting to the IR. */
-expr to_llnf(environment const & env, expr const & e, bool unboxed_data = false);
+pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed_data = false);
 
 bool is_llnf_apply(expr const & e);
 bool is_llnf_closure(expr const & e);
@@ -22,6 +23,9 @@ bool is_llnf_sproj(expr const & e, unsigned & sz, unsigned & n, unsigned & offse
 bool is_llnf_uproj(expr const & e, unsigned & idx);
 bool is_llnf_sset(expr const & e, unsigned & sz, unsigned & n, unsigned & offset);
 bool is_llnf_uset(expr const & e, unsigned & n);
+bool is_llnf_jmp(expr const & e);
+bool is_llnf_unbox(expr const & e);
+bool is_llnf_box(expr const & e, unsigned & n);
 
 inline bool is_llnf_cnstr(expr const & e) { unsigned d1, d2, d3; return is_llnf_cnstr(e, d1, d2, d3); }
 inline bool is_llnf_reuse(expr const & e) { unsigned d1, d2, d3; return is_llnf_reuse(e, d1, d2, d3); }
@@ -31,6 +35,7 @@ inline bool is_llnf_sproj(expr const & e) { unsigned d1, d2, d3; return is_llnf_
 inline bool is_llnf_uproj(expr const & e) { unsigned d; return is_llnf_uproj(e, d); }
 inline bool is_llnf_sset(expr const & e) { unsigned d1, d2, d3; return is_llnf_sset(e, d1, d2, d3); }
 inline bool is_llnf_uset(expr const & e) { unsigned d; return is_llnf_uset(e, d); }
+inline bool is_llnf_box(expr const & e) { unsigned n; return is_llnf_box(e, n); }
 
 void initialize_llnf();
 void finalize_llnf();

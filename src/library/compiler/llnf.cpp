@@ -29,6 +29,9 @@ static name * g_uset      = nullptr;
 static name * g_proj      = nullptr;
 static name * g_sproj     = nullptr;
 static name * g_uproj     = nullptr;
+static expr * g_jmp       = nullptr;
+static name * g_box       = nullptr;
+static expr * g_unbox     = nullptr;
 
 expr mk_llnf_apply() { return *g_apply; }
 bool is_llnf_apply(expr const & e) { return e == *g_apply; }
@@ -104,6 +107,26 @@ bool is_llnf_sproj(expr const & e, unsigned & sz, unsigned & n, unsigned & offse
 expr mk_llnf_uproj(unsigned idx) { return mk_constant(name(*g_uproj, idx)); }
 bool is_llnf_uproj(expr const & e, unsigned & idx) { return is_llnf_unary_primitive(e, *g_uproj, idx); }
 
+/* The `_jmp` instruction is a "jump" to a join point. */
+expr mk_llnf_jmp() { return *g_jmp; }
+bool is_llnf_jmp(expr const & e) { return e == *g_jmp; }
+
+/* The `_unbox` instruction converts a boxed value (type `_obj`) into an unboxed value (type `uint*` or `usize`).
+   It is only used in let-declarations of the form `x : t := _ubox y`. So, we don't need a parameter in `_unbox` to
+   specify the result type. */
+expr mk_llnf_unbox () { return *g_unbox; }
+bool is_llnf_unbox(expr const & e) { return e == *g_unbox; }
+
+/* The `_box.<n>` instruction converts an unboxed value (type `uint*`) into a boxed value (type `_obj`).
+   The parameter `n` specifies the number of bytes necessary to store the unboxed value.
+   This information could be also retrieved from the type of the variable being boxed, but for simplicity,
+   we store it in the instruction too.
+
+   Remark: we use the instruction `_box.0` to box unboxed values of type `usize` into a boxed value (type `_obj`).
+   We use `0` because the number of bytes necessary to store a `usize` is different in 32 and 64 bit machines. */
+expr mk_llnf_box(unsigned n);
+bool is_llnf_box(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_box, n); }
+
 bool is_llnf_op(expr const & e) {
     return
         is_llnf_closure(e) ||
@@ -115,7 +138,10 @@ bool is_llnf_op(expr const & e) {
         is_llnf_uset(e)    ||
         is_llnf_proj(e)    ||
         is_llnf_sproj(e)   ||
-        is_llnf_uproj(e);
+        is_llnf_uproj(e)   ||
+        is_llnf_jmp(e)     ||
+        is_llnf_box(e)     ||
+        is_llnf_unbox(e);
 }
 
 struct field_info {
@@ -283,7 +309,7 @@ class to_llnf_fn {
         if (is_fvar(fn)) {
             local_decl d = m_lctx.get_local_decl(fn);
             if (is_join_point_name(d.get_user_name())) {
-                return mk_app(fn, args);
+                return mk_app(mk_app(mk_llnf_jmp(), fn), args);
             } else {
                 return mk_app(mk_app(mk_llnf_apply(), fn), args);
             }
@@ -863,8 +889,137 @@ public:
     }
 };
 
-expr to_llnf(environment const & env, expr const & e, bool unboxed) {
-    return to_llnf_fn(env, unboxed)(e);
+/* Extension used to store data the name of the "boxed" version of functions that
+   take unboxed values.
+   TODO(Leo): use the to be implemented new module system. */
+struct boxed_functions_ext : public environment_extension {
+    typedef name_map<name> boxed_map;
+    boxed_map m_boxed_map;
+};
+
+struct boxed_functions_reg {
+    unsigned m_ext_id;
+    boxed_functions_reg() { m_ext_id = environment::register_extension(std::make_shared<boxed_functions_ext>()); }
+};
+
+static boxed_functions_reg * g_ext = nullptr;
+static boxed_functions_ext const & get_extension(environment const & env) {
+    return static_cast<boxed_functions_ext const &>(env.get_extension(g_ext->m_ext_id));
+}
+static environment update(environment const & env, boxed_functions_ext const & ext) {
+    return env.update(g_ext->m_ext_id, std::make_shared<boxed_functions_ext>(ext));
+}
+
+/* Insert explicit boxing/unboxing instructions. */
+class explicit_boxing_fn {
+    environment       m_env;
+    name_generator    m_ngen;
+    local_ctx         m_lctx;
+    buffer<expr>      m_fvars;
+    name              m_x;
+    unsigned          m_next_idx{1};
+    buffer<comp_decl> m_new_decls;
+
+    environment const & env() const { return m_env; }
+
+    name_generator & ngen() { return m_ngen; }
+
+    name next_name() {
+        name r = m_x.append_after(m_next_idx);
+        m_next_idx++;
+        return r;
+    }
+
+    expr mk_let_decl(expr const & type, expr const & e) {
+        expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
+        m_fvars.push_back(fvar);
+        return fvar;
+    }
+
+    expr mk_let(unsigned saved_fvars_size, expr r) {
+        lean_assert(saved_fvars_size <= m_fvars.size());
+        if (saved_fvars_size == m_fvars.size())
+            return r;
+        r = m_lctx.mk_lambda(m_fvars.size() - saved_fvars_size, m_fvars.data() + saved_fvars_size, r);
+        m_fvars.shrink(saved_fvars_size);
+        return r;
+    }
+
+    expr visit_let(expr e) {
+        buffer<expr> fvars;
+        while (is_let(e)) {
+            lean_assert(!has_loose_bvars(let_type(e)));
+            expr new_val = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
+            name n       = let_name(e);
+            if (is_internal_name(n) && !is_join_point_name(n)) {
+                n = next_name();
+            }
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), new_val);
+            fvars.push_back(new_fvar);
+            m_fvars.push_back(new_fvar);
+            e = let_body(e);
+        }
+        return visit(instantiate_rev(e, fvars.size(), fvars.data()));
+    }
+
+    expr visit_lambda(expr e) {
+        buffer<expr> binding_fvars;
+        while (is_lambda(e)) {
+            lean_assert(!has_loose_bvars(binding_domain(e)));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), binding_domain(e), binding_info(e));
+            binding_fvars.push_back(new_fvar);
+            e = binding_body(e);
+        }
+        e = instantiate_rev(e, binding_fvars.size(), binding_fvars.data());
+        unsigned saved_fvars_size = m_fvars.size();
+        expr r = mk_let(saved_fvars_size, visit(e));
+        lean_assert(!is_lambda(r));
+        return m_lctx.mk_lambda(binding_fvars, r);
+    }
+
+    expr visit_app(expr const & e) {
+        // TODO(Leo):
+        return e;
+    }
+
+    expr visit(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::App:    return visit_app(e);
+        case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::Let:    return visit_let(e);
+        default:                return e;
+        }
+    }
+
+public:
+    explicit_boxing_fn(environment const & env):
+        m_env(env), m_x("_x") {}
+
+    pair<environment, comp_decls> operator()(comp_decl const & d) {
+        expr new_v = visit(d.snd());
+        new_v = mk_let(0, new_v);
+        comp_decls new_ds(comp_decl(d.fst(), new_v), comp_decls(m_new_decls));
+        return mk_pair(m_env, new_ds);
+    }
+};
+
+pair<environment, comp_decls> to_llnf(environment const & env, comp_decl const & d, bool unboxed) {
+    comp_decl new_d(d.fst(), to_llnf_fn(env, unboxed)(d.snd()));
+    if (unboxed)
+        return explicit_boxing_fn(env)(new_d);
+    else
+        return mk_pair(env, comp_decls(new_d));
+}
+
+pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {
+    environment new_env = env;
+    comp_decls r;
+    for (comp_decl const & d : ds) {
+        comp_decls new_ds;
+        std::tie(new_env, new_ds) = to_llnf(new_env, d, unboxed);
+        r = append(r, new_ds);
+    }
+    return mk_pair(new_env, r);
 }
 
 void initialize_llnf() {
@@ -878,11 +1033,15 @@ void initialize_llnf() {
     g_proj      = new name("_proj");
     g_sproj     = new name("_sproj");
     g_uproj     = new name("_uproj");
+    g_jmp       = new expr(mk_constant("_jmp"));
+    g_box       = new name("_box");
+    g_unbox     = new expr(mk_constant("_unbox"));
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
     g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
     g_builtin_scalar_size->emplace_back(get_uint32_name(), 4);
     g_builtin_scalar_size->emplace_back(get_uint64_name(), 8);
+    g_ext       = new boxed_functions_reg();
 }
 
 void finalize_llnf() {
@@ -896,5 +1055,9 @@ void finalize_llnf() {
     delete g_sproj;
     delete g_uset;
     delete g_uproj;
+    delete g_jmp;
+    delete g_box;
+    delete g_unbox;
+    delete g_ext;
 }
 }

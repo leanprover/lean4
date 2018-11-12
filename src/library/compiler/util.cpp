@@ -448,9 +448,9 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
 }
 
 void initialize_compiler_util() {
-    g_neutral_expr     = new expr(mk_constant("_neutral_"));
-    g_unreachable_expr = new expr(mk_constant("_unreachable_"));
-    g_object_type      = new expr(mk_constant("_obj_"));
+    g_neutral_expr     = new expr(mk_constant("_neutral"));
+    g_unreachable_expr = new expr(mk_constant("_unreachable"));
+    g_object_type      = new expr(mk_constant("_obj"));
     g_uint8            = new expr(mk_constant(get_uint8_name()));
     g_uint16           = new expr(mk_constant(get_uint16_name()));
     g_uint32           = new expr(mk_constant(get_uint32_name()));

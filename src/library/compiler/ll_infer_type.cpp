@@ -67,8 +67,8 @@ class ll_infer_type_fn {
             }
             expr minor_type = infer(instantiate_rev(minor, fvars.size(), fvars.data()));
             if (minor_type == mk_enf_object_type()) {
-                /* If one of the branches return `_obj_`, then the resultant type is `_obj_`,
-                   and the other branches should box result if it is not `_obj_`. */
+                /* If one of the branches return `_obj`, then the resultant type is `_obj`,
+                   and the other branches should box result if it is not `_obj`. */
                 return minor_type;
             } else if (first) {
                 r = minor_type;

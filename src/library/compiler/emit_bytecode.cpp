@@ -219,15 +219,6 @@ class emit_bytecode_fn {
         emit(mk_reset_instr(n));
     }
 
-    optional<vdecl> is_jp(vdecls const & m, expr const & fn) {
-        if (!is_fvar(fn)) return optional<vdecl>();
-        vdecl const * d = m.find(fvar_name(fn));
-        if (d && d->m_is_jp)
-            return optional<vdecl>(*d);
-        else
-            return optional<vdecl>();
-    }
-
     void compile_app(expr const & e, unsigned bpz, vdecls const & m) {
         expr const & fn = get_app_fn(e);
         if (is_cases_on_app(m_env, fn)) {
@@ -244,13 +235,15 @@ class emit_bytecode_fn {
             compile_apply(e, bpz, m);
         } else if (is_llnf_closure(fn)) {
             compile_closure(e, bpz, m);
-        } else if (is_sorry(e)) {
-            compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
-        } else if (optional<vdecl> d = is_jp(m, fn)) {
+        } else if (is_llnf_jmp(fn)) {
             buffer<expr> args;
             get_app_args(e, args);
-            compile_rev_args(args.size(), args.data(), bpz, m);
-            emit(mk_invoke_jp_instr(d->m_pc, d->m_idx, args.size()));
+            vdecl const * d = m.find(fvar_name(args[0]));
+            lean_assert(d && d->m_is_jp);
+            compile_rev_args(args.size() - 1, args.data() + 1, bpz, m);
+            emit(mk_invoke_jp_instr(d->m_pc, d->m_idx, args.size() - 1));
+        } else if (is_sorry(e)) {
+            compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
         } else {
             buffer<expr> args;
             get_app_args(e, args);

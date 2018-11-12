@@ -22,7 +22,8 @@ structure expander_config :=
 def transform_m := reader_t expander_config $ except_t message id
 abbreviation transformer := syntax → transform_m syntax
 
-def error {α : Type} (context : syntax) (text : string) : transform_m α :=
+def error {m : Type → Type} [monad m] [monad_reader expander_config m] [monad_except message m] {α : Type}
+  (context : syntax) (text : string) : m α :=
 do cfg ← read,
    -- TODO(Sebastian): convert position
    throw {filename := cfg.filename, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
@@ -116,11 +117,36 @@ def transformers : rbmap name transformer (<) := rbmap.from_list [
   (reserve_mixfix.name, reserve_mixfix.transform)
 ] _
 
+structure expander_state :=
+(next_scope : macro_scope)
+
+@[reducible] def expander_m := state_t expander_state $ reader_t expander_config $ except_t message id
+
+section
+local attribute [reducible] macro_scope
+def expander_state.new : expander_state := ⟨0⟩
+def mk_scope : expander_m macro_scope :=
+do st ← get,
+   put {st with next_scope := st.next_scope + 1},
+   pure st.next_scope
+end
+
+private def expand_core : nat → syntax → expander_m syntax
+| 0 stx := error stx "macro expansion limit exceeded"
+| (fuel + 1) stx :=
+do some n ← pure stx.as_node | pure stx,
+   cfg ← read,
+   some t ← pure $ transformers.find n.kind.name
+     | syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel),
+   sc ← mk_scope,
+   let n' := syntax.mk_node n.kind $ n.args.map (syntax.flip_scopes [sc]),
+   stx' ← state_t.lift $ t n',
+   -- expand recursively
+   expand_core fuel $ stx'.flip_scopes [sc]
+
 def expand (stx : syntax) : reader_t expander_config (except message) syntax :=
---TODO(Sebastian): recursion, hygiene
-do syntax.raw_node n ← pure stx | pure stx,
-   some t ← pure $ transformers.find n.kind.name | pure stx,
-   t stx
+-- TODO(Sebastian): persist macro scopes across commands/files
+prod.fst <$> expand_core 1000 stx expander_state.new
 
 end expander
 end lean

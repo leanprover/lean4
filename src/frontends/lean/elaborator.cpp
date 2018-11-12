@@ -2647,6 +2647,9 @@ expr elaborator::visit_equations(expr const & e) {
     }
     new_e = instantiate_mvars(new_e);
     ensure_no_unassigned_metavars(new_e);
+    if (has_sorry(new_e))
+        // aborting here prevents many additional errors
+        throw elaborator_exception(e, "[abort visit_equation]").ignore_if(true);
     metavar_context mctx = m_ctx.mctx();
     expr r = compile_equations(m_env, *this, mctx, m_ctx.lctx(), new_e);
     m_ctx.set_env(m_env);

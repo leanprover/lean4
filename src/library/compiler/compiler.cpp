@@ -58,14 +58,6 @@ comp_decls apply(F && f, comp_decls const & ds) {
     return map(ds, [&](comp_decl const & d) { return comp_decl(d.fst(), f(d.snd())); });
 }
 
-static comp_decls lambda_lifting(environment const & env, comp_decls const & ds) {
-    comp_decls r;
-    for (comp_decl const & d : ds) {
-        r = append(r, lambda_lifting(env, d));
-    }
-    return r;
-}
-
 static void trace(comp_decls const & ds) {
     for (comp_decl const & d : ds) {
         tout() << ">> " << d.fst() << "\n" << d.snd() << "\n";
@@ -138,7 +130,7 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "cse"}), ds);
     ds = reduce_arity(ds);
     trace_compiler(name({"compiler", "reduce_arity"}), ds);
-    ds = lambda_lifting(new_env, ds);
+    std::tie(new_env, ds) = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);

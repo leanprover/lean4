@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/trace.h"
 #include "library/compiler/util.h"
+#include "library/compiler/closed_term_cache.h"
 
 namespace lean {
 class lambda_lifting_fn {
@@ -171,8 +172,14 @@ class lambda_lifting_fn {
         buffer<expr> fvars; buffer<expr> jps;
         collect_fvars(e, fvars, jps);
         e = mk_lambda(fvars, jps, e);
-        name new_fn = next_name();
-        m_new_decls.push_back(comp_decl(new_fn, e));
+        name new_fn;
+        if (optional<name> opt_new_fn = get_closed_term_name(m_env, e)) {
+            new_fn = *opt_new_fn;
+        } else {
+            new_fn = next_name();
+            m_new_decls.push_back(comp_decl(new_fn, e));
+            m_env = cache_closed_term_name(m_env, e, new_fn);
+        }
         return mk_app(mk_constant(new_fn), fvars);
     }
 
@@ -189,15 +196,25 @@ public:
     lambda_lifting_fn(environment const & env):
         m_env(env) {}
 
-    comp_decls operator()(comp_decl const & cdecl) {
+    pair<environment, comp_decls> operator()(comp_decl const & cdecl) {
         m_base_name = cdecl.fst();
         expr r = visit(cdecl.snd(), true);
         comp_decl new_cdecl(cdecl.fst(), r);
-        return comp_decls(new_cdecl, comp_decls(m_new_decls));
+        return mk_pair(m_env, comp_decls(new_cdecl, comp_decls(m_new_decls)));
     }
 };
 
-comp_decls lambda_lifting(environment const & env, comp_decl const & cdecl) {
-    return lambda_lifting_fn(env)(cdecl);
+pair<environment, comp_decls> lambda_lifting(environment const & env, comp_decl const & d) {
+    return lambda_lifting_fn(env)(d);
+}
+
+pair<environment, comp_decls> lambda_lifting(environment env, comp_decls const & ds) {
+    comp_decls r;
+    for (comp_decl const & d : ds) {
+        comp_decls new_ds;
+        std::tie(env, new_ds) = lambda_lifting(env, d);
+        r = append(r, new_ds);
+    }
+    return mk_pair(env, r);
 }
 }

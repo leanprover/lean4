@@ -1238,7 +1238,6 @@ class explicit_boxing_fn {
         lean_assert(is_constant(f));
         name const & fn = const_name(f);
         if (is_cases_on_recursor(env(), fn)) {
-            lean_assert(!is_let_val);
             return visit_cases(f, args);
         } else if (is_llnf_closure(f)) {
             return visit_closure(f, args);

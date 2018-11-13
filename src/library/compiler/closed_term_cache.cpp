@@ -56,7 +56,7 @@ struct ct_cache_modification : public modification {
 };
 
 optional<name> get_closed_term_name(environment const & env, expr const & e) {
-    lean_assert(!has_fvars(e));
+    lean_assert(!has_fvar(e));
     lean_assert(!has_loose_bvars(e));
     closed_term_ext const & ext = get_extension(env);
     if (name const * c = ext.m_cache.find(e)) {

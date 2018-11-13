@@ -124,7 +124,7 @@ bool is_llnf_unbox(expr const & e) { return e == *g_unbox; }
 
    Remark: we use the instruction `_box.0` to box unboxed values of type `usize` into a boxed value (type `_obj`).
    We use `0` because the number of bytes necessary to store a `usize` is different in 32 and 64 bit machines. */
-expr mk_llnf_box(unsigned n);
+expr mk_llnf_box(unsigned n) { return mk_constant(name(*g_box, n)); }
 bool is_llnf_box(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_box, n); }
 
 bool is_llnf_op(expr const & e) {
@@ -184,7 +184,12 @@ struct cnstr_info {
     }
 };
 
+static expr * g_usize = nullptr;
 std::vector<pair<name, unsigned>> * g_builtin_scalar_size = nullptr;
+
+bool is_usize_type(expr const & e) {
+    return is_constant(e, get_usize_name());
+}
 
 optional<unsigned> is_builtin_scalar(expr const & type) {
     if (!is_constant(type)) return optional<unsigned>();
@@ -247,7 +252,7 @@ class to_llnf_fn {
             } else if (m_unboxed) {
                 type_checker tc(m_st, lctx);
                 ftype = tc.whnf(ftype);
-                if (is_constant(ftype, get_usize_name())) {
+                if (is_usize_type(ftype)) {
                     result.push_back(field_info::mk_usize(next_usize));
                     next_usize++;
                 } else if (optional<unsigned> sz = is_builtin_scalar(ftype)) {
@@ -912,17 +917,55 @@ static environment update(environment const & env, boxed_functions_ext const & e
 
 /* Insert explicit boxing/unboxing instructions. */
 class explicit_boxing_fn {
-    environment       m_env;
-    name_generator    m_ngen;
-    local_ctx         m_lctx;
-    buffer<expr>      m_fvars;
-    name              m_x;
-    unsigned          m_next_idx{1};
-    buffer<comp_decl> m_new_decls;
+    environment         m_env;
+    boxed_functions_ext m_ext;
+    name_generator      m_ngen;
+    local_ctx           m_lctx;
+    buffer<expr>        m_fvars;
+    name                m_x;
+    unsigned            m_next_idx{1};
+    buffer<comp_decl>   m_new_decls;
+    expr                m_result_type;
+    optional<unsigned>  m_result_type_size;
 
     environment const & env() const { return m_env; }
 
     name_generator & ngen() { return m_ngen; }
+
+    /* usize     => some 0
+       uint8     => some 1
+       uint16    => some 2
+       uint32    => some 4
+       uint64    => some 8
+       otherwise => none */
+    optional<unsigned> get_type_size(expr const & type) {
+        if (is_usize_type(type)) {
+            /* Recall that we use 0 to denote the size of type `usize`.
+               See comment at `mk_llnf_box` above. */
+            return optional<unsigned>(0);
+        } else if (optional<unsigned> r = is_builtin_scalar(type)) {
+            return r;
+        } else {
+            lean_assert(m_result_type == mk_enf_object_type() ||
+                        m_result_type == mk_enf_neutral_type());
+            return optional<unsigned>();
+        }
+    }
+
+    expr get_constant_type(name const & c) {
+        // TODO(Leo): add support for builtin. We need to add a builtin management module
+        return env().get(mk_cstage2_name(c)).get_type();
+    }
+
+    /* Initialize `m_result_type` and `m_result_type` */
+    void init_result_type(name const & d_name) {
+        expr type = get_constant_type(d_name);
+        while (is_pi(type))
+            type = binding_body(type);
+        lean_assert(is_constant(type));
+        m_result_type      = type;
+        m_result_type_size = get_type_size(type);
+    }
 
     name next_name() {
         name r = m_x.append_after(m_next_idx);
@@ -945,21 +988,35 @@ class explicit_boxing_fn {
         return r;
     }
 
+    expr infer_jp_type(expr v) {
+        if (is_lambda(v)) {
+            return mk_arrow(binding_domain(v), infer_jp_type(binding_body(v)));
+        } else {
+            return m_result_type;
+        }
+    }
+
     expr visit_let(expr e) {
         buffer<expr> fvars;
         while (is_let(e)) {
             lean_assert(!has_loose_bvars(let_type(e)));
-            expr new_val = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
+            expr type    = let_type(e);
+            expr val     = instantiate_rev(let_value(e), fvars.size(), fvars.data());
             name n       = let_name(e);
-            if (is_internal_name(n) && !is_join_point_name(n)) {
-                n = next_name();
+            if (is_internal_name(n)) {
+                if (is_join_point_name(n)) {
+                    type = infer_jp_type(type);
+                } else {
+                    n    = next_name();
+                }
             }
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), new_val);
+            val = visit(val, type);
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, type, val);
             fvars.push_back(new_fvar);
             m_fvars.push_back(new_fvar);
             e = let_body(e);
         }
-        return visit(instantiate_rev(e, fvars.size(), fvars.data()));
+        return visit(instantiate_rev(e, fvars.size(), fvars.data()), m_result_type);
     }
 
     expr visit_lambda(expr e) {
@@ -972,19 +1029,249 @@ class explicit_boxing_fn {
         }
         e = instantiate_rev(e, binding_fvars.size(), binding_fvars.data());
         unsigned saved_fvars_size = m_fvars.size();
-        expr r = mk_let(saved_fvars_size, visit(e));
+        expr r = mk_let(saved_fvars_size, visit(e, m_result_type));
         lean_assert(!is_lambda(r));
         return m_lctx.mk_lambda(binding_fvars, r);
     }
 
-    expr visit_app(expr const & e) {
-        // TODO(Leo):
-        return e;
+    expr get_arg_type(expr const & e) {
+        lean_assert(is_fvar(e));
+        return m_lctx.get_local_decl(e).get_type();
     }
 
-    expr visit(expr const & e) {
+    expr unbox_if_needed(expr const & e, unsigned n) {
+        lean_assert(!is_enf_neutral(e));
+        lean_assert(is_fvar(e));
+        expr type = get_arg_type(e);
+        if (is_enf_object_type(type)) {
+            return mk_let_decl(*to_uint_type(n), mk_app(mk_llnf_unbox(), e));
+        } else {
+            return e;
+        }
+    }
+
+    expr box_if_needed(expr const & e) {
+        if (is_enf_neutral(e)) {
+            return e;
+        } else {
+            lean_assert(is_fvar(e));
+            expr type = get_arg_type(e);
+            if (is_enf_object_type(type)) {
+                return e;
+            } else if (is_usize_type(type)) {
+                return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(0), e));
+            } else {
+                optional<unsigned> r = is_builtin_scalar(type);
+                lean_assert(r);
+                return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(*r), e));
+            }
+        }
+    }
+
+    expr visit_cases(expr const & fn, buffer<expr> & args) {
+        lean_assert(is_constant(fn));
+        name const & c = const_name(fn);
+        lean_assert(is_cases_on_recursor(env(), c));
+        name const & I = c.get_prefix();
+        optional<unsigned> r = is_enum_type(env(), I);
+        if (r) {
+            args[0] = unbox_if_needed(args[0], *r);
+        }
+        for (unsigned i = 1; i < args.size(); i++) {
+            unsigned saved_fvars_size = m_fvars.size();
+            args[i] = mk_let(saved_fvars_size, visit(args[i], m_result_type));
+        }
+        return mk_app(fn, args);
+    }
+
+    bool is_unboxed(expr const & type) {
+        return type != mk_enf_object_type() && type != mk_enf_neutral_type();
+    }
+
+    bool has_unboxed(expr const & type) {
+        if (is_pi(type)) {
+            return is_unboxed(binding_domain(type)) || has_unboxed(binding_body(type));
+        } else {
+            return is_unboxed(type);
+        }
+    }
+
+    expr mk_boxed_version(name const & fn) {
+        if (name const * boxed_fn = m_ext.m_boxed_map.find(fn)) {
+            return mk_constant(*boxed_fn);
+        }
+        expr fn_type = get_constant_type(fn);
+        if (!has_unboxed(fn_type)) {
+            m_ext.m_boxed_map.insert(fn, fn);
+            return mk_constant(fn);
+        }
+        local_ctx lctx;
+        buffer<expr> args;
+        buffer<expr> fvars;
+        name y("_y");
+        unsigned idx = 1;
+        while (is_pi(fn_type)) {
+            expr fvar = lctx.mk_local_decl(ngen(), y.append_after(idx), mk_enf_object_type());
+            idx++;
+            fvars.push_back(fvar);
+            args.push_back(cast_if_needed(fvar, mk_enf_object_type(), binding_domain(fn_type)));
+            fn_type = binding_body(fn_type);
+        }
+        name new_fn(fn, "_boxed");
+        expr new_val = mk_app(mk_constant(fn), args);
+        new_val = cast_if_needed(new_val, fn_type, mk_enf_object_type());
+        new_val = lctx.mk_lambda(fvars, new_val);
+        m_new_decls.push_back(comp_decl(new_fn, new_val));
+        expr new_type = lctx.mk_pi(fvars, mk_enf_object_type());
+        m_ext.m_boxed_map.insert(fn, new_fn);
+        m_env = register_stage2_decl(m_env, new_fn, new_type, new_val);
+        return mk_constant(new_fn);
+    }
+
+    expr visit_closure(expr const & fn, buffer<expr> & args) {
+        lean_assert(is_constant(args[0]));
+        args[0] = mk_boxed_version(const_name(args[0]));
+        for (unsigned i = 1; i < args.size(); i++) {
+            args[i] = box_if_needed(args[i]);
+        }
+        return mk_app(fn, args);
+    }
+
+    expr visit_apply(expr const & fn, buffer<expr> & args, expr const & expected_type) {
+        for (unsigned i = 1; i < args.size(); i++) {
+            args[i] = box_if_needed(args[i]);
+        }
+        expr r = mk_app(fn, args);
+        if (expected_type != mk_enf_object_type()) {
+            r = mk_let_decl(mk_enf_object_type(), r);
+            r = mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), r));
+        }
+        return r;
+    }
+
+    void box_args_if_needed(buffer<expr> & args) {
+        for (expr & arg : args) {
+            arg = box_if_needed(arg);
+        }
+    }
+
+    expr visit_cnstr(expr const & fn, buffer<expr> & args, expr const & expected_type) {
+        if (args.size() == 0 && expected_type != mk_enf_object_type()) {
+            unsigned cidx = 0;
+            unsigned n1, n2;
+            is_llnf_cnstr(fn, cidx, n1, n2);
+            expr r = mk_let_decl(expected_type, mk_lit(literal(nat(cidx))));
+            return r;
+        } else {
+            box_args_if_needed(args);
+            return mk_app(fn, args);
+        }
+    }
+
+    expr visit_reuse(expr const & fn, buffer<expr> & args) {
+        box_args_if_needed(args);
+        return mk_app(fn, args);
+    }
+
+    expr cast_if_needed(expr e, expr const & e_type, expr const & expected_type) {
+        if (e_type == expected_type)
+            return e;
+        if (!is_fvar(e))
+            e = mk_let_decl(e_type, e);
+        if (expected_type == mk_enf_object_type()) {
+            return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(*get_type_size(e_type)), e));
+        } else {
+            lean_assert(e_type == mk_enf_object_type());
+            return mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), e));
+        }
+    }
+
+    expr visit_sset(expr const & fn, buffer<expr> & args) {
+        lean_assert(args.size() == 2);
+        unsigned sz = 0;
+        unsigned d1, d2;
+        is_llnf_sset(fn, sz, d1, d2);
+        args[1] = cast_if_needed(args[1], get_arg_type(args[1]), *to_uint_type(sz));
+        return mk_app(fn, args);
+    }
+
+    expr visit_uset(expr const & fn, buffer<expr> & args) {
+        lean_assert(args.size() == 2);
+        args[1] = cast_if_needed(args[1], get_arg_type(args[1]), *g_usize);
+        return mk_app(fn, args);
+    }
+
+    expr visit_jmp(expr const & fn, buffer<expr> & args) {
+        expr jp_type = get_arg_type(args[0]);
+        for (unsigned i = 1; i < args.size(); i++) {
+            lean_assert(is_fvar(args[i]));
+            lean_assert(is_pi(jp_type));
+            expr arg_expected_type = binding_domain(jp_type);
+            expr arg_type          = get_arg_type(args[i]);
+            args[i] = cast_if_needed(args[i], arg_type, arg_expected_type);
+            jp_type = binding_body(jp_type);
+        }
+        return mk_app(fn, args);
+    }
+
+    expr visit_app_default(expr const & fn, buffer<expr> & args, expr const & expected_type) {
+        expr type = get_constant_type(const_name(fn));
+        for (expr & arg : args) {
+            lean_assert(is_pi(type));
+            if (is_fvar(arg)) {
+                expr arg_expected_type = binding_domain(type);
+                expr arg_type          = get_arg_type(arg);
+                arg = cast_if_needed(arg, arg_type, arg_expected_type);
+            } else {
+                lean_assert(is_enf_neutral(arg));
+            }
+            type = binding_body(type);
+        }
+        lean_assert(!is_pi(type));
+        expr r = mk_app(fn, args);
+        return cast_if_needed(r, type, expected_type);
+    }
+
+    expr visit_app(expr const & e, expr const & expected_type) {
+        buffer<expr> args;
+        expr const & f = get_app_args(e, args);
+        lean_assert(is_constant(f));
+        name const & fn = const_name(f);
+        if (is_cases_on_recursor(env(), fn)) {
+            lean_assert(!is_let_val);
+            return visit_cases(f, args);
+        } else if (is_llnf_closure(f)) {
+            return visit_closure(f, args);
+        } else if (is_llnf_apply(f)) {
+            return visit_apply(f, args, expected_type);
+        } else if (is_llnf_cnstr(f)) {
+            return visit_cnstr(f, args, expected_type);
+        } else if (is_llnf_reuse(f)) {
+            return visit_reuse(f, args);
+        } else if (is_llnf_sset(f)) {
+            return visit_sset(f, args);
+        } else if (is_llnf_uset(f)) {
+            return visit_uset(f, args);
+        } else if (is_llnf_proj(f)) {
+            return e;
+        } else if (is_llnf_sproj(f)) {
+            return e;
+        } else if (is_llnf_uproj(f)) {
+            return e;
+        } else if (is_llnf_jmp(f)) {
+            return visit_jmp(f, args);
+        } else if (is_llnf_box(f)) {
+            lean_unreachable();
+        } else if (is_llnf_unbox(f)) {
+            lean_unreachable();
+        } else {
+            return visit_app_default(f, args, expected_type);
+        }
+    }
+
+    expr visit(expr const & e, expr const & expected_type) {
         switch (e.kind()) {
-        case expr_kind::App:    return visit_app(e);
+        case expr_kind::App:    return visit_app(e, expected_type);
         case expr_kind::Lambda: return visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
         default:                return e;
@@ -993,12 +1280,14 @@ class explicit_boxing_fn {
 
 public:
     explicit_boxing_fn(environment const & env):
-        m_env(env), m_x("_x") {}
+        m_env(env), m_ext(get_extension(env)), m_x("_x") {}
 
     pair<environment, comp_decls> operator()(comp_decl const & d) {
-        expr new_v = visit(d.snd());
+        init_result_type(d.fst());
+        expr new_v = visit(d.snd(), m_result_type);
         new_v = mk_let(0, new_v);
         comp_decls new_ds(comp_decl(d.fst(), new_v), comp_decls(m_new_decls));
+        m_env = update(m_env, m_ext);
         return mk_pair(m_env, new_ds);
     }
 };
@@ -1023,6 +1312,7 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
 }
 
 void initialize_llnf() {
+    g_usize     = new expr(mk_constant(get_usize_name()));
     g_apply     = new expr(mk_constant("_apply"));
     g_closure   = new expr(mk_constant("_closure"));
     g_cnstr     = new name("_cnstr");
@@ -1045,6 +1335,7 @@ void initialize_llnf() {
 }
 
 void finalize_llnf() {
+    delete g_usize;
     delete g_closure;
     delete g_apply;
     delete g_cnstr;

@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/max_sharing.h"
 #include "library/trace.h"
-#include "library/module.h"
 #include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
@@ -78,11 +77,7 @@ static environment cache_stage1(environment env, comp_decls const & ds) {
         name n = d.fst();
         expr v = d.snd();
         constant_info info = env.get(n);
-        /* This a temporary hack to store Stage1 intermediate result.
-           We should not store this information as a declaration. */
-        declaration aux_decl = mk_definition(mk_cstage1_name(n), info.get_lparams(), info.get_type(),
-                                             v, reducibility_hints::mk_opaque(), true);
-        env = module::add(env, aux_decl, false);
+        env = register_stage1_decl(env, n, info.get_lparams(), info.get_type(), v);
     }
     return env;
 }
@@ -93,11 +88,7 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
         expr v = d.snd();
         expr t = ll_infer_type(env, v);
         lean_trace(name({"compiler", "stage2"}), tout() << n << " : " << t << "\n";);
-        /* This a temporary hack to store Stage2 intermediate result.
-           We should not store this information as a declaration. */
-        declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), t,
-                                             v, reducibility_hints::mk_opaque(), true);
-        env = module::add(env, aux_decl, false);
+        env = register_stage2_decl(env, n, t, v);
     }
     return env;
 }

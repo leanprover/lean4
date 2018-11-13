@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"
+#include "library/module.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -445,6 +446,17 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
     } catch (kernel_exception &) {
         return mk_enf_object_type();
     }
+}
+
+environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v) {
+    declaration aux_decl = mk_definition(mk_cstage1_name(n), ls, t, v, reducibility_hints::mk_opaque(), true);
+    return module::add(env, aux_decl, false);
+}
+
+environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v) {
+    declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), t,
+                                         v, reducibility_hints::mk_opaque(), true);
+    return module::add(env, aux_decl, false);
 }
 
 void initialize_compiler_util() {

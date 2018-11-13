@@ -150,6 +150,9 @@ bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & t
 
 void collect_used(expr const & e, std::unordered_set<name, name_hash> & S);
 
+environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v);
+environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v);
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

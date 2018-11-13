@@ -8,62 +8,14 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/expr_maps.h"
 #include "kernel/for_each_fn.h"
-#include "library/module.h"
 #include "library/trace.h"
 #include "library/compiler/util.h"
+#include "library/compiler/closed_term_cache.h"
 #include "library/compiler/reduce_arity.h"
 
 namespace lean {
-/* Cache closed term => global constant.
-   TODO(Leo): use the to be implemented new module system. */
-struct extract_closed_ext : public environment_extension {
-    typedef rb_expr_map<name> cache;
-    cache m_cache;
-};
-
-struct extract_closed_ext_reg {
-    unsigned m_ext_id;
-    extract_closed_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<extract_closed_ext>()); }
-};
-
-static extract_closed_ext_reg * g_ext = nullptr;
-static extract_closed_ext const & get_extension(environment const & env) {
-    return static_cast<extract_closed_ext const &>(env.get_extension(g_ext->m_ext_id));
-}
-static environment update(environment const & env, extract_closed_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<extract_closed_ext>(ext));
-}
-
-/* Support for old module manager.
-   Remark: this code will be deleted in the future */
-struct ec_cache_modification : public modification {
-    LEAN_MODIFICATION("ecc")
-
-    expr      m_expr;
-    name      m_name;
-
-    ec_cache_modification(expr const & e, name const & n): m_expr(e), m_name(n) {}
-
-    void perform(environment & env) const override {
-        extract_closed_ext ext = get_extension(env);
-        ext.m_cache.insert(m_expr, m_name);
-        env = update(env, ext);
-    }
-
-    void serialize(serializer & s) const override {
-        s << m_expr << m_name;
-    }
-
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        expr e; name n;
-        d >> e >> n;
-        return std::make_shared<ec_cache_modification>(e, n);
-    }
-};
-
 class extract_closed_fn {
     environment         m_env;
-    extract_closed_ext  m_ext;
     name_generator      m_ngen;
     local_ctx           m_lctx;
     buffer<comp_decl>   m_new_decls;
@@ -258,13 +210,12 @@ class extract_closed_fn {
         collect_deps(e, fvars);
         e = m_lctx.mk_lambda(fvars, e);
         lean_assert(!has_loose_bvars(e));
-        if (name const * c = m_ext.m_cache.find(e)) {
+        if (optional<name> c = get_closed_term_name(m_env, e)) {
             return mk_constant(*c);
         }
         name c = next_name();
         m_new_decls.push_back(comp_decl(c, e));
-        m_ext.m_cache.insert(e, c);
-        m_env = module::add(env(), std::make_shared<ec_cache_modification>(e, c));
+        m_env = cache_closed_term_name(m_env, e, c);
         return mk_constant(c);
     }
 
@@ -314,7 +265,7 @@ class extract_closed_fn {
 
 public:
     extract_closed_fn(environment const & env):
-        m_env(env), m_ext(get_extension(env)) {
+        m_env(env) {
     }
 
     pair<environment, comp_decls> operator()(comp_decl const & d) {
@@ -330,8 +281,7 @@ public:
         m_base_name = d.fst();
         expr new_v  = visit(v, true);
         comp_decl new_d(d.fst(), new_v);
-        environment new_env = update(env(), m_ext);
-        return mk_pair(new_env, comp_decls(new_d, comp_decls(m_new_decls)));
+        return mk_pair(env(), comp_decls(new_d, comp_decls(m_new_decls)));
     }
 };
 
@@ -347,15 +297,5 @@ pair<environment, comp_decls> extract_closed(environment env, comp_decls const &
         r = append(r, new_ds);
     }
     return mk_pair(env, r);
-}
-
-void initialize_extract_closed() {
-    g_ext = new extract_closed_ext_reg();
-    ec_cache_modification::init();
-}
-
-void finalize_extract_closed() {
-    ec_cache_modification::finalize();
-    delete g_ext;
 }
 }

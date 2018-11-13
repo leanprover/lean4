@@ -9,8 +9,8 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/cse.h"
 #include "library/compiler/specialize.h"
-#include "library/compiler/extract_closed.h"
 #include "library/compiler/llnf.h"
+#include "library/compiler/closed_term_cache.h"
 #include "library/compiler/ir.h"
 #include "library/compiler/compiler.h"
 
@@ -21,7 +21,7 @@ void initialize_compiler_module() {
     initialize_elim_dead_let();
     initialize_cse();
     initialize_specialize();
-    initialize_extract_closed();
+    initialize_closed_term_cache();
     initialize_llnf();
     initialize_ir();
     initialize_compiler();
@@ -31,7 +31,7 @@ void finalize_compiler_module() {
     finalize_compiler();
     finalize_ir();
     finalize_llnf();
-    finalize_extract_closed();
+    finalize_closed_term_cache();
     finalize_specialize();
     finalize_cse();
     finalize_elim_dead_let();

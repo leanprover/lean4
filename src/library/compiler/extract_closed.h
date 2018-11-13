@@ -9,6 +9,4 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 namespace lean {
 pair<environment, comp_decls> extract_closed(environment env, comp_decls const & ds);
-void initialize_extract_closed();
-void finalize_extract_closed();
 }

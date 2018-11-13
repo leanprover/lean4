@@ -1461,6 +1461,10 @@ class csimp_fn {
         expr fn = find(get_app_fn(e));
         if (is_lambda(fn)) {
             return beta_reduce(fn, e, is_let_val);
+        } else if (is_cases_on_app(env(), fn)) {
+            expr new_e = float_cases_on_core(get_app_fn(e), e, fn);
+            mark_simplified(new_e);
+            return new_e;
         } else if (is_lc_unreachable_app(fn)) {
             lean_assert(m_before_erasure);
             expr type = infer_type(e);

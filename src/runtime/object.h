@@ -789,6 +789,10 @@ inline bool nat_eq(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
+inline obj_res nat_dec_eq(b_obj_arg a1, b_obj_arg a2) {
+    return box(nat_eq(a1, a2));
+}
+
 inline bool nat_ne(b_obj_arg a1, b_obj_arg a2) {
     return !nat_eq(a1, a2);
 }
@@ -801,12 +805,20 @@ inline bool nat_le(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
+inline bool nat_dec_le(b_obj_arg a1, b_obj_arg a2) {
+    return box(nat_le(a1, a2));
+}
+
 inline bool nat_lt(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return a1 < a2;
     } else {
         return nat_big_lt(a1, a2);
     }
+}
+
+inline bool nat_dec_lt(b_obj_arg a1, b_obj_arg a2) {
+    return box(nat_lt(a1, a2));
 }
 
 inline obj_res nat_land(b_obj_arg a1, b_obj_arg a2) {

@@ -234,7 +234,7 @@ sorry_ax
 string
 string.decidable_eq
 string.mk
-string.to_list
+string.data
 string.empty
 string.iterator
 string.iterator.mk

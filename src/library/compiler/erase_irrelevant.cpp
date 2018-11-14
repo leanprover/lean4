@@ -184,7 +184,7 @@ class erase_irrelevant_fn {
     expr elim_string_cases(buffer<expr> & args) {
         lean_assert(args.size() == 3);
         expr major     = visit(args[1]);
-        expr x         = mk_simple_decl(mk_app(mk_constant(get_string_to_list_name()), major), mk_list_char());
+        expr x         = mk_simple_decl(mk_app(mk_constant(get_string_data_name()), major), mk_list_char());
         expr minor     = args[2];
         minor = instantiate(binding_body(minor), x);
         return visit(minor);

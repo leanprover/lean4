@@ -13,7 +13,7 @@ import init.data.option.basic
 structure string :=
 (data : list char)
 
-instance : decidable_eq string :=
+instance string.dec_eq : decidable_eq string :=
 {dec_eq := λ ⟨s₁⟩ ⟨s₂⟩,
  if h : s₁ = s₂ then is_true (congr_arg _ h)
  else is_false (λ h', string.no_confusion h' (λ h', absurd h' h))}
@@ -26,7 +26,7 @@ instance : has_lt string :=
 ⟨λ s₁ s₂, s₁.data < s₂.data⟩
 
 /- Remark: this function has a VM builtin efficient implementation. -/
-instance has_decidable_lt (s₁ s₂ : string) : decidable (s₁ < s₂) :=
+instance dec_lt (s₁ s₂ : string) : decidable (s₁ < s₂) :=
 list.has_decidable_lt s₁.data s₂.data
 
 def empty : string :=
@@ -46,11 +46,8 @@ def append : string → string → string
 | ⟨a⟩ ⟨b⟩ := ⟨a ++ b⟩
 
 /- O(n) in the VM, where n is the length of the string -/
-def to_list : string → list char
-| ⟨s⟩ := s
-
-def fold {α} (a : α) (f : α → char → α) (s : string) : α :=
-s.to_list.foldl f a
+def to_list (s : string) : list char :=
+s.data
 
 /- In the VM, the string iterator is implemented as a pointer to the string being iterated + index.
    TODO: mark it opaque. -/

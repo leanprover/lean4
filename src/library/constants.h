@@ -241,7 +241,7 @@ name const & get_sorry_ax_name();
 name const & get_string_name();
 name const & get_string_decidable_eq_name();
 name const & get_string_mk_name();
-name const & get_string_to_list_name();
+name const & get_string_data_name();
 name const & get_string_empty_name();
 name const & get_string_iterator_name();
 name const & get_string_iterator_mk_name();

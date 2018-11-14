@@ -239,7 +239,7 @@ name const * g_sorry_ax = nullptr;
 name const * g_string = nullptr;
 name const * g_string_decidable_eq = nullptr;
 name const * g_string_mk = nullptr;
-name const * g_string_to_list = nullptr;
+name const * g_string_data = nullptr;
 name const * g_string_empty = nullptr;
 name const * g_string_iterator = nullptr;
 name const * g_string_iterator_mk = nullptr;
@@ -525,7 +525,7 @@ void initialize_constants() {
     g_string = new name{"string"};
     g_string_decidable_eq = new name{"string", "decidable_eq"};
     g_string_mk = new name{"string", "mk"};
-    g_string_to_list = new name{"string", "to_list"};
+    g_string_data = new name{"string", "data"};
     g_string_empty = new name{"string", "empty"};
     g_string_iterator = new name{"string", "iterator"};
     g_string_iterator_mk = new name{"string", "iterator", "mk"};
@@ -812,7 +812,7 @@ void finalize_constants() {
     delete g_string;
     delete g_string_decidable_eq;
     delete g_string_mk;
-    delete g_string_to_list;
+    delete g_string_data;
     delete g_string_empty;
     delete g_string_iterator;
     delete g_string_iterator_mk;
@@ -1098,7 +1098,7 @@ name const & get_sorry_ax_name() { return *g_sorry_ax; }
 name const & get_string_name() { return *g_string; }
 name const & get_string_decidable_eq_name() { return *g_string_decidable_eq; }
 name const & get_string_mk_name() { return *g_string_mk; }
-name const & get_string_to_list_name() { return *g_string_to_list; }
+name const & get_string_data_name() { return *g_string_data; }
 name const & get_string_empty_name() { return *g_string_empty; }
 name const & get_string_iterator_name() { return *g_string_iterator; }
 name const & get_string_iterator_mk_name() { return *g_string_iterator_mk; }

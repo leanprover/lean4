@@ -120,18 +120,6 @@ vm_obj string_data(vm_obj const & s) {
     return string_to_list(s);
 }
 
-vm_obj string_fold(vm_obj const &, vm_obj const & a, vm_obj const & f, vm_obj const & s) {
-    vm_string const & vs = to_vm_string(s);
-    vm_obj r    = a;
-    size_t i    = 0;
-    size_t len  = vs.m_value.size();
-    while (i < len) {
-        unsigned c = next_utf8(vs.m_value, i);
-        r          = invoke(f, r, mk_vm_nat(c));
-    }
-    return r;
-}
-
 /* pos is in bytes, and remaining is in characters */
 vm_obj mk_vm_iterator(vm_obj const & s, vm_obj const & pos, vm_obj const & remaining) {
     return mk_vm_constructor(0, s, pos, remaining);
@@ -486,11 +474,6 @@ vm_obj string_iterator_extract(vm_obj const & it1, vm_obj const & it2) {
     return mk_vm_some(to_obj(s1.m_value.substr(pos1, pos2 - pos1), it_remaining(it1) - it_remaining(it2)));
 }
 
-vm_obj string_hash(vm_obj const & s) {
-    std::string const & _s = to_string(s);
-    return mk_vm_nat(hash_str(_s.size(), _s.data(), 13));
-}
-
 void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "mk"}),             string_mk);
     DECLARE_VM_BUILTIN(name({"string", "data"}),           string_data);
@@ -499,13 +482,9 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "empty"}),             string_empty);
     DECLARE_VM_BUILTIN(name({"string", "push"}),              string_push);
     DECLARE_VM_BUILTIN(name({"string", "append"}),            string_append);
-    DECLARE_VM_BUILTIN(name({"string", "to_list"}),           string_to_list);
-    DECLARE_VM_BUILTIN(name({"string", "fold"}),              string_fold);
     DECLARE_VM_BUILTIN(name({"string", "mk_iterator"}),       string_mk_iterator);
-    DECLARE_VM_BUILTIN(name({"string", "decidable_eq"}),      string_has_decidable_eq);
-    // DECLARE_VM_BUILTIN(name({"string", "cmp"}),            string_cmp);
-    DECLARE_VM_BUILTIN(name({"string", "has_decidable_lt"}),  string_has_decidable_lt);
-    DECLARE_VM_BUILTIN(name({"string", "hash"}),              string_hash);
+    DECLARE_VM_BUILTIN(name({"string", "dec_eq"}),            string_has_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"string", "dec_lt"}),            string_has_decidable_lt);
 
     DECLARE_VM_BUILTIN(name({"string", "iterator", "curr"}),           string_iterator_curr);
     DECLARE_VM_BUILTIN(name({"string", "iterator", "set_curr"}),       string_iterator_set_curr);

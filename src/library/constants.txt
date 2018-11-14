@@ -122,7 +122,7 @@ implies_of_if_pos
 int
 int.nat_abs
 int.lt
-int.decidable_lt
+int.dec_lt
 int.of_nat
 int.neg_succ_of_nat
 interactive.param_desc

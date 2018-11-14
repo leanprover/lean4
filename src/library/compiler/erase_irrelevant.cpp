@@ -228,7 +228,7 @@ class erase_irrelevant_fn {
         expr nat_type    = mk_constant(get_nat_name());
         expr izero       = mk_simple_decl(mk_app(mk_constant(get_int_of_nat_name()), zero), int_type);
         expr lt          = mk_app(mk_constant(get_int_lt_name()), major, izero);
-        expr dec_lt      = mk_app(mk_constant(get_int_decidable_lt_name()), major, izero);
+        expr dec_lt      = mk_app(mk_constant(get_int_dec_lt_name()), major, izero);
         expr dec_lt_type = mk_app(mk_constant(get_decidable_name(), {mk_level_one()}), lt);
         expr c           = mk_simple_decl(dec_lt, dec_lt_type);
         expr abs         = mk_app(mk_constant(get_int_nat_abs_name()), major);

@@ -223,10 +223,9 @@ void initialize_vm_int() {
     DECLARE_VM_BUILTIN(name({"int", "neg"}),              int_neg);
     DECLARE_VM_BUILTIN(name({"int", "quot"}),             int_quot);
     DECLARE_VM_BUILTIN(name({"int", "rem"}),              int_rem);
-    DECLARE_VM_BUILTIN(name({"int", "gcd"}),              int_gcd);
-    DECLARE_VM_BUILTIN(name({"int", "decidable_eq"}),     int_decidable_eq);
-    DECLARE_VM_BUILTIN(name({"int", "decidable_le"}),     int_decidable_le);
-    DECLARE_VM_BUILTIN(name({"int", "decidable_lt"}),     int_decidable_lt);
+    DECLARE_VM_BUILTIN(name({"int", "dec_eq"}),           int_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"int", "dec_le"}),           int_decidable_le);
+    DECLARE_VM_BUILTIN(name({"int", "dec_lt"}),           int_decidable_lt);
 }
 
 void finalize_vm_int() {

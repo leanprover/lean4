@@ -129,7 +129,7 @@ name const & get_implies_of_if_pos_name();
 name const & get_int_name();
 name const & get_int_nat_abs_name();
 name const & get_int_lt_name();
-name const & get_int_decidable_lt_name();
+name const & get_int_dec_lt_name();
 name const & get_int_of_nat_name();
 name const & get_int_neg_succ_of_nat_name();
 name const & get_interactive_param_desc_name();

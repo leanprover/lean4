@@ -25,7 +25,7 @@ def int.nat_abs : int → nat
 | (int.of_nat m)          := m
 | (int.neg_succ_of_nat m) := nat.succ m
 
-instance : decidable_eq int :=
+instance dec_eq : decidable_eq int :=
 {dec_eq := λ a b, match a, b with
  | (int.of_nat a), (int.of_nat b) :=
    if h : a = b then is_true (h ▸ rfl)
@@ -154,14 +154,14 @@ protected def lt (a b : int) : Prop := (a + 1) ≤ b
 
 instance : has_lt int := ⟨int.lt⟩
 
-private def decidable_nonneg : Π (a : int), decidable (nonneg a)
+private def dec_nonneg : Π (a : int), decidable (nonneg a)
 | (of_nat m) := show decidable true,  from infer_instance
 | -[1+ m]    := show decidable false, from infer_instance
 
-instance decidable_le (a b : int) : decidable (a ≤ b) :=
-decidable_nonneg _
+instance dec_le (a b : int) : decidable (a ≤ b) :=
+dec_nonneg _
 
-instance decidable_lt (a b : int) : decidable (a < b) :=
-decidable_nonneg _
+instance dec_lt (a b : int) : decidable (a < b) :=
+dec_nonneg _
 
 end int

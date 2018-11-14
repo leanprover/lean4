@@ -31,11 +31,11 @@ protected def le (a b : char) : Prop := a.val ≤ b.val
 instance : has_lt char := ⟨char.lt⟩
 instance : has_le char := ⟨char.le⟩
 
-instance decidable_lt (a b : char) :  decidable (a < b) :=
-nat.decidable_lt _ _
+instance dec_lt (a b : char) :  decidable (a < b) :=
+nat.dec_lt _ _
 
-instance decidable_le (a b : char) : decidable (a ≤ b) :=
-nat.decidable_le _ _
+instance dec_le (a b : char) : decidable (a ≤ b) :=
+nat.dec_le _ _
 
 /-
 We cannot use tactics dec_trivial or comp_val here because the tactic framework has not been defined yet.

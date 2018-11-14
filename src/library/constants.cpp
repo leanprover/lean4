@@ -127,7 +127,7 @@ name const * g_implies_of_if_pos = nullptr;
 name const * g_int = nullptr;
 name const * g_int_nat_abs = nullptr;
 name const * g_int_lt = nullptr;
-name const * g_int_decidable_lt = nullptr;
+name const * g_int_dec_lt = nullptr;
 name const * g_int_of_nat = nullptr;
 name const * g_int_neg_succ_of_nat = nullptr;
 name const * g_interactive_param_desc = nullptr;
@@ -413,7 +413,7 @@ void initialize_constants() {
     g_int = new name{"int"};
     g_int_nat_abs = new name{"int", "nat_abs"};
     g_int_lt = new name{"int", "lt"};
-    g_int_decidable_lt = new name{"int", "decidable_lt"};
+    g_int_dec_lt = new name{"int", "dec_lt"};
     g_int_of_nat = new name{"int", "of_nat"};
     g_int_neg_succ_of_nat = new name{"int", "neg_succ_of_nat"};
     g_interactive_param_desc = new name{"interactive", "param_desc"};
@@ -700,7 +700,7 @@ void finalize_constants() {
     delete g_int;
     delete g_int_nat_abs;
     delete g_int_lt;
-    delete g_int_decidable_lt;
+    delete g_int_dec_lt;
     delete g_int_of_nat;
     delete g_int_neg_succ_of_nat;
     delete g_interactive_param_desc;
@@ -986,7 +986,7 @@ name const & get_implies_of_if_pos_name() { return *g_implies_of_if_pos; }
 name const & get_int_name() { return *g_int; }
 name const & get_int_nat_abs_name() { return *g_int_nat_abs; }
 name const & get_int_lt_name() { return *g_int_lt; }
-name const & get_int_decidable_lt_name() { return *g_int_decidable_lt; }
+name const & get_int_dec_lt_name() { return *g_int_dec_lt; }
 name const & get_int_of_nat_name() { return *g_int_of_nat; }
 name const & get_int_neg_succ_of_nat_name() { return *g_int_neg_succ_of_nat; }
 name const & get_interactive_param_desc_name() { return *g_interactive_param_desc; }

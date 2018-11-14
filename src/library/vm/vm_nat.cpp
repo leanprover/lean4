@@ -163,12 +163,6 @@ vm_obj nat_mod(vm_obj const & a1, vm_obj const & a2) {
     }
 }
 
-vm_obj nat_gcd(vm_obj const & a1, vm_obj const & a2) {
-    mpz r;
-    gcd(r, to_mpz1(a1), to_mpz2(a2));
-    return mk_vm_nat(r);
-}
-
 vm_obj nat_decidable_eq(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         return mk_vm_bool(cidx(a1) == cidx(a2));
@@ -193,33 +187,15 @@ vm_obj nat_decidable_lt(vm_obj const & a1, vm_obj const & a2) {
     }
 }
 
-vm_obj nat_repr(vm_obj const & a) {
-    std::ostringstream out;
-    if (is_simple(a)) {
-        out << cidx(a);
-    } else {
-        out << to_mpz(a);
-    }
-    return to_obj(out.str());
-}
-
-vm_obj mix_hash(vm_obj const & u1, vm_obj const & u2) {
-    return mk_vm_nat(hash(to_unsigned(u1), to_unsigned(u2)));
-}
-
 void initialize_vm_nat() {
-    DECLARE_VM_BUILTIN(name({"nat", "add"}),              nat_add);
-    DECLARE_VM_BUILTIN(name({"nat", "mul"}),              nat_mul);
-    DECLARE_VM_BUILTIN(name({"nat", "sub"}),              nat_sub);
-    DECLARE_VM_BUILTIN(name({"nat", "div"}),              nat_div);
-    DECLARE_VM_BUILTIN(name({"nat", "mod"}),              nat_mod);
-    DECLARE_VM_BUILTIN(name({"nat", "gcd"}),              nat_gcd);
-    DECLARE_VM_BUILTIN(name({"nat", "dec_eq"}),           nat_decidable_eq);
-    DECLARE_VM_BUILTIN(name({"nat", "decidable_le"}),     nat_decidable_le);
-    DECLARE_VM_BUILTIN(name({"nat", "decidable_lt"}),     nat_decidable_lt);
-    DECLARE_VM_BUILTIN(name({"nat", "repr"}),             nat_repr);
-
-    DECLARE_VM_BUILTIN(name("mix_hash"), mix_hash);
+    DECLARE_VM_BUILTIN(name({"nat", "add"}),        nat_add);
+    DECLARE_VM_BUILTIN(name({"nat", "mul"}),        nat_mul);
+    DECLARE_VM_BUILTIN(name({"nat", "sub"}),        nat_sub);
+    DECLARE_VM_BUILTIN(name({"nat", "div"}),        nat_div);
+    DECLARE_VM_BUILTIN(name({"nat", "mod"}),        nat_mod);
+    DECLARE_VM_BUILTIN(name({"nat", "dec_eq"}),     nat_decidable_eq);
+    DECLARE_VM_BUILTIN(name({"nat", "dec_le"}),     nat_decidable_le);
+    DECLARE_VM_BUILTIN(name({"nat", "dec_lt"}),     nat_decidable_lt);
 }
 
 void finalize_vm_nat() {

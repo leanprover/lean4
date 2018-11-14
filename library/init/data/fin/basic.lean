@@ -21,11 +21,11 @@ a.val ≤ b.val
 instance {n} : has_lt (fin n)  := ⟨fin.lt⟩
 instance {n} : has_le (fin n)  := ⟨fin.le⟩
 
-instance decidable_lt {n} (a b : fin n) :  decidable (a < b) :=
-nat.decidable_lt _ _
+instance dec_lt {n} (a b : fin n) :  decidable (a < b) :=
+nat.dec_lt _ _
 
-instance decidable_le {n} (a b : fin n) : decidable (a ≤ b) :=
-nat.decidable_le _ _
+instance dec_le {n} (a b : fin n) : decidable (a ≤ b) :=
+nat.dec_le _ _
 
 def {u} elim0 {α : Sort u} : fin 0 → α
 | ⟨_, h⟩ := absurd h (not_lt_zero _)

@@ -33,8 +33,6 @@ abbreviation eio := except_t io.error io
 
 namespace io
 
-constant cmdline_args : io (list string)
-
 inductive fs.mode
 | read | write | read_write | append
 constant fs.handle : Type
@@ -72,8 +70,8 @@ constant handle.is_eof : handle → eio bool
 constant handle.flush : handle → eio unit
 constant handle.close : handle → eio unit
 -- TODO: replace `string` with byte buffer
---constant handle.read : handle → nat → eio string
-constant handle.write : handle → string → eio unit
+-- constant handle.read : handle → nat → eio string
+-- constant handle.write : handle → string → eio unit
 constant handle.get_line : handle → eio string
 
 def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
@@ -102,8 +100,8 @@ def handle.mk (s : string) (mode : mode) (bin : bool := ff) : m handle := prim.l
 def handle.is_eof : handle → m bool := prim.lift_eio ∘ prim.handle.is_eof
 def handle.flush : handle → m unit := prim.lift_eio ∘ prim.handle.flush
 def handle.close : handle → m unit := prim.lift_eio ∘ prim.handle.flush
---def handle.read (h : handle) (bytes : nat) : m string := prim.lift_eio (prim.handle.read h bytes)
-def handle.write (h : handle) (s : string) : m unit := prim.lift_eio (prim.handle.write h s)
+-- def handle.read (h : handle) (bytes : nat) : m string := prim.lift_eio (prim.handle.read h bytes)
+-- def handle.write (h : handle) (s : string) : m unit := prim.lift_eio (prim.handle.write h s)
 def handle.get_line : handle → m string := prim.lift_eio ∘ prim.handle.get_line
 
 /-
@@ -113,14 +111,14 @@ do b ← h.read 1,
    else pure b.mk_iterator.curr
 -/
 
-def handle.put_char (h : handle) (c : char) : m unit :=
-h.write (to_string c)
+-- def handle.put_char (h : handle) (c : char) : m unit :=
+-- h.write (to_string c)
 
-def handle.put_str (h : handle) (s : string) : m unit :=
-h.write s
+-- def handle.put_str (h : handle) (s : string) : m unit :=
+-- h.write s
 
-def handle.put_str_ln (h : handle) (s : string) : m unit :=
-h.put_str s *> h.put_str "\n"
+-- def handle.put_str_ln (h : handle) (s : string) : m unit :=
+-- h.put_str s *> h.put_str "\n"
 
 def handle.read_to_end (h : handle) : m string :=
 prim.lift_eio $ prim.iterate_eio "" $ λ r, do
@@ -138,16 +136,16 @@ do h ← handle.mk fname mode.read bin,
    h.close,
    pure r
 
-def write_file (fname : string) (data : string) (bin := ff) : m unit :=
-do h ← handle.mk fname mode.write bin,
-   h.write data,
-   h.close
+-- def write_file (fname : string) (data : string) (bin := ff) : m unit :=
+-- do h ← handle.mk fname mode.write bin,
+--   h.write data,
+--   h.close
 
 end fs
 
-constant stdin : io fs.handle
-constant stderr : io fs.handle
-constant stdout : io fs.handle
+-- constant stdin : io fs.handle
+-- constant stderr : io fs.handle
+-- constant stdout : io fs.handle
 
 /-
 namespace proc

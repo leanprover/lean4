@@ -32,8 +32,6 @@ optional<vm_obj> is_ioe_error(vm_obj const & o);
 /* Convert an io.error object into a string */
 std::string io_error_to_string(vm_obj const & o);
 
-void set_io_cmdline_args(std::vector<std::string> const & args);
-
 void initialize_vm_io();
 void finalize_vm_io();
 }

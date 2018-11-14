@@ -433,9 +433,11 @@ class specialize_fn {
         }
     }
 
-    void get_bool_mask(name const & fn, buffer<bool> & mask) {
+    void get_bool_mask(name const & fn, unsigned args_size, buffer<bool> & mask) {
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(fn, kinds);
+        if (kinds.size() > args_size)
+            kinds.shrink(args_size);
         to_bool_mask(kinds, has_specialize_attribute(env(), fn), mask);
     }
 
@@ -541,7 +543,7 @@ class specialize_fn {
         get_arg_kinds(const_name(fn), kinds);
         bool has_attr   = has_specialize_attribute(env(), const_name(fn));
         name_set collected;
-        unsigned sz     = kinds.size();
+        unsigned sz     = std::min(kinds.size(), args.size());
         unsigned i      = sz;
         bool found_inst = false;
         while (i > 0) {
@@ -600,7 +602,7 @@ class specialize_fn {
                 buffer<expr> args;
                 get_app_args(e, args);
                 buffer<bool> bmask;
-                get_bool_mask(const_name(fn), bmask);
+                get_bool_mask(const_name(fn), args.size(), bmask);
                 lean_assert(bmask.size() <= args.size());
                 buffer<optional<expr>> new_mask;
                 bool found = false;
@@ -851,7 +853,7 @@ class specialize_fn {
             return none_expr();
         specialize_init_deps(fn, args, ctx);
         buffer<bool> bmask;
-        get_bool_mask(const_name(fn), bmask);
+        get_bool_mask(const_name(fn), args.size(), bmask);
         buffer<optional<expr>> mask;
         buffer<expr> fvars;
         buffer<expr> fvar_vals;

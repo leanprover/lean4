@@ -278,19 +278,6 @@ static vm_obj io_process_wait(vm_obj const & ch, vm_obj const &) {
 }
 */
 
-/* (iterate  : Π (α β : Type), α → (α → io (sum α β)) → io β) */
-static vm_obj io_iterate(vm_obj const &, vm_obj const &, vm_obj const & a, vm_obj const & fn, vm_obj const &) {
-    vm_obj r = a;
-    while (true) {
-        vm_obj sum = cfield(invoke(fn, r, REAL_WORLD), 0);
-        if (cidx(sum) == 1) {
-            return mk_io_result(cfield(sum, 0));
-        } else {
-            r = cfield(sum, 0);
-        }
-    }
-}
-
 /*
 static vm_obj io_get_env(vm_obj const & k, vm_obj const &) {
     if (auto v = getenv(to_string(k).c_str())) {
@@ -390,7 +377,6 @@ vm_obj io_rand(vm_obj const & lo, vm_obj const & hi, vm_obj const &) {
 void initialize_vm_io() {
     DECLARE_VM_BUILTIN(name({"io", "prim", "put_str"}), io_put_str);
     DECLARE_VM_BUILTIN(name({"io", "prim", "get_line"}), io_get_line);
-    DECLARE_VM_BUILTIN(name({"io", "prim", "iterate"}), io_iterate);
     DECLARE_VM_BUILTIN(name({"io", "prim", "handle", "mk"}), fs_mk_file_handle);
     DECLARE_VM_BUILTIN(name({"io", "prim", "handle", "is_eof"}), fs_is_eof);
     DECLARE_VM_BUILTIN(name({"io", "prim", "handle", "flush"}), fs_flush);

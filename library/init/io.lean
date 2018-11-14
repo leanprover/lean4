@@ -42,9 +42,22 @@ constant fs.handle : Type
 namespace prim
 open fs
 
-constant iterate {α β : Type} : α → (α → io (sum α β)) → io β
+/- TODO(Leo): mark as an opaque primitive.
+   This function does not necessarily terminate, and is not marked as `meta`.
+   We ensure that the resulting system is sound by marking it as an "opaque primitive".
+   Thus, users cannot "view" its implementation. It is essentially an opaque
+   constant that is useful for writing programs in Lean.
+   In previous versions, `iterate` was indeed a `constant` instead of a definition.
+   We changed it because the Lean compiler could not specialize `iterate` applications
+   since there was no code to be specialized. -/
+@[specialize] def iterate {α β : Type} : α → (α → io (sum α β)) → io β
+| a f :=
+  do v ← f a,
+  match v with
+  | sum.inl a' := iterate a' f
+  | sum.inr b  := pure b
 
-def iterate_eio {ε α β : Type} (a : α) (f : α → except_t ε io (sum α β)) : except_t ε io β :=
+@[specialize] def iterate_eio {ε α β : Type} (a : α) (f : α → except_t ε io (sum α β)) : except_t ε io β :=
 iterate a $ λ r, do
   r ← (f r).run,
   match r with

@@ -547,6 +547,7 @@ class to_llnf_fn {
             r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_num_usizes, k_info.m_scalar_sz), r), obj_args);
             unsigned uidx   = 0;
             unsigned offset = 0;
+            j = nparams;
             for (field_info const & info : k_info.m_field_info) {
                 switch (info.m_kind) {
                 case field_info::Scalar:
@@ -564,6 +565,7 @@ class to_llnf_fn {
                 default:
                     break;
                 }
+                j++;
             }
             m_replaced = true;
             return r;

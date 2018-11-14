@@ -55,7 +55,6 @@ structure syntax_node (syntax : Type) :=
 (args : list syntax)
 -- Lazily propagated scopes. Scopes are pushed inwards when a node is destructed via `syntax.as_node`,
 -- until an `ident` node or an atom (in which the scopes vanish) is reached
--- TODO(Sebastian): make sure scopes are not pushed inside of an `ident` node
 (scopes : list macro_scope := [])
 
 inductive syntax
@@ -85,11 +84,17 @@ syntax.raw_node { kind := kind, args := args }
 
 /-- Match against `syntax.raw_node`, propagating lazy macro scopes. -/
 def as_node : syntax → option (syntax_node syntax)
+-- do not push scopes inside of `ident` nodes
+| (syntax.raw_node n@{kind := ⟨`lean.parser.ident⟩, ..}) := some n
 | (syntax.raw_node n) := some {n with args := n.args.map (flip_scopes n.scopes), scopes := []}
 | _                   := none
 
 protected def list (args : list syntax) :=
 mk_node no_kind args
+
+def kind : syntax → option syntax_node_kind
+| (syntax.raw_node n) := some n.kind
+| _                   := none
 
 def is_of_kind (k : syntax_node_kind) : syntax → bool
 | (syntax.raw_node n) := k.name = n.kind.name

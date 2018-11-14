@@ -40,7 +40,7 @@ structure syntax_node_kind :=
 @[pattern] def no_kind : syntax_node_kind := ⟨`lean.parser.no_kind⟩
 
 /-- A hygiene marker introduced by a macro expansion. -/
-@[irreducible, derive decidable_eq has_to_format]
+@[derive decidable_eq has_to_format]
 def macro_scope := nat
 
 /-

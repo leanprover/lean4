@@ -7,6 +7,8 @@ Elaborator for the Lean language: takes commands and produces side effects
 -/
 prelude
 import init.lean.parser.module
+import init.lean.expander
+import init.lean.expr
 
 namespace lean
 namespace elaborator
@@ -61,6 +63,69 @@ do cfg ← read,
    throw {filename := cfg.filename, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
 
 local attribute [instance] name.has_lt_quick
+
+def mangle_ident (id : syntax_ident) : name :=
+id.scopes.foldl name.mk_numeral id.val
+
+def to_level : syntax → elaborator_m level
+| stx := do
+  some k ← pure stx.kind | error stx $ "unexpected atom: " ++ to_string stx,
+  match k with
+  | level.leading := (match view level.leading stx with
+    | level.leading.view.hole _ := pure $ level.mvar "u"  -- TODO(Sebastian): name?
+    | level.leading.view.lit lit := pure $ level.of_nat lit.to_nat
+    | level.leading.view.var id := pure $ level.param $ mangle_ident id
+    | _ := error stx "ill-formed universe level")
+  | _ := error stx $ "unexpected node: " ++ to_string k.name
+
+def to_pexpr : syntax → elaborator_m expr
+| stx := do
+  some k ← pure stx.kind | error stx $ "unexpected atom: " ++ to_string stx,
+  match k with
+  | @ident_univs := (match view ident_univs stx with
+    | {id := id, univs := some univs} := expr.const (mangle_ident id) <$> univs.levels.mmap to_level
+    | {id := id, univs := none}       := pure $ expr.const (mangle_ident id) [])
+  | @app   := let v := view app stx in
+    expr.app <$> to_pexpr v.fn <*> to_pexpr v.arg
+  | @lambda := do
+    ({binders := {leading_ids := [],
+                  remainder := binders_remainder.view.mixed [mixed_binder.view.bracketed bb]},
+      body := body}) ←
+      pure $ view lambda stx | error stx "ill-formed lambda",
+    (bi, bc) ← match bb with
+    | bracketed_binder.view.explicit {content := bc} :=
+      (match bc with
+       | explicit_binder_content.view.other bc := pure (binder_info.default, bc)
+       | _ := error stx "ill-formed lambda")
+    | bracketed_binder.view.implicit {content := bc} :=
+      pure (binder_info.implicit, bc)
+    | bracketed_binder.view.strict_implicit {content := bc} :=
+      pure (binder_info.strict_implicit, bc)
+    | bracketed_binder.view.inst_implicit {content := bc} :=
+      prod.mk binder_info.inst_implicit <$> (match bc.kind with
+        | some @inst_implicit_anonymous_binder :=
+          pure {ids := ["_inst_"], type := some {type := (view inst_implicit_anonymous_binder bc).type}}
+        | some @inst_implicit_named_binder :=
+          let v := view inst_implicit_named_binder bc in
+          pure {ids := [v.id], type := some {type := v.type}}
+        | _ := error stx "ill-formed lambda")
+    /-| bracketed_binder.view.anonymous_constructor {content := bc} :=-/
+    | _ := error stx "ill-formed lambda",
+    {ids := [binder_ident.view.id id], type := some type} ← pure bc | error stx "ill-formed lambda",
+    expr.lam (mangle_ident id) bi <$> to_pexpr type.type <*> to_pexpr body
+  | @sort := (match view sort stx with
+    | sort.view.Sort _ := pure $ expr.sort level.zero
+    | sort.view.Type _ := pure $ expr.sort $ level.succ level.zero)
+  | _ := error stx $ "unexpected node: " ++ to_string k.name
+
+def declaration.elaborate : elaborator :=
+λ stx, do
+  let decl := view «declaration» stx,
+  -- just test `to_pexpr` for now
+  match decl.inner with
+  | declaration.inner.view.def_like {val := decl_val.view.simple val, ..} :=
+    to_pexpr val.body *> pure ()
+  | _ := pure ()
 
 def prec_to_nat : option precedence.view → nat
 | (some prec) := prec.term.to_nat
@@ -284,7 +349,8 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (notation.name, notation.elaborate),
   (reserve_notation.name, reserve_notation.elaborate),
   (section.name, section.elaborate),
-  (namespace.name, namespace.elaborate)
+  (namespace.name, namespace.elaborate),
+  (declaration.name, declaration.elaborate)
 ] _
 
 protected def max_recursion := 100

@@ -502,8 +502,8 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "to_list"}),           string_to_list);
     DECLARE_VM_BUILTIN(name({"string", "fold"}),              string_fold);
     DECLARE_VM_BUILTIN(name({"string", "mk_iterator"}),       string_mk_iterator);
-    DECLARE_VM_BUILTIN(name({"string", "has_decidable_eq"}),  string_has_decidable_eq);
-    // DECLARE_VM_BUILTIN(name({"string", "cmp"}),               string_cmp);
+    DECLARE_VM_BUILTIN(name({"string", "decidable_eq"}),      string_has_decidable_eq);
+    // DECLARE_VM_BUILTIN(name({"string", "cmp"}),            string_cmp);
     DECLARE_VM_BUILTIN(name({"string", "has_decidable_lt"}),  string_has_decidable_lt);
     DECLARE_VM_BUILTIN(name({"string", "hash"}),              string_hash);
 

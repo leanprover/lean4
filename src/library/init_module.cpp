@@ -36,7 +36,6 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/fun_info.h"
 #include "library/pattern_attribute.h"
-#include "library/comp_val.h"
 #include "library/check.h"
 #include "library/parray.h"
 #include "library/profiling.h"
@@ -104,7 +103,6 @@ void initialize_library_module() {
     initialize_abstract_context_cache();
     initialize_type_context();
     initialize_pattern_attribute();
-    initialize_comp_val();
     initialize_check();
     initialize_parray();
     initialize_time_task();
@@ -114,7 +112,6 @@ void finalize_library_module() {
     finalize_time_task();
     finalize_parray();
     finalize_check();
-    finalize_comp_val();
     finalize_pattern_attribute();
     finalize_type_context();
     finalize_abstract_context_cache();

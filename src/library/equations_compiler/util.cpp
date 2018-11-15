@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/string.h"
 #include "library/replace_visitor.h"
 #include "library/aux_definition.h"
-#include "library/comp_val.h"
 #include "library/compiler/compiler.h"
 #include "library/equations_compiler/equations.h"
 #include "library/equations_compiler/util.h"

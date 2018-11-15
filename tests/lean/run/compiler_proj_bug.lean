@@ -4,4 +4,7 @@ structure S :=
 def f (s : S) :=
 s.b - s.a
 
-#eval f {a := 5, b := 30, h := sorry }
+def main :=
+f {a := 5, b := 30, h := sorry }
+
+#eval main

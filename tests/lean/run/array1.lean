@@ -12,8 +12,11 @@ def w : array nat :=
 def f : fin w.sz → nat :=
 array.cases_on w (λ _ f, f)
 
-#eval f ⟨1, sorry⟩
-#eval f ⟨9, sorry⟩
+def main1 := f ⟨1, sorry⟩
+def main2 := f ⟨9, sorry⟩
+
+#eval main1
+#eval main2
 
 #eval (((mk_array 1 1).push 2).push 3).foldl 0 (+)
 

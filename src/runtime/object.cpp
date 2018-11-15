@@ -1198,6 +1198,21 @@ static std::string list_as_string(b_obj_arg lst) {
     return s;
 }
 
+static std::string rev_list_as_string(b_obj_arg lst) {
+    buffer<unsigned> codes;
+    b_obj_arg o = lst;
+    while (!is_scalar(o)) {
+        codes.push_back(unbox(cnstr_get(o, 0)));
+        o  = cnstr_get(o, 1);
+    }
+    std::reverse(codes.begin(), codes.end());
+    std::string s;
+    for (unsigned c : codes) {
+        push_unicode_scalar(s, c);
+    }
+    return s;
+}
+
 static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
     buffer<unsigned> tmp;
     utf8_decode(s, tmp);
@@ -1475,6 +1490,29 @@ obj_res string_iterator_extract(b_obj_arg it1, b_obj_arg it2) {
     object * r = alloc_cnstr(new_sz, new_sz, it_remaining(it1) - it_remaining(it2));
     memcpy(w_string_cstr(r), string_cstr(s1) + pos1, new_sz);
     return mk_option_some(r);
+}
+
+obj_res string_iterator_mk(b_obj_arg l1, b_obj_arg l2) {
+    std::string s1 = rev_list_as_string(l1);
+    std::string s2 = list_as_string(l2);
+    size_t i       = s1.size();
+    std::reverse(s1.begin(), s1.end());
+    s1 += s2;
+    return mk_iterator(mk_string(s1), i, utf8_strlen(s2));
+}
+
+obj_res string_iterator_fst(b_obj_arg it) {
+    object * s = string_iterator_prev_to_string(it);
+    object * r = string_to_list_core(std::string(string_cstr(s), string_size(s)), true /* reverse */);
+    dec_ref(s);
+    return r;
+}
+
+obj_res string_iterator_snd(b_obj_arg it) {
+    object * s = string_iterator_remaining_to_string(it);
+    object * r = string_to_list_core(std::string(string_cstr(s), string_size(s)));
+    dec_ref(s);
+    return r;
 }
 
 // =======================================

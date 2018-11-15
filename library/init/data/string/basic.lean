@@ -29,9 +29,6 @@ instance : has_lt string :=
 instance dec_lt (s₁ s₂ : string) : decidable (s₁ < s₂) :=
 list.has_decidable_lt s₁.data s₂.data
 
-def empty : string :=
-⟨[]⟩
-
 def length : string → nat
 | ⟨s⟩  := s.length
 
@@ -144,7 +141,7 @@ end string
 /- The following definitions do not have builtin support in the VM -/
 
 instance : inhabited string :=
-⟨string.empty⟩
+⟨""⟩
 
 instance : has_sizeof string :=
 ⟨string.length⟩
@@ -171,7 +168,7 @@ def join (l : list string) : string :=
 l.foldl (λ r s, r ++ s) ""
 
 def singleton (c : char) : string :=
-empty.push c
+"".push c
 
 def intercalate (s : string) (ss : list string) : string :=
 (list.intercalate s.to_list (ss.map to_list)).as_string
@@ -243,66 +240,3 @@ private def to_nat_core : string.iterator → nat → nat → nat
 
 def string.to_nat (s : string) : nat :=
 to_nat_core s.mk_iterator s.length 0
-
-namespace string
-
-private lemma nil_ne_append_singleton : ∀ (c : char) (l : list char), [] ≠ l ++ [c]
-| c []     := λ h, list.no_confusion h
-| c (d::l) := λ h, list.no_confusion h
-
-lemma empty_ne_str : ∀ (c : char) (s : string), empty ≠ str s c
-| c ⟨l⟩ :=
-  λ h : string.mk [] = string.mk (l ++ [c]),
-    string.no_confusion h $ λ h, nil_ne_append_singleton _ _ h
-
-lemma str_ne_empty (c : char) (s : string) : str s c ≠ empty :=
-(empty_ne_str c s).symm
-
-private lemma str_ne_str_left_aux : ∀ {c₁ c₂ : char} (l₁ l₂ : list char), c₁ ≠ c₂ → l₁ ++ [c₁] ≠ l₂ ++ [c₂]
-| c₁ c₂ []       [] h₁ h₂ := list.no_confusion h₂ (λ h _, absurd h h₁)
-| c₁ c₂ (d₁::l₁) [] h₁ h₂ :=
-  have d₁ :: (l₁ ++ [c₁]) = [c₂], from h₂,
-  have l₁ ++ [c₁] = [], from list.no_confusion this (λ _ h, h),
-  absurd this.symm (nil_ne_append_singleton _ _)
-| c₁ c₂ [] (d₂::l₂) h₁ h₂ :=
-  have [c₁] = d₂ :: (l₂ ++ [c₂]), from h₂,
-  have []   = l₂ ++ [c₂], from list.no_confusion this (λ _ h, h),
-  absurd this (nil_ne_append_singleton _ _)
-| c₁ c₂ (d₁::l₁) (d₂::l₂) h₁ h₂ :=
-  have d₁ :: (l₁ ++ [c₁]) = d₂ :: (l₂ ++ [c₂]), from h₂,
-  have l₁ ++ [c₁] = l₂ ++ [c₂], from list.no_confusion this (λ _ h, h),
-  absurd this (str_ne_str_left_aux l₁ l₂ h₁)
-
-lemma str_ne_str_left : ∀ {c₁ c₂ : char} (s₁ s₂ : string), c₁ ≠ c₂ → str s₁ c₁ ≠ str s₂ c₂
-| c₁ c₂ (string.mk l₁) (string.mk l₂) h₁ h₂ :=
-  have l₁ ++ [c₁] = l₂ ++ [c₂], from string.no_confusion h₂ id,
-  absurd this (str_ne_str_left_aux l₁ l₂ h₁)
-
-private lemma str_ne_str_right_aux : ∀ (c₁ c₂ : char) {l₁ l₂ : list char}, l₁ ≠ l₂ → l₁ ++ [c₁] ≠ l₂ ++ [c₂]
-| c₁ c₂ []       [] h₁ h₂ := absurd rfl h₁
-| c₁ c₂ (d₁::l₁) [] h₁ h₂ :=
-  have d₁ :: (l₁ ++ [c₁]) = [c₂], from h₂,
-  have l₁ ++ [c₁] = [], from list.no_confusion this (λ _ h, h),
-  absurd this.symm (nil_ne_append_singleton _ _)
-| c₁ c₂ [] (d₂::l₂) h₁ h₂ :=
-  have [c₁] = d₂ :: (l₂ ++ [c₂]), from h₂,
-  have []   = l₂ ++ [c₂], from list.no_confusion this (λ _ h, h),
-  absurd this (nil_ne_append_singleton _ _)
-| c₁ c₂ (d₁::l₁) (d₂::l₂) h₁ h₂ :=
-  have aux₁ : d₁ :: (l₁ ++ [c₁]) = d₂ :: (l₂ ++ [c₂]), from h₂,
-  have d₁ = d₂, from list.no_confusion aux₁ (λ h _, h),
-  have aux₂ : l₁ ≠ l₂, from λ h,
-    have d₁ :: l₁ = d₂ :: l₂, from eq.subst h (eq.subst this rfl),
-    absurd this h₁,
-  have l₁ ++ [c₁] = l₂ ++ [c₂], from list.no_confusion aux₁ (λ _ h, h),
-  absurd this (str_ne_str_right_aux c₁ c₂ aux₂)
-
-lemma str_ne_str_right : ∀ (c₁ c₂ : char) {s₁ s₂ : string}, s₁ ≠ s₂ → str s₁ c₁ ≠ str s₂ c₂
-| c₁ c₂ (string.mk l₁) (string.mk l₂) h₁ h₂ :=
-  have aux : l₁ ≠ l₂, from λ h,
-    have string.mk l₁ = string.mk l₂, from eq.subst h rfl,
-    absurd this h₁,
-  have l₁ ++ [c₁] = l₂ ++ [c₂], from string.no_confusion h₂ id,
-  absurd this (str_ne_str_right_aux c₁ c₂ aux)
-
-end string

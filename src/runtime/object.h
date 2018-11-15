@@ -667,25 +667,6 @@ bool io_has_finished_core(b_obj_arg t);
 b_obj_res io_wait_any_core(b_obj_arg task_list);
 
 // =======================================
-// String
-
-inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
-    return new (alloc_heap_object(string_byte_size(capacity))) string_object(size, capacity, len); // NOLINT
-}
-obj_res mk_string(char const * s);
-obj_res mk_string(std::string const & s);
-inline char const * string_data(b_obj_arg o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
-inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
-inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }
-obj_res string_push(obj_arg s, unsigned c);
-obj_res string_append(obj_arg s1, b_obj_arg s2);
-
-bool string_eq(b_obj_arg s1, b_obj_arg s2);
-inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
-bool string_eq(b_obj_arg s1, char const * s2);
-bool string_lt(b_obj_arg s1, b_obj_arg s2);
-
-// =======================================
 // Natural numbers
 
 inline obj_res mk_nat_obj(mpz const & m) {
@@ -989,4 +970,27 @@ inline bool int_lt(b_obj_arg a1, b_obj_arg a2) {
         return int_big_lt(a1, a2);
     }
 }
+
+// =======================================
+// String
+
+inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
+    return new (alloc_heap_object(string_byte_size(capacity))) string_object(size, capacity, len); // NOLINT
+}
+obj_res mk_string(char const * s);
+obj_res mk_string(std::string const & s);
+inline char const * string_data(b_obj_arg o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
+inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
+inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }
+obj_res string_push(obj_arg s, unsigned c);
+obj_res string_append(obj_arg s1, b_obj_arg s2);
+inline obj_res string_length(b_obj_arg s) {
+    return (sizeof(size_t) == sizeof(unsigned)) ? mk_nat_obj(static_cast<unsigned>(string_len(s))) : mk_nat_obj(static_cast<uint64>(string_len(s)));
+}
+bool string_eq(b_obj_arg s1, b_obj_arg s2);
+inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
+bool string_eq(b_obj_arg s1, char const * s2);
+bool string_lt(b_obj_arg s1, b_obj_arg s2);
+inline obj_res string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return box(string_eq(s1, s2)); }
+inline obj_res string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return box(string_lt(s1, s2)); }
 }

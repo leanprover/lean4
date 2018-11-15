@@ -479,7 +479,6 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "data"}),           string_data);
 
     DECLARE_VM_BUILTIN(name({"string", "length"}),            string_length);
-    DECLARE_VM_BUILTIN(name({"string", "empty"}),             string_empty);
     DECLARE_VM_BUILTIN(name({"string", "push"}),              string_push);
     DECLARE_VM_BUILTIN(name({"string", "append"}),            string_append);
     DECLARE_VM_BUILTIN(name({"string", "mk_iterator"}),       string_mk_iterator);

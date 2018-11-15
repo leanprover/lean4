@@ -133,7 +133,7 @@ node! binders [
     -- we allow mixing like in `a (b : β) c`, but not `a : α (b : β) c : γ`
     mixed: node_choice! mixed_binder {
       bracketed: bracketed_binder.parser,
-      id: ident.parser,
+      id: binder_ident.parser,
     }+,
   }?
 ]

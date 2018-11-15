@@ -4,7 +4,6 @@ structure S :=
 def f (s : S) :=
 s.b - s.a
 
-def main :=
-f {a := 5, b := 30, h := sorry }
+constant magic {p : Prop} : p
 
-#eval main
+#eval f {a := 5, b := 30, h := magic }

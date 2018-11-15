@@ -4,29 +4,31 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/name_map.h"
+#include <unordered_map>
 #include "util/list.h"
 #include "kernel/expr.h"
 #include "library/compiler/util.h"
 
 namespace lean {
-struct builin_decl {
+struct builtin_decl {
     expr              m_type;
     unsigned          m_arity;
     char const *      m_cname;
     bool              m_borrowed_res;
     list<bool>        m_borrowed_args;
-    builin_decl() {}
-    builin_decl(expr const & type, unsigned arity, char const * cname, bool bres, list<bool> const & bargs):
+    builtin_decl() {}
+    builtin_decl(expr const & type, unsigned arity, char const * cname, bool bres, list<bool> const & bargs):
         m_type(type), m_arity(arity), m_cname(cname), m_borrowed_res(bres), m_borrowed_args(bargs) {
     }
 };
 
-static name_map<builin_decl> * g_builtin_decls = nullptr;
+typedef std::unordered_map<name, builtin_decl, name_hash> builtin_map;
+
+static builtin_map * g_builtin_decls = nullptr;
 
 void register_builtin(name const & n, expr const & type, unsigned arity, char const * cname, bool borrowed_res, list<bool> const & borrowed_arg) {
     lean_assert(!g_builtin_decls->contains(n));
-    g_builtin_decls->insert(n, builin_decl(type, arity, cname, borrowed_res, borrowed_arg));
+    g_builtin_decls->insert(mk_pair(n, builtin_decl(type, arity, cname, borrowed_res, borrowed_arg)));
 }
 
 void register_builtin(name const & n, expr const & type, char const * cname, bool borrowed_res, list<bool> const & borrowed_arg) {
@@ -52,7 +54,7 @@ void register_builtin(name const & n, expr const & type, char const * cname) {
 #define V(p) reinterpret_cast<void*>(p)
 
 void initialize_builtin() {
-    g_builtin_decls = new name_map<builin_decl>();
+    g_builtin_decls = new builtin_map();
 
     expr o       = mk_enf_object_type();
     expr u8      = mk_constant(get_uint8_name());

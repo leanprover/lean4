@@ -55,35 +55,70 @@ void register_builtin(name const & n, expr const & type, char const * cname, voi
 void initialize_builtin() {
     g_builtin_decls = new name_map<builin_decl>();
 
-    expr o    = mk_enf_object_type();
-    expr o_o  = mk_arrow(o, o);
-    expr o2_o = mk_arrow(o, o_o);
-    list<bool> b1{true};
-    list<bool> b2{true, true};
+    expr o       = mk_enf_object_type();
+    expr u8      = mk_constant(get_uint8_name());
+    expr u32     = mk_constant(get_uint32_name());
+    expr o_o     = mk_arrow(o, o);
+    expr o_o_o   = mk_arrow(o, o_o);
+    expr o_u32_o = mk_arrow(o, mk_arrow(u32, o));
+    expr o_u8    = mk_arrow(o, u8);
+    list<bool> b{true};
+    list<bool> bb{true, true};
+    list<bool> c{false};
+    list<bool> cc{false, false};
+    list<bool> cb{false, true};
 
     /* nat builtin functions */
-    register_builtin(name({"nat", "add"}), o2_o, "nat_add", V(nat_add), b2);
-    register_builtin(name({"nat", "sub"}), o2_o, "nat_sub", V(nat_sub), b2);
-    register_builtin(name({"nat", "mul"}), o2_o, "nat_mul", V(nat_mul), b2);
-    register_builtin(name({"nat", "div"}), o2_o, "nat_div", V(nat_div), b2);
-    register_builtin(name({"nat", "mod"}), o2_o, "nat_mod", V(nat_mod), b2);
-    register_builtin(name({"nat", "dec_eq"}), o2_o, "nat_dec_eq", V(nat_dec_eq), b2);
-    register_builtin(name({"nat", "dec_lt"}), o2_o, "nat_dec_lt", V(nat_dec_lt), b2);
-    register_builtin(name({"nat", "dec_le"}), o2_o, "nat_dec_le", V(nat_dec_le), b2);
+    register_builtin(name({"nat", "add"}), o_o_o, "nat_add", V(nat_add), bb);
+    register_builtin(name({"nat", "sub"}), o_o_o, "nat_sub", V(nat_sub), bb);
+    register_builtin(name({"nat", "mul"}), o_o_o, "nat_mul", V(nat_mul), bb);
+    register_builtin(name({"nat", "div"}), o_o_o, "nat_div", V(nat_div), bb);
+    register_builtin(name({"nat", "mod"}), o_o_o, "nat_mod", V(nat_mod), bb);
+    register_builtin(name({"nat", "dec_eq"}), o_o_o, "nat_dec_eq", V(nat_dec_eq), bb);
+    register_builtin(name({"nat", "dec_lt"}), o_o_o, "nat_dec_lt", V(nat_dec_lt), bb);
+    register_builtin(name({"nat", "dec_le"}), o_o_o, "nat_dec_le", V(nat_dec_le), bb);
 
     /* int builtin functions */
-    register_builtin(name({"int", "of_nat"}), o_o, "nat2int", V(nat2int), b1);
-    register_builtin(name({"int", "neg_succ_of_nat"}), o_o, "int_neg_succ_of_nat", V(int_neg_succ_of_nat), b1);
-    register_builtin(name({"int", "nat_abs"}), o_o, "nat_abs", V(nat_abs), b1);
-    register_builtin(name({"int", "neg"}), o_o, "int_neg", V(int_neg), b1);
-    register_builtin(name({"int", "add"}), o2_o, "int_add", V(int_add), b2);
-    register_builtin(name({"int", "sub"}), o2_o, "int_sub", V(int_sub), b2);
-    register_builtin(name({"int", "mul"}), o2_o, "int_mul", V(int_mul), b2);
-    register_builtin(name({"int", "quot"}), o2_o, "int_div", V(int_div), b2);
-    register_builtin(name({"int", "rem"}), o2_o, "int_rem", V(int_rem), b2);
-    register_builtin(name({"int", "dec_eq"}), o2_o, "int_dec_eq", V(int_dec_eq), b2);
-    register_builtin(name({"int", "dec_lt"}), o2_o, "int_dec_lt", V(int_dec_lt), b2);
-    register_builtin(name({"int", "dec_le"}), o2_o, "int_dec_le", V(int_dec_le), b2);
+    register_builtin(name({"int", "of_nat"}), o_o, "nat2int", V(nat2int), b);
+    register_builtin(name({"int", "neg_succ_of_nat"}), o_o, "int_neg_succ_of_nat", V(int_neg_succ_of_nat), b);
+    register_builtin(name({"int", "nat_abs"}), o_o, "nat_abs", V(nat_abs), b);
+    register_builtin(name({"int", "neg"}), o_o, "int_neg", V(int_neg), b);
+    register_builtin(name({"int", "add"}), o_o_o, "int_add", V(int_add), bb);
+    register_builtin(name({"int", "sub"}), o_o_o, "int_sub", V(int_sub), bb);
+    register_builtin(name({"int", "mul"}), o_o_o, "int_mul", V(int_mul), bb);
+    register_builtin(name({"int", "quot"}), o_o_o, "int_div", V(int_div), bb);
+    register_builtin(name({"int", "rem"}), o_o_o, "int_rem", V(int_rem), bb);
+    register_builtin(name({"int", "dec_eq"}), o_o_o, "int_dec_eq", V(int_dec_eq), bb);
+    register_builtin(name({"int", "dec_lt"}), o_o_o, "int_dec_lt", V(int_dec_lt), bb);
+    register_builtin(name({"int", "dec_le"}), o_o_o, "int_dec_le", V(int_dec_le), bb);
+
+    /* string builtin functions */
+    register_builtin(name({"string", "mk"}), o_o, "string_mk", V(string_mk), c);
+    register_builtin(name({"string", "data"}), o_o, "string_data", V(string_data), c);
+    register_builtin(name({"string", "length"}), o_o, "string_length", V(string_data), b);
+    register_builtin(name({"string", "push"}), o_u32_o, "string_push", V(string_push), cc);
+    register_builtin(name({"string", "append"}), o_o_o, "string_append", V(string_append), cb);
+    register_builtin(name({"string", "mk_iterator"}), o_o, "string_mk_iterator", V(string_mk_iterator), c);
+    register_builtin(name({"string", "dec_eq"}), o_o_o, "string_dec_eq", V(string_dec_eq), bb);
+    register_builtin(name({"string", "dec_lt"}), o_o_o, "string_dec_lt", V(string_dec_lt), bb);
+    register_builtin(name({"string", "iterator", "curr"}), o_o, "string_iterator_curr", V(string_iterator_curr), b);
+    register_builtin(name({"string", "iterator", "set_curr"}), o_u32_o, "string_iterator_set_curr", V(string_iterator_set_curr), cc);
+    register_builtin(name({"string", "iterator", "next"}), o_o, "string_iterator_next", V(string_iterator_next), c);
+    register_builtin(name({"string", "iterator", "prev"}), o_o, "string_iterator_prev", V(string_iterator_prev), c);
+    register_builtin(name({"string", "iterator", "has_next"}), o_u8, "string_iterator_has_next", V(string_iterator_has_next), b);
+    register_builtin(name({"string", "iterator", "has_prev"}), o_u8, "string_iterator_has_prev", V(string_iterator_has_prev), b);
+    register_builtin(name({"string", "iterator", "insert"}), o_o_o, "string_iterator_insert", V(string_iterator_insert), cb);
+    register_builtin(name({"string", "iterator", "remove"}), o_o_o, "string_iterator_remove", V(string_iterator_remove), cb);
+    register_builtin(name({"string", "iterator", "remaining"}), o_o, "string_iterator_remaining", V(string_iterator_remaining), b);
+    register_builtin(name({"string", "iterator", "offset"}), o_o, "string_iterator_offset", V(string_iterator_offset), b);
+    register_builtin(name({"string", "iterator", "to_string"}), o_o, "string_iterator_to_string", V(string_iterator_to_string), b);
+    register_builtin(name({"string", "iterator", "to_end"}), o_o, "string_iterator_to_end", V(string_iterator_to_end), c);
+    register_builtin(name({"string", "iterator", "remaining_to_string"}), o_o, "string_iterator_remaining_to_string", V(string_iterator_remaining_to_string), b);
+    register_builtin(name({"string", "iterator", "prev_to_string"}), o_o, "string_iterator_prev_to_string", V(string_iterator_prev_to_string), b);
+    register_builtin(name({"string", "iterator", "extract"}), o_o_o, "string_iterator_extract", V(string_iterator_extract), bb);
+    register_builtin(name({"string", "iterator", "mk"}), o_o_o, "string_iterator_mk", V(string_iterator_mk), bb);
+    register_builtin(name({"string", "iterator", "fst"}), o_o, "string_iterator_fst", V(string_iterator_fst), b);
+    register_builtin(name({"string", "iterator", "snd"}), o_o, "string_iterator_snd", V(string_iterator_snd), b);
 }
 
 void finalize_builtin() {

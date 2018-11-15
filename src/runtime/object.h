@@ -1048,7 +1048,7 @@ obj_res string_iterator_prev_to_string(b_obj_arg it);
 obj_res string_iterator_to_string(b_obj_arg it);
 obj_res string_iterator_to_end(obj_arg it);
 obj_res string_iterator_extract(b_obj_arg it1, b_obj_arg it2);
-obj_res string_iterator_mk(obj_arg cs1, obj_arg cs2);
+obj_res string_iterator_mk(b_obj_arg cs1, b_obj_arg cs2);
 obj_res string_iterator_fst(b_obj_arg it);
 obj_res string_iterator_snd(b_obj_arg it);
 

@@ -107,7 +107,7 @@ void tst5() {
     lean_assert(r1 == r2);
     lean_assert(is_thunk(r1));
     object * str = thunk_get(r1);
-    lean_assert(strcmp(string_data(str), "hello world") == 0);
+    lean_assert(strcmp(string_cstr(str), "hello world") == 0);
     USED(r2); USED(str);
 }
 

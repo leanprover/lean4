@@ -17,6 +17,11 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 
 namespace lean {
+typedef unsigned char      uint8;
+typedef unsigned short     uint16;
+typedef unsigned           uint32;
+typedef unsigned long long uint64;
+
 /*
 The primitives implemented in the runtime do not modify the RC of its arguments.
 Callers are responsible for increasing/decreasing the RCs using the `inc`/`dec` operations.
@@ -241,6 +246,7 @@ inline rc_type get_rc(object * o) {
 }
 
 inline bool is_shared(object * o) { return get_rc(o) > 1; }
+inline bool is_exclusive(object * o) { return is_heap_obj(o) && !is_shared(o); }
 
 inline void inc_ref(object * o) {
     if (is_mt_heap_obj(o)) {
@@ -694,6 +700,10 @@ inline obj_res mk_nat_obj(uint64 n) {
     }
 }
 
+inline obj_res nat_of_size_t(size_t n) {
+    return (sizeof(size_t) == sizeof(unsigned)) ? mk_nat_obj(static_cast<unsigned>(n)) : mk_nat_obj(static_cast<uint64>(n));
+}
+
 inline uint64 nat2uint64(b_obj_arg a) {
     lean_assert(is_scalar(a));
     return unbox(a);
@@ -972,6 +982,12 @@ inline bool int_lt(b_obj_arg a1, b_obj_arg a2) {
 }
 
 // =======================================
+// Option
+
+inline obj_res mk_option_none() { return box(0); }
+inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return v; }
+
+// =======================================
 // String
 
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
@@ -979,14 +995,31 @@ inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
 }
 obj_res mk_string(char const * s);
 obj_res mk_string(std::string const & s);
-inline char const * string_data(b_obj_arg o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
+inline char const * string_cstr(b_obj_arg o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
 inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
 inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }
-obj_res string_push(obj_arg s, unsigned c);
+obj_res string_push(obj_arg s, uint32 c);
 obj_res string_append(obj_arg s1, b_obj_arg s2);
-inline obj_res string_length(b_obj_arg s) {
-    return (sizeof(size_t) == sizeof(unsigned)) ? mk_nat_obj(static_cast<unsigned>(string_len(s))) : mk_nat_obj(static_cast<uint64>(string_len(s)));
-}
+inline obj_res string_length(b_obj_arg s) { return nat_of_size_t(string_len(s)); }
+obj_res string_mk(obj_arg cs);
+obj_res string_data(obj_arg s);
+obj_res string_mk_iterator(obj_arg s);
+uint32 string_iterator_curr(b_obj_arg it);
+obj_res string_iterator_set_curr(obj_arg it, uint32 c);
+obj_res string_iterator_next(obj_arg it);
+obj_res string_iterator_prev(obj_arg it);
+uint8 string_iterator_has_next(b_obj_arg it);
+uint8 string_iterator_has_prev(b_obj_arg it);
+obj_res string_iterator_insert(obj_arg it, b_obj_arg s);
+obj_res string_iterator_remove(obj_arg it, b_obj_arg n);
+obj_res string_iterator_remaining(b_obj_arg it);
+obj_res string_iterator_offset(b_obj_arg it);
+obj_res string_iterator_remaining_to_string(b_obj_arg it);
+obj_res string_iterator_prev_to_string(b_obj_arg it);
+obj_res string_iterator_to_string(b_obj_arg it);
+obj_res string_iterator_to_end(obj_arg it);
+obj_res string_iterator_extract(b_obj_arg it1, b_obj_arg it2);
+
 bool string_eq(b_obj_arg s1, b_obj_arg s2);
 inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
 bool string_eq(b_obj_arg s1, char const * s2);

@@ -138,7 +138,7 @@ void serializer::write_string_object(object * o) {
     size_t len = string_len(o);
     write_size_t(sz);
     write_size_t(len);
-    char const * it  = string_data(o);
+    char const * it  = string_cstr(o);
     char const * end = it + sz;
     for (; it != end; ++it)
         m_out.put(*it);
@@ -332,7 +332,7 @@ object * deserializer::read_string_object() {
     size_t sz            = read_size_t();
     size_t len           = read_size_t();
     object * r           = alloc_string(sz, sz, len);
-    unsigned char * it   = const_cast<unsigned char*>(reinterpret_cast<unsigned char const *>(string_data(r)));
+    unsigned char * it   = const_cast<unsigned char*>(reinterpret_cast<unsigned char const *>(string_cstr(r)));
     unsigned char * end  = it + sz;
     for (; it != end; ++it)
         *it = m_in.get();

@@ -23,7 +23,7 @@ public:
     size_t num_bytes() const { return string_size(raw()) - 1; }
     /* The length is the number of unicode scalars. It is <= num_bytes. */
     size_t length() const { return string_len(raw()); }
-    char const * data() const { return string_data(raw()); }
+    char const * data() const { return string_cstr(raw()); }
     std::string to_std_string() const { return std::string(data(), num_bytes()); }
     friend bool operator==(string_ref const & s1, string_ref const & s2) { return string_eq(s1.raw(), s2.raw()); }
     friend bool operator!=(string_ref const & s1, string_ref const & s2) { return string_ne(s1.raw(), s2.raw()); }

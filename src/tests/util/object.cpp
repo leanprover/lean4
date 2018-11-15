@@ -815,6 +815,30 @@ void tst18(unsigned n, unsigned sz) {
     }
 }
 
+void tst19() {
+    object * s1 = mk_string("hello");
+    object * s2 = mk_string("world");
+    inc_ref(s1);
+    object * s4 = string_append(s1, s2);
+    lean_assert(string_eq(s4, "helloworld"));
+    lean_assert(string_eq(s1, "hello"));
+    dec_ref(s4);
+    object * s5 = string_append(s1, s2);
+    lean_assert(string_eq(s5, "helloworld"));
+    object * b  = mk_string("!");
+    object * s6 = string_append(s5, b);
+    lean_assert(string_eq(s6, "helloworld!"));
+    lean_assert(s5 == s6);
+    inc_ref(s6);
+    object * s7 = string_push(s6, '!');
+    lean_assert(string_eq(s6, "helloworld!"));
+    lean_assert(string_eq(s7, "helloworld!!"));
+    object * s8 = string_push(s7, 'a');
+    lean_assert(string_eq(s8, "helloworld!!a"));
+    lean_assert(s7 == s8);
+    dec_ref(s2); dec_ref(s6); dec_ref(b); dec_ref(s8);
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -838,6 +862,7 @@ int main() {
     tst17(400, 30);
     // tst18(4000, 3000);
     tst18(400, 30);
+    tst19();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

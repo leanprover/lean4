@@ -677,8 +677,8 @@ obj_res mk_string(std::string const & s);
 inline char const * string_data(b_obj_arg o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
 inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
 inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }
-obj_res string_push(u_obj_arg s, unsigned c);
-obj_res string_append(u_obj_arg s1, b_obj_arg s2);
+obj_res string_push(obj_arg s, unsigned c);
+obj_res string_append(obj_arg s1, b_obj_arg s2);
 
 bool string_eq(b_obj_arg s1, b_obj_arg s2);
 inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }

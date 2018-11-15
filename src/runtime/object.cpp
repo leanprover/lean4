@@ -420,10 +420,21 @@ object * mk_string(std::string const & s) {
     return r;
 }
 
+static size_t mk_capacity(size_t sz) {
+    return sz*2;
+}
+
 object * string_push(object * s, unsigned c) {
-    lean_assert(!is_heap_obj(s) || !is_shared(s));
-    object * r = string_ensure_capacity(s, 5);
-    size_t sz  = string_size(r);
+    size_t sz  = string_size(s);
+    size_t len = string_len(s);
+    object * r;
+    if (!is_heap_obj(s) || is_shared(s)) {
+        r = alloc_string(sz, mk_capacity(sz+5), len);
+        memcpy(w_string_data(r), string_data(s), sz - 1);
+        dec_ref(s);
+    } else {
+        r = string_ensure_capacity(s, 5);
+    }
     unsigned consumed = push_unicode_scalar(w_string_data(r) + sz - 1, c);
     to_string(r)->m_size   = sz + consumed;
     to_string(r)->m_length++;
@@ -432,17 +443,24 @@ object * string_push(object * s, unsigned c) {
 }
 
 object * string_append(object * s1, object * s2) {
-    lean_assert(!is_heap_obj(s1) || !is_shared(s1));
     lean_assert(s1 != s2);
-    size_t sz1 = string_size(s1);
-    size_t sz2 = string_size(s2);
-    size_t len1 = string_len(s1);
-    size_t len2 = string_len(s2);
-    object * r = string_ensure_capacity(s1, sz2-1);
-    memcpy(w_string_data(r) + sz1 - 1, string_data(s2), sz2 - 1);
+    size_t sz1      = string_size(s1);
+    size_t sz2      = string_size(s2);
+    size_t len1     = string_len(s1);
+    size_t len2     = string_len(s2);
+    size_t new_len  = len1 + len2;
     unsigned new_sz = sz1 + sz2 - 1;
+    object * r;
+    if (!is_heap_obj(s1) || is_shared(s1)) {
+        r = alloc_string(new_sz, mk_capacity(new_sz), new_len);
+        memcpy(w_string_data(r), string_data(s1), sz1 - 1);
+        dec_ref(s1);
+    } else {
+        r = string_ensure_capacity(s1, sz2-1);
+    }
+    memcpy(w_string_data(r) + sz1 - 1, string_data(s2), sz2 - 1);
     to_string(r)->m_size   = new_sz;
-    to_string(r)->m_length = len1 + len2;
+    to_string(r)->m_length = new_len;
     w_string_data(r)[new_sz - 1] = 0;
     return r;
 }

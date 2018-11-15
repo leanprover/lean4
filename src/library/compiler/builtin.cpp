@@ -56,9 +56,12 @@ void initialize_builtin() {
     g_builtin_decls = new name_map<builin_decl>();
 
     expr o    = mk_enf_object_type();
-    expr o2_o = mk_arrow(o, mk_arrow(o, o));
+    expr o_o  = mk_arrow(o, o);
+    expr o2_o = mk_arrow(o, o_o);
+    list<bool> b1{true};
     list<bool> b2{true, true};
 
+    /* nat builtin functions */
     register_builtin(name({"nat", "add"}), o2_o, "nat_add", V(nat_add), b2);
     register_builtin(name({"nat", "sub"}), o2_o, "nat_sub", V(nat_sub), b2);
     register_builtin(name({"nat", "mul"}), o2_o, "nat_mul", V(nat_mul), b2);
@@ -67,6 +70,20 @@ void initialize_builtin() {
     register_builtin(name({"nat", "dec_eq"}), o2_o, "nat_dec_eq", V(nat_dec_eq), b2);
     register_builtin(name({"nat", "dec_lt"}), o2_o, "nat_dec_lt", V(nat_dec_lt), b2);
     register_builtin(name({"nat", "dec_le"}), o2_o, "nat_dec_le", V(nat_dec_le), b2);
+
+    /* int builtin functions */
+    register_builtin(name({"int", "of_nat"}), o_o, "nat2int", V(nat2int), b1);
+    register_builtin(name({"int", "neg_succ_of_nat"}), o_o, "int_neg_succ_of_nat", V(int_neg_succ_of_nat), b1);
+    register_builtin(name({"int", "nat_abs"}), o_o, "nat_abs", V(nat_abs), b1);
+    register_builtin(name({"int", "neg"}), o_o, "int_neg", V(int_neg), b1);
+    register_builtin(name({"int", "add"}), o2_o, "int_add", V(int_add), b2);
+    register_builtin(name({"int", "sub"}), o2_o, "int_sub", V(int_sub), b2);
+    register_builtin(name({"int", "mul"}), o2_o, "int_mul", V(int_mul), b2);
+    register_builtin(name({"int", "quot"}), o2_o, "int_div", V(int_div), b2);
+    register_builtin(name({"int", "rem"}), o2_o, "int_rem", V(int_rem), b2);
+    register_builtin(name({"int", "dec_eq"}), o2_o, "int_dec_eq", V(int_dec_eq), b2);
+    register_builtin(name({"int", "dec_lt"}), o2_o, "int_dec_lt", V(int_dec_lt), b2);
+    register_builtin(name({"int", "dec_le"}), o2_o, "int_dec_le", V(int_dec_le), b2);
 }
 
 void finalize_builtin() {

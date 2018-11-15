@@ -903,6 +903,14 @@ inline obj_res int_neg(b_obj_arg a) {
     }
 }
 
+inline obj_res int_neg_succ_of_nat(b_obj_arg a) {
+    obj_res s  = nat_succ(a);
+    obj_res i  = nat2int(s);
+    obj_res r  = int_neg(i);
+    dec(s); dec(i);
+    return r;
+}
+
 inline obj_res int_add(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         return mk_int_obj(int2int64(a1) + int2int64(a2));
@@ -979,6 +987,27 @@ inline bool int_lt(b_obj_arg a1, b_obj_arg a2) {
     } else {
         return int_big_lt(a1, a2);
     }
+}
+
+inline obj_res nat_abs(b_obj_arg i) {
+    if (int_lt(i, mk_int_obj(0))) {
+        return int_neg(i);
+    } else {
+        inc(i);
+        return i;
+    }
+}
+
+inline obj_res int_dec_eq(b_obj_arg a1, b_obj_arg a2) {
+    return box(int_eq(a1, a2));
+}
+
+inline obj_res int_dec_le(b_obj_arg a1, b_obj_arg a2) {
+    return box(int_le(a1, a2));
+}
+
+inline obj_res int_dec_lt(b_obj_arg a1, b_obj_arg a2) {
+    return box(int_lt(a1, a2));
 }
 
 // =======================================

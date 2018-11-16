@@ -104,6 +104,14 @@ vm_obj int_add(vm_obj const & a1, vm_obj const & a2) {
     }
 }
 
+vm_obj int_sub(vm_obj const & a1, vm_obj const & a2) {
+    if (is_simple(a1) && is_simple(a2)) {
+        return mk_vm_int(to_small_int(a1) - to_small_int(a2));
+    } else {
+        return mk_vm_int(to_mpz1(a1) - to_mpz2(a2));
+    }
+}
+
 vm_obj int_mul(vm_obj const & a1, vm_obj const & a2) {
     if (is_simple(a1) && is_simple(a2)) {
         long long r = static_cast<long long>(to_small_int(a1)) * static_cast<long long>(to_small_int(a2));
@@ -219,6 +227,7 @@ void initialize_vm_int() {
     DECLARE_VM_BUILTIN(name({"int", "nat_abs"}),          int_nat_abs);
     DECLARE_VM_BUILTIN(name({"int", "neg_succ_of_nat"}),  int_neg_succ_of_nat);
     DECLARE_VM_BUILTIN(name({"int", "add"}),              int_add);
+    DECLARE_VM_BUILTIN(name({"int", "sub"}),              int_sub);
     DECLARE_VM_BUILTIN(name({"int", "mul"}),              int_mul);
     DECLARE_VM_BUILTIN(name({"int", "neg"}),              int_neg);
     DECLARE_VM_BUILTIN(name({"int", "quot"}),             int_quot);

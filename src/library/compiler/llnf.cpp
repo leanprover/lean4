@@ -13,10 +13,9 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
 #include "library/util.h"
+#include "library/compiler/builtin.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
-
-#include "library/vm/vm.h" // TODO(Leo): delete after we add the new `builtin` management module
 
 namespace lean {
 static expr * g_apply     = nullptr;
@@ -300,13 +299,9 @@ class to_llnf_fn {
         if (info && info->is_definition()) {
             return get_num_nested_lambdas(info->get_value());
         }
-
-        /* If `_cstage2` declaration is not available, then use the VM decl.
-
-           TODO(Leo): add new builtin management module. */
-        optional<vm_decl> decl = get_vm_decl(env(), n);
-        if (!decl) throw exception(sstream() << "code generation failed, unknown '" << n << "'");
-        return decl->get_arity();
+        optional<unsigned> arity = get_builtin_constant_arity(n);
+        if (!arity) throw exception(sstream() << "code generation failed, unknown '" << n << "'");
+        return *arity;
     }
 
     expr mk_llnf_app(expr const & fn, buffer<expr> const & args) {
@@ -955,8 +950,11 @@ class explicit_boxing_fn {
     }
 
     expr get_constant_type(name const & c) {
-        // TODO(Leo): add support for builtin. We need to add a builtin management module
-        return env().get(mk_cstage2_name(c)).get_type();
+        if (optional<expr> type = get_builtin_constant_ll_type(c)) {
+            return *type;
+        } else {
+            return env().get(mk_cstage2_name(c)).get_type();
+        }
     }
 
     /* Initialize `m_result_type` and `m_result_type` */

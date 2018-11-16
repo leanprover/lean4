@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "library/compiler/util.h"
+#include "library/compiler/builtin.h"
 
 namespace lean {
 /* Infer type of expressions in ENF or LLNF. */
@@ -137,7 +138,9 @@ class ll_infer_type_fn {
     }
 
     expr infer_constant(expr const & e) {
-        if (is_constructor(env(), const_name(e))) {
+        if (optional<expr> type = get_builtin_constant_ll_type(const_name(e))) {
+            return *type;
+        } else if (is_constructor(env(), const_name(e))) {
             name I_name = env().get(const_name(e)).to_constructor_val().get_induct();
             if (optional<unsigned> sz = ::lean::is_enum_type(env(), I_name)) {
                 if (optional<expr> uint = to_uint_type(*sz))
@@ -145,7 +148,6 @@ class ll_infer_type_fn {
             }
             return mk_enf_object_type();
         } else {
-            // TODO(Leo): check if `e` is builtin
             name c = mk_cstage2_name(const_name(e));
             optional<constant_info> info = env().find(c);
             if (info) return info->get_type();

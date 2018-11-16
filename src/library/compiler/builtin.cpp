@@ -51,7 +51,19 @@ void register_builtin(name const & n, expr const & type, char const * cname) {
     return register_builtin(n, type, arity, cname);
 }
 
-#define V(p) reinterpret_cast<void*>(p)
+optional<expr> get_builtin_constant_ll_type(name const & c) {
+    auto it = g_builtin_decls->find(c);
+    if (it == g_builtin_decls->end())
+        return none_expr();
+    return some_expr(it->second.m_type);
+}
+
+optional<unsigned> get_builtin_constant_arity(name const & c) {
+    auto it = g_builtin_decls->find(c);
+    if (it == g_builtin_decls->end())
+        return optional<unsigned>();
+    return optional<unsigned>(it->second.m_arity);
+}
 
 void initialize_builtin() {
     g_builtin_decls = new builtin_map();

@@ -51,6 +51,10 @@ void register_builtin(name const & n, expr const & type, char const * cname) {
     return register_builtin(n, type, arity, cname);
 }
 
+bool is_builtin_constant(name const & c) {
+    return g_builtin_decls->find(c) != g_builtin_decls->end();
+}
+
 optional<expr> get_builtin_constant_ll_type(name const & c) {
     auto it = g_builtin_decls->find(c);
     if (it == g_builtin_decls->end())

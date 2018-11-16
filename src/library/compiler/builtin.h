@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/expr.h"
 namespace lean {
+bool is_builtin_constant(name const & c);
 optional<expr> get_builtin_constant_ll_type(name const & c);
 optional<unsigned> get_builtin_constant_arity(name const & c);
 void initialize_builtin();

@@ -9,9 +9,9 @@ Author: Leonardo de Moura
 #include "library/max_sharing.h"
 #include "library/trace.h"
 #include "library/sorry.h"
-#include "library/vm/vm.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
+#include "library/compiler/builtin.h"
 #include "library/compiler/cse.h"
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
@@ -93,7 +93,7 @@ environment compile(environment const & env, options const & opts, names const &
         return env;
 
     for (name const & c : cs) {
-        if (!env.get(c).is_definition() || is_vm_builtin_function(c) || has_sorry(env.get(c).get_value()))
+        if (!env.get(c).is_definition() || is_builtin_constant(c) || has_sorry(env.get(c).get_value()))
             return env;
     }
 

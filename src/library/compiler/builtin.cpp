@@ -56,18 +56,21 @@ void register_builtin(name const & n, expr const & type, char const * cname) {
 void initialize_builtin() {
     g_builtin_decls = new builtin_map();
 
-    expr o       = mk_enf_object_type();
-    expr u8      = mk_constant(get_uint8_name());
-    expr u32     = mk_constant(get_uint32_name());
-    expr o_o     = mk_arrow(o, o);
-    expr o_o_o   = mk_arrow(o, o_o);
-    expr o_u32_o = mk_arrow(o, mk_arrow(u32, o));
-    expr o_u8    = mk_arrow(o, u8);
+    expr o           = mk_enf_object_type();
+    expr u8          = mk_constant(get_uint8_name());
+    expr u32         = mk_constant(get_uint32_name());
+    expr o_o         = mk_arrow(o, o);
+    expr o_o_o       = mk_arrow(o, o_o);
+    expr o_u32_o     = mk_arrow(o, mk_arrow(u32, o));
+    expr o_u8        = mk_arrow(o, u8);
+    expr o_u8_u8_o_o = mk_arrow(o, mk_arrow(u8, mk_arrow(u8, o_o)));
     list<bool> b{true};
     list<bool> bb{true, true};
     list<bool> c{false};
     list<bool> cc{false, false};
     list<bool> cb{false, true};
+    list<bool> bc{true, false};
+    list<bool> bccc{true, false, false, false};
 
     /* nat builtin functions */
     register_builtin(name({"nat", "add"}), o_o_o, "nat_add", bb);
@@ -120,6 +123,15 @@ void initialize_builtin() {
     register_builtin(name({"string", "iterator", "mk"}), o_o_o, "string_iterator_mk", bb);
     register_builtin(name({"string", "iterator", "fst"}), o_o, "string_iterator_fst", b);
     register_builtin(name({"string", "iterator", "snd"}), o_o, "string_iterator_snd", b);
+
+    /* io builtin functions */
+    register_builtin(name({"io", "prim", "put_str"}), o_o_o, "io_prim_put_str", bc);
+    register_builtin(name({"io", "prim", "get_line"}), o_o, "io_prim_get_line", c);
+    register_builtin(name({"io", "prim", "handle", "mk"}), o_u8_u8_o_o, "io_prim_handle_mk", bccc);
+    register_builtin(name({"io", "prim", "handle", "is_eof"}), o_o_o, "io_prim_handle_is_eof", bc);
+    register_builtin(name({"io", "prim", "handle", "flush"}), o_o_o, "io_prim_handle_flush", bc);
+    register_builtin(name({"io", "prim", "handle", "close"}), o_o_o, "io_prim_handle_close", bc);
+    register_builtin(name({"io", "prim", "handle", "get_line"}), o_o_o, "io_prim_handle_get_line", bc);
 }
 
 void finalize_builtin() {

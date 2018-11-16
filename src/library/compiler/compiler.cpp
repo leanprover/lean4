@@ -96,6 +96,7 @@ environment compile(environment const & env, options const & opts, names const &
         if (!env.get(c).is_definition() || is_builtin_constant(c) || has_sorry(env.get(c).get_value()))
             return env;
     }
+    // TODO(Leo): generate boxed_version for builtin constants
 
     comp_decls ds = to_comp_decls(env, cs);
     csimp_cfg cfg(opts);

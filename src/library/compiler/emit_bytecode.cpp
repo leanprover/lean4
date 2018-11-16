@@ -122,6 +122,7 @@ class emit_bytecode_fn {
     }
 
     void compile_fvar(expr const & e, vdecls const & m) {
+        lean_assert(is_fvar(e));
         vdecl d = *m.find(local_name(e));
         lean_assert(!d.m_is_jp);
         emit(mk_push_instr(d.m_idx));
@@ -235,6 +236,8 @@ class emit_bytecode_fn {
             compile_apply(e, bpz, m);
         } else if (is_llnf_closure(fn)) {
             compile_closure(e, bpz, m);
+        } else if (is_llnf_unbox(fn) || is_llnf_box(fn)) {
+            compile(app_arg(e), bpz, m);
         } else if (is_llnf_jmp(fn)) {
             buffer<expr> args;
             get_app_args(e, args);

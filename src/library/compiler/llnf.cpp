@@ -891,37 +891,86 @@ public:
     }
 };
 
-/* Extension used to store data the name of the "boxed" version of functions that
-   take unboxed values.
-   TODO(Leo): use the to be implemented new module system. */
-struct boxed_functions_ext : public environment_extension {
-    typedef name_map<name> boxed_map;
-    boxed_map m_boxed_map;
-};
-
-struct boxed_functions_reg {
-    unsigned m_ext_id;
-    boxed_functions_reg() { m_ext_id = environment::register_extension(std::make_shared<boxed_functions_ext>()); }
-};
-
-static boxed_functions_reg * g_ext = nullptr;
-static boxed_functions_ext const & get_extension(environment const & env) {
-    return static_cast<boxed_functions_ext const &>(env.get_extension(g_ext->m_ext_id));
+static expr get_constant_ll_type(environment const & env, name const & c) {
+    if (optional<expr> type = get_builtin_constant_ll_type(c)) {
+        return *type;
+    } else {
+        return env.get(mk_cstage2_name(c)).get_type();
+    }
 }
-static environment update(environment const & env, boxed_functions_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<boxed_functions_ext>(ext));
+
+/* usize     => some 0
+   uint8     => some 1
+   uint16    => some 2
+   uint32    => some 4
+   uint64    => some 8
+   otherwise => none */
+static optional<unsigned> get_type_size(expr const & type) {
+    if (is_usize_type(type)) {
+        /* Recall that we use 0 to denote the size of type `usize`.
+           See comment at `mk_llnf_box` above. */
+        return optional<unsigned>(0);
+    } else if (optional<unsigned> r = is_builtin_scalar(type)) {
+        return r;
+    } else {
+        return optional<unsigned>();
+    }
+}
+
+static name mk_boxed_name(name const & fn) {
+    return name(fn, "_boxed");
+}
+
+pair<environment, comp_decl> mk_boxed_version(environment env, name const & fn, unsigned arity) {
+    expr fn_type = get_constant_ll_type(env, fn);
+    local_ctx lctx;
+    expr obj = mk_enf_object_type();
+    expr neutral = mk_enf_neutral_type();
+    name_generator ngen;
+    buffer<expr> args;
+    buffer<expr> ys; /* args */
+    buffer<expr> xs; /* auxiliary let decls */
+    name _y("_y");
+    name _x("_x");
+    unsigned i = 1, j = 1;
+    for (unsigned k = 0; k < arity; k++) {
+        lean_assert(is_pi(fn_type));
+        expr expected_type = binding_domain(fn_type);
+        expr y = lctx.mk_local_decl(ngen, _y.append_after(i), obj);
+        i++;
+        ys.push_back(y);
+        if (expected_type == obj || expected_type == neutral) {
+            args.push_back(y);
+        } else {
+            expr x = lctx.mk_local_decl(ngen, _x.append_after(j), expected_type, mk_app(mk_llnf_unbox(), y));
+            j++;
+            xs.push_back(x);
+            args.push_back(x);
+        }
+        fn_type = binding_body(fn_type);
+    }
+    name new_fn(fn, "_boxed");
+    expr new_val  = mk_app(mk_constant(fn), args);
+    if (fn_type != obj && fn_type != neutral && !is_pi(fn_type)) {
+        expr x = lctx.mk_local_decl(ngen, _x.append_after(j), obj, mk_app(mk_llnf_box(*get_type_size(fn_type)), new_val));
+        xs.push_back(x);
+        new_val = x;
+    }
+    new_val       = lctx.mk_lambda(xs, new_val);
+    new_val       = lctx.mk_lambda(ys, new_val);
+    expr new_type = lctx.mk_pi(ys, obj);
+    env           = register_stage2_decl(env, new_fn, new_type, new_val);
+    return mk_pair(env, comp_decl(new_fn, new_val));
 }
 
 /* Insert explicit boxing/unboxing instructions. */
 class explicit_boxing_fn {
     environment         m_env;
-    boxed_functions_ext m_ext;
     name_generator      m_ngen;
     local_ctx           m_lctx;
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
-    buffer<comp_decl>   m_new_decls;
     expr                m_result_type;
     optional<unsigned>  m_result_type_size;
 
@@ -929,32 +978,8 @@ class explicit_boxing_fn {
 
     name_generator & ngen() { return m_ngen; }
 
-    /* usize     => some 0
-       uint8     => some 1
-       uint16    => some 2
-       uint32    => some 4
-       uint64    => some 8
-       otherwise => none */
-    optional<unsigned> get_type_size(expr const & type) {
-        if (is_usize_type(type)) {
-            /* Recall that we use 0 to denote the size of type `usize`.
-               See comment at `mk_llnf_box` above. */
-            return optional<unsigned>(0);
-        } else if (optional<unsigned> r = is_builtin_scalar(type)) {
-            return r;
-        } else {
-            lean_assert(m_result_type == mk_enf_object_type() ||
-                        m_result_type == mk_enf_neutral_type());
-            return optional<unsigned>();
-        }
-    }
-
     expr get_constant_type(name const & c) {
-        if (optional<expr> type = get_builtin_constant_ll_type(c)) {
-            return *type;
-        } else {
-            return env().get(mk_cstage2_name(c)).get_type();
-        }
+        return get_constant_ll_type(env(), c);
     }
 
     /* Initialize `m_result_type` and `m_result_type` */
@@ -1096,41 +1121,22 @@ class explicit_boxing_fn {
         }
     }
 
-    expr mk_boxed_version(name const & fn) {
-        if (name const * boxed_fn = m_ext.m_boxed_map.find(fn)) {
-            return mk_constant(*boxed_fn);
+    expr cast_if_needed(expr e, expr const & e_type, expr const & expected_type) {
+        if (e_type == expected_type)
+            return e;
+        if (!is_fvar(e))
+            e = mk_let_decl(e_type, e);
+        if (expected_type == mk_enf_object_type()) {
+            return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(*get_type_size(e_type)), e));
+        } else {
+            lean_assert(e_type == mk_enf_object_type());
+            return mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), e));
         }
-        expr fn_type = get_constant_type(fn);
-        if (!has_unboxed(fn_type)) {
-            m_ext.m_boxed_map.insert(fn, fn);
-            return mk_constant(fn);
-        }
-        local_ctx lctx;
-        buffer<expr> args;
-        buffer<expr> fvars;
-        name y("_y");
-        unsigned idx = 1;
-        while (is_pi(fn_type)) {
-            expr fvar = lctx.mk_local_decl(ngen(), y.append_after(idx), mk_enf_object_type());
-            idx++;
-            fvars.push_back(fvar);
-            args.push_back(cast_if_needed(fvar, mk_enf_object_type(), binding_domain(fn_type)));
-            fn_type = binding_body(fn_type);
-        }
-        name new_fn(fn, "_boxed");
-        expr new_val = mk_app(mk_constant(fn), args);
-        new_val = cast_if_needed(new_val, fn_type, mk_enf_object_type());
-        new_val = lctx.mk_lambda(fvars, new_val);
-        m_new_decls.push_back(comp_decl(new_fn, new_val));
-        expr new_type = lctx.mk_pi(fvars, mk_enf_object_type());
-        m_ext.m_boxed_map.insert(fn, new_fn);
-        m_env = register_stage2_decl(m_env, new_fn, new_type, new_val);
-        return mk_constant(new_fn);
     }
 
     expr visit_closure(expr const & fn, buffer<expr> & args) {
         lean_assert(is_constant(args[0]));
-        args[0] = mk_boxed_version(const_name(args[0]));
+        args[0] = mk_constant(mk_boxed_name(const_name(args[0])));
         for (unsigned i = 1; i < args.size(); i++) {
             args[i] = box_if_needed(args[i]);
         }
@@ -1171,19 +1177,6 @@ class explicit_boxing_fn {
     expr visit_reuse(expr const & fn, buffer<expr> & args) {
         box_args_if_needed(args);
         return mk_app(fn, args);
-    }
-
-    expr cast_if_needed(expr e, expr const & e_type, expr const & expected_type) {
-        if (e_type == expected_type)
-            return e;
-        if (!is_fvar(e))
-            e = mk_let_decl(e_type, e);
-        if (expected_type == mk_enf_object_type()) {
-            return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(*get_type_size(e_type)), e));
-        } else {
-            lean_assert(e_type == mk_enf_object_type());
-            return mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), e));
-        }
     }
 
     expr visit_sset(expr const & fn, buffer<expr> & args) {
@@ -1279,35 +1272,34 @@ class explicit_boxing_fn {
 
 public:
     explicit_boxing_fn(environment const & env):
-        m_env(env), m_ext(get_extension(env)), m_x("_x") {}
+        m_env(env), m_x("_x") {}
 
-    pair<environment, comp_decls> operator()(comp_decl const & d) {
-        init_result_type(d.fst());
-        expr new_v = visit(d.snd(), m_result_type);
-        new_v = mk_let(0, new_v);
-        comp_decls new_ds(comp_decl(d.fst(), new_v), comp_decls(m_new_decls));
-        m_env = update(m_env, m_ext);
-        return mk_pair(m_env, new_ds);
+    expr operator()(name const & n, expr const & v) {
+        init_result_type(n);
+        expr new_v = visit(v, m_result_type);
+        return mk_let(0, new_v);
     }
 };
 
-pair<environment, comp_decls> to_llnf(environment const & env, comp_decl const & d, bool unboxed) {
-    comp_decl new_d(d.fst(), to_llnf_fn(env, unboxed)(d.snd()));
-    if (unboxed)
-        return explicit_boxing_fn(env)(new_d);
-    else
-        return mk_pair(env, comp_decls(new_d));
-}
-
 pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {
     environment new_env = env;
-    comp_decls r;
+    buffer<comp_decl> rs;
+    buffer<comp_decl> bs;
     for (comp_decl const & d : ds) {
-        comp_decls new_ds;
-        std::tie(new_env, new_ds) = to_llnf(new_env, d, unboxed);
-        r = append(r, new_ds);
+        expr new_v = to_llnf_fn(new_env, unboxed)(d.snd());
+        rs.push_back(comp_decl(d.fst(), new_v));
+        pair<environment, comp_decl> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()));
+        new_env = p.first;
+        bs.push_back(p.second);
     }
-    return mk_pair(new_env, r);
+    if (unboxed) {
+        for (comp_decl & r : rs) {
+            r = comp_decl(r.fst(), explicit_boxing_fn(new_env)(r.fst(), r.snd()));
+        }
+    }
+    comp_decls _rs(rs);
+    comp_decls _bs(bs);
+    return mk_pair(new_env, append(_rs, _bs));
 }
 
 void initialize_llnf() {
@@ -1330,7 +1322,6 @@ void initialize_llnf() {
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
     g_builtin_scalar_size->emplace_back(get_uint32_name(), 4);
     g_builtin_scalar_size->emplace_back(get_uint64_name(), 8);
-    g_ext       = new boxed_functions_reg();
 }
 
 void finalize_llnf() {
@@ -1348,6 +1339,5 @@ void finalize_llnf() {
     delete g_jmp;
     delete g_box;
     delete g_unbox;
-    delete g_ext;
 }
 }

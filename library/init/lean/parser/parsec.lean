@@ -10,7 +10,6 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/parsec-paper
 prelude
 import init.data.to_string init.data.string.basic init.data.list.basic init.control.except
 import init.data.repr init.lean.name init.data.dlist init.control.monad_fail init.control.combinators
-import init.util
 
 namespace lean
 namespace parser
@@ -220,15 +219,6 @@ instance : alternative (parsec_t μ m) :=
   pure $ match r with
   | ok _ _ _     := error { it := it, unexpected := msg, custom := () } ff
   | error _ _    := mk_eps () it
-
-def dbg (label : string) (p : parsec_t μ m α) : parsec_t μ m α :=
-λ it, do
-  r ← p it,
-  pure $ trace ("DBG " ++ label ++ ": \"" ++ (it.extract (it.nextn 40)).get_or_else "" ++ "\"") $ match r : _ → result μ α with
-  | ok a it' none      := trace ("consumed ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it' none
-  | ok a it' (some ex) := trace ("empty ok : '" ++ (it.extract it').get_or_else "" ++ "'") $ @ok μ α a it' (some ex)
-  | error msg tt := trace ("consumed error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg tt
-  | error msg ff := trace ("empty error : '" ++ (it.extract msg.it).get_or_else "" ++ "'\n" ++ to_string msg) $ @error μ α msg ff
 
 end parsec_t
 
@@ -555,10 +545,6 @@ do it ← left_over,
            | _ := r))
     ((error "longest_match: empty list" : parsec _ _) it),
     lift $ λ _, r
-
-/-- Add trace information about `p`'s input and output. -/
-def dbg (label : string) (p : m α) : m α :=
-map (λ m' inst β, @parsec_t.dbg m' inst μ β label) p
 
 @[specialize]
 def observing [monad_except (message μ) m] (p : m α) : m (except (message μ) α) :=

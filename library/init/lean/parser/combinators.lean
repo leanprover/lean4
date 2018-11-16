@@ -194,11 +194,6 @@ instance label.tokens (r : parser) (l) [parser.has_tokens r] : parser.has_tokens
 instance label.view (r : parser) (l) [i : parser.has_view α r] : parser.has_view α (label r l) :=
 {..i}
 
-instance dbg.tokens (r : parser) (l) [parser.has_tokens r] : parser.has_tokens (dbg l r) :=
-⟨tokens r⟩
-instance dbg.view (r  : parser) (l) [i : parser.has_view α r] : parser.has_view α (dbg l r) :=
-{..i}
-
 instance recurse.tokens (α δ m a) [monad_rec α δ m] : parser.has_tokens (recurse a : m δ) :=
 default _ -- recursive use should not contribute any new tokens
 instance recurse.view (α δ m a) [monad_rec α δ m] : parser.has_view syntax (recurse a : m δ) := default _

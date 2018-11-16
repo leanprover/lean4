@@ -27,7 +27,7 @@ typedef std::unordered_map<name, builtin_decl, name_hash> builtin_map;
 static builtin_map * g_builtin_decls = nullptr;
 
 void register_builtin(name const & n, expr const & type, unsigned arity, char const * cname, bool borrowed_res, list<bool> const & borrowed_arg) {
-    lean_assert(!g_builtin_decls->contains(n));
+    lean_assert(g_builtin_decls->find(n) == g_builtin_decls->end());
     g_builtin_decls->insert(mk_pair(n, builtin_decl(type, arity, cname, borrowed_res, borrowed_arg)));
 }
 

@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/closed_term_cache.h"
-#include "library/compiler/ir.h"
 #include "library/compiler/compiler.h"
 #include "library/compiler/builtin.h"
 
@@ -24,7 +23,6 @@ void initialize_compiler_module() {
     initialize_specialize();
     initialize_closed_term_cache();
     initialize_llnf();
-    initialize_ir();
     initialize_compiler();
     initialize_builtin();
 }
@@ -32,7 +30,6 @@ void initialize_compiler_module() {
 void finalize_compiler_module() {
     finalize_builtin();
     finalize_compiler();
-    finalize_ir();
     finalize_llnf();
     finalize_closed_term_cache();
     finalize_specialize();

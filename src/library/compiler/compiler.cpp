@@ -93,7 +93,7 @@ environment compile(environment const & env, options const & opts, names const &
         return env;
 
     for (name const & c : cs) {
-        if (!env.get(c).is_definition() || is_builtin_constant(c) || has_sorry(env.get(c).get_value()))
+        if (!env.get(c).is_definition() || is_builtin_constant(c) || has_synthetic_sorry(env.get(c).get_value()))
             return env;
     }
     // TODO(Leo): generate boxed_version for builtin constants

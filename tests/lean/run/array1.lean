@@ -12,10 +12,8 @@ def w : array nat :=
 def f : fin w.sz → nat :=
 array.cases_on w (λ _ f, f)
 
-constant magic {a : Prop} : a
-
-#eval f ⟨1, magic⟩
-#eval f ⟨9, magic⟩
+#eval f ⟨1, sorry⟩
+#eval f ⟨9, sorry⟩
 
 #eval (((mk_array 1 1).push 2).push 3).foldl 0 (+)
 

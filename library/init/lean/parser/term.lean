@@ -290,7 +290,7 @@ node! anonymous_inaccessible ["._":max_prec]
 -- TODO(Sebastian): replace with attribute
 @[derive has_tokens]
 def builtin_leading_parsers : token_map term_parser := token_map.of_list [
-  (ident.name, ident_univs.parser),
+  (`ident, ident_univs.parser),
   (number.name, number.parser),
   (string_lit.name, string_lit.parser),
   ("(", paren.parser),

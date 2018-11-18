@@ -54,11 +54,18 @@ structure syntax_node (syntax : Type) :=
 (kind : syntax_node_kind)
 (args : list syntax)
 -- Lazily propagated scopes. Scopes are pushed inwards when a node is destructed via `syntax.as_node`,
--- until an `ident` node or an atom (in which the scopes vanish) is reached
+-- until an ident or an atom (in which the scopes vanish) is reached
+(scopes : list macro_scope := [])
+
+structure syntax_ident :=
+(info : option source_info := none)
+(raw_val : substring)
+(val : name)
 (scopes : list macro_scope := [])
 
 inductive syntax
 | atom (val : syntax_atom)
+| ident (val : syntax_ident)
 -- note: use `syntax.as_node` instead of matching against this constructor so that
 -- macro scopes are propagated
 | raw_node (val : syntax_node syntax)
@@ -70,11 +77,18 @@ instance : inhabited syntax :=
 def substring.to_string (s : substring) : string :=
 (s.start.extract s.stop).get_or_else ""
 
+def substring.of_string (s : string) : substring :=
+⟨s.mk_iterator, s.mk_iterator.to_end⟩
+
+instance substring.has_to_string : has_to_string substring :=
+⟨substring.to_string⟩
 namespace syntax
 open lean.format
 
 /-- Lazily flip the given list of scopes on this subtree. -/
 def flip_scopes (scopes : list macro_scope) : syntax → syntax
+| (syntax.ident n) := syntax.ident {n with scopes :=
+  n.scopes.filter (λ sc, ¬ (sc ∈ scopes)) ++ scopes.filter (λ sc, ¬ (sc ∈ n.scopes))}
 | (syntax.raw_node n) := syntax.raw_node {n with scopes :=
   n.scopes.filter (λ sc, ¬ (sc ∈ scopes)) ++ scopes.filter (λ sc, ¬ (sc ∈ n.scopes))}
 | stx := stx
@@ -84,8 +98,6 @@ syntax.raw_node { kind := kind, args := args }
 
 /-- Match against `syntax.raw_node`, propagating lazy macro scopes. -/
 def as_node : syntax → option (syntax_node syntax)
--- do not push scopes inside of `ident` nodes
-| (syntax.raw_node n@{kind := ⟨`lean.parser.ident⟩, ..}) := some n
 | (syntax.raw_node n) := some {n with args := n.args.map (flip_scopes n.scopes), scopes := []}
 | _                   := none
 
@@ -108,6 +120,10 @@ with update_leading_aux : syntax → state string.iterator syntax
   last ← get,
   put info.trailing.stop,
   pure $ atom {a with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
+| (ident id@{info := some info, ..}) := do
+  last ← get,
+  put info.trailing.stop,
+  pure $ ident {id with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
 | (raw_node n) := do args ← update_leading_lst n.args, pure $ raw_node {n with args := args}
 | stx := pure stx
 with update_leading_lst : list syntax → state string.iterator (list syntax)
@@ -128,17 +144,17 @@ with update_leading_lst : list syntax → state string.iterator (list syntax)
 def update_leading (source : string) : syntax → syntax :=
 λ stx, prod.fst $ (update_leading_aux stx).run source.mk_iterator
 
-/-- Retrieve the left-most leaf in the syntax tree. -/
-def get_head_atom : syntax → option syntax_atom
-| (atom a) := some a
+/-- Retrieve the left-most leaf's info in the syntax tree. -/
+def get_head_info : syntax → option source_info
+| (atom a)   := a.info
+| (ident id) := id.info
 -- TODO: handle case where `n` is an empty `syntax_node`
 -- We will have to create a mutual recursion here Arghhhh
-| (raw_node {args:=n::ns, ..}) := n.get_head_atom
+| (raw_node {args:=n::ns, ..}) := n.get_head_info
 | _ := none
 
 def get_pos (stx : syntax) : option parsec.position :=
-do a ← stx.get_head_atom,
-   i ← a.info,
+do i ← stx.get_head_info,
    pure i.pos
 
 def reprint_atom : syntax_atom → string
@@ -147,7 +163,10 @@ def reprint_atom : syntax_atom → string
 
 mutual def reprint, reprint_lst
 with reprint : syntax → option string
-| (atom a) := reprint_atom a
+| (atom ⟨some info, s⟩) := pure $ info.leading.to_string ++ s ++ info.trailing.to_string
+| (atom ⟨none, s⟩)      := pure s
+| (ident id@{info := some info, ..}) := pure $ info.leading.to_string ++ id.raw_val.to_string ++ info.trailing.to_string
+| (ident id@{info := none,      ..}) := pure id.raw_val.to_string
 | (raw_node n) :=
   if n.kind.name = choice.name then match n.args with
   -- should never happen
@@ -166,6 +185,23 @@ with reprint_lst : list syntax → option (list string)
   s ← reprint n,
   ss ← reprint_lst ns,
   pure $ s::ss
+
+protected mutual def to_format, to_format_lst
+with to_format : syntax → format
+| (atom ⟨_, s⟩) := to_fmt $ repr s
+| (ident id)    := to_fmt "`" ++ to_fmt id.val
+| stx@(raw_node n) :=
+  let scopes := match n.scopes with [] := to_fmt "" | _ := bracket "{" (join_sep n.scopes ", ") "}" in
+  if n.kind.name = `lean.parser.no_kind then sbracket $ scopes ++ join_sep (to_format_lst n.args) line
+  else let shorter_name := n.kind.name.replace_prefix `lean.parser name.anonymous
+       in paren $ join_sep ((to_fmt shorter_name ++ scopes) :: to_format_lst n.args) line
+| missing := "<missing>"
+with to_format_lst : list syntax → list format
+| []      := []
+| (s::ss) := to_format s :: to_format_lst ss
+
+instance : has_to_format syntax := ⟨syntax.to_format⟩
+instance : has_to_string syntax := ⟨to_string ∘ to_fmt⟩
 end syntax
 
 end parser

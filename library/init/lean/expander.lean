@@ -28,17 +28,13 @@ do cfg ← read,
    -- TODO(Sebastian): convert position
    throw {filename := cfg.filename, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
 
-instance coe_name_ident : has_coe name parser.ident.view :=
-⟨λ n, (n.components.foldr (λ n suffix, match n with
-  | name.mk_string _ s := some {parser.ident.view .
-      part := ident_part.view.default (some {val := s}),
-      suffix := suffix <&> λ suffix, {ident := review parser.ident suffix}}
-  | _ := some $ view parser.ident syntax.missing) none).get_or_else (view parser.ident syntax.missing)⟩
+instance coe_name_ident : has_coe name syntax_ident :=
+⟨λ n, {val := n, raw_val := substring.of_string n.to_string}⟩
 
-instance coe_ident_ident_univs : has_coe parser.ident.view ident_univs.view :=
+instance coe_ident_ident_univs : has_coe syntax_ident ident_univs.view :=
 ⟨λ id, {id := id}⟩
 
-instance coe_ident_binder_id : has_coe ident.view binder_ident.view :=
+instance coe_ident_binder_id : has_coe syntax_ident binder_ident.view :=
 ⟨binder_ident.view.id⟩
 
 instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=

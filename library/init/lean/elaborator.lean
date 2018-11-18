@@ -255,26 +255,26 @@ def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
 
 def section.elaborate : coelaborator :=
 do sec ← view «section» <$> current_command,
-   let sec_name := ident.view.to_name <$> sec.name,
+   let sec_name := syntax_ident.val <$> sec.name,
    yield_to_outside,
    commands.elaborate tt 1000,
    -- local notations may have vanished
    update_parser_config,
    end_sec ← view «end» <$> current_command,
-   let end_sec_name := ident.view.to_name <$> end_sec.name,
+   let end_sec_name := syntax_ident.val <$> end_sec.name,
    when (sec_name ≠ end_sec_name) $
      error (review «end» end_sec) $ "invalid end of section, expected name '" ++
        to_string (sec_name.get_or_else name.anonymous) ++ "'"
 
 def namespace.elaborate : coelaborator :=
 do ns ← view «namespace» <$> current_command,
-   let ns_name := ident.view.to_name ns.name,
+   let ns_name := ns.name.val,
    yield_to_outside,
    commands.elaborate tt 1000,
    -- local notations may have vanished
    update_parser_config,
    end_ns ← view «end» <$> current_command,
-   let end_ns_name := ident.view.to_name <$> end_ns.name,
+   let end_ns_name := syntax_ident.val <$> end_ns.name,
    when (some ns_name ≠ end_ns_name) $
      error (review «end» end_ns) $ "invalid end of namespace, expected name '" ++
        to_string ns_name ++ "'"

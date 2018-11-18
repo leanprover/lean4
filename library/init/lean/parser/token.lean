@@ -73,6 +73,7 @@ variables [monad_basic_parser m]
 private mutual def update_trailing, update_trailing_lst
 with update_trailing : substring → syntax → syntax
 | trailing (syntax.atom a@⟨some info, _⟩) := syntax.atom {a with info := some {info with trailing := trailing}}
+| trailing (syntax.ident id@{info := some info, ..}) := syntax.ident {id with info := some {info with trailing := trailing}}
 | trailing (syntax.raw_node n) := syntax.raw_node {n with args := update_trailing_lst trailing n.args}
 | trailing stx := stx
 with update_trailing_lst : substring → list syntax → list syntax
@@ -118,9 +119,9 @@ end
 set_option class.instance_max_depth 200
 
 @[derive has_tokens has_view]
-def ident_part.parser : basic_parser_m syntax :=
-node_choice! ident_part {
-  escaped: node! ident_part_escaped [
+def detail_ident_part.parser : basic_parser_m syntax :=
+node_choice! detail_ident_part {
+  escaped: node! detail_ident_part_escaped [
     esc_begin: raw_str id_begin_escape.to_string,
     escaped: raw $ take_until1 is_id_end_escape,
     esc_end: raw_str id_end_escape.to_string,
@@ -129,16 +130,35 @@ node_choice! ident_part {
 }
 
 @[derive has_tokens has_view]
-def ident_suffix.parser : rec_t unit syntax basic_parser_m syntax :=
--- consume '.' only when followed by a character starting an ident_part
+def detail_ident_suffix.parser : rec_t unit syntax basic_parser_m syntax :=
+-- consume '.' only when followed by a character starting an detail_ident_part
 try (lookahead (ch '.' *> (ch id_begin_escape <|> satisfy is_id_first)))
-*> node! ident_suffix [«.»: raw_str ".", ident: recurse ()]
+*> node! detail_ident_suffix [«.»: raw_str ".", ident: recurse ()]
 
-def ident'' : rec_t unit syntax basic_parser_m syntax :=
-node! ident [part: monad_lift ident_part.parser, suffix: optional ident_suffix.parser]
+def detail_ident' : rec_t unit syntax basic_parser_m syntax :=
+node! detail_ident [part: monad_lift detail_ident_part.parser, suffix: optional detail_ident_suffix.parser]
 
-private def ident' : basic_parser_m syntax :=
-rec_t.run_parsec ident'' $ λ _, ident''
+/-- A parser that gives a more detailed view of `syntax_ident.raw_val`. Not used by default for
+    performance reasons. -/
+def detail_ident.parser : basic_parser_m syntax :=
+rec_t.run_parsec detail_ident' $ λ _, detail_ident'
+
+private def ident' : basic_parser :=
+do
+  start ← left_over,
+  s  ← id_part,
+  n ← foldl name.mk_string (mk_simple_name s) $ do {
+    -- consume '.' only when followed by a character starting an detail_ident_part
+    try (lookahead (ch '.' *> (ch id_begin_escape <|> satisfy is_id_first))),
+    ch '.',
+    id_part
+  },
+  stop ← left_over,
+  pure $ syntax.ident {
+    info := some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩},
+    raw_val := ⟨start, stop⟩,
+    val := n
+  }
 
 --TODO(Sebastian): other bases
 def number' : basic_parser :=
@@ -257,34 +277,24 @@ instance string_lit.parser.view : parser.has_view string_lit.view (string_lit.pa
 def ident.parser : parser :=
 lift $ try $ do {
   it ← left_over,
-  stx ← token,
-  if stx.is_of_kind ident then pure stx
-  else error "" (dlist.singleton "identifier") it
+  stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier") it,
+  pure stx
 } <?> "identifier"
 
 instance ident.parser.tokens : parser.has_tokens (ident.parser : parser) := default _
-instance ident.parser.view : parser.has_view ident.view (ident.parser : parser) :=
-{..ident.has_view}
-
-def ident_part.view.to_string : ident_part.view → string
-| (ident_part.view.default (some atom)) := atom.val
-| (ident_part.view.escaped {escaped := some atom, ..}) := atom.val
-| _ := "ident_part.view: invalid input"
-
-def ident.view.components : ident.view → list string
-| {part := part, suffix := none} := [part.to_string]
-| {part := part, suffix := some suffix} := part.to_string :: (view ident suffix.ident).components
-
-def ident.view.to_name (id : ident.view) : name :=
-id.components.foldl name.mk_string name.anonymous
+instance ident.parser.view : parser.has_view syntax_ident (ident.parser : parser) :=
+{ view := λ stx, match stx with
+    | syntax.ident id := id
+    | _               := {raw_val := substring.of_string "NOT_AN_IDENT", val := `NOT_AN_IDENT},
+  review := syntax.ident }
 
 /-- Read identifier without consulting the token table. -/
 def raw_ident.parser : parser :=
 lift $ ident' >>= with_trailing
 
 instance raw_ident.parser.tokens : parser.has_tokens (raw_ident.parser : parser) := default _
-instance raw_ident.parser.view : parser.has_view ident.view (raw_ident.parser : parser) :=
-{..ident.has_view}
+instance raw_ident.parser.view : parser.has_view syntax_ident (raw_ident.parser : parser) :=
+{..(ident.parser.view : has_view _ (_ : parser))}
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
@@ -299,11 +309,7 @@ lift $ try $ do
   stx ← token,
   let sym' := match stx with
   | syntax.atom ⟨_, sym'⟩ := some sym'
-  | syntax.raw_node {kind := @ident, ..} :=
-    (match view ident stx with
-     | {part := ident_part.view.default (some ⟨_, sym'⟩),
-        suffix := none} := some sym'
-     | _ := none)
+  | syntax.ident id := some id.raw_val.to_string
   | _ := none,
   when (sym' ≠ some sym) $
     error "" (dlist.singleton (repr sym)) it,
@@ -325,32 +331,10 @@ lift $ do
   except.ok tk ← peek_token | error "",
   n ← match tk with
   | syntax.atom ⟨_, s⟩ := pure $ mk_simple_name s
+  | syntax.ident _ := pure `ident
   | syntax.raw_node n := pure n.kind.name
   | _ := error "",
   option.to_monad $ map.find n
 
-namespace syntax
-open lean.format
-
--- Now that we have `ident.view`, this function is much easier to define
-protected mutual def to_format, to_format_lst
-with to_format : syntax → format
-| (atom ⟨_, s⟩) := to_fmt $ repr s
-| stx@(raw_node n) :=
-  let scopes := match n.scopes with [] := to_fmt "" | _ := bracket "{" (join_sep n.scopes ", ") "}" in
-  if n.kind.name = `lean.parser.no_kind then sbracket $ scopes ++ join_sep (to_format_lst n.args) line
-  else if n.kind.name = `lean.parser.ident then
-    to_fmt "`" ++ to_fmt (view ident stx).to_name ++ scopes
-  else let shorter_name := n.kind.name.replace_prefix `lean.parser name.anonymous
-       in paren $ join_sep ((to_fmt shorter_name ++ scopes) :: to_format_lst n.args) line
-| missing := "<missing>"
-with to_format_lst : list syntax → list format
-| []      := []
-| (s::ss) := to_format s :: to_format_lst ss
-
-instance : has_to_format syntax := ⟨syntax.to_format⟩
-instance : has_to_string syntax := ⟨to_string ∘ to_fmt⟩
-
-end syntax
 end «parser»
 end lean

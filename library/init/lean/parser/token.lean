@@ -91,8 +91,7 @@ let ss : substring := ⟨start, stop⟩ in
 syntax.atom ⟨some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩}, ss.to_string⟩
 
 /-- Match an arbitrary parser and return the consumed string in a `syntax.atom`. -/
-@[inline] def raw {α : Type} (p : m α) (trailing_ws := ff) : parser :=
-try $ do
+@[inline] def raw {α : Type} (p : m α) (trailing_ws := ff) : parser := do
   start ← left_over,
   p,
   stop ← left_over,

@@ -171,17 +171,25 @@ static expr parse_let(parser & p, pos_info const & pos, bool in_do_block) {
     } else {
         buffer<expr> new_locals;
         expr lhs = p.parse_pattern(new_locals);
+        expr type;
+        if (p.curr_is_token(get_colon_tk())) {
+            p.next();
+            type = mk_pi("a", p.parse_expr(), mk_expr_placeholder());
+        } else {
+            type = mk_expr_placeholder();
+        }
         p.check_token_next(get_assign_tk(), "invalid let declaration, ':=' expected");
         expr value = p.parse_expr();
         for (expr const & l : new_locals)
             p.add_local(l);
         expr body  = parse_let_body(p, pos, in_do_block);
         match_definition_scope match_scope(p.env());
-        expr fn = p.save_pos(mk_local(p.next_name(), *g_let_match_name, mk_expr_placeholder(), mk_rec_info()), pos);
+        expr fn = p.save_pos(mk_local(p.next_name(), *g_let_match_name, type, mk_rec_info()), pos);
         expr eqn = Fun(fn, Fun(new_locals, p.save_pos(mk_equation(p.rec_save_pos(mk_app(fn, lhs), pos), body), pos), p), p);
         equations_header h = mk_match_header(match_scope.get_name(), match_scope.get_actual_name());
         expr eqns  = p.save_pos(mk_equations(h, 1, &eqn), pos);
-        return p.save_pos(mk_app(eqns, value), pos);
+        expr e = mk_app(eqns, value);
+        return p.save_pos(e, pos);
     }
 }
 

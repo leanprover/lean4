@@ -44,9 +44,6 @@ instance coe_ident_binder_id : has_coe syntax_ident binder_ident.view :=
 instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=
 ⟨λ ids, {leading_ids := ids.map coe}⟩
 
-def mk_app (fn : syntax_ident) (args : list syntax) : syntax :=
-args.foldl (λ fn arg, syntax.mk_node app [fn, arg]) (syntax.ident fn)
-
 def mk_simple_lambda (id : syntax_ident) (bi : binder_info) (dom body : syntax) : syntax :=
 let bc : binder_content.view := {ids := [id], type := some {type := dom}} in
 review lambda {
@@ -179,13 +176,36 @@ def reserve_mixfix.transform : transformer :=
   spec ← mixfix_to_notation_spec v.kind v.symbol,
   pure $ review reserve_notation {spec := spec}
 
+def paren.transform : transformer :=
+λ stx, do
+  let v := view paren stx,
+  match v.content with
+  | none := pure $ syntax.ident `unit.star
+  | some {term := t, special := none} := pure t
+  | some {term := t, special := paren_special.view.tuple tup} :=
+    pure $ some $ (tup.tail.map prod.fst).foldr (λ t tup, mk_app `prod.mk [t, tup]) t
+  | some {term := t, special := paren_special.view.typed pst} :=
+    pure $ mk_app `typed_expr [pst.type, t]
+
+def assume.transform : transformer :=
+λ stx, do
+  let v := view «assume» stx,
+  let binders : lambda_binders.view := match v.binders with
+  | assume_binders.view.anonymous aba := lambda_binders.view.simple $
+    -- TODO(Sebastian): unhygienic!
+    simple_binder.view.explicit {id := "this", type := aba.type}
+  | assume_binders.view.binders abb := lambda_binders.view.extended abb,
+  pure $ review lambda {binders := binders, body := v.body}
+
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): replace with attribute
 def transformers : rbmap name transformer (<) := rbmap.from_list [
   (mixfix.name, mixfix.transform),
   (reserve_mixfix.name, reserve_mixfix.transform),
-  (lambda.name, lambda.transform)
+  (lambda.name, lambda.transform),
+  (paren.name, paren.transform),
+  (assume.name, assume.transform)
 ] _
 
 structure expander_state :=

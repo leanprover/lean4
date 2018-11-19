@@ -78,10 +78,12 @@ def to_level : syntax → elaborator_m level
     | _ := error stx "ill-formed universe level")
   | _ := error stx $ "unexpected node: " ++ to_string k.name
 
+def expr.mk_annotation (ann : name) (e : expr) :=
+expr.mdata (kvmap.set_name {} `annotation `anonymous_constructor) e
+
 def to_pexpr : syntax → elaborator_m expr
-| stx := do
-  some k ← pure stx.kind | error stx $ "unexpected atom: " ++ to_string stx,
-  match k with
+| (syntax.ident id)   := pure $ expr.const (mangle_ident id) []
+| stx@(syntax.raw_node {kind := k, ..}) := (match k with
   | @ident_univs := (match view ident_univs stx with
     | {id := id, univs := some univs} := expr.const (mangle_ident id) <$> univs.levels.mmap to_level
     | {id := id, univs := none}       := pure $ expr.const (mangle_ident id) [])
@@ -100,7 +102,27 @@ def to_pexpr : syntax → elaborator_m expr
   | @sort := (match view sort stx with
     | sort.view.Sort _ := pure $ expr.sort level.zero
     | sort.view.Type _ := pure $ expr.sort $ level.succ level.zero)
-  | _ := error stx $ "unexpected node: " ++ to_string k.name
+  | @anonymous_constructor := do
+    let v := view anonymous_constructor stx,
+    p ← to_pexpr $ mk_app' (review hole {}) (v.args.map prod.fst),
+    pure $ expr.mk_annotation `anonymous_constructor p
+  | @hole := pure $ expr.const "_" []  -- TODO
+  | @«have» := do
+    let v := view «have» stx,
+    let id := (mangle_ident <$> opt_ident.view.id <$> v.id).get_or_else `this,
+    let proof := match v.proof with
+    | have_proof.view.term hpt := hpt.term
+    | have_proof.view.from hpf := hpf.from.proof,
+    lam ← expr.lam id binder_info.default <$> to_pexpr v.prop <*> to_pexpr proof,
+    pure $ expr.mk_annotation `have lam
+  | @projection := do
+    let v := view projection stx,
+    let val := match v.proj with
+    | projection_spec.view.id id := data_value.of_name id.val
+    | projection_spec.view.num n := data_value.of_nat n.to_nat,
+    expr.mdata (kvmap.insert {} `field_notation val) <$> to_pexpr v.term
+  | _ := error stx $ "unexpected node: " ++ to_string k.name)
+| stx := error stx $ "unexpected: " ++ to_string stx
 
 def declaration.elaborate : elaborator :=
 λ stx, do

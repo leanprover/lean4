@@ -21,7 +21,10 @@ structure expander_config :=
 
 @[derive monad monad_reader monad_except]
 def transform_m := reader_t expander_config $ except_t message id
-abbreviation transformer := syntax → transform_m syntax
+abbreviation transformer := syntax → transform_m (option syntax)
+
+def no_expansion : transform_m (option syntax) :=
+pure none
 
 def error {m : Type → Type} [monad m] [monad_reader expander_config m] [monad_except message m] {α : Type}
   (context : syntax) (text : string) : m α :=
@@ -206,15 +209,15 @@ private def expand_core : nat → syntax → expander_m syntax
 do some n ← pure stx.as_node | pure stx,
    cfg ← read,
    some t ← pure $ transformers.find n.kind.name
+     -- not a macro: recurse
      | syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel),
    sc ← mk_scope,
    let n' := syntax.mk_node n.kind $ n.args.map (syntax.flip_scopes [sc]),
-   stx' ← state_t.lift $ t n',
-   ---- expand recursively
-   --expand_core fuel $ stx'.flip_scopes [sc]
-   let stx' := stx'.flip_scopes [sc],
-   some n ← pure stx'.as_node | pure stx',
-   syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel)
+   some stx' ← state_t.lift $ t n'
+     -- no unfolding: recurse
+     | syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel),
+   -- expand iteratively
+   expand_core fuel $ stx'.flip_scopes [sc]
 
 def expand (stx : syntax) : reader_t expander_config (except message) syntax :=
 -- TODO(Sebastian): persist macro scopes across commands/files

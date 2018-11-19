@@ -7,6 +7,7 @@ Macro expander for the Lean language
 -/
 prelude
 import init.lean.parser.module
+import init.lean.expr
 
 namespace lean
 namespace expander
@@ -39,6 +40,79 @@ instance coe_ident_binder_id : has_coe syntax_ident binder_ident.view :=
 
 instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=
 ⟨λ ids, {leading_ids := ids.map coe}⟩
+
+def mk_app (fn : syntax_ident) (args : list syntax) : syntax :=
+args.foldl (λ fn arg, syntax.mk_node app [fn, arg]) (syntax.ident fn)
+
+def mk_simple_lambda (id : syntax_ident) (bi : binder_info) (dom body : syntax) : syntax :=
+let bc : binder_content.view := {ids := [id], type := some {type := dom}} in
+review lambda {
+  binders := {leading_ids := [], remainder := binders_remainder.view.mixed [
+    mixed_binder.view.bracketed $ match bi with
+    | binder_info.default := bracketed_binder.view.explicit {content := explicit_binder_content.view.other bc}
+    | binder_info.implicit := bracketed_binder.view.implicit {content := bc}
+    | binder_info.strict_implicit := bracketed_binder.view.strict_implicit {content := bc}
+    | binder_info.inst_implicit := bracketed_binder.view.inst_implicit
+      {content := review inst_implicit_named_binder {id := id, type := dom}}
+    | binder_info.aux_decl := /- should not happen -/
+      bracketed_binder.view.explicit {content := explicit_binder_content.view.other bc}
+  ]},
+  body := body
+}
+
+-- TODO(Sebastian): share this with other forms taking binders? Using local_expand?
+def lambda.transform : transformer :=
+λ stx, do
+  let lam := view lambda stx,
+  let to_ident (bid : binder_ident.view) : syntax_ident :=
+    match bid with
+    | binder_ident.view.id id := id
+    | binder_ident.view.hole _ := "a",
+  let r := lam.body,
+  (r, ty) ← match lam.binders.remainder with
+    | none := pure (r, none)
+    | binders_remainder.view.type brt := pure (r, some brt.type)
+    | binders_remainder.view.mixed brms := do {
+      r ← brms.mfoldr (λ brm r, match brm with
+      | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
+        pure $ mk_simple_lambda "x" binder_info.default (review hole {}) $ review «match» {
+          scrutinees := [(syntax.ident "x", none)],
+          equations := [({lhs := [(review anonymous_constructor ctor, none)], rhs := r}, none)]
+        }
+      -- local notation: erase
+      | mixed_binder.view.bracketed
+        (bracketed_binder.view.explicit {content := explicit_binder_content.view.notation _}) := pure r
+      | mixed_binder.view.bracketed mbb := do
+        let (bi, bc) : binder_info × binder_content.view := (match mbb with
+        | bracketed_binder.view.explicit {content := bc} := (match bc with
+          | explicit_binder_content.view.other bc := (binder_info.default, bc)
+          | _ := (binder_info.default, {ids := []})  /- unreachable, see above -/)
+        | bracketed_binder.view.implicit {content := bc} := (binder_info.implicit, bc)
+        | bracketed_binder.view.strict_implicit {content := bc} := (binder_info.strict_implicit, bc)
+        | bracketed_binder.view.inst_implicit {content := bc} :=
+          prod.mk binder_info.inst_implicit $ (match bc.kind with
+            | some @inst_implicit_anonymous_binder :=
+              {ids := ["_inst_"], type := some {type := (view inst_implicit_anonymous_binder bc).type}}
+            | some @inst_implicit_named_binder :=
+              let v := view inst_implicit_named_binder bc in
+              {ids := [v.id], type := some {type := v.type}}
+            | _ := {ids := []} /- unreachable -/)
+        | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
+        let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
+        type ← match bc.default with
+        | none := pure type
+        | some (binder_default.view.val bdv) := pure $ mk_app "_root_.opt_param" [type, bdv.term]
+        | some bdv@(binder_default.view.tac bdt) := match bc.type with
+          | none := pure $ mk_app "_root_.auto_param" [bdt.term]
+          | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
+        pure $ bc.ids.foldr (λ bid r, mk_simple_lambda (to_ident bid) bi type r) r
+      | mixed_binder.view.id bid := pure $ mk_simple_lambda (to_ident bid) binder_info.default (review hole {}) r
+      ) r,
+      pure (r, none)
+  },
+  let r := lam.binders.leading_ids.foldr (λ bid r,
+    mk_simple_lambda (to_ident bid) binder_info.default (ty.get_or_else $ review hole {}) r) r,
+  pure r
 
 def mixfix_to_notation_spec (k : mixfix.kind.view) (sym : notation_symbol.view) : transform_m notation_spec.view :=
 let prec := match sym with
@@ -110,7 +184,8 @@ local attribute [instance] name.has_lt_quick
 -- TODO(Sebastian): replace with attribute
 def transformers : rbmap name transformer (<) := rbmap.from_list [
   (mixfix.name, mixfix.transform),
-  (reserve_mixfix.name, reserve_mixfix.transform)
+  (reserve_mixfix.name, reserve_mixfix.transform),
+  (lambda.name, lambda.transform)
 ] _
 
 structure expander_state :=
@@ -137,8 +212,11 @@ do some n ← pure stx.as_node | pure stx,
    sc ← mk_scope,
    let n' := syntax.mk_node n.kind $ n.args.map (syntax.flip_scopes [sc]),
    stx' ← state_t.lift $ t n',
-   -- expand recursively
-   expand_core fuel $ stx'.flip_scopes [sc]
+   ---- expand recursively
+   --expand_core fuel $ stx'.flip_scopes [sc]
+   let stx' := stx'.flip_scopes [sc],
+   some n ← pure stx'.as_node | pure stx',
+   syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel)
 
 def expand (stx : syntax) : reader_t expander_config (except message) syntax :=
 -- TODO(Sebastian): persist macro scopes across commands/files

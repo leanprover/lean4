@@ -2003,6 +2003,7 @@ expr elaborator::visit_app(expr const & e, optional<expr> const & expected_type)
         return visit_scope_trace(e, expected_type);
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
+    flet<optional<pos_info>> _(m_last_pos, get_pos(fn));
     expr ufn = unwrap_pos(fn);
     if (is_infix_function(ufn)) {
         expr infix_fn = get_annotation_arg(ufn);

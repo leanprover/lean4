@@ -3311,8 +3311,8 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                  expected_type);
 }
 
-expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & expected_type) {
-    name macro = *get_name(mdata_data(e), "node_choice!");
+expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, optional<expr> const & expected_type) {
+    name macro = *get_name(mdata_data(e), longest_match ? "node_longest_choice!" : "node_choice!");
     name esc_macro = macro.is_atomic() ? "«" + macro.to_string() + "»" : macro;
     expr args = mdata_expr(e);
     name full_macro = get_namespace(m_env) + macro;
@@ -3388,7 +3388,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, optional<expr> const & 
     return visit(mk_app(mk_const({"lean", "parser", "combinators", "node"}),
                         mk_const(full_macro),
                         mk_app(mk_const({"list", "cons"}),
-                               mk_app(mk_const({"lean", "parser", "combinators", "choice"}),
+                               mk_app(mk_const({"lean", "parser", "combinators", longest_match ? "longest_choice" : "choice"}),
                                       mk_lean_list(new_args)),
                                mk_const({"list", "nil"}))), expected_type);
 }
@@ -3438,7 +3438,9 @@ expr elaborator::visit_mdata(expr const & e, optional<expr> const & expected_typ
     } else if (get_name(mdata_data(e), "node!")) {
         return visit_node_macro(e, expected_type);
     } else if (get_name(mdata_data(e), "node_choice!")) {
-        return visit_node_choice_macro(e, expected_type);
+        return visit_node_choice_macro(e, false, expected_type);
+    } else if (get_name(mdata_data(e), "node_longest_choice!")) {
+        return visit_node_choice_macro(e, true, expected_type);
     } else {
         expr new_e = visit(mdata_expr(e), expected_type);
         return update_mdata(e, new_e);

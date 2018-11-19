@@ -101,15 +101,10 @@ def to_pexpr : syntax → elaborator_m expr
       pure (binder_info.implicit, bc)
     | bracketed_binder.view.strict_implicit {content := bc} :=
       pure (binder_info.strict_implicit, bc)
-    | bracketed_binder.view.inst_implicit {content := bc} :=
-      prod.mk binder_info.inst_implicit <$> (match bc.kind with
-        | some @inst_implicit_anonymous_binder :=
-          pure {ids := ["_inst_"], type := some {type := (view inst_implicit_anonymous_binder bc).type}}
-        | some @inst_implicit_named_binder :=
-          let v := view inst_implicit_named_binder bc in
-          pure {ids := [v.id], type := some {type := v.type}}
-        | _ := error stx "ill-formed lambda")
-    /-| bracketed_binder.view.anonymous_constructor {content := bc} :=-/
+    | bracketed_binder.view.inst_implicit {content := bc} := do
+      inst_implicit_binder_content.view.named bcn ← pure bc
+        | error stx "ill-formed lambda",
+      pure (binder_info.inst_implicit, {ids := [bcn.id], type := some {type := bcn.type}})
     | _ := error stx "ill-formed lambda",
     {ids := [binder_ident.view.id id], type := some type} ← pure bc | error stx "ill-formed lambda",
     expr.lam (mangle_ident id) bi <$> to_pexpr type.type <*> to_pexpr body

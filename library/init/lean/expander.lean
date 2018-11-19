@@ -53,7 +53,7 @@ review lambda {
     | binder_info.implicit := bracketed_binder.view.implicit {content := bc}
     | binder_info.strict_implicit := bracketed_binder.view.strict_implicit {content := bc}
     | binder_info.inst_implicit := bracketed_binder.view.inst_implicit
-      {content := review inst_implicit_named_binder {id := id, type := dom}}
+      {content := inst_implicit_binder_content.view.named {id := id, type := dom}}
     | binder_info.aux_decl := /- should not happen -/
       bracketed_binder.view.explicit {content := explicit_binder_content.view.other bc}
   ]},
@@ -90,13 +90,11 @@ def lambda.transform : transformer :=
         | bracketed_binder.view.implicit {content := bc} := (binder_info.implicit, bc)
         | bracketed_binder.view.strict_implicit {content := bc} := (binder_info.strict_implicit, bc)
         | bracketed_binder.view.inst_implicit {content := bc} :=
-          prod.mk binder_info.inst_implicit $ (match bc.kind with
-            | some @inst_implicit_anonymous_binder :=
-              {ids := ["_inst_"], type := some {type := (view inst_implicit_anonymous_binder bc).type}}
-            | some @inst_implicit_named_binder :=
-              let v := view inst_implicit_named_binder bc in
-              {ids := [v.id], type := some {type := v.type}}
-            | _ := {ids := []} /- unreachable -/)
+          prod.mk binder_info.inst_implicit $ (match bc with
+            | inst_implicit_binder_content.view.anonymous bca :=
+              {ids := ["_inst_"], type := some {type := bca.type}}
+            | inst_implicit_binder_content.view.named bcn :=
+              {ids := [bcn.id], type := some {type := bcn.type}})
         | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
         let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
         type ← match bc.default with

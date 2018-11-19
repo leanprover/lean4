@@ -934,6 +934,8 @@ static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
 }
 
 static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
+    name this_macro = p.get_token_info().value();
+    p.next();
     name macro = p.check_id_next("identifier expected");
     std::function<buffer<expr>()> go;
     buffer<expr> args;
@@ -962,7 +964,7 @@ static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
         p.next();
     }
     p.check_token_next("}", "`}` expected");
-    return mk_mdata(set_name(kvmap(), "node_choice!", macro), mk_lean_list(args));
+    return mk_mdata(set_name(kvmap(), this_macro, macro), mk_lean_list(args));
 }
 
 parse_table init_nud_table() {
@@ -999,7 +1001,8 @@ parse_table init_nud_table() {
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
     r = r.add({transition("node!", mk_ext_action(parse_node))}, x0);
-    r = r.add({transition("node_choice!", mk_ext_action(parse_choice))}, x0);
+    r = r.add({transition("node_choice!", mk_ext_action_core(parse_choice))}, x0);
+    r = r.add({transition("node_longest_choice!", mk_ext_action_core(parse_choice))}, x0);
     return r;
 }
 

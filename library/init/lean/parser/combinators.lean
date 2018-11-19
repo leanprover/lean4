@@ -165,9 +165,6 @@ instance longest_match.tokens (rs : list parser) [parser.has_tokens rs] : parser
 ⟨tokens rs⟩
 instance longest_match.view (rs : list parser) : parser.has_view syntax (longest_match rs) := default _
 
-/-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
-    The result will be wrapped in a node with the the index of the successful
-    parser as the name. -/
 def choice_aux : list parser → nat → parser
 | []      _ := error "choice: empty list"
 | (r::rs) i :=
@@ -175,15 +172,29 @@ def choice_aux : list parser → nat → parser
        pure $ syntax.mk_node ⟨name.mk_numeral name.anonymous i⟩ [stx] }
   <|> choice_aux rs (i+1)
 
+/-- Parse a list `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
+    The result will be wrapped in a node with the index of the successful
+    parser as the name.
+
+    Remark: Does not have a `has_view` instance because we only use it in `node_choice!` macros
+    that define their own views. -/
 def choice (rs : list parser) : parser :=
 choice_aux rs 0
 
 instance choice.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (choice rs) :=
 ⟨tokens rs⟩
 
-/- Remark: `choice` does not have `has_view` instance because we only use it at the pratt combinator
-   which doesn't need the view. -/
+/-- Like `choice`, but using `longest_match`. Does not create choice nodes, prefers the first successful parser. -/
+def longest_choice (rs : list parser) : parser :=
+do stx::stxs ← monad_parsec.longest_match $ rs.enum.map $ λ ⟨i, r⟩, do {
+     stx ← r,
+     pure $ syntax.mk_node ⟨name.mk_numeral name.anonymous i⟩ [stx]
+   } | error "unreachable",
+   pure stx
 
+instance longest_choice.tokens (rs : list parser) [parser.has_tokens rs] : parser.has_tokens (longest_choice rs) :=
+
+⟨tokens rs⟩
 instance try.tokens (r : parser) [parser.has_tokens r] : parser.has_tokens (try r) :=
 ⟨tokens r⟩
 instance try.view (r : parser) [i : parser.has_view α r] : parser.has_view α (try r) :=

@@ -110,10 +110,10 @@ node_choice! bracketed_binder {
   }, right: symbol ")"],
   implicit: node! implicit_binder ["{", content: binder_content.parser, "}"],
   strict_implicit: node! strict_implicit_binder ["⦃", content: binder_content.parser, "⦄"],
-  inst_implicit: node! inst_implicit_binder ["[", content: longest_match [
-    node! inst_implicit_named_binder [id: ident.parser, " : ", type: term.parser 0],
-    node! inst_implicit_anonymous_binder [type: term.parser 0]
-  ], "]"],
+  inst_implicit: node! inst_implicit_binder ["[", content: node_longest_choice! inst_implicit_binder_content {
+    named: node! inst_implicit_named_binder [id: ident.parser, " : ", type: term.parser 0],
+    anonymous: node! inst_implicit_anonymous_binder [type: term.parser 0]
+  }, "]"],
   anonymous_constructor: anonymous_constructor.parser,
 }
 

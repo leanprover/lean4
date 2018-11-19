@@ -88,26 +88,15 @@ def to_pexpr : syntax → elaborator_m expr
   | @app   := let v := view app stx in
     expr.app <$> to_pexpr v.fn <*> to_pexpr v.arg
   | @lambda := do
-    ({binders := {leading_ids := [],
-                  remainder := binders_remainder.view.mixed [mixed_binder.view.bracketed bb]},
-      body := body}) ←
-      pure $ view lambda stx | error stx "ill-formed lambda",
-    (bi, bc) ← match bb with
-    | bracketed_binder.view.explicit {content := bc} :=
-      (match bc with
-       | explicit_binder_content.view.other bc := pure (binder_info.default, bc)
-       | _ := error stx "ill-formed lambda")
-    | bracketed_binder.view.implicit {content := bc} :=
-      pure (binder_info.implicit, bc)
-    | bracketed_binder.view.strict_implicit {content := bc} :=
-      pure (binder_info.strict_implicit, bc)
-    | bracketed_binder.view.inst_implicit {content := bc} := do
-      inst_implicit_binder_content.view.named bcn ← pure bc
-        | error stx "ill-formed lambda",
-      pure (binder_info.inst_implicit, {ids := [bcn.id], type := some {type := bcn.type}})
-    | _ := error stx "ill-formed lambda",
-    {ids := [binder_ident.view.id id], type := some type} ← pure bc | error stx "ill-formed lambda",
-    expr.lam (mangle_ident id) bi <$> to_pexpr type.type <*> to_pexpr body
+    let lam := view lambda stx,
+    lambda_binders.view.simple bnder ← pure lam.binders
+      | error stx "ill-formed lambda",
+    (bi, id, type) ← pure $ match bnder with
+    | simple_binder.view.explicit {id := id, type := type} := (binder_info.default, id, type)
+    | simple_binder.view.implicit {id := id, type := type} := (binder_info.implicit, id, type)
+    | simple_binder.view.strict_implicit {id := id, type := type} := (binder_info.strict_implicit, id, type)
+    | simple_binder.view.inst_implicit {id := id, type := type} := (binder_info.inst_implicit, id, type),
+    expr.lam (mangle_ident id) bi <$> to_pexpr type <*> to_pexpr lam.body
   | @sort := (match view sort stx with
     | sort.view.Sort _ := pure $ expr.sort level.zero
     | sort.view.Type _ := pure $ expr.sort $ level.succ level.zero)

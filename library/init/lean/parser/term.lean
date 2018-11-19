@@ -71,6 +71,15 @@ node! binder_content [
   }?
 ]
 
+@[derive has_tokens has_view]
+def simple_binder.parser : term_parser :=
+node_choice! simple_binder {
+  explicit: node! simple_explicit_binder ["(", id: ident.parser, " : ", type: term.parser 0, right: symbol ")"],
+  implicit: node! simple_implicit_binder ["{", id: ident.parser, " : ", type: term.parser 0, right: symbol "}"],
+  strict_implicit: node! simple_strict_implicit_binder ["⦃", id: ident.parser, " : ", type: term.parser 0, right: symbol "⦄"],
+  inst_implicit: node! simple_inst_implicit_binder ["[", id: ident.parser, " : ", type: term.parser 0, right: symbol "]"],
+}
+
 @[derive parser.has_tokens parser.has_view]
 def anonymous_constructor.parser : term_parser :=
 node! anonymous_constructor ["⟨":max_prec, args: sep_by (term.parser 0) (symbol ","), "⟩"]
@@ -144,7 +153,11 @@ end binder
 def lambda.parser : term_parser :=
 node! lambda [
   op: unicode_symbol "λ" "fun" max_prec,
-  binders: binders.parser,
+  binders: node_choice! lambda_binders {
+    extended: binders.parser,
+    -- a strict subset of `extended`, so only useful after parsing
+    simple: simple_binder.parser,
+  },
   ",",
   body: term.parser 0
 ]

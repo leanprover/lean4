@@ -50,16 +50,13 @@ args.foldl (λ fn arg, syntax.mk_node app [fn, arg]) (syntax.ident fn)
 def mk_simple_lambda (id : syntax_ident) (bi : binder_info) (dom body : syntax) : syntax :=
 let bc : binder_content.view := {ids := [id], type := some {type := dom}} in
 review lambda {
-  binders := {leading_ids := [], remainder := binders_remainder.view.mixed [
-    mixed_binder.view.bracketed $ match bi with
-    | binder_info.default := bracketed_binder.view.explicit {content := explicit_binder_content.view.other bc}
-    | binder_info.implicit := bracketed_binder.view.implicit {content := bc}
-    | binder_info.strict_implicit := bracketed_binder.view.strict_implicit {content := bc}
-    | binder_info.inst_implicit := bracketed_binder.view.inst_implicit
-      {content := inst_implicit_binder_content.view.named {id := id, type := dom}}
+  binders := lambda_binders.view.simple $ match bi with
+    | binder_info.default := simple_binder.view.explicit {id := id, type := dom}
+    | binder_info.implicit := simple_binder.view.implicit {id := id, type := dom}
+    | binder_info.strict_implicit := simple_binder.view.strict_implicit {id := id, type := dom}
+    | binder_info.inst_implicit := simple_binder.view.inst_implicit {id := id, type := dom}
     | binder_info.aux_decl := /- should not happen -/
-      bracketed_binder.view.explicit {content := explicit_binder_content.view.other bc}
-  ]},
+      simple_binder.view.explicit {id := id, type := dom},
   body := body
 }
 
@@ -71,8 +68,10 @@ def lambda.transform : transformer :=
     match bid with
     | binder_ident.view.id id := id
     | binder_ident.view.hole _ := "a",
+  lambda_binders.view.extended ext_binders ← pure lam.binders
+    | no_expansion,
   let r := lam.body,
-  (r, ty) ← match lam.binders.remainder with
+  (r, ty) ← match ext_binders.remainder with
     | none := pure (r, none)
     | binders_remainder.view.type brt := pure (r, some brt.type)
     | binders_remainder.view.mixed brms := do {
@@ -111,7 +110,7 @@ def lambda.transform : transformer :=
       ) r,
       pure (r, none)
   },
-  let r := lam.binders.leading_ids.foldr (λ bid r,
+  let r := ext_binders.leading_ids.foldr (λ bid r,
     mk_simple_lambda (to_ident bid) binder_info.default (ty.get_or_else $ review hole {}) r) r,
   pure r
 

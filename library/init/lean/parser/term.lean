@@ -7,6 +7,7 @@ Term-level parsers
 -/
 prelude
 import init.lean.parser.level init.lean.parser.notation
+import init.lean.expr
 
 namespace lean
 namespace parser
@@ -80,6 +81,12 @@ node_choice! simple_binder {
   inst_implicit: node! simple_inst_implicit_binder ["[", id: ident.parser, " : ", type: term.parser 0, right: symbol "]"],
 }
 
+def simple_binder.view.to_binder_info : simple_binder.view → (binder_info × syntax_ident × syntax)
+| (simple_binder.view.explicit {id := id, type := type})        := (binder_info.default, id, type)
+| (simple_binder.view.implicit {id := id, type := type})        := (binder_info.implicit, id, type)
+| (simple_binder.view.strict_implicit {id := id, type := type}) := (binder_info.strict_implicit, id, type)
+| (simple_binder.view.inst_implicit {id := id, type := type})   := (binder_info.inst_implicit, id, type)
+
 @[derive parser.has_tokens parser.has_view]
 def anonymous_constructor.parser : term_parser :=
 node! anonymous_constructor ["⟨":max_prec, args: sep_by (term.parser 0) (symbol ","), "⟩"]
@@ -147,17 +154,21 @@ node! binders [
   }?
 ]
 
+/-- Where possible, we normalize binders to singleton simple binders during expansion. -/
+@[derive has_tokens has_view]
+def binders'.parser : term_parser :=
+node_choice! binders' {
+  extended: binders.parser,
+  -- a strict subset of `extended`, so only useful after parsing
+  simple: simple_binder.parser,
+}
 end binder
 
 @[derive parser.has_tokens parser.has_view]
 def lambda.parser : term_parser :=
 node! lambda [
   op: unicode_symbol "λ" "fun" max_prec,
-  binders: node_choice! lambda_binders {
-    extended: binders.parser,
-    -- a strict subset of `extended`, so only useful after parsing
-    simple: simple_binder.parser,
-  },
+  binders: binders'.parser,
   ",",
   body: term.parser 0
 ]
@@ -178,7 +189,7 @@ node! «assume» [
 def pi.parser : term_parser :=
 node! pi [
   op: any_of [unicode_symbol "Π" "Pi" max_prec, unicode_symbol "∀" "forall" max_prec],
-  binders: binders.parser,
+  binders: binders'.parser,
   ",",
   range: term.parser 0
 ]

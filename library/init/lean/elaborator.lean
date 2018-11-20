@@ -91,14 +91,16 @@ def to_pexpr : syntax → elaborator_m expr
     expr.app <$> to_pexpr v.fn <*> to_pexpr v.arg
   | @lambda := do
     let lam := view lambda stx,
-    lambda_binders.view.simple bnder ← pure lam.binders
+    binders'.view.simple bnder ← pure lam.binders
       | error stx "ill-formed lambda",
-    (bi, id, type) ← pure $ match bnder with
-    | simple_binder.view.explicit {id := id, type := type} := (binder_info.default, id, type)
-    | simple_binder.view.implicit {id := id, type := type} := (binder_info.implicit, id, type)
-    | simple_binder.view.strict_implicit {id := id, type := type} := (binder_info.strict_implicit, id, type)
-    | simple_binder.view.inst_implicit {id := id, type := type} := (binder_info.inst_implicit, id, type),
+    (bi, id, type) ← pure bnder.to_binder_info,
     expr.lam (mangle_ident id) bi <$> to_pexpr type <*> to_pexpr lam.body
+  | @pi := do
+    let v := view pi stx,
+    binders'.view.simple bnder ← pure v.binders
+      | error stx "ill-formed pi",
+    (bi, id, type) ← pure bnder.to_binder_info,
+    expr.pi (mangle_ident id) bi <$> to_pexpr type <*> to_pexpr v.range
   | @sort := (match view sort stx with
     | sort.view.Sort _ := pure $ expr.sort level.zero
     | sort.view.Type _ := pure $ expr.sort $ level.succ level.zero)

@@ -44,37 +44,32 @@ instance coe_ident_binder_id : has_coe syntax_ident binder_ident.view :=
 instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=
 ⟨λ ids, {leading_ids := ids.map coe}⟩
 
-def mk_simple_lambda (id : syntax_ident) (bi : binder_info) (dom body : syntax) : syntax :=
-let bc : binder_content.view := {ids := [id], type := some {type := dom}} in
-review lambda {
-  binders := lambda_binders.view.simple $ match bi with
-    | binder_info.default := simple_binder.view.explicit {id := id, type := dom}
-    | binder_info.implicit := simple_binder.view.implicit {id := id, type := dom}
-    | binder_info.strict_implicit := simple_binder.view.strict_implicit {id := id, type := dom}
-    | binder_info.inst_implicit := simple_binder.view.inst_implicit {id := id, type := dom}
-    | binder_info.aux_decl := /- should not happen -/
-      simple_binder.view.explicit {id := id, type := dom},
-  body := body
-}
+def mk_simple_binder (id : syntax_ident) (bi : binder_info) (type : syntax) : binders'.view :=
+let bc : binder_content.view := {ids := [id], type := some {type := type}} in
+binders'.view.simple $ match bi with
+| binder_info.default := simple_binder.view.explicit {id := id, type := type}
+| binder_info.implicit := simple_binder.view.implicit {id := id, type := type}
+| binder_info.strict_implicit := simple_binder.view.strict_implicit {id := id, type := type}
+| binder_info.inst_implicit := simple_binder.view.inst_implicit {id := id, type := type}
+| binder_info.aux_decl := /- should not happen -/
+  simple_binder.view.explicit {id := id, type := type}
 
--- TODO(Sebastian): share this with other forms taking binders? Using local_expand?
-def lambda.transform : transformer :=
-λ stx, do
-  let lam := view lambda stx,
+def expand_binders' (mk_binding : binders'.view → syntax → syntax) (binders : binders'.view)
+  (body : syntax) : transform_m (option syntax) := do
   let to_ident (bid : binder_ident.view) : syntax_ident :=
     match bid with
     | binder_ident.view.id id := id
     | binder_ident.view.hole _ := "a",
-  lambda_binders.view.extended ext_binders ← pure lam.binders
+  binders'.view.extended ext_binders ← pure binders
     | no_expansion,
-  let r := lam.body,
+  let r := body,
   (r, ty) ← match ext_binders.remainder with
     | none := pure (r, none)
     | binders_remainder.view.type brt := pure (r, some brt.type)
     | binders_remainder.view.mixed brms := do {
       r ← brms.mfoldr (λ brm r, match brm with
       | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
-        pure $ mk_simple_lambda "x" binder_info.default (review hole {}) $ review «match» {
+        pure $ mk_binding (mk_simple_binder "x" binder_info.default (review hole {})) $ review «match» {
           scrutinees := [(syntax.ident "x", none)],
           equations := [({lhs := [(review anonymous_constructor ctor, none)], rhs := r}, none)]
         }
@@ -102,14 +97,25 @@ def lambda.transform : transformer :=
         | some bdv@(binder_default.view.tac bdt) := match bc.type with
           | none := pure $ mk_app "_root_.auto_param" [bdt.term]
           | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
-        pure $ bc.ids.foldr (λ bid r, mk_simple_lambda (to_ident bid) bi type r) r
-      | mixed_binder.view.id bid := pure $ mk_simple_lambda (to_ident bid) binder_info.default (review hole {}) r
+        pure $ bc.ids.foldr (λ bid r, mk_binding (mk_simple_binder (to_ident bid) bi type) r) r
+      | mixed_binder.view.id bid := pure $
+        mk_binding (mk_simple_binder (to_ident bid) binder_info.default (review hole {})) r
       ) r,
       pure (r, none)
   },
   let r := ext_binders.leading_ids.foldr (λ bid r,
-    mk_simple_lambda (to_ident bid) binder_info.default (ty.get_or_else $ review hole {}) r) r,
+    mk_binding (mk_simple_binder (to_ident bid) binder_info.default (ty.get_or_else $ review hole {})) r) r,
   pure r
+
+def lambda.transform : transformer :=
+λ stx, do
+  let v := view lambda stx,
+  expand_binders' (λ binders body, review lambda {binders := binders, body := body}) v.binders v.body
+
+def pi.transform : transformer :=
+λ stx, do
+  let v := view pi stx,
+  expand_binders' (λ binders body, review pi {op := v.op, binders := binders, range := body}) v.binders v.range
 
 def mixfix_to_notation_spec (k : mixfix.kind.view) (sym : notation_symbol.view) : transform_m notation_spec.view :=
 let prec := match sym with
@@ -190,11 +196,11 @@ def paren.transform : transformer :=
 def assume.transform : transformer :=
 λ stx, do
   let v := view «assume» stx,
-  let binders : lambda_binders.view := match v.binders with
-  | assume_binders.view.anonymous aba := lambda_binders.view.simple $
+  let binders : binders'.view := match v.binders with
+  | assume_binders.view.anonymous aba := binders'.view.simple $
     -- TODO(Sebastian): unhygienic!
     simple_binder.view.explicit {id := "this", type := aba.type}
-  | assume_binders.view.binders abb := lambda_binders.view.extended abb,
+  | assume_binders.view.binders abb := binders'.view.extended abb,
   pure $ review lambda {binders := binders, body := v.body}
 
 local attribute [instance] name.has_lt_quick
@@ -204,6 +210,7 @@ def transformers : rbmap name transformer (<) := rbmap.from_list [
   (mixfix.name, mixfix.transform),
   (reserve_mixfix.name, reserve_mixfix.transform),
   (lambda.name, lambda.transform),
+  (pi.name, pi.transform),
   (paren.name, paren.transform),
   (assume.name, assume.transform)
 ] _

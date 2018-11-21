@@ -117,6 +117,14 @@ def pi.transform : transformer :=
   let v := view pi stx,
   expand_binders' (λ binders body, review pi {op := v.op, binders := binders, range := body}) v.binders v.range
 
+def arrow.transform : transformer :=
+λ stx, do
+  let v := view arrow stx,
+  pure $ review pi {
+    op := syntax.atom {val := "Π"},
+    binders := binders'.view.simple $ simple_binder.view.explicit {id := `a, type := v.dom},
+    range := v.range}
+
 def mixfix_to_notation_spec (k : mixfix.kind.view) (sym : notation_symbol.view) : transform_m notation_spec.view :=
 let prec := match sym with
 | notation_symbol.view.quoted q := q.prec
@@ -203,6 +211,15 @@ def assume.transform : transformer :=
   | assume_binders.view.binders abb := binders'.view.extended abb,
   pure $ review lambda {binders := binders, body := v.body}
 
+def if.transform : transformer :=
+λ stx, do
+  let v := view «if» stx,
+  pure $ match v.id with
+  | some id := mk_app `dite [v.prop,
+    review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := v.prop}, body := v.then_branch},
+    review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_app `not [v.prop]}, body := v.else_branch}]
+  | none := mk_app `ite [v.prop, v.then_branch, v.else_branch]
+
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): replace with attribute
@@ -211,8 +228,10 @@ def transformers : rbmap name transformer (<) := rbmap.from_list [
   (reserve_mixfix.name, reserve_mixfix.transform),
   (lambda.name, lambda.transform),
   (pi.name, pi.transform),
+  (arrow.name, arrow.transform),
   (paren.name, paren.transform),
-  (assume.name, assume.transform)
+  (assume.name, assume.transform),
+  (if.name, if.transform)
 ] _
 
 structure expander_state :=

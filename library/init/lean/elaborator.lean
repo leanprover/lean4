@@ -16,17 +16,19 @@ open parser
 open parser.term
 open parser.command
 open parser.command.notation_spec
+open expander
 
 structure elaborator_config :=
 (filename : string)
-(local_notations : list notation.view := [])
+(local_notations : list notation_macro := [])
 (initial_parser_cfg : module_parser_config)
 
 structure elaborator_state :=
 -- TODO(Sebastian): retrieve from environment
 (reserved_notations : list reserve_notation.view := [])
--- TODO(Sebastian): retrieve from environment
-(nonlocal_notations : list notation.view := [])
+(nonlocal_notations : list notation_macro := [])
+(notation_counter := 0)
+
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 (expander_cfg : expander.expander_config)
@@ -162,10 +164,9 @@ do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
      pure {cfg with tokens := cfg.tokens.insert a.val.trim {«prefix» := a.val.trim, lbp := prec_to_nat prec}}
    | _ := throw "register_notation_tokens: unreachable") cfg
 
-def command_parser_config.register_notation_parser (spec : notation_spec.view) (cfg : command_parser_config) :
-  except string command_parser_config :=
+def command_parser_config.register_notation_parser (k : syntax_node_kind) (spec : notation_spec.view)
+  (cfg : command_parser_config) : except string command_parser_config :=
 do -- build and register parser
-   let k : syntax_node_kind := {name := "notation<TODO>"},
    ps ← spec.rules.mmap (λ r : rule.view, do
      psym ← match r.symbol with
      | notation_symbol.view.quoted {symbol := some a ..} :=
@@ -208,10 +209,10 @@ do st ← get,
      | except.ok ccfg := pure ccfg
      | except.error e := error (review reserve_notation rnota) e) ccfg,
    ccfg ← (st.nonlocal_notations ++ cfg.local_notations).mfoldl (λ ccfg nota,
-     match command_parser_config.register_notation_tokens nota.spec ccfg >>=
-               command_parser_config.register_notation_parser nota.spec with
+     match command_parser_config.register_notation_tokens nota.nota.spec ccfg >>=
+               command_parser_config.register_notation_parser nota.kind nota.nota.spec with
      | except.ok ccfg := pure ccfg
-     | except.error e := error (review «notation» nota) e) ccfg,
+     | except.error e := error (review «notation» nota.nota) e) ccfg,
    put {st with parser_cfg := {cfg.initial_parser_cfg with to_command_parser_config := ccfg}}
 
 def yield_to_outside : coelaborator_m unit :=
@@ -288,6 +289,18 @@ def notation.elaborate_aux : notation.view → elaborator_m notation.view :=
   -- TODO: sanity checks
   pure {nota with spec := postprocess_notation_spec nota.spec}
 
+def mk_notation_kind : elaborator_m syntax_node_kind :=
+do st ← get,
+   put {st with notation_counter := st.notation_counter + 1},
+   pure {name := (`_notation).mk_numeral st.notation_counter}
+
+def register_notation_macro (nota : notation.view) : elaborator_m notation_macro :=
+do k ← mk_notation_kind,
+   let m : notation_macro := ⟨k, nota⟩,
+   let transf := mk_notation_transformer m,
+   modify $ λ st, {st with expander_cfg := {st.expander_cfg with transformers := st.expander_cfg.transformers.insert k.name transf}},
+   pure m
+
 def notation.elaborate : elaborator :=
 λ stx, do
   let nota := view «notation» stx,
@@ -303,7 +316,8 @@ def notation.elaborate : elaborator :=
       severity := message_severity.warning, text := "ignoring notation using 'fold' action"}}
   } else do {
     nota ← notation.elaborate_aux nota,
-    modify $ λ st, {st with nonlocal_notations := nota::st.nonlocal_notations},
+    m ← register_notation_macro nota,
+    modify $ λ st, {st with nonlocal_notations := m::st.nonlocal_notations},
     update_parser_config
   }
 
@@ -332,8 +346,9 @@ def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
     let nota := view «notation» cmd,
     if nota.local.is_some then do {
       nota ← notation.elaborate_aux nota,
+      m ← register_notation_macro nota,
       -- add local notation scoped to the remaining commands
-      adapt_reader (λ cfg : elaborator_config, {cfg with local_notations := nota::cfg.local_notations}) $ do {
+      adapt_reader (λ cfg : elaborator_config, {cfg with local_notations := m::cfg.local_notations}) $ do {
         (update_parser_config : coelaborator),
         yield_to_outside,
         commands.elaborate n

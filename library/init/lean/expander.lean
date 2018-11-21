@@ -45,6 +45,65 @@ instance coe_ident_binder_id : has_coe syntax_ident binder_ident.view :=
 instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=
 ⟨λ ids, {leading_ids := ids.map coe}⟩
 
+instance coe_binders_binders' : has_coe term.binders.view term.binders'.view :=
+⟨term.binders'.view.extended⟩
+
+/-- A notation together with a unique node kind. -/
+structure notation_macro :=
+(kind : syntax_node_kind)
+(nota : notation.view)
+
+structure notation_transformer_state :=
+(stx : syntax)
+-- children of `stx` that have not been consumed yet
+(stx_args : list syntax := [])
+-- substitutions for notation variables
+(substs : list (syntax_ident × syntax) := [])
+-- filled by `binders` transitions, consumed by `scoped` actions
+(scoped : option $ term.binders.view := none)
+
+private def pop_stx_arg : state_t notation_transformer_state transform_m syntax :=
+do st ← get,
+   match st.stx_args with
+   | arg::args := put {st with stx_args := args} *> pure arg
+   | _         := error st.stx "mk_notation_transformer: unreachable"
+
+def mk_notation_transformer (nota : notation_macro) : expander.transformer :=
+λ stx, do
+  some {args := stx_args, ..} ← pure stx.as_node
+    | error stx "mk_notation_transformer: unreachable",
+  flip state_t.run' {notation_transformer_state . stx := stx, stx_args := stx_args} $ do
+    let spec := nota.nota.spec,
+    match spec.prefix_arg with
+    | none     := pure ()
+    | some arg := do { stx_arg ← pop_stx_arg, modify $ λ st, {st with substs := (arg, stx_arg)::st.substs} },
+    nota.nota.spec.rules.mfor (λ r : rule.view, do
+      match r.symbol with
+      | notation_symbol.view.quoted {symbol := some a ..} := pop_stx_arg
+      | _ := error stx "mk_notation_transformer: unreachable",
+      match r.transition with
+      | some (transition.view.binders b) :=
+        do { stx_arg ← pop_stx_arg, modify $ λ st, {st with scoped := some $ view term.binders.parser stx_arg} }
+      | some (transition.view.arg {action := none, id := id}) :=
+        do { stx_arg ← pop_stx_arg, modify $ λ st, {st with substs := (id, stx_arg)::st.substs} }
+      | some (transition.view.arg {action := some {kind := action_kind.view.prec _}, id := id}) :=
+        do { stx_arg ← pop_stx_arg, modify $ λ st, {st with substs := (id, stx_arg)::st.substs} }
+      | some (transition.view.arg {action := some {kind := action_kind.view.scoped sc}, id := id}) := do
+        stx_arg ← pop_stx_arg,
+        {scoped := some bnders, ..} ← get
+          | error stx "mk_notation_transformer: unreachable",
+        -- TODO(Sebastian): not correct with multiple binders
+        let sc_lam := review lambda {binders := [sc.id], body := sc.term},
+        let lam := review lambda {binders := binders'.view.extended bnders, body := stx_arg},
+        let arg := review app {fn := sc_lam, arg := lam},
+        modify $ λ st, {st with substs := (id, arg)::st.substs}
+      | none := pure ()
+      | _ := error stx "mk_notation_transformer: unimplemented"),
+    st ← get,
+    -- apply substitutions [(x1, e1), ...] via `(λ x1 ..., nota.nota.term) e1 ...`
+    let lam := review lambda {binders := st.substs.map prod.fst, body := nota.nota.term},
+    pure $ some $ st.substs.foldl (λ fn subst, review app {fn := fn, arg := subst.2}) lam
+
 def mk_simple_binder (id : syntax_ident) (bi : binder_info) (type : syntax) : binders'.view :=
 let bc : binder_content.view := {ids := [id], type := some {type := type}} in
 binders'.view.simple $ match bi with

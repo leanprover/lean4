@@ -16,6 +16,9 @@ def state_t (σ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v)
 @[inline] def state_t.run {σ : Type u} {m : Type u → Type v} {α : Type u} (x : state_t σ m α) (s : σ) : m (α × σ) :=
 x s
 
+@[inline] def state_t.run' {σ : Type u} {m : Type u → Type v} [functor m] {α : Type u} (x : state_t σ m α) (s : σ) : m α :=
+prod.fst <$> x s
+
 @[reducible] def state (σ α : Type u) : Type u := state_t σ id α
 
 namespace state_t
@@ -160,7 +163,7 @@ instance [monad m] : monad_state_adapter σ σ' (state_t σ m) (state_t σ' m) :
 end
 
 instance (σ : Type u) (m out : Type u → Type v) [functor m] [monad_run out m] : monad_run (λ α, σ → out α) (state_t σ m) :=
-⟨λ α x, run ∘ (λ σ, prod.fst <$> (x σ))⟩
+⟨λ α x, run ∘ state_t.run' x⟩
 
 class monad_state_runner (σ : Type u) (m m' : Type u → Type u) :=
 (run_state {} {α : Type u} : m α → σ → m' α)

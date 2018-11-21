@@ -195,7 +195,7 @@ node! pi [
 ]
 
 @[derive parser.has_tokens parser.has_view]
-def explicit_ident.parser : term_parser :=
+def explicit.parser : term_parser :=
 node! explicit [
   mod: node_choice! explicit_modifier {
     explicit: symbol "@" max_prec,
@@ -328,8 +328,8 @@ def builtin_leading_parsers : token_map term_parser := token_map.of_list [
   ("∀", pi.parser),
   ("forall", pi.parser),
   ("⟨", anonymous_constructor.parser),
-  ("@", explicit_ident.parser),
-  ("@@", explicit_ident.parser),
+  ("@", explicit.parser),
+  ("@@", explicit.parser),
   ("let", let.parser),
   ("have", have.parser),
   ("show", show.parser),

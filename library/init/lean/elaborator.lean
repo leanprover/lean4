@@ -104,6 +104,11 @@ def to_pexpr : syntax → elaborator_m expr
   | @sort := (match view sort stx with
     | sort.view.Sort _ := pure $ expr.sort level.zero
     | sort.view.Type _ := pure $ expr.sort $ level.succ level.zero)
+  | @sort_app := do
+    let v := view sort_app stx,
+    (match view sort v.fn with
+     | sort.view.Sort _ := expr.sort <$> to_level v.arg
+     | sort.view.Type _ := (expr.sort ∘ level.succ) <$> to_level v.arg)
   | @anonymous_constructor := do
     let v := view anonymous_constructor stx,
     p ← to_pexpr $ mk_app' (review hole {}) (v.args.map prod.fst),
@@ -123,6 +128,15 @@ def to_pexpr : syntax → elaborator_m expr
     | projection_spec.view.id id := data_value.of_name id.val
     | projection_spec.view.num n := data_value.of_nat n.to_nat,
     expr.mdata (kvmap.insert {} `field_notation val) <$> to_pexpr v.term
+  | @explicit := do
+    let v := view explicit stx,
+    let ann := match v.mod with
+    | explicit_modifier.view.explicit _         := `explicit
+    | explicit_modifier.view.partial_explicit _ := `partial_explicit,
+    expr.mk_annotation ann <$> to_pexpr (review ident_univs v.id)
+  | @number := do
+    let v := view number stx,
+    pure $ expr.lit $ literal.nat_val v.to_nat
   | _ := error stx $ "unexpected node: " ++ to_string k.name)
 | stx := error stx $ "unexpected: " ++ to_string stx
 

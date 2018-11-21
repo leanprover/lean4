@@ -29,6 +29,7 @@ structure elaborator_state :=
 (nonlocal_notations : list notation.view := [])
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
+(expander_cfg : expander.expander_config)
 
 @[derive monad monad_reader monad_state monad_except]
 def elaborator_t (m : Type → Type) [monad m] := reader_t elaborator_config $ state_t elaborator_state $ except_t message m
@@ -380,7 +381,8 @@ protected def max_commands := 10000
 
 protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state message_log :=
 do
-  let st := {elaborator_state . parser_cfg := cfg.initial_parser_cfg},
+  let st := {elaborator_state . parser_cfg := cfg.initial_parser_cfg,
+    expander_cfg := {filename := cfg.filename, transformers := expander.builtin_transformers}},
   p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
     (commands.elaborate ff elaborator.max_commands)
     (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})

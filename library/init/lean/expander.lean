@@ -16,21 +16,22 @@ open parser.term
 open parser.command
 open parser.command.notation_spec
 
-structure expander_config :=
+structure transformer_config :=
 (filename : string)
 
 @[derive monad monad_reader monad_except]
-def transform_m := reader_t expander_config $ except_t message id
+def transform_m := reader_t transformer_config $ except_t message id
 abbreviation transformer := syntax → transform_m (option syntax)
 
 def no_expansion : transform_m (option syntax) :=
 pure none
 
-def error {m : Type → Type} [monad m] [monad_reader expander_config m] [monad_except message m] {α : Type}
+def error {m : Type → Type} {ρ : Type} [monad m] [monad_reader ρ m] [has_lift_t ρ transformer_config]
+  [monad_except message m] {α : Type}
   (context : syntax) (text : string) : m α :=
 do cfg ← read,
    -- TODO(Sebastian): convert position
-   throw {filename := cfg.filename, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
+   throw {filename := transformer_config.filename ↑cfg, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
 
 instance coe_name_ident : has_coe name syntax_ident :=
 ⟨λ n, {val := n, raw_val := substring.of_string n.to_string}⟩
@@ -223,7 +224,7 @@ def if.transform : transformer :=
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): replace with attribute
-def transformers : rbmap name transformer (<) := rbmap.from_list [
+def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (mixfix.name, mixfix.transform),
   (reserve_mixfix.name, reserve_mixfix.transform),
   (lambda.name, lambda.transform),
@@ -236,6 +237,12 @@ def transformers : rbmap name transformer (<) := rbmap.from_list [
 
 structure expander_state :=
 (next_scope : macro_scope)
+
+structure expander_config extends transformer_config :=
+(transformers : rbmap name transformer (<))
+
+instance expander_config.has_lift : has_lift expander_config transformer_config :=
+⟨expander_config.to_transformer_config⟩
 
 @[reducible] def expander_m := state_t expander_state $ reader_t expander_config $ except_t message id
 
@@ -253,12 +260,12 @@ private def expand_core : nat → syntax → expander_m syntax
 | (fuel + 1) stx :=
 do some n ← pure stx.as_node | pure stx,
    cfg ← read,
-   some t ← pure $ transformers.find n.kind.name
+   some t ← pure $ cfg.transformers.find n.kind.name
      -- not a macro: recurse
      | syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel),
    sc ← mk_scope,
    let n' := syntax.mk_node n.kind $ n.args.map (syntax.flip_scopes [sc]),
-   some stx' ← state_t.lift $ t n'
+   some stx' ← state_t.lift $ λ cfg, t n' ↑cfg
      -- no unfolding: recurse
      | syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel),
    -- expand iteratively

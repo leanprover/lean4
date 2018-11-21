@@ -84,14 +84,15 @@ universes u v
 
 #eval do
   [header, nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
-  except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean"} | throw "heh",
+  except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean", transformers := builtin_transformers} | throw "heh",
   pure cmd'.reprint
 
 def run_frontend (input : string) : except_t string io unit := do
   parser_cfg ← monad_except.lift_except $ mk_config,
+  let expander_cfg : expander_config := {filename := "foo", transformers := builtin_transformers},
   let parser_k := parser.run parser_cfg input (λ st _, module.parser st),
   let elab_k := elaborator.run {filename := "foo", initial_parser_cfg := parser_cfg},
-  outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, outs⟩, match parser_k.resume parser_cfg with
+  outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, match parser_k.resume parser_cfg with
     | coroutine_result_core.done p := do {
       io.println "parser died!!",
       pure (sum.inr outs.reverse)
@@ -107,7 +108,7 @@ def run_frontend (input : string) : except_t string io unit := do
         io.println (to_string out.cmd)-/
       },
       --io.println out.cmd,
-      match (expand out.cmd).run {filename := "init/core.lean"} with
+      match (expand out.cmd).run expander_cfg with
       | except.ok cmd' := do {
         --io.println cmd',
         match elab_k.resume cmd' with
@@ -121,10 +122,10 @@ def run_frontend (input : string) : except_t string io unit := do
         }
         | coroutine_result_core.yielded elab_out elab_k := do {
           elab_out.messages.to_list.mfor $ λ e, io.println e.text,
-          pure (sum.inl (parser_k, elab_k, elab_out.parser_cfg, out :: outs))
+          pure (sum.inl (parser_k, elab_k, elab_out.parser_cfg, elab_out.expander_cfg, out :: outs))
         }
       }
-      | except.error e := io.println e.text *> pure (sum.inl (parser_k, elab_k, parser_cfg, out :: outs))
+      | except.error e := io.println e.text *> pure (sum.inl (parser_k, elab_k, parser_cfg, expander_cfg, out :: outs))
     },
   check_reprint outs input/-,
   let stx := syntax.node ⟨none, outs.map (λ r, r.cmd)⟩,

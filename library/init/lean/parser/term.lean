@@ -287,7 +287,7 @@ node! struct_inst [
   «with»: (try node! struct_inst_with [source: term.parser, " with "])?,
   items: sep_by node_choice! struct_inst_item {
     field: node! struct_inst_field [id: ident.parser, " := ", val: term.parser],
-    source: node! struct_inst_source ["..", source: term.parser],
+    source: node! struct_inst_source ["..", source: term.parser?],
   } (symbol ", "),
   "}",
 ]

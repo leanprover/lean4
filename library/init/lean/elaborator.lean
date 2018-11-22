@@ -10,6 +10,11 @@ import init.lean.parser.module
 import init.lean.expander
 import init.lean.expr
 
+-- HACK(Sebastian): kernel exception
+def {u} list.span' {α : Type u} (p : α → bool) : list α → list α × list α
+| []      := ([], [])
+| (a::xs) := if p a then let (l, r) := list.span' xs in (a :: l, r) else ([], a::xs)
+
 namespace lean
 namespace elaborator
 open parser
@@ -155,6 +160,36 @@ def to_pexpr : syntax → elaborator_m expr
       | error stx "ill-formed choice",
     pure $ expr.mk_annotation `choice $
       rev.reverse.foldr expr.app last
+  | @struct_inst := do
+    let v := view struct_inst stx,
+    let (fields, other) := v.items.span' (λ it, ↑match prod.fst it with
+      | struct_inst_item.view.field _ := tt
+      | _ := ff),
+    let (sources, catchall) := other.span' (λ it, ↑match prod.fst it with
+      | struct_inst_item.view.source {source := some _} := tt
+      | _ := ff),
+    catchall ← match catchall with
+    | [] := pure ff
+    | [(struct_inst_item.view.source _, _)] := pure tt
+    | (it, _)::_ := error (review struct_inst_item it) $ "unexpected item in structure instance notation",
+
+    fields ← fields.mmap (λ f, match prod.fst f with
+      | struct_inst_item.view.field f :=
+        expr.mdata (kvmap.set_name {} `field $ mangle_ident f.id) <$> to_pexpr f.val
+      | _ := error stx "to_pexpr: unreachable"),
+    sources ← sources.mmap (λ src, match prod.fst src with
+      | struct_inst_item.view.source {source := some src} := to_pexpr src
+      | _ := error stx "to_pexpr: unreachable"),
+    sources ← match v.with with
+    | none     := pure sources
+    | some src := do { src ← to_pexpr src.source, pure $ sources ++ [src]},
+
+    let m := kvmap.set_nat {} `structure_instance fields.length,
+    let m := kvmap.set_bool m `catchall catchall,
+    let m := kvmap.set_name m `struct $
+      (mangle_ident <$> struct_inst_type.view.id <$> v.type).get_or_else name.anonymous,
+    let dummy := expr.sort level.zero,
+    pure $ expr.mdata m $ (fields ++ sources).foldr expr.app dummy
   | _ := error stx $ "unexpected node: " ++ to_string k.name)
 | stx := error stx $ "unexpected: " ++ to_string stx
 

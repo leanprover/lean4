@@ -280,6 +280,28 @@ def if.transform : transformer :=
     review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_app `not [v.prop]}, body := v.else_branch}]
   | none := mk_app `ite [v.prop, v.then_branch, v.else_branch]
 
+def let.transform : transformer :=
+λ stx, do
+  let v := view «let» stx,
+  match v.lhs with
+  | let_lhs.view.id {id := _, binders := [], type := some _} := no_expansion
+  | let_lhs.view.id lli@{id := _, binders := _, type := none} :=
+    pure $ review «let» {v with lhs := let_lhs.view.id {lli with type := some {type := review hole {}}}}
+  | let_lhs.view.id lli@{id := _, binders := _, type := some ty} :=
+    let bindrs := binders'.view.extended {
+      leading_ids := [],
+      remainder := binders_remainder.view.mixed $ lli.binders.map mixed_binder.view.bracketed} in
+    pure $ review «let» {v with
+      lhs := let_lhs.view.id {
+        id := lli.id,
+        binders := [],
+        type := some $ {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := ty.type}}},
+      body := review lambda {binders := bindrs, body := v.body}}
+  | let_lhs.view.pattern llp :=
+    pure $ review «match» {
+      scrutinees := [(v.value, none)],
+      equations := [({lhs := [(llp, none)], rhs := v.body}, none)]}
+
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): replace with attribute
@@ -291,7 +313,8 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (arrow.name, arrow.transform),
   (paren.name, paren.transform),
   (assume.name, assume.transform),
-  (if.name, if.transform)
+  (if.name, if.transform),
+  (let.name, let.transform)
 ] _
 
 structure expander_state :=

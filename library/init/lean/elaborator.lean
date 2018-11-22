@@ -86,7 +86,7 @@ expr.mdata (kvmap.set_name {} `annotation `anonymous_constructor) e
 
 def to_pexpr : syntax → elaborator_m expr
 | (syntax.ident id)   := pure $ expr.const (mangle_ident id) []
-| stx@(syntax.raw_node {kind := k, ..}) := (match k with
+| stx@(syntax.raw_node {kind := k, args := args}) := (match k with
   | @ident_univs := (match view ident_univs stx with
     | {id := id, univs := some univs} := expr.const (mangle_ident id) <$> univs.levels.mmap to_level
     | {id := id, univs := none}       := pure $ expr.const (mangle_ident id) [])
@@ -125,6 +125,16 @@ def to_pexpr : syntax → elaborator_m expr
     | have_proof.view.from hpf := hpf.from.proof,
     lam ← expr.lam id binder_info.default <$> to_pexpr v.prop <*> to_pexpr proof,
     pure $ expr.mk_annotation `have lam
+  | @«show» := do
+    let v := view «show» stx,
+    prop ← to_pexpr v.prop,
+    proof ← to_pexpr v.from.proof,
+    pure $ expr.mk_annotation `show $ expr.app (expr.lam `this binder_info.default prop $ expr.bvar 0) proof
+  | @«let» := do
+    let v := view «let» stx,
+    let_lhs.view.id {id := id, binders := [], type := some ty} ← pure v.lhs
+      | error stx "ill-formed let",
+    expr.elet (mangle_ident id) <$> to_pexpr ty.type <*> to_pexpr v.value <*> to_pexpr v.body
   | @projection := do
     let v := view projection stx,
     let val := match v.proj with
@@ -140,6 +150,11 @@ def to_pexpr : syntax → elaborator_m expr
   | @number := do
     let v := view number stx,
     pure $ expr.lit $ literal.nat_val v.to_nat
+  | @choice := do
+    last::rev ← list.reverse <$> args.mmap (λ a, to_pexpr a)
+      | error stx "ill-formed choice",
+    pure $ expr.mk_annotation `choice $
+      rev.reverse.foldr expr.app last
   | _ := error stx $ "unexpected node: " ++ to_string k.name)
 | stx := error stx $ "unexpected: " ++ to_string stx
 

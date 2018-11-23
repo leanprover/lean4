@@ -57,7 +57,7 @@ structure notation_transformer_state :=
 (stx : syntax)
 -- children of `stx` that have not been consumed yet
 (stx_args : list syntax := [])
--- substitutions for notation variables
+-- substitutions for notation variables (reversed)
 (substs : list (syntax_ident × syntax) := [])
 -- filled by `binders` transitions, consumed by `scoped` actions
 (scoped : option $ term.binders.view := none)
@@ -100,6 +100,7 @@ def mk_notation_transformer (nota : notation_macro) : expander.transformer :=
       | none := pure ()
       | _ := error stx "mk_notation_transformer: unimplemented"),
     st ← get,
+    let substs := st.substs.reverse,
     -- apply substitutions [(x1, e1), ...] via `(λ x1 ..., nota.nota.term) e1 ...`
     let lam := review lambda {binders := st.substs.map prod.fst, body := nota.nota.term},
     pure $ some $ st.substs.foldl (λ fn subst, review app {fn := fn, arg := subst.2}) lam

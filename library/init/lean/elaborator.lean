@@ -162,6 +162,7 @@ def to_pexpr : syntax → elaborator_m expr
       rev.reverse.foldr expr.app last
   | @struct_inst := do
     let v := view struct_inst stx,
+    -- order should be: fields*, sources*, catchall?
     let (fields, other) := v.items.span' (λ it, ↑match prod.fst it with
       | struct_inst_item.view.field _ := tt
       | _ := ff),
@@ -339,11 +340,14 @@ def notation.elaborate_aux : notation.view → elaborator_m notation.view :=
   -- TODO: sanity checks
   pure {nota with spec := postprocess_notation_spec nota.spec}
 
+-- TODO(Sebastian): better kind names, module prefix?
 def mk_notation_kind : elaborator_m syntax_node_kind :=
 do st ← get,
    put {st with notation_counter := st.notation_counter + 1},
    pure {name := (`_notation).mk_numeral st.notation_counter}
 
+/-- Register a notation in the expander. Unlike with notation parsers, there is no harm in
+    keeping local notation macros registered after closing a section. -/
 def register_notation_macro (nota : notation.view) : elaborator_m notation_macro :=
 do k ← mk_notation_kind,
    let m : notation_macro := ⟨k, nota⟩,

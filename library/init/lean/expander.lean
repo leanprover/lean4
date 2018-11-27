@@ -3,7 +3,10 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Macro expander for the Lean language
+Macro expander for the Lean language, using a variant of the [sets of scopes](http://www.cs.utah.edu/plt/scope-sets/) hygiene algorithm.
+
+TODO(Sebastian): document/link to documentation of algorithm
+
 -/
 prelude
 import init.lean.parser.module
@@ -19,10 +22,14 @@ open parser.command.notation_spec
 structure transformer_config :=
 (filename : string)
 
+-- TODO(Sebastian): recursive expansion
 @[derive monad monad_reader monad_except]
 def transform_m := reader_t transformer_config $ except_t message id
 abbreviation transformer := syntax → transform_m (option syntax)
 
+/-- We allow macros to refuse expansion. This means that nodes can decide whether to act as macros
+    or not depending on their contents, allowing them to unfold to some normal form without changing
+    the general node kind and shape (and thus view type). -/
 def no_expansion : transform_m (option syntax) :=
 pure none
 
@@ -53,6 +60,7 @@ structure notation_macro :=
 (kind : syntax_node_kind)
 (nota : notation.view)
 
+/-- Helper state of the loop in `mk_notation_transformer`. -/
 structure notation_transformer_state :=
 (stx : syntax)
 -- children of `stx` that have not been consumed yet
@@ -68,12 +76,15 @@ do st ← get,
    | arg::args := put {st with stx_args := args} *> pure arg
    | _         := error st.stx "mk_notation_transformer: unreachable"
 
-def mk_notation_transformer (nota : notation_macro) : expander.transformer :=
+def mk_notation_transformer (nota : notation_macro) : transformer :=
 λ stx, do
   some {args := stx_args, ..} ← pure stx.as_node
     | error stx "mk_notation_transformer: unreachable",
   flip state_t.run' {notation_transformer_state . stx := stx, stx_args := stx_args} $ do
     let spec := nota.nota.spec,
+    -- Walk through the notation specification, consuming `stx` args and building up substitutions
+    -- for the notation RHS.
+    -- Also see `command_parser_config.register_notation_parser` for the expected structure of `stx`.
     match spec.prefix_arg with
     | none     := pure ()
     | some arg := do { stx_arg ← pop_stx_arg, modify $ λ st, {st with substs := (arg, stx_arg)::st.substs} },
@@ -115,6 +126,7 @@ binders'.view.simple $ match bi with
 | binder_info.aux_decl := /- should not happen -/
   simple_binder.view.explicit {id := id, type := type}
 
+/-- Unfold `binders'.view.extended` into `binders'.view.simple`. -/
 def expand_binders' (mk_binding : binders'.view → syntax → syntax) (binders : binders'.view)
   (body : syntax) : transform_m (option syntax) := do
   let to_ident (bid : binder_ident.view) : syntax_ident :=
@@ -123,49 +135,50 @@ def expand_binders' (mk_binding : binders'.view → syntax → syntax) (binders 
     | binder_ident.view.hole _ := "a",
   binders'.view.extended ext_binders ← pure binders
     | no_expansion,
+  -- build result `r` bottom-up
   let r := body,
-  (r, ty) ← match ext_binders.remainder with
-    | none := pure (r, none)
-    | binders_remainder.view.type brt := pure (r, some brt.type)
-    | binders_remainder.view.mixed brms := do {
-      r ← brms.mfoldr (λ brm r, match brm with
-      | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
-        pure $ mk_binding (mk_simple_binder "x" binder_info.default (review hole {})) $ review «match» {
-          scrutinees := [(syntax.ident "x", none)],
-          equations := [({lhs := [(review anonymous_constructor ctor, none)], rhs := r}, none)]
-        }
-      -- local notation: erase
-      | mixed_binder.view.bracketed
-        (bracketed_binder.view.explicit {content := explicit_binder_content.view.notation _}) := pure r
-      | mixed_binder.view.bracketed mbb := do
-        let (bi, bc) : binder_info × binder_content.view := (match mbb with
-        | bracketed_binder.view.explicit {content := bc} := (match bc with
-          | explicit_binder_content.view.other bc := (binder_info.default, bc)
-          | _ := (binder_info.default, {ids := []})  /- unreachable, see above -/)
-        | bracketed_binder.view.implicit {content := bc} := (binder_info.implicit, bc)
-        | bracketed_binder.view.strict_implicit {content := bc} := (binder_info.strict_implicit, bc)
-        | bracketed_binder.view.inst_implicit {content := bc} :=
-          prod.mk binder_info.inst_implicit $ (match bc with
-            | inst_implicit_binder_content.view.anonymous bca :=
-              {ids := ["_inst_"], type := some {type := bca.type}}
-            | inst_implicit_binder_content.view.named bcn :=
-              {ids := [bcn.id], type := some {type := bcn.type}})
-        | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
-        let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
-        type ← match bc.default with
-        | none := pure type
-        | some (binder_default.view.val bdv) := pure $ mk_app "_root_.opt_param" [type, bdv.term]
-        | some bdv@(binder_default.view.tac bdt) := match bc.type with
-          | none := pure $ mk_app "_root_.auto_param" [bdt.term]
-          | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
-        pure $ bc.ids.foldr (λ bid r, mk_binding (mk_simple_binder (to_ident bid) bi type) r) r
-      | mixed_binder.view.id bid := pure $
-        mk_binding (mk_simple_binder (to_ident bid) binder_info.default (review hole {})) r
-      ) r,
-      pure (r, none)
-  },
+  r ← match ext_binders.remainder with
+  | binders_remainder.view.mixed brms := brms.mfoldr (λ brm r, match brm with
+    -- anonymous constructor binding ~> binding + match
+    | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
+      pure $ mk_binding (mk_simple_binder "x" binder_info.default (review hole {})) $ review «match» {
+        scrutinees := [(syntax.ident "x", none)],
+        equations := [({lhs := [(review anonymous_constructor ctor, none)], rhs := r}, none)]
+      }
+    -- local notation: should have been handled by caller, erase
+    | mixed_binder.view.bracketed
+      (bracketed_binder.view.explicit {content := explicit_binder_content.view.notation _}) := pure r
+    | mixed_binder.view.bracketed mbb := do
+      let (bi, bc) : binder_info × binder_content.view := (match mbb with
+      | bracketed_binder.view.explicit {content := bc} := (match bc with
+        | explicit_binder_content.view.other bc := (binder_info.default, bc)
+        | _ := (binder_info.default, {ids := []})  /- unreachable, see above -/)
+      | bracketed_binder.view.implicit {content := bc} := (binder_info.implicit, bc)
+      | bracketed_binder.view.strict_implicit {content := bc} := (binder_info.strict_implicit, bc)
+      | bracketed_binder.view.inst_implicit {content := bc} :=
+        prod.mk binder_info.inst_implicit $ (match bc with
+          | inst_implicit_binder_content.view.anonymous bca :=
+            {ids := ["_inst_"], type := some {type := bca.type}}
+          | inst_implicit_binder_content.view.named bcn :=
+            {ids := [bcn.id], type := some {type := bcn.type}})
+      | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
+      let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
+      type ← match bc.default with
+      | none := pure type
+      | some (binder_default.view.val bdv) := pure $ mk_app `opt_param [type, bdv.term]
+      | some bdv@(binder_default.view.tac bdt) := match bc.type with
+        | none := pure $ mk_app `auto_param [bdt.term]
+        | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
+      pure $ bc.ids.foldr (λ bid r, mk_binding (mk_simple_binder (to_ident bid) bi type) r) r
+    | mixed_binder.view.id bid := pure $
+      mk_binding (mk_simple_binder (to_ident bid) binder_info.default (review hole {})) r
+    ) r
+  | _ := pure r,
+  let leading_ty := match ext_binders.remainder with
+  | binders_remainder.view.type brt := brt.type
+  | _ := review hole {},
   let r := ext_binders.leading_ids.foldr (λ bid r,
-    mk_binding (mk_simple_binder (to_ident bid) binder_info.default (ty.get_or_else $ review hole {})) r) r,
+    mk_binding (mk_simple_binder (to_ident bid) binder_info.default leading_ty) r) r,
   pure r
 
 def lambda.transform : transformer :=
@@ -351,7 +364,7 @@ do some n ← pure stx.as_node | pure stx,
    some stx' ← state_t.lift $ λ cfg, t n' ↑cfg
      -- no unfolding: recurse
      | syntax.mk_node n.kind <$> n.args.mmap (expand_core fuel),
-   -- expand iteratively
+   -- flip again, expand iteratively
    expand_core fuel $ stx'.flip_scopes [sc]
 
 def expand (stx : syntax) : reader_t expander_config (except message) syntax :=

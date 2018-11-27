@@ -41,8 +41,15 @@ do cfg ← read,
    -- TODO(Sebastian): convert position
    throw {filename := transformer_config.filename ↑cfg, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
 
+/-- Coercion useful for introducing macro-local variables. Use `glob_id` to refer to global bindings instead. -/
 instance coe_name_ident : has_coe name syntax_ident :=
 ⟨λ n, {val := n, raw_val := substring.of_string n.to_string}⟩
+
+/-- Create an identifier preresolved against a global binding. Because we cannot use syntax quotations yet,
+    which the expander would have preresolved against the global context at macro declaration time,
+    we have to do the preresolution manually instead. -/
+def glob_id (n : name) : syntax_ident :=
+{val := n, raw_val := substring.of_string n.to_string, preresolved := [n]}
 
 instance coe_ident_ident_univs : has_coe syntax_ident ident_univs.view :=
 ⟨λ id, {id := id}⟩
@@ -166,9 +173,9 @@ def expand_binders' (mk_binding : binders'.view → syntax → syntax) (binders 
       let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
       type ← match bc.default with
       | none := pure type
-      | some (binder_default.view.val bdv) := pure $ mk_app `opt_param [type, bdv.term]
+      | some (binder_default.view.val bdv) := pure $ mk_app (glob_id `opt_param) [type, bdv.term]
       | some bdv@(binder_default.view.tac bdt) := match bc.type with
-        | none := pure $ mk_app `auto_param [bdt.term]
+        | none := pure $ mk_app (glob_id `auto_param) [bdt.term]
         | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
       pure $ bc.ids.foldr (λ bid r, mk_binding (mk_simple_binder (to_ident bid) bi type) r) r
     | mixed_binder.view.id bid := pure $
@@ -269,12 +276,12 @@ def paren.transform : transformer :=
 λ stx, do
   let v := view paren stx,
   match v.content with
-  | none := pure $ syntax.ident `unit.star
+  | none := pure $ syntax.ident (glob_id `unit.star)
   | some {term := t, special := none} := pure t
   | some {term := t, special := paren_special.view.tuple tup} :=
-    pure $ some $ (tup.tail.map sep_by.elem.view.item).foldr (λ t tup, mk_app `prod.mk [t, tup]) t
+    pure $ some $ (tup.tail.map sep_by.elem.view.item).foldr (λ t tup, mk_app (glob_id `prod.mk) [t, tup]) t
   | some {term := t, special := paren_special.view.typed pst} :=
-    pure $ mk_app `typed_expr [pst.type, t]
+    pure $ mk_app (glob_id `typed_expr) [pst.type, t]
 
 def assume.transform : transformer :=
 λ stx, do
@@ -290,10 +297,10 @@ def if.transform : transformer :=
 λ stx, do
   let v := view «if» stx,
   pure $ match v.id with
-  | some id := mk_app `dite [v.prop,
+  | some id := mk_app (glob_id `dite) [v.prop,
     review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := v.prop}, body := v.then_branch},
-    review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_app `not [v.prop]}, body := v.else_branch}]
-  | none := mk_app `ite [v.prop, v.then_branch, v.else_branch]
+    review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_app (glob_id `not) [v.prop]}, body := v.else_branch}]
+  | none := mk_app (glob_id `ite) [v.prop, v.then_branch, v.else_branch]
 
 def let.transform : transformer :=
 λ stx, do

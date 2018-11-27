@@ -61,6 +61,11 @@ structure syntax_ident :=
 (info : option source_info := none)
 (raw_val : substring)
 (val : name)
+/- A list of overloaded, global names that this identifier could have referred to in the lexical context
+   where it was parsed.
+   If the identifier does not resolve to a local binding, it should instead resolve to one of
+   these preresolved constants. -/
+(preresolved : list name := [])
 (scopes : list macro_scope := [])
 
 inductive syntax

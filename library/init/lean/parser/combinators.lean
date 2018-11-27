@@ -96,17 +96,24 @@ instance sep_by.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_to
   parser.has_tokens (sep_by p sep a) :=
 ⟨tokens p ++ tokens sep⟩
 
+structure sep_by.elem.view (α β : Type) :=
+(item      : α)
+(separator : option β := none)
+
+instance sep_by.elem.view.item_coe {α β : Type} : has_coe_t α (sep_by.elem.view α β) :=
+⟨λ a, ⟨a, none⟩⟩
+
 private def sep_by.view_aux {α β} (p sep : parser) [parser.has_view α p] [parser.has_view β sep] :
-  list syntax → list (α × option β)
+  list syntax → list (sep_by.elem.view α β)
 | []    := []
-| [stx] := [(has_view.view p stx, none)]
-| (stx1::stx2::stxs) := (has_view.view p stx1, some $ has_view.view sep stx2)::sep_by.view_aux stxs
+| [stx] := [⟨has_view.view p stx, none⟩]
+| (stx1::stx2::stxs) := ⟨has_view.view p stx1, some $ has_view.view sep stx2⟩::sep_by.view_aux stxs
 
 instance sep_by.view {α β} (p sep : parser) (a) [parser.has_view α p] [parser.has_view β sep] :
-  parser.has_view (list (α × option β)) (sep_by p sep a) :=
+  parser.has_view (list (sep_by.elem.view α β)) (sep_by p sep a) :=
 { view := λ stx, match stx.as_node with
     | some n := sep_by.view_aux p sep n.args
-    | _ := [(view p syntax.missing, none)],
+    | _ := [⟨view p syntax.missing, none⟩],
   review := λ as, syntax.list $ as.bind (λ a, match a with
     | ⟨v, some vsep⟩ := [review p v, review sep vsep]
     | ⟨v, none⟩      := [review p v]) }
@@ -116,7 +123,7 @@ instance sep_by1.tokens (p sep : parser) (a) [parser.has_tokens p] [parser.has_t
 ⟨tokens (sep_by p sep a)⟩
 
 instance sep_by1.view {α β} (p sep : parser) (a) [parser.has_view α p] [parser.has_view β sep] :
-  parser.has_view (list (α × option β)) (sep_by1 p sep a) :=
+  parser.has_view (list (sep_by.elem.view α β)) (sep_by1 p sep a) :=
 {..sep_by.view p sep a}
 
 def optional (r : parser) : parser :=

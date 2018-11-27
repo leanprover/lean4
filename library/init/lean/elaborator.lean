@@ -18,6 +18,7 @@ def {u} list.span' {α : Type u} (p : α → bool) : list α → list α × list
 namespace lean
 namespace elaborator
 open parser
+open parser.combinators
 open parser.term
 open parser.command
 open parser.command.notation_spec
@@ -119,7 +120,7 @@ def to_pexpr : syntax → elaborator_m expr
      | sort.view.Type _ := (expr.sort ∘ level.succ) <$> to_level v.arg)
   | @anonymous_constructor := do
     let v := view anonymous_constructor stx,
-    p ← to_pexpr $ mk_app' (review hole {}) (v.args.map prod.fst),
+    p ← to_pexpr $ mk_app' (review hole {}) (v.args.map sep_by.elem.view.item),
     pure $ expr.mk_annotation `anonymous_constructor p
   | @hole := pure $ expr.const "_" []  -- TODO
   | @«have» := do
@@ -163,22 +164,22 @@ def to_pexpr : syntax → elaborator_m expr
   | @struct_inst := do
     let v := view struct_inst stx,
     -- order should be: fields*, sources*, catchall?
-    let (fields, other) := v.items.span' (λ it, ↑match prod.fst it with
+    let (fields, other) := v.items.span' (λ it, ↑match sep_by.elem.view.item it with
       | struct_inst_item.view.field _ := tt
       | _ := ff),
-    let (sources, catchall) := other.span' (λ it, ↑match prod.fst it with
+    let (sources, catchall) := other.span' (λ it, ↑match sep_by.elem.view.item it with
       | struct_inst_item.view.source {source := some _} := tt
       | _ := ff),
     catchall ← match catchall with
     | [] := pure ff
-    | [(struct_inst_item.view.source _, _)] := pure tt
-    | (it, _)::_ := error (review struct_inst_item it) $ "unexpected item in structure instance notation",
+    | [{item := struct_inst_item.view.source _}] := pure tt
+    | {item := it}::_ := error (review struct_inst_item it) $ "unexpected item in structure instance notation",
 
-    fields ← fields.mmap (λ f, match prod.fst f with
+    fields ← fields.mmap (λ f, match sep_by.elem.view.item f with
       | struct_inst_item.view.field f :=
         expr.mdata (kvmap.set_name {} `field $ mangle_ident f.id) <$> to_pexpr f.val
       | _ := error stx "to_pexpr: unreachable"),
-    sources ← sources.mmap (λ src, match prod.fst src with
+    sources ← sources.mmap (λ src, match sep_by.elem.view.item src with
       | struct_inst_item.view.source {source := some src} := to_pexpr src
       | _ := error stx "to_pexpr: unreachable"),
     sources ← match v.with with

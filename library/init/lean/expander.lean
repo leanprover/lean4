@@ -15,6 +15,7 @@ import init.lean.expr
 namespace lean
 namespace expander
 open parser
+open parser.combinators
 open parser.term
 open parser.command
 open parser.command.notation_spec
@@ -142,8 +143,8 @@ def expand_binders' (mk_binding : binders'.view → syntax → syntax) (binders 
     -- anonymous constructor binding ~> binding + match
     | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
       pure $ mk_binding (mk_simple_binder "x" binder_info.default (review hole {})) $ review «match» {
-        scrutinees := [(syntax.ident "x", none)],
-        equations := [({lhs := [(review anonymous_constructor ctor, none)], rhs := r}, none)]
+        scrutinees := [syntax.ident "x"],
+        equations := [{item := {lhs := [review anonymous_constructor ctor], rhs := r}}]
       }
     -- local notation: should have been handled by caller, erase
     | mixed_binder.view.bracketed
@@ -271,7 +272,7 @@ def paren.transform : transformer :=
   | none := pure $ syntax.ident `unit.star
   | some {term := t, special := none} := pure t
   | some {term := t, special := paren_special.view.tuple tup} :=
-    pure $ some $ (tup.tail.map prod.fst).foldr (λ t tup, mk_app `prod.mk [t, tup]) t
+    pure $ some $ (tup.tail.map sep_by.elem.view.item).foldr (λ t tup, mk_app `prod.mk [t, tup]) t
   | some {term := t, special := paren_special.view.typed pst} :=
     pure $ mk_app `typed_expr [pst.type, t]
 
@@ -313,8 +314,8 @@ def let.transform : transformer :=
       body := review lambda {binders := bindrs, body := v.body}}
   | let_lhs.view.pattern llp :=
     pure $ review «match» {
-      scrutinees := [(v.value, none)],
-      equations := [({lhs := [(llp, none)], rhs := v.body}, none)]}
+      scrutinees := [v.value],
+      equations := [{item := {lhs := [llp], rhs := v.body}}]}
 
 local attribute [instance] name.has_lt_quick
 

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "runtime/sstream.h"
 #include "kernel/instantiate.h"
+#include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "library/util.h"
 #include "library/compiler/builtin.h"
@@ -31,6 +32,8 @@ static name * g_uproj     = nullptr;
 static expr * g_jmp       = nullptr;
 static name * g_box       = nullptr;
 static expr * g_unbox     = nullptr;
+static expr * g_inc       = nullptr;
+static expr * g_dec       = nullptr;
 
 expr mk_llnf_apply() { return *g_apply; }
 bool is_llnf_apply(expr const & e) { return e == *g_apply; }
@@ -126,6 +129,12 @@ bool is_llnf_unbox(expr const & e) { return e == *g_unbox; }
 expr mk_llnf_box(unsigned n) { return mk_constant(name(*g_box, n)); }
 bool is_llnf_box(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_box, n); }
 
+expr mk_llnf_inc() { return *g_inc; }
+bool is_llnf_inc(expr const & e) { return e == *g_inc; }
+
+expr mk_llnf_dec() { return *g_dec; }
+bool is_llnf_dec(expr const & e) { return e == *g_dec; }
+
 bool is_llnf_op(expr const & e) {
     return
         is_llnf_closure(e) ||
@@ -140,7 +149,9 @@ bool is_llnf_op(expr const & e) {
         is_llnf_uproj(e)   ||
         is_llnf_jmp(e)     ||
         is_llnf_box(e)     ||
-        is_llnf_unbox(e);
+        is_llnf_unbox(e)   ||
+        is_llnf_inc(e)     ||
+        is_llnf_dec(e);
 }
 
 struct field_info {
@@ -1289,6 +1300,253 @@ public:
     }
 };
 
+/* Insert explicit reference counting instructions. */
+class explicit_rc_fn {
+    environment         m_env;
+    name_generator      m_ngen;
+    local_ctx           m_lctx;
+    buffer<expr>        m_fvars;
+    name                m_x;
+    unsigned            m_next_idx{1};
+
+    static bool is_jmp(expr const & e) {
+        return is_llnf_jmp(get_app_fn(e));
+    }
+
+    environment const & env() const { return m_env; }
+
+    name_generator & ngen() { return m_ngen; }
+
+    expr mk_dec(expr const & fvar) {
+        return mk_app(mk_llnf_dec(), fvar);
+    }
+
+    expr mk_void_type() {
+        /* TODO(Leo): add void type? */
+        return mk_enf_neutral();
+    }
+
+    name next_name() {
+        name r = m_x.append_after(m_next_idx);
+        m_next_idx++;
+        return r;
+    }
+
+    expr mk_let_decl(expr const & type, expr const & e) {
+        expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
+        m_fvars.push_back(fvar);
+        return fvar;
+    }
+
+    void collect_live_vars_core(expr e, name_set & visited_jp, name_set & r) {
+        while (is_lambda(e)) {
+            e = binding_body(e);
+        }
+        while (is_let(e)) {
+            collect_live_vars_core(let_value(e), visited_jp, r);
+            e = let_body(e);
+        }
+        if (is_fvar(e)) {
+            r.insert(fvar_name(e));
+        } else if (is_app(e)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            if (is_llnf_jmp(fn)) {
+                /* If args[0] is a bound variable, then it is an internal join point that has already been processed by
+                   the `collect_live_vars_core` in the `while (is_let(e)) ...` loop.
+                   If args[0] is a free variable, then we must include its live variables. */
+                lean_assert(is_bvar(args[0]) || is_fvar(args[0]));
+                if (is_fvar(args[0]) && !visited_jp.contains(fvar_name(args[0]))) {
+                    visited_jp.insert(fvar_name(args[0]));
+                    local_decl jp_decl = m_lctx.get_local_decl(fvar_name(args[0]));
+                    collect_live_vars_core(*jp_decl.get_value(), visited_jp, r);
+                }
+                for (unsigned i = 1; i < args.size(); i++) {
+                    collect_live_vars_core(args[i], visited_jp, r);
+                }
+            } else {
+                for (unsigned i = 0; i < args.size(); i++) {
+                    collect_live_vars_core(args[i], visited_jp, r);
+                }
+            }
+        }
+    }
+
+    void collect_live_vars(expr const & e, name_set & r) {
+        name_set visited_jp;
+        collect_live_vars_core(e, visited_jp, r);
+    }
+
+    bool is_dead_obj_var(expr const & e, name_set & live_obj_vars) {
+        if (!is_fvar(e)) return false;
+        if (live_obj_vars.contains(fvar_name(e))) return false;
+        expr type = m_lctx.get_local_decl(e).get_type();
+        return !is_unboxed(type);
+    }
+
+    void process(local_decl const & x_decl, buffer<expr_pair> & /* entries */, name_set & /* live_obj_vars */) {
+        expr val = *x_decl.get_value();
+        lean_assert(is_cases_on_app(env(), val));
+        if (is_lit(val)) {
+            /* If type is object, then mark `x` as not borrowed. */
+            // TODO(Leo)
+        } else if (is_constant(val)) {
+            /* If type is object, then mark `x` as borrowed. */
+            // TODO(Leo)
+        } else if (is_app(val)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(val, args);
+            lean_assert(is_constant(fn));
+            if (is_llnf_cnstr(fn) || is_llnf_apply(fn)) {
+                /* Process as function that consumes all arguments, and produces value that must be consumed. */
+                // TODO(Leo)
+            } else if (is_llnf_closure(fn)) {
+                /* Ignore the first argument, and process remaining arguments as arguments that must be consumed, and produces
+                   result that must be consumed. */
+                // TODO(Leo)
+            } else if (is_llnf_reuse(fn) || is_llnf_reset(fn) || is_llnf_sset(fn) || is_llnf_uset(fn)) {
+                /* Process as function that consumes all arguments, and produces value that must be consumed.
+                   First argument is not live after this instruction, i.e., it is not in `live_obj_vars`. */
+                // TODO(Leo)
+            } else if (is_llnf_proj(fn)) {
+                /* Add inc for result value, argument should be treated as borrowed */
+            } else if (is_llnf_sproj(fn)) {
+                /* Result is scalar, Argument should be treated as borrowed. */
+            } else if (is_llnf_unbox(fn)) {
+                /* Process argument as borrowed. Result is scalar. */
+            } else if (is_llnf_box(fn)) {
+                /* Argument is scalar, if it is big scalar, then treat result as value that needs to be consumed. */
+            } else {
+                /* Regular function application.
+                   Retrieve whether the arguments must be borrowed/consumed, and process them. */
+                lean_assert(!is_llnf_op(fn));
+                // TODO(Leo)
+            }
+        } else {
+            /* TODO(Leo): make sure is_fvar(val) is unreachable. */
+            lean_unreachable();
+        }
+    }
+
+    expr process_term(expr const & e, buffer<expr_pair> & /* entries */) {
+        if (is_cases_on_app(env(), e)) {
+            // TODO(Leo)
+            return e;
+        } else if (is_jmp(e)) {
+            // TODO(Leo)
+            return e;
+        } else if (is_fvar(e)) {
+            /* If it is marked as borrowed, we should insert `inc`. */
+            // TODO(Leo)
+            return e;
+        } else {
+            // TODO(Leo): we have to make sure a terminator is a free variable, cases or jmp.
+            lean_unreachable();
+        }
+    }
+
+    expr mk_let(buffer<expr> const & input_vars, unsigned saved_fvars_size, expr r) {
+        /* `entries` contains pairs (let-decl fvar, new value) for building the resultant let-declaration.
+           We simplify the value of some let-declarations in this method, but we don't want to create
+           a new temporary declaration just for this. */
+        buffer<expr_pair> entries;
+        r = process_term(r, entries);
+        name_set live_obj_vars;
+        collect_live_vars(r, live_obj_vars);
+        while (m_fvars.size() > saved_fvars_size) {
+            expr x = m_fvars.back();
+            m_fvars.pop_back();
+            local_decl x_decl = m_lctx.get_local_decl(x);
+            if (!is_join_point_name(x_decl.get_user_name())) {
+                process(x_decl, entries, live_obj_vars);
+            } else {
+                expr jp_val = visit(*x_decl.get_value());
+                entries.emplace_back(x, jp_val);
+            }
+        }
+        /* We need to add a `dec` instruction for each input variable that is dead at the beginning
+           of the let-block, and is not a scalar. */
+        for (expr const & input_var : input_vars) {
+            if (is_dead_obj_var(input_var, live_obj_vars)) {
+                expr val      = mk_dec(input_var);
+                expr aux_fvar = m_lctx.mk_local_decl(ngen(), next_name(), mk_void_type(), val);
+                entries.emplace_back(aux_fvar, val);
+            }
+        }
+        buffer<name> user_names;
+        buffer<expr> fvars;
+        buffer<expr> vals;
+        buffer<expr> types;
+        unsigned i = entries.size();
+        while (i > 0) {
+            --i;
+            expr const & fvar = entries[i].first;
+            fvars.push_back(fvar);
+            vals.push_back(entries[i].second);
+            local_decl fvar_decl = m_lctx.get_local_decl(fvar);
+            user_names.push_back(fvar_decl.get_user_name());
+            types.push_back(fvar_decl.get_type());
+        }
+        r = abstract(r, fvars.size(), fvars.data());
+        i = fvars.size();
+        while (i > 0) {
+            --i;
+            expr new_value = abstract(vals[i], i, fvars.data());
+            expr new_type  = types[i];
+            r = ::lean::mk_let(user_names[i], new_type, new_value, r);
+        }
+        return r;
+    }
+
+    expr visit_lambda(expr e) {
+        buffer<expr> binding_fvars;
+        while (is_lambda(e)) {
+            lean_assert(!has_loose_bvars(binding_domain(e)));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), binding_domain(e), binding_info(e));
+            // TODO(Leo): mark variable as borrowed or not borrowed (i.e., to be consumed).
+            binding_fvars.push_back(new_fvar);
+            e = binding_body(e);
+        }
+        e = instantiate_rev(e, binding_fvars.size(), binding_fvars.data());
+        unsigned saved_fvars_size = m_fvars.size();
+        e = visit(e);
+        e = mk_let(binding_fvars, saved_fvars_size, e);
+        e = m_lctx.mk_lambda(binding_fvars, e);
+        return e;
+    }
+
+    expr visit_let(expr e) {
+        buffer<expr> fvars;
+        while (is_let(e)) {
+            lean_assert(!has_loose_bvars(let_type(e)));
+            expr val = instantiate_rev(let_value(e), fvars.size(), fvars.data());
+            name n   = let_name(e);
+            if (is_internal_name(n) && !is_join_point_name(n)) {
+                n = next_name();
+            }
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), val);
+            // TODO(Leo): we must mark here whether `new_fvar` as borrowed or not borrowed.
+            // It is incorrect to mark it at `process`.
+            fvars.push_back(new_fvar);
+            m_fvars.push_back(new_fvar);
+            e = let_body(e);
+        }
+        return visit(instantiate_rev(e, fvars.size(), fvars.data()));
+    }
+
+    expr visit(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::Let:    return visit_let(e);
+        default:                return e;
+        }
+    }
+
+public:
+    explicit_rc_fn(environment const & env):
+        m_env(env), m_x("_x") {}
+};
+
 pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {
     environment new_env = env;
     buffer<comp_decl> rs;
@@ -1326,6 +1584,8 @@ void initialize_llnf() {
     g_jmp       = new expr(mk_constant("_jmp"));
     g_box       = new name("_box");
     g_unbox     = new expr(mk_constant("_unbox"));
+    g_inc       = new expr(mk_constant("_inc"));
+    g_dec       = new expr(mk_constant("_dec"));
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
     g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
@@ -1348,5 +1608,7 @@ void finalize_llnf() {
     delete g_jmp;
     delete g_box;
     delete g_unbox;
+    delete g_inc;
+    delete g_dec;
 }
 }

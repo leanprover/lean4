@@ -921,8 +921,23 @@ static name mk_boxed_name(name const & fn) {
     return name(fn, "_boxed");
 }
 
-pair<environment, comp_decl> mk_boxed_version(environment env, name const & fn, unsigned arity) {
+static bool is_unboxed(expr const & type) {
+    return type != mk_enf_object_type() && type != mk_enf_neutral_type();
+}
+
+static bool has_unboxed(expr const & type) {
+    if (is_pi(type)) {
+        return is_unboxed(binding_domain(type)) || has_unboxed(binding_body(type));
+    } else {
+        return is_unboxed(type);
+    }
+}
+
+optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name const & fn, unsigned arity) {
     expr fn_type = get_constant_ll_type(env, fn);
+    if (!has_unboxed(fn_type)) {
+        return optional<pair<environment, comp_decl>>();
+    }
     local_ctx lctx;
     expr obj = mk_enf_object_type();
     expr neutral = mk_enf_neutral_type();
@@ -960,7 +975,7 @@ pair<environment, comp_decl> mk_boxed_version(environment env, name const & fn, 
     new_val       = lctx.mk_lambda(ys, new_val);
     expr new_type = lctx.mk_pi(ys, obj);
     env           = register_stage2_decl(env, new_fn, new_type, new_val);
-    return mk_pair(env, comp_decl(new_fn, new_val));
+    return optional<pair<environment, comp_decl>>(mk_pair(env, comp_decl(new_fn, new_val)));
 }
 
 /* Insert explicit boxing/unboxing instructions. */
@@ -1109,18 +1124,6 @@ class explicit_boxing_fn {
         return mk_app(fn, args);
     }
 
-    bool is_unboxed(expr const & type) {
-        return type != mk_enf_object_type() && type != mk_enf_neutral_type();
-    }
-
-    bool has_unboxed(expr const & type) {
-        if (is_pi(type)) {
-            return is_unboxed(binding_domain(type)) || has_unboxed(binding_body(type));
-        } else {
-            return is_unboxed(type);
-        }
-    }
-
     expr cast_if_needed(expr e, expr const & e_type, expr const & expected_type) {
         if (e_type == expected_type)
             return e;
@@ -1136,7 +1139,12 @@ class explicit_boxing_fn {
 
     expr visit_closure(expr const & fn, buffer<expr> & args) {
         lean_assert(is_constant(args[0]));
-        args[0] = mk_constant(mk_boxed_name(const_name(args[0])));
+        name boxed_fn = mk_boxed_name(const_name(args[0]));
+        if (env().find(mk_cstage2_name(boxed_fn))) {
+            args[0] = mk_constant(boxed_fn);
+        } else {
+            lean_assert(!has_unboxed(get_constant_ll_type(env(), const_name(args[0]))));
+        }
         for (unsigned i = 1; i < args.size(); i++) {
             args[i] = box_if_needed(args[i]);
         }
@@ -1288,9 +1296,10 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
     for (comp_decl const & d : ds) {
         expr new_v = to_llnf_fn(new_env, unboxed)(d.snd());
         rs.push_back(comp_decl(d.fst(), new_v));
-        pair<environment, comp_decl> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()));
-        new_env = p.first;
-        bs.push_back(p.second);
+        if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()))) {
+            new_env = p->first;
+            bs.push_back(p->second);
+        }
     }
     if (unboxed) {
         for (comp_decl & r : rs) {

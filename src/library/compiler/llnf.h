@@ -13,7 +13,7 @@ namespace lean {
    before converting to the IR. */
 pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed_data = false);
 
-pair<environment, comp_decl> mk_boxed_version(environment env, name const & fn, unsigned arity);
+optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name const & fn, unsigned arity);
 
 bool is_llnf_apply(expr const & e);
 bool is_llnf_closure(expr const & e);

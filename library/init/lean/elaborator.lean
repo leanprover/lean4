@@ -10,11 +10,6 @@ import init.lean.parser.module
 import init.lean.expander
 import init.lean.expr
 
--- HACK(Sebastian): kernel exception
-def {u} list.span' {α : Type u} (p : α → bool) : list α → list α × list α
-| []      := ([], [])
-| (a::xs) := if p a then let (l, r) := list.span' xs in (a :: l, r) else ([], a::xs)
-
 namespace lean
 namespace elaborator
 open parser
@@ -164,10 +159,10 @@ def to_pexpr : syntax → elaborator_m expr
   | @struct_inst := do
     let v := view struct_inst stx,
     -- order should be: fields*, sources*, catchall?
-    let (fields, other) := v.items.span' (λ it, ↑match sep_by.elem.view.item it with
+    let (fields, other) := v.items.span (λ it, ↑match sep_by.elem.view.item it with
       | struct_inst_item.view.field _ := tt
       | _ := ff),
-    let (sources, catchall) := other.span' (λ it, ↑match sep_by.elem.view.item it with
+    let (sources, catchall) := other.span (λ it, ↑match sep_by.elem.view.item it with
       | struct_inst_item.view.source {source := some _} := tt
       | _ := ff),
     catchall ← match catchall with

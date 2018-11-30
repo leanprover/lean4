@@ -601,6 +601,11 @@ class csimp_fn {
                 motive_type = whnf(instantiate(binding_body(motive_type), z));
             }
             level result_lvl       = sort_level(tc().ensure_type(result_type));
+            if (has_fvar(result_type, x)) {
+                /* `x` will be deleted after the float_cases_on transformation.
+                   So, if the result type depends on it, we must replace it with its value. */
+                result_type = replace_fvar(result_type, x, *x_decl.get_value());
+            }
             expr new_motive        = m_lctx.mk_lambda(zs, result_type);
             c_args[motive_idx] = new_motive;
             /* We need to update the resultant universe. */

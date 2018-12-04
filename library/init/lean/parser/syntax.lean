@@ -42,6 +42,7 @@ structure syntax_node_kind :=
 /-- A hygiene marker introduced by a macro expansion. -/
 @[derive decidable_eq has_to_format]
 def macro_scope := nat
+abbreviation macro_scopes := list macro_scope
 
 /-
 Parsers create `syntax_node`'s with the following properties (see implementation of `combinators.node`):
@@ -55,7 +56,7 @@ structure syntax_node (syntax : Type) :=
 (args : list syntax)
 -- Lazily propagated scopes. Scopes are pushed inwards when a node is destructed via `syntax.as_node`,
 -- until an ident or an atom (in which the scopes vanish) is reached
-(scopes : list macro_scope := [])
+(scopes : macro_scopes := [])
 
 structure syntax_ident :=
 (info : option source_info := none)
@@ -66,7 +67,7 @@ structure syntax_ident :=
    If the identifier does not resolve to a local binding, it should instead resolve to one of
    these preresolved constants. -/
 (preresolved : list name := [])
-(scopes : list macro_scope := [])
+(scopes : macro_scopes := [])
 
 inductive syntax
 | atom (val : syntax_atom)
@@ -87,15 +88,19 @@ def substring.of_string (s : string) : substring :=
 
 instance substring.has_to_string : has_to_string substring :=
 ⟨substring.to_string⟩
+
+-- TODO(Sebastian): exhaustively argue why (if?) this is correct
+def macro_scopes.flip : macro_scopes → macro_scopes → macro_scopes
+| (x::xs) (y::ys) := if x = y then macro_scopes.flip xs ys else (y::ys) ++ (x::xs)
+| []      ys      := ys
+| xs      []      := xs
+
 namespace syntax
 open lean.format
 
-/-- Lazily flip the given list of scopes on this subtree. -/
-def flip_scopes (scopes : list macro_scope) : syntax → syntax
-| (syntax.ident n) := syntax.ident {n with scopes :=
-  n.scopes.filter (λ sc, ¬ (sc ∈ scopes)) ++ scopes.filter (λ sc, ¬ (sc ∈ n.scopes))}
-| (syntax.raw_node n) := syntax.raw_node {n with scopes :=
-  n.scopes.filter (λ sc, ¬ (sc ∈ scopes)) ++ scopes.filter (λ sc, ¬ (sc ∈ n.scopes))}
+def flip_scopes (scopes : macro_scopes) : syntax → syntax
+| (syntax.ident n) := syntax.ident {n with scopes := n.scopes.flip scopes}
+| (syntax.raw_node n) := syntax.raw_node {n with scopes := n.scopes.flip scopes}
 | stx := stx
 
 def mk_node (kind : syntax_node_kind) (args : list syntax) :=

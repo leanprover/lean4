@@ -55,7 +55,8 @@ structure syntax_node (syntax : Type) :=
 (kind : syntax_node_kind)
 (args : list syntax)
 -- Lazily propagated scopes. Scopes are pushed inwards when a node is destructed via `syntax.as_node`,
--- until an ident or an atom (in which the scopes vanish) is reached
+-- until an ident or an atom (in which the scopes vanish) is reached.
+-- Scopes are stored in a stack with the most recent scope at the top.
 (scopes : macro_scopes := [])
 
 structure syntax_ident :=
@@ -201,7 +202,7 @@ with to_format : syntax → format
 | (atom ⟨_, s⟩) := to_fmt $ repr s
 | (ident id)    := to_fmt "`" ++ to_fmt id.val
 | stx@(raw_node n) :=
-  let scopes := match n.scopes with [] := to_fmt "" | _ := bracket "{" (join_sep n.scopes ", ") "}" in
+  let scopes := match n.scopes with [] := to_fmt "" | _ := bracket "{" (join_sep n.scopes.reverse ", ") "}" in
   if n.kind.name = `lean.parser.no_kind then sbracket $ scopes ++ join_sep (to_format_lst n.args) line
   else let shorter_name := n.kind.name.replace_prefix `lean.parser name.anonymous
        in paren $ join_sep ((to_fmt shorter_name ++ scopes) :: to_format_lst n.args) line

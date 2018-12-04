@@ -87,12 +87,17 @@ universes u v
   except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean", transformers := builtin_transformers} | throw "heh",
   pure cmd'.reprint
 
+-- for structuring the profiler output
+@[noinline] def run_parser {α β : Type} (f : α → β) : α → β := f
+@[noinline] def run_expander {α β : Type} (f : α → β) : α → β := f
+@[noinline] def run_elaborator {α β : Type} (f : α → β) : α → β := f
+
 def run_frontend (input : string) : except_t string io unit := do
   parser_cfg ← monad_except.lift_except $ mk_config,
   let expander_cfg : expander_config := {filename := "foo", transformers := builtin_transformers},
   let parser_k := parser.run parser_cfg input (λ st _, module.parser st),
   let elab_k := elaborator.run {filename := "foo", initial_parser_cfg := parser_cfg},
-  outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, match parser_k.resume parser_cfg with
+  outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, match run_parser parser_k.resume parser_cfg with
     | coroutine_result_core.done p := do {
       io.println "parser died!!",
       pure (sum.inr outs.reverse)
@@ -108,10 +113,10 @@ def run_frontend (input : string) : except_t string io unit := do
         io.println (to_string out.cmd)-/
       },
       --io.println out.cmd,
-      match (expand out.cmd).run expander_cfg with
+      match run_expander (expand out.cmd).run expander_cfg with
       | except.ok cmd' := do {
         --io.println cmd',
-        match elab_k.resume cmd' with
+        match run_elaborator elab_k.resume cmd' with
         | coroutine_result_core.done msgs := do {
           when ¬(cmd'.is_of_kind module.eoi) $
             io.println "elaborator died!!",
@@ -132,7 +137,6 @@ def run_frontend (input : string) : except_t string io unit := do
   let stx := stx.update_leading input,
   io.println "result:",
   io.println (to_string stx)-/
-#exit
 
 -- slowly progressing...
 set_option profiler true

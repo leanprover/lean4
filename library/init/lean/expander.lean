@@ -18,7 +18,6 @@ open parser
 open parser.combinators
 open parser.term
 open parser.command
-open parser.command.notation_spec
 
 structure transformer_config :=
 (filename : string)
@@ -57,11 +56,17 @@ instance coe_ident_ident_univs : has_coe syntax_ident ident_univs.view :=
 instance coe_ident_binder_id : has_coe syntax_ident binder_ident.view :=
 ⟨binder_ident.view.id⟩
 
-instance coe_binders {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders.view :=
+instance coe_binders_ext {α : Type} [has_coe_t α binder_ident.view] : has_coe (list α) term.binders_ext.view :=
 ⟨λ ids, {leading_ids := ids.map coe}⟩
 
-instance coe_binders_binders' : has_coe term.binders.view term.binders'.view :=
-⟨term.binders'.view.extended⟩
+instance coe_binders_ext_binders : has_coe term.binders_ext.view term.binders.view :=
+⟨term.binders.view.extended⟩
+
+instance coe_simple_binder_binders : has_coe term.simple_binder.view term.binders.view :=
+⟨term.binders.view.simple⟩
+
+section «notation»
+open parser.command.notation_spec
 
 /-- A notation together with a unique node kind. -/
 structure notation_macro :=
@@ -113,7 +118,7 @@ def mk_notation_transformer (nota : notation_macro) : transformer :=
           | error stx "mk_notation_transformer: unreachable",
         -- TODO(Sebastian): not correct with multiple binders
         let sc_lam := review lambda {binders := [sc.id], body := sc.term},
-        let lam := review lambda {binders := binders'.view.extended bnders, body := stx_arg},
+        let lam := review lambda {binders := bnders, body := stx_arg},
         let arg := review app {fn := sc_lam, arg := lam},
         modify $ λ st, {st with substs := (id, arg)::st.substs}
       | none := pure ()
@@ -123,89 +128,6 @@ def mk_notation_transformer (nota : notation_macro) : transformer :=
     -- apply substitutions [(x1, e1), ...] via `(λ x1 ..., nota.nota.term) e1 ...`
     let lam := review lambda {binders := st.substs.map prod.fst, body := nota.nota.term},
     pure $ some $ st.substs.foldl (λ fn subst, review app {fn := fn, arg := subst.2}) lam
-
-def mk_simple_binder (id : syntax_ident) (bi : binder_info) (type : syntax) : binders'.view :=
-let bc : binder_content.view := {ids := [id], type := some {type := type}} in
-binders'.view.simple $ match bi with
-| binder_info.default := simple_binder.view.explicit {id := id, type := type}
-| binder_info.implicit := simple_binder.view.implicit {id := id, type := type}
-| binder_info.strict_implicit := simple_binder.view.strict_implicit {id := id, type := type}
-| binder_info.inst_implicit := simple_binder.view.inst_implicit {id := id, type := type}
-| binder_info.aux_decl := /- should not happen -/
-  simple_binder.view.explicit {id := id, type := type}
-
-/-- Unfold `binders'.view.extended` into `binders'.view.simple`. -/
-def expand_binders' (mk_binding : binders'.view → syntax → syntax) (binders : binders'.view)
-  (body : syntax) : transform_m (option syntax) := do
-  let to_ident (bid : binder_ident.view) : syntax_ident :=
-    match bid with
-    | binder_ident.view.id id := id
-    | binder_ident.view.hole _ := "a",
-  binders'.view.extended ext_binders ← pure binders
-    | no_expansion,
-  -- build result `r` bottom-up
-  let r := body,
-  r ← match ext_binders.remainder with
-  | binders_remainder.view.mixed brms := brms.mfoldr (λ brm r, match brm with
-    -- anonymous constructor binding ~> binding + match
-    | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
-      pure $ mk_binding (mk_simple_binder "x" binder_info.default (review hole {})) $ review «match» {
-        scrutinees := [syntax.ident "x"],
-        equations := [{item := {lhs := [review anonymous_constructor ctor], rhs := r}}]
-      }
-    -- local notation: should have been handled by caller, erase
-    | mixed_binder.view.bracketed
-      (bracketed_binder.view.explicit {content := explicit_binder_content.view.notation _}) := pure r
-    | mixed_binder.view.bracketed mbb := do
-      let (bi, bc) : binder_info × binder_content.view := (match mbb with
-      | bracketed_binder.view.explicit {content := bc} := (match bc with
-        | explicit_binder_content.view.other bc := (binder_info.default, bc)
-        | _ := (binder_info.default, {ids := []})  /- unreachable, see above -/)
-      | bracketed_binder.view.implicit {content := bc} := (binder_info.implicit, bc)
-      | bracketed_binder.view.strict_implicit {content := bc} := (binder_info.strict_implicit, bc)
-      | bracketed_binder.view.inst_implicit {content := bc} :=
-        prod.mk binder_info.inst_implicit $ (match bc with
-          | inst_implicit_binder_content.view.anonymous bca :=
-            {ids := ["_inst_"], type := some {type := bca.type}}
-          | inst_implicit_binder_content.view.named bcn :=
-            {ids := [bcn.id], type := some {type := bcn.type}})
-      | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
-      let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
-      type ← match bc.default with
-      | none := pure type
-      | some (binder_default.view.val bdv) := pure $ mk_app (glob_id `opt_param) [type, bdv.term]
-      | some bdv@(binder_default.view.tac bdt) := match bc.type with
-        | none := pure $ mk_app (glob_id `auto_param) [bdt.term]
-        | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
-      pure $ bc.ids.foldr (λ bid r, mk_binding (mk_simple_binder (to_ident bid) bi type) r) r
-    | mixed_binder.view.id bid := pure $
-      mk_binding (mk_simple_binder (to_ident bid) binder_info.default (review hole {})) r
-    ) r
-  | _ := pure r,
-  let leading_ty := match ext_binders.remainder with
-  | binders_remainder.view.type brt := brt.type
-  | _ := review hole {},
-  let r := ext_binders.leading_ids.foldr (λ bid r,
-    mk_binding (mk_simple_binder (to_ident bid) binder_info.default leading_ty) r) r,
-  pure r
-
-def lambda.transform : transformer :=
-λ stx, do
-  let v := view lambda stx,
-  expand_binders' (λ binders body, review lambda {binders := binders, body := body}) v.binders v.body
-
-def pi.transform : transformer :=
-λ stx, do
-  let v := view pi stx,
-  expand_binders' (λ binders body, review pi {op := v.op, binders := binders, range := body}) v.binders v.range
-
-def arrow.transform : transformer :=
-λ stx, do
-  let v := view arrow stx,
-  pure $ review pi {
-    op := syntax.atom {val := "Π"},
-    binders := binders'.view.simple $ simple_binder.view.explicit {id := `a, type := v.dom},
-    range := v.range}
 
 def mixfix_to_notation_spec (k : mixfix.kind.view) (sym : notation_symbol.view) : transform_m notation_spec.view :=
 let prec := match sym with
@@ -272,6 +194,105 @@ def reserve_mixfix.transform : transformer :=
   spec ← mixfix_to_notation_spec v.kind v.symbol,
   pure $ review reserve_notation {spec := spec}
 
+end «notation»
+
+def mk_simple_binder (id : syntax_ident) (bi : binder_info) (type : syntax) : simple_binder.view :=
+let bc : binder_content.view := {ids := [id], type := some {type := type}} in
+match bi with
+| binder_info.default := simple_binder.view.explicit {id := id, type := type}
+| binder_info.implicit := simple_binder.view.implicit {id := id, type := type}
+| binder_info.strict_implicit := simple_binder.view.strict_implicit {id := id, type := type}
+| binder_info.inst_implicit := simple_binder.view.inst_implicit {id := id, type := type}
+| binder_info.aux_decl := /- should not happen -/
+  simple_binder.view.explicit {id := id, type := type}
+
+def binder_ident_to_ident : binder_ident.view → syntax_ident
+| (binder_ident.view.id id)  := id
+| (binder_ident.view.hole _) := "a"
+
+def expand_bracketed_binder : bracketed_binder.view → transform_m (list simple_binder.view)
+-- local notation: should have been handled by caller, erase
+| (bracketed_binder.view.explicit {content := explicit_binder_content.view.notation _}) := pure []
+| mbb := do
+  let (bi, bc) : binder_info × binder_content.view := (match mbb with
+  | bracketed_binder.view.explicit {content := bc} := (match bc with
+    | explicit_binder_content.view.other bc := (binder_info.default, bc)
+    | _ := (binder_info.default, {ids := []})  /- unreachable, see above -/)
+  | bracketed_binder.view.implicit {content := bc} := (binder_info.implicit, bc)
+  | bracketed_binder.view.strict_implicit {content := bc} := (binder_info.strict_implicit, bc)
+  | bracketed_binder.view.inst_implicit {content := bc} :=
+    prod.mk binder_info.inst_implicit $ (match bc with
+      | inst_implicit_binder_content.view.anonymous bca :=
+        {ids := ["_inst_"], type := some {type := bca.type}}
+      | inst_implicit_binder_content.view.named bcn :=
+        {ids := [bcn.id], type := some {type := bcn.type}})
+  | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
+  let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
+  type ← match bc.default with
+  | none := pure type
+  | some (binder_default.view.val bdv) := pure $ mk_app (glob_id `opt_param) [type, bdv.term]
+  | some bdv@(binder_default.view.tac bdt) := match bc.type with
+    | none := pure $ mk_app (glob_id `auto_param) [bdt.term]
+    | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
+  pure $ bc.ids.map (λ bid, mk_simple_binder (binder_ident_to_ident bid) bi type)
+
+/-- Unfold `binders.view.extended` into `binders.view.simple`. -/
+def expand_binders (mk_binding : binders.view → syntax → syntax) (bnders : binders.view)
+  (body : syntax) : transform_m (option syntax) := do
+  binders.view.extended ext_binders ← pure bnders
+    | no_expansion,
+  -- build result `r` bottom-up
+  let r := body,
+  r ← match ext_binders.remainder with
+  | binders_remainder.view.mixed brms := brms.mfoldr (λ brm r, match brm with
+    -- anonymous constructor binding ~> binding + match
+    | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
+      pure $ mk_binding (mk_simple_binder "x" binder_info.default (review hole {})) $ review «match» {
+        scrutinees := [syntax.ident "x"],
+        equations := [{item := {lhs := [review anonymous_constructor ctor], rhs := r}}]
+      }
+    -- local notation: should have been handled by caller, erase
+    | mixed_binder.view.bracketed mbb := do
+      bnders ← expand_bracketed_binder mbb,
+      pure $ bnders.foldr (λ bnder, mk_binding bnder) r
+    | mixed_binder.view.id bid := pure $
+      mk_binding (mk_simple_binder (binder_ident_to_ident bid) binder_info.default (review hole {})) r
+    ) r
+  | _ := pure r,
+  let leading_ty := match ext_binders.remainder with
+  | binders_remainder.view.type brt := brt.type
+  | _ := review hole {},
+  let r := ext_binders.leading_ids.foldr (λ bid r,
+    mk_binding (mk_simple_binder (binder_ident_to_ident bid) binder_info.default leading_ty) r) r,
+  pure r
+
+def bracketed_binders.transform : transformer :=
+λ stx, do
+  let v := view bracketed_binders stx,
+  match v with
+  | bracketed_binders.view.simple _ := no_expansion
+  | bracketed_binders.view.extended bnders := do
+    bnders ← bnders.mmap expand_bracketed_binder,
+    pure $ review bracketed_binders $ bracketed_binders.view.simple $ list.join bnders
+
+def lambda.transform : transformer :=
+λ stx, do
+  let v := view lambda stx,
+  expand_binders (λ binders body, review lambda {binders := binders, body := body}) v.binders v.body
+
+def pi.transform : transformer :=
+λ stx, do
+  let v := view pi stx,
+  expand_binders (λ binders body, review pi {op := v.op, binders := binders, range := body}) v.binders v.range
+
+def arrow.transform : transformer :=
+λ stx, do
+  let v := view arrow stx,
+  pure $ review pi {
+    op := syntax.atom {val := "Π"},
+    binders := binders.view.simple $ simple_binder.view.explicit {id := `a, type := v.dom},
+    range := v.range}
+
 def paren.transform : transformer :=
 λ stx, do
   let v := view paren stx,
@@ -286,11 +307,11 @@ def paren.transform : transformer :=
 def assume.transform : transformer :=
 λ stx, do
   let v := view «assume» stx,
-  let binders : binders'.view := match v.binders with
-  | assume_binders.view.anonymous aba := binders'.view.simple $
+  let binders : binders.view := match v.binders with
+  | assume_binders.view.anonymous aba := binders.view.simple $
     -- TODO(Sebastian): unhygienic!
     simple_binder.view.explicit {id := "this", type := aba.type}
-  | assume_binders.view.binders abb := binders'.view.extended abb,
+  | assume_binders.view.binders abb := abb,
   pure $ review lambda {binders := binders, body := v.body}
 
 def if.transform : transformer :=
@@ -298,8 +319,8 @@ def if.transform : transformer :=
   let v := view «if» stx,
   pure $ match v.id with
   | some id := mk_app (glob_id `dite) [v.prop,
-    review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := v.prop}, body := v.then_branch},
-    review lambda {binders := binders'.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_app (glob_id `not) [v.prop]}, body := v.else_branch}]
+    review lambda {binders := binders.view.simple $ simple_binder.view.explicit {id := id.id, type := v.prop}, body := v.then_branch},
+    review lambda {binders := binders.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_app (glob_id `not) [v.prop]}, body := v.else_branch}]
   | none := mk_app (glob_id `ite) [v.prop, v.then_branch, v.else_branch]
 
 def let.transform : transformer :=
@@ -310,14 +331,14 @@ def let.transform : transformer :=
   | let_lhs.view.id lli@{id := _, binders := _, type := none} :=
     pure $ review «let» {v with lhs := let_lhs.view.id {lli with type := some {type := review hole {}}}}
   | let_lhs.view.id lli@{id := _, binders := _, type := some ty} :=
-    let bindrs := binders'.view.extended {
+    let bindrs := binders.view.extended {
       leading_ids := [],
       remainder := binders_remainder.view.mixed $ lli.binders.map mixed_binder.view.bracketed} in
     pure $ review «let» {v with
       lhs := let_lhs.view.id {
         id := lli.id,
         binders := [],
-        type := some $ {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := ty.type}}},
+        type := some {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := ty.type}}},
       body := review lambda {binders := bindrs, body := v.body}}
   | let_lhs.view.pattern llp :=
     pure $ review «match» {
@@ -330,6 +351,7 @@ local attribute [instance] name.has_lt_quick
 def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (mixfix.name, mixfix.transform),
   (reserve_mixfix.name, reserve_mixfix.transform),
+  (bracketed_binders.name, bracketed_binders.transform),
   (lambda.name, lambda.transform),
   (pi.name, pi.transform),
   (arrow.name, arrow.transform),

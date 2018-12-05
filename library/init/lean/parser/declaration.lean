@@ -55,7 +55,7 @@ node! decl_modifiers [
 @[derive has_tokens has_view]
 def decl_sig.parser : command_parser :=
 node! decl_sig [
-  params: term.bracketed_binder.parser*,
+  params: term.bracketed_binders.parser,
   type: node! decl_type [":", type: term.parser]?
 ]
 
@@ -89,10 +89,8 @@ node! intro_rule [
 
 @[derive has_tokens has_view]
 def structure_field.parser : command_parser :=
-node_choice! structure_field {
-  -- TODO(Sebastian): this `try` is too coarse
-  local_notation: try node! structure_notation [
-    "(", «notation»: notation_like.parser, ")"],
+node_longest_choice! structure_field {
+  local_notation: node! structure_notation ["(", «notation»: notation_like.parser, ")"],
   field: term.bracketed_binder.parser,
 }
 

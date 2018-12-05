@@ -141,8 +141,8 @@ node_choice! binder {
 }
 
 @[derive has_tokens has_view]
-def binders.parser : term_parser :=
-node! binders [
+def binders_ext.parser : term_parser :=
+node! binders_ext [
   leading_ids: binder_ident.parser*,
   remainder: node_choice! binders_remainder {
     type: node! binders_types [":", type: term.parser 0],
@@ -154,13 +154,23 @@ node! binders [
   }?
 ]
 
-/-- Where possible, we normalize binders to singleton simple binders during expansion. -/
+/-- We normalize binders to simpler singleton ones during expansion. -/
 @[derive has_tokens has_view]
-def binders'.parser : term_parser :=
-node_choice! binders' {
-  extended: binders.parser,
+def binders.parser : term_parser :=
+node_choice! binders {
+  extended: binders_ext.parser,
   -- a strict subset of `extended`, so only useful after parsing
   simple: simple_binder.parser,
+}
+
+/-- We normalize binders to simpler ones during expansion. These always-bracketed
+    binders are used in declarations and cannot be reduced to nested singleton binders. -/
+@[derive has_tokens has_view]
+def bracketed_binders.parser : term_parser :=
+node_choice! bracketed_binders {
+  extended: bracketed_binder.parser*,
+  -- a strict subset of `extended`, so only useful after parsing
+  simple: simple_binder.parser*,
 }
 end binder
 
@@ -168,7 +178,7 @@ end binder
 def lambda.parser : term_parser :=
 node! lambda [
   op: unicode_symbol "λ" "fun" max_prec,
-  binders: binders'.parser,
+  binders: binders.parser,
   ",",
   body: term.parser 0
 ]
@@ -189,7 +199,7 @@ node! «assume» [
 def pi.parser : term_parser :=
 node! pi [
   op: any_of [unicode_symbol "Π" "Pi" max_prec, unicode_symbol "∀" "forall" max_prec],
-  binders: binders'.parser,
+  binders: binders.parser,
   ",",
   range: term.parser 0
 ]
@@ -215,6 +225,7 @@ node! «let» [
   lhs: node_choice! let_lhs {
     id: node! let_lhs_id [
       id: ident.parser,
+      -- NOTE: after expansion, binders are empty
       binders: bracketed_binder.parser*,
       type: node! let_type [" : ", type: term.parser]?
     ],

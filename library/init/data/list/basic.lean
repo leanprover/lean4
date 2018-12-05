@@ -191,6 +191,15 @@ def take : ℕ → list α → list α
 | []       := b
 | (a :: l) := f a (foldr l)
 
+@[specialize] def foldr1 (f : α → α → α) : Π (xs : list α), xs ≠ [] → α
+| []              nem := false.elim (nem rfl)
+| [a]             nem := a
+| (a :: l@(_::_)) nem := f a (foldr1 l (λ eq, list.no_confusion eq))
+
+@[specialize] def foldr1_opt (f : α → α → α) : list α → option α
+| []       := none
+| (a :: l) := some $ foldr1 f (a :: l) (λ eq, list.no_confusion eq)
+
 @[inline] def any (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a || r) ff l
 

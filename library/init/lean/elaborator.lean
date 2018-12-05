@@ -85,6 +85,8 @@ def to_level : syntax → elaborator_m level
 def expr.mk_annotation (ann : name) (e : expr) :=
 expr.mdata (kvmap.set_name {} `annotation `anonymous_constructor) e
 
+def dummy : expr := expr.const `Prop []
+
 def to_pexpr : syntax → elaborator_m expr
 | (syntax.ident id)   := pure $ expr.const (mangle_ident id) []
 | stx@(syntax.raw_node {kind := k, args := args}) := (match k with
@@ -187,6 +189,23 @@ def to_pexpr : syntax → elaborator_m expr
       (mangle_ident <$> struct_inst_type.view.id <$> v.type).get_or_else name.anonymous,
     let dummy := expr.sort level.zero,
     pure $ expr.mdata m $ (fields ++ sources).foldr expr.app dummy
+  | @«match» := do
+    let v := view «match» stx,
+    let fn_name := `_match_fn,
+    fn ← expr.lam fn_name -- TODO: unhygienic
+      binder_info.default
+      <$> to_pexpr ((match_type.view.type <$> v.type).get_or_else $ review hole {}),
+    eqns ← match v.equations with
+    | [] := pure [fn $ expr.mdata (kvmap.set_bool {} `no_equation ff) dummy]
+    | eqns := (eqns.map sep_by.elem.view.item).mmap $ λ (eqn : match_equation.view), do {
+      lhs ← eqn.lhs.mmap $ λ l, to_pexpr l.item,
+      let lhs := lhs.foldl expr.app (expr.fvar fn_name),
+      rhs ← to_pexpr eqn.rhs,
+      pure $ fn $ expr.mdata (kvmap.set_bool {} `equation tt) $ expr.app lhs rhs
+    },
+    some eqns ← pure $ eqns.foldr1_opt expr.app
+      | error stx "to_pexpr: unreachable",
+    pure $ expr.mdata (kvmap.set_bool {} `pre_equations tt) eqns
   | _ := error stx $ "unexpected node: " ++ to_string k.name)
 | stx := error stx $ "unexpected: " ++ to_string stx
 

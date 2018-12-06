@@ -167,8 +167,9 @@ struct wf_rec_fn {
 
         virtual expr visit_local(expr const & e) {
             if (local_name(e) == local_name(m_fn)) {
-                /* unexpected occurrence of recursive function */
-                throw generic_exception(e, "unexpected occurrence of recursive function\n");
+                expr e2 = m_ctx.eta_expand(e);
+                lean_assert(!is_local(e2));
+                return visit(e2);
             }
             return e;
         }

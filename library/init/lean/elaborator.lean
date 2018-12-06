@@ -19,10 +19,12 @@ open parser.command
 open parser.command.notation_spec
 open expander
 
-structure elaborator_config :=
-(filename : string)
+structure elaborator_config extends frontend_config :=
 (local_notations : list notation_macro := [])
 (initial_parser_cfg : module_parser_config)
+
+instance elaborator_config_coe_frontend_config : has_coe elaborator_config frontend_config :=
+⟨elaborator_config.to_frontend_config⟩
 
 structure elaborator_state :=
 -- TODO(Sebastian): retrieve from environment
@@ -60,11 +62,6 @@ instance elaborator_m_coe_coelaborator_m {α : Type} : has_coe (elaborator_m α)
 
 instance elaborator_coe_coelaborator : has_coe elaborator coelaborator :=
 ⟨λ x, do stx ← current_command, x stx⟩
-
-def error {α : Type} (context : syntax) (text : string) : elaborator_m α :=
-do cfg ← read,
-   -- TODO(Sebastian): convert position
-   throw {filename := cfg.filename, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
 
 local attribute [instance] name.has_lt_quick
 

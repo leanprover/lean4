@@ -19,12 +19,15 @@ open parser.combinators
 open parser.term
 open parser.command
 
-structure transformer_config :=
-(filename : string)
+structure transformer_config extends frontend_config
+-- TODO(Sebastian): the recursion point for `local_expand` probably needs to be stored here
+
+instance transformer_config_coe_frontend_config : has_coe transformer_config frontend_config :=
+⟨transformer_config.to_frontend_config⟩
 
 -- TODO(Sebastian): recursive expansion
 @[derive monad monad_reader monad_except]
-def transform_m := reader_t transformer_config $ except_t message id
+def transform_m := reader_t frontend_config $ except_t message id
 abbreviation transformer := syntax → transform_m (option syntax)
 
 /-- We allow macros to refuse expansion. This means that nodes can decide whether to act as macros
@@ -33,12 +36,12 @@ abbreviation transformer := syntax → transform_m (option syntax)
 def no_expansion : transform_m (option syntax) :=
 pure none
 
-def error {m : Type → Type} {ρ : Type} [monad m] [monad_reader ρ m] [has_lift_t ρ transformer_config]
+def error {m : Type → Type} {ρ : Type} [monad m] [monad_reader ρ m] [has_lift_t ρ frontend_config]
   [monad_except message m] {α : Type}
   (context : syntax) (text : string) : m α :=
 do cfg ← read,
    -- TODO(Sebastian): convert position
-   throw {filename := transformer_config.filename ↑cfg, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
+   throw {filename := frontend_config.filename ↑cfg, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
 
 /-- Coercion useful for introducing macro-local variables. Use `glob_id` to refer to global bindings instead. -/
 instance coe_name_ident : has_coe name syntax_ident :=

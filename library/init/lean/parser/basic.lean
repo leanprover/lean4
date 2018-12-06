@@ -57,10 +57,15 @@ structure parser_cache :=
 -- for profiling
 (hit miss : nat := 0)
 
-/- Remark: if we have a node in the trie with `some token_config`, the string induced by the path is equal to the `token_config.prefix`. -/
-structure parser_config :=
-(tokens : trie token_config)
+structure frontend_config :=
 (filename : string)
+
+/- Remark: if we have a node in the trie with `some token_config`, the string induced by the path is equal to the `token_config.prefix`. -/
+structure parser_config extends frontend_config :=
+(tokens : trie token_config)
+
+instance parser_config_coe : has_coe parser_config frontend_config :=
+⟨parser_config.to_frontend_config⟩
 
 @[derive monad alternative monad_parsec monad_except]
 def parser_core_t (m : Type → Type) [monad m] :=
@@ -115,12 +120,12 @@ instance has_view.default (r : ρ) : inhabited (parser.has_view syntax r) :=
 
 class has_view_default (r : ρ) (α : out_param Type) [has_view α r] (default : α) := mk {}
 
-def message_of_parsec_message {μ : Type} (cfg : parser_config) (msg : parsec.message μ) : message :=
+def message_of_parsec_message {μ : Type} (cfg : frontend_config) (msg : parsec.message μ) : message :=
 -- FIXME: translate position
 {filename := cfg.filename, pos := ⟨0, 0⟩, text := to_string msg}
 
 /-- Run parser stack, returning a partial syntax tree in case of a fatal error -/
-protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ parser_config] (cfg : ρ) (s : string) (r : state_t parser_state (parser_t ρ m) α) :
+protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ frontend_config] (cfg : ρ) (s : string) (r : state_t parser_state (parser_t ρ m) α) :
 m (sum α syntax × message_log) :=
 do (r, _) ← (((r.run {messages:=message_log.empty}).run cfg).parse s).run {},
 pure $ match r with
@@ -133,7 +138,7 @@ open parser.has_view
 variables {α : Type} {m : Type → Type}
 local notation `parser` := m syntax
 
-def log_message {μ : Type} [monad m] [monad_reader ρ m] [has_lift_t ρ parser_config] [monad_state parser_state m]
+def log_message {μ : Type} [monad m] [monad_reader ρ m] [has_lift_t ρ frontend_config] [monad_state parser_state m]
   (msg : parsec.message μ) : m unit :=
 do cfg ← read,
    modify (λ st, {st with messages := st.messages.add (message_of_parsec_message ↑cfg msg)})

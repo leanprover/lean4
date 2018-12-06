@@ -194,7 +194,7 @@ def to_pexpr : syntax → elaborator_m expr
     let fn_name := `_match_fn,
     fn ← expr.lam fn_name -- TODO: unhygienic
       binder_info.default
-      <$> to_pexpr ((match_type.view.type <$> v.type).get_or_else $ review hole {}),
+      <$> to_pexpr (get_opt_type v.type),
     eqns ← match v.equations with
     | [] := pure [fn $ expr.mdata (kvmap.set_bool {} `no_equation ff) dummy]
     | eqns := (eqns.map sep_by.elem.view.item).mmap $ λ (eqn : match_equation.view), do {

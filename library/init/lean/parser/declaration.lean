@@ -56,7 +56,7 @@ node! decl_modifiers [
 def decl_sig.parser : command_parser :=
 node! decl_sig [
   params: term.bracketed_binders.parser,
-  type: node! decl_type [":", type: term.parser]?
+  type: term.opt_type.parser,
 ]
 
 @[derive has_tokens has_view]

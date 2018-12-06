@@ -56,6 +56,12 @@ node! hole [hole: symbol "_" max_prec]
 def sort.parser : term_parser :=
 node_choice! sort {"Sort":max_prec, "Type":max_prec}
 
+@[derive has_tokens has_view]
+def opt_type.parser : term_parser :=
+node! opt_type [" : ", type: term.parser 0]?
+
+instance opt_type.view_default : has_view_default opt_type.parser _ none := ⟨⟩
+
 section binder
 @[derive has_tokens has_view]
 def binder_ident.parser : term_parser :=
@@ -65,7 +71,7 @@ node_choice! binder_ident {id: ident.parser, hole: hole.parser}
 def binder_content.parser : term_parser :=
 node! binder_content [
   ids: binder_ident.parser+,
-  type: node! binder_content_type [":", type: term.parser 0]?,
+  type: opt_type.parser,
   default: node_choice! binder_default {
     val: node! binder_default_val [":=", term: term.parser 0],
     tac: node! binder_default_tac [".", term: term.parser 0]
@@ -227,7 +233,7 @@ node! «let» [
       id: ident.parser,
       -- NOTE: after expansion, binders are empty
       binders: bracketed_binder.parser*,
-      type: node! let_type [" : ", type: term.parser]?
+      type: opt_type.parser,
     ],
     pattern: term.parser
   },
@@ -269,7 +275,7 @@ def match.parser : term_parser :=
 node! «match» [
   "match ",
   scrutinees: sep_by1 term.parser (symbol ", ") ff,
-  type: node! match_type [" : ", type: term.parser]?,
+  type: opt_type.parser,
   " with ",
   opt_bar: (symbol " | ")?,
   equations: sep_by1

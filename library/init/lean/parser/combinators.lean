@@ -237,6 +237,7 @@ instance coe.tokens {β} (r : parser) [parser.has_tokens r] [has_coe_t parser β
 ⟨tokens r⟩
 instance coe.view {β} (r : parser) [i : parser.has_view α r] [has_coe_t parser β] : parser.has_view α (coe r : β) :=
 {..i}
+instance coe.view_default {β} (d : α) (r : parser) [has_view α r] [parser.has_view_default r α d] [has_coe_t parser β] : parser.has_view_default (coe r : β) α d := ⟨⟩
 
 end combinators
 end parser

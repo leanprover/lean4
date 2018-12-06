@@ -210,6 +210,10 @@ def binder_ident_to_ident : binder_ident.view → syntax_ident
 | (binder_ident.view.id id)  := id
 | (binder_ident.view.hole _) := "a"
 
+def get_opt_type : option opt_type.view → syntax
+| none     := review hole {}
+| (some v) := v.type
+
 def expand_bracketed_binder : bracketed_binder.view → transform_m (list simple_binder.view)
 -- local notation: should have been handled by caller, erase
 | (bracketed_binder.view.explicit {content := explicit_binder_content.view.notation _}) := pure []
@@ -227,7 +231,7 @@ def expand_bracketed_binder : bracketed_binder.view → transform_m (list simple
       | inst_implicit_binder_content.view.named bcn :=
         {ids := [bcn.id], type := some {type := bcn.type}})
   | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
-  let type := (binder_content_type.view.type <$> bc.type).get_or_else $ review hole {},
+  let type := get_opt_type bc.type,
   type ← match bc.default with
   | none := pure type
   | some (binder_default.view.val bdv) := pure $ mk_app (glob_id `opt_param) [type, bdv.term]

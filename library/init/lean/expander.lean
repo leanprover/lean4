@@ -349,6 +349,21 @@ def let.transform : transformer :=
       scrutinees := [v.value],
       equations := [{item := {lhs := [llp], rhs := v.body}}]}
 
+def level.leading.transform : transformer :=
+λ stx, do
+  let v := view level.leading stx,
+  match v with
+  | level.leading.view.paren p := pure p.inner
+  | _ := no_expansion
+
+def subtype.transform : transformer :=
+λ stx, do
+  let v := view term.subtype stx,
+  pure $ mk_app (glob_id `subtype) [review lambda {
+    binders := mk_simple_binder v.id binder_info.default $ get_opt_type v.type,
+    body := v.prop
+  }]
+
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): replace with attribute
@@ -362,7 +377,9 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (paren.name, paren.transform),
   (assume.name, assume.transform),
   (if.name, if.transform),
-  (let.name, let.transform)
+  (let.name, let.transform),
+  (level.leading.name, level.leading.transform),
+  (term.subtype.name, subtype.transform)
 ] _
 
 structure expander_state :=

@@ -71,16 +71,38 @@ local attribute [instance] name.has_lt_quick
 def mangle_ident (id : syntax_ident) : name :=
 id.scopes.foldl name.mk_numeral id.val
 
+def level_get_app_args : syntax → elaborator_m (syntax × list syntax)
+| stx := do
+  match stx.kind with
+  | some level.leading := pure (stx, [])
+  | some level.trailing := (match view level.trailing stx with
+    | level.trailing.view.app lta := do
+      (fn, args) ← level_get_app_args lta.fn,
+      pure (fn, lta.arg :: args)
+    | level.trailing.view.add_lit _ := pure (stx, []))
+  | _ := error stx $ "level_get_app_args: unexpected input: " ++ to_string stx
+
+def level_add : level → nat → level
+| l 0     := l
+| l (n+1) := (level_add l n).succ
+
 def to_level : syntax → elaborator_m level
 | stx := do
-  some k ← pure stx.kind | error stx $ "unexpected atom: " ++ to_string stx,
-  match k with
-  | level.leading := (match view level.leading stx with
-    | level.leading.view.hole _ := pure $ level.mvar "u"  -- TODO(Sebastian): name?
-    | level.leading.view.lit lit := pure $ level.of_nat lit.to_nat
-    | level.leading.view.var id := pure $ level.param $ mangle_ident id
-    | _ := error stx "ill-formed universe level")
-  | _ := error stx $ "unexpected node: " ++ to_string k.name
+  (fn, args) ← level_get_app_args stx,
+  match fn.kind with
+  | some level.leading := (match view level.leading stx, args with
+    | level.leading.view.hole _, [] := pure $ level.mvar "u"  -- TODO(Sebastian): name?
+    | level.leading.view.lit lit, [] := pure $ level.of_nat lit.to_nat
+    | level.leading.view.var id, [] := pure $ level.param $ mangle_ident id
+    | level.leading.view.max _, (arg::args) := list.foldl level.max <$> to_level arg <*> args.mmap to_level
+    | level.leading.view.imax _, (arg::args) := list.foldl level.imax <$> to_level arg <*> args.mmap to_level
+    | _, _ := error stx "ill-formed universe level")
+  | some level.trailing := (match view level.trailing stx, args with
+    | level.trailing.view.add_lit lta, [] := do
+      l ← to_level lta.lhs,
+      pure $ level_add l lta.rhs.to_nat
+    | _, _ := error stx "ill-formed universe level")
+  | _ := error stx $ "to_level: unexpected input: " ++ to_string stx
 
 def expr.mk_annotation (ann : name) (e : expr) :=
 expr.mdata (kvmap.set_name {} `annotation `anonymous_constructor) e

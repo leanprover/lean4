@@ -313,8 +313,8 @@ node! struct_inst [
 def subtype.parser : term_parser :=
 node! subtype [
   "{":max_prec,
-  id: opt_ident.parser,
-  val: term.parser,
+  id: ident.parser,
+  type: opt_type.parser,
   "//",
   prop: term.parser,
   "}"

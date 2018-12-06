@@ -214,8 +214,14 @@ def declaration.elaborate : elaborator :=
   let decl := view «declaration» stx,
   -- just test `to_pexpr` for now
   match decl.inner with
-  | declaration.inner.view.def_like {val := decl_val.view.simple val, ..} :=
-    to_pexpr val.body *> pure ()
+  | declaration.inner.view.def_like dl@{
+    val := decl_val.view.simple val,
+    sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+    let type := get_opt_type dl.sig.type,
+    let type := bbs.foldr (λ bnder type, review pi {op := syntax.atom {val := "Π"}, binders := bnder, range := type}) type,
+    to_pexpr type,
+    to_pexpr val.body,
+    pure ()
   | _ := pure ()
 
 def prec_to_nat : option precedence.view → nat

@@ -97,4 +97,4 @@ result:
    (ident_univs `v [])))
  (module.eoi "")]
 (ok (some "notationa`+`:65 b:65 :=nat.addab"))
-parser1.lean:135:0: warning: using 'exit' to interrupt Lean
+parser1.lean:140:0: warning: using 'exit' to interrupt Lean

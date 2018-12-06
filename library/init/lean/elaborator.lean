@@ -497,9 +497,13 @@ do
     (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})
     (λ _, do
       cmd ← current_command,
+      some n ← pure cmd.as_node |
+        error cmd $ "not a command: " ++ to_string cmd,
       -- TODO(Sebastian): throw error on unknown command when we get serious
-      some n ← pure cmd.as_node | pure (),
-      some elab ← pure $ elaborators.find n.kind.name | pure (),
+      some elab ← pure $ elaborators.find n.kind.name |
+        -- TODO(Sebastian): reuse `log_message`
+        modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "unknown command: " ++ to_string n.kind.name}},
+        -- error cmd $ "unknown command: " ++ to_string n.kind.name,
       catch elab $ λ e,
         modify $ λ st, {st with messages := st.messages.add e})
     elaborator.max_recursion,

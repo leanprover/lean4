@@ -246,6 +246,13 @@ def declaration.elaborate : elaborator :=
     pure ()
   | _ := pure ()
 
+def module.header.elaborate : elaborator :=
+λ stx, do
+  let header := view module.header stx,
+  match header with
+  | {«prelude» := some _, imports := []} := pure ()
+  | _ := error stx "not implemented: imports"
+
 def prec_to_nat : option precedence.view → nat
 | (some prec) := prec.term.to_nat
 | none        := 0
@@ -488,6 +495,7 @@ do ns ← view «namespace» <$> current_command,
 
 -- TODO(Sebastian): replace with attribute
 def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
+  (module.header.name, module.header.elaborate),
   (notation.name, notation.elaborate),
   (reserve_notation.name, reserve_notation.elaborate),
   (no_kind.name, no_kind.elaborate),

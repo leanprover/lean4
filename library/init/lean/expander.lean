@@ -367,6 +367,16 @@ def subtype.transform : transformer :=
     body := v.prop
   }]
 
+def universes.transform : transformer :=
+λ stx, do
+  let v := view «universes» stx,
+  pure $ syntax.list $ v.ids.map (λ id, review «universe» {id := id})
+
+def universe_variables.transform : transformer :=
+λ stx, do
+  let v := view «universe_variables» stx,
+  pure $ syntax.list $ v.ids.map (λ id, review «universe_variable» {id := id})
+
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): replace with attribute
@@ -382,7 +392,9 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (if.name, if.transform),
   (let.name, let.transform),
   (level.leading.name, level.leading.transform),
-  (term.subtype.name, subtype.transform)
+  (term.subtype.name, subtype.transform),
+  (universes.name, universes.transform),
+  (universe_variables.name, universe_variables.transform)
 ] _
 
 structure expander_state :=

@@ -54,7 +54,10 @@ attribute [derive monad_coroutine] coelaborator_m
 instance elaborator_t.monad_reader_adapter (m : Type → Type) [monad m] :
   monad_reader_adapter elaborator_config elaborator_config (elaborator_t m) (elaborator_t m) :=
 infer_instance
-def current_command : coelaborator_m syntax := monad_lift (coroutine.read : coroutine syntax elaborator_state _)
+def current_command : coelaborator_m syntax :=
+monad_lift (coroutine.read : coroutine syntax elaborator_state _)
+def with_current_command {α : Type} (cmd : syntax) : coelaborator_m α → coelaborator_m α :=
+monad_map (λ β, (coroutine.adapt (λ _, cmd) : coroutine syntax elaborator_state β → coroutine syntax elaborator_state β))
 end
 
 instance elaborator_m_coe_coelaborator_m {α : Type} : has_coe (elaborator_m α) (coelaborator_m α) :=
@@ -415,6 +418,13 @@ def notation.elaborate : elaborator :=
     update_parser_config
   }
 
+/-- List of commands: recursively elaborate each command. -/
+def no_kind.elaborate : coelaborator := do
+  stx ← current_command,
+  some n ← pure stx.as_node
+    | error stx "no_kind.elaborate: unreachable",
+  n.args.mmap' (λ cmd, with_current_command cmd command.elaborate)
+
 def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
 | 0 := do cmd ← current_command, error cmd "commands.elaborate: out of fuel"
 | (n+1) := do
@@ -480,6 +490,7 @@ do ns ← view «namespace» <$> current_command,
 def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (notation.name, notation.elaborate),
   (reserve_notation.name, reserve_notation.elaborate),
+  (no_kind.name, no_kind.elaborate),
   (section.name, section.elaborate),
   (namespace.name, namespace.elaborate),
   (declaration.name, declaration.elaborate)

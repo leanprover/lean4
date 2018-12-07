@@ -45,6 +45,11 @@ mk $ λ _, done b
 @[inline] protected def read : coroutine α δ α :=
 mk $ λ a, done a
 
+/-- Run nested coroutine with transformed input argument. Like `reader_t.adapt`, but
+    cannot change the input type. -/
+@[inline] protected def adapt (f : α → α) (c : coroutine α δ β) : coroutine α δ β :=
+mk $ λ a, c.resume (f a)
+
 /-- Return the control to the invoker with result `d` -/
 @[inline] protected def yield (d : δ) : coroutine α δ punit :=
 mk $ λ a : α, yielded d (coroutine.pure ⟨⟩)

@@ -20,18 +20,21 @@ open parser.command.notation_spec
 open expander
 
 structure elaborator_config extends frontend_config :=
-(local_notations : list notation_macro := [])
 (initial_parser_cfg : module_parser_config)
 
 instance elaborator_config_coe_frontend_config : has_coe elaborator_config frontend_config :=
 ⟨elaborator_config.to_frontend_config⟩
 
+structure local_state :=
+(notations : list notation_macro := [])
+
 structure elaborator_state :=
 -- TODO(Sebastian): retrieve from environment
 (reserved_notations : list reserve_notation.view := [])
-(nonlocal_notations : list notation_macro := [])
+(notations : list notation_macro := [])
 (notation_counter := 0)
 
+(local_state : local_state := {})
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 (expander_cfg : expander.expander_config)
@@ -309,7 +312,7 @@ do st ← get,
      match command_parser_config.register_notation_tokens rnota.spec ccfg with
      | except.ok ccfg := pure ccfg
      | except.error e := error (review reserve_notation rnota) e) ccfg,
-   ccfg ← (st.nonlocal_notations ++ cfg.local_notations).mfoldl (λ ccfg nota,
+   ccfg ← (st.notations ++ st.local_state.notations).mfoldl (λ ccfg nota,
      match command_parser_config.register_notation_tokens nota.nota.spec ccfg >>=
                command_parser_config.register_notation_parser nota.kind nota.nota.spec with
      | except.ok ccfg := pure ccfg
@@ -408,8 +411,6 @@ do k ← mk_notation_kind,
 def notation.elaborate : elaborator :=
 λ stx, do
   let nota := view «notation» stx,
-  when nota.local.is_some $
-    error stx "notation.elaborate: unexpected local notation",
   -- HACK: ignore list literal notation using :fold
   let uses_fold := nota.spec.rules.any $ λ r, match r.transition with
     | some (transition.view.arg {action := some {kind := action_kind.view.fold _, ..}, ..}) := tt
@@ -421,7 +422,9 @@ def notation.elaborate : elaborator :=
   } else do {
     nota ← notation.elaborate_aux nota,
     m ← register_notation_macro nota,
-    modify $ λ st, {st with nonlocal_notations := m::st.nonlocal_notations},
+    modify $ λ st, match nota.local with
+      | some _ := {st with local_state := {st.local_state with notations := m::st.local_state.notations}}
+      | none   := {st with notations := m::st.notations},
     update_parser_config
   }
 
@@ -453,45 +456,29 @@ def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
       error cmd "invalid end of input, expected 'end'"
     else
       pure ()
-  | @«notation» := do
-    let nota := view «notation» cmd,
-    if nota.local.is_some then do {
-      nota ← notation.elaborate_aux nota,
-      m ← register_notation_macro nota,
-      -- add local notation scoped to the remaining commands
-      adapt_reader (λ cfg : elaborator_config, {cfg with local_notations := m::cfg.local_notations}) $ do {
-        (update_parser_config : coelaborator),
-        yield_to_outside,
-        commands.elaborate n
-      }
-    } else elab_and_recurse
   | _ := elab_and_recurse
+
+def elab_scope (cmd_name : string) (exp_end_name : option name) : coelaborator :=
+do local_st ← elaborator_state.local_state <$> get,
+   yield_to_outside,
+   commands.elaborate tt 1000,
+   -- reset local state
+   modify $ λ st, {st with local_state := local_st},
+   -- local notations may have vanished
+   update_parser_config,
+   end_cmd ← view «end» <$> current_command,
+   let end_name := mangle_ident <$> end_cmd.name,
+   when (end_name ≠ exp_end_name) $
+     error (review «end» end_cmd) $ "invalid end of " ++ cmd_name ++ ", expected name '" ++
+       to_string (exp_end_name.get_or_else name.anonymous) ++ "'"
 
 def section.elaborate : coelaborator :=
 do sec ← view «section» <$> current_command,
-   let sec_name := syntax_ident.val <$> sec.name,
-   yield_to_outside,
-   commands.elaborate tt 1000,
-   -- local notations may have vanished
-   update_parser_config,
-   end_sec ← view «end» <$> current_command,
-   let end_sec_name := syntax_ident.val <$> end_sec.name,
-   when (sec_name ≠ end_sec_name) $
-     error (review «end» end_sec) $ "invalid end of section, expected name '" ++
-       to_string (sec_name.get_or_else name.anonymous) ++ "'"
+   elab_scope "section" $ mangle_ident <$> sec.name
 
 def namespace.elaborate : coelaborator :=
 do ns ← view «namespace» <$> current_command,
-   let ns_name := ns.name.val,
-   yield_to_outside,
-   commands.elaborate tt 1000,
-   -- local notations may have vanished
-   update_parser_config,
-   end_ns ← view «end» <$> current_command,
-   let end_ns_name := syntax_ident.val <$> end_ns.name,
-   when (some ns_name ≠ end_ns_name) $
-     error (review «end» end_ns) $ "invalid end of namespace, expected name '" ++
-       to_string ns_name ++ "'"
+   elab_scope "namespace" ns.name.val
 
 -- TODO(Sebastian): replace with attribute
 def elaborators : rbmap name coelaborator (<) := rbmap.from_list [

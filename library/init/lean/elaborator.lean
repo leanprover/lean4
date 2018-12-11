@@ -113,11 +113,14 @@ def level_add : level → nat → level
 def to_level : syntax → elaborator_m level
 | stx := do
   (fn, args) ← level_get_app_args stx,
+  st ← get,
   match fn.kind with
   | some level.leading := (match view level.leading stx, args with
     | level.leading.view.hole _, [] := pure $ level.mvar "u"  -- TODO(Sebastian): name?
     | level.leading.view.lit lit, [] := pure $ level.of_nat lit.to_nat
-    | level.leading.view.var id, [] := pure $ level.param $ mangle_ident id
+    | level.leading.view.var id, [] := let id := mangle_ident id in (match st.local_state.univs.find id with
+      | some _ := pure $ level.param id
+      | none   := error stx $ "unknown universe variable '" ++ to_string id ++ "'")
     | level.leading.view.max _, (arg::args) := list.foldl level.max <$> to_level arg <*> args.mmap to_level
     | level.leading.view.imax _, (arg::args) := list.foldl level.imax <$> to_level arg <*> args.mmap to_level
     | _, _ := error stx "ill-formed universe level")

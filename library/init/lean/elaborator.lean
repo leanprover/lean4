@@ -19,6 +19,26 @@ open parser.command
 open parser.command.notation_spec
 open expander
 
+local attribute [instance] name.has_lt_quick
+
+-- TODO(Sebastian): move
+/-- An rbset that remembers the insertion order. -/
+structure ordered_rbset (α : Type) (lt : α → α → Prop) :=
+(map : rbmap α nat lt)
+(next_id : nat)
+
+namespace ordered_rbset
+variables {α : Type} {lt : α → α → Prop} [decidable_rel lt] (set : ordered_rbset α lt)
+
+def empty : ordered_rbset α lt := {map := mk_rbmap _ _ _, next_id := 0}
+
+def insert (a : α) : ordered_rbset α lt :=
+{map := set.map.insert a set.next_id, next_id := set.next_id + 1}
+
+def find (a : α) : option nat :=
+set.map.find a
+end ordered_rbset
+
 structure elaborator_config extends frontend_config :=
 (initial_parser_cfg : module_parser_config)
 
@@ -27,6 +47,9 @@ instance elaborator_config_coe_frontend_config : has_coe elaborator_config front
 
 structure local_state :=
 (notations : list notation_macro := [])
+/- The set of local universe parameters.
+   We remember their insertion order so that we can keep the order when copying them to declarations. -/
+(univs : ordered_rbset name (<) := ordered_rbset.empty)
 
 structure elaborator_state :=
 -- TODO(Sebastian): retrieve from environment
@@ -68,8 +91,6 @@ instance elaborator_m_coe_coelaborator_m {α : Type} : has_coe (elaborator_m α)
 
 instance elaborator_coe_coelaborator : has_coe elaborator coelaborator :=
 ⟨λ x, do stx ← current_command, x stx⟩
-
-local attribute [instance] name.has_lt_quick
 
 def mangle_ident (id : syntax_ident) : name :=
 id.scopes.foldl name.mk_numeral id.val
@@ -428,6 +449,15 @@ def notation.elaborate : elaborator :=
     update_parser_config
   }
 
+def universe.elaborate : elaborator :=
+λ stx, do
+  let univ := view «universe» stx,
+  let id := mangle_ident univ.id,
+  st ← get,
+  match st.local_state.univs.find id with
+  | none   := put {st with local_state := {st.local_state with univs := st.local_state.univs.insert id}}
+  | some _ := error stx $ "a universe named '" ++ to_string id ++ "' has already been declared in this scope"
+
 /-- List of commands: recursively elaborate each command. -/
 def no_kind.elaborate : coelaborator := do
   stx ← current_command,
@@ -485,6 +515,7 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (module.header.name, module.header.elaborate),
   (notation.name, notation.elaborate),
   (reserve_notation.name, reserve_notation.elaborate),
+  (universe.name, universe.elaborate),
   (no_kind.name, no_kind.elaborate),
   (section.name, section.elaborate),
   (namespace.name, namespace.elaborate),

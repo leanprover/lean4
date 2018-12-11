@@ -137,7 +137,6 @@ def run_frontend (input : string) : except_t string io unit := do
   let stx := stx.update_leading input,
   io.println "result:",
   io.println (to_string stx)-/
-#exit
 
 -- slowly progressing...
 set_option profiler true

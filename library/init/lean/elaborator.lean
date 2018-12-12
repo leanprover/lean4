@@ -65,7 +65,7 @@ structure elaborator_state :=
 @[derive monad monad_reader monad_state monad_except]
 def elaborator_t (m : Type → Type) [monad m] := reader_t elaborator_config $ state_t elaborator_state $ except_t message m
 abbreviation elaborator_m := elaborator_t id
-abbreviation elaborator := syntax → elaborator_m unit
+abbreviation elaborator := reader_t syntax elaborator_m unit
 /-- An elaborator in a coroutine. Can accept and process multiple commands asynchronously
     (e.g. `section`) -/
 abbreviation coelaborator_m := rec_t unit unit $ elaborator_t $ coroutine syntax elaborator_state
@@ -259,10 +259,10 @@ def to_pexpr : syntax → elaborator_m expr
 | stx := error stx $ "unexpected: " ++ to_string stx
 
 /-- Execute `elab` and reset local state (universes, ...) after it has finished. -/
-def locally (elab : elaborator) : elaborator :=
-λ stx, do
+@[specialize] def locally {m : Type → Type} [monad m] [monad_state elaborator_state m] (elab : m unit) :
+  m unit := do
   local_st ← elaborator_state.local_state <$> get,
-  elab stx,
+  elab,
   modify $ λ st, {st with local_state := local_st}
 
 def declaration.elaborate : elaborator :=
@@ -504,11 +504,10 @@ def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
   | _ := elab_and_recurse
 
 def elab_scope (cmd_name : string) (exp_end_name : option name) : coelaborator :=
-do local_st ← elaborator_state.local_state <$> get,
-   yield_to_outside,
-   commands.elaborate tt 1000,
-   -- reset local state
-   modify $ λ st, {st with local_state := local_st},
+do locally $ do {
+     yield_to_outside,
+     commands.elaborate tt 1000
+   },
    -- local notations may have vanished
    update_parser_config,
    end_cmd ← view «end» <$> current_command,

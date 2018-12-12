@@ -258,14 +258,26 @@ def to_pexpr : syntax → elaborator_m expr
   | _ := error stx $ "unexpected node: " ++ to_string k.name)
 | stx := error stx $ "unexpected: " ++ to_string stx
 
-def declaration.elaborate : elaborator :=
+/-- Execute `elab` and reset local state (universes, ...) after it has finished. -/
+def locally (elab : elaborator) : elaborator :=
 λ stx, do
+  local_st ← elaborator_state.local_state <$> get,
+  elab stx,
+  modify $ λ st, {st with local_state := local_st}
+
+def declaration.elaborate : elaborator :=
+locally $ λ stx, do
   let decl := view «declaration» stx,
   -- just test `to_pexpr` for now
   match decl.inner with
   | declaration.inner.view.def_like dl@{
     val := decl_val.view.simple val,
     sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+    match dl.old_univ_params with
+    | some uparams :=
+      modify $ λ st, {st with local_state := {st.local_state with univs :=
+        (uparams.ids.map mangle_ident).foldl ordered_rbset.insert st.local_state.univs}}
+    | none := pure (),
     let type := get_opt_type dl.sig.type,
     let type := bbs.foldr (λ bnder type, review pi {op := syntax.atom {val := "Π"}, binders := bnder, range := type}) type,
     to_pexpr type,

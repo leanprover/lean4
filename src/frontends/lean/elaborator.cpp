@@ -4233,6 +4233,10 @@ expr resolve_names(environment const & env, local_context const & lctx, expr con
     return resolve_names_fn(env, lctx)(e);
 }
 
+environment elaborate_command(environment const & env, expr const & cmd) {
+    throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");
+}
+
 void initialize_elaborator() {
     g_elab_strategy = new name("elab_strategy");
     register_trace_class("elaborator");

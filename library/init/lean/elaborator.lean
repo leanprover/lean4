@@ -11,7 +11,13 @@ import init.lean.expander
 import init.lean.expr
 
 namespace lean
+-- TODO(Sebastian): should probably be meta together with the whole elaborator
+constant environment : Type
+constant environment.empty : environment
+
 namespace elaborator
+constant elaborate_command : expr → environment → except string environment
+
 open parser
 open parser.combinators
 open parser.term

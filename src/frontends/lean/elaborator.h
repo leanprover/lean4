@@ -365,6 +365,9 @@ pair<expr, names> elaborate(environment & env, options const & opts, name const 
     Throw exception is \c ctx does not contain the local constant. */
 expr resolve_names(environment const & env, local_context const & lctx, expr const & e);
 
+/** \brief Fall-back interface for the new elaborator */
+environment elaborate_command(environment const & env, expr const & cmd);
+
 void initialize_elaborator();
 void finalize_elaborator();
 }

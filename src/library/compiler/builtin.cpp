@@ -148,6 +148,10 @@ void initialize_builtin() {
     register_builtin(name({"io", "prim", "handle", "flush"}), o_o_o, "io_prim_handle_flush", bc);
     register_builtin(name({"io", "prim", "handle", "close"}), o_o_o, "io_prim_handle_close", bc);
     register_builtin(name({"io", "prim", "handle", "get_line"}), o_o_o, "io_prim_handle_get_line", bc);
+
+    // interface to old elaborator
+    register_builtin(name({"lean", "environment", "empty"}), o, "lean_environment_empty", {});
+    register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o, "lean_elaborator_elaborate_command", bb);
 }
 
 void finalize_builtin() {

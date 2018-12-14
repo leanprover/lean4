@@ -172,7 +172,7 @@ def to_pexpr : syntax → elaborator_m expr
      | sort.view.Type _ := (expr.sort ∘ level.succ) <$> to_level v.arg)
   | @anonymous_constructor := do
     let v := view anonymous_constructor stx,
-    p ← to_pexpr $ mk_app' (review hole {}) (v.args.map sep_by.elem.view.item),
+    p ← to_pexpr $ mk_app (review hole {}) (v.args.map sep_by.elem.view.item),
     pure $ expr.mk_annotation `anonymous_constructor p
   | @hole := pure $ expr.const "_" []  -- TODO
   | @«have» := do

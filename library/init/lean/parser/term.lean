@@ -368,11 +368,11 @@ node! sort_app [fn: get_leading, arg: monad_lift (level.parser max_prec).run]
 def app.parser : trailing_term_parser :=
 node! app [fn: get_leading, arg: term.parser max_prec]
 
-def mk_app' (fn : syntax) (args : list syntax) : syntax :=
+def mk_app (fn : syntax) (args : list syntax) : syntax :=
 args.foldl (λ fn arg, syntax.mk_node app [fn, arg]) fn
 
-def mk_app (fn : syntax_ident) (args : list syntax) : syntax :=
-mk_app' (syntax.ident fn) args
+def mk_capp (fn : syntax_ident) (args : list syntax) : syntax :=
+mk_app (syntax.ident fn) args
 
 @[derive parser.has_tokens parser.has_view]
 def arrow.parser : trailing_term_parser :=

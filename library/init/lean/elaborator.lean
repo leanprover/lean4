@@ -67,6 +67,7 @@ structure elaborator_state :=
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 (expander_cfg : expander.expander_config)
+(env : environment := environment.empty)
 
 @[derive monad monad_reader monad_state monad_except]
 def elaborator_t (m : Type → Type) [monad m] := reader_t elaborator_config $ state_t elaborator_state $ except_t message m
@@ -479,6 +480,22 @@ def universe.elaborate : elaborator :=
   | none   := put {st with local_state := {st.local_state with univs := st.local_state.univs.insert id}}
   | some _ := error stx $ "a universe named '" ++ to_string id ++ "' has already been declared in this scope"
 
+def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
+do st ← get,
+   match elaborate_command cmd st.env with
+   | except.ok env' := put {st with env := env'}
+   | except.error e := error stx e
+
+def attribute.elaborate : elaborator :=
+λ stx, do
+  let attr := view «attribute» stx,
+  let mdata := kvmap.set_name {} `command `attribute,
+  let mdata := mdata.set_bool `local $ attr.local.is_some,
+  attrs ← expr.mk_capp `_ <$> attr.attrs.mmap (λ attr,
+    expr.mk_capp (mangle_ident attr.item.name) <$> attr.item.args.mmap to_pexpr),
+  let ids := expr.mk_capp `_ $ attr.ids.map $ λ id, expr.const (mangle_ident id) [],
+  old_elab_command stx $ expr.mdata mdata $ expr.app attrs ids
+
 /-- List of commands: recursively elaborate each command. -/
 def no_kind.elaborate : coelaborator := do
   stx ← current_command,
@@ -539,7 +556,8 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (no_kind.name, no_kind.elaborate),
   (section.name, section.elaborate),
   (namespace.name, namespace.elaborate),
-  (declaration.name, declaration.elaborate)
+  (declaration.name, declaration.elaborate),
+  (attribute.name, attribute.elaborate)
 ] _
 
 protected def max_recursion := 100

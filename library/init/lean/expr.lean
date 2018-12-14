@@ -49,4 +49,11 @@ inductive expr
 instance expr_is_inhabited : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
+namespace expr
+def mk_app (fn : expr) (args : list expr) : expr :=
+args.foldl expr.app fn
+
+def mk_capp (fn : name) (args : list expr) : expr :=
+mk_app (expr.const fn []) args
+end expr
 end lean

@@ -59,7 +59,7 @@ static environment universe_cmd(parser & p) {
         p.next();
         return universes_cmd_core(p, true);
     } else {
-        bool local = false;
+        bool local = true;
         if (p.curr_is_token(get_variable_tk())) {
             p.next();
             local = true;
@@ -70,7 +70,7 @@ static environment universe_cmd(parser & p) {
 }
 
 static environment universes_cmd(parser & p) {
-    return universes_cmd_core(p, false);
+    return universes_cmd_core(p, true);
 }
 
 enum class variable_kind { Constant, Variable, Axiom };

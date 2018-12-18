@@ -245,24 +245,30 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     auto ngen = to_name_generator(cfield(vm_st, 1));
     auto vm_lds = cfield(vm_st, 2);
     local_level_decls lds;
+    name_set lvars;
     while (vm_lds.is_ptr()) {
         auto it = cfield(vm_lds, 0);
-        lds.insert(to_name(cfield(it, 0)), to_level(cfield(it, 1)));
+        auto n = to_name(cfield(it, 0));
+        lds.insert(n, to_level(cfield(it, 1)));
+        // all local decls are variables in Lean 4
+        lvars.insert(n);
         vm_lds = cfield(vm_lds, 1);
     }
     auto vm_eds = cfield(vm_st, 3);
     local_expr_decls eds;
+    name_set vars;
     while (vm_eds.is_ptr()) {
         auto it = cfield(vm_eds, 0);
-        eds.insert(to_name(cfield(it, 0)), to_expr(cfield(it, 1)));
+        auto n = to_name(cfield(it, 0));
+        eds.insert(n, to_expr(cfield(it, 1)));
+        // all local decls are variables in Lean 4
+        vars.insert(n);
         vm_eds = cfield(vm_eds, 1);
     }
-    auto lvars = to_name_set(cfield(vm_st, 4));
-    auto vars = to_name_set(cfield(vm_st, 5));
-    auto includes = to_name_set(cfield(vm_st, 6));
-    auto options = to_options(cfield(vm_st, 7));
+    auto includes = to_name_set(cfield(vm_st, 4));
+    auto options = to_options(cfield(vm_st, 5));
     p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
-            parser_scope_stack(), to_unsigned(cfield(vm_st, 8)), pos_info {1, 0}));
+            parser_scope_stack(), to_unsigned(cfield(vm_st, 6)), pos_info {1, 0}));
 
     try {
         elaborate_command(p, to_expr(vm_cmd));
@@ -275,9 +281,7 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
             cfield(vm_st, 3),
             cfield(vm_st, 4),
             cfield(vm_st, 5),
-            cfield(vm_st, 6),
-            cfield(vm_st, 7),
-            cfield(vm_st, 8),
+            cfield(vm_st, 6)
         });
         return mk_vm_constructor(1, vm_st);
     } catch (exception & e) {

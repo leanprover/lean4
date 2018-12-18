@@ -75,10 +75,6 @@ node! «end» ["end", name: ident.parser?]
 @[derive parser.has_tokens]
 def universe.parser : command_parser :=
 any_of [
-  -- local
-  node! universe_variables [try ["universe", "variables"], ids: ident.parser+],
-  node! universe_variable [try ["universe", "variable"], id: ident.parser],
-  -- global
   node! «universes» ["universes", ids: ident.parser+],
   node! «universe» ["universe", id: ident.parser]
 ]

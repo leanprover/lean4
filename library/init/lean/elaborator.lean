@@ -27,10 +27,8 @@ structure name_generator :=
 structure old_elaborator_state :=
 (env : environment)
 (ngen : name_generator)
-(local_udecls : list (name × level))
-(local_decls : list (name × expr))
-(uvars : list name)
-(vars : list name)
+(univs : list (name × level))
+(vars : list (name × expr))
 (include_vars : list name)
 (options : options)
 (next_inst_idx : nat)
@@ -76,16 +74,12 @@ instance elaborator_config_coe_frontend_config : has_coe elaborator_config front
 
 structure local_state :=
 (notations : list notation_macro := [])
-/- The set of local universe parameters.
+/- The set of local universe variables.
    We remember their insertion order so that we can keep the order when copying them to declarations. -/
 (univs : ordered_rbmap name level (<) := ordered_rbmap.empty)
-/- The set of local declarations (variables and aliases). -/
-(decls : ordered_rbmap name expr  (<) := ordered_rbmap.empty)
-/- The subset of `univs` that represents universe variables. -/
-(uvars : rbtree name (<) := mk_rbtree _ _)
-/- The subset of `decls` that represents variables. -/
-(vars : rbtree name (<) := mk_rbtree _ _)
-/- The subset of `decls` that is tagged as always included. -/
+/- The set of local variables. -/
+(vars : ordered_rbmap name expr  (<) := ordered_rbmap.empty)
+/- The subset of `vars` that is tagged as always included. -/
 (include_vars : rbtree name (<) := mk_rbtree _ _)
 
 structure elaborator_state :=
@@ -518,18 +512,14 @@ def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
 do cfg ← read,
    st ← get,
    match elaborate_command cfg.filename cmd {
-     local_udecls := st.local_state.univs.entries,
-     local_decls := st.local_state.decls.entries,
-     uvars := st.local_state.uvars.to_list,
-     vars := st.local_state.vars.to_list,
+     univs := st.local_state.univs.entries,
+     vars := st.local_state.vars.entries,
      include_vars := st.local_state.include_vars.to_list,
      ..st} with
    | except.ok st' := put {
      local_state := {st.local_state with
-       univs := ordered_rbmap.of_list st'.local_udecls,
-       decls := ordered_rbmap.of_list st'.local_decls,
-       uvars := rbtree.of_list st'.uvars,
-       vars := rbtree.of_list st'.vars,
+       univs := ordered_rbmap.of_list st'.univs,
+       vars := ordered_rbmap.of_list st'.vars,
        include_vars := rbtree.of_list st'.include_vars,
      },
      ..st', ..st}

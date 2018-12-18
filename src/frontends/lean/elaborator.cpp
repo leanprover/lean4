@@ -4233,31 +4233,6 @@ expr resolve_names(environment const & env, local_context const & lctx, expr con
     return resolve_names_fn(env, lctx)(e);
 }
 
-environment elab_attribute_cmd(environment env, expr const & cmd) {
-    auto const & data = mdata_data(cmd);
-    bool local = *get_bool(data, "local");
-    decl_attributes attributes(!local);
-    buffer<expr> args, eattrs, eids;
-    get_app_args(cmd, args);
-    get_app_args(args[0], eattrs);
-    get_app_args(args[1], eids);
-    for (auto const & e : eattrs)
-        attributes.set_attribute(env, const_name(e));
-    for (auto const & e : eids)
-        env = attributes.apply(env, get_dummy_ios(), const_name(e));
-    return env;
-}
-
-environment elaborate_command(environment env, expr const & cmd) {
-    auto const & data = mdata_data(cmd);
-    if (auto const & cmd_name = get_name(data, "command")) {
-        if (*cmd_name == "attribute") {
-            return elab_attribute_cmd(env, cmd);
-        }
-    }
-    throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");
-}
-
 void initialize_elaborator() {
     g_elab_strategy = new name("elab_strategy");
     register_trace_class("elaborator");

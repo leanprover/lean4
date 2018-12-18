@@ -2295,6 +2295,22 @@ std::shared_ptr<snapshot> parser::mk_snapshot() {
             m_ios.get_options(), m_imports_parsed, m_ignore_noncomputable, m_parser_scope_stack, m_next_inst_idx, pos());
 }
 
+void parser::reset(snapshot const & s) {
+    m_scanner.skip_to_pos(s.m_pos);
+    m_env                = s.m_env;
+    m_ngen               = s.m_ngen;
+    m_ios.set_options(s.m_options);
+    m_local_level_decls  = s.m_lds;
+    m_local_decls        = s.m_eds;
+    m_level_variables    = s.m_lvars;
+    m_variables          = s.m_vars;
+    m_include_vars       = s.m_include_vars;
+    m_imports_parsed     = s.m_imports_parsed;
+    m_ignore_noncomputable = s.m_noncomputable_theory;
+    m_parser_scope_stack = s.m_parser_scope_stack;
+    m_next_inst_idx      = s.m_next_inst_idx;
+}
+
 pos_info parser::get_some_pos() const {
     return m_last_cmd_pos;
 }

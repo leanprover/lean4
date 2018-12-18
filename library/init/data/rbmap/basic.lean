@@ -218,6 +218,10 @@ variables [decidable_rel lt]
 def insert : rbmap α β lt → α → β → rbmap α β lt
 | ⟨t, w⟩   k v := ⟨t.insert lt k v, well_formed.insert_wff w rfl⟩
 
+@[specialize] def of_list : list (α × β) → rbmap α β lt
+| []          := mk_rbmap _ _ _
+| (⟨k,v⟩::xs) := (of_list xs).insert k v
+
 def find_core : rbmap α β lt → α → option (Σ k : α, β)
 | ⟨t, _⟩ x := t.find_core lt x
 

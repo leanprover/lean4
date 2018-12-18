@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 
 namespace lean {
+class vm_obj;
 /**
    \brief A generator of unique names modulo a prefix.
    If the initial prefix is independent of all other names in the system, then all generated names are unique.
@@ -17,6 +18,9 @@ namespace lean {
 class name_generator {
     name     m_prefix;
     unsigned m_next_idx;
+
+    friend name_generator to_name_generator(vm_obj const &);
+    friend vm_obj to_obj(name_generator const &);
 public:
     name_generator();
     /* Create a name generator with the given prefix.

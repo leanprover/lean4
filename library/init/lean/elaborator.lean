@@ -9,6 +9,7 @@ prelude
 import init.lean.parser.module
 import init.lean.expander
 import init.lean.expr
+import init.lean.options
 
 namespace lean
 -- TODO(Sebastian): should probably be meta together with the whole elaborator
@@ -16,7 +17,25 @@ constant environment : Type
 constant environment.empty : environment
 
 namespace elaborator
-constant elaborate_command : expr → environment → except string environment
+-- TODO(Sebastian): move
+-- TODO(Sebastian): should be its own monad?
+structure name_generator :=
+(«prefix» : name)
+(next_idx : nat) -- TODO(Sebastian): uint32
+
+/-- Simplified state of the Lean 3 parser. Maps are replaced with lists for easier interop. -/
+structure old_elaborator_state :=
+(env : environment)
+(ngen : name_generator)
+(local_udecls : list (name × level))
+(local_decls : list (name × expr))
+(uvars : list name)
+(vars : list name)
+(include_vars : list name)
+(options : options)
+(next_inst_idx : nat)
+
+constant elaborate_command : string → expr → old_elaborator_state → except string old_elaborator_state
 
 open parser
 open parser.combinators
@@ -28,22 +47,26 @@ open expander
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): move
-/-- An rbset that remembers the insertion order. -/
-structure ordered_rbset (α : Type) (lt : α → α → Prop) :=
-(map : rbmap α nat lt)
-(next_id : nat)
+/-- An rbmap that remembers the insertion order. -/
+structure ordered_rbmap (α β : Type) (lt : α → α → Prop) :=
+(entries : list (α × β))
+(map : rbmap α (nat × β) lt)
+(size : nat)
 
-namespace ordered_rbset
-variables {α : Type} {lt : α → α → Prop} [decidable_rel lt] (set : ordered_rbset α lt)
+namespace ordered_rbmap
+variables {α β : Type} {lt : α → α → Prop} [decidable_rel lt] (m : ordered_rbmap α β lt)
 
-def empty : ordered_rbset α lt := {map := mk_rbmap _ _ _, next_id := 0}
+def empty : ordered_rbmap α β lt := {entries := [], map := mk_rbmap _ _ _, size := 0}
 
-def insert (a : α) : ordered_rbset α lt :=
-{map := set.map.insert a set.next_id, next_id := set.next_id + 1}
+def insert (k : α) (v : β) : ordered_rbmap α β lt :=
+{entries := (k, v)::m.entries, map := m.map.insert k (m.size, v), size := m.size + 1}
 
-def find (a : α) : option nat :=
-set.map.find a
-end ordered_rbset
+def find (a : α) : option (nat × β) :=
+m.map.find a
+
+def of_list (l : list (α × β)) : ordered_rbmap α β lt :=
+l.foldl (λ m p, ordered_rbmap.insert m (prod.fst p) (prod.snd p)) ordered_rbmap.empty
+end ordered_rbmap
 
 structure elaborator_config extends frontend_config :=
 (initial_parser_cfg : module_parser_config)
@@ -55,7 +78,15 @@ structure local_state :=
 (notations : list notation_macro := [])
 /- The set of local universe parameters.
    We remember their insertion order so that we can keep the order when copying them to declarations. -/
-(univs : ordered_rbset name (<) := ordered_rbset.empty)
+(univs : ordered_rbmap name level (<) := ordered_rbmap.empty)
+/- The set of local declarations (variables and aliases). -/
+(decls : ordered_rbmap name expr  (<) := ordered_rbmap.empty)
+/- The subset of `univs` that represents universe variables. -/
+(uvars : rbtree name (<) := mk_rbtree _ _)
+/- The subset of `decls` that represents variables. -/
+(vars : rbtree name (<) := mk_rbtree _ _)
+/- The subset of `decls` that is tagged as always included. -/
+(include_vars : rbtree name (<) := mk_rbtree _ _)
 
 structure elaborator_state :=
 -- TODO(Sebastian): retrieve from environment
@@ -68,6 +99,9 @@ structure elaborator_state :=
 (parser_cfg : module_parser_config)
 (expander_cfg : expander.expander_config)
 (env : environment := environment.empty)
+(ngen : name_generator)
+(options : options)
+(next_inst_idx : nat := 0)
 
 @[derive monad monad_reader monad_state monad_except]
 def elaborator_t (m : Type → Type) [monad m] := reader_t elaborator_config $ state_t elaborator_state $ except_t message m
@@ -283,7 +317,7 @@ locally $ λ stx, do
     match dl.old_univ_params with
     | some uparams :=
       modify $ λ st, {st with local_state := {st.local_state with univs :=
-        (uparams.ids.map mangle_ident).foldl ordered_rbset.insert st.local_state.univs}}
+        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
     | none := pure (),
     let type := get_opt_type dl.sig.type,
     let type := bbs.foldr (λ bnder type, review pi {op := syntax.atom {val := "Π"}, binders := bnder, range := type}) type,
@@ -477,13 +511,28 @@ def universe.elaborate : elaborator :=
   let id := mangle_ident univ.id,
   st ← get,
   match st.local_state.univs.find id with
-  | none   := put {st with local_state := {st.local_state with univs := st.local_state.univs.insert id}}
+  | none   := put {st with local_state := {st.local_state with univs := st.local_state.univs.insert id (level.param id)}}
   | some _ := error stx $ "a universe named '" ++ to_string id ++ "' has already been declared in this scope"
 
 def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
-do st ← get,
-   match elaborate_command cmd st.env with
-   | except.ok env' := put {st with env := env'}
+do cfg ← read,
+   st ← get,
+   match elaborate_command cfg.filename cmd {
+     local_udecls := st.local_state.univs.entries,
+     local_decls := st.local_state.decls.entries,
+     uvars := st.local_state.uvars.to_list,
+     vars := st.local_state.vars.to_list,
+     include_vars := st.local_state.include_vars.to_list,
+     ..st} with
+   | except.ok st' := put {
+     local_state := {st.local_state with
+       univs := ordered_rbmap.of_list st'.local_udecls,
+       decls := ordered_rbmap.of_list st'.local_decls,
+       uvars := rbtree.of_list st'.uvars,
+       vars := rbtree.of_list st'.vars,
+       include_vars := rbtree.of_list st'.include_vars,
+     },
+     ..st', ..st}
    | except.error e := error stx e
 
 def attribute.elaborate : elaborator :=
@@ -565,8 +614,11 @@ protected def max_commands := 10000
 
 protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state message_log :=
 do
-  let st := {elaborator_state . parser_cfg := cfg.initial_parser_cfg,
-    expander_cfg := {filename := cfg.filename, transformers := expander.builtin_transformers}},
+  let st := {elaborator_state .
+    parser_cfg := cfg.initial_parser_cfg,
+    expander_cfg := {filename := cfg.filename, transformers := expander.builtin_transformers},
+    ngen := ⟨`fixme, 0⟩,
+    options := options.mk},
   p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
     (commands.elaborate ff elaborator.max_commands)
     (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})

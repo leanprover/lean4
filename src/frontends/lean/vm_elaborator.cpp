@@ -16,8 +16,36 @@ TEMPORARY code for the old runtime
 #include "library/vm/vm_option.h"
 #include "library/vm/vm_nat.h"
 #include "frontends/lean/elaborator.h"
+#include "frontends/lean/parser.h"
 
 namespace lean {
+environment elab_attribute_cmd(environment env, expr const & cmd) {
+    auto const & data = mdata_data(cmd);
+    bool local = *get_bool(data, "local");
+    decl_attributes attributes(!local);
+    buffer<expr> args, eattrs, eids;
+    get_app_args(mdata_expr(cmd), args);
+    get_app_args(args[0], eattrs);
+    get_app_args(args[1], eids);
+    for (auto const & e : eattrs)
+        attributes.set_attribute(env, const_name(e));
+    for (auto const & e : eids)
+        env = attributes.apply(env, get_dummy_ios(), const_name(e));
+    return env;
+}
+
+void elaborate_command(parser & p, expr const & cmd) {
+    auto const & data = mdata_data(cmd);
+    if (auto const & cmd_name = get_name(data, "command")) {
+        if (*cmd_name == "attribute") {
+            p.set_env(elab_attribute_cmd(p.env(), cmd));
+            return;
+        }
+    }
+    throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");
+}
+
+
 struct vm_env : public vm_external {
     environment m_env;
 
@@ -44,8 +72,18 @@ name to_name(vm_obj const & o) {
             return name(to_name(cfield(o, 0)), str.c_str());
         }
         case 2:
-            return name(to_name(cfield(o, 0)), to_unsigned(cfield(o, 1)));
+            return name(to_name(cfield(o, 0)), nat(vm_nat_to_mpz1(cfield(o, 1))));
         default: lean_unreachable();
+    }
+}
+
+vm_obj to_obj(name const & n) {
+    if (n.is_anonymous()) {
+        return mk_vm_simple(0);
+    } else if (n.is_string()) {
+        return mk_vm_constructor(1, to_obj(n.get_prefix()), to_obj(n.get_string().to_std_string()));
+    } else {
+        return mk_vm_constructor(1, to_obj(n.get_prefix()), mk_vm_nat(n.get_numeral().to_mpz()));
     }
 }
 
@@ -152,17 +190,98 @@ expr to_expr(vm_obj const & o) {
     }
 }
 
-/* elaborate_command : expr -> environment -> except string environment */
+options to_options(vm_obj o) {
+    options opts;
+    kvmap m = to_kvmap(o);
+    for (auto const & kv : m) {
+        switch (kv.snd().kind()) {
+            case data_value_kind::Bool:
+                opts.update(kv.fst(), kv.snd().get_bool());
+                break;
+            case data_value_kind::Name:
+                opts.update(kv.fst(), kv.snd().get_name());
+                break;
+            case data_value_kind::Nat:
+                opts.update(kv.fst(), kv.snd().get_nat().get_small_value());
+                break;
+            case data_value_kind::String:
+                opts.update(kv.fst(), kv.snd().get_string());
+                break;
+        }
+    }
+    return opts;
+}
+
+name_set to_name_set(vm_obj o) {
+    name_set ns;
+    while (o.is_ptr()) {
+        ns.insert(to_name(cfield(o, 0)));
+        o = cfield(o, 1);
+    }
+    return ns;
+}
+
+name_generator to_name_generator(vm_obj const & o) {
+    name_generator ngen;
+    ngen.m_prefix = to_name(cfield(o, 0));
+    ngen.m_next_idx = to_unsigned(cfield(o, 1));
+    return ngen;
+}
+
+vm_obj to_obj(name_generator const & ngen) {
+    return mk_vm_constructor(0, to_obj(ngen.m_prefix), mk_vm_nat(ngen.m_next_idx));
+}
+
+/* elaborate_command : string -> expr -> old_elaborator_state -> except string old_elaborator_state */
 // TODO(Sebastian): replace `string` with `message` in the new runtime
-vm_obj vm_elaborate_command(vm_obj const & vm_cmd, vm_obj const & vm_e) {
+vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, vm_obj const & vm_st) {
+    auto vm_e = cfield(vm_st, 0);
     lean_vm_check(dynamic_cast<vm_env *>(to_external(vm_e)));
     auto env = static_cast<vm_env *>(to_external(vm_e))->m_env;
+    io_state const & ios = get_dummy_ios();
+    std::stringstream in;
+    parser p(env, ios, in, to_string(vm_filename));
+    auto s = p.mk_snapshot();
+    auto ngen = to_name_generator(cfield(vm_st, 1));
+    auto vm_lds = cfield(vm_st, 2);
+    local_level_decls lds;
+    while (vm_lds.is_ptr()) {
+        auto it = cfield(vm_lds, 0);
+        lds.insert(to_name(cfield(it, 0)), to_level(cfield(it, 1)));
+        vm_lds = cfield(vm_lds, 1);
+    }
+    auto vm_eds = cfield(vm_st, 3);
+    local_expr_decls eds;
+    while (vm_eds.is_ptr()) {
+        auto it = cfield(vm_eds, 0);
+        eds.insert(to_name(cfield(it, 0)), to_expr(cfield(it, 1)));
+        vm_eds = cfield(vm_eds, 1);
+    }
+    auto lvars = to_name_set(cfield(vm_st, 4));
+    auto vars = to_name_set(cfield(vm_st, 5));
+    auto includes = to_name_set(cfield(vm_st, 6));
+    auto options = to_options(cfield(vm_st, 7));
+    p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
+            parser_scope_stack(), to_unsigned(cfield(vm_st, 8)), pos_info {1, 0}));
 
     try {
-        env = elaborate_command(env, to_expr(vm_cmd));
-        return mk_vm_constructor(1, mk_vm_external(new vm_env(env)));
+        elaborate_command(p, to_expr(vm_cmd));
+        s = p.mk_snapshot();
+        auto vm_st2 = mk_vm_constructor(0, {
+            mk_vm_external(new vm_env(env)),
+            to_obj(s->m_ngen),
+            // TODO(Sebastian): support commands that change the local context
+            cfield(vm_st, 2),
+            cfield(vm_st, 3),
+            cfield(vm_st, 4),
+            cfield(vm_st, 5),
+            cfield(vm_st, 6),
+            cfield(vm_st, 7),
+            cfield(vm_st, 8),
+        });
+        return mk_vm_constructor(1, vm_st);
     } catch (exception & e) {
-        return mk_vm_constructor(0, to_obj(e.what()));
+        return mk_vm_constructor(0, to_obj(std::string(e.what())));
     }
 }
 

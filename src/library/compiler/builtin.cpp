@@ -77,6 +77,7 @@ void initialize_builtin() {
     expr u32         = mk_constant(get_uint32_name());
     expr o_o         = mk_arrow(o, o);
     expr o_o_o       = mk_arrow(o, o_o);
+    expr o_o_o_o     = mk_arrow(o, o_o_o);
     expr o_u32_o     = mk_arrow(o, mk_arrow(u32, o));
     expr o_u8        = mk_arrow(o, u8);
     expr o_u8_u8_o_o = mk_arrow(o, mk_arrow(u8, mk_arrow(u8, o_o)));
@@ -86,6 +87,7 @@ void initialize_builtin() {
     list<bool> cc{false, false};
     list<bool> cb{false, true};
     list<bool> bc{true, false};
+    list<bool> bbb{true, true, true};
     list<bool> bccc{true, false, false, false};
 
     /* nat builtin functions */
@@ -151,7 +153,7 @@ void initialize_builtin() {
 
     // interface to old elaborator
     register_builtin(name({"lean", "environment", "empty"}), o, "lean_environment_empty", {});
-    register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o, "lean_elaborator_elaborate_command", bb);
+    register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o_o, "lean_elaborator_elaborate_command", bbb);
 }
 
 void finalize_builtin() {

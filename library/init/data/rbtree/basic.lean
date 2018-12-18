@@ -55,6 +55,10 @@ variables [decidable_rel lt]
 @[inline] def insert (t : rbtree α lt) (a : α) : rbtree α lt :=
 rbmap.insert t a ()
 
+@[specialize] def of_list : list α → rbtree α lt
+| []      := mk_rbtree _ _
+| (x::xs) := (of_list xs).insert x
+
 def find (t : rbtree α lt) (a : α) : option α :=
 match rbmap.find_core t a with
 | some ⟨a, _⟩ := some a

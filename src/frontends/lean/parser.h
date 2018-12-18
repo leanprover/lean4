@@ -183,8 +183,6 @@ class parser : public abstract_parser {
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
-    std::shared_ptr<snapshot> mk_snapshot();
-
     optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals,
                                  bool allow_field_notation = true);
 
@@ -207,6 +205,9 @@ public:
     void init_scanner();
 
     name next_name() { return m_ngen.next(); }
+
+    std::shared_ptr<snapshot> mk_snapshot();
+    void reset(snapshot const & s);
 
     void set_break_at_pos(pos_info const & pos) { m_break_at_pos = some(pos); }
     optional<pos_info> const & get_break_at_pos() const { return m_break_at_pos; }

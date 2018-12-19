@@ -22,6 +22,11 @@ bool parse_univ_params(parser & p, buffer<name> & ps);
     Then sort \c ls_buffer (using the order in which the universe levels were declared). */
 void update_univ_parameters(buffer<name> & ls_buffer, name_set const & found_ls, parser const & p);
 
+enum class variable_kind { Constant, Variable, Axiom };
+
+environment elab_var(parser & p, variable_kind const & k, cmd_meta const & meta, pos_info const & pos,
+                     optional <binder_info> const & bi, name const & n, expr type, buffer <name> & ls_buffer);
+
 /** \brief Parse a local attribute command */
 environment local_attribute_cmd(parser & p);
 void register_decl_cmds(cmd_table & r);

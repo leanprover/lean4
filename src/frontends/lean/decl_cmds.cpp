@@ -26,6 +26,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/definition_cmds.h"
 #include "frontends/lean/inductive_cmds.h"
+#include "frontends/lean/decl_cmds.h"
 
 namespace lean {
 // TODO(Leo): delete
@@ -72,8 +73,6 @@ static environment universe_cmd(parser & p) {
 static environment universes_cmd(parser & p) {
     return universes_cmd_core(p, true);
 }
-
-enum class variable_kind { Constant, Variable, Axiom };
 
 static environment declare_var(parser & p, environment env,
                                name const & n, names const & ls, expr const & type,
@@ -172,6 +171,23 @@ public:
     }
 };
 
+environment elab_var(parser & p, variable_kind const & k, cmd_meta const & meta, pos_info const & pos,
+                     optional<binder_info> const & bi, name const & n, expr type, buffer<name> & ls_buffer) {
+    names ls;
+    if (ls_buffer.empty()) {
+        ls = to_names(collect_univ_params(type));
+    } else {
+        update_univ_parameters(p, ls_buffer, collect_univ_params(type));
+        ls = names(ls_buffer);
+    }
+    names new_ls;
+    list<expr> ctx = p.locals_to_context();
+    std::tie(type, new_ls) = p.elaborate_type("_variable", ctx, type);
+    if (k == variable_kind::Variable)
+        update_local_levels(p, new_ls, k == variable_kind::Variable);
+    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, meta);
+}
+
 static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const & meta) {
     check_variable_kind(p, k);
     auto pos = p.pos();
@@ -255,19 +271,8 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
     }
     p.parse_close_binder_info(bi);
     check_command_period_docstring_or_eof(p);
-    names ls;
-    if (ls_buffer.empty()) {
-        ls = to_names(collect_univ_params(type));
-    } else {
-        update_univ_parameters(p, ls_buffer, collect_univ_params(type));
-        ls = names(ls_buffer);
-    }
-    names new_ls;
-    list<expr> ctx = p.locals_to_context();
-    std::tie(type, new_ls) = p.elaborate_type("_variable", ctx, type);
-    if (k == variable_kind::Variable)
-        update_local_levels(p, new_ls, k == variable_kind::Variable);
-    return declare_var(p, p.env(), n, append(ls, new_ls), type, k, bi, pos, meta);
+    return elab_var(p, k, meta, pos, bi, n,
+                    type, ls_buffer);
 }
 static environment variable_cmd(parser & p, cmd_meta const & meta) {
     return variable_cmd_core(p, variable_kind::Variable, meta);

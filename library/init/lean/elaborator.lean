@@ -640,7 +640,7 @@ protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state 
 do
   let st := {elaborator_state .
     parser_cfg := cfg.initial_parser_cfg,
-    expander_cfg := {filename := cfg.filename, transformers := expander.builtin_transformers},
+    expander_cfg := {transformers := expander.builtin_transformers, ..cfg},
     ngen := ⟨`fixme, 0⟩,
     options := options.mk},
   p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run

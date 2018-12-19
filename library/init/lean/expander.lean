@@ -40,8 +40,10 @@ def error {m : Type → Type} {ρ : Type} [monad m] [monad_reader ρ m] [has_lif
   [monad_except message m] {α : Type}
   (context : syntax) (text : string) : m α :=
 do cfg ← read,
-   -- TODO(Sebastian): convert position
-   throw {filename := frontend_config.filename ↑cfg, pos := /-context.get_pos.get_or_else-/ ⟨1,0⟩, text := text}
+   let pos : position := match context.get_pos with
+   | some pos := let (line, col) := (frontend_config.input ↑cfg).line_column pos in ⟨line, col⟩
+   | none     := ⟨1, 0⟩,
+   throw {filename := frontend_config.filename ↑cfg, pos := pos, text := text}
 
 /-- Coercion useful for introducing macro-local variables. Use `glob_id` to refer to global bindings instead. -/
 instance coe_name_ident : has_coe name syntax_ident :=

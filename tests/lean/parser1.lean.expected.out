@@ -3,12 +3,10 @@ result:
 result:
 [(module.header [] [(module.import "import" [(module.import_path [] `me)])])
  (module.eoi "")]
-error at line 1, column 0:
-expected command
+<unknown>:1:0: error: expected command
 partial syntax tree:
 [(module.header [] []) (module.eoi "")]
-error at line 1, column 6:
-unexpected end of input
+<unknown>:1:6: error: unexpected end of input
 expected "." or identifier
 partial syntax tree:
 [(module.header
@@ -45,26 +43,22 @@ result:
       ")")]
     [(command.open_spec.hiding "(" "hiding" [`a `b] ")")])])
  (module.eoi "")]
-error at line 1, column 11:
-expected command
+<unknown>:1:11: error: expected command
 partial syntax tree:
 [(module.header [] [])
  (command.open
   "open"
   [(command.open_spec `me [] [] [] []) (command.open_spec `you [] [] [] [])])
  (module.eoi "")]
-error at line 1, column 5:
-expected identifier
-error at line 1, column 9:
-unexpected end of input
+<unknown>:1:5: error: expected identifier
+<unknown>:1:9: error: unexpected end of input
 expected identifier
 partial syntax tree:
 [(module.header [] [])
  (command.open "open" [<missing> <missing>])
  (command.open "open" [<missing> <missing>])
  (module.eoi "")]
-error at line 1, column 8:
-expected command
+<unknown>:1:8: error: expected command
 partial syntax tree:
 [(module.header [] [])
  (command.open "open" [(command.open_spec `me [] [] [] [])])

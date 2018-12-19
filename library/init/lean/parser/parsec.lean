@@ -30,14 +30,17 @@ def expected.to_string : list string → string
 | [e1, e2] := e1 ++ " or " ++ e2
 | (e::es)  := e ++ ", " ++ expected.to_string es
 
-protected def message.to_string {μ : Type} (msg : message μ) : string :=
-let (line, col) := msg.it.to_string.line_column msg.it.offset in
--- always print ":"; we assume at least one of `unexpected` and `expected` to be non-empty
-let loc := ["error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":"] in
+def message.text {μ : Type} (msg : message μ) : string :=
 let unexpected := (if msg.unexpected = "" then [] else ["unexpected " ++ msg.unexpected]) in
 let ex_list := msg.expected.to_list in
 let expected := if ex_list = [] then [] else ["expected " ++ expected.to_string ex_list] in
-"\n".intercalate $ loc ++ unexpected ++ expected
+"\n".intercalate $ unexpected ++ expected
+
+
+protected def message.to_string {μ : Type} (msg : message μ) : string :=
+let (line, col) := msg.it.to_string.line_column msg.it.offset in
+-- always print ":"; we assume at least one of `unexpected` and `expected` to be non-empty
+"error at line " ++ to_string line ++ ", column " ++ to_string col ++ ":\n" ++ msg.text
 
 instance {μ : Type} : has_to_string (message μ) :=
 ⟨message.to_string⟩

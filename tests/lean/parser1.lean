@@ -22,7 +22,7 @@ match msgs with
   io.println "result:",
   io.println (to_string stx)
 | msgs := do
-  msgs.mfor $ λ e, io.println e.text,
+  msgs.mfor $ λ e, io.println e.to_string,
   io.println "partial syntax tree:",
   io.println (to_string stx)
 
@@ -33,7 +33,7 @@ do t ← parser.mk_token_trie $
     parser.tokens term.builtin_leading_parsers ++
     parser.tokens term.builtin_trailing_parsers,
    pure $ {
-     filename := "<unknown>", tokens := t,
+     filename := "<unknown>", input := "", tokens := t,
      command_parsers := command.builtin_command_parsers,
      leading_term_parsers := term.builtin_leading_parsers,
      trailing_term_parsers := term.builtin_trailing_parsers,
@@ -84,7 +84,7 @@ universes u v
 
 #eval do
   [header, nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
-  except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "init/core.lean", transformers := builtin_transformers} | throw "heh",
+  except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "foo", input := "", transformers := builtin_transformers} | throw "heh",
   pure cmd'.reprint
 
 -- for structuring the profiler output
@@ -94,9 +94,9 @@ universes u v
 
 def run_frontend (input : string) : except_t string io unit := do
   parser_cfg ← monad_except.lift_except $ mk_config,
-  let expander_cfg : expander_config := {filename := "foo", transformers := builtin_transformers},
+  let expander_cfg : expander_config := {filename := "<stdin>", input := input, transformers := builtin_transformers},
   let parser_k := parser.run parser_cfg input (λ st _, module.parser st),
-  let elab_k := elaborator.run {filename := "foo", initial_parser_cfg := parser_cfg},
+  let elab_k := elaborator.run {filename := "<stdin>", input := input, initial_parser_cfg := parser_cfg},
   outs ← io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, match run_parser parser_k.resume parser_cfg with
     | coroutine_result_core.done p := do {
       io.println "parser died!!",
@@ -108,7 +108,7 @@ def run_frontend (input : string) : except_t string io unit := do
         io.println "result:",
         io.println (to_string stx)-/
       | msgs := do {
-        msgs.mfor $ λ e, io.println e.text/-,
+        msgs.mfor $ λ e, io.println e.to_string/-,
         io.println "partial syntax tree:",
         io.println (to_string out.cmd)-/
       },
@@ -120,17 +120,17 @@ def run_frontend (input : string) : except_t string io unit := do
         | coroutine_result_core.done msgs := do {
           when ¬(cmd'.is_of_kind module.eoi) $
             io.println "elaborator died!!",
-          msgs.to_list.mfor $ λ e, io.println e.text,
+          msgs.to_list.mfor $ λ e, io.println e.to_string,
           io.println $ "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
             to_string (out.cache.hit + out.cache.miss),
           pure $ sum.inr (out::outs).reverse
         }
         | coroutine_result_core.yielded elab_out elab_k := do {
-          elab_out.messages.to_list.mfor $ λ e, io.println e.text,
+          elab_out.messages.to_list.mfor $ λ e, io.println e.to_string,
           pure (sum.inl (parser_k, elab_k, elab_out.parser_cfg, elab_out.expander_cfg, out :: outs))
         }
       }
-      | except.error e := io.println e.text *> pure (sum.inl (parser_k, elab_k, parser_cfg, expander_cfg, out :: outs))
+      | except.error e := io.println e.to_string *> pure (sum.inl (parser_k, elab_k, parser_cfg, expander_cfg, out :: outs))
     },
   check_reprint outs input/-,
   let stx := syntax.node ⟨none, outs.map (λ r, r.cmd)⟩,

@@ -59,6 +59,7 @@ structure parser_cache :=
 
 structure frontend_config :=
 (filename : string)
+(input    : string)
 
 /- Remark: if we have a node in the trie with `some token_config`, the string induced by the path is equal to the `token_config.prefix`. -/
 structure parser_config extends frontend_config :=
@@ -121,8 +122,8 @@ instance has_view.default (r : ρ) : inhabited (parser.has_view syntax r) :=
 class has_view_default (r : ρ) (α : out_param Type) [has_view α r] (default : α) := mk {}
 
 def message_of_parsec_message {μ : Type} (cfg : frontend_config) (msg : parsec.message μ) : message :=
--- FIXME: translate position
-{filename := cfg.filename, pos := ⟨0, 0⟩, text := to_string msg}
+let (line, col) := msg.it.to_string.line_column msg.it.offset in
+{filename := cfg.filename, pos := ⟨line, col⟩, text := msg.text}
 
 /-- Run parser stack, returning a partial syntax tree in case of a fatal error -/
 protected def run {m : Type → Type} {α ρ : Type} [monad m] [has_coe_t ρ frontend_config] (cfg : ρ) (s : string) (r : state_t parser_state (parser_t ρ m) α) :

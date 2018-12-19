@@ -91,10 +91,12 @@ instance substring.has_to_string : has_to_string substring :=
 ⟨substring.to_string⟩
 
 -- TODO(Sebastian): exhaustively argue why (if?) this is correct
+-- The basic idea is list concatenation with elimination of adjacent identical scopes
 def macro_scopes.flip : macro_scopes → macro_scopes → macro_scopes
-| (x::xs) (y::ys) := if x = y then macro_scopes.flip xs ys else (y::ys) ++ (x::xs)
-| []      ys      := ys
-| xs      []      := xs
+| ys (x::xs) := (match macro_scopes.flip ys xs with
+  | y::ys := if x = y then ys else x::y::ys
+  | []    := [x])
+| ys []      := ys
 
 namespace syntax
 open lean.format

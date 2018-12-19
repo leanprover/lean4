@@ -12,15 +12,15 @@ local attribute [reducible] macro_scope
   -- tag root with {1}
   let stx := stx.flip_scopes [1],
   io.println stx,
-  -- propagate once and tag root with {2}
+  -- tag root with {2} and propagate once
+  let stx := stx.flip_scopes [2],
   some n ← pure stx.as_node,
   let stx := syntax.mk_node n.kind n.args,
+  io.println stx,
+  -- flip {2}
   let stx := stx.flip_scopes [2],
   io.println stx,
-  -- flip {1}
-  let stx := stx.flip_scopes [1],
-  io.println stx,
-  -- propagate once, only {2} remains
+  -- propagate once, only {1} remains
   some n ← pure stx.as_node,
   let stx := syntax.mk_node n.kind n.args,
   io.println stx

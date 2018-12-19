@@ -55,6 +55,10 @@ public:
     T const & value() const { lean_assert(m_some); return m_value; }
     T & value() { lean_assert(m_some); return m_value; }
 
+    T const & value_or(T const & default_value) const {
+        return m_some ? m_value : default_value;
+    }
+
     template<typename... Args>
     void emplace(Args&&... args) {
         if (m_some)

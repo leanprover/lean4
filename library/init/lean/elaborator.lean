@@ -293,6 +293,47 @@ def to_pexpr : syntax → elaborator_m expr
   | _ := error stx $ "unexpected node: " ++ to_string k.name)
 | stx := error stx $ "unexpected: " ++ to_string stx
 
+def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
+do cfg ← read,
+   st ← get,
+   match elaborate_command cfg.filename cmd {
+     univs := st.local_state.univs.entries,
+     vars := st.local_state.vars.entries,
+     include_vars := st.local_state.include_vars.to_list,
+     ..st} with
+   | except.ok st' := put {
+     local_state := {st.local_state with
+       univs := ordered_rbmap.of_list st'.univs,
+       vars := ordered_rbmap.of_list st'.vars,
+       include_vars := rbtree.of_list st'.include_vars,
+     },
+     ..st', ..st}
+   | except.error e := error stx e
+
+def attrs_to_pexpr (attrs : list (sep_by.elem.view attr_instance.view (option syntax_atom))) : elaborator_m expr :=
+expr.mk_capp `_ <$> attrs.mmap (λ attr,
+  expr.mk_capp (mangle_ident attr.item.name) <$> attr.item.args.mmap to_pexpr)
+
+def decl_modifiers_to_pexpr (mods : decl_modifiers.view) : elaborator_m expr := do
+  let mdata : kvmap := {},
+  let mdata := match mods.doc_comment with
+    | some {doc := some doc, ..} := mdata.set_string `doc_string doc.val
+    | _ := mdata,
+  let mdata := match mods.visibility with
+    | some (visibility.view.private _) := mdata.set_bool `private tt
+    | some (visibility.view.protected _) := mdata.set_bool `protected tt
+    | _ := mdata,
+  let mdata := mdata.set_bool `noncomputable mods.noncomputable.is_some,
+  let mdata := mdata.set_bool `meta mods.meta.is_some,
+  expr.mdata mdata <$> attrs_to_pexpr (match mods.attrs with
+    | some attrs := attrs.attrs
+    | none       := [])
+
+def ident_univ_params_to_pexpr (id : ident_univ_params.view) : expr :=
+expr.const (mangle_ident id.id) $ match id.univ_params with
+  | some params := params.params.map (level.param ∘ mangle_ident)
+  | none        := []
+
 /-- Execute `elab` and reset local state (universes, ...) after it has finished. -/
 @[specialize] def locally {m : Type → Type} [monad m] [monad_state elaborator_state m] (elab : m unit) :
   m unit := do
@@ -303,8 +344,16 @@ def to_pexpr : syntax → elaborator_m expr
 def declaration.elaborate : elaborator :=
 locally $ λ stx, do
   let decl := view «declaration» stx,
-  -- just test `to_pexpr` for now
   match decl.inner with
+  | declaration.inner.view.constant c@{sig := {params := bracketed_binders.view.simple [], type := type}, ..} := do
+    let mdata := kvmap.set_name {} `command `constant,
+    mods ← decl_modifiers_to_pexpr decl.modifiers,
+    let id := ident_univ_params_to_pexpr c.name,
+    type ← to_pexpr type.type,
+    old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, id, type]
+  | declaration.inner.view.constant _ :=
+    error stx "declration.elaborate: unexpected input"
+  -- just test `to_pexpr` for now
   | declaration.inner.view.def_like dl@{
     val := decl_val.view.simple val,
     sig := {params := bracketed_binders.view.simple bbs}, ..} := do
@@ -508,30 +557,12 @@ def universe.elaborate : elaborator :=
   | none   := put {st with local_state := {st.local_state with univs := st.local_state.univs.insert id (level.param id)}}
   | some _ := error stx $ "a universe named '" ++ to_string id ++ "' has already been declared in this scope"
 
-def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
-do cfg ← read,
-   st ← get,
-   match elaborate_command cfg.filename cmd {
-     univs := st.local_state.univs.entries,
-     vars := st.local_state.vars.entries,
-     include_vars := st.local_state.include_vars.to_list,
-     ..st} with
-   | except.ok st' := put {
-     local_state := {st.local_state with
-       univs := ordered_rbmap.of_list st'.univs,
-       vars := ordered_rbmap.of_list st'.vars,
-       include_vars := rbtree.of_list st'.include_vars,
-     },
-     ..st', ..st}
-   | except.error e := error stx e
-
 def attribute.elaborate : elaborator :=
 λ stx, do
   let attr := view «attribute» stx,
   let mdata := kvmap.set_name {} `command `attribute,
   let mdata := mdata.set_bool `local $ attr.local.is_some,
-  attrs ← expr.mk_capp `_ <$> attr.attrs.mmap (λ attr,
-    expr.mk_capp (mangle_ident attr.item.name) <$> attr.item.args.mmap to_pexpr),
+  attrs ← attrs_to_pexpr attr.attrs,
   let ids := expr.mk_capp `_ $ attr.ids.map $ λ id, expr.const (mangle_ident id) [],
   old_elab_command stx $ expr.mdata mdata $ expr.app attrs ids
 

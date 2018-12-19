@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich
 
-TEMPORARY code for the old runtime
+Lean interface to the old elaborator/elaboration parts of the parser
 */
 
 #include <string>
@@ -17,21 +17,52 @@ TEMPORARY code for the old runtime
 #include "library/vm/vm_nat.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/parser.h"
+#include "frontends/lean/decl_cmds.h"
 
 namespace lean {
+decl_attributes to_decl_attributes(environment const & env, expr const & e, bool local) {
+    decl_attributes attributes(!local);
+    buffer<expr> args;
+    get_app_args(e, args);
+    for (auto const & e : args)
+        attributes.set_attribute(env, const_name(e));
+    return attributes;
+}
+
 environment elab_attribute_cmd(environment env, expr const & cmd) {
     auto const & data = mdata_data(cmd);
     bool local = *get_bool(data, "local");
-    decl_attributes attributes(!local);
     buffer<expr> args, eattrs, eids;
     get_app_args(mdata_expr(cmd), args);
-    get_app_args(args[0], eattrs);
+    auto attributes = to_decl_attributes(env, args[0], local);
     get_app_args(args[1], eids);
-    for (auto const & e : eattrs)
-        attributes.set_attribute(env, const_name(e));
     for (auto const & e : eids)
         env = attributes.apply(env, get_dummy_ios(), const_name(e));
     return env;
+}
+
+cmd_meta to_cmd_meta(environment const & env, expr const & e) {
+    auto const & data = mdata_data(e);
+    cmd_meta m(to_decl_attributes(env, mdata_expr(e), false));
+    m.m_modifiers.m_is_meta = get_bool(data, "meta").value_or(false);
+    m.m_modifiers.m_is_mutual = get_bool(data, "mutual").value_or(false);
+    m.m_modifiers.m_is_noncomputable = get_bool(data, "noncomputable").value_or(false);
+    m.m_modifiers.m_is_private = get_bool(data, "private").value_or(false);
+    m.m_modifiers.m_is_protected = get_bool(data, "protected").value_or(false);
+    if (auto s = get_string(data, "doc_string"))
+        m.m_doc_string = s->to_std_string();
+    return m;
+}
+
+void elab_constant_cmd(parser & p, expr const & cmd) {
+    buffer<expr> args, ls;
+    get_app_args(mdata_expr(cmd), args);
+    auto fn = get_app_args(args[1], ls);
+    buffer<name> ls_buffer;
+    for (auto const & e : ls)
+        ls_buffer.push_back(const_name(e));
+    p.set_env(elab_var(p, variable_kind::Constant, to_cmd_meta(p.env(), args[0]), get_pos_info_provider()->get_pos_info_or_some(cmd),
+                       optional<binder_info>(), const_name(fn), args[2], ls_buffer));
 }
 
 void elaborate_command(parser & p, expr const & cmd) {
@@ -40,10 +71,16 @@ void elaborate_command(parser & p, expr const & cmd) {
         if (*cmd_name == "attribute") {
             p.set_env(elab_attribute_cmd(p.env(), cmd));
             return;
+        } else if (*cmd_name == "constant") {
+            elab_constant_cmd(p, cmd);
+            return;
         }
     }
     throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");
 }
+
+
+/* TEMPORARY code for the old runtime */
 
 
 struct vm_env : public vm_external {
@@ -165,11 +202,11 @@ expr to_expr(vm_obj const & o) {
         case 5:
             return mk_app(to_expr(cfield(o, 0)), to_expr(cfield(o, 1)));
         case 6:
-            return mk_lambda(to_name(cfield(o, 0)), to_expr(cfield(o, 1)), to_expr(cfield(o, 2)),
-                             to_binder_info(cfield(o, 3)));
+            return mk_lambda(to_name(cfield(o, 0)), to_expr(cfield(o, 2)), to_expr(cfield(o, 3)),
+                             to_binder_info(cfield(o, 1)));
         case 7:
-            return mk_pi(to_name(cfield(o, 0)), to_expr(cfield(o, 1)), to_expr(cfield(o, 2)),
-                         to_binder_info(cfield(o, 3)));
+            return mk_pi(to_name(cfield(o, 0)), to_expr(cfield(o, 2)), to_expr(cfield(o, 3)),
+                         to_binder_info(cfield(o, 1)));
         case 8:
             return mk_let(to_name(cfield(o, 0)), to_expr(cfield(o, 1)), to_expr(cfield(o, 2)), to_expr(cfield(o, 3)));
         case 9: {
@@ -239,8 +276,9 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     lean_vm_check(dynamic_cast<vm_env *>(to_external(vm_e)));
     auto env = static_cast<vm_env *>(to_external(vm_e))->m_env;
     io_state const & ios = get_dummy_ios();
+    auto filename = to_string(vm_filename);
     std::stringstream in;
-    parser p(env, ios, in, to_string(vm_filename));
+    parser p(env, ios, in, filename);
     auto s = p.mk_snapshot();
     auto ngen = to_name_generator(cfield(vm_st, 1));
     auto vm_lds = cfield(vm_st, 2);
@@ -270,8 +308,9 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
             parser_scope_stack(), to_unsigned(cfield(vm_st, 6)), pos_info {1, 0}));
 
+    auto cmd = to_expr(vm_cmd);
     try {
-        elaborate_command(p, to_expr(vm_cmd));
+        elaborate_command(p, cmd);
         s = p.mk_snapshot();
         auto vm_st2 = mk_vm_constructor(0, {
             mk_vm_external(new vm_env(env)),
@@ -285,7 +324,10 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
         });
         return mk_vm_constructor(1, vm_st);
     } catch (exception & e) {
-        return mk_vm_constructor(0, to_obj(std::string(e.what())));
+        message_builder builder(env, ios, filename, get_pos_info_provider()->get_pos_info_or_some(cmd),
+                message_severity::ERROR);
+        builder.set_exception(e);
+        return mk_vm_constructor(0, to_obj(builder.build().get_text()));
     }
 }
 

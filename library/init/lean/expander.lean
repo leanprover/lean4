@@ -352,6 +352,20 @@ def let.transform : transformer :=
       scrutinees := [v.value],
       equations := [{item := {lhs := [llp], rhs := v.body}}]}
 
+def declaration.transform : transformer :=
+λ stx, do
+  let v := view «declaration» stx,
+  match v.inner with
+  | declaration.inner.view.constant c@{sig := {params := bracketed_binders.view.extended bindrs, type := type}, ..} := do
+    let bindrs := binders.view.extended {
+      leading_ids := [],
+      remainder := binders_remainder.view.mixed $ bindrs.map mixed_binder.view.bracketed},
+    pure $ review «declaration» {v with
+      inner := declaration.inner.view.constant {c with sig := {
+        params := bracketed_binders.view.simple [],
+        type := {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}}
+  | _ := no_expansion
+
 def level.leading.transform : transformer :=
 λ stx, do
   let v := view level.leading stx,
@@ -386,6 +400,7 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (assume.name, assume.transform),
   (if.name, if.transform),
   (let.name, let.transform),
+  (declaration.name, declaration.transform),
   (level.leading.name, level.leading.transform),
   (term.subtype.name, subtype.transform),
   (universes.name, universes.transform)

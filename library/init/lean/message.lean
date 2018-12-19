@@ -34,6 +34,12 @@ def empty : message_log :=
 def add (msg : message) (log : message_log) : message_log :=
 ⟨msg :: log.rev_list⟩
 
+protected def append (l₁ l₂ : message_log) : message_log :=
+⟨l₂.rev_list ++ l₁.rev_list⟩
+
+instance : has_append message_log :=
+⟨message_log.append⟩
+
 def has_errors (log : message_log) : bool :=
 log.rev_list.any $ λ m, match m.severity with
 | message_severity.error := tt

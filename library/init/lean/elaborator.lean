@@ -33,7 +33,8 @@ structure old_elaborator_state :=
 (options : options)
 (next_inst_idx : nat)
 
-constant elaborate_command : string → expr → old_elaborator_state → except string old_elaborator_state
+constant elaborate_command (filename : string) : expr → old_elaborator_state →
+  option old_elaborator_state × message_log
 
 open parser
 open parser.combinators
@@ -296,19 +297,21 @@ def to_pexpr : syntax → elaborator_m expr
 def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
 do cfg ← read,
    st ← get,
-   match elaborate_command cfg.filename cmd {
+   let (st', msgs) := elaborate_command cfg.filename cmd {
      univs := st.local_state.univs.entries,
      vars := st.local_state.vars.entries,
      include_vars := st.local_state.include_vars.to_list,
-     ..st} with
-   | except.ok st' := put {
+     ..st},
+   match st' with
+   | some st' := put {
      local_state := {st.local_state with
        univs := ordered_rbmap.of_list st'.univs,
        vars := ordered_rbmap.of_list st'.vars,
        include_vars := rbtree.of_list st'.include_vars,
      },
      ..st', ..st}
-   | except.error e := error stx e
+   | none := pure (),  -- error
+   modify $ λ st, {st with messages := st.messages ++ msgs}
 
 def attrs_to_pexpr (attrs : list (sep_by.elem.view attr_instance.view (option syntax_atom))) : elaborator_m expr :=
 expr.mk_capp `_ <$> attrs.mmap (λ attr,

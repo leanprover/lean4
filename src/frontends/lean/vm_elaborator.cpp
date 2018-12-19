@@ -269,7 +269,30 @@ vm_obj to_obj(name_generator const & ngen) {
     return mk_vm_constructor(0, to_obj(ngen.m_prefix), mk_vm_nat(ngen.m_next_idx));
 }
 
-/* elaborate_command : string -> expr -> old_elaborator_state -> except string old_elaborator_state */
+vm_obj to_obj(pos_info const & pos) {
+    return mk_vm_constructor(0, mk_vm_simple(pos.first), mk_vm_simple(pos.second));
+}
+
+vm_obj to_obj(message const & msg) {
+    return mk_vm_constructor(0, {
+            to_obj(msg.get_filename()),
+            to_obj(msg.get_pos()),
+            msg.get_end_pos() ? to_obj(*msg.get_end_pos()) : mk_vm_none(),
+            mk_vm_simple(static_cast<unsigned>(msg.get_severity())),
+            to_obj(msg.get_caption()),
+            to_obj(msg.get_text()),
+    });
+}
+
+vm_obj to_obj(message_log const & log) {
+    auto msgs = log.to_buffer();
+    auto o = mk_vm_simple(0);
+    for (int i = msgs.size() - 1; i >= 0; i--)
+        o = mk_vm_constructor(1, to_obj(msgs[i]), o);
+    return o;
+}
+
+/* elaborate_command (filename : string) : expr → old_elaborator_state → option old_elaborator_state × message_log */
 // TODO(Sebastian): replace `string` with `message` in the new runtime
 vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, vm_obj const & vm_st) {
     auto vm_e = cfield(vm_st, 0);
@@ -309,6 +332,9 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
             parser_scope_stack(), to_unsigned(cfield(vm_st, 6)), pos_info {1, 0}));
 
     auto cmd = to_expr(vm_cmd);
+    message_log log;
+    scope_message_log _(log);
+    vm_obj vm_out = mk_vm_none();
     try {
         elaborate_command(p, cmd);
         s = p.mk_snapshot();
@@ -322,13 +348,14 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
             cfield(vm_st, 5),
             cfield(vm_st, 6)
         });
-        return mk_vm_constructor(1, vm_st);
+        vm_out = mk_vm_some(vm_st2);
     } catch (exception & e) {
         message_builder builder(env, ios, filename, get_pos_info_provider()->get_pos_info_or_some(cmd),
                 message_severity::ERROR);
         builder.set_exception(e);
-        return mk_vm_constructor(0, to_obj(builder.build().get_text()));
+        builder.report();
     }
+    return mk_vm_constructor(0, vm_out, to_obj(log));
 }
 
 void initialize_vm_elaborator() {

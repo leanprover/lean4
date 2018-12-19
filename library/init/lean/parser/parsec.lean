@@ -204,22 +204,13 @@ instance : alternative (parsec_t μ m) :=
   failure        := λ _, parsec_t.failure,
   ..parsec_t.monad }
 
-/-- Parse `p` without consuming any input. -/
+/-- Run `p`, but do not consume any input when `p` succeeds. -/
 @[specialize] def lookahead (p : parsec_t μ m α) : parsec_t μ m α :=
 λ it, do
   r ← p it,
   pure $ match r with
   | ok a s' _ := mk_eps a it
   | other     := other
-
-/-- `not_followed_by p` succeeds when parser `p` fails -/
-@[specialize] def not_followed_by (p : parsec' α) (msg : string := "input") : parsec' unit :=
-λ it, do
-  r ← p it,
-  pure $ match r with
-  | ok _ _ _     := error { it := it, unexpected := msg, custom := () } ff
-  | error _ _    := mk_eps () it
-
 end parsec_t
 
 /- Type class for abstracting from concrete monad stacks containing a `parsec` somewhere. -/
@@ -453,6 +444,8 @@ do it ← left_over,
 def pos : m position :=
 string.iterator.offset <$> left_over
 
+
+/-- `not_followed_by p` succeeds when parser `p` fails -/
 @[inline] def not_followed_by [monad_except (message μ) m] (p : m α) (msg : string := "input") : m unit :=
 do it ← left_over,
    b ← lookahead $ catch (p *> pure ff) (λ _, pure tt),

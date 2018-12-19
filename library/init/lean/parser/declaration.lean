@@ -24,12 +24,9 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
-@[derive has_view]
+@[derive has_tokens has_view]
 def doc_comment.parser : command_parser :=
-raw (str "/--" *> monad_lift finish_comment_block) tt
-
-instance doc_comment.tokens : has_tokens doc_comment.parser :=
-⟨[{«prefix» := "/--"}]⟩
+node! doc_comment ["/--", doc: raw $ many' (not_followed_by (str "-/") *> any), "-/"]
 
 @[derive has_tokens has_view]
 def attr_instance.parser : command_parser :=

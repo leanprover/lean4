@@ -213,7 +213,7 @@ def binder_ident_to_ident : binder_ident.view → syntax_ident
 | (binder_ident.view.id id)  := id
 | (binder_ident.view.hole _) := "a"
 
-def get_opt_type : option opt_type.view → syntax
+def get_opt_type : option type_spec.view → syntax
 | none     := review hole {}
 | (some v) := v.type
 

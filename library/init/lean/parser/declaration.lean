@@ -39,7 +39,7 @@ node! attr_instance [name: raw_ident.parser, args: (term.parser max_prec)*]
 @[derive has_tokens has_view]
 def decl_attributes.parser : command_parser :=
 -- TODO(Sebastian): custom attribute parsers
-node! decl_attribute ["@[", attrs: sep_by1 attr_instance.parser (symbol ","), "]"]
+node! decl_attributes ["@[", attrs: sep_by1 attr_instance.parser (symbol ","), "]"]
 
 set_option class.instance_max_depth 300
 @[derive has_tokens has_view]
@@ -55,6 +55,13 @@ node! decl_modifiers [
 @[derive has_tokens has_view]
 def decl_sig.parser : command_parser :=
 node! decl_sig [
+  params: term.bracketed_binders.parser,
+  type: term.type_spec.parser,
+]
+
+@[derive has_tokens has_view]
+def opt_decl_sig.parser : command_parser :=
+node! opt_decl_sig [
   params: term.bracketed_binders.parser,
   type: term.opt_type.parser,
 ]
@@ -84,7 +91,7 @@ node! intro_rule [
   "|",
   name: ident.parser,
   infer_mod: infer_modifier.parser?,
-  sig: decl_sig.parser,
+  sig: opt_decl_sig.parser,
 ]
 
 @[derive has_tokens has_view]
@@ -98,13 +105,20 @@ node_longest_choice! structure_field {
 def old_univ_params.parser : command_parser :=
 node! old_univ_params ["{", ids: ident.parser+, "}"]
 
+@[derive parser.has_tokens parser.has_view]
+def ident_univ_params.parser : command_parser :=
+node! ident_univ_params [
+  id: ident.parser,
+  univ_params: node! univ_params [".{", params: ident.parser+, "}"]?
+]
+
 @[derive has_tokens has_view]
 def structure.parser : command_parser :=
 node! «structure» [
   keyword: any_of [symbol "structure", symbol "class"],
   old_univ_params: old_univ_params.parser?,
-  name: ident_univs.parser,
-  sig: decl_sig.parser,
+  name: ident_univ_params.parser,
+  sig: opt_decl_sig.parser,
   «extends»: node! «extends» ["extends", parents: sep_by1 term.parser (symbol ",")]?,
   ":=",
   ctor: node! structure_ctor [name: ident.parser, infer_mod: infer_modifier.parser?, "::"]?,
@@ -119,16 +133,16 @@ node! declaration [
     «def_like»: node! «def_like» [
       kind: node_choice! def_like.kind {"def", "abbreviation", "theorem"},
       old_univ_params: old_univ_params.parser?,
-      name: ident_univs.parser, sig: decl_sig.parser, val: decl_val.parser],
-    «instance»: node! «instance» ["instance", name: ident_univs.parser?, sig: decl_sig.parser, val: decl_val.parser],
+      name: ident_univ_params.parser, sig: opt_decl_sig.parser, val: decl_val.parser],
+    «instance»: node! «instance» ["instance", name: ident_univ_params.parser?, sig: decl_sig.parser, val: decl_val.parser],
     «example»: node! «example» ["example", sig: decl_sig.parser, val: decl_val.parser],
-    «constant»: node! «constant» ["constant", name: ident_univs.parser, sig: decl_sig.parser],
-    «axiom»: node! «axiom» ["axiom", name: ident_univs.parser, sig: decl_sig.parser],
+    «constant»: node! «constant» ["constant", name: ident_univ_params.parser, sig: decl_sig.parser],
+    «axiom»: node! «axiom» ["axiom", name: ident_univ_params.parser, sig: decl_sig.parser],
 
     «inductive»: node! «inductive» [try [«class»: (symbol "class")?, "inductive"],
       old_univ_params: old_univ_params.parser?,
-      name: ident_univs.parser,
-      sig: decl_sig.parser,
+      name: ident_univ_params.parser,
+      sig: opt_decl_sig.parser,
       local_notation: notation_like.parser?,
       intro_rules: intro_rule.parser*],
     «structure»: structure.parser,

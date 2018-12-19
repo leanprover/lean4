@@ -57,8 +57,12 @@ def sort.parser : term_parser :=
 node_choice! sort {"Sort":max_prec, "Type":max_prec}
 
 @[derive has_tokens has_view]
+def type_spec.parser : term_parser :=
+node! type_spec [" : ", type: term.parser 0]
+
+@[derive has_tokens has_view]
 def opt_type.parser : term_parser :=
-node! opt_type [" : ", type: term.parser 0]?
+type_spec.parser?
 
 instance opt_type.view_default : has_view_default opt_type.parser _ none := ⟨⟩
 

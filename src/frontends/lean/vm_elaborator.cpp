@@ -61,8 +61,10 @@ void elab_constant_cmd(parser & p, expr const & cmd) {
     buffer<name> ls_buffer;
     for (auto const & e : ls)
         ls_buffer.push_back(const_name(e));
+    expr type = args[2];
+    type = resolve_names(p.env(), p.mk_local_context_adapter().lctx(), type);
     p.set_env(elab_var(p, variable_kind::Constant, to_cmd_meta(p.env(), args[0]), get_pos_info_provider()->get_pos_info_or_some(cmd),
-                       optional<binder_info>(), const_name(fn), args[2], ls_buffer));
+                       optional<binder_info>(), const_name(fn), type, ls_buffer));
 }
 
 void elaborate_command(parser & p, expr const & cmd) {

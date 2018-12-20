@@ -34,4 +34,27 @@ instance : has_to_format position :=
 instance : inhabited position := ⟨⟨1, 0⟩⟩
 end position
 
+/-- A precomputed cache for quickly mapping char offsets to positionitions. -/
+structure file_map :=
+-- A mapping from char offset of line start to line index
+(lines : rbmap nat nat (<))
+
+namespace file_map
+private def from_string_aux : nat → string.iterator → nat → list (nat × nat)
+| 0     it line := []
+| (k+1) it line :=
+  if it.has_next = ff then []
+  else match it.curr with
+       | '\n'  := (it.next.offset, line+1) :: from_string_aux k it.next (line+1)
+       | other := from_string_aux k it.next line
+
+def from_string (s : string) : file_map :=
+{lines := rbmap.of_list $ from_string_aux s.length s.mk_iterator 1}
+
+def to_position (m : file_map) (off : nat) : position :=
+match m.lines.lower_bound off with
+| some ⟨start, l⟩ := ⟨l, off - start⟩
+| none            := ⟨1, off⟩
+end file_map
+
 end lean

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+if [[ "$unamestr" == 'Darwin' ]]; then
+    # OSX
+    if command -v greadlink >/dev/null 2>&1; then
+        # macOS readlink doesn't support -f option
+        READLINK=greadlink
+    else
+        echo "OSX 'readlink' command does not support option '-f', please install 'greadlink'. If you use 'brew', you can install 'greadlink' using 'brew install coreutils'"
+        exit 1
+    fi
+else
+    READLINK=readlink
+fi
+
+leandir=$(dirname $($READLINK -f $0))/..
+leandir=$($READLINK -f $leandir)
+
+echo "import init.lean.frontend #eval lean.process_file_json \"$@\"" | $leandir/bin/lean --stdin

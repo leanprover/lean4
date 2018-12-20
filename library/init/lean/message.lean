@@ -6,12 +6,9 @@ Author: Sebastian Ullrich
 Message type used by the Lean frontend
 -/
 prelude
-import init.data.to_string
+import init.data.to_string init.lean.position
 
 namespace lean
-structure position :=
-(line column : nat)
-
 inductive message_severity
 | information | warning | error
 

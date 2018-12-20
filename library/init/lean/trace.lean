@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.lean.format init.data.rbmap init.lean.pos init.lean.name init.lean.options
+import init.lean.format init.data.rbmap init.lean.position init.lean.name init.lean.options
 
 universe u
 
@@ -25,12 +25,12 @@ fmt ++ format.nest 2 (format.join $ subtraces.map (λ t, format.line ++ t.pp))
 
 namespace trace
 
-def trace_map := rbmap pos trace (<)
+def trace_map := rbmap position trace (<)
 
 structure trace_state :=
 (opts : options)
 (roots : trace_map)
-(cur_pos : option pos)
+(cur_pos : option position)
 (cur_traces : list trace)
 
 def trace_t (m : Type → Type u) := state_t trace_state m
@@ -39,7 +39,7 @@ local attribute [reducible] trace_t
 instance (m) [monad m] : monad (trace_t m) := infer_instance
 
 class monad_tracer (m : Type → Type u) :=
-(trace_root {α} : pos → name → message → thunk (m α) → m α)
+(trace_root {α} : position → name → message → thunk (m α) → m α)
 (trace_ctx {α} : name → message → thunk (m α) → m α)
 
 export monad_tracer (trace_root trace_ctx)

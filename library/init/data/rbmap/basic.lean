@@ -155,6 +155,19 @@ def find {β : Type v} : rbnode α (λ _, β) → α → option β
    | ordering.eq := some vy
    | ordering.gt := find b x)
 
+def lower_bound : rbnode α β → α → option (sigma β) → option (sigma β)
+| leaf                 x lb := lb
+| (red_node a ky vy b) x lb :=
+  (match cmp_using lt x ky with
+   | ordering.lt := lower_bound a x lb
+   | ordering.eq := some ⟨ky, vy⟩
+   | ordering.gt := lower_bound b x (some ⟨ky, vy⟩))
+| (black_node a ky vy b) x lb :=
+  (match cmp_using lt x ky with
+   | ordering.lt := lower_bound a x lb
+   | ordering.eq := some ⟨ky, vy⟩
+   | ordering.gt := lower_bound b x (some ⟨ky, vy⟩))
+
 end membership
 
 inductive well_formed (lt : α → α → Prop) : rbnode α β → Prop
@@ -227,6 +240,11 @@ def find_core : rbmap α β lt → α → option (Σ k : α, β)
 
 def find : rbmap α β lt → α → option β
 | ⟨t, _⟩ x := t.find lt x
+
+/-- (lower_bound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
+    if it exists. -/
+def lower_bound : rbmap α β lt → α → option (Σ k : α, β)
+| ⟨t, _⟩ x := t.lower_bound lt x none
 
 @[inline] def contains (t : rbmap α β lt) (a : α) : bool :=
 (t.find a).is_some

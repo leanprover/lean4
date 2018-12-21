@@ -1313,7 +1313,7 @@ expr parser::parse_inaccessible() {
 expr parser::parse_placeholder() {
     auto p = pos();
     next();
-    return save_pos(mk_explicit_expr_placeholder(), p);
+    return save_pos(mk_expr_placeholder(), p);
 }
 
 expr parser::parse_anonymous_var_pattern() {

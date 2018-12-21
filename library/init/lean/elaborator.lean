@@ -152,7 +152,7 @@ def to_level : syntax → elaborator_m level
   st ← get,
   match fn.kind with
   | some level.leading := (match view level.leading stx, args with
-    | level.leading.view.hole _, [] := pure $ level.mvar "u"  -- TODO(Sebastian): name?
+    | level.leading.view.hole _, [] := pure $ level.mvar name.anonymous
     | level.leading.view.lit lit, [] := pure $ level.of_nat lit.to_nat
     | level.leading.view.var id, [] := let id := mangle_ident id in (match st.local_state.univs.find id with
       | some _ := pure $ level.param id
@@ -204,7 +204,7 @@ def to_pexpr : syntax → elaborator_m expr
     let v := view anonymous_constructor stx,
     p ← to_pexpr $ mk_app (review hole {}) (v.args.map sep_by.elem.view.item),
     pure $ expr.mk_annotation `anonymous_constructor p
-  | @hole := pure $ expr.const "_" []  -- TODO
+  | @hole := pure $ expr.mvar name.anonymous dummy
   | @«have» := do
     let v := view «have» stx,
     let id := (mangle_ident <$> opt_ident.view.id <$> v.id).get_or_else `this,

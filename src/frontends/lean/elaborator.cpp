@@ -350,26 +350,12 @@ level elaborator::get_level(expr const & A, expr const & ref) {
 
 level elaborator::replace_univ_placeholder(level const & l) {
     auto fn = [&](level const & l) {
-        if (is_one_placeholder(l))
-            return some_level(mk_level_one());
-        else if (is_placeholder(l))
+        if (is_placeholder(l))
             return some_level(mk_univ_metavar());
         else
             return none_level();
     };
     return replace(l, fn);
-}
-
-static bool contains_placeholder(level const & l) {
-    bool contains = false;
-    auto fn = [&](level const & l) {
-        if (contains) return false;
-        if (is_placeholder(l) || is_one_placeholder(l))
-            contains = true;
-        return true;
-    };
-    for_each(l, fn);
-    return contains;
 }
 
 /* Here, we say a term is first-order IF all applications are of the form (f ...) where f is a constant. */
@@ -923,7 +909,7 @@ expr elaborator::visit_prenum(expr const & e, optional<expr> const & expected_ty
 expr elaborator::visit_sort(expr const & e) {
     level new_l = replace_univ_placeholder(sort_level(e));
     expr r = update_sort(e, new_l);
-    if (contains_placeholder(sort_level(e)))
+    if (has_placeholder(sort_level(e)))
         m_to_check_sorts.emplace_back(e, r);
     return r;
 }

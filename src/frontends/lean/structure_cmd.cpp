@@ -425,9 +425,6 @@ struct structure_cmd_fn {
             m_inductive_predicate = is_zero(l);
             if (m_inductive_predicate) {
                 m_infer_result_universe = false;
-            } else if (is_one_placeholder(l)) {
-                m_infer_result_universe = false;
-                m_type = m_p.save_pos(mk_sort(mk_level_one()), pos);
             } else {
                 m_infer_result_universe = is_placeholder(l);
                 if (!m_infer_result_universe) {

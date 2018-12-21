@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 namespace lean {
 /** \brief Return a new universe level placeholder. */
 level mk_level_placeholder();
-level mk_level_one_placeholder();
 
 enum class expr_placeholder_kind { Implicit, StrictImplicit, Explicit };
 /** \brief Return a new expression placeholder expression. */
@@ -26,7 +25,6 @@ inline expr mk_strict_expr_placeholder(optional<expr> const & type = none_expr()
 
 /** \brief Return true if the given level is a placeholder. */
 bool is_placeholder(level const & e);
-bool is_one_placeholder(level const & e);
 
 /** \brief Return true iff the given expression is a placeholder (strict, explicit or implicit). */
 bool is_placeholder(expr const & e);
@@ -39,6 +37,9 @@ bool is_explicit_placeholder(expr const & e);
 
 /** \brief Return the type of the placeholder (if available) */
 optional<expr> placeholder_type(expr const & e);
+
+/** \brief Return true iff the given level contains placeholders. */
+bool has_placeholder(level const & l);
 
 /** \brief Return true iff the given expression contains placeholders. */
 bool has_placeholder(expr const & e);

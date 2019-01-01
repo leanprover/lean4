@@ -375,9 +375,6 @@ node! app [fn: get_leading, arg: term.parser max_prec]
 def mk_app (fn : syntax) (args : list syntax) : syntax :=
 args.foldl (λ fn arg, syntax.mk_node app [fn, arg]) fn
 
-def mk_capp (fn : syntax_ident) (args : list syntax) : syntax :=
-mk_app (syntax.ident fn) args
-
 @[derive parser.has_tokens parser.has_view]
 def arrow.parser : trailing_term_parser :=
 node! arrow [dom: get_leading, op: unicode_symbol "→" "->" 25, range: term.parser 24]

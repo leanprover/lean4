@@ -53,8 +53,10 @@ instance coe_name_ident : has_coe name syntax_ident :=
 /-- Create an identifier preresolved against a global binding. Because we cannot use syntax quotations yet,
     which the expander would have preresolved against the global context at macro declaration time,
     we have to do the preresolution manually instead. -/
-def glob_id (n : name) : syntax_ident :=
-{val := n, raw_val := substring.of_string n.to_string, preresolved := [n]}
+def glob_id (n : name) : syntax :=
+review ident_univs {
+  id :={val := n, raw_val := substring.of_string n.to_string, preresolved := [n]},
+}
 
 instance coe_ident_ident_univs : has_coe syntax_ident ident_univs.view :=
 ⟨λ id, {id := id}⟩
@@ -240,9 +242,9 @@ def expand_bracketed_binder : bracketed_binder.view → transform_m (list simple
   let type := get_opt_type bc.type,
   type ← match bc.default with
   | none := pure type
-  | some (binder_default.view.val bdv) := pure $ mk_capp (glob_id `opt_param) [type, bdv.term]
+  | some (binder_default.view.val bdv) := pure $ mk_app (glob_id `opt_param) [type, bdv.term]
   | some bdv@(binder_default.view.tac bdt) := match bc.type with
-    | none := pure $ mk_capp (glob_id `auto_param) [bdt.term]
+    | none := pure $ mk_app (glob_id `auto_param) [bdt.term]
     | some _ := error (review binder_default bdv) "unexpected auto param after type annotation",
   pure $ bc.ids.map (λ bid, mk_simple_binder (binder_ident_to_ident bid) bi type)
 
@@ -307,12 +309,12 @@ def paren.transform : transformer :=
 λ stx, do
   let v := view paren stx,
   match v.content with
-  | none := pure $ syntax.ident (glob_id `unit.star)
+  | none := pure $ glob_id `unit.star
   | some {term := t, special := none} := pure t
   | some {term := t, special := paren_special.view.tuple tup} :=
-    pure $ some $ (tup.tail.map sep_by.elem.view.item).foldr (λ t tup, mk_capp (glob_id `prod.mk) [t, tup]) t
+    pure $ some $ (tup.tail.map sep_by.elem.view.item).foldr (λ t tup, mk_app (glob_id `prod.mk) [t, tup]) t
   | some {term := t, special := paren_special.view.typed pst} :=
-    pure $ mk_capp (glob_id `typed_expr) [pst.type, t]
+    pure $ mk_app (glob_id `typed_expr) [pst.type, t]
 
 def assume.transform : transformer :=
 λ stx, do
@@ -328,10 +330,10 @@ def if.transform : transformer :=
 λ stx, do
   let v := view «if» stx,
   pure $ match v.id with
-  | some id := mk_capp (glob_id `dite) [v.prop,
+  | some id := mk_app (glob_id `dite) [v.prop,
     review lambda {binders := binders.view.simple $ simple_binder.view.explicit {id := id.id, type := v.prop}, body := v.then_branch},
-    review lambda {binders := binders.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_capp (glob_id `not) [v.prop]}, body := v.else_branch}]
-  | none := mk_capp (glob_id `ite) [v.prop, v.then_branch, v.else_branch]
+    review lambda {binders := binders.view.simple $ simple_binder.view.explicit {id := id.id, type := mk_app (glob_id `not) [v.prop]}, body := v.else_branch}]
+  | none := mk_app (glob_id `ite) [v.prop, v.then_branch, v.else_branch]
 
 def let.transform : transformer :=
 λ stx, do
@@ -379,7 +381,7 @@ def level.leading.transform : transformer :=
 def subtype.transform : transformer :=
 λ stx, do
   let v := view term.subtype stx,
-  pure $ mk_capp (glob_id `subtype) [review lambda {
+  pure $ mk_app (glob_id `subtype) [review lambda {
     binders := mk_simple_binder v.id binder_info.default $ get_opt_type v.type,
     body := v.prop
   }]

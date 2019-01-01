@@ -185,7 +185,6 @@ expr.mdata (kvmap.set_name {} `annotation `anonymous_constructor) e
 def dummy : expr := expr.const `Prop []
 
 def to_pexpr : syntax → elaborator_m expr
-| (syntax.ident id)   := pure $ expr.const (mangle_ident id) []
 | stx@(syntax.raw_node {kind := k, args := args}) := (match k with
   | @ident_univs := (match view ident_univs stx with
     | {id := id, univs := some univs} := expr.const (mangle_ident id) <$> univs.levels.mmap to_level

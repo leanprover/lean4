@@ -82,12 +82,24 @@ structure local_state :=
 (vars : ordered_rbmap name expr  (<) := ordered_rbmap.empty)
 /- The subset of `vars` that is tagged as always included. -/
 (include_vars : rbtree name (<) := mk_rbtree _ _)
+/- The stack of nested active `namespace` commands. -/
+(ns_stack : list name := [])
+/- The set of active `open` declarations. -/
+(open_decls : list open_spec.view := [])
+
+/-- An `export` command together with the namespace it was declared in. Opening the namespace activates
+    the export. -/
+structure scoped_export_decl :=
+(in_ns : name)
+(spec : open_spec.view)
 
 structure elaborator_state :=
 -- TODO(Sebastian): retrieve from environment
 (reserved_notations : list reserve_notation.view := [])
 (notations : list notation_macro := [])
 (notation_counter := 0)
+/- The current set of `export` declarations (active or inactive). -/
+(export_decls : list scoped_export_decl := [])
 
 (local_state : local_state := {})
 (messages : message_log := message_log.empty)
@@ -569,6 +581,27 @@ def attribute.elaborate : elaborator :=
   let ids := expr.mk_capp `_ $ attr.ids.map $ λ id, expr.const (mangle_ident id) [],
   old_elab_command stx $ expr.mdata mdata $ expr.app attrs ids
 
+def open.elaborate : elaborator :=
+λ stx, do
+  let v := view «open» stx,
+  -- TODO: do eager sanity checks (namespace does not exist, etc.)
+  modify $ λ st, {st with local_state := {st.local_state with
+    open_decls := st.local_state.open_decls ++ v.spec}}
+
+/-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/
+def get_namespace : elaborator_m name := do
+  st ← get,
+  pure $ match st.local_state.ns_stack with
+  | ns::_ := ns
+  | _     := name.anonymous
+
+def export.elaborate : elaborator :=
+λ stx, do
+  let v := view «export» stx,
+  ns ← get_namespace,
+  -- TODO: do eager sanity checks (namespace does not exist, etc.)
+  modify $ λ st, {st with export_decls := st.export_decls ++ v.spec.map (λ spec, ⟨ns, spec⟩)}
+
 /-- List of commands: recursively elaborate each command. -/
 def no_kind.elaborate : coelaborator := do
   stx ← current_command,
@@ -617,8 +650,11 @@ do sec ← view «section» <$> current_command,
    elab_scope "section" $ mangle_ident <$> sec.name
 
 def namespace.elaborate : coelaborator :=
-do ns ← view «namespace» <$> current_command,
-   elab_scope "namespace" ns.name.val
+do v ← view «namespace» <$> current_command,
+   ns ← get_namespace,
+   modify $ λ st, {st with local_state := {st.local_state with
+     ns_stack := (ns ++ v.name.val) :: st.local_state.ns_stack}},
+   elab_scope "namespace" v.name.val
 
 -- TODO(Sebastian): replace with attribute
 def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
@@ -630,7 +666,9 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (section.name, section.elaborate),
   (namespace.name, namespace.elaborate),
   (declaration.name, declaration.elaborate),
-  (attribute.name, attribute.elaborate)
+  (attribute.name, attribute.elaborate),
+  (open.name, open.elaborate),
+  (export.name, export.elaborate)
 ] _
 
 protected def max_recursion := 100

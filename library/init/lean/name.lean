@@ -84,6 +84,16 @@ protected def has_dec_eq : Π a b : name, decidable (a = b)
 instance : decidable_eq name :=
 {dec_eq := name.has_dec_eq}
 
+protected def append : name → name → name
+| n anonymous := n
+| n (mk_string p s) :=
+  mk_string (append n p) s
+| n (mk_numeral p d) :=
+  mk_numeral (append n p) d
+
+instance : has_append name :=
+⟨name.append⟩
+
 def replace_prefix : name → name → name → name
 | anonymous anonymous new_p := new_p
 | anonymous _         _     := anonymous

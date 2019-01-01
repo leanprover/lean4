@@ -4075,64 +4075,6 @@ static optional<expr> resolve_local_name_core(environment const & env, local_con
     }
 }
 
-// Auxiliary procedure for #translate
-static expr resolve_local_name(environment const & env, local_context const & lctx, name const & id,
-                               expr const & src, bool ignore_aliases, names const & extra_locals) {
-    /* locals */
-    if (auto r = resolve_local_name_core(env, lctx, id, src, extra_locals))
-        return *r;
-
-    /* check in current namespaces */
-    for (name const & ns : get_namespaces(env)) {
-        auto new_id = ns + id;
-        if (!ns.is_anonymous() && env.find(new_id) &&
-            (!id.is_atomic() || !is_protected(env, new_id))) {
-            return copy_pos(src, mk_constant(new_id));
-        }
-    }
-
-    /* check if exact name was provided */
-    if (!id.is_atomic()) {
-        name new_id = id;
-        new_id = remove_root_prefix(new_id);
-        if (env.find(new_id)) {
-            return copy_pos(src, mk_constant(new_id));
-        }
-    }
-
-    optional<expr> r;
-    /* globals */
-    if (env.find(id))
-        r = copy_pos(src, mk_constant(id));
-
-    if (!ignore_aliases) {
-        // aliases
-        names as = get_expr_aliases(env, id);
-        if (!is_nil(as)) {
-            buffer<expr> new_as;
-            if (r)
-                new_as.push_back(*r);
-            for (auto const & a : as) {
-                new_as.push_back(copy_pos(src, mk_constant(a)));
-            }
-            r = copy_pos(src, mk_choice(new_as.size(), new_as.data()));
-        }
-    }
-    if (!r && !id.is_atomic() && id.is_string()) {
-        try {
-            expr s = resolve_local_name(env, lctx, id.get_prefix(), src, ignore_aliases, extra_locals);
-            r      = mk_field_notation_compact(s, id.get_string().data()); // HACK: accessing Lean string as C String
-            if (auto pos = get_pos_info(src)) {
-                pos->second += id.get_prefix().utf8_size();
-                r  = get_pos_info_provider()->save_pos(*r, *pos);
-            }
-        } catch (exception &) {}
-    }
-    if (!r)
-        throw elaborator_exception(src, format("unknown identifier '") + format(id.escape()) + format("'"));
-    return *r;
-}
-
 struct resolve_names_fn : public replace_visitor {
     environment const &   m_env;
     local_context const & m_lctx;
@@ -4142,25 +4084,12 @@ struct resolve_names_fn : public replace_visitor {
     resolve_names_fn(environment const & env, local_context const & lctx):
         m_env(env), m_lctx(lctx) {}
 
-    expr visit_constant(expr const & e, bool ignore_aliases) {
-        if (!is_nil(const_levels(e))) {
-            /* universe level were provided, so the constant was already resolved at parsing time */
-            return e;
-        } else {
-            return copy_pos(e, resolve_local_name(m_env, m_lctx, const_name(e), e, ignore_aliases, m_locals));
-        }
-    }
-
     virtual expr visit_constant(expr const & e) override {
-        return visit_constant(e, false);
-    }
-
-    expr visit_local(expr const & e, bool ignore_aliases) {
-        return copy_pos(e, resolve_local_name(m_env, m_lctx, local_pp_name(e), e, ignore_aliases, m_locals));
+        lean_unreachable();
     }
 
     virtual expr visit_local(expr const & e) override {
-        return visit_local(e, false);
+        lean_unreachable();
     }
 
     virtual expr visit_binding(expr const & e) override {
@@ -4187,28 +4116,27 @@ struct resolve_names_fn : public replace_visitor {
         }
     }
 
-    expr visit_choice(expr const & e) {
-        buffer<expr> new_args;
-        bool ignore_aliases = true;
-        for (unsigned i = 0; i < get_num_choices(e); i++) {
-            expr const & arg = get_choice(e, i);
-            if (is_constant(arg))
-                push_new_arg(new_args, visit_constant(arg, ignore_aliases));
-            else if (is_local(arg))
-                push_new_arg(new_args, visit_local(arg, ignore_aliases));
-            else
-                new_args.push_back(visit(arg));
-        }
-        return mk_choice(new_args.size(), new_args.data());
-    }
-
     virtual expr visit(expr const & e) override {
         if (is_placeholder(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
-        } else if (is_choice(e)) {
-            return visit_choice(e);
-        } else if (is_frozen_name(e)) {
-            return get_annotation_arg(e);
+        } else if (is_annotation(e, "preresolved")) {
+            auto m = mdata_data(e);
+            expr id = mdata_expr(e);
+            if (auto l = resolve_local_name_core(m_env, m_lctx, const_name(id), id, m_locals)) {
+                return copy_pos(e, *l);
+            } else {
+                buffer<expr> new_args;
+                for (unsigned i = 0;; i++) {
+                    if (auto n = get_name(m, name(name(), i))) {
+                        new_args.push_back(copy_pos(e, mk_const(*n, const_levels(id))));
+                    } else {
+                        break;
+                    }
+                }
+                if (new_args.empty())
+                    throw elaborator_exception(e, format("unknown identifier '") + format(const_name(id).escape()) + format("'"));
+                return mk_choice(new_args.size(), new_args.data());
+            }
         } else {
             return replace_visitor::visit(e);
         }

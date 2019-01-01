@@ -73,6 +73,7 @@ structure elaborator_config extends frontend_config :=
 instance elaborator_config_coe_frontend_config : has_coe elaborator_config frontend_config :=
 ⟨elaborator_config.to_frontend_config⟩
 
+/-- Elaborator state that will be reverted at the end of a section or namespace. -/
 structure local_state :=
 (notations : list notation_macro := [])
 /- The set of local universe variables.
@@ -180,15 +181,20 @@ def to_level : syntax → elaborator_m level
   | _ := error stx $ "to_level: unexpected input: " ++ to_string stx
 
 def expr.mk_annotation (ann : name) (e : expr) :=
-expr.mdata (kvmap.set_name {} `annotation `anonymous_constructor) e
+expr.mdata (kvmap.set_name {} `annotation ann) e
 
 def dummy : expr := expr.const `Prop []
 
 def to_pexpr : syntax → elaborator_m expr
 | stx@(syntax.raw_node {kind := k, args := args}) := (match k with
-  | @ident_univs := (match view ident_univs stx with
+  | @ident_univs := do
+    let v := view ident_univs stx,
+    e ← match v with
     | {id := id, univs := some univs} := expr.const (mangle_ident id) <$> univs.levels.mmap to_level
-    | {id := id, univs := none}       := pure $ expr.const (mangle_ident id) [])
+    | {id := id, univs := none}       := pure $ expr.const (mangle_ident id) [],
+    let m := kvmap.set_name {} `annotation `preresolved,
+    let m := v.id.preresolved.enum.foldl (λ m ⟨i, n⟩, kvmap.set_name m (name.anonymous.mk_numeral i) n) m,
+    pure $ expr.mdata m e
   | @app   := let v := view app stx in
     expr.app <$> to_pexpr v.fn <*> to_pexpr v.arg
   | @lambda := do

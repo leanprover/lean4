@@ -340,6 +340,8 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     auto options = to_options(cfield(vm_st, 5));
     p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
             parser_scope_stack(), to_unsigned(cfield(vm_st, 6)), pos_info {1, 0}));
+    auto ns = to_name(cfield(vm_st, 7));
+    p.set_env(set_namespace(env, ns));
 
     auto cmd = to_expr(vm_cmd);
     message_log log;
@@ -356,7 +358,8 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
             cfield(vm_st, 3),
             cfield(vm_st, 4),
             cfield(vm_st, 5),
-            cfield(vm_st, 6)
+            cfield(vm_st, 6),
+            cfield(vm_st, 7)
         });
         vm_out = mk_vm_some(vm_st2);
     } catch (exception & e) {

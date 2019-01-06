@@ -40,6 +40,7 @@ bool has_open_scopes(environment const & env);
 environment add_namespace(environment const & env, name const & ns);
 
 name const & get_namespace(environment const & env);
+environment set_namespace(environment const & env, name const & ns);
 name const & get_scope_header(environment const & env);
 /** \brief Return the current stack of namespaces.
     Example: at

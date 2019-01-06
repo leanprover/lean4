@@ -33,6 +33,7 @@ structure old_elaborator_state :=
 (include_vars : list name)
 (options : options)
 (next_inst_idx : nat)
+(ns : name)
 
 constant elaborate_command (filename : string) : expr → old_elaborator_state →
   option old_elaborator_state × message_log
@@ -312,10 +313,19 @@ def to_pexpr : syntax → elaborator_m expr
   | _ := error stx $ "unexpected node: " ++ to_string k.name)
 | stx := error stx $ "unexpected: " ++ to_string stx
 
+/-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/
+def get_namespace : elaborator_m name := do
+  st ← get,
+  pure $ match st.local_state.ns_stack with
+  | ns::_ := ns
+  | _     := name.anonymous
+
 def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
 do cfg ← read,
    st ← get,
+   ns ← get_namespace,
    let (st', msgs) := elaborate_command cfg.filename cmd {
+     ns := ns,
      univs := st.local_state.univs.entries,
      vars := st.local_state.vars.entries,
      include_vars := st.local_state.include_vars.to_list,
@@ -593,13 +603,6 @@ def open.elaborate : elaborator :=
   -- TODO: do eager sanity checks (namespace does not exist, etc.)
   modify $ λ st, {st with local_state := {st.local_state with
     open_decls := st.local_state.open_decls ++ v.spec}}
-
-/-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/
-def get_namespace : elaborator_m name := do
-  st ← get,
-  pure $ match st.local_state.ns_stack with
-  | ns::_ := ns
-  | _     := name.anonymous
 
 def export.elaborate : elaborator :=
 λ stx, do

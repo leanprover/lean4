@@ -45,6 +45,12 @@ name const & get_namespace(environment const & env) {
     scope_mng_ext const & ext = get_extension(env);
     return !is_nil(ext.m_namespaces) ? head(ext.m_namespaces) : name::anonymous();
 }
+// temporary HACK
+environment set_namespace(environment const & env, name const & ns) {
+    scope_mng_ext ext;
+    ext.m_namespaces = {ns};
+    return update(env, ext);
+}
 
 name const & get_scope_header(environment const & env) {
     scope_mng_ext const & ext = get_extension(env);

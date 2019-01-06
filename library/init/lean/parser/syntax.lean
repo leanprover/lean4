@@ -202,7 +202,10 @@ with reprint_lst : list syntax → option (list string)
 protected mutual def to_format, to_format_lst
 with to_format : syntax → format
 | (atom ⟨_, s⟩) := to_fmt $ repr s
-| (ident id)    := to_fmt "`" ++ to_fmt id.val
+| (ident id)    :=
+  let scopes := id.preresolved.map to_fmt ++ id.scopes.reverse.map to_fmt in
+  let scopes := match scopes with [] := to_fmt "" | _ := bracket "{" (join_sep scopes ", ") "}" in
+  to_fmt "`" ++ to_fmt id.val ++ scopes
 | stx@(raw_node n) :=
   let scopes := match n.scopes with [] := to_fmt "" | _ := bracket "{" (join_sep n.scopes.reverse ", ") "}" in
   if n.kind.name = `lean.parser.no_kind then sbracket $ scopes ++ join_sep (to_format_lst n.args) line

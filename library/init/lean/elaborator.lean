@@ -677,8 +677,40 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (export.name, export.elaborate)
 ] _
 
-protected def max_recursion := 100
-protected def max_commands := 10000
+def resolve_global : name → elaborator_m (list name)
+| n := do
+  st ← get,
+
+  -- check surrounding namespaces
+  -- TODO: check for `protected`
+  match st.local_state.ns_stack.filter (λ ns, st.env.contains (ns ++ n)) with
+  | n'::_ := pure [n'] -- prefer innermost namespace
+  | _ := do
+
+  -- check environment directly
+  let unrooted := n.replace_prefix `_root_ name.anonymous,
+  match st.env.contains unrooted with
+  | tt := pure [unrooted]
+  | _ := do
+
+  -- check opened namespaces
+  -- TODO: `hiding`, `as`, `export`
+  let ns' := st.local_state.open_decls.map (λ od, od.id.val ++ n),
+  pure $ ns'.filter (λ n', st.env.contains n')
+
+  -- TODO: projection notation
+
+def preresolve : syntax → elaborator_m syntax
+| (syntax.ident id) := do
+  ns ← resolve_global (mangle_ident id),
+  pure $ syntax.ident {id with preresolved := ns ++ id.preresolved}
+| (syntax.raw_node n) := do
+  args ← n.args.mmap preresolve,
+  pure $ syntax.raw_node {n with args := args}
+| stx := pure stx
+
+def max_recursion := 100
+def max_commands := 10000
 
 protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state message_log :=
 do
@@ -688,18 +720,20 @@ do
     ngen := ⟨`fixme, 0⟩,
     options := options.mk},
   p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
-    (commands.elaborate ff elaborator.max_commands)
+    (commands.elaborate ff max_commands)
     (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})
     (λ _, do
       cmd ← current_command,
-      some n ← pure cmd.as_node |
-        error cmd $ "not a command: " ++ to_string cmd,
-      catch
-        (do some elab ← pure $ elaborators.find n.kind.name |
-              error cmd $ "unknown command: " ++ to_string n.kind.name,
-            elab)
-        (λ e, modify $ λ st, {st with messages := st.messages.add e}))
-    elaborator.max_recursion,
+      cmd' ← (preresolve cmd : coelaborator_m _),
+      with_current_command cmd' $ do
+        some n ← pure cmd.as_node |
+          error cmd $ "not a command: " ++ to_string cmd,
+        catch
+          (do some elab ← pure $ elaborators.find n.kind.name |
+                error cmd $ "unknown command: " ++ to_string n.kind.name,
+              elab)
+          (λ e, modify $ λ st, {st with messages := st.messages.add e}))
+    max_recursion,
   match p with
   | except.ok ((), st) := pure st.messages
   | except.error e     := pure $ message_log.empty.add e

@@ -65,7 +65,7 @@ raw $ take_until (= '`')
 
 @[derive parser.has_tokens parser.has_view]
 def symbol_quote.parser : term_parser :=
-node! notation_quoted_symbol [
+node! symbol_quote [
   left_quote: raw_str "`",
   symbol: quoted_symbol.parser,
   right_quote: raw_str "`" tt, -- consume trailing ws

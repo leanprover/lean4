@@ -15,6 +15,7 @@ namespace lean
 -- TODO(Sebastian): should probably be meta together with the whole elaborator
 constant environment : Type
 constant environment.empty : environment
+constant environment.contains : environment → name → bool
 
 namespace elaborator
 -- TODO(Sebastian): move

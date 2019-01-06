@@ -99,6 +99,11 @@ struct vm_env : public vm_external {
     virtual vm_external *clone(vm_clone_fn const &) {lean_unreachable()}
 };
 
+environment const & to_env(vm_obj const & o) {
+    lean_vm_check(dynamic_cast<vm_env *>(to_external(o)));
+    return static_cast<vm_env *>(to_external(o))->m_env;
+}
+
 vm_obj vm_environment_empty() {
     return mk_vm_external(new vm_env(environment()));
 }
@@ -114,6 +119,10 @@ name to_name(vm_obj const & o) {
             return name(to_name(cfield(o, 0)), nat(vm_nat_to_mpz1(cfield(o, 1))));
         default: lean_unreachable();
     }
+}
+
+vm_obj vm_environment_contains(vm_obj const & vm_env, vm_obj const & vm_n) {
+    return mk_vm_simple(static_cast<bool>(to_env(vm_env).find(to_name(vm_n))));
 }
 
 vm_obj to_obj(name const & n) {
@@ -298,8 +307,7 @@ vm_obj to_obj(message_log const & log) {
 // TODO(Sebastian): replace `string` with `message` in the new runtime
 vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, vm_obj const & vm_st) {
     auto vm_e = cfield(vm_st, 0);
-    lean_vm_check(dynamic_cast<vm_env *>(to_external(vm_e)));
-    auto env = static_cast<vm_env *>(to_external(vm_e))->m_env;
+    auto env = to_env(vm_e);
     io_state const & ios = get_dummy_ios();
     auto filename = to_string(vm_filename);
     std::stringstream in;
@@ -362,6 +370,7 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
 
 void initialize_vm_elaborator() {
     DECLARE_VM_BUILTIN(name({"lean", "environment", "empty"}), vm_environment_empty);
+    DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_environment_contains);
     DECLARE_VM_BUILTIN(name({"lean", "elaborator", "elaborate_command"}), vm_elaborate_command);
 }
 

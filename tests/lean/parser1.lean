@@ -74,6 +74,31 @@ universes u v
   except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "foo", input := "", transformers := builtin_transformers} | throw "heh",
   pure cmd'.reprint
 
+-- test overloading
+#eval do
+  let s := "
+prelude
+constant α : Type
+constant a : α
+namespace foo
+  constant α : Type
+end foo
+constant b : α
+open foo
+constant c : α",
+  run_frontend s (io.println ∘ message.to_string),
+  pure ()
+
+-- "sticky" `open`
+#eval do
+  let s := "
+prelude
+open foo
+constant foo.α : Type
+constant b : α",
+  run_frontend s (io.println ∘ message.to_string),
+  pure ()
+
 #exit
 
 -- slowly progressing...

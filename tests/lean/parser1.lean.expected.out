@@ -91,4 +91,20 @@ result:
    (ident_univs `v [])))
  (module.eoi "")]
 (ok (some "notationa`+`:65 b:65 :=nat.addab"))
-parser1.lean:77:0: warning: using 'exit' to interrupt Lean
+<stdin>:78:0: error: unknown declaration 'sorry_ax'
+parser1.lean:1:0: error: don't know how to synthesize placeholder
+context:
+⊢ Sort ?
+parser1.lean:78:0: error: unknown declaration 'sorry_ax'
+parser1.lean:78:0: error: ambiguous overload, possible interpretations
+  α
+  foo.α
+Additional information:
+parser1.lean: context: switched to basic overload resolution where arguments are elaborated without any information about the expected type because it failed to disambiguate overload using the expected type
+  Sort ?
+the following overloaded terms were applicable
+  α
+  α
+<stdin>:1:0: parser cache hit rate: 164/191
+<stdin>:1:0: parser cache hit rate: 65/76
+parser1.lean:102:0: warning: using 'exit' to interrupt Lean

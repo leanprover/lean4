@@ -688,22 +688,22 @@ def resolve_global : name → elaborator_m (list name)
 | n := do
   st ← get,
 
-  -- check surrounding namespaces
+  -- check surrounding namespaces first
   -- TODO: check for `protected`
   match st.local_state.ns_stack.filter (λ ns, st.env.contains (ns ++ n)) with
-  | n'::_ := pure [n'] -- prefer innermost namespace
-  | _ := do
+  | ns::_ := pure [ns ++ n] -- prefer innermost namespace
+  | _ := pure $
 
   -- check environment directly
-  let unrooted := n.replace_prefix `_root_ name.anonymous,
-  match st.env.contains unrooted with
-  | tt := pure [unrooted]
-  | _ := do
-
+  (let unrooted := n.replace_prefix `_root_ name.anonymous in
+   match st.env.contains unrooted with
+   | tt := [unrooted]
+   | _ := [])
+  ++
   -- check opened namespaces
   -- TODO: `hiding`, `as`, `export`
-  let ns' := st.local_state.open_decls.map (λ od, od.id.val ++ n),
-  pure $ ns'.filter (λ n', st.env.contains n')
+  (let ns' := st.local_state.open_decls.map (λ od, od.id.val ++ n) in
+   ns'.filter (λ n', st.env.contains n'))
 
   -- TODO: projection notation
 

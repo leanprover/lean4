@@ -341,7 +341,7 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
         elaborate_command(p, cmd);
         s = p.mk_snapshot();
         auto vm_st2 = mk_vm_constructor(0, {
-            mk_vm_external(new vm_env(env)),
+            mk_vm_external(new vm_env(p.env())),
             to_obj(s->m_ngen),
             // TODO(Sebastian): support commands that change the local context
             cfield(vm_st, 2),

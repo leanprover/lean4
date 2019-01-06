@@ -641,12 +641,8 @@ def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
       pure ()
   | _ := elab_and_recurse
 
-def elab_scope (cmd_name : string) (exp_end_name : option name) : coelaborator :=
-do locally $ do {
-     yield_to_outside,
-     commands.elaborate tt 1000
-   },
-   -- local notations may have vanished
+def end_scope (cmd_name : string) (exp_end_name : option name) : coelaborator :=
+do -- local notations may have vanished
    update_parser_config,
    end_cmd ← view «end» <$> current_command,
    let end_name := mangle_ident <$> end_cmd.name,
@@ -656,14 +652,22 @@ do locally $ do {
 
 def section.elaborate : coelaborator :=
 do sec ← view «section» <$> current_command,
-   elab_scope "section" $ mangle_ident <$> sec.name
+   locally $ do {
+     yield_to_outside,
+     commands.elaborate tt 1000
+   },
+   end_scope "section" $ mangle_ident <$> sec.name
 
 def namespace.elaborate : coelaborator :=
 do v ← view «namespace» <$> current_command,
-   ns ← get_namespace,
-   modify $ λ st, {st with local_state := {st.local_state with
-     ns_stack := (ns ++ v.name.val) :: st.local_state.ns_stack}},
-   elab_scope "namespace" v.name.val
+   locally $ do {
+     yield_to_outside,
+     ns ← get_namespace,
+     modify $ λ st, {st with local_state := {st.local_state with
+       ns_stack := (ns ++ v.name.val) :: st.local_state.ns_stack}},
+     commands.elaborate tt 1000
+   },
+   end_scope "namespace" v.name.val
 
 -- TODO(Sebastian): replace with attribute
 def elaborators : rbmap name coelaborator (<) := rbmap.from_list [

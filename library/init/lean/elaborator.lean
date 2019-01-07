@@ -428,6 +428,8 @@ do -- build and register parser
        pure (symbol a.val : term_parser)
      | _ := throw "register_notation_parser: unreachable",
      ptrans ← match r.transition with
+     | some (transition.view.binder b) :=
+       pure $ some $ term.binder_ident.parser
      | some (transition.view.binders b) :=
        pure $ some $ term.binders.parser
      | some (transition.view.arg {action := none, ..}) :=
@@ -597,6 +599,13 @@ def attribute.elaborate : elaborator :=
   let ids := expr.mk_capp `_ $ attr.ids.map $ λ id, expr.const (mangle_ident id) [],
   old_elab_command stx $ expr.mdata mdata $ expr.app attrs ids
 
+def check.elaborate : elaborator :=
+λ stx, do
+  let v := view check stx,
+  let mdata := kvmap.set_name {} `command `#check,
+  e ← to_pexpr v.term,
+  old_elab_command stx $ expr.mdata mdata e
+
 def open.elaborate : elaborator :=
 λ stx, do
   let v := view «open» stx,
@@ -681,7 +690,8 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (declaration.name, declaration.elaborate),
   (attribute.name, attribute.elaborate),
   (open.name, open.elaborate),
-  (export.name, export.elaborate)
+  (export.name, export.elaborate),
+  (check.name, check.elaborate)
 ] _
 
 def resolve_global : name → elaborator_m (list name)

@@ -10,6 +10,7 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include <string>
 #include <iostream>
 #include "util/timeit.h"
+#include "library/locals.h"
 #include "library/trace.h"
 #include "library/vm/vm.h"
 #include "library/vm/vm_string.h"
@@ -54,6 +55,32 @@ cmd_meta to_cmd_meta(environment const & env, expr const & e) {
     return m;
 }
 
+void elab_check_cmd(parser & p, expr const & cmd) {
+    // TODO(Sebastian)
+    // transient_cmd_scope cmd_scope(p);
+    expr e = mdata_expr(cmd);
+    bool check_unassigend = false;
+    names ls;
+    metavar_context mctx;
+    e = resolve_names(p.env(), p.mk_local_context_adapter().lctx(), e);
+    std::tie(e, ls) = p.elaborate("_check", mctx, e, check_unassigend);
+    names new_ls = to_names(collect_univ_params(e));
+    type_context_old tc(p.env());
+    expr type = tc.infer(e);
+    if (is_synthetic_sorry(e) && (is_synthetic_sorry(type) || is_metavar(type))) {
+        // do not show useless type-checking results such as ?? : ?M_1
+        return;
+    }
+    auto out              = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
+    formatter fmt         = out.get_formatter();
+    unsigned indent       = get_pp_indent(p.get_options());
+    format e_fmt    = fmt(e);
+    format type_fmt = fmt(type);
+    format r = group(e_fmt + space() + colon() + nest(indent, line() + type_fmt));
+    out.set_caption("check result") << r;
+    out.report();
+}
+
 void elab_constant_cmd(parser & p, expr const & cmd) {
     buffer<expr> args, ls;
     get_app_args(mdata_expr(cmd), args);
@@ -72,6 +99,9 @@ void elaborate_command(parser & p, expr const & cmd) {
     if (auto const & cmd_name = get_name(data, "command")) {
         if (*cmd_name == "attribute") {
             p.set_env(elab_attribute_cmd(p.env(), cmd));
+            return;
+        } else if (*cmd_name == "#check") {
+            elab_check_cmd(p, cmd);
             return;
         } else if (*cmd_name == "constant") {
             elab_constant_cmd(p, cmd);

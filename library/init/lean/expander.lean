@@ -114,6 +114,8 @@ def mk_notation_transformer (nota : notation_macro) : transformer :=
       | notation_symbol.view.quoted {symbol := some a ..} := pop_stx_arg
       | _ := error stx "mk_notation_transformer: unreachable",
       match r.transition with
+      | some (transition.view.binder b) :=
+        do { stx_arg ← pop_stx_arg, modify $ λ st, {st with scoped := some $ binders.view.extended {leading_ids := [view binder_ident.parser stx_arg]}} }
       | some (transition.view.binders b) :=
         do { stx_arg ← pop_stx_arg, modify $ λ st, {st with scoped := some $ view term.binders.parser stx_arg} }
       | some (transition.view.arg {action := none, id := id}) :=

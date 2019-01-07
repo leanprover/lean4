@@ -393,6 +393,9 @@ def universes.transform : transformer :=
   let v := view «universes» stx,
   pure $ syntax.list $ v.ids.map (λ id, review «universe» {id := id})
 
+def sorry.transform : transformer :=
+λ stx, pure $ mk_app (glob_id `sorry_ax) [review hole {}, glob_id `bool.ff]
+
 local attribute [instance] name.has_lt_quick
 
 -- TODO(Sebastian): replace with attribute
@@ -410,7 +413,8 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (declaration.name, declaration.transform),
   (level.leading.name, level.leading.transform),
   (term.subtype.name, subtype.transform),
-  (universes.name, universes.transform)
+  (universes.name, universes.transform),
+  (sorry.name, sorry.transform)
 ] _
 
 structure expander_state :=

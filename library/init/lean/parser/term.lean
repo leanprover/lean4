@@ -332,6 +332,10 @@ node! inaccessible [".(":max_prec, term: term.parser, ")"]
 def anonymous_inaccessible.parser : term_parser :=
 node! anonymous_inaccessible ["._":max_prec]
 
+@[derive parser.has_tokens parser.has_view]
+def sorry.parser : term_parser :=
+node! «sorry» ["sorry":max_prec]
+
 -- TODO(Sebastian): replace with attribute
 @[derive has_tokens]
 def builtin_leading_parsers : token_map term_parser := token_map.of_list [
@@ -360,7 +364,8 @@ def builtin_leading_parsers : token_map term_parser := token_map.of_list [
   ("{", struct_inst.parser),
   ("{", subtype.parser),
   (".(", inaccessible.parser),
-  ("._", anonymous_inaccessible.parser)
+  ("._", anonymous_inaccessible.parser),
+  ("sorry", sorry.parser)
 ]
 
 @[derive parser.has_tokens parser.has_view]

@@ -1257,6 +1257,8 @@ class explicit_boxing_fn {
             return visit_apply(f, args, expected_type);
         } else if (is_llnf_cnstr(f)) {
             return visit_cnstr(f, args, expected_type);
+        } else if (is_llnf_reset(f)) {
+            return e;
         } else if (is_llnf_reuse(f)) {
             return visit_reuse(f, args);
         } else if (is_llnf_sset(f)) {

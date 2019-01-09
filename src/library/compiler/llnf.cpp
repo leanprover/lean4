@@ -1004,6 +1004,20 @@ class explicit_boxing_fn {
 
     name_generator & ngen() { return m_ngen; }
 
+    expr find(expr const & e) const {
+        if (is_fvar(e)) {
+            if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
+                if (optional<expr> v = decl->get_value()) {
+                    if (!is_join_point_name(decl->get_user_name()))
+                        return find(*v);
+                }
+            }
+        } else if (is_mdata(e)) {
+            return find(mdata_expr(e));
+        }
+        return e;
+    }
+
     expr get_constant_type(name const & c) {
         return get_constant_ll_type(env(), c);
     }
@@ -1091,18 +1105,39 @@ class explicit_boxing_fn {
         return m_lctx.get_local_decl(e).get_type();
     }
 
-    expr unbox_if_needed(expr const & e, unsigned n) {
+    expr mk_box(unsigned n, expr const & e, bool is_arg) {
+        expr v = find(e);
+        if (is_app(v) && is_llnf_unbox(app_fn(v))) {
+            return app_arg(v);
+        } else {
+            expr r = mk_app(mk_llnf_box(n), e);
+            return is_arg ? mk_let_decl(mk_enf_object_type(), r) : r;
+        }
+    }
+
+    expr mk_unbox(unsigned n, expr const & e, bool is_arg) {
+        expr v = find(e);
+        unsigned m;
+        if (is_app(v) && is_llnf_box(app_fn(v), m) && n == m) {
+            return app_arg(v);
+        } else {
+            expr r = mk_app(mk_llnf_unbox(), e);
+            return is_arg ? mk_let_decl(*to_uint_type(n), r) : r;
+        }
+    }
+
+    expr unbox_arg_if_needed(expr const & e, unsigned n) {
         lean_assert(!is_enf_neutral(e));
         lean_assert(is_fvar(e));
         expr type = get_arg_type(e);
         if (is_enf_object_type(type)) {
-            return mk_let_decl(*to_uint_type(n), mk_app(mk_llnf_unbox(), e));
+            return mk_unbox(n, e, true);
         } else {
             return e;
         }
     }
 
-    expr box_if_needed(expr const & e) {
+    expr box_arg_if_needed(expr const & e) {
         if (is_enf_neutral(e)) {
             return e;
         } else {
@@ -1111,11 +1146,11 @@ class explicit_boxing_fn {
             if (is_enf_object_type(type)) {
                 return e;
             } else if (is_usize_type(type)) {
-                return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(0), e));
+                return mk_box(0, e, true);
             } else {
                 optional<unsigned> r = is_builtin_scalar(type);
                 lean_assert(r);
-                return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(*r), e));
+                return mk_box(*r, e, true);
             }
         }
     }
@@ -1127,7 +1162,7 @@ class explicit_boxing_fn {
         name const & I = c.get_prefix();
         optional<unsigned> r = is_enum_type(env(), I);
         if (r) {
-            args[0] = unbox_if_needed(args[0], *r);
+            args[0] = unbox_arg_if_needed(args[0], *r);
         }
         for (unsigned i = 1; i < args.size(); i++) {
             unsigned saved_fvars_size = m_fvars.size();
@@ -1142,12 +1177,15 @@ class explicit_boxing_fn {
         if (!is_fvar(e))
             e = mk_let_decl(e_type, e);
         if (expected_type == mk_enf_object_type()) {
-            expr r = mk_app(mk_llnf_box(*get_type_size(e_type)), e);
-            return is_arg ? mk_let_decl(mk_enf_object_type(), r) : r;
+            return mk_box(*get_type_size(e_type), e, is_arg);
         } else {
             lean_assert(e_type == mk_enf_object_type());
-            expr r = mk_app(mk_llnf_unbox(), e);
-            return is_arg ? mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), e)) : r;
+            if (optional<unsigned> n = get_type_size(expected_type)) {
+                return mk_unbox(*n, e, is_arg);
+            } else {
+                expr r = mk_app(mk_llnf_unbox(), e);
+                return is_arg ? mk_let_decl(expected_type, r) : r;
+            }
         }
     }
 
@@ -1168,14 +1206,14 @@ class explicit_boxing_fn {
             lean_assert(!has_unboxed(get_constant_ll_type(env(), const_name(args[0]))));
         }
         for (unsigned i = 1; i < args.size(); i++) {
-            args[i] = box_if_needed(args[i]);
+            args[i] = box_arg_if_needed(args[i]);
         }
         return mk_app(fn, args);
     }
 
     expr visit_apply(expr const & fn, buffer<expr> & args, expr const & expected_type) {
         for (unsigned i = 1; i < args.size(); i++) {
-            args[i] = box_if_needed(args[i]);
+            args[i] = box_arg_if_needed(args[i]);
         }
         expr r = mk_app(fn, args);
         if (expected_type != mk_enf_object_type()) {
@@ -1188,7 +1226,7 @@ class explicit_boxing_fn {
 
     void box_args_if_needed(buffer<expr> & args) {
         for (expr & arg : args) {
-            arg = box_if_needed(arg);
+            arg = box_arg_if_needed(arg);
         }
     }
 

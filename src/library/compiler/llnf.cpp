@@ -1025,6 +1025,7 @@ class explicit_boxing_fn {
     }
 
     expr mk_let_decl(expr const & type, expr const & e) {
+        lean_assert(!is_fvar(e));
         expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
         m_fvars.push_back(fvar);
         return fvar;
@@ -1135,17 +1136,27 @@ class explicit_boxing_fn {
         return mk_app(fn, args);
     }
 
-    expr cast_if_needed(expr e, expr const & e_type, expr const & expected_type) {
+    expr cast_if_needed(expr e, expr const & e_type, expr const & expected_type, bool is_arg) {
         if (e_type == expected_type)
             return e;
         if (!is_fvar(e))
             e = mk_let_decl(e_type, e);
         if (expected_type == mk_enf_object_type()) {
-            return mk_let_decl(mk_enf_object_type(), mk_app(mk_llnf_box(*get_type_size(e_type)), e));
+            expr r = mk_app(mk_llnf_box(*get_type_size(e_type)), e);
+            return is_arg ? mk_let_decl(mk_enf_object_type(), r) : r;
         } else {
             lean_assert(e_type == mk_enf_object_type());
-            return mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), e));
+            expr r = mk_app(mk_llnf_unbox(), e);
+            return is_arg ? mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), e)) : r;
         }
+    }
+
+    expr cast_arg_if_needed(expr const & e, expr const & e_type, expr const & expected_type) {
+        return cast_if_needed(e, e_type, expected_type, true);
+    }
+
+    expr cast_result_if_needed(expr const & e, expr const & e_type, expr const & expected_type) {
+        return cast_if_needed(e, e_type, expected_type, false);
     }
 
     expr visit_closure(expr const & fn, buffer<expr> & args) {
@@ -1204,13 +1215,13 @@ class explicit_boxing_fn {
         unsigned sz = 0;
         unsigned d1, d2;
         is_llnf_sset(fn, sz, d1, d2);
-        args[1] = cast_if_needed(args[1], get_arg_type(args[1]), *to_uint_type(sz));
+        args[1] = cast_arg_if_needed(args[1], get_arg_type(args[1]), *to_uint_type(sz));
         return mk_app(fn, args);
     }
 
     expr visit_uset(expr const & fn, buffer<expr> & args) {
         lean_assert(args.size() == 2);
-        args[1] = cast_if_needed(args[1], get_arg_type(args[1]), *g_usize);
+        args[1] = cast_arg_if_needed(args[1], get_arg_type(args[1]), *g_usize);
         return mk_app(fn, args);
     }
 
@@ -1221,7 +1232,7 @@ class explicit_boxing_fn {
             lean_assert(is_pi(jp_type));
             expr arg_expected_type = binding_domain(jp_type);
             expr arg_type          = get_arg_type(args[i]);
-            args[i] = cast_if_needed(args[i], arg_type, arg_expected_type);
+            args[i] = cast_arg_if_needed(args[i], arg_type, arg_expected_type);
             jp_type = binding_body(jp_type);
         }
         return mk_app(fn, args);
@@ -1234,7 +1245,7 @@ class explicit_boxing_fn {
             if (is_fvar(arg)) {
                 expr arg_expected_type = binding_domain(type);
                 expr arg_type          = get_arg_type(arg);
-                arg = cast_if_needed(arg, arg_type, arg_expected_type);
+                arg = cast_arg_if_needed(arg, arg_type, arg_expected_type);
             } else {
                 lean_assert(is_enf_neutral(arg));
             }
@@ -1242,7 +1253,7 @@ class explicit_boxing_fn {
         }
         lean_assert(!is_pi(type));
         expr r = mk_app(fn, args);
-        return cast_if_needed(r, type, expected_type);
+        return cast_result_if_needed(r, type, expected_type);
     }
 
     expr visit_app(expr const & e, expr const & expected_type) {

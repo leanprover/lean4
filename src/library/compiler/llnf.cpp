@@ -1168,8 +1168,9 @@ class explicit_boxing_fn {
         }
         expr r = mk_app(fn, args);
         if (expected_type != mk_enf_object_type()) {
+            lean_assert(is_app(r));
             r = mk_let_decl(mk_enf_object_type(), r);
-            r = mk_let_decl(expected_type, mk_app(mk_llnf_unbox(), r));
+            r = mk_app(mk_llnf_unbox(), r);
         }
         return r;
     }

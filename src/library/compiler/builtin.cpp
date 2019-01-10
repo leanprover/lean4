@@ -69,6 +69,16 @@ optional<unsigned> get_builtin_constant_arity(name const & c) {
     return optional<unsigned>(it->second.m_arity);
 }
 
+bool get_builtin_borrowed_info(name const & c, buffer<bool> & borrowed_args, bool & borrowed_res) {
+    auto it = g_builtin_decls->find(c);
+    if (it == g_builtin_decls->end())
+        return false;
+
+    to_buffer(it->second.m_borrowed_args, borrowed_args);
+    borrowed_res = it->second.m_borrowed_res;
+    return true;
+}
+
 void initialize_builtin() {
     g_builtin_decls = new builtin_map();
 

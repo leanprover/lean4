@@ -14,9 +14,12 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
 #include "library/util.h"
+#include "library/trace.h"
 #include "library/compiler/builtin.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
+#include "library/compiler/cse.h"
+#include "library/compiler/elim_dead_let.h"
 
 namespace lean {
 static expr * g_apply     = nullptr;
@@ -197,11 +200,11 @@ struct cnstr_info {
 static expr * g_usize = nullptr;
 std::vector<pair<name, unsigned>> * g_builtin_scalar_size = nullptr;
 
-bool is_usize_type(expr const & e) {
+static bool is_usize_type(expr const & e) {
     return is_constant(e, get_usize_name());
 }
 
-optional<unsigned> is_builtin_scalar(expr const & type) {
+static optional<unsigned> is_builtin_scalar(expr const & type) {
     if (!is_constant(type)) return optional<unsigned>();
     for (pair<name, unsigned> const & p : *g_builtin_scalar_size) {
         if (const_name(type) == p.first) {
@@ -211,7 +214,33 @@ optional<unsigned> is_builtin_scalar(expr const & type) {
     return optional<unsigned>();
 }
 
+static unsigned get_arity(environment const & env, name const & n) {
+    /* First, try to infer arity from `_cstage2` auxiliary definition. */
+    name c = mk_cstage2_name(n);
+    optional<constant_info> info = env.find(c);
+    if (info && info->is_definition()) {
+        return get_num_nested_lambdas(info->get_value());
+    }
+    optional<unsigned> arity = get_builtin_constant_arity(n);
+    if (!arity) throw exception(sstream() << "code generation failed, unknown '" << n << "'");
+    return *arity;
+}
+
+static void get_borrowed_info(environment const & env, name const & n, buffer<bool> & borrowed_args, bool & borrowed_res) {
+    if (get_builtin_borrowed_info(n, borrowed_args, borrowed_res))
+        return; /* `n` is a builtin declaration. */
+    /* We currently do not support borrowed annotations in user declarations. */
+    unsigned arity = get_arity(env, n);
+    borrowed_args.clear();
+    borrowed_args.resize(arity, false);
+    borrowed_res = false;
+}
+
 class to_llnf_fn {
+    /*
+      TODO(Leo): we must track which variables are marked as borrowed here. Reason: the `reuse` instruction is just
+      overhead for variables marked as borrowed.
+    */
     typedef std::unordered_set<name, name_hash> name_set;
     typedef std::unordered_map<name, cnstr_info, name_hash> cnstr_info_cache;
     typedef std::unordered_map<name, optional<unsigned>, name_hash> enum_cache;
@@ -304,15 +333,7 @@ class to_llnf_fn {
     }
 
     unsigned get_arity(name const & n) const {
-        /* First, try to infer arity from `_cstage2` auxiliary definition. */
-        name c = mk_cstage2_name(n);
-        optional<constant_info> info = env().find(c);
-        if (info && info->is_definition()) {
-            return get_num_nested_lambdas(info->get_value());
-        }
-        optional<unsigned> arity = get_builtin_constant_arity(n);
-        if (!arity) throw exception(sstream() << "code generation failed, unknown '" << n << "'");
-        return *arity;
+        return ::lean::get_arity(env(), n);
     }
 
     expr mk_llnf_app(expr const & fn, buffer<expr> const & args) {
@@ -1360,6 +1381,7 @@ class explicit_rc_fn {
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
+    name_set            m_borrowed; /* Set of variables marked as borrowed. */
 
     static bool is_jmp(expr const & e) {
         return is_llnf_jmp(get_app_fn(e));
@@ -1440,10 +1462,8 @@ class explicit_rc_fn {
         expr val = *x_decl.get_value();
         lean_assert(is_cases_on_app(env(), val));
         if (is_lit(val)) {
-            /* If type is object, then mark `x` as not borrowed. */
             // TODO(Leo)
         } else if (is_constant(val)) {
-            /* If type is object, then mark `x` as borrowed. */
             // TODO(Leo)
         } else if (is_app(val)) {
             buffer<expr> args;
@@ -1550,14 +1570,18 @@ class explicit_rc_fn {
         return r;
     }
 
-    expr visit_lambda(expr e) {
+    expr visit_lambda(expr e, buffer<bool> const & borrowed) {
         buffer<expr> binding_fvars;
+        unsigned i = 0;
         while (is_lambda(e)) {
             lean_assert(!has_loose_bvars(binding_domain(e)));
             expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), binding_domain(e), binding_info(e));
-            // TODO(Leo): mark variable as borrowed or not borrowed (i.e., to be consumed).
+            lean_assert(i < borrowed.size());
+            if (borrowed[i])
+                m_borrowed.insert(fvar_name(new_fvar));
             binding_fvars.push_back(new_fvar);
             e = binding_body(e);
+            i++;
         }
         e = instantiate_rev(e, binding_fvars.size(), binding_fvars.data());
         unsigned saved_fvars_size = m_fvars.size();
@@ -1567,20 +1591,58 @@ class explicit_rc_fn {
         return e;
     }
 
+    expr visit_lambda(expr const & e) {
+        unsigned n = get_num_nested_lambdas(e);
+        buffer<bool> borrowed;
+        borrowed.resize(n, false);
+        return visit_lambda(e, borrowed);
+    }
+
+    bool should_mark_as_borrowed(expr const & val) {
+        if (is_lit(val)) {
+            return false;
+        } else if (is_constant(val)) {
+            return true;
+        } else if (is_app(val)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(val, args);
+            lean_assert(is_constant(fn));
+            if (is_llnf_op(fn)) {
+                return false;
+            } else {
+                /* Regular function application.
+                   Retrieve whether the arguments must be borrowed/consumed, and process them. */
+                buffer<bool> borrowed_args;
+                bool borrowed_res;
+                get_borrowed_info(m_env, const_name(fn), borrowed_args, borrowed_res);
+                return borrowed_res;
+            }
+        } else {
+            /* is_fvar(val) is unreachable. See: visit_let. */
+            lean_unreachable();
+        }
+    }
+
     expr visit_let(expr e) {
         buffer<expr> fvars;
         while (is_let(e)) {
             lean_assert(!has_loose_bvars(let_type(e)));
             expr val = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-            name n   = let_name(e);
-            if (is_internal_name(n) && !is_join_point_name(n)) {
-                n = next_name();
+            if (is_fvar(val)) {
+                fvars.push_back(val);
+            } else {
+                name n   = let_name(e);
+                if (is_internal_name(n) && !is_join_point_name(n)) {
+                    n = next_name();
+                }
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), val);
+                if (should_mark_as_borrowed(val)) {
+                    /* Remark: it is incorrect to mark it as `process`. */
+                    m_borrowed.insert(fvar_name(new_fvar));
+                }
+                fvars.push_back(new_fvar);
+                m_fvars.push_back(new_fvar);
             }
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), val);
-            // TODO(Leo): we must mark here whether `new_fvar` as borrowed or not borrowed.
-            // It is incorrect to mark it at `process`.
-            fvars.push_back(new_fvar);
-            m_fvars.push_back(new_fvar);
             e = let_body(e);
         }
         return visit(instantiate_rev(e, fvars.size(), fvars.data()));
@@ -1597,6 +1659,20 @@ class explicit_rc_fn {
 public:
     explicit_rc_fn(environment const & env):
         m_env(env), m_x("_x") {}
+
+    expr operator()(name const & n, expr const & e) {
+        buffer<bool> borrowed_args;
+        bool borrowed_res;
+        get_borrowed_info(m_env, n, borrowed_args, borrowed_res);
+        expr r;
+        if (is_lambda(e)) {
+            r = visit_lambda(e, borrowed_args);
+        } else {
+            r = visit(e);
+        }
+        // TODO(Leo):
+        return e;
+    }
 };
 
 pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {
@@ -1613,7 +1689,11 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
     }
     if (unboxed) {
         for (comp_decl & r : rs) {
-            r = comp_decl(r.fst(), explicit_boxing_fn(new_env)(r.fst(), r.snd()));
+            expr new_code = explicit_boxing_fn(new_env)(r.fst(), r.snd());
+            new_code = ecse(new_env, new_code);
+            new_code = elim_dead_let(new_code);
+            // new_code = explicit_rc_fn(new_env)(r.fst(), new_code);
+            r = comp_decl(r.fst(), new_code);
         }
     }
     comp_decls _rs(rs);

@@ -297,7 +297,7 @@ expr to_expr(vm_obj const & o) {
         case 0:
             return mk_bvar(nat(vm_nat_to_mpz1(cfield(o, 0))));
         case 1:
-            return mk_local(to_name(cfield(o, 0)), to_name(cfield(o, 0)), expr(), mk_binder_info());
+            return mk_local(to_name(cfield(o, 0)), to_name(cfield(o, 1)), to_expr(cfield(o, 2)), to_binder_info(cfield(o, 3)));
         case 2:
             return mk_metavar(to_name(cfield(o, 0)), to_expr(cfield(o, 1)));
         case 3:
@@ -465,7 +465,12 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     return mk_vm_constructor(0, vm_out, to_obj(log));
 }
 
+vm_obj vm_expr_local(vm_obj const & vm_pp_name, vm_obj const & vm_name, vm_obj const & vm_type, vm_obj const & vm_binder_info) {
+    return mk_vm_constructor(1, vm_pp_name, vm_name, vm_type, vm_binder_info);
+}
+
 void initialize_vm_elaborator() {
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "local"}), vm_expr_local);
     DECLARE_VM_BUILTIN(name({"lean", "environment", "empty"}), vm_environment_empty);
     DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_environment_contains);
     DECLARE_VM_BUILTIN(name({"lean", "elaborator", "elaborate_command"}), vm_elaborate_command);

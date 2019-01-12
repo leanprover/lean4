@@ -385,6 +385,31 @@ expr.mk_capp `_ <$> bindrs.mmap (λ b, do
   type ← to_pexpr type,
   pure $ expr.local id id type bi)
 
+def elab_def_like (stx : syntax) (mods : decl_modifiers.view) (dl : def_like.view) (kind : nat) : elaborator_m unit :=
+match dl with
+| {val := decl_val.view.simple val, sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+  let mdata := kvmap.set_name {} `command `defs,
+  mods ← decl_modifiers_to_pexpr mods,
+  let kind := expr.lit $ literal.nat_val kind,
+  match dl.old_univ_params with
+  | some uparams :=
+    modify $ λ st, {st with local_state := {st.local_state with univs :=
+      (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
+  | none := pure (),
+  -- do we actually need this??
+  let uparams := names_to_pexpr $ match dl.old_univ_params with
+  | some uparams := uparams.ids.map mangle_ident
+  | none := [],
+  let id := ident_univ_params_to_pexpr dl.name,
+  let fns := expr.mk_capp `_ [id],
+  let type := get_opt_type dl.sig.type,
+  type ← to_pexpr type,
+  let types := expr.mk_capp `_ [type],
+  val ← to_pexpr val.body,
+  params ← simple_binders_to_pexpr bbs,
+  old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, kind, uparams, fns, types, params, val]
+| _ := error stx "elab_def_like: unexpected input"
+
 def declaration.elaborate : elaborator :=
 locally $ λ stx, do
   let decl := view «declaration» stx,
@@ -395,32 +420,30 @@ locally $ λ stx, do
     let id := ident_univ_params_to_pexpr c.name,
     type ← to_pexpr type.type,
     old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, id, type]
-  | declaration.inner.view.def_like dl@{
-    val := decl_val.view.simple val,
-    sig := {params := bracketed_binders.view.simple bbs}, ..} := do
-    let mdata := kvmap.set_name {} `command `defs,
-    mods ← decl_modifiers_to_pexpr decl.modifiers,
-    let kind := expr.lit $ literal.nat_val $ match dl.kind with
-    | def_like.kind.view.theorem _ := 0
-    | def_like.kind.view.def _ := 1
-    | def_like.kind.view.abbreviation _ := 5,
-    match dl.old_univ_params with
-    | some uparams :=
-      modify $ λ st, {st with local_state := {st.local_state with univs :=
-        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
-    | none := pure (),
-    -- do we actually need this??
-    let uparams := names_to_pexpr $ match dl.old_univ_params with
-    | some uparams := uparams.ids.map mangle_ident
-    | none := [],
-    let id := ident_univ_params_to_pexpr dl.name,
-    let fns := expr.mk_capp `_ [id],
-    let type := get_opt_type dl.sig.type,
-    type ← to_pexpr type,
-    let types := expr.mk_capp `_ [type],
-    val ← to_pexpr val.body,
-    params ← simple_binders_to_pexpr bbs,
-    old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, kind, uparams, fns, types, params, val]
+  | declaration.inner.view.def_like dl := do
+      let kind := match dl.kind with
+      | def_like.kind.view.theorem _ := 0
+      | def_like.kind.view.def _ := 1
+      | def_like.kind.view.abbreviation _ := 5,
+      elab_def_like stx decl.modifiers dl kind
+
+  -- these are almost macros for `def`, except the elaborator handles them specially at a few places
+  -- based on the kind
+  | declaration.inner.view.example ex :=
+    elab_def_like stx decl.modifiers {
+      kind := def_like.kind.view.def,
+      name := {id := name.anonymous},
+      sig := {..ex.sig},
+      ..ex} 2
+  | declaration.inner.view.instance i :=
+    elab_def_like stx decl.modifiers {
+      kind := def_like.kind.view.def,
+      name := i.name.get_or_else {id := name.anonymous},
+      sig := {..i.sig},
+      ..i} 3
+
+  | declaration.inner.view.inductive ind := error stx "unimplemented: inductive"
+  | declaration.inner.view.structure s   := error stx "unimplemented: structure"
   | _ :=
     error stx "declaration.elaborate: unexpected input"
 

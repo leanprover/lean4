@@ -306,7 +306,7 @@ def to_pexpr : syntax → elaborator_m expr
     | [] := pure [fn $ expr.mdata (kvmap.set_bool {} `no_equation ff) dummy]
     | eqns := (eqns.map sep_by.elem.view.item).mmap $ λ (eqn : match_equation.view), do {
       lhs ← eqn.lhs.mmap $ λ l, to_pexpr l.item,
-      let lhs := lhs.foldl expr.app (expr.fvar fn_name),
+      let lhs := lhs.foldl expr.app (expr.const fn_name []),
       rhs ← to_pexpr eqn.rhs,
       pure $ fn $ expr.mdata (kvmap.set_bool {} `equation tt) $ expr.app lhs rhs
     },
@@ -344,6 +344,9 @@ do cfg ← read,
    | none := pure (),  -- error
    modify $ λ st, {st with messages := st.messages ++ msgs}
 
+def names_to_pexpr (ns : list name) : expr :=
+expr.mk_capp `_ $ ns.map (λ n, expr.const n [])
+
 def attrs_to_pexpr (attrs : list (sep_by.elem.view attr_instance.view (option syntax_atom))) : elaborator_m expr :=
 expr.mk_capp `_ <$> attrs.mmap (λ attr,
   expr.mk_capp (mangle_ident attr.item.name) <$> attr.item.args.mmap to_pexpr)
@@ -375,6 +378,13 @@ expr.const (mangle_ident id.id) $ match id.univ_params with
   elab,
   modify $ λ st, {st with local_state := local_st}
 
+def simple_binders_to_pexpr (bindrs : list simple_binder.view) : elaborator_m expr :=
+expr.mk_capp `_ <$> bindrs.mmap (λ b, do
+  let (bi, id, type) := b.to_binder_info,
+  let id := mangle_ident id,
+  type ← to_pexpr type,
+  pure $ expr.local id id type bi)
+
 def declaration.elaborate : elaborator :=
 locally $ λ stx, do
   let decl := view «declaration» stx,
@@ -385,23 +395,34 @@ locally $ λ stx, do
     let id := ident_univ_params_to_pexpr c.name,
     type ← to_pexpr type.type,
     old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, id, type]
-  | declaration.inner.view.constant _ :=
-    error stx "declration.elaborate: unexpected input"
-  -- just test `to_pexpr` for now
   | declaration.inner.view.def_like dl@{
     val := decl_val.view.simple val,
     sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+    let mdata := kvmap.set_name {} `command `defs,
+    mods ← decl_modifiers_to_pexpr decl.modifiers,
+    let kind := expr.lit $ literal.nat_val $ match dl.kind with
+    | def_like.kind.view.theorem _ := 0
+    | def_like.kind.view.def _ := 1
+    | def_like.kind.view.abbreviation _ := 5,
     match dl.old_univ_params with
     | some uparams :=
       modify $ λ st, {st with local_state := {st.local_state with univs :=
         (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
     | none := pure (),
+    -- do we actually need this??
+    let uparams := names_to_pexpr $ match dl.old_univ_params with
+    | some uparams := uparams.ids.map mangle_ident
+    | none := [],
+    let id := ident_univ_params_to_pexpr dl.name,
+    let fns := expr.mk_capp `_ [id],
     let type := get_opt_type dl.sig.type,
-    let type := bbs.foldr (λ bnder type, review pi {op := syntax.atom {val := "Π"}, binders := bnder, range := type}) type,
-    to_pexpr type,
-    to_pexpr val.body,
-    pure ()
-  | _ := pure ()
+    type ← to_pexpr type,
+    let types := expr.mk_capp `_ [type],
+    val ← to_pexpr val.body,
+    params ← simple_binders_to_pexpr bbs,
+    old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, kind, uparams, fns, types, params, val]
+  | _ :=
+    error stx "declaration.elaborate: unexpected input"
 
 def module.header.elaborate : elaborator :=
 λ stx, do

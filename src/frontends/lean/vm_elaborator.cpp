@@ -9,6 +9,10 @@ Lean interface to the old elaborator/elaboration parts of the parser
 
 #include <string>
 #include <iostream>
+#include "library/replace_visitor.h"
+#include "library/placeholder.h"
+#include "library/explicit.h"
+#include "library/annotation.h"
 #include "util/timeit.h"
 #include "library/locals.h"
 #include "library/trace.h"
@@ -145,20 +149,88 @@ void elab_check_cmd(parser & p, expr const & cmd) {
     out.report();
 }
 
+expr const & get_arg_names(expr const & e, buffer<name> & ns) {
+    buffer<expr> args;
+    auto const & fn = get_app_args(e, args);
+    for (auto const & e : args)
+        ns.push_back(const_name(e));
+    return fn;
+}
+
 void elab_constant_cmd(parser & p, expr const & cmd) {
-    buffer<expr> args, ls;
+    buffer<expr> args;
+    buffer<name> ls;
     get_app_args(mdata_expr(cmd), args);
-    auto fn = get_app_args(args[1], ls);
-    buffer<name> ls_buffer;
-    for (auto const & e : ls)
-        ls_buffer.push_back(const_name(e));
+    auto fn = get_arg_names(args[1], ls);
     expr type = args[2];
     type = resolve_names(p, type);
     p.set_env(elab_var(p, variable_kind::Constant, to_cmd_meta(p.env(), args[0]), get_pos_info_provider()->get_pos_info_or_some(cmd),
-                       optional<binder_info>(), const_name(fn), type, ls_buffer));
+                       optional<binder_info>(), const_name(fn), type, ls));
 }
 
-void elaborate_command(parser & p, expr const & cmd) {
+static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> & lp_names, buffer<expr> & fns, buffer<name> & prv_names,
+                                    buffer<expr> & params) {
+    parser::local_scope scope1(p);
+    auto header_pos = p.pos();
+    buffer<expr> args, pre_fns, types, eqns;
+    get_app_args(cmd, args);
+    get_arg_names(args[2], lp_names);
+    get_app_args(args[3], pre_fns);
+    get_app_args(args[4], types);
+    get_app_args(args[5], params);
+    for (auto & param : params) {
+        param = update_local_p(param, resolve_names(p, local_type_p(param)));
+        p.add_local(param);
+    }
+    auto val = args[6];
+    val = resolve_names(p, val);
+    buffer<name> full_names;
+    buffer<name> full_actual_names;
+    for (unsigned i = 0; i < pre_fns.size(); i++) {
+        expr pre_fn = pre_fns[i];
+        expr fn_type = types[i];
+        fn_type = resolve_names(p, fn_type);
+        declaration_name_scope scope2(const_name(pre_fn));
+        declaration_name_scope scope3("_main");
+        full_names.push_back(scope3.get_name());
+        full_actual_names.push_back(scope3.get_actual_name());
+        prv_names.push_back(scope2.get_actual_name());
+        expr fn      = mk_local(const_name(pre_fn), fn_type, mk_rec_info());
+        fns.push_back(fn);
+    }
+    optional<expr> wf_tacs;
+    if (args.size() > 6)
+        wf_tacs = args[6];
+    if (is_app_of(val, "_")) {
+        get_app_args(val, eqns);
+        for (expr & eq : eqns) {
+            eq = replace_locals_preserving_pos_info(eq, pre_fns, fns);
+        }
+        val = mk_equations(p, fns, full_names, full_actual_names, eqns, wf_tacs, header_pos);
+    }
+    collect_implicit_locals(p, lp_names, params, val);
+    return val;
+}
+
+void elab_defs_cmd(parser & p, expr const & cmd) {
+    buffer<expr> args;
+    get_app_args(mdata_expr(cmd), args);
+    auto meta = to_cmd_meta(p.env(), args[0]);
+    auto kind = static_cast<decl_cmd_kind>(lit_value(args[1]).get_nat().get_small_value());
+    declaration_info_scope scope(p, kind, meta.m_modifiers);
+    buffer<name> lp_names;
+    buffer<expr> fns, params;
+    /* TODO(Leo): allow a different doc string for each function in a mutual definition. */
+    optional<std::string> doc_string = meta.m_doc_string;
+    environment env = p.env();
+    private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
+    buffer<name> prv_names;
+    expr val = unpack_mutual_definition(p, mdata_expr(cmd), lp_names, fns, prv_names, params);
+    auto header_pos = get_pos_info_provider()->get_pos_info_or_some(cmd);
+    elab_defs(p, kind, meta, lp_names, fns, prv_names, params, val, header_pos);
+}
+
+static void elaborate_command(parser & p, expr const & cmd) {
     auto const & data = mdata_data(cmd);
     if (auto const & cmd_name = get_name(data, "command")) {
         if (*cmd_name == "attribute") {
@@ -169,6 +241,9 @@ void elaborate_command(parser & p, expr const & cmd) {
             return;
         } else if (*cmd_name == "constant") {
             elab_constant_cmd(p, cmd);
+            return;
+        } else if (*cmd_name == "defs") {
+            elab_defs_cmd(p, cmd);
             return;
         }
     }

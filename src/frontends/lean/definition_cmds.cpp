@@ -224,17 +224,11 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     return mk_pair(new_env, c_real_name);
 }
 
-static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta) {
-    buffer<name> lp_names;
-    buffer<expr> fns, params;
-    declaration_info_scope scope(p, kind, meta.m_modifiers);
-    auto header_pos = p.pos();
+static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta, buffer <name> lp_names, buffer <expr> const & fns,
+                           buffer <name> const & prv_names, buffer <expr> const & params, expr val, pos_info const & header_pos) {
     /* TODO(Leo): allow a different doc string for each function in a mutual definition. */
     optional<std::string> doc_string = meta.m_doc_string;
     environment env = p.env();
-    private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
-    buffer<name> prv_names;
-    expr val = parse_mutual_definition(p, lp_names, fns, prv_names, params);
 
     // skip elaboration of definitions during reparsing
     if (p.get_break_at_pos())
@@ -275,6 +269,20 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
         elab.set_env(meta.m_attrs.apply(elab.env(), p.ios(), c_real_name));
     }
     return elab.env();
+}
+
+static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta) {
+    declaration_info_scope scope(p, kind, meta.m_modifiers);
+    buffer<name> lp_names;
+    buffer<expr> fns, params;
+    /* TODO(Leo): allow a different doc string for each function in a mutual definition. */
+    optional<std::string> doc_string = meta.m_doc_string;
+    environment env = p.env();
+    private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
+    buffer<name> prv_names;
+    auto header_pos = p.pos();
+    expr val = parse_mutual_definition(p, lp_names, fns, prv_names, params);
+    return elab_defs(p, kind, meta, lp_names, fns, prv_names, params, val, header_pos);
 }
 
 /* Return tuple (fn, val, actual_name) where
@@ -476,36 +484,23 @@ static bool is_rfl_preexpr(expr const & e) {
     return is_constant(e, get_rfl_name());
 }
 
-environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta meta) {
-    buffer<name> lp_names;
-    buffer<expr> params;
-    expr fn, val;
-    auto header_pos = p.pos();
-    declaration_info_scope scope(p, kind, meta.m_modifiers);
-    environment env   = p.env();
-    private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
-    bool is_example   = (kind == decl_cmd_kind::Example);
-    bool is_instance  = (kind == decl_cmd_kind::Instance);
-    bool is_abbrev    = (kind == decl_cmd_kind::Abbreviation);
-    bool is_rfl       = false;
-    if (is_instance)
-        meta.m_attrs.set_attribute(env, "instance");
-    if (is_abbrev) {
-        meta.m_attrs.set_attribute(env, "inline");
-        meta.m_attrs.set_attribute(env, "reducible");
-    }
-    name prv_name;
-    std::tie(fn, val, prv_name) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_meta, is_abbrev);
-
-    // skip elaboration of definitions during reparsing
-    if (p.get_break_at_pos())
-        return p.env();
-
+static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_meta meta, buffer <name> & lp_names,
+                            buffer <expr> const & params, expr fn, expr val, pos_info const & header_pos,
+                            name const & prv_name) {
     bool recover_from_errors = true;
-    elaborator elab(env, p.get_options(), get_namespace(env) + local_pp_name_p(fn), metavar_context(), local_context(), recover_from_errors);
+    elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name_p(fn), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;
     elaborate_params(elab, params, new_params);
     replace_params(params, new_params, fn, val);
+    bool is_instance  = (kind == decl_cmd_kind::Instance);
+    bool is_abbrev    = (kind == decl_cmd_kind::Abbreviation);
+    bool is_rfl = false;
+    if (is_instance)
+        meta.m_attrs.set_attribute(p.env(), "instance");
+    if (is_abbrev) {
+        meta.m_attrs.set_attribute(p.env(), "inline");
+        meta.m_attrs.set_attribute(p.env(), "reducible");
+    }
 
     auto process = [&](expr val) -> environment {
         expr type;
@@ -528,7 +523,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             auto lctx = elab.lctx();
             auto pos_provider = p.get_parser_pos_provider(header_pos);
             bool use_info_manager = false; // get_global_info_manager() != nullptr;
-            std::string file_name = p.get_file_name();
+            std::__cxx11::string file_name = p.get_file_name();
             opt_val = elaborate_proof(decl_env, opts, header_pos, new_params_list,
                                       new_fn, val, thm_finfo, is_rfl, type,
                                       mctx, lctx, pos_provider, use_info_manager, file_name);
@@ -543,7 +538,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
             auto pos_provider = p.get_parser_pos_provider(p.cmd_pos());
             bool use_info_manager = false; // get_global_info_manager() != nullptr;
             bool noncomputable_theory = p.ignore_noncomputable();
-            std::string file_name = p.get_file_name();
+            std::__cxx11::string file_name = p.get_file_name();
             check_example(env, opts, meta.m_modifiers, noncomputable_theory,
                           lp_name_list, new_params_list, fn, val, mctx, lctx,
                           pos_provider, use_info_manager, file_name);
@@ -586,9 +581,39 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
         try {
             return process(p.mk_sorry(header_pos, true));
         } catch (...) {
-            return env;
+            return p.env();
         }
     }
+}
+
+environment elab_defs(parser & p, decl_cmd_kind kind, cmd_meta const & meta, buffer <name> lp_names, buffer <expr> const & fns,
+                      buffer <name> const & prv_names, buffer <expr> const & params, expr val, pos_info const & header_pos) {
+    if (meta.m_modifiers.m_is_mutual)
+        return elab_defs_core(p, kind, meta, lp_names, fns, prv_names,
+                              params, val, header_pos);
+    else
+        return elab_single_def(p, kind, meta, lp_names, params, fns[0], val, header_pos, prv_names[0]);
+}
+
+environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta meta) {
+    buffer<name> lp_names;
+    buffer<expr> params;
+    expr fn, val;
+    auto header_pos = p.pos();
+    declaration_info_scope scope(p, kind, meta.m_modifiers);
+    environment env   = p.env();
+    private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
+    bool is_example   = (kind == decl_cmd_kind::Example);
+    bool is_instance  = (kind == decl_cmd_kind::Instance);
+    bool is_abbrev    = (kind == decl_cmd_kind::Abbreviation);
+    name prv_name;
+    std::tie(fn, val, prv_name) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_meta, is_abbrev);
+
+    // skip elaboration of definitions during reparsing
+    if (p.get_break_at_pos())
+        return p.env();
+
+    return elab_single_def(p, kind, meta, lp_names, params, fn, val, header_pos, prv_name);
 }
 
 environment definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta) {

@@ -360,11 +360,6 @@ pair<expr, names> elaborate(environment & env, options const & opts, name const 
                             metavar_context & mctx, local_context const & lctx,
                             expr const & e, bool check_unassigned, bool recover_from_errors);
 
-/** \brief Translated local constants (and undefined constants) occurring in \c e into
-    local constants provided by \c ctx.
-    Throw exception is \c ctx does not contain the local constant. */
-expr resolve_names(environment const & env, local_context const & lctx, expr const & e);
-
 void initialize_elaborator();
 void finalize_elaborator();
 }

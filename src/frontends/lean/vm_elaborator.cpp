@@ -19,8 +19,72 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_cmds.h"
+#include "frontends/lean/definition_cmds.h"
+#include "frontends/lean/brackets.h"
+#include "frontends/lean/choice.h"
 
 namespace lean {
+struct resolve_names_fn : public replace_visitor {
+    parser &         m_p;
+    names            m_locals;
+
+    resolve_names_fn(parser & p) : m_p(p) {}
+
+    virtual expr visit_constant(expr const & e) override {
+        lean_unreachable();
+    }
+
+    virtual expr visit_local(expr const & e) override {
+        lean_unreachable();
+    }
+
+    virtual expr visit_binding(expr const & e) override {
+        expr new_d = visit(binding_domain(e));
+        flet<names> set(m_locals, cons(binding_name(e), m_locals));
+        expr new_b = visit(binding_body(e));
+        return update_binding(e, new_d, new_b);
+    }
+
+    virtual expr visit_let(expr const & e) override {
+        expr new_type = visit(let_type(e));
+        expr new_val  = visit(let_value(e));
+        flet<names> set(m_locals, cons(let_name(e), m_locals));
+        expr new_body = visit(let_body(e));
+        return update_let(e, new_type, new_val, new_body);
+    }
+
+    virtual expr visit(expr const & e) override {
+        if (is_placeholder(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
+            return e;
+        } else if (is_annotation(e, "preresolved")) {
+            auto m = mdata_data(e);
+            expr id = mdata_expr(e);
+            if (auto l = m_p.resolve_local(const_name(id), m_p.pos_of(e), m_locals)) {
+                return copy_pos(e, *l);
+            } else {
+                buffer<expr> new_args;
+                for (unsigned i = 0;; i++) {
+                    if (auto n = get_name(m, name(name(), i))) {
+                        new_args.push_back(copy_pos(e, mk_const(*n, const_levels(id))));
+                    } else {
+                        break;
+                    }
+                }
+                if (new_args.empty())
+                    throw elaborator_exception(e, format("unknown identifier '") + format(const_name(id).escape()) + format("'"));
+                return mk_choice(new_args.size(), new_args.data());
+            }
+        } else {
+            return replace_visitor::visit(e);
+        }
+    }
+};
+
+static expr resolve_names(parser & p, expr const & e) {
+    return resolve_names_fn(p)(e);
+}
+
+
 decl_attributes to_decl_attributes(environment const & env, expr const & e, bool local) {
     decl_attributes attributes(!local);
     buffer<expr> args;
@@ -62,7 +126,7 @@ void elab_check_cmd(parser & p, expr const & cmd) {
     bool check_unassigend = false;
     names ls;
     metavar_context mctx;
-    e = resolve_names(p.env(), p.mk_local_context_adapter().lctx(), e);
+    e = resolve_names(p, e);
     std::tie(e, ls) = p.elaborate("_check", mctx, e, check_unassigend);
     names new_ls = to_names(collect_univ_params(e));
     type_context_old tc(p.env());
@@ -89,7 +153,7 @@ void elab_constant_cmd(parser & p, expr const & cmd) {
     for (auto const & e : ls)
         ls_buffer.push_back(const_name(e));
     expr type = args[2];
-    type = resolve_names(p.env(), p.mk_local_context_adapter().lctx(), type);
+    type = resolve_names(p, type);
     p.set_env(elab_var(p, variable_kind::Constant, to_cmd_meta(p.env(), args[0]), get_pos_info_provider()->get_pos_info_or_some(cmd),
                        optional<binder_info>(), const_name(fn), type, ls_buffer));
 }

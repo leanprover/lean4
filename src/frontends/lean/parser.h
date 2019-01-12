@@ -183,9 +183,6 @@ class parser : public abstract_parser {
     void push_local_scope(bool save_options = true);
     void pop_local_scope();
 
-    optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals,
-                                 bool allow_field_notation = true);
-
     friend class patexpr_to_expr_fn;
 
     struct backtracking_exception {};
@@ -494,6 +491,9 @@ public:
     list<expr> locals_to_context() const;
     /** \brief Return all local declarations and aliases */
     list<pair<name, expr>> const & get_local_entries() const { return m_local_decls.get_entries(); }
+    optional<expr> resolve_local(name const & id, pos_info const & p, names const & extra_locals,
+                                 bool allow_field_notation = true);
+
 
     void maybe_throw_error(parser_error && err);
     level parser_error_or_level(parser_error && err);

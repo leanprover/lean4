@@ -94,7 +94,7 @@ static level subtract_from_max(level const & l, unsigned offset) {
     return normalize(subtract_from_max_core(l, offset));
 }
 
-class inductive_cmd_fn {
+struct inductive_cmd_fn {
     parser &                        m_p;
     environment                     m_env;
     cmd_meta                        m_meta_info;
@@ -773,6 +773,20 @@ void parse_inductive_decl(parser & p, cmd_meta const & meta) {
 environment inductive_cmd(parser & p, cmd_meta const & meta) {
     p.next();
     return inductive_cmd_fn(p, meta).inductive_cmd();
+}
+
+void elaborate_inductive_decls(parser & p, cmd_meta const & meta, buffer<decl_attributes> mut_attrs, buffer<name> lp_names,
+                               name_map<implicit_infer_kind> implicit_infer_map,
+                               buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules) {
+    inductive_cmd_fn fn(p, meta);
+    fn.m_mut_attrs = mut_attrs;
+    fn.m_lp_names = lp_names;
+    fn.m_implicit_infer_map = implicit_infer_map;
+    inductive_cmd_fn::parse_result r;
+    fn.elaborate_inductive_decls(params, inds, intro_rules, r.m_params, r.m_inds, r.m_intro_rules);
+    fn.add_inductive_decls(r);
+    fn.post_process(r.m_params, r.m_inds, r.m_intro_rules);
+    p.set_env(fn.m_env);
 }
 
 void register_inductive_cmds(cmd_table & r) {

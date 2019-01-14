@@ -373,6 +373,20 @@ def declaration.transform : transformer :=
         type := {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}}
   | _ := no_expansion
 
+def intro_rule.transform : transformer :=
+λ stx, do
+  let v := view «intro_rule» stx,
+  match v.sig with
+  | {params := bracketed_binders.view.extended bindrs, type := some type} := do
+    let bindrs := binders.view.extended {
+      leading_ids := [],
+      remainder := binders_remainder.view.mixed $ bindrs.map mixed_binder.view.bracketed},
+    pure $ review «intro_rule» {v with sig := {
+      params := bracketed_binders.view.simple [],
+      type := some {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs,
+        range := type.type}}}}
+  | _ := no_expansion
+
 def level.leading.transform : transformer :=
 λ stx, do
   let v := view level.leading stx,
@@ -411,6 +425,7 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (if.name, if.transform),
   (let.name, let.transform),
   (declaration.name, declaration.transform),
+  (intro_rule.name, intro_rule.transform),
   (level.leading.name, level.leading.transform),
   (term.subtype.name, subtype.transform),
   (universes.name, universes.transform),

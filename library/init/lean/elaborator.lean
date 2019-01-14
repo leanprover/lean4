@@ -442,7 +442,43 @@ locally $ λ stx, do
       sig := {..i.sig},
       ..i} 3
 
-  | declaration.inner.view.inductive ind := error stx "unimplemented: inductive"
+  | declaration.inner.view.inductive ind@{sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+    let mdata := kvmap.set_name {} `command `inductives,
+    mods ← decl_modifiers_to_pexpr decl.modifiers,
+    attrs ← attrs_to_pexpr (match decl.modifiers.attrs with
+      | some attrs := attrs.attrs
+      | none       := []),
+    let mut_attrs := expr.mk_capp `_ [attrs],
+    match ind.old_univ_params with
+    | some uparams :=
+      modify $ λ st, {st with local_state := {st.local_state with univs :=
+        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
+    | none := pure (),
+    let uparams := names_to_pexpr $ match ind.old_univ_params with
+    | some uparams := uparams.ids.map mangle_ident
+    | none := [],
+    let id := mangle_ident ind.name.id,
+    let type := get_opt_type ind.sig.type,
+    type ← to_pexpr type,
+    let ind_l := expr.local id id type binder_info.default,
+    let inds := expr.mk_capp `_ [ind_l],
+    params ← simple_binders_to_pexpr bbs,
+    intro_rules ← ind.intro_rules.mmap (λ (r : intro_rule.view), do
+      ({params := bracketed_binders.view.simple [], type := some ty}) ← pure r.sig
+        | error stx "declaration.elaborate: unexpected input",
+      type ← to_pexpr ty.type,
+      let name := mangle_ident r.name,
+      pure $ expr.local name name type binder_info.default),
+    let intro_rules := expr.mk_capp `_ intro_rules,
+    let intro_rules := expr.mk_capp `_ [intro_rules],
+    let infer_kinds := ind.intro_rules.map $ λ (r : intro_rule.view), expr.lit $ literal.nat_val $ match r.infer_mod with
+      | none := 0
+      | some $ infer_modifier.view.relaxed _ := 1
+      | some $ infer_modifier.view.strict _  := 2,
+    let infer_kinds := expr.mk_capp `_ infer_kinds,
+    let infer_kinds := expr.mk_capp `_ [infer_kinds],
+    old_elab_command stx $ expr.mdata mdata $
+      expr.mk_capp `_ [mods, mut_attrs, uparams, inds, params, intro_rules, infer_kinds]
   | declaration.inner.view.structure s   := error stx "unimplemented: structure"
   | _ :=
     error stx "declaration.elaborate: unexpected input"

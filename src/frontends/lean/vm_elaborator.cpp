@@ -26,6 +26,7 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/definition_cmds.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/choice.h"
+#include "frontends/lean/inductive_cmds.h"
 
 namespace lean {
 struct resolve_names_fn : public replace_visitor {
@@ -34,11 +35,11 @@ struct resolve_names_fn : public replace_visitor {
 
     resolve_names_fn(parser & p) : m_p(p) {}
 
-    virtual expr visit_constant(expr const & e) override {
+    virtual expr visit_constant(expr const &) override {
         lean_unreachable();
     }
 
-    virtual expr visit_local(expr const & e) override {
+    virtual expr visit_local(expr const &) override {
         lean_unreachable();
     }
 
@@ -227,7 +228,72 @@ void elab_defs_cmd(parser & p, expr const & cmd) {
     buffer<name> prv_names;
     expr val = unpack_mutual_definition(p, mdata_expr(cmd), lp_names, fns, prv_names, params);
     auto header_pos = get_pos_info_provider()->get_pos_info_or_some(cmd);
-    elab_defs(p, kind, meta, lp_names, fns, prv_names, params, val, header_pos);
+    p.set_env(elab_defs(p, kind, meta, lp_names, fns, prv_names, params, val, header_pos));
+}
+
+static void elab_inductives_cmd(parser & p, expr const & cmd) {
+    // auto header_pos = get_pos_info_provider()->get_pos_info_or_some(cmd);
+    buffer<expr> args, attrs, pre_inds, params, all_intro_rules, infer_kinds;
+    buffer<name> lp_names;
+    get_app_args(mdata_expr(cmd), args);
+    auto meta = to_cmd_meta(p.env(), args[0]);
+    get_app_args(args[1], attrs);
+    get_arg_names(args[2], lp_names);
+    get_app_args(args[3], pre_inds);
+    get_app_args(args[4], params);
+    get_app_args(args[5], all_intro_rules);
+    get_app_args(args[6], infer_kinds);
+
+    for (expr & i : pre_inds)
+        p.add_local(i);
+    for (expr & param : params) {
+        param = update_local_p(param, resolve_names(p, local_type_p(param)));
+        p.add_local(param);
+    }
+
+    buffer<decl_attributes> mut_attrs;
+    name_map<implicit_infer_kind> implicit_infer_map;
+    buffer<expr> inds;
+    buffer<buffer<expr>> intro_rules;
+
+    for (unsigned i = 0; i < pre_inds.size(); i++) {
+        expr const & pre_ind = pre_inds[i];
+        auto ind_type = local_type_p(pre_ind);
+        ind_type = resolve_names(p, ind_type);
+        // check_attrs(attrs);
+        mut_attrs.push_back(to_decl_attributes(p.env(), attrs[i], false));
+        buffer<expr> intro_rules_i, infer_kinds_i;
+        get_app_args(all_intro_rules[i], intro_rules_i);
+        get_app_args(infer_kinds[i], infer_kinds_i);
+        for (unsigned j = 0; j < intro_rules_i.size(); j++) {
+            auto & ir = intro_rules_i[j];
+            name ir_name = get_namespace(p.env()) + local_name_p(pre_ind) + local_name_p(ir);
+            auto kind = static_cast<implicit_infer_kind>(lit_value(infer_kinds_i[j]).get_nat().get_small_value());
+            implicit_infer_map.insert(ir_name, kind);
+            expr ir_type = local_type_p(ir);
+            ir_type = resolve_names(p, ir_type);
+            ir = mk_local(ir_name, ir_type);
+        }
+        expr ind = mk_local(get_namespace(p.env()) + local_name_p(pre_ind), ind_type);
+        inds.push_back(ind);
+        intro_rules.push_back(intro_rules_i);
+        // HACK: without this line, `ind` would be wrapped in an `as_is` annotation by `collect_implicit_locals`
+        params.push_back(ind);
+    }
+
+    for (buffer<expr> & irs : intro_rules) {
+        for (expr & ir : irs) {
+            ir = replace_locals(ir, pre_inds, inds);
+        }
+    }
+
+    buffer<expr> all_inds_intro_rules;
+    all_inds_intro_rules.append(inds);
+    for (buffer<expr> const & irs : intro_rules)
+        all_inds_intro_rules.append(irs);
+
+    collect_implicit_locals(p, lp_names, params, all_inds_intro_rules);
+    elaborate_inductive_decls(p, meta, mut_attrs, lp_names, implicit_infer_map, params, inds, intro_rules);
 }
 
 static void elaborate_command(parser & p, expr const & cmd) {
@@ -244,6 +310,9 @@ static void elaborate_command(parser & p, expr const & cmd) {
             return;
         } else if (*cmd_name == "defs") {
             elab_defs_cmd(p, cmd);
+            return;
+        } else if (*cmd_name == "inductives") {
+            elab_inductives_cmd(p, cmd);
             return;
         }
     }

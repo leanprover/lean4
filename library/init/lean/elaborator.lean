@@ -254,8 +254,8 @@ def to_pexpr : syntax → elaborator_m expr
   | @explicit := do
     let v := view explicit stx,
     let ann := match v.mod with
-    | explicit_modifier.view.explicit _         := `explicit
-    | explicit_modifier.view.partial_explicit _ := `partial_explicit,
+    | explicit_modifier.view.explicit _         := `@
+    | explicit_modifier.view.partial_explicit _ := `@@,
     expr.mk_annotation ann <$> to_pexpr (review ident_univs v.id)
   | @number := do
     let v := view number stx,

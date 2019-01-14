@@ -279,6 +279,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
     optional<std::string> doc_string = meta.m_doc_string;
     environment env = p.env();
     private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
+    p.set_env(env);
     buffer<name> prv_names;
     auto header_pos = p.pos();
     expr val = parse_mutual_definition(p, lp_names, fns, prv_names, params);
@@ -603,6 +604,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     declaration_info_scope scope(p, kind, meta.m_modifiers);
     environment env   = p.env();
     private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
+    p.set_env(env);
     bool is_example   = (kind == decl_cmd_kind::Example);
     bool is_instance  = (kind == decl_cmd_kind::Instance);
     bool is_abbrev    = (kind == decl_cmd_kind::Abbreviation);

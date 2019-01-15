@@ -777,11 +777,17 @@ environment inductive_cmd(parser & p, cmd_meta const & meta) {
 
 void elaborate_inductive_decls(parser & p, cmd_meta const & meta, buffer<decl_attributes> mut_attrs, buffer<name> lp_names,
                                name_map<implicit_infer_kind> implicit_infer_map,
-                               buffer<expr> const & params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules) {
+                               buffer<expr> params, buffer<expr> const & inds, buffer<buffer<expr> > const & intro_rules) {
     inductive_cmd_fn fn(p, meta);
     fn.m_mut_attrs = mut_attrs;
     fn.m_lp_names = lp_names;
+    fn.m_explicit_levels = lp_names.size() || fn.has_explicit_level(intro_rules);
     fn.m_implicit_infer_map = implicit_infer_map;
+    buffer<expr> all_inds_intro_rules;
+    all_inds_intro_rules.append(inds);
+    for (buffer<expr> const & irs : intro_rules)
+        all_inds_intro_rules.append(irs);
+    collect_implicit_locals(p, fn.m_lp_names, params, all_inds_intro_rules);
     inductive_cmd_fn::parse_result r;
     fn.elaborate_inductive_decls(params, inds, intro_rules, r.m_params, r.m_inds, r.m_intro_rules);
     fn.add_inductive_decls(r);

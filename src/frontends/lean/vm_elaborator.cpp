@@ -288,12 +288,6 @@ static void elab_inductives_cmd(parser & p, expr const & cmd) {
         }
     }
 
-    buffer<expr> all_inds_intro_rules;
-    all_inds_intro_rules.append(inds);
-    for (buffer<expr> const & irs : intro_rules)
-        all_inds_intro_rules.append(irs);
-
-    collect_implicit_locals(p, lp_names, params, all_inds_intro_rules);
     elaborate_inductive_decls(p, meta, mut_attrs, lp_names, implicit_infer_map, params, inds, intro_rules);
 }
 

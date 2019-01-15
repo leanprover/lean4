@@ -92,10 +92,24 @@ node! intro_rule [
 ]
 
 @[derive has_tokens has_view]
-def structure_field.parser : command_parser :=
-node_longest_choice! structure_field {
-  local_notation: node! structure_notation ["(", «notation»: notation_like.parser, ")"],
-  field: term.bracketed_binder.parser,
+def struct_binder_content.parser : command_parser :=
+node! struct_binder_content [
+  ids: ident.parser+,
+  infer_mod: infer_modifier.parser?,
+  sig: opt_decl_sig.parser,
+  default: term.binder_default.parser?,
+]
+
+@[derive has_tokens has_view]
+def structure_field_block.parser : command_parser :=
+node_choice! structure_field_block {
+  explicit: node! struct_explicit_binder ["(", content: node_choice! struct_explicit_binder_content {
+    «notation»: command.notation_like.parser,
+    other: struct_binder_content.parser
+  }, right: symbol ")"],
+  implicit: node! struct_implicit_binder ["{", content: struct_binder_content.parser, "}"],
+  strict_implicit: node! strict_implicit_binder ["⦃", content: struct_binder_content.parser, "⦄"],
+  inst_implicit: node! inst_implicit_binder ["[", content: struct_binder_content.parser, "]"],
 }
 
 @[derive has_tokens has_view]
@@ -119,7 +133,7 @@ node! «structure» [
   «extends»: node! «extends» ["extends", parents: sep_by1 term.parser (symbol ",")]?,
   ":=",
   ctor: node! structure_ctor [name: ident.parser, infer_mod: infer_modifier.parser?, "::"]?,
-  fields: structure_field.parser*,
+  field_blocks: structure_field_block.parser*,
 ]
 
 @[derive has_tokens has_view]

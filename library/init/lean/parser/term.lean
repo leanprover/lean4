@@ -72,14 +72,18 @@ def binder_ident.parser : term_parser :=
 node_choice! binder_ident {id: ident.parser, hole: hole.parser}
 
 @[derive has_tokens has_view]
+def binder_default.parser : term_parser :=
+node_choice! binder_default {
+  val: node! binder_default_val [":=", term: term.parser 0],
+  tac: node! binder_default_tac [".", term: term.parser 0],
+}
+
+@[derive has_tokens has_view]
 def binder_content.parser : term_parser :=
 node! binder_content [
   ids: binder_ident.parser+,
   type: opt_type.parser,
-  default: node_choice! binder_default {
-    val: node! binder_default_val [":=", term: term.parser 0],
-    tac: node! binder_default_tac [".", term: term.parser 0]
-  }?
+  default: binder_default.parser?
 ]
 
 @[derive has_tokens has_view]

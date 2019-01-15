@@ -1391,6 +1391,10 @@ class explicit_rc_fn {
 
     name_generator & ngen() { return m_ngen; }
 
+    expr mk_inc(expr const & fvar) {
+        return mk_app(mk_llnf_inc(), fvar);
+    }
+
     expr mk_dec(expr const & fvar) {
         return mk_app(mk_llnf_dec(), fvar);
     }
@@ -1458,9 +1462,74 @@ class explicit_rc_fn {
         return !is_unboxed(type);
     }
 
+    static bool is_first_occur(expr x, unsigned i, buffer<expr> const & args) {
+        for (unsigned j = 0; j < i; j++) {
+            if (x == args[j]) return false;
+        }
+        return true;
+    }
+
+    static unsigned get_num_consumptions(expr const & x, buffer<expr> const & f_args, buffer<bool> const & f_borrowed_args) {
+        lean_assert(f_args.size() == f_borrowed_args.size());
+        unsigned r = 0;
+        for (unsigned i = 0; i < f_args.size(); i++) {
+            if (x == f_args[i] && !f_borrowed_args[i])
+                r++;
+        }
+        return r;
+    }
+
+    static bool is_borrowed_arg(expr const & x, buffer<expr> const & f_args, buffer<bool> const & f_borrowed_args) {
+        lean_assert(f_args.size() == f_borrowed_args.size());
+        for (unsigned i = 0; i < f_args.size(); i++) {
+            if (x == f_args[i] && f_borrowed_args[i])
+                return true;
+        }
+        return false;
+    }
+
+    void process_app(local_decl const & x_decl, buffer<expr_pair> & /* entries */, name_set & live_obj_vars) {
+        expr val = *x_decl.get_value();
+        lean_assert(is_app(val));
+        buffer<expr> args;
+        expr f   = get_app_args(val, args);
+        lean_assert(is_constant(f));
+        lean_assert(!is_llnf_op(f));
+        buffer<bool> f_borrowed_args;
+        bool f_borrowed_res;
+        get_borrowed_info(m_env, const_name(f), f_borrowed_args, f_borrowed_res);
+        lean_assert(args.size() == f_borrowed_args.size());
+        for (unsigned i = 0; i < args.size(); i++) {
+            expr const & arg = args[i];
+            if (is_fvar(arg) &&
+                !is_unboxed(m_lctx.get_local_decl(arg).get_type()) && /* it is not a unboxed/scalar value */
+                is_first_occur(arg, i, args)) {
+                unsigned n = get_num_consumptions(arg, args, f_borrowed_args);
+                if (n > 0) { /* arg is consumed by f at least once */
+                    if (m_borrowed.contains(fvar_name(arg)) || /* arg is marked as borrowed */
+                        live_obj_vars.contains(fvar_name(arg)) || /* arg is alive after application */
+                        is_borrowed_arg(arg, args, f_borrowed_args)) { /* arg is also borrowed by f */
+                        /* We must add n increments */
+                        // TODO(Leo)
+                    } else {
+                        /* We must add n-1 increments */
+                        // TODO(Leo)
+                    }
+                }
+                /* Check if we need to add a decrement. */
+                if (!m_borrowed.contains(fvar_name(arg)) &&         /* arg is not marked as borrowed */
+                    !live_obj_vars.contains(fvar_name(arg)) &&      /* arg is not live after the f-application */
+                    is_borrowed_arg(arg, args, f_borrowed_args)) {  /* arg has been borrowed by f */
+                    /* We must add 1 decrement. */
+                    // TODO(Leo)
+                }
+            }
+        }
+    }
+
     void process(local_decl const & x_decl, buffer<expr_pair> & /* entries */, name_set & /* live_obj_vars */) {
         expr val = *x_decl.get_value();
-        lean_assert(is_cases_on_app(env(), val));
+        lean_assert(!is_cases_on_app(env(), val));
         if (is_lit(val)) {
             // TODO(Leo)
         } else if (is_constant(val)) {
@@ -1500,7 +1569,7 @@ class explicit_rc_fn {
         }
     }
 
-    expr process_term(expr const & e, buffer<expr_pair> & /* entries */) {
+    expr process_terminal(expr const & e, buffer<expr_pair> & /* entries */) {
         if (is_cases_on_app(env(), e)) {
             // TODO(Leo)
             return e;
@@ -1522,7 +1591,7 @@ class explicit_rc_fn {
            We simplify the value of some let-declarations in this method, but we don't want to create
            a new temporary declaration just for this. */
         buffer<expr_pair> entries;
-        r = process_term(r, entries);
+        r = process_terminal(r, entries);
         name_set live_obj_vars;
         collect_live_vars(r, live_obj_vars);
         while (m_fvars.size() > saved_fvars_size) {
@@ -1570,6 +1639,11 @@ class explicit_rc_fn {
         return r;
     }
 
+    expr mk_let(unsigned saved_fvars_size, expr r) {
+        buffer<expr> input_vars;
+        return mk_let(input_vars, saved_fvars_size, r);
+    }
+
     expr visit_lambda(expr e, buffer<bool> const & borrowed) {
         buffer<expr> binding_fvars;
         unsigned i = 0;
@@ -1591,7 +1665,9 @@ class explicit_rc_fn {
         return e;
     }
 
-    expr visit_lambda(expr const & e) {
+    expr visit_jp_lambda(expr const & e) {
+        /* For the "root" lambda we retrieve the borrowed annotations from the declaration.
+           For join point lambdas, we assume all arguments are not marked as borrowed. */
         unsigned n = get_num_nested_lambdas(e);
         buffer<bool> borrowed;
         borrowed.resize(n, false);
@@ -1617,6 +1693,9 @@ class explicit_rc_fn {
                 get_borrowed_info(m_env, const_name(fn), borrowed_args, borrowed_res);
                 return borrowed_res;
             }
+        } else if (is_lambda(val)) {
+            /* It is a join point */
+            return false;
         } else {
             /* is_fvar(val) is unreachable. See: visit_let. */
             lean_unreachable();
@@ -1629,6 +1708,7 @@ class explicit_rc_fn {
             lean_assert(!has_loose_bvars(let_type(e)));
             expr val = instantiate_rev(let_value(e), fvars.size(), fvars.data());
             if (is_fvar(val)) {
+                /* Make sure we don't have declarations of the form `x_i := x_j`. */
                 fvars.push_back(val);
             } else {
                 name n   = let_name(e);
@@ -1637,7 +1717,7 @@ class explicit_rc_fn {
                 }
                 expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), val);
                 if (should_mark_as_borrowed(val)) {
-                    /* Remark: it is incorrect to mark it as `process`. */
+                    /* Remark: it is incorrect to mark it at `process`. */
                     m_borrowed.insert(fvar_name(new_fvar));
                 }
                 fvars.push_back(new_fvar);
@@ -1650,7 +1730,6 @@ class explicit_rc_fn {
 
     expr visit(expr const & e) {
         switch (e.kind()) {
-        case expr_kind::Lambda: return visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
         default:                return e;
         }
@@ -1669,6 +1748,7 @@ public:
             r = visit_lambda(e, borrowed_args);
         } else {
             r = visit(e);
+            r = mk_let(0, r);
         }
         // TODO(Leo):
         return e;

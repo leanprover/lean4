@@ -828,6 +828,17 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (init_quot.name, init_quot.elaborate)
 ] _
 
+-- TODO: optimize
+def is_open_namespace (st : elaborator_state) : name → bool
+| name.anonymous := tt
+| ns :=
+  -- check surrounding namespaces
+  ns ∈ st.local_state.ns_stack ∨
+  -- check opened namespaces
+  st.local_state.open_decls.any (λ od, od.id.val = ns) ∨
+  -- TODO: check active exports
+  ff
+
 def resolve_global : name → elaborator_m (list name)
 | n := do
   st ← get,
@@ -845,8 +856,15 @@ def resolve_global : name → elaborator_m (list name)
    | _ := [])
   ++
   -- check opened namespaces
-  -- TODO: `hiding`, `as`, `export`
+  -- TODO: `hiding`, `as`
   (let ns' := st.local_state.open_decls.map (λ od, od.id.val ++ n) in
+   ns'.filter (λ n', st.env.contains n'))
+  ++
+  -- check active exports
+  -- TODO: optimize
+  -- TODO: Lean 3 activates an export in `foo` even on `open foo (specific_thing)`, but does that make sense?
+  (let eds' := st.export_decls.filter (λ ed, is_open_namespace st ed.in_ns) in
+   let ns' := eds'.map (λ ed, ed.spec.id.val ++ n) in
    ns'.filter (λ n', st.env.contains n'))
 
   -- TODO: projection notation

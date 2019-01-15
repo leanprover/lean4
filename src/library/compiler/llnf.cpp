@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/compiler/builtin.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
+#include "library/compiler/ll_infer_type.h"
 #include "library/compiler/cse.h"
 #include "library/compiler/elim_dead_let.h"
 
@@ -1455,10 +1456,20 @@ class explicit_rc_fn {
         collect_live_vars_core(e, visited_jp, r);
     }
 
+    expr get_value_of(expr const & x) const {
+        lean_assert(is_fvar(x));
+        return *m_lctx.get_local_decl(x).get_value();
+    }
+
+    expr get_type_of(expr const & x) const {
+        lean_assert(is_fvar(x));
+        return m_lctx.get_local_decl(x).get_type();
+    }
+
     bool is_dead_obj_var(expr const & e, name_set & live_obj_vars) {
         if (!is_fvar(e)) return false;
         if (live_obj_vars.contains(fvar_name(e))) return false;
-        expr type = m_lctx.get_local_decl(e).get_type();
+        expr type = get_type_of(e);
         return !is_unboxed(type);
     }
 
@@ -1488,100 +1499,176 @@ class explicit_rc_fn {
         return false;
     }
 
-    void process_app(local_decl const & x_decl, buffer<expr_pair> & /* entries */, name_set & live_obj_vars) {
-        expr val = *x_decl.get_value();
-        lean_assert(is_app(val));
+    void add_dec(expr const & x, buffer<expr_pair> & entries) {
+        expr val      = mk_dec(x);
+        expr aux_fvar = m_lctx.mk_local_decl(ngen(), next_name(), mk_void_type(), val);
+        entries.emplace_back(aux_fvar, val);
+    }
+
+    void add_inc(expr const & x, buffer<expr_pair> & entries) {
+        expr val      = mk_inc(x);
+        expr aux_fvar = m_lctx.mk_local_decl(ngen(), next_name(), mk_void_type(), val);
+        entries.emplace_back(aux_fvar, val);
+    }
+
+    void add_inc(expr const & x, unsigned n, buffer<expr_pair> & entries) {
+        lean_assert(n > 0);
+        for (unsigned i = 0; i < n; i++)
+            add_inc(x, entries);
+    }
+
+    unsigned get_num_incs(expr const & arg, buffer<expr> const & args, buffer<bool> const & borrowed_args, name_set const & live_obj_vars) {
+        unsigned n = get_num_consumptions(arg, args, borrowed_args);
+        if (n > 0) { /* arg is consumed by f at least once */
+            if (m_borrowed.contains(fvar_name(arg)) || /* arg is marked as borrowed */
+                live_obj_vars.contains(fvar_name(arg)) || /* arg is alive after application */
+                is_borrowed_arg(arg, args, borrowed_args)) { /* arg is also borrowed by f */
+                /* We must add n increments */
+                return n;
+            } else {
+                /* We must add n-1 increments */
+                return n-1;
+            }
+        }
+        return 0;
+    }
+
+    void process_app_core(expr const & x, unsigned first_arg_idx, buffer<bool> const & f_borrowed_args,
+                          buffer<expr_pair> & entries, name_set const & live_obj_vars) {
+        expr val = get_value_of(x);
         buffer<expr> args;
-        expr f   = get_app_args(val, args);
-        lean_assert(is_constant(f));
-        lean_assert(!is_llnf_op(f));
-        buffer<bool> f_borrowed_args;
-        bool f_borrowed_res;
-        get_borrowed_info(m_env, const_name(f), f_borrowed_args, f_borrowed_res);
+        get_app_args(val, args);
         lean_assert(args.size() == f_borrowed_args.size());
-        for (unsigned i = 0; i < args.size(); i++) {
+        buffer<pair<expr, unsigned>> incs; /* increments to be added */
+        for (unsigned i = first_arg_idx; i < args.size(); i++) {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
-                !is_unboxed(m_lctx.get_local_decl(arg).get_type()) && /* it is not a unboxed/scalar value */
+                !is_unboxed(get_type_of(arg)) && /* it is not a unboxed/scalar value */
                 is_first_occur(arg, i, args)) {
-                unsigned n = get_num_consumptions(arg, args, f_borrowed_args);
-                if (n > 0) { /* arg is consumed by f at least once */
-                    if (m_borrowed.contains(fvar_name(arg)) || /* arg is marked as borrowed */
-                        live_obj_vars.contains(fvar_name(arg)) || /* arg is alive after application */
-                        is_borrowed_arg(arg, args, f_borrowed_args)) { /* arg is also borrowed by f */
-                        /* We must add n increments */
-                        // TODO(Leo)
-                    } else {
-                        /* We must add n-1 increments */
-                        // TODO(Leo)
-                    }
+                unsigned n = get_num_incs(arg, args, f_borrowed_args, live_obj_vars);
+                if (n > 0) {
+                    incs.emplace_back(arg, n);
                 }
                 /* Check if we need to add a decrement. */
                 if (!m_borrowed.contains(fvar_name(arg)) &&         /* arg is not marked as borrowed */
                     !live_obj_vars.contains(fvar_name(arg)) &&      /* arg is not live after the f-application */
                     is_borrowed_arg(arg, args, f_borrowed_args)) {  /* arg has been borrowed by f */
                     /* We must add 1 decrement. */
-                    // TODO(Leo)
+                    add_dec(arg, entries);
                 }
             }
         }
+        entries.emplace_back(x, val);
+        for (pair<expr, unsigned> const & inc_info : incs) {
+            lean_assert(inc_info.second > 0);
+            add_inc(inc_info.first, inc_info.second, entries);
+        }
     }
 
-    void process(local_decl const & x_decl, buffer<expr_pair> & /* entries */, name_set & /* live_obj_vars */) {
-        expr val = *x_decl.get_value();
+    void process_app_default(expr const & x, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
+        expr val = get_value_of(x);
+        lean_assert(is_app(val));
+        expr f   = get_app_fn(val);
+        lean_assert(is_constant(f));
+        lean_assert(!is_llnf_op(f));
+        buffer<bool> f_borrowed_args;
+        bool f_borrowed_res;
+        get_borrowed_info(m_env, const_name(f), f_borrowed_args, f_borrowed_res);
+        process_app_core(x, 0, f_borrowed_args, entries, live_obj_vars);
+    }
+
+    void process_app_all_consumed(expr const & x, unsigned first_arg_idx, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
+        expr val = get_value_of(x);
+        lean_assert(is_app(val));
+        unsigned num_args = get_app_num_args(val);
+        buffer<bool> borrowed_args;
+        borrowed_args.resize(num_args, false);
+        process_app_core(x, first_arg_idx, borrowed_args, entries, live_obj_vars);
+    }
+
+    void process_app_all_borrowed(expr const & x, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
+        expr val = get_value_of(x);
+        lean_assert(is_app(val));
+        unsigned num_args = get_app_num_args(val);
+        buffer<bool> borrowed_args;
+        borrowed_args.resize(num_args, true);
+        process_app_core(x, 0, borrowed_args, entries, live_obj_vars);
+    }
+
+    void process(expr const & x, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
+        expr val = get_value_of(x);
         lean_assert(!is_cases_on_app(env(), val));
         if (is_lit(val)) {
-            // TODO(Leo)
+            add_inc(x, entries);
+            entries.emplace_back(x, val);
         } else if (is_constant(val)) {
-            // TODO(Leo)
+            entries.emplace_back(x, val);
         } else if (is_app(val)) {
             buffer<expr> args;
             expr const & fn = get_app_args(val, args);
             lean_assert(is_constant(fn));
             if (is_llnf_cnstr(fn) || is_llnf_apply(fn)) {
-                /* Process as function that consumes all arguments, and produces value that must be consumed. */
-                // TODO(Leo)
+                process_app_all_consumed(x, 0, entries, live_obj_vars);
             } else if (is_llnf_closure(fn)) {
-                /* Ignore the first argument, and process remaining arguments as arguments that must be consumed, and produces
-                   result that must be consumed. */
-                // TODO(Leo)
+                /* Ignore the first argument, and process remaining arguments as arguments that must be consumed */
+                process_app_all_consumed(x, 1, entries, live_obj_vars);
             } else if (is_llnf_reuse(fn) || is_llnf_reset(fn) || is_llnf_sset(fn) || is_llnf_uset(fn)) {
-                /* Process as function that consumes all arguments, and produces value that must be consumed.
-                   First argument is not live after this instruction, i.e., it is not in `live_obj_vars`. */
-                // TODO(Leo)
+                process_app_all_consumed(x, 0, entries, live_obj_vars);
             } else if (is_llnf_proj(fn)) {
-                /* Add inc for result value, argument should be treated as borrowed */
+                add_inc(x, entries);
+                process_app_all_borrowed(x, entries, live_obj_vars);
             } else if (is_llnf_sproj(fn)) {
-                /* Result is scalar, Argument should be treated as borrowed. */
+                process_app_all_borrowed(x, entries, live_obj_vars);
             } else if (is_llnf_unbox(fn)) {
-                /* Process argument as borrowed. Result is scalar. */
+                process_app_all_borrowed(x, entries, live_obj_vars);
             } else if (is_llnf_box(fn)) {
-                /* Argument is scalar, if it is big scalar, then treat result as value that needs to be consumed. */
+                entries.emplace_back(x, val);
             } else {
                 /* Regular function application.
                    Retrieve whether the arguments must be borrowed/consumed, and process them. */
                 lean_assert(!is_llnf_op(fn));
-                // TODO(Leo)
+                process_app_default(x, entries, live_obj_vars);
             }
         } else {
-            /* TODO(Leo): make sure is_fvar(val) is unreachable. */
+            lean_assert(!is_fvar(val));
             lean_unreachable();
         }
     }
 
-    expr process_terminal(expr const & e, buffer<expr_pair> & /* entries */) {
+    void add_incs_for_jmp_args(expr const & e, buffer<expr_pair> & entries) {
+        lean_assert(is_app(e));
+        buffer<bool> borrowed_args;
+        buffer<expr> args;
+        get_app_args(e, args);
+        /* Remark: we assume that all joint point arguments are consumed. */
+        borrowed_args.resize(args.size(), false);
+        for (unsigned i = 0; i < args.size(); i++) {
+            expr const & arg = args[i];
+            if (is_fvar(arg) &&
+                !is_unboxed(get_type_of(arg)) && /* it is not a unboxed/scalar value */
+                is_first_occur(arg, i, args)) {
+                unsigned n = get_num_incs(arg, args, borrowed_args, name_set());
+                if (n > 0) {
+                    add_inc(arg, entries);
+                }
+            }
+        }
+    }
+
+    expr process_terminal(expr const & e, buffer<expr_pair> & entries) {
         if (is_cases_on_app(env(), e)) {
             // TODO(Leo)
             return e;
         } else if (is_jmp(e)) {
-            // TODO(Leo)
+            add_incs_for_jmp_args(e, entries);
             return e;
         } else if (is_fvar(e)) {
             /* If it is marked as borrowed, we should insert `inc`. */
-            // TODO(Leo)
+            if (m_borrowed.contains(fvar_name(e)))
+                add_inc(e, entries);
             return e;
         } else {
-            // TODO(Leo): we have to make sure a terminator is a free variable, cases or jmp.
+            /* See visit_let */
             lean_unreachable();
         }
     }
@@ -1599,9 +1686,9 @@ class explicit_rc_fn {
             m_fvars.pop_back();
             local_decl x_decl = m_lctx.get_local_decl(x);
             if (!is_join_point_name(x_decl.get_user_name())) {
-                process(x_decl, entries, live_obj_vars);
+                process(x, entries, live_obj_vars);
             } else {
-                expr jp_val = visit(*x_decl.get_value());
+                expr jp_val = visit_jp_lambda(*x_decl.get_value());
                 entries.emplace_back(x, jp_val);
             }
         }
@@ -1609,9 +1696,7 @@ class explicit_rc_fn {
            of the let-block, and is not a scalar. */
         for (expr const & input_var : input_vars) {
             if (is_dead_obj_var(input_var, live_obj_vars)) {
-                expr val      = mk_dec(input_var);
-                expr aux_fvar = m_lctx.mk_local_decl(ngen(), next_name(), mk_void_type(), val);
-                entries.emplace_back(aux_fvar, val);
+                add_dec(input_var, entries);
             }
         }
         buffer<name> user_names;
@@ -1702,6 +1787,22 @@ class explicit_rc_fn {
         }
     }
 
+    /* Make sure `e` is a cases, jmp or fvar */
+    expr ensure_terminal(expr const & e) {
+        if (!is_cases_on_app(env(), e) && !is_jmp(e) && !is_fvar(e)) {
+            /* ensure that `e` is a cases, jmp or fvar */
+            expr type     = ll_infer_type(m_env, m_lctx, e);
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), "_res", type, e);
+            if (should_mark_as_borrowed(e)) {
+                m_borrowed.insert(fvar_name(new_fvar));
+            }
+            m_fvars.push_back(new_fvar);
+            return new_fvar;
+        } else {
+            return e;
+        }
+    }
+
     expr visit_let(expr e) {
         buffer<expr> fvars;
         while (is_let(e)) {
@@ -1725,7 +1826,9 @@ class explicit_rc_fn {
             }
             e = let_body(e);
         }
-        return visit(instantiate_rev(e, fvars.size(), fvars.data()));
+        e = instantiate_rev(e, fvars.size(), fvars.data());
+        e = ensure_terminal(e);
+        return visit(e);
     }
 
     expr visit(expr const & e) {
@@ -1739,19 +1842,18 @@ public:
     explicit_rc_fn(environment const & env):
         m_env(env), m_x("_x") {}
 
-    expr operator()(name const & n, expr const & e) {
+    expr operator()(name const & n, expr e) {
         buffer<bool> borrowed_args;
         bool borrowed_res;
         get_borrowed_info(m_env, n, borrowed_args, borrowed_res);
-        expr r;
         if (is_lambda(e)) {
-            r = visit_lambda(e, borrowed_args);
+            return visit_lambda(e, borrowed_args);
         } else {
-            r = visit(e);
-            r = mk_let(0, r);
+            if (!is_let(e))
+                e = ensure_terminal(e);
+            expr r = visit(e);
+            return mk_let(0, r);
         }
-        // TODO(Leo):
-        return e;
     }
 };
 

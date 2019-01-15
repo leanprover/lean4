@@ -315,9 +315,15 @@ def to_pexpr : syntax → elaborator_m expr
       | error stx "to_pexpr: unreachable",
     pure $ expr.mdata (kvmap.set_bool {} `pre_equations tt) eqns
   | _ := error stx $ "unexpected node: " ++ to_string k.name,
-  cfg ← read,
-  let pos := cfg.file_map.to_position $ stx.get_pos.get_or_else (default _),
-  pure $ expr.mdata ((kvmap.set_nat {} `column pos.column).set_nat `row pos.line) e
+  (match k with
+  | @app := pure e -- no position
+  | _ := do
+    cfg ← read,
+    match stx.get_pos with
+    | some pos :=
+      let pos := cfg.file_map.to_position pos in
+      pure $ expr.mdata ((kvmap.set_nat {} `column pos.column).set_nat `row pos.line) e
+    | none := pure e)
 | stx := error stx $ "unexpected: " ++ to_string stx
 
 /-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/

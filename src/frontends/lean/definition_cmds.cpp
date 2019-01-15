@@ -524,7 +524,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
             auto lctx = elab.lctx();
             auto pos_provider = p.get_parser_pos_provider(header_pos);
             bool use_info_manager = false; // get_global_info_manager() != nullptr;
-            std::__cxx11::string file_name = p.get_file_name();
+            std::string file_name = p.get_file_name();
             opt_val = elaborate_proof(decl_env, opts, header_pos, new_params_list,
                                       new_fn, val, thm_finfo, is_rfl, type,
                                       mctx, lctx, pos_provider, use_info_manager, file_name);
@@ -539,7 +539,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
             auto pos_provider = p.get_parser_pos_provider(p.cmd_pos());
             bool use_info_manager = false; // get_global_info_manager() != nullptr;
             bool noncomputable_theory = p.ignore_noncomputable();
-            std::__cxx11::string file_name = p.get_file_name();
+            std::string file_name = p.get_file_name();
             check_example(env, opts, meta.m_modifiers, noncomputable_theory,
                           lp_name_list, new_params_list, fn, val, mctx, lctx,
                           pos_provider, use_info_manager, file_name);

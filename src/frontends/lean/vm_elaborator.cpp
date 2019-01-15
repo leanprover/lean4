@@ -334,9 +334,9 @@ struct vm_env : public vm_external {
 
     virtual void dealloc() override { delete this; }
 
-    virtual vm_external *ts_clone(vm_clone_fn const &) {lean_unreachable()}
+    virtual vm_external *ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
 
-    virtual vm_external *clone(vm_clone_fn const &) {lean_unreachable()}
+    virtual vm_external *clone(vm_clone_fn const &) override { lean_unreachable(); }
 };
 
 environment const & to_env(vm_obj const & o) {

@@ -329,8 +329,8 @@ do cfg ← read,
    ns ← get_namespace,
    let (st', msgs) := elaborate_command cfg.filename cmd {
      ns := ns,
-     univs := st.local_state.univs.entries,
-     vars := st.local_state.vars.entries,
+     univs := st.local_state.univs.entries.reverse,
+     vars := st.local_state.vars.entries.reverse,
      include_vars := st.local_state.include_vars.to_list,
      ..st},
    match st' with

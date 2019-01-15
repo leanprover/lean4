@@ -317,6 +317,11 @@ inductive nat
 | zero : nat
 | succ (n : nat) : nat
 
+/- Auxiliary axiom used to implement `sorry`.
+   TODO: add this theorem on-demand. That is,
+   we should only add it if after the first error. -/
+constant sorry_ax (α : Sort u) (synthetic := tt) : α
+
 /- Declare builtin and reserved notation -/
 
 class has_zero     (α : Type u) := (zero : α)
@@ -2169,8 +2174,3 @@ theorem by_contradiction {p : Prop} (h : ¬p → false) : p :=
 decidable.by_contradiction h
 
 end classical
-
-/- Auxiliary axiom used to implement `sorry`.
-   TODO: add this theorem on-demand. That is,
-   we should only add it if after the first error. -/
-constant sorry_ax (α : Sort u) (synthetic := tt) : α

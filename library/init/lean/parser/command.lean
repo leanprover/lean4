@@ -93,12 +93,16 @@ node! «attribute» [
   ids: ident.parser*
 ]
 
+@[derive parser.has_tokens parser.has_view]
+def init_quot.parser : command_parser :=
+node! «init_quot» ["init_quot"]
+
 @[derive has_tokens]
 def builtin_command_parsers : list command_parser := [
   declaration.parser, variable.parser, variables.parser, namespace.parser, end.parser,
   open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
   mixfix.parser, reserve_mixfix.parser, check.parser, attribute.parser,
-  export.parser, include.parser, omit.parser]
+  export.parser, include.parser, omit.parser, init_quot.parser]
 end «command»
 
 def command_parser.run (commands : list command_parser) (p : command_parser)

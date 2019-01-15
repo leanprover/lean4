@@ -750,6 +750,9 @@ def export.elaborate : elaborator :=
   -- TODO: do eager sanity checks (namespace does not exist, etc.)
   modify $ λ st, {st with export_decls := st.export_decls ++ v.spec.map (λ spec, ⟨ns, spec⟩)}
 
+def init_quot.elaborate : elaborator :=
+λ stx, old_elab_command stx $ expr.mdata (kvmap.set_name {} `command `init_quot) dummy
+
 /-- List of commands: recursively elaborate each command. -/
 def no_kind.elaborate : coelaborator := do
   stx ← current_command,
@@ -821,7 +824,8 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (attribute.name, attribute.elaborate),
   (open.name, open.elaborate),
   (export.name, export.elaborate),
-  (check.name, check.elaborate)
+  (check.name, check.elaborate),
+  (init_quot.name, init_quot.elaborate)
 ] _
 
 def resolve_global : name → elaborator_m (list name)

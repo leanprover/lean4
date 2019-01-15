@@ -318,6 +318,9 @@ static void elaborate_command(parser & p, expr const & cmd) {
         } else if (*cmd_name == "structure") {
             elab_structure_cmd(p, cmd);
             return;
+        } else if (*cmd_name == "init_quot") {
+            p.set_env(module::add(p.env(), mk_quot_decl()));
+            return;
         }
     }
     throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");

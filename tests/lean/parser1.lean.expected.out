@@ -91,7 +91,7 @@ result:
    (ident_univs `v [])))
  (module.eoi "")]
 (ok (some "notationa`+`:65 b:65 :=nat.addab"))
-<stdin>:78:0: error: unknown declaration 'sorry_ax'
+<stdin>:0:1: error: unknown declaration 'sorry_ax'
 parser1.lean:1:0: error: don't know how to synthesize placeholder
 context:
 ⊢ Sort ?

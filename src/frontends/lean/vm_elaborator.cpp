@@ -63,8 +63,9 @@ struct resolve_names_fn : public replace_visitor {
         if (is_placeholder(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
         } else if (is_annotation(e, "preresolved")) {
-            auto m = mdata_data(e);
-            expr id = mdata_expr(e);
+            expr e2 = unwrap_pos(e);
+            auto m = mdata_data(e2);
+            expr id = mdata_expr(e2);
             if (auto l = m_p.resolve_local(const_name(id), m_p.pos_of(e), m_locals)) {
                 return copy_pos(e, *l);
             } else {

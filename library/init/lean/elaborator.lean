@@ -191,7 +191,8 @@ expr.mdata (kvmap.set_name {} `annotation ann) e
 def dummy : expr := expr.const `Prop []
 
 def to_pexpr : syntax → elaborator_m expr
-| stx@(syntax.raw_node {kind := k, args := args}) := (match k with
+| stx@(syntax.raw_node {kind := k, args := args}) := do
+  e ← match k with
   | @ident_univs := do
     let v := view ident_univs stx,
     e ← match v with
@@ -313,7 +314,10 @@ def to_pexpr : syntax → elaborator_m expr
     some eqns ← pure $ eqns.foldr1_opt expr.app
       | error stx "to_pexpr: unreachable",
     pure $ expr.mdata (kvmap.set_bool {} `pre_equations tt) eqns
-  | _ := error stx $ "unexpected node: " ++ to_string k.name)
+  | _ := error stx $ "unexpected node: " ++ to_string k.name,
+  cfg ← read,
+  let pos := cfg.file_map.to_position $ stx.get_pos.get_or_else (default _),
+  pure $ expr.mdata ((kvmap.set_nat {} `column pos.column).set_nat `row pos.line) e
 | stx := error stx $ "unexpected: " ++ to_string stx
 
 /-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/
@@ -325,6 +329,10 @@ def get_namespace : elaborator_m name := do
 
 def old_elab_command (stx : syntax) (cmd : expr) : elaborator_m unit :=
 do cfg ← read,
+   let pos := cfg.file_map.to_position $ stx.get_pos.get_or_else (default _),
+   let cmd := match cmd with
+   | expr.mdata m e := expr.mdata ((kvmap.set_nat m `column pos.column).set_nat `row pos.line) e
+   | e := e,
    st ← get,
    ns ← get_namespace,
    let (st', msgs) := elaborate_command cfg.filename cmd {

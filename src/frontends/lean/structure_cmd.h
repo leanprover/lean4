@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/cmd_table.h"
 namespace lean {
+void elab_structure_cmd(parser & p, expr const & cmd);
 environment structure_cmd(parser & p, cmd_meta const & meta);
 environment class_cmd(parser & p, cmd_meta const & meta);
 buffer<name> get_structure_fields(environment const & env, name const & S);

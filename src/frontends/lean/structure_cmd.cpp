@@ -226,6 +226,9 @@ expr mk_field_default_value(environment const & env, name const & full_field_nam
     return mk_app(mk_explicit(mk_constant(*default_name)), args);
 }
 
+expr const & get_arg_names(expr const & e, buffer<name> & ns);
+expr resolve_names(parser & p, expr const & e);
+
 struct structure_cmd_fn {
     typedef std::vector<pair<name, name>> rename_vector;
     // field_map[i] contains the position of the \c i-th field of a parent structure into this one.
@@ -1265,6 +1268,25 @@ struct structure_cmd_fn {
         add_alias(no_confusion_name);
     }
 
+    void postprocess() {
+        infer_resultant_universe();
+        add_ctx_locals();
+        remove_local_vars(m_p, m_ctx_locals);
+        m_ctx_levels = collect_local_nonvar_levels(m_p, names(m_level_names));
+        for (auto & p : m_params)
+            p = unwrap_pos(p);
+        declare_inductive_type();
+        declare_projections();
+        declare_defaults();
+        declare_auxiliary();
+        declare_coercions();
+        if (!m_inductive_predicate) {
+            declare_no_confusion();
+        }
+        /* Apply attributes last so that they may access any information on the new decl */
+        m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);
+    }
+
     environment operator()() {
         process_header();
         if (m_p.curr_is_token(get_assign_tk())) {
@@ -1289,25 +1311,180 @@ struct structure_cmd_fn {
             m_mk       = m_name + m_mk_short;
             process_empty_new_fields();
         }
-        infer_resultant_universe();
-        add_ctx_locals();
-        remove_local_vars(m_p, m_ctx_locals);
-        m_ctx_levels = collect_local_nonvar_levels(m_p, names(m_level_names));
-        for (auto & p : m_params)
-            p = unwrap_pos(p);
-        declare_inductive_type();
-        declare_projections();
-        declare_defaults();
-        declare_auxiliary();
-        declare_coercions();
-        if (!m_inductive_predicate) {
-            declare_no_confusion();
-        }
-        /* Apply attributes last so that they may access any information on the new decl */
-        m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);
+        postprocess();
         return m_env;
     }
+
+    void unpack_decl_name(expr const & n, expr const & ls_params) {
+        m_name_pos = m_p.pos_of(n);
+        buffer<name> ls_buffer;
+        get_arg_names(ls_params, ls_buffer);
+        if (ls_buffer.size()) {
+            m_explicit_universe_params = true;
+            m_level_names.append(ls_buffer);
+        } else {
+            m_explicit_universe_params = false;
+        }
+        m_given_name = local_name_p(n);
+        if (is_private()) {
+            std::tie(m_env, m_private_prefix) = mk_private_prefix(m_env);
+            m_name = m_private_prefix + m_given_name;
+            m_env = register_private_name(m_env, m_given_name, m_name);
+        } else {
+            m_name = m_namespace + m_given_name;
+        }
+    }
+
+    void unpack_params(expr const & e) {
+        get_app_args(e, m_params);
+        for (expr & l : m_params) {
+            l = update_local_p(l, resolve_names(m_p, local_type_p(l)));
+            m_p.add_local(l);
+        }
+    }
+
+/** \brief Parse optional extends clause */
+    void unpack_extends(expr const & e) {
+        buffer<expr> parents;
+        get_app_args(e, parents);
+        for (auto const & parent : parents) {
+            auto pos = m_p.pos_of(parent);
+            /*bool is_private_parent = false;
+            if (m_p.curr_is_token(get_private_tk())) {
+                m_p.next();
+                is_private_parent = true;
+            }*/
+            /*pair<optional<name>, expr> qparent = m_p.unpack_qualified_expr();
+            m_parent_refs.push_back(qparent.first);
+            expr const & parent = qparent.second;*/
+            m_parents.push_back(parent);
+            // m_private_parents.push_back(is_private_parent);
+            name const & parent_name = check_parent(parent);
+            auto parent_info = get_parent_info(parent_name);
+            unsigned nparams = std::get<1>(parent_info);
+            expr cnstr_type = std::get<2>(parent_info).get_type();
+            for (unsigned i = 0; i < nparams; i++) {
+                if (!is_pi(cnstr_type))
+                    throw parser_error("invalid 'structure' extends, parent structure seems to be ill-formed", pos);
+                cnstr_type = binding_body(cnstr_type);
+            }
+        }
+    }
+
+    void unpack_result_type(expr const & e) {
+        auto pos = m_p.pos_of(e);
+        if (!is_placeholder(e)) {
+            m_type = e;
+            while (is_annotation(m_type))
+                m_type = get_annotation_arg(m_type);
+            if (!is_sort(unwrap_pos(m_type)))
+                throw parser_error("invalid 'structure', 'Type' expected", pos);
+            level const & l = sort_level(unwrap_pos(m_type));
+            m_inductive_predicate = is_zero(l);
+            if (m_inductive_predicate) {
+                m_infer_result_universe = false;
+            } else {
+                m_infer_result_universe = is_placeholder(l);
+                if (!m_infer_result_universe) {
+                    if (!is_zero(l) && !is_not_zero(l))
+                        throw parser_error("invalid universe polymorphic structure declaration, "
+                                           "the resultant universe is not Prop (i.e., 0), "
+                                           "but it may be Prop for some parameter values "
+                                           "(solution: use 'l+1' or 'max 1 l')", m_p.pos());
+                }
+            }
+        } else {
+            m_infer_result_universe = true;
+            m_type = m_p.save_pos(mk_sort(mk_level_placeholder()), pos);
+        }
+    }
+
+    void unpack_field_block(expr const & e) {
+        auto start_pos = m_p.pos_of(e);
+        buffer<expr> args; get_app_args(e, args);
+        auto bi = local_info(args[0]);
+        buffer<name> names; get_arg_names(args[1], names);
+        auto kind = static_cast<implicit_infer_kind>(lit_value(args[2]).get_nat().get_small_value());
+        expr type = args[3];
+        expr default_value;
+        bool default_value_initialized = false;
+        if (args.size() > 4) {
+            default_value = args[4];
+            default_value_initialized = true;
+        }
+
+        if (default_value_initialized && !is_explicit(bi)) {
+            throw parser_error("invalid field, it is not explicit, but it has a default value", start_pos);
+        }
+        for (auto const & p : names) {
+            if (auto old_field = get_field_by_name(p)) {
+                if (default_value_initialized && is_placeholder(type)) {
+                    expr local = mk_local(p, old_field->get_type(), bi);
+                    field_decl field(local, some_expr(default_value), field_kind::from_parent);
+                    field.m_has_new_default = true;
+                    m_fields.push_back(field);
+                } else {
+                    sstream msg;
+                    msg << "field '" << p;
+                    if (old_field->m_kind == field_kind::from_parent)
+                        msg << "' has been declared in parent structure";
+                    else
+                        msg <<"' has already been declared";
+                    if (default_value_initialized)
+                        msg << " (omit its type to set a new default value)";
+                    throw parser_error(msg, start_pos);
+                }
+            } else {
+                expr local = mk_local(p, resolve_names(m_p, type), bi);
+                m_p.add_local(local);
+                m_fields.push_back(field_decl(local,
+                                              default_value_initialized ? some_expr(default_value) : none_expr(),
+                                              field_kind::new_field,
+                                              kind));
+            }
+        }
+    }
+
+    /** \brief Parse new fields declared in this structure */
+    void unpack_new_fields(expr const & e) {
+        parser::local_scope scope(m_p);
+        for (expr const & param : m_params)
+            m_p.add_local(param);
+        for (field_decl const & decl : m_fields)
+            m_p.add_local(decl.m_local);
+        buffer<expr> field_blocks; get_app_args(e, field_blocks);
+        for (auto const & bl : field_blocks)
+            unpack_field_block(bl);
+    }
+
+    void elab(expr const & e) {
+        buffer<expr> args; get_app_args(e, args);
+        unpack_decl_name(args[2], args[1]);
+        unpack_params(args[3]);
+        unpack_extends(args[4]);
+        unpack_result_type(args[5]);
+        elaborate_header();
+        process_extends();
+        instantiate_mvars();
+
+
+        m_mk_short = local_name_p(args[6]);
+        m_mk_infer = static_cast<implicit_infer_kind>(lit_value(args[7]).get_nat().get_small_value());
+        m_mk = m_name + m_mk_short;
+        unpack_new_fields(args[8]);
+        elaborate_new_fields();
+        postprocess();
+    }
 };
+
+cmd_meta to_cmd_meta(environment const & env, expr const & e);
+
+void elab_structure_cmd(parser & p, expr const & cmd) {
+    buffer<expr> args; get_app_args(mdata_expr(cmd), args);
+    structure_cmd_fn fn(p, to_cmd_meta(p.env(), args[0]));
+    fn.elab(mdata_expr(cmd));
+    p.set_env(fn.m_env);
+}
 
 environment structure_cmd(parser & p, cmd_meta const & meta) {
     p.next();

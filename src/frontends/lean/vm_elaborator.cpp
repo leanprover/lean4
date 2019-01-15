@@ -27,6 +27,7 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/choice.h"
 #include "frontends/lean/inductive_cmds.h"
+#include "frontends/lean/structure_cmd.h"
 
 namespace lean {
 struct resolve_names_fn : public replace_visitor {
@@ -85,7 +86,7 @@ struct resolve_names_fn : public replace_visitor {
     }
 };
 
-static expr resolve_names(parser & p, expr const & e) {
+expr resolve_names(parser & p, expr const & e) {
     return resolve_names_fn(p)(e);
 }
 
@@ -313,6 +314,9 @@ static void elaborate_command(parser & p, expr const & cmd) {
             return;
         } else if (*cmd_name == "inductives") {
             elab_inductives_cmd(p, cmd);
+            return;
+        } else if (*cmd_name == "structure") {
+            elab_structure_cmd(p, cmd);
             return;
         }
     }

@@ -410,6 +410,12 @@ match dl with
   old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, kind, uparams, fns, types, params, val]
 | _ := error stx "elab_def_like: unexpected input"
 
+def infer_mod_to_pexpr (mod : option infer_modifier.view) : expr :=
+expr.lit $ literal.nat_val $ match mod with
+| none := 0
+| some $ infer_modifier.view.relaxed _ := 1
+| some $ infer_modifier.view.strict _  := 2
+
 def declaration.elaborate : elaborator :=
 locally $ λ stx, do
   let decl := view «declaration» stx,
@@ -471,15 +477,56 @@ locally $ λ stx, do
       pure $ expr.local name name type binder_info.default),
     let intro_rules := expr.mk_capp `_ intro_rules,
     let intro_rules := expr.mk_capp `_ [intro_rules],
-    let infer_kinds := ind.intro_rules.map $ λ (r : intro_rule.view), expr.lit $ literal.nat_val $ match r.infer_mod with
-      | none := 0
-      | some $ infer_modifier.view.relaxed _ := 1
-      | some $ infer_modifier.view.strict _  := 2,
+    let infer_kinds := ind.intro_rules.map $ λ (r : intro_rule.view), infer_mod_to_pexpr r.infer_mod,
     let infer_kinds := expr.mk_capp `_ infer_kinds,
     let infer_kinds := expr.mk_capp `_ [infer_kinds],
     old_elab_command stx $ expr.mdata mdata $
       expr.mk_capp `_ [mods, mut_attrs, uparams, inds, params, intro_rules, infer_kinds]
-  | declaration.inner.view.structure s   := error stx "unimplemented: structure"
+
+  | declaration.inner.view.structure s@{sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+    let mdata := kvmap.set_name {} `command `structure,
+    mods ← decl_modifiers_to_pexpr decl.modifiers,
+    match s.old_univ_params with
+    | some uparams :=
+      modify $ λ st, {st with local_state := {st.local_state with univs :=
+        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
+    | none := pure (),
+    let uparams := names_to_pexpr $ match s.old_univ_params with
+    | some uparams := uparams.ids.map mangle_ident
+    | none := [],
+    let name := mangle_ident s.name.id,
+    let name := expr.local name name dummy binder_info.default,
+    let type := get_opt_type s.sig.type,
+    type ← to_pexpr type,
+    params ← simple_binders_to_pexpr bbs,
+    let parents := match s.extends with
+    | some ex := ex.parents
+    | none    := [],
+    parents ← parents.mmap (to_pexpr ∘ sep_by.elem.view.item),
+    let parents := expr.mk_capp `_ parents,
+    let mk := match s.ctor with
+    | some ctor := mangle_ident ctor.name
+    | none      := `mk,
+    let mk := expr.local mk mk dummy binder_info.default,
+    let infer := infer_mod_to_pexpr (s.ctor >>= structure_ctor.view.infer_mod),
+    field_blocks ← s.field_blocks.mmap (λ bl, do
+      (bi, content) ← match bl with
+        | structure_field_block.view.explicit {content := struct_explicit_binder_content.view.notation _} :=
+          error stx "declaration.elaborate: unexpected input"
+        | structure_field_block.view.explicit {content := struct_explicit_binder_content.view.other c} :=
+          pure (binder_info.default, c)
+        | structure_field_block.view.implicit {content := c} := pure (binder_info.implicit, c)
+        | structure_field_block.view.strict_implicit {content := c} := pure (binder_info.strict_implicit, c)
+        | structure_field_block.view.inst_implicit {content := c} := pure (binder_info.inst_implicit, c),
+      let bi := expr.local `_ `_ dummy bi,
+      let ids := names_to_pexpr $ content.ids.map mangle_ident,
+      let kind := infer_mod_to_pexpr content.infer_mod,
+      let type := get_opt_type content.sig.type,
+      type ← to_pexpr type,
+      pure $ expr.mk_capp `_ [bi, ids, kind, type]),
+    let field_blocks := expr.mk_capp `_ field_blocks,
+    old_elab_command stx $ expr.mdata mdata $
+      expr.mk_capp `_ [mods, uparams, name, params, parents, type, mk, infer, field_blocks]
   | _ :=
     error stx "declaration.elaborate: unexpected input"
 

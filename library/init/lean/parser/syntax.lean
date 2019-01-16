@@ -125,23 +125,38 @@ def is_of_kind (k : syntax_node_kind) : syntax → bool
 | (syntax.raw_node n) := k.name = n.kind.name
 | _ := ff
 
+section
+variables {m : Type → Type} [monad m] (r : syntax → m (option syntax))
+
+mutual def mreplace, mreplace_lst
+with mreplace : syntax → m syntax
+| stx@(raw_node n) := do
+  o ← r stx,
+  (match o with
+  | some stx' := pure stx'
+  | none      := do args' ← mreplace_lst n.args, pure $ raw_node {n with args := args'})
+| stx := do
+  o ← r stx,
+  pure $ o.get_or_else stx
+with mreplace_lst : list syntax → m (list syntax)
+| []      := pure []
+| (s::ss) := list.cons <$> mreplace s <*> mreplace_lst ss
+
+def replace := @mreplace id _
+end
+
 /- Remark: the state `string.iterator` is the `source_info.trailing.stop` of the previous token,
    or the beginning of the string. -/
-private mutual def update_leading_aux, update_leading_lst
-with update_leading_aux : syntax → state string.iterator syntax
+private def update_leading_aux : syntax → state string.iterator (option syntax)
 | (atom a@{info := some info, ..}) := do
   last ← get,
   put info.trailing.stop,
-  pure $ atom {a with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
+  pure $ some $ atom {a with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
 | (ident id@{info := some info, ..}) := do
   last ← get,
   put info.trailing.stop,
-  pure $ ident {id with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
-| (raw_node n) := do args ← update_leading_lst n.args, pure $ raw_node {n with args := args}
-| stx := pure stx
-with update_leading_lst : list syntax → state string.iterator (list syntax)
-| []      := pure []
-| (s::ss) := list.cons <$> update_leading_aux s <*> update_leading_lst ss
+  pure $ some $ ident {id with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
+| _ := pure none
 
 /-- Set `source_info.leading` according to the trailing stop of the preceding token.
     The result is a round-tripping syntax tree IF, in the input syntax tree,
@@ -155,7 +170,7 @@ with update_leading_lst : list syntax → state string.iterator (list syntax)
     Note that, the `source_info.trailing` fields are correct.
     The implementation of this function relies on this property. -/
 def update_leading (source : string) : syntax → syntax :=
-λ stx, prod.fst $ (update_leading_aux stx).run source.mk_iterator
+λ stx, prod.fst $ (mreplace update_leading_aux stx).run source.mk_iterator
 
 /-- Retrieve the left-most leaf's info in the syntax tree. -/
 def get_head_info : syntax → option source_info

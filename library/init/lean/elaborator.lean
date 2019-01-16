@@ -363,7 +363,7 @@ expr.mk_capp `_ $ ns.map (λ n, expr.const n [])
 
 def attrs_to_pexpr (attrs : list (sep_by.elem.view attr_instance.view (option syntax_atom))) : elaborator_m expr :=
 expr.mk_capp `_ <$> attrs.mmap (λ attr,
-  expr.mk_capp (mangle_ident attr.item.name) <$> attr.item.args.mmap to_pexpr)
+  expr.mk_capp attr.item.name.val <$> attr.item.args.mmap to_pexpr)
 
 def decl_modifiers_to_pexpr (mods : decl_modifiers.view) : elaborator_m expr := do
   let mdata : kvmap := {},

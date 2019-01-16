@@ -44,6 +44,25 @@ bool parse_univ_params(parser & p, buffer<name> & lp_names) {
     }
 }
 
+name synthesize_instance_name(parser & p, expr const & type, declaration_name_scope & scope, pos_info const & c_pos) {
+    name c_name;
+    expr it = type;
+    while (is_pi(it)) it = binding_body(it);
+    expr const & C = unwrap_pos(get_app_fn(it));
+    name ns = get_namespace(p.env());
+    if (is_constant(C) && !ns.is_anonymous()) {
+        c_name = const_name(C);
+        scope.set_name(c_name);
+    } else if (is_constant(C) && is_app(it) && is_constant(unwrap_pos(get_app_fn(app_arg(it))))) {
+        c_name = const_name(unwrap_pos(get_app_fn(app_arg(it)))) + const_name(C);
+        scope.set_name(c_name);
+    } else {
+        p.maybe_throw_error({"failed to synthesize instance name, name should be provided explicitly", c_pos});
+        c_name = mk_unused_name(p.env(), "_inst");
+    }
+    return c_name;
+}
+
 expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <name> & lp_names, buffer <expr> & params,
                          bool is_example, bool is_instance) {
     auto c_pos  = p.pos();
@@ -72,21 +91,7 @@ expr parse_single_header(parser & p, declaration_name_scope & scope, buffer <nam
     if (is_instance && c_name.is_anonymous()) {
         if (used_match_idx())
             throw parser_error("invalid instance, pattern matching cannot be used in the type of anonymous instance declarations", c_pos);
-        /* Try to synthesize name */
-        expr it = type;
-        while (is_pi(it)) it = binding_body(it);
-        expr const & C = unwrap_pos(get_app_fn(it));
-        name ns = get_namespace(p.env());
-        if (is_constant(C) && !ns.is_anonymous()) {
-            c_name = const_name(C);
-            scope.set_name(c_name);
-        } else if (is_constant(C) && is_app(it) && is_constant(unwrap_pos(get_app_fn(app_arg(it))))) {
-            c_name = const_name(unwrap_pos(get_app_fn(app_arg(it)))) + const_name(C);
-            scope.set_name(c_name);
-        } else {
-            p.maybe_throw_error({"failed to synthesize instance name, name should be provided explicitly", c_pos});
-            c_name = mk_unused_name(p.env(), "_inst");
-        }
+        c_name = synthesize_instance_name(p, type, scope, c_pos);
     }
     lean_assert(!c_name.is_anonymous());
     return p.save_pos(mk_local(c_name, type), c_pos);

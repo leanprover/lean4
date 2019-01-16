@@ -230,14 +230,17 @@ static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> 
     buffer<name> full_actual_names;
     for (unsigned i = 0; i < fns.size(); i++) {
         expr & fn = fns[i];
-        declaration_name_scope scope2(local_name(fn));
-        declaration_name_scope scope3("_main");
         expr fn_type = local_type_p(fn);
         fn_type = resolve_names(p, fn_type);
+        name n = local_name_p(fn);
+        declaration_name_scope scope2(n);
+        if (n.is_anonymous())
+            n = synthesize_instance_name(p, fn_type, scope2, p.pos_of(fn));
+        declaration_name_scope scope3("_main");
         full_names.push_back(scope3.get_name());
         full_actual_names.push_back(scope3.get_actual_name());
         prv_names.push_back(scope2.get_actual_name());
-        fn = update_local(fn, fn_type);
+        fn = mk_local(n, n, fn_type, mk_rec_info());
     }
     optional<expr> wf_tacs;
     if (args.size() > 6)

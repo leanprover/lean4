@@ -134,10 +134,15 @@ def mk_notation_transformer (nota : notation_macro) : transformer :=
       | none := pure ()
       | _ := error stx "mk_notation_transformer: unimplemented"),
     st ← get,
-    let substs := st.substs.reverse,
-    -- apply substitutions [(x1, e1), ...] via `(λ x1 ..., nota.nota.term) e1 ...`
-    let lam := review lambda {binders := st.substs.map prod.fst, body := nota.nota.term},
-    pure $ some $ st.substs.foldl (λ fn subst, review app {fn := fn, arg := subst.2}) lam
+    -- apply substitutions
+    -- HACK: this substitution completely disregards binders on the notation's RHS.
+    -- We have discussed switching to a more explicit antiquotation syntax like %%_
+    -- that cannot be abstracted over.
+    let substs := st.substs.map (λ ⟨id, t⟩, (id.val, t)),
+    let t := nota.nota.term.replace $ λ stx, match try_view ident_univs stx with
+      | some {id := id, univs := none} := pure $ substs.assoc id.val
+      | _                              := pure none,
+    pure $ some $ t
 
 def mixfix_to_notation_spec (k : mixfix.kind.view) (sym : notation_symbol.view) : transform_m notation_spec.view :=
 let prec := match sym with

@@ -234,8 +234,8 @@ def to_pexpr : syntax → elaborator_m expr
     let proof := match v.proof with
     | have_proof.view.term hpt := hpt.term
     | have_proof.view.from hpf := hpf.from.proof,
-    lam ← expr.lam id binder_info.default <$> to_pexpr v.prop <*> to_pexpr proof,
-    pure $ expr.mk_annotation `have lam
+    lam ← expr.lam id binder_info.default <$> to_pexpr v.prop <*> to_pexpr v.body,
+    expr.app (expr.mk_annotation `have lam) <$> to_pexpr proof
   | @«show» := do
     let v := view «show» stx,
     prop ← to_pexpr v.prop,

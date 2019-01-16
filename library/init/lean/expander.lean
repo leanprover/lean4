@@ -364,18 +364,18 @@ def let.transform : transformer :=
       scrutinees := [v.value],
       equations := [{item := {lhs := [llp], rhs := v.body}}]}
 
-def declaration.transform : transformer :=
+-- move parameters into type
+def constant.transform : transformer :=
 λ stx, do
-  let v := view «declaration» stx,
-  match v.inner with
-  | declaration.inner.view.constant c@{sig := {params := bracketed_binders.view.extended bindrs, type := type}, ..} := do
+  let v := view «constant» stx,
+  match v with
+  | {sig := {params := bracketed_binders.view.extended bindrs, type := type}, ..} := do
     let bindrs := binders.view.extended {
       leading_ids := [],
       remainder := binders_remainder.view.mixed $ bindrs.map mixed_binder.view.bracketed},
-    pure $ review «declaration» {v with
-      inner := declaration.inner.view.constant {c with sig := {
-        params := bracketed_binders.view.simple [],
-        type := {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}}
+    pure $ review «constant» {v with sig := {
+      params := bracketed_binders.view.simple [],
+      type := {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}
   | _ := no_expansion
 
 def intro_rule.transform : transformer :=
@@ -429,7 +429,7 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (assume.name, assume.transform),
   (if.name, if.transform),
   (let.name, let.transform),
-  (declaration.name, declaration.transform),
+  (constant.name, constant.transform),
   (intro_rule.name, intro_rule.transform),
   (level.leading.name, level.leading.transform),
   (term.subtype.name, subtype.transform),

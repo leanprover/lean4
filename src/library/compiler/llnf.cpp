@@ -1466,13 +1466,15 @@ class explicit_rc_fn {
         return m_lctx.get_local_decl(x).get_type();
     }
 
-    bool is_dead_obj_var(expr const & e, name_set & live_obj_vars) {
+    /* Return true iff `e` is a fvar, `e in live_obj_vars` and type of `e` is a scalar (aka unboxed). */
+    bool is_dead_obj_var(expr const & e, name_set const & live_obj_vars) {
         if (!is_fvar(e)) return false;
         if (live_obj_vars.contains(fvar_name(e))) return false;
         expr type = get_type_of(e);
         return !is_unboxed(type);
     }
 
+    /* Return true iff for all `j in [0, i)`, `args[j] != x` */
     static bool is_first_occur(expr x, unsigned i, buffer<expr> const & args) {
         for (unsigned j = 0; j < i; j++) {
             if (x == args[j]) return false;
@@ -1480,6 +1482,8 @@ class explicit_rc_fn {
         return true;
     }
 
+    /* Return `n` the number of occurrences of `x` in `f_args` that are consumed.
+       We say `x` occurs at position `i` if `f_args[i] == x` and `f_borrowed_args[i]`. */
     static unsigned get_num_consumptions(expr const & x, buffer<expr> const & f_args, buffer<bool> const & f_borrowed_args) {
         lean_assert(f_args.size() == f_borrowed_args.size());
         unsigned r = 0;
@@ -1490,6 +1494,7 @@ class explicit_rc_fn {
         return r;
     }
 
+    /* Return true iff there is an `i` such that `f_args[i] == x` and `f_borrowed_args[i]` */
     static bool is_borrowed_arg(expr const & x, buffer<expr> const & f_args, buffer<bool> const & f_borrowed_args) {
         lean_assert(f_args.size() == f_borrowed_args.size());
         for (unsigned i = 0; i < f_args.size(); i++) {
@@ -1517,10 +1522,16 @@ class explicit_rc_fn {
             add_inc(x, entries);
     }
 
+    /* Return the number of RC increments needed for `arg`.
+       `args` are the arguments of a function application or LLNF instruction.
+       `borrowed_args` is a bitmask that specifies whether `args[i]` is consumed or not by the function/instruction.
+       We have that `arg` is in `args`.
+       `live_obj_vars` is a set of variables that is alive after the function application/instruction. */
     unsigned get_num_incs(expr const & arg, buffer<expr> const & args, buffer<bool> const & borrowed_args, name_set const & live_obj_vars) {
+        lean_assert(args.size() == borrowed_args.size());
         unsigned n = get_num_consumptions(arg, args, borrowed_args);
         if (n > 0) { /* arg is consumed by f at least once */
-            if (m_borrowed.contains(fvar_name(arg)) || /* arg is marked as borrowed */
+            if (m_borrowed.contains(fvar_name(arg)) || /* arg is marked as borrowed, that is, it does not need to be consumed */
                 live_obj_vars.contains(fvar_name(arg)) || /* arg is alive after application */
                 is_borrowed_arg(arg, args, borrowed_args)) { /* arg is also borrowed by f */
                 /* We must add n increments */
@@ -1533,6 +1544,27 @@ class explicit_rc_fn {
         return 0;
     }
 
+    /* `x` is fvar from a let-declaration of the form `x := f a_1 ... a_n` where `f` is a function name or a LLNF instruction.
+       This method updates entries with
+       - `dec a_k` instructions for each argument that is dead but was not consumed by f for sure.
+       - The entry `x := f a_1 ... a_n`
+       - `inc a_k` instructions to make sure `a_k` will remain alive for as long it is needed.
+
+       Remark: recall that the entries in `entries` are in reverse order. That is, we are creating a block of code of the form
+       ```
+             y_1 : void := inc a_k_1
+             ...
+             y_s : void := inc a_k_s
+             x := f a_1 ... a_n
+             z_1 : void := dec a_j_1
+             ...
+             z_r : void := dec a_j_r
+       ```
+       - `first_arg_idx` is the idx of the first argument to be processed. It allows us to skip a prefix of the arguments.
+          We use this feature to implement instructions such as `closure`.
+       - `f_borrowed_args` is a bitmask that specifies whether argument `a_i` is borrowed or consumed by `f`.
+       - `live_obj_vars` is the set of variables alive after `x := f a_1 ... a_n`.
+    */
     void process_app_core(expr const & x, unsigned first_arg_idx, buffer<bool> const & f_borrowed_args,
                           buffer<expr_pair> & entries, name_set const & live_obj_vars) {
         expr val = get_value_of(x);
@@ -1565,6 +1597,8 @@ class explicit_rc_fn {
         }
     }
 
+    /* Process a function application `x := f a_1 ... a_n`. See `process_app_core`.
+       It invokes `process_app_core` using the bitmask associated with the function `f`. */
     void process_app_default(expr const & x, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
         expr val = get_value_of(x);
         lean_assert(is_app(val));
@@ -1577,6 +1611,8 @@ class explicit_rc_fn {
         process_app_core(x, 0, f_borrowed_args, entries, live_obj_vars);
     }
 
+    /* Process `x := f a_1 ... a_n` assuming all arguments `a_i` are consumed.
+       See `process_app_core`. */
     void process_app_all_consumed(expr const & x, unsigned first_arg_idx, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
         expr val = get_value_of(x);
         lean_assert(is_app(val));
@@ -1586,6 +1622,8 @@ class explicit_rc_fn {
         process_app_core(x, first_arg_idx, borrowed_args, entries, live_obj_vars);
     }
 
+    /* Process `x := f a_1 ... a_n` assuming all arguments `a_i` are borrowed.
+       See `process_app_core`. */
     void process_app_all_borrowed(expr const & x, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
         expr val = get_value_of(x);
         lean_assert(is_app(val));
@@ -1635,6 +1673,9 @@ class explicit_rc_fn {
         }
     }
 
+    /* Add RC increments for the `jmp` instruction arguments.
+       Recall that `jmp` is similar to a regular a function application. The main difference is that it is a terminal,
+       and we assume all arguments must be consumed. */
     void add_incs_for_jmp_args(expr const & e, buffer<expr_pair> & entries) {
         lean_assert(is_app(e));
         buffer<bool> borrowed_args;
@@ -1655,6 +1696,7 @@ class explicit_rc_fn {
         }
     }
 
+    /* Process a terminal: cases, jmp or variable */
     expr process_terminal(expr const & e, buffer<expr_pair> & entries) {
         if (is_cases_on_app(env(), e)) {
             // TODO(Leo)

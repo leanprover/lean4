@@ -190,6 +190,14 @@ expr.mdata (kvmap.set_name {} `annotation ann) e
 
 def dummy : expr := expr.const `Prop []
 
+def mk_eqns (type : expr) (eqns : list (name × list expr × expr)): expr :=
+  let eqns := eqns.map $ λ ⟨fn, lhs, rhs⟩, do {
+    let fn := expr.local fn fn type binder_info.aux_decl,
+    let lhs := expr.mk_app fn lhs,
+    expr.app lhs rhs
+  } in
+  expr.mk_annotation `pre_equations $ expr.mk_capp `_ eqns
+
 def to_pexpr : syntax → elaborator_m expr
 | stx@(syntax.raw_node {kind := k, args := args}) := do
   e ← match k with
@@ -299,21 +307,13 @@ def to_pexpr : syntax → elaborator_m expr
     pure $ expr.mdata m $ (fields ++ sources).foldr expr.app dummy
   | @«match» := do
     let v := view «match» stx,
-    let fn_name := `_match_fn,
-    fn ← expr.lam fn_name -- TODO: unhygienic
-      binder_info.default
-      <$> to_pexpr (get_opt_type v.type),
-    eqns ← match v.equations with
-    | [] := pure [fn $ expr.mdata (kvmap.set_bool {} `no_equation ff) dummy]
-    | eqns := (eqns.map sep_by.elem.view.item).mmap $ λ (eqn : match_equation.view), do {
+    eqns ← (v.equations.map sep_by.elem.view.item).mmap $ λ (eqn : match_equation.view), do {
       lhs ← eqn.lhs.mmap $ λ l, to_pexpr l.item,
-      let lhs := lhs.foldl expr.app (expr.const fn_name []),
       rhs ← to_pexpr eqn.rhs,
-      pure $ fn $ expr.mdata (kvmap.set_bool {} `equation tt) $ expr.app lhs rhs
+      pure (`_match_fn, lhs, rhs)
     },
-    some eqns ← pure $ eqns.foldr1_opt expr.app
-      | error stx "to_pexpr: unreachable",
-    pure $ expr.mdata (kvmap.set_bool {} `pre_equations tt) eqns
+    type ← to_pexpr $ get_opt_type v.type,
+    pure $ mk_eqns type eqns
   | _ := error stx $ "unexpected node: " ++ to_string k.name,
   (match k with
   | @app := pure e -- no position
@@ -401,7 +401,7 @@ expr.mk_capp `_ <$> bindrs.mmap (λ b, do
 
 def elab_def_like (stx : syntax) (mods : decl_modifiers.view) (dl : def_like.view) (kind : nat) : elaborator_m unit :=
 match dl with
-| {val := decl_val.view.simple val, sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+| {sig := {params := bracketed_binders.view.simple bbs}, ..} := do
   let mdata := kvmap.set_name {} `command `defs,
   mods ← decl_modifiers_to_pexpr mods,
   let kind := expr.lit $ literal.nat_val kind,
@@ -414,14 +414,23 @@ match dl with
   let uparams := names_to_pexpr $ match dl.old_univ_params with
   | some uparams := uparams.ids.map mangle_ident
   | none := [],
-  let id := ident_univ_params_to_pexpr dl.name,
-  let fns := expr.mk_capp `_ [id],
+  let id := mangle_ident dl.name.id,
   let type := get_opt_type dl.sig.type,
   type ← to_pexpr type,
-  let types := expr.mk_capp `_ [type],
-  val ← to_pexpr val.body,
+  let fns := expr.mk_capp `_ [expr.local id id type binder_info.aux_decl],
+  val ← match dl.val with
+  | decl_val.view.simple val  := to_pexpr val.body
+  | decl_val.view.empty_match _ := pure $ mk_eqns type []
+  | decl_val.view.match eqns  := do {
+    eqns ← eqns.mmap (λ (eqn : equation.view), do
+      lhs ← eqn.lhs.mmap to_pexpr,
+      rhs ← to_pexpr eqn.rhs,
+      pure (id, lhs, rhs)
+    ),
+    pure $ mk_eqns type eqns
+  },
   params ← simple_binders_to_pexpr bbs,
-  old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, kind, uparams, fns, types, params, val]
+  old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, kind, uparams, fns, params, val]
 | _ := error stx "elab_def_like: unexpected input"
 
 def infer_mod_to_pexpr (mod : option infer_modifier.view) : expr :=

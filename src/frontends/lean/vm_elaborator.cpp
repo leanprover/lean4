@@ -28,11 +28,13 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/choice.h"
 #include "frontends/lean/inductive_cmds.h"
 #include "frontends/lean/structure_cmd.h"
+#include "frontends/lean/util.h"
 
 namespace lean {
 struct resolve_names_fn : public replace_visitor {
     parser &         m_p;
     names            m_locals;
+    bool             m_assume_local;
 
     resolve_names_fn(parser & p) : m_p(p) {}
 
@@ -40,7 +42,9 @@ struct resolve_names_fn : public replace_visitor {
         lean_unreachable();
     }
 
-    virtual expr visit_local(expr const &) override {
+    virtual expr visit_local(expr const & e) override {
+        if (m_assume_local)
+            return e;
         lean_unreachable();
     }
 
@@ -59,9 +63,42 @@ struct resolve_names_fn : public replace_visitor {
         return update_let(e, new_type, new_val, new_body);
     }
 
+    expr visit_pre_equations(expr const & e) {
+        equations_header header;
+        if (get_bool(mdata_data(e), "match")) {
+            parser::local_scope scope1(m_p);
+            match_definition_scope scope2(m_p.env());
+            header = mk_match_header(scope2.get_name(), scope2.get_actual_name());
+        } else {
+            header = mk_match_header("dummy", "dummy");
+        }
+        buffer<expr> eqns;
+        get_app_args(get_annotation_arg(e), eqns);
+        if (eqns.empty()) {
+            eqns.push_back(copy_pos(e, mk_no_equation()));
+        } else {
+            for (auto & eqn : eqns) {
+                expr lhs = app_fn(eqn);
+                expr rhs = app_arg(eqn);
+                {
+                    flet<bool> _(m_assume_local, true);
+                    lhs = visit(lhs);
+                }
+                buffer<expr> locals;
+                bool skip_main_fn = true;
+                lhs = m_p.patexpr_to_pattern(lhs, skip_main_fn, locals);
+                rhs = visit(rhs);
+                eqn = Fun(locals, mk_equation(lhs, rhs), m_p);
+            }
+        }
+        return mk_equations(header, eqns.size(), eqns.data());
+    }
+
     virtual expr visit(expr const & e) override {
         if (is_placeholder(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
+        } else if (is_annotation(e, "pre_equations")) {
+            return visit_pre_equations(e);
         } else if (is_annotation(e, "preresolved")) {
             expr e2 = unwrap_pos(e);
             auto m = mdata_data(e2);
@@ -77,8 +114,12 @@ struct resolve_names_fn : public replace_visitor {
                         break;
                     }
                 }
-                if (new_args.empty())
-                    throw elaborator_exception(e, format("unknown identifier '") + format(const_name(id).escape()) + format("'"));
+                if (new_args.empty()) {
+                    if (m_assume_local)
+                        return mk_local(const_name(id), mk_expr_placeholder());
+                    throw elaborator_exception(e, format("unknown identifier '") + format(const_name(id).escape()) +
+                                                  format("'"));
+                }
                 return mk_choice(new_args.size(), new_args.data());
             }
         } else {
@@ -175,40 +216,35 @@ static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> 
                                     buffer<expr> & params) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
-    buffer<expr> args, pre_fns, types, eqns;
+    buffer<expr> args, eqns;
     get_app_args(cmd, args);
     get_arg_names(args[2], lp_names);
-    get_app_args(args[3], pre_fns);
-    get_app_args(args[4], types);
-    get_app_args(args[5], params);
+    get_app_args(args[3], fns);
+    get_app_args(args[4], params);
     for (auto & param : params) {
         param = update_local_p(param, resolve_names(p, local_type_p(param)));
         p.add_local(param);
     }
-    auto val = args[6];
-    val = resolve_names(p, val);
+    auto val = args[5];
     buffer<name> full_names;
     buffer<name> full_actual_names;
-    for (unsigned i = 0; i < pre_fns.size(); i++) {
-        expr pre_fn = pre_fns[i];
-        expr fn_type = types[i];
-        fn_type = resolve_names(p, fn_type);
-        declaration_name_scope scope2(const_name(pre_fn));
+    for (unsigned i = 0; i < fns.size(); i++) {
+        expr & fn = fns[i];
+        declaration_name_scope scope2(local_name(fn));
         declaration_name_scope scope3("_main");
+        expr fn_type = local_type_p(fn);
+        fn_type = resolve_names(p, fn_type);
         full_names.push_back(scope3.get_name());
         full_actual_names.push_back(scope3.get_actual_name());
         prv_names.push_back(scope2.get_actual_name());
-        expr fn      = mk_local(const_name(pre_fn), fn_type, mk_rec_info());
-        fns.push_back(fn);
+        fn = update_local(fn, fn_type);
     }
     optional<expr> wf_tacs;
     if (args.size() > 6)
         wf_tacs = args[6];
-    if (is_app_of(val, "_")) {
-        get_app_args(val, eqns);
-        for (expr & eq : eqns) {
-            eq = replace_locals_preserving_pos_info(eq, pre_fns, fns);
-        }
+    val = resolve_names(p, val);
+    if (is_equations(val)) {
+        to_equations(val, eqns);
         val = mk_equations(p, fns, full_names, full_actual_names, eqns, wf_tacs, header_pos);
     }
     collect_implicit_locals(p, lp_names, params, val);

@@ -65,7 +65,7 @@ node! opt_decl_sig [
 
 @[derive has_tokens has_view]
 def equation.parser : command_parser :=
-node! equation ["|", lhs: term.parser, ":=", rhs: term.parser]
+node! equation ["|", lhs: (term.parser max_prec)+, ":=", rhs: term.parser]
 
 @[derive has_tokens has_view]
 def decl_val.parser : command_parser :=

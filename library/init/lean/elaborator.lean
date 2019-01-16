@@ -862,6 +862,13 @@ def is_open_namespace (st : elaborator_state) : name → bool
   -- TODO: check active exports
   ff
 
+-- TODO: `hiding`, `as`, `renaming`
+def match_open_spec (n : name) (spec : open_spec.view) : option name :=
+let matches_only := match spec.only with
+| none := tt
+| some only := n = only.id.val ∨ only.ids.any (λ id, n = id.val) in
+if matches_only then some (spec.id.val ++ n) else none
+
 def resolve_global : name → elaborator_m (list name)
 | n := do
   st ← get,
@@ -879,15 +886,14 @@ def resolve_global : name → elaborator_m (list name)
    | _ := [])
   ++
   -- check opened namespaces
-  -- TODO: `hiding`, `as`
-  (let ns' := st.local_state.open_decls.map (λ od, od.id.val ++ n) in
+  (let ns' := st.local_state.open_decls.filter_map (match_open_spec n) in
    ns'.filter (λ n', st.env.contains n'))
   ++
   -- check active exports
   -- TODO: optimize
   -- TODO: Lean 3 activates an export in `foo` even on `open foo (specific_thing)`, but does that make sense?
   (let eds' := st.export_decls.filter (λ ed, is_open_namespace st ed.in_ns) in
-   let ns' := eds'.map (λ ed, ed.spec.id.val ++ n) in
+   let ns' := eds'.filter_map (λ ed, match_open_spec n ed.spec) in
    ns'.filter (λ n', st.env.contains n'))
 
   -- TODO: projection notation

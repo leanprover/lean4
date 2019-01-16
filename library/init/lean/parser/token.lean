@@ -160,10 +160,24 @@ do
     val := n
   }
 
+-- the node macro doesn't seem to like these...
+--TODO(Sebastian): these should probably generate better error messages
+def parse_bin_lit : basic_parser_m unit :=
+ch '0' *> (ch 'b' <|> ch 'B') *> many1' (ch '0' <|> ch '1')
+
+def parse_oct_lit : basic_parser_m string :=
+ch '0' *> (ch 'o' <|> ch 'O') *> take_while1 (λ c, c ≥ '0' && c < '8')
+
+def parse_hex_lit : basic_parser_m string :=
+ch '0' *> (ch 'x' <|> ch 'X') *> take_while1 (λ c, c.is_digit || c.is_alpha)
+
 --TODO(Sebastian): other bases
 def number' : basic_parser :=
-node_choice! number {
-  base10: raw (take_while1 char.is_digit),
+node_longest_choice! number {
+  base10: raw $ take_while1 char.is_digit,
+  base2:  raw parse_bin_lit,
+  base8:  raw parse_oct_lit,
+  base16: raw parse_hex_lit,
 }
 
 def string_lit' : basic_parser :=
@@ -255,8 +269,27 @@ instance number.parser.tokens : parser.has_tokens (number.parser : parser) := de
 instance number.parser.view : parser.has_view number.view (number.parser : parser) :=
 {..number.has_view}
 
+private def to_nat_core (base : nat) : string.iterator → nat → nat → nat
+| it      0     r := r
+| it      (i+1) r :=
+  let c := it.curr in
+  let val := if c.is_digit then
+    c.to_nat - '0'.to_nat
+  else if c ≥ 'a' ∧ c ≤ 'f' then
+    c.to_nat - 'a'.to_nat
+  else
+    c.to_nat - 'A'.to_nat in
+  let r := r*base + val in
+  to_nat_core it.next i r
+
+private def to_nat_base (s : string) (base : nat) : nat :=
+to_nat_core base s.mk_iterator s.length 0
+
 def number.view.to_nat : number.view → nat
 | (number.view.base10 (some atom)) := atom.val.to_nat
+| (number.view.base2  (some atom)) := to_nat_base atom.val 2
+| (number.view.base8  (some atom)) := to_nat_base atom.val 8
+| (number.view.base16 (some atom)) := to_nat_base atom.val 16
 | _ := 1138 -- should never happen, but let's still choose a grep-able number
 
 def number.view.of_nat (n : nat) : number.view :=

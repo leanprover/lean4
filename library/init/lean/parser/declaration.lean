@@ -126,7 +126,7 @@ node! ident_univ_params [
 @[derive has_tokens has_view]
 def structure.parser : command_parser :=
 node! «structure» [
-  keyword: any_of [symbol "structure", symbol "class"],
+  keyword: node_choice! structure_kw {"structure", "class"},
   old_univ_params: old_univ_params.parser?,
   name: ident_univ_params.parser,
   sig: opt_decl_sig.parser,

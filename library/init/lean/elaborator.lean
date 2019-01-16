@@ -462,7 +462,7 @@ locally $ λ stx, do
       sig := {..i.sig},
       ..i} 3
 
-  | declaration.inner.view.inductive ind@{sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+  | declaration.inner.view.inductive ind@{«class» := none, sig := {params := bracketed_binders.view.simple bbs}, ..} := do
     let mdata := kvmap.set_name {} `command `inductives,
     mods ← decl_modifiers_to_pexpr decl.modifiers,
     attrs ← attrs_to_pexpr (match decl.modifiers.attrs with
@@ -497,7 +497,7 @@ locally $ λ stx, do
     old_elab_command stx $ expr.mdata mdata $
       expr.mk_capp `_ [mods, mut_attrs, uparams, inds, params, intro_rules, infer_kinds]
 
-  | declaration.inner.view.structure s@{sig := {params := bracketed_binders.view.simple bbs}, ..} := do
+  | declaration.inner.view.structure s@{keyword := structure_kw.view.structure _, sig := {params := bracketed_binders.view.simple bbs}, ..} := do
     let mdata := kvmap.set_name {} `command `structure,
     mods ← decl_modifiers_to_pexpr decl.modifiers,
     match s.old_univ_params with

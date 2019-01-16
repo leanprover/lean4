@@ -378,6 +378,26 @@ def constant.transform : transformer :=
       type := {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}
   | _ := no_expansion
 
+def declaration.transform : transformer :=
+λ stx, do
+  let v := view «declaration» stx,
+  match v.inner with
+  | declaration.inner.view.inductive ind@{«class» := some _, ..} :=
+    let attrs := v.modifiers.attrs.get_or_else {attrs := []} in
+    pure $ review «declaration» {v with
+      modifiers := {v.modifiers with attrs := some {attrs with attrs :=
+        {item := {name := "class", args := []}} :: attrs.attrs}},
+      inner := declaration.inner.view.inductive {ind with «class» := none}
+    }
+  | declaration.inner.view.structure s@{keyword := structure_kw.view.class _, ..} :=
+    let attrs := v.modifiers.attrs.get_or_else {attrs := []} in
+    pure $ review «declaration» {v with
+      modifiers := {v.modifiers with attrs := some {attrs with attrs :=
+        {item := {name := "class", args := []}} :: attrs.attrs}},
+      inner := declaration.inner.view.structure {s with keyword := structure_kw.view.structure}
+    }
+  | _ := no_expansion
+
 def intro_rule.transform : transformer :=
 λ stx, do
   let v := view «intro_rule» stx,
@@ -430,6 +450,7 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (if.name, if.transform),
   (let.name, let.transform),
   (constant.name, constant.transform),
+  (declaration.name, declaration.transform),
   (intro_rule.name, intro_rule.transform),
   (level.leading.name, level.leading.transform),
   (term.subtype.name, subtype.transform),

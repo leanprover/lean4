@@ -1723,8 +1723,11 @@ class explicit_rc_fn {
             /* We must decrement variables that are live at `cases_live_vars`, but are not live at `arg_live_vars`. */
             cases_live_vars.for_each([&](name const & x_name) {
                     if (!arg_live_vars.contains(x_name)) {
-                        expr x = m_lctx.get_local_decl(x_name).mk_ref();
-                        arg    = ::lean::mk_let(next_name(), mk_void_type(), mk_dec(x), arg);
+                        local_decl x_decl = m_lctx.get_local_decl(x_name);
+                        if (!is_unboxed(x_decl.get_type())) {
+                            expr x = x_decl.mk_ref();
+                            arg    = ::lean::mk_let(next_name(), mk_void_type(), mk_dec(x), arg);
+                        }
                     }
                 });
             args[i] = arg;

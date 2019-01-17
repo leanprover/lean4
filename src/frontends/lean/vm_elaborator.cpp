@@ -272,7 +272,8 @@ void elab_defs_cmd(parser & p, expr const & cmd) {
     p.set_env(elab_defs(p, kind, meta, lp_names, fns, prv_names, params, val, header_pos));
 }
 
-static void elab_inductives_cmd(parser & p, expr const & cmd) {
+static environment elab_inductives_cmd(parser & p, expr const & cmd) {
+    parser::local_scope _(p);
     // auto header_pos = get_pos_info_provider()->get_pos_info_or_some(cmd);
     buffer<expr> args, attrs, pre_inds, params, all_intro_rules, infer_kinds;
     buffer<name> lp_names;
@@ -329,6 +330,7 @@ static void elab_inductives_cmd(parser & p, expr const & cmd) {
     }
 
     elaborate_inductive_decls(p, meta, mut_attrs, lp_names, implicit_infer_map, params, inds, intro_rules);
+    return p.env();
 }
 
 static void elaborate_command(parser & p, expr const & cmd) {
@@ -347,7 +349,7 @@ static void elaborate_command(parser & p, expr const & cmd) {
             elab_defs_cmd(p, cmd);
             return;
         } else if (*cmd_name == "inductives") {
-            elab_inductives_cmd(p, cmd);
+            p.set_env(elab_inductives_cmd(p, cmd));
             return;
         } else if (*cmd_name == "structure") {
             elab_structure_cmd(p, cmd);
@@ -447,6 +449,10 @@ binder_info to_binder_info(vm_obj const & o) {
     return static_cast<binder_info>(cidx(o));
 }
 
+vm_obj to_obj(binder_info const & bi) {
+    return mk_vm_simple(static_cast<unsigned>(bi));
+}
+
 kvmap to_kvmap(vm_obj const & o) {
     switch (cidx(o)) {
         case 0:
@@ -477,7 +483,22 @@ kvmap to_kvmap(vm_obj const & o) {
     }
 }
 
+// I really don't want to deal with the reverse translation right now
+struct vm_expr : public vm_external {
+    expr m_expr;
+    explicit vm_expr(expr const & expr) : m_expr(expr) {}
+    virtual ~vm_expr() {}
+    virtual void dealloc() override { delete this; }
+    virtual vm_external *ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
+    virtual vm_external *clone(vm_clone_fn const &) override { lean_unreachable(); }
+};
+
 expr to_expr(vm_obj const & o) {
+    if (is_external(o)) {
+        lean_vm_check(dynamic_cast<vm_expr *>(to_external(o)));
+        return static_cast<vm_expr *>(to_external(o))->m_expr;
+    }
+
     switch (cidx(o)) {
         case 0:
             return mk_bvar(nat(vm_nat_to_mpz1(cfield(o, 0))));
@@ -630,12 +651,30 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     try {
         elaborate_command(p, cmd);
         s = p.mk_snapshot();
+
+        // sort levels by reverse insertion order. ugh.
+        rb_map<unsigned, name, unsigned_rev_cmp> new_lds;
+        s->m_lds.for_each([&](name const & n, level const &) {
+            new_lds.insert(s->m_lds.find_idx(n), n);
+        });
+        new_lds.for_each([&](unsigned const &, name const & n) {
+            auto vm_n = to_obj(n);
+            auto vm_ld = mk_vm_constructor(0, vm_n, mk_vm_constructor(4, vm_n));
+            vm_lds = mk_vm_constructor(1, vm_ld, vm_lds);
+        });
+
+        for (auto const & ed : s->m_eds.get_entries()) {
+            auto vm_ed = mk_vm_constructor(0, to_obj(ed.first), mk_vm_constructor(0,
+                    mk_vm_external(new vm_expr(local_type_p(ed.second))),
+                    to_obj(local_info_p(ed.second))));
+            vm_eds = mk_vm_constructor(1, vm_ed, vm_eds);
+        }
+
         auto vm_st2 = mk_vm_constructor(0, {
             mk_vm_external(new vm_env(p.env())),
             to_obj(s->m_ngen),
-            // TODO(Sebastian): support commands that change the local context
-            cfield(vm_st, 2),
-            cfield(vm_st, 3),
+            vm_lds,
+            vm_eds,
             cfield(vm_st, 4),
             cfield(vm_st, 5),
             cfield(vm_st, 6),

@@ -318,8 +318,12 @@ def to_pexpr : syntax → elaborator_m expr
       pure (`_match_fn, lhs, rhs)
     },
     type ← to_pexpr $ get_opt_type v.type,
-    pure $ mk_eqns type eqns
-  | _ := error stx $ "unexpected node: " ++ to_string k.name,
+    let eqns := mk_eqns type eqns,
+    expr.mdata mdata e ← pure eqns
+      | error stx "to_pexpr: unreachable",
+    let eqns := expr.mdata (mdata.set_bool `match tt) e,
+    expr.mk_app eqns <$> v.scrutinees.mmap (λ scr, to_pexpr scr.item)
+  | _ := error stx $ "to_pexpr: unexpected node: " ++ to_string k.name,
   (match k with
   | @app := pure e -- no position
   | _ := do
@@ -329,7 +333,7 @@ def to_pexpr : syntax → elaborator_m expr
       let pos := cfg.file_map.to_position pos in
       pure $ expr.mdata ((kvmap.set_nat {} `column pos.column).set_nat `row pos.line) e
     | none := pure e)
-| stx := error stx $ "unexpected: " ++ to_string stx
+| stx := error stx $ "to_pexpr: unexpected: " ++ to_string stx
 
 /-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/
 def get_namespace : elaborator_m name := do

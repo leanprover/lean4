@@ -274,7 +274,7 @@ def expand_binders (mk_binding : binders.view → syntax → syntax) (bnders : b
     -- anonymous constructor binding ~> binding + match
     | mixed_binder.view.bracketed (bracketed_binder.view.anonymous_constructor ctor) :=
       pure $ mk_binding (mk_simple_binder "x" binder_info.default (review hole {})) $ review «match» {
-        scrutinees := [syntax.ident "x"],
+        scrutinees := [review ident_univs ↑"x"],
         equations := [{item := {lhs := [review anonymous_constructor ctor], rhs := r}}]
       }
     -- local notation: should have been handled by caller, erase

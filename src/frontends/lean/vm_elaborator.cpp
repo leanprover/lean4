@@ -65,7 +65,8 @@ struct resolve_names_fn : public replace_visitor {
 
     expr visit_pre_equations(expr const & e) {
         equations_header header;
-        if (get_bool(mdata_data(e), "match")) {
+        bool is_match = get_bool(mdata_data(e), "match").value_or(false);
+        if (is_match) {
             parser::local_scope scope1(m_p);
             match_definition_scope scope2(m_p.env());
             header = mk_match_header(scope2.get_name(), scope2.get_actual_name());
@@ -87,12 +88,14 @@ struct resolve_names_fn : public replace_visitor {
                 buffer<expr> new_locals;
                 bool skip_main_fn = true;
                 lhs = m_p.patexpr_to_pattern(lhs, skip_main_fn, new_locals);
-                names locals;
+                names locals = m_locals;
                 // NOTE: appends `new_locals` to `locals` in reverse
                 for (auto const & l : new_locals)
                     locals = cons(local_name_p(l), locals);
                 flet<names> _(m_locals, locals);
                 rhs = visit(rhs);
+                if (is_match)
+                    new_locals.insert(0, mk_local("_match_fn", mk_expr_placeholder()));
                 eqn = Fun(new_locals, mk_equation(lhs, rhs), m_p);
             }
         }

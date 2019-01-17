@@ -1846,7 +1846,7 @@ class explicit_rc_fn {
         if (is_lit(val)) {
             return false;
         } else if (is_constant(val)) {
-            return true;
+            return !is_llnf_cnstr(val);
         } else if (is_app(val)) {
             buffer<expr> args;
             expr const & fn = get_app_args(val, args);

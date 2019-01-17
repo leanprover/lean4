@@ -101,11 +101,11 @@ void decl_attributes::parse_compact(parser & p) {
     parse_core(p, true);
 }
 
-void decl_attributes::set_attribute(environment const & env, name const & attr_name) {
+void decl_attributes::set_attribute(environment const & env, name const & attr_name, attr_data_ptr data) {
     if (!is_attribute(env, attr_name))
         throw exception(sstream() << "unknown attribute [" << attr_name << "]");
     auto const & attr = get_attribute(env, attr_name);
-    entry e = {&attr, get_default_attr_data()};
+    entry e = {&attr, data};
     m_entries = append(m_entries, to_list(e));
 }
 

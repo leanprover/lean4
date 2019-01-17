@@ -27,7 +27,7 @@ private:
     void parse_core(parser & p, bool compact);
 public:
     decl_attributes(bool persistent = true): m_persistent(persistent), m_parsing_only(false) {}
-    void set_attribute(environment const & env, name const & attr_name);
+    void set_attribute(environment const & env, name const & attr_name, attr_data_ptr data = get_default_attr_data());
     /* attributes: zero-or-more [ ... ] */
     void parse(parser & p);
     /* Parse attributes after `@[` ... ] */

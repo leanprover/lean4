@@ -143,10 +143,22 @@ expr resolve_names(parser & p, expr const & e) {
 
 decl_attributes to_decl_attributes(environment const & env, expr const & e, bool local) {
     decl_attributes attributes(!local);
-    buffer<expr> args;
-    get_app_args(e, args);
-    for (auto const & e : args)
-        attributes.set_attribute(env, const_name(e));
+    buffer<expr> attrs;
+    get_app_args(e, attrs);
+    for (auto const & e : attrs) {
+        buffer<expr> args;
+        auto attr = get_app_args(e, args);
+        auto n = const_name(attr);
+        if (n == "recursor") {
+            list<unsigned> idxs;
+            for (int i = args.size() - 1; i >= 0; i--)
+                idxs = cons(lit_value(unwrap_pos(args[i])).get_nat().get_small_value() - 1, idxs);
+            attributes.set_attribute(env, n, attr_data_ptr(new indices_attribute_data(idxs)));
+        } else {
+            lean_assert(args.empty());
+            attributes.set_attribute(env, n);
+        }
+    }
     return attributes;
 }
 

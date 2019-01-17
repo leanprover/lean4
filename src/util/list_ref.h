@@ -201,6 +201,14 @@ void to_buffer(list_ref<T> const & l, buffer<T> & r) {
     for (T const & h : l) r.push_back(h);
 }
 
+template<typename T>
+list_ref<T> to_list_ref(buffer<T> const & r) {
+    list_ref<T> l;
+    for (int i = r.size() - 1; i >= 0; i--)
+        l = list_ref<T>(r[i], l);
+    return l;
+}
+
 /** \brief Filter/Remove elements from the list
     that do not satisfy the given predicate. */
 template<typename T, typename P>

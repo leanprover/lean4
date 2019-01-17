@@ -34,7 +34,7 @@ namespace lean {
 struct resolve_names_fn : public replace_visitor {
     parser &         m_p;
     names            m_locals;
-    bool             m_assume_local;
+    bool             m_assume_local = false;
 
     resolve_names_fn(parser & p) : m_p(p) {}
 

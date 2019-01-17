@@ -653,7 +653,7 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
         auto it = cfield(vm_eds, 0);
         auto n = to_name(cfield(it, 0));
         auto data = cfield(it, 1);
-        eds.insert(n, mk_local(n, to_expr(cfield(data, 0)), to_binder_info(cfield(data, 1))));
+        eds.insert(n, mk_local(to_name(cfield(data, 0)), n, to_expr(cfield(data, 1)), to_binder_info(cfield(data, 2))));
         // all local decls are variables in Lean 4
         vars.insert(n);
         vm_eds = cfield(vm_eds, 1);
@@ -686,6 +686,7 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
 
         for (auto const & ed : s->m_eds.get_entries()) {
             auto vm_ed = mk_vm_constructor(0, to_obj(ed.first), mk_vm_constructor(0,
+                    to_obj(local_name_p(ed.second)),
                     mk_vm_external(new vm_expr(local_type_p(ed.second))),
                     to_obj(local_info_p(ed.second))));
             vm_eds = mk_vm_constructor(1, vm_ed, vm_eds);

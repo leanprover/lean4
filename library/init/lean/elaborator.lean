@@ -28,6 +28,7 @@ structure name_generator :=
 (next_idx : nat) -- TODO(Sebastian): uint32
 
 structure section_var :=
+(uniq_name : name)
 (binder_info : binder_info)
 (type : expr)
 

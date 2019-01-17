@@ -685,6 +685,10 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
         });
 
         for (auto const & ed : s->m_eds.get_entries()) {
+            if (!is_local_p(ed.second)) {
+                // obsolete local ref, ignore
+                continue;
+            }
             auto vm_ed = mk_vm_constructor(0, to_obj(ed.first), mk_vm_constructor(0,
                     to_obj(local_name_p(ed.second)),
                     mk_vm_external(new vm_expr(local_type_p(ed.second))),

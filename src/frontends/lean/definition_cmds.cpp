@@ -149,7 +149,6 @@ static expr parse_mutual_definition(parser & p, buffer<name> & lp_names, buffer<
         eq = replace_locals_preserving_pos_info(eq, pre_fns, fns);
     }
     expr r = mk_equations(p, fns, full_names, full_actual_names, eqns, wf_tacs, header_pos);
-    collect_implicit_locals(p, lp_names, params, r);
     return r;
 }
 
@@ -224,8 +223,9 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     return mk_pair(new_env, c_real_name);
 }
 
-static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta, buffer <name> lp_names, buffer <expr> const & fns,
-                           buffer <name> const & prv_names, buffer <expr> const & params, expr val, pos_info const & header_pos) {
+static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta, buffer<name> lp_names, buffer<expr> const & fns,
+                           buffer<name> const & prv_names, buffer<expr> params, expr val, pos_info const & header_pos) {
+    collect_implicit_locals(p, lp_names, params, val);
     /* TODO(Leo): allow a different doc string for each function in a mutual definition. */
     optional<std::string> doc_string = meta.m_doc_string;
     environment env = p.env();
@@ -338,7 +338,6 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
     } else {
         val = p.parser_error_or_expr({"invalid definition, '|' or ':=' expected", p.pos()});
     }
-    collect_implicit_locals(p, lp_names, params, {local_type_p(fn), val});
     return std::make_tuple(fn, val, scope2.get_actual_name());
 }
 
@@ -485,9 +484,10 @@ static bool is_rfl_preexpr(expr const & e) {
     return is_constant(e, get_rfl_name());
 }
 
-static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_meta meta, buffer <name> & lp_names,
-                            buffer <expr> const & params, expr fn, expr val, pos_info const & header_pos,
+static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_meta meta, buffer <name> lp_names,
+                            buffer <expr> params, expr fn, expr val, pos_info const & header_pos,
                             name const & prv_name) {
+    collect_implicit_locals(p, lp_names, params, {local_type_p(fn), val});
     bool recover_from_errors = true;
     elaborator elab(p.env(), p.get_options(), get_namespace(p.env()) + local_pp_name_p(fn), metavar_context(), local_context(), recover_from_errors);
     buffer<expr> new_params;

@@ -256,7 +256,6 @@ static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> 
         to_equations(val, eqns);
         val = mk_equations(p, fns, full_names, full_actual_names, eqns, wf_tacs, header_pos);
     }
-    collect_implicit_locals(p, lp_names, params, val);
     return val;
 }
 

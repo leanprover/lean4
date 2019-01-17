@@ -557,6 +557,27 @@ locally $ λ stx, do
   | _ :=
     error stx "declaration.elaborate: unexpected input"
 
+def variables.elaborate : elaborator :=
+λ stx, do
+  let mdata := kvmap.set_name {} `command `variables,
+  let v := view «variables» stx,
+  vars ← match v.binders with
+  | bracketed_binders.view.simple bbs := bbs.mfilter $ λ b, do
+    let (bi, id, type) := b.to_binder_info,
+    if type.is_of_kind binding_annotation_update then do
+      st ← get,
+      let id := mangle_ident id,
+      match st.local_state.vars.find id with
+      | some (_, v) :=
+        put {st with local_state := {st.local_state with vars :=
+          st.local_state.vars.insert id {v with binder_info := bi}}}
+      | none := error (syntax.ident id) "",
+      pure ff
+    else pure tt
+  | _ := error stx "variables.elaborate: unexpected input",
+  vars ← simple_binders_to_pexpr vars,
+  old_elab_command stx $ expr.mdata mdata vars
+
 def module.header.elaborate : elaborator :=
 λ stx, do
   let header := view module.header stx,
@@ -847,6 +868,7 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (no_kind.name, no_kind.elaborate),
   (section.name, section.elaborate),
   (namespace.name, namespace.elaborate),
+  (variables.name, variables.elaborate),
   (declaration.name, declaration.elaborate),
   (attribute.name, attribute.elaborate),
   (open.name, open.elaborate),

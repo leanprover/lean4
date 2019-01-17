@@ -73,6 +73,12 @@ instance coe_binders_ext_binders : has_coe term.binders_ext.view term.binders.vi
 instance coe_simple_binder_binders : has_coe term.simple_binder.view term.binders.view :=
 ⟨term.binders.view.simple⟩
 
+instance coe_binder_bracketed_binder : has_coe term.binder.view term.bracketed_binder.view :=
+⟨λ b, match b with
+ | binder.view.bracketed bb := bb
+ | binder.view.unbracketed bc := term.bracketed_binder.view.explicit
+   {content := explicit_binder_content.view.other bc}⟩
+
 section «notation»
 open parser.command.notation_spec
 
@@ -233,19 +239,20 @@ def expand_bracketed_binder : bracketed_binder.view → transform_m (list simple
 -- local notation: should have been handled by caller, erase
 | (bracketed_binder.view.explicit {content := explicit_binder_content.view.notation _}) := pure []
 | mbb := do
-  let (bi, bc) : binder_info × binder_content.view := (match mbb with
-  | bracketed_binder.view.explicit {content := bc} := (match bc with
+  (bi, bc) ← match mbb with
+  | bracketed_binder.view.explicit {content := bc} := pure (match bc with
     | explicit_binder_content.view.other bc := (binder_info.default, bc)
     | _ := (binder_info.default, {ids := []})  /- unreachable, see above -/)
-  | bracketed_binder.view.implicit {content := bc} := (binder_info.implicit, bc)
-  | bracketed_binder.view.strict_implicit {content := bc} := (binder_info.strict_implicit, bc)
+  | bracketed_binder.view.implicit {content := bc} := pure (binder_info.implicit, bc)
+  | bracketed_binder.view.strict_implicit {content := bc} := pure (binder_info.strict_implicit, bc)
   | bracketed_binder.view.inst_implicit {content := bc} :=
-    prod.mk binder_info.inst_implicit $ (match bc with
+    pure $ prod.mk binder_info.inst_implicit $ (match bc with
       | inst_implicit_binder_content.view.anonymous bca :=
         {ids := ["_inst_"], type := some {type := bca.type}}
       | inst_implicit_binder_content.view.named bcn :=
         {ids := [bcn.id], type := some {type := bcn.type}})
-  | bracketed_binder.view.anonymous_constructor _ := (binder_info.default, {ids := []}) /- unreachable -/),
+  | bracketed_binder.view.anonymous_constructor ctor :=
+    error (review anonymous_constructor ctor) "unexpected anonymous constructor",
   let type := get_opt_type bc.type,
   type ← match bc.default with
   | none := pure type
@@ -412,6 +419,32 @@ def intro_rule.transform : transformer :=
         range := type.type}}}}
   | _ := no_expansion
 
+/- We expand `variable` into `variables` instead of the other way around since, in theory,
+   elaborating multiple variables at the same time makes it possible to omit more information. -/
+def variable.transform : transformer :=
+λ stx, do
+  let v := view «variable» stx,
+  pure $ review «variables» {binders := bracketed_binders.view.extended [v.binder]}
+
+@[derive has_view]
+def binding_annotation_update.parser : term_parser :=
+node! binding_annotation_update ["dummy"] -- FIXME: bad node! expansion
+
+def variables.transform : transformer :=
+λ stx, do
+  let v := view «variables» stx,
+  match v.binders with
+  | bracketed_binders.view.simple _ := no_expansion
+  | bracketed_binders.view.extended bnders := do
+    bnders ← bnders.mmap $ λ b, match b with
+    -- binding annotation update
+    | bracketed_binder.view.explicit eb@{content :=
+      explicit_binder_content.view.other bc@{ids := ids, type := none, default := none}} :=
+      expand_bracketed_binder $ bracketed_binder.view.explicit {eb with content :=
+        explicit_binder_content.view.other {bc with type := some {type := review binding_annotation_update {}}}}
+    | _ := expand_bracketed_binder b,
+    pure $ review «variables» {binders := bracketed_binders.view.simple $ list.join bnders}
+
 def level.leading.transform : transformer :=
 λ stx, do
   let v := view level.leading stx,
@@ -452,6 +485,8 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (constant.name, constant.transform),
   (declaration.name, declaration.transform),
   (intro_rule.name, intro_rule.transform),
+  (variable.name, variable.transform),
+  (variables.name, variables.transform),
   (level.leading.name, level.leading.transform),
   (term.subtype.name, subtype.transform),
   (universes.name, universes.transform),

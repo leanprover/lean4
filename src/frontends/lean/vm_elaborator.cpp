@@ -333,6 +333,19 @@ static environment elab_inductives_cmd(parser & p, expr const & cmd) {
     return p.env();
 }
 
+static void elab_variables_cmd(parser & p, expr const & cmd) {
+    buffer<expr> vars; get_app_args(mdata_expr(cmd), vars);
+    for (auto const & var : vars) {
+        // Hack: to make sure we get different universe parameters for each parameter.
+        // Alternative: elaborate once and copy types replacing universes in new_ls.
+        auto id = local_name_p(var);
+        auto type = local_type_p(var);
+        type = resolve_names(p, type);
+        buffer<name> ls;
+        p.set_env(elab_var(p, variable_kind::Variable, cmd_meta(), p.pos_of(cmd), some(local_info_p(var)), id, type, ls));
+    }
+}
+
 static void elaborate_command(parser & p, expr const & cmd) {
     auto const & data = mdata_data(cmd);
     if (auto const & cmd_name = get_name(data, "command")) {
@@ -356,6 +369,9 @@ static void elaborate_command(parser & p, expr const & cmd) {
             return;
         } else if (*cmd_name == "init_quot") {
             p.set_env(module::add(p.env(), mk_quot_decl()));
+            return;
+        } else if (*cmd_name == "variables") {
+            elab_variables_cmd(p, cmd);
             return;
         }
     }

@@ -58,7 +58,8 @@ node! «variable» ["variable", binder: term.binder.parser]
 
 @[derive parser.has_tokens]
 def variables.parser : command_parser :=
-node! «variables» ["variables", binders: term.bracketed_binder.parser+]
+-- TODO: should require at least one binder
+node! «variables» ["variables", binders: term.bracketed_binders.parser]
 
 @[derive parser.has_tokens]
 def include.parser : command_parser :=

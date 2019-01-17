@@ -1516,13 +1516,13 @@ class explicit_rc_fn {
 
     void add_dec(expr const & x, buffer<expr_pair> & entries) {
         expr val      = mk_dec(x);
-        expr aux_fvar = m_lctx.mk_local_decl(ngen(), next_name(), mk_void_type(), val);
+        expr aux_fvar = m_lctx.mk_local_decl(ngen(), "_", mk_void_type(), val);
         entries.emplace_back(aux_fvar, val);
     }
 
     void add_inc(expr const & x, buffer<expr_pair> & entries) {
         expr val      = mk_inc(x);
-        expr aux_fvar = m_lctx.mk_local_decl(ngen(), next_name(), mk_void_type(), val);
+        expr aux_fvar = m_lctx.mk_local_decl(ngen(), "_", mk_void_type(), val);
         entries.emplace_back(aux_fvar, val);
     }
 
@@ -1726,7 +1726,7 @@ class explicit_rc_fn {
                         local_decl x_decl = m_lctx.get_local_decl(x_name);
                         if (!is_unboxed(x_decl.get_type())) {
                             expr x = x_decl.mk_ref();
-                            arg    = ::lean::mk_let(next_name(), mk_void_type(), mk_dec(x), arg);
+                            arg    = ::lean::mk_let("_", mk_void_type(), mk_dec(x), arg);
                         }
                     }
                 });

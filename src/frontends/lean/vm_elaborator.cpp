@@ -619,8 +619,8 @@ vm_obj to_obj(message const & msg) {
 vm_obj to_obj(message_log const & log) {
     auto msgs = log.to_buffer();
     auto o = mk_vm_simple(0);
-    for (int i = msgs.size() - 1; i >= 0; i--)
-        o = mk_vm_constructor(1, to_obj(msgs[i]), o);
+    for (auto const & msg : msgs)
+        o = mk_vm_constructor(1, to_obj(msg), o);
     return o;
 }
 

@@ -197,7 +197,7 @@ def dummy : expr := expr.const `Prop []
 def mk_eqns (type : expr) (eqns : list (name × list expr × expr)): expr :=
   let eqns := eqns.map $ λ ⟨fn, lhs, rhs⟩, do {
     let fn := expr.local fn fn type binder_info.aux_decl,
-    let lhs := expr.mk_app fn lhs,
+    let lhs := expr.mk_app (expr.mk_annotation `@ fn) lhs,
     expr.app lhs rhs
   } in
   expr.mk_annotation `pre_equations $ expr.mk_capp `_ eqns

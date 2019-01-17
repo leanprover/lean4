@@ -84,11 +84,16 @@ struct resolve_names_fn : public replace_visitor {
                     flet<bool> _(m_assume_local, true);
                     lhs = visit(lhs);
                 }
-                buffer<expr> locals;
+                buffer<expr> new_locals;
                 bool skip_main_fn = true;
-                lhs = m_p.patexpr_to_pattern(lhs, skip_main_fn, locals);
+                lhs = m_p.patexpr_to_pattern(lhs, skip_main_fn, new_locals);
+                names locals;
+                // NOTE: appends `new_locals` to `locals` in reverse
+                for (auto const & l : new_locals)
+                    locals = cons(local_name_p(l), locals);
+                flet<names> _(m_locals, locals);
                 rhs = visit(rhs);
-                eqn = Fun(locals, mk_equation(lhs, rhs), m_p);
+                eqn = Fun(new_locals, mk_equation(lhs, rhs), m_p);
             }
         }
         return mk_equations(header, eqns.size(), eqns.data());
@@ -241,6 +246,7 @@ static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> 
         full_actual_names.push_back(scope3.get_actual_name());
         prv_names.push_back(scope2.get_actual_name());
         fn = mk_local(n, n, fn_type, mk_rec_info());
+        p.add_local(fn);
     }
     optional<expr> wf_tacs;
     if (args.size() > 6)

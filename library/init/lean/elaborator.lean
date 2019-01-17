@@ -27,12 +27,16 @@ structure name_generator :=
 («prefix» : name)
 (next_idx : nat) -- TODO(Sebastian): uint32
 
+structure section_var :=
+(binder_info : binder_info)
+(type : expr)
+
 /-- Simplified state of the Lean 3 parser. Maps are replaced with lists for easier interop. -/
 structure old_elaborator_state :=
 (env : environment)
 (ngen : name_generator)
 (univs : list (name × level))
-(vars : list (name × expr))
+(vars : list (name × section_var))
 (include_vars : list name)
 (options : options)
 (next_inst_idx : nat)
@@ -85,7 +89,7 @@ structure local_state :=
    We remember their insertion order so that we can keep the order when copying them to declarations. -/
 (univs : ordered_rbmap name level (<) := ordered_rbmap.empty)
 /- The set of local variables. -/
-(vars : ordered_rbmap name expr  (<) := ordered_rbmap.empty)
+(vars : ordered_rbmap name section_var (<) := ordered_rbmap.empty)
 /- The subset of `vars` that is tagged as always included. -/
 (include_vars : rbtree name (<) := mk_rbtree _ _)
 /- The stack of nested active `namespace` commands. -/

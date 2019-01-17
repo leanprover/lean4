@@ -610,7 +610,8 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     while (vm_eds.is_ptr()) {
         auto it = cfield(vm_eds, 0);
         auto n = to_name(cfield(it, 0));
-        eds.insert(n, to_expr(cfield(it, 1)));
+        auto data = cfield(it, 1);
+        eds.insert(n, mk_local(n, to_expr(cfield(data, 0)), to_binder_info(cfield(data, 1))));
         // all local decls are variables in Lean 4
         vars.insert(n);
         vm_eds = cfield(vm_eds, 1);

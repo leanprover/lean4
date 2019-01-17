@@ -1643,6 +1643,21 @@ class explicit_rc_fn {
         process_app_core(x, 0, borrowed_args, entries, live_obj_vars);
     }
 
+    void process_proj(expr const & x, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
+        expr val = get_value_of(x);
+        lean_assert(is_app(val) && is_llnf_proj(app_fn(val)));
+        expr arg = app_arg(val);
+        /* If arg is */
+        if (!m_borrowed.contains(fvar_name(arg)) &&     /* arg is not marked as borrowed */
+            !live_obj_vars.contains(fvar_name(arg))) {   /* arg is not live after projection */
+            /* We must add decrement. */
+            add_dec(arg, entries);
+        }
+        add_inc(x, entries);
+        entries.emplace_back(x, val);
+        lean_assert(is_fvar(arg));
+    }
+
     void process(expr const & x, buffer<expr_pair> & entries, name_set const & live_obj_vars) {
         expr val = get_value_of(x);
         lean_assert(!is_cases_on_app(env(), val));
@@ -1662,8 +1677,7 @@ class explicit_rc_fn {
             } else if (is_llnf_reuse(fn) || is_llnf_reset(fn) || is_llnf_sset(fn) || is_llnf_uset(fn)) {
                 process_app_all_consumed(x, 0, entries, live_obj_vars);
             } else if (is_llnf_proj(fn)) {
-                add_inc(x, entries);
-                process_app_all_borrowed(x, entries, live_obj_vars);
+                process_proj(x, entries, live_obj_vars);
             } else if (is_llnf_sproj(fn)) {
                 process_app_all_borrowed(x, entries, live_obj_vars);
             } else if (is_llnf_unbox(fn)) {

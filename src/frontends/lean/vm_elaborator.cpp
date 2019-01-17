@@ -433,7 +433,7 @@ vm_obj to_obj(name const & n) {
     } else if (n.is_string()) {
         return mk_vm_constructor(1, to_obj(n.get_prefix()), to_obj(n.get_string().to_std_string()));
     } else {
-        return mk_vm_constructor(1, to_obj(n.get_prefix()), mk_vm_nat(n.get_numeral().to_mpz()));
+        return mk_vm_constructor(2, to_obj(n.get_prefix()), mk_vm_nat(n.get_numeral().to_mpz()));
     }
 }
 

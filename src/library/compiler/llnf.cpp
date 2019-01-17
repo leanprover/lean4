@@ -1717,6 +1717,8 @@ class explicit_rc_fn {
             collect_live_vars(arg, arg_live_vars);
             unsigned saved_fvars_size = m_fvars.size();
             arg = visit(arg);
+            if (!is_let(arg))
+                arg = ensure_terminal(arg);
             arg = mk_let(saved_fvars_size, arg);
             /* We must decrement variables that are live at `cases_live_vars`, but are not live at `arg_live_vars`. */
             cases_live_vars.for_each([&](name const & x_name) {
@@ -1821,6 +1823,8 @@ class explicit_rc_fn {
         }
         e = instantiate_rev(e, binding_fvars.size(), binding_fvars.data());
         unsigned saved_fvars_size = m_fvars.size();
+        if (!is_let(e))
+            e = ensure_terminal(e);
         e = visit(e);
         e = mk_let(binding_fvars, saved_fvars_size, e);
         e = m_lctx.mk_lambda(binding_fvars, e);

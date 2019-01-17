@@ -1647,7 +1647,6 @@ class explicit_rc_fn {
         expr val = get_value_of(x);
         lean_assert(!is_cases_on_app(env(), val));
         if (is_lit(val)) {
-            add_inc(x, entries);
             entries.emplace_back(x, val);
         } else if (is_constant(val)) {
             entries.emplace_back(x, val);

@@ -42,13 +42,18 @@ optional<unsigned> is_enum_type(environment const & env, name const & I) {
     }
 }
 
+static expr * g_usize  = nullptr;
 static expr * g_uint8  = nullptr;
 static expr * g_uint16 = nullptr;
 static expr * g_uint32 = nullptr;
 static expr * g_uint64 = nullptr;
 
 optional<expr> to_uint_type(unsigned nbytes) {
+    /* Remark: we use 0 to denote the size of the type `usize` since it is platform specific, and
+       we don't want the generated code to be platform specific.
+       `usize` is 4 in 32-bit machines and 8 in 64-bit. */
     switch (nbytes) {
+    case 0:  return some_expr(*g_usize);
     case 1:  return some_expr(*g_uint8);
     case 2:  return some_expr(*g_uint16);
     case 4:  return some_expr(*g_uint32);
@@ -463,6 +468,7 @@ void initialize_compiler_util() {
     g_neutral_expr     = new expr(mk_constant("_neutral"));
     g_unreachable_expr = new expr(mk_constant("_unreachable"));
     g_object_type      = new expr(mk_constant("_obj"));
+    g_usize            = new expr(mk_constant(get_usize_name()));
     g_uint8            = new expr(mk_constant(get_uint8_name()));
     g_uint16           = new expr(mk_constant(get_uint16_name()));
     g_uint32           = new expr(mk_constant(get_uint32_name()));
@@ -505,6 +511,7 @@ void finalize_compiler_util() {
     delete g_neutral_expr;
     delete g_unreachable_expr;
     delete g_object_type;
+    delete g_usize;
     delete g_uint8;
     delete g_uint16;
     delete g_uint32;

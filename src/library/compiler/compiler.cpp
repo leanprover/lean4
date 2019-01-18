@@ -88,15 +88,35 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
 
 #define trace_compiler(k, ds) lean_trace(k, trace(ds);)
 
+static environment emit_code(environment const & env, comp_decls const & ds) {
+    /* TODO(Leo): emit C++ too */
+    return emit_bytecode(env, ds);
+}
+
+static environment emit_code(environment const & env, comp_decl const & d) {
+    return emit_code(env, comp_decls(d));
+}
+
 environment compile(environment const & env, options const & opts, names const & cs) {
     if (!is_codegen_enabled(opts))
         return env;
 
-    for (name const & c : cs) {
-        if (!env.get(c).is_definition() || is_builtin_constant(c) || has_synthetic_sorry(env.get(c).get_value()))
-            return env;
+    if (length(cs) == 1 && is_builtin_constant(head(cs))) {
+        /* Generate boxed version for builtin constant if needed */
+        unsigned arity = *get_builtin_constant_arity(head(cs));
+        if (optional<pair<environment, comp_decl>> p = mk_boxed_version(env, head(cs), arity)) {
+            return emit_code(p->first, p->second);
+        } else {
+            return env; /* Nothing to be done: builtin does not take unboxed values */
+        }
     }
-    // TODO(Leo): generate boxed_version for builtin constants
+
+    for (name const & c : cs) {
+        lean_assert(!is_builtin_constant(c));
+        if (!env.get(c).is_definition() || has_synthetic_sorry(env.get(c).get_value())) {
+            return env;
+        }
+    }
 
     comp_decls ds = to_comp_decls(env, cs);
     csimp_cfg cfg(opts);
@@ -154,8 +174,7 @@ environment compile(environment const & env, options const & opts, names const &
     /* emit_bytecode has no support for unboxed data */
     std::tie(new_env, ds) = to_llnf(new_env, ds, false);
     trace_compiler(name({"compiler", "llnf"}), ds);
-    new_env = emit_bytecode(new_env, ds);
-    return new_env;
+    return emit_code(new_env, ds);
 }
 
 void initialize_compiler() {

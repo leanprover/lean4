@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/explicit.h"
+#include "library/compiler/compiler.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_util.h"
 #include "frontends/lean/util.h"
@@ -113,6 +114,10 @@ static environment declare_var(parser & p, environment env,
         env = ensure_decl_namespaces(env, full_n);
         /* Apply attributes last so that they may access any information on the new decl */
         env = meta.m_attrs.apply(env, p.ios(), full_n);
+        if (k == variable_kind::Constant) {
+            /* We need to invoke the compiler and generate boxed version if needed. */
+            env = compile(env, p.get_options(), names(full_n));
+        }
         return env;
     }
 }

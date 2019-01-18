@@ -1165,7 +1165,7 @@ class explicit_boxing_fn {
         } else {
             lean_assert(is_fvar(e));
             expr type = get_arg_type(e);
-            if (is_enf_object_type(type)) {
+            if (is_enf_object_type(type) || is_pi(type)) {
                 return e;
             } else if (is_usize_type(type)) {
                 return mk_box(0, e, true);
@@ -1193,12 +1193,22 @@ class explicit_boxing_fn {
         return mk_app(fn, args);
     }
 
+
+    /* Convert function types (e.g., _obj -> _obj) into _obj.
+       At runtime, closures behave like `_obj`. */
+    expr norm_fun_type(expr const & type) {
+        if (is_pi(type))
+            return mk_enf_object_type();
+        else
+            return type;
+    }
+
     expr cast_if_needed(expr e, expr const & e_type, expr const & expected_type, bool is_arg) {
-        if (e_type == expected_type)
+        if (norm_fun_type(e_type) == norm_fun_type(expected_type))
             return e;
         if (!is_fvar(e))
             e = mk_let_decl(e_type, e);
-        if (expected_type == mk_enf_object_type()) {
+        if (norm_fun_type(expected_type) == mk_enf_object_type()) {
             return mk_box(*get_type_size(e_type), e, is_arg);
         } else {
             lean_assert(e_type == mk_enf_object_type());
@@ -1238,7 +1248,7 @@ class explicit_boxing_fn {
             args[i] = box_arg_if_needed(args[i]);
         }
         expr r = mk_app(fn, args);
-        if (expected_type != mk_enf_object_type()) {
+        if (norm_fun_type(expected_type) != mk_enf_object_type()) {
             lean_assert(is_app(r));
             r = mk_let_decl(mk_enf_object_type(), r);
             r = mk_app(mk_llnf_unbox(), r);
@@ -1253,7 +1263,7 @@ class explicit_boxing_fn {
     }
 
     expr visit_cnstr(expr const & fn, buffer<expr> & args, expr const & expected_type) {
-        if (args.size() == 0 && expected_type != mk_enf_object_type()) {
+        if (args.size() == 0 && norm_fun_type(expected_type) != mk_enf_object_type()) {
             unsigned cidx = 0;
             unsigned n1, n2;
             is_llnf_cnstr(fn, cidx, n1, n2);

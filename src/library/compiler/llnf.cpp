@@ -1093,7 +1093,7 @@ class explicit_boxing_fn {
             name n       = let_name(e);
             if (is_internal_name(n)) {
                 if (is_join_point_name(n)) {
-                    type = infer_jp_type(type);
+                    type = infer_jp_type(val);
                 } else {
                     n    = next_name();
                 }

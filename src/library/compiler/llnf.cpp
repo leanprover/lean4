@@ -1311,7 +1311,10 @@ class explicit_boxing_fn {
             }
             type = binding_body(type);
         }
-        lean_assert(!is_pi(type));
+        if (is_pi(type)) {
+            /* Function returns a closure */
+            type = mk_enf_object_type();
+        }
         expr r = mk_app(fn, args);
         return cast_result_if_needed(r, type, expected_type);
     }

@@ -304,7 +304,7 @@ def to_pexpr : syntax → elaborator_m expr
     | none     := pure sources
     | some src := do { src ← to_pexpr src.source, pure $ sources ++ [src]},
 
-    let m := kvmap.set_nat {} `structure_instance fields.length,
+    let m := kvmap.set_nat {} "structure instance" fields.length,
     let m := kvmap.set_bool m `catchall catchall,
     let m := kvmap.set_name m `struct $
       (mangle_ident <$> struct_inst_type.view.id <$> v.type).get_or_else name.anonymous,

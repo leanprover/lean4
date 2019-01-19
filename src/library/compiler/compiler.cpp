@@ -167,10 +167,12 @@ environment compile(environment const & env, options const & opts, names const &
     ds = apply(ecse, new_env, ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "simp_app_args"}), ds);
-    lean_trace(name({"compiler", "boxed"}),
-               environment b_env; comp_decls b_ds;
-               std::tie(b_env, b_ds) = to_llnf(new_env, ds, true);
-               trace(b_ds););
+    {
+        // lean_trace(name({"compiler", "boxed"}),
+        environment b_env; comp_decls b_ds;
+        std::tie(b_env, b_ds) = to_llnf(new_env, ds, true);
+        // trace(b_ds););
+    }
     /* emit_bytecode has no support for unboxed data */
     std::tie(new_env, ds) = to_llnf(new_env, ds, false);
     trace_compiler(name({"compiler", "llnf"}), ds);

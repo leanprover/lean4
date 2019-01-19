@@ -1691,7 +1691,7 @@ class explicit_rc_fn {
                 process_app_all_consumed(x, 0, entries, live_obj_vars);
             } else if (is_llnf_proj(fn)) {
                 process_proj(x, entries, live_obj_vars);
-            } else if (is_llnf_sproj(fn)) {
+            } else if (is_llnf_sproj(fn) || is_llnf_uproj(fn)) {
                 process_app_all_borrowed(x, entries, live_obj_vars);
             } else if (is_llnf_unbox(fn)) {
                 process_app_all_borrowed(x, entries, live_obj_vars);

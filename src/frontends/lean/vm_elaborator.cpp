@@ -88,14 +88,14 @@ struct resolve_names_fn : public replace_visitor {
                 buffer<expr> new_locals;
                 bool skip_main_fn = true;
                 lhs = m_p.patexpr_to_pattern(lhs, skip_main_fn, new_locals);
+                if (is_match)
+                    new_locals.insert(0, mk_local("_match_fn", mk_expr_placeholder()));
                 names locals = m_locals;
                 // NOTE: appends `new_locals` to `locals` in reverse
                 for (auto const & l : new_locals)
                     locals = cons(local_name_p(l), locals);
                 flet<names> _(m_locals, locals);
                 rhs = visit(rhs);
-                if (is_match)
-                    new_locals.insert(0, mk_local("_match_fn", mk_expr_placeholder()));
                 eqn = Fun(new_locals, mk_equation(lhs, rhs), m_p);
             }
         }
@@ -111,25 +111,26 @@ struct resolve_names_fn : public replace_visitor {
             expr e2 = unwrap_pos(e);
             auto m = mdata_data(e2);
             expr id = mdata_expr(e2);
-            if (auto l = m_p.resolve_local(const_name(id), m_p.pos_of(e), m_locals)) {
-                return copy_pos(e, *l);
-            } else {
-                buffer<expr> new_args;
-                for (unsigned i = 0;; i++) {
-                    if (auto n = get_name(m, name(name(), i))) {
-                        new_args.push_back(copy_pos(e, mk_const(*n, const_levels(id))));
-                    } else {
-                        break;
-                    }
+            if (!m_assume_local) {
+                if (auto l = m_p.resolve_local(const_name(id), m_p.pos_of(e), m_locals)) {
+                    return copy_pos(e, *l);
                 }
-                if (new_args.empty()) {
-                    if (m_assume_local)
-                        return mk_local(const_name(id), mk_expr_placeholder());
-                    throw elaborator_exception(e, format("unknown identifier '") + format(const_name(id).escape()) +
-                                                  format("'"));
-                }
-                return mk_choice(new_args.size(), new_args.data());
             }
+            buffer<expr> new_args;
+            for (unsigned i = 0;; i++) {
+                if (auto n = get_name(m, name(name(), i))) {
+                    new_args.push_back(copy_pos(e, mk_const(*n, const_levels(id))));
+                } else {
+                    break;
+                }
+            }
+            if (new_args.empty()) {
+                if (m_assume_local)
+                    return mk_local(const_name(id), mk_expr_placeholder());
+                throw elaborator_exception(e, format("unknown identifier '") + format(const_name(id).escape()) +
+                                              format("'"));
+            }
+            return mk_choice(new_args.size(), new_args.data());
         } else {
             return replace_visitor::visit(e);
         }
@@ -262,12 +263,16 @@ static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> 
         prv_names.push_back(scope2.get_actual_name());
         fn = mk_local(n, n, fn_type, mk_rec_info());
         p.add_local(fn);
+        if (!is_annotation(val, "pre_equations")) {
+            val = resolve_names(p, val);
+        }
     }
     optional<expr> wf_tacs;
     if (args.size() > 6)
         wf_tacs = args[6];
-    val = resolve_names(p, val);
-    if (is_equations(val)) {
+    if (is_annotation(val, "pre_equations")) {
+        // TODO(Sebastian): this uses the wrong declaration name scope
+        val = resolve_names(p, val);
         to_equations(val, eqns);
         val = mk_equations(p, fns, full_names, full_actual_names, eqns, wf_tacs, header_pos);
     }

@@ -271,6 +271,9 @@ def to_pexpr : syntax → elaborator_m expr
     | explicit_modifier.view.explicit _         := `@
     | explicit_modifier.view.partial_explicit _ := `@@,
     expr.mk_annotation ann <$> to_pexpr (review ident_univs v.id)
+  | @inaccessible := do
+    let v := view inaccessible stx,
+    expr.mk_annotation `innaccessible <$> to_pexpr v.term  -- sic
   | @number := do
     let v := view number stx,
     pure $ expr.lit $ literal.nat_val v.to_nat

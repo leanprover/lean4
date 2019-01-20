@@ -105,6 +105,6 @@ parser1.lean:1:0: error: don't know how to synthesize placeholder
 context:
 ⊢ Sort ?
 <stdin>:1:0: error: unknown declaration 'sorry_ax'
-<stdin>:1:0: parser cache hit rate: 164/191
-<stdin>:1:0: parser cache hit rate: 65/76
+<stdin>:1:0: parser cache hit rate: 169/196
+<stdin>:1:0: parser cache hit rate: 67/78
 parser1.lean:102:0: warning: using 'exit' to interrupt Lean

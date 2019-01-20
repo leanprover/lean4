@@ -216,6 +216,9 @@ instance token_map_cons.tokens (k : name) (r : ρ) (rs : list (name × ρ)) [par
 structure command_parser_config extends parser_config :=
 (leading_term_parsers : token_map term_parser)
 (trailing_term_parsers : token_map trailing_term_parser)
+-- local term parsers (such as from `local notation`) hide previous parsers instead of overloading them
+(local_leading_term_parsers : token_map term_parser := mk_rbmap _ _ _)
+(local_trailing_term_parsers : token_map trailing_term_parser := mk_rbmap _ _ _)
 
 instance command_parser_config_coe_parser_config : has_coe command_parser_config parser_config :=
 ⟨command_parser_config.to_parser_config⟩

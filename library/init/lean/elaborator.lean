@@ -602,10 +602,10 @@ do spec.rules.mfoldl (λ (cfg : command_parser_config) r, match r.symbol with
      pure {cfg with tokens := cfg.tokens.insert a.val.trim {«prefix» := a.val.trim, lbp := prec_to_nat prec}}
    | _ := throw "register_notation_tokens: unreachable") cfg
 
-def command_parser_config.register_notation_parser (k : syntax_node_kind) (spec : notation_spec.view)
+def command_parser_config.register_notation_parser (k : syntax_node_kind) (nota : notation.view)
   (cfg : command_parser_config) : except string command_parser_config :=
 do -- build and register parser
-   ps ← spec.rules.mmap (λ r : rule.view, do
+   ps ← nota.spec.rules.mmap (λ r : rule.view, do
      psym ← match r.symbol with
      | notation_symbol.view.quoted {symbol := some a ..} :=
        pure (symbol a.val : term_parser)
@@ -625,17 +625,21 @@ do -- build and register parser
      | _ := throw "register_notation_parser: unimplemented",
      pure $ psym::ptrans.to_monad
    ),
-   first_rule::_ ← pure spec.rules | throw "register_notation_parser: unreachable",
+   first_rule::_ ← pure nota.spec.rules | throw "register_notation_parser: unreachable",
    first_tk ← match first_rule.symbol with
    | notation_symbol.view.quoted {symbol := some a ..} :=
      pure a.val.trim
    | _ := throw "register_notation_parser: unreachable",
    let ps := ps.bind id,
-   cfg ← match spec.prefix_arg with
-   | none   := pure {cfg with leading_term_parsers :=
+   cfg ← match nota.local, nota.spec.prefix_arg with
+   | none,   none   := pure {cfg with leading_term_parsers :=
      cfg.leading_term_parsers.insert first_tk $ parser.combinators.node k ps}
-   | some _ := pure {cfg with trailing_term_parsers :=
-     cfg.trailing_term_parsers.insert first_tk $ parser.combinators.node k (read::ps.map coe)},
+   | some _, none   := pure {cfg with local_leading_term_parsers :=
+     cfg.local_leading_term_parsers.insert first_tk $ parser.combinators.node k ps}
+   | none,   some _ := pure {cfg with trailing_term_parsers :=
+     cfg.trailing_term_parsers.insert first_tk $ parser.combinators.node k (get_leading::ps.map coe)}
+   | some _, some _ := pure {cfg with local_trailing_term_parsers :=
+     cfg.local_trailing_term_parsers.insert first_tk $ parser.combinators.node k (get_leading::ps.map coe)},
    pure cfg
 
 /-- Recreate `elaborator_state.parser_cfg` from the elaborator state and the initial config,
@@ -650,7 +654,7 @@ do st ← get,
      | except.error e := error (review reserve_notation rnota) e) ccfg,
    ccfg ← (st.notations ++ st.local_state.notations).mfoldl (λ ccfg nota,
      match command_parser_config.register_notation_tokens nota.nota.spec ccfg >>=
-               command_parser_config.register_notation_parser nota.kind nota.nota.spec with
+               command_parser_config.register_notation_parser nota.kind nota.nota with
      | except.ok ccfg := pure ccfg
      | except.error e := error (review «notation» nota.nota) e) ccfg,
    put {st with parser_cfg := {cfg.initial_parser_cfg with to_command_parser_config := ccfg}}

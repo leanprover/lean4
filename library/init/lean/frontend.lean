@@ -11,14 +11,14 @@ open lean.parser
 open lean.expander
 open lean.elaborator
 
-def mk_config : except string module_parser_config :=
+def mk_config (filename := "<unknown>") (input := "") : except string module_parser_config :=
 do t ← parser.mk_token_trie $
     parser.tokens module.parser ++
     parser.tokens command.builtin_command_parsers ++
     parser.tokens term.builtin_leading_parsers ++
     parser.tokens term.builtin_trailing_parsers,
    pure $ {
-     filename := "<unknown>", input := "", tokens := t,
+     filename := filename, input := input, tokens := t,
      command_parsers := command.builtin_command_parsers,
      leading_term_parsers := term.builtin_leading_parsers,
      trailing_term_parsers := term.builtin_trailing_parsers,
@@ -31,10 +31,11 @@ do t ← parser.mk_token_trie $
 
 def run_frontend (input : string) (print_msg : message → except_t string io unit) :
   except_t string io (list module_parser_output) := do
-  parser_cfg ← monad_except.lift_except $ mk_config,
-  let expander_cfg : expander_config := {filename := "<stdin>", input := input, transformers := builtin_transformers},
+  let filename := "<stdin>",
+  parser_cfg ← monad_except.lift_except $ mk_config filename input,
+  let expander_cfg : expander_config := {filename := filename, input := input, transformers := builtin_transformers},
   let parser_k := parser.run parser_cfg input (λ st _, module.parser st),
-  let elab_k := elaborator.run {filename := "<stdin>", input := input, initial_parser_cfg := parser_cfg},
+  let elab_k := elaborator.run {filename := filename, input := input, initial_parser_cfg := parser_cfg},
   io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, match run_parser parser_k.resume parser_cfg with
     | coroutine_result_core.done p := do {
       io.println "parser died!!",
@@ -59,7 +60,7 @@ def run_frontend (input : string) (print_msg : message → except_t string io un
           when ¬(cmd'.is_of_kind module.eoi) $
             io.println "elaborator died!!",
           msgs.to_list.mfor print_msg,
-          print_msg {filename := "<stdin>", severity := message_severity.information,
+          print_msg {filename := filename, severity := message_severity.information,
             pos := ⟨1, 0⟩,
             text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
               to_string (out.cache.hit + out.cache.miss)},

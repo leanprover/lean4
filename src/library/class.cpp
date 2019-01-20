@@ -260,8 +260,10 @@ name mk_anonymous_inst_name(unsigned idx) {
 }
 
 bool is_anonymous_inst_name(name const & n) {
-    if (!n.is_atomic() || !n.is_string()) return false;
-    return strncmp(n.get_string().data(),
+    // remove mangled macro scopes
+    auto n2 = n.get_root();
+    if (!n2.is_string()) return false;
+    return strncmp(n2.get_string().data(),
                    g_anonymous_inst_name_prefix->get_string().data(),
                    strlen(g_anonymous_inst_name_prefix->get_string().data())) == 0;
 }

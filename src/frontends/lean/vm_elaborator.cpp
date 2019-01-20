@@ -119,6 +119,14 @@ struct resolve_names_fn : public replace_visitor {
             buffer<expr> new_args;
             for (unsigned i = 0;; i++) {
                 if (auto n = get_name(m, name(name(), i))) {
+                    if (is_internal_name(*n)) {
+                        // section variable
+                        for (pair<name, expr> const & p : m_p.m_local_decls.get_entries())
+                            if (local_name_p(p.second) == *n)
+                                return p.second;
+                        throw elaborator_exception(e, format("invalid reference to section variable '") + format(const_name(id).escape()) +
+                                                      format("' outside of section"));
+                    }
                     new_args.push_back(copy_pos(e, mk_const(*n, const_levels(id))));
                 } else {
                     break;

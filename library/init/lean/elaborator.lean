@@ -900,15 +900,22 @@ let matches_only := match spec.only with
 | some only := n = only.id.val ∨ only.ids.any (λ id, n = id.val) in
 if matches_only then some (spec.id.val ++ n) else none
 
-def resolve_global : name → elaborator_m (list name)
+def resolve_context : name → elaborator_m (list name)
 | n := do
-  st ← get,
+  st ← get, pure $
+
+  -- TODO(Sebastian): check the interaction betwen preresolution and section variables
+  match st.local_state.vars.find n with
+  | some (_, v) := [v.uniq_name]
+  | _ :=
+
+  -- global resolution
 
   -- check surrounding namespaces first
   -- TODO: check for `protected`
   match st.local_state.ns_stack.filter (λ ns, st.env.contains (ns ++ n)) with
-  | ns::_ := pure [ns ++ n] -- prefer innermost namespace
-  | _ := pure $
+  | ns::_ := [ns ++ n] -- prefer innermost namespace
+  | _ :=
 
   -- check environment directly
   (let unrooted := n.replace_prefix `_root_ name.anonymous in
@@ -931,7 +938,8 @@ def resolve_global : name → elaborator_m (list name)
 
 def preresolve : syntax → elaborator_m syntax
 | (syntax.ident id) := do
-  ns ← resolve_global (mangle_ident id),
+  let n := mangle_ident id,
+  ns ← resolve_context n,
   pure $ syntax.ident {id with preresolved := ns ++ id.preresolved}
 | (syntax.raw_node n) := do
   args ← n.args.mmap preresolve,
@@ -946,7 +954,7 @@ do
   let st := {elaborator_state .
     parser_cfg := cfg.initial_parser_cfg,
     expander_cfg := {transformers := expander.builtin_transformers, ..cfg},
-    ngen := ⟨`fixme, 0⟩,
+    ngen := ⟨`_ngen.fixme, 0⟩,
     options := options.mk},
   p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
     (commands.elaborate ff max_commands)

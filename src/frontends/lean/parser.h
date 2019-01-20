@@ -33,7 +33,7 @@ class metavar_context;
 class local_context_adapter;
 class scope_message_context;
 
-class parser : public abstract_parser {
+struct parser : public abstract_parser {
     environment             m_env;
     name_generator          m_ngen;
     io_state                m_ios;

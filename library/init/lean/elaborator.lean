@@ -277,7 +277,7 @@ def to_pexpr : syntax → elaborator_m expr
   | @choice := do
     last::rev ← list.reverse <$> args.mmap (λ a, to_pexpr a)
       | error stx "ill-formed choice",
-    pure $ expr.mk_annotation `choice $
+    pure $ expr.mdata (kvmap.set_nat {} `choice args.length) $
       rev.reverse.foldr expr.app last
   | @struct_inst := do
     let v := view struct_inst stx,

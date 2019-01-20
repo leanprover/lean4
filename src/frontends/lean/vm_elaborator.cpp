@@ -121,6 +121,8 @@ struct resolve_names_fn : public replace_visitor {
             for (unsigned i = 0;; i++) {
                 if (auto n = get_name(m, name(name(), i))) {
                     if (is_internal_name(*n)) {
+                        if (m_assume_local)
+                            continue;  // never resolve to section variables in patterns
                         // section variable
                         for (pair<name, expr> const & p : m_p.m_local_decls.get_entries())
                             if (local_name_p(p.second) == *n)

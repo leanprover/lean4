@@ -326,7 +326,7 @@ def paren.transform : transformer :=
   | none := pure $ glob_id `unit.star
   | some {term := t, special := none} := pure t
   | some {term := t, special := paren_special.view.tuple tup} :=
-    pure $ some $ (tup.tail.map sep_by.elem.view.item).foldr (λ t tup, mk_app (glob_id `prod.mk) [t, tup]) t
+    pure $ (t::tup.tail.map sep_by.elem.view.item).foldr1_opt (λ t tup, mk_app (glob_id `prod.mk) [t, tup])
   | some {term := t, special := paren_special.view.typed pst} :=
     pure $ mk_app (glob_id `typed_expr) [pst.type, t]
 

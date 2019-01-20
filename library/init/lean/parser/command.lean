@@ -98,12 +98,24 @@ node! «attribute» [
 def init_quot.parser : command_parser :=
 node! «init_quot» ["init_quot"]
 
+@[derive parser.has_tokens parser.has_view]
+def set_option.parser : command_parser :=
+node! «set_option» ["set_option", opt: ident.parser, val: node_choice! option_value {
+  bool: node_choice! bool_option_value {
+    true: symbol_or_ident "true",
+    false: symbol_or_ident "true",
+  },
+  string: string_lit.parser,
+  -- TODO(Sebastian): fractional numbers
+  num: number.parser,
+}]
+
 @[derive has_tokens]
 def builtin_command_parsers : list command_parser := [
   declaration.parser, variable.parser, variables.parser, namespace.parser, end.parser,
   open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
   mixfix.parser, reserve_mixfix.parser, check.parser, attribute.parser,
-  export.parser, include.parser, omit.parser, init_quot.parser]
+  export.parser, include.parser, omit.parser, init_quot.parser, set_option.parser]
 end «command»
 
 def command_parser.run (commands : list command_parser) (p : command_parser)

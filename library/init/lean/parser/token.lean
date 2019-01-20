@@ -299,13 +299,19 @@ def string_lit.parser : parser :=
 lift $ try $ do {
   it ← left_over,
   stx ← token,
-  some _ ← pure $ try_view string_lit stx | error "" (dlist.singleton "number") it,
+  some _ ← pure $ try_view string_lit stx | error "" (dlist.singleton "string") it,
   pure stx
 } <?> "string"
 
 instance string_lit.parser.tokens : parser.has_tokens (string_lit.parser : parser) := default _
 instance string_lit.parser.view : parser.has_view string_lit.view (string_lit.parser : parser) :=
 {..string_lit.has_view}
+
+def string_lit.view.value (lit : string_lit.view) : option string := do
+  atom ← lit.val,
+  except.ok s ← pure $ parsec.parse (parse_string_literal : parsec' _) atom.val
+    | failure,
+  pure s
 
 def ident.parser : parser :=
 lift $ try $ do {

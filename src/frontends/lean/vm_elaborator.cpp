@@ -29,6 +29,7 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/inductive_cmds.h"
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/pp.h"
 
 namespace lean {
 struct resolve_names_fn : public replace_visitor {
@@ -593,16 +594,16 @@ options to_options(vm_obj o) {
     for (auto const & kv : m) {
         switch (kv.snd().kind()) {
             case data_value_kind::Bool:
-                opts.update(kv.fst(), kv.snd().get_bool());
+                opts = opts.update(kv.fst(), kv.snd().get_bool());
                 break;
             case data_value_kind::Name:
-                opts.update(kv.fst(), kv.snd().get_name());
+                opts = opts.update(kv.fst(), kv.snd().get_name());
                 break;
             case data_value_kind::Nat:
-                opts.update(kv.fst(), kv.snd().get_nat().get_small_value());
+                opts = opts.update(kv.fst(), kv.snd().get_nat().get_small_value());
                 break;
             case data_value_kind::String:
-                opts.update(kv.fst(), kv.snd().get_string());
+                opts = opts.update(kv.fst(), kv.snd().get_string());
                 break;
         }
     }
@@ -657,11 +658,8 @@ vm_obj to_obj(message_log const & log) {
 vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, vm_obj const & vm_st) {
     auto vm_e = cfield(vm_st, 0);
     auto env = to_env(vm_e);
-    io_state const & ios = get_dummy_ios();
     auto filename = to_string(vm_filename);
     std::stringstream in;
-    parser p(env, ios, in, filename);
-    auto s = p.mk_snapshot();
     auto ngen = to_name_generator(cfield(vm_st, 1));
     auto vm_lds = cfield(vm_st, 2);
     local_level_decls lds;
@@ -688,58 +686,71 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
     }
     auto includes = to_name_set(cfield(vm_st, 4));
     auto options = to_options(cfield(vm_st, 5));
-    p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
-            parser_scope_stack(), to_unsigned(cfield(vm_st, 6)), pos_info {1, 0}));
-    auto ns = to_name(cfield(vm_st, 7));
-    p.set_env(set_namespace(env, ns));
 
     auto cmd = to_expr(vm_cmd);
+    auto pos = get_pos(cmd).value_or(pos_info {1, 0});
     message_log log;
-    scope_message_log _(log);
     vm_obj vm_out = mk_vm_none();
-    try {
-        elaborate_command(p, cmd);
-        s = p.mk_snapshot();
+    {
+        scope_message_log scope3(log);
+        io_state ios(options, mk_pretty_formatter_factory());
+        ios.set_regular_channel(ios.get_diagnostic_channel_ptr());
+        scope_global_ios scope_ios(ios);
+        type_context_old tc(env, options);
+        scope_trace_env scope(env, options, tc);
+        scope_traces_as_messages scope2(filename, pos);
 
-        // sort levels by reverse insertion order. ugh.
-        rb_map<unsigned, name, unsigned_rev_cmp> new_lds;
-        s->m_lds.for_each([&](name const & n, level const &) {
-            new_lds.insert(s->m_lds.find_idx(n), n);
-        });
-        new_lds.for_each([&](unsigned const &, name const & n) {
-            auto vm_n = to_obj(n);
-            auto vm_ld = mk_vm_constructor(0, vm_n, mk_vm_constructor(4, vm_n));
-            vm_lds = mk_vm_constructor(1, vm_ld, vm_lds);
-        });
+        parser p(env, ios, in, filename);
+        auto s = p.mk_snapshot();
+        p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
+                         parser_scope_stack(), to_unsigned(cfield(vm_st, 6)), pos_info{1, 0}));
+        auto ns = to_name(cfield(vm_st, 7));
+        p.set_env(set_namespace(env, ns));
 
-        for (auto const & ed : s->m_eds.get_entries()) {
-            if (!is_local_p(ed.second)) {
-                // obsolete local ref, ignore
-                continue;
+        try {
+            elaborate_command(p, cmd);
+            s = p.mk_snapshot();
+
+            // sort levels by reverse insertion order. ugh.
+            rb_map<unsigned, name, unsigned_rev_cmp> new_lds;
+            s->m_lds.for_each([&](name const & n, level const &) {
+                new_lds.insert(s->m_lds.find_idx(n), n);
+            });
+            new_lds.for_each([&](unsigned const &, name const & n) {
+                auto vm_n = to_obj(n);
+                auto vm_ld = mk_vm_constructor(0, vm_n, mk_vm_constructor(4, vm_n));
+                vm_lds = mk_vm_constructor(1, vm_ld, vm_lds);
+            });
+
+            for (auto const & ed : s->m_eds.get_entries()) {
+                if (!is_local_p(ed.second)) {
+                    // obsolete local ref, ignore
+                    continue;
+                }
+                auto vm_ed = mk_vm_constructor(0, to_obj(ed.first), mk_vm_constructor(0,
+                                                                                      to_obj(local_name_p(ed.second)),
+                                                                                      mk_vm_external(new vm_expr(
+                                                                                              local_type_p(ed.second))),
+                                                                                      to_obj(local_info_p(ed.second))));
+                vm_eds = mk_vm_constructor(1, vm_ed, vm_eds);
             }
-            auto vm_ed = mk_vm_constructor(0, to_obj(ed.first), mk_vm_constructor(0,
-                    to_obj(local_name_p(ed.second)),
-                    mk_vm_external(new vm_expr(local_type_p(ed.second))),
-                    to_obj(local_info_p(ed.second))));
-            vm_eds = mk_vm_constructor(1, vm_ed, vm_eds);
-        }
 
-        auto vm_st2 = mk_vm_constructor(0, {
-            mk_vm_external(new vm_env(p.env())),
-            to_obj(s->m_ngen),
-            vm_lds,
-            vm_eds,
-            cfield(vm_st, 4),
-            cfield(vm_st, 5),
-            cfield(vm_st, 6),
-            cfield(vm_st, 7)
-        });
-        vm_out = mk_vm_some(vm_st2);
-    } catch (exception & e) {
-        message_builder builder(env, ios, filename, get_pos_info_provider()->get_pos_info_or_some(cmd),
-                message_severity::ERROR);
-        builder.set_exception(e);
-        builder.report();
+            auto vm_st2 = mk_vm_constructor(0, {
+                    mk_vm_external(new vm_env(p.env())),
+                    to_obj(s->m_ngen),
+                    vm_lds,
+                    vm_eds,
+                    cfield(vm_st, 4),
+                    cfield(vm_st, 5),
+                    cfield(vm_st, 6),
+                    cfield(vm_st, 7)
+            });
+            vm_out = mk_vm_some(vm_st2);
+        } catch (exception & e) {
+            message_builder builder(env, ios, filename, pos, message_severity::ERROR);
+            builder.set_exception(e);
+            builder.report();
+        }
     }
     return mk_vm_constructor(0, vm_out, to_obj(log));
 }

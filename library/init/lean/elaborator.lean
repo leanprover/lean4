@@ -97,6 +97,7 @@ structure local_state :=
 (ns_stack : list name := [])
 /- The set of active `open` declarations. -/
 (open_decls : list open_spec.view := [])
+(options : options := options.mk)
 
 /-- An `export` command together with the namespace it was declared in. Opening the namespace activates
     the export. -/
@@ -118,7 +119,6 @@ structure elaborator_state :=
 (expander_cfg : expander.expander_config)
 (env : environment := environment.empty)
 (ngen : name_generator)
-(options : options)
 (next_inst_idx : nat := 0)
 
 @[derive monad monad_reader monad_state monad_except]
@@ -358,6 +358,7 @@ do cfg ← read,
      univs := st.local_state.univs.entries.reverse,
      vars := st.local_state.vars.entries.reverse,
      include_vars := st.local_state.include_vars.to_list,
+     options := st.local_state.options,
      ..st},
    match st' with
    | some st' := put {
@@ -365,6 +366,7 @@ do cfg ← read,
        univs := ordered_rbmap.of_list st'.univs,
        vars := ordered_rbmap.of_list st'.vars,
        include_vars := rbtree.of_list st'.include_vars,
+       options := st'.options,
      },
      ..st', ..st}
    | none := pure (),  -- error
@@ -813,6 +815,21 @@ def export.elaborate : elaborator :=
 def init_quot.elaborate : elaborator :=
 λ stx, old_elab_command stx $ expr.mdata (kvmap.set_name {} `command `init_quot) dummy
 
+def set_option.elaborate : elaborator :=
+λ stx, do
+  let v := view «set_option» stx,
+  let opt := v.opt.val,
+  st ← get,
+  let opts := st.local_state.options,
+  -- TODO(Sebastian): check registered options
+  let opts := match v.val with
+  | option_value.view.bool b := opts.set_bool opt (match b with bool_option_value.view.true _ := tt | _ := ff)
+  | option_value.view.string lit := (match lit.value with
+    | some s := opts.set_string opt s
+    | none   := opts)  -- parser already failed
+  | option_value.view.num lit := opts.set_nat opt lit.to_nat,
+  put {st with local_state := {st.local_state with options := opts}}
+
 /-- List of commands: recursively elaborate each command. -/
 def no_kind.elaborate : coelaborator := do
   stx ← current_command,
@@ -886,7 +903,8 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (open.name, open.elaborate),
   (export.name, export.elaborate),
   (check.name, check.elaborate),
-  (init_quot.name, init_quot.elaborate)
+  (init_quot.name, init_quot.elaborate),
+  (set_option.name, set_option.elaborate)
 ] _
 
 -- TODO: optimize
@@ -962,7 +980,7 @@ do
     parser_cfg := cfg.initial_parser_cfg,
     expander_cfg := {transformers := expander.builtin_transformers, ..cfg},
     ngen := ⟨`_ngen.fixme, 0⟩,
-    options := options.mk},
+    local_state := {options := options.mk.set_bool `trace.as_messages tt}},
   p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
     (commands.elaborate ff max_commands)
     (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})

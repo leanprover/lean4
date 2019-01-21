@@ -788,7 +788,11 @@ def attribute.elaborate : elaborator :=
   let mdata := kvmap.set_name {} `command `attribute,
   let mdata := mdata.set_bool `local $ attr.local.is_some,
   attrs ← attrs_to_pexpr attr.attrs,
-  let ids := expr.mk_capp `_ $ attr.ids.map $ λ id, expr.const (mangle_ident id) [],
+  ids ← attr.ids.mmap (λ id, match id.preresolved with
+    | []  := error (syntax.ident id) $ "unknown identifier '" ++ to_string id.val ++ "'"
+    | [c] := pure $ expr.const c []
+    | _   := error (syntax.ident id) "invalid 'attribute' command, identifier is ambiguous"),
+  let ids := expr.mk_capp `_ ids,
   old_elab_command stx $ expr.mdata mdata $ expr.app attrs ids
 
 def check.elaborate : elaborator :=

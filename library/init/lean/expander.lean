@@ -354,9 +354,9 @@ def let.transform : transformer :=
   let v := view «let» stx,
   match v.lhs with
   | let_lhs.view.id {id := _, binders := [], type := some _} := no_expansion
-  | let_lhs.view.id lli@{id := _, binders := _, type := none} :=
+  | let_lhs.view.id lli@{id := _, binders := [], type := none} :=
     pure $ review «let» {v with lhs := let_lhs.view.id {lli with type := some {type := review hole {}}}}
-  | let_lhs.view.id lli@{id := _, binders := _, type := some ty} :=
+  | let_lhs.view.id lli@{id := _, binders := _, type := ty} :=
     let bindrs := binders.view.extended {
       leading_ids := [],
       remainder := binders_remainder.view.mixed $ lli.binders.map mixed_binder.view.bracketed} in
@@ -364,8 +364,8 @@ def let.transform : transformer :=
       lhs := let_lhs.view.id {
         id := lli.id,
         binders := [],
-        type := some {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := ty.type}}},
-      body := review lambda {binders := bindrs, body := v.body}}
+        type := some {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := get_opt_type ty}}},
+      value := review lambda {binders := bindrs, body := v.body}}
   | let_lhs.view.pattern llp :=
     pure $ review «match» {
       scrutinees := [v.value],

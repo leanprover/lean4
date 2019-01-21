@@ -176,11 +176,10 @@ decl_attributes to_decl_attributes(environment const & env, expr const & e, bool
 
 environment elab_attribute_cmd(environment env, expr const & cmd) {
     auto const & data = mdata_data(cmd);
+    auto const & e = mdata_expr(cmd);
     bool local = *get_bool(data, "local");
-    buffer<expr> args, eattrs, eids;
-    get_app_args(mdata_expr(cmd), args);
-    auto attributes = to_decl_attributes(env, args[0], local);
-    get_app_args(args[1], eids);
+    auto attributes = to_decl_attributes(env, app_fn(e), local);
+    buffer<expr> eids; get_app_args(app_arg(e), eids);
     for (auto const & e : eids)
         env = attributes.apply(env, get_dummy_ios(), const_name(e));
     return env;

@@ -588,6 +588,22 @@ def variables.elaborate : elaborator :=
   vars ← simple_binders_to_pexpr vars,
   old_elab_command stx $ expr.mdata mdata vars
 
+def include.elaborate : elaborator :=
+λ stx, do
+  let v := view «include» stx,
+  -- TODO(Sebastian): error checking
+  modify $ λ st, {st with local_state := {st.local_state with include_vars :=
+    v.ids.foldl (λ vars v, vars.insert $ mangle_ident v) st.local_state.include_vars}}
+
+-- TODO: rbmap.remove
+/-
+def omit.elaborate : elaborator :=
+λ stx, do
+  let v := view «omit» stx,
+  modify $ λ st, {st with local_state := {st.local_state with include_vars :=
+    v.ids.foldl (λ vars v, vars.remove $ mangle_ident v) st.local_state.include_vars}}
+-/
+
 def module.header.elaborate : elaborator :=
 λ stx, do
   let header := view module.header stx,
@@ -902,6 +918,8 @@ def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (section.name, section.elaborate),
   (namespace.name, namespace.elaborate),
   (variables.name, variables.elaborate),
+  (include.name, include.elaborate),
+  --(omit.name, omit.elaborate),
   (declaration.name, declaration.elaborate),
   (attribute.name, attribute.elaborate),
   (open.name, open.elaborate),

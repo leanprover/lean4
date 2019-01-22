@@ -365,7 +365,7 @@ def let.transform : transformer :=
         id := lli.id,
         binders := [],
         type := some {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := get_opt_type ty}}},
-      value := review lambda {binders := bindrs, body := v.body}}
+      value := review lambda {binders := bindrs, body := v.value}}
   | let_lhs.view.pattern llp :=
     pure $ review «match» {
       scrutinees := [v.value],

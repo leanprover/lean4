@@ -173,13 +173,15 @@ def update_leading (source : string) : syntax → syntax :=
 λ stx, prod.fst $ (mreplace update_leading_aux stx).run source.mk_iterator
 
 /-- Retrieve the left-most leaf's info in the syntax tree. -/
-def get_head_info : syntax → option source_info
+mutual def get_head_info, get_head_info_lst
+with get_head_info : syntax → option source_info
 | (atom a)   := a.info
 | (ident id) := id.info
--- TODO: handle case where `n` is an empty `syntax_node`
--- We will have to create a mutual recursion here Arghhhh
-| (raw_node {args:=n::ns, ..}) := n.get_head_info
+| (raw_node n) := get_head_info_lst n.args
 | _ := none
+with get_head_info_lst : list syntax → option source_info
+| [] := none
+| (stx::stxs) := get_head_info stx <|> get_head_info_lst stxs
 
 def get_pos (stx : syntax) : option parsec.position :=
 do i ← stx.get_head_info,

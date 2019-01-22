@@ -167,8 +167,8 @@ class LeanBufferPrinter:
     def display_hint(self):
         return 'array'
 
-class LeanObjListPrinter:
-    """Print a lean::obj_list object."""
+class LeanListRefPrinter:
+    """Print a lean::list_ref object."""
 
     def __init__(self, val):
         self.val = val
@@ -233,7 +233,7 @@ def build_pretty_printer():
     #pp.add_printer('level', '^lean::level$', LeanLevelPrinter)
     #pp.add_printer('list', '^lean::list', LeanListPrinter)
     pp.add_printer('buffer', '^lean::buffer', LeanBufferPrinter)
-    pp.add_printer('obj_list', '^lean::obj_list', LeanObjListPrinter)
+    pp.add_printer('list_ref', '^lean::list_ref', LeanListRefPrinter)
     pp.add_printer('rb_tree', '^lean::rb_tree', LeanRBTreePrinter)
     pp.add_printer('rb_map', '^lean::rb_map', LeanRBMapPrinter)
     return pp

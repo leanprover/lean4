@@ -174,16 +174,16 @@ def to_level : syntax → elaborator_m level
   (fn, args) ← level_get_app_args stx,
   st ← get,
   match fn.kind with
-  | some level.leading := (match view level.leading stx, args with
+  | some level.leading := (match view level.leading fn, args with
     | level.leading.view.hole _, [] := pure $ level.mvar name.anonymous
     | level.leading.view.lit lit, [] := pure $ level.of_nat lit.to_nat
     | level.leading.view.var id, [] := let id := mangle_ident id in (match st.local_state.univs.find id with
       | some _ := pure $ level.param id
       | none   := error stx $ "unknown universe variable '" ++ to_string id ++ "'")
-    | level.leading.view.max _, (arg::args) := list.foldl level.max <$> to_level arg <*> args.mmap to_level
-    | level.leading.view.imax _, (arg::args) := list.foldl level.imax <$> to_level arg <*> args.mmap to_level
+    | level.leading.view.max _, (arg::args) := list.foldr level.max <$> to_level arg <*> args.mmap to_level
+    | level.leading.view.imax _, (arg::args) := list.foldr level.imax <$> to_level arg <*> args.mmap to_level
     | _, _ := error stx "ill-formed universe level")
-  | some level.trailing := (match view level.trailing stx, args with
+  | some level.trailing := (match view level.trailing fn, args with
     | level.trailing.view.add_lit lta, [] := do
       l ← to_level lta.lhs,
       pure $ level_add l lta.rhs.to_nat

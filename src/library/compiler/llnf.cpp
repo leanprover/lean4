@@ -1974,9 +1974,11 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
     for (comp_decl const & d : ds) {
         expr new_v = to_llnf_fn(new_env, unboxed)(d.snd());
         rs.push_back(comp_decl(d.fst(), new_v));
-        if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()))) {
-            new_env = p->first;
-            bs.push_back(p->second);
+        if (unboxed) {
+            if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()))) {
+                new_env = p->first;
+                bs.push_back(p->second);
+            }
         }
     }
     if (unboxed) {

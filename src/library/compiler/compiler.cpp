@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/compiler/simp_app_args.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/emit_bytecode.h"
+#include "library/compiler/emit_cpp.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -88,15 +89,6 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
 
 #define trace_compiler(k, ds) lean_trace(k, trace(ds);)
 
-static environment emit_code(environment const & env, comp_decls const & ds) {
-    /* TODO(Leo): emit C++ too */
-    return emit_bytecode(env, ds);
-}
-
-static environment emit_code(environment const & env, comp_decl const & d) {
-    return emit_code(env, comp_decls(d));
-}
-
 environment compile(environment const & env, options const & opts, names const & cs) {
     if (!is_codegen_enabled(opts))
         return env;
@@ -105,7 +97,8 @@ environment compile(environment const & env, options const & opts, names const &
         /* Generate boxed version for builtin constant if needed */
         unsigned arity = *get_builtin_constant_arity(head(cs));
         if (optional<pair<environment, comp_decl>> p = mk_boxed_version(env, head(cs), arity)) {
-            return emit_code(p->first, p->second);
+            /* Remark: we don't need boxed version for the bytecode */
+            return emit_cpp(p->first, comp_decls(p->second));
         } else {
             return env; /* Nothing to be done: builtin does not take unboxed values */
         }
@@ -167,16 +160,14 @@ environment compile(environment const & env, options const & opts, names const &
     ds = apply(ecse, new_env, ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "simp_app_args"}), ds);
-    {
-        // lean_trace(name({"compiler", "boxed"}),
-        environment b_env; comp_decls b_ds;
-        std::tie(b_env, b_ds) = to_llnf(new_env, ds, true);
-        // trace(b_ds););
-    }
-    /* emit_bytecode has no support for unboxed data */
+    /* emit C++ code. */
+    comp_decls b_ds;
+    std::tie(new_env, b_ds) = to_llnf(new_env, ds, true);
+    new_env = emit_cpp(new_env, b_ds);
+    /* emit bytecode. Remark: the current emit_bytecode has no support for unboxed data. */
     std::tie(new_env, ds) = to_llnf(new_env, ds, false);
     trace_compiler(name({"compiler", "llnf"}), ds);
-    return emit_code(new_env, ds);
+    return emit_bytecode(new_env, ds);
 }
 
 void initialize_compiler() {

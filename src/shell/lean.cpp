@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/message_builder.h"
 #include "library/time_task.h"
+#include "library/compiler/emit_cpp.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/json.h"
@@ -577,8 +578,7 @@ int main(int argc, char ** argv) {
 
         if (cpp_output) {
             std::ofstream out(*cpp_output);
-            out << "// Lean compiler output\n";
-            // TODO(Leo)
+            print_cpp_code(out, env);
         }
 
         if (!test_suite) {

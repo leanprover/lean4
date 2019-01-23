@@ -179,6 +179,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
     std::cout << "  --make             create olean files\n";
+    std::cout << "  --cpp=fname -c     name of the C++ output file\n";
     std::cout << "  --stdin            interpret stdin as content of single .lean file\n";
     std::cout << "  --recursive        recursively find *.lean files in directory arguments\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
@@ -222,6 +223,7 @@ static struct option g_long_options[] = {
     {"deps",         no_argument,       0, 'd'},
     {"test-suite",   no_argument,       0, 'e'},
     {"timeout",      optional_argument, 0, 'T'},
+    {"cpp",          optional_argument, 0, 'c'},
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
     {"path",         no_argument,       0, 'p'},
@@ -237,7 +239,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:qpgvhet:012E:A:B:j:012rM:012T:012"
+    "PdD:c:qpgvhet:012E:A:B:j:012rM:012T:012"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -331,6 +333,7 @@ int main(int argc, char ** argv) {
     options opts;
     optional<std::string> server_in;
     std::string native_output;
+    optional<std::string> cpp_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -348,6 +351,9 @@ int main(int argc, char ** argv) {
         case 'h':
             display_help(std::cout);
             return 0;
+        case 'c':
+            cpp_output = optarg;
+            break;
         case 's':
             lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
             break;
@@ -568,6 +574,12 @@ int main(int argc, char ** argv) {
 
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
+
+        if (cpp_output) {
+            std::ofstream out(*cpp_output);
+            out << "// Lean compiler output\n";
+            // TODO(Leo)
+        }
 
         if (!test_suite) {
             for (auto & mod : mods) {

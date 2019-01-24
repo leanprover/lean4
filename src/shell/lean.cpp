@@ -577,8 +577,17 @@ int main(int argc, char ** argv) {
             display_cumulative_profiling_times(std::cerr);
 
         if (cpp_output) {
+            if (mods.size() != 1) {
+                std::cerr << "Error, option `--cpp=<file>` expects one and only one input module\n";
+                return 1;
+            }
+            module_name mod_name = mods[0].m_mod_info->m_name;
+            buffer<name> dep_names;
+            for (auto d : mods[0].m_mod_info->m_deps) {
+                dep_names.push_back(d.m_mod_info->m_name);
+            }
             std::ofstream out(*cpp_output);
-            print_cpp_code(out, env);
+            print_cpp_code(out, env, mod_name, to_list(dep_names));
         }
 
         if (!test_suite) {

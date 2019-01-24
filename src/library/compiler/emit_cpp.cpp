@@ -37,19 +37,50 @@ optional<name> get_cppname_for(environment const & env, name const & n) {
     }
 }
 
-environment emit_cpp(environment const & env, comp_decls const & ds) {
-    // TODO(Leo)
-    return env;
+struct emit_cpp_ext : public environment_extension {
+    name_map<expr> m_code;
+};
+
+struct emit_cpp_ext_reg {
+    unsigned m_ext_id;
+    emit_cpp_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<emit_cpp_ext>()); }
+};
+
+static emit_cpp_ext_reg * g_ext = nullptr;
+static emit_cpp_ext const & get_extension(environment const & env) {
+    return static_cast<emit_cpp_ext const &>(env.get_extension(g_ext->m_ext_id));
+}
+static environment update(environment const & env, emit_cpp_ext const & ext) {
+    return env.update(g_ext->m_ext_id, std::make_shared<emit_cpp_ext>(ext));
 }
 
-void print_cpp_code(std::ofstream & out, environment const & /* env */, module_name const & m, list<module_name> const & deps) {
+environment emit_cpp(environment const & env, comp_decls const & ds) {
+    /* Remark: we don't generate C++ code here, but at `print_cpp_code`. In this function
+       we simply save the LLNF expression in the emit_cpp_ext.
+       Reason: the attributes for `ds` are only applied after the compiler is executed,
+       and we need to be able to access the `[cppname]` attribute. */
+    emit_cpp_ext ext = get_extension(env);
+    for (comp_decl const & d : ds) {
+        ext.m_code.insert(d.fst(), d.snd());
+    }
+   return update(env, ext);
+}
+
+void print_cpp_code(std::ofstream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     out << "// Lean compiler output\n";
     out << "// Module: " << m << "\n";
     out << "// Imports:"; for (module_name const & d : deps) out << " " << d; out << "\n";
+    name_map<expr> code = get_extension(env).m_code;
     // TODO(Leo)
+    for_each(code, [&](name const & n, expr const &) {
+            out << "// " << n;
+            if (optional<name> c = get_cppname_for(env, n)) out << " ==> " << *c;
+            out << "\n";
+        });
 }
 
 void initialize_emit_cpp() {
+    g_ext = new emit_cpp_ext_reg();
     register_system_attribute(cppname_attr("cppname", "name to be used by C++ code generator",
                                            [](environment const & env, io_state const &, name const &, unsigned, bool persistent) {
                                                if (!persistent) throw exception("invalid [cppname] attribute, must be persistent");
@@ -58,5 +89,6 @@ void initialize_emit_cpp() {
 }
 
 void finalize_emit_cpp() {
+    delete g_ext;
 }
 }

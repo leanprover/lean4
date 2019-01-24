@@ -12,4 +12,7 @@ Author: Leonardo de Moura
 namespace lean {
 environment emit_cpp(environment const & env, comp_decls const & ds);
 void print_cpp_code(std::ofstream & out, environment const & env, module_name const & m, list<module_name> const & deps);
+
+void initialize_emit_cpp();
+void finalize_emit_cpp();
 }

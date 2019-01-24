@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf.h"
 #include "library/compiler/closed_term_cache.h"
 #include "library/compiler/compiler.h"
+#include "library/compiler/emit_cpp.h"
 #include "library/compiler/builtin.h"
 
 namespace lean {
@@ -25,9 +26,11 @@ void initialize_compiler_module() {
     initialize_llnf();
     initialize_compiler();
     initialize_builtin();
+    initialize_emit_cpp();
 }
 
 void finalize_compiler_module() {
+    finalize_emit_cpp();
     finalize_builtin();
     finalize_compiler();
     finalize_llnf();

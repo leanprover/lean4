@@ -35,6 +35,7 @@ public:
 
     virtual unsigned parse_small_nat() = 0;
     virtual std::string parse_string_lit() = 0;
+    virtual name parse_name() = 0;
     /** Always parses an expression.  Returns a synthetic sorry even if no input is consumed. */
     virtual expr parse_expr(unsigned rbp = 0) = 0;
 };

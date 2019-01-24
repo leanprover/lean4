@@ -326,6 +326,8 @@ public:
     unsigned get_small_nat();
     virtual unsigned parse_small_nat() override final;
     virtual std::string parse_string_lit() override final;
+    virtual name parse_name() override final { return check_id_next("identifier expected"); }
+
     double parse_double();
 
     bool parse_local_notation_decl() { return parse_local_notation_decl(nullptr); }

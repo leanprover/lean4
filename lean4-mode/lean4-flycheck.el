@@ -22,7 +22,7 @@
   (let ((command
          (-concat `(,(lean4-get-executable lean4-executable-name))
                   lean4-extra-arguments
-                  '("--json" "--make" "--stdin"))))
+                  '("--json" "--stdin"))))
     command))
 
 (defun lean4-bootstrapped-flycheck-command ()

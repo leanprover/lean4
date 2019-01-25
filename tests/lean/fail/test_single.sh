@@ -8,15 +8,8 @@ LEAN=$1
 export LEAN_PATH=../../../library:.
 f=$2
 echo "-- testing $f"
-if [[ -f $f.status ]]; then
-    echo "-- using result from test_all.sh"
-    cat $f.test_suite.out
-    status=$(cat $f.status)
-    rm $f.test_suite.out $f.status
-else
-    "$LEAN" -j 0 "$f"
-    status=$?
-fi
+"$LEAN" -j 0 "$f"
+status=$?
 if [ "$status" -eq 1 ]; then
     echo "-- checked"
 else

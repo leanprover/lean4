@@ -98,46 +98,14 @@ if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   #          COMMAND bash "./timeout.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "1" "slow1.lean")
 endif()
 
-# LEAN TESTS
-file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
-add_test(NAME leantest_clear_all
-        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-        COMMAND "${CMAKE_COMMAND}" -E remove "*.test_suite.out" "*.status")
-set_tests_properties(leantest_clear_all PROPERTIES FIXTURES_SETUP AllFiles)
-
-file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
-add_test(NAME leantest_all
-        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
-        COMMAND bash "./test_all.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-set_tests_properties(leantest_all PROPERTIES DEPENDS leantest_clear_all # for cmake < 3.7
-                                             FIXTURES_REQUIRED AllFiles
-                                             RUN_SERIAL 1)
-
 FOREACH(T ${LEANTESTS})
   if(NOT T MATCHES "\\.#")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
     add_test(NAME "leantest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean"
              COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-    set_tests_properties("leantest_${T_NAME}" PROPERTIES DEPENDS "leantest_all;leantest_clear_all"
-                                                         FIXTURES_REQUIRED AllFiles)
   endif()
 ENDFOREACH(T)
-
-# LEAN RUN TESTS
-file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
-add_test(NAME leanruntest_clear_all
-        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
-        COMMAND "${CMAKE_COMMAND}" -E remove "*.test_suite.out" "*.status")
-set_tests_properties(leanruntest_clear_all PROPERTIES FIXTURES_SETUP AllFiles)
-
-file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
-add_test(NAME leanruntest_all
-        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
-        COMMAND bash "./test_all.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-set_tests_properties(leanruntest_all PROPERTIES DEPENDS leanruntest_clear_all # for cmake < 3.7
-                                                FIXTURES_REQUIRED AllFiles
-                                                RUN_SERIAL 1)
 
 FOREACH(T ${LEANRUNTESTS})
   if(NOT T MATCHES "\\.#")
@@ -145,22 +113,9 @@ FOREACH(T ${LEANRUNTESTS})
     add_test(NAME "leanruntest_${T_NAME}"
              WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/run"
              COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-    set_tests_properties("leanruntest_${T_NAME}" PROPERTIES DEPENDS "leanruntest_all;leanruntest_clear_all"
-                                                            FIXTURES_REQUIRED AllFiles)
   endif()
 ENDFOREACH(T)
 
-# LEAN FAIL TESTS
-file(GLOB LEANFAILTESTS "${LEAN_SOURCE_DIR}/../tests/lean/fail/*.lean")
-add_test(NAME leanfailtest_clear_all
-        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
-        COMMAND "${CMAKE_COMMAND}" -E remove "*.test_suite.out" "*.status")
-set_tests_properties(leanfailtest_clear_all PROPERTIES FIXTURES_SETUP AllFiles)
-add_test(NAME leanfailtest_all
-        WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
-        COMMAND bash "./test_all.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean")
-set_tests_properties(leanfailtest_all PROPERTIES DEPENDS leanfailtest_clear_all # for cmake < 3.7
-        FIXTURES_REQUIRED AllFiles RUN_SERIAL 1)
 FOREACH(T ${LEANFAILTESTS})
     if(NOT T MATCHES "\\.#")
         GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -171,10 +126,6 @@ FOREACH(T ${LEANFAILTESTS})
         add_test(NAME "leanfailtest2_${T_NAME}"
                 WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
                 COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
-        set_tests_properties("leanfailtest_${T_NAME}" PROPERTIES DEPENDS "leanfailtest_all;leanfailtest_clear_all"
-                FIXTURES_REQUIRED AllFiles)
-        set_tests_properties("leanfailtest2_${T_NAME}" PROPERTIES DEPENDS "leanfailtest_${T_NAME};leanfailtest_all;leanfailtest_clear_all"
-                FIXTURES_REQUIRED AllFiles)
     endif()
 ENDFOREACH(T)
 

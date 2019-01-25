@@ -179,10 +179,9 @@ static void display_help(std::ostream & out) {
     std::cout << "  --version -v       display version number\n";
     std::cout << "  --githash          display the git commit hash number used to build this binary\n";
     std::cout << "  --run              executes the 'main' definition\n";
-    std::cout << "  --make             create olean files\n";
+    std::cout << "  --make             create olean file\n";
     std::cout << "  --cpp=fname -c     name of the C++ output file\n";
-    std::cout << "  --stdin            interpret stdin as content of single .lean file\n";
-    std::cout << "  --recursive        recursively find *.lean files in directory arguments\n";
+    std::cout << "  --stdin            take input from stdin\n";
     std::cout << "  --trust=num -t     trust level (default: max) 0 means do not trust any macro,\n"
               << "                     and type check all imported modules\n";
     std::cout << "  --quiet -q         do not print verbose messages\n";
@@ -206,7 +205,6 @@ static void display_help(std::ostream & out) {
     std::cout << "  --debug=tag        enable assertions with the given tag\n";
         )
     std::cout << "  -D name=value      set a configuration option (see set_option command)\n";
-    std::cout << "  --test-suite       capture output and status code from each input file $f in $f.produced and $f.status, respectively\n";
 }
 
 static struct option g_long_options[] = {
@@ -215,14 +213,12 @@ static struct option g_long_options[] = {
     {"githash",      no_argument,       0, 'g'},
     {"make",         no_argument,       0, 'm'},
     {"stdin",        no_argument,       0, 'i'},
-    {"recursive",    no_argument,       0, 'R'},
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
     {"threads",      required_argument, 0, 'j'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
-    {"test-suite",   no_argument,       0, 'e'},
     {"timeout",      optional_argument, 0, 'T'},
     {"cpp",          optional_argument, 0, 'c'},
 #if defined(LEAN_JSON)
@@ -315,18 +311,16 @@ int main(int argc, char ** argv) {
         });
 #endif
     ::initializer init;
-    bool make_mode          = false;
-    bool use_stdin          = false;
-    bool recursive          = false;
-    unsigned trust_lvl      = LEAN_BELIEVER_TRUST_LEVEL+1;
-    bool only_deps          = false;
-    bool test_suite         = false;
+    bool make_mode = false;
+    bool use_stdin = false;
+    unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
+    bool only_deps = false;
     // unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
     // num_threads = hardware_concurrency();
 #endif
 #if defined(LEAN_JSON)
-    bool json_output        = false;
+    bool json_output = false;
 #endif
 
     standard_search_path path;
@@ -340,107 +334,100 @@ int main(int argc, char ** argv) {
         if (c == -1)
             break; // end of command line
         switch (c) {
-        case 'j':
-            // num_threads = static_cast<unsigned>(atoi(optarg));
-            break;
-        case 'v':
-            display_header(std::cout);
-            return 0;
-        case 'g':
-            std::cout << LEAN_GITHASH << "\n";
-            return 0;
-        case 'h':
-            display_help(std::cout);
-            return 0;
-        case 'c':
-            cpp_output = optarg;
-            break;
-        case 's':
-            lean::lthread::set_thread_stack_size(static_cast<size_t>((atoi(optarg)/4)*4)*static_cast<size_t>(1024));
-            break;
-        case 'i':
-            use_stdin = true;
-            break;
-        case 'm':
-            make_mode = true;
-            recursive = true;
-            break;
-        case 'R':
-            recursive = true;
-            break;
-        case 'n':
-            native_output         = optarg;
-            break;
-        case 'M':
-            opts = opts.update(get_max_memory_opt_name(), atoi(optarg));
-            break;
-        case 'T':
-            opts = opts.update(get_timeout_opt_name(), atoi(optarg));
-            break;
-        case 't':
-            trust_lvl = atoi(optarg);
-            break;
-        case 'q':
-            opts = opts.update(lean::get_verbose_opt_name(), false);
-            break;
-        case 'd':
-            only_deps = true;
-            break;
-        case 'D':
-            try {
-                opts = set_config_option(opts, optarg);
-            } catch (lean::exception & ex) {
-                std::cerr << ex.what() << std::endl;
-                return 1;
-            }
-            break;
+            case 'j':
+                // num_threads = static_cast<unsigned>(atoi(optarg));
+                break;
+            case 'v':
+                display_header(std::cout);
+                return 0;
+            case 'g':
+                std::cout << LEAN_GITHASH << "\n";
+                return 0;
+            case 'h':
+                display_help(std::cout);
+                return 0;
+            case 'c':
+                cpp_output = optarg;
+                break;
+            case 's':
+                lean::lthread::set_thread_stack_size(
+                        static_cast<size_t>((atoi(optarg) / 4) * 4) * static_cast<size_t>(1024));
+                break;
+            case 'i':
+                use_stdin = true;
+                break;
+            case 'm':
+                make_mode = true;
+                break;
+            case 'n':
+                native_output = optarg;
+                break;
+            case 'M':
+                opts = opts.update(get_max_memory_opt_name(), atoi(optarg));
+                break;
+            case 'T':
+                opts = opts.update(get_timeout_opt_name(), atoi(optarg));
+                break;
+            case 't':
+                trust_lvl = atoi(optarg);
+                break;
+            case 'q':
+                opts = opts.update(lean::get_verbose_opt_name(), false);
+                break;
+            case 'd':
+                only_deps = true;
+                break;
+            case 'D':
+                try {
+                    opts = set_config_option(opts, optarg);
+                } catch (lean::exception & ex) {
+                    std::cerr << ex.what() << std::endl;
+                    return 1;
+                }
+                break;
 #if defined(LEAN_JSON)
-        case 'J':
-            opts = opts.update(lean::name{"trace", "as_messages"}, true);
-            json_output = true;
-            break;
-        case 'p': {
-            json out;
+            case 'J':
+                opts = opts.update(lean::name{"trace", "as_messages"}, true);
+                json_output = true;
+                break;
+            case 'p': {
+                json out;
 
-            auto & out_path = out["path"] = json::array();
-            for (auto & p : path.get_path()) out_path.push_back(p);
+                auto & out_path = out["path"] = json::array();
+                for (auto & p : path.get_path()) out_path.push_back(p);
 
-            out["leanpkg_path_file"] = path.m_leanpkg_path_fn ? *path.m_leanpkg_path_fn : path.m_user_leanpkg_path_fn;
-            out["is_user_leanpkg_path"] = !path.m_leanpkg_path_fn;
+                out["leanpkg_path_file"] = path.m_leanpkg_path_fn ? *path.m_leanpkg_path_fn
+                                                                  : path.m_user_leanpkg_path_fn;
+                out["is_user_leanpkg_path"] = !path.m_leanpkg_path_fn;
 
-            std::cout << std::setw(2) << out << std::endl;
-            return 0;
-        }
+                std::cout << std::setw(2) << out << std::endl;
+                return 0;
+            }
 #endif
-        case 'P':
-            opts = opts.update("profiler", true);
-            break;
-        case 'e':
-            test_suite = true;
-            opts = opts.update(lean::name{"trace", "as_messages"}, true);
-            break;
+            case 'P':
+                opts = opts.update("profiler", true);
+                break;
 #if defined(LEAN_DEBUG)
-        case 'B':
-            lean::enable_debug(optarg);
-            break;
+            case 'B':
+                lean::enable_debug(optarg);
+                break;
 #endif
-        default:
-            std::cerr << "Unknown command line option\n";
-            display_help(std::cerr);
-            return 1;
+            default:
+                std::cerr << "Unknown command line option\n";
+                display_help(std::cerr);
+                return 1;
         }
     }
 
-    if (use_stdin)
-        recursive = false;
-
     if (auto max_memory = opts.get_unsigned(get_max_memory_opt_name(),
-                                            opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_MEMORY : LEAN_DEFAULT_MAX_MEMORY)) {
+                                            opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_MEMORY
+                                                                    : LEAN_DEFAULT_MAX_MEMORY)) {
         set_max_memory_megabyte(max_memory);
     }
 
     if (auto timeout = opts.get_unsigned(get_timeout_opt_name(),
-                                         opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_HEARTBEAT : LEAN_DEFAULT_MAX_HEARTBEAT)) {
+                                         opts.get_bool("server") ? LEAN_SERVER_DEFAULT_MAX_HEARTBEAT
+                                                                 : LEAN_DEFAULT_MAX_HEARTBEAT)) {
         set_max_heartbeat_thousands(timeout);
     }
 
@@ -454,122 +441,83 @@ int main(int argc, char ** argv) {
     type_context_old trace_ctx(env, opts);
     scope_trace_env scope_trace(env, opts, trace_ctx);
 
+    std::string mod_fn, contents;
+    if (use_stdin) {
+        if (argc - optind != 0) {
+            std::cerr << "Expected exactly one of file name or --stdin\n";
+            display_help(std::cerr);
+            return 1;
+        }
+        mod_fn = "<stdin>";
+        std::stringstream buf;
+        buf << std::cin.rdbuf();
+        contents = buf.str();
+    } else {
+        if (argc - optind != 1) {
+            std::cerr << "Expected exactly one file name\n";
+            display_help(std::cerr);
+            return 1;
+        }
+        mod_fn = argv[optind];
+        contents = read_file(mod_fn);
+    }
     try {
         module_mgr mod_mgr(path.get_path(), env, ios);
         mod_mgr.set_save_olean(make_mode);
 
-        std::vector<std::string> args(argv + optind, argv + argc);
-        if (recursive) {
-            if (args.empty()) args.push_back(".");
-            std::vector<std::string> files;
-            for (auto & f : args) {
-                if (auto i_d = is_dir(f)) {
-                    if (*i_d) {
-                        find_files(f, ".lean", files);
-                    } else {
-                        files.push_back(f);
-                    }
-                }
-            }
-            args.clear();
-            for (auto & f : files) {
-                if (is_lean_file(f))
-                    args.push_back(f);
-            }
-        }
-        std::vector<std::string> module_args;
-        for (auto & f : args) module_args.push_back(lrealpath(f));
-
+        auto imports = mod_mgr.get_direct_imports(mod_fn, contents);
         if (only_deps) {
-            for (auto const & mod_fn : module_args) {
-                auto contents = read_file(mod_fn);
-                for (auto const & import : mod_mgr.get_direct_imports(mod_fn, contents)) {
-                    std::string m_name = find_file(path.get_path(), import, {".lean"});
-                    auto last_idx = m_name.find_last_of(".");
-                    std::string rawname = m_name.substr(0, last_idx);
-                    std::string ext = m_name.substr(last_idx);
-                    m_name = rawname + ".olean";
-                    std::cout << m_name << "\n";
-                }
+            for (auto const & import : imports) {
+                std::string m_name = find_file(path.get_path(), import, {".lean"});
+                auto last_idx = m_name.find_last_of(".");
+                std::string rawname = m_name.substr(0, last_idx);
+                std::string ext = m_name.substr(last_idx);
+                m_name = rawname + ".olean";
+                std::cout << m_name << "\n";
             }
             return 0;
         }
 
-        struct input_mod {
-            std::string m_file_name;
-            std::shared_ptr<module_info const> m_mod_info;
-        };
-        std::vector<input_mod> mods;
-        for (auto & mod : module_args) {
-            auto mod_info = mod_mgr.get_module(module_name_of_file(path.get_path(), mod));
-            mods.push_back({mod, mod_info});
+        scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
+        message_log l;
+        scope_message_log scope_log(l);
+        for (auto & d : imports) {
+            auto d_mod = mod_mgr.get_module(d);
         }
 
-        bool ok = true;
+        auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
+        try {
+            std::stringstream ss;
+            ss << contents;
+            parser p(mod_env, ios, ss, mod_fn);
+            p.parse_commands();
+            mod_env = p.env();
 
-        if (use_stdin) {
-            std::stringstream buf;
-            buf << std::cin.rdbuf();
-
-            // This is where we will later spin off the server
-            scope_global_ios scope_ios(ios);
-            scope_traces_as_messages scope_trace_msgs("<stdin>", {1, 0});
-            message_log l;
-            scope_message_log scope_log(l);
-            auto imports = mod_mgr.get_direct_imports("<stdin>", buf.str());
-            std::set<module_name> failed_imports;
-            for (auto & d : imports) {
-                auto d_mod = mod_mgr.get_module(d);
-                if (d_mod->m_log.has_errors())
-                    // error in this import
-                    failed_imports.insert(d_mod->m_name);
-                else
-                    // errors (maybe 0) in a transitive import
-                    failed_imports.insert(d_mod->m_failed_deps.begin(), d_mod->m_failed_deps.end());
+            if (make_mode && !l.has_errors()) {
+                auto olean_fn = olean_of_lean(mod_fn);
+                lean_trace("import", tout() << "saving " << olean_fn << "\n";);
+                time_task t(".olean serialization",
+                            message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
+                                            message_severity::INFORMATION));
+                exclusive_file_lock output_lock(olean_fn);
+                std::ofstream out(olean_fn, std::ios_base::binary);
+                write_module(export_module(p.env(), mod_fn), out);
+                out.close();
+                if (!out) throw exception("failed to write olean file");
             }
-            for (auto const & d : failed_imports) {
-                message_builder msg(env, ios, "<stdin>", {1, 0}, ERROR);
-                msg << "import " << d << " has errors, aborting";
-                msg.report();
-                ok = false;
-            }
+        } catch (exception const & ex) {
+            message_builder msg(env, ios, mod_fn, {1, 0}, ERROR);
+            msg.set_exception(ex);
+            report_message(msg.build());
+        }
 
-            if (ok) {
-                try {
-                    auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
-                    parser p(mod_env, ios, buf, "<stdin>");
-                    // The server will obviously do something more complicated from here
-                    p.parse_commands();
-                } catch (exception const & ex) {
-                    message_builder msg(env, ios, "<stdin>", {1, 0}, ERROR);
-                    msg.set_exception(ex);
-                    report_message(msg.build());
-                }
-            }
-
-            for (auto const & msg : l.to_buffer()) {
-                if (json_output) {
+        for (auto const & msg : l.to_buffer()) {
+            if (json_output) {
 #if defined(LEAN_JSON)
-                    print_json(std::cout, msg);
+                print_json(std::cout, msg);
 #endif
-                } else {
-                    std::cout << msg;
-                }
-            }
-            if (l.has_errors())
-                ok = false;
-        }
-
-        for (auto & mod : mods) {
-            if (test_suite) {
-                std::ofstream out(mod.m_file_name + ".test_suite.out");
-                for (auto const & msg : mod.m_mod_info->m_log.to_buffer()) {
-                    out << msg;
-                }
-            }
-            if (test_suite) {
-                std::ofstream status(mod.m_file_name + ".status");
-                status << (!mod.m_mod_info->has_errors() ? 0 : 1);
+            } else {
+                std::cout << msg;
             }
         }
 
@@ -577,37 +525,13 @@ int main(int argc, char ** argv) {
             display_cumulative_profiling_times(std::cerr);
 
         if (cpp_output) {
-            if (mods.size() != 1) {
-                std::cerr << "Error, option `--cpp=<file>` expects one and only one input module\n";
-                return 1;
-            }
-            module_name mod_name = mods[0].m_mod_info->m_name;
-            buffer<name> dep_names;
-            for (auto d : mods[0].m_mod_info->m_deps) {
-                dep_names.push_back(d.m_mod_info->m_name);
-            }
             std::ofstream out(*cpp_output);
-            print_cpp_code(out, env, mod_name, to_list(dep_names));
+            print_cpp_code(out, mod_env, mod_fn, to_list(imports.begin(), imports.end()));
         }
-
-        if (!test_suite) {
-            for (auto & mod : mods) {
-                for (auto const & msg : mod.m_mod_info->m_log.to_buffer()) {
-                    if (json_output) {
-#if defined(LEAN_JSON)
-                        print_json(std::cout, msg);
-#endif
-                    } else {
-                        std::cout << msg;
-                    }
-                }
-                if (mod.m_mod_info->has_errors())
-                    ok = false;
-            }
-        }
-        return ok ? 0 : 1;
+        return l.has_errors() ? 1 : 0;
     } catch (lean::throwable & ex) {
-        std::cerr << lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(ex).build();
+        std::cerr << lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(
+                ex).build();
     } catch (std::bad_alloc & ex) {
         std::cerr << "out of memory" << std::endl;
     }

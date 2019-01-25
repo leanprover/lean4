@@ -31,6 +31,7 @@ bool is_llnf_box(expr const & e, unsigned & n);
 bool is_llnf_inc(expr const & e);
 bool is_llnf_dec(expr const & e);
 
+bool is_llnf_op(expr const & e);
 inline bool is_llnf_cnstr(expr const & e) { unsigned d1, d2, d3; return is_llnf_cnstr(e, d1, d2, d3); }
 inline bool is_llnf_reuse(expr const & e) { unsigned d1, d2, d3; return is_llnf_reuse(e, d1, d2, d3); }
 inline bool is_llnf_reset(expr const & e) { unsigned i; return is_llnf_reset(e, i); }

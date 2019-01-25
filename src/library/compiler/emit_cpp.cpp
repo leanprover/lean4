@@ -123,6 +123,24 @@ static std::string to_base_cpp_name(environment const & env, name const & n) {
     }
 }
 
+static std::string to_cpp_name(environment const & env, name const & n) {
+    if (optional<name> c = get_cppname_for(env, n)) {
+        lean_assert(c->is_string());
+        return c->to_string("::");
+    } else {
+        return mangle(n);
+    }
+}
+
+static std::string to_cpp_init_name(environment const & env, name const & n) {
+    if (optional<name> c = get_cppname_for(env, n)) {
+        name init_c(c->get_prefix(), (std::string("_init_") + c->get_string().to_std_string()).c_str());
+        return init_c.to_string("::");
+    } else {
+        return std::string("_init_") + mangle(n);
+    }
+}
+
 static expr get_result_type(expr type) {
     while (is_pi(type)) {
         type = binding_body(type);
@@ -207,7 +225,6 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "#include \"runtime/object.h\"\n";
     out << "#include \"runtime/apply.h\"\n";
     out << "typedef lean::object obj;\n";
-    out << "static bool _G_initialized = false;\n";
 }
 
 static void emit_fn_header(std::ostream & out, environment const & env, name const & n, expr const & code) {
@@ -226,7 +243,7 @@ static void emit_fn_header(std::ostream & out, environment const & env, name con
         }
         out << ")";
     } else {
-        out << "_init" << to_base_cpp_name(env, n) << "()";
+        out << "_init_" << to_base_cpp_name(env, n) << "()";
     }
 }
 
@@ -249,10 +266,33 @@ static void emit_fns(std::ostream & out, environment const & env) {
     }
 }
 
+static void emit_initialize(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
+    for (module_name const & d : deps) {
+        out << "void _l_initialize_" << mangle(d) << "();\n";
+    }
+    out << "static bool _G_initialized = false;\n";
+    out << "void _l_initialize_" << mangle(m) << "() {\n";
+    out << " if (_G_initialized) return;\n";
+    out << " _G_initialized = true;\n";
+    for (module_name const & d : deps) {
+        out << " _l_initialize_" << mangle(d) << "();\n";
+    }
+    comp_decls ds = get_extension(env).m_code;
+    for (comp_decl const & d : ds) {
+        name const & n    = d.fst();
+        expr const & code = d.snd();
+        if (!is_lambda(code)) {
+            out << " " << to_cpp_name(env, n) << " = " << to_cpp_init_name(env, n) << "();\n";
+        }
+    }
+    out << "}\n";
+}
+
 void print_cpp_code(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     emit_file_header(out, m, deps);
     emit_fn_decls(out, env);
     emit_fns(out, env);
+    emit_initialize(out, env, m, deps);
 }
 
 void initialize_emit_cpp() {

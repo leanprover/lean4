@@ -446,7 +446,7 @@ class to_llnf_fn {
         buffer<expr> binding_fvars;
         while (is_lambda(e)) {
             lean_assert(!has_loose_bvars(binding_domain(e)));
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), binding_domain(e), binding_info(e));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), next_name(), binding_domain(e), binding_info(e));
             binding_fvars.push_back(new_fvar);
             e = binding_body(e);
         }
@@ -924,7 +924,7 @@ public:
     }
 };
 
-static expr get_constant_ll_type(environment const & env, name const & c) {
+expr get_constant_ll_type(environment const & env, name const & c) {
     if (optional<expr> type = get_builtin_constant_ll_type(c)) {
         return *type;
     } else {
@@ -1111,7 +1111,7 @@ class explicit_boxing_fn {
         buffer<expr> binding_fvars;
         while (is_lambda(e)) {
             lean_assert(!has_loose_bvars(binding_domain(e)));
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), binding_domain(e), binding_info(e));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), next_name(), binding_domain(e), binding_info(e));
             binding_fvars.push_back(new_fvar);
             e = binding_body(e);
         }
@@ -1842,7 +1842,7 @@ class explicit_rc_fn {
         unsigned i = 0;
         while (is_lambda(e)) {
             lean_assert(!has_loose_bvars(binding_domain(e)));
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), binding_domain(e), binding_info(e));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), next_name(), binding_domain(e), binding_info(e));
             lean_assert(i < borrowed.size());
             if (borrowed[i])
                 m_borrowed.insert(fvar_name(new_fvar));

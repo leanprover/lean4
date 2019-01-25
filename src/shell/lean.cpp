@@ -457,7 +457,7 @@ int main(int argc, char ** argv) {
             display_help(std::cerr);
             return 1;
         }
-        mod_fn = argv[optind];
+        mod_fn = lrealpath(argv[optind]);
         contents = read_file(mod_fn);
     }
     try {
@@ -513,7 +513,8 @@ int main(int argc, char ** argv) {
 
         if (cpp_output) {
             std::ofstream out(*cpp_output);
-            print_cpp_code(out, p.env(), mod_fn, to_list(imports.begin(), imports.end()));
+            auto mod = module_name_of_file(path.get_path(), mod_fn);
+            print_cpp_code(out, p.env(), mod, to_list(imports.begin(), imports.end()));
         }
         return l.has_errors() ? 1 : 0;
     } catch (lean::throwable & ex) {

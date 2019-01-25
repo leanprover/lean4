@@ -82,6 +82,8 @@ static std::string to_cpp_type(expr const & e) {
         } else if (const_name(e) == get_usize_name()) {
             return "size_t";
         }
+    } else if (is_pi(e)) {
+        return "obj*";
     }
     throw exception("unknown type");
 }
@@ -128,7 +130,7 @@ static expr get_result_type(expr type) {
     return type;
 }
 
-static void emit_fn_header(std::ostream & out, environment const & env, name const & n, bool arg_names) {
+static void emit_fn_decl(std::ostream & out, environment const & env, name const & n) {
     open_namespaces_for(out, env, n);
     expr type = get_constant_ll_type(env, n);
     out << to_cpp_type(get_result_type(type)) << " " << to_base_cpp_name(env, n);
@@ -136,15 +138,8 @@ static void emit_fn_header(std::ostream & out, environment const & env, name con
         out << "(";
         bool first = true;
         while (is_pi(type)) {
-            if (first)
-                first = false;
-            else
-                out << ", ";
+            if (first) first = false; else out << ", ";
             out << to_cpp_type(binding_domain(type));
-            if (arg_names) {
-                out << " ";
-                out << binding_name(type);
-            }
             type = binding_body(type);
         }
         out << ")";
@@ -191,9 +186,9 @@ static void collect_dependencies(environment const & env, expr e, name_set & dep
     }
 }
 
-/* Emit function headers of all functions/constants declared in the current module,
+/* Emit C++ function declaration for all functions/constants declared in the current module,
    and their direct dependencies. */
-static void emit_fn_headers(std::ostream & out, environment const & env) {
+static void emit_fn_decls(std::ostream & out, environment const & env) {
     comp_decls ds = get_extension(env).m_code;
     name_set todo;
     for (comp_decl const & d : ds) {
@@ -202,7 +197,7 @@ static void emit_fn_headers(std::ostream & out, environment const & env) {
             collect_dependencies(env, d.snd(), todo);
         }
     }
-    todo.for_each([&](name const & n) { emit_fn_header(out, env, n, false); });
+    todo.for_each([&](name const & n) { emit_fn_decl(out, env, n); });
 }
 
 static void emit_file_header(std::ostream & out, module_name const & m, list<module_name> const & deps) {
@@ -210,12 +205,54 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "// Module: " << m << "\n";
     out << "// Imports:"; for (module_name const & d : deps) out << " " << d; out << "\n";
     out << "#include \"runtime/object.h\"\n";
+    out << "#include \"runtime/apply.h\"\n";
     out << "typedef lean::object obj;\n";
+    out << "static bool _G_initialized = false;\n";
+}
+
+static void emit_fn_header(std::ostream & out, environment const & env, name const & n, expr const & code) {
+    expr type = get_constant_ll_type(env, n);
+    out << to_cpp_type(get_result_type(type)) << " ";
+    if (is_lambda(code)) {
+        out << to_base_cpp_name(env, n);
+        out << "(";
+        expr it    = code;
+        bool first = true;
+        while (is_lambda(it)) {
+            if (first) first = false; else out << ", ";
+            out << to_cpp_type(binding_domain(it));
+            out << " " << binding_name(it);
+            it = binding_body(it);
+        }
+        out << ")";
+    } else {
+        out << "_init" << to_base_cpp_name(env, n) << "()";
+    }
+}
+
+static void emit_fn(std::ostream & out, environment const & env, comp_decl const & d) {
+    name const & n = d.fst();
+    expr code = d.snd();
+    open_namespaces_for(out, env, n);
+    emit_fn_header(out, env, n, code);
+    out << " {\n";
+    // TODO(Leo)
+    out << " return 0;\n";
+    out << "}\n";
+    close_namespaces_for(out, env, n);
+}
+
+static void emit_fns(std::ostream & out, environment const & env) {
+    comp_decls ds = get_extension(env).m_code;
+    for (comp_decl const & d : ds) {
+        emit_fn(out, env, d);
+    }
 }
 
 void print_cpp_code(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     emit_file_header(out, m, deps);
-    emit_fn_headers(out, env);
+    emit_fn_decls(out, env);
+    emit_fns(out, env);
 }
 
 void initialize_emit_cpp() {

@@ -76,11 +76,22 @@ static environment cache_stage1(environment env, comp_decls const & ds) {
     return env;
 }
 
+static expr ensure_arity(expr const & t, unsigned arity) {
+    if (arity == 0) {
+        if (is_pi(t)) return mk_enf_object_type(); // closure
+        else return t;
+    }
+    lean_assert(is_pi(t));
+    return ensure_arity(binding_body(t), arity-1);
+}
+
 static environment cache_stage2(environment env, comp_decls const & ds) {
     for (comp_decl const & d : ds) {
         name n = d.fst();
         expr v = d.snd();
         expr t = ll_infer_type(env, v);
+        unsigned arity = get_num_nested_lambdas(v);
+        v = ensure_arity(t, arity);
         lean_trace(name({"compiler", "stage2"}), tout() << n << " : " << t << "\n";);
         env = register_stage2_decl(env, n, t, v);
     }

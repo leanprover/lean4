@@ -29,7 +29,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "library/formatter.h"
 #include "library/eval_helper.h"
-#include "library/module_mgr.h"
 #include "library/module.h"
 #include "library/type_context.h"
 #include "library/io_state_stream.h"
@@ -462,10 +461,20 @@ int main(int argc, char ** argv) {
         contents = read_file(mod_fn);
     }
     try {
-        module_mgr mod_mgr(path.get_path(), env, ios);
-        mod_mgr.set_save_olean(make_mode);
+        message_log l;
+        scope_message_log scope_log(l);
+        scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
 
-        auto imports = mod_mgr.get_direct_imports(mod_fn, contents);
+        std::vector<rel_module_name> rel_imports;
+        std::istringstream in(contents);
+        parser p(env, ios, in, mod_fn);
+        p.parse_imports(rel_imports);
+
+        std::vector<module_name> imports;
+        auto dir = dirname(mod_fn);
+        for (auto const & rel : rel_imports)
+            imports.push_back(absolutize_module_name(path.get_path(), dir, rel));
+
         if (only_deps) {
             for (auto const & import : imports) {
                 std::string m_name = find_file(path.get_path(), import, {".lean"});
@@ -478,37 +487,15 @@ int main(int argc, char ** argv) {
             return 0;
         }
 
-        scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
-        message_log l;
-        scope_message_log scope_log(l);
-        for (auto & d : imports) {
-            auto d_mod = mod_mgr.get_module(d);
-        }
+        p.set_env(import_modules(env, imports, path.get_path()));
+        p.parse_commands();
 
-        auto mod_env = import_modules(env, imports, mod_mgr.mk_loader());
-        try {
-            std::stringstream ss;
-            ss << contents;
-            parser p(mod_env, ios, ss, mod_fn);
-            p.parse_commands();
-            mod_env = p.env();
-
-            if (make_mode && !l.has_errors()) {
-                auto olean_fn = olean_of_lean(mod_fn);
-                lean_trace("import", tout() << "saving " << olean_fn << "\n";);
-                time_task t(".olean serialization",
-                            message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
-                                            message_severity::INFORMATION));
-                exclusive_file_lock output_lock(olean_fn);
-                std::ofstream out(olean_fn, std::ios_base::binary);
-                write_module(export_module(p.env(), mod_fn), out);
-                out.close();
-                if (!out) throw exception("failed to write olean file");
-            }
-        } catch (exception const & ex) {
-            message_builder msg(env, ios, mod_fn, {1, 0}, ERROR);
-            msg.set_exception(ex);
-            report_message(msg.build());
+        if (make_mode && !l.has_errors()) {
+            auto olean_fn = olean_of_lean(mod_fn);
+            time_task t(".olean serialization",
+                        message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
+                                        message_severity::INFORMATION));
+            write_module(p.env(), mod_fn, olean_fn);
         }
 
         for (auto const & msg : l.to_buffer()) {
@@ -526,7 +513,7 @@ int main(int argc, char ** argv) {
 
         if (cpp_output) {
             std::ofstream out(*cpp_output);
-            print_cpp_code(out, mod_env, mod_fn, to_list(imports.begin(), imports.end()));
+            print_cpp_code(out, p.env(), mod_fn, to_list(imports.begin(), imports.end()));
         }
         return l.has_errors() ? 1 : 0;
     } catch (lean::throwable & ex) {

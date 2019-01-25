@@ -20,7 +20,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/error_msgs.h"
 #include "library/profiling.h"
-#include "library/module_mgr.h"
 #include "library/export_decl.h"
 #include "library/trace.h"
 #include "library/class.h"

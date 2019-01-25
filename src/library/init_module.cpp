@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/explicit.h"
 #include "library/module.h"
-#include "library/module_mgr.h"
 #include "library/protected.h"
 #include "library/private.h"
 #include "library/scoped_ext.h"
@@ -55,7 +54,6 @@ void initialize_library_core_module() {
     initialize_profiling();
     initialize_trace();
     initialize_module();
-    initialize_module_mgr();
     initialize_scoped_ext();
     initialize_attribute_manager();
     initialize_derive_attribute();
@@ -65,7 +63,6 @@ void finalize_library_core_module() {
     finalize_derive_attribute();
     finalize_attribute_manager();
     finalize_scoped_ext();
-    finalize_module_mgr();
     finalize_module();
     finalize_trace();
     finalize_profiling();

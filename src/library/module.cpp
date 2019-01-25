@@ -22,8 +22,8 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "util/file_lock.h"
 #include "library/module.h"
 #include "library/constants.h"
-#include "library/module_mgr.h"
 #include "library/time_task.h"
+#include "library/util.h"
 
 /*
 Missing features: non monotonic modifications in .olean files
@@ -69,10 +69,6 @@ Missing features: non monotonic modifications in .olean files
 */
 
 namespace lean {
-corrupted_file_exception::corrupted_file_exception(std::string const & fname):
-    exception(sstream() << "failed to import '" << fname << "', file is corrupted, please regenerate the file from sources") {
-}
-
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
     list<std::shared_ptr<modification const>> m_modifications;
@@ -101,19 +97,26 @@ static unsigned olean_hash(std::string const & data) {
     return hash(data.size(), [&] (unsigned i) { return static_cast<unsigned char>(data[i]); });
 }
 
-void write_module(loaded_module const & mod, std::ostream & out) {
+void write_module(environment const & env, module_name const & mod, std::string const & olean_fn) {
+    exclusive_file_lock output_lock(olean_fn);
+    std::ofstream out(olean_fn, std::ios_base::binary);
+    module_ext const & ext = get_extension(env);
+
+    buffer<std::shared_ptr<modification const>> mods;
+    to_buffer(ext.m_modifications, mods);
+
     std::ostringstream out1(std::ios_base::binary);
     serializer s1(out1);
 
     // store objects
-    for (auto p : mod.m_modifications) {
-        s1 << std::string(p->get_key());
-        p->serialize(s1);
+    for (int i = mods.size() - 1; i >= 0; i--) {
+        s1 << std::string(mods[i]->get_key());
+        mods[i]->serialize(s1);
     }
     s1 << g_olean_end_file;
 
     if (!out1.good()) {
-        throw exception(sstream() << "error during serialization of '" << mod.m_name << "'");
+        throw exception(sstream() << "error during serialization of '" << mod << "'");
     }
 
     std::string r = out1.str();
@@ -123,25 +126,14 @@ void write_module(loaded_module const & mod, std::ostream & out) {
     s2 << g_olean_header << get_version_string();
     s2 << h;
     // store imported files
-    s2 << static_cast<unsigned>(mod.m_imports.size());
-    for (auto m : mod.m_imports)
+    s2 << static_cast<unsigned>(ext.m_direct_imports.size());
+    for (auto m : ext.m_direct_imports)
         s2 << m;
     // store object code
     s2.write_blob(r);
-}
 
-loaded_module export_module(environment const & env, module_name const & mod) {
-    loaded_module out;
-    out.m_name = mod;
-
-    module_ext const & ext = get_extension(env);
-
-    out.m_imports = ext.m_direct_imports;
-
-    for (auto & w : ext.m_modifications)
-        out.m_modifications.push_back(w);
-    std::reverse(out.m_modifications.begin(), out.m_modifications.end());
-    return out;
+    out.close();
+    if (!out) throw exception("failed to write olean file");
 }
 
 typedef std::unordered_map<std::string, module_modification_reader> object_readers;
@@ -197,22 +189,11 @@ environment add(environment const & env, declaration const & d, bool check) {
 }
 } // end of namespace module
 
-bool is_candidate_olean_file(std::string const & file_name) {
-    std::ifstream in(file_name);
-    deserializer d1(in, optional<std::string>(file_name));
-    std::string header, version;
-    d1 >> header;
-    if (header != g_olean_header)
-        return false;
-    d1 >> version;
-#ifndef LEAN_IGNORE_OLEAN_VERSION
-    if (version != get_version_string())
-        return false;
-#endif
-    return true;
-}
-
-olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
+struct olean_data {
+    std::vector<module_name> m_imports;
+    std::string m_serialized_modifications;
+};
+static olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash) {
     std::vector<module_name> imports;
     time_task t(".olean deserialization",
                 message_builder(environment(), get_global_ios(), file_name, pos_info(), message_severity::INFORMATION));
@@ -224,7 +205,11 @@ olean_data parse_olean(std::istream & in, std::string const & file_name, bool ch
     if (header != g_olean_header)
         throw exception(sstream() << "file '" << file_name << "' does not seem to be a valid object Lean file, invalid header");
     d1 >> version >> claimed_hash;
-    // version has already been checked in `is_candidate_olean_file`
+#ifndef LEAN_IGNORE_OLEAN_VERSION
+    if (version != get_version_string()) {
+        throw exception(sstream() << "error importing file '" << file_name << "', it is from a different Lean version");
+    }
+#endif
 
     unsigned num_imports  = d1.read_unsigned();
     for (unsigned i = 0; i < num_imports; i++) {
@@ -254,46 +239,6 @@ static void import_module(modification_list const & modifications, environment &
     }
 }
 
-static void import_module_rec(environment & env, module_name const & mod,
-                              module_loader const & mod_ldr, buffer<import_error> & import_errors) {
-    try {
-        auto res = mod_ldr(mod);
-
-        auto & ext0 = get_extension(env);
-        if (ext0.m_imported.contains(name(res->m_name))) return;
-
-        for (auto &dep : res->m_imports) {
-            import_module_rec(env, dep, mod_ldr, import_errors);
-        }
-        import_module(res->m_modifications, env);
-
-        auto ext = get_extension(env);
-        ext.m_imported.insert(name(res->m_name));
-        env = update(env, ext);
-    } catch (throwable) {
-        import_errors.push_back({mod, std::current_exception()});
-    }
-}
-
-environment import_modules(environment const & env0, std::vector<module_name> const & imports, module_loader const & mod_ldr,
-                           buffer<import_error> & import_errors) {
-    environment env = env0;
-
-    for (auto & import : imports)
-        import_module_rec(env, import, mod_ldr, import_errors);
-
-    module_ext ext = get_extension(env);
-    ext.m_direct_imports = imports;
-    return update(env, ext);
-}
-
-environment import_modules(environment const & env0, std::vector<module_name> const & imports, module_loader const & mod_ldr) {
-    buffer<import_error> import_errors;
-    auto env = import_modules(env0, imports, mod_ldr, import_errors);
-    if (!import_errors.empty()) std::rethrow_exception(import_errors.back().m_ex);
-    return env;
-}
-
 modification_list parse_olean_modifications(std::string const & olean_code, std::string const & file_name) {
     modification_list ms;
     std::istringstream in(olean_code, std::ios_base::binary);
@@ -320,6 +265,53 @@ modification_list parse_olean_modifications(std::string const & olean_code, std:
         throw exception(sstream() << "file '" << file_name << "' has been corrupted");
     }
     return ms;
+}
+
+static void import_module_rec(environment & env, module_name const & mod,
+                              search_path const & path, buffer<import_error> & import_errors) {
+    auto & ext0 = get_extension(env);
+    if (ext0.m_imported.contains(mod))
+        return;
+    try {
+        auto olean_fn = find_file(path, mod, {".olean"});
+        olean_data parsed_olean;
+        {
+            shared_file_lock olean_lock(olean_fn);
+            std::ifstream in2(olean_fn, std::ios_base::binary);
+            bool check_hash = false;
+            parsed_olean = parse_olean(in2, olean_fn, check_hash);
+        }
+
+        for (auto & dep : parsed_olean.m_imports) {
+            import_module_rec(env, dep, path, import_errors);
+        }
+        import_module(parse_olean_modifications(parsed_olean.m_serialized_modifications, olean_fn), env);
+
+        auto ext = get_extension(env);
+        ext.m_imported.insert(mod);
+        env = update(env, ext);
+    } catch (throwable) {
+        import_errors.push_back({mod, std::current_exception()});
+    }
+}
+
+environment import_modules(environment const & env0, std::vector<module_name> const & imports, search_path const & path,
+                           buffer<import_error> & import_errors) {
+    environment env = env0;
+
+    for (auto & import : imports)
+        import_module_rec(env, import, path, import_errors);
+
+    module_ext ext = get_extension(env);
+    ext.m_direct_imports = imports;
+    return update(env, ext);
+}
+
+environment import_modules(environment const & env0, std::vector<module_name> const & imports, search_path const & path) {
+    buffer<import_error> import_errors;
+    auto env = import_modules(env0, imports, path, import_errors);
+    if (!import_errors.empty()) std::rethrow_exception(import_errors.back().m_ex);
+    return env;
 }
 
 void initialize_module() {

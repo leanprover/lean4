@@ -16,11 +16,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "util/lean_path.h"
 
 namespace lean {
-class corrupted_file_exception : public exception {
-public:
-    corrupted_file_exception(std::string const & fname);
-};
-
 struct modification;
 
 using modification_list = std::vector<std::shared_ptr<modification const>>;
@@ -32,39 +27,23 @@ struct loaded_module {
     modification_list m_modifications;
 };
 
-/** \brief Mapping from module name to module. Used to separate this file from the module_mgr. */
-using module_loader = std::function<std::shared_ptr<loaded_module const> (module_name const &)>;
-
 /** \brief Return an environment based on \c env, where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
     The environment \c env is usually an empty environment (but with the trust level set).
 */
 environment
-import_modules(environment const & env, std::vector<module_name> const & imports, module_loader const & mod_ldr);
+import_modules(environment const & env, std::vector<module_name> const & imports, search_path const & path);
 
 struct import_error {
     module_name m_import;
     std::exception_ptr m_ex;
 };
 environment
-import_modules(environment const & env, std::vector<module_name> const & imports, module_loader const & mod_ldr,
+import_modules(environment const & env, std::vector<module_name> const & imports, search_path const & path,
                buffer<import_error> & errors);
 
-/** \brief Store/Export module using \c env. */
-loaded_module export_module(environment const & env, module_name const & mod);
-void write_module(loaded_module const & mod, std::ostream & out);
-
-/** \brief Check whether we should try to load the given .olean file according to its header and Lean version. */
-bool is_candidate_olean_file(std::string const & file_name);
-
-/* TODO: Replace with `loaded_module`. This class used to be used for delaying the actual modifications parsing,
- * but that is not the case anymore, nor will it be necessary in the new design. */
-struct olean_data {
-    std::vector<module_name> m_imports;
-    std::string m_serialized_modifications;
-};
-olean_data parse_olean(std::istream & in, std::string const & file_name, bool check_hash = true);
-modification_list parse_olean_modifications(std::string const & serialized_modifications, std::string const & file_name);
+/** \brief Store module using \c env. */
+void write_module(environment const & env, module_name const & mod, std::string const & olean_fn);
 
 struct modification {
 public:

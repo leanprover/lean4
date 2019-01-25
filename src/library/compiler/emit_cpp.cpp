@@ -38,7 +38,7 @@ optional<name> get_cppname_for(environment const & env, name const & n) {
 }
 
 struct emit_cpp_ext : public environment_extension {
-    name_map<expr> m_code;
+    comp_decls m_code;
 };
 
 struct emit_cpp_ext_reg {
@@ -60,23 +60,20 @@ environment emit_cpp(environment const & env, comp_decls const & ds) {
        Reason: the attributes for `ds` are only applied after the compiler is executed,
        and we need to be able to access the `[cppname]` attribute. */
     emit_cpp_ext ext = get_extension(env);
-    for (comp_decl const & d : ds) {
-        ext.m_code.insert(d.fst(), d.snd());
-    }
-   return update(env, ext);
+    ext.m_code = append(ext.m_code, ds);
+    return update(env, ext);
 }
 
 void print_cpp_code(std::ofstream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     out << "// Lean compiler output\n";
     out << "// Module: " << m << "\n";
     out << "// Imports:"; for (module_name const & d : deps) out << " " << d; out << "\n";
-    name_map<expr> code = get_extension(env).m_code;
-    // TODO(Leo)
-    for_each(code, [&](name const & n, expr const &) {
-            out << "// " << n;
-            if (optional<name> c = get_cppname_for(env, n)) out << " ==> " << *c;
-            out << "\n";
-        });
+    comp_decls ds = get_extension(env).m_code;
+    for (comp_decl const & d : ds) {
+        out << "// " << d.fst();
+        if (optional<name> c = get_cppname_for(env, d.fst())) out << " ==> " << *c;
+        out << "\n";
+    }
 }
 
 void initialize_emit_cpp() {

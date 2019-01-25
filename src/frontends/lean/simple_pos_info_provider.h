@@ -11,7 +11,7 @@ class simple_pos_info_provider : public pos_info_provider {
     char const * m_fname;
 public:
     simple_pos_info_provider(char const * fname):m_fname(fname) {}
-    virtual optional<pos_info> get_pos_info(expr const &) const { return optional<pos_info>(); }
+    virtual optional<pos_info> get_pos_info(expr const & e) const { return get_pos(e); }
     virtual char const * get_file_name() const { return m_fname; }
     virtual pos_info get_some_pos() const { return pos_info(-1, -1); }
 };

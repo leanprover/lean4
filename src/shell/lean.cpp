@@ -41,7 +41,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "library/trace.h"
 #include "init/init.h"
-#include "shell/simple_pos_info_provider.h"
+#include "frontends/lean/simple_pos_info_provider.h"
 #ifdef _MSC_VER
 #include <io.h>
 #define STDOUT_FILENO 1

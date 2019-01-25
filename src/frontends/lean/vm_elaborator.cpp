@@ -30,6 +30,7 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/structure_cmd.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/pp.h"
+#include "frontends/lean/simple_pos_info_provider.h"
 
 namespace lean {
 struct resolve_names_fn : public replace_visitor {
@@ -138,8 +139,10 @@ struct resolve_names_fn : public replace_visitor {
             if (new_args.empty()) {
                 if (m_assume_local)
                     return mk_local(const_name(id), mk_expr_placeholder());
-                throw elaborator_exception(e, format("unknown identifier '") + format(const_name(id).escape()) +
-                                              format("'"));
+                auto const & pip = *get_pos_info_provider();
+                report_message(message(pip.get_file_name(), pip.get_pos_info_or_some(e), message_severity::ERROR,
+                                       "unknown identifier '" + const_name(id).escape() + "'"));
+                return m_p.mk_sorry(pip.get_pos_info_or_some(e));
             }
             return mk_choice(new_args.size(), new_args.data());
         } else {
@@ -700,6 +703,8 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
         type_context_old tc(env, options);
         scope_trace_env scope(env, options, tc);
         scope_traces_as_messages scope2(filename, pos);
+        simple_pos_info_provider pip(filename.c_str());
+        scope_pos_info_provider scope4(pip);
 
         parser p(env, ios, in, filename);
         auto s = p.mk_snapshot();

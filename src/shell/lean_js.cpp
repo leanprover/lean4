@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/parser.h"
 #include "init/init.h"
-#include "shell/simple_pos_info_provider.h"
+#include "frontends/lean/simple_pos_info_provider.h"
 #include "shell/server.h"
 
 namespace lean {

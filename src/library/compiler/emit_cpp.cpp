@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "runtime/utf8.h"
+#include "kernel/instantiate.h"
 #include "library/attribute_manager.h"
 #include "library/module.h"
 #include "library/compiler/llnf.h"
@@ -227,35 +228,120 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "typedef lean::object obj;\n";
 }
 
-static void emit_fn_header(std::ostream & out, environment const & env, name const & n, expr const & code) {
-    expr type = get_constant_ll_type(env, n);
-    out << to_cpp_type(get_result_type(type)) << " ";
-    if (is_lambda(code)) {
-        out << to_base_cpp_name(env, n);
-        out << "(";
-        expr it    = code;
-        bool first = true;
-        while (is_lambda(it)) {
-            if (first) first = false; else out << ", ";
-            out << to_cpp_type(binding_domain(it));
-            out << " " << binding_name(it);
-            it = binding_body(it);
-        }
-        out << ")";
-    } else {
-        out << "_init_" << to_base_cpp_name(env, n) << "()";
+struct emit_fn_fn {
+    std::ostream & m_out;
+    name_generator m_ngen;
+    environment    m_env;
+    local_ctx      m_lctx;
+
+    void emit_fvar(expr const & x) {
+        lean_assert(is_fvar(x));
+        name const & id = fvar_name(x);
+        lean_assert(id.is_numeral());
+        m_out << "x_" << id.get_numeral();
     }
-}
+
+    /* Emit instructions that return void. */
+    void emit_instr(expr const & e) {
+        expr const & f = get_app_fn(e);
+        lean_assert(is_llnf_inc(f) || is_llnf_dec(f));
+        if (is_llnf_inc(f)) {
+            m_out << "lean::inc(";
+        } else {
+            m_out << "lean::dec(";
+        }
+        emit_fvar(app_arg(e));
+        m_out << ");\n";
+    }
+
+    void emit_instr(local_decl const &) {
+        // TODO(Leo)
+    }
+
+    void emit_terminal(expr const &) {
+        // TODO(Leo)
+        m_out << "return 0; // TODO\n";
+    }
+
+    void emit(expr e) {
+        m_out << "{\n";
+        buffer<expr> jps;
+        buffer<expr> locals;
+        buffer<expr> instrs;
+        while (is_let(e)) {
+            expr v = instantiate_rev(let_value(e), locals.size(), locals.data());
+            expr x = m_lctx.mk_local_decl(m_ngen, let_name(e), let_type(e), v);
+            locals.push_back(x);
+            if (is_join_point_name(let_name(e))) {
+                jps.push_back(x);
+            } else {
+                if (!is_llnf_void_type(let_type(e))) {
+                    /* Declare local variable.
+                       Remark: variables of type `_void` are used to store instructions that do
+                       not return any value.  */
+                    m_out << to_cpp_type(let_type(e)) << " ";
+                    emit_fvar(x);
+                    m_out << ";\n";
+                }
+                instrs.push_back(x);
+            }
+            e = let_body(e);
+        }
+        /* emit instructions */
+        for (expr const & x : instrs) {
+            local_decl d = m_lctx.get_local_decl(x);
+            if (is_llnf_void_type(d.get_type())) {
+                emit_instr(*d.get_value());
+            } else {
+                emit_instr(d);
+            }
+        }
+        e = instantiate_rev(e, locals.size(), locals.data());
+        emit_terminal(e);
+        // TODO(Leo): emit join points at `jps`.
+        m_out << "}\n";
+    }
+
+public:
+    emit_fn_fn(std::ostream & out, environment const & env):
+        m_out(out), m_env(env) {
+    }
+
+    void operator()(comp_decl const & d) {
+        name n    = d.fst();
+        expr type = get_constant_ll_type(m_env, n);
+        expr e    = d.snd();
+        m_out << to_cpp_type(get_result_type(type)) << " ";
+        if (is_lambda(e)) {
+            buffer<expr> locals;
+            m_out << to_base_cpp_name(m_env, n);
+            m_out << "(";
+            bool first = true;
+            while (is_lambda(e)) {
+                if (first) first = false; else m_out << ", ";
+                expr x = m_lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e));
+                locals.push_back(x);
+                m_out << to_cpp_type(binding_domain(e));
+                m_out << " ";
+                emit_fvar(x);
+                e = binding_body(e);
+            }
+            m_out << ")";
+            e = instantiate_rev(e, locals.size(), locals.data());
+        } else {
+            m_out << "_init_" << to_base_cpp_name(m_env, n) << "()";
+        }
+        m_out << " {\n";
+        emit(e);
+        m_out << "}\n";
+    }
+};
 
 static void emit_fn(std::ostream & out, environment const & env, comp_decl const & d) {
     name const & n = d.fst();
     expr code = d.snd();
     open_namespaces_for(out, env, n);
-    emit_fn_header(out, env, n, code);
-    out << " {\n";
-    // TODO(Leo)
-    out << " return 0;\n";
-    out << "}\n";
+    emit_fn_fn(out, env)(d);
     close_namespaces_for(out, env, n);
 }
 

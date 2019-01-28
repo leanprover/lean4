@@ -175,6 +175,7 @@ environment compile(environment const & env, options const & opts, names const &
     comp_decls b_ds;
     std::tie(new_env, b_ds) = to_llnf(new_env, ds, true);
     new_env = emit_cpp(new_env, b_ds);
+    trace_compiler(name({"compiler", "boxed"}), b_ds);
     /* emit bytecode. Remark: the current emit_bytecode has no support for unboxed data. */
     std::tie(new_env, ds) = to_llnf(new_env, ds, false);
     trace_compiler(name({"compiler", "llnf"}), ds);

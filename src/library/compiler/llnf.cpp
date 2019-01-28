@@ -1311,20 +1311,17 @@ class explicit_boxing_fn {
     expr visit_app_default(expr const & fn, buffer<expr> & args, expr const & expected_type) {
         expr type = get_constant_type(const_name(fn));
         for (expr & arg : args) {
-            lean_assert(is_pi(type));
             if (is_fvar(arg)) {
-                expr arg_expected_type = binding_domain(type);
+                expr arg_expected_type = is_pi(type) ? binding_domain(type) : mk_enf_object_type();
                 expr arg_type          = get_arg_type(arg);
                 arg = cast_arg_if_needed(arg, arg_type, arg_expected_type);
             } else {
                 lean_assert(is_enf_neutral(arg));
             }
-            type = binding_body(type);
+            if (is_pi(type))
+                type = binding_body(type);
         }
-        if (is_pi(type)) {
-            /* Function returns a closure */
-            type = mk_enf_object_type();
-        }
+        lean_assert(!is_pi(type));
         expr r = mk_app(fn, args);
         return cast_result_if_needed(r, type, expected_type);
     }
@@ -1659,7 +1656,6 @@ class explicit_rc_fn {
         expr val = get_value_of(x);
         lean_assert(is_app(val) && is_llnf_proj(app_fn(val)));
         expr arg = app_arg(val);
-        /* If arg is */
         if (!m_borrowed.contains(fvar_name(arg)) &&     /* arg is not marked as borrowed */
             !live_obj_vars.contains(fvar_name(arg))) {   /* arg is not live after projection */
             /* We must add decrement. */

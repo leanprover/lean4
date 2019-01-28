@@ -336,6 +336,7 @@ unsigned get_lcnf_size(environment const & env, expr e) {
 static expr * g_neutral_expr     = nullptr;
 static expr * g_unreachable_expr = nullptr;
 static expr * g_object_type      = nullptr;
+static expr * g_void_type        = nullptr;
 
 expr mk_enf_unreachable() {
     return *g_unreachable_expr;
@@ -347,6 +348,10 @@ expr mk_enf_neutral() {
 
 expr mk_enf_object_type() {
     return *g_object_type;
+}
+
+expr mk_llnf_void_type() {
+    return *g_void_type;
 }
 
 expr mk_enf_neutral_type() {
@@ -363,6 +368,10 @@ bool is_enf_unreachable(expr const & e) {
 
 bool is_enf_object_type(expr const & e) {
     return e == *g_object_type;
+}
+
+bool is_llnf_void_type(expr const & e) {
+    return e == *g_void_type;
 }
 
 bool is_runtime_builtin_type(name const & n) {
@@ -468,6 +477,7 @@ void initialize_compiler_util() {
     g_neutral_expr     = new expr(mk_constant("_neutral"));
     g_unreachable_expr = new expr(mk_constant("_unreachable"));
     g_object_type      = new expr(mk_constant("_obj"));
+    g_void_type        = new expr(mk_constant("_void"));
     g_usize            = new expr(mk_constant(get_usize_name()));
     g_uint8            = new expr(mk_constant(get_uint8_name()));
     g_uint16           = new expr(mk_constant(get_uint16_name()));
@@ -511,6 +521,7 @@ void finalize_compiler_util() {
     delete g_neutral_expr;
     delete g_unreachable_expr;
     delete g_object_type;
+    delete g_void_type;
     delete g_usize;
     delete g_uint8;
     delete g_uint16;

@@ -125,10 +125,13 @@ expr mk_enf_neutral();
 expr mk_enf_unreachable();
 expr mk_enf_object_type();
 expr mk_enf_neutral_type();
+/* "Void" type used in LLNF. Remark: the ENF types neutral and object are also used in LLNF. */
+expr mk_llnf_void_type();
 
 bool is_enf_neutral(expr const & e);
 bool is_enf_unreachable(expr const & e);
 bool is_enf_object_type(expr const & e);
+bool is_llnf_void_type(expr const & e);
 
 expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e);
 

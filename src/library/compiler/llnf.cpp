@@ -1414,8 +1414,7 @@ class explicit_rc_fn {
     }
 
     expr mk_void_type() {
-        /* TODO(Leo): add void type? */
-        return mk_enf_neutral();
+        return mk_llnf_void_type();
     }
 
     name next_name() {

@@ -91,7 +91,7 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
         expr v = d.snd();
         expr t = ll_infer_type(env, v);
         unsigned arity = get_num_nested_lambdas(v);
-        v = ensure_arity(t, arity);
+        t = ensure_arity(t, arity);
         lean_trace(name({"compiler", "stage2"}), tout() << n << " : " << t << "\n";);
         env = register_stage2_decl(env, n, t, v);
     }

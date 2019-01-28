@@ -82,7 +82,7 @@ static expr ensure_arity(expr const & t, unsigned arity) {
         else return t;
     }
     lean_assert(is_pi(t));
-    return ensure_arity(binding_body(t), arity-1);
+    return update_binding(t, binding_domain(t), ensure_arity(binding_body(t), arity-1));
 }
 
 static environment cache_stage2(environment env, comp_decls const & ds) {

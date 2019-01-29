@@ -1004,6 +1004,12 @@ optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name co
         xs.push_back(x);
         new_val = x;
     }
+    if (!is_fvar(new_val)) {
+        /* Terminal must be a variable, jmp or cases. */
+        expr x = lctx.mk_local_decl(ngen, _x.append_after(j), obj, new_val);
+        xs.push_back(x);
+        new_val = x;
+    }
     new_val       = lctx.mk_lambda(xs, new_val);
     new_val       = lctx.mk_lambda(ys, new_val);
     expr new_type = lctx.mk_pi(ys, obj);

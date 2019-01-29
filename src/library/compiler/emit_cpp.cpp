@@ -14,6 +14,8 @@ Author: Leonardo de Moura
 #include "library/compiler/emit_cpp.h"
 #include "library/compiler/builtin.h"
 
+#include "library/trace.h"
+
 namespace lean {
 struct cppname_attr_data : public attr_data {
     name m_id;
@@ -229,16 +231,28 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
 }
 
 struct emit_fn_fn {
-    std::ostream & m_out;
-    name_generator m_ngen;
-    environment    m_env;
-    local_ctx      m_lctx;
+    std::ostream &  m_out;
+    name_generator  m_ngen;
+    environment     m_env;
+    local_ctx       m_lctx;
+    name_map<exprs> m_jp_vars;
+
+    static bool is_jmp(expr const & e) {
+        return is_llnf_jmp(get_app_fn(e));
+    }
 
     void emit_fvar(expr const & x) {
         lean_assert(is_fvar(x));
         name const & id = fvar_name(x);
         lean_assert(id.is_numeral());
         m_out << "x_" << id.get_numeral();
+    }
+
+    void emit_lbl(expr const & jp) {
+        lean_assert(is_fvar(jp));
+        name const & id = fvar_name(jp);
+        lean_assert(id.is_numeral());
+        m_out << "lbl_" << id.get_numeral();
     }
 
     /* Emit instructions that return void. */
@@ -258,9 +272,49 @@ struct emit_fn_fn {
         // TODO(Leo)
     }
 
-    void emit_terminal(expr const &) {
-        // TODO(Leo)
-        m_out << "return 0; // TODO\n";
+    void emit_cases(expr const & e) {
+        lean_assert(is_cases_on_app(m_env, e));
+        buffer<expr> args;
+        get_app_args(e, args);
+        expr const & x = args[0];
+        if (m_lctx.get_local_decl(x).get_type() == mk_enf_object_type()) {
+            m_out << "switch (lean::obj_tag("; emit_fvar(x); m_out << ")) {\n";
+        } else {
+            m_out << "switch ("; emit_fvar(x); m_out << ") {\n";
+        }
+        for (unsigned i = 1; i < args.size(); i++) {
+            m_out << "case " << (i-1) << ":\n";
+            emit(args[i]);
+        }
+        m_out << "}\n";
+    }
+
+    void emit_jmp(expr const & e) {
+        lean_assert(is_jmp(e));
+        buffer<expr> args;
+        get_app_args(e, args);
+        expr const & jp = args[0];
+        lean_assert(is_fvar(jp));
+        lean_assert(m_jp_vars.contains(fvar_name(jp)));
+        exprs params = *m_jp_vars.find(fvar_name(jp));
+        lean_assert(length(params) == args.size() - 1);
+        for (unsigned i = 1; i < args.size(); i++) {
+            emit_fvar(head(params)); m_out << " = "; emit_fvar(args[i]); m_out << ";\n";
+            params = tail(params);
+        }
+        m_out << "goto "; emit_lbl(jp); m_out << ";\n";
+    }
+
+    void emit_terminal(expr const & e) {
+        if (is_cases_on_app(m_env, e)) {
+            emit_cases(e);
+        } else if (is_jmp(e)) {
+            emit_jmp(e);
+        } else if (is_fvar(e)) {
+            m_out << "return "; emit_fvar(e); m_out << ";\n";
+        } else {
+            lean_unreachable();
+        }
     }
 
     void emit(expr e) {
@@ -270,18 +324,28 @@ struct emit_fn_fn {
         buffer<expr> instrs;
         while (is_let(e)) {
             expr v = instantiate_rev(let_value(e), locals.size(), locals.data());
-            expr x = m_lctx.mk_local_decl(m_ngen, let_name(e), let_type(e), v);
-            locals.push_back(x);
             if (is_join_point_name(let_name(e))) {
+                buffer<expr> jp_vars;
+                while (is_lambda(v)) {
+                    expr y = m_lctx.mk_local_decl(m_ngen, binding_name(v), binding_domain(v));
+                    jp_vars.push_back(y);
+                    /* Declare join point parameter, we need them to implement join point calls in this block. */
+                    m_out << to_cpp_type(binding_domain(v)) << " "; emit_fvar(y); m_out << ";\n";
+                    v = binding_body(v);
+                }
+                v = instantiate_rev(v, jp_vars.size(), jp_vars.data());
+                expr x = m_lctx.mk_local_decl(m_ngen, let_name(e), let_type(e), v);
+                locals.push_back(x);
                 jps.push_back(x);
+                m_jp_vars.insert(fvar_name(x), to_list_ref(jp_vars));
             } else {
+                expr x = m_lctx.mk_local_decl(m_ngen, let_name(e), let_type(e), v);
+                locals.push_back(x);
                 if (!is_llnf_void_type(let_type(e))) {
                     /* Declare local variable.
                        Remark: variables of type `_void` are used to store instructions that do
                        not return any value.  */
-                    m_out << to_cpp_type(let_type(e)) << " ";
-                    emit_fvar(x);
-                    m_out << ";\n";
+                    m_out << to_cpp_type(let_type(e)) << " "; emit_fvar(x); m_out << ";\n";
                 }
                 instrs.push_back(x);
             }
@@ -298,7 +362,10 @@ struct emit_fn_fn {
         }
         e = instantiate_rev(e, locals.size(), locals.data());
         emit_terminal(e);
-        // TODO(Leo): emit join points at `jps`.
+        for (expr const & jp : jps) {
+            emit_lbl(jp); m_out << ":\n";
+            emit(*m_lctx.get_local_decl(jp).get_value());
+        }
         m_out << "}\n";
     }
 

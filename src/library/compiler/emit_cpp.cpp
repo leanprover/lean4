@@ -194,6 +194,10 @@ static void collect_dependencies(environment const & env, expr e, name_set & dep
                 get_app_args(e, args);
                 for (expr const & arg : args)
                     collect_dependencies(env, arg, deps);
+            } else if (is_llnf_closure(get_app_fn(e))) {
+                buffer<expr> args;
+                get_app_args(e, args);
+                collect_constant(args[0], deps);
             } else {
                 collect_constant(get_app_fn(e), deps);
             }

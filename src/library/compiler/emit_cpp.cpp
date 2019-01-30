@@ -363,16 +363,32 @@ struct emit_fn_fn {
         buffer<expr> args;
         get_app_args(e, args);
         expr const & x = args[0];
-        if (is_obj(x)) {
-            m_out << "switch (lean::obj_tag("; emit_fvar(x); m_out << ")) {\n";
+        if (args.size() == 3) {
+            // use if-statement
+            if (is_obj(x)) {
+                m_out << "if (lean::obj_tag("; emit_fvar(x); m_out << ") == 0)\n";
+            } else {
+                m_out << "if ("; emit_fvar(x); m_out << " == 0)\n";
+            }
+            emit(args[1]);
+            m_out << "else\n";
+            emit(args[2]);
         } else {
-            m_out << "switch ("; emit_fvar(x); m_out << ") {\n";
+
+            if (is_obj(x)) {
+                m_out << "switch (lean::obj_tag("; emit_fvar(x); m_out << ")) {\n";
+            } else {
+                m_out << "switch ("; emit_fvar(x); m_out << ") {\n";
+            }
+            for (unsigned i = 1; i < args.size(); i++) {
+                if (i == args.size() - 1)
+                    m_out << "default:\n";
+                else
+                    m_out << "case " << (i-1) << ":\n";
+                emit(args[i]);
+            }
+            m_out << "}\n";
         }
-        for (unsigned i = 1; i < args.size(); i++) {
-            m_out << "case " << (i-1) << ":\n";
-            emit(args[i]);
-        }
-        m_out << "}\n";
     }
 
     void emit_jmp(expr const & e) {

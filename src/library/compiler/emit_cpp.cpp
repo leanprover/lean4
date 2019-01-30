@@ -252,6 +252,8 @@ struct emit_fn_fn {
         lean_assert(is_constant(c));
         if (optional<name> n = get_builtin_cname(const_name(c)))
             m_out << *n;
+        else if (is_enf_neutral(c))
+            m_out << "lean::box(0)";
         else
             m_out << to_cpp_name(m_env, const_name(c));
     }

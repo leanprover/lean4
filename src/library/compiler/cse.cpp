@@ -24,31 +24,56 @@ class cse_fn {
     environment       m_env;
     name_generator    m_ngen;
     bool              m_before_erasure;
-    expr_map<expr>    m_lval2fvar;
-    std::vector<expr> m_lvals;
+    expr_map<expr>    m_map;
+    std::vector<expr> m_keys;
 
 public:
+    expr mk_key(expr const & type, expr const & val) {
+        if (m_before_erasure) {
+            return val;
+        } else {
+            /* After erasure, we should also compare the type. For example, we might have
+
+                  x_1 : uint32 := 0
+                  x_2 : uint8  := 0
+
+               which are different at runtime. We might also have
+
+                  x_1 : uint8 := _cnstr.0.0.0
+                  x_2 : _obj  := _cnstr.0.0.0
+
+               where x_1 is representing a value of an enumeration type,
+               and x_2 list.nil.
+
+               We encode the pair using an application.
+               This solution is a bit hackish, and we should try to refine it in the future. */
+            return mk_app(type, val);
+        }
+    }
+
     expr visit_let(expr e) {
-        unsigned lvals_size = m_lvals.size();
+        unsigned keys_size = m_keys.size();
         buffer<expr> fvars;
         buffer<expr> to_keep_fvars;
         buffer<std::tuple<name, expr, expr>> entries;
         while (is_let(e)) {
             expr value = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-            auto it    = m_lval2fvar.find(value);
-            if (it != m_lval2fvar.end()) {
+            expr type  = instantiate_rev(let_type(e), fvars.size(), fvars.data());
+            expr key   = mk_key(type, value);
+            auto it    = m_map.find(key);
+            if (it != m_map.end()) {
                 lean_assert(is_fvar(it->second));
                 fvars.push_back(it->second);
             } else {
-                expr type      = instantiate_rev(let_type(e), fvars.size(), fvars.data());
                 expr new_value = visit(value);
                 expr fvar      = mk_fvar(m_ngen.next());
                 fvars.push_back(fvar);
                 to_keep_fvars.push_back(fvar);
                 entries.emplace_back(let_name(e), type, new_value);
                 if (!is_cases_on_app(m_env, new_value)) {
-                    m_lval2fvar.insert(mk_pair(new_value, fvar));
-                    m_lvals.push_back(new_value);
+                    expr new_key = mk_key(type, new_value);
+                    m_map.insert(mk_pair(new_key, fvar));
+                    m_keys.push_back(new_key);
                 }
             }
             e = let_body(e);
@@ -63,11 +88,11 @@ public:
             expr new_value = abstract(std::get<2>(entries[i]), i, to_keep_fvars.data());
             e = mk_let(std::get<0>(entries[i]), new_type, new_value, e);
         }
-        /* Restore m_lval2fvar */
-        for (unsigned i = lvals_size; i < m_lvals.size(); i++) {
-            m_lval2fvar.erase(m_lvals[i]);
+        /* Restore m_map */
+        for (unsigned i = keys_size; i < m_keys.size(); i++) {
+            m_map.erase(m_keys[i]);
         }
-        m_lvals.resize(lvals_size);
+        m_keys.resize(keys_size);
         return e;
     }
 

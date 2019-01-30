@@ -89,6 +89,7 @@ void initialize_builtin() {
     expr o_o_o       = mk_arrow(o, o_o);
     expr o_o_o_o     = mk_arrow(o, o_o_o);
     expr o_u32_o     = mk_arrow(o, mk_arrow(u32, o));
+    expr o_u32       = mk_arrow(o, u32);
     expr o_u8        = mk_arrow(o, u8);
     expr o_u8_u8_o_o = mk_arrow(o, mk_arrow(u8, mk_arrow(u8, o_o)));
     list<bool> b{true};
@@ -133,7 +134,7 @@ void initialize_builtin() {
     register_builtin(name({"string", "mk_iterator"}), o_o, "string_mk_iterator", c);
     register_builtin(name({"string", "dec_eq"}), o_o_o, "string_dec_eq", bb);
     register_builtin(name({"string", "dec_lt"}), o_o_o, "string_dec_lt", bb);
-    register_builtin(name({"string", "iterator", "curr"}), o_o, "string_iterator_curr", b);
+    register_builtin(name({"string", "iterator", "curr"}), o_u32, "string_iterator_curr", b);
     register_builtin(name({"string", "iterator", "set_curr"}), o_u32_o, "string_iterator_set_curr", cc);
     register_builtin(name({"string", "iterator", "next"}), o_o, "string_iterator_next", c);
     register_builtin(name({"string", "iterator", "prev"}), o_o, "string_iterator_prev", c);

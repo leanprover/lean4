@@ -796,7 +796,7 @@ inline bool nat_le(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
-inline bool nat_dec_le(b_obj_arg a1, b_obj_arg a2) {
+inline obj_res nat_dec_le(b_obj_arg a1, b_obj_arg a2) {
     return box(nat_le(a1, a2));
 }
 
@@ -808,7 +808,7 @@ inline bool nat_lt(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
-inline bool nat_dec_lt(b_obj_arg a1, b_obj_arg a2) {
+inline obj_res nat_dec_lt(b_obj_arg a1, b_obj_arg a2) {
     return box(nat_lt(a1, a2));
 }
 

@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_config.h"
 #include "frontends/lean/cmd_table.h"
 namespace lean {
-class parser;
+struct parser;
 /** \brief Return true iff the current token is a notation declaration */
 bool curr_is_notation_decl(parser & p);
 /** \brief Parse a notation declaration, throws an error if the current token is not a "notation declaration".

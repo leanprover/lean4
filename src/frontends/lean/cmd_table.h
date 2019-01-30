@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/parser_pos_provider.h"
 
 namespace lean {
-class parser;
+struct parser;
 
 struct cmd_meta {
     decl_attributes       m_attrs;

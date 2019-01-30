@@ -18,7 +18,7 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-class parser;
+struct parser;
 class io_state_stream;
 namespace notation {
 typedef std::function<expr(parser &, unsigned, expr const *, pos_info const &)> parse_fn;

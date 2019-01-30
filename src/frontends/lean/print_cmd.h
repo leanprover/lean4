@@ -7,6 +7,6 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-class parser;
+struct parser;
 environment print_cmd(parser & p);
 }

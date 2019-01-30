@@ -14,7 +14,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/local_level_decls.h"
 
 namespace lean {
-class parser;
+struct parser;
 /** \brief Consume tokens until 'end' token is consumed or a command/eof is found */
 void consume_until_end_or_command(parser & p);
 

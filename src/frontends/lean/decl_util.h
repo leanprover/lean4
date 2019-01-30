@@ -10,7 +10,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/decl_attributes.h"
 namespace lean {
-class parser;
+struct parser;
 class elaborator;
 
 enum class decl_cmd_kind { Theorem, Definition, Example, Instance, Var, Abbreviation };

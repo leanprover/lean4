@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include "library/io_state.h"
 namespace lean {
 unsigned get_default_priority(options const & opts);
-class parser;
+struct parser;
 class decl_attributes {
 public:
     struct entry {

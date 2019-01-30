@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include "library/util.h"
 
 namespace lean {
-class parser;
+struct parser;
 
 /** \brief Add alias id for the fully qualified name \c full_id. */
 environment add_alias(parser & p, environment env, name const & id, name const & full_id,

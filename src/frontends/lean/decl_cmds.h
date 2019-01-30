@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 #include "frontends/lean/cmd_table.h"
 namespace lean {
-class parser;
+struct parser;
 /** \brief Parse (optional) universe parameters <tt>'.{' l_1 ... l_k '}'</tt>
     Store the result in \c ps.
 

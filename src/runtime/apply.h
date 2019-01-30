@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 // Generated using script: ../../gen/apply.lean
 #pragma once
 #include "runtime/object.h"
+#define LEAN_CLOSURE_MAX_ARGS 16
 namespace lean {
 object* apply_1(object* f, object* a1);
 object* apply_2(object* f, object* a1, object* a2);

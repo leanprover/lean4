@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "runtime/utf8.h"
+#include "runtime/apply.h"
 #include "kernel/instantiate.h"
 #include "library/attribute_manager.h"
 #include "library/module.h"
@@ -285,18 +286,115 @@ struct emit_fn_fn {
         m_out << ");\n";
     }
 
-    void emit_lit(expr const &) {
+    void emit_rhs(expr const & x) {
+        emit_fvar(x); m_out << " = ";
+    }
+
+    void emit_lit(expr const & x, expr const &) {
+        emit_rhs(x);
         // TODO(Leo);
-        m_out << "0";
+        m_out << "0;\n";
+    }
+
+    void emit_arg(expr const & arg, bool & first) {
+        if (first)
+            first = false;
+        else
+            m_out << ", ";
+        if (is_fvar(arg))
+            emit_fvar(arg);
+        else
+            m_out << "lean::box(0)";
+    }
+
+    void emit_args(unsigned sz, expr const * args) {
+        bool first = true;
+        for (unsigned i = 0; i < sz; i++)
+            emit_arg(args[i], first);
+    }
+
+    void emit_apply(expr const & x, buffer<expr> const & args) {
+        lean_assert(args.size() > 0);
+        expr const & f = args[0];
+        unsigned nargs = args.size() - 1;
+        if (nargs > LEAN_CLOSURE_MAX_ARGS) {
+            m_out << "{ obj* _aargs[] = {";
+            emit_args(nargs, args.data()+1);
+            m_out << "}; ";
+            emit_rhs(x);
+            m_out << "lean::apply_m("; emit_fvar(f); m_out << ", " << nargs << ", _aargs); }\n";
+        } else {
+            emit_rhs(x);
+            m_out << "lean::apply_" << nargs << "(";
+            emit_fvar(f);
+            m_out << ", ";
+            emit_args(nargs, args.data()+1);
+            m_out << ");\n";
+        }
+    }
+
+    void emit_closure(expr const & x, buffer<expr> const &) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_cnstr(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_reset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_reuse(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_sset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_uset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_proj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_sproj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_uproj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_unbox(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
+    }
+
+    void emit_box(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+        emit_rhs(x);
+        m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_instr(local_decl const & d) {
         expr x = d.mk_ref();
-        emit_fvar(x); m_out << " = ";
         expr val = *d.get_value();
         if (is_lit(val)) {
-            emit_lit(val);
+            emit_lit(x, val);
         } else if (is_constant(val)) {
+            emit_rhs(x);
             unsigned cidx, d1, d2;
             if (is_llnf_cnstr(val, cidx, d1, d2)) {
                 if (is_obj(x))
@@ -306,36 +404,38 @@ struct emit_fn_fn {
             } else {
                 emit_constant(val);
             }
+            m_out << ";\n";
         } else if (is_app(val)) {
             buffer<expr> args;
             expr const & fn = get_app_args(val, args);
             lean_assert(is_constant(fn));
             if (is_llnf_cnstr(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_cnstr(x, fn, args);
             } else if (is_llnf_apply(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_apply(x, args);
             } else if (is_llnf_closure(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_closure(x, args);
             } else if (is_llnf_reuse(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_reuse(x, fn, args);
             } else if (is_llnf_reset(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_reset(x, fn, args);
             } else if (is_llnf_sset(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_sset(x, fn, args);
             } else if (is_llnf_uset(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_uset(x, fn, args);
             } else if (is_llnf_proj(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_proj(x, fn, args);
             } else if (is_llnf_sproj(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_sproj(x, fn, args);
             } else if (is_llnf_uproj(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_uproj(x, fn, args);
             } else if (is_llnf_unbox(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_unbox(x, fn, args);
             } else if (is_llnf_box(fn)) {
-                m_out << "0"; // TODO(Leo)
+                emit_box(x, fn, args);
             } else {
                 /* Regular function application. */
+                emit_rhs(x);
                 emit_constant(fn);
                 m_out << "(";
                 bool first = true;
@@ -349,13 +449,12 @@ struct emit_fn_fn {
                     else
                         m_out << "lean::box(0)";
                 }
-                m_out << ")";
+                m_out << ");\n";
             }
         } else {
             lean_assert(!is_fvar(val));
             lean_unreachable();
         }
-        m_out << ";\n";
     }
 
     void emit_cases(expr const & e) {

@@ -214,6 +214,7 @@ do mk_copyright,
    emit "// Generated using script: ../../gen/apply.lean\n",
    emit "#pragma once\n",
    emit "#include \"runtime/object.h\"\n",
+   emit $ sformat! "#define LEAN_CLOSURE_MAX_ARGS {max}"
    emit "namespace lean {\n",
    max.mrepeat $ λ i,
      let args := mk_arg_decls' (i+1) in

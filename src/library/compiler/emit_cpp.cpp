@@ -217,10 +217,8 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
     comp_decls ds = get_extension(env).m_code;
     name_set todo;
     for (comp_decl const & d : ds) {
-        if (!todo.contains(d.fst())) {
-            todo.insert(d.fst());
-            collect_dependencies(env, d.snd(), todo);
-        }
+        todo.insert(d.fst());
+        collect_dependencies(env, d.snd(), todo);
     }
     todo.for_each([&](name const & n) { emit_fn_decl(out, env, n); });
 }

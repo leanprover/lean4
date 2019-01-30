@@ -296,11 +296,7 @@ struct emit_fn_fn {
         m_out << "0;\n";
     }
 
-    void emit_arg(expr const & arg, bool & first) {
-        if (first)
-            first = false;
-        else
-            m_out << ", ";
+    void emit_arg(expr const & arg) {
         if (is_fvar(arg))
             emit_fvar(arg);
         else
@@ -308,9 +304,10 @@ struct emit_fn_fn {
     }
 
     void emit_args(unsigned sz, expr const * args) {
-        bool first = true;
-        for (unsigned i = 0; i < sz; i++)
-            emit_arg(args[i], first);
+        for (unsigned i = 0; i < sz; i++) {
+            if (i > 0) m_out << ", ";
+            emit_arg(args[i]);
+        }
     }
 
     void emit_apply(expr const & x, buffer<expr> const & args) {
@@ -338,9 +335,25 @@ struct emit_fn_fn {
         m_out << "0;\n"; // TODO(Leo)
     }
 
-    void emit_cnstr(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+    void emit_cnstr_scalar_size(unsigned num_usizes, unsigned num_bytes) {
+        if (num_usizes == 0)
+            m_out << num_bytes;
+        else if (num_bytes == 0)
+            m_out << "sizeof(size_t)*" << num_usizes;
+        else
+            m_out << "sizeof(size_t)*" << num_usizes << " + " << num_bytes;
+    }
+
+    void emit_cnstr(expr const & x, expr const & fn, buffer<expr> const & args) {
+        lean_assert(!args.empty());
+        unsigned cidx, num_usizes, num_bytes;
+        lean_verify(is_llnf_cnstr(fn, cidx, num_usizes, num_bytes));
         emit_rhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+        m_out << "lean::alloc_cnstr(" << cidx << ", " << args.size() << ", ";
+        emit_cnstr_scalar_size(num_usizes, num_bytes); m_out << ");\n";
+        for (unsigned i = 0; i < args.size(); i++) {
+            m_out << "lean::cnstr_set("; emit_fvar(x); m_out << ", " << i << ", "; emit_arg(args[i]); m_out << ");\n";
+        }
     }
 
     void emit_reset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {

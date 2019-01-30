@@ -55,6 +55,13 @@ bool is_builtin_constant(name const & c) {
     return g_builtin_decls->find(c) != g_builtin_decls->end();
 }
 
+optional<name> get_builtin_cname(name const & c) {
+    auto it = g_builtin_decls->find(c);
+    if (it == g_builtin_decls->end())
+        return optional<name>();
+    return optional<name>(it->second.m_cname);
+}
+
 optional<expr> get_builtin_constant_ll_type(name const & c) {
     auto it = g_builtin_decls->find(c);
     if (it == g_builtin_decls->end())

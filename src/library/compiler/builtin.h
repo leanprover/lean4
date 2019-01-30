@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/expr.h"
 namespace lean {
 bool is_builtin_constant(name const & c);
+optional<name> get_builtin_cname(name const & c);
 optional<expr> get_builtin_constant_ll_type(name const & c);
 optional<unsigned> get_builtin_constant_arity(name const & c);
 /* Return true if `c` is a builtin, and store in borrowed_args and

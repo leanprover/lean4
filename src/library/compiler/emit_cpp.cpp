@@ -241,6 +241,19 @@ struct emit_fn_fn {
         return is_llnf_jmp(get_app_fn(e));
     }
 
+    bool is_obj(expr const & x) {
+        lean_assert(is_fvar(x));
+        return m_lctx.get_local_decl(x).get_type() == mk_enf_object_type();
+    }
+
+    void emit_constant(expr const & c) {
+        lean_assert(is_constant(c));
+        if (optional<name> n = get_builtin_cname(const_name(c)))
+            m_out << *n;
+        else
+            m_out << to_cpp_name(m_env, const_name(c));
+    }
+
     void emit_fvar(expr const & x) {
         lean_assert(is_fvar(x));
         name const & id = fvar_name(x);
@@ -268,8 +281,77 @@ struct emit_fn_fn {
         m_out << ");\n";
     }
 
-    void emit_instr(local_decl const &) {
-        // TODO(Leo)
+    void emit_lit(expr const &) {
+        // TODO(Leo);
+        m_out << "0";
+    }
+
+    void emit_instr(local_decl const & d) {
+        expr x = d.mk_ref();
+        emit_fvar(x); m_out << " = ";
+        expr val = *d.get_value();
+        if (is_lit(val)) {
+            emit_lit(val);
+        } else if (is_constant(val)) {
+            unsigned cidx, d1, d2;
+            if (is_llnf_cnstr(val, cidx, d1, d2)) {
+                if (is_obj(x))
+                    m_out << "lean::box(" << cidx << ")";
+                else
+                    m_out << cidx;
+            } else {
+                emit_constant(val);
+            }
+        } else if (is_app(val)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(val, args);
+            lean_assert(is_constant(fn));
+            if (is_llnf_cnstr(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_apply(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_closure(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_reuse(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_reset(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_sset(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_uset(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_proj(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_sproj(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_uproj(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_unbox(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else if (is_llnf_box(fn)) {
+                m_out << "0"; // TODO(Leo)
+            } else {
+                /* Regular function application. */
+                emit_constant(fn);
+                m_out << "(";
+                bool first = true;
+                for (expr const & arg : args) {
+                    if (first)
+                        first = false;
+                    else
+                        m_out << ", ";
+                    if (is_fvar(arg))
+                        emit_fvar(arg);
+                    else
+                        m_out << "lean::box(0)";
+                }
+                m_out << ")";
+            }
+        } else {
+            lean_assert(!is_fvar(val));
+            lean_unreachable();
+        }
+        m_out << ";\n";
     }
 
     void emit_cases(expr const & e) {
@@ -277,7 +359,7 @@ struct emit_fn_fn {
         buffer<expr> args;
         get_app_args(e, args);
         expr const & x = args[0];
-        if (m_lctx.get_local_decl(x).get_type() == mk_enf_object_type()) {
+        if (is_obj(x)) {
             m_out << "switch (lean::obj_tag("; emit_fvar(x); m_out << ")) {\n";
         } else {
             m_out << "switch ("; emit_fvar(x); m_out << ") {\n";

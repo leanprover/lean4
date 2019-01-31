@@ -215,7 +215,7 @@ static optional<unsigned> is_builtin_scalar(expr const & type) {
     return optional<unsigned>();
 }
 
-static unsigned get_arity(environment const & env, name const & n) {
+unsigned get_llnf_arity(environment const & env, name const & n) {
     /* First, try to infer arity from `_cstage2` auxiliary definition. */
     name c = mk_cstage2_name(n);
     optional<constant_info> info = env.find(c);
@@ -231,7 +231,7 @@ static void get_borrowed_info(environment const & env, name const & n, buffer<bo
     if (get_builtin_borrowed_info(n, borrowed_args, borrowed_res))
         return; /* `n` is a builtin declaration. */
     /* We currently do not support borrowed annotations in user declarations. */
-    unsigned arity = get_arity(env, n);
+    unsigned arity = get_llnf_arity(env, n);
     borrowed_args.clear();
     borrowed_args.resize(arity, false);
     borrowed_res = false;
@@ -334,7 +334,7 @@ class to_llnf_fn {
     }
 
     unsigned get_arity(name const & n) const {
-        return ::lean::get_arity(env(), n);
+        return ::lean::get_llnf_arity(env(), n);
     }
 
     expr mk_llnf_app(expr const & fn, buffer<expr> const & args) {

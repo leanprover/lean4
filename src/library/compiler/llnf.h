@@ -43,6 +43,7 @@ inline bool is_llnf_uset(expr const & e) { unsigned d; return is_llnf_uset(e, d)
 inline bool is_llnf_box(expr const & e) { unsigned n; return is_llnf_box(e, n); }
 
 expr get_constant_ll_type(environment const & env, name const & c);
+unsigned get_llnf_arity(environment const & env, name const & c);
 
 void initialize_llnf();
 void finalize_llnf();

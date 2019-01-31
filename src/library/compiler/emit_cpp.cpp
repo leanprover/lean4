@@ -379,9 +379,16 @@ struct emit_fn_fn {
         }
     }
 
-    void emit_closure(expr const & x, buffer<expr> const &) {
+    void emit_closure(expr const & x, buffer<expr> const & args) {
+        lean_assert(!args.empty());
+        expr const & fn = args[0];
+        lean_assert(is_constant(fn));
+        unsigned arity = get_llnf_arity(m_env, const_name(fn));
         emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+        m_out << "lean::alloc_closure(reinterpret_cast<void*>("; emit_constant(fn); m_out << "), " << arity << ", " << (args.size()-1) << ");\n";
+        for (unsigned i = 1; i < args.size(); i++) {
+            m_out << "lean::closure_set("; emit_fvar(x); m_out << ", " << (i-1) << ", "; emit_arg(args[i]); m_out << ");\n";
+        }
     }
 
     void emit_cnstr_scalar_size(unsigned num_usizes, unsigned num_bytes) {

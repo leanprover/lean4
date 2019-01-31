@@ -1125,7 +1125,8 @@ object * mk_string(std::string const & s) {
 }
 
 std::string string_to_std(b_obj_arg o) {
-    return std::string(w_string_cstr(o), string_size(o));
+    lean_assert(string_size(o) > 0);
+    return std::string(w_string_cstr(o), string_size(o) - 1);
 }
 
 static size_t mk_capacity(size_t sz) {
@@ -1151,7 +1152,6 @@ object * string_push(object * s, unsigned c) {
 }
 
 object * string_append(object * s1, object * s2) {
-    lean_assert(s1 != s2);
     size_t sz1      = string_size(s1);
     size_t sz2      = string_size(s2);
     size_t len1     = string_len(s1);
@@ -1164,6 +1164,7 @@ object * string_append(object * s1, object * s2) {
         memcpy(w_string_cstr(r), string_cstr(s1), sz1 - 1);
         dec_ref(s1);
     } else {
+        lean_assert(s1 != s2);
         r = string_ensure_capacity(s1, sz2-1);
     }
     memcpy(w_string_cstr(r) + sz1 - 1, string_cstr(s2), sz2 - 1);
@@ -1241,7 +1242,7 @@ obj_res string_mk(obj_arg cs) {
 }
 
 obj_res string_data(obj_arg s) {
-    std::string tmp(string_cstr(s), string_size(s));
+    std::string tmp = string_to_std(s);
     dec_ref(s);
     return string_to_list_core(tmp);
 }
@@ -1280,7 +1281,7 @@ obj_res string_mk_iterator(obj_arg s) {
 uint32 string_iterator_curr(b_obj_arg it) {
     object * s = it_string(it);
     size_t i   = it_pos(it);
-    if (i < string_size(s)) {
+    if (i < string_size(s) - 1) {
         return next_utf8(string_cstr(s), i);
     } else {
         return mk_default_char();
@@ -1291,7 +1292,7 @@ uint32 string_iterator_curr(b_obj_arg it) {
 obj_res string_iterator_set_curr(obj_arg it, uint32 c) {
     object * s = it_string(it);
     size_t i   = it_pos(it);
-    if (i >= string_size(s)) {
+    if (i >= string_size(s) - 1) {
         /* at end */
         return it;
     }
@@ -1306,7 +1307,7 @@ obj_res string_iterator_set_curr(obj_arg it, uint32 c) {
        Example: `it` is not shared, but string is; new and old characters have the same size; etc. */
     std::string tmp;
     push_unicode_scalar(tmp, c);
-    std::string new_s(string_cstr(s), string_size(s));
+    std::string new_s = string_to_std(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
     size_t rem = it_remaining(it);
     dec_ref(it);
@@ -1318,7 +1319,7 @@ obj_res string_iterator_next(obj_arg it) {
     object * s = it_string(it);
     size_t i   = it_pos(it);
     size_t r   = it_remaining(it);
-    if (i < string_size(s)) {
+    if (i < string_size(s) - 1) {
         next_utf8(string_cstr(s), i);
         if (is_exclusive(it)) {
             it_set_pos(it, i);
@@ -1367,7 +1368,7 @@ obj_res string_iterator_prev(obj_arg it) {
 
 /* def has_next : iterator → bool */
 uint8 string_iterator_has_next(b_obj_arg it) {
-    return it_pos(it) < string_size(it_string(it));
+    return it_pos(it) < string_size(it_string(it)) - 1;
 }
 
 /* def has_prev : iterator → bool */
@@ -1396,12 +1397,12 @@ obj_res string_iterator_to_string(b_obj_arg it) {
 obj_res string_iterator_to_end(obj_arg it) {
     object * s = it_string(it);
     if (is_exclusive(it)) {
-        it_set_pos(it, string_size(s));
+        it_set_pos(it, string_size(s) - 1);
         it_set_remaining(it, 0);
         return it;
     } else {
         inc_ref(s);
-        obj_res new_it = mk_iterator(s, string_size(s), 0);
+        obj_res new_it = mk_iterator(s, string_size(s) - 1, 0);
         dec_ref(it);
         return new_it;
     }
@@ -1412,7 +1413,7 @@ obj_res string_iterator_remaining_to_string(b_obj_arg it) {
     object * s = it_string(it);
     size_t i   = it_pos(it);
     std::string r;
-    for (; i < string_size(s); i++) {
+    for (; i < string_size(s) - 1; i++) {
         r += string_cstr(s)[i];
     }
     return mk_string(r);
@@ -1451,8 +1452,8 @@ obj_res string_iterator_insert(obj_arg it, b_obj_arg s) {
     } else {
         /* insert in the middle */
         /* TODO(Leo): optimize is_unshared_it_string(it) case */
-        std::string new_s(string_cstr(s_0), string_size(s_0));
-        new_s.insert(i, std::string(string_cstr(s_1), string_size(s_1)));
+        std::string new_s = string_to_std(s_0);
+        new_s.insert(i, string_to_std(s_1));
         dec_ref(it);
         return mk_iterator(mk_string(new_s), i, r + string_len(s_1));
     }
@@ -1474,7 +1475,7 @@ obj_res string_iterator_remove(obj_arg it, b_obj_arg n0) {
     }
     size_t count   = j - i;
     /* TODO(Leo): optimize case wher is_unshared_it_string(it) */
-    std::string new_s(string_cstr(s), sz);
+    std::string new_s = string_to_std(s);
     new_s.erase(i, count);
     dec_ref(it);
     return mk_iterator(mk_string(new_s), i, r);
@@ -1491,8 +1492,9 @@ obj_res string_iterator_extract(b_obj_arg it1, b_obj_arg it2) {
     if (pos2 < pos1)
         return mk_option_none();
     size_t new_sz = pos2 - pos1;
-    object * r = alloc_cnstr(new_sz, new_sz, it_remaining(it1) - it_remaining(it2));
+    object * r = alloc_string(new_sz + 1, new_sz + 1, it_remaining(it1) - it_remaining(it2));
     memcpy(w_string_cstr(r), string_cstr(s1) + pos1, new_sz);
+    w_string_cstr(r)[new_sz] = 0;
     return mk_option_some(r);
 }
 
@@ -1507,14 +1509,14 @@ obj_res string_iterator_mk(b_obj_arg l1, b_obj_arg l2) {
 
 obj_res string_iterator_fst(b_obj_arg it) {
     object * s = string_iterator_prev_to_string(it);
-    object * r = string_to_list_core(std::string(string_cstr(s), string_size(s)), true /* reverse */);
+    object * r = string_to_list_core(string_to_std(s), true /* reverse */);
     dec_ref(s);
     return r;
 }
 
 obj_res string_iterator_snd(b_obj_arg it) {
     object * s = string_iterator_remaining_to_string(it);
-    object * r = string_to_list_core(std::string(string_cstr(s), string_size(s)));
+    object * r = string_to_list_core(string_to_std(s));
     dec_ref(s);
     return r;
 }

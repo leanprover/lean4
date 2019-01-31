@@ -348,16 +348,24 @@ struct emit_fn_fn {
             m_out << "sizeof(size_t)*" << num_usizes << " + " << num_bytes;
     }
 
+    void emit_alloc_cnstr(expr const & x, unsigned cidx, unsigned num_objs, unsigned num_usizes, unsigned num_bytes) {
+        emit_lhs(x);
+        m_out << "lean::alloc_cnstr(" << cidx << ", " << num_objs << ", ";
+        emit_cnstr_scalar_size(num_usizes, num_bytes); m_out << ");\n";
+    }
+
+    void emit_cnstr_sets(expr const & x, unsigned sz, expr const * args) {
+        for (unsigned i = 0; i < sz; i++) {
+            m_out << "lean::cnstr_set("; emit_fvar(x); m_out << ", " << i << ", "; emit_arg(args[i]); m_out << ");\n";
+        }
+    }
+
     void emit_cnstr(expr const & x, expr const & fn, buffer<expr> const & args) {
         lean_assert(!args.empty());
         unsigned cidx, num_usizes, num_bytes;
         lean_verify(is_llnf_cnstr(fn, cidx, num_usizes, num_bytes));
-        emit_lhs(x);
-        m_out << "lean::alloc_cnstr(" << cidx << ", " << args.size() << ", ";
-        emit_cnstr_scalar_size(num_usizes, num_bytes); m_out << ");\n";
-        for (unsigned i = 0; i < args.size(); i++) {
-            m_out << "lean::cnstr_set("; emit_fvar(x); m_out << ", " << i << ", "; emit_arg(args[i]); m_out << ");\n";
-        }
+        emit_alloc_cnstr(x, cidx, args.size(), num_usizes, num_bytes);
+        emit_cnstr_sets(x, args.size(), args.data());
     }
 
     void emit_reset(expr const & x, expr const & fn, expr const & o) {
@@ -374,9 +382,17 @@ struct emit_fn_fn {
         m_out << "}\n";
     }
 
-    void emit_reuse(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+    void emit_reuse(expr const & x, expr const & fn, buffer<expr> const & args) {
+        lean_assert(!args.empty());
+        unsigned cidx, num_usizes, num_bytes;
+        lean_verify(is_llnf_reuse(fn, cidx, num_usizes, num_bytes));
+        expr const & o = args[0];
+        m_out << "if (lean::is_scalar("; emit_fvar(o); m_out <<")) {\n";
+        m_out << " "; emit_alloc_cnstr(x, cidx, args.size()-1, num_usizes, num_bytes);
+        m_out << "} else {\n";
+        m_out << " "; emit_lhs(x); emit_fvar(o); m_out << ";\n";
+        m_out << "}\n";
+        emit_cnstr_sets(x, args.size()-1, args.data()+1);
     }
 
     void emit_sset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {

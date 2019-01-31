@@ -233,6 +233,32 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "typedef lean::object obj;\n";
 }
 
+static void emit_hexdigit(std::ostream & out, unsigned char c) {
+    lean_assert(c < 16);
+    if (c < 10) {
+        out << c;
+    } else {
+        out << 'a' + (c - 10);
+    }
+}
+
+static void emit_quoted_string(std::ostream & out, std::string const & s) {
+    for (unsigned i = 0; i < s.size(); i++) {
+        unsigned char c = s[i];
+        if (c == '\n')
+            out << "\\n";
+        else if (c ==  '\t')
+            out << "\\t";
+        else if (c == '\\')
+            out << "\\\\";
+        else if (c <= 31 || c >= 0x7f) {
+            out << "\\x"; emit_hexdigit(out, c / 16); emit_hexdigit(out, c % 16);
+        } else {
+            out << c;
+        }
+    }
+}
+
 struct emit_fn_fn {
     std::ostream &  m_out;
     name_generator  m_ngen;
@@ -294,10 +320,29 @@ struct emit_fn_fn {
         emit_fvar(x); m_out << " = ";
     }
 
-    void emit_lit(expr const & x, expr const &) {
+    void emit_lit(expr const & x, expr const & v) {
+        lean_assert(is_lit(v));
         emit_lhs(x);
-        // TODO(Leo);
-        m_out << "0;\n";
+        literal const & l = lit_value(v);
+        switch (l.kind()) {
+        case literal_kind::Nat:
+            if (is_obj(x)) {
+                if (l.get_nat() < std::numeric_limits<unsigned>::max()) {
+                    m_out << "lean::mk_nat_obj(" << l.get_nat() << "u)";
+                } else {
+                    m_out << "lean::mk_nat_obj(mpz(\"" << l.get_nat() << "\"))";
+                }
+            } else {
+                m_out << l.get_nat();
+            }
+            break;
+        case literal_kind::String:
+            m_out << "lean::mk_string(\"";
+            emit_quoted_string(m_out, l.get_string().to_std_string());
+            m_out << "\")";
+            break;
+        }
+        m_out << ";\n";
     }
 
     void emit_arg(expr const & arg) {

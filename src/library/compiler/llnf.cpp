@@ -794,7 +794,7 @@ class to_llnf_fn {
                 if (first && obj_args.size() > 0) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
-                r = mk_let_decl(info.get_type(), mk_sset(r, info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset, args[j]));
+                r = mk_let_decl(mk_enf_object_type(), mk_sset(r, info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset, args[j]));
                 offset += info.m_size;
                 first = false;
                 break;
@@ -802,7 +802,7 @@ class to_llnf_fn {
                 if (first && obj_args.size() > 0) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
-                r = mk_let_decl(info.get_type(), mk_uset(r, k_info.m_num_objs + uidx, args[j]));
+                r = mk_let_decl(mk_enf_object_type(), mk_uset(r, k_info.m_num_objs + uidx, args[j]));
                 uidx++;
                 first = false;
                 break;

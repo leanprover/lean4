@@ -527,6 +527,14 @@ inline void cnstr_set(u_obj_arg o, unsigned i, obj_arg v) {
     lean_assert(i < cnstr_num_objs(o));
     obj_set_data(o, sizeof(constructor_object) + sizeof(object*)*i, v); // NOLINT
 }
+/* Release field `i`, that is, decrement its reference counter, and then set it to box(0) */
+inline void cnstr_release(u_obj_arg o, unsigned i) {
+    lean_assert(!is_heap_obj(o) || !is_shared(o));
+    lean_assert(i < cnstr_num_objs(o));
+    object ** field_ptr = reinterpret_cast<object **>(reinterpret_cast<char *>(o) + sizeof(constructor_object) + sizeof(object*)*i);
+    dec(*field_ptr);
+    *field_ptr = box(0);
+}
 /* Access scalar data at the given offset. */
 template<typename T> inline T cnstr_get_scalar(b_obj_arg o, size_t offset) {
     return obj_data<T>(o, sizeof(constructor_object) + offset);

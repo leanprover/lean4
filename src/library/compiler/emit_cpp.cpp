@@ -249,12 +249,16 @@ struct emit_fn_fn {
         return m_lctx.get_local_decl(x).get_type() == mk_enf_object_type();
     }
 
+    void emit_unit() {
+        m_out << "lean::box(0)";
+    }
+
     void emit_constant(expr const & c) {
         lean_assert(is_constant(c));
         if (optional<name> n = get_builtin_cname(const_name(c)))
             m_out << *n;
         else if (is_enf_neutral(c))
-            m_out << "lean::box(0)";
+            emit_unit();
         else
             m_out << to_cpp_name(m_env, const_name(c));
     }
@@ -286,12 +290,12 @@ struct emit_fn_fn {
         m_out << ");\n";
     }
 
-    void emit_rhs(expr const & x) {
+    void emit_lhs(expr const & x) {
         emit_fvar(x); m_out << " = ";
     }
 
     void emit_lit(expr const & x, expr const &) {
-        emit_rhs(x);
+        emit_lhs(x);
         // TODO(Leo);
         m_out << "0;\n";
     }
@@ -300,7 +304,7 @@ struct emit_fn_fn {
         if (is_fvar(arg))
             emit_fvar(arg);
         else
-            m_out << "lean::box(0)";
+            emit_unit();
     }
 
     void emit_args(unsigned sz, expr const * args) {
@@ -318,10 +322,10 @@ struct emit_fn_fn {
             m_out << "{ obj* _aargs[] = {";
             emit_args(nargs, args.data()+1);
             m_out << "}; ";
-            emit_rhs(x);
+            emit_lhs(x);
             m_out << "lean::apply_m("; emit_fvar(f); m_out << ", " << nargs << ", _aargs); }\n";
         } else {
-            emit_rhs(x);
+            emit_lhs(x);
             m_out << "lean::apply_" << nargs << "(";
             emit_fvar(f);
             m_out << ", ";
@@ -331,7 +335,7 @@ struct emit_fn_fn {
     }
 
     void emit_closure(expr const & x, buffer<expr> const &) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
@@ -348,7 +352,7 @@ struct emit_fn_fn {
         lean_assert(!args.empty());
         unsigned cidx, num_usizes, num_bytes;
         lean_verify(is_llnf_cnstr(fn, cidx, num_usizes, num_bytes));
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "lean::alloc_cnstr(" << cidx << ", " << args.size() << ", ";
         emit_cnstr_scalar_size(num_usizes, num_bytes); m_out << ");\n";
         for (unsigned i = 0; i < args.size(); i++) {
@@ -356,48 +360,57 @@ struct emit_fn_fn {
         }
     }
 
-    void emit_reset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+    void emit_reset(expr const & x, expr const & fn, expr const & o) {
+        unsigned n;
+        lean_verify(is_llnf_reset(fn, n));
+        m_out << "if (lean::is_shared("; emit_fvar(o); m_out <<")) {\n";
+        m_out << " lean::dec("; emit_fvar(o); m_out << ");\n ";
+        emit_lhs(x); emit_unit(); m_out << ";\n";
+        m_out << "} else {\n";
+        for (unsigned i = 0; i < n; i++) {
+            m_out << " lean::cnstr_release("; emit_fvar(o); m_out << ", " << i << ");\n";
+        }
+        m_out << " "; emit_lhs(x); emit_fvar(o); m_out << ";\n";
+        m_out << "}\n";
     }
 
     void emit_reuse(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_sset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_uset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_proj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_sproj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_uproj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_unbox(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
     void emit_box(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_rhs(x);
+        emit_lhs(x);
         m_out << "0;\n"; // TODO(Leo)
     }
 
@@ -407,7 +420,7 @@ struct emit_fn_fn {
         if (is_lit(val)) {
             emit_lit(x, val);
         } else if (is_constant(val)) {
-            emit_rhs(x);
+            emit_lhs(x);
             unsigned cidx, d1, d2;
             if (is_llnf_cnstr(val, cidx, d1, d2)) {
                 if (is_obj(x))
@@ -431,7 +444,7 @@ struct emit_fn_fn {
             } else if (is_llnf_reuse(fn)) {
                 emit_reuse(x, fn, args);
             } else if (is_llnf_reset(fn)) {
-                emit_reset(x, fn, args);
+                emit_reset(x, fn, args[0]);
             } else if (is_llnf_sset(fn)) {
                 emit_sset(x, fn, args);
             } else if (is_llnf_uset(fn)) {
@@ -448,20 +461,10 @@ struct emit_fn_fn {
                 emit_box(x, fn, args);
             } else {
                 /* Regular function application. */
-                emit_rhs(x);
+                emit_lhs(x);
                 emit_constant(fn);
                 m_out << "(";
-                bool first = true;
-                for (expr const & arg : args) {
-                    if (first)
-                        first = false;
-                    else
-                        m_out << ", ";
-                    if (is_fvar(arg))
-                        emit_fvar(arg);
-                    else
-                        m_out << "lean::box(0)";
-                }
+                emit_args(args.size(), args.data());
                 m_out << ");\n";
             }
         } else {

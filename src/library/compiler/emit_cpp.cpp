@@ -259,6 +259,16 @@ static void emit_quoted_string(std::ostream & out, std::string const & s) {
     }
 }
 
+static char const * get_scalar_type_from_size(unsigned i) {
+    switch (i) {
+    case 1: return "unsigned char";
+    case 2: return "unsigned short";
+    case 4: return "unsigned";
+    case 8: return "unsigned long long";
+    default: throw exception("C++ code generation failed, invalid scalar size");
+    }
+}
+
 struct emit_fn_fn {
     std::ostream &  m_out;
     name_generator  m_ngen;
@@ -447,29 +457,51 @@ struct emit_fn_fn {
         emit_cnstr_sets(x, args.size()-1, args.data()+1);
     }
 
-    void emit_sset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+    void emit_offset(unsigned n, unsigned offset) {
+        if (n > 0) {
+            m_out << "sizeof(void*)*" << n;
+            if (offset > 0)
+                m_out << " + " << offset;
+        } else {
+            m_out << offset;
+        }
     }
 
-    void emit_uset(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
-        emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+    void emit_sset(expr const & x, expr const & fn, buffer<expr> const & args) {
+        lean_assert(args.size() == 2);
+        unsigned sz, n, offset;
+        lean_verify(is_llnf_sset(fn, sz, n, offset));
+        m_out << "lean::cnstr_set_scalar("; emit_fvar(args[0]); m_out << ", "; emit_offset(n, offset); m_out << ", "; emit_fvar(args[1]); m_out << ");\n";
+        emit_lhs(x); emit_fvar(args[0]); m_out << ";\n";
     }
 
-    void emit_proj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+    void emit_uset(expr const & x, expr const & fn, buffer<expr> const & args) {
+        unsigned n;
+        lean_verify(is_llnf_uset(fn, n));
         emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+        m_out << "lean::cnstr_set_scalar("; emit_fvar(args[0]); m_out << ", "; emit_offset(n, 0); m_out << ", "; emit_fvar(args[1]); m_out << ");\n";
+        emit_lhs(x); emit_fvar(args[0]); m_out << ";\n";
     }
 
-    void emit_sproj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+    void emit_proj(expr const & x, expr const & fn, expr const & o) {
+        unsigned i;
+        lean_verify(is_llnf_proj(fn, i));
         emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+        m_out << "lean::cnstr_get("; emit_fvar(o); m_out << ", " << i << ");\n";
     }
 
-    void emit_uproj(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+    void emit_sproj(expr const & x, expr const & fn, expr const & o) {
+        unsigned sz, n, offset;
+        lean_verify(is_llnf_sproj(fn, sz, n, offset));
         emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+        m_out << "lean::cnstr_get_scalar<" << get_scalar_type_from_size(sz) << ">("; emit_fvar(o); m_out << ", "; emit_offset(n, offset); m_out << ");\n";
+    }
+
+    void emit_uproj(expr const & x, expr const & fn, expr const & o) {
+        unsigned i;
+        lean_verify(is_llnf_uproj(fn, i));
+        emit_lhs(x);
+        m_out << "lean::cnstr_get_scalar<size_t>("; emit_fvar(o); m_out << ", sizeof(void*)*" << i << ");\n";
     }
 
     void emit_unbox(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
@@ -518,11 +550,11 @@ struct emit_fn_fn {
             } else if (is_llnf_uset(fn)) {
                 emit_uset(x, fn, args);
             } else if (is_llnf_proj(fn)) {
-                emit_proj(x, fn, args);
+                emit_proj(x, fn, args[0]);
             } else if (is_llnf_sproj(fn)) {
-                emit_sproj(x, fn, args);
+                emit_sproj(x, fn, args[0]);
             } else if (is_llnf_uproj(fn)) {
-                emit_uproj(x, fn, args);
+                emit_uproj(x, fn, args[0]);
             } else if (is_llnf_unbox(fn)) {
                 emit_unbox(x, fn, args);
             } else if (is_llnf_box(fn)) {

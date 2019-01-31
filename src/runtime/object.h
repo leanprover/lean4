@@ -1064,7 +1064,7 @@ inline size_t unbox_size_t(b_obj_arg o) {
 // Option
 
 inline obj_res mk_option_none() { return box(0); }
-inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return v; }
+inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cnstr_set(r, 0, v); return r; }
 
 // =======================================
 // String

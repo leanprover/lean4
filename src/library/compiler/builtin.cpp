@@ -170,10 +170,10 @@ void initialize_builtin() {
     register_builtin(name({"io", "prim", "handle", "get_line"}), o_o_o, "lean::io_prim_handle_get_line", bc);
 
     // interface to old elaborator
-    register_builtin(name({"lean", "expr", "local"}), mk_arrow(o, o_o_o_o), "lean::lean_expr_local");
-    register_builtin(name({"lean", "environment", "empty"}), o, "lean::lean_environment_empty");
-    register_builtin(name({"lean", "environment", "contains"}), o_o_o, "lean::lean_environment_contains");
-    register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o_o, "lean::lean_elaborator_elaborate_command");
+    register_builtin(name({"lean", "expr", "local"}), mk_arrow(o, o_o_o_o), "lean_expr_local");
+    register_builtin(name({"lean", "environment", "empty"}), o, "lean_environment_empty");
+    register_builtin(name({"lean", "environment", "contains"}), o_o_o, "lean_environment_contains");
+    register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o_o, "lean_elaborator_elaborate_command");
 }
 
 void finalize_builtin() {

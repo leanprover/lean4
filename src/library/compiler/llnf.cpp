@@ -1047,7 +1047,7 @@ class explicit_boxing_fn {
         return get_constant_ll_type(env(), c);
     }
 
-    /* Initialize `m_result_type` and `m_result_type` */
+    /* Initialize `m_result_type` and `m_result_type_size` */
     void init_result_type(name const & d_name) {
         expr type = get_constant_type(d_name);
         while (is_pi(type))

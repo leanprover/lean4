@@ -430,7 +430,6 @@ struct emit_fn_fn {
     }
 
     void emit_cnstr(expr const & x, expr const & fn, buffer<expr> const & args) {
-        lean_assert(!args.empty());
         unsigned cidx, num_usizes, num_bytes;
         lean_verify(is_llnf_cnstr(fn, cidx, num_usizes, num_bytes));
         emit_alloc_cnstr(x, cidx, args.size(), num_usizes, num_bytes);
@@ -544,13 +543,9 @@ struct emit_fn_fn {
         if (is_lit(val)) {
             emit_lit(x, val);
         } else if (is_constant(val)) {
-            unsigned cidx, d1, d2;
-            if (is_llnf_cnstr(val, cidx, d1, d2)) {
-                emit_lhs(x);
-                if (is_obj(x))
-                    m_out << "lean::box(" << cidx << ")";
-                else
-                    m_out << cidx;
+            if (is_llnf_cnstr(val)) {
+                buffer<expr> args;
+                emit_cnstr(x, val, args);
             } else if (is_enf_unreachable(val)) {
                 m_out << "lean_unreachable();\n";
                 emit_lhs(x); emit_unit();

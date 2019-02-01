@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "runtime/object.h"
 using namespace lean;
 
-lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*) {
+lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*, lean::object*) {
     lean_unreachable();
     return nullptr;
 }

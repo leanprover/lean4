@@ -1371,11 +1371,27 @@ class explicit_boxing_fn {
         }
     }
 
+    expr visit_fvar(expr const & e, expr const & expected_type) {
+        expr type = m_lctx.get_local_decl(e).get_type();
+        return cast_result_if_needed(e, type, expected_type);
+    }
+
+    expr visit_constant(expr const & e, expr const & expected_type) {
+        if (!is_llnf_op(e) && !is_enf_unreachable(e) && !is_enf_neutral(e)) {
+            expr type = get_constant_type(const_name(e));
+            return cast_result_if_needed(e, type, expected_type);
+        } else {
+            return e;
+        }
+    }
+
     expr visit(expr const & e, expr const & expected_type) {
         switch (e.kind()) {
         case expr_kind::App:    return visit_app(e, expected_type);
         case expr_kind::Lambda: return visit_lambda(e);
         case expr_kind::Let:    return visit_let(e);
+        case expr_kind::FVar:   return visit_fvar(e, expected_type);
+        case expr_kind::Const:  return visit_constant(e, expected_type);
         default:                return e;
         }
     }

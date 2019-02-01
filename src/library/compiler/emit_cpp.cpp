@@ -255,6 +255,8 @@ static void emit_quoted_string(std::ostream & out, std::string const & s) {
             out << "\\t";
         else if (c == '\\')
             out << "\\\\";
+        else if (c == '\"')
+            out << "\\\"";
         else if (c <= 31 || c >= 0x7f) {
             out << "\\x"; emit_hexdigit(out, c / 16); emit_hexdigit(out, c % 16);
         } else {

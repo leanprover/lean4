@@ -6,6 +6,7 @@ Author: Gabriel Ebner
 */
 #include <string>
 #include "library/messages.h"
+#include "library/trace.h"
 
 namespace lean {
 
@@ -31,6 +32,10 @@ std::ostream & operator<<(std::ostream & out, message const & msg) {
 }
 
 void report_message(message const & msg0) {
+    if (!get_global_ios().get_options().get_bool(name {"trace", "as_messages"}, false)) {
+        // Print immediately. Still add as a message so that we get the error code correct.
+        get_global_ios().get_regular_stream() << msg0;
+    }
     lean_assert(global_message_log());
     global_message_log()->add(msg0);
 }

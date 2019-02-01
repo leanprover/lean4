@@ -498,14 +498,14 @@ int main(int argc, char ** argv) {
             write_module(p.env(), mod_fn, olean_fn);
         }
 
-        for (auto const & msg : l.to_buffer()) {
-            if (json_output) {
+        if (json_output) {
 #if defined(LEAN_JSON)
+            for (auto const & msg : l.to_buffer()) {
                 print_json(std::cout, msg);
 #endif
-            } else {
-                std::cout << msg;
             }
+        } else {
+            // Messages have already been printed directly to stdout
         }
 
         if (!json_output)

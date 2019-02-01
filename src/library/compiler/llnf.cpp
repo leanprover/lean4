@@ -768,6 +768,12 @@ class to_llnf_fn {
         cnstr_info k_info      = get_cnstr_info(const_name(k));
         unsigned nparams       = k_val.get_nparams();
         unsigned cidx          = k_info.m_cidx;
+        name const & I         = const_name(k).get_prefix();
+        if (optional<unsigned> r = ::lean::is_enum_type(env(), I)) {
+            /* We use a literal for enumeration types. */
+            expr x = mk_let_decl(*to_uint_type(*r), mk_lit(literal(nat(cidx))));
+            return x;
+        }
         buffer<expr> obj_args;
         unsigned j             = nparams;
         for (field_info const & info : k_info.m_field_info) {

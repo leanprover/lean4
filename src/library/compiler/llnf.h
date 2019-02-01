@@ -26,7 +26,7 @@ bool is_llnf_uproj(expr const & e, unsigned & idx);
 bool is_llnf_sset(expr const & e, unsigned & sz, unsigned & n, unsigned & offset);
 bool is_llnf_uset(expr const & e, unsigned & n);
 bool is_llnf_jmp(expr const & e);
-bool is_llnf_unbox(expr const & e);
+bool is_llnf_unbox(expr const & e, unsigned & n);
 bool is_llnf_box(expr const & e, unsigned & n);
 bool is_llnf_inc(expr const & e);
 bool is_llnf_dec(expr const & e);
@@ -41,6 +41,7 @@ inline bool is_llnf_uproj(expr const & e) { unsigned d; return is_llnf_uproj(e, 
 inline bool is_llnf_sset(expr const & e) { unsigned d1, d2, d3; return is_llnf_sset(e, d1, d2, d3); }
 inline bool is_llnf_uset(expr const & e) { unsigned d; return is_llnf_uset(e, d); }
 inline bool is_llnf_box(expr const & e) { unsigned n; return is_llnf_box(e, n); }
+inline bool is_llnf_unbox(expr const & e) { unsigned n; return is_llnf_unbox(e, n); }
 
 expr get_constant_ll_type(environment const & env, name const & c);
 unsigned get_llnf_arity(environment const & env, name const & c);

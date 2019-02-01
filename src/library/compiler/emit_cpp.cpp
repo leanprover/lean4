@@ -498,20 +498,38 @@ struct emit_fn_fn {
     }
 
     void emit_uproj(expr const & x, expr const & fn, expr const & o) {
-        unsigned i;
-        lean_verify(is_llnf_uproj(fn, i));
+        unsigned n;
+        lean_verify(is_llnf_uproj(fn, n));
         emit_lhs(x);
-        m_out << "lean::cnstr_get_scalar<size_t>("; emit_fvar(o); m_out << ", sizeof(void*)*" << i << ");\n";
+        m_out << "lean::cnstr_get_scalar<size_t>("; emit_fvar(o); m_out << ", sizeof(void*)*" << n << ");\n";
     }
 
-    void emit_unbox(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+    void emit_unbox(expr const & x, expr const & fn, expr const & arg) {
+        unsigned n;
+        lean_verify(is_llnf_unbox(fn, n));
         emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+        switch (n) {
+        case 0:  m_out << "lean::unbox_size_t("; break;
+        case 4:  m_out << "lean::unbox_uint32("; break;
+        case 8:  m_out << "lean::unbox_uint64("; break;
+        default: m_out << "lean::unbox(";        break; // default case for scalars that fit in tagged pointers in all platforms
+        }
+        emit_fvar(arg);
+        m_out << ");\n";
     }
 
-    void emit_box(expr const & x, expr const & /* fn */, buffer<expr> const & /* args */) {
+    void emit_box(expr const & x, expr const & fn, expr const & arg) {
+        unsigned n;
+        lean_verify(is_llnf_box(fn, n));
         emit_lhs(x);
-        m_out << "0;\n"; // TODO(Leo)
+        switch (n) {
+        case 0:  m_out << "lean::box_size_t("; break;
+        case 4:  m_out << "lean::box_uint32("; break;
+        case 8:  m_out << "lean::box_uint64("; break;
+        default: m_out << "lean::box(";        break; // default case for scalars that fit in tagged pointers in all platforms
+        }
+        emit_fvar(arg);
+        m_out << ");\n";
     }
 
     void emit_instr(local_decl const & d) {
@@ -556,9 +574,9 @@ struct emit_fn_fn {
             } else if (is_llnf_uproj(fn)) {
                 emit_uproj(x, fn, args[0]);
             } else if (is_llnf_unbox(fn)) {
-                emit_unbox(x, fn, args);
+                emit_unbox(x, fn, args[0]);
             } else if (is_llnf_box(fn)) {
-                emit_box(x, fn, args);
+                emit_box(x, fn, args[0]);
             } else {
                 /* Regular function application. */
                 emit_lhs(x);

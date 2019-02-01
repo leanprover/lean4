@@ -1018,6 +1018,48 @@ inline obj_res int_dec_lt(b_obj_arg a1, b_obj_arg a2) {
     return box(int_lt(a1, a2));
 }
 
+inline obj_res box_uint32(unsigned v) {
+    if (sizeof(void*) == 4) {
+        // 32-bit implementation
+        obj_res r = alloc_cnstr(0, 0, sizeof(unsigned));
+        cnstr_set_scalar(r, 0, v);
+        return r;
+    } else {
+        // 64-bit implementation
+        return box(v);
+    }
+}
+
+inline unsigned unbox_uint32(b_obj_arg o) {
+    if (sizeof(void*) == 4) {
+        // 32-bit implementation
+        return cnstr_get_scalar<unsigned>(o, 0);
+    } else {
+        // 64-bit implementation
+        return unbox(o);
+    }
+}
+
+inline obj_res box_uint64(unsigned long long v) {
+    obj_res r = alloc_cnstr(0, 0, sizeof(unsigned long long));
+    cnstr_set_scalar(r, 0, v);
+    return r;
+}
+
+inline unsigned long long unbox_uint64(b_obj_arg o) {
+    return cnstr_get_scalar<unsigned long long>(o, 0);
+}
+
+inline obj_res box_size_t(size_t v) {
+    obj_res r = alloc_cnstr(0, 0, sizeof(size_t));
+    cnstr_set_scalar(r, 0, v);
+    return r;
+}
+
+inline size_t unbox_size_t(b_obj_arg o) {
+    return cnstr_get_scalar<size_t>(o, 0);
+}
+
 // =======================================
 // Option
 

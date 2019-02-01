@@ -35,7 +35,7 @@ static name * g_sproj     = nullptr;
 static name * g_uproj     = nullptr;
 static expr * g_jmp       = nullptr;
 static name * g_box       = nullptr;
-static expr * g_unbox     = nullptr;
+static name * g_unbox     = nullptr;
 static expr * g_inc       = nullptr;
 static expr * g_dec       = nullptr;
 
@@ -117,12 +117,6 @@ bool is_llnf_uproj(expr const & e, unsigned & idx) { return is_llnf_unary_primit
 expr mk_llnf_jmp() { return *g_jmp; }
 bool is_llnf_jmp(expr const & e) { return e == *g_jmp; }
 
-/* The `_unbox` instruction converts a boxed value (type `_obj`) into an unboxed value (type `uint*` or `usize`).
-   It is only used in let-declarations of the form `x : t := _ubox y`. So, we don't need a parameter in `_unbox` to
-   specify the result type. */
-expr mk_llnf_unbox () { return *g_unbox; }
-bool is_llnf_unbox(expr const & e) { return e == *g_unbox; }
-
 /* The `_box.<n>` instruction converts an unboxed value (type `uint*`) into a boxed value (type `_obj`).
    The parameter `n` specifies the number of bytes necessary to store the unboxed value.
    This information could be also retrieved from the type of the variable being boxed, but for simplicity,
@@ -132,6 +126,14 @@ bool is_llnf_unbox(expr const & e) { return e == *g_unbox; }
    We use `0` because the number of bytes necessary to store a `usize` is different in 32 and 64 bit machines. */
 expr mk_llnf_box(unsigned n) { return mk_constant(name(*g_box, n)); }
 bool is_llnf_box(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_box, n); }
+
+/* The `_unbox.<n>` instruction converts a boxed value (type `_obj`) into an unboxed value (type `uint*` or `usize`).
+   The parameter `n` specifies the number of bytes necessary to store the unboxed value.
+   It is not really needed, but we use to keep it consistent with `_box.<n>`.
+
+   Remark: we use the instruction `_unbox.0` like we use `_box.0`. */
+expr mk_llnf_unbox (unsigned n) { return mk_constant(name(*g_unbox, n)); }
+bool is_llnf_unbox(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_unbox, n); }
 
 expr mk_llnf_inc() { return *g_inc; }
 bool is_llnf_inc(expr const & e) { return e == *g_inc; }
@@ -990,7 +992,8 @@ optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name co
         if (expected_type == obj || expected_type == neutral) {
             args.push_back(y);
         } else {
-            expr x = lctx.mk_local_decl(ngen, _x.append_after(j), expected_type, mk_app(mk_llnf_unbox(), y));
+            unsigned n = *get_type_size(expected_type);
+            expr x = lctx.mk_local_decl(ngen, _x.append_after(j), expected_type, mk_app(mk_llnf_unbox(n), y));
             j++;
             xs.push_back(x);
             args.push_back(x);
@@ -1149,7 +1152,7 @@ class explicit_boxing_fn {
         if (is_app(v) && is_llnf_box(app_fn(v), m) && n == m) {
             return app_arg(v);
         } else {
-            expr r = mk_app(mk_llnf_unbox(), e);
+            expr r = mk_app(mk_llnf_unbox(n), e);
             return is_arg ? mk_let_decl(*to_uint_type(n), r) : r;
         }
     }
@@ -1199,7 +1202,6 @@ class explicit_boxing_fn {
         return mk_app(fn, args);
     }
 
-
     /* Convert function types (e.g., _obj -> _obj) into _obj.
        At runtime, closures behave like `_obj`. */
     expr norm_fun_type(expr const & type) {
@@ -1218,12 +1220,7 @@ class explicit_boxing_fn {
             return mk_box(*get_type_size(e_type), e, is_arg);
         } else {
             lean_assert(e_type == mk_enf_object_type());
-            if (optional<unsigned> n = get_type_size(expected_type)) {
-                return mk_unbox(*n, e, is_arg);
-            } else {
-                expr r = mk_app(mk_llnf_unbox(), e);
-                return is_arg ? mk_let_decl(expected_type, r) : r;
-            }
+            return mk_unbox(*get_type_size(expected_type), e, is_arg);
         }
     }
 
@@ -1257,7 +1254,8 @@ class explicit_boxing_fn {
         if (norm_fun_type(expected_type) != mk_enf_object_type()) {
             lean_assert(is_app(r));
             r = mk_let_decl(mk_enf_object_type(), r);
-            r = mk_app(mk_llnf_unbox(), r);
+            unsigned n = *get_type_size(expected_type);
+            r = mk_app(mk_llnf_unbox(n), r);
         }
         return r;
     }
@@ -2010,7 +2008,7 @@ void initialize_llnf() {
     g_uproj     = new name("_uproj");
     g_jmp       = new expr(mk_constant("_jmp"));
     g_box       = new name("_box");
-    g_unbox     = new expr(mk_constant("_unbox"));
+    g_unbox     = new name("_unbox");
     g_inc       = new expr(mk_constant("_inc"));
     g_dec       = new expr(mk_constant("_dec"));
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();

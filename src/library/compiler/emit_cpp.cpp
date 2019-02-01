@@ -230,6 +230,7 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "// Imports:"; for (module_name const & d : deps) out << " " << d; out << "\n";
     out << "#include \"runtime/object.h\"\n";
     out << "#include \"runtime/apply.h\"\n";
+    out << "#include \"runtime/io.h\"\n";
     out << "#include \"kernel/builtin.h\"\n";
     out << "typedef lean::object obj;\n";
     out << "#if defined(__clang__)\n";

@@ -291,6 +291,7 @@ struct emit_fn_fn {
 
     void emit_constant(expr const & c) {
         lean_assert(is_constant(c));
+        lean_assert(!is_enf_unreachable(c));
         if (optional<name> n = get_builtin_cname(const_name(c)))
             m_out << *n;
         else if (is_enf_neutral(c))
@@ -538,15 +539,18 @@ struct emit_fn_fn {
         if (is_lit(val)) {
             emit_lit(x, val);
         } else if (is_constant(val)) {
-            emit_lhs(x);
             unsigned cidx, d1, d2;
             if (is_llnf_cnstr(val, cidx, d1, d2)) {
+                emit_lhs(x);
                 if (is_obj(x))
                     m_out << "lean::box(" << cidx << ")";
                 else
                     m_out << cidx;
+            } else if (is_enf_unreachable(val)) {
+                m_out << "lean_unreachable();\n";
+                emit_lhs(x); emit_unit(); m_out << ";\n";
             } else {
-                emit_constant(val);
+                emit_lhs(x); emit_constant(val);
             }
             m_out << ";\n";
         } else if (is_app(val)) {

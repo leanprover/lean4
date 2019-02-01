@@ -173,7 +173,7 @@ static void emit_fn_decl(std::ostream & out, environment const & env, name const
 /* Auxiliary function for `collect_dependencies`. */
 static void collect_constant(expr const & e, name_set & deps) {
     lean_assert(is_constant(e));
-    if (!is_llnf_op(e) && !is_builtin_constant(const_name(e)) && e != mk_enf_neutral()) {
+    if (!is_llnf_op(e) && !is_builtin_constant(const_name(e)) && !is_enf_neutral(e) && !is_enf_unreachable(e)) {
         deps.insert(const_name(e));
     }
 }
@@ -711,8 +711,8 @@ public:
 
     void operator()(comp_decl const & d) {
         name n    = d.fst();
-        expr type = get_constant_ll_type(m_env, n);
         expr e    = d.snd();
+        expr type = get_constant_ll_type(m_env, n);
         m_out << to_cpp_type(get_result_type(type)) << " ";
         if (is_lambda(e)) {
             buffer<expr> locals;

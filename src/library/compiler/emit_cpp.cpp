@@ -485,7 +485,6 @@ struct emit_fn_fn {
     void emit_uset(expr const & x, expr const & fn, buffer<expr> const & args) {
         unsigned n;
         lean_verify(is_llnf_uset(fn, n));
-        emit_lhs(x);
         m_out << "lean::cnstr_set_scalar("; emit_fvar(args[0]); m_out << ", "; emit_offset(n, 0); m_out << ", "; emit_fvar(args[1]); m_out << ");\n";
         emit_lhs(x); emit_fvar(args[0]); m_out << ";\n";
     }

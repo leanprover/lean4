@@ -340,7 +340,7 @@ struct emit_fn_fn {
                 if (l.get_nat() < std::numeric_limits<unsigned>::max()) {
                     m_out << "lean::mk_nat_obj(" << l.get_nat() << "u)";
                 } else {
-                    m_out << "lean::mk_nat_obj(mpz(\"" << l.get_nat() << "\"))";
+                    m_out << "lean::mk_nat_obj(lean::mpz(\"" << l.get_nat() << "\"))";
                 }
             } else {
                 m_out << l.get_nat();

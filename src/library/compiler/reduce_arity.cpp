@@ -53,8 +53,19 @@ comp_decls reduce_arity(comp_decl const & cdecl) {
         }
     }
 #endif
-    if (fvars.size() == new_fvars.size()) {
-        /* Do nothing, all arguments are used. */
+    if (fvars.size() == new_fvars.size() || new_fvars.empty()) {
+        /* Do nothing if:
+           1- All arguments are used.
+           2- No argument was used, and auxiliary declaration would be a constant.
+              This is not safe since constants are executed during initialization,
+              and we may execute unreachable code when one of the "unused" arguments
+              is an uninhabited type. Here is an example where the auxiliary definition
+              would be a constant:
+
+              ```
+              def false.elim {C : Sort u} (h : false) : C := ..
+              ```
+        */
         return comp_decls(cdecl);
     }
     name red_fn   = name(cdecl.fst(), REDUCE_ARITY_SUFFIX);

@@ -3,6 +3,7 @@
 // Imports: init.data.to_string init.data.string.basic init.data.list.basic init.control.except init.data.repr init.lean.name init.data.dlist init.control.monad_fail init.control.combinators
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

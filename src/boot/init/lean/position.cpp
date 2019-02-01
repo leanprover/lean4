@@ -3,6 +3,7 @@
 // Imports: init.data.nat.default init.data.rbmap.default init.lean.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

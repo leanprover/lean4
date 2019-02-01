@@ -3,6 +3,7 @@
 // Imports: init.lean.ir.parser init.lean.ir.type_check init.lean.ir.ssa_check init.lean.ir.extract_cpp init.lean.ir.format init.lean.ir.elim_phi
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

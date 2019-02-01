@@ -3,6 +3,7 @@
 // Imports: init.lean.ir.instances init.lean.ir.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

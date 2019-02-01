@@ -3,6 +3,7 @@
 // Imports: init.control.alternative init.control.lift init.data.to_string init.control.monad_fail
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

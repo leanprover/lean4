@@ -3,6 +3,7 @@
 // Imports: init.data.rbmap.default init.data.int.default init.control.state init.control.except init.control.combinators init.lean.name
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

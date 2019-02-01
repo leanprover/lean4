@@ -3,6 +3,7 @@
 // Imports: init.data.nat.basic init.data.list.default init.coe init.data.repr init.data.to_string
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

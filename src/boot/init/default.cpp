@@ -3,6 +3,7 @@
 // Imports: init.core init.control.default init.data.basic init.version init.function init.coe init.wf init.data.default init.io
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

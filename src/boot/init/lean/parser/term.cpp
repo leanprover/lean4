@@ -3,6 +3,7 @@
 // Imports: init.lean.parser.level init.lean.parser.notation init.lean.expr
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)

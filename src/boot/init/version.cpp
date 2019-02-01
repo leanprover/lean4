@@ -3,6 +3,7 @@
 // Imports: init.data.nat.basic init.data.string.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "runtime/io.h"
 #include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
@@ -31,7 +32,7 @@ return x_4;
 obj* _init__l_s4_lean_s7_githash() {
 {
 obj* x_0; 
-x_0 = lean::mk_string("6e8f8a8cdc4fadd6c3dab251e8a30df824471616");
+x_0 = lean::mk_string("ac53080ced1df54054de9f6796cb9bfa9de42888");
 return x_0;
 }
 }

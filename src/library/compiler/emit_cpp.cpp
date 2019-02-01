@@ -231,6 +231,9 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "#include \"runtime/object.h\"\n";
     out << "#include \"runtime/apply.h\"\n";
     out << "typedef lean::object obj;\n";
+    out << "#if defined(__clang__)\n";
+    out << "#pragma clang diagnostic ignored \"-Wunused-parameter\"\n";
+    out << "#endif\n";
 }
 
 static void emit_hexdigit(std::ostream & out, unsigned char c) {

@@ -995,7 +995,10 @@ optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name co
         fn_type = binding_body(fn_type);
     }
     name new_fn(fn, "_boxed");
-    expr new_val  = mk_app(mk_constant(fn), args);
+    expr x = lctx.mk_local_decl(ngen, _x.append_after(j), fn_type, mk_app(mk_constant(fn), args));
+    j++;
+    xs.push_back(x);
+    expr new_val = x;
     if (fn_type != obj && fn_type != neutral && !is_pi(fn_type)) {
         expr x = lctx.mk_local_decl(ngen, _x.append_after(j), obj, mk_app(mk_llnf_box(*get_type_size(fn_type)), new_val));
         xs.push_back(x);

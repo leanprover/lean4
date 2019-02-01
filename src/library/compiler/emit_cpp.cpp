@@ -547,8 +547,20 @@ struct emit_fn_fn {
                 else
                     m_out << cidx;
             } else if (is_enf_unreachable(val)) {
-                m_out << "lean_unreachable();\n";
-                emit_lhs(x); emit_unit(); m_out << ";\n";
+                /* We have commented `m_out << "lean_unreachable();\n` because it
+                   may break initialization. The main issue is that `reduce_arity`
+                   creates an auxiliary 0-ary definition for
+                   ```
+                   def false.elim {C : Sort u} (h : false) : C := ..
+                   ```
+                   and this auxiliary definition is executed at initialization time.
+                   We should fix the problem by to preventing `reduce_arity` from
+                   converting a n-ary function into a 0-ary one.
+                   Another option is to use lazy initialization, but lazy initialization
+                   would require thread local values.
+                */
+                // m_out << "lean_unreachable();\n";
+                emit_lhs(x); emit_unit();
             } else {
                 emit_lhs(x); emit_constant(val);
             }

@@ -643,14 +643,14 @@ return x_20;
 obj* _init__l_s5_sigma_s9_has__repr_s6___rarg_s11___closed__1() {
 {
 obj* x_0; 
-x_0 = lean::mk_string("\x101\x	102\x97");
+x_0 = lean::mk_string("\xe2\x9f\xa8");
 return x_0;
 }
 }
 obj* _init__l_s5_sigma_s9_has__repr_s6___rarg_s11___closed__2() {
 {
 obj* x_0; 
-x_0 = lean::mk_string("\x101\x	102\x97	");
+x_0 = lean::mk_string("\xe2\x9f\xa9");
 return x_0;
 }
 }

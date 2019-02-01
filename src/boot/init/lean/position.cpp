@@ -192,7 +192,7 @@ return x_22;
 obj* _init__l_s4_lean_s8_position_s4_lean_s15_has__to__format_s11___closed__1() {
 {
 obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("\x101\x	102\x97");
+x_0 = lean::mk_string("\xe2\x9f\xa8");
 x_1 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;
@@ -210,7 +210,7 @@ return x_1;
 obj* _init__l_s4_lean_s8_position_s4_lean_s15_has__to__format_s11___closed__3() {
 {
 obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("\x101\x	102\x97	");
+x_0 = lean::mk_string("\xe2\x9f\xa9");
 x_1 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;

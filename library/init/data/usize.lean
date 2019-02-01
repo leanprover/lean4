@@ -21,8 +21,8 @@ def usize.modn : usize → nat → usize   | ⟨a⟩  b  := ⟨a %ₙ b⟩
 def usize.lt   : usize → usize → Prop  | ⟨a⟩ ⟨b⟩ := a < b
 def usize.le   : usize → usize → Prop  | ⟨a⟩ ⟨b⟩ := a ≤ b
 
-instance : has_zero usize     := ⟨⟨fin.of_nat 0⟩⟩
-instance : has_one usize      := ⟨⟨fin.of_nat 1⟩⟩
+instance : has_zero usize     := ⟨usize.of_nat 0⟩
+instance : has_one usize      := ⟨usize.of_nat 1⟩
 instance : has_add usize      := ⟨usize.add⟩
 instance : has_sub usize      := ⟨usize.sub⟩
 instance : has_mul usize      := ⟨usize.mul⟩

@@ -23,8 +23,8 @@ def uint8.modn : uint8 → nat → uint8   | ⟨a⟩  b  := ⟨a %ₙ b⟩
 def uint8.lt   : uint8 → uint8 → Prop  | ⟨a⟩ ⟨b⟩ := a < b
 def uint8.le   : uint8 → uint8 → Prop  | ⟨a⟩ ⟨b⟩ := a ≤ b
 
-instance : has_zero uint8     := ⟨⟨fin.of_nat 0⟩⟩
-instance : has_one uint8      := ⟨⟨fin.of_nat 1⟩⟩
+instance : has_zero uint8     := ⟨uint8.of_nat 0⟩
+instance : has_one uint8      := ⟨uint8.of_nat 1⟩
 instance : has_add uint8      := ⟨uint8.add⟩
 instance : has_sub uint8      := ⟨uint8.sub⟩
 instance : has_mul uint8      := ⟨uint8.mul⟩
@@ -63,8 +63,8 @@ def uint16.modn : uint16 → nat → uint16    | ⟨a⟩  b  := ⟨a %ₙ b⟩
 def uint16.lt   : uint16 → uint16 → Prop   | ⟨a⟩ ⟨b⟩ := a < b
 def uint16.le   : uint16 → uint16 → Prop   | ⟨a⟩ ⟨b⟩ := a ≤ b
 
-instance : has_zero uint16     := ⟨⟨fin.of_nat 0⟩⟩
-instance : has_one uint16      := ⟨⟨fin.of_nat 1⟩⟩
+instance : has_zero uint16     := ⟨uint16.of_nat 0⟩
+instance : has_one uint16      := ⟨uint16.of_nat 1⟩
 instance : has_add uint16      := ⟨uint16.add⟩
 instance : has_sub uint16      := ⟨uint16.sub⟩
 instance : has_mul uint16      := ⟨uint16.mul⟩
@@ -103,8 +103,8 @@ def uint32.modn : uint32 → nat → uint32    | ⟨a⟩  b  := ⟨a %ₙ b⟩
 def uint32.lt   : uint32 → uint32 → Prop   | ⟨a⟩ ⟨b⟩ := a < b
 def uint32.le   : uint32 → uint32 → Prop   | ⟨a⟩ ⟨b⟩ := a ≤ b
 
-instance : has_zero uint32     := ⟨⟨fin.of_nat 0⟩⟩
-instance : has_one uint32      := ⟨⟨fin.of_nat 1⟩⟩
+instance : has_zero uint32     := ⟨uint32.of_nat 0⟩
+instance : has_one uint32      := ⟨uint32.of_nat 1⟩
 instance : has_add uint32      := ⟨uint32.add⟩
 instance : has_sub uint32      := ⟨uint32.sub⟩
 instance : has_mul uint32      := ⟨uint32.mul⟩
@@ -143,8 +143,8 @@ def uint64.modn : uint64 → nat → uint64    | ⟨a⟩  b  := ⟨a %ₙ b⟩
 def uint64.lt   : uint64 → uint64 → Prop   | ⟨a⟩ ⟨b⟩ := a < b
 def uint64.le   : uint64 → uint64 → Prop   | ⟨a⟩ ⟨b⟩ := a ≤ b
 
-instance : has_zero uint64     := ⟨⟨fin.of_nat 0⟩⟩
-instance : has_one uint64      := ⟨⟨fin.of_nat 1⟩⟩
+instance : has_zero uint64     := ⟨uint64.of_nat 0⟩
+instance : has_one uint64      := ⟨uint64.of_nat 1⟩
 instance : has_add uint64      := ⟨uint64.add⟩
 instance : has_sub uint64      := ⟨uint64.sub⟩
 instance : has_mul uint64      := ⟨uint64.mul⟩

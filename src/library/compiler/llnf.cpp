@@ -793,7 +793,7 @@ class to_llnf_fn {
         for (field_info const & info : k_info.m_field_info) {
             switch (info.m_kind) {
             case field_info::Scalar:
-                if (first && obj_args.size() > 0) {
+                if (first) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
                 r = mk_let_decl(mk_enf_object_type(), mk_sset(r, info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset, args[j]));
@@ -801,7 +801,7 @@ class to_llnf_fn {
                 first = false;
                 break;
             case field_info::USize:
-                if (first && obj_args.size() > 0) {
+                if (first) {
                     r = mk_let_decl(mk_enf_object_type(), r);
                 }
                 r = mk_let_decl(mk_enf_object_type(), mk_uset(r, k_info.m_num_objs + uidx, args[j]));

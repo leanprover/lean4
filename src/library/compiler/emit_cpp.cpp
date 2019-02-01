@@ -240,24 +240,24 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
 static void emit_hexdigit(std::ostream & out, unsigned char c) {
     lean_assert(c < 16);
     if (c < 10) {
-        out << c;
+        out << static_cast<char>('0' + c);
     } else {
-        out << 'a' + (c - 10);
+        out << static_cast<char>('a' + (c - 10));
     }
 }
 
 static void emit_quoted_string(std::ostream & out, std::string const & s) {
     for (unsigned i = 0; i < s.size(); i++) {
         unsigned char c = s[i];
-        if (c == '\n')
+        if (c == '\n') {
             out << "\\n";
-        else if (c ==  '\t')
+        } else if (c ==  '\t') {
             out << "\\t";
-        else if (c == '\\')
+        } else if (c == '\\') {
             out << "\\\\";
-        else if (c == '\"')
+        } else if (c == '\"') {
             out << "\\\"";
-        else if (c <= 31 || c >= 0x7f) {
+        } else if (c <= 31 || c >= 0x7f) {
             out << "\\x"; emit_hexdigit(out, c / 16); emit_hexdigit(out, c % 16);
         } else {
             out << c;

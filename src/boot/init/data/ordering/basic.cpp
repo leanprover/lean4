@@ -3,6 +3,7 @@
 // Imports: init.data.repr
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -306,19 +307,22 @@ switch (x_1) {
 case 0:
 {
 obj* x_2; 
-x_2 = lean::box(1);
+x_2 = lean::alloc_cnstr(1, 0, 0);
+;
 return x_2;
 }
 case 1:
 {
 obj* x_3; 
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_3;
 }
 default:
 {
 obj* x_4; 
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 }
@@ -330,19 +334,22 @@ switch (x_1) {
 case 0:
 {
 obj* x_5; 
-x_5 = lean::box(0);
+x_5 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_5;
 }
 case 1:
 {
 obj* x_6; 
-x_6 = lean::box(1);
+x_6 = lean::alloc_cnstr(1, 0, 0);
+;
 return x_6;
 }
 default:
 {
 obj* x_7; 
-x_7 = lean::box(0);
+x_7 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_7;
 }
 }
@@ -354,19 +361,22 @@ switch (x_1) {
 case 0:
 {
 obj* x_8; 
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 case 1:
 {
 obj* x_9; 
-x_9 = lean::box(0);
+x_9 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_9;
 }
 default:
 {
 obj* x_10; 
-x_10 = lean::box(1);
+x_10 = lean::alloc_cnstr(1, 0, 0);
+;
 return x_10;
 }
 }

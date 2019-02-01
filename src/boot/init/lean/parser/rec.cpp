@@ -3,6 +3,7 @@
 // Imports: init.lean.parser.parsec
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -203,7 +204,8 @@ obj* _l_s4_lean_s6_parser_s6_rec__t_s11_run__parsec_s6___rarg_s11___lambda__1(ob
 obj* x_5; obj* x_6; obj* x_7; obj* x_11; 
 lean::dec(x_2);
 lean::dec(x_0);
-x_5 = lean::box(0);
+x_5 = lean::alloc_cnstr(0, 0, 0);
+;
 x_6 = _l_s4_lean_s6_parser_s6_rec__t_s11_run__parsec_s6___rarg_s11___lambda__1_s11___closed__1;
 x_7 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_5);

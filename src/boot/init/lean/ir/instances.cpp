@@ -3,6 +3,7 @@
 // Imports: init.lean.ir.ir
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -382,21 +383,24 @@ return x_0;
 obj* _init__l_s4_lean_s2_ir_s12_var__has__lt() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s2_ir_s16_blockid__has__lt() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s2_ir_s13_fnid__has__lt() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
@@ -499,42 +503,48 @@ return x_0;
 obj* _init__l_s4_lean_s2_ir_s12_mk__var__set() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s2_ir_s16_mk__blockid__set() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s2_ir_s15_mk__var2blockid() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s2_ir_s11_mk__context() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s2_ir_s15_mk__fnid2string() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s2_ir_s13_mk__fnid__set() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }

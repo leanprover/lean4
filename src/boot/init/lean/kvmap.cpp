@@ -3,6 +3,7 @@
 // Imports: init.lean.name init.data.option.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -36,7 +37,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -211,7 +213,8 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_2);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -246,7 +249,8 @@ case 1:
 obj* x_14; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_14 = lean::box(0);
+x_14 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_14;
 }
 case 2:
@@ -254,7 +258,8 @@ case 2:
 obj* x_17; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_17 = lean::box(0);
+x_17 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_17;
 }
 default:
@@ -262,7 +267,8 @@ default:
 obj* x_20; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_20 = lean::box(0);
+x_20 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_20;
 }
 }
@@ -277,7 +283,8 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_2);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -298,7 +305,8 @@ case 0:
 obj* x_10; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_10 = lean::box(0);
+x_10 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_10;
 }
 case 1:
@@ -320,7 +328,8 @@ case 2:
 obj* x_17; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_17 = lean::box(0);
+x_17 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_17;
 }
 default:
@@ -328,7 +337,8 @@ default:
 obj* x_20; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_20 = lean::box(0);
+x_20 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_20;
 }
 }
@@ -343,7 +353,8 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_2);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -364,7 +375,8 @@ case 0:
 obj* x_10; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_10 = lean::box(0);
+x_10 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_10;
 }
 case 1:
@@ -372,7 +384,8 @@ case 1:
 obj* x_13; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_13 = lean::box(0);
+x_13 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_13;
 }
 case 2:
@@ -394,7 +407,8 @@ default:
 obj* x_20; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_20 = lean::box(0);
+x_20 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_20;
 }
 }
@@ -409,7 +423,8 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_2);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -430,7 +445,8 @@ case 0:
 obj* x_10; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_10 = lean::box(0);
+x_10 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_10;
 }
 case 1:
@@ -438,7 +454,8 @@ case 1:
 obj* x_13; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_13 = lean::box(0);
+x_13 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_13;
 }
 case 2:
@@ -446,7 +463,8 @@ case 2:
 obj* x_16; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_16 = lean::box(0);
+x_16 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_16;
 }
 default:
@@ -487,11 +505,13 @@ return x_4;
 }
 obj* _l_s4_lean_s5_kvmap_s9_set__bool(obj* x_0, obj* x_1, unsigned char x_2) {
 {
-obj* x_3; obj* x_4; 
-lean::cnstr_set_scalar(x_1, 0, x_2);
-x_3 = x_1;
-x_4 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_3);
-return x_4;
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = lean::alloc_cnstr(2, 0, 1);
+;
+lean::cnstr_set_scalar(x_3, 0, x_2);
+x_4 = x_3;
+x_5 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_4);
+return x_5;
 }
 }
 obj* _l_s4_lean_s5_kvmap_s9_set__bool_s7___boxed(obj* x_0, obj* x_1, obj* x_2) {

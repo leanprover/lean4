@@ -3,6 +3,7 @@
 // Imports: init.lean.format init.lean.parser.identifier init.lean.ir.reserved init.lean.ir.ir
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -464,7 +465,8 @@ lean::inc(x_4);
 x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 lean::dec(x_0);
-x_9 = lean::box(0);
+x_9 = lean::alloc_cnstr(0, 0, 0);
+;
 lean::inc(x_4);
 x_11 = _l_s4_lean_s4_name_s12_has__dec__eq_s6___main(x_4, x_9);
 if (lean::obj_tag(x_11) == 0)
@@ -508,7 +510,8 @@ lean::inc(x_25);
 x_27 = lean::cnstr_get(x_0, 1);
 lean::inc(x_27);
 lean::dec(x_0);
-x_30 = lean::box(0);
+x_30 = lean::alloc_cnstr(0, 0, 0);
+;
 lean::inc(x_25);
 x_32 = _l_s4_lean_s4_name_s12_has__dec__eq_s6___main(x_25, x_30);
 if (lean::obj_tag(x_32) == 0)
@@ -2959,7 +2962,8 @@ if (lean::obj_tag(x_1) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -3026,7 +3030,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -3323,7 +3328,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -3469,7 +3475,8 @@ x_15 = x_14;
 x_16 = _l_s4_lean_s2_ir_s5_block_s10_to__format_s6___main_s11___closed__1;
 lean::inc(x_16);
 x_18 = _l_s4_lean_s6_format_s12_join__suffix_s6___main_s4___at_s4_lean_s2_ir_s5_block_s10_to__format_s6___main_s9___spec__1(x_3, x_16);
-x_19 = lean::box(1);
+x_19 = lean::alloc_cnstr(1, 0, 0);
+;
 x_20 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_20, 0, x_19);
 lean::cnstr_set(x_20, 1, x_18);
@@ -3514,7 +3521,8 @@ x_0 = lean::mk_string(";");
 x_1 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 x_2 = 0;
-x_3 = lean::box(1);
+x_3 = lean::alloc_cnstr(1, 0, 0);
+;
 x_4 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_4, 0, x_1);
 lean::cnstr_set(x_4, 1, x_3);
@@ -3540,7 +3548,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -3577,7 +3586,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -3806,7 +3816,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -3916,7 +3927,8 @@ lean::cnstr_set(x_23, 0, x_20);
 lean::cnstr_set(x_23, 1, x_21);
 lean::cnstr_set_scalar(x_23, sizeof(void*)*2, x_16);
 x_24 = x_23;
-x_25 = lean::box(1);
+x_25 = lean::alloc_cnstr(1, 0, 0);
+;
 lean::inc(x_25);
 x_27 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_27, 0, x_24);
@@ -3965,7 +3977,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -4072,7 +4085,8 @@ lean::cnstr_set(x_14, 0, x_11);
 lean::cnstr_set(x_14, 1, x_12);
 lean::cnstr_set_scalar(x_14, sizeof(void*)*2, x_7);
 x_15 = x_14;
-x_16 = lean::box(1);
+x_16 = lean::alloc_cnstr(1, 0, 0);
+;
 x_17 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_17, 0, x_15);
 lean::cnstr_set(x_17, 1, x_16);
@@ -4148,7 +4162,8 @@ lean::cnstr_set(x_14, 0, x_11);
 lean::cnstr_set(x_14, 1, x_12);
 lean::cnstr_set_scalar(x_14, sizeof(void*)*2, x_7);
 x_15 = x_14;
-x_16 = lean::box(1);
+x_16 = lean::alloc_cnstr(1, 0, 0);
+;
 x_17 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_17, 0, x_15);
 lean::cnstr_set(x_17, 1, x_16);
@@ -4215,7 +4230,8 @@ lean::cnstr_set(x_14, 0, x_11);
 lean::cnstr_set(x_14, 1, x_12);
 lean::cnstr_set_scalar(x_14, sizeof(void*)*2, x_7);
 x_15 = x_14;
-x_16 = lean::box(1);
+x_16 = lean::alloc_cnstr(1, 0, 0);
+;
 x_17 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_17, 0, x_15);
 lean::cnstr_set(x_17, 1, x_16);
@@ -4285,7 +4301,8 @@ lean::cnstr_set(x_17, 0, x_14);
 lean::cnstr_set(x_17, 1, x_15);
 lean::cnstr_set_scalar(x_17, sizeof(void*)*2, x_10);
 x_18 = x_17;
-x_19 = lean::box(1);
+x_19 = lean::alloc_cnstr(1, 0, 0);
+;
 x_20 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_20, 0, x_18);
 lean::cnstr_set(x_20, 1, x_19);
@@ -4355,7 +4372,8 @@ lean::cnstr_set(x_17, 0, x_14);
 lean::cnstr_set(x_17, 1, x_15);
 lean::cnstr_set_scalar(x_17, sizeof(void*)*2, x_10);
 x_18 = x_17;
-x_19 = lean::box(1);
+x_19 = lean::alloc_cnstr(1, 0, 0);
+;
 x_20 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_20, 0, x_18);
 lean::cnstr_set(x_20, 1, x_19);

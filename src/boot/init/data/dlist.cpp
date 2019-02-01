@@ -3,6 +3,7 @@
 // Imports: init.data.list.basic init.function
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -59,7 +60,8 @@ return x_2;
 obj* _l_s5_dlist_s8_to__list_s6___main_s6___rarg(obj* x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::box(0);
+x_1 = lean::alloc_cnstr(0, 0, 0);
+;
 x_2 = lean::apply_1(x_0, x_1);
 return x_2;
 }

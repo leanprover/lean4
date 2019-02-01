@@ -3,6 +3,7 @@
 // Imports: init.data.nat.div
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -60,7 +61,8 @@ obj* _l_s3_fin_s7_has__lt(obj* x_0) {
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 }
@@ -68,7 +70,8 @@ obj* _l_s3_fin_s7_has__le(obj* x_0) {
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 }

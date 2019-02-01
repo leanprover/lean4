@@ -3,6 +3,7 @@
 // Imports: init.core init.control.monad init.control.alternative init.coe
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -390,7 +391,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -437,7 +439,8 @@ if (lean::obj_tag(x_1) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -527,7 +530,8 @@ if (lean::obj_tag(x_2) == 0)
 obj* x_8; 
 lean::dec(x_2);
 lean::dec(x_3);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 else
@@ -551,7 +555,8 @@ if (lean::obj_tag(x_2) == 0)
 obj* x_8; 
 lean::dec(x_2);
 lean::dec(x_3);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 else
@@ -572,7 +577,8 @@ obj* x_15;
 lean::dec(x_9);
 lean::dec(x_11);
 lean::dec(x_3);
-x_15 = lean::box(0);
+x_15 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_15;
 }
 else
@@ -600,7 +606,8 @@ if (lean::obj_tag(x_2) == 0)
 obj* x_8; 
 lean::dec(x_2);
 lean::dec(x_3);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 else
@@ -682,7 +689,8 @@ obj* _l_s6_option_s11_alternative_s11___lambda__1(obj* x_0) {
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 }
@@ -724,7 +732,8 @@ obj* x_11;
 lean::dec(x_0);
 lean::dec(x_2);
 lean::dec(x_5);
-x_11 = lean::box(0);
+x_11 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_11;
 }
 else
@@ -768,7 +777,8 @@ obj* _l_s6_option_s9_inhabited(obj* x_0) {
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 }
@@ -784,14 +794,16 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_6; 
 lean::dec(x_2);
-x_6 = lean::box(1);
+x_6 = lean::alloc_cnstr(1, 0, 0);
+;
 return x_6;
 }
 else
 {
 obj* x_8; 
 lean::dec(x_2);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 }
@@ -807,7 +819,8 @@ obj* x_15;
 lean::dec(x_9);
 lean::dec(x_0);
 lean::dec(x_2);
-x_15 = lean::box(0);
+x_15 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_15;
 }
 else
@@ -835,7 +848,8 @@ obj* _l_s6_option_s7_has__lt(obj* x_0, obj* x_1) {
 obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 }

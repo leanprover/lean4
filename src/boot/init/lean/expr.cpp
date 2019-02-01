@@ -3,6 +3,7 @@
 // Imports: init.lean.level init.lean.kvmap
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,7 +15,8 @@ obj* _l_s4_lean_s4_expr_s8_mk__capp(obj*, obj*);
 obj* _init__l_s4_lean_s19_expr__is__inhabited() {
 {
 obj* x_0; obj* x_1; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 x_1 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;
@@ -55,7 +57,8 @@ return x_9;
 obj* _l_s4_lean_s4_expr_s8_mk__capp(obj* x_0, obj* x_1) {
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 x_3 = lean::alloc_cnstr(4, 2, 0);
 lean::cnstr_set(x_3, 0, x_0);
 lean::cnstr_set(x_3, 1, x_2);

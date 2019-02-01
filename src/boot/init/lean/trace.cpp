@@ -3,6 +3,7 @@
 // Imports: init.lean.format init.data.rbmap.default init.lean.position init.lean.name init.lean.options
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -91,7 +92,8 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 else
@@ -111,7 +113,8 @@ if (lean::is_shared(x_0)) {
 }
 x_8 = _l_s4_lean_s5_trace_s2_pp_s6___main(x_3);
 x_9 = 0;
-x_10 = lean::box(1);
+x_10 = lean::alloc_cnstr(1, 0, 0);
+;
 x_11 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_11, 0, x_10);
 lean::cnstr_set(x_11, 1, x_8);
@@ -389,7 +392,8 @@ lean::dec(x_9);
 lean::inc(x_0);
 x_45 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_45, 0, x_0);
-x_46 = lean::box(0);
+x_46 = lean::alloc_cnstr(0, 0, 0);
+;
 x_47 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_47, 0, x_39);
 lean::cnstr_set(x_47, 1, x_41);
@@ -454,7 +458,8 @@ obj* x_4; obj* x_6; obj* x_7; obj* x_10;
 lean::dec(x_2);
 x_4 = lean::cnstr_get(x_0, 1);
 lean::inc(x_4);
-x_6 = lean::box(0);
+x_6 = lean::alloc_cnstr(0, 0, 0);
+;
 x_7 = lean::cnstr_get(x_0, 3);
 lean::inc(x_7);
 lean::dec(x_0);
@@ -658,7 +663,8 @@ lbl_31:
 obj* x_58; obj* x_60; obj* x_62; unsigned char x_63; obj* x_64; obj* x_65; obj* x_67; obj* x_69; obj* x_70; 
 x_58 = lean::cnstr_get(x_1, 1);
 lean::inc(x_58);
-x_60 = lean::box(0);
+x_60 = lean::alloc_cnstr(0, 0, 0);
+;
 lean::inc(x_60);
 x_62 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_62, 0, x_26);
@@ -1056,7 +1062,8 @@ obj* _l_s4_lean_s5_trace_s8_trace__t_s3_run_s6___rarg(obj* x_0, obj* x_1, obj* x
 obj* x_3; obj* x_5; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
-x_5 = lean::box(0);
+x_5 = lean::alloc_cnstr(0, 0, 0);
+;
 lean::inc(x_5);
 lean::inc(x_5);
 x_8 = lean::alloc_cnstr(0, 4, 0);

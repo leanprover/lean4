@@ -3,6 +3,7 @@
 // Imports: init.data.nat.basic init.data.string.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -30,7 +31,7 @@ return x_4;
 obj* _init__l_s4_lean_s7_githash() {
 {
 obj* x_0; 
-x_0 = lean::mk_string("51343a0e3a9751327d965903066fb10a89e04340");
+x_0 = lean::mk_string("d12667fb6b365dc11e3a826e6d409addcd785ea8");
 return x_0;
 }
 }

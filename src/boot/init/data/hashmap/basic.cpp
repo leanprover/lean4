@@ -3,6 +3,7 @@
 // Imports: init.data.array.basic init.data.list.basic init.data.option.basic init.data.hashable
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -132,7 +133,8 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; obj* x_5; obj* x_6; 
 lean::dec(x_2);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 x_5 = _l_s9_mk__array_s6___rarg(x_0, x_4);
 x_6 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_6, 0, x_1);
@@ -154,7 +156,8 @@ return x_10;
 obj* _init__l_s16_mk__hashmap__imp_s6___rarg_s11___closed__1() {
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 x_1 = lean::mk_nat_obj(8u);
 x_2 = _l_s9_mk__array_s6___rarg(x_1, x_0);
 x_3 = lean::mk_nat_obj(0u);
@@ -297,7 +300,8 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::box(0);
+x_6 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_6;
 }
 else
@@ -666,7 +670,8 @@ x_37 = lean::mk_nat_obj(2u);
 x_38 = lean::nat_mul(x_10, x_37);
 lean::dec(x_37);
 lean::dec(x_10);
-x_41 = lean::box(0);
+x_41 = lean::alloc_cnstr(0, 0, 0);
+;
 x_42 = _l_s9_mk__array_s6___rarg(x_38, x_41);
 x_43 = lean::alloc_closure(reinterpret_cast<void*>(_l_s12_hashmap__imp_s13_reinsert__aux_s6___rarg), 4, 1);
 lean::closure_set(x_43, 0, x_1);

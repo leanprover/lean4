@@ -3,6 +3,7 @@
 // Imports: init.lean.ir.parser init.lean.ir.type_check init.lean.ir.ssa_check init.lean.ir.extract_cpp init.lean.ir.format init.lean.ir.elim_phi
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -97,7 +98,8 @@ x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_sub(x_0, x_8);
 lean::dec(x_8);
 lean::dec(x_0);
-x_12 = lean::box(0);
+x_12 = lean::alloc_cnstr(0, 0, 0);
+;
 lean::inc(x_3);
 x_16 = _l_s4_lean_s6_parser_s13_monad__parsec_s3_eoi_s4___at_s9___private_1496486805__s27_parse__mangled__string__aux_s6___main_s9___spec__6(x_3);
 if (lean::obj_tag(x_16) == 0)
@@ -1199,7 +1201,8 @@ x_3 = lean::string_iterator_has_next(x_0);
 if (x_3 == 0)
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_10; 
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 x_5 = _l_s4_lean_s6_parser_s13_monad__parsec_s10_eoi__error_s6___rarg_s11___closed__1;
 x_6 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_4);
@@ -1413,7 +1416,8 @@ lean::inc(x_76);
 x_78 = lean::string_append(x_76, x_75);
 lean::dec(x_75);
 x_80 = lean::string_append(x_78, x_76);
-x_81 = lean::box(0);
+x_81 = lean::alloc_cnstr(0, 0, 0);
+;
 x_82 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_81);
 lean::inc(x_82);
@@ -1425,7 +1429,8 @@ lbl_15:
 {
 obj* x_86; obj* x_87; obj* x_88; obj* x_89; 
 x_86 = lean::string_iterator_next(x_0);
-x_87 = lean::box(0);
+x_87 = lean::alloc_cnstr(0, 0, 0);
+;
 x_88 = lean::box_uint32(x_11);
 x_89 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_89, 0, x_88);
@@ -1529,7 +1534,8 @@ obj* _l_s4_lean_s2_ir_s12_parse__input(obj* x_0) {
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_6; 
 x_1 = lean::string_length(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 x_3 = lean::alloc_closure(reinterpret_cast<void*>(_l_s4_lean_s2_ir_s12_parse__input_s11___lambda__1), 3, 2);
 lean::closure_set(x_3, 0, x_1);
 lean::closure_set(x_3, 1, x_2);
@@ -1869,7 +1875,8 @@ return x_4;
 obj* _l_s4_lean_s2_ir_s11_update__env(obj* x_0, obj* x_1, obj* x_2) {
 {
 obj* x_3; obj* x_4; obj* x_6; obj* x_7; obj* x_8; 
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 x_4 = _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s2_ir_s11_update__env_s9___spec__4(x_3, x_0);
 lean::inc(x_2);
 x_6 = _l_s6_rbnode_s4_find_s6___main_s4___at_s4_lean_s2_ir_s11_update__env_s9___spec__6_s6___rarg(x_4, x_2);
@@ -2139,7 +2146,8 @@ case 0:
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 case 1:
@@ -2283,7 +2291,8 @@ case 0:
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 case 1:
@@ -2588,7 +2597,8 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 else

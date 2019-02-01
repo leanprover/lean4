@@ -3,6 +3,7 @@
 // Imports: init.control.monad init.wf init.control.reader
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -458,7 +459,8 @@ return x_6;
 obj* _l_s9_coroutine_s6_finish_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 {
 obj* x_3; obj* x_4; 
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 x_4 = _l_s9___private_3144039831__s11_finish__aux_s6___main_s6___rarg(x_0, x_1, x_2, x_3);
 return x_4;
 }

@@ -3,6 +3,7 @@
 // Imports: init.control.lift init.control.id init.control.alternative init.control.except
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

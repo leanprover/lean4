@@ -3,6 +3,7 @@
 // Imports: init.data.nat.basic init.data.fin.basic init.data.list.basic init.data.char.basic init.data.string.basic init.data.option.basic init.data.uint init.data.ordering.basic init.data.repr init.data.to_string
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"

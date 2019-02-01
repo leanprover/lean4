@@ -3,6 +3,7 @@
 // Imports: init.data.ordering.basic init.coe init.data.option.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -231,13 +232,15 @@ if (x_0 == 0)
 if (x_1 == 0)
 {
 obj* x_2; 
-x_2 = lean::box(1);
+x_2 = lean::alloc_cnstr(1, 0, 0);
+;
 return x_2;
 }
 else
 {
 obj* x_3; 
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_3;
 }
 }
@@ -344,7 +347,8 @@ case 0:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 case 1:
@@ -463,7 +467,8 @@ case 0:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 case 1:
@@ -2448,7 +2453,8 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::box(0);
+x_6 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_6;
 }
 case 1:
@@ -2612,7 +2618,8 @@ obj* x_8;
 lean::dec(x_0);
 lean::dec(x_2);
 lean::dec(x_3);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 case 1:
@@ -2938,7 +2945,8 @@ obj* x_6;
 lean::dec(x_2);
 lean::dec(x_1);
 lean::dec(x_0);
-x_6 = lean::box(0);
+x_6 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_6;
 }
 }
@@ -3292,7 +3300,8 @@ return x_2;
 obj* _l_s5_rbmap_s8_to__list_s6___main_s6___rarg(obj* x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::box(0);
+x_1 = lean::alloc_cnstr(0, 0, 0);
+;
 x_2 = _l_s6_rbnode_s9_rev__fold_s6___main_s4___at_s5_rbmap_s8_to__list_s6___main_s9___spec__1_s6___rarg(x_0, x_1);
 return x_2;
 }
@@ -3398,7 +3407,8 @@ if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
 lean::dec(x_1);
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_3;
 }
 else
@@ -3466,7 +3476,8 @@ if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
 lean::dec(x_1);
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_3;
 }
 else
@@ -3999,7 +4010,8 @@ if (lean::obj_tag(x_1) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -4340,7 +4352,8 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::box(0);
+x_6 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_6;
 }
 case 1:
@@ -4521,7 +4534,8 @@ obj* x_8;
 lean::dec(x_0);
 lean::dec(x_2);
 lean::dec(x_3);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 case 1:
@@ -4666,7 +4680,8 @@ return x_6;
 obj* _l_s5_rbmap_s12_lower__bound_s6___main_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 {
 obj* x_3; obj* x_4; 
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 x_4 = _l_s6_rbnode_s12_lower__bound_s6___main_s4___at_s5_rbmap_s12_lower__bound_s6___main_s9___spec__1_s6___rarg(x_0, x_1, x_2, x_3);
 return x_4;
 }
@@ -4880,7 +4895,8 @@ obj* x_8;
 lean::dec(x_0);
 lean::dec(x_2);
 lean::dec(x_3);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_8;
 }
 case 1:
@@ -5034,7 +5050,8 @@ obj* _l_s5_rbmap_s10_from__list_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 {
 obj* x_4; obj* x_5; 
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 x_5 = _l_s4_list_s5_foldl_s6___main_s4___at_s5_rbmap_s10_from__list_s9___spec__4_s6___rarg(x_2, x_4, x_0);
 return x_5;
 }
@@ -5747,7 +5764,8 @@ obj* _l_s5_rbmap_s10_from__list_s4___at_s9_rbmap__of_s9___spec__1_s6___rarg(obj*
 {
 obj* x_4; obj* x_5; 
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 x_5 = _l_s4_list_s5_foldl_s6___main_s4___at_s9_rbmap__of_s9___spec__5_s6___rarg(x_2, x_4, x_0);
 return x_5;
 }

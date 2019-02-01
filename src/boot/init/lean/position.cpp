@@ -3,6 +3,7 @@
 // Imports: init.data.nat.default init.data.rbmap.default init.lean.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -59,7 +60,8 @@ obj* x_18;
 lean::dec(x_9);
 lean::dec(x_12);
 lean::dec(x_4);
-x_18 = lean::box(0);
+x_18 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_18;
 }
 else
@@ -92,7 +94,8 @@ return x_0;
 obj* _init__l_s4_lean_s8_position_s7_has__lt() {
 {
 obj* x_0; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_0;
 }
 }
@@ -254,7 +257,8 @@ lean::dec(x_7);
 lean::dec(x_1);
 lean::dec(x_2);
 lean::dec(x_3);
-x_17 = lean::box(0);
+x_17 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_17;
 }
 else
@@ -375,7 +379,8 @@ lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
 lean::dec(x_3);
-x_74 = lean::box(0);
+x_74 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_74;
 }
 }
@@ -624,7 +629,8 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 else
@@ -813,7 +819,8 @@ return x_60;
 obj* _l_s5_rbmap_s12_lower__bound_s6___main_s4___at_s4_lean_s9_file__map_s12_to__position_s9___spec__1(obj* x_0, obj* x_1) {
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 x_3 = _l_s6_rbnode_s12_lower__bound_s6___main_s4___at_s4_lean_s9_file__map_s12_to__position_s9___spec__2(x_0, x_1, x_2);
 return x_3;
 }

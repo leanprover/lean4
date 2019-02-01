@@ -3,6 +3,7 @@
 // Imports: init.control.monad init.control.alternative init.data.list.basic init.coe
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -158,7 +159,8 @@ lean::dec(x_0);
 x_12 = lean::cnstr_get(x_9, 1);
 lean::inc(x_12);
 lean::dec(x_9);
-x_15 = lean::box(0);
+x_15 = lean::alloc_cnstr(0, 0, 0);
+;
 x_16 = lean::apply_2(x_12, lean::box(0), x_15);
 return x_16;
 }

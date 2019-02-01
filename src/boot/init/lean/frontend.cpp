@@ -3,6 +3,7 @@
 // Imports: init.default init.lean.parser.module init.lean.expander init.lean.elaborator init.io
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -174,7 +175,8 @@ lean::cnstr_set(x_43, 2, x_42);
 x_44 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_44, 0, x_43);
 lean::cnstr_set(x_44, 1, x_38);
-x_45 = lean::box(0);
+x_45 = lean::alloc_cnstr(0, 0, 0);
+;
 lean::inc(x_45);
 lean::inc(x_21);
 lean::inc(x_14);
@@ -1554,7 +1556,8 @@ else
 {
 obj* x_154; obj* x_155; obj* x_157; obj* x_160; obj* x_161; obj* x_163; obj* x_165; obj* x_166; obj* x_167; obj* x_170; obj* x_173; obj* x_174; obj* x_176; obj* x_177; unsigned char x_178; obj* x_179; obj* x_183; obj* x_184; obj* x_186; obj* x_187; obj* x_189; 
 lean::dec(x_142);
-x_154 = lean::box(0);
+x_154 = lean::alloc_cnstr(0, 0, 0);
+;
 x_155 = lean::cnstr_get(x_55, 2);
 lean::inc(x_155);
 x_157 = lean::cnstr_get(x_155, 1);
@@ -1672,7 +1675,8 @@ else
 {
 obj* x_218; obj* x_219; obj* x_221; obj* x_224; obj* x_225; obj* x_227; obj* x_229; obj* x_230; obj* x_231; obj* x_234; obj* x_237; obj* x_238; obj* x_240; obj* x_241; unsigned char x_242; obj* x_243; obj* x_247; obj* x_248; obj* x_250; obj* x_251; obj* x_253; 
 lean::dec(x_206);
-x_218 = lean::box(0);
+x_218 = lean::alloc_cnstr(0, 0, 0);
+;
 x_219 = lean::cnstr_get(x_55, 2);
 lean::inc(x_219);
 x_221 = lean::cnstr_get(x_219, 1);
@@ -2095,7 +2099,8 @@ else
 {
 obj* x_421; obj* x_422; obj* x_424; obj* x_427; obj* x_428; obj* x_430; obj* x_432; obj* x_433; obj* x_434; obj* x_437; obj* x_440; obj* x_441; obj* x_443; obj* x_444; unsigned char x_445; obj* x_446; obj* x_450; obj* x_451; obj* x_453; obj* x_454; obj* x_456; 
 lean::dec(x_409);
-x_421 = lean::box(0);
+x_421 = lean::alloc_cnstr(0, 0, 0);
+;
 x_422 = lean::cnstr_get(x_55, 2);
 lean::inc(x_422);
 x_424 = lean::cnstr_get(x_422, 1);
@@ -2213,7 +2218,8 @@ else
 {
 obj* x_485; obj* x_486; obj* x_488; obj* x_491; obj* x_492; obj* x_494; obj* x_496; obj* x_497; obj* x_498; obj* x_501; obj* x_504; obj* x_505; obj* x_507; obj* x_508; unsigned char x_509; obj* x_510; obj* x_514; obj* x_515; obj* x_517; obj* x_518; obj* x_520; 
 lean::dec(x_473);
-x_485 = lean::box(0);
+x_485 = lean::alloc_cnstr(0, 0, 0);
+;
 x_486 = lean::cnstr_get(x_55, 2);
 lean::inc(x_486);
 x_488 = lean::cnstr_get(x_486, 1);
@@ -2525,7 +2531,8 @@ x_19 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_19, 0, x_9);
 lean::cnstr_set(x_19, 1, x_3);
 x_20 = _l_s4_lean_s10_elaborator_s3_run(x_19);
-x_21 = lean::box(0);
+x_21 = lean::alloc_cnstr(0, 0, 0);
+;
 x_22 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_22, 0, x_13);
 lean::cnstr_set(x_22, 1, x_21);
@@ -2759,21 +2766,21 @@ return x_67;
 obj* _init__l_s4_lean_s19_process__file__json_s11___lambda__1_s11___closed__1() {
 {
 obj* x_0; 
-x_0 = lean::mk_string("{"file_name": "<stdin>", "pos_line": ");
+x_0 = lean::mk_string("{\"file_name\": \"<stdin>\", \"pos_line\": ");
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s19_process__file__json_s11___lambda__1_s11___closed__2() {
 {
 obj* x_0; 
-x_0 = lean::mk_string(", "pos_col": ");
+x_0 = lean::mk_string(", \"pos_col\": ");
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s19_process__file__json_s11___lambda__1_s11___closed__3() {
 {
 obj* x_0; 
-x_0 = lean::mk_string(", "severity": ");
+x_0 = lean::mk_string(", \"severity\": ");
 return x_0;
 }
 }
@@ -2788,14 +2795,14 @@ return x_1;
 obj* _init__l_s4_lean_s19_process__file__json_s11___lambda__1_s11___closed__5() {
 {
 obj* x_0; 
-x_0 = lean::mk_string(", "caption": ");
+x_0 = lean::mk_string(", \"caption\": ");
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s19_process__file__json_s11___lambda__1_s11___closed__6() {
 {
 obj* x_0; 
-x_0 = lean::mk_string(", "text": ");
+x_0 = lean::mk_string(", \"text\": ");
 return x_0;
 }
 }

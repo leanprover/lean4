@@ -3,6 +3,7 @@
 // Imports: init.data.rbmap.default init.lean.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -70,7 +71,8 @@ return x_2;
 obj* _init__l_s4_lean_s6_parser_s4_trie_s2_mk_s11___closed__1() {
 {
 obj* x_0; obj* x_2; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 lean::inc(x_0);
 x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
@@ -167,7 +169,8 @@ case 0:
 {
 obj* x_3; 
 lean::dec(x_0);
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_3;
 }
 case 1:
@@ -597,7 +600,8 @@ obj* x_15;
 lean::dec(x_11);
 lean::dec(x_0);
 lean::dec(x_2);
-x_15 = lean::box(0);
+x_15 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_15;
 }
 else
@@ -756,7 +760,8 @@ obj* _l_s4_lean_s6_parser_s4_trie_s13_match__prefix_s6___rarg(obj* x_0, obj* x_1
 {
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::string_iterator_remaining(x_1);
-x_3 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 0, 0);
+;
 x_4 = _l_s9___private_1312873337__s18_match__prefix__aux_s6___main_s6___rarg(x_2, x_0, x_1, x_3);
 return x_4;
 }
@@ -775,7 +780,8 @@ obj* x_1; obj* x_4; obj* x_5;
 x_1 = lean::cnstr_get(x_0, 1);
 lean::inc(x_1);
 lean::dec(x_0);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 x_5 = _l_s6_rbnode_s4_fold_s6___main_s4___at_s9___private_3045062755__s15_to__string__aux_s6___main_s9___spec__3_s6___rarg(x_1, x_4);
 return x_5;
 }
@@ -802,7 +808,8 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_4;
 }
 else
@@ -875,7 +882,8 @@ x_20 = lean::string_append(x_18, x_16);
 x_21 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_21, 0, x_20);
 x_22 = _l_s9___private_3045062755__s15_to__string__aux_s6___main_s6___rarg(x_7);
-x_23 = lean::box(1);
+x_23 = lean::alloc_cnstr(1, 0, 0);
+;
 x_24 = _l_s4_lean_s6_format_s9_join__sep_s6___main_s4___at_s9___private_3045062755__s15_to__string__aux_s6___main_s9___spec__1(x_22, x_23);
 x_25 = lean::mk_nat_obj(2u);
 x_26 = lean::alloc_cnstr(3, 2, 0);
@@ -915,7 +923,8 @@ x_48 = lean::string_append(x_46, x_44);
 x_49 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_49, 0, x_48);
 x_50 = _l_s9___private_3045062755__s15_to__string__aux_s6___main_s6___rarg(x_35);
-x_51 = lean::box(1);
+x_51 = lean::alloc_cnstr(1, 0, 0);
+;
 x_52 = _l_s4_lean_s6_format_s9_join__sep_s6___main_s4___at_s9___private_3045062755__s15_to__string__aux_s6___main_s9___spec__1(x_50, x_51);
 x_53 = lean::mk_nat_obj(2u);
 x_54 = lean::alloc_cnstr(3, 2, 0);
@@ -961,7 +970,8 @@ obj* _l_s4_lean_s6_parser_s4_trie_s15_has__to__string_s6___rarg(obj* x_0) {
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_1 = _l_s9___private_3045062755__s15_to__string__aux_s6___main_s6___rarg(x_0);
-x_2 = lean::box(1);
+x_2 = lean::alloc_cnstr(1, 0, 0);
+;
 x_3 = _l_s4_lean_s6_format_s9_join__sep_s6___main_s4___at_s9___private_3045062755__s15_to__string__aux_s6___main_s9___spec__1(x_1, x_2);
 x_4 = lean::mk_nat_obj(0u);
 x_5 = _l_s4_lean_s6_format_s6_pretty(x_3, x_4);

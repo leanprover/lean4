@@ -3,6 +3,7 @@
 // Imports: init.data.nat.basic init.data.fin.basic init.data.usize init.data.repr init.function
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -729,7 +730,8 @@ return x_4;
 obj* _l_s5_array_s8_to__list_s6___rarg(obj* x_0) {
 {
 obj* x_1; obj* x_2; obj* x_4; 
-x_1 = lean::box(0);
+x_1 = lean::alloc_cnstr(0, 0, 0);
+;
 x_2 = _l_s5_array_s8_to__list_s6___rarg_s11___closed__1;
 lean::inc(x_2);
 x_4 = _l_s5_array_s10_rev__foldl_s6___rarg(x_0, x_1, x_2);

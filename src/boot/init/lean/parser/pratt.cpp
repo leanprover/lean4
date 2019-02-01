@@ -3,6 +3,7 @@
 // Imports: init.lean.parser.token
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -87,7 +88,8 @@ if (lean::obj_tag(x_4) == 0)
 obj* x_8; obj* x_9; obj* x_10; obj* x_14; 
 lean::dec(x_4);
 lean::dec(x_3);
-x_8 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 0, 0);
+;
 x_9 = _l_s4_lean_s6_parser_s9_curr__lbp_s6___rarg_s11___lambda__1_s11___closed__1;
 x_10 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_8);
@@ -239,7 +241,8 @@ if (lean::obj_tag(x_60) == 0)
 obj* x_63; obj* x_64; obj* x_65; obj* x_69; 
 lean::dec(x_60);
 lean::dec(x_0);
-x_63 = lean::box(0);
+x_63 = lean::alloc_cnstr(0, 0, 0);
+;
 x_64 = _l_s4_lean_s6_parser_s9_curr__lbp_s6___rarg_s11___lambda__3_s11___closed__2;
 x_65 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_63);
@@ -292,7 +295,8 @@ lean::dec(x_4);
 lean::dec(x_0);
 lean::dec(x_3);
 lean::dec(x_19);
-x_99 = lean::box(0);
+x_99 = lean::alloc_cnstr(0, 0, 0);
+;
 x_100 = _l_s4_lean_s6_parser_s9_curr__lbp_s6___rarg_s11___lambda__3_s11___closed__2;
 x_101 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_99);
@@ -308,7 +312,8 @@ return x_105;
 obj* _init__l_s4_lean_s6_parser_s9_curr__lbp_s6___rarg_s11___lambda__3_s11___closed__1() {
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 x_1 = lean::mk_string("lean");
 x_2 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
@@ -465,7 +470,8 @@ lean::dec(x_7);
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
-x_36 = lean::box(0);
+x_36 = lean::alloc_cnstr(0, 0, 0);
+;
 x_37 = _l_s9___private_1297690757__s10_many1__aux_s6___main_s6___rarg_s11___closed__1;
 x_38 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_36);
@@ -747,7 +753,8 @@ obj* _l_s4_lean_s6_parser_s6_rec__t_s11_run__parsec_s4___at_s4_lean_s6_parser_s1
 obj* x_5; obj* x_6; obj* x_7; obj* x_11; 
 lean::dec(x_2);
 lean::dec(x_0);
-x_5 = lean::box(0);
+x_5 = lean::alloc_cnstr(0, 0, 0);
+;
 x_6 = _l_s4_lean_s6_parser_s6_rec__t_s11_run__parsec_s6___rarg_s11___lambda__1_s11___closed__1;
 x_7 = _l_s5_mjoin_s6___rarg_s11___closed__1;
 lean::inc(x_5);

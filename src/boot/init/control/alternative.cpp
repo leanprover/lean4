@@ -3,6 +3,7 @@
 // Imports: init.core init.control.applicative
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -205,7 +206,8 @@ x_16 = lean::apply_4(x_11, lean::box(0), lean::box(0), x_14, x_2);
 x_17 = lean::cnstr_get(x_6, 1);
 lean::inc(x_17);
 lean::dec(x_6);
-x_20 = lean::box(0);
+x_20 = lean::alloc_cnstr(0, 0, 0);
+;
 x_21 = lean::apply_2(x_17, lean::box(0), x_20);
 x_22 = lean::apply_3(x_4, lean::box(0), x_16, x_21);
 return x_22;

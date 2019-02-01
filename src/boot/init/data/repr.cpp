@@ -3,6 +3,7 @@
 // Imports: init.data.string.basic init.data.uint init.data.usize init.data.nat.div
 #include "runtime/object.h"
 #include "runtime/apply.h"
+#include "kernel/builtin.h"
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2323,7 +2324,8 @@ return x_16;
 obj* _init__l_s3_nat_s10_to__digits_s6___main_s11___closed__1() {
 {
 obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::box(0);
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
 x_1 = lean::mk_nat_obj(0u);
 x_2 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_2, 0, x_1);
@@ -2356,7 +2358,8 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::box(0);
+x_2 = lean::alloc_cnstr(0, 0, 0);
+;
 return x_2;
 }
 else
@@ -3114,7 +3117,7 @@ return x_0;
 obj* _init__l_s4_char_s11_quote__core_s11___closed__2() {
 {
 obj* x_0; 
-x_0 = lean::mk_string("\\"");
+x_0 = lean::mk_string("\\\"");
 return x_0;
 }
 }
@@ -3240,14 +3243,14 @@ return x_11;
 obj* _init__l_s6_string_s5_quote_s11___closed__1() {
 {
 obj* x_0; 
-x_0 = lean::mk_string(""");
+x_0 = lean::mk_string("\"");
 return x_0;
 }
 }
 obj* _init__l_s6_string_s5_quote_s11___closed__2() {
 {
 obj* x_0; 
-x_0 = lean::mk_string("""");
+x_0 = lean::mk_string("\"\"");
 return x_0;
 }
 }

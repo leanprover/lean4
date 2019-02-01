@@ -411,12 +411,6 @@ class to_llnf_fn {
             }
             local_decl x_decl = m_lctx.get_local_decl(x);
             expr val          = *x_decl.get_value();
-            if (used.empty() && r == x) {
-                /* `let x := v in x` ==> `v` */
-                r = val;
-                collect_used(r, used_fvars);
-                continue;
-            }
             collect_used(val,  used_fvars);
             used.push_back(x);
         }

@@ -4,10 +4,13 @@
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 obj* _l_s4_lean_s18_closure__max__args;
 obj* _init__l_s4_lean_s18_closure__max__args() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::mk_nat_obj(16u);
 return x_0;
 }

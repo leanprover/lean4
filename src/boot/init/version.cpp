@@ -4,6 +4,9 @@
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 obj* _l_s4_lean_s11_is__release_s7___boxed;
 obj* _l_s4_lean_s7_version;
 unsigned char _l_s4_lean_s11_is__release;
@@ -11,10 +14,7 @@ obj* _l_s4_lean_s22_special__version__desc;
 obj* _l_s4_lean_s7_githash;
 obj* _init__l_s4_lean_s7_version() {
 {
-obj* x_0;
-obj* x_1;
-obj* x_3;
-obj* x_4;
+obj* x_0; obj* x_1; obj* x_3; obj* x_4; 
 x_0 = lean::mk_nat_obj(3u);
 x_1 = lean::mk_nat_obj(1u);
 lean::inc(x_0);
@@ -29,22 +29,21 @@ return x_4;
 }
 obj* _init__l_s4_lean_s7_githash() {
 {
-obj* x_0;
-x_0 = lean::mk_string("1a190021ce63365b8e2d124cbdff750479ad74b5");
+obj* x_0; 
+x_0 = lean::mk_string("51343a0e3a9751327d965903066fb10a89e04340");
 return x_0;
 }
 }
 unsigned char _init__l_s4_lean_s11_is__release() {
 {
-unsigned char x_0;
+unsigned char x_0; 
 x_0 = 0;
 return x_0;
 }
 }
 obj* _init__l_s4_lean_s11_is__release_s7___boxed() {
 {
-unsigned char x_0;
-obj* x_1;
+unsigned char x_0; obj* x_1; 
 x_0 = _l_s4_lean_s11_is__release;
 x_1 = lean::box(x_0);
 return x_1;
@@ -52,7 +51,7 @@ return x_1;
 }
 obj* _init__l_s4_lean_s22_special__version__desc() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::mk_string("");
 return x_0;
 }

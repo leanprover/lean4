@@ -8,6 +8,7 @@ DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 BOOT_DIR = ../src/boot
 CPPS = $(addprefix $(BOOT_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
+CPPS_CORE=$(patsubst %.lean,%.cpp,$(SRCS))
 
 .PHONY: all clean
 
@@ -32,6 +33,7 @@ $(BOOT_DIR)/%.cpp: %.lean
 	$(LEAN) $(OPTS) --cpp=$@ $<
 
 updatecpp: $(CPPS)
+	echo "add_library (boot OBJECT $(CPPS_CORE))" > $(BOOT_DIR)/CMakeLists.txt
 
 cleancpp:
 	find $(BOOT_DIR) -name '*.cpp' -delete

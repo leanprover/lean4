@@ -4,10 +4,13 @@
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 obj* _l_s6_system_s8_platform_s5_nbits;
 obj* _init__l_s6_system_s8_platform_s5_nbits() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::mk_nat_obj(64u);
 return x_0;
 }

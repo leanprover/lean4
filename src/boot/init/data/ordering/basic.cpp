@@ -4,6 +4,9 @@
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 unsigned char _l_s8_ordering_s8_or__else(unsigned char, unsigned char);
 obj* _l_s8_ordering_s9_has__repr_s7___boxed(obj*);
 obj* _l_s8_ordering_s4_swap_s6___main_s7___boxed(obj*);
@@ -27,24 +30,25 @@ obj* _l_s8_ordering_s13_decidable__eq_s7___boxed(obj*, obj*);
 obj* _l_s3_cmp_s6___rarg_s7___boxed(obj*, obj*, obj*);
 obj* _l_s8_ordering_s9_has__repr(unsigned char x_0) {
 {
+
 switch (x_0) {
 case 0:
 {
-obj* x_1;
+obj* x_1; 
 x_1 = _l_s8_ordering_s9_has__repr_s11___closed__1;
 lean::inc(x_1);
 return x_1;
 }
 case 1:
 {
-obj* x_3;
+obj* x_3; 
 x_3 = _l_s8_ordering_s9_has__repr_s11___closed__2;
 lean::inc(x_3);
 return x_3;
 }
 default:
 {
-obj* x_5;
+obj* x_5; 
 x_5 = _l_s8_ordering_s9_has__repr_s11___closed__3;
 lean::inc(x_5);
 return x_5;
@@ -54,29 +58,28 @@ return x_5;
 }
 obj* _init__l_s8_ordering_s9_has__repr_s11___closed__1() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::mk_string("lt");
 return x_0;
 }
 }
 obj* _init__l_s8_ordering_s9_has__repr_s11___closed__2() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::mk_string("eq");
 return x_0;
 }
 }
 obj* _init__l_s8_ordering_s9_has__repr_s11___closed__3() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::mk_string("gt");
 return x_0;
 }
 }
 obj* _l_s8_ordering_s9_has__repr_s7___boxed(obj* x_0) {
 {
-unsigned char x_1;
-obj* x_2;
+unsigned char x_1; obj* x_2; 
 x_1 = lean::unbox(x_0);
 x_2 = _l_s8_ordering_s9_has__repr(x_1);
 return x_2;
@@ -84,20 +87,22 @@ return x_2;
 }
 unsigned char _l_s8_ordering_s4_swap_s6___main(unsigned char x_0) {
 {
+
 switch (x_0) {
 case 0:
 {
-unsigned char x_1;
+unsigned char x_1; 
 x_1 = 2;
 return x_1;
 }
 case 1:
 {
+
 return x_0;
 }
 default:
 {
-unsigned char x_2;
+unsigned char x_2; 
 x_2 = 0;
 return x_2;
 }
@@ -106,9 +111,7 @@ return x_2;
 }
 obj* _l_s8_ordering_s4_swap_s6___main_s7___boxed(obj* x_0) {
 {
-unsigned char x_1;
-unsigned char x_2;
-obj* x_3;
+unsigned char x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
 x_2 = _l_s8_ordering_s4_swap_s6___main(x_1);
 x_3 = lean::box(x_2);
@@ -117,16 +120,14 @@ return x_3;
 }
 unsigned char _l_s8_ordering_s4_swap(unsigned char x_0) {
 {
-unsigned char x_1;
+unsigned char x_1; 
 x_1 = _l_s8_ordering_s4_swap_s6___main(x_0);
 return x_1;
 }
 }
 obj* _l_s8_ordering_s4_swap_s7___boxed(obj* x_0) {
 {
-unsigned char x_1;
-unsigned char x_2;
-obj* x_3;
+unsigned char x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
 x_2 = _l_s8_ordering_s4_swap(x_1);
 x_3 = lean::box(x_2);
@@ -135,17 +136,21 @@ return x_3;
 }
 unsigned char _l_s8_ordering_s8_or__else_s6___main(unsigned char x_0, unsigned char x_1) {
 {
+
 switch (x_0) {
 case 0:
 {
+
 return x_0;
 }
 case 1:
 {
+
 return x_1;
 }
 default:
 {
+
 return x_0;
 }
 }
@@ -153,10 +158,7 @@ return x_0;
 }
 obj* _l_s8_ordering_s8_or__else_s6___main_s7___boxed(obj* x_0, obj* x_1) {
 {
-unsigned char x_2;
-unsigned char x_3;
-unsigned char x_4;
-obj* x_5;
+unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = _l_s8_ordering_s8_or__else_s6___main(x_2, x_3);
@@ -166,17 +168,14 @@ return x_5;
 }
 unsigned char _l_s8_ordering_s8_or__else(unsigned char x_0, unsigned char x_1) {
 {
-unsigned char x_2;
+unsigned char x_2; 
 x_2 = _l_s8_ordering_s8_or__else_s6___main(x_0, x_1);
 return x_2;
 }
 }
 obj* _l_s8_ordering_s8_or__else_s7___boxed(obj* x_0, obj* x_1) {
 {
-unsigned char x_2;
-unsigned char x_3;
-unsigned char x_4;
-obj* x_5;
+unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = _l_s8_ordering_s8_or__else(x_2, x_3);
@@ -186,26 +185,26 @@ return x_5;
 }
 unsigned char _l_s10_cmp__using_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_6;
+obj* x_6; 
 lean::inc(x_2);
 lean::inc(x_1);
 lean::inc(x_0);
 x_6 = lean::apply_2(x_0, x_1, x_2);
 if (lean::obj_tag(x_6) == 0)
 {
-obj* x_8;
+obj* x_8; 
 lean::dec(x_6);
 x_8 = lean::apply_2(x_0, x_2, x_1);
 if (lean::obj_tag(x_8) == 0)
 {
-unsigned char x_10;
+unsigned char x_10; 
 lean::dec(x_8);
 x_10 = 1;
 return x_10;
 }
 else
 {
-unsigned char x_12;
+unsigned char x_12; 
 lean::dec(x_8);
 x_12 = 2;
 return x_12;
@@ -213,7 +212,7 @@ return x_12;
 }
 else
 {
-unsigned char x_17;
+unsigned char x_17; 
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
@@ -225,7 +224,7 @@ return x_17;
 }
 obj* _l_s10_cmp__using(obj* x_0, obj* x_1) {
 {
-obj* x_4;
+obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s10_cmp__using_s6___rarg_s7___boxed), 3, 0);
@@ -234,8 +233,7 @@ return x_4;
 }
 obj* _l_s10_cmp__using_s6___rarg_s7___boxed(obj* x_0, obj* x_1, obj* x_2) {
 {
-unsigned char x_3;
-obj* x_4;
+unsigned char x_3; obj* x_4; 
 x_3 = _l_s10_cmp__using_s6___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
@@ -243,26 +241,26 @@ return x_4;
 }
 unsigned char _l_s3_cmp_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_6;
+obj* x_6; 
 lean::inc(x_2);
 lean::inc(x_1);
 lean::inc(x_0);
 x_6 = lean::apply_2(x_0, x_1, x_2);
 if (lean::obj_tag(x_6) == 0)
 {
-obj* x_8;
+obj* x_8; 
 lean::dec(x_6);
 x_8 = lean::apply_2(x_0, x_2, x_1);
 if (lean::obj_tag(x_8) == 0)
 {
-unsigned char x_10;
+unsigned char x_10; 
 lean::dec(x_8);
 x_10 = 1;
 return x_10;
 }
 else
 {
-unsigned char x_12;
+unsigned char x_12; 
 lean::dec(x_8);
 x_12 = 2;
 return x_12;
@@ -270,7 +268,7 @@ return x_12;
 }
 else
 {
-unsigned char x_17;
+unsigned char x_17; 
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
@@ -282,7 +280,7 @@ return x_17;
 }
 obj* _l_s3_cmp(obj* x_0, obj* x_1) {
 {
-obj* x_4;
+obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s3_cmp_s6___rarg_s7___boxed), 3, 0);
@@ -291,8 +289,7 @@ return x_4;
 }
 obj* _l_s3_cmp_s6___rarg_s7___boxed(obj* x_0, obj* x_1, obj* x_2) {
 {
-unsigned char x_3;
-obj* x_4;
+unsigned char x_3; obj* x_4; 
 x_3 = _l_s3_cmp_s6___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
@@ -300,25 +297,27 @@ return x_4;
 }
 obj* _l_s8_ordering_s13_decidable__eq(unsigned char x_0, unsigned char x_1) {
 {
+
 switch (x_0) {
 case 0:
 {
+
 switch (x_1) {
 case 0:
 {
-obj* x_2;
+obj* x_2; 
 x_2 = lean::box(1);
 return x_2;
 }
 case 1:
 {
-obj* x_3;
+obj* x_3; 
 x_3 = lean::box(0);
 return x_3;
 }
 default:
 {
-obj* x_4;
+obj* x_4; 
 x_4 = lean::box(0);
 return x_4;
 }
@@ -326,22 +325,23 @@ return x_4;
 }
 case 1:
 {
+
 switch (x_1) {
 case 0:
 {
-obj* x_5;
+obj* x_5; 
 x_5 = lean::box(0);
 return x_5;
 }
 case 1:
 {
-obj* x_6;
+obj* x_6; 
 x_6 = lean::box(1);
 return x_6;
 }
 default:
 {
-obj* x_7;
+obj* x_7; 
 x_7 = lean::box(0);
 return x_7;
 }
@@ -349,22 +349,23 @@ return x_7;
 }
 default:
 {
+
 switch (x_1) {
 case 0:
 {
-obj* x_8;
+obj* x_8; 
 x_8 = lean::box(0);
 return x_8;
 }
 case 1:
 {
-obj* x_9;
+obj* x_9; 
 x_9 = lean::box(0);
 return x_9;
 }
 default:
 {
-obj* x_10;
+obj* x_10; 
 x_10 = lean::box(1);
 return x_10;
 }
@@ -375,9 +376,7 @@ return x_10;
 }
 obj* _l_s8_ordering_s13_decidable__eq_s7___boxed(obj* x_0, obj* x_1) {
 {
-unsigned char x_2;
-unsigned char x_3;
-obj* x_4;
+unsigned char x_2; unsigned char x_3; obj* x_4; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = _l_s8_ordering_s13_decidable__eq(x_2, x_3);

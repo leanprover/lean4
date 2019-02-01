@@ -4,14 +4,16 @@
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 obj* _l_s7_functor_s8_map__rev_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s7_functor_s8_map__rev(obj*);
 obj* _l_s7_functor_s15_map__const__rev_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s7_functor_s15_map__const__rev(obj*);
 obj* _l_s7_functor_s15_map__const__rev_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 {
-obj* x_7;
-obj* x_10;
+obj* x_7; obj* x_10; 
 lean::dec(x_2);
 lean::dec(x_1);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -23,7 +25,7 @@ return x_10;
 }
 obj* _l_s7_functor_s15_map__const__rev(obj* x_0) {
 {
-obj* x_2;
+obj* x_2; 
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s7_functor_s15_map__const__rev_s6___rarg), 5, 0);
 return x_2;
@@ -31,8 +33,7 @@ return x_2;
 }
 obj* _l_s7_functor_s8_map__rev_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 {
-obj* x_7;
-obj* x_10;
+obj* x_7; obj* x_10; 
 lean::dec(x_2);
 lean::dec(x_1);
 x_7 = lean::cnstr_get(x_0, 0);
@@ -44,7 +45,7 @@ return x_10;
 }
 obj* _l_s7_functor_s8_map__rev(obj* x_0) {
 {
-obj* x_2;
+obj* x_2; 
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s7_functor_s8_map__rev_s6___rarg), 5, 0);
 return x_2;

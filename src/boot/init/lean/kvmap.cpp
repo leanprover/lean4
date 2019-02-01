@@ -4,6 +4,9 @@
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 obj* _l_s4_lean_s5_kvmap_s8_contains_s7___boxed(obj*, obj*);
 obj* _l_s4_lean_s5_kvmap_s8_get__nat(obj*, obj*);
 obj* _l_s4_lean_s5_kvmap_s9_set__bool_s7___boxed(obj*, obj*, obj*);
@@ -27,9 +30,10 @@ obj* _l_s4_lean_s4_name_s12_has__dec__eq_s6___main(obj*, obj*);
 obj* _l_s4_lean_s5_kvmap_s9_set__name(obj*, obj*, obj*);
 obj* _l_s4_lean_s5_kvmap_s10_find__core_s6___main(obj* x_0, obj* x_1) {
 {
+
 if (lean::obj_tag(x_0) == 0)
 {
-obj* x_4;
+obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
 x_4 = lean::box(0);
@@ -37,11 +41,7 @@ return x_4;
 }
 else
 {
-obj* x_5;
-obj* x_7;
-obj* x_10;
-obj* x_12;
-obj* x_16;
+obj* x_5; obj* x_7; obj* x_10; obj* x_12; obj* x_16; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -56,7 +56,7 @@ lean::inc(x_1);
 x_16 = _l_s4_lean_s4_name_s12_has__dec__eq_s6___main(x_10, x_1);
 if (lean::obj_tag(x_16) == 0)
 {
-obj* x_19;
+obj* x_19; 
 lean::dec(x_12);
 lean::dec(x_16);
 x_19 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_7, x_1);
@@ -64,7 +64,7 @@ return x_19;
 }
 else
 {
-obj* x_23;
+obj* x_23; 
 lean::dec(x_7);
 lean::dec(x_16);
 lean::dec(x_1);
@@ -77,31 +77,31 @@ return x_23;
 }
 obj* _l_s4_lean_s5_kvmap_s10_find__core(obj* x_0, obj* x_1) {
 {
-obj* x_2;
+obj* x_2; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 return x_2;
 }
 }
 obj* _l_s4_lean_s5_kvmap_s4_find_s6___main(obj* x_0, obj* x_1) {
 {
-obj* x_2;
+obj* x_2; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 return x_2;
 }
 }
 obj* _l_s4_lean_s5_kvmap_s4_find(obj* x_0, obj* x_1) {
 {
-obj* x_2;
+obj* x_2; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 return x_2;
 }
 }
 obj* _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 {
+
 if (lean::obj_tag(x_0) == 0)
 {
-obj* x_3;
-obj* x_4;
+obj* x_3; obj* x_4; 
 x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
@@ -112,11 +112,7 @@ return x_4;
 }
 else
 {
-obj* x_5;
-obj* x_7;
-obj* x_9;
-obj* x_10;
-obj* x_14;
+obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_14; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -136,8 +132,7 @@ lean::inc(x_10);
 x_14 = _l_s4_lean_s4_name_s12_has__dec__eq_s6___main(x_10, x_1);
 if (lean::obj_tag(x_14) == 0)
 {
-obj* x_17;
-obj* x_18;
+obj* x_17; obj* x_18; 
 lean::dec(x_10);
 lean::dec(x_14);
 x_17 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_7, x_1, x_2);
@@ -152,8 +147,7 @@ return x_18;
 }
 else
 {
-obj* x_22;
-obj* x_23;
+obj* x_22; obj* x_23; 
 lean::dec(x_14);
 lean::dec(x_5);
 lean::dec(x_1);
@@ -174,29 +168,28 @@ return x_23;
 }
 obj* _l_s4_lean_s5_kvmap_s12_insert__core(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_3;
+obj* x_3; 
 x_3 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
 obj* _l_s4_lean_s5_kvmap_s6_insert_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_3;
+obj* x_3; 
 x_3 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
 obj* _l_s4_lean_s5_kvmap_s6_insert(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_3;
+obj* x_3; 
 x_3 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
 unsigned char _l_s4_lean_s5_kvmap_s8_contains(obj* x_0, obj* x_1) {
 {
-obj* x_2;
-unsigned char x_3;
+obj* x_2; unsigned char x_3; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 x_3 = _l_s6_option_s8_is__some_s6___main_s6___rarg(x_2);
 return x_3;
@@ -204,8 +197,7 @@ return x_3;
 }
 obj* _l_s4_lean_s5_kvmap_s8_contains_s7___boxed(obj* x_0, obj* x_1) {
 {
-unsigned char x_2;
-obj* x_3;
+unsigned char x_2; obj* x_3; 
 x_2 = _l_s4_lean_s5_kvmap_s8_contains(x_0, x_1);
 x_3 = lean::box(x_2);
 return x_3;
@@ -213,19 +205,18 @@ return x_3;
 }
 obj* _l_s4_lean_s5_kvmap_s11_get__string(obj* x_0, obj* x_1) {
 {
-obj* x_2;
+obj* x_2; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_4;
+obj* x_4; 
 lean::dec(x_2);
 x_4 = lean::box(0);
 return x_4;
 }
 else
 {
-obj* x_5;
-obj* x_7;
+obj* x_5; obj* x_7; 
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
 if (lean::is_shared(x_2)) {
@@ -238,8 +229,7 @@ if (lean::is_shared(x_2)) {
 switch (lean::obj_tag(x_5)) {
 case 0:
 {
-obj* x_8;
-obj* x_11;
+obj* x_8; obj* x_11; 
 x_8 = lean::cnstr_get(x_5, 0);
 lean::inc(x_8);
 lean::dec(x_5);
@@ -253,7 +243,7 @@ return x_11;
 }
 case 1:
 {
-obj* x_14;
+obj* x_14; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_14 = lean::box(0);
@@ -261,7 +251,7 @@ return x_14;
 }
 case 2:
 {
-obj* x_17;
+obj* x_17; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_17 = lean::box(0);
@@ -269,7 +259,7 @@ return x_17;
 }
 default:
 {
-obj* x_20;
+obj* x_20; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_20 = lean::box(0);
@@ -281,19 +271,18 @@ return x_20;
 }
 obj* _l_s4_lean_s5_kvmap_s8_get__nat(obj* x_0, obj* x_1) {
 {
-obj* x_2;
+obj* x_2; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_4;
+obj* x_4; 
 lean::dec(x_2);
 x_4 = lean::box(0);
 return x_4;
 }
 else
 {
-obj* x_5;
-obj* x_7;
+obj* x_5; obj* x_7; 
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
 if (lean::is_shared(x_2)) {
@@ -306,7 +295,7 @@ if (lean::is_shared(x_2)) {
 switch (lean::obj_tag(x_5)) {
 case 0:
 {
-obj* x_10;
+obj* x_10; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_10 = lean::box(0);
@@ -314,8 +303,7 @@ return x_10;
 }
 case 1:
 {
-obj* x_11;
-obj* x_14;
+obj* x_11; obj* x_14; 
 x_11 = lean::cnstr_get(x_5, 0);
 lean::inc(x_11);
 lean::dec(x_5);
@@ -329,7 +317,7 @@ return x_14;
 }
 case 2:
 {
-obj* x_17;
+obj* x_17; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_17 = lean::box(0);
@@ -337,7 +325,7 @@ return x_17;
 }
 default:
 {
-obj* x_20;
+obj* x_20; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_20 = lean::box(0);
@@ -349,19 +337,18 @@ return x_20;
 }
 obj* _l_s4_lean_s5_kvmap_s9_get__bool(obj* x_0, obj* x_1) {
 {
-obj* x_2;
+obj* x_2; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_4;
+obj* x_4; 
 lean::dec(x_2);
 x_4 = lean::box(0);
 return x_4;
 }
 else
 {
-obj* x_5;
-obj* x_7;
+obj* x_5; obj* x_7; 
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
 if (lean::is_shared(x_2)) {
@@ -374,7 +361,7 @@ if (lean::is_shared(x_2)) {
 switch (lean::obj_tag(x_5)) {
 case 0:
 {
-obj* x_10;
+obj* x_10; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_10 = lean::box(0);
@@ -382,7 +369,7 @@ return x_10;
 }
 case 1:
 {
-obj* x_13;
+obj* x_13; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_13 = lean::box(0);
@@ -390,9 +377,7 @@ return x_13;
 }
 case 2:
 {
-unsigned char x_14;
-obj* x_16;
-obj* x_17;
+unsigned char x_14; obj* x_16; obj* x_17; 
 x_14 = lean::cnstr_get_scalar<unsigned char>(x_5, 0);
 lean::dec(x_5);
 x_16 = lean::box(x_14);
@@ -406,7 +391,7 @@ return x_17;
 }
 default:
 {
-obj* x_20;
+obj* x_20; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_20 = lean::box(0);
@@ -418,19 +403,18 @@ return x_20;
 }
 obj* _l_s4_lean_s5_kvmap_s9_get__name(obj* x_0, obj* x_1) {
 {
-obj* x_2;
+obj* x_2; 
 x_2 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_4;
+obj* x_4; 
 lean::dec(x_2);
 x_4 = lean::box(0);
 return x_4;
 }
 else
 {
-obj* x_5;
-obj* x_7;
+obj* x_5; obj* x_7; 
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
 if (lean::is_shared(x_2)) {
@@ -443,7 +427,7 @@ if (lean::is_shared(x_2)) {
 switch (lean::obj_tag(x_5)) {
 case 0:
 {
-obj* x_10;
+obj* x_10; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_10 = lean::box(0);
@@ -451,7 +435,7 @@ return x_10;
 }
 case 1:
 {
-obj* x_13;
+obj* x_13; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_13 = lean::box(0);
@@ -459,7 +443,7 @@ return x_13;
 }
 case 2:
 {
-obj* x_16;
+obj* x_16; 
 lean::dec(x_5);
 lean::dec(x_7);
 x_16 = lean::box(0);
@@ -467,8 +451,7 @@ return x_16;
 }
 default:
 {
-obj* x_17;
-obj* x_20;
+obj* x_17; obj* x_20; 
 x_17 = lean::cnstr_get(x_5, 0);
 lean::inc(x_17);
 lean::dec(x_5);
@@ -486,8 +469,7 @@ return x_20;
 }
 obj* _l_s4_lean_s5_kvmap_s11_set__string(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_3;
-obj* x_4;
+obj* x_3; obj* x_4; 
 x_3 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
 x_4 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_3);
@@ -496,8 +478,7 @@ return x_4;
 }
 obj* _l_s4_lean_s5_kvmap_s8_set__nat(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_3;
-obj* x_4;
+obj* x_3; obj* x_4; 
 x_3 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
 x_4 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_3);
@@ -506,8 +487,7 @@ return x_4;
 }
 obj* _l_s4_lean_s5_kvmap_s9_set__bool(obj* x_0, obj* x_1, unsigned char x_2) {
 {
-obj* x_3;
-obj* x_4;
+obj* x_3; obj* x_4; 
 lean::cnstr_set_scalar(x_1, 0, x_2);
 x_3 = x_1;
 x_4 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_3);
@@ -516,8 +496,7 @@ return x_4;
 }
 obj* _l_s4_lean_s5_kvmap_s9_set__bool_s7___boxed(obj* x_0, obj* x_1, obj* x_2) {
 {
-unsigned char x_3;
-obj* x_4;
+unsigned char x_3; obj* x_4; 
 x_3 = lean::unbox(x_2);
 x_4 = _l_s4_lean_s5_kvmap_s9_set__bool(x_0, x_1, x_3);
 return x_4;
@@ -525,8 +504,7 @@ return x_4;
 }
 obj* _l_s4_lean_s5_kvmap_s9_set__name(obj* x_0, obj* x_1, obj* x_2) {
 {
-obj* x_3;
-obj* x_4;
+obj* x_3; obj* x_4; 
 x_3 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
 x_4 = _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(x_0, x_1, x_3);

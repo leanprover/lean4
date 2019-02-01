@@ -4,11 +4,14 @@
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#endif
 obj* _l_s4_lean_s7_options_s2_mk;
 obj* _l_s4_lean_s7_options;
 obj* _init__l_s4_lean_s7_options() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::box(0);
 lean::inc(x_0);
 return x_0;
@@ -16,7 +19,7 @@ return x_0;
 }
 obj* _init__l_s4_lean_s7_options_s2_mk() {
 {
-obj* x_0;
+obj* x_0; 
 x_0 = lean::box(0);
 return x_0;
 }

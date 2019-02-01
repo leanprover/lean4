@@ -1,11 +1,13 @@
 # Copyright (c) 2018 Simon Hudon. All rights reserved.
 # Released under Apache 2.0 license as described in the file LICENSE.
-# Authors: Simon Hudon, Sebastian Ullrich
+# Authors: Simon Hudon, Sebastian Ullrich, Leonardo de Moura
 LEAN = ../bin/lean
 SRCS = $(shell find . -name '*.lean')
 OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
+BOOT_DIR = ../src/boot
+CPPS = $(addprefix $(BOOT_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
 
 .PHONY: all clean
 
@@ -24,6 +26,15 @@ depends: $(DEPS)
 clean:
 	find . -name *.olean -delete
 	find . -name *.depend -delete
+
+$(BOOT_DIR)/%.cpp: %.lean
+	@mkdir -p $(@D)
+	$(LEAN) $(OPTS) --cpp=$@ $<
+
+updatecpp: $(CPPS)
+
+cleancpp:
+	find $(BOOT_DIR) -name '*.cpp' -delete
 
 .PRECIOUS: %.depend
 

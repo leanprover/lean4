@@ -98,6 +98,8 @@ if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   #          COMMAND bash "./timeout.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" "1" "slow1.lean")
 endif()
 
+# LEAN TESTS
+file(GLOB LEANTESTS "${LEAN_SOURCE_DIR}/../tests/lean/*.lean")
 FOREACH(T ${LEANTESTS})
   if(NOT T MATCHES "\\.#")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -107,6 +109,8 @@ FOREACH(T ${LEANTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN RUN TESTS
+file(GLOB LEANRUNTESTS "${LEAN_SOURCE_DIR}/../tests/lean/run/*.lean")
 FOREACH(T ${LEANRUNTESTS})
   if(NOT T MATCHES "\\.#")
     GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
@@ -116,6 +120,8 @@ FOREACH(T ${LEANRUNTESTS})
   endif()
 ENDFOREACH(T)
 
+# LEAN FAIL TESTS
+file(GLOB LEANFAILTESTS "${LEAN_SOURCE_DIR}/../tests/lean/fail/*.lean")
 FOREACH(T ${LEANFAILTESTS})
     if(NOT T MATCHES "\\.#")
         GET_FILENAME_COMPONENT(T_NAME ${T} NAME)

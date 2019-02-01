@@ -228,7 +228,16 @@ inline rc_type & st_rc_ref(object * o) {
 }
 
 inline void free_heap_obj(object * o) {
+#ifdef LEAN_FAKE_FREE
+    // Set kinds to invalid values, which should trap any further accesses in debug mode.
+    // Make sure object kind is recoverable for printing deleted objects
+    if (o->m_mem_kind != 42) {
+        o->m_kind = -o->m_kind;
+        o->m_mem_kind = 42;
+    }
+#else
     free(reinterpret_cast<char *>(o) - sizeof(rc_type));
+#endif
 }
 
 inline bool is_mt_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::MTHeap); }

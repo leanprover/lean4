@@ -56,6 +56,7 @@ option(TRACK_LIVE_EXPRS    "TRACK_LIVE_EXPRS" OFF)
 option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
+option(FAKE_FREE           "Disable actually freeing runtime objects, useful for debugging memory management issues" OFF)
 
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
@@ -107,6 +108,10 @@ endif()
 
 if (NOT("${SAVE_INFO}" MATCHES "ON"))
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_NO_INFO")
+endif()
+
+if ("${FAKE_FREE}" MATCHES "ON")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
 endif()
 
 if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))

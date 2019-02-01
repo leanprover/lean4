@@ -1124,6 +1124,10 @@ object * mk_string(std::string const & s) {
     return r;
 }
 
+std::string string_to_std(b_obj_arg o) {
+    return std::string(w_string_cstr(o), string_size(o));
+}
+
 static size_t mk_capacity(size_t sz) {
     return sz*2;
 }

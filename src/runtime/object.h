@@ -1074,6 +1074,7 @@ inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
 }
 obj_res mk_string(char const * s);
 obj_res mk_string(std::string const & s);
+std::string string_to_std(b_obj_arg o);
 inline char const * string_cstr(b_obj_arg o) { lean_assert(is_string(o)); return reinterpret_cast<char*>(o) + sizeof(string_object); }
 inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
 inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }

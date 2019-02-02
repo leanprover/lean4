@@ -65,11 +65,9 @@ obj* _l_s6_option_s9_has__repr_s6___rarg_s11___closed__1;
 obj* _l_s3_nat_s11_digit__char_s12___closed__27;
 obj* _l_s6_option_s9_has__repr(obj*);
 obj* _l_s3_nat_s11_digit__char_s12___closed__43;
-obj* _l_s6_uint32_s7_to__nat_s6___main(unsigned);
 obj* _l_s3_nat_s11_digit__char_s12___closed__18;
 obj* _l_s4_list_s9_has__repr(obj*);
 obj* _l_s3_nat_s11_digit__char_s12___closed__29;
-obj* _l_s6_uint16_s7_to__nat_s6___main(unsigned short);
 obj* _l_s3_nat_s11_digit__char_s12___closed__34;
 obj* _l_s3_nat_s11_digit__char_s11___closed__8;
 obj* _l_s4_list_s9_repr__aux_s6___main_s6___rarg_s11___closed__1;
@@ -89,7 +87,6 @@ obj* _l_s6_uint16_s9_has__repr(unsigned short);
 obj* _l_s3_nat_s11_digit__char_s12___closed__28;
 obj* _l_s6_uint16_s9_has__repr_s7___boxed(obj*);
 obj* _l_s6_uint64_s9_has__repr_s7___boxed(obj*);
-obj* _l_s6_uint64_s7_to__nat_s6___main(unsigned long long);
 obj* _l_s3_nat_s11_digit__char_s11___closed__5;
 obj* _l_s6_option_s9_has__repr_s6___rarg_s11___closed__3;
 unsigned char _l_s6_string_s9_is__empty(obj*);
@@ -135,7 +132,6 @@ obj* _l_s4_list_s9_repr__aux_s6___rarg_s7___boxed(obj*, obj*, obj*);
 obj* _l_s3_nat_s11_digit__char_s12___closed__20;
 obj* _l_s4_char_s11_quote__core_s11___closed__4;
 obj* _l_s3_nat_s11_digit__char_s11___closed__6;
-obj* _l_s5_usize_s7_to__nat_s6___main(size_t);
 obj* _l_s4_list_s9_repr__aux_s6___main_s6___rarg_s7___boxed(obj*, obj*, obj*);
 obj* _l_s6_string_s8_iterator_s9_has__repr_s11___closed__1;
 obj* _l_s3_nat_s11_digit__char_s12___closed__15;
@@ -3298,7 +3294,7 @@ return x_2;
 obj* _l_s6_uint16_s9_has__repr(unsigned short x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s6_uint16_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint16_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }
@@ -3314,7 +3310,7 @@ return x_2;
 obj* _l_s6_uint32_s9_has__repr(unsigned x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s6_uint32_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint32_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }
@@ -3330,7 +3326,7 @@ return x_2;
 obj* _l_s6_uint64_s9_has__repr(unsigned long long x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s6_uint64_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint64_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }
@@ -3346,7 +3342,7 @@ return x_2;
 obj* _l_s5_usize_s9_has__repr(size_t x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s5_usize_s7_to__nat_s6___main(x_0);
+x_1 = lean::usize_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }

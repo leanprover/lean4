@@ -81,7 +81,6 @@ obj* _l_s5_array_s5_write_s6___rarg_s11___lambda__1(obj*, obj*, obj*, obj*);
 obj* _l_s5_array_s5_uread(obj*);
 obj* _l_s5_array_s3_map_s6___rarg_s11___lambda__1(obj*, obj*, obj*);
 obj* _l_s5_array_s8_to__list_s6___rarg_s11___lambda__1(obj*, obj*);
-obj* _l_s5_usize_s7_to__nat_s6___main(size_t);
 obj* _l_s9___private_717503411__s17_rev__iterate__aux_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s5_array_s3_nil_s11___closed__1;
 obj* _l_s5_array_s7_foreach_s6___rarg(obj*, obj*);
@@ -323,7 +322,7 @@ obj* _l_s5_array_s5_uread_s6___rarg(obj* x_0, size_t x_1, obj* x_2) {
 {
 obj* x_4; obj* x_5; 
 lean::dec(x_2);
-x_4 = _l_s5_usize_s7_to__nat_s6___main(x_1);
+x_4 = lean::usize_to_nat(x_1);
 x_5 = _l_s5_array_s4_read_s6___rarg(x_0, x_4);
 return x_5;
 }
@@ -348,7 +347,7 @@ obj* _l_s5_array_s6_uwrite_s6___rarg(obj* x_0, size_t x_1, obj* x_2, obj* x_3) {
 {
 obj* x_5; obj* x_6; 
 lean::dec(x_3);
-x_5 = _l_s5_usize_s7_to__nat_s6___main(x_1);
+x_5 = lean::usize_to_nat(x_1);
 x_6 = _l_s5_array_s5_write_s6___rarg(x_0, x_5, x_2);
 return x_6;
 }
@@ -372,7 +371,7 @@ return x_5;
 obj* _l_s5_array_s9_uread_x27_s6___rarg(obj* x_0, obj* x_1, size_t x_2) {
 {
 obj* x_3; obj* x_4; obj* x_6; 
-x_3 = _l_s5_usize_s7_to__nat_s6___main(x_2);
+x_3 = lean::usize_to_nat(x_2);
 x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 x_6 = lean::nat_dec_lt(x_3, x_4);
@@ -414,7 +413,7 @@ return x_4;
 obj* _l_s5_array_s10_uwrite_x27_s6___rarg(obj* x_0, size_t x_1, obj* x_2) {
 {
 obj* x_3; obj* x_4; obj* x_6; 
-x_3 = _l_s5_usize_s7_to__nat_s6___main(x_1);
+x_3 = lean::usize_to_nat(x_1);
 x_4 = lean::cnstr_get(x_0, 0);
 lean::inc(x_4);
 x_6 = lean::nat_dec_lt(x_3, x_4);

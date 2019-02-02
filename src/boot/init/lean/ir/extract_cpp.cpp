@@ -171,7 +171,6 @@ obj* _l_s4_lean_s2_ir_s3_cpp_s16_assign__unop2cpp_s6___main_s11___closed__8;
 obj* _l_s4_lean_s2_ir_s3_cpp_s14_emit__sep__aux_s6___main(obj*);
 obj* _l_s9_reader__t_s4_lift(obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s2_ir_s3_cpp_s19_emit__assign__binop_s12___closed__11;
-obj* _l_s6_uint16_s7_to__nat_s6___main(unsigned short);
 obj* _l_s4_lean_s2_ir_s3_cpp_s19_emit__assign__binop_s12___closed__37;
 obj* _l_s4_lean_s2_ir_s3_cpp_s8_type2cpp_s6___main_s11___closed__7;
 obj* _l_s4_list_s9_repr__aux_s6___main_s6___rarg_s11___closed__1;
@@ -341,7 +340,6 @@ obj* _l_s4_lean_s2_ir_s3_cpp_s4_emit_s4___at_s4_lean_s2_ir_s3_cpp_s11_emit__inst
 obj* _l_s4_lean_s2_ir_s3_cpp_s8_type2cpp_s6___main_s11___closed__4;
 obj* _l_s3_nat_s6_repeat_s6___main_s4___at_s4_lean_s2_ir_s3_cpp_s13_emit__uncurry_s9___spec__3(obj*, obj*, obj*);
 obj* _l_s4_lean_s2_ir_s3_cpp_s16_assign__unop2cpp_s6___main_s12___closed__11;
-obj* _l_s5_usize_s7_to__nat_s6___main(size_t);
 obj* _l_s4_lean_s2_ir_s3_cpp_s8_unop2cpp_s6___main_s11___closed__6;
 obj* _l_s4_lean_s2_ir_s3_cpp_s11_emit__block_s11___closed__1;
 obj* _l_s9_except__t_s4_lift_s6___rarg(obj*, obj*, obj*);
@@ -14504,7 +14502,7 @@ obj* _l_s4_lean_s2_ir_s3_cpp_s4_emit_s4___at_s4_lean_s2_ir_s3_cpp_s11_emit__inst
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_10; 
 lean::dec(x_1);
-x_4 = _l_s5_usize_s7_to__nat_s6___main(x_0);
+x_4 = lean::usize_to_nat(x_0);
 x_5 = _l_s3_nat_s4_repr(x_4);
 x_6 = lean::string_append(x_2, x_5);
 lean::dec(x_5);
@@ -14520,7 +14518,7 @@ obj* _l_s4_lean_s2_ir_s3_cpp_s4_emit_s4___at_s4_lean_s2_ir_s3_cpp_s11_emit__inst
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_10; 
 lean::dec(x_1);
-x_4 = _l_s6_uint16_s7_to__nat_s6___main(x_0);
+x_4 = lean::uint16_to_nat(x_0);
 x_5 = _l_s3_nat_s4_repr(x_4);
 x_6 = lean::string_append(x_2, x_5);
 lean::dec(x_5);
@@ -14536,7 +14534,7 @@ obj* _l_s4_lean_s2_ir_s3_cpp_s4_emit_s4___at_s4_lean_s2_ir_s3_cpp_s11_emit__inst
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_10; 
 lean::dec(x_1);
-x_4 = _l_s6_uint16_s7_to__nat_s6___main(x_0);
+x_4 = lean::uint16_to_nat(x_0);
 x_5 = _l_s3_nat_s4_repr(x_4);
 x_6 = lean::string_append(x_2, x_5);
 lean::dec(x_5);

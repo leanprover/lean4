@@ -33,17 +33,14 @@ obj* _l_s6_option_s9_has__repr_s6___rarg_s11___closed__1;
 obj* _l_s5_sigma_s15_has__to__string_s6___rarg(obj*, obj*, obj*);
 obj* _l_s7_subtype_s15_has__to__string_s6___rarg(obj*, obj*);
 obj* _l_s9_decidable_s15_has__to__string_s6___rarg(obj*);
-obj* _l_s6_uint32_s7_to__nat_s6___main(unsigned);
 obj* _l_s4_list_s15_to__string__aux(obj*);
 obj* _l_s4_prod_s15_has__to__string(obj*, obj*);
-obj* _l_s6_uint16_s7_to__nat_s6___main(unsigned short);
 obj* _l_s4_list_s9_repr__aux_s6___main_s6___rarg_s11___closed__1;
 obj* _l_s4_char_s15_has__to__string_s7___boxed(obj*);
 obj* _l_s9_decidable_s15_has__to__string(obj*);
 obj* _l_s4_bool_s15_has__to__string(unsigned char);
 obj* _l_s4_bool_s15_has__to__string_s7___boxed(obj*);
 obj* _l_s4_list_s10_to__string_s6___main_s6___rarg(obj*, obj*);
-obj* _l_s6_uint64_s7_to__nat_s6___main(unsigned long long);
 obj* _l_s6_option_s9_has__repr_s6___rarg_s11___closed__3;
 obj* _l_s5_usize_s15_has__to__string(size_t);
 obj* _l_s3_sum_s9_has__repr_s6___rarg_s11___closed__2;
@@ -69,7 +66,6 @@ obj* _l_s4_list_s15_to__string__aux_s6___main_s6___rarg_s7___boxed(obj*, obj*, o
 obj* _l_s6_string_s15_has__to__string(obj*);
 obj* _l_s7_subtype_s15_has__to__string(obj*, obj*);
 obj* _l_s4_char_s15_has__to__string(unsigned);
-obj* _l_s5_usize_s7_to__nat_s6___main(size_t);
 obj* _l_s5_usize_s15_has__to__string_s7___boxed(obj*);
 obj* _l_s5_sigma_s15_has__to__string(obj*, obj*);
 obj* _l_s6_uint64_s15_has__to__string(unsigned long long);
@@ -388,7 +384,7 @@ return x_2;
 obj* _l_s6_uint16_s15_has__to__string(unsigned short x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s6_uint16_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint16_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }
@@ -404,7 +400,7 @@ return x_2;
 obj* _l_s6_uint32_s15_has__to__string(unsigned x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s6_uint32_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint32_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }
@@ -420,7 +416,7 @@ return x_2;
 obj* _l_s6_uint64_s15_has__to__string(unsigned long long x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s6_uint64_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint64_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }
@@ -436,7 +432,7 @@ return x_2;
 obj* _l_s5_usize_s15_has__to__string(size_t x_0) {
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s5_usize_s7_to__nat_s6___main(x_0);
+x_1 = lean::usize_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 return x_2;
 }

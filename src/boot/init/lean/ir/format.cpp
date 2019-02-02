@@ -120,7 +120,6 @@ obj* _l_s4_lean_s2_ir_s13_assign__binop_s15_has__to__format;
 obj* _l_s4_lean_s2_ir_s5_instr_s15_has__to__format;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s7_literal_s10_to__format_s6___main_s9___spec__1_s11___closed__2;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s13_assign__binop_s15_has__to__string_s9___spec__1_s7___boxed(obj*);
-obj* _l_s6_uint16_s7_to__nat_s6___main(unsigned short);
 obj* _l_s4_lean_s2_ir_s4_type_s10_to__format_s6___main_s11___closed__8;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s5_instr_s10_to__format_s6___main_s9___spec__4(unsigned short);
 obj* _l_s4_lean_s6_format_s12_join__suffix_s6___main_s4___at_s4_lean_s2_ir_s5_block_s10_to__format_s6___main_s9___spec__1(obj*, obj*);
@@ -245,7 +244,6 @@ obj* _l_s4_lean_s6_format_s9_join__sep_s6___main_s4___at_s4_lean_s2_ir_s6_header
 obj* _l_s4_lean_s6_format_s5_group_s6___main(obj*);
 obj* _l_s4_lean_s2_ir_s4_type_s10_to__format_s6___main_s12___closed__10;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s3_phi_s15_has__to__string_s9___spec__1(obj*);
-obj* _l_s5_usize_s7_to__nat_s6___main(size_t);
 obj* _l_s4_lean_s2_ir_s3_phi_s10_to__format_s6___main(obj*);
 obj* _l_s4_lean_s2_ir_s4_type_s10_to__format_s6___main_s11___closed__4;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s5_instr_s10_to__format_s6___main_s9___spec__6_s7___boxed(obj*);
@@ -2996,7 +2994,7 @@ return x_17;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s5_instr_s10_to__format_s6___main_s9___spec__4(unsigned short x_0) {
 {
 obj* x_1; obj* x_2; obj* x_3; 
-x_1 = _l_s6_uint16_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint16_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 x_3 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
@@ -3006,7 +3004,7 @@ return x_3;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s5_instr_s10_to__format_s6___main_s9___spec__5(unsigned short x_0) {
 {
 obj* x_1; obj* x_2; obj* x_3; 
-x_1 = _l_s6_uint16_s7_to__nat_s6___main(x_0);
+x_1 = lean::uint16_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 x_3 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
@@ -3016,7 +3014,7 @@ return x_3;
 obj* _l_s4_lean_s7_to__fmt_s4___at_s4_lean_s2_ir_s5_instr_s10_to__format_s6___main_s9___spec__6(size_t x_0) {
 {
 obj* x_1; obj* x_2; obj* x_3; 
-x_1 = _l_s5_usize_s7_to__nat_s6___main(x_0);
+x_1 = lean::usize_to_nat(x_0);
 x_2 = _l_s3_nat_s4_repr(x_1);
 x_3 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);

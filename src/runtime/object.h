@@ -272,6 +272,7 @@ inline bool dec_ref_core(object * o) {
         lean_assert(get_rc(o) > 0);
         return atomic_fetch_sub_explicit(mt_rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel) == 1;
     } else if (is_st_heap_obj(o)) {
+        lean_assert(get_rc(o) > 0);
         st_rc_ref(o)--;
         return st_rc_ref(o) == 0;
     } else {

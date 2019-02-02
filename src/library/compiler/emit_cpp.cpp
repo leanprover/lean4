@@ -152,9 +152,13 @@ static expr get_result_type(expr type) {
     return type;
 }
 
-static void emit_fn_decl(std::ostream & out, environment const & env, name const & n) {
+static void emit_fn_decl(std::ostream & out, environment const & env, name const & n, bool mod_decl) {
     open_namespaces_for(out, env, n);
     expr type = get_constant_ll_type(env, n);
+    if (!mod_decl && !is_pi(type)) {
+        /* We should add extern for constants coming from other modules. */
+        out << "extern ";
+    }
     out << to_cpp_type(get_result_type(type)) << " " << to_base_cpp_name(env, n);
     if (is_pi(type)) {
         out << "(";
@@ -216,12 +220,16 @@ static void collect_dependencies(environment const & env, expr e, name_set & dep
    and their direct dependencies. */
 static void emit_fn_decls(std::ostream & out, environment const & env) {
     comp_decls ds = get_extension(env).m_code;
-    name_set todo;
+    name_set mod_decls;
+    name_set all_decls;
     for (comp_decl const & d : ds) {
-        todo.insert(d.fst());
-        collect_dependencies(env, d.snd(), todo);
+        mod_decls.insert(d.fst());
+        all_decls.insert(d.fst());
+        collect_dependencies(env, d.snd(), all_decls);
     }
-    todo.for_each([&](name const & n) { emit_fn_decl(out, env, n); });
+    all_decls.for_each([&](name const & n) {
+            emit_fn_decl(out, env, n, mod_decls.contains(n));
+        });
 }
 
 static void emit_file_header(std::ostream & out, module_name const & m, list<module_name> const & deps) {

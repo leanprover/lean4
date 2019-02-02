@@ -11,15 +11,15 @@ structure usize :=
 (val : fin usize_sz)
 
 def usize.of_nat (n : nat) : usize := ⟨fin.of_nat n⟩
-def usize.to_nat : usize → nat | ⟨a⟩ := a.val
-def usize.add  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a + b⟩
-def usize.sub  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a - b⟩
-def usize.mul  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a * b⟩
-def usize.div  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a / b⟩
-def usize.mod  : usize → usize → usize | ⟨a⟩ ⟨b⟩ := ⟨a % b⟩
-def usize.modn : usize → nat → usize   | ⟨a⟩  b  := ⟨a %ₙ b⟩
-def usize.lt   : usize → usize → Prop  | ⟨a⟩ ⟨b⟩ := a < b
-def usize.le   : usize → usize → Prop  | ⟨a⟩ ⟨b⟩ := a ≤ b
+def usize.to_nat (n : usize) : nat := n.val.val
+def usize.add (a b : usize) : usize := ⟨a.val + b.val⟩
+def usize.sub (a b : usize) : usize := ⟨a.val - b.val⟩
+def usize.mul (a b : usize) : usize := ⟨a.val * b.val⟩
+def usize.div (a b : usize) : usize := ⟨a.val / b.val⟩
+def usize.mod (a b : usize) : usize := ⟨a.val % b.val⟩
+def usize.modn (a : usize) (n : nat) : usize := ⟨a.val %ₙ n⟩
+def usize.lt (a b : usize) : Prop := a.val < b.val
+def usize.le (a b : usize) : Prop := a.val ≤ b.val
 
 instance : has_zero usize     := ⟨usize.of_nat 0⟩
 instance : has_one usize      := ⟨usize.of_nat 1⟩
@@ -33,14 +33,17 @@ instance : has_lt usize       := ⟨usize.lt⟩
 instance : has_le usize       := ⟨usize.le⟩
 instance : inhabited usize    := ⟨0⟩
 
-def usize.dec_eq : Π (a b : usize), decidable (a = b)
-| ⟨a⟩ ⟨b⟩ := if h : a = b then is_true (h ▸ rfl) else is_false (λ h', usize.no_confusion h' (λ h', absurd h' h))
+def usize.dec_eq (a b : usize) : decidable (a = b) :=
+usize.cases_on a $ λ n, usize.cases_on b $ λ m,
+  if h : n = m then is_true (h ▸ rfl) else is_false (λ h', usize.no_confusion h' (λ h', absurd h' h))
 
-def usize.dec_lt : Π (a b : usize), decidable (a < b)
-| ⟨a⟩ ⟨b⟩ := infer_instance_as (decidable (a < b))
+def usize.dec_lt (a b : usize) : decidable (a < b) :=
+usize.cases_on a $ λ n, usize.cases_on b $ λ m,
+  infer_instance_as (decidable (n < m))
 
-def usize.dec_le : Π (a b : usize), decidable (a ≤ b)
-| ⟨a⟩ ⟨b⟩ := infer_instance_as (decidable (a ≤ b))
+def usize.dec_le (a b : usize) : decidable (a ≤ b) :=
+usize.cases_on a $ λ n, usize.cases_on b $ λ m,
+  infer_instance_as (decidable (n <= m))
 
 instance : decidable_eq usize := {dec_eq := usize.dec_eq}
 instance usize.has_decidable_lt (a b : usize) : decidable (a < b) := usize.dec_lt a b

@@ -21,6 +21,7 @@ typedef unsigned char      uint8;
 typedef unsigned short     uint16;
 typedef unsigned           uint32;
 typedef unsigned long long uint64;
+typedef size_t             usize;
 
 /*
 The primitives implemented in the runtime do not modify the RC of its arguments.
@@ -1118,4 +1119,146 @@ bool string_eq(b_obj_arg s1, char const * s2);
 bool string_lt(b_obj_arg s1, b_obj_arg s2);
 inline obj_res string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return box(string_eq(s1, s2)); }
 inline obj_res string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return box(string_lt(s1, s2)); }
+
+// =======================================
+// uint8
+inline uint8 uint8_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint8>(unbox(a)) : 0; }
+inline obj_res uint8_to_nat(uint8 a) { return mk_nat_obj(static_cast<unsigned>(a)); }
+inline uint8 uint8_add(uint8 a1, uint8 a2) { return a1+a2; }
+inline uint8 uint8_sub(uint8 a1, uint8 a2) { return a1-a2; }
+inline uint8 uint8_mul(uint8 a1, uint8 a2) { return a1*a2; }
+inline uint8 uint8_div(uint8 a1, uint8 a2) { return a2 == 0 ? 0 : a1/a2; }
+inline uint8 uint8_mod(uint8 a1, uint8 a2) { return a2 == 0 ? 0 : a1%a2; }
+inline uint8 uint8_modn(uint8 a1, b_obj_arg a2) {
+    if (LEAN_LIKELY(is_scalar(a2))) {
+        unsigned n2 = unbox(a2);
+        return n2 == 0 ? 0 : a1 % n2;
+    } else {
+        return a1;
+    }
+}
+inline obj_res uint8_dec_eq(uint8 a1, uint8 a2) { return box(a1 == a2); }
+inline obj_res uint8_dec_lt(uint8 a1, uint8 a2) { return box(a1 < a2); }
+inline obj_res uint8_dec_le(uint8 a1, uint8 a2) { return box(a1 <= a2); }
+
+// =======================================
+// uint16
+inline uint16 uint16_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint16>(unbox(a)) : 0; }
+inline obj_res uint16_to_nat(uint16 a) { return mk_nat_obj(static_cast<unsigned>(a)); }
+inline uint16 uint16_add(uint16 a1, uint16 a2) { return a1+a2; }
+inline uint16 uint16_sub(uint16 a1, uint16 a2) { return a1-a2; }
+inline uint16 uint16_mul(uint16 a1, uint16 a2) { return a1*a2; }
+inline uint16 uint16_div(uint16 a1, uint16 a2) { return a2 == 0 ? 0 : a1/a2; }
+inline uint16 uint16_mod(uint16 a1, uint16 a2) { return a2 == 0 ? 0 : a1%a2; }
+inline uint16 uint16_modn(uint16 a1, b_obj_arg a2) {
+    if (LEAN_LIKELY(is_scalar(a2))) {
+        unsigned n2 = unbox(a2);
+        return n2 == 0 ? 0 : a1 % n2;
+    } else {
+        return a1;
+    }
+}
+inline obj_res uint16_dec_eq(uint16 a1, uint16 a2) { return box(a1 == a2); }
+inline obj_res uint16_dec_lt(uint16 a1, uint16 a2) { return box(a1 < a2); }
+inline obj_res uint16_dec_le(uint16 a1, uint16 a2) { return box(a1 <= a2); }
+
+// =======================================
+// uint32
+inline uint32 uint32_of_nat(b_obj_arg a) {
+    if (is_scalar(a)) {
+        return unbox(a);
+    } else if (sizeof(void*) == 4) {
+        // 32-bit
+        mpz const & m = mpz_value(a);
+        return m.is_unsigned_int() ? mpz_value(a).get_unsigned_int() : 0;
+    } else {
+        // 64-bit
+        return 0;
+    }
+}
+inline obj_res uint32_to_nat(uint32 a) { return mk_nat_obj(a); }
+inline uint32 uint32_add(uint32 a1, uint32 a2) { return a1+a2; }
+inline uint32 uint32_sub(uint32 a1, uint32 a2) { return a1-a2; }
+inline uint32 uint32_mul(uint32 a1, uint32 a2) { return a1*a2; }
+inline uint32 uint32_div(uint32 a1, uint32 a2) { return a2 == 0 ? 0 : a1/a2; }
+inline uint32 uint32_mod(uint32 a1, uint32 a2) { return a2 == 0 ? 0 : a1%a2; }
+inline uint32 uint32_modn(uint32 a1, b_obj_arg a2) {
+    if (LEAN_LIKELY(is_scalar(a2))) {
+        unsigned n2 = unbox(a2);
+        return n2 == 0 ? 0 : a1 % n2;
+    } else if (sizeof(void*) == 4) {
+        // 32-bit
+        mpz const & m = mpz_value(a2);
+        return m.is_unsigned_int() ? a1 % m.get_unsigned_int() : a1;
+    } else {
+        // 64-bit
+        return a1;
+    }
+}
+inline obj_res uint32_dec_eq(uint32 a1, uint32 a2) { return box(a1 == a2); }
+inline obj_res uint32_dec_lt(uint32 a1, uint32 a2) { return box(a1 < a2); }
+inline obj_res uint32_dec_le(uint32 a1, uint32 a2) { return box(a1 <= a2); }
+
+// =======================================
+// uint64
+inline uint64 uint64_of_nat(b_obj_arg a) {
+    if (is_scalar(a)) {
+        return unbox(a);
+    } else {
+        // TODO(Leo):
+        return 0;
+    }
+}
+inline obj_res uint64_to_nat(uint64 a) { return mk_nat_obj(a); }
+inline uint64 uint64_add(uint64 a1, uint64 a2) { return a1+a2; }
+inline uint64 uint64_sub(uint64 a1, uint64 a2) { return a1-a2; }
+inline uint64 uint64_mul(uint64 a1, uint64 a2) { return a1*a2; }
+inline uint64 uint64_div(uint64 a1, uint64 a2) { return a2 == 0 ? 0 : a1/a2; }
+inline uint64 uint64_mod(uint64 a1, uint64 a2) { return a2 == 0 ? 0 : a1%a2; }
+inline uint64 uint64_modn(uint64 a1, b_obj_arg a2) {
+    if (LEAN_LIKELY(is_scalar(a2))) {
+        unsigned n2 = unbox(a2);
+        return n2 == 0 ? 0 : a1 % n2;
+    } else {
+        // TODO(Leo)
+        return a1;
+    }
+}
+inline obj_res uint64_dec_eq(uint64 a1, uint64 a2) { return box(a1 == a2); }
+inline obj_res uint64_dec_lt(uint64 a1, uint64 a2) { return box(a1 < a2); }
+inline obj_res uint64_dec_le(uint64 a1, uint64 a2) { return box(a1 <= a2); }
+
+// =======================================
+// usize
+inline usize usize_of_nat(b_obj_arg a) {
+    if (is_scalar(a)) {
+        return unbox(a);
+    } else {
+        // TODO(Leo):
+        return 0;
+    }
+}
+inline obj_res usize_to_nat(usize a) {
+    if (sizeof(void*) == 4)
+        return mk_nat_obj(static_cast<unsigned>(a));
+    else
+        return mk_nat_obj(static_cast<uint64>(a));
+}
+inline usize usize_add(usize a1, usize a2) { return a1+a2; }
+inline usize usize_sub(usize a1, usize a2) { return a1-a2; }
+inline usize usize_mul(usize a1, usize a2) { return a1*a2; }
+inline usize usize_div(usize a1, usize a2) { return a2 == 0 ? 0 : a1/a2; }
+inline usize usize_mod(usize a1, usize a2) { return a2 == 0 ? 0 : a1%a2; }
+inline usize usize_modn(usize a1, b_obj_arg a2) {
+    if (LEAN_LIKELY(is_scalar(a2))) {
+        unsigned n2 = unbox(a2);
+        return n2 == 0 ? 0 : a1 % n2;
+    } else {
+        // TODO(Leo)
+        return a1;
+    }
+}
+inline obj_res usize_dec_eq(usize a1, usize a2) { return box(a1 == a2); }
+inline obj_res usize_dec_lt(usize a1, usize a2) { return box(a1 < a2); }
+inline obj_res usize_dec_le(usize a1, usize a2) { return box(a1 <= a2); }
 }

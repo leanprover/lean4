@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm.h"
 #include "library/vm/vm_nat.h"
 #include "library/vm/vm_int.h"
+#include "library/vm/vm_uint.h"
 #include "library/vm/vm_aux.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_string.h"
@@ -19,9 +20,11 @@ void initialize_vm_core_module() {
     initialize_vm_aux();
     initialize_vm_io();
     initialize_vm_string();
+    initialize_vm_uint();
 }
 
 void finalize_vm_core_module() {
+    finalize_vm_uint();
     finalize_vm_string();
     finalize_vm_io();
     finalize_vm_aux();

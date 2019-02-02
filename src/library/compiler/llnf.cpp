@@ -1779,6 +1779,11 @@ class explicit_rc_fn {
         return mk_app(fn, args);
     }
 
+    bool is_obj(expr const & x) {
+        lean_assert(is_fvar(x));
+        return is_enf_object_type(m_lctx.get_local_decl(x).get_type());
+    }
+
     /* Process a terminal: cases, jmp or variable */
     expr process_terminal(expr const & e, buffer<expr_pair> & entries) {
         if (is_cases_on_app(env(), e)) {
@@ -1788,7 +1793,7 @@ class explicit_rc_fn {
             return e;
         } else if (is_fvar(e)) {
             /* If it is marked as borrowed, we should insert `inc`. */
-            if (m_borrowed.contains(fvar_name(e)))
+            if (m_borrowed.contains(fvar_name(e)) && is_obj(e))
                 add_inc(e, entries);
             return e;
         } else {

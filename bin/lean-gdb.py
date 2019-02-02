@@ -9,26 +9,82 @@
 import gdb
 import gdb.printing
 
-def is_scalar(ref):
-    return ref['m_obj'].cast(gdb.lookup_type('uintptr_t')) & 1 == 1
+def is_scalar(o):
+    return o.cast(gdb.lookup_type('uintptr_t')) & 1 == 1
 
 def box(n):
-    return gdb.Value(n << 1 | 1).cast(gdb.lookup_type('lean::object_ref'))
+    return gdb.Value(n << 1 | 1).cast(gdb.lookup_type('lean::object').pointer())
 
-def unbox(ref):
-    return ref['m_obj'].cast(gdb.lookup_type('uintptr_t')) >> 1
+def unbox(o):
+    return o.cast(gdb.lookup_type('uintptr_t')) >> 1
 
-def to_cnstr(ref):
-    return ref['m_obj'].cast(gdb.lookup_type('lean::constructor_object').pointer())
+def to_cnstr(o):
+    return o.cast(gdb.lookup_type('lean::constructor_object').pointer())
 
-def get_cnstr_tag(ref):
-    return to_cnstr(ref).dereference()['m_tag']
+def get_cnstr_tag(o):
+    return to_cnstr(o).dereference()['m_tag']
 
-def get_cnstr_obj_arg(ref, i):
-    return (ref['m_obj'].cast(gdb.lookup_type('char').pointer()) + gdb.lookup_type('lean::constructor_object').sizeof).cast(gdb.lookup_type('lean::object_ref').pointer())[i]
+char_p = gdb.lookup_type('char').pointer()
 
-def get_c_str(ref):
-    return (ref['m_obj'].cast(gdb.lookup_type('char').pointer()) + gdb.lookup_type('lean::string_object').sizeof)
+def get_cnstr_obj_arg(o, i):
+    return (o.cast(char_p) + gdb.lookup_type('lean::constructor_object').sizeof).cast(gdb.lookup_type('lean::object').pointer().pointer())[i]
+
+def get_closure_arg(o, i):
+    return (o.cast(char_p) + gdb.lookup_type('lean::closure_object').sizeof).cast(gdb.lookup_type('lean::object').pointer().pointer())[i]
+
+def get_c_str(o):
+    return (o.cast(char_p) + gdb.lookup_type('lean::string_object').sizeof)
+
+def get_rc(o):
+    return (o.cast(gdb.lookup_type('uintptr_t').pointer()) - 1).dereference()
+
+class LeanObjectPrinter:
+    """Print a lean::object object."""
+
+    kinds = [
+        ('constructor', ['m_tag', 'm_scalar_size']),
+        ('closure', ['m_arity', 'm_fun']),
+        ('array', []),
+        ('sarray', []),
+        ('parray_root', []),
+        ('parray_set', []),
+        ('parray_push', []),
+        ('parray_pop', []),
+        ('string', ['m_size', 'm_capacity', 'm_length']),
+        ('mpz', ['m_value']),
+        ('thunk', ['m_value', 'm_closure']),
+        ('external', []),
+    ]
+
+    def __init__(self, val):
+        self.val = val.address
+        if not is_scalar(self.val):
+            self.kind = int(self.val.dereference()['m_kind'])
+
+    def to_string(self):
+        if is_scalar(self.val):
+            return unbox(self.val)
+        else:
+            return "{} (RC {})".format(LeanObjectPrinter.kinds[self.kind][0], get_rc(self.val))
+
+    def children(self):
+        if is_scalar(self.val):
+            return
+        yield ('RC', get_rc(self.val))
+        if self.kind >= len(LeanObjectPrinter.kinds):
+            return
+        typ, fields = LeanObjectPrinter.kinds[self.kind]
+        if fields:
+            val = self.val.cast(gdb.lookup_type("lean::" + typ + "_object").pointer()).dereference()
+            for f in fields:
+                yield (f, val[f])
+            if typ == 'constructor':
+                for i in range(val['m_num_objs']):
+                    yield ('', get_cnstr_obj_arg(self.val, i))
+            elif typ == 'closure':
+                for i in range(val['m_num_fixed']):
+                    yield ('', get_closure_arg(self.val, i))
+
 
 class LeanOptionalPrinter:
     """Print a lean::optional object."""
@@ -58,19 +114,19 @@ class LeanNamePrinter:
         self.val = val
 
     def to_string(self):
-        def rec(ref):
-            prefix = get_cnstr_obj_arg(ref, 0)
-            part = get_cnstr_obj_arg(ref, 1)
-            s = ("'%s'" % get_c_str(part).string()) if get_cnstr_tag(ref) == 1 else str(unbox(part))
+        def rec(o):
+            prefix = get_cnstr_obj_arg(o, 0)
+            part = get_cnstr_obj_arg(o, 1)
+            s = ("'%s'" % get_c_str(part).string()) if get_cnstr_tag(o) == 1 else str(unbox(part))
             if not is_scalar(prefix):
                 return "%s.%s" % (rec(prefix), s)
             else:
                 return s
 
-        if is_scalar(self.val):
+        if is_scalar(self.val['m_obj']):
             return ""
         else:
-            return rec(self.val)
+            return rec(self.val['m_obj'])
 
 class LeanExprPrinter:
     """Print a lean::expr object."""
@@ -95,16 +151,16 @@ class LeanExprPrinter:
         self.val = val
 
     def to_string(self):
-        return 'lean::expr[{}]'.format(LeanExprPrinter.expr_kinds[get_cnstr_tag(self.val)][0])
+        return 'lean::expr[{}]'.format(LeanExprPrinter.expr_kinds[get_cnstr_tag(self.val['m_obj'])][0])
 
     def children(self):
-        _, fields = LeanExprPrinter.expr_kinds[get_cnstr_tag(self.val)]
+        _, fields = LeanExprPrinter.expr_kinds[get_cnstr_tag(self.val['m_obj'])]
         for i, f in enumerate(fields):
             if isinstance(f, tuple):
                 name, typ = f
             else:
                 name, typ = f, f
-            yield (name, get_cnstr_obj_arg(self.val, i).cast(gdb.lookup_type('lean::' + typ)))
+            yield (name, get_cnstr_obj_arg(self.val['m_obj'], i).cast(gdb.lookup_type('lean::' + typ)))
 
 class LeanLevelPrinter:
     """Print a lean::level object."""
@@ -122,10 +178,10 @@ class LeanLevelPrinter:
         self.val = val
 
     def to_string(self):
-        kind = int(self.val['m_ptr']['m_kind'])
+        kind = int(self.val['m_obj']['m_kind'])
         (subtype, name, fields) = LeanLevelPrinter.level_kinds[kind]
         subtype = gdb.lookup_type(subtype)
-        val = self.val['m_ptr'].cast(subtype.pointer()).dereference()
+        val = self.val['m_obj'].cast(subtype.pointer()).dereference()
         return "({})".format(" ".join([name] + [str(val[field]) for field in fields]))
 
 class LeanListPrinter:
@@ -137,8 +193,8 @@ class LeanListPrinter:
     def children(self):
         l = self.val
         i = 0
-        while l['m_ptr']:
-            cell = l['m_ptr'].dereference()
+        while l['m_obj']:
+            cell = l['m_obj'].dereference()
             yield ('[%s]' % i, cell['m_head'])
             l = cell['m_tail']
             i += 1
@@ -174,7 +230,7 @@ class LeanListRefPrinter:
         self.val = val
 
     def children(self):
-        l = self.val
+        l = self.val['m_obj']
         i = 0
         while not is_scalar(l):
             yield ('[%s]' % i, get_cnstr_obj_arg(l, 0).cast(self.val.type.template_argument(0)))
@@ -227,6 +283,7 @@ class LeanRBMapPrinter:
 
 def build_pretty_printer():
     pp = gdb.printing.RegexpCollectionPrettyPrinter("lean")
+    pp.add_printer('object', '^lean::object$', LeanObjectPrinter)
     pp.add_printer('optional', '^lean::optional', LeanOptionalPrinter)
     pp.add_printer('name', '^lean::name$', LeanNamePrinter)
     pp.add_printer('expr', '^lean::expr$', LeanExprPrinter)

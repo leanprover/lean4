@@ -23,7 +23,7 @@ size_t _l_s5_usize_s9_has__zero;
 obj* _l_s5_usize_s7_of__nat_s7___boxed(obj*);
 obj* _l_s5_usize_s4_modn_s7___boxed(obj*, obj*);
 obj* _l_s5_usize_s3_mod_s7___boxed(obj*, obj*);
-obj* _l_s6_system_s8_platform_s5_nbits;
+extern obj* _l_s6_system_s8_platform_s5_nbits;
 obj* _l_s5_usize_s18_has__decidable__lt(size_t, size_t);
 obj* _l_s5_usize_s8_has__mul;
 obj* _l_s5_usize_s3_add_s7___boxed(obj*, obj*);

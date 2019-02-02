@@ -20,7 +20,7 @@ obj* _l_s4_lean_s12_message__log_s11_has__errors(obj*);
 obj* _l_s4_lean_s12_message__log_s3_add(obj*, obj*);
 obj* _l_s4_lean_s7_message_s10_to__string_s11___closed__4;
 obj* _l_s4_list_s7_reverse_s6___rarg(obj*);
-obj* _l_s6_string_s4_join_s11___closed__1;
+extern obj* _l_s6_string_s4_join_s11___closed__1;
 obj* _l_s4_lean_s12_message__log_s6_append(obj*, obj*);
 obj* _l_s3_nat_s4_repr(obj*);
 obj* _l_s4_list_s6_append_s6___main_s6___rarg(obj*, obj*);

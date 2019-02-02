@@ -44,7 +44,7 @@ obj* _l_s6_string_s5_front_s7___boxed(obj*);
 obj* _l_s9___private_3868098097__s15_trim__left__aux(obj*, obj*);
 obj* _l_s6_string_s8_iterator_s4_curr_s7___boxed(obj*);
 obj* _l_s4_list_s10_as__string(obj*);
-obj* _l_s4_char_s9_inhabited;
+extern obj* _l_s4_char_s9_inhabited;
 obj* _l_s4_list_s4_drop_s6___main_s6___rarg(obj*, obj*);
 obj* _l_s6_string_s8_iterator_s25_is__prefix__of__remaining;
 obj* _l_s6_option_s13_get__or__else_s6___main_s6___rarg(obj*, obj*);

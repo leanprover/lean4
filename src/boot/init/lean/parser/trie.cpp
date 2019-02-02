@@ -38,7 +38,7 @@ obj* _l_s9___private_3279031763__s11_insert__aux_s6___rarg(obj*, obj*, obj*, obj
 obj* _l_s6_option_s13_get__or__else_s6___main_s6___rarg(obj*, obj*);
 obj* _l_s4_lean_s7_to__fmt_s4___at_s9___private_3045062755__s15_to__string__aux_s6___main_s9___spec__2(obj*);
 obj* _l_s4_list_s3_zip_s6___rarg_s11___lambda__1(obj*, obj*);
-obj* _l_s4_char_s9_has__repr_s11___closed__1;
+extern obj* _l_s4_char_s9_has__repr_s11___closed__1;
 obj* _l_s4_lean_s6_parser_s4_trie_s15_has__to__string(obj*);
 obj* _l_s9___private_3045062755__s15_to__string__aux_s6___rarg(obj*);
 obj* _l_s9___private_3045062755__s15_to__string__aux_s6___main(obj*);

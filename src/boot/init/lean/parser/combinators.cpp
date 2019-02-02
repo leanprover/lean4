@@ -9,7 +9,7 @@ typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #endif
-obj* _l_s4_lean_s6_parser_s6_choice;
+extern obj* _l_s4_lean_s6_parser_s6_choice;
 obj* _l_s4_lean_s6_parser_s11_combinators_s7_sep__by_s6___rarg_s11___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, unsigned char, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s5_many1_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s5_many1_s6_tokens_s6___rarg(obj*, obj*);
@@ -24,7 +24,7 @@ obj* _l_s4_lean_s6_parser_s11_combinators_s5_many1_s6_tokens(obj*, obj*, obj*, o
 obj* _l_s4_lean_s6_parser_s11_combinators_s6_choice_s6_tokens_s6___rarg(obj*, obj*);
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s9___spec__1_s6___rarg_s11___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, unsigned char, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s6_tokens_s6___rarg(obj*, obj*, obj*, obj*, obj*, obj*, unsigned char, obj*, obj*);
-obj* _l_s4_lean_s6_parser_s8_no__kind;
+extern obj* _l_s4_lean_s6_parser_s8_no__kind;
 obj* _l_s4_lean_s6_parser_s11_combinators_s14_longest__match_s4_view(obj*);
 obj* _l_s9___private_1079072079__s7_sep__by_s9_view__aux_s6___main(obj*, obj*, obj*);
 obj* _l_s9___private_1079072079__s7_sep__by_s9_view__aux(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -66,7 +66,7 @@ obj* _l_s4_lean_s6_parser_s11_combinators_s7_sep__by_s6_tokens_s6___rarg(obj*, o
 obj* _l_s4_lean_s6_parser_s11_combinators_s15_longest__choice_s6_tokens_s6___rarg(obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s6_choice_s6_tokens(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_optional_s4_view_s6___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* _l_s5_mjoin_s6___rarg_s11___closed__1;
+extern obj* _l_s5_mjoin_s6___rarg_s11___closed__1;
 obj* _l_s4_lean_s6_parser_s13_monad__parsec_s5_error_s4___at_s4_lean_s6_parser_s11_combinators_s7_any__of_s9___spec__1(obj*, obj*);
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s15_longest__choice_s9___spec__1_s6___rarg(obj*, obj*, obj*);
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s9___spec__1_s6___rarg_s7___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -76,7 +76,7 @@ obj* _l_s4_lean_s6_parser_s11_combinators_s9_seq__left_s4_view(obj*, obj*, obj*,
 obj* _l_s4_lean_s6_parser_s11_combinators_s7_sep__by_s4_elem_s4_view_s9_item__coe(obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s4_view(obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_optional(obj*);
-obj* _l_s8_optional_s6___rarg_s11___closed__1;
+extern obj* _l_s8_optional_s6___rarg_s11___closed__1;
 obj* _l_s4_lean_s6_parser_s11_combinators_s3_seq_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s7_recurse_s6_tokens(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s9___private_1297690757__s10_many1__aux(obj*);
@@ -159,16 +159,16 @@ obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s6___rarg_s11___lamb
 obj* _l_s4_lean_s6_parser_s11_combinators_s3_coe_s13_view__default(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s11_choice__aux_s6___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_optional_s13_view__default_s6___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* _l_s4_lean_s6_parser_s13_monad__parsec_s9_remaining_s6___rarg_s11___closed__1;
+extern obj* _l_s4_lean_s6_parser_s13_monad__parsec_s9_remaining_s6___rarg_s11___closed__1;
 obj* _l_s4_lean_s6_parser_s11_combinators_s7_recurse_s4_view(obj*, obj*, obj*);
 obj* _l_s4_list_s4_join_s6___main_s6___rarg(obj*);
 obj* _l_s4_list_s6_mfoldl_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s4_node_s9___spec__1_s6___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s6_tokens_s6___rarg_s7___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s11_monad__lift_s6_tokens_s6___rarg(obj*, obj*);
 obj* _l_s4_list_s6_append_s6___main_s6___rarg(obj*, obj*);
-obj* _l_s4_lean_s6_parser_s13_monad__parsec_s10_left__over_s6___rarg_s11___closed__1;
+extern obj* _l_s4_lean_s6_parser_s13_monad__parsec_s10_left__over_s6___rarg_s11___closed__1;
 obj* _l_s4_lean_s6_parser_s11_combinators_s15_longest__choice(obj*);
-obj* _l_s4_lean_s6_parser_s13_monad__parsec_s3_try_s6___rarg_s11___closed__1;
+extern obj* _l_s4_lean_s6_parser_s13_monad__parsec_s3_try_s6___rarg_s11___closed__1;
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s6_tokens(obj*);
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s4_view_s9___spec__1_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s6_parser_s11_combinators_s14_longest__match_s6_tokens_s6___rarg(obj*, obj*);

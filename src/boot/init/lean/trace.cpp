@@ -33,7 +33,7 @@ obj* _l_s4_lean_s5_trace_s8_trace__t;
 obj* _l_s4_lean_s5_trace_s4_lean_s5_trace_s13_monad__tracer_s6___rarg_s12___lambda__11(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* _l_s4_lean_s5_trace_s10_trace__map;
 obj* _l_s4_lean_s5_trace_s4_lean_s5_trace_s13_monad__tracer(obj*);
-obj* _l_s4_lean_s6_format_s4_join_s11___closed__1;
+extern obj* _l_s4_lean_s6_format_s4_join_s11___closed__1;
 obj* _l_s6_rbnode_s6_insert_s4___at_s4_lean_s5_trace_s4_lean_s5_trace_s13_monad__tracer_s9___spec__2(obj*, obj*, obj*);
 obj* _l_s4_lean_s8_position_s13_decidable__lt_s6___main(obj*, obj*);
 obj* _l_s8_state__t_s5_monad_s6___rarg(obj*);

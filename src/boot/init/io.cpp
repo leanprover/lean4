@@ -43,7 +43,7 @@ obj* _l_s2_io_s7_println_s4___at_s2_io_s11_println_x27_s9___spec__1(obj*, obj*);
 obj* _l_s2_io_s4_prim_s12_iterate__eio(obj*, obj*, obj*);
 obj* _l_s2_io_s2_fs_s10_read__file_s6___rarg_s11___lambda__1(obj*, obj*, unsigned char);
 obj* _l_s13_coroutine__io_s6_mk__st(obj*, obj*, obj*);
-obj* _l_s9_coroutine_s5_yield_s6___rarg_s11___lambda__1_s11___closed__1;
+extern obj* _l_s9_coroutine_s5_yield_s6___rarg_s11___lambda__1_s11___closed__1;
 obj* _l_s8_function_s5_const_s6___rarg(obj*, obj*);
 obj* _l_s13_coroutine__io_s16_monad__coroutine(obj*, obj*);
 obj* _l_s3_eio;
@@ -96,7 +96,7 @@ obj* _l_s2_io_s4_prim_s9_lift__eio_s4___at_s2_io_s2_fs_s10_read__file_s9___spec_
 obj* _l_s13_coroutine__io_s9_monad__io_s6___rarg(obj*, obj*, obj*);
 obj* _l_s2_io_s4_prim_s12_iterate__eio_s4___at_s2_io_s2_fs_s6_handle_s13_read__to__end_s9___spec__5(obj*, obj*);
 obj* _l_s2_io_s4_prim_s9_lift__eio_s4___at_s2_io_s2_fs_s6_handle_s5_flush_s9___spec__1_s6___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* _l_s6_string_s4_join_s11___closed__1;
+extern obj* _l_s6_string_s4_join_s11___closed__1;
 obj* _l_s2_io_s4_prim_s9_lift__eio_s4___at_s2_io_s2_fs_s6_handle_s7_is__eof_s9___spec__1(obj*, obj*);
 obj* _l_s2_io_s5_print(obj*, obj*);
 obj* _l_s2_io_s4_prim_s9_lift__eio_s4___at_s2_io_s2_fs_s6_handle_s5_flush_s9___spec__1(obj*, obj*);

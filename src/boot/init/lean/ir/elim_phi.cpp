@@ -11,7 +11,7 @@ typedef lean::object obj;
 #endif
 obj* _l_s4_lean_s2_ir_s9_elim__phi(obj*);
 obj* _l_s4_list_s4_mmap_s6___main_s4___at_s4_lean_s2_ir_s6_header_s13_replace__vars_s9___spec__1(obj*, obj*);
-size_t _l_s4_lean_s4_name_s4_hash_s11___closed__1;
+extern size_t _l_s4_lean_s4_name_s4_hash_s11___closed__1;
 obj* _l_s10_d__hashmap_s4_find_s4___at_s4_lean_s2_ir_s5_merge_s9___spec__4(obj*, obj*);
 obj* _l_s10_d__hashmap_s6_insert_s4___at_s4_lean_s2_ir_s5_merge_s9___spec__7(obj*, obj*, obj*);
 obj* _l_s4_lean_s2_ir_s5_instr_s13_replace__vars_s6___main(obj*, obj*);

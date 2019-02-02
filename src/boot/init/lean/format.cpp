@@ -81,7 +81,7 @@ obj* _l_s4_lean_s6_format_s2_be_s6___main_s11___closed__1;
 obj* _l_s5_thunk_s3_get(obj*);
 obj* _l_s4_lean_s23_format__has__to__format;
 obj* _l_s4_lean_s6_format_s9_join__sep_s6___main_s4___at_s4_lean_s4_list_s10_to__format_s6___main_s9___spec__1(obj*);
-obj* _l_s6_string_s4_join_s11___closed__1;
+extern obj* _l_s6_string_s4_join_s11___closed__1;
 obj* _l_s4_lean_s6_format_s5_group(obj*);
 obj* _l_s3_nat_s4_repr(obj*);
 obj* _l_s4_lean_s6_format_s5_paren_s11___closed__1;

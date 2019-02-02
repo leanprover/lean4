@@ -40,7 +40,7 @@ obj* _l_s9_option__t_s4_fail_s6___rarg(obj*, obj*);
 obj* _l_s9_option__t_s6_orelse_s6___rarg_s11___lambda__1(obj*, obj*, obj*);
 obj* _l_s9_option__t_s6_orelse_s6___rarg(obj*, obj*, obj*, obj*);
 obj* _l_s9_option__t_s10_bind__cont_s4___at_s9_option__t_s5_monad_s9___spec__7(obj*);
-obj* _l_s8_optional_s6___rarg_s11___closed__1;
+extern obj* _l_s8_optional_s6___rarg_s11___closed__1;
 obj* _l_s9_option__t_s4_lift_s6___rarg(obj*, obj*, obj*);
 obj* _l_s9_option__t_s4_pure_s6___rarg(obj*, obj*, obj*);
 obj* _l_s9_option__t_s5_monad_s6___rarg_s11___lambda__4(obj*, obj*, obj*, obj*, obj*);

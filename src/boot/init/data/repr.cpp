@@ -97,7 +97,7 @@ obj* _l_s3_nat_s11_digit__char_s12___closed__48;
 obj* _l_s3_nat_s11_digit__char_s12___closed__24;
 obj* _l_s4_list_s7_reverse_s6___rarg(obj*);
 obj* _l_s4_list_s9_repr__aux_s6___rarg(obj*, unsigned char, obj*);
-obj* _l_s6_string_s4_join_s11___closed__1;
+extern obj* _l_s6_string_s4_join_s11___closed__1;
 obj* _l_s3_nat_s11_digit__char_s11___closed__7;
 obj* _l_s4_list_s4_repr(obj*);
 obj* _l_s3_nat_s11_digit__char_s12___closed__44;

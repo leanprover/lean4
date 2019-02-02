@@ -45,7 +45,7 @@ obj* _l_s4_lean_s16_string__to__name;
 obj* _l_s4_lean_s4_name_s6_append_s6___main(obj*, obj*);
 obj* _l_s4_lean_s13_mk__num__name(obj*, obj*);
 obj* _l_s4_lean_s4_name_s15_replace__prefix_s6___main(obj*, obj*, obj*);
-size_t _l_s9_mix__hash_s11___closed__1;
+extern size_t _l_s9_mix__hash_s11___closed__1;
 obj* _l_s4_lean_s4_name_s12_has__dec__eq_s6___main(obj*, obj*);
 obj* _l_s4_lean_s4_name_s15_replace__prefix(obj*, obj*, obj*);
 obj* _l_s9___private_1272448207__s9_hash__aux_s6___main(obj*, size_t);

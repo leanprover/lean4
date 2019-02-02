@@ -20,7 +20,7 @@ obj* _l_s3_int_s3_neg_s6___main(obj*);
 obj* _l_s3_int_s3_mod_s6___main(obj*, obj*);
 obj* _l_s3_int_s7_to__nat(obj*);
 obj* _l_s3_int_s4_fdiv(obj*, obj*);
-obj* _l_s4_true_s9_decidable;
+extern obj* _l_s4_true_s9_decidable;
 obj* _l_s3_int_s3_div_s6___main(obj*, obj*);
 obj* _l_s3_int_s8_has__neg;
 obj* _l_s9___private_3285259795__s11_dec__nonneg_s6___main(obj*);
@@ -60,7 +60,7 @@ obj* _l_s7_dec__eq(obj*, obj*);
 obj* _l_s3_int_s8_nat__abs_s6___main(obj*);
 obj* _l_s3_int_s4_fmod_s6___main(obj*, obj*);
 obj* _l_s3_int_s7_to__nat_s6___main(obj*);
-obj* _l_s5_false_s9_decidable;
+extern obj* _l_s5_false_s9_decidable;
 obj* _l_s3_int_s8_has__coe(obj* x_0) {
 {
 obj* x_1; 

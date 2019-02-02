@@ -88,7 +88,7 @@ obj* _l_s9_except__t_s5_monad_s6___rarg_s11___lambda__1(obj*, obj*, obj*, obj*, 
 obj* _l_s6_except_s10_to__string_s6___main_s6___rarg_s11___closed__1;
 obj* _l_s6_except_s10_to__option_s6___main_s6___rarg(obj*);
 obj* _l_s9_except__t_s10_bind__cont_s4___at_s9_except__t_s5_monad_s9___spec__6(obj*, obj*);
-obj* _l_s6_option_s9_has__repr_s6___rarg_s11___closed__3;
+extern obj* _l_s6_option_s9_has__repr_s6___rarg_s11___closed__3;
 obj* _l_s6_except_s13_monad__except(obj*);
 obj* _l_s9_except__t_s10_bind__cont(obj*, obj*);
 obj* _l_s6_except_s4_bind(obj*, obj*, obj*);

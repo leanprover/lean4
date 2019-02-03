@@ -956,7 +956,7 @@ public:
         expr new_v = visit(d.snd());
         comp_decl new_d(d.fst(), new_v);
         environment new_env = update(env(), m_ext);
-        return mk_pair(new_env, comp_decls(new_d, comp_decls(m_new_decls)));
+        return mk_pair(new_env, append(comp_decls(m_new_decls), comp_decls(new_d)));
     }
 };
 

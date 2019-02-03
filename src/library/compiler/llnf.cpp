@@ -957,7 +957,7 @@ static name mk_boxed_name(name const & fn) {
 }
 
 static bool is_unboxed(expr const & type) {
-    return type != mk_enf_object_type() && type != mk_enf_neutral_type();
+    return type != mk_enf_object_type() && type != mk_enf_neutral_type() && !is_pi(type);
 }
 
 static bool has_unboxed(expr const & type) {

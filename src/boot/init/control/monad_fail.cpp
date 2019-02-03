@@ -15,7 +15,7 @@ obj* _l_s13_match__failed_s6___rarg(obj*);
 obj* _l_s17_monad__fail__lift(obj*, obj*);
 obj* _l_s13_match__failed(obj*, obj*);
 obj* _l_s17_monad__fail__lift_s6___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* _l_s13_match__failed_s6___rarg(obj* x_0){
+obj* _l_s13_match__failed_s6___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_3; 
@@ -25,7 +25,7 @@ x_3 = lean::apply_2(x_0, lean::box(0), x_1);
 return x_3;
 }
 }
-obj* _init__l_s13_match__failed_s6___rarg_s11___closed__1(){
+obj* _init__l_s13_match__failed_s6___rarg_s11___closed__1() {
 _start:
 {
 obj* x_0; 
@@ -33,7 +33,7 @@ x_0 = lean::mk_string("match failed");
 return x_0;
 }
 }
-obj* _l_s13_match__failed(obj* x_0, obj* x_1){
+obj* _l_s13_match__failed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
@@ -43,7 +43,7 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s13_match__failed_s6___rarg
 return x_4;
 }
 }
-obj* _l_s17_monad__fail__lift_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4){
+obj* _l_s17_monad__fail__lift_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_7; obj* x_8; 
@@ -54,7 +54,7 @@ x_8 = lean::apply_2(x_0, lean::box(0), x_7);
 return x_8;
 }
 }
-obj* _l_s17_monad__fail__lift(obj* x_0, obj* x_1){
+obj* _l_s17_monad__fail__lift(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 

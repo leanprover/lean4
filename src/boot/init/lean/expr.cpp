@@ -14,7 +14,7 @@ obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec_
 obj* _l_s4_lean_s19_expr__is__inhabited;
 obj* _l_s4_lean_s4_expr_s7_mk__app(obj*, obj*);
 obj* _l_s4_lean_s4_expr_s8_mk__capp(obj*, obj*);
-obj* _init__l_s4_lean_s19_expr__is__inhabited(){
+obj* _init__l_s4_lean_s19_expr__is__inhabited() {
 _start:
 {
 obj* x_0; obj* x_1; 
@@ -25,7 +25,7 @@ lean::cnstr_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s4_expr_s7_mk__app(obj* x_0, obj* x_1){
+obj* _l_s4_lean_s4_expr_s7_mk__app(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -33,7 +33,7 @@ x_2 = _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec
 return x_2;
 }
 }
-obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(obj* x_0, obj* x_1){
+obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 
@@ -61,7 +61,7 @@ goto _start;
 }
 }
 }
-obj* _l_s4_lean_s4_expr_s8_mk__capp(obj* x_0, obj* x_1){
+obj* _l_s4_lean_s4_expr_s8_mk__capp(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 

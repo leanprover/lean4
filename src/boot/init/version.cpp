@@ -15,7 +15,7 @@ obj* _l_s4_lean_s7_version;
 unsigned char _l_s4_lean_s11_is__release;
 obj* _l_s4_lean_s22_special__version__desc;
 obj* _l_s4_lean_s7_githash;
-obj* _init__l_s4_lean_s7_version(){
+obj* _init__l_s4_lean_s7_version() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_3; obj* x_4; 
@@ -31,15 +31,15 @@ lean::cnstr_set(x_4, 1, x_3);
 return x_4;
 }
 }
-obj* _init__l_s4_lean_s7_githash(){
+obj* _init__l_s4_lean_s7_githash() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("73f4100a460c9d05f491b44bc926e74067b1b203");
+x_0 = lean::mk_string("e5e245d0f2f8e4b23cfefca32c05f88f27beeffa");
 return x_0;
 }
 }
-unsigned char _init__l_s4_lean_s11_is__release(){
+unsigned char _init__l_s4_lean_s11_is__release() {
 _start:
 {
 unsigned char x_0; 
@@ -47,7 +47,7 @@ x_0 = 0;
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s11_is__release_s7___boxed(){
+obj* _init__l_s4_lean_s11_is__release_s7___boxed() {
 _start:
 {
 unsigned char x_0; obj* x_1; 
@@ -56,7 +56,7 @@ x_1 = lean::box(x_0);
 return x_1;
 }
 }
-obj* _init__l_s4_lean_s22_special__version__desc(){
+obj* _init__l_s4_lean_s22_special__version__desc() {
 _start:
 {
 obj* x_0; 

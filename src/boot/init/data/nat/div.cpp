@@ -15,7 +15,7 @@ obj* _l_s9___private_3925169175__s3_div_s1_F(obj*, obj*, obj*);
 obj* _l_s3_nat_s8_has__div;
 obj* _l_s9___private_578911941__s3_mod_s1_F(obj*, obj*, obj*);
 obj* _l_s3_nat_s8_has__mod;
-obj* _init__l_s9___private_56172073__s15_div__rec__lemma(){
+obj* _init__l_s9___private_56172073__s15_div__rec__lemma() {
 _start:
 {
 obj* x_0; 
@@ -24,7 +24,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _l_s9___private_3925169175__s3_div_s1_F(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s9___private_3925169175__s3_div_s1_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -72,7 +72,7 @@ return x_23;
 }
 }
 }
-obj* _init__l_s3_nat_s8_has__div(){
+obj* _init__l_s3_nat_s8_has__div() {
 _start:
 {
 obj* x_0; 
@@ -80,7 +80,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_div), 2, 0);
 return x_0;
 }
 }
-obj* _l_s9___private_578911941__s3_mod_s1_F(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s9___private_578911941__s3_mod_s1_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -120,7 +120,7 @@ return x_17;
 }
 }
 }
-obj* _init__l_s3_nat_s8_has__mod(){
+obj* _init__l_s3_nat_s8_has__mod() {
 _start:
 {
 obj* x_0; 

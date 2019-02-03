@@ -11,7 +11,7 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s6_system_s8_platform_s5_nbits;
-obj* _init__l_s6_system_s8_platform_s5_nbits(){
+obj* _init__l_s6_system_s8_platform_s5_nbits() {
 _start:
 {
 obj* x_0; 

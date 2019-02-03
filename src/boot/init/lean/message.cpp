@@ -29,7 +29,7 @@ obj* _l_s4_lean_s7_message_s10_to__string_s11___closed__3;
 obj* _l_s4_lean_s7_message_s10_to__string_s11___closed__1;
 obj* _l_s4_lean_s7_message_s10_to__string_s11___closed__2;
 obj* _l_s4_lean_s12_message__log_s5_empty;
-obj* _l_s4_lean_s7_message_s10_to__string(obj* x_0){
+obj* _l_s4_lean_s7_message_s10_to__string(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_16; obj* x_17; obj* x_19; obj* x_20; unsigned char x_21; obj* x_22; obj* x_24; obj* x_25; obj* x_26; 
@@ -151,7 +151,7 @@ return x_71;
 }
 }
 }
-obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__1(){
+obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__1() {
 _start:
 {
 obj* x_0; 
@@ -159,7 +159,7 @@ x_0 = lean::mk_string(":");
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__2(){
+obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__2() {
 _start:
 {
 obj* x_0; 
@@ -167,7 +167,7 @@ x_0 = lean::mk_string(": ");
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__3(){
+obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__3() {
 _start:
 {
 obj* x_0; 
@@ -175,7 +175,7 @@ x_0 = lean::mk_string(":\n");
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__4(){
+obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__4() {
 _start:
 {
 obj* x_0; 
@@ -183,7 +183,7 @@ x_0 = lean::mk_string("warning: ");
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__5(){
+obj* _init__l_s4_lean_s7_message_s10_to__string_s11___closed__5() {
 _start:
 {
 obj* x_0; 
@@ -191,7 +191,7 @@ x_0 = lean::mk_string("error: ");
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s7_message_s15_has__to__string(){
+obj* _init__l_s4_lean_s7_message_s15_has__to__string() {
 _start:
 {
 obj* x_0; 
@@ -199,7 +199,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s4_lean_s7_message_s10_to__
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s12_message__log_s5_empty(){
+obj* _init__l_s4_lean_s12_message__log_s5_empty() {
 _start:
 {
 obj* x_0; 
@@ -208,7 +208,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _l_s4_lean_s12_message__log_s3_add(obj* x_0, obj* x_1){
+obj* _l_s4_lean_s12_message__log_s3_add(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -218,7 +218,7 @@ lean::cnstr_set(x_2, 1, x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s12_message__log_s6_append(obj* x_0, obj* x_1){
+obj* _l_s4_lean_s12_message__log_s6_append(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -226,7 +226,7 @@ x_2 = _l_s4_list_s6_append_s6___main_s6___rarg(x_1, x_0);
 return x_2;
 }
 }
-obj* _init__l_s4_lean_s12_message__log_s11_has__append(){
+obj* _init__l_s4_lean_s12_message__log_s11_has__append() {
 _start:
 {
 obj* x_0; 
@@ -234,7 +234,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s4_lean_s12_message__log_s6
 return x_0;
 }
 }
-obj* _l_s4_lean_s12_message__log_s11_has__errors(obj* x_0){
+obj* _l_s4_lean_s12_message__log_s11_has__errors(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
@@ -243,7 +243,7 @@ x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char _l_s4_list_s5_foldr_s6___main_s4___at_s4_lean_s12_message__log_s11_has__errors_s9___spec__1(obj* x_0){
+unsigned char _l_s4_list_s5_foldr_s6___main_s4___at_s4_lean_s12_message__log_s11_has__errors_s9___spec__1(obj* x_0) {
 _start:
 {
 
@@ -288,7 +288,7 @@ return x_11;
 }
 }
 }
-obj* _l_s4_list_s5_foldr_s6___main_s4___at_s4_lean_s12_message__log_s11_has__errors_s9___spec__1_s7___boxed(obj* x_0){
+obj* _l_s4_list_s5_foldr_s6___main_s4___at_s4_lean_s12_message__log_s11_has__errors_s9___spec__1_s7___boxed(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
@@ -297,7 +297,7 @@ x_2 = lean::box(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s12_message__log_s8_to__list(obj* x_0){
+obj* _l_s4_lean_s12_message__log_s8_to__list(obj* x_0) {
 _start:
 {
 obj* x_1; 

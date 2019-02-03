@@ -11,7 +11,7 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s4_lean_s18_closure__max__args;
-obj* _init__l_s4_lean_s18_closure__max__args(){
+obj* _init__l_s4_lean_s18_closure__max__args() {
 _start:
 {
 obj* x_0; 

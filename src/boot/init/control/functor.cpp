@@ -14,7 +14,7 @@ obj* _l_s7_functor_s8_map__rev_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s7_functor_s8_map__rev(obj*);
 obj* _l_s7_functor_s15_map__const__rev_s6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* _l_s7_functor_s15_map__const__rev(obj*);
-obj* _l_s7_functor_s15_map__const__rev_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4){
+obj* _l_s7_functor_s15_map__const__rev_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_7; obj* x_10; 
@@ -27,7 +27,7 @@ x_10 = lean::apply_4(x_7, lean::box(0), lean::box(0), x_4, x_3);
 return x_10;
 }
 }
-obj* _l_s7_functor_s15_map__const__rev(obj* x_0){
+obj* _l_s7_functor_s15_map__const__rev(obj* x_0) {
 _start:
 {
 obj* x_2; 
@@ -36,7 +36,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s7_functor_s15_map__const__
 return x_2;
 }
 }
-obj* _l_s7_functor_s8_map__rev_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4){
+obj* _l_s7_functor_s8_map__rev_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_7; obj* x_10; 
@@ -49,7 +49,7 @@ x_10 = lean::apply_4(x_7, lean::box(0), lean::box(0), x_4, x_3);
 return x_10;
 }
 }
-obj* _l_s7_functor_s8_map__rev(obj* x_0){
+obj* _l_s7_functor_s8_map__rev(obj* x_0) {
 _start:
 {
 obj* x_2; 

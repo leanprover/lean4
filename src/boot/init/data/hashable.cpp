@@ -20,7 +20,7 @@ obj* _l_s6_string_s8_hashable;
 size_t _l_s6_string_s4_hash(obj*);
 obj* _l_s6_string_s4_hash_s7___boxed(obj*);
 size_t _l_s9_mix__hash_s11___closed__1;
-obj* _l_s9_mix__hash(size_t x_0, size_t x_1){
+obj* _l_s9_mix__hash(size_t x_0, size_t x_1) {
 _start:
 {
 size_t x_2; obj* x_3; 
@@ -29,7 +29,7 @@ x_3 = lean::box_size_t(x_2);
 return x_3;
 }
 }
-size_t _init__l_s9_mix__hash_s11___closed__1(){
+size_t _init__l_s9_mix__hash_s11___closed__1() {
 _start:
 {
 obj* x_0; size_t x_1; 
@@ -39,7 +39,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _l_s9_mix__hash_s7___boxed(obj* x_0, obj* x_1){
+obj* _l_s9_mix__hash_s7___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 size_t x_2; size_t x_3; obj* x_4; 
@@ -49,7 +49,7 @@ x_4 = _l_s9_mix__hash(x_2, x_3);
 return x_4;
 }
 }
-obj* _init__l_s9_mix__hash_s11___closed__1_s7___boxed(){
+obj* _init__l_s9_mix__hash_s11___closed__1_s7___boxed() {
 _start:
 {
 size_t x_0; obj* x_1; 
@@ -58,7 +58,7 @@ x_1 = lean::box_size_t(x_0);
 return x_1;
 }
 }
-size_t _l_s6_string_s4_hash(obj* x_0){
+size_t _l_s6_string_s4_hash(obj* x_0) {
 _start:
 {
 size_t x_2; 
@@ -67,7 +67,7 @@ x_2 = _l_s9_mix__hash_s11___closed__1;
 return x_2;
 }
 }
-obj* _l_s6_string_s4_hash_s7___boxed(obj* x_0){
+obj* _l_s6_string_s4_hash_s7___boxed(obj* x_0) {
 _start:
 {
 size_t x_1; obj* x_2; 
@@ -76,7 +76,7 @@ x_2 = lean::box_size_t(x_1);
 return x_2;
 }
 }
-obj* _init__l_s6_string_s8_hashable(){
+obj* _init__l_s6_string_s8_hashable() {
 _start:
 {
 obj* x_0; 
@@ -84,7 +84,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s6_string_s4_hash_s7___boxe
 return x_0;
 }
 }
-size_t _l_s3_nat_s4_hash(obj* x_0){
+size_t _l_s3_nat_s4_hash(obj* x_0) {
 _start:
 {
 size_t x_1; 
@@ -93,7 +93,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _l_s3_nat_s4_hash_s7___boxed(obj* x_0){
+obj* _l_s3_nat_s4_hash_s7___boxed(obj* x_0) {
 _start:
 {
 size_t x_1; obj* x_2; 
@@ -102,7 +102,7 @@ x_2 = lean::box_size_t(x_1);
 return x_2;
 }
 }
-obj* _init__l_s3_nat_s8_hashable(){
+obj* _init__l_s3_nat_s8_hashable() {
 _start:
 {
 obj* x_0; 

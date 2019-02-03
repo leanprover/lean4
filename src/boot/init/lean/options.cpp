@@ -12,7 +12,7 @@ typedef lean::object obj;
 #endif
 obj* _l_s4_lean_s7_options_s2_mk;
 obj* _l_s4_lean_s7_options;
-obj* _init__l_s4_lean_s7_options(){
+obj* _init__l_s4_lean_s7_options() {
 _start:
 {
 obj* x_0; 
@@ -21,7 +21,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s7_options_s2_mk(){
+obj* _init__l_s4_lean_s7_options_s2_mk() {
 _start:
 {
 obj* x_0; 

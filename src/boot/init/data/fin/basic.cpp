@@ -43,7 +43,7 @@ obj* _l_s3_fin_s8_has__sub(obj*);
 obj* _l_s3_fin_s3_sub(obj*, obj*, obj*);
 obj* _l_s3_fin_s3_mod(obj*, obj*, obj*);
 obj* _l_s3_fin_s8_has__one(obj*);
-obj* _init__l_s3_fin_s2_lt(){
+obj* _init__l_s3_fin_s2_lt() {
 _start:
 {
 obj* x_0; 
@@ -52,7 +52,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s3_fin_s2_le(){
+obj* _init__l_s3_fin_s2_le() {
 _start:
 {
 obj* x_0; 
@@ -61,7 +61,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _l_s3_fin_s7_has__lt(obj* x_0){
+obj* _l_s3_fin_s7_has__lt(obj* x_0) {
 _start:
 {
 obj* x_2; 
@@ -71,7 +71,7 @@ x_2 = lean::alloc_cnstr(0, 0, 0);
 return x_2;
 }
 }
-obj* _l_s3_fin_s7_has__le(obj* x_0){
+obj* _l_s3_fin_s7_has__le(obj* x_0) {
 _start:
 {
 obj* x_2; 
@@ -81,7 +81,7 @@ x_2 = lean::alloc_cnstr(0, 0, 0);
 return x_2;
 }
 }
-obj* _l_s3_fin_s7_dec__lt_s6___rarg(obj* x_0, obj* x_1){
+obj* _l_s3_fin_s7_dec__lt_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -91,7 +91,7 @@ lean::dec(x_0);
 return x_2;
 }
 }
-obj* _l_s3_fin_s7_dec__lt(obj* x_0){
+obj* _l_s3_fin_s7_dec__lt(obj* x_0) {
 _start:
 {
 obj* x_2; 
@@ -100,7 +100,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s3_fin_s7_dec__lt_s6___rarg
 return x_2;
 }
 }
-obj* _l_s3_fin_s7_dec__le_s6___rarg(obj* x_0, obj* x_1){
+obj* _l_s3_fin_s7_dec__le_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -110,7 +110,7 @@ lean::dec(x_0);
 return x_2;
 }
 }
-obj* _l_s3_fin_s7_dec__le(obj* x_0){
+obj* _l_s3_fin_s7_dec__le(obj* x_0) {
 _start:
 {
 obj* x_2; 
@@ -119,7 +119,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s3_fin_s7_dec__le_s6___rarg
 return x_2;
 }
 }
-obj* _l_s3_fin_s5_elim0_s6___main(obj* x_0, obj* x_1){
+obj* _l_s3_fin_s5_elim0_s6___main(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
@@ -131,7 +131,7 @@ lean::inc(x_4);
 return x_4;
 }
 }
-obj* _l_s3_fin_s5_elim0(obj* x_0, obj* x_1){
+obj* _l_s3_fin_s5_elim0(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
@@ -143,7 +143,7 @@ lean::inc(x_4);
 return x_4;
 }
 }
-obj* _l_s3_fin_s7_of__nat(obj* x_0, obj* x_1){
+obj* _l_s3_fin_s7_of__nat(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_6; 
@@ -157,7 +157,7 @@ lean::dec(x_1);
 return x_6;
 }
 }
-obj* _l_s3_fin_s3_add_s6___main(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_add_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_6; 
@@ -170,7 +170,7 @@ lean::dec(x_3);
 return x_6;
 }
 }
-obj* _l_s3_fin_s3_add(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_add(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -178,7 +178,7 @@ x_3 = _l_s3_fin_s3_add_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* _l_s3_fin_s3_mul_s6___main(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_mul_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_6; 
@@ -191,7 +191,7 @@ lean::dec(x_3);
 return x_6;
 }
 }
-obj* _l_s3_fin_s3_mul(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_mul(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -199,7 +199,7 @@ x_3 = _l_s3_fin_s3_mul_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* _l_s3_fin_s3_sub_s6___main(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_sub_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; obj* x_8; 
@@ -214,7 +214,7 @@ lean::dec(x_5);
 return x_8;
 }
 }
-obj* _l_s3_fin_s3_sub(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_sub(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -222,7 +222,7 @@ x_3 = _l_s3_fin_s3_sub_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* _l_s3_fin_s3_mod_s6___main(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_mod_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_6; 
@@ -235,7 +235,7 @@ lean::dec(x_3);
 return x_6;
 }
 }
-obj* _l_s3_fin_s3_mod(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_mod(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -243,7 +243,7 @@ x_3 = _l_s3_fin_s3_mod_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* _l_s3_fin_s3_div_s6___main(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_div_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_6; 
@@ -256,7 +256,7 @@ lean::dec(x_3);
 return x_6;
 }
 }
-obj* _l_s3_fin_s3_div(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s3_div(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -264,7 +264,7 @@ x_3 = _l_s3_fin_s3_div_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* _l_s3_fin_s4_modn_s6___main(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s4_modn_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_6; 
@@ -277,7 +277,7 @@ lean::dec(x_3);
 return x_6;
 }
 }
-obj* _l_s3_fin_s4_modn(obj* x_0, obj* x_1, obj* x_2){
+obj* _l_s3_fin_s4_modn(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -285,7 +285,7 @@ x_3 = _l_s3_fin_s4_modn_s6___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* _l_s3_fin_s9_has__zero(obj* x_0){
+obj* _l_s3_fin_s9_has__zero(obj* x_0) {
 _start:
 {
 obj* x_2; 
@@ -294,7 +294,7 @@ x_2 = lean::mk_nat_obj(0u);
 return x_2;
 }
 }
-obj* _l_s3_fin_s8_has__one(obj* x_0){
+obj* _l_s3_fin_s8_has__one(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -303,7 +303,7 @@ x_2 = _l_s3_fin_s7_of__nat(x_0, x_1);
 return x_2;
 }
 }
-obj* _l_s3_fin_s8_has__add(obj* x_0){
+obj* _l_s3_fin_s8_has__add(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -312,7 +312,7 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s3_fin_s8_has__sub(obj* x_0){
+obj* _l_s3_fin_s8_has__sub(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -321,7 +321,7 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s3_fin_s8_has__mul(obj* x_0){
+obj* _l_s3_fin_s8_has__mul(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -330,7 +330,7 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s3_fin_s8_has__mod(obj* x_0){
+obj* _l_s3_fin_s8_has__mod(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -339,7 +339,7 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s3_fin_s8_has__div(obj* x_0){
+obj* _l_s3_fin_s8_has__div(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -348,7 +348,7 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s3_fin_s9_has__modn(obj* x_0){
+obj* _l_s3_fin_s9_has__modn(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -357,7 +357,7 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s3_fin_s13_decidable__eq_s6___rarg(obj* x_0, obj* x_1){
+obj* _l_s3_fin_s13_decidable__eq_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -367,7 +367,7 @@ lean::dec(x_0);
 return x_2;
 }
 }
-obj* _l_s3_fin_s13_decidable__eq(obj* x_0){
+obj* _l_s3_fin_s13_decidable__eq(obj* x_0) {
 _start:
 {
 obj* x_2; 

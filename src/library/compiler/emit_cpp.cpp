@@ -290,6 +290,8 @@ struct emit_fn_fn {
     environment     m_env;
     local_ctx       m_lctx;
     name_map<exprs> m_jp_vars;
+    name            m_fn_name;
+    buffer<expr>    m_fn_args;
 
     static bool is_jmp(expr const & e) {
         return is_llnf_jmp(get_app_fn(e));
@@ -653,11 +655,37 @@ struct emit_fn_fn {
         m_out << "goto "; emit_lbl(jp); m_out << ";\n";
     }
 
+    optional<expr> is_tail_call(expr const & e) {
+        if (!is_fvar(e)) return none_expr();
+        optional<expr> val = m_lctx.get_local_decl(e).get_value();
+        if (!val) return none_expr();
+        expr fn  = get_app_fn(*val);
+        if (is_constant(fn) && const_name(fn) == m_fn_name)
+            return val;
+        else
+            return none_expr();
+    }
+
+    void emit_tail_call(expr const & e) {
+        buffer<expr> args;
+        expr fn = get_app_args(e, args);
+        lean_assert(is_constant(fn) && const_name(fn) == m_fn_name);
+        lean_assert(args.size() == m_fn_args.size());
+        for (unsigned i = 0; i < args.size(); i++) {
+            if (args[i] != m_fn_args[i]) {
+                emit_fvar(m_fn_args[i]); m_out << " = "; emit_fvar(args[i]); m_out << ";\n";
+            }
+        }
+        m_out << "goto _start;\n";
+    }
+
     void emit_terminal(expr const & e) {
         if (is_cases_on_app(m_env, e)) {
             emit_cases(e);
         } else if (is_jmp(e)) {
             emit_jmp(e);
+        } else if (optional<expr> c = is_tail_call(e)) {
+            emit_tail_call(*c);
         } else if (is_fvar(e)) {
             m_out << "return "; emit_fvar(e); m_out << ";\n";
         } else {
@@ -726,28 +754,29 @@ public:
     void operator()(comp_decl const & d) {
         name n    = d.fst();
         expr e    = d.snd();
+        m_fn_name = n;
         expr type = get_constant_ll_type(m_env, n);
         m_out << to_cpp_type(get_result_type(type)) << " ";
         if (is_lambda(e)) {
-            buffer<expr> locals;
             m_out << to_base_cpp_name(m_env, n);
             m_out << "(";
             bool first = true;
             while (is_lambda(e)) {
                 if (first) first = false; else m_out << ", ";
                 expr x = m_lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e));
-                locals.push_back(x);
+                m_fn_args.push_back(x);
                 m_out << to_cpp_type(binding_domain(e));
                 m_out << " ";
                 emit_fvar(x);
                 e = binding_body(e);
             }
             m_out << ")";
-            e = instantiate_rev(e, locals.size(), locals.data());
+            e = instantiate_rev(e, m_fn_args.size(), m_fn_args.data());
         } else {
             m_out << "_init_" << to_base_cpp_name(m_env, n) << "()";
         }
-        m_out << " {\n";
+        m_out << "{\n";
+        m_out << "_start:\n";
         emit(e);
         m_out << "}\n";
     }

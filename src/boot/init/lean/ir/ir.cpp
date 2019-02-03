@@ -8,6 +8,7 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main_s7___boxed(obj*);
 obj* _l_s4_lean_s2_ir_s4_fnid;
@@ -21,7 +22,8 @@ obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s7___boxed(obj*);
 obj* _l_s4_lean_s2_ir_s7_blockid;
 obj* _l_s4_lean_s2_ir_s4_decl_s6_header(obj*);
 obj* _l_s4_lean_s2_ir_s3_tag;
-obj* _init__l_s4_lean_s2_ir_s3_tag() {
+obj* _init__l_s4_lean_s2_ir_s3_tag(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -29,7 +31,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s3_var() {
+obj* _init__l_s4_lean_s2_ir_s3_var(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -37,7 +40,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s4_fnid() {
+obj* _init__l_s4_lean_s2_ir_s4_fnid(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -45,7 +49,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s7_blockid() {
+obj* _init__l_s4_lean_s2_ir_s7_blockid(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -53,7 +58,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(obj* x_0) {
+unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(obj* x_0){
+_start:
 {
 
 if (lean::obj_tag(x_0) == 0)
@@ -72,7 +78,8 @@ return x_4;
 }
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main_s7___boxed(obj* x_0) {
+obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main_s7___boxed(obj* x_0){
+_start:
 {
 unsigned char x_1; obj* x_2; 
 x_1 = _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(x_0);
@@ -80,14 +87,16 @@ x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition(obj* x_0) {
+unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition(obj* x_0){
+_start:
 {
 unsigned char x_1; 
 x_1 = _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s7___boxed(obj* x_0) {
+obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s7___boxed(obj* x_0){
+_start:
 {
 unsigned char x_1; obj* x_2; 
 x_1 = _l_s4_lean_s2_ir_s4_decl_s14_is__definition(x_0);
@@ -95,7 +104,8 @@ x_2 = lean::box(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(obj* x_0) {
+obj* _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(obj* x_0){
+_start:
 {
 obj* x_1; 
 x_1 = lean::cnstr_get(x_0, 0);
@@ -104,14 +114,16 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s6_header(obj* x_0) {
+obj* _l_s4_lean_s2_ir_s4_decl_s6_header(obj* x_0){
+_start:
 {
 obj* x_1; 
 x_1 = _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s4_name(obj* x_0) {
+obj* _l_s4_lean_s2_ir_s4_decl_s4_name(obj* x_0){
+_start:
 {
 obj* x_1; obj* x_2; 
 x_1 = _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(x_0);
@@ -121,7 +133,8 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s11_environment() {
+obj* _init__l_s4_lean_s2_ir_s11_environment(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);

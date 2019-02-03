@@ -8,6 +8,7 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s6_guardb_s6___rarg(obj*, unsigned char);
 obj* _l_s6_guardb_s6___main_s6___rarg_s7___boxed(obj*, obj*);
@@ -25,7 +26,8 @@ obj* _l_s6_guardb_s6___main(obj*);
 obj* _l_s8_optional_s6___rarg(obj*, obj*, obj*);
 obj* _l_s8_optional(obj*);
 obj* _l_s5_guard(obj*);
-obj* _l_s7_failure_s6___rarg(obj* x_0, obj* x_1) {
+obj* _l_s7_failure_s6___rarg(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_3; obj* x_6; 
 lean::dec(x_1);
@@ -36,7 +38,8 @@ x_6 = lean::apply_1(x_3, lean::box(0));
 return x_6;
 }
 }
-obj* _l_s7_failure(obj* x_0) {
+obj* _l_s7_failure(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);
@@ -44,7 +47,8 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s7_failure_s6___rarg), 2, 0
 return x_2;
 }
 }
-obj* _l_s5_guard_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* _l_s5_guard_s6___rarg(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 
 lean::dec(x_1);
@@ -75,7 +79,8 @@ return x_18;
 }
 }
 }
-obj* _l_s5_guard(obj* x_0) {
+obj* _l_s5_guard(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);
@@ -83,7 +88,8 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s5_guard_s6___rarg), 3, 0);
 return x_2;
 }
 }
-obj* _l_s6_assert_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* _l_s6_assert_s6___rarg(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 
 lean::dec(x_1);
@@ -112,7 +118,8 @@ return x_16;
 }
 }
 }
-obj* _l_s6_assert(obj* x_0) {
+obj* _l_s6_assert(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);
@@ -120,7 +127,8 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s6_assert_s6___rarg), 3, 0)
 return x_2;
 }
 }
-obj* _l_s6_guardb_s6___main_s6___rarg(obj* x_0, unsigned char x_1) {
+obj* _l_s6_guardb_s6___main_s6___rarg(obj* x_0, unsigned char x_1){
+_start:
 {
 
 if (x_1 == 0)
@@ -148,7 +156,8 @@ return x_14;
 }
 }
 }
-obj* _l_s6_guardb_s6___main(obj* x_0) {
+obj* _l_s6_guardb_s6___main(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);
@@ -156,7 +165,8 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s6_guardb_s6___main_s6___ra
 return x_2;
 }
 }
-obj* _l_s6_guardb_s6___main_s6___rarg_s7___boxed(obj* x_0, obj* x_1) {
+obj* _l_s6_guardb_s6___main_s6___rarg_s7___boxed(obj* x_0, obj* x_1){
+_start:
 {
 unsigned char x_2; obj* x_3; 
 x_2 = lean::unbox(x_1);
@@ -164,14 +174,16 @@ x_3 = _l_s6_guardb_s6___main_s6___rarg(x_0, x_2);
 return x_3;
 }
 }
-obj* _l_s6_guardb_s6___rarg(obj* x_0, unsigned char x_1) {
+obj* _l_s6_guardb_s6___rarg(obj* x_0, unsigned char x_1){
+_start:
 {
 obj* x_2; 
 x_2 = _l_s6_guardb_s6___main_s6___rarg(x_0, x_1);
 return x_2;
 }
 }
-obj* _l_s6_guardb(obj* x_0) {
+obj* _l_s6_guardb(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);
@@ -179,7 +191,8 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s6_guardb_s6___rarg_s7___bo
 return x_2;
 }
 }
-obj* _l_s6_guardb_s6___rarg_s7___boxed(obj* x_0, obj* x_1) {
+obj* _l_s6_guardb_s6___rarg_s7___boxed(obj* x_0, obj* x_1){
+_start:
 {
 unsigned char x_2; obj* x_3; 
 x_2 = lean::unbox(x_1);
@@ -187,7 +200,8 @@ x_3 = _l_s6_guardb_s6___rarg(x_0, x_2);
 return x_3;
 }
 }
-obj* _l_s8_optional_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* _l_s8_optional_s6___rarg(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 obj* x_4; obj* x_6; obj* x_9; obj* x_11; obj* x_14; obj* x_16; obj* x_17; obj* x_20; obj* x_21; obj* x_22; 
 lean::dec(x_1);
@@ -214,14 +228,16 @@ x_22 = lean::apply_3(x_4, lean::box(0), x_16, x_21);
 return x_22;
 }
 }
-obj* _init__l_s8_optional_s6___rarg_s11___closed__1() {
+obj* _init__l_s8_optional_s6___rarg_s11___closed__1(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_optional_s6___rarg_s11___lambda__1), 1, 0);
 return x_0;
 }
 }
-obj* _l_s8_optional_s6___rarg_s11___lambda__1(obj* x_0) {
+obj* _l_s8_optional_s6___rarg_s11___lambda__1(obj* x_0){
+_start:
 {
 obj* x_1; 
 x_1 = lean::alloc_cnstr(1, 1, 0);
@@ -229,7 +245,8 @@ lean::cnstr_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s8_optional(obj* x_0) {
+obj* _l_s8_optional(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);

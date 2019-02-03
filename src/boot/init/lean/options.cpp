@@ -8,10 +8,12 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s4_lean_s7_options_s2_mk;
 obj* _l_s4_lean_s7_options;
-obj* _init__l_s4_lean_s7_options() {
+obj* _init__l_s4_lean_s7_options(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -19,7 +21,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s7_options_s2_mk() {
+obj* _init__l_s4_lean_s7_options_s2_mk(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_cnstr(0, 0, 0);

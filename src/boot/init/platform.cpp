@@ -8,9 +8,11 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s6_system_s8_platform_s5_nbits;
-obj* _init__l_s6_system_s8_platform_s5_nbits() {
+obj* _init__l_s6_system_s8_platform_s5_nbits(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::mk_nat_obj(64u);

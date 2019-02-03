@@ -8,9 +8,11 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s4_lean_s18_closure__max__args;
-obj* _init__l_s4_lean_s18_closure__max__args() {
+obj* _init__l_s4_lean_s18_closure__max__args(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::mk_nat_obj(16u);

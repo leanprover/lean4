@@ -8,12 +8,14 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(obj*, obj*);
 obj* _l_s4_lean_s19_expr__is__inhabited;
 obj* _l_s4_lean_s4_expr_s7_mk__app(obj*, obj*);
 obj* _l_s4_lean_s4_expr_s8_mk__capp(obj*, obj*);
-obj* _init__l_s4_lean_s19_expr__is__inhabited() {
+obj* _init__l_s4_lean_s19_expr__is__inhabited(){
+_start:
 {
 obj* x_0; obj* x_1; 
 x_0 = lean::alloc_cnstr(0, 0, 0);
@@ -23,14 +25,16 @@ lean::cnstr_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s4_expr_s7_mk__app(obj* x_0, obj* x_1) {
+obj* _l_s4_lean_s4_expr_s7_mk__app(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; 
 x_2 = _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(x_0, x_1);
 return x_2;
 }
 }
-obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(obj* x_0, obj* x_1) {
+obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(obj* x_0, obj* x_1){
+_start:
 {
 
 if (lean::obj_tag(x_1) == 0)
@@ -51,11 +55,14 @@ x_8 = lean::alloc_cnstr(5, 2, 0);
 lean::cnstr_set(x_8, 0, x_0);
 lean::cnstr_set(x_8, 1, x_3);
 x_9 = _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(x_8, x_5);
-return x_9;
+x_0 = x_8;
+x_1 = x_5;
+goto _start;
 }
 }
 }
-obj* _l_s4_lean_s4_expr_s8_mk__capp(obj* x_0, obj* x_1) {
+obj* _l_s4_lean_s4_expr_s8_mk__capp(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::alloc_cnstr(0, 0, 0);

@@ -8,6 +8,7 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s3_nat_s3_pow_s6___main(obj*, obj*);
 obj* _l_s3_nat_s2_lt_s4_base;
@@ -37,7 +38,8 @@ obj* _l_s3_nat_s3_mul_s6___main(obj*, obj*);
 obj* _l_s3_nat_s6_repeat_s6___main(obj*);
 obj* _l_s3_nat_s3_sub_s6___main(obj*, obj*);
 obj* _l_s3_nat_s3_beq(obj*, obj*);
-obj* _l_s3_nat_s3_beq_s6___main(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_beq_s6___main(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::mk_nat_obj(0u);
@@ -59,7 +61,9 @@ x_11 = lean::nat_sub(x_1, x_8);
 lean::dec(x_8);
 lean::dec(x_1);
 x_14 = _l_s3_nat_s3_beq_s6___main(x_9, x_11);
-return x_14;
+x_0 = x_9;
+x_1 = x_11;
+goto _start;
 }
 else
 {
@@ -99,21 +103,24 @@ return x_30;
 }
 }
 }
-obj* _l_s3_nat_s3_beq(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_beq(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; 
 x_2 = _l_s3_nat_s3_beq_s6___main(x_0, x_1);
 return x_2;
 }
 }
-obj* _init__l_s3_nat_s13_decidable__eq() {
+obj* _init__l_s3_nat_s13_decidable__eq(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_dec_eq), 2, 0);
 return x_0;
 }
 }
-obj* _l_s3_nat_s3_ble_s6___main(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_ble_s6___main(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::mk_nat_obj(0u);
@@ -135,7 +142,9 @@ x_11 = lean::nat_sub(x_1, x_8);
 lean::dec(x_8);
 lean::dec(x_1);
 x_14 = _l_s3_nat_s3_ble_s6___main(x_9, x_11);
-return x_14;
+x_0 = x_9;
+x_1 = x_11;
+goto _start;
 }
 else
 {
@@ -161,14 +170,16 @@ return x_25;
 }
 }
 }
-obj* _l_s3_nat_s3_ble(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_ble(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; 
 x_2 = _l_s3_nat_s3_ble_s6___main(x_0, x_1);
 return x_2;
 }
 }
-obj* _init__l_s3_nat_s2_le() {
+obj* _init__l_s3_nat_s2_le(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -176,7 +187,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s7_has__le() {
+obj* _init__l_s3_nat_s7_has__le(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_cnstr(0, 0, 0);
@@ -184,7 +196,8 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s2_lt() {
+obj* _init__l_s3_nat_s2_lt(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -192,7 +205,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s7_has__lt() {
+obj* _init__l_s3_nat_s7_has__lt(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_cnstr(0, 0, 0);
@@ -200,7 +214,8 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _l_s3_nat_s4_pred_s6___main(obj* x_0) {
+obj* _l_s3_nat_s4_pred_s6___main(obj* x_0){
+_start:
 {
 obj* x_1; obj* x_2; 
 x_1 = lean::mk_nat_obj(0u);
@@ -226,14 +241,16 @@ return x_11;
 }
 }
 }
-obj* _l_s3_nat_s4_pred(obj* x_0) {
+obj* _l_s3_nat_s4_pred(obj* x_0){
+_start:
 {
 obj* x_1; 
 x_1 = _l_s3_nat_s4_pred_s6___main(x_0);
 return x_1;
 }
 }
-obj* _l_s3_nat_s3_sub_s6___main(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_sub_s6___main(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::mk_nat_obj(0u);
@@ -260,7 +277,8 @@ return x_0;
 }
 }
 }
-obj* _l_s3_nat_s3_mul_s6___main(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_mul_s6___main(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::mk_nat_obj(0u);
@@ -292,21 +310,24 @@ return x_18;
 }
 }
 }
-obj* _init__l_s3_nat_s8_has__sub() {
+obj* _init__l_s3_nat_s8_has__sub(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_sub), 2, 0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s8_has__mul() {
+obj* _init__l_s3_nat_s8_has__mul(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_mul), 2, 0);
 return x_0;
 }
 }
-obj* _l_s3_nat_s6_repeat_s6___main_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* _l_s3_nat_s6_repeat_s6___main_s6___rarg(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 obj* x_3; obj* x_4; 
 x_3 = lean::mk_nat_obj(0u);
@@ -336,7 +357,8 @@ return x_2;
 }
 }
 }
-obj* _l_s3_nat_s6_repeat_s6___main(obj* x_0) {
+obj* _l_s3_nat_s6_repeat_s6___main(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);
@@ -344,14 +366,16 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s3_nat_s6_repeat_s6___main_
 return x_2;
 }
 }
-obj* _l_s3_nat_s6_repeat_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* _l_s3_nat_s6_repeat_s6___rarg(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 obj* x_3; 
 x_3 = _l_s3_nat_s6_repeat_s6___main_s6___rarg(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* _l_s3_nat_s6_repeat(obj* x_0) {
+obj* _l_s3_nat_s6_repeat(obj* x_0){
+_start:
 {
 obj* x_2; 
 lean::dec(x_0);
@@ -359,7 +383,8 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s3_nat_s6_repeat_s6___rarg)
 return x_2;
 }
 }
-obj* _l_s3_nat_s3_pow_s6___main(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_pow_s6___main(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::mk_nat_obj(0u);
@@ -391,21 +416,24 @@ return x_18;
 }
 }
 }
-obj* _l_s3_nat_s3_pow(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_pow(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; 
 x_2 = _l_s3_nat_s3_pow_s6___main(x_0, x_1);
 return x_2;
 }
 }
-obj* _init__l_s3_nat_s8_has__pow() {
+obj* _init__l_s3_nat_s8_has__pow(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s3_nat_s3_pow), 2, 0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s8_le__refl_s6___main() {
+obj* _init__l_s3_nat_s8_le__refl_s6___main(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -413,7 +441,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s8_le__refl() {
+obj* _init__l_s3_nat_s8_le__refl(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -421,7 +450,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s9_succ__pos() {
+obj* _init__l_s3_nat_s9_succ__pos(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -429,7 +459,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s2_lt_s4_step() {
+obj* _init__l_s3_nat_s2_lt_s4_step(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -437,7 +468,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s3_nat_s2_lt_s4_base() {
+obj* _init__l_s3_nat_s2_lt_s4_base(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
@@ -445,7 +477,8 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _l_s3_nat_s3_max(obj* x_0, obj* x_1) {
+obj* _l_s3_nat_s3_max(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_2; 
 x_2 = lean::nat_dec_le(x_0, x_1);

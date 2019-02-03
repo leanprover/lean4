@@ -8,13 +8,15 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s4_lean_s11_is__release_s7___boxed;
 obj* _l_s4_lean_s7_version;
 unsigned char _l_s4_lean_s11_is__release;
 obj* _l_s4_lean_s22_special__version__desc;
 obj* _l_s4_lean_s7_githash;
-obj* _init__l_s4_lean_s7_version() {
+obj* _init__l_s4_lean_s7_version(){
+_start:
 {
 obj* x_0; obj* x_1; obj* x_3; obj* x_4; 
 x_0 = lean::mk_nat_obj(3u);
@@ -29,21 +31,24 @@ lean::cnstr_set(x_4, 1, x_3);
 return x_4;
 }
 }
-obj* _init__l_s4_lean_s7_githash() {
+obj* _init__l_s4_lean_s7_githash(){
+_start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("65e7e785ff5bd58e31f284ec8034e434c9c51eaf");
+x_0 = lean::mk_string("73f4100a460c9d05f491b44bc926e74067b1b203");
 return x_0;
 }
 }
-unsigned char _init__l_s4_lean_s11_is__release() {
+unsigned char _init__l_s4_lean_s11_is__release(){
+_start:
 {
 unsigned char x_0; 
 x_0 = 0;
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s11_is__release_s7___boxed() {
+obj* _init__l_s4_lean_s11_is__release_s7___boxed(){
+_start:
 {
 unsigned char x_0; obj* x_1; 
 x_0 = _l_s4_lean_s11_is__release;
@@ -51,7 +56,8 @@ x_1 = lean::box(x_0);
 return x_1;
 }
 }
-obj* _init__l_s4_lean_s22_special__version__desc() {
+obj* _init__l_s4_lean_s22_special__version__desc(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::mk_string("");

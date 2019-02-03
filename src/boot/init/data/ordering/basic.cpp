@@ -8,6 +8,7 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 unsigned char _l_s8_ordering_s8_or__else(unsigned char, unsigned char);
 obj* _l_s8_ordering_s9_has__repr_s7___boxed(obj*);
@@ -30,7 +31,8 @@ obj* _l_s8_ordering_s9_has__repr_s11___closed__2;
 unsigned char _l_s10_cmp__using_s6___rarg(obj*, obj*, obj*);
 obj* _l_s8_ordering_s13_decidable__eq_s7___boxed(obj*, obj*);
 obj* _l_s3_cmp_s6___rarg_s7___boxed(obj*, obj*, obj*);
-obj* _l_s8_ordering_s9_has__repr(unsigned char x_0) {
+obj* _l_s8_ordering_s9_has__repr(unsigned char x_0){
+_start:
 {
 
 switch (x_0) {
@@ -58,28 +60,32 @@ return x_5;
 }
 }
 }
-obj* _init__l_s8_ordering_s9_has__repr_s11___closed__1() {
+obj* _init__l_s8_ordering_s9_has__repr_s11___closed__1(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::mk_string("lt");
 return x_0;
 }
 }
-obj* _init__l_s8_ordering_s9_has__repr_s11___closed__2() {
+obj* _init__l_s8_ordering_s9_has__repr_s11___closed__2(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::mk_string("eq");
 return x_0;
 }
 }
-obj* _init__l_s8_ordering_s9_has__repr_s11___closed__3() {
+obj* _init__l_s8_ordering_s9_has__repr_s11___closed__3(){
+_start:
 {
 obj* x_0; 
 x_0 = lean::mk_string("gt");
 return x_0;
 }
 }
-obj* _l_s8_ordering_s9_has__repr_s7___boxed(obj* x_0) {
+obj* _l_s8_ordering_s9_has__repr_s7___boxed(obj* x_0){
+_start:
 {
 unsigned char x_1; obj* x_2; 
 x_1 = lean::unbox(x_0);
@@ -87,7 +93,8 @@ x_2 = _l_s8_ordering_s9_has__repr(x_1);
 return x_2;
 }
 }
-unsigned char _l_s8_ordering_s4_swap_s6___main(unsigned char x_0) {
+unsigned char _l_s8_ordering_s4_swap_s6___main(unsigned char x_0){
+_start:
 {
 
 switch (x_0) {
@@ -111,7 +118,8 @@ return x_2;
 }
 }
 }
-obj* _l_s8_ordering_s4_swap_s6___main_s7___boxed(obj* x_0) {
+obj* _l_s8_ordering_s4_swap_s6___main_s7___boxed(obj* x_0){
+_start:
 {
 unsigned char x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
@@ -120,14 +128,16 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-unsigned char _l_s8_ordering_s4_swap(unsigned char x_0) {
+unsigned char _l_s8_ordering_s4_swap(unsigned char x_0){
+_start:
 {
 unsigned char x_1; 
 x_1 = _l_s8_ordering_s4_swap_s6___main(x_0);
 return x_1;
 }
 }
-obj* _l_s8_ordering_s4_swap_s7___boxed(obj* x_0) {
+obj* _l_s8_ordering_s4_swap_s7___boxed(obj* x_0){
+_start:
 {
 unsigned char x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
@@ -136,7 +146,8 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-unsigned char _l_s8_ordering_s8_or__else_s6___main(unsigned char x_0, unsigned char x_1) {
+unsigned char _l_s8_ordering_s8_or__else_s6___main(unsigned char x_0, unsigned char x_1){
+_start:
 {
 
 switch (x_0) {
@@ -158,7 +169,8 @@ return x_0;
 }
 }
 }
-obj* _l_s8_ordering_s8_or__else_s6___main_s7___boxed(obj* x_0, obj* x_1) {
+obj* _l_s8_ordering_s8_or__else_s6___main_s7___boxed(obj* x_0, obj* x_1){
+_start:
 {
 unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
@@ -168,14 +180,16 @@ x_5 = lean::box(x_4);
 return x_5;
 }
 }
-unsigned char _l_s8_ordering_s8_or__else(unsigned char x_0, unsigned char x_1) {
+unsigned char _l_s8_ordering_s8_or__else(unsigned char x_0, unsigned char x_1){
+_start:
 {
 unsigned char x_2; 
 x_2 = _l_s8_ordering_s8_or__else_s6___main(x_0, x_1);
 return x_2;
 }
 }
-obj* _l_s8_ordering_s8_or__else_s7___boxed(obj* x_0, obj* x_1) {
+obj* _l_s8_ordering_s8_or__else_s7___boxed(obj* x_0, obj* x_1){
+_start:
 {
 unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
@@ -185,7 +199,8 @@ x_5 = lean::box(x_4);
 return x_5;
 }
 }
-unsigned char _l_s10_cmp__using_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+unsigned char _l_s10_cmp__using_s6___rarg(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 obj* x_6; 
 lean::inc(x_2);
@@ -224,7 +239,8 @@ return x_17;
 }
 }
 }
-obj* _l_s10_cmp__using(obj* x_0, obj* x_1) {
+obj* _l_s10_cmp__using(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_4; 
 lean::dec(x_1);
@@ -233,7 +249,8 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s10_cmp__using_s6___rarg_s7
 return x_4;
 }
 }
-obj* _l_s10_cmp__using_s6___rarg_s7___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* _l_s10_cmp__using_s6___rarg_s7___boxed(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 unsigned char x_3; obj* x_4; 
 x_3 = _l_s10_cmp__using_s6___rarg(x_0, x_1, x_2);
@@ -241,7 +258,8 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-unsigned char _l_s3_cmp_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+unsigned char _l_s3_cmp_s6___rarg(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 obj* x_6; 
 lean::inc(x_2);
@@ -280,7 +298,8 @@ return x_17;
 }
 }
 }
-obj* _l_s3_cmp(obj* x_0, obj* x_1) {
+obj* _l_s3_cmp(obj* x_0, obj* x_1){
+_start:
 {
 obj* x_4; 
 lean::dec(x_1);
@@ -289,7 +308,8 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s3_cmp_s6___rarg_s7___boxed
 return x_4;
 }
 }
-obj* _l_s3_cmp_s6___rarg_s7___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* _l_s3_cmp_s6___rarg_s7___boxed(obj* x_0, obj* x_1, obj* x_2){
+_start:
 {
 unsigned char x_3; obj* x_4; 
 x_3 = _l_s3_cmp_s6___rarg(x_0, x_1, x_2);
@@ -297,7 +317,8 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* _l_s8_ordering_s13_decidable__eq(unsigned char x_0, unsigned char x_1) {
+obj* _l_s8_ordering_s13_decidable__eq(unsigned char x_0, unsigned char x_1){
+_start:
 {
 
 switch (x_0) {
@@ -385,7 +406,8 @@ return x_10;
 }
 }
 }
-obj* _l_s8_ordering_s13_decidable__eq_s7___boxed(obj* x_0, obj* x_1) {
+obj* _l_s8_ordering_s13_decidable__eq_s7___boxed(obj* x_0, obj* x_1){
+_start:
 {
 unsigned char x_2; unsigned char x_3; obj* x_4; 
 x_2 = lean::unbox(x_0);

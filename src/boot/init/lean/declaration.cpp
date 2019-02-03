@@ -8,6 +8,7 @@
 typedef lean::object obj;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* _l_s4_lean_s14_constant__info_s5_value(obj*);
 obj* _l_s4_lean_s14_constant__info_s17_to__constant__val(obj*);
@@ -19,7 +20,8 @@ obj* _l_s4_lean_s14_constant__info_s5_hints_s6___main(obj*);
 obj* _l_s4_lean_s14_constant__info_s5_hints(obj*);
 obj* _l_s4_lean_s14_constant__info_s4_type(obj*);
 obj* _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(obj*);
-obj* _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(obj* x_0){
+_start:
 {
 obj* x_1; obj* x_4; 
 x_1 = lean::cnstr_get(x_0, 0);
@@ -31,14 +33,16 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s17_to__constant__val(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s17_to__constant__val(obj* x_0){
+_start:
 {
 obj* x_1; 
 x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s2_id(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s2_id(obj* x_0){
+_start:
 {
 obj* x_1; obj* x_2; 
 x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
@@ -48,7 +52,8 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s7_lparams(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s7_lparams(obj* x_0){
+_start:
 {
 obj* x_1; obj* x_2; 
 x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
@@ -58,7 +63,8 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s4_type(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s4_type(obj* x_0){
+_start:
 {
 obj* x_1; obj* x_2; 
 x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
@@ -68,7 +74,8 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_value_s6___main(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s5_value_s6___main(obj* x_0){
+_start:
 {
 
 switch (lean::obj_tag(x_0)) {
@@ -143,14 +150,16 @@ return x_26;
 }
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_value(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s5_value(obj* x_0){
+_start:
 {
 obj* x_1; 
 x_1 = _l_s4_lean_s14_constant__info_s5_value_s6___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_hints_s6___main(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s5_hints_s6___main(obj* x_0){
+_start:
 {
 
 switch (lean::obj_tag(x_0)) {
@@ -216,7 +225,8 @@ return x_18;
 }
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_hints(obj* x_0) {
+obj* _l_s4_lean_s14_constant__info_s5_hints(obj* x_0){
+_start:
 {
 obj* x_1; 
 x_1 = _l_s4_lean_s14_constant__info_s5_hints_s6___main(x_0);

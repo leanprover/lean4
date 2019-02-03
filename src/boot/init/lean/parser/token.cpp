@@ -589,17 +589,19 @@ return x_0;
 }
 obj* _init__l_s4_lean_s6_parser_s12_match__token_s11___closed__2() {
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; 
+obj* x_0; obj* x_3; obj* x_4; obj* x_5; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s6___rarg), 1, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
-lean::closure_set(x_1, 0, x_0);
-lean::closure_set(x_1, 1, x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
-lean::closure_set(x_2, 0, x_0);
-lean::closure_set(x_2, 1, x_1);
-x_3 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_3, 0, x_2);
-return x_3;
+lean::inc(x_0);
+lean::inc(x_0);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
+lean::closure_set(x_3, 0, x_0);
+lean::closure_set(x_3, 1, x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
+lean::closure_set(x_4, 0, x_0);
+lean::closure_set(x_4, 1, x_3);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _l_s4_lean_s6_parser_s12_match__token_s11___lambda__1(obj* x_0) {
@@ -1265,14 +1267,15 @@ return x_1;
 }
 obj* _init__l_s4_lean_s6_parser_s22_finish__comment__block_s11___closed__2() {
 {
-obj* x_0; obj* x_1; obj* x_2; 
+obj* x_0; obj* x_2; obj* x_3; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s6___rarg), 1, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
-lean::closure_set(x_1, 0, x_0);
-lean::closure_set(x_1, 1, x_0);
-x_2 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
+lean::inc(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
+lean::closure_set(x_2, 0, x_0);
+lean::closure_set(x_2, 1, x_0);
+x_3 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_3, 0, x_2);
+return x_3;
 }
 }
 obj* _l_s9___private_2012034129__s15_whitespace__aux_s6___main(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

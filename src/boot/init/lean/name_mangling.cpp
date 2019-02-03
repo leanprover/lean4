@@ -3757,14 +3757,15 @@ return x_62;
 }
 obj* _init__l_s4_lean_s6_parser_s13_monad__parsec_s3_eoi_s4___at_s9___private_1496486805__s27_parse__mangled__string__aux_s6___main_s9___spec__6_s11___closed__1() {
 {
-obj* x_0; obj* x_1; obj* x_2; 
+obj* x_0; obj* x_2; obj* x_3; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s6___rarg), 1, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
-lean::closure_set(x_1, 0, x_0);
-lean::closure_set(x_1, 1, x_0);
-x_2 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
+lean::inc(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_function_s4_comp_s6___rarg), 3, 2);
+lean::closure_set(x_2, 0, x_0);
+lean::closure_set(x_2, 1, x_0);
+x_3 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_3, 0, x_2);
+return x_3;
 }
 }
 obj* _l_s9___private_1496486805__s27_parse__mangled__string__aux(obj* x_0, obj* x_1, obj* x_2) {

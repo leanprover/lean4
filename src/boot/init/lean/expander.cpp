@@ -329,78 +329,84 @@ return x_0;
 }
 obj* _init__l_s4_lean_s8_expander_s12_transform__m_s13_monad__except() {
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__1), 4, 0);
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__2), 4, 0);
-x_2 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_2, 0, x_0);
-lean::cnstr_set(x_2, 1, x_1);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id), 1, 0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__3), 4, 0);
-x_5 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_3);
-lean::cnstr_set(x_5, 2, x_0);
-lean::cnstr_set(x_5, 3, x_1);
-lean::cnstr_set(x_5, 4, x_4);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s4_bind), 2, 0);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = _l_s9_except__t_s13_monad__except_s6___rarg(x_7);
-x_9 = _l_s9_reader__t_s13_monad__except_s6___rarg(x_8);
-return x_9;
+lean::inc(x_1);
+lean::inc(x_0);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id), 1, 0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__3), 4, 0);
+x_7 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_7, 0, x_4);
+lean::cnstr_set(x_7, 1, x_5);
+lean::cnstr_set(x_7, 2, x_0);
+lean::cnstr_set(x_7, 3, x_1);
+lean::cnstr_set(x_7, 4, x_6);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s4_bind), 2, 0);
+x_9 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_9, 0, x_7);
+lean::cnstr_set(x_9, 1, x_8);
+x_10 = _l_s9_except__t_s13_monad__except_s6___rarg(x_9);
+x_11 = _l_s9_reader__t_s13_monad__except_s6___rarg(x_10);
+return x_11;
 }
 }
 obj* _init__l_s4_lean_s8_expander_s12_transform__m_s13_monad__reader() {
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__1), 4, 0);
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__2), 4, 0);
-x_2 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_2, 0, x_0);
-lean::cnstr_set(x_2, 1, x_1);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id), 1, 0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__3), 4, 0);
-x_5 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_3);
-lean::cnstr_set(x_5, 2, x_0);
-lean::cnstr_set(x_5, 3, x_1);
-lean::cnstr_set(x_5, 4, x_4);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s4_bind), 2, 0);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = _l_s9_except__t_s5_monad_s6___rarg(x_7);
-x_9 = lean::alloc_closure(reinterpret_cast<void*>(_l_s9_reader__t_s4_read_s6___rarg), 2, 1);
-lean::closure_set(x_9, 0, x_8);
-return x_9;
+lean::inc(x_1);
+lean::inc(x_0);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id), 1, 0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__3), 4, 0);
+x_7 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_7, 0, x_4);
+lean::cnstr_set(x_7, 1, x_5);
+lean::cnstr_set(x_7, 2, x_0);
+lean::cnstr_set(x_7, 3, x_1);
+lean::cnstr_set(x_7, 4, x_6);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s4_bind), 2, 0);
+x_9 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_9, 0, x_7);
+lean::cnstr_set(x_9, 1, x_8);
+x_10 = _l_s9_except__t_s5_monad_s6___rarg(x_9);
+x_11 = lean::alloc_closure(reinterpret_cast<void*>(_l_s9_reader__t_s4_read_s6___rarg), 2, 1);
+lean::closure_set(x_11, 0, x_10);
+return x_11;
 }
 }
 obj* _init__l_s4_lean_s8_expander_s12_transform__m_s5_monad() {
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__1), 4, 0);
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__2), 4, 0);
-x_2 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_2, 0, x_0);
-lean::cnstr_set(x_2, 1, x_1);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id), 1, 0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__3), 4, 0);
-x_5 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_3);
-lean::cnstr_set(x_5, 2, x_0);
-lean::cnstr_set(x_5, 3, x_1);
-lean::cnstr_set(x_5, 4, x_4);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s4_bind), 2, 0);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = _l_s9_except__t_s5_monad_s6___rarg(x_7);
-x_9 = _l_s9_reader__t_s5_monad_s6___rarg(x_8);
-return x_9;
+lean::inc(x_1);
+lean::inc(x_0);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id), 1, 0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s5_monad_s11___lambda__3), 4, 0);
+x_7 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_7, 0, x_4);
+lean::cnstr_set(x_7, 1, x_5);
+lean::cnstr_set(x_7, 2, x_0);
+lean::cnstr_set(x_7, 3, x_1);
+lean::cnstr_set(x_7, 4, x_6);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(_l_s2_id_s4_bind), 2, 0);
+x_9 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_9, 0, x_7);
+lean::cnstr_set(x_9, 1, x_8);
+x_10 = _l_s9_except__t_s5_monad_s6___rarg(x_9);
+x_11 = _l_s9_reader__t_s5_monad_s6___rarg(x_10);
+return x_11;
 }
 }
 obj* _init__l_s4_lean_s8_expander_s11_transformer() {

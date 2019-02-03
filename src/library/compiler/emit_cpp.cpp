@@ -776,7 +776,7 @@ public:
         } else {
             m_out << "_init_" << to_base_cpp_name(m_env, n) << "()";
         }
-        m_out << "{\n";
+        m_out << " {\n";
         m_out << "_start:\n";
         emit(e);
         m_out << "}\n";

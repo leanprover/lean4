@@ -656,15 +656,19 @@ struct emit_fn_fn {
         m_out << "goto "; emit_lbl(jp); m_out << ";\n";
     }
 
-    optional<expr> is_tail_call(expr const & e) {
+    optional<expr> is_tail_call(expr const & val) {
+        expr fn  = get_app_fn(val);
+        if (is_constant(fn) && const_name(fn) == m_fn_name)
+            return some_expr(val);
+        else
+            return none_expr();
+    }
+
+    optional<expr> is_tail_call_terminal(expr const & e) {
         if (!is_fvar(e)) return none_expr();
         optional<expr> val = m_lctx.get_local_decl(e).get_value();
         if (!val) return none_expr();
-        expr fn  = get_app_fn(*val);
-        if (is_constant(fn) && const_name(fn) == m_fn_name)
-            return val;
-        else
-            return none_expr();
+        return is_tail_call(*val);
     }
 
     void emit_tail_call(expr const & e) {
@@ -685,7 +689,7 @@ struct emit_fn_fn {
             emit_cases(e);
         } else if (is_jmp(e)) {
             emit_jmp(e);
-        } else if (optional<expr> c = is_tail_call(e)) {
+        } else if (optional<expr> c = is_tail_call_terminal(e)) {
             emit_tail_call(*c);
         } else if (is_fvar(e)) {
             m_out << "return "; emit_fvar(e); m_out << ";\n";
@@ -718,16 +722,21 @@ struct emit_fn_fn {
             } else {
                 expr x = m_lctx.mk_local_decl(m_ngen, let_name(e), let_type(e), v);
                 locals.push_back(x);
-                if (!is_llnf_void_type(let_type(e))) {
-                    /* Declare local variable.
-                       Remark: variables of type `_void` are used to store instructions that do
-                       not return any value.  */
-                    m_out << to_cpp_type(let_type(e)) << " "; emit_fvar(x); m_out << "; ";
+                if (is_bvar(let_body(e), 0) && is_tail_call(v)) {
+                    /* Ignore tail call, we will emit it at emit_terminal as a `goto`. */
+                } else {
+                    if (!is_llnf_void_type(let_type(e))) {
+                        /* Declare local variable.
+                           Remark: variables of type `_void` are used to store instructions that do
+                           not return any value.  */
+                        m_out << to_cpp_type(let_type(e)) << " "; emit_fvar(x); m_out << "; ";
+                    }
+                    instrs.push_back(x);
                 }
-                instrs.push_back(x);
             }
             e = let_body(e);
         }
+        e = instantiate_rev(e, locals.size(), locals.data());
         m_out << "\n";
         /* emit instructions */
         for (expr const & x : instrs) {
@@ -738,7 +747,6 @@ struct emit_fn_fn {
                 emit_instr(d);
             }
         }
-        e = instantiate_rev(e, locals.size(), locals.data());
         emit_terminal(e);
         for (expr const & jp : jps) {
             emit_lbl(jp); m_out << ":\n";

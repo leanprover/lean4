@@ -1764,9 +1764,9 @@ class explicit_rc_fn {
             if (!is_let(arg))
                 arg = ensure_terminal(arg);
             arg = mk_let(saved_fvars_size, arg);
-            /* We must decrement variables that are live at `cases_live_vars`, but are not live at `arg_live_vars`. */
+            /* We must decrement (non-borrowed) variables that are live at `cases_live_vars`, but are not live at `arg_live_vars`. */
             cases_live_vars.for_each([&](name const & x_name) {
-                    if (!arg_live_vars.contains(x_name)) {
+                    if (!arg_live_vars.contains(x_name) && !m_borrowed.contains(x_name)) {
                         local_decl x_decl = m_lctx.get_local_decl(x_name);
                         if (!is_unboxed(x_decl.get_type())) {
                             expr x = x_decl.mk_ref();

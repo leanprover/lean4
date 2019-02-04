@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/vm/vm_aux.h"
 #include "library/vm/vm_io.h"
 #include "library/vm/vm_string.h"
+#include "library/vm/vm_thunk.h"
 
 namespace lean {
 void initialize_vm_core_module() {
@@ -21,9 +22,11 @@ void initialize_vm_core_module() {
     initialize_vm_io();
     initialize_vm_string();
     initialize_vm_uint();
+    initialize_vm_thunk();
 }
 
 void finalize_vm_core_module() {
+    finalize_vm_thunk();
     finalize_vm_uint();
     finalize_vm_string();
     finalize_vm_io();

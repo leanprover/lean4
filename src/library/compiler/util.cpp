@@ -384,7 +384,7 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_uint32_name() ||
         n == get_uint64_name() ||
         n == get_usize_name()  ||
-        // n == get_thunk_name()  ||  TODO(Leo): enable
+        n == get_thunk_name()  ||
         // n == get_task_name()   ||  TODO(Leo): enable
         // n == get_array_name()  ||  TODO(Leo): enable
         n == get_nat_name()    ||
@@ -401,12 +401,13 @@ bool is_runtime_scalar_type(name const & n) {
 }
 
 bool is_runtime_builtin_cnstr(name const & n) {
-    // TODO(Leo): add array type constructors, thunk constructor,
+    // TODO(Leo): add array type constructors, task constructor,
     // universe level constructors, and expression constructors.
 
     /* Remark: we don't need to include `nat.zero` and `nat.zero` because
        they are converted into literals or addition. */
     return
+        n == get_thunk_mk_name() ||
         n == get_string_mk_name() ||
         n == get_string_iterator_mk_name() ||
         n == get_int_of_nat_name() ||

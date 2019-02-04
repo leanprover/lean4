@@ -266,6 +266,7 @@ name const * g_tactic_triv = nullptr;
 name const * g_tactic_mk_inj_eq = nullptr;
 name const * g_task = nullptr;
 name const * g_thunk = nullptr;
+name const * g_thunk_mk = nullptr;
 name const * g_trans_rel_left = nullptr;
 name const * g_trans_rel_right = nullptr;
 name const * g_true = nullptr;
@@ -552,6 +553,7 @@ void initialize_constants() {
     g_tactic_mk_inj_eq = new name{"tactic", "mk_inj_eq"};
     g_task = new name{"task"};
     g_thunk = new name{"thunk"};
+    g_thunk_mk = new name{"thunk", "mk"};
     g_trans_rel_left = new name{"trans_rel_left"};
     g_trans_rel_right = new name{"trans_rel_right"};
     g_true = new name{"true"};
@@ -839,6 +841,7 @@ void finalize_constants() {
     delete g_tactic_mk_inj_eq;
     delete g_task;
     delete g_thunk;
+    delete g_thunk_mk;
     delete g_trans_rel_left;
     delete g_trans_rel_right;
     delete g_true;
@@ -1125,6 +1128,7 @@ name const & get_tactic_triv_name() { return *g_tactic_triv; }
 name const & get_tactic_mk_inj_eq_name() { return *g_tactic_mk_inj_eq; }
 name const & get_task_name() { return *g_task; }
 name const & get_thunk_name() { return *g_thunk; }
+name const & get_thunk_mk_name() { return *g_thunk_mk; }
 name const & get_trans_rel_left_name() { return *g_trans_rel_left; }
 name const & get_trans_rel_right_name() { return *g_trans_rel_right; }
 name const & get_true_name() { return *g_true; }

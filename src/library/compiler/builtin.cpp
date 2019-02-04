@@ -16,9 +16,11 @@ struct builtin_decl {
     char const *      m_cname;
     bool              m_borrowed_res;
     list<bool>        m_borrowed_args;
+    list<bool>        m_used_args;
     builtin_decl() {}
-    builtin_decl(expr const & type, unsigned arity, char const * cname, bool bres, list<bool> const & bargs):
-        m_type(type), m_arity(arity), m_cname(cname), m_borrowed_res(bres), m_borrowed_args(bargs) {
+    builtin_decl(expr const & type, unsigned arity, char const * cname, bool bres, list<bool> const & bargs,
+                 list<bool> const & used_args):
+        m_type(type), m_arity(arity), m_cname(cname), m_borrowed_res(bres), m_borrowed_args(bargs), m_used_args(used_args) {
     }
 };
 
@@ -26,24 +28,37 @@ typedef std::unordered_map<name, builtin_decl, name_hash> builtin_map;
 
 static builtin_map * g_builtin_decls = nullptr;
 
-void register_builtin(name const & n, expr const & type, unsigned arity, char const * cname, bool borrowed_res, list<bool> const & borrowed_arg) {
+void register_builtin(name const & n, expr const & type, unsigned arity, char const * cname,
+                      bool borrowed_res, list<bool> const & borrowed_arg,
+                      list<bool> const & used_args) {
     lean_assert(g_builtin_decls->find(n) == g_builtin_decls->end());
-    g_builtin_decls->insert(mk_pair(n, builtin_decl(type, arity, cname, borrowed_res, borrowed_arg)));
+    g_builtin_decls->insert(mk_pair(n, builtin_decl(type, arity, cname, borrowed_res, borrowed_arg, used_args)));
 }
 
-void register_builtin(name const & n, expr const & type, char const * cname, bool borrowed_res, list<bool> const & borrowed_arg) {
+void register_builtin(name const & n, expr const & type, char const * cname,
+                      bool borrowed_res, list<bool> const & borrowed_arg,
+                      list<bool> const & used_args) {
     unsigned arity = get_arity(type);
-    return register_builtin(n, type, arity, cname, borrowed_res, borrowed_arg);
+    return register_builtin(n, type, arity, cname, borrowed_res, borrowed_arg, used_args);
+}
+
+void register_builtin(name const & n, expr const & type, char const * cname, list<bool> const & borrowed_arg, list<bool> const & used_args) {
+    return register_builtin(n, type, cname, false, borrowed_arg, used_args);
 }
 
 void register_builtin(name const & n, expr const & type, char const * cname, list<bool> const & borrowed_arg) {
-    return register_builtin(n, type, cname, false, borrowed_arg);
+    unsigned arity = get_arity(type);
+    buffer<bool> used_args;
+    used_args.resize(arity, true);
+    return register_builtin(n, type, cname, false, borrowed_arg, to_list(used_args));
 }
 
 void register_builtin(name const & n, expr const & type, unsigned arity, char const * cname) {
     buffer<bool> borrowed;
     borrowed.resize(arity, false);
-    return register_builtin(n, type, arity, cname, false, to_list(borrowed));
+    buffer<bool> used_args;
+    used_args.resize(arity, true);
+    return register_builtin(n, type, arity, cname, false, to_list(borrowed), to_list(used_args));
 }
 
 void register_builtin(name const & n, expr const & type, char const * cname) {
@@ -86,6 +101,15 @@ bool get_builtin_borrowed_info(name const & c, buffer<bool> & borrowed_args, boo
     return true;
 }
 
+bool get_builtin_used_args(name const & c, buffer<bool> & used_args) {
+    auto it = g_builtin_decls->find(c);
+    if (it == g_builtin_decls->end())
+        return false;
+
+    to_buffer(it->second.m_used_args, used_args);
+    return true;
+}
+
 void initialize_builtin() {
     g_builtin_decls = new builtin_map();
 
@@ -98,6 +122,7 @@ void initialize_builtin() {
     expr o_o         = mk_arrow(o, o);
     expr o_o_o       = mk_arrow(o, o_o);
     expr o_o_o_o     = mk_arrow(o, o_o_o);
+    expr o_o_o_o_o   = mk_arrow(o, o_o_o_o);
 
     expr o_u8        = mk_arrow(o, u8);
     expr o_u8_u8_o_o = mk_arrow(o, mk_arrow(u8, mk_arrow(u8, o_o)));
@@ -148,6 +173,10 @@ void initialize_builtin() {
     list<bool> bc{true, false};
     list<bool> bbb{true, true, true};
     list<bool> bccc{true, false, false, false};
+    list<bool> bbcc{true, true, false, false};
+
+    list<bool> xu{false, true};
+    list<bool> xxuu{false, false, true, true};
 
     /* nat builtin functions */
     register_builtin(name({"nat", "add"}), o_o_o, "lean::nat_add", bb);
@@ -280,6 +309,13 @@ void initialize_builtin() {
     register_builtin(name({"usize", "dec_eq"}), us_us_o, "lean::usize_dec_eq");
     register_builtin(name({"usize", "dec_lt"}), us_us_o, "lean::usize_dec_lt");
     register_builtin(name({"usize", "dec_le"}), us_us_o, "lean::usize_dec_le");
+
+    /* thunk builtin functions */
+    register_builtin(name({"thunk", "mk"}), o_o_o, "lean::mk_thunk", bc, xu);
+    register_builtin(name({"thunk", "pure"}), o_o_o, "lean::thunk_pure", bc, xu);
+    register_builtin(name({"thunk", "get"}), o_o_o, "lean::thunk_get", bb, xu);
+    register_builtin(name({"thunk", "bind"}), o_o_o_o_o, "lean::thunk_get", bb, xu);
+    register_builtin(name({"thunk", "map"}), o_o_o_o_o, "lean::thunk_bind", bbcc, xxuu);
 }
 
 void finalize_builtin() {

@@ -261,6 +261,7 @@ tactic.triv
 tactic.mk_inj_eq
 task
 thunk
+thunk.mk
 trans_rel_left
 trans_rel_right
 true

@@ -549,6 +549,23 @@ struct emit_fn_fn {
         m_out << ");\n";
     }
 
+    void emit_builtin(expr const & x, expr const & fn, buffer<expr> const & args) {
+        buffer<bool> used_args;
+        lean_verify(get_builtin_used_args(const_name(fn), used_args));
+        lean_assert(used_args.size() == args.size());
+        emit_lhs(x);
+        emit_constant(fn);
+        m_out << "(";
+        bool first = true;
+        for (unsigned i = 0; i < args.size(); i++) {
+            if (used_args[i]) {
+                if (first) first = false; else m_out << ", ";
+                emit_arg(args[i]);
+            }
+        }
+        m_out << ");\n";
+    }
+
     void emit_instr(local_decl const & d) {
         expr x = d.mk_ref();
         expr val = *d.get_value();
@@ -593,6 +610,8 @@ struct emit_fn_fn {
                 emit_unbox(x, fn, args[0]);
             } else if (is_llnf_box(fn)) {
                 emit_box(x, fn, args[0]);
+            } else if (is_builtin_constant(const_name(fn))) {
+                emit_builtin(x, fn, args);
             } else {
                 /* Regular function application. */
                 emit_lhs(x);

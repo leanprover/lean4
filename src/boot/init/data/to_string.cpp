@@ -75,7 +75,6 @@ extern obj* _l_s4_prod_s9_has__repr_s6___rarg_s11___closed__1;
 obj* _l_s2_id_s15_has__to__string_s6___rarg(obj* x_0) {
 _start:
 {
-
 return x_0;
 }
 }
@@ -91,7 +90,6 @@ return x_2;
 obj* _l_s6_string_s15_has__to__string(obj* x_0) {
 _start:
 {
-
 return x_0;
 }
 }
@@ -107,7 +105,6 @@ return x_1;
 obj* _l_s4_bool_s15_has__to__string(unsigned char x_0) {
 _start:
 {
-
 if (x_0 == 0)
 {
 obj* x_1; 
@@ -136,7 +133,6 @@ return x_2;
 obj* _l_s9_decidable_s15_has__to__string_s6___rarg(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
@@ -167,10 +163,8 @@ return x_2;
 obj* _l_s4_list_s15_to__string__aux_s6___main_s6___rarg(obj* x_0, unsigned char x_1, obj* x_2) {
 _start:
 {
-
 if (x_1 == 0)
 {
-
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_5; 
@@ -202,7 +196,6 @@ return x_19;
 }
 else
 {
-
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_23; 
@@ -278,7 +271,6 @@ return x_4;
 obj* _l_s4_list_s10_to__string_s6___main_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -484,7 +476,6 @@ return x_2;
 obj* _l_s6_option_s15_has__to__string_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -523,7 +514,6 @@ return x_2;
 obj* _l_s3_sum_s15_has__to__string_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; obj* x_7; obj* x_8; obj* x_10; obj* x_12; obj* x_13; 

@@ -61,7 +61,6 @@ return x_0;
 unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 unsigned char x_2; 

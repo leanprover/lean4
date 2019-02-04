@@ -258,7 +258,6 @@ return x_2;
 obj* _l_s4_list_s6_mfoldl_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s4_node_s9___spec__1_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_10; obj* x_13; obj* x_16; 
@@ -315,7 +314,6 @@ return x_36;
 obj* _l_s4_list_s6_mfoldl_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s4_node_s9___spec__1_s6___rarg_s11___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_6; obj* x_9; 
@@ -1020,7 +1018,6 @@ return x_79;
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s6___rarg_s11___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, unsigned char x_9, obj* x_10, obj* x_11) {
 _start:
 {
-
 if (lean::obj_tag(x_11) == 0)
 {
 obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_25; 
@@ -1063,7 +1060,6 @@ return x_32;
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s6___rarg_s11___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, unsigned char x_7, obj* x_8, obj* x_9, obj* x_10) {
 _start:
 {
-
 if (lean::obj_tag(x_10) == 0)
 {
 obj* x_19; obj* x_22; obj* x_25; obj* x_26; obj* x_28; obj* x_29; 
@@ -1427,7 +1423,6 @@ return x_79;
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s7_sep__by_s9___spec__1_s6___rarg_s11___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, unsigned char x_9, obj* x_10, obj* x_11) {
 _start:
 {
-
 if (lean::obj_tag(x_11) == 0)
 {
 obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_25; 
@@ -1470,7 +1465,6 @@ return x_32;
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s7_sep__by_s9___spec__1_s6___rarg_s11___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, unsigned char x_7, obj* x_8, obj* x_9, obj* x_10) {
 _start:
 {
-
 if (lean::obj_tag(x_10) == 0)
 {
 obj* x_19; obj* x_22; obj* x_25; obj* x_26; obj* x_28; obj* x_29; 
@@ -1798,7 +1792,6 @@ return x_79;
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s9___spec__1_s6___rarg_s11___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, unsigned char x_9, obj* x_10, obj* x_11) {
 _start:
 {
-
 if (lean::obj_tag(x_11) == 0)
 {
 obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_25; 
@@ -1841,7 +1834,6 @@ return x_32;
 obj* _l_s9___private_4028586963__s12_sep__by__aux_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s9___spec__1_s6___rarg_s11___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, unsigned char x_7, obj* x_8, obj* x_9, obj* x_10) {
 _start:
 {
-
 if (lean::obj_tag(x_10) == 0)
 {
 obj* x_19; obj* x_22; obj* x_25; obj* x_26; obj* x_28; obj* x_29; 
@@ -2030,7 +2022,6 @@ return x_4;
 obj* _l_s9___private_1079072079__s7_sep__by_s9_view__aux_s6___main_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_10; 
@@ -2247,7 +2238,6 @@ return x_2;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s7_sep__by_s4_view_s9___spec__1_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_10; 
@@ -2445,7 +2435,6 @@ return x_2;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s8_sep__by1_s4_view_s9___spec__1_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_10; 
@@ -2637,7 +2626,6 @@ return x_22;
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_optional_s6___rarg_s11___lambda__2(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; obj* x_5; 
@@ -2811,7 +2799,6 @@ return x_38;
 obj* _l_s4_lean_s6_parser_s11_combinators_s8_optional_s4_view_s6___rarg_s11___lambda__2(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -2881,7 +2868,6 @@ return x_4;
 obj* _l_s4_lean_s6_parser_s11_combinators_s7_any__of_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-
 lean::dec(x_1);
 lean::dec(x_0);
 if (lean::obj_tag(x_4) == 0)
@@ -3143,7 +3129,6 @@ return x_2;
 obj* _l_s4_lean_s6_parser_s11_combinators_s11_choice__aux_s6___main_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_9; obj* x_10; obj* x_11; obj* x_15; 
@@ -3341,7 +3326,6 @@ return x_16;
 obj* _l_s4_lean_s6_parser_s11_combinators_s15_longest__choice_s6___rarg_s11___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-
 lean::dec(x_0);
 if (lean::obj_tag(x_3) == 0)
 {
@@ -3388,7 +3372,6 @@ return x_2;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_lean_s6_parser_s11_combinators_s15_longest__choice_s9___spec__1_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_6; 

@@ -311,7 +311,6 @@ goto lbl_5;
 }
 lbl_5:
 {
-
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_20; obj* x_22; obj* x_23; obj* x_24; 
@@ -695,7 +694,6 @@ return x_17;
 obj* _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s9___spec__7(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_5; obj* x_7; 
@@ -761,10 +759,8 @@ return x_26;
 }
 else
 {
-obj* x_29; 
 lean::dec(x_15);
 lean::dec(x_19);
-x_29 = _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s9___spec__7(x_0, x_10, x_17);
 x_1 = x_10;
 x_2 = x_17;
 goto _start;
@@ -786,7 +782,6 @@ return x_2;
 obj* _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s9___spec__8(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_5; obj* x_7; 
@@ -852,10 +847,8 @@ return x_26;
 }
 else
 {
-obj* x_29; 
 lean::dec(x_15);
 lean::dec(x_19);
-x_29 = _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s9___spec__8(x_0, x_10, x_17);
 x_1 = x_10;
 x_2 = x_17;
 goto _start;
@@ -866,7 +859,6 @@ goto _start;
 obj* _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s9___spec__9(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_5; obj* x_7; 
@@ -932,10 +924,8 @@ return x_26;
 }
 else
 {
-obj* x_29; 
 lean::dec(x_15);
 lean::dec(x_19);
-x_29 = _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s9___spec__9(x_0, x_10, x_17);
 x_1 = x_10;
 x_2 = x_17;
 goto _start;
@@ -946,7 +936,6 @@ goto _start;
 obj* _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__10(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_5; obj* x_7; 
@@ -1012,10 +1001,8 @@ return x_26;
 }
 else
 {
-obj* x_29; 
 lean::dec(x_15);
 lean::dec(x_19);
-x_29 = _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__10(x_0, x_10, x_17);
 x_1 = x_10;
 x_2 = x_17;
 goto _start;
@@ -1026,7 +1013,6 @@ goto _start;
 obj* _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__11(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_5; obj* x_7; 
@@ -1092,10 +1078,8 @@ return x_26;
 }
 else
 {
-obj* x_29; 
 lean::dec(x_15);
 lean::dec(x_19);
-x_29 = _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__11(x_0, x_10, x_17);
 x_1 = x_10;
 x_2 = x_17;
 goto _start;
@@ -1106,7 +1090,6 @@ goto _start;
 obj* _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__12(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_5; obj* x_7; 
@@ -1172,10 +1155,8 @@ return x_26;
 }
 else
 {
-obj* x_29; 
 lean::dec(x_15);
 lean::dec(x_19);
-x_29 = _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__12(x_0, x_10, x_17);
 x_1 = x_10;
 x_2 = x_17;
 goto _start;
@@ -1186,7 +1167,6 @@ goto _start;
 obj* _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__13(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_5; obj* x_7; 
@@ -1252,10 +1232,8 @@ return x_26;
 }
 else
 {
-obj* x_29; 
 lean::dec(x_15);
 lean::dec(x_19);
-x_29 = _l_s4_list_s8_mmap_x27_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__13(x_0, x_10, x_17);
 x_1 = x_10;
 x_2 = x_17;
 goto _start;
@@ -2451,7 +2429,6 @@ goto lbl_5;
 }
 lbl_5:
 {
-
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_577; obj* x_579; obj* x_580; obj* x_581; 
@@ -2490,12 +2467,11 @@ if (lean::is_shared(x_3)) {
 }
 if (lean::obj_tag(x_582) == 0)
 {
-obj* x_586; obj* x_589; 
+obj* x_586; 
 lean::dec(x_584);
 x_586 = lean::cnstr_get(x_582, 0);
 lean::inc(x_586);
 lean::dec(x_582);
-x_589 = _l_s2_io_s4_prim_s7_iterate_s6___main_s4___at_s4_lean_s13_run__frontend_s10___spec__15(x_0, x_586, x_4);
 x_1 = x_586;
 x_2 = x_4;
 goto _start;
@@ -3095,7 +3071,6 @@ goto lbl_5;
 }
 lbl_5:
 {
-
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_45; obj* x_47; obj* x_48; obj* x_49; 
@@ -3134,12 +3109,11 @@ if (lean::is_shared(x_3)) {
 }
 if (lean::obj_tag(x_50) == 0)
 {
-obj* x_54; obj* x_57; 
+obj* x_54; 
 lean::dec(x_52);
 x_54 = lean::cnstr_get(x_50, 0);
 lean::inc(x_54);
 lean::dec(x_50);
-x_57 = _l_s2_io_s4_prim_s7_iterate_s6___main_s4___at_s4_lean_s19_process__file__json_s9___spec__6(x_0, x_54, x_4);
 x_1 = x_54;
 x_2 = x_4;
 goto _start;

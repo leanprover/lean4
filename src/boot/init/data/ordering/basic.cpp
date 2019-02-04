@@ -34,7 +34,6 @@ obj* _l_s3_cmp_s6___rarg_s7___boxed(obj*, obj*, obj*);
 obj* _l_s8_ordering_s9_has__repr(unsigned char x_0) {
 _start:
 {
-
 switch (x_0) {
 case 0:
 {
@@ -96,7 +95,6 @@ return x_2;
 unsigned char _l_s8_ordering_s4_swap_s6___main(unsigned char x_0) {
 _start:
 {
-
 switch (x_0) {
 case 0:
 {
@@ -106,7 +104,6 @@ return x_1;
 }
 case 1:
 {
-
 return x_0;
 }
 default:
@@ -149,21 +146,17 @@ return x_3;
 unsigned char _l_s8_ordering_s8_or__else_s6___main(unsigned char x_0, unsigned char x_1) {
 _start:
 {
-
 switch (x_0) {
 case 0:
 {
-
 return x_0;
 }
 case 1:
 {
-
 return x_1;
 }
 default:
 {
-
 return x_0;
 }
 }
@@ -320,11 +313,9 @@ return x_4;
 obj* _l_s8_ordering_s13_decidable__eq(unsigned char x_0, unsigned char x_1) {
 _start:
 {
-
 switch (x_0) {
 case 0:
 {
-
 switch (x_1) {
 case 0:
 {
@@ -351,7 +342,6 @@ return x_4;
 }
 case 1:
 {
-
 switch (x_1) {
 case 0:
 {
@@ -378,7 +368,6 @@ return x_7;
 }
 default:
 {
-
 switch (x_1) {
 case 0:
 {

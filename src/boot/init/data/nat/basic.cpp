@@ -52,7 +52,7 @@ x_5 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
 if (lean::obj_tag(x_5) == 0)
 {
-obj* x_8; obj* x_9; obj* x_11; obj* x_14; 
+obj* x_8; obj* x_9; obj* x_11; 
 lean::dec(x_5);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_sub(x_0, x_8);
@@ -60,7 +60,6 @@ lean::dec(x_0);
 x_11 = lean::nat_sub(x_1, x_8);
 lean::dec(x_8);
 lean::dec(x_1);
-x_14 = _l_s3_nat_s3_beq_s6___main(x_9, x_11);
 x_0 = x_9;
 x_1 = x_11;
 goto _start;
@@ -133,7 +132,7 @@ x_5 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
 if (lean::obj_tag(x_5) == 0)
 {
-obj* x_8; obj* x_9; obj* x_11; obj* x_14; 
+obj* x_8; obj* x_9; obj* x_11; 
 lean::dec(x_5);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_sub(x_0, x_8);
@@ -141,7 +140,6 @@ lean::dec(x_0);
 x_11 = lean::nat_sub(x_1, x_8);
 lean::dec(x_8);
 lean::dec(x_1);
-x_14 = _l_s3_nat_s3_ble_s6___main(x_9, x_11);
 x_0 = x_9;
 x_1 = x_11;
 goto _start;
@@ -270,7 +268,6 @@ return x_11;
 }
 else
 {
-
 lean::dec(x_1);
 lean::dec(x_3);
 return x_0;
@@ -349,7 +346,6 @@ return x_14;
 }
 else
 {
-
 lean::dec(x_4);
 lean::dec(x_0);
 lean::dec(x_1);
@@ -484,14 +480,12 @@ obj* x_2;
 x_2 = lean::nat_dec_le(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
-
 lean::dec(x_1);
 lean::dec(x_2);
 return x_0;
 }
 else
 {
-
 lean::dec(x_0);
 lean::dec(x_2);
 return x_1;

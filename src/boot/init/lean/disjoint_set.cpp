@@ -123,21 +123,19 @@ lean::inc(x_0);
 x_27 = lean::apply_2(x_0, x_23, x_3);
 if (lean::obj_tag(x_27) == 0)
 {
-obj* x_30; obj* x_31; obj* x_34; 
+obj* x_30; obj* x_31; 
 lean::dec(x_20);
 lean::dec(x_27);
 x_30 = lean::mk_nat_obj(1u);
 x_31 = lean::nat_sub(x_2, x_30);
 lean::dec(x_30);
 lean::dec(x_2);
-x_34 = _l_s9___private_3363165505__s9_find__aux_s6___main_s6___rarg(x_0, x_1, x_31, x_23, x_4);
 x_2 = x_31;
 x_3 = x_23;
 goto _start;
 }
 else
 {
-
 lean::dec(x_23);
 lean::dec(x_27);
 lean::dec(x_4);
@@ -359,7 +357,6 @@ return x_59;
 }
 else
 {
-
 lean::dec(x_23);
 lean::dec(x_4);
 lean::dec(x_12);

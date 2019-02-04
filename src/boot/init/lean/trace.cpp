@@ -59,7 +59,6 @@ obj* _l_s4_lean_s5_trace_s5_monad_s6___rarg(obj*);
 obj* _l_s4_lean_s8_has__coe(obj* x_0) {
 _start:
 {
-
 return x_0;
 }
 }
@@ -92,7 +91,6 @@ return x_14;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_lean_s5_trace_s2_pp_s6___main_s9___spec__1(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
@@ -805,7 +803,6 @@ return x_2;
 obj* _l_s6_rbnode_s3_ins_s6___main_s4___at_s4_lean_s5_trace_s4_lean_s5_trace_s13_monad__tracer_s9___spec__3(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {

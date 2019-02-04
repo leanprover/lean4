@@ -119,7 +119,6 @@ return x_7;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s5_monad_s9___spec__1_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -168,7 +167,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s5_monad_s9___spec__2_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -220,7 +218,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s5_monad_s9___spec__3_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -274,7 +271,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s5_monad_s9___spec__4_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -327,7 +323,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s5_monad_s9___spec__5_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -457,7 +452,6 @@ return x_2;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s11_alternative_s9___spec__1_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -506,7 +500,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s11_alternative_s9___spec__2_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -558,7 +551,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s11_alternative_s9___spec__3_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -612,7 +604,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s11_alternative_s9___spec__4_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -665,7 +656,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s4_list_s11_alternative_s9___spec__5_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 

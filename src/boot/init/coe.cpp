@@ -429,7 +429,6 @@ return x_2;
 obj* _l_s12_coe__subtype_s6___rarg(obj* x_0) {
 _start:
 {
-
 return x_0;
 }
 }
@@ -642,7 +641,6 @@ return x_4;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s10_lift__list_s9___spec__1_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 

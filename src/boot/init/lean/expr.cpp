@@ -36,16 +36,14 @@ return x_2;
 obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
-
 lean::dec(x_1);
 return x_0;
 }
 else
 {
-obj* x_3; obj* x_5; obj* x_8; obj* x_9; 
+obj* x_3; obj* x_5; obj* x_8; 
 x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_1, 1);
@@ -54,7 +52,6 @@ lean::dec(x_1);
 x_8 = lean::alloc_cnstr(5, 2, 0);
 lean::cnstr_set(x_8, 0, x_0);
 lean::cnstr_set(x_8, 1, x_3);
-x_9 = _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s4_expr_s7_mk__app_s9___spec__1(x_8, x_5);
 x_0 = x_8;
 x_1 = x_5;
 goto _start;

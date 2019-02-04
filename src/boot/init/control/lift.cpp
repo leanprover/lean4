@@ -64,7 +64,6 @@ return x_6;
 obj* _l_s25_has__monad__lift__t__refl_s6___rarg(obj* x_0) {
 _start:
 {
-
 return x_0;
 }
 }

@@ -50,7 +50,6 @@ obj* _l_s4_lean_s2_ir_s8_has__coe;
 obj* _l_s4_lean_s2_ir_s7_type2id_s6___main(unsigned char x_0) {
 _start:
 {
-
 switch (x_0) {
 case 0:
 {

@@ -395,7 +395,6 @@ return x_4;
 obj* _l_s9_reader__t_s4_lift_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 lean::dec(x_1);
 return x_0;
 }

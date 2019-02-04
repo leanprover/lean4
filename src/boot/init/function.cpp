@@ -170,7 +170,6 @@ return x_10;
 obj* _l_s8_function_s5_const_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 lean::dec(x_1);
 return x_0;
 }

@@ -89,7 +89,6 @@ x_4 = lean::nat_dec_lt(x_3, x_2);
 lean::dec(x_3);
 if (lean::obj_tag(x_4) == 0)
 {
-
 lean::dec(x_4);
 lean::dec(x_1);
 lean::dec(x_2);
@@ -102,7 +101,6 @@ lean::dec(x_4);
 x_10 = lean::nat_dec_le(x_2, x_0);
 if (lean::obj_tag(x_10) == 0)
 {
-
 lean::dec(x_10);
 lean::dec(x_1);
 lean::dec(x_2);

@@ -439,7 +439,7 @@ return x_10;
 }
 else
 {
-obj* x_11; obj* x_13; obj* x_18; obj* x_19; obj* x_20; 
+obj* x_11; obj* x_13; obj* x_18; obj* x_19; 
 x_11 = lean::cnstr_get(x_4, 0);
 lean::inc(x_11);
 x_13 = lean::cnstr_get(x_4, 1);
@@ -451,7 +451,6 @@ x_18 = lean::apply_1(x_0, x_11);
 x_19 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_19, 0, x_11);
 lean::cnstr_set(x_19, 1, x_3);
-x_20 = _l_s9___private_3144039831__s11_finish__aux_s6___main_s6___rarg(x_0, x_13, x_18, x_19);
 x_1 = x_13;
 x_2 = x_18;
 x_3 = x_19;

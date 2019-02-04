@@ -50,7 +50,6 @@ return x_2;
 obj* _l_s5_guard_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
@@ -91,7 +90,6 @@ return x_2;
 obj* _l_s6_assert_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
@@ -130,7 +128,6 @@ return x_2;
 obj* _l_s6_guardb_s6___main_s6___rarg(obj* x_0, unsigned char x_1) {
 _start:
 {
-
 if (x_1 == 0)
 {
 obj* x_2; obj* x_5; 

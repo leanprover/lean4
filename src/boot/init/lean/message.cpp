@@ -246,7 +246,6 @@ return x_2;
 unsigned char _l_s4_list_s5_foldr_s6___main_s4___at_s4_lean_s12_message__log_s11_has__errors_s9___spec__1(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 unsigned char x_2; 
@@ -268,13 +267,11 @@ lean::dec(x_3);
 switch (x_9) {
 case 0:
 {
-
 x_0 = x_5;
 goto _start;
 }
 case 1:
 {
-
 x_0 = x_5;
 goto _start;
 }

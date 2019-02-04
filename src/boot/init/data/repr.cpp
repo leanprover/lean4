@@ -154,7 +154,6 @@ obj* _l_s3_nat_s11_digit__char_s12___closed__11;
 obj* _l_s2_id_s9_has__repr_s6___rarg(obj* x_0) {
 _start:
 {
-
 return x_0;
 }
 }
@@ -170,7 +169,6 @@ return x_2;
 obj* _l_s4_bool_s9_has__repr(unsigned char x_0) {
 _start:
 {
-
 if (x_0 == 0)
 {
 obj* x_1; 
@@ -215,7 +213,6 @@ return x_2;
 obj* _l_s9_decidable_s9_has__repr_s6___rarg(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
@@ -246,10 +243,8 @@ return x_2;
 obj* _l_s4_list_s9_repr__aux_s6___main_s6___rarg(obj* x_0, unsigned char x_1, obj* x_2) {
 _start:
 {
-
 if (x_1 == 0)
 {
-
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_5; 
@@ -281,7 +276,6 @@ return x_19;
 }
 else
 {
-
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_23; 
@@ -365,7 +359,6 @@ return x_4;
 obj* _l_s4_list_s4_repr_s6___main_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -487,7 +480,6 @@ return x_2;
 obj* _l_s6_option_s9_has__repr_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -550,7 +542,6 @@ return x_2;
 obj* _l_s3_sum_s9_has__repr_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; obj* x_7; obj* x_8; obj* x_10; obj* x_12; obj* x_13; 
@@ -2315,7 +2306,6 @@ return x_9;
 obj* _l_s3_nat_s11_digit__succ_s6___main(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; obj* x_4; 
@@ -2455,7 +2445,6 @@ return x_5;
 obj* _l_s4_list_s3_map_s6___main_s4___at_s3_nat_s4_repr_s9___spec__1(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
@@ -3296,7 +3285,6 @@ return x_2;
 obj* _l_s6_string_s10_quote__aux_s6___main(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 

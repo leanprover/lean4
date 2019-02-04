@@ -77,7 +77,6 @@ return x_2;
 obj* _l_s4_lean_s14_constant__info_s5_value_s6___main(obj* x_0) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {
@@ -161,7 +160,6 @@ return x_1;
 obj* _l_s4_lean_s14_constant__info_s5_hints_s6___main(obj* x_0) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {

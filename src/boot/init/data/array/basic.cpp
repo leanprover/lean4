@@ -104,7 +104,6 @@ return x_3;
 obj* _l_s9_mk__array_s6___rarg_s11___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
-
 lean::dec(x_1);
 return x_0;
 }
@@ -251,7 +250,6 @@ return x_11;
 }
 else
 {
-
 lean::dec(x_4);
 lean::dec(x_1);
 lean::dec(x_3);
@@ -278,7 +276,6 @@ x_5 = lean::nat_dec_lt(x_2, x_3);
 lean::dec(x_3);
 if (lean::obj_tag(x_5) == 0)
 {
-
 lean::dec(x_5);
 lean::dec(x_1);
 lean::dec(x_2);
@@ -313,7 +310,6 @@ x_5 = lean::nat_dec_lt(x_1, x_3);
 lean::dec(x_3);
 if (lean::obj_tag(x_5) == 0)
 {
-
 lean::dec(x_5);
 lean::dec(x_1);
 lean::dec(x_2);
@@ -404,7 +400,6 @@ x_6 = lean::nat_dec_lt(x_3, x_4);
 lean::dec(x_4);
 if (lean::obj_tag(x_6) == 0)
 {
-
 lean::dec(x_6);
 lean::dec(x_1);
 lean::dec(x_3);
@@ -449,7 +444,6 @@ x_6 = lean::nat_dec_lt(x_3, x_4);
 lean::dec(x_4);
 if (lean::obj_tag(x_6) == 0)
 {
-
 lean::dec(x_6);
 lean::dec(x_2);
 lean::dec(x_3);
@@ -520,7 +514,6 @@ return x_11;
 }
 else
 {
-
 lean::dec(x_4);
 lean::dec(x_1);
 lean::dec(x_3);
@@ -588,7 +581,6 @@ return x_20;
 }
 else
 {
-
 lean::dec(x_7);
 lean::dec(x_0);
 lean::dec(x_1);
@@ -685,7 +677,7 @@ x_7 = lean::nat_dec_eq(x_2, x_6);
 lean::dec(x_6);
 if (lean::obj_tag(x_7) == 0)
 {
-obj* x_10; obj* x_11; obj* x_16; obj* x_19; obj* x_20; 
+obj* x_10; obj* x_11; obj* x_16; obj* x_19; 
 lean::dec(x_7);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_sub(x_2, x_10);
@@ -697,7 +689,6 @@ x_16 = _l_s5_array_s4_read_s6___rarg(x_0, x_11);
 lean::inc(x_11);
 lean::inc(x_1);
 x_19 = lean::apply_3(x_1, x_11, x_16, x_4);
-x_20 = _l_s9___private_717503411__s17_rev__iterate__aux_s6___main_s6___rarg(x_0, x_1, x_11, lean::box(0), x_19);
 x_2 = x_11;
 x_3 = x_0;
 x_4 = x_19;
@@ -705,7 +696,6 @@ goto _start;
 }
 else
 {
-
 lean::dec(x_7);
 lean::dec(x_0);
 lean::dec(x_1);
@@ -982,23 +972,20 @@ return x_2;
 obj* _l_s4_list_s14_to__array__aux_s6___main_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
-
 lean::dec(x_0);
 return x_1;
 }
 else
 {
-obj* x_3; obj* x_5; obj* x_8; obj* x_9; 
+obj* x_3; obj* x_5; obj* x_8; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_0, 1);
 lean::inc(x_5);
 lean::dec(x_0);
 x_8 = _l_s5_array_s4_push_s6___rarg(x_1, x_3);
-x_9 = _l_s4_list_s14_to__array__aux_s6___main_s6___rarg(x_5, x_8);
 x_0 = x_5;
 x_1 = x_8;
 goto _start;

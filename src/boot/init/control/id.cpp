@@ -77,7 +77,6 @@ return x_6;
 obj* _l_s2_id_s5_monad_s11___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-
 lean::dec(x_3);
 lean::dec(x_1);
 lean::dec(x_0);
@@ -87,7 +86,6 @@ return x_2;
 obj* _l_s2_id_s5_monad_s11___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-
 lean::dec(x_2);
 lean::dec(x_1);
 lean::dec(x_0);
@@ -97,7 +95,6 @@ return x_3;
 obj* _l_s2_id_s3_run_s6___rarg(obj* x_0) {
 _start:
 {
-
 return x_0;
 }
 }

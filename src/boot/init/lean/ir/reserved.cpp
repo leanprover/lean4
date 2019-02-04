@@ -390,7 +390,6 @@ return x_3;
 obj* _l_s6_rbnode_s3_ins_s6___main_s4___at_s4_lean_s2_ir_s13_reserved__set_s9___spec__4(obj* x_0, obj* x_1, unsigned char x_2) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {
@@ -624,16 +623,14 @@ return x_3;
 obj* _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s2_ir_s13_reserved__set_s9___spec__5(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
-
 lean::dec(x_1);
 return x_0;
 }
 else
 {
-obj* x_3; obj* x_5; unsigned char x_8; obj* x_9; obj* x_10; 
+obj* x_3; obj* x_5; unsigned char x_8; obj* x_9; 
 x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_1, 1);
@@ -641,7 +638,6 @@ lean::inc(x_5);
 lean::dec(x_1);
 x_8 = 0;
 x_9 = _l_s6_rbnode_s6_insert_s4___at_s4_lean_s2_ir_s13_reserved__set_s9___spec__3(x_0, x_3, x_8);
-x_10 = _l_s4_list_s5_foldl_s6___main_s4___at_s4_lean_s2_ir_s13_reserved__set_s9___spec__5(x_9, x_5);
 x_0 = x_9;
 x_1 = x_5;
 goto _start;
@@ -689,7 +685,6 @@ return x_4;
 obj* _l_s6_rbnode_s10_find__core_s6___main_s4___at_s4_lean_s2_ir_s12_is__reserved_s9___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {
@@ -734,23 +729,19 @@ return x_22;
 }
 else
 {
-obj* x_26; 
 lean::dec(x_17);
 lean::dec(x_7);
 lean::dec(x_9);
-x_26 = _l_s6_rbnode_s10_find__core_s6___main_s4___at_s4_lean_s2_ir_s12_is__reserved_s9___spec__3(x_11, x_1);
 x_0 = x_11;
 goto _start;
 }
 }
 else
 {
-obj* x_31; 
 lean::dec(x_7);
 lean::dec(x_9);
 lean::dec(x_11);
 lean::dec(x_14);
-x_31 = _l_s6_rbnode_s10_find__core_s6___main_s4___at_s4_lean_s2_ir_s12_is__reserved_s9___spec__3(x_5, x_1);
 x_0 = x_5;
 goto _start;
 }
@@ -789,23 +780,19 @@ return x_49;
 }
 else
 {
-obj* x_53; 
 lean::dec(x_36);
 lean::dec(x_44);
 lean::dec(x_34);
-x_53 = _l_s6_rbnode_s10_find__core_s6___main_s4___at_s4_lean_s2_ir_s12_is__reserved_s9___spec__3(x_38, x_1);
 x_0 = x_38;
 goto _start;
 }
 }
 else
 {
-obj* x_58; 
 lean::dec(x_36);
 lean::dec(x_38);
 lean::dec(x_41);
 lean::dec(x_34);
-x_58 = _l_s6_rbnode_s10_find__core_s6___main_s4___at_s4_lean_s2_ir_s12_is__reserved_s9___spec__3(x_32, x_1);
 x_0 = x_32;
 goto _start;
 }
@@ -871,7 +858,6 @@ return x_2;
 unsigned char _l_s4_lean_s2_ir_s18_is__reserved__name_s6___main(obj* x_0) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {

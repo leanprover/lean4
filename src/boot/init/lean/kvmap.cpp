@@ -34,7 +34,6 @@ obj* _l_s4_lean_s5_kvmap_s9_set__name(obj*, obj*, obj*);
 obj* _l_s4_lean_s5_kvmap_s10_find__core_s6___main(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_4; 
@@ -61,10 +60,8 @@ lean::inc(x_1);
 x_16 = _l_s4_lean_s4_name_s12_has__dec__eq_s6___main(x_10, x_1);
 if (lean::obj_tag(x_16) == 0)
 {
-obj* x_19; 
 lean::dec(x_12);
 lean::dec(x_16);
-x_19 = _l_s4_lean_s5_kvmap_s10_find__core_s6___main(x_7, x_1);
 x_0 = x_7;
 goto _start;
 }
@@ -108,7 +105,6 @@ return x_2;
 obj* _l_s4_lean_s5_kvmap_s12_insert__core_s6___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_3; obj* x_4; 

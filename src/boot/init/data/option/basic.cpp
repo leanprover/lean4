@@ -72,7 +72,6 @@ obj* _l_s6_option_s2_lt_s6___main;
 obj* _l_s6_option_s9_to__monad_s6___main_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
@@ -132,10 +131,8 @@ return x_4;
 obj* _l_s6_option_s13_get__or__else_s6___main_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
-
 lean::dec(x_0);
 return x_1;
 }
@@ -179,10 +176,8 @@ return x_2;
 obj* _l_s6_option_s3_get_s6___main_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
-
 lean::dec(x_1);
 return x_0;
 }
@@ -226,7 +221,6 @@ return x_2;
 unsigned char _l_s6_option_s8_to__bool_s6___main_s6___rarg(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 unsigned char x_2; 
@@ -290,7 +284,6 @@ return x_2;
 unsigned char _l_s6_option_s8_is__some_s6___main_s6___rarg(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 unsigned char x_2; 
@@ -354,7 +347,6 @@ return x_2;
 unsigned char _l_s6_option_s8_is__none_s6___main_s6___rarg(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 unsigned char x_2; 
@@ -418,7 +410,6 @@ return x_2;
 obj* _l_s6_option_s4_bind_s6___main_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_4; 
@@ -470,7 +461,6 @@ return x_4;
 obj* _l_s6_option_s3_map_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
@@ -564,7 +554,6 @@ return x_3;
 obj* _l_s6_option_s5_monad_s11___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-
 lean::dec(x_1);
 lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
@@ -590,7 +579,6 @@ return x_12;
 obj* _l_s6_option_s5_monad_s11___lambda__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-
 lean::dec(x_1);
 lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
@@ -642,7 +630,6 @@ return x_17;
 obj* _l_s6_option_s5_monad_s11___lambda__5(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-
 lean::dec(x_1);
 lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
@@ -656,7 +643,6 @@ return x_8;
 }
 else
 {
-
 lean::dec(x_2);
 return x_3;
 }
@@ -665,16 +651,13 @@ return x_3;
 obj* _l_s6_option_s6_orelse_s6___main_s6___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
-
 lean::dec(x_0);
 return x_1;
 }
 else
 {
-
 lean::dec(x_1);
 return x_0;
 }
@@ -765,10 +748,8 @@ return x_0;
 obj* _l_s6_option_s18_decidable__rel__lt_s6___main_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
-
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -842,10 +823,8 @@ return x_2;
 obj* _l_s6_option_s13_decidable__eq_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 if (lean::obj_tag(x_1) == 0)
 {
-
 lean::dec(x_0);
 lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)

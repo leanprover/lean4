@@ -359,11 +359,10 @@ lean::dec(x_51);
 lean::dec(x_50);
 if (lean::obj_tag(x_52) == 0)
 {
-obj* x_57; obj* x_58; 
+obj* x_57; 
 lean::dec(x_52);
 lean::dec(x_6);
 x_57 = lean::string_iterator_next(x_1);
-x_58 = _l_s9___private_167970869__s17_from__string__aux_s6___main(x_7, x_57, x_2);
 x_0 = x_7;
 x_1 = x_57;
 goto _start;
@@ -427,7 +426,6 @@ return x_5;
 obj* _l_s6_rbnode_s3_ins_s6___main_s4___at_s4_lean_s9_file__map_s12_from__string_s9___spec__4(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {
@@ -649,7 +647,6 @@ return x_3;
 obj* _l_s5_rbmap_s8_of__list_s6___main_s4___at_s4_lean_s9_file__map_s12_from__string_s9___spec__1(obj* x_0) {
 _start:
 {
-
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
@@ -717,11 +714,9 @@ return x_18;
 obj* _l_s6_rbnode_s12_lower__bound_s6___main_s4___at_s4_lean_s9_file__map_s12_to__position_s9___spec__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-
 switch (lean::obj_tag(x_0)) {
 case 0:
 {
-
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -761,14 +756,13 @@ return x_23;
 }
 else
 {
-obj* x_25; obj* x_26; obj* x_27; 
+obj* x_25; obj* x_26; 
 lean::dec(x_18);
 x_25 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_25, 0, x_7);
 lean::cnstr_set(x_25, 1, x_9);
 x_26 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_26, 0, x_25);
-x_27 = _l_s6_rbnode_s12_lower__bound_s6___main_s4___at_s4_lean_s9_file__map_s12_to__position_s9___spec__2(x_11, x_1, x_26);
 x_0 = x_11;
 x_2 = x_26;
 goto _start;
@@ -776,12 +770,10 @@ goto _start;
 }
 else
 {
-obj* x_32; 
 lean::dec(x_7);
 lean::dec(x_9);
 lean::dec(x_11);
 lean::dec(x_14);
-x_32 = _l_s6_rbnode_s12_lower__bound_s6___main_s4___at_s4_lean_s9_file__map_s12_to__position_s9___spec__2(x_5, x_1, x_2);
 x_0 = x_5;
 goto _start;
 }
@@ -821,14 +813,13 @@ return x_51;
 }
 else
 {
-obj* x_53; obj* x_54; obj* x_55; 
+obj* x_53; obj* x_54; 
 lean::dec(x_46);
 x_53 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_53, 0, x_35);
 lean::cnstr_set(x_53, 1, x_37);
 x_54 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_54, 0, x_53);
-x_55 = _l_s6_rbnode_s12_lower__bound_s6___main_s4___at_s4_lean_s9_file__map_s12_to__position_s9___spec__2(x_39, x_1, x_54);
 x_0 = x_39;
 x_2 = x_54;
 goto _start;
@@ -836,12 +827,10 @@ goto _start;
 }
 else
 {
-obj* x_60; 
 lean::dec(x_42);
 lean::dec(x_35);
 lean::dec(x_37);
 lean::dec(x_39);
-x_60 = _l_s6_rbnode_s12_lower__bound_s6___main_s4___at_s4_lean_s9_file__map_s12_to__position_s9___spec__2(x_33, x_1, x_2);
 x_0 = x_33;
 goto _start;
 }

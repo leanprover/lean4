@@ -85,7 +85,6 @@ return x_12;
 obj* _l_s4_lean_s6_parser_s9_curr__lbp_s6___rarg_s11___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-
 lean::dec(x_0);
 if (lean::obj_tag(x_4) == 0)
 {
@@ -157,7 +156,6 @@ return x_19;
 obj* _l_s4_lean_s6_parser_s9_curr__lbp_s6___rarg_s11___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_11; obj* x_14; obj* x_17; obj* x_18; 

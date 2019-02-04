@@ -565,11 +565,10 @@ return x_2;
 obj* l_thunk_map___rarg(obj* x_0, obj* x_1, unsigned char x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = l_thunk_get(lean::box(0));
-x_4 = lean::apply_1(x_3, x_1);
-x_5 = lean::apply_1(x_0, x_4);
-return x_5;
+obj* x_3; obj* x_4; 
+x_3 = l_thunk_get___rarg(x_1);
+x_4 = lean::apply_1(x_0, x_3);
+return x_4;
 }
 }
 obj* l_thunk_map(obj* x_0, obj* x_1) {
@@ -594,13 +593,11 @@ return x_4;
 obj* l_thunk_bind___rarg(obj* x_0, obj* x_1, unsigned char x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_6; obj* x_7; 
-x_3 = l_thunk_get(lean::box(0));
-lean::inc(x_3);
-x_5 = lean::apply_1(x_3, x_0);
-x_6 = lean::apply_1(x_1, x_5);
-x_7 = lean::apply_1(x_3, x_6);
-return x_7;
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = l_thunk_get___rarg(x_0);
+x_4 = lean::apply_1(x_1, x_3);
+x_5 = l_thunk_get___rarg(x_4);
+return x_5;
 }
 }
 obj* l_thunk_bind(obj* x_0, obj* x_1) {
@@ -668,11 +665,10 @@ return x_2;
 obj* l_task_map___rarg(obj* x_0, obj* x_1, unsigned char x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = l_task_get(lean::box(0));
-x_4 = lean::apply_1(x_3, x_1);
-x_5 = lean::apply_1(x_0, x_4);
-return x_5;
+obj* x_3; obj* x_4; 
+x_3 = l_task_get___rarg(x_1);
+x_4 = lean::apply_1(x_0, x_3);
+return x_4;
 }
 }
 obj* l_task_map(obj* x_0, obj* x_1) {
@@ -697,13 +693,11 @@ return x_4;
 obj* l_task_bind___rarg(obj* x_0, obj* x_1, unsigned char x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_6; obj* x_7; 
-x_3 = l_task_get(lean::box(0));
-lean::inc(x_3);
-x_5 = lean::apply_1(x_3, x_0);
-x_6 = lean::apply_1(x_1, x_5);
-x_7 = lean::apply_1(x_3, x_6);
-return x_7;
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = l_task_get___rarg(x_0);
+x_4 = lean::apply_1(x_1, x_3);
+x_5 = l_task_get___rarg(x_4);
+return x_5;
 }
 }
 obj* l_task_bind(obj* x_0, obj* x_1) {

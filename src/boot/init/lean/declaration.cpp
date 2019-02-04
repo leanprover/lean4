@@ -14,10 +14,10 @@ obj* l_lean_constant__info_value(obj*);
 obj* l_lean_constant__info_to__constant__val(obj*);
 obj* l_lean_constant__info_value___main(obj*);
 obj* l_lean_constant__info_lparams(obj*);
-obj* l_task_get(obj*);
 obj* l_lean_constant__info_id(obj*);
 obj* l_lean_constant__info_hints___main(obj*);
 obj* l_lean_constant__info_hints(obj*);
+obj* l_task_get___rarg(obj*);
 obj* l_lean_constant__info_type(obj*);
 obj* l_lean_constant__info_to__constant__val___main(obj*);
 obj* l_lean_constant__info_to__constant__val___main(obj* x_0) {
@@ -101,50 +101,49 @@ return x_9;
 }
 case 2:
 {
-obj* x_10; obj* x_13; obj* x_16; obj* x_17; obj* x_18; 
+obj* x_10; obj* x_13; obj* x_16; obj* x_17; 
 x_10 = lean::cnstr_get(x_0, 0);
 lean::inc(x_10);
 lean::dec(x_0);
 x_13 = lean::cnstr_get(x_10, 1);
 lean::inc(x_13);
 lean::dec(x_10);
-x_16 = l_task_get(lean::box(0));
-x_17 = lean::apply_1(x_16, x_13);
-x_18 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_18, 0, x_17);
-return x_18;
+x_16 = l_task_get___rarg(x_13);
+x_17 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
+return x_17;
 }
 case 3:
 {
-obj* x_20; 
+obj* x_19; 
 lean::dec(x_0);
-x_20 = lean::alloc_cnstr(0, 0, 0);
+x_19 = lean::alloc_cnstr(0, 0, 0);
 ;
-return x_20;
+return x_19;
 }
 case 4:
 {
-obj* x_22; 
+obj* x_21; 
 lean::dec(x_0);
-x_22 = lean::alloc_cnstr(0, 0, 0);
+x_21 = lean::alloc_cnstr(0, 0, 0);
 ;
-return x_22;
+return x_21;
 }
 case 5:
 {
-obj* x_24; 
+obj* x_23; 
 lean::dec(x_0);
-x_24 = lean::alloc_cnstr(0, 0, 0);
+x_23 = lean::alloc_cnstr(0, 0, 0);
 ;
-return x_24;
+return x_23;
 }
 default:
 {
-obj* x_26; 
+obj* x_25; 
 lean::dec(x_0);
-x_26 = lean::alloc_cnstr(0, 0, 0);
+x_25 = lean::alloc_cnstr(0, 0, 0);
 ;
-return x_26;
+return x_25;
 }
 }
 }

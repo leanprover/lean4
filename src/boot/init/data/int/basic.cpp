@@ -895,77 +895,76 @@ return x_34;
 }
 else
 {
-obj* x_40; 
+obj* x_39; 
 lean::dec(x_5);
 lean::dec(x_8);
 lean::dec(x_1);
-lean::dec(x_2);
-x_40 = l_int_zero;
-lean::inc(x_40);
-return x_40;
+x_39 = l_int_zero;
+lean::inc(x_39);
+return x_39;
 }
 }
 else
 {
-obj* x_43; obj* x_45; obj* x_46; obj* x_48; 
+obj* x_42; obj* x_44; obj* x_45; obj* x_47; 
 lean::dec(x_3);
-x_43 = lean::nat_abs(x_0);
+x_42 = lean::nat_abs(x_0);
 lean::dec(x_0);
-x_45 = lean::mk_nat_obj(1u);
-x_46 = lean::nat_sub(x_43, x_45);
-lean::dec(x_43);
-x_48 = lean::int_dec_lt(x_1, x_2);
-if (lean::obj_tag(x_48) == 0)
+x_44 = lean::mk_nat_obj(1u);
+x_45 = lean::nat_sub(x_42, x_44);
+lean::dec(x_42);
+x_47 = lean::int_dec_lt(x_1, x_2);
+if (lean::obj_tag(x_47) == 0)
 {
-obj* x_51; obj* x_53; obj* x_54; 
-lean::dec(x_48);
-lean::dec(x_45);
-x_51 = lean::nat_abs(x_1);
+obj* x_50; obj* x_52; obj* x_53; 
+lean::dec(x_47);
+lean::dec(x_44);
+x_50 = lean::nat_abs(x_1);
 lean::dec(x_1);
-x_53 = lean::mk_nat_obj(0u);
-x_54 = lean::nat_dec_eq(x_51, x_53);
+x_52 = lean::mk_nat_obj(0u);
+x_53 = lean::nat_dec_eq(x_50, x_52);
+lean::dec(x_52);
+if (lean::obj_tag(x_53) == 0)
+{
+obj* x_56; obj* x_59; 
 lean::dec(x_53);
-if (lean::obj_tag(x_54) == 0)
-{
-obj* x_57; obj* x_60; 
-lean::dec(x_54);
-x_57 = lean::nat_div(x_46, x_51);
-lean::dec(x_51);
-lean::dec(x_46);
-x_60 = lean::int_neg_succ_of_nat(x_57);
-lean::dec(x_57);
-return x_60;
-}
-else
-{
-obj* x_65; 
-lean::dec(x_46);
-lean::dec(x_51);
-lean::dec(x_54);
-x_65 = l_int_zero;
-lean::inc(x_65);
-return x_65;
-}
-}
-else
-{
-obj* x_68; obj* x_70; obj* x_72; obj* x_74; obj* x_77; obj* x_80; 
-lean::dec(x_48);
-x_68 = lean::nat_abs(x_1);
-lean::dec(x_1);
-x_70 = lean::nat_sub(x_68, x_45);
-lean::dec(x_68);
-x_72 = lean::nat_add(x_46, x_45);
-lean::dec(x_46);
-x_74 = lean::nat_add(x_70, x_45);
+x_56 = lean::nat_div(x_45, x_50);
+lean::dec(x_50);
 lean::dec(x_45);
-lean::dec(x_70);
-x_77 = lean::nat_div(x_72, x_74);
-lean::dec(x_74);
-lean::dec(x_72);
-x_80 = lean::nat2int(x_77);
-lean::dec(x_77);
-return x_80;
+x_59 = lean::int_neg_succ_of_nat(x_56);
+lean::dec(x_56);
+return x_59;
+}
+else
+{
+obj* x_64; 
+lean::dec(x_45);
+lean::dec(x_50);
+lean::dec(x_53);
+x_64 = l_int_zero;
+lean::inc(x_64);
+return x_64;
+}
+}
+else
+{
+obj* x_67; obj* x_69; obj* x_71; obj* x_73; obj* x_76; obj* x_79; 
+lean::dec(x_47);
+x_67 = lean::nat_abs(x_1);
+lean::dec(x_1);
+x_69 = lean::nat_sub(x_67, x_44);
+lean::dec(x_67);
+x_71 = lean::nat_add(x_45, x_44);
+lean::dec(x_45);
+x_73 = lean::nat_add(x_69, x_44);
+lean::dec(x_44);
+lean::dec(x_69);
+x_76 = lean::nat_div(x_71, x_73);
+lean::dec(x_73);
+lean::dec(x_71);
+x_79 = lean::nat2int(x_76);
+lean::dec(x_76);
+return x_79;
 }
 }
 }
@@ -1033,61 +1032,60 @@ return x_33;
 }
 else
 {
-obj* x_38; 
+obj* x_37; 
 lean::dec(x_5);
 lean::dec(x_8);
 lean::dec(x_1);
-lean::dec(x_2);
-x_38 = l_int_zero;
-lean::inc(x_38);
-return x_38;
+x_37 = l_int_zero;
+lean::inc(x_37);
+return x_37;
 }
 }
 else
 {
-obj* x_41; obj* x_43; obj* x_44; obj* x_46; 
+obj* x_40; obj* x_42; obj* x_43; obj* x_45; 
 lean::dec(x_3);
-x_41 = lean::nat_abs(x_0);
+x_40 = lean::nat_abs(x_0);
 lean::dec(x_0);
-x_43 = lean::mk_nat_obj(1u);
-x_44 = lean::nat_sub(x_41, x_43);
-lean::dec(x_41);
-x_46 = lean::int_dec_lt(x_1, x_2);
-if (lean::obj_tag(x_46) == 0)
+x_42 = lean::mk_nat_obj(1u);
+x_43 = lean::nat_sub(x_40, x_42);
+lean::dec(x_40);
+x_45 = lean::int_dec_lt(x_1, x_2);
+if (lean::obj_tag(x_45) == 0)
 {
-obj* x_48; obj* x_50; obj* x_52; obj* x_55; 
-lean::dec(x_46);
-x_48 = lean::nat_abs(x_1);
+obj* x_47; obj* x_49; obj* x_51; obj* x_54; 
+lean::dec(x_45);
+x_47 = lean::nat_abs(x_1);
 lean::dec(x_1);
-x_50 = lean::nat_mod(x_44, x_48);
-lean::dec(x_44);
-x_52 = lean::nat_add(x_50, x_43);
+x_49 = lean::nat_mod(x_43, x_47);
 lean::dec(x_43);
-lean::dec(x_50);
-x_55 = l_int_sub__nat__nat(x_48, x_52);
-return x_55;
+x_51 = lean::nat_add(x_49, x_42);
+lean::dec(x_42);
+lean::dec(x_49);
+x_54 = l_int_sub__nat__nat(x_47, x_51);
+return x_54;
 }
 else
 {
-obj* x_57; obj* x_59; obj* x_61; obj* x_63; obj* x_66; obj* x_69; obj* x_71; 
-lean::dec(x_46);
-x_57 = lean::nat_abs(x_1);
+obj* x_56; obj* x_58; obj* x_60; obj* x_62; obj* x_65; obj* x_68; obj* x_70; 
+lean::dec(x_45);
+x_56 = lean::nat_abs(x_1);
 lean::dec(x_1);
-x_59 = lean::nat_sub(x_57, x_43);
-lean::dec(x_57);
-x_61 = lean::nat_add(x_44, x_43);
-lean::dec(x_44);
-x_63 = lean::nat_add(x_59, x_43);
+x_58 = lean::nat_sub(x_56, x_42);
+lean::dec(x_56);
+x_60 = lean::nat_add(x_43, x_42);
 lean::dec(x_43);
-lean::dec(x_59);
-x_66 = lean::nat_mod(x_61, x_63);
-lean::dec(x_63);
-lean::dec(x_61);
-x_69 = lean::nat2int(x_66);
-lean::dec(x_66);
-x_71 = lean::int_neg(x_69);
-lean::dec(x_69);
-return x_71;
+x_62 = lean::nat_add(x_58, x_42);
+lean::dec(x_42);
+lean::dec(x_58);
+x_65 = lean::nat_mod(x_60, x_62);
+lean::dec(x_62);
+lean::dec(x_60);
+x_68 = lean::nat2int(x_65);
+lean::dec(x_65);
+x_70 = lean::int_neg(x_68);
+lean::dec(x_68);
+return x_70;
 }
 }
 }

@@ -4580,35 +4580,33 @@ x_15 = lean::string_iterator_curr(x_3);
 x_16 = l_true_decidable;
 if (lean::obj_tag(x_16) == 0)
 {
-obj* x_20; obj* x_21; obj* x_23; obj* x_25; obj* x_26; obj* x_27; obj* x_30; 
+obj* x_19; obj* x_20; obj* x_22; obj* x_24; obj* x_25; obj* x_26; obj* x_29; 
 lean::dec(x_2);
 lean::dec(x_3);
-lean::dec(x_16);
-x_20 = l_char_quote__core(x_15);
-x_21 = l_char_has__repr___closed__1;
-lean::inc(x_21);
-x_23 = lean::string_append(x_21, x_20);
-lean::dec(x_20);
-x_25 = lean::string_append(x_23, x_21);
-x_26 = lean::alloc_cnstr(0, 0, 0);
+x_19 = l_char_quote__core(x_15);
+x_20 = l_char_has__repr___closed__1;
+lean::inc(x_20);
+x_22 = lean::string_append(x_20, x_19);
+lean::dec(x_19);
+x_24 = lean::string_append(x_22, x_20);
+x_25 = lean::alloc_cnstr(0, 0, 0);
 ;
-x_27 = l_mjoin___rarg___closed__1;
+x_26 = l_mjoin___rarg___closed__1;
+lean::inc(x_25);
 lean::inc(x_26);
-lean::inc(x_27);
-x_30 = l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_any___spec__2___rarg(x_1, lean::box(0), x_25, x_27, x_26, x_26);
-return x_30;
+x_29 = l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_any___spec__2___rarg(x_1, lean::box(0), x_24, x_26, x_25, x_25);
+return x_29;
 }
 else
 {
-obj* x_33; obj* x_34; obj* x_35; 
+obj* x_31; obj* x_32; obj* x_33; 
 lean::dec(x_1);
-lean::dec(x_16);
-x_33 = lean::box_uint32(x_15);
-x_34 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_satisfy___rarg___lambda__1___boxed), 3, 2);
-lean::closure_set(x_34, 0, x_3);
-lean::closure_set(x_34, 1, x_33);
-x_35 = lean::apply_2(x_2, lean::box(0), x_34);
-return x_35;
+x_31 = lean::box_uint32(x_15);
+x_32 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_satisfy___rarg___lambda__1___boxed), 3, 2);
+lean::closure_set(x_32, 0, x_3);
+lean::closure_set(x_32, 1, x_31);
+x_33 = lean::apply_2(x_2, lean::box(0), x_32);
+return x_33;
 }
 }
 }
@@ -6294,17 +6292,16 @@ return x_4;
 obj* l_lean_parser_monad__parsec_lexeme___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_5; obj* x_7; obj* x_10; obj* x_11; obj* x_12; 
+obj* x_5; obj* x_7; obj* x_10; obj* x_11; 
 lean::dec(x_2);
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_5, 3);
 lean::inc(x_7);
 lean::dec(x_5);
-x_10 = l_lean_parser_monad__parsec_whitespace(lean::box(0), lean::box(0));
-x_11 = lean::apply_2(x_10, x_0, x_1);
-x_12 = lean::apply_4(x_7, lean::box(0), lean::box(0), x_3, x_11);
-return x_12;
+x_10 = l_lean_parser_monad__parsec_whitespace___rarg(x_0, x_1);
+x_11 = lean::apply_4(x_7, lean::box(0), lean::box(0), x_3, x_10);
+return x_11;
 }
 }
 obj* l_lean_parser_monad__parsec_lexeme(obj* x_0, obj* x_1) {

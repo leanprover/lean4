@@ -812,237 +812,235 @@ x_93 = lean::nat_dec_eq(x_91, x_92);
 lean::dec(x_91);
 if (lean::obj_tag(x_93) == 0)
 {
-unsigned char x_97; 
+unsigned char x_96; 
 lean::dec(x_93);
-lean::dec(x_92);
-x_97 = 0;
-return x_97;
+x_96 = 0;
+return x_96;
 }
 else
 {
-obj* x_99; obj* x_100; 
+obj* x_98; obj* x_99; 
 lean::dec(x_93);
-x_99 = l_lean_ir_type2id___main(x_2);
-x_100 = lean::nat_dec_eq(x_99, x_92);
+x_98 = l_lean_ir_type2id___main(x_2);
+x_99 = lean::nat_dec_eq(x_98, x_92);
+lean::dec(x_98);
+if (lean::obj_tag(x_99) == 0)
+{
+unsigned char x_102; 
 lean::dec(x_99);
-if (lean::obj_tag(x_100) == 0)
-{
-unsigned char x_103; 
-lean::dec(x_100);
-x_103 = 0;
-return x_103;
+x_102 = 0;
+return x_102;
 }
 else
 {
-unsigned char x_105; 
-lean::dec(x_100);
-x_105 = 1;
-return x_105;
+unsigned char x_104; 
+lean::dec(x_99);
+x_104 = 1;
+return x_104;
 }
 }
 }
 case 16:
+{
+unsigned char x_105; 
+x_105 = 0;
+x_11 = x_105;
+goto lbl_12;
+}
+default:
 {
 unsigned char x_106; 
 x_106 = 0;
 x_11 = x_106;
 goto lbl_12;
 }
-default:
-{
-unsigned char x_107; 
-x_107 = 0;
-x_11 = x_107;
-goto lbl_12;
-}
 }
 lbl_4:
 {
-obj* x_108; obj* x_109; obj* x_110; 
-x_108 = l_lean_ir_type2id___main(x_2);
-x_109 = l_lean_ir_type2id___main(x_1);
-x_110 = lean::nat_dec_eq(x_108, x_109);
+obj* x_107; obj* x_108; obj* x_109; 
+x_107 = l_lean_ir_type2id___main(x_2);
+x_108 = l_lean_ir_type2id___main(x_1);
+x_109 = lean::nat_dec_eq(x_107, x_108);
+lean::dec(x_108);
+if (lean::obj_tag(x_109) == 0)
+{
+unsigned char x_113; 
 lean::dec(x_109);
-if (lean::obj_tag(x_110) == 0)
-{
-unsigned char x_114; 
-lean::dec(x_110);
-lean::dec(x_108);
-x_114 = 0;
-return x_114;
+lean::dec(x_107);
+x_113 = 0;
+return x_113;
 }
 else
 {
-obj* x_116; obj* x_117; 
-lean::dec(x_110);
-x_116 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_117 = lean::nat_dec_eq(x_108, x_116);
-lean::dec(x_108);
-if (lean::obj_tag(x_117) == 0)
+obj* x_115; obj* x_116; 
+lean::dec(x_109);
+x_115 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_116 = lean::nat_dec_eq(x_107, x_115);
+lean::dec(x_107);
+if (lean::obj_tag(x_116) == 0)
 {
-unsigned char x_120; 
-lean::dec(x_117);
-x_120 = 0;
-return x_120;
+unsigned char x_119; 
+lean::dec(x_116);
+x_119 = 0;
+return x_119;
 }
 else
 {
-unsigned char x_122; 
-lean::dec(x_117);
-x_122 = 1;
-return x_122;
+unsigned char x_121; 
+lean::dec(x_116);
+x_121 = 1;
+return x_121;
 }
 }
 }
 lbl_6:
 {
-obj* x_123; obj* x_124; obj* x_125; 
-x_123 = l_lean_ir_type2id___main(x_2);
-x_124 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_125 = lean::nat_dec_eq(x_123, x_124);
-lean::dec(x_123);
-if (lean::obj_tag(x_125) == 0)
+obj* x_122; obj* x_123; obj* x_124; 
+x_122 = l_lean_ir_type2id___main(x_2);
+x_123 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_124 = lean::nat_dec_eq(x_122, x_123);
+lean::dec(x_122);
+if (lean::obj_tag(x_124) == 0)
 {
-unsigned char x_128; 
-lean::dec(x_125);
-x_128 = 0;
-return x_128;
+unsigned char x_127; 
+lean::dec(x_124);
+x_127 = 0;
+return x_127;
 }
 else
 {
-obj* x_130; obj* x_131; obj* x_132; 
-lean::dec(x_125);
-x_130 = l_lean_ir_type2id___main(x_1);
-x_131 = l_lean_ir_is__arith__ty___closed__1;
-x_132 = lean::nat_dec_eq(x_130, x_131);
-lean::dec(x_130);
-if (lean::obj_tag(x_132) == 0)
+obj* x_129; obj* x_130; obj* x_131; 
+lean::dec(x_124);
+x_129 = l_lean_ir_type2id___main(x_1);
+x_130 = l_lean_ir_is__arith__ty___closed__1;
+x_131 = lean::nat_dec_eq(x_129, x_130);
+lean::dec(x_129);
+if (lean::obj_tag(x_131) == 0)
 {
-unsigned char x_135; 
-lean::dec(x_132);
-x_135 = 0;
-return x_135;
+unsigned char x_134; 
+lean::dec(x_131);
+x_134 = 0;
+return x_134;
 }
 else
 {
-unsigned char x_137; 
-lean::dec(x_132);
-x_137 = 1;
-return x_137;
+unsigned char x_136; 
+lean::dec(x_131);
+x_136 = 1;
+return x_136;
 }
 }
 }
 lbl_8:
 {
-obj* x_138; obj* x_139; obj* x_140; 
-x_138 = l_lean_ir_type2id___main(x_2);
-x_139 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_140 = lean::nat_dec_eq(x_138, x_139);
-lean::dec(x_138);
-if (lean::obj_tag(x_140) == 0)
+obj* x_137; obj* x_138; obj* x_139; 
+x_137 = l_lean_ir_type2id___main(x_2);
+x_138 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_139 = lean::nat_dec_eq(x_137, x_138);
+lean::dec(x_137);
+if (lean::obj_tag(x_139) == 0)
 {
-unsigned char x_144; 
-lean::dec(x_140);
+unsigned char x_142; 
 lean::dec(x_139);
-x_144 = 0;
-return x_144;
+x_142 = 0;
+return x_142;
 }
 else
 {
-obj* x_146; obj* x_147; 
-lean::dec(x_140);
-x_146 = l_lean_ir_type2id___main(x_1);
-x_147 = lean::nat_dec_eq(x_146, x_139);
-lean::dec(x_146);
-if (lean::obj_tag(x_147) == 0)
+obj* x_144; obj* x_145; 
+lean::dec(x_139);
+x_144 = l_lean_ir_type2id___main(x_1);
+x_145 = lean::nat_dec_eq(x_144, x_138);
+lean::dec(x_144);
+if (lean::obj_tag(x_145) == 0)
+{
+unsigned char x_148; 
+lean::dec(x_145);
+x_148 = 0;
+return x_148;
+}
+else
 {
 unsigned char x_150; 
-lean::dec(x_147);
-x_150 = 0;
+lean::dec(x_145);
+x_150 = 1;
 return x_150;
-}
-else
-{
-unsigned char x_152; 
-lean::dec(x_147);
-x_152 = 1;
-return x_152;
 }
 }
 }
 lbl_10:
 {
-obj* x_153; obj* x_154; obj* x_155; 
-x_153 = l_lean_ir_type2id___main(x_1);
-x_154 = l_lean_ir_valid__assign__unop__types___closed__2;
-x_155 = lean::nat_dec_eq(x_153, x_154);
-lean::dec(x_153);
-if (lean::obj_tag(x_155) == 0)
+obj* x_151; obj* x_152; obj* x_153; 
+x_151 = l_lean_ir_type2id___main(x_1);
+x_152 = l_lean_ir_valid__assign__unop__types___closed__2;
+x_153 = lean::nat_dec_eq(x_151, x_152);
+lean::dec(x_151);
+if (lean::obj_tag(x_153) == 0)
 {
-unsigned char x_158; 
-lean::dec(x_155);
-x_158 = 0;
-return x_158;
+unsigned char x_156; 
+lean::dec(x_153);
+x_156 = 0;
+return x_156;
 }
 else
 {
-obj* x_160; obj* x_161; obj* x_162; 
-lean::dec(x_155);
-x_160 = l_lean_ir_type2id___main(x_2);
-x_161 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_162 = lean::nat_dec_eq(x_160, x_161);
+obj* x_158; obj* x_159; obj* x_160; 
+lean::dec(x_153);
+x_158 = l_lean_ir_type2id___main(x_2);
+x_159 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_160 = lean::nat_dec_eq(x_158, x_159);
+lean::dec(x_158);
+if (lean::obj_tag(x_160) == 0)
+{
+unsigned char x_163; 
 lean::dec(x_160);
-if (lean::obj_tag(x_162) == 0)
+x_163 = 0;
+return x_163;
+}
+else
 {
 unsigned char x_165; 
-lean::dec(x_162);
-x_165 = 0;
+lean::dec(x_160);
+x_165 = 1;
 return x_165;
-}
-else
-{
-unsigned char x_167; 
-lean::dec(x_162);
-x_167 = 1;
-return x_167;
 }
 }
 }
 lbl_12:
 {
-obj* x_168; obj* x_169; obj* x_170; 
-x_168 = l_lean_ir_type2id___main(x_1);
-x_169 = l_lean_ir_valid__assign__unop__types___closed__3;
-x_170 = lean::nat_dec_eq(x_168, x_169);
-lean::dec(x_168);
-if (lean::obj_tag(x_170) == 0)
+obj* x_166; obj* x_167; obj* x_168; 
+x_166 = l_lean_ir_type2id___main(x_1);
+x_167 = l_lean_ir_valid__assign__unop__types___closed__3;
+x_168 = lean::nat_dec_eq(x_166, x_167);
+lean::dec(x_166);
+if (lean::obj_tag(x_168) == 0)
 {
-unsigned char x_173; 
-lean::dec(x_170);
-x_173 = 0;
-return x_173;
+unsigned char x_171; 
+lean::dec(x_168);
+x_171 = 0;
+return x_171;
 }
 else
 {
-obj* x_175; obj* x_176; obj* x_177; 
-lean::dec(x_170);
-x_175 = l_lean_ir_type2id___main(x_2);
-x_176 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_177 = lean::nat_dec_eq(x_175, x_176);
+obj* x_173; obj* x_174; obj* x_175; 
+lean::dec(x_168);
+x_173 = l_lean_ir_type2id___main(x_2);
+x_174 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_175 = lean::nat_dec_eq(x_173, x_174);
+lean::dec(x_173);
+if (lean::obj_tag(x_175) == 0)
+{
+unsigned char x_178; 
 lean::dec(x_175);
-if (lean::obj_tag(x_177) == 0)
+x_178 = 0;
+return x_178;
+}
+else
 {
 unsigned char x_180; 
-lean::dec(x_177);
-x_180 = 0;
+lean::dec(x_175);
+x_180 = 1;
 return x_180;
-}
-else
-{
-unsigned char x_182; 
-lean::dec(x_177);
-x_182 = 1;
-return x_182;
 }
 }
 }
@@ -1341,139 +1339,135 @@ x_73 = lean::nat_dec_eq(x_71, x_72);
 lean::dec(x_71);
 if (lean::obj_tag(x_73) == 0)
 {
-unsigned char x_77; 
-lean::dec(x_72);
+unsigned char x_76; 
 lean::dec(x_73);
-x_77 = 0;
-return x_77;
+x_76 = 0;
+return x_76;
 }
 else
 {
-obj* x_79; obj* x_80; 
+obj* x_78; obj* x_79; 
 lean::dec(x_73);
-x_79 = l_lean_ir_type2id___main(x_2);
-x_80 = lean::nat_dec_eq(x_79, x_72);
+x_78 = l_lean_ir_type2id___main(x_2);
+x_79 = lean::nat_dec_eq(x_78, x_72);
+lean::dec(x_78);
+if (lean::obj_tag(x_79) == 0)
+{
+unsigned char x_82; 
 lean::dec(x_79);
-if (lean::obj_tag(x_80) == 0)
-{
-unsigned char x_83; 
-lean::dec(x_80);
-x_83 = 0;
-return x_83;
+x_82 = 0;
+return x_82;
 }
 else
 {
-unsigned char x_85; 
-lean::dec(x_80);
-x_85 = 1;
-return x_85;
+unsigned char x_84; 
+lean::dec(x_79);
+x_84 = 1;
+return x_84;
 }
 }
 }
 case 25:
 {
-obj* x_86; obj* x_87; obj* x_88; 
-x_86 = l_lean_ir_type2id___main(x_1);
-x_87 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_88 = lean::nat_dec_eq(x_86, x_87);
-lean::dec(x_86);
-if (lean::obj_tag(x_88) == 0)
+obj* x_85; obj* x_86; obj* x_87; 
+x_85 = l_lean_ir_type2id___main(x_1);
+x_86 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_87 = lean::nat_dec_eq(x_85, x_86);
+lean::dec(x_85);
+if (lean::obj_tag(x_87) == 0)
 {
-unsigned char x_92; 
-lean::dec(x_88);
+unsigned char x_90; 
 lean::dec(x_87);
-x_92 = 0;
-return x_92;
+x_90 = 0;
+return x_90;
 }
 else
 {
-obj* x_94; obj* x_95; 
-lean::dec(x_88);
-x_94 = l_lean_ir_type2id___main(x_2);
-x_95 = lean::nat_dec_eq(x_94, x_87);
-lean::dec(x_94);
-if (lean::obj_tag(x_95) == 0)
+obj* x_92; obj* x_93; 
+lean::dec(x_87);
+x_92 = l_lean_ir_type2id___main(x_2);
+x_93 = lean::nat_dec_eq(x_92, x_86);
+lean::dec(x_92);
+if (lean::obj_tag(x_93) == 0)
 {
-unsigned char x_98; 
-lean::dec(x_95);
-x_98 = 0;
-return x_98;
+unsigned char x_96; 
+lean::dec(x_93);
+x_96 = 0;
+return x_96;
 }
 else
 {
-obj* x_100; obj* x_101; obj* x_102; 
-lean::dec(x_95);
-x_100 = l_lean_ir_type2id___main(x_3);
-x_101 = l_lean_ir_valid__assign__unop__types___closed__3;
-x_102 = lean::nat_dec_eq(x_100, x_101);
+obj* x_98; obj* x_99; obj* x_100; 
+lean::dec(x_93);
+x_98 = l_lean_ir_type2id___main(x_3);
+x_99 = l_lean_ir_valid__assign__unop__types___closed__3;
+x_100 = lean::nat_dec_eq(x_98, x_99);
+lean::dec(x_98);
+if (lean::obj_tag(x_100) == 0)
+{
+unsigned char x_103; 
 lean::dec(x_100);
-if (lean::obj_tag(x_102) == 0)
+x_103 = 0;
+return x_103;
+}
+else
 {
 unsigned char x_105; 
-lean::dec(x_102);
-x_105 = 0;
+lean::dec(x_100);
+x_105 = 1;
 return x_105;
-}
-else
-{
-unsigned char x_107; 
-lean::dec(x_102);
-x_107 = 1;
-return x_107;
 }
 }
 }
 }
 default:
 {
-obj* x_108; obj* x_109; obj* x_110; 
-x_108 = l_lean_ir_type2id___main(x_1);
-x_109 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_110 = lean::nat_dec_eq(x_108, x_109);
+obj* x_106; obj* x_107; obj* x_108; 
+x_106 = l_lean_ir_type2id___main(x_1);
+x_107 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_108 = lean::nat_dec_eq(x_106, x_107);
+lean::dec(x_106);
+if (lean::obj_tag(x_108) == 0)
+{
+unsigned char x_111; 
 lean::dec(x_108);
-if (lean::obj_tag(x_110) == 0)
-{
-unsigned char x_114; 
-lean::dec(x_110);
-lean::dec(x_109);
-x_114 = 0;
-return x_114;
+x_111 = 0;
+return x_111;
 }
 else
 {
-obj* x_116; obj* x_117; 
-lean::dec(x_110);
-x_116 = l_lean_ir_type2id___main(x_2);
-x_117 = lean::nat_dec_eq(x_116, x_109);
-lean::dec(x_116);
-if (lean::obj_tag(x_117) == 0)
+obj* x_113; obj* x_114; 
+lean::dec(x_108);
+x_113 = l_lean_ir_type2id___main(x_2);
+x_114 = lean::nat_dec_eq(x_113, x_107);
+lean::dec(x_113);
+if (lean::obj_tag(x_114) == 0)
 {
-unsigned char x_121; 
-lean::dec(x_117);
-lean::dec(x_109);
-x_121 = 0;
-return x_121;
+unsigned char x_117; 
+lean::dec(x_114);
+x_117 = 0;
+return x_117;
 }
 else
 {
-obj* x_123; obj* x_124; 
-lean::dec(x_117);
-x_123 = l_lean_ir_type2id___main(x_3);
-x_124 = lean::nat_dec_eq(x_123, x_109);
-lean::dec(x_123);
-if (lean::obj_tag(x_124) == 0)
+obj* x_119; obj* x_120; 
+lean::dec(x_114);
+x_119 = l_lean_ir_type2id___main(x_3);
+x_120 = lean::nat_dec_eq(x_119, x_107);
+lean::dec(x_119);
+if (lean::obj_tag(x_120) == 0)
 {
-unsigned char x_127; 
-lean::dec(x_124);
-x_127 = 0;
-return x_127;
+unsigned char x_123; 
+lean::dec(x_120);
+x_123 = 0;
+return x_123;
 }
 else
 {
-unsigned char x_129; 
-lean::dec(x_124);
-x_129 = 1;
-return x_129;
+unsigned char x_125; 
+lean::dec(x_120);
+x_125 = 1;
+return x_125;
 }
 }
 }
@@ -1481,303 +1475,303 @@ return x_129;
 }
 lbl_5:
 {
-obj* x_130; obj* x_131; obj* x_132; 
-x_130 = l_lean_ir_type2id___main(x_1);
-x_131 = l_lean_ir_type2id___main(x_2);
-x_132 = lean::nat_dec_eq(x_130, x_131);
-lean::dec(x_131);
-if (lean::obj_tag(x_132) == 0)
+obj* x_126; obj* x_127; obj* x_128; 
+x_126 = l_lean_ir_type2id___main(x_1);
+x_127 = l_lean_ir_type2id___main(x_2);
+x_128 = lean::nat_dec_eq(x_126, x_127);
+lean::dec(x_127);
+if (lean::obj_tag(x_128) == 0)
 {
-unsigned char x_136; 
-lean::dec(x_132);
-lean::dec(x_130);
-x_136 = 0;
-return x_136;
+unsigned char x_132; 
+lean::dec(x_128);
+lean::dec(x_126);
+x_132 = 0;
+return x_132;
 }
 else
 {
-obj* x_138; obj* x_139; 
-lean::dec(x_132);
-x_138 = l_lean_ir_type2id___main(x_3);
-x_139 = lean::nat_dec_eq(x_130, x_138);
-lean::dec(x_138);
-lean::dec(x_130);
-if (lean::obj_tag(x_139) == 0)
+obj* x_134; obj* x_135; 
+lean::dec(x_128);
+x_134 = l_lean_ir_type2id___main(x_3);
+x_135 = lean::nat_dec_eq(x_126, x_134);
+lean::dec(x_134);
+lean::dec(x_126);
+if (lean::obj_tag(x_135) == 0)
 {
-unsigned char x_143; 
-lean::dec(x_139);
-x_143 = 0;
-return x_143;
+unsigned char x_139; 
+lean::dec(x_135);
+x_139 = 0;
+return x_139;
 }
 else
 {
-unsigned char x_145; 
-lean::dec(x_139);
-x_145 = l_lean_ir_is__arith__ty(x_1);
-return x_145;
+unsigned char x_141; 
+lean::dec(x_135);
+x_141 = l_lean_ir_is__arith__ty(x_1);
+return x_141;
 }
 }
 }
 lbl_7:
 {
-obj* x_146; obj* x_147; obj* x_148; 
-x_146 = l_lean_ir_type2id___main(x_1);
-x_147 = l_lean_ir_type2id___main(x_2);
-x_148 = lean::nat_dec_eq(x_146, x_147);
-lean::dec(x_147);
-if (lean::obj_tag(x_148) == 0)
+obj* x_142; obj* x_143; obj* x_144; 
+x_142 = l_lean_ir_type2id___main(x_1);
+x_143 = l_lean_ir_type2id___main(x_2);
+x_144 = lean::nat_dec_eq(x_142, x_143);
+lean::dec(x_143);
+if (lean::obj_tag(x_144) == 0)
 {
-unsigned char x_152; 
-lean::dec(x_146);
-lean::dec(x_148);
-x_152 = 0;
-return x_152;
+unsigned char x_148; 
+lean::dec(x_142);
+lean::dec(x_144);
+x_148 = 0;
+return x_148;
 }
 else
 {
-obj* x_154; obj* x_155; 
-lean::dec(x_148);
-x_154 = l_lean_ir_type2id___main(x_3);
-x_155 = lean::nat_dec_eq(x_146, x_154);
-lean::dec(x_154);
-if (lean::obj_tag(x_155) == 0)
+obj* x_150; obj* x_151; 
+lean::dec(x_144);
+x_150 = l_lean_ir_type2id___main(x_3);
+x_151 = lean::nat_dec_eq(x_142, x_150);
+lean::dec(x_150);
+if (lean::obj_tag(x_151) == 0)
 {
-unsigned char x_159; 
-lean::dec(x_155);
-lean::dec(x_146);
-x_159 = 0;
-return x_159;
+unsigned char x_155; 
+lean::dec(x_151);
+lean::dec(x_142);
+x_155 = 0;
+return x_155;
 }
 else
 {
-obj* x_161; obj* x_162; 
-lean::dec(x_155);
-x_161 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_162 = lean::nat_dec_eq(x_146, x_161);
-lean::dec(x_146);
-if (lean::obj_tag(x_162) == 0)
+obj* x_157; obj* x_158; 
+lean::dec(x_151);
+x_157 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_158 = lean::nat_dec_eq(x_142, x_157);
+lean::dec(x_142);
+if (lean::obj_tag(x_158) == 0)
 {
-unsigned char x_165; 
-lean::dec(x_162);
-x_165 = 0;
-return x_165;
+unsigned char x_161; 
+lean::dec(x_158);
+x_161 = 0;
+return x_161;
 }
 else
 {
-unsigned char x_167; 
-lean::dec(x_162);
-x_167 = 1;
-return x_167;
+unsigned char x_163; 
+lean::dec(x_158);
+x_163 = 1;
+return x_163;
 }
 }
 }
 }
 lbl_9:
 {
-obj* x_168; obj* x_169; obj* x_170; 
-x_168 = l_lean_ir_type2id___main(x_1);
-x_169 = l_lean_ir_type2id___main(x_2);
-x_170 = lean::nat_dec_eq(x_168, x_169);
-lean::dec(x_169);
-if (lean::obj_tag(x_170) == 0)
+obj* x_164; obj* x_165; obj* x_166; 
+x_164 = l_lean_ir_type2id___main(x_1);
+x_165 = l_lean_ir_type2id___main(x_2);
+x_166 = lean::nat_dec_eq(x_164, x_165);
+lean::dec(x_165);
+if (lean::obj_tag(x_166) == 0)
 {
-unsigned char x_174; 
-lean::dec(x_170);
-lean::dec(x_168);
-x_174 = 0;
-return x_174;
+unsigned char x_170; 
+lean::dec(x_166);
+lean::dec(x_164);
+x_170 = 0;
+return x_170;
 }
 else
 {
-obj* x_176; obj* x_177; 
-lean::dec(x_170);
-x_176 = l_lean_ir_type2id___main(x_3);
-x_177 = lean::nat_dec_eq(x_168, x_176);
-lean::dec(x_176);
-lean::dec(x_168);
-if (lean::obj_tag(x_177) == 0)
+obj* x_172; obj* x_173; 
+lean::dec(x_166);
+x_172 = l_lean_ir_type2id___main(x_3);
+x_173 = lean::nat_dec_eq(x_164, x_172);
+lean::dec(x_172);
+lean::dec(x_164);
+if (lean::obj_tag(x_173) == 0)
 {
-unsigned char x_181; 
-lean::dec(x_177);
-x_181 = 0;
-return x_181;
+unsigned char x_177; 
+lean::dec(x_173);
+x_177 = 0;
+return x_177;
 }
 else
 {
-unsigned char x_183; 
-lean::dec(x_177);
-x_183 = l_lean_ir_is__bitshift__ty(x_1);
-return x_183;
+unsigned char x_179; 
+lean::dec(x_173);
+x_179 = l_lean_ir_is__bitshift__ty(x_1);
+return x_179;
 }
 }
 }
 lbl_11:
 {
-obj* x_184; obj* x_185; obj* x_186; 
-x_184 = l_lean_ir_type2id___main(x_1);
-x_185 = l_lean_ir_type2id___main(x_2);
-x_186 = lean::nat_dec_eq(x_184, x_185);
-lean::dec(x_185);
-if (lean::obj_tag(x_186) == 0)
+obj* x_180; obj* x_181; obj* x_182; 
+x_180 = l_lean_ir_type2id___main(x_1);
+x_181 = l_lean_ir_type2id___main(x_2);
+x_182 = lean::nat_dec_eq(x_180, x_181);
+lean::dec(x_181);
+if (lean::obj_tag(x_182) == 0)
 {
-unsigned char x_190; 
-lean::dec(x_184);
-lean::dec(x_186);
-x_190 = 0;
-return x_190;
+unsigned char x_186; 
+lean::dec(x_180);
+lean::dec(x_182);
+x_186 = 0;
+return x_186;
 }
 else
 {
-obj* x_192; obj* x_193; 
-lean::dec(x_186);
-x_192 = l_lean_ir_type2id___main(x_3);
-x_193 = lean::nat_dec_eq(x_184, x_192);
-lean::dec(x_192);
-lean::dec(x_184);
-if (lean::obj_tag(x_193) == 0)
+obj* x_188; obj* x_189; 
+lean::dec(x_182);
+x_188 = l_lean_ir_type2id___main(x_3);
+x_189 = lean::nat_dec_eq(x_180, x_188);
+lean::dec(x_188);
+lean::dec(x_180);
+if (lean::obj_tag(x_189) == 0)
 {
-unsigned char x_197; 
-lean::dec(x_193);
-x_197 = 0;
-return x_197;
+unsigned char x_193; 
+lean::dec(x_189);
+x_193 = 0;
+return x_193;
 }
 else
 {
-unsigned char x_199; 
-lean::dec(x_193);
-x_199 = l_lean_ir_is__bitwise__ty(x_1);
-return x_199;
+unsigned char x_195; 
+lean::dec(x_189);
+x_195 = l_lean_ir_is__bitwise__ty(x_1);
+return x_195;
 }
 }
 }
 lbl_13:
 {
-obj* x_200; obj* x_201; obj* x_202; 
-x_200 = l_lean_ir_type2id___main(x_1);
-x_201 = l_lean_ir_is__arith__ty___closed__1;
-x_202 = lean::nat_dec_eq(x_200, x_201);
-lean::dec(x_200);
-if (lean::obj_tag(x_202) == 0)
+obj* x_196; obj* x_197; obj* x_198; 
+x_196 = l_lean_ir_type2id___main(x_1);
+x_197 = l_lean_ir_is__arith__ty___closed__1;
+x_198 = lean::nat_dec_eq(x_196, x_197);
+lean::dec(x_196);
+if (lean::obj_tag(x_198) == 0)
 {
-unsigned char x_205; 
-lean::dec(x_202);
-x_205 = 0;
-return x_205;
+unsigned char x_201; 
+lean::dec(x_198);
+x_201 = 0;
+return x_201;
 }
 else
 {
-obj* x_207; obj* x_208; obj* x_209; 
-lean::dec(x_202);
-x_207 = l_lean_ir_type2id___main(x_2);
-x_208 = l_lean_ir_type2id___main(x_3);
-x_209 = lean::nat_dec_eq(x_207, x_208);
-lean::dec(x_208);
-lean::dec(x_207);
-if (lean::obj_tag(x_209) == 0)
+obj* x_203; obj* x_204; obj* x_205; 
+lean::dec(x_198);
+x_203 = l_lean_ir_type2id___main(x_2);
+x_204 = l_lean_ir_type2id___main(x_3);
+x_205 = lean::nat_dec_eq(x_203, x_204);
+lean::dec(x_204);
+lean::dec(x_203);
+if (lean::obj_tag(x_205) == 0)
 {
-unsigned char x_213; 
-lean::dec(x_209);
-x_213 = 0;
-return x_213;
+unsigned char x_209; 
+lean::dec(x_205);
+x_209 = 0;
+return x_209;
 }
 else
 {
-unsigned char x_215; 
-lean::dec(x_209);
-x_215 = l_lean_ir_is__arith__ty(x_2);
-return x_215;
+unsigned char x_211; 
+lean::dec(x_205);
+x_211 = l_lean_ir_is__arith__ty(x_2);
+return x_211;
 }
 }
 }
 lbl_15:
 {
-obj* x_216; obj* x_217; obj* x_218; 
-x_216 = l_lean_ir_type2id___main(x_1);
-x_217 = l_lean_ir_is__arith__ty___closed__1;
-x_218 = lean::nat_dec_eq(x_216, x_217);
-lean::dec(x_216);
-if (lean::obj_tag(x_218) == 0)
+obj* x_212; obj* x_213; obj* x_214; 
+x_212 = l_lean_ir_type2id___main(x_1);
+x_213 = l_lean_ir_is__arith__ty___closed__1;
+x_214 = lean::nat_dec_eq(x_212, x_213);
+lean::dec(x_212);
+if (lean::obj_tag(x_214) == 0)
 {
-unsigned char x_221; 
-lean::dec(x_218);
-x_221 = 0;
-return x_221;
+unsigned char x_217; 
+lean::dec(x_214);
+x_217 = 0;
+return x_217;
 }
 else
 {
-obj* x_223; obj* x_224; obj* x_225; 
-lean::dec(x_218);
-x_223 = l_lean_ir_type2id___main(x_2);
-x_224 = l_lean_ir_type2id___main(x_3);
-x_225 = lean::nat_dec_eq(x_223, x_224);
-lean::dec(x_224);
-lean::dec(x_223);
-if (lean::obj_tag(x_225) == 0)
+obj* x_219; obj* x_220; obj* x_221; 
+lean::dec(x_214);
+x_219 = l_lean_ir_type2id___main(x_2);
+x_220 = l_lean_ir_type2id___main(x_3);
+x_221 = lean::nat_dec_eq(x_219, x_220);
+lean::dec(x_220);
+lean::dec(x_219);
+if (lean::obj_tag(x_221) == 0)
 {
-unsigned char x_229; 
-lean::dec(x_225);
-x_229 = 0;
-return x_229;
+unsigned char x_225; 
+lean::dec(x_221);
+x_225 = 0;
+return x_225;
 }
 else
 {
-unsigned char x_231; 
-lean::dec(x_225);
-x_231 = 1;
-return x_231;
+unsigned char x_227; 
+lean::dec(x_221);
+x_227 = 1;
+return x_227;
 }
 }
 }
 lbl_17:
 {
-obj* x_232; obj* x_233; obj* x_234; 
-x_232 = l_lean_ir_type2id___main(x_1);
-x_233 = l_lean_ir_is__arith__ty___closed__1;
-x_234 = lean::nat_dec_eq(x_232, x_233);
-lean::dec(x_232);
-if (lean::obj_tag(x_234) == 0)
+obj* x_228; obj* x_229; obj* x_230; 
+x_228 = l_lean_ir_type2id___main(x_1);
+x_229 = l_lean_ir_is__arith__ty___closed__1;
+x_230 = lean::nat_dec_eq(x_228, x_229);
+lean::dec(x_228);
+if (lean::obj_tag(x_230) == 0)
 {
-unsigned char x_237; 
-lean::dec(x_234);
-x_237 = 0;
-return x_237;
+unsigned char x_233; 
+lean::dec(x_230);
+x_233 = 0;
+return x_233;
 }
 else
 {
-obj* x_239; obj* x_240; obj* x_241; 
-lean::dec(x_234);
-x_239 = l_lean_ir_type2id___main(x_2);
-x_240 = l_lean_ir_type2id___main(x_3);
-x_241 = lean::nat_dec_eq(x_239, x_240);
-lean::dec(x_240);
-if (lean::obj_tag(x_241) == 0)
+obj* x_235; obj* x_236; obj* x_237; 
+lean::dec(x_230);
+x_235 = l_lean_ir_type2id___main(x_2);
+x_236 = l_lean_ir_type2id___main(x_3);
+x_237 = lean::nat_dec_eq(x_235, x_236);
+lean::dec(x_236);
+if (lean::obj_tag(x_237) == 0)
 {
-unsigned char x_245; 
-lean::dec(x_241);
-lean::dec(x_239);
-x_245 = 0;
-return x_245;
+unsigned char x_241; 
+lean::dec(x_237);
+lean::dec(x_235);
+x_241 = 0;
+return x_241;
 }
 else
 {
-obj* x_247; obj* x_248; 
-lean::dec(x_241);
-x_247 = l_lean_ir_valid__assign__unop__types___closed__1;
-x_248 = lean::nat_dec_eq(x_239, x_247);
-lean::dec(x_239);
-if (lean::obj_tag(x_248) == 0)
+obj* x_243; obj* x_244; 
+lean::dec(x_237);
+x_243 = l_lean_ir_valid__assign__unop__types___closed__1;
+x_244 = lean::nat_dec_eq(x_235, x_243);
+lean::dec(x_235);
+if (lean::obj_tag(x_244) == 0)
 {
-unsigned char x_251; 
-lean::dec(x_248);
-x_251 = 0;
-return x_251;
+unsigned char x_247; 
+lean::dec(x_244);
+x_247 = 0;
+return x_247;
 }
 else
 {
-unsigned char x_253; 
-lean::dec(x_248);
-x_253 = 1;
-return x_253;
+unsigned char x_249; 
+lean::dec(x_244);
+x_249 = 1;
+return x_249;
 }
 }
 }
@@ -2822,40 +2816,38 @@ else
 {
 if (lean::obj_tag(x_36) == 0)
 {
-obj* x_48; obj* x_50; 
+obj* x_47; obj* x_49; 
 lean::dec(x_36);
-lean::dec(x_38);
-x_48 = l_lean_ir_match__type___closed__5;
-lean::inc(x_48);
-x_50 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_50, 0, x_48);
-lean::cnstr_set(x_50, 1, x_3);
-return x_50;
+x_47 = l_lean_ir_match__type___closed__5;
+lean::inc(x_47);
+x_49 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_49, 0, x_47);
+lean::cnstr_set(x_49, 1, x_3);
+return x_49;
 }
 else
 {
-unsigned char x_52; 
+unsigned char x_51; 
 lean::dec(x_36);
-x_52 = l_lean_ir_is__signed__arith__ty(x_1);
-if (x_52 == 0)
+x_51 = l_lean_ir_is__signed__arith__ty(x_1);
+if (x_51 == 0)
 {
-obj* x_54; 
+obj* x_53; 
 lean::inc(x_38);
-x_54 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_54, 0, x_38);
-lean::cnstr_set(x_54, 1, x_3);
-return x_54;
+x_53 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_53, 0, x_38);
+lean::cnstr_set(x_53, 1, x_3);
+return x_53;
 }
 else
 {
-obj* x_56; obj* x_58; 
-lean::dec(x_38);
-x_56 = l_lean_ir_match__type___closed__5;
-lean::inc(x_56);
-x_58 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_58, 0, x_56);
-lean::cnstr_set(x_58, 1, x_3);
-return x_58;
+obj* x_54; obj* x_56; 
+x_54 = l_lean_ir_match__type___closed__5;
+lean::inc(x_54);
+x_56 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_56, 0, x_54);
+lean::cnstr_set(x_56, 1, x_3);
+return x_56;
 }
 }
 }
@@ -2864,91 +2856,91 @@ else
 {
 if (lean::obj_tag(x_36) == 0)
 {
-obj* x_60; obj* x_62; 
+obj* x_58; obj* x_60; 
 lean::dec(x_36);
-x_60 = l_lean_ir_match__type___closed__5;
-lean::inc(x_60);
-x_62 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_62, 0, x_60);
-lean::cnstr_set(x_62, 1, x_3);
-return x_62;
+x_58 = l_lean_ir_match__type___closed__5;
+lean::inc(x_58);
+x_60 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_60, 0, x_58);
+lean::cnstr_set(x_60, 1, x_3);
+return x_60;
 }
 else
 {
-unsigned char x_64; 
+unsigned char x_62; 
 lean::dec(x_36);
-x_64 = l_lean_ir_is__signed__arith__ty(x_1);
-if (x_64 == 0)
+x_62 = l_lean_ir_is__signed__arith__ty(x_1);
+if (x_62 == 0)
 {
-obj* x_65; obj* x_67; 
-x_65 = l_lean_ir_invalid__literal___rarg___closed__1;
-lean::inc(x_65);
-x_67 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_67, 0, x_65);
-lean::cnstr_set(x_67, 1, x_3);
-return x_67;
+obj* x_63; obj* x_65; 
+x_63 = l_lean_ir_invalid__literal___rarg___closed__1;
+lean::inc(x_63);
+x_65 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_65, 0, x_63);
+lean::cnstr_set(x_65, 1, x_3);
+return x_65;
 }
 else
 {
-obj* x_68; obj* x_70; 
-x_68 = l_lean_ir_match__type___closed__5;
-lean::inc(x_68);
-x_70 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_70, 0, x_68);
-lean::cnstr_set(x_70, 1, x_3);
-return x_70;
+obj* x_66; obj* x_68; 
+x_66 = l_lean_ir_match__type___closed__5;
+lean::inc(x_66);
+x_68 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_68, 0, x_66);
+lean::cnstr_set(x_68, 1, x_3);
+return x_68;
 }
 }
 }
 }
 default:
 {
-obj* x_72; obj* x_73; obj* x_74; 
+obj* x_70; obj* x_71; obj* x_72; 
 lean::dec(x_0);
-x_72 = l_lean_ir_type2id___main(x_1);
-x_73 = l_lean_ir_is__nonfloat__arith__ty___closed__2;
-x_74 = lean::nat_dec_eq(x_72, x_73);
-if (lean::obj_tag(x_74) == 0)
+x_70 = l_lean_ir_type2id___main(x_1);
+x_71 = l_lean_ir_is__nonfloat__arith__ty___closed__2;
+x_72 = lean::nat_dec_eq(x_70, x_71);
+if (lean::obj_tag(x_72) == 0)
 {
-obj* x_76; obj* x_77; 
-lean::dec(x_74);
-x_76 = l_lean_ir_is__nonfloat__arith__ty___closed__1;
-x_77 = lean::nat_dec_eq(x_72, x_76);
+obj* x_74; obj* x_75; 
 lean::dec(x_72);
-if (lean::obj_tag(x_77) == 0)
+x_74 = l_lean_ir_is__nonfloat__arith__ty___closed__1;
+x_75 = lean::nat_dec_eq(x_70, x_74);
+lean::dec(x_70);
+if (lean::obj_tag(x_75) == 0)
 {
-obj* x_80; obj* x_82; 
-lean::dec(x_77);
-x_80 = l_lean_ir_invalid__literal___rarg___closed__1;
-lean::inc(x_80);
-x_82 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_82, 0, x_80);
-lean::cnstr_set(x_82, 1, x_3);
-return x_82;
+obj* x_78; obj* x_80; 
+lean::dec(x_75);
+x_78 = l_lean_ir_invalid__literal___rarg___closed__1;
+lean::inc(x_78);
+x_80 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_80, 0, x_78);
+lean::cnstr_set(x_80, 1, x_3);
+return x_80;
 }
 else
 {
-obj* x_84; obj* x_86; 
-lean::dec(x_77);
-x_84 = l_lean_ir_match__type___closed__5;
-lean::inc(x_84);
-x_86 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_86, 0, x_84);
-lean::cnstr_set(x_86, 1, x_3);
-return x_86;
+obj* x_82; obj* x_84; 
+lean::dec(x_75);
+x_82 = l_lean_ir_match__type___closed__5;
+lean::inc(x_82);
+x_84 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_84, 0, x_82);
+lean::cnstr_set(x_84, 1, x_3);
+return x_84;
 }
 }
 else
 {
-obj* x_89; obj* x_91; 
+obj* x_87; obj* x_89; 
+lean::dec(x_70);
 lean::dec(x_72);
-lean::dec(x_74);
-x_89 = l_lean_ir_match__type___closed__5;
-lean::inc(x_89);
-x_91 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_91, 0, x_89);
-lean::cnstr_set(x_91, 1, x_3);
-return x_91;
+x_87 = l_lean_ir_match__type___closed__5;
+lean::inc(x_87);
+x_89 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_89, 0, x_87);
+lean::cnstr_set(x_89, 1, x_3);
+return x_89;
 }
 }
 }

@@ -812,14 +812,14 @@ static void emit_fns(std::ostream & out, environment const & env) {
 
 static void emit_initialize(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     for (module_name const & d : deps) {
-        out << "void _l_initialize_" << mangle(d) << "();\n";
+        out << "void initialize_" << mangle(d, false) << "();\n";
     }
     out << "static bool _G_initialized = false;\n";
-    out << "void _l_initialize_" << mangle(m) << "() {\n";
+    out << "void initialize_" << mangle(m, false) << "() {\n";
     out << " if (_G_initialized) return;\n";
     out << " _G_initialized = true;\n";
     for (module_name const & d : deps) {
-        out << " _l_initialize_" << mangle(d) << "();\n";
+        out << " initialize_" << mangle(d, false) << "();\n";
     }
     comp_decls ds = get_extension(env).m_code;
     for (comp_decl const & d : ds) {

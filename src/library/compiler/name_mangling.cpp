@@ -20,12 +20,12 @@ static std::string mangle(std::string const & s) {
             } else if (c == '_') {
                 out += "__";
             } else {
-                out += "_x";
+                out += "_x_";
                 out += ('0' + (c / 16));
                 out += ('0' + (c % 16));
             }
         } else {
-            out += "_u";
+            out += "_u_";
             out += ('0' + (c / 4096));
             c %= 4096;
             out += ('0' + (c / 256));
@@ -47,18 +47,17 @@ static void mangle(name const & n, std::string & out) {
         out += "_";
     } else {
         lean_assert(n.is_string());
-        mangle(n.get_prefix(), out);
-        out += "_s";
-        std::string s = mangle(n.get_string().to_std_string());
-        unsigned len  = s.size();
-        out += std::to_string(len);
-        out += "_";
-        out += s;
+        if (!n.get_prefix().is_anonymous()) {
+            mangle(n.get_prefix(), out);
+            out += "_";
+        }
+        out += mangle(n.get_string().to_std_string());
     }
 }
 
-std::string mangle(name const & n) {
-    std::string out("_l");
+std::string mangle(name const & n, bool add_prefix) {
+    std::string out;
+    if (add_prefix) out += "l_";
     mangle(n, out);
     return out;
 }

@@ -8,5 +8,5 @@ Author: Leonardo de Moura
 #include "util/name.h"
 
 namespace lean {
-std::string mangle(name const & n);
+std::string mangle(name const & n, bool add_prefix = true);
 }

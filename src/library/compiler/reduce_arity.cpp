@@ -10,6 +10,14 @@ Author: Leonardo de Moura
 namespace lean {
 #define REDUCE_ARITY_SUFFIX "_rarg"
 
+name mk_reduce_arity_aux_fn(name const & n) {
+    return name(n, REDUCE_ARITY_SUFFIX);
+}
+
+bool is_reduce_arity_aux_fn(name const & n) {
+    return n.is_string() && !n.is_atomic() && strcmp(n.get_string().data(), REDUCE_ARITY_SUFFIX) == 0;
+}
+
 bool arity_was_reduced(comp_decl const & cdecl) {
     expr v = cdecl.snd();
     while (is_lambda(v))
@@ -17,7 +25,7 @@ bool arity_was_reduced(comp_decl const & cdecl) {
     expr const & f = get_app_fn(v);
     if (!is_constant(f)) return false;
     name const & n = const_name(f);
-    return n.is_string() && !n.is_atomic() && strcmp(n.get_string().data(), REDUCE_ARITY_SUFFIX) == 0;
+    return is_reduce_arity_aux_fn(n);
 }
 
 comp_decls reduce_arity(comp_decl const & cdecl) {
@@ -68,7 +76,7 @@ comp_decls reduce_arity(comp_decl const & cdecl) {
         */
         return comp_decls(cdecl);
     }
-    name red_fn   = name(cdecl.fst(), REDUCE_ARITY_SUFFIX);
+    name red_fn   = mk_reduce_arity_aux_fn(cdecl.fst());
     expr red_code = lctx.mk_lambda(new_fvars, code);
     comp_decl red_decl(red_fn, red_code);
     /* Replace `cdecl` code with a call to `red_fn`.

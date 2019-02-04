@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/expr_pair_maps.h"
 #include "library/compiler/util.h"
 #include "library/compiler/csimp.h"
+#include "library/compiler/reduce_arity.h"
 
 namespace lean {
 csimp_cfg::csimp_cfg(options const &):
@@ -1253,11 +1254,22 @@ class csimp_fn {
         return beta_reduce_if_not_cases(fn, args.size(), args.data(), is_let_val);
     }
 
+    bool check_noinline_attribute(name const & n) {
+        if (!has_noinline_attribute(env(), n)) return false;
+        /* Even if the function has `@[noinline]` attribute, we must still inline if its arguments
+           were reduced by `reduce_arity`. This should only be checked after erasure. */
+        if (m_before_erasure) return true;
+        name c = mk_cstage2_name(n);
+        optional<constant_info> info = env().find(c);
+        if (!info || !info->is_definition()) return true;
+        return !arity_was_reduced(comp_decl(n, info->get_value()));
+    }
+
     optional<expr> try_inline(expr const & fn, expr const & e, bool is_let_val) {
         lean_assert(is_constant(fn));
         lean_assert(is_constant(e) || is_eqp(find(get_app_fn(e)), fn));
         if (!m_cfg.m_inline) return none_expr();
-        if (has_noinline_attribute(env(), const_name(fn))) return none_expr();
+        if (check_noinline_attribute(const_name(fn))) return none_expr();
         if (m_before_erasure) {
             if (already_simplified(e)) return none_expr();
             name c = mk_cstage1_name(const_name(fn));

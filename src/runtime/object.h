@@ -651,6 +651,9 @@ inline b_obj_res thunk_get(b_obj_arg t) {
     return thunk_get_core(t);
 }
 
+obj_res thunk_map(obj_arg f, obj_arg t);
+obj_res thunk_bind(obj_arg x, obj_arg f);
+
 // =======================================
 // Tasks
 

@@ -10,8 +10,8 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s6_system_s8_platform_s5_nbits;
-obj* _init__l_s6_system_s8_platform_s5_nbits() {
+obj* l_system_platform_nbits;
+obj* _init_l_system_platform_nbits() {
 _start:
 {
 obj* x_0; 
@@ -19,11 +19,11 @@ x_0 = lean::mk_nat_obj(64u);
 return x_0;
 }
 }
-void _l_initialize__l_s4_init_s4_core();
+void initialize_init_core();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s8_platform() {
+void initialize_init_platform() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_core();
- _l_s6_system_s8_platform_s5_nbits = _init__l_s6_system_s8_platform_s5_nbits();
+ initialize_init_core();
+ l_system_platform_nbits = _init_l_system_platform_nbits();
 }

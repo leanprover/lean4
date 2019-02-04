@@ -10,28 +10,28 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-void _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s3_fin_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s4_list_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s4_char_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s6_string_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s6_option_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s4_uint();
-void _l_initialize__l_s4_init_s4_data_s8_ordering_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s4_repr();
-void _l_initialize__l_s4_init_s4_data_s10_to__string();
+void initialize_init_data_nat_basic();
+void initialize_init_data_fin_basic();
+void initialize_init_data_list_basic();
+void initialize_init_data_char_basic();
+void initialize_init_data_string_basic();
+void initialize_init_data_option_basic();
+void initialize_init_data_uint();
+void initialize_init_data_ordering_basic();
+void initialize_init_data_repr();
+void initialize_init_data_to__string();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_data_s5_basic() {
+void initialize_init_data_basic() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
- _l_initialize__l_s4_init_s4_data_s3_fin_s5_basic();
- _l_initialize__l_s4_init_s4_data_s4_list_s5_basic();
- _l_initialize__l_s4_init_s4_data_s4_char_s5_basic();
- _l_initialize__l_s4_init_s4_data_s6_string_s5_basic();
- _l_initialize__l_s4_init_s4_data_s6_option_s5_basic();
- _l_initialize__l_s4_init_s4_data_s4_uint();
- _l_initialize__l_s4_init_s4_data_s8_ordering_s5_basic();
- _l_initialize__l_s4_init_s4_data_s4_repr();
- _l_initialize__l_s4_init_s4_data_s10_to__string();
+ initialize_init_data_nat_basic();
+ initialize_init_data_fin_basic();
+ initialize_init_data_list_basic();
+ initialize_init_data_char_basic();
+ initialize_init_data_string_basic();
+ initialize_init_data_option_basic();
+ initialize_init_data_uint();
+ initialize_init_data_ordering_basic();
+ initialize_init_data_repr();
+ initialize_init_data_to__string();
 }

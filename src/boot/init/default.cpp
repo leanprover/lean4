@@ -10,26 +10,26 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-void _l_initialize__l_s4_init_s4_core();
-void _l_initialize__l_s4_init_s7_control_s7_default();
-void _l_initialize__l_s4_init_s4_data_s5_basic();
-void _l_initialize__l_s4_init_s7_version();
-void _l_initialize__l_s4_init_s8_function();
-void _l_initialize__l_s4_init_s3_coe();
-void _l_initialize__l_s4_init_s2_wf();
-void _l_initialize__l_s4_init_s4_data_s7_default();
-void _l_initialize__l_s4_init_s2_io();
+void initialize_init_core();
+void initialize_init_control_default();
+void initialize_init_data_basic();
+void initialize_init_version();
+void initialize_init_function();
+void initialize_init_coe();
+void initialize_init_wf();
+void initialize_init_data_default();
+void initialize_init_io();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s7_default() {
+void initialize_init_default() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_core();
- _l_initialize__l_s4_init_s7_control_s7_default();
- _l_initialize__l_s4_init_s4_data_s5_basic();
- _l_initialize__l_s4_init_s7_version();
- _l_initialize__l_s4_init_s8_function();
- _l_initialize__l_s4_init_s3_coe();
- _l_initialize__l_s4_init_s2_wf();
- _l_initialize__l_s4_init_s4_data_s7_default();
- _l_initialize__l_s4_init_s2_io();
+ initialize_init_core();
+ initialize_init_control_default();
+ initialize_init_data_basic();
+ initialize_init_version();
+ initialize_init_function();
+ initialize_init_coe();
+ initialize_init_wf();
+ initialize_init_data_default();
+ initialize_init_io();
 }

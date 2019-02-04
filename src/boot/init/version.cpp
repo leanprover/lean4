@@ -10,12 +10,12 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s4_lean_s11_is__release_s7___boxed;
-obj* _l_s4_lean_s7_version;
-unsigned char _l_s4_lean_s11_is__release;
-obj* _l_s4_lean_s22_special__version__desc;
-obj* _l_s4_lean_s7_githash;
-obj* _init__l_s4_lean_s7_version() {
+obj* l_lean_is__release___boxed;
+obj* l_lean_version;
+unsigned char l_lean_is__release;
+obj* l_lean_special__version__desc;
+obj* l_lean_githash;
+obj* _init_l_lean_version() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_3; obj* x_4; 
@@ -31,15 +31,15 @@ lean::cnstr_set(x_4, 1, x_3);
 return x_4;
 }
 }
-obj* _init__l_s4_lean_s7_githash() {
+obj* _init_l_lean_githash() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("67f4fb603dde19661c8a668757ecedd505e9223f");
+x_0 = lean::mk_string("41deb1b802039e33ee321f9b1d48fa0538d70717");
 return x_0;
 }
 }
-unsigned char _init__l_s4_lean_s11_is__release() {
+unsigned char _init_l_lean_is__release() {
 _start:
 {
 unsigned char x_0; 
@@ -47,16 +47,16 @@ x_0 = 0;
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s11_is__release_s7___boxed() {
+obj* _init_l_lean_is__release___boxed() {
 _start:
 {
 unsigned char x_0; obj* x_1; 
-x_0 = _l_s4_lean_s11_is__release;
+x_0 = l_lean_is__release;
 x_1 = lean::box(x_0);
 return x_1;
 }
 }
-obj* _init__l_s4_lean_s22_special__version__desc() {
+obj* _init_l_lean_special__version__desc() {
 _start:
 {
 obj* x_0; 
@@ -64,17 +64,17 @@ x_0 = lean::mk_string("");
 return x_0;
 }
 }
-void _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s6_string_s5_basic();
+void initialize_init_data_nat_basic();
+void initialize_init_data_string_basic();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s7_version() {
+void initialize_init_version() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
- _l_initialize__l_s4_init_s4_data_s6_string_s5_basic();
- _l_s4_lean_s7_version = _init__l_s4_lean_s7_version();
- _l_s4_lean_s7_githash = _init__l_s4_lean_s7_githash();
- _l_s4_lean_s11_is__release = _init__l_s4_lean_s11_is__release();
- _l_s4_lean_s11_is__release_s7___boxed = _init__l_s4_lean_s11_is__release_s7___boxed();
- _l_s4_lean_s22_special__version__desc = _init__l_s4_lean_s22_special__version__desc();
+ initialize_init_data_nat_basic();
+ initialize_init_data_string_basic();
+ l_lean_version = _init_l_lean_version();
+ l_lean_githash = _init_l_lean_githash();
+ l_lean_is__release = _init_l_lean_is__release();
+ l_lean_is__release___boxed = _init_l_lean_is__release___boxed();
+ l_lean_special__version__desc = _init_l_lean_special__version__desc();
 }

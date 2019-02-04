@@ -10,19 +10,19 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main_s7___boxed(obj*);
-obj* _l_s4_lean_s2_ir_s4_fnid;
-obj* _l_s4_lean_s2_ir_s4_decl_s4_name(obj*);
-obj* _l_s4_lean_s2_ir_s3_var;
-unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition(obj*);
-obj* _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(obj*);
-unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(obj*);
-obj* _l_s4_lean_s2_ir_s11_environment;
-obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s7___boxed(obj*);
-obj* _l_s4_lean_s2_ir_s7_blockid;
-obj* _l_s4_lean_s2_ir_s4_decl_s6_header(obj*);
-obj* _l_s4_lean_s2_ir_s3_tag;
-obj* _init__l_s4_lean_s2_ir_s3_tag() {
+obj* l_lean_ir_decl_is__definition___main___boxed(obj*);
+obj* l_lean_ir_fnid;
+obj* l_lean_ir_decl_name(obj*);
+obj* l_lean_ir_var;
+unsigned char l_lean_ir_decl_is__definition(obj*);
+obj* l_lean_ir_decl_header___main(obj*);
+unsigned char l_lean_ir_decl_is__definition___main(obj*);
+obj* l_lean_ir_environment;
+obj* l_lean_ir_decl_is__definition___boxed(obj*);
+obj* l_lean_ir_blockid;
+obj* l_lean_ir_decl_header(obj*);
+obj* l_lean_ir_tag;
+obj* _init_l_lean_ir_tag() {
 _start:
 {
 obj* x_0; 
@@ -31,7 +31,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s3_var() {
+obj* _init_l_lean_ir_var() {
 _start:
 {
 obj* x_0; 
@@ -40,7 +40,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s4_fnid() {
+obj* _init_l_lean_ir_fnid() {
 _start:
 {
 obj* x_0; 
@@ -49,7 +49,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s7_blockid() {
+obj* _init_l_lean_ir_blockid() {
 _start:
 {
 obj* x_0; 
@@ -58,7 +58,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(obj* x_0) {
+unsigned char l_lean_ir_decl_is__definition___main(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -77,33 +77,33 @@ return x_4;
 }
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main_s7___boxed(obj* x_0) {
+obj* l_lean_ir_decl_is__definition___main___boxed(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
-x_1 = _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(x_0);
+x_1 = l_lean_ir_decl_is__definition___main(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char _l_s4_lean_s2_ir_s4_decl_s14_is__definition(obj* x_0) {
+unsigned char l_lean_ir_decl_is__definition(obj* x_0) {
 _start:
 {
 unsigned char x_1; 
-x_1 = _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s6___main(x_0);
+x_1 = l_lean_ir_decl_is__definition___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s14_is__definition_s7___boxed(obj* x_0) {
+obj* l_lean_ir_decl_is__definition___boxed(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
-x_1 = _l_s4_lean_s2_ir_s4_decl_s14_is__definition(x_0);
+x_1 = l_lean_ir_decl_is__definition(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(obj* x_0) {
+obj* l_lean_ir_decl_header___main(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -113,26 +113,26 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s6_header(obj* x_0) {
+obj* l_lean_ir_decl_header(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(x_0);
+x_1 = l_lean_ir_decl_header___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s4_decl_s4_name(obj* x_0) {
+obj* l_lean_ir_decl_name(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s4_lean_s2_ir_s4_decl_s6_header_s6___main(x_0);
+x_1 = l_lean_ir_decl_header___main(x_0);
 x_2 = lean::cnstr_get(x_1, 0);
 lean::inc(x_2);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s11_environment() {
+obj* _init_l_lean_ir_environment() {
 _start:
 {
 obj* x_0; 
@@ -141,25 +141,25 @@ lean::inc(x_0);
 return x_0;
 }
 }
-void _l_initialize__l_s4_init_s4_data_s5_rbmap_s7_default();
-void _l_initialize__l_s4_init_s4_data_s3_int_s7_default();
-void _l_initialize__l_s4_init_s7_control_s5_state();
-void _l_initialize__l_s4_init_s7_control_s6_except();
-void _l_initialize__l_s4_init_s7_control_s11_combinators();
-void _l_initialize__l_s4_init_s4_lean_s4_name();
+void initialize_init_data_rbmap_default();
+void initialize_init_data_int_default();
+void initialize_init_control_state();
+void initialize_init_control_except();
+void initialize_init_control_combinators();
+void initialize_init_lean_name();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_lean_s2_ir_s2_ir() {
+void initialize_init_lean_ir_ir() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_data_s5_rbmap_s7_default();
- _l_initialize__l_s4_init_s4_data_s3_int_s7_default();
- _l_initialize__l_s4_init_s7_control_s5_state();
- _l_initialize__l_s4_init_s7_control_s6_except();
- _l_initialize__l_s4_init_s7_control_s11_combinators();
- _l_initialize__l_s4_init_s4_lean_s4_name();
- _l_s4_lean_s2_ir_s3_tag = _init__l_s4_lean_s2_ir_s3_tag();
- _l_s4_lean_s2_ir_s3_var = _init__l_s4_lean_s2_ir_s3_var();
- _l_s4_lean_s2_ir_s4_fnid = _init__l_s4_lean_s2_ir_s4_fnid();
- _l_s4_lean_s2_ir_s7_blockid = _init__l_s4_lean_s2_ir_s7_blockid();
- _l_s4_lean_s2_ir_s11_environment = _init__l_s4_lean_s2_ir_s11_environment();
+ initialize_init_data_rbmap_default();
+ initialize_init_data_int_default();
+ initialize_init_control_state();
+ initialize_init_control_except();
+ initialize_init_control_combinators();
+ initialize_init_lean_name();
+ l_lean_ir_tag = _init_l_lean_ir_tag();
+ l_lean_ir_var = _init_l_lean_ir_var();
+ l_lean_ir_fnid = _init_l_lean_ir_fnid();
+ l_lean_ir_blockid = _init_l_lean_ir_blockid();
+ l_lean_ir_environment = _init_l_lean_ir_environment();
 }

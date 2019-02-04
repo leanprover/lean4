@@ -10,28 +10,28 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-void _l_initialize__l_s4_init_s7_control_s11_applicative();
-void _l_initialize__l_s4_init_s7_control_s7_functor();
-void _l_initialize__l_s4_init_s7_control_s11_alternative();
-void _l_initialize__l_s4_init_s7_control_s5_monad();
-void _l_initialize__l_s4_init_s7_control_s4_lift();
-void _l_initialize__l_s4_init_s7_control_s5_state();
-void _l_initialize__l_s4_init_s7_control_s2_id();
-void _l_initialize__l_s4_init_s7_control_s6_except();
-void _l_initialize__l_s4_init_s7_control_s6_reader();
-void _l_initialize__l_s4_init_s7_control_s6_option();
+void initialize_init_control_applicative();
+void initialize_init_control_functor();
+void initialize_init_control_alternative();
+void initialize_init_control_monad();
+void initialize_init_control_lift();
+void initialize_init_control_state();
+void initialize_init_control_id();
+void initialize_init_control_except();
+void initialize_init_control_reader();
+void initialize_init_control_option();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s7_control_s7_default() {
+void initialize_init_control_default() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s7_control_s11_applicative();
- _l_initialize__l_s4_init_s7_control_s7_functor();
- _l_initialize__l_s4_init_s7_control_s11_alternative();
- _l_initialize__l_s4_init_s7_control_s5_monad();
- _l_initialize__l_s4_init_s7_control_s4_lift();
- _l_initialize__l_s4_init_s7_control_s5_state();
- _l_initialize__l_s4_init_s7_control_s2_id();
- _l_initialize__l_s4_init_s7_control_s6_except();
- _l_initialize__l_s4_init_s7_control_s6_reader();
- _l_initialize__l_s4_init_s7_control_s6_option();
+ initialize_init_control_applicative();
+ initialize_init_control_functor();
+ initialize_init_control_alternative();
+ initialize_init_control_monad();
+ initialize_init_control_lift();
+ initialize_init_control_state();
+ initialize_init_control_id();
+ initialize_init_control_except();
+ initialize_init_control_reader();
+ initialize_init_control_option();
 }

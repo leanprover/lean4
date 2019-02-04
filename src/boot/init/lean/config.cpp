@@ -10,8 +10,8 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s4_lean_s18_closure__max__args;
-obj* _init__l_s4_lean_s18_closure__max__args() {
+obj* l_lean_closure__max__args;
+obj* _init_l_lean_closure__max__args() {
 _start:
 {
 obj* x_0; 
@@ -19,11 +19,11 @@ x_0 = lean::mk_nat_obj(16u);
 return x_0;
 }
 }
-void _l_initialize__l_s4_init_s4_core();
+void initialize_init_core();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_lean_s6_config() {
+void initialize_init_lean_config() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_core();
- _l_s4_lean_s18_closure__max__args = _init__l_s4_lean_s18_closure__max__args();
+ initialize_init_core();
+ l_lean_closure__max__args = _init_l_lean_closure__max__args();
 }

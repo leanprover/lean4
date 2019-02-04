@@ -10,12 +10,12 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-void _l_initialize__l_s4_init_s4_data_s6_rbtree_s7_default();
-void _l_initialize__l_s4_init_s4_data_s5_rbmap_s5_basic();
+void initialize_init_data_rbtree_default();
+void initialize_init_data_rbmap_basic();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_data_s5_rbmap_s7_default() {
+void initialize_init_data_rbmap_default() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_data_s6_rbtree_s7_default();
- _l_initialize__l_s4_init_s4_data_s5_rbmap_s5_basic();
+ initialize_init_data_rbtree_default();
+ initialize_init_data_rbmap_basic();
 }

@@ -10,22 +10,22 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s13_match__failed_s6___rarg_s11___closed__1;
-obj* _l_s13_match__failed_s6___rarg(obj*);
-obj* _l_s17_monad__fail__lift(obj*, obj*);
-obj* _l_s13_match__failed(obj*, obj*);
-obj* _l_s17_monad__fail__lift_s6___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* _l_s13_match__failed_s6___rarg(obj* x_0) {
+obj* l_match__failed___rarg___closed__1;
+obj* l_match__failed___rarg(obj*);
+obj* l_monad__fail__lift(obj*, obj*);
+obj* l_match__failed(obj*, obj*);
+obj* l_monad__fail__lift___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_match__failed___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_3; 
-x_1 = _l_s13_match__failed_s6___rarg_s11___closed__1;
+x_1 = l_match__failed___rarg___closed__1;
 lean::inc(x_1);
 x_3 = lean::apply_2(x_0, lean::box(0), x_1);
 return x_3;
 }
 }
-obj* _init__l_s13_match__failed_s6___rarg_s11___closed__1() {
+obj* _init_l_match__failed___rarg___closed__1() {
 _start:
 {
 obj* x_0; 
@@ -33,17 +33,17 @@ x_0 = lean::mk_string("match failed");
 return x_0;
 }
 }
-obj* _l_s13_match__failed(obj* x_0, obj* x_1) {
+obj* l_match__failed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s13_match__failed_s6___rarg), 1, 0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_match__failed___rarg), 1, 0);
 return x_4;
 }
 }
-obj* _l_s17_monad__fail__lift_s6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_monad__fail__lift___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_7; obj* x_8; 
@@ -54,23 +54,23 @@ x_8 = lean::apply_2(x_0, lean::box(0), x_7);
 return x_8;
 }
 }
-obj* _l_s17_monad__fail__lift(obj* x_0, obj* x_1) {
+obj* l_monad__fail__lift(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(_l_s17_monad__fail__lift_s6___rarg), 5, 0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__fail__lift___rarg), 5, 0);
 return x_4;
 }
 }
-void _l_initialize__l_s4_init_s7_control_s4_lift();
-void _l_initialize__l_s4_init_s4_data_s6_string_s5_basic();
+void initialize_init_control_lift();
+void initialize_init_data_string_basic();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s7_control_s11_monad__fail() {
+void initialize_init_control_monad__fail() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s7_control_s4_lift();
- _l_initialize__l_s4_init_s4_data_s6_string_s5_basic();
- _l_s13_match__failed_s6___rarg_s11___closed__1 = _init__l_s13_match__failed_s6___rarg_s11___closed__1();
+ initialize_init_control_lift();
+ initialize_init_data_string_basic();
+ l_match__failed___rarg___closed__1 = _init_l_match__failed___rarg___closed__1();
 }

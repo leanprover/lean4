@@ -10,36 +10,36 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-void _l_initialize__l_s4_init_s4_data_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s3_nat_s7_default();
-void _l_initialize__l_s4_init_s4_data_s4_char_s7_default();
-void _l_initialize__l_s4_init_s4_data_s6_string_s7_default();
-void _l_initialize__l_s4_init_s4_data_s4_list_s7_default();
-void _l_initialize__l_s4_init_s4_data_s3_int_s7_default();
-void _l_initialize__l_s4_init_s4_data_s5_array_s7_default();
-void _l_initialize__l_s4_init_s4_data_s3_fin_s7_default();
-void _l_initialize__l_s4_init_s4_data_s4_uint();
-void _l_initialize__l_s4_init_s4_data_s8_ordering_s7_default();
-void _l_initialize__l_s4_init_s4_data_s6_rbtree_s7_default();
-void _l_initialize__l_s4_init_s4_data_s5_rbmap_s7_default();
-void _l_initialize__l_s4_init_s4_data_s6_option_s5_basic();
-void _l_initialize__l_s4_init_s4_data_s6_option_s9_instances();
+void initialize_init_data_basic();
+void initialize_init_data_nat_default();
+void initialize_init_data_char_default();
+void initialize_init_data_string_default();
+void initialize_init_data_list_default();
+void initialize_init_data_int_default();
+void initialize_init_data_array_default();
+void initialize_init_data_fin_default();
+void initialize_init_data_uint();
+void initialize_init_data_ordering_default();
+void initialize_init_data_rbtree_default();
+void initialize_init_data_rbmap_default();
+void initialize_init_data_option_basic();
+void initialize_init_data_option_instances();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_data_s7_default() {
+void initialize_init_data_default() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_data_s5_basic();
- _l_initialize__l_s4_init_s4_data_s3_nat_s7_default();
- _l_initialize__l_s4_init_s4_data_s4_char_s7_default();
- _l_initialize__l_s4_init_s4_data_s6_string_s7_default();
- _l_initialize__l_s4_init_s4_data_s4_list_s7_default();
- _l_initialize__l_s4_init_s4_data_s3_int_s7_default();
- _l_initialize__l_s4_init_s4_data_s5_array_s7_default();
- _l_initialize__l_s4_init_s4_data_s3_fin_s7_default();
- _l_initialize__l_s4_init_s4_data_s4_uint();
- _l_initialize__l_s4_init_s4_data_s8_ordering_s7_default();
- _l_initialize__l_s4_init_s4_data_s6_rbtree_s7_default();
- _l_initialize__l_s4_init_s4_data_s5_rbmap_s7_default();
- _l_initialize__l_s4_init_s4_data_s6_option_s5_basic();
- _l_initialize__l_s4_init_s4_data_s6_option_s9_instances();
+ initialize_init_data_basic();
+ initialize_init_data_nat_default();
+ initialize_init_data_char_default();
+ initialize_init_data_string_default();
+ initialize_init_data_list_default();
+ initialize_init_data_int_default();
+ initialize_init_data_array_default();
+ initialize_init_data_fin_default();
+ initialize_init_data_uint();
+ initialize_init_data_ordering_default();
+ initialize_init_data_rbtree_default();
+ initialize_init_data_rbmap_default();
+ initialize_init_data_option_basic();
+ initialize_init_data_option_instances();
 }

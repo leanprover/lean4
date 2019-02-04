@@ -10,38 +10,38 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s4_char_s11_has__sizeof_s7___boxed(obj*);
-obj* _l_s4_char_s7_dec__lt(unsigned, unsigned);
-obj* _l_s4_char_s2_lt;
-obj* _l_s4_char_s7_to__nat_s7___boxed(obj*);
-obj* _l_s15_is__valid__char;
-obj* _l_s4_char_s7_dec__le(unsigned, unsigned);
-unsigned char _l_s4_char_s12_is__alphanum(unsigned);
-unsigned char _l_s4_char_s9_is__digit(unsigned);
-obj* _l_s4_char_s9_is__lower_s7___boxed(obj*);
-obj* _l_s4_char_s9_inhabited;
-obj* _l_s4_char_s7_has__lt;
-obj* _l_s4_char_s7_dec__le_s7___boxed(obj*, obj*);
-unsigned char _l_s4_char_s9_is__alpha(unsigned);
-unsigned char _l_s4_char_s9_is__upper(unsigned);
-unsigned _l_s4_char_s7_to__nat(unsigned);
-obj* _l_s4_char_s2_le;
-unsigned _l_s4_char_s11_has__sizeof(unsigned);
-obj* _l_s4_char_s12_is__alphanum_s7___boxed(obj*);
-obj* _l_s4_char_s9_to__lower_s7___boxed(obj*);
-unsigned char _l_s4_char_s9_is__lower(unsigned);
-obj* _l_s4_char_s7_of__nat(obj*);
-obj* _l_s4_char_s14_is__whitespace_s7___boxed(obj*);
-obj* _l_s4_char_s9_to__lower(unsigned);
-obj* _l_s4_char_s7_has__le;
-unsigned char _l_s4_char_s14_is__whitespace(unsigned);
-obj* _l_s4_char_s7_dec__lt_s7___boxed(obj*, obj*);
-obj* _l_s4_char_s9_is__upper_s7___boxed(obj*);
-obj* _l_s4_char_s13_decidable__eq_s7___boxed(obj*, obj*);
-obj* _l_s4_char_s9_is__alpha_s7___boxed(obj*);
-obj* _l_s4_char_s13_decidable__eq(unsigned, unsigned);
-obj* _l_s4_char_s9_is__digit_s7___boxed(obj*);
-obj* _init__l_s15_is__valid__char() {
+obj* l_char_has__sizeof___boxed(obj*);
+obj* l_char_dec__lt(unsigned, unsigned);
+obj* l_char_lt;
+obj* l_char_to__nat___boxed(obj*);
+obj* l_is__valid__char;
+obj* l_char_dec__le(unsigned, unsigned);
+unsigned char l_char_is__alphanum(unsigned);
+unsigned char l_char_is__digit(unsigned);
+obj* l_char_is__lower___boxed(obj*);
+obj* l_char_inhabited;
+obj* l_char_has__lt;
+obj* l_char_dec__le___boxed(obj*, obj*);
+unsigned char l_char_is__alpha(unsigned);
+unsigned char l_char_is__upper(unsigned);
+unsigned l_char_to__nat(unsigned);
+obj* l_char_le;
+unsigned l_char_has__sizeof(unsigned);
+obj* l_char_is__alphanum___boxed(obj*);
+obj* l_char_to__lower___boxed(obj*);
+unsigned char l_char_is__lower(unsigned);
+obj* l_char_of__nat(obj*);
+obj* l_char_is__whitespace___boxed(obj*);
+obj* l_char_to__lower(unsigned);
+obj* l_char_has__le;
+unsigned char l_char_is__whitespace(unsigned);
+obj* l_char_dec__lt___boxed(obj*, obj*);
+obj* l_char_is__upper___boxed(obj*);
+obj* l_char_decidable__eq___boxed(obj*, obj*);
+obj* l_char_is__alpha___boxed(obj*);
+obj* l_char_decidable__eq(unsigned, unsigned);
+obj* l_char_is__digit___boxed(obj*);
+obj* _init_l_is__valid__char() {
 _start:
 {
 obj* x_0; 
@@ -50,23 +50,23 @@ lean::inc(x_0);
 return x_0;
 }
 }
-unsigned _l_s4_char_s11_has__sizeof(unsigned x_0) {
+unsigned l_char_has__sizeof(unsigned x_0) {
 _start:
 {
 return x_0;
 }
 }
-obj* _l_s4_char_s11_has__sizeof_s7___boxed(obj* x_0) {
+obj* l_char_has__sizeof___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s11_has__sizeof(x_1);
+x_2 = l_char_has__sizeof(x_1);
 x_3 = lean::box_uint32(x_2);
 return x_3;
 }
 }
-obj* _init__l_s4_char_s2_lt() {
+obj* _init_l_char_lt() {
 _start:
 {
 obj* x_0; 
@@ -75,7 +75,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_char_s2_le() {
+obj* _init_l_char_le() {
 _start:
 {
 obj* x_0; 
@@ -84,7 +84,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_char_s7_has__lt() {
+obj* _init_l_char_has__lt() {
 _start:
 {
 obj* x_0; 
@@ -93,7 +93,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_char_s7_has__le() {
+obj* _init_l_char_has__le() {
 _start:
 {
 obj* x_0; 
@@ -102,7 +102,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _l_s4_char_s7_dec__lt(unsigned x_0, unsigned x_1) {
+obj* l_char_dec__lt(unsigned x_0, unsigned x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
@@ -114,17 +114,17 @@ lean::dec(x_2);
 return x_4;
 }
 }
-obj* _l_s4_char_s7_dec__lt_s7___boxed(obj* x_0, obj* x_1) {
+obj* l_char_dec__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 unsigned x_2; unsigned x_3; obj* x_4; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = _l_s4_char_s7_dec__lt(x_2, x_3);
+x_4 = l_char_dec__lt(x_2, x_3);
 return x_4;
 }
 }
-obj* _l_s4_char_s7_dec__le(unsigned x_0, unsigned x_1) {
+obj* l_char_dec__le(unsigned x_0, unsigned x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
@@ -136,17 +136,17 @@ lean::dec(x_2);
 return x_4;
 }
 }
-obj* _l_s4_char_s7_dec__le_s7___boxed(obj* x_0, obj* x_1) {
+obj* l_char_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 unsigned x_2; unsigned x_3; obj* x_4; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = _l_s4_char_s7_dec__le(x_2, x_3);
+x_4 = l_char_dec__le(x_2, x_3);
 return x_4;
 }
 }
-obj* _l_s4_char_s7_of__nat(obj* x_0) {
+obj* l_char_of__nat(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -197,23 +197,23 @@ return x_0;
 }
 }
 }
-unsigned _l_s4_char_s7_to__nat(unsigned x_0) {
+unsigned l_char_to__nat(unsigned x_0) {
 _start:
 {
 return x_0;
 }
 }
-obj* _l_s4_char_s7_to__nat_s7___boxed(obj* x_0) {
+obj* l_char_to__nat___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s7_to__nat(x_1);
+x_2 = l_char_to__nat(x_1);
 x_3 = lean::box_uint32(x_2);
 return x_3;
 }
 }
-obj* _l_s4_char_s13_decidable__eq(unsigned x_0, unsigned x_1) {
+obj* l_char_decidable__eq(unsigned x_0, unsigned x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
@@ -225,17 +225,17 @@ lean::dec(x_2);
 return x_4;
 }
 }
-obj* _l_s4_char_s13_decidable__eq_s7___boxed(obj* x_0, obj* x_1) {
+obj* l_char_decidable__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 unsigned x_2; unsigned x_3; obj* x_4; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = _l_s4_char_s13_decidable__eq(x_2, x_3);
+x_4 = l_char_decidable__eq(x_2, x_3);
 return x_4;
 }
 }
-obj* _init__l_s4_char_s9_inhabited() {
+obj* _init_l_char_inhabited() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
@@ -292,7 +292,7 @@ return x_22;
 }
 }
 }
-unsigned char _l_s4_char_s14_is__whitespace(unsigned x_0) {
+unsigned char l_char_is__whitespace(unsigned x_0) {
 _start:
 {
 unsigned char x_1; unsigned char x_3; obj* x_5; obj* x_6; obj* x_7; 
@@ -623,17 +623,17 @@ return x_142;
 }
 }
 }
-obj* _l_s4_char_s14_is__whitespace_s7___boxed(obj* x_0) {
+obj* l_char_is__whitespace___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s14_is__whitespace(x_1);
+x_2 = l_char_is__whitespace(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-unsigned char _l_s4_char_s9_is__upper(unsigned x_0) {
+unsigned char l_char_is__upper(unsigned x_0) {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
@@ -674,17 +674,17 @@ return x_16;
 }
 }
 }
-obj* _l_s4_char_s9_is__upper_s7___boxed(obj* x_0) {
+obj* l_char_is__upper___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s9_is__upper(x_1);
+x_2 = l_char_is__upper(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-unsigned char _l_s4_char_s9_is__lower(unsigned x_0) {
+unsigned char l_char_is__lower(unsigned x_0) {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
@@ -725,25 +725,25 @@ return x_16;
 }
 }
 }
-obj* _l_s4_char_s9_is__lower_s7___boxed(obj* x_0) {
+obj* l_char_is__lower___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s9_is__lower(x_1);
+x_2 = l_char_is__lower(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-unsigned char _l_s4_char_s9_is__alpha(unsigned x_0) {
+unsigned char l_char_is__alpha(unsigned x_0) {
 _start:
 {
 unsigned char x_1; 
-x_1 = _l_s4_char_s9_is__upper(x_0);
+x_1 = l_char_is__upper(x_0);
 if (x_1 == 0)
 {
 unsigned char x_2; 
-x_2 = _l_s4_char_s9_is__lower(x_0);
+x_2 = l_char_is__lower(x_0);
 return x_2;
 }
 else
@@ -752,17 +752,17 @@ return x_1;
 }
 }
 }
-obj* _l_s4_char_s9_is__alpha_s7___boxed(obj* x_0) {
+obj* l_char_is__alpha___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s9_is__alpha(x_1);
+x_2 = l_char_is__alpha(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-unsigned char _l_s4_char_s9_is__digit(unsigned x_0) {
+unsigned char l_char_is__digit(unsigned x_0) {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
@@ -803,25 +803,25 @@ return x_16;
 }
 }
 }
-obj* _l_s4_char_s9_is__digit_s7___boxed(obj* x_0) {
+obj* l_char_is__digit___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s9_is__digit(x_1);
+x_2 = l_char_is__digit(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-unsigned char _l_s4_char_s12_is__alphanum(unsigned x_0) {
+unsigned char l_char_is__alphanum(unsigned x_0) {
 _start:
 {
 unsigned char x_1; 
-x_1 = _l_s4_char_s9_is__alpha(x_0);
+x_1 = l_char_is__alpha(x_0);
 if (x_1 == 0)
 {
 unsigned char x_2; 
-x_2 = _l_s4_char_s9_is__digit(x_0);
+x_2 = l_char_is__digit(x_0);
 return x_2;
 }
 else
@@ -830,17 +830,17 @@ return x_1;
 }
 }
 }
-obj* _l_s4_char_s12_is__alphanum_s7___boxed(obj* x_0) {
+obj* l_char_is__alphanum___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s12_is__alphanum(x_1);
+x_2 = l_char_is__alphanum(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* _l_s4_char_s9_to__lower(unsigned x_0) {
+obj* l_char_to__lower(unsigned x_0) {
 _start:
 {
 unsigned char x_1; obj* x_3; obj* x_4; obj* x_5; 
@@ -936,25 +936,25 @@ return x_21;
 }
 }
 }
-obj* _l_s4_char_s9_to__lower_s7___boxed(obj* x_0) {
+obj* l_char_to__lower___boxed(obj* x_0) {
 _start:
 {
 unsigned x_1; obj* x_2; 
 x_1 = lean::unbox_uint32(x_0);
-x_2 = _l_s4_char_s9_to__lower(x_1);
+x_2 = l_char_to__lower(x_1);
 return x_2;
 }
 }
-void _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
+void initialize_init_data_nat_basic();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_data_s4_char_s5_basic() {
+void initialize_init_data_char_basic() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
- _l_s15_is__valid__char = _init__l_s15_is__valid__char();
- _l_s4_char_s2_lt = _init__l_s4_char_s2_lt();
- _l_s4_char_s2_le = _init__l_s4_char_s2_le();
- _l_s4_char_s7_has__lt = _init__l_s4_char_s7_has__lt();
- _l_s4_char_s7_has__le = _init__l_s4_char_s7_has__le();
- _l_s4_char_s9_inhabited = _init__l_s4_char_s9_inhabited();
+ initialize_init_data_nat_basic();
+ l_is__valid__char = _init_l_is__valid__char();
+ l_char_lt = _init_l_char_lt();
+ l_char_le = _init_l_char_le();
+ l_char_has__lt = _init_l_char_has__lt();
+ l_char_has__le = _init_l_char_has__le();
+ l_char_inhabited = _init_l_char_inhabited();
 }

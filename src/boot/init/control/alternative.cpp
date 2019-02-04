@@ -10,23 +10,23 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s6_guardb_s6___rarg(obj*, unsigned char);
-obj* _l_s6_guardb_s6___main_s6___rarg_s7___boxed(obj*, obj*);
-obj* _l_s6_guardb(obj*);
-obj* _l_s6_guardb_s6___rarg_s7___boxed(obj*, obj*);
-obj* _l_s7_failure_s6___rarg(obj*, obj*);
-obj* _l_s8_optional_s6___rarg_s11___closed__1;
-obj* _l_s5_guard_s6___rarg(obj*, obj*, obj*);
-obj* _l_s6_assert(obj*);
-obj* _l_s7_failure(obj*);
-obj* _l_s6_guardb_s6___main_s6___rarg(obj*, unsigned char);
-obj* _l_s6_assert_s6___rarg(obj*, obj*, obj*);
-obj* _l_s8_optional_s6___rarg_s11___lambda__1(obj*);
-obj* _l_s6_guardb_s6___main(obj*);
-obj* _l_s8_optional_s6___rarg(obj*, obj*, obj*);
-obj* _l_s8_optional(obj*);
-obj* _l_s5_guard(obj*);
-obj* _l_s7_failure_s6___rarg(obj* x_0, obj* x_1) {
+obj* l_guardb___rarg(obj*, unsigned char);
+obj* l_guardb___main___rarg___boxed(obj*, obj*);
+obj* l_guardb(obj*);
+obj* l_guardb___rarg___boxed(obj*, obj*);
+obj* l_failure___rarg(obj*, obj*);
+obj* l_optional___rarg___closed__1;
+obj* l_guard___rarg(obj*, obj*, obj*);
+obj* l_assert(obj*);
+obj* l_failure(obj*);
+obj* l_guardb___main___rarg(obj*, unsigned char);
+obj* l_assert___rarg(obj*, obj*, obj*);
+obj* l_optional___rarg___lambda__1(obj*);
+obj* l_guardb___main(obj*);
+obj* l_optional___rarg(obj*, obj*, obj*);
+obj* l_optional(obj*);
+obj* l_guard(obj*);
+obj* l_failure___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_3; obj* x_6; 
@@ -38,16 +38,16 @@ x_6 = lean::apply_1(x_3, lean::box(0));
 return x_6;
 }
 }
-obj* _l_s7_failure(obj* x_0) {
+obj* l_failure(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s7_failure_s6___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_failure___rarg), 2, 0);
 return x_2;
 }
 }
-obj* _l_s5_guard_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_guard___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 lean::dec(x_1);
@@ -78,16 +78,16 @@ return x_18;
 }
 }
 }
-obj* _l_s5_guard(obj* x_0) {
+obj* l_guard(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s5_guard_s6___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_guard___rarg), 3, 0);
 return x_2;
 }
 }
-obj* _l_s6_assert_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_assert___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 lean::dec(x_1);
@@ -116,16 +116,16 @@ return x_16;
 }
 }
 }
-obj* _l_s6_assert(obj* x_0) {
+obj* l_assert(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s6_assert_s6___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_assert___rarg), 3, 0);
 return x_2;
 }
 }
-obj* _l_s6_guardb_s6___main_s6___rarg(obj* x_0, unsigned char x_1) {
+obj* l_guardb___main___rarg(obj* x_0, unsigned char x_1) {
 _start:
 {
 if (x_1 == 0)
@@ -153,51 +153,51 @@ return x_14;
 }
 }
 }
-obj* _l_s6_guardb_s6___main(obj* x_0) {
+obj* l_guardb___main(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s6_guardb_s6___main_s6___rarg_s7___boxed), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_guardb___main___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* _l_s6_guardb_s6___main_s6___rarg_s7___boxed(obj* x_0, obj* x_1) {
+obj* l_guardb___main___rarg___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 unsigned char x_2; obj* x_3; 
 x_2 = lean::unbox(x_1);
-x_3 = _l_s6_guardb_s6___main_s6___rarg(x_0, x_2);
+x_3 = l_guardb___main___rarg(x_0, x_2);
 return x_3;
 }
 }
-obj* _l_s6_guardb_s6___rarg(obj* x_0, unsigned char x_1) {
+obj* l_guardb___rarg(obj* x_0, unsigned char x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = _l_s6_guardb_s6___main_s6___rarg(x_0, x_1);
+x_2 = l_guardb___main___rarg(x_0, x_1);
 return x_2;
 }
 }
-obj* _l_s6_guardb(obj* x_0) {
+obj* l_guardb(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s6_guardb_s6___rarg_s7___boxed), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_guardb___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* _l_s6_guardb_s6___rarg_s7___boxed(obj* x_0, obj* x_1) {
+obj* l_guardb___rarg___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 unsigned char x_2; obj* x_3; 
 x_2 = lean::unbox(x_1);
-x_3 = _l_s6_guardb_s6___rarg(x_0, x_2);
+x_3 = l_guardb___rarg(x_0, x_2);
 return x_3;
 }
 }
-obj* _l_s8_optional_s6___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_optional___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_4; obj* x_6; obj* x_9; obj* x_11; obj* x_14; obj* x_16; obj* x_17; obj* x_20; obj* x_21; obj* x_22; 
@@ -212,7 +212,7 @@ lean::inc(x_9);
 x_11 = lean::cnstr_get(x_9, 0);
 lean::inc(x_11);
 lean::dec(x_9);
-x_14 = _l_s8_optional_s6___rarg_s11___closed__1;
+x_14 = l_optional___rarg___closed__1;
 lean::inc(x_14);
 x_16 = lean::apply_4(x_11, lean::box(0), lean::box(0), x_14, x_2);
 x_17 = lean::cnstr_get(x_6, 1);
@@ -225,15 +225,15 @@ x_22 = lean::apply_3(x_4, lean::box(0), x_16, x_21);
 return x_22;
 }
 }
-obj* _init__l_s8_optional_s6___rarg_s11___closed__1() {
+obj* _init_l_optional___rarg___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_optional_s6___rarg_s11___lambda__1), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_optional___rarg___lambda__1), 1, 0);
 return x_0;
 }
 }
-obj* _l_s8_optional_s6___rarg_s11___lambda__1(obj* x_0) {
+obj* l_optional___rarg___lambda__1(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -242,22 +242,22 @@ lean::cnstr_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* _l_s8_optional(obj* x_0) {
+obj* l_optional(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(_l_s8_optional_s6___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_optional___rarg), 3, 0);
 return x_2;
 }
 }
-void _l_initialize__l_s4_init_s4_core();
-void _l_initialize__l_s4_init_s7_control_s11_applicative();
+void initialize_init_core();
+void initialize_init_control_applicative();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s7_control_s11_alternative() {
+void initialize_init_control_alternative() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_core();
- _l_initialize__l_s4_init_s7_control_s11_applicative();
- _l_s8_optional_s6___rarg_s11___closed__1 = _init__l_s8_optional_s6___rarg_s11___closed__1();
+ initialize_init_core();
+ initialize_init_control_applicative();
+ l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
 }

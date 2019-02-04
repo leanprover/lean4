@@ -10,12 +10,12 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s9___private_56172073__s15_div__rec__lemma;
-obj* _l_s9___private_3925169175__s3_div_s1_F(obj*, obj*, obj*);
-obj* _l_s3_nat_s8_has__div;
-obj* _l_s9___private_578911941__s3_mod_s1_F(obj*, obj*, obj*);
-obj* _l_s3_nat_s8_has__mod;
-obj* _init__l_s9___private_56172073__s15_div__rec__lemma() {
+obj* l___private_56172073__div__rec__lemma;
+obj* l___private_3925169175__div_F(obj*, obj*, obj*);
+obj* l_nat_has__div;
+obj* l___private_578911941__mod_F(obj*, obj*, obj*);
+obj* l_nat_has__mod;
+obj* _init_l___private_56172073__div__rec__lemma() {
 _start:
 {
 obj* x_0; 
@@ -24,7 +24,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _l_s9___private_3925169175__s3_div_s1_F(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_3925169175__div_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -72,7 +72,7 @@ return x_23;
 }
 }
 }
-obj* _init__l_s3_nat_s8_has__div() {
+obj* _init_l_nat_has__div() {
 _start:
 {
 obj* x_0; 
@@ -80,7 +80,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_div), 2, 0);
 return x_0;
 }
 }
-obj* _l_s9___private_578911941__s3_mod_s1_F(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_578911941__mod_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
@@ -118,7 +118,7 @@ return x_17;
 }
 }
 }
-obj* _init__l_s3_nat_s8_has__mod() {
+obj* _init_l_nat_has__mod() {
 _start:
 {
 obj* x_0; 
@@ -126,15 +126,15 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_mod), 2, 0);
 return x_0;
 }
 }
-void _l_initialize__l_s4_init_s2_wf();
-void _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
+void initialize_init_wf();
+void initialize_init_data_nat_basic();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_data_s3_nat_s3_div() {
+void initialize_init_data_nat_div() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s2_wf();
- _l_initialize__l_s4_init_s4_data_s3_nat_s5_basic();
- _l_s9___private_56172073__s15_div__rec__lemma = _init__l_s9___private_56172073__s15_div__rec__lemma();
- _l_s3_nat_s8_has__div = _init__l_s3_nat_s8_has__div();
- _l_s3_nat_s8_has__mod = _init__l_s3_nat_s8_has__mod();
+ initialize_init_wf();
+ initialize_init_data_nat_basic();
+ l___private_56172073__div__rec__lemma = _init_l___private_56172073__div__rec__lemma();
+ l_nat_has__div = _init_l_nat_has__div();
+ l_nat_has__mod = _init_l_nat_has__mod();
 }

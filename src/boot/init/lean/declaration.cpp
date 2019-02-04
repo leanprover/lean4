@@ -10,17 +10,17 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s4_lean_s14_constant__info_s5_value(obj*);
-obj* _l_s4_lean_s14_constant__info_s17_to__constant__val(obj*);
-obj* _l_s4_lean_s14_constant__info_s5_value_s6___main(obj*);
-obj* _l_s4_lean_s14_constant__info_s7_lparams(obj*);
-obj* _l_s4_task_s3_get(obj*);
-obj* _l_s4_lean_s14_constant__info_s2_id(obj*);
-obj* _l_s4_lean_s14_constant__info_s5_hints_s6___main(obj*);
-obj* _l_s4_lean_s14_constant__info_s5_hints(obj*);
-obj* _l_s4_lean_s14_constant__info_s4_type(obj*);
-obj* _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(obj*);
-obj* _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(obj* x_0) {
+obj* l_lean_constant__info_value(obj*);
+obj* l_lean_constant__info_to__constant__val(obj*);
+obj* l_lean_constant__info_value___main(obj*);
+obj* l_lean_constant__info_lparams(obj*);
+obj* l_task_get(obj*);
+obj* l_lean_constant__info_id(obj*);
+obj* l_lean_constant__info_hints___main(obj*);
+obj* l_lean_constant__info_hints(obj*);
+obj* l_lean_constant__info_type(obj*);
+obj* l_lean_constant__info_to__constant__val___main(obj*);
+obj* l_lean_constant__info_to__constant__val___main(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_4; 
@@ -33,48 +33,48 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s17_to__constant__val(obj* x_0) {
+obj* l_lean_constant__info_to__constant__val(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
+x_1 = l_lean_constant__info_to__constant__val___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s2_id(obj* x_0) {
+obj* l_lean_constant__info_id(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
+x_1 = l_lean_constant__info_to__constant__val___main(x_0);
 x_2 = lean::cnstr_get(x_1, 0);
 lean::inc(x_2);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s7_lparams(obj* x_0) {
+obj* l_lean_constant__info_lparams(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
+x_1 = l_lean_constant__info_to__constant__val___main(x_0);
 x_2 = lean::cnstr_get(x_1, 1);
 lean::inc(x_2);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s4_type(obj* x_0) {
+obj* l_lean_constant__info_type(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = _l_s4_lean_s14_constant__info_s17_to__constant__val_s6___main(x_0);
+x_1 = l_lean_constant__info_to__constant__val___main(x_0);
 x_2 = lean::cnstr_get(x_1, 2);
 lean::inc(x_2);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_value_s6___main(obj* x_0) {
+obj* l_lean_constant__info_value___main(obj* x_0) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
@@ -108,7 +108,7 @@ lean::dec(x_0);
 x_13 = lean::cnstr_get(x_10, 1);
 lean::inc(x_13);
 lean::dec(x_10);
-x_16 = _l_s4_task_s3_get(lean::box(0));
+x_16 = l_task_get(lean::box(0));
 x_17 = lean::apply_1(x_16, x_13);
 x_18 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_18, 0, x_17);
@@ -149,15 +149,15 @@ return x_26;
 }
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_value(obj* x_0) {
+obj* l_lean_constant__info_value(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = _l_s4_lean_s14_constant__info_s5_value_s6___main(x_0);
+x_1 = l_lean_constant__info_value___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_hints_s6___main(obj* x_0) {
+obj* l_lean_constant__info_hints___main(obj* x_0) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
@@ -223,18 +223,18 @@ return x_18;
 }
 }
 }
-obj* _l_s4_lean_s14_constant__info_s5_hints(obj* x_0) {
+obj* l_lean_constant__info_hints(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = _l_s4_lean_s14_constant__info_s5_hints_s6___main(x_0);
+x_1 = l_lean_constant__info_hints___main(x_0);
 return x_1;
 }
 }
-void _l_initialize__l_s4_init_s4_lean_s4_expr();
+void initialize_init_lean_expr();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_lean_s11_declaration() {
+void initialize_init_lean_declaration() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_lean_s4_expr();
+ initialize_init_lean_expr();
 }

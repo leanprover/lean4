@@ -10,44 +10,44 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* _l_s4_lean_s2_ir_s13_mk__fnid__set;
-obj* _l_s4_lean_s16_mk__simple__name(obj*);
-obj* _l_s4_lean_s2_ir_s7_context;
-unsigned char _l_s4_lean_s2_ir_s7_id2type(obj*);
-obj* _l_s4_lean_s2_ir_s7_blockid_s8_hashable;
-obj* _l_s4_lean_s2_ir_s3_var_s13_decidable__eq;
-obj* _l_s4_lean_s2_ir_s4_fnid_s8_hashable;
-obj* _l_s4_lean_s2_ir_s7_id2type_s6___main_s7___boxed(obj*);
-obj* _l_s4_lean_s2_ir_s16_mk__blockid__set;
-obj* _l_s4_lean_s2_ir_s16_blockid__has__lt;
-obj* _l_s4_lean_s2_ir_s18_type__has__dec__eq(unsigned char, unsigned char);
-obj* _l_s4_lean_s2_ir_s7_type2id(unsigned char);
-obj* _l_s4_lean_s2_ir_s3_var_s8_hashable;
-extern obj* _l_s4_lean_s4_name_s8_hashable;
-obj* _l_s4_lean_s2_ir_s7_type2id_s6___main_s7___boxed(obj*);
-obj* _l_s4_lean_s2_ir_s11_fnid2string;
-obj* _l_s4_lean_s2_ir_s7_type2id_s6___main(unsigned char);
-obj* _l_s4_lean_s2_ir_s12_blockid__set;
-unsigned char _l_s4_lean_s2_ir_s7_id2type_s6___main(obj*);
-obj* _l_s4_lean_s2_ir_s9_inhabited_s7___boxed;
-obj* _l_s4_lean_s2_ir_s18_type__has__dec__eq_s7___boxed(obj*, obj*);
-extern obj* _l_s4_lean_s4_name_s13_decidable__eq;
-obj* _l_s4_lean_s2_ir_s11_mk__context;
-unsigned char _l_s4_lean_s2_ir_s9_inhabited;
-obj* _l_s4_lean_s2_ir_s7_id2type_s7___boxed(obj*);
-obj* _l_s4_lean_s2_ir_s13_fnid__has__lt;
-obj* _l_s4_lean_s2_ir_s7_blockid_s13_decidable__eq;
-obj* _l_s4_lean_s2_ir_s12_mk__var__set;
-obj* _l_s4_lean_s2_ir_s15_mk__fnid2string;
-obj* _l_s4_lean_s2_ir_s7_type2id_s7___boxed(obj*);
-obj* _l_s4_lean_s2_ir_s11_var2blockid;
-obj* _l_s4_lean_s2_ir_s12_var__has__lt;
-obj* _l_s4_lean_s2_ir_s9_fnid__set;
-obj* _l_s4_lean_s2_ir_s8_var__set;
-obj* _l_s4_lean_s2_ir_s4_fnid_s13_decidable__eq;
-obj* _l_s4_lean_s2_ir_s15_mk__var2blockid;
-obj* _l_s4_lean_s2_ir_s8_has__coe;
-obj* _l_s4_lean_s2_ir_s7_type2id_s6___main(unsigned char x_0) {
+obj* l_lean_ir_mk__fnid__set;
+obj* l_lean_mk__simple__name(obj*);
+obj* l_lean_ir_context;
+unsigned char l_lean_ir_id2type(obj*);
+obj* l_lean_ir_blockid_hashable;
+obj* l_lean_ir_var_decidable__eq;
+obj* l_lean_ir_fnid_hashable;
+obj* l_lean_ir_id2type___main___boxed(obj*);
+obj* l_lean_ir_mk__blockid__set;
+obj* l_lean_ir_blockid__has__lt;
+obj* l_lean_ir_type__has__dec__eq(unsigned char, unsigned char);
+obj* l_lean_ir_type2id(unsigned char);
+obj* l_lean_ir_var_hashable;
+extern obj* l_lean_name_hashable;
+obj* l_lean_ir_type2id___main___boxed(obj*);
+obj* l_lean_ir_fnid2string;
+obj* l_lean_ir_type2id___main(unsigned char);
+obj* l_lean_ir_blockid__set;
+unsigned char l_lean_ir_id2type___main(obj*);
+obj* l_lean_ir_inhabited___boxed;
+obj* l_lean_ir_type__has__dec__eq___boxed(obj*, obj*);
+extern obj* l_lean_name_decidable__eq;
+obj* l_lean_ir_mk__context;
+unsigned char l_lean_ir_inhabited;
+obj* l_lean_ir_id2type___boxed(obj*);
+obj* l_lean_ir_fnid__has__lt;
+obj* l_lean_ir_blockid_decidable__eq;
+obj* l_lean_ir_mk__var__set;
+obj* l_lean_ir_mk__fnid2string;
+obj* l_lean_ir_type2id___boxed(obj*);
+obj* l_lean_ir_var2blockid;
+obj* l_lean_ir_var__has__lt;
+obj* l_lean_ir_fnid__set;
+obj* l_lean_ir_var__set;
+obj* l_lean_ir_fnid_decidable__eq;
+obj* l_lean_ir_mk__var2blockid;
+obj* l_lean_ir_has__coe;
+obj* l_lean_ir_type2id___main(unsigned char x_0) {
 _start:
 {
 switch (x_0) {
@@ -126,33 +126,33 @@ return x_12;
 }
 }
 }
-obj* _l_s4_lean_s2_ir_s7_type2id_s6___main_s7___boxed(obj* x_0) {
+obj* l_lean_ir_type2id___main___boxed(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
 x_1 = lean::unbox(x_0);
-x_2 = _l_s4_lean_s2_ir_s7_type2id_s6___main(x_1);
+x_2 = l_lean_ir_type2id___main(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s2_ir_s7_type2id(unsigned char x_0) {
+obj* l_lean_ir_type2id(unsigned char x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = _l_s4_lean_s2_ir_s7_type2id_s6___main(x_0);
+x_1 = l_lean_ir_type2id___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s7_type2id_s7___boxed(obj* x_0) {
+obj* l_lean_ir_type2id___boxed(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
 x_1 = lean::unbox(x_0);
-x_2 = _l_s4_lean_s2_ir_s7_type2id(x_1);
+x_2 = l_lean_ir_type2id(x_1);
 return x_2;
 }
 }
-unsigned char _l_s4_lean_s2_ir_s7_id2type_s6___main(obj* x_0) {
+unsigned char l_lean_ir_id2type___main(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -336,72 +336,63 @@ return x_78;
 }
 }
 }
-obj* _l_s4_lean_s2_ir_s7_id2type_s6___main_s7___boxed(obj* x_0) {
+obj* l_lean_ir_id2type___main___boxed(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
-x_1 = _l_s4_lean_s2_ir_s7_id2type_s6___main(x_0);
+x_1 = l_lean_ir_id2type___main(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char _l_s4_lean_s2_ir_s7_id2type(obj* x_0) {
+unsigned char l_lean_ir_id2type(obj* x_0) {
 _start:
 {
 unsigned char x_1; 
-x_1 = _l_s4_lean_s2_ir_s7_id2type_s6___main(x_0);
+x_1 = l_lean_ir_id2type___main(x_0);
 return x_1;
 }
 }
-obj* _l_s4_lean_s2_ir_s7_id2type_s7___boxed(obj* x_0) {
+obj* l_lean_ir_id2type___boxed(obj* x_0) {
 _start:
 {
 unsigned char x_1; obj* x_2; 
-x_1 = _l_s4_lean_s2_ir_s7_id2type(x_0);
+x_1 = l_lean_ir_id2type(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-obj* _l_s4_lean_s2_ir_s18_type__has__dec__eq(unsigned char x_0, unsigned char x_1) {
+obj* l_lean_ir_type__has__dec__eq(unsigned char x_0, unsigned char x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = _l_s4_lean_s2_ir_s7_type2id_s6___main(x_0);
-x_3 = _l_s4_lean_s2_ir_s7_type2id_s6___main(x_1);
+x_2 = l_lean_ir_type2id___main(x_0);
+x_3 = l_lean_ir_type2id___main(x_1);
 x_4 = lean::nat_dec_eq(x_2, x_3);
 lean::dec(x_3);
 lean::dec(x_2);
 return x_4;
 }
 }
-obj* _l_s4_lean_s2_ir_s18_type__has__dec__eq_s7___boxed(obj* x_0, obj* x_1) {
+obj* l_lean_ir_type__has__dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 unsigned char x_2; unsigned char x_3; obj* x_4; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = _l_s4_lean_s2_ir_s18_type__has__dec__eq(x_2, x_3);
+x_4 = l_lean_ir_type__has__dec__eq(x_2, x_3);
 return x_4;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s8_has__coe() {
+obj* _init_l_lean_ir_has__coe() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(_l_s4_lean_s16_mk__simple__name), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_mk__simple__name), 1, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s12_var__has__lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
-return x_0;
-}
-}
-obj* _init__l_s4_lean_s2_ir_s16_blockid__has__lt() {
+obj* _init_l_lean_ir_var__has__lt() {
 _start:
 {
 obj* x_0; 
@@ -410,7 +401,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s13_fnid__has__lt() {
+obj* _init_l_lean_ir_blockid__has__lt() {
 _start:
 {
 obj* x_0; 
@@ -419,61 +410,70 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s3_var_s8_hashable() {
+obj* _init_l_lean_ir_fnid__has__lt() {
 _start:
 {
 obj* x_0; 
-x_0 = _l_s4_lean_s4_name_s8_hashable;
+x_0 = lean::alloc_cnstr(0, 0, 0);
+;
+return x_0;
+}
+}
+obj* _init_l_lean_ir_var_hashable() {
+_start:
+{
+obj* x_0; 
+x_0 = l_lean_name_hashable;
 lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s3_var_s13_decidable__eq() {
+obj* _init_l_lean_ir_var_decidable__eq() {
 _start:
 {
 obj* x_0; 
-x_0 = _l_s4_lean_s4_name_s13_decidable__eq;
+x_0 = l_lean_name_decidable__eq;
 lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s7_blockid_s8_hashable() {
+obj* _init_l_lean_ir_blockid_hashable() {
 _start:
 {
 obj* x_0; 
-x_0 = _l_s4_lean_s4_name_s8_hashable;
+x_0 = l_lean_name_hashable;
 lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s7_blockid_s13_decidable__eq() {
+obj* _init_l_lean_ir_blockid_decidable__eq() {
 _start:
 {
 obj* x_0; 
-x_0 = _l_s4_lean_s4_name_s13_decidable__eq;
+x_0 = l_lean_name_decidable__eq;
 lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s4_fnid_s8_hashable() {
+obj* _init_l_lean_ir_fnid_hashable() {
 _start:
 {
 obj* x_0; 
-x_0 = _l_s4_lean_s4_name_s8_hashable;
+x_0 = l_lean_name_hashable;
 lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s4_fnid_s13_decidable__eq() {
+obj* _init_l_lean_ir_fnid_decidable__eq() {
 _start:
 {
 obj* x_0; 
-x_0 = _l_s4_lean_s4_name_s13_decidable__eq;
+x_0 = l_lean_name_decidable__eq;
 lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s8_var__set() {
+obj* _init_l_lean_ir_var__set() {
 _start:
 {
 obj* x_0; 
@@ -482,7 +482,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s12_blockid__set() {
+obj* _init_l_lean_ir_blockid__set() {
 _start:
 {
 obj* x_0; 
@@ -491,7 +491,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s7_context() {
+obj* _init_l_lean_ir_context() {
 _start:
 {
 obj* x_0; 
@@ -500,7 +500,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s11_var2blockid() {
+obj* _init_l_lean_ir_var2blockid() {
 _start:
 {
 obj* x_0; 
@@ -509,7 +509,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s11_fnid2string() {
+obj* _init_l_lean_ir_fnid2string() {
 _start:
 {
 obj* x_0; 
@@ -518,7 +518,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s9_fnid__set() {
+obj* _init_l_lean_ir_fnid__set() {
 _start:
 {
 obj* x_0; 
@@ -527,7 +527,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s12_mk__var__set() {
+obj* _init_l_lean_ir_mk__var__set() {
 _start:
 {
 obj* x_0; 
@@ -536,7 +536,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s16_mk__blockid__set() {
+obj* _init_l_lean_ir_mk__blockid__set() {
 _start:
 {
 obj* x_0; 
@@ -545,7 +545,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s15_mk__var2blockid() {
+obj* _init_l_lean_ir_mk__var2blockid() {
 _start:
 {
 obj* x_0; 
@@ -554,7 +554,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s11_mk__context() {
+obj* _init_l_lean_ir_mk__context() {
 _start:
 {
 obj* x_0; 
@@ -563,7 +563,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s15_mk__fnid2string() {
+obj* _init_l_lean_ir_mk__fnid2string() {
 _start:
 {
 obj* x_0; 
@@ -572,7 +572,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s13_mk__fnid__set() {
+obj* _init_l_lean_ir_mk__fnid__set() {
 _start:
 {
 obj* x_0; 
@@ -581,7 +581,7 @@ x_0 = lean::alloc_cnstr(0, 0, 0);
 return x_0;
 }
 }
-unsigned char _init__l_s4_lean_s2_ir_s9_inhabited() {
+unsigned char _init_l_lean_ir_inhabited() {
 _start:
 {
 unsigned char x_0; 
@@ -589,43 +589,43 @@ x_0 = 0;
 return x_0;
 }
 }
-obj* _init__l_s4_lean_s2_ir_s9_inhabited_s7___boxed() {
+obj* _init_l_lean_ir_inhabited___boxed() {
 _start:
 {
 unsigned char x_0; obj* x_1; 
-x_0 = _l_s4_lean_s2_ir_s9_inhabited;
+x_0 = l_lean_ir_inhabited;
 x_1 = lean::box(x_0);
 return x_1;
 }
 }
-void _l_initialize__l_s4_init_s4_lean_s2_ir_s2_ir();
+void initialize_init_lean_ir_ir();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s4_lean_s2_ir_s9_instances() {
+void initialize_init_lean_ir_instances() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s4_lean_s2_ir_s2_ir();
- _l_s4_lean_s2_ir_s8_has__coe = _init__l_s4_lean_s2_ir_s8_has__coe();
- _l_s4_lean_s2_ir_s12_var__has__lt = _init__l_s4_lean_s2_ir_s12_var__has__lt();
- _l_s4_lean_s2_ir_s16_blockid__has__lt = _init__l_s4_lean_s2_ir_s16_blockid__has__lt();
- _l_s4_lean_s2_ir_s13_fnid__has__lt = _init__l_s4_lean_s2_ir_s13_fnid__has__lt();
- _l_s4_lean_s2_ir_s3_var_s8_hashable = _init__l_s4_lean_s2_ir_s3_var_s8_hashable();
- _l_s4_lean_s2_ir_s3_var_s13_decidable__eq = _init__l_s4_lean_s2_ir_s3_var_s13_decidable__eq();
- _l_s4_lean_s2_ir_s7_blockid_s8_hashable = _init__l_s4_lean_s2_ir_s7_blockid_s8_hashable();
- _l_s4_lean_s2_ir_s7_blockid_s13_decidable__eq = _init__l_s4_lean_s2_ir_s7_blockid_s13_decidable__eq();
- _l_s4_lean_s2_ir_s4_fnid_s8_hashable = _init__l_s4_lean_s2_ir_s4_fnid_s8_hashable();
- _l_s4_lean_s2_ir_s4_fnid_s13_decidable__eq = _init__l_s4_lean_s2_ir_s4_fnid_s13_decidable__eq();
- _l_s4_lean_s2_ir_s8_var__set = _init__l_s4_lean_s2_ir_s8_var__set();
- _l_s4_lean_s2_ir_s12_blockid__set = _init__l_s4_lean_s2_ir_s12_blockid__set();
- _l_s4_lean_s2_ir_s7_context = _init__l_s4_lean_s2_ir_s7_context();
- _l_s4_lean_s2_ir_s11_var2blockid = _init__l_s4_lean_s2_ir_s11_var2blockid();
- _l_s4_lean_s2_ir_s11_fnid2string = _init__l_s4_lean_s2_ir_s11_fnid2string();
- _l_s4_lean_s2_ir_s9_fnid__set = _init__l_s4_lean_s2_ir_s9_fnid__set();
- _l_s4_lean_s2_ir_s12_mk__var__set = _init__l_s4_lean_s2_ir_s12_mk__var__set();
- _l_s4_lean_s2_ir_s16_mk__blockid__set = _init__l_s4_lean_s2_ir_s16_mk__blockid__set();
- _l_s4_lean_s2_ir_s15_mk__var2blockid = _init__l_s4_lean_s2_ir_s15_mk__var2blockid();
- _l_s4_lean_s2_ir_s11_mk__context = _init__l_s4_lean_s2_ir_s11_mk__context();
- _l_s4_lean_s2_ir_s15_mk__fnid2string = _init__l_s4_lean_s2_ir_s15_mk__fnid2string();
- _l_s4_lean_s2_ir_s13_mk__fnid__set = _init__l_s4_lean_s2_ir_s13_mk__fnid__set();
- _l_s4_lean_s2_ir_s9_inhabited = _init__l_s4_lean_s2_ir_s9_inhabited();
- _l_s4_lean_s2_ir_s9_inhabited_s7___boxed = _init__l_s4_lean_s2_ir_s9_inhabited_s7___boxed();
+ initialize_init_lean_ir_ir();
+ l_lean_ir_has__coe = _init_l_lean_ir_has__coe();
+ l_lean_ir_var__has__lt = _init_l_lean_ir_var__has__lt();
+ l_lean_ir_blockid__has__lt = _init_l_lean_ir_blockid__has__lt();
+ l_lean_ir_fnid__has__lt = _init_l_lean_ir_fnid__has__lt();
+ l_lean_ir_var_hashable = _init_l_lean_ir_var_hashable();
+ l_lean_ir_var_decidable__eq = _init_l_lean_ir_var_decidable__eq();
+ l_lean_ir_blockid_hashable = _init_l_lean_ir_blockid_hashable();
+ l_lean_ir_blockid_decidable__eq = _init_l_lean_ir_blockid_decidable__eq();
+ l_lean_ir_fnid_hashable = _init_l_lean_ir_fnid_hashable();
+ l_lean_ir_fnid_decidable__eq = _init_l_lean_ir_fnid_decidable__eq();
+ l_lean_ir_var__set = _init_l_lean_ir_var__set();
+ l_lean_ir_blockid__set = _init_l_lean_ir_blockid__set();
+ l_lean_ir_context = _init_l_lean_ir_context();
+ l_lean_ir_var2blockid = _init_l_lean_ir_var2blockid();
+ l_lean_ir_fnid2string = _init_l_lean_ir_fnid2string();
+ l_lean_ir_fnid__set = _init_l_lean_ir_fnid__set();
+ l_lean_ir_mk__var__set = _init_l_lean_ir_mk__var__set();
+ l_lean_ir_mk__blockid__set = _init_l_lean_ir_mk__blockid__set();
+ l_lean_ir_mk__var2blockid = _init_l_lean_ir_mk__var2blockid();
+ l_lean_ir_mk__context = _init_l_lean_ir_mk__context();
+ l_lean_ir_mk__fnid2string = _init_l_lean_ir_mk__fnid2string();
+ l_lean_ir_mk__fnid__set = _init_l_lean_ir_mk__fnid__set();
+ l_lean_ir_inhabited = _init_l_lean_ir_inhabited();
+ l_lean_ir_inhabited___boxed = _init_l_lean_ir_inhabited___boxed();
 }

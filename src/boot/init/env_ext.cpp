@@ -11,7 +11,7 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s8_env__ext() {
+void initialize_init_env__ext() {
  if (_G_initialized) return;
  _G_initialized = true;
 }

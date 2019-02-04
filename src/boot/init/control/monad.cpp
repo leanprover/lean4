@@ -10,10 +10,10 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-void _l_initialize__l_s4_init_s7_control_s11_applicative();
+void initialize_init_control_applicative();
 static bool _G_initialized = false;
-void _l_initialize__l_s4_init_s7_control_s5_monad() {
+void initialize_init_control_monad() {
  if (_G_initialized) return;
  _G_initialized = true;
- _l_initialize__l_s4_init_s7_control_s11_applicative();
+ initialize_init_control_applicative();
 }

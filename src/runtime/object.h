@@ -16,26 +16,18 @@ Author: Leonardo de Moura
 #include "runtime/int64.h"
 #include "runtime/thread.h"
 
+#ifdef _MSC_VER
+#define LEAN_ALLOCA(s) ::_alloca(s)
+#else
+#define LEAN_ALLOCA(s) ::alloca(s)
+#endif
+
 namespace lean {
 typedef unsigned char      uint8;
 typedef unsigned short     uint16;
 typedef unsigned           uint32;
 typedef unsigned long long uint64;
 typedef size_t             usize;
-
-/*
-The primitives implemented in the runtime do not modify the RC of its arguments.
-Callers are responsible for increasing/decreasing the RCs using the `inc`/`dec` operations.
-All new objects allocated by the primitives have RC == 1.
-*/
-
-inline void * alloca(size_t s) {
-#ifdef _MSC_VER
-    return ::_alloca(s);
-#else
-    return ::alloca(s);
-#endif
-}
 
 /* Objects can be stored in 5 different kinds of memory:
    - `MTHeap`: multi-threaded heap, the reference counter (RC) is updated using atomic operations.

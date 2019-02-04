@@ -246,6 +246,10 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "#if defined(__clang__)\n";
     out << "#pragma clang diagnostic ignored \"-Wunused-parameter\"\n";
     out << "#pragma clang diagnostic ignored \"-Wunused-label\"\n";
+    out << "#elif defined(__GNUC__) && !defined(__CLANG__)\n";
+    out << "#pragma GCC diagnostic ignored \"-Wunused-parameter\"\n";
+    out << "#pragma GCC diagnostic ignored \"-Wunused-label\"\n";
+    out << "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"\n";
     out << "#endif\n";
 }
 

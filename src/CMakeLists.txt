@@ -435,6 +435,13 @@ else()
 endif()
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
 target_link_libraries(leanstatic ${EXTRA_LIBS})
+
+ADD_CUSTOM_TARGET(bin_lib ALL
+   COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
+   COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
+   DEPENDS leanstatic
+)
+
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.
 # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.

@@ -1268,5 +1268,5 @@ inline size_t name_hash_usize(b_obj_arg n) { return name_hash(n); }
 
 obj_res name_mk_string(obj_arg p, obj_arg s);
 obj_res name_mk_numeral(obj_arg p, obj_arg n);
-inline obj_res name_mk_string(obj_arg p, char const * s) { return name_mk_string(p, mk_string(s)); }
+inline obj_res name_mk_string_of_cstr(obj_arg p, char const * s) { return name_mk_string(p, mk_string(s)); }
 }

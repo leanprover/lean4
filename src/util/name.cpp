@@ -94,7 +94,7 @@ static void display_name(std::ostream & out, name const & n, bool escape, char c
 }
 
 name::name(name const & prefix, char const * n):
-    object_ref(name_mk_string(prefix.raw(), n)) {
+    object_ref(name_mk_string_of_cstr(prefix.raw(), n)) {
     inc(prefix.raw());
 }
 

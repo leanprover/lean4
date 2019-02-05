@@ -25,8 +25,7 @@ obj* _init_l_lean_options_mk() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }

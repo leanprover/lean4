@@ -66,8 +66,7 @@ obj* l_dlist_to__list___main___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::alloc_cnstr(0, 0, 0);
-;
+x_1 = lean::box(0);
 x_2 = lean::apply_1(x_0, x_1);
 return x_2;
 }

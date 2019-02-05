@@ -1840,8 +1840,7 @@ obj* l_lean_ir_cpp_emit__template__param(unsigned char x_0, obj* x_1, obj* x_2) 
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = lean::box(x_0);
 x_5 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_5, 0, x_4);
@@ -3816,8 +3815,7 @@ lean::cnstr_set(x_103, 0, x_100);
 lean::cnstr_set(x_103, 1, x_101);
 lean::cnstr_set_scalar(x_103, sizeof(void*)*2, x_96);
 x_104 = x_103;
-x_105 = lean::alloc_cnstr(1, 0, 0);
-;
+x_105 = lean::box(1);
 x_106 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_106, 0, x_104);
 lean::cnstr_set(x_106, 1, x_105);
@@ -14503,8 +14501,7 @@ lean::cnstr_set(x_1391, 0, x_1388);
 lean::cnstr_set(x_1391, 1, x_1389);
 lean::cnstr_set_scalar(x_1391, sizeof(void*)*2, x_1384);
 x_1392 = x_1391;
-x_1393 = lean::alloc_cnstr(1, 0, 0);
-;
+x_1393 = lean::box(1);
 x_1394 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_1394, 0, x_1392);
 lean::cnstr_set(x_1394, 1, x_1393);
@@ -14568,8 +14565,7 @@ lean::cnstr_set(x_1418, 0, x_1415);
 lean::cnstr_set(x_1418, 1, x_1416);
 lean::cnstr_set_scalar(x_1418, sizeof(void*)*2, x_1411);
 x_1419 = x_1418;
-x_1420 = lean::alloc_cnstr(1, 0, 0);
-;
+x_1420 = lean::box(1);
 x_1421 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_1421, 0, x_1419);
 lean::cnstr_set(x_1421, 1, x_1420);
@@ -16779,16 +16775,14 @@ lean::dec(x_19);
 if (x_20 == 0)
 {
 obj* x_24; 
-x_24 = lean::alloc_cnstr(0, 0, 0);
-;
+x_24 = lean::box(0);
 x_22 = x_24;
 goto lbl_23;
 }
 else
 {
 obj* x_25; 
-x_25 = lean::alloc_cnstr(1, 0, 0);
-;
+x_25 = lean::box(1);
 x_22 = x_25;
 goto lbl_23;
 }
@@ -17107,8 +17101,7 @@ lean::cnstr_set(x_165, 0, x_162);
 lean::cnstr_set(x_165, 1, x_163);
 lean::cnstr_set_scalar(x_165, sizeof(void*)*2, x_158);
 x_166 = x_165;
-x_167 = lean::alloc_cnstr(1, 0, 0);
-;
+x_167 = lean::box(1);
 x_168 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_168, 0, x_166);
 lean::cnstr_set(x_168, 1, x_167);
@@ -20786,8 +20779,7 @@ if (lean::obj_tag(x_53) == 0)
 {
 obj* x_61; 
 lean::dec(x_53);
-x_61 = lean::alloc_cnstr(0, 0, 0);
-;
+x_61 = lean::box(0);
 x_58 = x_61;
 goto lbl_59;
 }
@@ -20795,8 +20787,7 @@ else
 {
 obj* x_63; 
 lean::dec(x_53);
-x_63 = lean::alloc_cnstr(1, 0, 0);
-;
+x_63 = lean::box(1);
 x_58 = x_63;
 goto lbl_59;
 }

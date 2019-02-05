@@ -82,8 +82,7 @@ case 0:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 case 1:
@@ -117,32 +116,28 @@ case 3:
 {
 obj* x_19; 
 lean::dec(x_0);
-x_19 = lean::alloc_cnstr(0, 0, 0);
-;
+x_19 = lean::box(0);
 return x_19;
 }
 case 4:
 {
 obj* x_21; 
 lean::dec(x_0);
-x_21 = lean::alloc_cnstr(0, 0, 0);
-;
+x_21 = lean::box(0);
 return x_21;
 }
 case 5:
 {
 obj* x_23; 
 lean::dec(x_0);
-x_23 = lean::alloc_cnstr(0, 0, 0);
-;
+x_23 = lean::box(0);
 return x_23;
 }
 default:
 {
 obj* x_25; 
 lean::dec(x_0);
-x_25 = lean::alloc_cnstr(0, 0, 0);
-;
+x_25 = lean::box(0);
 return x_25;
 }
 }
@@ -164,8 +159,7 @@ case 0:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 case 1:
@@ -183,40 +177,35 @@ case 2:
 {
 obj* x_10; 
 lean::dec(x_0);
-x_10 = lean::alloc_cnstr(0, 0, 0);
-;
+x_10 = lean::box(0);
 return x_10;
 }
 case 3:
 {
 obj* x_12; 
 lean::dec(x_0);
-x_12 = lean::alloc_cnstr(0, 0, 0);
-;
+x_12 = lean::box(0);
 return x_12;
 }
 case 4:
 {
 obj* x_14; 
 lean::dec(x_0);
-x_14 = lean::alloc_cnstr(0, 0, 0);
-;
+x_14 = lean::box(0);
 return x_14;
 }
 case 5:
 {
 obj* x_16; 
 lean::dec(x_0);
-x_16 = lean::alloc_cnstr(0, 0, 0);
-;
+x_16 = lean::box(0);
 return x_16;
 }
 default:
 {
 obj* x_18; 
 lean::dec(x_0);
-x_18 = lean::alloc_cnstr(0, 0, 0);
-;
+x_18 = lean::box(0);
 return x_18;
 }
 }

@@ -153,8 +153,7 @@ if (lean::obj_tag(x_1) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 return x_4;
 }
 else
@@ -300,8 +299,7 @@ if (lean::obj_tag(x_1) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 return x_4;
 }
 else
@@ -462,8 +460,7 @@ x_30 = lean::mk_nat_obj(2u);
 x_31 = lean::nat_mul(x_8, x_30);
 lean::dec(x_30);
 lean::dec(x_8);
-x_34 = lean::alloc_cnstr(0, 0, 0);
-;
+x_34 = lean::box(0);
 x_35 = l_mk__array___rarg(x_31, x_34);
 x_36 = l_hashmap__imp_insert___at_lean_ir_merge___spec__8___closed__1;
 lean::inc(x_36);
@@ -1676,8 +1673,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_3; obj* x_4; 
 lean::dec(x_0);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_1);
@@ -1742,8 +1738,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_3; obj* x_4; 
 lean::dec(x_0);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_1);
@@ -1808,8 +1803,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_3; obj* x_4; 
 lean::dec(x_0);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_1);
@@ -2065,8 +2059,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_3; obj* x_4; 
 lean::dec(x_0);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_1);
@@ -2154,8 +2147,7 @@ lean::dec(x_12);
 x_18 = lean::cnstr_get(x_0, 0);
 lean::inc(x_18);
 lean::dec(x_0);
-x_21 = lean::alloc_cnstr(0, 0, 0);
-;
+x_21 = lean::box(0);
 x_22 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_22, 0, x_18);
 lean::cnstr_set(x_22, 1, x_21);
@@ -2178,8 +2170,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_3; obj* x_4; 
 lean::dec(x_0);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_1);
@@ -2307,8 +2298,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_3; obj* x_4; 
 lean::dec(x_0);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_1);

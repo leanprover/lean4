@@ -2413,8 +2413,7 @@ obj* _init_l_nat_to__digits___main___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 x_1 = lean::mk_nat_obj(0u);
 x_2 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_2, 0, x_1);
@@ -2449,8 +2448,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 else

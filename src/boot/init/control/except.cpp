@@ -616,8 +616,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 else

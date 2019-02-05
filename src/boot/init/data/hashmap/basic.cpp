@@ -139,8 +139,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; obj* x_5; obj* x_6; 
 lean::dec(x_2);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 x_5 = l_mk__array___rarg(x_0, x_4);
 x_6 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_6, 0, x_1);
@@ -163,8 +162,7 @@ obj* _init_l_mk__hashmap__imp___rarg___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 x_1 = lean::mk_nat_obj(8u);
 x_2 = l_mk__array___rarg(x_1, x_0);
 x_3 = lean::mk_nat_obj(0u);
@@ -317,8 +315,7 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::alloc_cnstr(0, 0, 0);
-;
+x_6 = lean::box(0);
 return x_6;
 }
 else
@@ -696,8 +693,7 @@ x_34 = lean::mk_nat_obj(2u);
 x_35 = lean::nat_mul(x_10, x_34);
 lean::dec(x_34);
 lean::dec(x_10);
-x_38 = lean::alloc_cnstr(0, 0, 0);
-;
+x_38 = lean::box(0);
 x_39 = l_mk__array___rarg(x_35, x_38);
 x_40 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_reinsert__aux___rarg), 4, 1);
 lean::closure_set(x_40, 0, x_1);

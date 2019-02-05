@@ -218,8 +218,7 @@ _start:
 obj* x_5; obj* x_6; obj* x_7; obj* x_11; 
 lean::dec(x_2);
 lean::dec(x_0);
-x_5 = lean::alloc_cnstr(0, 0, 0);
-;
+x_5 = lean::box(0);
 x_6 = l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1;
 x_7 = l_mjoin___rarg___closed__1;
 lean::inc(x_5);

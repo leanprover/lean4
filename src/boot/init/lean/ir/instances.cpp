@@ -396,8 +396,7 @@ obj* _init_l_lean_ir_var__has__lt() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -405,8 +404,7 @@ obj* _init_l_lean_ir_blockid__has__lt() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -414,8 +412,7 @@ obj* _init_l_lean_ir_fnid__has__lt() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -531,8 +528,7 @@ obj* _init_l_lean_ir_mk__var__set() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -540,8 +536,7 @@ obj* _init_l_lean_ir_mk__blockid__set() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -549,8 +544,7 @@ obj* _init_l_lean_ir_mk__var2blockid() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -558,8 +552,7 @@ obj* _init_l_lean_ir_mk__context() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -567,8 +560,7 @@ obj* _init_l_lean_ir_mk__fnid2string() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -576,8 +568,7 @@ obj* _init_l_lean_ir_mk__fnid__set() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }

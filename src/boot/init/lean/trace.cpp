@@ -94,8 +94,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 else
@@ -115,8 +114,7 @@ if (lean::is_shared(x_0)) {
 }
 x_8 = l_lean_trace_pp___main(x_3);
 x_9 = 0;
-x_10 = lean::alloc_cnstr(1, 0, 0);
-;
+x_10 = lean::box(1);
 x_11 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_11, 0, x_10);
 lean::cnstr_set(x_11, 1, x_8);
@@ -412,8 +410,7 @@ lean::dec(x_9);
 lean::inc(x_0);
 x_47 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_47, 0, x_0);
-x_48 = lean::alloc_cnstr(0, 0, 0);
-;
+x_48 = lean::box(0);
 x_49 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_49, 0, x_41);
 lean::cnstr_set(x_49, 1, x_43);
@@ -480,8 +477,7 @@ obj* x_4; obj* x_6; obj* x_7; obj* x_10;
 lean::dec(x_2);
 x_4 = lean::cnstr_get(x_0, 1);
 lean::inc(x_4);
-x_6 = lean::alloc_cnstr(0, 0, 0);
-;
+x_6 = lean::box(0);
 x_7 = lean::cnstr_get(x_0, 3);
 lean::inc(x_7);
 lean::dec(x_0);
@@ -691,8 +687,7 @@ lbl_32:
 obj* x_59; obj* x_61; obj* x_63; unsigned char x_64; obj* x_65; obj* x_66; obj* x_68; obj* x_70; obj* x_71; 
 x_59 = lean::cnstr_get(x_1, 1);
 lean::inc(x_59);
-x_61 = lean::alloc_cnstr(0, 0, 0);
-;
+x_61 = lean::box(0);
 lean::inc(x_61);
 x_63 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_63, 0, x_27);
@@ -1099,8 +1094,7 @@ _start:
 obj* x_3; obj* x_5; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
-x_5 = lean::alloc_cnstr(0, 0, 0);
-;
+x_5 = lean::box(0);
 lean::inc(x_5);
 lean::inc(x_5);
 x_8 = lean::alloc_cnstr(0, 4, 0);

@@ -18,8 +18,7 @@ obj* _init_l_lean_expr__is__inhabited() {
 _start:
 {
 obj* x_0; obj* x_1; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 x_1 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;
@@ -62,8 +61,7 @@ obj* l_lean_expr_mk__capp(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 x_3 = lean::alloc_cnstr(4, 2, 0);
 lean::cnstr_set(x_3, 0, x_0);
 lean::cnstr_set(x_3, 1, x_2);

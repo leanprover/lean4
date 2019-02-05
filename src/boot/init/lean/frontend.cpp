@@ -164,8 +164,7 @@ lean::cnstr_set(x_29, 2, x_28);
 x_30 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_30, 0, x_29);
 lean::cnstr_set(x_30, 1, x_24);
-x_31 = lean::alloc_cnstr(0, 0, 0);
-;
+x_31 = lean::box(0);
 x_32 = l_lean_parser_term_builtin__leading__parsers;
 x_33 = l_lean_parser_term_builtin__trailing__parsers;
 lean::inc(x_31);
@@ -1564,8 +1563,7 @@ else
 {
 obj* x_151; obj* x_152; obj* x_154; obj* x_157; obj* x_158; obj* x_160; obj* x_162; obj* x_163; obj* x_164; obj* x_167; obj* x_170; obj* x_171; obj* x_173; obj* x_174; unsigned char x_175; obj* x_176; obj* x_180; obj* x_181; obj* x_183; obj* x_184; obj* x_186; 
 lean::dec(x_139);
-x_151 = lean::alloc_cnstr(0, 0, 0);
-;
+x_151 = lean::box(0);
 x_152 = lean::cnstr_get(x_54, 2);
 lean::inc(x_152);
 x_154 = lean::cnstr_get(x_152, 1);
@@ -1683,8 +1681,7 @@ else
 {
 obj* x_215; obj* x_216; obj* x_218; obj* x_221; obj* x_222; obj* x_224; obj* x_226; obj* x_227; obj* x_228; obj* x_231; obj* x_234; obj* x_235; obj* x_237; obj* x_238; unsigned char x_239; obj* x_240; obj* x_244; obj* x_245; obj* x_247; obj* x_248; obj* x_250; 
 lean::dec(x_203);
-x_215 = lean::alloc_cnstr(0, 0, 0);
-;
+x_215 = lean::box(0);
 x_216 = lean::cnstr_get(x_54, 2);
 lean::inc(x_216);
 x_218 = lean::cnstr_get(x_216, 1);
@@ -2105,8 +2102,7 @@ else
 {
 obj* x_416; obj* x_417; obj* x_419; obj* x_422; obj* x_423; obj* x_425; obj* x_427; obj* x_428; obj* x_429; obj* x_432; obj* x_435; obj* x_436; obj* x_438; obj* x_439; unsigned char x_440; obj* x_441; obj* x_445; obj* x_446; obj* x_448; obj* x_449; obj* x_451; 
 lean::dec(x_404);
-x_416 = lean::alloc_cnstr(0, 0, 0);
-;
+x_416 = lean::box(0);
 x_417 = lean::cnstr_get(x_54, 2);
 lean::inc(x_417);
 x_419 = lean::cnstr_get(x_417, 1);
@@ -2224,8 +2220,7 @@ else
 {
 obj* x_480; obj* x_481; obj* x_483; obj* x_486; obj* x_487; obj* x_489; obj* x_491; obj* x_492; obj* x_493; obj* x_496; obj* x_499; obj* x_500; obj* x_502; obj* x_503; unsigned char x_504; obj* x_505; obj* x_509; obj* x_510; obj* x_512; obj* x_513; obj* x_515; 
 lean::dec(x_468);
-x_480 = lean::alloc_cnstr(0, 0, 0);
-;
+x_480 = lean::box(0);
 x_481 = lean::cnstr_get(x_54, 2);
 lean::inc(x_481);
 x_483 = lean::cnstr_get(x_481, 1);
@@ -2542,8 +2537,7 @@ x_19 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_19, 0, x_9);
 lean::cnstr_set(x_19, 1, x_3);
 x_20 = l_lean_elaborator_run(x_19);
-x_21 = lean::alloc_cnstr(0, 0, 0);
-;
+x_21 = lean::box(0);
 x_22 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_22, 0, x_13);
 lean::cnstr_set(x_22, 1, x_21);

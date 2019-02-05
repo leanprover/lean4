@@ -628,8 +628,7 @@ _start:
 obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 return x_4;
 }
 }
@@ -638,8 +637,7 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 }
@@ -675,8 +673,7 @@ if (x_4 == 0)
 obj* x_7; 
 lean::dec(x_1);
 lean::dec(x_2);
-x_7 = lean::alloc_cnstr(0, 0, 0);
-;
+x_7 = lean::box(0);
 return x_7;
 }
 else
@@ -738,8 +735,7 @@ lean::inc(x_7);
 x_9 = lean::string_iterator_offset(x_7);
 lean::dec(x_7);
 x_11 = l_lean_file__map_to__position(x_4, x_9);
-x_12 = lean::alloc_cnstr(0, 0, 0);
-;
+x_12 = lean::box(0);
 x_13 = l_lean_parser_parsec_message_text___rarg(x_1);
 x_14 = 2;
 x_15 = l_string_join___closed__1;
@@ -792,8 +788,7 @@ obj* _init_l_lean_parser_run___rarg___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_3; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 x_1 = lean::mk_nat_obj(0u);
 lean::inc(x_1);
 x_3 = lean::alloc_cnstr(0, 3, 0);
@@ -988,8 +983,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(3, 0, 0);
-;
+x_2 = lean::box(3);
 return x_2;
 }
 else
@@ -1111,8 +1105,7 @@ obj* _init_l_lean_parser_mk__token__trie___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 x_1 = lean::mk_string("/-");
 x_2 = lean::mk_nat_obj(0u);
 lean::inc(x_0);
@@ -1891,8 +1884,7 @@ if (lean::obj_tag(x_5) == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; 
 lean::dec(x_5);
-x_7 = lean::alloc_cnstr(0, 0, 0);
-;
+x_7 = lean::box(0);
 x_8 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_8, 0, x_2);
 lean::cnstr_set(x_8, 1, x_7);
@@ -1931,8 +1923,7 @@ case 0:
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 return x_4;
 }
 case 1:
@@ -2583,8 +2574,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 else
@@ -2637,8 +2627,7 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 }

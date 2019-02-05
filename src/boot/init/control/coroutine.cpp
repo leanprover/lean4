@@ -492,8 +492,7 @@ obj* l_coroutine_finish___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = l___private_3144039831__finish__aux___main___rarg(x_0, x_1, x_2, x_3);
 return x_4;
 }

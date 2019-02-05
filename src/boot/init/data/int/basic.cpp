@@ -141,8 +141,7 @@ obj* x_17;
 lean::dec(x_5);
 lean::dec(x_0);
 lean::dec(x_1);
-x_17 = lean::alloc_cnstr(0, 0, 0);
-;
+x_17 = lean::box(0);
 return x_17;
 }
 }
@@ -157,8 +156,7 @@ obj* x_23;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_19);
-x_23 = lean::alloc_cnstr(0, 0, 0);
-;
+x_23 = lean::box(0);
 return x_23;
 }
 else
@@ -1384,8 +1382,7 @@ obj* _init_l_int_has__le() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -1402,8 +1399,7 @@ obj* _init_l_int_has__lt() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }

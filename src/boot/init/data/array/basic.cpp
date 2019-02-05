@@ -777,8 +777,7 @@ obj* l_array_to__list___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_4; 
-x_1 = lean::alloc_cnstr(0, 0, 0);
-;
+x_1 = lean::box(0);
 x_2 = l_array_to__list___rarg___closed__1;
 lean::inc(x_2);
 x_4 = l_array_rev__foldl___rarg(x_0, x_1, x_2);

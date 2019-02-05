@@ -75,8 +75,7 @@ obj* _init_l_lean_parser_trie_mk___closed__1() {
 _start:
 {
 obj* x_0; obj* x_2; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 lean::inc(x_0);
 x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
@@ -175,8 +174,7 @@ case 0:
 {
 obj* x_3; 
 lean::dec(x_0);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 return x_3;
 }
 case 1:
@@ -614,8 +612,7 @@ obj* x_15;
 lean::dec(x_11);
 lean::dec(x_0);
 lean::dec(x_2);
-x_15 = lean::alloc_cnstr(0, 0, 0);
-;
+x_15 = lean::box(0);
 return x_15;
 }
 else
@@ -788,8 +785,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::string_iterator_remaining(x_1);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 x_4 = l___private_1312873337__match__prefix__aux___main___rarg(x_2, x_0, x_1, x_3);
 return x_4;
 }
@@ -810,8 +806,7 @@ obj* x_1; obj* x_4; obj* x_5;
 x_1 = lean::cnstr_get(x_0, 1);
 lean::inc(x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 x_5 = l_rbnode_fold___main___at___private_3045062755__to__string__aux___main___spec__3___rarg(x_1, x_4);
 return x_5;
 }
@@ -839,8 +834,7 @@ if (lean::obj_tag(x_0) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 return x_4;
 }
 else
@@ -911,8 +905,7 @@ x_20 = lean::string_append(x_18, x_16);
 x_21 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_21, 0, x_20);
 x_22 = l___private_3045062755__to__string__aux___main___rarg(x_7);
-x_23 = lean::alloc_cnstr(1, 0, 0);
-;
+x_23 = lean::box(1);
 x_24 = l_lean_format_join__sep___main___at___private_3045062755__to__string__aux___main___spec__1(x_22, x_23);
 x_25 = lean::mk_nat_obj(2u);
 x_26 = lean::alloc_cnstr(3, 2, 0);
@@ -953,8 +946,7 @@ x_48 = lean::string_append(x_46, x_44);
 x_49 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_49, 0, x_48);
 x_50 = l___private_3045062755__to__string__aux___main___rarg(x_35);
-x_51 = lean::alloc_cnstr(1, 0, 0);
-;
+x_51 = lean::box(1);
 x_52 = l_lean_format_join__sep___main___at___private_3045062755__to__string__aux___main___spec__1(x_50, x_51);
 x_53 = lean::mk_nat_obj(2u);
 x_54 = lean::alloc_cnstr(3, 2, 0);
@@ -1005,8 +997,7 @@ _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_1 = l___private_3045062755__to__string__aux___main___rarg(x_0);
-x_2 = lean::alloc_cnstr(1, 0, 0);
-;
+x_2 = lean::box(1);
 x_3 = l_lean_format_join__sep___main___at___private_3045062755__to__string__aux___main___spec__1(x_1, x_2);
 x_4 = lean::mk_nat_obj(0u);
 x_5 = l_lean_format_pretty(x_3, x_4);

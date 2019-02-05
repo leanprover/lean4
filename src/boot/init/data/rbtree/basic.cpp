@@ -184,8 +184,7 @@ _start:
 obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 return x_4;
 }
 }
@@ -677,8 +676,7 @@ obj* l_rbtree_to__list___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::alloc_cnstr(0, 0, 0);
-;
+x_1 = lean::box(0);
 x_2 = l_rbnode_rev__fold___main___at_rbtree_to__list___spec__1___rarg(x_0, x_1);
 return x_2;
 }
@@ -759,8 +757,7 @@ if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
 lean::dec(x_1);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 return x_3;
 }
 else
@@ -807,8 +804,7 @@ if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
 lean::dec(x_1);
-x_3 = lean::alloc_cnstr(0, 0, 0);
-;
+x_3 = lean::box(0);
 return x_3;
 }
 else
@@ -1200,8 +1196,7 @@ if (lean::obj_tag(x_1) == 0)
 obj* x_4; 
 lean::dec(x_0);
 lean::dec(x_1);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 return x_4;
 }
 else
@@ -1553,8 +1548,7 @@ if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
 lean::dec(x_3);
-x_5 = lean::alloc_cnstr(0, 0, 0);
-;
+x_5 = lean::box(0);
 return x_5;
 }
 else
@@ -1602,8 +1596,7 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::alloc_cnstr(0, 0, 0);
-;
+x_6 = lean::box(0);
 return x_6;
 }
 case 1:
@@ -1782,8 +1775,7 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::alloc_cnstr(0, 0, 0);
-;
+x_6 = lean::box(0);
 return x_6;
 }
 case 1:
@@ -1942,8 +1934,7 @@ if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
 lean::dec(x_3);
-x_5 = lean::alloc_cnstr(0, 0, 0);
-;
+x_5 = lean::box(0);
 return x_5;
 }
 else
@@ -1995,8 +1986,7 @@ _start:
 {
 obj* x_4; obj* x_5; 
 lean::dec(x_1);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 x_5 = l_list_foldl___main___at_rbtree_from__list___spec__5___rarg(x_2, x_4, x_0);
 return x_5;
 }
@@ -2681,8 +2671,7 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::alloc_cnstr(0, 0, 0);
-;
+x_6 = lean::box(0);
 return x_6;
 }
 case 1:
@@ -2841,8 +2830,7 @@ if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
 lean::dec(x_3);
-x_5 = lean::alloc_cnstr(0, 0, 0);
-;
+x_5 = lean::box(0);
 return x_5;
 }
 else
@@ -3062,8 +3050,7 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::alloc_cnstr(0, 0, 0);
-;
+x_6 = lean::box(0);
 return x_6;
 }
 case 1:
@@ -3222,8 +3209,7 @@ if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
 lean::dec(x_3);
-x_5 = lean::alloc_cnstr(0, 0, 0);
-;
+x_5 = lean::box(0);
 return x_5;
 }
 else
@@ -3426,8 +3412,7 @@ obj* x_6;
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
-x_6 = lean::alloc_cnstr(0, 0, 0);
-;
+x_6 = lean::box(0);
 return x_6;
 }
 case 1:
@@ -3586,8 +3571,7 @@ if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
 lean::dec(x_3);
-x_5 = lean::alloc_cnstr(0, 0, 0);
-;
+x_5 = lean::box(0);
 return x_5;
 }
 else
@@ -4127,8 +4111,7 @@ _start:
 {
 obj* x_4; obj* x_5; 
 lean::dec(x_1);
-x_4 = lean::alloc_cnstr(0, 0, 0);
-;
+x_4 = lean::box(0);
 x_5 = l_list_foldl___main___at_rbtree__of___spec__6___rarg(x_2, x_4, x_0);
 return x_5;
 }

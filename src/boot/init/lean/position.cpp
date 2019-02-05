@@ -63,8 +63,7 @@ obj* x_18;
 lean::dec(x_9);
 lean::dec(x_12);
 lean::dec(x_4);
-x_18 = lean::alloc_cnstr(0, 0, 0);
-;
+x_18 = lean::box(0);
 return x_18;
 }
 else
@@ -100,8 +99,7 @@ obj* _init_l_lean_position_has__lt() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_cnstr(0, 0, 0);
-;
+x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -274,8 +272,7 @@ lean::dec(x_7);
 lean::dec(x_1);
 lean::dec(x_2);
 lean::dec(x_3);
-x_17 = lean::alloc_cnstr(0, 0, 0);
-;
+x_17 = lean::box(0);
 return x_17;
 }
 else
@@ -397,8 +394,7 @@ lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
 lean::dec(x_3);
-x_74 = lean::alloc_cnstr(0, 0, 0);
-;
+x_74 = lean::box(0);
 return x_74;
 }
 }
@@ -651,8 +647,7 @@ if (lean::obj_tag(x_0) == 0)
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 return x_2;
 }
 else
@@ -842,8 +837,7 @@ obj* l_rbmap_lower__bound___main___at_lean_file__map_to__position___spec__1(obj*
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::alloc_cnstr(0, 0, 0);
-;
+x_2 = lean::box(0);
 x_3 = l_rbnode_lower__bound___main___at_lean_file__map_to__position___spec__2(x_0, x_1, x_2);
 return x_3;
 }

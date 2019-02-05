@@ -444,8 +444,12 @@ struct emit_fn_fn {
     void emit_cnstr(expr const & x, expr const & fn, buffer<expr> const & args) {
         unsigned cidx, num_usizes, num_bytes;
         lean_verify(is_llnf_cnstr(fn, cidx, num_usizes, num_bytes));
-        emit_alloc_cnstr(x, cidx, args.size(), num_usizes, num_bytes);
-        emit_cnstr_sets(x, args.size(), args.data());
+        if (num_usizes == 0 && num_bytes == 0 && args.size() == 0) {
+            emit_lhs(x); m_out << "lean::box(" << cidx << ");\n";
+        } else {
+            emit_alloc_cnstr(x, cidx, args.size(), num_usizes, num_bytes);
+            emit_cnstr_sets(x, args.size(), args.data());
+        }
     }
 
     void emit_reset(expr const & x, expr const & fn, expr const & o) {
@@ -577,11 +581,10 @@ struct emit_fn_fn {
                 emit_cnstr(x, val, args);
             } else if (is_enf_unreachable(val)) {
                 m_out << "lean_unreachable();\n";
-                emit_lhs(x); emit_unit();
+                emit_lhs(x); emit_unit(); m_out << ";\n";
             } else {
-                emit_lhs(x); emit_constant(val);
+                emit_lhs(x); emit_constant(val); m_out << ";\n";
             }
-            m_out << ";\n";
         } else if (is_app(val)) {
             buffer<expr> args;
             expr const & fn = get_app_args(val, args);

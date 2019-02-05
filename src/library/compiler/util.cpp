@@ -26,7 +26,16 @@ optional<unsigned> is_enum_type(environment const & env, name const & I) {
     constant_info info  = env.get(I);
     if (!info.is_inductive()) return optional<unsigned>();
     unsigned n = 0;
-    for (name const & c : info.to_inductive_val().get_cnstrs()) {
+    names cs = info.to_inductive_val().get_cnstrs();
+    if (length(cs) == 1) {
+        /* We do not consider types such as `unit` as enumeration types.
+           There is no motivation for them to be, since nobody will use them in composite datastructures.
+           So, we don't save space, but we keep boxing/unboxing. Moreover `unit` is used to encode `thunks`
+           which get closures. Thus, if we treat `unit` as an enumeration type, we will perform a useless
+           unboxing whenever we force a thunk. */
+        return optional<unsigned>();
+    }
+    for (name const & c : cs) {
         if (is_pi(env.get(c).get_type()))
             return optional<unsigned>();
         if (n == std::numeric_limits<unsigned>::max())

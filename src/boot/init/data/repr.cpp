@@ -10,7 +10,6 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_list_map___main___at_nat_repr___spec__1(obj*);
 obj* l_usize_has__repr(size_t);
 obj* l_nat_digit__char___closed__22;
 obj* l_nat_digit__char(obj*);
@@ -37,7 +36,6 @@ obj* l_list_repr__aux___main(obj*);
 obj* l_nat_digit__char___closed__1;
 obj* l_char_quote__core___boxed(obj*);
 obj* l_nat_digit__char___closed__11;
-obj* l_list_reverse___rarg(obj*);
 obj* l_nat_digit__char___closed__3;
 obj* l_uint16_has__repr(unsigned short);
 obj* l_nat_digit__char___closed__45;
@@ -46,10 +44,10 @@ obj* l_nat_has__repr;
 obj* l_char_repr(unsigned);
 obj* l_nat_digit__char___closed__9;
 obj* l_string_quote(obj*);
-obj* l_nat_to__digits___main(obj*, obj*);
 obj* l_sum_has__repr___rarg___closed__1;
 obj* l_option_has__repr___rarg___closed__1;
 obj* l_id_has__repr(obj*);
+obj* l_nat_to__digits__core(obj*, obj*, obj*, obj*);
 unsigned char l_string_is__empty(obj*);
 obj* l_list_repr___main___rarg___closed__1;
 obj* l_option_has__repr(obj*);
@@ -61,7 +59,6 @@ obj* l_string_quote__aux___main(obj*);
 obj* l_char_quote__core___closed__1;
 obj* l_nat_digit__char___closed__40;
 obj* l_bool_has__repr___boxed(obj*);
-obj* l_nat_digit__succ___main(obj*, obj*);
 obj* l_nat_to__digits(obj*, obj*);
 obj* l_sigma_has__repr(obj*, obj*);
 obj* l_sum_has__repr___rarg___closed__2;
@@ -116,11 +113,9 @@ obj* l_nat_digit__char___closed__50;
 obj* l_nat_digit__char___closed__27;
 obj* l_nat_digit__char___closed__36;
 obj* l_nat_digit__char___closed__19;
-obj* l_nat_to__digits___main___closed__1;
 obj* l_nat_digit__char___closed__43;
 obj* l_sum_has__repr___rarg(obj*, obj*, obj*);
 obj* l_bool_has__repr___closed__1;
-obj* l_nat_digit__succ(obj*, obj*);
 obj* l_prod_has__repr(obj*, obj*);
 obj* l_list_repr(obj*);
 obj* l_subtype_has__repr(obj*, obj*);
@@ -136,6 +131,7 @@ obj* l_char__to__hex(unsigned);
 obj* l_nat_digit__char___closed__31;
 obj* l_option_has__repr___rarg___closed__3;
 obj* l_nat_digit__char___closed__13;
+obj* l_nat_to__digits__core___main(obj*, obj*, obj*, obj*);
 obj* l_unit_has__repr(obj*);
 obj* l_nat_digit__char___closed__26;
 obj* l_nat_digit__char___closed__42;
@@ -2294,180 +2290,90 @@ return x_9;
 }
 }
 }
-obj* l_nat_digit__succ___main(obj* x_0, obj* x_1) {
+obj* l_nat_to__digits__core___main(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+obj* x_4; obj* x_5; 
+x_4 = lean::mk_nat_obj(0u);
+x_5 = lean::nat_dec_eq(x_1, x_4);
+if (lean::obj_tag(x_5) == 0)
 {
-obj* x_3; obj* x_4; 
-lean::dec(x_0);
-x_3 = lean::mk_nat_obj(1u);
-x_4 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_4, 0, x_3);
-lean::cnstr_set(x_4, 1, x_1);
-return x_4;
-}
-else
-{
-obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_11; obj* x_14; 
-x_5 = lean::cnstr_get(x_1, 0);
-lean::inc(x_5);
-x_7 = lean::cnstr_get(x_1, 1);
-lean::inc(x_7);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_9 = lean::box(0);
-} else {
- lean::cnstr_release(x_1, 0);
- lean::cnstr_release(x_1, 1);
- x_9 = x_1;
-}
-x_10 = lean::mk_nat_obj(1u);
-x_11 = lean::nat_add(x_5, x_10);
-lean::dec(x_10);
+obj* x_7; obj* x_8; obj* x_9; obj* x_11; 
 lean::dec(x_5);
-x_14 = lean::nat_dec_eq(x_11, x_0);
-if (lean::obj_tag(x_14) == 0)
-{
-obj* x_17; 
-lean::dec(x_14);
-lean::dec(x_0);
-if (lean::is_scalar(x_9)) {
- x_17 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_17 = x_9;
-}
-lean::cnstr_set(x_17, 0, x_11);
-lean::cnstr_set(x_17, 1, x_7);
-return x_17;
-}
-else
-{
-obj* x_20; obj* x_21; obj* x_22; 
-lean::dec(x_14);
-lean::dec(x_11);
-x_20 = l_nat_digit__succ___main(x_0, x_7);
-x_21 = lean::mk_nat_obj(0u);
-if (lean::is_scalar(x_9)) {
- x_22 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_22 = x_9;
-}
-lean::cnstr_set(x_22, 0, x_21);
-lean::cnstr_set(x_22, 1, x_20);
-return x_22;
-}
-}
-}
-}
-obj* l_nat_digit__succ(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_nat_digit__succ___main(x_0, x_1);
-return x_2;
-}
-}
-obj* l_nat_to__digits___main(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; 
-x_2 = lean::mk_nat_obj(0u);
-x_3 = lean::nat_dec_eq(x_1, x_2);
+x_7 = lean::nat_mod(x_2, x_0);
+x_8 = l_nat_digit__char(x_7);
+x_9 = lean::nat_div(x_2, x_0);
 lean::dec(x_2);
-if (lean::obj_tag(x_3) == 0)
+x_11 = lean::nat_dec_eq(x_9, x_4);
+lean::dec(x_4);
+if (lean::obj_tag(x_11) == 0)
 {
-obj* x_6; obj* x_7; obj* x_11; obj* x_12; 
-lean::dec(x_3);
-x_6 = lean::mk_nat_obj(1u);
-x_7 = lean::nat_sub(x_1, x_6);
-lean::dec(x_6);
+obj* x_14; obj* x_15; obj* x_18; 
+lean::dec(x_11);
+x_14 = lean::mk_nat_obj(1u);
+x_15 = lean::nat_sub(x_1, x_14);
+lean::dec(x_14);
 lean::dec(x_1);
-lean::inc(x_0);
-x_11 = l_nat_to__digits___main(x_0, x_7);
-x_12 = l_nat_digit__succ___main(x_0, x_11);
-return x_12;
+x_18 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_18, 0, x_8);
+lean::cnstr_set(x_18, 1, x_3);
+x_1 = x_15;
+x_2 = x_9;
+x_3 = x_18;
+goto _start;
 }
 else
 {
-obj* x_16; 
+obj* x_24; 
+lean::dec(x_11);
+lean::dec(x_9);
 lean::dec(x_1);
-lean::dec(x_3);
 lean::dec(x_0);
-x_16 = l_nat_to__digits___main___closed__1;
-lean::inc(x_16);
-return x_16;
+x_24 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_24, 0, x_8);
+lean::cnstr_set(x_24, 1, x_3);
+return x_24;
+}
+}
+else
+{
+lean::dec(x_5);
+lean::dec(x_4);
+lean::dec(x_1);
+lean::dec(x_0);
+lean::dec(x_2);
+return x_3;
 }
 }
 }
-obj* _init_l_nat_to__digits___main___closed__1() {
+obj* l_nat_to__digits__core(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::box(0);
-x_1 = lean::mk_nat_obj(0u);
-x_2 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_2, 0, x_1);
-lean::cnstr_set(x_2, 1, x_0);
-return x_2;
+obj* x_4; 
+x_4 = l_nat_to__digits__core___main(x_0, x_1, x_2, x_3);
+return x_4;
 }
 }
 obj* l_nat_to__digits(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_nat_to__digits___main(x_0, x_1);
-return x_2;
+obj* x_2; obj* x_3; obj* x_5; obj* x_6; 
+x_2 = lean::mk_nat_obj(1u);
+x_3 = lean::nat_add(x_1, x_2);
+lean::dec(x_2);
+x_5 = lean::box(0);
+x_6 = l_nat_to__digits__core___main(x_0, x_3, x_1, x_5);
+return x_6;
 }
 }
 obj* l_nat_repr(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::mk_nat_obj(10u);
-x_2 = l_nat_to__digits___main(x_1, x_0);
-x_3 = l_list_map___main___at_nat_repr___spec__1(x_2);
-x_4 = l_list_reverse___rarg(x_3);
-x_5 = lean::string_mk(x_4);
-return x_5;
-}
-}
-obj* l_list_map___main___at_nat_repr___spec__1(obj* x_0) {
-_start:
-{
-if (lean::obj_tag(x_0) == 0)
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::box(0);
-return x_2;
-}
-else
-{
-obj* x_3; obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
-x_3 = lean::cnstr_get(x_0, 0);
-lean::inc(x_3);
-x_5 = lean::cnstr_get(x_0, 1);
-lean::inc(x_5);
-if (lean::is_shared(x_0)) {
- lean::dec(x_0);
- x_7 = lean::box(0);
-} else {
- lean::cnstr_release(x_0, 0);
- lean::cnstr_release(x_0, 1);
- x_7 = x_0;
-}
-x_8 = l_nat_digit__char(x_3);
-x_9 = l_list_map___main___at_nat_repr___spec__1(x_5);
-if (lean::is_scalar(x_7)) {
- x_10 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_10 = x_7;
-}
-lean::cnstr_set(x_10, 0, x_8);
-lean::cnstr_set(x_10, 1, x_9);
-return x_10;
-}
+x_2 = l_nat_to__digits(x_1, x_0);
+x_3 = lean::string_mk(x_2);
+return x_3;
 }
 }
 obj* _init_l_nat_has__repr() {
@@ -3573,7 +3479,6 @@ void initialize_init_data_repr() {
  l_nat_digit__char___closed__49 = _init_l_nat_digit__char___closed__49();
  l_nat_digit__char___closed__50 = _init_l_nat_digit__char___closed__50();
  l_nat_digit__char___closed__51 = _init_l_nat_digit__char___closed__51();
- l_nat_to__digits___main___closed__1 = _init_l_nat_to__digits___main___closed__1();
  l_nat_has__repr = _init_l_nat_has__repr();
  l_char_quote__core___closed__1 = _init_l_char_quote__core___closed__1();
  l_char_quote__core___closed__2 = _init_l_char_quote__core___closed__2();

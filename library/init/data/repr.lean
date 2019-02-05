@@ -75,20 +75,19 @@ if n = 0xe then 'e' else
 if n = 0xf then 'f' else
 '*'
 
-def digit_succ (base : ℕ) : list ℕ → list ℕ
-| [] := [1]
-| (d::ds) :=
-    if d+1 = base then
-        0 :: digit_succ ds
-    else
-        (d+1) :: ds
+def to_digits_core (base : nat) : nat → nat → list char → list char
+| 0        n ds := ds
+| (fuel+1) n ds :=
+  let d  := digit_char $ n % base in
+  let n' := n / base in
+  if n' = 0 then d::ds
+  else to_digits_core fuel n' (d::ds)
 
-def to_digits (base : ℕ) : ℕ → list ℕ
-| 0 := [0]
-| (n+1) := digit_succ base (to_digits n)
+def to_digits (base : nat) (n : nat) : list char :=
+to_digits_core base (n+1) n []
 
 protected def repr (n : ℕ) : string :=
-((to_digits 10 n).map digit_char).reverse.as_string
+(to_digits 10 n).as_string
 
 end nat
 

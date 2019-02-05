@@ -413,22 +413,6 @@ bool is_runtime_scalar_type(name const & n) {
         n == get_usize_name();
 }
 
-bool is_runtime_builtin_cnstr(name const & n) {
-    // TODO(Leo): add array type constructors, task constructor,
-    // universe level constructors, and expression constructors.
-
-    /* Remark: we don't need to include `nat.zero` and `nat.zero` because
-       they are converted into literals or addition. */
-    return
-        n == get_thunk_mk_name() ||
-        n == get_string_mk_name() ||
-        n == get_string_iterator_mk_name() ||
-        n == get_int_of_nat_name() ||
-        n == get_int_neg_succ_of_nat_name() ||
-        n == get_lean_name_mk_numeral_name() ||
-        n == get_lean_name_mk_string_name();
-}
-
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type) {
     if (is_sort(type) || type_checker(st, lctx).is_prop(type))
         return true;

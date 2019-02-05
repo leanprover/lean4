@@ -527,7 +527,7 @@ class to_llnf_fn {
             buffer<expr> args;
             expr const & k = get_app_args(e, args);
             lean_assert(is_constant(k));
-            if (is_runtime_builtin_cnstr(const_name(k))) {
+            if (is_builtin_constant(const_name(k))) {
                 /* Optimization is not applicable to runtime builtin constructors. */
                 return e;
             }
@@ -764,7 +764,7 @@ class to_llnf_fn {
         buffer<expr> args;
         expr const & k = get_app_args(e, args);
         lean_assert(is_constant(k));
-        if (is_runtime_builtin_cnstr(const_name(k)))
+        if (is_builtin_constant(const_name(k)))
             return visit_app_default(e);
         constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
         cnstr_info k_info      = get_cnstr_info(const_name(k));

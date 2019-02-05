@@ -9,8 +9,8 @@ import init.lean.level init.lean.kvmap
 namespace lean
 
 inductive literal
-| str_val (val : string)
 | nat_val (val : nat)
+| str_val (val : string)
 
 inductive binder_info
 | default | implicit | strict_implicit | inst_implicit | aux_decl

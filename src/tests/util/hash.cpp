@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <iostream>
 #include "util/test.h"
-#include "util/hash.h"
+#include "runtime/hash.h"
 using namespace lean;
 
 static void tst1() {

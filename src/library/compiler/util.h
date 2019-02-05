@@ -5,9 +5,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include <unordered_set>
 #include "util/pair_ref.h"
 #include "util/list_ref.h"
+#include "util/name_hash_set.h"
 #include "kernel/expr.h"
 #include "kernel/type_checker.h"
 #include "library/constants.h"
@@ -151,7 +151,7 @@ bool is_runtime_builtin_cnstr(name const & n);
 
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type);
 
-void collect_used(expr const & e, std::unordered_set<name, name_hash> & S);
+void collect_used(expr const & e, name_hash_set & S);
 
 environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v);
 environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v);

@@ -12,7 +12,7 @@
 #include <unordered_map>
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
-#include "util/hash.h"
+#include "runtime/hash.h"
 #include "util/escaped.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"

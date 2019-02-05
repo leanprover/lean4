@@ -15,7 +15,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "runtime/thread.h"
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
-#include "util/hash.h"
+#include "runtime/hash.h"
 #include "util/lean_path.h"
 #include "util/buffer.h"
 #include "util/name_map.h"

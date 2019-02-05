@@ -10,8 +10,8 @@ Author: Leonardo de Moura
 #include <string>
 #include <algorithm>
 #include <limits>
+#include "runtime/hash.h"
 #include "util/list_fn.h"
-#include "util/hash.h"
 #include "util/buffer.h"
 #include "kernel/expr.h"
 #include "kernel/expr_eq_fn.h"

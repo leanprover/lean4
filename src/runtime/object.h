@@ -1256,4 +1256,17 @@ inline usize usize_modn(usize a1, b_obj_arg a2) {
 inline obj_res usize_dec_eq(usize a1, usize a2) { return box(a1 == a2); }
 inline obj_res usize_dec_lt(usize a1, usize a2) { return box(a1 < a2); }
 inline obj_res usize_dec_le(usize a1, usize a2) { return box(a1 <= a2); }
+
+// =======================================
+// name
+inline unsigned name_hash(b_obj_arg n) {
+    if (lean::is_scalar(n)) return 11;
+    else return lean::cnstr_get_scalar<unsigned>(n, sizeof(void*)*2);
+}
+
+inline size_t name_hash_usize(b_obj_arg n) { return name_hash(n); }
+
+obj_res name_mk_string(obj_arg p, obj_arg s);
+obj_res name_mk_numeral(obj_arg p, obj_arg n);
+inline obj_res name_mk_string(obj_arg p, char const * s) { return name_mk_string(p, mk_string(s)); }
 }

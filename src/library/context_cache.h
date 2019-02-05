@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <unordered_map>
 #include <unordered_set>
+#include "util/name_hash_map.h"
 #include "kernel/expr_maps.h"
 #include "kernel/equiv_manager.h"
 #include "library/expr_unsigned_map.h"
@@ -15,8 +16,8 @@ Author: Leonardo de Moura
 
 namespace lean {
 class context_cache : public context_cacheless {
-    typedef std::unordered_map<name, optional<constant_info>, name_hash> transparency_cache;
-    typedef std::unordered_map<name, bool, name_hash> name2bool;
+    typedef name_hash_map<optional<constant_info>> transparency_cache;
+    typedef name_hash_map<bool> name2bool;
 
     /** We use expr_cond_bi_struct_map because sometimes we want the inferred type to
         contain precise binder information (e.g., in the elaborator).

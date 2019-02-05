@@ -203,7 +203,7 @@ public:
 
 name string_to_name(std::string const & str);
 
-struct name_hash { unsigned operator()(name const & n) const { return n.hash(); } };
+struct name_hash_fn { unsigned operator()(name const & n) const { return n.hash(); } };
 struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 struct name_cmp {
     typedef name type;

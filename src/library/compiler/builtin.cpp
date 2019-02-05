@@ -24,7 +24,7 @@ struct builtin_decl {
     }
 };
 
-typedef std::unordered_map<name, builtin_decl, name_hash> builtin_map;
+typedef std::unordered_map<name, builtin_decl, name_hash_fn> builtin_map;
 
 static builtin_map * g_builtin_decls = nullptr;
 
@@ -316,6 +316,11 @@ void initialize_builtin() {
     register_builtin(name({"thunk", "get"}), o_o_o, "lean::thunk_get", bb, xu);
     register_builtin(name({"thunk", "bind"}), o_o_o_o_o, "lean::thunk_get", bb, xu);
     register_builtin(name({"thunk", "map"}), o_o_o_o_o, "lean::thunk_bind", bbcc, xxuu);
+
+    /* name builtin functions */
+    register_builtin(name({"lean", "name", "hash"}), o_us, "lean::name_hash_usize", b);
+    register_builtin(name({"lean", "name", "mk_string"}), o_o_o, "lean::name_mk_string");
+    register_builtin(name({"lean", "name", "mk_numeral"}), o_o_o, "lean::name_mk_numeral");
 }
 
 void finalize_builtin() {

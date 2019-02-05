@@ -8,5 +8,5 @@ Author: Leonardo de Moura
 #include <unordered_map>
 #include "util/name.h"
 namespace lean {
-template<typename T> using name_hash_map = std::unordered_map<name, T, name_hash, name_eq>;
+template<typename T> using name_hash_map = std::unordered_map<name, T, name_hash_fn, name_eq>;
 }

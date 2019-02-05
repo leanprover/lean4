@@ -8,8 +8,8 @@ Author: Leonardo de Moura
 #include <cstring>
 #include <string>
 #include "runtime/sstream.h"
+#include "runtime/hash.h"
 #include "util/rc.h"
-#include "util/hash.h"
 #include "util/name.h"
 #include "util/escaped.h"
 #include "util/buffer.h"

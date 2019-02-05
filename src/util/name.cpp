@@ -14,9 +14,9 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/sstream.h"
 #include "runtime/utf8.h"
+#include "runtime/hash.h"
 #include "util/name.h"
 #include "util/buffer.h"
-#include "util/hash.h"
 #include "util/ascii.h"
 
 namespace lean {
@@ -94,38 +94,25 @@ static void display_name(std::ostream & out, name const & n, bool escape, char c
 }
 
 name::name(name const & prefix, char const * n):
-    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::STRING),
-                        prefix.raw(), mk_string(n), sizeof(unsigned))) {
+    object_ref(name_mk_string(prefix.raw(), n)) {
     inc(prefix.raw());
-    size_t sz  = strlen(n);
-    unsigned h = hash_str(static_cast<unsigned>(sz), n, prefix.hash());
-    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }
 
 name::name(name const & prefix, unsigned k):
-    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::NUMERAL),
-                        prefix.raw(), mk_nat_obj(k), sizeof(unsigned))) {
+    object_ref(name_mk_numeral(prefix.raw(), mk_nat_obj(k))) {
     inc(prefix.raw());
-    unsigned h = ::lean::hash(k, prefix.hash());
-    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }
 
 name::name(name const & prefix, string_ref const & s):
-    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::STRING),
-                        prefix.raw(), s.raw(), sizeof(unsigned))) {
+    object_ref(name_mk_string(prefix.raw(), s.raw())) {
     inc(prefix.raw());
     inc(s.raw());
-    unsigned h = hash_str(static_cast<unsigned>(s.num_bytes()), s.data(), prefix.hash());
-    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }
 
 name::name(name const & prefix, nat const & k):
-    object_ref(mk_cnstr(static_cast<unsigned>(name_kind::NUMERAL),
-                        prefix.raw(), k.raw(), sizeof(unsigned))) {
+    object_ref(name_mk_numeral(prefix.raw(), k.raw())) {
     inc(prefix.raw());
     inc(k.raw());
-    unsigned h = ::lean::hash(k.hash(), prefix.hash());
-    cnstr_set_scalar<unsigned>(raw(), 2*sizeof(object*), h); // NOLINT
 }
 
 name::name(std::initializer_list<char const *> const & l):name() {

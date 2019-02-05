@@ -67,7 +67,6 @@ class csimp_fn {
     */
     typedef rb_map<pair<expr, unsigned>, expr, pair_cmp<expr_quick_cmp, unsigned_cmp>> proj2var;
     proj2var                 m_proj2var;
-    typedef std::unordered_set<name, name_hash> name_set;
 
     environment const & env() const { return m_st.env(); }
 
@@ -333,7 +332,7 @@ class csimp_fn {
         unsigned m_num_branches{0};
         /* The number of branches that return a constructor application. */
         unsigned m_num_cnstr_results{0};
-        name_set m_visited_jps;
+        name_hash_set m_visited_jps;
     };
 
     void collect_cases_info(expr e, cases_info_result & result) {
@@ -689,7 +688,7 @@ class csimp_fn {
     }
 
     /* Return true iff `e` contains a free variable in `s` */
-    bool depends_on(expr const & e, name_set const & s) {
+    bool depends_on(expr const & e, name_hash_set const & s) {
         if (!has_fvar(e)) return false;
         bool found = false;
         for_each(e, [&](expr const & e, unsigned) {
@@ -722,7 +721,7 @@ class csimp_fn {
                        buffer<pair<expr, expr>> & entries_ndep_x) {
         if (entries.empty())
             return;
-        name_set deps;
+        name_hash_set deps;
         deps.insert(fvar_name(x));
         /* Recall that `entries` are in reverse order. That is, pos 0 is the inner most variable. */
         unsigned i = entries.size();
@@ -785,7 +784,7 @@ class csimp_fn {
 
     /* Copy `src_entries` and the new joint points that depend on them to `entries`, and update `entries_fvars`.
        This method is used after we perform a `float_cases_on`. */
-    void move_to_entries(buffer<expr_pair> const & src_entries, buffer<expr_pair> & entries, name_set & entries_fvars) {
+    void move_to_entries(buffer<expr_pair> const & src_entries, buffer<expr_pair> & entries, name_hash_set & entries_fvars) {
         buffer<expr_pair> todo;
         for (unsigned i = 0; i < src_entries.size(); i++) {
             expr_pair const & entry = src_entries[i];
@@ -842,8 +841,8 @@ class csimp_fn {
            We simplify the value of some let-declarations in this method, but we don't want to create
            a new temporary declaration just for this. */
         buffer<expr_pair> entries;
-        name_set e_fvars; /* Set of free variables names used in `e` */
-        name_set entries_fvars; /* Set of free variable names used in `entries` */
+        name_hash_set e_fvars; /* Set of free variables names used in `e` */
+        name_hash_set entries_fvars; /* Set of free variable names used in `entries` */
         collect_used(e, e_fvars);
         bool e_is_cases      = is_cases_on_app(env(), e);
         /*

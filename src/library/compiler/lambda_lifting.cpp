@@ -22,7 +22,7 @@ class lambda_lifting_fn {
     name                m_base_name;
     unsigned            m_next_idx{1};
 
-    typedef std::unordered_set<name, name_hash> name_set;
+    typedef std::unordered_set<name, name_hash_fn> name_set;
 
     environment const & env() { return m_env; }
 

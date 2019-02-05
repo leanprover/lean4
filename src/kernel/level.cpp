@@ -10,11 +10,11 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include "runtime/debug.h"
 #include "runtime/interrupt.h"
+#include "runtime/hash.h"
 #include "util/safe_arith.h"
 #include "util/buffer.h"
 #include "util/rc.h"
 #include "util/list.h"
-#include "util/hash.h"
 #include "kernel/level.h"
 #include "kernel/environment.h"
 

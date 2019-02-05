@@ -15,8 +15,8 @@ namespace lean {
 static name * g_elim_dead_let_fresh = nullptr;
 
 class elim_dead_let_fn {
-    std::unordered_set<name, name_hash> m_used;
-    name_generator                      m_ngen;
+    std::unordered_set<name, name_hash_fn> m_used;
+    name_generator                         m_ngen;
 
     void mark_fvar(expr const & e) {
         m_used.insert(fvar_name(e));

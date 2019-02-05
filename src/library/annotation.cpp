@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <string>
 #include "runtime/sstream.h"
+#include "util/name_hash_map.h"
 #include "library/abstract_type_context.h"
 #include "library/annotation.h"
 #include "library/pos_info_provider.h"
@@ -19,7 +20,7 @@ kvmap mk_annotation_kvmap(name const & k) {
     return set_name(kvmap(), *g_annotation, k);
 }
 
-typedef std::unordered_map<name, kvmap, name_hash, name_eq> annotation_maps;
+typedef name_hash_map<kvmap> annotation_maps;
 static annotation_maps * g_annotation_maps = nullptr;
 
 void register_annotation(name const & kind) {

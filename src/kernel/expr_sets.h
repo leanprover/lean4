@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include <utility>
 #include <functional>
-#include "util/hash.h"
+#include "runtime/hash.h"
 #include "kernel/expr.h"
 
 namespace lean {

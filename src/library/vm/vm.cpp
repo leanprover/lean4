@@ -15,7 +15,10 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/memory.h"
 #include "runtime/flet.h"
+#include "util/name_hash_map.h"
+#include "util/name_hash_set.h"
 #include "util/timeit.h"
+#include "util/name_hash_map.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/shared_mutex.h"
 #include "library/constants.h"
@@ -3442,14 +3445,14 @@ auto vm_state::profiler::get_snapshots() -> snapshots {
     stop();
     snapshots r;
     r.m_total_time = chrono::milliseconds(0);
-    std::unordered_map<name, pair<chrono::milliseconds, chrono::milliseconds>, name_hash> timings;
+    name_hash_map<pair<chrono::milliseconds, chrono::milliseconds>> timings;
     for (snapshot_core const & s : m_snapshots) {
         snapshot new_s;
         new_s.m_duration       = s.m_duration;
         new_s.m_perf_counters  = s.m_perf_counters;
         r.m_total_time        += s.m_duration;
         auto & new_stack = new_s.m_stack;
-        std::unordered_set<name, name_hash> decl_already_seen_in_this_stack;
+        name_hash_set decl_already_seen_in_this_stack;
         for (unsigned i = 0; i < s.m_stack.size(); i++) {
             auto const & p = s.m_stack[i];
             vm_decl const * decl = m_state.m_decl_map.find(p.first);
@@ -3575,9 +3578,9 @@ unsigned get_vm_builtin_arity(name const & fn) {
 }
 
 class vm_index_manager {
-    shared_mutex m_mutex;
-    std::unordered_map<name, unsigned, name_hash> m_name2idx;
-    std::vector<name> m_idx2name;
+    shared_mutex            m_mutex;
+    name_hash_map<unsigned> m_name2idx;
+    std::vector<name>       m_idx2name;
 
 public:
     unsigned get_index(name const & n) {

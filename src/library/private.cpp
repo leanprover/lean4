@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include <string>
 #include "runtime/sstream.h"
-#include "util/hash.h"
+#include "runtime/hash.h"
 #include "library/private.h"
 #include "library/module.h"
 

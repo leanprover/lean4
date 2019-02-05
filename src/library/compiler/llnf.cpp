@@ -10,6 +10,8 @@ Author: Leonardo de Moura
 #include <unordered_set>
 #include "runtime/flet.h"
 #include "runtime/sstream.h"
+#include "util/name_hash_set.h"
+#include "util/name_hash_map.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/for_each_fn.h"
@@ -244,9 +246,9 @@ class to_llnf_fn {
       TODO(Leo): we must track which variables are marked as borrowed here. Reason: the `reuse` instruction is just
       overhead for variables marked as borrowed.
     */
-    typedef std::unordered_set<name, name_hash> name_set;
-    typedef std::unordered_map<name, cnstr_info, name_hash> cnstr_info_cache;
-    typedef std::unordered_map<name, optional<unsigned>, name_hash> enum_cache;
+    typedef name_hash_set name_set;
+    typedef name_hash_map<cnstr_info> cnstr_info_cache;
+    typedef name_hash_map<optional<unsigned>> enum_cache;
     type_checker::state   m_st;
     bool                  m_unboxed;
     local_ctx             m_lctx;
@@ -401,7 +403,7 @@ class to_llnf_fn {
         if (saved_fvars_size == m_fvars.size())
             return r;
         buffer<expr> used;
-        name_set used_fvars;
+        name_hash_set used_fvars;
         collect_used(r, used_fvars);
         while (m_fvars.size() > saved_fvars_size) {
             expr x = m_fvars.back();

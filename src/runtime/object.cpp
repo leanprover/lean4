@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "runtime/apply.h"
 #include "runtime/flet.h"
 #include "runtime/interrupt.h"
+#include "runtime/hash.h"
 
 namespace lean {
 size_t obj_byte_size(object * o) {
@@ -1518,6 +1519,36 @@ obj_res string_iterator_snd(b_obj_arg it) {
     object * s = string_iterator_remaining_to_string(it);
     object * r = string_to_list_core(string_to_std(s));
     dec_ref(s);
+    return r;
+}
+
+// =======================================
+// name
+
+/*
+inductive name
+| anonymous  : name
+| mk_string  : name → string → name
+| mk_numeral : name → nat → name
+*/
+obj_res name_mk_string(obj_arg p, obj_arg s) {
+    object * r = alloc_cnstr(1, 2, sizeof(unsigned));
+    size_t sz  = string_size(s);
+    unsigned h = hash_str(sz, string_cstr(s), name_hash(p));
+    cnstr_set(r, 0, p);
+    cnstr_set(r, 1, s);
+    cnstr_set_scalar<unsigned>(r, 2*sizeof(object*), h);
+    return r;
+}
+
+obj_res name_mk_numeral(obj_arg p, obj_arg n) {
+    object * r  = alloc_cnstr(2, 2, sizeof(unsigned));
+    unsigned h1 = is_scalar(n) ? unbox(n) : mpz_value(n).hash();
+    unsigned h2 = name_hash(p);
+    unsigned h  = hash(h1, h2);
+    cnstr_set(r, 0, p);
+    cnstr_set(r, 1, n);
+    cnstr_set_scalar<unsigned>(r, 2*sizeof(object*), h);
     return r;
 }
 

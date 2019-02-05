@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <limits>
+#include "util/name_hash_set.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/replace_fn.h"
@@ -394,6 +395,7 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_uint64_name() ||
         n == get_usize_name()  ||
         n == get_thunk_name()  ||
+        n == get_lean_name_name() ||
         // n == get_task_name()   ||  TODO(Leo): enable
         // n == get_array_name()  ||  TODO(Leo): enable
         n == get_nat_name()    ||
@@ -420,7 +422,9 @@ bool is_runtime_builtin_cnstr(name const & n) {
         n == get_string_mk_name() ||
         n == get_string_iterator_mk_name() ||
         n == get_int_of_nat_name() ||
-        n == get_int_neg_succ_of_nat_name();
+        n == get_int_neg_succ_of_nat_name() ||
+        n == get_lean_name_mk_numeral_name() ||
+        n == get_lean_name_mk_string_name();
 }
 
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type) {
@@ -438,7 +442,7 @@ bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & t
     return false;
 }
 
-void collect_used(expr const & e, std::unordered_set<name, name_hash> & S) {
+void collect_used(expr const & e, name_hash_set & S) {
     if (!has_fvar(e)) return;
     for_each(e, [&](expr const & e, unsigned) {
             if (!has_fvar(e)) return false;

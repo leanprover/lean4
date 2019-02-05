@@ -98,7 +98,6 @@ obj* l_lean_ir_cpp_emit__finalize__proc___closed__1;
 obj* l_string_quote(obj*);
 obj* l_int_repr___main(obj*);
 obj* l_lean_ir_cpp_fid2cpp___closed__1;
-obj* l_lean_name_has__dec__eq___main(obj*, obj*);
 obj* l_lean_ir_cpp_fid2cpp(obj*, obj*, obj*);
 obj* l_lean_ir_cpp_emit__instr___closed__9;
 obj* l_lean_ir_cpp_emit__num__suffix___main(unsigned char, obj*, obj*);
@@ -15536,7 +15535,7 @@ return x_5;
 }
 else
 {
-obj* x_6; obj* x_8; obj* x_11; obj* x_15; 
+obj* x_6; obj* x_8; obj* x_11; obj* x_14; 
 x_6 = lean::cnstr_get(x_1, 0);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_1, 1);
@@ -15545,11 +15544,11 @@ lean::dec(x_1);
 x_11 = lean::cnstr_get(x_6, 0);
 lean::inc(x_11);
 lean::dec(x_6);
-lean::inc(x_0);
-x_15 = l_lean_name_has__dec__eq___main(x_11, x_0);
-if (lean::obj_tag(x_15) == 0)
+x_14 = lean::name_dec_eq(x_11, x_0);
+lean::dec(x_11);
+if (lean::obj_tag(x_14) == 0)
 {
-lean::dec(x_15);
+lean::dec(x_14);
 x_1 = x_8;
 goto _start;
 }
@@ -15557,7 +15556,7 @@ else
 {
 unsigned char x_21; obj* x_22; 
 lean::dec(x_8);
-lean::dec(x_15);
+lean::dec(x_14);
 lean::dec(x_0);
 x_21 = 1;
 x_22 = lean::box(x_21);

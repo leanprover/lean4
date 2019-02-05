@@ -84,7 +84,6 @@ obj* l_int_repr___main(obj*);
 extern obj* l_lean_list_to__format___main___rarg___closed__1;
 obj* l_lean_ir_type_to__format___main(unsigned char);
 obj* l_lean_ir_assign__unop_to__format___main___closed__1;
-obj* l_lean_name_has__dec__eq___main(obj*, obj*);
 obj* l_lean_format_join__sep___main___at_lean_ir_decl_to__format___main___spec__1(obj*, obj*);
 obj* l_lean_ir_assign__binop_to__format___main___closed__19;
 obj* l_lean_ir_arg_has__to__string;
@@ -469,19 +468,19 @@ return x_2;
 }
 case 1:
 {
-obj* x_4; obj* x_6; obj* x_9; obj* x_11; 
+obj* x_4; obj* x_6; obj* x_9; obj* x_10; 
 x_4 = lean::cnstr_get(x_0, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 lean::dec(x_0);
 x_9 = lean::box(0);
-lean::inc(x_4);
-x_11 = l_lean_name_has__dec__eq___main(x_4, x_9);
-if (lean::obj_tag(x_11) == 0)
+x_10 = lean::name_dec_eq(x_4, x_9);
+lean::dec(x_9);
+if (lean::obj_tag(x_10) == 0)
 {
 obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
-lean::dec(x_11);
+lean::dec(x_10);
 x_13 = l_lean_ir_id_to__string___main(x_4);
 x_14 = l_lean_name_to__string___closed__1;
 x_15 = lean::string_append(x_13, x_14);
@@ -493,7 +492,7 @@ return x_17;
 else
 {
 unsigned char x_22; 
-lean::dec(x_11);
+lean::dec(x_10);
 lean::dec(x_4);
 lean::inc(x_6);
 x_22 = l_lean_ir_is__reserved(x_6);
@@ -513,19 +512,19 @@ return x_24;
 }
 default:
 {
-obj* x_25; obj* x_27; obj* x_30; obj* x_32; 
+obj* x_25; obj* x_27; obj* x_30; obj* x_31; 
 x_25 = lean::cnstr_get(x_0, 0);
 lean::inc(x_25);
 x_27 = lean::cnstr_get(x_0, 1);
 lean::inc(x_27);
 lean::dec(x_0);
 x_30 = lean::box(0);
-lean::inc(x_25);
-x_32 = l_lean_name_has__dec__eq___main(x_25, x_30);
-if (lean::obj_tag(x_32) == 0)
+x_31 = lean::name_dec_eq(x_25, x_30);
+lean::dec(x_30);
+if (lean::obj_tag(x_31) == 0)
 {
 obj* x_34; obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_39; 
-lean::dec(x_32);
+lean::dec(x_31);
 x_34 = l_lean_ir_id_to__string___main(x_25);
 x_35 = l_lean_name_to__string___closed__1;
 x_36 = lean::string_append(x_34, x_35);
@@ -539,7 +538,7 @@ else
 {
 obj* x_43; obj* x_44; 
 lean::dec(x_25);
-lean::dec(x_32);
+lean::dec(x_31);
 x_43 = l_nat_repr(x_27);
 x_44 = l_lean_ir_escape__string(x_43);
 return x_44;

@@ -81,7 +81,6 @@ obj* l_lean_expander_expand__bracketed__binder___main___closed__4;
 obj* l_list_mfoldr___main___at_lean_expander_expand__binders___spec__6___closed__3;
 extern obj* l_lean_parser_command_variable_has__view;
 obj* l_lean_expander_arrow_transform___closed__1;
-obj* l_lean_name_has__dec__eq___main(obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence__term_view_to__nat___main(obj*);
 extern obj* l_lean_parser_level_leading;
 obj* l_lean_expander_mk__notation__transformer___lambda__1(obj*, obj*);
@@ -2738,7 +2737,7 @@ return x_4;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_10; obj* x_12; obj* x_16; 
+obj* x_5; obj* x_7; obj* x_10; obj* x_12; obj* x_15; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -2749,11 +2748,11 @@ lean::inc(x_10);
 x_12 = lean::cnstr_get(x_5, 1);
 lean::inc(x_12);
 lean::dec(x_5);
-lean::inc(x_1);
-x_16 = l_lean_name_has__dec__eq___main(x_10, x_1);
-if (lean::obj_tag(x_16) == 0)
+x_15 = lean::name_dec_eq(x_10, x_1);
+lean::dec(x_10);
+if (lean::obj_tag(x_15) == 0)
 {
-lean::dec(x_16);
+lean::dec(x_15);
 lean::dec(x_12);
 x_0 = x_7;
 goto _start;
@@ -2761,7 +2760,7 @@ goto _start;
 else
 {
 obj* x_23; 
-lean::dec(x_16);
+lean::dec(x_15);
 lean::dec(x_7);
 lean::dec(x_1);
 x_23 = lean::alloc_cnstr(1, 1, 0);

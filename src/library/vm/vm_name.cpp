@@ -18,6 +18,7 @@ void initialize_vm_name() {
     DECLARE_VM_BUILTIN(name({"lean", "name", "hash"}),        dummy_unary_op);
     DECLARE_VM_BUILTIN(name({"lean", "name", "mk_string"}),   dummy_binary_op);
     DECLARE_VM_BUILTIN(name({"lean", "name", "mk_numeral"}),  dummy_binary_op);
+    DECLARE_VM_BUILTIN(name({"lean", "name", "dec_eq"}),      dummy_binary_op);
 }
 
 void finalize_vm_name() {

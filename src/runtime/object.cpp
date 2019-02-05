@@ -1552,6 +1552,32 @@ obj_res name_mk_numeral(obj_arg p, obj_arg n) {
     return r;
 }
 
+bool name_eq_core(b_obj_arg n1, b_obj_arg n2) {
+    while (true) {
+        lean_assert(!is_scalar(n1));
+        lean_assert(!is_scalar(n2));
+        lean_assert(n1 && n2);
+        lean_assert(name_hash(n1) == name_hash(n2));
+        if (cnstr_tag(n1) != cnstr_tag(n2))
+            return false;
+        if (cnstr_tag(n1) == 1) {
+            if (!string_eq(cnstr_get(n1, 1), cnstr_get(n2, 1)))
+                return false;
+        } else {
+            if (!nat_eq(cnstr_get(n1, 1), cnstr_get(n1, 1)))
+                return false;
+        }
+        n1 = cnstr_get(n1, 0);
+        n2 = cnstr_get(n2, 0);
+        if (n1 == n2)
+            return true;
+        if (is_scalar(n1) != is_scalar(n2))
+            return false;
+        if (name_hash(n1) != name_hash(n2))
+            return false;
+    }
+}
+
 // =======================================
 // Debugging helper functions
 

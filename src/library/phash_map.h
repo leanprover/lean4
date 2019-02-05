@@ -119,5 +119,5 @@ public:
 };
 
 template<typename T>
-using name_hash_map = phash_map<name, T, name_hash_fn, name_eq, true>;
+using name_hash_map = phash_map<name, T, name_hash_fn, name_eq_fn, true>;
 }

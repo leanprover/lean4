@@ -143,33 +143,6 @@ static void copy_limbs(object * p, buffer<object *> & limbs) {
     std::reverse(limbs.begin(), limbs.end());
 }
 
-/* Equality test core procedure, it is invoked by operator== */
-bool name::eq_core(object * i1, object * i2) {
-    while (true) {
-        lean_assert(!is_scalar(i1));
-        lean_assert(!is_scalar(i2));
-        lean_assert(i1 && i2);
-        lean_assert(hash(i1) == hash(i2));
-        if (cnstr_tag(i1) != cnstr_tag(i2))
-            return false;
-        if (static_cast<name_kind>(cnstr_tag(i1)) == name_kind::STRING) {
-            if (get_string(i1) != get_string(i2))
-                return false;
-        } else {
-            if (get_numeral(i1) != get_numeral(i2))
-                return false;
-        }
-        i1 = get_prefix(i1);
-        i2 = get_prefix(i2);
-        if (i1 == i2)
-            return true;
-        if (is_scalar(i1) != is_scalar(i2))
-            return false;
-        if (hash(i1) != hash(i2))
-            return false;
-    }
-}
-
 bool is_prefix_of(name const & n1, name const & n2) {
     if (n2.is_atomic())
         return n1 == n2;

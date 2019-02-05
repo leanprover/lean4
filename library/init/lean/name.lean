@@ -60,17 +60,17 @@ def components' : name -> list name
 def components (n : name) : list name :=
 n.components'.reverse
 
-protected def has_dec_eq : Π a b : name, decidable (a = b)
+protected def dec_eq : Π a b : name, decidable (a = b)
 | anonymous          anonymous          := is_true rfl
 | (mk_string p₁ s₁)  (mk_string p₂ s₂)  :=
   if h₁ : s₁ = s₂ then
-    match has_dec_eq p₁ p₂ with
+    match dec_eq p₁ p₂ with
     | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
     | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
   else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
 | (mk_numeral p₁ n₁) (mk_numeral p₂ n₂) :=
   if h₁ : n₁ = n₂ then
-    match has_dec_eq p₁ p₂ with
+    match dec_eq p₁ p₂ with
     | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
     | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
   else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
@@ -82,7 +82,7 @@ protected def has_dec_eq : Π a b : name, decidable (a = b)
 | (mk_numeral _ _)   (mk_string _ _)    := is_false $ λ h, name.no_confusion h
 
 instance : decidable_eq name :=
-{dec_eq := name.has_dec_eq}
+{dec_eq := name.dec_eq}
 
 protected def append : name → name → name
 | n anonymous := n

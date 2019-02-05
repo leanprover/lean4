@@ -321,6 +321,7 @@ void initialize_builtin() {
     register_builtin(name({"lean", "name", "hash"}), o_us, "lean::name_hash_usize", b);
     register_builtin(name({"lean", "name", "mk_string"}), o_o_o, "lean::name_mk_string");
     register_builtin(name({"lean", "name", "mk_numeral"}), o_o_o, "lean::name_mk_numeral");
+    register_builtin(name({"lean", "name", "dec_eq"}), o_o_o, "lean::name_dec_eq", bb);
 }
 
 void finalize_builtin() {

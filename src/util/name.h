@@ -50,8 +50,6 @@ public:
     static object * get_prefix(object * o) { return cnstr_get(o, 0); }
     static string_ref const & get_string(object * o) { return static_cast<string_ref const &>(cnstr_get_ref(o, 1)); }
     static nat const & get_numeral(object * o) { return static_cast<nat const &>(cnstr_get_ref(o, 1)); }
-    static unsigned hash(object * o) { return cnstr_get_scalar<unsigned>(o, 2*sizeof(object*)); } // NOLINT
-    static bool eq_core(object * o1, object * o2);
     static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
@@ -93,18 +91,10 @@ public:
     static name mk_internal_unique_name();
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
     name & operator=(name && other) { object_ref::operator=(other); return *this; }
-    unsigned hash() const { return is_scalar(raw()) ? 11 : hash(raw()); }
+    unsigned hash() const { return name_hash(raw()); }
     /** \brief Return true iff \c n1 is a prefix of \c n2. */
     friend bool is_prefix_of(name const & n1, name const & n2);
-    friend bool operator==(name const & a, name const & b) {
-        if (a.raw() == b.raw())
-            return true;
-        if (is_scalar(a.raw()) != is_scalar(b.raw()))
-            return false;
-        if (a.hash() != b.hash())
-            return false;
-        return eq_core(a.raw(), b.raw());
-    }
+    friend bool operator==(name const & a, name const & b) { return name_eq(a.raw(), b.raw()); }
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
     friend bool operator==(name const & a, char const * b);
     friend bool operator!=(name const & a, char const * b) { return !(a == b); }
@@ -204,7 +194,7 @@ public:
 name string_to_name(std::string const & str);
 
 struct name_hash_fn { unsigned operator()(name const & n) const { return n.hash(); } };
-struct name_eq { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
+struct name_eq_fn { bool operator()(name const & n1, name const & n2) const { return n1 == n2; } };
 struct name_cmp {
     typedef name type;
     int operator()(name const & n1, name const & n2) const { return cmp(n1, n2); }

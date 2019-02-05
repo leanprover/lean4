@@ -589,21 +589,20 @@ return x_2;
 obj* l_lean_parser_put__cache(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_11; 
+obj* x_6; obj* x_7; obj* x_9; obj* x_10; 
 lean::dec(x_3);
 lean::dec(x_1);
-x_6 = 0;
+x_6 = lean::box(0);
 x_7 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;
-x_8 = lean::box(x_6);
 lean::inc(x_7);
-x_10 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_10, 0, x_8);
-lean::cnstr_set(x_10, 1, x_2);
-lean::cnstr_set(x_10, 2, x_7);
-x_11 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_11, 0, x_10);
-lean::cnstr_set(x_11, 1, x_0);
-return x_11;
+x_9 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_9, 0, x_6);
+lean::cnstr_set(x_9, 1, x_2);
+lean::cnstr_set(x_9, 2, x_7);
+x_10 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_10, 0, x_9);
+lean::cnstr_set(x_10, 1, x_0);
+return x_10;
 }
 }
 obj* l_lean_parser_tokens___rarg(obj* x_0) {

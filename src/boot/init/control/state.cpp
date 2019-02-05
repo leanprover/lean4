@@ -18,11 +18,10 @@ obj* l_state__t_monad___rarg___lambda__4(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_state__t_monad__functor(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_state__t_monad__except___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_state__t_run_x_27___rarg___closed__1;
-obj* l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2(obj*, obj*, unsigned char);
+obj* l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_state__t_has__monad__lift___rarg(obj*);
 obj* l_state__t_failure(obj*, obj*, obj*);
 obj* l_monad__state__trans___rarg(obj*, obj*);
-obj* l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2___boxed(obj*, obj*, obj*);
 obj* l_monad__state__adapter_adapt__state_x_27___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_state__t_monad__except___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*);
 obj* l_state__t_monad___rarg___lambda__6(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -608,7 +607,7 @@ return x_4;
 obj* l_state__t_put___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_4; obj* x_7; unsigned char x_10; obj* x_11; obj* x_12; obj* x_13; 
+obj* x_4; obj* x_7; obj* x_10; obj* x_11; obj* x_12; 
 lean::dec(x_2);
 x_4 = lean::cnstr_get(x_0, 0);
 lean::inc(x_4);
@@ -616,13 +615,12 @@ lean::dec(x_0);
 x_7 = lean::cnstr_get(x_4, 1);
 lean::inc(x_7);
 lean::dec(x_4);
-x_10 = 0;
-x_11 = lean::box(x_10);
-x_12 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_12, 0, x_11);
-lean::cnstr_set(x_12, 1, x_1);
-x_13 = lean::apply_2(x_7, lean::box(0), x_12);
-return x_13;
+x_10 = lean::box(0);
+x_11 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_11, 0, x_10);
+lean::cnstr_set(x_11, 1, x_1);
+x_12 = lean::apply_2(x_7, lean::box(0), x_11);
+return x_12;
 }
 }
 obj* l_state__t_put(obj* x_0, obj* x_1) {
@@ -638,7 +636,7 @@ return x_4;
 obj* l_state__t_modify___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_6; obj* x_9; unsigned char x_10; obj* x_11; obj* x_12; obj* x_13; 
+obj* x_3; obj* x_6; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 lean::dec(x_0);
@@ -646,13 +644,12 @@ x_6 = lean::cnstr_get(x_3, 1);
 lean::inc(x_6);
 lean::dec(x_3);
 x_9 = lean::apply_1(x_1, x_2);
-x_10 = 0;
-x_11 = lean::box(x_10);
-x_12 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_12, 0, x_11);
-lean::cnstr_set(x_12, 1, x_9);
-x_13 = lean::apply_2(x_6, lean::box(0), x_12);
-return x_13;
+x_10 = lean::box(0);
+x_11 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_11, 0, x_10);
+lean::cnstr_set(x_11, 1, x_9);
+x_12 = lean::apply_2(x_6, lean::box(0), x_11);
+return x_12;
 }
 }
 obj* l_state__t_modify(obj* x_0, obj* x_1) {
@@ -980,7 +977,7 @@ obj* x_6; obj* x_7; obj* x_8;
 lean::dec(x_1);
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__state__adapter_adapt__state_x_27___rarg___lambda__1), 2, 1);
 lean::closure_set(x_6, 0, x_2);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2___boxed), 3, 1);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2), 3, 1);
 lean::closure_set(x_7, 0, x_3);
 x_8 = lean::apply_5(x_0, lean::box(0), lean::box(0), x_6, x_7, x_4);
 return x_8;
@@ -989,22 +986,22 @@ return x_8;
 obj* l_monad__state__adapter_adapt__state_x_27___rarg___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; unsigned char x_3; obj* x_4; obj* x_5; 
+obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::apply_1(x_0, x_1);
-x_3 = 0;
-x_4 = lean::box(x_3);
-x_5 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_5, 0, x_2);
-lean::cnstr_set(x_5, 1, x_4);
-return x_5;
+x_3 = lean::box(0);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_2);
+lean::cnstr_set(x_4, 1, x_3);
+return x_4;
 }
 }
-obj* l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2(obj* x_0, obj* x_1, unsigned char x_2) {
+obj* l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::apply_1(x_0, x_1);
-return x_3;
+obj* x_4; 
+lean::dec(x_2);
+x_4 = lean::apply_1(x_0, x_1);
+return x_4;
 }
 }
 obj* l_monad__state__adapter_adapt__state_x_27(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -1017,15 +1014,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__state__adapter_adapt__state_x_27___rarg), 5, 0);
 return x_8;
-}
-}
-obj* l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-unsigned char x_3; obj* x_4; 
-x_3 = lean::unbox(x_2);
-x_4 = l_monad__state__adapter_adapt__state_x_27___rarg___lambda__2(x_0, x_1, x_3);
-return x_4;
 }
 }
 obj* l_monad__state__adapter__trans___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {

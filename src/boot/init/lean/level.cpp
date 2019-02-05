@@ -792,26 +792,26 @@ return x_1;
 obj* l_lean_level__to__format_result_max___main(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; 
+obj* x_2; 
 switch (lean::obj_tag(x_1)) {
 case 0:
 {
-unsigned char x_4; 
-x_4 = 0;
+obj* x_4; 
+x_4 = lean::box(0);
 x_2 = x_4;
 goto lbl_3;
 }
 case 1:
 {
-unsigned char x_5; 
-x_5 = 0;
+obj* x_5; 
+x_5 = lean::box(0);
 x_2 = x_5;
 goto lbl_3;
 }
 case 2:
 {
-unsigned char x_6; 
-x_6 = 0;
+obj* x_6; 
+x_6 = lean::box(0);
 x_2 = x_6;
 goto lbl_3;
 }
@@ -840,25 +840,26 @@ return x_11;
 }
 default:
 {
-unsigned char x_12; 
-x_12 = 0;
+obj* x_12; 
+x_12 = lean::box(0);
 x_2 = x_12;
 goto lbl_3;
 }
 }
 lbl_3:
 {
-obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
-x_13 = lean::box(0);
-x_14 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_14, 0, x_1);
-lean::cnstr_set(x_14, 1, x_13);
+obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+lean::dec(x_2);
+x_14 = lean::box(0);
 x_15 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_15, 0, x_0);
+lean::cnstr_set(x_15, 0, x_1);
 lean::cnstr_set(x_15, 1, x_14);
-x_16 = lean::alloc_cnstr(3, 1, 0);
-lean::cnstr_set(x_16, 0, x_15);
-return x_16;
+x_16 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_16, 0, x_0);
+lean::cnstr_set(x_16, 1, x_15);
+x_17 = lean::alloc_cnstr(3, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
+return x_17;
 }
 }
 }
@@ -873,33 +874,33 @@ return x_2;
 obj* l_lean_level__to__format_result_imax___main(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; 
+obj* x_2; 
 switch (lean::obj_tag(x_1)) {
 case 0:
 {
-unsigned char x_4; 
-x_4 = 0;
+obj* x_4; 
+x_4 = lean::box(0);
 x_2 = x_4;
 goto lbl_3;
 }
 case 1:
 {
-unsigned char x_5; 
-x_5 = 0;
+obj* x_5; 
+x_5 = lean::box(0);
 x_2 = x_5;
 goto lbl_3;
 }
 case 2:
 {
-unsigned char x_6; 
-x_6 = 0;
+obj* x_6; 
+x_6 = lean::box(0);
 x_2 = x_6;
 goto lbl_3;
 }
 case 3:
 {
-unsigned char x_7; 
-x_7 = 0;
+obj* x_7; 
+x_7 = lean::box(0);
 x_2 = x_7;
 goto lbl_3;
 }
@@ -929,17 +930,18 @@ return x_12;
 }
 lbl_3:
 {
-obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
-x_13 = lean::box(0);
-x_14 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_14, 0, x_1);
-lean::cnstr_set(x_14, 1, x_13);
+obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+lean::dec(x_2);
+x_14 = lean::box(0);
 x_15 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_15, 0, x_0);
+lean::cnstr_set(x_15, 0, x_1);
 lean::cnstr_set(x_15, 1, x_14);
-x_16 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_16, 0, x_15);
-return x_16;
+x_16 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_16, 0, x_0);
+lean::cnstr_set(x_16, 1, x_15);
+x_17 = lean::alloc_cnstr(4, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
+return x_17;
 }
 }
 }

@@ -841,7 +841,7 @@ return x_3;
 obj* l_char_to__lower(unsigned x_0) {
 _start:
 {
-unsigned char x_1; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_1; obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::mk_nat_obj(65u);
 x_4 = lean::box_uint32(x_0);
 x_5 = lean::nat_dec_le(x_3, x_4);
@@ -871,65 +871,66 @@ return x_16;
 }
 else
 {
-unsigned char x_18; 
+obj* x_18; 
 lean::dec(x_12);
-x_18 = 0;
+x_18 = lean::box(0);
 x_1 = x_18;
 goto lbl_2;
 }
 }
 lbl_2:
 {
-obj* x_19; obj* x_20; obj* x_21; obj* x_24; obj* x_25; 
-x_19 = lean::mk_nat_obj(32u);
-x_20 = lean::box_uint32(x_0);
-x_21 = lean::nat_add(x_20, x_19);
-lean::dec(x_19);
+obj* x_20; obj* x_21; obj* x_22; obj* x_25; obj* x_26; 
+lean::dec(x_1);
+x_20 = lean::mk_nat_obj(32u);
+x_21 = lean::box_uint32(x_0);
+x_22 = lean::nat_add(x_21, x_20);
 lean::dec(x_20);
-x_24 = lean::mk_nat_obj(55296u);
-x_25 = lean::nat_dec_lt(x_21, x_24);
-lean::dec(x_24);
-if (lean::obj_tag(x_25) == 0)
-{
-obj* x_28; obj* x_29; 
-lean::dec(x_25);
-x_28 = lean::mk_nat_obj(57343u);
-x_29 = lean::nat_dec_lt(x_28, x_21);
-lean::dec(x_28);
-if (lean::obj_tag(x_29) == 0)
-{
-obj* x_33; 
-lean::dec(x_29);
 lean::dec(x_21);
-x_33 = lean::mk_nat_obj(0u);
-return x_33;
-}
-else
-{
-obj* x_35; obj* x_36; 
-lean::dec(x_29);
-x_35 = lean::mk_nat_obj(1114112u);
-x_36 = lean::nat_dec_lt(x_21, x_35);
-lean::dec(x_35);
-if (lean::obj_tag(x_36) == 0)
-{
-obj* x_40; 
-lean::dec(x_36);
-lean::dec(x_21);
-x_40 = lean::mk_nat_obj(0u);
-return x_40;
-}
-else
-{
-lean::dec(x_36);
-return x_21;
-}
-}
-}
-else
-{
+x_25 = lean::mk_nat_obj(55296u);
+x_26 = lean::nat_dec_lt(x_22, x_25);
 lean::dec(x_25);
-return x_21;
+if (lean::obj_tag(x_26) == 0)
+{
+obj* x_29; obj* x_30; 
+lean::dec(x_26);
+x_29 = lean::mk_nat_obj(57343u);
+x_30 = lean::nat_dec_lt(x_29, x_22);
+lean::dec(x_29);
+if (lean::obj_tag(x_30) == 0)
+{
+obj* x_34; 
+lean::dec(x_30);
+lean::dec(x_22);
+x_34 = lean::mk_nat_obj(0u);
+return x_34;
+}
+else
+{
+obj* x_36; obj* x_37; 
+lean::dec(x_30);
+x_36 = lean::mk_nat_obj(1114112u);
+x_37 = lean::nat_dec_lt(x_22, x_36);
+lean::dec(x_36);
+if (lean::obj_tag(x_37) == 0)
+{
+obj* x_41; 
+lean::dec(x_37);
+lean::dec(x_22);
+x_41 = lean::mk_nat_obj(0u);
+return x_41;
+}
+else
+{
+lean::dec(x_37);
+return x_22;
+}
+}
+}
+else
+{
+lean::dec(x_26);
+return x_22;
 }
 }
 }

@@ -3471,7 +3471,7 @@ return x_14;
 }
 else
 {
-unsigned x_15; unsigned char x_16; unsigned char x_18; 
+unsigned x_15; obj* x_16; unsigned char x_18; 
 x_15 = lean::string_iterator_curr(x_3);
 x_18 = l_char_is__alpha(x_15);
 if (x_18 == 0)
@@ -3502,11 +3502,11 @@ if (lean::obj_tag(x_31) == 0)
 lean::dec(x_31);
 if (x_18 == 0)
 {
-unsigned char x_37; 
+obj* x_37; 
 lean::dec(x_2);
 lean::dec(x_3);
 lean::dec(x_30);
-x_37 = 0;
+x_37 = lean::box(0);
 x_16 = x_37;
 goto lbl_17;
 }
@@ -3554,11 +3554,11 @@ if (lean::obj_tag(x_53) == 0)
 lean::dec(x_53);
 if (x_18 == 0)
 {
-unsigned char x_59; 
+obj* x_59; 
 lean::dec(x_52);
 lean::dec(x_2);
 lean::dec(x_3);
-x_59 = 0;
+x_59 = lean::box(0);
 x_16 = x_59;
 goto lbl_17;
 }
@@ -3597,11 +3597,11 @@ if (lean::obj_tag(x_69) == 0)
 lean::dec(x_69);
 if (x_18 == 0)
 {
-unsigned char x_75; 
+obj* x_75; 
 lean::dec(x_2);
 lean::dec(x_3);
 lean::dec(x_68);
-x_75 = 0;
+x_75 = lean::box(0);
 x_16 = x_75;
 goto lbl_17;
 }
@@ -3642,11 +3642,11 @@ if (lean::obj_tag(x_85) == 0)
 lean::dec(x_85);
 if (x_18 == 0)
 {
-unsigned char x_91; 
+obj* x_91; 
 lean::dec(x_84);
 lean::dec(x_2);
 lean::dec(x_3);
-x_91 = 0;
+x_91 = lean::box(0);
 x_16 = x_91;
 goto lbl_17;
 }
@@ -3678,10 +3678,10 @@ else
 {
 if (x_18 == 0)
 {
-unsigned char x_101; 
+obj* x_101; 
 lean::dec(x_2);
 lean::dec(x_3);
-x_101 = 0;
+x_101 = lean::box(0);
 x_16 = x_101;
 goto lbl_17;
 }
@@ -3699,19 +3699,20 @@ return x_105;
 }
 lbl_17:
 {
-obj* x_106; obj* x_107; obj* x_109; obj* x_111; obj* x_112; obj* x_113; obj* x_116; 
-x_106 = l_char_quote__core(x_15);
-x_107 = l_char_has__repr___closed__1;
-lean::inc(x_107);
-x_109 = lean::string_append(x_107, x_106);
-lean::dec(x_106);
-x_111 = lean::string_append(x_109, x_107);
-x_112 = lean::box(0);
-x_113 = l_mjoin___rarg___closed__1;
-lean::inc(x_112);
+obj* x_107; obj* x_108; obj* x_110; obj* x_112; obj* x_113; obj* x_114; obj* x_117; 
+lean::dec(x_16);
+x_107 = l_char_quote__core(x_15);
+x_108 = l_char_has__repr___closed__1;
+lean::inc(x_108);
+x_110 = lean::string_append(x_108, x_107);
+lean::dec(x_107);
+x_112 = lean::string_append(x_110, x_108);
+x_113 = lean::box(0);
+x_114 = l_mjoin___rarg___closed__1;
 lean::inc(x_113);
-x_116 = l_lean_parser_monad__parsec_error___at_lean_parser_c__identifier___spec__2___rarg(x_1, lean::box(0), x_111, x_113, x_112, x_112);
-return x_116;
+lean::inc(x_114);
+x_117 = l_lean_parser_monad__parsec_error___at_lean_parser_c__identifier___spec__2___rarg(x_1, lean::box(0), x_112, x_114, x_113, x_113);
+return x_117;
 }
 }
 }
@@ -3803,7 +3804,7 @@ return x_9;
 }
 else
 {
-obj* x_10; obj* x_11; unsigned x_14; unsigned char x_15; unsigned char x_17; 
+obj* x_10; obj* x_11; unsigned x_14; obj* x_15; unsigned char x_17; 
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_sub(x_0, x_10);
 lean::dec(x_10);
@@ -3845,17 +3846,17 @@ return x_34;
 }
 else
 {
-unsigned char x_35; 
-x_35 = 0;
+obj* x_35; 
+x_35 = lean::box(0);
 x_15 = x_35;
 goto lbl_16;
 }
 }
 else
 {
-unsigned char x_37; 
+obj* x_37; 
 lean::dec(x_29);
-x_37 = 0;
+x_37 = lean::box(0);
 x_15 = x_37;
 goto lbl_16;
 }
@@ -3888,17 +3889,17 @@ return x_50;
 }
 else
 {
-unsigned char x_51; 
-x_51 = 0;
+obj* x_51; 
+x_51 = lean::box(0);
 x_15 = x_51;
 goto lbl_16;
 }
 }
 else
 {
-unsigned char x_53; 
+obj* x_53; 
 lean::dec(x_45);
-x_53 = 0;
+x_53 = lean::box(0);
 x_15 = x_53;
 goto lbl_16;
 }
@@ -3924,17 +3925,17 @@ return x_62;
 }
 else
 {
-unsigned char x_63; 
-x_63 = 0;
+obj* x_63; 
+x_63 = lean::box(0);
 x_15 = x_63;
 goto lbl_16;
 }
 }
 else
 {
-unsigned char x_65; 
+obj* x_65; 
 lean::dec(x_57);
-x_65 = 0;
+x_65 = lean::box(0);
 x_15 = x_65;
 goto lbl_16;
 }
@@ -3962,17 +3963,17 @@ return x_74;
 }
 else
 {
-unsigned char x_75; 
-x_75 = 0;
+obj* x_75; 
+x_75 = lean::box(0);
 x_15 = x_75;
 goto lbl_16;
 }
 }
 else
 {
-unsigned char x_77; 
+obj* x_77; 
 lean::dec(x_69);
-x_77 = 0;
+x_77 = lean::box(0);
 x_15 = x_77;
 goto lbl_16;
 }
@@ -3990,32 +3991,33 @@ return x_80;
 }
 else
 {
-unsigned char x_81; 
-x_81 = 0;
+obj* x_81; 
+x_81 = lean::box(0);
 x_15 = x_81;
 goto lbl_16;
 }
 }
 lbl_16:
 {
-obj* x_82; obj* x_83; 
-x_82 = lean::string_push(x_1, x_14);
-x_83 = lean::string_iterator_next(x_2);
+obj* x_83; obj* x_84; 
+lean::dec(x_15);
+x_83 = lean::string_push(x_1, x_14);
+x_84 = lean::string_iterator_next(x_2);
 x_0 = x_11;
-x_1 = x_82;
-x_2 = x_83;
+x_1 = x_83;
+x_2 = x_84;
 goto _start;
 }
 }
 }
 else
 {
-obj* x_88; 
+obj* x_89; 
 lean::dec(x_4);
 lean::dec(x_0);
 lean::dec(x_3);
-x_88 = l___private_2142412293__mk__string__result___rarg(x_1, x_2);
-return x_88;
+x_89 = l___private_2142412293__mk__string__result___rarg(x_1, x_2);
+return x_89;
 }
 }
 }

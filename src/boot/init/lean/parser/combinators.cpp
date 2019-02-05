@@ -2976,11 +2976,11 @@ return x_9;
 obj* l_lean_parser_combinators_longest__match___rarg___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; 
+obj* x_2; 
 if (lean::obj_tag(x_1) == 0)
 {
-unsigned char x_4; 
-x_4 = 0;
+obj* x_4; 
+x_4 = lean::box(0);
 x_2 = x_4;
 goto lbl_3;
 }
@@ -3007,28 +3007,29 @@ return x_17;
 }
 else
 {
-unsigned char x_20; 
+obj* x_20; 
 lean::dec(x_5);
 lean::dec(x_7);
-x_20 = 0;
+x_20 = lean::box(0);
 x_2 = x_20;
 goto lbl_3;
 }
 }
 lbl_3:
 {
-obj* x_21; obj* x_24; obj* x_27; obj* x_29; obj* x_30; 
-x_21 = lean::cnstr_get(x_0, 0);
-lean::inc(x_21);
+obj* x_22; obj* x_25; obj* x_28; obj* x_30; obj* x_31; 
+lean::dec(x_2);
+x_22 = lean::cnstr_get(x_0, 0);
+lean::inc(x_22);
 lean::dec(x_0);
-x_24 = lean::cnstr_get(x_21, 1);
-lean::inc(x_24);
-lean::dec(x_21);
-x_27 = l_lean_parser_choice;
-lean::inc(x_27);
-x_29 = l_lean_parser_syntax_mk__node(x_27, x_1);
-x_30 = lean::apply_2(x_24, lean::box(0), x_29);
-return x_30;
+x_25 = lean::cnstr_get(x_22, 1);
+lean::inc(x_25);
+lean::dec(x_22);
+x_28 = l_lean_parser_choice;
+lean::inc(x_28);
+x_30 = l_lean_parser_syntax_mk__node(x_28, x_1);
+x_31 = lean::apply_2(x_25, lean::box(0), x_30);
+return x_31;
 }
 }
 }

@@ -201,12 +201,11 @@ return x_2;
 obj* _init_l_coroutine_yield___rarg___lambda__1___closed__1() {
 _start:
 {
-unsigned char x_0; obj* x_1; obj* x_2; 
-x_0 = 0;
-x_1 = lean::box(x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
+obj* x_0; obj* x_1; 
+x_0 = lean::box(0);
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_coroutine_yield(obj* x_0, obj* x_1) {

@@ -25,9 +25,8 @@ obj* l_uint64_has__to__string___boxed(obj*);
 extern obj* l_list_repr___main___rarg___closed__2;
 obj* l_list_to__string__aux___main(obj*);
 obj* l_string_iterator_has__to__string(obj*);
-obj* l_unit_has__to__string___boxed(obj*);
 obj* l_list_to__string__aux___rarg(obj*, unsigned char, obj*);
-obj* l_unit_has__to__string(unsigned char);
+obj* l_unit_has__to__string(obj*);
 obj* l_list_has__to__string___rarg(obj*);
 obj* l_list_to__string__aux___rarg___boxed(obj*, obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__1;
@@ -339,21 +338,13 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_list_has__to__string___rarg)
 return x_2;
 }
 }
-obj* l_unit_has__to__string(unsigned char x_0) {
+obj* l_unit_has__to__string(obj* x_0) {
 _start:
 {
-obj* x_1; 
-x_1 = l_unit_has__repr___closed__1;
-lean::inc(x_1);
-return x_1;
-}
-}
-obj* l_unit_has__to__string___boxed(obj* x_0) {
-_start:
-{
-unsigned char x_1; obj* x_2; 
-x_1 = lean::unbox(x_0);
-x_2 = l_unit_has__to__string(x_1);
+obj* x_2; 
+lean::dec(x_0);
+x_2 = l_unit_has__repr___closed__1;
+lean::inc(x_2);
 return x_2;
 }
 }

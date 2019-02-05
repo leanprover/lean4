@@ -29,7 +29,7 @@ obj* l_option__t;
 obj* l_option__t_has__monad__lift___rarg(obj*);
 obj* l_option__t_has__monad__lift(obj*);
 obj* l_option__t_bind__cont___at_option__t_monad___spec__6___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_option__t_monad__except___rarg___lambda__1(obj*, obj*, unsigned char);
+obj* l_option__t_monad__except___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_option__t_bind__cont___at_option__t_monad___spec__4(obj*);
 obj* l_option__t_bind__cont___main(obj*);
 obj* l_option__t_alternative___rarg(obj*);
@@ -84,7 +84,6 @@ obj* l_option__t_bind__cont___at_option__t_alternative___spec__2___rarg(obj*, ob
 obj* l_option__t_bind___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_option__t_monad___rarg___lambda__8(obj*, obj*, obj*, obj*, obj*);
 obj* l_option__t_monad___rarg___lambda__7(obj*, obj*, obj*, obj*, obj*);
-obj* l_option__t_monad__except___rarg___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_option__t_monad__run(obj*, obj*);
 obj* l_option__t_bind__cont___at_option__t_monad___spec__6(obj*);
 obj* l_option__t_alternative___rarg___lambda__5(obj*, obj*, obj*);
@@ -1406,41 +1405,40 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-unsigned char x_5; obj* x_6; obj* x_7; 
+obj* x_5; obj* x_6; 
 lean::dec(x_1);
 lean::dec(x_2);
-x_5 = 0;
-x_6 = lean::box(x_5);
-x_7 = lean::apply_1(x_0, x_6);
-return x_7;
+x_5 = lean::box(0);
+x_6 = lean::apply_1(x_0, x_5);
+return x_6;
 }
 else
 {
-obj* x_9; obj* x_11; obj* x_12; obj* x_15; obj* x_18; obj* x_19; 
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
 lean::dec(x_0);
-x_9 = lean::cnstr_get(x_2, 0);
-lean::inc(x_9);
+x_8 = lean::cnstr_get(x_2, 0);
+lean::inc(x_8);
 if (lean::is_shared(x_2)) {
  lean::dec(x_2);
- x_11 = lean::box(0);
+ x_10 = lean::box(0);
 } else {
  lean::cnstr_release(x_2, 0);
- x_11 = x_2;
+ x_10 = x_2;
 }
-x_12 = lean::cnstr_get(x_1, 0);
-lean::inc(x_12);
+x_11 = lean::cnstr_get(x_1, 0);
+lean::inc(x_11);
 lean::dec(x_1);
-x_15 = lean::cnstr_get(x_12, 1);
-lean::inc(x_15);
-lean::dec(x_12);
-if (lean::is_scalar(x_11)) {
- x_18 = lean::alloc_cnstr(1, 1, 0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_18 = x_11;
+ x_17 = x_10;
 }
-lean::cnstr_set(x_18, 0, x_9);
-x_19 = lean::apply_2(x_15, lean::box(0), x_18);
-return x_19;
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
 }
 }
 }
@@ -1458,7 +1456,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
 lean::inc(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_option__t_monad__except___rarg___lambda__1___boxed), 3, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_option__t_monad__except___rarg___lambda__1), 3, 1);
 lean::closure_set(x_2, 0, x_0);
 x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_option__t_catch___rarg), 4, 1);
 lean::closure_set(x_3, 0, x_0);
@@ -1468,20 +1466,21 @@ lean::cnstr_set(x_4, 1, x_3);
 return x_4;
 }
 }
-obj* l_option__t_monad__except___rarg___lambda__1(obj* x_0, obj* x_1, unsigned char x_2) {
+obj* l_option__t_monad__except___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_4; obj* x_7; obj* x_10; obj* x_11; 
+obj* x_5; obj* x_8; obj* x_11; obj* x_12; 
+lean::dec(x_2);
 lean::dec(x_1);
-x_4 = lean::cnstr_get(x_0, 0);
-lean::inc(x_4);
+x_5 = lean::cnstr_get(x_0, 0);
+lean::inc(x_5);
 lean::dec(x_0);
-x_7 = lean::cnstr_get(x_4, 1);
-lean::inc(x_7);
-lean::dec(x_4);
-x_10 = lean::box(0);
-x_11 = lean::apply_2(x_7, lean::box(0), x_10);
-return x_11;
+x_8 = lean::cnstr_get(x_5, 1);
+lean::inc(x_8);
+lean::dec(x_5);
+x_11 = lean::box(0);
+x_12 = lean::apply_2(x_8, lean::box(0), x_11);
+return x_12;
 }
 }
 obj* l_option__t_monad__except(obj* x_0) {
@@ -1491,15 +1490,6 @@ obj* x_2;
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_option__t_monad__except___rarg), 1, 0);
 return x_2;
-}
-}
-obj* l_option__t_monad__except___rarg___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-unsigned char x_3; obj* x_4; 
-x_3 = lean::unbox(x_2);
-x_4 = l_option__t_monad__except___rarg___lambda__1(x_0, x_1, x_3);
-return x_4;
 }
 }
 obj* l_option__t_monad__run___rarg(obj* x_0, obj* x_1, obj* x_2) {

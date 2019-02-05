@@ -10,98 +10,98 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_string_iterator_prevn___main(obj*, obj*);
-obj* l_string_iterator_decidable__rel(obj*, obj*);
-obj* l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(obj*, obj*);
-obj* l_nat_repeat___main___at_string_pushn___spec__1___boxed(obj*, obj*, obj*);
-obj* l___private_615858501__trim__right__aux(obj*, obj*);
-obj* l_string_length___main(obj*);
-obj* l_string_to__nat(obj*);
-obj* l_string_pushn(obj*, unsigned, obj*);
-obj* l_list_intercalate___rarg(obj*, obj*);
-obj* l_string_iterator_offset___main(obj*);
-obj* l_string_trim(obj*);
-obj* l_string_iterator_curr___main(obj*);
-obj* l_string_iterator_prev___main(obj*);
-obj* l_list_foldl___main___at_string_join___spec__1(obj*, obj*);
-obj* l_string_join(obj*);
-obj* l_string_iterator_nextn___main(obj*, obj*);
-obj* l_string_append___main(obj*, obj*);
-obj* l___private_3344645481__to__nat__core(obj*, obj*, obj*);
-unsigned char l_string_iterator_has__prev___main(obj*);
-obj* l___private_104996535__line__column__aux___main(obj*, obj*, obj*);
-unsigned l_string_front(obj*);
-obj* l_string_iterator_next___main(obj*);
-obj* l___private_3868098097__trim__left__aux___main(obj*, obj*);
-obj* l_string_iterator_has__next___main___boxed(obj*);
-obj* l_string_iterator_extract__core___main(obj*, obj*);
-obj* l_string_has__lt;
-obj* l_string_iterator_remaining__to__string___main(obj*);
-obj* l___private_3344645481__to__nat__core___main(obj*, obj*, obj*);
-obj* l_string_singleton___boxed(obj*);
-obj* l_string_has__append;
-obj* l_string_iterator_has__prev___main___boxed(obj*);
-obj* l_string_front___boxed(obj*);
-obj* l___private_3868098097__trim__left__aux(obj*, obj*);
-obj* l_string_iterator_curr___boxed(obj*);
-obj* l_list_as__string(obj*);
-extern obj* l_char_inhabited;
-obj* l_list_drop___main___rarg(obj*, obj*);
-obj* l_string_iterator_is__prefix__of__remaining;
-obj* l_option_get__or__else___main___rarg(obj*, obj*);
-obj* l_string_iterator_forward___main(obj*, obj*);
-obj* l_string_mk__iterator___main(obj*);
-obj* l_string_iterator_remaining___main(obj*);
-obj* l_string_str___boxed(obj*, obj*);
-obj* l_string_iterator_insert___main(obj*, obj*);
-obj* l_string_push___main___boxed(obj*, obj*);
-obj* l_string_backn(obj*, obj*);
-obj* l_string_iterator_extract___main(obj*, obj*);
-unsigned char l_string_is__empty(obj*);
-obj* l_string_iterator_has__prev___boxed(obj*);
-obj* l_nat_repeat___main___at_string_pushn___spec__1(obj*, unsigned, obj*);
-obj* l_string_intercalate(obj*, obj*);
-obj* l_string_iterator_set__curr___main___boxed(obj*, obj*);
-obj* l_char_to__string___boxed(obj*);
-obj* l_string_to__list(obj*);
-obj* l_string_iterator_forward(obj*, obj*);
-obj* l_string_has__sizeof;
-obj* l_string_trim__left(obj*);
-obj* l_string_iterator_extract__core(obj*, obj*);
-obj* l_string_line__column___closed__1;
-obj* l_string_back___boxed(obj*);
-obj* l_string_iterator_remove___main(obj*, obj*);
-obj* l_string_inhabited;
-obj* l_list_reverse___rarg(obj*);
-obj* l___private_615858501__trim__right__aux___main(obj*, obj*);
-obj* l_string_join___closed__1;
-obj* l_string_line__column(obj*, obj*);
-obj* l_string_iterator_to__string___main(obj*);
-obj* l_string_iterator_extract___main___closed__1;
-obj* l_string_iterator_has__next___boxed(obj*);
-obj* l_list_map___main___at_string_intercalate___spec__1(obj*);
 obj* l_string_iterator_to__end___main(obj*);
-obj* l_list_append___main___rarg(obj*, obj*);
-unsigned char l_char_is__whitespace(unsigned);
-obj* l_string_iterator_nextn(obj*, obj*);
-obj* l_char_to__string(unsigned);
-obj* l_string_pushn___boxed(obj*, obj*, obj*);
-obj* l_string_singleton(unsigned);
-obj* l_string_trim__right(obj*);
+obj* l_string_iterator_has__prev___main___boxed(obj*);
+obj* l_string_backn(obj*, obj*);
 obj* l_string_iterator_prevn(obj*, obj*);
-obj* l_string_iterator_set__curr___main(obj*, unsigned);
+unsigned l_string_front(obj*);
+unsigned char l_char_is__whitespace(unsigned);
+obj* l_string_pushn___boxed(obj*, obj*, obj*);
+obj* l_string_has__lt;
+obj* l___private_3344645481__to__nat__core(obj*, obj*, obj*);
+obj* l_string_iterator_forward(obj*, obj*);
+obj* l_string_iterator_extract___main___closed__1;
+obj* l_string_line__column___closed__1;
+obj* l_list_length___main___rarg(obj*);
+obj* l_string_singleton(unsigned);
+obj* l_string_pushn(obj*, unsigned, obj*);
+obj* l_list_as__string(obj*);
+obj* l_nat_repeat___main___at_string_pushn___spec__1___boxed(obj*, obj*, obj*);
+obj* l_string_iterator_is__prefix__of__remaining;
+obj* l_string_iterator_forward___main(obj*, obj*);
+obj* l_string_iterator_offset___main(obj*);
+obj* l_string_iterator_extract___main(obj*, obj*);
+obj* l_string_iterator_has__next___boxed(obj*);
+obj* l_list_reverse___rarg(obj*);
+obj* l_string_push___main___boxed(obj*, obj*);
+unsigned char l_string_iterator_has__prev___main(obj*);
+obj* l_string_iterator_extract__core(obj*, obj*);
+obj* l___private_615858501__trim__right__aux___main(obj*, obj*);
+obj* l_string_back___boxed(obj*);
+obj* l_string_singleton___boxed(obj*);
+obj* l___private_3344645481__to__nat__core___main(obj*, obj*, obj*);
+obj* l___private_615858501__trim__right__aux(obj*, obj*);
+obj* l_string_iterator_remaining__to__string___main(obj*);
+obj* l_string_front___boxed(obj*);
+unsigned char l_string_is__empty(obj*);
+obj* l_string_mk__iterator___main(obj*);
+obj* l___private_3868098097__trim__left__aux(obj*, obj*);
+obj* l___private_104996535__line__column__aux___main(obj*, obj*, obj*);
+obj* l_string_pop__back(obj*);
+obj* l_string_intercalate(obj*, obj*);
+obj* l_char_to__string___boxed(obj*);
+obj* l_string_iterator_remaining___main(obj*);
+obj* l_string_iterator_curr___boxed(obj*);
+unsigned l_string_back(obj*);
+obj* l_option_get__or__else___main___rarg(obj*, obj*);
+obj* l_string_iterator_prev___main(obj*);
+obj* l_string_iterator_to__string___main(obj*);
+obj* l_list_append___main___rarg(obj*, obj*);
 obj* l_string_str(obj*, unsigned);
+obj* l_string_to__nat(obj*);
+obj* l_list_drop___main___rarg(obj*, obj*);
+obj* l_string_line__column(obj*, obj*);
+obj* l_string_iterator_set__curr___main(obj*, unsigned);
+obj* l_string_iterator_nextn___main(obj*, obj*);
+obj* l___private_104996535__line__column__aux(obj*, obj*, obj*);
+obj* l_string_iterator_has__next___main___boxed(obj*);
+obj* l_string_join___closed__1;
+obj* l_list_foldl___main___at_string_join___spec__1(obj*, obj*);
+extern obj* l_char_inhabited;
+obj* l_string_iterator_insert___main(obj*, obj*);
+obj* l_string_has__append;
+obj* l_string_iterator_prevn___main(obj*, obj*);
+obj* l_string_popn__back(obj*, obj*);
+obj* l_list_intercalate___rarg(obj*, obj*);
+obj* l___private_3868098097__trim__left__aux___main(obj*, obj*);
+obj* l_string_inhabited;
+obj* l_string_join(obj*);
+obj* l_string_iterator_decidable__rel(obj*, obj*);
+obj* l_string_push___boxed(obj*, obj*);
+obj* l_string_append___main(obj*, obj*);
+obj* l_string_iterator_nextn(obj*, obj*);
+obj* l_string_trim__right(obj*);
+obj* l_string_iterator_extract__core___main(obj*, obj*);
+obj* l_string_push___main(obj*, unsigned);
+obj* l_char_to__string(unsigned);
+obj* l_list_map___main___at_string_intercalate___spec__1(obj*);
+obj* l_string_has__sizeof;
+obj* l_string_to__list(obj*);
+obj* l_string_trim(obj*);
+obj* l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(obj*, obj*);
+obj* l_string_iterator_curr___main(obj*);
 obj* l_string_iterator_set__curr___boxed(obj*, obj*);
 unsigned char l_string_iterator_has__next___main(obj*);
-obj* l_string_is__empty___boxed(obj*);
-unsigned l_string_back(obj*);
-obj* l___private_104996535__line__column__aux(obj*, obj*, obj*);
-obj* l_string_push___boxed(obj*, obj*);
-obj* l_list_length___main___rarg(obj*);
-obj* l_string_popn__back(obj*, obj*);
-obj* l_string_push___main(obj*, unsigned);
 obj* l_string_iterator_prev__to__string___main(obj*);
-obj* l_string_pop__back(obj*);
+obj* l_string_is__empty___boxed(obj*);
+obj* l_string_iterator_set__curr___main___boxed(obj*, obj*);
+obj* l_string_trim__left(obj*);
+obj* l_string_str___boxed(obj*, obj*);
+obj* l_string_iterator_remove___main(obj*, obj*);
+obj* l_string_iterator_next___main(obj*);
+obj* l_string_iterator_has__prev___boxed(obj*);
+obj* l_nat_repeat___main___at_string_pushn___spec__1(obj*, unsigned, obj*);
+obj* l_string_length___main(obj*);
 obj* l_list_as__string(obj* x_0) {
 _start:
 {
@@ -585,8 +585,8 @@ _start:
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -652,8 +652,8 @@ else
 {
 obj* x_25; obj* x_26; obj* x_27; 
 lean::dec(x_7);
-lean::dec(x_12);
 lean::dec(x_1);
+lean::dec(x_12);
 x_25 = lean::box(0);
 if (lean::is_scalar(x_9)) {
  x_26 = lean::alloc_cnstr(1, 2, 0);
@@ -701,8 +701,8 @@ lean::dec(x_0);
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_15; 
-lean::dec(x_7);
 lean::dec(x_9);
+lean::dec(x_7);
 lean::dec(x_1);
 x_15 = lean::box(0);
 return x_15;
@@ -721,9 +721,9 @@ lean::dec(x_7);
 if (lean::obj_tag(x_21) == 0)
 {
 obj* x_27; 
-lean::dec(x_18);
-lean::dec(x_21);
 lean::dec(x_9);
+lean::dec(x_21);
+lean::dec(x_18);
 x_27 = lean::box(0);
 return x_27;
 }
@@ -766,8 +766,8 @@ x_14 = l_list_has__dec__eq___main___at_string_iterator_extract__core___main___sp
 if (lean::obj_tag(x_14) == 0)
 {
 obj* x_18; 
-lean::dec(x_14);
 lean::dec(x_6);
+lean::dec(x_14);
 lean::dec(x_3);
 x_18 = lean::box(0);
 return x_18;
@@ -1298,8 +1298,8 @@ goto _start;
 }
 else
 {
-lean::dec(x_0);
 lean::dec(x_3);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -1360,8 +1360,8 @@ goto _start;
 }
 else
 {
-lean::dec(x_0);
 lean::dec(x_3);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -1427,11 +1427,11 @@ lean::dec(x_0);
 x_15 = lean::string_iterator_has_next(x_1);
 if (x_15 == 0)
 {
-lean::dec(x_11);
 lean::dec(x_6);
-lean::dec(x_8);
+lean::dec(x_11);
 lean::dec(x_10);
 lean::dec(x_1);
+lean::dec(x_8);
 lean::dec(x_3);
 return x_2;
 }
@@ -1515,8 +1515,8 @@ lean::dec(x_52);
 if (lean::obj_tag(x_54) == 0)
 {
 obj* x_59; obj* x_60; obj* x_63; 
-lean::dec(x_54);
 lean::dec(x_3);
+lean::dec(x_54);
 x_59 = lean::string_iterator_next(x_1);
 x_60 = lean::nat_add(x_8, x_10);
 lean::dec(x_10);
@@ -1532,8 +1532,8 @@ goto _start;
 else
 {
 obj* x_67; obj* x_68; obj* x_71; 
-lean::dec(x_54);
 lean::dec(x_8);
+lean::dec(x_54);
 x_67 = lean::string_iterator_next(x_1);
 x_68 = lean::nat_add(x_6, x_10);
 lean::dec(x_10);
@@ -1552,9 +1552,9 @@ goto _start;
 else
 {
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -1695,8 +1695,8 @@ goto _start;
 else
 {
 obj* x_52; 
-lean::dec(x_3);
 lean::dec(x_21);
+lean::dec(x_3);
 x_52 = lean::nat_sub(x_16, x_19);
 lean::dec(x_19);
 lean::dec(x_16);
@@ -1709,9 +1709,9 @@ goto _start;
 else
 {
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
+lean::dec(x_0);
 return x_2;
 }
 }

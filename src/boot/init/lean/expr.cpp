@@ -10,9 +10,9 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
+obj* l_lean_expr_mk__app(obj*, obj*);
 obj* l_list_foldl___main___at_lean_expr_mk__app___spec__1(obj*, obj*);
 obj* l_lean_expr__is__inhabited;
-obj* l_lean_expr_mk__app(obj*, obj*);
 obj* l_lean_expr_mk__capp(obj*, obj*);
 obj* _init_l_lean_expr__is__inhabited() {
 _start:

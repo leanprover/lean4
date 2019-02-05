@@ -10,88 +10,88 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert(obj*, obj*);
-obj* l_mk__hashmap__imp(obj*, obj*);
-obj* l_d__hashmap_find(obj*, obj*);
-obj* l_hashmap__imp_fold__buckets(obj*, obj*, obj*);
-obj* l_hashmap__imp_erase__aux___main___rarg(obj*, obj*, obj*);
-obj* l_mk__hashmap__imp___rarg___closed__1;
-obj* l_hashmap__imp_find(obj*, obj*);
-obj* l_hashmap_contains(obj*, obj*);
-obj* l_hashmap__imp_find__aux(obj*, obj*);
-obj* l_hashmap__imp_insert(obj*, obj*);
-obj* l_hashmap__imp_find__aux___rarg(obj*, obj*, obj*);
-obj* l_mk__hashmap(obj*, obj*, obj*, obj*);
-obj* l_mk__array___rarg(obj*, obj*);
-obj* l_hashmap;
-obj* l_hashmap__imp_contains__aux___rarg___boxed(obj*, obj*, obj*);
-size_t l_hashmap__imp_mk__idx(obj*, obj*, size_t);
-obj* l_array_foldl___rarg(obj*, obj*, obj*);
-obj* l_hashmap_erase___rarg(obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_find__aux___main(obj*, obj*);
-obj* l_d__hashmap;
-obj* l_hashmap__imp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
-unsigned char l_option_is__some___main___rarg(obj*);
-unsigned char l_d__hashmap_empty___rarg(obj*);
-unsigned char l_hashmap__imp_contains__aux___rarg(obj*, obj*, obj*);
-obj* l_hashmap__imp_erase__aux(obj*, obj*);
-obj* l_hashmap__imp_erase__aux___rarg(obj*, obj*, obj*);
 obj* l_mk__hashmap__imp___rarg(obj*);
-obj* l_hashmap__imp_erase(obj*, obj*);
-obj* l_hashmap_fold___rarg(obj*, obj*, obj*);
-obj* l_hashmap_empty(obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_replace__aux___main(obj*, obj*);
-obj* l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg(obj*, obj*, obj*);
-obj* l_d__hashmap_size(obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_replace__aux(obj*, obj*);
+obj* l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1(obj*, obj*, obj*);
+obj* l_hashmap__imp_fold__buckets___rarg(obj*, obj*, obj*);
 obj* l_d__hashmap_find___rarg(obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_hashmap_erase(obj*, obj*);
+obj* l_mk__hashmap___rarg(obj*);
+obj* l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg(obj*, obj*, obj*);
+obj* l_hashmap__imp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_mk__hashmap__imp___rarg___closed__1;
 obj* l_hashmap_size___rarg(obj*);
+obj* l_hashmap__imp_find__aux___main___rarg(obj*, obj*, obj*);
+obj* l_hashmap_size(obj*, obj*, obj*, obj*);
+obj* l_d__hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_replace__aux___main(obj*, obj*);
+obj* l_hashmap_empty(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_erase___rarg(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_replace__aux___main___rarg(obj*, obj*, obj*, obj*);
+unsigned char l_d__hashmap_contains___rarg(obj*, obj*, obj*, obj*);
+obj* l_d__hashmap_empty___rarg___boxed(obj*);
+obj* l_hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_d__hashmap_erase(obj*, obj*);
+obj* l_hashmap__imp_fold___rarg(obj*, obj*, obj*);
+obj* l_d__hashmap_insert(obj*, obj*);
+obj* l_d__hashmap_fold___rarg(obj*, obj*, obj*);
+obj* l_hashmap__imp_erase__aux___main(obj*, obj*);
+obj* l_hashmap__imp_find__aux(obj*, obj*);
+obj* l_hashmap__imp_erase__aux___rarg(obj*, obj*, obj*);
 unsigned char l_hashmap_contains___rarg(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_empty(obj*, obj*, obj*, obj*);
-unsigned char l_d__hashmap_contains___rarg(obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_fold(obj*, obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_fold__buckets___rarg(obj*, obj*, obj*);
-obj* l_hashmap__imp_contains__aux(obj*, obj*);
-obj* l_d__hashmap_fold___rarg(obj*, obj*, obj*);
-obj* l_hashmap_size(obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj*, obj*, obj*);
-obj* l_bucket__array_uwrite___rarg(obj*, size_t, obj*, obj*);
-obj* l_hashmap__imp_fold___rarg(obj*, obj*, obj*);
-obj* l_d__hashmap_size___rarg(obj*);
-obj* l_hashmap__imp_mk__idx___boxed(obj*, obj*, obj*);
-obj* l_hashmap__imp_reinsert__aux(obj*, obj*);
-obj* l_hashmap_find(obj*, obj*);
-obj* l_hashmap__imp_replace__aux___rarg(obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_reinsert__aux___rarg(obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_find__aux___main___rarg(obj*, obj*, obj*);
-obj* l_bucket__array;
-obj* l_hashmap__imp_replace__aux___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_hashmap__imp_erase__aux___main(obj*, obj*);
-obj* l_hashmap__imp_erase___rarg(obj*, obj*, obj*, obj*);
-obj* l_hashmap_empty___rarg___boxed(obj*);
-obj* l_hashmap_fold(obj*, obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_contains(obj*, obj*);
-obj* l_array_uwrite___rarg(obj*, size_t, obj*, obj*);
-obj* l_bucket__array_uwrite(obj*, obj*);
-obj* l_mk__d__hashmap(obj*, obj*, obj*, obj*);
-obj* l_hashmap_erase(obj*, obj*);
-obj* l_d__hashmap_empty___rarg___boxed(obj*);
-obj* l_hashmap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_bucket__array_uwrite___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_hashmap_insert(obj*, obj*);
-obj* l_d__hashmap_erase(obj*, obj*);
-obj* l_hashmap__imp_fold(obj*, obj*, obj*);
-obj* l_hashmap_find___rarg(obj*, obj*, obj*, obj*);
-obj* l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1(obj*, obj*, obj*);
-obj* l_d__hashmap_erase___rarg(obj*, obj*, obj*, obj*);
-obj* l_hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_mk__d__hashmap___rarg(obj*);
+unsigned char l_option_is__some___main___rarg(obj*);
+obj* l_mk__array___rarg(obj*, obj*);
+obj* l_bucket__array_uwrite(obj*, obj*);
+obj* l_d__hashmap_size(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_contains__aux___rarg___boxed(obj*, obj*, obj*);
 obj* l_array_uread___rarg(obj*, size_t, obj*);
+obj* l_hashmap_find(obj*, obj*);
+obj* l_mk__hashmap__imp(obj*, obj*);
+obj* l_mk__hashmap(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_find(obj*, obj*);
+obj* l_hashmap__imp_find__aux___rarg(obj*, obj*, obj*);
+obj* l_mk__d__hashmap(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_hashmap_fold___rarg(obj*, obj*, obj*);
+obj* l_d__hashmap_find(obj*, obj*);
+obj* l_d__hashmap_size___rarg(obj*);
+obj* l_array_foldl___rarg(obj*, obj*, obj*);
+obj* l_bucket__array_uwrite___rarg(obj*, size_t, obj*, obj*);
+obj* l_hashmap_insert(obj*, obj*);
 unsigned char l_hashmap_empty___rarg(obj*);
-obj* l_mk__hashmap___rarg(obj*);
+obj* l_hashmap__imp_erase(obj*, obj*);
+obj* l_d__hashmap_fold(obj*, obj*, obj*, obj*, obj*);
+obj* l_d__hashmap_erase___rarg(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_mk__idx___boxed(obj*, obj*, obj*);
+obj* l_hashmap__imp_erase__aux(obj*, obj*);
+obj* l_hashmap__imp_erase__aux___main___rarg(obj*, obj*, obj*);
+obj* l_hashmap_fold(obj*, obj*, obj*, obj*, obj*);
+obj* l_hashmap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_d__hashmap_contains(obj*, obj*);
+obj* l_hashmap__imp_insert(obj*, obj*);
+unsigned char l_hashmap__imp_contains__aux___rarg(obj*, obj*, obj*);
+unsigned char l_d__hashmap_empty___rarg(obj*);
+obj* l_hashmap_empty___rarg___boxed(obj*);
+obj* l_array_uwrite___rarg(obj*, size_t, obj*, obj*);
+obj* l_hashmap__imp_reinsert__aux(obj*, obj*);
+obj* l_hashmap__imp_fold(obj*, obj*, obj*);
+obj* l_d__hashmap;
+obj* l_hashmap__imp_replace__aux(obj*, obj*);
+obj* l_hashmap_contains(obj*, obj*);
+obj* l_bucket__array;
+obj* l_hashmap;
+obj* l_hashmap_erase___rarg(obj*, obj*, obj*, obj*);
+obj* l_d__hashmap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_find__aux___main(obj*, obj*);
+obj* l_hashmap_find___rarg(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_contains__aux(obj*, obj*);
+obj* l_hashmap__imp_reinsert__aux___rarg(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_replace__aux___rarg(obj*, obj*, obj*, obj*);
+obj* l_hashmap__imp_fold__buckets(obj*, obj*, obj*);
+size_t l_hashmap__imp_mk__idx(obj*, obj*, size_t);
 obj* _init_l_bucket__array() {
 _start:
 {
@@ -149,8 +149,8 @@ return x_6;
 else
 {
 obj* x_10; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_10 = l_mk__hashmap__imp___rarg___closed__1;
 lean::inc(x_10);
@@ -312,8 +312,8 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_6; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_6 = lean::box(0);
 return x_6;
@@ -344,10 +344,10 @@ goto _start;
 else
 {
 obj* x_27; 
-lean::dec(x_19);
 lean::dec(x_9);
-lean::dec(x_0);
+lean::dec(x_19);
 lean::dec(x_1);
+lean::dec(x_0);
 x_27 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_27, 0, x_14);
 return x_27;
@@ -468,8 +468,8 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 return x_3;
 }
@@ -561,8 +561,8 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 return x_2;
 }
 else
@@ -603,9 +603,9 @@ else
 {
 lean::dec(x_9);
 lean::dec(x_14);
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_5);
+lean::dec(x_0);
 return x_7;
 }
 }
@@ -775,11 +775,11 @@ lean::inc(x_0);
 x_21 = l_hashmap__imp_contains__aux___rarg(x_0, x_3, x_17);
 if (x_21 == 0)
 {
+lean::dec(x_6);
 lean::dec(x_17);
 lean::dec(x_4);
-lean::dec(x_6);
-lean::dec(x_0);
 lean::dec(x_3);
+lean::dec(x_0);
 return x_2;
 }
 else

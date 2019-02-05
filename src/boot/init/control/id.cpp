@@ -10,16 +10,16 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_id_bind___rarg(obj*, obj*);
-obj* l_id_monad__run;
-obj* l_id_monad___lambda__2(obj*, obj*, obj*, obj*);
-obj* l_id_monad___lambda__3(obj*, obj*, obj*, obj*);
-obj* l_id_monad;
-obj* l_id_run___rarg(obj*);
 obj* l_id_run(obj*);
 obj* l_id_monad___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_id(obj*);
+obj* l_id_bind___rarg(obj*, obj*);
 obj* l_id_bind(obj*, obj*);
+obj* l_id(obj*);
+obj* l_id_monad;
+obj* l_id_run___rarg(obj*);
+obj* l_id_monad___lambda__3(obj*, obj*, obj*, obj*);
+obj* l_id_monad__run;
+obj* l_id_monad___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_id_bind___rarg(obj* x_0, obj* x_1) {
 _start:
 {

@@ -10,17 +10,17 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_monad__functor__t__refl(obj*, obj*, obj*);
-obj* l_has__monad__lift__t__refl(obj*, obj*);
-obj* l_monad__functor__t__trans___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_has__monad__lift__to__has__coe(obj*, obj*);
-obj* l_has__monad__lift__t__trans___rarg(obj*, obj*, obj*, obj*);
-obj* l_has__monad__lift__to__has__coe___rarg(obj*, obj*);
-obj* l_monad__functor__t__trans(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_monad__functor__t__refl___rarg(obj*, obj*);
 obj* l_has__monad__lift__t__refl___rarg(obj*);
+obj* l_has__monad__lift__to__has__coe___rarg(obj*, obj*);
+obj* l_has__monad__lift__t__refl(obj*, obj*);
 obj* l_has__monad__lift__t__trans(obj*, obj*, obj*);
+obj* l_has__monad__lift__to__has__coe(obj*, obj*);
 obj* l_monad__functor__t__trans___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_has__monad__lift__t__trans___rarg(obj*, obj*, obj*, obj*);
+obj* l_monad__functor__t__refl(obj*, obj*, obj*);
+obj* l_monad__functor__t__refl___rarg(obj*, obj*);
+obj* l_monad__functor__t__trans___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_monad__functor__t__trans(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_has__monad__lift__to__has__coe___rarg(obj* x_0, obj* x_1) {
 _start:
 {

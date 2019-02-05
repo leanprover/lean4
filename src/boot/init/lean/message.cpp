@@ -10,25 +10,25 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*);
-obj* l_lean_message_has__to__string;
 obj* l_lean_message_to__string___closed__5;
-obj* l_lean_message_to__string(obj*);
-obj* l_lean_message__log_to__list(obj*);
-unsigned char l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
-obj* l_lean_message__log_has__append;
-obj* l_lean_message__log_has__errors(obj*);
-obj* l_lean_message__log_add(obj*, obj*);
-obj* l_lean_message_to__string___closed__4;
-obj* l_list_reverse___rarg(obj*);
-extern obj* l_string_join___closed__1;
 obj* l_lean_message__log_append(obj*, obj*);
-obj* l_nat_repr(obj*);
+unsigned char l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
+obj* l_list_reverse___rarg(obj*);
+obj* l_lean_message__log_to__list(obj*);
+obj* l_lean_message_has__to__string;
 obj* l_list_append___main___rarg(obj*, obj*);
-obj* l_lean_message_to__string___closed__3;
-obj* l_lean_message_to__string___closed__1;
-obj* l_lean_message_to__string___closed__2;
+obj* l_lean_message__log_has__append;
 obj* l_lean_message__log_empty;
+obj* l_lean_message__log_add(obj*, obj*);
+extern obj* l_string_join___closed__1;
+obj* l_lean_message_to__string(obj*);
+obj* l_lean_message_to__string___closed__4;
+obj* l_lean_message_to__string___closed__3;
+obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*);
+obj* l_lean_message_to__string___closed__2;
+obj* l_nat_repr(obj*);
+obj* l_lean_message_to__string___closed__1;
+obj* l_lean_message__log_has__errors(obj*);
 obj* l_lean_message_to__string(obj* x_0) {
 _start:
 {

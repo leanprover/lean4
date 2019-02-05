@@ -10,43 +10,43 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_lean_ir_mk__fnid__set;
-obj* l_lean_mk__simple__name(obj*);
-obj* l_lean_ir_context;
-unsigned char l_lean_ir_id2type(obj*);
-obj* l_lean_ir_blockid_hashable;
-obj* l_lean_ir_var_decidable__eq;
-obj* l_lean_ir_fnid_hashable;
-obj* l_lean_ir_id2type___main___boxed(obj*);
-obj* l_lean_ir_mk__blockid__set;
-obj* l_lean_ir_blockid__has__lt;
-obj* l_lean_ir_type__has__dec__eq(unsigned char, unsigned char);
-obj* l_lean_ir_type2id(unsigned char);
-obj* l_lean_ir_var_hashable;
-extern obj* l_lean_name_hashable;
-obj* l_lean_ir_type2id___main___boxed(obj*);
-obj* l_lean_ir_fnid2string;
-obj* l_lean_ir_type2id___main(unsigned char);
-obj* l_lean_ir_blockid__set;
-unsigned char l_lean_ir_id2type___main(obj*);
-obj* l_lean_ir_inhabited___boxed;
-obj* l_lean_ir_type__has__dec__eq___boxed(obj*, obj*);
-extern obj* l_lean_name_decidable__eq;
-obj* l_lean_ir_mk__context;
-unsigned char l_lean_ir_inhabited;
-obj* l_lean_ir_id2type___boxed(obj*);
-obj* l_lean_ir_fnid__has__lt;
 obj* l_lean_ir_blockid_decidable__eq;
 obj* l_lean_ir_mk__var__set;
-obj* l_lean_ir_mk__fnid2string;
-obj* l_lean_ir_type2id___boxed(obj*);
-obj* l_lean_ir_var2blockid;
-obj* l_lean_ir_var__has__lt;
+obj* l_lean_ir_var_hashable;
+obj* l_lean_ir_blockid_hashable;
+extern obj* l_lean_name_decidable__eq;
 obj* l_lean_ir_fnid__set;
-obj* l_lean_ir_var__set;
-obj* l_lean_ir_fnid_decidable__eq;
+unsigned char l_lean_ir_id2type(obj*);
+obj* l_lean_ir_type__has__dec__eq(unsigned char, unsigned char);
+obj* l_lean_ir_fnid2string;
+obj* l_lean_ir_type2id___main(unsigned char);
+obj* l_lean_ir_type2id___main___boxed(obj*);
+obj* l_lean_ir_mk__fnid__set;
+obj* l_lean_ir_blockid__set;
+obj* l_lean_ir_mk__fnid2string;
+extern obj* l_lean_name_hashable;
+obj* l_lean_ir_type2id___boxed(obj*);
 obj* l_lean_ir_mk__var2blockid;
+obj* l_lean_ir_inhabited___boxed;
+obj* l_lean_ir_var__has__lt;
+obj* l_lean_ir_context;
+obj* l_lean_mk__simple__name(obj*);
+obj* l_lean_ir_mk__blockid__set;
+obj* l_lean_ir_fnid_decidable__eq;
+obj* l_lean_ir_id2type___main___boxed(obj*);
+obj* l_lean_ir_var__set;
+obj* l_lean_ir_fnid_hashable;
 obj* l_lean_ir_has__coe;
+unsigned char l_lean_ir_inhabited;
+obj* l_lean_ir_mk__context;
+unsigned char l_lean_ir_id2type___main(obj*);
+obj* l_lean_ir_var_decidable__eq;
+obj* l_lean_ir_var2blockid;
+obj* l_lean_ir_fnid__has__lt;
+obj* l_lean_ir_id2type___boxed(obj*);
+obj* l_lean_ir_type__has__dec__eq___boxed(obj*, obj*);
+obj* l_lean_ir_blockid__has__lt;
+obj* l_lean_ir_type2id(unsigned char);
 obj* l_lean_ir_type2id___main(unsigned char x_0) {
 _start:
 {
@@ -248,8 +248,8 @@ return x_48;
 else
 {
 unsigned char x_51; 
-lean::dec(x_0);
 lean::dec(x_38);
+lean::dec(x_0);
 x_51 = 9;
 return x_51;
 }
@@ -275,8 +275,8 @@ return x_57;
 else
 {
 unsigned char x_60; 
-lean::dec(x_0);
 lean::dec(x_26);
+lean::dec(x_0);
 x_60 = 6;
 return x_60;
 }

@@ -10,27 +10,27 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-unsigned char l_rbnode_get__color___main___rarg(obj*);
-obj* l_rbmap_find__core___main___at_lean_ir_is__reserved___spec__2(obj*, obj*);
-obj* l_rbnode_find__core___main___at_lean_ir_is__reserved___spec__3(obj*, obj*);
-obj* l_rbnode_ins___main___at_lean_ir_reserved__set___spec__4(obj*, obj*, obj*);
+obj* l_lean_ir_reserved__set;
 obj* l_rbnode_balance2__node___main___rarg(obj*, obj*, obj*, obj*);
-unsigned char l_option_is__some___main___rarg(obj*);
-obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_ir_is__reserved__name___boxed(obj*);
-unsigned char l_lean_ir_is__reserved__name(obj*);
-obj* l_lean_ir_is__reserved___boxed(obj*);
-obj* l_rbtree_insert___at_lean_ir_reserved__set___spec__1(obj*, obj*);
 obj* l_rbtree_find___at_lean_ir_is__reserved___spec__1(obj*, obj*);
+obj* l_rbnode_ins___main___at_lean_ir_reserved__set___spec__4(obj*, obj*, obj*);
+obj* l_list_foldl___main___at_lean_ir_reserved__set___spec__5(obj*, obj*);
+obj* l_rbmap_insert___main___at_lean_ir_reserved__set___spec__2(obj*, obj*, obj*);
+obj* l_rbnode_insert___at_lean_ir_reserved__set___spec__3(obj*, obj*, obj*);
+obj* l_rbnode_find__core___main___at_lean_ir_is__reserved___spec__3(obj*, obj*);
+unsigned char l_lean_ir_is__reserved(obj*);
+obj* l_lean_ir_is__reserved__name___boxed(obj*);
+obj* l_rbnode_mk__insert__result___main___rarg(unsigned char, obj*);
+unsigned char l_option_is__some___main___rarg(obj*);
+unsigned char l_lean_ir_is__reserved__name(obj*);
+obj* l_rbtree_insert___at_lean_ir_reserved__set___spec__1(obj*, obj*);
+obj* l_lean_ir_reserved;
 obj* l_lean_ir_is__reserved__name___main___boxed(obj*);
 unsigned char l_lean_ir_is__reserved__name___main(obj*);
-unsigned char l_lean_ir_is__reserved(obj*);
-obj* l_rbmap_insert___main___at_lean_ir_reserved__set___spec__2(obj*, obj*, obj*);
-obj* l_lean_ir_reserved;
-obj* l_list_foldl___main___at_lean_ir_reserved__set___spec__5(obj*, obj*);
-obj* l_rbnode_insert___at_lean_ir_reserved__set___spec__3(obj*, obj*, obj*);
-obj* l_lean_ir_reserved__set;
-obj* l_rbnode_mk__insert__result___main___rarg(unsigned char, obj*);
+unsigned char l_rbnode_get__color___main___rarg(obj*);
+obj* l_lean_ir_is__reserved___boxed(obj*);
+obj* l_rbmap_find__core___main___at_lean_ir_is__reserved___spec__2(obj*, obj*);
+obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
 obj* _init_l_lean_ir_reserved() {
 _start:
 {
@@ -428,8 +428,8 @@ if (lean::obj_tag(x_16) == 0)
 {
 obj* x_20; 
 lean::dec(x_16);
-lean::dec(x_7);
 lean::dec(x_9);
+lean::dec(x_7);
 if (lean::is_scalar(x_13)) {
  x_20 = lean::alloc_cnstr(1, 4, 0);
 } else {
@@ -654,8 +654,8 @@ switch (lean::obj_tag(x_0)) {
 case 0:
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -682,8 +682,8 @@ if (lean::obj_tag(x_17) == 0)
 {
 obj* x_21; obj* x_22; 
 lean::dec(x_17);
-lean::dec(x_11);
 lean::dec(x_1);
+lean::dec(x_11);
 x_21 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_21, 0, x_7);
 lean::cnstr_set(x_21, 1, x_9);
@@ -693,19 +693,19 @@ return x_22;
 }
 else
 {
+lean::dec(x_9);
 lean::dec(x_17);
 lean::dec(x_7);
-lean::dec(x_9);
 x_0 = x_11;
 goto _start;
 }
 }
 else
 {
-lean::dec(x_7);
 lean::dec(x_9);
-lean::dec(x_11);
 lean::dec(x_14);
+lean::dec(x_7);
+lean::dec(x_11);
 x_0 = x_5;
 goto _start;
 }
@@ -732,8 +732,8 @@ x_44 = lean::string_dec_lt(x_34, x_1);
 if (lean::obj_tag(x_44) == 0)
 {
 obj* x_48; obj* x_49; 
-lean::dec(x_1);
 lean::dec(x_38);
+lean::dec(x_1);
 lean::dec(x_44);
 x_48 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_48, 0, x_34);

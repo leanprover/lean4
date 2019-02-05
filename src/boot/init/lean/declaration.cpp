@@ -10,16 +10,16 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_lean_constant__info_value(obj*);
-obj* l_lean_constant__info_to__constant__val(obj*);
-obj* l_lean_constant__info_value___main(obj*);
 obj* l_lean_constant__info_lparams(obj*);
-obj* l_lean_constant__info_id(obj*);
-obj* l_lean_constant__info_hints___main(obj*);
 obj* l_lean_constant__info_hints(obj*);
-obj* l_task_get___rarg(obj*);
+obj* l_lean_constant__info_id(obj*);
 obj* l_lean_constant__info_type(obj*);
 obj* l_lean_constant__info_to__constant__val___main(obj*);
+obj* l_lean_constant__info_value___main(obj*);
+obj* l_lean_constant__info_value(obj*);
+obj* l_lean_constant__info_to__constant__val(obj*);
+obj* l_task_get___rarg(obj*);
+obj* l_lean_constant__info_hints___main(obj*);
 obj* l_lean_constant__info_to__constant__val___main(obj* x_0) {
 _start:
 {

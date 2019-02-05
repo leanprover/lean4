@@ -10,85 +10,85 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_list_to__array(obj*);
-obj* l_array_read_x_27___rarg(obj*, obj*, obj*);
-obj* l_function_comp___rarg(obj*, obj*, obj*);
-obj* l_array_empty(obj*);
-obj* l_array_foldl(obj*, obj*);
-obj* l_array_read___rarg(obj*, obj*);
-obj* l_list_to__array__aux___rarg(obj*, obj*);
-obj* l_array_nil(obj*);
-obj* l_array_map_u_2082___rarg___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_array_empty___rarg___boxed(obj*);
-obj* l_mk__array___rarg(obj*, obj*);
-obj* l_array_pop___rarg(obj*);
-obj* l_array_rev__iterate(obj*, obj*);
-obj* l_list_to__array__aux___main(obj*);
-obj* l_array_uwrite_x_27___rarg___boxed(obj*, obj*, obj*);
-obj* l_array_map(obj*);
-obj* l_list_to__array__aux___main___rarg(obj*, obj*);
-obj* l_array_iterate(obj*, obj*);
-obj* l_array_foldl___rarg(obj*, obj*, obj*);
-obj* l_array_uread_x_27(obj*);
-obj* l___private_2151191555__iterate__aux___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_array_rev__foldl(obj*, obj*);
-obj* l_mk__array___rarg___lambda__1(obj*, obj*);
-obj* l_array_has__repr___rarg___closed__1;
-obj* l_array_foreach(obj*);
-obj* l_mk__array(obj*);
-obj* l___private_2151191555__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_array_map_u_2082(obj*);
-obj* l___private_2151191555__iterate__aux___main(obj*, obj*);
-obj* l_array_write_x_27___rarg(obj*, obj*, obj*);
-obj* l_array_has__repr___rarg(obj*);
-obj* l_array_rev__iterate___rarg(obj*, obj*, obj*);
-obj* l_array_uwrite___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_array_iterate___rarg(obj*, obj*, obj*);
-obj* l_array_push___rarg(obj*, obj*);
-obj* l_array_map_u_2082___rarg(obj*, obj*, obj*);
-obj* l___private_2406439935__foreach__aux___rarg___lambda__1(obj*, obj*, obj*, obj*);
-obj* l___private_2406439935__foreach__aux(obj*);
-obj* l_array_read_x_27(obj*);
-obj* l_nat_pred___main(obj*);
-obj* l___private_717503411__rev__iterate__aux(obj*, obj*);
-obj* l_array_map___rarg(obj*, obj*);
-obj* l_array_foldl___rarg___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_array_push(obj*);
-obj* l_array_uread___rarg___boxed(obj*, obj*, obj*);
-unsigned char l_array_empty___rarg(obj*);
-obj* l_array_uwrite(obj*);
-obj* l_array_uread_x_27___rarg(obj*, obj*, size_t);
-obj* l_array_uread_x_27___rarg___boxed(obj*, obj*, obj*);
-obj* l_array_to__list___rarg___closed__1;
-obj* l_array_nil___lambda__1(obj*);
-obj* l___private_717503411__rev__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_array_rev__foldl___rarg(obj*, obj*, obj*);
-obj* l_array_write_x_27(obj*);
-obj* l___private_2151191555__iterate__aux(obj*, obj*);
-obj* l_array_uwrite_x_27___rarg(obj*, size_t, obj*);
 obj* l_array_write___rarg(obj*, obj*, obj*);
-obj* l_list_to__array___rarg(obj*);
+obj* l_array_rev__iterate(obj*, obj*);
 obj* l_array_push___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_array_rev__foldl(obj*, obj*);
+obj* l_array_uread___rarg___boxed(obj*, obj*, obj*);
+obj* l_array_rev__iterate___rarg(obj*, obj*, obj*);
+obj* l_array_read___rarg(obj*, obj*);
+obj* l___private_2406439935__foreach__aux___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_write(obj*);
-obj* l_list_repr___rarg(obj*, obj*);
-obj* l_array_read(obj*);
-obj* l___private_2406439935__foreach__aux___rarg(obj*, obj*);
-obj* l_array_uwrite___rarg(obj*, size_t, obj*, obj*);
-obj* l_array_pop(obj*);
-obj* l_array_has__repr(obj*);
-obj* l_array_uwrite_x_27(obj*);
-obj* l_list_to__array__aux(obj*);
-obj* l_array_write___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_uread(obj*);
-obj* l_array_map___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_array_uread_x_27(obj*);
+obj* l_array_uwrite_x_27(obj*);
+obj* l_array_write___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_array_rev__foldl___rarg(obj*, obj*, obj*);
+obj* l_array_map_u_2082___rarg(obj*, obj*, obj*);
+obj* l_array_uwrite___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_array_uread_x_27___rarg(obj*, obj*, size_t);
+obj* l_array_empty___rarg___boxed(obj*);
+obj* l_array_nil___lambda__1(obj*);
 obj* l_array_to__list___rarg___lambda__1(obj*, obj*);
 obj* l___private_717503411__rev__iterate__aux___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_array_nil___closed__1;
-obj* l_array_foreach___rarg(obj*, obj*);
-obj* l_array_to__list(obj*);
-obj* l_array_to__list___rarg(obj*);
+obj* l_array_write_x_27(obj*);
+obj* l_array_map(obj*);
+obj* l_array_has__repr___rarg___closed__1;
+obj* l_array_map_u_2082___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_function_comp___rarg(obj*, obj*, obj*);
+obj* l_array_nil(obj*);
+obj* l_array_has__repr(obj*);
+obj* l_mk__array___rarg(obj*, obj*);
+obj* l_array_read(obj*);
+obj* l___private_2406439935__foreach__aux(obj*);
+obj* l___private_2151191555__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_nat_pred___main(obj*);
+obj* l_array_empty(obj*);
 obj* l_array_uread___rarg(obj*, size_t, obj*);
+obj* l_array_uwrite(obj*);
+obj* l_array_read_x_27(obj*);
+obj* l_array_foldl(obj*, obj*);
+unsigned char l_array_empty___rarg(obj*);
+obj* l___private_717503411__rev__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_array_pop___rarg(obj*);
+obj* l_list_repr___rarg(obj*, obj*);
+obj* l_array_map_u_2082(obj*);
+obj* l_list_to__array__aux(obj*);
+obj* l___private_2151191555__iterate__aux___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_array_uread_x_27___rarg___boxed(obj*, obj*, obj*);
+obj* l_array_foreach(obj*);
+obj* l_array_foldl___rarg(obj*, obj*, obj*);
+obj* l_mk__array___rarg___lambda__1(obj*, obj*);
+obj* l_array_to__list___rarg(obj*);
+obj* l_list_to__array__aux___rarg(obj*, obj*);
+obj* l_list_to__array__aux___main(obj*);
+obj* l_array_push(obj*);
+obj* l_list_to__array__aux___main___rarg(obj*, obj*);
+obj* l_array_uwrite_x_27___rarg(obj*, size_t, obj*);
+obj* l___private_2151191555__iterate__aux___main(obj*, obj*);
+obj* l_array_push___rarg(obj*, obj*);
+obj* l_array_iterate___rarg(obj*, obj*, obj*);
 obj* l___private_717503411__rev__iterate__aux___main(obj*, obj*);
+obj* l_array_has__repr___rarg(obj*);
+obj* l_array_foreach___rarg(obj*, obj*);
+obj* l_array_uwrite___rarg(obj*, size_t, obj*, obj*);
+obj* l_array_nil___closed__1;
+obj* l_array_uwrite_x_27___rarg___boxed(obj*, obj*, obj*);
+obj* l_mk__array(obj*);
+obj* l___private_717503411__rev__iterate__aux(obj*, obj*);
+obj* l_array_pop(obj*);
+obj* l_array_write_x_27___rarg(obj*, obj*, obj*);
+obj* l_list_to__array(obj*);
+obj* l_array_to__list(obj*);
+obj* l___private_2151191555__iterate__aux(obj*, obj*);
+obj* l_array_foldl___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_array_map___rarg(obj*, obj*);
+obj* l_array_map___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_array_read_x_27___rarg(obj*, obj*, obj*);
+obj* l_array_to__list___rarg___closed__1;
+obj* l_list_to__array___rarg(obj*);
+obj* l_array_iterate(obj*, obj*);
+obj* l___private_2406439935__foreach__aux___rarg(obj*, obj*);
 obj* l_mk__array___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -445,8 +445,8 @@ lean::dec(x_4);
 if (lean::obj_tag(x_6) == 0)
 {
 lean::dec(x_6);
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_2);
 return x_0;
 }
 else
@@ -581,9 +581,9 @@ return x_20;
 }
 else
 {
+lean::dec(x_1);
 lean::dec(x_7);
 lean::dec(x_0);
-lean::dec(x_1);
 lean::dec(x_2);
 return x_4;
 }
@@ -696,9 +696,9 @@ goto _start;
 }
 else
 {
+lean::dec(x_1);
 lean::dec(x_7);
 lean::dec(x_0);
-lean::dec(x_1);
 lean::dec(x_2);
 return x_4;
 }

@@ -10,37 +10,37 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_function_has__left__inverse;
-obj* l_function_comp___rarg(obj*, obj*, obj*);
-obj* l_function_left__inverse;
-obj* l_function_curry(obj*, obj*, obj*);
-obj* l_function_dcomp___rarg(obj*, obj*, obj*);
+obj* l_function_has__right__inverse;
 obj* l_function_app(obj*, obj*);
+obj* l_function_combine___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_function_injective;
+obj* l_function_surjective;
 obj* l_function_on__fun___rarg(obj*, obj*, obj*, obj*);
+obj* l_function_dcomp(obj*, obj*, obj*);
+obj* l_function_id__of__left__inverse;
+obj* l_function_comp__right(obj*, obj*);
+obj* l_function_swap(obj*, obj*, obj*);
+obj* l_function_const___rarg(obj*, obj*);
+obj* l_function_curry(obj*, obj*, obj*);
+obj* l_function_comp(obj*, obj*, obj*);
+obj* l_function_comp__left___rarg(obj*, obj*, obj*, obj*);
+obj* l_function_comp___rarg(obj*, obj*, obj*);
 obj* l_function_curry___rarg(obj*, obj*, obj*);
+obj* l_function_uncurry___rarg(obj*, obj*);
 obj* l_function_const(obj*, obj*);
 obj* l_function_right__inverse;
-obj* l_function_const___rarg(obj*, obj*);
-obj* l_function_uncurry___rarg(obj*, obj*);
-obj* l_function_swap(obj*, obj*, obj*);
-obj* l_function_uncurry(obj*, obj*, obj*);
-obj* l_function_comp__left___rarg(obj*, obj*, obj*, obj*);
-obj* l_function_comp__left(obj*, obj*);
-obj* l_function_combine___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_function_comp__right___rarg(obj*, obj*, obj*, obj*);
-obj* l_function_comp__right(obj*, obj*);
 obj* l_function_swap___rarg(obj*, obj*, obj*);
-obj* l_function_dcomp(obj*, obj*, obj*);
-obj* l_function_comp(obj*, obj*, obj*);
-obj* l_function_id__of__right__inverse;
-obj* l_function_combine(obj*, obj*, obj*, obj*, obj*);
-obj* l_function_has__right__inverse;
-obj* l_function_injective;
-obj* l_function_bijective;
+obj* l_function_comp__right___rarg(obj*, obj*, obj*, obj*);
 obj* l_function_app___rarg(obj*, obj*);
+obj* l_function_dcomp___rarg(obj*, obj*, obj*);
+obj* l_function_has__left__inverse;
+obj* l_function_bijective;
+obj* l_function_id__of__right__inverse;
 obj* l_function_on__fun(obj*, obj*, obj*);
-obj* l_function_surjective;
-obj* l_function_id__of__left__inverse;
+obj* l_function_left__inverse;
+obj* l_function_combine(obj*, obj*, obj*, obj*, obj*);
+obj* l_function_uncurry(obj*, obj*, obj*);
+obj* l_function_comp__left(obj*, obj*);
 obj* l_function_comp___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {

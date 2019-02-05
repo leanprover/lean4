@@ -10,34 +10,34 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_nat_pow___main(obj*, obj*);
-obj* l_nat_lt_base;
-obj* l_nat_has__sub;
-obj* l_nat_pow(obj*, obj*);
-obj* l_nat_pred(obj*);
-obj* l_nat_le__refl;
-obj* l_nat_repeat(obj*);
-obj* l_nat_lt;
-obj* l_nat_has__le;
-obj* l_nat_max(obj*, obj*);
-obj* l_nat_pred___main(obj*);
-obj* l_nat_repeat___main___rarg(obj*, obj*, obj*);
-obj* l_nat_decidable__eq;
-obj* l_nat_le;
-obj* l_nat_succ__pos;
-obj* l_nat_ble___main(obj*, obj*);
-obj* l_nat_has__lt;
-obj* l_nat_repeat___rarg(obj*, obj*, obj*);
-obj* l_nat_le__refl___main;
-obj* l_nat_has__mul;
-obj* l_nat_ble(obj*, obj*);
-obj* l_nat_beq___main(obj*, obj*);
-obj* l_nat_has__pow;
-obj* l_nat_lt_step;
 obj* l_nat_mul___main(obj*, obj*);
-obj* l_nat_repeat___main(obj*);
+obj* l_nat_has__sub;
+obj* l_nat_repeat___main___rarg(obj*, obj*, obj*);
+obj* l_nat_max(obj*, obj*);
+obj* l_nat_le__refl;
+obj* l_nat_beq___main(obj*, obj*);
+obj* l_nat_repeat___rarg(obj*, obj*, obj*);
+obj* l_nat_decidable__eq;
+obj* l_nat_succ__pos;
 obj* l_nat_sub___main(obj*, obj*);
+obj* l_nat_lt_step;
+obj* l_nat_repeat(obj*);
+obj* l_nat_pred___main(obj*);
+obj* l_nat_has__pow;
+obj* l_nat_ble(obj*, obj*);
+obj* l_nat_has__lt;
+obj* l_nat_has__mul;
+obj* l_nat_lt_base;
+obj* l_nat_lt;
+obj* l_nat_pow___main(obj*, obj*);
+obj* l_nat_pow(obj*, obj*);
 obj* l_nat_beq(obj*, obj*);
+obj* l_nat_pred(obj*);
+obj* l_nat_has__le;
+obj* l_nat_le;
+obj* l_nat_ble___main(obj*, obj*);
+obj* l_nat_le__refl___main;
+obj* l_nat_repeat___main(obj*);
 obj* l_nat_beq___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -68,8 +68,8 @@ else
 {
 unsigned char x_18; obj* x_19; 
 lean::dec(x_5);
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_18 = 0;
 x_19 = lean::box(x_18);
 return x_19;
@@ -78,8 +78,8 @@ return x_19;
 else
 {
 obj* x_22; 
-lean::dec(x_0);
 lean::dec(x_3);
+lean::dec(x_0);
 x_22 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
@@ -148,8 +148,8 @@ else
 {
 unsigned char x_18; obj* x_19; 
 lean::dec(x_5);
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_18 = 0;
 x_19 = lean::box(x_18);
 return x_19;
@@ -158,10 +158,10 @@ return x_19;
 else
 {
 unsigned char x_24; obj* x_25; 
-lean::dec(x_0);
 lean::dec(x_1);
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_0);
+lean::dec(x_2);
 x_24 = 1;
 x_25 = lean::box(x_24);
 return x_25;
@@ -297,9 +297,9 @@ return x_12;
 else
 {
 obj* x_18; 
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
+lean::dec(x_0);
 x_18 = lean::mk_nat_obj(0u);
 return x_18;
 }
@@ -345,8 +345,8 @@ return x_14;
 else
 {
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -402,9 +402,9 @@ return x_12;
 else
 {
 obj* x_18; 
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
+lean::dec(x_0);
 x_18 = lean::mk_nat_obj(1u);
 return x_18;
 }

@@ -10,38 +10,38 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_disjoint__set_merge___main(obj*);
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(obj*, obj*, obj*);
-obj* l___private_3363165505__find__aux___main(obj*);
-obj* l___private_3363165505__find__aux(obj*);
-obj* l_lean_disjoint__set_rank___main(obj*);
-obj* l_hashmap__imp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_disjoint__set_merge(obj*);
 obj* l_mk__hashmap__imp___rarg(obj*);
-obj* l_lean_disjoint__set_merge___main___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_disjoint__set_find___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_mk__disjoint__set___rarg(obj*, obj*);
-obj* l___private_3363165505__find__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_disjoint__set_merge(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(obj*);
-obj* l_lean_disjoint__set_find___main(obj*);
-obj* l_lean_mk__disjoint__set(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_size___rarg(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj*);
-obj* l_lean_disjoint__set_rank___rarg(obj*, obj*, obj*, obj*);
-obj* l___private_3363165505__find__aux___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(obj*);
+obj* l_hashmap__imp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_disjoint__set_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_disjoint__set_find(obj*);
-obj* l_lean_disjoint__set_merge___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj*);
-obj* l_lean_disjoint__set_find___main___rarg(obj*, obj*, obj*, obj*);
+obj* l___private_3363165505__find__aux___main(obj*);
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank(obj*);
+obj* l_lean_disjoint__set_merge___main___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_disjoint__set_merge___main(obj*);
+obj* l_lean_mk__disjoint__set___rarg(obj*, obj*);
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(obj*);
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_d__hashmap_size___rarg(obj*);
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(obj*);
+obj* l_lean_mk__disjoint__set(obj*);
+obj* l_lean_disjoint__set_rank___main(obj*);
+obj* l___private_3363165505__find__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_disjoint__set_find___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj*);
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l___private_3363165505__find__aux(obj*);
+obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(obj*, obj*, obj*);
+obj* l_lean_disjoint__set_merge___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_disjoint__set_rank___rarg(obj*, obj*, obj*, obj*);
+obj* l_lean_disjoint__set_find(obj*);
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj*);
+obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
+obj* l___private_3363165505__find__aux___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_disjoint__set_find___main(obj*);
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj*);
 obj* l_lean_mk__disjoint__set___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -99,10 +99,10 @@ x_12 = l_hashmap__imp_find___rarg(x_0, x_1, x_4, x_3);
 if (lean::obj_tag(x_12) == 0)
 {
 obj* x_18; 
-lean::dec(x_4);
 lean::dec(x_12);
-lean::dec(x_0);
+lean::dec(x_4);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_18 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_18, 0, x_3);
@@ -136,11 +136,11 @@ goto _start;
 }
 else
 {
-lean::dec(x_23);
 lean::dec(x_27);
+lean::dec(x_23);
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 return x_20;
 }
@@ -150,9 +150,9 @@ else
 {
 obj* x_46; 
 lean::dec(x_4);
+lean::dec(x_1);
 lean::dec(x_6);
 lean::dec(x_0);
-lean::dec(x_1);
 lean::dec(x_2);
 x_46 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_46, 0, x_3);
@@ -308,8 +308,8 @@ lean::dec(x_25);
 if (lean::obj_tag(x_33) == 0)
 {
 obj* x_37; obj* x_38; obj* x_39; 
-lean::dec(x_28);
 lean::dec(x_33);
+lean::dec(x_28);
 x_37 = lean::mk_nat_obj(0u);
 x_38 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_38, 0, x_3);
@@ -358,12 +358,12 @@ return x_59;
 else
 {
 lean::dec(x_23);
-lean::dec(x_4);
-lean::dec(x_12);
 lean::dec(x_17);
-lean::dec(x_0);
+lean::dec(x_4);
 lean::dec(x_1);
+lean::dec(x_12);
 lean::dec(x_3);
+lean::dec(x_0);
 return x_2;
 }
 }

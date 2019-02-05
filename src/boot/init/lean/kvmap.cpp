@@ -10,35 +10,35 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_lean_kvmap_contains___boxed(obj*, obj*);
-obj* l_lean_kvmap_get__nat(obj*, obj*);
 obj* l_lean_kvmap_set__bool___boxed(obj*, obj*, obj*);
-unsigned char l_option_is__some___main___rarg(obj*);
-obj* l_lean_kvmap_find__core(obj*, obj*);
-obj* l_lean_kvmap_find(obj*, obj*);
-obj* l_lean_kvmap_set__nat(obj*, obj*, obj*);
-obj* l_lean_kvmap_find__core___main(obj*, obj*);
-obj* l_lean_kvmap_find___main(obj*, obj*);
-unsigned char l_lean_kvmap_contains(obj*, obj*);
-obj* l_lean_kvmap_insert___main(obj*, obj*, obj*);
-obj* l_lean_kvmap_insert(obj*, obj*, obj*);
-obj* l_lean_kvmap_get__string(obj*, obj*);
-obj* l_lean_kvmap_insert__core(obj*, obj*, obj*);
-obj* l_lean_kvmap_get__bool(obj*, obj*);
 obj* l_lean_kvmap_set__string(obj*, obj*, obj*);
+obj* l_lean_kvmap_insert__core(obj*, obj*, obj*);
+unsigned char l_lean_kvmap_contains(obj*, obj*);
+obj* l_lean_name_has__dec__eq___main(obj*, obj*);
+obj* l_lean_kvmap_get__bool(obj*, obj*);
+obj* l_lean_kvmap_set__name(obj*, obj*, obj*);
+obj* l_lean_kvmap_set__nat(obj*, obj*, obj*);
+obj* l_lean_kvmap_find__core(obj*, obj*);
 obj* l_lean_kvmap_set__bool(obj*, obj*, unsigned char);
+unsigned char l_option_is__some___main___rarg(obj*);
+obj* l_lean_kvmap_contains___boxed(obj*, obj*);
+obj* l_lean_kvmap_insert(obj*, obj*, obj*);
+obj* l_lean_kvmap_find___main(obj*, obj*);
+obj* l_lean_kvmap_find(obj*, obj*);
 obj* l_lean_kvmap_get__name(obj*, obj*);
 obj* l_lean_kvmap_insert__core___main(obj*, obj*, obj*);
-obj* l_lean_name_has__dec__eq___main(obj*, obj*);
-obj* l_lean_kvmap_set__name(obj*, obj*, obj*);
+obj* l_lean_kvmap_find__core___main(obj*, obj*);
+obj* l_lean_kvmap_get__string(obj*, obj*);
+obj* l_lean_kvmap_get__nat(obj*, obj*);
+obj* l_lean_kvmap_insert___main(obj*, obj*, obj*);
 obj* l_lean_kvmap_find__core___main(obj* x_0, obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -59,16 +59,16 @@ lean::inc(x_1);
 x_16 = l_lean_name_has__dec__eq___main(x_10, x_1);
 if (lean::obj_tag(x_16) == 0)
 {
-lean::dec(x_12);
 lean::dec(x_16);
+lean::dec(x_12);
 x_0 = x_7;
 goto _start;
 }
 else
 {
 obj* x_23; 
-lean::dec(x_7);
 lean::dec(x_16);
+lean::dec(x_7);
 lean::dec(x_1);
 x_23 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_23, 0, x_12);
@@ -138,8 +138,8 @@ x_14 = l_lean_name_has__dec__eq___main(x_10, x_1);
 if (lean::obj_tag(x_14) == 0)
 {
 obj* x_17; obj* x_18; 
-lean::dec(x_10);
 lean::dec(x_14);
+lean::dec(x_10);
 x_17 = l_lean_kvmap_insert__core___main(x_7, x_1, x_2);
 if (lean::is_scalar(x_9)) {
  x_18 = lean::alloc_cnstr(1, 2, 0);
@@ -153,8 +153,8 @@ return x_18;
 else
 {
 obj* x_22; obj* x_23; 
-lean::dec(x_14);
 lean::dec(x_5);
+lean::dec(x_14);
 lean::dec(x_1);
 x_22 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_22, 0, x_10);
@@ -255,24 +255,24 @@ return x_11;
 case 1:
 {
 obj* x_14; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_14 = lean::box(0);
 return x_14;
 }
 case 2:
 {
 obj* x_17; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_17 = lean::box(0);
 return x_17;
 }
 default:
 {
 obj* x_20; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_20 = lean::box(0);
 return x_20;
 }
@@ -308,8 +308,8 @@ switch (lean::obj_tag(x_5)) {
 case 0:
 {
 obj* x_10; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_10 = lean::box(0);
 return x_10;
 }
@@ -330,16 +330,16 @@ return x_14;
 case 2:
 {
 obj* x_17; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_17 = lean::box(0);
 return x_17;
 }
 default:
 {
 obj* x_20; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_20 = lean::box(0);
 return x_20;
 }
@@ -375,16 +375,16 @@ switch (lean::obj_tag(x_5)) {
 case 0:
 {
 obj* x_10; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_10 = lean::box(0);
 return x_10;
 }
 case 1:
 {
 obj* x_13; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_13 = lean::box(0);
 return x_13;
 }
@@ -405,8 +405,8 @@ return x_17;
 default:
 {
 obj* x_20; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_20 = lean::box(0);
 return x_20;
 }
@@ -442,24 +442,24 @@ switch (lean::obj_tag(x_5)) {
 case 0:
 {
 obj* x_10; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_10 = lean::box(0);
 return x_10;
 }
 case 1:
 {
 obj* x_13; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_13 = lean::box(0);
 return x_13;
 }
 case 2:
 {
 obj* x_16; 
-lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_5);
 x_16 = lean::box(0);
 return x_16;
 }

@@ -10,10 +10,10 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l___private_56172073__div__rec__lemma;
-obj* l___private_3925169175__div_F(obj*, obj*, obj*);
-obj* l_nat_has__div;
 obj* l___private_578911941__mod_F(obj*, obj*, obj*);
+obj* l_nat_has__div;
+obj* l___private_3925169175__div_F(obj*, obj*, obj*);
+obj* l___private_56172073__div__rec__lemma;
 obj* l_nat_has__mod;
 obj* _init_l___private_56172073__div__rec__lemma() {
 _start:
@@ -35,8 +35,8 @@ if (lean::obj_tag(x_4) == 0)
 {
 obj* x_10; 
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_10 = lean::mk_nat_obj(0u);
 return x_10;
@@ -49,9 +49,9 @@ x_12 = lean::nat_dec_le(x_2, x_0);
 if (lean::obj_tag(x_12) == 0)
 {
 obj* x_17; 
+lean::dec(x_1);
 lean::dec(x_12);
 lean::dec(x_0);
-lean::dec(x_1);
 lean::dec(x_2);
 x_17 = lean::mk_nat_obj(0u);
 return x_17;

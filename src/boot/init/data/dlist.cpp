@@ -10,31 +10,31 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_dlist_of__list(obj*);
-obj* l_function_comp___rarg(obj*, obj*, obj*);
-obj* l_dlist_push(obj*);
+obj* l_dlist_push___main(obj*);
 obj* l_dlist_append(obj*);
-obj* l_dlist_cons___main___rarg(obj*, obj*, obj*);
-obj* l_dlist_of__list___rarg(obj*);
-obj* l_dlist_push___rarg(obj*, obj*);
-obj* l_dlist_cons___main(obj*);
-obj* l_dlist_append___main(obj*);
-obj* l_id___rarg(obj*);
-obj* l_dlist_has__append(obj*);
-obj* l_dlist_append___main___rarg(obj*, obj*);
 obj* l_dlist_to__list(obj*);
+obj* l_dlist_of__list___rarg(obj*);
+obj* l_dlist_cons___rarg(obj*, obj*);
+obj* l_function_comp___rarg(obj*, obj*, obj*);
+obj* l_dlist_cons(obj*);
+obj* l_dlist_append___main(obj*);
 obj* l_dlist_singleton(obj*);
+obj* l_dlist_cons___main(obj*);
+obj* l_dlist_append___main___rarg(obj*, obj*);
+obj* l_dlist_push___main___rarg(obj*, obj*, obj*);
+obj* l_id___rarg(obj*);
 obj* l_dlist_empty(obj*);
 obj* l_dlist_to__list___main(obj*);
-obj* l_dlist_push___main(obj*);
-obj* l_dlist_push___main___rarg(obj*, obj*, obj*);
-obj* l_list_append___rarg(obj*, obj*);
-obj* l_dlist_append___rarg(obj*, obj*);
-obj* l_dlist_cons(obj*);
+obj* l_dlist_push___rarg(obj*, obj*);
 obj* l_dlist_to__list___rarg(obj*);
-obj* l_dlist_cons___rarg(obj*, obj*);
 obj* l_dlist_to__list___main___rarg(obj*);
+obj* l_dlist_append___rarg(obj*, obj*);
+obj* l_dlist_of__list(obj*);
+obj* l_dlist_push(obj*);
 obj* l_dlist_singleton___rarg(obj*, obj*);
+obj* l_list_append___rarg(obj*, obj*);
+obj* l_dlist_has__append(obj*);
+obj* l_dlist_cons___main___rarg(obj*, obj*, obj*);
 obj* l_dlist_of__list___rarg(obj* x_0) {
 _start:
 {

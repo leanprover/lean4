@@ -10,65 +10,65 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_option_decidable__eq(obj*);
-obj* l_option_get___main(obj*);
-obj* l_option_is__some___rarg___boxed(obj*);
-obj* l_option_get__or__else(obj*);
-obj* l_option_monad___lambda__4(obj*, obj*, obj*, obj*);
-obj* l_option_has__lt(obj*, obj*);
-obj* l_option_to__bool___main___rarg___boxed(obj*);
-obj* l_option_bind___rarg(obj*, obj*);
-obj* l_option_decidable__rel__lt___main(obj*, obj*);
 unsigned char l_option_to__bool___rarg(obj*);
+obj* l_option_decidable__eq(obj*);
+obj* l_option_get__or__else___rarg(obj*, obj*);
+obj* l_option_is__some(obj*);
+obj* l_option_monad___lambda__3(obj*, obj*, obj*, obj*);
+obj* l_option_is__some___main(obj*);
+obj* l_option_monad___lambda__2(obj*, obj*);
+obj* l_option_orelse___rarg(obj*, obj*);
+obj* l_option_to__monad___main___rarg(obj*, obj*, obj*);
 obj* l_option_is__some___main___rarg___boxed(obj*);
 obj* l_option_alternative___lambda__1(obj*);
-obj* l_option_monad;
-obj* l_option_is__some(obj*);
-obj* l_option_lt;
-obj* l_option_get___rarg(obj*, obj*);
-unsigned char l_option_is__some___main___rarg(obj*);
-obj* l_option_decidable__rel__lt(obj*, obj*);
 obj* l_function_const___rarg(obj*, obj*);
-obj* l_option_map___rarg(obj*, obj*);
-obj* l_option_orelse___main(obj*);
-obj* l_option_is__none___main(obj*);
-obj* l_option_alternative;
-obj* l_option_get(obj*);
-obj* l_option_inhabited(obj*);
-obj* l_option_get___main___rarg(obj*, obj*);
-obj* l_option_get__or__else___main___rarg(obj*, obj*);
-obj* l_option_monad___lambda__3(obj*, obj*, obj*, obj*);
-obj* l_option_orelse___rarg(obj*, obj*);
-obj* l_option_map(obj*, obj*);
-obj* l_option_decidable__rel__lt___main___rarg(obj*, obj*, obj*);
-obj* l_option_to__monad(obj*, obj*);
-obj* l_option_to__monad___main(obj*);
-obj* l_option_to__monad___rarg(obj*, obj*, obj*);
 obj* l_option_to__bool___rarg___boxed(obj*);
-obj* l_option_to__monad___main___rarg(obj*, obj*, obj*);
-obj* l_option_to__bool(obj*);
-obj* l_option_is__none___rarg___boxed(obj*);
-obj* l_option_bind___main(obj*, obj*);
-obj* l_option_is__some___main(obj*);
-obj* l_option_to__bool___main(obj*);
-obj* l_option_is__none(obj*);
-obj* l_option_get__or__else___main(obj*);
-obj* l_option_monad___lambda__5(obj*, obj*, obj*, obj*);
-obj* l_option_decidable__rel__lt___rarg(obj*, obj*, obj*);
-obj* l_option_bind___main___rarg(obj*, obj*);
-obj* l_option_get__or__else___rarg(obj*, obj*);
-unsigned char l_option_is__none___rarg(obj*);
-obj* l_option_decidable__eq___rarg(obj*, obj*, obj*);
-obj* l_option_is__none___main___rarg___boxed(obj*);
+obj* l_option_monad___lambda__4(obj*, obj*, obj*, obj*);
 unsigned char l_option_is__some___rarg(obj*);
-obj* l_option_orelse(obj*);
-obj* l_option_bind(obj*, obj*);
-obj* l_option_monad___lambda__2(obj*, obj*);
-unsigned char l_option_is__none___main___rarg(obj*);
 obj* l_option_orelse___main___rarg(obj*, obj*);
 unsigned char l_option_to__bool___main___rarg(obj*);
-obj* l_option_monad___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_option_map(obj*, obj*);
+unsigned char l_option_is__some___main___rarg(obj*);
+obj* l_option_get___main___rarg(obj*, obj*);
+obj* l_option_orelse___main(obj*);
+obj* l_option_bind___main(obj*, obj*);
+obj* l_option_get__or__else___main___rarg(obj*, obj*);
+obj* l_option_to__monad___rarg(obj*, obj*, obj*);
+obj* l_option_inhabited(obj*);
+obj* l_option_is__some___rarg___boxed(obj*);
+obj* l_option_to__bool(obj*);
+obj* l_option_get__or__else(obj*);
+obj* l_option_is__none___main___rarg___boxed(obj*);
+obj* l_option_alternative;
+obj* l_option_decidable__rel__lt(obj*, obj*);
+obj* l_option_decidable__eq___rarg(obj*, obj*, obj*);
+obj* l_option_to__bool___main(obj*);
+obj* l_option_get(obj*);
+obj* l_option_has__lt(obj*, obj*);
+obj* l_option_get___rarg(obj*, obj*);
+obj* l_option_to__monad___main(obj*);
+obj* l_option_to__bool___main___rarg___boxed(obj*);
+obj* l_option_decidable__rel__lt___main(obj*, obj*);
+obj* l_option_monad;
+obj* l_option_monad___lambda__5(obj*, obj*, obj*, obj*);
+obj* l_option_bind___main___rarg(obj*, obj*);
+obj* l_option_to__monad(obj*, obj*);
+obj* l_option_lt;
+obj* l_option_decidable__rel__lt___rarg(obj*, obj*, obj*);
+obj* l_option_is__none___rarg___boxed(obj*);
+obj* l_option_is__none___main(obj*);
+unsigned char l_option_is__none___rarg(obj*);
+unsigned char l_option_is__none___main___rarg(obj*);
+obj* l_option_get___main(obj*);
 obj* l_option_lt___main;
+obj* l_option_orelse(obj*);
+obj* l_option_monad___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_option_bind(obj*, obj*);
+obj* l_option_is__none(obj*);
+obj* l_option_decidable__rel__lt___main___rarg(obj*, obj*, obj*);
+obj* l_option_get__or__else___main(obj*);
+obj* l_option_map___rarg(obj*, obj*);
+obj* l_option_bind___rarg(obj*, obj*);
 obj* l_option_to__monad___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -413,8 +413,8 @@ _start:
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -463,8 +463,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -557,8 +557,8 @@ lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_8; 
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_2);
 x_8 = lean::box(0);
 return x_8;
 }
@@ -581,8 +581,8 @@ lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_8; 
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_2);
 x_8 = lean::box(0);
 return x_8;
 }
@@ -630,8 +630,8 @@ lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_8; 
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_2);
 x_8 = lean::box(0);
 return x_8;
 }
@@ -743,8 +743,8 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 return x_2;
 }
 else
@@ -756,9 +756,9 @@ lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_11; 
+lean::dec(x_5);
 lean::dec(x_0);
 lean::dec(x_2);
-lean::dec(x_5);
 x_11 = lean::box(0);
 return x_11;
 }
@@ -816,8 +816,8 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_6; 

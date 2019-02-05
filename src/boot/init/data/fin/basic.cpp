@@ -10,39 +10,39 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_fin_le;
-obj* l_fin_has__zero(obj*);
 obj* l_fin_elim0(obj*, obj*);
-obj* l_fin_dec__lt___rarg(obj*, obj*);
-obj* l_fin_sub___main(obj*, obj*, obj*);
-obj* l_fin_has__modn(obj*);
-obj* l_fin_add___main(obj*, obj*, obj*);
-obj* l_fin_has__div(obj*);
+obj* l_fin_has__lt(obj*);
 obj* l_fin_modn(obj*, obj*, obj*);
-obj* l_fin_add(obj*, obj*, obj*);
-obj* l_fin_decidable__eq(obj*);
-obj* l_fin_has__mul(obj*);
-obj* l_fin_has__mod(obj*);
-obj* l_fin_div(obj*, obj*, obj*);
-obj* l_fin_div___main(obj*, obj*, obj*);
+obj* l_fin_has__one(obj*);
 obj* l_fin_elim0___main(obj*, obj*);
-obj* l_fin_of__nat(obj*, obj*);
-obj* l_fin_dec__lt(obj*);
-obj* l_fin_lt;
-obj* l_fin_modn___main(obj*, obj*, obj*);
-obj* l_fin_mul___main(obj*, obj*, obj*);
-obj* l_fin_has__add(obj*);
-obj* l_fin_mul(obj*, obj*, obj*);
-obj* l_fin_dec__le(obj*);
-obj* l_fin_decidable__eq___rarg(obj*, obj*);
+obj* l_fin_dec__lt___rarg(obj*, obj*);
+obj* l_fin_mod(obj*, obj*, obj*);
+obj* l_fin_le;
 obj* l_fin_dec__le___rarg(obj*, obj*);
 obj* l_fin_has__le(obj*);
-obj* l_fin_has__lt(obj*);
-obj* l_fin_mod___main(obj*, obj*, obj*);
-obj* l_fin_has__sub(obj*);
 obj* l_fin_sub(obj*, obj*, obj*);
-obj* l_fin_mod(obj*, obj*, obj*);
-obj* l_fin_has__one(obj*);
+obj* l_fin_decidable__eq(obj*);
+obj* l_fin_mod___main(obj*, obj*, obj*);
+obj* l_fin_lt;
+obj* l_fin_add(obj*, obj*, obj*);
+obj* l_fin_add___main(obj*, obj*, obj*);
+obj* l_fin_of__nat(obj*, obj*);
+obj* l_fin_has__sub(obj*);
+obj* l_fin_mul___main(obj*, obj*, obj*);
+obj* l_fin_has__div(obj*);
+obj* l_fin_dec__le(obj*);
+obj* l_fin_has__zero(obj*);
+obj* l_fin_sub___main(obj*, obj*, obj*);
+obj* l_fin_mul(obj*, obj*, obj*);
+obj* l_fin_has__modn(obj*);
+obj* l_fin_dec__lt(obj*);
+obj* l_fin_div___main(obj*, obj*, obj*);
+obj* l_fin_has__mod(obj*);
+obj* l_fin_has__mul(obj*);
+obj* l_fin_modn___main(obj*, obj*, obj*);
+obj* l_fin_div(obj*, obj*, obj*);
+obj* l_fin_has__add(obj*);
+obj* l_fin_decidable__eq___rarg(obj*, obj*);
 obj* _init_l_fin_lt() {
 _start:
 {

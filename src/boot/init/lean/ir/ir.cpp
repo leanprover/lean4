@@ -10,18 +10,18 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_lean_ir_decl_is__definition___main___boxed(obj*);
-obj* l_lean_ir_fnid;
-obj* l_lean_ir_decl_name(obj*);
-obj* l_lean_ir_var;
-unsigned char l_lean_ir_decl_is__definition(obj*);
-obj* l_lean_ir_decl_header___main(obj*);
-unsigned char l_lean_ir_decl_is__definition___main(obj*);
-obj* l_lean_ir_environment;
 obj* l_lean_ir_decl_is__definition___boxed(obj*);
-obj* l_lean_ir_blockid;
+obj* l_lean_ir_var;
+unsigned char l_lean_ir_decl_is__definition___main(obj*);
+obj* l_lean_ir_decl_is__definition___main___boxed(obj*);
+obj* l_lean_ir_environment;
+obj* l_lean_ir_decl_header___main(obj*);
 obj* l_lean_ir_decl_header(obj*);
+obj* l_lean_ir_blockid;
 obj* l_lean_ir_tag;
+unsigned char l_lean_ir_decl_is__definition(obj*);
+obj* l_lean_ir_decl_name(obj*);
+obj* l_lean_ir_fnid;
 obj* _init_l_lean_ir_tag() {
 _start:
 {

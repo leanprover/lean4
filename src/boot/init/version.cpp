@@ -10,24 +10,24 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_lean_is__release___boxed;
 obj* l_lean_version;
+obj* l_lean_is__release___boxed;
 unsigned char l_lean_is__release;
-obj* l_lean_special__version__desc;
 obj* l_lean_githash;
+obj* l_lean_special__version__desc;
 obj* _init_l_lean_version() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_3; obj* x_4; 
-x_0 = lean::mk_nat_obj(3u);
-x_1 = lean::mk_nat_obj(1u);
+obj* x_0; obj* x_2; obj* x_3; obj* x_4; 
+x_0 = lean::mk_nat_obj(0u);
 lean::inc(x_0);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_1);
+x_2 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_0);
+x_3 = lean::mk_nat_obj(4u);
 x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_0);
-lean::cnstr_set(x_4, 1, x_3);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_2);
 return x_4;
 }
 }
@@ -35,7 +35,7 @@ obj* _init_l_lean_githash() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("c5b0258e49283dc53b31bcf26a049a615ba2d5ad");
+x_0 = lean::mk_string("3444a295e7c12f4ec60e07309ca39b6be048056f");
 return x_0;
 }
 }

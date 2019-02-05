@@ -10,97 +10,97 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_lean_list_to__format___main___rarg___closed__1;
-obj* l_lean_list_to__format___main(obj*);
-obj* l_lean_format_join__sep___rarg(obj*, obj*, obj*);
-obj* l_function_comp___rarg(obj*, obj*, obj*);
-obj* l_lean_format_flatten___main(obj*);
-obj* l_lean_format_prefix__join___rarg(obj*, obj*, obj*);
-obj* l_lean_format_repr___main___closed__2;
-obj* l_lean_format_bracket(obj*, obj*, obj*);
-obj* l_lean_format_space__upto__line_x_27___main(obj*, obj*);
-obj* l_lean_format_paren(obj*);
-obj* l_lean_format_space__upto__line___main(obj*, obj*);
+obj* l_lean_has__repr;
+obj* l_lean_uint16__has__to__format___boxed(obj*);
 obj* l_lean_list_to__format___main___rarg(obj*, obj*);
+obj* l_lean_format_space__upto__line_x_27___main___lambda__1(obj*, obj*, obj*);
+obj* l_lean_format_paren___closed__1;
+obj* l_lean_format_space__upto__line___main(obj*, obj*);
+obj* l_lean_format_prefix__join(obj*);
+obj* l_lean_format_flatten___main(obj*);
+obj* l_lean_format_join___closed__1;
 obj* l_lean_format_join__sep___main___rarg(obj*, obj*, obj*);
+obj* l_lean_prod__has__to__format___rarg___closed__1;
+obj* l_lean_usize__has__to__format___boxed(obj*);
+obj* l_lean_nat__has__to__format(obj*);
 obj* l_lean_format_repr___main___closed__5;
 obj* l_lean_has__repr___lambda__1(obj*);
-obj* l_lean_format_repr___main___closed__7;
-obj* l_lean_to__string__to__format___rarg(obj*);
-obj* l_lean_format_space__upto__line___main___closed__2;
-obj* l_lean_list_to__format___rarg(obj*, obj*);
-obj* l_list_foldl___main___at_lean_format_join___spec__1(obj*, obj*);
-obj* l_lean_format_has__coe(obj*);
-obj* l_lean_format_space__upto__line(obj*, obj*);
-obj* l_lean_list_to__format___main___rarg___closed__2;
-obj* l_lean_format_join__suffix___main___rarg(obj*, obj*, obj*);
-obj* l_lean_uint64__has__to__format(unsigned long long);
-obj* l_lean_format_repr___main___closed__3;
-obj* l_lean_has__repr;
-obj* l_lean_format_space__upto__line___main___lambda__1(obj*, obj*, obj*);
-obj* l_lean_uint16__has__to__format(unsigned short);
-obj* l_lean_format_has__append(obj*, obj*);
-obj* l_lean_format_repr___main___closed__4;
-obj* l_lean_uint64__has__to__format___boxed(obj*);
-obj* l_id___rarg(obj*);
-obj* l_lean_format_join__sep___main(obj*);
-obj* l_lean_to__string__to__format___rarg___lambda__1(obj*);
-obj* l_lean_format__has__to__string(obj*);
-obj* l_lean_usize__has__to__format___boxed(obj*);
-obj* l_lean_format_join___closed__1;
-obj* l_lean_format_sbracket___closed__1;
-obj* l_lean_format_repr___main___closed__6;
-obj* l_lean_format_sbracket(obj*);
-obj* l_lean_prod__has__to__format(obj*, obj*);
-obj* l_lean_format_space__upto__line_x_27___main___lambda__1(obj*, obj*, obj*);
-obj* l_lean_nat__has__to__format(obj*);
-obj* l_lean_string__has__to__format(obj*);
-obj* l_lean_format_join__suffix(obj*);
-obj* l_lean_to__fmt(obj*);
-obj* l_lean_format_paren___closed__3;
-obj* l_lean_list_to__format(obj*);
-obj* l_lean_format_sbracket___closed__2;
-obj* l_lean_format_join__suffix___rarg(obj*, obj*, obj*);
-obj* l_lean_format_repr___main___closed__1;
-obj* l_lean_uint16__has__to__format___boxed(obj*);
-obj* l_lean_to__string__to__format(obj*);
-obj* l_lean_format_join(obj*);
-obj* l_lean_usize__has__to__format(size_t);
-obj* l_lean_prod__has__to__format___rarg___closed__1;
-obj* l_lean_format_flatten(obj*);
-obj* l_lean_list__has__to__format(obj*);
-obj* l_lean_format_flatten___main___closed__1;
-obj* l_nat_repeat___main___at_string_pushn___spec__1(obj*, unsigned, obj*);
-obj* l_lean_format_be___main(obj*, obj*, obj*, obj*);
-obj* l_lean_format_repr___main(obj*);
-obj* l_lean_format_prefix__join___main___rarg(obj*, obj*, obj*);
-obj* l_lean_list__has__to__format___rarg(obj*);
-obj* l_lean_to__fmt___rarg(obj*, obj*);
-obj* l_lean_format_be___main___closed__1;
-obj* l_lean_format__has__to__format;
-obj* l_lean_format_join__sep___main___at_lean_list_to__format___main___spec__1(obj*);
-extern obj* l_string_join___closed__1;
-obj* l_lean_format_group(obj*);
-obj* l_nat_repr(obj*);
-obj* l_lean_format_paren___closed__1;
-obj* l_lean_format_pretty(obj*, obj*);
-obj* l_lean_format_sbracket___closed__3;
-obj* l_lean_uint32__has__to__format(unsigned);
-obj* l_lean_format_prefix__join(obj*);
-obj* l_lean_format_paren___closed__2;
-obj* l_lean_format_join__suffix___main(obj*);
-obj* l_lean_uint32__has__to__format___boxed(obj*);
-obj* l_lean_format_space__upto__line_x_27(obj*, obj*);
-obj* l_lean_format_join__sep___main___at_lean_list_to__format___main___spec__1___rarg(obj*, obj*, obj*);
-obj* l_lean_format_prefix__join___main(obj*);
-obj* l_lean_format_be(obj*, obj*, obj*, obj*);
-obj* l_lean_format_group___main(obj*);
-obj* l_lean_format_repr(obj*);
-obj* l_lean_format_join__sep(obj*);
-obj* l_lean_format_space__upto__line___main___closed__1;
-obj* l_lean_prod__has__to__format___rarg(obj*, obj*, obj*);
 obj* l_string_quote(obj*);
+obj* l_lean_list_to__format___main___rarg___closed__1;
+obj* l_lean_to__string__to__format___rarg___lambda__1(obj*);
+obj* l_lean_uint64__has__to__format(unsigned long long);
+obj* l_lean_format_repr(obj*);
+obj* l_lean_format_prefix__join___rarg(obj*, obj*, obj*);
+obj* l_lean_to__fmt(obj*);
+obj* l_lean_format_sbracket___closed__2;
+obj* l_function_comp___rarg(obj*, obj*, obj*);
+obj* l_lean_format_join__suffix___main(obj*);
+obj* l_lean_format_be(obj*, obj*, obj*, obj*);
+obj* l_lean_to__string__to__format___rarg(obj*);
+obj* l_lean_list_to__format___rarg(obj*, obj*);
+obj* l_lean_uint64__has__to__format___boxed(obj*);
+obj* l_lean_format_join__sep___main(obj*);
 obj* l___private_3682637481__merge(obj*, obj*, obj*);
+obj* l_lean_format_space__upto__line(obj*, obj*);
+obj* l_lean_uint32__has__to__format___boxed(obj*);
+obj* l_lean_uint32__has__to__format(unsigned);
+obj* l_lean_format_space__upto__line_x_27___main(obj*, obj*);
+obj* l_lean_list_to__format(obj*);
+obj* l_lean_format_space__upto__line_x_27(obj*, obj*);
+obj* l_lean_format_sbracket(obj*);
+obj* l_lean_format_repr___main___closed__7;
+obj* l_lean_format_be___main___closed__1;
+obj* l_lean_format_sbracket___closed__1;
+obj* l_lean_format_be___main(obj*, obj*, obj*, obj*);
+obj* l_lean_format_space__upto__line___main___closed__2;
+obj* l_lean_format_repr___main___closed__4;
+obj* l_lean_list_to__format___main___rarg___closed__2;
+obj* l_lean_list_to__format___main(obj*);
+obj* l_lean_format_join(obj*);
+extern obj* l_string_join___closed__1;
+obj* l_id___rarg(obj*);
+obj* l_lean_format_has__coe(obj*);
+obj* l_lean_format_prefix__join___main(obj*);
+obj* l_lean_list__has__to__format(obj*);
+obj* l_lean_format_has__append(obj*, obj*);
+obj* l_lean_format_group___main(obj*);
+obj* l_lean_list__has__to__format___rarg(obj*);
+obj* l_lean_format_paren___closed__3;
+obj* l_lean_format_paren(obj*);
+obj* l_lean_format_repr___main(obj*);
+obj* l_lean_format_join__suffix(obj*);
+obj* l_lean_format_join__sep___rarg(obj*, obj*, obj*);
+obj* l_lean_format_pretty(obj*, obj*);
+obj* l_lean_format_group(obj*);
+obj* l_lean_to__fmt___rarg(obj*, obj*);
+obj* l_lean_prod__has__to__format___rarg(obj*, obj*, obj*);
+obj* l_lean_format_space__upto__line___main___closed__1;
+obj* l_lean_format_repr___main___closed__6;
+obj* l_lean_format_space__upto__line___main___lambda__1(obj*, obj*, obj*);
+obj* l_list_foldl___main___at_lean_format_join___spec__1(obj*, obj*);
+obj* l_lean_format_flatten___main___closed__1;
+obj* l_lean_format_flatten(obj*);
+obj* l_lean_prod__has__to__format(obj*, obj*);
+obj* l_lean_format_join__suffix___main___rarg(obj*, obj*, obj*);
+obj* l_lean_format_paren___closed__2;
+obj* l_lean_format__has__to__format;
+obj* l_lean_format_repr___main___closed__3;
+obj* l_lean_format_prefix__join___main___rarg(obj*, obj*, obj*);
+obj* l_lean_format_sbracket___closed__3;
+obj* l_lean_format_join__sep___main___at_lean_list_to__format___main___spec__1(obj*);
+obj* l_lean_format__has__to__string(obj*);
+obj* l_nat_repr(obj*);
+obj* l_lean_string__has__to__format(obj*);
+obj* l_lean_uint16__has__to__format(unsigned short);
+obj* l_lean_format_repr___main___closed__1;
+obj* l_lean_usize__has__to__format(size_t);
+obj* l_lean_format_join__sep(obj*);
+obj* l_lean_format_repr___main___closed__2;
+obj* l_nat_repeat___main___at_string_pushn___spec__1(obj*, unsigned, obj*);
+obj* l_lean_format_join__suffix___rarg(obj*, obj*, obj*);
+obj* l_lean_format_bracket(obj*, obj*, obj*);
+obj* l_lean_to__string__to__format(obj*);
+obj* l_lean_format_join__sep___main___at_lean_list_to__format___main___spec__1___rarg(obj*, obj*, obj*);
 obj* l_lean_format_has__append(obj* x_0, obj* x_1) {
 _start:
 {
@@ -224,8 +224,8 @@ return x_18;
 }
 else
 {
-lean::dec(x_9);
 lean::dec(x_11);
+lean::dec(x_9);
 return x_0;
 }
 }
@@ -425,8 +425,8 @@ return x_39;
 }
 else
 {
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 return x_14;
 }
 }
@@ -476,8 +476,8 @@ return x_63;
 }
 else
 {
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 return x_14;
 }
 }
@@ -491,8 +491,8 @@ switch (lean::obj_tag(x_0)) {
 case 0:
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = l_lean_format_space__upto__line___main___closed__1;
 lean::inc(x_4);
 return x_4;
@@ -500,8 +500,8 @@ return x_4;
 case 1:
 {
 obj* x_8; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_8 = l_lean_format_space__upto__line___main___closed__2;
 lean::inc(x_8);
 return x_8;
@@ -637,8 +637,8 @@ _start:
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = l_lean_format_space__upto__line___main___closed__1;
 lean::inc(x_4);
 return x_4;
@@ -688,9 +688,9 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
+lean::dec(x_0);
 return x_2;
 }
 else
@@ -723,20 +723,20 @@ if (lean::is_shared(x_7)) {
 switch (lean::obj_tag(x_14)) {
 case 0:
 {
-lean::dec(x_14);
 lean::dec(x_16);
-lean::dec(x_11);
+lean::dec(x_14);
 lean::dec(x_12);
+lean::dec(x_11);
 x_3 = x_9;
 goto _start;
 }
 case 1:
 {
 obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; 
-lean::dec(x_14);
 lean::dec(x_16);
-lean::dec(x_11);
+lean::dec(x_14);
 lean::dec(x_1);
+lean::dec(x_11);
 x_26 = l_lean_format_be___main___closed__1;
 x_27 = lean::string_append(x_2, x_26);
 x_28 = lean::mk_nat_obj(32u);
@@ -775,8 +775,8 @@ lean::dec(x_45);
 if (lean::obj_tag(x_46) == 0)
 {
 obj* x_50; unsigned x_51; obj* x_54; 
-lean::dec(x_46);
 lean::dec(x_28);
+lean::dec(x_46);
 x_50 = lean::mk_nat_obj(0u);
 x_51 = lean::unbox_uint32(x_50);
 lean::dec(x_50);
@@ -820,8 +820,8 @@ case 2:
 {
 obj* x_71; obj* x_74; obj* x_75; obj* x_78; 
 lean::dec(x_16);
-lean::dec(x_11);
 lean::dec(x_12);
+lean::dec(x_11);
 x_71 = lean::cnstr_get(x_14, 0);
 lean::inc(x_71);
 lean::dec(x_14);
@@ -1211,8 +1211,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_6; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_6 = lean::box(0);
 return x_6;
@@ -1288,8 +1288,8 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_6; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_6 = lean::box(0);
 return x_6;
@@ -1353,8 +1353,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_6; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_6 = lean::box(0);
 return x_6;
@@ -1418,8 +1418,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = l_lean_list_to__format___main___rarg___closed__1;
 lean::inc(x_4);
 return x_4;
@@ -1497,8 +1497,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_6; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_2);
 x_6 = lean::box(0);
 return x_6;

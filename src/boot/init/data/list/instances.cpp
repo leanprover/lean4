@@ -10,43 +10,43 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_list_bind(obj*, obj*);
-obj* l_list_map___main___at_list_monad___spec__3___rarg(obj*, obj*);
-obj* l_list_map___main___at_list_alternative___spec__1___rarg(obj*, obj*);
-obj* l_list_map(obj*, obj*);
+obj* l_list_map___main___at_list_monad___spec__1___rarg(obj*, obj*);
+obj* l_list_alternative___lambda__2(obj*, obj*, obj*, obj*);
+obj* l_list_map___main___rarg(obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__5(obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__3___rarg(obj*, obj*);
+obj* l_list_map___main___at_list_monad___spec__1(obj*, obj*);
+obj* l_list_monad___lambda__2(obj*, obj*, obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__3(obj*, obj*);
+obj* l_list_map___main___at_list_monad___spec__4(obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__1(obj*, obj*);
+obj* l_list_join___main___rarg(obj*);
 obj* l_list_map___main___at_list_alternative___spec__2(obj*, obj*);
+obj* l_list_alternative;
+obj* l_list_map___main___at_list_alternative___spec__2___rarg(obj*, obj*);
+obj* l_list_monad___lambda__3(obj*, obj*, obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__4(obj*, obj*);
+obj* l_list_map___main___at_list_monad___spec__3(obj*, obj*);
+obj* l_list_ret(obj*);
+obj* l_list_map___main___at_list_monad___spec__2(obj*, obj*);
+obj* l_list_alternative___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_list_alternative___lambda__3(obj*, obj*, obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__1___rarg(obj*, obj*);
+obj* l_list_append(obj*);
 obj* l_list_alternative___lambda__5(obj*);
 obj* l_list_map___main___at_list_monad___spec__4___rarg(obj*, obj*);
-obj* l_list_map___main___at_list_alternative___spec__3___rarg(obj*, obj*);
-obj* l_list_map___main___at_list_alternative___spec__5(obj*, obj*);
-obj* l_list_alternative___lambda__2(obj*, obj*, obj*, obj*);
-obj* l_list_map___main___at_list_monad___spec__3(obj*, obj*);
-obj* l_list_monad___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_list_map___main___at_list_alternative___spec__4___rarg(obj*, obj*);
-obj* l_list_map___main___at_list_monad___spec__2(obj*, obj*);
-obj* l_list_map___main___at_list_monad___spec__1___rarg(obj*, obj*);
-obj* l_list_alternative___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_list_alternative___lambda__4(obj*, obj*, obj*, obj*);
-obj* l_list_ret(obj*);
-obj* l_list_map___main___at_list_alternative___spec__5___rarg(obj*, obj*);
-obj* l_list_map___main___at_list_monad___spec__4(obj*, obj*);
-obj* l_list_monad;
-obj* l_list_map___main___at_list_monad___spec__1(obj*, obj*);
-obj* l_list_map___main___at_list_alternative___spec__4(obj*, obj*);
 obj* l_list_map___main___at_list_monad___spec__2___rarg(obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__5___rarg(obj*, obj*);
+obj* l_list_map(obj*, obj*);
+obj* l_list_monad___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_list_bind(obj*, obj*);
 obj* l_list_map___main___at_list_monad___spec__5___rarg(obj*, obj*);
-obj* l_list_map___main___at_list_alternative___spec__1(obj*, obj*);
-obj* l_list_append(obj*);
-obj* l_list_join___main___rarg(obj*);
-obj* l_list_alternative;
-obj* l_list_map___main___at_list_alternative___spec__3(obj*, obj*);
-obj* l_list_monad___lambda__3(obj*, obj*, obj*, obj*);
-obj* l_list_monad___lambda__4(obj*, obj*, obj*, obj*);
-obj* l_list_map___main___rarg(obj*, obj*);
-obj* l_list_alternative___lambda__3(obj*, obj*, obj*, obj*);
-obj* l_list_map___main___at_list_alternative___spec__2___rarg(obj*, obj*);
-obj* l_list_monad___lambda__2(obj*, obj*, obj*, obj*);
+obj* l_list_map___main___at_list_monad___spec__3___rarg(obj*, obj*);
+obj* l_list_map___main___at_list_alternative___spec__4___rarg(obj*, obj*);
+obj* l_list_monad;
 obj* l_list_map___main___at_list_monad___spec__5(obj*, obj*);
+obj* l_list_monad___lambda__4(obj*, obj*, obj*, obj*);
 obj* _init_l_list_monad() {
 _start:
 {
@@ -122,8 +122,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -169,8 +169,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -219,8 +219,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -270,8 +270,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -321,8 +321,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -448,8 +448,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -495,8 +495,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -545,8 +545,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -596,8 +596,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }
@@ -647,8 +647,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_4 = lean::box(0);
 return x_4;
 }

@@ -10,11 +10,11 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_match__failed___rarg___closed__1;
-obj* l_match__failed___rarg(obj*);
 obj* l_monad__fail__lift(obj*, obj*);
-obj* l_match__failed(obj*, obj*);
 obj* l_monad__fail__lift___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_match__failed___rarg(obj*);
+obj* l_match__failed(obj*, obj*);
+obj* l_match__failed___rarg___closed__1;
 obj* l_match__failed___rarg(obj* x_0) {
 _start:
 {

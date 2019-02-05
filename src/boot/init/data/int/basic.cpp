@@ -10,58 +10,58 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_int_div(obj*, obj*);
-obj* l_int_repr___main___closed__1;
-obj* l_int_lt;
-obj* l_int_quot___main(obj*, obj*);
-obj* l_int_sign___main(obj*);
-obj* l_int_repr___main(obj*);
-obj* l_int_le;
-obj* l_int_neg___main(obj*);
-obj* l_int_mod___main(obj*, obj*);
-obj* l_int_to__nat(obj*);
-obj* l_int_fdiv(obj*, obj*);
-extern obj* l_true_decidable;
-obj* l_int_div___main(obj*, obj*);
-obj* l_int_has__neg;
-obj* l___private_3285259795__dec__nonneg___main(obj*);
-obj* l___private_1805987925__nonneg___main;
-obj* l_int_nat__mod(obj*, obj*);
-obj* l_int_sign(obj*);
-obj* l_int_has__mod;
-obj* l_int_add___main(obj*, obj*);
-obj* l___private_3285259795__dec__nonneg(obj*);
-obj* l_int_fmod(obj*, obj*);
-obj* l_int_one;
-obj* l_int_sub__nat__nat(obj*, obj*);
-obj* l_int_rem___main(obj*, obj*);
-obj* l_int_has__coe(obj*);
-obj* l_int_has__one;
-obj* l_int_zero;
-obj* l_int_has__to__string;
-obj* l_int_has__le;
-obj* l___private_1805987925__nonneg;
-obj* l_int_has__mul;
-obj* l_int_neg__of__nat___main(obj*);
-obj* l_int_fdiv___main(obj*, obj*);
-obj* l_int_has__repr;
-obj* l_nat_repr(obj*);
-obj* l_int_sign___main___closed__1;
-obj* l_int_nat__abs___main___closed__1;
-obj* l_int_mul___main(obj*, obj*);
-obj* l_int_has__sub;
-obj* l_int_has__zero;
-obj* l_int_has__div;
-obj* l_int_mod(obj*, obj*);
-obj* l_int_has__lt;
 obj* l_int_repr(obj*);
-obj* l_int_neg__of__nat(obj*);
-obj* l_int_has__add;
+obj* l_int_has__repr;
 obj* l_dec__eq(obj*, obj*);
+obj* l_int_neg__of__nat(obj*);
+extern obj* l_true_decidable;
+obj* l_int_fdiv___main(obj*, obj*);
+obj* l_int_has__sub;
+obj* l_int_mul___main(obj*, obj*);
 obj* l_int_nat__abs___main(obj*);
-obj* l_int_fmod___main(obj*, obj*);
-obj* l_int_to__nat___main(obj*);
 extern obj* l_false_decidable;
+obj* l_int_repr___main(obj*);
+obj* l_int_mod(obj*, obj*);
+obj* l___private_1805987925__nonneg;
+obj* l_int_to__nat___main(obj*);
+obj* l_int_nat__abs___main___closed__1;
+obj* l_int_quot___main(obj*, obj*);
+obj* l_int_has__mul;
+obj* l___private_1805987925__nonneg___main;
+obj* l_int_lt;
+obj* l_int_neg__of__nat___main(obj*);
+obj* l_int_has__lt;
+obj* l_int_add___main(obj*, obj*);
+obj* l_int_sub__nat__nat(obj*, obj*);
+obj* l_int_zero;
+obj* l_int_has__div;
+obj* l_int_div___main(obj*, obj*);
+obj* l___private_3285259795__dec__nonneg___main(obj*);
+obj* l_int_has__mod;
+obj* l_int_sign(obj*);
+obj* l_int_repr___main___closed__1;
+obj* l_int_to__nat(obj*);
+obj* l_int_has__coe(obj*);
+obj* l_int_has__le;
+obj* l_int_has__one;
+obj* l_int_div(obj*, obj*);
+obj* l_int_fdiv(obj*, obj*);
+obj* l_int_neg___main(obj*);
+obj* l_int_nat__mod(obj*, obj*);
+obj* l___private_3285259795__dec__nonneg(obj*);
+obj* l_int_has__neg;
+obj* l_int_fmod___main(obj*, obj*);
+obj* l_int_fmod(obj*, obj*);
+obj* l_int_rem___main(obj*, obj*);
+obj* l_int_has__to__string;
+obj* l_int_mod___main(obj*, obj*);
+obj* l_nat_repr(obj*);
+obj* l_int_sign___main(obj*);
+obj* l_int_has__add;
+obj* l_int_le;
+obj* l_int_has__zero;
+obj* l_int_sign___main___closed__1;
+obj* l_int_one;
 obj* l_int_has__coe(obj* x_0) {
 _start:
 {
@@ -139,8 +139,8 @@ else
 {
 obj* x_17; 
 lean::dec(x_5);
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_17 = lean::box(0);
 return x_17;
 }
@@ -153,8 +153,8 @@ x_19 = lean::int_dec_lt(x_1, x_2);
 if (lean::obj_tag(x_19) == 0)
 {
 obj* x_23; 
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 lean::dec(x_19);
 x_23 = lean::box(0);
 return x_23;
@@ -337,8 +337,8 @@ if (lean::obj_tag(x_4) == 0)
 {
 obj* x_9; obj* x_10; obj* x_13; 
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
+lean::dec(x_0);
 x_9 = lean::mk_nat_obj(1u);
 x_10 = lean::nat_sub(x_2, x_9);
 lean::dec(x_9);
@@ -726,8 +726,8 @@ x_38 = lean::int_dec_lt(x_1, x_2);
 if (lean::obj_tag(x_38) == 0)
 {
 obj* x_41; obj* x_43; obj* x_44; 
-lean::dec(x_38);
 lean::dec(x_35);
+lean::dec(x_38);
 x_41 = lean::nat_abs(x_1);
 lean::dec(x_1);
 x_43 = lean::mk_nat_obj(0u);
@@ -747,9 +747,9 @@ return x_50;
 else
 {
 obj* x_55; 
+lean::dec(x_36);
 lean::dec(x_41);
 lean::dec(x_44);
-lean::dec(x_36);
 x_55 = l_int_zero;
 lean::inc(x_55);
 return x_55;
@@ -895,8 +895,8 @@ else
 {
 obj* x_39; 
 lean::dec(x_5);
-lean::dec(x_8);
 lean::dec(x_1);
+lean::dec(x_8);
 x_39 = l_int_zero;
 lean::inc(x_39);
 return x_39;
@@ -936,9 +936,9 @@ return x_59;
 else
 {
 obj* x_64; 
+lean::dec(x_53);
 lean::dec(x_45);
 lean::dec(x_50);
-lean::dec(x_53);
 x_64 = l_int_zero;
 lean::inc(x_64);
 return x_64;
@@ -1032,8 +1032,8 @@ else
 {
 obj* x_37; 
 lean::dec(x_5);
-lean::dec(x_8);
 lean::dec(x_1);
+lean::dec(x_8);
 x_37 = l_int_zero;
 lean::inc(x_37);
 return x_37;

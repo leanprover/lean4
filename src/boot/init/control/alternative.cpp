@@ -10,22 +10,22 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_guardb___rarg(obj*, unsigned char);
-obj* l_guardb___main___rarg___boxed(obj*, obj*);
-obj* l_guardb(obj*);
 obj* l_guardb___rarg___boxed(obj*, obj*);
-obj* l_failure___rarg(obj*, obj*);
-obj* l_optional___rarg___closed__1;
+obj* l_guard(obj*);
+obj* l_guardb___main(obj*);
+obj* l_assert___rarg(obj*, obj*, obj*);
+obj* l_guardb___main___rarg___boxed(obj*, obj*);
+obj* l_optional___rarg___lambda__1(obj*);
 obj* l_guard___rarg(obj*, obj*, obj*);
 obj* l_assert(obj*);
-obj* l_failure(obj*);
 obj* l_guardb___main___rarg(obj*, unsigned char);
-obj* l_assert___rarg(obj*, obj*, obj*);
-obj* l_optional___rarg___lambda__1(obj*);
-obj* l_guardb___main(obj*);
 obj* l_optional___rarg(obj*, obj*, obj*);
+obj* l_failure___rarg(obj*, obj*);
+obj* l_failure(obj*);
+obj* l_guardb(obj*);
 obj* l_optional(obj*);
-obj* l_guard(obj*);
+obj* l_optional___rarg___closed__1;
+obj* l_guardb___rarg(obj*, unsigned char);
 obj* l_failure___rarg(obj* x_0, obj* x_1) {
 _start:
 {

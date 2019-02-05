@@ -10,50 +10,50 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_rbmap_insert___main___at_lean_trace_lean_trace_monad__tracer___spec__1(obj*, obj*, obj*);
-obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4(obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__4(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_trace___rarg(obj*, obj*, obj*, obj*);
-unsigned char l_rbnode_get__color___main___rarg(obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__10(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_monad(obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
-obj* l_rbnode_balance2__node___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_trace_pp(obj*);
-obj* l_list_foldl___main___at_lean_format_join___spec__1(obj*, obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__1(obj*, obj*, obj*);
-obj* l_lean_trace_trace__t_run___rarg___lambda__1(obj*, obj*);
-obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__12(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_trace__t_run(obj*, obj*);
-obj* l_lean_trace_trace(obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__6(obj*, obj*, obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__8(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_trace__t;
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__11(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_trace__map;
-obj* l_lean_trace_lean_trace_monad__tracer(obj*);
-extern obj* l_lean_format_join___closed__1;
-obj* l_rbnode_insert___at_lean_trace_lean_trace_monad__tracer___spec__2(obj*, obj*, obj*);
-obj* l_lean_position_decidable__lt___main(obj*, obj*);
-obj* l_state__t_monad___rarg(obj*);
-obj* l_lean_trace_trace__t_run___rarg(obj*, obj*, obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__9(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__7(obj*, obj*);
-obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_lean_trace_trace___rarg___lambda__1(obj*, obj*);
-obj* l_lean_kvmap_get__bool(obj*, obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg(obj*);
-obj* l_rbnode_ins___main___at_lean_trace_lean_trace_monad__tracer___spec__3(obj*, obj*, obj*);
-obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_list_append___main___rarg(obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__7(obj*, obj*);
+obj* l_rbnode_balance2__node___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_trace_pp___main(obj*);
-obj* l_lean_has__coe(obj*);
-obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__5(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_list_map___main___at_lean_trace_pp___main___spec__1(obj*);
+obj* l_lean_trace_trace__map;
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__9(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+extern obj* l_lean_format_join___closed__1;
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__8(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_trace_trace__t_run(obj*, obj*);
+obj* l_lean_kvmap_get__bool(obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer(obj*);
+obj* l_rbnode_ins___main___at_lean_trace_lean_trace_monad__tracer___spec__3(obj*, obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__10(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_rbnode_mk__insert__result___main___rarg(unsigned char, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__11(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg(obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__12(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_list_append___main___rarg(obj*, obj*);
+obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_trace_trace__t_run___rarg___lambda__1(obj*, obj*);
+obj* l_rbmap_insert___main___at_lean_trace_lean_trace_monad__tracer___spec__1(obj*, obj*, obj*);
+obj* l_lean_trace_monad(obj*);
+obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_lean_trace_trace___rarg(obj*, obj*, obj*, obj*);
+obj* l_lean_has__coe(obj*);
+obj* l_state__t_monad___rarg(obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__5(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_trace_trace(obj*);
+obj* l_list_foldl___main___at_lean_format_join___spec__1(obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__4(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_lean_trace_trace__t_run___rarg(obj*, obj*, obj*);
+unsigned char l_rbnode_get__color___main___rarg(obj*);
 obj* l_lean_trace_monad___rarg(obj*);
+obj* l_lean_trace_trace__t;
+obj* l_lean_position_decidable__lt___main(obj*, obj*);
+obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4(obj*);
+obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_lean_trace_pp(obj*);
+obj* l_rbnode_insert___at_lean_trace_lean_trace_monad__tracer___spec__2(obj*, obj*, obj*);
+obj* l_list_map___main___at_lean_trace_pp___main___spec__1(obj*);
+obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__6(obj*, obj*, obj*);
 obj* l_lean_has__coe(obj* x_0) {
 _start:
 {
@@ -350,9 +350,9 @@ if (lean::obj_tag(x_17) == 0)
 obj* x_24; obj* x_26; 
 lean::dec(x_11);
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
+lean::dec(x_0);
 lean::dec(x_17);
 x_24 = lean::thunk_get(x_2);
 lean::dec(x_2);
@@ -372,9 +372,9 @@ if (x_30 == 0)
 obj* x_37; obj* x_39; 
 lean::dec(x_11);
 lean::dec(x_4);
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_3);
+lean::dec(x_0);
 x_37 = lean::thunk_get(x_2);
 lean::dec(x_2);
 x_39 = lean::apply_1(x_37, x_9);
@@ -594,15 +594,15 @@ if (lean::is_shared(x_8)) {
 if (lean::obj_tag(x_9) == 0)
 {
 obj* x_23; obj* x_25; 
+lean::dec(x_5);
 lean::dec(x_9);
 lean::dec(x_13);
-lean::dec(x_4);
-lean::dec(x_5);
-lean::dec(x_6);
 lean::dec(x_7);
+lean::dec(x_4);
 lean::dec(x_1);
-lean::dec(x_2);
+lean::dec(x_6);
 lean::dec(x_3);
+lean::dec(x_2);
 x_23 = lean::thunk_get(x_0);
 lean::dec(x_0);
 x_25 = lean::apply_1(x_23, x_11);
@@ -619,9 +619,9 @@ x_34 = l_lean_kvmap_get__bool(x_27, x_7);
 if (lean::obj_tag(x_34) == 0)
 {
 obj* x_40; 
+lean::dec(x_5);
 lean::dec(x_13);
 lean::dec(x_4);
-lean::dec(x_5);
 lean::dec(x_6);
 lean::dec(x_34);
 x_40 = lean::box(0);
@@ -639,9 +639,9 @@ lean::dec(x_41);
 if (x_44 == 0)
 {
 obj* x_50; 
+lean::dec(x_5);
 lean::dec(x_13);
 lean::dec(x_4);
-lean::dec(x_5);
 lean::dec(x_6);
 x_50 = lean::box(0);
 x_29 = x_50;
@@ -839,8 +839,8 @@ if (lean::obj_tag(x_20) == 0)
 {
 obj* x_24; 
 lean::dec(x_20);
-lean::dec(x_7);
 lean::dec(x_9);
+lean::dec(x_7);
 if (lean::is_scalar(x_13)) {
  x_24 = lean::alloc_cnstr(1, 4, 0);
 } else {

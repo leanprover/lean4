@@ -10,8 +10,8 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_lean_options_mk;
 obj* l_lean_options;
+obj* l_lean_options_mk;
 obj* _init_l_lean_options() {
 _start:
 {

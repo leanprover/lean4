@@ -11,13 +11,13 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* l_mix__hash___closed__1___boxed;
-obj* l_nat_hash___boxed(obj*);
-obj* l_mix__hash(size_t, size_t);
-size_t l_nat_hash(obj*);
-obj* l_mix__hash___boxed(obj*, obj*);
-obj* l_nat_hashable;
-obj* l_string_hashable;
 size_t l_string_hash(obj*);
+obj* l_string_hashable;
+obj* l_nat_hashable;
+obj* l_nat_hash___boxed(obj*);
+obj* l_mix__hash___boxed(obj*, obj*);
+size_t l_nat_hash(obj*);
+obj* l_mix__hash(size_t, size_t);
 obj* l_string_hash___boxed(obj*);
 size_t l_mix__hash___closed__1;
 obj* l_mix__hash(size_t x_0, size_t x_1) {

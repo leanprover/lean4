@@ -10,27 +10,27 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-unsigned char l_ordering_or__else(unsigned char, unsigned char);
-obj* l_ordering_has__repr___boxed(obj*);
-obj* l_ordering_swap___main___boxed(obj*);
-unsigned char l_ordering_or__else___main(unsigned char, unsigned char);
-unsigned char l_ordering_swap(unsigned char);
-unsigned char l_ordering_swap___main(unsigned char);
 obj* l_cmp(obj*, obj*);
-obj* l_cmp__using(obj*, obj*);
-obj* l_ordering_has__repr___closed__3;
-obj* l_ordering_or__else___main___boxed(obj*, obj*);
-obj* l_cmp__using___rarg___boxed(obj*, obj*, obj*);
-unsigned char l_cmp___rarg(obj*, obj*, obj*);
-obj* l_ordering_has__repr(unsigned char);
-obj* l_ordering_swap___boxed(obj*);
-obj* l_ordering_decidable__eq(unsigned char, unsigned char);
 obj* l_ordering_or__else___boxed(obj*, obj*);
-obj* l_ordering_has__repr___closed__1;
-obj* l_ordering_has__repr___closed__2;
-unsigned char l_cmp__using___rarg(obj*, obj*, obj*);
-obj* l_ordering_decidable__eq___boxed(obj*, obj*);
 obj* l_cmp___rarg___boxed(obj*, obj*, obj*);
+unsigned char l_ordering_swap___main(unsigned char);
+unsigned char l_cmp__using___rarg(obj*, obj*, obj*);
+obj* l_ordering_or__else___main___boxed(obj*, obj*);
+obj* l_ordering_swap___boxed(obj*);
+obj* l_cmp__using(obj*, obj*);
+obj* l_ordering_swap___main___boxed(obj*);
+unsigned char l_ordering_or__else(unsigned char, unsigned char);
+obj* l_ordering_decidable__eq(unsigned char, unsigned char);
+obj* l_ordering_has__repr___closed__1;
+unsigned char l_ordering_swap(unsigned char);
+obj* l_ordering_has__repr(unsigned char);
+obj* l_ordering_decidable__eq___boxed(obj*, obj*);
+obj* l_ordering_has__repr___closed__2;
+unsigned char l_ordering_or__else___main(unsigned char, unsigned char);
+obj* l_ordering_has__repr___closed__3;
+unsigned char l_cmp___rarg(obj*, obj*, obj*);
+obj* l_cmp__using___rarg___boxed(obj*, obj*, obj*);
+obj* l_ordering_has__repr___boxed(obj*);
 obj* l_ordering_has__repr(unsigned char x_0) {
 _start:
 {
@@ -223,10 +223,10 @@ return x_12;
 else
 {
 unsigned char x_17; 
-lean::dec(x_0);
 lean::dec(x_1);
-lean::dec(x_2);
 lean::dec(x_6);
+lean::dec(x_0);
+lean::dec(x_2);
 x_17 = 0;
 return x_17;
 }
@@ -282,10 +282,10 @@ return x_12;
 else
 {
 unsigned char x_17; 
-lean::dec(x_0);
 lean::dec(x_1);
-lean::dec(x_2);
 lean::dec(x_6);
+lean::dec(x_0);
+lean::dec(x_2);
 x_17 = 0;
 return x_17;
 }

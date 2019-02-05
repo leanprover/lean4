@@ -10,37 +10,37 @@ typedef lean::object obj;
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-obj* l_char_has__sizeof___boxed(obj*);
-obj* l_char_dec__lt(unsigned, unsigned);
-obj* l_char_lt;
-obj* l_char_to__nat___boxed(obj*);
-obj* l_is__valid__char;
-obj* l_char_dec__le(unsigned, unsigned);
-unsigned char l_char_is__alphanum(unsigned);
-unsigned char l_char_is__digit(unsigned);
-obj* l_char_is__lower___boxed(obj*);
-obj* l_char_inhabited;
-obj* l_char_has__lt;
-obj* l_char_dec__le___boxed(obj*, obj*);
-unsigned char l_char_is__alpha(unsigned);
-unsigned char l_char_is__upper(unsigned);
-unsigned l_char_to__nat(unsigned);
-obj* l_char_le;
-unsigned l_char_has__sizeof(unsigned);
-obj* l_char_is__alphanum___boxed(obj*);
-obj* l_char_to__lower___boxed(obj*);
-unsigned char l_char_is__lower(unsigned);
-obj* l_char_of__nat(obj*);
-obj* l_char_is__whitespace___boxed(obj*);
-obj* l_char_to__lower(unsigned);
-obj* l_char_has__le;
 unsigned char l_char_is__whitespace(unsigned);
-obj* l_char_dec__lt___boxed(obj*, obj*);
 obj* l_char_is__upper___boxed(obj*);
-obj* l_char_decidable__eq___boxed(obj*, obj*);
-obj* l_char_is__alpha___boxed(obj*);
-obj* l_char_decidable__eq(unsigned, unsigned);
+unsigned char l_char_is__lower(unsigned);
+obj* l_char_to__lower(unsigned);
 obj* l_char_is__digit___boxed(obj*);
+obj* l_char_dec__lt___boxed(obj*, obj*);
+unsigned char l_char_is__digit(unsigned);
+obj* l_char_of__nat(obj*);
+obj* l_char_has__lt;
+obj* l_char_is__alphanum___boxed(obj*);
+unsigned char l_char_is__upper(unsigned);
+unsigned char l_char_is__alpha(unsigned);
+obj* l_char_to__lower___boxed(obj*);
+obj* l_char_is__whitespace___boxed(obj*);
+obj* l_char_to__nat___boxed(obj*);
+obj* l_char_dec__le___boxed(obj*, obj*);
+obj* l_char_has__sizeof___boxed(obj*);
+obj* l_char_lt;
+obj* l_char_inhabited;
+unsigned l_char_has__sizeof(unsigned);
+obj* l_char_dec__lt(unsigned, unsigned);
+obj* l_char_is__lower___boxed(obj*);
+obj* l_char_decidable__eq___boxed(obj*, obj*);
+obj* l_char_dec__le(unsigned, unsigned);
+obj* l_char_has__le;
+unsigned char l_char_is__alphanum(unsigned);
+obj* l_char_le;
+obj* l_char_decidable__eq(unsigned, unsigned);
+unsigned l_char_to__nat(unsigned);
+obj* l_is__valid__char;
+obj* l_char_is__alpha___boxed(obj*);
 obj* _init_l_is__valid__char() {
 _start:
 {
@@ -431,8 +431,8 @@ lean::dec(x_62);
 if (lean::obj_tag(x_63) == 0)
 {
 obj* x_67; obj* x_68; obj* x_69; 
-lean::dec(x_63);
 lean::dec(x_57);
+lean::dec(x_63);
 x_67 = lean::mk_nat_obj(0u);
 x_68 = lean::box_uint32(x_0);
 x_69 = lean::nat_dec_eq(x_68, x_67);
@@ -543,8 +543,8 @@ lean::dec(x_112);
 if (lean::obj_tag(x_113) == 0)
 {
 obj* x_117; unsigned x_118; 
-lean::dec(x_113);
 lean::dec(x_105);
+lean::dec(x_113);
 x_117 = lean::mk_nat_obj(0u);
 x_118 = lean::unbox_uint32(x_117);
 lean::dec(x_117);
@@ -642,8 +642,8 @@ lean::dec(x_1);
 if (lean::obj_tag(x_3) == 0)
 {
 unsigned char x_7; 
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_2);
 x_7 = 0;
 return x_7;
 }
@@ -693,8 +693,8 @@ lean::dec(x_1);
 if (lean::obj_tag(x_3) == 0)
 {
 unsigned char x_7; 
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_2);
 x_7 = 0;
 return x_7;
 }
@@ -771,8 +771,8 @@ lean::dec(x_1);
 if (lean::obj_tag(x_3) == 0)
 {
 unsigned char x_7; 
-lean::dec(x_2);
 lean::dec(x_3);
+lean::dec(x_2);
 x_7 = 0;
 return x_7;
 }

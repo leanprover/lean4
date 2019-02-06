@@ -29,7 +29,7 @@ obj* l_lift__pair_u_2082(obj*, obj*, obj*);
 obj* l_coe__sort(obj*);
 obj* l_coe__option(obj*);
 obj* l_lift__t___rarg(obj*, obj*);
-obj* l_coe__decidable__eq(unsigned char);
+unsigned char l_coe__decidable__eq(unsigned char);
 obj* l_coe__t___rarg(obj*, obj*);
 obj* l_lift__refl(obj*);
 obj* l_lift__list___rarg(obj*, obj*);
@@ -409,21 +409,31 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* l_coe__decidable__eq(unsigned char x_0) {
+unsigned char l_coe__decidable__eq(unsigned char x_0) {
 _start:
 {
-obj* x_1; 
-x_1 = lean::box(x_0);
+if (x_0 == 0)
+{
+unsigned char x_1; 
+x_1 = 0;
 return x_1;
+}
+else
+{
+unsigned char x_2; 
+x_2 = 1;
+return x_2;
+}
 }
 }
 obj* l_coe__decidable__eq___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+unsigned char x_1; unsigned char x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
 x_2 = l_coe__decidable__eq(x_1);
-return x_2;
+x_3 = lean::box(x_2);
+return x_3;
 }
 }
 obj* l_coe__subtype___rarg(obj* x_0) {

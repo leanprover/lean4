@@ -32,7 +32,7 @@ obj* l_lean_message__log_has__errors(obj*);
 obj* l_lean_message_to__string(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_16; obj* x_17; obj* x_19; obj* x_20; unsigned char x_21; obj* x_22; obj* x_24; obj* x_25; obj* x_26; 
+obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_16; obj* x_17; obj* x_19; obj* x_20; unsigned char x_21; obj* x_22; obj* x_24; unsigned char x_25; obj* x_26; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 x_3 = l_lean_message_to__string___closed__1;
@@ -66,83 +66,77 @@ case 0:
 {
 obj* x_29; 
 x_29 = lean::string_append(x_20, x_24);
-if (lean::obj_tag(x_25) == 0)
+if (x_25 == 0)
 {
-obj* x_31; obj* x_32; obj* x_33; obj* x_35; 
-lean::dec(x_25);
-x_31 = l_lean_message_to__string___closed__3;
-x_32 = lean::string_append(x_22, x_31);
-x_33 = lean::string_append(x_29, x_32);
-lean::dec(x_32);
-x_35 = lean::string_append(x_33, x_26);
+obj* x_30; obj* x_31; obj* x_32; obj* x_34; 
+x_30 = l_lean_message_to__string___closed__3;
+x_31 = lean::string_append(x_22, x_30);
+x_32 = lean::string_append(x_29, x_31);
+lean::dec(x_31);
+x_34 = lean::string_append(x_32, x_26);
 lean::dec(x_26);
-return x_35;
+return x_34;
 }
 else
 {
-obj* x_39; obj* x_40; 
+obj* x_37; obj* x_38; 
 lean::dec(x_22);
-lean::dec(x_25);
-x_39 = lean::string_append(x_29, x_24);
-x_40 = lean::string_append(x_39, x_26);
+x_37 = lean::string_append(x_29, x_24);
+x_38 = lean::string_append(x_37, x_26);
 lean::dec(x_26);
-return x_40;
+return x_38;
 }
 }
 case 1:
 {
-obj* x_42; obj* x_43; 
-x_42 = l_lean_message_to__string___closed__4;
-x_43 = lean::string_append(x_20, x_42);
-if (lean::obj_tag(x_25) == 0)
+obj* x_40; obj* x_41; 
+x_40 = l_lean_message_to__string___closed__4;
+x_41 = lean::string_append(x_20, x_40);
+if (x_25 == 0)
 {
-obj* x_45; obj* x_46; obj* x_47; obj* x_49; 
-lean::dec(x_25);
-x_45 = l_lean_message_to__string___closed__3;
-x_46 = lean::string_append(x_22, x_45);
-x_47 = lean::string_append(x_43, x_46);
-lean::dec(x_46);
-x_49 = lean::string_append(x_47, x_26);
+obj* x_42; obj* x_43; obj* x_44; obj* x_46; 
+x_42 = l_lean_message_to__string___closed__3;
+x_43 = lean::string_append(x_22, x_42);
+x_44 = lean::string_append(x_41, x_43);
+lean::dec(x_43);
+x_46 = lean::string_append(x_44, x_26);
 lean::dec(x_26);
-return x_49;
+return x_46;
 }
 else
 {
-obj* x_53; obj* x_54; 
+obj* x_49; obj* x_50; 
 lean::dec(x_22);
-lean::dec(x_25);
-x_53 = lean::string_append(x_43, x_24);
-x_54 = lean::string_append(x_53, x_26);
+x_49 = lean::string_append(x_41, x_24);
+x_50 = lean::string_append(x_49, x_26);
 lean::dec(x_26);
-return x_54;
+return x_50;
 }
 }
 default:
 {
-obj* x_56; obj* x_57; 
-x_56 = l_lean_message_to__string___closed__5;
-x_57 = lean::string_append(x_20, x_56);
-if (lean::obj_tag(x_25) == 0)
+obj* x_52; obj* x_53; 
+x_52 = l_lean_message_to__string___closed__5;
+x_53 = lean::string_append(x_20, x_52);
+if (x_25 == 0)
 {
-obj* x_59; obj* x_60; obj* x_61; obj* x_63; 
-lean::dec(x_25);
-x_59 = l_lean_message_to__string___closed__3;
-x_60 = lean::string_append(x_22, x_59);
-x_61 = lean::string_append(x_57, x_60);
-lean::dec(x_60);
-x_63 = lean::string_append(x_61, x_26);
+obj* x_54; obj* x_55; obj* x_56; obj* x_58; 
+x_54 = l_lean_message_to__string___closed__3;
+x_55 = lean::string_append(x_22, x_54);
+x_56 = lean::string_append(x_53, x_55);
+lean::dec(x_55);
+x_58 = lean::string_append(x_56, x_26);
 lean::dec(x_26);
-return x_63;
+return x_58;
 }
 else
 {
-obj* x_67; obj* x_68; 
+obj* x_61; obj* x_62; 
 lean::dec(x_22);
-lean::dec(x_25);
-x_67 = lean::string_append(x_57, x_24);
-x_68 = lean::string_append(x_67, x_26);
+x_61 = lean::string_append(x_53, x_24);
+x_62 = lean::string_append(x_61, x_26);
 lean::dec(x_26);
-return x_68;
+return x_62;
 }
 }
 }

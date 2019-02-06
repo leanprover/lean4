@@ -793,9 +793,7 @@ inline bool nat_eq(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
-inline obj_res nat_dec_eq(b_obj_arg a1, b_obj_arg a2) {
-    return box(nat_eq(a1, a2));
-}
+inline uint8 nat_dec_eq(b_obj_arg a1, b_obj_arg a2) { return nat_eq(a1, a2); }
 
 inline bool nat_ne(b_obj_arg a1, b_obj_arg a2) {
     return !nat_eq(a1, a2);
@@ -809,9 +807,7 @@ inline bool nat_le(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
-inline obj_res nat_dec_le(b_obj_arg a1, b_obj_arg a2) {
-    return box(nat_le(a1, a2));
-}
+inline uint8 nat_dec_le(b_obj_arg a1, b_obj_arg a2) { return nat_le(a1, a2); }
 
 inline bool nat_lt(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
@@ -821,9 +817,7 @@ inline bool nat_lt(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
-inline obj_res nat_dec_lt(b_obj_arg a1, b_obj_arg a2) {
-    return box(nat_lt(a1, a2));
-}
+inline uint8 nat_dec_lt(b_obj_arg a1, b_obj_arg a2) { return nat_lt(a1, a2); }
 
 inline obj_res nat_land(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
@@ -1011,17 +1005,11 @@ inline obj_res nat_abs(b_obj_arg i) {
     }
 }
 
-inline obj_res int_dec_eq(b_obj_arg a1, b_obj_arg a2) {
-    return box(int_eq(a1, a2));
-}
+inline uint8 int_dec_eq(b_obj_arg a1, b_obj_arg a2) { return int_eq(a1, a2); }
 
-inline obj_res int_dec_le(b_obj_arg a1, b_obj_arg a2) {
-    return box(int_le(a1, a2));
-}
+inline uint8 int_dec_le(b_obj_arg a1, b_obj_arg a2) { return int_le(a1, a2); }
 
-inline obj_res int_dec_lt(b_obj_arg a1, b_obj_arg a2) {
-    return box(int_lt(a1, a2));
-}
+inline uint8 int_dec_lt(b_obj_arg a1, b_obj_arg a2) { return int_lt(a1, a2); }
 
 inline obj_res box_uint32(unsigned v) {
     if (sizeof(void*) == 4) {
@@ -1112,8 +1100,8 @@ bool string_eq(b_obj_arg s1, b_obj_arg s2);
 inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
 bool string_eq(b_obj_arg s1, char const * s2);
 bool string_lt(b_obj_arg s1, b_obj_arg s2);
-inline obj_res string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return box(string_eq(s1, s2)); }
-inline obj_res string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return box(string_lt(s1, s2)); }
+inline uint8 string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return string_eq(s1, s2); }
+inline uint8 string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return string_lt(s1, s2); }
 
 // =======================================
 // uint8
@@ -1132,9 +1120,9 @@ inline uint8 uint8_modn(uint8 a1, b_obj_arg a2) {
         return a1;
     }
 }
-inline obj_res uint8_dec_eq(uint8 a1, uint8 a2) { return box(a1 == a2); }
-inline obj_res uint8_dec_lt(uint8 a1, uint8 a2) { return box(a1 < a2); }
-inline obj_res uint8_dec_le(uint8 a1, uint8 a2) { return box(a1 <= a2); }
+inline uint8 uint8_dec_eq(uint8 a1, uint8 a2) { return a1 == a2; }
+inline uint8 uint8_dec_lt(uint8 a1, uint8 a2) { return a1 < a2; }
+inline uint8 uint8_dec_le(uint8 a1, uint8 a2) { return a1 <= a2; }
 
 // =======================================
 // uint16
@@ -1153,9 +1141,9 @@ inline uint16 uint16_modn(uint16 a1, b_obj_arg a2) {
         return a1;
     }
 }
-inline obj_res uint16_dec_eq(uint16 a1, uint16 a2) { return box(a1 == a2); }
-inline obj_res uint16_dec_lt(uint16 a1, uint16 a2) { return box(a1 < a2); }
-inline obj_res uint16_dec_le(uint16 a1, uint16 a2) { return box(a1 <= a2); }
+inline uint8 uint16_dec_eq(uint16 a1, uint16 a2) { return a1 == a2; }
+inline uint8 uint16_dec_lt(uint16 a1, uint16 a2) { return a1 < a2; }
+inline uint8 uint16_dec_le(uint16 a1, uint16 a2) { return a1 <= a2; }
 
 // =======================================
 // uint32
@@ -1190,9 +1178,9 @@ inline uint32 uint32_modn(uint32 a1, b_obj_arg a2) {
         return a1;
     }
 }
-inline obj_res uint32_dec_eq(uint32 a1, uint32 a2) { return box(a1 == a2); }
-inline obj_res uint32_dec_lt(uint32 a1, uint32 a2) { return box(a1 < a2); }
-inline obj_res uint32_dec_le(uint32 a1, uint32 a2) { return box(a1 <= a2); }
+inline uint8 uint32_dec_eq(uint32 a1, uint32 a2) { return a1 == a2; }
+inline uint8 uint32_dec_lt(uint32 a1, uint32 a2) { return a1 < a2; }
+inline uint8 uint32_dec_le(uint32 a1, uint32 a2) { return a1 <= a2; }
 
 // =======================================
 // uint64
@@ -1219,9 +1207,9 @@ inline uint64 uint64_modn(uint64 a1, b_obj_arg a2) {
         return a1;
     }
 }
-inline obj_res uint64_dec_eq(uint64 a1, uint64 a2) { return box(a1 == a2); }
-inline obj_res uint64_dec_lt(uint64 a1, uint64 a2) { return box(a1 < a2); }
-inline obj_res uint64_dec_le(uint64 a1, uint64 a2) { return box(a1 <= a2); }
+inline uint8 uint64_dec_eq(uint64 a1, uint64 a2) { return a1 == a2; }
+inline uint8 uint64_dec_lt(uint64 a1, uint64 a2) { return a1 < a2; }
+inline uint8 uint64_dec_le(uint64 a1, uint64 a2) { return a1 <= a2; }
 
 // =======================================
 // usize
@@ -1253,9 +1241,9 @@ inline usize usize_modn(usize a1, b_obj_arg a2) {
         return a1;
     }
 }
-inline obj_res usize_dec_eq(usize a1, usize a2) { return box(a1 == a2); }
-inline obj_res usize_dec_lt(usize a1, usize a2) { return box(a1 < a2); }
-inline obj_res usize_dec_le(usize a1, usize a2) { return box(a1 <= a2); }
+inline uint8 usize_dec_eq(usize a1, usize a2) { return a1 == a2; }
+inline uint8 usize_dec_lt(usize a1, usize a2) { return a1 < a2; }
+inline uint8 usize_dec_le(usize a1, usize a2) { return a1 <= a2; }
 
 // =======================================
 // name
@@ -1277,7 +1265,5 @@ inline bool name_eq(b_obj_arg n1, b_obj_arg n2) {
         return false;
     return name_eq_core(n1, n2);
 }
-inline obj_res name_dec_eq(b_obj_arg a1, b_obj_arg a2) {
-    return box(name_eq(a1, a2));
-}
+inline uint8 name_dec_eq(b_obj_arg a1, b_obj_arg a2) { return name_eq(a1, a2); }
 }

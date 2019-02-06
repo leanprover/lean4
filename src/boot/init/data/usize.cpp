@@ -17,7 +17,7 @@ obj* l_usize_has__le;
 obj* l_usize_dec__lt___boxed(obj*, obj*);
 extern obj* l_system_platform_nbits;
 obj* l_usize_has__mod;
-obj* l_usize_has__decidable__le(size_t, size_t);
+unsigned char l_usize_has__decidable__le(size_t, size_t);
 obj* l_usize_of__nat___boxed(obj*);
 obj* l_usize_has__div;
 obj* l_usize_dec__eq___boxed(obj*, obj*);
@@ -40,7 +40,7 @@ obj* l_usize_mul___boxed(obj*, obj*);
 obj* l_usize__sz;
 obj* l_usize_le;
 obj* l_usize_has__decidable__le___boxed(obj*, obj*);
-obj* l_usize_has__decidable__lt(size_t, size_t);
+unsigned char l_usize_has__decidable__lt(size_t, size_t);
 obj* l_usize_to__nat___boxed(obj*);
 obj* l_usize_inhabited___boxed;
 obj* l_usize_has__mul;
@@ -281,31 +281,34 @@ return x_1;
 obj* l_usize_dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-size_t x_2; size_t x_3; obj* x_4; 
+size_t x_2; size_t x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
 x_4 = lean::usize_dec_eq(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_usize_dec__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-size_t x_2; size_t x_3; obj* x_4; 
+size_t x_2; size_t x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
 x_4 = lean::usize_dec_lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_usize_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-size_t x_2; size_t x_3; obj* x_4; 
+size_t x_2; size_t x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
 x_4 = lean::usize_dec_le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_usize_decidable__eq() {
@@ -316,10 +319,10 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_usize_dec__eq___boxed), 2, 0
 return x_0;
 }
 }
-obj* l_usize_has__decidable__lt(size_t x_0, size_t x_1) {
+unsigned char l_usize_has__decidable__lt(size_t x_0, size_t x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::usize_dec_lt(x_0, x_1);
 return x_2;
 }
@@ -327,17 +330,18 @@ return x_2;
 obj* l_usize_has__decidable__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-size_t x_2; size_t x_3; obj* x_4; 
+size_t x_2; size_t x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
 x_4 = l_usize_has__decidable__lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
-obj* l_usize_has__decidable__le(size_t x_0, size_t x_1) {
+unsigned char l_usize_has__decidable__le(size_t x_0, size_t x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::usize_dec_le(x_0, x_1);
 return x_2;
 }
@@ -345,11 +349,12 @@ return x_2;
 obj* l_usize_has__decidable__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-size_t x_2; size_t x_3; obj* x_4; 
+size_t x_2; size_t x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
 x_4 = l_usize_has__decidable__le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 void initialize_init_data_uint();

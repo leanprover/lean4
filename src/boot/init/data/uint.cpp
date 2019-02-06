@@ -15,8 +15,8 @@ obj* l_uint8_div___boxed(obj*, obj*);
 obj* l_uint8_has__le;
 obj* l_uint16_inhabited___boxed;
 obj* l_uint32_has__decidable__le___boxed(obj*, obj*);
-obj* l_uint32_has__decidable__lt(unsigned, unsigned);
-obj* l_uint8_has__decidable__lt(unsigned char, unsigned char);
+unsigned char l_uint32_has__decidable__lt(unsigned, unsigned);
+unsigned char l_uint8_has__decidable__lt(unsigned char, unsigned char);
 obj* l_uint64_has__sub;
 obj* l_uint8_inhabited___boxed;
 obj* l_uint8_mod___boxed(obj*, obj*);
@@ -26,20 +26,20 @@ obj* l_uint16_sub___boxed(obj*, obj*);
 obj* l_uint16_has__sub;
 obj* l_uint32_has__le;
 obj* l_uint16_lt;
-obj* l_uint16_has__decidable__le(unsigned short, unsigned short);
+unsigned char l_uint16_has__decidable__le(unsigned short, unsigned short);
 obj* l_uint64_add___boxed(obj*, obj*);
 obj* l_uint16_has__decidable__lt___boxed(obj*, obj*);
 obj* l_uint8_add___boxed(obj*, obj*);
 obj* l_uint16_dec__lt___boxed(obj*, obj*);
 obj* l_uint64_inhabited___boxed;
 obj* l_uint16_has__add;
-obj* l_uint32_has__decidable__le(unsigned, unsigned);
+unsigned char l_uint32_has__decidable__le(unsigned, unsigned);
 unsigned l_uint32_inhabited;
 obj* l_uint32_decidable__eq;
 obj* l_uint32_has__mul;
 obj* l_uint64_div___boxed(obj*, obj*);
 obj* l_uint64_dec__eq___boxed(obj*, obj*);
-obj* l_uint64_has__decidable__lt(unsigned long long, unsigned long long);
+unsigned char l_uint64_has__decidable__lt(unsigned long long, unsigned long long);
 obj* l_uint32_has__sub;
 unsigned char l_uint8_inhabited;
 obj* l_uint16_add___boxed(obj*, obj*);
@@ -55,7 +55,7 @@ obj* l_uint64_has__decidable__le___boxed(obj*, obj*);
 obj* l_uint8__sz;
 obj* l_uint64_has__mul;
 obj* l_uint8_has__decidable__le___boxed(obj*, obj*);
-obj* l_uint16_has__decidable__lt(unsigned short, unsigned short);
+unsigned char l_uint16_has__decidable__lt(unsigned short, unsigned short);
 unsigned long long l_uint64_inhabited;
 unsigned long long l_uint64_has__zero;
 obj* l_uint8_has__mod;
@@ -135,13 +135,13 @@ obj* l_uint64_has__modn;
 obj* l_uint64_has__add;
 obj* l_uint64_has__zero___boxed;
 unsigned short l_uint16_has__zero;
-obj* l_uint8_has__decidable__le(unsigned char, unsigned char);
+unsigned char l_uint8_has__decidable__le(unsigned char, unsigned char);
 obj* l_uint32_dec__le___boxed(obj*, obj*);
 obj* l_uint64_dec__le___boxed(obj*, obj*);
 unsigned l_uint32_has__one;
 obj* l_uint64_sub___boxed(obj*, obj*);
 obj* l_uint32_has__add;
-obj* l_uint64_has__decidable__le(unsigned long long, unsigned long long);
+unsigned char l_uint64_has__decidable__le(unsigned long long, unsigned long long);
 obj* _init_l_uint8__sz() {
 _start:
 {
@@ -375,31 +375,34 @@ return x_1;
 obj* l_uint8_dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; unsigned char x_3; obj* x_4; 
+unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = lean::uint8_dec_eq(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint8_dec__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; unsigned char x_3; obj* x_4; 
+unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = lean::uint8_dec_lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint8_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; unsigned char x_3; obj* x_4; 
+unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = lean::uint8_dec_le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_uint8_decidable__eq() {
@@ -410,10 +413,10 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_uint8_dec__eq___boxed), 2, 0
 return x_0;
 }
 }
-obj* l_uint8_has__decidable__lt(unsigned char x_0, unsigned char x_1) {
+unsigned char l_uint8_has__decidable__lt(unsigned char x_0, unsigned char x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint8_dec_lt(x_0, x_1);
 return x_2;
 }
@@ -421,17 +424,18 @@ return x_2;
 obj* l_uint8_has__decidable__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; unsigned char x_3; obj* x_4; 
+unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = l_uint8_has__decidable__lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
-obj* l_uint8_has__decidable__le(unsigned char x_0, unsigned char x_1) {
+unsigned char l_uint8_has__decidable__le(unsigned char x_0, unsigned char x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint8_dec_le(x_0, x_1);
 return x_2;
 }
@@ -439,11 +443,12 @@ return x_2;
 obj* l_uint8_has__decidable__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; unsigned char x_3; obj* x_4; 
+unsigned char x_2; unsigned char x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = l_uint8_has__decidable__le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_uint16__sz() {
@@ -679,31 +684,34 @@ return x_1;
 obj* l_uint16_dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned short x_2; unsigned short x_3; obj* x_4; 
+unsigned short x_2; unsigned short x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = lean::uint16_dec_eq(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint16_dec__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned short x_2; unsigned short x_3; obj* x_4; 
+unsigned short x_2; unsigned short x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = lean::uint16_dec_lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint16_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned short x_2; unsigned short x_3; obj* x_4; 
+unsigned short x_2; unsigned short x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = lean::uint16_dec_le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_uint16_decidable__eq() {
@@ -714,10 +722,10 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_uint16_dec__eq___boxed), 2, 
 return x_0;
 }
 }
-obj* l_uint16_has__decidable__lt(unsigned short x_0, unsigned short x_1) {
+unsigned char l_uint16_has__decidable__lt(unsigned short x_0, unsigned short x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint16_dec_lt(x_0, x_1);
 return x_2;
 }
@@ -725,17 +733,18 @@ return x_2;
 obj* l_uint16_has__decidable__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned short x_2; unsigned short x_3; obj* x_4; 
+unsigned short x_2; unsigned short x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = l_uint16_has__decidable__lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
-obj* l_uint16_has__decidable__le(unsigned short x_0, unsigned short x_1) {
+unsigned char l_uint16_has__decidable__le(unsigned short x_0, unsigned short x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint16_dec_le(x_0, x_1);
 return x_2;
 }
@@ -743,11 +752,12 @@ return x_2;
 obj* l_uint16_has__decidable__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned short x_2; unsigned short x_3; obj* x_4; 
+unsigned short x_2; unsigned short x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = l_uint16_has__decidable__le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_uint32__sz() {
@@ -983,31 +993,34 @@ return x_1;
 obj* l_uint32_dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned x_2; unsigned x_3; obj* x_4; 
+unsigned x_2; unsigned x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
 x_4 = lean::uint32_dec_eq(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint32_dec__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned x_2; unsigned x_3; obj* x_4; 
+unsigned x_2; unsigned x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
 x_4 = lean::uint32_dec_lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint32_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned x_2; unsigned x_3; obj* x_4; 
+unsigned x_2; unsigned x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
 x_4 = lean::uint32_dec_le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_uint32_decidable__eq() {
@@ -1018,10 +1031,10 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_uint32_dec__eq___boxed), 2, 
 return x_0;
 }
 }
-obj* l_uint32_has__decidable__lt(unsigned x_0, unsigned x_1) {
+unsigned char l_uint32_has__decidable__lt(unsigned x_0, unsigned x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint32_dec_lt(x_0, x_1);
 return x_2;
 }
@@ -1029,17 +1042,18 @@ return x_2;
 obj* l_uint32_has__decidable__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned x_2; unsigned x_3; obj* x_4; 
+unsigned x_2; unsigned x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
 x_4 = l_uint32_has__decidable__lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
-obj* l_uint32_has__decidable__le(unsigned x_0, unsigned x_1) {
+unsigned char l_uint32_has__decidable__le(unsigned x_0, unsigned x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint32_dec_le(x_0, x_1);
 return x_2;
 }
@@ -1047,11 +1061,12 @@ return x_2;
 obj* l_uint32_has__decidable__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned x_2; unsigned x_3; obj* x_4; 
+unsigned x_2; unsigned x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
 x_4 = l_uint32_has__decidable__le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_uint64__sz() {
@@ -1287,31 +1302,34 @@ return x_1;
 obj* l_uint64_dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned long long x_2; unsigned long long x_3; obj* x_4; 
+unsigned long long x_2; unsigned long long x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
 x_4 = lean::uint64_dec_eq(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint64_dec__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned long long x_2; unsigned long long x_3; obj* x_4; 
+unsigned long long x_2; unsigned long long x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
 x_4 = lean::uint64_dec_lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_uint64_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned long long x_2; unsigned long long x_3; obj* x_4; 
+unsigned long long x_2; unsigned long long x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
 x_4 = lean::uint64_dec_le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* _init_l_uint64_decidable__eq() {
@@ -1322,10 +1340,10 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_uint64_dec__eq___boxed), 2, 
 return x_0;
 }
 }
-obj* l_uint64_has__decidable__lt(unsigned long long x_0, unsigned long long x_1) {
+unsigned char l_uint64_has__decidable__lt(unsigned long long x_0, unsigned long long x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint64_dec_lt(x_0, x_1);
 return x_2;
 }
@@ -1333,17 +1351,18 @@ return x_2;
 obj* l_uint64_has__decidable__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned long long x_2; unsigned long long x_3; obj* x_4; 
+unsigned long long x_2; unsigned long long x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
 x_4 = l_uint64_has__decidable__lt(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
-obj* l_uint64_has__decidable__le(unsigned long long x_0, unsigned long long x_1) {
+unsigned char l_uint64_has__decidable__le(unsigned long long x_0, unsigned long long x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::uint64_dec_le(x_0, x_1);
 return x_2;
 }
@@ -1351,11 +1370,12 @@ return x_2;
 obj* l_uint64_has__decidable__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned long long x_2; unsigned long long x_3; obj* x_4; 
+unsigned long long x_2; unsigned long long x_3; unsigned char x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
 x_4 = l_uint64_has__decidable__le(x_2, x_3);
-return x_4;
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 void initialize_init_data_fin_basic();

@@ -43,7 +43,7 @@ return x_4;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_10; obj* x_12; obj* x_15; 
+obj* x_5; obj* x_7; obj* x_10; obj* x_12; unsigned char x_15; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -56,22 +56,20 @@ lean::inc(x_12);
 lean::dec(x_5);
 x_15 = lean::name_dec_eq(x_10, x_1);
 lean::dec(x_10);
-if (lean::obj_tag(x_15) == 0)
+if (x_15 == 0)
 {
-lean::dec(x_15);
 lean::dec(x_12);
 x_0 = x_7;
 goto _start;
 }
 else
 {
-obj* x_23; 
-lean::dec(x_15);
+obj* x_21; 
 lean::dec(x_7);
 lean::dec(x_1);
-x_23 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_23, 0, x_12);
-return x_23;
+x_21 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_21, 0, x_12);
+return x_21;
 }
 }
 }
@@ -116,7 +114,7 @@ return x_4;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_12; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_10; unsigned char x_12; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -132,38 +130,36 @@ if (lean::is_shared(x_0)) {
 x_10 = lean::cnstr_get(x_5, 0);
 lean::inc(x_10);
 x_12 = lean::name_dec_eq(x_10, x_1);
-if (lean::obj_tag(x_12) == 0)
+if (x_12 == 0)
 {
-obj* x_15; obj* x_16; 
-lean::dec(x_12);
+obj* x_14; obj* x_15; 
 lean::dec(x_10);
-x_15 = l_lean_kvmap_insert__core___main(x_7, x_1, x_2);
+x_14 = l_lean_kvmap_insert__core___main(x_7, x_1, x_2);
 if (lean::is_scalar(x_9)) {
- x_16 = lean::alloc_cnstr(1, 2, 0);
+ x_15 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_16 = x_9;
+ x_15 = x_9;
 }
-lean::cnstr_set(x_16, 0, x_5);
-lean::cnstr_set(x_16, 1, x_15);
-return x_16;
+lean::cnstr_set(x_15, 0, x_5);
+lean::cnstr_set(x_15, 1, x_14);
+return x_15;
 }
 else
 {
-obj* x_20; obj* x_21; 
+obj* x_18; obj* x_19; 
 lean::dec(x_5);
-lean::dec(x_12);
 lean::dec(x_1);
-x_20 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_20, 0, x_10);
-lean::cnstr_set(x_20, 1, x_2);
+x_18 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_18, 0, x_10);
+lean::cnstr_set(x_18, 1, x_2);
 if (lean::is_scalar(x_9)) {
- x_21 = lean::alloc_cnstr(1, 2, 0);
+ x_19 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_21 = x_9;
+ x_19 = x_9;
 }
-lean::cnstr_set(x_21, 0, x_20);
-lean::cnstr_set(x_21, 1, x_7);
-return x_21;
+lean::cnstr_set(x_19, 0, x_18);
+lean::cnstr_set(x_19, 1, x_7);
+return x_19;
 }
 }
 }

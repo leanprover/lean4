@@ -104,34 +104,32 @@ return x_6;
 obj* l___private_3693562977__run__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; 
+obj* x_4; unsigned char x_5; 
 x_4 = lean::mk_nat_obj(0u);
 x_5 = lean::nat_dec_eq(x_2, x_4);
 lean::dec(x_4);
-if (lean::obj_tag(x_5) == 0)
+if (x_5 == 0)
 {
-obj* x_8; obj* x_9; obj* x_13; obj* x_14; 
-lean::dec(x_5);
-x_8 = lean::mk_nat_obj(1u);
-x_9 = lean::nat_sub(x_2, x_8);
-lean::dec(x_8);
+obj* x_7; obj* x_8; obj* x_12; obj* x_13; 
+x_7 = lean::mk_nat_obj(1u);
+x_8 = lean::nat_sub(x_2, x_7);
+lean::dec(x_7);
 lean::dec(x_2);
 lean::inc(x_1);
-x_13 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3693562977__run__aux___main___rarg), 4, 3);
-lean::closure_set(x_13, 0, x_0);
-lean::closure_set(x_13, 1, x_1);
-lean::closure_set(x_13, 2, x_9);
-x_14 = lean::apply_2(x_1, x_3, x_13);
-return x_14;
+x_12 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3693562977__run__aux___main___rarg), 4, 3);
+lean::closure_set(x_12, 0, x_0);
+lean::closure_set(x_12, 1, x_1);
+lean::closure_set(x_12, 2, x_8);
+x_13 = lean::apply_2(x_1, x_3, x_12);
+return x_13;
 }
 else
 {
-obj* x_18; 
-lean::dec(x_5);
+obj* x_16; 
 lean::dec(x_1);
 lean::dec(x_2);
-x_18 = lean::apply_1(x_0, x_3);
-return x_18;
+x_16 = lean::apply_1(x_0, x_3);
+return x_16;
 }
 }
 }

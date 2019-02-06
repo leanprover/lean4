@@ -132,18 +132,19 @@ return x_2;
 obj* l_decidable_has__to__string___rarg(obj* x_0) {
 _start:
 {
-if (lean::obj_tag(x_0) == 0)
-{
-obj* x_2; 
+unsigned char x_1; 
+x_1 = lean::unbox(x_0);
 lean::dec(x_0);
-x_2 = l_bool_has__repr___closed__1;
-lean::inc(x_2);
-return x_2;
+if (x_1 == 0)
+{
+obj* x_3; 
+x_3 = l_bool_has__repr___closed__1;
+lean::inc(x_3);
+return x_3;
 }
 else
 {
 obj* x_5; 
-lean::dec(x_0);
 x_5 = l_bool_has__repr___closed__2;
 lean::inc(x_5);
 return x_5;

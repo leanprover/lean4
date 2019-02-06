@@ -50,21 +50,22 @@ return x_2;
 obj* l_guard___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
+unsigned char x_4; 
 lean::dec(x_1);
-if (lean::obj_tag(x_2) == 0)
-{
-obj* x_5; obj* x_8; 
+x_4 = lean::unbox(x_2);
 lean::dec(x_2);
-x_5 = lean::cnstr_get(x_0, 2);
-lean::inc(x_5);
+if (x_4 == 0)
+{
+obj* x_6; obj* x_9; 
+x_6 = lean::cnstr_get(x_0, 2);
+lean::inc(x_6);
 lean::dec(x_0);
-x_8 = lean::apply_1(x_5, lean::box(0));
-return x_8;
+x_9 = lean::apply_1(x_6, lean::box(0));
+return x_9;
 }
 else
 {
 obj* x_10; obj* x_13; obj* x_16; obj* x_17; 
-lean::dec(x_2);
 x_10 = lean::cnstr_get(x_0, 0);
 lean::inc(x_10);
 lean::dec(x_0);
@@ -89,21 +90,22 @@ return x_2;
 obj* l_assert___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
+unsigned char x_4; 
 lean::dec(x_1);
-if (lean::obj_tag(x_2) == 0)
-{
-obj* x_5; obj* x_8; 
+x_4 = lean::unbox(x_2);
 lean::dec(x_2);
-x_5 = lean::cnstr_get(x_0, 2);
-lean::inc(x_5);
+if (x_4 == 0)
+{
+obj* x_6; obj* x_9; 
+x_6 = lean::cnstr_get(x_0, 2);
+lean::inc(x_6);
 lean::dec(x_0);
-x_8 = lean::apply_1(x_5, lean::box(0));
-return x_8;
+x_9 = lean::apply_1(x_6, lean::box(0));
+return x_9;
 }
 else
 {
 obj* x_10; obj* x_13; obj* x_16; 
-lean::dec(x_2);
 x_10 = lean::cnstr_get(x_0, 0);
 lean::inc(x_10);
 lean::dec(x_0);

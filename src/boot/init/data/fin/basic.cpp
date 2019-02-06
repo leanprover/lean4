@@ -15,10 +15,10 @@ obj* l_fin_has__lt(obj*);
 obj* l_fin_modn(obj*, obj*, obj*);
 obj* l_fin_has__one(obj*);
 obj* l_fin_elim0___main(obj*, obj*);
-obj* l_fin_dec__lt___rarg(obj*, obj*);
+unsigned char l_fin_dec__lt___rarg(obj*, obj*);
 obj* l_fin_mod(obj*, obj*, obj*);
 obj* l_fin_le;
-obj* l_fin_dec__le___rarg(obj*, obj*);
+unsigned char l_fin_dec__le___rarg(obj*, obj*);
 obj* l_fin_has__le(obj*);
 obj* l_fin_sub(obj*, obj*, obj*);
 obj* l_fin_decidable__eq(obj*);
@@ -32,17 +32,20 @@ obj* l_fin_mul___main(obj*, obj*, obj*);
 obj* l_fin_has__div(obj*);
 obj* l_fin_dec__le(obj*);
 obj* l_fin_has__zero(obj*);
+obj* l_fin_decidable__eq___rarg___boxed(obj*, obj*);
 obj* l_fin_sub___main(obj*, obj*, obj*);
 obj* l_fin_mul(obj*, obj*, obj*);
 obj* l_fin_has__modn(obj*);
+obj* l_fin_dec__le___rarg___boxed(obj*, obj*);
 obj* l_fin_dec__lt(obj*);
 obj* l_fin_div___main(obj*, obj*, obj*);
+obj* l_fin_dec__lt___rarg___boxed(obj*, obj*);
 obj* l_fin_has__mod(obj*);
 obj* l_fin_has__mul(obj*);
 obj* l_fin_modn___main(obj*, obj*, obj*);
 obj* l_fin_div(obj*, obj*, obj*);
 obj* l_fin_has__add(obj*);
-obj* l_fin_decidable__eq___rarg(obj*, obj*);
+unsigned char l_fin_decidable__eq___rarg(obj*, obj*);
 obj* _init_l_fin_lt() {
 _start:
 {
@@ -79,10 +82,10 @@ x_2 = lean::box(0);
 return x_2;
 }
 }
-obj* l_fin_dec__lt___rarg(obj* x_0, obj* x_1) {
+unsigned char l_fin_dec__lt___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::nat_dec_lt(x_0, x_1);
 lean::dec(x_1);
 lean::dec(x_0);
@@ -94,14 +97,23 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_dec__lt___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_dec__lt___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* l_fin_dec__le___rarg(obj* x_0, obj* x_1) {
+obj* l_fin_dec__lt___rarg___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; obj* x_3; 
+x_2 = l_fin_dec__lt___rarg(x_0, x_1);
+x_3 = lean::box(x_2);
+return x_3;
+}
+}
+unsigned char l_fin_dec__le___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+unsigned char x_2; 
 x_2 = lean::nat_dec_le(x_0, x_1);
 lean::dec(x_1);
 lean::dec(x_0);
@@ -113,8 +125,17 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_dec__le___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_dec__le___rarg___boxed), 2, 0);
 return x_2;
+}
+}
+obj* l_fin_dec__le___rarg___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+unsigned char x_2; obj* x_3; 
+x_2 = l_fin_dec__le___rarg(x_0, x_1);
+x_3 = lean::box(x_2);
+return x_3;
 }
 }
 obj* l_fin_elim0___main(obj* x_0, obj* x_1) {
@@ -355,14 +376,25 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* l_fin_decidable__eq___rarg(obj* x_0, obj* x_1) {
+unsigned char l_fin_decidable__eq___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
+unsigned char x_2; 
 x_2 = lean::nat_dec_eq(x_0, x_1);
 lean::dec(x_1);
 lean::dec(x_0);
-return x_2;
+if (x_2 == 0)
+{
+unsigned char x_5; 
+x_5 = 0;
+return x_5;
+}
+else
+{
+unsigned char x_6; 
+x_6 = 1;
+return x_6;
+}
 }
 }
 obj* l_fin_decidable__eq(obj* x_0) {
@@ -370,8 +402,17 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_decidable__eq___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_decidable__eq___rarg___boxed), 2, 0);
 return x_2;
+}
+}
+obj* l_fin_decidable__eq___rarg___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+unsigned char x_2; obj* x_3; 
+x_2 = l_fin_decidable__eq___rarg(x_0, x_1);
+x_3 = lean::box(x_2);
+return x_3;
 }
 }
 void initialize_init_data_nat_div();

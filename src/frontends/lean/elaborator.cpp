@@ -3285,7 +3285,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     struc << "instance " << macro.to_string() << ".has_view := " << macro.to_string() << ".has_view'";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
-    parser p(m_env, get_global_ios(), in, "foo");
+    parser p(m_env, get_global_ios(), in, get_pos_info_provider()->get_file_name());
     p.set_imports_parsed();
     p.parse_command_like();
     p.parse_command_like();

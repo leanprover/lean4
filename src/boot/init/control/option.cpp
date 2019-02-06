@@ -1441,7 +1441,6 @@ if (lean::is_scalar(x_10)) {
  x_17 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_17 = x_10;
- lean::cnstr_set_tag(x_10, 1);
 }
 lean::cnstr_set(x_17, 0, x_8);
 x_18 = lean::apply_2(x_14, lean::box(0), x_17);

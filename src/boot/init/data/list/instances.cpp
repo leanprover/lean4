@@ -83,7 +83,6 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_0);
 lean::cnstr_set(x_10, 1, x_9);
@@ -134,7 +133,6 @@ if (lean::is_scalar(x_9)) {
  x_13 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_13 = x_9;
- lean::cnstr_set_tag(x_9, 1);
 }
 lean::cnstr_set(x_13, 0, x_11);
 lean::cnstr_set(x_13, 1, x_12);
@@ -182,7 +180,6 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_0);
 lean::cnstr_set(x_10, 1, x_8);
@@ -238,7 +235,6 @@ if (lean::is_scalar(x_9)) {
  x_14 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_14 = x_9;
- lean::cnstr_set_tag(x_9, 1);
 }
 lean::cnstr_set(x_14, 0, x_12);
 lean::cnstr_set(x_14, 1, x_13);
@@ -286,7 +282,6 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_0);
 lean::cnstr_set(x_10, 1, x_9);
@@ -403,7 +398,6 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_0);
 lean::cnstr_set(x_10, 1, x_9);
@@ -454,7 +448,6 @@ if (lean::is_scalar(x_9)) {
  x_13 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_13 = x_9;
- lean::cnstr_set_tag(x_9, 1);
 }
 lean::cnstr_set(x_13, 0, x_11);
 lean::cnstr_set(x_13, 1, x_12);
@@ -502,7 +495,6 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_0);
 lean::cnstr_set(x_10, 1, x_8);
@@ -558,7 +550,6 @@ if (lean::is_scalar(x_9)) {
  x_14 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_14 = x_9;
- lean::cnstr_set_tag(x_9, 1);
 }
 lean::cnstr_set(x_14, 0, x_12);
 lean::cnstr_set(x_14, 1, x_13);
@@ -606,7 +597,6 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_0);
 lean::cnstr_set(x_10, 1, x_9);

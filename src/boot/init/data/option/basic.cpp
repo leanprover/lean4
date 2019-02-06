@@ -492,7 +492,6 @@ if (lean::is_scalar(x_7)) {
  x_9 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_9 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_9, 0, x_8);
 return x_9;
@@ -623,7 +622,6 @@ if (lean::is_scalar(x_11)) {
  x_17 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_17 = x_11;
- lean::cnstr_set_tag(x_11, 1);
 }
 lean::cnstr_set(x_17, 0, x_9);
 return x_17;

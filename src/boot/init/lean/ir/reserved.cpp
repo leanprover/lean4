@@ -427,7 +427,6 @@ if (lean::is_scalar(x_13)) {
  x_18 = lean::alloc_cnstr(1, 4, 0);
 } else {
  x_18 = x_13;
- lean::cnstr_set_tag(x_13, 1);
 }
 lean::cnstr_set(x_18, 0, x_5);
 lean::cnstr_set(x_18, 1, x_1);
@@ -443,7 +442,6 @@ if (lean::is_scalar(x_13)) {
  x_20 = lean::alloc_cnstr(1, 4, 0);
 } else {
  x_20 = x_13;
- lean::cnstr_set_tag(x_13, 1);
 }
 lean::cnstr_set(x_20, 0, x_5);
 lean::cnstr_set(x_20, 1, x_7);
@@ -460,7 +458,6 @@ if (lean::is_scalar(x_13)) {
  x_22 = lean::alloc_cnstr(1, 4, 0);
 } else {
  x_22 = x_13;
- lean::cnstr_set_tag(x_13, 1);
 }
 lean::cnstr_set(x_22, 0, x_21);
 lean::cnstr_set(x_22, 1, x_7);
@@ -504,7 +501,6 @@ if (lean::is_scalar(x_31)) {
  x_36 = lean::alloc_cnstr(2, 4, 0);
 } else {
  x_36 = x_31;
- lean::cnstr_set_tag(x_31, 2);
 }
 lean::cnstr_set(x_36, 0, x_23);
 lean::cnstr_set(x_36, 1, x_1);
@@ -533,7 +529,6 @@ if (lean::is_scalar(x_31)) {
  x_43 = lean::alloc_cnstr(2, 4, 0);
 } else {
  x_43 = x_31;
- lean::cnstr_set_tag(x_31, 2);
 }
 lean::cnstr_set(x_43, 0, x_23);
 lean::cnstr_set(x_43, 1, x_25);
@@ -564,7 +559,6 @@ if (lean::is_scalar(x_31)) {
  x_50 = lean::alloc_cnstr(2, 4, 0);
 } else {
  x_50 = x_31;
- lean::cnstr_set_tag(x_31, 2);
 }
 lean::cnstr_set(x_50, 0, x_49);
 lean::cnstr_set(x_50, 1, x_25);
@@ -788,7 +782,6 @@ if (lean::is_scalar(x_7)) {
  x_11 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_11 = x_7;
- lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_11, 0, x_8);
 return x_11;

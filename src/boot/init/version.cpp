@@ -41,7 +41,7 @@ obj* _init_l_lean_githash() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("83e0c35204ba773418544548553842ecd3b3c5e4");
+x_0 = lean::mk_string("d103ff70fe017fdda3787988ab402819e7a79d68");
 return x_0;
 }
 }

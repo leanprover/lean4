@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/compiler/util.h"
+#include "library/compiler/extname.h"
 
 namespace lean {
 #define REDUCE_ARITY_SUFFIX "_rarg"
@@ -28,7 +29,11 @@ bool arity_was_reduced(comp_decl const & cdecl) {
     return is_reduce_arity_aux_fn(n);
 }
 
-comp_decls reduce_arity(comp_decl const & cdecl) {
+comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {
+    if (has_extname(env, cdecl.fst())) {
+        /* We do not modify the arity of entry points (i.e., functions with attribute [extname]) */
+        return comp_decls(cdecl);
+    }
     expr code    = cdecl.snd();
     buffer<expr> fvars;
     name_generator ngen;
@@ -87,10 +92,10 @@ comp_decls reduce_arity(comp_decl const & cdecl) {
     return comp_decls(red_decl, comp_decls(new_decl));
 }
 
-comp_decls reduce_arity(comp_decls const & ds) {
+comp_decls reduce_arity(environment const & env, comp_decls const & ds) {
     comp_decls r;
     for (comp_decl const & d : ds) {
-        r = append(r, reduce_arity(d));
+        r = append(r, reduce_arity(env, d));
     }
     return r;
 }

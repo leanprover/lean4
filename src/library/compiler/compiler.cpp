@@ -154,7 +154,7 @@ environment compile(environment const & env, options const & opts, names const &
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(ecse, new_env, ds);
     trace_compiler(name({"compiler", "cse"}), ds);
-    ds = reduce_arity(ds);
+    ds = reduce_arity(new_env, ds);
     trace_compiler(name({"compiler", "reduce_arity"}), ds);
     std::tie(new_env, ds) = lambda_lifting(new_env, ds);
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);

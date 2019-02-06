@@ -63,9 +63,7 @@ static environment update(environment const & env, emit_cpp_ext const & ext) {
 
 environment emit_cpp(environment const & env, comp_decls const & ds) {
     /* Remark: we don't generate C++ code here, but at `print_cpp_code`. In this function
-       we simply save the LLNF expression in the emit_cpp_ext.
-       Reason: the attributes for `ds` are only applied after the compiler is executed,
-       and we need to be able to access the `[cppname]` attribute. */
+       we simply save the LLNF expression in the emit_cpp_ext. */
     emit_cpp_ext ext = get_extension(env);
     ext.m_code = append(ext.m_code, ds);
     return update(env, ext);

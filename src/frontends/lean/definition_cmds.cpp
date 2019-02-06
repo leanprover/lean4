@@ -182,9 +182,9 @@ static environment compile_decl(parser & p, environment const & env,
 }
 
 static pair<environment, name>
-declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buffer<name> const & lp_names,
+declare_definition(environment const & env, decl_cmd_kind kind, buffer<name> const & lp_names,
                    name const & c_name, name const & prv_name, expr type, optional<expr> val, cmd_meta const & meta,
-                   bool is_abbrev, pos_info const & pos) {
+                   bool is_abbrev) {
     name c_real_name;
     environment new_env = env;
     if (has_private_prefix(new_env, prv_name)) {
@@ -217,9 +217,6 @@ declare_definition(parser & p, environment const & env, decl_cmd_kind kind, buff
     if (!meta.m_modifiers.m_is_private) {
         new_env = ensure_decl_namespaces(new_env, c_real_name);
     }
-
-    if (!meta.m_modifiers.m_is_noncomputable)
-        new_env = compile_decl(p, new_env, c_name, c_real_name, pos);
     return mk_pair(new_env, c_real_name);
 }
 
@@ -258,8 +255,8 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
         name c_name = local_name_p(fns[i]);
         name c_real_name;
         bool is_abbrev = false;
-        std::tie(env, c_real_name) = declare_definition(p, env, kind, lp_names, c_name, prv_names[i],
-                                                        curr_type, some_expr(curr), meta, is_abbrev, header_pos);
+        std::tie(env, c_real_name) = declare_definition(env, kind, lp_names, c_name, prv_names[i],
+                                                        curr_type, some_expr(curr), meta, is_abbrev);
         env = add_local_ref(p, env, c_name, c_real_name, lp_names, params);
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
@@ -267,6 +264,15 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
     /* Apply attributes last so that they may access any information on the new decl */
     for (auto const & c_real_name : new_d_names) {
         elab.set_env(meta.m_attrs.apply(elab.env(), p.ios(), c_real_name));
+    }
+    /* Compile functions */
+    if (!meta.m_modifiers.m_is_noncomputable) {
+        lean_assert(new_d_names.size() == fns.size());
+        for (unsigned i = 0; i < fns.size(); i++) {
+            name c_name = local_name_p(fns[i]);
+            name c_real_name = new_d_names[i];
+            elab.set_env(compile_decl(p, elab.env(), c_name, c_real_name, header_pos));
+        }
     }
     return elab.env();
 }
@@ -528,7 +534,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
             opt_val = elaborate_proof(decl_env, opts, header_pos, new_params_list,
                                       new_fn, val, thm_finfo, is_rfl, type,
                                       mctx, lctx, pos_provider, use_info_manager, file_name);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, meta, is_abbrev, header_pos);
+            env_n = declare_definition(elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, meta, is_abbrev);
         } else if (kind == decl_cmd_kind::Example) {
             auto env = p.env();
             auto opts = p.get_options();
@@ -553,7 +559,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
                 val = get_equations_result(val, 0);
             }
             finalize_definition(elab, new_params, type, val, lp_names);
-            env_n = declare_definition(p, elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), meta, is_abbrev, header_pos);
+            env_n = declare_definition(elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), meta, is_abbrev);
         }
         time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), c_name);
         environment new_env = env_n.first;
@@ -563,7 +569,12 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
             new_env = mk_smart_unfolding_definition(new_env, p.get_options(), c_real_name);
         }
         /* Apply attributes last so that they may access any information on the new decl */
-        return meta.m_attrs.apply(new_env, p.ios(), c_real_name);
+        new_env = meta.m_attrs.apply(new_env, p.ios(), c_real_name);
+        /* Compile function */
+        if (!meta.m_modifiers.m_is_noncomputable) {
+            new_env = compile_decl(p, new_env, c_name, c_real_name, header_pos);
+        }
+        return new_env;
     };
 
     try {

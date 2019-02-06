@@ -131,6 +131,7 @@ void initialize_builtin() {
     expr u8_o_u8     = mk_arrow(u8, o_u8);
     expr u8_o        = mk_arrow(u8, o);
     expr u8_u8_o     = mk_arrow(u8, u8_o);
+    expr o_o_u8      = mk_arrow(o, o_u8);
 
     expr o_u16         = mk_arrow(o, u16);
     expr o_u16_u16_o_o = mk_arrow(o, mk_arrow(u16, mk_arrow(u16, o_o)));
@@ -139,6 +140,7 @@ void initialize_builtin() {
     expr u16_o_u16     = mk_arrow(u16, o_u16);
     expr u16_o         = mk_arrow(u16, o);
     expr u16_u16_o     = mk_arrow(u16, u16_o);
+    expr u16_u16_u8    = mk_arrow(u16, mk_arrow(u16, u8));
 
     expr o_u32         = mk_arrow(o, u32);
     expr o_u32_o       = mk_arrow(o, mk_arrow(u32, o));
@@ -148,6 +150,7 @@ void initialize_builtin() {
     expr u32_o_u32     = mk_arrow(u32, o_u32);
     expr u32_o         = mk_arrow(u32, o);
     expr u32_u32_o     = mk_arrow(u32, u32_o);
+    expr u32_u32_u8    = mk_arrow(u32, mk_arrow(u32, u8));
 
     expr o_u64         = mk_arrow(o, u64);
     expr o_u64_u64_o_o = mk_arrow(o, mk_arrow(u64, mk_arrow(u64, o_o)));
@@ -156,6 +159,7 @@ void initialize_builtin() {
     expr u64_o_u64     = mk_arrow(u64, o_u64);
     expr u64_o         = mk_arrow(u64, o);
     expr u64_u64_o     = mk_arrow(u64, u64_o);
+    expr u64_u64_u8    = mk_arrow(u64, mk_arrow(u64, u8));
 
     expr o_us          = mk_arrow(o, us);
     expr o_us_us_o_o   = mk_arrow(o, mk_arrow(us, mk_arrow(us, o_o)));
@@ -164,6 +168,7 @@ void initialize_builtin() {
     expr us_o_us       = mk_arrow(us, o_us);
     expr us_o          = mk_arrow(us, o);
     expr us_us_o       = mk_arrow(us, us_o);
+    expr us_us_u8      = mk_arrow(us, mk_arrow(us, u8));
 
     list<bool> b{true};
     list<bool> bb{true, true};
@@ -184,9 +189,9 @@ void initialize_builtin() {
     register_builtin(name({"nat", "mul"}), o_o_o, "lean::nat_mul", bb);
     register_builtin(name({"nat", "div"}), o_o_o, "lean::nat_div", bb);
     register_builtin(name({"nat", "mod"}), o_o_o, "lean::nat_mod", bb);
-    register_builtin(name({"nat", "dec_eq"}), o_o_o, "lean::nat_dec_eq", bb);
-    register_builtin(name({"nat", "dec_lt"}), o_o_o, "lean::nat_dec_lt", bb);
-    register_builtin(name({"nat", "dec_le"}), o_o_o, "lean::nat_dec_le", bb);
+    register_builtin(name({"nat", "dec_eq"}), o_o_u8, "lean::nat_dec_eq", bb);
+    register_builtin(name({"nat", "dec_lt"}), o_o_u8, "lean::nat_dec_lt", bb);
+    register_builtin(name({"nat", "dec_le"}), o_o_u8, "lean::nat_dec_le", bb);
 
     /* int builtin functions */
     register_builtin(name({"int", "of_nat"}), o_o, "lean::nat2int", b);
@@ -198,9 +203,9 @@ void initialize_builtin() {
     register_builtin(name({"int", "mul"}), o_o_o, "lean::int_mul", bb);
     register_builtin(name({"int", "quot"}), o_o_o, "lean::int_div", bb);
     register_builtin(name({"int", "rem"}), o_o_o, "lean::int_rem", bb);
-    register_builtin(name({"int", "dec_eq"}), o_o_o, "lean::int_dec_eq", bb);
-    register_builtin(name({"int", "dec_lt"}), o_o_o, "lean::int_dec_lt", bb);
-    register_builtin(name({"int", "dec_le"}), o_o_o, "lean::int_dec_le", bb);
+    register_builtin(name({"int", "dec_eq"}), o_o_u8, "lean::int_dec_eq", bb);
+    register_builtin(name({"int", "dec_lt"}), o_o_u8, "lean::int_dec_lt", bb);
+    register_builtin(name({"int", "dec_le"}), o_o_u8, "lean::int_dec_le", bb);
 
     /* string builtin functions */
     register_builtin(name({"string", "mk"}), o_o, "lean::string_mk", c);
@@ -209,8 +214,8 @@ void initialize_builtin() {
     register_builtin(name({"string", "push"}), o_u32_o, "lean::string_push", cc);
     register_builtin(name({"string", "append"}), o_o_o, "lean::string_append", cb);
     register_builtin(name({"string", "mk_iterator"}), o_o, "lean::string_mk_iterator", c);
-    register_builtin(name({"string", "dec_eq"}), o_o_o, "lean::string_dec_eq", bb);
-    register_builtin(name({"string", "dec_lt"}), o_o_o, "lean::string_dec_lt", bb);
+    register_builtin(name({"string", "dec_eq"}), o_o_u8, "lean::string_dec_eq", bb);
+    register_builtin(name({"string", "dec_lt"}), o_o_u8, "lean::string_dec_lt", bb);
     register_builtin(name({"string", "iterator", "curr"}), o_u32, "lean::string_iterator_curr", b);
     register_builtin(name({"string", "iterator", "set_curr"}), o_u32_o, "lean::string_iterator_set_curr", cc);
     register_builtin(name({"string", "iterator", "next"}), o_o, "lean::string_iterator_next", c);
@@ -254,9 +259,9 @@ void initialize_builtin() {
     register_builtin(name({"uint8", "div"}), u8_u8_u8, "lean::uint8_div");
     register_builtin(name({"uint8", "mod"}), u8_u8_u8, "lean::uint8_mod");
     register_builtin(name({"uint8", "modn"}), u8_o_u8, "lean::uint8_modn", cb);
-    register_builtin(name({"uint8", "dec_eq"}), u8_u8_o, "lean::uint8_dec_eq");
-    register_builtin(name({"uint8", "dec_lt"}), u8_u8_o, "lean::uint8_dec_lt");
-    register_builtin(name({"uint8", "dec_le"}), u8_u8_o, "lean::uint8_dec_le");
+    register_builtin(name({"uint8", "dec_eq"}), u8_u8_u8, "lean::uint8_dec_eq");
+    register_builtin(name({"uint8", "dec_lt"}), u8_u8_u8, "lean::uint8_dec_lt");
+    register_builtin(name({"uint8", "dec_le"}), u8_u8_u8, "lean::uint8_dec_le");
 
     /* uint16 builtin functions */
     register_builtin(name({"uint16", "of_nat"}), o_u16, "lean::uint16_of_nat", b);
@@ -267,9 +272,9 @@ void initialize_builtin() {
     register_builtin(name({"uint16", "div"}), u16_u16_u16, "lean::uint16_div");
     register_builtin(name({"uint16", "mod"}), u16_u16_u16, "lean::uint16_mod");
     register_builtin(name({"uint16", "modn"}), u16_o_u16, "lean::uint16_modn", cb);
-    register_builtin(name({"uint16", "dec_eq"}), u16_u16_o, "lean::uint16_dec_eq");
-    register_builtin(name({"uint16", "dec_lt"}), u16_u16_o, "lean::uint16_dec_lt");
-    register_builtin(name({"uint16", "dec_le"}), u16_u16_o, "lean::uint16_dec_le");
+    register_builtin(name({"uint16", "dec_eq"}), u16_u16_u8, "lean::uint16_dec_eq");
+    register_builtin(name({"uint16", "dec_lt"}), u16_u16_u8, "lean::uint16_dec_lt");
+    register_builtin(name({"uint16", "dec_le"}), u16_u16_u8, "lean::uint16_dec_le");
 
     /* uint32 builtin functions */
     register_builtin(name({"uint32", "of_nat"}), o_u32, "lean::uint32_of_nat", b);
@@ -280,9 +285,9 @@ void initialize_builtin() {
     register_builtin(name({"uint32", "div"}), u32_u32_u32, "lean::uint32_div");
     register_builtin(name({"uint32", "mod"}), u32_u32_u32, "lean::uint32_mod");
     register_builtin(name({"uint32", "modn"}), u32_o_u32, "lean::uint32_modn", cb);
-    register_builtin(name({"uint32", "dec_eq"}), u32_u32_o, "lean::uint32_dec_eq");
-    register_builtin(name({"uint32", "dec_lt"}), u32_u32_o, "lean::uint32_dec_lt");
-    register_builtin(name({"uint32", "dec_le"}), u32_u32_o, "lean::uint32_dec_le");
+    register_builtin(name({"uint32", "dec_eq"}), u32_u32_u8, "lean::uint32_dec_eq");
+    register_builtin(name({"uint32", "dec_lt"}), u32_u32_u8, "lean::uint32_dec_lt");
+    register_builtin(name({"uint32", "dec_le"}), u32_u32_u8, "lean::uint32_dec_le");
 
     /* uint64 builtin functions */
     register_builtin(name({"uint64", "of_nat"}), o_u64, "lean::uint64_of_nat", b);
@@ -293,9 +298,9 @@ void initialize_builtin() {
     register_builtin(name({"uint64", "div"}), u64_u64_u64, "lean::uint64_div");
     register_builtin(name({"uint64", "mod"}), u64_u64_u64, "lean::uint64_mod");
     register_builtin(name({"uint64", "modn"}), u64_o_u64, "lean::uint64_modn", cb);
-    register_builtin(name({"uint64", "dec_eq"}), u64_u64_o, "lean::uint64_dec_eq");
-    register_builtin(name({"uint64", "dec_lt"}), u64_u64_o, "lean::uint64_dec_lt");
-    register_builtin(name({"uint64", "dec_le"}), u64_u64_o, "lean::uint64_dec_le");
+    register_builtin(name({"uint64", "dec_eq"}), u64_u64_u8, "lean::uint64_dec_eq");
+    register_builtin(name({"uint64", "dec_lt"}), u64_u64_u8, "lean::uint64_dec_lt");
+    register_builtin(name({"uint64", "dec_le"}), u64_u64_u8, "lean::uint64_dec_le");
 
     /* usize builtin functions */
     register_builtin(name({"usize", "of_nat"}), o_us, "lean::usize_of_nat", b);
@@ -306,9 +311,9 @@ void initialize_builtin() {
     register_builtin(name({"usize", "div"}), us_us_us, "lean::usize_div");
     register_builtin(name({"usize", "mod"}), us_us_us, "lean::usize_mod");
     register_builtin(name({"usize", "modn"}), us_o_us, "lean::usize_modn", cb);
-    register_builtin(name({"usize", "dec_eq"}), us_us_o, "lean::usize_dec_eq");
-    register_builtin(name({"usize", "dec_lt"}), us_us_o, "lean::usize_dec_lt");
-    register_builtin(name({"usize", "dec_le"}), us_us_o, "lean::usize_dec_le");
+    register_builtin(name({"usize", "dec_eq"}), us_us_u8, "lean::usize_dec_eq");
+    register_builtin(name({"usize", "dec_lt"}), us_us_u8, "lean::usize_dec_lt");
+    register_builtin(name({"usize", "dec_le"}), us_us_u8, "lean::usize_dec_le");
 
     /* thunk builtin functions */
     register_builtin(name({"thunk", "mk"}), o_o_o, "lean::mk_thunk", bc, xu);
@@ -321,7 +326,7 @@ void initialize_builtin() {
     register_builtin(name({"lean", "name", "hash"}), o_us, "lean::name_hash_usize", b);
     register_builtin(name({"lean", "name", "mk_string"}), o_o_o, "lean::name_mk_string");
     register_builtin(name({"lean", "name", "mk_numeral"}), o_o_o, "lean::name_mk_numeral");
-    register_builtin(name({"lean", "name", "dec_eq"}), o_o_o, "lean::name_dec_eq", bb);
+    register_builtin(name({"lean", "name", "dec_eq"}), o_o_u8, "lean::name_dec_eq", bb);
 }
 
 void finalize_builtin() {

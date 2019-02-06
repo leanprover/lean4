@@ -81,11 +81,20 @@ class ll_infer_type_fn {
         return r;
     }
 
+    expr infer_constructor_type(expr const & e) {
+        name I_name = env().get(const_name(get_app_fn(e))).to_constructor_val().get_induct();
+        if (optional<unsigned> sz = ::lean::is_enum_type(env(), I_name)) {
+            if (optional<expr> uint = to_uint_type(*sz))
+                return *uint;
+        }
+        return mk_enf_object_type();
+    }
+
     expr infer_app(expr const & e) {
         if (is_cases_on_app(env(), e)) {
             return infer_cases(e);
         } else if (is_constructor_app(env(), e)) {
-            return mk_enf_object_type();
+            return infer_constructor_type(e);
         } else {
             expr fn_type   = infer(get_app_fn(e));
             unsigned nargs = get_app_num_args(e);
@@ -141,12 +150,7 @@ class ll_infer_type_fn {
         if (optional<expr> type = get_builtin_constant_ll_type(const_name(e))) {
             return *type;
         } else if (is_constructor(env(), const_name(e))) {
-            name I_name = env().get(const_name(e)).to_constructor_val().get_induct();
-            if (optional<unsigned> sz = ::lean::is_enum_type(env(), I_name)) {
-                if (optional<expr> uint = to_uint_type(*sz))
-                    return *uint;
-            }
-            return mk_enf_object_type();
+            return infer_constructor_type(e);
         } else {
             name c = mk_cstage2_name(const_name(e));
             optional<constant_info> info = env().find(c);

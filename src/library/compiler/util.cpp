@@ -26,6 +26,8 @@ namespace lean {
 optional<unsigned> is_enum_type(environment const & env, name const & I) {
     constant_info info  = env.get(I);
     if (!info.is_inductive()) return optional<unsigned>();
+    /* `decidable` is morally an enumeration type */
+    if (I == get_decidable_name()) return optional<unsigned>(1);
     unsigned n = 0;
     names cs = info.to_inductive_val().get_cnstrs();
     if (length(cs) == 1) {

@@ -449,9 +449,23 @@ return x_4;
 obj* l_option_bind___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_option_bind___main___rarg(x_0, x_1);
-return x_2;
+if (lean::obj_tag(x_0) == 0)
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::box(0);
+return x_4;
+}
+else
+{
+obj* x_5; obj* x_8; 
+x_5 = lean::cnstr_get(x_0, 0);
+lean::inc(x_5);
+lean::dec(x_0);
+x_8 = lean::apply_1(x_1, x_5);
+return x_8;
+}
 }
 }
 obj* l_option_bind(obj* x_0, obj* x_1) {

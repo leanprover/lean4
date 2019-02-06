@@ -1844,9 +1844,16 @@ return x_4;
 obj* l_cond___rarg(uint8 x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = l_cond___main___rarg(x_0, x_1, x_2);
-return x_3;
+if (x_0 == 0)
+{
+lean::dec(x_1);
+return x_2;
+}
+else
+{
+lean::dec(x_2);
+return x_1;
+}
 }
 }
 obj* l_cond(obj* x_0) {
@@ -1894,9 +1901,14 @@ return x_5;
 uint8 l_bor(uint8 x_0, uint8 x_1) {
 _start:
 {
-uint8 x_2; 
-x_2 = l_bor___main(x_0, x_1);
-return x_2;
+if (x_0 == 0)
+{
+return x_1;
+}
+else
+{
+return x_0;
+}
 }
 }
 obj* l_bor___boxed(obj* x_0, obj* x_1) {
@@ -1937,9 +1949,14 @@ return x_5;
 uint8 l_band(uint8 x_0, uint8 x_1) {
 _start:
 {
-uint8 x_2; 
-x_2 = l_band___main(x_0, x_1);
-return x_2;
+if (x_0 == 0)
+{
+return x_0;
+}
+else
+{
+return x_1;
+}
 }
 }
 obj* l_band___boxed(obj* x_0, obj* x_1) {
@@ -1983,9 +2000,18 @@ return x_3;
 uint8 l_bnot(uint8 x_0) {
 _start:
 {
+if (x_0 == 0)
+{
 uint8 x_1; 
-x_1 = l_bnot___main(x_0);
+x_1 = 1;
 return x_1;
+}
+else
+{
+uint8 x_2; 
+x_2 = 0;
+return x_2;
+}
 }
 }
 obj* l_bnot___boxed(obj* x_0) {
@@ -2034,9 +2060,23 @@ return x_5;
 uint8 l_bxor(uint8 x_0, uint8 x_1) {
 _start:
 {
+if (x_0 == 0)
+{
+return x_1;
+}
+else
+{
+if (x_1 == 0)
+{
+return x_0;
+}
+else
+{
 uint8 x_2; 
-x_2 = l_bxor___main(x_0, x_1);
+x_2 = 0;
 return x_2;
+}
+}
 }
 }
 obj* l_bxor___boxed(obj* x_0, obj* x_1) {

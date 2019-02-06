@@ -180,9 +180,28 @@ return x_3;
 obj* l_guardb___rarg(obj* x_0, uint8 x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_guardb___main___rarg(x_0, x_1);
-return x_2;
+if (x_1 == 0)
+{
+obj* x_2; obj* x_5; 
+x_2 = lean::cnstr_get(x_0, 2);
+lean::inc(x_2);
+lean::dec(x_0);
+x_5 = lean::apply_1(x_2, lean::box(0));
+return x_5;
+}
+else
+{
+obj* x_6; obj* x_9; obj* x_12; obj* x_13; 
+x_6 = lean::cnstr_get(x_0, 0);
+lean::inc(x_6);
+lean::dec(x_0);
+x_9 = lean::cnstr_get(x_6, 1);
+lean::inc(x_9);
+lean::dec(x_6);
+x_12 = lean::box(0);
+x_13 = lean::apply_2(x_9, lean::box(0), x_12);
+return x_13;
+}
 }
 }
 obj* l_guardb(obj* x_0) {

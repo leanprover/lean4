@@ -3319,9 +3319,29 @@ return x_2;
 uint8 l_rbmap_empty___rarg(obj* x_0) {
 _start:
 {
-uint8 x_1; 
-x_1 = l_rbmap_empty___main___rarg(x_0);
-return x_1;
+switch (lean::obj_tag(x_0)) {
+case 0:
+{
+uint8 x_2; 
+lean::dec(x_0);
+x_2 = 1;
+return x_2;
+}
+case 1:
+{
+uint8 x_4; 
+lean::dec(x_0);
+x_4 = 0;
+return x_4;
+}
+default:
+{
+uint8 x_6; 
+lean::dec(x_0);
+x_6 = 0;
+return x_6;
+}
+}
 }
 }
 obj* l_rbmap_empty(obj* x_0, obj* x_1, obj* x_2) {
@@ -3508,8 +3528,42 @@ obj* l_rbmap_min___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_rbmap_min___main___rarg(x_0);
-return x_1;
+x_1 = l_rbnode_min___main___rarg(x_0);
+if (lean::obj_tag(x_1) == 0)
+{
+obj* x_3; 
+lean::dec(x_1);
+x_3 = lean::box(0);
+return x_3;
+}
+else
+{
+obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_12; obj* x_13; 
+x_4 = lean::cnstr_get(x_1, 0);
+lean::inc(x_4);
+if (lean::is_shared(x_1)) {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
+} else {
+ lean::cnstr_release(x_1, 0);
+ x_6 = x_1;
+}
+x_7 = lean::cnstr_get(x_4, 0);
+lean::inc(x_7);
+x_9 = lean::cnstr_get(x_4, 1);
+lean::inc(x_9);
+lean::dec(x_4);
+x_12 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_12, 0, x_7);
+lean::cnstr_set(x_12, 1, x_9);
+if (lean::is_scalar(x_6)) {
+ x_13 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_13 = x_6;
+}
+lean::cnstr_set(x_13, 0, x_12);
+return x_13;
+}
 }
 }
 obj* l_rbmap_min(obj* x_0, obj* x_1, obj* x_2) {
@@ -3580,8 +3634,42 @@ obj* l_rbmap_max___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_rbmap_max___main___rarg(x_0);
-return x_1;
+x_1 = l_rbnode_max___main___rarg(x_0);
+if (lean::obj_tag(x_1) == 0)
+{
+obj* x_3; 
+lean::dec(x_1);
+x_3 = lean::box(0);
+return x_3;
+}
+else
+{
+obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_12; obj* x_13; 
+x_4 = lean::cnstr_get(x_1, 0);
+lean::inc(x_4);
+if (lean::is_shared(x_1)) {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
+} else {
+ lean::cnstr_release(x_1, 0);
+ x_6 = x_1;
+}
+x_7 = lean::cnstr_get(x_4, 0);
+lean::inc(x_7);
+x_9 = lean::cnstr_get(x_4, 1);
+lean::inc(x_9);
+lean::dec(x_4);
+x_12 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_12, 0, x_7);
+lean::cnstr_set(x_12, 1, x_9);
+if (lean::is_scalar(x_6)) {
+ x_13 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_13 = x_6;
+}
+lean::cnstr_set(x_13, 0, x_12);
+return x_13;
+}
 }
 }
 obj* l_rbmap_max(obj* x_0, obj* x_1, obj* x_2) {

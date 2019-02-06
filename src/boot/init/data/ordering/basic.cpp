@@ -182,9 +182,20 @@ return x_5;
 uint8 l_ordering_or__else(uint8 x_0, uint8 x_1) {
 _start:
 {
-uint8 x_2; 
-x_2 = l_ordering_or__else___main(x_0, x_1);
-return x_2;
+switch (x_0) {
+case 0:
+{
+return x_0;
+}
+case 1:
+{
+return x_1;
+}
+default:
+{
+return x_0;
+}
+}
 }
 }
 obj* l_ordering_or__else___boxed(obj* x_0, obj* x_1) {

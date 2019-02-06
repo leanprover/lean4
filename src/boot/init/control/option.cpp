@@ -168,11 +168,33 @@ return x_2;
 obj* l_option__t_bind__cont___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_7; 
 lean::dec(x_2);
 lean::dec(x_1);
-x_7 = l_option__t_bind__cont___main___rarg(x_0, lean::box(0), lean::box(0), x_3, x_4);
-return x_7;
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_9; obj* x_12; obj* x_15; obj* x_16; 
+lean::dec(x_4);
+lean::dec(x_3);
+x_9 = lean::cnstr_get(x_0, 0);
+lean::inc(x_9);
+lean::dec(x_0);
+x_12 = lean::cnstr_get(x_9, 1);
+lean::inc(x_12);
+lean::dec(x_9);
+x_15 = lean::box(0);
+x_16 = lean::apply_2(x_12, lean::box(0), x_15);
+return x_16;
+}
+else
+{
+obj* x_18; obj* x_21; 
+lean::dec(x_0);
+x_18 = lean::cnstr_get(x_4, 0);
+lean::inc(x_18);
+lean::dec(x_4);
+x_21 = lean::apply_1(x_3, x_18);
+return x_21;
+}
 }
 }
 obj* l_option__t_bind__cont(obj* x_0) {

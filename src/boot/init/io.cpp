@@ -158,15 +158,6 @@ obj* l_coroutine__io_pipe(obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate___main___rarg(obj*, obj*, obj*);
 obj* l_io_prim_lift__eio___at_io_fs_handle_mk___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_monad___rarg___lambda__8(obj*, obj*);
-obj* _init_l_io() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-lean::inc(x_0);
-return x_0;
-}
-}
 obj* _init_l_io_monad() {
 _start:
 {
@@ -194,7 +185,7 @@ x_10 = l_state__t_monad___rarg(x_9);
 return x_10;
 }
 }
-obj* _init_l_monad__io() {
+obj* _init_l_io() {
 _start:
 {
 obj* x_0; 
@@ -203,7 +194,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init_l_io_error() {
+obj* _init_l_monad__io() {
 _start:
 {
 obj* x_0; 
@@ -217,6 +208,15 @@ _start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_string_has__to__string), 1, 0);
+return x_0;
+}
+}
+obj* _init_l_io_error() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::box(0);
+lean::inc(x_0);
 return x_0;
 }
 }
@@ -2502,11 +2502,11 @@ void initialize_init_io() {
  initialize_init_control_except();
  initialize_init_data_string_basic();
  initialize_init_control_coroutine();
- l_io = _init_l_io();
  l_io_monad = _init_l_io_monad();
+ l_io = _init_l_io();
  l_monad__io = _init_l_monad__io();
- l_io_error = _init_l_io_error();
  l_io_error_has__to__string = _init_l_io_error_has__to__string();
+ l_io_error = _init_l_io_error();
  l_eio = _init_l_eio();
  l_io_println___rarg___closed__1 = _init_l_io_println___rarg___closed__1();
  l_eio_has__eval___rarg___closed__1 = _init_l_eio_has__eval___rarg___closed__1();

@@ -440,15 +440,6 @@ x_0 = lean::mk_string("typedef lean::object obj;");
 return x_0;
 }
 }
-obj* _init_l_lean_ir_cpp_extract__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-lean::inc(x_0);
-return x_0;
-}
-}
 obj* _init_l_lean_ir_cpp_extract__m_monad__run() {
 _start:
 {
@@ -594,6 +585,15 @@ x_10 = l_state__t_monad___rarg(x_9);
 x_11 = l_except__t_monad___rarg(x_10);
 x_12 = l_reader__t_monad___rarg(x_11);
 return x_12;
+}
+}
+obj* _init_l_lean_ir_cpp_extract__m() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::box(0);
+lean::inc(x_0);
+return x_0;
 }
 }
 obj* l_lean_ir_cpp_emit___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -21936,12 +21936,12 @@ void initialize_init_lean_ir_extract__cpp() {
  l_lean_ir_cpp_file__header___closed__2 = _init_l_lean_ir_cpp_file__header___closed__2();
  l_lean_ir_cpp_file__header___closed__3 = _init_l_lean_ir_cpp_file__header___closed__3();
  l_lean_ir_cpp_file__header___closed__4 = _init_l_lean_ir_cpp_file__header___closed__4();
- l_lean_ir_cpp_extract__m = _init_l_lean_ir_cpp_extract__m();
  l_lean_ir_cpp_extract__m_monad__run = _init_l_lean_ir_cpp_extract__m_monad__run();
  l_lean_ir_cpp_extract__m_monad__reader = _init_l_lean_ir_cpp_extract__m_monad__reader();
  l_lean_ir_cpp_extract__m_monad__state = _init_l_lean_ir_cpp_extract__m_monad__state();
  l_lean_ir_cpp_extract__m_monad__except = _init_l_lean_ir_cpp_extract__m_monad__except();
  l_lean_ir_cpp_extract__m_monad = _init_l_lean_ir_cpp_extract__m_monad();
+ l_lean_ir_cpp_extract__m = _init_l_lean_ir_cpp_extract__m();
  l_lean_ir_cpp_emit__blockid___closed__1 = _init_l_lean_ir_cpp_emit__blockid___closed__1();
  l_lean_ir_cpp_fid2cpp___closed__1 = _init_l_lean_ir_cpp_fid2cpp___closed__1();
  l_lean_ir_cpp_is__const___closed__1 = _init_l_lean_ir_cpp_is__const___closed__1();

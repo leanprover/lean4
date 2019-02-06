@@ -477,6 +477,7 @@ struct emit_fn_fn {
         m_out << " "; emit_alloc_cnstr(x, cidx, args.size()-1, num_usizes, num_bytes);
         m_out << "} else {\n";
         m_out << " "; emit_lhs(x); emit_fvar(o); m_out << ";\n";
+        m_out << " lean::cnstr_set_tag("; emit_fvar(o); m_out << ", " << cidx << ");\n";
         m_out << "}\n";
         emit_cnstr_sets(x, args.size()-1, args.data()+1);
     }

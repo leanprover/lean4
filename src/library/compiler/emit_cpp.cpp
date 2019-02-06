@@ -88,10 +88,15 @@ static void close_namespaces_for(std::ostream & out, environment const & env, na
     out << "\n";
 }
 
+static char const * g_lean_main = "_lean_main";
+
 static std::string to_base_cpp_name(environment const & env, name const & n) {
     if (optional<name> c = get_extname_for(env, n)) {
         lean_assert(c->is_string());
-        return c->get_string().to_std_string();
+        if (*c == "main")
+            return g_lean_main;
+        else
+            return c->get_string().to_std_string();
     } else {
         return mangle(n);
     }
@@ -100,7 +105,10 @@ static std::string to_base_cpp_name(environment const & env, name const & n) {
 static std::string to_cpp_name(environment const & env, name const & n) {
     if (optional<name> c = get_extname_for(env, n)) {
         lean_assert(c->is_string());
-        return c->to_string("::");
+        if (*c == "main")
+            return g_lean_main;
+        else
+            return c->to_string("::");
     } else {
         return mangle(n);
     }
@@ -202,13 +210,26 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
         });
 }
 
-static void emit_file_header(std::ostream & out, module_name const & m, list<module_name> const & deps) {
+static optional<comp_decl> has_main_fn(environment const & env) {
+    comp_decls ds = get_extension(env).m_code;
+    for (comp_decl const & d : ds) {
+        name const & n    = d.fst();
+        if (optional<name> e = get_extname_for(env, n)) {
+            if (*e == "main") return optional<comp_decl>(d);
+        }
+    }
+    return optional<comp_decl>();
+}
+
+static void emit_file_header(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     out << "// Lean compiler output\n";
     out << "// Module: " << m << "\n";
     out << "// Imports:"; for (module_name const & d : deps) out << " " << d; out << "\n";
     out << "#include \"runtime/object.h\"\n";
     out << "#include \"runtime/apply.h\"\n";
     out << "#include \"runtime/io.h\"\n";
+    if (has_main_fn(env))
+        out << "#include \"runtime/init_module.h\"\n";
     out << "#include \"kernel/builtin.h\"\n";
     out << "typedef lean::object obj;    typedef lean::usize  usize;\n";
     out << "typedef lean::uint8  uint8;  typedef lean::uint16 uint16;\n";
@@ -829,11 +850,32 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
     out << "}\n";
 }
 
+static void emit_main_fn(std::ostream & out, module_name const & m, comp_decl const & d) {
+    if (get_num_nested_lambdas(d.snd()) != 2) {
+        throw exception("invalid main function, incorrect arity when generating code");
+    }
+    out << "int main(int argc, char ** argv) {\n";
+    out << "lean::initialize_runtime_module();\n";
+    out << "initialize_" << mangle(m, false) << "();\n";
+    out << "obj* in = lean::box(0);\n";
+    out << "int i = argc;\n";
+    out << "while (i > 1) {\n i--;\n";
+    out << " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);\n";
+    out << " in = n;\n";
+    out << "}\n";
+    out << "obj * r = " << g_lean_main << "(in, lean::box(0));\n";
+    out << "int ret = lean::unbox(lean::cnstr_get(r, 0));\n";
+    out << "lean::dec(r);\n";
+    out << "return ret;\n";
+    out << "}\n";
+}
+
 void print_cpp_code(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
-    emit_file_header(out, m, deps);
+    emit_file_header(out, env, m, deps);
     emit_fn_decls(out, env);
     emit_fns(out, env);
     emit_initialize(out, env, m, deps);
+    if (optional<comp_decl> d = has_main_fn(env)) emit_main_fn(out, m, *d);
 }
 
 void initialize_emit_cpp() {

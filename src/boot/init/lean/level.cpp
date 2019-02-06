@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_lean_level_to__nat___main___closed__4;
 obj* l_lean_level__to__format_paren__if__false___boxed(obj*, obj*);
@@ -117,8 +121,7 @@ goto _start;
 else
 {
 lean::dec(x_10);
-x_0 = x_8;
-goto _start;
+return x_13;
 }
 }
 case 3:
@@ -140,8 +143,7 @@ goto _start;
 else
 {
 lean::dec(x_20);
-x_0 = x_18;
-goto _start;
+return x_23;
 }
 }
 case 4:
@@ -520,6 +522,7 @@ if (lean::is_scalar(x_11)) {
  x_16 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_16 = x_11;
+ lean::cnstr_set_tag(x_11, 0);
 }
 lean::cnstr_set(x_16, 0, x_7);
 lean::cnstr_set(x_16, 1, x_13);
@@ -598,6 +601,7 @@ if (lean::is_scalar(x_5)) {
  x_7 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_7 = x_5;
+ lean::cnstr_set_tag(x_5, 1);
 }
 lean::cnstr_set(x_7, 0, x_6);
 return x_7;
@@ -624,6 +628,7 @@ if (lean::is_scalar(x_12)) {
  x_16 = lean::alloc_cnstr(2, 2, 0);
 } else {
  x_16 = x_12;
+ lean::cnstr_set_tag(x_12, 2);
 }
 lean::cnstr_set(x_16, 0, x_14);
 lean::cnstr_set(x_16, 1, x_15);
@@ -651,6 +656,7 @@ if (lean::is_scalar(x_21)) {
  x_25 = lean::alloc_cnstr(3, 2, 0);
 } else {
  x_25 = x_21;
+ lean::cnstr_set_tag(x_21, 3);
 }
 lean::cnstr_set(x_25, 0, x_23);
 lean::cnstr_set(x_25, 1, x_24);
@@ -726,6 +732,7 @@ if (lean::is_scalar(x_5)) {
  x_10 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_10 = x_5;
+ lean::cnstr_set_tag(x_5, 1);
 }
 lean::cnstr_set(x_10, 0, x_7);
 return x_10;
@@ -753,6 +760,7 @@ if (lean::is_scalar(x_15)) {
  x_20 = lean::alloc_cnstr(2, 2, 0);
 } else {
  x_20 = x_15;
+ lean::cnstr_set_tag(x_15, 2);
 }
 lean::cnstr_set(x_20, 0, x_11);
 lean::cnstr_set(x_20, 1, x_17);
@@ -832,6 +840,7 @@ if (lean::is_scalar(x_9)) {
  x_11 = lean::alloc_cnstr(3, 1, 0);
 } else {
  x_11 = x_9;
+ lean::cnstr_set_tag(x_9, 3);
 }
 lean::cnstr_set(x_11, 0, x_10);
 return x_11;
@@ -921,6 +930,7 @@ if (lean::is_scalar(x_10)) {
  x_12 = lean::alloc_cnstr(4, 1, 0);
 } else {
  x_12 = x_10;
+ lean::cnstr_set_tag(x_10, 4);
 }
 lean::cnstr_set(x_12, 0, x_11);
 return x_12;
@@ -1010,6 +1020,16 @@ uint8 x_2; obj* x_3;
 x_2 = lean::unbox(x_1);
 x_3 = l_lean_level__to__format_paren__if__false(x_0, x_2);
 return x_3;
+}
+}
+obj* l_lean_to__fmt___at_lean_level__to__format_result_to__format___main___spec__1(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_nat_repr(x_0);
+x_2 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
 }
 }
 obj* l_lean_level__to__format_result_to__format___main(obj* x_0, uint8 x_1) {
@@ -1151,16 +1171,6 @@ lean::cnstr_set(x_1, 0, x_0);
 return x_1;
 }
 }
-obj* l_lean_to__fmt___at_lean_level__to__format_result_to__format___main___spec__1(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; 
-x_1 = l_nat_repr(x_0);
-x_2 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
 obj* l_lean_level__to__format_result__list_to__format___main(obj* x_0) {
 _start:
 {
@@ -1229,6 +1239,18 @@ _start:
 obj* x_1; 
 x_1 = l_lean_level__to__format_result__list_to__format___main(x_0);
 return x_1;
+}
+}
+obj* l_lean_to__fmt___at_lean_level__to__format_level_to__result___main___spec__1(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_3; obj* x_4; 
+x_1 = l_lean_name_to__string___closed__1;
+lean::inc(x_1);
+x_3 = l_lean_name_to__string__with__sep___main(x_1, x_0);
+x_4 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_4, 0, x_3);
+return x_4;
 }
 }
 obj* l_lean_level__to__format_level_to__result___main(obj* x_0) {
@@ -1312,18 +1334,6 @@ x_0 = lean::mk_nat_obj(0u);
 x_1 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;
-}
-}
-obj* l_lean_to__fmt___at_lean_level__to__format_level_to__result___main___spec__1(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_3; obj* x_4; 
-x_1 = l_lean_name_to__string___closed__1;
-lean::inc(x_1);
-x_3 = l_lean_name_to__string__with__sep___main(x_1, x_0);
-x_4 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
 }
 }
 obj* l_lean_level__to__format_level_to__result(obj* x_0) {

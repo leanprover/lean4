@@ -11,7 +11,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_lean_message__log_has__errors___boxed(obj*);
 obj* l_lean_message_to__string___closed__5;
 obj* l_lean_message__log_append(obj*, obj*);
 uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
@@ -30,7 +35,7 @@ obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(ob
 obj* l_lean_message_to__string___closed__2;
 obj* l_nat_repr(obj*);
 obj* l_lean_message_to__string___closed__1;
-obj* l_lean_message__log_has__errors(obj*);
+uint8 l_lean_message__log_has__errors(obj*);
 obj* l_lean_message_to__string(obj* x_0) {
 _start:
 {
@@ -226,15 +231,6 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_message__log_append), 2
 return x_0;
 }
 }
-obj* l_lean_message__log_has__errors(obj* x_0) {
-_start:
-{
-uint8 x_1; obj* x_2; 
-x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
-x_2 = lean::box(x_1);
-return x_2;
-}
-}
 uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj* x_0) {
 _start:
 {
@@ -259,13 +255,11 @@ lean::dec(x_3);
 switch (x_9) {
 case 0:
 {
-x_0 = x_5;
-goto _start;
+return x_8;
 }
 case 1:
 {
-x_0 = x_5;
-goto _start;
+return x_8;
 }
 default:
 {
@@ -277,11 +271,28 @@ return x_11;
 }
 }
 }
+uint8 l_lean_message__log_has__errors(obj* x_0) {
+_start:
+{
+uint8 x_1; 
+x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
+return x_1;
+}
+}
 obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
 x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
+x_2 = lean::box(x_1);
+return x_2;
+}
+}
+obj* l_lean_message__log_has__errors___boxed(obj* x_0) {
+_start:
+{
+uint8 x_1; obj* x_2; 
+x_1 = l_lean_message__log_has__errors(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }

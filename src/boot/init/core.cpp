@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_xor;
 obj* l_cast___rarg(obj*);
@@ -1260,26 +1264,6 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_sigma_sizeof___rarg), 3, 0);
 return x_4;
 }
 }
-obj* l_sigma_has__sizeof___rarg(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_sigma_sizeof___at_sigma_has__sizeof___spec__1___rarg), 3, 2);
-lean::closure_set(x_2, 0, x_0);
-lean::closure_set(x_2, 1, x_1);
-return x_2;
-}
-}
-obj* l_sigma_has__sizeof(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_sigma_has__sizeof___rarg), 2, 0);
-return x_4;
-}
-}
 obj* l_sigma_sizeof___main___at_sigma_has__sizeof___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -1327,6 +1311,26 @@ obj* x_4;
 lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_sigma_sizeof___at_sigma_has__sizeof___spec__1___rarg), 3, 0);
+return x_4;
+}
+}
+obj* l_sigma_has__sizeof___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_sigma_sizeof___at_sigma_has__sizeof___spec__1___rarg), 3, 2);
+lean::closure_set(x_2, 0, x_0);
+lean::closure_set(x_2, 1, x_1);
+return x_2;
+}
+}
+obj* l_sigma_has__sizeof(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_sigma_has__sizeof___rarg), 2, 0);
 return x_4;
 }
 }
@@ -1380,26 +1384,6 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_psigma_sizeof___rarg), 3, 0)
 return x_4;
 }
 }
-obj* l_psigma_has__sizeof___rarg(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_psigma_sizeof___at_psigma_has__sizeof___spec__1___rarg), 3, 2);
-lean::closure_set(x_2, 0, x_0);
-lean::closure_set(x_2, 1, x_1);
-return x_2;
-}
-}
-obj* l_psigma_has__sizeof(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_psigma_has__sizeof___rarg), 2, 0);
-return x_4;
-}
-}
 obj* l_psigma_sizeof___main___at_psigma_has__sizeof___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -1447,6 +1431,26 @@ obj* x_4;
 lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_psigma_sizeof___at_psigma_has__sizeof___spec__1___rarg), 3, 0);
+return x_4;
+}
+}
+obj* l_psigma_has__sizeof___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_psigma_sizeof___at_psigma_has__sizeof___spec__1___rarg), 3, 2);
+lean::closure_set(x_2, 0, x_0);
+lean::closure_set(x_2, 1, x_1);
+return x_2;
+}
+}
+obj* l_psigma_has__sizeof(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_psigma_has__sizeof___rarg), 2, 0);
 return x_4;
 }
 }
@@ -3991,6 +3995,7 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_10 = x_7;
+ lean::cnstr_set_tag(x_7, 0);
 }
 lean::cnstr_set(x_10, 0, x_8);
 lean::cnstr_set(x_10, 1, x_9);
@@ -4437,6 +4442,24 @@ x_4 = lean::box(0);
 return x_4;
 }
 }
+obj* l_quotient_rec__on__subsingleton_u_2082___at_quotient_decidable__eq___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::apply_2(x_2, x_0, x_1);
+return x_3;
+}
+}
+obj* l_quotient_rec__on__subsingleton_u_2082___at_quotient_decidable__eq___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_quotient_rec__on__subsingleton_u_2082___at_quotient_decidable__eq___spec__1___rarg), 3, 0);
+return x_4;
+}
+}
 obj* l_quotient_decidable__eq___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -4475,24 +4498,6 @@ obj* x_2;
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_quotient_decidable__eq___rarg), 4, 0);
 return x_2;
-}
-}
-obj* l_quotient_rec__on__subsingleton_u_2082___at_quotient_decidable__eq___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::apply_2(x_2, x_0, x_1);
-return x_3;
-}
-}
-obj* l_quotient_rec__on__subsingleton_u_2082___at_quotient_decidable__eq___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_quotient_rec__on__subsingleton_u_2082___at_quotient_decidable__eq___spec__1___rarg), 3, 0);
-return x_4;
 }
 }
 obj* l_quotient_decidable__eq___rarg___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2) {

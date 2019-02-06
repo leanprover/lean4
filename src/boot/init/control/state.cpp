@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_state__t_monad___rarg___lambda__8(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_state__t_monad___rarg___lambda__3(obj*, obj*, obj*);
@@ -299,6 +303,7 @@ if (lean::is_scalar(x_7)) {
  x_15 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_15 = x_7;
+ lean::cnstr_set_tag(x_7, 0);
 }
 lean::cnstr_set(x_15, 0, x_8);
 lean::cnstr_set(x_15, 1, x_5);
@@ -346,6 +351,7 @@ if (lean::is_scalar(x_5)) {
  x_12 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_12 = x_5;
+ lean::cnstr_set_tag(x_5, 0);
 }
 lean::cnstr_set(x_12, 0, x_1);
 lean::cnstr_set(x_12, 1, x_3);
@@ -795,6 +801,7 @@ if (lean::is_scalar(x_8)) {
  x_16 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_16 = x_8;
+ lean::cnstr_set_tag(x_8, 0);
 }
 lean::cnstr_set(x_16, 0, x_4);
 lean::cnstr_set(x_16, 1, x_15);

@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_lean_expr_mk__app(obj*, obj*);
 obj* l_list_foldl___main___at_lean_expr_mk__app___spec__1(obj*, obj*);
@@ -24,14 +28,6 @@ x_0 = lean::box(0);
 x_1 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;
-}
-}
-obj* l_lean_expr_mk__app(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_list_foldl___main___at_lean_expr_mk__app___spec__1(x_0, x_1);
-return x_2;
 }
 }
 obj* l_list_foldl___main___at_lean_expr_mk__app___spec__1(obj* x_0, obj* x_1) {
@@ -57,6 +53,14 @@ x_0 = x_8;
 x_1 = x_5;
 goto _start;
 }
+}
+}
+obj* l_lean_expr_mk__app(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_list_foldl___main___at_lean_expr_mk__app___spec__1(x_0, x_1);
+return x_2;
 }
 }
 obj* l_lean_expr_mk__capp(obj* x_0, obj* x_1) {

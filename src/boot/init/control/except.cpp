@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_except__t_monad__except__adapter___rarg(obj*, obj*, obj*, obj*);
 obj* l_except_to__option(obj*, obj*);
@@ -366,6 +370,7 @@ if (lean::is_scalar(x_5)) {
  x_6 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_6 = x_5;
+ lean::cnstr_set_tag(x_5, 0);
 }
 lean::cnstr_set(x_6, 0, x_3);
 return x_6;
@@ -387,6 +392,7 @@ if (lean::is_scalar(x_9)) {
  x_11 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_11 = x_9;
+ lean::cnstr_set_tag(x_9, 1);
 }
 lean::cnstr_set(x_11, 0, x_10);
 return x_11;
@@ -443,6 +449,7 @@ if (lean::is_scalar(x_4)) {
  x_6 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_6 = x_4;
+ lean::cnstr_set_tag(x_4, 0);
 }
 lean::cnstr_set(x_6, 0, x_5);
 return x_6;
@@ -464,6 +471,7 @@ if (lean::is_scalar(x_10)) {
  x_11 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_11 = x_10;
+ lean::cnstr_set_tag(x_10, 1);
 }
 lean::cnstr_set(x_11, 0, x_8);
 return x_11;
@@ -520,6 +528,7 @@ if (lean::is_scalar(x_5)) {
  x_6 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_6 = x_5;
+ lean::cnstr_set_tag(x_5, 0);
 }
 lean::cnstr_set(x_6, 0, x_3);
 return x_6;
@@ -750,6 +759,7 @@ if (lean::is_scalar(x_9)) {
  x_10 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_10 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_10, 0, x_7);
 return x_10;
@@ -771,6 +781,7 @@ if (lean::is_scalar(x_13)) {
  x_15 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_15 = x_13;
+ lean::cnstr_set_tag(x_13, 1);
 }
 lean::cnstr_set(x_15, 0, x_14);
 return x_15;
@@ -799,6 +810,7 @@ if (lean::is_scalar(x_9)) {
  x_10 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_10 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_10, 0, x_7);
 return x_10;
@@ -817,6 +829,7 @@ if (lean::is_scalar(x_11)) {
  x_12 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_12 = x_11;
+ lean::cnstr_set_tag(x_11, 1);
 }
 lean::cnstr_set(x_12, 0, x_2);
 return x_12;
@@ -845,6 +858,7 @@ if (lean::is_scalar(x_9)) {
  x_10 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_10 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_10, 0, x_7);
 return x_10;
@@ -872,6 +886,7 @@ if (lean::is_scalar(x_13)) {
  x_18 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_18 = x_13;
+ lean::cnstr_set_tag(x_13, 0);
 }
 lean::cnstr_set(x_18, 0, x_15);
 return x_18;
@@ -887,6 +902,7 @@ if (lean::is_scalar(x_13)) {
  x_23 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_23 = x_13;
+ lean::cnstr_set_tag(x_13, 1);
 }
 lean::cnstr_set(x_23, 0, x_22);
 return x_23;
@@ -916,6 +932,7 @@ if (lean::is_scalar(x_9)) {
  x_10 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_10 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_10, 0, x_7);
 return x_10;
@@ -943,6 +960,7 @@ if (lean::is_scalar(x_13)) {
  x_18 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_18 = x_13;
+ lean::cnstr_set_tag(x_13, 0);
 }
 lean::cnstr_set(x_18, 0, x_15);
 return x_18;
@@ -955,6 +973,7 @@ if (lean::is_scalar(x_13)) {
  x_20 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_20 = x_13;
+ lean::cnstr_set_tag(x_13, 1);
 }
 lean::cnstr_set(x_20, 0, x_11);
 return x_20;
@@ -984,6 +1003,7 @@ if (lean::is_scalar(x_9)) {
  x_10 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_10 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_10, 0, x_7);
 return x_10;
@@ -1093,6 +1113,7 @@ if (lean::is_scalar(x_10)) {
  x_17 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
 }
 lean::cnstr_set(x_17, 0, x_8);
 x_18 = lean::apply_2(x_14, lean::box(0), x_17);
@@ -1332,6 +1353,398 @@ x_12 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_monad__functor___
 return x_12;
 }
 }
+obj* l_except__t_bind__cont___at_except__t_monad___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+lean::dec(x_2);
+lean::dec(x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+if (lean::is_shared(x_4)) {
+ lean::dec(x_4);
+ x_10 = lean::box(0);
+} else {
+ lean::cnstr_release(x_4, 0);
+ x_10 = x_4;
+}
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
+}
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
+}
+else
+{
+obj* x_20; obj* x_23; 
+lean::dec(x_0);
+x_20 = lean::cnstr_get(x_4, 0);
+lean::inc(x_20);
+lean::dec(x_4);
+x_23 = lean::apply_1(x_3, x_20);
+return x_23;
+}
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__1___rarg), 5, 0);
+return x_4;
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+lean::dec(x_2);
+lean::dec(x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+if (lean::is_shared(x_4)) {
+ lean::dec(x_4);
+ x_10 = lean::box(0);
+} else {
+ lean::cnstr_release(x_4, 0);
+ x_10 = x_4;
+}
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
+}
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
+}
+else
+{
+obj* x_20; obj* x_23; 
+lean::dec(x_0);
+x_20 = lean::cnstr_get(x_4, 0);
+lean::inc(x_20);
+lean::dec(x_4);
+x_23 = lean::apply_1(x_3, x_20);
+return x_23;
+}
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__2(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__2___rarg), 5, 0);
+return x_4;
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__3___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+lean::dec(x_2);
+lean::dec(x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+if (lean::is_shared(x_4)) {
+ lean::dec(x_4);
+ x_10 = lean::box(0);
+} else {
+ lean::cnstr_release(x_4, 0);
+ x_10 = x_4;
+}
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
+}
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
+}
+else
+{
+obj* x_20; obj* x_23; 
+lean::dec(x_0);
+x_20 = lean::cnstr_get(x_4, 0);
+lean::inc(x_20);
+lean::dec(x_4);
+x_23 = lean::apply_1(x_3, x_20);
+return x_23;
+}
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__3(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__3___rarg), 5, 0);
+return x_4;
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__4___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+lean::dec(x_2);
+lean::dec(x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+if (lean::is_shared(x_4)) {
+ lean::dec(x_4);
+ x_10 = lean::box(0);
+} else {
+ lean::cnstr_release(x_4, 0);
+ x_10 = x_4;
+}
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
+}
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
+}
+else
+{
+obj* x_20; obj* x_23; 
+lean::dec(x_0);
+x_20 = lean::cnstr_get(x_4, 0);
+lean::inc(x_20);
+lean::dec(x_4);
+x_23 = lean::apply_1(x_3, x_20);
+return x_23;
+}
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__4(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__4___rarg), 5, 0);
+return x_4;
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__5___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+lean::dec(x_2);
+lean::dec(x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+if (lean::is_shared(x_4)) {
+ lean::dec(x_4);
+ x_10 = lean::box(0);
+} else {
+ lean::cnstr_release(x_4, 0);
+ x_10 = x_4;
+}
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
+}
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
+}
+else
+{
+obj* x_20; obj* x_23; 
+lean::dec(x_0);
+x_20 = lean::cnstr_get(x_4, 0);
+lean::inc(x_20);
+lean::dec(x_4);
+x_23 = lean::apply_1(x_3, x_20);
+return x_23;
+}
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__5(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__5___rarg), 5, 0);
+return x_4;
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+lean::dec(x_2);
+lean::dec(x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+if (lean::is_shared(x_4)) {
+ lean::dec(x_4);
+ x_10 = lean::box(0);
+} else {
+ lean::cnstr_release(x_4, 0);
+ x_10 = x_4;
+}
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
+}
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
+}
+else
+{
+obj* x_20; obj* x_23; 
+lean::dec(x_0);
+x_20 = lean::cnstr_get(x_4, 0);
+lean::inc(x_20);
+lean::dec(x_4);
+x_23 = lean::apply_1(x_3, x_20);
+return x_23;
+}
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__6(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__6___rarg), 5, 0);
+return x_4;
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__7___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+lean::dec(x_2);
+lean::dec(x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
+lean::dec(x_3);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+if (lean::is_shared(x_4)) {
+ lean::dec(x_4);
+ x_10 = lean::box(0);
+} else {
+ lean::cnstr_release(x_4, 0);
+ x_10 = x_4;
+}
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+if (lean::is_scalar(x_10)) {
+ x_17 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_17 = x_10;
+ lean::cnstr_set_tag(x_10, 0);
+}
+lean::cnstr_set(x_17, 0, x_8);
+x_18 = lean::apply_2(x_14, lean::box(0), x_17);
+return x_18;
+}
+else
+{
+obj* x_20; obj* x_23; 
+lean::dec(x_0);
+x_20 = lean::cnstr_get(x_4, 0);
+lean::inc(x_20);
+lean::dec(x_4);
+x_23 = lean::apply_1(x_3, x_20);
+return x_23;
+}
+}
+}
+obj* l_except__t_bind__cont___at_except__t_monad___spec__7(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__7___rarg), 5, 0);
+return x_4;
+}
+}
 obj* l_except__t_monad___rarg(obj* x_0) {
 _start:
 {
@@ -1554,391 +1967,6 @@ obj* x_4;
 lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_monad___rarg), 1, 0);
-return x_4;
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-lean::dec(x_2);
-lean::dec(x_1);
-if (lean::obj_tag(x_4) == 0)
-{
-obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-if (lean::is_shared(x_4)) {
- lean::dec(x_4);
- x_10 = lean::box(0);
-} else {
- lean::cnstr_release(x_4, 0);
- x_10 = x_4;
-}
-x_11 = lean::cnstr_get(x_0, 0);
-lean::inc(x_11);
-lean::dec(x_0);
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
-lean::dec(x_11);
-if (lean::is_scalar(x_10)) {
- x_17 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_17 = x_10;
-}
-lean::cnstr_set(x_17, 0, x_8);
-x_18 = lean::apply_2(x_14, lean::box(0), x_17);
-return x_18;
-}
-else
-{
-obj* x_20; obj* x_23; 
-lean::dec(x_0);
-x_20 = lean::cnstr_get(x_4, 0);
-lean::inc(x_20);
-lean::dec(x_4);
-x_23 = lean::apply_1(x_3, x_20);
-return x_23;
-}
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__1___rarg), 5, 0);
-return x_4;
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-lean::dec(x_2);
-lean::dec(x_1);
-if (lean::obj_tag(x_4) == 0)
-{
-obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-if (lean::is_shared(x_4)) {
- lean::dec(x_4);
- x_10 = lean::box(0);
-} else {
- lean::cnstr_release(x_4, 0);
- x_10 = x_4;
-}
-x_11 = lean::cnstr_get(x_0, 0);
-lean::inc(x_11);
-lean::dec(x_0);
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
-lean::dec(x_11);
-if (lean::is_scalar(x_10)) {
- x_17 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_17 = x_10;
-}
-lean::cnstr_set(x_17, 0, x_8);
-x_18 = lean::apply_2(x_14, lean::box(0), x_17);
-return x_18;
-}
-else
-{
-obj* x_20; obj* x_23; 
-lean::dec(x_0);
-x_20 = lean::cnstr_get(x_4, 0);
-lean::inc(x_20);
-lean::dec(x_4);
-x_23 = lean::apply_1(x_3, x_20);
-return x_23;
-}
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__2(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__2___rarg), 5, 0);
-return x_4;
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__3___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-lean::dec(x_2);
-lean::dec(x_1);
-if (lean::obj_tag(x_4) == 0)
-{
-obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-if (lean::is_shared(x_4)) {
- lean::dec(x_4);
- x_10 = lean::box(0);
-} else {
- lean::cnstr_release(x_4, 0);
- x_10 = x_4;
-}
-x_11 = lean::cnstr_get(x_0, 0);
-lean::inc(x_11);
-lean::dec(x_0);
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
-lean::dec(x_11);
-if (lean::is_scalar(x_10)) {
- x_17 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_17 = x_10;
-}
-lean::cnstr_set(x_17, 0, x_8);
-x_18 = lean::apply_2(x_14, lean::box(0), x_17);
-return x_18;
-}
-else
-{
-obj* x_20; obj* x_23; 
-lean::dec(x_0);
-x_20 = lean::cnstr_get(x_4, 0);
-lean::inc(x_20);
-lean::dec(x_4);
-x_23 = lean::apply_1(x_3, x_20);
-return x_23;
-}
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__3(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__3___rarg), 5, 0);
-return x_4;
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__4___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-lean::dec(x_2);
-lean::dec(x_1);
-if (lean::obj_tag(x_4) == 0)
-{
-obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-if (lean::is_shared(x_4)) {
- lean::dec(x_4);
- x_10 = lean::box(0);
-} else {
- lean::cnstr_release(x_4, 0);
- x_10 = x_4;
-}
-x_11 = lean::cnstr_get(x_0, 0);
-lean::inc(x_11);
-lean::dec(x_0);
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
-lean::dec(x_11);
-if (lean::is_scalar(x_10)) {
- x_17 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_17 = x_10;
-}
-lean::cnstr_set(x_17, 0, x_8);
-x_18 = lean::apply_2(x_14, lean::box(0), x_17);
-return x_18;
-}
-else
-{
-obj* x_20; obj* x_23; 
-lean::dec(x_0);
-x_20 = lean::cnstr_get(x_4, 0);
-lean::inc(x_20);
-lean::dec(x_4);
-x_23 = lean::apply_1(x_3, x_20);
-return x_23;
-}
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__4(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__4___rarg), 5, 0);
-return x_4;
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__5___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-lean::dec(x_2);
-lean::dec(x_1);
-if (lean::obj_tag(x_4) == 0)
-{
-obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-if (lean::is_shared(x_4)) {
- lean::dec(x_4);
- x_10 = lean::box(0);
-} else {
- lean::cnstr_release(x_4, 0);
- x_10 = x_4;
-}
-x_11 = lean::cnstr_get(x_0, 0);
-lean::inc(x_11);
-lean::dec(x_0);
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
-lean::dec(x_11);
-if (lean::is_scalar(x_10)) {
- x_17 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_17 = x_10;
-}
-lean::cnstr_set(x_17, 0, x_8);
-x_18 = lean::apply_2(x_14, lean::box(0), x_17);
-return x_18;
-}
-else
-{
-obj* x_20; obj* x_23; 
-lean::dec(x_0);
-x_20 = lean::cnstr_get(x_4, 0);
-lean::inc(x_20);
-lean::dec(x_4);
-x_23 = lean::apply_1(x_3, x_20);
-return x_23;
-}
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__5(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__5___rarg), 5, 0);
-return x_4;
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__6___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-lean::dec(x_2);
-lean::dec(x_1);
-if (lean::obj_tag(x_4) == 0)
-{
-obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-if (lean::is_shared(x_4)) {
- lean::dec(x_4);
- x_10 = lean::box(0);
-} else {
- lean::cnstr_release(x_4, 0);
- x_10 = x_4;
-}
-x_11 = lean::cnstr_get(x_0, 0);
-lean::inc(x_11);
-lean::dec(x_0);
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
-lean::dec(x_11);
-if (lean::is_scalar(x_10)) {
- x_17 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_17 = x_10;
-}
-lean::cnstr_set(x_17, 0, x_8);
-x_18 = lean::apply_2(x_14, lean::box(0), x_17);
-return x_18;
-}
-else
-{
-obj* x_20; obj* x_23; 
-lean::dec(x_0);
-x_20 = lean::cnstr_get(x_4, 0);
-lean::inc(x_20);
-lean::dec(x_4);
-x_23 = lean::apply_1(x_3, x_20);
-return x_23;
-}
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__6(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__6___rarg), 5, 0);
-return x_4;
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__7___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-lean::dec(x_2);
-lean::dec(x_1);
-if (lean::obj_tag(x_4) == 0)
-{
-obj* x_8; obj* x_10; obj* x_11; obj* x_14; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_8 = lean::cnstr_get(x_4, 0);
-lean::inc(x_8);
-if (lean::is_shared(x_4)) {
- lean::dec(x_4);
- x_10 = lean::box(0);
-} else {
- lean::cnstr_release(x_4, 0);
- x_10 = x_4;
-}
-x_11 = lean::cnstr_get(x_0, 0);
-lean::inc(x_11);
-lean::dec(x_0);
-x_14 = lean::cnstr_get(x_11, 1);
-lean::inc(x_14);
-lean::dec(x_11);
-if (lean::is_scalar(x_10)) {
- x_17 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_17 = x_10;
-}
-lean::cnstr_set(x_17, 0, x_8);
-x_18 = lean::apply_2(x_14, lean::box(0), x_17);
-return x_18;
-}
-else
-{
-obj* x_20; obj* x_23; 
-lean::dec(x_0);
-x_20 = lean::cnstr_get(x_4, 0);
-lean::inc(x_20);
-lean::dec(x_4);
-x_23 = lean::apply_1(x_3, x_20);
-return x_23;
-}
-}
-}
-obj* l_except__t_bind__cont___at_except__t_monad___spec__7(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_except__t_monad___spec__7___rarg), 5, 0);
 return x_4;
 }
 }

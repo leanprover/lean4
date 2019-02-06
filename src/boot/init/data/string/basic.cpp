@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_string_iterator_to__end___main(obj*);
 obj* l_string_iterator_has__prev___main___boxed(obj*);
@@ -298,6 +302,7 @@ if (lean::is_scalar(x_6)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_6;
+ lean::cnstr_set_tag(x_6, 1);
 }
 lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_4);
@@ -357,6 +362,7 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
+ lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_3);
 lean::cnstr_set(x_10, 1, x_8);
@@ -398,6 +404,7 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
+ lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_3);
 lean::cnstr_set(x_10, 1, x_8);
@@ -601,94 +608,6 @@ x_4 = lean::string_mk(x_3);
 return x_4;
 }
 }
-obj* l_string_iterator_extract__core___main(obj* x_0, obj* x_1) {
-_start:
-{
-if (lean::obj_tag(x_0) == 0)
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::box(0);
-return x_4;
-}
-else
-{
-obj* x_5; obj* x_7; obj* x_9; uint8 x_12; 
-x_5 = lean::cnstr_get(x_0, 0);
-lean::inc(x_5);
-x_7 = lean::cnstr_get(x_0, 1);
-lean::inc(x_7);
-if (lean::is_shared(x_0)) {
- lean::dec(x_0);
- x_9 = lean::box(0);
-} else {
- lean::cnstr_release(x_0, 0);
- lean::cnstr_release(x_0, 1);
- x_9 = x_0;
-}
-lean::inc(x_1);
-lean::inc(x_7);
-x_12 = l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(x_7, x_1);
-if (x_12 == 0)
-{
-obj* x_13; 
-x_13 = l_string_iterator_extract__core___main(x_7, x_1);
-if (lean::obj_tag(x_13) == 0)
-{
-lean::dec(x_9);
-lean::dec(x_5);
-x_0 = x_7;
-goto _start;
-}
-else
-{
-obj* x_16; obj* x_18; obj* x_19; obj* x_20; 
-x_16 = lean::cnstr_get(x_13, 0);
-lean::inc(x_16);
-if (lean::is_shared(x_13)) {
- lean::dec(x_13);
- x_18 = lean::box(0);
-} else {
- lean::cnstr_release(x_13, 0);
- x_18 = x_13;
-}
-if (lean::is_scalar(x_9)) {
- x_19 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_19 = x_9;
-}
-lean::cnstr_set(x_19, 0, x_5);
-lean::cnstr_set(x_19, 1, x_16);
-if (lean::is_scalar(x_18)) {
- x_20 = lean::alloc_cnstr(1, 1, 0);
-} else {
- x_20 = x_18;
-}
-lean::cnstr_set(x_20, 0, x_19);
-return x_20;
-}
-}
-else
-{
-obj* x_23; obj* x_24; obj* x_25; 
-lean::dec(x_7);
-lean::dec(x_1);
-x_23 = lean::box(0);
-if (lean::is_scalar(x_9)) {
- x_24 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_24 = x_9;
-}
-lean::cnstr_set(x_24, 0, x_5);
-lean::cnstr_set(x_24, 1, x_23);
-x_25 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_25, 0, x_24);
-return x_25;
-}
-}
-}
-}
 uint8 l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
@@ -763,6 +682,96 @@ x_29 = 1;
 return x_29;
 }
 }
+}
+}
+}
+}
+obj* l_string_iterator_extract__core___main(obj* x_0, obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_0) == 0)
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = lean::box(0);
+return x_4;
+}
+else
+{
+obj* x_5; obj* x_7; obj* x_9; uint8 x_12; 
+x_5 = lean::cnstr_get(x_0, 0);
+lean::inc(x_5);
+x_7 = lean::cnstr_get(x_0, 1);
+lean::inc(x_7);
+if (lean::is_shared(x_0)) {
+ lean::dec(x_0);
+ x_9 = lean::box(0);
+} else {
+ lean::cnstr_release(x_0, 0);
+ lean::cnstr_release(x_0, 1);
+ x_9 = x_0;
+}
+lean::inc(x_1);
+lean::inc(x_7);
+x_12 = l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(x_7, x_1);
+if (x_12 == 0)
+{
+obj* x_13; 
+x_13 = l_string_iterator_extract__core___main(x_7, x_1);
+if (lean::obj_tag(x_13) == 0)
+{
+lean::dec(x_9);
+lean::dec(x_5);
+return x_13;
+}
+else
+{
+obj* x_16; obj* x_18; obj* x_19; obj* x_20; 
+x_16 = lean::cnstr_get(x_13, 0);
+lean::inc(x_16);
+if (lean::is_shared(x_13)) {
+ lean::dec(x_13);
+ x_18 = lean::box(0);
+} else {
+ lean::cnstr_release(x_13, 0);
+ x_18 = x_13;
+}
+if (lean::is_scalar(x_9)) {
+ x_19 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_19 = x_9;
+ lean::cnstr_set_tag(x_9, 1);
+}
+lean::cnstr_set(x_19, 0, x_5);
+lean::cnstr_set(x_19, 1, x_16);
+if (lean::is_scalar(x_18)) {
+ x_20 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_20 = x_18;
+ lean::cnstr_set_tag(x_18, 1);
+}
+lean::cnstr_set(x_20, 0, x_19);
+return x_20;
+}
+}
+else
+{
+obj* x_23; obj* x_24; obj* x_25; 
+lean::dec(x_7);
+lean::dec(x_1);
+x_23 = lean::box(0);
+if (lean::is_scalar(x_9)) {
+ x_24 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_24 = x_9;
+ lean::cnstr_set_tag(x_9, 1);
+}
+lean::cnstr_set(x_24, 0, x_5);
+lean::cnstr_set(x_24, 1, x_23);
+x_25 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_25, 0, x_24);
+return x_25;
 }
 }
 }
@@ -843,6 +852,7 @@ if (lean::is_scalar(x_26)) {
  x_28 = lean::alloc_cnstr(1, 1, 0);
 } else {
  x_28 = x_26;
+ lean::cnstr_set_tag(x_26, 1);
 }
 lean::cnstr_set(x_28, 0, x_27);
 return x_28;
@@ -973,14 +983,6 @@ x_3 = l_string_str(x_0, x_2);
 return x_3;
 }
 }
-obj* l_string_pushn(obj* x_0, uint32 x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_nat_repeat___main___at_string_pushn___spec__1(x_0, x_1, x_2);
-return x_3;
-}
-}
 obj* l_nat_repeat___main___at_string_pushn___spec__1(obj* x_0, uint32 x_1, obj* x_2) {
 _start:
 {
@@ -1006,13 +1008,12 @@ return x_0;
 }
 }
 }
-obj* l_string_pushn___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_string_pushn(obj* x_0, uint32 x_1, obj* x_2) {
 _start:
 {
-uint32 x_3; obj* x_4; 
-x_3 = lean::unbox_uint32(x_1);
-x_4 = l_string_pushn(x_0, x_3, x_2);
-return x_4;
+obj* x_3; 
+x_3 = l_nat_repeat___main___at_string_pushn___spec__1(x_0, x_1, x_2);
+return x_3;
 }
 }
 obj* l_nat_repeat___main___at_string_pushn___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
@@ -1021,6 +1022,15 @@ _start:
 uint32 x_3; obj* x_4; 
 x_3 = lean::unbox_uint32(x_1);
 x_4 = l_nat_repeat___main___at_string_pushn___spec__1(x_0, x_3, x_2);
+return x_4;
+}
+}
+obj* l_string_pushn___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint32 x_3; obj* x_4; 
+x_3 = lean::unbox_uint32(x_1);
+x_4 = l_string_pushn(x_0, x_3, x_2);
 return x_4;
 }
 }
@@ -1097,24 +1107,6 @@ x_2 = lean::box_uint32(x_1);
 return x_2;
 }
 }
-obj* l_string_join(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_3; 
-x_1 = l_string_join___closed__1;
-lean::inc(x_1);
-x_3 = l_list_foldl___main___at_string_join___spec__1(x_1, x_0);
-return x_3;
-}
-}
-obj* _init_l_string_join___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("");
-return x_0;
-}
-}
 obj* l_list_foldl___main___at_string_join___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
@@ -1139,6 +1131,24 @@ goto _start;
 }
 }
 }
+obj* l_string_join(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_3; 
+x_1 = l_string_join___closed__1;
+lean::inc(x_1);
+x_3 = l_list_foldl___main___at_string_join___spec__1(x_1, x_0);
+return x_3;
+}
+}
+obj* _init_l_string_join___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("");
+return x_0;
+}
+}
 obj* l_string_singleton(uint32 x_0) {
 _start:
 {
@@ -1156,17 +1166,6 @@ uint32 x_1; obj* x_2;
 x_1 = lean::unbox_uint32(x_0);
 x_2 = l_string_singleton(x_1);
 return x_2;
-}
-}
-obj* l_string_intercalate(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
-x_2 = lean::string_data(x_0);
-x_3 = l_list_map___main___at_string_intercalate___spec__1(x_1);
-x_4 = l_list_intercalate___rarg(x_2, x_3);
-x_5 = lean::string_mk(x_4);
-return x_5;
 }
 }
 obj* l_list_map___main___at_string_intercalate___spec__1(obj* x_0) {
@@ -1200,11 +1199,23 @@ if (lean::is_scalar(x_7)) {
  x_10 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_10 = x_7;
+ lean::cnstr_set_tag(x_7, 1);
 }
 lean::cnstr_set(x_10, 0, x_8);
 lean::cnstr_set(x_10, 1, x_9);
 return x_10;
 }
+}
+}
+obj* l_string_intercalate(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+x_2 = lean::string_data(x_0);
+x_3 = l_list_map___main___at_string_intercalate___spec__1(x_1);
+x_4 = l_list_intercalate___rarg(x_2, x_3);
+x_5 = lean::string_mk(x_4);
+return x_5;
 }
 }
 obj* l_string_iterator_nextn___main(obj* x_0, obj* x_1) {

@@ -519,6 +519,7 @@ inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) 
     return new (alloc_heap_object(cnstr_byte_size(num_objs, scalar_sz))) constructor_object(tag, num_objs, scalar_sz); // NOLINT
 }
 inline unsigned cnstr_tag(b_obj_arg o) { return to_cnstr(o)->m_tag; }
+inline void cnstr_set_tag(b_obj_arg o, unsigned tag) { to_cnstr(o)->m_tag = tag; }
 /* Access constructor object field `i` */
 inline b_obj_res cnstr_get(b_obj_arg o, unsigned i) {
     lean_assert(i < cnstr_num_objs(o));

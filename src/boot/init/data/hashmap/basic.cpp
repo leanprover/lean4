@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_mk__hashmap__imp___rarg(obj*);
 obj* l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1(obj*, obj*, obj*);
@@ -236,35 +240,6 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_reinsert__aux__
 return x_4;
 }
 }
-obj* l_hashmap__imp_fold__buckets___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_4; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_fold__buckets___rarg___lambda__1), 3, 1);
-lean::closure_set(x_3, 0, x_2);
-x_4 = l_array_foldl___rarg(x_0, x_1, x_3);
-return x_4;
-}
-}
-obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg(x_0, x_2, x_1);
-return x_3;
-}
-}
-obj* l_hashmap__imp_fold__buckets(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_6; 
-lean::dec(x_2);
-lean::dec(x_1);
-lean::dec(x_0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_fold__buckets___rarg), 3, 0);
-return x_6;
-}
-}
 obj* l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -303,6 +278,35 @@ lean::dec(x_2);
 lean::dec(x_1);
 lean::dec(x_0);
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg), 3, 0);
+return x_6;
+}
+}
+obj* l_hashmap__imp_fold__buckets___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_fold__buckets___rarg___lambda__1), 3, 1);
+lean::closure_set(x_3, 0, x_2);
+x_4 = l_array_foldl___rarg(x_0, x_1, x_3);
+return x_4;
+}
+}
+obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg(x_0, x_2, x_1);
+return x_3;
+}
+}
+obj* l_hashmap__imp_fold__buckets(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_6; 
+lean::dec(x_2);
+lean::dec(x_1);
+lean::dec(x_0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_fold__buckets___rarg), 3, 0);
 return x_6;
 }
 }
@@ -503,6 +507,7 @@ if (lean::is_scalar(x_11)) {
  x_20 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_20 = x_11;
+ lean::cnstr_set_tag(x_11, 1);
 }
 lean::cnstr_set(x_20, 0, x_7);
 lean::cnstr_set(x_20, 1, x_19);
@@ -520,6 +525,7 @@ if (lean::is_scalar(x_11)) {
  x_24 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_24 = x_11;
+ lean::cnstr_set_tag(x_11, 1);
 }
 lean::cnstr_set(x_24, 0, x_23);
 lean::cnstr_set(x_24, 1, x_9);
@@ -595,6 +601,7 @@ if (lean::is_scalar(x_9)) {
  x_18 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_18 = x_9;
+ lean::cnstr_set_tag(x_9, 1);
 }
 lean::cnstr_set(x_18, 0, x_5);
 lean::cnstr_set(x_18, 1, x_17);
@@ -701,6 +708,7 @@ if (lean::is_scalar(x_9)) {
  x_41 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_41 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_41, 0, x_26);
 lean::cnstr_set(x_41, 1, x_40);
@@ -715,6 +723,7 @@ if (lean::is_scalar(x_9)) {
  x_44 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_44 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_44, 0, x_26);
 lean::cnstr_set(x_44, 1, x_31);
@@ -732,6 +741,7 @@ if (lean::is_scalar(x_9)) {
  x_49 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_49 = x_9;
+ lean::cnstr_set_tag(x_9, 0);
 }
 lean::cnstr_set(x_49, 0, x_5);
 lean::cnstr_set(x_49, 1, x_48);

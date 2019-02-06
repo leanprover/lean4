@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_mk__hashmap__imp___rarg(obj*);
 obj* l_lean_disjoint__set_merge(obj*);
@@ -44,6 +48,25 @@ obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l___private_3363165505__find__aux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___main(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj*);
+obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_mk__hashmap__imp___rarg(x_0);
+return x_1;
+}
+}
+obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_6; 
+lean::dec(x_2);
+lean::dec(x_1);
+lean::dec(x_0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg), 1, 0);
+return x_6;
+}
+}
 obj* l_lean_mk__disjoint__set___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -62,25 +85,6 @@ obj* x_2;
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_mk__disjoint__set___rarg), 2, 0);
 return x_2;
-}
-}
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_mk__hashmap__imp___rarg(x_0);
-return x_1;
-}
-}
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_6; 
-lean::dec(x_2);
-lean::dec(x_1);
-lean::dec(x_0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg), 1, 0);
-return x_6;
 }
 }
 obj* l___private_3363165505__find__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -265,6 +269,74 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_disjoint__set_rank___ra
 return x_2;
 }
 }
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg), 5, 0);
+return x_2;
+}
+}
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg), 5, 0);
+return x_2;
+}
+}
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg), 5, 0);
+return x_2;
+}
+}
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg), 5, 0);
+return x_2;
+}
+}
 obj* l_lean_disjoint__set_merge___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -370,74 +442,6 @@ _start:
 obj* x_2; 
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_disjoint__set_merge___main___rarg), 5, 0);
-return x_2;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg), 5, 0);
-return x_2;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg), 5, 0);
-return x_2;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg), 5, 0);
-return x_2;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg), 5, 0);
 return x_2;
 }
 }

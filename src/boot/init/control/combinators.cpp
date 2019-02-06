@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_list_mfilter___main___rarg___lambda__1(uint8, obj*, obj*, obj*);
 obj* l_list_mmap(obj*);
@@ -77,23 +81,6 @@ obj* l_list_mexists(obj*);
 obj* l_mwhen___rarg(obj*, obj*, obj*);
 obj* l_list_mfilter(obj*);
 obj* l_mwhen(obj*);
-obj* l_nat_mrepeat___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_nat_repeat___main___at_nat_mrepeat___spec__1___rarg(x_0, x_2, x_1);
-return x_3;
-}
-}
-obj* l_nat_mrepeat(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_mrepeat___rarg), 3, 0);
-return x_2;
-}
-}
 obj* l_nat_repeat___main___at_nat_mrepeat___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -145,6 +132,23 @@ _start:
 obj* x_2; 
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_repeat___main___at_nat_mrepeat___spec__1___rarg), 3, 0);
+return x_2;
+}
+}
+obj* l_nat_mrepeat___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_nat_repeat___main___at_nat_mrepeat___spec__1___rarg(x_0, x_2, x_1);
+return x_3;
+}
+}
+obj* l_nat_mrepeat(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_mrepeat___rarg), 3, 0);
 return x_2;
 }
 }

@@ -11,6 +11,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_lean_parser_monad__parsec_error___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_3693562977__run__aux(obj*, obj*, obj*, obj*);
@@ -191,6 +195,59 @@ x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_run___ra
 return x_10;
 }
 }
+obj* l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_7; obj* x_10; obj* x_11; 
+lean::dec(x_1);
+x_7 = lean::cnstr_get(x_0, 0);
+lean::inc(x_7);
+lean::dec(x_0);
+x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_error___rarg___lambda__1), 5, 4);
+lean::closure_set(x_10, 0, x_4);
+lean::closure_set(x_10, 1, x_2);
+lean::closure_set(x_10, 2, x_3);
+lean::closure_set(x_10, 3, x_5);
+x_11 = lean::apply_2(x_7, lean::box(0), x_10);
+return x_11;
+}
+}
+obj* l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_6; 
+lean::dec(x_2);
+lean::dec(x_1);
+lean::dec(x_0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg), 6, 0);
+return x_6;
+}
+}
+obj* l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3693562977__run__aux___rarg), 4, 3);
+lean::closure_set(x_4, 0, x_1);
+lean::closure_set(x_4, 1, x_2);
+lean::closure_set(x_4, 2, x_3);
+x_5 = lean::apply_1(x_0, x_4);
+return x_5;
+}
+}
+obj* l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_10; 
+lean::dec(x_4);
+lean::dec(x_3);
+lean::dec(x_2);
+lean::dec(x_1);
+lean::dec(x_0);
+x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2___rarg), 4, 0);
+return x_10;
+}
+}
 obj* l_lean_parser_rec__t_run__parsec___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -263,59 +320,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_run__parsec___rarg), 5, 0);
 return x_8;
-}
-}
-obj* l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-obj* x_7; obj* x_10; obj* x_11; 
-lean::dec(x_1);
-x_7 = lean::cnstr_get(x_0, 0);
-lean::inc(x_7);
-lean::dec(x_0);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_error___rarg___lambda__1), 5, 4);
-lean::closure_set(x_10, 0, x_4);
-lean::closure_set(x_10, 1, x_2);
-lean::closure_set(x_10, 2, x_3);
-lean::closure_set(x_10, 3, x_5);
-x_11 = lean::apply_2(x_7, lean::box(0), x_10);
-return x_11;
-}
-}
-obj* l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_6; 
-lean::dec(x_2);
-lean::dec(x_1);
-lean::dec(x_0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg), 6, 0);
-return x_6;
-}
-}
-obj* l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; obj* x_5; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3693562977__run__aux___rarg), 4, 3);
-lean::closure_set(x_4, 0, x_1);
-lean::closure_set(x_4, 1, x_2);
-lean::closure_set(x_4, 2, x_3);
-x_5 = lean::apply_1(x_0, x_4);
-return x_5;
-}
-}
-obj* l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_10; 
-lean::dec(x_4);
-lean::dec(x_3);
-lean::dec(x_2);
-lean::dec(x_1);
-lean::dec(x_0);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2___rarg), 4, 0);
-return x_10;
 }
 }
 obj* l_lean_parser_rec__t_monad___rarg(obj* x_0) {

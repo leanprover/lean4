@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -46,7 +48,7 @@ obj* l_reader__t_alternative___rarg(obj*, obj*);
 obj* l_lean_parser_run(obj*, obj*, obj*);
 obj* l_lean_parser_parser__t_monad(obj*, obj*);
 obj* l_lean_parser_command__parser__m_monad__reader__adapter(obj*, obj*);
-unsigned char l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
+uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_rbnode_ins___main___at_lean_parser_token__map_insert___spec__5(obj*);
 obj* l_lean_parser_command__parser__m_basic__parser___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command__parser__m_lean_parser_monad__parsec(obj*);
@@ -66,7 +68,7 @@ obj* l_lean_parser_command__parser__m_alternative___closed__1;
 obj* l_lean_parser_parser__core__t_monad__except(obj*);
 obj* l_lean_parser_command__parser;
 obj* l_lean_parser_trie_insert___rarg(obj*, obj*, obj*);
-obj* l_rbnode_mk__insert__result___main___rarg(unsigned char, obj*);
+obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
 obj* l_lean_parser_parser__t_lean_parser_monad__parsec(obj*, obj*);
 obj* l_lean_parser_trailing__term__parser__coe(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_parser__t_alternative___rarg(obj*);
@@ -136,7 +138,7 @@ obj* l_lean_parser_basic__parser__m_alternative;
 obj* l_lean_parser_parser__t_alternative(obj*, obj*);
 obj* l_lean_parser_command__parser__m_monad__except(obj*);
 obj* l_lean_parser_trailing__term__parser__m_lean_parser_monad__parsec;
-unsigned char l_rbnode_get__color___main___rarg(obj*);
+uint8 l_rbnode_get__color___main___rarg(obj*);
 obj* l_lean_parser_message__of__parsec__message(obj*);
 obj* l_option_get___main___at_lean_parser_run___spec__2(obj*);
 obj* l_lean_parser_parser__config__coe(obj*);
@@ -664,7 +666,7 @@ return x_6;
 obj* l_lean_parser_try__view___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::inc(x_2);
 x_4 = l_lean_parser_syntax_is__of__kind___main(x_0, x_2);
 if (x_4 == 0)
@@ -723,7 +725,7 @@ return x_2;
 obj* l_lean_parser_message__of__parsec__message___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_13; unsigned char x_14; obj* x_15; obj* x_17; obj* x_18; 
+obj* x_2; obj* x_4; obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_13; uint8 x_14; obj* x_15; obj* x_17; obj* x_18; 
 x_2 = lean::cnstr_get(x_0, 0);
 lean::inc(x_2);
 x_4 = lean::cnstr_get(x_0, 2);
@@ -1163,7 +1165,7 @@ goto _start;
 }
 else
 {
-obj* x_17; obj* x_20; obj* x_22; unsigned char x_23; 
+obj* x_17; obj* x_20; obj* x_22; uint8 x_23; 
 x_17 = lean::cnstr_get(x_13, 0);
 lean::inc(x_17);
 lean::dec(x_13);
@@ -1173,7 +1175,7 @@ x_22 = lean::mk_nat_obj(0u);
 x_23 = lean::nat_dec_eq(x_20, x_22);
 if (x_23 == 0)
 {
-obj* x_24; unsigned char x_27; 
+obj* x_24; uint8 x_27; 
 x_24 = lean::cnstr_get(x_17, 1);
 lean::inc(x_24);
 lean::dec(x_17);
@@ -1181,7 +1183,7 @@ x_27 = lean::nat_dec_eq(x_24, x_22);
 lean::dec(x_22);
 if (x_27 == 0)
 {
-unsigned char x_30; 
+uint8 x_30; 
 lean::dec(x_4);
 x_30 = lean::nat_dec_eq(x_20, x_24);
 if (x_30 == 0)
@@ -1229,7 +1231,7 @@ goto _start;
 }
 else
 {
-obj* x_57; unsigned char x_60; 
+obj* x_57; uint8 x_60; 
 lean::dec(x_20);
 x_57 = lean::cnstr_get(x_17, 1);
 lean::inc(x_57);
@@ -1919,7 +1921,7 @@ return x_4;
 }
 case 1:
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_16; unsigned char x_17; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_16; uint8 x_17; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -1936,7 +1938,7 @@ x_17 = lean::unbox(x_16);
 lean::dec(x_16);
 if (x_17 == 0)
 {
-obj* x_21; unsigned char x_22; 
+obj* x_21; uint8 x_22; 
 lean::dec(x_5);
 lean::inc(x_1);
 x_21 = l_lean_name_quick__lt___main(x_7, x_1);
@@ -1969,7 +1971,7 @@ goto _start;
 }
 default:
 {
-obj* x_33; obj* x_35; obj* x_37; obj* x_39; obj* x_44; unsigned char x_45; 
+obj* x_33; obj* x_35; obj* x_37; obj* x_39; obj* x_44; uint8 x_45; 
 x_33 = lean::cnstr_get(x_0, 0);
 lean::inc(x_33);
 x_35 = lean::cnstr_get(x_0, 1);
@@ -1986,7 +1988,7 @@ x_45 = lean::unbox(x_44);
 lean::dec(x_44);
 if (x_45 == 0)
 {
-obj* x_49; unsigned char x_50; 
+obj* x_49; uint8 x_50; 
 lean::dec(x_33);
 lean::inc(x_1);
 x_49 = l_lean_name_quick__lt___main(x_35, x_1);
@@ -2063,7 +2065,7 @@ return x_4;
 }
 case 1:
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_16; unsigned char x_17; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_16; uint8 x_17; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -2089,7 +2091,7 @@ x_17 = lean::unbox(x_16);
 lean::dec(x_16);
 if (x_17 == 0)
 {
-obj* x_21; unsigned char x_22; 
+obj* x_21; uint8 x_22; 
 lean::inc(x_1);
 lean::inc(x_7);
 x_21 = l_lean_name_quick__lt___main(x_7, x_1);
@@ -2145,7 +2147,7 @@ return x_30;
 }
 default:
 {
-obj* x_31; obj* x_33; obj* x_35; obj* x_37; obj* x_39; obj* x_42; unsigned char x_43; 
+obj* x_31; obj* x_33; obj* x_35; obj* x_37; obj* x_39; obj* x_42; uint8 x_43; 
 x_31 = lean::cnstr_get(x_0, 0);
 lean::inc(x_31);
 x_33 = lean::cnstr_get(x_0, 1);
@@ -2171,7 +2173,7 @@ x_43 = lean::unbox(x_42);
 lean::dec(x_42);
 if (x_43 == 0)
 {
-obj* x_47; unsigned char x_48; 
+obj* x_47; uint8 x_48; 
 lean::inc(x_1);
 lean::inc(x_33);
 x_47 = l_lean_name_quick__lt___main(x_33, x_1);
@@ -2195,7 +2197,7 @@ return x_52;
 }
 else
 {
-unsigned char x_54; 
+uint8 x_54; 
 lean::inc(x_37);
 x_54 = l_rbnode_get__color___main___rarg(x_37);
 if (x_54 == 0)
@@ -2225,7 +2227,7 @@ return x_59;
 }
 else
 {
-unsigned char x_61; 
+uint8 x_61; 
 lean::inc(x_31);
 x_61 = l_rbnode_get__color___main___rarg(x_31);
 if (x_61 == 0)
@@ -2268,7 +2270,7 @@ return x_2;
 obj* l_rbnode_insert___at_lean_parser_token__map_insert___spec__4___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_4; obj* x_5; obj* x_6; 
+uint8 x_4; obj* x_5; obj* x_6; 
 lean::inc(x_0);
 x_4 = l_rbnode_get__color___main___rarg(x_0);
 x_5 = l_rbnode_ins___main___at_lean_parser_token__map_insert___spec__5___rarg(x_0, x_1, x_2);
@@ -2319,7 +2321,7 @@ return x_4;
 }
 case 1:
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_16; unsigned char x_17; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_16; uint8 x_17; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -2345,7 +2347,7 @@ x_17 = lean::unbox(x_16);
 lean::dec(x_16);
 if (x_17 == 0)
 {
-obj* x_21; unsigned char x_22; 
+obj* x_21; uint8 x_22; 
 lean::inc(x_1);
 lean::inc(x_7);
 x_21 = l_lean_name_quick__lt___main(x_7, x_1);
@@ -2401,7 +2403,7 @@ return x_30;
 }
 default:
 {
-obj* x_31; obj* x_33; obj* x_35; obj* x_37; obj* x_39; obj* x_42; unsigned char x_43; 
+obj* x_31; obj* x_33; obj* x_35; obj* x_37; obj* x_39; obj* x_42; uint8 x_43; 
 x_31 = lean::cnstr_get(x_0, 0);
 lean::inc(x_31);
 x_33 = lean::cnstr_get(x_0, 1);
@@ -2427,7 +2429,7 @@ x_43 = lean::unbox(x_42);
 lean::dec(x_42);
 if (x_43 == 0)
 {
-obj* x_47; unsigned char x_48; 
+obj* x_47; uint8 x_48; 
 lean::inc(x_1);
 lean::inc(x_33);
 x_47 = l_lean_name_quick__lt___main(x_33, x_1);
@@ -2451,7 +2453,7 @@ return x_52;
 }
 else
 {
-unsigned char x_54; 
+uint8 x_54; 
 lean::inc(x_37);
 x_54 = l_rbnode_get__color___main___rarg(x_37);
 if (x_54 == 0)
@@ -2481,7 +2483,7 @@ return x_59;
 }
 else
 {
-unsigned char x_61; 
+uint8 x_61; 
 lean::inc(x_31);
 x_61 = l_rbnode_get__color___main___rarg(x_31);
 if (x_61 == 0)
@@ -2524,7 +2526,7 @@ return x_2;
 obj* l_rbnode_insert___at_lean_parser_token__map_insert___spec__7___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_4; obj* x_5; obj* x_6; 
+uint8 x_4; obj* x_5; obj* x_6; 
 lean::inc(x_0);
 x_4 = l_rbnode_get__color___main___rarg(x_0);
 x_5 = l_rbnode_ins___main___at_lean_parser_token__map_insert___spec__8___rarg(x_0, x_1, x_2);

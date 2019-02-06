@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -13,7 +15,7 @@ typedef lean::object obj;
 obj* l_coroutine__io_resume(obj*, obj*, obj*);
 obj* l___private_3644302523__put__str___at_io_println___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_monad___lambda__6(obj*, obj*);
-obj* l_io_fs_handle_mk___rarg(obj*, obj*, obj*, obj*, obj*, unsigned char, unsigned char);
+obj* l_io_fs_handle_mk___rarg(obj*, obj*, obj*, obj*, obj*, uint8, uint8);
 obj* l_io_fs_handle_is__eof___at_io_fs_handle_read__to__end___spec__1(obj*, obj*);
 obj* l_io_prim_lift__eio___at_io_fs_handle_flush___spec__1(obj*, obj*);
 obj* l_io_println___at_io_println_x_27___spec__1(obj*, obj*);
@@ -43,7 +45,7 @@ obj* l_io_fs_handle_flush(obj*, obj*);
 obj* l_io_prim_lift__eio___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate___main(obj*, obj*);
 obj* l_io_prim_handle_mk___boxed(obj*, obj*, obj*, obj*);
-obj* l_io_fs_read__file___rarg(obj*, obj*, obj*, obj*, obj*, unsigned char);
+obj* l_io_fs_read__file___rarg(obj*, obj*, obj*, obj*, obj*, uint8);
 obj* l_coroutine__io_pure(obj*, obj*, obj*);
 obj* l_io_prim_lift__eio(obj*, obj*, obj*);
 obj* l_function_const___rarg(obj*, obj*);
@@ -134,7 +136,7 @@ obj* l_io_print___at_io_println_x_27___spec__2(obj*, obj*);
 obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__5(obj*, obj*);
 obj* l_io_fs_handle_mk___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_id_monad___lambda__2(obj*, obj*, obj*, obj*);
-obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, unsigned char, unsigned char);
+obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, uint8, uint8);
 obj* l_coroutine__io_pipe___rarg(obj*, obj*);
 obj* l_io_fs_handle_close(obj*, obj*);
 obj* l_coroutine__io_monad___lambda__1___closed__1;
@@ -432,7 +434,7 @@ return x_6;
 obj* l_io_prim_handle_mk___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_4; unsigned char x_5; obj* x_6; 
+uint8 x_4; uint8 x_5; obj* x_6; 
 x_4 = lean::unbox(x_1);
 x_5 = lean::unbox(x_2);
 x_6 = lean::io_prim_handle_mk(x_0, x_4, x_5, x_3);
@@ -651,7 +653,7 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3644302523__put__s
 return x_4;
 }
 }
-obj* l_io_fs_handle_mk___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, unsigned char x_5, unsigned char x_6) {
+obj* l_io_fs_handle_mk___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, uint8 x_5, uint8 x_6) {
 _start:
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
@@ -703,7 +705,7 @@ return x_4;
 obj* l_io_fs_handle_mk___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
-unsigned char x_7; unsigned char x_8; obj* x_9; 
+uint8 x_7; uint8 x_8; obj* x_9; 
 x_7 = lean::unbox(x_5);
 x_8 = lean::unbox(x_6);
 x_9 = l_io_fs_handle_mk___rarg(x_0, x_1, x_2, x_3, x_4, x_7, x_8);
@@ -1148,7 +1150,7 @@ goto lbl_5;
 }
 else
 {
-obj* x_18; obj* x_20; unsigned char x_21; 
+obj* x_18; obj* x_20; uint8 x_21; 
 x_18 = lean::cnstr_get(x_8, 0);
 lean::inc(x_18);
 if (lean::is_shared(x_8)) {
@@ -1330,10 +1332,10 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs
 return x_4;
 }
 }
-obj* l_io_fs_read__file___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, unsigned char x_5) {
+obj* l_io_fs_read__file___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, uint8 x_5) {
 _start:
 {
-obj* x_6; unsigned char x_8; obj* x_13; obj* x_15; obj* x_16; 
+obj* x_6; uint8 x_8; obj* x_13; obj* x_15; obj* x_16; 
 x_6 = lean::cnstr_get(x_3, 1);
 lean::inc(x_6);
 x_8 = 0;
@@ -1423,7 +1425,7 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs
 return x_4;
 }
 }
-obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, unsigned char x_5, unsigned char x_6) {
+obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, uint8 x_5, uint8 x_6) {
 _start:
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
@@ -1450,7 +1452,7 @@ return x_4;
 obj* l_io_fs_read__file___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-unsigned char x_6; obj* x_7; 
+uint8 x_6; obj* x_7; 
 x_6 = lean::unbox(x_5);
 x_7 = l_io_fs_read__file___rarg(x_0, x_1, x_2, x_3, x_4, x_6);
 return x_7;
@@ -1459,7 +1461,7 @@ return x_7;
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
-unsigned char x_7; unsigned char x_8; obj* x_9; 
+uint8 x_7; uint8 x_8; obj* x_9; 
 x_7 = lean::unbox(x_5);
 x_8 = lean::unbox(x_6);
 x_9 = l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg(x_0, x_1, x_2, x_3, x_4, x_7, x_8);

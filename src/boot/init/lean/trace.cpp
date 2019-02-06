@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -24,7 +26,7 @@ obj* l_lean_kvmap_get__bool(obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer(obj*);
 obj* l_rbnode_ins___main___at_lean_trace_lean_trace_monad__tracer___spec__3(obj*, obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__10(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_rbnode_mk__insert__result___main___rarg(unsigned char, obj*);
+obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__11(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg(obj*);
@@ -44,10 +46,10 @@ obj* l_list_foldl___main___at_lean_format_join___spec__1(obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__4(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_trace_trace__t_run___rarg(obj*, obj*, obj*);
-unsigned char l_rbnode_get__color___main___rarg(obj*);
+uint8 l_rbnode_get__color___main___rarg(obj*);
 obj* l_lean_trace_monad___rarg(obj*);
 obj* l_lean_trace_trace__t;
-unsigned char l_lean_position_decidable__lt___main(obj*, obj*);
+uint8 l_lean_position_decidable__lt___main(obj*, obj*);
 obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4(obj*);
 obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_trace_pp(obj*);
@@ -63,7 +65,7 @@ return x_0;
 obj* l_lean_trace_pp___main(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11; unsigned char x_12; obj* x_13; obj* x_14; 
+obj* x_1; obj* x_3; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11; uint8 x_12; obj* x_13; obj* x_14; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 x_3 = lean::cnstr_get(x_0, 1);
@@ -98,7 +100,7 @@ return x_2;
 }
 else
 {
-obj* x_3; obj* x_5; obj* x_7; obj* x_8; unsigned char x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
+obj* x_3; obj* x_5; obj* x_7; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_0, 1);
@@ -361,7 +363,7 @@ return x_26;
 }
 else
 {
-obj* x_27; unsigned char x_30; 
+obj* x_27; uint8 x_30; 
 x_27 = lean::cnstr_get(x_17, 0);
 lean::inc(x_27);
 lean::dec(x_17);
@@ -630,7 +632,7 @@ goto lbl_30;
 }
 else
 {
-obj* x_41; unsigned char x_44; 
+obj* x_41; uint8 x_44; 
 x_41 = lean::cnstr_get(x_34, 0);
 lean::inc(x_41);
 lean::dec(x_34);
@@ -806,7 +808,7 @@ return x_4;
 }
 case 1:
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; unsigned char x_16; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; uint8 x_16; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -830,7 +832,7 @@ lean::inc(x_1);
 x_16 = l_lean_position_decidable__lt___main(x_1, x_7);
 if (x_16 == 0)
 {
-unsigned char x_19; 
+uint8 x_19; 
 lean::inc(x_1);
 lean::inc(x_7);
 x_19 = l_lean_position_decidable__lt___main(x_7, x_1);
@@ -884,7 +886,7 @@ return x_26;
 }
 default:
 {
-obj* x_27; obj* x_29; obj* x_31; obj* x_33; obj* x_35; unsigned char x_38; 
+obj* x_27; obj* x_29; obj* x_31; obj* x_33; obj* x_35; uint8 x_38; 
 x_27 = lean::cnstr_get(x_0, 0);
 lean::inc(x_27);
 x_29 = lean::cnstr_get(x_0, 1);
@@ -908,7 +910,7 @@ lean::inc(x_1);
 x_38 = l_lean_position_decidable__lt___main(x_1, x_29);
 if (x_38 == 0)
 {
-unsigned char x_41; 
+uint8 x_41; 
 lean::inc(x_1);
 lean::inc(x_29);
 x_41 = l_lean_position_decidable__lt___main(x_29, x_1);
@@ -930,7 +932,7 @@ return x_44;
 }
 else
 {
-unsigned char x_46; 
+uint8 x_46; 
 lean::inc(x_33);
 x_46 = l_rbnode_get__color___main___rarg(x_33);
 if (x_46 == 0)
@@ -960,7 +962,7 @@ return x_51;
 }
 else
 {
-unsigned char x_53; 
+uint8 x_53; 
 lean::inc(x_27);
 x_53 = l_rbnode_get__color___main___rarg(x_27);
 if (x_53 == 0)
@@ -994,7 +996,7 @@ return x_58;
 obj* l_rbnode_insert___at_lean_trace_lean_trace_monad__tracer___spec__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_4; obj* x_5; obj* x_6; 
+uint8 x_4; obj* x_5; obj* x_6; 
 lean::inc(x_0);
 x_4 = l_rbnode_get__color___main___rarg(x_0);
 x_5 = l_rbnode_ins___main___at_lean_trace_lean_trace_monad__tracer___spec__3(x_0, x_1, x_2);

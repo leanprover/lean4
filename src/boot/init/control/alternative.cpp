@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -18,14 +20,14 @@ obj* l_guardb___main___rarg___boxed(obj*, obj*);
 obj* l_optional___rarg___lambda__1(obj*);
 obj* l_guard___rarg(obj*, obj*, obj*);
 obj* l_assert(obj*);
-obj* l_guardb___main___rarg(obj*, unsigned char);
+obj* l_guardb___main___rarg(obj*, uint8);
 obj* l_optional___rarg(obj*, obj*, obj*);
 obj* l_failure___rarg(obj*, obj*);
 obj* l_failure(obj*);
 obj* l_guardb(obj*);
 obj* l_optional(obj*);
 obj* l_optional___rarg___closed__1;
-obj* l_guardb___rarg(obj*, unsigned char);
+obj* l_guardb___rarg(obj*, uint8);
 obj* l_failure___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -50,7 +52,7 @@ return x_2;
 obj* l_guard___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::dec(x_1);
 x_4 = lean::unbox(x_2);
 lean::dec(x_2);
@@ -90,7 +92,7 @@ return x_2;
 obj* l_assert___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::dec(x_1);
 x_4 = lean::unbox(x_2);
 lean::dec(x_2);
@@ -126,7 +128,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_assert___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_guardb___main___rarg(obj* x_0, unsigned char x_1) {
+obj* l_guardb___main___rarg(obj* x_0, uint8 x_1) {
 _start:
 {
 if (x_1 == 0)
@@ -165,13 +167,13 @@ return x_2;
 obj* l_guardb___main___rarg___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; obj* x_3; 
+uint8 x_2; obj* x_3; 
 x_2 = lean::unbox(x_1);
 x_3 = l_guardb___main___rarg(x_0, x_2);
 return x_3;
 }
 }
-obj* l_guardb___rarg(obj* x_0, unsigned char x_1) {
+obj* l_guardb___rarg(obj* x_0, uint8 x_1) {
 _start:
 {
 obj* x_2; 
@@ -191,7 +193,7 @@ return x_2;
 obj* l_guardb___rarg___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; obj* x_3; 
+uint8 x_2; obj* x_3; 
 x_2 = lean::unbox(x_1);
 x_3 = l_guardb___rarg(x_0, x_2);
 return x_3;

@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -18,16 +20,16 @@ obj* l_list_foldl___main___at_lean_ir_reserved__set___spec__5(obj*, obj*);
 obj* l_rbmap_insert___main___at_lean_ir_reserved__set___spec__2(obj*, obj*, obj*);
 obj* l_rbnode_insert___at_lean_ir_reserved__set___spec__3(obj*, obj*, obj*);
 obj* l_rbnode_find__core___main___at_lean_ir_is__reserved___spec__3(obj*, obj*);
-unsigned char l_lean_ir_is__reserved(obj*);
+uint8 l_lean_ir_is__reserved(obj*);
 obj* l_lean_ir_is__reserved__name___boxed(obj*);
-obj* l_rbnode_mk__insert__result___main___rarg(unsigned char, obj*);
-unsigned char l_option_is__some___main___rarg(obj*);
-unsigned char l_lean_ir_is__reserved__name(obj*);
+obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
+uint8 l_option_is__some___main___rarg(obj*);
+uint8 l_lean_ir_is__reserved__name(obj*);
 obj* l_rbtree_insert___at_lean_ir_reserved__set___spec__1(obj*, obj*);
 obj* l_lean_ir_reserved;
 obj* l_lean_ir_is__reserved__name___main___boxed(obj*);
-unsigned char l_lean_ir_is__reserved__name___main(obj*);
-unsigned char l_rbnode_get__color___main___rarg(obj*);
+uint8 l_lean_ir_is__reserved__name___main(obj*);
+uint8 l_rbnode_get__color___main___rarg(obj*);
 obj* l_lean_ir_is__reserved___boxed(obj*);
 obj* l_rbmap_find__core___main___at_lean_ir_is__reserved___spec__2(obj*, obj*);
 obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
@@ -399,7 +401,7 @@ return x_4;
 }
 case 1:
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; unsigned char x_14; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; uint8 x_14; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -421,7 +423,7 @@ if (lean::is_shared(x_0)) {
 x_14 = lean::string_dec_lt(x_1, x_7);
 if (x_14 == 0)
 {
-unsigned char x_15; 
+uint8 x_15; 
 x_15 = lean::string_dec_lt(x_7, x_1);
 if (x_15 == 0)
 {
@@ -473,7 +475,7 @@ return x_22;
 }
 default:
 {
-obj* x_23; obj* x_25; obj* x_27; obj* x_29; obj* x_31; unsigned char x_32; 
+obj* x_23; obj* x_25; obj* x_27; obj* x_29; obj* x_31; uint8 x_32; 
 x_23 = lean::cnstr_get(x_0, 0);
 lean::inc(x_23);
 x_25 = lean::cnstr_get(x_0, 1);
@@ -495,7 +497,7 @@ if (lean::is_shared(x_0)) {
 x_32 = lean::string_dec_lt(x_1, x_25);
 if (x_32 == 0)
 {
-unsigned char x_33; 
+uint8 x_33; 
 x_33 = lean::string_dec_lt(x_25, x_1);
 if (x_33 == 0)
 {
@@ -515,7 +517,7 @@ return x_36;
 }
 else
 {
-unsigned char x_38; 
+uint8 x_38; 
 lean::inc(x_29);
 x_38 = l_rbnode_get__color___main___rarg(x_29);
 if (x_38 == 0)
@@ -545,7 +547,7 @@ return x_43;
 }
 else
 {
-unsigned char x_45; 
+uint8 x_45; 
 lean::inc(x_23);
 x_45 = l_rbnode_get__color___main___rarg(x_23);
 if (x_45 == 0)
@@ -579,7 +581,7 @@ return x_50;
 obj* l_rbnode_insert___at_lean_ir_reserved__set___spec__3(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_4; obj* x_5; obj* x_6; 
+uint8 x_4; obj* x_5; obj* x_6; 
 lean::inc(x_0);
 x_4 = l_rbnode_get__color___main___rarg(x_0);
 x_5 = l_rbnode_ins___main___at_lean_ir_reserved__set___spec__4(x_0, x_1, x_2);
@@ -628,10 +630,10 @@ goto _start;
 }
 }
 }
-unsigned char l_lean_ir_is__reserved(obj* x_0) {
+uint8 l_lean_ir_is__reserved(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; unsigned char x_4; 
+obj* x_1; obj* x_3; uint8 x_4; 
 x_1 = l_lean_ir_reserved__set;
 lean::inc(x_1);
 x_3 = l_rbtree_find___at_lean_ir_is__reserved___spec__1(x_1, x_0);
@@ -653,7 +655,7 @@ return x_4;
 }
 case 1:
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_11; unsigned char x_14; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_11; uint8 x_14; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -666,7 +668,7 @@ lean::dec(x_0);
 x_14 = lean::string_dec_lt(x_1, x_7);
 if (x_14 == 0)
 {
-unsigned char x_16; 
+uint8 x_16; 
 lean::dec(x_5);
 x_16 = lean::string_dec_lt(x_7, x_1);
 if (x_16 == 0)
@@ -700,7 +702,7 @@ goto _start;
 }
 default:
 {
-obj* x_28; obj* x_30; obj* x_32; obj* x_34; unsigned char x_37; 
+obj* x_28; obj* x_30; obj* x_32; obj* x_34; uint8 x_37; 
 x_28 = lean::cnstr_get(x_0, 0);
 lean::inc(x_28);
 x_30 = lean::cnstr_get(x_0, 1);
@@ -713,7 +715,7 @@ lean::dec(x_0);
 x_37 = lean::string_dec_lt(x_1, x_30);
 if (x_37 == 0)
 {
-unsigned char x_39; 
+uint8 x_39; 
 lean::dec(x_28);
 x_39 = lean::string_dec_lt(x_30, x_1);
 if (x_39 == 0)
@@ -796,26 +798,26 @@ return x_11;
 obj* l_lean_ir_is__reserved___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_is__reserved(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_lean_ir_is__reserved__name___main(obj* x_0) {
+uint8 l_lean_ir_is__reserved__name___main(obj* x_0) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
 case 0:
 {
-unsigned char x_2; 
+uint8 x_2; 
 lean::dec(x_0);
 x_2 = 0;
 return x_2;
 }
 case 1:
 {
-obj* x_3; unsigned char x_6; 
+obj* x_3; uint8 x_6; 
 x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
 lean::dec(x_0);
@@ -824,7 +826,7 @@ return x_6;
 }
 default:
 {
-unsigned char x_8; 
+uint8 x_8; 
 lean::dec(x_0);
 x_8 = 0;
 return x_8;
@@ -835,16 +837,16 @@ return x_8;
 obj* l_lean_ir_is__reserved__name___main___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_is__reserved__name___main(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_lean_ir_is__reserved__name(obj* x_0) {
+uint8 l_lean_ir_is__reserved__name(obj* x_0) {
 _start:
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = l_lean_ir_is__reserved__name___main(x_0);
 return x_1;
 }
@@ -852,7 +854,7 @@ return x_1;
 obj* l_lean_ir_is__reserved__name___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_is__reserved__name(x_0);
 x_2 = lean::box(x_1);
 return x_2;

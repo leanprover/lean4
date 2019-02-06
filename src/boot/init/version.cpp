@@ -5,14 +5,16 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* l_lean_version;
 obj* l_lean_is__release___boxed;
-unsigned char l_lean_is__release;
+uint8 l_lean_is__release;
 obj* l_lean_githash;
 obj* l_lean_special__version__desc;
 obj* _init_l_lean_version() {
@@ -35,14 +37,14 @@ obj* _init_l_lean_githash() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("914b023920db3be51a4bd9b74367b15aa62db573");
+x_0 = lean::mk_string("a35a9513742ec9f7267b4d08da790315bc33cf06");
 return x_0;
 }
 }
-unsigned char _init_l_lean_is__release() {
+uint8 _init_l_lean_is__release() {
 _start:
 {
-unsigned char x_0; 
+uint8 x_0; 
 x_0 = 0;
 return x_0;
 }
@@ -50,7 +52,7 @@ return x_0;
 obj* _init_l_lean_is__release___boxed() {
 _start:
 {
-unsigned char x_0; obj* x_1; 
+uint8 x_0; obj* x_1; 
 x_0 = l_lean_is__release;
 x_1 = lean::box(x_0);
 return x_1;

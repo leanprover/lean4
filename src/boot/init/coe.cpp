@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -29,7 +31,7 @@ obj* l_lift__pair_u_2082(obj*, obj*, obj*);
 obj* l_coe__sort(obj*);
 obj* l_coe__option(obj*);
 obj* l_lift__t___rarg(obj*, obj*);
-unsigned char l_coe__decidable__eq(unsigned char);
+uint8 l_coe__decidable__eq(uint8);
 obj* l_coe__t___rarg(obj*, obj*);
 obj* l_lift__refl(obj*);
 obj* l_lift__list___rarg(obj*, obj*);
@@ -409,18 +411,18 @@ lean::inc(x_0);
 return x_0;
 }
 }
-unsigned char l_coe__decidable__eq(unsigned char x_0) {
+uint8 l_coe__decidable__eq(uint8 x_0) {
 _start:
 {
 if (x_0 == 0)
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = 0;
 return x_1;
 }
 else
 {
-unsigned char x_2; 
+uint8 x_2; 
 x_2 = 1;
 return x_2;
 }
@@ -429,7 +431,7 @@ return x_2;
 obj* l_coe__decidable__eq___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; unsigned char x_2; obj* x_3; 
+uint8 x_1; uint8 x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
 x_2 = l_coe__decidable__eq(x_1);
 x_3 = lean::box(x_2);

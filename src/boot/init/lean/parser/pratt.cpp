@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -219,7 +221,7 @@ return x_44;
 }
 case 2:
 {
-obj* x_47; obj* x_50; obj* x_53; unsigned char x_54; 
+obj* x_47; obj* x_50; obj* x_53; uint8 x_54; 
 lean::dec(x_4);
 lean::dec(x_3);
 x_47 = lean::cnstr_get(x_19, 0);
@@ -232,7 +234,7 @@ x_53 = l_lean_parser_number_has__view_x_27___lambda__1___closed__6;
 x_54 = lean::name_dec_eq(x_50, x_53);
 if (x_54 == 0)
 {
-obj* x_55; unsigned char x_56; 
+obj* x_55; uint8 x_56; 
 x_55 = l_lean_parser_curr__lbp___rarg___lambda__3___closed__1;
 x_56 = lean::name_dec_eq(x_50, x_55);
 lean::dec(x_50);
@@ -422,7 +424,7 @@ return x_4;
 obj* l___private_1055111885__trailing__loop___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8) {
 _start:
 {
-obj* x_9; unsigned char x_10; 
+obj* x_9; uint8 x_10; 
 x_9 = lean::mk_nat_obj(0u);
 x_10 = lean::nat_dec_eq(x_6, x_9);
 lean::dec(x_9);
@@ -488,7 +490,7 @@ return x_9;
 obj* l___private_1055111885__trailing__loop___main___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10) {
 _start:
 {
-unsigned char x_11; 
+uint8 x_11; 
 x_11 = lean::nat_dec_lt(x_0, x_10);
 lean::dec(x_10);
 if (x_11 == 0)

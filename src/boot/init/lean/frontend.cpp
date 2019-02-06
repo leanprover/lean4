@@ -5,13 +5,15 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__12(obj*, obj*, obj*);
-obj* l_io_fs_read__file___at_lean_process__file__json___spec__1(obj*, unsigned char, obj*);
+obj* l_io_fs_read__file___at_lean_process__file__json___spec__1(obj*, uint8, obj*);
 obj* l_io_fs_handle_is__eof___at_io_fs_handle_read__to__end___spec__1(obj*, obj*);
 obj* l_lean_process__file__json___lambda__1___closed__7;
 obj* l_lean_expander_expand(obj*, obj*);
@@ -24,7 +26,7 @@ obj* l_lean_parser_run___at_lean_run__frontend___spec__1(obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2(obj*, obj*);
 obj* l_list_reverse___rarg(obj*);
 obj* l_lean_process__file__json___lambda__1___closed__2;
-unsigned char l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
+uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_io_prim_handle_mk___boxed(obj*, obj*, obj*, obj*);
 obj* l_string_quote(obj*);
 obj* l_coroutine_resume___rarg(obj*, obj*);
@@ -89,7 +91,7 @@ obj* l_lean_process__file__json(obj*, obj*);
 extern obj* l_lean_parser_command_builtin__command__parsers_lean_parser_has__tokens;
 extern obj* l_lean_parser_term_builtin__trailing__parsers;
 obj* l_nat_repr(obj*);
-obj* l_io_fs_handle_mk___at_lean_process__file__json___spec__2(obj*, unsigned char, unsigned char, obj*);
+obj* l_io_fs_handle_mk___at_lean_process__file__json___spec__2(obj*, uint8, uint8, obj*);
 obj* l_lean_process__file__json___lambda__1(obj*, obj*);
 obj* l_lean_run__elaborator(obj*, obj*);
 obj* l_lean_process__file__json___lambda__1___closed__6;
@@ -1486,7 +1488,7 @@ lean::inc(x_103);
 x_108 = l_lean_run__elaborator___rarg(x_106, x_103);
 if (lean::obj_tag(x_108) == 0)
 {
-obj* x_114; obj* x_117; unsigned char x_119; 
+obj* x_114; obj* x_117; uint8 x_119; 
 lean::dec(x_25);
 lean::dec(x_15);
 lean::dec(x_10);
@@ -1560,7 +1562,7 @@ goto lbl_5;
 }
 else
 {
-obj* x_151; obj* x_152; obj* x_154; obj* x_157; obj* x_158; obj* x_160; obj* x_162; obj* x_163; obj* x_164; obj* x_167; obj* x_170; obj* x_171; obj* x_173; obj* x_174; unsigned char x_175; obj* x_176; obj* x_180; obj* x_181; obj* x_183; obj* x_184; obj* x_186; 
+obj* x_151; obj* x_152; obj* x_154; obj* x_157; obj* x_158; obj* x_160; obj* x_162; obj* x_163; obj* x_164; obj* x_167; obj* x_170; obj* x_171; obj* x_173; obj* x_174; uint8 x_175; obj* x_176; obj* x_180; obj* x_181; obj* x_183; obj* x_184; obj* x_186; 
 lean::dec(x_139);
 x_151 = lean::box(0);
 x_152 = lean::cnstr_get(x_54, 2);
@@ -1678,7 +1680,7 @@ goto lbl_5;
 }
 else
 {
-obj* x_215; obj* x_216; obj* x_218; obj* x_221; obj* x_222; obj* x_224; obj* x_226; obj* x_227; obj* x_228; obj* x_231; obj* x_234; obj* x_235; obj* x_237; obj* x_238; unsigned char x_239; obj* x_240; obj* x_244; obj* x_245; obj* x_247; obj* x_248; obj* x_250; 
+obj* x_215; obj* x_216; obj* x_218; obj* x_221; obj* x_222; obj* x_224; obj* x_226; obj* x_227; obj* x_228; obj* x_231; obj* x_234; obj* x_235; obj* x_237; obj* x_238; uint8 x_239; obj* x_240; obj* x_244; obj* x_245; obj* x_247; obj* x_248; obj* x_250; 
 lean::dec(x_203);
 x_215 = lean::box(0);
 x_216 = lean::cnstr_get(x_54, 2);
@@ -2025,7 +2027,7 @@ lean::inc(x_368);
 x_373 = l_lean_run__elaborator___rarg(x_371, x_368);
 if (lean::obj_tag(x_373) == 0)
 {
-obj* x_379; obj* x_382; unsigned char x_384; 
+obj* x_379; obj* x_382; uint8 x_384; 
 lean::dec(x_25);
 lean::dec(x_15);
 lean::dec(x_10);
@@ -2099,7 +2101,7 @@ goto lbl_5;
 }
 else
 {
-obj* x_416; obj* x_417; obj* x_419; obj* x_422; obj* x_423; obj* x_425; obj* x_427; obj* x_428; obj* x_429; obj* x_432; obj* x_435; obj* x_436; obj* x_438; obj* x_439; unsigned char x_440; obj* x_441; obj* x_445; obj* x_446; obj* x_448; obj* x_449; obj* x_451; 
+obj* x_416; obj* x_417; obj* x_419; obj* x_422; obj* x_423; obj* x_425; obj* x_427; obj* x_428; obj* x_429; obj* x_432; obj* x_435; obj* x_436; obj* x_438; obj* x_439; uint8 x_440; obj* x_441; obj* x_445; obj* x_446; obj* x_448; obj* x_449; obj* x_451; 
 lean::dec(x_404);
 x_416 = lean::box(0);
 x_417 = lean::cnstr_get(x_54, 2);
@@ -2217,7 +2219,7 @@ goto lbl_5;
 }
 else
 {
-obj* x_480; obj* x_481; obj* x_483; obj* x_486; obj* x_487; obj* x_489; obj* x_491; obj* x_492; obj* x_493; obj* x_496; obj* x_499; obj* x_500; obj* x_502; obj* x_503; unsigned char x_504; obj* x_505; obj* x_509; obj* x_510; obj* x_512; obj* x_513; obj* x_515; 
+obj* x_480; obj* x_481; obj* x_483; obj* x_486; obj* x_487; obj* x_489; obj* x_491; obj* x_492; obj* x_493; obj* x_496; obj* x_499; obj* x_500; obj* x_502; obj* x_503; uint8 x_504; obj* x_505; obj* x_509; obj* x_510; obj* x_512; obj* x_513; obj* x_515; 
 lean::dec(x_468);
 x_480 = lean::box(0);
 x_481 = lean::cnstr_get(x_54, 2);
@@ -2573,7 +2575,7 @@ return x_5;
 obj* l_lean_process__file__json(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_8; 
+uint8 x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_8; 
 x_2 = 0;
 x_3 = l_io_fs_read__file___at_lean_process__file__json___spec__1(x_0, x_2, x_1);
 x_4 = lean::cnstr_get(x_3, 0);
@@ -2686,7 +2688,7 @@ return x_0;
 obj* l_lean_process__file__json___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_13; obj* x_16; obj* x_17; obj* x_19; obj* x_20; unsigned char x_21; obj* x_22; obj* x_24; obj* x_25; obj* x_28; 
+obj* x_2; obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_13; obj* x_16; obj* x_17; obj* x_19; obj* x_20; uint8 x_21; obj* x_22; obj* x_24; obj* x_25; obj* x_28; 
 x_2 = lean::cnstr_get(x_0, 1);
 lean::inc(x_2);
 x_4 = lean::cnstr_get(x_2, 0);
@@ -2706,7 +2708,7 @@ x_17 = lean::string_append(x_12, x_16);
 lean::dec(x_16);
 x_19 = l_lean_process__file__json___lambda__1___closed__3;
 x_20 = lean::string_append(x_17, x_19);
-x_21 = lean::cnstr_get_scalar<unsigned char>(x_0, sizeof(void*)*5);
+x_21 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*5);
 x_22 = lean::cnstr_get(x_0, 3);
 lean::inc(x_22);
 x_24 = l_string_quote(x_22);
@@ -2920,7 +2922,7 @@ return x_17;
 }
 }
 }
-obj* l_io_fs_handle_mk___at_lean_process__file__json___spec__2(obj* x_0, unsigned char x_1, unsigned char x_2, obj* x_3) {
+obj* l_io_fs_handle_mk___at_lean_process__file__json___spec__2(obj* x_0, uint8 x_1, uint8 x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
@@ -2970,7 +2972,7 @@ goto lbl_5;
 }
 else
 {
-obj* x_18; obj* x_20; unsigned char x_21; 
+obj* x_18; obj* x_20; uint8 x_21; 
 x_18 = lean::cnstr_get(x_8, 0);
 lean::inc(x_18);
 if (lean::is_shared(x_8)) {
@@ -3220,10 +3222,10 @@ x_3 = l_io_prim_lift__eio___at_lean_run__frontend___spec__6(x_2, x_1);
 return x_3;
 }
 }
-obj* l_io_fs_read__file___at_lean_process__file__json___spec__1(obj* x_0, unsigned char x_1, obj* x_2) {
+obj* l_io_fs_read__file___at_lean_process__file__json___spec__1(obj* x_0, uint8 x_1, obj* x_2) {
 _start:
 {
-unsigned char x_3; obj* x_4; obj* x_5; obj* x_7; obj* x_9; 
+uint8 x_3; obj* x_4; obj* x_5; obj* x_7; obj* x_9; 
 x_3 = 0;
 x_4 = l_io_fs_handle_mk___at_lean_process__file__json___spec__2(x_0, x_3, x_1, x_2);
 x_5 = lean::cnstr_get(x_4, 0);
@@ -3366,7 +3368,7 @@ return x_48;
 obj* l_io_fs_handle_mk___at_lean_process__file__json___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_4; unsigned char x_5; obj* x_6; 
+uint8 x_4; uint8 x_5; obj* x_6; 
 x_4 = lean::unbox(x_1);
 x_5 = lean::unbox(x_2);
 x_6 = l_io_fs_handle_mk___at_lean_process__file__json___spec__2(x_0, x_4, x_5, x_3);
@@ -3376,7 +3378,7 @@ return x_6;
 obj* l_io_fs_read__file___at_lean_process__file__json___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_3; obj* x_4; 
+uint8 x_3; obj* x_4; 
 x_3 = lean::unbox(x_1);
 x_4 = l_io_fs_read__file___at_lean_process__file__json___spec__1(x_0, x_3, x_2);
 return x_4;

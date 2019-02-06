@@ -5,21 +5,23 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* l_lean_ir_decl_is__definition___boxed(obj*);
 obj* l_lean_ir_var;
-unsigned char l_lean_ir_decl_is__definition___main(obj*);
+uint8 l_lean_ir_decl_is__definition___main(obj*);
 obj* l_lean_ir_decl_is__definition___main___boxed(obj*);
 obj* l_lean_ir_environment;
 obj* l_lean_ir_decl_header___main(obj*);
 obj* l_lean_ir_decl_header(obj*);
 obj* l_lean_ir_blockid;
 obj* l_lean_ir_tag;
-unsigned char l_lean_ir_decl_is__definition(obj*);
+uint8 l_lean_ir_decl_is__definition(obj*);
 obj* l_lean_ir_decl_name(obj*);
 obj* l_lean_ir_fnid;
 obj* _init_l_lean_ir_tag() {
@@ -58,19 +60,19 @@ lean::inc(x_0);
 return x_0;
 }
 }
-unsigned char l_lean_ir_decl_is__definition___main(obj* x_0) {
+uint8 l_lean_ir_decl_is__definition___main(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-unsigned char x_2; 
+uint8 x_2; 
 lean::dec(x_0);
 x_2 = 0;
 return x_2;
 }
 else
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::dec(x_0);
 x_4 = 1;
 return x_4;
@@ -80,16 +82,16 @@ return x_4;
 obj* l_lean_ir_decl_is__definition___main___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_decl_is__definition___main(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_lean_ir_decl_is__definition(obj* x_0) {
+uint8 l_lean_ir_decl_is__definition(obj* x_0) {
 _start:
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = l_lean_ir_decl_is__definition___main(x_0);
 return x_1;
 }
@@ -97,7 +99,7 @@ return x_1;
 obj* l_lean_ir_decl_is__definition___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_decl_is__definition(x_0);
 x_2 = lean::box(x_1);
 return x_2;

@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -13,13 +15,13 @@ typedef lean::object obj;
 obj* l_lean_kvmap_set__bool___boxed(obj*, obj*, obj*);
 obj* l_lean_kvmap_set__string(obj*, obj*, obj*);
 obj* l_lean_kvmap_insert__core(obj*, obj*, obj*);
-unsigned char l_lean_kvmap_contains(obj*, obj*);
+uint8 l_lean_kvmap_contains(obj*, obj*);
 obj* l_lean_kvmap_get__bool(obj*, obj*);
 obj* l_lean_kvmap_set__name(obj*, obj*, obj*);
 obj* l_lean_kvmap_set__nat(obj*, obj*, obj*);
 obj* l_lean_kvmap_find__core(obj*, obj*);
-obj* l_lean_kvmap_set__bool(obj*, obj*, unsigned char);
-unsigned char l_option_is__some___main___rarg(obj*);
+obj* l_lean_kvmap_set__bool(obj*, obj*, uint8);
+uint8 l_option_is__some___main___rarg(obj*);
 obj* l_lean_kvmap_contains___boxed(obj*, obj*);
 obj* l_lean_kvmap_insert(obj*, obj*, obj*);
 obj* l_lean_kvmap_find___main(obj*, obj*);
@@ -43,7 +45,7 @@ return x_4;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_10; obj* x_12; unsigned char x_15; 
+obj* x_5; obj* x_7; obj* x_10; obj* x_12; uint8 x_15; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -114,7 +116,7 @@ return x_4;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_10; unsigned char x_12; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_10; uint8 x_12; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_0, 1);
@@ -188,10 +190,10 @@ x_3 = l_lean_kvmap_insert__core___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-unsigned char l_lean_kvmap_contains(obj* x_0, obj* x_1) {
+uint8 l_lean_kvmap_contains(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; unsigned char x_3; 
+obj* x_2; uint8 x_3; 
 x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
 x_3 = l_option_is__some___main___rarg(x_2);
 return x_3;
@@ -200,7 +202,7 @@ return x_3;
 obj* l_lean_kvmap_contains___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; obj* x_3; 
+uint8 x_2; obj* x_3; 
 x_2 = l_lean_kvmap_contains(x_0, x_1);
 x_3 = lean::box(x_2);
 return x_3;
@@ -383,8 +385,8 @@ return x_13;
 }
 case 2:
 {
-unsigned char x_14; obj* x_16; obj* x_17; 
-x_14 = lean::cnstr_get_scalar<unsigned char>(x_5, 0);
+uint8 x_14; obj* x_16; obj* x_17; 
+x_14 = lean::cnstr_get_scalar<uint8>(x_5, 0);
 lean::dec(x_5);
 x_16 = lean::box(x_14);
 if (lean::is_scalar(x_7)) {
@@ -494,7 +496,7 @@ x_4 = l_lean_kvmap_insert__core___main(x_0, x_1, x_3);
 return x_4;
 }
 }
-obj* l_lean_kvmap_set__bool(obj* x_0, obj* x_1, unsigned char x_2) {
+obj* l_lean_kvmap_set__bool(obj* x_0, obj* x_1, uint8 x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; 
@@ -508,7 +510,7 @@ return x_5;
 obj* l_lean_kvmap_set__bool___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_3; obj* x_4; 
+uint8 x_3; obj* x_4; 
 x_3 = lean::unbox(x_2);
 x_4 = l_lean_kvmap_set__bool(x_0, x_1, x_3);
 return x_4;

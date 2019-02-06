@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -27,7 +29,7 @@ return x_0;
 obj* l___private_3925169175__div_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; unsigned char x_4; 
+obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_lt(x_3, x_2);
 lean::dec(x_3);
@@ -42,7 +44,7 @@ return x_9;
 }
 else
 {
-unsigned char x_10; 
+uint8 x_10; 
 x_10 = lean::nat_dec_le(x_2, x_0);
 if (x_10 == 0)
 {
@@ -79,7 +81,7 @@ return x_0;
 obj* l___private_578911941__mod_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; unsigned char x_4; 
+obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_lt(x_3, x_2);
 lean::dec(x_3);
@@ -91,7 +93,7 @@ return x_0;
 }
 else
 {
-unsigned char x_8; 
+uint8 x_8; 
 x_8 = lean::nat_dec_le(x_2, x_0);
 if (x_8 == 0)
 {

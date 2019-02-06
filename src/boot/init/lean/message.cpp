@@ -5,14 +5,16 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* l_lean_message_to__string___closed__5;
 obj* l_lean_message__log_append(obj*, obj*);
-unsigned char l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
+uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
 obj* l_list_reverse___rarg(obj*);
 obj* l_lean_message__log_to__list(obj*);
 obj* l_lean_message_has__to__string;
@@ -32,7 +34,7 @@ obj* l_lean_message__log_has__errors(obj*);
 obj* l_lean_message_to__string(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_16; obj* x_17; obj* x_19; obj* x_20; unsigned char x_21; obj* x_22; obj* x_24; unsigned char x_25; obj* x_26; 
+obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_16; obj* x_17; obj* x_19; obj* x_20; uint8 x_21; obj* x_22; obj* x_24; uint8 x_25; obj* x_26; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 x_3 = l_lean_message_to__string___closed__1;
@@ -53,7 +55,7 @@ x_17 = lean::string_append(x_12, x_16);
 lean::dec(x_16);
 x_19 = l_lean_message_to__string___closed__2;
 x_20 = lean::string_append(x_17, x_19);
-x_21 = lean::cnstr_get_scalar<unsigned char>(x_0, sizeof(void*)*5);
+x_21 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*5);
 x_22 = lean::cnstr_get(x_0, 3);
 lean::inc(x_22);
 x_24 = l_string_join___closed__1;
@@ -227,32 +229,32 @@ return x_0;
 obj* l_lean_message__log_has__errors(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj* x_0) {
+uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-unsigned char x_2; 
+uint8 x_2; 
 lean::dec(x_0);
 x_2 = 0;
 return x_2;
 }
 else
 {
-obj* x_3; obj* x_5; unsigned char x_8; unsigned char x_9; 
+obj* x_3; obj* x_5; uint8 x_8; uint8 x_9; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_0, 1);
 lean::inc(x_5);
 lean::dec(x_0);
 x_8 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_5);
-x_9 = lean::cnstr_get_scalar<unsigned char>(x_3, sizeof(void*)*5);
+x_9 = lean::cnstr_get_scalar<uint8>(x_3, sizeof(void*)*5);
 lean::dec(x_3);
 switch (x_9) {
 case 0:
@@ -267,7 +269,7 @@ goto _start;
 }
 default:
 {
-unsigned char x_11; 
+uint8 x_11; 
 x_11 = 1;
 return x_11;
 }
@@ -278,7 +280,7 @@ return x_11;
 obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
 x_2 = lean::box(x_1);
 return x_2;

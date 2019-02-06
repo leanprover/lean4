@@ -5,12 +5,14 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
-unsigned char l_option_to__bool___rarg(obj*);
+uint8 l_option_to__bool___rarg(obj*);
 obj* l_option_decidable__eq(obj*);
 obj* l_option_get__or__else___rarg(obj*, obj*);
 obj* l_option_is__some(obj*);
@@ -25,11 +27,11 @@ obj* l_option_alternative___lambda__1(obj*);
 obj* l_function_const___rarg(obj*, obj*);
 obj* l_option_to__bool___rarg___boxed(obj*);
 obj* l_option_monad___lambda__4(obj*, obj*, obj*, obj*);
-unsigned char l_option_is__some___rarg(obj*);
+uint8 l_option_is__some___rarg(obj*);
 obj* l_option_orelse___main___rarg(obj*, obj*);
-unsigned char l_option_to__bool___main___rarg(obj*);
+uint8 l_option_to__bool___main___rarg(obj*);
 obj* l_option_map(obj*, obj*);
-unsigned char l_option_is__some___main___rarg(obj*);
+uint8 l_option_is__some___main___rarg(obj*);
 obj* l_option_get___main___rarg(obj*, obj*);
 obj* l_option_orelse___main(obj*);
 obj* l_option_bind___main(obj*, obj*);
@@ -42,7 +44,7 @@ obj* l_option_get__or__else(obj*);
 obj* l_option_is__none___main___rarg___boxed(obj*);
 obj* l_option_alternative;
 obj* l_option_decidable__rel__lt(obj*, obj*);
-unsigned char l_option_decidable__eq___rarg(obj*, obj*, obj*);
+uint8 l_option_decidable__eq___rarg(obj*, obj*, obj*);
 obj* l_option_to__bool___main(obj*);
 obj* l_option_get(obj*);
 obj* l_option_has__lt(obj*, obj*);
@@ -58,8 +60,8 @@ obj* l_option_lt;
 obj* l_option_decidable__rel__lt___rarg(obj*, obj*, obj*);
 obj* l_option_is__none___rarg___boxed(obj*);
 obj* l_option_is__none___main(obj*);
-unsigned char l_option_is__none___rarg(obj*);
-unsigned char l_option_is__none___main___rarg(obj*);
+uint8 l_option_is__none___rarg(obj*);
+uint8 l_option_is__none___main___rarg(obj*);
 obj* l_option_get___main(obj*);
 obj* l_option_lt___main;
 obj* l_option_orelse(obj*);
@@ -219,19 +221,19 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_option_get___rarg), 2, 0);
 return x_2;
 }
 }
-unsigned char l_option_to__bool___main___rarg(obj* x_0) {
+uint8 l_option_to__bool___main___rarg(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-unsigned char x_2; 
+uint8 x_2; 
 lean::dec(x_0);
 x_2 = 0;
 return x_2;
 }
 else
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::dec(x_0);
 x_4 = 1;
 return x_4;
@@ -250,16 +252,16 @@ return x_2;
 obj* l_option_to__bool___main___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_option_to__bool___main___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_option_to__bool___rarg(obj* x_0) {
+uint8 l_option_to__bool___rarg(obj* x_0) {
 _start:
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = l_option_to__bool___main___rarg(x_0);
 return x_1;
 }
@@ -276,25 +278,25 @@ return x_2;
 obj* l_option_to__bool___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_option_to__bool___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_option_is__some___main___rarg(obj* x_0) {
+uint8 l_option_is__some___main___rarg(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-unsigned char x_2; 
+uint8 x_2; 
 lean::dec(x_0);
 x_2 = 0;
 return x_2;
 }
 else
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::dec(x_0);
 x_4 = 1;
 return x_4;
@@ -313,16 +315,16 @@ return x_2;
 obj* l_option_is__some___main___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_option_is__some___main___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_option_is__some___rarg(obj* x_0) {
+uint8 l_option_is__some___rarg(obj* x_0) {
 _start:
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = l_option_is__some___main___rarg(x_0);
 return x_1;
 }
@@ -339,25 +341,25 @@ return x_2;
 obj* l_option_is__some___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_option_is__some___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_option_is__none___main___rarg(obj* x_0) {
+uint8 l_option_is__none___main___rarg(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-unsigned char x_2; 
+uint8 x_2; 
 lean::dec(x_0);
 x_2 = 1;
 return x_2;
 }
 else
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::dec(x_0);
 x_4 = 0;
 return x_4;
@@ -376,16 +378,16 @@ return x_2;
 obj* l_option_is__none___main___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_option_is__none___main___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_option_is__none___rarg(obj* x_0) {
+uint8 l_option_is__none___rarg(obj* x_0) {
 _start:
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = l_option_is__none___main___rarg(x_0);
 return x_1;
 }
@@ -402,7 +404,7 @@ return x_2;
 obj* l_option_is__none___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_option_is__none___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
@@ -748,7 +750,7 @@ lean::dec(x_1);
 lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
 {
-unsigned char x_6; obj* x_7; 
+uint8 x_6; obj* x_7; 
 lean::dec(x_2);
 x_6 = 0;
 x_7 = lean::box(x_6);
@@ -756,7 +758,7 @@ return x_7;
 }
 else
 {
-unsigned char x_9; obj* x_10; 
+uint8 x_9; obj* x_10; 
 lean::dec(x_2);
 x_9 = 1;
 x_10 = lean::box(x_9);
@@ -771,7 +773,7 @@ lean::inc(x_11);
 lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
-unsigned char x_17; obj* x_18; 
+uint8 x_17; obj* x_18; 
 lean::dec(x_11);
 lean::dec(x_0);
 lean::dec(x_2);
@@ -828,7 +830,7 @@ x_2 = lean::box(0);
 return x_2;
 }
 }
-unsigned char l_option_decidable__eq___rarg(obj* x_0, obj* x_1, obj* x_2) {
+uint8 l_option_decidable__eq___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -837,14 +839,14 @@ lean::dec(x_1);
 lean::dec(x_0);
 if (lean::obj_tag(x_2) == 0)
 {
-unsigned char x_6; 
+uint8 x_6; 
 lean::dec(x_2);
 x_6 = 1;
 return x_6;
 }
 else
 {
-unsigned char x_8; 
+uint8 x_8; 
 lean::dec(x_2);
 x_8 = 0;
 return x_8;
@@ -858,7 +860,7 @@ lean::inc(x_9);
 lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
-unsigned char x_15; 
+uint8 x_15; 
 lean::dec(x_9);
 lean::dec(x_0);
 lean::dec(x_2);
@@ -867,7 +869,7 @@ return x_15;
 }
 else
 {
-obj* x_16; obj* x_19; unsigned char x_20; 
+obj* x_16; obj* x_19; uint8 x_20; 
 x_16 = lean::cnstr_get(x_2, 0);
 lean::inc(x_16);
 lean::dec(x_2);
@@ -876,13 +878,13 @@ x_20 = lean::unbox(x_19);
 lean::dec(x_19);
 if (x_20 == 0)
 {
-unsigned char x_22; 
+uint8 x_22; 
 x_22 = 0;
 return x_22;
 }
 else
 {
-unsigned char x_23; 
+uint8 x_23; 
 x_23 = 1;
 return x_23;
 }
@@ -902,7 +904,7 @@ return x_2;
 obj* l_option_decidable__eq___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_3; obj* x_4; 
+uint8 x_3; obj* x_4; 
 x_3 = l_option_decidable__eq___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;

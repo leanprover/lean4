@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -50,7 +52,7 @@ obj* l_except_has__to__string(obj*, obj*);
 obj* l_function_comp___rarg(obj*, obj*, obj*);
 obj* l_except__t_monad__functor___rarg(obj*, obj*);
 obj* l_except_to__option___main(obj*, obj*);
-obj* l_monad__except_orelse_x_27___rarg___lambda__2(obj*, unsigned char, obj*, obj*, obj*);
+obj* l_monad__except_orelse_x_27___rarg___lambda__2(obj*, uint8, obj*, obj*, obj*);
 obj* l_except__t_bind__cont___main(obj*, obj*);
 obj* l_except__t_monad__except(obj*, obj*);
 obj* l_except__t_monad___rarg___lambda__5(obj*, obj*, obj*);
@@ -92,9 +94,9 @@ obj* l_except_has__repr___rarg(obj*, obj*);
 obj* l_except_to__string___main(obj*, obj*);
 obj* l_except__t_has__monad__lift(obj*, obj*);
 obj* l_except_to__string___main___rarg(obj*, obj*, obj*);
-unsigned char l_except_to__bool___main___rarg(obj*);
+uint8 l_except_to__bool___main___rarg(obj*);
 obj* l_except__t_bind__cont___main___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_monad__except_orelse_x_27___rarg(obj*, obj*, obj*, obj*, unsigned char);
+obj* l_monad__except_orelse_x_27___rarg(obj*, obj*, obj*, obj*, uint8);
 obj* l_except_monad___lambda__4(obj*, obj*, obj*, obj*);
 obj* l_except_to__string___rarg(obj*, obj*, obj*);
 obj* l_except__t_lift___rarg___lambda__1(obj*);
@@ -108,7 +110,7 @@ obj* l_monad__functor__t__trans___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_except__t_mk___rarg(obj*);
 obj* l_except_return___rarg(obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__7(obj*, obj*);
-obj* l_monad__except_orelse_x_27___rarg___lambda__1(obj*, unsigned char, obj*, obj*);
+obj* l_monad__except_orelse_x_27___rarg___lambda__1(obj*, uint8, obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__5(obj*, obj*);
 obj* l_except__t_lift(obj*, obj*);
 obj* l_except_monad___lambda__1(obj*, obj*, obj*, obj*);
@@ -117,7 +119,7 @@ obj* l_monad__except_orelse_x_27___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_except_to__bool___main___rarg___boxed(obj*);
 obj* l_except_return(obj*, obj*);
 obj* l_except__t_run___rarg(obj*);
-unsigned char l_except_to__bool___rarg(obj*);
+uint8 l_except_to__bool___rarg(obj*);
 obj* l_except__t_except__t__of__except(obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__4(obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__3;
@@ -544,19 +546,19 @@ x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_except_bind___rarg), 2, 0);
 return x_6;
 }
 }
-unsigned char l_except_to__bool___main___rarg(obj* x_0) {
+uint8 l_except_to__bool___main___rarg(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-unsigned char x_2; 
+uint8 x_2; 
 lean::dec(x_0);
 x_2 = 0;
 return x_2;
 }
 else
 {
-unsigned char x_4; 
+uint8 x_4; 
 lean::dec(x_0);
 x_4 = 1;
 return x_4;
@@ -576,16 +578,16 @@ return x_4;
 obj* l_except_to__bool___main___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_except_to__bool___main___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-unsigned char l_except_to__bool___rarg(obj* x_0) {
+uint8 l_except_to__bool___rarg(obj* x_0) {
 _start:
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = l_except_to__bool___main___rarg(x_0);
 return x_1;
 }
@@ -603,7 +605,7 @@ return x_4;
 obj* l_except_to__bool___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_except_to__bool___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
@@ -1995,7 +1997,7 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__except_orelse___rarg)
 return x_4;
 }
 }
-obj* l_monad__except_orelse_x_27___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, unsigned char x_4) {
+obj* l_monad__except_orelse_x_27___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, uint8 x_4) {
 _start:
 {
 obj* x_6; obj* x_8; obj* x_10; obj* x_11; 
@@ -2013,7 +2015,7 @@ x_11 = lean::apply_3(x_6, lean::box(0), x_2, x_10);
 return x_11;
 }
 }
-obj* l_monad__except_orelse_x_27___rarg___lambda__1(obj* x_0, unsigned char x_1, obj* x_2, obj* x_3) {
+obj* l_monad__except_orelse_x_27___rarg___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
@@ -2036,7 +2038,7 @@ return x_10;
 }
 }
 }
-obj* l_monad__except_orelse_x_27___rarg___lambda__2(obj* x_0, unsigned char x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_monad__except_orelse_x_27___rarg___lambda__2(obj* x_0, uint8 x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; obj* x_6; obj* x_7; 
@@ -2062,7 +2064,7 @@ return x_4;
 obj* l_monad__except_orelse_x_27___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-unsigned char x_5; obj* x_6; 
+uint8 x_5; obj* x_6; 
 x_5 = lean::unbox(x_4);
 x_6 = l_monad__except_orelse_x_27___rarg(x_0, x_1, x_2, x_3, x_5);
 return x_6;
@@ -2071,7 +2073,7 @@ return x_6;
 obj* l_monad__except_orelse_x_27___rarg___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_4; obj* x_5; 
+uint8 x_4; obj* x_5; 
 x_4 = lean::unbox(x_1);
 x_5 = l_monad__except_orelse_x_27___rarg___lambda__1(x_0, x_4, x_2, x_3);
 return x_5;
@@ -2080,7 +2082,7 @@ return x_5;
 obj* l_monad__except_orelse_x_27___rarg___lambda__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-unsigned char x_5; obj* x_6; 
+uint8 x_5; obj* x_6; 
 x_5 = lean::unbox(x_1);
 x_6 = l_monad__except_orelse_x_27___rarg___lambda__2(x_0, x_5, x_2, x_3, x_4);
 return x_6;

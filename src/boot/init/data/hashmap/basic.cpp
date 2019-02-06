@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -27,7 +29,7 @@ obj* l_hashmap__imp_replace__aux___main(obj*, obj*);
 obj* l_hashmap_empty(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_erase___rarg(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_replace__aux___main___rarg(obj*, obj*, obj*, obj*);
-unsigned char l_d__hashmap_contains___rarg(obj*, obj*, obj*, obj*);
+uint8 l_d__hashmap_contains___rarg(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_empty___rarg___boxed(obj*);
 obj* l_hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_erase(obj*, obj*);
@@ -37,16 +39,16 @@ obj* l_d__hashmap_fold___rarg(obj*, obj*, obj*);
 obj* l_hashmap__imp_erase__aux___main(obj*, obj*);
 obj* l_hashmap__imp_find__aux(obj*, obj*);
 obj* l_hashmap__imp_erase__aux___rarg(obj*, obj*, obj*);
-unsigned char l_hashmap_contains___rarg(obj*, obj*, obj*, obj*);
+uint8 l_hashmap_contains___rarg(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_empty(obj*, obj*, obj*, obj*);
 obj* l_bucket__array_uwrite___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_mk__d__hashmap___rarg(obj*);
-unsigned char l_option_is__some___main___rarg(obj*);
+uint8 l_option_is__some___main___rarg(obj*);
 obj* l_mk__array___rarg(obj*, obj*);
 obj* l_bucket__array_uwrite(obj*, obj*);
 obj* l_d__hashmap_size(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_contains__aux___rarg___boxed(obj*, obj*, obj*);
-obj* l_array_uread___rarg(obj*, size_t, obj*);
+obj* l_array_uread___rarg(obj*, usize, obj*);
 obj* l_hashmap_find(obj*, obj*);
 obj* l_mk__hashmap__imp(obj*, obj*);
 obj* l_mk__hashmap(obj*, obj*, obj*, obj*);
@@ -58,9 +60,9 @@ obj* l_hashmap_fold___rarg(obj*, obj*, obj*);
 obj* l_d__hashmap_find(obj*, obj*);
 obj* l_d__hashmap_size___rarg(obj*);
 obj* l_array_foldl___rarg(obj*, obj*, obj*);
-obj* l_bucket__array_uwrite___rarg(obj*, size_t, obj*, obj*);
+obj* l_bucket__array_uwrite___rarg(obj*, usize, obj*, obj*);
 obj* l_hashmap_insert(obj*, obj*);
-unsigned char l_hashmap_empty___rarg(obj*);
+uint8 l_hashmap_empty___rarg(obj*);
 obj* l_hashmap__imp_erase(obj*, obj*);
 obj* l_d__hashmap_fold(obj*, obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_erase___rarg(obj*, obj*, obj*, obj*);
@@ -71,10 +73,10 @@ obj* l_hashmap_fold(obj*, obj*, obj*, obj*, obj*);
 obj* l_hashmap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_contains(obj*, obj*);
 obj* l_hashmap__imp_insert(obj*, obj*);
-unsigned char l_hashmap__imp_contains__aux___rarg(obj*, obj*, obj*);
-unsigned char l_d__hashmap_empty___rarg(obj*);
+uint8 l_hashmap__imp_contains__aux___rarg(obj*, obj*, obj*);
+uint8 l_d__hashmap_empty___rarg(obj*);
 obj* l_hashmap_empty___rarg___boxed(obj*);
-obj* l_array_uwrite___rarg(obj*, size_t, obj*, obj*);
+obj* l_array_uwrite___rarg(obj*, usize, obj*, obj*);
 obj* l_hashmap__imp_reinsert__aux(obj*, obj*);
 obj* l_hashmap__imp_fold(obj*, obj*, obj*);
 obj* l_d__hashmap;
@@ -91,7 +93,7 @@ obj* l_hashmap__imp_contains__aux(obj*, obj*);
 obj* l_hashmap__imp_reinsert__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_replace__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_fold__buckets(obj*, obj*, obj*);
-size_t l_hashmap__imp_mk__idx(obj*, obj*, size_t);
+usize l_hashmap__imp_mk__idx(obj*, obj*, usize);
 obj* _init_l_bucket__array() {
 _start:
 {
@@ -101,7 +103,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* l_bucket__array_uwrite___rarg(obj* x_0, size_t x_1, obj* x_2, obj* x_3) {
+obj* l_bucket__array_uwrite___rarg(obj* x_0, usize x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_5; 
@@ -123,7 +125,7 @@ return x_4;
 obj* l_bucket__array_uwrite___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-size_t x_4; obj* x_5; 
+usize x_4; obj* x_5; 
 x_4 = lean::unbox_size_t(x_1);
 x_5 = l_bucket__array_uwrite___rarg(x_0, x_4, x_2, x_3);
 return x_5;
@@ -132,7 +134,7 @@ return x_5;
 obj* l_mk__hashmap__imp___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; unsigned char x_2; 
+obj* x_1; uint8 x_2; 
 x_1 = lean::mk_nat_obj(0u);
 x_2 = lean::nat_dec_eq(x_0, x_1);
 if (x_2 == 0)
@@ -180,10 +182,10 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_mk__hashmap__imp___rarg), 1,
 return x_4;
 }
 }
-size_t l_hashmap__imp_mk__idx(obj* x_0, obj* x_1, size_t x_2) {
+usize l_hashmap__imp_mk__idx(obj* x_0, obj* x_1, usize x_2) {
 _start:
 {
-size_t x_4; 
+usize x_4; 
 lean::dec(x_1);
 x_4 = lean::usize_modn(x_2, x_0);
 lean::dec(x_0);
@@ -193,7 +195,7 @@ return x_4;
 obj* l_hashmap__imp_mk__idx___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-size_t x_3; size_t x_4; obj* x_5; 
+usize x_3; usize x_4; obj* x_5; 
 x_3 = lean::unbox_size_t(x_2);
 x_4 = l_hashmap__imp_mk__idx(x_0, x_1, x_3);
 x_5 = lean::box_size_t(x_4);
@@ -203,7 +205,7 @@ return x_5;
 obj* l_hashmap__imp_reinsert__aux___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_7; size_t x_8; size_t x_10; obj* x_12; obj* x_14; obj* x_15; obj* x_16; 
+obj* x_4; obj* x_7; usize x_8; usize x_10; obj* x_12; obj* x_14; obj* x_15; obj* x_16; 
 x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 lean::inc(x_2);
@@ -318,7 +320,7 @@ return x_6;
 }
 else
 {
-obj* x_7; obj* x_9; obj* x_12; obj* x_14; obj* x_19; unsigned char x_20; 
+obj* x_7; obj* x_9; obj* x_12; obj* x_14; obj* x_19; uint8 x_20; 
 x_7 = lean::cnstr_get(x_2, 0);
 lean::inc(x_7);
 x_9 = lean::cnstr_get(x_2, 1);
@@ -381,10 +383,10 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_find__aux___rar
 return x_4;
 }
 }
-unsigned char l_hashmap__imp_contains__aux___rarg(obj* x_0, obj* x_1, obj* x_2) {
+uint8 l_hashmap__imp_contains__aux___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; unsigned char x_4; 
+obj* x_3; uint8 x_4; 
 x_3 = l_hashmap__imp_find__aux___main___rarg(x_0, x_1, x_2);
 x_4 = l_option_is__some___main___rarg(x_3);
 return x_4;
@@ -403,7 +405,7 @@ return x_4;
 obj* l_hashmap__imp_contains__aux___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_3; obj* x_4; 
+uint8 x_3; obj* x_4; 
 x_3 = l_hashmap__imp_contains__aux___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
@@ -412,7 +414,7 @@ return x_4;
 obj* l_hashmap__imp_find___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_7; obj* x_10; size_t x_11; size_t x_13; obj* x_15; obj* x_16; 
+obj* x_4; obj* x_7; obj* x_10; usize x_11; usize x_13; obj* x_15; obj* x_16; 
 x_4 = lean::cnstr_get(x_2, 1);
 lean::inc(x_4);
 lean::dec(x_2);
@@ -473,7 +475,7 @@ return x_3;
 }
 else
 {
-obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_16; unsigned char x_17; 
+obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_16; uint8 x_17; 
 x_7 = lean::cnstr_get(x_3, 0);
 lean::inc(x_7);
 x_9 = lean::cnstr_get(x_3, 1);
@@ -565,7 +567,7 @@ return x_2;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_14; unsigned char x_15; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_14; uint8 x_15; 
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_2, 1);
@@ -640,7 +642,7 @@ return x_4;
 obj* l_hashmap__imp_insert___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_14; size_t x_15; size_t x_17; obj* x_19; unsigned char x_23; 
+obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_14; usize x_15; usize x_17; obj* x_19; uint8 x_23; 
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_2, 1);
@@ -669,7 +671,7 @@ lean::inc(x_0);
 x_23 = l_hashmap__imp_contains__aux___rarg(x_0, x_3, x_19);
 if (x_23 == 0)
 {
-obj* x_25; obj* x_26; obj* x_29; obj* x_30; obj* x_31; unsigned char x_32; 
+obj* x_25; obj* x_26; obj* x_29; obj* x_30; obj* x_31; uint8 x_32; 
 lean::dec(x_0);
 x_25 = lean::mk_nat_obj(1u);
 x_26 = lean::nat_add(x_5, x_25);
@@ -750,7 +752,7 @@ return x_4;
 obj* l_hashmap__imp_erase___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_6; obj* x_8; obj* x_11; size_t x_12; size_t x_14; obj* x_17; unsigned char x_21; 
+obj* x_4; obj* x_6; obj* x_8; obj* x_11; usize x_12; usize x_14; obj* x_17; uint8 x_21; 
 x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_2, 1);
@@ -888,10 +890,10 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_find___rarg), 4, 
 return x_4;
 }
 }
-unsigned char l_d__hashmap_contains___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+uint8 l_d__hashmap_contains___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; unsigned char x_5; 
+obj* x_4; uint8 x_5; 
 x_4 = l_hashmap__imp_find___rarg(x_0, x_1, x_2, x_3);
 x_5 = l_option_is__some___main___rarg(x_4);
 return x_5;
@@ -910,7 +912,7 @@ return x_4;
 obj* l_d__hashmap_contains___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_4; obj* x_5; 
+uint8 x_4; obj* x_5; 
 x_4 = l_d__hashmap_contains___rarg(x_0, x_1, x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
@@ -959,10 +961,10 @@ x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_size___rarg), 1, 
 return x_8;
 }
 }
-unsigned char l_d__hashmap_empty___rarg(obj* x_0) {
+uint8 l_d__hashmap_empty___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; unsigned char x_3; 
+obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = l_d__hashmap_size___rarg(x_0);
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
@@ -970,13 +972,13 @@ lean::dec(x_2);
 lean::dec(x_1);
 if (x_3 == 0)
 {
-unsigned char x_6; 
+uint8 x_6; 
 x_6 = 0;
 return x_6;
 }
 else
 {
-unsigned char x_7; 
+uint8 x_7; 
 x_7 = 1;
 return x_7;
 }
@@ -997,7 +999,7 @@ return x_8;
 obj* l_d__hashmap_empty___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_d__hashmap_empty___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
@@ -1086,10 +1088,10 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap_find___rarg), 4, 0);
 return x_4;
 }
 }
-unsigned char l_hashmap_contains___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+uint8 l_hashmap_contains___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; unsigned char x_5; 
+obj* x_4; uint8 x_5; 
 x_4 = l_hashmap__imp_find___rarg(x_0, x_1, x_2, x_3);
 x_5 = l_option_is__some___main___rarg(x_4);
 return x_5;
@@ -1108,7 +1110,7 @@ return x_4;
 obj* l_hashmap_contains___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_4; obj* x_5; 
+uint8 x_4; obj* x_5; 
 x_4 = l_hashmap_contains___rarg(x_0, x_1, x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
@@ -1155,10 +1157,10 @@ x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap_size___rarg), 1, 0);
 return x_8;
 }
 }
-unsigned char l_hashmap_empty___rarg(obj* x_0) {
+uint8 l_hashmap_empty___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; unsigned char x_3; 
+obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = l_d__hashmap_size___rarg(x_0);
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
@@ -1166,13 +1168,13 @@ lean::dec(x_2);
 lean::dec(x_1);
 if (x_3 == 0)
 {
-unsigned char x_6; 
+uint8 x_6; 
 x_6 = 0;
 return x_6;
 }
 else
 {
-unsigned char x_7; 
+uint8 x_7; 
 x_7 = 1;
 return x_7;
 }
@@ -1193,7 +1195,7 @@ return x_8;
 obj* l_hashmap_empty___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_hashmap_empty___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;

@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -44,12 +46,12 @@ obj* l_nat_repeat___main(obj*);
 obj* l_nat_beq___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; unsigned char x_3; 
+obj* x_2; uint8 x_3; 
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_0, x_2);
 if (x_3 == 0)
 {
-unsigned char x_4; 
+uint8 x_4; 
 x_4 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
 if (x_4 == 0)
@@ -67,7 +69,7 @@ goto _start;
 }
 else
 {
-unsigned char x_15; obj* x_16; 
+uint8 x_15; obj* x_16; 
 lean::dec(x_1);
 lean::dec(x_0);
 x_15 = 0;
@@ -77,21 +79,21 @@ return x_16;
 }
 else
 {
-unsigned char x_18; 
+uint8 x_18; 
 lean::dec(x_0);
 x_18 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 if (x_18 == 0)
 {
-unsigned char x_21; obj* x_22; 
+uint8 x_21; obj* x_22; 
 x_21 = 0;
 x_22 = lean::box(x_21);
 return x_22;
 }
 else
 {
-unsigned char x_23; obj* x_24; 
+uint8 x_23; obj* x_24; 
 x_23 = 1;
 x_24 = lean::box(x_23);
 return x_24;
@@ -110,7 +112,7 @@ return x_2;
 obj* l_nat_dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; obj* x_3; 
+uint8 x_2; obj* x_3; 
 x_2 = lean::nat_dec_eq(x_0, x_1);
 x_3 = lean::box(x_2);
 return x_3;
@@ -127,12 +129,12 @@ return x_0;
 obj* l_nat_ble___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; unsigned char x_3; 
+obj* x_2; uint8 x_3; 
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_0, x_2);
 if (x_3 == 0)
 {
-unsigned char x_4; 
+uint8 x_4; 
 x_4 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
 if (x_4 == 0)
@@ -150,7 +152,7 @@ goto _start;
 }
 else
 {
-unsigned char x_15; obj* x_16; 
+uint8 x_15; obj* x_16; 
 lean::dec(x_1);
 lean::dec(x_0);
 x_15 = 0;
@@ -160,7 +162,7 @@ return x_16;
 }
 else
 {
-unsigned char x_20; obj* x_21; 
+uint8 x_20; obj* x_21; 
 lean::dec(x_1);
 lean::dec(x_0);
 lean::dec(x_2);
@@ -215,7 +217,7 @@ return x_0;
 obj* l_nat_pred___main(obj* x_0) {
 _start:
 {
-obj* x_1; unsigned char x_2; 
+obj* x_1; uint8 x_2; 
 x_1 = lean::mk_nat_obj(0u);
 x_2 = lean::nat_dec_eq(x_0, x_1);
 lean::dec(x_1);
@@ -248,7 +250,7 @@ return x_1;
 obj* l_nat_sub___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; unsigned char x_3; 
+obj* x_2; uint8 x_3; 
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
@@ -273,7 +275,7 @@ return x_0;
 obj* l_nat_mul___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; unsigned char x_3; 
+obj* x_2; uint8 x_3; 
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
@@ -320,7 +322,7 @@ return x_0;
 obj* l_nat_repeat___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; unsigned char x_4; 
+obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_eq(x_1, x_3);
 lean::dec(x_3);
@@ -374,7 +376,7 @@ return x_2;
 obj* l_nat_pow___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; unsigned char x_3; 
+obj* x_2; uint8 x_3; 
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_2);
@@ -448,7 +450,7 @@ return x_0;
 obj* l_nat_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; obj* x_3; 
+uint8 x_2; obj* x_3; 
 x_2 = lean::nat_dec_le(x_0, x_1);
 x_3 = lean::box(x_2);
 return x_3;
@@ -457,7 +459,7 @@ return x_3;
 obj* l_nat_dec__lt___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; obj* x_3; 
+uint8 x_2; obj* x_3; 
 x_2 = lean::nat_dec_lt(x_0, x_1);
 x_3 = lean::box(x_2);
 return x_3;
@@ -484,7 +486,7 @@ return x_0;
 obj* l_nat_max(obj* x_0, obj* x_1) {
 _start:
 {
-unsigned char x_2; 
+uint8 x_2; 
 x_2 = lean::nat_dec_le(x_0, x_1);
 if (x_2 == 0)
 {

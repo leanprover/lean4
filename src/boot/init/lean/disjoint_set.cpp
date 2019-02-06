@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -84,7 +86,7 @@ return x_6;
 obj* l___private_3363165505__find__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; unsigned char x_6; 
+obj* x_5; uint8 x_6; 
 x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::nat_dec_eq(x_2, x_5);
 if (x_6 == 0)
@@ -110,7 +112,7 @@ return x_17;
 }
 else
 {
-obj* x_19; obj* x_22; obj* x_26; unsigned char x_27; 
+obj* x_19; obj* x_22; obj* x_26; uint8 x_27; 
 lean::dec(x_5);
 x_19 = lean::cnstr_get(x_11, 0);
 lean::inc(x_19);
@@ -266,7 +268,7 @@ return x_2;
 obj* l_lean_disjoint__set_merge___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_6; obj* x_12; obj* x_17; obj* x_18; obj* x_20; obj* x_23; unsigned char x_24; 
+obj* x_6; obj* x_12; obj* x_17; obj* x_18; obj* x_20; obj* x_23; uint8 x_24; 
 lean::inc(x_2);
 x_6 = l_d__hashmap_size___rarg(x_2);
 lean::inc(x_2);
@@ -290,7 +292,7 @@ x_24 = lean::unbox(x_23);
 lean::dec(x_23);
 if (x_24 == 0)
 {
-obj* x_26; obj* x_29; unsigned char x_32; 
+obj* x_26; obj* x_29; uint8 x_32; 
 x_26 = lean::cnstr_get(x_12, 1);
 lean::inc(x_26);
 lean::dec(x_12);
@@ -300,7 +302,7 @@ lean::dec(x_17);
 x_32 = lean::nat_dec_lt(x_26, x_29);
 if (x_32 == 0)
 {
-unsigned char x_33; 
+uint8 x_33; 
 x_33 = lean::nat_dec_eq(x_26, x_29);
 lean::dec(x_26);
 if (x_33 == 0)

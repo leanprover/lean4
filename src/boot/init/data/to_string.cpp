@@ -5,27 +5,29 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
 #endif
 obj* l_list_to__string__aux(obj*);
-obj* l_list_to__string__aux___main___rarg(obj*, unsigned char, obj*);
+obj* l_list_to__string__aux___main___rarg(obj*, uint8, obj*);
 obj* l_usize_has__to__string___boxed(obj*);
-obj* l_char_has__to__string(unsigned);
+obj* l_char_has__to__string(uint32);
 extern obj* l_option_has__repr___rarg___closed__2;
 obj* l_string_iterator_has__to__string(obj*);
 obj* l_sigma_has__to__string(obj*, obj*);
 extern obj* l_unit_has__repr___closed__1;
 obj* l_uint32_has__to__string___boxed(obj*);
-obj* l_uint16_has__to__string(unsigned short);
+obj* l_uint16_has__to__string(uint16);
 obj* l_list_to__string__aux___main___rarg___boxed(obj*, obj*, obj*);
-obj* l_list_to__string__aux___rarg(obj*, unsigned char, obj*);
+obj* l_list_to__string__aux___rarg(obj*, uint8, obj*);
 obj* l_sum_has__to__string___rarg(obj*, obj*, obj*);
 obj* l_prod_has__to__string(obj*, obj*);
 obj* l_char_has__to__string___boxed(obj*);
-obj* l_bool_has__to__string(unsigned char);
+obj* l_bool_has__to__string(uint8);
 obj* l_unit_has__to__string(obj*);
 obj* l_list_to__string(obj*);
 obj* l_decidable_has__to__string(obj*);
@@ -48,17 +50,17 @@ extern obj* l_list_repr__aux___main___rarg___closed__1;
 extern obj* l_list_repr___main___rarg___closed__3;
 obj* l_list_to__string___rarg(obj*, obj*);
 obj* l_list_has__to__string___rarg(obj*);
-obj* l_uint32_has__to__string(unsigned);
+obj* l_uint32_has__to__string(uint32);
 obj* l_decidable_has__to__string___rarg(obj*);
 extern obj* l_string_join___closed__1;
-obj* l_uint64_has__to__string(unsigned long long);
+obj* l_uint64_has__to__string(uint64);
 extern obj* l_sigma_has__repr___rarg___closed__1;
 obj* l_uint64_has__to__string___boxed(obj*);
 obj* l_string_has__to__string(obj*);
 obj* l_nat_has__to__string(obj*);
 extern obj* l_list_repr___main___rarg___closed__2;
 extern obj* l_bool_has__repr___closed__2;
-obj* l_usize_has__to__string(size_t);
+obj* l_usize_has__to__string(usize);
 extern obj* l_prod_has__repr___rarg___closed__1;
 obj* l_id_has__to__string(obj*);
 obj* l_bool_has__to__string___boxed(obj*);
@@ -101,7 +103,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_bool_has__to__string(unsigned char x_0) {
+obj* l_bool_has__to__string(uint8 x_0) {
 _start:
 {
 if (x_0 == 0)
@@ -123,7 +125,7 @@ return x_3;
 obj* l_bool_has__to__string___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = lean::unbox(x_0);
 x_2 = l_bool_has__to__string(x_1);
 return x_2;
@@ -132,7 +134,7 @@ return x_2;
 obj* l_decidable_has__to__string___rarg(obj* x_0) {
 _start:
 {
-unsigned char x_1; 
+uint8 x_1; 
 x_1 = lean::unbox(x_0);
 lean::dec(x_0);
 if (x_1 == 0)
@@ -160,7 +162,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_decidable_has__to__string___
 return x_2;
 }
 }
-obj* l_list_to__string__aux___main___rarg(obj* x_0, unsigned char x_1, obj* x_2) {
+obj* l_list_to__string__aux___main___rarg(obj* x_0, uint8 x_1, obj* x_2) {
 _start:
 {
 if (x_1 == 0)
@@ -207,7 +209,7 @@ return x_23;
 }
 else
 {
-obj* x_25; obj* x_27; obj* x_31; unsigned char x_32; obj* x_33; obj* x_34; 
+obj* x_25; obj* x_27; obj* x_31; uint8 x_32; obj* x_33; obj* x_34; 
 x_25 = lean::cnstr_get(x_2, 0);
 lean::inc(x_25);
 x_27 = lean::cnstr_get(x_2, 1);
@@ -236,13 +238,13 @@ return x_2;
 obj* l_list_to__string__aux___main___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_3; obj* x_4; 
+uint8 x_3; obj* x_4; 
 x_3 = lean::unbox(x_1);
 x_4 = l_list_to__string__aux___main___rarg(x_0, x_3, x_2);
 return x_4;
 }
 }
-obj* l_list_to__string__aux___rarg(obj* x_0, unsigned char x_1, obj* x_2) {
+obj* l_list_to__string__aux___rarg(obj* x_0, uint8 x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -262,7 +264,7 @@ return x_2;
 obj* l_list_to__string__aux___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-unsigned char x_3; obj* x_4; 
+uint8 x_3; obj* x_4; 
 x_3 = lean::unbox(x_1);
 x_4 = l_list_to__string__aux___rarg(x_0, x_3, x_2);
 return x_4;
@@ -282,7 +284,7 @@ return x_4;
 }
 else
 {
-unsigned char x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_12; obj* x_13; 
+uint8 x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_12; obj* x_13; 
 x_6 = 1;
 x_7 = l_list_to__string__aux___main___rarg(x_0, x_6, x_1);
 x_8 = l_list_repr___main___rarg___closed__2;
@@ -357,7 +359,7 @@ x_1 = l_nat_repr(x_0);
 return x_1;
 }
 }
-obj* l_char_has__to__string(unsigned x_0) {
+obj* l_char_has__to__string(uint32 x_0) {
 _start:
 {
 obj* x_1; obj* x_3; 
@@ -370,7 +372,7 @@ return x_3;
 obj* l_char_has__to__string___boxed(obj* x_0) {
 _start:
 {
-unsigned x_1; obj* x_2; 
+uint32 x_1; obj* x_2; 
 x_1 = lean::unbox_uint32(x_0);
 x_2 = l_char_has__to__string(x_1);
 return x_2;
@@ -393,7 +395,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_has__to__string___rarg),
 return x_2;
 }
 }
-obj* l_uint16_has__to__string(unsigned short x_0) {
+obj* l_uint16_has__to__string(uint16 x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -405,13 +407,13 @@ return x_2;
 obj* l_uint16_has__to__string___boxed(obj* x_0) {
 _start:
 {
-unsigned short x_1; obj* x_2; 
+uint16 x_1; obj* x_2; 
 x_1 = lean::unbox(x_0);
 x_2 = l_uint16_has__to__string(x_1);
 return x_2;
 }
 }
-obj* l_uint32_has__to__string(unsigned x_0) {
+obj* l_uint32_has__to__string(uint32 x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -423,13 +425,13 @@ return x_2;
 obj* l_uint32_has__to__string___boxed(obj* x_0) {
 _start:
 {
-unsigned x_1; obj* x_2; 
+uint32 x_1; obj* x_2; 
 x_1 = lean::unbox_uint32(x_0);
 x_2 = l_uint32_has__to__string(x_1);
 return x_2;
 }
 }
-obj* l_uint64_has__to__string(unsigned long long x_0) {
+obj* l_uint64_has__to__string(uint64 x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -441,13 +443,13 @@ return x_2;
 obj* l_uint64_has__to__string___boxed(obj* x_0) {
 _start:
 {
-unsigned long long x_1; obj* x_2; 
+uint64 x_1; obj* x_2; 
 x_1 = lean::unbox_uint64(x_0);
 x_2 = l_uint64_has__to__string(x_1);
 return x_2;
 }
 }
-obj* l_usize_has__to__string(size_t x_0) {
+obj* l_usize_has__to__string(usize x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -459,7 +461,7 @@ return x_2;
 obj* l_usize_has__to__string___boxed(obj* x_0) {
 _start:
 {
-size_t x_1; obj* x_2; 
+usize x_1; obj* x_2; 
 x_1 = lean::unbox_size_t(x_0);
 x_2 = l_usize_has__to__string(x_1);
 return x_2;

@@ -5,7 +5,9 @@
 #include "runtime/apply.h"
 #include "runtime/io.h"
 #include "kernel/builtin.h"
-typedef lean::object obj;
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
 #pragma clang diagnostic ignored "-Wunused-label"
@@ -26,7 +28,7 @@ obj* l_array_write___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_rev__foldl___rarg(obj*, obj*, obj*);
 obj* l_array_map_u_2082___rarg(obj*, obj*, obj*);
 obj* l_array_uwrite___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_array_uread_x_27___rarg(obj*, obj*, size_t);
+obj* l_array_uread_x_27___rarg(obj*, obj*, usize);
 obj* l_array_empty___rarg___boxed(obj*);
 obj* l_array_nil___lambda__1(obj*);
 obj* l_array_to__list___rarg___lambda__1(obj*, obj*);
@@ -44,11 +46,11 @@ obj* l___private_2406439935__foreach__aux(obj*);
 obj* l___private_2151191555__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_nat_pred___main(obj*);
 obj* l_array_empty(obj*);
-obj* l_array_uread___rarg(obj*, size_t, obj*);
+obj* l_array_uread___rarg(obj*, usize, obj*);
 obj* l_array_uwrite(obj*);
 obj* l_array_read_x_27(obj*);
 obj* l_array_foldl(obj*, obj*);
-unsigned char l_array_empty___rarg(obj*);
+uint8 l_array_empty___rarg(obj*);
 obj* l___private_717503411__rev__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_array_pop___rarg(obj*);
 obj* l_list_repr___rarg(obj*, obj*);
@@ -64,14 +66,14 @@ obj* l_list_to__array__aux___rarg(obj*, obj*);
 obj* l_list_to__array__aux___main(obj*);
 obj* l_array_push(obj*);
 obj* l_list_to__array__aux___main___rarg(obj*, obj*);
-obj* l_array_uwrite_x_27___rarg(obj*, size_t, obj*);
+obj* l_array_uwrite_x_27___rarg(obj*, usize, obj*);
 obj* l___private_2151191555__iterate__aux___main(obj*, obj*);
 obj* l_array_push___rarg(obj*, obj*);
 obj* l_array_iterate___rarg(obj*, obj*, obj*);
 obj* l___private_717503411__rev__iterate__aux___main(obj*, obj*);
 obj* l_array_has__repr___rarg(obj*);
 obj* l_array_foreach___rarg(obj*, obj*);
-obj* l_array_uwrite___rarg(obj*, size_t, obj*, obj*);
+obj* l_array_uwrite___rarg(obj*, usize, obj*, obj*);
 obj* l_array_nil___closed__1;
 obj* l_array_uwrite_x_27___rarg___boxed(obj*, obj*, obj*);
 obj* l_mk__array(obj*);
@@ -150,10 +152,10 @@ lean::inc(x_2);
 return x_2;
 }
 }
-unsigned char l_array_empty___rarg(obj* x_0) {
+uint8 l_array_empty___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_4; unsigned char x_5; 
+obj* x_1; obj* x_4; uint8 x_5; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 lean::dec(x_0);
@@ -163,13 +165,13 @@ lean::dec(x_4);
 lean::dec(x_1);
 if (x_5 == 0)
 {
-unsigned char x_8; 
+uint8 x_8; 
 x_8 = 0;
 return x_8;
 }
 else
 {
-unsigned char x_9; 
+uint8 x_9; 
 x_9 = 1;
 return x_9;
 }
@@ -187,7 +189,7 @@ return x_2;
 obj* l_array_empty___rarg___boxed(obj* x_0) {
 _start:
 {
-unsigned char x_1; obj* x_2; 
+uint8 x_1; obj* x_2; 
 x_1 = l_array_empty___rarg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
@@ -232,7 +234,7 @@ return x_6;
 obj* l_array_write___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_4; 
+uint8 x_4; 
 x_4 = lean::nat_dec_eq(x_0, x_3);
 lean::dec(x_0);
 if (x_4 == 0)
@@ -265,7 +267,7 @@ return x_2;
 obj* l_array_read_x_27___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; unsigned char x_5; 
+obj* x_3; uint8 x_5; 
 x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 x_5 = lean::nat_dec_lt(x_2, x_3);
@@ -297,7 +299,7 @@ return x_2;
 obj* l_array_write_x_27___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; unsigned char x_5; 
+obj* x_3; uint8 x_5; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 x_5 = lean::nat_dec_lt(x_1, x_3);
@@ -325,7 +327,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_array_write_x_27___rarg), 3,
 return x_2;
 }
 }
-obj* l_array_uread___rarg(obj* x_0, size_t x_1, obj* x_2) {
+obj* l_array_uread___rarg(obj* x_0, usize x_1, obj* x_2) {
 _start:
 {
 obj* x_4; obj* x_5; 
@@ -347,13 +349,13 @@ return x_2;
 obj* l_array_uread___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-size_t x_3; obj* x_4; 
+usize x_3; obj* x_4; 
 x_3 = lean::unbox_size_t(x_1);
 x_4 = l_array_uread___rarg(x_0, x_3, x_2);
 return x_4;
 }
 }
-obj* l_array_uwrite___rarg(obj* x_0, size_t x_1, obj* x_2, obj* x_3) {
+obj* l_array_uwrite___rarg(obj* x_0, usize x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_5; obj* x_6; 
@@ -375,16 +377,16 @@ return x_2;
 obj* l_array_uwrite___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-size_t x_4; obj* x_5; 
+usize x_4; obj* x_5; 
 x_4 = lean::unbox_size_t(x_1);
 x_5 = l_array_uwrite___rarg(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
-obj* l_array_uread_x_27___rarg(obj* x_0, obj* x_1, size_t x_2) {
+obj* l_array_uread_x_27___rarg(obj* x_0, obj* x_1, usize x_2) {
 _start:
 {
-obj* x_3; obj* x_4; unsigned char x_6; 
+obj* x_3; obj* x_4; uint8 x_6; 
 x_3 = lean::usize_to_nat(x_2);
 x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
@@ -417,16 +419,16 @@ return x_2;
 obj* l_array_uread_x_27___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-size_t x_3; obj* x_4; 
+usize x_3; obj* x_4; 
 x_3 = lean::unbox_size_t(x_2);
 x_4 = l_array_uread_x_27___rarg(x_0, x_1, x_3);
 return x_4;
 }
 }
-obj* l_array_uwrite_x_27___rarg(obj* x_0, size_t x_1, obj* x_2) {
+obj* l_array_uwrite_x_27___rarg(obj* x_0, usize x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; unsigned char x_6; 
+obj* x_3; obj* x_4; uint8 x_6; 
 x_3 = lean::usize_to_nat(x_1);
 x_4 = lean::cnstr_get(x_0, 0);
 lean::inc(x_4);
@@ -458,7 +460,7 @@ return x_2;
 obj* l_array_uwrite_x_27___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-size_t x_3; obj* x_4; 
+usize x_3; obj* x_4; 
 x_3 = lean::unbox_size_t(x_1);
 x_4 = l_array_uwrite_x_27___rarg(x_0, x_3, x_2);
 return x_4;
@@ -486,7 +488,7 @@ return x_8;
 obj* l_array_push___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-unsigned char x_4; 
+uint8 x_4; 
 x_4 = lean::nat_dec_eq(x_3, x_0);
 lean::dec(x_0);
 if (x_4 == 0)
@@ -543,7 +545,7 @@ return x_2;
 obj* l___private_2151191555__iterate__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_6; unsigned char x_7; 
+obj* x_6; uint8 x_7; 
 lean::dec(x_3);
 x_6 = lean::mk_nat_obj(0u);
 x_7 = lean::nat_dec_eq(x_2, x_6);
@@ -654,7 +656,7 @@ return x_4;
 obj* l___private_717503411__rev__iterate__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_6; unsigned char x_7; 
+obj* x_6; uint8 x_7; 
 lean::dec(x_3);
 x_6 = lean::mk_nat_obj(0u);
 x_7 = lean::nat_dec_eq(x_2, x_6);
@@ -902,7 +904,7 @@ return x_2;
 obj* l_array_map_u_2082___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; unsigned char x_7; 
+obj* x_3; obj* x_5; uint8 x_7; 
 x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 0);

@@ -76,15 +76,15 @@ static std::string to_cpp_type(expr const & e) {
         if (e == mk_enf_object_type() || e == mk_enf_neutral_type()) {
             return "obj*";
         } else if (const_name(e) == get_uint8_name()) {
-            return "unsigned char";
+            return "uint8";
         } else if (const_name(e) == get_uint16_name()) {
-            return "unsigned short";
+            return "uint16";
         } else if (const_name(e) == get_uint32_name()) {
-            return "unsigned";
+            return "uint32";
         } else if (const_name(e) == get_uint64_name()) {
-            return "unsigned long long";
+            return "uint64";
         } else if (const_name(e) == get_usize_name()) {
-            return "size_t";
+            return "usize";
         }
     } else if (is_pi(e)) {
         return "obj*";
@@ -240,7 +240,9 @@ static void emit_file_header(std::ostream & out, module_name const & m, list<mod
     out << "#include \"runtime/apply.h\"\n";
     out << "#include \"runtime/io.h\"\n";
     out << "#include \"kernel/builtin.h\"\n";
-    out << "typedef lean::object obj;\n";
+    out << "typedef lean::object obj;    typedef lean::usize  usize;\n";
+    out << "typedef lean::uint8  uint8;  typedef lean::uint16 uint16;\n";
+    out << "typedef lean::uint32 uint32; typedef lean::uint64 uint64;\n";
     out << "#if defined(__clang__)\n";
     out << "#pragma clang diagnostic ignored \"-Wunused-parameter\"\n";
     out << "#pragma clang diagnostic ignored \"-Wunused-label\"\n";
@@ -277,10 +279,10 @@ static void emit_quoted_string(std::ostream & out, std::string const & s) {
 
 static char const * get_scalar_type_from_size(unsigned i) {
     switch (i) {
-    case 1: return "unsigned char";
-    case 2: return "unsigned short";
-    case 4: return "unsigned";
-    case 8: return "unsigned long long";
+    case 1: return "uint8";
+    case 2: return "uint16";
+    case 4: return "uint32";
+    case 8: return "uint64";
     default: throw exception("C++ code generation failed, invalid scalar size");
     }
 }
@@ -522,7 +524,7 @@ struct emit_fn_fn {
         unsigned n;
         lean_verify(is_llnf_uproj(fn, n));
         emit_lhs(x);
-        m_out << "lean::cnstr_get_scalar<size_t>("; emit_fvar(o); m_out << ", sizeof(void*)*" << n << ");\n";
+        m_out << "lean::cnstr_get_scalar<usize>("; emit_fvar(o); m_out << ", sizeof(void*)*" << n << ");\n";
     }
 
     void emit_unbox(expr const & x, expr const & fn, expr const & arg) {

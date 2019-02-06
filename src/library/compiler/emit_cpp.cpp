@@ -8,42 +8,14 @@ Author: Leonardo de Moura
 #include "runtime/utf8.h"
 #include "runtime/apply.h"
 #include "kernel/instantiate.h"
-#include "library/attribute_manager.h"
 #include "library/module.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/name_mangling.h"
 #include "library/compiler/emit_cpp.h"
 #include "library/compiler/builtin.h"
-
-#include "library/trace.h"
+#include "library/compiler/extname.h"
 
 namespace lean {
-struct cppname_attr_data : public attr_data {
-    name m_id;
-    cppname_attr_data(name const & id): m_id(id) {}
-    cppname_attr_data() {}
-
-    virtual unsigned hash() const override { return m_id.hash(); }
-    virtual void parse(abstract_parser & p) override { m_id = p.parse_name(); }
-    virtual void print(std::ostream & out) override { out << " " << m_id; }
-    void write(serializer & s) const { s << m_id; }
-    void read(deserializer & d) { m_id = read_name(d); }
-};
-
-typedef typed_attribute<cppname_attr_data> cppname_attr;
-
-static cppname_attr const & get_cppname_attr() {
-    return static_cast<cppname_attr const &>(get_system_attribute("cppname"));
-}
-
-optional<name> get_cppname_for(environment const & env, name const & n) {
-    if (auto const & data = get_cppname_attr().get(env, n)) {
-        return optional<name>(data->m_id);
-    } else {
-        return optional<name>();
-    }
-}
-
 struct emit_cpp_ext : public environment_extension {
     comp_decls m_code;
 };
@@ -100,13 +72,13 @@ static void open_namespaces_core(std::ostream & out, name const & p) {
 /* If `n` has the attribute [cppname], and the "cppname" is hierarchical, then
    we must put `n` code inside of a namespace. */
 static void open_namespaces_for(std::ostream & out, environment const & env, name const & n) {
-    optional<name> c = get_cppname_for(env, n);
+    optional<name> c = get_extname_for(env, n);
     if (!c || c->is_atomic()) return;
     open_namespaces_core(out, c->get_prefix());
 }
 
 static void close_namespaces_for(std::ostream & out, environment const & env, name const & n) {
-    optional<name> c = get_cppname_for(env, n);
+    optional<name> c = get_extname_for(env, n);
     if (!c || c->is_atomic()) return;
     name p = c->get_prefix();
     while (!p.is_anonymous()) {
@@ -117,7 +89,7 @@ static void close_namespaces_for(std::ostream & out, environment const & env, na
 }
 
 static std::string to_base_cpp_name(environment const & env, name const & n) {
-    if (optional<name> c = get_cppname_for(env, n)) {
+    if (optional<name> c = get_extname_for(env, n)) {
         lean_assert(c->is_string());
         return c->get_string().to_std_string();
     } else {
@@ -126,7 +98,7 @@ static std::string to_base_cpp_name(environment const & env, name const & n) {
 }
 
 static std::string to_cpp_name(environment const & env, name const & n) {
-    if (optional<name> c = get_cppname_for(env, n)) {
+    if (optional<name> c = get_extname_for(env, n)) {
         lean_assert(c->is_string());
         return c->to_string("::");
     } else {
@@ -135,7 +107,7 @@ static std::string to_cpp_name(environment const & env, name const & n) {
 }
 
 static std::string to_cpp_init_name(environment const & env, name const & n) {
-    if (optional<name> c = get_cppname_for(env, n)) {
+    if (optional<name> c = get_extname_for(env, n)) {
         name init_c(c->get_prefix(), (std::string("_init_") + c->get_string().to_std_string()).c_str());
         return init_c.to_string("::");
     } else {
@@ -866,17 +838,6 @@ void print_cpp_code(std::ostream & out, environment const & env, module_name con
 
 void initialize_emit_cpp() {
     g_ext = new emit_cpp_ext_reg();
-    register_system_attribute(cppname_attr("cppname", "name to be used by C++ code generator",
-                                           [](environment const & env, io_state const &, name const & n, unsigned, bool persistent) {
-                                               if (!persistent) throw exception("invalid [cppname] attribute, must be persistent");
-                                               if (n.is_anonymous()) throw exception("invalid [cppname] attribute, argument is missing");
-                                               name it = n;
-                                               while (!it.is_anonymous()) {
-                                                   if (!it.is_string()) throw exception("invalid [cppname] attribute, identifier cannot be numeric");
-                                                   it = it.get_prefix();
-                                               }
-                                               return env;
-                                           }));
 }
 
 void finalize_emit_cpp() {

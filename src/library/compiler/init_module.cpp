@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler.h"
 #include "library/compiler/emit_cpp.h"
 #include "library/compiler/builtin.h"
+#include "library/compiler/extname.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -27,9 +28,11 @@ void initialize_compiler_module() {
     initialize_compiler();
     initialize_builtin();
     initialize_emit_cpp();
+    initialize_extname();
 }
 
 void finalize_compiler_module() {
+    finalize_extname();
     finalize_emit_cpp();
     finalize_builtin();
     finalize_compiler();

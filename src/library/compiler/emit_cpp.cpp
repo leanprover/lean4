@@ -475,13 +475,16 @@ struct emit_fn_fn {
     void emit_reuse(expr const & x, expr const & fn, buffer<expr> const & args) {
         lean_assert(!args.empty());
         unsigned cidx, num_usizes, num_bytes;
-        lean_verify(is_llnf_reuse(fn, cidx, num_usizes, num_bytes));
+        bool updt_cidx;
+        lean_verify(is_llnf_reuse(fn, cidx, num_usizes, num_bytes, updt_cidx));
         expr const & o = args[0];
         m_out << "if (lean::is_scalar("; emit_fvar(o); m_out <<")) {\n";
         m_out << " "; emit_alloc_cnstr(x, cidx, args.size()-1, num_usizes, num_bytes);
         m_out << "} else {\n";
         m_out << " "; emit_lhs(x); emit_fvar(o); m_out << ";\n";
-        m_out << " lean::cnstr_set_tag("; emit_fvar(o); m_out << ", " << cidx << ");\n";
+        if (updt_cidx) {
+            m_out << " lean::cnstr_set_tag("; emit_fvar(o); m_out << ", " << cidx << ");\n";
+        }
         m_out << "}\n";
         emit_cnstr_sets(x, args.size()-1, args.data()+1);
     }

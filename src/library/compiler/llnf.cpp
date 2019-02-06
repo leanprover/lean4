@@ -70,6 +70,25 @@ static bool is_llnf_ternary_primitive(expr const & e, name const & prefix, unsig
     return true;
 }
 
+static bool is_llnf_quaternary_primitive(expr const & e, name const & prefix, unsigned & i1, unsigned & i2, unsigned & i3, unsigned & i4) {
+    if (!is_constant(e)) return false;
+    name const & n4  = const_name(e);
+    if (!is_internal_name(n4)) return false;
+    if (n4.is_atomic() || !n4.is_numeral()) return false;
+    i4 = n4.get_numeral().get_small_value();
+    name const & n3  = n4.get_prefix();
+    if (!is_internal_name(n3)) return false;
+    if (n3.is_atomic() || !n3.is_numeral()) return false;
+    i3 = n3.get_numeral().get_small_value();
+    name const & n2 = n3.get_prefix();
+    if (n2.is_atomic() || !n2.is_numeral()) return false;
+    i2 = n2.get_numeral().get_small_value();
+    name const & n1 = n2.get_prefix();
+    if (n1.is_atomic() || !n1.is_numeral() || n1.get_prefix() != prefix) return false;
+    i1 = n1.get_numeral().get_small_value();
+    return true;
+}
+
 /*
 A constructor object contains a header, then a sequence of pointers to other Lean objects,
 a sequence of `usize` (i.e., `size_t`) scalar values, and a sequence of other scalar values.
@@ -88,9 +107,16 @@ scalar fields.
 expr mk_llnf_cnstr(unsigned cidx, unsigned num_usizes, unsigned num_bytes) { return mk_constant(name(name(name(*g_cnstr, cidx), num_usizes), num_bytes)); }
 bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) { return is_llnf_ternary_primitive(e, *g_cnstr, cidx, num_usizes, num_bytes); }
 
-/* The `_reuse.<cidx>.<num_usizes>.<num_bytes>` is similar to `_cnstr.<cidx>.<num_usize>.<num_bytes>`, but it takes an extra argument: a memory cell that may be reused. */
-expr mk_llnf_reuse(unsigned cidx, unsigned num_usizes, unsigned num_bytes) { return mk_constant(name(name(name(*g_reuse, cidx), num_usizes), num_bytes)); }
-bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) { return is_llnf_ternary_primitive(e, *g_reuse, cidx, num_usizes, num_bytes); }
+/* The `_reuse.<cidx>.<num_usizes>.<num_bytes>.<updt_cidx>` is similar to `_cnstr.<cidx>.<num_usize>.<num_bytes>`, but it takes an extra argument: a memory cell that may be reused. */
+expr mk_llnf_reuse(unsigned cidx, unsigned num_usizes, unsigned num_bytes, bool updt_cidx) {
+    return mk_constant(name(name(name(name(*g_reuse, cidx), num_usizes), num_bytes), updt_cidx));
+}
+bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes, bool & updt_cidx) {
+    unsigned aux;
+    bool r = is_llnf_quaternary_primitive(e, *g_reuse, cidx, num_usizes, num_bytes, aux);
+    updt_cidx = aux;
+    return r;
+}
 
 expr mk_llnf_reset(unsigned n) { return mk_constant(name(*g_reset, n)); }
 bool is_llnf_reset(expr const & e, unsigned & n) { return is_llnf_unary_primitive(e, *g_reset, n); }
@@ -570,7 +596,7 @@ class to_llnf_fn {
                 }
                 j++;
             }
-            r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_num_usizes, k_info.m_scalar_sz), r), obj_args);
+            r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_num_usizes, k_info.m_scalar_sz, m_cinfo.m_cidx != k_info.m_cidx), r), obj_args);
             unsigned uidx   = 0;
             unsigned offset = 0;
             j = nparams;

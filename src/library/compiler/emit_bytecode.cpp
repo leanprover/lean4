@@ -194,8 +194,8 @@ class emit_bytecode_fn {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
         lean_assert(is_llnf_reuse(fn));
-        unsigned cidx, nusizes, ssz;
-        is_llnf_reuse(fn, cidx, nusizes, ssz);
+        unsigned cidx, nusizes, ssz; bool updt_cidx;
+        is_llnf_reuse(fn, cidx, nusizes, ssz, updt_cidx);
         if (ssz != 0 || nusizes != 0) throw_no_unboxed_support();
         compile_args(args.size(), args.data(), bpz, m);
         emit(mk_reuse_instr(cidx, get_app_num_args(e) - 1));

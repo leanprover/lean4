@@ -43,8 +43,40 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-$CXX -o $ff.out -I $INCLUDE_DIR $CXX_FLAGS $ff.cpp $BIN_DIR/libleanstatic.a $LINKER_FLAGS $LINKER_LIBS
+$CXX -o "$ff.out" -I $INCLUDE_DIR $CXX_FLAGS $ff.cpp $BIN_DIR/libleanstatic.a $LINKER_FLAGS $LINKER_LIBS
 if [ $? -ne 0 ]; then
     echo "Failed to compile C++ file $ff.cpp"
+    exit 1
+fi
+
+"./$ff.out" > "$ff.produced.out"
+if [ $? -ne 0 ]; then
+   echo "Failed to execute $ff.out"
+   exit 1
+fi
+
+if test -f "$ff.expected.out"; then
+    if $DIFF -u --ignore-all-space -I "executing external script" "$ff.expected.out" "$ff.produced.out"; then
+        echo "-- checked"
+        exit 0
+    else
+        echo "ERROR: file $ff.produced.out does not match $ff.expected.out"
+        if [ $INTERACTIVE == "yes" ]; then
+            meld "$ff.produced.out" "$ff.expected.out"
+            if diff -I "executing external script" "$ff.expected.out" "$ff.produced.out"; then
+                echo "-- mismatch was fixed"
+            fi
+        fi
+        exit 1
+    fi
+else
+    echo "ERROR: file $ff.expected.out does not exist"
+    if [ $INTERACTIVE == "yes" ]; then
+        read -p "copy $ff.produced.out (y/n)? "
+        if [ $REPLY == "y" ]; then
+            cp -- "$ff.produced.out" "$ff.expected.out"
+            echo "-- copied $ff.produced.out --> $ff.expected.out"
+        fi
+    fi
     exit 1
 fi

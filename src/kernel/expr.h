@@ -111,7 +111,7 @@ public:
     expr(expr const & other):object_ref(other) {}
     expr(expr && other):object_ref(other) {}
     explicit expr(b_obj_arg o, bool b):object_ref(o, b) {}
-    explicit expr(b_obj_arg o):object_ref(o) {}
+    explicit expr(obj_arg o):object_ref(o) {}
     static expr_kind kind(object * o) { return static_cast<expr_kind>(cnstr_tag(o)); }
     expr_kind kind() const { return kind(raw()); }
 

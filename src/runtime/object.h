@@ -174,6 +174,7 @@ struct task_object : public object {
 /* Base class for wrapping external_object data.
    For example, we use it to wrap the Lean environment object. */
 struct external_object : public object {
+    explicit external_object(object_memory_kind m = c_init_mem_kind): object(object_kind::External, m) {}
     virtual void dealloc() {}
     virtual ~external_object() {}
 };

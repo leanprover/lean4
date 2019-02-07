@@ -420,181 +420,25 @@ static void elaborate_command(parser & p, expr const & cmd) {
 /* TEMPORARY code for the old runtime */
 
 
-struct vm_env : public vm_external {
+struct lean_environment : public external_object {
     environment m_env;
 
-    explicit vm_env(environment const & env) : m_env(env) {}
-
-    virtual ~vm_env() {}
-
-    virtual void dealloc() override { delete this; }
-
-    virtual vm_external *ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
-
-    virtual vm_external *clone(vm_clone_fn const &) override { lean_unreachable(); }
+    explicit lean_environment(environment const & env) : m_env(env) {}
+    virtual ~lean_environment() {}
 };
 
-environment const & to_env(vm_obj const & o) {
-    lean_vm_check(dynamic_cast<vm_env *>(to_external(o)));
-    return static_cast<vm_env *>(to_external(o))->m_env;
+environment const & to_env(b_obj_arg o) {
+    // lean_assert(dynamic_cast<lean_environment *>(to_external(o)));
+    return static_cast<lean_environment *>(to_external(o))->m_env;
 }
 
-vm_obj vm_environment_mk_empty(vm_obj const&) {
-    return mk_vm_external(new vm_env(environment()));
+obj_res to_lean_environment(environment const & env) {
+    return new(alloc_heap_object(sizeof(lean_environment))) lean_environment(env);
 }
 
-name to_name(vm_obj const & o) {
-    switch (cidx(o)) {
-        case 0: return name();
-        case 1: {
-            std::string str = to_string(cfield(o, 1));
-            return name(to_name(cfield(o, 0)), str.c_str());
-        }
-        case 2:
-            return name(to_name(cfield(o, 0)), nat(vm_nat_to_mpz1(cfield(o, 1))));
-        default: lean_unreachable();
-    }
-}
-
-vm_obj vm_environment_contains(vm_obj const & vm_env, vm_obj const & vm_n) {
-    return mk_vm_simple(static_cast<bool>(to_env(vm_env).find(to_name(vm_n))));
-}
-
-vm_obj to_obj(name const & n) {
-    if (n.is_anonymous()) {
-        return mk_vm_simple(0);
-    } else if (n.is_string()) {
-        return mk_vm_constructor(1, to_obj(n.get_prefix()), to_obj(n.get_string().to_std_string()));
-    } else {
-        return mk_vm_constructor(2, to_obj(n.get_prefix()), mk_vm_nat(n.get_numeral().to_mpz()));
-    }
-}
-
-level to_level(vm_obj const & o) {
-    switch (cidx(o)) {
-        case 0:
-            return mk_level_zero();
-        case 1:
-            return mk_succ(to_level(cfield(o, 0)));
-        case 2:
-            return mk_max(to_level(cfield(o, 0)), to_level(cfield(o, 1)));
-        case 3:
-            return mk_imax(to_level(cfield(o, 0)), to_level(cfield(o, 1)));
-        case 4:
-            return mk_univ_param(to_name(cfield(o, 0)));
-        case 5:
-            return mk_univ_mvar(to_name(cfield(o, 0)));
-        default: lean_unreachable();
-    }
-}
-
-levels to_levels(vm_obj const & o) {
-    switch (cidx(o)) {
-        case 0:
-            return levels();
-        case 1:
-            return levels(to_level(cfield(o, 0)), to_levels(cfield(o, 1)));
-        default: lean_unreachable();
-    }
-}
-
-binder_info to_binder_info(vm_obj const & o) {
-    lean_assert(is_simple(o));
-    return static_cast<binder_info>(cidx(o));
-}
-
-vm_obj to_obj(binder_info const & bi) {
-    return mk_vm_simple(static_cast<unsigned>(bi));
-}
-
-kvmap to_kvmap(vm_obj const & o) {
-    switch (cidx(o)) {
-        case 0:
-            return kvmap();
-        case 1: {
-            auto vm_k = cfield(cfield(o, 0), 0);
-            auto vm_v = cfield(cfield(o, 0), 1);
-            auto vm_d = cfield(vm_v, 0);
-            data_value v;
-            switch (cidx(vm_v)) {
-                case 0:
-                    v = data_value(to_string(vm_d));
-                    break;
-                case 1:
-                    v = data_value(nat(vm_nat_to_mpz1(vm_d)));
-                    break;
-                case 2:
-                    v = data_value(to_bool(vm_d));
-                    break;
-                case 3:
-                    v = data_value(to_name(vm_d));
-                    break;
-                default: lean_unreachable();
-            }
-            return kvmap({to_name(vm_k), v}, to_kvmap(cfield(o, 1)));
-        }
-        default: lean_unreachable();
-    }
-}
-
-// I really don't want to deal with the reverse translation right now
-struct vm_expr : public vm_external {
-    expr m_expr;
-    explicit vm_expr(expr const & expr) : m_expr(expr) {}
-    virtual ~vm_expr() {}
-    virtual void dealloc() override { delete this; }
-    virtual vm_external *ts_clone(vm_clone_fn const &) override { lean_unreachable(); }
-    virtual vm_external *clone(vm_clone_fn const &) override { lean_unreachable(); }
-};
-
-expr to_expr(vm_obj const & o) {
-    if (is_external(o)) {
-        lean_vm_check(dynamic_cast<vm_expr *>(to_external(o)));
-        return static_cast<vm_expr *>(to_external(o))->m_expr;
-    }
-
-    switch (cidx(o)) {
-        case 0:
-            return mk_bvar(nat(vm_nat_to_mpz1(cfield(o, 0))));
-        case 1:
-            return mk_local(to_name(cfield(o, 0)), to_name(cfield(o, 1)), to_expr(cfield(o, 2)), to_binder_info(cfield(o, 3)));
-        case 2:
-            return mk_metavar(to_name(cfield(o, 0)), to_expr(cfield(o, 1)));
-        case 3:
-            return mk_sort(to_level(cfield(o, 0)));
-        case 4:
-            return mk_constant(to_name(cfield(o, 0)), to_levels(cfield(o, 1)));
-        case 5:
-            return mk_app(to_expr(cfield(o, 0)), to_expr(cfield(o, 1)));
-        case 6:
-            return mk_lambda(to_name(cfield(o, 0)), to_expr(cfield(o, 2)), to_expr(cfield(o, 3)),
-                             to_binder_info(cfield(o, 1)));
-        case 7:
-            return mk_pi(to_name(cfield(o, 0)), to_expr(cfield(o, 2)), to_expr(cfield(o, 3)),
-                         to_binder_info(cfield(o, 1)));
-        case 8:
-            return mk_let(to_name(cfield(o, 0)), to_expr(cfield(o, 1)), to_expr(cfield(o, 2)), to_expr(cfield(o, 3)));
-        case 9: {
-            auto l = cfield(o, 0);
-            switch (cidx(l)) {
-                case 0:
-                    return mk_lit(literal(to_string(cfield(l, 0)).c_str()));
-                case 1:
-                    return mk_lit(literal(vm_nat_to_mpz1(cfield(l, 0))));
-                default: lean_unreachable();
-            }
-        }
-        case 10:
-            return mk_mdata(to_kvmap(cfield(o, 0)), to_expr(cfield(o, 1)));
-        case 11:
-            return mk_proj(to_name(cfield(o, 0)), nat(vm_nat_to_mpz1(cfield(o, 1))), to_expr(cfield(o, 2)));
-        default: lean_unreachable();
-    }
-}
-
-options to_options(vm_obj o) {
+options to_options(b_obj_arg o) {
     options opts;
-    kvmap m = to_kvmap(o);
+    kvmap m = kvmap(o, true);
     for (auto const & kv : m) {
         switch (kv.snd().kind()) {
             case data_value_kind::Bool:
@@ -614,87 +458,71 @@ options to_options(vm_obj o) {
     return opts;
 }
 
-name_set to_name_set(vm_obj o) {
+name_set to_name_set(b_obj_arg o) {
     name_set ns;
-    while (o.is_ptr()) {
-        ns.insert(to_name(cfield(o, 0)));
-        o = cfield(o, 1);
+    names l(o, true);
+    for (auto const & n : l) {
+        ns.insert(n);
     }
     return ns;
 }
 
-name_generator to_name_generator(vm_obj const & o) {
+name_generator to_name_generator(b_obj_arg o) {
     name_generator ngen;
-    ngen.m_prefix = to_name(cfield(o, 0));
-    ngen.m_next_idx = to_unsigned(cfield(o, 1));
+    ngen.m_prefix = name(cnstr_get(o, 0), true);
+    ngen.m_next_idx = cnstr_get_scalar<uint32>(o, sizeof(void*));
     return ngen;
 }
 
-vm_obj to_obj(name_generator const & ngen) {
-    return mk_vm_constructor(0, to_obj(ngen.m_prefix), mk_vm_nat(ngen.m_next_idx));
-}
-
-vm_obj to_obj(pos_info const & pos) {
-    return mk_vm_constructor(0, mk_vm_simple(pos.first), mk_vm_simple(pos.second));
-}
-
-vm_obj to_obj(message const & msg) {
-    return mk_vm_constructor(0, {
-            to_obj(msg.get_filename()),
-            to_obj(msg.get_pos()),
-            msg.get_end_pos() ? to_obj(*msg.get_end_pos()) : mk_vm_none(),
-            mk_vm_simple(static_cast<unsigned>(msg.get_severity())),
-            to_obj(msg.get_caption()),
-            to_obj(msg.get_text()),
-    });
-}
-
-vm_obj to_obj(message_log const & log) {
-    auto msgs = log.to_buffer();
-    auto o = mk_vm_simple(0);
-    for (auto const & msg : msgs)
-        o = mk_vm_constructor(1, to_obj(msg), o);
+object_ref to_obj(name_generator const & ngen) {
+    auto o = mk_cnstr(0, ngen.m_prefix, sizeof(uint32 ));
+    cnstr_set_scalar(o.raw(), sizeof(void*), ngen.m_next_idx);
     return o;
+}
+
+extern "C" obj_res lean_environment_mk_empty(b_obj_arg) {
+    return to_lean_environment(environment());
+}
+
+extern "C" uint8 lean_environment_contains(b_obj_arg lean_environment, b_obj_arg vm_n) {
+    return static_cast<uint8>(static_cast<bool>(to_env(lean_environment).find(name(vm_n, true))));
 }
 
 /* elaborate_command (filename : string) : expr → old_elaborator_state → option old_elaborator_state × message_log */
 // TODO(Sebastian): replace `string` with `message` in the new runtime
-vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, vm_obj const & vm_st) {
-    auto vm_e = cfield(vm_st, 0);
+extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_arg vm_cmd, b_obj_arg vm_st) {
+    auto vm_e = cnstr_get(vm_st, 0);
     auto env = to_env(vm_e);
-    auto filename = to_string(vm_filename);
+    auto filename = string_to_std(vm_filename);
     std::stringstream in;
-    auto ngen = to_name_generator(cfield(vm_st, 1));
-    auto vm_lds = cfield(vm_st, 2);
+    auto ngen = to_name_generator(cnstr_get(vm_st, 1));
+    list_ref<object_ref> vm_lds(cnstr_get(vm_st, 2), true);
     local_level_decls lds;
     name_set lvars;
-    while (vm_lds.is_ptr()) {
-        auto it = cfield(vm_lds, 0);
-        auto n = to_name(cfield(it, 0));
-        lds.insert(n, to_level(cfield(it, 1)));
+    for (auto const & vm_ld : vm_lds) {
+        auto n = name(cnstr_get(vm_ld.raw(), 0), true);
+        lds.insert(n, level(cnstr_get(vm_ld.raw(), 1), true));
         // all local decls are variables in Lean 4
         lvars.insert(n);
-        vm_lds = cfield(vm_lds, 1);
     }
-    auto vm_eds = cfield(vm_st, 3);
+    list_ref<object_ref> vm_eds(cnstr_get(vm_st, 3), true);
     local_expr_decls eds;
     name_set vars;
-    while (vm_eds.is_ptr()) {
-        auto it = cfield(vm_eds, 0);
-        auto n = to_name(cfield(it, 0));
-        auto data = cfield(it, 1);
-        eds.insert(n, mk_local(to_name(cfield(data, 0)), n, to_expr(cfield(data, 1)), to_binder_info(cfield(data, 2))));
+    for (auto const & vm_ed : vm_eds) {
+        auto n = name(cnstr_get(vm_ed.raw(), 0), true);
+        auto data = cnstr_get(vm_ed.raw(), 1);
+        eds.insert(n, mk_local(name(cnstr_get(data, 0), true), n, expr(cnstr_get(data, 1), true),
+                               cnstr_get_scalar<binder_info>(data, sizeof(void*) * 2)));
         // all local decls are variables in Lean 4
         vars.insert(n);
-        vm_eds = cfield(vm_eds, 1);
     }
-    auto includes = to_name_set(cfield(vm_st, 4));
-    auto options = to_options(cfield(vm_st, 5));
+    auto includes = to_name_set(cnstr_get(vm_st, 4));
+    auto options = to_options(cnstr_get(vm_st, 5));
 
-    auto cmd = to_expr(vm_cmd);
+    auto cmd = expr(vm_cmd);
     auto pos = get_pos(cmd).value_or(pos_info {1, 0});
     message_log log;
-    vm_obj vm_out = mk_vm_none();
+    obj_arg vm_out = mk_option_none();
     {
         scope_message_log scope3(log);
         io_state ios(options, mk_pretty_formatter_factory());
@@ -709,8 +537,8 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
         parser p(env, ios, in, filename);
         auto s = p.mk_snapshot();
         p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
-                         parser_scope_stack(), to_unsigned(cfield(vm_st, 6)), pos_info{1, 0}));
-        auto ns = to_name(cfield(vm_st, 7));
+                         parser_scope_stack(), nat(cnstr_get(vm_st, 6), true).get_small_value(), pos_info{1, 0}));
+        auto ns = name(cnstr_get(vm_st, 7), true);
         p.set_env(set_namespace(env, ns));
 
         try {
@@ -722,56 +550,77 @@ vm_obj vm_elaborate_command(vm_obj const & vm_filename, vm_obj const & vm_cmd, v
             s->m_lds.for_each([&](name const & n, level const &) {
                 new_lds.insert(s->m_lds.find_idx(n), n);
             });
+            vm_lds = list_ref<object_ref>();
             new_lds.for_each([&](unsigned const &, name const & n) {
-                auto vm_n = to_obj(n);
-                auto vm_ld = mk_vm_constructor(0, vm_n, mk_vm_constructor(4, vm_n));
-                vm_lds = mk_vm_constructor(1, vm_ld, vm_lds);
+                auto vm_ld = mk_cnstr(0, n, mk_cnstr(4, n));
+                vm_lds = cons(vm_ld, vm_lds);
             });
 
+            vm_eds = list_ref<object_ref>();
             for (auto const & ed : s->m_eds.get_entries()) {
                 if (!is_local_p(ed.second)) {
                     // obsolete local ref, ignore
                     continue;
                 }
-                auto vm_ed = mk_vm_constructor(0, to_obj(ed.first), mk_vm_constructor(0,
-                                                                                      to_obj(local_name_p(ed.second)),
-                                                                                      mk_vm_external(new vm_expr(
-                                                                                              local_type_p(ed.second))),
-                                                                                      to_obj(local_info_p(ed.second))));
-                vm_eds = mk_vm_constructor(1, vm_ed, vm_eds);
+                auto vm_sec_var = mk_cnstr(0, local_name_p(ed.second), local_type_p(ed.second), sizeof(binder_info));
+                cnstr_set_scalar(vm_sec_var.raw(), sizeof(void*) * 2, local_info_p(ed.second));
+                auto vm_ed = mk_cnstr(0, ed.first, vm_sec_var);
+                vm_eds = cons(vm_ed, vm_eds);
             }
 
-            auto vm_st2 = mk_vm_constructor(0, {
-                    mk_vm_external(new vm_env(p.env())),
-                    to_obj(s->m_ngen),
-                    vm_lds,
-                    vm_eds,
-                    cfield(vm_st, 4),
-                    cfield(vm_st, 5),
-                    cfield(vm_st, 6),
-                    cfield(vm_st, 7)
-            });
-            vm_out = mk_vm_some(vm_st2);
+            object * args[] = {
+                    to_lean_environment(p.env()),
+                    to_obj(s->m_ngen).steal(),
+                    vm_lds.steal(),
+                    vm_eds.steal(),
+                    cnstr_get(vm_st, 4),
+                    cnstr_get(vm_st, 5),
+                    cnstr_get(vm_st, 6),
+                    cnstr_get(vm_st, 7)
+            };
+            inc(cnstr_get(vm_st, 4));
+            inc(cnstr_get(vm_st, 5));
+            inc(cnstr_get(vm_st, 6));
+            inc(cnstr_get(vm_st, 7));
+            auto vm_st2 = mk_cnstr(0, 8, args);
+            vm_out = mk_option_some(vm_st2.steal());
         } catch (exception & e) {
             message_builder builder(env, ios, filename, pos, message_severity::ERROR);
             builder.set_exception(e);
             builder.report();
         }
     }
-    return mk_vm_constructor(0, vm_out, to_obj(log));
+    return mk_cnstr(0, object_ref(vm_out), log.raw()).steal();
 }
 
-vm_obj vm_expr_local(vm_obj const & vm_pp_name, vm_obj const & vm_name, vm_obj const & vm_type, vm_obj const & vm_binder_info) {
-    return mk_vm_constructor(1, vm_pp_name, vm_name, vm_type, vm_binder_info);
+extern "C" obj_res lean_expr_local(obj_arg vm_name, obj_arg vm_pp_name, obj_arg vm_type, uint8 vm_binder_info) {
+    return mk_local(name(vm_name), name(vm_pp_name), expr(vm_type), static_cast<binder_info>(vm_binder_info)).steal();
+}
+
+static vm_obj vm_lean_expr_local(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) {
+    throw exception("elaborator support has not been implemented in the old VM");
+}
+
+static vm_obj vm_lean_environment_mk_empty() {
+    throw exception("elaborator support has not been implemented in the old VM");
+}
+
+static vm_obj vm_lean_environment_contains(vm_obj const &, vm_obj const &) {
+    throw exception("elaborator support has not been implemented in the old VM");
+}
+
+static vm_obj vm_lean_elaborator_elaborate_command(vm_obj const &, vm_obj const &, vm_obj const &) {
+    throw exception("elaborator support has not been implemented in the old VM");
 }
 
 void initialize_vm_elaborator() {
-    DECLARE_VM_BUILTIN(name({"lean", "expr", "local"}), vm_expr_local);
-    DECLARE_VM_BUILTIN(name({"lean", "environment", "mk_empty"}), vm_environment_mk_empty);
-    DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_environment_contains);
-    DECLARE_VM_BUILTIN(name({"lean", "elaborator", "elaborate_command"}), vm_elaborate_command);
+    DECLARE_VM_BUILTIN(name({"lean", "expr", "local"}), vm_lean_expr_local);
+    DECLARE_VM_BUILTIN(name({"lean", "environment", "mk_empty"}), vm_lean_environment_mk_empty);
+    DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_lean_environment_contains);
+    DECLARE_VM_BUILTIN(name({"lean", "elaborator", "elaborate_command"}), vm_lean_elaborator_elaborate_command);
 }
 
 void finalize_vm_elaborator() {
+    // del(lean_environment_empty);
 }
 }

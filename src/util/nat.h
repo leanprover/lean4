@@ -11,11 +11,11 @@ Author: Leonardo de Moura
 namespace lean {
 /* Wrapper for manipulating Lean runtime nat values in C++. */
 class nat : public object_ref {
-    nat(b_obj_arg o, bool b):object_ref(o, b) {}
-    explicit nat(obj_arg o):object_ref(o) {}
     static nat wrap(object * o) { return nat(o, true); }
 public:
     nat():object_ref(box(0)) {}
+    explicit nat(obj_arg o):object_ref(o) {}
+    nat(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit nat(int v):object_ref(mk_nat_obj(v < 0 ? 0u : static_cast<unsigned>(v))) {}
     explicit nat(unsigned v):object_ref(mk_nat_obj(v)) {}
     explicit nat(mpz const & v):object_ref(mk_nat_obj(v)) {}

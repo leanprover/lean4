@@ -61,12 +61,12 @@ public:
     static int cmp_core(object * o1, object * o2);
     size_t size_core(bool unicode) const;
 private:
-    name(b_obj_arg r, bool b):object_ref(r, b) {}
     friend name read_name(deserializer & d);
     explicit name(object_ref && r):object_ref(r) {}
 public:
     name():object_ref(box(static_cast<unsigned>(name_kind::ANONYMOUS))) {}
-    name(obj_arg o):object_ref(o) {}
+    explicit name(obj_arg o):object_ref(o) {}
+    name(b_obj_arg r, bool b):object_ref(r, b) {}
     name(name const & prefix, char const * name);
     name(name const & prefix, unsigned k);
     name(name const & prefix, nat const & n);

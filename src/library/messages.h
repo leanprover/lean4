@@ -88,6 +88,7 @@ public:
     bool has_errors() const;
     void add(message const &);
     buffer<message> to_buffer() const;
+    list_ref<message> & raw() { return m_rev_list; }
 };
 
 struct scope_message_log : flet<message_log *> {

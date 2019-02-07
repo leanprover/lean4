@@ -14,9 +14,10 @@ template<typename T> T const & head(object * o) { return static_cast<T const &>(
 /* Wrapper for manipulating Lean lists in C++ */
 template<typename T>
 class list_ref : public object_ref {
-    list_ref(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
     list_ref():object_ref(box(0)) {}
+    explicit list_ref(obj_arg o):object_ref(o) {}
+    list_ref(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit list_ref(T const & a):object_ref(mk_cnstr(1, a.raw(), box(0))) { inc(a.raw()); }
     explicit list_ref(T const * a) { if (a) *this = list_ref(*a); }
     explicit list_ref(list_ref<T> const * l) { if (l) *this = *l; }

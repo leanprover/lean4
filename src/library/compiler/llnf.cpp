@@ -112,7 +112,7 @@ expr mk_llnf_reuse(unsigned cidx, unsigned num_usizes, unsigned num_bytes, bool 
     return mk_constant(name(name(name(name(*g_reuse, cidx), num_usizes), num_bytes), updt_cidx));
 }
 bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes, bool & updt_cidx) {
-    unsigned aux;
+    unsigned aux = 0;
     bool r = is_llnf_quaternary_primitive(e, *g_reuse, cidx, num_usizes, num_bytes, aux);
     updt_cidx = aux;
     return r;

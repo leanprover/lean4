@@ -476,6 +476,11 @@ file(GLOB_RECURSE LEAN_SOURCES
   "${LEAN_SOURCE_DIR}"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.cpp"
   "${LEAN_SOURCE_DIR}/[A-Za-z]*.h")
+foreach(SOURCE ${LEAN_SOURCES})
+  if(${SOURCE} MATCHES "${LEAN_SOURCE_DIR}/boot/.*")
+    LIST(REMOVE_ITEM LEAN_SOURCES ${SOURCE})
+  endif()
+endforeach()
 add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()

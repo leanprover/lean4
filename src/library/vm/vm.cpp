@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "util/name_hash_map.h"
 #include "util/name_hash_set.h"
 #include "util/timeit.h"
-#include "util/name_hash_map.h"
 #include "util/sexpr/option_declarations.h"
 #include "util/shared_mutex.h"
 #include "library/constants.h"

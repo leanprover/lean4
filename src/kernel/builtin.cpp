@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "runtime/object.h"
-using namespace lean;
+using namespace lean; // NOLINT
 
 lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*, lean::object*) {
     lean_unreachable();

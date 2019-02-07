@@ -5,6 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <iostream>
+#include <limits>
+#include <string>
 #include "runtime/utf8.h"
 #include "runtime/apply.h"
 #include "kernel/instantiate.h"
@@ -651,7 +653,6 @@ struct emit_fn_fn {
             m_out << "else\n";
             emit(args[2]);
         } else {
-
             if (is_obj(x)) {
                 m_out << "switch (lean::obj_tag("; emit_fvar(x); m_out << ")) {\n";
             } else {

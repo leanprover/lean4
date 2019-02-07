@@ -371,8 +371,8 @@ obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__7(o
 obj* l_lean_elaborator_end__scope___lambda__2___closed__2;
 extern obj* l_lean_options_mk;
 obj* l_lean_parser_module_yield__command___lambda__3(obj*, obj*);
-obj* l___private_3693562977__run__aux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_universe_elaborate___closed__1;
+obj* l___private_643728199__run__aux___at_lean_elaborator_run___spec__6(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_monad__state__trans___rarg(obj*, obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__20;
 obj* l_list_mmap___main___at_lean_elaborator_attribute_elaborate___spec__1___closed__1;
@@ -395,6 +395,7 @@ obj* l_except__t_monad___rarg(obj*);
 extern obj* l_lean_parser_term_app_has__view;
 obj* l_rbnode_insert___at_lean_elaborator_ordered__rbmap_insert___spec__2___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_mfoldl___main___at_lean_elaborator_update__parser__config___spec__2(obj*, obj*, obj*, obj*);
+obj* l___private_643728199__run__aux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_decl__modifiers__to__pexpr___closed__6;
 obj* l_lean_elaborator_to__level___main(obj*, obj*, obj*);
 extern obj* l_lean_parser_ident__univs_has__view;
@@ -473,7 +474,6 @@ obj* l_lean_elaborator_match__precedence___main___boxed(obj*, obj*);
 obj* l_list_span___main___at_lean_elaborator_to__pexpr___main___spec__7(obj*);
 obj* l_lean_parser_term_binders_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_ordered__rbmap_find(obj*, obj*, obj*);
-obj* l___private_3693562977__run__aux___at_lean_elaborator_run___spec__6(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mfoldl___main___at_lean_elaborator_update__parser__config___spec__1(obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_command_universe;
 obj* l_lean_elaborator_to__pexpr___main___closed__19;
@@ -9117,7 +9117,7 @@ lean::inc(x_894);
 lean::inc(x_0);
 x_897 = lean::apply_1(x_894, x_0);
 x_898 = l_lean_parser_number_view_to__nat___main(x_897);
-x_899 = lean::alloc_cnstr(1, 1, 0);
+x_899 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_899, 0, x_898);
 x_900 = lean::alloc_cnstr(9, 1, 0);
 lean::cnstr_set(x_900, 0, x_899);
@@ -15451,7 +15451,7 @@ if (lean::is_shared(x_47)) {
  x_54 = x_47;
 }
 x_55 = lean::box(0);
-x_56 = lean::alloc_cnstr(1, 1, 0);
+x_56 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_56, 0, x_3);
 x_57 = lean::alloc_cnstr(9, 1, 0);
 lean::cnstr_set(x_57, 0, x_56);
@@ -16023,7 +16023,7 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::alloc_cnstr(1, 1, 0);
+x_1 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 x_2 = lean::alloc_cnstr(9, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
@@ -16035,7 +16035,7 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_nat_obj(1u);
-x_1 = lean::alloc_cnstr(1, 1, 0);
+x_1 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 x_2 = lean::alloc_cnstr(9, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
@@ -16047,7 +16047,7 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_nat_obj(2u);
-x_1 = lean::alloc_cnstr(1, 1, 0);
+x_1 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 x_2 = lean::alloc_cnstr(9, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
@@ -28103,11 +28103,11 @@ x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x
 return x_2;
 }
 }
-obj* l___private_3693562977__run__aux___at_lean_elaborator_run___spec__6(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l___private_643728199__run__aux___at_lean_elaborator_run___spec__6(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 obj* x_6; obj* x_7; 
-x_6 = l___private_3693562977__run__aux___main___rarg(x_0, x_1, x_2, x_3);
+x_6 = l___private_643728199__run__aux___main___rarg(x_0, x_1, x_2, x_3);
 x_7 = lean::apply_2(x_6, x_4, x_5);
 return x_7;
 }
@@ -28116,7 +28116,7 @@ obj* l_lean_parser_rec__t_run___at_lean_elaborator_run___spec__5(obj* x_0, obj* 
 _start:
 {
 obj* x_6; obj* x_7; 
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3693562977__run__aux___at_lean_elaborator_run___spec__6), 6, 3);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l___private_643728199__run__aux___at_lean_elaborator_run___spec__6), 6, 3);
 lean::closure_set(x_6, 0, x_1);
 lean::closure_set(x_6, 1, x_2);
 lean::closure_set(x_6, 2, x_3);

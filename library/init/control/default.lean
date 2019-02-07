@@ -7,4 +7,4 @@ prelude
 import init.control.applicative init.control.functor init.control.alternative
 import init.control.monad init.control.lift
 import init.control.state init.control.id init.control.except init.control.reader
-import init.control.option
+import init.control.option init.control.combinators

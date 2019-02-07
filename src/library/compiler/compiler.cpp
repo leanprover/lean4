@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf.h"
 #include "library/compiler/emit_bytecode.h"
 #include "library/compiler/emit_cpp.h"
+#include "library/compiler/extname.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -100,9 +101,37 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
 
 #define trace_compiler(k, ds) lean_trace(k, trace(ds);)
 
+bool is_main_fn(environment const & env, name const & n) {
+    if (n == "main") return true;
+    if (optional<name> c = get_extname_for(env, n)) {
+        return *c == "main";
+    }
+    return false;
+}
+
+/* Return true iff type is `list string -> io uint32` */
+bool is_main_fn_type(expr const & type) {
+    if (!is_arrow(type)) return false;
+    expr d = binding_domain(type);
+    expr r = binding_body(type);
+    return
+        is_app(r) &&
+        is_constant(app_fn(r), get_io_name()) &&
+        is_constant(app_arg(r), get_uint32_name()) &&
+        is_app(d) &&
+        is_constant(app_fn(d), get_list_name()) &&
+        is_constant(app_arg(d), get_string_name());
+}
+
 environment compile(environment const & env, options const & opts, names const & cs) {
     if (!is_codegen_enabled(opts))
         return env;
+
+    for (name const & c : cs) {
+        if (is_main_fn(env, c) && !is_main_fn_type(env.get(c).get_type())) {
+            throw exception("invalid `main` function, it must have type `list string -> io uint32`");
+        }
+    }
 
     if (length(cs) == 1 && is_builtin_constant(head(cs))) {
         /* Generate boxed version for builtin constant if needed */

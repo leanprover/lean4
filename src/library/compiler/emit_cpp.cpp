@@ -97,6 +97,8 @@ static std::string to_base_cpp_name(environment const & env, name const & n) {
             return g_lean_main;
         else
             return c->get_string().to_std_string();
+    } else if (n == "main") {
+        return g_lean_main;
     } else {
         return mangle(n);
     }
@@ -109,6 +111,8 @@ static std::string to_cpp_name(environment const & env, name const & n) {
             return g_lean_main;
         else
             return c->to_string("::");
+    } else if (n == "main") {
+        return g_lean_main;
     } else {
         return mangle(n);
     }
@@ -214,6 +218,7 @@ static optional<comp_decl> has_main_fn(environment const & env) {
     comp_decls ds = get_extension(env).m_code;
     for (comp_decl const & d : ds) {
         name const & n    = d.fst();
+        if (n == "main") return optional<comp_decl>(d);
         if (optional<name> e = get_extname_for(env, n)) {
             if (*e == "main") return optional<comp_decl>(d);
         }

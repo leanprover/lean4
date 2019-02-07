@@ -2,6 +2,9 @@ add_executable(lean lean.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
 
+# Configure compiler test scripts
+configure_file("${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh.in" "${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh")
+
 if(${EMSCRIPTEN})
     set(NODE_JS "node --stack_size=8192")
 
@@ -133,6 +136,15 @@ FOREACH(T ${LEANFAILTESTS})
                 WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/lean/fail"
                 COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
     endif()
+ENDFOREACH(T)
+
+# LEAN COMPILER TESTS
+file(GLOB LEANCOMPTESTS "${LEAN_SOURCE_DIR}/../tests/compiler/*.lean")
+FOREACH(T ${LEANCOMPTESTS})
+  GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
+  add_test(NAME "leancomptest_${T_NAME}"
+           WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
+           COMMAND bash "./test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEANPKG TESTS

@@ -456,9 +456,6 @@ endif()
 
 add_subdirectory(shell)
 
-# Configure test scripts
-configure_file("${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh.in" "${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh")
-
 function(add_exec_test name tgt)
     if(${EMSCRIPTEN})
         target_link_libraries(${tgt} "--memory-init-file 0")

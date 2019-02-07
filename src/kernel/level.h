@@ -33,9 +33,11 @@ enum class level_kind { Zero, Succ, Max, IMax, Param, MVar };
 /** \brief Universe level. */
 class level : public object_ref {
     friend level mk_succ(level const & l);
-    friend level mk_max_imax(level_kind k, level const & l1, level const & l2);
+    friend level mk_max_core(level const & l1, level const & l2);
+    friend level mk_imax_core(level const & l1, level const & l2);
     friend level mk_univ_param(name const & n);
     friend level mk_univ_mvar(name const & n);
+    explicit level(b_obj_arg o):object_ref(o) {}
     explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit level(object_ref && o):object_ref(o) {}
 public:
@@ -93,8 +95,8 @@ inline optional<level> some_level(level && e) { return optional<level>(std::forw
 
 level const & mk_level_zero();
 level const & mk_level_one();
-inline level mk_max_core(level const & l1, level const & l2) { return mk_max_imax(level_kind::Max, l1, l2); }
-inline level mk_imax_core(level const & l1, level const & l2) { return mk_max_imax(level_kind::IMax, l1, l2); }
+level mk_max_core(level const & l1, level const & l2);
+level mk_imax_core(level const & l1, level const & l2);
 level mk_max(level const & l1, level const & l2);
 level mk_imax(level const & l1, level const & l2);
 level mk_succ(level const & l);

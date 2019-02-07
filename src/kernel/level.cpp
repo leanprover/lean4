@@ -33,84 +33,130 @@ inline static unsigned get_depth(object * lvl, unsigned num_objs) { return cnstr
 inline static bool get_has_param(object * lvl, unsigned num_objs) { return cnstr_get_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned)); }
 inline static bool get_has_mvar(object * lvl, unsigned num_objs) { return cnstr_get_scalar<unsigned char>(lvl, num_objs*sizeof(object*) + 2*sizeof(unsigned) + sizeof(unsigned char)); }
 
-level mk_succ(level const & l) {
-    level r(mk_cnstr(static_cast<unsigned>(level_kind::Succ), l, g_level_num_scalars));
-    set_level_scalar_fields(r.raw(), 1, hash(hash(l), 17u), get_depth(l)+1, has_param(l), has_mvar(l));
-    return r;
-}
+static inline level_kind get_level_kind(obj_arg l) { return static_cast<level_kind>(obj_tag(l)); }
 
-level mk_max_imax(level_kind k, level const & l1, level const & l2) {
-    level r(mk_cnstr(static_cast<unsigned>(k), l1, l2, g_level_num_scalars));
-    set_level_scalar_fields(r.raw(), 2,
-                            hash(hash(l1), hash(l2)),
-                            std::max(get_depth(l1), get_depth(l2)) + 1,
-                            has_param(l1) || has_param(l2),
-                            has_mvar(l1) || has_mvar(l2));
-    return level(r);
-}
-
-level mk_univ_param(name const & n) {
-    return level(mk_cnstr(static_cast<unsigned>(level_kind::Param), n));
-}
-
-level mk_univ_mvar(name const & n) {
-    return level(mk_cnstr(static_cast<unsigned>(level_kind::MVar), n));
-}
-
-unsigned level::hash() const {
-    switch (kind()) {
+unsigned level_hash(b_obj_arg l) {
+    switch (get_level_kind(l)) {
     case level_kind::Zero:
         return 31;
     case level_kind::Param: case level_kind::MVar:
-        return level_id(*this).hash();
+        return name_hash(cnstr_get(l, 0));
     case level_kind::Succ:
-        return get_hash(raw(), 1);
+        return get_hash(l, 1);
     case level_kind::Max: case level_kind::IMax:
-        return get_hash(raw(), 2);
+        return get_hash(l, 2);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-unsigned get_depth(level const & l) {
-    switch (kind(l)) {
+unsigned level_depth(b_obj_arg l) {
+    switch (get_level_kind(l)) {
     case level_kind::Zero: case level_kind::Param: case level_kind::MVar:
         return 1;
     case level_kind::Succ:
-        return get_depth(l.raw(), 1);
+        return get_depth(l, 1);
     case level_kind::Max: case level_kind::IMax:
-        return get_depth(l.raw(), 2);
+        return get_depth(l, 2);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-bool has_param(level const & l) {
-    switch (kind(l)) {
+bool level_has_param(b_obj_arg l) {
+    switch (get_level_kind(l)) {
     case level_kind::Zero: case level_kind::MVar:
         return false;
     case level_kind::Param:
         return true;
     case level_kind::Succ:
-        return get_has_param(l.raw(), 1);
+        return get_has_param(l, 1);
     case level_kind::Max: case level_kind::IMax:
-        return get_has_param(l.raw(), 2);
+        return get_has_param(l, 2);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-bool has_mvar(level const & l) {
-    switch (kind(l)) {
+bool level_has_mvar(b_obj_arg l) {
+    switch (get_level_kind(l)) {
     case level_kind::Zero: case level_kind::Param:
         return false;
     case level_kind::MVar:
         return true;
     case level_kind::Succ:
-        return get_has_mvar(l.raw(), 1);
+        return get_has_mvar(l, 1);
     case level_kind::Max: case level_kind::IMax:
-        return get_has_mvar(l.raw(), 2);
+        return get_has_mvar(l, 2);
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+object * level_mk_succ(obj_arg l) {
+    object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Succ), 1, g_level_num_scalars);
+    cnstr_set(r, 0, l);
+    set_level_scalar_fields(r, 1, hash(level_hash(l), 17u), level_depth(l)+1, level_has_param(l), level_has_mvar(l));
+    return r;
+}
+
+template<level_kind k> object * level_mk_max_imax(obj_arg l1, obj_arg l2) {
+    object * r = alloc_cnstr(static_cast<unsigned>(k), 2, g_level_num_scalars);
+    cnstr_set(r, 0, l1);
+    cnstr_set(r, 1, l2);
+    set_level_scalar_fields(r, 2,
+                            hash(level_hash(l1), level_hash(l2)),
+                            std::max(level_depth(l1), level_depth(l2)) + 1,
+                            level_has_param(l1) || level_has_param(l2),
+                            level_has_mvar(l1) || level_has_mvar(l2));
+    return r;
+}
+
+object * level_mk_max(obj_arg l1, obj_arg l2) {
+    return level_mk_max_imax<level_kind::Max>(l1, l2);
+}
+
+object * level_mk_imax(obj_arg l1, obj_arg l2) {
+    return level_mk_max_imax<level_kind::IMax>(l1, l2);
+}
+
+object * level_mk_univ_param(obj_arg n) {
+    object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Param), 1, 0);
+    cnstr_set(r, 0, n);
+    return r;
+}
+
+object * level_mk_univ_mvar(obj_arg n) {
+    object * r = alloc_cnstr(static_cast<unsigned>(level_kind::MVar), 1, 0);
+    cnstr_set(r, 0, n);
+    return r;
+}
+
+level mk_succ(level const & l) {
+    inc(l.raw());
+    return level(level_mk_succ(l.raw()));
+}
+
+level mk_max_core(level const & l1, level const & l2) {
+    inc(l1.raw()); inc(l2.raw());
+    return level(level_mk_max(l1.raw(), l2.raw()));
+}
+
+level mk_imax_core(level const & l1, level const & l2) {
+    inc(l1.raw()); inc(l2.raw());
+    return level(level_mk_imax(l1.raw(), l2.raw()));
+}
+
+level mk_univ_param(name const & n) {
+    inc(n.raw());
+    return level(level_mk_univ_param(n.raw()));
+}
+
+level mk_univ_mvar(name const & n) {
+    inc(n.raw());
+    return level(level_mk_univ_mvar(n.raw()));
+}
+
+unsigned level::hash() const { return level_hash(raw()); }
+unsigned get_depth(level const & l) { return level_depth(l.raw()); }
+bool has_param(level const & l) { return level_has_param(l.raw()); }
+bool has_mvar(level const & l) { return level_has_mvar(l.raw()); }
 
 bool is_explicit(level const & l) {
     switch (kind(l)) {

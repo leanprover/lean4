@@ -315,7 +315,7 @@ if (EMSCRIPTEN)
 elseif((${CYGWIN} EQUAL "1") OR (${CMAKE_SYSTEM_NAME} MATCHES "Windows"))
   # TODO(Jared): config dlopen windows support
 else()
-  set(EXTRA_LIBS ${EXTRA_LIBS} dl)
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${CMAKE_DL_LIBS})
 endif()
 
 # TRACK_MEMORY_USAGE
@@ -455,6 +455,9 @@ if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
 endif()
 
 add_subdirectory(shell)
+
+# Configure test scripts
+configure_file("${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh.in" "${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh")
 
 function(add_exec_test name tgt)
     if(${EMSCRIPTEN})

@@ -74,8 +74,8 @@ def run_frontend (input : string) (print_msg : message → except_t string io un
       | except.error e := print_msg e *> pure (sum.inl (parser_k, elab_k, parser_cfg, expander_cfg, out :: outs))
     }
 
-def process_file_json (f : string) : except_t string io unit := do
-  s ← io.fs.read_file f,
+@[export lean_process_file_json]
+def process_file_json (f s : string) : except_t string io unit := do
   --let s := (s.mk_iterator.nextn 10000).prev_to_string,
   run_frontend s $ λ msg,
     io.println $ "{\"file_name\": \"<stdin>\", \"pos_line\": " ++ to_string msg.pos.line ++

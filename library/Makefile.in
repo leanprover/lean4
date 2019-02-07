@@ -8,7 +8,8 @@ DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 BOOT_DIR = ../src/boot
 CPPS = $(addprefix $(BOOT_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
-CPPS_CORE=$(patsubst %.lean,%.cpp,$(SRCS))
+# ensure deterministic ordering
+CPPS_CORE=$(sort $(patsubst %.lean,%.cpp,$(SRCS)))
 
 .PHONY: all clean
 

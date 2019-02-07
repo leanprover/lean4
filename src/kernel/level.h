@@ -37,12 +37,12 @@ class level : public object_ref {
     friend level mk_imax_core(level const & l1, level const & l2);
     friend level mk_univ_param(name const & n);
     friend level mk_univ_mvar(name const & n);
-    explicit level(b_obj_arg o):object_ref(o) {}
-    explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit level(object_ref && o):object_ref(o) {}
 public:
     /** \brief Universe zero */
     level():object_ref(box(static_cast<unsigned>(level_kind::Zero))) {}
+    explicit level(obj_arg o):object_ref(o) {}
+    explicit level(b_obj_arg o, bool b):object_ref(o, b) {}
     level(level const & other):object_ref(other) {}
     level(level && other):object_ref(other) {}
     level_kind kind() const { return static_cast<level_kind>(obj_tag(raw())); }

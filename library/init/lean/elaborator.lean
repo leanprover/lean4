@@ -27,7 +27,7 @@ namespace elaborator
 -- TODO(Sebastian): should be its own monad?
 structure name_generator :=
 («prefix» : name)
-(next_idx : nat) -- TODO(Sebastian): uint32
+(next_idx : uint32)
 
 structure section_var :=
 (uniq_name : name)

@@ -1283,7 +1283,7 @@ uint32 string_iterator_curr(b_obj_arg it) {
     object * s = it_string(it);
     size_t i   = it_pos(it);
     if (i < string_size(s) - 1) {
-        return next_utf8(string_cstr(s), i);
+        return next_utf8(string_cstr(s), string_size(s) - 1, i);
     } else {
         return mk_default_char();
     }
@@ -1321,7 +1321,7 @@ obj_res string_iterator_next(obj_arg it) {
     size_t i   = it_pos(it);
     size_t r   = it_remaining(it);
     if (i < string_size(s) - 1) {
-        next_utf8(string_cstr(s), i);
+        next_utf8(string_cstr(s), string_size(s) - 1, i);
         if (is_exclusive(it)) {
             it_set_pos(it, i);
             it_set_remaining(it, r-1);
@@ -1470,7 +1470,7 @@ obj_res string_iterator_remove(obj_arg it, b_obj_arg n0) {
     size_t new_len = string_len(s);
     size_t r       = it_remaining(it);
     for (size_t k  = 0; k < n && j < sz; k++) {
-        next_utf8(string_cstr(s), j);
+        next_utf8(string_cstr(s), string_size(s) - 1, j);
         new_len--;
         r--;
     }

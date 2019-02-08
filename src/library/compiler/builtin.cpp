@@ -2,116 +2,170 @@
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
-Author: Leonardo de Moura
+Authors: Leonardo de Moura, Max Wagner
 */
 #include <unordered_map>
+#include <string>
 #include "util/list.h"
 #include "kernel/expr.h"
 #include "library/compiler/util.h"
 
 namespace lean {
-struct builtin_decl {
-    expr              m_type;
-    unsigned          m_arity;
-    char const *      m_cname;
-    bool              m_borrowed_res;
-    list<bool>        m_borrowed_args;
-    list<bool>        m_used_args;
-    builtin_decl() {}
-    builtin_decl(expr const & type, unsigned arity, char const * cname, bool bres, list<bool> const & bargs,
-                 list<bool> const & used_args):
-        m_type(type), m_arity(arity), m_cname(cname), m_borrowed_res(bres), m_borrowed_args(bargs), m_used_args(used_args) {
+
+struct native_decl {
+    expr                  m_ll_type;
+    unsigned              m_arity;
+    std::string           m_cname;
+    bool                  m_borrowed_res;
+    list<bool>            m_borrowed_args;
+    list<bool>            m_used_args;
+
+    native_decl() {}
+    native_decl(expr const & ll_type, unsigned arity, std::string cname, bool bres, list<bool> const & bargs,
+            list<bool> const & used_args) :
+            m_ll_type(ll_type), m_arity(arity), m_cname(cname), m_borrowed_res(bres), m_borrowed_args(bargs), m_used_args(used_args) {
     }
 };
 
-typedef std::unordered_map<name, builtin_decl, name_hash_fn> builtin_map;
+typedef name_map<native_decl> native_decl_map;
+static native_decl_map * g_initial_native_decls;
 
-static builtin_map * g_builtin_decls = nullptr;
+bool is_builtin_constant(name const & c) {
+    return g_initial_native_decls->contains(c);
+}
 
-void register_builtin(name const & n, expr const & type, unsigned arity, char const * cname,
+struct native_decls_ext : public environment_extension {
+    native_decl_map m_decls;
+
+    native_decls_ext() {
+        g_initial_native_decls->for_each([&](name const & n, native_decl const & d) {
+           m_decls.insert(n, d);
+        });
+    }
+};
+
+struct native_decls_reg {
+    unsigned m_ext_id;
+    native_decls_reg() {
+        std::shared_ptr<native_decls_ext> decl_reg = std::make_shared<native_decls_ext>();
+        m_ext_id = environment::register_extension(decl_reg);
+    }
+};
+
+static native_decls_reg * g_ext = nullptr;
+
+static environment update(environment const & env, native_decls_ext const & ext) {
+    return env.update(g_ext->m_ext_id, std::make_shared<native_decls_ext>(ext));
+}
+
+
+void register_builtin(name const & n, expr const & ll_type, unsigned arity, char const * cname,
                       bool borrowed_res, list<bool> const & borrowed_arg,
                       list<bool> const & used_args) {
-    lean_assert(g_builtin_decls->find(n) == g_builtin_decls->end());
-    g_builtin_decls->insert(mk_pair(n, builtin_decl(type, arity, cname, borrowed_res, borrowed_arg, used_args)));
+    lean_assert(g_initial_native_decls->find(n) == nullptr);
+    g_initial_native_decls->insert(n, native_decl(ll_type, arity, cname, borrowed_res, borrowed_arg, used_args));
 }
 
-void register_builtin(name const & n, expr const & type, char const * cname,
+void register_builtin(name const & n, expr const & ll_type, char const * cname,
                       bool borrowed_res, list<bool> const & borrowed_arg,
                       list<bool> const & used_args) {
-    unsigned arity = get_arity(type);
-    return register_builtin(n, type, arity, cname, borrowed_res, borrowed_arg, used_args);
+    unsigned arity = get_arity(ll_type);
+    return register_builtin(n, ll_type, arity, cname, borrowed_res, borrowed_arg, used_args);
 }
 
-void register_builtin(name const & n, expr const & type, char const * cname, list<bool> const & borrowed_arg, list<bool> const & used_args) {
-    return register_builtin(n, type, cname, false, borrowed_arg, used_args);
+void register_builtin(name const & n, expr const & ll_type, char const * cname, list<bool> const & borrowed_arg, list<bool> const & used_args) {
+    return register_builtin(n, ll_type, cname, false, borrowed_arg, used_args);
 }
 
-void register_builtin(name const & n, expr const & type, char const * cname, list<bool> const & borrowed_arg) {
-    unsigned arity = get_arity(type);
+void register_builtin(name const & n, expr const & ll_type, char const * cname, list<bool> const & borrowed_arg) {
+    unsigned arity = get_arity(ll_type);
     buffer<bool> used_args;
     used_args.resize(arity, true);
-    return register_builtin(n, type, cname, false, borrowed_arg, to_list(used_args));
+    return register_builtin(n, ll_type, cname, false, borrowed_arg, to_list(used_args));
 }
 
-void register_builtin(name const & n, expr const & type, unsigned arity, char const * cname) {
+void register_builtin(name const & n, expr const & ll_type, unsigned arity, char const * cname) {
     buffer<bool> borrowed;
     borrowed.resize(arity, false);
     buffer<bool> used_args;
     used_args.resize(arity, true);
-    return register_builtin(n, type, arity, cname, false, to_list(borrowed), to_list(used_args));
+    return register_builtin(n, ll_type, arity, cname, false, to_list(borrowed), to_list(used_args));
 }
 
-void register_builtin(name const & n, expr const & type, char const * cname) {
-    unsigned arity = get_arity(type);
-    return register_builtin(n, type, arity, cname);
+void register_builtin(name const & n, expr const & ll_type, char const * cname) {
+    unsigned arity = get_arity(ll_type);
+    return register_builtin(n, ll_type, arity, cname);
 }
 
-bool is_builtin_constant(name const & c) {
-    return g_builtin_decls->find(c) != g_builtin_decls->end();
+static inline native_decls_ext const & get_ext(environment const & env) {
+    return static_cast<native_decls_ext const & >(env.get_extension(g_ext->m_ext_id));
 }
 
-optional<name> get_builtin_cname(name const & c) {
-    auto it = g_builtin_decls->find(c);
-    if (it == g_builtin_decls->end())
+environment add_native_constant_decl(environment const & env, name const & n, expr const & ll_type, std::string cname,
+                                     bool bres, list<bool> const & bargs, list<bool> const & used_args) {
+    native_decl d(ll_type, get_arity(ll_type), cname, bres, bargs, used_args);
+    native_decls_ext ext = get_ext(env);
+    ext.m_decls.insert(n, d);
+    return update(env, ext);
+}
+
+void for_each_native_constant(environment const & env, std::function<void(name const & n)> const & f) {
+    auto ext = get_ext(env);
+    ext.m_decls.for_each([&](name const & n, native_decl const & _) { f(n); });
+}
+
+
+static inline native_decl const * get_native_constant_core(environment const & env, name const & n) {
+    auto ext = get_ext(env);
+    return ext.m_decls.find(n);
+}
+
+optional<name> get_native_constant_cname(environment const & env, name const & c) {
+    auto d =  get_native_constant_core(env, c);
+    if (d == nullptr)
         return optional<name>();
-    return optional<name>(it->second.m_cname);
+    return optional<name>(d->m_cname);
 }
 
-optional<expr> get_builtin_constant_ll_type(name const & c) {
-    auto it = g_builtin_decls->find(c);
-    if (it == g_builtin_decls->end())
+bool is_native_constant(environment const & env, name const & c) {
+    return get_native_constant_core(env, c) != nullptr;
+}
+
+optional<expr> get_native_constant_ll_type(environment const & env, name const & c) {
+    auto d = get_native_constant_core(env, c);
+    if (d == nullptr)
         return none_expr();
-    return some_expr(it->second.m_type);
+    return some_expr(d->m_ll_type);
 }
 
-optional<unsigned> get_builtin_constant_arity(name const & c) {
-    auto it = g_builtin_decls->find(c);
-    if (it == g_builtin_decls->end())
+optional<unsigned> get_native_constant_arity(environment const & env, name const & c) {
+    auto d = get_native_constant_core(env, c);
+    if (d == nullptr)
         return optional<unsigned>();
-    return optional<unsigned>(it->second.m_arity);
+    return optional<unsigned>(d->m_arity);
 }
 
-bool get_builtin_borrowed_info(name const & c, buffer<bool> & borrowed_args, bool & borrowed_res) {
-    auto it = g_builtin_decls->find(c);
-    if (it == g_builtin_decls->end())
+bool get_native_borrowed_info(environment const & env, name const & c, buffer<bool> &borrowed_args, bool &borrowed_res) {
+    auto d = get_native_constant_core(env, c);
+    if (d == nullptr)
         return false;
 
-    to_buffer(it->second.m_borrowed_args, borrowed_args);
-    borrowed_res = it->second.m_borrowed_res;
+    to_buffer(d->m_borrowed_args, borrowed_args);
+    borrowed_res = d->m_borrowed_res;
     return true;
 }
 
-bool get_builtin_used_args(name const & c, buffer<bool> & used_args) {
-    auto it = g_builtin_decls->find(c);
-    if (it == g_builtin_decls->end())
+bool get_native_used_args(environment const & env, name const & c, buffer<bool> &used_args) {
+    auto d = get_native_constant_core(env, c);
+    if (d == nullptr)
         return false;
 
-    to_buffer(it->second.m_used_args, used_args);
+    to_buffer(d->m_used_args, used_args);
     return true;
 }
 
 void initialize_builtin() {
-    g_builtin_decls = new builtin_map();
+    g_initial_native_decls = new native_decl_map();
 
     expr o           = mk_enf_object_type();
     expr u8          = mk_constant(get_uint8_name());
@@ -327,9 +381,12 @@ void initialize_builtin() {
     register_builtin(name({"lean", "name", "mk_string"}), o_o_o, "lean::name_mk_string");
     register_builtin(name({"lean", "name", "mk_numeral"}), o_o_o, "lean::name_mk_numeral");
     register_builtin(name({"lean", "name", "dec_eq"}), o_o_u8, "lean::name_dec_eq", bb);
+
+    g_ext = new native_decls_reg();
 }
 
 void finalize_builtin() {
-    delete g_builtin_decls;
+    delete g_ext;
+    delete g_initial_native_decls;
 }
 }

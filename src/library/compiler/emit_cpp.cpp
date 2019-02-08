@@ -159,9 +159,9 @@ static void emit_fn_decl(std::ostream & out, environment const & env, name const
 }
 
 /* Auxiliary function for `collect_dependencies`. */
-static void collect_constant(expr const & e, name_set & deps) {
+static void collect_constant(environment const &env, expr const & e, name_set & deps) {
     lean_assert(is_constant(e));
-    if (!is_llnf_op(e) && !is_builtin_constant(const_name(e)) && !is_enf_neutral(e) && !is_enf_unreachable(e)) {
+    if (!is_llnf_op(e) && !is_native_constant(env, const_name(e)) && !is_enf_neutral(e) && !is_enf_unreachable(e)) {
         deps.insert(const_name(e));
     }
 }
@@ -186,13 +186,13 @@ static void collect_dependencies(environment const & env, expr e, name_set & dep
             } else if (is_llnf_closure(get_app_fn(e))) {
                 buffer<expr> args;
                 get_app_args(e, args);
-                collect_constant(args[0], deps);
+                collect_constant(env, args[0], deps);
             } else {
-                collect_constant(get_app_fn(e), deps);
+                collect_constant(env, get_app_fn(e), deps);
             }
             return;
         case expr_kind::Const:
-            collect_constant(e, deps);
+            collect_constant(env, e, deps);
             return;
         default:
             return;
@@ -211,9 +211,14 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
         all_decls.insert(d.fst());
         collect_dependencies(env, d.snd(), all_decls);
     }
+    for_each_native_constant(env, [&](const name &n) {
+        if (!is_builtin_constant(n))
+            mod_decls.insert(n);
+            all_decls.insert(n);
+    });
     all_decls.for_each([&](name const & n) {
             emit_fn_decl(out, env, n, mod_decls.contains(n));
-        });
+    });
 }
 
 static optional<comp_decl> has_main_fn(environment const & env) {
@@ -314,7 +319,7 @@ struct emit_fn_fn {
     void emit_constant(expr const & c) {
         lean_assert(is_constant(c));
         lean_assert(!is_enf_unreachable(c));
-        if (optional<name> n = get_builtin_cname(const_name(c)))
+        if (optional<name> n = get_native_constant_cname(m_env, const_name(c)))
             m_out << *n;
         else if (is_enf_neutral(c))
             emit_unit();
@@ -561,9 +566,9 @@ struct emit_fn_fn {
         m_out << ");\n";
     }
 
-    void emit_builtin(expr const & x, expr const & fn, buffer<expr> const & args) {
+    void emit_native_constant(expr const &x, expr const &fn, buffer<expr> const &args) {
         buffer<bool> used_args;
-        lean_verify(get_builtin_used_args(const_name(fn), used_args));
+        lean_verify(get_native_used_args(m_env, const_name(fn), used_args));
         lean_assert(used_args.size() == args.size());
         emit_lhs(x);
         emit_constant(fn);
@@ -621,8 +626,8 @@ struct emit_fn_fn {
                 emit_unbox(x, fn, args[0]);
             } else if (is_llnf_box(fn)) {
                 emit_box(x, fn, args[0]);
-            } else if (is_builtin_constant(const_name(fn))) {
-                emit_builtin(x, fn, args);
+            } else if (is_native_constant(m_env, const_name(fn))) {
+                emit_native_constant(x, fn, args);
             } else {
                 /* Regular function application. */
                 emit_lhs(x);

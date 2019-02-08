@@ -252,14 +252,14 @@ unsigned get_llnf_arity(environment const & env, name const & n) {
     if (info && info->is_definition()) {
         return get_num_nested_lambdas(info->get_value());
     }
-    optional<unsigned> arity = get_builtin_constant_arity(n);
+    optional<unsigned> arity = get_native_constant_arity(env, n);
     if (!arity) throw exception(sstream() << "code generation failed, unknown '" << n << "'");
     return *arity;
 }
 
 static void get_borrowed_info(environment const & env, name const & n, buffer<bool> & borrowed_args, bool & borrowed_res) {
-    if (get_builtin_borrowed_info(n, borrowed_args, borrowed_res))
-        return; /* `n` is a builtin declaration. */
+    if (get_native_borrowed_info(env, n, borrowed_args, borrowed_res))
+        return; /* `n` is a native function declaration. */
     /* We currently do not support borrowed annotations in user declarations. */
     unsigned arity = get_llnf_arity(env, n);
     borrowed_args.clear();
@@ -955,7 +955,7 @@ public:
 };
 
 expr get_constant_ll_type(environment const & env, name const & c) {
-    if (optional<expr> type = get_builtin_constant_ll_type(c)) {
+    if (optional<expr> type = get_native_constant_ll_type(env, c)) {
         return *type;
     } else {
         return env.get(mk_cstage2_name(c)).get_type();

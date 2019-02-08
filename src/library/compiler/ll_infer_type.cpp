@@ -147,7 +147,7 @@ class ll_infer_type_fn {
     }
 
     expr infer_constant(expr const & e) {
-        if (optional<expr> type = get_builtin_constant_ll_type(const_name(e))) {
+        if (optional<expr> type = get_native_constant_ll_type(env(), const_name(e))) {
             return *type;
         } else if (is_constructor(env(), const_name(e))) {
             return infer_constructor_type(e);

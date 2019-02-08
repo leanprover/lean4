@@ -133,9 +133,9 @@ environment compile(environment const & env, options const & opts, names const &
         }
     }
 
-    if (length(cs) == 1 && is_builtin_constant(head(cs))) {
-        /* Generate boxed version for builtin constant if needed */
-        unsigned arity = *get_builtin_constant_arity(head(cs));
+    if (length(cs) == 1 && is_native_constant(env, head(cs))) {
+        /* Generate boxed version for native constant if needed */
+        unsigned arity = *get_native_constant_arity(env, head(cs));
         if (optional<pair<environment, comp_decl>> p = mk_boxed_version(env, head(cs), arity)) {
             /* Remark: we don't need boxed version for the bytecode */
             return emit_cpp(p->first, comp_decls(p->second));
@@ -145,7 +145,7 @@ environment compile(environment const & env, options const & opts, names const &
     }
 
     for (name const & c : cs) {
-        lean_assert(!is_builtin_constant(c));
+        lean_assert(!is_native_constant(env, c));
         if (!env.get(c).is_definition() || has_synthetic_sorry(env.get(c).get_value())) {
             return env;
         }

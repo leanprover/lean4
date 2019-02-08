@@ -77,9 +77,12 @@ instance : has_sub nat :=
 instance : has_mul nat :=
 ⟨nat.mul⟩
 
-@[specialize] def {u} repeat {α : Type u} (f : nat → α → α) : nat → α → α
-| 0         m := m
-| (succ n)  m := f n (repeat n m)
+@[specialize] def {u} repeat_core {α : Type u} (f : nat → α → α) (s : nat) : nat → α → α
+| 0         a := a
+| (succ n)  a := repeat_core n (f (s - (succ n)) a)
+
+@[inline] def {u} repeat {α : Type u} (f : nat → α → α) (n : nat) (a : α) : α :=
+repeat_core f n n a
 
 protected def pow (m : nat) : nat → nat
 | 0        := 1

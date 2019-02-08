@@ -212,9 +212,10 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
         collect_dependencies(env, d.snd(), all_decls);
     }
     for_each_native_constant(env, [&](const name &n) {
-        if (!is_builtin_constant(n))
-            mod_decls.insert(n);
-            all_decls.insert(n);
+            if (!is_builtin_constant(n)) {
+                mod_decls.insert(n);
+                all_decls.insert(n);
+            }
     });
     all_decls.for_each([&](name const & n) {
             emit_fn_decl(out, env, n, mod_decls.contains(n));

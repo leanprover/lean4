@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/vm/vm.h"
 namespace lean {
-static vm_obj dummy_unary_op(vm_obj const &, vm_obj const &) {
+static vm_obj dummy_unary_op(vm_obj const &) {
     throw exception("uint support has not been implemented in the old VM");
 }
 

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.control.default
-// Imports: init.control.applicative init.control.functor init.control.alternative init.control.monad init.control.lift init.control.state init.control.id init.control.except init.control.reader init.control.option
+// Imports: init.control.applicative init.control.functor init.control.alternative init.control.monad init.control.lift init.control.state init.control.id init.control.except init.control.reader init.control.option init.control.combinators
 #include "runtime/object.h"
 #include "runtime/apply.h"
 #include "runtime/io.h"
@@ -26,6 +26,7 @@ void initialize_init_control_id();
 void initialize_init_control_except();
 void initialize_init_control_reader();
 void initialize_init_control_option();
+void initialize_init_control_combinators();
 static bool _G_initialized = false;
 void initialize_init_control_default() {
  if (_G_initialized) return;
@@ -40,4 +41,5 @@ void initialize_init_control_default() {
  initialize_init_control_except();
  initialize_init_control_reader();
  initialize_init_control_option();
+ initialize_init_control_combinators();
 }

@@ -18,11 +18,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_nat_mul___main(obj*, obj*);
 obj* l_nat_has__sub;
-obj* l_nat_repeat___main___rarg(obj*, obj*, obj*);
 obj* l_nat_max(obj*, obj*);
 obj* l_nat_le__refl;
 obj* l_nat_beq___main(obj*, obj*);
 obj* l_nat_repeat___rarg(obj*, obj*, obj*);
+obj* l_nat_repeat__core___rarg(obj*, obj*, obj*, obj*);
 obj* l_nat_decidable__eq;
 obj* l_nat_succ__pos;
 obj* l_nat_sub___main(obj*, obj*);
@@ -31,6 +31,7 @@ obj* l_nat_repeat(obj*);
 obj* l_nat_pred___main(obj*);
 obj* l_nat_has__pow;
 obj* l_nat_ble(obj*, obj*);
+obj* l_nat_repeat__core___main(obj*);
 obj* l_nat_dec__eq___boxed(obj*, obj*);
 obj* l_nat_has__lt;
 obj* l_nat_has__mul;
@@ -38,15 +39,16 @@ obj* l_nat_lt_base;
 obj* l_nat_lt;
 obj* l_nat_pow___main(obj*, obj*);
 obj* l_nat_pow(obj*, obj*);
+obj* l_nat_repeat__core___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_nat_dec__le___boxed(obj*, obj*);
 obj* l_nat_beq(obj*, obj*);
+obj* l_nat_repeat__core(obj*);
 obj* l_nat_pred(obj*);
 obj* l_nat_has__le;
 obj* l_nat_le;
 obj* l_nat_ble___main(obj*, obj*);
 obj* l_nat_le__refl___main;
 obj* l_nat_dec__lt___boxed(obj*, obj*);
-obj* l_nat_repeat___main(obj*);
 obj* l_nat_beq___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -323,49 +325,69 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_mul), 2, 0);
 return x_0;
 }
 }
-obj* l_nat_repeat___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_nat_repeat__core___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(0u);
-x_4 = lean::nat_dec_eq(x_1, x_3);
-lean::dec(x_3);
-if (x_4 == 0)
+obj* x_4; uint8 x_5; 
+x_4 = lean::mk_nat_obj(0u);
+x_5 = lean::nat_dec_eq(x_2, x_4);
+lean::dec(x_4);
+if (x_5 == 0)
 {
-obj* x_6; obj* x_7; obj* x_12; obj* x_13; 
-x_6 = lean::mk_nat_obj(1u);
-x_7 = lean::nat_sub(x_1, x_6);
-lean::dec(x_6);
-lean::dec(x_1);
-lean::inc(x_7);
+obj* x_7; obj* x_8; obj* x_10; obj* x_13; 
+x_7 = lean::mk_nat_obj(1u);
+x_8 = lean::nat_sub(x_2, x_7);
+lean::dec(x_7);
+x_10 = lean::nat_sub(x_1, x_2);
+lean::dec(x_2);
 lean::inc(x_0);
-x_12 = l_nat_repeat___main___rarg(x_0, x_7, x_2);
-x_13 = lean::apply_2(x_0, x_7, x_12);
-return x_13;
+x_13 = lean::apply_2(x_0, x_10, x_3);
+x_2 = x_8;
+x_3 = x_13;
+goto _start;
 }
 else
 {
 lean::dec(x_1);
 lean::dec(x_0);
-return x_2;
+lean::dec(x_2);
+return x_3;
 }
 }
 }
-obj* l_nat_repeat___main(obj* x_0) {
+obj* l_nat_repeat__core___main(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_repeat___main___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_repeat__core___main___rarg), 4, 0);
+return x_2;
+}
+}
+obj* l_nat_repeat__core___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_nat_repeat__core___main___rarg(x_0, x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_nat_repeat__core(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_repeat__core___rarg), 4, 0);
 return x_2;
 }
 }
 obj* l_nat_repeat___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; 
-x_3 = l_nat_repeat___main___rarg(x_0, x_1, x_2);
-return x_3;
+obj* x_4; 
+lean::inc(x_1);
+x_4 = l_nat_repeat__core___main___rarg(x_0, x_1, x_1, x_2);
+return x_4;
 }
 }
 obj* l_nat_repeat(obj* x_0) {

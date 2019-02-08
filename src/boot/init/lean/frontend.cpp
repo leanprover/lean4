@@ -32,7 +32,6 @@ obj* l_list_reverse___rarg(obj*);
 obj* l_lean_process__file__json___lambda__1___closed__2;
 uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_io_prim_handle_mk___boxed(obj*, obj*, obj*, obj*);
-obj* l___private_3511541383__put__str___at_lean_run__frontend___spec__5(obj*, obj*);
 obj* l_string_quote(obj*);
 obj* l_coroutine_resume___rarg(obj*, obj*);
 obj* l_io_prim_lift__eio___at_lean_process__file__json___spec__3(obj*, obj*);
@@ -68,6 +67,7 @@ obj* l_lean_process__file__json___lambda__1___closed__9;
 extern obj* l_string_join___closed__1;
 obj* l_io_prim_lift__eio___at_lean_run__frontend___spec__6(obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__11(obj*, obj*, obj*);
+obj* l___private_3644302523__put__str___at_lean_run__frontend___spec__5(obj*, obj*);
 extern obj* l_lean_parser_run___rarg___closed__1;
 obj* l_lean_process__file__json___closed__1;
 obj* l_lean_file__map_from__string(obj*);
@@ -512,7 +512,7 @@ return x_17;
 }
 }
 }
-obj* l___private_3511541383__put__str___at_lean_run__frontend___spec__5(obj* x_0, obj* x_1) {
+obj* l___private_3644302523__put__str___at_lean_run__frontend___spec__5(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
@@ -526,7 +526,7 @@ obj* l_io_print___at_lean_run__frontend___spec__4(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_3511541383__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
+x_2 = l___private_3644302523__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
 return x_2;
 }
 }
@@ -534,7 +534,7 @@ obj* l_io_println___at_lean_run__frontend___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_5; obj* x_7; 
-x_2 = l___private_3511541383__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
+x_2 = l___private_3644302523__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
@@ -581,7 +581,7 @@ lean::dec(x_7);
 lean::dec(x_3);
 x_15 = l_lean_format_be___main___closed__1;
 lean::inc(x_15);
-x_17 = l___private_3511541383__put__str___at_lean_run__frontend___spec__5(x_15, x_5);
+x_17 = l___private_3644302523__put__str___at_lean_run__frontend___spec__5(x_15, x_5);
 return x_17;
 }
 }

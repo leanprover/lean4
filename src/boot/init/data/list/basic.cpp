@@ -31,6 +31,7 @@ obj* l_list_inter___rarg(obj*, obj*, obj*);
 obj* l_list_diff___main___rarg(obj*, obj*, obj*);
 obj* l_list_assoc(obj*, obj*);
 obj* l_list_unzip(obj*, obj*);
+obj* l___private_3872326827__to__list__aux___rarg(obj*, obj*);
 obj* l_list_span___main___rarg(obj*, obj*);
 obj* l_list_map___main___rarg(obj*, obj*);
 obj* l_list_unzip___main(obj*, obj*);
@@ -47,6 +48,7 @@ obj* l_list_union(obj*);
 obj* l_list_bag__inter___rarg(obj*, obj*, obj*);
 obj* l_list_bor(obj*);
 obj* l_list_has__dec__eq___main___rarg___boxed(obj*, obj*, obj*);
+obj* l___private_3872326827__to__list__aux(obj*);
 obj* l_list_assoc___main(obj*, obj*);
 obj* l_list_take___main___rarg(obj*, obj*);
 obj* l_list_init___rarg(obj*);
@@ -152,7 +154,6 @@ obj* l_list_update__nth___main___rarg(obj*, obj*, obj*);
 obj* l_list_zip__with___rarg(obj*, obj*, obj*);
 obj* l_list_iota(obj*);
 obj* l_list_tail(obj*);
-obj* l___private_4100634307__to__list__aux___rarg(obj*, obj*);
 obj* l_list_is__prefix__of___main(obj*);
 obj* l_list_has__mem(obj*);
 obj* l_list_length___main(obj*);
@@ -175,13 +176,11 @@ obj* l_list_head___main(obj*);
 obj* l_list_diff___rarg(obj*, obj*, obj*);
 obj* l_list_foldr___main___at_list_all___spec__1(obj*);
 obj* l_list_reverse(obj*);
-obj* l___private_4100634307__to__list__aux(obj*);
 obj* l_list_span___rarg(obj*, obj*);
 obj* l_list_filter__map(obj*, obj*);
 obj* l_list_foldr1__opt(obj*);
 obj* l_list_unzip___main___rarg(obj*);
 obj* l_list_intercalate___rarg(obj*, obj*);
-obj* l___private_4100634307__to__list__aux___main___rarg(obj*, obj*);
 obj* l_list_all___rarg(obj*, obj*);
 obj* l_list_foldr___rarg(obj*, obj*, obj*);
 obj* l_list_intersperse___main___rarg(obj*, obj*);
@@ -194,8 +193,8 @@ obj* l_list_erase___main(obj*);
 obj* l_list_mem;
 obj* l_list_find__index___main(obj*, obj*);
 obj* l_list_append(obj*);
-obj* l___private_4100634307__to__list__aux___main(obj*);
 obj* l_list_diff___main(obj*);
+obj* l___private_3872326827__to__list__aux___main(obj*);
 obj* l_list_update__nth___rarg(obj*, obj*, obj*);
 obj* l_list_index__of___rarg(obj*, obj*, obj*);
 obj* l_list_has__decidable__le(obj*);
@@ -207,6 +206,7 @@ obj* l_list_has__decidable__le___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_bin__tree_to__list(obj*);
 obj* l_list_bind___rarg(obj*, obj*);
 obj* l_list_nth___rarg(obj*, obj*);
+obj* l___private_3872326827__to__list__aux___main___rarg(obj*, obj*);
 uint8 l_list_decidable__mem___main___rarg(obj*, obj*, obj*);
 obj* l_list_has__dec__eq___main(obj*);
 obj* l_list_empty___main___rarg___boxed(obj*);
@@ -4400,7 +4400,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_list_is__suffix__of___rarg),
 return x_2;
 }
 }
-obj* l___private_4100634307__to__list__aux___main___rarg(obj* x_0, obj* x_1) {
+obj* l___private_3872326827__to__list__aux___main___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
@@ -4428,7 +4428,7 @@ lean::inc(x_7);
 x_9 = lean::cnstr_get(x_0, 1);
 lean::inc(x_9);
 lean::dec(x_0);
-x_12 = l___private_4100634307__to__list__aux___main___rarg(x_9, x_1);
+x_12 = l___private_3872326827__to__list__aux___main___rarg(x_9, x_1);
 x_0 = x_7;
 x_1 = x_12;
 goto _start;
@@ -4436,29 +4436,29 @@ goto _start;
 }
 }
 }
-obj* l___private_4100634307__to__list__aux___main(obj* x_0) {
+obj* l___private_3872326827__to__list__aux___main(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_4100634307__to__list__aux___main___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3872326827__to__list__aux___main___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l___private_4100634307__to__list__aux___rarg(obj* x_0, obj* x_1) {
+obj* l___private_3872326827__to__list__aux___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_4100634307__to__list__aux___main___rarg(x_0, x_1);
+x_2 = l___private_3872326827__to__list__aux___main___rarg(x_0, x_1);
 return x_2;
 }
 }
-obj* l___private_4100634307__to__list__aux(obj* x_0) {
+obj* l___private_3872326827__to__list__aux(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_4100634307__to__list__aux___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3872326827__to__list__aux___rarg), 2, 0);
 return x_2;
 }
 }
@@ -4467,7 +4467,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = lean::box(0);
-x_2 = l___private_4100634307__to__list__aux___main___rarg(x_0, x_1);
+x_2 = l___private_3872326827__to__list__aux___main___rarg(x_0, x_1);
 return x_2;
 }
 }

@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/compiler/util.h"
-#include "library/compiler/extname.h"
+#include "library/compiler/export_name.h"
 
 namespace lean {
 #define REDUCE_ARITY_SUFFIX "_rarg"
@@ -30,7 +30,7 @@ bool arity_was_reduced(comp_decl const & cdecl) {
 }
 
 comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {
-    if (has_extname(env, cdecl.fst()) || cdecl.fst() == "main") {
+    if (has_export_name(env, cdecl.fst()) || cdecl.fst() == "main") {
         /* We do not modify the arity of entry points (i.e., functions with attribute [extname]) */
         return comp_decls(cdecl);
     }

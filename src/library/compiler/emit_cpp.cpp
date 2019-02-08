@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 #include "library/compiler/name_mangling.h"
 #include "library/compiler/emit_cpp.h"
 #include "library/compiler/builtin.h"
-#include "library/compiler/extname.h"
+#include "library/compiler/export_name.h"
 
 namespace lean {
 struct emit_cpp_ext : public environment_extension {
@@ -74,13 +74,13 @@ static void open_namespaces_core(std::ostream & out, name const & p) {
 /* If `n` has the attribute [cppname], and the "cppname" is hierarchical, then
    we must put `n` code inside of a namespace. */
 static void open_namespaces_for(std::ostream & out, environment const & env, name const & n) {
-    optional<name> c = get_extname_for(env, n);
+    optional<name> c = get_export_name_for(env, n);
     if (!c || c->is_atomic()) return;
     open_namespaces_core(out, c->get_prefix());
 }
 
 static void close_namespaces_for(std::ostream & out, environment const & env, name const & n) {
-    optional<name> c = get_extname_for(env, n);
+    optional<name> c = get_export_name_for(env, n);
     if (!c || c->is_atomic()) return;
     name p = c->get_prefix();
     while (!p.is_anonymous()) {
@@ -93,7 +93,7 @@ static void close_namespaces_for(std::ostream & out, environment const & env, na
 static char const * g_lean_main = "_lean_main";
 
 static std::string to_base_cpp_name(environment const & env, name const & n) {
-    if (optional<name> c = get_extname_for(env, n)) {
+    if (optional<name> c = get_export_name_for(env, n)) {
         lean_assert(c->is_string());
         if (*c == "main")
             return g_lean_main;
@@ -107,7 +107,7 @@ static std::string to_base_cpp_name(environment const & env, name const & n) {
 }
 
 static std::string to_cpp_name(environment const & env, name const & n) {
-    if (optional<name> c = get_extname_for(env, n)) {
+    if (optional<name> c = get_export_name_for(env, n)) {
         lean_assert(c->is_string());
         if (*c == "main")
             return g_lean_main;
@@ -121,7 +121,7 @@ static std::string to_cpp_name(environment const & env, name const & n) {
 }
 
 static std::string to_cpp_init_name(environment const & env, name const & n) {
-    if (optional<name> c = get_extname_for(env, n)) {
+    if (optional<name> c = get_export_name_for(env, n)) {
         name init_c(c->get_prefix(), (std::string("_init_") + c->get_string().to_std_string()).c_str());
         return init_c.to_string("::");
     } else {
@@ -226,7 +226,7 @@ static optional<comp_decl> has_main_fn(environment const & env) {
     for (comp_decl const & d : ds) {
         name const & n    = d.fst();
         if (n == "main") return optional<comp_decl>(d);
-        if (optional<name> e = get_extname_for(env, n)) {
+        if (optional<name> e = get_export_name_for(env, n)) {
             if (*e == "main") return optional<comp_decl>(d);
         }
     }

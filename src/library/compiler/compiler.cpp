@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf.h"
 #include "library/compiler/emit_bytecode.h"
 #include "library/compiler/emit_cpp.h"
-#include "library/compiler/extname.h"
+#include "library/compiler/export_name.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -103,7 +103,7 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
 
 bool is_main_fn(environment const & env, name const & n) {
     if (n == "main") return true;
-    if (optional<name> c = get_extname_for(env, n)) {
+    if (optional<name> c = get_export_name_for(env, n)) {
         return *c == "main";
     }
     return false;

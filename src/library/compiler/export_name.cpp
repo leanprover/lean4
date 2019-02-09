@@ -45,10 +45,6 @@ void initialize_export_name() {
                                                    if (!it.is_string()) throw exception("invalid [export] attribute, identifier cannot be numeric");
                                                    it = it.get_prefix();
                                                }
-                                               constant_info cinfo = env.get(n);
-                                               if (!cinfo.is_definition()) {
-                                                   throw exception("invalid '[export]' use, only definitions can be use this attribute");
-                                               }
                                                return env;
                                                }));
 }

@@ -31,21 +31,55 @@ protected def has_dec_eq [decidable_eq α] : Π a b : list α, decidable (a = b)
 instance [decidable_eq α] : decidable_eq (list α) :=
 {dec_eq := list.has_dec_eq}
 
-protected def append : list α → list α → list α
-| []       l := l
-| (h :: s) t := h :: (append s t)
+def reverse_core : list α → list α → list α
+| []     r := r
+| (a::l) r := reverse_core l (a::r)
+
+local infix `**`:66 := reverse_core
+
+def reverse : list α → list α :=
+λ l, reverse_core l []
+
+protected def append (as bs : list α) : list α :=
+reverse_core as.reverse bs
 
 instance : has_append (list α) :=
 ⟨list.append⟩
 
-theorem append_nil : ∀ (l : list α), l ++ [] = l
-| []      := rfl
-| (a::as) := show a :: (as ++ []) = a :: as, from (append_nil as).symm ▸ rfl
+theorem reverse_core_reverse_core_nil : ∀ (as bs : list α), (as ** bs) ** [] = bs ** as
+| []  bs     := rfl
+| (a::as) bs :=
+  show reverse_core (reverse_core as (a::bs)) [] = reverse_core bs (a::as), from
+  reverse_core_reverse_core_nil as (a::bs)
 
-theorem append_assoc : ∀ (l₁ l₂ l₃ : list α), (l₁ ++ l₂) ++ l₃ = l₁ ++ (l₂ ++ l₃)
-| []      l₁ l₂ := rfl
-| (a::as) l₁ l₂ := show a :: (as ++ l₁ ++ l₂) = a :: (as ++ (l₁ ++ l₂)), from
-                   append_assoc as l₁ l₂ ▸ rfl
+theorem nil_append (as : list α) : [] ++ as = as :=
+rfl
+
+theorem append_nil (as : list α) : as ++ [] = as :=
+show (as ** []) ** [] = as, from
+reverse_core_reverse_core_nil as []
+
+theorem reverse_core_reverse_core : ∀ (as bs cs : list α), (as ** bs) ** cs = bs ** ((as ** []) ** cs)
+| []      bs cs := rfl
+| (a::as) bs cs :=
+  show (as ** a::bs) ** cs = bs ** ((as ** [a]) ** cs), from
+  have h₁ : (as ** a::bs) ** cs = bs ** a::((as ** []) ** cs),       from reverse_core_reverse_core as (a::bs) cs,
+  have h₂ : ((as ** [a]) ** cs) = a::((as ** []) ** cs),             from reverse_core_reverse_core as [a] cs,
+  have h₃ : bs ** a::((as ** []) ** cs) = bs ** ((as ** [a]) ** cs), from congr_arg (λ b, bs ** b) h₂.symm,
+  eq.trans h₁ h₃
+
+theorem cons_append (a : α) (as bs : list α) : (a::as) ++ bs = a::(as ++ bs) :=
+reverse_core_reverse_core as [a] bs
+
+theorem append_assoc : ∀ (as bs cs : list α), (as ++ bs) ++ cs = as ++ (bs ++ cs)
+| []      bs cs := rfl
+| (a::as) bs cs :=
+  show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs),      from
+  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congr_arg (++ cs) (cons_append a as bs),
+  have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs),   from cons_append a (as++bs) cs,
+  have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congr_arg (λ as, a::as) (append_assoc as bs cs),
+  have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (cons_append a as (bs++cs)).symm,
+  eq.trans (eq.trans (eq.trans h₁ h₂) h₃) h₄
 
 protected def mem : α → list α → Prop
 | a []       := false
@@ -105,13 +139,6 @@ def head [inhabited α] : list α → α
 def tail : list α → list α
 | []       := []
 | (a :: l) := l
-
-def reverse_core : list α → list α → list α
-| []     r := r
-| (a::l) r := reverse_core l (a::r)
-
-def reverse : list α → list α :=
-λ l, reverse_core l []
 
 @[specialize] def map (f : α → β) : list α → list β
 | []       := []
@@ -239,9 +266,8 @@ filter (∈ l₂) l₁
 instance [decidable_eq α] : has_inter (list α) :=
 ⟨list.inter⟩
 
-def repeat (a : α) : ℕ → list α
-| 0 := []
-| (succ n) := a :: repeat n
+def repeat (a : α) (n : ℕ) : list α :=
+n.repeat (λ _ xs, a :: xs) []
 
 def range_core : ℕ → list ℕ → list ℕ
 | 0        l := l

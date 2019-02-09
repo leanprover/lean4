@@ -34,7 +34,10 @@ def singleton (a : α) : dlist α :=
 
 def cons : α → dlist α → dlist α
 | a ⟨f, h⟩ := ⟨λ t, a :: f t, λ t,
-               show a :: f t = a :: (f [] ++ t), from h t ▸ rfl⟩
+               show a :: f t = a :: f [] ++ t, from
+               have h₁ : a :: f t = a :: (f nil ++ t), from h t ▸ rfl,
+               have h₂ : a :: (f nil ++ t) = a :: f nil ++ t, from (cons_append _ _ _).symm,
+               eq.trans h₁ h₂⟩
 
 def append : dlist α → dlist α → dlist α
 | ⟨f, h₁⟩ ⟨g, h₂⟩ := ⟨f ∘ g, λ t,

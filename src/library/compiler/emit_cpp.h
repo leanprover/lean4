@@ -10,9 +10,5 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 
 namespace lean {
-environment emit_cpp(environment const & env, comp_decls const & ds);
-void print_cpp_code(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps);
-
-void initialize_emit_cpp();
-void finalize_emit_cpp();
+void emit_cpp(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps);
 }

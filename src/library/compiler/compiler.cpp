@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "library/compiler/simp_app_args.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/emit_bytecode.h"
-#include "library/compiler/emit_cpp.h"
+#include "library/compiler/llnf_code.h"
 #include "library/compiler/export_name.h"
 
 namespace lean {
@@ -138,7 +138,7 @@ environment compile(environment const & env, options const & opts, names const &
         unsigned arity = *get_native_constant_arity(env, head(cs));
         if (optional<pair<environment, comp_decl>> p = mk_boxed_version(env, head(cs), arity)) {
             /* Remark: we don't need boxed version for the bytecode */
-            return emit_cpp(p->first, comp_decls(p->second));
+            return save_llnf_code(p->first, comp_decls(p->second));
         } else {
             return env; /* Nothing to be done: builtin does not take unboxed values */
         }
@@ -203,7 +203,7 @@ environment compile(environment const & env, options const & opts, names const &
     /* emit C++ code. */
     comp_decls b_ds;
     std::tie(new_env, b_ds) = to_llnf(new_env, ds, true);
-    new_env = emit_cpp(new_env, b_ds);
+    new_env = save_llnf_code(new_env, b_ds);
     trace_compiler(name({"compiler", "boxed"}), b_ds);
     /* emit bytecode. Remark: the current emit_bytecode has no support for unboxed data. */
     std::tie(new_env, ds) = to_llnf(new_env, ds, false);

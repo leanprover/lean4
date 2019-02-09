@@ -514,7 +514,7 @@ int main(int argc, char ** argv) {
         if (cpp_output) {
             std::ofstream out(*cpp_output);
             auto mod = module_name_of_file(path.get_path(), mod_fn);
-            print_cpp_code(out, p.env(), mod, to_list(imports.begin(), imports.end()));
+            emit_cpp(out, p.env(), mod, to_list(imports.begin(), imports.end()));
         }
         return l.has_errors() ? 1 : 0;
     } catch (lean::throwable & ex) {

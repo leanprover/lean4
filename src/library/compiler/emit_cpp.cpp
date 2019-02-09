@@ -14,35 +14,11 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf.h"
 #include "library/compiler/name_mangling.h"
 #include "library/compiler/emit_cpp.h"
+#include "library/compiler/llnf_code.h"
 #include "library/compiler/builtin.h"
 #include "library/compiler/export_name.h"
 
 namespace lean {
-struct emit_cpp_ext : public environment_extension {
-    comp_decls m_code;
-};
-
-struct emit_cpp_ext_reg {
-    unsigned m_ext_id;
-    emit_cpp_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<emit_cpp_ext>()); }
-};
-
-static emit_cpp_ext_reg * g_ext = nullptr;
-static emit_cpp_ext const & get_extension(environment const & env) {
-    return static_cast<emit_cpp_ext const &>(env.get_extension(g_ext->m_ext_id));
-}
-static environment update(environment const & env, emit_cpp_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<emit_cpp_ext>(ext));
-}
-
-environment emit_cpp(environment const & env, comp_decls const & ds) {
-    /* Remark: we don't generate C++ code here, but at `print_cpp_code`. In this function
-       we simply save the LLNF expression in the emit_cpp_ext. */
-    emit_cpp_ext ext = get_extension(env);
-    ext.m_code = append(ext.m_code, ds);
-    return update(env, ext);
-}
-
 static std::string to_cpp_type(expr const & e) {
     if (is_constant(e)) {
         if (e == mk_enf_object_type() || e == mk_enf_neutral_type()) {
@@ -203,7 +179,7 @@ static void collect_dependencies(environment const & env, expr e, name_set & dep
 /* Emit C++ function declaration for all functions/constants declared in the current module,
    and their direct dependencies. */
 static void emit_fn_decls(std::ostream & out, environment const & env) {
-    comp_decls ds = get_extension(env).m_code;
+    comp_decls ds = get_llnf_code(env);
     name_set mod_decls;
     name_set all_decls;
     for (comp_decl const & d : ds) {
@@ -223,7 +199,7 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
 }
 
 static optional<comp_decl> has_main_fn(environment const & env) {
-    comp_decls ds = get_extension(env).m_code;
+    comp_decls ds = get_llnf_code(env);
     for (comp_decl const & d : ds) {
         name const & n    = d.fst();
         if (n == "main") return optional<comp_decl>(d);
@@ -834,7 +810,7 @@ static void emit_fn(std::ostream & out, environment const & env, comp_decl const
 }
 
 static void emit_fns(std::ostream & out, environment const & env) {
-    comp_decls ds = get_extension(env).m_code;
+    comp_decls ds = get_llnf_code(env);
     for (comp_decl const & d : ds) {
         emit_fn(out, env, d);
     }
@@ -851,7 +827,7 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
     for (module_name const & d : deps) {
         out << " initialize_" << mangle(d, false) << "();\n";
     }
-    comp_decls ds = get_extension(env).m_code;
+    comp_decls ds = get_llnf_code(env);
     for (comp_decl const & d : ds) {
         name const & n    = d.fst();
         expr const & code = d.snd();
@@ -882,19 +858,11 @@ static void emit_main_fn(std::ostream & out, module_name const & m, comp_decl co
     out << "}\n";
 }
 
-void print_cpp_code(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
+void emit_cpp(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     emit_file_header(out, env, m, deps);
     emit_fn_decls(out, env);
     emit_fns(out, env);
     emit_initialize(out, env, m, deps);
     if (optional<comp_decl> d = has_main_fn(env)) emit_main_fn(out, m, *d);
-}
-
-void initialize_emit_cpp() {
-    g_ext = new emit_cpp_ext_reg();
-}
-
-void finalize_emit_cpp() {
-    delete g_ext;
 }
 }

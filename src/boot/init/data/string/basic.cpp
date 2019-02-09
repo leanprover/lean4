@@ -28,7 +28,6 @@ obj* l___private_3344645481__to__nat__core(obj*, obj*, obj*);
 obj* l_string_iterator_forward(obj*, obj*);
 obj* l_string_iterator_extract___main___closed__1;
 obj* l_string_line__column___closed__1;
-obj* l_list_length___main___rarg(obj*);
 obj* l_string_singleton(uint32);
 obj* l_string_pushn(obj*, uint32, obj*);
 obj* l_list_as__string(obj*);
@@ -93,6 +92,7 @@ obj* l_string_iterator_extract__core___main(obj*, obj*);
 obj* l_string_push___main(obj*, uint32);
 obj* l_char_to__string(uint32);
 obj* l_list_map___main___at_string_intercalate___spec__1(obj*);
+obj* l_list_length__aux___main___rarg(obj*, obj*);
 obj* l_string_has__sizeof;
 obj* l_string_to__list(obj*);
 obj* l_string_trim(obj*);
@@ -149,10 +149,11 @@ return x_3;
 obj* l_string_length___main(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::string_data(x_0);
-x_2 = l_list_length___main___rarg(x_1);
-return x_2;
+x_2 = lean::mk_nat_obj(0u);
+x_3 = l_list_length__aux___main___rarg(x_1, x_2);
+return x_3;
 }
 }
 obj* l_string_push___main(obj* x_0, uint32 x_1) {
@@ -222,21 +223,23 @@ return x_3;
 obj* l_string_iterator_remaining___main(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_3; obj* x_4; 
 x_1 = lean::string_iterator_snd(x_0);
 lean::dec(x_0);
-x_3 = l_list_length___main___rarg(x_1);
-return x_3;
+x_3 = lean::mk_nat_obj(0u);
+x_4 = l_list_length__aux___main___rarg(x_1, x_3);
+return x_4;
 }
 }
 obj* l_string_iterator_offset___main(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_3; obj* x_4; 
 x_1 = lean::string_iterator_fst(x_0);
 lean::dec(x_0);
-x_3 = l_list_length___main___rarg(x_1);
-return x_3;
+x_3 = lean::mk_nat_obj(0u);
+x_4 = l_list_length__aux___main___rarg(x_1, x_3);
+return x_4;
 }
 }
 obj* l_string_iterator_curr___main(obj* x_0) {

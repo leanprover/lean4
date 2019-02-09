@@ -112,9 +112,12 @@ protected def diff {α} [decidable_eq α] : list α → list α → list α
 | l      []      := l
 | l₁     (a::l₂) := if a ∈ l₁ then diff (l₁.erase a) l₂ else diff l₁ l₂
 
-def length : list α → nat
-| []       := 0
-| (a :: l) := length l + 1
+def length_aux : list α → nat → nat
+| []      n := n
+| (a::as) n := length_aux as (n+1)
+
+def length (as : list α) : nat :=
+length_aux as 0
 
 def empty : list α → bool
 | []       := tt
@@ -126,11 +129,6 @@ def nth : list α → nat → option α
 | []       n     := none
 | (a :: l) 0     := some a
 | (a :: l) (n+1) := nth l n
-
-def nth_le : Π (l : list α) (n), n < l.length → α
-| []       n     h := absurd h (not_lt_zero n)
-| (a :: l) 0     h := a
-| (a :: l) (n+1) h := nth_le l n (le_of_succ_le_succ h)
 
 def head [inhabited α] : list α → α
 | []       := default α

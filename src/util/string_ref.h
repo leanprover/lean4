@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/object_ref.h"
+#include "util/list_ref.h"
 namespace lean {
 /* Wrapper for Lean string objects */
 class string_ref : public object_ref {
@@ -31,4 +32,5 @@ public:
     friend bool operator==(string_ref const & s1, char const * s2) { return string_eq(s1.raw(), s2); }
     friend bool operator!=(string_ref const & s1, char const * s2) { return !(s1 == s2); }
 };
+typedef list_ref<string_ref> string_refs;
 };

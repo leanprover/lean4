@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/util.h"
 #include "library/compiler/util.h"
-#include "library/compiler/export_name.h"
+#include "library/compiler/export_attribute.h"
 
 namespace lean {
 #define REDUCE_ARITY_SUFFIX "_rarg"

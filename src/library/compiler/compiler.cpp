@@ -25,7 +25,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf.h"
 #include "library/compiler/emit_bytecode.h"
 #include "library/compiler/llnf_code.h"
-#include "library/compiler/export_name.h"
+#include "library/compiler/export_attribute.h"
 
 namespace lean {
 static name * g_codegen = nullptr;

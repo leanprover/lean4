@@ -9,6 +9,6 @@ Author: Leonardo de Moura
 namespace lean {
 optional<name> get_export_name_for(environment const & env, name const & n);
 inline bool has_export_name(environment const & env, name const & n) { return static_cast<bool>(get_export_name_for(env, n)); }
-void initialize_export_name();
-void finalize_export_name();
+void initialize_export_attribute();
+void finalize_export_attribute();
 }

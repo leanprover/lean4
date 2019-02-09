@@ -16,7 +16,7 @@ Author: Leonardo de Moura
 #include "library/compiler/emit_cpp.h"
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/builtin.h"
-#include "library/compiler/export_name.h"
+#include "library/compiler/export_attribute.h"
 
 namespace lean {
 static std::string to_cpp_type(expr const & e) {

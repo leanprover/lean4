@@ -29,7 +29,7 @@ clean:
 	find . -name *.olean -delete
 	find . -name *.depend -delete
 
-$(BOOT_DIR)/%.cpp: %.lean
+$(BOOT_DIR)/%.cpp: %.lean %.olean
 	@mkdir -p $(@D)
 	$(LEAN) $(OPTS) --cpp=$@ $<
 

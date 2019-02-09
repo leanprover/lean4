@@ -116,7 +116,6 @@ obj* l___private_4028586963__sep__by__aux___main___at_lean_parser_combinators_se
 obj* l_lean_parser_combinators_sep__by___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_tokens___rarg(obj*);
 extern obj* l_lean_parser_no__kind;
-obj* l_list_append___main___rarg(obj*, obj*);
 obj* l_lean_parser_syntax_as__node___main(obj*);
 obj* l_lean_parser_combinators_sep__by_view___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_choice___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -209,6 +208,7 @@ obj* l_lean_parser_combinators_choice__aux(obj*);
 obj* l___private_4028586963__sep__by__aux___main___at_lean_parser_combinators_sep__by1___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_1297690757__many1__aux___main(obj*);
 obj* l_lean_parser_combinators_longest__choice(obj*);
+obj* l_list_append___rarg(obj*, obj*);
 obj* l_lean_parser_combinators_node(obj*);
 obj* l_lean_parser_combinators_optional_tokens(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_1079072079__sep__by_view__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -1949,7 +1949,7 @@ _start:
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = l_lean_parser_tokens___rarg(x_0);
 x_3 = l_lean_parser_tokens___rarg(x_1);
-x_4 = l_list_append___main___rarg(x_2, x_3);
+x_4 = l_list_append___rarg(x_2, x_3);
 return x_4;
 }
 }

@@ -50,7 +50,6 @@ extern obj* l_lean_parser_term_builtin__leading__parsers;
 obj* l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__1;
 obj* l_lean_parser_tokens___rarg(obj*);
 obj* l_lean_run__elaborator___rarg(obj*, obj*);
-obj* l_list_append___main___rarg(obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__8(obj*, obj*, obj*);
 obj* l_lean_process__file__json___lambda__1___closed__4;
 obj* l_lean_parser_run___at_lean_run__frontend___spec__1___lambda__1(obj*, obj*);
@@ -98,6 +97,7 @@ obj* l_io_fs_handle_mk___at_lean_process__file__json___spec__2(obj*, uint8, uint
 obj* l_lean_process__file__json___lambda__1(obj*, obj*);
 obj* l_lean_run__elaborator(obj*, obj*);
 obj* l_lean_process__file__json___lambda__1___closed__6;
+obj* l_list_append___rarg(obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__9(obj*, obj*, obj*);
 obj* l_lean_process__file__json___lambda__1___closed__5;
 obj* l_lean_process__file__json___lambda__1___closed__8;
@@ -117,15 +117,15 @@ x_4 = l_lean_parser_tokens___rarg(x_2);
 x_5 = l_lean_parser_command_builtin__command__parsers_lean_parser_has__tokens;
 lean::inc(x_5);
 x_7 = l_lean_parser_tokens___rarg(x_5);
-x_8 = l_list_append___main___rarg(x_4, x_7);
+x_8 = l_list_append___rarg(x_4, x_7);
 x_9 = l_lean_parser_term_builtin__leading__parsers_lean_parser_has__tokens;
 lean::inc(x_9);
 x_11 = l_lean_parser_tokens___rarg(x_9);
-x_12 = l_list_append___main___rarg(x_8, x_11);
+x_12 = l_list_append___rarg(x_8, x_11);
 x_13 = l_lean_parser_term_builtin__trailing__parsers_lean_parser_has__tokens;
 lean::inc(x_13);
 x_15 = l_lean_parser_tokens___rarg(x_13);
-x_16 = l_list_append___main___rarg(x_12, x_15);
+x_16 = l_list_append___rarg(x_12, x_15);
 x_17 = l_lean_parser_mk__token__trie(x_16);
 if (lean::obj_tag(x_17) == 0)
 {

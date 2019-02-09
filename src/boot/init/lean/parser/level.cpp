@@ -101,7 +101,6 @@ obj* l_lean_parser_tokens___rarg(obj*);
 obj* l_option_get__or__else___main___rarg(obj*, obj*);
 obj* l_lean_parser_level__parser_run_lean_parser_has__view___closed__1;
 obj* l_lean_parser_level_trailing_parser___closed__1;
-obj* l_list_append___main___rarg(obj*, obj*);
 obj* l_lean_parser_syntax_as__node___main(obj*);
 obj* l_lean_parser_level_add__lit_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_level_trailing;
@@ -195,6 +194,7 @@ obj* l_dlist_singleton___rarg(obj*, obj*);
 extern obj* l_lean_parser_basic__parser__m_monad__except;
 obj* l_lean_parser_level_trailing_has__view;
 obj* l_lean_parser_parsec__t_orelse__mk__res___rarg(obj*, obj*);
+obj* l_list_append___rarg(obj*, obj*);
 obj* l_lean_parser_level_paren_has__view_x_27___lambda__1(obj*);
 extern obj* l_lean_parser_number_has__view_x_27___lambda__1___closed__6;
 obj* l_option_map___rarg(obj*, obj*);
@@ -6229,7 +6229,7 @@ x_2 = l_lean_parser_level_leading_parser_lean_parser_has__tokens;
 x_3 = l_lean_parser_level_trailing_parser_lean_parser_has__tokens;
 lean::inc(x_3);
 lean::inc(x_2);
-x_6 = l_list_append___main___rarg(x_2, x_3);
+x_6 = l_list_append___rarg(x_2, x_3);
 return x_6;
 }
 }

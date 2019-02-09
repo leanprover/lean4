@@ -90,7 +90,6 @@ obj* l_rbmap_insert___main___at_lean_parser_token__map_insert___spec__3___rarg(o
 obj* l_lean_parser_tokens___rarg(obj*);
 obj* l_lean_parser_parser__t;
 obj* l_lean_parser_token__map__cons_tokens(obj*, obj*, obj*, obj*);
-obj* l_list_append___main___rarg(obj*, obj*);
 obj* l_lean_parser_parser__core__t_monad(obj*);
 obj* l_lean_parser_log__message___rarg(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_trie_mk___closed__1;
@@ -169,6 +168,7 @@ obj* l_lean_parser_basic__parser__m_lean_parser_monad__parsec;
 obj* l_lean_parser_parser__t_lean_parser_monad__parsec___rarg(obj*);
 obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_lean_parser_basic__parser__m_monad__except;
+obj* l_list_append___rarg(obj*, obj*);
 obj* l_lean_parser_run___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_term__parser__m;
 obj* l_lean_parser_parser__t_monad__except(obj*, obj*);
@@ -652,7 +652,7 @@ _start:
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = l_lean_parser_tokens___rarg(x_0);
 x_3 = l_lean_parser_tokens___rarg(x_1);
-x_4 = l_list_append___main___rarg(x_2, x_3);
+x_4 = l_list_append___rarg(x_2, x_3);
 return x_4;
 }
 }
@@ -1213,7 +1213,7 @@ _start:
 obj* x_1; obj* x_3; obj* x_4; obj* x_6; 
 x_1 = l_lean_parser_mk__token__trie___closed__1;
 lean::inc(x_1);
-x_3 = l_list_append___main___rarg(x_1, x_0);
+x_3 = l_list_append___rarg(x_1, x_0);
 x_4 = l_lean_parser_trie_mk___closed__1;
 lean::inc(x_4);
 x_6 = l_list_mfoldl___main___at_lean_parser_mk__token__trie___spec__1(x_4, x_3);
@@ -2634,7 +2634,7 @@ _start:
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = l_lean_parser_tokens___rarg(x_0);
 x_3 = l_lean_parser_tokens___rarg(x_1);
-x_4 = l_list_append___main___rarg(x_2, x_3);
+x_4 = l_list_append___rarg(x_2, x_3);
 return x_4;
 }
 }

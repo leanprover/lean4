@@ -38,7 +38,6 @@ obj* l_lean_parser_curr__lbp___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, ob
 obj* l_lean_parser_rec__t_run___at_lean_parser_pratt__parser___spec__3(obj*, obj*);
 obj* l_lean_parser_pratt__parser_view(obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__3___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_list_append___main___rarg(obj*, obj*);
 obj* l___private_1055111885__trailing__loop___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_1055111885__trailing__loop___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_pratt__parser_tokens(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -63,6 +62,7 @@ obj* l_lean_parser_curr__lbp___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, ob
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__1(obj*, obj*);
 obj* l___private_3693562977__run__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_pratt__parser_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_list_append___rarg(obj*, obj*);
 extern obj* l_lean_parser_number_has__view_x_27___lambda__1___closed__6;
 obj* l_lean_parser_pratt__parser___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_pratt__parser___spec__2(obj*, obj*);
@@ -811,7 +811,7 @@ obj* l_lean_parser_pratt__parser_tokens___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_list_append___main___rarg(x_0, x_1);
+x_2 = l_list_append___rarg(x_0, x_1);
 return x_2;
 }
 }

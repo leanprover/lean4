@@ -176,7 +176,6 @@ obj* l_lean_parser_command_notation__spec_has__view_x_27___lambda__1___closed__1
 obj* l_lean_parser_command_notation__spec_action__kind_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_command_notation__spec_argument_has__view_x_27___lambda__1___closed__2;
 extern obj* l_lean_parser_no__kind;
-obj* l_list_append___main___rarg(obj*, obj*);
 obj* l_lean_parser_syntax_as__node___main(obj*);
 obj* l_lean_parser_command_notation__spec_precedence__offset__op_has__view_x_27___lambda__1___closed__3;
 obj* l_lean_parser_command_notation__spec_fold__action_parser(obj*, obj*, obj*, obj*, obj*);
@@ -370,6 +369,7 @@ obj* l_lean_parser_parsec__t_orelse__mk__res___rarg(obj*, obj*);
 obj* l_lean_parser_command_notation_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_combinators_node___at_lean_parser_command_notation__spec_precedence__lit_parser___spec__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_notation__spec_fold__action_has__view_x_27___lambda__1(obj*);
+obj* l_list_append___rarg(obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence__lit_has__view;
 obj* l_lean_parser_command_notation__spec_action__kind_has__view;
 obj* l_lean_parser_command_notation__spec_symbol__quote;
@@ -11331,7 +11331,7 @@ lean::dec(x_25);
 x_36 = lean::cnstr_get(x_33, 1);
 lean::inc(x_36);
 lean::dec(x_33);
-x_39 = l_list_append___main___rarg(x_36, x_22);
+x_39 = l_list_append___rarg(x_36, x_22);
 if (lean::obj_tag(x_39) == 0)
 {
 obj* x_40; 
@@ -18453,7 +18453,7 @@ lean::dec(x_25);
 x_36 = lean::cnstr_get(x_33, 1);
 lean::inc(x_36);
 lean::dec(x_33);
-x_39 = l_list_append___main___rarg(x_36, x_22);
+x_39 = l_list_append___rarg(x_36, x_22);
 if (lean::obj_tag(x_39) == 0)
 {
 obj* x_40; 
@@ -19681,7 +19681,7 @@ lean::dec(x_25);
 x_36 = lean::cnstr_get(x_33, 1);
 lean::inc(x_36);
 lean::dec(x_33);
-x_39 = l_list_append___main___rarg(x_36, x_22);
+x_39 = l_list_append___rarg(x_36, x_22);
 if (lean::obj_tag(x_39) == 0)
 {
 obj* x_40; 
@@ -21589,7 +21589,7 @@ lean::dec(x_25);
 x_36 = lean::cnstr_get(x_33, 1);
 lean::inc(x_36);
 lean::dec(x_33);
-x_39 = l_list_append___main___rarg(x_36, x_22);
+x_39 = l_list_append___rarg(x_36, x_22);
 if (lean::obj_tag(x_39) == 0)
 {
 obj* x_40; 
@@ -23159,7 +23159,7 @@ lean::dec(x_29);
 x_40 = lean::cnstr_get(x_37, 1);
 lean::inc(x_40);
 lean::dec(x_37);
-x_43 = l_list_append___main___rarg(x_40, x_26);
+x_43 = l_list_append___rarg(x_40, x_26);
 if (lean::obj_tag(x_43) == 0)
 {
 obj* x_44; 

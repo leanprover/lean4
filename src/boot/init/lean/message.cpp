@@ -23,7 +23,6 @@ uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
 obj* l_list_reverse___rarg(obj*);
 obj* l_lean_message__log_to__list(obj*);
 obj* l_lean_message_has__to__string;
-obj* l_list_append___main___rarg(obj*, obj*);
 obj* l_lean_message__log_has__append;
 obj* l_lean_message__log_empty;
 obj* l_lean_message__log_add(obj*, obj*);
@@ -34,6 +33,7 @@ obj* l_lean_message_to__string___closed__3;
 obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*);
 obj* l_lean_message_to__string___closed__2;
 obj* l_nat_repr(obj*);
+obj* l_list_append___rarg(obj*, obj*);
 obj* l_lean_message_to__string___closed__1;
 uint8 l_lean_message__log_has__errors(obj*);
 obj* l_lean_message_to__string(obj* x_0) {
@@ -219,7 +219,7 @@ obj* l_lean_message__log_append(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_list_append___main___rarg(x_1, x_0);
+x_2 = l_list_append___rarg(x_1, x_0);
 return x_2;
 }
 }

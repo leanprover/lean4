@@ -14,10 +14,10 @@ inductive extern_entry
 | standard (backend : name) (fn : string)
 | foreign  (backend : name) (fn : string)
 
-attribute [export lean.extern_entry_adhoc]    extern_entry.adhoc
-attribute [export lean.extern_entry_inline]   extern_entry.inline
-attribute [export lean.extern_entry_standard] extern_entry.standard
-attribute [export lean.extern_entry_foreign]  extern_entry.foreign
+@[export lean.mk_adhoc_ext_entry_core]   def mk_adhoc_ext_entry   := extern_entry.adhoc
+@[export lean.mk_inline_ext_entry_core]  def mk_inline_ext_entry  := extern_entry.inline
+@[export lean.mk_std_ext_entry_core]     def mk_std_ext_entry     := extern_entry.standard
+@[export lean.mk_foreign_ext_entry_core] def mk_foreign_ext_entry := extern_entry.foreign
 
 /-
 - `@[extern]`
@@ -38,7 +38,7 @@ structure extern_attr_data :=
 (entries  : list extern_entry)
 (ll_type  : expr)
 
-attribute [export lean.mk_extern_atty_data] extern_attr_data.mk
+@[export lean.mk_extern_attr_data_core] def mk_extern_attr_data := extern_attr_data.mk
 
 /-
 Remark: we only support pattern parameters: #1 to #9. This should be more than enough,
@@ -56,7 +56,7 @@ def expand_extern_pattern_aux (args : list string) : nat → string.iterator →
       let j   := c.val - '0'.val - 1 in
       expand_extern_pattern_aux i it.next (r ++ (args.nth j).get_or_else "")
 
-@[export lean.expand_extern_pattern]
+@[export lean.expand_extern_pattern_core]
 def expand_extern_pattern (pattern : string) (args : list string) : string :=
 expand_extern_pattern_aux args pattern.length pattern.mk_iterator ""
 
@@ -82,11 +82,11 @@ def get_extern_entry_for_aux (backend : name) : list extern_entry → option ext
   else if e.backend = backend then some e
   else get_extern_entry_for_aux es
 
-@[export lean.get_extern_entry_for]
+@[export lean.get_extern_entry_for_core]
 def get_extern_entry_for (d : extern_attr_data) (backend : name) : option extern_entry :=
 get_extern_entry_for_aux backend d.entries
 
-@[export lean.mk_extern_call]
+@[export lean.mk_extern_call_core]
 def mk_extern_call (d : extern_attr_data) (backend : name) (args : list string) : option string :=
 do e ← get_extern_entry_for d backend,
    expand_extern_entry e args

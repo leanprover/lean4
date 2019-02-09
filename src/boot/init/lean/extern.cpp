@@ -20,28 +20,103 @@ obj* l_list_nth___main___rarg(obj*, obj*);
 obj* l_lean_get__extern__entry__for__aux(obj*, obj*);
 obj* l_lean_expand__extern__entry(obj*, obj*);
 namespace lean {
-obj* expand_extern_pattern(obj*, obj*);
+obj* expand_extern_pattern_core(obj*, obj*);
 }
 obj* l_list_foldl___main___at_lean_mk__simple__fn__call___spec__1(obj*, obj*);
+namespace lean {
+obj* mk_adhoc_ext_entry_core(obj*);
+}
 obj* l_lean_get__extern__entry__for__aux___main___closed__1;
 obj* l_option_get__or__else___main___rarg(obj*, obj*);
 extern obj* l_list_repr__aux___main___rarg___closed__1;
+namespace lean {
+obj* mk_std_ext_entry_core(obj*, obj*);
+}
 extern obj* l_string_join___closed__1;
 obj* l_lean_get__extern__entry__for__aux___main(obj*, obj*);
+namespace lean {
+obj* mk_inline_ext_entry_core(obj*, obj*);
+}
 obj* l_lean_expand__extern__pattern__aux___main(obj*, obj*, obj*, obj*);
 namespace lean {
-obj* mk_extern_call(obj*, obj*, obj*);
+obj* mk_extern_call_core(obj*, obj*, obj*);
 }
 obj* l_list_intersperse___main___rarg(obj*, obj*);
 obj* l_lean_extern__entry_backend(obj*);
 obj* l_lean_expand__extern__pattern__aux(obj*, obj*, obj*, obj*);
 extern obj* l_prod_has__repr___rarg___closed__1;
 obj* l_lean_extern__entry_backend___main(obj*);
+namespace lean {
+obj* mk_foreign_ext_entry_core(obj*, obj*);
+}
+namespace lean {
+obj* mk_extern_attr_data_core(obj*, obj*, obj*);
+}
 obj* l_lean_expand__extern__entry___main(obj*, obj*);
 obj* l_lean_mk__simple__fn__call(obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__3;
 namespace lean {
-obj* get_extern_entry_for(obj*, obj*);
+obj* get_extern_entry_for_core(obj*, obj*);
+}
+namespace lean {
+obj* mk_adhoc_ext_entry_core(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+}
+namespace lean {
+obj* mk_inline_ext_entry_core(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_1);
+return x_2;
+}
+}
+}
+namespace lean {
+obj* mk_std_ext_entry_core(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_cnstr(2, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_1);
+return x_2;
+}
+}
+}
+namespace lean {
+obj* mk_foreign_ext_entry_core(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_cnstr(3, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_1);
+return x_2;
+}
+}
+}
+namespace lean {
+obj* mk_extern_attr_data_core(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_3, 0, x_0);
+lean::cnstr_set(x_3, 1, x_1);
+lean::cnstr_set(x_3, 2, x_2);
+return x_3;
+}
+}
 }
 obj* l_lean_expand__extern__pattern__aux___main(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
@@ -261,7 +336,7 @@ return x_4;
 }
 }
 namespace lean {
-obj* expand_extern_pattern(obj* x_0, obj* x_1) {
+obj* expand_extern_pattern_core(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_6; 
@@ -335,7 +410,7 @@ obj* x_5; obj* x_8; obj* x_9;
 x_5 = lean::cnstr_get(x_0, 1);
 lean::inc(x_5);
 lean::dec(x_0);
-x_8 = lean::expand_extern_pattern(x_5, x_1);
+x_8 = lean::expand_extern_pattern_core(x_5, x_1);
 x_9 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_9, 0, x_8);
 return x_9;
@@ -467,7 +542,7 @@ return x_2;
 }
 }
 namespace lean {
-obj* get_extern_entry_for(obj* x_0, obj* x_1) {
+obj* get_extern_entry_for_core(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_5; 
@@ -480,11 +555,11 @@ return x_5;
 }
 }
 namespace lean {
-obj* mk_extern_call(obj* x_0, obj* x_1, obj* x_2) {
+obj* mk_extern_call_core(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::get_extern_entry_for(x_0, x_1);
+x_3 = lean::get_extern_entry_for_core(x_0, x_1);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_6; 

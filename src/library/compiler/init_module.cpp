@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler.h"
 #include "library/compiler/builtin.h"
 #include "library/compiler/export_attribute.h"
+#include "library/compiler/extern_attribute.h"
 #include "library/compiler/llnf_code.h"
 
 namespace lean {
@@ -28,11 +29,13 @@ void initialize_compiler_module() {
     initialize_compiler();
     initialize_builtin();
     initialize_export_attribute();
+    initialize_extern_attribute();
     initialize_llnf_code();
 }
 
 void finalize_compiler_module() {
     finalize_llnf_code();
+    finalize_extern_attribute();
     finalize_export_attribute();
     finalize_builtin();
     finalize_compiler();

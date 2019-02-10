@@ -36,7 +36,6 @@ inductive extern_entry
 structure extern_attr_data :=
 (arity    : option nat := none)
 (entries  : list extern_entry)
-(ll_type  : expr)
 
 @[export lean.mk_extern_attr_data_core] def mk_extern_attr_data := extern_attr_data.mk
 

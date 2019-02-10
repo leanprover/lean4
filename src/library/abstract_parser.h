@@ -30,9 +30,13 @@ public:
     virtual bool curr_is_token(name const & tk) const = 0;
     /** \brief Return true iff the current token is a numeral */
     virtual bool curr_is_numeral() const = 0;
+    /** \brief Return true iff the current token is a name */
+    virtual bool curr_is_name() const = 0;
+    /** \brief Return true iff the current token is a string */
+    virtual bool curr_is_string() const = 0;
+    virtual bool curr_is_token_or_id(name const & tk) const = 0;
     /** \brief Read the next token if the current one is not End-of-file. */
     virtual void next() = 0;
-
     virtual unsigned parse_small_nat() = 0;
     virtual std::string parse_string_lit() = 0;
     virtual name parse_name() = 0;

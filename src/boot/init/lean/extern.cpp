@@ -50,7 +50,7 @@ namespace lean {
 obj* mk_foreign_ext_entry_core(obj*, obj*);
 }
 namespace lean {
-obj* mk_extern_attr_data_core(obj*, obj*, obj*);
+obj* mk_extern_attr_data_core(obj*, obj*);
 }
 obj* l_lean_expand__extern__entry___main(obj*, obj*);
 obj* l_lean_mk__simple__fn__call(obj*, obj*);
@@ -106,15 +106,14 @@ return x_2;
 }
 }
 namespace lean {
-obj* mk_extern_attr_data_core(obj* x_0, obj* x_1, obj* x_2) {
+obj* mk_extern_attr_data_core(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_1);
-lean::cnstr_set(x_3, 2, x_2);
-return x_3;
+obj* x_2; 
+x_2 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_1);
+return x_2;
 }
 }
 }

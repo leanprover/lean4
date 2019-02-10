@@ -19,7 +19,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_lean_parser_syntax_is__of__kind___main___boxed(obj*, obj*);
 obj* l_lean_parser_syntax_is__of__kind___boxed(obj*, obj*);
 obj* l_list_map___main___at_lean_parser_syntax_to__format___main___spec__3(obj*);
-obj* l___private_3584063373__update__leading__aux(obj*, obj*);
 obj* l_list_map___main___at_lean_parser_syntax_to__format___main___spec__5(obj*);
 extern obj* l_lean_format_paren___closed__1;
 obj* l_lean_parser_macro__scope;
@@ -38,7 +37,6 @@ obj* l_list_reverse___rarg(obj*);
 obj* l_lean_parser_syntax_reprint__atom___main(obj*);
 obj* l_lean_nat__has__to__format(obj*);
 obj* l_lean_parser_syntax_to__format__lst(obj*);
-obj* l___private_3584063373__update__leading__aux___main(obj*, obj*);
 obj* l_lean_has__repr___lambda__1(obj*);
 uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_string_quote(obj*);
@@ -69,10 +67,12 @@ obj* l_lean_parser_syntax_mreplace__lst(obj*);
 obj* l_lean_parser_syntax_get__head__info__lst___main(obj*);
 obj* l_lean_parser_syntax_has__to__string;
 obj* l_lean_parser_syntax_mreplace__lst___main___at_lean_parser_syntax_update__leading___spec__2(obj*, obj*, obj*);
+obj* l___private_3688381373__update__leading__aux___main(obj*, obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__8;
 obj* l_lean_parser_syntax_flip__scopes(obj*, obj*);
 obj* l_string_iterator_nextn___main(obj*, obj*);
 extern obj* l_lean_format_sbracket___closed__1;
+obj* l___private_3688381373__update__leading__aux(obj*, obj*);
 obj* l_nat_dec__eq___boxed(obj*, obj*);
 obj* l_lean_parser_syntax_to__format(obj*);
 obj* l_lean_parser_inhabited;
@@ -1008,7 +1008,7 @@ x_2 = l_lean_parser_syntax_mreplace___main___at_lean_parser_syntax_replace___spe
 return x_2;
 }
 }
-obj* l___private_3584063373__update__leading__aux___main(obj* x_0, obj* x_1) {
+obj* l___private_3688381373__update__leading__aux___main(obj* x_0, obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
@@ -1240,11 +1240,11 @@ return x_88;
 }
 }
 }
-obj* l___private_3584063373__update__leading__aux(obj* x_0, obj* x_1) {
+obj* l___private_3688381373__update__leading__aux(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_3584063373__update__leading__aux___main(x_0, x_1);
+x_2 = l___private_3688381373__update__leading__aux___main(x_0, x_1);
 return x_2;
 }
 }
@@ -1457,7 +1457,7 @@ obj* _init_l_lean_parser_syntax_update__leading___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3584063373__update__leading__aux), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3688381373__update__leading__aux), 2, 0);
 return x_0;
 }
 }

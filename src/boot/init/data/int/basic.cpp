@@ -20,21 +20,22 @@ obj* l_int_repr(obj*);
 obj* l_int_has__repr;
 uint8 l_dec__eq(obj*, obj*);
 obj* l_int_neg__of__nat(obj*);
+obj* l___private_3285259795__dec__nonneg___boxed(obj*);
 extern uint8 l_true_decidable;
 obj* l_int_fdiv___main(obj*, obj*);
 obj* l_int_has__sub;
 obj* l_int_mul___main(obj*, obj*);
-obj* l___private_2703120077__dec__nonneg___main___boxed(obj*);
-obj* l___private_2037049527__nonneg;
 obj* l_int_nat__abs___main(obj*);
 extern uint8 l_false_decidable;
 obj* l_int_repr___main(obj*);
 obj* l_int_mod(obj*, obj*);
+obj* l___private_1805987925__nonneg;
 obj* l_int_to__nat___main(obj*);
 obj* l_int_nat__abs___main___closed__1;
 obj* l_int_quot___main(obj*, obj*);
-obj* l___private_2037049527__nonneg___main;
+obj* l___private_3285259795__dec__nonneg___main___boxed(obj*);
 obj* l_int_has__mul;
+obj* l___private_1805987925__nonneg___main;
 obj* l_int_lt;
 obj* l_int_neg__of__nat___main(obj*);
 obj* l_int_has__lt;
@@ -44,12 +45,12 @@ obj* l_int_dec__lt___boxed(obj*, obj*);
 obj* l_int_zero;
 obj* l_int_has__div;
 obj* l_int_div___main(obj*, obj*);
+uint8 l___private_3285259795__dec__nonneg___main(obj*);
 obj* l_int_has__mod;
 obj* l_int_sign(obj*);
 obj* l_int_repr___main___closed__1;
 obj* l_int_to__nat(obj*);
 obj* l_int_has__coe(obj*);
-uint8 l___private_2703120077__dec__nonneg___main(obj*);
 obj* l_int_has__le;
 obj* l_int_has__one;
 obj* l_int_div(obj*, obj*);
@@ -57,11 +58,11 @@ obj* l_int_fdiv(obj*, obj*);
 obj* l_dec__eq___boxed(obj*, obj*);
 obj* l_int_neg___main(obj*);
 obj* l_int_nat__mod(obj*, obj*);
+uint8 l___private_3285259795__dec__nonneg(obj*);
 obj* l_int_has__neg;
 obj* l_int_fmod___main(obj*, obj*);
 obj* l_int_fmod(obj*, obj*);
 obj* l_int_rem___main(obj*, obj*);
-uint8 l___private_2703120077__dec__nonneg(obj*);
 obj* l_int_has__to__string;
 obj* l_int_mod___main(obj*, obj*);
 obj* l_nat_repr(obj*);
@@ -72,7 +73,6 @@ obj* l_int_has__zero;
 obj* l_int_dec__le___boxed(obj*, obj*);
 obj* l_int_sign___main___closed__1;
 obj* l_int_one;
-obj* l___private_2703120077__dec__nonneg___boxed(obj*);
 obj* l_int_has__coe(obj* x_0) {
 _start:
 {
@@ -1319,7 +1319,7 @@ x_3 = l_int_to__nat___main(x_2);
 return x_3;
 }
 }
-obj* _init_l___private_2037049527__nonneg___main() {
+obj* _init_l___private_1805987925__nonneg___main() {
 _start:
 {
 obj* x_0; 
@@ -1328,7 +1328,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init_l___private_2037049527__nonneg() {
+obj* _init_l___private_1805987925__nonneg() {
 _start:
 {
 obj* x_0; 
@@ -1371,7 +1371,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-uint8 l___private_2703120077__dec__nonneg___main(obj* x_0) {
+uint8 l___private_3285259795__dec__nonneg___main(obj* x_0) {
 _start:
 {
 obj* x_1; uint8 x_2; 
@@ -1392,28 +1392,28 @@ return x_5;
 }
 }
 }
-obj* l___private_2703120077__dec__nonneg___main___boxed(obj* x_0) {
+obj* l___private_3285259795__dec__nonneg___main___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
-x_1 = l___private_2703120077__dec__nonneg___main(x_0);
+x_1 = l___private_3285259795__dec__nonneg___main(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
 }
-uint8 l___private_2703120077__dec__nonneg(obj* x_0) {
+uint8 l___private_3285259795__dec__nonneg(obj* x_0) {
 _start:
 {
 uint8 x_1; 
-x_1 = l___private_2703120077__dec__nonneg___main(x_0);
+x_1 = l___private_3285259795__dec__nonneg___main(x_0);
 return x_1;
 }
 }
-obj* l___private_2703120077__dec__nonneg___boxed(obj* x_0) {
+obj* l___private_3285259795__dec__nonneg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
-x_1 = l___private_2703120077__dec__nonneg(x_0);
+x_1 = l___private_3285259795__dec__nonneg(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
@@ -1465,8 +1465,8 @@ void initialize_init_data_int_basic() {
  l_int_sign___main___closed__1 = _init_l_int_sign___main___closed__1();
  l_int_has__div = _init_l_int_has__div();
  l_int_has__mod = _init_l_int_has__mod();
- l___private_2037049527__nonneg___main = _init_l___private_2037049527__nonneg___main();
- l___private_2037049527__nonneg = _init_l___private_2037049527__nonneg();
+ l___private_1805987925__nonneg___main = _init_l___private_1805987925__nonneg___main();
+ l___private_1805987925__nonneg = _init_l___private_1805987925__nonneg();
  l_int_le = _init_l_int_le();
  l_int_has__le = _init_l_int_has__le();
  l_int_lt = _init_l_int_lt();

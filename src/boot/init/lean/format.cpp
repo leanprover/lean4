@@ -47,6 +47,7 @@ obj* l_lean_to__string__to__format___rarg(obj*);
 obj* l_lean_list_to__format___rarg(obj*, obj*);
 obj* l_lean_uint64__has__to__format___boxed(obj*);
 obj* l_lean_format_join__sep___main(obj*);
+obj* l___private_3682637481__merge(obj*, obj*, obj*);
 obj* l_lean_format_space__upto__line(obj*, obj*);
 obj* l_lean_uint32__has__to__format___boxed(obj*);
 obj* l_lean_uint32__has__to__format(uint32);
@@ -82,7 +83,6 @@ obj* l_lean_to__fmt___rarg(obj*, obj*);
 obj* l_lean_prod__has__to__format___rarg(obj*, obj*, obj*);
 obj* l_lean_format_space__upto__line___main___closed__1;
 obj* l_lean_format_repr___main___closed__6;
-obj* l___private_2782890553__merge(obj*, obj*, obj*);
 obj* l_lean_format_space__upto__line___main___lambda__1(obj*, obj*, obj*);
 obj* l_list_foldl___main___at_lean_format_join___spec__1(obj*, obj*);
 obj* l_lean_format_flatten___main___closed__1;
@@ -337,7 +337,7 @@ x_1 = l_lean_format_group___main(x_0);
 return x_1;
 }
 }
-obj* l___private_2782890553__merge(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_3682637481__merge(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_5; 
@@ -568,7 +568,7 @@ x_38 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_format_space__upto__li
 lean::closure_set(x_38, 0, x_32);
 lean::closure_set(x_38, 1, x_1);
 x_39 = lean::mk_thunk(x_38);
-x_40 = l___private_2782890553__merge(x_1, x_36, x_39);
+x_40 = l___private_3682637481__merge(x_1, x_36, x_39);
 return x_40;
 }
 default:
@@ -661,7 +661,7 @@ x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_format_space__upto__li
 lean::closure_set(x_17, 0, x_8);
 lean::closure_set(x_17, 1, x_1);
 x_18 = lean::mk_thunk(x_17);
-x_19 = l___private_2782890553__merge(x_1, x_15, x_18);
+x_19 = l___private_3682637481__merge(x_1, x_15, x_18);
 return x_19;
 }
 }
@@ -912,7 +912,7 @@ lean::closure_set(x_111, 0, x_9);
 lean::closure_set(x_111, 1, x_0);
 x_112 = lean::mk_thunk(x_111);
 lean::inc(x_0);
-x_114 = l___private_2782890553__merge(x_0, x_108, x_112);
+x_114 = l___private_3682637481__merge(x_0, x_108, x_112);
 x_115 = lean::cnstr_get_scalar<uint8>(x_114, sizeof(void*)*1 + 1);
 lean::dec(x_114);
 if (x_115 == 0)

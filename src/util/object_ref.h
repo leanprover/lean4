@@ -33,6 +33,7 @@ public:
         return *this;
     }
     object * raw() const { return m_obj; }
+    object * steal() { object * r = m_obj; m_obj = box(0); return r; }
     static void swap(object_ref & a, object_ref & b) { std::swap(a.m_obj, b.m_obj); }
 };
 

@@ -111,9 +111,8 @@ environment add_native_constant_decl(environment const & env, name const & n, ex
 
 void for_each_native_constant(environment const & env, std::function<void(name const & n)> const & f) {
     auto ext = get_ext(env);
-    ext.m_decls.for_each([&](name const & n, native_decl const & _) { f(n); });
+    ext.m_decls.for_each([&](name const & n, native_decl const &) { f(n); });
 }
-
 
 static inline native_decl const * get_native_constant_core(environment const & env, name const & n) {
     auto ext = get_ext(env);

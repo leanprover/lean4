@@ -39,7 +39,7 @@ struct exprs_attribute_data : public attr_data {
         m_args = read_exprs(d);
     }
     void parse(abstract_parser & p) override {
-        while (!p.curr_is_token("]")) {
+        while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
             expr e = p.parse_expr(10000);
             if (has_sorry(e))
                 break;

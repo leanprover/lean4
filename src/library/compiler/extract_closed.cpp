@@ -281,7 +281,8 @@ public:
         m_base_name = d.fst();
         expr new_v  = visit(v, true);
         comp_decl new_d(d.fst(), new_v);
-        return mk_pair(env(), comp_decls(new_d, comp_decls(m_new_decls)));
+        m_new_decls.push_back(new_d);
+        return mk_pair(env(), comp_decls(m_new_decls));
     }
 };
 

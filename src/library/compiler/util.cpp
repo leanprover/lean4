@@ -454,6 +454,9 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
             } else {
                 return mk_enf_object_type();
             }
+        } else if (is_app_of(e, get_decidable_name())) {
+            /* Recall that `decidable A` and `bool` have the same runtime representation. */
+            return *to_uint_type(1);
         } else if (is_sort(e) || tc.is_prop(e)) {
             return mk_enf_neutral_type();
         } else {

@@ -134,7 +134,7 @@ environment compile(environment const & env, options const & opts, names const &
     }
 
     if (length(cs) == 1 && is_extern_constant(env, head(cs))) {
-        /* Generate boxed version for native constant if needed. */
+        /* Generate boxed version for extern/native constant if needed. */
         unsigned arity = *get_extern_constant_arity(env, head(cs));
         if (optional<pair<environment, comp_decl>> p = mk_boxed_version(env, head(cs), arity)) {
             /* Remark: we don't need boxed version for the bytecode. */

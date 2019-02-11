@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "library/compiler/util.h"
-#include "library/compiler/builtin.h"
+#include "library/compiler/extern_attribute.h"
 
 namespace lean {
 /* Infer type of expressions in ENF or LLNF. */
@@ -147,7 +147,7 @@ class ll_infer_type_fn {
     }
 
     expr infer_constant(expr const & e) {
-        if (optional<expr> type = get_native_constant_ll_type(env(), const_name(e))) {
+        if (optional<expr> type = get_extern_constant_ll_type(env(), const_name(e))) {
             return *type;
         } else if (is_constructor(env(), const_name(e))) {
             return infer_constructor_type(e);

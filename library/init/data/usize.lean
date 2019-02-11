@@ -10,14 +10,22 @@ def usize_sz : nat := (2:nat) ^ system.platform.nbits
 structure usize :=
 (val : fin usize_sz)
 
-def usize.of_nat (n : nat) : usize := ⟨fin.of_nat n⟩
+@[extern cpp "lean::usize_of_nat"]
+def usize.of_nat (n : @& nat) : usize := ⟨fin.of_nat n⟩
+@[extern cpp "lean::usize_to_nat"]
 def usize.to_nat (n : usize) : nat := n.val.val
+@[extern cpp inline "#1 + #2"]
 def usize.add (a b : usize) : usize := ⟨a.val + b.val⟩
+@[extern cpp inline "#1 - #2"]
 def usize.sub (a b : usize) : usize := ⟨a.val - b.val⟩
+@[extern cpp inline "#1 * #2"]
 def usize.mul (a b : usize) : usize := ⟨a.val * b.val⟩
+@[extern cpp inline "#2 == 0 ? 0 : #1 / #2"]
 def usize.div (a b : usize) : usize := ⟨a.val / b.val⟩
+@[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
 def usize.mod (a b : usize) : usize := ⟨a.val % b.val⟩
-def usize.modn (a : usize) (n : nat) : usize := ⟨a.val %ₙ n⟩
+@[extern cpp "lean::usize_modn"]
+def usize.modn (a : usize) (n : @& nat) : usize := ⟨a.val %ₙ n⟩
 def usize.lt (a b : usize) : Prop := a.val < b.val
 def usize.le (a b : usize) : Prop := a.val ≤ b.val
 
@@ -33,14 +41,17 @@ instance : has_lt usize       := ⟨usize.lt⟩
 instance : has_le usize       := ⟨usize.le⟩
 instance : inhabited usize    := ⟨0⟩
 
+@[extern cpp inline "#1 == #2"]
 def usize.dec_eq (a b : usize) : decidable (a = b) :=
 usize.cases_on a $ λ n, usize.cases_on b $ λ m,
   if h : n = m then is_true (h ▸ rfl) else is_false (λ h', usize.no_confusion h' (λ h', absurd h' h))
 
+@[extern cpp inline "#1 < #2"]
 def usize.dec_lt (a b : usize) : decidable (a < b) :=
 usize.cases_on a $ λ n, usize.cases_on b $ λ m,
   infer_instance_as (decidable (n < m))
 
+@[extern cpp inline "#1 <= #2"]
 def usize.dec_le (a b : usize) : decidable (a ≤ b) :=
 usize.cases_on a $ λ n, usize.cases_on b $ λ m,
   infer_instance_as (decidable (n <= m))

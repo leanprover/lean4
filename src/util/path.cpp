@@ -233,10 +233,11 @@ std::string lrealpath(std::string const & fname) {
         return std::string(buffer);
     }
 #else
-    char * tmp = realpath(fname.c_str(), nullptr);
+    constexpr unsigned BufferSize = 8192;
+    char buffer[BufferSize];
+    char * tmp = realpath(fname.c_str(), buffer);
     if (tmp) {
         std::string r(tmp);
-        ::free(tmp);
         return r;
     } else {
         throw file_not_found_exception(fname);

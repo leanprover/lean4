@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/builtin.h"
 #include "library/compiler/export_attribute.h"
+#include "library/compiler/extern_attribute.h"
 
 namespace lean {
 static std::string to_cpp_type(expr const & e) {
@@ -273,6 +274,7 @@ static char const * get_scalar_type_from_size(unsigned i) {
 
 struct emit_fn_fn {
     std::ostream &  m_out;
+    name            m_cpp{"cpp"};
     name_generator  m_ngen;
     environment     m_env;
     local_ctx       m_lctx;
@@ -289,8 +291,12 @@ struct emit_fn_fn {
         return m_lctx.get_local_decl(x).get_type() == mk_enf_object_type();
     }
 
+    void emit_unit(std::ostream & out) {
+        out << "lean::box(0)";
+    }
+
     void emit_unit() {
-        m_out << "lean::box(0)";
+        emit_unit(m_out);
     }
 
     void emit_constant(expr const & c) {
@@ -304,11 +310,15 @@ struct emit_fn_fn {
             m_out << to_cpp_name(m_env, const_name(c));
     }
 
-    void emit_fvar(expr const & x) {
+    void emit_fvar(std::ostream & out, expr const & x) {
         lean_assert(is_fvar(x));
         name const & id = fvar_name(x);
         lean_assert(id.is_numeral());
-        m_out << "x_" << id.get_numeral();
+        out << "x_" << id.get_numeral();
+    }
+
+    void emit_fvar(expr const & x) {
+        emit_fvar(m_out, x);
     }
 
     void emit_lbl(expr const & jp) {
@@ -360,11 +370,15 @@ struct emit_fn_fn {
         m_out << ";\n";
     }
 
-    void emit_arg(expr const & arg) {
+    void emit_arg(std::ostream & out, expr const & arg) {
         if (is_fvar(arg))
-            emit_fvar(arg);
+            emit_fvar(out, arg);
         else
-            emit_unit();
+            emit_unit(out);
+    }
+
+    void emit_arg(expr const & arg) {
+        emit_arg(m_out, arg);
     }
 
     void emit_args(unsigned sz, expr const * args) {
@@ -372,6 +386,12 @@ struct emit_fn_fn {
             if (i > 0) m_out << ", ";
             emit_arg(args[i]);
         }
+    }
+
+    string_ref arg_to_string_ref(expr const & arg) {
+        std::ostringstream out;
+        emit_arg(out, arg);
+        return string_ref(out.str());
     }
 
     void emit_apply(expr const & x, buffer<expr> const & args) {
@@ -543,21 +563,16 @@ struct emit_fn_fn {
         m_out << ");\n";
     }
 
-    void emit_native_constant(expr const &x, expr const &fn, buffer<expr> const &args) {
-        buffer<bool> used_args;
-        lean_verify(get_native_used_args(m_env, const_name(fn), used_args));
-        lean_assert(used_args.size() == args.size());
+    void emit_native_constant(expr const & x, expr const & fn, buffer<expr> const & args) {
         emit_lhs(x);
-        emit_constant(fn);
-        m_out << "(";
-        bool first = true;
-        for (unsigned i = 0; i < args.size(); i++) {
-            if (used_args[i]) {
-                if (first) first = false; else m_out << ", ";
-                emit_arg(args[i]);
-            }
+        string_refs arg_strs;
+        unsigned i = args.size();
+        while (i > 0) {
+            --i;
+            arg_strs = string_refs(arg_to_string_ref(args[i]), arg_strs);
         }
-        m_out << ");\n";
+        emit_extern_call(m_out, m_env, m_cpp, const_name(fn), arg_strs);
+        m_out << ";\n";
     }
 
     void emit_instr(local_decl const & d) {

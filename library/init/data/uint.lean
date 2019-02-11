@@ -21,14 +21,12 @@ def uint8.add (a b : uint8) : uint8 := ⟨a.val + b.val⟩
 def uint8.sub (a b : uint8) : uint8 := ⟨a.val - b.val⟩
 @[extern cpp inline "#1 * #2"]
 def uint8.mul (a b : uint8) : uint8 := ⟨a.val * b.val⟩
-@[extern cpp inline "#1 == 0 ? 0 : #1 / #2"]
+@[extern cpp inline "#2 == 0 ? 0 : #1 / #2"]
 def uint8.div (a b : uint8) : uint8 := ⟨a.val / b.val⟩
-@[extern cpp inline "#1 == 0 ? 0 : #1 % #2"]
+@[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
 def uint8.mod (a b : uint8) : uint8 := ⟨a.val % b.val⟩
 def uint8.modn (a : uint8) (n : nat) : uint8 := ⟨a.val %ₙ n⟩
-@[extern cpp inline "#1 < #2"]
 def uint8.lt (a b : uint8) : Prop := a.val < b.val
-@[extern cpp inline "#1 <= #2"]
 def uint8.le (a b : uint8) : Prop := a.val ≤ b.val
 
 instance : has_zero uint8     := ⟨uint8.of_nat 0⟩
@@ -43,14 +41,17 @@ instance : has_lt uint8       := ⟨uint8.lt⟩
 instance : has_le uint8       := ⟨uint8.le⟩
 instance : inhabited uint8    := ⟨0⟩
 
+@[extern cpp inline "#1 == #2"]
 def uint8.dec_eq (a b : uint8) : decidable (a = b) :=
 uint8.cases_on a $ λ n, uint8.cases_on b $ λ m,
   if h : n = m then is_true (h ▸ rfl) else is_false (λ h', uint8.no_confusion h' (λ h', absurd h' h))
 
+@[extern cpp inline "#1 < #2"]
 def uint8.dec_lt (a b : uint8) : decidable (a < b) :=
 uint8.cases_on a $ λ n, uint8.cases_on b $ λ m,
   infer_instance_as (decidable (n < m))
 
+@[extern cpp inline "#1 <= #2"]
 def uint8.dec_le (a b : uint8) : decidable (a ≤ b) :=
 uint8.cases_on a $ λ n, uint8.cases_on b $ λ m,
   infer_instance_as (decidable (n <= m))

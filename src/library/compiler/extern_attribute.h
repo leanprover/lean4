@@ -7,7 +7,8 @@ Authors: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-string_ref mk_extern_call(environment const & env, string_ref const & backend, string_refs const & attrs);
+bool emit_extern_call_core(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs);
+void emit_extern_call(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs);
 void initialize_extern_attribute();
 void finalize_extern_attribute();
 }

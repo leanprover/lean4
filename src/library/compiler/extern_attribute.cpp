@@ -8,6 +8,9 @@ Authors: Leonardo de Moura
 #include "util/object_ref.h"
 #include "library/util.h"
 #include "library/attribute_manager.h"
+#include "library/compiler/builtin.h" // TODO(Leo): delete
+
+void initialize_init_lean_extern();
 
 namespace lean {
 object* mk_adhoc_ext_entry_core(object*);
@@ -16,6 +19,7 @@ object* mk_std_ext_entry_core(object*, object*);
 object* mk_foreign_ext_entry_core(object*, object*);
 object* mk_extern_call_core(object*, object*, object*);
 object* mk_extern_attr_data_core(object*, object*);
+object* mk_extern_call_core(object*, object*, object*);
 
 typedef object_ref extern_entry;
 typedef list_ref<extern_entry> extern_entries;
@@ -113,7 +117,39 @@ extern_attr const & get_extern_attr() {
     return static_cast<extern_attr const &>(get_system_attribute("extern"));
 }
 
+bool emit_extern_call_core(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs) {
+    if (std::shared_ptr<extern_attr_data> const & data = get_extern_attr().get(env, fn)) {
+        extern_attr_data_value const & v = data->m_value;
+        inc(v.raw()); inc(backend.raw()); inc(attrs.raw());
+        object * r = mk_extern_call_core(v.raw(), backend.raw(), attrs.raw());
+        if (is_scalar(r)) return false;
+        object * s = cnstr_get(r, 0);
+        out << string_cstr(s);
+        dec(r);
+        return true;
+    } else {
+        return false;
+    }
+}
+
+void emit_extern_call(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs) {
+    if (emit_extern_call_core(out, env, backend, fn, attrs))
+        return;
+    /* TODO(Leo): delete the following backward compatibility code */
+    name _fn = *get_native_constant_cname(env, fn);
+    out << _fn << "(";
+    bool first = true;
+    string_refs it = attrs;
+    while (!empty(it)) {
+        if (first) first = false; else out << ", ";
+        out << string_cstr(head(it).raw());
+        it = tail(it);
+    }
+    out << ")";
+}
+
 void initialize_extern_attribute() {
+    initialize_init_lean_extern(); // Lean module initialization
     register_system_attribute(extern_attr("extern", "builtin and foreign functions",
                                           [](environment const & env, io_state const &, name const &, unsigned, bool persistent) {
                                               if (!persistent) throw exception("invalid [extern] attribute, it must be persistent");

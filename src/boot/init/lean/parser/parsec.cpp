@@ -71,6 +71,7 @@ obj* l_lean_parser_monad__parsec_sep__by1___rarg___closed__1;
 obj* l_lean_parser_monad__parsec_curr___rarg(obj*, obj*);
 obj* l_lean_parser_parsec__t_merge(obj*);
 obj* l_lean_parser_parsec__t_alternative___rarg(obj*, obj*);
+obj* l_string_iterator_remaining___boxed(obj*);
 obj* l_lean_parser_monad__parsec_foldl__aux___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_unexpected__at___spec__1(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_longest__match___rarg___lambda__1(obj*, obj*);
@@ -255,6 +256,7 @@ obj* l___private_31565857__take__while__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_foldr__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_sep__by1___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mfoldr___main___at_lean_parser_monad__parsec_longest__match___spec__2___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_string_iterator_offset___boxed(obj*);
 obj* l_lean_parser_monad__parsec_not__followed__by___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_31565857__take__while__aux___main___at_lean_parser_monad__parsec_take__until___spec__2___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_lower___spec__1(obj*, obj*, obj*);
@@ -3112,7 +3114,7 @@ obj* _init_l_lean_parser_monad__parsec_remaining___rarg___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::string_iterator_remaining), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_string_iterator_remaining___boxed), 1, 0);
 return x_0;
 }
 }
@@ -6711,7 +6713,7 @@ obj* _init_l_lean_parser_monad__parsec_pos___rarg___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::string_iterator_offset), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_string_iterator_offset___boxed), 1, 0);
 return x_0;
 }
 }

@@ -91,6 +91,7 @@ obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier__
 obj* l_lean_parser_id__part__default___rarg(obj*, obj*, obj*);
 uint8 l_lean_is__id__rest(uint32);
 obj* l_lean_parser_monad__parsec_ch___at_lean_parser_identifier___spec__16(obj*, obj*);
+obj* l_string_append___boxed(obj*, obj*);
 obj* l_lean_parser_monad__parsec_foldl___at_lean_parser_identifier___spec__19___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 uint8 l_lean_is__greek(uint32);
 obj* l_lean_parser_c__identifier___rarg(obj*, obj*, obj*);
@@ -4086,7 +4087,7 @@ obj* _init_l_lean_parser_cpp__identifier___rarg___lambda__2___closed__3() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::string_append), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_string_append___boxed), 2, 0);
 return x_0;
 }
 }

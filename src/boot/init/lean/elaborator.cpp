@@ -192,6 +192,7 @@ extern obj* l_lean_parser_command_include;
 obj* l_coe___at_lean_elaborator_command__parser__config_register__notation__parser___spec__4(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_to__pexpr___main___spec__13(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_ordered__rbmap_insert___at_lean_elaborator_variables_elaborate___spec__3(obj*, obj*, obj*);
+obj* l_lean_environment_contains___boxed(obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_to__pexpr___main___spec__17(obj*, obj*, obj*, obj*);
 extern obj* l_lean_name_to__string___closed__1;
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__6(obj*, obj*, obj*);
@@ -462,6 +463,7 @@ obj* l_lean_elaborator_infer__mod__to__pexpr___closed__1;
 extern obj* l_lean_parser_command_section;
 obj* l_list_mfilter___main___at_lean_elaborator_variables_elaborate___spec__4(obj*, obj*, obj*);
 obj* l_reader__t_lift(obj*, obj*, obj*, obj*);
+obj* l_lean_environment_empty___boxed;
 obj* l_lean_elaborator_to__pexpr___main___closed__21;
 obj* l_lean_elaborator_locally___at_lean_elaborator_section_elaborate___spec__2___lambda__4(obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_term_struct__inst__item_has__view;
@@ -527,10 +529,12 @@ obj* l_lean_expander_mk__notation__transformer(obj*, obj*, obj*);
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__2(obj*, obj*, obj*);
 obj* l_lean_elaborator_ordered__rbmap_insert(obj*, obj*, obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__30;
+obj* l_lean_expr_local___boxed(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_mk__eqns(obj*, obj*);
 obj* l_rbmap_insert___main___at_lean_elaborator_old__elab__command___spec__3(obj*, obj*, obj*);
 obj* l_lean_elaborator_locally___rarg___lambda__1(obj*);
 obj* l_lean_elaborator_level__add___main(obj*, obj*);
+obj* l_lean_elaborator_elaborate__command___boxed(obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg(obj*);
 obj* l_lean_expr_mk__capp(obj*, obj*);
 obj* l_list_foldr___main___at_lean_elaborator_to__level___main___spec__4(obj*, obj*);
@@ -638,6 +642,38 @@ obj* l_lean_elaborator_init__quot_elaborate___closed__1;
 obj* l_lean_elaborator_postprocess__notation__spec___closed__1;
 obj* l_lean_elaborator_locally___at_lean_elaborator_section_elaborate___spec__2___closed__2;
 extern obj* l_lean_parser_command_set__option_has__view;
+obj* _init_l_lean_environment_empty___boxed() {
+_start:
+{
+obj* x_0; 
+x_0 = l_lean_environment_empty;
+return x_0;
+}
+}
+obj* l_lean_environment_contains___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean_environment_contains(x_0, x_1);
+return x_2;
+}
+}
+obj* l_lean_expr_local___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean_expr_local(x_0, x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_lean_elaborator_elaborate__command___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean_elaborator_elaborate_command(x_0, x_1, x_2);
+return x_3;
+}
+}
 obj* l_lean_elaborator_ordered__rbmap_empty(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -28220,7 +28256,7 @@ obj* _init_l_lean_elaborator_run___closed__2() {
 _start:
 {
 obj* x_0; 
-x_0 = lean_environment_empty;
+x_0 = l_lean_environment_empty;
 lean::inc(x_0);
 return x_0;
 }
@@ -28667,6 +28703,7 @@ void initialize_init_lean_elaborator() {
  initialize_init_lean_expander();
  initialize_init_lean_expr();
  initialize_init_lean_options();
+ l_lean_environment_empty___boxed = _init_l_lean_environment_empty___boxed();
  l_lean_elaborator_ordered__rbmap_empty___closed__1 = _init_l_lean_elaborator_ordered__rbmap_empty___closed__1();
  l_lean_elaborator_elaborator__t = _init_l_lean_elaborator_elaborator__t();
  l_lean_elaborator_elaborator__m = _init_l_lean_elaborator_elaborator__m();

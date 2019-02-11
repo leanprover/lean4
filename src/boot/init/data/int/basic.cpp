@@ -26,13 +26,17 @@ obj* l_int_fdiv___main(obj*, obj*);
 obj* l_int_has__sub;
 obj* l_int_mul___main(obj*, obj*);
 obj* l_int_nat__abs___main(obj*);
+obj* l_int_add___boxed(obj*, obj*);
 extern uint8 l_false_decidable;
+obj* l_int_neg___boxed(obj*);
 obj* l_int_repr___main(obj*);
 obj* l_int_mod(obj*, obj*);
 obj* l___private_1805987925__nonneg;
 obj* l_int_to__nat___main(obj*);
 obj* l_int_nat__abs___main___closed__1;
+obj* l_int_quot___boxed(obj*, obj*);
 obj* l_int_quot___main(obj*, obj*);
+obj* l_int_sub___boxed(obj*, obj*);
 obj* l___private_3285259795__dec__nonneg___main___boxed(obj*);
 obj* l_int_has__mul;
 obj* l___private_1805987925__nonneg___main;
@@ -40,8 +44,10 @@ obj* l_int_lt;
 obj* l_int_neg__of__nat___main(obj*);
 obj* l_int_has__lt;
 obj* l_int_add___main(obj*, obj*);
+obj* l_int_nat__abs___boxed(obj*);
 obj* l_int_sub__nat__nat(obj*, obj*);
 obj* l_int_dec__lt___boxed(obj*, obj*);
+obj* l_int_rem___boxed(obj*, obj*);
 obj* l_int_zero;
 obj* l_int_has__div;
 obj* l_int_div___main(obj*, obj*);
@@ -66,6 +72,7 @@ obj* l_int_rem___main(obj*, obj*);
 obj* l_int_has__to__string;
 obj* l_int_mod___main(obj*, obj*);
 obj* l_nat_repr(obj*);
+obj* l_int_mul___boxed(obj*, obj*);
 obj* l_int_sign___main(obj*);
 obj* l_int_has__add;
 obj* l_int_le;
@@ -117,6 +124,14 @@ obj* x_0; obj* x_1;
 x_0 = lean::mk_nat_obj(0u);
 x_1 = lean::nat2int(x_0);
 lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_int_nat__abs___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::nat_abs(x_0);
 return x_1;
 }
 }
@@ -420,6 +435,14 @@ return x_14;
 }
 }
 }
+obj* l_int_neg___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::int_neg(x_0);
+return x_1;
+}
+}
 obj* l_int_add___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -497,6 +520,14 @@ lean::dec(x_42);
 return x_45;
 }
 }
+}
+}
+obj* l_int_add___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::int_add(x_0, x_1);
+return x_2;
 }
 }
 obj* l_int_mul___main(obj* x_0, obj* x_1) {
@@ -586,11 +617,19 @@ return x_53;
 }
 }
 }
+obj* l_int_mul___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::int_mul(x_0, x_1);
+return x_2;
+}
+}
 obj* _init_l_int_has__neg() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::int_neg), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_int_neg___boxed), 1, 0);
 return x_0;
 }
 }
@@ -598,7 +637,7 @@ obj* _init_l_int_has__add() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::int_add), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_int_add___boxed), 2, 0);
 return x_0;
 }
 }
@@ -606,15 +645,23 @@ obj* _init_l_int_has__mul() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::int_mul), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_int_mul___boxed), 2, 0);
 return x_0;
+}
+}
+obj* l_int_sub___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::int_sub(x_0, x_1);
+return x_2;
 }
 }
 obj* _init_l_int_has__sub() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::int_sub), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_int_sub___boxed), 2, 0);
 return x_0;
 }
 }
@@ -1171,6 +1218,14 @@ return x_59;
 }
 }
 }
+obj* l_int_quot___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::int_div(x_0, x_1);
+return x_2;
+}
+}
 obj* l_int_rem___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -1262,6 +1317,14 @@ lean::dec(x_57);
 return x_59;
 }
 }
+}
+}
+obj* l_int_rem___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::int_rem(x_0, x_1);
+return x_2;
 }
 }
 obj* _init_l_int_has__div() {

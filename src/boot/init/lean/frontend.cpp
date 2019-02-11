@@ -42,6 +42,7 @@ obj* l_lean_parser_module_parser(obj*, obj*, obj*);
 obj* l_io_prim_iterate___main___at_lean_run__frontend___spec__15(obj*, obj*, obj*);
 extern obj* l_lean_parser_term_builtin__trailing__parsers_lean_parser_has__tokens;
 extern obj* l_lean_parser_term_builtin__leading__parsers;
+obj* l_io_prim_put__str___boxed(obj*, obj*);
 obj* l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__1;
 obj* l_lean_parser_tokens___rarg(obj*);
 obj* l_lean_run__elaborator___rarg(obj*, obj*);
@@ -503,7 +504,7 @@ obj* l___private_3644302523__put__str___at_lean_run__frontend___spec__5(obj* x_0
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(lean::io_prim_put_str), 2, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_put__str___boxed), 2, 1);
 lean::closure_set(x_2, 0, x_0);
 x_3 = l_io_prim_lift__eio___at_lean_run__frontend___spec__6(x_2, x_1);
 return x_3;

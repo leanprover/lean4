@@ -18,6 +18,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_nat_mul___main(obj*, obj*);
 obj* l_nat_has__sub;
+obj* l_nat_mul___boxed(obj*, obj*);
 obj* l_nat_max(obj*, obj*);
 obj* l_nat_le__refl;
 obj* l_nat_beq___main(obj*, obj*);
@@ -44,6 +45,7 @@ obj* l_nat_dec__le___boxed(obj*, obj*);
 obj* l_nat_beq(obj*, obj*);
 obj* l_nat_repeat__core(obj*);
 obj* l_nat_pred(obj*);
+obj* l_nat_sub___boxed(obj*, obj*);
 obj* l_nat_has__le;
 obj* l_nat_le;
 obj* l_nat_ble___main(obj*, obj*);
@@ -278,6 +280,14 @@ return x_0;
 }
 }
 }
+obj* l_nat_sub___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::nat_sub(x_0, x_1);
+return x_2;
+}
+}
 obj* l_nat_mul___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -309,11 +319,19 @@ return x_16;
 }
 }
 }
+obj* l_nat_mul___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::nat_mul(x_0, x_1);
+return x_2;
+}
+}
 obj* _init_l_nat_has__sub() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_sub), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_sub___boxed), 2, 0);
 return x_0;
 }
 }
@@ -321,7 +339,7 @@ obj* _init_l_nat_has__mul() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_mul), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_mul___boxed), 2, 0);
 return x_0;
 }
 }

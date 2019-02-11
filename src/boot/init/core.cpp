@@ -52,6 +52,7 @@ obj* l_std_priority_max;
 obj* l_quot_rec___rarg(obj*, obj*, obj*);
 obj* l_or_intro__right;
 obj* l_ne;
+obj* l_thunk_pure___boxed(obj*, obj*);
 obj* l_prod_has__lt(obj*, obj*, obj*, obj*);
 obj* l_eq_ndrec__on(obj*, obj*, obj*, obj*, obj*);
 obj* l_inline(obj*);
@@ -71,6 +72,7 @@ obj* l_flip___rarg(obj*, obj*, obj*);
 obj* l_sigma_has__sizeof(obj*, obj*);
 obj* l_id__delta___rarg(obj*);
 obj* l_bool_has__sizeof;
+obj* l_thunk_get___boxed(obj*, obj*);
 obj* l_prod_map(obj*, obj*, obj*, obj*);
 obj* l_subtype_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_prod__has__decidable__lt(obj*, obj*, obj*, obj*);
@@ -99,6 +101,7 @@ obj* l_or_symm;
 obj* l_sum_sizeof___main(obj*, obj*);
 obj* l_prod_decidable__eq___rarg___boxed(obj*, obj*, obj*, obj*);
 uint8 l_bxor___main(uint8, uint8);
+obj* l_nat_add___boxed(obj*, obj*);
 obj* l_of__as__true;
 obj* l_quotient_decidable__eq___rarg(obj*, obj*, obj*, obj*);
 obj* l_sigma_sizeof___main___at_sigma_has__sizeof___spec__2___rarg(obj*, obj*, obj*);
@@ -368,6 +371,7 @@ obj* l_psum_sizeof___main(obj*, obj*);
 obj* l___private_4253352285__extfun__app(obj*, obj*);
 obj* l_decidable__of__decidable__eq(obj*);
 obj* l_cond(obj*);
+obj* l_thunk_map___boxed(obj*, obj*, obj*, obj*);
 obj* l_rfl;
 obj* l_true_inhabited;
 obj* l_subrelation;
@@ -384,6 +388,7 @@ obj* l_forall__prop__decidable(obj*, obj*);
 uint8 l_and_decidable___rarg(obj*, obj*);
 obj* l_combinator_K(obj*, obj*);
 obj* l_quotient_lift__on(obj*, obj*, obj*);
+obj* l_thunk_bind___boxed(obj*, obj*, obj*, obj*);
 obj* l_irreflexive;
 obj* l_false_elim(obj*, uint8);
 obj* l_option_sizeof___rarg(obj*, obj*);
@@ -515,6 +520,38 @@ _start:
 obj* x_0; 
 x_0 = lean::box(0);
 return x_0;
+}
+}
+obj* l_thunk_pure___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::thunk_pure(x_1);
+return x_2;
+}
+}
+obj* l_thunk_get___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::thunk_get(x_1);
+return x_2;
+}
+}
+obj* l_thunk_map___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::thunk_map(x_2, x_3);
+return x_4;
+}
+}
+obj* l_thunk_bind___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::thunk_bind(x_2, x_3);
+return x_4;
 }
 }
 obj* l_task_pure___rarg(obj* x_0, obj* x_1) {
@@ -846,6 +883,14 @@ return x_0;
 }
 }
 }
+obj* l_nat_add___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::nat_add(x_0, x_1);
+return x_2;
+}
+}
 obj* _init_l_nat_has__zero() {
 _start:
 {
@@ -866,7 +911,7 @@ obj* _init_l_nat_has__add() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::nat_add), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_add___boxed), 2, 0);
 return x_0;
 }
 }

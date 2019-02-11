@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/string.h"
 #include "library/trace.h"
+#include "library/compiler/borrowed_annotation.h"
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
@@ -556,6 +557,11 @@ static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos
     return p.mk_sorry(pos);
 }
 
+static expr parse_borrowed_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
+    expr e = p.parse_expr();
+    return p.save_pos(mk_borrowed(e), pos);
+}
+
 // We have disabled the SMT frontend
 // static expr parse_pattern(parser & p, unsigned, expr const * args, pos_info const & pos) {
 //    return p.save_pos(mk_pattern_hint(args[0]), pos);
@@ -997,6 +1003,7 @@ parse_table init_nud_table() {
     r = r.add({transition("let", mk_ext_action(parse_let_expr))}, x0);
     r = r.add({transition("@", mk_ext_action(parse_explicit_expr))}, x0);
     r = r.add({transition("@@", mk_ext_action(parse_partial_explicit_expr))}, x0);
+    r = r.add({transition("@&", mk_ext_action(parse_borrowed_expr))}, x0);
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);

@@ -12,15 +12,23 @@ def uint8_sz : nat := 256
 structure uint8 :=
 (val : fin uint8_sz)
 
-def uint8.of_nat (n : nat) : uint8 := ⟨fin.of_nat n⟩
+@[extern cpp "lean::uint8_of_nat"]
+def uint8.of_nat (n : @& nat) : uint8 := ⟨fin.of_nat n⟩
 def uint8.to_nat (n : uint8) : nat := n.val.val
+@[extern cpp inline "#1 + #2"]
 def uint8.add (a b : uint8) : uint8 := ⟨a.val + b.val⟩
+@[extern cpp inline "#1 - #2"]
 def uint8.sub (a b : uint8) : uint8 := ⟨a.val - b.val⟩
+@[extern cpp inline "#1 * #2"]
 def uint8.mul (a b : uint8) : uint8 := ⟨a.val * b.val⟩
+@[extern cpp inline "#1 == 0 ? 0 : #1 / #2"]
 def uint8.div (a b : uint8) : uint8 := ⟨a.val / b.val⟩
+@[extern cpp inline "#1 == 0 ? 0 : #1 % #2"]
 def uint8.mod (a b : uint8) : uint8 := ⟨a.val % b.val⟩
 def uint8.modn (a : uint8) (n : nat) : uint8 := ⟨a.val %ₙ n⟩
+@[extern cpp inline "#1 < #2"]
 def uint8.lt (a b : uint8) : Prop := a.val < b.val
+@[extern cpp inline "#1 <= #2"]
 def uint8.le (a b : uint8) : Prop := a.val ≤ b.val
 
 instance : has_zero uint8     := ⟨uint8.of_nat 0⟩

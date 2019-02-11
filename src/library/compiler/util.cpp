@@ -447,6 +447,8 @@ expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
                 return e;
             } else if (c == get_char_name()) {
                 return mk_constant(get_uint32_name());
+            } else if (c == get_usize_name()) {
+                return e;
             } else if (optional<unsigned> nbytes = is_enum_type(st.env(), c)) {
                 return *to_uint_type(*nbytes);
             } else {

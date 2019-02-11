@@ -671,6 +671,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3644302523__put__s
 return x_4;
 }
 }
+obj* _init_l_io_println___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("\n");
+return x_0;
+}
+}
 obj* l_io_println___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
@@ -691,14 +699,6 @@ lean::inc(x_18);
 x_20 = l___private_3644302523__put__str___at_io_println___spec__1___rarg(x_0, x_1, x_2, x_3, x_18);
 x_21 = lean::apply_4(x_10, lean::box(0), lean::box(0), x_17, x_20);
 return x_21;
-}
-}
-obj* _init_l_io_println___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("\n");
-return x_0;
 }
 }
 obj* l_io_println(obj* x_0, obj* x_1) {
@@ -1775,6 +1775,14 @@ x_2 = lean::apply_1(x_0, x_1);
 return x_2;
 }
 }
+obj* _init_l_eio_has__eval___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("Error: ");
+return x_0;
+}
+}
 obj* l_eio_has__eval___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -1810,14 +1818,6 @@ lean::dec(x_5);
 x_24 = lean::apply_2(x_1, x_21, x_7);
 return x_24;
 }
-}
-}
-obj* _init_l_eio_has__eval___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("Error: ");
-return x_0;
 }
 }
 obj* l_eio_has__eval(obj* x_0, obj* x_1) {
@@ -1998,6 +1998,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_read___rarg), 
 return x_4;
 }
 }
+obj* _init_l_coroutine__io_yield___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_yield___rarg___lambda__1), 2, 0);
+return x_0;
+}
+}
 obj* l_coroutine__io_yield___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -2012,14 +2020,6 @@ x_7 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_7, 0, x_6);
 lean::cnstr_set(x_7, 1, x_2);
 return x_7;
-}
-}
-obj* _init_l_coroutine__io_yield___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_yield___rarg___lambda__1), 2, 0);
-return x_0;
 }
 }
 obj* l_coroutine__io_yield___rarg___lambda__1(obj* x_0, obj* x_1) {
@@ -2303,17 +2303,6 @@ x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_pipe___rarg), 
 return x_8;
 }
 }
-obj* l_coroutine__io_monad(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = l_coroutine__io_monad___closed__1;
-lean::inc(x_4);
-return x_4;
-}
-}
 obj* _init_l_coroutine__io_monad___closed__1() {
 _start:
 {
@@ -2344,6 +2333,25 @@ lean::cnstr_set(x_9, 1, x_8);
 return x_9;
 }
 }
+obj* l_coroutine__io_monad(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_4 = l_coroutine__io_monad___closed__1;
+lean::inc(x_4);
+return x_4;
+}
+}
+obj* _init_l_coroutine__io_monad___lambda__1___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_pure___rarg), 3, 0);
+return x_0;
+}
+}
 obj* l_coroutine__io_monad___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -2359,14 +2367,6 @@ x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_bind___main___
 lean::closure_set(x_9, 0, x_3);
 lean::closure_set(x_9, 1, x_8);
 return x_9;
-}
-}
-obj* _init_l_coroutine__io_monad___lambda__1___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_pure___rarg), 3, 0);
-return x_0;
 }
 }
 obj* l_coroutine__io_monad___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

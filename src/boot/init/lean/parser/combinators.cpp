@@ -497,6 +497,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_er
 return x_4;
 }
 }
+obj* _init_l___private_1297690757__many1__aux___main___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("unreachable");
+return x_0;
+}
+}
 obj* l___private_1297690757__many1__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
@@ -551,14 +559,6 @@ lean::inc(x_32);
 x_37 = l_lean_parser_monad__parsec_error___at___private_1297690757__many1__aux___main___spec__1___rarg(x_2, lean::box(0), x_32, x_33, x_31, x_31);
 return x_37;
 }
-}
-}
-obj* _init_l___private_1297690757__many1__aux___main___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("unreachable");
-return x_0;
 }
 }
 obj* l___private_1297690757__many1__aux___main___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
@@ -810,6 +810,17 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_combinators_many
 return x_4;
 }
 }
+obj* _init_l_lean_parser_combinators_many___rarg___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_3; 
+x_0 = lean::box(0);
+x_1 = l_lean_parser_no__kind;
+lean::inc(x_1);
+x_3 = l_lean_parser_syntax_mk__node(x_1, x_0);
+return x_3;
+}
+}
 obj* l_lean_parser_combinators_many___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -829,17 +840,6 @@ lean::inc(x_15);
 x_17 = lean::apply_2(x_12, lean::box(0), x_15);
 x_18 = lean::apply_3(x_5, lean::box(0), x_8, x_17);
 return x_18;
-}
-}
-obj* _init_l_lean_parser_combinators_many___rarg___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_3; 
-x_0 = lean::box(0);
-x_1 = l_lean_parser_no__kind;
-lean::inc(x_1);
-x_3 = l_lean_parser_syntax_mk__node(x_1, x_0);
-return x_3;
 }
 }
 obj* l_lean_parser_combinators_many(obj* x_0) {
@@ -2855,6 +2855,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_er
 return x_4;
 }
 }
+obj* _init_l_lean_parser_combinators_any__of___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("any_of");
+return x_0;
+}
+}
 obj* l_lean_parser_combinators_any__of___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -2890,14 +2898,6 @@ x_25 = lean::apply_1(x_22, lean::box(0));
 x_26 = l_list_foldl___main___rarg(x_25, x_17, x_19);
 return x_26;
 }
-}
-}
-obj* _init_l_lean_parser_combinators_any__of___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("any_of");
-return x_0;
 }
 }
 obj* l_lean_parser_combinators_any__of(obj* x_0) {
@@ -3116,6 +3116,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_er
 return x_4;
 }
 }
+obj* _init_l_lean_parser_combinators_choice__aux___main___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("choice: empty list");
+return x_0;
+}
+}
 obj* l_lean_parser_combinators_choice__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -3161,14 +3169,6 @@ x_33 = l_lean_parser_combinators_choice__aux___main___rarg(x_0, x_1, x_2, x_18, 
 x_34 = lean::apply_3(x_21, lean::box(0), x_28, x_33);
 return x_34;
 }
-}
-}
-obj* _init_l_lean_parser_combinators_choice__aux___main___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("choice: empty list");
-return x_0;
 }
 }
 obj* l_lean_parser_combinators_choice__aux___main___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {

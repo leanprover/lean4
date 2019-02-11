@@ -123,16 +123,6 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_mk__array___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_array_nil(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = l_array_nil___closed__1;
-lean::inc(x_2);
-return x_2;
-}
-}
 obj* _init_l_array_nil___closed__1() {
 _start:
 {
@@ -142,6 +132,16 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_array_nil___lambda__1), 1, 0
 x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
 lean::cnstr_set(x_2, 1, x_1);
+return x_2;
+}
+}
+obj* l_array_nil(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = l_array_nil___closed__1;
+lean::inc(x_2);
 return x_2;
 }
 }
@@ -761,6 +761,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_array_rev__foldl___rarg), 3,
 return x_4;
 }
 }
+obj* _init_l_array_to__list___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_array_to__list___rarg___lambda__1), 2, 0);
+return x_0;
+}
+}
 obj* l_array_to__list___rarg(obj* x_0) {
 _start:
 {
@@ -770,14 +778,6 @@ x_2 = l_array_to__list___rarg___closed__1;
 lean::inc(x_2);
 x_4 = l_array_rev__foldl___rarg(x_0, x_1, x_2);
 return x_4;
-}
-}
-obj* _init_l_array_to__list___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_array_to__list___rarg___lambda__1), 2, 0);
-return x_0;
 }
 }
 obj* l_array_to__list___rarg___lambda__1(obj* x_0, obj* x_1) {
@@ -799,6 +799,14 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_array_to__list___rarg), 1, 0
 return x_2;
 }
 }
+obj* _init_l_array_has__repr___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_array_to__list___rarg), 1, 0);
+return x_0;
+}
+}
 obj* l_array_has__repr___rarg(obj* x_0) {
 _start:
 {
@@ -811,14 +819,6 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2)
 lean::closure_set(x_4, 0, x_1);
 lean::closure_set(x_4, 1, x_2);
 return x_4;
-}
-}
-obj* _init_l_array_has__repr___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_array_to__list___rarg), 1, 0);
-return x_0;
 }
 }
 obj* l_array_has__repr(obj* x_0) {

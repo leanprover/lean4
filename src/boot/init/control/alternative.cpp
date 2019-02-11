@@ -19,12 +19,14 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_guardb___rarg___boxed(obj*, obj*);
 obj* l_guard(obj*);
 obj* l_guardb___main(obj*);
-obj* l_assert___rarg(obj*, obj*, obj*);
+obj* l_assert___rarg(obj*, obj*, uint8);
 obj* l_guardb___main___rarg___boxed(obj*, obj*);
 obj* l_optional___rarg___lambda__1(obj*);
-obj* l_guard___rarg(obj*, obj*, obj*);
+obj* l_guard___rarg(obj*, obj*, uint8);
 obj* l_assert(obj*);
+obj* l_guard___rarg___boxed(obj*, obj*, obj*);
 obj* l_guardb___main___rarg(obj*, uint8);
+obj* l_assert___rarg___boxed(obj*, obj*, obj*);
 obj* l_optional___rarg(obj*, obj*, obj*);
 obj* l_failure___rarg(obj*, obj*);
 obj* l_failure(obj*);
@@ -53,34 +55,31 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_failure___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_guard___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_guard___rarg(obj* x_0, obj* x_1, uint8 x_2) {
 _start:
 {
-uint8 x_4; 
 lean::dec(x_1);
-x_4 = lean::unbox(x_2);
-lean::dec(x_2);
-if (x_4 == 0)
+if (x_2 == 0)
 {
-obj* x_6; obj* x_9; 
-x_6 = lean::cnstr_get(x_0, 2);
-lean::inc(x_6);
+obj* x_4; obj* x_7; 
+x_4 = lean::cnstr_get(x_0, 2);
+lean::inc(x_4);
 lean::dec(x_0);
-x_9 = lean::apply_1(x_6, lean::box(0));
-return x_9;
+x_7 = lean::apply_1(x_4, lean::box(0));
+return x_7;
 }
 else
 {
-obj* x_10; obj* x_13; obj* x_16; obj* x_17; 
-x_10 = lean::cnstr_get(x_0, 0);
-lean::inc(x_10);
+obj* x_8; obj* x_11; obj* x_14; obj* x_15; 
+x_8 = lean::cnstr_get(x_0, 0);
+lean::inc(x_8);
 lean::dec(x_0);
-x_13 = lean::cnstr_get(x_10, 1);
-lean::inc(x_13);
-lean::dec(x_10);
-x_16 = lean::box(0);
-x_17 = lean::apply_2(x_13, lean::box(0), x_16);
-return x_17;
+x_11 = lean::cnstr_get(x_8, 1);
+lean::inc(x_11);
+lean::dec(x_8);
+x_14 = lean::box(0);
+x_15 = lean::apply_2(x_11, lean::box(0), x_14);
+return x_15;
 }
 }
 }
@@ -89,37 +88,43 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_guard___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_guard___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-obj* l_assert___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_guard___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-uint8 x_4; 
-lean::dec(x_1);
-x_4 = lean::unbox(x_2);
-lean::dec(x_2);
-if (x_4 == 0)
+uint8 x_3; obj* x_4; 
+x_3 = lean::unbox(x_2);
+x_4 = l_guard___rarg(x_0, x_1, x_3);
+return x_4;
+}
+}
+obj* l_assert___rarg(obj* x_0, obj* x_1, uint8 x_2) {
+_start:
 {
-obj* x_6; obj* x_9; 
-x_6 = lean::cnstr_get(x_0, 2);
-lean::inc(x_6);
+lean::dec(x_1);
+if (x_2 == 0)
+{
+obj* x_4; obj* x_7; 
+x_4 = lean::cnstr_get(x_0, 2);
+lean::inc(x_4);
 lean::dec(x_0);
-x_9 = lean::apply_1(x_6, lean::box(0));
-return x_9;
+x_7 = lean::apply_1(x_4, lean::box(0));
+return x_7;
 }
 else
 {
-obj* x_10; obj* x_13; obj* x_16; 
-x_10 = lean::cnstr_get(x_0, 0);
-lean::inc(x_10);
+obj* x_8; obj* x_11; obj* x_14; 
+x_8 = lean::cnstr_get(x_0, 0);
+lean::inc(x_8);
 lean::dec(x_0);
-x_13 = lean::cnstr_get(x_10, 1);
-lean::inc(x_13);
-lean::dec(x_10);
-x_16 = lean::apply_2(x_13, lean::box(0), lean::box(0));
-return x_16;
+x_11 = lean::cnstr_get(x_8, 1);
+lean::inc(x_11);
+lean::dec(x_8);
+x_14 = lean::apply_2(x_11, lean::box(0), lean::box(0));
+return x_14;
 }
 }
 }
@@ -128,8 +133,17 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_assert___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_assert___rarg___boxed), 3, 0);
 return x_2;
+}
+}
+obj* l_assert___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; obj* x_4; 
+x_3 = lean::unbox(x_2);
+x_4 = l_assert___rarg(x_0, x_1, x_3);
+return x_4;
 }
 }
 obj* l_guardb___main___rarg(obj* x_0, uint8 x_1) {
@@ -222,6 +236,14 @@ x_3 = l_guardb___rarg(x_0, x_2);
 return x_3;
 }
 }
+obj* _init_l_optional___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_optional___rarg___lambda__1), 1, 0);
+return x_0;
+}
+}
 obj* l_optional___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -247,14 +269,6 @@ x_20 = lean::box(0);
 x_21 = lean::apply_2(x_17, lean::box(0), x_20);
 x_22 = lean::apply_3(x_4, lean::box(0), x_16, x_21);
 return x_22;
-}
-}
-obj* _init_l_optional___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_optional___rarg___lambda__1), 1, 0);
-return x_0;
 }
 }
 obj* l_optional___rarg___lambda__1(obj* x_0) {

@@ -118,6 +118,14 @@ x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_state__t_run___rarg), 2, 0);
 return x_6;
 }
 }
+obj* _init_l_state__t_run_x_27___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_state__t_run_x_27___rarg___lambda__1), 1, 0);
+return x_0;
+}
+}
 obj* l_state__t_run_x_27___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -131,14 +139,6 @@ x_9 = l_state__t_run_x_27___rarg___closed__1;
 lean::inc(x_9);
 x_11 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_9, x_8);
 return x_11;
-}
-}
-obj* _init_l_state__t_run_x_27___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_state__t_run_x_27___rarg___lambda__1), 1, 0);
-return x_0;
 }
 }
 obj* l_state__t_run_x_27___rarg___lambda__1(obj* x_0) {

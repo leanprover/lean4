@@ -815,6 +815,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_rbtree_max___rarg), 1, 0);
 return x_4;
 }
 }
+obj* _init_l_rbtree_has__repr___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("rbtree_of ");
+return x_0;
+}
+}
 obj* l_rbtree_has__repr___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -826,14 +834,6 @@ lean::inc(x_4);
 x_6 = lean::string_append(x_4, x_3);
 lean::dec(x_3);
 return x_6;
-}
-}
-obj* _init_l_rbtree_has__repr___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("rbtree_of ");
-return x_0;
 }
 }
 obj* l_rbtree_has__repr(obj* x_0, obj* x_1) {

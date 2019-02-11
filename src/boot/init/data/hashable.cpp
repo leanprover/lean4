@@ -23,18 +23,9 @@ obj* l_nat_hashable;
 obj* l_nat_hash___boxed(obj*);
 obj* l_mix__hash___boxed(obj*, obj*);
 usize l_nat_hash(obj*);
-obj* l_mix__hash(usize, usize);
+usize l_mix__hash(usize, usize);
 obj* l_string_hash___boxed(obj*);
 usize l_mix__hash___closed__1;
-obj* l_mix__hash(usize x_0, usize x_1) {
-_start:
-{
-usize x_2; obj* x_3; 
-x_2 = l_mix__hash___closed__1;
-x_3 = lean::box_size_t(x_2);
-return x_3;
-}
-}
 usize _init_l_mix__hash___closed__1() {
 _start:
 {
@@ -45,14 +36,12 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_mix__hash___boxed(obj* x_0, obj* x_1) {
+usize l_mix__hash(usize x_0, usize x_1) {
 _start:
 {
-usize x_2; usize x_3; obj* x_4; 
-x_2 = lean::unbox_size_t(x_0);
-x_3 = lean::unbox_size_t(x_1);
-x_4 = l_mix__hash(x_2, x_3);
-return x_4;
+usize x_2; 
+x_2 = l_mix__hash___closed__1;
+return x_2;
 }
 }
 obj* _init_l_mix__hash___closed__1___boxed() {
@@ -62,6 +51,17 @@ usize x_0; obj* x_1;
 x_0 = l_mix__hash___closed__1;
 x_1 = lean::box_size_t(x_0);
 return x_1;
+}
+}
+obj* l_mix__hash___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+usize x_2; usize x_3; usize x_4; obj* x_5; 
+x_2 = lean::unbox_size_t(x_0);
+x_3 = lean::unbox_size_t(x_1);
+x_4 = l_mix__hash(x_2, x_3);
+x_5 = lean::box_size_t(x_4);
+return x_5;
 }
 }
 usize l_string_hash(obj* x_0) {

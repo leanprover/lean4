@@ -269,6 +269,14 @@ x_14 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_12, x_13);
 return x_14;
 }
 }
+obj* _init_l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("rec_t.run_parsec: no progress");
+return x_0;
+}
+}
 obj* l_lean_parser_rec__t_run__parsec___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -283,14 +291,6 @@ lean::inc(x_7);
 lean::inc(x_6);
 x_11 = l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg(x_1, lean::box(0), x_6, x_7, x_5, x_5);
 return x_11;
-}
-}
-obj* _init_l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("rec_t.run_parsec: no progress");
-return x_0;
 }
 }
 obj* l_lean_parser_rec__t_run__parsec___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {

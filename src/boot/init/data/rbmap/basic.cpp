@@ -3830,6 +3830,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_list_repr___main___at_rbmap_
 return x_4;
 }
 }
+obj* _init_l_rbmap_has__repr___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("rbmap_of ");
+return x_0;
+}
+}
 obj* l_rbmap_has__repr___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -3841,14 +3849,6 @@ lean::inc(x_5);
 x_7 = lean::string_append(x_5, x_4);
 lean::dec(x_4);
 return x_7;
-}
-}
-obj* _init_l_rbmap_has__repr___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("rbmap_of ");
-return x_0;
 }
 }
 obj* l_rbmap_has__repr(obj* x_0, obj* x_1, obj* x_2) {

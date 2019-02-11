@@ -21,6 +21,14 @@ obj* l_monad__fail__lift___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_match__failed___rarg(obj*);
 obj* l_match__failed(obj*, obj*);
 obj* l_match__failed___rarg___closed__1;
+obj* _init_l_match__failed___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("match failed");
+return x_0;
+}
+}
 obj* l_match__failed___rarg(obj* x_0) {
 _start:
 {
@@ -29,14 +37,6 @@ x_1 = l_match__failed___rarg___closed__1;
 lean::inc(x_1);
 x_3 = lean::apply_2(x_0, lean::box(0), x_1);
 return x_3;
-}
-}
-obj* _init_l_match__failed___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("match failed");
-return x_0;
 }
 }
 obj* l_match__failed(obj* x_0, obj* x_1) {

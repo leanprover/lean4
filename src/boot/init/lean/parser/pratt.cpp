@@ -171,6 +171,14 @@ x_12 = lean::apply_4(x_8, lean::box(0), lean::box(0), x_7, x_11);
 return x_12;
 }
 }
+obj* _init_l_lean_parser_curr__lbp___rarg___lambda__1___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("curr_lbp: unreachable");
+return x_0;
+}
+}
 obj* l_lean_parser_curr__lbp___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -208,14 +216,6 @@ return x_26;
 }
 }
 }
-obj* _init_l_lean_parser_curr__lbp___rarg___lambda__1___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("curr_lbp: unreachable");
-return x_0;
-}
-}
 obj* l_lean_parser_curr__lbp___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
@@ -239,6 +239,28 @@ lean::closure_set(x_18, 2, x_3);
 lean::closure_set(x_18, 3, x_13);
 x_19 = lean::apply_4(x_4, lean::box(0), lean::box(0), x_17, x_18);
 return x_19;
+}
+}
+obj* _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_0 = lean::box(0);
+x_1 = lean::mk_string("lean");
+x_2 = lean::name_mk_string(x_0, x_1);
+x_3 = lean::mk_string("parser");
+x_4 = lean::name_mk_string(x_2, x_3);
+x_5 = lean::mk_string("string_lit");
+x_6 = lean::name_mk_string(x_4, x_5);
+return x_6;
+}
+}
+obj* _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__2() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("curr_lbp: unknown token kind");
+return x_0;
 }
 }
 obj* l_lean_parser_curr__lbp___rarg___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
@@ -392,28 +414,6 @@ return x_99;
 }
 }
 }
-}
-}
-obj* _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-x_0 = lean::box(0);
-x_1 = lean::mk_string("lean");
-x_2 = lean::name_mk_string(x_0, x_1);
-x_3 = lean::mk_string("parser");
-x_4 = lean::name_mk_string(x_2, x_3);
-x_5 = lean::mk_string("string_lit");
-x_6 = lean::name_mk_string(x_4, x_5);
-return x_6;
-}
-}
-obj* _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__2() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("curr_lbp: unknown token kind");
-return x_0;
 }
 }
 obj* l_lean_parser_curr__lbp(obj* x_0) {

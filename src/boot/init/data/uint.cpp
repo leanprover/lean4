@@ -489,7 +489,7 @@ _start:
 uint16 x_2; uint16 x_3; uint16 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_add(x_2, x_3);
+x_4 = x_2 + x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -500,7 +500,7 @@ _start:
 uint16 x_2; uint16 x_3; uint16 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_sub(x_2, x_3);
+x_4 = x_2 - x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -511,7 +511,7 @@ _start:
 uint16 x_2; uint16 x_3; uint16 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_mul(x_2, x_3);
+x_4 = x_2 * x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -522,7 +522,7 @@ _start:
 uint16 x_2; uint16 x_3; uint16 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_div(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 / x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -533,7 +533,7 @@ _start:
 uint16 x_2; uint16 x_3; uint16 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_mod(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 % x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -693,7 +693,7 @@ _start:
 uint16 x_2; uint16 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_dec_eq(x_2, x_3);
+x_4 = x_2 == x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -704,7 +704,7 @@ _start:
 uint16 x_2; uint16 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_dec_lt(x_2, x_3);
+x_4 = x_2 < x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -715,7 +715,7 @@ _start:
 uint16 x_2; uint16 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = lean::uint16_dec_le(x_2, x_3);
+x_4 = x_2 <= x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -732,7 +732,7 @@ uint8 l_uint16_has__decidable__lt(uint16 x_0, uint16 x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::uint16_dec_lt(x_0, x_1);
+x_2 = x_0 < x_1;
 return x_2;
 }
 }
@@ -751,7 +751,7 @@ uint8 l_uint16_has__decidable__le(uint16 x_0, uint16 x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::uint16_dec_le(x_0, x_1);
+x_2 = x_0 <= x_1;
 return x_2;
 }
 }
@@ -798,7 +798,7 @@ _start:
 uint32 x_2; uint32 x_3; uint32 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_add(x_2, x_3);
+x_4 = x_2 + x_3;
 x_5 = lean::box_uint32(x_4);
 return x_5;
 }
@@ -809,7 +809,7 @@ _start:
 uint32 x_2; uint32 x_3; uint32 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_sub(x_2, x_3);
+x_4 = x_2 - x_3;
 x_5 = lean::box_uint32(x_4);
 return x_5;
 }
@@ -820,7 +820,7 @@ _start:
 uint32 x_2; uint32 x_3; uint32 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_mul(x_2, x_3);
+x_4 = x_2 * x_3;
 x_5 = lean::box_uint32(x_4);
 return x_5;
 }
@@ -831,7 +831,7 @@ _start:
 uint32 x_2; uint32 x_3; uint32 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_div(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 / x_3;
 x_5 = lean::box_uint32(x_4);
 return x_5;
 }
@@ -842,7 +842,7 @@ _start:
 uint32 x_2; uint32 x_3; uint32 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_mod(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 % x_3;
 x_5 = lean::box_uint32(x_4);
 return x_5;
 }
@@ -1002,7 +1002,7 @@ _start:
 uint32 x_2; uint32 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_dec_eq(x_2, x_3);
+x_4 = x_2 == x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -1013,7 +1013,7 @@ _start:
 uint32 x_2; uint32 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_dec_lt(x_2, x_3);
+x_4 = x_2 < x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -1024,7 +1024,7 @@ _start:
 uint32 x_2; uint32 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::unbox_uint32(x_1);
-x_4 = lean::uint32_dec_le(x_2, x_3);
+x_4 = x_2 <= x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -1041,7 +1041,7 @@ uint8 l_uint32_has__decidable__lt(uint32 x_0, uint32 x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::uint32_dec_lt(x_0, x_1);
+x_2 = x_0 < x_1;
 return x_2;
 }
 }
@@ -1060,7 +1060,7 @@ uint8 l_uint32_has__decidable__le(uint32 x_0, uint32 x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::uint32_dec_le(x_0, x_1);
+x_2 = x_0 <= x_1;
 return x_2;
 }
 }
@@ -1107,7 +1107,7 @@ _start:
 uint64 x_2; uint64 x_3; uint64 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_add(x_2, x_3);
+x_4 = x_2 + x_3;
 x_5 = lean::box_uint64(x_4);
 return x_5;
 }
@@ -1118,7 +1118,7 @@ _start:
 uint64 x_2; uint64 x_3; uint64 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_sub(x_2, x_3);
+x_4 = x_2 - x_3;
 x_5 = lean::box_uint64(x_4);
 return x_5;
 }
@@ -1129,7 +1129,7 @@ _start:
 uint64 x_2; uint64 x_3; uint64 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_mul(x_2, x_3);
+x_4 = x_2 * x_3;
 x_5 = lean::box_uint64(x_4);
 return x_5;
 }
@@ -1140,7 +1140,7 @@ _start:
 uint64 x_2; uint64 x_3; uint64 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_div(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 / x_3;
 x_5 = lean::box_uint64(x_4);
 return x_5;
 }
@@ -1151,7 +1151,7 @@ _start:
 uint64 x_2; uint64 x_3; uint64 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_mod(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 % x_3;
 x_5 = lean::box_uint64(x_4);
 return x_5;
 }
@@ -1311,7 +1311,7 @@ _start:
 uint64 x_2; uint64 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_dec_eq(x_2, x_3);
+x_4 = x_2 == x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -1322,7 +1322,7 @@ _start:
 uint64 x_2; uint64 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_dec_lt(x_2, x_3);
+x_4 = x_2 < x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -1333,7 +1333,7 @@ _start:
 uint64 x_2; uint64 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::unbox_uint64(x_1);
-x_4 = lean::uint64_dec_le(x_2, x_3);
+x_4 = x_2 <= x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -1350,7 +1350,7 @@ uint8 l_uint64_has__decidable__lt(uint64 x_0, uint64 x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::uint64_dec_lt(x_0, x_1);
+x_2 = x_0 < x_1;
 return x_2;
 }
 }
@@ -1369,7 +1369,7 @@ uint8 l_uint64_has__decidable__le(uint64 x_0, uint64 x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::uint64_dec_le(x_0, x_1);
+x_2 = x_0 <= x_1;
 return x_2;
 }
 }

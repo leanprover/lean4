@@ -86,7 +86,7 @@ _start:
 usize x_2; usize x_3; usize x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_add(x_2, x_3);
+x_4 = x_2 + x_3;
 x_5 = lean::box_size_t(x_4);
 return x_5;
 }
@@ -97,7 +97,7 @@ _start:
 usize x_2; usize x_3; usize x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_sub(x_2, x_3);
+x_4 = x_2 - x_3;
 x_5 = lean::box_size_t(x_4);
 return x_5;
 }
@@ -108,7 +108,7 @@ _start:
 usize x_2; usize x_3; usize x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_mul(x_2, x_3);
+x_4 = x_2 * x_3;
 x_5 = lean::box_size_t(x_4);
 return x_5;
 }
@@ -119,7 +119,7 @@ _start:
 usize x_2; usize x_3; usize x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_div(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 / x_3;
 x_5 = lean::box_size_t(x_4);
 return x_5;
 }
@@ -130,7 +130,7 @@ _start:
 usize x_2; usize x_3; usize x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_mod(x_2, x_3);
+x_4 = x_3 == 0 ? 0 : x_2 % x_3;
 x_5 = lean::box_size_t(x_4);
 return x_5;
 }
@@ -290,7 +290,7 @@ _start:
 usize x_2; usize x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_dec_eq(x_2, x_3);
+x_4 = x_2 == x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -301,7 +301,7 @@ _start:
 usize x_2; usize x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_dec_lt(x_2, x_3);
+x_4 = x_2 < x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -312,7 +312,7 @@ _start:
 usize x_2; usize x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox_size_t(x_0);
 x_3 = lean::unbox_size_t(x_1);
-x_4 = lean::usize_dec_le(x_2, x_3);
+x_4 = x_2 <= x_3;
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -329,7 +329,7 @@ uint8 l_usize_has__decidable__lt(usize x_0, usize x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::usize_dec_lt(x_0, x_1);
+x_2 = x_0 < x_1;
 return x_2;
 }
 }
@@ -348,7 +348,7 @@ uint8 l_usize_has__decidable__le(usize x_0, usize x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = lean::usize_dec_le(x_0, x_1);
+x_2 = x_0 <= x_1;
 return x_2;
 }
 }

@@ -21,6 +21,7 @@ obj* l_list_mmap(obj*);
 obj* l_list_mforall___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_nat_mrepeat(obj*);
 obj* l_list_mfilter___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_unless___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_list_mexists___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_mfor(obj*);
 obj* l_list_mfoldl___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -41,7 +42,7 @@ obj* l_list_mmap___main(obj*);
 obj* l_list_mfilter___main___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_list_mforall___main(obj*);
 obj* l_mcond___rarg___lambda__1___boxed(obj*, obj*, obj*);
-obj* l_when___rarg(obj*, obj*, obj*, obj*);
+obj* l_when___rarg(obj*, obj*, uint8, obj*);
 obj* l_list_mfilter___main___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mfor___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mfilter___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, uint8);
@@ -54,12 +55,13 @@ obj* l_list_mmap___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mfirst___main(obj*);
 obj* l_nat_mrepeat___rarg(obj*, obj*, obj*);
 obj* l_nat_repeat__core___main___at_nat_mrepeat___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_unless___rarg(obj*, obj*, obj*, obj*);
+obj* l_unless___rarg(obj*, obj*, uint8, obj*);
 obj* l_list_mmap_x_27___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mfoldl___main(obj*);
 obj* l_list_mmap_x_27___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mmap___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_id___rarg(obj*);
+obj* l_when___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_mjoin___rarg(obj*, obj*, obj*);
 obj* l_list_mexists___main___rarg___lambda__1(obj*, obj*, obj*, uint8);
 obj* l_mjoin(obj*);
@@ -341,6 +343,14 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_list_mfor___rarg), 5, 0);
 return x_2;
 }
 }
+obj* _init_l_mjoin___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg), 1, 0);
+return x_0;
+}
+}
 obj* l_mjoin___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -353,14 +363,6 @@ x_7 = l_mjoin___rarg___closed__1;
 lean::inc(x_7);
 x_9 = lean::apply_4(x_4, lean::box(0), lean::box(0), x_2, x_7);
 return x_9;
-}
-}
-obj* _init_l_mjoin___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg), 1, 0);
-return x_0;
 }
 }
 obj* l_mjoin(obj* x_0) {
@@ -919,26 +921,23 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_list_mforall___rarg), 4, 0);
 return x_2;
 }
 }
-obj* l_when___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_when___rarg(obj* x_0, obj* x_1, uint8 x_2, obj* x_3) {
 _start:
 {
-uint8 x_5; 
 lean::dec(x_1);
-x_5 = lean::unbox(x_2);
-lean::dec(x_2);
-if (x_5 == 0)
+if (x_2 == 0)
 {
-obj* x_8; obj* x_11; obj* x_14; obj* x_15; 
+obj* x_6; obj* x_9; obj* x_12; obj* x_13; 
 lean::dec(x_3);
-x_8 = lean::cnstr_get(x_0, 0);
-lean::inc(x_8);
+x_6 = lean::cnstr_get(x_0, 0);
+lean::inc(x_6);
 lean::dec(x_0);
-x_11 = lean::cnstr_get(x_8, 1);
-lean::inc(x_11);
-lean::dec(x_8);
-x_14 = lean::box(0);
-x_15 = lean::apply_2(x_11, lean::box(0), x_14);
-return x_15;
+x_9 = lean::cnstr_get(x_6, 1);
+lean::inc(x_9);
+lean::dec(x_6);
+x_12 = lean::box(0);
+x_13 = lean::apply_2(x_9, lean::box(0), x_12);
+return x_13;
 }
 else
 {
@@ -952,35 +951,41 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_when___rarg), 4, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_when___rarg___boxed), 4, 0);
 return x_2;
 }
 }
-obj* l_unless___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_when___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-uint8 x_5; 
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_2);
+x_5 = l_when___rarg(x_0, x_1, x_4, x_3);
+return x_5;
+}
+}
+obj* l_unless___rarg(obj* x_0, obj* x_1, uint8 x_2, obj* x_3) {
+_start:
+{
 lean::dec(x_1);
-x_5 = lean::unbox(x_2);
-lean::dec(x_2);
-if (x_5 == 0)
+if (x_2 == 0)
 {
 lean::dec(x_0);
 return x_3;
 }
 else
 {
-obj* x_9; obj* x_12; obj* x_15; obj* x_16; 
+obj* x_7; obj* x_10; obj* x_13; obj* x_14; 
 lean::dec(x_3);
-x_9 = lean::cnstr_get(x_0, 0);
-lean::inc(x_9);
+x_7 = lean::cnstr_get(x_0, 0);
+lean::inc(x_7);
 lean::dec(x_0);
-x_12 = lean::cnstr_get(x_9, 1);
-lean::inc(x_12);
-lean::dec(x_9);
-x_15 = lean::box(0);
-x_16 = lean::apply_2(x_12, lean::box(0), x_15);
-return x_16;
+x_10 = lean::cnstr_get(x_7, 1);
+lean::inc(x_10);
+lean::dec(x_7);
+x_13 = lean::box(0);
+x_14 = lean::apply_2(x_10, lean::box(0), x_13);
+return x_14;
 }
 }
 }
@@ -989,8 +994,17 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_unless___rarg), 4, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_unless___rarg___boxed), 4, 0);
 return x_2;
+}
+}
+obj* l_unless___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_2);
+x_5 = l_unless___rarg(x_0, x_1, x_4, x_3);
+return x_5;
 }
 }
 obj* l_mcond___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {

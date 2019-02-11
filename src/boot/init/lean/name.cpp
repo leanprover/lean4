@@ -859,6 +859,14 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
+obj* _init_l_lean_name_to__string__with__sep___main___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("[anonymous]");
+return x_0;
+}
+}
 obj* l_lean_name_to__string__with__sep___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -936,20 +944,20 @@ return x_39;
 }
 }
 }
-obj* _init_l_lean_name_to__string__with__sep___main___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("[anonymous]");
-return x_0;
-}
-}
 obj* l_lean_name_to__string__with__sep(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
 x_2 = l_lean_name_to__string__with__sep___main(x_0, x_1);
 return x_2;
+}
+}
+obj* _init_l_lean_name_to__string___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(".");
+return x_0;
 }
 }
 obj* l_lean_name_to__string(obj* x_0) {
@@ -960,14 +968,6 @@ x_1 = l_lean_name_to__string___closed__1;
 lean::inc(x_1);
 x_3 = l_lean_name_to__string__with__sep___main(x_1, x_0);
 return x_3;
-}
-}
-obj* _init_l_lean_name_to__string___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(".");
-return x_0;
 }
 }
 obj* _init_l_lean_name_has__to__string() {

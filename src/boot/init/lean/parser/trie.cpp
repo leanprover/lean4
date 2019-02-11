@@ -67,16 +67,6 @@ obj* l_char_quote__core(uint32);
 obj* l_lean_parser_trie_insert(obj*);
 obj* l_lean_parser_trie_has__to__string___rarg(obj*);
 obj* l___private_1312873337__match__prefix__aux___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_parser_trie_mk(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = l_lean_parser_trie_mk___closed__1;
-lean::inc(x_2);
-return x_2;
-}
-}
 obj* _init_l_lean_parser_trie_mk___closed__1() {
 _start:
 {
@@ -86,6 +76,16 @@ lean::inc(x_0);
 x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
 lean::cnstr_set(x_2, 1, x_0);
+return x_2;
+}
+}
+obj* l_lean_parser_trie_mk(obj* x_0) {
+_start:
+{
+obj* x_2; 
+lean::dec(x_0);
+x_2 = l_lean_parser_trie_mk___closed__1;
+lean::inc(x_2);
 return x_2;
 }
 }

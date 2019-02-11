@@ -465,6 +465,16 @@ x_1 = l_lean_extern__entry_backend___main(x_0);
 return x_1;
 }
 }
+obj* _init_l_lean_get__extern__entry__for__aux___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::box(0);
+x_1 = lean::mk_string("all");
+x_2 = lean::name_mk_string(x_0, x_1);
+return x_2;
+}
+}
 obj* l_lean_get__extern__entry__for__aux___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -520,16 +530,6 @@ lean::cnstr_set(x_24, 0, x_5);
 return x_24;
 }
 }
-}
-}
-obj* _init_l_lean_get__extern__entry__for__aux___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::box(0);
-x_1 = lean::mk_string("all");
-x_2 = lean::name_mk_string(x_0, x_1);
-return x_2;
 }
 }
 obj* l_lean_get__extern__entry__for__aux(obj* x_0, obj* x_1) {

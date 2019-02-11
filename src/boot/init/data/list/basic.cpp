@@ -133,7 +133,7 @@ obj* l_list_zip__with___main___rarg(obj*, obj*, obj*);
 obj* l_list_drop(obj*);
 obj* l_list_tail___main___rarg(obj*);
 obj* l_list_zip__with___main(obj*, obj*, obj*);
-uint8 l_not_decidable___rarg(obj*);
+uint8 l_not_decidable___rarg(uint8);
 obj* l_list_remove__nth(obj*);
 obj* l_list_length___rarg(obj*);
 obj* l_list_foldr1__opt___main___rarg(obj*, obj*);
@@ -2074,7 +2074,7 @@ return x_2;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_9; uint8 x_13; obj* x_14; uint8 x_15; 
+obj* x_5; obj* x_7; obj* x_9; uint8 x_13; uint8 x_14; 
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_2, 1);
@@ -2091,9 +2091,8 @@ lean::inc(x_1);
 lean::inc(x_5);
 lean::inc(x_0);
 x_13 = l_list_decidable__mem___main___rarg(x_0, x_5, x_1);
-x_14 = lean::box(x_13);
-x_15 = l_not_decidable___rarg(x_14);
-if (x_15 == 0)
+x_14 = l_not_decidable___rarg(x_13);
+if (x_14 == 0)
 {
 lean::dec(x_9);
 lean::dec(x_5);
@@ -2102,16 +2101,16 @@ goto _start;
 }
 else
 {
-obj* x_19; obj* x_20; 
-x_19 = l_list_filter___main___at_list_remove__all___spec__1___rarg(x_0, x_1, x_7);
+obj* x_18; obj* x_19; 
+x_18 = l_list_filter___main___at_list_remove__all___spec__1___rarg(x_0, x_1, x_7);
 if (lean::is_scalar(x_9)) {
- x_20 = lean::alloc_cnstr(1, 2, 0);
+ x_19 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_20 = x_9;
+ x_19 = x_9;
 }
-lean::cnstr_set(x_20, 0, x_5);
-lean::cnstr_set(x_20, 1, x_19);
-return x_20;
+lean::cnstr_set(x_19, 0, x_5);
+lean::cnstr_set(x_19, 1, x_18);
+return x_19;
 }
 }
 }
@@ -2987,6 +2986,18 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_list_zip___rarg), 2, 0);
 return x_4;
 }
 }
+obj* _init_l_list_unzip___main___rarg___closed__1() {
+_start:
+{
+obj* x_0; obj* x_2; 
+x_0 = lean::box(0);
+lean::inc(x_0);
+x_2 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_0);
+return x_2;
+}
+}
 obj* l_list_unzip___main___rarg(obj* x_0) {
 _start:
 {
@@ -3050,18 +3061,6 @@ lean::cnstr_set(x_22, 0, x_20);
 lean::cnstr_set(x_22, 1, x_21);
 return x_22;
 }
-}
-}
-obj* _init_l_list_unzip___main___rarg___closed__1() {
-_start:
-{
-obj* x_0; obj* x_2; 
-x_0 = lean::box(0);
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_2, 0, x_0);
-lean::cnstr_set(x_2, 1, x_0);
-return x_2;
 }
 }
 obj* l_list_unzip___main(obj* x_0, obj* x_1) {
@@ -4168,11 +4167,10 @@ return x_2;
 uint8 l_list_has__decidable__le___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; uint8 x_6; 
+uint8 x_4; uint8 x_5; 
 x_4 = l_list_has__decidable__lt___main___at_list_has__decidable__le___spec__1___rarg(x_0, x_1, x_3, x_2);
-x_5 = lean::box(x_4);
-x_6 = l_not_decidable___rarg(x_5);
-return x_6;
+x_5 = l_not_decidable___rarg(x_4);
+return x_5;
 }
 }
 obj* l_list_has__decidable__le(obj* x_0) {

@@ -326,6 +326,40 @@ return x_8;
 }
 }
 }
+obj* _init_l_lean_level_to__nat___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_nat_obj(0u);
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_level_to__nat___main___closed__2() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_level_to__nat___main___lambda__1), 1, 0);
+return x_0;
+}
+}
+obj* _init_l_lean_level_to__nat___main___closed__3() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_max), 2, 0);
+return x_0;
+}
+}
+obj* _init_l_lean_level_to__nat___main___closed__4() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_nat_imax), 2, 0);
+return x_0;
+}
+}
 obj* l_lean_level_to__nat___main(obj* x_0) {
 _start:
 {
@@ -427,40 +461,6 @@ x_48 = lean::box(0);
 return x_48;
 }
 }
-}
-}
-obj* _init_l_lean_level_to__nat___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_level_to__nat___main___closed__2() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_level_to__nat___main___lambda__1), 1, 0);
-return x_0;
-}
-}
-obj* _init_l_lean_level_to__nat___main___closed__3() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_max), 2, 0);
-return x_0;
-}
-}
-obj* _init_l_lean_level_to__nat___main___closed__4() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_nat_imax), 2, 0);
-return x_0;
 }
 }
 obj* l_lean_level_to__nat___main___lambda__1(obj* x_0) {
@@ -1024,6 +1024,36 @@ lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
+obj* _init_l_lean_level__to__format_result_to__format___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("+");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_level__to__format_result_to__format___main___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("max");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_level__to__format_result_to__format___main___closed__3() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("imax");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_level__to__format_result_to__format___main(obj* x_0, uint8 x_1) {
 _start:
 {
@@ -1133,36 +1163,6 @@ return x_57;
 }
 }
 }
-obj* _init_l_lean_level__to__format_result_to__format___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("+");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_level__to__format_result_to__format___main___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("max");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_level__to__format_result_to__format___main___closed__3() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("imax");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
 obj* l_lean_level__to__format_result__list_to__format___main(obj* x_0) {
 _start:
 {
@@ -1245,6 +1245,16 @@ lean::cnstr_set(x_4, 0, x_3);
 return x_4;
 }
 }
+obj* _init_l_lean_level__to__format_level_to__result___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_nat_obj(0u);
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_level__to__format_level_to__result___main(obj* x_0) {
 _start:
 {
@@ -1316,16 +1326,6 @@ lean::cnstr_set(x_34, 0, x_33);
 return x_34;
 }
 }
-}
-}
-obj* _init_l_lean_level__to__format_level_to__result___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_level__to__format_level_to__result(obj* x_0) {

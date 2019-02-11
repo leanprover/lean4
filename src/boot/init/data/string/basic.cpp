@@ -908,6 +908,16 @@ x_2 = l_string_iterator_extract__core___main(x_0, x_1);
 return x_2;
 }
 }
+obj* _init_l_string_iterator_extract___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("");
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_string_iterator_extract___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -982,16 +992,6 @@ lean::inc(x_31);
 return x_31;
 }
 }
-}
-}
-obj* _init_l_string_iterator_extract___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("");
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_string_iterator_extract___boxed(obj* x_0, obj* x_1) {
@@ -1256,6 +1256,14 @@ goto _start;
 }
 }
 }
+obj* _init_l_string_join___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("");
+return x_0;
+}
+}
 obj* l_string_join(obj* x_0) {
 _start:
 {
@@ -1264,14 +1272,6 @@ x_1 = l_string_join___closed__1;
 lean::inc(x_1);
 x_3 = l_list_foldl___main___at_string_join___spec__1(x_1, x_0);
 return x_3;
-}
-}
-obj* _init_l_string_join___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("");
-return x_0;
 }
 }
 obj* l_string_singleton(uint32 x_0) {
@@ -1734,17 +1734,6 @@ x_3 = l___private_104996535__line__column__aux___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_string_line__column(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_5; 
-x_2 = lean::string_mk_iterator(x_0);
-x_3 = l_string_line__column___closed__1;
-lean::inc(x_3);
-x_5 = l___private_104996535__line__column__aux___main(x_1, x_2, x_3);
-return x_5;
-}
-}
 obj* _init_l_string_line__column___closed__1() {
 _start:
 {
@@ -1755,6 +1744,17 @@ x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
 lean::cnstr_set(x_2, 1, x_1);
 return x_2;
+}
+}
+obj* l_string_line__column(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_5; 
+x_2 = lean::string_mk_iterator(x_0);
+x_3 = l_string_line__column___closed__1;
+lean::inc(x_3);
+x_5 = l___private_104996535__line__column__aux___main(x_1, x_2, x_3);
+return x_5;
 }
 }
 obj* l_char_to__string(uint32 x_0) {

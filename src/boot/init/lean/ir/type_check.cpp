@@ -233,6 +233,15 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
+obj* _init_l_lean_ir_is__arith__ty___closed__1() {
+_start:
+{
+uint8 x_0; obj* x_1; 
+x_0 = 0;
+x_1 = l_lean_ir_type2id___main(x_0);
+return x_1;
+}
+}
 uint8 l_lean_ir_is__arith__ty(uint8 x_0) {
 _start:
 {
@@ -255,15 +264,6 @@ return x_6;
 }
 }
 }
-obj* _init_l_lean_ir_is__arith__ty___closed__1() {
-_start:
-{
-uint8 x_0; obj* x_1; 
-x_0 = 0;
-x_1 = l_lean_ir_type2id___main(x_0);
-return x_1;
-}
-}
 obj* l_lean_ir_is__arith__ty___boxed(obj* x_0) {
 _start:
 {
@@ -272,6 +272,24 @@ x_1 = lean::unbox(x_0);
 x_2 = l_lean_ir_is__arith__ty(x_1);
 x_3 = lean::box(x_2);
 return x_3;
+}
+}
+obj* _init_l_lean_ir_is__nonfloat__arith__ty___closed__1() {
+_start:
+{
+uint8 x_0; obj* x_1; 
+x_0 = 10;
+x_1 = l_lean_ir_type2id___main(x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_is__nonfloat__arith__ty___closed__2() {
+_start:
+{
+uint8 x_0; obj* x_1; 
+x_0 = 9;
+x_1 = l_lean_ir_type2id___main(x_0);
+return x_1;
 }
 }
 uint8 l_lean_ir_is__nonfloat__arith__ty(uint8 x_0) {
@@ -343,24 +361,6 @@ x_16 = 0;
 return x_16;
 }
 }
-}
-}
-obj* _init_l_lean_ir_is__nonfloat__arith__ty___closed__1() {
-_start:
-{
-uint8 x_0; obj* x_1; 
-x_0 = 10;
-x_1 = l_lean_ir_type2id___main(x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_is__nonfloat__arith__ty___closed__2() {
-_start:
-{
-uint8 x_0; obj* x_1; 
-x_0 = 9;
-x_1 = l_lean_ir_type2id___main(x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_is__nonfloat__arith__ty___boxed(obj* x_0) {
@@ -549,6 +549,42 @@ x_1 = lean::unbox(x_0);
 x_2 = l_lean_ir_is__bitshift__ty(x_1);
 x_3 = lean::box(x_2);
 return x_3;
+}
+}
+obj* _init_l_lean_ir_valid__assign__unop__types___closed__1() {
+_start:
+{
+uint8 x_0; obj* x_1; 
+x_0 = 11;
+x_1 = l_lean_ir_type2id___main(x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_valid__assign__unop__types___closed__2() {
+_start:
+{
+uint8 x_0; obj* x_1; 
+x_0 = 5;
+x_1 = l_lean_ir_type2id___main(x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_valid__assign__unop__types___closed__3() {
+_start:
+{
+uint8 x_0; obj* x_1; 
+x_0 = 3;
+x_1 = l_lean_ir_type2id___main(x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_valid__assign__unop__types___closed__4() {
+_start:
+{
+uint8 x_0; obj* x_1; 
+x_0 = 7;
+x_1 = l_lean_ir_type2id___main(x_0);
+return x_1;
 }
 }
 uint8 l_lean_ir_valid__assign__unop__types(uint8 x_0, uint8 x_1, uint8 x_2) {
@@ -1004,42 +1040,6 @@ return x_143;
 }
 }
 }
-}
-}
-obj* _init_l_lean_ir_valid__assign__unop__types___closed__1() {
-_start:
-{
-uint8 x_0; obj* x_1; 
-x_0 = 11;
-x_1 = l_lean_ir_type2id___main(x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_valid__assign__unop__types___closed__2() {
-_start:
-{
-uint8 x_0; obj* x_1; 
-x_0 = 5;
-x_1 = l_lean_ir_type2id___main(x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_valid__assign__unop__types___closed__3() {
-_start:
-{
-uint8 x_0; obj* x_1; 
-x_0 = 3;
-x_1 = l_lean_ir_type2id___main(x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_valid__assign__unop__types___closed__4() {
-_start:
-{
-uint8 x_0; obj* x_1; 
-x_0 = 7;
-x_1 = l_lean_ir_type2id___main(x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_valid__assign__unop__types___boxed(obj* x_0, obj* x_1, obj* x_2) {
@@ -1736,6 +1736,56 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_type__checker__m_run
 return x_2;
 }
 }
+obj* _init_l_lean_ir_match__type___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("type mismatch, variable `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_match__type___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("` has type `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_match__type___closed__3() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("`");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_match__type___closed__4() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string(", but is expected to have type `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_match__type___closed__5() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::box(0);
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_match__type(obj* x_0, uint8 x_1, uint8 x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -1815,56 +1865,6 @@ lean::cnstr_set(x_43, 0, x_41);
 lean::cnstr_set(x_43, 1, x_4);
 return x_43;
 }
-}
-}
-obj* _init_l_lean_ir_match__type___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("type mismatch, variable `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_match__type___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("` has type `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_match__type___closed__3() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("`");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_match__type___closed__4() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string(", but is expected to have type `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_match__type___closed__5() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::box(0);
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_match__type___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -2009,6 +2009,16 @@ x_2 = l_rbnode_find___main___at_lean_ir_get__type___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
+obj* _init_l_lean_ir_get__type___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("undefined variable `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_get__type(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -2058,16 +2068,6 @@ lean::cnstr_set(x_25, 0, x_24);
 lean::cnstr_set(x_25, 1, x_2);
 return x_25;
 }
-}
-}
-obj* _init_l_lean_ir_get__type___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("undefined variable `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_rbnode_ins___main___at_lean_ir_set__type___spec__3(obj* x_0, obj* x_1, uint8 x_2) {
@@ -2371,6 +2371,26 @@ x_5 = l_lean_ir_set__type(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
+obj* _init_l_lean_ir_check__type___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("type for variable `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_check__type___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("` is not available");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_check__type(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -2419,26 +2439,6 @@ return x_26;
 }
 }
 }
-obj* _init_l_lean_ir_check__type___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("type for variable `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_check__type___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("` is not available");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
 obj* l_lean_ir_check__type___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -2446,6 +2446,26 @@ uint8 x_4; obj* x_5;
 x_4 = lean::unbox(x_1);
 x_5 = l_lean_ir_check__type(x_0, x_4, x_2, x_3);
 return x_5;
+}
+}
+obj* _init_l_lean_ir_check__ne__type___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("variable `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_check__ne__type___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("` must not have type `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_lean_ir_check__ne__type(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
@@ -2549,26 +2569,6 @@ return x_53;
 }
 }
 }
-obj* _init_l_lean_ir_check__ne__type___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("variable `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_check__ne__type___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("` must not have type `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
 obj* l_lean_ir_check__ne__type___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -2576,18 +2576,6 @@ uint8 x_4; obj* x_5;
 x_4 = lean::unbox(x_1);
 x_5 = l_lean_ir_check__ne__type(x_0, x_4, x_2, x_3);
 return x_5;
-}
-}
-obj* l_lean_ir_invalid__literal___rarg(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_3; 
-x_1 = l_lean_ir_invalid__literal___rarg___closed__1;
-lean::inc(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_0);
-return x_3;
 }
 }
 obj* _init_l_lean_ir_invalid__literal___rarg___closed__1() {
@@ -2600,6 +2588,18 @@ lean::cnstr_set(x_1, 0, x_0);
 x_2 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
+}
+}
+obj* l_lean_ir_invalid__literal___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_3; 
+x_1 = l_lean_ir_invalid__literal___rarg___closed__1;
+lean::inc(x_1);
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_0);
+return x_3;
 }
 }
 obj* l_lean_ir_invalid__literal(obj* x_0) {
@@ -2847,6 +2847,16 @@ x_5 = l_lean_ir_literal_check(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
+obj* _init_l_lean_ir_get__decl___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("unknown function `");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_get__decl(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -2912,16 +2922,6 @@ lean::cnstr_set(x_26, 0, x_25);
 lean::cnstr_set(x_26, 1, x_2);
 return x_26;
 }
-}
-}
-obj* _init_l_lean_ir_get__decl___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("unknown function `");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_set__result__types___main(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -4051,6 +4051,18 @@ x_8 = l_lean_ir_type__checker__m_run___rarg(x_3, x_1, x_5);
 return x_8;
 }
 }
+obj* _init_l_lean_ir_check__arg__types___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("unexpected number of arguments");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
 obj* l_lean_ir_check__arg__types___main(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -4170,18 +4182,6 @@ goto _start;
 }
 }
 }
-obj* _init_l_lean_ir_check__arg__types___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("unexpected number of arguments");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
 obj* l_lean_ir_check__arg__types(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -4268,6 +4268,18 @@ goto _start;
 }
 }
 }
+obj* _init_l_list_mmap_x_27___main___at_lean_ir_instr_check___spec__2___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("invalid closure, arguments must have type object");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
 obj* l_list_mmap_x_27___main___at_lean_ir_instr_check___spec__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -4315,18 +4327,6 @@ x_0 = x_10;
 goto _start;
 }
 }
-}
-}
-obj* _init_l_list_mmap_x_27___main___at_lean_ir_instr_check___spec__2___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("invalid closure, arguments must have type object");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
 }
 }
 obj* l_list_mmap_x_27___main___at_lean_ir_instr_check___spec__3(obj* x_0, obj* x_1, obj* x_2) {
@@ -4405,6 +4405,66 @@ x_2 = x_18;
 goto _start;
 }
 }
+}
+}
+obj* _init_l_lean_ir_instr_check___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("invalid assignment");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_lean_ir_instr_check___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("invalid unary operation");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_lean_ir_instr_check___closed__3() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("invalid binary operation");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_lean_ir_instr_check___closed__4() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("too many arguments");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_lean_ir_instr_check___closed__5() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("invalid scalar array");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
 }
 }
 obj* l_lean_ir_instr_check(obj* x_0, obj* x_1, obj* x_2) {
@@ -5615,66 +5675,6 @@ return x_426;
 }
 }
 }
-obj* _init_l_lean_ir_instr_check___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("invalid assignment");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* _init_l_lean_ir_instr_check___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("invalid unary operation");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* _init_l_lean_ir_instr_check___closed__3() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("invalid binary operation");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* _init_l_lean_ir_instr_check___closed__4() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("too many arguments");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* _init_l_lean_ir_instr_check___closed__5() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("invalid scalar array");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
 obj* l_list_mmap_x_27___main___at_lean_ir_phi_check___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -5864,6 +5864,18 @@ x_6 = l_lean_ir_check__type(x_0, x_4, x_2, x_3);
 return x_6;
 }
 }
+obj* _init_l_lean_ir_terminator_check___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("variable must be an uint32 or bool");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
 obj* l_lean_ir_terminator_check(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -6042,18 +6054,6 @@ lean::cnstr_set(x_72, 1, x_4);
 return x_72;
 }
 }
-}
-}
-obj* _init_l_lean_ir_terminator_check___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("variable must be an uint32 or bool");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
 }
 }
 obj* l_list_mmap_x_27___main___at_lean_ir_block_check___spec__1(obj* x_0, obj* x_1, obj* x_2) {
@@ -6599,6 +6599,16 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_reader__t_bind___at_lean_ir_
 return x_4;
 }
 }
+obj* _init_l_lean_ir_type__check___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_type__check___lambda__2), 3, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_lean_ir_type__check___spec__1___rarg), 4, 1);
+lean::closure_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_type__check(obj* x_0, obj* x_1) {
 _start:
 {
@@ -6625,16 +6635,6 @@ lean::inc(x_12);
 lean::dec(x_11);
 x_15 = l_lean_ir_type__checker__m_run___rarg(x_10, x_1, x_12);
 return x_15;
-}
-}
-obj* _init_l_lean_ir_type__check___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_type__check___lambda__2), 3, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_lean_ir_type__check___spec__1___rarg), 4, 1);
-lean::closure_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_type__check___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

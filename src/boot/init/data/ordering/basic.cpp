@@ -37,6 +37,30 @@ obj* l_ordering_has__repr___closed__3;
 uint8 l_cmp___rarg(obj*, obj*, obj*);
 obj* l_cmp__using___rarg___boxed(obj*, obj*, obj*);
 obj* l_ordering_has__repr___boxed(obj*);
+obj* _init_l_ordering_has__repr___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("lt");
+return x_0;
+}
+}
+obj* _init_l_ordering_has__repr___closed__2() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("eq");
+return x_0;
+}
+}
+obj* _init_l_ordering_has__repr___closed__3() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("gt");
+return x_0;
+}
+}
 obj* l_ordering_has__repr(uint8 x_0) {
 _start:
 {
@@ -63,30 +87,6 @@ lean::inc(x_5);
 return x_5;
 }
 }
-}
-}
-obj* _init_l_ordering_has__repr___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("lt");
-return x_0;
-}
-}
-obj* _init_l_ordering_has__repr___closed__2() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("eq");
-return x_0;
-}
-}
-obj* _init_l_ordering_has__repr___closed__3() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("gt");
-return x_0;
 }
 }
 obj* l_ordering_has__repr___boxed(obj* x_0) {

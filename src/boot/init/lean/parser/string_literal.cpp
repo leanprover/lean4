@@ -272,6 +272,18 @@ x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_er
 return x_6;
 }
 }
+obj* _init_l_lean_parser_parse__hex__digit___rarg___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("hexadecimal");
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
+lean::closure_set(x_1, 0, x_0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_labels___rarg___lambda__1), 6, 1);
+lean::closure_set(x_2, 0, x_1);
+return x_2;
+}
+}
 obj* l_lean_parser_parse__hex__digit___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -329,18 +341,6 @@ x_43 = l_lean_parser_parse__hex__digit___rarg___closed__1;
 lean::inc(x_43);
 x_45 = lean::apply_3(x_40, lean::box(0), x_43, x_39);
 return x_45;
-}
-}
-obj* _init_l_lean_parser_parse__hex__digit___rarg___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("hexadecimal");
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
-lean::closure_set(x_1, 0, x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__parsec_labels___rarg___lambda__1), 6, 1);
-lean::closure_set(x_2, 0, x_1);
-return x_2;
 }
 }
 obj* l_lean_parser_parse__hex__digit___rarg___lambda__1(obj* x_0, uint32 x_1) {
@@ -1760,6 +1760,14 @@ x_5 = lean::apply_4(x_1, lean::box(0), lean::box(0), x_2, x_4);
 return x_5;
 }
 }
+obj* _init_l_lean_parser_parse__quoted__char___rarg___lambda__7___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("quoted character");
+return x_0;
+}
+}
 obj* l_lean_parser_parse__quoted__char___rarg___lambda__7(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, uint32 x_8) {
 _start:
 {
@@ -2583,14 +2591,6 @@ x_384 = lean::apply_2(x_381, lean::box(0), x_369);
 return x_384;
 }
 }
-}
-}
-obj* _init_l_lean_parser_parse__quoted__char___rarg___lambda__7___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("quoted character");
-return x_0;
 }
 }
 obj* l_lean_parser_parse__quoted__char___rarg___lambda__8(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {

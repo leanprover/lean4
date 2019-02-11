@@ -89,6 +89,16 @@ lean::dec(x_0);
 return x_1;
 }
 }
+obj* _init_l_int_nat__abs___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_nat_obj(0u);
+x_1 = lean::nat2int(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
 obj* l_int_nat__abs___main(obj* x_0) {
 _start:
 {
@@ -115,16 +125,6 @@ lean::dec(x_7);
 lean::dec(x_8);
 return x_10;
 }
-}
-}
-obj* _init_l_int_nat__abs___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::nat2int(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l_int_nat__abs___boxed(obj* x_0) {
@@ -230,6 +230,14 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
+obj* _init_l_int_repr___main___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("-");
+return x_0;
+}
+}
 obj* l_int_repr___main(obj* x_0) {
 _start:
 {
@@ -262,14 +270,6 @@ x_17 = lean::string_append(x_15, x_14);
 lean::dec(x_14);
 return x_17;
 }
-}
-}
-obj* _init_l_int_repr___main___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("-");
-return x_0;
 }
 }
 obj* l_int_repr(obj* x_0) {
@@ -665,6 +665,15 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_int_sub___boxed), 2, 0);
 return x_0;
 }
 }
+obj* _init_l_int_sign___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = l_int_one;
+x_1 = lean::int_neg(x_0);
+return x_1;
+}
+}
 obj* l_int_sign___main(obj* x_0) {
 _start:
 {
@@ -703,15 +712,6 @@ x_14 = l_int_sign___main___closed__1;
 lean::inc(x_14);
 return x_14;
 }
-}
-}
-obj* _init_l_int_sign___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = l_int_one;
-x_1 = lean::int_neg(x_0);
-return x_1;
 }
 }
 obj* l_int_sign(obj* x_0) {

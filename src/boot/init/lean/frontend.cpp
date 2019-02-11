@@ -239,6 +239,14 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_run__elaborator___rarg)
 return x_4;
 }
 }
+obj* _init_l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2___rarg___lambda__1), 1, 0);
+return x_0;
+}
+}
 obj* l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -252,14 +260,6 @@ x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine_bind___main___rarg
 lean::closure_set(x_9, 0, x_6);
 lean::closure_set(x_9, 1, x_7);
 return x_9;
-}
-}
-obj* _init_l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2___rarg___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2___rarg___lambda__1), 1, 0);
-return x_0;
 }
 }
 obj* l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2___rarg___lambda__1(obj* x_0) {
@@ -574,6 +574,16 @@ return x_17;
 }
 }
 }
+obj* _init_l_list_mmap_x_27___main___at_lean_run__frontend___spec__7___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::box(0);
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__7(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -649,16 +659,6 @@ x_2 = x_17;
 goto _start;
 }
 }
-}
-}
-obj* _init_l_list_mmap_x_27___main___at_lean_run__frontend___spec__7___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::box(0);
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__8(obj* x_0, obj* x_1, obj* x_2) {
@@ -1121,6 +1121,46 @@ x_2 = x_17;
 goto _start;
 }
 }
+}
+}
+obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("parser died!!");
+return x_0;
+}
+}
+obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__2() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("elaborator died!!");
+return x_0;
+}
+}
+obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__3() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("parser cache hit rate: ");
+return x_0;
+}
+}
+obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__4() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("/");
+return x_0;
+}
+}
+obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__5() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("<stdin>");
+return x_0;
 }
 }
 obj* l_io_prim_iterate___main___at_lean_run__frontend___spec__15(obj* x_0, obj* x_1, obj* x_2) {
@@ -2385,43 +2425,11 @@ return x_590;
 }
 }
 }
-obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__1() {
+obj* _init_l_io_prim_iterate__eio___at_lean_run__frontend___spec__14___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("parser died!!");
-return x_0;
-}
-}
-obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__2() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("elaborator died!!");
-return x_0;
-}
-}
-obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__3() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("parser cache hit rate: ");
-return x_0;
-}
-}
-obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__4() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("/");
-return x_0;
-}
-}
-obj* _init_l_io_prim_iterate___main___at_lean_run__frontend___spec__15___closed__5() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("<stdin>");
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_iterate__eio___at_lean_run__frontend___spec__14___lambda__1), 4, 0);
 return x_0;
 }
 }
@@ -2468,14 +2476,6 @@ lean::cnstr_set(x_25, 0, x_17);
 lean::cnstr_set(x_25, 1, x_24);
 x_26 = l_io_prim_iterate___main___at_lean_run__frontend___spec__15(x_1, x_25, x_2);
 return x_26;
-}
-}
-obj* _init_l_io_prim_iterate__eio___at_lean_run__frontend___spec__14___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_iterate__eio___at_lean_run__frontend___spec__14___lambda__1), 4, 0);
-return x_0;
 }
 }
 obj* l_io_prim_iterate__eio___at_lean_run__frontend___spec__14___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -2578,6 +2578,14 @@ return x_28;
 }
 }
 }
+obj* _init_l_lean_process__file__json___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_process__file__json___lambda__1), 2, 0);
+return x_0;
+}
+}
 obj* lean_process_file_json(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -2642,12 +2650,79 @@ return x_20;
 }
 }
 }
-obj* _init_l_lean_process__file__json___closed__1() {
+obj* _init_l_lean_process__file__json___lambda__1___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_process__file__json___lambda__1), 2, 0);
+x_0 = lean::mk_string("{\"file_name\": \"<stdin>\", \"pos_line\": ");
 return x_0;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__2() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(", \"pos_col\": ");
+return x_0;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__3() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(", \"severity\": ");
+return x_0;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__4() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("information");
+x_1 = l_string_quote(x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__5() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(", \"caption\": ");
+return x_0;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__6() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(", \"text\": ");
+return x_0;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__7() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("}");
+return x_0;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__8() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("warning");
+x_1 = l_string_quote(x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_process__file__json___lambda__1___closed__9() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("error");
+x_1 = l_string_quote(x_0);
+return x_1;
 }
 }
 obj* l_lean_process__file__json___lambda__1(obj* x_0, obj* x_1) {
@@ -2737,81 +2812,6 @@ x_67 = l_io_println___at_lean_run__frontend___spec__3(x_66, x_1);
 return x_67;
 }
 }
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("{\"file_name\": \"<stdin>\", \"pos_line\": ");
-return x_0;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__2() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(", \"pos_col\": ");
-return x_0;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__3() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(", \"severity\": ");
-return x_0;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__4() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("information");
-x_1 = l_string_quote(x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__5() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(", \"caption\": ");
-return x_0;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__6() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(", \"text\": ");
-return x_0;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__7() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("}");
-return x_0;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__8() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("warning");
-x_1 = l_string_quote(x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_process__file__json___lambda__1___closed__9() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("error");
-x_1 = l_string_quote(x_0);
-return x_1;
 }
 }
 void initialize_init_default();

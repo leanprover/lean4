@@ -36,6 +36,46 @@ obj* l_nat_repr(obj*);
 obj* l_list_append___rarg(obj*, obj*);
 obj* l_lean_message_to__string___closed__1;
 uint8 l_lean_message__log_has__errors(obj*);
+obj* _init_l_lean_message_to__string___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(":");
+return x_0;
+}
+}
+obj* _init_l_lean_message_to__string___closed__2() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(": ");
+return x_0;
+}
+}
+obj* _init_l_lean_message_to__string___closed__3() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(":\n");
+return x_0;
+}
+}
+obj* _init_l_lean_message_to__string___closed__4() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("warning: ");
+return x_0;
+}
+}
+obj* _init_l_lean_message_to__string___closed__5() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string("error: ");
+return x_0;
+}
+}
 obj* l_lean_message_to__string(obj* x_0) {
 _start:
 {
@@ -147,46 +187,6 @@ return x_62;
 }
 }
 }
-}
-}
-obj* _init_l_lean_message_to__string___closed__1() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(":");
-return x_0;
-}
-}
-obj* _init_l_lean_message_to__string___closed__2() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(": ");
-return x_0;
-}
-}
-obj* _init_l_lean_message_to__string___closed__3() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string(":\n");
-return x_0;
-}
-}
-obj* _init_l_lean_message_to__string___closed__4() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("warning: ");
-return x_0;
-}
-}
-obj* _init_l_lean_message_to__string___closed__5() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("error: ");
-return x_0;
 }
 }
 obj* _init_l_lean_message_has__to__string() {

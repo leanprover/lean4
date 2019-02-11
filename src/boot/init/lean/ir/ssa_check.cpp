@@ -501,6 +501,26 @@ x_3 = l_rbnode_insert___at_lean_ir_var_declare___spec__4(x_0, x_1, x_2);
 return x_3;
 }
 }
+obj* _init_l_lean_ir_var_declare___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::box(0);
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_var_declare___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("already defined ");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_var_declare(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -540,26 +560,6 @@ lean::cnstr_set(x_19, 0, x_18);
 lean::cnstr_set(x_19, 1, x_2);
 return x_19;
 }
-}
-}
-obj* _init_l_lean_ir_var_declare___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::box(0);
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_var_declare___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("already defined ");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_instr_declare__vars___main(obj* x_0, obj* x_1, obj* x_2) {
@@ -1300,6 +1300,18 @@ goto _start;
 }
 }
 }
+obj* _init_l_lean_ir_decl_declare__vars___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_string("declaration must have at least one basic block");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
 obj* l_lean_ir_decl_declare__vars___main(obj* x_0, obj* x_1) {
 _start:
 {
@@ -1538,18 +1550,6 @@ return x_102;
 }
 }
 }
-}
-}
-obj* _init_l_lean_ir_decl_declare__vars___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_string("declaration must have at least one basic block");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
 }
 }
 obj* l_lean_ir_decl_declare__vars(obj* x_0, obj* x_1) {
@@ -2069,6 +2069,16 @@ return x_11;
 }
 }
 }
+obj* _init_l_lean_ir_var_defined___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("undefined '");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_var_defined(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -2115,16 +2125,6 @@ lean::cnstr_set(x_23, 0, x_21);
 lean::cnstr_set(x_23, 1, x_2);
 return x_23;
 }
-}
-}
-obj* _init_l_lean_ir_var_defined___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("undefined '");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_list_mmap_x_27___main___at_lean_ir_phi_valid__ssa___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -4192,6 +4192,26 @@ x_3 = l_rbnode_insert___at_lean_ir_phi_predecessors___spec__5(x_0, x_1, x_2);
 return x_3;
 }
 }
+obj* _init_l_list_mfoldl___main___at_lean_ir_phi_predecessors___spec__7___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("' at '");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_list_mfoldl___main___at_lean_ir_phi_predecessors___spec__7___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("multiple predecessors at '");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_list_mfoldl___main___at_lean_ir_phi_predecessors___spec__7(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -4314,26 +4334,6 @@ return x_67;
 }
 }
 }
-}
-}
-obj* _init_l_list_mfoldl___main___at_lean_ir_phi_predecessors___spec__7___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("' at '");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_list_mfoldl___main___at_lean_ir_phi_predecessors___spec__7___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("multiple predecessors at '");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_phi_predecessors(obj* x_0, obj* x_1, obj* x_2) {
@@ -4493,6 +4493,16 @@ lean::dec(x_4);
 x_9 = l_rbnode_all___main___at_lean_ir_phis_check__predecessors___spec__3(x_0, x_1);
 return x_9;
 }
+}
+}
+obj* _init_l_list_mfoldl___main___at_lean_ir_phis_check__predecessors___spec__4___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("missing predecessor '");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_list_mfoldl___main___at_lean_ir_phis_check__predecessors___spec__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -4743,16 +4753,6 @@ goto _start;
 }
 }
 }
-}
-}
-obj* _init_l_list_mfoldl___main___at_lean_ir_phis_check__predecessors___spec__4___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("missing predecessor '");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_phis_check__predecessors(obj* x_0, obj* x_1, obj* x_2) {
@@ -5599,6 +5599,26 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_blockid__check__m_ru
 return x_2;
 }
 }
+obj* _init_l_lean_ir_block_declare___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("block label '");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* _init_l_lean_ir_block_declare___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("' has been used more than once");
+x_1 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_block_declare(obj* x_0, obj* x_1) {
 _start:
 {
@@ -5650,21 +5670,11 @@ return x_25;
 }
 }
 }
-obj* _init_l_lean_ir_block_declare___closed__1() {
+obj* _init_l_lean_ir_blockid_defined___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("block label '");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* _init_l_lean_ir_block_declare___closed__2() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("' has been used more than once");
+x_0 = lean::mk_string("unknown basic block '");
 x_1 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;
@@ -5715,16 +5725,6 @@ lean::cnstr_set(x_21, 0, x_19);
 lean::cnstr_set(x_21, 1, x_1);
 return x_21;
 }
-}
-}
-obj* _init_l_lean_ir_blockid_defined___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("unknown basic block '");
-x_1 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_list_mmap_x_27___main___at_lean_ir_terminator_check__blockids___spec__1(obj* x_0, obj* x_1) {
@@ -6329,6 +6329,16 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_state__t_bind___at_lean_ir_c
 return x_4;
 }
 }
+obj* _init_l_lean_ir_check__blockids___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_check__blockids___lambda__1), 2, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_lean_ir_check__blockids___spec__1___rarg), 3, 1);
+lean::closure_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_check__blockids(obj* x_0) {
 _start:
 {
@@ -6342,16 +6352,6 @@ lean::closure_set(x_4, 0, x_1);
 lean::closure_set(x_4, 1, x_2);
 x_5 = l_lean_ir_blockid__check__m_run___rarg(x_4);
 return x_5;
-}
-}
-obj* _init_l_lean_ir_check__blockids___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_check__blockids___lambda__1), 2, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_bind__cont___at_lean_ir_check__blockids___spec__1___rarg), 3, 1);
-lean::closure_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_lean_ir_check__blockids___lambda__1(obj* x_0, obj* x_1) {

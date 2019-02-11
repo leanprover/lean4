@@ -55,7 +55,7 @@ extern obj* l_list_repr___main___rarg___closed__3;
 obj* l_list_to__string___rarg(obj*, obj*);
 obj* l_list_has__to__string___rarg(obj*);
 obj* l_uint32_has__to__string(uint32);
-obj* l_decidable_has__to__string___rarg(obj*);
+obj* l_decidable_has__to__string___rarg(uint8);
 extern obj* l_string_join___closed__1;
 obj* l_uint64_has__to__string(uint64);
 extern obj* l_sigma_has__repr___rarg___closed__1;
@@ -77,6 +77,7 @@ obj* l_sigma_has__to__string___rarg(obj*, obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__3;
 obj* l_subtype_has__to__string___rarg(obj*, obj*);
 obj* l_subtype_has__to__string(obj*, obj*);
+obj* l_decidable_has__to__string___rarg___boxed(obj*);
 obj* l_id_has__to__string___rarg(obj* x_0) {
 _start:
 {
@@ -135,25 +136,22 @@ x_2 = l_bool_has__to__string(x_1);
 return x_2;
 }
 }
-obj* l_decidable_has__to__string___rarg(obj* x_0) {
+obj* l_decidable_has__to__string___rarg(uint8 x_0) {
 _start:
 {
-uint8 x_1; 
-x_1 = lean::unbox(x_0);
-lean::dec(x_0);
-if (x_1 == 0)
+if (x_0 == 0)
 {
-obj* x_3; 
-x_3 = l_bool_has__repr___closed__1;
-lean::inc(x_3);
-return x_3;
+obj* x_1; 
+x_1 = l_bool_has__repr___closed__1;
+lean::inc(x_1);
+return x_1;
 }
 else
 {
-obj* x_5; 
-x_5 = l_bool_has__repr___closed__2;
-lean::inc(x_5);
-return x_5;
+obj* x_3; 
+x_3 = l_bool_has__repr___closed__2;
+lean::inc(x_3);
+return x_3;
 }
 }
 }
@@ -162,7 +160,16 @@ _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_decidable_has__to__string___rarg), 1, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_decidable_has__to__string___rarg___boxed), 1, 0);
+return x_2;
+}
+}
+obj* l_decidable_has__to__string___rarg___boxed(obj* x_0) {
+_start:
+{
+uint8 x_1; obj* x_2; 
+x_1 = lean::unbox(x_0);
+x_2 = l_decidable_has__to__string___rarg(x_1);
 return x_2;
 }
 }

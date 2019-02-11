@@ -14,7 +14,7 @@ import init.lean.options
 namespace lean
 -- TODO(Sebastian): should probably be meta together with the whole elaborator
 constant environment : Type
-constant environment.empty : environment
+constant environment.mk_empty : unit → environment
 constant environment.contains : environment → name → bool
 
 -- deprecated constructor
@@ -117,7 +117,7 @@ structure elaborator_state :=
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 (expander_cfg : expander.expander_config)
-(env : environment := environment.empty)
+(env : environment := environment.mk_empty ())
 (ngen : name_generator)
 (next_inst_idx : nat := 0)
 

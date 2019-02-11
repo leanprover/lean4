@@ -12,7 +12,10 @@ lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*, lean:
     return nullptr;
 }
 
-lean::object* lean_environment_empty = nullptr;
+lean::object* lean_environment_mk_empty(lean::object*) {
+    lean_unreachable();
+    return nullptr;
+}
 
 lean::object* lean_environment_contains(lean::object*, lean::object*) {
     lean_unreachable();

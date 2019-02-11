@@ -439,7 +439,7 @@ environment const & to_env(vm_obj const & o) {
     return static_cast<vm_env *>(to_external(o))->m_env;
 }
 
-vm_obj vm_environment_empty() {
+vm_obj vm_environment_mk_empty(vm_obj const&) {
     return mk_vm_external(new vm_env(environment()));
 }
 
@@ -767,7 +767,7 @@ vm_obj vm_expr_local(vm_obj const & vm_pp_name, vm_obj const & vm_name, vm_obj c
 
 void initialize_vm_elaborator() {
     DECLARE_VM_BUILTIN(name({"lean", "expr", "local"}), vm_expr_local);
-    DECLARE_VM_BUILTIN(name({"lean", "environment", "empty"}), vm_environment_empty);
+    DECLARE_VM_BUILTIN(name({"lean", "environment", "mk_empty"}), vm_environment_mk_empty);
     DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_environment_contains);
     DECLARE_VM_BUILTIN(name({"lean", "elaborator", "elaborate_command"}), vm_elaborate_command);
 }

@@ -274,7 +274,7 @@ void initialize_builtin() {
 
     // interface to old elaborator
     register_builtin(name({"lean", "expr", "local"}), mk_arrow(o, o_o_o_o), "lean_expr_local");
-    register_builtin(name({"lean", "environment", "empty"}), o, "lean_environment_empty");
+    register_builtin(name({"lean", "environment", "mk_empty"}), o_o, "lean_environment_mk_empty");
     register_builtin(name({"lean", "environment", "contains"}), o_o_o, "lean_environment_contains");
     register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o_o, "lean_elaborator_elaborate_command");
 

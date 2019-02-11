@@ -253,6 +253,7 @@ obj* l_lean_parser_syntax_get__pos(obj*);
 obj* l_list_foldl___main___at_lean_elaborator_elaborators___spec__5(obj*, obj*);
 obj* l_lean_elaborator_mk__notation__kind(obj*);
 obj* l_lean_elaborator_locally___at_lean_elaborator_declaration_elaborate___spec__14___closed__7;
+obj* l_lean_environment_mk__empty___boxed(obj*);
 obj* l_lean_elaborator_attribute_elaborate___closed__2;
 obj* l_lean_elaborator_locally___at_lean_elaborator_declaration_elaborate___spec__14___closed__6;
 obj* l_reader__t_bind___at_lean_elaborator_section_elaborate___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*);
@@ -463,7 +464,6 @@ obj* l_lean_elaborator_infer__mod__to__pexpr___closed__1;
 extern obj* l_lean_parser_command_section;
 obj* l_list_mfilter___main___at_lean_elaborator_variables_elaborate___spec__4(obj*, obj*, obj*);
 obj* l_reader__t_lift(obj*, obj*, obj*, obj*);
-obj* l_lean_environment_empty___boxed;
 obj* l_lean_elaborator_to__pexpr___main___closed__21;
 obj* l_lean_elaborator_locally___at_lean_elaborator_section_elaborate___spec__2___lambda__4(obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_term_struct__inst__item_has__view;
@@ -642,12 +642,12 @@ obj* l_lean_elaborator_init__quot_elaborate___closed__1;
 obj* l_lean_elaborator_postprocess__notation__spec___closed__1;
 obj* l_lean_elaborator_locally___at_lean_elaborator_section_elaborate___spec__2___closed__2;
 extern obj* l_lean_parser_command_set__option_has__view;
-obj* _init_l_lean_environment_empty___boxed() {
+obj* l_lean_environment_mk__empty___boxed(obj* x_0) {
 _start:
 {
-obj* x_0; 
-x_0 = l_lean_environment_empty;
-return x_0;
+obj* x_1; 
+x_1 = lean_environment_mk_empty(x_0);
+return x_1;
 }
 }
 obj* l_lean_environment_contains___boxed(obj* x_0, obj* x_1) {
@@ -28255,10 +28255,10 @@ return x_17;
 obj* _init_l_lean_elaborator_run___closed__2() {
 _start:
 {
-obj* x_0; 
-x_0 = l_lean_environment_empty;
-lean::inc(x_0);
-return x_0;
+obj* x_0; obj* x_1; 
+x_0 = lean::box(0);
+x_1 = lean_environment_mk_empty(x_0);
+return x_1;
 }
 }
 obj* _init_l_lean_elaborator_run___closed__3() {
@@ -28703,7 +28703,6 @@ void initialize_init_lean_elaborator() {
  initialize_init_lean_expander();
  initialize_init_lean_expr();
  initialize_init_lean_options();
- l_lean_environment_empty___boxed = _init_l_lean_environment_empty___boxed();
  l_lean_elaborator_ordered__rbmap_empty___closed__1 = _init_l_lean_elaborator_ordered__rbmap_empty___closed__1();
  l_lean_elaborator_elaborator__t = _init_l_lean_elaborator_elaborator__t();
  l_lean_elaborator_elaborator__m = _init_l_lean_elaborator_elaborator__m();

@@ -302,9 +302,7 @@ struct emit_fn_fn {
     void emit_constant(expr const & c) {
         lean_assert(is_constant(c));
         lean_assert(!is_enf_unreachable(c));
-        if (optional<name> n = get_native_constant_cname(m_env, const_name(c)))
-            m_out << *n;
-        else if (is_enf_neutral(c))
+        if (is_enf_neutral(c))
             emit_unit();
         else
             m_out << to_cpp_name(m_env, const_name(c));

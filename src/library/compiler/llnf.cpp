@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/compiler/ll_infer_type.h"
 #include "library/compiler/cse.h"
 #include "library/compiler/elim_dead_let.h"
+#include "library/compiler/extern_attribute.h"
 
 namespace lean {
 static expr * g_apply     = nullptr;
@@ -252,14 +253,14 @@ unsigned get_llnf_arity(environment const & env, name const & n) {
     if (info && info->is_definition()) {
         return get_num_nested_lambdas(info->get_value());
     }
-    optional<unsigned> arity = get_native_constant_arity(env, n);
+    optional<unsigned> arity = get_extern_constant_arity(env, n);
     if (!arity) throw exception(sstream() << "code generation failed, unknown '" << n << "'");
     return *arity;
 }
 
 static void get_borrowed_info(environment const & env, name const & n, buffer<bool> & borrowed_args, bool & borrowed_res) {
-    if (get_native_borrowed_info(env, n, borrowed_args, borrowed_res))
-        return; /* `n` is a native function declaration. */
+    if (get_extern_borrowed_info(env, n, borrowed_args, borrowed_res))
+        return; /* `n` is an extern/native function declaration. */
     /* We currently do not support borrowed annotations in user declarations. */
     unsigned arity = get_llnf_arity(env, n);
     borrowed_args.clear();
@@ -553,8 +554,8 @@ class to_llnf_fn {
             buffer<expr> args;
             expr const & k = get_app_args(e, args);
             lean_assert(is_constant(k));
-            if (is_builtin_constant(const_name(k))) {
-                /* Optimization is not applicable to runtime builtin constructors. */
+            if (is_extern_constant(env(), const_name(k))) {
+                /* Optimization is not applicable to runtime extern/native constructors. */
                 return e;
             }
             constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
@@ -790,7 +791,7 @@ class to_llnf_fn {
         buffer<expr> args;
         expr const & k = get_app_args(e, args);
         lean_assert(is_constant(k));
-        if (is_builtin_constant(const_name(k)))
+        if (is_extern_constant(env(), const_name(k)))
             return visit_app_default(e);
         constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
         cnstr_info k_info      = get_cnstr_info(const_name(k));
@@ -955,7 +956,7 @@ public:
 };
 
 expr get_constant_ll_type(environment const & env, name const & c) {
-    if (optional<expr> type = get_native_constant_ll_type(env, c)) {
+    if (optional<expr> type = get_extern_constant_ll_type(env, c)) {
         return *type;
     } else {
         return env.get(mk_cstage2_name(c)).get_type();
@@ -998,7 +999,7 @@ static bool has_unboxed(expr const & type) {
 
 optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name const & fn, unsigned arity) {
     expr fn_type = get_constant_ll_type(env, fn);
-    if (!has_unboxed(fn_type)) {
+    if (!has_unboxed(fn_type) && !is_extern_constant(env, fn)) {
         return optional<pair<environment, comp_decl>>();
     }
     local_ctx lctx;

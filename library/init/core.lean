@@ -138,13 +138,20 @@ abbreviation unit : Type := punit
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure thunk (α : Type u) : Type u :=
 (fn : unit → α)
-@[noinline] protected def thunk.pure {α : Type u} (a : α) : thunk α :=
+
+attribute [extern cpp inline "lean::mk_thunk(#2)"] thunk.mk
+
+@[noinline, extern cpp inline "lean::thunk_pure(#2)"]
+protected def thunk.pure {α : Type u} (a : α) : thunk α :=
 ⟨λ _, a⟩
-@[noinline] protected def thunk.get {α : Type u} (x : thunk α) : α :=
+@[noinline, extern cpp inline "lean::thunk_get(#2)"]
+protected def thunk.get {α : Type u} (x : thunk α) : α :=
 x.fn ()
-@[noinline] protected def thunk.map {α : Type u} {β : Type v} (f : α → β) (x : thunk α) : thunk β :=
+@[noinline, extern cpp inline "lean::thunk_map(#3, #4)"]
+protected def thunk.map {α : Type u} {β : Type v} (f : α → β) (x : thunk α) : thunk β :=
 ⟨λ _, f x.get⟩
-@[noinline] protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → thunk β) : thunk β :=
+@[noinline, extern cpp inline "lean::thunk_bind(#3, #4)"]
+protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → thunk β) : thunk β :=
 ⟨λ _, (f x.get).get⟩
 
 /- Remark: tasks have an efficient implementation in the runtime. -/

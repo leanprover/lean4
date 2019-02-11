@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/compiler/name_mangling.h"
 #include "library/compiler/emit_cpp.h"
 #include "library/compiler/llnf_code.h"
-#include "library/compiler/builtin.h"
 #include "library/compiler/export_attribute.h"
 #include "library/compiler/extern_attribute.h"
 
@@ -138,7 +137,7 @@ static void emit_fn_decl(std::ostream & out, environment const & env, name const
 /* Auxiliary function for `collect_dependencies`. */
 static void collect_constant(environment const &env, expr const & e, name_set & deps) {
     lean_assert(is_constant(e));
-    if (!is_llnf_op(e) && !is_native_constant(env, const_name(e)) && !is_enf_neutral(e) && !is_enf_unreachable(e)) {
+    if (!is_llnf_op(e) && !is_extern_constant(env, const_name(e)) && !is_enf_neutral(e) && !is_enf_unreachable(e)) {
         deps.insert(const_name(e));
     }
 }
@@ -188,15 +187,11 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
         all_decls.insert(d.fst());
         collect_dependencies(env, d.snd(), all_decls);
     }
-    for_each_native_constant(env, [&](const name &n) {
-            if (!is_builtin_constant(n)) {
-                mod_decls.insert(n);
-                all_decls.insert(n);
-            }
-    });
     all_decls.for_each([&](name const & n) {
-            emit_fn_decl(out, env, n, mod_decls.contains(n));
-    });
+            if (!is_extern_constant(env, n)) {
+                emit_fn_decl(out, env, n, mod_decls.contains(n));
+            }
+        });
 }
 
 static optional<comp_decl> has_main_fn(environment const & env) {
@@ -561,7 +556,7 @@ struct emit_fn_fn {
         m_out << ");\n";
     }
 
-    void emit_native_constant(expr const & x, expr const & fn, buffer<expr> const & args) {
+    void emit_extern_constant(expr const & x, expr const & fn, buffer<expr> const & args) {
         emit_lhs(x);
         string_refs arg_strs;
         unsigned i = args.size();
@@ -616,8 +611,8 @@ struct emit_fn_fn {
                 emit_unbox(x, fn, args[0]);
             } else if (is_llnf_box(fn)) {
                 emit_box(x, fn, args[0]);
-            } else if (is_native_constant(m_env, const_name(fn))) {
-                emit_native_constant(x, fn, args);
+            } else if (is_extern_constant(m_env, const_name(fn))) {
+                emit_extern_constant(x, fn, args);
             } else {
                 /* Regular function application. */
                 emit_lhs(x);

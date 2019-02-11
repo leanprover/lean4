@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
-#include "library/compiler/builtin.h"
 #include "library/compiler/cse.h"
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
@@ -26,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/compiler/emit_bytecode.h"
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/export_attribute.h"
+#include "library/compiler/extern_attribute.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -133,19 +133,20 @@ environment compile(environment const & env, options const & opts, names const &
         }
     }
 
-    if (length(cs) == 1 && is_native_constant(env, head(cs))) {
-        /* Generate boxed version for native constant if needed */
-        unsigned arity = *get_native_constant_arity(env, head(cs));
+    if (length(cs) == 1 && is_extern_constant(env, head(cs))) {
+        /* Generate boxed version for native constant if needed. */
+        unsigned arity = *get_extern_constant_arity(env, head(cs));
         if (optional<pair<environment, comp_decl>> p = mk_boxed_version(env, head(cs), arity)) {
-            /* Remark: we don't need boxed version for the bytecode */
+            /* Remark: we don't need boxed version for the bytecode. */
             return save_llnf_code(p->first, comp_decls(p->second));
         } else {
-            return env; /* Nothing to be done: builtin does not take unboxed values */
+            /* We always generate boxed versions for extern. */
+            lean_unreachable();
         }
     }
 
     for (name const & c : cs) {
-        lean_assert(!is_native_constant(env, c));
+        lean_assert(!is_extern_constant(env, c));
         if (!env.get(c).is_definition() || has_synthetic_sorry(env.get(c).get_value())) {
             return env;
         }

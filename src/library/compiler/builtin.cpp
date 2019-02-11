@@ -18,12 +18,10 @@ struct native_decl {
     std::string           m_cname;
     bool                  m_borrowed_res;
     list<bool>            m_borrowed_args;
-    list<bool>            m_used_args;
 
     native_decl() {}
-    native_decl(expr const & ll_type, unsigned arity, std::string cname, bool bres, list<bool> const & bargs,
-            list<bool> const & used_args) :
-            m_ll_type(ll_type), m_arity(arity), m_cname(cname), m_borrowed_res(bres), m_borrowed_args(bargs), m_used_args(used_args) {
+    native_decl(expr const & ll_type, unsigned arity, std::string cname, bool bres, list<bool> const & bargs):
+        m_ll_type(ll_type), m_arity(arity), m_cname(cname), m_borrowed_res(bres), m_borrowed_args(bargs) {
     }
 };
 
@@ -60,36 +58,25 @@ static environment update(environment const & env, native_decls_ext const & ext)
 
 
 void register_builtin(name const & n, expr const & ll_type, unsigned arity, char const * cname,
-                      bool borrowed_res, list<bool> const & borrowed_arg,
-                      list<bool> const & used_args) {
+                      bool borrowed_res, list<bool> const & borrowed_arg) {
     lean_assert(g_initial_native_decls->find(n) == nullptr);
-    g_initial_native_decls->insert(n, native_decl(ll_type, arity, cname, borrowed_res, borrowed_arg, used_args));
+    g_initial_native_decls->insert(n, native_decl(ll_type, arity, cname, borrowed_res, borrowed_arg));
 }
 
 void register_builtin(name const & n, expr const & ll_type, char const * cname,
-                      bool borrowed_res, list<bool> const & borrowed_arg,
-                      list<bool> const & used_args) {
+                      bool borrowed_res, list<bool> const & borrowed_arg) {
     unsigned arity = get_arity(ll_type);
-    return register_builtin(n, ll_type, arity, cname, borrowed_res, borrowed_arg, used_args);
-}
-
-void register_builtin(name const & n, expr const & ll_type, char const * cname, list<bool> const & borrowed_arg, list<bool> const & used_args) {
-    return register_builtin(n, ll_type, cname, false, borrowed_arg, used_args);
+    return register_builtin(n, ll_type, arity, cname, borrowed_res, borrowed_arg);
 }
 
 void register_builtin(name const & n, expr const & ll_type, char const * cname, list<bool> const & borrowed_arg) {
-    unsigned arity = get_arity(ll_type);
-    buffer<bool> used_args;
-    used_args.resize(arity, true);
-    return register_builtin(n, ll_type, cname, false, borrowed_arg, to_list(used_args));
+    return register_builtin(n, ll_type, cname, false, borrowed_arg);
 }
 
 void register_builtin(name const & n, expr const & ll_type, unsigned arity, char const * cname) {
     buffer<bool> borrowed;
     borrowed.resize(arity, false);
-    buffer<bool> used_args;
-    used_args.resize(arity, true);
-    return register_builtin(n, ll_type, arity, cname, false, to_list(borrowed), to_list(used_args));
+    return register_builtin(n, ll_type, arity, cname, false, to_list(borrowed));
 }
 
 void register_builtin(name const & n, expr const & ll_type, char const * cname) {
@@ -102,8 +89,8 @@ static inline native_decls_ext const & get_ext(environment const & env) {
 }
 
 environment add_native_constant_decl(environment const & env, name const & n, expr const & ll_type, std::string cname,
-                                     bool bres, list<bool> const & bargs, list<bool> const & used_args) {
-    native_decl d(ll_type, get_arity(ll_type), cname, bres, bargs, used_args);
+                                     bool bres, list<bool> const & bargs) {
+    native_decl d(ll_type, get_arity(ll_type), cname, bres, bargs);
     native_decls_ext ext = get_ext(env);
     ext.m_decls.insert(n, d);
     return update(env, ext);
@@ -151,15 +138,6 @@ bool get_native_borrowed_info(environment const & env, name const & c, buffer<bo
 
     to_buffer(d->m_borrowed_args, borrowed_args);
     borrowed_res = d->m_borrowed_res;
-    return true;
-}
-
-bool get_native_used_args(environment const & env, name const & c, buffer<bool> &used_args) {
-    auto d = get_native_constant_core(env, c);
-    if (d == nullptr)
-        return false;
-
-    to_buffer(d->m_used_args, used_args);
     return true;
 }
 
@@ -232,9 +210,6 @@ void initialize_builtin() {
     list<bool> bbb{true, true, true};
     list<bool> bccc{true, false, false, false};
     list<bool> bbcc{true, true, false, false};
-
-    list<bool> xu{false, true};
-    list<bool> xxuu{false, false, true, true};
 
     /* nat builtin functions */
     register_builtin(name({"nat", "add"}), o_o_o, "lean::nat_add", bb);
@@ -369,11 +344,11 @@ void initialize_builtin() {
     register_builtin(name({"usize", "dec_le"}), us_us_u8, "lean::usize_dec_le");
 
     /* thunk builtin functions */
-    register_builtin(name({"thunk", "mk"}), o_o_o, "lean::mk_thunk", bc, xu);
-    register_builtin(name({"thunk", "pure"}), o_o_o, "lean::thunk_pure", bc, xu);
-    register_builtin(name({"thunk", "get"}), o_o_o, "lean::thunk_get", bb, xu);
-    register_builtin(name({"thunk", "bind"}), o_o_o_o_o, "lean::thunk_get", bb, xu);
-    register_builtin(name({"thunk", "map"}), o_o_o_o_o, "lean::thunk_bind", bbcc, xxuu);
+    register_builtin(name({"thunk", "mk"}), o_o_o, "lean::mk_thunk", bc);
+    register_builtin(name({"thunk", "pure"}), o_o_o, "lean::thunk_pure", bc);
+    register_builtin(name({"thunk", "get"}), o_o_o, "lean::thunk_get", bb);
+    register_builtin(name({"thunk", "bind"}), o_o_o_o_o, "lean::thunk_get", bb);
+    register_builtin(name({"thunk", "map"}), o_o_o_o_o, "lean::thunk_bind", bbcc);
 
     /* name builtin functions */
     register_builtin(name({"lean", "name", "hash"}), o_us, "lean::name_hash_usize", b);

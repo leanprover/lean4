@@ -278,13 +278,6 @@ void initialize_builtin() {
     register_builtin(name({"lean", "environment", "contains"}), o_o_o, "lean_environment_contains");
     register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o_o, "lean_elaborator_elaborate_command");
 
-    /* thunk builtin functions */
-    register_builtin(name({"thunk", "mk"}), o_o_o, "lean::mk_thunk", bc);
-    register_builtin(name({"thunk", "pure"}), o_o_o, "lean::thunk_pure", bc);
-    register_builtin(name({"thunk", "get"}), o_o_o, "lean::thunk_get", bb);
-    register_builtin(name({"thunk", "bind"}), o_o_o_o_o, "lean::thunk_get", bb);
-    register_builtin(name({"thunk", "map"}), o_o_o_o_o, "lean::thunk_bind", bbcc);
-
     /* name builtin functions */
     register_builtin(name({"lean", "name", "hash"}), o_us, "lean::name_hash_usize", b);
     register_builtin(name({"lean", "name", "mk_string"}), o_o_o, "lean::name_mk_string");

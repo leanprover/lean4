@@ -145,7 +145,7 @@ attribute [extern cpp inline "lean::mk_thunk(#2)"] thunk.mk
 protected def thunk.pure {α : Type u} (a : α) : thunk α :=
 ⟨λ _, a⟩
 @[noinline, extern cpp inline "lean::thunk_get(#2)"]
-protected def thunk.get {α : Type u} (x : thunk α) : α :=
+protected def thunk.get {α : Type u} (x : @& thunk α) : α :=
 x.fn ()
 @[noinline, extern cpp inline "lean::thunk_map(#3, #4)"]
 protected def thunk.map {α : Type u} {β : Type v} (f : α → β) (x : thunk α) : thunk β :=

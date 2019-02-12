@@ -18,7 +18,8 @@ struct private_ext : public environment_extension {
     /* We store private prefixes to make sure register_private_name is used correctly.
        This information does not need to be stored in .olean files. */
     name_set       m_private_prefixes;
-    private_ext():m_counter(0) {}
+    name           m_mod_name;
+    private_ext():m_counter(1) {}
 };
 
 struct private_ext_reg {
@@ -32,6 +33,12 @@ static private_ext const & get_extension(environment const & env) {
 }
 static environment update(environment const & env, private_ext const & ext) {
     return env.update(g_ext->m_ext_id, std::make_shared<private_ext>(ext));
+}
+
+environment set_main_module_name(environment const & env, name const & mod_name) {
+    private_ext ext = get_extension(env);
+    ext.m_mod_name  = mod_name;
+    return  update(env, ext);
 }
 
 static name * g_private = nullptr;
@@ -48,7 +55,6 @@ struct private_modification : public modification {
         private_ext ext = get_extension(env);
         // we restore only the mapping hidden-name -> user-name (for pretty printing purposes)
         ext.m_inv_map.insert(m_real, m_name);
-        ext.m_counter++;
         env = update(env, ext);
     }
 
@@ -69,16 +75,13 @@ static environment preserve_private_data(environment const & env, name const & r
     return module::add(env, std::make_shared<private_modification>(n, r));
 }
 
-static name mk_private_name_core(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
+static name mk_private_name_core(environment const & env, name const & n) {
     private_ext const & ext = get_extension(env);
-    unsigned h              = hash(n.hash(), ext.m_counter);
-    if (extra_hash)
-        h = hash(h, *extra_hash);
-    return name(*g_private, h) + n;
+    return name(name(*g_private) + ext.m_mod_name, ext.m_counter) + n;
 }
 
-pair<environment, name> add_private_name(environment const & env, name const & n, optional<unsigned> const & extra_hash) {
-    name r          = mk_private_name_core(env, n, extra_hash);
+pair<environment, name> add_private_name(environment const & env, name const & n) {
+    name r          = mk_private_name_core(env, n);
     private_ext ext = get_extension(env);
     ext.m_inv_map.insert(r, n);
     ext.m_counter++;
@@ -87,31 +90,13 @@ pair<environment, name> add_private_name(environment const & env, name const & n
     return mk_pair(new_env, r);
 }
 
-static unsigned mk_extra_hash_using_pos() {
-    unsigned h = 31;
-    if (auto pinfo = get_pos_info_provider()) {
-        h = hash(pinfo->get_some_pos().first, pinfo->get_some_pos().second);
-        char const * fname = pinfo->get_file_name();
-        h = hash_str(strlen(fname), fname, h);
-    }
-    return h;
-}
-
-pair<environment, name> mk_private_name(environment const & env, name const & c) {
-    return add_private_name(env, c, optional<unsigned>(mk_extra_hash_using_pos()));
-}
-
-pair<environment, name> mk_private_prefix(environment const & env, optional<unsigned> const & extra_hash) {
-    name r          = mk_private_name_core(env, name(), extra_hash);
+pair<environment, name> mk_private_prefix(environment const & env) {
+    name r          = mk_private_name_core(env, name());
     private_ext ext = get_extension(env);
     ext.m_private_prefixes.insert(r);
     ext.m_counter++;
     environment new_env = update(env, ext);
     return mk_pair(new_env, r);
-}
-
-pair<environment, name> mk_private_prefix(environment const & env) {
-    return mk_private_prefix(env, optional<unsigned>(mk_extra_hash_using_pos()));
 }
 
 static optional<name> get_private_prefix(private_ext const & ext, name n) {

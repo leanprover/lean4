@@ -34,6 +34,7 @@ Author: Leonardo de Moura
 #include "library/io_state_stream.h"
 #include "library/message_builder.h"
 #include "library/time_task.h"
+#include "library/private.h"
 #include "library/compiler/emit_cpp.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
@@ -451,6 +452,7 @@ int main(int argc, char ** argv) {
         std::stringstream buf;
         buf << std::cin.rdbuf();
         contents = buf.str();
+        env      = set_main_module_name(env, "_stdin");
     } else {
         if (argc - optind != 1) {
             std::cerr << "Expected exactly one file name\n";
@@ -459,6 +461,7 @@ int main(int argc, char ** argv) {
         }
         mod_fn = lrealpath(argv[optind]);
         contents = read_file(mod_fn);
+        env      = set_main_module_name(env, module_name_of_file(path.get_path(), mod_fn));
     }
     try {
         message_log l;

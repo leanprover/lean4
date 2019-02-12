@@ -3,6 +3,9 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Leonardo de Moura, Max Wagner
+
+REMARK: ******* THIS FILE WILL BE DELETED *********
+        It is being replaced with extern_attribute.cpp
 */
 #include <unordered_map>
 #include <string>

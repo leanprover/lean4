@@ -120,8 +120,8 @@ match m with
 | (neg_succ_of_nat m) := nat.succ m
 
 protected def repr : int → string
-| (of_nat n)          := repr n
-| (neg_succ_of_nat n) := "-" ++ repr (succ n)
+| (of_nat n)          := nat.repr n
+| (neg_succ_of_nat n) := "-" ++ nat.repr (succ n)
 
 instance : has_repr int :=
 ⟨int.repr⟩

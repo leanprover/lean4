@@ -224,20 +224,6 @@ void initialize_builtin() {
     register_builtin(name({"nat", "dec_lt"}), o_o_u8, "lean::nat_dec_lt", bb);
     register_builtin(name({"nat", "dec_le"}), o_o_u8, "lean::nat_dec_le", bb);
 
-    /* int builtin functions */
-    register_builtin(name({"int", "of_nat"}), o_o, "lean::nat2int", b);
-    register_builtin(name({"int", "neg_succ_of_nat"}), o_o, "lean::int_neg_succ_of_nat", b);
-    register_builtin(name({"int", "nat_abs"}), o_o, "lean::nat_abs", b);
-    register_builtin(name({"int", "neg"}), o_o, "lean::int_neg", b);
-    register_builtin(name({"int", "add"}), o_o_o, "lean::int_add", bb);
-    register_builtin(name({"int", "sub"}), o_o_o, "lean::int_sub", bb);
-    register_builtin(name({"int", "mul"}), o_o_o, "lean::int_mul", bb);
-    register_builtin(name({"int", "quot"}), o_o_o, "lean::int_div", bb);
-    register_builtin(name({"int", "rem"}), o_o_o, "lean::int_rem", bb);
-    register_builtin(name({"int", "dec_eq"}), o_o_u8, "lean::int_dec_eq", bb);
-    register_builtin(name({"int", "dec_lt"}), o_o_u8, "lean::int_dec_lt", bb);
-    register_builtin(name({"int", "dec_le"}), o_o_u8, "lean::int_dec_le", bb);
-
     g_ext = new native_decls_reg();
 }
 

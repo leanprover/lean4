@@ -1045,7 +1045,9 @@ object * int_big_div(object * a1, object * a2) {
         return mk_int_obj(mpz_value(a1) / mpz_value(a2));
 }
 
-object * int_big_rem(object * a1, object * a2) {
+
+
+object * int_big_mod(object * a1, object * a2) {
     if (is_scalar(a1))
         return mk_int_obj(mpz(int2int(a1)) % mpz_value(a2));
     else if (is_scalar(a2))

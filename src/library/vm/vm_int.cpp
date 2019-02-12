@@ -122,7 +122,7 @@ vm_obj int_mul(vm_obj const & a1, vm_obj const & a2) {
     return mk_vm_int(to_mpz1(a1) * to_mpz2(a2));
 }
 
-vm_obj int_quot(vm_obj const & a1, vm_obj const & a2) {
+vm_obj int_div(vm_obj const & a1, vm_obj const & a2) {
     if (is_simple(a1) && is_simple(a2)) {
         int v1 = to_small_int(a1);
         int v2 = to_small_int(a2);
@@ -140,7 +140,7 @@ vm_obj int_quot(vm_obj const & a1, vm_obj const & a2) {
     }
 }
 
-vm_obj int_rem(vm_obj const & a1, vm_obj const & a2) {
+vm_obj int_mod(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         int v1 = to_small_int(a1);
         int v2 = to_small_int(a2);
@@ -230,8 +230,8 @@ void initialize_vm_int() {
     DECLARE_VM_BUILTIN(name({"int", "sub"}),              int_sub);
     DECLARE_VM_BUILTIN(name({"int", "mul"}),              int_mul);
     DECLARE_VM_BUILTIN(name({"int", "neg"}),              int_neg);
-    DECLARE_VM_BUILTIN(name({"int", "quot"}),             int_quot);
-    DECLARE_VM_BUILTIN(name({"int", "rem"}),              int_rem);
+    DECLARE_VM_BUILTIN(name({"int", "div"}),              int_div);
+    DECLARE_VM_BUILTIN(name({"int", "mod"}),              int_mod);
     DECLARE_VM_BUILTIN(name({"int", "dec_eq"}),           int_decidable_eq);
     DECLARE_VM_BUILTIN(name({"int", "dec_le"}),           int_decidable_le);
     DECLARE_VM_BUILTIN(name({"int", "dec_lt"}),           int_decidable_lt);

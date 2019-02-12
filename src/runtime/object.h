@@ -475,7 +475,7 @@ object * int_big_add(object * a1, object * a2);
 object * int_big_sub(object * a1, object * a2);
 object * int_big_mul(object * a1, object * a2);
 object * int_big_div(object * a1, object * a2);
-object * int_big_rem(object * a1, object * a2);
+object * int_big_mod(object * a1, object * a2);
 bool int_big_eq(object * a1, object * a2);
 bool int_big_le(object * a1, object * a2);
 bool int_big_lt(object * a1, object * a2);
@@ -891,7 +891,7 @@ inline int int2int(b_obj_arg a) {
     }
 }
 
-inline obj_res nat2int(b_obj_arg a) {
+inline obj_res nat2int(obj_arg a) {
     if (is_scalar(a)) {
         unsigned v = unbox(a);
         if (v <= LEAN_MAX_SMALL_INT) {
@@ -912,11 +912,11 @@ inline obj_res int_neg(b_obj_arg a) {
     }
 }
 
-inline obj_res int_neg_succ_of_nat(b_obj_arg a) {
+inline obj_res int_neg_succ_of_nat(obj_arg a) {
     obj_res s  = nat_succ(a);
     obj_res i  = nat2int(s);
     obj_res r  = int_neg(i);
-    dec(s); dec(i);
+    dec(s); dec(i); dec(a);
     return r;
 }
 
@@ -957,7 +957,7 @@ inline obj_res int_div(b_obj_arg a1, b_obj_arg a2) {
     }
 }
 
-inline obj_res int_rem(b_obj_arg a1, b_obj_arg a2) {
+inline obj_res int_mod(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
         int v1 = int2int(a1);
         int v2 = int2int(a2);
@@ -966,7 +966,7 @@ inline obj_res int_rem(b_obj_arg a1, b_obj_arg a2) {
         else
             return mk_int_obj(v1 % v2);
     } else {
-        return int_big_rem(a1, a2);
+        return int_big_mod(a1, a2);
     }
 }
 
@@ -1012,6 +1012,14 @@ inline uint8 int_dec_eq(b_obj_arg a1, b_obj_arg a2) { return int_eq(a1, a2); }
 inline uint8 int_dec_le(b_obj_arg a1, b_obj_arg a2) { return int_le(a1, a2); }
 
 inline uint8 int_dec_lt(b_obj_arg a1, b_obj_arg a2) { return int_lt(a1, a2); }
+
+inline uint8 int_dec_nonneg(b_obj_arg a) {
+    if (LEAN_LIKELY(is_scalar(a))) {
+        return int2int(a) >= 0;
+    } else {
+        return mpz_value(a) >= 0;
+    }
+}
 
 inline obj_res box_uint32(unsigned v) {
     if (sizeof(void*) == 4) {

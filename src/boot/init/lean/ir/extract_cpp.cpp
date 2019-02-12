@@ -256,7 +256,6 @@ obj* l_lean_ir_cpp_emit__main__proc___closed__3;
 obj* l_nat_repeat__core___main___at_lean_ir_cpp_emit__uncurry___spec__3(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_ir_cpp_emit__initialize__proc(obj*, obj*, obj*);
 obj* l_lean_ir_cpp_type2cpp___main___closed__5;
-extern obj* l_int_repr___main___closed__1;
 obj* l_lean_ir_cpp_type2cpp___main___closed__8;
 obj* l_lean_ir_cpp_emit__terminator___closed__1;
 obj* l_lean_ir_cpp_file__header___closed__3;
@@ -318,6 +317,7 @@ obj* l_lean_ir_cpp_type2cpp___main___closed__11;
 obj* l_lean_ir_cpp_emit__template__params___closed__3;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__5;
 obj* l_lean_ir_cpp_decl__local(obj*, uint8, obj*, obj*);
+extern obj* l_int_repr___main___closed__2;
 obj* l_lean_ir_cpp_emit__apply___closed__2;
 obj* l_reader__t_monad___rarg(obj*);
 obj* l_lean_ir_cpp_type2cpp___main___boxed(obj*);
@@ -5433,7 +5433,7 @@ return x_16;
 case 1:
 {
 obj* x_17; obj* x_18; obj* x_21; 
-x_17 = l_int_repr___main___closed__1;
+x_17 = l_int_repr___main___closed__2;
 x_18 = l_lean_ir_cpp_emit__assign__binop___closed__4;
 lean::inc(x_18);
 lean::inc(x_17);
@@ -7059,7 +7059,7 @@ return x_8;
 case 1:
 {
 obj* x_10; 
-x_10 = l_int_repr___main___closed__1;
+x_10 = l_int_repr___main___closed__2;
 lean::inc(x_10);
 return x_10;
 }
@@ -7705,10 +7705,11 @@ return x_0;
 obj* _init_l_lean_ir_cpp_emit__assign__lit___closed__4() {
 _start:
 {
-obj* x_0; obj* x_1; 
+obj* x_0; obj* x_2; 
 x_0 = l_uint32__sz;
-x_1 = lean::nat2int(x_0);
-return x_1;
+lean::inc(x_0);
+x_2 = lean::nat2int(x_0);
+return x_2;
 }
 }
 obj* _init_l_lean_ir_cpp_emit__assign__lit___closed__5() {

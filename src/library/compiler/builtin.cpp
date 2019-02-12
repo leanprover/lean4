@@ -263,15 +263,6 @@ void initialize_builtin() {
     register_builtin(name({"string", "iterator", "fst"}), o_o, "lean::string_iterator_fst", b);
     register_builtin(name({"string", "iterator", "snd"}), o_o, "lean::string_iterator_snd", b);
 
-    /* io builtin functions */
-    register_builtin(name({"io", "prim", "put_str"}), o_o_o, "lean::io_prim_put_str", bc);
-    register_builtin(name({"io", "prim", "get_line"}), o_o, "lean::io_prim_get_line", c);
-    register_builtin(name({"io", "prim", "handle", "mk"}), o_u8_u8_o_o, "lean::io_prim_handle_mk", bccc);
-    register_builtin(name({"io", "prim", "handle", "is_eof"}), o_o_o, "lean::io_prim_handle_is_eof", bc);
-    register_builtin(name({"io", "prim", "handle", "flush"}), o_o_o, "lean::io_prim_handle_flush", bc);
-    register_builtin(name({"io", "prim", "handle", "close"}), o_o_o, "lean::io_prim_handle_close", bc);
-    register_builtin(name({"io", "prim", "handle", "get_line"}), o_o_o, "lean::io_prim_handle_get_line", bc);
-
     // interface to old elaborator
     register_builtin(name({"lean", "expr", "local"}), mk_arrow(o, o_o_o_o), "lean_expr_local");
     register_builtin(name({"lean", "environment", "mk_empty"}), o_o, "lean_environment_mk_empty");

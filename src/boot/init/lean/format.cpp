@@ -378,52 +378,53 @@ return x_1;
 }
 lbl_4:
 {
-obj* x_14; uint8 x_15; 
+obj* x_14; uint8 x_16; 
 lean::dec(x_3);
 x_14 = lean::thunk_get(x_2);
-x_15 = lean::cnstr_get_scalar<uint8>(x_14, sizeof(void*)*1 + 1);
-if (x_15 == 0)
-{
-uint8 x_16; 
-x_16 = lean::cnstr_get_scalar<uint8>(x_14, sizeof(void*)*1);
+lean::dec(x_2);
+x_16 = lean::cnstr_get_scalar<uint8>(x_14, sizeof(void*)*1 + 1);
 if (x_16 == 0)
 {
-obj* x_17; obj* x_20; obj* x_23; uint8 x_26; 
-x_17 = lean::cnstr_get(x_1, 0);
-lean::inc(x_17);
-lean::dec(x_1);
-x_20 = lean::cnstr_get(x_14, 0);
-lean::inc(x_20);
-lean::dec(x_14);
-x_23 = lean::nat_add(x_17, x_20);
-lean::dec(x_20);
-lean::dec(x_17);
-x_26 = lean::nat_dec_lt(x_0, x_23);
-lean::dec(x_0);
-if (x_26 == 0)
+uint8 x_17; 
+x_17 = lean::cnstr_get_scalar<uint8>(x_14, sizeof(void*)*1);
+if (x_17 == 0)
 {
-uint8 x_28; obj* x_29; obj* x_30; obj* x_31; 
-x_28 = 0;
-x_29 = lean::alloc_cnstr(0, 1, 2);
-lean::cnstr_set(x_29, 0, x_23);
-lean::cnstr_set_scalar(x_29, sizeof(void*)*1, x_28);
-x_30 = x_29;
-lean::cnstr_set_scalar(x_30, sizeof(void*)*1 + 1, x_28);
+obj* x_18; obj* x_21; obj* x_24; uint8 x_27; 
+x_18 = lean::cnstr_get(x_1, 0);
+lean::inc(x_18);
+lean::dec(x_1);
+x_21 = lean::cnstr_get(x_14, 0);
+lean::inc(x_21);
+lean::dec(x_14);
+x_24 = lean::nat_add(x_18, x_21);
+lean::dec(x_21);
+lean::dec(x_18);
+x_27 = lean::nat_dec_lt(x_0, x_24);
+lean::dec(x_0);
+if (x_27 == 0)
+{
+uint8 x_29; obj* x_30; obj* x_31; obj* x_32; 
+x_29 = 0;
+x_30 = lean::alloc_cnstr(0, 1, 2);
+lean::cnstr_set(x_30, 0, x_24);
+lean::cnstr_set_scalar(x_30, sizeof(void*)*1, x_29);
 x_31 = x_30;
-return x_31;
+lean::cnstr_set_scalar(x_31, sizeof(void*)*1 + 1, x_29);
+x_32 = x_31;
+return x_32;
 }
 else
 {
-uint8 x_32; uint8 x_33; obj* x_34; obj* x_35; obj* x_36; 
-x_32 = 0;
-x_33 = 1;
-x_34 = lean::alloc_cnstr(0, 1, 2);
-lean::cnstr_set(x_34, 0, x_23);
-lean::cnstr_set_scalar(x_34, sizeof(void*)*1, x_32);
-x_35 = x_34;
-lean::cnstr_set_scalar(x_35, sizeof(void*)*1 + 1, x_33);
+uint8 x_33; uint8 x_34; obj* x_35; obj* x_36; obj* x_37; 
+x_33 = 0;
+x_34 = 1;
+x_35 = lean::alloc_cnstr(0, 1, 2);
+lean::cnstr_set(x_35, 0, x_24);
+lean::cnstr_set_scalar(x_35, sizeof(void*)*1, x_33);
 x_36 = x_35;
-return x_36;
+lean::cnstr_set_scalar(x_36, sizeof(void*)*1 + 1, x_34);
+x_37 = x_36;
+return x_37;
 }
 }
 else
@@ -435,44 +436,44 @@ return x_14;
 }
 else
 {
-if (x_15 == 0)
+if (x_16 == 0)
 {
-obj* x_39; obj* x_42; obj* x_45; uint8 x_48; 
-x_39 = lean::cnstr_get(x_1, 0);
-lean::inc(x_39);
+obj* x_40; obj* x_43; obj* x_46; uint8 x_49; 
+x_40 = lean::cnstr_get(x_1, 0);
+lean::inc(x_40);
 lean::dec(x_1);
-x_42 = lean::cnstr_get(x_14, 0);
-lean::inc(x_42);
+x_43 = lean::cnstr_get(x_14, 0);
+lean::inc(x_43);
 lean::dec(x_14);
-x_45 = lean::nat_add(x_39, x_42);
-lean::dec(x_42);
-lean::dec(x_39);
-x_48 = lean::nat_dec_lt(x_0, x_45);
+x_46 = lean::nat_add(x_40, x_43);
+lean::dec(x_43);
+lean::dec(x_40);
+x_49 = lean::nat_dec_lt(x_0, x_46);
 lean::dec(x_0);
-if (x_48 == 0)
+if (x_49 == 0)
 {
-uint8 x_50; obj* x_51; obj* x_52; obj* x_53; 
-x_50 = 0;
-x_51 = lean::alloc_cnstr(0, 1, 2);
-lean::cnstr_set(x_51, 0, x_45);
-lean::cnstr_set_scalar(x_51, sizeof(void*)*1, x_50);
-x_52 = x_51;
-lean::cnstr_set_scalar(x_52, sizeof(void*)*1 + 1, x_50);
+uint8 x_51; obj* x_52; obj* x_53; obj* x_54; 
+x_51 = 0;
+x_52 = lean::alloc_cnstr(0, 1, 2);
+lean::cnstr_set(x_52, 0, x_46);
+lean::cnstr_set_scalar(x_52, sizeof(void*)*1, x_51);
 x_53 = x_52;
-return x_53;
+lean::cnstr_set_scalar(x_53, sizeof(void*)*1 + 1, x_51);
+x_54 = x_53;
+return x_54;
 }
 else
 {
-uint8 x_54; uint8 x_55; obj* x_56; obj* x_57; obj* x_58; 
-x_54 = 0;
-x_55 = 1;
-x_56 = lean::alloc_cnstr(0, 1, 2);
-lean::cnstr_set(x_56, 0, x_45);
-lean::cnstr_set_scalar(x_56, sizeof(void*)*1, x_54);
-x_57 = x_56;
-lean::cnstr_set_scalar(x_57, sizeof(void*)*1 + 1, x_55);
+uint8 x_55; uint8 x_56; obj* x_57; obj* x_58; obj* x_59; 
+x_55 = 0;
+x_56 = 1;
+x_57 = lean::alloc_cnstr(0, 1, 2);
+lean::cnstr_set(x_57, 0, x_46);
+lean::cnstr_set_scalar(x_57, sizeof(void*)*1, x_55);
 x_58 = x_57;
-return x_58;
+lean::cnstr_set_scalar(x_58, sizeof(void*)*1 + 1, x_56);
+x_59 = x_58;
+return x_59;
 }
 }
 else

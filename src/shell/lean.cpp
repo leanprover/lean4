@@ -155,6 +155,9 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
 
 using namespace lean; // NOLINT
 
+object * lean_process_file(object * filename, object * contents, uint8 json, object * world);
+void initialize_init_lean_frontend();
+
 #ifndef LEAN_SERVER_DEFAULT_MAX_MEMORY
 #define LEAN_SERVER_DEFAULT_MAX_MEMORY 1024
 #endif
@@ -200,6 +203,7 @@ static void display_help(std::ostream & out) {
     std::cout << "  --server           start lean in server mode\n";
     std::cout << "  --server=file      start lean in server mode, redirecting standard input from the specified file (for debugging)\n";
 #endif
+    std::cout << "  --new-frontend     use new frontend\n";
     std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
     DEBUG_CODE(
     std::cout << "  --debug=tag        enable assertions with the given tag\n";
@@ -226,6 +230,7 @@ static struct option g_long_options[] = {
     {"path",         no_argument,       0, 'p'},
     {"server",       optional_argument, 0, 'S'},
 #endif
+    {"new-frontend", optional_argument, 0, 'n'},
 #if defined(LEAN_MULTI_THREAD)
     {"tstack",       required_argument, 0, 's'},
 #endif
@@ -315,6 +320,7 @@ int main(int argc, char ** argv) {
     bool use_stdin = false;
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
+    bool new_frontend = false;
     // unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
     // num_threads = hardware_concurrency();
@@ -358,9 +364,6 @@ int main(int argc, char ** argv) {
                 break;
             case 'm':
                 make_mode = true;
-                break;
-            case 'n':
-                native_output = optarg;
                 break;
             case 'M':
                 opts = opts.update(get_max_memory_opt_name(), atoi(optarg));
@@ -412,6 +415,9 @@ int main(int argc, char ** argv) {
                 lean::enable_debug(optarg);
                 break;
 #endif
+            case 'n':
+                new_frontend = true;
+                break;
             default:
                 std::cerr << "Unknown command line option\n";
                 display_help(std::cerr);
@@ -464,10 +470,9 @@ int main(int argc, char ** argv) {
         env      = set_main_module_name(env, module_name_of_file(path.get_path(), mod_fn));
     }
     try {
-        message_log l;
-        scope_message_log scope_log(l);
         scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
 
+        // TODO(Sebastian): parse imports using new frontend
         std::vector<rel_module_name> rel_imports;
         std::istringstream in(contents);
         parser p(env, ios, in, mod_fn);
@@ -490,25 +495,35 @@ int main(int argc, char ** argv) {
             return 0;
         }
 
-        p.set_env(import_modules(env, imports, path.get_path()));
-        p.parse_commands();
+        bool ok;
+        if (new_frontend) {
+            initialize_init_lean_frontend();
+            object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output), box(0)) };
+            ok = static_cast<bool>(unbox(cnstr_get_ref(res, 0).raw()));
+        } else {
+            message_log l;
+            scope_message_log scope_log(l);
+            p.set_env(import_modules(env, imports, path.get_path()));
+            p.parse_commands();
 
-        if (make_mode && !l.has_errors()) {
+            if (json_output) {
+#if defined(LEAN_JSON)
+                for (auto const & msg : l.to_buffer()) {
+                    print_json(std::cout, msg);
+#endif
+                }
+            } else {
+                // Messages have already been printed directly to stdout
+            }
+            ok = !l.has_errors();
+        }
+
+        if (make_mode && ok) {
             auto olean_fn = olean_of_lean(mod_fn);
             time_task t(".olean serialization",
                         message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
                                         message_severity::INFORMATION));
             write_module(p.env(), mod_fn, olean_fn);
-        }
-
-        if (json_output) {
-#if defined(LEAN_JSON)
-            for (auto const & msg : l.to_buffer()) {
-                print_json(std::cout, msg);
-#endif
-            }
-        } else {
-            // Messages have already been printed directly to stdout
         }
 
         if (!json_output)
@@ -519,7 +534,7 @@ int main(int argc, char ** argv) {
             auto mod = module_name_of_file(path.get_path(), mod_fn);
             emit_cpp(out, p.env(), mod, to_list(imports.begin(), imports.end()));
         }
-        return l.has_errors() ? 1 : 0;
+        return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
         std::cerr << lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(
                 ex).build();

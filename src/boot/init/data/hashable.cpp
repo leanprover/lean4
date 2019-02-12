@@ -3,8 +3,6 @@
 // Imports: init.data.usize init.data.string.default
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -24,6 +22,9 @@ obj* l_nat_hash___boxed(obj*);
 obj* l_mix__hash___boxed(obj*, obj*);
 usize l_nat_hash(obj*);
 usize l_mix__hash(usize, usize);
+namespace lean {
+usize usize_of_nat(obj*);
+}
 obj* l_string_hash___boxed(obj*);
 usize l_mix__hash___closed__1;
 usize _init_l_mix__hash___closed__1() {

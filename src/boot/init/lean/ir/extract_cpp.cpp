@@ -3,8 +3,6 @@
 // Imports: init.lean.name_mangling init.lean.config init.lean.ir.type_check
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -28,6 +26,9 @@ obj* l_lean_ir_cpp_emit__main__proc___closed__1;
 obj* l_except__t_monad__run___rarg(obj*, obj*, obj*);
 obj* l_list_foldr___main___at_lean_ir_cpp_decl__locals___spec__1(obj*, obj*);
 obj* l_lean_ir_cpp_emit(obj*);
+namespace lean {
+obj* nat2int(obj*);
+}
 obj* l_lean_ir_cpp_emit__uncurry__header(obj*, obj*, obj*);
 obj* l_lean_ir_cpp_assign__unop2cpp___boxed(obj*, obj*);
 obj* l_lean_ir_cpp_emit__cases___main(obj*, obj*, obj*, obj*);
@@ -52,6 +53,9 @@ obj* l_lean_ir_cpp_file__header___closed__4;
 obj* l_lean_ir_cpp_emit__main__proc___closed__4;
 obj* l_rbnode_balance2__node___main___rarg(obj*, obj*, obj*, obj*);
 extern obj* l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__2;
+namespace lean {
+obj* uint16_to_nat(uint16);
+}
 obj* l_list_foldl___main___at_lean_ir_cpp_collect__used___spec__4(obj*, obj*);
 obj* l_lean_ir_cpp_emit__infix___closed__1;
 obj* l_rbnode_insert___at_lean_ir_cpp_collect__used___spec__2(obj*, obj*, obj*);
@@ -65,6 +69,7 @@ obj* l_lean_ir_instr_to__format___main(obj*);
 obj* l_lean_ir_cpp_emit__instr___closed__1;
 obj* l_lean_ir_cpp_unop2cpp___main___closed__9;
 extern obj* l_lean_ir_match__type___closed__5;
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_ir_cpp_emit__case___main___closed__7;
 obj* l_lean_ir_cpp_emit__eos___closed__1;
 obj* l_lean_ir_cpp_assign__unop2cpp___main___closed__8;
@@ -128,6 +133,9 @@ extern obj* l_lean_ir_mk__fnid__set;
 obj* l_lean_ir_cpp_emit__template__params(obj*, obj*, obj*);
 obj* l_lean_ir_cpp_emit__template__param___boxed(obj*, obj*, obj*);
 obj* l_lean_ir_cpp_emit__type__size___closed__1;
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_lean_ir_cpp_emit__main__proc___closed__2;
 obj* l_except__t_monad__except___rarg(obj*);
 obj* l_lean_ir_cpp_emit__uncurry___closed__1;
@@ -184,6 +192,7 @@ obj* l_lean_ir_cpp_emit__assign__binop___closed__12;
 obj* l_lean_ir_cpp_emit__main__proc(obj*, obj*);
 obj* l_rbmap_insert___main___at_lean_ir_cpp_collect__used___spec__1(obj*, obj*, obj*);
 extern obj* l_list_repr___main___rarg___closed__3;
+uint8 l_nat_dec__eq(obj*, obj*);
 extern obj* l_lean_format_be___main___closed__1;
 obj* l_lean_ir_cpp_emit__uncurry__header___closed__1;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__23;
@@ -262,6 +271,9 @@ obj* l___private_init_lean_name__mangling_4__name_mangle__aux___main(obj*, obj*)
 obj* l_lean_ir_cpp_file__header___closed__3;
 obj* l_lean_ir_cpp_emit__logical__arith___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_ir_cpp_extract__m_monad__state;
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_lean_ir_cpp_emit__assign__binop___closed__17;
 obj* l_lean_ir_cpp_type2cpp___main___closed__4;
 obj* l_lean_ir_cpp_emit__instr___closed__6;
@@ -343,6 +355,7 @@ obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_id_monad___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_lean_ir_cpp_emit__num__suffix___main___boxed(obj*, obj*, obj*);
 extern obj* l_lean_ir_mk__context;
+obj* l_nat_sub(obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__3;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__39;
 obj* l_lean_ir_cpp_emit__big__binop(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -365,10 +378,17 @@ obj* l_lean_ir_cpp_file__header(obj*);
 obj* l_lean_ir_cpp_emit__assign__binop___closed__2;
 obj* l_rbnode_mfold___main___at_lean_ir_cpp_emit__used__headers___spec__1___closed__1;
 obj* l_lean_ir_cpp_emit__instr___closed__4;
+namespace lean {
+obj* usize_to_nat(usize);
+}
 obj* l_lean_ir_cpp_emit__apply___closed__3;
+namespace lean {
+uint8 int_dec_lt(obj*, obj*);
+}
 obj* l_lean_ir_cpp_emit__assign__binop___closed__32;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__22;
 extern obj* l_lean_closure__max__args;
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_lean_ir_cpp_emit__assign__binop___closed__6;
 extern obj* l_lean_ir_is__arith__ty___closed__1;
 obj* l_lean_ir_cpp_unop2cpp___main___closed__7;

@@ -3,8 +3,6 @@
 // Imports: init.lean.format init.lean.parser.identifier init.lean.ir.reserved init.lean.ir.ir
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -33,6 +31,9 @@ obj* l_lean_ir_terminator_to__format(obj*);
 obj* l_lean_ir_block_to__format___main(obj*);
 obj* l_lean_ir_unop_has__to__format;
 obj* l_lean_ir_instr_to__format___main___closed__12;
+namespace lean {
+obj* uint16_to_nat(uint16);
+}
 obj* l_lean_ir_decl_to__format(obj*);
 obj* l_lean_ir_assign__unop_to__format___main___closed__17;
 obj* l_lean_ir_should__escape__aux___main(obj*, uint8, obj*);
@@ -91,6 +92,9 @@ extern obj* l_lean_list_to__format___main___rarg___closed__1;
 obj* l_lean_ir_type_to__format___main(uint8);
 obj* l_lean_ir_assign__unop_to__format___main___closed__1;
 obj* l_lean_format_join__sep___main___at_lean_ir_decl_to__format___main___spec__1(obj*, obj*);
+namespace lean {
+obj* string_iterator_next(obj*);
+}
 obj* l_lean_ir_assign__binop_to__format___main___closed__19;
 obj* l_lean_ir_arg_has__to__string;
 obj* l_lean_ir_blockid_has__to__format(obj*);
@@ -103,6 +107,9 @@ obj* l_lean_ir_type_to__format___main___closed__9;
 obj* l_lean_ir_literal_has__to__string;
 obj* l_lean_ir_block_has__to__format;
 obj* l_lean_ir_assign__binop_to__format___main___closed__10;
+namespace lean {
+obj* string_length(obj*);
+}
 obj* l_lean_ir_instr_decorate__error___rarg(obj*, obj*, obj*);
 obj* l_lean_ir_assign__binop_to__format___main___boxed(obj*);
 obj* l_lean_ir_assign__binop_to__format___main___closed__5;
@@ -111,10 +118,16 @@ obj* l_lean_ir_instr_to__format___main___closed__9;
 obj* l_lean_ir_assign__binop_to__format___main___closed__22;
 obj* l_lean_ir_tag_has__to__format;
 obj* l_lean_ir_assign__unop_to__format___main___closed__12;
+namespace lean {
+uint32 string_iterator_curr(obj*);
+}
 extern obj* l_lean_name_to__string___closed__1;
 obj* l_lean_ir_decl_has__to__string;
 obj* l_lean_to__fmt___at_lean_ir_arg_has__to__string___spec__1(obj*);
 obj* l_lean_ir_instr_to__format___main___closed__13;
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_uint16_has__to__string___boxed(obj*);
 obj* l_lean_ir_assign__unop_to__format___main___closed__14;
 extern obj* l_lean_format_sbracket___closed__2;
@@ -157,6 +170,7 @@ obj* l_lean_ir_assign__binop_has__to__format;
 obj* l_lean_ir_decl_to__format___main___closed__1;
 obj* l_lean_ir_block_to__format___main___closed__1;
 obj* l_lean_ir_unop_to__format___main___closed__7;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_format_join__suffix___main___at_lean_ir_block_to__format___main___spec__2(obj*, obj*);
 obj* l_lean_to__fmt___at_lean_ir_unop_has__to__string___spec__1(uint8);
 obj* l_lean_ir_instr_to__format___main___closed__10;
@@ -208,6 +222,9 @@ obj* l_lean_ir_type_to__format___main___closed__2;
 obj* l_lean_ir_assign__binop_to__format___main___closed__16;
 obj* l_lean_ir_escape__string(obj*);
 obj* l_lean_to__fmt___at_lean_ir_instr_to__format___main___spec__4(uint16);
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_lean_ir_unop_to__format___main___boxed(obj*);
 obj* l_lean_ir_block_to__format___main___closed__2;
 obj* l_lean_to__fmt___at_lean_ir_instr_to__format___main___spec__6___boxed(obj*);
@@ -224,6 +241,9 @@ obj* l_lean_ir_id_to__string___main___closed__1;
 extern obj* l_lean_format_flatten___main___closed__1;
 obj* l_lean_ir_assign__unop_to__format___main___closed__11;
 obj* l_lean_ir_assign__unop_to__format___main___closed__8;
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 obj* l_lean_to__fmt___at_lean_ir_terminator_to__format___main___spec__4(obj*);
 obj* l_lean_ir_header_has__to__string;
 extern obj* l_lean_format_paren___closed__2;
@@ -255,9 +275,13 @@ obj* l_lean_to__fmt___at_lean_ir_literal_to__format___main___spec__1___boxed(obj
 obj* l_lean_to__fmt___at_lean_ir_block_has__to__string___spec__1(obj*);
 obj* l_lean_ir_assign__binop_to__format___main___closed__6;
 obj* l_lean_ir_instr_to__format___main___closed__5;
+obj* l_nat_sub(obj*, obj*);
 obj* l_lean_to__fmt___at_lean_ir_sizet__entry_to__format___main___spec__1(obj*);
 obj* l_lean_ir_instr_to__format___main___closed__4;
 obj* l_lean_ir_terminator_decorate__error(obj*, obj*);
+namespace lean {
+obj* string_push(obj*, uint32);
+}
 obj* l_lean_ir_header_decorate__error(obj*, obj*);
 obj* l_lean_ir_assign__unop_to__format___main___closed__7;
 obj* l_lean_ir_fnid_has__to__string(obj*);
@@ -265,6 +289,9 @@ obj* l_lean_ir_assign__binop_to__format___main___closed__3;
 obj* l_lean_ir_instr_to__format___main___closed__8;
 obj* l_lean_ir_block_decorate__error___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_lean_ir_type_to__format___boxed(obj*);
+namespace lean {
+obj* usize_to_nat(usize);
+}
 obj* l_lean_ir_assign__binop_to__format___main___closed__9;
 obj* l_lean_ir_terminator_to__format___main___closed__3;
 obj* l_lean_ir_assign__unop_to__format___main___closed__4;

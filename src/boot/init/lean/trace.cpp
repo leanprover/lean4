@@ -3,8 +3,6 @@
 // Imports: init.lean.format init.data.rbmap.default init.lean.position init.lean.name init.lean.options
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -23,6 +21,7 @@ obj* l_lean_trace_pp___main(obj*);
 obj* l_lean_trace_trace__map;
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__9(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_lean_format_join___closed__1;
+obj* l_thunk_mk(obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__8(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_trace_trace__t_run(obj*, obj*);
@@ -42,6 +41,7 @@ obj* l_lean_trace_monad(obj*);
 obj* l_monad__state__adapter_adapt__state_x_27___at_lean_trace_lean_trace_monad__tracer___spec__4___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_lean_trace_trace___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_has__coe(obj*);
+obj* l_thunk_get(obj*, obj*);
 obj* l_state__t_monad___rarg(obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__5(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_trace_trace(obj*);

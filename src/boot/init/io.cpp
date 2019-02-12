@@ -3,8 +3,6 @@
 // Imports: init.control.state init.control.except init.data.string.basic init.control.coroutine
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -29,6 +27,9 @@ obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7(obj*, obj*);
 obj* l_io_prim_lift__eio___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_io;
 obj* l_coroutine__io_mk__st(obj*, obj*, obj*);
+namespace lean {
+obj* io_prim_handle_mk(obj*, uint8, uint8, obj*);
+}
 obj* l_io_prim_handle_get__line___boxed(obj*, obj*);
 obj* l_coroutine__io_monad___closed__1;
 obj* l_coroutine__io_pipe___main(obj*, obj*, obj*, obj*);
@@ -44,6 +45,9 @@ obj* l_coroutine__io_resume___rarg(obj*, obj*, obj*);
 obj* l_io_prim_iterate___rarg(obj*, obj*, obj*);
 obj* l_id_monad___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_io_has__eval___rarg(obj*, obj*, obj*);
+namespace lean {
+obj* io_prim_put_str(obj*, obj*);
+}
 obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate___main___at_io_prim_iterate__eio___spec__1___rarg(obj*, obj*, obj*);
 obj* l_io_fs_handle_flush(obj*, obj*);
@@ -67,6 +71,9 @@ obj* l_coroutine__io_monad___lambda__8(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_yield(obj*, obj*);
 obj* l_coroutine__io_read___rarg(obj*, obj*);
 obj* l_io_fs_handle_is__eof___rarg(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_eio_has__eval(obj*, obj*);
 obj* l_io_print___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_monad___lambda__4(obj*, obj*, obj*, obj*);
@@ -84,6 +91,9 @@ obj* l_coroutine__io_monad___lambda__7(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_bind(obj*, obj*, obj*, obj*);
 obj* l_io_error_has__to__string;
 obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__4(obj*, obj*);
+namespace lean {
+obj* io_prim_handle_close(obj*, obj*);
+}
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__result__io;
 obj* l_monad__io;
@@ -106,6 +116,9 @@ obj* l_io_fs_handle_close___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_pure___rarg(obj*, obj*, obj*);
 obj* l_id_monad___lambda__3(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_yield___rarg___lambda__1(obj*, obj*);
+namespace lean {
+obj* io_prim_handle_flush(obj*, obj*);
+}
 obj* l_io_fs_read__file___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_io_monad;
 obj* l_coroutine__io_read(obj*, obj*);
@@ -118,6 +131,9 @@ obj* l_eio;
 obj* l_io_fs_handle_get__line___at_io_fs_handle_read__to__end___spec__3(obj*, obj*);
 obj* l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_eio_has__eval___rarg(obj*, obj*, obj*, obj*);
+namespace lean {
+obj* io_prim_get_line(obj*);
+}
 obj* l_io_prim_lift__eio___at_io_fs_read__file___spec__2(obj*, obj*);
 obj* l_io_fs_handle_get__line___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__2(obj*, obj*);
@@ -130,6 +146,9 @@ obj* l_coroutine__io_monad___lambda__5(obj*, obj*, obj*, obj*);
 obj* l_io_prim_lift__eio___at_io_fs_handle_get__line___spec__1(obj*, obj*);
 obj* l_coroutine__io_yield___rarg___closed__1;
 obj* l_io_prim_lift__eio___at_io_fs_handle_close___spec__1(obj*, obj*);
+namespace lean {
+obj* io_prim_handle_get_line(obj*, obj*);
+}
 obj* l_io_prim_lift__eio___at_io_println___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_fs_handle_mk(obj*, obj*);
 obj* l___private_init_io_10__put__str___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -151,6 +170,9 @@ obj* l_coroutine__io_pipe___rarg(obj*, obj*);
 obj* l_io_fs_handle_close(obj*, obj*);
 obj* l_coroutine__io_monad___lambda__1___closed__1;
 obj* l_io__unit_has__eval(obj*, obj*);
+namespace lean {
+obj* io_prim_handle_is_eof(obj*, obj*);
+}
 obj* l_eio_has__eval___rarg___closed__1;
 obj* l_string_has__lift(obj*);
 obj* l_io_fs_handle_get__line(obj*, obj*);

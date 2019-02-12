@@ -3,8 +3,6 @@
 // Imports: init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec init.lean.parser.trie init.lean.parser.identifier init.data.rbmap.default init.lean.message init.control.coroutine
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -68,6 +66,9 @@ obj* l_lean_parser_list_nil_tokens(obj*);
 obj* l_lean_parser_command__parser__m_monad(obj*);
 obj* l_lean_parser_has__view_default___rarg(obj*);
 obj* l_lean_parser_basic__parser__m;
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_lean_parser_command__parser__m_alternative___closed__1;
 obj* l_lean_parser_parser__core__t_monad__except(obj*);
 obj* l_lean_parser_command__parser;
@@ -95,6 +96,7 @@ obj* l_lean_parser_log__message___rarg(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_trie_mk___closed__1;
 obj* l_lean_parser_lean_parser_monad__parsec___rarg(obj*);
 extern obj* l_lean_message__log_empty;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_token__map__cons_tokens___rarg(obj*, obj*);
 obj* l_lean_parser_command__parser__m_basic__parser(obj*);
 obj* l_lean_parser_term__parser__m_lean_parser_monad__parsec;
@@ -124,6 +126,9 @@ obj* l_reader__t_monad__except___rarg(obj*);
 obj* l_lean_parser_monad__parsec__trans___rarg(obj*, obj*, obj*);
 obj* l_rbmap_find___main___at_lean_parser_token__map_insert___spec__1(obj*);
 obj* l_lean_parser_parsec_message_text___rarg(obj*);
+namespace lean {
+obj* string_iterator_offset(obj*);
+}
 obj* l_lean_parser_token__map_of__list___main(obj*);
 obj* l_list_mfoldl___main___at_lean_parser_mk__token__trie___spec__1___closed__3;
 obj* l_state__t_monad___rarg(obj*);
@@ -137,6 +142,9 @@ obj* l_lean_parser_rec__t_recurse___rarg(obj*, obj*, obj*);
 obj* l_reader__t_lift(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_try__view(obj*);
 obj* l_lean_parser_trailing__term__parser__m_monad;
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 obj* l_lean_parser_basic__parser__m_alternative;
 obj* l_lean_parser_parser__t_alternative(obj*, obj*);
 obj* l_lean_parser_command__parser__m_monad__except(obj*);

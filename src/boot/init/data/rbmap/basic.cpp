@@ -3,8 +3,6 @@
 // Imports: init.data.ordering.basic init.coe init.data.option.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -35,6 +33,7 @@ obj* l_rbnode_ins___main___at_rbmap_of__list___main___spec__3___rarg(obj*, obj*,
 obj* l_rbmap_mfold___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_rbmap_max___main___rarg(obj*);
 obj* l_rbnode_all___rarg(obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_rbmap;
 obj* l_rbmap_insert___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_repr__aux___main___at_rbmap_has__repr___spec__2___rarg(obj*, obj*, uint8, obj*);
@@ -86,6 +85,9 @@ obj* l_rbnode_insert___at_rbmap__of___spec__3(obj*, obj*, obj*);
 obj* l_rbnode_lower__bound___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_rbmap_empty___main(obj*, obj*, obj*);
 obj* l_rbnode_find___main___at_rbmap_find___main___spec__1(obj*, obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_rbnode_balance2__node___rarg(obj*, obj*, obj*, obj*);
 obj* l_rbmap_contains(obj*, obj*, obj*);
 obj* l_rbmap_empty___main___rarg___boxed(obj*);

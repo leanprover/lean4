@@ -3,8 +3,6 @@
 // Imports: init.lean.parser.module init.lean.expander init.lean.expr init.lean.options
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -66,6 +64,7 @@ obj* l_lean_elaborator_run___closed__2;
 obj* l_lean_elaborator_end__scope___lambda__3___closed__1;
 obj* l_rbmap_insert___main___at_lean_elaborator_ordered__rbmap_insert___spec__1(obj*, obj*, obj*);
 extern obj* l_lean_parser_command_declaration;
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_elaborator_commands_elaborate___main___lambda__4___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_command__parser__config_register__notation__parser___spec__2___closed__1;
 obj* l_lean_elaborator_to__level(obj*, obj*, obj*);
@@ -115,6 +114,9 @@ obj* l_lean_elaborator_mk__eqns___closed__2;
 obj* l_lean_elaborator_locally___rarg___lambda__3(obj*, obj*, obj*);
 obj* l_list_reverse___rarg(obj*);
 obj* l_lean_elaborator_run___lambda__4(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* name_mk_string(obj*, obj*);
+}
 obj* l_lean_elaborator_to__pexpr___main___closed__31;
 obj* l_lean_elaborator_register__notation__macro(obj*, obj*, obj*);
 obj* l_lean_elaborator_section_elaborate___lambda__1(obj*, obj*, obj*, obj*);
@@ -138,6 +140,8 @@ obj* l_lean_elaborator_mk__notation__kind___rarg(obj*);
 obj* l_rbnode_ins___main___at_lean_elaborator_ordered__rbmap_insert___spec__3___rarg(obj*, obj*, obj*, obj*);
 uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_lean_elaborator_run___lambda__8(obj*);
+obj* lean_expr_local(obj*, obj*, obj*, uint8);
+
 extern obj* l_lean_expander_expand__bracketed__binder___main___closed__4;
 obj* l_lean_parser_term_simple__binder_view_to__binder__info___main(obj*);
 extern obj* l_lean_parser_command_set__option;
@@ -196,6 +200,9 @@ obj* l_lean_environment_contains___boxed(obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_to__pexpr___main___spec__17(obj*, obj*, obj*, obj*);
 extern obj* l_lean_name_to__string___closed__1;
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__6(obj*, obj*, obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 extern obj* l_lean_parser_command_reserve__notation;
 obj* l_lean_elaborator_commands_elaborate___main___lambda__3___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_monad__except___rarg(obj*);
@@ -307,6 +314,7 @@ extern obj* l_lean_message__log_empty;
 obj* l_list_mmap___main___at_lean_elaborator_to__pexpr___main___spec__11(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_export_elaborate(obj*, obj*, obj*);
 obj* l_lean_elaborator_namespace_elaborate___lambda__2(obj*, obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_rbnode_ins___main___at_lean_elaborator_elaborators___spec__4(obj*, obj*, obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__38;
 obj* l_list_map___main___at_lean_elaborator_to__pexpr___main___spec__21(obj*);
@@ -314,6 +322,8 @@ uint8 l_lean_elaborator_is__open__namespace___main(obj*, obj*);
 obj* l_rbnode_insert___at_lean_elaborator_old__elab__command___spec__17(obj*, obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_declaration_elaborate___spec__7(obj*, obj*, obj*);
 extern obj* l_char_has__repr___closed__1;
+obj* lean_environment_mk_empty(obj*);
+
 obj* l_list_filter___main___at_lean_elaborator_resolve__context___main___spec__1(obj*, obj*, obj*);
 obj* l_lean_elaborator_elaborator__t_monad__except(obj*);
 obj* l_coroutine_bind___main___rarg(obj*, obj*, obj*);
@@ -452,11 +462,17 @@ extern obj* l_coroutine_monad___closed__1;
 obj* l_rbtree_of__list___main___at_lean_elaborator_old__elab__command___spec__15(obj*);
 obj* l_lean_elaborator_no__kind_elaborate___lambda__2(obj*, obj*, obj*);
 obj* l_lean_elaborator_module_header_elaborate(obj*, obj*, obj*);
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_syntax_kind___main(obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__2;
 obj* l_lean_elaborator_section_elaborate(obj*, obj*, obj*);
 obj* l_lean_elaborator_namespace_elaborate___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_preresolve(obj*, obj*, obj*);
+namespace lean {
+uint8 string_dec_eq(obj*, obj*);
+}
 extern obj* l_lean_parser_module_header_has__view;
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__26(obj*, obj*, obj*);
 uint8 l_list_foldr___main___at_lean_elaborator_notation_elaborate___spec__1(obj*);
@@ -546,6 +562,9 @@ obj* l_list_map___main___at_lean_elaborator_mk__eqns___spec__1___closed__1;
 extern obj* l_lean_parser_level_leading_has__view_x_27___lambda__1___closed__5;
 obj* l_lean_elaborator_run___closed__7;
 obj* l_lean_kvmap_insert__core___main(obj*, obj*, obj*);
+namespace lean {
+obj* name_mk_numeral(obj*, obj*);
+}
 obj* l_lean_elaborator_to__pexpr___main___closed__28;
 obj* l_lean_elaborator_to__level___main___closed__3;
 obj* l_lean_elaborator_locally___at_lean_elaborator_namespace_elaborate___spec__1___lambda__1(obj*, obj*, obj*);
@@ -585,6 +604,7 @@ obj* l_lean_elaborator_elab__def__like___closed__2;
 extern obj* l_lean_parser_command_include_has__view;
 extern obj* l_lean_parser_command_namespace;
 obj* l_rbmap_insert___main___at_lean_elaborator_elaborators___spec__2(obj*, obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_list_map___main___at_lean_elaborator_elab__def__like___spec__3(obj*);
 obj* l_lean_elaborator_old__elab__command(obj*, obj*, obj*, obj*);
 obj* l_list_map___main___at_lean_elaborator_declaration_elaborate___spec__13(obj*);
@@ -592,6 +612,8 @@ obj* l_option_to__monad___main___at_lean_elaborator_command__parser__config_regi
 obj* l_lean_file__map_to__position(obj*, obj*);
 obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_state__t_lift___rarg(obj*, obj*, obj*, obj*);
+obj* lean_elaborator_elaborate_command(obj*, obj*, obj*);
+
 obj* l_dlist_singleton___rarg(obj*, obj*);
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__20(obj*, obj*, obj*);
 extern obj* l_lean_expander_get__opt__type___main___closed__1;
@@ -624,6 +646,8 @@ obj* l_lean_parser_string__lit_view_value(obj*);
 obj* l_lean_elaborator_commands_elaborate___main___lambda__4(obj*, obj*, uint8, obj*, obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__42;
 obj* l_lean_elaborator_yield__to__outside___rarg___lambda__2___closed__1;
+uint8 lean_environment_contains(obj*, obj*);
+
 obj* l_lean_expander_error___at_lean_elaborator_no__kind_elaborate___spec__1___rarg___lambda__1(obj*, obj*, obj*);
 extern obj* l_lean_parser_command_notation_has__view;
 extern obj* l_lean_parser_command_check;

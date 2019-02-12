@@ -3,8 +3,6 @@
 // Imports: init.data.nat.div
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -22,8 +20,10 @@ obj* l_fin_modn(obj*, obj*, obj*);
 obj* l_fin_has__one(obj*);
 obj* l_fin_elim0___main(obj*, obj*);
 uint8 l_fin_dec__lt___rarg(obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_fin_mod(obj*, obj*, obj*);
 obj* l_fin_le;
+obj* l_nat_mod(obj*, obj*);
 uint8 l_fin_dec__le___rarg(obj*, obj*);
 obj* l_fin_has__le(obj*);
 obj* l_fin_sub(obj*, obj*, obj*);
@@ -31,9 +31,12 @@ obj* l_fin_decidable__eq(obj*);
 obj* l_fin_mod___main(obj*, obj*, obj*);
 obj* l_fin_lt;
 obj* l_fin_add(obj*, obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_fin_add___main(obj*, obj*, obj*);
 obj* l_fin_of__nat(obj*, obj*);
+uint8 l_nat_dec__le(obj*, obj*);
 obj* l_fin_has__sub(obj*);
+obj* l_nat_div(obj*, obj*);
 obj* l_fin_mul___main(obj*, obj*, obj*);
 obj* l_fin_has__div(obj*);
 obj* l_fin_dec__le(obj*);
@@ -44,13 +47,16 @@ obj* l_fin_mul(obj*, obj*, obj*);
 obj* l_fin_has__modn(obj*);
 obj* l_fin_dec__le___rarg___boxed(obj*, obj*);
 obj* l_fin_dec__lt(obj*);
+obj* l_nat_mul(obj*, obj*);
 obj* l_fin_div___main(obj*, obj*, obj*);
 obj* l_fin_dec__lt___rarg___boxed(obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_fin_has__mod(obj*);
 obj* l_fin_has__mul(obj*);
 obj* l_fin_modn___main(obj*, obj*, obj*);
 obj* l_fin_div(obj*, obj*, obj*);
 obj* l_fin_has__add(obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 uint8 l_fin_decidable__eq___rarg(obj*, obj*);
 obj* _init_l_fin_lt() {
 _start:

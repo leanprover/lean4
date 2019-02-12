@@ -3,8 +3,6 @@
 // Imports: init.data.nat.basic init.data.list.default init.coe init.data.repr init.data.to_string
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -18,15 +16,39 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_int_repr(obj*);
 obj* l_int_has__repr;
+namespace lean {
+obj* nat_abs(obj*);
+}
+namespace lean {
+obj* nat2int(obj*);
+}
 obj* l_int_neg__of__nat(obj*);
+namespace lean {
+uint8 int_dec_nonneg(obj*);
+}
 obj* l_int_has__sub;
+namespace lean {
+obj* int_neg_succ_of_nat(obj*);
+}
+obj* l_nat_add(obj*, obj*);
+obj* l_nat_mod(obj*, obj*);
 obj* l_int_add___boxed(obj*, obj*);
+namespace lean {
+uint8 int_dec_le(obj*, obj*);
+}
 obj* l_int_neg___boxed(obj*);
 obj* l_int_repr___main(obj*);
 obj* l_int_div___boxed(obj*, obj*);
+namespace lean {
+obj* int_mod(obj*, obj*);
+}
 obj* l_int_to__nat___main(obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_int_sub___boxed(obj*, obj*);
 obj* l_int_has__mul;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_int_lt;
 obj* l_int_neg__of__nat___main(obj*);
 obj* l_int_has__lt;
@@ -34,10 +56,17 @@ obj* l_int_int_decidable__eq;
 obj* l_int_nat__abs___boxed(obj*);
 obj* l_int_sub__nat__nat(obj*, obj*);
 obj* l_int_dec__lt___boxed(obj*, obj*);
+namespace lean {
+obj* int_add(obj*, obj*);
+}
 obj* l_int_zero;
 obj* l_int_has__div;
 obj* l_int_div___main(obj*, obj*);
+namespace lean {
+obj* int_sub(obj*, obj*);
+}
 obj* l_int_has__mod;
+obj* l_nat_div(obj*, obj*);
 obj* l_int_sign(obj*);
 obj* l_int_repr___main___closed__1;
 obj* l_int_to__nat(obj*);
@@ -45,11 +74,17 @@ obj* l_int_dec__eq___boxed(obj*, obj*);
 obj* l_int_has__coe(obj*);
 obj* l_int_has__le;
 obj* l_int_has__one;
+namespace lean {
+obj* int_div(obj*, obj*);
+}
 obj* l_int_nat__mod(obj*, obj*);
 obj* l_int_mod___boxed(obj*, obj*);
 obj* l___private_init_data_int_basic_2__dec__nonneg___boxed(obj*);
 obj* l_int_has__neg;
 obj* l___private_init_data_int_basic_1__nonneg;
+namespace lean {
+obj* int_neg(obj*);
+}
 obj* l_int_repr___main___closed__2;
 obj* l_int_has__to__string;
 obj* l_int_mod___main(obj*, obj*);
@@ -58,10 +93,20 @@ obj* l_int_mul___boxed(obj*, obj*);
 obj* l_int_sign___main(obj*);
 obj* l_int_has__add;
 obj* l_int_le;
+obj* l_nat_sub(obj*, obj*);
 obj* l_int_has__zero;
 obj* l_int_dec__le___boxed(obj*, obj*);
 obj* l_int_sign___main___closed__1;
+namespace lean {
+obj* int_mul(obj*, obj*);
+}
+namespace lean {
+uint8 int_dec_lt(obj*, obj*);
+}
 obj* l_int_one;
+namespace lean {
+uint8 int_dec_eq(obj*, obj*);
+}
 obj* l_int_has__coe(obj* x_0) {
 _start:
 {

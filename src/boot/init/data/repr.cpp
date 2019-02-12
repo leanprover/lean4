@@ -3,8 +3,6 @@
 // Imports: init.data.string.basic init.data.uint init.data.usize init.data.nat.div
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -26,9 +24,13 @@ obj* l_string_quote__aux(obj*);
 obj* l_string_iterator_has__repr___closed__1;
 obj* l_nat_digit__char___closed__29;
 obj* l_nat_digit__char___closed__15;
+namespace lean {
+obj* uint16_to_nat(uint16);
+}
 obj* l_option_has__repr___rarg___closed__2;
 obj* l_id_has__repr___rarg(obj*);
 obj* l_string_has__repr;
+obj* l_nat_add(obj*, obj*);
 obj* l_nat_digit__char___closed__5;
 obj* l_fin_has__repr(obj*);
 obj* l_nat_digit__char___closed__14;
@@ -37,6 +39,7 @@ obj* l_nat_digit__char___closed__30;
 obj* l_nat_digit__char___closed__16;
 obj* l_uint32_has__repr(uint32);
 obj* l_unit_has__repr___closed__1;
+obj* l_nat_mod(obj*, obj*);
 obj* l_nat_digit__char___closed__38;
 obj* l_list_repr__aux___main(obj*);
 obj* l_nat_digit__char___closed__1;
@@ -59,6 +62,9 @@ obj* l_list_repr___main___rarg___closed__1;
 obj* l_option_has__repr(obj*);
 obj* l_nat_digit__char___closed__34;
 obj* l_hex__digit__repr(obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_char_quote__core___closed__2;
 obj* l_usize_has__repr___boxed(obj*);
 obj* l_string_quote__aux___main(obj*);
@@ -72,12 +78,19 @@ obj* l_sum_has__repr(obj*, obj*);
 obj* l_nat_digit__char___closed__28;
 obj* l_nat_digit__char___closed__18;
 obj* l_char_quote__core___closed__4;
+namespace lean {
+obj* string_data(obj*);
+}
 obj* l_list_repr__aux___main___rarg___closed__1;
 obj* l_char_has__repr___boxed(obj*);
 obj* l_char_quote__core___closed__5;
 obj* l_string_iterator_has__repr(obj*);
 obj* l_nat_digit__char___closed__8;
 obj* l_list_repr___main___rarg___closed__3;
+uint8 l_nat_dec__eq(obj*, obj*);
+namespace lean {
+obj* string_iterator_remaining_to_string(obj*);
+}
 obj* l_char_has__repr___closed__1;
 obj* l_nat_digit__char___closed__7;
 obj* l_decidable_has__repr(obj*);
@@ -86,6 +99,10 @@ obj* l_bool_has__repr(uint8);
 obj* l_list_repr___rarg(obj*, obj*);
 obj* l_nat_digit__char___closed__47;
 extern obj* l_string_join___closed__1;
+uint8 l_nat_dec__le(obj*, obj*);
+namespace lean {
+obj* uint32_to_nat(uint32);
+}
 obj* l_list_has__repr(obj*);
 obj* l_char__to__hex___boxed(obj*);
 obj* l_nat_digit__char___closed__12;
@@ -95,8 +112,12 @@ obj* l_nat_digit__char___closed__44;
 obj* l_nat_digit__char___closed__32;
 obj* l_uint64_has__repr(uint64);
 obj* l_string_quote___closed__2;
+namespace lean {
+obj* string_mk(obj*);
+}
 obj* l_nat_digit__char___closed__51;
 obj* l_list_repr__aux___main___rarg___boxed(obj*, obj*, obj*);
+obj* l_nat_div(obj*, obj*);
 obj* l_char_quote__core___closed__3;
 obj* l_char_repr___boxed(obj*);
 obj* l_char_has__repr(uint32);
@@ -113,6 +134,9 @@ obj* l_sigma_has__repr___rarg(obj*, obj*, obj*);
 obj* l_uint32_has__repr___boxed(obj*);
 obj* l_uint64_has__repr___boxed(obj*);
 obj* l_subtype_has__repr___rarg(obj*, obj*);
+namespace lean {
+obj* uint64_to_nat(uint64);
+}
 obj* l_nat_digit__char___closed__49;
 obj* l_nat_digit__char___closed__46;
 obj* l_decidable_has__repr___rarg(uint8);
@@ -135,20 +159,28 @@ obj* l_nat_digit__char___closed__25;
 obj* l_nat_digit__char___closed__48;
 obj* l_nat_digit__char___closed__4;
 obj* l_char__to__hex(uint32);
+obj* l_nat_sub(obj*, obj*);
 obj* l_nat_digit__char___closed__31;
 obj* l_option_has__repr___rarg___closed__3;
 obj* l_nat_digit__char___closed__13;
+namespace lean {
+obj* string_push(obj*, uint32);
+}
 obj* l_nat_to__digits__core___main(obj*, obj*, obj*, obj*);
 obj* l_unit_has__repr(obj*);
 obj* l_nat_digit__char___closed__26;
 obj* l_nat_digit__char___closed__42;
 obj* l_nat_digit__char___closed__17;
 obj* l_nat_digit__char___closed__10;
+namespace lean {
+obj* usize_to_nat(usize);
+}
 obj* l_char_quote__core(uint32);
 obj* l_nat_digit__char___closed__20;
 obj* l_list_repr__aux___main___rarg(obj*, uint8, obj*);
 obj* l_nat_digit__char___closed__39;
 obj* l_nat_digit__char___closed__33;
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_nat_digit__char___closed__6;
 obj* l_nat_digit__char___closed__21;
 obj* l_uint16_has__repr___boxed(obj*);

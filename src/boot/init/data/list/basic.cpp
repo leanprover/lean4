@@ -3,8 +3,6 @@
 // Imports: init.core init.data.nat.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -48,6 +46,7 @@ obj* l_list_length__aux___rarg(obj*, obj*);
 obj* l_list_union(obj*);
 obj* l_list_bag__inter___rarg(obj*, obj*, obj*);
 obj* l___private_init_data_list_basic_1__to__list__aux___main(obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_list_bor(obj*);
 obj* l_list_has__dec__eq___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_assoc___main(obj*, obj*);
@@ -147,6 +146,7 @@ uint8 l_list_has__dec__eq___rarg(obj*, obj*, obj*);
 obj* l_list_foldr1__opt___rarg(obj*, obj*);
 obj* l_list_remove__nth___main___rarg(obj*, obj*);
 uint8 l_list_has__decidable__lt___main___rarg(obj*, obj*, obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_list_filter(obj*, obj*);
 obj* l_list_ilast___main___rarg(obj*, obj*);
 obj* l_list_head___main___rarg(obj*, obj*);
@@ -244,6 +244,7 @@ obj* l_list_foldl___rarg(obj*, obj*, obj*);
 obj* l_list_foldr1___main(obj*);
 obj* l_list_foldr___main___at_list_union___spec__1___rarg(obj*, obj*, obj*);
 obj* l_list_length__aux___main(obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_list_reverse__core___main___rarg(obj*, obj*);
 obj* l_list_is__prefix__of___rarg(obj*, obj*, obj*);
 obj* l_list_take___rarg(obj*, obj*);

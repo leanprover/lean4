@@ -3,8 +3,6 @@
 // Imports: init.data.uint init.platform init.data.fin.default
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -16,18 +14,23 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+usize l_usize_div(usize, usize);
 obj* l_usize_has__add;
 obj* l_usize_has__modn;
 obj* l_usize_mod___boxed(obj*, obj*);
 obj* l_usize_has__le;
 obj* l_usize_dec__lt___boxed(obj*, obj*);
+usize l_usize_mul(usize, usize);
+uint8 l_usize_dec__lt(usize, usize);
 extern obj* l_system_platform_nbits;
 obj* l_usize_has__mod;
+uint8 l_usize_dec__eq(usize, usize);
 uint8 l_usize_has__decidable__le(usize, usize);
 obj* l_usize_of__nat___boxed(obj*);
 obj* l_usize_has__div;
 obj* l_usize_dec__eq___boxed(obj*, obj*);
 obj* l_usize_dec__le___boxed(obj*, obj*);
+usize l_usize_mod(usize, usize);
 obj* l_usize_has__zero___boxed;
 obj* l_usize_has__one___boxed;
 obj* l_usize_div___boxed(obj*, obj*);
@@ -37,18 +40,30 @@ usize l_usize_inhabited;
 obj* l_usize_add___boxed(obj*, obj*);
 obj* l_usize_has__sub;
 usize l_usize_has__zero;
+namespace lean {
+usize usize_modn(usize, obj*);
+}
 obj* l_usize_lt;
 usize l_usize_has__one;
 obj* l_usize_has__decidable__lt___boxed(obj*, obj*);
+usize l_usize_add(usize, usize);
 obj* l_usize_has__lt;
 obj* l_nat_pow___main(obj*, obj*);
 obj* l_usize_mul___boxed(obj*, obj*);
+namespace lean {
+usize usize_of_nat(obj*);
+}
 obj* l_usize__sz;
 obj* l_usize_le;
 obj* l_usize_has__decidable__le___boxed(obj*, obj*);
 uint8 l_usize_has__decidable__lt(usize, usize);
+uint8 l_usize_dec__le(usize, usize);
 obj* l_usize_to__nat___boxed(obj*);
 obj* l_usize_inhabited___boxed;
+usize l_usize_sub(usize, usize);
+namespace lean {
+obj* usize_to_nat(usize);
+}
 obj* l_usize_has__mul;
 obj* l_usize_modn___boxed(obj*, obj*);
 obj* _init_l_usize__sz() {

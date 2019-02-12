@@ -3,8 +3,6 @@
 // Imports: init.lean.name init.data.option.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -24,6 +22,7 @@ extern obj* l_lean_format_paren___closed__1;
 obj* l_lean_level__to__format_result__list_to__format(obj*);
 obj* l_lean_level_instantiate___main(obj*, obj*);
 obj* l_lean_level__to__format_paren__if__false(obj*, uint8);
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_level__to__format_level_to__result___main(obj*);
 obj* l_lean_level__to__format_result_succ___main(obj*);
 obj* l_nat_max(obj*, obj*);
@@ -46,6 +45,7 @@ obj* l_lean_level__to__format_result_max(obj*, obj*);
 obj* l_lean_level_instantiate(obj*, obj*);
 obj* l_lean_level__to__format_result_succ(obj*);
 obj* l_lean_level_to__nat___main___closed__1;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_level_to__offset(obj*);
 obj* l_lean_level__to__format_result_to__format___main___closed__1;
 obj* l_lean_level_of__nat(obj*);
@@ -70,6 +70,7 @@ obj* l_lean_level__to__format_result__list_to__format___main(obj*);
 obj* l_lean_level_to__nat(obj*);
 obj* l_nat_repr(obj*);
 obj* l_lean_level__to__format_result_imax(obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_lean_level_to__offset___main(obj*);
 obj* l_option_map___rarg(obj*, obj*);
 obj* l_lean_level_to__nat___main___closed__3;

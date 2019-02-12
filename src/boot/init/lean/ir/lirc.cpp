@@ -3,8 +3,6 @@
 // Imports: init.lean.ir.parser init.lean.ir.type_check init.lean.ir.ssa_check init.lean.ir.extract_cpp init.lean.ir.format init.lean.ir.elim_phi
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -34,15 +32,27 @@ obj* l_rbmap_insert___main___at_lean_ir_parse__input__aux___main___spec__1(obj*,
 obj* l___private_init_lean_parser_parsec_6__take__while__aux_x_27___main___at_lean_ir_parse__input___spec__3(obj*, uint8, obj*);
 extern obj* l_lean_parser_monad__parsec_eoi__error___rarg___closed__1;
 obj* l_lean_ir_parse__decl(obj*);
+namespace lean {
+obj* string_iterator_next(obj*);
+}
 obj* l_lean_parser_monad__parsec_take__while__cont___at_lean_ir_parse__input__aux___main___spec__5(uint32, obj*);
 obj* l_list_foldl___main___at_lean_ir_update__env___spec__4(obj*, obj*);
 obj* l_lean_parser_parsec__t_run___at_lean_parser_parsec_parse___spec__1___rarg(obj*, obj*, obj*);
 obj* l_rbmap_insert___main___at_lean_ir_update__env___spec__1(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_eoi___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__6(obj*);
 obj* l_lean_ir_symbol(obj*, obj*);
+namespace lean {
+obj* string_length(obj*);
+}
 obj* l_option_orelse___main___rarg(obj*, obj*);
 uint8 l_char_is__alpha(uint32);
+namespace lean {
+uint32 string_iterator_curr(obj*);
+}
 obj* l_lean_ir_parse__input___lambda__1(obj*, obj*, obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_function_comp___rarg(obj*, obj*, obj*);
 obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
 extern obj* l_lean_ir_mk__fnid2string;
@@ -53,8 +63,12 @@ obj* l___private_init_lean_parser_parsec_6__take__while__aux_x_27___main___at_le
 obj* l_rbnode_insert___at_lean_ir_update__env___spec__2(obj*, obj*, obj*);
 obj* l_lean_ir_extract__cpp(obj*, obj*);
 obj* l_lean_parser_parsec_message_to__string___rarg(obj*);
+namespace lean {
+uint8 string_iterator_has_next(obj*);
+}
 obj* l_lean_ir_check__blockids(obj*);
 extern obj* l_list_repr___main___rarg___closed__3;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_monad__parsec_take__while_x_27___at_lean_ir_parse__input___spec__2(obj*);
 extern obj* l_char_has__repr___closed__1;
 obj* l_lean_ir_parse__input__aux(obj*, obj*, obj*, obj*);
@@ -70,6 +84,9 @@ extern obj* l_list_repr___main___rarg___closed__2;
 obj* l_lean_ir_parse__input(obj*);
 obj* l_lean_ir_decl_valid__ssa(obj*);
 obj* l_lean_ir_parse__input__aux___main(obj*, obj*, obj*, obj*);
+namespace lean {
+obj* string_iterator_remaining(obj*);
+}
 obj* l_rbnode_find___main___at_lean_ir_update__env___spec__6___rarg(obj*, obj*);
 obj* l_lean_ir_decl_name(obj*);
 obj* l_rbmap_find___main___at_lean_ir_update__external__names___spec__1(obj*, obj*);
@@ -84,6 +101,10 @@ obj* l___private_init_lean_parser_parsec_3__mk__string__result___rarg(obj*, obj*
 obj* l_lean_ir_type__check(obj*, obj*);
 obj* l_rbmap_find___main___at_lean_ir_update__env___spec__5(obj*, obj*);
 obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
+namespace lean {
+obj* string_push(obj*, uint32);
+}
 obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_dlist_singleton___rarg(obj*, obj*);
 obj* l_lean_parser_parsec__t_orelse__mk__res___rarg(obj*, obj*);
@@ -92,6 +113,7 @@ obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at_lean_ir
 obj* l_lean_ir_update__external__names(obj*, obj*, obj*);
 obj* l_char_quote__core(uint32);
 obj* l_list_mmap_x_27___main___at_lean_ir_lirc___spec__1___boxed(obj*, obj*, obj*, obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_rbnode_ins___main___at_lean_ir_parse__input__aux___main___spec__3(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {

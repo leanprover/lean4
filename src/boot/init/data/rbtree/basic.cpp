@@ -3,8 +3,6 @@
 // Imports: init.data.rbmap.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -67,6 +65,9 @@ obj* l_rbmap_find__core___main___at_rbtree_contains___spec__2___rarg(obj*, obj*,
 obj* l_rbnode_all___main___at_rbtree_subset___spec__4(obj*, obj*);
 obj* l_rbtree_empty___rarg___boxed(obj*);
 obj* l_rbnode_insert___at_rbtree_of__list___main___spec__2(obj*, obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 uint8 l_option_to__bool___main___rarg(obj*);
 obj* l_rbtree_subset___at_rbtree_seteq___spec__6(obj*, obj*);
 obj* l_rbtree_find___at_rbtree_seteq___spec__7(obj*, obj*);

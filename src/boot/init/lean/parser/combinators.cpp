@@ -3,8 +3,6 @@
 // Imports: init.lean.parser.basic init.data.list.instances
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -41,6 +39,7 @@ obj* l_lean_parser_combinators_longest__match_tokens(obj*, obj*, obj*, obj*, obj
 obj* l_list_mfoldl___main___at_lean_parser_combinators_node___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_combinators_choice__aux___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_longest__choice_tokens(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_parser_combinators_many1_tokens___rarg(obj*);
 obj* l_list_map___main___at_lean_parser_combinators_longest__choice___spec__1(obj*);
 obj* l___private_init_lean_parser_combinators_2__sep__by__aux___main___at_lean_parser_combinators_sep__by1___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -112,6 +111,7 @@ obj* l_lean_parser_combinators_sep__by_view___rarg___lambda__2(obj*, obj*, obj*,
 obj* l_lean_parser_combinators_choice___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_many1_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_choice__aux___main___rarg___lambda__1(obj*, obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_combinators_sep__by_tokens___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_optional_view___rarg___lambda__1(obj*, obj*);
 obj* l_list_mfoldl___main___at_lean_parser_combinators_node___spec__1(obj*);
@@ -190,6 +190,9 @@ obj* l_lean_parser_combinators_any__of_tokens(obj*, obj*, obj*, obj*, obj*, obj*
 obj* l_lean_parser_combinators_seq__right_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_longest__match_tokens___rarg(obj*);
 obj* l_lean_parser_combinators_sep__by_view___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* name_mk_numeral(obj*, obj*);
+}
 obj* l_lean_parser_combinators_sep__by(obj*);
 obj* l_lean_parser_combinators_any__of(obj*);
 extern obj* l_lean_parser_choice;
@@ -197,6 +200,7 @@ obj* l___private_init_lean_parser_combinators_2__sep__by__aux___main___rarg___la
 obj* l_lean_parser_combinators_optional___rarg___lambda__2(obj*, obj*);
 extern obj* l_lean_parser_monad__parsec_try___rarg___closed__1;
 obj* l_list_map___main___at_lean_parser_combinators_sep__by_view___spec__1(obj*, obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l___private_init_lean_parser_combinators_2__sep__by__aux___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_many1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_choice__aux(obj*);

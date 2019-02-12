@@ -3,8 +3,6 @@
 // Imports: init.data.array.basic init.data.list.basic init.data.option.basic init.data.hashable
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -29,6 +27,7 @@ obj* l_hashmap_size___rarg(obj*);
 obj* l_hashmap__imp_find__aux___main___rarg(obj*, obj*, obj*);
 obj* l_hashmap_size(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_hashmap__imp_replace__aux___main(obj*, obj*);
 obj* l_hashmap_empty(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_erase___rarg(obj*, obj*, obj*, obj*);
@@ -59,10 +58,15 @@ obj* l_mk__hashmap(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_find(obj*, obj*);
 obj* l_hashmap__imp_find__aux___rarg(obj*, obj*, obj*);
 obj* l_mk__d__hashmap(obj*, obj*, obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_hashmap_fold___rarg(obj*, obj*, obj*);
 obj* l_d__hashmap_find(obj*, obj*);
 obj* l_d__hashmap_size___rarg(obj*);
+uint8 l_nat_dec__le(obj*, obj*);
+namespace lean {
+usize usize_modn(usize, obj*);
+}
 obj* l_array_foldl___rarg(obj*, obj*, obj*);
 obj* l_bucket__array_uwrite___rarg(obj*, usize, obj*, obj*);
 obj* l_hashmap_insert(obj*, obj*);
@@ -87,7 +91,9 @@ obj* l_d__hashmap;
 obj* l_hashmap__imp_replace__aux(obj*, obj*);
 obj* l_hashmap_contains(obj*, obj*);
 obj* l_bucket__array;
+obj* l_nat_mul(obj*, obj*);
 obj* l_hashmap;
+obj* l_nat_sub(obj*, obj*);
 obj* l_hashmap_erase___rarg(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);

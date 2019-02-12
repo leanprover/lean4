@@ -3,8 +3,6 @@
 // Imports:
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -32,6 +30,7 @@ uint8 l_prod__has__decidable__lt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 uint8 l_band___main(uint8, uint8);
 uint8 l_sum_decidable__eq___rarg(obj*, obj*, obj*, obj*);
 uint8 l_xor_decidable___rarg(uint8, uint8);
+obj* l_thunk_pure(obj*, obj*);
 uint8 l_ite_decidable___rarg(uint8, uint8, uint8);
 uint8 l_true_decidable;
 obj* l_inline___rarg(obj*);
@@ -53,6 +52,7 @@ obj* l_std_priority_max;
 obj* l_quot_rec___rarg(obj*, obj*, obj*);
 obj* l_or_intro__right;
 obj* l_ne;
+obj* l_nat_add(obj*, obj*);
 obj* l_thunk_pure___boxed(obj*, obj*);
 obj* l_prod_has__lt(obj*, obj*, obj*, obj*);
 obj* l_eq_ndrec__on(obj*, obj*, obj*, obj*, obj*);
@@ -161,6 +161,7 @@ obj* l_empty__relation;
 obj* l_list_has__sizeof(obj*);
 obj* l_eq_ndrec(obj*, obj*, obj*);
 obj* l_left__cancelative;
+obj* l_thunk_bind(obj*, obj*, obj*, obj*);
 obj* l_pi_inhabited(obj*, obj*);
 obj* l_option_has__sizeof(obj*);
 uint8 l_bnot___main(uint8);
@@ -191,6 +192,7 @@ obj* l_quotient_sound;
 obj* l_option_has__sizeof___rarg(obj*);
 obj* l_list_sizeof(obj*);
 obj* l_right__identity;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_std_prec_arrow;
 uint8 l_decidable__eq__of__bool__pred___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_bit0___rarg(obj*, obj*);
@@ -239,6 +241,7 @@ obj* l_psum_sizeof___rarg(obj*, obj*, obj*);
 obj* l_xor_decidable___rarg___boxed(obj*, obj*);
 obj* l_psum_has__sizeof___rarg(obj*, obj*);
 obj* l_classical_by__cases;
+obj* l_thunk_map(obj*, obj*, obj*, obj*);
 obj* l_bool_decidable__eq___boxed(obj*, obj*);
 obj* l_prod__has__decidable__lt___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_quotient_lift_u_2082___rarg(obj*, obj*, obj*, obj*);
@@ -260,6 +263,7 @@ obj* l_ge;
 obj* l_option_sizeof___main(obj*);
 obj* l_quot_rec__on___rarg(obj*, obj*, obj*);
 obj* l_dite___rarg(uint8, obj*, obj*, obj*);
+obj* l_thunk_get(obj*, obj*);
 obj* l_task_map___rarg(obj*, obj*, obj*);
 obj* l_quotient_rec__on__subsingleton_u_2082___rarg(obj*, obj*, obj*);
 obj* l_subtype_sizeof___main(obj*);
@@ -364,6 +368,7 @@ uint8 l_bnot(uint8);
 obj* l_std_prec_max__plus;
 obj* l_absurd(obj*, obj*, obj*, obj*);
 obj* l_eq_mp___rarg(obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l___private_init_core_27__extfun__app___rarg(obj*, obj*);
 obj* l_quotient_lift__on___rarg(obj*, obj*, obj*);
 uint8 l_subtype_decidable__eq___rarg(obj*, obj*, obj*);

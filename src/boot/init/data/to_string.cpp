@@ -3,8 +3,6 @@
 // Imports: init.data.string.basic init.data.uint init.data.nat.div init.data.repr
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -18,6 +16,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_list_to__string__aux(obj*);
 obj* l_list_to__string__aux___main___rarg(obj*, uint8, obj*);
+namespace lean {
+obj* uint16_to_nat(uint16);
+}
 obj* l_usize_has__to__string___boxed(obj*);
 obj* l_char_has__to__string(uint32);
 extern obj* l_option_has__repr___rarg___closed__2;
@@ -43,6 +44,9 @@ obj* l_id_has__to__string___rarg(obj*);
 extern obj* l_list_repr___main___rarg___closed__1;
 obj* l_option_has__to__string___rarg(obj*, obj*);
 obj* l_fin_has__to__string(obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_uint16_has__to__string___boxed(obj*);
 obj* l_list_has__to__string(obj*);
 obj* l_list_to__string___main(obj*);
@@ -52,11 +56,17 @@ obj* l_option_has__to__string(obj*);
 extern obj* l_sum_has__repr___rarg___closed__2;
 extern obj* l_list_repr__aux___main___rarg___closed__1;
 extern obj* l_list_repr___main___rarg___closed__3;
+namespace lean {
+obj* string_iterator_remaining_to_string(obj*);
+}
 obj* l_list_to__string___rarg(obj*, obj*);
 obj* l_list_has__to__string___rarg(obj*);
 obj* l_uint32_has__to__string(uint32);
 obj* l_decidable_has__to__string___rarg(uint8);
 extern obj* l_string_join___closed__1;
+namespace lean {
+obj* uint32_to_nat(uint32);
+}
 obj* l_uint64_has__to__string(uint64);
 extern obj* l_sigma_has__repr___rarg___closed__1;
 obj* l_uint64_has__to__string___boxed(obj*);
@@ -66,6 +76,9 @@ extern obj* l_list_repr___main___rarg___closed__2;
 extern obj* l_bool_has__repr___closed__2;
 obj* l_usize_has__to__string(usize);
 extern obj* l_prod_has__repr___rarg___closed__1;
+namespace lean {
+obj* uint64_to_nat(uint64);
+}
 obj* l_id_has__to__string(obj*);
 obj* l_bool_has__to__string___boxed(obj*);
 extern obj* l_bool_has__repr___closed__1;
@@ -75,7 +88,13 @@ extern obj* l_sigma_has__repr___rarg___closed__2;
 obj* l_list_to__string__aux___main(obj*);
 obj* l_sigma_has__to__string___rarg(obj*, obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__3;
+namespace lean {
+obj* string_push(obj*, uint32);
+}
 obj* l_subtype_has__to__string___rarg(obj*, obj*);
+namespace lean {
+obj* usize_to_nat(usize);
+}
 obj* l_subtype_has__to__string(obj*, obj*);
 obj* l_decidable_has__to__string___rarg___boxed(obj*);
 obj* l_id_has__to__string___rarg(obj* x_0) {

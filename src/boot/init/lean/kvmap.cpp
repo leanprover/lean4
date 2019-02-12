@@ -3,8 +3,6 @@
 // Imports: init.lean.name init.data.option.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -29,6 +27,9 @@ uint8 l_option_is__some___main___rarg(obj*);
 obj* l_lean_kvmap_contains___boxed(obj*, obj*);
 obj* l_lean_kvmap_insert(obj*, obj*, obj*);
 obj* l_lean_kvmap_find___main(obj*, obj*);
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_lean_kvmap_find(obj*, obj*);
 obj* l_lean_kvmap_get__name(obj*, obj*);
 obj* l_lean_kvmap_insert__core___main(obj*, obj*, obj*);

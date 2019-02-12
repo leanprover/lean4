@@ -3,8 +3,6 @@
 // Imports: init.data.to_string init.lean.position
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -22,12 +20,18 @@ obj* l_lean_message__log_append(obj*, obj*);
 uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
 obj* l_list_reverse___rarg(obj*);
 obj* l_lean_message__log_to__list(obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_lean_message_has__to__string;
 obj* l_lean_message__log_has__append;
 obj* l_lean_message__log_empty;
 obj* l_lean_message__log_add(obj*, obj*);
 extern obj* l_string_join___closed__1;
 obj* l_lean_message_to__string(obj*);
+namespace lean {
+uint8 string_dec_eq(obj*, obj*);
+}
 obj* l_lean_message_to__string___closed__4;
 obj* l_lean_message_to__string___closed__3;
 obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*);

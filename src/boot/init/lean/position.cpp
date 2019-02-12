@@ -3,8 +3,6 @@
 // Imports: init.data.nat.default init.data.rbmap.default init.lean.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -19,38 +17,60 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l___private_init_lean_position_1__from__string__aux(obj*, obj*, obj*);
 uint8 l_prod__has__decidable__lt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_rbnode_balance2__node___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_position_lean_has__to__format___closed__1;
 obj* l_rbmap_of__list___main___at_lean_file__map_from__string___spec__1(obj*);
 obj* l___private_init_lean_position_1__from__string__aux___main(obj*, obj*, obj*);
 obj* l_lean_position_lt;
 obj* l_lean_position_lean_has__to__format(obj*);
+namespace lean {
+obj* string_iterator_next(obj*);
+}
+namespace lean {
+obj* string_length(obj*);
+}
 obj* l_lean_position_has__lt;
 obj* l_lean_position_decidable__lt___boxed(obj*, obj*);
+namespace lean {
+uint32 string_iterator_curr(obj*);
+}
 obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
 obj* l_lean_position_lean_has__to__format___closed__2;
 uint8 l_lean_position_decidable__lt(obj*, obj*);
 obj* l_lean_position_decidable__lt___main___boxed(obj*, obj*);
+namespace lean {
+uint8 string_iterator_has_next(obj*);
+}
 obj* l_rbmap_insert___main___at_lean_file__map_from__string___spec__2(obj*, obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_position_decidable__lt___main___closed__2;
 obj* l_nat_dec__eq___boxed(obj*, obj*);
+namespace lean {
+obj* string_iterator_offset(obj*);
+}
 obj* l_lean_file__map_from__string(obj*);
 obj* l_lean_to__fmt___at_lean_position_lean_has__to__format___spec__1(obj*);
 obj* l_rbnode_ins___main___at_lean_file__map_from__string___spec__4(obj*, obj*, obj*);
 obj* l_lean_position_lean_has__to__format___closed__3;
 obj* l_rbnode_lower__bound___main___at_lean_file__map_to__position___spec__2(obj*, obj*, obj*);
 obj* l_rbnode_insert___at_lean_file__map_from__string___spec__3(obj*, obj*, obj*);
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 uint8 l_rbnode_get__color___main___rarg(obj*);
 obj* l_lean_position_decidable__lt___main___closed__1;
 obj* l_rbmap_lower__bound___main___at_lean_file__map_to__position___spec__1(obj*, obj*);
 obj* l_nat_repr(obj*);
 uint8 l_lean_position_decidable__lt___main(obj*, obj*);
 obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_lean_file__map_to__position(obj*, obj*);
 obj* l_lean_position_lt___main;
 obj* l_lean_position_inhabited;
 uint8 l_lean_position_decidable__eq(obj*, obj*);
 obj* l_nat_dec__lt___boxed(obj*, obj*);
 obj* l_lean_position_decidable__eq___boxed(obj*, obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 uint8 l_lean_position_decidable__eq(obj* x_0, obj* x_1) {
 _start:
 {

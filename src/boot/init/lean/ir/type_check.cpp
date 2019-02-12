@@ -3,8 +3,6 @@
 // Imports: init.lean.ir.instances init.lean.ir.format init.control.combinators
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -78,6 +76,7 @@ obj* l_lean_ir_check__ne__type___closed__2;
 obj* l_lean_ir_type__checker__m;
 obj* l_lean_ir_match__type___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_ir_match__type___closed__2;
+uint8 l_nat_dec__eq(obj*, obj*);
 uint8 l_lean_ir_is__bitshift__ty(uint8);
 obj* l_lean_ir_type__checker__m_run___rarg(obj*, obj*, obj*);
 obj* l_lean_ir_infer__types(obj*, obj*);
@@ -94,6 +93,7 @@ obj* l_lean_ir_get__decl(obj*, obj*, obj*);
 uint8 l_lean_ir_valid__assign__binop__types(uint8, uint8, uint8, uint8);
 obj* l_lean_ir_match__type___closed__3;
 obj* l_lean_ir_check__arg__types(obj*, obj*, obj*, obj*);
+uint8 l_nat_dec__le(obj*, obj*);
 extern obj* l_int_zero;
 obj* l_list_mmap_x_27___main___at_lean_ir_phi_check___spec__1(obj*, obj*, obj*, obj*);
 obj* l_lean_ir_invalid__literal(obj*);
@@ -140,6 +140,9 @@ obj* l_lean_ir_check__type___boxed(obj*, obj*, obj*, obj*);
 obj* l_lean_ir_is__bitwise__ty___boxed(obj*);
 obj* l_lean_ir_is__nonfloat__arith__ty___closed__1;
 obj* l_list_mmap_x_27___main___at_lean_ir_block_infer__types___spec__2(obj*, obj*, obj*);
+namespace lean {
+uint8 int_dec_lt(obj*, obj*);
+}
 obj* l_reader__t_bind___at_lean_ir_type__check___spec__2(obj*, obj*);
 obj* l_lean_ir_is__arith__ty___closed__1;
 obj* l_lean_ir_arg_infer__types(obj*, obj*, obj*);

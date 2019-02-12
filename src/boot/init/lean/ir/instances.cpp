@@ -3,8 +3,6 @@
 // Imports: init.lean.ir.ir
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -31,6 +29,7 @@ obj* l_lean_ir_mk__fnid__set;
 obj* l_lean_ir_blockid__set;
 obj* l_lean_ir_mk__fnid2string;
 extern obj* l_lean_name_hashable;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_ir_type2id___boxed(obj*);
 obj* l_lean_ir_mk__var2blockid;
 obj* l_lean_ir_inhabited___boxed;

@@ -3,8 +3,6 @@
 // Imports: init.lean.parser.parsec
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -19,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_lean_parser_monad__parsec_error___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_rec_1__run__aux(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_recurse(obj*, obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_parser_rec__t_alternative___rarg(obj*, obj*);
 obj* l_lean_parser_rec__t_run__parsec___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_monad__functor(obj*, obj*, obj*, obj*);
@@ -39,6 +38,7 @@ obj* l_lean_parser_rec__t_run__parsec___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_monad__except(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_run___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_monad__functor___rarg(obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 extern obj* l_lean_parser_monad__parsec_left__over___rarg___closed__1;
 obj* l_lean_parser_rec__t_alternative(obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_lean_parser_monad__parsec___rarg(obj*, obj*, obj*);
@@ -51,6 +51,9 @@ obj* l_lean_parser_rec__t_run__parsec___rarg___lambda__2(obj*, obj*, obj*, obj*,
 obj* l_lean_parser_rec__t_recurse___rarg(obj*, obj*, obj*);
 obj* l_reader__t_lift(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_run(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* string_iterator_remaining(obj*);
+}
 obj* l_lean_parser_rec__t;
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_rec_1__run__aux___rarg(obj*, obj*, obj*, obj*);
@@ -58,6 +61,7 @@ obj* l_reader__t_monad___rarg(obj*);
 obj* l_lean_parser_rec__t_has__monad__lift(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_rec_1__run__aux___main(obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2___rarg(obj*, obj*, obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_lean_parser_monad__rec_trans___rarg(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_rec_1__run__aux___main___rarg(obj*, obj*, obj*, obj*);
 obj* _init_l_lean_parser_rec__t() {

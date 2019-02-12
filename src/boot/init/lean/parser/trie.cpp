@@ -3,8 +3,6 @@
 // Imports: init.data.rbmap.default init.lean.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -30,8 +28,20 @@ obj* l___private_init_lean_parser_trie_2__find__aux___main(obj*);
 obj* l_rbnode_find___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__1___rarg(obj*, uint32);
 obj* l_lean_parser_trie_match__prefix(obj*);
 obj* l_list_zip___rarg___lambda__1(obj*, obj*);
+namespace lean {
+obj* string_iterator_next(obj*);
+}
 obj* l___private_init_lean_parser_trie_4__to__string__aux(obj*);
+namespace lean {
+obj* string_length(obj*);
+}
 obj* l_option_orelse___main___rarg(obj*, obj*);
+namespace lean {
+uint32 string_iterator_curr(obj*);
+}
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_lean_parser_trie_insert___rarg(obj*, obj*, obj*);
 obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
 obj* l_option_get__or__else___main___rarg(obj*, obj*);
@@ -39,6 +49,7 @@ obj* l_rbnode_fold___main___at___private_init_lean_parser_trie_4__to__string__au
 obj* l___private_init_lean_parser_trie_2__find__aux___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_trie_mk___closed__1;
 obj* l___private_init_lean_parser_trie_1__insert__aux___main___rarg(obj*, obj*, obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 extern obj* l_char_has__repr___closed__1;
 obj* l_rbnode_insert___at___private_init_lean_parser_trie_1__insert__aux___main___spec__2___rarg___boxed(obj*, obj*, obj*);
 obj* l_lean_parser_trie_find(obj*);
@@ -54,9 +65,16 @@ obj* l___private_init_lean_parser_trie_1__insert__aux(obj*);
 obj* l_lean_format_pretty(obj*, obj*);
 obj* l_rbnode_insert___at___private_init_lean_parser_trie_1__insert__aux___main___spec__2___rarg(obj*, uint32, obj*);
 obj* l_rbnode_find___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__1(obj*);
+namespace lean {
+obj* string_iterator_remaining(obj*);
+}
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 uint8 l_rbnode_get__color___main___rarg(obj*);
 obj* l_lean_to__fmt___at___private_init_lean_parser_trie_4__to__string__aux___main___spec__2(obj*);
 obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l___private_init_lean_parser_trie_3__match__prefix__aux___main(obj*);
 obj* l_rbnode_ins___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__3___rarg(obj*, uint32, obj*);
 obj* l_option_map___rarg(obj*, obj*);
@@ -65,6 +83,7 @@ obj* l_rbnode_fold___main___at___private_init_lean_parser_trie_4__to__string__au
 obj* l_char_quote__core(uint32);
 obj* l_lean_parser_trie_insert(obj*);
 obj* l_lean_parser_trie_has__to__string___rarg(obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* l___private_init_lean_parser_trie_2__find__aux___main___rarg(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_trie_2__find__aux(obj*);
 obj* _init_l_lean_parser_trie_mk___closed__1() {

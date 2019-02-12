@@ -3,8 +3,6 @@
 // Imports: init.lean.expr init.data.option.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -22,13 +20,32 @@ obj* l_lean_expand__extern__entry(obj*, obj*);
 namespace lean {
 obj* expand_extern_pattern_core(obj*, obj*);
 }
+namespace lean {
+obj* name_mk_string(obj*, obj*);
+}
 obj* l_list_foldl___main___at_lean_mk__simple__fn__call___spec__1(obj*, obj*);
 namespace lean {
+obj* string_iterator_next(obj*);
+}
+namespace lean {
 obj* mk_adhoc_ext_entry_core(obj*);
+}
+namespace lean {
+obj* string_length(obj*);
+}
+namespace lean {
+uint32 string_iterator_curr(obj*);
+}
+namespace lean {
+obj* string_append(obj*, obj*);
 }
 obj* l_lean_get__extern__entry__for__aux___main___closed__1;
 obj* l_option_get__or__else___main___rarg(obj*, obj*);
 extern obj* l_list_repr__aux___main___rarg___closed__1;
+namespace lean {
+uint8 string_iterator_has_next(obj*);
+}
+uint8 l_nat_dec__eq(obj*, obj*);
 namespace lean {
 obj* mk_std_ext_entry_core(obj*, obj*);
 }
@@ -43,9 +60,15 @@ obj* mk_extern_call_core(obj*, obj*, obj*);
 }
 obj* l_list_intersperse___main___rarg(obj*, obj*);
 obj* l_lean_extern__entry_backend(obj*);
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_lean_expand__extern__pattern__aux(obj*, obj*, obj*, obj*);
 extern obj* l_prod_has__repr___rarg___closed__1;
 obj* l_lean_extern__entry_backend___main(obj*);
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 namespace lean {
 obj* mk_foreign_ext_entry_core(obj*, obj*);
 }
@@ -54,10 +77,15 @@ obj* mk_extern_attr_data_core(obj*, obj*);
 }
 obj* l_lean_expand__extern__entry___main(obj*, obj*);
 obj* l_lean_mk__simple__fn__call(obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__3;
+namespace lean {
+obj* string_push(obj*, uint32);
+}
 namespace lean {
 obj* get_extern_entry_for_core(obj*, obj*);
 }
+uint8 l_nat_dec__lt(obj*, obj*);
 namespace lean {
 obj* mk_adhoc_ext_entry_core(obj* x_0) {
 _start:

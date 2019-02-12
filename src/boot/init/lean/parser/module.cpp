@@ -3,8 +3,6 @@
 // Imports: init.lean.parser.command init.control.coroutine
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -39,6 +37,7 @@ obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__15___
 obj* l_lean_parser_module_yield__command___lambda__8(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__11___closed__2;
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__3___closed__1;
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_parser_module_tokens;
 obj* l_list_map___main___at_lean_parser_module_commands_parser_has__view___spec__2(obj*);
 obj* l_lean_parser_module_header_has__view_x_27___lambda__1___closed__2;
@@ -64,6 +63,9 @@ obj* l___private_init_lean_parser_module_1__commands__aux___main___boxed(obj*, o
 extern obj* l_lean_parser_monad__parsec_eoi___rarg___lambda__1___closed__1;
 obj* l_lean_parser_log__message___at___private_init_lean_parser_module_1__commands__aux___main___spec__5(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_module_header_has__view_x_27___lambda__2___closed__1;
+namespace lean {
+obj* name_mk_string(obj*, obj*);
+}
 obj* l_lean_parser_module_import;
 obj* l_lean_parser_module__parser__m_monad__coroutine;
 obj* l_lean_parser_parsec__t_labels__mk__res___rarg(obj*, obj*);
@@ -75,6 +77,9 @@ obj* l_string_quote(obj*);
 extern obj* l_lean_parser_monad__parsec_eoi__error___rarg___closed__1;
 obj* l_lean_parser_module_header_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_log__message___at___private_init_lean_parser_module_1__commands__aux___main___spec__4___lambda__2(obj*, obj*);
+namespace lean {
+obj* string_iterator_next(obj*);
+}
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__16(obj*, obj*);
 obj* l_lean_parser_message__of__parsec__message___rarg(obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__10(obj*);
@@ -88,6 +93,9 @@ obj* l_state__t_monad__state___rarg(obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__2(obj*);
 obj* l_list_map___main___at_lean_parser_module_commands_parser_has__view___spec__1(obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__9___closed__1;
+namespace lean {
+uint32 string_iterator_curr(obj*);
+}
 obj* l_lean_parser_module__parser__m_monad__reader;
 obj* l_lean_parser_module_yield__command___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_module_parser(obj*, obj*, obj*);
@@ -96,6 +104,9 @@ obj* l_lean_parser_module__parser__m_lift__parser__t___rarg___lambda__3(obj*, ob
 obj* l_lean_parser_combinators_optional___at_lean_parser_module_header_parser_lean_parser_has__tokens___spec__1(obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_command_parser___rarg___closed__1;
 obj* l_lean_parser_monad__parsec_any___at___private_init_lean_parser_module_1__commands__aux___main___spec__3___closed__1;
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_lean_parser_module_import_has__view_x_27___lambda__1___closed__2;
 obj* l_function_comp___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_module__parser__config__coe(obj*);
@@ -112,6 +123,9 @@ obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__17(ui
 obj* l_reader__t_bind___at_lean_parser_with__trailing___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_module_parser___lambda__10(obj*);
 obj* l_lean_parser_module_import_has__view_x_27___lambda__1___closed__1;
+namespace lean {
+obj* string_iterator_to_end(obj*);
+}
 obj* l_lean_parser_module_prelude_has__view;
 obj* l_lean_parser_combinators_many1___at_lean_parser_ident__univ__spec_parser_lean_parser_has__view___spec__1(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_tokens___rarg(obj*);
@@ -126,10 +140,14 @@ obj* l_lean_parser_module_eoi;
 obj* l_lean_parser_module_prelude_parser_lean_parser_has__tokens;
 obj* l_monad__coroutine__trans___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_module_import_parser_lean_parser_has__view;
+namespace lean {
+uint8 string_iterator_has_next(obj*);
+}
 obj* l_lean_parser_module__parser__m_monad__state;
 obj* l_lean_parser_module_prelude_parser(obj*, obj*, obj*);
 obj* l_lean_parser_symbol_tokens___rarg(obj*, obj*);
 extern obj* l_lean_message__log_empty;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__9(obj*, obj*, obj*);
 obj* l_lean_parser_mk__raw__res(obj*, obj*);
 obj* l_lean_parser_module_import__path_parser_lean_parser_has__view;
@@ -168,6 +186,9 @@ obj* l_lean_parser_module_commands_parser(obj*, obj*, obj*);
 obj* l_lean_parser_module_parser___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec__trans___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_module_parser___lambda__5___closed__1;
+namespace lean {
+obj* string_iterator_offset(obj*);
+}
 obj* l_lean_parser_module_import_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_module_parser___lambda__7(obj*, obj*);
 obj* l_state__t_monad___rarg(obj*);
@@ -193,6 +214,9 @@ obj* l_lean_parser_module_import__path_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_module_commands_parser___closed__2;
 obj* l_list_map___main___at_lean_parser_module_import__path_has__view_x_27___spec__2(obj*);
 obj* l_lean_parser_module_import__path_has__view_x_27___lambda__1___closed__1;
+namespace lean {
+obj* string_iterator_remaining(obj*);
+}
 extern obj* l_lean_parser_basic__parser__m_alternative;
 obj* l_lean_parser_module_import_parser(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__7(obj*);
@@ -227,6 +251,7 @@ obj* l_lean_parser_log__message___at___private_init_lean_parser_module_1__comman
 obj* l_lean_parser_module_header_parser___closed__1;
 obj* l_lean_parser_module__parser__m_basic__parser__m(obj*, obj*);
 obj* l_lean_parser_module_import__path_has__view;
+obj* l_nat_sub(obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__13___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_log__message___at___private_init_lean_parser_module_1__commands__aux___main___spec__4(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_has__monad__lift___rarg(obj*, obj*, obj*, obj*, obj*);

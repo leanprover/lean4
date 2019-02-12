@@ -3,8 +3,6 @@
 // Imports: init.data.nat.basic init.data.fin.basic init.data.usize init.data.repr init.function
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -21,6 +19,7 @@ obj* l_array_rev__iterate(obj*, obj*);
 obj* l_array_push___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_rev__foldl(obj*, obj*);
 obj* l_array_uread___rarg___boxed(obj*, obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_array_rev__iterate___rarg(obj*, obj*, obj*);
 obj* l_array_read___rarg(obj*, obj*);
 obj* l___private_init_data_array_basic_2__rev__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -58,11 +57,13 @@ obj* l_array_foldl(obj*, obj*);
 obj* l___private_init_data_array_basic_1__iterate__aux___main(obj*, obj*);
 uint8 l_array_empty___rarg(obj*);
 obj* l___private_init_data_array_basic_3__foreach__aux(obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_array_pop___rarg(obj*);
 obj* l_list_repr___rarg(obj*, obj*);
 obj* l_array_map_u_2082(obj*);
 obj* l_list_to__array__aux(obj*);
 obj* l_array_uread_x_27___rarg___boxed(obj*, obj*, obj*);
+uint8 l_nat_dec__le(obj*, obj*);
 obj* l_array_foreach(obj*);
 obj* l_array_foldl___rarg(obj*, obj*, obj*);
 obj* l_mk__array___rarg___lambda__1(obj*, obj*);
@@ -89,12 +90,17 @@ obj* l___private_init_data_array_basic_2__rev__iterate__aux___main(obj*, obj*);
 obj* l_array_foldl___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_map___rarg(obj*, obj*);
 obj* l_array_map___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l___private_init_data_array_basic_2__rev__iterate__aux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_array_read_x_27___rarg(obj*, obj*, obj*);
 obj* l_array_to__list___rarg___closed__1;
 obj* l_list_to__array___rarg(obj*);
 obj* l_array_iterate(obj*, obj*);
+namespace lean {
+obj* usize_to_nat(usize);
+}
 obj* l___private_init_data_array_basic_1__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_mk__array___rarg(obj* x_0, obj* x_1) {
 _start:
 {

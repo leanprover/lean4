@@ -3,8 +3,6 @@
 // Imports: init.default init.lean.parser.module init.lean.expander init.lean.elaborator init.io
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -41,6 +39,9 @@ obj* l_lean_process__file___lambda__1___closed__8;
 obj* lean_process_file(obj*, obj*, uint8, obj*);
 obj* l_lean_run__frontend(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_module_parser(obj*, obj*, obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_io_prim_iterate___main___at_lean_run__frontend___spec__15(obj*, obj*, obj*);
 obj* l_lean_process__file___lambda__1___closed__2;
 obj* l_lean_process__file___closed__1;
@@ -78,6 +79,9 @@ obj* l_lean_run__expander___rarg(obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__10(obj*, obj*, obj*);
 obj* l_io_prim_iterate__eio___at_lean_run__frontend___spec__14___closed__1;
 obj* l_lean_parser_parsec__t_run___at_lean_run__frontend___spec__2___rarg___closed__1;
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 obj* l_io_print___at_lean_run__frontend___spec__4(obj*, obj*);
 extern obj* l_lean_parser_command_builtin__command__parsers;
 obj* l_io_prim_iterate__eio___at_lean_run__frontend___spec__14___lambda__1(obj*, obj*, obj*, obj*);

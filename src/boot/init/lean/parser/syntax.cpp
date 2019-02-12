@@ -3,8 +3,6 @@
 // Imports: init.lean.name init.lean.parser.parsec
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -34,6 +32,9 @@ obj* l_lean_parser_syntax_flip__scopes___main(obj*, obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__1;
 obj* l_lean_parser_syntax_get__head__info__lst(obj*);
 obj* l_list_reverse___rarg(obj*);
+namespace lean {
+obj* name_mk_string(obj*, obj*);
+}
 obj* l_lean_parser_syntax_reprint__atom___main(obj*);
 obj* l_lean_nat__has__to__format(obj*);
 obj* l_lean_parser_syntax_to__format__lst(obj*);
@@ -43,9 +44,15 @@ obj* l_string_quote(obj*);
 obj* l_lean_parser_syntax_update__leading___closed__1;
 obj* l_lean_parser_macro__scopes;
 obj* l_lean_parser_syntax_to__format___main___closed__7;
+namespace lean {
+obj* string_length(obj*);
+}
 obj* l_lean_parser_syntax_mreplace__lst___main(obj*);
 obj* l_option_orelse___main___rarg(obj*, obj*);
 extern obj* l_lean_name_to__string___closed__1;
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_lean_parser_syntax_mreplace(obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__6;
 obj* l_lean_parser_syntax_reprint__lst(obj*);
@@ -57,6 +64,12 @@ obj* l_list_map___main___at_lean_parser_syntax_as__node___main___spec__1(obj*, o
 obj* l_lean_parser_syntax_to__format___main___closed__5;
 obj* l_lean_name_replace__prefix___main(obj*, obj*, obj*);
 obj* l_lean_parser_syntax_get__pos(obj*);
+namespace lean {
+obj* string_iterator_to_end(obj*);
+}
+namespace lean {
+obj* string_iterator_extract(obj*, obj*);
+}
 obj* l_lean_parser_syntax_to__format___main___closed__9;
 obj* l_option_get__or__else___main___rarg(obj*, obj*);
 obj* l_lean_name_to__string__with__sep___main(obj*, obj*);
@@ -68,6 +81,7 @@ obj* l_lean_parser_syntax_get__head__info__lst___main(obj*);
 obj* l_lean_parser_syntax_has__to__string;
 obj* l_lean_parser_syntax_mreplace__lst___main___at_lean_parser_syntax_update__leading___spec__2(obj*, obj*, obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__8;
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_syntax_flip__scopes(obj*, obj*);
 obj* l_string_iterator_nextn___main(obj*, obj*);
 extern obj* l_lean_format_sbracket___closed__1;
@@ -91,10 +105,19 @@ obj* l_lean_parser_syntax_lean_has__to__format;
 obj* l_lean_format_group___main(obj*);
 obj* l_lean_parser_syntax_mreplace__lst___main___at_lean_parser_syntax_replace___spec__2(obj*, obj*);
 extern obj* l_lean_format_paren___closed__3;
+namespace lean {
+obj* string_iterator_offset(obj*);
+}
 obj* l_string_join(obj*);
 obj* l_lean_parser_syntax_mreplace__lst___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_substring_to__string(obj*);
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_syntax_kind___main(obj*);
+namespace lean {
+uint8 string_dec_eq(obj*, obj*);
+}
 obj* l_lean_to__fmt___at_lean_parser_syntax_has__to__string___spec__1(obj*);
 obj* l_lean_parser_syntax_mreplace___main___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_lean_parser_syntax_reprint__atom(obj*);
@@ -102,6 +125,9 @@ obj* l_lean_format_join__sep___main___at_lean_parser_syntax_to__format___main___
 obj* l_lean_parser_syntax_reprint__lst___main___closed__1;
 obj* l_lean_parser_syntax_to__format___main___closed__2;
 obj* l_lean_parser_macro__scope_lean_has__to__format;
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 extern obj* l_lean_format_paren___closed__2;
 obj* l_lean_parser_macro__scopes_flip___main(obj*, obj*);
 obj* l_lean_parser_syntax_list(obj*);
@@ -118,6 +144,7 @@ obj* l_nat_repr(obj*);
 obj* l_lean_parser_choice;
 obj* l_lean_parser_syntax_reprint___main___closed__1;
 obj* l___private_init_lean_parser_syntax_1__update__leading__aux(obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_list_append___rarg(obj*, obj*);
 obj* l___private_init_lean_parser_syntax_1__update__leading__aux___main(obj*, obj*);
 obj* l_option_map___rarg(obj*, obj*);

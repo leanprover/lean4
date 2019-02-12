@@ -3,8 +3,6 @@
 // Imports: init.lean.parser.token
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -45,6 +43,7 @@ obj* l_lean_parser_command_notation__spec_precedence_parser_lean_parser_has__tok
 obj* l_lean_parser_command_reserve__notation_has__view;
 obj* l_lean_parser_command_notation__spec_precedence__term_parser_lean_parser_has__view;
 obj* l_lean_parser_command_notation__spec_mixfix__symbol_has__view_x_27___lambda__1___closed__3;
+obj* l_nat_add(obj*, obj*);
 obj* l_lean_parser_combinators_choice__aux___main___at_lean_parser_command_notation__spec_precedence__lit_parser_lean_parser_has__view___spec__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_notation__spec_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_command_notation__spec_symbol__quote_has__view_x_27___lambda__1(obj*);
@@ -78,6 +77,9 @@ obj* l_lean_parser_command_notation__spec_precedence_has__view_x_27___lambda__1_
 obj* l_lean_parser_command_notation__spec_notation__symbol_parser_lean_parser_has__tokens;
 obj* l_list_reverse___rarg(obj*);
 obj* l_lean_parser_command_notation__spec_precedence__offset__op_has__view_x_27___lambda__1(obj*);
+namespace lean {
+obj* name_mk_string(obj*, obj*);
+}
 obj* l_lean_parser_command_notation__spec_notation__symbol_has__view;
 obj* l_lean_parser_command_mixfix_has__view;
 obj* l_lean_parser_command_notation__spec_precedence_parser___closed__1;
@@ -99,6 +101,9 @@ obj* l_lean_parser_command_notation_has__view_x_27;
 obj* l_string_quote(obj*);
 obj* l_lean_parser_command_notation_parser___closed__1;
 obj* l_lean_parser_command_notation__spec_fold__action;
+namespace lean {
+obj* string_iterator_next(obj*);
+}
 obj* l_lean_parser_combinators_optional___at_lean_parser_command_notation__spec_symbol__quote_parser_lean_parser_has__view___spec__7(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence__term_view_to__nat___main(obj*);
 obj* l_lean_parser_command_notation__spec_action__kind;
@@ -118,11 +123,17 @@ obj* l_lean_parser_combinators_any__of___at_lean_parser_command_notation__spec_f
 obj* l_lean_parser_command_notation__spec_action_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_command_notation__spec;
 obj* l_lean_parser_command_notation__spec_rule_parser_lean_parser_has__tokens;
+namespace lean {
+obj* string_length(obj*);
+}
 obj* l_lean_parser_command_notation_parser_lean_parser_has__tokens;
 uint8 l_string_is__empty(obj*);
 obj* l_lean_parser_command_notation__like_parser_lean_parser_has__tokens;
 obj* l_lean_parser_command_notation__spec_action_has__view;
 obj* l_lean_parser_command_notation__spec_precedence__lit_parser(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+uint32 string_iterator_curr(obj*);
+}
 obj* l_lean_parser_command_notation__spec_parser_lean_parser_has__view;
 obj* l_lean_parser_command_notation__spec_precedence__offset__op_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_command_mixfix_parser_lean_parser_has__view;
@@ -179,6 +190,9 @@ obj* l_lean_parser_command_notation__spec_precedence__offset__op_has__view_x_27_
 obj* l_lean_parser_command_notation__spec_fold__action_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_mixfix_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_command_notation__spec_unquoted__symbol_parser(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 string_iterator_has_next(obj*);
+}
 obj* l_lean_parser_command_notation__spec_precedence__offset_has__view_x_27;
 obj* l_lean_parser_command_notation__spec_symbol__quote_parser_lean_parser_has__view___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_list_foldl___main___at_lean_parser_command_notation__spec_fold__action_parser_lean_parser_has__view___spec__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -186,6 +200,7 @@ obj* l_lean_parser_command_notation__spec_precedence__term_has__view_x_27___lamb
 obj* l_lean_parser_symbol_tokens___rarg(obj*, obj*);
 obj* l_lean_parser_command_mixfix_kind_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_command_notation__spec_transition_has__view_x_27___lambda__2(obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_command_notation__like_has__view_x_27___lambda__1(obj*);
 obj* l_lean_parser_raw_view___rarg___lambda__1(obj*);
 extern obj* l_lean_parser_term__parser__m_lean_parser_monad__parsec;
@@ -268,6 +283,9 @@ obj* l_lean_parser_command_notation__spec_fold__action__folder;
 obj* l_lean_parser_substring_to__string(obj*);
 obj* l_lean_parser_command_notation__like_parser_lean_parser_has__view;
 obj* l_reader__t_orelse___at_lean_parser_command_notation__spec_fold__action_parser_lean_parser_has__view___spec__2(obj*);
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_command_mixfix_has__view_x_27;
 obj* l_lean_parser_command_notation__spec_symbol__quote_parser_lean_parser_has__view___lambda__1___closed__1;
 obj* l_lean_parser_command_mixfix_kind_parser(obj*, obj*, obj*, obj*, obj*);
@@ -275,6 +293,9 @@ obj* l_lean_parser_command_notation__spec_has__view_x_27___lambda__1(obj*);
 obj* l_lean_parser_command_notation_parser_lean_parser_has__view;
 obj* l_lean_parser_command_notation__spec_fold__action_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_command_notation__spec_precedence_parser(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 string_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_command_notation__spec_precedence__offset_has__view_x_27___lambda__1(obj*);
 obj* l_lean_parser_command_notation__spec_action_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence__offset;
@@ -286,7 +307,13 @@ obj* l_lean_parser_command_notation__spec_rule;
 obj* l_lean_parser_command_notation__spec_parser___closed__1;
 obj* l_lean_parser_command_notation__like_has__view_x_27;
 obj* l_lean_parser_command_notation__spec_mixfix__symbol_parser(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* string_iterator_remaining(obj*);
+}
 obj* l_lean_parser_command_mixfix_kind_has__view_x_27___lambda__1___closed__7;
+namespace lean {
+obj* string_mk_iterator(obj*);
+}
 obj* l_lean_parser_command_notation__spec_notation__symbol;
 obj* l_lean_parser_command_notation__spec_action_has__view_x_27;
 obj* l_lean_parser_command_notation__spec_precedence__offset__op_has__view_x_27___lambda__1___closed__4;
@@ -332,6 +359,9 @@ obj* l_lean_parser_command_mixfix_kind_has__view;
 obj* l_lean_parser_command_notation__spec_mixfix__symbol_has__view_x_27___lambda__1(obj*);
 obj* l_lean_parser_command_reserve__mixfix_parser___closed__1;
 obj* l_lean_parser_command_notation__spec_mixfix__symbol_has__view;
+namespace lean {
+obj* name_mk_numeral(obj*, obj*);
+}
 obj* l_lean_parser_command_notation__spec_notation__symbol_has__view_x_27;
 obj* l_lean_parser_command_notation__spec_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at_lean_parser_command_notation__spec_quoted__symbol_parser_lean_parser_has__tokens___spec__2(obj*, obj*, obj*);
@@ -357,10 +387,14 @@ obj* l_lean_parser_command_reserve__notation_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_command_notation__spec_mixfix__symbol_parser___closed__1;
 obj* l_lean_parser_command_notation__spec_quoted__symbol_parser_lean_parser_has__view;
 obj* l_lean_parser_command_notation__spec_has__view;
+obj* l_nat_sub(obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence__term_has__view_x_27___lambda__1(obj*);
 obj* l_lean_parser_command_notation__spec_binder;
 obj* l_lean_parser_command_notation__spec_quoted__symbol_parser(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_detail__ident__part_has__view_x_27___lambda__2___closed__2;
+namespace lean {
+obj* string_push(obj*, uint32);
+}
 obj* l_dlist_singleton___rarg(obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence__term_has__view;
 obj* l_lean_parser_command_notation__spec_has__view_x_27___lambda__1___closed__4;
@@ -395,6 +429,7 @@ obj* l_lean_parser_command_notation__spec_argument_has__view_x_27___lambda__2(ob
 obj* l_lean_parser_command_notation__spec_action_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_command_notation__spec_action_has__view_x_27___lambda__1___closed__3;
 obj* l_lean_parser_command_notation__spec_transition_parser(obj*, obj*, obj*, obj*, obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence__offset__op_has__view;
 obj* l_lean_parser_rec__t_recurse___at_lean_parser_term_parser_lean_parser_has__view___spec__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_notation__spec_precedence_has__view_x_27___lambda__1___closed__2;

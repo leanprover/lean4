@@ -3,8 +3,6 @@
 // Imports: init.lean.parser.module init.lean.expr
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -45,6 +43,7 @@ obj* l_lean_expander_if_transform(obj*, obj*);
 extern obj* l_lean_parser_command_declaration;
 obj* l_list_map___main___at_lean_expander_intro__rule_transform___spec__1(obj*);
 obj* l_lean_expander_universes_transform(obj*, obj*);
+obj* l_nat_add(obj*, obj*);
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__20___boxed(obj*, obj*, obj*);
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__20(uint8, obj*, obj*);
 obj* l_lean_expander_variables_transform(obj*, obj*);
@@ -69,6 +68,9 @@ obj* l_lean_parser_syntax_flip__scopes___main(obj*, obj*);
 obj* l_rbnode_ins___main___at_lean_expander_builtin__transformers___spec__4(obj*, obj*, obj*);
 obj* l_lean_expander_assume_transform___closed__1;
 obj* l_list_foldr___main___at_lean_expander_expand__binders___spec__7(obj*, obj*, obj*);
+namespace lean {
+obj* name_mk_string(obj*, obj*);
+}
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__6(obj*, obj*);
 obj* l_lean_expander_binding__annotation__update_has__view;
 obj* l_coe___at_lean_expander_coe__binders__ext___spec__1(obj*);
@@ -156,6 +158,7 @@ obj* l_rbmap_insert___main___at_lean_expander_builtin__transformers___spec__2(ob
 obj* l_lean_expander_lambda_transform___closed__1;
 extern obj* l_lean_parser_term_pi;
 extern obj* l_lean_parser_term_paren_has__view;
+uint8 l_nat_dec__eq(obj*, obj*);
 extern obj* l_lean_parser_term__parser__m_lean_parser_monad__parsec;
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__3___closed__1;
 obj* l_id(obj*);
@@ -225,6 +228,9 @@ obj* l_lean_expander_mixfix__to__notation__spec(obj*, obj*, obj*);
 obj* l_list_foldr___main___at_lean_expander_expand__binders___spec__1(obj*, obj*, obj*);
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__4___closed__1;
 obj* l_lean_expander_coe__binder__bracketed__binder___closed__1;
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__18(obj*, obj*);
 obj* l_lean_expander_declaration_transform___closed__1;
 obj* l_lean_expander_coe__binders__ext__binders(obj*);
@@ -284,6 +290,7 @@ obj* l_id_monad___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_lean_expander_reserve__mixfix_transform(obj*, obj*);
 obj* l_list_foldr1___main___at_lean_expander_paren_transform___spec__3___closed__1;
 obj* l_lean_expander_level_leading_transform(obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_lean_expander_binding__annotation__update_parser_lean_parser_has__view;
 obj* l_lean_expander_expander__m;
 obj* l_lean_file__map_to__position(obj*, obj*);

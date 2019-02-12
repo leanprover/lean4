@@ -3,8 +3,6 @@
 // Imports: init.data.basic init.data.nat.default init.data.char.default init.data.string.default init.data.list.default init.data.int.default init.data.array.default init.data.fin.default init.data.uint init.data.ordering.default init.data.rbtree.default init.data.rbmap.default init.data.option.basic init.data.option.instances
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;

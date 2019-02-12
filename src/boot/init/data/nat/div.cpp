@@ -3,8 +3,6 @@
 // Imports: init.wf init.data.nat.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -17,12 +15,18 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_nat_mod___boxed(obj*, obj*);
+obj* l_nat_add(obj*, obj*);
+obj* l_nat_mod(obj*, obj*);
 obj* l___private_init_data_nat_div_5__mod_F(obj*, obj*, obj*);
 obj* l_nat_has__div;
 obj* l___private_init_data_nat_div_2__div_F(obj*, obj*, obj*);
 obj* l___private_init_data_nat_div_1__div__rec__lemma;
+uint8 l_nat_dec__le(obj*, obj*);
+obj* l_nat_div(obj*, obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_nat_has__mod;
 obj* l_nat_div___boxed(obj*, obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* _init_l___private_init_data_nat_div_1__div__rec__lemma() {
 _start:
 {

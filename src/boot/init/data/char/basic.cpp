@@ -3,8 +3,6 @@
 // Imports: init.data.nat.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -19,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 uint8 l_char_is__whitespace(uint32);
 obj* l_char_is__upper___boxed(obj*);
 uint8 l_char_is__lower(uint32);
+obj* l_nat_add(obj*, obj*);
 obj* l_char_to__lower(uint32);
 obj* l_char_is__digit___boxed(obj*);
 obj* l_char_dec__lt___boxed(obj*, obj*);
@@ -32,10 +31,12 @@ obj* l_char_to__lower___boxed(obj*);
 obj* l_char_is__whitespace___boxed(obj*);
 obj* l_char_to__nat___boxed(obj*);
 obj* l_char_dec__le___boxed(obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_char_has__sizeof___boxed(obj*);
 obj* l_char_lt;
 obj* l_char_inhabited;
 uint32 l_char_has__sizeof(uint32);
+uint8 l_nat_dec__le(obj*, obj*);
 uint8 l_char_dec__lt(uint32, uint32);
 obj* l_char_is__lower___boxed(obj*);
 obj* l_char_decidable__eq___boxed(obj*, obj*);
@@ -47,6 +48,7 @@ uint8 l_char_decidable__eq(uint32, uint32);
 uint32 l_char_to__nat(uint32);
 obj* l_is__valid__char;
 obj* l_char_is__alpha___boxed(obj*);
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* _init_l_is__valid__char() {
 _start:
 {

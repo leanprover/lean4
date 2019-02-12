@@ -3,8 +3,6 @@
 // Imports: init.data.string.basic init.coe init.data.uint init.data.to_string init.lean.format init.data.hashable
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -24,23 +22,42 @@ obj* l___private_init_lean_name_1__hash__aux___main___boxed(obj*, obj*);
 obj* l_lean_name_components_x_27(obj*);
 obj* l_lean_name_to__string(obj*);
 obj* l_list_reverse___rarg(obj*);
+namespace lean {
+usize name_hash_usize(obj*);
+}
+namespace lean {
+obj* name_mk_string(obj*, obj*);
+}
 obj* l_lean_name_has__lt__quick;
 obj* l_lean_name_replace__prefix(obj*, obj*, obj*);
 uint8 l_lean_name_dec__eq___main(obj*, obj*);
 obj* l_lean_inhabited;
 obj* l_lean_name_to__string___closed__1;
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 uint8 l_lean_name_decidable__rel(obj*, obj*);
 obj* l_lean_name_append(obj*, obj*);
 obj* l_lean_name_hashable;
 obj* l_lean_name_replace__prefix___main(obj*, obj*, obj*);
 obj* l_lean_name_components(obj*);
+namespace lean {
+uint8 string_dec_lt(obj*, obj*);
+}
 obj* l_lean_name_to__string__with__sep___main(obj*, obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_name_update__prefix(obj*, obj*);
 obj* l_lean_name_components_x_27___main(obj*);
 obj* l_lean_name_append___main(obj*, obj*);
 obj* l_lean_name_to__string__with__sep(obj*, obj*);
 obj* l_lean_name_dec__eq___boxed(obj*, obj*);
 obj* l___private_init_lean_name_1__hash__aux(obj*, usize);
+namespace lean {
+uint8 name_dec_eq(obj*, obj*);
+}
+namespace lean {
+uint8 string_dec_eq(obj*, obj*);
+}
 obj* l_lean_mk__num__name(obj*, obj*);
 obj* l_lean_name_quick__lt(obj*, obj*);
 obj* l_lean_mk__simple__name(obj*);
@@ -49,12 +66,16 @@ obj* l___private_init_lean_name_1__hash__aux___boxed(obj*, obj*);
 obj* l_lean_name_update__prefix___main(obj*, obj*);
 obj* l_lean_name_get__prefix(obj*);
 obj* l___private_init_lean_name_1__hash__aux___main(obj*, usize);
+namespace lean {
+obj* name_mk_numeral(obj*, obj*);
+}
 obj* l_nat_repr(obj*);
 obj* l_lean_name_get__prefix___main(obj*);
 obj* l_lean_name_hash___boxed(obj*);
 obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_lean_name_to__string__with__sep___main___closed__1;
 obj* l_lean_name_has__to__string;
+uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_lean_name_dec__eq___main___boxed(obj*, obj*);
 obj* l_lean_name_decidable__rel___boxed(obj*, obj*);
 extern usize l_mix__hash___closed__1;

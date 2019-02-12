@@ -3,8 +3,6 @@
 // Imports: init.control.monad init.control.alternative init.data.list.basic init.coe
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -51,6 +49,7 @@ obj* l_mwhen___rarg___lambda__1(obj*, obj*, uint8);
 obj* l_list_mexists___main___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_list_mforall___main___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_list_mfoldr___main(obj*);
+uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_list_mmap___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mfirst___main(obj*);
 obj* l_nat_mrepeat___rarg(obj*, obj*, obj*);
@@ -76,6 +75,7 @@ obj* l_list_mfoldl___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_list_mexists___main(obj*);
 obj* l_list_mexists___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_mcond(obj*);
+obj* l_nat_sub(obj*, obj*);
 obj* l_list_mforall___main___rarg___lambda__1(obj*, obj*, obj*, uint8);
 obj* l_unless(obj*);
 obj* l_when(obj*);

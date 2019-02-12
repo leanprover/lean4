@@ -3,8 +3,6 @@
 // Imports: init.data.rbtree.basic init.lean.name
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -28,6 +26,9 @@ uint8 l_lean_ir_is__reserved(obj*);
 obj* l_lean_ir_is__reserved__name___boxed(obj*);
 obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
 uint8 l_option_is__some___main___rarg(obj*);
+namespace lean {
+uint8 string_dec_lt(obj*, obj*);
+}
 uint8 l_lean_ir_is__reserved__name(obj*);
 obj* l_rbtree_insert___at_lean_ir_reserved__set___spec__1(obj*, obj*);
 obj* l_lean_ir_reserved;

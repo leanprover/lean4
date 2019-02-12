@@ -3,8 +3,6 @@
 // Imports: init.control.alternative init.control.lift init.data.to_string init.control.monad_fail
 #include "runtime/object.h"
 #include "runtime/apply.h"
-#include "runtime/io.h"
-#include "kernel/builtin.h"
 typedef lean::object obj;    typedef lean::usize  usize;
 typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
 typedef lean::uint32 uint32; typedef lean::uint64 uint64;
@@ -51,6 +49,9 @@ obj* l_except_monad___lambda__5(obj*, obj*, obj*, obj*);
 obj* l_except_map__error___rarg(obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_monad___rarg___lambda__6(obj*, obj*, obj*);
+namespace lean {
+obj* string_append(obj*, obj*);
+}
 obj* l_except__t_monad__except___rarg(obj*);
 obj* l_except_has__to__string(obj*, obj*);
 obj* l_function_comp___rarg(obj*, obj*, obj*);

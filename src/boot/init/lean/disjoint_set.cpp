@@ -19,12 +19,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_mk__hashmap__imp___rarg(obj*);
 obj* l_lean_disjoint__set_merge(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l___private_729865769__find__aux___main(obj*);
 obj* l_hashmap__imp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___rarg(obj*, obj*, obj*, obj*);
-obj* l___private_729865769__find__aux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank___main___rarg(obj*, obj*, obj*, obj*);
-obj* l___private_729865769__find__aux(obj*);
+obj* l___private_3363165505__find__aux___main(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank(obj*);
 obj* l_lean_disjoint__set_merge___main___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -36,16 +34,18 @@ obj* l_d__hashmap_size___rarg(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(obj*);
 obj* l_lean_mk__disjoint__set(obj*);
 obj* l_lean_disjoint__set_rank___main(obj*);
-obj* l___private_729865769__find__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l___private_3363165505__find__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l___private_3363165505__find__aux(obj*);
 obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(obj*, obj*, obj*);
 obj* l_lean_disjoint__set_merge___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj*);
 obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
+obj* l___private_3363165505__find__aux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___main(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj*);
 obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj* x_0) {
@@ -87,7 +87,7 @@ x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_mk__disjoint__set___rar
 return x_2;
 }
 }
-obj* l___private_729865769__find__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l___private_3363165505__find__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; uint8 x_6; 
@@ -165,29 +165,29 @@ return x_44;
 }
 }
 }
-obj* l___private_729865769__find__aux___main(obj* x_0) {
+obj* l___private_3363165505__find__aux___main(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_729865769__find__aux___main___rarg), 5, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3363165505__find__aux___main___rarg), 5, 0);
 return x_2;
 }
 }
-obj* l___private_729865769__find__aux___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l___private_3363165505__find__aux___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = l___private_729865769__find__aux___main___rarg(x_0, x_1, x_2, x_3, x_4);
+x_5 = l___private_3363165505__find__aux___main___rarg(x_0, x_1, x_2, x_3, x_4);
 return x_5;
 }
 }
-obj* l___private_729865769__find__aux(obj* x_0) {
+obj* l___private_3363165505__find__aux(obj* x_0) {
 _start:
 {
 obj* x_2; 
 lean::dec(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_729865769__find__aux___rarg), 5, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3363165505__find__aux___rarg), 5, 0);
 return x_2;
 }
 }
@@ -197,7 +197,7 @@ _start:
 obj* x_5; obj* x_6; obj* x_7; 
 lean::inc(x_2);
 x_5 = l_d__hashmap_size___rarg(x_2);
-x_6 = l___private_729865769__find__aux___main___rarg(x_0, x_1, x_5, x_3, x_2);
+x_6 = l___private_3363165505__find__aux___main___rarg(x_0, x_1, x_5, x_3, x_2);
 x_7 = lean::cnstr_get(x_6, 0);
 lean::inc(x_7);
 lean::dec(x_6);
@@ -236,7 +236,7 @@ _start:
 obj* x_5; obj* x_6; obj* x_7; 
 lean::inc(x_2);
 x_5 = l_d__hashmap_size___rarg(x_2);
-x_6 = l___private_729865769__find__aux___main___rarg(x_0, x_1, x_5, x_3, x_2);
+x_6 = l___private_3363165505__find__aux___main___rarg(x_0, x_1, x_5, x_3, x_2);
 x_7 = lean::cnstr_get(x_6, 1);
 lean::inc(x_7);
 lean::dec(x_6);
@@ -348,12 +348,12 @@ lean::inc(x_3);
 lean::inc(x_6);
 lean::inc(x_1);
 lean::inc(x_0);
-x_12 = l___private_729865769__find__aux___main___rarg(x_0, x_1, x_6, x_3, x_2);
+x_12 = l___private_3363165505__find__aux___main___rarg(x_0, x_1, x_6, x_3, x_2);
 lean::inc(x_2);
 lean::inc(x_4);
 lean::inc(x_1);
 lean::inc(x_0);
-x_17 = l___private_729865769__find__aux___main___rarg(x_0, x_1, x_6, x_4, x_2);
+x_17 = l___private_3363165505__find__aux___main___rarg(x_0, x_1, x_6, x_4, x_2);
 x_18 = lean::cnstr_get(x_12, 0);
 lean::inc(x_18);
 x_20 = lean::cnstr_get(x_17, 0);

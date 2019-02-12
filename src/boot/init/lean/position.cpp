@@ -17,12 +17,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 uint8 l_prod__has__decidable__lt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l___private_167970869__from__string__aux(obj*, obj*, obj*);
 obj* l_rbnode_balance2__node___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_position_lean_has__to__format___closed__1;
 obj* l_rbmap_of__list___main___at_lean_file__map_from__string___spec__1(obj*);
 obj* l_lean_position_lt;
 obj* l_lean_position_lean_has__to__format(obj*);
-obj* l___private_3205843539__from__string__aux(obj*, obj*, obj*);
 obj* l_lean_position_has__lt;
 obj* l_lean_position_decidable__lt___boxed(obj*, obj*);
 obj* l_rbnode_mk__insert__result___main___rarg(uint8, obj*);
@@ -32,8 +32,8 @@ obj* l_lean_position_decidable__lt___main___boxed(obj*, obj*);
 obj* l_rbmap_insert___main___at_lean_file__map_from__string___spec__2(obj*, obj*, obj*);
 obj* l_lean_position_decidable__lt___main___closed__2;
 obj* l_nat_dec__eq___boxed(obj*, obj*);
+obj* l___private_167970869__from__string__aux___main(obj*, obj*, obj*);
 obj* l_lean_file__map_from__string(obj*);
-obj* l___private_3205843539__from__string__aux___main(obj*, obj*, obj*);
 obj* l_lean_to__fmt___at_lean_position_lean_has__to__format___spec__1(obj*);
 obj* l_rbnode_ins___main___at_lean_file__map_from__string___spec__4(obj*, obj*, obj*);
 obj* l_lean_position_lean_has__to__format___closed__3;
@@ -297,7 +297,7 @@ lean::cnstr_set(x_2, 1, x_1);
 return x_2;
 }
 }
-obj* l___private_3205843539__from__string__aux___main(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_167970869__from__string__aux___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -416,7 +416,7 @@ lean::inc(x_54);
 x_58 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_58, 0, x_53);
 lean::cnstr_set(x_58, 1, x_54);
-x_59 = l___private_3205843539__from__string__aux___main(x_6, x_52, x_54);
+x_59 = l___private_167970869__from__string__aux___main(x_6, x_52, x_54);
 x_60 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_60, 0, x_58);
 lean::cnstr_set(x_60, 1, x_59);
@@ -437,11 +437,11 @@ return x_65;
 }
 }
 }
-obj* l___private_3205843539__from__string__aux(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_167970869__from__string__aux(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l___private_3205843539__from__string__aux___main(x_0, x_1, x_2);
+x_3 = l___private_167970869__from__string__aux___main(x_0, x_1, x_2);
 return x_3;
 }
 }
@@ -694,7 +694,7 @@ obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_1 = lean::string_length(x_0);
 x_2 = lean::string_mk_iterator(x_0);
 x_3 = lean::mk_nat_obj(1u);
-x_4 = l___private_3205843539__from__string__aux___main(x_1, x_2, x_3);
+x_4 = l___private_167970869__from__string__aux___main(x_1, x_2, x_3);
 x_5 = l_rbmap_of__list___main___at_lean_file__map_from__string___spec__1(x_4);
 return x_5;
 }

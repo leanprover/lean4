@@ -11,4 +11,6 @@ Author: Leonardo de Moura
 
 namespace lean {
 void emit_cpp(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps);
+void initialize_emit_cpp();
+void finalize_emit_cpp();
 }

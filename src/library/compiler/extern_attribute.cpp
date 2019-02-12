@@ -12,6 +12,7 @@ Authors: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/util.h"
+#include "library/compiler/extern_attribute.h"
 #include "library/compiler/builtin.h" // TODO(Leo): delete
 
 void initialize_init_lean_extern();
@@ -24,6 +25,7 @@ object* mk_foreign_ext_entry_core(object*, object*);
 object* mk_extern_call_core(object*, object*, object*);
 object* mk_extern_attr_data_core(object*, object*);
 object* mk_extern_call_core(object*, object*, object*);
+object* get_extern_entry_for_core(object*, object*);
 
 typedef object_ref extern_entry;
 typedef list_ref<extern_entry> extern_entries;
@@ -119,6 +121,31 @@ typedef typed_attribute<extern_attr_data> extern_attr;
 
 extern_attr const & get_extern_attr() {
     return static_cast<extern_attr const &>(get_system_attribute("extern"));
+}
+
+optional<std::string> get_extern_name_for(environment const & env, name const & backend, name const & fn) {
+    if (std::shared_ptr<extern_attr_data> const & data = get_extern_attr().get(env, fn)) {
+        extern_attr_data_value const & v = data->m_value;
+        inc(v.raw()); inc(backend.raw());
+        /* get_extern_entry_for_core : extern_attr_data -> name -> option extern_entry */
+        object * opt_entry = get_extern_entry_for_core(v.raw(), backend.raw());
+        if (is_scalar(opt_entry)) return optional<std::string>();
+        object * entry     = cnstr_get(opt_entry, 0);
+        /*
+          inductive extern_entry
+          | adhoc    (backend : name)
+          | inline   (backend : name) (pattern : string)
+          | standard (backend : name) (fn : string)
+          | foreign  (backend : name) (fn : string)
+        */
+        if (cnstr_tag(entry) == 0 || cnstr_tag(entry) == 1) return optional<std::string>();
+        object * fname     = cnstr_get(entry, 1);
+        std::string r      = string_to_std(fname);
+        dec(opt_entry);
+        return optional<std::string>(r);
+    } else {
+        return optional<std::string>();
+    }
 }
 
 bool emit_extern_call_core(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs) {

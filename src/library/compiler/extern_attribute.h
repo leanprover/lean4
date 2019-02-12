@@ -16,6 +16,9 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
 
 bool emit_extern_call_core(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs);
 void emit_extern_call(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs);
+
+optional<std::string> get_extern_name_for(environment const & env, name const & backend, name const & fn);
+
 void initialize_extern_attribute();
 void finalize_extern_attribute();
 }

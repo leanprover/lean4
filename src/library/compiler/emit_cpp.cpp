@@ -47,23 +47,31 @@ static void open_namespaces_core(std::ostream & out, name const & p) {
     out << "namespace " << p.get_string().to_std_string() << " {\n";
 }
 
+static void open_namespaces(std::ostream & out, name const & n) {
+    open_namespaces_core(out, n.get_prefix());
+}
+
 /* If `n` has the attribute [cppname], and the "cppname" is hierarchical, then
    we must put `n` code inside of a namespace. */
 static void open_namespaces_for(std::ostream & out, environment const & env, name const & n) {
     optional<name> c = get_export_name_for(env, n);
     if (!c || c->is_atomic()) return;
-    open_namespaces_core(out, c->get_prefix());
+    open_namespaces(out, n);
 }
 
-static void close_namespaces_for(std::ostream & out, environment const & env, name const & n) {
-    optional<name> c = get_export_name_for(env, n);
-    if (!c || c->is_atomic()) return;
-    name p = c->get_prefix();
+static void close_namespaces(std::ostream & out, name const & n) {
+    name p = n.get_prefix();
     while (!p.is_anonymous()) {
         out << "}";
         p = p.get_prefix();
     }
     out << "\n";
+}
+
+static void close_namespaces_for(std::ostream & out, environment const & env, name const & n) {
+    optional<name> c = get_export_name_for(env, n);
+    if (!c || c->is_atomic()) return;
+    return close_namespaces(out, *c);
 }
 
 static char const * g_lean_main = "_lean_main";
@@ -112,14 +120,13 @@ static expr get_result_type(expr type) {
     return type;
 }
 
-static void emit_fn_decl(std::ostream & out, environment const & env, name const & n, bool mod_decl) {
-    open_namespaces_for(out, env, n);
+static void emit_fn_decl_core(std::ostream & out, environment const & env, name const & n, name const & cpp_base_name, bool mod_decl) {
     expr type = get_constant_ll_type(env, n);
     if (!mod_decl && !is_pi(type)) {
         /* We should add extern for constants coming from other modules. */
         out << "extern ";
     }
-    out << to_cpp_type(get_result_type(type)) << " " << to_base_cpp_name(env, n);
+    out << to_cpp_type(get_result_type(type)) << " " << cpp_base_name;
     if (is_pi(type)) {
         out << "(";
         bool first = true;
@@ -131,13 +138,36 @@ static void emit_fn_decl(std::ostream & out, environment const & env, name const
         out << ")";
     }
     out << ";\n";
+}
+
+static void emit_fn_decl(std::ostream & out, environment const & env, name const & n, bool mod_decl) {
+    open_namespaces_for(out, env, n);
+    emit_fn_decl_core(out, env, n, to_base_cpp_name(env, n), mod_decl);
     close_namespaces_for(out, env, n);
 }
 
+static name cpp_qualified_name_to_name(std::string const & s) {
+    size_t pos = s.find("::");
+    if (pos == std::string::npos) {
+        return name(s.c_str());
+    } else {
+        name prefix(s.substr(0, pos).c_str());
+        name rest = cpp_qualified_name_to_name(s.substr(pos+2, s.size()-pos-2));
+        return prefix + rest;
+    }
+}
+
+static void emit_extern_decl(std::ostream & out, environment const & env, name const & n, std::string const & cpp_name) {
+    name q_cpp_name = cpp_qualified_name_to_name(cpp_name);
+    open_namespaces(out, q_cpp_name);
+    emit_fn_decl_core(out, env, n, q_cpp_name.get_string(), false);
+    close_namespaces(out, q_cpp_name);
+}
+
 /* Auxiliary function for `collect_dependencies`. */
-static void collect_constant(environment const &env, expr const & e, name_set & deps) {
+static void collect_constant(expr const & e, name_set & deps) {
     lean_assert(is_constant(e));
-    if (!is_llnf_op(e) && !is_extern_constant(env, const_name(e)) && !is_enf_neutral(e) && !is_enf_unreachable(e)) {
+    if (!is_llnf_op(e) && !is_enf_neutral(e) && !is_enf_unreachable(e)) {
         deps.insert(const_name(e));
     }
 }
@@ -162,19 +192,21 @@ static void collect_dependencies(environment const & env, expr e, name_set & dep
             } else if (is_llnf_closure(get_app_fn(e))) {
                 buffer<expr> args;
                 get_app_args(e, args);
-                collect_constant(env, args[0], deps);
+                collect_constant(args[0], deps);
             } else {
-                collect_constant(env, get_app_fn(e), deps);
+                collect_constant(get_app_fn(e), deps);
             }
             return;
         case expr_kind::Const:
-            collect_constant(env, e, deps);
+            collect_constant(e, deps);
             return;
         default:
             return;
         }
     }
 }
+
+static name * g_cpp = nullptr;
 
 /* Emit C++ function declaration for all functions/constants declared in the current module,
    and their direct dependencies. */
@@ -188,7 +220,9 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
         collect_dependencies(env, d.snd(), all_decls);
     }
     all_decls.for_each([&](name const & n) {
-            if (!is_extern_constant(env, n)) {
+            if (optional<std::string> fn = get_extern_name_for(env, *g_cpp, n)) {
+                emit_extern_decl(out, env, n, *fn);
+            } else {
                 emit_fn_decl(out, env, n, mod_decls.contains(n));
             }
         });
@@ -212,10 +246,8 @@ static void emit_file_header(std::ostream & out, environment const & env, module
     out << "// Imports:"; for (module_name const & d : deps) out << " " << d; out << "\n";
     out << "#include \"runtime/object.h\"\n";
     out << "#include \"runtime/apply.h\"\n";
-    out << "#include \"runtime/io.h\"\n";
     if (has_main_fn(env))
         out << "#include \"runtime/init_module.h\"\n";
-    out << "#include \"kernel/builtin.h\"\n";
     out << "typedef lean::object obj;    typedef lean::usize  usize;\n";
     out << "typedef lean::uint8  uint8;  typedef lean::uint16 uint16;\n";
     out << "typedef lean::uint32 uint32; typedef lean::uint64 uint64;\n";
@@ -269,7 +301,6 @@ static char const * get_scalar_type_from_size(unsigned i) {
 
 struct emit_fn_fn {
     std::ostream &  m_out;
-    name            m_cpp{"cpp"};
     name_generator  m_ngen;
     environment     m_env;
     local_ctx       m_lctx;
@@ -564,7 +595,7 @@ struct emit_fn_fn {
             --i;
             arg_strs = string_refs(arg_to_string_ref(args[i]), arg_strs);
         }
-        emit_extern_call(m_out, m_env, m_cpp, const_name(fn), arg_strs);
+        emit_extern_call(m_out, m_env, *g_cpp, const_name(fn), arg_strs);
         m_out << ";\n";
     }
 
@@ -872,5 +903,13 @@ void emit_cpp(std::ostream & out, environment const & env, module_name const & m
     emit_fns(out, env);
     emit_initialize(out, env, m, deps);
     if (optional<comp_decl> d = has_main_fn(env)) emit_main_fn(out, m, *d);
+}
+
+void initialize_emit_cpp() {
+    g_cpp = new name("cpp");
+}
+
+void finalize_emit_cpp() {
+    delete g_cpp;
 }
 }

@@ -278,12 +278,6 @@ void initialize_builtin() {
     register_builtin(name({"lean", "environment", "contains"}), o_o_o, "lean_environment_contains");
     register_builtin(name({"lean", "elaborator", "elaborate_command"}), o_o_o_o, "lean_elaborator_elaborate_command");
 
-    /* name builtin functions */
-    register_builtin(name({"lean", "name", "hash"}), o_us, "lean::name_hash_usize", b);
-    register_builtin(name({"lean", "name", "mk_string"}), o_o_o, "lean::name_mk_string");
-    register_builtin(name({"lean", "name", "mk_numeral"}), o_o_o, "lean::name_mk_numeral");
-    register_builtin(name({"lean", "name", "dec_eq"}), o_o_u8, "lean::name_dec_eq", bb);
-
     g_ext = new native_decls_reg();
 }
 

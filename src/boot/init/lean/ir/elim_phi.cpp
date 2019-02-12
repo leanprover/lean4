@@ -19,7 +19,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_mk__hashmap__imp___rarg(obj*);
 obj* l_hashmap__imp_fold__buckets___rarg(obj*, obj*, obj*);
 obj* l_lean_ir_elim__phi(obj*);
-obj* l___private_3363165505__find__aux___main___at_lean_ir_merge___spec__3(obj*, obj*, obj*);
 obj* l_lean_ir_header_replace__vars(obj*, obj*);
 obj* l_lean_mk__disjoint__set___at_lean_ir_elim__phi__m_run___spec__1;
 obj* l_lean_ir_elim__phi__m_run___rarg___closed__1;
@@ -35,6 +34,7 @@ obj* l_lean_ir_elim__phi__m;
 obj* l_mk__array___rarg(obj*, obj*);
 obj* l_list_mmap___main___at_lean_ir_header_replace__vars___spec__1(obj*, obj*);
 obj* l_list_mmap___main___at_lean_ir_block_replace__vars___spec__1(obj*, obj*);
+obj* l___private_init_lean_disjoint__set_1__find__aux___main___at_lean_ir_merge___spec__3(obj*, obj*, obj*);
 obj* l_array_uread___rarg(obj*, usize, obj*);
 obj* l_lean_ir_decl_replace__vars(obj*, obj*);
 obj* l_lean_ir_find(obj*, obj*);
@@ -204,7 +204,7 @@ x_2 = l_hashmap__imp_find___at_lean_ir_merge___spec__5(x_0, x_1);
 return x_2;
 }
 }
-obj* l___private_3363165505__find__aux___main___at_lean_ir_merge___spec__3(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_init_lean_disjoint__set_1__find__aux___main___at_lean_ir_merge___spec__3(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -503,10 +503,10 @@ x_4 = l_d__hashmap_size___at_lean_ir_merge___spec__2(x_0);
 lean::inc(x_0);
 lean::inc(x_1);
 lean::inc(x_4);
-x_8 = l___private_3363165505__find__aux___main___at_lean_ir_merge___spec__3(x_4, x_1, x_0);
+x_8 = l___private_init_lean_disjoint__set_1__find__aux___main___at_lean_ir_merge___spec__3(x_4, x_1, x_0);
 lean::inc(x_0);
 lean::inc(x_2);
-x_11 = l___private_3363165505__find__aux___main___at_lean_ir_merge___spec__3(x_4, x_2, x_0);
+x_11 = l___private_init_lean_disjoint__set_1__find__aux___main___at_lean_ir_merge___spec__3(x_4, x_2, x_0);
 x_12 = lean::cnstr_get(x_8, 0);
 lean::inc(x_12);
 x_14 = lean::cnstr_get(x_11, 0);
@@ -611,7 +611,7 @@ _start:
 obj* x_3; obj* x_4; obj* x_5; 
 lean::inc(x_0);
 x_3 = l_d__hashmap_size___at_lean_ir_merge___spec__2(x_0);
-x_4 = l___private_3363165505__find__aux___main___at_lean_ir_merge___spec__3(x_3, x_1, x_0);
+x_4 = l___private_init_lean_disjoint__set_1__find__aux___main___at_lean_ir_merge___spec__3(x_3, x_1, x_0);
 x_5 = lean::cnstr_get(x_4, 0);
 lean::inc(x_5);
 lean::dec(x_4);

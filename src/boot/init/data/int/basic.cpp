@@ -20,20 +20,17 @@ obj* l_int_repr(obj*);
 obj* l_int_has__repr;
 obj* l_int_neg__of__nat(obj*);
 obj* l_int_has__sub;
-obj* l___private_3654102799__nonneg;
 obj* l_int_add___boxed(obj*, obj*);
 obj* l_int_neg___boxed(obj*);
 obj* l_int_repr___main(obj*);
 obj* l_int_div___boxed(obj*, obj*);
 obj* l_int_to__nat___main(obj*);
-obj* l___private_1909995369__dec__nonneg___boxed(obj*);
 obj* l_int_sub___boxed(obj*, obj*);
 obj* l_int_has__mul;
 obj* l_int_lt;
 obj* l_int_neg__of__nat___main(obj*);
 obj* l_int_has__lt;
 obj* l_int_int_decidable__eq;
-obj* l___private_3654102799__nonneg___main;
 obj* l_int_nat__abs___boxed(obj*);
 obj* l_int_sub__nat__nat(obj*, obj*);
 obj* l_int_dec__lt___boxed(obj*, obj*);
@@ -50,10 +47,13 @@ obj* l_int_has__le;
 obj* l_int_has__one;
 obj* l_int_nat__mod(obj*, obj*);
 obj* l_int_mod___boxed(obj*, obj*);
+obj* l___private_init_data_int_basic_2__dec__nonneg___boxed(obj*);
 obj* l_int_has__neg;
+obj* l___private_init_data_int_basic_1__nonneg;
 obj* l_int_repr___main___closed__2;
 obj* l_int_has__to__string;
 obj* l_int_mod___main(obj*, obj*);
+obj* l___private_init_data_int_basic_1__nonneg___main;
 obj* l_int_mul___boxed(obj*, obj*);
 obj* l_int_sign___main(obj*);
 obj* l_int_has__add;
@@ -106,7 +106,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init_l___private_3654102799__nonneg___main() {
+obj* _init_l___private_init_data_int_basic_1__nonneg___main() {
 _start:
 {
 obj* x_0; 
@@ -115,7 +115,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init_l___private_3654102799__nonneg() {
+obj* _init_l___private_init_data_int_basic_1__nonneg() {
 _start:
 {
 obj* x_0; 
@@ -306,7 +306,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_int_dec__eq___boxed), 2, 0);
 return x_0;
 }
 }
-obj* l___private_1909995369__dec__nonneg___boxed(obj* x_0) {
+obj* l___private_init_data_int_basic_2__dec__nonneg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
@@ -744,8 +744,8 @@ void initialize_init_data_int_basic() {
  l_int_one = _init_l_int_one();
  l_int_has__zero = _init_l_int_has__zero();
  l_int_has__one = _init_l_int_has__one();
- l___private_3654102799__nonneg___main = _init_l___private_3654102799__nonneg___main();
- l___private_3654102799__nonneg = _init_l___private_3654102799__nonneg();
+ l___private_init_data_int_basic_1__nonneg___main = _init_l___private_init_data_int_basic_1__nonneg___main();
+ l___private_init_data_int_basic_1__nonneg = _init_l___private_init_data_int_basic_1__nonneg();
  l_int_has__neg = _init_l_int_has__neg();
  l_int_has__add = _init_l_int_has__add();
  l_int_has__mul = _init_l_int_has__mul();

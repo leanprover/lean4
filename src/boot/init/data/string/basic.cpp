@@ -23,9 +23,9 @@ obj* l_string_backn(obj*, obj*);
 obj* l_string_iterator_prevn(obj*, obj*);
 uint32 l_string_front(obj*);
 uint8 l_char_is__whitespace(uint32);
-obj* l___private_1630085549__to__nat__core___main(obj*, obj*, obj*);
-obj* l___private_939360909__trim__left__aux(obj*, obj*);
+obj* l___private_init_data_string_basic_2__trim__right__aux(obj*, obj*);
 obj* l_string_iterator_prev__to__string___boxed(obj*);
+obj* l___private_init_data_string_basic_1__trim__left__aux___main(obj*, obj*);
 obj* l_string_pushn___boxed(obj*, obj*, obj*);
 obj* l_string_has__lt;
 obj* l_string_iterator_remaining___boxed(obj*);
@@ -43,8 +43,6 @@ obj* l_string_iterator_extract___main(obj*, obj*);
 obj* l_string_iterator_has__next___boxed(obj*);
 obj* l_list_reverse___rarg(obj*);
 obj* l_string_push___main___boxed(obj*, obj*);
-obj* l___private_1630085549__to__nat__core(obj*, obj*, obj*);
-obj* l___private_3627575757__trim__right__aux(obj*, obj*);
 uint8 l_string_iterator_has__prev___main(obj*);
 obj* l_nat_repeat__core___main___at_string_pushn___spec__1(uint32, obj*, obj*, obj*);
 obj* l_string_iterator_extract__core(obj*, obj*);
@@ -55,9 +53,9 @@ obj* l_string_front___boxed(obj*);
 uint8 l_string_is__empty(obj*);
 obj* l_string_mk__iterator___main(obj*);
 obj* l_string_iterator_insert___boxed(obj*, obj*);
+obj* l___private_init_data_string_basic_4__to__nat__core(obj*, obj*, obj*);
 obj* l_string_pop__back(obj*);
 obj* l_string_intercalate(obj*, obj*);
-obj* l___private_3627575757__trim__right__aux___main(obj*, obj*);
 obj* l_char_to__string___boxed(obj*);
 obj* l_string_iterator_remaining___main(obj*);
 obj* l_string_iterator_curr___boxed(obj*);
@@ -73,15 +71,18 @@ obj* l_string_line__column(obj*, obj*);
 obj* l_string_iterator_set__curr___main(obj*, uint32);
 obj* l_string_iterator_nextn___main(obj*, obj*);
 obj* l_string_length___boxed(obj*);
+obj* l___private_init_data_string_basic_2__trim__right__aux___main(obj*, obj*);
 obj* l_string_iterator_has__next___main___boxed(obj*);
 obj* l_string_iterator_to__string___boxed(obj*);
 obj* l_string_iterator_remove___boxed(obj*, obj*);
 obj* l_string_join___closed__1;
 obj* l_list_foldl___main___at_string_join___spec__1(obj*, obj*);
+obj* l___private_init_data_string_basic_1__trim__left__aux(obj*, obj*);
 obj* l_string_iterator_offset___boxed(obj*);
 extern obj* l_char_inhabited;
-obj* l___private_324873965__line__column__aux___main(obj*, obj*, obj*);
+obj* l___private_init_data_string_basic_3__line__column__aux(obj*, obj*, obj*);
 obj* l_string_iterator_insert___main(obj*, obj*);
+obj* l___private_init_data_string_basic_3__line__column__aux___main(obj*, obj*, obj*);
 obj* l_string_has__append;
 obj* l_string_iterator_prevn___main(obj*, obj*);
 obj* l_string_popn__back(obj*, obj*);
@@ -107,12 +108,12 @@ obj* l_string_to__list(obj*);
 obj* l_string_trim(obj*);
 uint8 l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(obj*, obj*);
 obj* l_string_iterator_curr___main(obj*);
-obj* l___private_939360909__trim__left__aux___main(obj*, obj*);
 obj* l_string_iterator_set__curr___boxed(obj*, obj*);
 obj* l_nat_repeat__core___main___at_string_pushn___spec__1___boxed(obj*, obj*, obj*, obj*);
 uint8 l_string_iterator_has__next___main(obj*);
 obj* l_string_iterator_prev___boxed(obj*);
 obj* l_string_iterator_prev__to__string___main(obj*);
+obj* l___private_init_data_string_basic_4__to__nat__core___main(obj*, obj*, obj*);
 obj* l_string_is__empty___boxed(obj*);
 obj* l_string_iterator_to__end___boxed(obj*);
 obj* l_string_iterator_extract___boxed(obj*, obj*);
@@ -124,7 +125,6 @@ obj* l_string_iterator_remaining__to__string___boxed(obj*);
 obj* l_string_iterator_remove___main(obj*, obj*);
 obj* l_string_iterator_next___main(obj*);
 obj* l_string_iterator_has__prev___boxed(obj*);
-obj* l___private_324873965__line__column__aux(obj*, obj*, obj*);
 obj* l_string_dec__lt___boxed(obj*, obj*);
 obj* l_string_length___main(obj*);
 obj* l_string_dec__eq___boxed(obj* x_0, obj* x_1) {
@@ -1434,7 +1434,7 @@ lean::dec(x_4);
 return x_5;
 }
 }
-obj* l___private_939360909__trim__left__aux___main(obj* x_0, obj* x_1) {
+obj* l___private_init_data_string_basic_1__trim__left__aux___main(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
@@ -1471,11 +1471,11 @@ return x_1;
 }
 }
 }
-obj* l___private_939360909__trim__left__aux(obj* x_0, obj* x_1) {
+obj* l___private_init_data_string_basic_1__trim__left__aux(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_939360909__trim__left__aux___main(x_0, x_1);
+x_2 = l___private_init_data_string_basic_1__trim__left__aux___main(x_0, x_1);
 return x_2;
 }
 }
@@ -1485,13 +1485,13 @@ _start:
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = lean::string_length(x_0);
 x_2 = lean::string_mk_iterator(x_0);
-x_3 = l___private_939360909__trim__left__aux___main(x_1, x_2);
+x_3 = l___private_init_data_string_basic_1__trim__left__aux___main(x_1, x_2);
 x_4 = lean::string_iterator_remaining_to_string(x_3);
 lean::dec(x_3);
 return x_4;
 }
 }
-obj* l___private_3627575757__trim__right__aux___main(obj* x_0, obj* x_1) {
+obj* l___private_init_data_string_basic_2__trim__right__aux___main(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
@@ -1531,11 +1531,11 @@ return x_1;
 }
 }
 }
-obj* l___private_3627575757__trim__right__aux(obj* x_0, obj* x_1) {
+obj* l___private_init_data_string_basic_2__trim__right__aux(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_3627575757__trim__right__aux___main(x_0, x_1);
+x_2 = l___private_init_data_string_basic_2__trim__right__aux___main(x_0, x_1);
 return x_2;
 }
 }
@@ -1546,7 +1546,7 @@ obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_1 = lean::string_length(x_0);
 x_2 = lean::string_mk_iterator(x_0);
 x_3 = lean::string_iterator_to_end(x_2);
-x_4 = l___private_3627575757__trim__right__aux___main(x_1, x_3);
+x_4 = l___private_init_data_string_basic_2__trim__right__aux___main(x_1, x_3);
 x_5 = lean::string_iterator_prev_to_string(x_4);
 lean::dec(x_4);
 return x_5;
@@ -1560,9 +1560,9 @@ x_1 = lean::string_length(x_0);
 x_2 = lean::string_mk_iterator(x_0);
 lean::inc(x_2);
 lean::inc(x_1);
-x_5 = l___private_939360909__trim__left__aux___main(x_1, x_2);
+x_5 = l___private_init_data_string_basic_1__trim__left__aux___main(x_1, x_2);
 x_6 = lean::string_iterator_to_end(x_2);
-x_7 = l___private_3627575757__trim__right__aux___main(x_1, x_6);
+x_7 = l___private_init_data_string_basic_2__trim__right__aux___main(x_1, x_6);
 x_8 = lean::string_iterator_extract(x_5, x_7);
 lean::dec(x_7);
 lean::dec(x_5);
@@ -1572,7 +1572,7 @@ x_13 = l_option_get__or__else___main___rarg(x_8, x_11);
 return x_13;
 }
 }
-obj* l___private_324873965__line__column__aux___main(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_init_data_string_basic_3__line__column__aux___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -1714,11 +1714,11 @@ return x_2;
 }
 }
 }
-obj* l___private_324873965__line__column__aux(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_init_data_string_basic_3__line__column__aux(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l___private_324873965__line__column__aux___main(x_0, x_1, x_2);
+x_3 = l___private_init_data_string_basic_3__line__column__aux___main(x_0, x_1, x_2);
 return x_3;
 }
 }
@@ -1741,7 +1741,7 @@ obj* x_2; obj* x_3; obj* x_5;
 x_2 = lean::string_mk_iterator(x_0);
 x_3 = l_string_line__column___closed__1;
 lean::inc(x_3);
-x_5 = l___private_324873965__line__column__aux___main(x_1, x_2, x_3);
+x_5 = l___private_init_data_string_basic_3__line__column__aux___main(x_1, x_2, x_3);
 return x_5;
 }
 }
@@ -1764,7 +1764,7 @@ x_2 = l_char_to__string(x_1);
 return x_2;
 }
 }
-obj* l___private_1630085549__to__nat__core___main(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_init_data_string_basic_4__to__nat__core___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -1863,11 +1863,11 @@ return x_2;
 }
 }
 }
-obj* l___private_1630085549__to__nat__core(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_init_data_string_basic_4__to__nat__core(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l___private_1630085549__to__nat__core___main(x_0, x_1, x_2);
+x_3 = l___private_init_data_string_basic_4__to__nat__core___main(x_0, x_1, x_2);
 return x_3;
 }
 }
@@ -1880,7 +1880,7 @@ x_2 = lean::string_mk_iterator(x_0);
 x_3 = lean::string_length(x_0);
 lean::dec(x_0);
 x_5 = lean::mk_nat_obj(0u);
-x_6 = l___private_1630085549__to__nat__core___main(x_2, x_3, x_5);
+x_6 = l___private_init_data_string_basic_4__to__nat__core___main(x_2, x_3, x_5);
 return x_6;
 }
 }

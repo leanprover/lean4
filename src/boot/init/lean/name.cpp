@@ -20,6 +20,7 @@ obj* l_lean_string__to__name;
 obj* l_lean_name_has__append;
 obj* l_lean_name_decidable__eq;
 obj* l_lean_mk__str__name(obj*, obj*);
+obj* l___private_init_lean_name_1__hash__aux___main___boxed(obj*, obj*);
 obj* l_lean_name_components_x_27(obj*);
 obj* l_lean_name_to__string(obj*);
 obj* l_list_reverse___rarg(obj*);
@@ -27,7 +28,6 @@ obj* l_lean_name_has__lt__quick;
 obj* l_lean_name_replace__prefix(obj*, obj*, obj*);
 uint8 l_lean_name_dec__eq___main(obj*, obj*);
 obj* l_lean_inhabited;
-obj* l___private_3558623935__hash__aux___main___boxed(obj*, obj*);
 obj* l_lean_name_to__string___closed__1;
 uint8 l_lean_name_decidable__rel(obj*, obj*);
 obj* l_lean_name_append(obj*, obj*);
@@ -35,20 +35,20 @@ obj* l_lean_name_hashable;
 obj* l_lean_name_replace__prefix___main(obj*, obj*, obj*);
 obj* l_lean_name_components(obj*);
 obj* l_lean_name_to__string__with__sep___main(obj*, obj*);
-obj* l___private_3558623935__hash__aux(obj*, usize);
 obj* l_lean_name_update__prefix(obj*, obj*);
 obj* l_lean_name_components_x_27___main(obj*);
 obj* l_lean_name_append___main(obj*, obj*);
 obj* l_lean_name_to__string__with__sep(obj*, obj*);
 obj* l_lean_name_dec__eq___boxed(obj*, obj*);
-obj* l___private_3558623935__hash__aux___boxed(obj*, obj*);
-obj* l___private_3558623935__hash__aux___main(obj*, usize);
+obj* l___private_init_lean_name_1__hash__aux(obj*, usize);
 obj* l_lean_mk__num__name(obj*, obj*);
 obj* l_lean_name_quick__lt(obj*, obj*);
 obj* l_lean_mk__simple__name(obj*);
 obj* l_lean_name_lean_has__to__format(obj*);
+obj* l___private_init_lean_name_1__hash__aux___boxed(obj*, obj*);
 obj* l_lean_name_update__prefix___main(obj*, obj*);
 obj* l_lean_name_get__prefix(obj*);
+obj* l___private_init_lean_name_1__hash__aux___main(obj*, usize);
 obj* l_nat_repr(obj*);
 obj* l_lean_name_get__prefix___main(obj*);
 obj* l_lean_name_hash___boxed(obj*);
@@ -99,7 +99,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_mk__simple__name), 1, 0
 return x_0;
 }
 }
-obj* l___private_3558623935__hash__aux___main(obj* x_0, usize x_1) {
+obj* l___private_init_lean_name_1__hash__aux___main(obj* x_0, usize x_1) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
@@ -135,29 +135,29 @@ goto _start;
 }
 }
 }
-obj* l___private_3558623935__hash__aux___main___boxed(obj* x_0, obj* x_1) {
+obj* l___private_init_lean_name_1__hash__aux___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 usize x_2; obj* x_3; 
 x_2 = lean::unbox_size_t(x_1);
-x_3 = l___private_3558623935__hash__aux___main(x_0, x_2);
+x_3 = l___private_init_lean_name_1__hash__aux___main(x_0, x_2);
 return x_3;
 }
 }
-obj* l___private_3558623935__hash__aux(obj* x_0, usize x_1) {
+obj* l___private_init_lean_name_1__hash__aux(obj* x_0, usize x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_3558623935__hash__aux___main(x_0, x_1);
+x_2 = l___private_init_lean_name_1__hash__aux___main(x_0, x_1);
 return x_2;
 }
 }
-obj* l___private_3558623935__hash__aux___boxed(obj* x_0, obj* x_1) {
+obj* l___private_init_lean_name_1__hash__aux___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 usize x_2; obj* x_3; 
 x_2 = lean::unbox_size_t(x_1);
-x_3 = l___private_3558623935__hash__aux(x_0, x_2);
+x_3 = l___private_init_lean_name_1__hash__aux(x_0, x_2);
 return x_3;
 }
 }

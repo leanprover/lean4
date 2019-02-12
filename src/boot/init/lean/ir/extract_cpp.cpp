@@ -51,6 +51,7 @@ obj* l_lean_ir_cpp_emit__sep__aux___main___rarg___closed__1;
 obj* l_lean_ir_cpp_file__header___closed__4;
 obj* l_lean_ir_cpp_emit__main__proc___closed__4;
 obj* l_rbnode_balance2__node___main___rarg(obj*, obj*, obj*, obj*);
+extern obj* l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__2;
 obj* l_list_foldl___main___at_lean_ir_cpp_collect__used___spec__4(obj*, obj*);
 obj* l_lean_ir_cpp_emit__infix___closed__1;
 obj* l_rbnode_insert___at_lean_ir_cpp_collect__used___spec__2(obj*, obj*, obj*);
@@ -68,10 +69,8 @@ obj* l_lean_ir_cpp_emit__case___main___closed__7;
 obj* l_lean_ir_cpp_emit__eos___closed__1;
 obj* l_lean_ir_cpp_assign__unop2cpp___main___closed__8;
 obj* l_lean_ir_cpp_initialize__prefix;
-obj* l___private_1205956357__name_mangle__aux___main(obj*, obj*);
 obj* l_lean_ir_cpp_emit__assign__binop___closed__37;
 obj* l_lean_ir_cpp_assign__unop2cpp___main___closed__17;
-extern obj* l___private_3255790009__string_mangle__aux___main___closed__2;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__3;
 obj* l_lean_ir_cpp_emit__def__core(obj*, obj*, obj*);
 obj* l_state__t_monad__run___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -259,6 +258,7 @@ obj* l_lean_ir_cpp_emit__initialize__proc(obj*, obj*, obj*);
 obj* l_lean_ir_cpp_type2cpp___main___closed__5;
 obj* l_lean_ir_cpp_type2cpp___main___closed__8;
 obj* l_lean_ir_cpp_emit__terminator___closed__1;
+obj* l___private_init_lean_name__mangling_4__name_mangle__aux___main(obj*, obj*);
 obj* l_lean_ir_cpp_file__header___closed__3;
 obj* l_lean_ir_cpp_emit__logical__arith___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_ir_cpp_extract__m_monad__state;
@@ -912,9 +912,9 @@ obj* l_lean_ir_cpp_emit__var(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; obj* x_6; 
-x_3 = l___private_3255790009__string_mangle__aux___main___closed__2;
+x_3 = l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__2;
 lean::inc(x_3);
-x_5 = l___private_1205956357__name_mangle__aux___main(x_3, x_0);
+x_5 = l___private_init_lean_name__mangling_4__name_mangle__aux___main(x_3, x_0);
 x_6 = l_lean_ir_cpp_emit___at_lean_ir_cpp_emit__line___spec__1(x_5, x_1, x_2);
 return x_6;
 }
@@ -933,7 +933,7 @@ _start:
 obj* x_3; obj* x_5; obj* x_6; 
 x_3 = l_lean_ir_cpp_emit__blockid___closed__1;
 lean::inc(x_3);
-x_5 = l___private_1205956357__name_mangle__aux___main(x_3, x_0);
+x_5 = l___private_init_lean_name__mangling_4__name_mangle__aux___main(x_3, x_0);
 x_6 = l_lean_ir_cpp_emit___at_lean_ir_cpp_emit__line___spec__1(x_5, x_1, x_2);
 return x_6;
 }
@@ -964,7 +964,7 @@ obj* x_12; obj* x_14; obj* x_15; obj* x_16;
 lean::dec(x_10);
 x_12 = l_lean_ir_cpp_fid2cpp___closed__1;
 lean::inc(x_12);
-x_14 = l___private_1205956357__name_mangle__aux___main(x_12, x_0);
+x_14 = l___private_init_lean_name__mangling_4__name_mangle__aux___main(x_12, x_0);
 x_15 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_15, 0, x_14);
 x_16 = lean::alloc_cnstr(0, 2, 0);

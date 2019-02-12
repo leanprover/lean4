@@ -29,7 +29,6 @@ obj* l_nonempty__of__inhabited;
 obj* l_psigma_has__sizeof(obj*, obj*);
 obj* l_quotient_mk(obj*, obj*);
 uint8 l_prod__has__decidable__lt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l___private_2430432263__rel;
 uint8 l_band___main(uint8, uint8);
 uint8 l_sum_decidable__eq___rarg(obj*, obj*, obj*, obj*);
 uint8 l_xor_decidable___rarg(uint8, uint8);
@@ -62,7 +61,6 @@ obj* l_exists_intro;
 obj* l_task_bind___rarg(obj*, obj*, obj*);
 obj* l_subtype_decidable__eq(obj*, obj*);
 obj* l_decidable__of__decidable__of__eq(obj*, obj*);
-obj* l___private_3997337325__fun__to__extfun___rarg(obj*);
 obj* l_bit1___rarg(obj*, obj*, obj*);
 obj* l_quotient_lift__on_u_2082(obj*, obj*, obj*, obj*, obj*);
 obj* l_quotient_rec__on__subsingleton_u_2082(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -94,6 +92,7 @@ obj* l_prod_sizeof___main___rarg(obj*, obj*, obj*);
 uint8 l_decidable__of__decidable__of__iff___rarg(uint8, obj*);
 obj* l_opt__param;
 obj* l_singleton___rarg(obj*, obj*, obj*);
+obj* l___private_390236953__fun__setoid(obj*, obj*);
 obj* l_id__delta(obj*);
 obj* l_bool_sizeof___main(uint8);
 obj* l_ite___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -108,6 +107,7 @@ obj* l_nat_add___boxed(obj*, obj*);
 obj* l_of__as__true;
 obj* l_quotient_decidable__eq___rarg(obj*, obj*, obj*, obj*);
 obj* l_sigma_sizeof___main___at_sigma_has__sizeof___spec__2___rarg(obj*, obj*, obj*);
+obj* l___private_3538396109__fun__to__extfun___rarg(obj*);
 obj* l_quotient_lift__on_u_2082___rarg(obj*, obj*, obj*, obj*);
 obj* l_psum_has__sizeof(obj*, obj*);
 obj* l_quotient_lift___rarg(obj*, obj*, obj*);
@@ -115,7 +115,6 @@ obj* l_punit_sizeof(obj*);
 obj* l_unit;
 obj* l_sum_sizeof(obj*, obj*);
 obj* l_decidable_rec__on__true___rarg(uint8, obj*, obj*, obj*, obj*);
-obj* l___private_3283305491__extfun;
 obj* l_subsingleton_helim;
 obj* l_subsingleton__prop;
 obj* l_ite_decidable___rarg___boxed(obj*, obj*, obj*);
@@ -131,7 +130,6 @@ obj* l_prod_sizeof___main(obj*, obj*);
 obj* l_arbitrary___rarg(obj*);
 obj* l_task_pure(obj*);
 obj* l_typed__expr(obj*);
-obj* l___private_3997337325__fun__to__extfun(obj*, obj*);
 obj* l_band___boxed(obj*, obj*);
 obj* l_pi_inhabited___rarg(obj*, obj*);
 obj* l_not_decidable(obj*);
@@ -145,7 +143,6 @@ obj* l_prod_map___rarg(obj*, obj*, obj*);
 obj* l_dite___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_psigma_sizeof___at_psigma_has__sizeof___spec__1(obj*, obj*);
 obj* l_prod_map___main___rarg(obj*, obj*, obj*);
-obj* l___private_1304233947__fun__setoid(obj*, obj*);
 obj* l_subtype_decidable__eq___rarg___boxed(obj*, obj*, obj*);
 obj* l_as__false;
 obj* l_sum_sizeof___rarg(obj*, obj*, obj*);
@@ -223,10 +220,12 @@ obj* l_decidable_rec__on__true___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_id___rarg(obj*);
 obj* l_option_sizeof___main___rarg(obj*, obj*);
 obj* l_quotient_rec__on__subsingleton___rarg(obj*, obj*);
+obj* l___private_909652235__rel;
 obj* l_right__commutative;
 obj* l_combinator_K___rarg(obj*, obj*);
 obj* l_quot_indep___rarg(obj*, obj*);
 obj* l_implies_decidable(obj*, obj*);
+obj* l___private_3196153699__extfun__app(obj*, obj*);
 obj* l_ne_decidable___rarg___boxed(obj*, obj*, obj*);
 obj* l_id__rhs___rarg(obj*);
 uint8 l_bool_decidable__eq(uint8, uint8);
@@ -236,6 +235,7 @@ obj* l_pi_subsingleton;
 obj* l_default__has__sizeof___closed__1;
 obj* l_sigma_sizeof(obj*, obj*);
 obj* l_psum_sizeof___rarg(obj*, obj*, obj*);
+obj* l___private_3538396109__fun__to__extfun(obj*, obj*);
 obj* l_xor_decidable___rarg___boxed(obj*, obj*);
 obj* l_psum_has__sizeof___rarg(obj*, obj*);
 obj* l_classical_by__cases;
@@ -341,6 +341,7 @@ obj* l_trivial;
 obj* l_not__true__iff;
 obj* l_punit_decidable__eq___boxed(obj*, obj*);
 obj* l_quotient_decidable__eq(obj*);
+obj* l___private_2965000917__extfun;
 obj* l_forall__prop__decidable___rarg___boxed(obj*, obj*);
 obj* l_quotient_hrec__on___rarg(obj*, obj*, obj*);
 obj* l_left__commutative;
@@ -350,6 +351,7 @@ obj* l_iff_decidable(obj*, obj*);
 obj* l_psigma_sizeof___at_psigma_has__sizeof___spec__1___rarg(obj*, obj*, obj*);
 obj* l_list_sizeof___rarg(obj*, obj*);
 uint8 l_bor(uint8, uint8);
+obj* l___private_3196153699__extfun__app___rarg(obj*, obj*);
 obj* l_subtype_sizeof___rarg(obj*, obj*, obj*);
 obj* l_sigma_sizeof___at_sigma_has__sizeof___spec__1___rarg(obj*, obj*, obj*);
 obj* l_prod_decidable__eq(obj*, obj*);
@@ -366,7 +368,6 @@ obj* l_absurd(obj*, obj*, obj*, obj*);
 obj* l_eq_mp___rarg(obj*);
 obj* l_quotient_lift__on___rarg(obj*, obj*, obj*);
 uint8 l_subtype_decidable__eq___rarg(obj*, obj*, obj*);
-obj* l___private_4253352285__extfun__app___rarg(obj*, obj*);
 obj* l_bnot___main___boxed(obj*);
 obj* l_arbitrary(obj*);
 obj* l_fun_inhabited(obj*, obj*);
@@ -376,7 +377,6 @@ obj* l_cond___main___rarg(uint8, obj*, obj*);
 obj* l_bool_sizeof(uint8);
 obj* l_combinator_S___rarg(obj*, obj*, obj*);
 obj* l_psum_sizeof___main(obj*, obj*);
-obj* l___private_4253352285__extfun__app(obj*, obj*);
 obj* l_decidable__of__decidable__eq(obj*);
 obj* l_cond(obj*);
 obj* l_thunk_map___boxed(obj*, obj*, obj*, obj*);
@@ -4505,7 +4505,7 @@ x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_quotient_lift__on_u_2082___
 return x_10;
 }
 }
-obj* _init_l___private_2430432263__rel() {
+obj* _init_l___private_909652235__rel() {
 _start:
 {
 obj* x_0; 
@@ -4622,7 +4622,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* l___private_1304233947__fun__setoid(obj* x_0, obj* x_1) {
+obj* l___private_390236953__fun__setoid(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
@@ -4632,7 +4632,7 @@ x_4 = lean::box(0);
 return x_4;
 }
 }
-obj* _init_l___private_3283305491__extfun() {
+obj* _init_l___private_2965000917__extfun() {
 _start:
 {
 obj* x_0; 
@@ -4641,23 +4641,23 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* l___private_3997337325__fun__to__extfun___rarg(obj* x_0) {
+obj* l___private_3538396109__fun__to__extfun___rarg(obj* x_0) {
 _start:
 {
 return x_0;
 }
 }
-obj* l___private_3997337325__fun__to__extfun(obj* x_0, obj* x_1) {
+obj* l___private_3538396109__fun__to__extfun(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3997337325__fun__to__extfun___rarg), 1, 0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3538396109__fun__to__extfun___rarg), 1, 0);
 return x_4;
 }
 }
-obj* l___private_4253352285__extfun__app___rarg(obj* x_0, obj* x_1) {
+obj* l___private_3196153699__extfun__app___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -4665,13 +4665,13 @@ x_2 = lean::apply_1(x_0, x_1);
 return x_2;
 }
 }
-obj* l___private_4253352285__extfun__app(obj* x_0, obj* x_1) {
+obj* l___private_3196153699__extfun__app(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_4; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_4253352285__extfun__app___rarg), 2, 0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l___private_3196153699__extfun__app___rarg), 2, 0);
 return x_4;
 }
 }
@@ -4786,9 +4786,9 @@ void initialize_init_core() {
  l_punit_inhabited = _init_l_punit_inhabited();
  l_quotient = _init_l_quotient();
  l_quotient_sound = _init_l_quotient_sound();
- l___private_2430432263__rel = _init_l___private_2430432263__rel();
+ l___private_909652235__rel = _init_l___private_909652235__rel();
  l_function_equiv = _init_l_function_equiv();
- l___private_3283305491__extfun = _init_l___private_3283305491__extfun();
+ l___private_2965000917__extfun = _init_l___private_2965000917__extfun();
  l_pi_subsingleton = _init_l_pi_subsingleton();
  l_classical_by__cases = _init_l_classical_by__cases();
 }

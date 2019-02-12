@@ -17,13 +17,13 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_nat_mod___boxed(obj*, obj*);
-obj* l___private_578911941__mod_F(obj*, obj*, obj*);
+obj* l___private_1681792539__mod_F(obj*, obj*, obj*);
 obj* l_nat_has__div;
-obj* l___private_3925169175__div_F(obj*, obj*, obj*);
-obj* l___private_56172073__div__rec__lemma;
+obj* l___private_1646153033__div__rec__lemma;
+obj* l___private_1138157203__div_F(obj*, obj*, obj*);
 obj* l_nat_has__mod;
 obj* l_nat_div___boxed(obj*, obj*);
-obj* _init_l___private_56172073__div__rec__lemma() {
+obj* _init_l___private_1646153033__div__rec__lemma() {
 _start:
 {
 obj* x_0; 
@@ -32,7 +32,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* l___private_3925169175__div_F(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_1138157203__div_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -92,7 +92,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_div___boxed), 2, 0);
 return x_0;
 }
 }
-obj* l___private_578911941__mod_F(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_1681792539__mod_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -150,7 +150,7 @@ void initialize_init_data_nat_div() {
  _G_initialized = true;
  initialize_init_wf();
  initialize_init_data_nat_basic();
- l___private_56172073__div__rec__lemma = _init_l___private_56172073__div__rec__lemma();
+ l___private_1646153033__div__rec__lemma = _init_l___private_1646153033__div__rec__lemma();
  l_nat_has__div = _init_l_nat_has__div();
  l_nat_has__mod = _init_l_nat_has__mod();
 }

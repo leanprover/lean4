@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include "runtime/object.h"
 using namespace lean; // NOLINT
 
-lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*, lean::object*) {
+lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*, lean::uint8) {
     lean_unreachable();
     return nullptr;
 }
@@ -17,9 +17,9 @@ lean::object* lean_environment_mk_empty(lean::object*) {
     return nullptr;
 }
 
-lean::object* lean_environment_contains(lean::object*, lean::object*) {
+lean::uint8 lean_environment_contains(lean::object*, lean::object*) {
     lean_unreachable();
-    return nullptr;
+    return 0;
 }
 
 lean::object* lean_elaborator_elaborate_command(lean::object*, lean::object*, lean::object*) {

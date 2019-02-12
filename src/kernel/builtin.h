@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "runtime/object.h"
 
-lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*, lean::object*);
+lean::object* lean_expr_local(lean::object*, lean::object*, lean::object*, lean::uint8);
 lean::object* lean_environment_mk_empty(lean::object*);
-lean::object* lean_environment_contains(lean::object*, lean::object*);
+lean::uint8 lean_environment_contains(lean::object*, lean::object*);
 lean::object* lean_elaborator_elaborate_command(lean::object*, lean::object*, lean::object*);

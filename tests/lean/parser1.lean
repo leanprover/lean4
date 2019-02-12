@@ -106,5 +106,5 @@ set_option profiler true
 #eval do
   s ← io.fs.read_file "../../library/init/core.lean",
   --let s := (s.mk_iterator.nextn 10000).prev_to_string,
-  run_frontend s (io.println ∘ message.to_string),
+  run_frontend "core.lean" s (io.println ∘ message.to_string),
   pure ()

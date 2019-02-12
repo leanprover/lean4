@@ -29,9 +29,8 @@ do t ← parser.mk_token_trie $
 @[noinline] def run_expander {α β : Type} (f : α → β) : α → β := f
 @[noinline] def run_elaborator {α β : Type} (f : α → β) : α → β := f
 
-def run_frontend (input : string) (print_msg : message → except_t string io unit) :
+def run_frontend (filename input : string) (print_msg : message → except_t string io unit) :
   except_t string io (list module_parser_output) := do
-  let filename := "<stdin>",
   parser_cfg ← monad_except.lift_except $ mk_config filename input,
   let expander_cfg : expander_config := {filename := filename, input := input, transformers := builtin_transformers},
   let parser_k := parser.run parser_cfg input (λ st _, module.parser st),
@@ -60,10 +59,10 @@ def run_frontend (input : string) (print_msg : message → except_t string io un
           when ¬(cmd'.is_of_kind module.eoi) $
             io.println "elaborator died!!",
           msgs.to_list.mfor print_msg,
-          print_msg {filename := filename, severity := message_severity.information,
+          /-print_msg {filename := filename, severity := message_severity.information,
             pos := ⟨1, 0⟩,
             text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
-              to_string (out.cache.hit + out.cache.miss)},
+              to_string (out.cache.hit + out.cache.miss)},-/
           pure $ sum.inr (out::outs).reverse
         }
         | coroutine_result_core.yielded elab_out elab_k := do {
@@ -74,17 +73,24 @@ def run_frontend (input : string) (print_msg : message → except_t string io un
       | except.error e := print_msg e *> pure (sum.inl (parser_k, elab_k, parser_cfg, expander_cfg, out :: outs))
     }
 
-@[export lean_process_file_json]
-def process_file_json (f s : string) : except_t string io unit := do
+@[export lean_process_file]
+def process_file (f s : string) (json : bool) : io bool := do
   --let s := (s.mk_iterator.nextn 10000).prev_to_string,
-  run_frontend s $ λ msg,
-    io.println $ "{\"file_name\": \"<stdin>\", \"pos_line\": " ++ to_string msg.pos.line ++
-      ", \"pos_col\": " ++ to_string msg.pos.column ++
-      ", \"severity\": " ++ repr (match msg.severity with
-        | message_severity.information := "information"
-        | message_severity.warning := "warning"
-        | message_severity.error := "error") ++
-      ", \"caption\": " ++ repr msg.caption ++
-      ", \"text\": " ++ repr msg.text ++ "}",
-  pure ()
+  let print_msg : message → except_t string io unit := λ msg,
+    if json then
+      io.println $ "{\"file_name\": \"<stdin>\", \"pos_line\": " ++ to_string msg.pos.line ++
+        ", \"pos_col\": " ++ to_string msg.pos.column ++
+        ", \"severity\": " ++ repr (match msg.severity with
+          | message_severity.information := "information"
+          | message_severity.warning := "warning"
+          | message_severity.error := "error") ++
+        ", \"caption\": " ++ repr msg.caption ++
+        ", \"text\": " ++ repr msg.text ++ "}"
+    else io.println msg.to_string,
+  ex ← (run_frontend f s print_msg).run,
+  match ex with
+  | except.ok _    := pure tt
+  | except.error e := do
+    (print_msg {filename := f, severity := message_severity.error, pos := ⟨1, 0⟩, text := e}).run,
+    pure ff
 end lean

@@ -315,6 +315,8 @@ expr mk_tactic_unit();
 
 std::string const & get_version_string();
 
+expr const & extract_mdata(expr const &);
+
 void initialize_library_util();
 void finalize_library_util();
 }

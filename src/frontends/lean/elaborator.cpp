@@ -1903,7 +1903,7 @@ expr elaborator::visit_app_core(expr fn, buffer<expr> const & args, optional<exp
         unsigned i       = 0;
         while (is_pi(proj_type)) {
             if (is_explicit(binding_info(proj_type))) {
-                if (is_app_of(binding_domain(proj_type), field_res.m_base_S_name)) {
+                if (is_app_of(extract_mdata(binding_domain(proj_type)), field_res.m_base_S_name)) {
                     /* found s location */
                     expr coerced_s = *mk_base_projections(m_env, field_res.m_S_name, field_res.m_base_S_name, mk_as_is(s));
                     new_args.push_back(copy_pos(fn, std::move(coerced_s)));

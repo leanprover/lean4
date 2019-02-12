@@ -1030,6 +1030,14 @@ expr mk_tactic_unit() {
 static std::string * g_version_string = nullptr;
 std::string const & get_version_string() { return *g_version_string; }
 
+expr const & extract_mdata(expr const & e) {
+    if (is_mdata(e)) {
+        return extract_mdata(mdata_expr(e));
+    } else {
+        return e;
+    }
+}
+
 void initialize_library_util() {
     g_unit           = new expr(mk_constant(get_unit_name()));
     g_unit_mk        = new expr(mk_constant(get_unit_star_name()));

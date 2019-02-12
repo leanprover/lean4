@@ -235,34 +235,6 @@ void initialize_builtin() {
     register_builtin(name({"int", "dec_lt"}), o_o_u8, "lean::int_dec_lt", bb);
     register_builtin(name({"int", "dec_le"}), o_o_u8, "lean::int_dec_le", bb);
 
-    /* string builtin functions */
-    register_builtin(name({"string", "mk"}), o_o, "lean::string_mk", c);
-    register_builtin(name({"string", "data"}), o_o, "lean::string_data", c);
-    register_builtin(name({"string", "length"}), o_o, "lean::string_length", b);
-    register_builtin(name({"string", "push"}), o_u32_o, "lean::string_push", cc);
-    register_builtin(name({"string", "append"}), o_o_o, "lean::string_append", cb);
-    register_builtin(name({"string", "mk_iterator"}), o_o, "lean::string_mk_iterator", c);
-    register_builtin(name({"string", "dec_eq"}), o_o_u8, "lean::string_dec_eq", bb);
-    register_builtin(name({"string", "dec_lt"}), o_o_u8, "lean::string_dec_lt", bb);
-    register_builtin(name({"string", "iterator", "curr"}), o_u32, "lean::string_iterator_curr", b);
-    register_builtin(name({"string", "iterator", "set_curr"}), o_u32_o, "lean::string_iterator_set_curr", cc);
-    register_builtin(name({"string", "iterator", "next"}), o_o, "lean::string_iterator_next", c);
-    register_builtin(name({"string", "iterator", "prev"}), o_o, "lean::string_iterator_prev", c);
-    register_builtin(name({"string", "iterator", "has_next"}), o_u8, "lean::string_iterator_has_next", b);
-    register_builtin(name({"string", "iterator", "has_prev"}), o_u8, "lean::string_iterator_has_prev", b);
-    register_builtin(name({"string", "iterator", "insert"}), o_o_o, "lean::string_iterator_insert", cb);
-    register_builtin(name({"string", "iterator", "remove"}), o_o_o, "lean::string_iterator_remove", cb);
-    register_builtin(name({"string", "iterator", "remaining"}), o_o, "lean::string_iterator_remaining", b);
-    register_builtin(name({"string", "iterator", "offset"}), o_o, "lean::string_iterator_offset", b);
-    register_builtin(name({"string", "iterator", "to_string"}), o_o, "lean::string_iterator_to_string", b);
-    register_builtin(name({"string", "iterator", "to_end"}), o_o, "lean::string_iterator_to_end", c);
-    register_builtin(name({"string", "iterator", "remaining_to_string"}), o_o, "lean::string_iterator_remaining_to_string", b);
-    register_builtin(name({"string", "iterator", "prev_to_string"}), o_o, "lean::string_iterator_prev_to_string", b);
-    register_builtin(name({"string", "iterator", "extract"}), o_o_o, "lean::string_iterator_extract", bb);
-    register_builtin(name({"string", "iterator", "mk"}), o_o_o, "lean::string_iterator_mk", bb);
-    register_builtin(name({"string", "iterator", "fst"}), o_o, "lean::string_iterator_fst", b);
-    register_builtin(name({"string", "iterator", "snd"}), o_o, "lean::string_iterator_snd", b);
-
     // interface to old elaborator
     register_builtin(name({"lean", "expr", "local"}), mk_arrow(o, o_o_o_o), "lean_expr_local");
     register_builtin(name({"lean", "environment", "mk_empty"}), o_o, "lean_environment_mk_empty");

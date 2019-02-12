@@ -1499,26 +1499,28 @@ obj_res string_iterator_extract(b_obj_arg it1, b_obj_arg it2) {
     return mk_option_some(r);
 }
 
-obj_res string_iterator_mk(b_obj_arg l1, b_obj_arg l2) {
+obj_res string_iterator_mk(obj_arg l1, obj_arg l2) {
     std::string s1 = rev_list_as_string(l1);
     std::string s2 = list_as_string(l2);
     size_t i       = s1.size();
     std::reverse(s1.begin(), s1.end());
     s1 += s2;
-    return mk_iterator(mk_string(s1), i, utf8_strlen(s2));
-}
-
-obj_res string_iterator_fst(b_obj_arg it) {
-    object * s = string_iterator_prev_to_string(it);
-    object * r = string_to_list_core(string_to_std(s), true /* reverse */);
-    dec_ref(s);
+    obj_res r = mk_iterator(mk_string(s1), i, utf8_strlen(s2));
+    dec(l1); dec(l2);
     return r;
 }
 
-obj_res string_iterator_snd(b_obj_arg it) {
+obj_res string_iterator_fst(obj_arg it) {
+    object * s = string_iterator_prev_to_string(it);
+    object * r = string_to_list_core(string_to_std(s), true /* reverse */);
+    dec_ref(s); dec(it);
+    return r;
+}
+
+obj_res string_iterator_snd(obj_arg it) {
     object * s = string_iterator_remaining_to_string(it);
     object * r = string_to_list_core(string_to_std(s));
-    dec_ref(s);
+    dec_ref(s); dec(it);
     return r;
 }
 

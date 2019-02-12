@@ -13,10 +13,18 @@ import init.data.option.basic
 structure string :=
 (data : list char)
 
-instance string.dec_eq : decidable_eq string :=
-{dec_eq := λ ⟨s₁⟩ ⟨s₂⟩,
+attribute [extern cpp "lean::string_mk"] string.mk
+attribute [extern cpp "lean::string_data"] string.data
+
+@[extern cpp "lean::string_dec_eq"]
+def string.dec_eq (s₁ s₂ : @& string) : decidable (s₁ = s₂) :=
+match s₁, s₂ with
+| ⟨s₁⟩, ⟨s₂⟩ :=
  if h : s₁ = s₂ then is_true (congr_arg _ h)
- else is_false (λ h', string.no_confusion h' (λ h', absurd h' h))}
+ else is_false (λ h', string.no_confusion h' (λ h', absurd h' h))
+
+instance : decidable_eq string :=
+{dec_eq := string.dec_eq}
 
 def list.as_string (s : list char) : string :=
 ⟨s⟩
@@ -26,23 +34,27 @@ instance : has_lt string :=
 ⟨λ s₁ s₂, s₁.data < s₂.data⟩
 
 /- Remark: this function has a VM builtin efficient implementation. -/
-instance dec_lt (s₁ s₂ : string) : decidable (s₁ < s₂) :=
+@[extern cpp "lean::string_dec_lt"]
+instance dec_lt (s₁ s₂ : @& string) : decidable (s₁ < s₂) :=
 list.has_decidable_lt s₁.data s₂.data
 
-def length : string → nat
+@[extern cpp "lean::string_length"]
+def length : (@& string) → nat
 | ⟨s⟩  := s.length
 
 /- The internal implementation uses dynamic arrays and will perform destructive updates
    if the string is not shared. -/
+@[extern cpp "lean::string_push"]
 def push : string → char → string
 | ⟨s⟩ c := ⟨s ++ [c]⟩
 
 /- The internal implementation uses dynamic arrays and will perform destructive updates
    if the string is not shared. -/
-def append : string → string → string
+@[extern cpp "lean::string_append"]
+def append : string → (@& string) → string
 | ⟨a⟩ ⟨b⟩ := ⟨a ++ b⟩
 
-/- O(n) in the VM, where n is the length of the string -/
+/- O(n) in the runtime, where n is the length of the string -/
 def to_list (s : string) : list char :=
 s.data
 
@@ -51,63 +63,81 @@ s.data
 structure iterator :=
 (fst : list char) (snd : list char)
 
+attribute [extern cpp "lean::string_iterator_mk"] iterator.mk
+attribute [extern cpp "lean::string_iterator_fst"] iterator.fst
+attribute [extern cpp "lean::string_iterator_snd"] iterator.snd
+
+@[extern cpp "lean::string_mk_iterator"]
 def mk_iterator : string → iterator
 | ⟨s⟩ := ⟨[], s⟩
 
 namespace iterator
-def remaining : iterator → nat
+@[extern cpp "lean::string_iterator_remaining"]
+def remaining : (@& iterator) → nat
 | ⟨p, n⟩ := n.length
 
-def offset : iterator → nat
+@[extern cpp "lean::string_iterator_offset"]
+def offset : (@& iterator) → nat
 | ⟨p, n⟩ := p.length
 
-def curr : iterator → char
+@[extern cpp "lean::string_iterator_curr"]
+def curr : (@& iterator) → char
 | ⟨p, c::n⟩ := c
 | _         := default char
 
-/- In the VM, `set_curr` is constant time if the string being iterated is not shared and linear time
-   if it is. -/
+/- In the runtime, `set_curr` is constant time if the string being iterated is not shared and linear time if it is. -/
+@[extern cpp "lean::string_iterator_set_curr"]
 def set_curr : iterator → char → iterator
 | ⟨p, c::n⟩ c' := ⟨p, c'::n⟩
 | it        c' := it
 
+@[extern cpp "lean::string_iterator_next"]
 def next : iterator → iterator
 | ⟨p, c::n⟩ := ⟨c::p, n⟩
 | ⟨p, []⟩   := ⟨p, []⟩
 
+@[extern cpp "lean::string_iterator_prev"]
 def prev : iterator → iterator
 | ⟨c::p, n⟩ := ⟨p, c::n⟩
 | ⟨[],   n⟩ := ⟨[], n⟩
 
-def has_next : iterator → bool
+@[extern cpp "lean::string_iterator_has_next"]
+def has_next : (@& iterator) → bool
 | ⟨p, []⟩ := ff
 | _       := tt
 
-def has_prev : iterator → bool
+@[extern cpp "lean::string_iterator_has_prev"]
+def has_prev : (@& iterator) → bool
 | ⟨[], n⟩ := ff
 | _       := tt
 
-def insert : iterator → string → iterator
+@[extern cpp "lean::string_iterator_insert"]
+def insert : iterator → (@& string) → iterator
 | ⟨p, n⟩ ⟨s⟩ := ⟨p, s++n⟩
 
-def remove : iterator → nat → iterator
+@[extern cpp "lean::string_iterator_remove"]
+def remove : iterator → (@& nat) → iterator
 | ⟨p, n⟩ m := ⟨p, n.drop m⟩
 
-/- In the VM, `to_string` is a constant time operation. -/
-def to_string : iterator → string
+/- In the runtime, `to_string` is a constant time operation. -/
+@[extern cpp "lean::string_iterator_to_string"]
+def to_string : (@& iterator) → string
 | ⟨p, n⟩ := ⟨p.reverse ++ n⟩
 
 def forward : iterator → nat → iterator
 | it 0     := it
 | it (n+1) := forward it.next n
 
+@[extern cpp "lean::string_iterator_to_end"]
 def to_end : iterator → iterator
 | ⟨p, n⟩ := ⟨n.reverse ++ p, []⟩
 
-def remaining_to_string : iterator → string
+@[extern cpp "lean::string_iterator_remaining_to_string"]
+def remaining_to_string : (@& iterator) → string
 | ⟨p, n⟩ := ⟨n⟩
 
-def prev_to_string : iterator → string
+@[extern cpp "lean::string_iterator_prev_to_string"]
+def prev_to_string : (@& iterator) → string
 | ⟨p, n⟩ := ⟨p.reverse⟩
 
 protected def extract_core : list char → list char → option (list char)
@@ -118,7 +148,8 @@ protected def extract_core : list char → list char → option (list char)
   | none   := none
   | some r := some (c::r)
 
-def extract : iterator → iterator → option string
+@[extern cpp "lean::string_iterator_extract"]
+def extract : (@& iterator) → (@& iterator) → option string
 | ⟨p₁, n₁⟩ ⟨p₂, n₂⟩ :=
   if p₁.reverse ++ n₁ ≠ p₂.reverse ++ n₂ then none
   else if n₁ = n₂ then some ""

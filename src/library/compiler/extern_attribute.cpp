@@ -170,9 +170,11 @@ static optional<unsigned> get_given_arity(environment const & env, name const & 
     lean_assert(is_extern_constant_core(env, c));
     extern_attr_data_value v = get_extern_attr().get(env, c)->m_value;
     object * arity = cnstr_get(v.raw(), 0);
-    if (is_scalar(arity)) return optional<unsigned>();
-    else if (is_mpz(arity)) return optional<unsigned>(); // ignore big nums
-    else return optional<unsigned>(unbox(arity));
+    if (is_scalar(arity)) return optional<unsigned>(); // none
+    // arity is (some v)
+    arity = cnstr_get(arity, 0);
+    if (is_scalar(arity)) return optional<unsigned>(unbox(arity));
+    return optional<unsigned>(); // ignore big nums
 }
 
 optional<unsigned> get_extern_constant_arity(environment const & env, name const & c) {

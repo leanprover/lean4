@@ -142,8 +142,7 @@ obj* l_lean_elaborator_mk__notation__kind___rarg(obj*);
 obj* l_rbnode_ins___main___at_lean_elaborator_ordered__rbmap_insert___spec__3___rarg(obj*, obj*, obj*, obj*);
 uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_lean_elaborator_run___lambda__8(obj*);
-obj* lean_expr_local(obj*, obj*, obj*, uint8);
-
+extern "C" obj* lean_expr_local(obj*, obj*, obj*, uint8);
 extern obj* l_lean_expander_expand__bracketed__binder___main___closed__4;
 obj* l_lean_parser_term_simple__binder_view_to__binder__info___main(obj*);
 extern obj* l_lean_parser_command_set__option;
@@ -326,8 +325,7 @@ uint8 l_lean_elaborator_is__open__namespace___main(obj*, obj*);
 obj* l_rbnode_insert___at_lean_elaborator_old__elab__command___spec__17(obj*, obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_declaration_elaborate___spec__7(obj*, obj*, obj*);
 extern obj* l_char_has__repr___closed__1;
-obj* lean_environment_mk_empty(obj*);
-
+extern "C" obj* lean_environment_mk_empty(obj*);
 obj* l_list_filter___main___at_lean_elaborator_resolve__context___main___spec__1(obj*, obj*, obj*);
 obj* l_lean_elaborator_elaborator__t_monad__except(obj*);
 obj* l_coroutine_bind___main___rarg(obj*, obj*, obj*);
@@ -618,8 +616,7 @@ obj* l_option_to__monad___main___at_lean_elaborator_command__parser__config_regi
 obj* l_lean_file__map_to__position(obj*, obj*);
 obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_state__t_lift___rarg(obj*, obj*, obj*, obj*);
-obj* lean_elaborator_elaborate_command(obj*, obj*, obj*);
-
+extern "C" obj* lean_elaborator_elaborate_command(obj*, obj*, obj*);
 obj* l_dlist_singleton___rarg(obj*, obj*);
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__20(obj*, obj*, obj*);
 extern obj* l_lean_expander_get__opt__type___main___closed__1;
@@ -652,8 +649,7 @@ obj* l_lean_parser_string__lit_view_value(obj*);
 obj* l_lean_elaborator_commands_elaborate___main___lambda__4(obj*, obj*, uint8, obj*, obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__42;
 obj* l_lean_elaborator_yield__to__outside___rarg___lambda__2___closed__1;
-uint8 lean_environment_contains(obj*, obj*);
-
+extern "C" uint8 lean_environment_contains(obj*, obj*);
 obj* l_lean_expander_error___at_lean_elaborator_no__kind_elaborate___spec__1___rarg___lambda__1(obj*, obj*, obj*);
 extern obj* l_lean_parser_command_notation_has__view;
 extern obj* l_lean_parser_command_check;

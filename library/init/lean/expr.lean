@@ -49,6 +49,19 @@ inductive expr
 instance expr_is_inhabited : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
+attribute [extern "lean_expr_mk_bvar"]   expr.bvar
+attribute [extern "lean_expr_mk_fvar"]   expr.fvar
+attribute [extern "lean_expr_mk_mvar"]   expr.mvar
+attribute [extern "lean_expr_mk_sort"]   expr.sort
+attribute [extern "lean_expr_mk_const"]  expr.const
+attribute [extern "lean_expr_mk_app"]    expr.app
+attribute [extern "lean_expr_mk_lambda"] expr.lam
+attribute [extern "lean_expr_mk_pi"]     expr.pi
+attribute [extern "lean_expr_mk_let"]    expr.elet
+attribute [extern "lean_expr_mk_lit"]    expr.lit
+attribute [extern "lean_expr_mk_mdata"]  expr.mdata
+attribute [extern "lean_expr_mk_proj"]   expr.proj
+
 namespace expr
 def mk_app (fn : expr) (args : list expr) : expr :=
 args.foldl expr.app fn

@@ -16,8 +16,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_lean_expr_mk__app(obj*, obj*);
 obj* l_list_foldl___main___at_lean_expr_mk__app___spec__1(obj*, obj*);
+extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_lean_expr__is__inhabited;
 obj* l_lean_expr_mk__capp(obj*, obj*);
+extern "C" obj* lean_expr_mk_app(obj*, obj*);
 obj* _init_l_lean_expr__is__inhabited() {
 _start:
 {
@@ -44,9 +46,7 @@ lean::inc(x_3);
 x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
-x_8 = lean::alloc_cnstr(5, 2, 0);
-lean::cnstr_set(x_8, 0, x_0);
-lean::cnstr_set(x_8, 1, x_3);
+x_8 = lean_expr_mk_app(x_0, x_3);
 x_0 = x_8;
 x_1 = x_5;
 goto _start;
@@ -66,9 +66,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::box(0);
-x_3 = lean::alloc_cnstr(4, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
+x_3 = lean_expr_mk_const(x_0, x_2);
 x_4 = l_list_foldl___main___at_lean_expr_mk__app___spec__1(x_3, x_1);
 return x_4;
 }

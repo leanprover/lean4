@@ -17,6 +17,11 @@ Author: Leonardo de Moura
 #include "library/vm/optimize.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/util.h"
+#include "library/compiler/extern_attribute.h"
+
+/* Uncomment the following line to ignore unknown declarations, and use a default `not_implemented` declaration that just
+   throws an exception. */
+#define LEAN_IGNORE_UNKNOWN_DECLS
 
 namespace lean {
 class emit_bytecode_fn {
@@ -91,15 +96,36 @@ class emit_bytecode_fn {
         emit_apply_instr(args.size() - 1);
     }
 
+    vm_decl get_vm_decl(name const & fn) {
+        if (optional<vm_decl> decl = ::lean::get_vm_decl(m_env, fn)) {
+            return *decl;
+        } else {
+#if defined(LEAN_IGNORE_UNKNOWN_DECLS)
+            if (optional<unsigned> arity = get_extern_constant_arity(m_env, fn)) {
+                switch (*arity) {
+                case 1: return *::lean::get_vm_decl(m_env, "not_implemented_1");
+                case 2: return *::lean::get_vm_decl(m_env, "not_implemented_2");
+                case 3: return *::lean::get_vm_decl(m_env, "not_implemented_3");
+                case 4: return *::lean::get_vm_decl(m_env, "not_implemented_4");
+                case 5: return *::lean::get_vm_decl(m_env, "not_implemented_5");
+                case 6: return *::lean::get_vm_decl(m_env, "not_implemented_6");
+                case 7: return *::lean::get_vm_decl(m_env, "not_implemented_7");
+                case 8: return *::lean::get_vm_decl(m_env, "not_implemented_8");
+                }
+            }
+#endif
+            throw_unknown_constant(fn);
+        }
+    }
+
     void compile_closure(expr const & e, unsigned bpz, vdecls const & m) {
         buffer<expr> args;
         get_app_args(e, args);
         lean_assert(is_constant(args[0]));
-        optional<vm_decl> decl = get_vm_decl(m_env, const_name(args[0]));
-        if (!decl) throw_unknown_constant(const_name(args[0]));
-        lean_assert(decl->get_arity() > args.size() - 1);
+        vm_decl decl = get_vm_decl(const_name(args[0]));
+        lean_assert(decl.get_arity() > args.size() - 1);
         compile_rev_args(args.size() - 1, args.data() + 1, bpz, m);
-        emit(mk_closure_instr(decl->get_idx(), args.size() - 1));
+        emit(mk_closure_instr(decl.get_idx(), args.size() - 1));
     }
 
     void compile_constant(expr const & e) {
@@ -114,10 +140,8 @@ class emit_bytecode_fn {
         } else if (is_llnf_cnstr(e, cidx, nusizes, ssz)) {
             if (ssz != 0) throw_no_unboxed_support();
             emit(mk_sconstructor_instr(cidx));
-        } else if (optional<vm_decl> decl = get_vm_decl(m_env, n)) {
-            compile_global(*decl, 0, nullptr, 0, vdecls());
         } else {
-            throw_unknown_constant(n);
+            compile_global(get_vm_decl(n), 0, nullptr, 0, vdecls());
         }
     }
 
@@ -246,16 +270,15 @@ class emit_bytecode_fn {
             compile_rev_args(args.size() - 1, args.data() + 1, bpz, m);
             emit(mk_invoke_jp_instr(d->m_pc, d->m_idx, args.size() - 1));
         } else if (is_sorry(e)) {
-            compile_global(*get_vm_decl(m_env, "sorry"), 0, nullptr, bpz, m);
+            compile_global(get_vm_decl("sorry"), 0, nullptr, bpz, m);
         } else {
             buffer<expr> args;
             get_app_args(e, args);
             lean_assert(is_constant(fn));
             lean_assert(!is_enf_neutral(fn));
             lean_assert(!is_enf_unreachable(fn));
-            optional<vm_decl> decl = get_vm_decl(m_env, const_name(fn));
-            if (!decl) throw_unknown_constant(const_name(fn));
-            compile_global(*decl, args.size(), args.data(), bpz, m);
+            vm_decl decl = get_vm_decl(const_name(fn));
+            compile_global(decl, args.size(), args.data(), bpz, m);
         }
     }
 

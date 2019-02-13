@@ -1368,10 +1368,11 @@ environment add_vm_code(environment const & env, name const & fn, unsigned arity
 
 optional<vm_decl> get_vm_decl(environment const & env, name const & n) {
     vm_decls const & ext = get_extension(env);
-    if (auto decl = ext.m_decls.find(get_vm_index(n)))
+    if (auto decl = ext.m_decls.find(get_vm_index(n))) {
         return optional<vm_decl>(*decl);
-    else
+    } else {
         return optional<vm_decl>();
+    }
 }
 
 constexpr unsigned g_null_fn_idx = -1;
@@ -3638,6 +3639,16 @@ optional<name> find_vm_name(unsigned idx) {
     return g_vm_index_manager->find_name(idx);
 }
 
+vm_obj not_implemented_1(vm_obj const &) { throw exception("not implemented yet"); }
+vm_obj not_implemented_2(vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
+vm_obj not_implemented_3(vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
+vm_obj not_implemented_4(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
+vm_obj not_implemented_5(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
+vm_obj not_implemented_6(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
+vm_obj not_implemented_7(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
+vm_obj not_implemented_8(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
+
+
 void initialize_vm_core() {
     g_vm_index_manager = new vm_index_manager;
     g_vm_builtins = new name_map<std::tuple<unsigned, char const *, vm_function>>();
@@ -3648,6 +3659,14 @@ void initialize_vm_core() {
             register_trace_class("vm");
             register_trace_class({"vm", "run"});
         });
+    DECLARE_VM_BUILTIN(name({"not_implemented_1"}),        not_implemented_1);
+    DECLARE_VM_BUILTIN(name({"not_implemented_2"}),        not_implemented_2);
+    DECLARE_VM_BUILTIN(name({"not_implemented_3"}),        not_implemented_3);
+    DECLARE_VM_BUILTIN(name({"not_implemented_4"}),        not_implemented_4);
+    DECLARE_VM_BUILTIN(name({"not_implemented_5"}),        not_implemented_5);
+    DECLARE_VM_BUILTIN(name({"not_implemented_6"}),        not_implemented_6);
+    DECLARE_VM_BUILTIN(name({"not_implemented_7"}),        not_implemented_7);
+    DECLARE_VM_BUILTIN(name({"not_implemented_8"}),        not_implemented_8);
 }
 
 void finalize_vm_core() {

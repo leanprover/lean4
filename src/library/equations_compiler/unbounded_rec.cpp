@@ -182,16 +182,17 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
 
         /* 5. Compile. Remark: we need a separate pass because we need to reserve the functions
            and their arities in the VM. */
-        try {
-            env = compile(env, elab.get_options(), header.m_fn_actual_names);
-        } catch (exception & ex) {
-            sstream ss;
-            ss << "equation compiler failed to generate bytecode for";
-            for (name const & n : header.m_fn_names)
-                ss << " '" << n << "'";
+        if (header.m_gen_code) {
+            try {
+                env = compile(env, elab.get_options(), header.m_fn_actual_names);
+            } catch (exception & ex) {
+                sstream ss;
+                ss << "equation compiler failed to generate bytecode for";
+                for (name const & n : header.m_fn_names)
+                    ss << " '" << n << "'";
             throw nested_exception(ss, std::current_exception());
+            }
         }
-
         return { to_list(result_fns), to_list(counter_examples) };
     } else  {
         lean_assert(!is_recursive_eqns(ctx, e));

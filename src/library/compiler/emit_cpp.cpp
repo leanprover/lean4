@@ -220,8 +220,9 @@ static void emit_fn_decls(std::ostream & out, environment const & env) {
         collect_dependencies(env, d.snd(), all_decls);
     }
     all_decls.for_each([&](name const & n) {
-            if (optional<std::string> fn = get_extern_name_for(env, *g_cpp, n)) {
-                emit_extern_decl(out, env, n, *fn);
+            if (is_extern_constant(env, n)) {
+                if (optional<std::string> fn = get_extern_name_for(env, *g_cpp, n))
+                    emit_extern_decl(out, env, n, *fn);
             } else {
                 emit_fn_decl(out, env, n, mod_decls.contains(n));
             }

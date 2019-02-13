@@ -127,6 +127,10 @@ vm_obj nat_sub(vm_obj const & a1, vm_obj const & a2) {
     }
 }
 
+vm_obj nat_pred(vm_obj const & a) {
+    return nat_sub(a, mk_vm_simple(1));
+}
+
 vm_obj nat_div(vm_obj const & a1, vm_obj const & a2) {
     if (LEAN_LIKELY(is_simple(a1) && is_simple(a2))) {
         unsigned v1 = cidx(a1);
@@ -191,6 +195,7 @@ void initialize_vm_nat() {
     DECLARE_VM_BUILTIN(name({"nat", "add"}),        nat_add);
     DECLARE_VM_BUILTIN(name({"nat", "mul"}),        nat_mul);
     DECLARE_VM_BUILTIN(name({"nat", "sub"}),        nat_sub);
+    DECLARE_VM_BUILTIN(name({"nat", "pred"}),       nat_pred);
     DECLARE_VM_BUILTIN(name({"nat", "div"}),        nat_div);
     DECLARE_VM_BUILTIN(name({"nat", "mod"}),        nat_mod);
     DECLARE_VM_BUILTIN(name({"nat", "dec_eq"}),     nat_decidable_eq);

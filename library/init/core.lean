@@ -427,7 +427,8 @@ export has_insert (insert)
 has_insert.insert a ∅
 
 /- nat basic instances -/
-protected def nat.add : nat → nat → nat
+@[extern cpp "lean::nat_add"]
+protected def nat.add : (@& nat) → (@& nat) → nat
 | a  nat.zero     := a
 | a  (nat.succ b) := nat.succ (nat.add a b)
 

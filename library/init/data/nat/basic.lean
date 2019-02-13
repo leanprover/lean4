@@ -10,6 +10,7 @@ notation `ℕ` := nat
 
 namespace nat
 
+@[extern cpp "lean::nat_dec_eq"]
 def beq : nat → nat → bool
 | zero     zero     := tt
 | zero     (succ m) := ff
@@ -34,13 +35,15 @@ theorem ne_of_beq_eq_ff : ∀ {n m : nat}, beq n m = ff → n ≠ m
   have n ≠ m, from ne_of_beq_eq_ff this,
   nat.no_confusion h₂ (λ h₂, absurd h₂ this)
 
-protected def dec_eq (n m : nat) : decidable (n = m) :=
+@[extern cpp "lean::nat_dec_eq"]
+protected def dec_eq (n m : @& nat) : decidable (n = m) :=
 if h : beq n m = tt then is_true (eq_of_beq_eq_tt h)
 else is_false (ne_of_beq_eq_ff (eq_ff_of_ne_tt h))
 
 @[inline] instance : decidable_eq nat :=
 {dec_eq := nat.dec_eq}
 
+@[extern cpp "lean::nat_dec_le"]
 def ble : nat → nat → bool
 | zero     zero     := tt
 | zero     (succ m) := tt
@@ -59,15 +62,18 @@ nat.le (succ n) m
 instance : has_lt nat :=
 ⟨nat.lt⟩
 
+@[extern cpp inline "lean::nat_sub(#1, lean::box(1))"]
 def pred : nat → nat
 | 0     := 0
 | (a+1) := a
 
-protected def sub : nat → nat → nat
+@[extern cpp "lean::nat_sub"]
+protected def sub : (@& nat) → (@& nat) → nat
 | a 0     := a
 | a (b+1) := pred (sub a b)
 
-protected def mul : nat → nat → nat
+@[extern cpp "lean::nat_mul"]
+protected def mul : (@& nat) → (@& nat) → nat
 | a 0     := 0
 | a (b+1) := (mul a b) + a
 
@@ -252,10 +258,12 @@ theorem pred_le_pred : ∀ {n m : nat}, n ≤ m → pred n ≤ pred m
 theorem le_of_succ_le_succ {n m : nat} : succ n ≤ succ m → n ≤ m :=
 pred_le_pred
 
-instance dec_le (n m : nat) : decidable (n ≤ m) :=
+@[extern cpp "lean::nat_dec_le"]
+instance dec_le (n m : @& nat) : decidable (n ≤ m) :=
 dec_eq (ble n m) tt
 
-instance dec_lt (n m : nat) : decidable (n < m) :=
+@[extern cpp "lean::nat_dec_lt"]
+instance dec_lt (n m : @& nat) : decidable (n < m) :=
 nat.dec_le (succ n) m
 
 protected theorem eq_or_lt_of_le : ∀ {n m: nat}, n ≤ m → n = m ∨ n < m

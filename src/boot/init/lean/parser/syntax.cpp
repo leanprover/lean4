@@ -25,7 +25,6 @@ obj* l_lean_parser_syntax_mreplace___main___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_lean_format_join__sep___main___at_lean_parser_syntax_to__format___main___spec__6(obj*, obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__4;
 extern obj* l_lean_parser_monad__parsec_sep__by1___rarg___closed__1;
-extern obj* l_string_iterator_extract___main___closed__1;
 obj* l_lean_parser_macro__scope_decidable__eq;
 obj* l_lean_parser_syntax_reprint(obj*);
 obj* l_lean_parser_syntax_flip__scopes___main(obj*, obj*);
@@ -42,6 +41,7 @@ obj* l_lean_has__repr___lambda__1(obj*);
 uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_string_quote(obj*);
 obj* l_lean_parser_syntax_update__leading___closed__1;
+obj* l_lean_parser_syntax_reprint___main___closed__2;
 obj* l_lean_parser_macro__scopes;
 obj* l_lean_parser_syntax_to__format___main___closed__7;
 namespace lean {
@@ -1702,6 +1702,16 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_string_join), 1, 0);
 return x_0;
 }
 }
+obj* _init_l_lean_parser_syntax_reprint___main___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("");
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* l_lean_parser_syntax_reprint___main(obj* x_0) {
 _start:
 {
@@ -1923,7 +1933,7 @@ default:
 {
 obj* x_102; 
 lean::dec(x_0);
-x_102 = l_string_iterator_extract___main___closed__1;
+x_102 = l_lean_parser_syntax_reprint___main___closed__2;
 lean::inc(x_102);
 return x_102;
 }
@@ -2760,6 +2770,7 @@ void initialize_init_lean_parser_syntax() {
  l_lean_parser_substring_has__to__string = _init_l_lean_parser_substring_has__to__string();
  l_lean_parser_syntax_update__leading___closed__1 = _init_l_lean_parser_syntax_update__leading___closed__1();
  l_lean_parser_syntax_reprint___main___closed__1 = _init_l_lean_parser_syntax_reprint___main___closed__1();
+ l_lean_parser_syntax_reprint___main___closed__2 = _init_l_lean_parser_syntax_reprint___main___closed__2();
  l_lean_parser_syntax_reprint__lst___main___closed__1 = _init_l_lean_parser_syntax_reprint__lst___main___closed__1();
  l_lean_parser_syntax_to__format___main___closed__1 = _init_l_lean_parser_syntax_to__format___main___closed__1();
  l_lean_parser_syntax_to__format___main___closed__2 = _init_l_lean_parser_syntax_to__format___main___closed__2();

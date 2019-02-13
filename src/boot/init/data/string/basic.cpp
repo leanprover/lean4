@@ -14,9 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_string_iterator_to__end___main(obj*);
 obj* l_string_iterator_next___boxed(obj*);
-obj* l_string_iterator_has__prev___main___boxed(obj*);
 obj* l_string_backn(obj*, obj*);
 obj* l_string_iterator_prevn(obj*, obj*);
 namespace lean {
@@ -29,12 +27,8 @@ obj* l_string_iterator_prev__to__string___boxed(obj*);
 obj* l___private_init_data_string_basic_1__trim__left__aux___main(obj*, obj*);
 obj* l_string_pushn___boxed(obj*, obj*, obj*);
 obj* l_string_has__lt;
-namespace lean {
-obj* string_iterator_fst(obj*);
-}
 obj* l_string_iterator_remaining___boxed(obj*);
 obj* l_string_iterator_forward(obj*, obj*);
-obj* l_string_iterator_extract___main___closed__1;
 obj* l_string_decidable__eq;
 obj* l_string_line__column___closed__1;
 obj* l_string_singleton(uint32);
@@ -42,12 +36,7 @@ obj* l_string_pushn(obj*, uint32, obj*);
 obj* l_list_as__string(obj*);
 obj* l_string_iterator_is__prefix__of__remaining;
 obj* l_string_iterator_forward___main(obj*, obj*);
-obj* l_string_iterator_offset___main(obj*);
-obj* l_string_iterator_extract___main(obj*, obj*);
 obj* l_string_iterator_has__next___boxed(obj*);
-obj* l_list_reverse___rarg(obj*);
-obj* l_string_push___main___boxed(obj*, obj*);
-uint8 l_string_iterator_has__prev___main(obj*);
 obj* l_nat_repeat__core___main___at_string_pushn___spec__1(uint32, obj*, obj*, obj*);
 obj* l_string_iterator_extract__core(obj*, obj*);
 obj* l_string_back___boxed(obj*);
@@ -58,10 +47,8 @@ obj* l_string_singleton___boxed(obj*);
 namespace lean {
 obj* string_length(obj*);
 }
-obj* l_string_iterator_remaining__to__string___main(obj*);
 obj* l_string_front___boxed(obj*);
 uint8 l_string_is__empty(obj*);
-obj* l_string_mk__iterator___main(obj*);
 namespace lean {
 uint32 string_iterator_curr(obj*);
 }
@@ -82,22 +69,18 @@ obj* l_char_to__string___boxed(obj*);
 namespace lean {
 obj* string_iterator_to_end(obj*);
 }
-obj* l_string_iterator_remaining___main(obj*);
 obj* l_string_iterator_curr___boxed(obj*);
 namespace lean {
 obj* string_iterator_extract(obj*, obj*);
 }
 uint32 l_string_back(obj*);
 obj* l_option_get__or__else___main___rarg(obj*, obj*);
-obj* l_string_iterator_prev___main(obj*);
-obj* l_string_iterator_to__string___main(obj*);
 namespace lean {
 obj* string_data(obj*);
 }
 obj* l_string_append___boxed(obj*, obj*);
 obj* l_string_str(obj*, uint32);
 obj* l_string_to__nat(obj*);
-obj* l_list_drop___main___rarg(obj*, obj*);
 namespace lean {
 uint8 string_iterator_has_next(obj*);
 }
@@ -105,20 +88,16 @@ namespace lean {
 obj* string_iterator_remaining_to_string(obj*);
 }
 obj* l_string_line__column(obj*, obj*);
-obj* l_string_iterator_set__curr___main(obj*, uint32);
 obj* l_string_iterator_nextn___main(obj*, obj*);
 obj* l_string_length___boxed(obj*);
 obj* l___private_init_data_string_basic_2__trim__right__aux___main(obj*, obj*);
-obj* l_string_iterator_has__next___main___boxed(obj*);
 obj* l_string_iterator_to__string___boxed(obj*);
 obj* l_string_iterator_remove___boxed(obj*, obj*);
 obj* l_string_join___closed__1;
 obj* l_list_foldl___main___at_string_join___spec__1(obj*, obj*);
 obj* l___private_init_data_string_basic_1__trim__left__aux(obj*, obj*);
 obj* l_string_iterator_offset___boxed(obj*);
-extern obj* l_char_inhabited;
 obj* l___private_init_data_string_basic_3__line__column__aux(obj*, obj*, obj*);
-obj* l_string_iterator_insert___main(obj*, obj*);
 obj* l___private_init_data_string_basic_3__line__column__aux___main(obj*, obj*, obj*);
 obj* l_string_has__append;
 namespace lean {
@@ -143,7 +122,6 @@ obj* l_string_push___boxed(obj*, obj*);
 obj* l_string_dec__eq___boxed(obj*, obj*);
 obj* l_string_mk__iterator___boxed(obj*);
 obj* l_string_iterator_decidable__rel___boxed(obj*, obj*);
-obj* l_string_append___main(obj*, obj*);
 obj* l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1___boxed(obj*, obj*);
 obj* l_string_iterator_nextn(obj*, obj*);
 namespace lean {
@@ -154,7 +132,6 @@ obj* l_string_iterator_extract__core___main(obj*, obj*);
 namespace lean {
 obj* string_iterator_insert(obj*, obj*);
 }
-obj* l_string_push___main(obj*, uint32);
 obj* l_char_to__string(uint32);
 namespace lean {
 obj* string_iterator_remaining(obj*);
@@ -163,20 +140,13 @@ namespace lean {
 obj* string_mk_iterator(obj*);
 }
 obj* l_list_map___main___at_string_intercalate___spec__1(obj*);
-namespace lean {
-obj* string_iterator_mk(obj*, obj*);
-}
-obj* l_list_length__aux___main___rarg(obj*, obj*);
 obj* l_string_has__sizeof;
 obj* l_string_to__list(obj*);
 obj* l_string_trim(obj*);
 uint8 l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(obj*, obj*);
-obj* l_string_iterator_curr___main(obj*);
 obj* l_string_iterator_set__curr___boxed(obj*, obj*);
 obj* l_nat_repeat__core___main___at_string_pushn___spec__1___boxed(obj*, obj*, obj*, obj*);
-uint8 l_string_iterator_has__next___main(obj*);
 obj* l_string_iterator_prev___boxed(obj*);
-obj* l_string_iterator_prev__to__string___main(obj*);
 obj* l___private_init_data_string_basic_4__to__nat__core___main(obj*, obj*, obj*);
 obj* l_string_is__empty___boxed(obj*);
 namespace lean {
@@ -184,25 +154,17 @@ uint8 string_iterator_has_prev(obj*);
 }
 obj* l_string_iterator_to__end___boxed(obj*);
 obj* l_string_iterator_extract___boxed(obj*, obj*);
-obj* l_string_iterator_set__curr___main___boxed(obj*, obj*);
 obj* l_string_trim__left(obj*);
 namespace lean {
 obj* string_push(obj*, uint32);
 }
-obj* l_list_append___rarg(obj*, obj*);
 obj* l_string_str___boxed(obj*, obj*);
 obj* l_string_iterator_remaining__to__string___boxed(obj*);
-obj* l_string_iterator_remove___main(obj*, obj*);
 namespace lean {
 obj* string_iterator_to_string(obj*);
 }
-obj* l_string_iterator_next___main(obj*);
 obj* l_string_iterator_has__prev___boxed(obj*);
 obj* l_string_dec__lt___boxed(obj*, obj*);
-namespace lean {
-obj* string_iterator_snd(obj*);
-}
-obj* l_string_length___main(obj*);
 obj* l_string_dec__eq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -245,46 +207,12 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* l_string_length___main(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::string_data(x_0);
-x_2 = lean::mk_nat_obj(0u);
-x_3 = l_list_length__aux___main___rarg(x_1, x_2);
-return x_3;
-}
-}
 obj* l_string_length___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
 x_1 = lean::string_length(x_0);
 return x_1;
-}
-}
-obj* l_string_push___main(obj* x_0, uint32 x_1) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_2 = lean::string_data(x_0);
-x_3 = lean::box(0);
-x_4 = lean::box_uint32(x_1);
-x_5 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_5, 0, x_4);
-lean::cnstr_set(x_5, 1, x_3);
-x_6 = l_list_append___rarg(x_2, x_5);
-x_7 = lean::string_mk(x_6);
-return x_7;
-}
-}
-obj* l_string_push___main___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-uint32 x_2; obj* x_3; 
-x_2 = lean::unbox_uint32(x_1);
-x_3 = l_string_push___main(x_0, x_2);
-return x_3;
 }
 }
 obj* l_string_push___boxed(obj* x_0, obj* x_1) {
@@ -294,17 +222,6 @@ uint32 x_2; obj* x_3;
 x_2 = lean::unbox_uint32(x_1);
 x_3 = lean::string_push(x_0, x_2);
 return x_3;
-}
-}
-obj* l_string_append___main(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
-x_2 = lean::string_data(x_0);
-x_3 = lean::string_data(x_1);
-x_4 = l_list_append___rarg(x_2, x_3);
-x_5 = lean::string_mk(x_4);
-return x_5;
 }
 }
 obj* l_string_append___boxed(obj* x_0, obj* x_1) {
@@ -323,32 +240,12 @@ x_1 = lean::string_data(x_0);
 return x_1;
 }
 }
-obj* l_string_mk__iterator___main(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::string_data(x_0);
-x_2 = lean::box(0);
-x_3 = lean::string_iterator_mk(x_2, x_1);
-return x_3;
-}
-}
 obj* l_string_mk__iterator___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
 x_1 = lean::string_mk_iterator(x_0);
 return x_1;
-}
-}
-obj* l_string_iterator_remaining___main(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::string_iterator_snd(x_0);
-x_2 = lean::mk_nat_obj(0u);
-x_3 = l_list_length__aux___main___rarg(x_1, x_2);
-return x_3;
 }
 }
 obj* l_string_iterator_remaining___boxed(obj* x_0) {
@@ -359,45 +256,12 @@ x_1 = lean::string_iterator_remaining(x_0);
 return x_1;
 }
 }
-obj* l_string_iterator_offset___main(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::string_iterator_fst(x_0);
-x_2 = lean::mk_nat_obj(0u);
-x_3 = l_list_length__aux___main___rarg(x_1, x_2);
-return x_3;
-}
-}
 obj* l_string_iterator_offset___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
 x_1 = lean::string_iterator_offset(x_0);
 return x_1;
-}
-}
-obj* l_string_iterator_curr___main(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::string_iterator_snd(x_0);
-if (lean::obj_tag(x_1) == 0)
-{
-obj* x_3; 
-lean::dec(x_1);
-x_3 = l_char_inhabited;
-lean::inc(x_3);
-return x_3;
-}
-else
-{
-obj* x_5; 
-x_5 = lean::cnstr_get(x_1, 0);
-lean::inc(x_5);
-lean::dec(x_1);
-return x_5;
-}
 }
 }
 obj* l_string_iterator_curr___boxed(obj* x_0) {
@@ -409,53 +273,6 @@ x_2 = lean::box_uint32(x_1);
 return x_2;
 }
 }
-obj* l_string_iterator_set__curr___main(obj* x_0, uint32 x_1) {
-_start:
-{
-obj* x_3; 
-lean::inc(x_0);
-x_3 = lean::string_iterator_snd(x_0);
-if (lean::obj_tag(x_3) == 0)
-{
-lean::dec(x_3);
-return x_0;
-}
-else
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-if (lean::is_shared(x_3)) {
- lean::dec(x_3);
- x_7 = lean::box(0);
-} else {
- lean::cnstr_release(x_3, 0);
- lean::cnstr_release(x_3, 1);
- x_7 = x_3;
-}
-x_8 = lean::string_iterator_fst(x_0);
-x_9 = lean::box_uint32(x_1);
-if (lean::is_scalar(x_7)) {
- x_10 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_10 = x_7;
-}
-lean::cnstr_set(x_10, 0, x_9);
-lean::cnstr_set(x_10, 1, x_5);
-x_11 = lean::string_iterator_mk(x_8, x_10);
-return x_11;
-}
-}
-}
-obj* l_string_iterator_set__curr___main___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-uint32 x_2; obj* x_3; 
-x_2 = lean::unbox_uint32(x_1);
-x_3 = l_string_iterator_set__curr___main(x_0, x_2);
-return x_3;
-}
-}
 obj* l_string_iterator_set__curr___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -463,45 +280,6 @@ uint32 x_2; obj* x_3;
 x_2 = lean::unbox_uint32(x_1);
 x_3 = lean::string_iterator_set_curr(x_0, x_2);
 return x_3;
-}
-}
-obj* l_string_iterator_next___main(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::string_iterator_snd(x_0);
-if (lean::obj_tag(x_2) == 0)
-{
-lean::dec(x_2);
-return x_0;
-}
-else
-{
-obj* x_4; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_4 = lean::cnstr_get(x_2, 0);
-lean::inc(x_4);
-x_6 = lean::cnstr_get(x_2, 1);
-lean::inc(x_6);
-if (lean::is_shared(x_2)) {
- lean::dec(x_2);
- x_8 = lean::box(0);
-} else {
- lean::cnstr_release(x_2, 0);
- lean::cnstr_release(x_2, 1);
- x_8 = x_2;
-}
-x_9 = lean::string_iterator_fst(x_0);
-if (lean::is_scalar(x_8)) {
- x_10 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_10 = x_8;
-}
-lean::cnstr_set(x_10, 0, x_4);
-lean::cnstr_set(x_10, 1, x_9);
-x_11 = lean::string_iterator_mk(x_10, x_6);
-return x_11;
-}
 }
 }
 obj* l_string_iterator_next___boxed(obj* x_0) {
@@ -512,45 +290,6 @@ x_1 = lean::string_iterator_next(x_0);
 return x_1;
 }
 }
-obj* l_string_iterator_prev___main(obj* x_0) {
-_start:
-{
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::string_iterator_fst(x_0);
-if (lean::obj_tag(x_2) == 0)
-{
-lean::dec(x_2);
-return x_0;
-}
-else
-{
-obj* x_4; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_4 = lean::cnstr_get(x_2, 0);
-lean::inc(x_4);
-x_6 = lean::cnstr_get(x_2, 1);
-lean::inc(x_6);
-if (lean::is_shared(x_2)) {
- lean::dec(x_2);
- x_8 = lean::box(0);
-} else {
- lean::cnstr_release(x_2, 0);
- lean::cnstr_release(x_2, 1);
- x_8 = x_2;
-}
-x_9 = lean::string_iterator_snd(x_0);
-if (lean::is_scalar(x_8)) {
- x_10 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_10 = x_8;
-}
-lean::cnstr_set(x_10, 0, x_4);
-lean::cnstr_set(x_10, 1, x_9);
-x_11 = lean::string_iterator_mk(x_6, x_10);
-return x_11;
-}
-}
-}
 obj* l_string_iterator_prev___boxed(obj* x_0) {
 _start:
 {
@@ -559,71 +298,11 @@ x_1 = lean::string_iterator_prev(x_0);
 return x_1;
 }
 }
-uint8 l_string_iterator_has__next___main(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::string_iterator_snd(x_0);
-if (lean::obj_tag(x_1) == 0)
-{
-uint8 x_3; 
-lean::dec(x_1);
-x_3 = 0;
-return x_3;
-}
-else
-{
-uint8 x_5; 
-lean::dec(x_1);
-x_5 = 1;
-return x_5;
-}
-}
-}
-obj* l_string_iterator_has__next___main___boxed(obj* x_0) {
-_start:
-{
-uint8 x_1; obj* x_2; 
-x_1 = l_string_iterator_has__next___main(x_0);
-x_2 = lean::box(x_1);
-return x_2;
-}
-}
 obj* l_string_iterator_has__next___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
 x_1 = lean::string_iterator_has_next(x_0);
-x_2 = lean::box(x_1);
-return x_2;
-}
-}
-uint8 l_string_iterator_has__prev___main(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::string_iterator_fst(x_0);
-if (lean::obj_tag(x_1) == 0)
-{
-uint8 x_3; 
-lean::dec(x_1);
-x_3 = 0;
-return x_3;
-}
-else
-{
-uint8 x_5; 
-lean::dec(x_1);
-x_5 = 1;
-return x_5;
-}
-}
-}
-obj* l_string_iterator_has__prev___main___boxed(obj* x_0) {
-_start:
-{
-uint8 x_1; obj* x_2; 
-x_1 = l_string_iterator_has__prev___main(x_0);
 x_2 = lean::box(x_1);
 return x_2;
 }
@@ -637,19 +316,6 @@ x_2 = lean::box(x_1);
 return x_2;
 }
 }
-obj* l_string_iterator_insert___main(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-lean::inc(x_0);
-x_3 = lean::string_iterator_fst(x_0);
-x_4 = lean::string_iterator_snd(x_0);
-x_5 = lean::string_data(x_1);
-x_6 = l_list_append___rarg(x_5, x_4);
-x_7 = lean::string_iterator_mk(x_3, x_6);
-return x_7;
-}
-}
 obj* l_string_iterator_insert___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -658,37 +324,12 @@ x_2 = lean::string_iterator_insert(x_0, x_1);
 return x_2;
 }
 }
-obj* l_string_iterator_remove___main(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-lean::inc(x_0);
-x_3 = lean::string_iterator_fst(x_0);
-x_4 = lean::string_iterator_snd(x_0);
-x_5 = l_list_drop___main___rarg(x_1, x_4);
-x_6 = lean::string_iterator_mk(x_3, x_5);
-return x_6;
-}
-}
 obj* l_string_iterator_remove___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
 x_2 = lean::string_iterator_remove(x_0, x_1);
 return x_2;
-}
-}
-obj* l_string_iterator_to__string___main(obj* x_0) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
-lean::inc(x_0);
-x_2 = lean::string_iterator_fst(x_0);
-x_3 = lean::string_iterator_snd(x_0);
-x_4 = l_list_reverse___rarg(x_2);
-x_5 = l_list_append___rarg(x_4, x_3);
-x_6 = lean::string_mk(x_5);
-return x_6;
 }
 }
 obj* l_string_iterator_to__string___boxed(obj* x_0) {
@@ -733,20 +374,6 @@ x_2 = l_string_iterator_forward___main(x_0, x_1);
 return x_2;
 }
 }
-obj* l_string_iterator_to__end___main(obj* x_0) {
-_start:
-{
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-lean::inc(x_0);
-x_2 = lean::string_iterator_fst(x_0);
-x_3 = lean::string_iterator_snd(x_0);
-x_4 = l_list_reverse___rarg(x_3);
-x_5 = l_list_append___rarg(x_4, x_2);
-x_6 = lean::box(0);
-x_7 = lean::string_iterator_mk(x_5, x_6);
-return x_7;
-}
-}
 obj* l_string_iterator_to__end___boxed(obj* x_0) {
 _start:
 {
@@ -755,31 +382,12 @@ x_1 = lean::string_iterator_to_end(x_0);
 return x_1;
 }
 }
-obj* l_string_iterator_remaining__to__string___main(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; 
-x_1 = lean::string_iterator_snd(x_0);
-x_2 = lean::string_mk(x_1);
-return x_2;
-}
-}
 obj* l_string_iterator_remaining__to__string___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
 x_1 = lean::string_iterator_remaining_to_string(x_0);
 return x_1;
-}
-}
-obj* l_string_iterator_prev__to__string___main(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::string_iterator_fst(x_0);
-x_2 = l_list_reverse___rarg(x_1);
-x_3 = lean::string_mk(x_2);
-return x_3;
 }
 }
 obj* l_string_iterator_prev__to__string___boxed(obj* x_0) {
@@ -970,92 +578,6 @@ _start:
 obj* x_2; 
 x_2 = l_string_iterator_extract__core___main(x_0, x_1);
 return x_2;
-}
-}
-obj* _init_l_string_iterator_extract___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = lean::mk_string("");
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
-}
-}
-obj* l_string_iterator_extract___main(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_3; obj* x_4; obj* x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_11; obj* x_13; uint8 x_14; 
-lean::inc(x_0);
-x_3 = lean::string_iterator_fst(x_0);
-x_4 = lean::string_iterator_snd(x_0);
-lean::inc(x_1);
-x_6 = lean::string_iterator_fst(x_1);
-x_7 = lean::string_iterator_snd(x_1);
-x_8 = l_list_reverse___rarg(x_3);
-lean::inc(x_4);
-x_10 = l_list_append___rarg(x_8, x_4);
-x_11 = l_list_reverse___rarg(x_6);
-lean::inc(x_7);
-x_13 = l_list_append___rarg(x_11, x_7);
-x_14 = l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(x_10, x_13);
-if (x_14 == 0)
-{
-obj* x_17; 
-lean::dec(x_7);
-lean::dec(x_4);
-x_17 = lean::box(0);
-return x_17;
-}
-else
-{
-uint8 x_20; 
-lean::inc(x_7);
-lean::inc(x_4);
-x_20 = l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(x_4, x_7);
-if (x_20 == 0)
-{
-obj* x_21; 
-x_21 = l_string_iterator_extract__core___main(x_4, x_7);
-if (lean::obj_tag(x_21) == 0)
-{
-obj* x_23; 
-lean::dec(x_21);
-x_23 = lean::box(0);
-return x_23;
-}
-else
-{
-obj* x_24; obj* x_26; obj* x_27; obj* x_28; 
-x_24 = lean::cnstr_get(x_21, 0);
-lean::inc(x_24);
-if (lean::is_shared(x_21)) {
- lean::dec(x_21);
- x_26 = lean::box(0);
-} else {
- lean::cnstr_release(x_21, 0);
- x_26 = x_21;
-}
-x_27 = lean::string_mk(x_24);
-if (lean::is_scalar(x_26)) {
- x_28 = lean::alloc_cnstr(1, 1, 0);
-} else {
- x_28 = x_26;
-}
-lean::cnstr_set(x_28, 0, x_27);
-return x_28;
-}
-}
-else
-{
-obj* x_31; 
-lean::dec(x_7);
-lean::dec(x_4);
-x_31 = l_string_iterator_extract___main___closed__1;
-lean::inc(x_31);
-return x_31;
-}
-}
 }
 }
 obj* l_string_iterator_extract___boxed(obj* x_0, obj* x_1) {
@@ -1972,7 +1494,6 @@ void initialize_init_data_string_basic() {
  initialize_init_data_option_basic();
  l_string_decidable__eq = _init_l_string_decidable__eq();
  l_string_has__lt = _init_l_string_has__lt();
- l_string_iterator_extract___main___closed__1 = _init_l_string_iterator_extract___main___closed__1();
  l_string_iterator_is__prefix__of__remaining = _init_l_string_iterator_is__prefix__of__remaining();
  l_string_inhabited = _init_l_string_inhabited();
  l_string_has__sizeof = _init_l_string_has__sizeof();

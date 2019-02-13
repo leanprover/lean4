@@ -33,7 +33,6 @@ obj* l_rbnode_ins___main___at_rbmap_of__list___main___spec__3___rarg(obj*, obj*,
 obj* l_rbmap_mfold___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_rbmap_max___main___rarg(obj*);
 obj* l_rbnode_all___rarg(obj*, obj*);
-obj* l_nat_add(obj*, obj*);
 obj* l_rbmap;
 obj* l_rbmap_insert___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_repr__aux___main___at_rbmap_has__repr___spec__2___rarg(obj*, obj*, uint8, obj*);

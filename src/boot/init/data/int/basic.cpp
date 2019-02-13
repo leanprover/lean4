@@ -30,8 +30,6 @@ obj* l_int_has__sub;
 namespace lean {
 obj* int_neg_succ_of_nat(obj*);
 }
-obj* l_nat_add(obj*, obj*);
-obj* l_nat_mod(obj*, obj*);
 obj* l_int_add___boxed(obj*, obj*);
 namespace lean {
 uint8 int_dec_le(obj*, obj*);
@@ -48,7 +46,6 @@ obj* string_append(obj*, obj*);
 }
 obj* l_int_sub___boxed(obj*, obj*);
 obj* l_int_has__mul;
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_int_lt;
 obj* l_int_neg__of__nat___main(obj*);
 obj* l_int_has__lt;
@@ -66,7 +63,6 @@ namespace lean {
 obj* int_sub(obj*, obj*);
 }
 obj* l_int_has__mod;
-obj* l_nat_div(obj*, obj*);
 obj* l_int_sign(obj*);
 obj* l_int_repr___main___closed__1;
 obj* l_int_to__nat(obj*);
@@ -94,7 +90,6 @@ obj* l_int_mul___boxed(obj*, obj*);
 obj* l_int_sign___main(obj*);
 obj* l_int_has__add;
 obj* l_int_le;
-obj* l_nat_sub(obj*, obj*);
 obj* l_int_has__zero;
 obj* l_int_dec__le___boxed(obj*, obj*);
 obj* l_int_sign___main___closed__1;

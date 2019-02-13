@@ -30,7 +30,6 @@ obj* l_lean_parser_level_trailing_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_level_paren_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_level_leading_has__view;
 obj* l_lean_parser_level__parser;
-obj* l_nat_add(obj*, obj*);
 obj* l_lean_parser_level__parser__m_lean_parser_monad__parsec;
 extern obj* l_mjoin___rarg___closed__1;
 extern obj* l_lean_parser_basic__parser__m_monad;
@@ -111,7 +110,6 @@ obj* l_lean_parser_ident_parser___at_lean_parser_level_leading_parser_lean_parse
 obj* l_lean_parser_symbol_tokens___rarg(obj*, obj*);
 obj* l_lean_parser_pratt__parser___at_lean_parser_level__parser_run___spec__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_level_leading_parser_lean_parser_has__view;
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_ident_parser___at_lean_parser_level_leading_parser_lean_parser_has__view___spec__3___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_level__parser_run___spec__3___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_level_lean_parser_has__tokens;
@@ -202,7 +200,6 @@ obj* l_lean_parser_pratt__parser_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*,
 obj* l_lean_parser_level_add__lit_has__view_x_27___lambda__1(obj*);
 obj* l_lean_parser_symbol__core___at_lean_parser_level_paren_parser_lean_parser_has__view___spec__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_level_trailing_parser_lean_parser_has__view;
-obj* l_nat_sub(obj*, obj*);
 obj* l_lean_parser_level_app_has__view_x_27;
 extern obj* l_lean_parser_detail__ident__part_has__view_x_27___lambda__2___closed__2;
 extern obj* l_lean_parser_basic__parser__m_lean_parser_monad__parsec;
@@ -223,7 +220,6 @@ obj* l_lean_parser_combinators_choice__aux___main___at_lean_parser_level_leading
 obj* l_lean_parser_monad__rec_trans___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_level_leading_parser___closed__1;
 obj* l_lean_parser_substring_of__string(obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_lean_parser_level_paren_parser_lean_parser_has__tokens;
 obj* l_lean_parser_level_trailing_has__view_x_27;
 obj* l___private_init_lean_parser_rec_1__run__aux___main___rarg(obj*, obj*, obj*, obj*);

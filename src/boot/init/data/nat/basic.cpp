@@ -16,7 +16,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_nat_mul___main(obj*, obj*);
 obj* l_nat_has__sub;
-obj* l_nat_add(obj*, obj*);
 obj* l_nat_mul___boxed(obj*, obj*);
 obj* l_nat_max(obj*, obj*);
 obj* l_nat_le__refl;
@@ -31,12 +30,10 @@ obj* l_nat_repeat(obj*);
 obj* l_nat_pred___main(obj*);
 obj* l_nat_has__pow;
 obj* l_nat_ble(obj*, obj*);
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_nat_repeat__core___main(obj*);
 obj* l_nat_dec__eq___boxed(obj*, obj*);
 obj* l_nat_has__lt;
 obj* l_nat_has__mul;
-uint8 l_nat_dec__le(obj*, obj*);
 obj* l_nat_lt_base;
 obj* l_nat_lt;
 obj* l_nat_pow___main(obj*, obj*);
@@ -47,14 +44,11 @@ obj* l_nat_beq(obj*, obj*);
 obj* l_nat_repeat__core(obj*);
 obj* l_nat_pred(obj*);
 obj* l_nat_sub___boxed(obj*, obj*);
-obj* l_nat_mul(obj*, obj*);
 obj* l_nat_has__le;
-obj* l_nat_sub(obj*, obj*);
 obj* l_nat_le;
 obj* l_nat_ble___main(obj*, obj*);
 obj* l_nat_le__refl___main;
 obj* l_nat_dec__lt___boxed(obj*, obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_nat_beq___main(obj* x_0, obj* x_1) {
 _start:
 {

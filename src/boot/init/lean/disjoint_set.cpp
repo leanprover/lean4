@@ -19,7 +19,6 @@ obj* l_lean_disjoint__set_merge(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___rarg(obj*, obj*, obj*, obj*);
-obj* l_nat_add(obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux___main(obj*);
 obj* l_lean_disjoint__set_rank___main___rarg(obj*, obj*, obj*, obj*);
@@ -28,7 +27,6 @@ obj* l_lean_disjoint__set_rank(obj*);
 obj* l_lean_disjoint__set_merge___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux(obj*);
 obj* l_lean_disjoint__set_merge___main(obj*);
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_mk__disjoint__set___rarg(obj*, obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -45,10 +43,8 @@ obj* l_lean_disjoint__set_merge___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find(obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj*);
-obj* l_nat_sub(obj*, obj*);
 obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___main(obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj*);
 obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj* x_0) {
 _start:

@@ -37,7 +37,6 @@ obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__15___
 obj* l_lean_parser_module_yield__command___lambda__8(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__11___closed__2;
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__3___closed__1;
-obj* l_nat_add(obj*, obj*);
 obj* l_lean_parser_module_tokens;
 obj* l_list_map___main___at_lean_parser_module_commands_parser_has__view___spec__2(obj*);
 obj* l_lean_parser_module_header_has__view_x_27___lambda__1___closed__2;
@@ -147,7 +146,6 @@ obj* l_lean_parser_module__parser__m_monad__state;
 obj* l_lean_parser_module_prelude_parser(obj*, obj*, obj*);
 obj* l_lean_parser_symbol_tokens___rarg(obj*, obj*);
 extern obj* l_lean_message__log_empty;
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__9(obj*, obj*, obj*);
 obj* l_lean_parser_mk__raw__res(obj*, obj*);
 obj* l_lean_parser_module_import__path_parser_lean_parser_has__view;
@@ -251,7 +249,6 @@ obj* l_lean_parser_log__message___at___private_init_lean_parser_module_1__comman
 obj* l_lean_parser_module_header_parser___closed__1;
 obj* l_lean_parser_module__parser__m_basic__parser__m(obj*, obj*);
 obj* l_lean_parser_module_import__path_has__view;
-obj* l_nat_sub(obj*, obj*);
 obj* l___private_init_lean_parser_module_1__commands__aux___main___lambda__13___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_log__message___at___private_init_lean_parser_module_1__commands__aux___main___spec__4(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_has__monad__lift___rarg(obj*, obj*, obj*, obj*, obj*);

@@ -24,14 +24,12 @@ namespace lean {
 obj* uint16_to_nat(uint16);
 }
 obj* l_lean_format_prefix__join(obj*);
-obj* l_nat_add(obj*, obj*);
 obj* l_lean_format_flatten___main(obj*);
 obj* l_lean_format_join___closed__1;
 obj* l_lean_format_join__sep___main___rarg(obj*, obj*, obj*);
 obj* l_lean_prod__has__to__format___rarg___closed__1;
 obj* l_lean_usize__has__to__format___boxed(obj*);
 obj* l_lean_nat__has__to__format(obj*);
-obj* l_thunk_mk(obj*, obj*);
 obj* l_nat_repeat__core___main___at_string_pushn___spec__1(uint32, obj*, obj*, obj*);
 obj* l_lean_format_repr___main___closed__5;
 obj* l_lean_has__repr___lambda__1(obj*);
@@ -86,7 +84,6 @@ obj* l_lean_list__has__to__format___rarg(obj*);
 obj* l_lean_format_paren___closed__3;
 obj* l_lean_format_paren(obj*);
 obj* l_lean_format_repr___main(obj*);
-obj* l_thunk_get(obj*, obj*);
 obj* l_lean_format_join__suffix(obj*);
 obj* l_lean_format_join__sep___rarg(obj*, obj*, obj*);
 obj* l_lean_format_pretty(obj*, obj*);
@@ -126,7 +123,6 @@ namespace lean {
 obj* usize_to_nat(usize);
 }
 obj* l_lean_format_join__sep___main___at_lean_list_to__format___main___spec__1___rarg(obj*, obj*, obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_lean_format_has__append(obj* x_0, obj* x_1) {
 _start:
 {

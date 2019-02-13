@@ -45,7 +45,6 @@ extern obj* l_list_repr__aux___main___rarg___closed__1;
 namespace lean {
 uint8 string_iterator_has_next(obj*);
 }
-uint8 l_nat_dec__eq(obj*, obj*);
 namespace lean {
 obj* mk_std_ext_entry_core(obj*, obj*);
 }
@@ -77,7 +76,6 @@ obj* mk_extern_attr_data_core(obj*, obj*);
 }
 obj* l_lean_expand__extern__entry___main(obj*, obj*);
 obj* l_lean_mk__simple__fn__call(obj*, obj*);
-obj* l_nat_sub(obj*, obj*);
 extern obj* l_option_has__repr___rarg___closed__3;
 namespace lean {
 obj* string_push(obj*, uint32);
@@ -85,7 +83,6 @@ obj* string_push(obj*, uint32);
 namespace lean {
 obj* get_extern_entry_for_core(obj*, obj*);
 }
-uint8 l_nat_dec__lt(obj*, obj*);
 namespace lean {
 obj* mk_adhoc_ext_entry_core(obj* x_0) {
 _start:

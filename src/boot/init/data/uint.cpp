@@ -22,7 +22,6 @@ uint64 uint64_modn(uint64, obj*);
 obj* l_uint8_has__le;
 obj* l_uint16_inhabited___boxed;
 obj* l_uint32_has__decidable__le___boxed(obj*, obj*);
-uint64 l_uint64_mul(uint64, uint64);
 uint8 l_uint32_has__decidable__lt(uint32, uint32);
 uint8 l_uint8_has__decidable__lt(uint8, uint8);
 obj* l_uint64_has__sub;
@@ -42,7 +41,6 @@ obj* l_uint64_add___boxed(obj*, obj*);
 obj* l_uint16_has__decidable__lt___boxed(obj*, obj*);
 obj* l_uint8_add___boxed(obj*, obj*);
 obj* l_uint16_dec__lt___boxed(obj*, obj*);
-uint16 l_uint16_sub(uint16, uint16);
 obj* l_uint64_inhabited___boxed;
 obj* l_uint16_has__add;
 uint8 l_uint32_has__decidable__le(uint32, uint32);
@@ -50,21 +48,16 @@ uint32 l_uint32_inhabited;
 obj* l_uint32_decidable__eq;
 obj* l_uint32_has__mul;
 obj* l_uint64_div___boxed(obj*, obj*);
-uint8 l_uint32_dec__le(uint32, uint32);
 obj* l_uint64_dec__eq___boxed(obj*, obj*);
 uint8 l_uint64_has__decidable__lt(uint64, uint64);
 obj* l_uint32_has__sub;
 uint8 l_uint8_inhabited;
 obj* l_uint16_add___boxed(obj*, obj*);
-uint16 l_uint16_add(uint16, uint16);
-uint8 l_uint16_dec__le(uint16, uint16);
-uint64 l_uint64_mod(uint64, uint64);
 obj* l_uint16_modn___boxed(obj*, obj*);
 obj* l_uint32_mod___boxed(obj*, obj*);
 obj* l_uint32_has__lt;
 obj* l_uint32_has__zero___boxed;
 obj* l_uint16_has__le;
-uint8 l_uint32_dec__lt(uint32, uint32);
 obj* l_uint32_sub___boxed(obj*, obj*);
 obj* l_uint32_has__div;
 obj* l_uint32_has__modn;
@@ -80,12 +73,9 @@ uint8 uint8_modn(uint8, obj*);
 obj* l_uint8_has__decidable__le___boxed(obj*, obj*);
 uint8 l_uint16_has__decidable__lt(uint16, uint16);
 uint64 l_uint64_inhabited;
-uint8 l_uint8_div(uint8, uint8);
 uint64 l_uint64_has__zero;
 obj* l_uint8_has__mod;
-uint64 l_uint64_div(uint64, uint64);
 obj* l_uint16_div___boxed(obj*, obj*);
-uint16 l_uint16_mul(uint16, uint16);
 uint8 l_uint8_has__one;
 obj* l_uint64_of__nat___boxed(obj*);
 namespace lean {
@@ -100,7 +90,6 @@ obj* l_uint8_has__add;
 obj* l_uint8_le;
 obj* l_uint8_lt;
 obj* l_uint8_has__mul;
-uint8 l_uint8_dec__eq(uint8, uint8);
 obj* l_uint8_has__modn;
 obj* l_uint8_dec__le___boxed(obj*, obj*);
 obj* l_uint32_has__mod;
@@ -110,7 +99,6 @@ uint16 uint16_modn(uint16, obj*);
 }
 obj* l_uint64_mul___boxed(obj*, obj*);
 obj* l_uint16_to__nat___boxed(obj*);
-uint64 l_uint64_add(uint64, uint64);
 obj* l_uint16_has__lt;
 obj* l_uint8_has__sub;
 uint32 l_uint32_has__zero;
@@ -122,20 +110,17 @@ uint16 l_uint16_inhabited;
 obj* l_uint32_le;
 obj* l_uint16_has__modn;
 obj* l_uint64__sz;
-uint8 l_uint64_dec__lt(uint64, uint64);
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
 obj* l_uint8_of__nat___boxed(obj*);
 obj* l_uint8_has__div;
 uint64 l_uint64_has__one;
-uint8 l_uint16_dec__lt(uint16, uint16);
 obj* l_uint16_decidable__eq;
 obj* l_uint64_dec__lt___boxed(obj*, obj*);
 obj* l_uint64_has__lt;
 obj* l_uint64_has__div;
 obj* l_uint16_mul___boxed(obj*, obj*);
-uint8 l_uint8_mul(uint8, uint8);
 obj* l_uint16_le;
 obj* l_uint16_mod___boxed(obj*, obj*);
 obj* l_uint32_dec__eq___boxed(obj*, obj*);
@@ -152,23 +137,16 @@ namespace lean {
 obj* uint8_to_nat(uint8);
 }
 obj* l_uint32_add___boxed(obj*, obj*);
-uint32 l_uint32_mod(uint32, uint32);
 obj* l_uint64_has__le;
 obj* l_uint32_div___boxed(obj*, obj*);
-uint32 l_uint32_div(uint32, uint32);
-uint8 l_uint32_dec__eq(uint32, uint32);
 namespace lean {
 obj* uint64_to_nat(uint64);
 }
 obj* l_uint16_has__one___boxed;
-uint64 l_uint64_sub(uint64, uint64);
 obj* l_uint32_has__one___boxed;
-uint32 l_uint32_mul(uint32, uint32);
 obj* l_uint64_has__decidable__lt___boxed(obj*, obj*);
-uint8 l_uint8_add(uint8, uint8);
 obj* l_uint64_mod___boxed(obj*, obj*);
 obj* l_uint32_dec__lt___boxed(obj*, obj*);
-uint16 l_uint16_mod(uint16, uint16);
 obj* l_uint16_dec__eq___boxed(obj*, obj*);
 obj* l_uint8_dec__eq___boxed(obj*, obj*);
 obj* l_uint16_dec__le___boxed(obj*, obj*);
@@ -179,18 +157,12 @@ obj* l_uint8_has__lt;
 obj* l_uint8_dec__lt___boxed(obj*, obj*);
 obj* l_uint64_to__nat___boxed(obj*);
 obj* l_uint8_has__one___boxed;
-uint8 l_uint64_dec__le(uint64, uint64);
 obj* l_uint16_has__mod;
-uint8 l_uint8_mod(uint8, uint8);
-uint8 l_uint8_sub(uint8, uint8);
 obj* l_uint64_modn___boxed(obj*, obj*);
 obj* l_uint8_modn___boxed(obj*, obj*);
 namespace lean {
 uint32 uint32_of_nat(obj*);
 }
-uint16 l_uint16_div(uint16, uint16);
-uint8 l_uint8_dec__le(uint8, uint8);
-uint32 l_uint32_sub(uint32, uint32);
 obj* l_uint32_inhabited___boxed;
 obj* l_uint64_le;
 obj* l_uint32_to__nat___boxed(obj*);
@@ -201,19 +173,15 @@ obj* l_uint64_has__add;
 obj* l_uint64_has__zero___boxed;
 uint16 l_uint16_has__zero;
 uint8 l_uint8_has__decidable__le(uint8, uint8);
-uint8 l_uint8_dec__lt(uint8, uint8);
 obj* l_uint32_dec__le___boxed(obj*, obj*);
 obj* l_uint64_dec__le___boxed(obj*, obj*);
 uint32 l_uint32_has__one;
 obj* l_uint64_sub___boxed(obj*, obj*);
 obj* l_uint32_has__add;
 uint8 l_uint64_has__decidable__le(uint64, uint64);
-uint32 l_uint32_add(uint32, uint32);
 namespace lean {
 uint8 uint8_of_nat(obj*);
 }
-uint8 l_uint64_dec__eq(uint64, uint64);
-uint8 l_uint16_dec__eq(uint16, uint16);
 obj* _init_l_uint8__sz() {
 _start:
 {

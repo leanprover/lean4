@@ -49,7 +49,6 @@ obj* l_rbnode_fold___main___at___private_init_lean_parser_trie_4__to__string__au
 obj* l___private_init_lean_parser_trie_2__find__aux___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_trie_mk___closed__1;
 obj* l___private_init_lean_parser_trie_1__insert__aux___main___rarg(obj*, obj*, obj*, obj*);
-uint8 l_nat_dec__eq(obj*, obj*);
 extern obj* l_char_has__repr___closed__1;
 obj* l_rbnode_insert___at___private_init_lean_parser_trie_1__insert__aux___main___spec__2___rarg___boxed(obj*, obj*, obj*);
 obj* l_lean_parser_trie_find(obj*);
@@ -74,7 +73,6 @@ obj* string_mk_iterator(obj*);
 uint8 l_rbnode_get__color___main___rarg(obj*);
 obj* l_lean_to__fmt___at___private_init_lean_parser_trie_4__to__string__aux___main___spec__2(obj*);
 obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_nat_sub(obj*, obj*);
 obj* l___private_init_lean_parser_trie_3__match__prefix__aux___main(obj*);
 obj* l_rbnode_ins___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__3___rarg(obj*, uint32, obj*);
 obj* l_option_map___rarg(obj*, obj*);
@@ -83,7 +81,6 @@ obj* l_rbnode_fold___main___at___private_init_lean_parser_trie_4__to__string__au
 obj* l_char_quote__core(uint32);
 obj* l_lean_parser_trie_insert(obj*);
 obj* l_lean_parser_trie_has__to__string___rarg(obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l___private_init_lean_parser_trie_2__find__aux___main___rarg(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_trie_2__find__aux(obj*);
 obj* _init_l_lean_parser_trie_mk___closed__1() {

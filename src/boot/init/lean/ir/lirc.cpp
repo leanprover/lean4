@@ -68,7 +68,6 @@ uint8 string_iterator_has_next(obj*);
 }
 obj* l_lean_ir_check__blockids(obj*);
 extern obj* l_list_repr___main___rarg___closed__3;
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_monad__parsec_take__while_x_27___at_lean_ir_parse__input___spec__2(obj*);
 extern obj* l_char_has__repr___closed__1;
 obj* l_lean_ir_parse__input__aux(obj*, obj*, obj*, obj*);
@@ -101,7 +100,6 @@ obj* l___private_init_lean_parser_parsec_3__mk__string__result___rarg(obj*, obj*
 obj* l_lean_ir_type__check(obj*, obj*);
 obj* l_rbmap_find___main___at_lean_ir_update__env___spec__5(obj*, obj*);
 obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_nat_sub(obj*, obj*);
 namespace lean {
 obj* string_push(obj*, uint32);
 }
@@ -113,7 +111,6 @@ obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at_lean_ir
 obj* l_lean_ir_update__external__names(obj*, obj*, obj*);
 obj* l_char_quote__core(uint32);
 obj* l_list_mmap_x_27___main___at_lean_ir_lirc___spec__1___boxed(obj*, obj*, obj*, obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_rbnode_ins___main___at_lean_ir_parse__input__aux___main___spec__3(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {

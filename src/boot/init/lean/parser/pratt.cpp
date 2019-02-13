@@ -19,7 +19,6 @@ obj* l_lean_parser_curr__lbp(obj*);
 obj* l_lean_parser_trie_match__prefix___rarg(obj*, obj*);
 obj* l_lean_parser_pratt__parser(obj*);
 obj* l___private_init_lean_parser_pratt_1__trailing__loop___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_nat_add(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at___private_init_lean_parser_pratt_1__trailing__loop___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_mjoin___rarg___closed__1;
 obj* l_lean_parser_rec__t_run__parsec___at_lean_parser_pratt__parser___spec__1(obj*);
@@ -41,7 +40,6 @@ obj* l_lean_parser_curr__lbp___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, ob
 obj* l_lean_parser_rec__t_run___at_lean_parser_pratt__parser___spec__3(obj*, obj*);
 obj* l_lean_parser_pratt__parser_view(obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__3___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l_lean_parser_pratt__parser_tokens(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_pratt_1__trailing__loop(obj*);
 extern obj* l_lean_parser_monad__parsec_left__over___rarg___closed__1;
@@ -74,13 +72,11 @@ obj* l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__1(obj*
 obj* l_lean_parser_pratt__parser_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_pratt_1__trailing__loop___main___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_pratt_1__trailing__loop___main(obj*);
-obj* l_nat_sub(obj*, obj*);
 obj* l_list_append___rarg(obj*, obj*);
 extern obj* l_lean_parser_number_has__view_x_27___lambda__1___closed__6;
 obj* l_lean_parser_pratt__parser___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_pratt__parser___spec__2(obj*, obj*);
 obj* l_lean_parser_rec__t_run___at_lean_parser_pratt__parser___spec__3___rarg(obj*, obj*, obj*, obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {

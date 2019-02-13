@@ -116,7 +116,6 @@ obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier__
 obj* l_lean_parser_monad__parsec_take__while__cont___at_lean_parser_c__identifier___spec__3___rarg(obj*, uint32);
 obj* l_lean_parser_monad__parsec_ch___at_lean_parser_identifier___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_c__identifier___rarg___closed__1;
-uint8 l_nat_dec__eq(obj*, obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at_lean_parser_id__part__escaped___spec__5___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_c__identifier___spec__2(obj*, obj*, obj*);
 extern obj* l_char_has__repr___closed__1;
@@ -127,7 +126,6 @@ extern obj* l_lean_parser_monad__parsec_left__over___rarg___closed__1;
 extern obj* l_string_join___closed__1;
 obj* l_list_foldl___main___at_string_join___spec__1(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_identifier___spec__12___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-uint8 l_nat_dec__le(obj*, obj*);
 obj* l_lean_parser_id__part__escaped___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier___spec__20___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_identifier___rarg___lambda__1(obj*, obj*, obj*, obj*);
@@ -177,7 +175,6 @@ uint8 l_lean_is__id__begin__escape(uint32);
 obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier___spec__5(obj*, obj*);
 extern obj* l_lean_parser_monad__parsec_try___rarg___closed__1;
 obj* l_lean_parser_monad__parsec_ch___at_lean_parser_identifier___spec__1___rarg___lambda__1(obj*, obj*, uint32, obj*, obj*);
-obj* l_nat_sub(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_identifier___spec__8(obj*, obj*, obj*);
 namespace lean {
 obj* string_push(obj*, uint32);
@@ -194,7 +191,6 @@ obj* l_lean_parser_monad__parsec_foldl___at_lean_parser_identifier___spec__9___r
 obj* l_lean_parser_identifier___rarg___closed__1;
 obj* l_char_quote__core(uint32);
 obj* l_lean_parser_cpp__identifier(obj*, obj*);
-uint8 l_nat_dec__lt(obj*, obj*);
 obj* l_lean_parser_id__part___rarg___closed__1;
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_c__identifier___spec__2___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 uint8 l_lean_is__greek(uint32 x_0) {

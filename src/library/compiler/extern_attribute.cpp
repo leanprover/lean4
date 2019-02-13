@@ -13,7 +13,6 @@ Authors: Leonardo de Moura
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/util.h"
 #include "library/compiler/extern_attribute.h"
-#include "library/compiler/builtin.h" // TODO(Leo): delete
 
 void initialize_init_lean_extern();
 
@@ -164,20 +163,7 @@ bool emit_extern_call_core(std::ostream & out, environment const & env, name con
 }
 
 void emit_extern_call(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs) {
-    if (emit_extern_call_core(out, env, backend, fn, attrs))
-        return;
-    { // TODO(Leo): delete this blcok
-        name _fn = *get_native_constant_cname(env, fn);
-        out << _fn << "(";
-        bool first = true;
-        string_refs it = attrs;
-        while (!empty(it)) {
-            if (first) first = false; else out << ", ";
-            out << string_cstr(head(it).raw());
-            it = tail(it);
-        }
-        out << ")";
-    }
+    emit_extern_call_core(out, env, backend, fn, attrs);
 }
 
 static inline bool is_extern_constant_core(environment const & env, name const & c) {
@@ -185,12 +171,7 @@ static inline bool is_extern_constant_core(environment const & env, name const &
 }
 
 bool is_extern_constant(environment const & env, name const & c) {
-    if (is_extern_constant_core(env, c))
-        return true;
-    { // TODO(Leo): delete this block
-        return is_native_constant(env, c);
-    }
-    return false;
+    return is_extern_constant_core(env, c);
 }
 
 static optional<unsigned> get_given_arity(environment const & env, name const & c) {
@@ -211,8 +192,7 @@ optional<unsigned> get_extern_constant_arity(environment const & env, name const
         /* Infer arity from type */
         return optional<unsigned>(get_arity(env.get(c).get_type()));
     }
-    // TODO(Leo): replace with return optional<unsigned>
-    return get_native_constant_arity(env, c);
+    return optional<unsigned>();
 }
 
 bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bool> & borrowed_args, bool & borrowed_res) {
@@ -239,8 +219,7 @@ bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bo
         borrowed_res = is_borrowed(type);
         return true;
     }
-    // TODO(Leo): replace with return false
-    return get_native_borrowed_info(env, c, borrowed_args, borrowed_res);
+    return false;
 }
 
 optional<expr> get_extern_constant_ll_type(environment const & env, name const & c) {
@@ -284,8 +263,7 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
         }
         return some_expr(ll_type);
     }
-    // TODO(Leo): replace with return none_expr()
-    return get_native_constant_ll_type(env, c);
+    return none_expr();
 }
 
 void initialize_extern_attribute() {

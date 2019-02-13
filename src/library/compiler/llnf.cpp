@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "library/util.h"
 #include "library/trace.h"
-#include "library/compiler/builtin.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/ll_infer_type.h"

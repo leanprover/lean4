@@ -60,7 +60,7 @@ void decl_attributes::parse_core(parser & p, bool compact) {
             if (!is_attribute(p.env(), id))
                 throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);
 
-            auto const & attr = get_attribute(p.env(), id);
+            auto const & attr = ::lean::get_attribute(p.env(), id);
             if (!deleted) {
                 for (auto const & entry : m_entries) {
                     if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
@@ -104,9 +104,20 @@ void decl_attributes::parse_compact(parser & p) {
 void decl_attributes::set_attribute(environment const & env, name const & attr_name, attr_data_ptr data) {
     if (!is_attribute(env, attr_name))
         throw exception(sstream() << "unknown attribute [" << attr_name << "]");
-    auto const & attr = get_attribute(env, attr_name);
+    auto const & attr = ::lean::get_attribute(env, attr_name);
     entry e = {&attr, data};
     m_entries = append(m_entries, to_list(e));
+}
+
+attr_data_ptr decl_attributes::get_attribute(environment const & env, name const & attr_name) const {
+    if (!is_attribute(env, attr_name))
+        throw exception(sstream() << "unknown attribute [" << attr_name << "]");
+    auto const & attr = ::lean::get_attribute(env, attr_name);
+    for (entry const & e : m_entries) {
+        if (e.m_attr == &attr)
+            return e.m_params;
+    }
+    return nullptr;
 }
 
 environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {

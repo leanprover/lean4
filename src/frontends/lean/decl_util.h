@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/decl_attributes.h"
 namespace lean {
 struct parser;
+struct cmd_meta;
 class elaborator;
 
 enum class decl_cmd_kind { Theorem, Definition, Example, Instance, Var, Abbreviation };
@@ -33,9 +34,12 @@ struct decl_modifiers {
 
     It is used to set/restore the thread local information. */
 class declaration_info_scope {
-    declaration_info_scope(name const & ns, decl_cmd_kind kind, decl_modifiers const & modifiers);
+    declaration_info_scope(name const & ns, decl_cmd_kind kind, decl_modifiers const & modifiers, bool is_extern);
 public:
-    declaration_info_scope(parser const & p, decl_cmd_kind kind, decl_modifiers const & modifiers);
+    declaration_info_scope(parser const & p, decl_cmd_kind kind, decl_modifiers const & modifiers, bool is_extern);
+    declaration_info_scope(parser const & p, decl_cmd_kind kind, decl_modifiers const & modifiers):
+        declaration_info_scope(p, kind, modifiers, false) {}
+    declaration_info_scope(parser const & p, decl_cmd_kind kind, cmd_meta const & meta);
     ~declaration_info_scope();
     bool gen_aux_lemmas() const;
 };

@@ -407,12 +407,13 @@ struct definition_info {
     bool     m_is_noncomputable{false};
     bool     m_is_lemma{false};
     bool     m_aux_lemmas{false};
+    bool     m_gen_code{true};
     unsigned m_next_match_idx{1};
 };
 
 MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
 
-declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind kind, decl_modifiers const & modifiers) {
+declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind kind, decl_modifiers const & modifiers, bool is_extern) {
     definition_info & info = get_definition_info();
     lean_assert(info.m_prefix.is_anonymous());
     info.m_prefix           = name(); // prefix is used to create local name
@@ -426,11 +427,15 @@ declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind ki
     info.m_is_noncomputable = modifiers.m_is_noncomputable;
     info.m_is_lemma         = kind == decl_cmd_kind::Theorem;
     info.m_aux_lemmas       = kind != decl_cmd_kind::Theorem && !modifiers.m_is_meta;
-    info.m_next_match_idx = 1;
+    info.m_gen_code         = !is_extern;
+    info.m_next_match_idx   = 1;
 }
 
-declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind kind, decl_modifiers const & modifiers):
-    declaration_info_scope(get_namespace(p.env()), kind, modifiers) {}
+declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind kind, decl_modifiers const & modifiers, bool is_extern):
+    declaration_info_scope(get_namespace(p.env()), kind, modifiers, is_extern) {}
+
+declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind kind, cmd_meta const & meta):
+    declaration_info_scope(p, kind, meta.m_modifiers, static_cast<bool>(meta.m_attrs.get_attribute(p.env(), "extern"))) {}
 
 declaration_info_scope::~declaration_info_scope() {
     get_definition_info() = definition_info();
@@ -450,6 +455,7 @@ equations_header mk_equations_header(names const & ns, names const & actual_ns) 
     h.m_is_noncomputable = get_definition_info().m_is_noncomputable;
     h.m_is_lemma         = get_definition_info().m_is_lemma;
     h.m_aux_lemmas       = get_definition_info().m_aux_lemmas;
+    h.m_gen_code         = get_definition_info().m_gen_code;
     return h;
 }
 

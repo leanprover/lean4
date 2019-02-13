@@ -278,7 +278,7 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
 }
 
 static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta const & meta) {
-    declaration_info_scope scope(p, kind, meta.m_modifiers);
+    declaration_info_scope scope(p, kind, meta);
     buffer<name> lp_names;
     buffer<expr> fns, params;
     /* TODO(Leo): allow a different doc string for each function in a mutual definition. */
@@ -612,7 +612,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     buffer<expr> params;
     expr fn, val;
     auto header_pos = p.pos();
-    declaration_info_scope scope(p, kind, meta.m_modifiers);
+    declaration_info_scope scope(p, kind, meta);
     environment env   = p.env();
     private_name_scope prv_scope(meta.m_modifiers.m_is_private, env);
     p.set_env(env);

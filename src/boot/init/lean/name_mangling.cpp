@@ -26,9 +26,15 @@ obj* l___private_init_lean_name__mangling_5__parse__mangled__name__aux(obj*, obj
 obj* l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2___closed__1;
 obj* l_lean_parser_monad__parsec_error___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__3___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__2;
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___closed__1;
 extern obj* l_mjoin___rarg___closed__1;
 obj* l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___closed__3;
+namespace lean {
+obj* nat_mod(obj*, obj*);
+}
 obj* l___private_init_lean_name__mangling_1__string_mangle__aux___main(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_num___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__2(obj*);
 extern obj* l_lean_parser_monad__parsec_eoi___rarg___lambda__1___closed__1;
@@ -78,6 +84,9 @@ obj* l_lean_parser_monad__parsec_str__core___at___private_init_lean_name__mangli
 namespace lean {
 uint8 string_iterator_has_next(obj*);
 }
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 extern obj* l_char_has__repr___closed__1;
 obj* l___private_init_lean_name__mangling_5__parse__mangled__name__aux___main(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__4(obj*);
@@ -85,11 +94,17 @@ obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at___priva
 obj* l___private_init_lean_name__mangling_4__name_mangle__aux(obj*, obj*);
 extern obj* l_string_join___closed__1;
 obj* l_id___rarg(obj*);
+namespace lean {
+uint8 nat_dec_le(obj*, obj*);
+}
 obj* l_lean_parser_monad__parsec_take__while__cont___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__6(uint32, obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__11(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_alpha___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__5(obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__7(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__13(obj*, obj*, obj*);
+namespace lean {
+obj* nat_div(obj*, obj*);
+}
 obj* l___private_init_lean_name__mangling_4__name_mangle__aux___main(obj*, obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__17(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__3(obj*);
@@ -113,8 +128,14 @@ obj* name_mk_numeral(obj*, obj*);
 obj* l_nat_repr(obj*);
 obj* l_lean_parser_monad__parsec_take__while__cont___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__4___boxed(obj*, obj*);
 extern obj* l_lean_parser_parsec__t_monad__fail___rarg___closed__1;
+namespace lean {
+obj* nat_mul(obj*, obj*);
+}
 obj* l_lean_parser_monad__parsec_take__while__cont___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__12(uint32, obj*);
 obj* l___private_init_lean_parser_parsec_3__mk__string__result___rarg(obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l___private_init_lean_name__mangling_1__string_mangle__aux(obj*, obj*, obj*);
 obj* l___private_init_lean_name__mangling_2__parse__mangled__string__aux(obj*, obj*, obj*);
 namespace lean {
@@ -130,6 +151,9 @@ obj* l_lean_parser_monad__parsec_take___at___private_init_lean_name__mangling_5_
 obj* l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1;
 obj* l_lean_parser_monad__parsec_take__while__cont___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__6___boxed(obj*, obj*);
 obj* l_char_quote__core(uint32);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* _init_l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1() {
 _start:
 {

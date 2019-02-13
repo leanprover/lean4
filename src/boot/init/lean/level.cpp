@@ -22,6 +22,9 @@ extern obj* l_lean_format_paren___closed__1;
 obj* l_lean_level__to__format_result__list_to__format(obj*);
 obj* l_lean_level_instantiate___main(obj*, obj*);
 obj* l_lean_level__to__format_paren__if__false(obj*, uint8);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_level__to__format_level_to__result___main(obj*);
 obj* l_lean_level__to__format_result_succ___main(obj*);
 obj* l_nat_max(obj*, obj*);
@@ -44,6 +47,9 @@ obj* l_lean_level__to__format_result_max(obj*, obj*);
 obj* l_lean_level_instantiate(obj*, obj*);
 obj* l_lean_level__to__format_result_succ(obj*);
 obj* l_lean_level_to__nat___main___closed__1;
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_level_to__offset(obj*);
 obj* l_lean_level__to__format_result_to__format___main___closed__1;
 obj* l_lean_level_of__nat(obj*);
@@ -68,6 +74,9 @@ obj* l_lean_level__to__format_result__list_to__format___main(obj*);
 obj* l_lean_level_to__nat(obj*);
 obj* l_nat_repr(obj*);
 obj* l_lean_level__to__format_result_imax(obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_lean_level_to__offset___main(obj*);
 obj* l_option_map___rarg(obj*, obj*);
 obj* l_lean_level_to__nat___main___closed__3;

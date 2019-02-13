@@ -44,6 +44,9 @@ namespace lean {
 uint8 string_dec_lt(obj*, obj*);
 }
 obj* l_lean_name_to__string__with__sep___main(obj*, obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_name_update__prefix(obj*, obj*);
 obj* l_lean_name_components_x_27___main(obj*);
 obj* l_lean_name_append___main(obj*, obj*);
@@ -73,6 +76,9 @@ obj* l_lean_name_hash___boxed(obj*);
 obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_lean_name_to__string__with__sep___main___closed__1;
 obj* l_lean_name_has__to__string;
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* l_lean_name_decidable__rel___boxed(obj*, obj*);
 extern usize l_mix__hash___closed__1;
 obj* _init_l_lean_inhabited() {

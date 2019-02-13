@@ -29,6 +29,9 @@ obj* l_lean_ir_mk__fnid__set;
 obj* l_lean_ir_blockid__set;
 obj* l_lean_ir_mk__fnid2string;
 extern obj* l_lean_name_hashable;
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_ir_type2id___boxed(obj*);
 obj* l_lean_ir_mk__var2blockid;
 obj* l_lean_ir_inhabited___boxed;

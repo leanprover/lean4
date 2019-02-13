@@ -24,6 +24,9 @@ namespace lean {
 obj* uint16_to_nat(uint16);
 }
 obj* l_lean_format_prefix__join(obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_format_flatten___main(obj*);
 obj* l_lean_format_join___closed__1;
 obj* l_lean_format_join__sep___main___rarg(obj*, obj*, obj*);
@@ -123,6 +126,9 @@ namespace lean {
 obj* usize_to_nat(usize);
 }
 obj* l_lean_format_join__sep___main___at_lean_list_to__format___main___spec__1___rarg(obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* l_lean_format_has__append(obj* x_0, obj* x_1) {
 _start:
 {

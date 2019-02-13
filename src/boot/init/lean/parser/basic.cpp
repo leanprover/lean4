@@ -96,6 +96,9 @@ obj* l_lean_parser_log__message___rarg(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_trie_mk___closed__1;
 obj* l_lean_parser_lean_parser_monad__parsec___rarg(obj*);
 extern obj* l_lean_message__log_empty;
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_token__map__cons_tokens___rarg(obj*, obj*);
 obj* l_lean_parser_command__parser__m_basic__parser(obj*);
 obj* l_lean_parser_term__parser__m_lean_parser_monad__parsec;

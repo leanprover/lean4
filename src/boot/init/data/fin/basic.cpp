@@ -20,8 +20,14 @@ obj* l_fin_modn(obj*, obj*, obj*);
 obj* l_fin_has__one(obj*);
 obj* l_fin_elim0___main(obj*, obj*);
 uint8 l_fin_dec__lt___rarg(obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_fin_mod(obj*, obj*, obj*);
 obj* l_fin_le;
+namespace lean {
+obj* nat_mod(obj*, obj*);
+}
 uint8 l_fin_dec__le___rarg(obj*, obj*);
 obj* l_fin_has__le(obj*);
 obj* l_fin_sub(obj*, obj*, obj*);
@@ -29,9 +35,18 @@ obj* l_fin_decidable__eq(obj*);
 obj* l_fin_mod___main(obj*, obj*, obj*);
 obj* l_fin_lt;
 obj* l_fin_add(obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_fin_add___main(obj*, obj*, obj*);
 obj* l_fin_of__nat(obj*, obj*);
+namespace lean {
+uint8 nat_dec_le(obj*, obj*);
+}
 obj* l_fin_has__sub(obj*);
+namespace lean {
+obj* nat_div(obj*, obj*);
+}
 obj* l_fin_mul___main(obj*, obj*, obj*);
 obj* l_fin_has__div(obj*);
 obj* l_fin_dec__le(obj*);
@@ -42,13 +57,22 @@ obj* l_fin_mul(obj*, obj*, obj*);
 obj* l_fin_has__modn(obj*);
 obj* l_fin_dec__le___rarg___boxed(obj*, obj*);
 obj* l_fin_dec__lt(obj*);
+namespace lean {
+obj* nat_mul(obj*, obj*);
+}
 obj* l_fin_div___main(obj*, obj*, obj*);
 obj* l_fin_dec__lt___rarg___boxed(obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_fin_has__mod(obj*);
 obj* l_fin_has__mul(obj*);
 obj* l_fin_modn___main(obj*, obj*, obj*);
 obj* l_fin_div(obj*, obj*, obj*);
 obj* l_fin_has__add(obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 uint8 l_fin_decidable__eq___rarg(obj*, obj*);
 obj* _init_l_fin_lt() {
 _start:

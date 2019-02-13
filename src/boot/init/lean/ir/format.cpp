@@ -170,6 +170,9 @@ obj* l_lean_ir_assign__binop_has__to__format;
 obj* l_lean_ir_decl_to__format___main___closed__1;
 obj* l_lean_ir_block_to__format___main___closed__1;
 obj* l_lean_ir_unop_to__format___main___closed__7;
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_format_join__suffix___main___at_lean_ir_block_to__format___main___spec__2(obj*, obj*);
 obj* l_lean_to__fmt___at_lean_ir_unop_has__to__string___spec__1(uint8);
 obj* l_lean_ir_instr_to__format___main___closed__10;
@@ -274,6 +277,9 @@ obj* l_lean_to__fmt___at_lean_ir_literal_to__format___main___spec__1___boxed(obj
 obj* l_lean_to__fmt___at_lean_ir_block_has__to__string___spec__1(obj*);
 obj* l_lean_ir_assign__binop_to__format___main___closed__6;
 obj* l_lean_ir_instr_to__format___main___closed__5;
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_lean_to__fmt___at_lean_ir_sizet__entry_to__format___main___spec__1(obj*);
 obj* l_lean_ir_instr_to__format___main___closed__4;
 obj* l_lean_ir_terminator_decorate__error(obj*, obj*);

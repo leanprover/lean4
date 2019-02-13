@@ -51,6 +51,9 @@ obj* l_std_priority_max;
 obj* l_quot_rec___rarg(obj*, obj*, obj*);
 obj* l_or_intro__right;
 obj* l_ne;
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_thunk_pure___boxed(obj*, obj*);
 obj* l_prod_has__lt(obj*, obj*, obj*, obj*);
 obj* l_eq_ndrec__on(obj*, obj*, obj*, obj*, obj*);
@@ -330,7 +333,6 @@ obj* l_sum_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_eq_ndrec__on___rarg(obj*);
 obj* l_quotient_lift(obj*, obj*, obj*);
 obj* l_prod_has__sizeof(obj*, obj*);
-obj* l_nat_add___main(obj*, obj*);
 obj* l_sum_decidable__eq(obj*, obj*);
 obj* l_punit_sizeof___main(obj*);
 obj* l_subtype_has__sizeof___rarg(obj*, obj*);
@@ -861,32 +863,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_singleton___rarg), 3, 0);
 return x_4;
-}
-}
-obj* l_nat_add___main(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; uint8 x_3; 
-x_2 = lean::mk_nat_obj(0u);
-x_3 = lean::nat_dec_eq(x_1, x_2);
-lean::dec(x_2);
-if (x_3 == 0)
-{
-obj* x_5; obj* x_6; obj* x_8; obj* x_9; 
-x_5 = lean::mk_nat_obj(1u);
-x_6 = lean::nat_sub(x_1, x_5);
-lean::dec(x_1);
-x_8 = l_nat_add___main(x_0, x_6);
-x_9 = lean::nat_add(x_8, x_5);
-lean::dec(x_5);
-lean::dec(x_8);
-return x_9;
-}
-else
-{
-lean::dec(x_1);
-return x_0;
-}
 }
 }
 obj* l_nat_add___boxed(obj* x_0, obj* x_1) {

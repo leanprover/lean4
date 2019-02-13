@@ -46,6 +46,9 @@ obj* l_list_length__aux___rarg(obj*, obj*);
 obj* l_list_union(obj*);
 obj* l_list_bag__inter___rarg(obj*, obj*, obj*);
 obj* l___private_init_data_list_basic_1__to__list__aux___main(obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_list_bor(obj*);
 obj* l_list_has__dec__eq___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_assoc___main(obj*, obj*);
@@ -145,6 +148,9 @@ uint8 l_list_has__dec__eq___rarg(obj*, obj*, obj*);
 obj* l_list_foldr1__opt___rarg(obj*, obj*);
 obj* l_list_remove__nth___main___rarg(obj*, obj*);
 uint8 l_list_has__decidable__lt___main___rarg(obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_list_filter(obj*, obj*);
 obj* l_list_ilast___main___rarg(obj*, obj*);
 obj* l_list_head___main___rarg(obj*, obj*);
@@ -242,6 +248,9 @@ obj* l_list_foldl___rarg(obj*, obj*, obj*);
 obj* l_list_foldr1___main(obj*);
 obj* l_list_foldr___main___at_list_union___spec__1___rarg(obj*, obj*, obj*);
 obj* l_list_length__aux___main(obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_list_reverse__core___main___rarg(obj*, obj*);
 obj* l_list_is__prefix__of___rarg(obj*, obj*, obj*);
 obj* l_list_take___rarg(obj*, obj*);

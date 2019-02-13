@@ -15,12 +15,30 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_nat_mod___boxed(obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
+namespace lean {
+obj* nat_mod(obj*, obj*);
+}
 obj* l___private_init_data_nat_div_5__mod_F(obj*, obj*, obj*);
 obj* l_nat_has__div;
 obj* l___private_init_data_nat_div_2__div_F(obj*, obj*, obj*);
 obj* l___private_init_data_nat_div_1__div__rec__lemma;
+namespace lean {
+uint8 nat_dec_le(obj*, obj*);
+}
+namespace lean {
+obj* nat_div(obj*, obj*);
+}
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_nat_has__mod;
 obj* l_nat_div___boxed(obj*, obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* _init_l___private_init_data_nat_div_1__div__rec__lemma() {
 _start:
 {

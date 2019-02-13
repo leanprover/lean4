@@ -39,6 +39,9 @@ obj* l_lean_parser_combinators_longest__match_tokens(obj*, obj*, obj*, obj*, obj
 obj* l_list_mfoldl___main___at_lean_parser_combinators_node___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_combinators_choice__aux___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_longest__choice_tokens(obj*, obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_parser_combinators_many1_tokens___rarg(obj*);
 obj* l_list_map___main___at_lean_parser_combinators_longest__choice___spec__1(obj*);
 obj* l___private_init_lean_parser_combinators_2__sep__by__aux___main___at_lean_parser_combinators_sep__by1___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -110,6 +113,9 @@ obj* l_lean_parser_combinators_sep__by_view___rarg___lambda__2(obj*, obj*, obj*,
 obj* l_lean_parser_combinators_choice___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_many1_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_choice__aux___main___rarg___lambda__1(obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_combinators_sep__by_tokens___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_optional_view___rarg___lambda__1(obj*, obj*);
 obj* l_list_mfoldl___main___at_lean_parser_combinators_node___spec__1(obj*);
@@ -198,6 +204,9 @@ obj* l___private_init_lean_parser_combinators_2__sep__by__aux___main___rarg___la
 obj* l_lean_parser_combinators_optional___rarg___lambda__2(obj*, obj*);
 extern obj* l_lean_parser_monad__parsec_try___rarg___closed__1;
 obj* l_list_map___main___at_lean_parser_combinators_sep__by_view___spec__1(obj*, obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l___private_init_lean_parser_combinators_2__sep__by__aux___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_many1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_choice__aux(obj*);

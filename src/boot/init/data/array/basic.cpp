@@ -19,6 +19,9 @@ obj* l_array_rev__iterate(obj*, obj*);
 obj* l_array_push___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_rev__foldl(obj*, obj*);
 obj* l_array_uread___rarg___boxed(obj*, obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_array_rev__iterate___rarg(obj*, obj*, obj*);
 obj* l_array_read___rarg(obj*, obj*);
 obj* l___private_init_data_array_basic_2__rev__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -47,7 +50,6 @@ obj* l_mk__array___rarg(obj*, obj*);
 obj* l___private_init_data_array_basic_3__foreach__aux___rarg(obj*, obj*);
 obj* l_array_read(obj*);
 obj* l___private_init_data_array_basic_2__rev__iterate__aux(obj*, obj*);
-obj* l_nat_pred___main(obj*);
 obj* l_array_empty(obj*);
 obj* l_array_uread___rarg(obj*, usize, obj*);
 obj* l_array_uwrite(obj*);
@@ -56,11 +58,17 @@ obj* l_array_foldl(obj*, obj*);
 obj* l___private_init_data_array_basic_1__iterate__aux___main(obj*, obj*);
 uint8 l_array_empty___rarg(obj*);
 obj* l___private_init_data_array_basic_3__foreach__aux(obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_array_pop___rarg(obj*);
 obj* l_list_repr___rarg(obj*, obj*);
 obj* l_array_map_u_2082(obj*);
 obj* l_list_to__array__aux(obj*);
 obj* l_array_uread_x_27___rarg___boxed(obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_le(obj*, obj*);
+}
 obj* l_array_foreach(obj*);
 obj* l_array_foldl___rarg(obj*, obj*, obj*);
 obj* l_mk__array___rarg___lambda__1(obj*, obj*);
@@ -87,6 +95,9 @@ obj* l___private_init_data_array_basic_2__rev__iterate__aux___main(obj*, obj*);
 obj* l_array_foldl___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_map___rarg(obj*, obj*);
 obj* l_array_map___rarg___lambda__1(obj*, obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l___private_init_data_array_basic_2__rev__iterate__aux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_array_read_x_27___rarg(obj*, obj*, obj*);
 obj* l_array_to__list___rarg___closed__1;
@@ -96,6 +107,9 @@ namespace lean {
 obj* usize_to_nat(usize);
 }
 obj* l___private_init_data_array_basic_1__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* l_mk__array___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -529,7 +543,7 @@ _start:
 obj* x_1; obj* x_3; obj* x_4; obj* x_5; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
-x_3 = l_nat_pred___main(x_1);
+x_3 = lean::nat_sub(x_1, lean::box(1));
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_array_read___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_0);
 x_5 = lean::alloc_cnstr(0, 2, 0);

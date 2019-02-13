@@ -65,6 +65,9 @@ obj* l_lean_parser_parsec__t_monad__except___rarg(obj*, obj*);
 obj* l_lean_parser_parsec__t_run___at_lean_parser_parsec__t_parse__with__left__over___spec__1(obj*);
 obj* l_lean_parser_monad__parsec_sep__by1___rarg___closed__1;
 obj* l_lean_parser_monad__parsec_curr___rarg(obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_parser_parsec__t_merge(obj*);
 obj* l_lean_parser_parsec__t_alternative___rarg(obj*, obj*);
 obj* l_string_iterator_remaining___boxed(obj*);
@@ -241,6 +244,9 @@ obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_not__follo
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_eoi___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_parse__with__left__over(obj*, obj*);
 obj* l_lean_parser_monad__parsec_eoi__error___rarg(obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 extern obj* l_lean_format_be___main___closed__1;
 obj* l_string_line__column(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_upper___spec__1(obj*, obj*, obj*);
@@ -273,6 +279,9 @@ obj* l_string_iterator_offset___boxed(obj*);
 obj* l_lean_parser_monad__parsec_not__followed__by___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_lower___spec__1(obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_monad___rarg___lambda__13(obj*, obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_le(obj*, obj*);
+}
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parsec__t_parse__with__eoi___spec__2___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_str__core___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_pure(obj*);
@@ -449,6 +458,9 @@ obj* l_lean_parser_monad__parsec_upper___rarg(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_any___spec__2(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_monad__parsec_upper___spec__2(obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_parse__with__left__over___rarg___lambda__1(obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_lean_parser_monad__parsec_take__while(obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_has__monad__lift___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parsec_2__take__aux___main(obj*);
@@ -495,6 +507,9 @@ obj* l_char_quote__core(uint32);
 obj* l_lean_parser_monad__parsec_fix__aux___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_parsec__t_parse__with__left__over___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_many_x_27___rarg(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* l_lean_parser_monad__parsec_take__while_x_27___at_lean_parser_monad__parsec_whitespace___spec__1___rarg___closed__1;
 obj* l_lean_parser_parsec__t_monad___rarg___lambda__3(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_not__followed__by___rarg___lambda__1(obj*, obj*);

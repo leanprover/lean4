@@ -107,6 +107,9 @@ obj* l_lean_parser_term_simple__binder_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_term_assume__anonymous;
 obj* l_lean_parser_term_projection_parser(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_term_binders__ext;
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_parser_combinators_choice__aux___main___at_lean_parser_command_notation__spec_precedence__lit_parser_lean_parser_has__view___spec__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_term_explicit__modifier;
 obj* l_reader__t_lift___at_lean_parser_term_sort__app_parser_lean_parser_has__view___spec__2(obj*);
@@ -441,6 +444,9 @@ obj* l_lean_parser_term_have;
 obj* l_lean_parser_term_match_parser___closed__1;
 obj* l_lean_parser_term_pi;
 obj* l_lean_parser_term_paren_has__view;
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_term_binder__content_has__view_x_27___lambda__1___closed__4;
 obj* l_lean_parser_term_sort_has__view_x_27;
 obj* l_lean_parser_token__map__cons_tokens___rarg(obj*, obj*);
@@ -843,6 +849,9 @@ obj* l_lean_parser_term_hole;
 obj* l_lean_parser_command_notation__like_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_term_lean_parser_has__tokens;
 obj* l_lean_parser_ident__univ__spec_has__view_x_27___lambda__1___closed__2;
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_lean_parser_term_mixed__binder_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_term_match_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_term_binder__content_has__view_x_27;
@@ -916,6 +925,9 @@ obj* l_rbmap_find___main___at___private_init_lean_parser_term_1__trailing___spec
 obj* l_lean_parser_term_mixed__binder_has__view;
 obj* l_lean_parser_term_inst__implicit__named__binder_has__view;
 obj* l_lean_parser_term_explicit__binder__content_has__view_x_27___lambda__2(obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* l_lean_parser_term_simple__strict__implicit__binder_has__view_x_27___lambda__1___closed__1;
 obj* l___private_init_lean_parser_rec_1__run__aux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_term_from_has__view;

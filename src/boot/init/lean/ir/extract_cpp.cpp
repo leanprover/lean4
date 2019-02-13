@@ -69,6 +69,9 @@ obj* l_lean_ir_instr_to__format___main(obj*);
 obj* l_lean_ir_cpp_emit__instr___closed__1;
 obj* l_lean_ir_cpp_unop2cpp___main___closed__9;
 extern obj* l_lean_ir_match__type___closed__5;
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_ir_cpp_emit__case___main___closed__7;
 obj* l_lean_ir_cpp_emit__eos___closed__1;
 obj* l_lean_ir_cpp_assign__unop2cpp___main___closed__8;
@@ -191,6 +194,9 @@ obj* l_lean_ir_cpp_emit__assign__binop___closed__12;
 obj* l_lean_ir_cpp_emit__main__proc(obj*, obj*);
 obj* l_rbmap_insert___main___at_lean_ir_cpp_collect__used___spec__1(obj*, obj*, obj*);
 extern obj* l_list_repr___main___rarg___closed__3;
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 extern obj* l_lean_format_be___main___closed__1;
 obj* l_lean_ir_cpp_emit__uncurry__header___closed__1;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__23;
@@ -353,6 +359,9 @@ obj* l_rbnode_balance1__node___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_id_monad___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_lean_ir_cpp_emit__num__suffix___main___boxed(obj*, obj*, obj*);
 extern obj* l_lean_ir_mk__context;
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 extern obj* l_option_has__repr___rarg___closed__3;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__39;
 obj* l_lean_ir_cpp_emit__big__binop(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -385,6 +394,9 @@ uint8 int_dec_lt(obj*, obj*);
 obj* l_lean_ir_cpp_emit__assign__binop___closed__32;
 obj* l_lean_ir_cpp_emit__assign__binop___closed__22;
 extern obj* l_lean_closure__max__args;
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
 obj* l_lean_ir_cpp_emit__assign__binop___closed__6;
 extern obj* l_lean_ir_is__arith__ty___closed__1;
 obj* l_lean_ir_cpp_unop2cpp___main___closed__7;

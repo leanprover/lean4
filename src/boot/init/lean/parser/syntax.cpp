@@ -81,6 +81,9 @@ obj* l_lean_parser_syntax_get__head__info__lst___main(obj*);
 obj* l_lean_parser_syntax_has__to__string;
 obj* l_lean_parser_syntax_mreplace__lst___main___at_lean_parser_syntax_update__leading___spec__2(obj*, obj*, obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__8;
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_syntax_flip__scopes(obj*, obj*);
 obj* l_string_iterator_nextn___main(obj*, obj*);
 extern obj* l_lean_format_sbracket___closed__1;
@@ -143,6 +146,9 @@ obj* l_nat_repr(obj*);
 obj* l_lean_parser_choice;
 obj* l_lean_parser_syntax_reprint___main___closed__1;
 obj* l___private_init_lean_parser_syntax_1__update__leading__aux(obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_list_append___rarg(obj*, obj*);
 obj* l___private_init_lean_parser_syntax_1__update__leading__aux___main(obj*, obj*);
 obj* l_option_map___rarg(obj*, obj*);

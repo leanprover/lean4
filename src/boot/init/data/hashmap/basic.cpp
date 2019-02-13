@@ -27,6 +27,9 @@ obj* l_hashmap_size___rarg(obj*);
 obj* l_hashmap__imp_find__aux___main___rarg(obj*, obj*, obj*);
 obj* l_hashmap_size(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_hashmap__imp_replace__aux___main(obj*, obj*);
 obj* l_hashmap_empty(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_erase___rarg(obj*, obj*, obj*, obj*);
@@ -57,10 +60,16 @@ obj* l_mk__hashmap(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_find(obj*, obj*);
 obj* l_hashmap__imp_find__aux___rarg(obj*, obj*, obj*);
 obj* l_mk__d__hashmap(obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_hashmap_fold___rarg(obj*, obj*, obj*);
 obj* l_d__hashmap_find(obj*, obj*);
 obj* l_d__hashmap_size___rarg(obj*);
+namespace lean {
+uint8 nat_dec_le(obj*, obj*);
+}
 namespace lean {
 usize usize_modn(usize, obj*);
 }
@@ -88,7 +97,13 @@ obj* l_d__hashmap;
 obj* l_hashmap__imp_replace__aux(obj*, obj*);
 obj* l_hashmap_contains(obj*, obj*);
 obj* l_bucket__array;
+namespace lean {
+obj* nat_mul(obj*, obj*);
+}
 obj* l_hashmap;
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_hashmap_erase___rarg(obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);

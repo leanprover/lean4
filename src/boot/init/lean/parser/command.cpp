@@ -51,6 +51,9 @@ obj* l_lean_parser_command_open__spec_hiding_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_command_end_parser_lean_parser_has__tokens;
 obj* l_lean_parser_command_universes;
 obj* l_lean_parser_command_open_has__view_x_27___lambda__1(obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_parser_command_open__spec_has__view_x_27___lambda__1___closed__5;
 obj* l_lean_parser_command_open__spec_has__view_x_27___lambda__1___closed__3;
 obj* l_lean_parser_command_universe_has__view_x_27___lambda__1(obj*);
@@ -195,6 +198,9 @@ obj* l_lean_parser_command_check_parser___closed__1;
 obj* l_lean_parser_symbol_tokens___rarg(obj*, obj*);
 extern obj* l_lean_parser_term_bracketed__binders_has__view;
 obj* l_list_map___main___at_lean_parser_command_attribute_has__view_x_27___spec__4(obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_command_open__spec_renaming_item;
 obj* l_lean_parser_command_open__spec_renaming_has__view;
 extern obj* l_lean_parser_command_notation_has__view_x_27___lambda__1___closed__1;

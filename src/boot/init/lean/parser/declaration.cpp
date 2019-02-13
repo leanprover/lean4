@@ -60,6 +60,9 @@ obj* l_lean_parser_command_structure_parser(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_ident__univ__params_has__view_x_27___lambda__1___closed__3;
 obj* l_lean_parser_command_declaration;
 obj* l_lean_parser_command_doc__comment_parser_lean_parser_has__view;
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_lean_parser_monad__parsec_many_x_27___at_lean_parser_command_doc__comment_parser___spec__2(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_decl__sig_has__view_x_27;
 obj* l_lean_parser_command_structure__field__block_has__view_x_27___lambda__1(obj*);
@@ -271,6 +274,9 @@ obj* l_lean_parser_symbol_tokens___rarg(obj*, obj*);
 obj* l_lean_parser_command_structure_has__view_x_27___lambda__1___closed__2;
 extern obj* l_lean_parser_term_bracketed__binders_has__view;
 obj* l_lean_parser_command_declaration_has__view_x_27___lambda__1(obj*);
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
 obj* l_lean_parser_command_decl__attributes_parser(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_inductive_has__view_x_27___lambda__2___closed__1;
 obj* l_lean_parser_command_instance_has__view;
@@ -479,6 +485,9 @@ obj* l_lean_parser_command_infer__modifier_parser_lean_parser_has__view___lambda
 obj* l_lean_parser_command_notation__like_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command_decl__val_parser_lean_parser_has__tokens;
 obj* l_lean_parser_command_decl__sig_parser(obj*, obj*, obj*, obj*);
+namespace lean {
+obj* nat_sub(obj*, obj*);
+}
 obj* l_lean_parser_command_ident__univ__params_has__view_x_27___lambda__1___closed__5;
 obj* l_lean_parser_command_declaration_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_command_infer__modifier_has__view_x_27___lambda__1___closed__1;

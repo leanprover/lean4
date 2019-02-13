@@ -61,18 +61,20 @@ bool operator<(literal const & a, literal const & b) {
     lean_unreachable();
 }
 
-static inline unsigned hash(literal const & a) {
-    switch (a.kind()) {
-    case literal_kind::Nat:    return a.get_nat().hash();
-    case literal_kind::String: return hash_str(a.get_string().num_bytes(), a.get_string().data(), 17);
+static inline unsigned literal_hash(b_obj_arg l) {
+    switch (literal::kind(l)) {
+    case literal_kind::Nat:    return nat::hash(cnstr_get(l, 0));
+    case literal_kind::String: return hash_str(string_size(cnstr_get(l, 0)) - 1, string_cstr(cnstr_get(l, 0)), 17);
     }
     lean_unreachable();
 }
 
-static unsigned hash(levels const & ls) {
+static unsigned levels_hash(object * ls) {
     unsigned r = 23;
-    for (auto const & l : ls)
-        r = hash(hash(l), r);
+    while (!is_scalar(ls)) {
+        r = hash(level::hash(cnstr_get(ls, 0)), r);
+        ls = cnstr_get(ls, 1);
+    }
     return r;
 }
 
@@ -149,47 +151,52 @@ inline constexpr size_t expr_scalar_size(expr_kind k) { return flags_offset(k) +
 /* Size for scalar value area for recursive expression. */
 inline constexpr size_t rec_expr_scalar_size(expr_kind k) { return loose_bvar_range_offset(k) + sizeof(unsigned); }
 
+static inline unsigned expr_hash(object * e) { return cnstr_get_scalar<unsigned>(e, hash_offset(expr::kind(e))); }
+unsigned hash(expr const & e) { return expr_hash(e.raw()); }
+extern "C" size_t lean_expr_hash(object * e) { return expr_hash(e); }
 
 /* Set expr cached hash code and flags. All expressions contain them.
    We provide the kind `k` to allow the compiler to compute offsets at compilation time. */
-template<expr_kind k> void set_scalar(expr const & e, unsigned hash, bool has_expr_mvar, bool has_univ_mvar,
+template<expr_kind k> void set_scalar(object * e, unsigned hash, bool has_expr_mvar, bool has_univ_mvar,
                                       bool has_fvar, bool has_univ_param) {
-    lean_assert(e.kind() == k);
+    lean_assert(expr::kind(e) == k);
     unsigned char d =
         (has_expr_mvar ? 1 : 0) +
         (has_univ_mvar ? 2 : 0) +
         (has_fvar ? 4 : 0) +
         (has_univ_param ? 8 : 0);
-    cnstr_set_scalar<unsigned>(e.raw(), hash_offset(k), hash);
-    cnstr_set_scalar<unsigned char>(e.raw(), flags_offset(k), d);
+    cnstr_set_scalar<unsigned>(e, hash_offset(k), hash);
+    cnstr_set_scalar<unsigned char>(e, flags_offset(k), d);
 }
 
 /* Set expr cached weight, depth and loose bvar range. We only store this information in recursive expr constructors.
    We provide the kind `k` to allow the compiler to compute offsets at compilation time. */
-template<expr_kind k> void set_rec_scalar(expr const & e, unsigned weight, unsigned depth, unsigned loose_bvar_range) {
-    lean_assert(e.kind() == k);
-    cnstr_set_scalar<unsigned>(e.raw(), weight_offset(k), weight);
-    cnstr_set_scalar<unsigned>(e.raw(), depth_offset(k), depth);
-    cnstr_set_scalar<unsigned>(e.raw(), loose_bvar_range_offset(k), loose_bvar_range);
+template<expr_kind k> void set_rec_scalar(object * e, unsigned weight, unsigned depth, unsigned loose_bvar_range) {
+    lean_assert(expr::kind(e) == k);
+    cnstr_set_scalar<unsigned>(e, weight_offset(k), weight);
+    cnstr_set_scalar<unsigned>(e, depth_offset(k), depth);
+    cnstr_set_scalar<unsigned>(e, loose_bvar_range_offset(k), loose_bvar_range);
 }
 
-template<expr_kind k> void set_binder_info(expr const & e, binder_info bi) {
-    lean_assert(e.kind() == k);
-    cnstr_set_scalar<unsigned char>(e.raw(), binder_info_offset(k), static_cast<unsigned char>(bi));
+template<expr_kind k> void set_binder_info(object * e, binder_info bi) {
+    lean_assert(expr::kind(e) == k);
+    cnstr_set_scalar<unsigned char>(e, binder_info_offset(k), static_cast<unsigned char>(bi));
 }
 
-/* Legacy support */
-unsigned hash(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), hash_offset(e.kind())); }
-static inline unsigned char get_flags(expr const & e) { return cnstr_get_scalar<unsigned char>(e.raw(), flags_offset(e.kind())); }
-bool has_expr_mvar(expr const & e) { return (get_flags(e) & 1) != 0; }
-bool has_univ_mvar(expr const & e) { return (get_flags(e) & 2) != 0; }
-bool has_fvar(expr const & e) { return (get_flags(e) & 4) != 0; }
-bool has_univ_param(expr const & e) { return (get_flags(e) & 8) != 0; }
+static inline unsigned char get_flags(object * e) { return cnstr_get_scalar<unsigned char>(e, flags_offset(expr::kind(e))); }
+static inline bool has_expr_mvar(object * e) { return (get_flags(e) & 1) != 0; }
+static inline bool has_univ_mvar(object * e) { return (get_flags(e) & 2) != 0; }
+static inline bool has_fvar(object * e) { return (get_flags(e) & 4) != 0; }
+static inline bool has_univ_param(object * e) { return (get_flags(e) & 8) != 0; }
+bool has_expr_mvar(expr const & e) { return has_expr_mvar(e.raw()); }
+bool has_univ_mvar(expr const & e) { return has_univ_mvar(e.raw()); }
+bool has_fvar(expr const & e) { return has_fvar(e.raw()); }
+bool has_univ_param(expr const & e) { return has_univ_param(e.raw()); }
 
-template<expr_kind k> unsigned get_weight_core(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), weight_offset(k)); }
+template<expr_kind k> unsigned get_weight_core(object * e) { return cnstr_get_scalar<unsigned>(e, weight_offset(k)); }
 
-unsigned get_weight(expr const & e) {
-    switch (e.kind()) {
+unsigned expr_get_weight(object * e) {
+    switch (expr::kind(e)) {
     case expr_kind::BVar:  case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::MVar:  case expr_kind::FVar:  case expr_kind::Lit:
         return 1;
@@ -203,10 +210,12 @@ unsigned get_weight(expr const & e) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-template<expr_kind k> unsigned get_depth_core(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), depth_offset(k)); }
+extern "C" object * lean_expr_get_weight(b_obj_arg e) { return mk_nat_obj(expr_get_weight(e)); }
 
-unsigned get_depth(expr const & e) {
-    switch (e.kind()) {
+template<expr_kind k> unsigned get_depth_core(object * e) { return cnstr_get_scalar<unsigned>(e, depth_offset(k)); }
+
+unsigned expr_get_depth(object * e) {
+    switch (expr::kind(e)) {
     case expr_kind::BVar:  case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::MVar:  case expr_kind::FVar:  case expr_kind::Lit:
         return 1;
@@ -220,16 +229,21 @@ unsigned get_depth(expr const & e) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-template<expr_kind k> unsigned get_loose_bvar_range_core(expr const & e) { return cnstr_get_scalar<unsigned>(e.raw(), loose_bvar_range_offset(k)); }
+extern "C" object * lean_expr_get_depth(b_obj_arg e) { return mk_nat_obj(expr_get_depth(e)); }
 
-unsigned get_loose_bvar_range(expr const & e) {
-    switch (e.kind()) {
+template<expr_kind k> unsigned get_loose_bvar_range_core(object * e) { return cnstr_get_scalar<unsigned>(e, loose_bvar_range_offset(k)); }
+
+unsigned expr_get_loose_bvar_range(object * e) {
+    switch (expr::kind(e)) {
     case expr_kind::Const: case expr_kind::Sort:
     case expr_kind::Lit:
         return 0;
     case expr_kind::BVar:    {
-        nat const & idx = bvar_idx(e);
-        return idx.is_small() ? safe_inc(idx.get_small_value()) : std::numeric_limits<unsigned>::max();
+        object * idx = cnstr_get(e, 0);
+        if (is_scalar(idx))
+            return safe_inc(unbox(idx));
+        else
+            return std::numeric_limits<unsigned>::max();
     }
     case expr_kind::MVar:    return get_loose_bvar_range_core<expr_kind::MVar>(e);
     case expr_kind::FVar:    return get_loose_bvar_range_core<expr_kind::FVar>(e);
@@ -242,6 +256,8 @@ unsigned get_loose_bvar_range(expr const & e) {
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
+
+extern "C" object * lean_expr_get_loose_bvar_range(b_obj_arg e) { return mk_nat_obj(expr_get_loose_bvar_range(e)); }
 
 bool is_atomic(expr const & e) {
     switch (e.kind()) {
@@ -286,85 +302,149 @@ expr const & lit_type(expr const & e) {
 static expr * g_dummy = nullptr;
 expr::expr():expr(*g_dummy) {}
 
+extern "C" object * lean_expr_mk_lit(obj_arg l) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Lit), 1, expr_scalar_size(expr_kind::Lit));
+    cnstr_set(r, 0, l);
+    set_scalar<expr_kind::Lit>(r, literal_hash(l), false, false, false, false);
+    return r;
+}
+
 expr mk_lit(literal const & l) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Lit), l, expr_scalar_size(expr_kind::Lit)));
-    set_scalar<expr_kind::Lit>(r, hash(l), false, false, false, false);
+    inc(l.raw());
+    return expr(lean_expr_mk_lit(l.raw()));
+}
+
+extern "C" object * lean_expr_mk_mdata(obj_arg m, obj_arg e) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::MData), 2, expr_scalar_size(expr_kind::MData));
+    cnstr_set(r, 0, m);
+    cnstr_set(r, 1, e);
+    unsigned w = safe_inc(expr_get_weight(e));
+    unsigned d = expr_get_depth(e) + 1;
+    unsigned h = hash(expr_hash(e), hash(w, d));
+    set_scalar<expr_kind::MData>(r, h, has_expr_mvar(e), has_univ_mvar(e), has_fvar(e), has_univ_param(e));
+    set_rec_scalar<expr_kind::MData>(r, w, d, expr_get_loose_bvar_range(e));
     return r;
 }
 
 expr mk_mdata(kvmap const & m, expr const & e) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::MData), m, e, rec_expr_scalar_size(expr_kind::MData)));
-    unsigned w = safe_inc(get_weight(e));
-    unsigned d = get_depth(e) + 1;
-    unsigned h = hash(hash(e), hash(w, d));
-    set_scalar<expr_kind::MData>(r, h, has_expr_mvar(e), has_univ_mvar(e), has_fvar(e), has_univ_param(e));
-    set_rec_scalar<expr_kind::MData>(r, w, d, get_loose_bvar_range(e));
+    inc(m.raw()); inc(e.raw());
+    return expr(lean_expr_mk_mdata(m.raw(), e.raw()));
+}
+
+extern "C" object * lean_expr_mk_proj(obj_arg s, obj_arg idx, obj_arg e) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Proj), 3, rec_expr_scalar_size(expr_kind::Proj));
+    cnstr_set(r, 0, s);
+    cnstr_set(r, 1, idx);
+    cnstr_set(r, 2, e);
+    unsigned w    = safe_inc(expr_get_weight(e));
+    unsigned d    = expr_get_depth(e) + 1;
+    unsigned h    = hash(expr_hash(e), hash(nat::hash(idx), w));
+    set_scalar<expr_kind::Proj>(r, h, has_expr_mvar(e), has_univ_mvar(e), has_fvar(e), has_univ_param(e));
+    set_rec_scalar<expr_kind::Proj>(r, w, d, expr_get_loose_bvar_range(e));
     return r;
 }
 
 expr mk_proj(name const & s, nat const & idx, expr const & e) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Proj), s, idx, e, rec_expr_scalar_size(expr_kind::Proj)));
-    unsigned w    = safe_inc(get_weight(e));
-    unsigned d    = get_depth(e) + 1;
-    unsigned h    = hash(hash(e), hash(idx.hash(), w));
-    set_scalar<expr_kind::Proj>(r, h, has_expr_mvar(e), has_univ_mvar(e), has_fvar(e), has_univ_param(e));
-    set_rec_scalar<expr_kind::Proj>(r, w, d, get_loose_bvar_range(e));
+    inc(s.raw()); inc(idx.raw()); inc(e.raw());
+    return expr(lean_expr_mk_proj(s.raw(), idx.raw(), e.raw()));
+}
+
+extern "C" object * lean_expr_mk_bvar(obj_arg idx) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::BVar), 1, expr_scalar_size(expr_kind::BVar));
+    cnstr_set(r, 0, idx);
+    set_scalar<expr_kind::BVar>(r, nat::hash(idx), false, false, false, false);
     return r;
 }
 
 expr mk_bvar(nat const & idx) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::BVar), idx, expr_scalar_size(expr_kind::BVar)));
-    set_scalar<expr_kind::BVar>(r, idx.hash(), false, false, false, false);
-    return r;
+    inc(idx.raw());
+    return expr(lean_expr_mk_bvar(idx.raw()));
 }
 
 /* Legacy */
-expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::FVar), n, pp_n, t, rec_expr_scalar_size(expr_kind::FVar)));
+static inline object * mk_local(obj_arg n, obj_arg pp_n, obj_arg t, binder_info bi) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::FVar), 3, rec_expr_scalar_size(expr_kind::FVar));
+    cnstr_set(r, 0, n);
+    cnstr_set(r, 1, pp_n);
+    cnstr_set(r, 2, t);
     set_binder_info<expr_kind::FVar>(r, bi);
-    set_scalar<expr_kind::FVar>(r, n.hash(), has_expr_mvar(t), has_univ_mvar(t), true, has_univ_param(t));
-    set_rec_scalar<expr_kind::FVar>(r, 1, 1, get_loose_bvar_range(t));
+    set_scalar<expr_kind::FVar>(r, name::hash(n), has_expr_mvar(t), has_univ_mvar(t), true, has_univ_param(t));
+    set_rec_scalar<expr_kind::FVar>(r, 1, 1, expr_get_loose_bvar_range(t));
     return r;
+}
+
+extern "C" object * lean_expr_mk_fvar(obj_arg n) {
+    inc(n);
+    inc(g_dummy->raw());
+    return mk_local(n, n, g_dummy->raw(), mk_binder_info());
+}
+
+expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi) {
+    inc(n.raw()); inc(pp_n.raw()); inc(t.raw());
+    return expr(mk_local(n.raw(), pp_n.raw(), t.raw(), bi));
 }
 
 expr mk_fvar(name const & n) {
     return mk_local(n, n, expr(), mk_binder_info());
 }
 
-expr mk_const(name const & n, levels const & ls) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Const), n, ls, expr_scalar_size(expr_kind::Const)));
-    set_scalar<expr_kind::Const>(r, hash(n.hash(), hash(ls)), false, has_mvar(ls), false, has_param(ls));
+extern "C" object * lean_expr_mk_const(obj_arg n, obj_arg ls) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Const), 2, expr_scalar_size(expr_kind::Const));
+    cnstr_set(r, 0, n);
+    cnstr_set(r, 1, ls);
+    set_scalar<expr_kind::Const>(r, hash(name::hash(n), levels_hash(ls)), false, levels_has_mvar(ls), false, levels_has_param(ls));
     return r;
 }
 
-expr mk_app(expr const & f, expr const & a) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::App), f, a, rec_expr_scalar_size(expr_kind::App)));
-    unsigned w    = safe_inc(safe_add(get_weight(f), get_weight(a)));
-    unsigned d    = std::max(get_depth(f), get_depth(a)) + 1;
-    unsigned h    = hash(hash(hash(f), hash(a)), hash(d, w));
+expr mk_const(name const & n, levels const & ls) {
+    inc(n.raw()); inc(ls.raw());
+    return expr(lean_expr_mk_const(n.raw(), ls.raw()));
+}
+
+extern "C" object * lean_expr_mk_app(obj_arg f, obj_arg a) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::App), 2, rec_expr_scalar_size(expr_kind::App));
+    cnstr_set(r, 0, f);
+    cnstr_set(r, 1, a);
+    unsigned w    = safe_inc(safe_add(expr_get_weight(f), expr_get_weight(a)));
+    unsigned d    = std::max(expr_get_depth(f), expr_get_depth(a)) + 1;
+    unsigned h    = hash(hash(expr_hash(f), expr_hash(a)), hash(d, w));
     set_scalar<expr_kind::App>(r, h,
                                has_expr_mvar(f) || has_expr_mvar(a),
                                has_univ_mvar(f) || has_univ_mvar(a),
                                has_fvar(f) || has_fvar(a),
                                has_univ_param(f) || has_univ_param(a));
-    set_rec_scalar<expr_kind::App>(r, w, d, std::max(get_loose_bvar_range(f), get_loose_bvar_range(a)));
+    set_rec_scalar<expr_kind::App>(r, w, d, std::max(expr_get_loose_bvar_range(f), expr_get_loose_bvar_range(a)));
+    return r;
+}
+
+expr mk_app(expr const & f, expr const & a) {
+    inc(f.raw()); inc(a.raw());
+    return expr(lean_expr_mk_app(f.raw(), a.raw()));
+}
+
+extern "C" object * lean_expr_mk_sort(obj_arg l) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Sort), 1, expr_scalar_size(expr_kind::Sort));
+    cnstr_set(r, 0, l);
+    set_scalar<expr_kind::Sort>(r, level::hash(l), false, level_has_mvar(l), false, level_has_param(l));
     return r;
 }
 
 expr mk_sort(level const & l) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Sort), l, expr_scalar_size(expr_kind::Sort)));
-    set_scalar<expr_kind::Sort>(r, hash(l), false, has_mvar(l), false, has_param(l));
-    return r;
+    inc(l.raw());
+    return expr(lean_expr_mk_sort(l.raw()));
 }
 
 template<expr_kind k>
-expr mk_binding(name const & n, expr const & t, expr const & e, binder_info bi) {
+static object * mk_binding(obj_arg n, obj_arg t, obj_arg e, binder_info bi) {
     lean_assert(k == expr_kind::Pi || k == expr_kind::Lambda);
-    expr r(mk_cnstr(static_cast<unsigned>(k), n, t, e, rec_expr_scalar_size(k)));
-    unsigned w    = safe_inc(safe_add(get_weight(t), get_weight(e)));
-    unsigned d    = std::max(get_depth(t), get_depth(e)) + 1;
-    unsigned h    = hash(hash(d, w), hash(hash(t), hash(e)));
-    unsigned lbvr = std::max(get_loose_bvar_range(t), safe_dec(get_loose_bvar_range(e)));
+    object * r = alloc_cnstr(static_cast<unsigned>(k), 3, rec_expr_scalar_size(k));
+    cnstr_set(r, 0, n);
+    cnstr_set(r, 1, t);
+    cnstr_set(r, 2, e);
+    unsigned w    = safe_inc(safe_add(expr_get_weight(t), expr_get_weight(e)));
+    unsigned d    = std::max(expr_get_depth(t), expr_get_depth(e)) + 1;
+    unsigned h    = hash(hash(d, w), hash(expr_hash(t), expr_hash(e)));
+    unsigned lbvr = std::max(expr_get_loose_bvar_range(t), safe_dec(expr_get_loose_bvar_range(e)));
     set_binder_info<k>(r, bi);
     set_scalar<k>(r, h,
                   has_expr_mvar(t)  || has_expr_mvar(e),
@@ -375,12 +455,22 @@ expr mk_binding(name const & n, expr const & t, expr const & e, binder_info bi) 
     return r;
 }
 
+extern "C" object * lean_expr_mk_lambda(obj_arg n, uint8 bi, obj_arg t, obj_arg e) {
+    return mk_binding<expr_kind::Lambda>(n, t, e, static_cast<binder_info>(bi));
+}
+
 expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info bi) {
-    return mk_binding<expr_kind::Lambda>(n, t, e, bi);
+    inc(n.raw()); inc(t.raw()); inc(e.raw());
+    return expr(mk_binding<expr_kind::Lambda>(n.raw(), t.raw(), e.raw(), bi));
+}
+
+extern "C" object * lean_expr_mk_pi(obj_arg n, uint8 bi, obj_arg t, obj_arg e) {
+    return mk_binding<expr_kind::Pi>(n, t, e, static_cast<binder_info>(bi));
 }
 
 expr mk_pi(name const & n, expr const & t, expr const & e, binder_info bi) {
-    return mk_binding<expr_kind::Pi>(n, t, e, bi);
+    inc(n.raw()); inc(t.raw()); inc(e.raw());
+    return expr(mk_binding<expr_kind::Pi>(n.raw(), t.raw(), e.raw(), bi));
 }
 
 static name * g_default_name = nullptr;
@@ -389,12 +479,16 @@ expr mk_arrow(expr const & t, expr const & e) {
     return mk_pi(*g_default_name, t, e, mk_binder_info());
 }
 
-expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::Let), n, t, v, b, rec_expr_scalar_size(expr_kind::Let)));
-    unsigned w    = safe_inc(safe_add(safe_add(get_weight(t), get_weight(v)), get_weight(b)));
-    unsigned d    = std::max(get_depth(t), std::max(get_depth(v), get_depth(b))) + 1;
-    unsigned h    = hash(hash(w, d), hash(hash(hash(t), hash(v)), hash(b)));
-    unsigned lbvr = std::max(get_loose_bvar_range(t), std::max(get_loose_bvar_range(v), safe_dec(get_loose_bvar_range(b))));
+extern "C" object * lean_expr_mk_let(object * n, object * t, object * v, object * b) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::Let), 4, rec_expr_scalar_size(expr_kind::Let));
+    cnstr_set(r, 0, n);
+    cnstr_set(r, 1, t);
+    cnstr_set(r, 2, v);
+    cnstr_set(r, 3, b);
+    unsigned w    = safe_inc(safe_add(safe_add(expr_get_weight(t), expr_get_weight(v)), expr_get_weight(b)));
+    unsigned d    = std::max(expr_get_depth(t), std::max(expr_get_depth(v), expr_get_depth(b))) + 1;
+    unsigned h    = hash(hash(w, d), hash(hash(expr_hash(t), expr_hash(v)), expr_hash(b)));
+    unsigned lbvr = std::max(expr_get_loose_bvar_range(t), std::max(expr_get_loose_bvar_range(v), safe_dec(expr_get_loose_bvar_range(b))));
     set_scalar<expr_kind::Let>(r, h,
                                has_expr_mvar(t)  || has_expr_mvar(v)  || has_expr_mvar(b),
                                has_univ_mvar(t)  || has_univ_mvar(v)  || has_univ_mvar(b),
@@ -404,11 +498,23 @@ expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
     return r;
 }
 
-expr mk_mvar(name const & n, expr const & t) {
-    expr r(mk_cnstr(static_cast<unsigned>(expr_kind::MVar), n, t, rec_expr_scalar_size(expr_kind::MVar)));
-    set_scalar<expr_kind::MVar>(r, n.hash(), true, has_univ_mvar(t), has_fvar(t), has_univ_param(t));
-    set_rec_scalar<expr_kind::MVar>(r, 1, 1, get_loose_bvar_range(t));
+expr mk_let(name const & n, expr const & t, expr const & v, expr const & b) {
+    inc(n.raw()); inc(t.raw()); inc(v.raw()); inc(b.raw());
+    return expr(lean_expr_mk_let(n.raw(), t.raw(), v.raw(), b.raw()));
+}
+
+extern "C" object * lean_expr_mk_mvar(object * n, object * t) {
+    object * r = alloc_cnstr(static_cast<unsigned>(expr_kind::MVar), 2, rec_expr_scalar_size(expr_kind::MVar));
+    cnstr_set(r, 0, n);
+    cnstr_set(r, 1, t);
+    set_scalar<expr_kind::MVar>(r, name::hash(n), true, has_univ_mvar(t), has_fvar(t), has_univ_param(t));
+    set_rec_scalar<expr_kind::MVar>(r, 1, 1, expr_get_loose_bvar_range(t));
     return r;
+}
+
+expr mk_mvar(name const & n, expr const & t) {
+    inc(n.raw()); inc(t.raw());
+    return expr(lean_expr_mk_mvar(n.raw(), t.raw()));
 }
 
 static expr * g_Prop  = nullptr;

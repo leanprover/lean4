@@ -57,7 +57,8 @@ public:
     literal & operator=(literal const & other) { object_ref::operator=(other); return *this; }
     literal & operator=(literal && other) { object_ref::operator=(other); return *this; }
 
-    literal_kind kind() const { return static_cast<literal_kind>(cnstr_tag(raw())); }
+    static literal_kind kind(object * o) { return static_cast<literal_kind>(cnstr_tag(o)); }
+    literal_kind kind() const { return kind(raw()); }
     string_ref const & get_string() const { lean_assert(kind() == literal_kind::String); return static_cast<string_ref const &>(cnstr_get_ref(*this, 0)); }
     nat const & get_nat() const { lean_assert(kind() == literal_kind::Nat); return static_cast<nat const &>(cnstr_get_ref(*this, 0)); }
     friend bool operator==(literal const & a, literal const & b);
@@ -91,6 +92,7 @@ inductive expr
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
     explicit expr(b_obj_arg o, bool b):object_ref(o, b) {}
+    explicit expr(b_obj_arg o):object_ref(o) {}
     explicit expr(object_ref && o):object_ref(o) {}
 
     friend expr mk_lit(literal const & lit);
@@ -101,7 +103,8 @@ class expr : public object_ref {
     friend expr mk_const(name const & n, levels const & ls);
     friend expr mk_app(expr const & f, expr const & a);
     friend expr mk_sort(level const & l);
-    template<expr_kind k> friend expr mk_binding(name const & n, expr const & t, expr const & e, binder_info bi);
+    friend expr mk_lambda(name const & n, expr const & t, expr const & e, binder_info bi);
+    friend expr mk_pi(name const & n, expr const & t, expr const & e, binder_info bi);
     friend expr mk_let(name const & n, expr const & t, expr const & v, expr const & b);
     /* legacy constructors */
     friend expr mk_local(name const & n, name const & pp_n, expr const & t, binder_info bi);
@@ -109,7 +112,8 @@ public:
     expr();
     expr(expr const & other):object_ref(other) {}
     expr(expr && other):object_ref(other) {}
-    expr_kind kind() const { return static_cast<expr_kind>(cnstr_tag(raw())); }
+    static expr_kind kind(object * o) { return static_cast<expr_kind>(cnstr_tag(o)); }
+    expr_kind kind() const { return kind(raw()); }
 
     expr & operator=(expr const & other) { object_ref::operator=(other); return *this; }
     expr & operator=(expr && other) { object_ref::operator=(other); return *this; }
@@ -142,9 +146,12 @@ bool has_univ_mvar(expr const & e);
 inline bool has_mvar(expr const & e) { return has_expr_mvar(e) || has_univ_mvar(e); }
 bool has_fvar(expr const & e);
 bool has_univ_param(expr const & e);
-unsigned get_weight(expr const & e);
-unsigned get_depth(expr const & e);
-unsigned get_loose_bvar_range(expr const & e);
+unsigned expr_get_weight(object * e);
+inline unsigned get_weight(expr const & e) { return expr_get_weight(e.raw()); }
+unsigned expr_get_depth(object * e);
+inline unsigned get_depth(expr const & e) { return expr_get_depth(e.raw()); }
+unsigned expr_get_loose_bvar_range(object * e);
+inline unsigned get_loose_bvar_range(expr const & e) { return expr_get_loose_bvar_range(e.raw()); }
 
 struct expr_hash { unsigned operator()(expr const & e) const { return hash(e); } };
 struct expr_pair_hash {

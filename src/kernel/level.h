@@ -46,7 +46,8 @@ public:
     level(level const & other):object_ref(other) {}
     level(level && other):object_ref(other) {}
     level_kind kind() const { return static_cast<level_kind>(obj_tag(raw())); }
-    unsigned hash() const;
+    static unsigned hash(b_obj_arg l);
+    unsigned hash() const { return hash(raw()); }
 
     level & operator=(level const & other) { object_ref::operator=(other); return *this; }
     level & operator=(level && other) { object_ref::operator=(other); return *this; }
@@ -128,8 +129,10 @@ bool is_explicit(level const & l);
 unsigned to_explicit(level const & l);
 /** \brief Return true iff \c l contains placeholder (aka meta parameters). */
 bool has_mvar(level const & l);
+bool level_has_mvar(b_obj_arg l);
 /** \brief Return true iff \c l contains parameters */
 bool has_param(level const & l);
+bool level_has_param(b_obj_arg l);
 
 /** \brief Return a new level expression based on <tt>l == succ(arg)</tt>, where \c arg is replaced with
     \c new_arg.
@@ -155,7 +158,9 @@ bool is_geq_core(level l1, level l2);
 
 bool is_geq(level const & l1, level const & l2);
 
+bool levels_has_mvar(object * ls);
 bool has_mvar(levels const & ls);
+bool levels_has_param(object * ls);
 bool has_param(levels const & ls);
 
 /** \brief An arbitrary (monotonic) total order on universe level terms. */

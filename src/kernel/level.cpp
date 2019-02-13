@@ -35,7 +35,7 @@ inline static bool get_has_mvar(object * lvl, unsigned num_objs) { return cnstr_
 
 static inline level_kind get_level_kind(obj_arg l) { return static_cast<level_kind>(obj_tag(l)); }
 
-unsigned level_hash(b_obj_arg l) {
+unsigned level::hash(b_obj_arg l) {
     switch (get_level_kind(l)) {
     case level_kind::Zero:
         return 31;
@@ -49,6 +49,8 @@ unsigned level_hash(b_obj_arg l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
+extern "C" size_t lean_level_hash(b_obj_arg l) { return level::hash(l); }
+
 unsigned level_depth(b_obj_arg l) {
     switch (get_level_kind(l)) {
     case level_kind::Zero: case level_kind::Param: case level_kind::MVar:
@@ -60,6 +62,8 @@ unsigned level_depth(b_obj_arg l) {
     }
     lean_unreachable(); // LCOV_EXCL_LINE
 }
+
+extern "C" object * lean_level_depth(b_obj_arg l) { return mk_nat_obj(level_depth(l)); }
 
 bool level_has_param(b_obj_arg l) {
     switch (get_level_kind(l)) {
@@ -92,7 +96,7 @@ bool level_has_mvar(b_obj_arg l) {
 extern "C" object * level_mk_succ(obj_arg l) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Succ), 1, g_level_num_scalars);
     cnstr_set(r, 0, l);
-    set_level_scalar_fields(r, 1, hash(level_hash(l), 17u), level_depth(l)+1, level_has_param(l), level_has_mvar(l));
+    set_level_scalar_fields(r, 1, hash(level::hash(l), 17u), level_depth(l)+1, level_has_param(l), level_has_mvar(l));
     return r;
 }
 
@@ -101,7 +105,7 @@ template<level_kind k> object * level_mk_max_imax(obj_arg l1, obj_arg l2) {
     cnstr_set(r, 0, l1);
     cnstr_set(r, 1, l2);
     set_level_scalar_fields(r, 2,
-                            hash(level_hash(l1), level_hash(l2)),
+                            hash(level::hash(l1), level::hash(l2)),
                             std::max(level_depth(l1), level_depth(l2)) + 1,
                             level_has_param(l1) || level_has_param(l2),
                             level_has_mvar(l1) || level_has_mvar(l2));
@@ -153,7 +157,6 @@ level mk_univ_mvar(name const & n) {
     return level(level_mk_mvar(n.raw()));
 }
 
-unsigned level::hash() const { return level_hash(raw()); }
 unsigned get_depth(level const & l) { return level_depth(l.raw()); }
 bool has_param(level const & l) { return level_has_param(l.raw()); }
 bool has_mvar(level const & l) { return level_has_mvar(l.raw()); }
@@ -309,8 +312,24 @@ bool is_lt(levels const & as, levels const & bs, bool use_hash) {
         return is_lt(car(as), car(bs), use_hash);
 }
 
-bool has_param(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_param(l); }); }
-bool has_mvar(levels const & ls) { return std::any_of(ls.begin(), ls.end(), [](level const & l) { return has_mvar(l); }); }
+bool levels_has_param(b_obj_arg ls) {
+    while (!is_scalar(ls)) {
+        if (level_has_param(cnstr_get(ls, 0))) return true;
+        ls = cnstr_get(ls, 1);
+    }
+    return false;
+}
+
+bool levels_has_mvar(b_obj_arg ls) {
+    while (!is_scalar(ls)) {
+        if (level_has_mvar(cnstr_get(ls, 0))) return true;
+        ls = cnstr_get(ls, 1);
+    }
+    return false;
+}
+
+bool has_param(levels const & ls) { return levels_has_param(ls.raw()); }
+bool has_mvar(levels const & ls) { return levels_has_mvar(ls.raw()); }
 
 void for_each_level_fn::apply(level const & l) {
     if (!m_f(l))

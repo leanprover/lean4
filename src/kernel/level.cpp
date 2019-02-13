@@ -89,7 +89,7 @@ bool level_has_mvar(b_obj_arg l) {
     lean_unreachable(); // LCOV_EXCL_LINE
 }
 
-object * level_mk_succ(obj_arg l) {
+extern "C" object * level_mk_succ(obj_arg l) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Succ), 1, g_level_num_scalars);
     cnstr_set(r, 0, l);
     set_level_scalar_fields(r, 1, hash(level_hash(l), 17u), level_depth(l)+1, level_has_param(l), level_has_mvar(l));
@@ -108,21 +108,21 @@ template<level_kind k> object * level_mk_max_imax(obj_arg l1, obj_arg l2) {
     return r;
 }
 
-object * level_mk_max(obj_arg l1, obj_arg l2) {
+extern "C" object * level_mk_max(obj_arg l1, obj_arg l2) {
     return level_mk_max_imax<level_kind::Max>(l1, l2);
 }
 
-object * level_mk_imax(obj_arg l1, obj_arg l2) {
+extern "C" object * level_mk_imax(obj_arg l1, obj_arg l2) {
     return level_mk_max_imax<level_kind::IMax>(l1, l2);
 }
 
-object * level_mk_univ_param(obj_arg n) {
+extern "C" object * level_mk_param(obj_arg n) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::Param), 1, 0);
     cnstr_set(r, 0, n);
     return r;
 }
 
-object * level_mk_univ_mvar(obj_arg n) {
+extern "C" object * level_mk_mvar(obj_arg n) {
     object * r = alloc_cnstr(static_cast<unsigned>(level_kind::MVar), 1, 0);
     cnstr_set(r, 0, n);
     return r;
@@ -145,12 +145,12 @@ level mk_imax_core(level const & l1, level const & l2) {
 
 level mk_univ_param(name const & n) {
     inc(n.raw());
-    return level(level_mk_univ_param(n.raw()));
+    return level(level_mk_param(n.raw()));
 }
 
 level mk_univ_mvar(name const & n) {
     inc(n.raw());
-    return level(level_mk_univ_mvar(n.raw()));
+    return level(level_mk_mvar(n.raw()));
 }
 
 unsigned level::hash() const { return level_hash(raw()); }

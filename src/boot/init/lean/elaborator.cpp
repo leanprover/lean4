@@ -259,6 +259,7 @@ obj* l_lean_parser_syntax_get__pos(obj*);
 obj* l_list_foldl___main___at_lean_elaborator_elaborators___spec__5(obj*, obj*);
 obj* l_lean_elaborator_mk__notation__kind(obj*);
 obj* l_lean_elaborator_locally___at_lean_elaborator_declaration_elaborate___spec__14___closed__7;
+extern "C" obj* level_mk_imax(obj*, obj*);
 obj* l_lean_environment_mk__empty___boxed(obj*);
 obj* l_lean_elaborator_attribute_elaborate___closed__2;
 obj* l_lean_elaborator_locally___at_lean_elaborator_declaration_elaborate___spec__14___closed__6;
@@ -338,6 +339,7 @@ extern obj* l_lean_parser_command_attribute;
 extern obj* l_lean_parser_term_let_has__view;
 obj* l_list_mmap___main___at_lean_elaborator_command__parser__config_register__notation__parser___spec__2___closed__3;
 obj* l_lean_elaborator_elaborator__m__coe__coelaborator__m___rarg(obj*, obj*, obj*, obj*);
+extern "C" obj* level_mk_succ(obj*);
 obj* l_list_foldr___main___at_lean_elaborator_to__level___main___spec__2(obj*, obj*);
 obj* l_list_foldr___main___at_lean_elaborator_to__pexpr___main___spec__15(obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__14;
@@ -479,6 +481,7 @@ extern obj* l_lean_parser_command_section;
 obj* l_list_mfilter___main___at_lean_elaborator_variables_elaborate___spec__4(obj*, obj*, obj*);
 obj* l_reader__t_lift(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_to__pexpr___main___closed__21;
+extern "C" obj* level_mk_max(obj*, obj*);
 obj* l_lean_elaborator_locally___at_lean_elaborator_section_elaborate___spec__2___lambda__4(obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_term_struct__inst__item_has__view;
 obj* l_lean_elaborator_yield__to__outside___rarg___lambda__2(obj*);
@@ -550,6 +553,7 @@ obj* l_lean_elaborator_level__add___main(obj*, obj*);
 obj* l_lean_elaborator_elaborate__command___boxed(obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg(obj*);
 obj* l_lean_expr_mk__capp(obj*, obj*);
+extern "C" obj* level_mk_mvar(obj*);
 obj* l_list_foldr___main___at_lean_elaborator_to__level___main___spec__4(obj*, obj*);
 obj* l_lean_elaborator_commands_elaborate___main___lambda__2(uint8, obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_to__pexpr___main(obj*, obj*, obj*);
@@ -608,6 +612,7 @@ obj* l_lean_elaborator_old__elab__command(obj*, obj*, obj*, obj*);
 obj* l_list_map___main___at_lean_elaborator_declaration_elaborate___spec__13(obj*);
 obj* l_option_to__monad___main___at_lean_elaborator_command__parser__config_register__notation__parser___spec__1(obj*);
 obj* l_lean_file__map_to__position(obj*, obj*);
+extern "C" obj* level_mk_param(obj*);
 obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_state__t_lift___rarg(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_elaborator_elaborate_command(obj*, obj*, obj*);
@@ -2335,8 +2340,7 @@ x_6 = lean::nat_sub(x_1, x_5);
 lean::dec(x_5);
 lean::dec(x_1);
 x_9 = l_lean_elaborator_level__add___main(x_0, x_6);
-x_10 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_10, 0, x_9);
+x_10 = level_mk_succ(x_9);
 return x_10;
 }
 else
@@ -2507,9 +2511,7 @@ x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
 x_8 = l_list_foldr___main___at_lean_elaborator_to__level___main___spec__2(x_0, x_5);
-x_9 = lean::alloc_cnstr(2, 2, 0);
-lean::cnstr_set(x_9, 0, x_3);
-lean::cnstr_set(x_9, 1, x_8);
+x_9 = level_mk_max(x_3, x_8);
 return x_9;
 }
 }
@@ -2667,9 +2669,7 @@ x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
 x_8 = l_list_foldr___main___at_lean_elaborator_to__level___main___spec__4(x_0, x_5);
-x_9 = lean::alloc_cnstr(3, 2, 0);
-lean::cnstr_set(x_9, 0, x_3);
-lean::cnstr_set(x_9, 1, x_8);
+x_9 = level_mk_imax(x_3, x_8);
 return x_9;
 }
 }
@@ -2714,8 +2714,7 @@ _start:
 {
 obj* x_0; obj* x_1; 
 x_0 = lean::box(0);
-x_1 = lean::alloc_cnstr(5, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
+x_1 = level_mk_mvar(x_0);
 return x_1;
 }
 }
@@ -3282,8 +3281,7 @@ obj* x_276; obj* x_277; obj* x_278;
 lean::dec(x_259);
 lean::dec(x_1);
 lean::dec(x_0);
-x_276 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_276, 0, x_252);
+x_276 = level_mk_param(x_252);
 if (lean::is_scalar(x_19)) {
  x_277 = lean::alloc_cnstr(0, 2, 0);
 } else {
@@ -7929,8 +7927,7 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::box(0);
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
+x_1 = level_mk_succ(x_0);
 x_2 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
@@ -11148,8 +11145,7 @@ if (lean::is_shared(x_1573)) {
  lean::cnstr_release(x_1573, 1);
  x_1580 = x_1573;
 }
-x_1581 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1581, 0, x_1576);
+x_1581 = level_mk_succ(x_1576);
 x_1582 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_1582, 0, x_1581);
 if (lean::is_scalar(x_1580)) {
@@ -14499,8 +14495,7 @@ if (lean::is_shared(x_0)) {
  x_7 = x_0;
 }
 x_8 = l_lean_elaborator_mangle__ident(x_3);
-x_9 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_9, 0, x_8);
+x_9 = level_mk_param(x_8);
 x_10 = l_list_map___main___at_lean_elaborator_ident__univ__params__to__pexpr___spec__1(x_5);
 if (lean::is_scalar(x_7)) {
  x_11 = lean::alloc_cnstr(1, 2, 0);
@@ -15374,8 +15369,7 @@ x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
 lean::inc(x_3);
-x_9 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_9, 0, x_3);
+x_9 = level_mk_param(x_3);
 x_10 = l_lean_elaborator_ordered__rbmap_insert___at_lean_elaborator_elab__def__like___spec__4(x_0, x_3, x_9);
 x_0 = x_10;
 x_1 = x_5;
@@ -16597,8 +16591,7 @@ x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
 lean::inc(x_3);
-x_9 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_9, 0, x_3);
+x_9 = level_mk_param(x_3);
 x_10 = l_lean_elaborator_ordered__rbmap_insert___at_lean_elaborator_elab__def__like___spec__4(x_0, x_3, x_9);
 x_0 = x_10;
 x_1 = x_5;
@@ -17240,8 +17233,7 @@ x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
 lean::inc(x_3);
-x_9 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_9, 0, x_3);
+x_9 = level_mk_param(x_3);
 x_10 = l_lean_elaborator_ordered__rbmap_insert___at_lean_elaborator_elab__def__like___spec__4(x_0, x_3, x_9);
 x_0 = x_10;
 x_1 = x_5;
@@ -23551,8 +23543,7 @@ lean::inc(x_28);
 x_30 = lean::cnstr_get(x_12, 0);
 lean::inc(x_30);
 lean::inc(x_11);
-x_33 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_33, 0, x_11);
+x_33 = level_mk_param(x_11);
 x_34 = l_lean_elaborator_ordered__rbmap_insert___at_lean_elaborator_elab__def__like___spec__4(x_14, x_11, x_33);
 x_35 = lean::cnstr_get(x_12, 2);
 lean::inc(x_35);

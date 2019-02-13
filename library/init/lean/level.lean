@@ -16,6 +16,12 @@ inductive level
 | param  : name → level
 | mvar   : name → level
 
+attribute [extern "level_mk_succ"]  level.succ
+attribute [extern "level_mk_max"]   level.max
+attribute [extern "level_mk_imax"]  level.imax
+attribute [extern "level_mk_param"] level.param
+attribute [extern "level_mk_mvar"]  level.mvar
+
 instance level_is_inhabited : inhabited level :=
 ⟨level.zero⟩
 

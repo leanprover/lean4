@@ -63,22 +63,22 @@ iterate a $ λ r, do
   | except.ok (sum.inr r) := pure (sum.inr (except.ok r))
   | except.error e        := pure (sum.inr (except.error e))
 
-@[extern 2 cpp "lean::io_prim_put_str"]
+@[extern 2 "lean_io_prim_put_str"]
 constant put_str (s: @& string) : eio unit
-@[extern 1 cpp "lean::io_prim_get_line"]
+@[extern 1 "lean_io_prim_get_line"]
 constant get_line : eio string
-@[extern 4 cpp "lean::io_prim_handle_mk"]
+@[extern 4 "lean_io_prim_handle_mk"]
 constant handle.mk (s : @& string) (m : mode) (bin : bool := ff) : eio handle
-@[extern 2 cpp "lean::io_prim_handle_is_eof"]
+@[extern 2 "lean_io_prim_handle_is_eof"]
 constant handle.is_eof (h : @& handle) : eio bool
-@[extern 2 cpp "lean::io_prim_handle_flush"]
+@[extern 2 "lean_io_prim_handle_flush"]
 constant handle.flush (h : @& handle) : eio unit
-@[extern 2 cpp "lean::io_prim_handle_close"]
+@[extern 2 "lean_io_prim_handle_close"]
 constant handle.close (h : @& handle) : eio unit
 -- TODO: replace `string` with byte buffer
 -- constant handle.read : handle → nat → eio string
 -- constant handle.write : handle → string → eio unit
-@[extern 2 cpp "lean::io_prim_handle_get_line"]
+@[extern 2 "lean_io_prim_handle_get_line"]
 constant handle.get_line (h : @& handle) : eio string
 
 def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]

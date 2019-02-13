@@ -39,9 +39,7 @@ obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier__
 obj* l_lean_parser_monad__parsec_labels___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_ch___at_lean_parser_identifier___spec__11___rarg(obj*, obj*, uint32);
 obj* l_lean_parser_cpp__identifier___rarg(obj*, obj*, obj*);
-namespace lean {
-obj* name_mk_string(obj*, obj*);
-}
+extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_c__identifier___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_identifier___spec__18(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at_lean_parser_id__part__default___spec__4___rarg(obj*, obj*, obj*);
@@ -2256,7 +2254,7 @@ obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier__
 _start:
 {
 obj* x_6; obj* x_7; 
-x_6 = lean::name_mk_string(x_0, x_5);
+x_6 = lean_name_mk_string(x_0, x_5);
 x_7 = l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier___spec__5___rarg(x_1, x_2, x_3, x_6, x_4);
 return x_7;
 }
@@ -2276,7 +2274,7 @@ _start:
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
 x_4 = lean::box(0);
-x_5 = lean::name_mk_string(x_4, x_3);
+x_5 = lean_name_mk_string(x_4, x_3);
 x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_1, 0);
@@ -2529,7 +2527,7 @@ obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier__
 _start:
 {
 obj* x_6; obj* x_7; 
-x_6 = lean::name_mk_string(x_0, x_5);
+x_6 = lean_name_mk_string(x_0, x_5);
 x_7 = l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier___spec__10___rarg(x_1, x_2, x_3, x_6, x_4);
 return x_7;
 }
@@ -2549,7 +2547,7 @@ _start:
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
 x_4 = lean::box(0);
-x_5 = lean::name_mk_string(x_4, x_3);
+x_5 = lean_name_mk_string(x_4, x_3);
 x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_1, 0);
@@ -2803,7 +2801,7 @@ obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier__
 _start:
 {
 obj* x_6; obj* x_7; 
-x_6 = lean::name_mk_string(x_0, x_5);
+x_6 = lean_name_mk_string(x_0, x_5);
 x_7 = l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier___spec__15___rarg(x_1, x_2, x_3, x_6, x_4);
 return x_7;
 }
@@ -2823,7 +2821,7 @@ _start:
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
 x_4 = lean::box(0);
-x_5 = lean::name_mk_string(x_4, x_3);
+x_5 = lean_name_mk_string(x_4, x_3);
 x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_1, 0);
@@ -3077,7 +3075,7 @@ obj* l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier__
 _start:
 {
 obj* x_6; obj* x_7; 
-x_6 = lean::name_mk_string(x_0, x_5);
+x_6 = lean_name_mk_string(x_0, x_5);
 x_7 = l_lean_parser_monad__parsec_foldl__aux___main___at_lean_parser_identifier___spec__20___rarg(x_1, x_2, x_3, x_6, x_4);
 return x_7;
 }
@@ -3097,7 +3095,7 @@ _start:
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
 x_4 = lean::box(0);
-x_5 = lean::name_mk_string(x_4, x_3);
+x_5 = lean_name_mk_string(x_4, x_3);
 x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_1, 0);

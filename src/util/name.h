@@ -45,6 +45,18 @@ enum class name_kind { ANONYMOUS, STRING, NUMERAL };
 class name : public object_ref {
 public:
     /* Low level primitives */
+    static unsigned hash(b_obj_arg n) {
+        if (lean::is_scalar(n)) return 11;
+        else return lean::cnstr_get_scalar<unsigned>(n, sizeof(void*)*2);
+    }
+    static bool eq_core(b_obj_arg n1, b_obj_arg n2);
+    static bool eq(b_obj_arg n1, b_obj_arg n2) {
+        if (n1 == n2)
+            return true;
+        if (is_scalar(n1) != is_scalar(n2) || name::hash(n1) != name::hash(n2))
+            return false;
+        return eq_core(n1, n2);
+    }
     static name_kind kind(object * o) { return static_cast<name_kind>(obj_tag(o)); }
     static bool is_anonymous(object * o) { return is_scalar(o); }
     static object * get_prefix(object * o) { return cnstr_get(o, 0); }
@@ -91,10 +103,10 @@ public:
     static name mk_internal_unique_name();
     name & operator=(name const & other) { object_ref::operator=(other); return *this; }
     name & operator=(name && other) { object_ref::operator=(other); return *this; }
-    unsigned hash() const { return name_hash(raw()); }
+    unsigned hash() const { return hash(raw()); }
     /** \brief Return true iff \c n1 is a prefix of \c n2. */
     friend bool is_prefix_of(name const & n1, name const & n2);
-    friend bool operator==(name const & a, name const & b) { return name_eq(a.raw(), b.raw()); }
+    friend bool operator==(name const & a, name const & b) { return name::eq(a.raw(), b.raw()); }
     friend bool operator!=(name const & a, name const & b) { return !(a == b); }
     friend bool operator==(name const & a, char const * b);
     friend bool operator!=(name const & a, char const * b) { return !(a == b); }

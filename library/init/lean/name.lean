@@ -13,8 +13,8 @@ inductive name
 | mk_string  : name → string → name
 | mk_numeral : name → nat → name
 
-attribute [extern cpp "lean::name_mk_string"] name.mk_string
-attribute [extern cpp "lean::name_mk_numeral"] name.mk_numeral
+attribute [extern "lean_name_mk_string"] name.mk_string
+attribute [extern "lean_name_mk_numeral"] name.mk_numeral
 
 instance : inhabited name :=
 ⟨name.anonymous⟩
@@ -38,7 +38,7 @@ private def hash_aux : name → usize → usize
 | (mk_numeral n k) r := hash_aux n (mix_hash r (hash k))
 
 -- TODO: mark as opaque
-@[extern cpp "lean::name_hash_usize"]
+@[extern "lean_name_hash_usize"]
 protected def hash (n : @& name) : usize :=
 hash_aux n 11
 
@@ -64,7 +64,7 @@ def components' : name -> list name
 def components (n : name) : list name :=
 n.components'.reverse
 
-@[extern cpp "lean::name_dec_eq"]
+@[extern "lean_name_dec_eq"]
 protected def dec_eq : Π (a b : @& name), decidable (a = b)
 | anonymous          anonymous          := is_true rfl
 | (mk_string p₁ s₁)  (mk_string p₂ s₂)  :=

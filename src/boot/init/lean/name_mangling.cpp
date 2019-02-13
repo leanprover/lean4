@@ -38,9 +38,7 @@ obj* nat_mod(obj*, obj*);
 obj* l___private_init_lean_name__mangling_1__string_mangle__aux___main(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_num___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__2(obj*);
 extern obj* l_lean_parser_monad__parsec_eoi___rarg___lambda__1___closed__1;
-namespace lean {
-obj* name_mk_string(obj*, obj*);
-}
+extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_lean_parser_monad__parsec_take__while__cont___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__16(obj*, obj*);
 uint8 l_char_is__digit(uint32);
 obj* l_lean_parser_parsec__t_labels__mk__res___rarg(obj*, obj*);
@@ -122,9 +120,7 @@ obj* string_mk_iterator(obj*);
 obj* l___private_init_lean_name__mangling_4__name_mangle__aux___main___closed__2;
 obj* l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_take__while__cont___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__4(uint32, obj*);
-namespace lean {
-obj* name_mk_numeral(obj*, obj*);
-}
+extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_nat_repr(obj*);
 obj* l_lean_parser_monad__parsec_take__while__cont___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__4___boxed(obj*, obj*);
 extern obj* l_lean_parser_parsec__t_monad__fail___rarg___closed__1;
@@ -5316,7 +5312,7 @@ x_136 = lean::cnstr_get(x_116, 0);
 lean::inc(x_136);
 lean::dec(x_116);
 lean::inc(x_1);
-x_140 = lean::name_mk_string(x_1, x_136);
+x_140 = lean_name_mk_string(x_1, x_136);
 lean::inc(x_6);
 x_142 = l___private_init_lean_name__mangling_5__parse__mangled__name__aux___main(x_6, x_140, x_118);
 x_143 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_120, x_142);
@@ -5608,7 +5604,7 @@ lean::inc(x_252);
 x_254 = lean::cnstr_get(x_251, 2);
 lean::inc(x_254);
 lean::dec(x_251);
-x_257 = lean::name_mk_numeral(x_1, x_244);
+x_257 = lean_name_mk_numeral(x_1, x_244);
 x_258 = l___private_init_lean_name__mangling_5__parse__mangled__name__aux___main(x_6, x_257, x_252);
 x_259 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_254, x_258);
 x_260 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_248, x_259);

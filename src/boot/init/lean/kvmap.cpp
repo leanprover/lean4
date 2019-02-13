@@ -27,9 +27,7 @@ uint8 l_option_is__some___main___rarg(obj*);
 obj* l_lean_kvmap_contains___boxed(obj*, obj*);
 obj* l_lean_kvmap_insert(obj*, obj*, obj*);
 obj* l_lean_kvmap_find___main(obj*, obj*);
-namespace lean {
-uint8 name_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_lean_kvmap_find(obj*, obj*);
 obj* l_lean_kvmap_get__name(obj*, obj*);
 obj* l_lean_kvmap_insert__core___main(obj*, obj*, obj*);
@@ -61,7 +59,7 @@ lean::inc(x_10);
 x_12 = lean::cnstr_get(x_5, 1);
 lean::inc(x_12);
 lean::dec(x_5);
-x_15 = lean::name_dec_eq(x_10, x_1);
+x_15 = lean_name_dec_eq(x_10, x_1);
 lean::dec(x_10);
 if (x_15 == 0)
 {
@@ -136,7 +134,7 @@ if (lean::is_shared(x_0)) {
 }
 x_10 = lean::cnstr_get(x_5, 0);
 lean::inc(x_10);
-x_12 = lean::name_dec_eq(x_10, x_1);
+x_12 = lean_name_dec_eq(x_10, x_1);
 if (x_12 == 0)
 {
 obj* x_14; obj* x_15; 

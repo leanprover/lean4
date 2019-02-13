@@ -27,9 +27,7 @@ obj* l_lean_ir_arg_replace__vars(obj*, obj*);
 obj* l_d__hashmap_find___at_lean_ir_merge___spec__4(obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_ir_group__vars___main___spec__1(obj*, obj*, obj*);
 obj* l_lean_ir_elim__phi__aux(obj*, obj*);
-namespace lean {
-usize name_hash_usize(obj*);
-}
+extern "C" usize lean_name_hash_usize(obj*);
 obj* l_lean_ir_instr_replace__vars(obj*, obj*);
 obj* l_list_mmap___main___at_lean_ir_instr_replace__vars___main___spec__1(obj*, obj*);
 obj* l_list_mmap___main___at_lean_ir_instr_replace__vars___main___spec__2(obj*, obj*);
@@ -63,9 +61,7 @@ obj* l_lean_ir_block_replace__vars(obj*, obj*);
 obj* l_hashmap__imp_insert___at_lean_ir_merge___spec__8___closed__1;
 obj* l_d__hashmap_insert___at_lean_ir_merge___spec__7(obj*, obj*, obj*);
 obj* l_lean_disjoint__set_merge___main___at_lean_ir_merge___spec__1(obj*, obj*, obj*);
-namespace lean {
-uint8 name_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_lean_ir_merge(obj*, obj*, obj*);
 obj* l_lean_ir_group__vars(obj*, obj*);
 obj* l_array_uwrite___rarg(obj*, usize, obj*, obj*);
@@ -184,7 +180,7 @@ lean::inc(x_10);
 x_12 = lean::cnstr_get(x_5, 1);
 lean::inc(x_12);
 lean::dec(x_5);
-x_15 = lean::name_dec_eq(x_10, x_0);
+x_15 = lean_name_dec_eq(x_10, x_0);
 lean::dec(x_10);
 if (x_15 == 0)
 {
@@ -213,7 +209,7 @@ lean::inc(x_2);
 lean::dec(x_0);
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
-x_7 = lean::name_hash_usize(x_1);
+x_7 = lean_name_hash_usize(x_1);
 x_8 = lean::usize_modn(x_7, x_5);
 lean::dec(x_5);
 x_10 = l_array_uread___rarg(x_2, x_8, lean::box(0));
@@ -261,7 +257,7 @@ lean::inc(x_13);
 lean::dec(x_7);
 x_16 = lean::cnstr_get(x_13, 0);
 lean::inc(x_16);
-x_18 = lean::name_dec_eq(x_16, x_1);
+x_18 = lean_name_dec_eq(x_16, x_1);
 lean::dec(x_1);
 if (x_18 == 0)
 {
@@ -320,7 +316,7 @@ lean::inc(x_10);
 x_12 = lean::cnstr_get(x_5, 1);
 lean::inc(x_12);
 lean::dec(x_5);
-x_15 = lean::name_dec_eq(x_10, x_0);
+x_15 = lean_name_dec_eq(x_10, x_0);
 lean::dec(x_10);
 if (x_15 == 0)
 {
@@ -375,7 +371,7 @@ if (lean::is_shared(x_2)) {
 }
 x_10 = lean::cnstr_get(x_5, 0);
 lean::inc(x_10);
-x_12 = lean::name_dec_eq(x_10, x_0);
+x_12 = lean_name_dec_eq(x_10, x_0);
 lean::dec(x_10);
 if (x_12 == 0)
 {
@@ -437,7 +433,7 @@ if (lean::is_shared(x_0)) {
 }
 x_8 = lean::cnstr_get(x_5, 0);
 lean::inc(x_8);
-x_10 = lean::name_hash_usize(x_1);
+x_10 = lean_name_hash_usize(x_1);
 x_11 = lean::usize_modn(x_10, x_8);
 lean::inc(x_5);
 x_13 = l_array_uread___rarg(x_5, x_11, lean::box(0));
@@ -536,7 +532,7 @@ x_12 = lean::cnstr_get(x_8, 0);
 lean::inc(x_12);
 x_14 = lean::cnstr_get(x_11, 0);
 lean::inc(x_14);
-x_16 = lean::name_dec_eq(x_12, x_14);
+x_16 = lean_name_dec_eq(x_12, x_14);
 lean::dec(x_14);
 lean::dec(x_12);
 if (x_16 == 0)

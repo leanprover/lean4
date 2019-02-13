@@ -40,7 +40,7 @@ unsigned level_hash(b_obj_arg l) {
     case level_kind::Zero:
         return 31;
     case level_kind::Param: case level_kind::MVar:
-        return name_hash(cnstr_get(l, 0));
+        return name::hash(cnstr_get(l, 0));
     case level_kind::Succ:
         return get_hash(l, 1);
     case level_kind::Max: case level_kind::IMax:

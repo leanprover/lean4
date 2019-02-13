@@ -27,9 +27,7 @@ extern obj* l_mjoin___rarg___closed__1;
 obj* l_lean_parser_rec__t_run__parsec___at_lean_parser_pratt__parser___spec__1(obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__2(obj*, obj*);
 extern obj* l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1;
-namespace lean {
-obj* name_mk_string(obj*, obj*);
-}
+extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_pratt__parser___spec__2___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l___private_init_lean_parser_combinators_1__many1__aux___main___rarg___closed__1;
 obj* l_lean_parser_rec__t_run__parsec___at_lean_parser_pratt__parser___spec__1___rarg(obj*, obj*, obj*, obj*);
@@ -59,9 +57,7 @@ extern obj* l_lean_parser_indexed___rarg___closed__1;
 obj* l_lean_parser_pratt__parser___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_curr__lbp___rarg___lambda__3___closed__2;
 obj* l_lean_parser_curr__lbp___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-uint8 name_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l___private_init_lean_parser_pratt_1__trailing__loop___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* string_iterator_remaining(obj*);
@@ -269,11 +265,11 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("lean");
-x_2 = lean::name_mk_string(x_0, x_1);
+x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("parser");
-x_4 = lean::name_mk_string(x_2, x_3);
+x_4 = lean_name_mk_string(x_2, x_3);
 x_5 = lean::mk_string("string_lit");
-x_6 = lean::name_mk_string(x_4, x_5);
+x_6 = lean_name_mk_string(x_4, x_5);
 return x_6;
 }
 }
@@ -363,12 +359,12 @@ x_50 = lean::cnstr_get(x_47, 0);
 lean::inc(x_50);
 lean::dec(x_47);
 x_53 = l_lean_parser_number_has__view_x_27___lambda__1___closed__6;
-x_54 = lean::name_dec_eq(x_50, x_53);
+x_54 = lean_name_dec_eq(x_50, x_53);
 if (x_54 == 0)
 {
 obj* x_55; uint8 x_56; 
 x_55 = l_lean_parser_curr__lbp___rarg___lambda__3___closed__1;
-x_56 = lean::name_dec_eq(x_50, x_55);
+x_56 = lean_name_dec_eq(x_50, x_55);
 lean::dec(x_50);
 if (x_56 == 0)
 {

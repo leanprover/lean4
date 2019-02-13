@@ -275,9 +275,7 @@ obj* l___private_init_lean_name__mangling_4__name_mangle__aux___main(obj*, obj*)
 obj* l_lean_ir_cpp_file__header___closed__3;
 obj* l_lean_ir_cpp_emit__logical__arith___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_ir_cpp_extract__m_monad__state;
-namespace lean {
-uint8 name_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_lean_ir_cpp_emit__assign__binop___closed__17;
 obj* l_lean_ir_cpp_type2cpp___main___closed__4;
 obj* l_lean_ir_cpp_emit__instr___closed__6;
@@ -15739,7 +15737,7 @@ lean::dec(x_1);
 x_11 = lean::cnstr_get(x_6, 0);
 lean::inc(x_11);
 lean::dec(x_6);
-x_14 = lean::name_dec_eq(x_11, x_0);
+x_14 = lean_name_dec_eq(x_11, x_0);
 lean::dec(x_11);
 if (x_14 == 0)
 {

@@ -224,9 +224,7 @@ obj* l_lean_ir_type_to__format___main___closed__2;
 obj* l_lean_ir_assign__binop_to__format___main___closed__16;
 obj* l_lean_ir_escape__string(obj*);
 obj* l_lean_to__fmt___at_lean_ir_instr_to__format___main___spec__4(uint16);
-namespace lean {
-uint8 name_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_lean_ir_unop_to__format___main___boxed(obj*);
 obj* l_lean_ir_block_to__format___main___closed__2;
 obj* l_lean_to__fmt___at_lean_ir_instr_to__format___main___spec__6___boxed(obj*);
@@ -519,7 +517,7 @@ x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 lean::dec(x_0);
 x_9 = lean::box(0);
-x_10 = lean::name_dec_eq(x_4, x_9);
+x_10 = lean_name_dec_eq(x_4, x_9);
 lean::dec(x_9);
 if (x_10 == 0)
 {
@@ -561,7 +559,7 @@ x_25 = lean::cnstr_get(x_0, 1);
 lean::inc(x_25);
 lean::dec(x_0);
 x_28 = lean::box(0);
-x_29 = lean::name_dec_eq(x_23, x_28);
+x_29 = lean_name_dec_eq(x_23, x_28);
 lean::dec(x_28);
 if (x_29 == 0)
 {

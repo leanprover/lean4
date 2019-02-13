@@ -1527,62 +1527,6 @@ obj_res string_iterator_snd(obj_arg it) {
 }
 
 // =======================================
-// name
-
-/*
-inductive name
-| anonymous  : name
-| mk_string  : name → string → name
-| mk_numeral : name → nat → name
-*/
-obj_res name_mk_string(obj_arg p, obj_arg s) {
-    object * r = alloc_cnstr(1, 2, sizeof(unsigned));
-    size_t sz  = string_size(s);
-    unsigned h = hash_str(sz, string_cstr(s), name_hash(p));
-    cnstr_set(r, 0, p);
-    cnstr_set(r, 1, s);
-    cnstr_set_scalar<unsigned>(r, 2*sizeof(object*), h);
-    return r;
-}
-
-obj_res name_mk_numeral(obj_arg p, obj_arg n) {
-    object * r  = alloc_cnstr(2, 2, sizeof(unsigned));
-    unsigned h1 = is_scalar(n) ? unbox(n) : mpz_value(n).hash();
-    unsigned h2 = name_hash(p);
-    unsigned h  = hash(h1, h2);
-    cnstr_set(r, 0, p);
-    cnstr_set(r, 1, n);
-    cnstr_set_scalar<unsigned>(r, 2*sizeof(object*), h);
-    return r;
-}
-
-bool name_eq_core(b_obj_arg n1, b_obj_arg n2) {
-    while (true) {
-        lean_assert(!is_scalar(n1));
-        lean_assert(!is_scalar(n2));
-        lean_assert(n1 && n2);
-        lean_assert(name_hash(n1) == name_hash(n2));
-        if (cnstr_tag(n1) != cnstr_tag(n2))
-            return false;
-        if (cnstr_tag(n1) == 1) {
-            if (!string_eq(cnstr_get(n1, 1), cnstr_get(n2, 1)))
-                return false;
-        } else {
-            if (!nat_eq(cnstr_get(n1, 1), cnstr_get(n1, 1)))
-                return false;
-        }
-        n1 = cnstr_get(n1, 0);
-        n2 = cnstr_get(n2, 0);
-        if (n1 == n2)
-            return true;
-        if (is_scalar(n1) != is_scalar(n2))
-            return false;
-        if (name_hash(n1) != name_hash(n2))
-            return false;
-    }
-}
-
-// =======================================
 // Debugging helper functions
 
 void dbg_print_str(object * o) {

@@ -20,9 +20,7 @@ obj* l_lean_expand__extern__entry(obj*, obj*);
 namespace lean {
 obj* expand_extern_pattern_core(obj*, obj*);
 }
-namespace lean {
-obj* name_mk_string(obj*, obj*);
-}
+extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_list_foldl___main___at_lean_mk__simple__fn__call___spec__1(obj*, obj*);
 namespace lean {
 obj* string_iterator_next(obj*);
@@ -62,9 +60,7 @@ obj* mk_extern_call_core(obj*, obj*, obj*);
 }
 obj* l_list_intersperse___main___rarg(obj*, obj*);
 obj* l_lean_extern__entry_backend(obj*);
-namespace lean {
-uint8 name_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_lean_expand__extern__pattern__aux(obj*, obj*, obj*, obj*);
 extern obj* l_prod_has__repr___rarg___closed__1;
 obj* l_lean_extern__entry_backend___main(obj*);
@@ -505,7 +501,7 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("all");
-x_2 = lean::name_mk_string(x_0, x_1);
+x_2 = lean_name_mk_string(x_0, x_1);
 return x_2;
 }
 }
@@ -531,11 +527,11 @@ lean::dec(x_1);
 lean::inc(x_5);
 x_11 = l_lean_extern__entry_backend___main(x_5);
 x_12 = l_lean_get__extern__entry__for__aux___main___closed__1;
-x_13 = lean::name_dec_eq(x_11, x_12);
+x_13 = lean_name_dec_eq(x_11, x_12);
 if (x_13 == 0)
 {
 uint8 x_14; 
-x_14 = lean::name_dec_eq(x_11, x_0);
+x_14 = lean_name_dec_eq(x_11, x_0);
 lean::dec(x_11);
 if (x_14 == 0)
 {

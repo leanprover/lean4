@@ -31,9 +31,7 @@ obj* l_lean_parser_syntax_flip__scopes___main(obj*, obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__1;
 obj* l_lean_parser_syntax_get__head__info__lst(obj*);
 obj* l_list_reverse___rarg(obj*);
-namespace lean {
-obj* name_mk_string(obj*, obj*);
-}
+extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_lean_parser_syntax_reprint__atom___main(obj*);
 obj* l_lean_nat__has__to__format(obj*);
 obj* l_lean_parser_syntax_to__format__lst(obj*);
@@ -113,9 +111,7 @@ obj* string_iterator_offset(obj*);
 obj* l_string_join(obj*);
 obj* l_lean_parser_syntax_mreplace__lst___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_substring_to__string(obj*);
-namespace lean {
-uint8 name_dec_eq(obj*, obj*);
-}
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_lean_parser_syntax_kind___main(obj*);
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
@@ -162,11 +158,11 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("lean");
-x_2 = lean::name_mk_string(x_0, x_1);
+x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("parser");
-x_4 = lean::name_mk_string(x_2, x_3);
+x_4 = lean_name_mk_string(x_2, x_3);
 x_5 = lean::mk_string("choice");
-x_6 = lean::name_mk_string(x_4, x_5);
+x_6 = lean_name_mk_string(x_4, x_5);
 return x_6;
 }
 }
@@ -176,11 +172,11 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("lean");
-x_2 = lean::name_mk_string(x_0, x_1);
+x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("parser");
-x_4 = lean::name_mk_string(x_2, x_3);
+x_4 = lean_name_mk_string(x_2, x_3);
 x_5 = lean::mk_string("no_kind");
-x_6 = lean::name_mk_string(x_4, x_5);
+x_6 = lean_name_mk_string(x_4, x_5);
 return x_6;
 }
 }
@@ -636,7 +632,7 @@ lean::dec(x_1);
 x_11 = lean::cnstr_get(x_8, 0);
 lean::inc(x_11);
 lean::dec(x_8);
-x_14 = lean::name_dec_eq(x_0, x_11);
+x_14 = lean_name_dec_eq(x_0, x_11);
 lean::dec(x_11);
 lean::dec(x_0);
 if (x_14 == 0)
@@ -1835,7 +1831,7 @@ lean::dec(x_0);
 x_56 = lean::cnstr_get(x_53, 0);
 lean::inc(x_56);
 x_58 = l_lean_parser_choice;
-x_59 = lean::name_dec_eq(x_56, x_58);
+x_59 = lean_name_dec_eq(x_56, x_58);
 lean::dec(x_56);
 if (x_59 == 0)
 {
@@ -2330,11 +2326,11 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("lean");
-x_2 = lean::name_mk_string(x_0, x_1);
+x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("parser");
-x_4 = lean::name_mk_string(x_2, x_3);
+x_4 = lean_name_mk_string(x_2, x_3);
 x_5 = lean::mk_string("no_kind");
-x_6 = lean::name_mk_string(x_4, x_5);
+x_6 = lean_name_mk_string(x_4, x_5);
 return x_6;
 }
 }
@@ -2344,9 +2340,9 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("lean");
-x_2 = lean::name_mk_string(x_0, x_1);
+x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("parser");
-x_4 = lean::name_mk_string(x_2, x_3);
+x_4 = lean_name_mk_string(x_2, x_3);
 return x_4;
 }
 }
@@ -2462,7 +2458,7 @@ lean::inc(x_54);
 x_56 = lean::cnstr_get(x_51, 0);
 lean::inc(x_56);
 x_58 = l_lean_parser_syntax_to__format___main___closed__7;
-x_59 = lean::name_dec_eq(x_56, x_58);
+x_59 = lean_name_dec_eq(x_56, x_58);
 if (lean::obj_tag(x_54) == 0)
 {
 lean::dec(x_54);

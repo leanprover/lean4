@@ -194,9 +194,7 @@ obj* l_lean_parser_combinators_any__of_tokens(obj*, obj*, obj*, obj*, obj*, obj*
 obj* l_lean_parser_combinators_seq__right_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_longest__match_tokens___rarg(obj*);
 obj* l_lean_parser_combinators_sep__by_view___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* name_mk_numeral(obj*, obj*);
-}
+extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_lean_parser_combinators_sep__by(obj*);
 obj* l_lean_parser_combinators_any__of(obj*);
 extern obj* l_lean_parser_choice;
@@ -3193,7 +3191,7 @@ lean::inc(x_6);
 lean::dec(x_3);
 x_9 = lean::box(0);
 lean::inc(x_9);
-x_11 = lean::name_mk_numeral(x_9, x_1);
+x_11 = lean_name_mk_numeral(x_9, x_1);
 x_12 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_12, 0, x_2);
 lean::cnstr_set(x_12, 1, x_9);

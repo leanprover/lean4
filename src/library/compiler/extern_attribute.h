@@ -19,6 +19,10 @@ void emit_extern_call(std::ostream & out, environment const & env, name const & 
 
 optional<std::string> get_extern_name_for(environment const & env, name const & backend, name const & fn);
 
+/* We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
+   Thus, there is no name mangling. */
+bool is_extern_c(environment const & env, name const & fn);
+
 void initialize_extern_attribute();
 void finalize_extern_attribute();
 }

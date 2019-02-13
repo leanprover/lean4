@@ -60,6 +60,7 @@ static void open_namespaces_for(std::ostream & out, environment const & env, nam
 }
 
 static void close_namespaces(std::ostream & out, name const & n) {
+    if (n.is_atomic()) return;
     name p = n.get_prefix();
     while (!p.is_anonymous()) {
         out << "}";
@@ -160,6 +161,7 @@ static name cpp_qualified_name_to_name(std::string const & s) {
 static void emit_extern_decl(std::ostream & out, environment const & env, name const & n, std::string const & cpp_name) {
     name q_cpp_name = cpp_qualified_name_to_name(cpp_name);
     open_namespaces(out, q_cpp_name);
+    if (is_extern_c(env, n)) out << "extern \"C\" ";
     emit_fn_decl_core(out, env, n, q_cpp_name.get_string(), false);
     close_namespaces(out, q_cpp_name);
 }

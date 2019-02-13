@@ -147,6 +147,31 @@ optional<std::string> get_extern_name_for(environment const & env, name const & 
     }
 }
 
+static name * g_all = nullptr;
+
+bool is_extern_c(environment const & env, name const & fn) {
+   if (std::shared_ptr<extern_attr_data> const & data = get_extern_attr().get(env, fn)) {
+       extern_attr_data_value const & v = data->m_value;
+       inc(v.raw()); inc(g_all->raw());
+       /* get_extern_entry_for_core : extern_attr_data -> name -> option extern_entry */
+       object * opt_entry = get_extern_entry_for_core(v.raw(), g_all->raw());
+       if (is_scalar(opt_entry)) return false;
+       object * entry     = cnstr_get(opt_entry, 0);
+       /*
+         inductive extern_entry
+         | adhoc    (backend : name)
+         | inline   (backend : name) (pattern : string)
+         | standard (backend : name) (fn : string)
+         | foreign  (backend : name) (fn : string)
+       */
+       bool r = (cnstr_tag(entry) == 2);
+       dec(opt_entry);
+       return r;
+   } else {
+       return false;
+   }
+}
+
 bool emit_extern_call_core(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs) {
     if (std::shared_ptr<extern_attr_data> const & data = get_extern_attr().get(env, fn)) {
         extern_attr_data_value const & v = data->m_value;
@@ -267,6 +292,7 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
 }
 
 void initialize_extern_attribute() {
+    g_all = new name("all");
     initialize_init_lean_extern(); // Lean module initialization
     register_system_attribute(extern_attr("extern", "builtin and foreign functions",
                                           [](environment const & env, io_state const &, name const &, unsigned, bool persistent) {
@@ -276,5 +302,6 @@ void initialize_extern_attribute() {
 }
 
 void finalize_extern_attribute() {
+    delete g_all;
 }
 }

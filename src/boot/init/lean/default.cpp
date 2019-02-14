@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.default
-// Imports: init.lean.compiler.default init.lean.elaborator
+// Imports: init.lean.compiler.default init.lean.frontend init.lean.extern
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -15,11 +15,13 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 void initialize_init_lean_compiler_default();
-void initialize_init_lean_elaborator();
+void initialize_init_lean_frontend();
+void initialize_init_lean_extern();
 static bool _G_initialized = false;
 void initialize_init_lean_default() {
  if (_G_initialized) return;
  _G_initialized = true;
  initialize_init_lean_compiler_default();
- initialize_init_lean_elaborator();
+ initialize_init_lean_frontend();
+ initialize_init_lean_extern();
 }

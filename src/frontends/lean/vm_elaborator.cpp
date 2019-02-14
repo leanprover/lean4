@@ -169,6 +169,8 @@ decl_attributes to_decl_attributes(environment const & env, expr const & e, bool
             for (int i = args.size() - 1; i >= 0; i--)
                 idxs = cons(lit_value(unwrap_pos(args[i])).get_nat().get_small_value() - 1, idxs);
             attributes.set_attribute(env, n, attr_data_ptr(new indices_attribute_data(idxs)));
+        } else if (n == "extern") {
+            // TODO(Sebastian): implement in C++ or Lean
         } else {
             lean_assert(args.empty());
             attributes.set_attribute(env, n);

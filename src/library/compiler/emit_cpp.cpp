@@ -916,7 +916,8 @@ static bool uses_lean_namespace(environment const & env) {
 }
 
 static void emit_main_fn(std::ostream & out, environment const & env, module_name const & m, comp_decl const & d) {
-    if (get_num_nested_lambdas(d.snd()) != 2) {
+    unsigned arity = get_num_nested_lambdas(d.snd());
+    if (arity != 2 && arity != 1) {
         throw exception("invalid main function, incorrect arity when generating code");
     }
     bool uses_lean_api = uses_lean_namespace(env);
@@ -928,13 +929,17 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
     else
         out << "lean::initialize_runtime_module();\n";
     out << "initialize_" << mangle(m, false) << "();\n";
-    out << "obj* in = lean::box(0);\n";
-    out << "int i = argc;\n";
-    out << "while (i > 1) {\n i--;\n";
-    out << " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);\n";
-    out << " in = n;\n";
-    out << "}\n";
-    out << "obj * r = " << g_lean_main << "(in, lean::box(0));\n";
+    if (arity == 2) {
+        out << "obj* in = lean::box(0);\n";
+        out << "int i = argc;\n";
+        out << "while (i > 1) {\n i--;\n";
+        out << " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);\n";
+        out << " in = n;\n";
+        out << "}\n";
+        out << "obj * r = " << g_lean_main << "(in, lean::box(0));\n";
+    } else {
+        out << "obj * r = " << g_lean_main << "(lean::box(0));\n";
+    }
     out << "int ret = lean::unbox(lean::cnstr_get(r, 0));\n";
     out << "lean::dec(r);\n";
     out << "return ret;\n";

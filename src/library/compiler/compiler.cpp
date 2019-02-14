@@ -109,18 +109,25 @@ bool is_main_fn(environment const & env, name const & n) {
     return false;
 }
 
-/* Return true iff type is `list string -> io uint32` */
+/* Return true iff type is `list string -> io uint32` or `io uint32` */
 bool is_main_fn_type(expr const & type) {
-    if (!is_arrow(type)) return false;
-    expr d = binding_domain(type);
-    expr r = binding_body(type);
-    return
-        is_app(r) &&
-        is_constant(app_fn(r), get_io_name()) &&
-        is_constant(app_arg(r), get_uint32_name()) &&
-        is_app(d) &&
-        is_constant(app_fn(d), get_list_name()) &&
-        is_constant(app_arg(d), get_string_name());
+    if (is_arrow(type)) {
+        expr d = binding_domain(type);
+        expr r = binding_body(type);
+        return
+            is_app(r) &&
+            is_constant(app_fn(r), get_io_name()) &&
+            is_constant(app_arg(r), get_uint32_name()) &&
+            is_app(d) &&
+            is_constant(app_fn(d), get_list_name()) &&
+            is_constant(app_arg(d), get_string_name());
+    } else if (is_app(type)) {
+        return
+            is_constant(app_fn(type), get_io_name()) &&
+            is_constant(app_arg(type), get_uint32_name());
+    } else {
+        return false;
+    }
 }
 
 environment compile(environment const & env, options const & opts, names const & cs) {

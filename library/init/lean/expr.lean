@@ -78,5 +78,10 @@ protected def hash (n : @& expr) : usize :=
 @[extern "lean_expr_dbg_to_string"]
 protected def dbg_to_string (e : @& expr) : string :=
 "" -- dummy implementation
+
+def get_app_fn : expr → expr
+| (app f a) := get_app_fn f
+| e         := e
+
 end expr
 end lean

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/utf8.h"
 #include "runtime/apply.h"
+#include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "library/module.h"
 #include "library/compiler/llnf.h"
@@ -880,12 +881,52 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
     out << "}\n";
 }
 
-static void emit_main_fn(std::ostream & out, module_name const & m, comp_decl const & d) {
+static name * g_lean = nullptr;
+
+static bool uses_lean_namespace(environment const & env, expr const & e, name_set & visited) {
+    return static_cast<bool>(find(e, [&](expr const & e, unsigned) {
+                if (is_constant(e)) {
+                    if (is_prefix_of(*g_lean, const_name(e)))
+                        return true;
+                    if (!visited.contains(const_name(e))) {
+                        visited.insert(const_name(e));
+                        if (optional<constant_info> info = env.find(mk_cstage2_name(const_name(e)))) {
+                            if (info->is_definition() && uses_lean_namespace(env, info->get_value(), visited)) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }));
+}
+
+/* Return true iff the main/current module depends (directly or indirectly) on `lean.` declarations. */
+static bool uses_lean_namespace(environment const & env) {
+    comp_decls ds = get_llnf_code(env);
+    name_set visited;
+    for (comp_decl const & d : ds) {
+        if (!visited.contains(d.fst())) {
+            visited.insert(d.fst());
+            if (uses_lean_namespace(env, d.snd(), visited))
+                return true;
+        }
+    }
+    return false;
+}
+
+static void emit_main_fn(std::ostream & out, environment const & env, module_name const & m, comp_decl const & d) {
     if (get_num_nested_lambdas(d.snd()) != 2) {
         throw exception("invalid main function, incorrect arity when generating code");
     }
+    bool uses_lean_api = uses_lean_namespace(env);
+    if (uses_lean_api)
+        out << "namespace lean { void initialize(); }\n";
     out << "int main(int argc, char ** argv) {\n";
-    out << "lean::initialize_runtime_module();\n";
+    if (uses_lean_api)
+        out << "lean::initialize();\n";
+    else
+        out << "lean::initialize_runtime_module();\n";
     out << "initialize_" << mangle(m, false) << "();\n";
     out << "obj* in = lean::box(0);\n";
     out << "int i = argc;\n";
@@ -905,14 +946,16 @@ void emit_cpp(std::ostream & out, environment const & env, module_name const & m
     emit_fn_decls(out, env);
     emit_fns(out, env);
     emit_initialize(out, env, m, deps);
-    if (optional<comp_decl> d = has_main_fn(env)) emit_main_fn(out, m, *d);
+    if (optional<comp_decl> d = has_main_fn(env)) emit_main_fn(out, env, m, *d);
 }
 
 void initialize_emit_cpp() {
-    g_cpp = new name("cpp");
+    g_cpp  = new name("cpp");
+    g_lean = new name("lean");
 }
 
 void finalize_emit_cpp() {
     delete g_cpp;
+    delete g_lean;
 }
 }

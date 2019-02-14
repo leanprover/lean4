@@ -52,12 +52,12 @@ static void open_namespaces(std::ostream & out, name const & n) {
     open_namespaces_core(out, n.get_prefix());
 }
 
-/* If `n` has the attribute [cppname], and the "cppname" is hierarchical, then
+/* If `n` has the attribute [export], and the "export" is hierarchical, then
    we must put `n` code inside of a namespace. */
 static void open_namespaces_for(std::ostream & out, environment const & env, name const & n) {
     optional<name> c = get_export_name_for(env, n);
     if (!c || c->is_atomic()) return;
-    open_namespaces(out, n);
+    open_namespaces(out, *c);
 }
 
 static void close_namespaces(std::ostream & out, name const & n) {

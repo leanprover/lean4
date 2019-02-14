@@ -62,7 +62,7 @@ bool mpz::is_power_of_two(unsigned & shift) const {
 }
 
 mpz operator%(mpz const & a, mpz const & b) {
-    return rem(a,b);
+    return rem(a, b);
 }
 
 bool root(mpz & root, mpz const & a, unsigned k) {

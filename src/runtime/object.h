@@ -201,12 +201,8 @@ void del(object * o);
 
 static_assert(sizeof(atomic<rc_type>) == sizeof(rc_type),  "atomic<rc_type> and rc_type must have the same size"); // NOLINT
 
-inline void * alloc_heap_object(size_t sz) {
-    void * r = malloc(sizeof(rc_type) + sz);
-    if (r == nullptr) throw std::bad_alloc();
-    *static_cast<rc_type *>(r) = 1;
-    return static_cast<char *>(r) + sizeof(rc_type);
-}
+void * alloc_heap_object(size_t sz);
+void free_heap_obj(object * o);
 
 inline atomic<rc_type> * mt_rc_addr(object * o) {
     return reinterpret_cast<atomic<rc_type> *>(reinterpret_cast<char *>(o) - sizeof(rc_type));
@@ -218,19 +214,6 @@ inline rc_type * st_rc_addr(object * o) {
 
 inline rc_type & st_rc_ref(object * o) {
     return *st_rc_addr(o);
-}
-
-inline void free_heap_obj(object * o) {
-#ifdef LEAN_FAKE_FREE
-    // Set kinds to invalid values, which should trap any further accesses in debug mode.
-    // Make sure object kind is recoverable for printing deleted objects
-    if (o->m_mem_kind != 42) {
-        o->m_kind = -o->m_kind;
-        o->m_mem_kind = 42;
-    }
-#else
-    free(reinterpret_cast<char *>(o) - sizeof(rc_type));
-#endif
 }
 
 inline bool is_mt_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::MTHeap); }

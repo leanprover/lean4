@@ -21,6 +21,15 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/hash.h"
 
+/* REMARK: when LEAN_DEFERRED_FREE is defined, we free at most
+   LEAN_DEFERRED_FREE_QUOTA objects per `del` invocation. We
+   use a thread local object to store `g_to_free` to store
+   the deferred free list. The function `alloc_heap_object`
+   checks this list, and invokes a new free round when it is not
+   empty. */
+// #define LEAN_DEFERRED_FREE
+#define LEAN_DEFERRED_FREE_QUOTA 128
+
 namespace lean {
 size_t obj_byte_size(object * o) {
     switch (get_kind(o)) {
@@ -65,6 +74,10 @@ size_t obj_header_size(object * o) {
 
 static_assert(sizeof(atomic<rc_type>) == sizeof(object*),  "unexpected atomic<rc_type> size, the object GC assumes these two types have the same size"); // NOLINT
 
+#ifdef LEAN_DEFERRED_FREE
+LEAN_THREAD_PTR(object, g_to_free);
+#endif
+
 inline object * get_next(object * o) {
     return *reinterpret_cast<object**>(st_rc_addr(o));
 }
@@ -82,6 +95,32 @@ inline object * pop_back(object * & todo) {
     object * r = todo;
     todo = get_next(todo);
     return r;
+}
+
+void * alloc_heap_object(size_t sz) {
+#ifdef LEAN_DEFERRED_FREE
+    if (g_to_free) {
+        object * o = pop_back(g_to_free);
+        del(o);
+    }
+#endif
+    void * r = malloc(sizeof(rc_type) + sz);
+    if (r == nullptr) throw std::bad_alloc();
+    *static_cast<rc_type *>(r) = 1;
+    return static_cast<char *>(r) + sizeof(rc_type);
+}
+
+void free_heap_obj(object * o) {
+#ifdef LEAN_FAKE_FREE
+    // Set kinds to invalid values, which should trap any further accesses in debug mode.
+    // Make sure object kind is recoverable for printing deleted objects
+    if (o->m_mem_kind != 42) {
+        o->m_kind = -o->m_kind;
+        o->m_mem_kind = 42;
+    }
+#else
+    free(reinterpret_cast<char *>(o) - sizeof(rc_type));
+#endif
 }
 
 inline void dec_ref(object * o, object* & todo) {
@@ -114,7 +153,12 @@ static void dealloc_parray_data(object ** data) {
 }
 
 void del(object * o) {
+#ifdef LEAN_DEFERRED_FREE
+    object * todo    = g_to_free;
+    unsigned counter = 0;
+#else
     object * todo = nullptr;
+#endif
     while (true) {
         lean_assert(is_heap_obj(o));
         switch (get_kind(o)) {
@@ -178,8 +222,19 @@ void del(object * o) {
            are reachable from `o` need to be deleted.
            The idea is to have a threshold on the maximum number of elements
            that can be deleted in a single round. */
-        if (todo == nullptr)
+        if (todo == nullptr) {
+#ifdef LEAN_DEFERRED_FREE
+            g_to_free = nullptr;
+#endif
             return;
+        }
+#ifdef LEAN_DEFERRED_FREE
+        counter++;
+        if (counter > LEAN_DEFERRED_FREE_QUOTA) {
+            g_to_free = todo;
+            return;
+        }
+#endif
         o = pop_back(todo);
     }
 }

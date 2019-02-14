@@ -13,6 +13,12 @@ constant io.real_world : Type
 @[irreducible, derive monad]
 def io : Type → Type := state io.real_world
 
+@[extern "lean_io_unsafe"]
+meta constant unsafe_io {α : Type} (fn : io α) : α
+
+@[extern 4 "lean_io_timeit"]
+constant timeit {α : Type} (msg : string) (fn : io α) : io α
+
 abbreviation monad_io (m : Type → Type) := has_monad_lift_t io m
 
 -- TODO: make opaque

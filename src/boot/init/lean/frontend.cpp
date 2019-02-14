@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__12(obj*, obj*, obj*);
+obj* l___private_init_io_12__put__str___at_lean_run__frontend___spec__5(obj*, obj*);
 obj* l_lean_expander_expand(obj*, obj*);
 extern obj* l_lean_elaborator_notation_elaborate___closed__1;
 extern obj* l_lean_parser_module_tokens;
@@ -62,7 +63,6 @@ obj* l_lean_run__parser(obj*, obj*);
 extern obj* l_lean_format_be___main___closed__1;
 obj* l_reader__t_run___rarg(obj*, obj*);
 obj* l_coroutine_bind___main___rarg(obj*, obj*, obj*);
-obj* l___private_init_io_10__put__str___at_lean_run__frontend___spec__5(obj*, obj*);
 extern obj* l_string_join___closed__1;
 obj* l_io_prim_lift__eio___at_lean_run__frontend___spec__6(obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__11(obj*, obj*, obj*);
@@ -504,7 +504,7 @@ return x_17;
 }
 }
 }
-obj* l___private_init_io_10__put__str___at_lean_run__frontend___spec__5(obj* x_0, obj* x_1) {
+obj* l___private_init_io_12__put__str___at_lean_run__frontend___spec__5(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
@@ -518,7 +518,7 @@ obj* l_io_print___at_lean_run__frontend___spec__4(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_io_10__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
+x_2 = l___private_init_io_12__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
 return x_2;
 }
 }
@@ -526,7 +526,7 @@ obj* l_io_println___at_lean_run__frontend___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_5; obj* x_7; 
-x_2 = l___private_init_io_10__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
+x_2 = l___private_init_io_12__put__str___at_lean_run__frontend___spec__5(x_0, x_1);
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
@@ -573,7 +573,7 @@ lean::dec(x_7);
 lean::dec(x_3);
 x_15 = l_lean_format_be___main___closed__1;
 lean::inc(x_15);
-x_17 = l___private_init_io_10__put__str___at_lean_run__frontend___spec__5(x_15, x_5);
+x_17 = l___private_init_io_12__put__str___at_lean_run__frontend___spec__5(x_15, x_5);
 return x_17;
 }
 }

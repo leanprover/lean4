@@ -19,7 +19,9 @@ obj* l_lean_expr_mk__app(obj*, obj*);
 obj* l_list_foldl___main___at_lean_expr_mk__app___spec__1(obj*, obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 extern "C" obj* lean_expr_dbg_to_string(obj*);
+obj* l_lean_expr_get__app__fn(obj*);
 obj* l_lean_expr__is__inhabited;
+obj* l_lean_expr_get__app__fn___main(obj*);
 obj* l_lean_expr_mk__capp(obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
 obj* l_lean_expr_hash___boxed(obj*);
@@ -89,6 +91,74 @@ _start:
 {
 obj* x_1; 
 x_1 = lean_expr_dbg_to_string(x_0);
+return x_1;
+}
+}
+obj* l_lean_expr_get__app__fn___main(obj* x_0) {
+_start:
+{
+switch (lean::obj_tag(x_0)) {
+case 0:
+{
+return x_0;
+}
+case 1:
+{
+return x_0;
+}
+case 2:
+{
+return x_0;
+}
+case 3:
+{
+return x_0;
+}
+case 4:
+{
+return x_0;
+}
+case 5:
+{
+obj* x_1; 
+x_1 = lean::cnstr_get(x_0, 0);
+lean::inc(x_1);
+lean::dec(x_0);
+x_0 = x_1;
+goto _start;
+}
+case 6:
+{
+return x_0;
+}
+case 7:
+{
+return x_0;
+}
+case 8:
+{
+return x_0;
+}
+case 9:
+{
+return x_0;
+}
+case 10:
+{
+return x_0;
+}
+default:
+{
+return x_0;
+}
+}
+}
+}
+obj* l_lean_expr_get__app__fn(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_lean_expr_get__app__fn___main(x_0);
 return x_1;
 }
 }

@@ -156,7 +156,6 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
 using namespace lean; // NOLINT
 
 object * lean_process_file(object * filename, object * contents, uint8 json, object * world);
-void initialize_init_lean_frontend();
 
 #ifndef LEAN_SERVER_DEFAULT_MAX_MEMORY
 #define LEAN_SERVER_DEFAULT_MAX_MEMORY 1024
@@ -497,7 +496,6 @@ int main(int argc, char ** argv) {
 
         bool ok;
         if (new_frontend) {
-            initialize_init_lean_frontend();
             object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output), box(0)) };
             ok = static_cast<bool>(unbox(cnstr_get_ref(res, 0).raw()));
         } else {

@@ -15,8 +15,6 @@ Authors: Leonardo de Moura
 #include "library/compiler/util.h"
 #include "library/compiler/extern_attribute.h"
 
-void initialize_init_lean_extern();
-
 namespace lean {
 object* mk_adhoc_ext_entry_core(object*);
 object* mk_inline_ext_entry_core(object*, object*);
@@ -294,7 +292,6 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
 
 void initialize_extern_attribute() {
     g_all = new name("all");
-    initialize_init_lean_extern(); // Lean module initialization
     register_system_attribute(extern_attr("extern", "builtin and foreign functions",
                                           [](environment const & env, io_state const &, name const &, unsigned, bool persistent) {
                                               if (!persistent) throw exception("invalid [extern] attribute, it must be persistent");

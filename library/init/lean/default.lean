@@ -5,4 +5,4 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.compiler
-import init.lean.elaborator
+import init.lean.frontend

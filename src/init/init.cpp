@@ -20,6 +20,9 @@ Author: Leonardo de Moura
 #include "frontends/lean/init_module.h"
 #include "init/init.h"
 
+void initialize_init_default();
+void initialize_init_lean_default();
+
 namespace lean {
 void initialize() {
     save_stack_info();
@@ -36,6 +39,8 @@ void initialize() {
     initialize_equations_compiler_module();
     initialize_frontend_lean_module();
     initialize_vm_module();
+    initialize_init_default();
+    initialize_init_lean_default();
 }
 
 void finalize() {

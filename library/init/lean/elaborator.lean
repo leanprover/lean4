@@ -283,6 +283,9 @@ def to_pexpr : syntax → elaborator_m expr
   | @number := do
     let v := view number stx,
     pure $ expr.lit $ literal.nat_val v.to_nat
+  | @string_lit := do
+    let v := view string_lit stx,
+    pure $ expr.lit $ literal.str_val (v.value.get_or_else "NOT_A_STRING")
   | @choice := do
     last::rev ← list.reverse <$> args.mmap (λ a, to_pexpr a)
       | error stx "ill-formed choice",

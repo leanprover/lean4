@@ -277,6 +277,9 @@ def to_pexpr : syntax → elaborator_m expr
   | @inaccessible := do
     let v := view inaccessible stx,
     expr.mk_annotation `innaccessible <$> to_pexpr v.term  -- sic
+  | @borrowed := do
+    let v := view borrowed stx,
+    expr.mk_annotation `borrowed <$> to_pexpr v.term
   | @number := do
     let v := view number stx,
     pure $ expr.lit $ literal.nat_val v.to_nat

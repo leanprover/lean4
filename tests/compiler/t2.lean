@@ -76,14 +76,17 @@ def Expr.to_string : Expr → string
 instance : has_to_string Expr :=
 ⟨Expr.to_string⟩
 
-def nest (f : Expr → io Expr) : nat → Expr → io Expr
-| 0     x := pure x
-| (n+1) x := f x >>= nest n
+def nest_aux (s : nat) (f : nat → Expr → io Expr) : nat → Expr → io Expr
+| 0       x := pure x
+| m@(n+1) x := (timeit "step: " $ f (s - m) x) >>= nest_aux n
 
-def deriv (f : Expr) : io Expr :=
+def nest (f : nat → Expr → io Expr) (n : nat) (e : Expr) : io Expr :=
+nest_aux n f n e
+
+def deriv (i : nat) (f : Expr) : io Expr :=
 do
   let d := d "x" f,
-  io.println' ("count: " ++ (to_string $ count f)),
+  io.println' (to_string (i+1) ++ " count: " ++ (to_string $ count d)),
   pure d
 
 def main (xs : list string) : io uint32 :=

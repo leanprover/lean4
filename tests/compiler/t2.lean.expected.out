@@ -1,9 +1,18 @@
-count: 2
-count: 6
-count: 22
-count: 90
-count: 420
-count: 2202
-count: 12886
-count: 83648
-count: 598592
+1 count: 6
+step:  0.0313ms
+2 count: 22
+step:  0.0137ms
+3 count: 90
+step:  0.0109ms
+4 count: 420
+step:  0.0442ms
+5 count: 2202
+step:  0.177ms
+6 count: 12886
+step:  0.945ms
+7 count: 83648
+step:  5.1ms
+8 count: 598592
+step:  38ms
+9 count: 4697200
+step:  289ms

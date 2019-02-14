@@ -74,12 +74,14 @@ obj* l_lean_level__to__format_level_to__format(obj*);
 obj* l_lean_level_to__nat___main(obj*);
 obj* l_lean_level__to__format_level__has__to__string;
 obj* l_lean_level__to__format_result__list_to__format___main(obj*);
+extern "C" usize lean_level_hash(obj*);
 obj* l_lean_level_to__nat(obj*);
 obj* l_nat_repr(obj*);
 obj* l_lean_level__to__format_result_imax(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+obj* l_lean_level_hash___boxed(obj*);
 obj* l_lean_level_to__offset___main(obj*);
 obj* l_option_map___rarg(obj*, obj*);
 obj* l_lean_level_to__nat___main___closed__3;
@@ -664,6 +666,15 @@ _start:
 {
 obj* x_2; 
 x_2 = l_lean_level_instantiate___main(x_0, x_1);
+return x_2;
+}
+}
+obj* l_lean_level_hash___boxed(obj* x_0) {
+_start:
+{
+usize x_1; obj* x_2; 
+x_1 = lean_level_hash(x_0);
+x_2 = lean::box_size_t(x_1);
 return x_2;
 }
 }

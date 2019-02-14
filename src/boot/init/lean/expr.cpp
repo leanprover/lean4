@@ -14,12 +14,16 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_lean_expr_dbg__to__string___boxed(obj*);
 obj* l_lean_expr_mk__app(obj*, obj*);
 obj* l_list_foldl___main___at_lean_expr_mk__app___spec__1(obj*, obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
+extern "C" obj* lean_expr_dbg_to_string(obj*);
 obj* l_lean_expr__is__inhabited;
 obj* l_lean_expr_mk__capp(obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
+obj* l_lean_expr_hash___boxed(obj*);
+extern "C" usize lean_expr_hash(obj*);
 obj* _init_l_lean_expr__is__inhabited() {
 _start:
 {
@@ -69,6 +73,23 @@ x_2 = lean::box(0);
 x_3 = lean_expr_mk_const(x_0, x_2);
 x_4 = l_list_foldl___main___at_lean_expr_mk__app___spec__1(x_3, x_1);
 return x_4;
+}
+}
+obj* l_lean_expr_hash___boxed(obj* x_0) {
+_start:
+{
+usize x_1; obj* x_2; 
+x_1 = lean_expr_hash(x_0);
+x_2 = lean::box_size_t(x_1);
+return x_2;
+}
+}
+obj* l_lean_expr_dbg__to__string___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean_expr_dbg_to_string(x_0);
+return x_1;
 }
 }
 void initialize_init_lean_level();

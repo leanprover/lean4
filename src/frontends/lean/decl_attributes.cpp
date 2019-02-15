@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "kernel/replace_fn.h"
 #include "util/sexpr/option_declarations.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
@@ -73,17 +74,23 @@ void decl_attributes::parse_core(parser & p, bool compact) {
                 }
             }
             attr_data_ptr data;
-            if (deleted) {
-                data = attr_data_ptr();
-            } else {
+            if (!deleted) {
+                // not all identifiers in attributes are actual Lean declarations
+                parser::undef_id_to_local_scope scope(p);
                 expr e = mk_const(id);
                 while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
-                    expr arg = p.parse_expr();
+                    expr arg = p.parse_expr(get_max_prec());
                     if (has_sorry(arg))
                         break;
                     e = mk_app(e, arg);
                 }
-                attr.parse_data(e);
+                // the new frontend uses consts instead of locals for unknown names...
+                e = replace(e, [](expr const & e) {
+                    if (is_local(e))
+                        return some_expr(mk_const(local_name(e)));
+                    return none_expr();
+                });
+                data = attr.parse_data(e);
             }
             m_entries = cons({&attr, data}, m_entries);
             if (id == "parsing_only")

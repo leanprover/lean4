@@ -23,7 +23,7 @@ Author: Leonardo de Moura
 
 /* REMARK: when LEAN_LAZY_RC is defined, we use lazy reference
    counting to avoid long pauses when invoking `del`. */
-// #define LEAN_LAZY_RC
+#define LEAN_LAZY_RC
 
 namespace lean {
 size_t obj_byte_size(object * o) {

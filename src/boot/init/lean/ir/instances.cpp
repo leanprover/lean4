@@ -413,15 +413,6 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_lean_ir_var_hashable() {
-_start:
-{
-obj* x_0; 
-x_0 = l_lean_name_hashable;
-lean::inc(x_0);
-return x_0;
-}
-}
 obj* _init_l_lean_ir_var_decidable__eq() {
 _start:
 {
@@ -431,7 +422,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init_l_lean_ir_blockid_hashable() {
+obj* _init_l_lean_ir_var_hashable() {
 _start:
 {
 obj* x_0; 
@@ -449,7 +440,7 @@ lean::inc(x_0);
 return x_0;
 }
 }
-obj* _init_l_lean_ir_fnid_hashable() {
+obj* _init_l_lean_ir_blockid_hashable() {
 _start:
 {
 obj* x_0; 
@@ -463,6 +454,15 @@ _start:
 {
 obj* x_0; 
 x_0 = l_lean_name_decidable__eq;
+lean::inc(x_0);
+return x_0;
+}
+}
+obj* _init_l_lean_ir_fnid_hashable() {
+_start:
+{
+obj* x_0; 
+x_0 = l_lean_name_hashable;
 lean::inc(x_0);
 return x_0;
 }
@@ -596,12 +596,12 @@ void initialize_init_lean_ir_instances() {
  l_lean_ir_var__has__lt = _init_l_lean_ir_var__has__lt();
  l_lean_ir_blockid__has__lt = _init_l_lean_ir_blockid__has__lt();
  l_lean_ir_fnid__has__lt = _init_l_lean_ir_fnid__has__lt();
- l_lean_ir_var_hashable = _init_l_lean_ir_var_hashable();
  l_lean_ir_var_decidable__eq = _init_l_lean_ir_var_decidable__eq();
- l_lean_ir_blockid_hashable = _init_l_lean_ir_blockid_hashable();
+ l_lean_ir_var_hashable = _init_l_lean_ir_var_hashable();
  l_lean_ir_blockid_decidable__eq = _init_l_lean_ir_blockid_decidable__eq();
- l_lean_ir_fnid_hashable = _init_l_lean_ir_fnid_hashable();
+ l_lean_ir_blockid_hashable = _init_l_lean_ir_blockid_hashable();
  l_lean_ir_fnid_decidable__eq = _init_l_lean_ir_fnid_decidable__eq();
+ l_lean_ir_fnid_hashable = _init_l_lean_ir_fnid_hashable();
  l_lean_ir_var__set = _init_l_lean_ir_var__set();
  l_lean_ir_blockid__set = _init_l_lean_ir_blockid__set();
  l_lean_ir_context = _init_l_lean_ir_context();

@@ -180,19 +180,19 @@ x_6 = lean_name_mk_string(x_4, x_5);
 return x_6;
 }
 }
-obj* _init_l_lean_parser_macro__scope_lean_has__to__format() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_nat__has__to__format), 1, 0);
-return x_0;
-}
-}
 obj* _init_l_lean_parser_macro__scope_decidable__eq() {
 _start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_dec__eq___boxed), 2, 0);
+return x_0;
+}
+}
+obj* _init_l_lean_parser_macro__scope_lean_has__to__format() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_nat__has__to__format), 1, 0);
 return x_0;
 }
 }
@@ -2764,8 +2764,8 @@ void initialize_init_lean_parser_syntax() {
  initialize_init_lean_parser_parsec();
  l_lean_parser_choice = _init_l_lean_parser_choice();
  l_lean_parser_no__kind = _init_l_lean_parser_no__kind();
- l_lean_parser_macro__scope_lean_has__to__format = _init_l_lean_parser_macro__scope_lean_has__to__format();
  l_lean_parser_macro__scope_decidable__eq = _init_l_lean_parser_macro__scope_decidable__eq();
+ l_lean_parser_macro__scope_lean_has__to__format = _init_l_lean_parser_macro__scope_lean_has__to__format();
  l_lean_parser_macro__scope = _init_l_lean_parser_macro__scope();
  l_lean_parser_macro__scopes = _init_l_lean_parser_macro__scopes();
  l_lean_parser_inhabited = _init_l_lean_parser_inhabited();

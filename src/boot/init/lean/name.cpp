@@ -57,6 +57,9 @@ obj* l_lean_mk__num__name(obj*, obj*);
 obj* l_lean_name_quick__lt(obj*, obj*);
 obj* l_lean_mk__simple__name(obj*);
 obj* l_lean_name_lean_has__to__format(obj*);
+namespace lean {
+usize usize_of_nat(obj*);
+}
 obj* l___private_init_lean_name_1__hash__aux___boxed(obj*, obj*);
 obj* l_lean_name_update__prefix___main(obj*, obj*);
 obj* l_lean_name_get__prefix(obj*);
@@ -72,7 +75,6 @@ namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_lean_name_decidable__rel___boxed(obj*, obj*);
-extern usize l_mix__hash___closed__1;
 obj* _init_l_lean_inhabited() {
 _start:
 {
@@ -131,7 +133,7 @@ obj* x_4; usize x_7;
 x_4 = lean::cnstr_get(x_0, 0);
 lean::inc(x_4);
 lean::dec(x_0);
-x_7 = l_mix__hash___closed__1;
+x_7 = 0;
 x_0 = x_4;
 x_1 = x_7;
 goto _start;
@@ -142,7 +144,7 @@ obj* x_9; usize x_12;
 x_9 = lean::cnstr_get(x_0, 0);
 lean::inc(x_9);
 lean::dec(x_0);
-x_12 = l_mix__hash___closed__1;
+x_12 = 0;
 x_0 = x_9;
 x_1 = x_12;
 goto _start;

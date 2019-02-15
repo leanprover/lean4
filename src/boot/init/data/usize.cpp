@@ -173,11 +173,9 @@ return x_0;
 usize _init_l_usize_has__zero() {
 _start:
 {
-obj* x_0; usize x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::usize_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+usize x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_usize_has__zero___boxed() {
@@ -192,11 +190,9 @@ return x_1;
 usize _init_l_usize_has__one() {
 _start:
 {
-obj* x_0; usize x_1; 
-x_0 = lean::mk_nat_obj(1u);
-x_1 = lean::usize_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+usize x_0; 
+x_0 = 1;
+return x_0;
 }
 }
 obj* _init_l_usize_has__one___boxed() {
@@ -275,11 +271,9 @@ return x_0;
 usize _init_l_usize_inhabited() {
 _start:
 {
-obj* x_0; usize x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::usize_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+usize x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_usize_inhabited___boxed() {

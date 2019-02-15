@@ -294,11 +294,9 @@ return x_0;
 uint8 _init_l_uint8_has__zero() {
 _start:
 {
-obj* x_0; uint8 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint8_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint8 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint8_has__zero___boxed() {
@@ -313,11 +311,9 @@ return x_1;
 uint8 _init_l_uint8_has__one() {
 _start:
 {
-obj* x_0; uint8 x_1; 
-x_0 = lean::mk_nat_obj(1u);
-x_1 = lean::uint8_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint8 x_0; 
+x_0 = 1;
+return x_0;
 }
 }
 obj* _init_l_uint8_has__one___boxed() {
@@ -396,11 +392,9 @@ return x_0;
 uint8 _init_l_uint8_inhabited() {
 _start:
 {
-obj* x_0; uint8 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint8_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint8 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint8_inhabited___boxed() {
@@ -603,11 +597,9 @@ return x_0;
 uint16 _init_l_uint16_has__zero() {
 _start:
 {
-obj* x_0; uint16 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint16_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint16 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint16_has__zero___boxed() {
@@ -622,11 +614,9 @@ return x_1;
 uint16 _init_l_uint16_has__one() {
 _start:
 {
-obj* x_0; uint16 x_1; 
-x_0 = lean::mk_nat_obj(1u);
-x_1 = lean::uint16_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint16 x_0; 
+x_0 = 1;
+return x_0;
 }
 }
 obj* _init_l_uint16_has__one___boxed() {
@@ -705,11 +695,9 @@ return x_0;
 uint16 _init_l_uint16_inhabited() {
 _start:
 {
-obj* x_0; uint16 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint16_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint16 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint16_inhabited___boxed() {
@@ -912,11 +900,9 @@ return x_0;
 uint32 _init_l_uint32_has__zero() {
 _start:
 {
-obj* x_0; uint32 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint32_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint32 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint32_has__zero___boxed() {
@@ -931,11 +917,9 @@ return x_1;
 uint32 _init_l_uint32_has__one() {
 _start:
 {
-obj* x_0; uint32 x_1; 
-x_0 = lean::mk_nat_obj(1u);
-x_1 = lean::uint32_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint32 x_0; 
+x_0 = 1;
+return x_0;
 }
 }
 obj* _init_l_uint32_has__one___boxed() {
@@ -1014,11 +998,9 @@ return x_0;
 uint32 _init_l_uint32_inhabited() {
 _start:
 {
-obj* x_0; uint32 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint32_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint32 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint32_inhabited___boxed() {
@@ -1221,11 +1203,9 @@ return x_0;
 uint64 _init_l_uint64_has__zero() {
 _start:
 {
-obj* x_0; uint64 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint64_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint64 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint64_has__zero___boxed() {
@@ -1240,11 +1220,9 @@ return x_1;
 uint64 _init_l_uint64_has__one() {
 _start:
 {
-obj* x_0; uint64 x_1; 
-x_0 = lean::mk_nat_obj(1u);
-x_1 = lean::uint64_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint64 x_0; 
+x_0 = 1;
+return x_0;
 }
 }
 obj* _init_l_uint64_has__one___boxed() {
@@ -1323,11 +1301,9 @@ return x_0;
 uint64 _init_l_uint64_inhabited() {
 _start:
 {
-obj* x_0; uint64 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::uint64_of_nat(x_0);
-lean::dec(x_0);
-return x_1;
+uint64 x_0; 
+x_0 = 0;
+return x_0;
 }
 }
 obj* _init_l_uint64_inhabited___boxed() {

@@ -289,7 +289,7 @@ void elab_defs_cmd(parser & p, expr const & cmd) {
     get_app_args(mdata_expr(cmd), args);
     auto meta = to_cmd_meta(p.env(), args[0]);
     auto kind = static_cast<decl_cmd_kind>(lit_value(args[1]).get_nat().get_small_value());
-    declaration_info_scope scope(p, kind, meta.m_modifiers);
+    declaration_info_scope scope(p, kind, meta);
     buffer<name> lp_names;
     buffer<expr> fns, params;
     /* TODO(Leo): allow a different doc string for each function in a mutual definition. */

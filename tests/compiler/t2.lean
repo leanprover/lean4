@@ -78,7 +78,7 @@ instance : has_to_string Expr :=
 
 def nest_aux (s : nat) (f : nat → Expr → io Expr) : nat → Expr → io Expr
 | 0       x := pure x
-| m@(n+1) x := (timeit "step: " $ f (s - m) x) >>= nest_aux n
+| m@(n+1) x := f (s - m) x >>= nest_aux n
 
 def nest (f : nat → Expr → io Expr) (n : nat) (e : Expr) : io Expr :=
 nest_aux n f n e

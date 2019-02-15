@@ -54,6 +54,7 @@ obj* l_list_to__string__aux___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_to__string___main___rarg(obj*, obj*);
 obj* l_option_has__to__string(obj*);
 extern obj* l_sum_has__repr___rarg___closed__2;
+obj* l_uint8_has__to__string___boxed(obj*);
 extern obj* l_list_repr__aux___main___rarg___closed__1;
 extern obj* l_list_repr___main___rarg___closed__3;
 namespace lean {
@@ -73,6 +74,9 @@ obj* l_uint64_has__to__string___boxed(obj*);
 obj* l_string_has__to__string(obj*);
 obj* l_nat_has__to__string(obj*);
 extern obj* l_list_repr___main___rarg___closed__2;
+namespace lean {
+obj* uint8_to_nat(uint8);
+}
 extern obj* l_bool_has__repr___closed__2;
 obj* l_usize_has__to__string(usize);
 extern obj* l_prod_has__repr___rarg___closed__1;
@@ -81,6 +85,7 @@ obj* uint64_to_nat(uint64);
 }
 obj* l_id_has__to__string(obj*);
 obj* l_bool_has__to__string___boxed(obj*);
+obj* l_uint8_has__to__string(uint8);
 extern obj* l_bool_has__repr___closed__1;
 obj* l_fin_has__to__string___rarg(obj*);
 obj* l_nat_repr(obj*);
@@ -422,6 +427,24 @@ _start:
 obj* x_2; 
 lean::dec(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fin_has__to__string___rarg), 1, 0);
+return x_2;
+}
+}
+obj* l_uint8_has__to__string(uint8 x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::uint8_to_nat(x_0);
+x_2 = l_nat_repr(x_1);
+return x_2;
+}
+}
+obj* l_uint8_has__to__string___boxed(obj* x_0) {
+_start:
+{
+uint8 x_1; obj* x_2; 
+x_1 = lean::unbox(x_0);
+x_2 = l_uint8_has__to__string(x_1);
 return x_2;
 }
 }

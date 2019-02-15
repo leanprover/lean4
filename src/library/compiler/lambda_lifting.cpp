@@ -200,7 +200,8 @@ public:
         m_base_name = cdecl.fst();
         expr r = visit(cdecl.snd(), true);
         comp_decl new_cdecl(cdecl.fst(), r);
-        return mk_pair(m_env, comp_decls(new_cdecl, comp_decls(m_new_decls)));
+        m_new_decls.push_back(new_cdecl);
+        return mk_pair(m_env, comp_decls(m_new_decls));
     }
 };
 

@@ -74,39 +74,51 @@ struct extern_attr_data : public attr_data {
       - `@[extern cpp "foo" llvm adhoc]`
       - `@[extern 2 cpp "io_prim_println"]
     */
-    virtual void parse(abstract_parser & p) override {
+    virtual void parse(expr const & e) override {
+        buffer<expr> args; get_app_args(e, args);
+        auto it = args.begin();
         buffer<extern_entry> entries;
         optional<unsigned> arity;
-        if (p.curr_is_token("]") || p.curr_is_token(",")) {
+        if (it == args.end()) {
             // - `@[extern]`
             entries.push_back(mk_adhoc_ext_entry("all"));
             m_value = mk_extern_attr_data_value(arity, entries);
             return;
         }
-        if (p.curr_is_numeral()) {
-            arity = p.parse_small_nat();
+        expr arg = unwrap_pos(*it);
+        if (is_nat_lit(arg)) {
+            arity = lit_value(arg).get_nat().get_small_value();
+            it++;
         }
-        if (p.curr_is_string()) {
+        if (it != args.end() && is_string_lit(arg = unwrap_pos(*it))) {
             // - `@[extern "level_hash"]`
             // - `@[extern 2 "level_hash"]`
-            std::string lit = p.parse_string_lit();
+            std::string lit = lit_value(arg).get_string().to_std_string();
             entries.push_back(mk_std_ext_entry("all", lit.c_str()));
             m_value = mk_extern_attr_data_value(arity, entries);
             return;
         }
-        while (p.curr_is_name()) {
-            name backend = p.parse_name();
-            if (p.curr_is_token_or_id("inline")) {
-                p.next();
-                std::string fn = p.parse_string_lit();
+        while (it != args.end()) {
+            arg = extract_mdata(*it);
+            if (!is_const(arg))
+                throw parser_error("constant expected", get_pos_info_provider()->get_pos_info_or_some(*it));
+            name backend = const_name(arg);
+            it++;
+            if (it != args.end() && is_const(extract_mdata(*it), "inline")) {
+                it++;
+                if (it == args.end() || !is_string_lit(arg = extract_mdata(*it)))
+                    throw parser_error("string literal expected", get_pos_info_provider()->get_pos_info_or_some(*it));
+                std::string fn = lit_value(arg).get_string().to_std_string();
                 entries.push_back(mk_inline_ext_entry(backend, fn.c_str()));
-            } else if (p.curr_is_token("adhoc")) {
-                p.next();
+            } else if (it != args.end() && is_const(extract_mdata(*it), "adhoc")) {
                 entries.push_back(mk_adhoc_ext_entry(backend));
             } else {
-                std::string fn = p.parse_string_lit();
+                if (it == args.end() || !is_string_lit(arg = extract_mdata(*it)))
+                    throw parser_error("string literal expected", get_pos_info_provider()->get_pos_info_or_some(*it));
+                std::string fn = lit_value(arg).get_string().to_std_string();
                 entries.push_back(mk_std_ext_entry(backend, fn.c_str()));
             }
+            it++;
         }
         m_value = mk_extern_attr_data_value(arity, entries);
     }

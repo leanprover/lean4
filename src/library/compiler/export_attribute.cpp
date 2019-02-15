@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "library/attribute_manager.h"
 #include "library/constants.h"
+#include "library/util.h"
 
 namespace lean {
 struct export_attr_data : public attr_data {
@@ -14,7 +15,12 @@ struct export_attr_data : public attr_data {
     export_attr_data() {}
 
     virtual unsigned hash() const override { return m_id.hash(); }
-    virtual void parse(abstract_parser & p) override { m_id = p.parse_name(); }
+    virtual void parse(expr const & e) override {
+        buffer<expr> args; get_app_args(e, args);
+        if (args.size() != 1 || !is_const(extract_mdata(args[0])))
+            throw parser_error("constant expected", get_pos_info_provider()->get_pos_info_or_some(e));
+        m_id = const_name(extract_mdata(args[0]));
+    }
     virtual void print(std::ostream & out) override { out << " " << m_id; }
     void write(serializer & s) const { s << m_id; }
     void read(deserializer & d) { m_id = read_name(d); }

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/num.h"
 #include "library/vm/vm_nat.h"
+#include "library/sorry.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
@@ -71,7 +72,19 @@ void decl_attributes::parse_core(parser & p, bool compact) {
                     }
                 }
             }
-            auto data = deleted ? attr_data_ptr() : attr.parse_data(p);
+            attr_data_ptr data;
+            if (deleted) {
+                data = attr_data_ptr();
+            } else {
+                expr e = mk_const(id);
+                while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
+                    expr arg = p.parse_expr();
+                    if (has_sorry(arg))
+                        break;
+                    e = mk_app(e, arg);
+                }
+                attr.parse_data(e);
+            }
             m_entries = cons({&attr, data}, m_entries);
             if (id == "parsing_only")
                 m_parsing_only = true;

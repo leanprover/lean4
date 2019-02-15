@@ -21,7 +21,7 @@ struct attr_data {
     virtual unsigned hash() const {
         return 0;
     }
-    virtual void parse(abstract_parser &) {}
+    virtual void parse(expr const &) {}
     virtual void print(std::ostream &) {}
     virtual ~attr_data() {}
 };
@@ -65,7 +65,7 @@ public:
     unsigned get_prio(environment const &, name const &) const;
     virtual void get_instances(environment const &, buffer<name> &) const;
     priority_queue<name, name_quick_cmp> get_instances_by_prio(environment const &) const;
-    virtual attr_data_ptr parse_data(abstract_parser &) const;
+    virtual attr_data_ptr parse_data(expr const &) const;
 
     virtual environment unset(environment env, io_state const & ios, name const & n, bool persistent) const;
 };
@@ -125,9 +125,9 @@ public:
     typed_attribute(name const & id, char const * descr, after_set_proc after_set = {}, before_unset_proc before_unset = {}) :
             attribute(id, descr, after_set, before_unset) {}
 
-    virtual attr_data_ptr parse_data(abstract_parser & p) const override {
+    virtual attr_data_ptr parse_data(expr const & e) const override {
         auto data = new Data;
-        data->parse(p);
+        data->parse(e);
         return attr_data_ptr(data);
     }
 
@@ -197,7 +197,7 @@ struct indices_attribute_data : public attr_data {
     void read(deserializer & d) {
         m_idxs = read_list<unsigned>(d);
     }
-    void parse(abstract_parser & p) override;
+    void parse(expr const &) override;
     virtual void print(std::ostream & out) override {
         for (auto p : m_idxs) {
             out << " " << p + 1;

@@ -207,15 +207,18 @@ priority_queue<name, name_quick_cmp> attribute::get_instances_by_prio(environmen
     return q;
 }
 
-attr_data_ptr attribute::parse_data(abstract_parser &) const {
+attr_data_ptr attribute::parse_data(expr const &) const {
     return get_default_attr_data();
 }
 
-void indices_attribute_data::parse(abstract_parser & p) {
+void indices_attribute_data::parse(const expr & e) {
+    buffer<expr> args; get_app_args(e, args);
     buffer<unsigned> vs;
-    while (p.curr_is_numeral()) {
-        auto pos = p.pos();
-        unsigned v = p.parse_small_nat();
+    for (expr const & arg : args) {
+        auto pos = get_pos_info_provider()->get_pos_info_or_some(arg);
+        if (!is_nat_lit(unwrap_pos(arg)))
+            throw parser_error("numeral expected", pos);
+        unsigned v = lit_value(unwrap_pos(arg)).get_nat().get_small_value();
         if (v == 0)
             throw parser_error("invalid attribute parameter, value must be positive", pos);
         vs.push_back(v - 1);

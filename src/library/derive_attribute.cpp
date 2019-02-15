@@ -38,13 +38,9 @@ struct exprs_attribute_data : public attr_data {
     void read(deserializer & d) {
         m_args = read_exprs(d);
     }
-    void parse(abstract_parser & p) override {
-        while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
-            expr e = p.parse_expr(10000);
-            if (has_sorry(e))
-                break;
-            m_args = cons(e, m_args);
-        }
+    void parse(expr const & e) override {
+        buffer<expr> args; get_app_args(e, args);
+        m_args = exprs(args);
     }
     virtual void print(std::ostream & out) override {
         out << "<>";

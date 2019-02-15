@@ -478,6 +478,15 @@ environment register_stage2_decl(environment const & env, name const & n, expr c
     return module::add(env, aux_decl, false);
 }
 
+/* @[export lean.get_num_lit_core]
+   def get_num_lit : expr → option nat */
+object * get_num_lit_core(obj_arg o);
+
+optional<nat> get_num_lit_ext(expr const & e) {
+    inc(e.raw());
+    return to_optional_nat(get_num_lit_core(e.raw()));
+}
+
 void initialize_compiler_util() {
     g_neutral_expr     = new expr(mk_constant("_neutral"));
     g_unreachable_expr = new expr(mk_constant("_unreachable"));

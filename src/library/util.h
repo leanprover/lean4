@@ -317,6 +317,8 @@ std::string const & get_version_string();
 
 expr const & extract_mdata(expr const &);
 
+optional<expr> to_optional_expr(obj_arg o);
+
 void initialize_library_util();
 void finalize_library_util();
 }

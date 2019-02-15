@@ -39,6 +39,7 @@ def get_info_from_val : expr → option num_scalar_type_info
 | (expr.app (expr.const fn _) _) := get_info_from_fn fn num_scalar_types
 | _ := none
 
+@[export lean.get_num_lit_core]
 def get_num_lit : expr → option nat
 | (expr.lit (literal.nat_val n)) := some n
 | (expr.app (expr.const fn _) a) := if is_of_nat fn then get_num_lit a else none
@@ -91,7 +92,7 @@ def find_bin_fold_fn_aux (fn : name) : list (name × bin_fold_fn) → option bin
 def find_bin_fold_fn (fn : name) : option bin_fold_fn :=
 find_bin_fold_fn_aux fn bin_fold_fns
 
-@[export lean.fold_bin_op]
+@[export lean.fold_bin_op_core]
 def fold_bin_op (before_erasure : bool) (f : expr) (a : expr) (b : expr) : option expr :=
 match f with
 | expr.const fn _ := do

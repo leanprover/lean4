@@ -103,6 +103,9 @@ class simp_app_args_fn {
                     args[i] = mk_let(saved_fvars_size, visit(args[i]));
                 }
             }
+        } else if (is_morally_num_lit(e)) {
+            /* Do not convert `x := uint*.of_nat <val>` into `y := <val>, x := uint*.of_nat y` */
+            return e;
         } else {
             for (expr & arg : args)
                 arg = ensure_simple_arg(arg);

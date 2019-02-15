@@ -58,6 +58,13 @@ public:
     static nat deserialize(deserializer & d) { return nat(d.read_object(), true); }
 };
 
+inline optional<nat> to_optional_nat(obj_arg o) {
+    if (is_scalar(o)) return optional<nat>();
+    optional<nat> r(nat(cnstr_get(o, 0), true));
+    dec(o);
+    return r;
+}
+
 inline serializer & operator<<(serializer & s, nat const & n) { n.serialize(s); return s; }
 inline nat read_nat(deserializer & d) { return nat::deserialize(d); }
 inline deserializer & operator>>(deserializer & d, nat & n) { n = read_nat(d); return d; }

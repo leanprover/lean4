@@ -15,14 +15,16 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 namespace lean {
-obj* fold_bin_op(uint8, obj*, obj*, obj*);
+obj* fold_bin_op_core(uint8, obj*, obj*, obj*);
 }
 obj* l_nat_mod___boxed(obj*, obj*);
 obj* l_lean_const__folding_find__bin__fold__fn(obj*);
 obj* l_lean_const__folding_bin__fold__fns;
 obj* l_lean_const__folding_fold__nat__add___rarg___closed__1;
 obj* l_lean_const__folding_fold__nat__mul(uint8);
-obj* l_lean_const__folding_get__num__lit(obj*);
+namespace lean {
+obj* get_num_lit_core(obj*);
+}
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -755,12 +757,14 @@ return x_78;
 }
 }
 }
-obj* l_lean_const__folding_get__num__lit(obj* x_0) {
+namespace lean {
+obj* get_num_lit_core(obj* x_0) {
 _start:
 {
 obj* x_1; 
 x_1 = l_lean_const__folding_get__num__lit___main(x_0);
 return x_1;
+}
 }
 }
 obj* l_lean_const__folding_mk__uint__lit(obj* x_0, obj* x_1) {
@@ -1584,7 +1588,7 @@ return x_3;
 }
 }
 namespace lean {
-obj* fold_bin_op(uint8 x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* fold_bin_op_core(uint8 x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 switch (lean::obj_tag(x_1)) {
@@ -1725,7 +1729,7 @@ _start:
 {
 uint8 x_4; obj* x_5; 
 x_4 = lean::unbox(x_0);
-x_5 = lean::fold_bin_op(x_4, x_1, x_2, x_3);
+x_5 = lean::fold_bin_op_core(x_4, x_1, x_2, x_3);
 return x_5;
 }
 }

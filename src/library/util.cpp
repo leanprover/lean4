@@ -1038,6 +1038,13 @@ expr const & extract_mdata(expr const & e) {
     }
 }
 
+optional<expr> to_optional_expr(obj_arg o) {
+    if (is_scalar(o)) return none_expr();
+    optional<expr> r = some_expr(expr(cnstr_get(o, 0), true));
+    dec(o);
+    return r;
+}
+
 void initialize_library_util() {
     g_unit           = new expr(mk_constant(get_unit_name()));
     g_unit_mk        = new expr(mk_constant(get_unit_star_name()));

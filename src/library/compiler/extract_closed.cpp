@@ -206,6 +206,10 @@ class extract_closed_fn {
             /* We don't create auxiliary constants for small nat literals. Reason: they are cheap. */
             return e0;
         }
+        if (!is_lit(e) && is_morally_num_lit(e)) {
+            /* We don't create auxiliary constants for uint* literals. */
+            return e0;
+        }
         buffer<expr> fvars;
         collect_deps(e, fvars);
         e = m_lctx.mk_lambda(fvars, e);

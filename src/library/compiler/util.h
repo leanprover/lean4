@@ -153,6 +153,10 @@ void collect_used(expr const & e, name_hash_set & S);
 environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v);
 environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v);
 
+/* Return `some n` iff `e` is of the forms `expr.lit (literal.nat n)` or `uint*.of_nat (expr.lit (literal.nat n))` */
+optional<nat> get_num_lit_ext(expr const & e);
+inline bool is_morally_num_lit(expr const & e) { return static_cast<bool>(get_num_lit_ext(e)); }
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

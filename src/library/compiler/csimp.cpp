@@ -35,6 +35,17 @@ csimp_cfg::csimp_cfg() {
     m_inline_jp_threshold             = 2;
 }
 
+/*
+@[export lean.fold_bin_op_core]
+def fold_bin_op (before_erasure : bool) (f : expr) (a : expr) (b : expr) : option expr :=
+*/
+object * fold_bin_op_core(uint8 before_erasure, object * f, object * a, object * b);
+
+optional<expr> fold_bin_op(bool before_erasure, expr const & f, expr const & a, expr const & b) {
+    inc(f.raw()); inc(a.raw()); inc(b.raw());
+    return to_optional_expr(fold_bin_op_core(before_erasure, f.raw(), a.raw(), b.raw()));
+}
+
 class csimp_fn {
     typedef expr_pair_struct_map<expr> jp_cache;
     type_checker::state      m_st;
@@ -1488,6 +1499,14 @@ class csimp_fn {
         } else if (is_app(fn)) {
             return merge_app_app(fn, e, is_let_val);
         } else if (is_constant(fn)) {
+            unsigned nargs = get_app_num_args(e);
+            if (nargs == 2) {
+                expr a1 = find(app_arg(app_fn(e)));
+                expr a2 = find(app_arg(e));
+                if (optional<expr> r = fold_bin_op(m_before_erasure, fn, a1, a2)) {
+                    return *r;
+                }
+            }
             name const & n = const_name(fn);
             if (n == get_nat_add_name()) {
                 return visit_nat_add(e);

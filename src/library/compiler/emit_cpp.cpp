@@ -373,21 +373,31 @@ struct emit_fn_fn {
         emit_fvar(x); m_out << " = ";
     }
 
+    void emit_num_lit_core(expr const & x, nat const & v) {
+        if (is_obj(x)) {
+            if (v < std::numeric_limits<unsigned>::max()) {
+                m_out << "lean::mk_nat_obj(" << v << "u)";
+            } else {
+                m_out << "lean::mk_nat_obj(lean::mpz(\"" << v << "\"))";
+            }
+        } else {
+            m_out << v;
+        }
+    }
+
+    void emit_num_lit(expr const & x, nat const & v) {
+        emit_lhs(x);
+        emit_num_lit_core(x, v);
+        m_out << ";\n";
+    }
+
     void emit_lit(expr const & x, expr const & v) {
         lean_assert(is_lit(v));
         emit_lhs(x);
         literal const & l = lit_value(v);
         switch (l.kind()) {
         case literal_kind::Nat:
-            if (is_obj(x)) {
-                if (l.get_nat() < std::numeric_limits<unsigned>::max()) {
-                    m_out << "lean::mk_nat_obj(" << l.get_nat() << "u)";
-                } else {
-                    m_out << "lean::mk_nat_obj(lean::mpz(\"" << l.get_nat() << "\"))";
-                }
-            } else {
-                m_out << l.get_nat();
-            }
+            emit_num_lit_core(x, l.get_nat());
             break;
         case literal_kind::String:
             m_out << "lean::mk_string(\"";
@@ -607,7 +617,9 @@ struct emit_fn_fn {
         expr x = d.mk_ref();
         expr val = *d.get_value();
         if (is_lit(val)) {
-            emit_lit(x, val);
+            return emit_lit(x, val);
+        } else if (optional<nat> const & v = get_num_lit_ext(val)) {
+            emit_num_lit(x, *v);
         } else if (is_constant(val)) {
             if (is_llnf_cnstr(val)) {
                 buffer<expr> args;

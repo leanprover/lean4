@@ -5387,6 +5387,15 @@ goto _start;
 }
 }
 }
+obj* l_lean_ir_decl_valid__ssa___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_5; 
+lean::dec(x_1);
+x_5 = l_lean_ir_block_valid__ssa__core(x_0, x_2, x_3);
+return x_5;
+}
+}
 obj* l_lean_ir_decl_valid__ssa(obj* x_0) {
 _start:
 {
@@ -5555,15 +5564,6 @@ x_72 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_72, 0, x_71);
 return x_72;
 }
-}
-}
-obj* l_lean_ir_decl_valid__ssa___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_5; 
-lean::dec(x_1);
-x_5 = l_lean_ir_block_valid__ssa__core(x_0, x_2, x_3);
-return x_5;
 }
 }
 obj* _init_l_lean_ir_blockid__check__m() {
@@ -6327,6 +6327,20 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_state__t_bind___at_lean_ir_c
 return x_4;
 }
 }
+obj* l_lean_ir_check__blockids___lambda__1(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_4; obj* x_5; 
+lean::dec(x_0);
+lean::inc(x_1);
+x_4 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_4, 0, x_1);
+x_5 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_5, 0, x_4);
+lean::cnstr_set(x_5, 1, x_1);
+return x_5;
+}
+}
 obj* _init_l_lean_ir_check__blockids___closed__1() {
 _start:
 {
@@ -6349,20 +6363,6 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_state__t_bind___at_lean_ir_c
 lean::closure_set(x_4, 0, x_1);
 lean::closure_set(x_4, 1, x_2);
 x_5 = l_lean_ir_blockid__check__m_run___rarg(x_4);
-return x_5;
-}
-}
-obj* l_lean_ir_check__blockids___lambda__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; obj* x_5; 
-lean::dec(x_0);
-lean::inc(x_1);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_1);
-x_5 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_5, 0, x_4);
-lean::cnstr_set(x_5, 1, x_1);
 return x_5;
 }
 }

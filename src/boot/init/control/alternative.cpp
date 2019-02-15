@@ -234,6 +234,15 @@ x_3 = l_guardb___rarg(x_0, x_2);
 return x_3;
 }
 }
+obj* l_optional___rarg___lambda__1(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
 obj* _init_l_optional___rarg___closed__1() {
 _start:
 {
@@ -267,15 +276,6 @@ x_20 = lean::box(0);
 x_21 = lean::apply_2(x_17, lean::box(0), x_20);
 x_22 = lean::apply_3(x_4, lean::box(0), x_16, x_21);
 return x_22;
-}
-}
-obj* l_optional___rarg___lambda__1(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_1, 0, x_0);
-return x_1;
 }
 }
 obj* l_optional(obj* x_0) {

@@ -877,6 +877,17 @@ x_5 = l_lean_const__folding_fold__bin__uint(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
+obj* l_lean_const__folding_fold__uint__add___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_5; 
+lean::dec(x_0);
+x_5 = lean::nat_add(x_2, x_3);
+lean::dec(x_3);
+lean::dec(x_2);
+return x_5;
+}
+}
 obj* _init_l_lean_const__folding_fold__uint__add___closed__1() {
 _start:
 {
@@ -895,14 +906,12 @@ x_5 = l_lean_const__folding_fold__bin__uint(x_3, x_0, x_1, x_2);
 return x_5;
 }
 }
-obj* l_lean_const__folding_fold__uint__add___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__add___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_5; 
-lean::dec(x_0);
-x_5 = lean::nat_add(x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_1);
+x_5 = l_lean_const__folding_fold__uint__add___lambda__1(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
@@ -915,12 +924,14 @@ x_4 = l_lean_const__folding_fold__uint__add(x_3, x_1, x_2);
 return x_4;
 }
 }
-obj* l_lean_const__folding_fold__uint__add___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__mul___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
-x_4 = lean::unbox(x_1);
-x_5 = l_lean_const__folding_fold__uint__add___lambda__1(x_0, x_4, x_2, x_3);
+obj* x_5; 
+lean::dec(x_0);
+x_5 = lean::nat_mul(x_2, x_3);
+lean::dec(x_3);
+lean::dec(x_2);
 return x_5;
 }
 }
@@ -942,14 +953,12 @@ x_5 = l_lean_const__folding_fold__bin__uint(x_3, x_0, x_1, x_2);
 return x_5;
 }
 }
-obj* l_lean_const__folding_fold__uint__mul___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__mul___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_5; 
-lean::dec(x_0);
-x_5 = lean::nat_mul(x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_1);
+x_5 = l_lean_const__folding_fold__uint__mul___lambda__1(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
@@ -962,12 +971,14 @@ x_4 = l_lean_const__folding_fold__uint__mul(x_3, x_1, x_2);
 return x_4;
 }
 }
-obj* l_lean_const__folding_fold__uint__mul___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__div___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
-x_4 = lean::unbox(x_1);
-x_5 = l_lean_const__folding_fold__uint__mul___lambda__1(x_0, x_4, x_2, x_3);
+obj* x_5; 
+lean::dec(x_0);
+x_5 = lean::nat_div(x_2, x_3);
+lean::dec(x_3);
+lean::dec(x_2);
 return x_5;
 }
 }
@@ -989,14 +1000,12 @@ x_5 = l_lean_const__folding_fold__bin__uint(x_3, x_0, x_1, x_2);
 return x_5;
 }
 }
-obj* l_lean_const__folding_fold__uint__div___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__div___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_5; 
-lean::dec(x_0);
-x_5 = lean::nat_div(x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_1);
+x_5 = l_lean_const__folding_fold__uint__div___lambda__1(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
@@ -1009,12 +1018,14 @@ x_4 = l_lean_const__folding_fold__uint__div(x_3, x_1, x_2);
 return x_4;
 }
 }
-obj* l_lean_const__folding_fold__uint__div___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__mod___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
-x_4 = lean::unbox(x_1);
-x_5 = l_lean_const__folding_fold__uint__div___lambda__1(x_0, x_4, x_2, x_3);
+obj* x_5; 
+lean::dec(x_0);
+x_5 = lean::nat_mod(x_2, x_3);
+lean::dec(x_3);
+lean::dec(x_2);
 return x_5;
 }
 }
@@ -1036,14 +1047,12 @@ x_5 = l_lean_const__folding_fold__bin__uint(x_3, x_0, x_1, x_2);
 return x_5;
 }
 }
-obj* l_lean_const__folding_fold__uint__mod___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__mod___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_5; 
-lean::dec(x_0);
-x_5 = lean::nat_mod(x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_1);
+x_5 = l_lean_const__folding_fold__uint__mod___lambda__1(x_0, x_4, x_2, x_3);
 return x_5;
 }
 }
@@ -1056,13 +1065,20 @@ x_4 = l_lean_const__folding_fold__uint__mod(x_3, x_1, x_2);
 return x_4;
 }
 }
-obj* l_lean_const__folding_fold__uint__mod___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__sub___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
 _start:
 {
-uint8 x_4; obj* x_5; 
-x_4 = lean::unbox(x_1);
-x_5 = l_lean_const__folding_fold__uint__mod___lambda__1(x_0, x_4, x_2, x_3);
-return x_5;
+obj* x_4; obj* x_7; obj* x_10; 
+x_4 = lean::cnstr_get(x_0, 3);
+lean::inc(x_4);
+lean::dec(x_0);
+x_7 = lean::nat_sub(x_4, x_3);
+lean::dec(x_3);
+lean::dec(x_4);
+x_10 = lean::nat_add(x_2, x_7);
+lean::dec(x_7);
+lean::dec(x_2);
+return x_10;
 }
 }
 obj* _init_l_lean_const__folding_fold__uint__sub___closed__1() {
@@ -1083,20 +1099,13 @@ x_5 = l_lean_const__folding_fold__bin__uint(x_3, x_0, x_1, x_2);
 return x_5;
 }
 }
-obj* l_lean_const__folding_fold__uint__sub___lambda__1(obj* x_0, uint8 x_1, obj* x_2, obj* x_3) {
+obj* l_lean_const__folding_fold__uint__sub___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_7; obj* x_10; 
-x_4 = lean::cnstr_get(x_0, 3);
-lean::inc(x_4);
-lean::dec(x_0);
-x_7 = lean::nat_sub(x_4, x_3);
-lean::dec(x_3);
-lean::dec(x_4);
-x_10 = lean::nat_add(x_2, x_7);
-lean::dec(x_7);
-lean::dec(x_2);
-return x_10;
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_1);
+x_5 = l_lean_const__folding_fold__uint__sub___lambda__1(x_0, x_4, x_2, x_3);
+return x_5;
 }
 }
 obj* l_lean_const__folding_fold__uint__sub___boxed(obj* x_0, obj* x_1, obj* x_2) {
@@ -1106,15 +1115,6 @@ uint8 x_3; obj* x_4;
 x_3 = lean::unbox(x_0);
 x_4 = l_lean_const__folding_fold__uint__sub(x_3, x_1, x_2);
 return x_4;
-}
-}
-obj* l_lean_const__folding_fold__uint__sub___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-uint8 x_4; obj* x_5; 
-x_4 = lean::unbox(x_1);
-x_5 = l_lean_const__folding_fold__uint__sub___lambda__1(x_0, x_4, x_2, x_3);
-return x_5;
 }
 }
 obj* _init_l_lean_const__folding_pre__uint__bin__fold__fns() {

@@ -297,6 +297,14 @@ x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_list_foldl___main___at_hashm
 return x_6;
 }
 }
+obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg(x_0, x_2, x_1);
+return x_3;
+}
+}
 obj* l_hashmap__imp_fold__buckets___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -305,14 +313,6 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_hashmap__imp_fold__buckets__
 lean::closure_set(x_3, 0, x_2);
 x_4 = l_array_foldl___rarg(x_0, x_1, x_3);
 return x_4;
-}
-}
-obj* l_hashmap__imp_fold__buckets___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_list_foldl___main___at_hashmap__imp_fold__buckets___spec__1___rarg(x_0, x_2, x_1);
-return x_3;
 }
 }
 obj* l_hashmap__imp_fold__buckets(obj* x_0, obj* x_1, obj* x_2) {

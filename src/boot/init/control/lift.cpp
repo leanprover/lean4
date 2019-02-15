@@ -81,6 +81,15 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_has__monad__lift__t__refl___
 return x_4;
 }
 }
+obj* l_monad__functor__t__trans___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_5; 
+lean::dec(x_2);
+x_5 = lean::apply_3(x_0, lean::box(0), x_1, x_3);
+return x_5;
+}
+}
 obj* l_monad__functor__t__trans___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -91,15 +100,6 @@ lean::closure_set(x_6, 0, x_1);
 lean::closure_set(x_6, 1, x_3);
 x_7 = lean::apply_3(x_0, lean::box(0), x_6, x_4);
 return x_7;
-}
-}
-obj* l_monad__functor__t__trans___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_5; 
-lean::dec(x_2);
-x_5 = lean::apply_3(x_0, lean::box(0), x_1, x_3);
-return x_5;
 }
 }
 obj* l_monad__functor__t__trans(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {

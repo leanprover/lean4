@@ -6606,6 +6606,30 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_reader__t_bind___at_lean_ir_
 return x_4;
 }
 }
+obj* l_lean_ir_type__check___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_5; 
+lean::dec(x_1);
+x_5 = l_lean_ir_decl_check___main(x_0, x_2, x_3);
+return x_5;
+}
+}
+obj* l_lean_ir_type__check___lambda__2(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_6; obj* x_7; 
+lean::dec(x_1);
+lean::dec(x_0);
+lean::inc(x_2);
+x_6 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_6, 0, x_2);
+x_7 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_7, 0, x_6);
+lean::cnstr_set(x_7, 1, x_2);
+return x_7;
+}
+}
 obj* _init_l_lean_ir_type__check___closed__1() {
 _start:
 {
@@ -6642,30 +6666,6 @@ lean::inc(x_12);
 lean::dec(x_11);
 x_15 = l_lean_ir_type__checker__m_run___rarg(x_10, x_1, x_12);
 return x_15;
-}
-}
-obj* l_lean_ir_type__check___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_5; 
-lean::dec(x_1);
-x_5 = l_lean_ir_decl_check___main(x_0, x_2, x_3);
-return x_5;
-}
-}
-obj* l_lean_ir_type__check___lambda__2(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_6; obj* x_7; 
-lean::dec(x_1);
-lean::dec(x_0);
-lean::inc(x_2);
-x_6 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_6, 0, x_2);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_6);
-lean::cnstr_set(x_7, 1, x_2);
-return x_7;
 }
 }
 void initialize_init_lean_ir_instances();

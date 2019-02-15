@@ -337,6 +337,17 @@ return x_8;
 }
 }
 }
+obj* l_lean_level_to__nat___main___lambda__1(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_nat_obj(1u);
+x_2 = lean::nat_add(x_0, x_1);
+lean::dec(x_1);
+lean::dec(x_0);
+return x_2;
+}
+}
 obj* _init_l_lean_level_to__nat___main___closed__1() {
 _start:
 {
@@ -472,17 +483,6 @@ x_48 = lean::box(0);
 return x_48;
 }
 }
-}
-}
-obj* l_lean_level_to__nat___main___lambda__1(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_nat_obj(1u);
-x_2 = lean::nat_add(x_0, x_1);
-lean::dec(x_1);
-lean::dec(x_0);
-return x_2;
 }
 }
 obj* l_lean_level_to__nat(obj* x_0) {

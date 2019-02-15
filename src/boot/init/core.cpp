@@ -4538,16 +4538,6 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_quotient_rec__on__subsinglet
 return x_4;
 }
 }
-obj* l_quotient_decidable__eq___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-uint8 x_5; obj* x_6; 
-lean::dec(x_0);
-x_5 = l_quotient_decidable__eq___rarg___lambda__1(x_1, x_2, x_3);
-x_6 = lean::box(x_5);
-return x_6;
-}
-}
 uint8 l_quotient_decidable__eq___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -4567,6 +4557,16 @@ uint8 x_7;
 x_7 = 1;
 return x_7;
 }
+}
+}
+obj* l_quotient_decidable__eq___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_5; obj* x_6; 
+lean::dec(x_0);
+x_5 = l_quotient_decidable__eq___rarg___lambda__1(x_1, x_2, x_3);
+x_6 = lean::box(x_5);
+return x_6;
 }
 }
 obj* l_quotient_decidable__eq(obj* x_0) {

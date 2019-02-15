@@ -4257,19 +4257,6 @@ lean::closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-obj* l_lean_ir_phi_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_5; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 1);
-lean::inc(x_3);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_phi_decorate__error___rarg___lambda__1), 3, 2);
-lean::closure_set(x_5, 0, x_0);
-lean::closure_set(x_5, 1, x_1);
-x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
-return x_6;
-}
-}
 obj* _init_l_lean_ir_phi_decorate__error___rarg___lambda__1___closed__1() {
 _start:
 {
@@ -4328,6 +4315,19 @@ x_21 = lean::apply_2(x_3, lean::box(0), x_20);
 return x_21;
 }
 }
+obj* l_lean_ir_phi_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_5; obj* x_6; 
+x_3 = lean::cnstr_get(x_0, 1);
+lean::inc(x_3);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_phi_decorate__error___rarg___lambda__1), 3, 2);
+lean::closure_set(x_5, 0, x_0);
+lean::closure_set(x_5, 1, x_1);
+x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
+return x_6;
+}
+}
 obj* l_lean_ir_phi_decorate__error(obj* x_0, obj* x_1) {
 _start:
 {
@@ -4336,19 +4336,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_phi_decorate__error___rarg), 3, 0);
 return x_4;
-}
-}
-obj* l_lean_ir_instr_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_5; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 1);
-lean::inc(x_3);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_instr_decorate__error___rarg___lambda__1), 3, 2);
-lean::closure_set(x_5, 0, x_0);
-lean::closure_set(x_5, 1, x_1);
-x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
-return x_6;
 }
 }
 obj* _init_l_lean_ir_instr_decorate__error___rarg___lambda__1___closed__1() {
@@ -4399,6 +4386,19 @@ x_21 = lean::apply_2(x_3, lean::box(0), x_20);
 return x_21;
 }
 }
+obj* l_lean_ir_instr_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_5; obj* x_6; 
+x_3 = lean::cnstr_get(x_0, 1);
+lean::inc(x_3);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_instr_decorate__error___rarg___lambda__1), 3, 2);
+lean::closure_set(x_5, 0, x_0);
+lean::closure_set(x_5, 1, x_1);
+x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
+return x_6;
+}
+}
 obj* l_lean_ir_instr_decorate__error(obj* x_0, obj* x_1) {
 _start:
 {
@@ -4407,19 +4407,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_instr_decorate__error___rarg), 3, 0);
 return x_4;
-}
-}
-obj* l_lean_ir_terminator_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_5; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 1);
-lean::inc(x_3);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_terminator_decorate__error___rarg___lambda__1), 3, 2);
-lean::closure_set(x_5, 0, x_0);
-lean::closure_set(x_5, 1, x_1);
-x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
-return x_6;
 }
 }
 obj* _init_l_lean_ir_terminator_decorate__error___rarg___lambda__1___closed__1() {
@@ -4470,6 +4457,19 @@ x_21 = lean::apply_2(x_3, lean::box(0), x_20);
 return x_21;
 }
 }
+obj* l_lean_ir_terminator_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_5; obj* x_6; 
+x_3 = lean::cnstr_get(x_0, 1);
+lean::inc(x_3);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_terminator_decorate__error___rarg___lambda__1), 3, 2);
+lean::closure_set(x_5, 0, x_0);
+lean::closure_set(x_5, 1, x_1);
+x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
+return x_6;
+}
+}
 obj* l_lean_ir_terminator_decorate__error(obj* x_0, obj* x_1) {
 _start:
 {
@@ -4478,19 +4478,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_terminator_decorate__error___rarg), 3, 0);
 return x_4;
-}
-}
-obj* l_lean_ir_block_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_5; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 1);
-lean::inc(x_3);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_block_decorate__error___rarg___lambda__1), 3, 2);
-lean::closure_set(x_5, 0, x_0);
-lean::closure_set(x_5, 1, x_1);
-x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
-return x_6;
 }
 }
 obj* _init_l_lean_ir_block_decorate__error___rarg___lambda__1___closed__1() {
@@ -4544,6 +4531,19 @@ x_24 = lean::apply_2(x_3, lean::box(0), x_23);
 return x_24;
 }
 }
+obj* l_lean_ir_block_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_5; obj* x_6; 
+x_3 = lean::cnstr_get(x_0, 1);
+lean::inc(x_3);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_block_decorate__error___rarg___lambda__1), 3, 2);
+lean::closure_set(x_5, 0, x_0);
+lean::closure_set(x_5, 1, x_1);
+x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
+return x_6;
+}
+}
 obj* l_lean_ir_block_decorate__error(obj* x_0, obj* x_1) {
 _start:
 {
@@ -4552,19 +4552,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_block_decorate__error___rarg), 3, 0);
 return x_4;
-}
-}
-obj* l_lean_ir_header_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_5; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 1);
-lean::inc(x_3);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_header_decorate__error___rarg___lambda__1), 3, 2);
-lean::closure_set(x_5, 0, x_0);
-lean::closure_set(x_5, 1, x_1);
-x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
-return x_6;
 }
 }
 obj* _init_l_lean_ir_header_decorate__error___rarg___lambda__1___closed__1() {
@@ -4616,6 +4603,19 @@ lean::cnstr_set_scalar(x_22, sizeof(void*)*2, x_10);
 x_23 = x_22;
 x_24 = lean::apply_2(x_3, lean::box(0), x_23);
 return x_24;
+}
+}
+obj* l_lean_ir_header_decorate__error___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_5; obj* x_6; 
+x_3 = lean::cnstr_get(x_0, 1);
+lean::inc(x_3);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_ir_header_decorate__error___rarg___lambda__1), 3, 2);
+lean::closure_set(x_5, 0, x_0);
+lean::closure_set(x_5, 1, x_1);
+x_6 = lean::apply_3(x_3, lean::box(0), x_2, x_5);
+return x_6;
 }
 }
 obj* l_lean_ir_header_decorate__error(obj* x_0, obj* x_1) {

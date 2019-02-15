@@ -2964,15 +2964,6 @@ x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_list_zip__with___rarg), 3, 0
 return x_6;
 }
 }
-obj* l_list_zip___rarg(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_list_zip___rarg___lambda__1), 2, 0);
-x_3 = l_list_zip__with___main___rarg(x_2, x_0, x_1);
-return x_3;
-}
-}
 obj* l_list_zip___rarg___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
@@ -2981,6 +2972,15 @@ x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
 lean::cnstr_set(x_2, 1, x_1);
 return x_2;
+}
+}
+obj* l_list_zip___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_list_zip___rarg___lambda__1), 2, 0);
+x_3 = l_list_zip__with___main___rarg(x_2, x_0, x_1);
+return x_3;
 }
 }
 obj* l_list_zip(obj* x_0, obj* x_1) {

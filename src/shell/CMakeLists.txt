@@ -144,7 +144,7 @@ FOREACH(T ${LEANCOMPTESTS})
   GET_FILENAME_COMPONENT(T_NAME ${T} NAME)
   add_test(NAME "leancomptest_${T_NAME}"
            WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../tests/compiler"
-           COMMAND bash "./test.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
+           COMMAND bash "./test_single.sh" "${CMAKE_CURRENT_BINARY_DIR}/lean" ${T_NAME})
 ENDFOREACH(T)
 
 # LEANPKG TESTS

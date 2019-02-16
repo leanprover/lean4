@@ -62,9 +62,9 @@ private:
     expr infer_type(expr const & e);
 
     enum class reduction_status { Continue, DefUnknown, DefEqual, DefDiff };
-    optional<expr> reduce_recursor(expr const & e);
-    optional<expr> reduce_proj(expr const & e);
-    expr whnf_fvar(expr const & e);
+    optional<expr> reduce_recursor(expr const & e, bool cheap);
+    optional<expr> reduce_proj(expr const & e, bool cheap);
+    expr whnf_fvar(expr const & e, bool cheap);
     optional<constant_info> is_delta(expr const & e) const;
     optional<expr> unfold_definition_core(expr const & e);
 
@@ -132,7 +132,7 @@ public:
     expr ensure_type(expr const & e) { return ensure_sort(infer(e), e); }
     expr eta_expand(expr const & e);
 
-    expr whnf_core(expr const & e);
+    expr whnf_core(expr const & e, bool cheap = false);
     optional<expr> unfold_definition(expr const & e);
 };
 

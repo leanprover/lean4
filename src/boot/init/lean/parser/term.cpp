@@ -52262,22 +52262,22 @@ return x_17;
 obj* _init_l_lean_parser_term_projection_tokens() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; obj* x_7; obj* x_8; 
+obj* x_0; obj* x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_7; 
 x_0 = l_lean_parser_max__prec;
-x_1 = lean::mk_nat_obj(1u);
-x_2 = lean::nat_add(x_0, x_1);
-lean::dec(x_1);
-x_4 = lean::box(0);
-x_5 = lean::mk_string(".");
-lean::inc(x_4);
-x_7 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_2);
-lean::cnstr_set(x_7, 2, x_4);
-x_8 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_8, 0, x_7);
-lean::cnstr_set(x_8, 1, x_4);
-return x_8;
+lean::inc(x_0);
+x_2 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_2, 0, x_0);
+x_3 = lean::box(0);
+x_4 = lean::mk_string(".");
+lean::inc(x_3);
+x_6 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_6, 0, x_4);
+lean::cnstr_set(x_6, 1, x_2);
+lean::cnstr_set(x_6, 2, x_3);
+x_7 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_7, 0, x_6);
+lean::cnstr_set(x_7, 1, x_3);
+return x_7;
 }
 }
 obj* _init_l_lean_parser_term_builtin__trailing__parsers_lean_parser_has__tokens() {

@@ -33,9 +33,6 @@ obj* l_rbnode_ins___main___at_rbmap_of__list___main___spec__3___rarg(obj*, obj*,
 obj* l_rbmap_mfold___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_rbmap_max___main___rarg(obj*);
 obj* l_rbnode_all___rarg(obj*, obj*);
-namespace lean {
-obj* nat_add(obj*, obj*);
-}
 obj* l_rbmap;
 obj* l_rbmap_insert___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_repr__aux___main___at_rbmap_has__repr___spec__2___rarg(obj*, obj*, uint8, obj*);
@@ -293,7 +290,7 @@ return x_4;
 }
 case 1:
 {
-obj* x_5; obj* x_7; obj* x_11; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
+obj* x_5; obj* x_7; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
 x_5 = lean::cnstr_get(x_1, 0);
 lean::inc(x_5);
 x_7 = lean::cnstr_get(x_1, 3);
@@ -304,30 +301,26 @@ x_11 = l_rbnode_depth___main___rarg(x_0, x_5);
 lean::inc(x_0);
 x_13 = l_rbnode_depth___main___rarg(x_0, x_7);
 x_14 = lean::apply_2(x_0, x_11, x_13);
-x_15 = lean::mk_nat_obj(1u);
-x_16 = lean::nat_add(x_14, x_15);
-lean::dec(x_15);
-lean::dec(x_14);
-return x_16;
+x_15 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_15, 0, x_14);
+return x_15;
 }
 default:
 {
-obj* x_19; obj* x_21; obj* x_25; obj* x_27; obj* x_28; obj* x_29; obj* x_30; 
-x_19 = lean::cnstr_get(x_1, 0);
-lean::inc(x_19);
-x_21 = lean::cnstr_get(x_1, 3);
-lean::inc(x_21);
+obj* x_16; obj* x_18; obj* x_22; obj* x_24; obj* x_25; obj* x_26; 
+x_16 = lean::cnstr_get(x_1, 0);
+lean::inc(x_16);
+x_18 = lean::cnstr_get(x_1, 3);
+lean::inc(x_18);
 lean::dec(x_1);
 lean::inc(x_0);
-x_25 = l_rbnode_depth___main___rarg(x_0, x_19);
+x_22 = l_rbnode_depth___main___rarg(x_0, x_16);
 lean::inc(x_0);
-x_27 = l_rbnode_depth___main___rarg(x_0, x_21);
-x_28 = lean::apply_2(x_0, x_25, x_27);
-x_29 = lean::mk_nat_obj(1u);
-x_30 = lean::nat_add(x_28, x_29);
-lean::dec(x_29);
-lean::dec(x_28);
-return x_30;
+x_24 = l_rbnode_depth___main___rarg(x_0, x_18);
+x_25 = lean::apply_2(x_0, x_22, x_24);
+x_26 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_26, 0, x_25);
+return x_26;
 }
 }
 }

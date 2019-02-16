@@ -1873,21 +1873,19 @@ x_12 = lean::unbox(x_11);
 lean::dec(x_11);
 if (x_12 == 0)
 {
-obj* x_14; obj* x_15; obj* x_16; 
+obj* x_14; obj* x_15; 
 x_14 = l_list_find__index___main___rarg(x_0, x_7);
-x_15 = lean::mk_nat_obj(1u);
-x_16 = lean::nat_add(x_14, x_15);
-lean::dec(x_15);
-lean::dec(x_14);
-return x_16;
+x_15 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_15, 0, x_14);
+return x_15;
 }
 else
 {
-obj* x_21; 
+obj* x_18; 
 lean::dec(x_7);
 lean::dec(x_0);
-x_21 = lean::mk_nat_obj(0u);
-return x_21;
+x_18 = lean::mk_nat_obj(0u);
+return x_18;
 }
 }
 }
@@ -1947,22 +1945,20 @@ x_15 = lean::unbox(x_14);
 lean::dec(x_14);
 if (x_15 == 0)
 {
-obj* x_17; obj* x_18; obj* x_19; 
+obj* x_17; obj* x_18; 
 x_17 = l_list_find__index___main___at_list_index__of___spec__1___rarg(x_0, x_1, x_9);
-x_18 = lean::mk_nat_obj(1u);
-x_19 = lean::nat_add(x_17, x_18);
-lean::dec(x_18);
-lean::dec(x_17);
-return x_19;
+x_18 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_18, 0, x_17);
+return x_18;
 }
 else
 {
-obj* x_25; 
+obj* x_22; 
 lean::dec(x_9);
 lean::dec(x_1);
 lean::dec(x_0);
-x_25 = lean::mk_nat_obj(0u);
-return x_25;
+x_22 = lean::mk_nat_obj(0u);
+return x_22;
 }
 }
 }

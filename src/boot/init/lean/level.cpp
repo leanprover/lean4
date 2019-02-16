@@ -76,6 +76,7 @@ obj* l_lean_level__to__format_level__has__to__string;
 obj* l_lean_level__to__format_result__list_to__format___main(obj*);
 extern "C" usize lean_level_hash(obj*);
 obj* l_lean_level_to__nat(obj*);
+obj* l_lean_level_one;
 obj* l_nat_repr(obj*);
 obj* l_lean_level__to__format_result_imax(obj*, obj*);
 namespace lean {
@@ -91,6 +92,15 @@ _start:
 obj* x_0; 
 x_0 = lean::box(0);
 return x_0;
+}
+}
+obj* _init_l_lean_level_one() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::box(0);
+x_1 = level_mk_succ(x_0);
+return x_1;
 }
 }
 obj* l_lean_level_has__param___main(obj* x_0) {
@@ -1358,6 +1368,7 @@ void initialize_init_lean_level() {
  initialize_init_lean_name();
  initialize_init_data_option_basic();
  l_lean_level__is__inhabited = _init_l_lean_level__is__inhabited();
+ l_lean_level_one = _init_l_lean_level_one();
  l_lean_level_to__nat___main___closed__1 = _init_l_lean_level_to__nat___main___closed__1();
  l_lean_level_to__nat___main___closed__2 = _init_l_lean_level_to__nat___main___closed__2();
  l_lean_level_to__nat___main___closed__3 = _init_l_lean_level_to__nat___main___closed__3();

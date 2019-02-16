@@ -1399,70 +1399,6 @@ class csimp_fn {
         }
     }
 
-    expr visit_nat_add(expr const & e) {
-        nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
-        return to_nat_expr(a+b);
-    }
-
-    expr visit_nat_mul(expr const & e) {
-        nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
-        return to_nat_expr(a*b);
-    }
-
-    expr visit_nat_sub(expr const & e) {
-        nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
-        return to_nat_expr(a-b);
-    }
-
-    expr to_bool_expr(bool b) {
-        return b ? mk_bool_tt() : mk_bool_ff();
-    }
-
-    expr visit_nat_beq(expr const & e) {
-        nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
-        return to_bool_expr(a == b);
-    }
-
-    expr visit_nat_ble(expr const & e) {
-        nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
-        return to_bool_expr(a <= b);
-    }
-
-    expr to_decidable_expr(bool b, expr const & e) {
-        if (m_before_erasure) {
-            expr type = whnf_infer_type(e);
-            expr const & p = app_arg(type);
-            if (b) {
-                return mk_app(mk_constant(get_decidable_is_true_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
-            } else {
-                return mk_app(mk_constant(get_decidable_is_false_name()), p, mk_app(mk_constant(get_lc_proof_name()), p));
-            }
-        } else {
-            if (b) {
-                return mk_app(mk_constant(get_decidable_is_true_name()), mk_enf_neutral(), mk_enf_neutral());
-            } else {
-                return mk_app(mk_constant(get_decidable_is_false_name()), mk_enf_neutral(), mk_enf_neutral());
-            }
-        }
-    }
-
-    expr visit_nat_dec_eq(expr const & e) {
-        nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
-        return to_decidable_expr(a == b, e);
-    }
-
-    expr visit_nat_decidable_lt(expr const & e) {
-        nat a, b;
-        if (!get_binary_nat_lits(e, a, b)) return visit_app_default(e);
-        return to_decidable_expr(a < b, e);
-    }
-
     expr visit_app_default(expr const & e) {
         if (already_simplified(e)) return e;
         buffer<expr> args;
@@ -1508,21 +1444,7 @@ class csimp_fn {
                 }
             }
             name const & n = const_name(fn);
-            if (n == get_nat_add_name()) {
-                return visit_nat_add(e);
-            } else if (n == get_nat_mul_name()) {
-                return visit_nat_mul(e);
-            } else if (n == get_nat_sub_name()) {
-                return visit_nat_sub(e);
-            } else if (n == get_nat_dec_eq_name()) {
-                return visit_nat_dec_eq(e);
-            } else if (n == get_nat_decidable_lt_name()) {
-                return visit_nat_decidable_lt(e);
-            } else if (n == get_nat_beq_name()) {
-                return visit_nat_beq(e);
-            } else if (n == get_nat_ble_name()) {
-                return visit_nat_ble(e);
-            } else if (n == get_nat_succ_name()) {
+            if (n == get_nat_succ_name()) {
                 return visit_nat_succ(e);
             } else if (n == get_nat_zero_name()) {
                 return mk_lit(literal(nat(0)));

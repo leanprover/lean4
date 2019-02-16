@@ -79,9 +79,19 @@ protected def hash (n : @& expr) : usize :=
 protected def dbg_to_string (e : @& expr) : string :=
 "" -- dummy implementation
 
-def get_app_fn : expr → expr
-| (app f a) := get_app_fn f
-| e         := e
-
 end expr
+
+def get_app_fn : expr → expr
+| (expr.app f a) := get_app_fn f
+| e              := e
+
+def mk_bin_app (f a b : expr) :=
+expr.app (expr.app f a) b
+
+def mk_dec_is_true (pred proof : expr) :=
+mk_bin_app (expr.const `decidable.is_true []) pred proof
+
+def mk_dec_is_false (pred proof : expr) :=
+mk_bin_app (expr.const `decidable.is_false []) pred proof
+
 end lean

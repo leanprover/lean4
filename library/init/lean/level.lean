@@ -25,6 +25,8 @@ attribute [extern "level_mk_mvar"]  level.mvar
 instance level_is_inhabited : inhabited level :=
 ⟨level.zero⟩
 
+def level.one : level := level.succ level.zero
+
 def level.has_param : level → bool
 | (level.param _)    := tt
 | (level.succ l)     := level.has_param l

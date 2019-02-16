@@ -1376,6 +1376,11 @@ class csimp_fn {
         return new_e;
     }
 
+    expr visit_nat_succ(expr const & e) {
+        expr arg = visit(app_arg(e), false);
+        return mk_app(mk_constant(get_nat_add_name()), arg, mk_lit(literal(nat(1))));
+    }
+
     expr visit_app(expr const & e, bool is_let_val) {
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e, is_let_val);
@@ -1410,7 +1415,9 @@ class csimp_fn {
                 }
             }
             name const & n = const_name(fn);
-            if (n == get_nat_zero_name()) {
+            if (n == get_nat_succ_name()) {
+                return visit_nat_succ(e);
+            } else if (n == get_nat_zero_name()) {
                 return mk_lit(literal(nat(0)));
             } else if (optional<expr> r = try_inline(fn, e, is_let_val)) {
                 return *r;

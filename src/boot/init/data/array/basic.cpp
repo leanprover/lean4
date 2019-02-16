@@ -19,6 +19,9 @@ obj* l_array_rev__iterate(obj*, obj*);
 obj* l_array_push___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_array_rev__foldl(obj*, obj*);
 obj* l_array_uread___rarg___boxed(obj*, obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_array_rev__iterate___rarg(obj*, obj*, obj*);
 obj* l_array_read___rarg(obj*, obj*);
 obj* l___private_init_data_array_basic_2__rev__iterate__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -509,20 +512,20 @@ return x_2;
 obj* l_array_push___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_2; obj* x_4; obj* x_5; obj* x_7; obj* x_8; 
 x_2 = lean::cnstr_get(x_0, 0);
 lean::inc(x_2);
-lean::inc(x_2);
-x_5 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_5, 0, x_2);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_array_push___rarg___lambda__1), 4, 3);
-lean::closure_set(x_6, 0, x_2);
-lean::closure_set(x_6, 1, x_0);
-lean::closure_set(x_6, 2, x_1);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+x_4 = lean::mk_nat_obj(1u);
+x_5 = lean::nat_add(x_2, x_4);
+lean::dec(x_4);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_array_push___rarg___lambda__1), 4, 3);
+lean::closure_set(x_7, 0, x_2);
+lean::closure_set(x_7, 1, x_0);
+lean::closure_set(x_7, 2, x_1);
+x_8 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_8, 0, x_5);
+lean::cnstr_set(x_8, 1, x_7);
+return x_8;
 }
 }
 obj* l_array_push(obj* x_0) {

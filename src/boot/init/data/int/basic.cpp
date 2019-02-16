@@ -30,6 +30,9 @@ obj* l_int_has__sub;
 namespace lean {
 obj* int_neg_succ_of_nat(obj*);
 }
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_int_add___boxed(obj*, obj*);
 namespace lean {
 uint8 int_dec_le(obj*, obj*);
@@ -419,21 +422,21 @@ return x_5;
 }
 else
 {
-obj* x_6; obj* x_8; obj* x_9; obj* x_12; obj* x_13; obj* x_14; obj* x_16; 
+obj* x_6; obj* x_8; obj* x_9; obj* x_11; obj* x_14; obj* x_15; obj* x_17; 
 x_6 = lean::nat_abs(x_0);
 lean::dec(x_0);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_sub(x_6, x_8);
-lean::dec(x_8);
 lean::dec(x_6);
-x_12 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_12, 0, x_9);
-x_13 = l_nat_repr(x_12);
-x_14 = l_int_repr___main___closed__2;
-lean::inc(x_14);
-x_16 = lean::string_append(x_14, x_13);
-lean::dec(x_13);
-return x_16;
+x_11 = lean::nat_add(x_9, x_8);
+lean::dec(x_8);
+lean::dec(x_9);
+x_14 = l_nat_repr(x_11);
+x_15 = l_int_repr___main___closed__2;
+lean::inc(x_15);
+x_17 = lean::string_append(x_15, x_14);
+lean::dec(x_14);
+return x_17;
 }
 }
 }

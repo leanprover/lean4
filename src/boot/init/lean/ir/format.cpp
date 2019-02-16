@@ -53,7 +53,7 @@ obj* l_lean_ir_assign__unop_to__format___main___closed__13;
 obj* l_lean_ir_assign__unop_to__format___main___boxed(obj*);
 obj* l_lean_format_prefix__join___main___at_lean_ir_instr_to__format___main___spec__3(obj*, obj*);
 obj* l_lean_ir_assign__binop_to__format___main___closed__24;
-extern obj* l_lean_id__end__escape;
+extern uint32 l_lean_id__end__escape;
 obj* l_lean_ir_assign__binop_to__format___main___closed__21;
 obj* l_lean_ir_assign__binop_to__format___main___closed__1;
 obj* l_lean_to__fmt___at_lean_ir_assign__unop_has__to__string___spec__1___boxed(obj*);
@@ -207,7 +207,7 @@ obj* l_lean_format_group___main(obj*);
 obj* l_lean_to__fmt___at_lean_ir_header_has__to__string___spec__1(obj*);
 obj* l_lean_ir_assign__unop_to__format___boxed(obj*);
 obj* l_lean_to__fmt___at_lean_ir_instr_to__format___main___spec__5(uint16);
-extern obj* l_lean_id__begin__escape;
+extern uint32 l_lean_id__begin__escape;
 obj* l_lean_ir_assign__binop_to__format___main___closed__17;
 obj* l_lean_ir_id__part_to__string(obj*);
 obj* l_lean_ir_header_to__format(obj*);
@@ -435,23 +435,21 @@ return x_4;
 obj* _init_l_lean_ir_escape__string___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; uint32 x_2; obj* x_3; 
+obj* x_0; uint32 x_1; obj* x_2; 
 x_0 = lean::mk_string("");
 x_1 = l_lean_id__begin__escape;
-x_2 = lean::unbox_uint32(x_1);
-x_3 = lean::string_push(x_0, x_2);
-return x_3;
+x_2 = lean::string_push(x_0, x_1);
+return x_2;
 }
 }
 obj* _init_l_lean_ir_escape__string___closed__2() {
 _start:
 {
-obj* x_0; obj* x_1; uint32 x_2; obj* x_3; 
+obj* x_0; uint32 x_1; obj* x_2; 
 x_0 = lean::mk_string("");
 x_1 = l_lean_id__end__escape;
-x_2 = lean::unbox_uint32(x_1);
-x_3 = lean::string_push(x_0, x_2);
-return x_3;
+x_2 = lean::string_push(x_0, x_1);
+return x_2;
 }
 }
 obj* l_lean_ir_escape__string(obj* x_0) {

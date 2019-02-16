@@ -813,28 +813,21 @@ uint8 l_lean_ir_is__reserved__name___main(obj* x_0) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
-case 0:
-{
-uint8 x_2; 
-lean::dec(x_0);
-x_2 = 0;
-return x_2;
-}
 case 1:
 {
-obj* x_3; uint8 x_6; 
-x_3 = lean::cnstr_get(x_0, 1);
-lean::inc(x_3);
+obj* x_1; uint8 x_4; 
+x_1 = lean::cnstr_get(x_0, 1);
+lean::inc(x_1);
 lean::dec(x_0);
-x_6 = l_lean_ir_is__reserved(x_3);
-return x_6;
+x_4 = l_lean_ir_is__reserved(x_1);
+return x_4;
 }
 default:
 {
-uint8 x_8; 
+uint8 x_6; 
 lean::dec(x_0);
-x_8 = 0;
-return x_8;
+x_6 = 0;
+return x_6;
 }
 }
 }

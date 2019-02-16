@@ -104,26 +104,6 @@ obj* l_lean_get__app__fn___main(obj* x_0) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
-case 0:
-{
-return x_0;
-}
-case 1:
-{
-return x_0;
-}
-case 2:
-{
-return x_0;
-}
-case 3:
-{
-return x_0;
-}
-case 4:
-{
-return x_0;
-}
 case 5:
 {
 obj* x_1; 
@@ -132,26 +112,6 @@ lean::inc(x_1);
 lean::dec(x_0);
 x_0 = x_1;
 goto _start;
-}
-case 6:
-{
-return x_0;
-}
-case 7:
-{
-return x_0;
-}
-case 8:
-{
-return x_0;
-}
-case 9:
-{
-return x_0;
-}
-case 10:
-{
-return x_0;
 }
 default:
 {

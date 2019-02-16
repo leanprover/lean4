@@ -257,19 +257,15 @@ x_8 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_5);
 x_9 = lean::cnstr_get_scalar<uint8>(x_3, sizeof(void*)*5);
 lean::dec(x_3);
 switch (x_9) {
-case 0:
-{
-return x_8;
-}
-case 1:
-{
-return x_8;
-}
-default:
+case 2:
 {
 uint8 x_11; 
 x_11 = 1;
 return x_11;
+}
+default:
+{
+return x_8;
 }
 }
 }

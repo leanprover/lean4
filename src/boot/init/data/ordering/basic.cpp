@@ -151,10 +151,6 @@ uint8 l_ordering_or__else___main(uint8 x_0, uint8 x_1) {
 _start:
 {
 switch (x_0) {
-case 0:
-{
-return x_0;
-}
 case 1:
 {
 return x_1;
@@ -181,10 +177,6 @@ uint8 l_ordering_or__else(uint8 x_0, uint8 x_1) {
 _start:
 {
 switch (x_0) {
-case 0:
-{
-return x_0;
-}
 case 1:
 {
 return x_1;
@@ -338,30 +330,35 @@ uint8 x_2;
 x_2 = 1;
 return x_2;
 }
-case 1:
+default:
 {
 uint8 x_3; 
 x_3 = 0;
 return x_3;
-}
-default:
-{
-uint8 x_4; 
-x_4 = 0;
-return x_4;
 }
 }
 }
 case 1:
 {
 switch (x_1) {
-case 0:
+case 1:
+{
+uint8 x_4; 
+x_4 = 1;
+return x_4;
+}
+default:
 {
 uint8 x_5; 
 x_5 = 0;
 return x_5;
 }
-case 1:
+}
+}
+default:
+{
+switch (x_1) {
+case 2:
 {
 uint8 x_6; 
 x_6 = 1;
@@ -372,29 +369,6 @@ default:
 uint8 x_7; 
 x_7 = 0;
 return x_7;
-}
-}
-}
-default:
-{
-switch (x_1) {
-case 0:
-{
-uint8 x_8; 
-x_8 = 0;
-return x_8;
-}
-case 1:
-{
-uint8 x_9; 
-x_9 = 0;
-return x_9;
-}
-default:
-{
-uint8 x_10; 
-x_10 = 1;
-return x_10;
 }
 }
 }

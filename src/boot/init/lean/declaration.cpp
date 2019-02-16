@@ -82,67 +82,39 @@ obj* l_lean_constant__info_value___main(obj* x_0) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
-case 0:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::box(0);
-return x_2;
-}
 case 1:
 {
-obj* x_3; obj* x_6; obj* x_9; 
-x_3 = lean::cnstr_get(x_0, 0);
-lean::inc(x_3);
+obj* x_1; obj* x_4; obj* x_7; 
+x_1 = lean::cnstr_get(x_0, 0);
+lean::inc(x_1);
 lean::dec(x_0);
-x_6 = lean::cnstr_get(x_3, 1);
-lean::inc(x_6);
-lean::dec(x_3);
-x_9 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_9, 0, x_6);
-return x_9;
+x_4 = lean::cnstr_get(x_1, 1);
+lean::inc(x_4);
+lean::dec(x_1);
+x_7 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_7, 0, x_4);
+return x_7;
 }
 case 2:
 {
-obj* x_10; obj* x_13; obj* x_16; obj* x_17; 
-x_10 = lean::cnstr_get(x_0, 0);
-lean::inc(x_10);
+obj* x_8; obj* x_11; obj* x_14; obj* x_15; 
+x_8 = lean::cnstr_get(x_0, 0);
+lean::inc(x_8);
 lean::dec(x_0);
-x_13 = lean::cnstr_get(x_10, 1);
-lean::inc(x_13);
-lean::dec(x_10);
-x_16 = l_task_get___rarg(x_13);
-x_17 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_17, 0, x_16);
-return x_17;
-}
-case 3:
-{
-obj* x_19; 
-lean::dec(x_0);
-x_19 = lean::box(0);
-return x_19;
-}
-case 4:
-{
-obj* x_21; 
-lean::dec(x_0);
-x_21 = lean::box(0);
-return x_21;
-}
-case 5:
-{
-obj* x_23; 
-lean::dec(x_0);
-x_23 = lean::box(0);
-return x_23;
+x_11 = lean::cnstr_get(x_8, 1);
+lean::inc(x_11);
+lean::dec(x_8);
+x_14 = l_task_get___rarg(x_11);
+x_15 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_15, 0, x_14);
+return x_15;
 }
 default:
 {
-obj* x_25; 
+obj* x_17; 
 lean::dec(x_0);
-x_25 = lean::box(0);
-return x_25;
+x_17 = lean::box(0);
+return x_17;
 }
 }
 }
@@ -159,58 +131,23 @@ obj* l_lean_constant__info_hints___main(obj* x_0) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
-case 0:
-{
-obj* x_2; 
-lean::dec(x_0);
-x_2 = lean::box(0);
-return x_2;
-}
 case 1:
 {
-obj* x_3; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 0);
-lean::inc(x_3);
+obj* x_1; obj* x_4; 
+x_1 = lean::cnstr_get(x_0, 0);
+lean::inc(x_1);
 lean::dec(x_0);
-x_6 = lean::cnstr_get(x_3, 2);
-lean::inc(x_6);
-lean::dec(x_3);
-return x_6;
-}
-case 2:
-{
-obj* x_10; 
-lean::dec(x_0);
-x_10 = lean::box(0);
-return x_10;
-}
-case 3:
-{
-obj* x_12; 
-lean::dec(x_0);
-x_12 = lean::box(0);
-return x_12;
-}
-case 4:
-{
-obj* x_14; 
-lean::dec(x_0);
-x_14 = lean::box(0);
-return x_14;
-}
-case 5:
-{
-obj* x_16; 
-lean::dec(x_0);
-x_16 = lean::box(0);
-return x_16;
+x_4 = lean::cnstr_get(x_1, 2);
+lean::inc(x_4);
+lean::dec(x_1);
+return x_4;
 }
 default:
 {
-obj* x_18; 
+obj* x_8; 
 lean::dec(x_0);
-x_18 = lean::box(0);
-return x_18;
+x_8 = lean::box(0);
+return x_8;
 }
 }
 }

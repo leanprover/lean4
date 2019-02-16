@@ -322,7 +322,7 @@ x_9 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_9, 0, x_8);
 return x_9;
 }
-case 2:
+default:
 {
 obj* x_10; obj* x_13; obj* x_14; 
 x_10 = lean::cnstr_get(x_0, 1);
@@ -332,17 +332,6 @@ x_13 = l_lean_mk__simple__fn__call(x_10, x_1);
 x_14 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_14, 0, x_13);
 return x_14;
-}
-default:
-{
-obj* x_15; obj* x_18; obj* x_19; 
-x_15 = lean::cnstr_get(x_0, 1);
-lean::inc(x_15);
-lean::dec(x_0);
-x_18 = l_lean_mk__simple__fn__call(x_15, x_1);
-x_19 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_19, 0, x_18);
-return x_19;
 }
 }
 }

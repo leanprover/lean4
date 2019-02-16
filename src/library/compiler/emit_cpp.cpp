@@ -674,6 +674,25 @@ struct emit_fn_fn {
         }
     }
 
+    expr find_max_occs(unsigned sz, expr const * es) {
+        lean_assert(sz > 0);
+        expr r = es[sz-1];
+        unsigned r_noccs = 1;
+        for (unsigned i = 0; i < sz; i++) {
+            expr curr = es[i];
+            unsigned curr_noccs = 1;
+            for (unsigned j = i+1; j < sz; j++) {
+                if (es[j] == curr)
+                    curr_noccs++;
+            }
+            if (curr_noccs > r_noccs) {
+                r = curr;
+                r_noccs = curr_noccs;
+            }
+        }
+        return r;
+    }
+
     void emit_cases(expr const & e) {
         lean_assert(is_cases_on_app(m_env, e));
         buffer<expr> args;
@@ -695,13 +714,15 @@ struct emit_fn_fn {
             } else {
                 m_out << "switch ("; emit_fvar(x); m_out << ") {\n";
             }
+            expr def = find_max_occs(args.size() - 1, args.data() + 1);
             for (unsigned i = 1; i < args.size(); i++) {
-                if (i == args.size() - 1)
-                    m_out << "default:\n";
-                else
+                if (args[i] != def) {
                     m_out << "case " << (i-1) << ":\n";
-                emit(args[i]);
+                    emit(args[i]);
+                }
             }
+            m_out << "default:\n";
+            emit(def);
             m_out << "}\n";
         }
     }

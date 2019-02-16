@@ -36,6 +36,17 @@ csimp_cfg::csimp_cfg() {
 }
 
 /*
+@[export lean.fold_un_op_core]
+def fold_un_op (before_erasure : bool) (f : expr) (a : expr) : option expr :=
+*/
+object * fold_un_op_core(uint8 before_erasure, object * f, object * a);
+
+optional<expr> fold_un_op(bool before_erasure, expr const & f, expr const & a) {
+    inc(f.raw()); inc(a.raw());
+    return to_optional_expr(fold_un_op_core(before_erasure, f.raw(), a.raw()));
+}
+
+/*
 @[export lean.fold_bin_op_core]
 def fold_bin_op (before_erasure : bool) (f : expr) (a : expr) (b : expr) : option expr :=
 */
@@ -1349,57 +1360,6 @@ class csimp_fn {
         }
     }
 
-    bool get_unary_lit(expr const & e, literal & a) {
-        if (get_app_num_args(e) != 1) return false;
-        expr arg = find(app_arg(e));
-        if (!is_lit(arg)) return false;
-        a = lit_value(arg);
-        return true;
-    }
-
-    bool get_unary_nat_lit(expr const & e, nat & a) {
-        literal l;
-        if (!get_unary_lit(e, l)) return false;
-        if (l.kind() != literal_kind::Nat) return false;
-        a = l.get_nat();
-        return true;
-    }
-
-    bool get_binary_lits(expr const & e, literal & a, literal & b) {
-        if (get_app_num_args(e) != 2) return false;
-        expr arg2 = find(app_arg(e));
-        if (!is_lit(arg2)) return false;
-        expr arg1 = find(app_arg(app_fn(e)));
-        if (!is_lit(arg1)) return false;
-        a = lit_value(arg1);
-        b = lit_value(arg2);
-        return true;
-    }
-
-    bool get_binary_nat_lits(expr const & e, nat & a, nat & b) {
-        literal l1, l2;
-        if (!get_binary_lits(e, l1, l2)) return false;
-        if (l1.kind() != literal_kind::Nat) return false;
-        if (l2.kind() != literal_kind::Nat) return false;
-        a = l1.get_nat();
-        b = l2.get_nat();
-        return true;
-    }
-
-    expr to_nat_expr(nat const & n) {
-        return mk_lit(literal(n));
-    }
-
-    expr visit_nat_succ(expr const & e) {
-        nat a;
-        if (get_unary_nat_lit(e, a)) {
-            return to_nat_expr(a+nat(1));
-        } else {
-            expr arg = visit(app_arg(e), false);
-            return mk_app(mk_constant(get_nat_add_name()), arg, mk_lit(literal(nat(1))));
-        }
-    }
-
     expr visit_app_default(expr const & e) {
         if (already_simplified(e)) return e;
         buffer<expr> args;
@@ -1437,7 +1397,12 @@ class csimp_fn {
             return merge_app_app(fn, e, is_let_val);
         } else if (is_constant(fn)) {
             unsigned nargs = get_app_num_args(e);
-            if (nargs == 2) {
+            if (nargs == 1) {
+                expr a1 = find(app_arg(e));
+                if (optional<expr> r = fold_un_op(m_before_erasure, fn, a1)) {
+                    return *r;
+                }
+            } else if (nargs == 2) {
                 expr a1 = find(app_arg(app_fn(e)));
                 expr a2 = find(app_arg(e));
                 if (optional<expr> r = fold_bin_op(m_before_erasure, fn, a1, a2)) {
@@ -1445,9 +1410,7 @@ class csimp_fn {
                 }
             }
             name const & n = const_name(fn);
-            if (n == get_nat_succ_name()) {
-                return visit_nat_succ(e);
-            } else if (n == get_nat_zero_name()) {
+            if (n == get_nat_zero_name()) {
                 return mk_lit(literal(nat(0)));
             } else if (optional<expr> r = try_inline(fn, e, is_let_val)) {
                 return *r;

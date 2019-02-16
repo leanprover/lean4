@@ -13,6 +13,7 @@ namespace lean
 namespace compiler
 
 def bin_fold_fn := bool → expr → expr → option expr
+def un_fold_fn  := bool → expr → option expr
 
 def mk_uint_type_name (nbytes : nat) : name :=
 mk_simple_name ("uint" ++ to_string nbytes)
@@ -48,6 +49,9 @@ def get_num_lit : expr → option nat
 
 def mk_uint_lit (info : num_scalar_type_info) (n : nat) : expr :=
 expr.app (expr.const info.of_nat_fn []) (expr.lit (literal.nat_val (n%info.size)))
+
+def mk_uint32_lit (n : nat) : expr :=
+mk_uint_lit {nbits := 32} n
 
 def fold_bin_uint (fn : num_scalar_type_info → bool → nat → nat → nat) (before_erasure : bool) (a₁ a₂ : expr) : option expr :=
 do n₁   ← get_num_lit a₁,
@@ -116,13 +120,32 @@ def nat_fold_fns : list (name × bin_fold_fn) :=
 def bin_fold_fns : list (name × bin_fold_fn) :=
 uint_bin_fold_fns ++ nat_fold_fns
 
-def find_bin_fold_fn_aux (fn : name) : list (name × bin_fold_fn) → option bin_fold_fn
-| []             := none
-| ((n, f)::rest) :=
-  if fn = n then some f else find_bin_fold_fn_aux rest
+def fold_nat_succ (_ : bool) (a : expr) : option expr :=
+do n   ← get_num_lit a,
+   pure $ expr.lit (literal.nat_val (n+1))
+
+def fold_char_of_nat (before_erasure : bool) (a : expr) : option expr :=
+do guard (!before_erasure),
+   n ← get_num_lit a,
+   pure $
+     if is_valid_char (uint32.of_nat n) then mk_uint32_lit n
+     else mk_uint32_lit 0
+
+def un_fold_fns : list (name × un_fold_fn) :=
+[(`nat.succ, fold_nat_succ),
+ (`char.of_nat, fold_char_of_nat)]
+
+-- TODO(Leo): move
+private def {u} alist_find {α : Type u} (n : name) : list (name × α) → option α
+| []          := none
+| ((k, v)::r) :=
+  if n = k then some v else alist_find r
 
 def find_bin_fold_fn (fn : name) : option bin_fold_fn :=
-find_bin_fold_fn_aux fn bin_fold_fns
+alist_find fn bin_fold_fns
+
+def find_un_fold_fn (fn : name) : option un_fold_fn :=
+alist_find fn un_fold_fns
 
 @[export lean.fold_bin_op_core]
 def fold_bin_op (before_erasure : bool) (f : expr) (a : expr) (b : expr) : option expr :=
@@ -130,6 +153,14 @@ match f with
 | expr.const fn _ := do
    fold_fn ← find_bin_fold_fn fn,
    fold_fn before_erasure a b
+| _ := none
+
+@[export lean.fold_un_op_core]
+def fold_un_op (before_erasure : bool) (f : expr) (a : expr) : option expr :=
+match f with
+| expr.const fn _ := do
+   fold_fn ← find_un_fold_fn fn,
+   fold_fn before_erasure a
 | _ := none
 
 end compiler

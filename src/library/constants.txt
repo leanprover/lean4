@@ -56,6 +56,7 @@ eq_of_heq
 eq_true_intro
 eq_false_intro
 eq_self_iff_true
+lean.level
 lean.expr
 lean.expr.subst
 false

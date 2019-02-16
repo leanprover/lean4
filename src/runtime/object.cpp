@@ -1567,6 +1567,62 @@ obj_res string_iterator_snd(obj_arg it) {
 }
 
 // =======================================
+// array functions for generated code
+
+object * mk_array(obj_arg n, obj_arg v) {
+    size_t sz;
+    if (is_scalar(n)) {
+        sz = unbox(n);
+    } else {
+        mpz const & v = mpz_value(n);
+        if (!v.is_unsigned_long_int()) throw std::bad_alloc(); // we will run out of memory
+        sz = v.get_unsigned_long_int();
+        dec(n);
+    }
+    object * r    = alloc_array(sz, sz);
+    object ** it  = array_cptr(r);
+    object ** end = it + sz;
+    for (; it != end; ++it) {
+        *it = v;
+    }
+    if (sz > 1) inc(v, sz - 1);
+    return r;
+}
+
+obj_res copy_array(obj_arg a, bool expand) {
+    size_t sz      = array_size(a);
+    size_t cap     = array_capacity(a);
+    if (expand) cap = (cap + 1) * 2;
+    object * r     = alloc_array(sz, cap);
+    object ** it   = array_cptr(a);
+    object ** end  = it + sz;
+    object ** dest = array_cptr(r);
+    for (; it != end; ++it, ++dest) {
+        *dest = *it;
+        inc(*it);
+    }
+    dec(a);
+    return r;
+}
+
+object * array_push(obj_arg a, obj_arg v) {
+    object * r;
+    if (is_exclusive(a)) {
+        if (array_capacity(a) > array_size(a))
+            r = a;
+        else
+            r = copy_array(a, true);
+    } else {
+        r = copy_array(a, array_capacity(a) < 2*array_size(a));
+    }
+    size_t & sz = to_array(r)->m_size;
+    object ** it   = array_cptr(r) + sz;
+    *it = v;
+    sz++;
+    return r;
+}
+
+// =======================================
 // Debugging helper functions
 
 void dbg_print_str(object * o) {

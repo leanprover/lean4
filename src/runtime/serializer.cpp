@@ -307,12 +307,14 @@ object * deserializer::read_task() {
 }
 
 object * deserializer::read_array() {
-    size_t sz    = read_size_t();
-    object * r   = alloc_array(sz, sz);
-    for (size_t i = 0; i < sz; i++) {
+    size_t sz     = read_size_t();
+    object * r    = alloc_array(sz, sz);
+    object ** it  = array_cptr(r);
+    object ** end = it + sz;
+    for (; it != end; ++it) {
         object * o = read_object();
         inc(o);
-        array_set(r, i, o);
+        *it = o;
     }
     return r;
 }

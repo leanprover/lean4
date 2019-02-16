@@ -63,6 +63,7 @@ name const & get_eq_of_heq_name();
 name const & get_eq_true_intro_name();
 name const & get_eq_false_intro_name();
 name const & get_eq_self_iff_true_name();
+name const & get_lean_level_name();
 name const & get_lean_expr_name();
 name const & get_lean_expr_subst_name();
 name const & get_false_name();

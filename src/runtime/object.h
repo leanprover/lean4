@@ -242,6 +242,14 @@ inline void inc_ref(object * o) {
     }
 }
 
+inline void inc_ref(object * o, rc_type n) {
+    if (is_mt_heap_obj(o)) {
+        atomic_fetch_add_explicit(mt_rc_addr(o), static_cast<rc_type>(n), memory_order_relaxed);
+    } else {
+        st_rc_ref(o) += n;
+    }
+}
+
 inline void dec_shared_ref(object * o) {
     lean_assert(is_shared(o));
     if (is_mt_heap_obj(o)) {
@@ -266,6 +274,7 @@ inline bool dec_ref_core(object * o) {
 
 inline void dec_ref(object * o) { if (dec_ref_core(o)) del(o); }
 inline void inc(object * o) { if (!is_scalar(o)) inc_ref(o); }
+inline void inc(object * o, rc_type n) { if (!is_scalar(o)) inc_ref(o, n); }
 inline void dec(object * o) { if (!is_scalar(o)) dec_ref(o); }
 
 // =======================================
@@ -1238,4 +1247,111 @@ inline usize usize_modn(usize a1, b_obj_arg a2) {
 inline uint8 usize_dec_eq(usize a1, usize a2) { return a1 == a2; }
 inline uint8 usize_dec_lt(usize a1, usize a2) { return a1 < a2; }
 inline uint8 usize_dec_le(usize a1, usize a2) { return a1 <= a2; }
+
+// =======================================
+// array functions for generated code
+static_assert(sizeof(unsigned long) == sizeof(size_t), "we assume that `unsigned long` and `size_t` have the same size");
+
+inline object * array_get_size(obj_arg a) {
+    object * r = nat_of_size_t(array_size(a));
+    dec(a);
+    return r;
+}
+
+/* This function assumes that `n` fits in a size_t */
+inline size_t size_t_of_nat_core(b_obj_arg n) {
+    if (is_scalar(n)) return unbox(n);
+    else return mpz_value(n).get_unsigned_long_int();
+}
+
+object * mk_array(obj_arg n, obj_arg v);
+
+inline object * mk_nil_array() {
+    return alloc_array(0, 0);
+}
+
+inline object * array_uread(b_obj_arg a, usize i) {
+    object * r = array_get(a, i); inc(r);
+    return r;
+}
+
+inline obj_res array_read(b_obj_arg a, b_obj_arg i) {
+    return array_uread(a, size_t_of_nat_core(i));
+}
+
+inline object * array_safe_uread(obj_arg def_val, b_obj_arg a, usize i) {
+    if (i < array_size(a)) {
+        dec(def_val);
+        return array_uread(a, i);
+    } else {
+        return def_val;
+    }
+}
+
+inline object * array_safe_read(obj_arg def_val, b_obj_arg a, b_obj_arg i) {
+    size_t idx;
+    if (is_scalar(i)) {
+        idx = unbox(i);
+    } else {
+        mpz const & v = mpz_value(i);
+        if (!v.is_unsigned_long_int()) return def_val;
+        idx = v.get_unsigned_long_int();
+    }
+    return array_safe_uread(def_val, a, idx);
+}
+
+obj_res copy_array(obj_arg a, bool expand = false);
+
+inline obj_res ensure_exclusive_array(obj_arg a) {
+    if (is_exclusive(a)) return a;
+    return copy_array(a);
+}
+
+inline object * array_uwrite(obj_arg a, usize i, obj_arg v) {
+    object * r   = ensure_exclusive_array(a);
+    object ** it = array_cptr(r) + i;
+    dec(*it);
+    *it = v;
+    return r;
+}
+
+inline object * array_safe_uwrite(obj_arg a, usize i, obj_arg v) {
+    if (i < array_size(a)) {
+        return array_uwrite(a, i, v);
+    } else {
+        dec(v);
+        return a;
+    }
+}
+
+inline object * array_write(obj_arg a, b_obj_arg i, obj_arg v) {
+    return array_uwrite(a, size_t_of_nat_core(i), v);
+}
+
+inline object * array_safe_write(obj_arg a, b_obj_arg i, obj_arg v) {
+    size_t idx;
+    if (is_scalar(i)) {
+        idx = unbox(i);
+    } else {
+        mpz const & m = mpz_value(i);
+        if (!m.is_unsigned_long_int()) {
+            dec(v);
+            return a;
+        }
+        idx = m.get_unsigned_long_int();
+    }
+    return array_safe_uwrite(a, idx, v);
+}
+
+inline object * array_pop(obj_arg a) {
+    object * r  = ensure_exclusive_array(a);
+    size_t & sz = to_array(r)->m_size;
+    if (sz == 0) return r;
+    sz--;
+    object ** last = array_cptr(r) + sz;
+    dec(*last);
+    return r;
+}
+
+object * array_push(obj_arg a, obj_arg v);
 }

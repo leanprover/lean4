@@ -130,6 +130,7 @@ optional<unsigned> to_char_core(expr const & e) {
     buffer<expr> args;
     expr const & fn = get_app_args(e, args);
     if (fn == *g_char_mk && args.size() == 2) {
+        /* TODO(Leo): FIX, we are now using uint32 instead of nat */
         if (auto n = to_num(args[0])) {
             return optional<unsigned>(n->get_unsigned_int());
         } else {

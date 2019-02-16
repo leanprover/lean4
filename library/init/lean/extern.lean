@@ -52,7 +52,7 @@ def expand_extern_pattern_aux (args : list string) : nat → string.iterator →
     else
       let it  := it.next in
       let c   := it.curr in
-      let j   := c.val - '0'.val - 1 in
+      let j   := c.to_nat - '0'.to_nat - 1 in
       expand_extern_pattern_aux i it.next (r ++ (args.nth j).get_or_else "")
 
 @[export lean.expand_extern_pattern_core]

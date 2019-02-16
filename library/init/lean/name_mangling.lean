@@ -17,7 +17,7 @@ private def string.mangle_aux : nat → string.iterator → string → string
     string.mangle_aux i it.next (r.push c)
   else if c = '_' then
     string.mangle_aux i it.next (r ++ "__")
-  else if c.val < 255 then
+  else if c.to_nat < 255 then
     let n := c.to_nat in
     let r := r ++ "_x" in
     let r := r.push $ nat.digit_char (n / 16) in

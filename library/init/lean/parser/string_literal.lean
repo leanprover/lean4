@@ -12,9 +12,9 @@ open monad_parsec
 variables {m : Type → Type} {μ : Type} [monad m] [monad_parsec μ m] [alternative m]
 
 def parse_hex_digit : m nat :=
-(    (do d ← digit, pure $ d.val - '0'.val)
- <|> (do c ← satisfy (λ c, 'a'.val ≤ c.val && c.val ≤ 'f'.val), pure $ 10 + (c.val - 'a'.val))
- <|> (do c ← satisfy (λ c, 'A'.val ≤ c.val && c.val ≤ 'F'.val), pure $ 10 + (c.val - 'A'.val)))
+(    (do d ← digit, pure $ d.to_nat - '0'.to_nat)
+ <|> (do c ← satisfy (λ c, 'a'.val ≤ c.val && c.val ≤ 'f'.val), pure $ 10 + (c.to_nat - 'a'.to_nat))
+ <|> (do c ← satisfy (λ c, 'A'.val ≤ c.val && c.val ≤ 'F'.val), pure $ 10 + (c.to_nat - 'A'.to_nat)))
 <?> "hexadecimal"
 
 def parse_quoted_char : m char :=

@@ -1394,6 +1394,8 @@ class explicit_boxing_fn {
             lean_unreachable();
         } else if (is_llnf_unbox(f)) {
             lean_unreachable();
+        } else if (is_morally_num_lit(e)) {
+            return e;
         } else {
             return visit_app_default(f, args, expected_type);
         }

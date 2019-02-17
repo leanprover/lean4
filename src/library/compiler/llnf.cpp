@@ -1446,6 +1446,7 @@ class explicit_rc_fn {
     name                m_x;
     unsigned            m_next_idx{1};
     name_set            m_borrowed; /* Set of variables marked as borrowed. */
+    name_set            m_locally_scalar;
 
     static bool is_jmp(expr const & e) {
         return is_llnf_jmp(get_app_fn(e));
@@ -1647,7 +1648,8 @@ class explicit_rc_fn {
         for (unsigned i = first_arg_idx; i < args.size(); i++) {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
-                !is_unboxed(get_type_of(arg)) && /* it is not a unboxed/scalar value */
+                !is_unboxed(get_type_of(arg)) &&      /* it is not a unboxed/scalar value */
+                !m_locally_scalar.contains(fvar_name(arg)) &&  /* it is not known to be a scalar here */
                 is_first_occur(arg, i, args)) {
                 unsigned n = get_num_incs(arg, args, f_borrowed_args, live_obj_vars);
                 if (n > 0) {
@@ -1771,6 +1773,7 @@ class explicit_rc_fn {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
                 !is_unboxed(get_type_of(arg)) && /* it is not a unboxed/scalar value */
+                !m_locally_scalar.contains(fvar_name(arg)) &&
                 is_first_occur(arg, i, args)) {
                 unsigned n = get_num_incs(arg, args, borrowed_args, name_set());
                 if (n > 0) {
@@ -1780,12 +1783,42 @@ class explicit_rc_fn {
         }
     }
 
+    bool is_0ary_constructor(name const & cname) {
+        constant_info info  = env().get(cname);
+        lean_assert(info.is_constructor());
+        constructor_val val = info.to_constructor_val();
+        expr type           = info.get_type();
+        unsigned nparams    = val.get_nparams();
+        type_checker::state st(env());
+        local_ctx lctx;
+        buffer<expr> telescope;
+        to_telescope(env(), lctx, ngen(), type, telescope);
+        lean_assert(telescope.size() >= nparams);
+        for (unsigned i = nparams; i < telescope.size(); i++) {
+            expr ftype = lctx.get_type(telescope[i]);
+            if (!is_irrelevant_type(st, lctx, ftype)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     expr process_cases(expr const & e) {
         name_set cases_live_vars;
         collect_live_vars(e, cases_live_vars);
         buffer<expr> args;
-        expr const & fn = get_app_args(e, args);
+        expr const & fn     = get_app_args(e, args);
+        expr const & major  = args[0];
+        lean_assert(is_fvar(major));
+        name const & I_name = const_name(fn).get_prefix();
+        buffer<name> cnames;
+        get_constructor_names(env(), I_name, cnames);
+        lean_assert(cnames.size() == args.size() - 1);
         for (unsigned i = 1; i < args.size(); i++) {
+            flet<name_set> save_locally_scalar(m_locally_scalar, m_locally_scalar);
+            if (is_0ary_constructor(cnames[i-1])) {
+                m_locally_scalar.insert(fvar_name(major));
+            }
             expr arg = args[i]; /* A "case/branch" of the `cases_on` term. */
             name_set arg_live_vars;
             collect_live_vars(arg, arg_live_vars);
@@ -1796,7 +1829,9 @@ class explicit_rc_fn {
             arg = mk_let(saved_fvars_size, arg);
             /* We must decrement (non-borrowed) variables that are live at `cases_live_vars`, but are not live at `arg_live_vars`. */
             cases_live_vars.for_each([&](name const & x_name) {
-                    if (!arg_live_vars.contains(x_name) && !m_borrowed.contains(x_name)) {
+                    if (!arg_live_vars.contains(x_name) &&
+                        !m_locally_scalar.contains(x_name) &&
+                        !m_borrowed.contains(x_name)) {
                         local_decl x_decl = m_lctx.get_local_decl(x_name);
                         if (!is_unboxed(x_decl.get_type())) {
                             expr x = x_decl.mk_ref();
@@ -1823,7 +1858,8 @@ class explicit_rc_fn {
             return e;
         } else if (is_fvar(e)) {
             /* If it is marked as borrowed, we should insert `inc`. */
-            if (m_borrowed.contains(fvar_name(e)) && is_obj(e))
+            if (m_borrowed.contains(fvar_name(e)) && is_obj(e) &&
+                !m_locally_scalar.contains(fvar_name(e)))
                 add_inc(e, entries);
             return e;
         } else {

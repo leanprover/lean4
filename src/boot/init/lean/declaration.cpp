@@ -22,7 +22,6 @@ obj* l_lean_constant__info_to__constant__val___main(obj*);
 obj* l_lean_constant__info_value___main(obj*);
 obj* l_lean_constant__info_value(obj*);
 obj* l_lean_constant__info_to__constant__val(obj*);
-obj* l_task_get___rarg(obj*);
 obj* l_lean_constant__info_hints___main(obj*);
 obj* l_lean_constant__info_to__constant__val___main(obj* x_0) {
 _start:
@@ -97,24 +96,25 @@ return x_7;
 }
 case 2:
 {
-obj* x_8; obj* x_11; obj* x_14; obj* x_15; 
+obj* x_8; obj* x_11; obj* x_14; obj* x_16; 
 x_8 = lean::cnstr_get(x_0, 0);
 lean::inc(x_8);
 lean::dec(x_0);
 x_11 = lean::cnstr_get(x_8, 1);
 lean::inc(x_11);
 lean::dec(x_8);
-x_14 = l_task_get___rarg(x_11);
-x_15 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_15, 0, x_14);
-return x_15;
+x_14 = lean::task_get(x_11);
+lean::dec(x_11);
+x_16 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_16, 0, x_14);
+return x_16;
 }
 default:
 {
-obj* x_17; 
+obj* x_18; 
 lean::dec(x_0);
-x_17 = lean::box(0);
-return x_17;
+x_18 = lean::box(0);
+return x_18;
 }
 }
 }

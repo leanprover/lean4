@@ -157,13 +157,20 @@ protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → 
 /- Remark: tasks have an efficient implementation in the runtime. -/
 structure task (α : Type u) : Type u :=
 (fn : unit → α)
-@[noinline] protected def task.pure {α : Type u} (a : α) : task α :=
+
+attribute [extern cpp inline "lean::mk_task(#2)"] task.mk
+
+@[noinline, extern cpp inline "lean::task_pure(#2)"]
+protected def task.pure {α : Type u} (a : α) : task α :=
 ⟨λ _, a⟩
-@[noinline] protected def task.get {α : Type u} (x : task α) : α :=
+@[noinline, extern cpp inline "lean::task_get(#2)"]
+protected def task.get {α : Type u} (x : @& task α) : α :=
 x.fn ()
-@[noinline] protected def task.map {α : Type u} {β : Type v} (f : α → β) (x : task α) : task β :=
+@[noinline, extern cpp inline "lean::task_map(#3, #4)"]
+protected def task.map {α : Type u} {β : Type v} (f : α → β) (x : task α) : task β :=
 ⟨λ _, f x.get⟩
-@[noinline] protected def task.bind {α : Type u} {β : Type v} (x : task α) (f : α → task β) : task β :=
+@[noinline, extern cpp inline "lean::task_bind(#3, #4)"]
+protected def task.bind {α : Type u} {β : Type v} (x : task α) (f : α → task β) : task β :=
 ⟨λ _, (f x.get).get⟩
 
 inductive true : Prop

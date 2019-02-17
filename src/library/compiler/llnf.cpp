@@ -1987,12 +1987,17 @@ class explicit_rc_fn {
         }
     }
 
-    /* `e` is of the form `_cnstr.<cidx>.0.0` or `_neutral` */
-    static bool is_boxed_scalar(expr const & e) {
+    /* Return true iff `e` is one of the forms:
+       1- `_cnstr.<cidx>.0.0`, or
+       2- `_neutral`, or
+       3- small nat */
+    static bool is_boxed_scalar(expr const & e_type, expr const & e) {
         unsigned cidx, nusizes, ssz;
         return
             (is_llnf_cnstr(e, cidx, nusizes, ssz) && nusizes == 0 && ssz == 0) ||
-            is_enf_neutral(e);
+            is_enf_neutral(e) ||
+            (is_enf_object_type(e_type) && is_lit(e) && lit_value(e).kind() == literal_kind::Nat &&
+             lit_value(e).get_nat() <= LEAN_MAX_SMALL_NAT);
     }
 
     /* Make sure `e` is a cases, jmp or fvar */
@@ -2004,7 +2009,7 @@ class explicit_rc_fn {
             if (should_mark_as_borrowed(e)) {
                 m_borrowed.insert(fvar_name(new_fvar));
             }
-            if (is_boxed_scalar(e)) {
+            if (is_boxed_scalar(type, e)) {
                 m_is_scalar.insert(fvar_name(new_fvar));
             }
             m_fvars.push_back(new_fvar);
@@ -2027,12 +2032,13 @@ class explicit_rc_fn {
                 if (is_internal_name(n) && !is_join_point_name(n)) {
                     n = next_name();
                 }
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), val);
+                expr type     = let_type(e);
+                expr new_fvar = m_lctx.mk_local_decl(ngen(), n, type, val);
                 if (should_mark_as_borrowed(val)) {
                     /* Remark: it is incorrect to mark it at `process`. */
                     m_borrowed.insert(fvar_name(new_fvar));
                 }
-                if (is_boxed_scalar(val)) {
+                if (is_boxed_scalar(type, val)) {
                     m_is_scalar.insert(fvar_name(new_fvar));
                 }
                 fvars.push_back(new_fvar);

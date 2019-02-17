@@ -760,23 +760,6 @@ void deactivate_task(task_object * t) {
     g_task_manager->deactivate_task(t);
 }
 
-task_object::task_object(obj_arg c, unsigned prio):
-    object(object_kind::Task, object_memory_kind::STHeap), m_value(nullptr), m_imp(new imp(c, prio)) {
-    lean_assert(is_closure(c));
-}
-
-task_object::task_object(obj_arg v):
-    object(object_kind::Task, object_memory_kind::STHeap), m_value(v), m_imp(nullptr) {
-}
-
-static task_object * alloc_task(obj_arg c, unsigned prio) {
-    return new (alloc_heap_object(sizeof(task_object))) task_object(c, prio); // NOLINT
-}
-
-static task_object * alloc_task(obj_arg v) {
-    return new (alloc_heap_object(sizeof(task_object))) task_object(v); // NOLINT
-}
-
 void to_mt(object * o);
 static obj_res to_mt_fn(obj_arg o) {
     to_mt(o);
@@ -834,11 +817,28 @@ void to_mt(object * o) {
     }
 }
 
+task_object::task_object(obj_arg c, unsigned prio):
+    object(object_kind::Task, object_memory_kind::MTHeap), m_value(nullptr), m_imp(new imp(c, prio)) {
+    lean_assert(is_closure(c));
+    to_mt(c);
+}
+
+task_object::task_object(obj_arg v):
+    object(object_kind::Task, object_memory_kind::STHeap), m_value(v), m_imp(nullptr) {
+}
+
+static task_object * alloc_task(obj_arg c, unsigned prio) {
+    return new (alloc_heap_object(sizeof(task_object))) task_object(c, prio); // NOLINT
+}
+
+static task_object * alloc_task(obj_arg v) {
+    return new (alloc_heap_object(sizeof(task_object))) task_object(v); // NOLINT
+}
+
 obj_res mk_task(obj_arg c, unsigned prio) {
     if (!g_task_manager) {
         return mk_thunk(c);
     } else {
-        to_mt(c);
         task_object * new_task = alloc_task(c, prio);
         g_task_manager->enqueue(new_task);
         return new_task;

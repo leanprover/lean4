@@ -66,13 +66,13 @@ else
 obj* x_4; obj* x_6; obj* x_8; obj* x_9; 
 x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_6 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_6 = x_1;
+} else {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
 }
 lean::inc(x_0);
 x_8 = l_list_map___main___at_list_monad___spec__1___rarg(x_0, x_4);
@@ -114,13 +114,13 @@ x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_1, 1);
 lean::inc(x_6);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_8 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_8 = x_1;
+} else {
+ lean::dec(x_1);
+ x_8 = lean::box(0);
 }
 lean::inc(x_0);
 x_10 = l_list_map___main___rarg(x_4, x_0);
@@ -161,13 +161,13 @@ else
 obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11; 
 x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_6 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_6 = x_1;
+} else {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
 }
 x_7 = lean::box(0);
 lean::inc(x_0);
@@ -213,13 +213,13 @@ x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_1, 1);
 lean::inc(x_6);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_8 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_8 = x_1;
+} else {
+ lean::dec(x_1);
+ x_8 = lean::box(0);
 }
 lean::inc(x_0);
 x_10 = l_list_map___main___at_list_monad___spec__3___rarg(x_4, x_0);
@@ -261,13 +261,13 @@ else
 obj* x_4; obj* x_6; obj* x_8; obj* x_9; 
 x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_6 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_6 = x_1;
+} else {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
 }
 lean::inc(x_0);
 x_8 = l_list_map___main___at_list_monad___spec__5___rarg(x_0, x_4);
@@ -376,13 +376,13 @@ else
 obj* x_4; obj* x_6; obj* x_8; obj* x_9; 
 x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_6 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_6 = x_1;
+} else {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
 }
 lean::inc(x_0);
 x_8 = l_list_map___main___at_list_alternative___spec__1___rarg(x_0, x_4);
@@ -424,13 +424,13 @@ x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_1, 1);
 lean::inc(x_6);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_8 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_8 = x_1;
+} else {
+ lean::dec(x_1);
+ x_8 = lean::box(0);
 }
 lean::inc(x_0);
 x_10 = l_list_map___main___rarg(x_4, x_0);
@@ -471,13 +471,13 @@ else
 obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11; 
 x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_6 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_6 = x_1;
+} else {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
 }
 x_7 = lean::box(0);
 lean::inc(x_0);
@@ -523,13 +523,13 @@ x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_1, 1);
 lean::inc(x_6);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_8 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_8 = x_1;
+} else {
+ lean::dec(x_1);
+ x_8 = lean::box(0);
 }
 lean::inc(x_0);
 x_10 = l_list_map___main___at_list_alternative___spec__3___rarg(x_4, x_0);
@@ -571,13 +571,13 @@ else
 obj* x_4; obj* x_6; obj* x_8; obj* x_9; 
 x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
-if (lean::is_shared(x_1)) {
- lean::dec(x_1);
- x_6 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
  x_6 = x_1;
+} else {
+ lean::dec(x_1);
+ x_6 = lean::box(0);
 }
 lean::inc(x_0);
 x_8 = l_list_map___main___at_list_alternative___spec__5___rarg(x_0, x_4);

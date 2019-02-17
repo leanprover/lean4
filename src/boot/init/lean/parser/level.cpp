@@ -469,13 +469,13 @@ x_6 = lean::cnstr_get(x_5, 0);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_5, 1);
 lean::inc(x_8);
-if (lean::is_shared(x_5)) {
- lean::dec(x_5);
- x_10 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_5)) {
  lean::cnstr_release(x_5, 0);
  lean::cnstr_release(x_5, 1);
  x_10 = x_5;
+} else {
+ lean::dec(x_5);
+ x_10 = lean::box(0);
 }
 x_11 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;
 lean::inc(x_11);
@@ -556,13 +556,13 @@ x_6 = lean::cnstr_get(x_5, 0);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_5, 1);
 lean::inc(x_8);
-if (lean::is_shared(x_5)) {
- lean::dec(x_5);
- x_10 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_5)) {
  lean::cnstr_release(x_5, 0);
  lean::cnstr_release(x_5, 1);
  x_10 = x_5;
+} else {
+ lean::dec(x_5);
+ x_10 = lean::box(0);
 }
 x_11 = l_lean_parser_level_parser___closed__1;
 lean::inc(x_11);
@@ -1151,13 +1151,13 @@ x_12 = lean::cnstr_get(x_11, 0);
 lean::inc(x_12);
 x_14 = lean::cnstr_get(x_11, 1);
 lean::inc(x_14);
-if (lean::is_shared(x_11)) {
- lean::dec(x_11);
- x_16 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_11)) {
  lean::cnstr_release(x_11, 0);
  lean::cnstr_release(x_11, 1);
  x_16 = x_11;
+} else {
+ lean::dec(x_11);
+ x_16 = lean::box(0);
 }
 lean::inc(x_0);
 x_18 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
@@ -1171,14 +1171,14 @@ x_21 = lean::cnstr_get(x_12, 1);
 lean::inc(x_21);
 x_23 = lean::cnstr_get(x_12, 2);
 lean::inc(x_23);
-if (lean::is_shared(x_12)) {
- lean::dec(x_12);
- x_25 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_12)) {
  lean::cnstr_release(x_12, 0);
  lean::cnstr_release(x_12, 1);
  lean::cnstr_release(x_12, 2);
  x_25 = x_12;
+} else {
+ lean::dec(x_12);
+ x_25 = lean::box(0);
 }
 switch (lean::obj_tag(x_19)) {
 case 0:
@@ -1203,13 +1203,13 @@ x_39 = lean::cnstr_get(x_38, 0);
 lean::inc(x_39);
 x_41 = lean::cnstr_get(x_38, 1);
 lean::inc(x_41);
-if (lean::is_shared(x_38)) {
- lean::dec(x_38);
- x_43 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_38)) {
  lean::cnstr_release(x_38, 0);
  lean::cnstr_release(x_38, 1);
  x_43 = x_38;
+} else {
+ lean::dec(x_38);
+ x_43 = lean::box(0);
 }
 if (lean::obj_tag(x_39) == 0)
 {
@@ -1252,12 +1252,12 @@ lean::dec(x_19);
 x_61 = lean::cnstr_get(x_39, 0);
 lean::inc(x_61);
 x_63 = lean::cnstr_get_scalar<uint8>(x_39, sizeof(void*)*1);
-if (lean::is_shared(x_39)) {
- lean::dec(x_39);
- x_64 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_39)) {
  lean::cnstr_release(x_39, 0);
  x_64 = x_39;
+} else {
+ lean::dec(x_39);
+ x_64 = lean::box(0);
 }
 if (lean::is_scalar(x_64)) {
  x_65 = lean::alloc_cnstr(1, 1, 1);
@@ -1373,12 +1373,12 @@ lean::dec(x_2);
 x_117 = lean::cnstr_get(x_12, 0);
 lean::inc(x_117);
 x_119 = lean::cnstr_get_scalar<uint8>(x_12, sizeof(void*)*1);
-if (lean::is_shared(x_12)) {
- lean::dec(x_12);
- x_120 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_12)) {
  lean::cnstr_release(x_12, 0);
  x_120 = x_12;
+} else {
+ lean::dec(x_12);
+ x_120 = lean::box(0);
 }
 if (lean::is_scalar(x_120)) {
  x_121 = lean::alloc_cnstr(1, 1, 1);
@@ -1505,13 +1505,13 @@ x_14 = lean::cnstr_get(x_2, 0);
 lean::inc(x_14);
 x_16 = lean::cnstr_get(x_2, 1);
 lean::inc(x_16);
-if (lean::is_shared(x_2)) {
- lean::dec(x_2);
- x_18 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_2)) {
  lean::cnstr_release(x_2, 0);
  lean::cnstr_release(x_2, 1);
  x_18 = x_2;
+} else {
+ lean::dec(x_2);
+ x_18 = lean::box(0);
 }
 lean::inc(x_4);
 lean::inc(x_3);
@@ -1533,12 +1533,12 @@ obj* x_30; uint8 x_32; obj* x_33;
 x_30 = lean::cnstr_get(x_25, 0);
 lean::inc(x_30);
 x_32 = lean::cnstr_get_scalar<uint8>(x_25, sizeof(void*)*1);
-if (lean::is_shared(x_25)) {
- lean::dec(x_25);
- x_33 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_25)) {
  lean::cnstr_release(x_25, 0);
  x_33 = x_25;
+} else {
+ lean::dec(x_25);
+ x_33 = lean::box(0);
 }
 if (lean::obj_tag(x_1) == 0)
 {
@@ -1645,14 +1645,14 @@ x_63 = lean::cnstr_get(x_19, 1);
 lean::inc(x_63);
 x_65 = lean::cnstr_get(x_19, 2);
 lean::inc(x_65);
-if (lean::is_shared(x_19)) {
- lean::dec(x_19);
- x_67 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_19)) {
  lean::cnstr_release(x_19, 0);
  lean::cnstr_release(x_19, 1);
  lean::cnstr_release(x_19, 2);
  x_67 = x_19;
+} else {
+ lean::dec(x_19);
+ x_67 = lean::box(0);
 }
 if (lean::is_scalar(x_18)) {
  x_68 = lean::alloc_cnstr(1, 2, 0);
@@ -1687,13 +1687,13 @@ x_81 = lean::cnstr_get(x_80, 0);
 lean::inc(x_81);
 x_83 = lean::cnstr_get(x_80, 1);
 lean::inc(x_83);
-if (lean::is_shared(x_80)) {
- lean::dec(x_80);
- x_85 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_80)) {
  lean::cnstr_release(x_80, 0);
  lean::cnstr_release(x_80, 1);
  x_85 = x_80;
+} else {
+ lean::dec(x_80);
+ x_85 = lean::box(0);
 }
 x_86 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_77, x_81);
 if (lean::is_scalar(x_85)) {
@@ -1715,12 +1715,12 @@ lean::dec(x_16);
 x_92 = lean::cnstr_get(x_72, 0);
 lean::inc(x_92);
 x_94 = lean::cnstr_get_scalar<uint8>(x_72, sizeof(void*)*1);
-if (lean::is_shared(x_72)) {
- lean::dec(x_72);
- x_95 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_72)) {
  lean::cnstr_release(x_72, 0);
  x_95 = x_72;
+} else {
+ lean::dec(x_72);
+ x_95 = lean::box(0);
 }
 if (lean::is_scalar(x_95)) {
  x_96 = lean::alloc_cnstr(1, 1, 1);
@@ -1748,12 +1748,12 @@ lean::dec(x_18);
 x_105 = lean::cnstr_get(x_19, 0);
 lean::inc(x_105);
 x_107 = lean::cnstr_get_scalar<uint8>(x_19, sizeof(void*)*1);
-if (lean::is_shared(x_19)) {
- lean::dec(x_19);
- x_108 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_19)) {
  lean::cnstr_release(x_19, 0);
  x_108 = x_19;
+} else {
+ lean::dec(x_19);
+ x_108 = lean::box(0);
 }
 if (lean::is_scalar(x_108)) {
  x_109 = lean::alloc_cnstr(1, 1, 1);
@@ -1783,13 +1783,13 @@ x_9 = lean::cnstr_get(x_8, 0);
 lean::inc(x_9);
 x_11 = lean::cnstr_get(x_8, 1);
 lean::inc(x_11);
-if (lean::is_shared(x_8)) {
- lean::dec(x_8);
- x_13 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_8)) {
  lean::cnstr_release(x_8, 0);
  lean::cnstr_release(x_8, 1);
  x_13 = x_8;
+} else {
+ lean::dec(x_8);
+ x_13 = lean::box(0);
 }
 if (lean::obj_tag(x_9) == 0)
 {
@@ -1800,14 +1800,14 @@ x_16 = lean::cnstr_get(x_9, 1);
 lean::inc(x_16);
 x_18 = lean::cnstr_get(x_9, 2);
 lean::inc(x_18);
-if (lean::is_shared(x_9)) {
- lean::dec(x_9);
- x_20 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_9)) {
  lean::cnstr_release(x_9, 0);
  lean::cnstr_release(x_9, 1);
  lean::cnstr_release(x_9, 2);
  x_20 = x_9;
+} else {
+ lean::dec(x_9);
+ x_20 = lean::box(0);
 }
 x_21 = l_list_reverse___rarg(x_14);
 x_22 = l_lean_parser_syntax_mk__node(x_0, x_21);
@@ -1838,12 +1838,12 @@ lean::dec(x_0);
 x_29 = lean::cnstr_get(x_9, 0);
 lean::inc(x_29);
 x_31 = lean::cnstr_get_scalar<uint8>(x_9, sizeof(void*)*1);
-if (lean::is_shared(x_9)) {
- lean::dec(x_9);
- x_32 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_9)) {
  lean::cnstr_release(x_9, 0);
  x_32 = x_9;
+} else {
+ lean::dec(x_9);
+ x_32 = lean::box(0);
 }
 if (lean::is_scalar(x_32)) {
  x_33 = lean::alloc_cnstr(1, 1, 1);
@@ -2626,13 +2626,13 @@ x_9 = lean::cnstr_get(x_8, 0);
 lean::inc(x_9);
 x_11 = lean::cnstr_get(x_8, 1);
 lean::inc(x_11);
-if (lean::is_shared(x_8)) {
- lean::dec(x_8);
- x_13 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_8)) {
  lean::cnstr_release(x_8, 0);
  lean::cnstr_release(x_8, 1);
  x_13 = x_8;
+} else {
+ lean::dec(x_8);
+ x_13 = lean::box(0);
 }
 if (lean::obj_tag(x_9) == 0)
 {
@@ -2643,14 +2643,14 @@ x_16 = lean::cnstr_get(x_9, 1);
 lean::inc(x_16);
 x_18 = lean::cnstr_get(x_9, 2);
 lean::inc(x_18);
-if (lean::is_shared(x_9)) {
- lean::dec(x_9);
- x_20 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_9)) {
  lean::cnstr_release(x_9, 0);
  lean::cnstr_release(x_9, 1);
  lean::cnstr_release(x_9, 2);
  x_20 = x_9;
+} else {
+ lean::dec(x_9);
+ x_20 = lean::box(0);
 }
 switch (lean::obj_tag(x_14)) {
 case 0:
@@ -2810,12 +2810,12 @@ lean::dec(x_20);
 x_87 = lean::cnstr_get(x_66, 0);
 lean::inc(x_87);
 x_89 = lean::cnstr_get_scalar<uint8>(x_66, sizeof(void*)*1);
-if (lean::is_shared(x_66)) {
- lean::dec(x_66);
- x_90 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_66)) {
  lean::cnstr_release(x_66, 0);
  x_90 = x_66;
+} else {
+ lean::dec(x_66);
+ x_90 = lean::box(0);
 }
 if (lean::is_scalar(x_90)) {
  x_91 = lean::alloc_cnstr(1, 1, 1);
@@ -2852,12 +2852,12 @@ lean::dec(x_2);
 x_102 = lean::cnstr_get(x_9, 0);
 lean::inc(x_102);
 x_104 = lean::cnstr_get_scalar<uint8>(x_9, sizeof(void*)*1);
-if (lean::is_shared(x_9)) {
- lean::dec(x_9);
- x_105 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_9)) {
  lean::cnstr_release(x_9, 0);
  x_105 = x_9;
+} else {
+ lean::dec(x_9);
+ x_105 = lean::box(0);
 }
 if (lean::is_scalar(x_105)) {
  x_106 = lean::alloc_cnstr(1, 1, 1);
@@ -2903,13 +2903,13 @@ x_6 = lean::cnstr_get(x_5, 0);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_5, 1);
 lean::inc(x_8);
-if (lean::is_shared(x_5)) {
- lean::dec(x_5);
- x_10 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_5)) {
  lean::cnstr_release(x_5, 0);
  lean::cnstr_release(x_5, 1);
  x_10 = x_5;
+} else {
+ lean::dec(x_5);
+ x_10 = lean::box(0);
 }
 if (lean::obj_tag(x_6) == 0)
 {
@@ -2920,14 +2920,14 @@ x_13 = lean::cnstr_get(x_6, 1);
 lean::inc(x_13);
 x_15 = lean::cnstr_get(x_6, 2);
 lean::inc(x_15);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_17 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  lean::cnstr_release(x_6, 1);
  lean::cnstr_release(x_6, 2);
  x_17 = x_6;
+} else {
+ lean::dec(x_6);
+ x_17 = lean::box(0);
 }
 lean::inc(x_11);
 x_19 = l_lean_parser_try__view___at_lean_parser_number_parser___spec__1(x_11);
@@ -3009,12 +3009,12 @@ lean::dec(x_0);
 x_61 = lean::cnstr_get(x_6, 0);
 lean::inc(x_61);
 x_63 = lean::cnstr_get_scalar<uint8>(x_6, sizeof(void*)*1);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_64 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  x_64 = x_6;
+} else {
+ lean::dec(x_6);
+ x_64 = lean::box(0);
 }
 if (lean::is_scalar(x_64)) {
  x_65 = lean::alloc_cnstr(1, 1, 1);
@@ -3072,13 +3072,13 @@ x_6 = lean::cnstr_get(x_5, 0);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_5, 1);
 lean::inc(x_8);
-if (lean::is_shared(x_5)) {
- lean::dec(x_5);
- x_10 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_5)) {
  lean::cnstr_release(x_5, 0);
  lean::cnstr_release(x_5, 1);
  x_10 = x_5;
+} else {
+ lean::dec(x_5);
+ x_10 = lean::box(0);
 }
 if (lean::obj_tag(x_6) == 0)
 {
@@ -3089,14 +3089,14 @@ x_13 = lean::cnstr_get(x_6, 1);
 lean::inc(x_13);
 x_15 = lean::cnstr_get(x_6, 2);
 lean::inc(x_15);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_17 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  lean::cnstr_release(x_6, 1);
  lean::cnstr_release(x_6, 2);
  x_17 = x_6;
+} else {
+ lean::dec(x_6);
+ x_17 = lean::box(0);
 }
 switch (lean::obj_tag(x_11)) {
 case 1:
@@ -3187,12 +3187,12 @@ lean::dec(x_0);
 x_62 = lean::cnstr_get(x_6, 0);
 lean::inc(x_62);
 x_64 = lean::cnstr_get_scalar<uint8>(x_6, sizeof(void*)*1);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_65 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  x_65 = x_6;
+} else {
+ lean::dec(x_6);
+ x_65 = lean::box(0);
 }
 if (lean::is_scalar(x_65)) {
  x_66 = lean::alloc_cnstr(1, 1, 1);
@@ -3283,13 +3283,13 @@ x_13 = lean::cnstr_get(x_0, 0);
 lean::inc(x_13);
 x_15 = lean::cnstr_get(x_0, 1);
 lean::inc(x_15);
-if (lean::is_shared(x_0)) {
- lean::dec(x_0);
- x_17 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_0)) {
  lean::cnstr_release(x_0, 0);
  lean::cnstr_release(x_0, 1);
  x_17 = x_0;
+} else {
+ lean::dec(x_0);
+ x_17 = lean::box(0);
 }
 lean::inc(x_4);
 lean::inc(x_3);
@@ -3299,13 +3299,13 @@ x_22 = lean::cnstr_get(x_21, 0);
 lean::inc(x_22);
 x_24 = lean::cnstr_get(x_21, 1);
 lean::inc(x_24);
-if (lean::is_shared(x_21)) {
- lean::dec(x_21);
- x_26 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_21)) {
  lean::cnstr_release(x_21, 0);
  lean::cnstr_release(x_21, 1);
  x_26 = x_21;
+} else {
+ lean::dec(x_21);
+ x_26 = lean::box(0);
 }
 x_27 = lean::mk_nat_obj(1u);
 x_28 = lean::nat_add(x_1, x_27);
@@ -3318,14 +3318,14 @@ x_31 = lean::cnstr_get(x_22, 1);
 lean::inc(x_31);
 x_33 = lean::cnstr_get(x_22, 2);
 lean::inc(x_33);
-if (lean::is_shared(x_22)) {
- lean::dec(x_22);
- x_35 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_22)) {
  lean::cnstr_release(x_22, 0);
  lean::cnstr_release(x_22, 1);
  lean::cnstr_release(x_22, 2);
  x_35 = x_22;
+} else {
+ lean::dec(x_22);
+ x_35 = lean::box(0);
 }
 x_36 = lean::box(0);
 x_37 = lean_name_mk_numeral(x_36, x_1);
@@ -3419,12 +3419,12 @@ lean::dec(x_17);
 x_71 = lean::cnstr_get(x_22, 0);
 lean::inc(x_71);
 x_73 = lean::cnstr_get_scalar<uint8>(x_22, sizeof(void*)*1);
-if (lean::is_shared(x_22)) {
- lean::dec(x_22);
- x_74 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_22)) {
  lean::cnstr_release(x_22, 0);
  x_74 = x_22;
+} else {
+ lean::dec(x_22);
+ x_74 = lean::box(0);
 }
 if (x_73 == 0)
 {
@@ -3858,13 +3858,13 @@ x_16 = lean::cnstr_get(x_2, 0);
 lean::inc(x_16);
 x_18 = lean::cnstr_get(x_2, 1);
 lean::inc(x_18);
-if (lean::is_shared(x_2)) {
- lean::dec(x_2);
- x_20 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_2)) {
  lean::cnstr_release(x_2, 0);
  lean::cnstr_release(x_2, 1);
  x_20 = x_2;
+} else {
+ lean::dec(x_2);
+ x_20 = lean::box(0);
 }
 lean::inc(x_5);
 lean::inc(x_4);
@@ -3887,12 +3887,12 @@ obj* x_33; uint8 x_35; obj* x_36;
 x_33 = lean::cnstr_get(x_28, 0);
 lean::inc(x_33);
 x_35 = lean::cnstr_get_scalar<uint8>(x_28, sizeof(void*)*1);
-if (lean::is_shared(x_28)) {
- lean::dec(x_28);
- x_36 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_28)) {
  lean::cnstr_release(x_28, 0);
  x_36 = x_28;
+} else {
+ lean::dec(x_28);
+ x_36 = lean::box(0);
 }
 if (lean::obj_tag(x_1) == 0)
 {
@@ -3999,14 +3999,14 @@ x_66 = lean::cnstr_get(x_21, 1);
 lean::inc(x_66);
 x_68 = lean::cnstr_get(x_21, 2);
 lean::inc(x_68);
-if (lean::is_shared(x_21)) {
- lean::dec(x_21);
- x_70 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_21)) {
  lean::cnstr_release(x_21, 0);
  lean::cnstr_release(x_21, 1);
  lean::cnstr_release(x_21, 2);
  x_70 = x_21;
+} else {
+ lean::dec(x_21);
+ x_70 = lean::box(0);
 }
 if (lean::is_scalar(x_20)) {
  x_71 = lean::alloc_cnstr(1, 2, 0);
@@ -4041,13 +4041,13 @@ x_84 = lean::cnstr_get(x_83, 0);
 lean::inc(x_84);
 x_86 = lean::cnstr_get(x_83, 1);
 lean::inc(x_86);
-if (lean::is_shared(x_83)) {
- lean::dec(x_83);
- x_88 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_83)) {
  lean::cnstr_release(x_83, 0);
  lean::cnstr_release(x_83, 1);
  x_88 = x_83;
+} else {
+ lean::dec(x_83);
+ x_88 = lean::box(0);
 }
 x_89 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_80, x_84);
 if (lean::is_scalar(x_88)) {
@@ -4070,12 +4070,12 @@ lean::dec(x_18);
 x_96 = lean::cnstr_get(x_75, 0);
 lean::inc(x_96);
 x_98 = lean::cnstr_get_scalar<uint8>(x_75, sizeof(void*)*1);
-if (lean::is_shared(x_75)) {
- lean::dec(x_75);
- x_99 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_75)) {
  lean::cnstr_release(x_75, 0);
  x_99 = x_75;
+} else {
+ lean::dec(x_75);
+ x_99 = lean::box(0);
 }
 if (lean::is_scalar(x_99)) {
  x_100 = lean::alloc_cnstr(1, 1, 1);
@@ -4104,12 +4104,12 @@ lean::dec(x_20);
 x_110 = lean::cnstr_get(x_21, 0);
 lean::inc(x_110);
 x_112 = lean::cnstr_get_scalar<uint8>(x_21, sizeof(void*)*1);
-if (lean::is_shared(x_21)) {
- lean::dec(x_21);
- x_113 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_21)) {
  lean::cnstr_release(x_21, 0);
  x_113 = x_21;
+} else {
+ lean::dec(x_21);
+ x_113 = lean::box(0);
 }
 if (lean::is_scalar(x_113)) {
  x_114 = lean::alloc_cnstr(1, 1, 1);
@@ -4139,13 +4139,13 @@ x_10 = lean::cnstr_get(x_9, 0);
 lean::inc(x_10);
 x_12 = lean::cnstr_get(x_9, 1);
 lean::inc(x_12);
-if (lean::is_shared(x_9)) {
- lean::dec(x_9);
- x_14 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_9)) {
  lean::cnstr_release(x_9, 0);
  lean::cnstr_release(x_9, 1);
  x_14 = x_9;
+} else {
+ lean::dec(x_9);
+ x_14 = lean::box(0);
 }
 if (lean::obj_tag(x_10) == 0)
 {
@@ -4156,14 +4156,14 @@ x_17 = lean::cnstr_get(x_10, 1);
 lean::inc(x_17);
 x_19 = lean::cnstr_get(x_10, 2);
 lean::inc(x_19);
-if (lean::is_shared(x_10)) {
- lean::dec(x_10);
- x_21 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_10)) {
  lean::cnstr_release(x_10, 0);
  lean::cnstr_release(x_10, 1);
  lean::cnstr_release(x_10, 2);
  x_21 = x_10;
+} else {
+ lean::dec(x_10);
+ x_21 = lean::box(0);
 }
 x_22 = l_list_reverse___rarg(x_15);
 x_23 = l_lean_parser_syntax_mk__node(x_0, x_22);
@@ -4194,12 +4194,12 @@ lean::dec(x_0);
 x_30 = lean::cnstr_get(x_10, 0);
 lean::inc(x_30);
 x_32 = lean::cnstr_get_scalar<uint8>(x_10, sizeof(void*)*1);
-if (lean::is_shared(x_10)) {
- lean::dec(x_10);
- x_33 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_10)) {
  lean::cnstr_release(x_10, 0);
  x_33 = x_10;
+} else {
+ lean::dec(x_10);
+ x_33 = lean::box(0);
 }
 if (lean::is_scalar(x_33)) {
  x_34 = lean::alloc_cnstr(1, 1, 1);
@@ -4662,13 +4662,13 @@ x_14 = lean::cnstr_get(x_13, 0);
 lean::inc(x_14);
 x_16 = lean::cnstr_get(x_13, 1);
 lean::inc(x_16);
-if (lean::is_shared(x_13)) {
- lean::dec(x_13);
- x_18 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_13)) {
  lean::cnstr_release(x_13, 0);
  lean::cnstr_release(x_13, 1);
  x_18 = x_13;
+} else {
+ lean::dec(x_13);
+ x_18 = lean::box(0);
 }
 lean::inc(x_0);
 x_20 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
@@ -4682,14 +4682,14 @@ x_23 = lean::cnstr_get(x_14, 1);
 lean::inc(x_23);
 x_25 = lean::cnstr_get(x_14, 2);
 lean::inc(x_25);
-if (lean::is_shared(x_14)) {
- lean::dec(x_14);
- x_27 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_14)) {
  lean::cnstr_release(x_14, 0);
  lean::cnstr_release(x_14, 1);
  lean::cnstr_release(x_14, 2);
  x_27 = x_14;
+} else {
+ lean::dec(x_14);
+ x_27 = lean::box(0);
 }
 switch (lean::obj_tag(x_21)) {
 case 0:
@@ -4714,13 +4714,13 @@ x_41 = lean::cnstr_get(x_40, 0);
 lean::inc(x_41);
 x_43 = lean::cnstr_get(x_40, 1);
 lean::inc(x_43);
-if (lean::is_shared(x_40)) {
- lean::dec(x_40);
- x_45 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_40)) {
  lean::cnstr_release(x_40, 0);
  lean::cnstr_release(x_40, 1);
  x_45 = x_40;
+} else {
+ lean::dec(x_40);
+ x_45 = lean::box(0);
 }
 if (lean::obj_tag(x_41) == 0)
 {
@@ -4763,12 +4763,12 @@ lean::dec(x_21);
 x_63 = lean::cnstr_get(x_41, 0);
 lean::inc(x_63);
 x_65 = lean::cnstr_get_scalar<uint8>(x_41, sizeof(void*)*1);
-if (lean::is_shared(x_41)) {
- lean::dec(x_41);
- x_66 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_41)) {
  lean::cnstr_release(x_41, 0);
  x_66 = x_41;
+} else {
+ lean::dec(x_41);
+ x_66 = lean::box(0);
 }
 if (lean::is_scalar(x_66)) {
  x_67 = lean::alloc_cnstr(1, 1, 1);
@@ -4884,12 +4884,12 @@ lean::dec(x_2);
 x_119 = lean::cnstr_get(x_14, 0);
 lean::inc(x_119);
 x_121 = lean::cnstr_get_scalar<uint8>(x_14, sizeof(void*)*1);
-if (lean::is_shared(x_14)) {
- lean::dec(x_14);
- x_122 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_14)) {
  lean::cnstr_release(x_14, 0);
  x_122 = x_14;
+} else {
+ lean::dec(x_14);
+ x_122 = lean::box(0);
 }
 if (lean::is_scalar(x_122)) {
  x_123 = lean::alloc_cnstr(1, 1, 1);
@@ -4926,13 +4926,13 @@ x_6 = lean::cnstr_get(x_5, 0);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_5, 1);
 lean::inc(x_8);
-if (lean::is_shared(x_5)) {
- lean::dec(x_5);
- x_10 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_5)) {
  lean::cnstr_release(x_5, 0);
  lean::cnstr_release(x_5, 1);
  x_10 = x_5;
+} else {
+ lean::dec(x_5);
+ x_10 = lean::box(0);
 }
 if (lean::obj_tag(x_6) == 0)
 {
@@ -4943,14 +4943,14 @@ x_13 = lean::cnstr_get(x_6, 1);
 lean::inc(x_13);
 x_15 = lean::cnstr_get(x_6, 2);
 lean::inc(x_15);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_17 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  lean::cnstr_release(x_6, 1);
  lean::cnstr_release(x_6, 2);
  x_17 = x_6;
+} else {
+ lean::dec(x_6);
+ x_17 = lean::box(0);
 }
 lean::inc(x_11);
 x_19 = l_lean_parser_try__view___at_lean_parser_number_parser___spec__1(x_11);
@@ -5032,12 +5032,12 @@ lean::dec(x_0);
 x_61 = lean::cnstr_get(x_6, 0);
 lean::inc(x_61);
 x_63 = lean::cnstr_get_scalar<uint8>(x_6, sizeof(void*)*1);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_64 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  x_64 = x_6;
+} else {
+ lean::dec(x_6);
+ x_64 = lean::box(0);
 }
 if (lean::is_scalar(x_64)) {
  x_65 = lean::alloc_cnstr(1, 1, 1);
@@ -5572,13 +5572,13 @@ x_14 = lean::cnstr_get(x_0, 0);
 lean::inc(x_14);
 x_16 = lean::cnstr_get(x_0, 1);
 lean::inc(x_16);
-if (lean::is_shared(x_0)) {
- lean::dec(x_0);
- x_18 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_0)) {
  lean::cnstr_release(x_0, 0);
  lean::cnstr_release(x_0, 1);
  x_18 = x_0;
+} else {
+ lean::dec(x_0);
+ x_18 = lean::box(0);
 }
 lean::inc(x_5);
 lean::inc(x_4);
@@ -5589,13 +5589,13 @@ x_24 = lean::cnstr_get(x_23, 0);
 lean::inc(x_24);
 x_26 = lean::cnstr_get(x_23, 1);
 lean::inc(x_26);
-if (lean::is_shared(x_23)) {
- lean::dec(x_23);
- x_28 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_23)) {
  lean::cnstr_release(x_23, 0);
  lean::cnstr_release(x_23, 1);
  x_28 = x_23;
+} else {
+ lean::dec(x_23);
+ x_28 = lean::box(0);
 }
 x_29 = lean::mk_nat_obj(1u);
 x_30 = lean::nat_add(x_1, x_29);
@@ -5608,14 +5608,14 @@ x_33 = lean::cnstr_get(x_24, 1);
 lean::inc(x_33);
 x_35 = lean::cnstr_get(x_24, 2);
 lean::inc(x_35);
-if (lean::is_shared(x_24)) {
- lean::dec(x_24);
- x_37 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_24)) {
  lean::cnstr_release(x_24, 0);
  lean::cnstr_release(x_24, 1);
  lean::cnstr_release(x_24, 2);
  x_37 = x_24;
+} else {
+ lean::dec(x_24);
+ x_37 = lean::box(0);
 }
 x_38 = lean::box(0);
 x_39 = lean_name_mk_numeral(x_38, x_1);
@@ -5711,12 +5711,12 @@ lean::dec(x_18);
 x_75 = lean::cnstr_get(x_24, 0);
 lean::inc(x_75);
 x_77 = lean::cnstr_get_scalar<uint8>(x_24, sizeof(void*)*1);
-if (lean::is_shared(x_24)) {
- lean::dec(x_24);
- x_78 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_24)) {
  lean::cnstr_release(x_24, 0);
  x_78 = x_24;
+} else {
+ lean::dec(x_24);
+ x_78 = lean::box(0);
 }
 if (x_77 == 0)
 {
@@ -5960,13 +5960,13 @@ x_6 = lean::cnstr_get(x_5, 0);
 lean::inc(x_6);
 x_8 = lean::cnstr_get(x_5, 1);
 lean::inc(x_8);
-if (lean::is_shared(x_5)) {
- lean::dec(x_5);
- x_10 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_5)) {
  lean::cnstr_release(x_5, 0);
  lean::cnstr_release(x_5, 1);
  x_10 = x_5;
+} else {
+ lean::dec(x_5);
+ x_10 = lean::box(0);
 }
 if (lean::obj_tag(x_6) == 0)
 {
@@ -5977,14 +5977,14 @@ x_13 = lean::cnstr_get(x_6, 1);
 lean::inc(x_13);
 x_15 = lean::cnstr_get(x_6, 2);
 lean::inc(x_15);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_17 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  lean::cnstr_release(x_6, 1);
  lean::cnstr_release(x_6, 2);
  x_17 = x_6;
+} else {
+ lean::dec(x_6);
+ x_17 = lean::box(0);
 }
 if (lean::obj_tag(x_11) == 0)
 {
@@ -6261,12 +6261,12 @@ lean::dec(x_0);
 x_145 = lean::cnstr_get(x_6, 0);
 lean::inc(x_145);
 x_147 = lean::cnstr_get_scalar<uint8>(x_6, sizeof(void*)*1);
-if (lean::is_shared(x_6)) {
- lean::dec(x_6);
- x_148 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_6)) {
  lean::cnstr_release(x_6, 0);
  x_148 = x_6;
+} else {
+ lean::dec(x_6);
+ x_148 = lean::box(0);
 }
 if (lean::is_scalar(x_148)) {
  x_149 = lean::alloc_cnstr(1, 1, 1);
@@ -6303,13 +6303,13 @@ x_13 = lean::cnstr_get(x_12, 0);
 lean::inc(x_13);
 x_15 = lean::cnstr_get(x_12, 1);
 lean::inc(x_15);
-if (lean::is_shared(x_12)) {
- lean::dec(x_12);
- x_17 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_12)) {
  lean::cnstr_release(x_12, 0);
  lean::cnstr_release(x_12, 1);
  x_17 = x_12;
+} else {
+ lean::dec(x_12);
+ x_17 = lean::box(0);
 }
 if (lean::obj_tag(x_13) == 0)
 {
@@ -6320,14 +6320,14 @@ x_20 = lean::cnstr_get(x_13, 1);
 lean::inc(x_20);
 x_22 = lean::cnstr_get(x_13, 2);
 lean::inc(x_22);
-if (lean::is_shared(x_13)) {
- lean::dec(x_13);
- x_24 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_13)) {
  lean::cnstr_release(x_13, 0);
  lean::cnstr_release(x_13, 1);
  lean::cnstr_release(x_13, 2);
  x_24 = x_13;
+} else {
+ lean::dec(x_13);
+ x_24 = lean::box(0);
 }
 x_25 = lean::nat_dec_lt(x_1, x_18);
 lean::dec(x_18);
@@ -6413,12 +6413,12 @@ lean::dec(x_39);
 x_71 = lean::cnstr_get(x_45, 0);
 lean::inc(x_71);
 x_73 = lean::cnstr_get_scalar<uint8>(x_45, sizeof(void*)*1);
-if (lean::is_shared(x_45)) {
- lean::dec(x_45);
- x_74 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_45)) {
  lean::cnstr_release(x_45, 0);
  x_74 = x_45;
+} else {
+ lean::dec(x_45);
+ x_74 = lean::box(0);
 }
 if (lean::is_scalar(x_74)) {
  x_75 = lean::alloc_cnstr(1, 1, 1);
@@ -6452,12 +6452,12 @@ lean::dec(x_2);
 x_85 = lean::cnstr_get(x_13, 0);
 lean::inc(x_85);
 x_87 = lean::cnstr_get_scalar<uint8>(x_13, sizeof(void*)*1);
-if (lean::is_shared(x_13)) {
- lean::dec(x_13);
- x_88 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_13)) {
  lean::cnstr_release(x_13, 0);
  x_88 = x_13;
+} else {
+ lean::dec(x_13);
+ x_88 = lean::box(0);
 }
 if (lean::is_scalar(x_88)) {
  x_89 = lean::alloc_cnstr(1, 1, 1);
@@ -6530,13 +6530,13 @@ x_12 = lean::cnstr_get(x_11, 0);
 lean::inc(x_12);
 x_14 = lean::cnstr_get(x_11, 1);
 lean::inc(x_14);
-if (lean::is_shared(x_11)) {
- lean::dec(x_11);
- x_16 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_11)) {
  lean::cnstr_release(x_11, 0);
  lean::cnstr_release(x_11, 1);
  x_16 = x_11;
+} else {
+ lean::dec(x_11);
+ x_16 = lean::box(0);
 }
 x_17 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;
 lean::inc(x_17);
@@ -6562,13 +6562,13 @@ x_10 = lean::cnstr_get(x_9, 0);
 lean::inc(x_10);
 x_12 = lean::cnstr_get(x_9, 1);
 lean::inc(x_12);
-if (lean::is_shared(x_9)) {
- lean::dec(x_9);
- x_14 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_9)) {
  lean::cnstr_release(x_9, 0);
  lean::cnstr_release(x_9, 1);
  x_14 = x_9;
+} else {
+ lean::dec(x_9);
+ x_14 = lean::box(0);
 }
 if (lean::obj_tag(x_10) == 0)
 {
@@ -6613,12 +6613,12 @@ lean::dec(x_2);
 x_41 = lean::cnstr_get(x_10, 0);
 lean::inc(x_41);
 x_43 = lean::cnstr_get_scalar<uint8>(x_10, sizeof(void*)*1);
-if (lean::is_shared(x_10)) {
- lean::dec(x_10);
- x_44 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_10)) {
  lean::cnstr_release(x_10, 0);
  x_44 = x_10;
+} else {
+ lean::dec(x_10);
+ x_44 = lean::box(0);
 }
 if (lean::is_scalar(x_44)) {
  x_45 = lean::alloc_cnstr(1, 1, 1);

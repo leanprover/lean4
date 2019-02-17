@@ -1411,12 +1411,12 @@ obj* x_7; obj* x_9; obj* x_10; obj* x_13; obj* x_16; obj* x_17;
 lean::dec(x_0);
 x_7 = lean::cnstr_get(x_2, 0);
 lean::inc(x_7);
-if (lean::is_shared(x_2)) {
- lean::dec(x_2);
- x_9 = lean::box(0);
-} else {
+if (lean::is_exclusive(x_2)) {
  lean::cnstr_release(x_2, 0);
  x_9 = x_2;
+} else {
+ lean::dec(x_2);
+ x_9 = lean::box(0);
 }
 x_10 = lean::cnstr_get(x_1, 0);
 lean::inc(x_10);

@@ -30,4 +30,5 @@ void initialize_init_lean_config() {
  _G_initialized = true;
  initialize_init_core();
  l_lean_closure__max__args = _init_l_lean_closure__max__args();
+lean::mark_persistent(l_lean_closure__max__args);
 }

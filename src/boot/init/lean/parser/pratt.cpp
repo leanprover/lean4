@@ -878,6 +878,9 @@ void initialize_init_lean_parser_pratt() {
  _G_initialized = true;
  initialize_init_lean_parser_token();
  l_lean_parser_curr__lbp___rarg___lambda__1___closed__1 = _init_l_lean_parser_curr__lbp___rarg___lambda__1___closed__1();
+lean::mark_persistent(l_lean_parser_curr__lbp___rarg___lambda__1___closed__1);
  l_lean_parser_curr__lbp___rarg___lambda__3___closed__1 = _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__1();
+lean::mark_persistent(l_lean_parser_curr__lbp___rarg___lambda__3___closed__1);
  l_lean_parser_curr__lbp___rarg___lambda__3___closed__2 = _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__2();
+lean::mark_persistent(l_lean_parser_curr__lbp___rarg___lambda__3___closed__2);
 }

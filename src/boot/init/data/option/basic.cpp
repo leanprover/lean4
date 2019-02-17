@@ -927,7 +927,11 @@ void initialize_init_data_option_basic() {
  initialize_init_control_alternative();
  initialize_init_coe();
  l_option_monad = _init_l_option_monad();
+lean::mark_persistent(l_option_monad);
  l_option_alternative = _init_l_option_alternative();
+lean::mark_persistent(l_option_alternative);
  l_option_lt___main = _init_l_option_lt___main();
+lean::mark_persistent(l_option_lt___main);
  l_option_lt = _init_l_option_lt();
+lean::mark_persistent(l_option_lt);
 }

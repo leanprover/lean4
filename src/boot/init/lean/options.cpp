@@ -39,5 +39,7 @@ void initialize_init_lean_options() {
  _G_initialized = true;
  initialize_init_lean_kvmap();
  l_lean_options = _init_l_lean_options();
+lean::mark_persistent(l_lean_options);
  l_lean_options_mk = _init_l_lean_options_mk();
+lean::mark_persistent(l_lean_options_mk);
 }

@@ -2398,4 +2398,5 @@ void initialize_init_lean_ir_lirc() {
  initialize_init_lean_ir_format();
  initialize_init_lean_ir_elim__phi();
  l_lean_parser_c__identifier___at_lean_ir_parse__input__aux___main___spec__4___closed__1 = _init_l_lean_parser_c__identifier___at_lean_ir_parse__input__aux___main___spec__4___closed__1();
+lean::mark_persistent(l_lean_parser_c__identifier___at_lean_ir_parse__input__aux___main___spec__4___closed__1);
 }

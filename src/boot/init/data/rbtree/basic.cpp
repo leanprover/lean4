@@ -3861,5 +3861,7 @@ void initialize_init_data_rbtree_basic() {
  _G_initialized = true;
  initialize_init_data_rbmap_basic();
  l_rbtree = _init_l_rbtree();
+lean::mark_persistent(l_rbtree);
  l_rbtree_has__repr___rarg___closed__1 = _init_l_rbtree_has__repr___rarg___closed__1();
+lean::mark_persistent(l_rbtree_has__repr___rarg___closed__1);
 }

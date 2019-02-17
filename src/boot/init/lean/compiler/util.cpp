@@ -95,8 +95,13 @@ void initialize_init_lean_compiler_util() {
  _G_initialized = true;
  initialize_init_lean_expr();
  l_lean_compiler_neutral__expr = _init_l_lean_compiler_neutral__expr();
+lean::mark_persistent(l_lean_compiler_neutral__expr);
  l_lean_compiler_unreachable__expr = _init_l_lean_compiler_unreachable__expr();
+lean::mark_persistent(l_lean_compiler_unreachable__expr);
  l_lean_compiler_object__type = _init_l_lean_compiler_object__type();
+lean::mark_persistent(l_lean_compiler_object__type);
  l_lean_compiler_void__type = _init_l_lean_compiler_void__type();
+lean::mark_persistent(l_lean_compiler_void__type);
  l_lean_compiler_mk__lc__proof___closed__1 = _init_l_lean_compiler_mk__lc__proof___closed__1();
+lean::mark_persistent(l_lean_compiler_mk__lc__proof___closed__1);
 }

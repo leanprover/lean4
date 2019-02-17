@@ -77,4 +77,5 @@ void initialize_init_control_monad__fail() {
  initialize_init_control_lift();
  initialize_init_data_string_basic();
  l_match__failed___rarg___closed__1 = _init_l_match__failed___rarg___closed__1();
+lean::mark_persistent(l_match__failed___rarg___closed__1);
 }

@@ -2377,7 +2377,11 @@ void initialize_init_lean_ir_elim__phi() {
  initialize_init_control_state();
  initialize_init_lean_disjoint__set();
  l_lean_ir_elim__phi__m = _init_l_lean_ir_elim__phi__m();
+lean::mark_persistent(l_lean_ir_elim__phi__m);
  l_lean_mk__disjoint__set___at_lean_ir_elim__phi__m_run___spec__1 = _init_l_lean_mk__disjoint__set___at_lean_ir_elim__phi__m_run___spec__1();
+lean::mark_persistent(l_lean_mk__disjoint__set___at_lean_ir_elim__phi__m_run___spec__1);
  l_lean_ir_elim__phi__m_run___rarg___closed__1 = _init_l_lean_ir_elim__phi__m_run___rarg___closed__1();
+lean::mark_persistent(l_lean_ir_elim__phi__m_run___rarg___closed__1);
  l_hashmap__imp_insert___at_lean_ir_merge___spec__8___closed__1 = _init_l_hashmap__imp_insert___at_lean_ir_merge___spec__8___closed__1();
+lean::mark_persistent(l_hashmap__imp_insert___at_lean_ir_merge___spec__8___closed__1);
 }

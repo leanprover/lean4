@@ -965,4 +965,5 @@ void initialize_init_lean_parser_trie() {
  initialize_init_data_rbmap_default();
  initialize_init_lean_format();
  l_lean_parser_trie_mk___closed__1 = _init_l_lean_parser_trie_mk___closed__1();
+lean::mark_persistent(l_lean_parser_trie_mk___closed__1);
 }

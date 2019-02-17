@@ -693,5 +693,7 @@ void initialize_init_data_list_instances() {
  initialize_init_control_alternative();
  initialize_init_control_monad();
  l_list_monad = _init_l_list_monad();
+lean::mark_persistent(l_list_monad);
  l_list_alternative = _init_l_list_alternative();
+lean::mark_persistent(l_list_alternative);
 }

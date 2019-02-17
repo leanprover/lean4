@@ -1039,5 +1039,7 @@ void initialize_init_data_array_basic() {
  initialize_init_function();
  initialize_init_data_to__string();
  l_array_nil___closed__1 = _init_l_array_nil___closed__1();
+lean::mark_persistent(l_array_nil___closed__1);
  l_array_has__repr___rarg___closed__1 = _init_l_array_has__repr___rarg___closed__1();
+lean::mark_persistent(l_array_has__repr___rarg___closed__1);
 }

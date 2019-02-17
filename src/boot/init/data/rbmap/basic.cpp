@@ -5702,5 +5702,7 @@ void initialize_init_data_rbmap_basic() {
  initialize_init_coe();
  initialize_init_data_option_basic();
  l_rbmap = _init_l_rbmap();
+lean::mark_persistent(l_rbmap);
  l_rbmap_has__repr___rarg___closed__1 = _init_l_rbmap_has__repr___rarg___closed__1();
+lean::mark_persistent(l_rbmap_has__repr___rarg___closed__1);
 }

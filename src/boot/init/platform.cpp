@@ -30,4 +30,5 @@ void initialize_init_platform() {
  _G_initialized = true;
  initialize_init_core();
  l_system_platform_nbits = _init_l_system_platform_nbits();
+lean::mark_persistent(l_system_platform_nbits);
 }

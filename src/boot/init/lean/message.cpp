@@ -313,11 +313,19 @@ void initialize_init_lean_message() {
  initialize_init_data_to__string();
  initialize_init_lean_position();
  l_lean_message_to__string___closed__1 = _init_l_lean_message_to__string___closed__1();
+lean::mark_persistent(l_lean_message_to__string___closed__1);
  l_lean_message_to__string___closed__2 = _init_l_lean_message_to__string___closed__2();
+lean::mark_persistent(l_lean_message_to__string___closed__2);
  l_lean_message_to__string___closed__3 = _init_l_lean_message_to__string___closed__3();
+lean::mark_persistent(l_lean_message_to__string___closed__3);
  l_lean_message_to__string___closed__4 = _init_l_lean_message_to__string___closed__4();
+lean::mark_persistent(l_lean_message_to__string___closed__4);
  l_lean_message_to__string___closed__5 = _init_l_lean_message_to__string___closed__5();
+lean::mark_persistent(l_lean_message_to__string___closed__5);
  l_lean_message_has__to__string = _init_l_lean_message_has__to__string();
+lean::mark_persistent(l_lean_message_has__to__string);
  l_lean_message__log_empty = _init_l_lean_message__log_empty();
+lean::mark_persistent(l_lean_message__log_empty);
  l_lean_message__log_has__append = _init_l_lean_message__log_has__append();
+lean::mark_persistent(l_lean_message__log_has__append);
 }

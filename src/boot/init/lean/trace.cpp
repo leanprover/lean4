@@ -1143,5 +1143,7 @@ void initialize_init_lean_trace() {
  initialize_init_lean_name();
  initialize_init_lean_options();
  l_lean_trace_trace__map = _init_l_lean_trace_trace__map();
+lean::mark_persistent(l_lean_trace_trace__map);
  l_lean_trace_trace__t = _init_l_lean_trace_trace__t();
+lean::mark_persistent(l_lean_trace_trace__t);
 }

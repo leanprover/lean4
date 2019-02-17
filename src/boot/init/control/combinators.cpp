@@ -1118,4 +1118,5 @@ void initialize_init_control_combinators() {
  initialize_init_data_list_basic();
  initialize_init_coe();
  l_mjoin___rarg___closed__1 = _init_l_mjoin___rarg___closed__1();
+lean::mark_persistent(l_mjoin___rarg___closed__1);
 }

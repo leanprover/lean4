@@ -515,5 +515,7 @@ void initialize_init_lean_parser_rec() {
  _G_initialized = true;
  initialize_init_lean_parser_parsec();
  l_lean_parser_rec__t = _init_l_lean_parser_rec__t();
+lean::mark_persistent(l_lean_parser_rec__t);
  l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1 = _init_l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1();
+lean::mark_persistent(l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1);
 }

@@ -2415,13 +2415,22 @@ void initialize_init_lean_parser_identifier() {
  initialize_init_lean_parser_parsec();
  l_lean_id__begin__escape = _init_l_lean_id__begin__escape();
  l_lean_id__begin__escape___boxed = _init_l_lean_id__begin__escape___boxed();
+lean::mark_persistent(l_lean_id__begin__escape___boxed);
  l_lean_id__end__escape = _init_l_lean_id__end__escape();
  l_lean_id__end__escape___boxed = _init_l_lean_id__end__escape___boxed();
+lean::mark_persistent(l_lean_id__end__escape___boxed);
  l_lean_parser_id__part___rarg___closed__1 = _init_l_lean_parser_id__part___rarg___closed__1();
+lean::mark_persistent(l_lean_parser_id__part___rarg___closed__1);
  l_lean_parser_identifier___rarg___closed__1 = _init_l_lean_parser_identifier___rarg___closed__1();
+lean::mark_persistent(l_lean_parser_identifier___rarg___closed__1);
  l_lean_parser_c__identifier___rarg___closed__1 = _init_l_lean_parser_c__identifier___rarg___closed__1();
+lean::mark_persistent(l_lean_parser_c__identifier___rarg___closed__1);
  l_lean_parser_cpp__identifier___rarg___lambda__2___closed__1 = _init_l_lean_parser_cpp__identifier___rarg___lambda__2___closed__1();
+lean::mark_persistent(l_lean_parser_cpp__identifier___rarg___lambda__2___closed__1);
  l_lean_parser_cpp__identifier___rarg___lambda__2___closed__2 = _init_l_lean_parser_cpp__identifier___rarg___lambda__2___closed__2();
+lean::mark_persistent(l_lean_parser_cpp__identifier___rarg___lambda__2___closed__2);
  l_lean_parser_cpp__identifier___rarg___lambda__2___closed__3 = _init_l_lean_parser_cpp__identifier___rarg___lambda__2___closed__3();
+lean::mark_persistent(l_lean_parser_cpp__identifier___rarg___lambda__2___closed__3);
  l_lean_parser_cpp__identifier___rarg___closed__1 = _init_l_lean_parser_cpp__identifier___rarg___closed__1();
+lean::mark_persistent(l_lean_parser_cpp__identifier___rarg___closed__1);
 }

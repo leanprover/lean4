@@ -191,6 +191,9 @@ void initialize_init_lean_expr() {
  initialize_init_lean_level();
  initialize_init_lean_kvmap();
  l_lean_expr__is__inhabited = _init_l_lean_expr__is__inhabited();
+lean::mark_persistent(l_lean_expr__is__inhabited);
  l_lean_mk__dec__is__true___closed__1 = _init_l_lean_mk__dec__is__true___closed__1();
+lean::mark_persistent(l_lean_mk__dec__is__true___closed__1);
  l_lean_mk__dec__is__false___closed__1 = _init_l_lean_mk__dec__is__false___closed__1();
+lean::mark_persistent(l_lean_mk__dec__is__false___closed__1);
 }

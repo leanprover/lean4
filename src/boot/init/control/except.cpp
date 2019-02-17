@@ -2519,9 +2519,15 @@ void initialize_init_control_except() {
  initialize_init_data_to__string();
  initialize_init_control_monad__fail();
  l_except_to__string___main___rarg___closed__1 = _init_l_except_to__string___main___rarg___closed__1();
+lean::mark_persistent(l_except_to__string___main___rarg___closed__1);
  l_except_to__string___main___rarg___closed__2 = _init_l_except_to__string___main___rarg___closed__2();
+lean::mark_persistent(l_except_to__string___main___rarg___closed__2);
  l_except_monad___closed__1 = _init_l_except_monad___closed__1();
+lean::mark_persistent(l_except_monad___closed__1);
  l_except__t = _init_l_except__t();
+lean::mark_persistent(l_except__t);
  l_except__t_lift___rarg___closed__1 = _init_l_except__t_lift___rarg___closed__1();
+lean::mark_persistent(l_except__t_lift___rarg___closed__1);
  l_except_monad__except___closed__1 = _init_l_except_monad__except___closed__1();
+lean::mark_persistent(l_except_monad__except___closed__1);
 }

@@ -736,8 +736,13 @@ void initialize_init_control_coroutine() {
  initialize_init_wf();
  initialize_init_control_reader();
  l_coroutine__result = _init_l_coroutine__result();
+lean::mark_persistent(l_coroutine__result);
  l_coroutine_yield___rarg___lambda__1___closed__1 = _init_l_coroutine_yield___rarg___lambda__1___closed__1();
+lean::mark_persistent(l_coroutine_yield___rarg___lambda__1___closed__1);
  l_coroutine_yield___rarg___closed__1 = _init_l_coroutine_yield___rarg___closed__1();
+lean::mark_persistent(l_coroutine_yield___rarg___closed__1);
  l_coroutine_monad___lambda__1___closed__1 = _init_l_coroutine_monad___lambda__1___closed__1();
+lean::mark_persistent(l_coroutine_monad___lambda__1___closed__1);
  l_coroutine_monad___closed__1 = _init_l_coroutine_monad___closed__1();
+lean::mark_persistent(l_coroutine_monad___closed__1);
 }

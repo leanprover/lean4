@@ -126,5 +126,7 @@ void initialize_init_control_id() {
  _G_initialized = true;
  initialize_init_control_lift();
  l_id_monad = _init_l_id_monad();
+lean::mark_persistent(l_id_monad);
  l_id_monad__run = _init_l_id_monad__run();
+lean::mark_persistent(l_id_monad__run);
 }

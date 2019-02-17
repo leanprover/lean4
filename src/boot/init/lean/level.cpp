@@ -1187,15 +1187,27 @@ void initialize_init_lean_level() {
  initialize_init_lean_name();
  initialize_init_data_option_basic();
  l_lean_level__is__inhabited = _init_l_lean_level__is__inhabited();
+lean::mark_persistent(l_lean_level__is__inhabited);
  l_lean_level_one = _init_l_lean_level_one();
+lean::mark_persistent(l_lean_level_one);
  l_lean_level_to__nat___main___closed__1 = _init_l_lean_level_to__nat___main___closed__1();
+lean::mark_persistent(l_lean_level_to__nat___main___closed__1);
  l_lean_level_to__nat___main___closed__2 = _init_l_lean_level_to__nat___main___closed__2();
+lean::mark_persistent(l_lean_level_to__nat___main___closed__2);
  l_lean_level_to__nat___main___closed__3 = _init_l_lean_level_to__nat___main___closed__3();
+lean::mark_persistent(l_lean_level_to__nat___main___closed__3);
  l_lean_level_to__nat___main___closed__4 = _init_l_lean_level_to__nat___main___closed__4();
+lean::mark_persistent(l_lean_level_to__nat___main___closed__4);
  l_lean_level__to__format_result_to__format___main___closed__1 = _init_l_lean_level__to__format_result_to__format___main___closed__1();
+lean::mark_persistent(l_lean_level__to__format_result_to__format___main___closed__1);
  l_lean_level__to__format_result_to__format___main___closed__2 = _init_l_lean_level__to__format_result_to__format___main___closed__2();
+lean::mark_persistent(l_lean_level__to__format_result_to__format___main___closed__2);
  l_lean_level__to__format_result_to__format___main___closed__3 = _init_l_lean_level__to__format_result_to__format___main___closed__3();
+lean::mark_persistent(l_lean_level__to__format_result_to__format___main___closed__3);
  l_lean_level__to__format_level_to__result___main___closed__1 = _init_l_lean_level__to__format_level_to__result___main___closed__1();
+lean::mark_persistent(l_lean_level__to__format_level_to__result___main___closed__1);
  l_lean_level__to__format_level__has__to__format = _init_l_lean_level__to__format_level__has__to__format();
+lean::mark_persistent(l_lean_level__to__format_level__has__to__format);
  l_lean_level__to__format_level__has__to__string = _init_l_lean_level__to__format_level__has__to__string();
+lean::mark_persistent(l_lean_level__to__format_level__has__to__string);
 }

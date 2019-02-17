@@ -1265,7 +1265,11 @@ void initialize_init_data_hashmap_basic() {
  initialize_init_data_option_basic();
  initialize_init_data_hashable();
  l_bucket__array = _init_l_bucket__array();
+lean::mark_persistent(l_bucket__array);
  l_mk__hashmap__imp___rarg___closed__1 = _init_l_mk__hashmap__imp___rarg___closed__1();
+lean::mark_persistent(l_mk__hashmap__imp___rarg___closed__1);
  l_d__hashmap = _init_l_d__hashmap();
+lean::mark_persistent(l_d__hashmap);
  l_hashmap = _init_l_hashmap();
+lean::mark_persistent(l_hashmap);
 }

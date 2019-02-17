@@ -869,5 +869,7 @@ void initialize_init_lean_ir_reserved() {
  initialize_init_data_rbtree_basic();
  initialize_init_lean_name();
  l_lean_ir_reserved = _init_l_lean_ir_reserved();
+lean::mark_persistent(l_lean_ir_reserved);
  l_lean_ir_reserved__set = _init_l_lean_ir_reserved__set();
+lean::mark_persistent(l_lean_ir_reserved__set);
 }

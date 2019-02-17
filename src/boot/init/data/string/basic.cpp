@@ -1369,12 +1369,21 @@ void initialize_init_data_string_basic() {
  initialize_init_data_char_basic();
  initialize_init_data_option_basic();
  l_string_decidable__eq = _init_l_string_decidable__eq();
+lean::mark_persistent(l_string_decidable__eq);
  l_string_has__lt = _init_l_string_has__lt();
+lean::mark_persistent(l_string_has__lt);
  l_string_iterator_is__prefix__of__remaining = _init_l_string_iterator_is__prefix__of__remaining();
+lean::mark_persistent(l_string_iterator_is__prefix__of__remaining);
  l_string_inhabited = _init_l_string_inhabited();
+lean::mark_persistent(l_string_inhabited);
  l_string_has__sizeof = _init_l_string_has__sizeof();
+lean::mark_persistent(l_string_has__sizeof);
  l_string_has__append = _init_l_string_has__append();
+lean::mark_persistent(l_string_has__append);
  l_string_join___closed__1 = _init_l_string_join___closed__1();
+lean::mark_persistent(l_string_join___closed__1);
  l_string_line__column___closed__1 = _init_l_string_line__column___closed__1();
+lean::mark_persistent(l_string_line__column___closed__1);
  l___private_init_data_string_basic_4__to__nat__core___main___closed__1 = _init_l___private_init_data_string_basic_4__to__nat__core___main___closed__1();
+lean::mark_persistent(l___private_init_data_string_basic_4__to__nat__core___main___closed__1);
 }

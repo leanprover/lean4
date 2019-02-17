@@ -4330,9 +4330,15 @@ void initialize_init_data_list_basic() {
  initialize_init_core();
  initialize_init_data_nat_basic();
  l_list_mem___main = _init_l_list_mem___main();
+lean::mark_persistent(l_list_mem___main);
  l_list_mem = _init_l_list_mem();
+lean::mark_persistent(l_list_mem);
  l_list_unzip___main___rarg___closed__1 = _init_l_list_unzip___main___rarg___closed__1();
+lean::mark_persistent(l_list_unzip___main___rarg___closed__1);
  l_list_lt___main = _init_l_list_lt___main();
+lean::mark_persistent(l_list_lt___main);
  l_list_lt = _init_l_list_lt();
+lean::mark_persistent(l_list_lt);
  l_list_le = _init_l_list_le();
+lean::mark_persistent(l_list_le);
 }

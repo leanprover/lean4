@@ -1194,6 +1194,9 @@ void initialize_init_control_state() {
  initialize_init_control_id();
  initialize_init_control_except();
  l_state__t = _init_l_state__t();
+lean::mark_persistent(l_state__t);
  l_state__t_run_x_27___rarg___closed__1 = _init_l_state__t_run_x_27___rarg___closed__1();
+lean::mark_persistent(l_state__t_run_x_27___rarg___closed__1);
  l_state = _init_l_state();
+lean::mark_persistent(l_state);
 }

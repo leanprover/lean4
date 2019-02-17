@@ -157,8 +157,13 @@ void initialize_init_lean_ir_ir() {
  initialize_init_control_combinators();
  initialize_init_lean_name();
  l_lean_ir_tag = _init_l_lean_ir_tag();
+lean::mark_persistent(l_lean_ir_tag);
  l_lean_ir_var = _init_l_lean_ir_var();
+lean::mark_persistent(l_lean_ir_var);
  l_lean_ir_fnid = _init_l_lean_ir_fnid();
+lean::mark_persistent(l_lean_ir_fnid);
  l_lean_ir_blockid = _init_l_lean_ir_blockid();
+lean::mark_persistent(l_lean_ir_blockid);
  l_lean_ir_environment = _init_l_lean_ir_environment();
+lean::mark_persistent(l_lean_ir_environment);
 }

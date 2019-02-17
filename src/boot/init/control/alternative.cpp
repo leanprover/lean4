@@ -296,4 +296,5 @@ void initialize_init_control_alternative() {
  initialize_init_core();
  initialize_init_control_applicative();
  l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
+lean::mark_persistent(l_optional___rarg___closed__1);
 }

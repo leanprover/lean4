@@ -393,6 +393,9 @@ void initialize_init_data_ordering_basic() {
  _G_initialized = true;
  initialize_init_data_repr();
  l_ordering_has__repr___closed__1 = _init_l_ordering_has__repr___closed__1();
+lean::mark_persistent(l_ordering_has__repr___closed__1);
  l_ordering_has__repr___closed__2 = _init_l_ordering_has__repr___closed__2();
+lean::mark_persistent(l_ordering_has__repr___closed__2);
  l_ordering_has__repr___closed__3 = _init_l_ordering_has__repr___closed__3();
+lean::mark_persistent(l_ordering_has__repr___closed__3);
 }

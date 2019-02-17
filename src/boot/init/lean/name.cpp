@@ -820,12 +820,21 @@ void initialize_init_lean_name() {
  initialize_init_lean_format();
  initialize_init_data_hashable();
  l_lean_inhabited = _init_l_lean_inhabited();
+lean::mark_persistent(l_lean_inhabited);
  l_lean_string__to__name = _init_l_lean_string__to__name();
+lean::mark_persistent(l_lean_string__to__name);
  l_lean_name_hashable = _init_l_lean_name_hashable();
+lean::mark_persistent(l_lean_name_hashable);
  l_lean_name_decidable__eq = _init_l_lean_name_decidable__eq();
+lean::mark_persistent(l_lean_name_decidable__eq);
  l_lean_name_has__append = _init_l_lean_name_has__append();
+lean::mark_persistent(l_lean_name_has__append);
  l_lean_name_has__lt__quick = _init_l_lean_name_has__lt__quick();
+lean::mark_persistent(l_lean_name_has__lt__quick);
  l_lean_name_to__string__with__sep___main___closed__1 = _init_l_lean_name_to__string__with__sep___main___closed__1();
+lean::mark_persistent(l_lean_name_to__string__with__sep___main___closed__1);
  l_lean_name_to__string___closed__1 = _init_l_lean_name_to__string___closed__1();
+lean::mark_persistent(l_lean_name_to__string___closed__1);
  l_lean_name_has__to__string = _init_l_lean_name_has__to__string();
+lean::mark_persistent(l_lean_name_has__to__string);
 }

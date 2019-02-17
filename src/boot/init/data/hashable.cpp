@@ -105,5 +105,7 @@ void initialize_init_data_hashable() {
  initialize_init_data_usize();
  initialize_init_data_string_default();
  l_string_hashable = _init_l_string_hashable();
+lean::mark_persistent(l_string_hashable);
  l_nat_hashable = _init_l_nat_hashable();
+lean::mark_persistent(l_nat_hashable);
 }

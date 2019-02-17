@@ -388,6 +388,9 @@ inline void obj_set_data(object * o, size_t offset, T v) {
     *(reinterpret_cast<T *>(reinterpret_cast<char *>(o) + offset)) = v;
 }
 
+/* Mark all objects reachable from `o` as persistent */
+void mark_persistent(object * o);
+
 // =======================================
 // Constructor auxiliary functions
 

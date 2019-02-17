@@ -909,6 +909,10 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
         expr const & code = d.snd();
         if (!is_lambda(code)) {
             out << " " << to_cpp_name(env, n) << " = " << to_cpp_init_name(env, n) << "();\n";
+            expr type = get_constant_ll_type(env, n);
+            if (is_pi(type) || is_enf_object_type(type)) {
+                out << "lean::mark_persistent(" << to_cpp_name(env, n) << ");\n";
+            }
         }
     }
     out << "}\n";

@@ -15,7 +15,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_mk__hashmap__imp___rarg(obj*);
-obj* l_hashmap__imp_fold__buckets___rarg(obj*, obj*, obj*);
 obj* l_lean_ir_elim__phi(obj*);
 obj* l_lean_ir_header_replace__vars(obj*, obj*);
 namespace lean {
@@ -31,6 +30,7 @@ extern "C" usize lean_name_hash_usize(obj*);
 obj* l_lean_ir_instr_replace__vars(obj*, obj*);
 obj* l_list_mmap___main___at_lean_ir_instr_replace__vars___main___spec__1(obj*, obj*);
 obj* l_list_mmap___main___at_lean_ir_instr_replace__vars___main___spec__2(obj*, obj*);
+obj* l___private_init_data_array_basic_1__iterate__aux___main___at_hashmap__imp_fold__buckets___spec__2___rarg(obj*, obj*, obj*, obj*);
 uint8 l_option_is__some___main___rarg(obj*);
 obj* l_lean_ir_elim__phi__m;
 obj* l_list_mmap___main___at_lean_ir_header_replace__vars___spec__1(obj*, obj*);
@@ -205,7 +205,7 @@ x_2 = lean::cnstr_get(x_0, 1);
 lean::inc(x_2);
 lean::dec(x_0);
 lean::inc(x_2);
-x_6 = lean::array_get_size(x_2);
+x_6 = lean::array_sz(x_2);
 x_7 = lean_name_hash_usize(x_1);
 x_8 = lean::usize_modn(x_7, x_6);
 lean::dec(x_6);
@@ -430,7 +430,7 @@ if (lean::is_shared(x_0)) {
  x_7 = x_0;
 }
 lean::inc(x_5);
-x_9 = lean::array_get_size(x_5);
+x_9 = lean::array_sz(x_5);
 x_10 = lean_name_hash_usize(x_1);
 x_11 = lean::usize_modn(x_10, x_9);
 x_12 = lean::array_uread(x_5, x_11);
@@ -456,7 +456,7 @@ lean::dec(x_5);
 x_25 = lean::nat_dec_le(x_17, x_9);
 if (x_25 == 0)
 {
-obj* x_26; obj* x_27; obj* x_30; obj* x_31; obj* x_32; obj* x_34; obj* x_35; 
+obj* x_26; obj* x_27; obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_35; obj* x_36; 
 x_26 = lean::mk_nat_obj(2u);
 x_27 = lean::nat_mul(x_9, x_26);
 lean::dec(x_26);
@@ -464,47 +464,48 @@ lean::dec(x_9);
 x_30 = lean::box(0);
 x_31 = lean::mk_array(x_27, x_30);
 x_32 = l_hashmap__imp_insert___at_lean_ir_merge___spec__8___closed__1;
+x_33 = lean::mk_nat_obj(0u);
 lean::inc(x_32);
-x_34 = l_hashmap__imp_fold__buckets___rarg(x_22, x_31, x_32);
+x_35 = l___private_init_data_array_basic_1__iterate__aux___main___at_hashmap__imp_fold__buckets___spec__2___rarg(x_22, x_32, x_33, x_31);
 if (lean::is_scalar(x_7)) {
- x_35 = lean::alloc_cnstr(0, 2, 0);
+ x_36 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_35 = x_7;
+ x_36 = x_7;
 }
-lean::cnstr_set(x_35, 0, x_17);
-lean::cnstr_set(x_35, 1, x_34);
-return x_35;
+lean::cnstr_set(x_36, 0, x_17);
+lean::cnstr_set(x_36, 1, x_35);
+return x_36;
 }
 else
 {
-obj* x_37; 
+obj* x_38; 
 lean::dec(x_9);
 if (lean::is_scalar(x_7)) {
- x_37 = lean::alloc_cnstr(0, 2, 0);
+ x_38 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_37 = x_7;
+ x_38 = x_7;
 }
-lean::cnstr_set(x_37, 0, x_17);
-lean::cnstr_set(x_37, 1, x_22);
-return x_37;
+lean::cnstr_set(x_38, 0, x_17);
+lean::cnstr_set(x_38, 1, x_22);
+return x_38;
 }
 }
 else
 {
-obj* x_39; obj* x_40; obj* x_43; 
+obj* x_40; obj* x_41; obj* x_44; 
 lean::dec(x_9);
-x_39 = l_hashmap__imp_replace__aux___main___at_lean_ir_merge___spec__11(x_1, x_2, x_12);
-x_40 = lean::array_uwrite(x_5, x_11, x_39);
-lean::dec(x_39);
+x_40 = l_hashmap__imp_replace__aux___main___at_lean_ir_merge___spec__11(x_1, x_2, x_12);
+x_41 = lean::array_uwrite(x_5, x_11, x_40);
+lean::dec(x_40);
 lean::dec(x_5);
 if (lean::is_scalar(x_7)) {
- x_43 = lean::alloc_cnstr(0, 2, 0);
+ x_44 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_43 = x_7;
+ x_44 = x_7;
 }
-lean::cnstr_set(x_43, 0, x_3);
-lean::cnstr_set(x_43, 1, x_40);
-return x_43;
+lean::cnstr_set(x_44, 0, x_3);
+lean::cnstr_set(x_44, 1, x_41);
+return x_44;
 }
 }
 }

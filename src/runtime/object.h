@@ -1252,9 +1252,14 @@ inline uint8 usize_dec_le(usize a1, usize a2) { return a1 <= a2; }
 // array functions for generated code
 static_assert(sizeof(unsigned long) == sizeof(size_t), "we assume that `unsigned long` and `size_t` have the same size");
 
-inline object * array_get_size(obj_arg a) {
+inline object * array_sz(obj_arg a) {
     object * r = nat_of_size_t(array_size(a));
     dec(a);
+    return r;
+}
+
+inline object * array_get_size(b_obj_arg a) {
+    object * r = nat_of_size_t(array_size(a));
     return r;
 }
 

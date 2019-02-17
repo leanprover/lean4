@@ -18,7 +18,11 @@ structure array (α : Type u) :=
 (sz   : nat)
 (data : fin sz → α)
 
-attribute [extern cpp inline "lean::array_get_size(#2)"] array.sz
+attribute [extern cpp inline "lean::array_sz(#2)"] array.sz
+
+@[extern cpp inline "lean::array_get_size(#2)"]
+def array.size {α : Type u} (a : @& array α) : nat :=
+a.sz
 
 @[extern cpp inline "lean::mk_array(#2, #3)"]
 def mk_array {α : Type u} (n : nat) (v : α) : array α :=
@@ -40,7 +44,7 @@ def nil : array α :=
 mk_nil ()
 
 def empty (a : array α) : bool :=
-a.sz = 0
+a.size = 0
 
 @[extern cpp inline "lean::array_read(#2, #3)"]
 def read (a : @& array α) (i : @& fin a.sz) : α :=
@@ -90,14 +94,16 @@ def pop (a : array α) : array α :=
 { sz   := nat.pred a.sz,
   data := λ ⟨j, h⟩, a.read ⟨j, nat.lt_of_lt_of_le h (nat.pred_le _)⟩ }
 
-@[specialize] private def iterate_aux (a : array α) (f : Π i : fin a.sz, α → β → β) : Π (i : nat), i ≤ a.sz → β → β
-| 0     h b := b
-| (j+1) h b :=
-  let i : fin a.sz := ⟨j, h⟩ in
-  f i (a.read i) (iterate_aux j (nat.le_of_lt h) b)
+-- TODO(Leo): justify termination using wf-rec
+@[specialize] private def iterate_aux (a : array α) (f : Π i : fin a.sz, α → β → β) : nat → β → β
+| i b :=
+  if h : i < a.sz then
+     let idx : fin a.sz := ⟨i, h⟩ in
+     iterate_aux (i+1) (f idx (a.read idx) b)
+  else b
 
 @[inline] def iterate (a : array α) (b : β) (f : Π i : fin a.sz, α → β → β) : β :=
-iterate_aux a f a.sz (nat.le_refl _) b
+iterate_aux a f 0 b
 
 @[inline] def foldl (a : array α) (b : β) (f : α → β → β) : β :=
 iterate a b (λ _, f)
@@ -109,7 +115,7 @@ iterate a b (λ _, f)
   rev_iterate_aux j (nat.le_of_lt h) (f i (a.read i) b)
 
 @[inline] def rev_iterate (a : array α) (b : β) (f : Π i : fin a.sz, α → β → β) : β :=
-rev_iterate_aux a f a.sz (nat.le_refl _) b
+rev_iterate_aux a f a.size (nat.le_refl _) b
 
 @[inline] def rev_foldl (a : array α) (b : β) (f : α → β → β) : β :=
 rev_iterate a b (λ _, f)
@@ -123,7 +129,7 @@ instance [has_repr α] : has_repr (array α) :=
 instance [has_to_string α] : has_to_string (array α) :=
 ⟨to_string ∘ to_list⟩
 
-@[specialize] private def foreach_aux (a : array α) (f : Π i : fin a.sz, α → α) : { a' : array α // a'.sz = a.sz } :=
+@[inline] private def foreach_aux (a : array α) (f : Π i : fin a.sz, α → α) : { a' : array α // a'.sz = a.sz } :=
 iterate a ⟨a, rfl⟩ $ λ i v ⟨a', h⟩,
   let i' : fin a'.sz := eq.rec_on h.symm i in
   ⟨a'.write i' (f i v), (sz_write_eq a' i' (f i v)) ▸ h⟩
@@ -138,7 +144,7 @@ theorem sz_foreach_eq (a : array α) (f : Π i : fin a.sz, α → α) : (foreach
 foreach a (λ _, f)
 
 @[inline] def map₂ (f : α → α → α) (a b : array α) : array α :=
-if h : a.sz ≤ b.sz
+if h : a.size ≤ b.size
 then foreach a (λ ⟨i, h'⟩, f (b.read ⟨i, nat.lt_of_lt_of_le h' h⟩))
 else foreach b (λ ⟨i, h'⟩, f (a.read ⟨i, nat.lt_trans h' (nat.gt_of_not_le h)⟩))
 

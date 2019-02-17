@@ -777,10 +777,68 @@ static task_object * alloc_task(obj_arg v) {
     return new (alloc_heap_object(sizeof(task_object))) task_object(v); // NOLINT
 }
 
+void to_mt(object * o);
+static obj_res to_mt_fn(obj_arg o) {
+    to_mt(o);
+    dec(o);
+    return box(0);
+}
+
+void to_mt(object * o) {
+    if (is_scalar(o) || !is_st_heap_obj(o)) return;
+    o->m_mem_kind = static_cast<unsigned>(object_memory_kind::MTHeap);
+
+    switch (get_kind(o)) {
+    case object_kind::ScalarArray:
+    case object_kind::String:
+    case object_kind::MPZ:
+        return;
+    case object_kind::PArrayPop:
+    case object_kind::PArrayPush:
+    case object_kind::PArraySet:
+    case object_kind::PArrayRoot:
+        /* `to_mt` cannot be used with parray. They must be copied when used in multiple threads. */
+        lean_unreachable();
+        return;
+    case object_kind::External: {
+        object * fn = alloc_closure(reinterpret_cast<void*>(to_mt_fn), 1, 0);
+        to_external(o)->for_each_nested(fn);
+        dec(fn);
+        return;
+    }
+    case object_kind::Task:
+        to_mt(task_get(o));
+        return;
+    case object_kind::Constructor: {
+        object ** it  = cnstr_obj_cptr(o);
+        object ** end = it + cnstr_num_objs(o);
+        for (; it != end; ++it) to_mt(*it);
+        break;
+    }
+    case object_kind::Closure: {
+        object ** it  = closure_arg_cptr(o);
+        object ** end = it + closure_num_fixed(o);
+        for (; it != end; ++it) to_mt(*it);
+        break;
+    }
+    case object_kind::Array: {
+        object ** it  = array_cptr(o);
+        object ** end = it + array_size(o);
+        for (; it != end; ++it) to_mt(*it);
+        break;
+    }
+    case object_kind::Thunk:
+        if (object * c = to_thunk(o)->m_closure) to_mt(c);
+        if (object * v = to_thunk(o)->m_value) to_mt(v);
+        break;
+    }
+}
+
 obj_res mk_task(obj_arg c, unsigned prio) {
     if (!g_task_manager) {
         return mk_thunk(c);
     } else {
+        to_mt(c);
         task_object * new_task = alloc_task(c, prio);
         g_task_manager->enqueue(new_task);
         return new_task;

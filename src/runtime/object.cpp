@@ -1637,6 +1637,18 @@ void dbg_print_num(object * o) {
         std::cout << mpz_value(o) << "\n";
     }
 }
+
+object * dbg_trace(obj_arg s, obj_arg fn) {
+    std::cout << string_cstr(s) << "\n";
+    dec(s);
+    return apply_1(fn, box(0));
+}
+
+object * dbg_sleep(uint32 ms, obj_arg fn) {
+    chrono::milliseconds c(ms);
+    this_thread::sleep_for(c);
+    return apply_1(fn, box(0));
+}
 }
 
 extern "C" void lean_dbg_print_str(lean::object* o) { lean::dbg_print_str(o); }

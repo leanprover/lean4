@@ -1359,4 +1359,9 @@ inline object * array_pop(obj_arg a) {
 }
 
 object * array_push(obj_arg a, obj_arg v);
+
+// =======================================
+// debugging helper functions
+object * dbg_trace(obj_arg s, obj_arg fn);
+object * dbg_sleep(uint32 ms, obj_arg fn);
 }

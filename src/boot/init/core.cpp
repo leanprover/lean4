@@ -904,7 +904,6 @@ obj* x_0; obj* x_1; obj* x_2;
 x_0 = l_std_priority_default;
 x_1 = lean::mk_nat_obj(100u);
 x_2 = lean::nat_add(x_0, x_1);
-lean::dec(x_1);
 return x_2;
 }
 }
@@ -931,7 +930,6 @@ obj* x_0; obj* x_1; obj* x_2;
 x_0 = l_std_prec_max;
 x_1 = lean::mk_nat_obj(10u);
 x_2 = lean::nat_add(x_0, x_1);
-lean::dec(x_1);
 return x_2;
 }
 }
@@ -997,7 +995,7 @@ return x_0;
 obj* l_prod_sizeof___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_8; obj* x_9; obj* x_10; obj* x_13; obj* x_14; 
+obj* x_3; obj* x_5; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_13; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
@@ -1007,12 +1005,11 @@ x_8 = lean::apply_1(x_0, x_3);
 x_9 = lean::mk_nat_obj(1u);
 x_10 = lean::nat_add(x_9, x_8);
 lean::dec(x_8);
-lean::dec(x_9);
-x_13 = lean::apply_1(x_1, x_5);
-x_14 = lean::nat_add(x_10, x_13);
-lean::dec(x_13);
+x_12 = lean::apply_1(x_1, x_5);
+x_13 = lean::nat_add(x_10, x_12);
+lean::dec(x_12);
 lean::dec(x_10);
-return x_14;
+return x_13;
 }
 }
 obj* l_prod_sizeof___main(obj* x_0, obj* x_1) {
@@ -1077,22 +1074,20 @@ x_7 = lean::apply_1(x_0, x_4);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_add(x_8, x_7);
 lean::dec(x_7);
-lean::dec(x_8);
 return x_9;
 }
 else
 {
-obj* x_13; obj* x_16; obj* x_17; obj* x_18; 
+obj* x_12; obj* x_15; obj* x_16; obj* x_17; 
 lean::dec(x_0);
-x_13 = lean::cnstr_get(x_2, 0);
-lean::inc(x_13);
+x_12 = lean::cnstr_get(x_2, 0);
+lean::inc(x_12);
 lean::dec(x_2);
-x_16 = lean::apply_1(x_1, x_13);
-x_17 = lean::mk_nat_obj(1u);
-x_18 = lean::nat_add(x_17, x_16);
-lean::dec(x_16);
-lean::dec(x_17);
-return x_18;
+x_15 = lean::apply_1(x_1, x_12);
+x_16 = lean::mk_nat_obj(1u);
+x_17 = lean::nat_add(x_16, x_15);
+lean::dec(x_15);
+return x_17;
 }
 }
 }
@@ -1158,22 +1153,20 @@ x_7 = lean::apply_1(x_0, x_4);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_add(x_8, x_7);
 lean::dec(x_7);
-lean::dec(x_8);
 return x_9;
 }
 else
 {
-obj* x_13; obj* x_16; obj* x_17; obj* x_18; 
+obj* x_12; obj* x_15; obj* x_16; obj* x_17; 
 lean::dec(x_0);
-x_13 = lean::cnstr_get(x_2, 0);
-lean::inc(x_13);
+x_12 = lean::cnstr_get(x_2, 0);
+lean::inc(x_12);
 lean::dec(x_2);
-x_16 = lean::apply_1(x_1, x_13);
-x_17 = lean::mk_nat_obj(1u);
-x_18 = lean::nat_add(x_17, x_16);
-lean::dec(x_16);
-lean::dec(x_17);
-return x_18;
+x_15 = lean::apply_1(x_1, x_12);
+x_16 = lean::mk_nat_obj(1u);
+x_17 = lean::nat_add(x_16, x_15);
+lean::dec(x_15);
+return x_17;
 }
 }
 }
@@ -1228,7 +1221,7 @@ return x_4;
 obj* l_sigma_sizeof___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_14; obj* x_15; 
+obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
@@ -1239,12 +1232,11 @@ x_9 = lean::apply_1(x_0, x_3);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_10, x_9);
 lean::dec(x_9);
-lean::dec(x_10);
-x_14 = lean::apply_2(x_1, x_3, x_5);
-x_15 = lean::nat_add(x_11, x_14);
-lean::dec(x_14);
+x_13 = lean::apply_2(x_1, x_3, x_5);
+x_14 = lean::nat_add(x_11, x_13);
+lean::dec(x_13);
 lean::dec(x_11);
-return x_15;
+return x_14;
 }
 }
 obj* l_sigma_sizeof___main(obj* x_0, obj* x_1) {
@@ -1278,7 +1270,7 @@ return x_4;
 obj* l_sigma_sizeof___main___at_sigma_has__sizeof___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_14; obj* x_15; 
+obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
@@ -1289,12 +1281,11 @@ x_9 = lean::apply_1(x_0, x_3);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_10, x_9);
 lean::dec(x_9);
-lean::dec(x_10);
-x_14 = lean::apply_2(x_1, x_3, x_5);
-x_15 = lean::nat_add(x_11, x_14);
-lean::dec(x_14);
+x_13 = lean::apply_2(x_1, x_3, x_5);
+x_14 = lean::nat_add(x_11, x_13);
+lean::dec(x_13);
 lean::dec(x_11);
-return x_15;
+return x_14;
 }
 }
 obj* l_sigma_sizeof___main___at_sigma_has__sizeof___spec__2(obj* x_0, obj* x_1) {
@@ -1348,7 +1339,7 @@ return x_4;
 obj* l_psigma_sizeof___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_14; obj* x_15; 
+obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
@@ -1359,12 +1350,11 @@ x_9 = lean::apply_1(x_0, x_3);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_10, x_9);
 lean::dec(x_9);
-lean::dec(x_10);
-x_14 = lean::apply_2(x_1, x_3, x_5);
-x_15 = lean::nat_add(x_11, x_14);
-lean::dec(x_14);
+x_13 = lean::apply_2(x_1, x_3, x_5);
+x_14 = lean::nat_add(x_11, x_13);
+lean::dec(x_13);
 lean::dec(x_11);
-return x_15;
+return x_14;
 }
 }
 obj* l_psigma_sizeof___main(obj* x_0, obj* x_1) {
@@ -1398,7 +1388,7 @@ return x_4;
 obj* l_psigma_sizeof___main___at_psigma_has__sizeof___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_14; obj* x_15; 
+obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
@@ -1409,12 +1399,11 @@ x_9 = lean::apply_1(x_0, x_3);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_10, x_9);
 lean::dec(x_9);
-lean::dec(x_10);
-x_14 = lean::apply_2(x_1, x_3, x_5);
-x_15 = lean::nat_add(x_11, x_14);
-lean::dec(x_14);
+x_13 = lean::apply_2(x_1, x_3, x_5);
+x_14 = lean::nat_add(x_11, x_13);
+lean::dec(x_13);
 lean::dec(x_11);
-return x_15;
+return x_14;
 }
 }
 obj* l_psigma_sizeof___main___at_psigma_has__sizeof___spec__2(obj* x_0, obj* x_1) {
@@ -1553,7 +1542,6 @@ x_7 = lean::apply_1(x_0, x_4);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_add(x_8, x_7);
 lean::dec(x_7);
-lean::dec(x_8);
 return x_9;
 }
 }
@@ -1614,7 +1602,7 @@ return x_3;
 }
 else
 {
-obj* x_4; obj* x_6; obj* x_10; obj* x_11; obj* x_12; obj* x_15; obj* x_16; 
+obj* x_4; obj* x_6; obj* x_10; obj* x_11; obj* x_12; obj* x_14; obj* x_15; 
 x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_1, 1);
@@ -1625,12 +1613,11 @@ x_10 = lean::apply_1(x_0, x_4);
 x_11 = lean::mk_nat_obj(1u);
 x_12 = lean::nat_add(x_11, x_10);
 lean::dec(x_10);
-lean::dec(x_11);
-x_15 = l_list_sizeof___main___rarg(x_0, x_6);
-x_16 = lean::nat_add(x_12, x_15);
-lean::dec(x_15);
+x_14 = l_list_sizeof___main___rarg(x_0, x_6);
+x_15 = lean::nat_add(x_12, x_14);
+lean::dec(x_14);
 lean::dec(x_12);
-return x_16;
+return x_15;
 }
 }
 }

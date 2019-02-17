@@ -306,92 +306,90 @@ _start:
 obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_eq(x_0, x_3);
-lean::dec(x_3);
 if (x_4 == 0)
 {
-obj* x_6; obj* x_7; 
-x_6 = lean::mk_nat_obj(1u);
-x_7 = lean::nat_sub(x_0, x_6);
+obj* x_5; obj* x_6; 
+x_5 = lean::mk_nat_obj(1u);
+x_6 = lean::nat_sub(x_0, x_5);
+lean::dec(x_0);
+if (x_1 == 0)
+{
+uint32 x_8; uint8 x_9; 
+x_8 = lean::string_iterator_curr(x_2);
+x_9 = l_lean_is__id__rest(x_8);
+if (x_9 == 0)
+{
+uint8 x_12; obj* x_13; 
 lean::dec(x_6);
-lean::dec(x_0);
-if (x_1 == 0)
-{
-uint32 x_10; uint8 x_11; 
-x_10 = lean::string_iterator_curr(x_2);
-x_11 = l_lean_is__id__rest(x_10);
-if (x_11 == 0)
-{
-uint8 x_14; obj* x_15; 
-lean::dec(x_7);
 lean::dec(x_2);
-x_14 = 1;
-x_15 = lean::box(x_14);
-return x_15;
+x_12 = 1;
+x_13 = lean::box(x_12);
+return x_13;
 }
 else
 {
 if (x_1 == 0)
 {
-obj* x_16; 
-x_16 = lean::string_iterator_next(x_2);
-x_0 = x_7;
-x_2 = x_16;
+obj* x_14; 
+x_14 = lean::string_iterator_next(x_2);
+x_0 = x_6;
+x_2 = x_14;
 goto _start;
 }
 else
 {
-obj* x_20; 
-lean::dec(x_7);
+obj* x_18; 
+lean::dec(x_6);
 lean::dec(x_2);
-x_20 = lean::box(x_1);
-return x_20;
+x_18 = lean::box(x_1);
+return x_18;
 }
 }
 }
 else
 {
-uint32 x_21; uint8 x_22; 
-x_21 = lean::string_iterator_curr(x_2);
-x_22 = l_lean_is__id__first(x_21);
-if (x_22 == 0)
+uint32 x_19; uint8 x_20; 
+x_19 = lean::string_iterator_curr(x_2);
+x_20 = l_lean_is__id__first(x_19);
+if (x_20 == 0)
 {
 if (x_1 == 0)
 {
-obj* x_23; 
-x_23 = lean::string_iterator_next(x_2);
-x_0 = x_7;
-x_2 = x_23;
+obj* x_21; 
+x_21 = lean::string_iterator_next(x_2);
+x_0 = x_6;
+x_2 = x_21;
 goto _start;
 }
 else
 {
-obj* x_27; 
-lean::dec(x_7);
+obj* x_25; 
+lean::dec(x_6);
 lean::dec(x_2);
-x_27 = lean::box(x_1);
-return x_27;
+x_25 = lean::box(x_1);
+return x_25;
 }
 }
 else
 {
-obj* x_28; uint8 x_29; 
-x_28 = lean::string_iterator_next(x_2);
-x_29 = 0;
-x_0 = x_7;
-x_1 = x_29;
-x_2 = x_28;
+obj* x_26; uint8 x_27; 
+x_26 = lean::string_iterator_next(x_2);
+x_27 = 0;
+x_0 = x_6;
+x_1 = x_27;
+x_2 = x_26;
 goto _start;
 }
 }
 }
 else
 {
-uint8 x_33; obj* x_34; 
+uint8 x_31; obj* x_32; 
 lean::dec(x_0);
 lean::dec(x_2);
-x_33 = 0;
-x_34 = lean::box(x_33);
-return x_34;
+x_31 = 0;
+x_32 = lean::box(x_31);
+return x_32;
 }
 }
 }
@@ -2223,37 +2221,36 @@ lean::inc(x_3);
 lean::dec(x_0);
 x_6 = lean::mk_nat_obj(1u);
 x_7 = lean::nat_dec_eq(x_1, x_6);
-lean::dec(x_6);
 if (x_7 == 0)
 {
-obj* x_9; uint8 x_10; obj* x_11; obj* x_13; obj* x_14; uint8 x_15; obj* x_17; obj* x_18; obj* x_19; 
-x_9 = l_lean_to__fmt___at_lean_ir_sizet__entry_to__format___main___spec__1(x_1);
-x_10 = 0;
-x_11 = l_lean_ir_sizet__entry_to__format___main___closed__1;
-lean::inc(x_11);
-x_13 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_13, 0, x_9);
-lean::cnstr_set(x_13, 1, x_11);
-lean::cnstr_set_scalar(x_13, sizeof(void*)*2, x_10);
-x_14 = x_13;
-x_15 = lean::unbox(x_3);
+obj* x_8; uint8 x_9; obj* x_10; obj* x_12; obj* x_13; uint8 x_14; obj* x_16; obj* x_17; obj* x_18; 
+x_8 = l_lean_to__fmt___at_lean_ir_sizet__entry_to__format___main___spec__1(x_1);
+x_9 = 0;
+x_10 = l_lean_ir_sizet__entry_to__format___main___closed__1;
+lean::inc(x_10);
+x_12 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_12, 0, x_8);
+lean::cnstr_set(x_12, 1, x_10);
+lean::cnstr_set_scalar(x_12, sizeof(void*)*2, x_9);
+x_13 = x_12;
+x_14 = lean::unbox(x_3);
 lean::dec(x_3);
-x_17 = l_lean_ir_type_to__format___main(x_15);
-x_18 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_18, 0, x_14);
-lean::cnstr_set(x_18, 1, x_17);
-lean::cnstr_set_scalar(x_18, sizeof(void*)*2, x_10);
-x_19 = x_18;
-return x_19;
+x_16 = l_lean_ir_type_to__format___main(x_14);
+x_17 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_17, 0, x_13);
+lean::cnstr_set(x_17, 1, x_16);
+lean::cnstr_set_scalar(x_17, sizeof(void*)*2, x_9);
+x_18 = x_17;
+return x_18;
 }
 else
 {
-uint8 x_21; obj* x_23; 
+uint8 x_20; obj* x_22; 
 lean::dec(x_1);
-x_21 = lean::unbox(x_3);
+x_20 = lean::unbox(x_3);
 lean::dec(x_3);
-x_23 = l_lean_ir_type_to__format___main(x_21);
-return x_23;
+x_22 = l_lean_ir_type_to__format___main(x_20);
+return x_22;
 }
 }
 }

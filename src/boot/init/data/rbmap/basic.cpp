@@ -305,7 +305,6 @@ x_12 = l_rbnode_depth___main___rarg(x_0, x_6);
 x_13 = lean::apply_2(x_0, x_10, x_12);
 x_14 = lean::mk_nat_obj(1u);
 x_15 = lean::nat_add(x_13, x_14);
-lean::dec(x_14);
 lean::dec(x_13);
 return x_15;
 }

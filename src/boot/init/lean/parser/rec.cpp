@@ -122,29 +122,27 @@ _start:
 obj* x_4; uint8 x_5; 
 x_4 = lean::mk_nat_obj(0u);
 x_5 = lean::nat_dec_eq(x_2, x_4);
-lean::dec(x_4);
 if (x_5 == 0)
 {
-obj* x_7; obj* x_8; obj* x_12; obj* x_13; 
-x_7 = lean::mk_nat_obj(1u);
-x_8 = lean::nat_sub(x_2, x_7);
-lean::dec(x_7);
+obj* x_6; obj* x_7; obj* x_10; obj* x_11; 
+x_6 = lean::mk_nat_obj(1u);
+x_7 = lean::nat_sub(x_2, x_6);
 lean::dec(x_2);
 lean::inc(x_1);
-x_12 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_lean_parser_rec_1__run__aux___main___rarg), 4, 3);
-lean::closure_set(x_12, 0, x_0);
-lean::closure_set(x_12, 1, x_1);
-lean::closure_set(x_12, 2, x_8);
-x_13 = lean::apply_2(x_1, x_3, x_12);
-return x_13;
+x_10 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_lean_parser_rec_1__run__aux___main___rarg), 4, 3);
+lean::closure_set(x_10, 0, x_0);
+lean::closure_set(x_10, 1, x_1);
+lean::closure_set(x_10, 2, x_7);
+x_11 = lean::apply_2(x_1, x_3, x_10);
+return x_11;
 }
 else
 {
-obj* x_16; 
+obj* x_14; 
 lean::dec(x_1);
 lean::dec(x_2);
-x_16 = lean::apply_1(x_0, x_3);
-return x_16;
+x_14 = lean::apply_1(x_0, x_3);
+return x_14;
 }
 }
 }
@@ -283,7 +281,7 @@ return x_10;
 obj* l_lean_parser_rec__t_run__parsec___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_12; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_11; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_run__parsec___rarg___lambda__1), 3, 2);
 lean::closure_set(x_5, 0, x_0);
 lean::closure_set(x_5, 1, x_1);
@@ -291,10 +289,9 @@ x_6 = lean::string_iterator_remaining(x_4);
 lean::dec(x_4);
 x_8 = lean::mk_nat_obj(1u);
 x_9 = lean::nat_add(x_6, x_8);
-lean::dec(x_8);
 lean::dec(x_6);
-x_12 = l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2___rarg(x_2, x_5, x_3, x_9);
-return x_12;
+x_11 = l_lean_parser_rec__t_run___at_lean_parser_rec__t_run__parsec___spec__2___rarg(x_2, x_5, x_3, x_9);
+return x_11;
 }
 }
 obj* l_lean_parser_rec__t_run__parsec___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {

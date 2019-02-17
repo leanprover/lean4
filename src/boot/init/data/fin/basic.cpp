@@ -191,15 +191,14 @@ return x_4;
 obj* l_fin_of__nat(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_6; 
+obj* x_2; obj* x_3; obj* x_5; 
 x_2 = lean::mk_nat_obj(1u);
 x_3 = lean::nat_add(x_0, x_2);
-lean::dec(x_2);
 lean::dec(x_0);
-x_6 = lean::nat_mod(x_1, x_3);
+x_5 = lean::nat_mod(x_1, x_3);
 lean::dec(x_3);
 lean::dec(x_1);
-return x_6;
+return x_5;
 }
 }
 obj* l_fin_add___main(obj* x_0, obj* x_1, obj* x_2) {

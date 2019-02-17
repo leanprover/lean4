@@ -914,20 +914,19 @@ return x_4;
 obj* l_lean_format_pretty(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_9; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_8; 
 x_2 = lean::mk_nat_obj(0u);
-lean::inc(x_2);
-x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set(x_4, 1, x_0);
-x_5 = lean::box(0);
-x_6 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_6, 0, x_4);
-lean::cnstr_set(x_6, 1, x_5);
-x_7 = l_string_join___closed__1;
-lean::inc(x_7);
-x_9 = l_lean_format_be___main(x_1, x_2, x_7, x_6);
-return x_9;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_0);
+x_4 = lean::box(0);
+x_5 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_5, 0, x_3);
+lean::cnstr_set(x_5, 1, x_4);
+x_6 = l_string_join___closed__1;
+lean::inc(x_6);
+x_8 = l_lean_format_be___main(x_1, x_2, x_6, x_5);
+return x_8;
 }
 }
 obj* l_lean_format_bracket(obj* x_0, obj* x_1, obj* x_2) {

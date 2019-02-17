@@ -53,40 +53,38 @@ _start:
 obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_lt(x_3, x_2);
-lean::dec(x_3);
 if (x_4 == 0)
 {
-obj* x_9; 
+obj* x_8; 
 lean::dec(x_1);
 lean::dec(x_0);
 lean::dec(x_2);
-x_9 = lean::mk_nat_obj(0u);
-return x_9;
+x_8 = lean::mk_nat_obj(0u);
+return x_8;
 }
 else
 {
-uint8 x_10; 
-x_10 = lean::nat_dec_le(x_2, x_0);
-if (x_10 == 0)
+uint8 x_9; 
+x_9 = lean::nat_dec_le(x_2, x_0);
+if (x_9 == 0)
 {
-obj* x_14; 
+obj* x_13; 
 lean::dec(x_1);
 lean::dec(x_0);
 lean::dec(x_2);
-x_14 = lean::mk_nat_obj(0u);
-return x_14;
+x_13 = lean::mk_nat_obj(0u);
+return x_13;
 }
 else
 {
-obj* x_15; obj* x_17; obj* x_18; obj* x_19; 
-x_15 = lean::nat_sub(x_0, x_2);
+obj* x_14; obj* x_16; obj* x_17; obj* x_18; 
+x_14 = lean::nat_sub(x_0, x_2);
 lean::dec(x_0);
-x_17 = lean::apply_3(x_1, x_15, lean::box(0), x_2);
-x_18 = lean::mk_nat_obj(1u);
-x_19 = lean::nat_add(x_17, x_18);
-lean::dec(x_18);
-lean::dec(x_17);
-return x_19;
+x_16 = lean::apply_3(x_1, x_14, lean::box(0), x_2);
+x_17 = lean::mk_nat_obj(1u);
+x_18 = lean::nat_add(x_16, x_17);
+lean::dec(x_16);
+return x_18;
 }
 }
 }
@@ -113,7 +111,6 @@ _start:
 obj* x_3; uint8 x_4; 
 x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_lt(x_3, x_2);
-lean::dec(x_3);
 if (x_4 == 0)
 {
 lean::dec(x_1);
@@ -122,9 +119,9 @@ return x_0;
 }
 else
 {
-uint8 x_8; 
-x_8 = lean::nat_dec_le(x_2, x_0);
-if (x_8 == 0)
+uint8 x_7; 
+x_7 = lean::nat_dec_le(x_2, x_0);
+if (x_7 == 0)
 {
 lean::dec(x_1);
 lean::dec(x_2);
@@ -132,11 +129,11 @@ return x_0;
 }
 else
 {
-obj* x_11; obj* x_13; 
-x_11 = lean::nat_sub(x_0, x_2);
+obj* x_10; obj* x_12; 
+x_10 = lean::nat_sub(x_0, x_2);
 lean::dec(x_0);
-x_13 = lean::apply_3(x_1, x_11, lean::box(0), x_2);
-return x_13;
+x_12 = lean::apply_3(x_1, x_10, lean::box(0), x_2);
+return x_12;
 }
 }
 }

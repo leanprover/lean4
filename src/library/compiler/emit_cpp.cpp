@@ -962,6 +962,7 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
     else
         out << "lean::initialize_runtime_module();\n";
     out << "initialize_" << mangle(m, false) << "();\n";
+    out << "lean::scoped_task_manager tmanager(lean::hardware_concurrency());\n";
     if (arity == 2) {
         out << "obj* in = lean::box(0);\n";
         out << "int i = argc;\n";

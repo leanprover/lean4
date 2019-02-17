@@ -1446,7 +1446,7 @@ class explicit_rc_fn {
     name                m_x;
     unsigned            m_next_idx{1};
     name_set            m_borrowed; /* Set of variables marked as borrowed. */
-    name_set            m_locally_scalar;
+    name_set            m_is_scalar; /* Set of variables of type `_obj` that are known to be a boxed scalar value. */
 
     static bool is_jmp(expr const & e) {
         return is_llnf_jmp(get_app_fn(e));
@@ -1649,7 +1649,7 @@ class explicit_rc_fn {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
                 !is_unboxed(get_type_of(arg)) &&      /* it is not a unboxed/scalar value */
-                !m_locally_scalar.contains(fvar_name(arg)) &&  /* it is not known to be a scalar here */
+                !m_is_scalar.contains(fvar_name(arg)) &&  /* it is not known to be a scalar here */
                 is_first_occur(arg, i, args)) {
                 unsigned n = get_num_incs(arg, args, f_borrowed_args, live_obj_vars);
                 if (n > 0) {
@@ -1773,7 +1773,7 @@ class explicit_rc_fn {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
                 !is_unboxed(get_type_of(arg)) && /* it is not a unboxed/scalar value */
-                !m_locally_scalar.contains(fvar_name(arg)) &&
+                !m_is_scalar.contains(fvar_name(arg)) &&
                 is_first_occur(arg, i, args)) {
                 unsigned n = get_num_incs(arg, args, borrowed_args, name_set());
                 if (n > 0) {
@@ -1815,9 +1815,9 @@ class explicit_rc_fn {
         get_constructor_names(env(), I_name, cnames);
         lean_assert(cnames.size() == args.size() - 1);
         for (unsigned i = 1; i < args.size(); i++) {
-            flet<name_set> save_locally_scalar(m_locally_scalar, m_locally_scalar);
+            flet<name_set> save_is_scalar(m_is_scalar, m_is_scalar);
             if (is_0ary_constructor(cnames[i-1])) {
-                m_locally_scalar.insert(fvar_name(major));
+                m_is_scalar.insert(fvar_name(major));
             }
             expr arg = args[i]; /* A "case/branch" of the `cases_on` term. */
             name_set arg_live_vars;
@@ -1830,7 +1830,7 @@ class explicit_rc_fn {
             /* We must decrement (non-borrowed) variables that are live at `cases_live_vars`, but are not live at `arg_live_vars`. */
             cases_live_vars.for_each([&](name const & x_name) {
                     if (!arg_live_vars.contains(x_name) &&
-                        !m_locally_scalar.contains(x_name) &&
+                        !m_is_scalar.contains(x_name) &&
                         !m_borrowed.contains(x_name)) {
                         local_decl x_decl = m_lctx.get_local_decl(x_name);
                         if (!is_unboxed(x_decl.get_type())) {
@@ -1859,7 +1859,7 @@ class explicit_rc_fn {
         } else if (is_fvar(e)) {
             /* If it is marked as borrowed, we should insert `inc`. */
             if (m_borrowed.contains(fvar_name(e)) && is_obj(e) &&
-                !m_locally_scalar.contains(fvar_name(e)))
+                !m_is_scalar.contains(fvar_name(e)))
                 add_inc(e, entries);
             return e;
         } else {
@@ -2002,6 +2002,12 @@ class explicit_rc_fn {
         }
     }
 
+    /* `e` is of the form `_cnstr.<cidx>.0.0` */
+    static bool is_llnf_scalar_cnstr(expr const & e) {
+        unsigned cidx, nusizes, ssz;
+        return is_llnf_cnstr(e, cidx, nusizes, ssz) && nusizes == 0 && ssz == 0;
+    }
+
     expr visit_let(expr e) {
         buffer<expr> fvars;
         while (is_let(e)) {
@@ -2019,6 +2025,9 @@ class explicit_rc_fn {
                 if (should_mark_as_borrowed(val)) {
                     /* Remark: it is incorrect to mark it at `process`. */
                     m_borrowed.insert(fvar_name(new_fvar));
+                }
+                if (is_llnf_scalar_cnstr(val)) {
+                    m_is_scalar.insert(fvar_name(new_fvar));
                 }
                 fvars.push_back(new_fvar);
                 m_fvars.push_back(new_fvar);

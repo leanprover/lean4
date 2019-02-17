@@ -183,34 +183,33 @@ _start:
 lean::dec(x_0);
 if (lean::obj_tag(x_4) == 0)
 {
-obj* x_8; obj* x_9; obj* x_10; obj* x_14; 
-lean::dec(x_4);
+obj* x_7; obj* x_8; obj* x_9; obj* x_13; 
 lean::dec(x_3);
-x_8 = lean::box(0);
-x_9 = l_lean_parser_curr__lbp___rarg___lambda__1___closed__1;
-x_10 = l_mjoin___rarg___closed__1;
-lean::inc(x_8);
-lean::inc(x_10);
+x_7 = lean::box(0);
+x_8 = l_lean_parser_curr__lbp___rarg___lambda__1___closed__1;
+x_9 = l_mjoin___rarg___closed__1;
+lean::inc(x_7);
 lean::inc(x_9);
-x_14 = l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__1___rarg(x_1, lean::box(0), x_9, x_10, x_8, x_8, x_2);
-return x_14;
+lean::inc(x_8);
+x_13 = l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__1___rarg(x_1, lean::box(0), x_8, x_9, x_7, x_7, x_2);
+return x_13;
 }
 else
 {
-obj* x_17; obj* x_20; obj* x_23; obj* x_26; 
+obj* x_16; obj* x_19; obj* x_22; obj* x_25; 
 lean::dec(x_1);
 lean::dec(x_2);
-x_17 = lean::cnstr_get(x_4, 0);
-lean::inc(x_17);
+x_16 = lean::cnstr_get(x_4, 0);
+lean::inc(x_16);
 lean::dec(x_4);
-x_20 = lean::cnstr_get(x_17, 1);
-lean::inc(x_20);
-lean::dec(x_17);
-x_23 = lean::cnstr_get(x_20, 1);
-lean::inc(x_23);
-lean::dec(x_20);
-x_26 = lean::apply_2(x_3, lean::box(0), x_23);
-return x_26;
+x_19 = lean::cnstr_get(x_16, 1);
+lean::inc(x_19);
+lean::dec(x_16);
+x_22 = lean::cnstr_get(x_19, 1);
+lean::inc(x_22);
+lean::dec(x_19);
+x_25 = lean::apply_2(x_3, lean::box(0), x_22);
+return x_25;
 }
 }
 }
@@ -396,19 +395,18 @@ return x_88;
 }
 default:
 {
-obj* x_93; obj* x_94; obj* x_95; obj* x_99; 
-lean::dec(x_19);
+obj* x_92; obj* x_93; obj* x_94; obj* x_98; 
 lean::dec(x_4);
 lean::dec(x_3);
 lean::dec(x_0);
-x_93 = lean::box(0);
-x_94 = l_lean_parser_curr__lbp___rarg___lambda__3___closed__2;
-x_95 = l_mjoin___rarg___closed__1;
-lean::inc(x_93);
-lean::inc(x_95);
+x_92 = lean::box(0);
+x_93 = l_lean_parser_curr__lbp___rarg___lambda__3___closed__2;
+x_94 = l_mjoin___rarg___closed__1;
+lean::inc(x_92);
 lean::inc(x_94);
-x_99 = l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__3___rarg(x_1, lean::box(0), x_94, x_95, x_93, x_93, x_2);
-return x_99;
+lean::inc(x_93);
+x_98 = l_lean_parser_monad__parsec_error___at_lean_parser_curr__lbp___spec__3___rarg(x_1, lean::box(0), x_93, x_94, x_92, x_92, x_2);
+return x_98;
 }
 }
 }

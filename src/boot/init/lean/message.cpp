@@ -240,32 +240,31 @@ _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-uint8 x_2; 
-lean::dec(x_0);
-x_2 = 0;
-return x_2;
+uint8 x_1; 
+x_1 = 0;
+return x_1;
 }
 else
 {
-obj* x_3; obj* x_5; uint8 x_8; uint8 x_9; 
-x_3 = lean::cnstr_get(x_0, 0);
-lean::inc(x_3);
-x_5 = lean::cnstr_get(x_0, 1);
-lean::inc(x_5);
+obj* x_2; obj* x_4; uint8 x_7; uint8 x_8; 
+x_2 = lean::cnstr_get(x_0, 0);
+lean::inc(x_2);
+x_4 = lean::cnstr_get(x_0, 1);
+lean::inc(x_4);
 lean::dec(x_0);
-x_8 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_5);
-x_9 = lean::cnstr_get_scalar<uint8>(x_3, sizeof(void*)*5);
-lean::dec(x_3);
-switch (x_9) {
+x_7 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_4);
+x_8 = lean::cnstr_get_scalar<uint8>(x_2, sizeof(void*)*5);
+lean::dec(x_2);
+switch (x_8) {
 case 2:
 {
-uint8 x_11; 
-x_11 = 1;
-return x_11;
+uint8 x_10; 
+x_10 = 1;
+return x_10;
 }
 default:
 {
-return x_8;
+return x_7;
 }
 }
 }

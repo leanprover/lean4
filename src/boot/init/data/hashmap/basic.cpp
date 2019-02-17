@@ -265,26 +265,25 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 lean::dec(x_0);
-lean::dec(x_2);
 return x_1;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_10; obj* x_12; obj* x_16; 
-x_5 = lean::cnstr_get(x_2, 0);
-lean::inc(x_5);
-x_7 = lean::cnstr_get(x_2, 1);
-lean::inc(x_7);
+obj* x_4; obj* x_6; obj* x_9; obj* x_11; obj* x_15; 
+x_4 = lean::cnstr_get(x_2, 0);
+lean::inc(x_4);
+x_6 = lean::cnstr_get(x_2, 1);
+lean::inc(x_6);
 lean::dec(x_2);
-x_10 = lean::cnstr_get(x_5, 0);
-lean::inc(x_10);
-x_12 = lean::cnstr_get(x_5, 1);
-lean::inc(x_12);
-lean::dec(x_5);
+x_9 = lean::cnstr_get(x_4, 0);
+lean::inc(x_9);
+x_11 = lean::cnstr_get(x_4, 1);
+lean::inc(x_11);
+lean::dec(x_4);
 lean::inc(x_0);
-x_16 = lean::apply_3(x_0, x_1, x_10, x_12);
-x_1 = x_16;
-x_2 = x_7;
+x_15 = lean::apply_3(x_0, x_1, x_9, x_11);
+x_1 = x_15;
+x_2 = x_6;
 goto _start;
 }
 }
@@ -367,46 +366,45 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_6; 
+obj* x_5; 
 lean::dec(x_1);
 lean::dec(x_0);
-lean::dec(x_2);
-x_6 = lean::box(0);
-return x_6;
+x_5 = lean::box(0);
+return x_5;
 }
 else
 {
-obj* x_7; obj* x_9; obj* x_12; obj* x_14; obj* x_19; uint8 x_20; 
-x_7 = lean::cnstr_get(x_2, 0);
-lean::inc(x_7);
-x_9 = lean::cnstr_get(x_2, 1);
-lean::inc(x_9);
+obj* x_6; obj* x_8; obj* x_11; obj* x_13; obj* x_18; uint8 x_19; 
+x_6 = lean::cnstr_get(x_2, 0);
+lean::inc(x_6);
+x_8 = lean::cnstr_get(x_2, 1);
+lean::inc(x_8);
 lean::dec(x_2);
-x_12 = lean::cnstr_get(x_7, 0);
-lean::inc(x_12);
-x_14 = lean::cnstr_get(x_7, 1);
-lean::inc(x_14);
-lean::dec(x_7);
+x_11 = lean::cnstr_get(x_6, 0);
+lean::inc(x_11);
+x_13 = lean::cnstr_get(x_6, 1);
+lean::inc(x_13);
+lean::dec(x_6);
 lean::inc(x_1);
 lean::inc(x_0);
-x_19 = lean::apply_2(x_0, x_12, x_1);
-x_20 = lean::unbox(x_19);
-lean::dec(x_19);
-if (x_20 == 0)
+x_18 = lean::apply_2(x_0, x_11, x_1);
+x_19 = lean::unbox(x_18);
+lean::dec(x_18);
+if (x_19 == 0)
 {
-lean::dec(x_14);
-x_2 = x_9;
+lean::dec(x_13);
+x_2 = x_8;
 goto _start;
 }
 else
 {
-obj* x_27; 
-lean::dec(x_9);
+obj* x_26; 
+lean::dec(x_8);
 lean::dec(x_1);
 lean::dec(x_0);
-x_27 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_27, 0, x_14);
-return x_27;
+x_26 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_26, 0, x_13);
+return x_26;
 }
 }
 }
@@ -661,8 +659,8 @@ return x_18;
 else
 {
 lean::dec(x_9);
-lean::dec(x_1);
 lean::dec(x_5);
+lean::dec(x_1);
 lean::dec(x_0);
 return x_7;
 }

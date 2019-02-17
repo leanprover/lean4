@@ -974,20 +974,19 @@ _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-lean::dec(x_0);
 return x_1;
 }
 else
 {
-obj* x_3; obj* x_5; obj* x_8; 
-x_3 = lean::cnstr_get(x_0, 0);
-lean::inc(x_3);
-x_5 = lean::cnstr_get(x_0, 1);
-lean::inc(x_5);
+obj* x_2; obj* x_4; obj* x_7; 
+x_2 = lean::cnstr_get(x_0, 0);
+lean::inc(x_2);
+x_4 = lean::cnstr_get(x_0, 1);
+lean::inc(x_4);
 lean::dec(x_0);
-x_8 = lean::array_push(x_1, x_3);
-x_0 = x_5;
-x_1 = x_8;
+x_7 = lean::array_push(x_1, x_2);
+x_0 = x_4;
+x_1 = x_7;
 goto _start;
 }
 }

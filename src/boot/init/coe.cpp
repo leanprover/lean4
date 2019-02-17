@@ -639,38 +639,37 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-obj* x_4; 
-lean::dec(x_1);
+obj* x_3; 
 lean::dec(x_0);
-x_4 = lean::box(0);
-return x_4;
+x_3 = lean::box(0);
+return x_3;
 }
 else
 {
-obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_13; 
-x_5 = lean::cnstr_get(x_1, 0);
-lean::inc(x_5);
-x_7 = lean::cnstr_get(x_1, 1);
-lean::inc(x_7);
+obj* x_4; obj* x_6; obj* x_8; obj* x_10; obj* x_11; obj* x_12; 
+x_4 = lean::cnstr_get(x_1, 0);
+lean::inc(x_4);
+x_6 = lean::cnstr_get(x_1, 1);
+lean::inc(x_6);
 if (lean::is_shared(x_1)) {
  lean::dec(x_1);
- x_9 = lean::box(0);
+ x_8 = lean::box(0);
 } else {
  lean::cnstr_release(x_1, 0);
  lean::cnstr_release(x_1, 1);
- x_9 = x_1;
+ x_8 = x_1;
 }
 lean::inc(x_0);
-x_11 = lean::apply_1(x_0, x_5);
-x_12 = l_list_map___main___at_lift__list___spec__1___rarg(x_0, x_7);
-if (lean::is_scalar(x_9)) {
- x_13 = lean::alloc_cnstr(1, 2, 0);
+x_10 = lean::apply_1(x_0, x_4);
+x_11 = l_list_map___main___at_lift__list___spec__1___rarg(x_0, x_6);
+if (lean::is_scalar(x_8)) {
+ x_12 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_13 = x_9;
+ x_12 = x_8;
 }
-lean::cnstr_set(x_13, 0, x_11);
-lean::cnstr_set(x_13, 1, x_12);
-return x_13;
+lean::cnstr_set(x_12, 0, x_10);
+lean::cnstr_set(x_12, 1, x_11);
+return x_12;
 }
 }
 }

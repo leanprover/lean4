@@ -1859,8 +1859,9 @@ class explicit_rc_fn {
         } else if (is_fvar(e)) {
             /* If it is marked as borrowed, we should insert `inc`. */
             if (m_borrowed.contains(fvar_name(e)) && is_obj(e) &&
-                !m_is_scalar.contains(fvar_name(e)))
+                !m_is_scalar.contains(fvar_name(e))) {
                 add_inc(e, entries);
+            }
             return e;
         } else {
             /* See visit_let */
@@ -1986,6 +1987,14 @@ class explicit_rc_fn {
         }
     }
 
+    /* `e` is of the form `_cnstr.<cidx>.0.0` or `_neutral` */
+    static bool is_boxed_scalar(expr const & e) {
+        unsigned cidx, nusizes, ssz;
+        return
+            (is_llnf_cnstr(e, cidx, nusizes, ssz) && nusizes == 0 && ssz == 0) ||
+            is_enf_neutral(e);
+    }
+
     /* Make sure `e` is a cases, jmp or fvar */
     expr ensure_terminal(expr const & e) {
         if (!is_cases_on_app(env(), e) && !is_jmp(e) && !is_fvar(e)) {
@@ -1995,17 +2004,14 @@ class explicit_rc_fn {
             if (should_mark_as_borrowed(e)) {
                 m_borrowed.insert(fvar_name(new_fvar));
             }
+            if (is_boxed_scalar(e)) {
+                m_is_scalar.insert(fvar_name(new_fvar));
+            }
             m_fvars.push_back(new_fvar);
             return new_fvar;
         } else {
             return e;
         }
-    }
-
-    /* `e` is of the form `_cnstr.<cidx>.0.0` */
-    static bool is_llnf_scalar_cnstr(expr const & e) {
-        unsigned cidx, nusizes, ssz;
-        return is_llnf_cnstr(e, cidx, nusizes, ssz) && nusizes == 0 && ssz == 0;
     }
 
     expr visit_let(expr e) {
@@ -2026,7 +2032,7 @@ class explicit_rc_fn {
                     /* Remark: it is incorrect to mark it at `process`. */
                     m_borrowed.insert(fvar_name(new_fvar));
                 }
-                if (is_llnf_scalar_cnstr(val)) {
+                if (is_boxed_scalar(val)) {
                     m_is_scalar.insert(fvar_name(new_fvar));
                 }
                 fvars.push_back(new_fvar);

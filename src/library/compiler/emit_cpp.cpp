@@ -499,14 +499,14 @@ struct emit_fn_fn {
     void emit_reset(expr const & x, expr const & fn, expr const & o) {
         unsigned n;
         lean_verify(is_llnf_reset(fn, n));
-        m_out << "if (lean::is_shared("; emit_fvar(o); m_out <<")) {\n";
-        m_out << " lean::dec("; emit_fvar(o); m_out << ");\n ";
-        emit_lhs(x); emit_unit(); m_out << ";\n";
-        m_out << "} else {\n";
+        m_out << "if (lean::is_exclusive("; emit_fvar(o); m_out <<")) {\n";
         for (unsigned i = 0; i < n; i++) {
             m_out << " lean::cnstr_release("; emit_fvar(o); m_out << ", " << i << ");\n";
         }
         m_out << " "; emit_lhs(x); emit_fvar(o); m_out << ";\n";
+        m_out << "} else {\n";
+        m_out << " lean::dec("; emit_fvar(o); m_out << ");\n ";
+        emit_lhs(x); emit_unit(); m_out << ";\n";
         m_out << "}\n";
     }
 

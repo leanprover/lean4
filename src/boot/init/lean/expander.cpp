@@ -424,7 +424,6 @@ _start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
-lean::inc(x_0);
 return x_0;
 }
 }
@@ -433,7 +432,6 @@ _start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
-lean::inc(x_0);
 return x_0;
 }
 }
@@ -9916,7 +9914,6 @@ _start:
 {
 obj* x_0; 
 x_0 = lean::box(0);
-lean::inc(x_0);
 return x_0;
 }
 }

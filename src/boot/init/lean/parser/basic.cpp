@@ -1217,29 +1217,27 @@ goto _start;
 obj* _init_l_lean_parser_mk__token__trie___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("/-");
 x_2 = lean::mk_nat_obj(0u);
-lean::inc(x_0);
 lean::inc(x_2);
-x_5 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_5, 0, x_1);
-lean::cnstr_set(x_5, 1, x_2);
-lean::cnstr_set(x_5, 2, x_0);
-x_6 = lean::mk_string("--");
-lean::inc(x_0);
-x_8 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_8, 0, x_6);
-lean::cnstr_set(x_8, 1, x_2);
-lean::cnstr_set(x_8, 2, x_0);
-x_9 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_9, 0, x_8);
-lean::cnstr_set(x_9, 1, x_0);
-x_10 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_10, 0, x_5);
-lean::cnstr_set(x_10, 1, x_9);
-return x_10;
+x_4 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_4, 0, x_1);
+lean::cnstr_set(x_4, 1, x_2);
+lean::cnstr_set(x_4, 2, x_0);
+x_5 = lean::mk_string("--");
+x_6 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_6, 0, x_5);
+lean::cnstr_set(x_6, 1, x_2);
+lean::cnstr_set(x_6, 2, x_0);
+x_7 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_7, 0, x_6);
+lean::cnstr_set(x_7, 1, x_0);
+x_8 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_8, 0, x_4);
+lean::cnstr_set(x_8, 1, x_7);
+return x_8;
 }
 }
 obj* l_lean_parser_mk__token__trie(obj* x_0) {

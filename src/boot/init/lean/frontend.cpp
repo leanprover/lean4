@@ -143,7 +143,7 @@ return x_23;
 }
 else
 {
-obj* x_24; obj* x_26; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_37; obj* x_38; obj* x_40; obj* x_41; 
+obj* x_24; obj* x_26; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_36; obj* x_37; obj* x_39; obj* x_40; 
 x_24 = lean::cnstr_get(x_17, 0);
 lean::inc(x_24);
 if (lean::is_shared(x_17)) {
@@ -165,27 +165,26 @@ lean::cnstr_set(x_30, 1, x_24);
 x_31 = lean::box(0);
 x_32 = l_lean_parser_term_builtin__leading__parsers;
 x_33 = l_lean_parser_term_builtin__trailing__parsers;
-lean::inc(x_31);
 lean::inc(x_33);
 lean::inc(x_32);
-x_37 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_37, 0, x_30);
-lean::cnstr_set(x_37, 1, x_32);
-lean::cnstr_set(x_37, 2, x_33);
-lean::cnstr_set(x_37, 3, x_31);
-lean::cnstr_set(x_37, 4, x_31);
-x_38 = l_lean_parser_command_builtin__command__parsers;
-lean::inc(x_38);
-x_40 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_40, 0, x_37);
-lean::cnstr_set(x_40, 1, x_38);
+x_36 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_36, 0, x_30);
+lean::cnstr_set(x_36, 1, x_32);
+lean::cnstr_set(x_36, 2, x_33);
+lean::cnstr_set(x_36, 3, x_31);
+lean::cnstr_set(x_36, 4, x_31);
+x_37 = l_lean_parser_command_builtin__command__parsers;
+lean::inc(x_37);
+x_39 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_39, 0, x_36);
+lean::cnstr_set(x_39, 1, x_37);
 if (lean::is_scalar(x_26)) {
- x_41 = lean::alloc_cnstr(1, 1, 0);
+ x_40 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_41 = x_26;
+ x_40 = x_26;
 }
-lean::cnstr_set(x_41, 0, x_40);
-return x_41;
+lean::cnstr_set(x_40, 0, x_39);
+return x_40;
 }
 }
 }

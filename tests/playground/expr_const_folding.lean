@@ -15,7 +15,7 @@ def append_add : Expr → Expr → Expr
 | e₁          e₂ := Add e₁ e₂
 
 def append_mul : Expr → Expr → Expr
-| (Mul e₁ e₂) e₃ := Mul e₁ (append_mul e₁ e₂)
+| (Mul e₁ e₂) e₃ := Mul e₁ (append_mul e₂ e₃)
 | e₁          e₂ := Mul e₁ e₂
 
 def reassoc : Expr → Expr
@@ -39,8 +39,8 @@ def const_folding : Expr → Expr
    | Val a, Add (Val b) e := Add (Val (a+b)) e
    | _,     _             := Add e₁ e₂)
 | (Mul e₁ e₂) :=
-  let e₁ := const_folding e₂ in
-  let e₁ := const_folding e₂ in
+  let e₁ := const_folding e₁ in
+  let e₂ := const_folding e₂ in
   (match e₁, e₂ with
    | Val a, Val b         := Val (a*b)
    | Val a, Mul e (Val b) := Mul (Val (a*b)) e

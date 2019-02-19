@@ -468,13 +468,12 @@ lean::dec(x_1);
 x_9 = l_lean_compiler_num__scalar__types;
 x_10 = l_list_foldr___main___at_lean_compiler_is__of__nat___spec__1(x_6, x_9);
 x_11 = lean::unbox(x_10);
-lean::dec(x_10);
 if (x_11 == 0)
 {
-obj* x_14; 
+obj* x_13; 
 lean::dec(x_3);
-x_14 = lean::box(0);
-return x_14;
+x_13 = lean::box(0);
+return x_13;
 }
 else
 {
@@ -484,44 +483,44 @@ goto _start;
 }
 default:
 {
-obj* x_18; 
+obj* x_17; 
 lean::dec(x_1);
 lean::dec(x_3);
-x_18 = lean::box(0);
-return x_18;
+x_17 = lean::box(0);
+return x_17;
 }
 }
 }
 case 9:
 {
-obj* x_19; 
-x_19 = lean::cnstr_get(x_0, 0);
-lean::inc(x_19);
+obj* x_18; 
+x_18 = lean::cnstr_get(x_0, 0);
+lean::inc(x_18);
 lean::dec(x_0);
-if (lean::obj_tag(x_19) == 0)
+if (lean::obj_tag(x_18) == 0)
 {
-obj* x_22; obj* x_25; 
-x_22 = lean::cnstr_get(x_19, 0);
-lean::inc(x_22);
-lean::dec(x_19);
-x_25 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_25, 0, x_22);
-return x_25;
+obj* x_21; obj* x_24; 
+x_21 = lean::cnstr_get(x_18, 0);
+lean::inc(x_21);
+lean::dec(x_18);
+x_24 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_24, 0, x_21);
+return x_24;
 }
 else
 {
-obj* x_27; 
-lean::dec(x_19);
-x_27 = lean::box(0);
-return x_27;
+obj* x_26; 
+lean::dec(x_18);
+x_26 = lean::box(0);
+return x_26;
 }
 }
 default:
 {
-obj* x_29; 
+obj* x_28; 
 lean::dec(x_0);
-x_29 = lean::box(0);
-return x_29;
+x_28 = lean::box(0);
+return x_28;
 }
 }
 }
@@ -1458,22 +1457,21 @@ return x_23;
 }
 else
 {
-obj* x_24; obj* x_27; obj* x_28; uint8 x_29; obj* x_31; obj* x_32; 
+obj* x_24; obj* x_27; obj* x_28; uint8 x_29; obj* x_30; obj* x_31; 
 x_24 = lean::cnstr_get(x_16, 0);
 lean::inc(x_24);
 lean::dec(x_16);
 x_27 = lean::apply_2(x_0, x_3, x_4);
 x_28 = lean::apply_2(x_1, x_12, x_24);
 x_29 = lean::unbox(x_28);
-lean::dec(x_28);
-x_31 = l_lean_compiler_to__decidable__expr(x_2, x_27, x_29);
+x_30 = l_lean_compiler_to__decidable__expr(x_2, x_27, x_29);
 if (lean::is_scalar(x_14)) {
- x_32 = lean::alloc_cnstr(1, 1, 0);
+ x_31 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_32 = x_14;
+ x_31 = x_14;
 }
-lean::cnstr_set(x_32, 0, x_31);
-return x_32;
+lean::cnstr_set(x_31, 0, x_30);
+return x_31;
 }
 }
 }

@@ -1803,25 +1803,24 @@ lean::dec(x_80);
 lean::inc(x_77);
 x_88 = l_list_foldr___main___at_lean_parser_syntax_reprint___main___spec__1(x_77, x_84);
 x_89 = lean::unbox(x_88);
-lean::dec(x_88);
 if (x_89 == 0)
 {
-obj* x_93; 
+obj* x_92; 
 lean::dec(x_79);
 lean::dec(x_77);
-x_93 = lean::box(0);
-return x_93;
+x_92 = lean::box(0);
+return x_92;
 }
 else
 {
-obj* x_94; 
+obj* x_93; 
 if (lean::is_scalar(x_79)) {
- x_94 = lean::alloc_cnstr(1, 1, 0);
+ x_93 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_94 = x_79;
+ x_93 = x_79;
 }
-lean::cnstr_set(x_94, 0, x_77);
-return x_94;
+lean::cnstr_set(x_93, 0, x_77);
+return x_93;
 }
 }
 }
@@ -1830,9 +1829,9 @@ return x_94;
 }
 default:
 {
-obj* x_95; 
-x_95 = l_lean_parser_syntax_reprint___main___closed__2;
-return x_95;
+obj* x_94; 
+x_94 = l_lean_parser_syntax_reprint___main___closed__2;
+return x_94;
 }
 }
 }

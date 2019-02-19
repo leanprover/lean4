@@ -452,40 +452,38 @@ return x_12;
 }
 else
 {
-obj* x_13; obj* x_15; uint32 x_18; uint32 x_20; uint8 x_22; 
+obj* x_13; obj* x_15; uint32 x_18; uint32 x_19; uint8 x_20; 
 x_13 = lean::cnstr_get(x_1, 0);
 lean::inc(x_13);
 x_15 = lean::cnstr_get(x_1, 1);
 lean::inc(x_15);
 lean::dec(x_1);
 x_18 = lean::unbox_uint32(x_5);
-lean::dec(x_5);
-x_20 = lean::unbox_uint32(x_13);
-lean::dec(x_13);
-x_22 = x_18 == x_20;
-if (x_22 == 0)
+x_19 = lean::unbox_uint32(x_13);
+x_20 = x_18 == x_19;
+if (x_20 == 0)
 {
-uint8 x_25; 
+uint8 x_23; 
 lean::dec(x_15);
 lean::dec(x_7);
+x_23 = 0;
+return x_23;
+}
+else
+{
+uint8 x_24; 
+x_24 = l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(x_7, x_15);
+if (x_24 == 0)
+{
+uint8 x_25; 
 x_25 = 0;
 return x_25;
 }
 else
 {
 uint8 x_26; 
-x_26 = l_list_has__dec__eq___main___at_string_iterator_extract__core___main___spec__1(x_7, x_15);
-if (x_26 == 0)
-{
-uint8 x_27; 
-x_27 = 0;
-return x_27;
-}
-else
-{
-uint8 x_28; 
-x_28 = 1;
-return x_28;
+x_26 = 1;
+return x_26;
 }
 }
 }

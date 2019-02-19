@@ -1224,19 +1224,18 @@ return x_1;
 }
 else
 {
-obj* x_2; obj* x_4; uint32 x_7; obj* x_9; obj* x_10; obj* x_11; 
+obj* x_2; obj* x_4; uint32 x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_2 = lean::cnstr_get(x_0, 0);
 lean::inc(x_2);
 x_4 = lean::cnstr_get(x_0, 1);
 lean::inc(x_4);
 lean::dec(x_0);
 x_7 = lean::unbox_uint32(x_2);
-lean::dec(x_2);
-x_9 = l_char_quote__core(x_7);
-x_10 = l_string_quote__aux___main(x_4);
-x_11 = lean::string_append(x_9, x_10);
-lean::dec(x_10);
-return x_11;
+x_8 = l_char_quote__core(x_7);
+x_9 = l_string_quote__aux___main(x_4);
+x_10 = lean::string_append(x_8, x_9);
+lean::dec(x_9);
+return x_10;
 }
 }
 }

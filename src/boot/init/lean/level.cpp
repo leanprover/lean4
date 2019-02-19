@@ -151,7 +151,6 @@ x_18 = l_lean_level_has__param___main(x_13);
 x_19 = lean::unbox(x_18);
 if (x_19 == 0)
 {
-lean::dec(x_18);
 x_0 = x_15;
 goto _start;
 }
@@ -220,10 +219,9 @@ x_18 = l_lean_level_has__param___main(x_13);
 x_19 = lean::unbox(x_18);
 if (x_19 == 0)
 {
-obj* x_21; 
-lean::dec(x_18);
-x_21 = l_lean_level_has__param___main(x_15);
-return x_21;
+obj* x_20; 
+x_20 = l_lean_level_has__param___main(x_15);
+return x_20;
 }
 else
 {

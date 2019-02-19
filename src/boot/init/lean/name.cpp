@@ -651,18 +651,17 @@ _start:
 obj* x_2; uint8 x_3; 
 x_2 = l_lean_name_quick__lt___main(x_0, x_1);
 x_3 = lean::unbox(x_2);
-lean::dec(x_2);
 if (x_3 == 0)
 {
-uint8 x_5; 
-x_5 = 0;
-return x_5;
+uint8 x_4; 
+x_4 = 0;
+return x_4;
 }
 else
 {
-uint8 x_6; 
-x_6 = 1;
-return x_6;
+uint8 x_5; 
+x_5 = 1;
+return x_5;
 }
 }
 }

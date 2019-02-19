@@ -869,18 +869,17 @@ lean::inc(x_13);
 lean::dec(x_2);
 x_16 = lean::apply_2(x_0, x_7, x_13);
 x_17 = lean::unbox(x_16);
-lean::dec(x_16);
 if (x_17 == 0)
 {
-uint8 x_19; 
-x_19 = 0;
-return x_19;
+uint8 x_18; 
+x_18 = 0;
+return x_18;
 }
 else
 {
-uint8 x_20; 
-x_20 = 1;
-return x_20;
+uint8 x_19; 
+x_19 = 1;
+return x_19;
 }
 }
 }

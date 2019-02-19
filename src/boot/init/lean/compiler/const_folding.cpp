@@ -603,11 +603,11 @@ else
 {
 obj* x_10; obj* x_12; obj* x_13; 
 x_10 = lean::cnstr_get(x_5, 0);
-lean::inc(x_10);
 if (lean::is_exclusive(x_5)) {
- lean::cnstr_release(x_5, 0);
+ lean::cnstr_set(x_5, 0, lean::box(0));
  x_12 = x_5;
 } else {
+ lean::inc(x_10);
  lean::dec(x_5);
  x_12 = lean::box(0);
 }
@@ -972,26 +972,26 @@ else
 {
 obj* x_4; obj* x_6; obj* x_8; obj* x_9; obj* x_11; obj* x_13; obj* x_15; obj* x_16; obj* x_19; obj* x_20; obj* x_21; 
 x_4 = lean::cnstr_get(x_1, 0);
-lean::inc(x_4);
 x_6 = lean::cnstr_get(x_1, 1);
-lean::inc(x_6);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_release(x_1, 0);
- lean::cnstr_release(x_1, 1);
+ lean::cnstr_set(x_1, 0, lean::box(0));
+ lean::cnstr_set(x_1, 1, lean::box(0));
  x_8 = x_1;
 } else {
+ lean::inc(x_4);
+ lean::inc(x_6);
  lean::dec(x_1);
  x_8 = lean::box(0);
 }
 x_9 = lean::cnstr_get(x_4, 0);
-lean::inc(x_9);
 x_11 = lean::cnstr_get(x_4, 1);
-lean::inc(x_11);
 if (lean::is_exclusive(x_4)) {
- lean::cnstr_release(x_4, 0);
- lean::cnstr_release(x_4, 1);
+ lean::cnstr_set(x_4, 0, lean::box(0));
+ lean::cnstr_set(x_4, 1, lean::box(0));
  x_13 = x_4;
 } else {
+ lean::inc(x_9);
+ lean::inc(x_11);
  lean::dec(x_4);
  x_13 = lean::box(0);
 }
@@ -1070,11 +1070,11 @@ else
 {
 obj* x_7; obj* x_9; obj* x_10; 
 x_7 = lean::cnstr_get(x_3, 0);
-lean::inc(x_7);
 if (lean::is_exclusive(x_3)) {
- lean::cnstr_release(x_3, 0);
+ lean::cnstr_set(x_3, 0, lean::box(0));
  x_9 = x_3;
 } else {
+ lean::inc(x_7);
  lean::dec(x_3);
  x_9 = lean::box(0);
 }
@@ -1433,11 +1433,11 @@ else
 {
 obj* x_12; obj* x_14; obj* x_16; 
 x_12 = lean::cnstr_get(x_6, 0);
-lean::inc(x_12);
 if (lean::is_exclusive(x_6)) {
- lean::cnstr_release(x_6, 0);
+ lean::cnstr_set(x_6, 0, lean::box(0));
  x_14 = x_6;
 } else {
+ lean::inc(x_12);
  lean::dec(x_6);
  x_14 = lean::box(0);
 }
@@ -1784,11 +1784,11 @@ else
 {
 obj* x_3; obj* x_5; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11; 
 x_3 = lean::cnstr_get(x_1, 0);
-lean::inc(x_3);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_release(x_1, 0);
+ lean::cnstr_set(x_1, 0, lean::box(0));
  x_5 = x_1;
 } else {
+ lean::inc(x_3);
  lean::dec(x_1);
  x_5 = lean::box(0);
 }
@@ -1870,11 +1870,11 @@ else
 {
 obj* x_10; obj* x_12; uint32 x_13; uint32 x_14; uint8 x_15; 
 x_10 = lean::cnstr_get(x_8, 0);
-lean::inc(x_10);
 if (lean::is_exclusive(x_8)) {
- lean::cnstr_release(x_8, 0);
+ lean::cnstr_set(x_8, 0, lean::box(0));
  x_12 = x_8;
 } else {
+ lean::inc(x_10);
  lean::dec(x_8);
  x_12 = lean::box(0);
 }

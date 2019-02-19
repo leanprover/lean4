@@ -180,7 +180,7 @@ return x_0;
 uint8 l_lean_position_decidable__lt___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; obj* x_7; obj* x_9; obj* x_12; obj* x_13; obj* x_14; obj* x_15; uint8 x_20; 
+obj* x_2; obj* x_4; obj* x_7; obj* x_9; obj* x_12; obj* x_13; obj* x_14; obj* x_15; uint8 x_16; 
 x_2 = lean::cnstr_get(x_0, 0);
 lean::inc(x_2);
 x_4 = lean::cnstr_get(x_0, 1);
@@ -199,12 +199,8 @@ lean::cnstr_set(x_13, 0, x_7);
 lean::cnstr_set(x_13, 1, x_9);
 x_14 = l_lean_position_decidable__lt___main___closed__1;
 x_15 = l_lean_position_decidable__lt___main___closed__2;
-lean::inc(x_15);
-lean::inc(x_15);
-lean::inc(x_14);
-lean::inc(x_14);
-x_20 = l_prod__has__decidable__lt___rarg(x_14, x_14, x_15, x_15, x_12, x_13);
-return x_20;
+x_16 = l_prod__has__decidable__lt___rarg(x_14, x_14, x_15, x_15, x_12, x_13);
+return x_16;
 }
 }
 obj* l_lean_position_decidable__lt___main___boxed(obj* x_0, obj* x_1) {
@@ -276,7 +272,7 @@ return x_1;
 obj* l_lean_position_lean_has__to__format(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; obj* x_6; uint8 x_7; obj* x_8; obj* x_10; obj* x_11; obj* x_12; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_21; obj* x_22; 
+obj* x_1; obj* x_3; obj* x_6; uint8 x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 x_3 = lean::cnstr_get(x_0, 1);
@@ -285,33 +281,30 @@ lean::dec(x_0);
 x_6 = l_lean_to__fmt___at_lean_position_lean_has__to__format___spec__1(x_1);
 x_7 = 0;
 x_8 = l_lean_position_lean_has__to__format___closed__1;
-lean::inc(x_8);
-x_10 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_10, 0, x_8);
-lean::cnstr_set(x_10, 1, x_6);
-lean::cnstr_set_scalar(x_10, sizeof(void*)*2, x_7);
-x_11 = x_10;
-x_12 = l_lean_position_lean_has__to__format___closed__2;
-lean::inc(x_12);
-x_14 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_14, 0, x_11);
-lean::cnstr_set(x_14, 1, x_12);
-lean::cnstr_set_scalar(x_14, sizeof(void*)*2, x_7);
-x_15 = x_14;
-x_16 = l_lean_to__fmt___at_lean_position_lean_has__to__format___spec__1(x_3);
-x_17 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_17, 0, x_15);
-lean::cnstr_set(x_17, 1, x_16);
-lean::cnstr_set_scalar(x_17, sizeof(void*)*2, x_7);
-x_18 = x_17;
-x_19 = l_lean_position_lean_has__to__format___closed__3;
-lean::inc(x_19);
-x_21 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_21, 0, x_18);
-lean::cnstr_set(x_21, 1, x_19);
-lean::cnstr_set_scalar(x_21, sizeof(void*)*2, x_7);
-x_22 = x_21;
-return x_22;
+x_9 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_9, 0, x_8);
+lean::cnstr_set(x_9, 1, x_6);
+lean::cnstr_set_scalar(x_9, sizeof(void*)*2, x_7);
+x_10 = x_9;
+x_11 = l_lean_position_lean_has__to__format___closed__2;
+x_12 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_12, 0, x_10);
+lean::cnstr_set(x_12, 1, x_11);
+lean::cnstr_set_scalar(x_12, sizeof(void*)*2, x_7);
+x_13 = x_12;
+x_14 = l_lean_to__fmt___at_lean_position_lean_has__to__format___spec__1(x_3);
+x_15 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_15, 0, x_13);
+lean::cnstr_set(x_15, 1, x_14);
+lean::cnstr_set_scalar(x_15, sizeof(void*)*2, x_7);
+x_16 = x_15;
+x_17 = l_lean_position_lean_has__to__format___closed__3;
+x_18 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_18, 0, x_16);
+lean::cnstr_set(x_18, 1, x_17);
+lean::cnstr_set_scalar(x_18, sizeof(void*)*2, x_7);
+x_19 = x_18;
+return x_19;
 }
 }
 obj* _init_l_lean_position_inhabited() {

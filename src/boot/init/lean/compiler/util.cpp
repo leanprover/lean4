@@ -81,11 +81,10 @@ return x_3;
 obj* l_lean_compiler_mk__lc__proof(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_2; 
 x_1 = l_lean_compiler_mk__lc__proof___closed__1;
-lean::inc(x_1);
-x_3 = lean_expr_mk_app(x_1, x_0);
-return x_3;
+x_2 = lean_expr_mk_app(x_1, x_0);
+return x_2;
 }
 }
 void initialize_init_lean_expr();

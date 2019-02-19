@@ -61,12 +61,11 @@ obj* l_usize_modn___boxed(obj*, obj*);
 obj* _init_l_usize__sz() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_3; 
+obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_nat_obj(2u);
 x_1 = l_system_platform_nbits;
-lean::inc(x_1);
-x_3 = l_nat_pow___main(x_0, x_1);
-return x_3;
+x_2 = l_nat_pow___main(x_0, x_1);
+return x_2;
 }
 }
 obj* l_usize_of__nat___boxed(obj* x_0) {

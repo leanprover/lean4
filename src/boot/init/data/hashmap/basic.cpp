@@ -187,7 +187,6 @@ else
 obj* x_7; 
 lean::dec(x_0);
 x_7 = l_mk__hashmap__imp___rarg___closed__1;
-lean::inc(x_7);
 return x_7;
 }
 }

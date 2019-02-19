@@ -625,12 +625,11 @@ goto _start;
 obj* _init_l_lean_ir_reserved__set() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_3; 
+obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::box(0);
 x_1 = l_lean_ir_reserved;
-lean::inc(x_1);
-x_3 = l_list_foldl___main___at_lean_ir_reserved__set___spec__5(x_0, x_1);
-return x_3;
+x_2 = l_list_foldl___main___at_lean_ir_reserved__set___spec__5(x_0, x_1);
+return x_2;
 }
 }
 obj* l_rbnode_find__core___main___at_lean_ir_is__reserved___spec__3(obj* x_0, obj* x_1) {
@@ -788,12 +787,11 @@ return x_10;
 uint8 l_lean_ir_is__reserved(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; uint8 x_4; 
+obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = l_lean_ir_reserved__set;
-lean::inc(x_1);
-x_3 = l_rbtree_find___at_lean_ir_is__reserved___spec__1(x_1, x_0);
-x_4 = l_option_is__some___main___rarg(x_3);
-return x_4;
+x_2 = l_rbtree_find___at_lean_ir_is__reserved___spec__1(x_1, x_0);
+x_3 = l_option_is__some___main___rarg(x_2);
+return x_3;
 }
 }
 obj* l_lean_ir_is__reserved___boxed(obj* x_0) {

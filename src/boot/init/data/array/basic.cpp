@@ -142,7 +142,6 @@ _start:
 obj* x_2; 
 lean::dec(x_0);
 x_2 = l_array_nil___closed__1;
-lean::inc(x_2);
 return x_2;
 }
 }
@@ -613,15 +612,14 @@ return x_0;
 obj* l_array_has__repr___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_4; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_repr___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 x_2 = l_array_has__repr___rarg___closed__1;
-lean::inc(x_2);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
-lean::closure_set(x_4, 0, x_1);
-lean::closure_set(x_4, 1, x_2);
-return x_4;
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
+lean::closure_set(x_3, 0, x_1);
+lean::closure_set(x_3, 1, x_2);
+return x_3;
 }
 }
 obj* l_array_has__repr(obj* x_0) {
@@ -636,15 +634,14 @@ return x_2;
 obj* l_array_has__to__string___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_4; 
+obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_to__string___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 x_2 = l_array_has__repr___rarg___closed__1;
-lean::inc(x_2);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
-lean::closure_set(x_4, 0, x_1);
-lean::closure_set(x_4, 1, x_2);
-return x_4;
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
+lean::closure_set(x_3, 0, x_1);
+lean::closure_set(x_3, 1, x_2);
+return x_3;
 }
 }
 obj* l_array_has__to__string(obj* x_0) {
@@ -1006,11 +1003,10 @@ return x_2;
 obj* l_list_to__array___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_2; 
 x_1 = l_array_nil___closed__1;
-lean::inc(x_1);
-x_3 = l_list_to__array__aux___main___rarg(x_0, x_1);
-return x_3;
+x_2 = l_list_to__array__aux___main___rarg(x_0, x_1);
+return x_2;
 }
 }
 obj* l_list_to__array(obj* x_0) {

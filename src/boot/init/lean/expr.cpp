@@ -152,11 +152,10 @@ return x_5;
 obj* l_lean_mk__dec__is__true(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; 
+obj* x_2; obj* x_3; 
 x_2 = l_lean_mk__dec__is__true___closed__1;
-lean::inc(x_2);
-x_4 = l_lean_mk__bin__app(x_2, x_0, x_1);
-return x_4;
+x_3 = l_lean_mk__bin__app(x_2, x_0, x_1);
+return x_3;
 }
 }
 obj* _init_l_lean_mk__dec__is__false___closed__1() {
@@ -175,11 +174,10 @@ return x_5;
 obj* l_lean_mk__dec__is__false(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; 
+obj* x_2; obj* x_3; 
 x_2 = l_lean_mk__dec__is__false___closed__1;
-lean::inc(x_2);
-x_4 = l_lean_mk__bin__app(x_2, x_0, x_1);
-return x_4;
+x_3 = l_lean_mk__bin__app(x_2, x_0, x_1);
+return x_3;
 }
 }
 void initialize_init_lean_level();

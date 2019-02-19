@@ -111,7 +111,7 @@ return x_13;
 obj* l_lean_trace_pp___main(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11; uint8 x_12; obj* x_13; obj* x_14; 
+obj* x_1; obj* x_3; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; uint8 x_11; obj* x_12; obj* x_13; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 x_3 = lean::cnstr_get(x_0, 1);
@@ -119,19 +119,18 @@ lean::inc(x_3);
 lean::dec(x_0);
 x_6 = l_list_map___main___at_lean_trace_pp___main___spec__1(x_3);
 x_7 = l_lean_format_join___closed__1;
-lean::inc(x_7);
-x_9 = l_list_foldl___main___at_lean_format_join___spec__1(x_7, x_6);
-x_10 = lean::mk_nat_obj(2u);
-x_11 = lean::alloc_cnstr(3, 2, 0);
-lean::cnstr_set(x_11, 0, x_10);
-lean::cnstr_set(x_11, 1, x_9);
-x_12 = 0;
-x_13 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_13, 0, x_1);
-lean::cnstr_set(x_13, 1, x_11);
-lean::cnstr_set_scalar(x_13, sizeof(void*)*2, x_12);
-x_14 = x_13;
-return x_14;
+x_8 = l_list_foldl___main___at_lean_format_join___spec__1(x_7, x_6);
+x_9 = lean::mk_nat_obj(2u);
+x_10 = lean::alloc_cnstr(3, 2, 0);
+lean::cnstr_set(x_10, 0, x_9);
+lean::cnstr_set(x_10, 1, x_8);
+x_11 = 0;
+x_12 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_12, 0, x_1);
+lean::cnstr_set(x_12, 1, x_10);
+lean::cnstr_set_scalar(x_12, sizeof(void*)*2, x_11);
+x_13 = x_12;
+return x_13;
 }
 }
 obj* l_lean_trace_pp(obj* x_0) {

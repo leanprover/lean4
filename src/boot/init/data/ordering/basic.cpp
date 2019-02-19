@@ -67,22 +67,19 @@ case 0:
 {
 obj* x_1; 
 x_1 = l_ordering_has__repr___closed__1;
-lean::inc(x_1);
 return x_1;
 }
 case 1:
 {
-obj* x_3; 
-x_3 = l_ordering_has__repr___closed__2;
-lean::inc(x_3);
-return x_3;
+obj* x_2; 
+x_2 = l_ordering_has__repr___closed__2;
+return x_2;
 }
 default:
 {
-obj* x_5; 
-x_5 = l_ordering_has__repr___closed__3;
-lean::inc(x_5);
-return x_5;
+obj* x_3; 
+x_3 = l_ordering_has__repr___closed__3;
+return x_3;
 }
 }
 }

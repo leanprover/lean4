@@ -254,7 +254,7 @@ return x_0;
 obj* l_optional___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_4; obj* x_6; obj* x_9; obj* x_11; obj* x_14; obj* x_16; obj* x_17; obj* x_20; obj* x_21; obj* x_22; 
+obj* x_4; obj* x_6; obj* x_9; obj* x_11; obj* x_14; obj* x_15; obj* x_16; obj* x_19; obj* x_20; obj* x_21; 
 lean::dec(x_1);
 x_4 = lean::cnstr_get(x_0, 1);
 lean::inc(x_4);
@@ -267,15 +267,14 @@ x_11 = lean::cnstr_get(x_9, 0);
 lean::inc(x_11);
 lean::dec(x_9);
 x_14 = l_optional___rarg___closed__1;
-lean::inc(x_14);
-x_16 = lean::apply_4(x_11, lean::box(0), lean::box(0), x_14, x_2);
-x_17 = lean::cnstr_get(x_6, 1);
-lean::inc(x_17);
+x_15 = lean::apply_4(x_11, lean::box(0), lean::box(0), x_14, x_2);
+x_16 = lean::cnstr_get(x_6, 1);
+lean::inc(x_16);
 lean::dec(x_6);
-x_20 = lean::box(0);
-x_21 = lean::apply_2(x_17, lean::box(0), x_20);
-x_22 = lean::apply_3(x_4, lean::box(0), x_16, x_21);
-return x_22;
+x_19 = lean::box(0);
+x_20 = lean::apply_2(x_16, lean::box(0), x_19);
+x_21 = lean::apply_3(x_4, lean::box(0), x_15, x_20);
+return x_21;
 }
 }
 obj* l_optional(obj* x_0) {

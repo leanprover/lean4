@@ -862,21 +862,19 @@ return x_0;
 obj* l_string_join(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_2; 
 x_1 = l_string_join___closed__1;
-lean::inc(x_1);
-x_3 = l_list_foldl___main___at_string_join___spec__1(x_1, x_0);
-return x_3;
+x_2 = l_list_foldl___main___at_string_join___spec__1(x_1, x_0);
+return x_2;
 }
 }
 obj* l_string_singleton(uint32 x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_2; 
 x_1 = l_string_join___closed__1;
-lean::inc(x_1);
-x_3 = lean::string_push(x_1, x_0);
-return x_3;
+x_2 = lean::string_push(x_1, x_0);
+return x_2;
 }
 }
 obj* l_string_singleton___boxed(obj* x_0) {
@@ -1153,7 +1151,7 @@ return x_5;
 obj* l_string_trim(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_11; obj* x_13; 
+obj* x_1; obj* x_2; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_11; obj* x_12; 
 x_1 = lean::string_length(x_0);
 x_2 = lean::string_mk_iterator(x_0);
 lean::inc(x_2);
@@ -1165,9 +1163,8 @@ x_8 = lean::string_iterator_extract(x_5, x_7);
 lean::dec(x_7);
 lean::dec(x_5);
 x_11 = l_string_join___closed__1;
-lean::inc(x_11);
-x_13 = l_option_get__or__else___main___rarg(x_8, x_11);
-return x_13;
+x_12 = l_option_get__or__else___main___rarg(x_8, x_11);
+return x_12;
 }
 }
 obj* l___private_init_data_string_basic_3__line__column__aux___main(obj* x_0, obj* x_1, obj* x_2) {
@@ -1264,22 +1261,20 @@ return x_2;
 obj* l_string_line__column(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_5; 
+obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::string_mk_iterator(x_0);
 x_3 = l_string_line__column___closed__1;
-lean::inc(x_3);
-x_5 = l___private_init_data_string_basic_3__line__column__aux___main(x_1, x_2, x_3);
-return x_5;
+x_4 = l___private_init_data_string_basic_3__line__column__aux___main(x_1, x_2, x_3);
+return x_4;
 }
 }
 obj* l_char_to__string(uint32 x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_2; 
 x_1 = l_string_join___closed__1;
-lean::inc(x_1);
-x_3 = lean::string_push(x_1, x_0);
-return x_3;
+x_2 = lean::string_push(x_1, x_0);
+return x_2;
 }
 }
 obj* l_char_to__string___boxed(obj* x_0) {

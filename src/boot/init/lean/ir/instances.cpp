@@ -407,7 +407,6 @@ _start:
 {
 obj* x_0; 
 x_0 = l_lean_name_decidable__eq;
-lean::inc(x_0);
 return x_0;
 }
 }
@@ -416,7 +415,6 @@ _start:
 {
 obj* x_0; 
 x_0 = l_lean_name_hashable;
-lean::inc(x_0);
 return x_0;
 }
 }
@@ -425,7 +423,6 @@ _start:
 {
 obj* x_0; 
 x_0 = l_lean_name_decidable__eq;
-lean::inc(x_0);
 return x_0;
 }
 }
@@ -434,7 +431,6 @@ _start:
 {
 obj* x_0; 
 x_0 = l_lean_name_hashable;
-lean::inc(x_0);
 return x_0;
 }
 }
@@ -443,7 +439,6 @@ _start:
 {
 obj* x_0; 
 x_0 = l_lean_name_decidable__eq;
-lean::inc(x_0);
 return x_0;
 }
 }
@@ -452,7 +447,6 @@ _start:
 {
 obj* x_0; 
 x_0 = l_lean_name_hashable;
-lean::inc(x_0);
 return x_0;
 }
 }

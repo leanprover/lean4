@@ -1308,7 +1308,7 @@ return x_2;
 obj* l_option__t_lift___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_4; obj* x_7; obj* x_10; obj* x_13; obj* x_15; 
+obj* x_4; obj* x_7; obj* x_10; obj* x_13; obj* x_14; 
 lean::dec(x_1);
 x_4 = lean::cnstr_get(x_0, 0);
 lean::inc(x_4);
@@ -1320,9 +1320,8 @@ x_10 = lean::cnstr_get(x_7, 0);
 lean::inc(x_10);
 lean::dec(x_7);
 x_13 = l_optional___rarg___closed__1;
-lean::inc(x_13);
-x_15 = lean::apply_4(x_10, lean::box(0), lean::box(0), x_13, x_2);
-return x_15;
+x_14 = lean::apply_4(x_10, lean::box(0), lean::box(0), x_13, x_2);
+return x_14;
 }
 }
 obj* l_option__t_lift(obj* x_0) {

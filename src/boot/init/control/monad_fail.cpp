@@ -30,11 +30,10 @@ return x_0;
 obj* l_match__failed___rarg(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; 
+obj* x_1; obj* x_2; 
 x_1 = l_match__failed___rarg___closed__1;
-lean::inc(x_1);
-x_3 = lean::apply_2(x_0, lean::box(0), x_1);
-return x_3;
+x_2 = lean::apply_2(x_0, lean::box(0), x_1);
+return x_2;
 }
 }
 obj* l_match__failed(obj* x_0, obj* x_1) {

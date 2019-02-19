@@ -921,7 +921,6 @@ _start:
 obj* x_2; 
 lean::dec(x_0);
 x_2 = l_default__has__sizeof___closed__1;
-lean::inc(x_2);
 return x_2;
 }
 }
@@ -2062,7 +2061,6 @@ obj* x_3;
 lean::dec(x_0);
 lean_unreachable();
 x_3 = lean::box(0);
-lean::inc(x_3);
 return x_3;
 }
 }
@@ -2085,7 +2083,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 lean_unreachable();
 x_8 = lean::box(0);
-lean::inc(x_8);
 return x_8;
 }
 }

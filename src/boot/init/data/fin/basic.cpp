@@ -172,7 +172,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 lean_unreachable();
 x_4 = lean::box(0);
-lean::inc(x_4);
 return x_4;
 }
 }
@@ -184,7 +183,6 @@ lean::dec(x_1);
 lean::dec(x_0);
 lean_unreachable();
 x_4 = lean::box(0);
-lean::inc(x_4);
 return x_4;
 }
 }

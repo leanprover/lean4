@@ -354,15 +354,14 @@ return x_0;
 obj* l_mjoin___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_4; obj* x_7; obj* x_9; 
+obj* x_4; obj* x_7; obj* x_8; 
 lean::dec(x_1);
 x_4 = lean::cnstr_get(x_0, 1);
 lean::inc(x_4);
 lean::dec(x_0);
 x_7 = l_mjoin___rarg___closed__1;
-lean::inc(x_7);
-x_9 = lean::apply_4(x_4, lean::box(0), lean::box(0), x_2, x_7);
-return x_9;
+x_8 = lean::apply_4(x_4, lean::box(0), lean::box(0), x_2, x_7);
+return x_8;
 }
 }
 obj* l_mjoin(obj* x_0) {

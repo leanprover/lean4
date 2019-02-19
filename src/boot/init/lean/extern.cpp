@@ -197,7 +197,7 @@ goto _start;
 }
 else
 {
-obj* x_23; uint32 x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_29; obj* x_31; obj* x_33; obj* x_34; obj* x_36; obj* x_37; 
+obj* x_23; uint32 x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_29; obj* x_31; obj* x_33; obj* x_34; obj* x_35; obj* x_36; 
 x_23 = lean::string_iterator_next(x_2);
 x_24 = lean::string_iterator_curr(x_23);
 x_25 = lean::uint32_to_nat(x_24);
@@ -210,13 +210,12 @@ x_31 = lean::string_iterator_next(x_23);
 lean::inc(x_0);
 x_33 = l_list_nth___main___rarg(x_0, x_29);
 x_34 = l_string_join___closed__1;
-lean::inc(x_34);
-x_36 = l_option_get__or__else___main___rarg(x_33, x_34);
-x_37 = lean::string_append(x_3, x_36);
-lean::dec(x_36);
+x_35 = l_option_get__or__else___main___rarg(x_33, x_34);
+x_36 = lean::string_append(x_3, x_35);
+lean::dec(x_35);
 x_1 = x_7;
 x_2 = x_31;
-x_3 = x_37;
+x_3 = x_36;
 goto _start;
 }
 }
@@ -242,13 +241,12 @@ namespace lean {
 obj* expand_extern_pattern_core(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; obj* x_6; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = lean::string_length(x_0);
 x_3 = lean::string_mk_iterator(x_0);
 x_4 = l_string_join___closed__1;
-lean::inc(x_4);
-x_6 = l_lean_expand__extern__pattern__aux___main(x_1, x_2, x_3, x_4);
-return x_6;
+x_5 = l_lean_expand__extern__pattern__aux___main(x_1, x_2, x_3, x_4);
+return x_5;
 }
 }
 }
@@ -278,20 +276,18 @@ goto _start;
 obj* l_lean_mk__simple__fn__call(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_12; obj* x_13; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_11; 
 x_2 = l_prod_has__repr___rarg___closed__1;
 x_3 = lean::string_append(x_0, x_2);
 x_4 = l_list_repr__aux___main___rarg___closed__1;
-lean::inc(x_4);
-x_6 = l_list_intersperse___main___rarg(x_4, x_1);
-x_7 = l_string_join___closed__1;
-lean::inc(x_7);
-x_9 = l_list_foldl___main___at_lean_mk__simple__fn__call___spec__1(x_7, x_6);
-x_10 = lean::string_append(x_3, x_9);
-lean::dec(x_9);
-x_12 = l_option_has__repr___rarg___closed__3;
-x_13 = lean::string_append(x_10, x_12);
-return x_13;
+x_5 = l_list_intersperse___main___rarg(x_4, x_1);
+x_6 = l_string_join___closed__1;
+x_7 = l_list_foldl___main___at_lean_mk__simple__fn__call___spec__1(x_6, x_5);
+x_8 = lean::string_append(x_3, x_7);
+lean::dec(x_7);
+x_10 = l_option_has__repr___rarg___closed__3;
+x_11 = lean::string_append(x_8, x_10);
+return x_11;
 }
 }
 obj* l_lean_expand__extern__entry___main(obj* x_0, obj* x_1) {

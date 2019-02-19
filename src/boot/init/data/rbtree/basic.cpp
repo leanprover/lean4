@@ -707,14 +707,13 @@ return x_0;
 obj* l_rbtree_has__repr___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; obj* x_6; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = l_rbtree_to__list___rarg(x_1);
 x_3 = l_list_repr___main___rarg(x_0, x_2);
 x_4 = l_rbtree_has__repr___rarg___closed__1;
-lean::inc(x_4);
-x_6 = lean::string_append(x_4, x_3);
+x_5 = lean::string_append(x_4, x_3);
 lean::dec(x_3);
-return x_6;
+return x_5;
 }
 }
 obj* l_rbtree_has__repr(obj* x_0, obj* x_1) {

@@ -706,7 +706,7 @@ return x_0;
 obj* l_io_println___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
-obj* x_8; obj* x_10; obj* x_17; obj* x_18; obj* x_20; obj* x_21; 
+obj* x_8; obj* x_10; obj* x_17; obj* x_18; obj* x_19; obj* x_20; 
 lean::dec(x_4);
 x_8 = lean::cnstr_get(x_3, 0);
 lean::inc(x_8);
@@ -719,10 +719,9 @@ lean::inc(x_1);
 lean::inc(x_0);
 x_17 = l_io_print___rarg(x_0, x_1, x_2, x_3, lean::box(0), x_5, x_6);
 x_18 = l_io_println___rarg___closed__1;
-lean::inc(x_18);
-x_20 = l___private_init_io_12__put__str___at_io_println___spec__1___rarg(x_0, x_1, x_2, x_3, x_18);
-x_21 = lean::apply_4(x_10, lean::box(0), lean::box(0), x_17, x_20);
-return x_21;
+x_19 = l___private_init_io_12__put__str___at_io_println___spec__1___rarg(x_0, x_1, x_2, x_3, x_18);
+x_20 = lean::apply_4(x_10, lean::box(0), lean::box(0), x_17, x_19);
+return x_20;
 }
 }
 obj* l_io_println(obj* x_0, obj* x_1) {
@@ -1363,11 +1362,10 @@ return x_63;
 obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__5(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; 
+obj* x_2; obj* x_3; 
 x_2 = l_string_join___closed__1;
-lean::inc(x_2);
-x_4 = l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__6(x_0, x_2, x_1);
-return x_4;
+x_3 = l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__6(x_0, x_2, x_1);
+return x_3;
 }
 }
 obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -1714,13 +1712,12 @@ return x_12;
 }
 else
 {
-obj* x_15; obj* x_17; 
+obj* x_15; obj* x_16; 
 lean::dec(x_7);
 lean::dec(x_3);
 x_15 = l_io_println___rarg___closed__1;
-lean::inc(x_15);
-x_17 = l___private_init_io_12__put__str___at_io_println_x_27___spec__3(x_15, x_5);
-return x_17;
+x_16 = l___private_init_io_12__put__str___at_io_println_x_27___spec__3(x_15, x_5);
+return x_16;
 }
 }
 }
@@ -1819,28 +1816,27 @@ lean::inc(x_7);
 lean::dec(x_4);
 if (lean::obj_tag(x_5) == 0)
 {
-obj* x_11; obj* x_14; obj* x_15; obj* x_17; obj* x_19; 
+obj* x_11; obj* x_14; obj* x_15; obj* x_16; obj* x_18; 
 lean::dec(x_1);
 x_11 = lean::cnstr_get(x_5, 0);
 lean::inc(x_11);
 lean::dec(x_5);
 x_14 = lean::apply_1(x_0, x_11);
 x_15 = l_eio_has__eval___rarg___closed__1;
-lean::inc(x_15);
-x_17 = lean::string_append(x_15, x_14);
+x_16 = lean::string_append(x_15, x_14);
 lean::dec(x_14);
-x_19 = l_io_println_x_27(x_17, x_7);
-return x_19;
+x_18 = l_io_println_x_27(x_16, x_7);
+return x_18;
 }
 else
 {
-obj* x_21; obj* x_24; 
+obj* x_20; obj* x_23; 
 lean::dec(x_0);
-x_21 = lean::cnstr_get(x_5, 0);
-lean::inc(x_21);
+x_20 = lean::cnstr_get(x_5, 0);
+lean::inc(x_20);
 lean::dec(x_5);
-x_24 = lean::apply_2(x_1, x_21, x_7);
-return x_24;
+x_23 = lean::apply_2(x_1, x_20, x_7);
+return x_23;
 }
 }
 }
@@ -1873,33 +1869,32 @@ if (lean::is_exclusive(x_3)) {
 }
 if (lean::obj_tag(x_4) == 0)
 {
-obj* x_10; obj* x_13; obj* x_14; obj* x_16; obj* x_18; 
+obj* x_10; obj* x_13; obj* x_14; obj* x_15; obj* x_17; 
 lean::dec(x_8);
 x_10 = lean::cnstr_get(x_4, 0);
 lean::inc(x_10);
 lean::dec(x_4);
 x_13 = lean::apply_1(x_0, x_10);
 x_14 = l_eio_has__eval___rarg___closed__1;
-lean::inc(x_14);
-x_16 = lean::string_append(x_14, x_13);
+x_15 = lean::string_append(x_14, x_13);
 lean::dec(x_13);
-x_18 = l_io_println_x_27(x_16, x_6);
-return x_18;
+x_17 = l_io_println_x_27(x_15, x_6);
+return x_17;
 }
 else
 {
-obj* x_21; obj* x_22; 
+obj* x_20; obj* x_21; 
 lean::dec(x_4);
 lean::dec(x_0);
-x_21 = lean::box(0);
+x_20 = lean::box(0);
 if (lean::is_scalar(x_8)) {
- x_22 = lean::alloc_cnstr(0, 2, 0);
+ x_21 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_22 = x_8;
+ x_21 = x_8;
 }
-lean::cnstr_set(x_22, 0, x_21);
-lean::cnstr_set(x_22, 1, x_6);
-return x_22;
+lean::cnstr_set(x_21, 0, x_20);
+lean::cnstr_set(x_21, 1, x_6);
+return x_21;
 }
 }
 }
@@ -2024,14 +2019,13 @@ return x_4;
 obj* l_coroutine__io_yield___rarg___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; obj* x_5; 
+obj* x_3; obj* x_4; 
 lean::dec(x_0);
 x_3 = l_coroutine_yield___rarg___lambda__1___closed__1;
-lean::inc(x_3);
-x_5 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_5, 0, x_3);
-lean::cnstr_set(x_5, 1, x_1);
-return x_5;
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_1);
+return x_4;
 }
 }
 obj* _init_l_coroutine__io_yield___rarg___closed__1() {
@@ -2045,17 +2039,16 @@ return x_0;
 obj* l_coroutine__io_yield___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_4; obj* x_6; obj* x_7; 
+obj* x_4; obj* x_5; obj* x_6; 
 lean::dec(x_1);
 x_4 = l_coroutine__io_yield___rarg___closed__1;
-lean::inc(x_4);
-x_6 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_6, 0, x_0);
-lean::cnstr_set(x_6, 1, x_4);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_6);
-lean::cnstr_set(x_7, 1, x_2);
-return x_7;
+x_5 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_5, 0, x_0);
+lean::cnstr_set(x_5, 1, x_4);
+x_6 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_6, 0, x_5);
+lean::cnstr_set(x_6, 1, x_2);
+return x_6;
 }
 }
 obj* l_coroutine__io_yield(obj* x_0, obj* x_1) {
@@ -2337,52 +2330,49 @@ return x_0;
 obj* l_coroutine__io_monad___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_6; obj* x_8; obj* x_9; 
+obj* x_6; obj* x_7; obj* x_8; 
 lean::dec(x_1);
 lean::dec(x_0);
 x_6 = l_coroutine__io_monad___lambda__1___closed__1;
-lean::inc(x_6);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
+lean::closure_set(x_7, 0, x_6);
+lean::closure_set(x_7, 1, x_2);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_bind___main___rarg), 4, 2);
+lean::closure_set(x_8, 0, x_3);
+lean::closure_set(x_8, 1, x_7);
+return x_8;
+}
+}
+obj* l_coroutine__io_monad___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg), 2, 1);
+lean::closure_set(x_6, 0, x_2);
+x_7 = l_coroutine__io_monad___lambda__1___closed__1;
 x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
-lean::closure_set(x_8, 0, x_6);
-lean::closure_set(x_8, 1, x_2);
+lean::closure_set(x_8, 0, x_7);
+lean::closure_set(x_8, 1, x_6);
 x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_bind___main___rarg), 4, 2);
 lean::closure_set(x_9, 0, x_3);
 lean::closure_set(x_9, 1, x_8);
 return x_9;
 }
 }
-obj* l_coroutine__io_monad___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_6; obj* x_7; obj* x_9; obj* x_10; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg), 2, 1);
-lean::closure_set(x_6, 0, x_2);
-x_7 = l_coroutine__io_monad___lambda__1___closed__1;
-lean::inc(x_7);
-x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
-lean::closure_set(x_9, 0, x_7);
-lean::closure_set(x_9, 1, x_6);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_bind___main___rarg), 4, 2);
-lean::closure_set(x_10, 0, x_3);
-lean::closure_set(x_10, 1, x_9);
-return x_10;
-}
-}
 obj* l_coroutine__io_monad___lambda__3(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; obj* x_5; 
+obj* x_2; obj* x_3; obj* x_4; 
 x_2 = l_coroutine__io_monad___lambda__1___closed__1;
-lean::inc(x_2);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
-lean::closure_set(x_4, 0, x_2);
-lean::closure_set(x_4, 1, x_1);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_bind___main___rarg), 4, 2);
-lean::closure_set(x_5, 0, x_0);
-lean::closure_set(x_5, 1, x_4);
-return x_5;
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
+lean::closure_set(x_3, 0, x_2);
+lean::closure_set(x_3, 1, x_1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine__io_bind___main___rarg), 4, 2);
+lean::closure_set(x_4, 0, x_0);
+lean::closure_set(x_4, 1, x_3);
+return x_4;
 }
 }
 obj* l_coroutine__io_monad___lambda__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -2490,7 +2480,6 @@ obj* x_4;
 lean::dec(x_1);
 lean::dec(x_0);
 x_4 = l_coroutine__io_monad___closed__1;
-lean::inc(x_4);
 return x_4;
 }
 }

@@ -3918,8 +3918,6 @@ obj* x_3; obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_10;
 x_3 = lean::cnstr_get(x_2, 0);
 x_5 = lean::cnstr_get(x_2, 1);
 if (lean::is_exclusive(x_2)) {
- lean::cnstr_set(x_2, 0, lean::box(0));
- lean::cnstr_set(x_2, 1, lean::box(0));
  x_7 = x_2;
 } else {
  lean::inc(x_3);

@@ -67,7 +67,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_9;
 x_4 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);
@@ -113,8 +112,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_10; obj* x_11; obj* x_12;
 x_4 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_set(x_1, 0, lean::box(0));
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_8 = x_1;
 } else {
  lean::inc(x_4);
@@ -162,7 +159,6 @@ obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11;
 x_4 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);
@@ -212,8 +208,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_10; obj* x_11; obj* x_12; obj* x_13;
 x_4 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_set(x_1, 0, lean::box(0));
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_8 = x_1;
 } else {
  lean::inc(x_4);
@@ -262,7 +256,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_9;
 x_4 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);
@@ -377,7 +370,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_9;
 x_4 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);
@@ -423,8 +415,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_10; obj* x_11; obj* x_12;
 x_4 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_set(x_1, 0, lean::box(0));
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_8 = x_1;
 } else {
  lean::inc(x_4);
@@ -472,7 +462,6 @@ obj* x_4; obj* x_6; obj* x_7; obj* x_9; obj* x_10; obj* x_11;
 x_4 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);
@@ -522,8 +511,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_10; obj* x_11; obj* x_12; obj* x_13;
 x_4 = lean::cnstr_get(x_1, 0);
 x_6 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_set(x_1, 0, lean::box(0));
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_8 = x_1;
 } else {
  lean::inc(x_4);
@@ -572,7 +559,6 @@ obj* x_4; obj* x_6; obj* x_8; obj* x_9;
 x_4 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_release(x_1, 0);
- lean::cnstr_set(x_1, 1, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);

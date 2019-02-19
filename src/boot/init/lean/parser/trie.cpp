@@ -410,8 +410,6 @@ obj* x_6; obj* x_8; obj* x_10; obj* x_11; obj* x_12; uint32 x_14; obj* x_16; obj
 x_6 = lean::cnstr_get(x_2, 0);
 x_8 = lean::cnstr_get(x_2, 1);
 if (lean::is_exclusive(x_2)) {
- lean::cnstr_set(x_2, 0, lean::box(0));
- lean::cnstr_set(x_2, 1, lean::box(0));
  x_10 = x_2;
 } else {
  lean::inc(x_6);
@@ -447,7 +445,6 @@ lean::dec(x_3);
 x_25 = lean::cnstr_get(x_2, 1);
 if (lean::is_exclusive(x_2)) {
  lean::cnstr_release(x_2, 0);
- lean::cnstr_set(x_2, 1, lean::box(0));
  x_27 = x_2;
 } else {
  lean::inc(x_25);

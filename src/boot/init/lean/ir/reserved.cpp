@@ -764,7 +764,6 @@ else
 obj* x_4; obj* x_6; obj* x_7; obj* x_10; 
 x_4 = lean::cnstr_get(x_2, 0);
 if (lean::is_exclusive(x_2)) {
- lean::cnstr_set(x_2, 0, lean::box(0));
  x_6 = x_2;
 } else {
  lean::inc(x_4);

@@ -877,6 +877,25 @@ struct emit_fn_fn {
         return true;
     }
 
+    /* Return true iff `x` is reused in `instrs[i], ...,instrs[instrs.size()-1]`.
+       That is, we are checking whether `x` is always reused. If this is the case,
+       we can avoid `lean::cnstr_set(o, k, lean::box(0))` operations at `emit_proj_inc_reset_seq`.
+
+       We can extend this check to `cases` terminal expressions. In this case, we would
+       need to check whether `x` is reused in **all** branches or not. */
+    bool is_always_reused(expr const & x, unsigned i, buffer<expr> const & instrs) {
+        for (unsigned j = i; j < instrs.size(); j++) {
+            expr val = get_instr_rhs(instrs[j]);
+            if (is_llnf_reuse(get_app_fn(val))) {
+                buffer<expr> args;
+                get_app_args(val, args);
+                if (args[0] == x)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     /* Emit the a sub-sequence starting at `i` that was detected by is_proj_inc_reset_seq */
     unsigned emit_proj_inc_reset_seq(unsigned i, buffer<expr> const & instrs, buffer<optional<expr>> & inc_projs) {
         /* Emit projections, but skip incs */
@@ -893,11 +912,14 @@ struct emit_fn_fn {
         local_decl d = m_lctx.get_local_decl(instrs[j]);
         expr x = instrs[j];
         expr o = app_arg(*d.get_value());
+        bool reused = is_always_reused(x, j, instrs);
         m_out << "if (lean::is_exclusive("; emit_fvar(o); m_out <<")) {\n";
         for (unsigned k = 0; k < inc_projs.size(); k++) {
             if (inc_projs[k]) {
-                /* projection RC was consumed, so we just need to set field to 0 */
-                m_out << " lean::cnstr_set("; emit_fvar(o); m_out << ", " << k << ", lean::box(0));\n";
+                if (!reused) {
+                    /* projection RC was consumed, so we just need to set field to 0 */
+                    m_out << " lean::cnstr_set("; emit_fvar(o); m_out << ", " << k << ", lean::box(0));\n";
+                }
             } else {
                 m_out << " lean::cnstr_release("; emit_fvar(o); m_out << ", " << k << ");\n";
             }

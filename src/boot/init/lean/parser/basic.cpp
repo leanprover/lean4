@@ -1234,7 +1234,6 @@ if (lean::obj_tag(x_4) == 0)
 obj* x_5; obj* x_7; obj* x_8; 
 x_5 = lean::cnstr_get(x_4, 0);
 if (lean::is_exclusive(x_4)) {
- lean::cnstr_set(x_4, 0, lean::box(0));
  x_7 = x_4;
 } else {
  lean::inc(x_5);
@@ -1254,7 +1253,6 @@ else
 obj* x_9; obj* x_11; obj* x_12; 
 x_9 = lean::cnstr_get(x_4, 0);
 if (lean::is_exclusive(x_4)) {
- lean::cnstr_set(x_4, 0, lean::box(0));
  x_11 = x_4;
 } else {
  lean::inc(x_9);

@@ -533,7 +533,6 @@ else
 obj* x_15; obj* x_17; obj* x_18; obj* x_19; 
 x_15 = lean::cnstr_get(x_12, 0);
 if (lean::is_exclusive(x_12)) {
- lean::cnstr_set(x_12, 0, lean::box(0));
  x_17 = x_12;
 } else {
  lean::inc(x_15);
@@ -899,8 +898,6 @@ obj* x_2; obj* x_4; obj* x_6; obj* x_7; obj* x_8; obj* x_9;
 x_2 = lean::cnstr_get(x_0, 0);
 x_4 = lean::cnstr_get(x_0, 1);
 if (lean::is_exclusive(x_0)) {
- lean::cnstr_set(x_0, 0, lean::box(0));
- lean::cnstr_set(x_0, 1, lean::box(0));
  x_6 = x_0;
 } else {
  lean::inc(x_2);

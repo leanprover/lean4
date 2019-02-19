@@ -450,8 +450,6 @@ x_4 = l_lean_level_to__offset___main(x_1);
 x_5 = lean::cnstr_get(x_4, 0);
 x_7 = lean::cnstr_get(x_4, 1);
 if (lean::is_exclusive(x_4)) {
- lean::cnstr_set(x_4, 0, lean::box(0));
- lean::cnstr_set(x_4, 1, lean::box(0));
  x_9 = x_4;
 } else {
  lean::inc(x_5);
@@ -587,7 +585,6 @@ case 1:
 obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_7; 
 x_1 = lean::cnstr_get(x_0, 0);
 if (lean::is_exclusive(x_0)) {
- lean::cnstr_set(x_0, 0, lean::box(0));
  x_3 = x_0;
 } else {
  lean::inc(x_1);
@@ -611,8 +608,6 @@ obj* x_8; obj* x_10; obj* x_12; obj* x_13; obj* x_14; obj* x_16;
 x_8 = lean::cnstr_get(x_0, 0);
 x_10 = lean::cnstr_get(x_0, 1);
 if (lean::is_exclusive(x_0)) {
- lean::cnstr_set(x_0, 0, lean::box(0));
- lean::cnstr_set(x_0, 1, lean::box(0));
  x_12 = x_0;
 } else {
  lean::inc(x_8);
@@ -662,7 +657,6 @@ case 3:
 obj* x_4; obj* x_6; obj* x_7; obj* x_8; 
 x_4 = lean::cnstr_get(x_1, 0);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_set(x_1, 0, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);
@@ -723,7 +717,6 @@ case 4:
 obj* x_4; obj* x_6; obj* x_7; obj* x_8; 
 x_4 = lean::cnstr_get(x_1, 0);
 if (lean::is_exclusive(x_1)) {
- lean::cnstr_set(x_1, 0, lean::box(0));
  x_6 = x_1;
 } else {
  lean::inc(x_4);

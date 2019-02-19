@@ -778,6 +778,143 @@ struct emit_fn_fn {
         }
     }
 
+    expr get_instr_rhs(expr const & x) {
+        local_decl d = m_lctx.get_local_decl(x);
+        return *d.get_value();
+    }
+
+    optional<pair<unsigned, expr>> is_proj(expr const & x) {
+        expr rhs     = get_instr_rhs(x);
+        unsigned idx;
+        if (is_llnf_proj(get_app_fn(rhs), idx))
+            return optional<pair<unsigned, expr>>(mk_pair(idx, app_arg(rhs)));
+        else
+            return optional<pair<unsigned, expr>>();
+    }
+
+    bool is_scalar_proj(expr const & x) {
+        expr rhs = get_instr_rhs(x);
+        return is_llnf_sproj(app_fn(rhs)) || is_llnf_uproj(app_fn(rhs));
+    }
+
+    optional<expr> is_inc(expr const & x) {
+        expr rhs = get_instr_rhs(x);
+        if (is_llnf_inc(get_app_fn(rhs)))
+            return some_expr(app_arg(rhs));
+        else
+            return none_expr();
+    }
+
+    optional<pair<unsigned, expr>> is_reset(expr const & x) {
+        expr rhs     = get_instr_rhs(x);
+        unsigned n;
+        if (is_llnf_reset(get_app_fn(rhs), n))
+            return optional<pair<unsigned, expr>>(mk_pair(n, app_arg(rhs)));
+        else
+            return optional<pair<unsigned, expr>>();
+    }
+
+    /* Return true if the sub-sequence of instructions starting at `i`
+       is a sequence of projections and incs followed by a reset.
+       Examples:
+
+       1-
+       ```
+       _x_2 : _obj := _proj.0 _x_1,
+       _inc _x_2,
+       _x_3 : _obj := _proj.1 _x_1,
+       _inc _x_3,
+        _x_4 : _obj := _reset.2 _x_1,
+       ```
+
+       2-
+       ```
+       _x_3 : _obj := _proj.0 _x_1,
+       _inc _x_3,
+       _x_4 : uint32 := _sproj.4.1.4 _x_1,
+       _x_5 : _obj := _reset.1 _x_1,
+       ```
+
+       If the result is true and a `_reset.n` instruction was found,
+       then `inc_projs` will have size `n` and `inc_projs[i] = some(x)` if
+       projection `_proj.i` was accessed and its RC incremented.
+    */
+    bool is_proj_inc_reset_seq(unsigned i, buffer<expr> const & instrs, buffer<optional<expr>> & inc_projs) {
+        optional<pair<unsigned, expr>> p = is_proj(instrs[i]);
+        if (!p) return false;
+        expr x = p->second;
+        unsigned j = i;
+        unsigned n = 0;
+        while (j < instrs.size()) {
+            expr x_j = instrs[j];
+            if (is_scalar_proj(x_j)) {
+                j++;
+            } else if (optional<pair<unsigned, expr>> c = is_proj(x_j)) {
+                /* x_j := proj.i x
+                   _   := inc x_j */
+                if (c->second != x) return false;
+                j++;
+                if (j == instrs.size()) return false;
+                optional<expr> y = is_inc(instrs[j]);
+                if (!y || *y != x_j) return false;
+                j++;
+            } else if (optional<pair<unsigned, expr>> c = is_reset(instrs[j])) {
+                n = c->first;
+                /* y := reset.n x */
+                if (c->second != x) return false;
+                break; // found matching reset
+            } else {
+                return false;
+            }
+        }
+        if (j == instrs.size()) return false;
+        inc_projs.clear();
+        inc_projs.resize(n, none_expr());
+        for (; i < j; i++) {
+            if (optional<pair<unsigned, expr>> c = is_proj(instrs[i]))
+                inc_projs[c->first] = some_expr(instrs[i]);
+        }
+        return true;
+    }
+
+    /* Emit the a sub-sequence starting at `i` that was detected by is_proj_inc_reset_seq */
+    unsigned emit_proj_inc_reset_seq(unsigned i, buffer<expr> const & instrs, buffer<optional<expr>> & inc_projs) {
+        /* Emit projections, but skip incs */
+        unsigned j = i;
+        while (!is_reset(instrs[j])) {
+            expr x_j = instrs[j];
+            if (is_scalar_proj(x_j) || is_proj(x_j)) {
+                emit_instr(m_lctx.get_local_decl(x_j));
+            }
+            j++;
+        }
+        /* Emit reset if-statement with decs when shared and missing incs when exclusive */
+        lean_assert(is_reset(instrs[j]));
+        local_decl d = m_lctx.get_local_decl(instrs[j]);
+        expr x = instrs[j];
+        expr o = app_arg(*d.get_value());
+        m_out << "if (lean::is_exclusive("; emit_fvar(o); m_out <<")) {\n";
+        for (unsigned k = 0; k < inc_projs.size(); k++) {
+            if (inc_projs[k]) {
+                /* projection RC was consumed, so we just need to set field to 0 */
+                m_out << " lean::cnstr_set("; emit_fvar(o); m_out << ", " << k << ", lean::box(0));\n";
+            } else {
+                m_out << " lean::cnstr_release("; emit_fvar(o); m_out << ", " << k << ");\n";
+            }
+        }
+        m_out << " "; emit_lhs(x); emit_fvar(o); m_out << ";\n";
+        m_out << "} else {\n";
+        for (unsigned k = 0; k < inc_projs.size(); k++) {
+            if (optional<expr> y = inc_projs[k]) {
+                m_out << " lean::inc("; emit_fvar(*y); m_out << ");\n";
+            }
+        }
+        m_out << " lean::dec("; emit_fvar(o); m_out << ");\n ";
+        emit_lhs(x); emit_unit(); m_out << ";\n";
+        m_out << "}\n";
+        return j+1;
+    }
+
     void emit(expr e) {
         m_out << "{\n";
         buffer<expr> jps;
@@ -825,12 +962,20 @@ struct emit_fn_fn {
         if (declared_vars)
             m_out << "\n";
         /* emit instructions */
-        for (expr const & x : instrs) {
-            local_decl d = m_lctx.get_local_decl(x);
-            if (is_llnf_void_type(d.get_type())) {
-                emit_instr(*d.get_value());
+        buffer<optional<expr>> inc_projs;
+        unsigned i = 0;
+        while (i < instrs.size()) {
+            expr const & x = instrs[i];
+            if (is_proj_inc_reset_seq(i, instrs, inc_projs)) {
+                i = emit_proj_inc_reset_seq(i, instrs, inc_projs);
             } else {
-                emit_instr(d);
+                i++;
+                local_decl d = m_lctx.get_local_decl(x);
+                if (is_llnf_void_type(d.get_type())) {
+                    emit_instr(*d.get_value());
+                } else {
+                    emit_instr(d);
+                }
             }
         }
         emit_terminal(e, tail_call);

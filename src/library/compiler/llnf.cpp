@@ -2026,6 +2026,12 @@ class explicit_rc_fn {
     expr mk_fvar(name const & n, expr const & type, expr const & val) {
         expr new_fvar = m_lctx.mk_local_decl(ngen(), n, type, val);
         m_fvars.push_back(new_fvar);
+        unsigned nbytes = 0;
+        /* If val is _unbox.nbytes(x), then x is a boxed scalar value if nbytes is small. */
+        if (is_llnf_unbox(get_app_fn(val), nbytes) && (nbytes < sizeof(void*))) {
+            expr x = app_arg(val);
+            m_is_scalar.insert(fvar_name(x));
+        }
         if (should_mark_as_borrowed(val)) {
             m_is_borrowed.insert(fvar_name(new_fvar));
         }

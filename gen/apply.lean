@@ -51,7 +51,7 @@ do emit $ sformat! "obj* apply_{n}(obj* f, {arg_decls}) {{\n",
    emit "unsigned arity = closure_arity(f);\n",
    emit "unsigned fixed = closure_num_fixed(f);\n",
    emit $ sformat! "if (arity == fixed + {n}) {{\n",
-     emit $ sformat! "  if (!is_shared(f)) {{\n",
+     emit $ sformat! "  if (is_exclusive(f)) {{\n",
      emit $ sformat! "    switch (arity) {{\n",
      max.mrepeat $ λ i, do {
        let j := i + 1,
@@ -152,7 +152,7 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
     obj * r = alloc_closure(closure_fun(f), arity, new_fixed);
     obj ** source = closure_arg_cptr(f);
     obj ** target = closure_arg_cptr(r);
-    if (is_shared(f)) {
+    if (!is_exclusive(f)) {
       for (unsigned i = 0; i < fixed; i++, source++, target++) {
           *target = *source;
           inc(*target);

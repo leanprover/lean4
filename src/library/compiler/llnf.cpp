@@ -1445,8 +1445,9 @@ class explicit_rc_fn {
     buffer<expr>        m_fvars;
     name                m_x;
     unsigned            m_next_idx{1};
-    name_set            m_borrowed; /* Set of variables marked as borrowed. */
+    name_set            m_is_borrowed; /* Set of variables marked as borrowed. */
     name_set            m_is_scalar; /* Set of variables of type `_obj` that are known to be a boxed scalar value. */
+    name_set            m_is_persistent;
 
     static bool is_jmp(expr const & e) {
         return is_llnf_jmp(get_app_fn(e));
@@ -1474,10 +1475,28 @@ class explicit_rc_fn {
         return r;
     }
 
-    expr mk_let_decl(expr const & type, expr const & e) {
-        expr fvar = m_lctx.mk_local_decl(ngen(), next_name(), type, e);
-        m_fvars.push_back(fvar);
-        return fvar;
+    bool is_borrowed(name const & fvar) const {
+        return m_is_borrowed.contains(fvar);
+    }
+
+    bool is_borrowed(expr const & fvar) const {
+        return is_borrowed(fvar_name(fvar));
+    }
+
+    bool is_boxed_scalar(name const & fvar) const {
+        return m_is_scalar.contains(fvar);
+    }
+
+    bool is_boxed_scalar(expr const & fvar) const {
+        return is_boxed_scalar(fvar_name(fvar));
+    }
+
+    bool is_persistent(name const & fvar) const {
+        return m_is_persistent.contains(fvar);
+    }
+
+    bool is_persistent(expr const & fvar) const {
+        return is_persistent(fvar_name(fvar));
     }
 
     void collect_live_vars_core(expr e, name_set & visited_jp, name_set & r) {
@@ -1604,7 +1623,7 @@ class explicit_rc_fn {
         lean_assert(args.size() == borrowed_args.size());
         unsigned n = get_num_consumptions(arg, args, borrowed_args);
         if (n > 0) { /* arg is consumed by f at least once */
-            if (m_borrowed.contains(fvar_name(arg)) || /* arg is marked as borrowed, that is, it does not need to be consumed */
+            if (is_borrowed(arg) ||                       /* arg is marked as borrowed, that is, it does not need to be consumed */
                 live_obj_vars.contains(fvar_name(arg)) || /* arg is alive after application */
                 is_borrowed_arg(arg, args, borrowed_args)) { /* arg is also borrowed by f */
                 /* We must add n increments */
@@ -1649,14 +1668,15 @@ class explicit_rc_fn {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
                 !is_unboxed(get_type_of(arg)) &&      /* it is not a unboxed/scalar value */
-                !m_is_scalar.contains(fvar_name(arg)) &&  /* it is not known to be a scalar here */
+                !is_persistent(arg) &&
+                !is_boxed_scalar(arg) &&              /* it is not known to be a scalar here */
                 is_first_occur(arg, i, args)) {
                 unsigned n = get_num_incs(arg, args, f_borrowed_args, live_obj_vars);
                 if (n > 0) {
                     incs.emplace_back(arg, n);
                 }
                 /* Check if we need to add a decrement. */
-                if (!m_borrowed.contains(fvar_name(arg)) &&         /* arg is not marked as borrowed */
+                if (!is_borrowed(arg) &&                            /* arg is not marked as borrowed */
                     !live_obj_vars.contains(fvar_name(arg)) &&      /* arg is not live after the f-application */
                     is_borrowed_arg(arg, args, f_borrowed_args)) {  /* arg has been borrowed by f */
                     /* We must add 1 decrement. */
@@ -1711,7 +1731,7 @@ class explicit_rc_fn {
         expr val = get_value_of(x);
         lean_assert(is_app(val) && is_llnf_proj(app_fn(val)));
         expr arg = app_arg(val);
-        if (!m_borrowed.contains(fvar_name(arg)) &&     /* arg is not marked as borrowed */
+        if (!is_borrowed(arg) &&                         /* arg is not marked as borrowed */
             !live_obj_vars.contains(fvar_name(arg))) {   /* arg is not live after projection */
             /* We must add decrement. */
             add_dec(arg, entries);
@@ -1773,7 +1793,8 @@ class explicit_rc_fn {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
                 !is_unboxed(get_type_of(arg)) && /* it is not a unboxed/scalar value */
-                !m_is_scalar.contains(fvar_name(arg)) &&
+                !is_persistent(arg) &&
+                !is_boxed_scalar(arg) &&
                 is_first_occur(arg, i, args)) {
                 unsigned n = get_num_incs(arg, args, borrowed_args, name_set());
                 if (n > 0) {
@@ -1830,8 +1851,9 @@ class explicit_rc_fn {
             /* We must decrement (non-borrowed) variables that are live at `cases_live_vars`, but are not live at `arg_live_vars`. */
             cases_live_vars.for_each([&](name const & x_name) {
                     if (!arg_live_vars.contains(x_name) &&
-                        !m_is_scalar.contains(x_name) &&
-                        !m_borrowed.contains(x_name)) {
+                        !is_persistent(x_name) &&
+                        !is_boxed_scalar(x_name) &&
+                        !is_borrowed(x_name)) {
                         local_decl x_decl = m_lctx.get_local_decl(x_name);
                         if (!is_unboxed(x_decl.get_type())) {
                             expr x = x_decl.mk_ref();
@@ -1858,8 +1880,9 @@ class explicit_rc_fn {
             return e;
         } else if (is_fvar(e)) {
             /* If it is marked as borrowed, we should insert `inc`. */
-            if (m_borrowed.contains(fvar_name(e)) && is_obj(e) &&
-                !m_is_scalar.contains(fvar_name(e))) {
+            if (is_borrowed(e) && is_obj(e) &&
+                !is_persistent(e) &&
+                !is_boxed_scalar(e)) {
                 add_inc(e, entries);
             }
             return e;
@@ -1935,7 +1958,7 @@ class explicit_rc_fn {
             expr new_fvar = m_lctx.mk_local_decl(ngen(), next_name(), binding_domain(e), binding_info(e));
             lean_assert(i < borrowed.size());
             if (borrowed[i])
-                m_borrowed.insert(fvar_name(new_fvar));
+                m_is_borrowed.insert(fvar_name(new_fvar));
             binding_fvars.push_back(new_fvar);
             e = binding_body(e);
             i++;
@@ -1963,7 +1986,7 @@ class explicit_rc_fn {
         if (is_lit(val)) {
             return false;
         } else if (is_constant(val)) {
-            return !is_llnf_cnstr(val);
+            return false;
         } else if (is_app(val)) {
             buffer<expr> args;
             expr const & fn = get_app_args(val, args);
@@ -2000,20 +2023,27 @@ class explicit_rc_fn {
              lit_value(e).get_nat() <= LEAN_MAX_SMALL_NAT);
     }
 
+    expr mk_fvar(name const & n, expr const & type, expr const & val) {
+        expr new_fvar = m_lctx.mk_local_decl(ngen(), n, type, val);
+        m_fvars.push_back(new_fvar);
+        if (should_mark_as_borrowed(val)) {
+            m_is_borrowed.insert(fvar_name(new_fvar));
+        }
+        if (is_boxed_scalar(type, val)) {
+            m_is_scalar.insert(fvar_name(new_fvar));
+        }
+        if (is_constant(val) && !is_llnf_cnstr(val)) {
+            m_is_persistent.insert(fvar_name(new_fvar));
+        }
+        return new_fvar;
+    }
+
     /* Make sure `e` is a cases, jmp or fvar */
     expr ensure_terminal(expr const & e) {
         if (!is_cases_on_app(env(), e) && !is_jmp(e) && !is_fvar(e)) {
             /* ensure that `e` is a cases, jmp or fvar */
             expr type     = ll_infer_type(m_env, m_lctx, e);
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), "_res", type, e);
-            if (should_mark_as_borrowed(e)) {
-                m_borrowed.insert(fvar_name(new_fvar));
-            }
-            if (is_boxed_scalar(type, e)) {
-                m_is_scalar.insert(fvar_name(new_fvar));
-            }
-            m_fvars.push_back(new_fvar);
-            return new_fvar;
+            return mk_fvar("_res", type, e);
         } else {
             return e;
         }
@@ -2033,16 +2063,8 @@ class explicit_rc_fn {
                     n = next_name();
                 }
                 expr type     = let_type(e);
-                expr new_fvar = m_lctx.mk_local_decl(ngen(), n, type, val);
-                if (should_mark_as_borrowed(val)) {
-                    /* Remark: it is incorrect to mark it at `process`. */
-                    m_borrowed.insert(fvar_name(new_fvar));
-                }
-                if (is_boxed_scalar(type, val)) {
-                    m_is_scalar.insert(fvar_name(new_fvar));
-                }
+                expr new_fvar = mk_fvar(n, type, val);
                 fvars.push_back(new_fvar);
-                m_fvars.push_back(new_fvar);
             }
             e = let_body(e);
         }

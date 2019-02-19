@@ -19,7 +19,7 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
     obj * r = alloc_closure(closure_fun(f), arity, new_fixed);
     obj ** source = closure_arg_cptr(f);
     obj ** target = closure_arg_cptr(r);
-    if (is_shared(f)) {
+    if (!is_exclusive(f)) {
       for (unsigned i = 0; i < fixed; i++, source++, target++) {
           *target = *source;
           inc(*target);
@@ -101,7 +101,7 @@ obj* apply_1(obj* f, obj* a1) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 1) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 1: { obj* r = FN1(f)(a1); free_heap_obj(f); return r; }
     case 2: { obj* r = FN2(f)(fx(0), a1); free_heap_obj(f); return r; }
@@ -159,7 +159,7 @@ obj* apply_2(obj* f, obj* a1, obj* a2) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 2) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 2: { obj* r = FN2(f)(a1, a2); free_heap_obj(f); return r; }
     case 3: { obj* r = FN3(f)(fx(0), a1, a2); free_heap_obj(f); return r; }
@@ -220,7 +220,7 @@ obj* apply_3(obj* f, obj* a1, obj* a2, obj* a3) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 3) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 3: { obj* r = FN3(f)(a1, a2, a3); free_heap_obj(f); return r; }
     case 4: { obj* r = FN4(f)(fx(0), a1, a2, a3); free_heap_obj(f); return r; }
@@ -279,7 +279,7 @@ obj* apply_4(obj* f, obj* a1, obj* a2, obj* a3, obj* a4) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 4) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 4: { obj* r = FN4(f)(a1, a2, a3, a4); free_heap_obj(f); return r; }
     case 5: { obj* r = FN5(f)(fx(0), a1, a2, a3, a4); free_heap_obj(f); return r; }
@@ -336,7 +336,7 @@ obj* apply_5(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 5) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
     case 6: { obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
@@ -391,7 +391,7 @@ obj* apply_6(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6) {
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 6) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
     case 7: { obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
@@ -444,7 +444,7 @@ obj* apply_7(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* 
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 7) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
     case 8: { obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
@@ -495,7 +495,7 @@ obj* apply_8(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* 
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 8) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
     case 9: { obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
@@ -544,7 +544,7 @@ obj* apply_9(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj* 
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 9) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
     case 10: { obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
@@ -591,7 +591,7 @@ obj* apply_10(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 10) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
     case 11: { obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
@@ -636,7 +636,7 @@ obj* apply_11(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 11) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
     case 12: { obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
@@ -679,7 +679,7 @@ obj* apply_12(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 12) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_heap_obj(f); return r; }
     case 13: { obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_heap_obj(f); return r; }
@@ -720,7 +720,7 @@ obj* apply_13(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 13) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_heap_obj(f); return r; }
     case 14: { obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_heap_obj(f); return r; }
@@ -759,7 +759,7 @@ obj* apply_14(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 14) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_heap_obj(f); return r; }
     case 15: { obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_heap_obj(f); return r; }
@@ -796,7 +796,7 @@ obj* apply_15(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 15) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free_heap_obj(f); return r; }
     case 16: { obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free_heap_obj(f); return r; }
@@ -831,7 +831,7 @@ obj* apply_16(obj* f, obj* a1, obj* a2, obj* a3, obj* a4, obj* a5, obj* a6, obj*
 unsigned arity = closure_arity(f);
 unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 16) {
-  if (!is_shared(f)) {
+  if (is_exclusive(f)) {
     switch (arity) {
     case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); free_heap_obj(f); return r; }
     }

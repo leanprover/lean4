@@ -56,9 +56,6 @@ protected def max : rbnode α β → option (Σ k : α, β k)
 | leaf               := ff
 | (node _ l k v r)   := p k v || any l || any r
 
-set_option pp.implicit true
-set_option trace.compiler.llnf true
-
 def balance (rb : rbcolor) (t1 : rbnode α β) (k : α) (vk : β k) (t2 : rbnode α β) :=
 match rb with
  | red   := node red t1 k vk t2
@@ -74,8 +71,6 @@ match rb with
             | node red b y vy (node red c z vz d) :=
                 node red (node black t1 k vk b) y vy (node black c z vz d)
             | _ := node black t1 k vk t2
-
-#exit
 
 def make_black (t : rbnode α β) :=
 match t with

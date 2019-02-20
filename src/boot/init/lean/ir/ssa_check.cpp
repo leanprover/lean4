@@ -4468,6 +4468,7 @@ if (lean::is_scalar(x_82)) {
  x_83 = lean::alloc_cnstr(0, 1, 0);
 } else {
  x_83 = x_82;
+ lean::cnstr_set_tag(x_82, 0);
 }
 lean::cnstr_set(x_83, 0, x_80);
 x_84 = lean::alloc_cnstr(0, 2, 0);

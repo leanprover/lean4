@@ -239,12 +239,23 @@ x_9 = lean::cnstr_get(x_0, 1);
 lean::inc(x_9);
 if (x_6 == 0)
 {
-obj* x_12; obj* x_13; uint8 x_14; obj* x_15; obj* x_16; 
-lean::dec(x_0);
+obj* x_11; obj* x_12; obj* x_13; uint8 x_14; obj* x_15; obj* x_16; 
+if (lean::is_exclusive(x_0)) {
+ lean::cnstr_release(x_0, 0);
+ lean::cnstr_release(x_0, 1);
+ x_11 = x_0;
+} else {
+ lean::dec(x_0);
+ x_11 = lean::box(0);
+}
 x_12 = l_lean_format_flatten___main(x_7);
 x_13 = l_lean_format_flatten___main(x_9);
 x_14 = 1;
-x_15 = lean::alloc_cnstr(4, 2, 1);
+if (lean::is_scalar(x_11)) {
+ x_15 = lean::alloc_cnstr(4, 2, 1);
+} else {
+ x_15 = x_11;
+}
 lean::cnstr_set(x_15, 0, x_12);
 lean::cnstr_set(x_15, 1, x_13);
 lean::cnstr_set_scalar(x_15, sizeof(void*)*2, x_14);

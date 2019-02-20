@@ -378,9 +378,20 @@ return x_15;
 }
 else
 {
-obj* x_17; obj* x_18; 
-lean::dec(x_5);
-x_17 = lean::alloc_cnstr(0, 2, 0);
+obj* x_16; obj* x_17; obj* x_18; 
+if (lean::is_exclusive(x_5)) {
+ lean::cnstr_release(x_5, 0);
+ lean::cnstr_release(x_5, 1);
+ x_16 = x_5;
+} else {
+ lean::dec(x_5);
+ x_16 = lean::box(0);
+}
+if (lean::is_scalar(x_16)) {
+ x_17 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_17 = x_16;
+}
 lean::cnstr_set(x_17, 0, x_0);
 lean::cnstr_set(x_17, 1, x_1);
 if (lean::is_scalar(x_9)) {

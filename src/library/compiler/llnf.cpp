@@ -25,21 +25,21 @@ Author: Leonardo de Moura
 #include "library/compiler/extern_attribute.h"
 
 namespace lean {
-static expr * g_apply     = nullptr;
-static expr * g_closure   = nullptr;
-static name * g_cnstr     = nullptr;
-static name * g_reuse     = nullptr;
-static name * g_reset     = nullptr;
-static name * g_sset      = nullptr;
-static name * g_uset      = nullptr;
-static name * g_proj      = nullptr;
-static name * g_sproj     = nullptr;
-static name * g_uproj     = nullptr;
-static expr * g_jmp       = nullptr;
-static name * g_box       = nullptr;
-static name * g_unbox     = nullptr;
-static expr * g_inc       = nullptr;
-static expr * g_dec       = nullptr;
+static expr * g_apply       = nullptr;
+static expr * g_closure     = nullptr;
+static char const * g_cnstr = "_cnstr";
+static name * g_reuse       = nullptr;
+static name * g_reset       = nullptr;
+static name * g_sset        = nullptr;
+static name * g_uset        = nullptr;
+static name * g_proj        = nullptr;
+static name * g_sproj       = nullptr;
+static name * g_uproj       = nullptr;
+static expr * g_jmp         = nullptr;
+static name * g_box         = nullptr;
+static name * g_unbox       = nullptr;
+static expr * g_inc         = nullptr;
+static expr * g_dec         = nullptr;
 
 expr mk_llnf_apply() { return *g_apply; }
 bool is_llnf_apply(expr const & e) { return e == *g_apply; }
@@ -103,9 +103,28 @@ specific. We also have custom instructions (`_uset` and `_uproj`) to set and ret
 scalar fields.
 */
 
-/* The `_cnstr.<cidx>.<num_usizes>.<num_bytes>` instruction constructs a constructor object with tag `cidx`, and scalar area with space for `num_usize` `usize` values + `num_bytes` bytes. */
-expr mk_llnf_cnstr(unsigned cidx, unsigned num_usizes, unsigned num_bytes) { return mk_constant(name(name(name(*g_cnstr, cidx), num_usizes), num_bytes)); }
-bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) { return is_llnf_ternary_primitive(e, *g_cnstr, cidx, num_usizes, num_bytes); }
+/* The `I._cnstr.<cidx>.<num_usizes>.<num_bytes>` instruction constructs a constructor object with tag `cidx`, and scalar area with space for `num_usize` `usize` values + `num_bytes` bytes. */
+expr mk_llnf_cnstr(name const & I, unsigned cidx, unsigned num_usizes, unsigned num_bytes) {
+    return mk_constant(name(name(name(name(I, g_cnstr), cidx), num_usizes), num_bytes));
+}
+bool is_llnf_cnstr_core(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) {
+    if (!is_constant(e)) return false;
+    name const & n3  = const_name(e);
+    if (!is_internal_name(n3)) return false;
+    if (n3.is_atomic() || !n3.is_numeral()) return false;
+    num_bytes = n3.get_numeral().get_small_value();
+    name const & n2 = n3.get_prefix();
+    if (n2.is_atomic() || !n2.is_numeral()) return false;
+    num_usizes = n2.get_numeral().get_small_value();
+    name const & n1 = n2.get_prefix();
+    if (n1.is_atomic() || !n1.is_numeral())  return false;
+    cidx = n1.get_numeral().get_small_value();
+    name const & n0 = n1.get_prefix();
+    return !n0.is_atomic() && n0.is_string() && n0.get_string() == g_cnstr;
+}
+bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & num_usizes, unsigned & num_bytes) {
+    return is_llnf_cnstr_core(e, cidx, num_usizes, num_bytes);
+}
 
 /* The `_reuse.<cidx>.<num_usizes>.<num_bytes>.<updt_cidx>` is similar to `_cnstr.<cidx>.<num_usize>.<num_bytes>`, but it takes an extra argument: a memory cell that may be reused. */
 expr mk_llnf_reuse(unsigned cidx, unsigned num_usizes, unsigned num_bytes, bool updt_cidx) {
@@ -2074,7 +2093,6 @@ void initialize_llnf() {
     g_usize     = new expr(mk_constant(get_usize_name()));
     g_apply     = new expr(mk_constant("_apply"));
     g_closure   = new expr(mk_constant("_closure"));
-    g_cnstr     = new name("_cnstr");
     g_reuse     = new name("_reuse");
     g_reset     = new name("_reset");
     g_sset      = new name("_sset");
@@ -2098,7 +2116,6 @@ void finalize_llnf() {
     delete g_usize;
     delete g_closure;
     delete g_apply;
-    delete g_cnstr;
     delete g_reuse;
     delete g_reset;
     delete g_sset;

@@ -98,7 +98,7 @@ def flip_color : rbnode α β → rbnode α β
 def flip_colors : Π (n : rbnode α β), n ≠ leaf → rbnode α β
 | n@(node c l k v r) _ :=
   if is_red l ∧ is_red r
-  then node black (flip_color l) k v (flip_color r)
+  then node (flip c) (flip_color l) k v (flip_color r)
   else n
 | leaf h := absurd rfl h
 

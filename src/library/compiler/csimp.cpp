@@ -709,21 +709,6 @@ class csimp_fn {
         return e;
     }
 
-    /* Return true iff `e` contains a free variable in `s` */
-    bool depends_on(expr const & e, name_hash_set const & s) {
-        if (!has_fvar(e)) return false;
-        bool found = false;
-        for_each(e, [&](expr const & e, unsigned) {
-                if (!has_fvar(e)) return false;
-                if (found) return false;
-                if (is_fvar(e) && s.find(fvar_name(e)) != s.end()) {
-                    found = true;
-                }
-                return true;
-            });
-        return found;
-    }
-
     /* Split `entries` into two groups: `entries_dep_x` and `entries_ndep_x`.
        The first group contains the entries that depend on `x` and the second the ones that doesn't.
        This auxiliary method is used to float cases_on over expressions.

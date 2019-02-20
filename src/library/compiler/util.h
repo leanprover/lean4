@@ -149,6 +149,8 @@ bool is_runtime_scalar_type(name const & n);
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type);
 
 void collect_used(expr const & e, name_hash_set & S);
+/* Return true iff `e` contains a free variable in `s` */
+bool depends_on(expr const & e, name_hash_set const & s);
 
 environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v);
 environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v);

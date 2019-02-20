@@ -439,6 +439,20 @@ void collect_used(expr const & e, name_hash_set & S) {
         });
 }
 
+bool depends_on(expr const & e, name_hash_set const & s) {
+    if (!has_fvar(e)) return false;
+    bool found = false;
+    for_each(e, [&](expr const & e, unsigned) {
+            if (!has_fvar(e)) return false;
+            if (found) return false;
+            if (is_fvar(e) && s.find(fvar_name(e)) != s.end()) {
+                found = true;
+            }
+            return true;
+        });
+    return found;
+}
+
 expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e) {
     try {
         type_checker tc(st, lctx);

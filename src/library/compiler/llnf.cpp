@@ -755,11 +755,128 @@ public:
 };
 
 class push_proj_fn {
+    environment    m_env;
+    name_generator m_ngen;
+    local_ctx      m_lctx;
+
+    expr visit_app(expr const & e) {
+        if (is_cases_on_app(m_env, e)) {
+            buffer<expr> args;
+            expr const & c = get_app_args(e, args);
+            lean_assert(is_constant(c));
+            for (unsigned i = 1; i < args.size(); i++) {
+                args[i] = visit(args[i]);
+            }
+            return mk_app(c, args);
+        } else {
+            return e;
+        }
+    }
+
+    expr visit_lambda(expr e) {
+        lean_assert(is_lambda(e));
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> fvars;
+        while (is_lambda(e)) {
+            /* Types are ignored in compilation steps. So, we do not invoke visit for d. */
+            expr new_fvar = m_lctx.mk_local_decl(m_ngen, binding_name(e), binding_domain(e));
+            fvars.push_back(new_fvar);
+            e = binding_body(e);
+        }
+        expr new_body      = visit(instantiate_rev(e, fvars.size(), fvars.data()));
+        return m_lctx.mk_lambda(fvars, new_body);
+    }
+
+    /* Return true iff all `ss[i]` contains `n` */
+    static bool all_contains(unsigned sz, name_hash_set const * ss, name const & n) {
+        for (unsigned i = 0; i < sz; i++) {
+            if (ss[i].find(n) != ss[i].end())
+                return false;
+        }
+        return true;
+    }
+
+    /* Tries to push projections in fvars into body branches when it is a cases_on */
+    void push_fvars(buffer<expr> & fvars, expr & body) {
+        if (!is_cases_on_app(m_env, body))
+            return;
+        buffer<expr> cases_args;
+        expr const & cases_fn = get_app_args(body, cases_args);
+        buffer<name_hash_set> minor_used_vars;
+        minor_used_vars.resize(cases_args.size());
+        for (unsigned i = 1; i < cases_args.size(); i++) {
+            collect_used(cases_args[i], minor_used_vars[i]);
+        }
+        buffer<expr> new_fvars;
+        name_hash_set new_fvars_used_fvars;
+        expr const & major = cases_args[0];
+        new_fvars_used_fvars.insert(fvar_name(major));
+        bool copied_non_proj = false; /* true if we copied a non-projection to new_fvars */
+        unsigned i = fvars.size();
+        while (i > 0) {
+            --i;
+            expr x              = fvars[i];
+            name const & x_name = fvar_name(x);
+            local_decl x_decl   = m_lctx.get_local_decl(x);
+            expr x_val          = *x_decl.get_value();
+            if (is_llnf_proj(get_app_fn(x_val))) {
+                if (new_fvars_used_fvars.find(x_name) == new_fvars_used_fvars.end() &&
+                    !copied_non_proj &&
+                    !all_contains(minor_used_vars.size() - 1, minor_used_vars.data() + 1, x_name)) {
+                    /* found projection that is worth moving to cases it depends on */
+                    for (unsigned i = 1; i < cases_args.size(); i++) {
+                        if (minor_used_vars[i].find(x_name) != minor_used_vars[i].end()) {
+                            cases_args[i] = m_lctx.mk_lambda(x, cases_args[i]);
+                            collect_used(x_val, minor_used_vars[i]);
+                        }
+                    }
+                } else {
+                    new_fvars.push_back(x);
+                    collect_used(x_val, new_fvars_used_fvars);
+                }
+            } else {
+                /* TODO(Leo): check whether this restriction makes any difference */
+                copied_non_proj = true;
+                new_fvars.push_back(x);
+                collect_used(x_val, new_fvars_used_fvars);
+            }
+        }
+        /* Update body and fvars */
+        body = mk_app(cases_fn, cases_args);
+        std::reverse(new_fvars.begin(), new_fvars.end());
+        fvars.clear();
+        fvars.append(new_fvars);
+    }
+
+    expr visit_let(expr e) {
+        lean_assert(is_let(e));
+        flet<local_ctx> save_lctx(m_lctx, m_lctx);
+        buffer<expr> fvars;
+        while (is_let(e)) {
+            expr val      = instantiate_rev(let_value(e), fvars.size(), fvars.data());
+            expr new_fvar = m_lctx.mk_local_decl(m_ngen, let_name(e), let_type(e), val);
+            fvars.push_back(new_fvar);
+            e = let_body(e);
+        }
+        expr new_body = instantiate_rev(e, fvars.size(), fvars.data());
+        push_fvars(fvars, new_body);
+        new_body = visit(new_body);
+        return m_lctx.mk_lambda(fvars, new_body);
+    }
+
+    expr visit(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::App:    return visit_app(e);
+        case expr_kind::Let:    return visit_let(e);
+        default:                return e;
+        }
+    }
+
 public:
-    push_proj_fn(environment const & /* env */) {}
+    push_proj_fn(environment const & env):m_env(env) {}
     expr operator()(expr const & e) {
-        // TODO(Leo)
-        return e;
+        return visit(e);
     }
 };
 

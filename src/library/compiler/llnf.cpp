@@ -513,9 +513,6 @@ class to_llnf_fn {
         name const &         m_I_name;
         expr const &         m_major;
         cnstr_info const &   m_cinfo;
-        /* `m_major` may be replaced/reused many times in different branches, but we
-           only have to reset fields once. */
-        bool                 m_reset{false};
         expr                 m_major_after_reset;
         bool                 m_replaced{false};
 
@@ -549,7 +546,7 @@ class to_llnf_fn {
             return is_llnf_uproj(a, a_idx) && a_idx == idx;
         }
 
-        expr visit_constructor(expr const & e) {
+        expr replace_constructor(expr const & e) {
             buffer<expr> args;
             expr const & k = get_app_args(e, args);
             lean_assert(is_constant(k));
@@ -580,11 +577,6 @@ class to_llnf_fn {
                 return e;
             }
             unsigned nparams       = k_val.get_nparams();
-            if (!m_reset) {
-                m_major_after_reset = m_owner.mk_reset(m_major, k_info.m_num_objs);
-                m_major_after_reset = m_owner.mk_let_decl(mk_enf_object_type(), m_major_after_reset);
-                m_reset             = true;
-            }
             expr r = m_major_after_reset;
             /* Remark: note that we do not create let-declarations here for the following updates.
                We will flatten them later when we visit the minor premise. */
@@ -623,9 +615,9 @@ class to_llnf_fn {
             return r;
         }
 
-        expr visit_app(expr const & e) {
+        expr replace_app(expr const & e) {
             if (is_constructor_app(env(), e)) {
-                return visit_constructor(e);
+                return replace_constructor(e);
             } else if (is_cases_on_app(env(), e)) {
                 lean_assert(!m_replaced);
                 buffer<expr> args;
@@ -635,7 +627,7 @@ class to_llnf_fn {
                 for (expr & arg : args) {
                     /* `m_major` can be reused in each branch. */
                     m_replaced   = false;
-                    expr new_arg = visit(arg);
+                    expr new_arg = replace(arg);
                     if (m_replaced)
                         new_replaced = true;
                     if (!is_eqp(arg, new_arg))
@@ -650,37 +642,99 @@ class to_llnf_fn {
             }
         }
 
-        expr visit_lambda(expr const & e) {
-            expr new_body = visit(binding_body(e));
+        expr replace_lambda(expr const & e) {
+            expr new_body = replace(binding_body(e));
             return update_binding(e, binding_domain(e), new_body);
         }
 
-        expr visit_let(expr const & e) {
-            expr new_value = visit(let_value(e));
-            expr new_body  = visit(let_body(e));
+        expr replace_let(expr const & e) {
+            expr new_value = replace(let_value(e));
+            expr new_body  = replace(let_body(e));
             return update_let(e, let_type(e), new_value, new_body);
         }
 
-        expr visit(expr const & e) {
+        expr replace(expr const & e) {
             if (m_replaced) return e;
             switch (e.kind()) {
-            case expr_kind::App:    return visit_app(e);
-            case expr_kind::Let:    return visit_let(e);
-            case expr_kind::Lambda: return visit_lambda(e);
+            case expr_kind::App:    return replace_app(e);
+            case expr_kind::Let:    return replace_let(e);
+            case expr_kind::Lambda: return replace_lambda(e);
             default:                return e;
+            }
+        }
+
+        expr add_reset(expr const & e, expr const & new_e) {
+            if (e == new_e)
+                return e;
+            expr r = abstract(new_e, m_major_after_reset);
+            expr reset = m_owner.mk_reset(m_major, m_cinfo.m_num_objs);
+            return ::lean::mk_let(m_owner.next_name(), mk_enf_object_type(), reset, abstract(lift_loose_bvars(new_e, 1), m_major_after_reset));
+        }
+
+        expr opt_cases(expr const & e) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            bool modified   = false;
+            for (unsigned i = 1; i < args.size(); i++) {
+                expr arg = args[i];
+                buffer<expr> bindings;
+                /* We are still using lambda's to bind the minor "fields". */
+                while (is_lambda(arg)) {
+                    bindings.push_back(arg);
+                    arg = binding_body(arg);
+                }
+                expr new_arg = opt(arg);
+                if (arg != new_arg) {
+                    modified = true;
+                    unsigned j = bindings.size();
+                    while (j > 0) {
+                        --j;
+                        new_arg = update_binding(bindings[j], binding_domain(bindings[j]), new_arg);
+                    }
+                    args[i] = new_arg;
+                }
+            }
+            return modified ? mk_app(fn, args) : e;
+        }
+
+        expr opt_let(expr const & e) {
+            if (is_let(e)) {
+                expr new_body = opt_let(let_body(e));
+                return update_let(e, let_type(e), let_value(e), new_body);
+            } else if (is_cases_on_app(env(), e)) {
+                return opt_cases(e);
+            } else {
+                return e;
+            }
+        }
+
+        expr opt(expr const & e) {
+            if (!has_fvar(e, m_major)) {
+                m_major_after_reset = mk_fvar(m_owner.ngen().next());
+                m_replaced = false;
+                expr new_e = replace(e);
+                return add_reset(e, new_e);
+            } else if (is_let(e)) {
+                return opt_let(e);
+            } else if (is_cases_on_app(env(), e)) {
+                return opt_cases(e);
+            } else {
+                return e;
             }
         }
 
     public:
         replace_cnstr_fn(to_llnf_fn & owner, name const & I_name, expr const & major, cnstr_info const & cinfo):
             m_owner(owner), m_I_name(I_name), m_major(major), m_cinfo(cinfo) {}
-        expr operator()(expr const & e) { return visit(e); }
+
+        expr operator()(expr const & e) {
+            return opt(e);
+        }
     };
 
     expr try_update_opt(name const & I_name, expr const & minor, expr const & major, cnstr_info const & cinfo) {
         if (cinfo.m_num_objs == 0 && cinfo.m_num_usizes == 0 && cinfo.m_scalar_sz == 0) return minor;
         if (!is_fvar(major)) return minor;
-        if (has_fvar(minor, major)) return minor;
         return replace_cnstr_fn(*this, I_name, major, cinfo)(minor);
     }
 

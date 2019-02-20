@@ -268,10 +268,6 @@ static void get_borrowed_info(environment const & env, name const & n, buffer<bo
 }
 
 class to_llnf_fn {
-    /*
-      TODO(Leo): we must track which variables are marked as borrowed here. Reason: the `reuse` instruction is just
-      overhead for variables marked as borrowed.
-    */
     typedef name_hash_set name_set;
     typedef name_hash_map<cnstr_info> cnstr_info_cache;
     typedef name_hash_map<optional<unsigned>> enum_cache;
@@ -503,241 +499,6 @@ class to_llnf_fn {
         return mk_app(mk_llnf_uset(idx), major, v);
     }
 
-    expr mk_reset(expr const & major, unsigned idx) {
-        return mk_app(mk_llnf_reset(idx), major);
-    }
-
-    /* Auxiliary functor for replacing constructor applications with update operations. */
-    class replace_cnstr_fn {
-        to_llnf_fn &         m_owner;
-        name const &         m_I_name;
-        expr const &         m_major;
-        cnstr_info const &   m_cinfo;
-        expr                 m_major_after_reset;
-        bool                 m_replaced{false};
-
-        environment const & env() { return m_owner.env(); }
-
-        expr find(expr const & e) const {
-            if (is_fvar(e)) {
-                if (optional<local_decl> decl = m_owner.m_lctx.find_local_decl(e)) {
-                    optional<expr> v = decl->get_value();
-                    if (v) return find(*v);
-                }
-            } else if (is_mdata(e)) {
-                return find(mdata_expr(e));
-            }
-            return e;
-        }
-
-        /* Return true if `a` is of the form `_sproj.<sz>.<num>.<offset> e` */
-        bool is_sproj_of(expr a, expr const & e, unsigned sz, unsigned num, unsigned offset) {
-            a = find(a);
-            if (!is_app(a) || app_arg(a) != e) return false;
-            unsigned a_sz, a_num, a_offset;
-            return is_llnf_sproj(a, a_sz, a_num, a_offset) && a_sz == sz && a_num == num && a_offset == offset;
-        }
-
-        /* Return true if `a` is of the form `_uproj.<idx> e` */
-        bool is_uproj_of(expr a, expr const & e, unsigned idx) {
-            a = find(a);
-            if (!is_app(a) || app_arg(a) != e) return false;
-            unsigned a_idx;
-            return is_llnf_uproj(a, a_idx) && a_idx == idx;
-        }
-
-        expr replace_constructor(expr const & e) {
-            buffer<expr> args;
-            expr const & k = get_app_args(e, args);
-            lean_assert(is_constant(k));
-            if (is_extern_constant(env(), const_name(k))) {
-                /* Optimization is not applicable to runtime extern/native constructors. */
-                return e;
-            }
-            constructor_val k_val  = env().get(const_name(k)).to_constructor_val();
-            if (k_val.get_induct() != m_I_name) {
-                /* Heuristic: we don't want to reuse cells from different types even when they are compatible
-                   because it produces counterintuitive behavior. Here is an example:
-                   ```
-                   @list.cases_on a
-                     (@prod.cases_on a_1 (λ fst snd, (punit.star, snd)))
-                     (λ a_hd a_tl,
-                         @prod.cases_on a_1
-                           (λ fst snd,
-                              let _x_1 := nat.add snd a_hd,
-                                  _x_2 := (punit.star, _x_1)
-                              in list.mmap'._main._at.accum._spec_1 a_tl _x_2))
-                   ```
-                   Without this heuristic, we will try ton construct `(punit.star, _x_1)` re-using `a` instead of `a_1`. */
-                return e;
-            }
-            cnstr_info k_info      = m_owner.get_cnstr_info(const_name(k));
-            if (k_info.m_num_objs  != m_cinfo.m_num_objs || k_info.m_num_usizes != m_cinfo.m_num_usizes || k_info.m_scalar_sz != m_cinfo.m_scalar_sz) {
-                /* This constructor is not compatible with major premise */
-                return e;
-            }
-            unsigned nparams       = k_val.get_nparams();
-            expr r = m_major_after_reset;
-            /* Remark: note that we do not create let-declarations here for the following updates.
-               We will flatten them later when we visit the minor premise. */
-            buffer<expr> obj_args;
-            unsigned j      = nparams;
-            for (field_info const & info : k_info.m_field_info) {
-                if (info.m_kind == field_info::Object) {
-                    obj_args.push_back(args[j]);
-                }
-                j++;
-            }
-            r = mk_app(mk_app(mk_llnf_reuse(k_info.m_cidx, k_info.m_num_usizes, k_info.m_scalar_sz, m_cinfo.m_cidx != k_info.m_cidx), r), obj_args);
-            unsigned uidx   = 0;
-            unsigned offset = 0;
-            j = nparams;
-            for (field_info const & info : k_info.m_field_info) {
-                switch (info.m_kind) {
-                case field_info::Scalar:
-                    if (!is_sproj_of(args[j], m_major, info.m_size, k_info.m_num_objs + k_info.m_num_usizes, offset)) {
-                        r = m_owner.mk_sset(r, info.m_size, (k_info.m_num_objs + k_info.m_num_usizes), offset, args[j]);
-                    }
-                    offset += info.m_size;
-                    break;
-                case field_info::USize:
-                    if (!is_uproj_of(args[j], m_major, (k_info.m_num_objs + uidx))) {
-                        r = m_owner.mk_uset(r, k_info.m_num_objs + uidx, args[j]);
-                    }
-                    uidx++;
-                    break;
-                default:
-                    break;
-                }
-                j++;
-            }
-            m_replaced = true;
-            return r;
-        }
-
-        expr replace_app(expr const & e) {
-            if (is_constructor_app(env(), e)) {
-                return replace_constructor(e);
-            } else if (is_cases_on_app(env(), e)) {
-                lean_assert(!m_replaced);
-                buffer<expr> args;
-                expr const & fn   = get_app_args(e, args);
-                bool modified     = false;
-                bool new_replaced = false;
-                for (expr & arg : args) {
-                    /* `m_major` can be reused in each branch. */
-                    m_replaced   = false;
-                    expr new_arg = replace(arg);
-                    if (m_replaced)
-                        new_replaced = true;
-                    if (!is_eqp(arg, new_arg))
-                        modified = true;
-                    arg = new_arg;
-                }
-                /* We assume that `m_major` has been reused IF it was reused in one of the branches. */
-                m_replaced = new_replaced;
-                return modified ? mk_app(fn, args) : e;
-            } else {
-                return e;
-            }
-        }
-
-        expr replace_lambda(expr const & e) {
-            expr new_body = replace(binding_body(e));
-            return update_binding(e, binding_domain(e), new_body);
-        }
-
-        expr replace_let(expr const & e) {
-            expr new_value = replace(let_value(e));
-            expr new_body  = replace(let_body(e));
-            return update_let(e, let_type(e), new_value, new_body);
-        }
-
-        expr replace(expr const & e) {
-            if (m_replaced) return e;
-            switch (e.kind()) {
-            case expr_kind::App:    return replace_app(e);
-            case expr_kind::Let:    return replace_let(e);
-            case expr_kind::Lambda: return replace_lambda(e);
-            default:                return e;
-            }
-        }
-
-        expr add_reset(expr const & e, expr const & new_e) {
-            if (e == new_e)
-                return e;
-            expr r = abstract(new_e, m_major_after_reset);
-            expr reset = m_owner.mk_reset(m_major, m_cinfo.m_num_objs);
-            return ::lean::mk_let(m_owner.next_name(), mk_enf_object_type(), reset, abstract(lift_loose_bvars(new_e, 1), m_major_after_reset));
-        }
-
-        expr opt_cases(expr const & e) {
-            buffer<expr> args;
-            expr const & fn = get_app_args(e, args);
-            bool modified   = false;
-            for (unsigned i = 1; i < args.size(); i++) {
-                expr arg = args[i];
-                buffer<expr> bindings;
-                /* We are still using lambda's to bind the minor "fields". */
-                while (is_lambda(arg)) {
-                    bindings.push_back(arg);
-                    arg = binding_body(arg);
-                }
-                expr new_arg = opt(arg);
-                if (arg != new_arg) {
-                    modified = true;
-                    unsigned j = bindings.size();
-                    while (j > 0) {
-                        --j;
-                        new_arg = update_binding(bindings[j], binding_domain(bindings[j]), new_arg);
-                    }
-                    args[i] = new_arg;
-                }
-            }
-            return modified ? mk_app(fn, args) : e;
-        }
-
-        expr opt_let(expr const & e) {
-            if (is_let(e)) {
-                expr new_body = opt_let(let_body(e));
-                return update_let(e, let_type(e), let_value(e), new_body);
-            } else if (is_cases_on_app(env(), e)) {
-                return opt_cases(e);
-            } else {
-                return e;
-            }
-        }
-
-        expr opt(expr const & e) {
-            if (!has_fvar(e, m_major)) {
-                m_major_after_reset = mk_fvar(m_owner.ngen().next());
-                m_replaced = false;
-                expr new_e = replace(e);
-                return add_reset(e, new_e);
-            } else if (is_let(e)) {
-                return opt_let(e);
-            } else if (is_cases_on_app(env(), e)) {
-                return opt_cases(e);
-            } else {
-                return e;
-            }
-        }
-
-    public:
-        replace_cnstr_fn(to_llnf_fn & owner, name const & I_name, expr const & major, cnstr_info const & cinfo):
-            m_owner(owner), m_I_name(I_name), m_major(major), m_cinfo(cinfo) {}
-
-        expr operator()(expr const & e) {
-            return opt(e);
-        }
-    };
-
-    expr try_update_opt(name const & I_name, expr const & minor, expr const & major, cnstr_info const & cinfo) {
-        if (cinfo.m_num_objs == 0 && cinfo.m_num_usizes == 0 && cinfo.m_scalar_sz == 0) return minor;
-        if (!is_fvar(major)) return minor;
-        return replace_cnstr_fn(*this, I_name, major, cinfo)(minor);
-    }
-
     expr visit_cases(expr const & e) {
         buffer<expr> args;
         expr const & fn = get_app_args(e, args);
@@ -798,7 +559,6 @@ class to_llnf_fn {
                 minor = binding_body(minor);
             }
             minor     = instantiate_rev(minor, fields.size(), fields.data());
-            minor     = try_update_opt(I_name, minor, major, cinfo);
             minor     = visit(minor);
             if (!is_enf_unreachable(minor)) {
                 /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */
@@ -959,26 +719,12 @@ class to_llnf_fn {
         return mk_llnf_app(fn, args);
     }
 
-    expr flat_app(expr const & e) {
-        buffer<expr> args;
-        expr const & fn = get_app_args(e, args);
-        for (expr & arg : args) {
-            arg = visit(arg);
-            if (!is_lcnf_atom(arg)) {
-                arg = mk_let_decl(mk_enf_object_type(), arg);
-            }
-        }
-        return mk_app(fn, args);
-    }
-
     expr visit_app(expr const & e) {
         expr const & fn = get_app_fn(e);
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e);
         } else if (is_constructor_app(env(), e)) {
             return visit_constructor(e);
-        } else if (is_llnf_sset(fn) || is_llnf_uset(fn) || is_llnf_reuse(fn)) {
-            return flat_app(e);
         } else if (is_llnf_op(fn)) {
             return e;
         } else {
@@ -1005,6 +751,24 @@ public:
     expr operator()(expr const & e) {
         expr r = visit(e);
         return mk_let(0, r);
+    }
+};
+
+class push_proj_fn {
+public:
+    push_proj_fn(environment const & /* env */) {}
+    expr operator()(expr const & e) {
+        // TODO(Leo)
+        return e;
+    }
+};
+
+class insert_reset_reuse_fn {
+public:
+    insert_reset_reuse_fn(environment const & /* env */) {}
+    expr operator()(expr const & e) {
+        // TODO(Leo)
+        return e;
     }
 };
 
@@ -2165,6 +1929,8 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
     buffer<comp_decl> bs;
     for (comp_decl const & d : ds) {
         expr new_v = to_llnf_fn(new_env, unboxed)(d.snd());
+        new_v      = push_proj_fn(new_env)(new_v);
+        new_v      = insert_reset_reuse_fn(new_env)(new_v);
         rs.push_back(comp_decl(d.fst(), new_v));
         if (unboxed) {
             if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()))) {

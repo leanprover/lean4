@@ -17,7 +17,11 @@ optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name co
 
 bool is_llnf_apply(expr const & e);
 bool is_llnf_closure(expr const & e);
-bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & nusize, unsigned & ssz);
+bool is_llnf_cnstr(expr const & e, name & I, unsigned & cidx, unsigned & nusize, unsigned & ssz);
+inline bool is_llnf_cnstr(expr const & e, unsigned & cidx, unsigned & nusize, unsigned & ssz) {
+    name I;
+    return is_llnf_cnstr(e, I, cidx, nusize, ssz);
+}
 bool is_llnf_reuse(expr const & e, unsigned & cidx, unsigned & nusize, unsigned & ssz, bool & updt_cidx);
 bool is_llnf_reset(expr const & e, unsigned & n);
 bool is_llnf_proj(expr const & e, unsigned & idx);

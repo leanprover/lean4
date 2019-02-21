@@ -1018,13 +1018,24 @@ class insert_reset_reuse_fn {
         return ::lean::mk_let(next_reset_name(), mk_enf_object_type(), reset, abstract(new_e, reset_x));
     }
 
-    expr opt_let(opt_ctx const & octx, expr e) {
+    bool is_cnstr_using_major(opt_ctx const & octx, expr const & e) {
+        return is_llnf_cnstr(get_app_fn(e)) && has_fvar(e, octx.x);
+    }
+
+    expr opt_let(opt_ctx const & octx, expr const & e0) {
+        expr e = e0;
         lean_assert(is_let(e));
         lean_assert(has_fvar(e, octx.x));
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
         buffer<expr> fvars;
         while (is_let(e)) {
             expr val      = instantiate_rev(let_value(e), fvars.size(), fvars.data());
+            if (is_cnstr_using_major(octx, val)) {
+                /* If the major premise (the one that is providing memory) is being
+                   stored in a constructor, then reuse will probably not work.
+                   It could work if the new cell is consumed. */
+                return e0;
+            }
             expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), let_type(e), val);
             fvars.push_back(new_fvar);
             if (has_fvar(let_value(e), octx.x) && !has_fvar(let_body(e), octx.x)) {

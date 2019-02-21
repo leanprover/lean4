@@ -139,14 +139,15 @@ return x_4;
 obj* _init_l_lean_mk__dec__is__true___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("decidable");
 x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("is_true");
 x_4 = lean_name_mk_string(x_2, x_3);
-x_5 = lean_expr_mk_const(x_4, x_0);
-return x_5;
+x_5 = lean::box(0);
+x_6 = lean_expr_mk_const(x_4, x_5);
+return x_6;
 }
 }
 obj* l_lean_mk__dec__is__true(obj* x_0, obj* x_1) {
@@ -161,14 +162,15 @@ return x_3;
 obj* _init_l_lean_mk__dec__is__false___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("decidable");
 x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("is_false");
 x_4 = lean_name_mk_string(x_2, x_3);
-x_5 = lean_expr_mk_const(x_4, x_0);
-return x_5;
+x_5 = lean::box(0);
+x_6 = lean_expr_mk_const(x_4, x_5);
+return x_6;
 }
 }
 obj* l_lean_mk__dec__is__false(obj* x_0, obj* x_1) {

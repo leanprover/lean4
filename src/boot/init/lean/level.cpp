@@ -442,29 +442,20 @@ _start:
 switch (lean::obj_tag(x_0)) {
 case 1:
 {
-obj* x_1; obj* x_4; obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_11; obj* x_13; 
+obj* x_1; obj* x_4; obj* x_5; obj* x_7; obj* x_10; obj* x_11; obj* x_13; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 lean::dec(x_0);
 x_4 = l_lean_level_to__offset___main(x_1);
 x_5 = lean::cnstr_get(x_4, 0);
+lean::inc(x_5);
 x_7 = lean::cnstr_get(x_4, 1);
-if (lean::is_exclusive(x_4)) {
- x_9 = x_4;
-} else {
- lean::inc(x_5);
- lean::inc(x_7);
- lean::dec(x_4);
- x_9 = lean::box(0);
-}
+lean::inc(x_7);
+lean::dec(x_4);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_7, x_10);
 lean::dec(x_7);
-if (lean::is_scalar(x_9)) {
- x_13 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_13 = x_9;
-}
+x_13 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_13, 0, x_5);
 lean::cnstr_set(x_13, 1, x_11);
 return x_13;

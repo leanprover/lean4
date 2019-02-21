@@ -150,21 +150,10 @@ return x_15;
 }
 else
 {
-obj* x_17; obj* x_18; obj* x_19; 
+obj* x_18; obj* x_19; 
+lean::dec(x_5);
 lean::dec(x_1);
-if (lean::is_exclusive(x_5)) {
- lean::cnstr_release(x_5, 0);
- lean::cnstr_release(x_5, 1);
- x_17 = x_5;
-} else {
- lean::dec(x_5);
- x_17 = lean::box(0);
-}
-if (lean::is_scalar(x_17)) {
- x_18 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_18 = x_17;
-}
+x_18 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_18, 0, x_10);
 lean::cnstr_set(x_18, 1, x_2);
 if (lean::is_scalar(x_9)) {

@@ -8,119 +8,96 @@ import init.data.ordering.basic init.coe init.data.option.basic
 
 universes u v w w'
 
+inductive rbcolor
+| red | black
+
 inductive rbnode (α : Type u) (β : α → Type v)
-| leaf  {}                                                               : rbnode
-| red_node   (lchild : rbnode) (key : α) (val : β key) (rchild : rbnode) : rbnode
-| black_node (lchild : rbnode) (key : α) (val : β key) (rchild : rbnode) : rbnode
+| leaf  {}                                                                            : rbnode
+| node  (color : rbcolor) (lchild : rbnode) (key : α) (val : β key) (rchild : rbnode) : rbnode
 
 namespace rbnode
 variables {α : Type u} {β : α → Type v} {σ : Type w}
 
-inductive color
-| red | black
-
-open color nat
-
-instance color.decidable_eq : decidable_eq color :=
-{dec_eq := λ a b, color.cases_on a
-  (color.cases_on b (is_true rfl) (is_false (λ h, color.no_confusion h)))
-  (color.cases_on b (is_false (λ h, color.no_confusion h)) (is_true rfl))}
+open rbcolor nat
 
 def depth (f : nat → nat → nat) : rbnode α β → nat
-| leaf                 := 0
-| (red_node l _ _ r)   := succ (f (depth l) (depth r))
-| (black_node l _ _ r) := succ (f (depth l) (depth r))
+| leaf               := 0
+| (node _ l _ _ r)   := succ (f (depth l) (depth r))
 
 protected def min : rbnode α β → option (Σ k : α, β k)
-| leaf                    := none
-| (red_node leaf k v _)   := some ⟨k, v⟩
-| (black_node leaf k v _) := some ⟨k, v⟩
-| (red_node l k v _)      := min l
-| (black_node l k v _)    := min l
+| leaf                  := none
+| (node _ leaf k v _)   := some ⟨k, v⟩
+| (node _ l k v _)      := min l
 
 protected def max : rbnode α β → option (Σ k : α, β k)
-| leaf                    := none
-| (red_node _ k v leaf)   := some ⟨k, v⟩
-| (black_node _ k v leaf) := some ⟨k, v⟩
-| (red_node _ k v r)      := max r
-| (black_node _ k v r)    := max r
+| leaf                  := none
+| (node _ _ k v leaf)   := some ⟨k, v⟩
+| (node _ _ k v r)      := max r
 
 @[specialize] def fold (f : Π (k : α), β k → σ → σ) : rbnode α β → σ → σ
 | leaf b               := b
-| (red_node l k v r)   b := fold r (f k v (fold l b))
-| (black_node l k v r) b := fold r (f k v (fold l b))
+| (node _ l k v r)   b := fold r (f k v (fold l b))
 
 @[specialize] def mfold {m : Type w → Type w'} [monad m] (f : Π (k : α), β k → σ → m σ) : rbnode α β → σ → m σ
-| leaf b                 := pure b
-| (red_node l k v r) b   := do b₁ ← mfold l b, b₂ ← f k v b₁, mfold r b₂
-| (black_node l k v r) b := do b₁ ← mfold l b, b₂ ← f k v b₁, mfold r b₂
+| leaf b               := pure b
+| (node _ l k v r) b   := do b₁ ← mfold l b, b₂ ← f k v b₁, mfold r b₂
 
 @[specialize] def rev_fold (f : Π (k : α), β k → σ → σ) : rbnode α β → σ → σ
-| leaf b                 := b
-| (red_node l k v r)   b := rev_fold l (f k v (rev_fold r b))
-| (black_node l k v r) b := rev_fold l (f k v (rev_fold r b))
+| leaf b               := b
+| (node _ l k v r)   b := rev_fold l (f k v (rev_fold r b))
 
 @[specialize] def all (p : Π k : α, β k → bool) : rbnode α β → bool
-| leaf                   := tt
-| (red_node l k v r)     := p k v && all l && all r
-| (black_node l k v r)   := p k v && all l && all r
+| leaf                 := tt
+| (node _ l k v r)     := p k v && all l && all r
 
 @[specialize] def any (p : Π k : α, β k → bool) : rbnode α β → bool
 | leaf                 := ff
-| (red_node l k v r)   := p k v || any l || any r
-| (black_node l k v r) := p k v || any l || any r
+| (node _ l k v r)   := p k v || any l || any r
 
-def balance1 : rbnode α β → Π (k : α), β k → rbnode α β → Π (k' : α), β k' → rbnode α β → rbnode α β
-| (red_node l kx vx r₁) ky vy r₂  kv vv t := red_node (black_node l kx vx r₁) ky vy (black_node r₂ kv vv t)
-| l₁ ky vy (red_node l₂ kx vx r)  kv vv t := red_node (black_node l₁ ky vy l₂) kx vx (black_node r kv vv t)
-| l  ky vy r                      kv vv t := black_node (red_node l ky vy r) kv vv t
+def balance1 : rbnode α β → Π (k : α), β k → rbnode α β → rbnode α β
+| (node _ (node red l kx vx r₁) ky vy r₂) kv vv t := node red (node black l kx vx r₁) ky vy (node black r₂ kv vv t)
+| (node _ l₁ ky vy (node red l₂ kx vx r)) kv vv t := node red (node black l₁ ky vy l₂) kx vx (node black r kv vv t)
+| (node _ l  ky vy r)                     kv vv t := node black (node red l ky vy r) kv vv t
+| leaf                                    kv vv t := t  /- dummy value -/
 
-def balance1_node : rbnode α β → Π (k : α), β k → rbnode α β → rbnode α β
-| (red_node l kx vx r)   kv vv t := balance1 l kx vx r kv vv t
-| (black_node l kx vx r) kv vv t := balance1 l kx vx r kv vv t
-| leaf                   kv vv t := t  /- dummy value -/
+def balance2 : rbnode α β → Π k : α, β k → rbnode α β → rbnode α β
+| (node _ (node red l kx₁ vx₁ r₁) ky vy r₂)  kv vv t := node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
+| (node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂)) kv vv t := node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
+| (node _ l ky vy r)                         kv vv t := node black t kv vv (node red l ky vy r)
+| leaf                                       kv vv t := t /- dummy -/
 
-def balance2 : rbnode α β → Π k : α, β k → rbnode α β → Π k' : α, β k' → rbnode α β → rbnode α β
-| (red_node l kx₁ vx₁ r₁) ky vy r₂  kv vv t := red_node (black_node t kv vv l) kx₁ vx₁ (black_node r₁ ky vy r₂)
-| l₁ ky vy (red_node l₂ kx₂ vx₂ r₂) kv vv t := red_node (black_node t kv vv l₁) ky vy (black_node l₂ kx₂ vx₂ r₂)
-| l  ky vy r                        kv vv t := black_node t kv vv (red_node l ky vy r)
-
-def balance2_node : rbnode α β → Π k : α, β k → rbnode α β → rbnode α β
-| (red_node l kx vx r)   kv vv t := balance2 l kx vx r kv vv t
-| (black_node l kx vx r) kv vv t := balance2 l kx vx r kv vv t
-| leaf                   kv vv t := t /- dummy -/
-
-def get_color : rbnode α β → color
-| (red_node _ _ _ _) := red
-| _                  := black
+def is_red : rbnode α β → bool
+| (node red _ _ _ _) := tt
+| _                  := ff
 
 section insert
 
 variables (lt : α → α → Prop) [decidable_rel lt]
 
 def ins : rbnode α β → Π k : α, β k → rbnode α β
-| leaf                 kx vx := red_node leaf kx vx leaf
-| (red_node a ky vy b) kx vx :=
+| leaf                 kx vx := node red leaf kx vx leaf
+| (node red a ky vy b) kx vx :=
    (match cmp_using lt kx ky with
-    | ordering.lt := red_node (ins a kx vx) ky vy b
-    | ordering.eq := red_node a kx vx b
-    | ordering.gt := red_node a ky vy (ins b kx vx))
-| (black_node a ky vy b) kx vx :=
+    | ordering.lt := node red (ins a kx vx) ky vy b
+    | ordering.eq := node red a kx vx b
+    | ordering.gt := node red a ky vy (ins b kx vx))
+| (node black a ky vy b) kx vx :=
     match cmp_using lt kx ky with
     | ordering.lt :=
-      if a.get_color = red then balance1_node (ins a kx vx) ky vy b
-      else black_node (ins a kx vx) ky vy b
-    | ordering.eq := black_node a kx vx b
+      if a.is_red then balance1 (ins a kx vx) ky vy b
+      else node black (ins a kx vx) ky vy b
+    | ordering.eq := node black a kx vx b
     | ordering.gt :=
-      if b.get_color = red then balance2_node (ins b kx vx) ky vy a
-      else black_node a ky vy (ins b kx vx)
+      if b.is_red then balance2 (ins b kx vx) ky vy a
+      else node black a ky vy (ins b kx vx)
 
-def mk_insert_result : color → rbnode α β → rbnode α β
-| red (red_node l kv vv r)   := black_node l kv vv r
-| _   t                      := t
+def set_black : rbnode α β → rbnode α β
+| (node _ l k v r) := node black l k v r
+| e                := e
 
 def insert (t : rbnode α β) (k : α) (v : β k) : rbnode α β :=
-mk_insert_result (get_color t) (ins lt t k v)
+if is_red t then set_black (ins lt t k v)
+else ins lt t k v
 
 end insert
 
@@ -130,13 +107,8 @@ variable (lt : α → α → Prop)
 variable [decidable_rel lt]
 
 def find_core : rbnode α β → Π k : α, option (Σ k : α, β k)
-| leaf                 x := none
-| (red_node a ky vy b) x :=
-  (match cmp_using lt x ky with
-   | ordering.lt := find_core a x
-   | ordering.eq := some ⟨ky, vy⟩
-   | ordering.gt := find_core b x)
-| (black_node a ky vy b) x :=
+| leaf               x := none
+| (node _ a ky vy b) x :=
   (match cmp_using lt x ky with
    | ordering.lt := find_core a x
    | ordering.eq := some ⟨ky, vy⟩
@@ -144,25 +116,15 @@ def find_core : rbnode α β → Π k : α, option (Σ k : α, β k)
 
 def find {β : Type v} : rbnode α (λ _, β) → α → option β
 | leaf                 x := none
-| (red_node a ky vy b) x :=
-  (match cmp_using lt x ky with
-   | ordering.lt := find a x
-   | ordering.eq := some vy
-   | ordering.gt := find b x)
-| (black_node a ky vy b) x :=
+| (node _ a ky vy b) x :=
   (match cmp_using lt x ky with
    | ordering.lt := find a x
    | ordering.eq := some vy
    | ordering.gt := find b x)
 
 def lower_bound : rbnode α β → α → option (sigma β) → option (sigma β)
-| leaf                 x lb := lb
-| (red_node a ky vy b) x lb :=
-  (match cmp_using lt x ky with
-   | ordering.lt := lower_bound a x lb
-   | ordering.eq := some ⟨ky, vy⟩
-   | ordering.gt := lower_bound b x (some ⟨ky, vy⟩))
-| (black_node a ky vy b) x lb :=
+| leaf               x lb := lb
+| (node _ a ky vy b) x lb :=
   (match cmp_using lt x ky with
    | ordering.lt := lower_bound a x lb
    | ordering.eq := some ⟨ky, vy⟩

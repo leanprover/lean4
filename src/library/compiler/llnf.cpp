@@ -547,8 +547,7 @@ class to_llnf_fn {
            ```
            which reduces to `t`. */
         bool is_id  = true;
-        /* We use `all_eq` to track whether all reachable cases are equal or not. */
-        bool all_eq = true;
+        // bool all_eq = true;
         /* Process minor premises */
         for (unsigned i = 0; i < cnames.size(); i++) {
             unsigned saved_fvars_size = m_fvars.size();
@@ -588,9 +587,11 @@ class to_llnf_fn {
                     is_id = false;
                 }
                 minor          = mk_let(saved_fvars_size, minor);
+#if 0 // See comment below
                 if (num_reachable > 0 && minor != some_reachable) {
                     all_eq = false;
                 }
+#endif
                 some_reachable = minor;
                 args[i+1]      = minor;
                 num_reachable++;
@@ -602,6 +603,11 @@ class to_llnf_fn {
             return mk_enf_unreachable();
         } else if (is_id) {
             return major;
+        /*
+          We remove 1-reachable cases-expressions and all_eq reachable later.
+          Reason: `insert_reset_reuse_fn` uses `cases_on` applications retrieve constructor layouts.
+        */
+#if 0
         } else if (num_reachable == 1) {
             return some_reachable;
         } else if (all_eq) {
@@ -616,6 +622,7 @@ class to_llnf_fn {
                 r = let_body(r);
             }
             return instantiate_rev(r, fvars.size(), fvars.data());
+#endif
         } else {
             return mk_app(fn, args);
         }
@@ -962,7 +969,6 @@ class insert_reset_reuse_fn {
         if (is_llnf_cnstr(get_app_fn(e))) {
             return replace_cnstr(rctx, e);
         } else if (is_cases_on_app(env(), e)) {
-            lean_assert(!m_replaced);
             buffer<expr> args;
             expr const & fn   = get_app_args(e, args);
             bool modified     = false;
@@ -1147,6 +1153,52 @@ public:
         return optimize(e);
     }
 };
+
+expr simp_cases(environment const & env, expr const & e) {
+    switch (e.kind()) {
+    case expr_kind::Lambda: {
+        expr new_body = simp_cases(env, binding_body(e));
+        return update_binding(e, binding_domain(e), new_body);
+    }
+    case expr_kind::Let: {
+        expr new_value = simp_cases(env, let_value(e));
+        expr new_body  = simp_cases(env, let_body(e));
+        return update_let(e, let_type(e), new_value, new_body);
+    }
+    case expr_kind::App:
+        if (is_cases_on_app(env, e)) {
+            buffer<expr> args;
+            expr const & fn = get_app_args(e, args);
+            bool all_eq = true;
+            unsigned num_reachable = 0;
+            expr some_reachable;
+            for (unsigned i = 1; i < args.size(); i++) {
+                expr minor = simp_cases(env, args[i]);
+                if (!is_enf_unreachable(minor)) {
+                    if (num_reachable > 0 && minor != some_reachable) {
+                        all_eq = false;
+                    }
+                    some_reachable = minor;
+                    args[i]        = minor;
+                    num_reachable++;
+                } else {
+                    args[i]      = minor;
+                }
+            }
+            if (num_reachable == 1) {
+                return some_reachable;
+            } else if (all_eq) {
+                return some_reachable;
+            } else {
+                return mk_app(fn, args);
+            }
+        } else {
+            return e;
+        }
+    default:
+        return e;
+    }
+}
 
 expr get_constant_ll_type(environment const & env, name const & c) {
     if (optional<expr> type = get_extern_constant_ll_type(env, c)) {
@@ -2307,6 +2359,7 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
         expr new_v = to_llnf_fn(new_env, unboxed)(d.snd());
         new_v      = push_proj_fn(new_env)(new_v);
         new_v      = insert_reset_reuse_fn(new_env, unboxed)(new_v);
+        new_v      = simp_cases(new_env, new_v);
         rs.push_back(comp_decl(d.fst(), new_v));
         if (unboxed) {
             if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()))) {

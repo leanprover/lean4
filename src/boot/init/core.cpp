@@ -3912,15 +3912,24 @@ return x_7;
 obj* l_prod_map___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_3; obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
-lean::inc(x_5);
-lean::dec(x_2);
+if (lean::is_exclusive(x_2)) {
+ x_7 = x_2;
+} else {
+ lean::inc(x_3);
+ lean::inc(x_5);
+ lean::dec(x_2);
+ x_7 = lean::box(0);
+}
 x_8 = lean::apply_1(x_0, x_3);
 x_9 = lean::apply_1(x_1, x_5);
-x_10 = lean::alloc_cnstr(0, 2, 0);
+if (lean::is_scalar(x_7)) {
+ x_10 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_10 = x_7;
+}
 lean::cnstr_set(x_10, 0, x_8);
 lean::cnstr_set(x_10, 1, x_9);
 return x_10;

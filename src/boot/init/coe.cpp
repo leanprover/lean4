@@ -519,15 +519,24 @@ return x_6;
 obj* l_lift__pair___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_3; obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
-lean::inc(x_5);
-lean::dec(x_2);
+if (lean::is_exclusive(x_2)) {
+ x_7 = x_2;
+} else {
+ lean::inc(x_3);
+ lean::inc(x_5);
+ lean::dec(x_2);
+ x_7 = lean::box(0);
+}
 x_8 = lean::apply_1(x_0, x_3);
 x_9 = lean::apply_1(x_1, x_5);
-x_10 = lean::alloc_cnstr(0, 2, 0);
+if (lean::is_scalar(x_7)) {
+ x_10 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_10 = x_7;
+}
 lean::cnstr_set(x_10, 0, x_8);
 lean::cnstr_set(x_10, 1, x_9);
 return x_10;
@@ -548,14 +557,23 @@ return x_8;
 obj* l_lift__pair_u_2081___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; obj* x_7; obj* x_8; 
+obj* x_2; obj* x_4; obj* x_6; obj* x_7; obj* x_8; 
 x_2 = lean::cnstr_get(x_1, 0);
-lean::inc(x_2);
 x_4 = lean::cnstr_get(x_1, 1);
-lean::inc(x_4);
-lean::dec(x_1);
+if (lean::is_exclusive(x_1)) {
+ x_6 = x_1;
+} else {
+ lean::inc(x_2);
+ lean::inc(x_4);
+ lean::dec(x_1);
+ x_6 = lean::box(0);
+}
 x_7 = lean::apply_1(x_0, x_2);
-x_8 = lean::alloc_cnstr(0, 2, 0);
+if (lean::is_scalar(x_6)) {
+ x_8 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_8 = x_6;
+}
 lean::cnstr_set(x_8, 0, x_7);
 lean::cnstr_set(x_8, 1, x_4);
 return x_8;
@@ -575,14 +593,23 @@ return x_6;
 obj* l_lift__pair_u_2082___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; obj* x_7; obj* x_8; 
+obj* x_2; obj* x_4; obj* x_6; obj* x_7; obj* x_8; 
 x_2 = lean::cnstr_get(x_1, 0);
-lean::inc(x_2);
 x_4 = lean::cnstr_get(x_1, 1);
-lean::inc(x_4);
-lean::dec(x_1);
+if (lean::is_exclusive(x_1)) {
+ x_6 = x_1;
+} else {
+ lean::inc(x_2);
+ lean::inc(x_4);
+ lean::dec(x_1);
+ x_6 = lean::box(0);
+}
 x_7 = lean::apply_1(x_0, x_4);
-x_8 = lean::alloc_cnstr(0, 2, 0);
+if (lean::is_scalar(x_6)) {
+ x_8 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_8 = x_6;
+}
 lean::cnstr_set(x_8, 0, x_2);
 lean::cnstr_set(x_8, 1, x_7);
 return x_8;

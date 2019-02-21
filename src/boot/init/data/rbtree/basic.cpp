@@ -106,7 +106,7 @@ obj* l_rbtree_insert___rarg(obj*, obj*, obj*);
 obj* l_rbmap_find__core___main___at_rbtree_seteq___spec__3___rarg(obj*, obj*, obj*);
 obj* l_rbnode_any___main___at_rbtree_any___spec__1___rarg(obj*, obj*);
 obj* l_rbtree_has__repr(obj*, obj*);
-obj* l_rbnode_balance2___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_rbnode_balance2___main___rarg(obj*, obj*);
 obj* l_rbtree_subset___at_rbtree_seteq___spec__1(obj*, obj*);
 obj* l_rbnode_find__core___main___at_rbtree_subset___spec__3(obj*, obj*);
 obj* l_rbtree_min___rarg(obj*);
@@ -122,7 +122,7 @@ obj* l_rbtree_subset(obj*, obj*);
 obj* l_rbtree_all___rarg(obj*, obj*);
 obj* l_rbnode_ins___main___at_rbtree_from__list___spec__5(obj*, obj*);
 obj* l_rbtree_rev__fold(obj*, obj*, obj*);
-obj* l_rbnode_balance1___main___rarg(obj*, obj*, obj*, obj*);
+obj* l_rbnode_balance1___main___rarg(obj*, obj*);
 obj* l_rbmap_find__core___main___at_rbtree_seteq___spec__8___rarg(obj*, obj*, obj*);
 obj* l_rbtree_mfold___rarg(obj*, obj*, obj*, obj*);
 obj* l_rbtree_any___rarg(obj*, obj*);
@@ -907,43 +907,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree_insert___spec__3___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree_insert___spec__3___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree_insert___spec__3___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree_insert___spec__3___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree_insert___spec__3___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree_insert___spec__3___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }
@@ -1147,43 +1169,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree_insert___spec__4___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree_insert___spec__4___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree_insert___spec__4___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree_insert___spec__4___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree_insert___spec__4___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree_insert___spec__4___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }
@@ -1455,43 +1499,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__3___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__3___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__3___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__3___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__3___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__3___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }
@@ -1695,43 +1761,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__4___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__4___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__4___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__4___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__4___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree_of__list___main___spec__4___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }
@@ -2350,43 +2438,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree_from__list___spec__4___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree_from__list___spec__4___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree_from__list___spec__4___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree_from__list___spec__4___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree_from__list___spec__4___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree_from__list___spec__4___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }
@@ -2590,43 +2700,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree_from__list___spec__5___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree_from__list___spec__5___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree_from__list___spec__5___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree_from__list___spec__5___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree_from__list___spec__5___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree_from__list___spec__5___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }
@@ -3873,43 +4005,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree__of___spec__5___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree__of___spec__5___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree__of___spec__5___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree__of___spec__5___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree__of___spec__5___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree__of___spec__5___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }
@@ -4113,43 +4267,65 @@ return x_67;
 }
 else
 {
-obj* x_69; obj* x_70; 
-lean::dec(x_47);
-x_69 = l_rbnode_ins___main___at_rbtree__of___spec__6___rarg(x_0, x_45, x_2, x_3);
-x_70 = l_rbnode_balance2___main___rarg(x_69, x_41, x_43, x_39);
-return x_70;
-}
-}
-}
-else
-{
-uint8 x_72; 
-lean::inc(x_39);
-x_72 = l_rbnode_is__red___main___rarg(x_39);
-if (x_72 == 0)
-{
-obj* x_73; obj* x_74; obj* x_75; 
-x_73 = l_rbnode_ins___main___at_rbtree__of___spec__6___rarg(x_0, x_39, x_2, x_3);
+obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; 
+x_68 = lean::box(0);
 if (lean::is_scalar(x_47)) {
- x_74 = lean::alloc_cnstr(1, 4, 1);
+ x_69 = lean::alloc_cnstr(1, 4, 1);
 } else {
- x_74 = x_47;
+ x_69 = x_47;
 }
-lean::cnstr_set(x_74, 0, x_73);
-lean::cnstr_set(x_74, 1, x_41);
-lean::cnstr_set(x_74, 2, x_43);
-lean::cnstr_set(x_74, 3, x_45);
-lean::cnstr_set_scalar(x_74, sizeof(void*)*4, x_8);
-x_75 = x_74;
-return x_75;
+lean::cnstr_set(x_69, 0, x_39);
+lean::cnstr_set(x_69, 1, x_41);
+lean::cnstr_set(x_69, 2, x_43);
+lean::cnstr_set(x_69, 3, x_68);
+lean::cnstr_set_scalar(x_69, sizeof(void*)*4, x_8);
+x_70 = x_69;
+x_71 = l_rbnode_ins___main___at_rbtree__of___spec__6___rarg(x_0, x_45, x_2, x_3);
+x_72 = l_rbnode_balance2___main___rarg(x_70, x_71);
+return x_72;
+}
+}
 }
 else
 {
-obj* x_77; obj* x_78; 
-lean::dec(x_47);
-x_77 = l_rbnode_ins___main___at_rbtree__of___spec__6___rarg(x_0, x_39, x_2, x_3);
-x_78 = l_rbnode_balance1___main___rarg(x_77, x_41, x_43, x_45);
-return x_78;
+uint8 x_74; 
+lean::inc(x_39);
+x_74 = l_rbnode_is__red___main___rarg(x_39);
+if (x_74 == 0)
+{
+obj* x_75; obj* x_76; obj* x_77; 
+x_75 = l_rbnode_ins___main___at_rbtree__of___spec__6___rarg(x_0, x_39, x_2, x_3);
+if (lean::is_scalar(x_47)) {
+ x_76 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_76 = x_47;
+}
+lean::cnstr_set(x_76, 0, x_75);
+lean::cnstr_set(x_76, 1, x_41);
+lean::cnstr_set(x_76, 2, x_43);
+lean::cnstr_set(x_76, 3, x_45);
+lean::cnstr_set_scalar(x_76, sizeof(void*)*4, x_8);
+x_77 = x_76;
+return x_77;
+}
+else
+{
+obj* x_78; obj* x_79; obj* x_80; obj* x_81; obj* x_82; 
+x_78 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_79 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_79 = x_47;
+}
+lean::cnstr_set(x_79, 0, x_78);
+lean::cnstr_set(x_79, 1, x_41);
+lean::cnstr_set(x_79, 2, x_43);
+lean::cnstr_set(x_79, 3, x_45);
+lean::cnstr_set_scalar(x_79, sizeof(void*)*4, x_8);
+x_80 = x_79;
+x_81 = l_rbnode_ins___main___at_rbtree__of___spec__6___rarg(x_0, x_39, x_2, x_3);
+x_82 = l_rbnode_balance1___main___rarg(x_80, x_81);
+return x_82;
 }
 }
 }

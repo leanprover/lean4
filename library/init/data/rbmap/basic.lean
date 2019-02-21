@@ -54,17 +54,17 @@ protected def max : rbnode α β → option (Σ k : α, β k)
 | leaf                 := ff
 | (node _ l k v r)   := p k v || any l || any r
 
-def balance1 : rbnode α β → Π (k : α), β k → rbnode α β → rbnode α β
-| (node _ (node red l kx vx r₁) ky vy r₂) kv vv t := node red (node black l kx vx r₁) ky vy (node black r₂ kv vv t)
-| (node _ l₁ ky vy (node red l₂ kx vx r)) kv vv t := node red (node black l₁ ky vy l₂) kx vx (node black r kv vv t)
-| (node _ l  ky vy r)                     kv vv t := node black (node red l ky vy r) kv vv t
-| leaf                                    kv vv t := t  /- dummy value -/
+def balance1 : rbnode α β → rbnode α β → rbnode α β
+| (node _ _ kv vv t) (node _ (node red l kx vx r₁) ky vy r₂) := node red (node black l kx vx r₁) ky vy (node black r₂ kv vv t)
+| (node _ _ kv vv t) (node _ l₁ ky vy (node red l₂ kx vx r)) := node red (node black l₁ ky vy l₂) kx vx (node black r kv vv t)
+| (node _ _ kv vv t) (node _ l  ky vy r)                     := node black (node red l ky vy r) kv vv t
+| _                                                        _ := leaf -- unreachable
 
-def balance2 : rbnode α β → Π k : α, β k → rbnode α β → rbnode α β
-| (node _ (node red l kx₁ vx₁ r₁) ky vy r₂)  kv vv t := node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
-| (node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂)) kv vv t := node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
-| (node _ l ky vy r)                         kv vv t := node black t kv vv (node red l ky vy r)
-| leaf                                       kv vv t := t /- dummy -/
+def balance2 : rbnode α β → rbnode α β → rbnode α β
+| (node _ t kv vv _) (node _ (node red l kx₁ vx₁ r₁) ky vy r₂)  := node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
+| (node _ t kv vv _) (node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂)) := node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
+| (node _ t kv vv _) (node _ l ky vy r)                         := node black t kv vv (node red l ky vy r)
+| _                                                        _    := leaf -- unreachable
 
 def is_red : rbnode α β → bool
 | (node red _ _ _ _) := tt
@@ -84,11 +84,11 @@ def ins : rbnode α β → Π k : α, β k → rbnode α β
 | (node black a ky vy b) kx vx :=
     match cmp_using lt kx ky with
     | ordering.lt :=
-      if a.is_red then balance1 (ins a kx vx) ky vy b
+      if is_red a then balance1 (node black leaf ky vy b) (ins a kx vx)
       else node black (ins a kx vx) ky vy b
     | ordering.eq := node black a kx vx b
     | ordering.gt :=
-      if b.is_red then balance2 (ins b kx vx) ky vy a
+      if is_red b then balance2 (node black a ky vy leaf) (ins b kx vx)
       else node black a ky vy (ins b kx vx)
 
 def set_black : rbnode α β → rbnode α β

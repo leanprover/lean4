@@ -196,6 +196,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = lean::uint8_of_nat(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -270,6 +271,7 @@ uint8 x_2; uint8 x_3; obj* x_4;
 x_2 = lean::unbox(x_0);
 x_3 = lean::uint8_modn(x_2, x_1);
 x_4 = lean::box(x_3);
+lean::dec(x_1);
 return x_4;
 }
 }
@@ -497,6 +499,7 @@ _start:
 uint16 x_1; obj* x_2; 
 x_1 = lean::uint16_of_nat(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -571,6 +574,7 @@ uint16 x_2; uint16 x_3; obj* x_4;
 x_2 = lean::unbox(x_0);
 x_3 = lean::uint16_modn(x_2, x_1);
 x_4 = lean::box(x_3);
+lean::dec(x_1);
 return x_4;
 }
 }
@@ -798,6 +802,7 @@ _start:
 uint32 x_1; obj* x_2; 
 x_1 = lean::uint32_of_nat(x_0);
 x_2 = lean::box_uint32(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -872,6 +877,7 @@ uint32 x_2; uint32 x_3; obj* x_4;
 x_2 = lean::unbox_uint32(x_0);
 x_3 = lean::uint32_modn(x_2, x_1);
 x_4 = lean::box_uint32(x_3);
+lean::dec(x_1);
 return x_4;
 }
 }
@@ -1099,6 +1105,7 @@ _start:
 uint64 x_1; obj* x_2; 
 x_1 = lean::uint64_of_nat(x_0);
 x_2 = lean::box_uint64(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -1173,6 +1180,7 @@ uint64 x_2; uint64 x_3; obj* x_4;
 x_2 = lean::unbox_uint64(x_0);
 x_3 = lean::uint64_modn(x_2, x_1);
 x_4 = lean::box_uint64(x_3);
+lean::dec(x_1);
 return x_4;
 }
 }

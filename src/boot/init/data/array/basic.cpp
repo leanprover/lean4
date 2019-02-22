@@ -108,6 +108,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::array_get_size(x_1);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -191,6 +192,8 @@ _start:
 {
 obj* x_3; 
 x_3 = lean::array_read(x_1, x_2);
+lean::dec(x_1);
+lean::dec(x_2);
 return x_3;
 }
 }
@@ -199,6 +202,7 @@ _start:
 {
 obj* x_4; 
 x_4 = lean::array_write(x_1, x_2, x_3);
+lean::dec(x_2);
 return x_4;
 }
 }
@@ -207,6 +211,8 @@ _start:
 {
 obj* x_4; 
 x_4 = lean::array_safe_read(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_3);
 return x_4;
 }
 }
@@ -215,6 +221,7 @@ _start:
 {
 obj* x_4; 
 x_4 = lean::array_safe_write(x_1, x_2, x_3);
+lean::dec(x_2);
 return x_4;
 }
 }
@@ -224,6 +231,7 @@ _start:
 usize x_4; obj* x_5; 
 x_4 = lean::unbox_size_t(x_2);
 x_5 = lean::array_uread(x_1, x_4);
+lean::dec(x_1);
 return x_5;
 }
 }
@@ -233,6 +241,8 @@ _start:
 usize x_5; obj* x_6; 
 x_5 = lean::unbox_size_t(x_2);
 x_6 = lean::array_uwrite(x_1, x_5, x_3);
+lean::dec(x_1);
+lean::dec(x_3);
 return x_6;
 }
 }

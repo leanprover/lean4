@@ -172,6 +172,7 @@ _start:
 usize x_1; obj* x_2; 
 x_1 = lean_name_hash_usize(x_0);
 x_2 = lean::box_size_t(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -316,6 +317,8 @@ _start:
 uint8 x_2; obj* x_3; 
 x_2 = lean_name_dec_eq(x_0, x_1);
 x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_3;
 }
 }

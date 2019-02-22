@@ -459,6 +459,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean_io_prim_put_str(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -477,6 +478,7 @@ uint8 x_4; uint8 x_5; obj* x_6;
 x_4 = lean::unbox(x_1);
 x_5 = lean::unbox(x_2);
 x_6 = lean_io_prim_handle_mk(x_0, x_4, x_5, x_3);
+lean::dec(x_0);
 return x_6;
 }
 }
@@ -485,6 +487,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean_io_prim_handle_is_eof(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -493,6 +496,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean_io_prim_handle_flush(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -501,6 +505,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean_io_prim_handle_close(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -509,6 +514,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean_io_prim_handle_get_line(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }

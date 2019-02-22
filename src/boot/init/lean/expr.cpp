@@ -88,6 +88,7 @@ _start:
 usize x_1; obj* x_2; 
 x_1 = lean_expr_hash(x_0);
 x_2 = lean::box_size_t(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -96,6 +97,7 @@ _start:
 {
 obj* x_1; 
 x_1 = lean_expr_dbg_to_string(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }

@@ -94,6 +94,8 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::nat_div(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -143,6 +145,8 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::nat_mod(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_2;
 }
 }

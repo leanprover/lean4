@@ -190,6 +190,8 @@ _start:
 uint8 x_2; obj* x_3; 
 x_2 = lean::string_dec_eq(x_0, x_1);
 x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_3;
 }
 }
@@ -223,6 +225,8 @@ _start:
 uint8 x_2; obj* x_3; 
 x_2 = lean::string_dec_lt(x_0, x_1);
 x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_3;
 }
 }
@@ -231,6 +235,7 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::string_length(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -248,6 +253,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::string_append(x_0, x_1);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -272,6 +278,7 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::string_iterator_remaining(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -280,6 +287,7 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::string_iterator_offset(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -289,6 +297,7 @@ _start:
 uint32 x_1; obj* x_2; 
 x_1 = lean::string_iterator_curr(x_0);
 x_2 = lean::box_uint32(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -323,6 +332,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = lean::string_iterator_has_next(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -332,6 +342,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = lean::string_iterator_has_prev(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -340,6 +351,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::string_iterator_insert(x_0, x_1);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -348,6 +360,7 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::string_iterator_remove(x_0, x_1);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -356,6 +369,7 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::string_iterator_to_string(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -404,6 +418,7 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::string_iterator_remaining_to_string(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -412,6 +427,7 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::string_iterator_prev_to_string(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
@@ -595,6 +611,8 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::string_iterator_extract(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_2;
 }
 }

@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/compiler/cse.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/extern_attribute.h"
+#include "library/compiler/borrowed_annotation.h"
 
 namespace lean {
 static expr * g_apply       = nullptr;
@@ -278,6 +279,8 @@ unsigned get_llnf_arity(environment const & env, name const & n) {
 static void get_borrowed_info(environment const & env, name const & n, buffer<bool> & borrowed_args, bool & borrowed_res) {
     if (get_extern_borrowed_info(env, n, borrowed_args, borrowed_res))
         return; /* `n` is an extern/native function declaration. */
+    if (get_inferred_borrowed_info(env, n, borrowed_args, borrowed_res))
+        return;
     /* We currently do not support borrowed annotations in user declarations. */
     unsigned arity = get_llnf_arity(env, n);
     borrowed_args.clear();
@@ -2386,14 +2389,15 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
         new_v      = insert_reset_reuse_fn(new_env, unboxed)(new_v);
         new_v      = simp_cases(new_env, new_v);
         rs.push_back(comp_decl(d.fst(), new_v));
-        if (unboxed) {
-            if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, d.fst(), get_num_nested_lambdas(d.snd()))) {
+    }
+    new_env = infer_borrowed_annotations(new_env, rs);
+    if (unboxed) {
+        for (comp_decl const & r : rs) {
+            if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, r.fst(), get_num_nested_lambdas(r.snd()))) {
                 new_env = p->first;
                 bs.push_back(p->second);
             }
         }
-    }
-    if (unboxed) {
         for (comp_decl & r : rs) {
             expr new_code = explicit_boxing_fn(new_env)(r.fst(), r.snd());
             new_code = ecse(new_env, new_code);

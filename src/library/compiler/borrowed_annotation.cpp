@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/extern_attribute.h"
+#include "library/compiler/export_attribute.h"
 
 namespace lean {
 static name * g_borrowed = nullptr;
@@ -238,7 +239,9 @@ class borrow_inference_fn {
     void init_borrowed_args() {
         m_borrowed_args.resize(m_decls.size());
         for (unsigned i = 0; i < m_decls.size(); i++) {
-            m_borrowed_args[i].resize(get_num_nested_lambdas(m_decls[i].snd()), true);
+            bool is_exported = has_export_name(m_env, m_decls[i].fst());
+            /* For now, we assume that all exported functions all arguments are *not* borrowed */
+            m_borrowed_args[i].resize(get_num_nested_lambdas(m_decls[i].snd()), !is_exported);
         }
     }
 

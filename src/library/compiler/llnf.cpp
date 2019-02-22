@@ -1242,15 +1242,11 @@ static name mk_boxed_name(name const & fn) {
     return name(fn, "_boxed");
 }
 
-static bool is_unboxed(expr const & type) {
-    return type != mk_enf_object_type() && type != mk_enf_neutral_type() && !is_pi(type);
-}
-
 static bool has_unboxed(expr const & type) {
     if (is_pi(type)) {
-        return is_unboxed(binding_domain(type)) || has_unboxed(binding_body(type));
+        return is_llnf_unboxed_type(binding_domain(type)) || has_unboxed(binding_body(type));
     } else {
-        return is_unboxed(type);
+        return is_llnf_unboxed_type(type);
     }
 }
 
@@ -1291,7 +1287,7 @@ optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name co
     j++;
     xs.push_back(x);
     expr new_val = x;
-    if (fn_type != obj && fn_type != neutral && !is_pi(fn_type)) {
+    if (is_llnf_unboxed_type(fn_type)) {
         expr x = lctx.mk_local_decl(ngen, _x.append_after(j), obj, mk_app(mk_llnf_box(*get_type_size(fn_type)), new_val));
         j++;
         xs.push_back(x);
@@ -1309,12 +1305,13 @@ optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name co
     buffer<bool> borrowed_args; bool borrowed_res;
     get_borrowed_info(env, fn, borrowed_args, borrowed_res);
     for (unsigned i = 0; i < arity; i++) {
-        if (borrowed_args[i]) {
+        expr arg_type = lctx.get_local_decl(args[i]).get_type();
+        if (!is_llnf_unboxed_type(arg_type) && borrowed_args[i]) {
             expr dec = lctx.mk_local_decl(ngen, "_", mk_llnf_void_type(), mk_app(mk_llnf_dec(), args[i]));
             xs.push_back(dec);
         }
     }
-    if (borrowed_res) {
+    if (borrowed_res && is_llnf_unboxed_type(fn_type)) {
         expr inc = lctx.mk_local_decl(ngen, "_", mk_llnf_void_type(), mk_app(mk_llnf_inc(), new_val));
         xs.push_back(inc);
     }
@@ -1837,7 +1834,7 @@ class explicit_rc_fn {
         if (!is_fvar(e)) return false;
         if (live_obj_vars.contains(fvar_name(e))) return false;
         expr type = get_type_of(e);
-        return !is_unboxed(type);
+        return !is_llnf_unboxed_type(type);
     }
 
     /* Return true iff for all `j in [0, i)`, `args[j] != x` */
@@ -1941,7 +1938,7 @@ class explicit_rc_fn {
         for (unsigned i = first_arg_idx; i < args.size(); i++) {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
-                !is_unboxed(get_type_of(arg)) &&      /* it is not a unboxed/scalar value */
+                !is_llnf_unboxed_type(get_type_of(arg)) &&      /* it is not a unboxed/scalar value */
                 !is_persistent(arg) &&
                 !is_boxed_scalar(arg) &&              /* it is not known to be a scalar here */
                 is_first_occur(arg, i, args)) {
@@ -2010,7 +2007,8 @@ class explicit_rc_fn {
             /* We must add decrement. */
             add_dec(arg, entries);
         }
-        add_inc(x, entries);
+        if (!is_borrowed(x))
+            add_inc(x, entries);
         entries.emplace_back(x, val);
         lean_assert(is_fvar(arg));
     }
@@ -2066,7 +2064,7 @@ class explicit_rc_fn {
         for (unsigned i = 0; i < args.size(); i++) {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
-                !is_unboxed(get_type_of(arg)) && /* it is not a unboxed/scalar value */
+                !is_llnf_unboxed_type(get_type_of(arg)) && /* it is not a unboxed/scalar value */
                 !is_persistent(arg) &&
                 !is_boxed_scalar(arg) &&
                 is_first_occur(arg, i, args)) {
@@ -2129,7 +2127,7 @@ class explicit_rc_fn {
                         !is_boxed_scalar(x_name) &&
                         !is_borrowed(x_name)) {
                         local_decl x_decl = m_lctx.get_local_decl(x_name);
-                        if (!is_unboxed(x_decl.get_type())) {
+                        if (!is_llnf_unboxed_type(x_decl.get_type())) {
                             expr x = x_decl.mk_ref();
                             arg    = ::lean::mk_let("_", mk_void_type(), mk_dec(x), arg);
                         }
@@ -2265,7 +2263,9 @@ class explicit_rc_fn {
             buffer<expr> args;
             expr const & fn = get_app_args(val, args);
             lean_assert(is_constant(fn));
-            if (is_llnf_op(fn)) {
+            if (is_llnf_proj(fn)) {
+                return is_borrowed(args.back());
+            } else if (is_llnf_op(fn)) {
                 return false;
             } else {
                 /* Regular function application.
@@ -2390,8 +2390,8 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
         new_v      = simp_cases(new_env, new_v);
         rs.push_back(comp_decl(d.fst(), new_v));
     }
-    new_env = infer_borrowed_annotations(new_env, rs);
     if (unboxed) {
+        new_env = infer_borrowed_annotations(new_env, rs);
         for (comp_decl const & r : rs) {
             if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, r.fst(), get_num_nested_lambdas(r.snd()))) {
                 new_env = p->first;

@@ -415,6 +415,10 @@ bool is_runtime_scalar_type(name const & n) {
         n == get_usize_name();
 }
 
+bool is_llnf_unboxed_type(expr const & type) {
+    return type != mk_enf_object_type() && type != mk_enf_neutral_type() && !is_pi(type);
+}
+
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type) {
     if (is_sort(type) || type_checker(st, lctx).is_prop(type))
         return true;

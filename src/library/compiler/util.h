@@ -132,6 +132,7 @@ bool is_enf_neutral(expr const & e);
 bool is_enf_unreachable(expr const & e);
 bool is_enf_object_type(expr const & e);
 bool is_llnf_void_type(expr const & e);
+bool is_llnf_unboxed_type(expr const & type);
 
 expr mk_runtime_type(type_checker::state & st, local_ctx const & lctx, expr e);
 

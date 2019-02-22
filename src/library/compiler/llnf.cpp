@@ -285,6 +285,15 @@ static void get_borrowed_info(environment const & env, name const & n, buffer<bo
     borrowed_res = false;
 }
 
+static bool uses_borrowed(environment const & env, name const & n) {
+    buffer<bool> borrowed_args; bool borrowed_res;
+    get_borrowed_info(env, n, borrowed_args, borrowed_res);
+    for (bool b : borrowed_args) {
+        if (b) return true;
+    }
+    return borrowed_res;
+}
+
 static optional<unsigned> is_enum_type(environment const & env, expr const & type) {
     expr const & I = get_app_fn(type);
     if (!is_constant(I)) return optional<unsigned>();
@@ -1244,7 +1253,7 @@ static bool has_unboxed(expr const & type) {
 
 optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name const & fn, unsigned arity) {
     expr fn_type = get_constant_ll_type(env, fn);
-    if (!has_unboxed(fn_type) && !is_extern_constant(env, fn)) {
+    if (!has_unboxed(fn_type) && !is_extern_constant(env, fn) && !uses_borrowed(env, fn)) {
         return optional<pair<environment, comp_decl>>();
     }
     local_ctx lctx;
@@ -1281,14 +1290,30 @@ optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name co
     expr new_val = x;
     if (fn_type != obj && fn_type != neutral && !is_pi(fn_type)) {
         expr x = lctx.mk_local_decl(ngen, _x.append_after(j), obj, mk_app(mk_llnf_box(*get_type_size(fn_type)), new_val));
+        j++;
         xs.push_back(x);
         new_val = x;
     }
     if (!is_fvar(new_val)) {
         /* Terminal must be a variable, jmp or cases. */
         expr x = lctx.mk_local_decl(ngen, _x.append_after(j), obj, new_val);
+        j++;
         xs.push_back(x);
         new_val = x;
+    }
+    /* The auxiliary _boxed versions use "owned" semantics.
+       So, we should add _dec for borrowed arguments, and _inc for borrowed result. */
+    buffer<bool> borrowed_args; bool borrowed_res;
+    get_borrowed_info(env, fn, borrowed_args, borrowed_res);
+    for (unsigned i = 0; i < arity; i++) {
+        if (borrowed_args[i]) {
+            expr dec = lctx.mk_local_decl(ngen, "_", mk_llnf_void_type(), mk_app(mk_llnf_dec(), args[i]));
+            xs.push_back(dec);
+        }
+    }
+    if (borrowed_res) {
+        expr inc = lctx.mk_local_decl(ngen, "_", mk_llnf_void_type(), mk_app(mk_llnf_inc(), new_val));
+        xs.push_back(inc);
     }
     new_val       = lctx.mk_lambda(xs, new_val);
     new_val       = lctx.mk_lambda(ys, new_val);

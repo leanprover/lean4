@@ -18,12 +18,8 @@ obj* l_coroutine__io_resume(obj*, obj*, obj*);
 obj* l_coroutine__io_monad___lambda__6(obj*, obj*);
 obj* l_io_fs_handle_mk___rarg(obj*, obj*, obj*, obj*, obj*, uint8, uint8);
 obj* l_io_fs_handle_is__eof___at_io_fs_handle_read__to__end___spec__1(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_flush___spec__1(obj*, obj*);
 obj* l_io_println___at_io_println_x_27___spec__1(obj*, obj*);
 obj* l_from__eio(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_flush___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_close___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7(obj*, obj*);
 obj* l_io_prim_lift__eio___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_io;
 obj* l_coroutine__io_mk__st(obj*, obj*, obj*);
@@ -35,7 +31,7 @@ obj* l_io_fs_handle_flush___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_resume___main(obj*, obj*, obj*);
 obj* l_io_prim_handle_flush___boxed(obj*, obj*);
 obj* l_coroutine__io_yield___rarg(obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_io_fs_handle_is__eof___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_io_has__eval(obj*);
 obj* l_has__repr_has__eval___rarg(obj*, obj*, obj*);
 obj* l_coroutine__io_resume___rarg(obj*, obj*, obj*);
@@ -43,7 +39,6 @@ obj* l_io_prim_iterate___rarg(obj*, obj*, obj*);
 obj* l_id_monad___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_io_has__eval___rarg(obj*, obj*, obj*);
 extern "C" obj* lean_io_prim_put_str(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate___main___at_io_prim_iterate__eio___spec__1___rarg(obj*, obj*, obj*);
 obj* l_io_fs_handle_flush(obj*, obj*);
 obj* l_io_prim_lift__eio___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -54,16 +49,13 @@ obj* l_io_prim_handle_mk___boxed(obj*, obj*, obj*, obj*);
 obj* l_io_fs_read__file___rarg(obj*, obj*, obj*, obj*, obj*, uint8);
 obj* l_coroutine__io_pure(obj*, obj*, obj*);
 obj* l_io_prim_lift__eio(obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at___private_init_io_12__put__str___spec__1(obj*, obj*);
 obj* l___private_init_io_12__put__str___at_io_println___spec__1(obj*, obj*);
 obj* l___private_init_io_12__put__str___at_io_println_x_27___spec__3(obj*, obj*);
 obj* l_function_const___rarg(obj*, obj*);
-obj* l_io_prim_lift__eio___at___private_init_io_12__put__str___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_io_12__put__str(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1(obj*, obj*);
 obj* l_coroutine__io_monad__reader___rarg(obj*, obj*);
+obj* l_io_fs_handle_get__line___at_io_fs_handle_read__to__end___spec__2(obj*, obj*);
 obj* l_io_println___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_println_x_27___spec__4(obj*, obj*);
 obj* l_coroutine__io_monad___lambda__8(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_yield(obj*, obj*);
 obj* l_coroutine__io_read___rarg(obj*, obj*);
@@ -87,9 +79,9 @@ obj* l_io_prim_put__str___boxed(obj*, obj*);
 obj* l_coroutine__io_monad___lambda__7(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_bind(obj*, obj*, obj*, obj*);
 obj* l_io_error_has__to__string;
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__4(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__4(obj*, obj*, obj*);
 obj* l_coroutine__result__io;
 obj* l_monad__io;
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1(obj*, obj*);
@@ -104,9 +96,7 @@ obj* l_coroutine__io_pipe___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_bind___main___rarg(obj*, obj*, obj*, obj*);
 extern obj* l_string_join___closed__1;
 obj* l_coroutine__io_monad__reader(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_read__file___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_monad___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_println___spec__2(obj*, obj*);
 obj* l_io_fs_handle_close___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_pure___rarg(obj*, obj*, obj*);
 obj* l_id_monad___lambda__3(obj*, obj*, obj*, obj*);
@@ -121,13 +111,9 @@ obj* l_coroutine__io_monad__coroutine(obj*, obj*);
 obj* l_eio__unit_has__eval(obj*);
 obj* l_io_error;
 obj* l_eio;
-obj* l_io_fs_handle_get__line___at_io_fs_handle_read__to__end___spec__3(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_eio_has__eval___rarg(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_io_prim_get_line(obj*);
-obj* l_io_prim_lift__eio___at_io_fs_read__file___spec__2(obj*, obj*);
 obj* l_io_fs_handle_get__line___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__2(obj*, obj*);
 obj* l_coroutine__io_monad___lambda__3(obj*, obj*);
 obj* l_eio__unit_has__eval___rarg(obj*, obj*, obj*);
 extern "C" obj* lean_io_unsafe(obj*, obj*);
@@ -136,15 +122,11 @@ obj* l___private_init_io_12__put__str___at_io_println___spec__1___rarg(obj*, obj
 obj* l_coroutine__io_monad___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_monad(obj*, obj*);
 obj* l_coroutine__io_monad___lambda__5(obj*, obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_get__line___spec__1(obj*, obj*);
 obj* l_coroutine__io_yield___rarg___closed__1;
-obj* l_io_prim_lift__eio___at_io_fs_handle_close___spec__1(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_get_line(obj*, obj*);
 obj* l_unsafe__io___boxed(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_println___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_fs_handle_mk(obj*, obj*);
 obj* l_io_println_x_27(obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_mk___spec__1(obj*, obj*);
 obj* l_io_fs_handle_read__to__end___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_bind___main(obj*, obj*, obj*, obj*);
 obj* l_coroutine__io_resume___main___rarg(obj*, obj*, obj*);
@@ -154,7 +136,6 @@ obj* l_io_println(obj*, obj*);
 obj* l_coroutine__io_monad__io___rarg(obj*, obj*, obj*);
 obj* l_timeit___boxed(obj*, obj*, obj*, obj*);
 obj* l_io_print___at_io_println_x_27___spec__2(obj*, obj*);
-obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__5(obj*, obj*);
 obj* l_io_fs_handle_mk___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern "C" obj* lean_io_timeit(obj*, obj*, obj*, obj*);
 obj* l_id_monad___lambda__2(obj*, obj*, obj*, obj*);
@@ -168,13 +149,11 @@ obj* l_eio_has__eval___rarg___closed__1;
 obj* l_string_has__lift(obj*);
 obj* l_io_fs_handle_get__line(obj*, obj*);
 obj* l_coroutine__io_monad__io(obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_get__line___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__6(obj*, obj*, obj*);
+obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__3(obj*, obj*);
 obj* l_io_fs_read__file___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate__eio(obj*, obj*, obj*);
 obj* l_coroutine__io_pipe(obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate___main___rarg(obj*, obj*, obj*);
-obj* l_io_prim_lift__eio___at_io_fs_handle_mk___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_monad___rarg___lambda__8(obj*, obj*);
 obj* _init_l_io_monad() {
 _start:
@@ -595,39 +574,21 @@ x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg), 5
 return x_6;
 }
 }
-obj* l_io_prim_lift__eio___at___private_init_io_12__put__str___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at___private_init_io_12__put__str___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at___private_init_io_12__put__str___spec__1___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l___private_init_io_12__put__str___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_put__str___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_4);
-x_6 = l_io_prim_lift__eio___at___private_init_io_12__put__str___spec__1___rarg(x_0, x_1, x_2, x_3, x_5);
-return x_6;
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+x_8 = lean::apply_2(x_0, lean::box(0), x_5);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_9, 0, x_1);
+lean::closure_set(x_9, 1, x_2);
+lean::closure_set(x_9, 2, x_3);
+x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
 }
 }
 obj* l___private_init_io_12__put__str(obj* x_0, obj* x_1) {
@@ -660,39 +621,21 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_print___rarg), 7, 0);
 return x_4;
 }
 }
-obj* l_io_prim_lift__eio___at_io_println___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_println___spec__2(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_println___spec__2___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l___private_init_io_12__put__str___at_io_println___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_put__str___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_4);
-x_6 = l_io_prim_lift__eio___at_io_println___spec__2___rarg(x_0, x_1, x_2, x_3, x_5);
-return x_6;
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+x_8 = lean::apply_2(x_0, lean::box(0), x_5);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_9, 0, x_1);
+lean::closure_set(x_9, 1, x_2);
+lean::closure_set(x_9, 2, x_3);
+x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
 }
 }
 obj* l___private_init_io_12__put__str___at_io_println___spec__1(obj* x_0, obj* x_1) {
@@ -744,43 +687,25 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_println___rarg), 7, 0);
 return x_4;
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_handle_mk___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_mk___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_handle_mk___spec__1___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l_io_fs_handle_mk___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, uint8 x_5, uint8 x_6) {
 _start:
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
 x_7 = lean::box(x_5);
 x_8 = lean::box(x_6);
 x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_mk___boxed), 4, 3);
 lean::closure_set(x_9, 0, x_4);
 lean::closure_set(x_9, 1, x_7);
 lean::closure_set(x_9, 2, x_8);
-x_10 = l_io_prim_lift__eio___at_io_fs_handle_mk___spec__1___rarg(x_0, x_1, x_2, x_3, x_9);
-return x_10;
+x_10 = lean::cnstr_get(x_3, 1);
+lean::inc(x_10);
+x_12 = lean::apply_2(x_0, lean::box(0), x_9);
+x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_13, 0, x_1);
+lean::closure_set(x_13, 1, x_2);
+lean::closure_set(x_13, 2, x_3);
+x_14 = lean::apply_4(x_10, lean::box(0), lean::box(0), x_12, x_13);
+return x_14;
 }
 }
 obj* l_io_fs_handle_mk(obj* x_0, obj* x_1) {
@@ -803,7 +728,7 @@ x_9 = l_io_fs_handle_mk___rarg(x_0, x_1, x_2, x_3, x_4, x_7, x_8);
 return x_9;
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_io_fs_handle_is__eof___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_3) == 0)
@@ -839,39 +764,21 @@ return x_24;
 }
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l_io_fs_handle_is__eof___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_is__eof___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_4);
-x_6 = l_io_prim_lift__eio___at_io_fs_handle_is__eof___spec__1___rarg(x_0, x_1, x_2, x_3, x_5);
-return x_6;
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+x_8 = lean::apply_2(x_0, lean::box(0), x_5);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_fs_handle_is__eof___rarg___lambda__1), 4, 3);
+lean::closure_set(x_9, 0, x_1);
+lean::closure_set(x_9, 1, x_2);
+lean::closure_set(x_9, 2, x_3);
+x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
 }
 }
 obj* l_io_fs_handle_is__eof(obj* x_0, obj* x_1) {
@@ -884,39 +791,21 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_fs_handle_is__eof___rarg)
 return x_4;
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_handle_flush___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_flush___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_handle_flush___spec__1___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l_io_fs_handle_flush___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_flush___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_4);
-x_6 = l_io_prim_lift__eio___at_io_fs_handle_flush___spec__1___rarg(x_0, x_1, x_2, x_3, x_5);
-return x_6;
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+x_8 = lean::apply_2(x_0, lean::box(0), x_5);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_9, 0, x_1);
+lean::closure_set(x_9, 1, x_2);
+lean::closure_set(x_9, 2, x_3);
+x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
 }
 }
 obj* l_io_fs_handle_flush(obj* x_0, obj* x_1) {
@@ -929,39 +818,21 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_fs_handle_flush___rarg), 
 return x_4;
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_handle_close___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_close___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_handle_close___spec__1___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l_io_fs_handle_close___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_flush___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_4);
-x_6 = l_io_prim_lift__eio___at_io_fs_handle_close___spec__1___rarg(x_0, x_1, x_2, x_3, x_5);
-return x_6;
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+x_8 = lean::apply_2(x_0, lean::box(0), x_5);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_9, 0, x_1);
+lean::closure_set(x_9, 1, x_2);
+lean::closure_set(x_9, 2, x_3);
+x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
 }
 }
 obj* l_io_fs_handle_close(obj* x_0, obj* x_1) {
@@ -974,39 +845,21 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_fs_handle_close___rarg), 
 return x_4;
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_handle_get__line___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_get__line___spec__1(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_handle_get__line___spec__1___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l_io_fs_handle_get__line___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_get__line___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_4);
-x_6 = l_io_prim_lift__eio___at_io_fs_handle_get__line___spec__1___rarg(x_0, x_1, x_2, x_3, x_5);
-return x_6;
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+x_8 = lean::apply_2(x_0, lean::box(0), x_5);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_9, 0, x_1);
+lean::closure_set(x_9, 1, x_2);
+lean::closure_set(x_9, 2, x_3);
+x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
 }
 }
 obj* l_io_fs_handle_get__line(obj* x_0, obj* x_1) {
@@ -1019,185 +872,167 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_fs_handle_get__line___rar
 return x_4;
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__2(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; 
-x_2 = lean::apply_1(x_0, x_1);
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-if (lean::obj_tag(x_3) == 0)
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_10; obj* x_11; obj* x_12; 
-x_5 = lean::cnstr_get(x_2, 1);
-if (lean::is_exclusive(x_2)) {
- lean::cnstr_release(x_2, 0);
- x_7 = x_2;
-} else {
- lean::inc(x_5);
- lean::dec(x_2);
- x_7 = lean::box(0);
-}
-x_8 = lean::cnstr_get(x_3, 0);
-if (lean::is_exclusive(x_3)) {
- x_10 = x_3;
-} else {
- lean::inc(x_8);
- lean::dec(x_3);
- x_10 = lean::box(0);
-}
-if (lean::is_scalar(x_10)) {
- x_11 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_11 = x_10;
-}
-lean::cnstr_set(x_11, 0, x_8);
-if (lean::is_scalar(x_7)) {
- x_12 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_12 = x_7;
-}
-lean::cnstr_set(x_12, 0, x_11);
-lean::cnstr_set(x_12, 1, x_5);
-return x_12;
-}
-else
-{
-obj* x_13; obj* x_15; obj* x_16; obj* x_18; obj* x_19; obj* x_20; 
-x_13 = lean::cnstr_get(x_2, 1);
-if (lean::is_exclusive(x_2)) {
- lean::cnstr_release(x_2, 0);
- x_15 = x_2;
-} else {
- lean::inc(x_13);
- lean::dec(x_2);
- x_15 = lean::box(0);
-}
-x_16 = lean::cnstr_get(x_3, 0);
-if (lean::is_exclusive(x_3)) {
- x_18 = x_3;
-} else {
- lean::inc(x_16);
- lean::dec(x_3);
- x_18 = lean::box(0);
-}
-if (lean::is_scalar(x_18)) {
- x_19 = lean::alloc_cnstr(1, 1, 0);
-} else {
- x_19 = x_18;
-}
-lean::cnstr_set(x_19, 0, x_16);
-if (lean::is_scalar(x_15)) {
- x_20 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_20 = x_15;
-}
-lean::cnstr_set(x_20, 0, x_19);
-lean::cnstr_set(x_20, 1, x_13);
-return x_20;
-}
-}
-}
 obj* l_io_fs_handle_is__eof___at_io_fs_handle_read__to__end___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_is__eof___boxed), 2, 1);
-lean::closure_set(x_2, 0, x_0);
-x_3 = l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__2(x_2, x_1);
-return x_3;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__4(obj* x_0, obj* x_1) {
-_start:
+obj* x_2; obj* x_4; 
+x_2 = lean_io_prim_handle_is_eof(x_0, x_1);
+lean::dec(x_0);
+x_4 = lean::cnstr_get(x_2, 0);
+lean::inc(x_4);
+if (lean::obj_tag(x_4) == 0)
 {
-obj* x_2; obj* x_3; 
-x_2 = lean::apply_1(x_0, x_1);
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-if (lean::obj_tag(x_3) == 0)
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_10; obj* x_11; obj* x_12; 
-x_5 = lean::cnstr_get(x_2, 1);
+obj* x_6; obj* x_8; obj* x_9; obj* x_11; obj* x_12; obj* x_13; 
+x_6 = lean::cnstr_get(x_2, 1);
 if (lean::is_exclusive(x_2)) {
  lean::cnstr_release(x_2, 0);
- x_7 = x_2;
+ x_8 = x_2;
 } else {
- lean::inc(x_5);
+ lean::inc(x_6);
  lean::dec(x_2);
- x_7 = lean::box(0);
+ x_8 = lean::box(0);
 }
-x_8 = lean::cnstr_get(x_3, 0);
-if (lean::is_exclusive(x_3)) {
- x_10 = x_3;
+x_9 = lean::cnstr_get(x_4, 0);
+if (lean::is_exclusive(x_4)) {
+ x_11 = x_4;
 } else {
- lean::inc(x_8);
- lean::dec(x_3);
- x_10 = lean::box(0);
+ lean::inc(x_9);
+ lean::dec(x_4);
+ x_11 = lean::box(0);
 }
-if (lean::is_scalar(x_10)) {
- x_11 = lean::alloc_cnstr(0, 1, 0);
+if (lean::is_scalar(x_11)) {
+ x_12 = lean::alloc_cnstr(0, 1, 0);
 } else {
- x_11 = x_10;
+ x_12 = x_11;
 }
-lean::cnstr_set(x_11, 0, x_8);
-if (lean::is_scalar(x_7)) {
- x_12 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_12, 0, x_9);
+if (lean::is_scalar(x_8)) {
+ x_13 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_12 = x_7;
+ x_13 = x_8;
 }
-lean::cnstr_set(x_12, 0, x_11);
-lean::cnstr_set(x_12, 1, x_5);
-return x_12;
+lean::cnstr_set(x_13, 0, x_12);
+lean::cnstr_set(x_13, 1, x_6);
+return x_13;
 }
 else
 {
-obj* x_13; obj* x_15; obj* x_16; obj* x_18; obj* x_19; obj* x_20; 
-x_13 = lean::cnstr_get(x_2, 1);
+obj* x_14; obj* x_16; obj* x_17; obj* x_19; obj* x_20; obj* x_21; 
+x_14 = lean::cnstr_get(x_2, 1);
 if (lean::is_exclusive(x_2)) {
  lean::cnstr_release(x_2, 0);
- x_15 = x_2;
+ x_16 = x_2;
 } else {
- lean::inc(x_13);
+ lean::inc(x_14);
  lean::dec(x_2);
- x_15 = lean::box(0);
+ x_16 = lean::box(0);
 }
-x_16 = lean::cnstr_get(x_3, 0);
-if (lean::is_exclusive(x_3)) {
- x_18 = x_3;
+x_17 = lean::cnstr_get(x_4, 0);
+if (lean::is_exclusive(x_4)) {
+ x_19 = x_4;
 } else {
- lean::inc(x_16);
- lean::dec(x_3);
- x_18 = lean::box(0);
+ lean::inc(x_17);
+ lean::dec(x_4);
+ x_19 = lean::box(0);
 }
-if (lean::is_scalar(x_18)) {
- x_19 = lean::alloc_cnstr(1, 1, 0);
+if (lean::is_scalar(x_19)) {
+ x_20 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_19 = x_18;
+ x_20 = x_19;
 }
-lean::cnstr_set(x_19, 0, x_16);
-if (lean::is_scalar(x_15)) {
- x_20 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_20, 0, x_17);
+if (lean::is_scalar(x_16)) {
+ x_21 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_20 = x_15;
+ x_21 = x_16;
 }
-lean::cnstr_set(x_20, 0, x_19);
-lean::cnstr_set(x_20, 1, x_13);
-return x_20;
+lean::cnstr_set(x_21, 0, x_20);
+lean::cnstr_set(x_21, 1, x_14);
+return x_21;
 }
 }
 }
-obj* l_io_fs_handle_get__line___at_io_fs_handle_read__to__end___spec__3(obj* x_0, obj* x_1) {
+obj* l_io_fs_handle_get__line___at_io_fs_handle_read__to__end___spec__2(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_get__line___boxed), 2, 1);
-lean::closure_set(x_2, 0, x_0);
-x_3 = l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__4(x_2, x_1);
-return x_3;
+obj* x_2; obj* x_4; 
+x_2 = lean_io_prim_handle_get_line(x_0, x_1);
+lean::dec(x_0);
+x_4 = lean::cnstr_get(x_2, 0);
+lean::inc(x_4);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_6; obj* x_8; obj* x_9; obj* x_11; obj* x_12; obj* x_13; 
+x_6 = lean::cnstr_get(x_2, 1);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_release(x_2, 0);
+ x_8 = x_2;
+} else {
+ lean::inc(x_6);
+ lean::dec(x_2);
+ x_8 = lean::box(0);
+}
+x_9 = lean::cnstr_get(x_4, 0);
+if (lean::is_exclusive(x_4)) {
+ x_11 = x_4;
+} else {
+ lean::inc(x_9);
+ lean::dec(x_4);
+ x_11 = lean::box(0);
+}
+if (lean::is_scalar(x_11)) {
+ x_12 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_12 = x_11;
+}
+lean::cnstr_set(x_12, 0, x_9);
+if (lean::is_scalar(x_8)) {
+ x_13 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_13 = x_8;
+}
+lean::cnstr_set(x_13, 0, x_12);
+lean::cnstr_set(x_13, 1, x_6);
+return x_13;
+}
+else
+{
+obj* x_14; obj* x_16; obj* x_17; obj* x_19; obj* x_20; obj* x_21; 
+x_14 = lean::cnstr_get(x_2, 1);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_release(x_2, 0);
+ x_16 = x_2;
+} else {
+ lean::inc(x_14);
+ lean::dec(x_2);
+ x_16 = lean::box(0);
+}
+x_17 = lean::cnstr_get(x_4, 0);
+if (lean::is_exclusive(x_4)) {
+ x_19 = x_4;
+} else {
+ lean::inc(x_17);
+ lean::dec(x_4);
+ x_19 = lean::box(0);
+}
+if (lean::is_scalar(x_19)) {
+ x_20 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_20 = x_19;
+}
+lean::cnstr_set(x_20, 0, x_17);
+if (lean::is_scalar(x_16)) {
+ x_21 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_21 = x_16;
+}
+lean::cnstr_set(x_21, 0, x_20);
+lean::cnstr_set(x_21, 1, x_14);
+return x_21;
 }
 }
-obj* l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__6(obj* x_0, obj* x_1, obj* x_2) {
+}
+obj* l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__4(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_7; obj* x_8; 
@@ -1251,7 +1086,7 @@ x_23 = lean::cnstr_get(x_7, 1);
 lean::inc(x_23);
 lean::dec(x_7);
 lean::inc(x_0);
-x_27 = l_io_fs_handle_get__line___at_io_fs_handle_read__to__end___spec__3(x_0, x_23);
+x_27 = l_io_fs_handle_get__line___at_io_fs_handle_read__to__end___spec__2(x_0, x_23);
 x_28 = lean::cnstr_get(x_27, 0);
 lean::inc(x_28);
 if (lean::obj_tag(x_28) == 0)
@@ -1397,48 +1232,30 @@ return x_72;
 }
 }
 }
-obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__5(obj* x_0, obj* x_1) {
+obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = l_string_join___closed__1;
-x_3 = l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__6(x_0, x_2, x_1);
+x_3 = l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__4(x_0, x_2, x_1);
 return x_3;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7___rarg), 5, 0);
-return x_4;
 }
 }
 obj* l_io_fs_handle_read__to__end___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__5), 2, 1);
+obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__3), 2, 1);
 lean::closure_set(x_5, 0, x_4);
-x_6 = l_io_prim_lift__eio___at_io_fs_handle_read__to__end___spec__7___rarg(x_0, x_1, x_2, x_3, x_5);
-return x_6;
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+x_8 = lean::apply_2(x_0, lean::box(0), x_5);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_9, 0, x_1);
+lean::closure_set(x_9, 1, x_2);
+lean::closure_set(x_9, 2, x_3);
+x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
 }
 }
 obj* l_io_fs_handle_read__to__end(obj* x_0, obj* x_1) {
@@ -1451,43 +1268,25 @@ x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_fs_handle_read__to__end__
 return x_4;
 }
 }
-obj* l_io_prim_lift__eio___at_io_fs_read__file___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; 
-x_5 = lean::cnstr_get(x_3, 1);
-lean::inc(x_5);
-x_7 = lean::apply_2(x_0, lean::box(0), x_4);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
-lean::closure_set(x_8, 0, x_1);
-lean::closure_set(x_8, 1, x_2);
-lean::closure_set(x_8, 2, x_3);
-x_9 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_7, x_8);
-return x_9;
-}
-}
-obj* l_io_prim_lift__eio___at_io_fs_read__file___spec__2(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___at_io_fs_read__file___spec__2___rarg), 5, 0);
-return x_4;
-}
-}
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, uint8 x_5, uint8 x_6) {
 _start:
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
 x_7 = lean::box(x_5);
 x_8 = lean::box(x_6);
 x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_handle_mk___boxed), 4, 3);
 lean::closure_set(x_9, 0, x_4);
 lean::closure_set(x_9, 1, x_7);
 lean::closure_set(x_9, 2, x_8);
-x_10 = l_io_prim_lift__eio___at_io_fs_read__file___spec__2___rarg(x_0, x_1, x_2, x_3, x_9);
-return x_10;
+x_10 = lean::cnstr_get(x_3, 1);
+lean::inc(x_10);
+x_12 = lean::apply_2(x_0, lean::box(0), x_9);
+x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_lift__eio___rarg___lambda__1), 4, 3);
+lean::closure_set(x_13, 0, x_1);
+lean::closure_set(x_13, 1, x_2);
+lean::closure_set(x_13, 2, x_3);
+x_14 = lean::apply_4(x_10, lean::box(0), lean::box(0), x_12, x_13);
+return x_14;
 }
 }
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1(obj* x_0, obj* x_1) {
@@ -1612,93 +1411,84 @@ lean::cnstr_set(x_7, 1, x_3);
 return x_7;
 }
 }
-obj* l_io_prim_lift__eio___at_io_println_x_27___spec__4(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; 
-x_2 = lean::apply_1(x_0, x_1);
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-if (lean::obj_tag(x_3) == 0)
-{
-obj* x_5; obj* x_7; obj* x_8; obj* x_10; obj* x_11; obj* x_12; 
-x_5 = lean::cnstr_get(x_2, 1);
-if (lean::is_exclusive(x_2)) {
- lean::cnstr_release(x_2, 0);
- x_7 = x_2;
-} else {
- lean::inc(x_5);
- lean::dec(x_2);
- x_7 = lean::box(0);
-}
-x_8 = lean::cnstr_get(x_3, 0);
-if (lean::is_exclusive(x_3)) {
- x_10 = x_3;
-} else {
- lean::inc(x_8);
- lean::dec(x_3);
- x_10 = lean::box(0);
-}
-if (lean::is_scalar(x_10)) {
- x_11 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_11 = x_10;
-}
-lean::cnstr_set(x_11, 0, x_8);
-if (lean::is_scalar(x_7)) {
- x_12 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_12 = x_7;
-}
-lean::cnstr_set(x_12, 0, x_11);
-lean::cnstr_set(x_12, 1, x_5);
-return x_12;
-}
-else
-{
-obj* x_13; obj* x_15; obj* x_16; obj* x_18; obj* x_19; obj* x_20; 
-x_13 = lean::cnstr_get(x_2, 1);
-if (lean::is_exclusive(x_2)) {
- lean::cnstr_release(x_2, 0);
- x_15 = x_2;
-} else {
- lean::inc(x_13);
- lean::dec(x_2);
- x_15 = lean::box(0);
-}
-x_16 = lean::cnstr_get(x_3, 0);
-if (lean::is_exclusive(x_3)) {
- x_18 = x_3;
-} else {
- lean::inc(x_16);
- lean::dec(x_3);
- x_18 = lean::box(0);
-}
-if (lean::is_scalar(x_18)) {
- x_19 = lean::alloc_cnstr(1, 1, 0);
-} else {
- x_19 = x_18;
-}
-lean::cnstr_set(x_19, 0, x_16);
-if (lean::is_scalar(x_15)) {
- x_20 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_20 = x_15;
-}
-lean::cnstr_set(x_20, 0, x_19);
-lean::cnstr_set(x_20, 1, x_13);
-return x_20;
-}
-}
-}
 obj* l___private_init_io_12__put__str___at_io_println_x_27___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_put__str___boxed), 2, 1);
-lean::closure_set(x_2, 0, x_0);
-x_3 = l_io_prim_lift__eio___at_io_println_x_27___spec__4(x_2, x_1);
-return x_3;
+obj* x_2; obj* x_4; 
+x_2 = lean_io_prim_put_str(x_0, x_1);
+lean::dec(x_0);
+x_4 = lean::cnstr_get(x_2, 0);
+lean::inc(x_4);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_6; obj* x_8; obj* x_9; obj* x_11; obj* x_12; obj* x_13; 
+x_6 = lean::cnstr_get(x_2, 1);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_release(x_2, 0);
+ x_8 = x_2;
+} else {
+ lean::inc(x_6);
+ lean::dec(x_2);
+ x_8 = lean::box(0);
+}
+x_9 = lean::cnstr_get(x_4, 0);
+if (lean::is_exclusive(x_4)) {
+ x_11 = x_4;
+} else {
+ lean::inc(x_9);
+ lean::dec(x_4);
+ x_11 = lean::box(0);
+}
+if (lean::is_scalar(x_11)) {
+ x_12 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_12 = x_11;
+}
+lean::cnstr_set(x_12, 0, x_9);
+if (lean::is_scalar(x_8)) {
+ x_13 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_13 = x_8;
+}
+lean::cnstr_set(x_13, 0, x_12);
+lean::cnstr_set(x_13, 1, x_6);
+return x_13;
+}
+else
+{
+obj* x_14; obj* x_16; obj* x_17; obj* x_19; obj* x_20; obj* x_21; 
+x_14 = lean::cnstr_get(x_2, 1);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_release(x_2, 0);
+ x_16 = x_2;
+} else {
+ lean::inc(x_14);
+ lean::dec(x_2);
+ x_16 = lean::box(0);
+}
+x_17 = lean::cnstr_get(x_4, 0);
+if (lean::is_exclusive(x_4)) {
+ x_19 = x_4;
+} else {
+ lean::inc(x_17);
+ lean::dec(x_4);
+ x_19 = lean::box(0);
+}
+if (lean::is_scalar(x_19)) {
+ x_20 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_20 = x_19;
+}
+lean::cnstr_set(x_20, 0, x_17);
+if (lean::is_scalar(x_16)) {
+ x_21 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_21 = x_16;
+}
+lean::cnstr_set(x_21, 0, x_20);
+lean::cnstr_set(x_21, 1, x_14);
+return x_21;
+}
 }
 }
 obj* l_io_print___at_io_println_x_27___spec__2(obj* x_0, obj* x_1) {

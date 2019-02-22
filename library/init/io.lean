@@ -87,7 +87,7 @@ constant handle.close (h : @& handle) : eio unit
 @[extern 2 "lean_io_prim_handle_get_line"]
 constant handle.get_line (h : @& handle) : eio string
 
-def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
+@[inline] def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
   (x : eio α) : m α :=
 do e : except io.error α ← monad_lift (except_t.run x), -- uses [monad_io m] instance
    monad_except.lift_except e                           -- uses [monad_except ε m] [has_lift_t io.error ε] instances

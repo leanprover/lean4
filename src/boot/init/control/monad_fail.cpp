@@ -15,9 +15,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_monad__fail__lift(obj*, obj*);
+obj* l_monad__fail__lift___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_monad__fail__lift___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_monad__fail__lift___boxed(obj*, obj*);
 obj* l_match__failed___rarg(obj*);
 obj* l_match__failed(obj*, obj*);
+obj* l_match__failed___boxed(obj*, obj*);
 obj* l_match__failed___rarg___closed__1;
 obj* _init_l_match__failed___rarg___closed__1() {
 _start:
@@ -39,32 +42,56 @@ return x_2;
 obj* l_match__failed(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_4; 
-lean::dec(x_1);
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_match__failed___rarg), 1, 0);
+return x_2;
+}
+}
+obj* l_match__failed___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_match__failed(x_0, x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_match__failed___rarg), 1, 0);
-return x_4;
+lean::dec(x_1);
+return x_2;
 }
 }
 obj* l_monad__fail__lift___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_7; obj* x_8; 
-lean::dec(x_3);
-lean::dec(x_2);
-x_7 = lean::apply_2(x_1, lean::box(0), x_4);
-x_8 = lean::apply_2(x_0, lean::box(0), x_7);
-return x_8;
+obj* x_5; obj* x_6; 
+x_5 = lean::apply_2(x_1, lean::box(0), x_4);
+x_6 = lean::apply_2(x_0, lean::box(0), x_5);
+return x_6;
 }
 }
 obj* l_monad__fail__lift(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_4; 
-lean::dec(x_1);
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__fail__lift___rarg___boxed), 5, 0);
+return x_2;
+}
+}
+obj* l_monad__fail__lift___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_monad__fail__lift___rarg(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_2);
+lean::dec(x_3);
+return x_5;
+}
+}
+obj* l_monad__fail__lift___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_monad__fail__lift(x_0, x_1);
 lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__fail__lift___rarg), 5, 0);
-return x_4;
+lean::dec(x_1);
+return x_2;
 }
 }
 void initialize_init_control_lift();

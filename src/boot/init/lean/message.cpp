@@ -35,6 +35,7 @@ uint8 string_dec_eq(obj*, obj*);
 obj* l_lean_message_to__string___closed__4;
 obj* l_lean_message_to__string___closed__3;
 obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*);
+obj* l_lean_message__log_add___boxed(obj*, obj*);
 obj* l_lean_message_to__string___closed__2;
 obj* l_nat_repr(obj*);
 obj* l_list_append___rarg(obj*, obj*);
@@ -218,10 +219,22 @@ return x_0;
 obj* l_lean_message__log_add(obj* x_0, obj* x_1) {
 _start:
 {
+obj* x_4; 
+lean::inc(x_1);
+lean::inc(x_0);
+x_4 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_1);
+return x_4;
+}
+}
+obj* l_lean_message__log_add___boxed(obj* x_0, obj* x_1) {
+_start:
+{
 obj* x_2; 
-x_2 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_2, 0, x_0);
-lean::cnstr_set(x_2, 1, x_1);
+x_2 = l_lean_message__log_add(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -252,25 +265,21 @@ return x_1;
 }
 else
 {
-obj* x_2; obj* x_4; uint8 x_7; uint8 x_8; 
+obj* x_2; obj* x_3; uint8 x_4; uint8 x_5; 
 x_2 = lean::cnstr_get(x_0, 0);
-lean::inc(x_2);
-x_4 = lean::cnstr_get(x_0, 1);
-lean::inc(x_4);
-lean::dec(x_0);
-x_7 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_4);
-x_8 = lean::cnstr_get_scalar<uint8>(x_2, sizeof(void*)*5);
-lean::dec(x_2);
-switch (x_8) {
+x_3 = lean::cnstr_get(x_0, 1);
+x_4 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_3);
+x_5 = lean::cnstr_get_scalar<uint8>(x_2, sizeof(void*)*5);
+switch (x_5) {
 case 2:
 {
-uint8 x_10; 
-x_10 = 1;
-return x_10;
+uint8 x_6; 
+x_6 = 1;
+return x_6;
 }
 default:
 {
-return x_7;
+return x_4;
 }
 }
 }
@@ -290,6 +299,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -299,6 +309,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = l_lean_message__log_has__errors(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }

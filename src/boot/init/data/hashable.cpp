@@ -47,10 +47,9 @@ return x_5;
 usize l_string_hash(obj* x_0) {
 _start:
 {
-usize x_2; 
-lean::dec(x_0);
-x_2 = 0;
-return x_2;
+usize x_1; 
+x_1 = 0;
+return x_1;
 }
 }
 obj* l_string_hash___boxed(obj* x_0) {
@@ -59,6 +58,7 @@ _start:
 usize x_1; obj* x_2; 
 x_1 = l_string_hash(x_0);
 x_2 = lean::box_size_t(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -75,7 +75,6 @@ _start:
 {
 usize x_1; 
 x_1 = lean::usize_of_nat(x_0);
-lean::dec(x_0);
 return x_1;
 }
 }
@@ -85,6 +84,7 @@ _start:
 usize x_1; obj* x_2; 
 x_1 = l_nat_hash(x_0);
 x_2 = lean::box_size_t(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }

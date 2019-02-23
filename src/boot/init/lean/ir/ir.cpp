@@ -15,11 +15,14 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_lean_ir_decl_is__definition___boxed(obj*);
+obj* l_lean_ir_decl_header___main___boxed(obj*);
+obj* l_lean_ir_decl_name___boxed(obj*);
 obj* l_lean_ir_var;
 uint8 l_lean_ir_decl_is__definition___main(obj*);
 obj* l_lean_ir_decl_is__definition___main___boxed(obj*);
 obj* l_lean_ir_environment;
 obj* l_lean_ir_decl_header___main(obj*);
+obj* l_lean_ir_decl_header___boxed(obj*);
 obj* l_lean_ir_decl_header(obj*);
 obj* l_lean_ir_blockid;
 obj* l_lean_ir_tag;
@@ -63,17 +66,15 @@ _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
-uint8 x_2; 
-lean::dec(x_0);
-x_2 = 0;
-return x_2;
+uint8 x_1; 
+x_1 = 0;
+return x_1;
 }
 else
 {
-uint8 x_4; 
-lean::dec(x_0);
-x_4 = 1;
-return x_4;
+uint8 x_2; 
+x_2 = 1;
+return x_2;
 }
 }
 }
@@ -83,6 +84,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_decl_is__definition___main(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -100,6 +102,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_decl_is__definition(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -109,6 +112,14 @@ _start:
 obj* x_1; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
+return x_1;
+}
+}
+obj* l_lean_ir_decl_header___main___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_lean_ir_decl_header___main(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -121,6 +132,15 @@ x_1 = l_lean_ir_decl_header___main(x_0);
 return x_1;
 }
 }
+obj* l_lean_ir_decl_header___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_lean_ir_decl_header(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
 obj* l_lean_ir_decl_name(obj* x_0) {
 _start:
 {
@@ -130,6 +150,15 @@ x_2 = lean::cnstr_get(x_1, 0);
 lean::inc(x_2);
 lean::dec(x_1);
 return x_2;
+}
+}
+obj* l_lean_ir_decl_name___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_lean_ir_decl_name(x_0);
+lean::dec(x_0);
+return x_1;
 }
 }
 obj* _init_l_lean_ir_environment() {

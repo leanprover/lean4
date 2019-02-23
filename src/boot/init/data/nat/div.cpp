@@ -15,6 +15,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_nat_mod___boxed(obj*, obj*);
+obj* l___private_init_data_nat_div_2__div_F___boxed(obj*, obj*, obj*);
+obj* l___private_init_data_nat_div_5__mod_F___boxed(obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -55,38 +57,44 @@ x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_lt(x_3, x_2);
 if (x_4 == 0)
 {
-obj* x_8; 
+obj* x_7; 
 lean::dec(x_1);
-lean::dec(x_0);
 lean::dec(x_2);
-x_8 = lean::mk_nat_obj(0u);
-return x_8;
+x_7 = lean::mk_nat_obj(0u);
+return x_7;
 }
 else
 {
-uint8 x_9; 
-x_9 = lean::nat_dec_le(x_2, x_0);
-if (x_9 == 0)
+uint8 x_8; 
+x_8 = lean::nat_dec_le(x_2, x_0);
+if (x_8 == 0)
 {
-obj* x_13; 
+obj* x_11; 
 lean::dec(x_1);
-lean::dec(x_0);
 lean::dec(x_2);
-x_13 = lean::mk_nat_obj(0u);
-return x_13;
+x_11 = lean::mk_nat_obj(0u);
+return x_11;
 }
 else
 {
-obj* x_14; obj* x_16; obj* x_17; obj* x_18; 
-x_14 = lean::nat_sub(x_0, x_2);
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+x_12 = lean::nat_sub(x_0, x_2);
+x_13 = lean::apply_3(x_1, x_12, lean::box(0), x_2);
+x_14 = lean::mk_nat_obj(1u);
+x_15 = lean::nat_add(x_13, x_14);
+lean::dec(x_13);
+return x_15;
+}
+}
+}
+}
+obj* l___private_init_data_nat_div_2__div_F___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l___private_init_data_nat_div_2__div_F(x_0, x_1, x_2);
 lean::dec(x_0);
-x_16 = lean::apply_3(x_1, x_14, lean::box(0), x_2);
-x_17 = lean::mk_nat_obj(1u);
-x_18 = lean::nat_add(x_16, x_17);
-lean::dec(x_16);
-return x_18;
-}
-}
+return x_3;
 }
 }
 obj* l_nat_div___boxed(obj* x_0, obj* x_1) {
@@ -117,27 +125,37 @@ if (x_4 == 0)
 {
 lean::dec(x_1);
 lean::dec(x_2);
+lean::inc(x_0);
 return x_0;
 }
 else
 {
-uint8 x_7; 
-x_7 = lean::nat_dec_le(x_2, x_0);
-if (x_7 == 0)
+uint8 x_8; 
+x_8 = lean::nat_dec_le(x_2, x_0);
+if (x_8 == 0)
 {
 lean::dec(x_1);
 lean::dec(x_2);
+lean::inc(x_0);
 return x_0;
 }
 else
 {
-obj* x_10; obj* x_12; 
-x_10 = lean::nat_sub(x_0, x_2);
+obj* x_12; obj* x_13; 
+x_12 = lean::nat_sub(x_0, x_2);
+x_13 = lean::apply_3(x_1, x_12, lean::box(0), x_2);
+return x_13;
+}
+}
+}
+}
+obj* l___private_init_data_nat_div_5__mod_F___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l___private_init_data_nat_div_5__mod_F(x_0, x_1, x_2);
 lean::dec(x_0);
-x_12 = lean::apply_3(x_1, x_10, lean::box(0), x_2);
-return x_12;
-}
-}
+return x_3;
 }
 }
 obj* l_nat_mod___boxed(obj* x_0, obj* x_1) {

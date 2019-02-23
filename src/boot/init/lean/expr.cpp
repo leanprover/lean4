@@ -24,6 +24,7 @@ obj* l_lean_mk__dec__is__false(obj*, obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_lean_get__app__fn___main(obj*);
 extern "C" obj* lean_expr_dbg_to_string(obj*);
+obj* l_lean_get__app__fn___main___boxed(obj*);
 obj* l_lean_expr__is__inhabited;
 obj* l_lean_get__app__fn(obj*);
 obj* l_lean_mk__bin__app(obj*, obj*, obj*);
@@ -31,6 +32,7 @@ obj* l_lean_expr_mk__capp(obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
 obj* l_lean_expr_hash___boxed(obj*);
 extern "C" usize lean_expr_hash(obj*);
+obj* l_lean_get__app__fn___boxed(obj*);
 obj* l_lean_mk__dec__is__false___closed__1;
 obj* _init_l_lean_expr__is__inhabited() {
 _start:
@@ -109,16 +111,24 @@ case 5:
 {
 obj* x_1; 
 x_1 = lean::cnstr_get(x_0, 0);
-lean::inc(x_1);
-lean::dec(x_0);
 x_0 = x_1;
 goto _start;
 }
 default:
 {
+lean::inc(x_0);
 return x_0;
 }
 }
+}
+}
+obj* l_lean_get__app__fn___main___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_lean_get__app__fn___main(x_0);
+lean::dec(x_0);
+return x_1;
 }
 }
 obj* l_lean_get__app__fn(obj* x_0) {
@@ -126,6 +136,15 @@ _start:
 {
 obj* x_1; 
 x_1 = l_lean_get__app__fn___main(x_0);
+return x_1;
+}
+}
+obj* l_lean_get__app__fn___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_lean_get__app__fn(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }

@@ -19,6 +19,7 @@ obj* l_ordering_or__else___boxed(obj*, obj*);
 obj* l_cmp___rarg___boxed(obj*, obj*, obj*);
 uint8 l_ordering_swap___main(uint8);
 uint8 l_cmp__using___rarg(obj*, obj*, obj*);
+obj* l_cmp__using___boxed(obj*, obj*);
 obj* l_ordering_or__else___main___boxed(obj*, obj*);
 obj* l_ordering_swap___boxed(obj*);
 obj* l_cmp__using(obj*, obj*);
@@ -35,6 +36,7 @@ obj* l_ordering_has__repr___closed__3;
 uint8 l_cmp___rarg(obj*, obj*, obj*);
 obj* l_cmp__using___rarg___boxed(obj*, obj*, obj*);
 obj* l_ordering_has__repr___boxed(obj*);
+obj* l_cmp___boxed(obj*, obj*);
 obj* _init_l_ordering_has__repr___closed__1() {
 _start:
 {
@@ -237,11 +239,9 @@ return x_15;
 obj* l_cmp__using(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_cmp__using___rarg___boxed), 3, 0);
-return x_4;
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_cmp__using___rarg___boxed), 3, 0);
+return x_2;
 }
 }
 obj* l_cmp__using___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
@@ -251,6 +251,16 @@ uint8 x_3; obj* x_4;
 x_3 = l_cmp__using___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
+}
+}
+obj* l_cmp__using___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_cmp__using(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
 }
 }
 uint8 l_cmp___rarg(obj* x_0, obj* x_1, obj* x_2) {
@@ -294,11 +304,9 @@ return x_15;
 obj* l_cmp(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_4; 
-lean::dec(x_1);
-lean::dec(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_cmp___rarg___boxed), 3, 0);
-return x_4;
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_cmp___rarg___boxed), 3, 0);
+return x_2;
 }
 }
 obj* l_cmp___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
@@ -308,6 +316,16 @@ uint8 x_3; obj* x_4;
 x_3 = l_cmp___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
+}
+}
+obj* l_cmp___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_cmp(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
 }
 }
 uint8 l_ordering_decidable__eq(uint8 x_0, uint8 x_1) {

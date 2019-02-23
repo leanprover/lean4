@@ -215,98 +215,87 @@ if (x_20 == 0)
 obj* x_21; uint8 x_22; 
 x_21 = lean::mk_nat_obj(10u);
 x_22 = lean::nat_dec_eq(x_0, x_21);
-lean::dec(x_0);
 if (x_22 == 0)
 {
+uint8 x_23; 
+x_23 = 11;
+return x_23;
+}
+else
+{
 uint8 x_24; 
-x_24 = 11;
+x_24 = 10;
 return x_24;
+}
 }
 else
 {
 uint8 x_25; 
-x_25 = 10;
+x_25 = 9;
 return x_25;
 }
 }
 else
 {
+uint8 x_26; 
+x_26 = 8;
+return x_26;
+}
+}
+else
+{
 uint8 x_27; 
-lean::dec(x_0);
-x_27 = 9;
+x_27 = 7;
 return x_27;
 }
 }
 else
 {
+uint8 x_28; 
+x_28 = 6;
+return x_28;
+}
+}
+else
+{
 uint8 x_29; 
-lean::dec(x_0);
-x_29 = 8;
+x_29 = 5;
 return x_29;
 }
 }
 else
 {
+uint8 x_30; 
+x_30 = 4;
+return x_30;
+}
+}
+else
+{
 uint8 x_31; 
-lean::dec(x_0);
-x_31 = 7;
+x_31 = 3;
 return x_31;
 }
 }
 else
 {
+uint8 x_32; 
+x_32 = 2;
+return x_32;
+}
+}
+else
+{
 uint8 x_33; 
-lean::dec(x_0);
-x_33 = 6;
+x_33 = 1;
 return x_33;
 }
 }
 else
 {
-uint8 x_35; 
-lean::dec(x_0);
-x_35 = 5;
-return x_35;
-}
-}
-else
-{
-uint8 x_37; 
-lean::dec(x_0);
-x_37 = 4;
-return x_37;
-}
-}
-else
-{
-uint8 x_39; 
-lean::dec(x_0);
-x_39 = 3;
-return x_39;
-}
-}
-else
-{
-uint8 x_41; 
-lean::dec(x_0);
-x_41 = 2;
-return x_41;
-}
-}
-else
-{
-uint8 x_43; 
-lean::dec(x_0);
-x_43 = 1;
-return x_43;
-}
-}
-else
-{
-uint8 x_45; 
-lean::dec(x_0);
-x_45 = 0;
-return x_45;
+uint8 x_34; 
+x_34 = 0;
+return x_34;
 }
 }
 }
@@ -316,6 +305,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_id2type___main(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -333,6 +323,7 @@ _start:
 uint8 x_1; obj* x_2; 
 x_1 = l_lean_ir_id2type(x_0);
 x_2 = lean::box(x_1);
+lean::dec(x_0);
 return x_2;
 }
 }

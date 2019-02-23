@@ -143,7 +143,7 @@ class borrow_inference_fn {
         if (is_cases_on_app(m_env, e)) {
             for (unsigned i = 1; i < args.size(); i++)
                 collect(args[i]);
-        } else if (is_llnf_apply(fn) || is_llnf_closure(fn) || is_llnf_reset(fn)) {
+        } else if (is_llnf_apply(fn) || is_llnf_closure(fn) || is_llnf_reset(fn) || is_llnf_cnstr(fn) || is_llnf_reuse(fn)) {
             mark_owned(args);
         } else if (!is_llnf_op(fn)) {
             bool tail_call = terminal && (m_decls[m_curr_fidx].fst() == const_name(fn));

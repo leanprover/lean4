@@ -23,7 +23,6 @@ obj* l_coroutine_monad___lambda__2___boxed(obj*, obj*, obj*, obj*);
 obj* l___private_init_control_coroutine_1__finish__aux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l___private_init_control_coroutine_1__finish__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_monad__coroutine__trans___boxed(obj*, obj*, obj*, obj*);
-obj* l_coroutine_monad__reader___rarg___boxed(obj*);
 obj* l_coroutine_resume___main___rarg(obj*, obj*);
 obj* l_coroutine_monad__reader___rarg(obj*);
 obj* l_coroutine_monad__coroutine(obj*, obj*);
@@ -89,7 +88,6 @@ obj* l_coroutine_yield___rarg(obj*, obj*);
 obj* l_coroutine_resume___main(obj*, obj*, obj*);
 obj* l_coroutine_yield___rarg___closed__1;
 obj* l_coroutine_pipe___main___boxed(obj*, obj*, obj*, obj*);
-obj* l_coroutine_read___rarg___boxed(obj*);
 obj* l_coroutine_monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_coroutine_monad___lambda__8___boxed(obj*, obj*, obj*, obj*);
 obj* _init_l_coroutine__result() {
@@ -157,11 +155,10 @@ return x_3;
 obj* l_coroutine_pure___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; 
-lean::inc(x_0);
-x_3 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_3, 0, x_0);
-return x_3;
+obj* x_2; 
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_0);
+return x_2;
 }
 }
 obj* l_coroutine_pure(obj* x_0, obj* x_1, obj* x_2) {
@@ -177,7 +174,6 @@ _start:
 {
 obj* x_2; 
 x_2 = l_coroutine_pure___rarg(x_0, x_1);
-lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
@@ -196,28 +192,18 @@ return x_3;
 obj* l_coroutine_read___rarg(obj* x_0) {
 _start:
 {
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_0);
-return x_2;
+obj* x_1; 
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_coroutine_read(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine_read___rarg___boxed), 1, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine_read___rarg), 1, 0);
 return x_2;
-}
-}
-obj* l_coroutine_read___rarg___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_coroutine_read___rarg(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l_coroutine_read___boxed(obj* x_0, obj* x_1) {
@@ -287,13 +273,12 @@ return x_0;
 obj* l_coroutine_yield___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_4; 
+obj* x_2; obj* x_3; 
 x_2 = l_coroutine_yield___rarg___closed__1;
-lean::inc(x_0);
-x_4 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_4, 0, x_0);
-lean::cnstr_set(x_4, 1, x_2);
-return x_4;
+x_3 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_3, 0, x_0);
+lean::cnstr_set(x_3, 1, x_2);
+return x_3;
 }
 }
 obj* l_coroutine_yield(obj* x_0, obj* x_1) {
@@ -318,7 +303,6 @@ _start:
 {
 obj* x_2; 
 x_2 = l_coroutine_yield___rarg(x_0, x_1);
-lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
@@ -738,11 +722,10 @@ return x_5;
 obj* l_coroutine_monad___lambda__5(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_4; 
-lean::inc(x_0);
-x_4 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_4, 0, x_0);
-return x_4;
+obj* x_3; 
+x_3 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_3, 0, x_0);
+return x_3;
 }
 }
 obj* l_coroutine_monad___lambda__6(obj* x_0, obj* x_1) {
@@ -854,7 +837,6 @@ _start:
 {
 obj* x_3; 
 x_3 = l_coroutine_monad___lambda__5(x_0, x_1, x_2);
-lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
 return x_3;
@@ -893,28 +875,18 @@ return x_2;
 obj* l_coroutine_monad__reader___rarg(obj* x_0) {
 _start:
 {
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_0);
-return x_2;
+obj* x_1; 
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_coroutine_monad__reader(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine_monad__reader___rarg___boxed), 1, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine_monad__reader___rarg), 1, 0);
 return x_2;
-}
-}
-obj* l_coroutine_monad__reader___rarg___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_coroutine_monad__reader___rarg(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l_coroutine_monad__reader___boxed(obj* x_0, obj* x_1) {

@@ -953,13 +953,12 @@ return x_9;
 obj* l_string_intercalate(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; obj* x_6; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = lean::string_data(x_0);
 x_3 = l_list_map___main___at_string_intercalate___spec__1(x_1);
 x_4 = l_list_intercalate___rarg(x_2, x_3);
-lean::dec(x_2);
-x_6 = lean::string_mk(x_4);
-return x_6;
+x_5 = lean::string_mk(x_4);
+return x_5;
 }
 }
 obj* l_string_iterator_nextn___main(obj* x_0, obj* x_1) {

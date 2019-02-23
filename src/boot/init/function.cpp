@@ -47,7 +47,6 @@ obj* l_function_comp__right___rarg(obj*, obj*, obj*, obj*);
 obj* l_function_on__fun___boxed(obj*, obj*, obj*);
 obj* l_function_app___rarg(obj*, obj*);
 obj* l_function_dcomp___rarg(obj*, obj*, obj*);
-obj* l_function_curry___rarg___boxed(obj*, obj*, obj*);
 obj* l_function_has__left__inverse;
 obj* l_function_bijective;
 obj* l_function_id__of__right__inverse;
@@ -379,31 +378,19 @@ return x_0;
 obj* l_function_curry___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_5; obj* x_6; 
-lean::inc(x_2);
-lean::inc(x_1);
-x_5 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_5, 0, x_1);
-lean::cnstr_set(x_5, 1, x_2);
-x_6 = lean::apply_1(x_0, x_5);
-return x_6;
+obj* x_3; obj* x_4; 
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+x_4 = lean::apply_1(x_0, x_3);
+return x_4;
 }
 }
 obj* l_function_curry(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_function_curry___rarg___boxed), 3, 0);
-return x_3;
-}
-}
-obj* l_function_curry___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_function_curry___rarg(x_0, x_1, x_2);
-lean::dec(x_1);
-lean::dec(x_2);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_function_curry___rarg), 3, 0);
 return x_3;
 }
 }

@@ -70,7 +70,6 @@ obj* l_quot_rec___rarg(obj*, obj*, obj*);
 obj* l_combinator_K___boxed(obj*, obj*);
 obj* l_or_intro__right;
 obj* l_ne;
-obj* l_sum_inhabited__left___rarg___boxed(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -246,7 +245,6 @@ obj* l_default___rarg(obj*);
 obj* l_prod_sizeof___boxed(obj*, obj*);
 obj* l_decidable_by__cases(obj*, obj*);
 obj* l_setoid__has__equiv___boxed(obj*, obj*);
-obj* l_sum_inhabited__right___rarg___boxed(obj*);
 obj* l_quotient_mk___rarg(obj*);
 obj* l_quot_lift__on(obj*, obj*, obj*);
 obj* l_bit1(obj*);
@@ -302,7 +300,6 @@ obj* l_sigma_sizeof___at_sigma_has__sizeof___spec__1(obj*, obj*);
 obj* l_anti__symmetric;
 obj* l_quot_indep(obj*, obj*, obj*);
 obj* l_default_sizeof(obj*, obj*);
-obj* l_prod_inhabited___rarg___boxed(obj*, obj*);
 obj* l_ite___rarg(uint8, obj*, obj*, obj*);
 obj* l___private_init_core_24__fun__setoid(obj*, obj*);
 obj* l_cast(obj*, obj*, obj*);
@@ -4650,28 +4647,18 @@ return x_2;
 obj* l_sum_inhabited__left___rarg(obj* x_0) {
 _start:
 {
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_0);
-return x_2;
+obj* x_1; 
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_sum_inhabited__left(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_sum_inhabited__left___rarg___boxed), 1, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_sum_inhabited__left___rarg), 1, 0);
 return x_2;
-}
-}
-obj* l_sum_inhabited__left___rarg___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_sum_inhabited__left___rarg(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l_sum_inhabited__left___boxed(obj* x_0, obj* x_1) {
@@ -4687,28 +4674,18 @@ return x_2;
 obj* l_sum_inhabited__right___rarg(obj* x_0) {
 _start:
 {
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_2, 0, x_0);
-return x_2;
+obj* x_1; 
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_sum_inhabited__right(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_sum_inhabited__right___rarg___boxed), 1, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_sum_inhabited__right___rarg), 1, 0);
 return x_2;
-}
-}
-obj* l_sum_inhabited__right___rarg___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_sum_inhabited__right___rarg(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l_sum_inhabited__right___boxed(obj* x_0, obj* x_1) {
@@ -4830,30 +4807,18 @@ return x_2;
 obj* l_prod_inhabited___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_4; 
-lean::inc(x_1);
-lean::inc(x_0);
-x_4 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_4, 0, x_0);
-lean::cnstr_set(x_4, 1, x_1);
-return x_4;
+obj* x_2; 
+x_2 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_1);
+return x_2;
 }
 }
 obj* l_prod_inhabited(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_prod_inhabited___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-obj* l_prod_inhabited___rarg___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_prod_inhabited___rarg(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_prod_inhabited___rarg), 2, 0);
 return x_2;
 }
 }

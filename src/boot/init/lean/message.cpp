@@ -35,7 +35,6 @@ uint8 string_dec_eq(obj*, obj*);
 obj* l_lean_message_to__string___closed__4;
 obj* l_lean_message_to__string___closed__3;
 obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*);
-obj* l_lean_message__log_add___boxed(obj*, obj*);
 obj* l_lean_message_to__string___closed__2;
 obj* l_nat_repr(obj*);
 obj* l_list_append___rarg(obj*, obj*);
@@ -219,22 +218,10 @@ return x_0;
 obj* l_lean_message__log_add(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_4; 
-lean::inc(x_1);
-lean::inc(x_0);
-x_4 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_4, 0, x_0);
-lean::cnstr_set(x_4, 1, x_1);
-return x_4;
-}
-}
-obj* l_lean_message__log_add___boxed(obj* x_0, obj* x_1) {
-_start:
-{
 obj* x_2; 
-x_2 = l_lean_message__log_add(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
+x_2 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_1);
 return x_2;
 }
 }

@@ -736,11 +736,10 @@ return x_5;
 obj* l_option_monad___lambda__2(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; 
-lean::inc(x_1);
-x_3 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_3, 0, x_1);
-return x_3;
+obj* x_2; 
+x_2 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
 }
 }
 obj* l_option_monad___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -778,29 +777,31 @@ else
 {
 if (lean::obj_tag(x_3) == 0)
 {
-obj* x_6; 
-x_6 = lean::box(0);
-return x_6;
+obj* x_7; 
+lean::dec(x_2);
+x_7 = lean::box(0);
+return x_7;
 }
 else
 {
-obj* x_7; obj* x_8; obj* x_10; 
+obj* x_8; obj* x_9; obj* x_12; 
 if (lean::is_exclusive(x_3)) {
  lean::cnstr_release(x_3, 0);
- x_7 = x_3;
+ x_8 = x_3;
 } else {
  lean::dec(x_3);
- x_7 = lean::box(0);
+ x_8 = lean::box(0);
 }
-x_8 = lean::cnstr_get(x_2, 0);
-lean::inc(x_8);
-if (lean::is_scalar(x_7)) {
- x_10 = lean::alloc_cnstr(1, 1, 0);
+x_9 = lean::cnstr_get(x_2, 0);
+lean::inc(x_9);
+lean::dec(x_2);
+if (lean::is_scalar(x_8)) {
+ x_12 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_10 = x_7;
+ x_12 = x_8;
 }
-lean::cnstr_set(x_10, 0, x_8);
-return x_10;
+lean::cnstr_set(x_12, 0, x_9);
+return x_12;
 }
 }
 }
@@ -863,7 +864,6 @@ _start:
 obj* x_2; 
 x_2 = l_option_monad___lambda__2(x_0, x_1);
 lean::dec(x_0);
-lean::dec(x_1);
 return x_2;
 }
 }
@@ -884,7 +884,6 @@ obj* x_4;
 x_4 = l_option_monad___lambda__4(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 lean::dec(x_1);
-lean::dec(x_2);
 return x_4;
 }
 }

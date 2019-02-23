@@ -94,7 +94,6 @@ obj* l_lift__trans(obj*, obj*, obj*);
 obj* l_coe__sort___rarg(obj*, obj*);
 obj* l_coe__base__aux(obj*, obj*);
 obj* l_lift__pair_u_2082___rarg(obj*, obj*);
-obj* l_coe__option___rarg___boxed(obj*);
 obj* l_coe__base___rarg(obj*);
 obj* l_coe__sort___boxed(obj*);
 obj* l_coe__sort__trans(obj*, obj*);
@@ -409,27 +408,17 @@ return x_2;
 obj* l_coe__option___rarg(obj* x_0) {
 _start:
 {
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_2, 0, x_0);
-return x_2;
+obj* x_1; 
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* l_coe__option(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_coe__option___rarg___boxed), 1, 0);
-return x_1;
-}
-}
-obj* l_coe__option___rarg___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_coe__option___rarg(x_0);
-lean::dec(x_0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_coe__option___rarg), 1, 0);
 return x_1;
 }
 }

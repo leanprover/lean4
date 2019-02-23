@@ -24,7 +24,6 @@ obj* l_assert___rarg(obj*, obj*, uint8);
 obj* l_guardb___main___rarg___boxed(obj*, obj*);
 obj* l_optional___rarg___lambda__1(obj*);
 obj* l_guard___rarg(obj*, obj*, uint8);
-obj* l_optional___rarg___lambda__1___boxed(obj*);
 obj* l_assert___boxed(obj*);
 obj* l_assert(obj*);
 obj* l_optional___boxed(obj*);
@@ -294,18 +293,17 @@ return x_1;
 obj* l_optional___rarg___lambda__1(obj* x_0) {
 _start:
 {
-obj* x_2; 
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_2, 0, x_0);
-return x_2;
+obj* x_1; 
+x_1 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* _init_l_optional___rarg___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_optional___rarg___lambda__1___boxed), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_optional___rarg___lambda__1), 1, 0);
 return x_0;
 }
 }
@@ -339,15 +337,6 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_optional___rarg___boxed), 3, 0);
-return x_1;
-}
-}
-obj* l_optional___rarg___lambda__1___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_optional___rarg___lambda__1(x_0);
-lean::dec(x_0);
 return x_1;
 }
 }

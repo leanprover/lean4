@@ -363,18 +363,17 @@ return x_1;
 obj* l_option__t_pure___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_6; obj* x_10; obj* x_11; 
+obj* x_3; obj* x_6; obj* x_9; obj* x_10; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 lean::dec(x_0);
 x_6 = lean::cnstr_get(x_3, 1);
 lean::inc(x_6);
 lean::dec(x_3);
-lean::inc(x_2);
-x_10 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_10, 0, x_2);
-x_11 = lean::apply_2(x_6, lean::box(0), x_10);
-return x_11;
+x_9 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_9, 0, x_2);
+x_10 = lean::apply_2(x_6, lean::box(0), x_9);
+return x_10;
 }
 }
 obj* l_option__t_pure(obj* x_0) {
@@ -391,7 +390,6 @@ _start:
 obj* x_3; 
 x_3 = l_option__t_pure___rarg(x_0, x_1, x_2);
 lean::dec(x_1);
-lean::dec(x_2);
 return x_3;
 }
 }
@@ -753,18 +751,17 @@ return x_10;
 obj* l_option__t_monad___rarg___lambda__5(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_6; obj* x_10; obj* x_11; 
+obj* x_3; obj* x_6; obj* x_9; obj* x_10; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 lean::dec(x_0);
 x_6 = lean::cnstr_get(x_3, 1);
 lean::inc(x_6);
 lean::dec(x_3);
-lean::inc(x_1);
-x_10 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_10, 0, x_1);
-x_11 = lean::apply_2(x_6, lean::box(0), x_10);
-return x_11;
+x_9 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_9, 0, x_1);
+x_10 = lean::apply_2(x_6, lean::box(0), x_9);
+return x_10;
 }
 }
 obj* l_option__t_monad___rarg___lambda__6(obj* x_0, obj* x_1, obj* x_2) {
@@ -1037,7 +1034,6 @@ _start:
 {
 obj* x_3; 
 x_3 = l_option__t_monad___rarg___lambda__5(x_0, x_1, x_2);
-lean::dec(x_1);
 lean::dec(x_2);
 return x_3;
 }

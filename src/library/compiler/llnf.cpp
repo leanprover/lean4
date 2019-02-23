@@ -2188,7 +2188,8 @@ class explicit_rc_fn {
         /* We need to add a `dec` instruction for each input variable that is dead at the beginning
            of the let-block, and is not a scalar. */
         for (expr const & input_var : input_vars) {
-            if (is_dead_obj_var(input_var, live_obj_vars)) {
+            if (!is_borrowed(input_var) &&
+                is_dead_obj_var(input_var, live_obj_vars)) {
                 add_dec(input_var, entries);
             }
         }

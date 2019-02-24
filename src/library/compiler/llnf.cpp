@@ -860,7 +860,8 @@ class push_proj_fn {
             name const & x_name = fvar_name(x);
             local_decl x_decl   = m_lctx.get_local_decl(x);
             expr x_val          = *x_decl.get_value();
-            if (is_llnf_proj(get_app_fn(x_val))) {
+            expr const & x_op   = get_app_fn(x_val);
+            if (is_llnf_proj(x_op)) {
                 if (new_fvars_used_fvars.find(x_name) == new_fvars_used_fvars.end() &&
                     !copied_non_proj &&
                     !all_contains(minor_used_vars.size() - 1, minor_used_vars.data() + 1, x_name)) {
@@ -876,8 +877,11 @@ class push_proj_fn {
                     collect_used(x_val, new_fvars_used_fvars);
                 }
             } else {
-                /* TODO(Leo): check whether this restriction makes any difference */
-                copied_non_proj = true;
+                /* TODO(Leo): check whether pushing over non projections may be really bad or not */
+                if (!is_llnf_sproj(x_op) && !is_llnf_uproj(x_op)) {
+                    lean_assert(!is_llnf_proj(x_op));
+                    copied_non_proj = true;
+                }
                 new_fvars.push_back(x);
                 collect_used(x_val, new_fvars_used_fvars);
             }

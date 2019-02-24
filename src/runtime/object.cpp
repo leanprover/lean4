@@ -20,10 +20,13 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "runtime/interrupt.h"
 #include "runtime/hash.h"
+#include "runtime/alloc.h"
 
 /* REMARK: when LEAN_LAZY_RC is defined, we use lazy reference
    counting to avoid long pauses when invoking `del`. */
 #define LEAN_LAZY_RC
+
+#define LEAN_SMALL_ALLOCATOR
 
 namespace lean {
 size_t obj_byte_size(object * o) {
@@ -205,7 +208,11 @@ void * alloc_heap_object(size_t sz) {
         del_core(o, g_to_free);
     }
 #endif
+#ifdef LEAN_SMALL_ALLOCATOR
+    void * r = alloc(sizeof(rc_type) + sz);
+#else
     void * r = malloc(sizeof(rc_type) + sz);
+#endif
     if (r == nullptr) throw std::bad_alloc();
     *static_cast<rc_type *>(r) = 1;
     return static_cast<char *>(r) + sizeof(rc_type);
@@ -220,7 +227,11 @@ void free_heap_obj(object * o) {
         o->m_mem_kind = 42;
     }
 #else
+#ifdef LEAN_SMALL_ALLOCATOR
+    dealloc(reinterpret_cast<char *>(o) - sizeof(rc_type), obj_byte_size(o) + sizeof(rc_type));
+#else
     free(reinterpret_cast<char *>(o) - sizeof(rc_type));
+#endif
 #endif
 }
 

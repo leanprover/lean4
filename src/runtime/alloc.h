@@ -1,0 +1,14 @@
+/*
+Copyright (c) 2019 Microsoft Corporation. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+
+Author: Leonardo de Moura
+*/
+#include<cstddef>
+#pragma once
+namespace lean {
+void * alloc(size_t sz);
+void dealloc(void * o, size_t sz);
+void initialize_alloc();
+void finalize_alloc();
+}

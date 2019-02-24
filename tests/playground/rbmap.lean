@@ -9,6 +9,6 @@ mk_map_aux n (mk_rbmap nat bool (<))
 
 def main (xs : list string) : io uint32 :=
 let m := mk_map xs.head.to_nat in
-let v := rbmap.fold (λ (k : nat) (v : bool) (r : nat), if v then r + k else r) m 0 in
+let v := rbmap.fold (λ (k : nat) (v : bool) (r : nat), if v then r + 1 else r) m 0 in
 io.println' (to_string v) *>
 pure 0

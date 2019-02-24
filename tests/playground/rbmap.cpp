@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+#include "init/init.h"
 #include "util/rb_map.h"
 #include "util/nat.h"
 using namespace lean;
@@ -13,6 +14,7 @@ struct nat_cmp {
 };
 
 int main(int argc, char ** argv) {
+    lean::initialize();
     rb_map<nat, bool, nat_cmp> m;
     unsigned n = 0;
     if (argc == 2) {
@@ -23,7 +25,7 @@ int main(int argc, char ** argv) {
     }
     nat r(0u);
     m.for_each([&](nat const & k, bool v) {
-            if (v) r = r + k;
+            if (v) r = r + nat(1);
         });
     std::cout << r << "\n";
     return 0;

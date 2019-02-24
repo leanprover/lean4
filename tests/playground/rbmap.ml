@@ -63,8 +63,8 @@ let mk_map n = mk_map_aux n Leaf;;
 
 let main n =
 let m = mk_map n in
-let v = fold (fun k v r -> if v then r + k else r) m 0 in
+let v = fold (fun k v r -> if v then r + 1 else r) m 0 in
 Printf.printf "%8d\n" v;
 v;;
 
-main 700000;;
+main 4000000;;

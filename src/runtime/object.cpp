@@ -1762,7 +1762,8 @@ void dbg_print_num(object * o) {
 static mutex g_dbg_mutex;
 
 object * dbg_trace(obj_arg s, obj_arg fn) {
-    unique_lock<mutex> lock(g_dbg_mutex); {
+    {
+        unique_lock<mutex> lock(g_dbg_mutex);
         std::cout << string_cstr(s) << std::endl;
     }
     dec(s);

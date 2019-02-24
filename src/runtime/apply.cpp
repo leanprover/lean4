@@ -29,7 +29,7 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
       for (unsigned i = 0; i < fixed; i++, source++, target++) {
           *target = *source;
       }
-      free_heap_obj(f);
+      free_closure_obj(f);
     }
     for (unsigned i = 0; i < n; i++, as++, target++) {
         *target = *as;
@@ -103,22 +103,22 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 1) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 1: { obj* r = FN1(f)(a1); free_heap_obj(f); return r; }
-    case 2: { obj* r = FN2(f)(fx(0), a1); free_heap_obj(f); return r; }
-    case 3: { obj* r = FN3(f)(fx(0), fx(1), a1); free_heap_obj(f); return r; }
-    case 4: { obj* r = FN4(f)(fx(0), fx(1), fx(2), a1); free_heap_obj(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), fx(3), a1); free_heap_obj(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1); free_heap_obj(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1); free_heap_obj(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1); free_heap_obj(f); return r; }
+    case 1: { obj* r = FN1(f)(a1); free_closure_obj(f); return r; }
+    case 2: { obj* r = FN2(f)(fx(0), a1); free_closure_obj(f); return r; }
+    case 3: { obj* r = FN3(f)(fx(0), fx(1), a1); free_closure_obj(f); return r; }
+    case 4: { obj* r = FN4(f)(fx(0), fx(1), fx(2), a1); free_closure_obj(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), fx(3), a1); free_closure_obj(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1); free_closure_obj(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1); free_closure_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), fx(14), a1); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -161,21 +161,21 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 2) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 2: { obj* r = FN2(f)(a1, a2); free_heap_obj(f); return r; }
-    case 3: { obj* r = FN3(f)(fx(0), a1, a2); free_heap_obj(f); return r; }
-    case 4: { obj* r = FN4(f)(fx(0), fx(1), a1, a2); free_heap_obj(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), a1, a2); free_heap_obj(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), a1, a2); free_heap_obj(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2); free_heap_obj(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2); free_heap_obj(f); return r; }
+    case 2: { obj* r = FN2(f)(a1, a2); free_closure_obj(f); return r; }
+    case 3: { obj* r = FN3(f)(fx(0), a1, a2); free_closure_obj(f); return r; }
+    case 4: { obj* r = FN4(f)(fx(0), fx(1), a1, a2); free_closure_obj(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), fx(1), fx(2), a1, a2); free_closure_obj(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), fx(3), a1, a2); free_closure_obj(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2); free_closure_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), fx(13), a1, a2); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -222,20 +222,20 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 3) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 3: { obj* r = FN3(f)(a1, a2, a3); free_heap_obj(f); return r; }
-    case 4: { obj* r = FN4(f)(fx(0), a1, a2, a3); free_heap_obj(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), fx(1), a1, a2, a3); free_heap_obj(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), a1, a2, a3); free_heap_obj(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3); free_heap_obj(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3); free_heap_obj(f); return r; }
+    case 3: { obj* r = FN3(f)(a1, a2, a3); free_closure_obj(f); return r; }
+    case 4: { obj* r = FN4(f)(fx(0), a1, a2, a3); free_closure_obj(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), fx(1), a1, a2, a3); free_closure_obj(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), fx(2), a1, a2, a3); free_closure_obj(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3); free_closure_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), fx(12), a1, a2, a3); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -281,19 +281,19 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 4) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 4: { obj* r = FN4(f)(a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 5: { obj* r = FN5(f)(fx(0), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), fx(1), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4); free_heap_obj(f); return r; }
+    case 4: { obj* r = FN4(f)(a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 5: { obj* r = FN5(f)(fx(0), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), fx(1), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), fx(11), a1, a2, a3, a4); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -338,18 +338,18 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 5) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 6: { obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), fx(1), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5); free_heap_obj(f); return r; }
+    case 5: { obj* r = FN5(f)(a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 6: { obj* r = FN6(f)(fx(0), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), fx(1), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), fx(10), a1, a2, a3, a4, a5); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -393,17 +393,17 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 6) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 7: { obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6); free_heap_obj(f); return r; }
+    case 6: { obj* r = FN6(f)(a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 7: { obj* r = FN7(f)(fx(0), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), fx(9), a1, a2, a3, a4, a5, a6); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -446,16 +446,16 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 7) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 8: { obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7); free_heap_obj(f); return r; }
+    case 7: { obj* r = FN7(f)(a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(fx(0), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), fx(8), a1, a2, a3, a4, a5, a6, a7); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -497,15 +497,15 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 8) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 9: { obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8); free_heap_obj(f); return r; }
+    case 8: { obj* r = FN8(f)(a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), fx(7), a1, a2, a3, a4, a5, a6, a7, a8); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -546,14 +546,14 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 9) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
-    case 10: { obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_heap_obj(f); return r; }
+    case 9: { obj* r = FN9(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), fx(6), a1, a2, a3, a4, a5, a6, a7, a8, a9); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -593,13 +593,13 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 10) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
-    case 11: { obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_heap_obj(f); return r; }
+    case 10: { obj* r = FN10(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_closure_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), fx(5), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -638,12 +638,12 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 11) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
-    case 12: { obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_heap_obj(f); return r; }
+    case 11: { obj* r = FN11(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_closure_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), fx(4), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -681,11 +681,11 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 12) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_heap_obj(f); return r; }
-    case 13: { obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_heap_obj(f); return r; }
+    case 12: { obj* r = FN12(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_closure_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), fx(3), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -722,10 +722,10 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 13) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_heap_obj(f); return r; }
-    case 14: { obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_heap_obj(f); return r; }
+    case 13: { obj* r = FN13(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_closure_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), fx(2), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -761,9 +761,9 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 14) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_heap_obj(f); return r; }
-    case 15: { obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_heap_obj(f); return r; }
+    case 14: { obj* r = FN14(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_closure_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), fx(1), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -798,8 +798,8 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 15) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free_heap_obj(f); return r; }
-    case 16: { obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free_heap_obj(f); return r; }
+    case 15: { obj* r = FN15(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free_closure_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(fx(0), a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {
@@ -833,7 +833,7 @@ unsigned fixed = closure_num_fixed(f);
 if (arity == fixed + 16) {
   if (is_exclusive(f)) {
     switch (arity) {
-    case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); free_heap_obj(f); return r; }
+    case 16: { obj* r = FN16(f)(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12, a13, a14, a15, a16); free_closure_obj(f); return r; }
     }
   }
   switch (arity) {

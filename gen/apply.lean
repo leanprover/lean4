@@ -58,7 +58,7 @@ do emit $ sformat! "obj* apply_{n}(obj* f, {arg_decls}) {{\n",
        when (j ≥ n) $
          let fs := mk_fs_args (j - n) in
          let sep := if j = n then "" else ", " in
-         emit $ sformat! "    case {j}: {{ obj* r = FN{j}(f)({fs}{sep}{args}); free_heap_obj(f); return r; }\n"
+         emit $ sformat! "    case {j}: {{ obj* r = FN{j}(f)({fs}{sep}{args}); free_closure_obj(f); return r; }\n"
      },
      emit "    }\n",
      emit "  }\n",
@@ -162,7 +162,7 @@ static obj* fix_args(obj* f, unsigned n, obj*const* as) {
       for (unsigned i = 0; i < fixed; i++, source++, target++) {
           *target = *source;
       }
-      free_heap_obj(f);
+      free_closure_obj(f);
     }
     for (unsigned i = 0; i < n; i++, as++, target++) {
         *target = *as;

@@ -239,6 +239,8 @@ static_assert(sizeof(atomic<rc_type>) == sizeof(rc_type),  "atomic<rc_type> and 
 
 void * alloc_heap_object(size_t sz);
 void free_heap_obj(object * o);
+void free_mpz_obj(object * o);
+void free_closure_obj(object * o);
 
 inline atomic<rc_type> * mt_rc_addr(object * o) {
     return reinterpret_cast<atomic<rc_type> *>(reinterpret_cast<char *>(o) - sizeof(rc_type));
@@ -348,7 +350,7 @@ inline external_object * to_external(object * o) { lean_assert(is_external(o)); 
 
    "Additionally, the resulting std::atomic<Integral> specialization has standard layout, a trivial default constructor,
    and a trivial destructor." */
-inline void dealloc_mpz(object * o) { to_mpz(o)->~mpz_object(); free_heap_obj(o); }
+inline void dealloc_mpz(object * o) { to_mpz(o)->~mpz_object(); free_mpz_obj(o); }
 inline void dealloc_external(object * o) { delete to_external(o); }
 inline void dealloc(object * o) {
     lean_assert(is_heap_obj(o));

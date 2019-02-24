@@ -124,6 +124,66 @@ static void dealloc_parray_data(object ** data) {
     free(mem);
 }
 
+static inline void free_heap_obj_core(object * o, size_t sz) {
+#ifdef LEAN_FAKE_FREE
+    // Set kinds to invalid values, which should trap any further accesses in debug mode.
+    // Make sure object kind is recoverable for printing deleted objects
+    if (o->m_mem_kind != 42) {
+        o->m_kind = -o->m_kind;
+        o->m_mem_kind = 42;
+    }
+#else
+#ifdef LEAN_SMALL_ALLOCATOR
+    dealloc(reinterpret_cast<char *>(o) - sizeof(rc_type), sz);
+#else
+    free(reinterpret_cast<char *>(o) - sizeof(rc_type));
+#endif
+#endif
+}
+
+void free_heap_obj(object * o) {
+    free_heap_obj_core(o, obj_byte_size(o) + sizeof(rc_type));
+}
+
+static inline void free_cnstr_obj(object * o) {
+    free_heap_obj_core(o, cnstr_byte_size(o) + sizeof(rc_type));
+}
+
+static inline void free_closure_obj_core(object * o) {
+    free_heap_obj_core(o, closure_byte_size(o) + sizeof(rc_type));
+}
+
+void free_closure_obj(object * o) {
+    return free_closure_obj_core(o);
+}
+
+static inline void free_array_obj(object * o) {
+    free_heap_obj_core(o, array_byte_size(o) + sizeof(rc_type));
+}
+
+static inline void free_sarray_obj(object * o) {
+    free_heap_obj_core(o, sarray_byte_size(o) + sizeof(rc_type));
+}
+
+static inline void free_string_obj(object * o) {
+    free_heap_obj_core(o, string_byte_size(o) + sizeof(rc_type));
+}
+
+inline void free_mpz_obj(object * o) {
+    free_heap_obj_core(o, sizeof(mpz_object) + sizeof(rc_type));
+}
+
+static inline void free_thunk_obj(object * o) {
+    free_heap_obj_core(o, sizeof(thunk_object) + sizeof(rc_type));
+}
+
+static inline void free_task_obj(object * o) {
+    free_heap_obj_core(o, sizeof(task_object) + sizeof(rc_type));
+}
+
+static inline void free_parray_obj(object * o) {
+    free_heap_obj_core(o, sizeof(parray_object) + sizeof(rc_type));
+}
 
 static void del_core(object * o, object * todo) {
     lean_assert(is_heap_obj(o));
@@ -132,53 +192,53 @@ static void del_core(object * o, object * todo) {
         object ** it  = cnstr_obj_cptr(o);
         object ** end = it + cnstr_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
-        free_heap_obj(o);
+        free_cnstr_obj(o);
         break;
     }
     case object_kind::Closure: {
         object ** it  = closure_arg_cptr(o);
         object ** end = it + closure_num_fixed(o);
         for (; it != end; ++it) dec(*it, todo);
-        free_heap_obj(o);
+        free_closure_obj_core(o);
         break;
     }
     case object_kind::Array: {
         object ** it  = array_cptr(o);
         object ** end = it + array_size(o);
         for (; it != end; ++it) dec(*it, todo);
-        free_heap_obj(o);
+        free_array_obj(o);
         break;
     }
     case object_kind::ScalarArray:
-        free_heap_obj(o); break;
+        free_sarray_obj(o); break;
     case object_kind::String:
-        free_heap_obj(o); break;
+        free_string_obj(o); break;
     case object_kind::MPZ:
         dealloc_mpz(o); break;
     case object_kind::Thunk:
         if (object * c = to_thunk(o)->m_closure) dec(c, todo);
         if (object * v = to_thunk(o)->m_value) dec(v, todo);
-        free_heap_obj(o);
+        free_thunk_obj(o);
         break;
     case object_kind::Task:
         deactivate_task(to_task(o));
         break;
     case object_kind::PArrayPop:
         dec_ref(to_parray(o)->m_next, todo);
-        free_heap_obj(o);
+        free_parray_obj(o);
         break;
     case object_kind::PArrayPush:
     case object_kind::PArraySet:
         dec(to_parray(o)->m_elem, todo);
         dec_ref(to_parray(o)->m_next, todo);
-        free_heap_obj(o);
+        free_parray_obj(o);
         break;
     case object_kind::PArrayRoot: {
         object ** it  = to_parray(o)->m_data;
         object ** end = it + to_parray(o)->m_size;
         for (; it != end; ++it) dec(*it, todo);
         dealloc_parray_data(to_parray(o)->m_data);
-        free_heap_obj(o);
+        free_parray_obj(o);
         break;
     }
     case object_kind::External:
@@ -216,23 +276,6 @@ void * alloc_heap_object(size_t sz) {
     if (r == nullptr) throw std::bad_alloc();
     *static_cast<rc_type *>(r) = 1;
     return static_cast<char *>(r) + sizeof(rc_type);
-}
-
-void free_heap_obj(object * o) {
-#ifdef LEAN_FAKE_FREE
-    // Set kinds to invalid values, which should trap any further accesses in debug mode.
-    // Make sure object kind is recoverable for printing deleted objects
-    if (o->m_mem_kind != 42) {
-        o->m_kind = -o->m_kind;
-        o->m_mem_kind = 42;
-    }
-#else
-#ifdef LEAN_SMALL_ALLOCATOR
-    dealloc(reinterpret_cast<char *>(o) - sizeof(rc_type), obj_byte_size(o) + sizeof(rc_type));
-#else
-    free(reinterpret_cast<char *>(o) - sizeof(rc_type));
-#endif
-#endif
 }
 
 // =======================================
@@ -519,7 +562,7 @@ LEAN_THREAD_PTR(task_object, g_current_task_object);
 
 void dealloc_task(task_object * t) {
     if (t->m_imp) delete t->m_imp;
-    free_heap_obj(t);
+    free_task_obj(t);
 }
 
 struct scoped_current_task_object : flet<task_object *> {
@@ -722,7 +765,7 @@ public:
             lean_assert(t->m_imp == nullptr);
             lock.unlock();
             dec(v);
-            free_heap_obj(t);
+            free_task_obj(t);
             return;
         } else {
             lean_assert(t->m_imp);
@@ -1273,7 +1316,7 @@ static object * string_ensure_capacity(object * o, size_t extra) {
         object * new_o = alloc_string(sz, cap + sz + extra, string_len(o));
         lean_assert(string_capacity(new_o) >= sz + extra);
         memcpy(w_string_cstr(new_o), string_cstr(o), sz);
-        free_heap_obj(o);
+        free_string_obj(o);
         return new_o;
     } else {
         return o;

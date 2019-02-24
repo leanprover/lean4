@@ -57,6 +57,8 @@ option(CUSTOM_ALLOCATORS   "CUSTOM_ALLOCATORS" ON)
 option(SAVE_SNAPSHOT       "SAVE_SNAPSHOT" ON)
 option(SAVE_INFO           "SAVE_INFO" ON)
 option(FAKE_FREE           "Disable actually freeing runtime objects, useful for debugging memory management issues" OFF)
+option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
+option(LAZY_RC             "LAZY_RC" OFF)
 
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
 
@@ -112,6 +114,14 @@ endif()
 
 if ("${FAKE_FREE}" MATCHES "ON")
   set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_FAKE_FREE")
+endif()
+
+if ("${LAZY_RC}" MATCHES "ON")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_LAZY_RC")
+endif()
+
+if ("${SMALL_ALLOCATOR}" MATCHES "ON")
+  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_SMALL_ALLOCATOR")
 endif()
 
 if (NOT("${CHECK_OLEAN_VERSION}" MATCHES "ON"))

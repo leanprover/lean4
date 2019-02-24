@@ -822,6 +822,9 @@ static obj_res mark_mt_fn(obj_arg o) {
 }
 
 void mark_mt(object * o) {
+#ifndef LEAN_MULTI_THREAD
+    return;
+#endif
     if (is_scalar(o) || !is_st_heap_obj(o)) return;
     o->m_mem_kind = static_cast<unsigned>(object_memory_kind::MTHeap);
 

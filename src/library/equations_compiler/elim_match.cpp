@@ -1088,8 +1088,33 @@ struct elim_match_fn {
         }
     }
 
-    list<lemma> process(problem const & P) {
+    bool is_var_only_lhs(equation const & eqn) {
+        for (expr const & arg : eqn.m_patterns) {
+            if (!is_fvar(arg))
+                return false;
+        }
+        return true;
+    }
+
+    problem truncate_after_var_only_lhs(problem P) {
+        buffer<equation> new_eqs;
+        bool found = false;
+        for (equation const & eqn : P.m_equations) {
+            new_eqs.push_back(eqn);
+            if (is_var_only_lhs(eqn)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) return P;
+        P.m_equations = to_list(new_eqs);
+        return P;
+    }
+
+
+    list<lemma> process(problem P) {
         flet<unsigned> inc_depth(m_depth, m_depth+1);
+        P = truncate_after_var_only_lhs(P);
         trace_match(tout() << "depth [" << m_depth << "]\n" << pp_problem(P) << "\n";);
         lean_assert(check_problem(P));
         m_num_steps++;

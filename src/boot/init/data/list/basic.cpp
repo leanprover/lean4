@@ -1005,15 +1005,8 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 lean::dec(x_0);
-if (lean::obj_tag(x_2) == 0)
-{
-return x_2;
-}
-else
-{
 lean::dec(x_2);
 return x_1;
-}
 }
 else
 {

@@ -118,7 +118,11 @@ static void dealloc_parray_data(object ** data) {
     free(mem);
 }
 
+#ifdef LEAN_SMALL_ALLOCATOR
 static inline void free_heap_obj_core(object * o, size_t sz) {
+#else
+static inline void free_heap_obj_core(object * o) {
+#endif
 #ifdef LEAN_FAKE_FREE
     // Set kinds to invalid values, which should trap any further accesses in debug mode.
     // Make sure object kind is recoverable for printing deleted objects
@@ -135,16 +139,22 @@ static inline void free_heap_obj_core(object * o, size_t sz) {
 #endif
 }
 
+#ifdef LEAN_SMALL_ALLOCATOR
+#define FREE_OBJ(o, sz) free_heap_obj_core(o, sz)
+#else
+#define FREE_OBJ(o, sz) free_heap_obj_core(o)
+#endif
+
 void free_heap_obj(object * o) {
-    free_heap_obj_core(o, obj_byte_size(o) + sizeof(rc_type));
+    FREE_OBJ(o, obj_byte_size(o) + sizeof(rc_type));
 }
 
 static inline void free_cnstr_obj(object * o) {
-    free_heap_obj_core(o, cnstr_byte_size(o) + sizeof(rc_type));
+    FREE_OBJ(o, cnstr_byte_size(o) + sizeof(rc_type));
 }
 
 static inline void free_closure_obj_core(object * o) {
-    free_heap_obj_core(o, closure_byte_size(o) + sizeof(rc_type));
+    FREE_OBJ(o, closure_byte_size(o) + sizeof(rc_type));
 }
 
 void free_closure_obj(object * o) {
@@ -152,31 +162,31 @@ void free_closure_obj(object * o) {
 }
 
 static inline void free_array_obj(object * o) {
-    free_heap_obj_core(o, array_byte_size(o) + sizeof(rc_type));
+    FREE_OBJ(o, array_byte_size(o) + sizeof(rc_type));
 }
 
 static inline void free_sarray_obj(object * o) {
-    free_heap_obj_core(o, sarray_byte_size(o) + sizeof(rc_type));
+    FREE_OBJ(o, sarray_byte_size(o) + sizeof(rc_type));
 }
 
 static inline void free_string_obj(object * o) {
-    free_heap_obj_core(o, string_byte_size(o) + sizeof(rc_type));
+    FREE_OBJ(o, string_byte_size(o) + sizeof(rc_type));
 }
 
 inline void free_mpz_obj(object * o) {
-    free_heap_obj_core(o, sizeof(mpz_object) + sizeof(rc_type));
+    FREE_OBJ(o, sizeof(mpz_object) + sizeof(rc_type));
 }
 
 static inline void free_thunk_obj(object * o) {
-    free_heap_obj_core(o, sizeof(thunk_object) + sizeof(rc_type));
+    FREE_OBJ(o, sizeof(thunk_object) + sizeof(rc_type));
 }
 
 static inline void free_task_obj(object * o) {
-    free_heap_obj_core(o, sizeof(task_object) + sizeof(rc_type));
+    FREE_OBJ(o, sizeof(task_object) + sizeof(rc_type));
 }
 
 static inline void free_parray_obj(object * o) {
-    free_heap_obj_core(o, sizeof(parray_object) + sizeof(rc_type));
+    FREE_OBJ(o, sizeof(parray_object) + sizeof(rc_type));
 }
 
 static void del_core(object * o, object * todo) {

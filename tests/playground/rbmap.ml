@@ -67,4 +67,4 @@ let v = fold (fun k v r -> if v then r + 1 else r) m 0 in
 Printf.printf "%8d\n" v;
 v;;
 
-main 4000000;;
+main (int_of_string Sys.argv.(1));;

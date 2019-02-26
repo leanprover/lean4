@@ -41,7 +41,7 @@ def is_red : node α β → bool
 section insert
 variables (lt : α → α → Prop) [decidable_rel lt]
 
-def ins : node α β → α → β → node α β
+@[specialize] def ins : node α β → α → β → node α β
 | Leaf                 kx vx := Node Red Leaf kx vx Leaf
 | (Node Red a ky vy b) kx vx :=
    (if lt kx ky then Node Red (ins a kx vx) ky vy b
@@ -60,15 +60,13 @@ def set_black : node α β → node α β
 | (Node _ l k v r) := Node Black l k v r
 | e                := e
 
-def insert (t : node α β) (k : α) (v : β) : node α β :=
+@[specialize] def insert (t : node α β) (k : α) (v : β) : node α β :=
 if is_red t then set_black (ins lt t k v)
 else ins lt t k v
 
 end insert
 
-@[reducible] def map : Type := node nat bool
-
-def mk_map_aux : nat → map → map
+def mk_map_aux : nat → node nat bool → node nat bool
 | 0 m := m
 | (n+1) m := mk_map_aux n (insert (<) m n (n % 10 = 0))
 

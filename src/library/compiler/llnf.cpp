@@ -557,7 +557,17 @@ class to_llnf_fn {
            ```
            @decidable.cases_on t _cnstr.0.0 _cnstr.1.0
            ```
-           which reduces to `t`. */
+           which reduces to `t`.
+
+           TODO(Leo): extend `is_id` when there multiple nested cases_on applications.
+           Example:
+           ```
+           @prod.cases_on _x_1 (λ fst snd,
+             @except.cases_on fst
+               (λ a, let _x_2 := except.error ◾ ◾ a in (_x_2, snd))
+               (λ a, let _x_3 := except.ok ◾ ◾ a in (_x_3, snd)))
+           ```
+        */
         bool is_id  = true;
         // bool all_eq = true;
         /* Process minor premises */

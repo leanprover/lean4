@@ -189,7 +189,7 @@ static inline void free_parray_obj(object * o) {
     FREE_OBJ(o, sizeof(parray_object) + sizeof(rc_type));
 }
 
-static void del_core(object * o, object * todo) {
+static void del_core(object * o, object * & todo) {
     lean_assert(is_heap_obj(o));
     switch (get_kind(o)) {
     case object_kind::Constructor: {

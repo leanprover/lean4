@@ -22,6 +22,8 @@ Author: Leonardo de Moura
 #include "runtime/hash.h"
 #include "runtime/alloc.h"
 
+#define LEAN_MAX_PRIO 8
+
 namespace lean {
 size_t obj_byte_size(object * o) {
     switch (get_kind(o)) {
@@ -583,25 +585,39 @@ class task_manager {
     mutex                                         m_mutex;
     unsigned                                      m_workers_to_be_created;
     workers                                       m_workers;
-    std::map<unsigned, std::deque<task_object *>> m_queue;
+    std::deque<task_object *>                     m_queues[LEAN_MAX_PRIO+1];
+    unsigned                                      m_queues_size{0};
+    unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
     bool                                          m_shutting_down{false};
 
     task_object * dequeue() {
-        lean_assert(!m_queue.empty());
-        auto it                   = m_queue.begin();
-        auto & highest_prio_deque = it->second;
-        task_object * result      = highest_prio_deque.front();
-        highest_prio_deque.pop_front();
-        if (highest_prio_deque.empty())
-            m_queue.erase(it);
+        lean_assert(m_queues_size != 0);
+        std::deque<task_object *> & q = m_queues[m_max_prio];
+        lean_assert(!q.empty());
+        task_object * result      = q.front();
+        q.pop_front();
+        m_queues_size--;
+        if (q.empty()) {
+            while (m_max_prio > 0) {
+                --m_max_prio;
+                if (!m_queues[m_max_prio].empty())
+                    break;
+            }
+        }
         return result;
     }
 
     void enqueue_core(task_object * t) {
         lean_assert(t->m_imp);
-        m_queue[t->m_imp->m_prio].push_back(t);
+        unsigned prio = t->m_imp->m_prio;
+        if (prio > LEAN_MAX_PRIO)
+            prio = LEAN_MAX_PRIO;
+        if (prio > m_max_prio)
+            m_max_prio = prio;
+        m_queues[prio].push_back(t);
+        m_queues_size++;
         if (m_workers_to_be_created > 0)
             spawn_worker();
         else
@@ -621,7 +637,7 @@ class task_manager {
                             break;
                         }
 
-                        if (m_queue.empty()) {
+                        if (m_queues_size == 0) {
                             m_queue_cv.wait(lock);
                             continue;
                         }
@@ -714,8 +730,8 @@ public:
             w->m_thread->join();
             delete w;
         }
-        for (std::pair<const unsigned, std::deque<task_object *>> & entry : m_queue) {
-            for (task_object * o : entry.second) {
+        for (std::deque<task_object *> const & q : m_queues) {
+            for (task_object * o : q) {
                 lean_assert(o->m_imp && o->m_imp->m_deleted);
                 dealloc_task(o);
             }

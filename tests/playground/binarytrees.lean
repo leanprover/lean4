@@ -12,23 +12,23 @@ def make' : int -> nat -> Tree
 -- build a tree
 def make (d : nat) := make' d d
 
-def check : Tree → nat
+def check : Tree → uint32
 | Nil := 0
 | (Node l r) := 1 + check l + check r
 
 def minN := 4
 
-def out (s) (n t : nat) := io.println' (s ++ " of depth " ++ to_string n ++ "\t check: " ++ to_string t)
+def out (s) (n : nat) (t : uint32) := io.println' (s ++ " of depth " ++ to_string n ++ "\t check: " ++ to_string t)
 
 -- allocate and check lots of trees
-def sumT : nat -> nat -> nat -> nat
+def sumT : nat -> nat -> uint32 -> uint32
 | d 0 t := t
 | d i t :=
   let a := check (make d) in
   sumT d (i-1) (t + a)
 
 -- generate many trees
-meta def depth : nat -> nat -> list (nat × nat × task nat)
+meta def depth : nat -> nat -> list (nat × nat × task uint32)
 | d m := if d ≤ m then
     let n := 2 ^ (m - d + minN) in
     (n, d, task.mk (λ _, sumT d n 0)) :: depth (d+2) m

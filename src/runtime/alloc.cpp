@@ -204,7 +204,7 @@ void heap::import_objs() {
     while (to_import) {
         page * p = get_page_of(to_import);
         void * n = get_next_obj(to_import);
-        p->push_free_obj(n);
+        p->push_free_obj(to_import);
         to_import = n;
     }
 }

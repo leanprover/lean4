@@ -5,12 +5,13 @@ open Tree
 
 -- This function has an extra argument to suppress the
 -- Common Sub-expression Elimination optimization
-def make' : int -> nat -> Tree
-| _ 0 := Node Nil Nil
-| n (d+1) := Node (make' (n - 1) d) (make' (n + 1) d)
+def make' : uint32 -> uint32 -> Tree
+| n d :=
+  if d = 0 then Node Nil Nil
+  else Node (make' n (d - 1)) (make' (n + 1) (d - 1))
 
 -- build a tree
-def make (d : nat) := make' d d
+def make (d : uint32) := make' d d
 
 def check : Tree → uint32
 | Nil := 0
@@ -21,17 +22,18 @@ def minN := 4
 def out (s) (n : nat) (t : uint32) := io.println' (s ++ " of depth " ++ to_string n ++ "\t check: " ++ to_string t)
 
 -- allocate and check lots of trees
-def sumT : nat -> nat -> uint32 -> uint32
-| d 0 t := t
+def sumT : uint32 -> uint32 -> uint32 -> uint32
 | d i t :=
-  let a := check (make d) in
-  sumT d (i-1) (t + a)
+  if i = 0 then t
+  else
+    let a := check (make d) in
+    sumT d (i-1) (t + a)
 
 -- generate many trees
 meta def depth : nat -> nat -> list (nat × nat × task uint32)
 | d m := if d ≤ m then
     let n := 2 ^ (m - d + minN) in
-    (n, d, task.mk (λ _, sumT d n 0)) :: depth (d+2) m
+    (n, d, task.mk (λ _, sumT (uint32.of_nat d) (uint32.of_nat n) 0)) :: depth (d+2) m
   else []
 
 meta def main : list string → io uint32
@@ -41,11 +43,11 @@ meta def main : list string → io uint32
   let stretchN := maxN + 1,
 
   -- stretch memory tree
-  let c := check (make stretchN),
+  let c := check (make $ uint32.of_nat stretchN),
   out "stretch tree" stretchN c,
 
   -- allocate a long lived tree
-  let long := make maxN,
+  let long := make $ uint32.of_nat maxN,
 
   -- allocate, walk, and deallocate many bottom-up binary trees
   let vs := (depth minN maxN), -- `using` (parList $ evalTuple3 r0 r0 rseq)

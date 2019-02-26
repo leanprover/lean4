@@ -11,64 +11,58 @@ universes u v w w'
 inductive color
 | Red | Black
 
-inductive node (α : Type u) (β : Type v)
-| Leaf  {}                                                                      : node
-| Node  (color : color) (lchild : node) (key : α) (val : β) (rchild : node) : node
+inductive node
+| Leaf  {}                                                                       : node
+| Node  (color : color) (lchild : node) (key : nat) (val : bool) (rchild : node) : node
 
-variables {α : Type u} {β : Type v} {σ : Type w}
+variables {σ : Type w}
 open color nat node
 
-@[specialize] def fold (f : Π (k : α), β → σ → σ) : node α β → σ → σ
+def fold (f : nat → bool → σ → σ) : node → σ → σ
 | Leaf b               := b
 | (Node _ l k v r)   b := fold r (f k v (fold l b))
 
-def balance1 : node α β → node α β → node α β
+def balance1 : node → node → node
 | (Node _ _ kv vv t) (Node _ (Node Red l kx vx r₁) ky vy r₂) := Node Red (Node Black l kx vx r₁) ky vy (Node Black r₂ kv vv t)
 | (Node _ _ kv vv t) (Node _ l₁ ky vy (Node Red l₂ kx vx r)) := Node Red (Node Black l₁ ky vy l₂) kx vx (Node Black r kv vv t)
 | (Node _ _ kv vv t) (Node _ l  ky vy r)                     := Node Black (Node Red l ky vy r) kv vv t
 | _                                                        _ := Leaf
 
-def balance2 : node α β → node α β → node α β
+def balance2 : node → node → node
 | (Node _ t kv vv _) (Node _ (Node Red l kx₁ vx₁ r₁) ky vy r₂)  := Node Red (Node Black t kv vv l) kx₁ vx₁ (Node Black r₁ ky vy r₂)
 | (Node _ t kv vv _) (Node _ l₁ ky vy (Node Red l₂ kx₂ vx₂ r₂)) := Node Red (Node Black t kv vv l₁) ky vy (Node Black l₂ kx₂ vx₂ r₂)
 | (Node _ t kv vv _) (Node _ l ky vy r)                         := Node Black t kv vv (Node Red l ky vy r)
 | _                                                        _    := Leaf
 
-def is_red : node α β → bool
+def is_red : node → bool
 | (Node Red _ _ _ _) := tt
 | _                  := ff
 
-section insert
-variables (lt : α → α → Prop) [decidable_rel lt]
-
-@[specialize] def ins : node α β → α → β → node α β
+def ins : node → nat → bool → node
 | Leaf                 kx vx := Node Red Leaf kx vx Leaf
 | (Node Red a ky vy b) kx vx :=
-   (if lt kx ky then Node Red (ins a kx vx) ky vy b
-    else if lt ky kx then Node Red a ky vy (ins b kx vx)
+   (if kx < ky then Node Red (ins a kx vx) ky vy b
+    else if kx = ky then Node Red a kx vx b
     else Node Red a ky vy (ins b kx vx))
 | (Node Black a ky vy b) kx vx :=
-    if lt kx ky then
+    if kx < ky then
       (if is_red a then balance1 (Node Black Leaf ky vy b) (ins a kx vx)
        else Node Black (ins a kx vx) ky vy b)
-    else if lt ky kx then
-      (if is_red b then balance2 (Node Black a ky vy Leaf) (ins b kx vx)
-       else Node Black a ky vy (ins b kx vx))
-    else Node Black a kx vx b
+    else if kx = ky then Node Black a kx vx b
+    else if is_red b then balance2 (Node Black a ky vy Leaf) (ins b kx vx)
+         else Node Black a ky vy (ins b kx vx)
 
-def set_black : node α β → node α β
+def set_black : node → node
 | (Node _ l k v r) := Node Black l k v r
 | e                := e
 
-@[specialize] def insert (t : node α β) (k : α) (v : β) : node α β :=
-if is_red t then set_black (ins lt t k v)
-else ins lt t k v
+def insert (t : node) (k : nat) (v : bool) : node :=
+if is_red t then set_black (ins t k v)
+else ins t k v
 
-end insert
-
-def mk_map_aux : nat → node nat bool → node nat bool
+def mk_map_aux : nat → node → node
 | 0 m := m
-| (n+1) m := mk_map_aux n (insert (<) m n (n % 10 = 0))
+| (n+1) m := mk_map_aux n (insert m n (n % 10 = 0))
 
 def mk_map (n : nat) :=
 mk_map_aux n Leaf

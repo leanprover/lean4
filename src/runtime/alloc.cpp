@@ -164,7 +164,6 @@ static inline page * page_list_pop(page * & head) {
 }
 
 void page::push_free_obj(void * o) {
-    lean_assert(get_page_of(o) == this);
     set_next_obj(o, m_header.m_free_list);
     m_header.m_free_list = o;
     m_header.m_num_free++;

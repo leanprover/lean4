@@ -1790,7 +1790,9 @@ object * mk_array(obj_arg n, obj_arg v) {
 obj_res copy_array(obj_arg a, bool expand) {
     size_t sz      = array_size(a);
     size_t cap     = array_capacity(a);
+    lean_assert(cap >= sz);
     if (expand) cap = (cap + 1) * 2;
+    lean_assert(!expand || cap > sz);
     object * r     = alloc_array(sz, cap);
     object ** it   = array_cptr(a);
     object ** end  = it + sz;
@@ -1811,10 +1813,11 @@ object * array_push(obj_arg a, obj_arg v) {
         else
             r = copy_array(a, true);
     } else {
-        r = copy_array(a, array_capacity(a) < 2*array_size(a));
+        r = copy_array(a, array_capacity(a) < 2*array_size(a) + 1);
     }
-    size_t & sz = to_array(r)->m_size;
-    object ** it   = array_cptr(r) + sz;
+    lean_assert(array_capacity(r) > array_size(r));
+    size_t & sz  = to_array(r)->m_size;
+    object ** it = array_cptr(r) + sz;
     *it = v;
     sz++;
     return r;

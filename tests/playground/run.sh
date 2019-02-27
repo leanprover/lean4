@@ -3,6 +3,7 @@ if [ $# -eq 0 ]; then
     echo "Usage: run.sh [file] [args]*"
     exit 1
 fi
-./compile.sh $1
+ff=$1
+./compile.sh $ff
 shift 1
-"./$ff.out" $*
+time "./$ff.out" $*

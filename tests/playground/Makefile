@@ -8,7 +8,7 @@ BENCH=bench
 	./compile.sh $<
 
 %.hs.out: %.hs
-	ghc -O3 $< -o $<.out
+	ghc -fllvm -O3 $< -o $<.out
 
 %.ml.out: %.ml
 	ocamlopt -O3 $< -o $<.out
@@ -28,7 +28,10 @@ run_binarytrees.ml.out: binarytrees.ml.out
 run_binarytrees.lean.out: binarytrees.lean.out
 	time ./binarytrees.lean.out 21
 
-bench_binarytrees: binarytrees.*.out
+bench_deriv: deriv.lean.out deriv.hs.out deriv.ml.out
+	$(BENCH) ./deriv.lean.out ./deriv.hs.out ./deriv.ml.out
+
+bench_binarytrees: binarytrees.lean.out binarytrees.hs.out binarytrees.ml.out
 	$(BENCH) "make run_binarytrees.lean.out" "make run_binarytrees.hs.out" "make run_binarytrees.ml.out"
 
 bench_expr_const_folding: expr_const_folding.lean.out expr_const_folding.hs.out expr_const_folding.ml.out
@@ -36,6 +39,8 @@ bench_expr_const_folding: expr_const_folding.lean.out expr_const_folding.hs.out 
 
 bench_rbmap: rbmap.lean.out rbmap.hs.out rbmap.ml.out
 	$(BENCH) "./rbmap.lean.out 7000000" "./rbmap.hs.out 7000000" "./rbmap.ml.out 7000000"
+
+bench_all: bench_deriv bench_binarytrees bench_expr_const_folding bench_rbmap
 
 run_frontend:
 	cd ../.. && time bin/lean --new-frontend library/init/core.lean

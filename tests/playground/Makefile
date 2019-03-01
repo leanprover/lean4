@@ -20,7 +20,7 @@ run_binarytrees.hs.out: binarytrees.hs.out
 	time ./binarytrees.hs.out +RTS -N4 -K128M -H -RTS 21
 
 binarytrees.ml.out: binarytrees.ocaml-2.ml
-	ocamlopt -O3 unix.cmxa binarytrees.ocaml-2.ml -o binarytrees.ml.out
+	ocamlopt -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa binarytrees.ocaml-2.ml -o binarytrees.ml.out
 
 run_binarytrees.ml.out: binarytrees.ml.out
 	time ./binarytrees.ml.out 21

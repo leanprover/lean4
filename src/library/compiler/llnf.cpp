@@ -2065,6 +2065,13 @@ class explicit_rc_fn {
         }
     }
 
+    name_set collect_jp_live_vars(expr const & jp) {
+        expr val = get_value_of(jp);
+        name_set r;
+        collect_live_vars(val, r);
+        return r;
+    }
+
     /* Add RC increments for the `jmp` instruction arguments.
        Recall that `jmp` is similar to a regular a function application. The main difference is that it is a terminal,
        and we assume all arguments must be consumed. */
@@ -2075,7 +2082,8 @@ class explicit_rc_fn {
         get_app_args(e, args);
         /* Remark: we assume that all joint point arguments are consumed. */
         borrowed_args.resize(args.size(), false);
-        for (unsigned i = 0; i < args.size(); i++) {
+        name_set jp_live_vars = collect_jp_live_vars(args[0]);
+        for (unsigned i = 1; i < args.size(); i++) {
             expr const & arg = args[i];
             if (is_fvar(arg) &&
                 !is_llnf_unboxed_type(get_type_of(arg)) && /* it is not a unboxed/scalar value */
@@ -2083,6 +2091,35 @@ class explicit_rc_fn {
                 !is_boxed_scalar(arg) &&
                 is_first_occur(arg, i, args)) {
                 unsigned n = get_num_incs(arg, args, borrowed_args, name_set());
+                if (jp_live_vars.contains(fvar_name(arg))) {
+                    /* If arg is live in the join point, then we need to an extra inc.
+                       This case is easier to understand with an example.
+                       Suppose we have
+                       ```
+                       foo b x :=
+                         let jp y := bool.cases b (ret x) (ret y);
+                         bool.cases b
+                           (let w := 0; jmp jp w)
+                           (jmp jp x)
+                       ```
+                       Without the extra `inc`, we would produce
+                       ```
+                       foo b x :=
+                         let jp y := bool.cases b (dec y; ret x) (dec x; ret y);
+                         bool.cases b
+                          (let w := 0; jmp jp w)
+                          (jmp jp x)
+                       ```
+                       which is incorrect. Now consider, `foo tt "hello"`.
+                       The second branch of both `bool.cases` is executed. Thus,
+                       the RC of "hello" is decremented before we return it.
+                       In a join point, we must consume all parameters (`y` in this example),
+                       and any outer varible (`x` in this example) that is used by `jp`.
+                       The code for `jp` is correct. However, we are missing an `inc x`
+                       before `jmp jp x`.
+                       Given a `jmp jp x`, if `x` is alive in `jp`, then we must add an `inc x` before `jmp jp x`. */
+                    n++;
+                }
                 if (n > 0) {
                     add_inc(arg, entries);
                 }

@@ -1415,12 +1415,6 @@ object * string_append(object * s1, object * s2) {
     return r;
 }
 
-bool string_eq(object * s1, object * s2) {
-    if (string_size(s1) != string_size(s2))
-        return false;
-    return std::memcmp(string_cstr(s1), string_cstr(s2), string_size(s1)) == 0;
-}
-
 bool string_eq(object * s1, char const * s2) {
     if (string_size(s1) != strlen(s2) + 1)
         return false;
@@ -1726,7 +1720,7 @@ obj_res string_iterator_remove(obj_arg it, b_obj_arg n0) {
 obj_res string_iterator_extract(b_obj_arg it1, b_obj_arg it2) {
     object * s1 = it_string(it1);
     object * s2 = it_string(it2);
-    if (&s1 != &s2 && string_ne(s1, s2))
+    if (string_ne(s1, s2))
         return mk_option_none();
     size_t pos1 = it_pos(it1);
     size_t pos2 = it_pos(it2);

@@ -1113,9 +1113,9 @@ obj_res string_iterator_mk(obj_arg cs1, obj_arg cs2);
 obj_res string_iterator_fst(obj_arg it);
 obj_res string_iterator_snd(obj_arg it);
 
-bool string_eq(b_obj_arg s1, b_obj_arg s2);
-inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
+inline bool string_eq(b_obj_arg s1, b_obj_arg s2) { return s1 == s2 || (string_size(s1) == string_size(s2) && std::memcmp(string_cstr(s1), string_cstr(s2), string_size(s1)) == 0); }
 bool string_eq(b_obj_arg s1, char const * s2);
+inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
 bool string_lt(b_obj_arg s1, b_obj_arg s2);
 inline uint8 string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return string_eq(s1, s2); }
 inline uint8 string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return string_lt(s1, s2); }

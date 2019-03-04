@@ -15,13 +15,14 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_lean_string__to__name;
-obj* l_lean_name_quick__lt___main___boxed(obj*, obj*);
 obj* l_lean_name_has__append;
+obj* l_lean_name_quick__lt__core(obj*, obj*);
 obj* l_lean_name_replace__prefix___boxed(obj*, obj*, obj*);
 obj* l_lean_name_decidable__eq;
 obj* l_lean_mk__str__name(obj*, obj*);
 obj* l___private_init_lean_name_1__hash__aux___main___boxed(obj*, obj*);
 obj* l_lean_name_components_x_27(obj*);
+obj* l_lean_name_quick__lt__core___main___boxed(obj*, obj*);
 obj* l_lean_name_to__string(obj*);
 obj* l_list_reverse___rarg(obj*);
 extern "C" usize lean_name_hash_usize(obj*);
@@ -30,6 +31,7 @@ obj* l_lean_name_has__lt__quick;
 obj* l_lean_name_replace__prefix(obj*, obj*, obj*);
 obj* l_lean_name_get__prefix___main___boxed(obj*);
 obj* l_lean_inhabited;
+obj* l_lean_name_quick__lt__core___boxed(obj*, obj*);
 obj* l_lean_name_to__string___closed__1;
 namespace lean {
 obj* string_append(obj*, obj*);
@@ -76,8 +78,8 @@ extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_nat_repr(obj*);
 obj* l_lean_name_get__prefix___main(obj*);
 obj* l_lean_name_hash___boxed(obj*);
-obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_lean_name_append___main___boxed(obj*, obj*);
+obj* l_lean_name_quick__lt__core___main(obj*, obj*);
 obj* l_lean_name_to__string__with__sep___main___closed__1;
 obj* l_lean_name_get__prefix___boxed(obj*);
 obj* l_lean_name_has__to__string;
@@ -524,7 +526,7 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* l_lean_name_quick__lt___main(obj* x_0, obj* x_1) {
+obj* l_lean_name_quick__lt__core___main(obj* x_0, obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
@@ -649,11 +651,29 @@ return x_34;
 }
 }
 }
-obj* l_lean_name_quick__lt___main___boxed(obj* x_0, obj* x_1) {
+obj* l_lean_name_quick__lt__core___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_name_quick__lt___main(x_0, x_1);
+x_2 = l_lean_name_quick__lt__core___main(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_lean_name_quick__lt__core(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_lean_name_quick__lt__core___main(x_0, x_1);
+return x_2;
+}
+}
+obj* l_lean_name_quick__lt__core___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_lean_name_quick__lt__core(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -662,9 +682,35 @@ return x_2;
 obj* l_lean_name_quick__lt(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_lean_name_quick__lt___main(x_0, x_1);
-return x_2;
+usize x_2; usize x_3; uint8 x_4; 
+x_2 = lean_name_hash_usize(x_0);
+x_3 = lean_name_hash_usize(x_1);
+x_4 = x_2 < x_3;
+if (x_4 == 0)
+{
+uint8 x_5; 
+x_5 = x_3 < x_2;
+if (x_5 == 0)
+{
+obj* x_6; 
+x_6 = l_lean_name_quick__lt__core___main(x_0, x_1);
+return x_6;
+}
+else
+{
+uint8 x_7; obj* x_8; 
+x_7 = 0;
+x_8 = lean::box(x_7);
+return x_8;
+}
+}
+else
+{
+uint8 x_9; obj* x_10; 
+x_9 = 1;
+x_10 = lean::box(x_9);
+return x_10;
+}
 }
 }
 obj* l_lean_name_quick__lt___boxed(obj* x_0, obj* x_1) {
@@ -689,7 +735,7 @@ uint8 l_lean_name_decidable__rel(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
-x_2 = l_lean_name_quick__lt___main(x_0, x_1);
+x_2 = l_lean_name_quick__lt(x_0, x_1);
 x_3 = lean::unbox(x_2);
 if (x_3 == 0)
 {

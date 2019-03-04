@@ -128,6 +128,7 @@ obj* l_lean_ir_check__result__type___main(obj*, obj*, obj*, obj*);
 obj* l_lean_ir_get__type___closed__1;
 obj* l_list_mmap_x_27___main___at_lean_ir_instr_check___spec__3___boxed(obj*, obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_ir_phi_check___spec__1___boxed(obj*, obj*, obj*, obj*);
+obj* l_lean_name_quick__lt(obj*, obj*);
 obj* l_lean_ir_terminator_check___closed__1;
 obj* l_lean_ir_check__result__type___boxed(obj*, obj*, obj*, obj*);
 obj* l_lean_ir_is__arith__ty___boxed(obj*);
@@ -158,7 +159,6 @@ obj* l_lean_ir_literal_check(obj*, uint8, obj*, obj*);
 obj* l_lean_ir_type__check___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_ir_instr_check___spec__2___closed__1;
 uint8 l_rbnode_is__red___main___rarg(obj*);
-obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_lean_ir_type__check___lambda__2(obj*, obj*, obj*);
 obj* l_lean_ir_match__type___closed__1;
 obj* l_list_mmap_x_27___main___at_lean_ir_instr_check___spec__1(obj*, obj*, obj*);
@@ -1776,13 +1776,13 @@ lean::inc(x_7);
 x_9 = lean::cnstr_get(x_0, 3);
 lean::inc(x_9);
 lean::dec(x_0);
-x_12 = l_lean_name_quick__lt___main(x_1, x_5);
+x_12 = l_lean_name_quick__lt(x_1, x_5);
 x_13 = lean::unbox(x_12);
 if (x_13 == 0)
 {
 obj* x_15; uint8 x_17; 
 lean::dec(x_3);
-x_15 = l_lean_name_quick__lt___main(x_5, x_1);
+x_15 = l_lean_name_quick__lt(x_5, x_1);
 lean::dec(x_5);
 x_17 = lean::unbox(x_15);
 if (x_17 == 0)
@@ -1961,12 +1961,12 @@ if (lean::is_exclusive(x_0)) {
  lean::dec(x_0);
  x_16 = lean::box(0);
 }
-x_17 = l_lean_name_quick__lt___main(x_1, x_10);
+x_17 = l_lean_name_quick__lt(x_1, x_10);
 x_18 = lean::unbox(x_17);
 if (x_18 == 0)
 {
 obj* x_19; uint8 x_20; 
-x_19 = l_lean_name_quick__lt___main(x_10, x_1);
+x_19 = l_lean_name_quick__lt(x_10, x_1);
 x_20 = lean::unbox(x_19);
 if (x_20 == 0)
 {
@@ -2044,12 +2044,12 @@ if (lean::is_exclusive(x_0)) {
  lean::dec(x_0);
  x_40 = lean::box(0);
 }
-x_41 = l_lean_name_quick__lt___main(x_1, x_34);
+x_41 = l_lean_name_quick__lt(x_1, x_34);
 x_42 = lean::unbox(x_41);
 if (x_42 == 0)
 {
 obj* x_43; uint8 x_44; 
-x_43 = l_lean_name_quick__lt___main(x_34, x_1);
+x_43 = l_lean_name_quick__lt(x_34, x_1);
 x_44 = lean::unbox(x_43);
 if (x_44 == 0)
 {

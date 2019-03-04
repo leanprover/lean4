@@ -273,6 +273,7 @@ obj* l_lean_expander_error___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, ob
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__18(obj*, obj*);
 obj* l_lean_expander_declaration_transform___closed__1;
 obj* l_lean_expander_error___at_lean_expander_mk__notation__transformer___spec__1___boxed(obj*);
+obj* l_lean_name_quick__lt(obj*, obj*);
 obj* l_lean_expander_coe__binders__ext__binders(obj*);
 obj* l_lean_expander_mixfix_transform(obj*, obj*);
 obj* l_lean_parser_symbol__core___at_lean_parser_command_notation__spec_precedence__term_parser_lean_parser_has__tokens___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -343,7 +344,6 @@ obj* l_lean_expander_binding__annotation__update_parser_lean_parser_has__view;
 obj* l_lean_expander_expander__m;
 obj* l_lean_file__map_to__position(obj*, obj*);
 uint8 l_rbnode_is__red___main___rarg(obj*);
-obj* l_lean_name_quick__lt___main(obj*, obj*);
 obj* l_list_foldr___main___at_lean_expander_expand__binders___spec__5(obj*, obj*, obj*);
 obj* l_dlist_singleton___rarg(obj*, obj*);
 obj* l_lean_expander_get__opt__type___main___closed__1;
@@ -9914,12 +9914,12 @@ if (lean::is_exclusive(x_0)) {
  lean::dec(x_0);
  x_15 = lean::box(0);
 }
-x_16 = l_lean_name_quick__lt___main(x_1, x_9);
+x_16 = l_lean_name_quick__lt(x_1, x_9);
 x_17 = lean::unbox(x_16);
 if (x_17 == 0)
 {
 obj* x_18; uint8 x_19; 
-x_18 = l_lean_name_quick__lt___main(x_9, x_1);
+x_18 = l_lean_name_quick__lt(x_9, x_1);
 x_19 = lean::unbox(x_18);
 if (x_19 == 0)
 {
@@ -9996,12 +9996,12 @@ if (lean::is_exclusive(x_0)) {
  lean::dec(x_0);
  x_38 = lean::box(0);
 }
-x_39 = l_lean_name_quick__lt___main(x_1, x_32);
+x_39 = l_lean_name_quick__lt(x_1, x_32);
 x_40 = lean::unbox(x_39);
 if (x_40 == 0)
 {
 obj* x_41; uint8 x_42; 
-x_41 = l_lean_name_quick__lt___main(x_32, x_1);
+x_41 = l_lean_name_quick__lt(x_32, x_1);
 x_42 = lean::unbox(x_41);
 if (x_42 == 0)
 {

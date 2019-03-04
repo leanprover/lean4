@@ -55,8 +55,7 @@ def update_prefix : name → name → name
 | (mk_string p s)  new_p := mk_string new_p s
 | (mk_numeral p s) new_p := mk_numeral new_p s
 
-
-def components' : name -> list name
+def components' : name → list name
 | anonymous                := []
 | (mk_string n s)          := mk_string anonymous s :: components' n
 | (mk_numeral n v)         := mk_numeral anonymous v :: components' n
@@ -113,13 +112,18 @@ def replace_prefix : name → name → name → name
   else
     mk_numeral (p.replace_prefix query_p new_p) s
 
-def quick_lt : name → name → bool
+def quick_lt_core : name → name → bool
 | anonymous        anonymous          := ff
 | anonymous        _                  := tt
-| (mk_numeral n v) (mk_numeral n' v') := v < v' || (v = v' && n.quick_lt n')
+| (mk_numeral n v) (mk_numeral n' v') := v < v' || (v = v' && n.quick_lt_core n')
 | (mk_numeral _ _) (mk_string _ _)    := tt
-| (mk_string n s)  (mk_string n' s')  := s < s' || (s = s' && n.quick_lt n')
+| (mk_string n s)  (mk_string n' s')  := s < s' || (s = s' && n.quick_lt_core n')
 | _                _                  := ff
+
+def quick_lt (n₁ n₂ : name) : bool :=
+if n₁.hash < n₂.hash then tt
+else if n₁.hash > n₂.hash then ff
+else quick_lt_core n₁ n₂
 
 /- Alternative has_lt instance. -/
 @[inline] protected def has_lt_quick : has_lt name :=

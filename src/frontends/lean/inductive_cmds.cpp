@@ -348,6 +348,7 @@ struct inductive_cmd_fn {
     }
 
     void check_constant_resultant_universe(expr const & ir, level const & constant_resultant_level) {
+        return; // I am disabling this check here because it is broken See: tests/lean/ind_cmd_bug.lean
         type_context_old ctx(m_env);
         expr ty = local_type_p(ir);
         unsigned ir_arg = 0;

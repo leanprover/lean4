@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/debug.h"
 #include "runtime/compiler_hints.h"
+#include "runtime/object.h"
 
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
 #define LEAN_PAGE_SIZE             8192        // 8 Kb
@@ -17,6 +18,30 @@ Author: Leonardo de Moura
 #define LEAN_MAX_TO_EXPORT_OBJS      1024
 
 namespace lean {
+#ifdef LEAN_RUNTIME_STATS
+static atomic<uint64> g_num_alloc(0);
+static atomic<uint64> g_num_small_alloc(0);
+static atomic<uint64> g_num_dealloc(0);
+static atomic<uint64> g_num_small_dealloc(0);
+static atomic<uint64> g_num_segments(0);
+static atomic<uint64> g_num_pages(0);
+static atomic<uint64> g_num_exports(0);
+static atomic<uint64> g_num_recycled_pages(0);
+struct alloc_stats {
+    ~alloc_stats() {
+        std::cerr << "num. alloc.:         " << g_num_alloc << "\n";
+        std::cerr << "num. small alloc.:   " << g_num_small_alloc << "\n";
+        std::cerr << "num. dealloc.:       " << g_num_dealloc << "\n";
+        std::cerr << "num. small dealloc.: " << g_num_small_dealloc << "\n";
+        std::cerr << "num. segments:       " << g_num_segments << "\n";
+        std::cerr << "num. pages:          " << g_num_pages << "\n";
+        std::cerr << "num. recycled pages: " << g_num_recycled_pages << "\n";
+        std::cerr << "num. exports:        " << g_num_exports << "\n";
+    }
+};
+static alloc_stats g_alloc_stats;
+#endif
+
 struct heap;
 struct page;
 
@@ -171,6 +196,7 @@ void page::push_free_obj(void * o) {
         heap * h = get_heap();
         unsigned slot_idx = m_header.m_slot_idx;
         if (this != h->m_curr_page[slot_idx]) {
+            LEAN_RUNTIME_STAT_CODE(g_num_recycled_pages++);
             m_header.m_in_page_free_list = true;
             page_list_remove(h->m_curr_page[slot_idx], this);
             page_list_insert(h->m_page_free_list[slot_idx], this);
@@ -261,6 +287,7 @@ void heap::alloc_segment() {
         s->m_next      = m_curr_segment;
         m_curr_segment = s;
     } else {
+        LEAN_RUNTIME_STAT_CODE(g_num_segments++);
         segment * s = new segment();
         s->m_next   = m_curr_segment;
         m_curr_segment = s;
@@ -270,6 +297,7 @@ void heap::alloc_segment() {
 static page * alloc_page(heap * h, unsigned obj_size) {
     lean_assert(align(obj_size, LEAN_OBJECT_SIZE_DELTA) == obj_size);
     segment * s = h->m_curr_segment;
+    LEAN_RUNTIME_STAT_CODE(g_num_pages++);
     page * p    = new (s->m_next_page_mem) page();
     s->m_next_page_mem += LEAN_PAGE_SIZE;
     if (s->m_next_page_mem + LEAN_PAGE_SIZE > s->m_data + LEAN_SEGMENT_SIZE) {
@@ -332,12 +360,14 @@ static void init_heap(bool main) {
 
 void * alloc(size_t sz) {
     sz = align(sz, LEAN_OBJECT_SIZE_DELTA);
+    LEAN_RUNTIME_STAT_CODE(g_num_alloc++);
     if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
         return malloc(sz);
     }
     if (LEAN_UNLIKELY(g_heap == nullptr)) {
         init_heap(false);
     }
+    LEAN_RUNTIME_STAT_CODE(g_num_small_alloc++);
     unsigned slot_idx = get_slot_idx(sz);
     page * p = g_heap->m_curr_page[slot_idx];
     void * r = p->m_header.m_free_list;
@@ -359,10 +389,12 @@ void * alloc(size_t sz) {
 }
 
 void dealloc(void * o, size_t sz) {
+    LEAN_RUNTIME_STAT_CODE(g_num_dealloc++);
     sz = align(sz, LEAN_OBJECT_SIZE_DELTA);
     if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
         return free(o);
     }
+    LEAN_RUNTIME_STAT_CODE(g_num_small_dealloc++);
     lean_assert(g_heap);
     page * p = get_page_of(o);
     if (LEAN_LIKELY(p->get_heap() == g_heap)) {
@@ -372,6 +404,7 @@ void dealloc(void * o, size_t sz) {
         g_heap->m_to_export_list = o;
         g_heap->m_to_export_list_size++;
         if (g_heap->m_to_export_list_size > LEAN_MAX_TO_EXPORT_OBJS) {
+            LEAN_RUNTIME_STAT_CODE(g_num_exports++);
             g_heap->export_objs();
         }
     }

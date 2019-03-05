@@ -29,6 +29,23 @@ typedef unsigned           uint32;
 typedef unsigned long long uint64;
 typedef size_t             usize;
 
+#ifdef LEAN_RUNTIME_STATS
+#define LEAN_RUNTIME_STAT_CODE(c) c
+extern atomic<uint64> g_num_ctor;
+extern atomic<uint64> g_num_closure;
+extern atomic<uint64> g_num_string;
+extern atomic<uint64> g_num_array;
+extern atomic<uint64> g_num_thunk;
+extern atomic<uint64> g_num_task;
+extern atomic<uint64> g_num_st_inc;
+extern atomic<uint64> g_num_mt_inc;
+extern atomic<uint64> g_num_st_dec;
+extern atomic<uint64> g_num_mt_dec;
+extern atomic<uint64> g_num_del;
+#else
+#define LEAN_RUNTIME_STAT_CODE(c)
+#endif
+
 /* Objects can be stored in 5 different kinds of memory:
    - `MTHeap`: multi-threaded heap, the reference counter (RC) is updated using atomic operations.
       All objects reachable from an object in the `MTHeap` are in `MTHeap`, `Persistent` or `Region`.
@@ -279,16 +296,20 @@ inline bool is_exclusive(object * o) { return is_heap_obj(o) && !is_shared(o); }
 
 inline void inc_ref(object * o) {
     if (LEAN_LIKELY(is_st_heap_obj(o))) {
+        LEAN_RUNTIME_STAT_CODE(g_num_st_inc++);
         st_rc_ref(o)++;
     } else if (is_mt_heap_obj(o)) {
+        LEAN_RUNTIME_STAT_CODE(g_num_mt_inc++);
         atomic_fetch_add_explicit(mt_rc_addr(o), static_cast<rc_type>(1), memory_order_relaxed);
     }
 }
 
 inline void inc_ref(object * o, rc_type n) {
     if (LEAN_LIKELY(is_st_heap_obj(o))) {
+        LEAN_RUNTIME_STAT_CODE(g_num_st_inc++);
         st_rc_ref(o) += n;
     } else if (is_mt_heap_obj(o)) {
+        LEAN_RUNTIME_STAT_CODE(g_num_mt_inc++);
         atomic_fetch_add_explicit(mt_rc_addr(o), static_cast<rc_type>(n), memory_order_relaxed);
     }
 }
@@ -296,8 +317,10 @@ inline void inc_ref(object * o, rc_type n) {
 inline void dec_shared_ref(object * o) {
     lean_assert(is_shared(o));
     if (LEAN_LIKELY(is_st_heap_obj(o))) {
+        LEAN_RUNTIME_STAT_CODE(g_num_st_dec++);
         st_rc_ref(o)--;
     } else if (is_mt_heap_obj(o)) {
+        LEAN_RUNTIME_STAT_CODE(g_num_mt_dec++);
         atomic_fetch_sub_explicit(mt_rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel);
     }
 }
@@ -305,10 +328,12 @@ inline void dec_shared_ref(object * o) {
 inline bool dec_ref_core(object * o) {
     if (LEAN_LIKELY(is_st_heap_obj(o))) {
         lean_assert(get_rc(o) > 0);
+        LEAN_RUNTIME_STAT_CODE(g_num_st_dec++);
         st_rc_ref(o)--;
         return st_rc_ref(o) == 0;
     } else if (is_mt_heap_obj(o)) {
         lean_assert(get_rc(o) > 0);
+        LEAN_RUNTIME_STAT_CODE(g_num_mt_dec++);
         return atomic_fetch_sub_explicit(mt_rc_addr(o), static_cast<rc_type>(1), memory_order_acq_rel) == 1;
     } else {
         return false;
@@ -522,6 +547,7 @@ bool int_big_lt(object * a1, object * a2);
 // =======================================
 // Constructor objects
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
+    LEAN_RUNTIME_STAT_CODE(g_num_ctor++);
     lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
     return new (alloc_heap_object(cnstr_byte_size(num_objs, scalar_sz))) constructor_object(tag, num_objs, scalar_sz); // NOLINT
 }
@@ -560,6 +586,7 @@ inline unsigned obj_tag(b_obj_arg o) { if (is_scalar(o)) return unbox(o); else r
 // Closures
 
 inline obj_res alloc_closure(void * fun, unsigned arity, unsigned num_fixed) {
+    LEAN_RUNTIME_STAT_CODE(g_num_closure++);
     lean_assert(arity > 0);
     lean_assert(num_fixed < arity);
     return new (alloc_heap_object(closure_byte_size(num_fixed))) closure_object(fun, arity, num_fixed); // NOLINT
@@ -586,6 +613,7 @@ inline obj_res alloc_closure(object*(*fun)(object *, object *, object *), unsign
 // Array of objects
 
 inline obj_res alloc_array(size_t size, size_t capacity) {
+    LEAN_RUNTIME_STAT_CODE(g_num_array++);
     return new (alloc_heap_object(array_byte_size(capacity))) array_object(size, capacity); // NOLINT
 }
 inline size_t array_size(b_obj_arg o) { return to_array(o)->m_size; }
@@ -645,6 +673,7 @@ inline mpz const & mpz_value(b_obj_arg o) { return to_mpz(o)->m_value; }
 // Thunks
 
 inline obj_res mk_thunk(obj_arg c) {
+    LEAN_RUNTIME_STAT_CODE(g_num_thunk++);
     return new (alloc_heap_object(sizeof(thunk_object))) thunk_object(c, false); // NOLINT
 }
 
@@ -1080,6 +1109,7 @@ inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cns
 // String
 
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
+    LEAN_RUNTIME_STAT_CODE(g_num_string++);
     return new (alloc_heap_object(string_byte_size(capacity))) string_object(size, capacity, len); // NOLINT
 }
 obj_res mk_string(char const * s);

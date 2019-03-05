@@ -193,6 +193,7 @@ static inline void free_parray_obj(object * o) {
 
 static void del_core(object * o, object * & todo) {
     lean_assert(is_heap_obj(o));
+    LEAN_RUNTIME_STAT_CODE(g_num_del++);
     switch (get_kind(o)) {
     case object_kind::Constructor: {
         object ** it  = cnstr_obj_cptr(o);
@@ -905,10 +906,12 @@ task_object::task_object(obj_arg v):
 }
 
 static task_object * alloc_task(obj_arg c, unsigned prio) {
+    LEAN_RUNTIME_STAT_CODE(g_num_task++);
     return new (alloc_heap_object(sizeof(task_object))) task_object(c, prio); // NOLINT
 }
 
 static task_object * alloc_task(obj_arg v) {
+    LEAN_RUNTIME_STAT_CODE(g_num_task++);
     return new (alloc_heap_object(sizeof(task_object))) task_object(v); // NOLINT
 }
 
@@ -1849,6 +1852,38 @@ object * dbg_sleep(uint32 ms, obj_arg fn) {
     this_thread::sleep_for(c);
     return apply_1(fn, box(0));
 }
+
+// =======================================
+// Statistics
+#ifdef LEAN_RUNTIME_STATS
+atomic<uint64> g_num_ctor(0);
+atomic<uint64> g_num_closure(0);
+atomic<uint64> g_num_string(0);
+atomic<uint64> g_num_array(0);
+atomic<uint64> g_num_thunk(0);
+atomic<uint64> g_num_task(0);
+atomic<uint64> g_num_st_inc(0);
+atomic<uint64> g_num_mt_inc(0);
+atomic<uint64> g_num_st_dec(0);
+atomic<uint64> g_num_mt_dec(0);
+atomic<uint64> g_num_del(0);
+struct runtime_stats {
+    ~runtime_stats() {
+        std::cerr << "num. constructors:   " << g_num_ctor << "\n";
+        std::cerr << "num. closures:       " << g_num_closure << "\n";
+        std::cerr << "num. strings:        " << g_num_string << "\n";
+        std::cerr << "num. array:          " << g_num_array << "\n";
+        std::cerr << "num. thunk:          " << g_num_thunk << "\n";
+        std::cerr << "num. task:           " << g_num_task << "\n";
+        std::cerr << "num. ST inc:         " << g_num_st_inc << "\n";
+        std::cerr << "num. MT inc:         " << g_num_mt_inc << "\n";
+        std::cerr << "num. ST dec:         " << g_num_st_dec << "\n";
+        std::cerr << "num. MT dec:         " << g_num_mt_dec << "\n";
+        std::cerr << "num. del:            " << g_num_del << "\n";
+    }
+};
+runtime_stats g_runtime_stats;
+#endif
 }
 
 extern "C" void lean_dbg_print_str(lean::object* o) { lean::dbg_print_str(o); }

@@ -1,7 +1,10 @@
+#BENCH=./bad_bench
+BENCH=bench
+
 # make gets confused by the .cpp files otherwise
 %.lean: ;
 
-%.lean.out: %.lean
+%.lean.out: %.lean ../compiler/test_flags.sh
 	./compile.sh $<
 
 %.hs.out: %.hs
@@ -26,10 +29,16 @@ run_binarytrees.lean.out: binarytrees.lean.out
 	time ./binarytrees.lean.out 21
 
 bench_binarytrees: binarytrees.*.out
-	bench "make run_binarytrees.lean.out" "make run_binarytrees.hs.out" "make run_binarytrees.ml.out"
+	$(BENCH) "make run_binarytrees.lean.out" "make run_binarytrees.hs.out" "make run_binarytrees.ml.out"
 
 bench_expr_const_folding: expr_const_folding.lean.out expr_const_folding.hs.out expr_const_folding.ml.out
-	bench ./expr_const_folding.lean.out ./expr_const_folding.hs.out ./expr_const_folding.ml.out
+	$(BENCH) ./expr_const_folding.lean.out ./expr_const_folding.hs.out ./expr_const_folding.ml.out
 
 bench_rbmap: rbmap.lean.out rbmap.hs.out rbmap.ml.out
-	bench "./rbmap.lean.out 7000000" "./rbmap.hs.out 7000000" "./rbmap.ml.out 7000000"
+	$(BENCH) "./rbmap.lean.out 7000000" "./rbmap.hs.out 7000000" "./rbmap.ml.out 7000000"
+
+run_frontend:
+	cd ../.. && time bin/lean --new-frontend library/init/core.lean
+
+bench_lean: deriv.lean.out expr_const_folding.lean.out rbmap.lean.out binarytrees.lean.out ../../bin/lean unionfind1.lean.out unionfind2.lean.out
+	$(BENCH) ./deriv.lean.out ./expr_const_folding.lean.out "./rbmap.lean.out 7000000" "./binarytrees.lean.out 21" "make run_frontend" "./unionfind1.lean.out 3000000" "./unionfind2.lean.out 3000000"

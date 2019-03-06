@@ -70,6 +70,10 @@ scalar values, and a sequence of other scalar values. -/
 structure ctor_info :=
 (id : name) (cidx : nat) (usize : nat) (ssize : nat)
 
+def ctor_info.beq : ctor_info → ctor_info → bool
+| ⟨id₁, cidx₁, usize₁, ssize₁⟩ ⟨id₂, cidx₂, usize₂, ssize₂⟩ :=
+  id₁ = id₂ && cidx₁ = cidx₂ && usize₁ = usize₂ && ssize₁ = ssize₂
+
 inductive expr
 | ctor (i : ctor_info) (ys : list arg)
 | reset (x : varid)
@@ -167,6 +171,26 @@ with alts.is_pure : list (alt fnbody) → bool
 with alt.is_pure : alt fnbody → bool
 | (alt.ctor _ b)  := b.is_pure
 | (alt.default b) := ff
+
+def varid.alpha_eqv (ρ : name_map name) (v₁ v₂ : varid) : bool :=
+v₁ = v₂ || ρ.find v₁ = v₂
+
+def arg.alpha_eqv (ρ : name_map name) : arg → arg → bool
+| (arg.var v₁)   (arg.var v₂)   := varid.alpha_eqv ρ v₁ v₂
+| arg.irrelevant arg.irrelevant := tt
+| _              _              := ff
+
+def args.alpha_eqv (ρ : name_map name) : list arg → list arg → bool
+| []      []      := tt
+| (a::as) (b::bs) := arg.alpha_eqv ρ a b && args.alpha_eqv as bs
+| _       _       := ff
+
+def expr.alpha_eqv (ρ : name_map name) : expr → expr → bool
+| (expr.ctor i₁ ys₁)     (expr.ctor i₂ ys₂)     := ctor_info.beq i₁ i₂ && args.alpha_eqv ρ ys₁ ys₂
+| (expr.reset x₁)        (expr.reset x₂)        := varid.alpha_eqv ρ x₁ x₂
+| (expr.reuse x₁ i₁ ys₁) (expr.reuse x₂ i₂ ys₂) := varid.alpha_eqv ρ x₁ x₂ && ctor_info.beq i₁ i₂ && args.alpha_eqv ρ ys₁ ys₂
+-- TODO(Leo): remaining cases
+| _                      _                      := ff
 
 end ir
 end lean

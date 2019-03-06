@@ -952,7 +952,7 @@ return x_2;
 obj* l_lean_parser_parse__quoted__char___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_8; obj* x_11; obj* x_12; obj* x_13; obj* x_15; obj* x_17; obj* x_19; obj* x_21; uint32 x_23; obj* x_24; obj* x_25; 
+obj* x_5; obj* x_8; obj* x_11; obj* x_12; obj* x_13; obj* x_15; obj* x_17; obj* x_19; obj* x_21; uint32 x_23; obj* x_25; obj* x_26; 
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
 lean::dec(x_0);
@@ -972,9 +972,10 @@ lean::dec(x_17);
 x_21 = lean::nat_add(x_19, x_4);
 lean::dec(x_19);
 x_23 = l_char_of__nat(x_21);
-x_24 = lean::box_uint32(x_23);
-x_25 = lean::apply_2(x_8, lean::box(0), x_24);
-return x_25;
+lean::dec(x_21);
+x_25 = lean::box_uint32(x_23);
+x_26 = lean::apply_2(x_8, lean::box(0), x_25);
+return x_26;
 }
 }
 obj* l_lean_parser_parse__quoted__char___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
@@ -1024,7 +1025,7 @@ return x_7;
 obj* l_lean_parser_parse__quoted__char___rarg___lambda__5(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_6; obj* x_9; obj* x_10; obj* x_11; uint32 x_13; obj* x_14; obj* x_15; 
+obj* x_3; obj* x_6; obj* x_9; obj* x_10; obj* x_11; uint32 x_13; obj* x_15; obj* x_16; 
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 lean::dec(x_0);
@@ -1036,9 +1037,10 @@ x_10 = lean::nat_mul(x_9, x_1);
 x_11 = lean::nat_add(x_10, x_2);
 lean::dec(x_10);
 x_13 = l_char_of__nat(x_11);
-x_14 = lean::box_uint32(x_13);
-x_15 = lean::apply_2(x_6, lean::box(0), x_14);
-return x_15;
+lean::dec(x_11);
+x_15 = lean::box_uint32(x_13);
+x_16 = lean::apply_2(x_6, lean::box(0), x_15);
+return x_16;
 }
 }
 obj* l_lean_parser_parse__quoted__char___rarg___lambda__6(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

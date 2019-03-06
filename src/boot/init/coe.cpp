@@ -33,6 +33,7 @@ obj* l_coe__option___rarg(obj*);
 obj* l_lift___boxed(obj*, obj*);
 obj* l_coe__trans(obj*, obj*, obj*);
 obj* l_coe__fn__trans(obj*, obj*);
+obj* l_id___rarg___boxed(obj*);
 obj* l_lift__list(obj*, obj*);
 obj* l_lift__pair_u_2082(obj*, obj*, obj*);
 obj* l_coe__sort(obj*);
@@ -68,7 +69,6 @@ obj* l_coe__sort__trans___rarg(obj*, obj*, obj*);
 obj* l_coe__base__aux___rarg(obj*);
 obj* l_lift__fn__range___boxed(obj*, obj*, obj*);
 obj* l_lift__list___boxed(obj*, obj*);
-obj* l_id___rarg(obj*);
 obj* l_coe__bool__to__Prop;
 obj* l_lift__fn__dom(obj*, obj*, obj*);
 obj* l_coe__subtype___boxed(obj*, obj*);
@@ -337,7 +337,7 @@ obj* l_lift__refl(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg), 1, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
 return x_1;
 }
 }

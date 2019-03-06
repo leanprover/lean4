@@ -16,6 +16,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_reader__t_bind___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_adapt(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_monad__functor__t__trans___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad__except___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg___lambda__8___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_pure___rarg(obj*, obj*, obj*, obj*);
@@ -88,7 +89,6 @@ obj* l_reader__t_monad___rarg___lambda__9___boxed(obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg___lambda__10(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_monad__reader__runner__trans(obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad__run___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_monad__functor__t__trans___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg(obj*);
 obj* l_monad__reader__trans___rarg(obj*, obj*);
 obj* l_reader__t_monad__except___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
@@ -954,7 +954,7 @@ obj* l_monad__reader__adapter__trans___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x
 _start:
 {
 obj* x_5; obj* x_6; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__functor__t__trans___rarg___lambda__1), 4, 2);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__functor__t__trans___rarg___lambda__1___boxed), 4, 2);
 lean::closure_set(x_5, 0, x_1);
 lean::closure_set(x_5, 1, x_3);
 x_6 = lean::apply_3(x_0, lean::box(0), x_5, x_4);

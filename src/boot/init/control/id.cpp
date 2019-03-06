@@ -14,12 +14,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_id___boxed(obj*);
 obj* l_id_run___boxed(obj*);
 obj* l_id_run(obj*);
 obj* l_id_monad___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_id_bind___rarg(obj*, obj*);
 obj* l_id_bind(obj*, obj*);
-obj* l_id(obj*);
 obj* l_id_monad;
 obj* l_id_run___rarg(obj*);
 obj* l_id_monad___lambda__3(obj*, obj*, obj*, obj*);
@@ -89,7 +89,7 @@ lean::inc(x_0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_0);
 lean::cnstr_set(x_4, 1, x_1);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_id), 1, 0);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_id___boxed), 1, 0);
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_id_monad___lambda__3___boxed), 4, 0);
 x_7 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_7, 0, x_4);

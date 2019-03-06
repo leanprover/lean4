@@ -25,6 +25,7 @@ obj* l_except_monad___lambda__3(obj*, obj*, obj*, obj*);
 obj* l_except__t_except__t__of__except___boxed(obj*, obj*);
 obj* l_monad__except_lift__except___main___boxed(obj*, obj*, obj*);
 obj* l_except__t_has__monad__lift___rarg(obj*);
+obj* l_monad__functor__t__trans___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_except_catch___rarg(obj*, obj*);
 obj* l_except__t_bind___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__5___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -75,7 +76,6 @@ obj* l_except__t_bind__cont___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_has__monad__lift___boxed(obj*, obj*);
 obj* l_monad__except_orelse(obj*, obj*);
 obj* l_except__t_adapt___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_function_const___rarg(obj*, obj*);
 obj* l_except__t_monad__except___boxed(obj*, obj*);
 obj* l_except_repr___main___boxed(obj*, obj*);
 obj* l_except__t_monad___rarg___lambda__5___boxed(obj*, obj*, obj*);
@@ -83,6 +83,7 @@ obj* l_monad__except__adapter__trans___rarg___boxed(obj*, obj*, obj*, obj*, obj*
 obj* l_except_map___rarg(obj*, obj*);
 obj* l_except_monad___lambda__5(obj*, obj*, obj*, obj*);
 obj* l_except_map__error___rarg(obj*, obj*);
+obj* l_function_const___rarg___boxed(obj*, obj*);
 obj* l_except_catch___boxed(obj*, obj*);
 obj* l_except_map___main___boxed(obj*, obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -181,7 +182,6 @@ obj* l_except_has__repr___boxed(obj*, obj*);
 obj* l_except__t_run___rarg___boxed(obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__3___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_monad___rarg___lambda__4(obj*, obj*, obj*, obj*, obj*);
-obj* l_monad__functor__t__trans___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_except__t_mk___rarg(obj*);
 obj* l_except_return___rarg(obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__7(obj*, obj*);
@@ -2267,7 +2267,7 @@ obj* l_except__t_monad___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3
 _start:
 {
 obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg), 2, 1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_3);
 lean::inc(x_0);
 x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_except__t_return___rarg___boxed), 3, 2);
@@ -3098,7 +3098,7 @@ obj* l_monad__except__adapter__trans___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x
 _start:
 {
 obj* x_5; obj* x_6; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__functor__t__trans___rarg___lambda__1), 4, 2);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_monad__functor__t__trans___rarg___lambda__1___boxed), 4, 2);
 lean::closure_set(x_5, 0, x_1);
 lean::closure_set(x_5, 1, x_3);
 x_6 = lean::apply_3(x_0, lean::box(0), x_5, x_4);

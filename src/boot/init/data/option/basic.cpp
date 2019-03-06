@@ -35,11 +35,11 @@ obj* l_option_is__some___main___rarg___boxed(obj*);
 obj* l_option_alternative___lambda__1(obj*);
 obj* l_option_monad___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_option_to__monad___main___boxed(obj*);
-obj* l_function_const___rarg(obj*, obj*);
 obj* l_option_alternative___lambda__1___boxed(obj*);
 obj* l_option_to__monad___boxed(obj*, obj*);
 obj* l_option_to__bool___rarg___boxed(obj*);
 obj* l_option_monad___lambda__4(obj*, obj*, obj*, obj*);
+obj* l_function_const___rarg___boxed(obj*, obj*);
 uint8 l_option_is__some___rarg(obj*);
 obj* l_option_orelse___main___rarg(obj*, obj*);
 obj* l_option_get___main___rarg___boxed(obj*, obj*);
@@ -727,7 +727,7 @@ obj* l_option_monad___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg___boxed), 2, 1);
 lean::closure_set(x_4, 0, x_2);
 x_5 = l_option_map___rarg(x_4, x_3);
 return x_5;

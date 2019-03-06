@@ -34,6 +34,11 @@ structure module_parser_output :=
 
 section
 local attribute [reducible] parser_core_t
+/- We do not need `expected/consumed` handling in this top-level parser that
+   just delegates to other parsers. More importantly, the standard
+   `parsec_t.bind x f` does not call `f` in a tail position and so destroys the
+   tail recursion of `commands_aux`. -/
+local attribute [instance] parsec_t.monad'
 /- NOTE: missing the `reader_t` from `parser_t` because the `coroutine` already provides
    `monad_reader module_parser_config`. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_coroutine]
@@ -86,8 +91,9 @@ node! «header» [«prelude»: prelude.parser?, imports: import.parser*]
     as well as unknown commands (skip input). -/
 private def commands_aux : bool → nat → module_parser_m unit
 | recovering 0            := error "unreachable"
--- on end of input, return list of parsed commands
-| recovering (nat.succ n) := monad_parsec.eoi <|> do
+| recovering (nat.succ n) := do
+  -- terminate at EOF
+  nat.succ _ ← remaining | pure (),
   (recovering, c) ← catch (do {
     cfg ← read,
     c ← monad_lift $ command.parser.run cfg.command_parsers,
@@ -105,6 +111,8 @@ private def commands_aux : bool → nat → module_parser_m unit
       log_message msg,
       pure (tt, some msg.custom.get)
     },
+  /- NOTE: We need to make very sure that these recursive calls are happening in tail positions.
+     Otherwise, resuming the coroutine is linear in the number of previous commands. -/
   match c with
   | some c := yield_command c *> commands_aux recovering n
   | none   := commands_aux recovering n

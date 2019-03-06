@@ -115,8 +115,20 @@ match ex₁, r with
  | ok a it ex₁  := bind_mk_res ex₁ <$> q a it
  | error msg c  := pure (error msg c)
 
+/-- More efficient `bind` that does not correctly merge `expected` and `consumed` information. -/
+@[inline] def bind' (p : parsec_t μ m α) (q : α → parsec_t μ m β) : parsec_t μ m β :=
+λ it, do
+ r ← p it,
+ match r with
+ | ok a it ex₁  := q a it
+ | error msg c  := pure (error msg c)
+
 instance : monad (parsec_t μ m) :=
 { bind := λ _ _, parsec_t.bind, pure := λ _, parsec_t.pure }
+
+/-- `monad` instance using `bind'`. -/
+def monad' : monad (parsec_t μ m) :=
+{ bind := λ _ _, parsec_t.bind', pure := λ _, parsec_t.pure }
 
 instance : monad_fail parsec' :=
 { fail := λ _ s it, error { unexpected := s, it := it, custom := () } ff }

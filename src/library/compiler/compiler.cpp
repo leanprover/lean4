@@ -94,6 +94,7 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
         unsigned arity = get_num_nested_lambdas(v);
         t = ensure_arity(t, arity);
         lean_trace(name({"compiler", "stage2"}), tout() << n << " : " << t << "\n";);
+        lean_trace(name({"compiler", "ll_infer_type"}), tout() << n << " : " << t << "\n";);
         env = register_stage2_decl(env, n, t, v);
     }
     return env;
@@ -244,6 +245,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "boxed"});
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
+    register_trace_class({"compiler", "ll_infer_type"});
 }
 
 void finalize_compiler() {

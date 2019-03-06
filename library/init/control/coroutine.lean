@@ -97,7 +97,7 @@ open well_founded_tactics
 
 -/
 
-protected def bind : coroutine α δ β → (β → coroutine α δ γ) → coroutine α δ γ
+@[inline_if_reduce] protected def bind : coroutine α δ β → (β → coroutine α δ γ) → coroutine α δ γ
 | (mk k) f := mk $ λ a,
     match k a, rfl : ∀ (n : _), n = k a → _ with
     | done b, _      := coroutine.resume (f b) a

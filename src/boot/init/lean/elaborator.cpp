@@ -242,6 +242,7 @@ obj* l_list_mmap___main___at_lean_elaborator_to__pexpr___main___spec__13(obj*, o
 obj* l_lean_elaborator_ordered__rbmap_insert___at_lean_elaborator_variables_elaborate___spec__3(obj*, obj*, obj*);
 obj* l_lean_environment_contains___boxed(obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_to__pexpr___main___spec__17(obj*, obj*, obj*, obj*);
+obj* l_lean_parser_module_yield__command___lambda__7___boxed(obj*, obj*);
 extern obj* l_lean_name_to__string___closed__1;
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__6(obj*, obj*, obj*);
 namespace lean {
@@ -664,7 +665,6 @@ obj* l_lean_elaborator_mk__eqns(obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_to__pexpr___main___spec__10___boxed(obj*, obj*, obj*, obj*);
 obj* l_rbmap_insert___main___at_lean_elaborator_old__elab__command___spec__3(obj*, obj*, obj*);
 obj* l_lean_elaborator_locally___rarg___lambda__1(obj*);
-obj* l_lean_parser_module_yield__command___lambda__6___boxed(obj*, obj*);
 obj* l_lean_elaborator_level__add___main(obj*, obj*);
 obj* l_lean_elaborator_elaborate__command___boxed(obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg(obj*);
@@ -22267,7 +22267,7 @@ x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
 lean::dec(x_0);
 lean::inc(x_1);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_module_yield__command___lambda__6___boxed), 2, 1);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_module_yield__command___lambda__7___boxed), 2, 1);
 lean::closure_set(x_7, 0, x_1);
 x_8 = l_lean_elaborator_yield__to__outside___rarg___lambda__2___closed__1;
 x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_coroutine_bind___main___rarg), 3, 2);

@@ -80,11 +80,9 @@ obj* l_lean_level_to__nat___boxed(obj*);
 obj* l_lean_level__to__format_level_to__format(obj*);
 obj* l_lean_level_to__nat___main(obj*);
 obj* l_lean_level__to__format_level__has__to__string;
-obj* l_lean_nat_imax___boxed(obj*, obj*);
 obj* l_lean_level__to__format_result__list_to__format___main(obj*);
 extern "C" usize lean_level_hash(obj*);
 obj* l_lean_level_to__nat(obj*);
-obj* l_nat_max___boxed(obj*, obj*);
 obj* l_lean_level_has__mvar___main___boxed(obj*);
 obj* l_lean_level_one;
 obj* l_nat_repr(obj*);
@@ -356,20 +354,12 @@ return x_4;
 }
 else
 {
-obj* x_5; 
-x_5 = lean::mk_nat_obj(0u);
-return x_5;
-}
-}
-}
-obj* l_lean_nat_imax___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_lean_nat_imax(x_0, x_1);
-lean::dec(x_0);
+obj* x_7; 
 lean::dec(x_1);
-return x_2;
+lean::dec(x_0);
+x_7 = lean::mk_nat_obj(0u);
+return x_7;
+}
 }
 }
 obj* l_lean_level_to__nat___main___lambda__1(obj* x_0) {
@@ -403,7 +393,7 @@ obj* _init_l_lean_level_to__nat___main___closed__3() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_max___boxed), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_max), 2, 0);
 return x_0;
 }
 }
@@ -411,7 +401,7 @@ obj* _init_l_lean_level_to__nat___main___closed__4() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_nat_imax___boxed), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_nat_imax), 2, 0);
 return x_0;
 }
 }

@@ -20,7 +20,6 @@ obj* l_dlist_has__append___boxed(obj*);
 obj* l_dlist_append(obj*);
 obj* l_dlist_of__list___boxed(obj*);
 obj* l_dlist_to__list(obj*);
-obj* l_id___rarg___boxed(obj*);
 obj* l_dlist_of__list___rarg(obj*);
 obj* l_dlist_to__list___main___boxed(obj*);
 obj* l_dlist_cons___rarg(obj*, obj*);
@@ -33,6 +32,7 @@ obj* l_dlist_cons___main(obj*);
 obj* l_dlist_append___main___rarg(obj*, obj*);
 obj* l_dlist_singleton___boxed(obj*);
 obj* l_dlist_push___main___rarg(obj*, obj*, obj*);
+obj* l_id___rarg(obj*);
 obj* l_dlist_cons___boxed(obj*);
 obj* l_dlist_empty(obj*);
 obj* l_dlist_to__list___main(obj*);
@@ -81,7 +81,7 @@ obj* l_dlist_empty(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg), 1, 0);
 return x_1;
 }
 }

@@ -866,14 +866,13 @@ def no_kind.elaborate : coelaborator := do
     | error stx "no_kind.elaborate: unreachable",
   n.args.mmap' (λ cmd, with_current_command cmd command.elaborate)
 
-def commands.elaborate (stop_on_end_cmd : bool) : ℕ → coelaborator
-| 0 := do cmd ← current_command, error cmd "commands.elaborate: out of fuel"
-| (n+1) := do
+meta def commands.elaborate : bool → coelaborator
+| stop_on_end_cmd := do
   cmd ← current_command,
   let elab_and_recurse : coelaborator := do {
     command.elaborate,
     yield_to_outside,
-    commands.elaborate n
+    commands.elaborate stop_on_end_cmd
   },
   match syntax_node.kind <$> cmd.as_node with
   | @«end» :=
@@ -898,27 +897,27 @@ do -- local notations may have vanished
      error (review «end» end_cmd) $ "invalid end of " ++ cmd_name ++ ", expected name '" ++
        to_string (exp_end_name.get_or_else name.anonymous) ++ "'"
 
-def section.elaborate : coelaborator :=
+meta def section.elaborate : coelaborator :=
 do sec ← view «section» <$> current_command,
    locally $ do {
      yield_to_outside,
-     commands.elaborate tt 1000
+     commands.elaborate tt
    },
    end_scope "section" $ mangle_ident <$> sec.name
 
-def namespace.elaborate : coelaborator :=
+meta def namespace.elaborate : coelaborator :=
 do v ← view «namespace» <$> current_command,
    locally $ do {
      yield_to_outside,
      ns ← get_namespace,
      modify $ λ st, {st with local_state := {st.local_state with
        ns_stack := (ns ++ v.name.val) :: st.local_state.ns_stack}},
-     commands.elaborate tt 1000
+     commands.elaborate tt
    },
    end_scope "namespace" v.name.val
 
 -- TODO(Sebastian): replace with attribute
-def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
+meta def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (module.header.name, module.header.elaborate),
   (notation.name, notation.elaborate),
   (reserve_notation.name, reserve_notation.elaborate),
@@ -1003,9 +1002,8 @@ def preresolve : syntax → elaborator_m syntax
 | stx := pure stx
 
 def max_recursion := 100
-def max_commands := 10000
 
-protected def run (cfg : elaborator_config) : coroutine syntax elaborator_state message_log :=
+protected meta def run (cfg : elaborator_config) : coroutine syntax elaborator_state message_log :=
 do
   let st := {elaborator_state .
     parser_cfg := cfg.initial_parser_cfg,
@@ -1013,7 +1011,7 @@ do
     ngen := ⟨`_ngen.fixme, 0⟩,
     local_state := {options := options.mk.set_bool `trace.as_messages tt}},
   p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
-    (commands.elaborate ff max_commands)
+    (commands.elaborate ff)
     (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})
     (λ _, do
       cmd ← current_command,

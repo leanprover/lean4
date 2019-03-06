@@ -24,7 +24,7 @@ do t ← parser.mk_token_trie $
      trailing_term_parsers := term.builtin_trailing_parsers,
    }
 
-def run_frontend (filename input : string) (print_msg : message → except_t string io unit) :
+meta def run_frontend (filename input : string) (print_msg : message → except_t string io unit) :
   except_t string io (list module_parser_output) := do
   parser_cfg ← monad_except.lift_except $ mk_config filename input,
   let expander_cfg : expander_config := {filename := filename, input := input, transformers := builtin_transformers},
@@ -74,7 +74,7 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
     }
 
 @[export lean_process_file]
-def process_file (f s : string) (json : bool) : io bool := do
+meta def process_file (f s : string) (json : bool) : io bool := do
   --let s := (s.mk_iterator.nextn 10000).prev_to_string,
   let print_msg : message → except_t string io unit := λ msg,
     if json then

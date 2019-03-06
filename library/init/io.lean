@@ -39,6 +39,12 @@ abbreviation eio := except_t io.error io
 
 namespace io
 
+section
+local attribute [reducible] io
+def lazy_pure {α : Type} (fn : unit → α) : io α :=
+λ w, (fn (), w)
+end
+
 inductive fs.mode
 | read | write | read_write | append
 constant fs.handle : Type

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 
-import init.lean.parser.module init.lean.expander init.lean.elaborator init.io
+import init.lean.parser.module init.lean.expander init.lean.elaborator init.lean.util init.io
 
 namespace lean
 open lean.parser
@@ -24,18 +24,16 @@ do t ← parser.mk_token_trie $
      trailing_term_parsers := term.builtin_trailing_parsers,
    }
 
--- for structuring the profiler output
-@[noinline] def run_parser {α β : Type} (f : α → β) : α → β := f
-@[noinline] def run_expander {α β : Type} (f : α → β) : α → β := f
-@[noinline] def run_elaborator {α β : Type} (f : α → β) : α → β := f
-
 def run_frontend (filename input : string) (print_msg : message → except_t string io unit) :
   except_t string io (list module_parser_output) := do
   parser_cfg ← monad_except.lift_except $ mk_config filename input,
   let expander_cfg : expander_config := {filename := filename, input := input, transformers := builtin_transformers},
   let parser_k := parser.run parser_cfg input (λ st _, module.parser st),
   let elab_k := elaborator.run {filename := filename, input := input, initial_parser_cfg := parser_cfg},
-  io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, match run_parser parser_k.resume parser_cfg with
+  io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, do
+    let pos := match outs with out::_ := out.pos | [] := default _,
+    r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parser_k.resume parser_cfg,
+    match r with
     | coroutine_result_core.done p := do {
       io.println "parser died!!",
       pure (sum.inr outs.reverse)
@@ -51,10 +49,12 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
         io.println (to_string out.cmd)-/
       },
       --io.println out.cmd,
-      match run_expander (expand out.cmd).run expander_cfg with
+      r ← monad_lift $ profileit_pure "expanding" pos $ λ _, (expand out.cmd).run expander_cfg,
+      match r with
       | except.ok cmd' := do {
         --io.println cmd',
-        match run_elaborator elab_k.resume cmd' with
+        r ← monad_lift $ profileit_pure "elaborating" pos $ λ _, elab_k.resume cmd',
+        match r with
         | coroutine_result_core.done msgs := do {
           when ¬(cmd'.is_of_kind module.eoi) $
             io.println "elaborator died!!",

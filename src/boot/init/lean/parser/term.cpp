@@ -242,7 +242,6 @@ obj* l_lean_parser_term_projection_parser_lean_parser_has__view___lambda__1___bo
 obj* l_lean_parser_term_tuple_has__view;
 obj* l_rbmap_find___main___at___private_init_lean_parser_term_2__leading___spec__3(obj*);
 extern obj* l_lean_parser_level_trailing_parser_lean_parser_has__tokens;
-obj* l_id___rarg___boxed(obj*);
 obj* l___private_init_lean_parser_combinators_3__sep__by_view__aux___main___at_lean_parser_term_match_has__view_x_27___spec__2(obj*);
 obj* l_lean_parser_term_if_parser_lean_parser_has__tokens;
 obj* l_lean_parser_term_simple__binder_view_to__binder__info___main(obj*);
@@ -561,6 +560,7 @@ extern obj* l_string_join___closed__1;
 obj* l_lean_parser_term_binders__ext_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_term_simple__explicit__binder_has__view_x_27;
 obj* l_lean_parser_term_struct__inst__with_has__view_x_27___lambda__2(obj*);
+obj* l_id___rarg(obj*);
 obj* l_lean_parser_term_projection__spec_has__view_x_27___lambda__1(obj*);
 obj* l_lean_parser_term_lambda_parser_lean_parser_has__view;
 extern obj* l_lean_parser_ident_parser_view___rarg___lambda__1___closed__1;
@@ -3029,7 +3029,7 @@ obj* _init_l_lean_parser_term_lean_parser_has__view() {
 _start:
 {
 obj* x_0; obj* x_2; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg), 1, 0);
 lean::inc(x_0);
 x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);

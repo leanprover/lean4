@@ -30,6 +30,7 @@ structure module_parser_output :=
 (messages : message_log)
 -- to access the profile data inside
 (cache : parser_cache)
+(pos : position)
 
 section
 local attribute [reducible] parser_core_t
@@ -55,9 +56,11 @@ end
 
 namespace module
 def yield_command (cmd : syntax) : module_parser_m unit :=
-do st ← get,
+do cfg ← read,
+   st ← get,
    cache ← monad_lift get_cache,
-   yield {cmd := cmd, messages := st.messages, cache := cache},
+   pos ← cfg.file_map.to_position <$> monad_parsec.pos,
+   yield {cmd := cmd, messages := st.messages, cache := cache, pos := pos},
    put {st with messages := message_log.empty}
 
 @[derive parser.has_view parser.has_tokens]

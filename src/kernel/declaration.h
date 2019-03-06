@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <limits>
-#include "util/rc.h"
 #include "kernel/expr.h"
 
 namespace lean {

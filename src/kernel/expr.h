@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/serializer.h"
 #include "runtime/hash.h"
-#include "util/rc.h"
 #include "util/name.h"
 #include "util/nat.h"
 #include "util/buffer.h"

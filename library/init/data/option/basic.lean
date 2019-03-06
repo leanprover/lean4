@@ -39,7 +39,7 @@ def is_none {α : Type u} : option α → bool
 | none     b := none
 | (some a) b := b a
 
-protected def map {α β} (f : α → β) (o : option α) : option β :=
+@[inline] protected def map {α β} (f : α → β) (o : option α) : option β :=
 option.bind o (some ∘ f)
 
 theorem map_id {α} : (option.map id : option α → option α) = id :=

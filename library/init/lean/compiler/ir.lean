@@ -3,45 +3,100 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import init.lean.name
+import init.lean.name init.lean.kvmap
 prelude
 
+/-
+Implements (extended) λ_pure and λ_RC proposed in the article
+"Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.
+
+The Lean to IR transformation produces λ_pure code. That is,
+then transformed using the procedures described in the paper above.
+-/
 namespace lean
 namespace ir
 
+/- Variable identifier -/
 abbreviation varid := name
+/- Function identifier -/
 abbreviation fid := name
+/- Join point identifier -/
+abbreviation jpid := name
 
+/- Low level IR types. Most are self explanatory.
+
+   - `usize` represents the C++ `size_t` type. We have it here
+      because it is 32-bit in 32-bit machines, and 64-bit in 64-bit machines,
+      and we want the C++ backend for our compiler to generate platform independent code.
+
+   - `irrelevant` for Lean types, propositions and proofs.
+
+   - `object` a pointer to a value in the heap.
+
+   - `tobject` a pointer to a value in the heap or tagged pointer
+      (i.e., the least significant bit is 1) storing a scalar value.
+
+Remark: the RC operations for `tobject` are slightly more expensive because we
+first need to test whether the `tobject` is really a pointer or not.
+
+Remark: the Lean runtime assumes that sizeof(void*) == sizeof(size_t).
+Lean cannot be compiled on old platforms where this is not true. -/
 inductive type
 | float | uint8 | uint16 | uint32 | uint64 | usize
-| neutral | object | xobject
+| irrelevant | object | tobject
 
+/- Arguments to applications, constructors, etc.
+   We use `irrelevant` for Lean types, propositions and proofs that have been erased.
+   Recall that for a function `f`, we also generate `f._rarg` which does not take
+   `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
 inductive arg
 | var (id : varid)
-| neutral
+| irrelevant
 
 inductive litval
 | num (v : nat)
 | str (v : string)
 
+/- Constructor information.
+
+   - `id` is the name of the constructor in Lean.
+   - `cidx` is the constructor index (aka tag).
+   - `usize` is the number of arguments of type `usize`.
+   - `ssize` is the number of bytes used to store scalar values.
+
+Recall that a constructor object contains a header, then a sequence of
+pointers to other Lean objects, a sequence of `usize` (i.e., `size_t`)
+scalar values, and a sequence of other scalar values. -/
 structure ctor_info :=
 (id : name) (cidx : nat) (usize : nat) (ssize : nat)
 
 inductive expr
-| reset (x : varid)
-| reuse (x : varid) (i : ctor_info) (ys : list arg)
 | ctor (i : ctor_info) (ys : list arg)
+| reset (x : varid)
+/- `reuse x in ctor_i ys` instruction in the paper. -/
+| reuse (x : varid) (i : ctor_info) (ys : list arg)
+/- Extract the `tobject` value at position `sizeof(void)*i` from `x`. -/
 | proj (i : nat) (x : varid)
+/- Extract the `usize` value at position `sizeof(void)*i` from `x`. -/
 | uproj (i : nat) (x : varid)
+/- Extract the scalar value at position `n` (in bytes) from `x`. -/
 | sproj (n : nat) (x : varid)
+/- Full application. -/
 | fap (c : fid) (ys : list arg)
+/- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
 | pap (c : fid) (ys : list arg)
+/- Application. `x` must be a `pap` value. -/
 | ap  (x : varid) (ys : list arg)
+/- Given `x : ty` where `ty` is a scalar type, this operation returns a value of type `tobject`.
+   For small scalar values, the result is a tagged pointer, and no memory allocation is performed. -/
 | box (ty : type) (x : varid)
+/- Given `x : [t]object`, obtain the scalar value. -/
 | unbox (x : varid)
 | lit (v : litval)
+/- Return `1 : uint8` iff `RC(x) > 1` -/
 | is_shared (x : varid)
-| is_boxed_val (x : varid)
+/- Return `1 : uint8` iff `x : tobject` is a tagged pointer (storing a scalar value). -/
+| is_tagged_ptr (x : varid)
 
 structure param :=
 (x : name) (borrowed : bool) (ty : type)
@@ -51,23 +106,67 @@ inductive alt (fnbody : Type) : Type
 | default (b : fnbody) : alt
 
 inductive fnbody
+/- `let x : ty := e; b` -/
 | vdecl (x : varid) (ty : type) (e : expr) (b : fnbody)
-| jdecl (jp : name) (xs : list param) (e : expr) (b : fnbody)
+/- Join point declaration `let j (xs) : ty := e; b` -/
+| jdecl (j : jpid) (xs : list param) (ty : type) (e : expr) (b : fnbody)
+/- Store `y` at position `sizeof(void*)*i` in `x`. `x` must be a constructor object and `RC(x)` must be 1.
+   This operation is not part of λ_pure is only used during optimization. -/
 | set (x : varid) (i : nat) (y : varid) (b : fnbody)
+/- Store `y : usize` at position `sizeof(void*)*i` in `x`. `x` must be a constructor object and `RC(x)` must be 1. -/
 | uset (x : varid) (i : nat) (y : varid) (b : fnbody)
-| sset (x : varid) (i : nat) (offset : nat) (ty : type) (y : varid) (b : fnbody)
+/- Store `y : ty` at position `sizeof(void*)*i + offset` in `x`. `x` must be a constructor object and `RC(x)` must be 1.
+   `ty` must not be `object`, `tobject`, `irrelevant` nor `usize`. -/
+| sset (x : varid) (i : nat) (offset : nat) (y : varid) (ty : type) (b : fnbody)
 | release (x : varid) (i : nat) (b : fnbody)
+/- RC increment for `object` -/
 | inc (x : varid) (n : nat) (b : fnbody)
+/- RC decrement for `object` -/
 | dec (x : varid) (n : nat) (b : fnbody)
-| incref (x : varid) (n : nat) (b : fnbody)
-| decref (x : varid) (n : nat) (b : fnbody)
+/- RC increment for `tobject` -/
+| tinc (x : varid) (n : nat) (b : fnbody)
+/- RC decrement for `tobject` -/
+| tdec (x : varid) (n : nat) (b : fnbody)
+| mdata (d : kvmap) (b : fnbody)
 | case (tid : name) (cs : list (alt fnbody))
 | ret (x : varid)
-| jmp (lbl : name) (ys : list arg)
+/- Jump to join point `j` -/
+| jmp (j : jpid) (ys : list arg)
 
 inductive decl
 | fdecl  (f : fid) (xs : list param) (ty : type) (b : fnbody)
 | extern (f : fid) (xs : list param) (ty : type)
+
+/-- `expr.is_pure e` return `tt` iff `e` is in the `λ_pure` fragment. -/
+def expr.is_pure : expr → bool
+| (expr.ctor _ _)  := tt
+| (expr.proj _ _)  := tt
+| (expr.uproj _ _) := tt
+| (expr.sproj _ _) := tt
+| (expr.fap _ _)   := tt
+| (expr.pap _ _)   := tt
+| (expr.ap _ _)    := tt
+| (expr.lit _)     := tt
+| _                := ff
+
+/-- `fnbody.is_pure b` return `tt` iff `b` is in the `λ_pure` fragment. -/
+mutual def fnbody.is_pure, alts.is_pure, alt.is_pure
+with fnbody.is_pure : fnbody → bool
+| (fnbody.vdecl _ _ e b)    := e.is_pure && b.is_pure
+| (fnbody.jdecl _ _ _ e b)  := e.is_pure && b.is_pure
+| (fnbody.uset _ _ _ b)     := b.is_pure
+| (fnbody.sset _ _ _ _ _ b) := b.is_pure
+| (fnbody.mdata _ b)        := b.is_pure
+| (fnbody.case _ cs)        := alts.is_pure cs
+| (fnbody.ret _)            := tt
+| (fnbody.jmp _ _)          := tt
+| _                         := ff
+with alts.is_pure : list (alt fnbody) → bool
+| []      := tt
+| (a::as) := a.is_pure && alts.is_pure as
+with alt.is_pure : alt fnbody → bool
+| (alt.ctor _ b)  := b.is_pure
+| (alt.default b) := ff
 
 end ir
 end lean

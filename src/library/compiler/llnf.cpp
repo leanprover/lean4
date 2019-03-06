@@ -156,7 +156,7 @@ bool is_llnf_proj(expr const & e, unsigned & idx) { return is_llnf_unary_primiti
 expr mk_llnf_sproj(unsigned sz, unsigned n, unsigned offset) { return mk_constant(name(name(name(*g_sproj, sz), n), offset)); }
 bool is_llnf_sproj(expr const & e, unsigned & sz, unsigned & n, unsigned & offset) { return is_llnf_ternary_primitive(e, *g_sproj, sz, n, offset); }
 
-/* The `_uproj.<idx>` instruction retrieves an `usize` field in a constructor ojbect at offset `sizeof(void*)*idx` */
+/* The `_uproj.<idx>` instruction retrieves an `usize` field in a constructor object at offset `sizeof(void*)*idx` */
 expr mk_llnf_uproj(unsigned idx) { return mk_constant(name(*g_uproj, idx)); }
 bool is_llnf_uproj(expr const & e, unsigned & idx) { return is_llnf_unary_primitive(e, *g_uproj, idx); }
 

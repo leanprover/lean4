@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic init.coe init.data.uint init.data.to_string
-import init.lean.format init.data.hashable
+import init.lean.format init.data.hashable init.data.rbmap
 namespace lean
 
 inductive name
@@ -161,4 +161,18 @@ theorem mk_numeral_ne_mk_numeral_of_ne_numeral (p₁ : name) {n₁ : nat} (p₂ 
 λ h₁ h₂, name.no_confusion h₂ (λ _ h, absurd h h₁)
 
 end name
+
+section
+local attribute [instance] name.has_lt_quick
+def name_map (α : Type) := rbmap name α (<)
+variable {α : Type}
+@[inline] def mk_name_map : name_map α :=
+mk_rbmap name α (<)
+def name_map.insert (m : name_map α) (n : name) (a : α) :=
+rbmap.insert m n a
+def name_map.contains (m : name_map α) (n : name) : bool :=
+rbmap.contains m n
+@[inline] def name_map.find (m : name_map α) (n : name) : option α :=
+rbmap.find m n
+end
 end lean

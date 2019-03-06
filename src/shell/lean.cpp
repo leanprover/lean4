@@ -470,6 +470,8 @@ int main(int argc, char ** argv) {
     }
     try {
         scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
+        simple_pos_info_provider pip(mod_fn.c_str());
+        scope_pos_info_provider scope_pip(pip);
 
         // TODO(Sebastian): parse imports using new frontend
         std::vector<rel_module_name> rel_imports;
@@ -496,6 +498,10 @@ int main(int argc, char ** argv) {
 
         bool ok;
         if (new_frontend) {
+            // Some C++ parts like profiling need a global message log. We may want to refactor them into a
+            // message_log-passing state monad in the future.
+            message_log l;
+            scope_message_log scope_log(l);
             object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output), box(0)) };
             ok = static_cast<bool>(unbox(cnstr_get_ref(res, 0).raw()));
         } else {

@@ -523,8 +523,6 @@ extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_
         type_context_old tc(env, options);
         scope_trace_env scope(env, options, tc);
         scope_traces_as_messages scope2(filename, pos);
-        simple_pos_info_provider pip(filename.c_str());
-        scope_pos_info_provider scope4(pip);
 
         parser p(env, ios, in, filename);
         auto s = p.mk_snapshot();

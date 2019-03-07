@@ -4,20 +4,28 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "runtime/sstream.h"
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
+#include "kernel/replace_fn.h"
 #include "library/compiler/util.h"
 #include "library/compiler/extern_attribute.h"
 
 namespace lean {
+static expr * g_bot = nullptr;
+
 /* Infer type of expressions in ENF or LLNF. */
 class ll_infer_type_fn {
-    type_checker::state m_st;
-    local_ctx           m_lctx;
+    type_checker::state  m_st;
+    local_ctx            m_lctx;
+    bool                 m_use_bot;
+    buffer<name> const * m_new_decl_names{nullptr};
+    buffer<expr> const * m_new_decl_types{nullptr};
 
     environment const & env() const { return m_st.env(); }
-
     name_generator & ngen() { return m_st.ngen(); }
+
+    bool may_use_bot() const { return m_new_decl_types != nullptr; }
 
     expr infer_lambda(expr e) {
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
@@ -40,9 +48,9 @@ class ll_infer_type_fn {
             expr type;
             if (is_join_point_name(let_name(e))) {
                 expr val = instantiate_rev(let_value(e), fvars.size(), fvars.data());
-                type     = infer(val);
+                type = infer(val);
             } else {
-                type     = let_type(e);
+                type = let_type(e);
             }
             expr fvar = m_lctx.mk_local_decl(ngen(), let_name(e), type);
             fvars.push_back(fvar);
@@ -56,7 +64,7 @@ class ll_infer_type_fn {
         get_app_args(e, args);
         lean_assert(args.size() >= 2);
         bool first = true;
-        expr r;
+        expr r     = *g_bot;
         for (unsigned i = 1; i < args.size(); i++) {
             expr minor = args[i];
             buffer<expr> fvars;
@@ -71,13 +79,17 @@ class ll_infer_type_fn {
                 /* If one of the branches return `_obj`, then the resultant type is `_obj`,
                    and the other branches should box result if it is not `_obj`. */
                 return minor_type;
+            } else if (minor_type == *g_bot) {
+                /* Ignore*/
             } else if (first) {
-                r = minor_type;
+                r     = minor_type;
+                first = false;
             } else if (minor_type != r) {
                 /* All branches should return the same type, otherwise we box them. */
                 return mk_enf_object_type();
             }
         }
+        lean_assert(may_use_bot() || r != *g_bot);
         return r;
     }
 
@@ -96,7 +108,11 @@ class ll_infer_type_fn {
         } else if (is_constructor_app(env(), e)) {
             return infer_constructor_type(e);
         } else {
-            expr fn_type   = infer(get_app_fn(e));
+            expr const & fn = get_app_fn(e);
+            expr fn_type    = infer(fn);
+            lean_assert(may_use_bot() || fn_type != *g_bot);
+            if (fn_type == *g_bot)
+                return *g_bot;
             unsigned nargs = get_app_num_args(e);
             for (unsigned i = 0; i < nargs; i++) {
                 if (!is_pi(fn_type)) {
@@ -151,13 +167,21 @@ class ll_infer_type_fn {
             return *type;
         } else if (is_constructor(env(), const_name(e))) {
             return infer_constructor_type(e);
+        } else if (is_enf_neutral(e)) {
+            return mk_enf_neutral_type();
         } else {
             name c = mk_cstage2_name(const_name(e));
             optional<constant_info> info = env().find(c);
             if (info) return info->get_type();
-            info = env().find(const_name(e));
-            if (info) return mk_runtime_type(m_st, m_lctx, info->get_type());
-            return mk_enf_object_type();
+            if (m_new_decl_types) {
+                lean_assert(m_new_decl_names->size() == m_new_decl_types->size());
+                for (unsigned i = 0; i < m_new_decl_names->size(); i++) {
+                    if (const_name(e) == (*m_new_decl_names)[i])
+                        return (*m_new_decl_types)[i];
+                }
+                return *g_bot;
+            }
+            throw exception(sstream() << "compiler failed to infer low level type, unknown declaration '" << const_name(e) << "'");
         }
     }
 
@@ -180,12 +204,60 @@ class ll_infer_type_fn {
     }
 
 public:
-    ll_infer_type_fn(environment const & env, local_ctx const & lctx):m_st(env), m_lctx(lctx) {}
-
+    ll_infer_type_fn(environment const & env, buffer<name> const & ns, buffer<expr> const & ts):
+        m_st(env), m_new_decl_names(&ns), m_new_decl_types(&ts) {}
+    ll_infer_type_fn(environment const & env, local_ctx const & lctx):
+        m_st(env), m_lctx(lctx) {}
     expr operator()(expr const & e) { return infer(e); }
 };
 
+void ll_infer_type(environment const & env, comp_decls const & ds, buffer<expr> & ts) {
+    buffer<name> ns;
+    ts.clear();
+    /* Initialize `ts` */
+    for (comp_decl const & d : ds) {
+        /* For mutually recursive declarations `t` may contain `_bot`. */
+        expr t = ll_infer_type_fn(env, ns, ts)(d.snd());
+        ns.push_back(d.fst());
+        ts.push_back(t);
+    }
+    /* Keep refining types in `ts` until fix point */
+    while (true) {
+        bool modified = false;
+        unsigned i = 0;
+        for (comp_decl const & d : ds) {
+            expr t1 = ll_infer_type_fn(env, ns, ts)(d.snd());
+            if (t1 != ts[i]) {
+                modified = true;
+                ts[i]    = t1;
+            }
+            i++;
+        }
+        if (!modified)
+            break;
+    }
+    /* `ts` may still contain `_bot` for non-terminating or bogus programs.
+       Example: `def f (x) := f (f x)`.
+
+       It is safe to replace `_bot` with `_obj`. */
+    for (expr & t : ts) {
+        t = replace(t, [&](expr const & e, unsigned) {
+                if (e == *g_bot) return some_expr(mk_enf_object_type());
+                else return none_expr();
+            });
+    }
+    lean_assert(ts.size() == length(ds));
+}
+
 expr ll_infer_type(environment const & env, local_ctx const & lctx, expr const & e) {
     return ll_infer_type_fn(env, lctx)(e);
+}
+
+void initialize_ll_infer_type() {
+    g_bot = new expr(mk_constant("_bot"));
+}
+
+void finalize_ll_infer_type() {
+    delete g_bot;
 }
 }

@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/emit_cpp.h"
+#include "library/compiler/ll_infer_type.h"
 
 namespace lean {
 void initialize_compiler_module() {
@@ -33,9 +34,11 @@ void initialize_compiler_module() {
     initialize_llnf_code();
     initialize_borrowed_annotation();
     initialize_emit_cpp();
+    initialize_ll_infer_type();
 }
 
 void finalize_compiler_module() {
+    finalize_ll_infer_type();
     finalize_emit_cpp();
     finalize_borrowed_annotation();
     finalize_llnf_code();

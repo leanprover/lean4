@@ -408,24 +408,24 @@ static void elaborate_command(parser & p, expr const & cmd) {
     throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");
 }
 
-
 /* TEMPORARY code for the old runtime */
+void env_finalizer(void * env) {
+    delete static_cast<environment*>(env);
+}
 
+void env_foreach(void * /* env */, b_obj_arg /* fn */) {
+    // TODO(leo, kha)
+}
 
-struct lean_environment : public external_object {
-    environment m_env;
-
-    explicit lean_environment(environment const & env) : m_env(env) {}
-    virtual ~lean_environment() {}
-};
+static external_object_class * g_env_class = nullptr;
 
 environment const & to_env(b_obj_arg o) {
-    // lean_assert(dynamic_cast<lean_environment *>(to_external(o)));
-    return static_cast<lean_environment *>(to_external(o))->m_env;
+    lean_assert(external_class(o) == g_env_class);
+    return *static_cast<environment *>(external_data(o));
 }
 
 obj_res to_lean_environment(environment const & env) {
-    return new(alloc_heap_object(sizeof(lean_environment))) lean_environment(env);
+    return alloc_external(g_env_class, new environment(env));
 }
 
 options to_options(b_obj_arg o) {
@@ -604,6 +604,7 @@ static vm_obj vm_lean_elaborator_elaborate_command(vm_obj const &, vm_obj const 
 }
 
 void initialize_vm_elaborator() {
+    g_env_class = register_external_object_class(env_finalizer, env_foreach);
     DECLARE_VM_BUILTIN(name({"lean", "expr", "local"}), vm_lean_expr_local);
     DECLARE_VM_BUILTIN(name({"lean", "environment", "mk_empty"}), vm_lean_environment_mk_empty);
     DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_lean_environment_contains);
@@ -611,6 +612,5 @@ void initialize_vm_elaborator() {
 }
 
 void finalize_vm_elaborator() {
-    // del(lean_environment_empty);
 }
 }

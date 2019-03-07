@@ -220,15 +220,18 @@ struct task_object : public object {
     task_object(object * v);
 };
 
-/* Base class for wrapping external_object data.
+struct external_object_class;
+typedef void (*external_object_finalize_proc)(void *);
+typedef void (*external_object_foreach_proc)(void *, b_obj_arg);
+external_object_class * register_external_object_class(external_object_finalize_proc, external_object_foreach_proc);
+
+/* Object for wrapping external data.
    For example, we use it to wrap the Lean environment object. */
 struct external_object : public object {
-    explicit external_object(object_memory_kind m = c_init_mem_kind): object(object_kind::External, m) {}
-    virtual ~external_object() {}
-    virtual void dealloc() {}
-    /* For each nested object `a`, execute `apply_1(fn, a)`.
-       Recall that apply_1 consumes the RC of `fn` and `a`. */
-    virtual void for_each_nested(b_obj_arg /* fn */) {}
+    external_object_class * m_class;
+    void *                  m_data;
+    explicit external_object(external_object_class * cls, void * data, object_memory_kind m = c_init_mem_kind):
+        object(object_kind::External, m), m_class(cls), m_data(data) {}
 };
 
 inline bool is_null(object * o) { return o == nullptr; }
@@ -382,11 +385,9 @@ inline external_object * to_external(object * o) { lean_assert(is_external(o)); 
    "Additionally, the resulting std::atomic<Integral> specialization has standard layout, a trivial default constructor,
    and a trivial destructor." */
 inline void dealloc_mpz(object * o) { to_mpz(o)->~mpz_object(); free_mpz_obj(o); }
-inline void dealloc_external(object * o) { delete to_external(o); }
 inline void dealloc(object * o) {
     lean_assert(is_heap_obj(o));
     switch (get_kind(o)) {
-    case object_kind::External: dealloc_external(o); break;
     case object_kind::MPZ:      dealloc_mpz(o); break;
     case object_kind::Task:     lean_unreachable(); // only the task manager can deallocate tasks.
     default: free_heap_obj(o); break;
@@ -397,11 +398,11 @@ inline void dealloc(object * o) {
 // Object auxiliary functions
 
 /* Size of the object in bytes. This function is used for debugging purposes.
-   \pre !is_scalar(o) && !is_external(o) */
+   \pre !is_scalar(o) */
 size_t obj_byte_size(object * o);
 
 /* Size of the object header in bytes. This function is used for debugging purposes.
-   \pre !is_scalar(o) && !is_external(o) */
+   \pre !is_scalar(o) */
 size_t obj_header_size(object * o);
 
 /* Retrieves data of type `T` stored offset bytes inside of `o` */
@@ -505,6 +506,16 @@ inline size_t string_byte_size(object * o) { return string_byte_size(string_capa
 // MPZ auxiliary function
 
 inline object * alloc_mpz(mpz const & m) { return new (alloc_heap_object(sizeof(mpz_object))) mpz_object(m); }
+
+// =======================================
+// External objects
+
+inline object * alloc_external(external_object_class * cls, void * data) {
+    return new (alloc_heap_object(sizeof(external_object))) external_object(cls, data);
+}
+
+inline external_object_class * external_class(object * o) { return to_external(o)->m_class; }
+inline void * external_data(object * o) { return to_external(o)->m_data; }
 
 // =======================================
 // Natural numbers auxiliary functions
@@ -1408,4 +1419,9 @@ object * array_push(obj_arg a, obj_arg v);
 // debugging helper functions
 object * dbg_trace(obj_arg s, obj_arg fn);
 object * dbg_sleep(uint32 ms, obj_arg fn);
+
+// =======================================
+// Module initialization/finalization
+void initialize_object();
+void finalize_object();
 }

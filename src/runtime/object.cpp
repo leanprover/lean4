@@ -25,6 +25,38 @@ Author: Leonardo de Moura
 #define LEAN_MAX_PRIO 8
 
 namespace lean {
+// =======================================
+// External objects
+
+struct external_object_class {
+    external_object_finalize_proc m_finalize;
+    external_object_foreach_proc  m_foreach;
+};
+
+static std::vector<external_object_class*> * g_ext_classes;
+static mutex                               * g_ext_classes_mutex;
+
+external_object_class * register_external_object_class(external_object_finalize_proc p1, external_object_foreach_proc p2) {
+    unique_lock<mutex> lock(*g_ext_classes_mutex);
+    external_object_class * cls = new external_object_class{p1, p2};
+    g_ext_classes->push_back(cls);
+    return cls;
+}
+
+void initialize_object() {
+    g_ext_classes       = new std::vector<external_object_class*>();
+    g_ext_classes_mutex = new mutex();
+}
+
+void finalize_object() {
+    for (external_object_class * cls : *g_ext_classes) delete cls;
+    delete g_ext_classes;
+    delete g_ext_classes_mutex;
+}
+
+// =======================================
+// Object
+
 size_t obj_byte_size(object * o) {
     switch (get_kind(o)) {
     case object_kind::Constructor:     return cnstr_byte_size(o);
@@ -191,6 +223,10 @@ static inline void free_parray_obj(object * o) {
     FREE_OBJ(o, sizeof(parray_object) + sizeof(rc_type));
 }
 
+static inline void free_external_obj(object * o) {
+    FREE_OBJ(o, sizeof(external_object) + sizeof(rc_type));
+}
+
 static void del_core(object * o, object * & todo) {
     lean_assert(is_heap_obj(o));
     LEAN_RUNTIME_STAT_CODE(g_num_del++);
@@ -249,7 +285,9 @@ static void del_core(object * o, object * & todo) {
         break;
     }
     case object_kind::External:
-        dealloc_external(o); break;
+        to_external(o)->m_class->m_finalize(to_external(o)->m_data);
+        free_external_obj(o);
+        break;
     }
 }
 
@@ -863,7 +901,7 @@ void mark_mt(object * o) {
         return;
     case object_kind::External: {
         object * fn = alloc_closure(reinterpret_cast<void*>(mark_mt_fn), 1, 0);
-        to_external(o)->for_each_nested(fn);
+        to_external(o)->m_class->m_foreach(to_external(o)->m_data, fn);
         dec(fn);
         return;
     }
@@ -1071,7 +1109,7 @@ void mark_persistent(object * o) {
     }
     case object_kind::External: {
         object * fn = alloc_closure(reinterpret_cast<void*>(mark_persistent_fn), 1, 0);
-        to_external(o)->for_each_nested(fn);
+        to_external(o)->m_class->m_foreach(to_external(o)->m_data, fn);
         dec(fn);
         return;
     }

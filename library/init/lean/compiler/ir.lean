@@ -264,7 +264,7 @@ with fnbody.alpha_eqv : name_map name → fnbody → fnbody → bool
 | ρ (fnbody.release x₁ i₁ b₁)       (fnbody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ = i₂ && fnbody.alpha_eqv ρ b₁ b₂
 | ρ (fnbody.inc x₁ n₁ c₁ b₁)        (fnbody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ = n₂ && c₁ = c₂ && fnbody.alpha_eqv ρ b₁ b₂
 | ρ (fnbody.dec x₁ n₁ c₁ b₁)        (fnbody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ = n₂ && c₁ = c₂ && fnbody.alpha_eqv ρ b₁ b₂
-| ρ (fnbody.mdata m₁ b₁)            (fnbody.mdata m₂ b₂)              := fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.mdata m₁ b₁)            (fnbody.mdata m₂ b₂)              := m₁ == m₂ && fnbody.alpha_eqv ρ b₁ b₂
 | ρ (fnbody.case n₁ x₁ as₁)         (fnbody.case n₂ x₂ as₂)           := n₁ = n₂ && x₁ =[ρ]= x₂ && alts.alpha_eqv ρ as₁ as₂
 | ρ (fnbody.jmp j₁ ys₁)             (fnbody.jmp j₂ ys₂)               := j₁ = j₂ && ys₁ =[ρ]= ys₂
 | ρ (fnbody.ret x₁)                 (fnbody.ret x₂)                   := x₁ =[ρ]= x₂

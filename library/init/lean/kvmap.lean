@@ -14,6 +14,14 @@ inductive data_value
 | of_bool   (v : bool)
 | of_name   (v : name)
 
+def data_value.beq : data_value → data_value → bool
+| (data_value.of_string s₁) (data_value.of_string s₂) := s₁ = s₂
+| (data_value.of_nat n₁)    (data_value.of_nat n₂)    := n₂ = n₂
+| (data_value.of_bool b₁)   (data_value.of_bool b₂)   := b₁ = b₂
+| _                         _                         := ff
+
+instance data_value.has_beq : has_beq data_value := ⟨data_value.beq⟩
+
 /- Remark: we do not use rbmap here because we need to manipulate kvmap objects in
    C++ and rbmap is implemented in Lean. So, we use just a list until we can
    generate C++ code from Lean code. -/
@@ -69,6 +77,18 @@ m.insert k (data_value.of_bool v)
 
 def set_name (m : kvmap) (k : name) (v : name) : kvmap :=
 m.insert k (data_value.of_name v)
+
+def subset : kvmap → kvmap → bool
+| ⟨[]⟩          m₂ := tt
+| ⟨(k, v₁)::m₁⟩ m₂ :=
+  (match m₂.find k with
+   | some v₂ := v₁ == v₂ && subset ⟨m₁⟩ m₂
+   | none    := ff)
+
+def eqv (m₁ m₂ : kvmap) : bool :=
+subset m₁ m₂ && subset m₂ m₁
+
+instance : has_beq kvmap := ⟨eqv⟩
 
 end kvmap
 end lean

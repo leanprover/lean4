@@ -591,7 +591,7 @@ static vm_obj vm_lean_expr_local(vm_obj const &, vm_obj const &, vm_obj const &,
     throw exception("elaborator support has not been implemented in the old VM");
 }
 
-static vm_obj vm_lean_environment_mk_empty() {
+static vm_obj vm_lean_environment_mk_empty(vm_obj const &) {
     throw exception("elaborator support has not been implemented in the old VM");
 }
 

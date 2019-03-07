@@ -411,8 +411,10 @@ void dealloc(void * o, size_t sz) {
 }
 
 void initialize_alloc() {
+#ifdef LEAN_SMALL_ALLOCATOR
     g_heap_manager = new heap_manager();
     init_heap(true);
+#endif
 }
 
 void finalize_alloc() {

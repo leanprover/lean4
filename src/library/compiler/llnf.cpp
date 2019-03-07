@@ -508,7 +508,13 @@ class to_lambda_pure_fn {
                 else
                     n = next_name();
             }
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, let_type(e), new_val);
+            expr new_type = let_type(e);
+            if (is_llnf_proj(get_app_fn(new_val))) {
+                /* Ensure new_type is `_obj`. This is important for polymorphic types
+                   instantiated with scalar values (e.g., `prod bool bool`). */
+                new_type = mk_enf_object_type();
+            }
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), n, new_type, new_val);
             fvars.push_back(new_fvar);
             m_fvars.push_back(new_fvar);
             e = let_body(e);
@@ -2451,6 +2457,7 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
     buffer<comp_decl> bs;
     for (comp_decl const & d : ds) {
         expr new_v = to_lambda_pure_fn(new_env, unboxed)(d.snd());
+        lean_trace(name({"compiler", "lambda_pure"}), tout() << d.fst() << " :=\n" << new_v << "\n";);
         new_v      = push_proj_fn(new_env)(new_v);
         new_v      = insert_reset_reuse_fn(new_env, unboxed)(new_v);
         new_v      = simp_cases(new_env, new_v);
@@ -2493,6 +2500,7 @@ void initialize_llnf() {
     g_unbox     = new name("_unbox");
     g_inc       = new expr(mk_constant("_inc"));
     g_dec       = new expr(mk_constant("_dec"));
+    register_trace_class({"compiler", "lambda_pure"});
     g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
     g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);

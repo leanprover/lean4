@@ -57,6 +57,8 @@ def type.beq : type → type → bool
 | type.tobject    type.tobject    := tt
 | _               _               := ff
 
+instance type.has_beq : has_beq type := ⟨type.beq⟩
+
 /- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
    Recall that for a function `f`, we also generate `f._rarg` which does not take
@@ -74,6 +76,8 @@ def litval.beq : litval → litval → bool
 | (litval.str v₁) (litval.str v₂) := v₁ = v₂
 | _               _               := ff
 
+instance litval.has_beq : has_beq litval := ⟨litval.beq⟩
+
 /- Constructor information.
 
    - `id` is the name of the constructor in Lean.
@@ -90,6 +94,8 @@ structure ctor_info :=
 def ctor_info.beq : ctor_info → ctor_info → bool
 | ⟨id₁, cidx₁, usize₁, ssize₁⟩ ⟨id₂, cidx₂, usize₂, ssize₂⟩ :=
   id₁ = id₂ && cidx₁ = cidx₂ && usize₁ = usize₂ && ssize₁ = ssize₂
+
+instance ctor_info.has_beq : has_beq ctor_info := ⟨ctor_info.beq⟩
 
 inductive expr
 | ctor (i : ctor_info) (ys : list arg)
@@ -216,18 +222,18 @@ def args.alpha_eqv (ρ : name_map name) : list arg → list arg → bool
 instance args.has_aeqv : has_alpha_eqv (list arg) := ⟨args.alpha_eqv⟩
 
 def expr.alpha_eqv (ρ : name_map name) : expr → expr → bool
-| (expr.ctor i₁ ys₁)      (expr.ctor i₂ ys₂)      := ctor_info.beq i₁ i₂ && ys₁ =[ρ]= ys₂
+| (expr.ctor i₁ ys₁)      (expr.ctor i₂ ys₂)      := i₁ == i₂ && ys₁ =[ρ]= ys₂
 | (expr.reset x₁)         (expr.reset x₂)         := x₁ =[ρ]= x₂
-| (expr.reuse x₁ i₁ ys₁)  (expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && ctor_info.beq i₁ i₂ && ys₁ =[ρ]= ys₂
+| (expr.reuse x₁ i₁ ys₁)  (expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && i₁ == i₂ && ys₁ =[ρ]= ys₂
 | (expr.proj i₁ x₁)       (expr.proj i₂ x₂)       := i₁ = i₂ && x₁ =[ρ]= x₂
 | (expr.uproj i₁ x₁)      (expr.uproj i₂ x₂)      := i₁ = i₂ && x₁ =[ρ]= x₂
 | (expr.sproj n₁ x₁)      (expr.sproj n₂ x₂)      := n₁ = n₂ && x₁ =[ρ]= x₂
 | (expr.fap c₁ ys₁)       (expr.fap c₂ ys₂)       := c₁ = c₂ && ys₁ =[ρ]= ys₂
 | (expr.pap c₁ ys₁)       (expr.pap c₂ ys₂)       := c₁ = c₂ && ys₂ =[ρ]= ys₂
 | (expr.ap x₁ ys₁)        (expr.ap x₂ ys₂)        := x₁ =[ρ]= x₂ && ys₁ =[ρ]= ys₂
-| (expr.box ty₁ x₁)       (expr.box ty₂ x₂)       := type.beq ty₁ ty₂ && x₁ =[ρ]= x₂
+| (expr.box ty₁ x₁)       (expr.box ty₂ x₂)       := ty₁ == ty₂ && x₁ =[ρ]= x₂
 | (expr.unbox x₁)         (expr.unbox x₂)         := x₁ =[ρ]= x₂
-| (expr.lit v₁)           (expr.lit v₂)           := litval.beq v₁ v₂
+| (expr.lit v₁)           (expr.lit v₂)           := v₁ == v₂
 | (expr.is_shared x₁)     (expr.is_shared x₂)     := x₁ =[ρ]= x₂
 | (expr.is_tagged_ptr x₁) (expr.is_tagged_ptr x₂) := x₁ =[ρ]= x₂
 | _                        _                      := ff

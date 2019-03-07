@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic init.coe init.data.uint init.data.to_string
-import init.lean.format init.data.hashable init.data.rbmap
+import init.lean.format init.data.hashable init.data.rbmap init.data.rbtree
 namespace lean
 
 inductive name
@@ -175,4 +175,16 @@ rbmap.contains m n
 @[inline] def name_map.find (m : name_map α) (n : name) : option α :=
 rbmap.find m n
 end
+
+section
+local attribute [instance] name.has_lt_quick
+def name_set := rbtree name (<)
+@[inline] def mk_name_set : name_set :=
+mk_rbtree name (<)
+def name_set.insert (s : name_set) (n : name)  :=
+rbtree.insert s n
+def name_set.contains (s : name_set) (n : name) : bool :=
+rbmap.contains s n
+end
+
 end lean

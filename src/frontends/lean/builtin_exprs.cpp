@@ -558,7 +558,7 @@ static expr parse_sorry(parser & p, unsigned, expr const *, pos_info const & pos
 }
 
 static expr parse_borrowed_expr(parser & p, unsigned, expr const *, pos_info const & pos) {
-    expr e = p.parse_expr();
+    expr e = p.parse_expr(get_max_prec()-1);
     return p.save_pos(mk_borrowed(e), pos);
 }
 

@@ -340,9 +340,10 @@ node! anonymous_inaccessible ["._":max_prec]
 def sorry.parser : term_parser :=
 node! «sorry» ["sorry":max_prec]
 
+def borrow_prec := max_prec - 1
 @[derive parser.has_tokens parser.has_view]
 def borrowed.parser : term_parser :=
-node! borrowed ["@&":max_prec, term: term.parser]
+node! borrowed ["@&":max_prec, term: term.parser borrow_prec]
 
 -- TODO(Sebastian): replace with attribute
 @[derive has_tokens]

@@ -408,7 +408,7 @@ class to_lambda_pure_fn {
 
     expr ensure_terminal(expr const & e) {
         lean_assert(!is_let(e) && !is_lambda(e));
-        if (is_cases_on_app(env(), e) || is_fvar(e) || is_join_point_app(e)) {
+        if (is_cases_on_app(env(), e) || is_fvar(e) || is_join_point_app(e) || is_enf_unreachable(e)) {
             return e;
         } else {
             expr type = ll_infer_type(env(), m_lctx, e);
@@ -1765,6 +1765,10 @@ class explicit_rc_fn {
 
     name_generator & ngen() { return m_ngen; }
 
+    bool is_terminal(expr const & e) {
+        return is_cases_on_app(env(), e) || is_jmp(e) || is_fvar(e) || is_enf_unreachable(e);
+    }
+
     expr mk_inc(expr const & fvar) {
         return mk_app(mk_llnf_inc(), fvar);
     }
@@ -2231,8 +2235,9 @@ class explicit_rc_fn {
                 add_inc(e, entries);
             }
             return e;
+        } else if (is_enf_unreachable(e)) {
+            return e;
         } else {
-            /* See visit_let */
             lean_unreachable();
         }
     }
@@ -2389,10 +2394,6 @@ class explicit_rc_fn {
             m_is_persistent.insert(fvar_name(new_fvar));
         }
         return new_fvar;
-    }
-
-    bool is_terminal(expr const & e) {
-        return is_cases_on_app(env(), e) || is_jmp(e) || is_fvar(e);
     }
 
     expr visit_let(expr e) {

@@ -136,6 +136,7 @@ inductive fnbody
 | ret (x : varid)
 /- Jump to join point `j` -/
 | jmp (j : jpid) (ys : list arg)
+| unreachable
 
 inductive decl
 | fdecl  (f : fid) (xs : list param) (ty : type) (b : fnbody)
@@ -164,6 +165,7 @@ with fnbody.is_pure : fnbody → bool
 | (fnbody.case _ cs)        := alts.is_pure cs
 | (fnbody.ret _)            := tt
 | (fnbody.jmp _ _)          := tt
+| fnbody.unreachable        := tt
 | _                         := ff
 with alts.is_pure : list (alt fnbody) → bool
 | []      := tt

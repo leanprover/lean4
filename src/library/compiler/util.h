@@ -148,6 +148,7 @@ inline bool is_runtime_builtin_type(expr const & e) {
 bool is_runtime_scalar_type(name const & n);
 
 bool is_irrelevant_type(type_checker::state & st, local_ctx lctx, expr const & type);
+bool is_irrelevant_type(environment const & env, expr const & type);
 
 void collect_used(expr const & e, name_hash_set & S);
 /* Return true iff `e` contains a free variable in `s` */

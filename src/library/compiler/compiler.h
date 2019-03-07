@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include "kernel/environment.h"
 namespace lean {
-environment compile(environment const & env, options const & opts, names const & cs);
+environment compile(environment const & env, options const & opts, names cs);
 inline environment compile(environment const & env, options const & opts, name const & c) {
     return compile(env, opts, names(c));
 }

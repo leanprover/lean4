@@ -136,9 +136,13 @@ bool is_main_fn_type(expr const & type) {
     }
 }
 
-environment compile(environment const & env, options const & opts, names const & cs) {
+environment compile(environment const & env, options const & opts, names cs) {
     if (!is_codegen_enabled(opts))
         return env;
+
+    /* Do not generate code for irrelevant decls */
+    cs = filter(cs, [&](name const & c) { return !is_irrelevant_type(env, env.get(c).get_type());});
+    if (empty(cs)) return env;
 
     for (name const & c : cs) {
         if (is_main_fn(env, c) && !is_main_fn_type(env.get(c).get_type())) {

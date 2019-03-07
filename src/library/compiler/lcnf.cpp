@@ -317,25 +317,8 @@ public:
         default:
             break;
         }
-
         if (is_lc_proof(e)) return false;
-
-        type_checker tc(m_st, m_lctx);
-        e_type = tc.whnf(e_type);
-        if (is_sort(e_type)) {
-            return false;
-        } else if (tc.is_prop(e_type)) {
-            return false;
-        } else if (is_pi(e_type)) {
-            /* Functions that return types are not relevant */
-            flet<local_ctx> save_lctx(m_lctx, m_lctx);
-            while (is_pi(e_type)) {
-                expr fvar = m_lctx.mk_local_decl(ngen(), binding_name(e_type), binding_domain(e_type));
-                e_type = whnf(instantiate(binding_body(e_type), fvar));
-            }
-            if (is_sort(e_type))
-                return false;
-        }
+        if (is_irrelevant_type(m_st, m_lctx, e_type)) return false;
         return true;
     }
 

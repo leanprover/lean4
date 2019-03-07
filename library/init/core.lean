@@ -22,6 +22,7 @@ reserve infix ` <-> `:20
 reserve infix ` ↔ `:20
 reserve infix ` = `:50
 reserve infix ` == `:50
+reserve infix ` ~= `:50
 reserve infix ` ≠ `:50
 reserve infix ` ≈ `:50
 reserve infix ` ~ `:50
@@ -248,11 +249,11 @@ h₂ ▸ h₁
 theorem eq.symm {α : Sort u} {a b : α} (h : a = b) : b = a :=
 h ▸ rfl
 
-infix == := heq
+infix ~= := heq
 
-@[pattern] def heq.rfl {α : Sort u} {a : α} : a == a := heq.refl a
+@[pattern] def heq.rfl {α : Sort u} {a : α} : a ~= a := heq.refl a
 
-theorem eq_of_heq {α : Sort u} {a a' : α} (h : a == a') : a = a' :=
+theorem eq_of_heq {α : Sort u} {a a' : α} (h : a ~= a') : a = a' :=
 have ∀ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a') (h₂ : α = α'), (eq.rec_on h₂ a : α') = a', from
   λ (α' : Sort u) (a' : α') (h₁ : @heq α a α' a'), heq.rec_on h₁ (λ h₂ : α = α, rfl),
 show (eq.ndrec_on (eq.refl α) a : α) = a', from
@@ -728,53 +729,53 @@ section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
 
 @[elab_as_eliminator]
-theorem {u1 u2} heq.ndrec {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} (m : C a) {β : Sort u2} {b : β} (h : a == b) : C b :=
+theorem {u1 u2} heq.ndrec {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} (m : C a) {β : Sort u2} {b : β} (h : a ~= b) : C b :=
 @heq.rec α a (λ β b _, C b) m β b h
 
 @[elab_as_eliminator]
-theorem {u1 u2} heq.ndrec_on {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} {β : Sort u2} {b : β} (h : a == b) (m : C a) : C b :=
+theorem {u1 u2} heq.ndrec_on {α : Sort u2} {a : α} {C : Π {β : Sort u2}, β → Sort u1} {β : Sort u2} {b : β} (h : a ~= b) (m : C a) : C b :=
 @heq.rec α a (λ β b _, C b) m β b h
 
-theorem heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a == b) (h₂ : p a) : p b :=
+theorem heq.elim {α : Sort u} {a : α} {p : α → Sort v} {b : α} (h₁ : a ~= b) (h₂ : p a) : p b :=
 eq.rec_on (eq_of_heq h₁) h₂
 
-theorem heq.subst {p : ∀ T : Sort u, T → Prop} (h₁ : a == b) (h₂ : p α a) : p β b :=
+theorem heq.subst {p : ∀ T : Sort u, T → Prop} (h₁ : a ~= b) (h₂ : p α a) : p β b :=
 heq.ndrec_on h₁ h₂
 
-theorem heq.symm (h : a == b) : b == a :=
+theorem heq.symm (h : a ~= b) : b ~= a :=
 heq.ndrec_on h (heq.refl a)
 
-theorem heq_of_eq (h : a = a') : a == a' :=
+theorem heq_of_eq (h : a = a') : a ~= a' :=
 eq.subst h (heq.refl a)
 
-theorem heq.trans (h₁ : a == b) (h₂ : b == c) : a == c :=
+theorem heq.trans (h₁ : a ~= b) (h₂ : b ~= c) : a ~= c :=
 heq.subst h₂ h₁
 
-theorem heq_of_heq_of_eq (h₁ : a == b) (h₂ : b = b') : a == b' :=
+theorem heq_of_heq_of_eq (h₁ : a ~= b) (h₂ : b = b') : a ~= b' :=
 heq.trans h₁ (heq_of_eq h₂)
 
-theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' == b) : a == b :=
+theorem heq_of_eq_of_heq (h₁ : a = a') (h₂ : a' ~= b) : a ~= b :=
 heq.trans (heq_of_eq h₁) h₂
 
-def type_eq_of_heq (h : a == b) : α = β :=
+def type_eq_of_heq (h : a ~= b) : α = β :=
 heq.ndrec_on h (eq.refl α)
 end
 
-theorem eq_rec_heq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (eq.rec_on h p : φ a') == p
+theorem eq_rec_heq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (eq.rec_on h p : φ a') ~= p
 | a _ rfl p := heq.refl p
 
-theorem heq_of_eq_rec_left {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a = a') (h₂ : (eq.rec_on e p₁ : φ a') = p₂), p₁ == p₂
+theorem heq_of_eq_rec_left {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a = a') (h₂ : (eq.rec_on e p₁ : φ a') = p₂), p₁ ~= p₂
 | a _ p₁ p₂ rfl h := eq.rec_on h (heq.refl p₁)
 
-theorem heq_of_eq_rec_right {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a' = a) (h₂ : p₁ = eq.rec_on e p₂), p₁ == p₂
+theorem heq_of_eq_rec_right {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a' = a) (h₂ : p₁ = eq.rec_on e p₂), p₁ ~= p₂
 | a _ p₁ p₂ rfl h :=
   have p₁ = p₂, from h,
   this ▸ heq.refl p₁
 
-theorem of_heq_true {a : Prop} (h : a == true) : a :=
+theorem of_heq_true {a : Prop} (h : a ~= true) : a :=
 of_eq_true (eq_of_heq h)
 
-theorem cast_heq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a == a
+theorem cast_heq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ~= a
 | α _ rfl a := heq.refl a
 
 variables {a b c d : Prop}
@@ -902,7 +903,7 @@ iff.intro false_of_ne false.elim
 theorem eq_self_iff_true {α : Sort u} (a : α) : (a = a) ↔ true :=
 iff_true_intro rfl
 
-theorem heq_self_iff_true {α : Sort u} (a : α) : (a == a) ↔ true :=
+theorem heq_self_iff_true {α : Sort u} (a : α) : (a ~= a) ↔ true :=
 iff_true_intro (heq.refl a)
 
 theorem iff_not_self (a : Prop) : (a ↔ ¬a) ↔ false :=
@@ -1432,7 +1433,7 @@ class inductive subsingleton (α : Sort u) : Prop
 protected def subsingleton.elim {α : Sort u} [h : subsingleton α] : ∀ (a b : α), a = b :=
 subsingleton.cases_on h (λ p, p)
 
-protected def subsingleton.helim {α β : Sort u} [h : subsingleton α] (h : α = β) : ∀ (a : α) (b : β), a == b :=
+protected def subsingleton.helim {α β : Sort u} [h : subsingleton α] (h : α = β) : ∀ (a : α) (b : β), a ~= b :=
 eq.rec_on h (λ a b : α, heq_of_eq (subsingleton.elim a b))
 
 instance subsingleton_prop (p : Prop) : subsingleton p :=
@@ -1463,7 +1464,7 @@ theorem let_value_eq {α : Sort u} {β : Sort v} {a₁ a₂ : α} (b : α → β
 λ h, eq.ndrec_on h rfl
 
 theorem let_value_heq {α : Sort v} {β : α → Sort u} {a₁ a₂ : α} (b : Π x : α, β x) :
-                    a₁ = a₂ → (let x : α := a₁ in b x) == (let x : α := a₂ in b x) :=
+                    a₁ = a₂ → (let x : α := a₁ in b x) ~= (let x : α := a₂ in b x) :=
 λ h, eq.ndrec_on h (heq.refl (b a₁))
 
 theorem let_body_eq {α : Sort v} {β : α → Sort u} (a : α) {b₁ b₂ : Π x : α, β x} :
@@ -1821,10 +1822,10 @@ quot.rec f (λ a b h, subsingleton.elim _ (f b)) q
 
 @[reducible, elab_as_eliminator, inline]
 protected def hrec_on
-   (q : quot r) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : r a b), f a == f b) : β q :=
+   (q : quot r) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : r a b), f a ~= f b) : β q :=
 quot.rec_on q f $
   λ a b p, eq_of_heq $
-    have p₁ : (eq.rec (f a) (sound p) : β ⟦b⟧) == f a, from eq_rec_heq (sound p) (f a),
+    have p₁ : (eq.rec (f a) (sound p) : β ⟦b⟧) ~= f a, from eq_rec_heq (sound p) (f a),
     heq.trans p₁ (c a b p)
 
 end
@@ -1886,7 +1887,7 @@ protected def rec_on_subsingleton
 
 @[reducible, elab_as_eliminator, inline]
 protected def hrec_on
-   (q : quotient s) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : a ≈ b), f a == f b) : β q :=
+   (q : quotient s) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : a ≈ b), f a ~= f b) : β q :=
 quot.hrec_on q f c
 end
 

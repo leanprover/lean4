@@ -39,6 +39,7 @@ obj* l_lean_nat__has__to__format(obj*);
 obj* l_nat_repeat__core___main___at_string_pushn___spec__1(uint32, obj*, obj*, obj*);
 obj* l_lean_format_repr___main___closed__5;
 obj* l_lean_has__repr___lambda__1(obj*);
+obj* l_id___rarg___boxed(obj*);
 obj* l_string_quote(obj*);
 obj* l_lean_list_to__format___main___rarg___closed__1;
 obj* l_lean_to__string__to__format___rarg___lambda__1(obj*);
@@ -82,7 +83,6 @@ obj* l_lean_format_space__upto__line___main___lambda__1___boxed(obj*, obj*, obj*
 obj* l_lean_format_join(obj*);
 extern obj* l_string_join___closed__1;
 obj* l_lean_format_prefix__join___boxed(obj*);
-obj* l_id___rarg(obj*);
 obj* l_lean_format_has__coe(obj*);
 obj* l_lean_format_prefix__join___main(obj*);
 namespace lean {
@@ -1210,7 +1210,7 @@ obj* _init_l_lean_format__has__to__format() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
 return x_0;
 }
 }

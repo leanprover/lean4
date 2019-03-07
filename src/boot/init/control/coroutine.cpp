@@ -34,8 +34,8 @@ obj* l_coroutine_monad___lambda__6(obj*, obj*);
 obj* l_coroutine_resume___boxed(obj*, obj*, obj*);
 obj* l_coroutine_resume___rarg(obj*, obj*);
 obj* l_coroutine_monad__reader___boxed(obj*, obj*);
-obj* l_function_const___rarg(obj*, obj*);
 obj* l_coroutine_read___rarg(obj*);
+obj* l_function_const___rarg___boxed(obj*, obj*);
 obj* l_coroutine_monad___lambda__7(obj*, obj*, obj*, obj*);
 obj* l_coroutine_yield___rarg___lambda__1___boxed(obj*);
 obj* l_coroutine_monad___lambda__5___boxed(obj*, obj*, obj*);
@@ -681,7 +681,7 @@ obj* l_coroutine_monad___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg___boxed), 2, 1);
 lean::closure_set(x_4, 0, x_2);
 x_5 = l_coroutine_monad___lambda__1___closed__1;
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);

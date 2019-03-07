@@ -53,11 +53,11 @@ obj* l_option__t_bind__cont___at_option__t_alternative___spec__5___rarg___boxed(
 obj* l_option__t_monad___rarg___lambda__8(obj*, obj*, obj*, obj*, obj*);
 obj* l_option__t_bind__cont___at_option__t_alternative___spec__7(obj*);
 obj* l_option__t_bind__cont___at_option__t_monad___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_function_const___rarg(obj*, obj*);
 obj* l_option__t_monad___rarg___lambda__6(obj*, obj*, obj*);
 obj* l_option__t_catch___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_option__t_alternative___boxed(obj*);
 obj* l_option__t_bind__cont___main(obj*);
+obj* l_function_const___rarg___boxed(obj*, obj*);
 obj* l_option__t_bind__cont___at_option__t_monad___spec__6___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_option__t_bind__cont___at_option__t_alternative___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_option__t_monad___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
@@ -687,7 +687,7 @@ obj* l_option__t_monad___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3
 _start:
 {
 obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg), 2, 1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_3);
 lean::inc(x_0);
 x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_option__t_pure___rarg___boxed), 3, 2);
@@ -1464,7 +1464,7 @@ obj* l_option__t_alternative___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, ob
 _start:
 {
 obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg), 2, 1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_function_const___rarg___boxed), 2, 1);
 lean::closure_set(x_5, 0, x_3);
 lean::inc(x_0);
 x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_option__t_pure___rarg___boxed), 3, 2);

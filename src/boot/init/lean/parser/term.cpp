@@ -505,6 +505,7 @@ extern obj* l_lean_parser_command_notation_has__view_x_27___lambda__1___closed__
 obj* l_lean_parser_term_simple__strict__implicit__binder_has__view;
 obj* l_lean_parser_ident__univs_has__view_x_27___lambda__1___closed__3;
 obj* l_lean_parser_ident__univs_has__view_x_27___lambda__1___closed__2;
+obj* l_lean_parser_term_borrow__prec;
 obj* l_lean_parser_mk__raw__res(obj*, obj*);
 obj* l_lean_parser_term_simple__inst__implicit__binder_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_term_assume_parser_lean_parser_has__tokens;
@@ -47425,6 +47426,16 @@ x_7 = l_lean_parser_combinators_node___at_lean_parser_command_notation__spec_pre
 return x_7;
 }
 }
+obj* _init_l_lean_parser_term_borrow__prec() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = l_lean_parser_max__prec;
+x_1 = lean::mk_nat_obj(1u);
+x_2 = lean::nat_sub(x_0, x_1);
+return x_2;
+}
+}
 obj* _init_l_lean_parser_term_borrowed() {
 _start:
 {
@@ -47708,7 +47719,7 @@ x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_symbol__core___a
 lean::closure_set(x_5, 0, x_1);
 lean::closure_set(x_5, 1, x_4);
 lean::closure_set(x_5, 2, x_3);
-x_6 = lean::mk_nat_obj(0u);
+x_6 = l_lean_parser_term_borrow__prec;
 x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_term_parser), 6, 1);
 lean::closure_set(x_7, 0, x_6);
 x_8 = lean::box(0);
@@ -47743,7 +47754,7 @@ x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_symbol__core___a
 lean::closure_set(x_5, 0, x_1);
 lean::closure_set(x_5, 1, x_4);
 lean::closure_set(x_5, 2, x_3);
-x_6 = lean::mk_nat_obj(0u);
+x_6 = l_lean_parser_term_borrow__prec;
 x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_term_parser), 6, 1);
 lean::closure_set(x_7, 0, x_6);
 x_8 = lean::box(0);
@@ -57262,6 +57273,8 @@ lean::mark_persistent(l_lean_parser_term_sorry_parser_lean_parser_has__tokens);
 lean::mark_persistent(l_lean_parser_term_sorry_parser_lean_parser_has__view);
  l_lean_parser_term_sorry_parser___closed__1 = _init_l_lean_parser_term_sorry_parser___closed__1();
 lean::mark_persistent(l_lean_parser_term_sorry_parser___closed__1);
+ l_lean_parser_term_borrow__prec = _init_l_lean_parser_term_borrow__prec();
+lean::mark_persistent(l_lean_parser_term_borrow__prec);
  l_lean_parser_term_borrowed = _init_l_lean_parser_term_borrowed();
 lean::mark_persistent(l_lean_parser_term_borrowed);
  l_lean_parser_term_borrowed_has__view_x_27___lambda__1___closed__1 = _init_l_lean_parser_term_borrowed_has__view_x_27___lambda__1___closed__1();

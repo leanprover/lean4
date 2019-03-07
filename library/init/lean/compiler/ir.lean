@@ -45,6 +45,18 @@ inductive type
 | float | uint8 | uint16 | uint32 | uint64 | usize
 | irrelevant | object | tobject
 
+def type.beq : type → type → bool
+| type.float      type.float      := tt
+| type.uint8      type.uint8      := tt
+| type.uint16     type.uint16     := tt
+| type.uint32     type.uint32     := tt
+| type.uint64     type.uint64     := tt
+| type.usize      type.usize      := tt
+| type.irrelevant type.irrelevant := tt
+| type.object     type.object     := tt
+| type.tobject    type.tobject    := tt
+| _               _               := ff
+
 /- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
    Recall that for a function `f`, we also generate `f._rarg` which does not take
@@ -56,6 +68,11 @@ inductive arg
 inductive litval
 | num (v : nat)
 | str (v : string)
+
+def litval.beq : litval → litval → bool
+| (litval.num v₁) (litval.num v₂) := v₁ = v₂
+| (litval.str v₁) (litval.str v₂) := v₁ = v₂
+| _               _               := ff
 
 /- Constructor information.
 
@@ -174,25 +191,46 @@ with alt.is_pure : alt fnbody → bool
 | (alt.ctor _ b)  := b.is_pure
 | (alt.default b) := ff
 
+class has_alpha_eqv (α : Type) :=
+(aeqv : name_map name → α → α → bool)
+
+local notation a `=[`:50 ρ `]=`:0 b:50 := has_alpha_eqv.aeqv ρ a b
+
 def varid.alpha_eqv (ρ : name_map name) (v₁ v₂ : varid) : bool :=
 v₁ = v₂ || ρ.find v₁ = v₂
 
+instance varid.has_aeqv : has_alpha_eqv varid := ⟨varid.alpha_eqv⟩
+
 def arg.alpha_eqv (ρ : name_map name) : arg → arg → bool
-| (arg.var v₁)   (arg.var v₂)   := varid.alpha_eqv ρ v₁ v₂
+| (arg.var v₁)   (arg.var v₂)   := v₁ =[ρ]= v₂
 | arg.irrelevant arg.irrelevant := tt
 | _              _              := ff
 
+instance arg.has_aeqv : has_alpha_eqv arg := ⟨arg.alpha_eqv⟩
+
 def args.alpha_eqv (ρ : name_map name) : list arg → list arg → bool
 | []      []      := tt
-| (a::as) (b::bs) := arg.alpha_eqv ρ a b && args.alpha_eqv as bs
+| (a::as) (b::bs) := a =[ρ]= b && args.alpha_eqv as bs
 | _       _       := ff
 
+instance args.has_aeqv : has_alpha_eqv (list arg) := ⟨args.alpha_eqv⟩
+
 def expr.alpha_eqv (ρ : name_map name) : expr → expr → bool
-| (expr.ctor i₁ ys₁)     (expr.ctor i₂ ys₂)     := ctor_info.beq i₁ i₂ && args.alpha_eqv ρ ys₁ ys₂
-| (expr.reset x₁)        (expr.reset x₂)        := varid.alpha_eqv ρ x₁ x₂
-| (expr.reuse x₁ i₁ ys₁) (expr.reuse x₂ i₂ ys₂) := varid.alpha_eqv ρ x₁ x₂ && ctor_info.beq i₁ i₂ && args.alpha_eqv ρ ys₁ ys₂
--- TODO(Leo): remaining cases
-| _                      _                      := ff
+| (expr.ctor i₁ ys₁)      (expr.ctor i₂ ys₂)      := ctor_info.beq i₁ i₂ && ys₁ =[ρ]= ys₂
+| (expr.reset x₁)         (expr.reset x₂)         := x₁ =[ρ]= x₂
+| (expr.reuse x₁ i₁ ys₁)  (expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && ctor_info.beq i₁ i₂ && ys₁ =[ρ]= ys₂
+| (expr.proj i₁ x₁)       (expr.proj i₂ x₂)       := i₁ = i₂ && x₁ =[ρ]= x₂
+| (expr.uproj i₁ x₁)      (expr.uproj i₂ x₂)      := i₁ = i₂ && x₁ =[ρ]= x₂
+| (expr.sproj n₁ x₁)      (expr.sproj n₂ x₂)      := n₁ = n₂ && x₁ =[ρ]= x₂
+| (expr.fap c₁ ys₁)       (expr.fap c₂ ys₂)       := c₁ = c₂ && ys₁ =[ρ]= ys₂
+| (expr.pap c₁ ys₁)       (expr.pap c₂ ys₂)       := c₁ = c₂ && ys₂ =[ρ]= ys₂
+| (expr.ap x₁ ys₁)        (expr.ap x₂ ys₂)        := x₁ =[ρ]= x₂ && ys₁ =[ρ]= ys₂
+| (expr.box ty₁ x₁)       (expr.box ty₂ x₂)       := type.beq ty₁ ty₂ && x₁ =[ρ]= x₂
+| (expr.unbox x₁)         (expr.unbox x₂)         := x₁ =[ρ]= x₂
+| (expr.lit v₁)           (expr.lit v₂)           := litval.beq v₁ v₂
+| (expr.is_shared x₁)     (expr.is_shared x₂)     := x₁ =[ρ]= x₂
+| (expr.is_tagged_ptr x₁) (expr.is_tagged_ptr x₂) := x₁ =[ρ]= x₂
+| _                        _                      := ff
 
 end ir
 end lean

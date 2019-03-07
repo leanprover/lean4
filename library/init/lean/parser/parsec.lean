@@ -81,6 +81,12 @@ do r ← p s.mk_iterator,
    | ok a _ _     := except.ok a
    | error msg _  := except.error msg
 
+def run_from (p : parsec_t μ m α) (it : iterator) (fname := "") : m (except (message μ) α) :=
+do r ← p it,
+   pure $ match r with
+   | ok a _ _     := except.ok a
+   | error msg _  := except.error msg
+
 @[inline] protected def pure (a : α) : parsec_t μ m α :=
 λ it, pure (mk_eps a it)
 

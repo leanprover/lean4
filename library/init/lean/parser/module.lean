@@ -25,13 +25,6 @@ structure module_parser_config extends command_parser_config :=
 instance module_parser_config_coe : has_coe module_parser_config command_parser_config :=
 ⟨module_parser_config.to_command_parser_config⟩
 
-structure module_parser_output :=
-(cmd : syntax)
-(messages : message_log)
--- to access the profile data inside
-(cache : parser_cache)
-(pos : position)
-
 section
 local attribute [reducible] parser_core_t
 /- We do not need `expected/consumed` handling in this top-level parser that
@@ -41,16 +34,14 @@ local attribute [reducible] parser_core_t
 local attribute [instance] parsec_t.monad'
 /- NOTE: missing the `reader_t` from `parser_t` because the `coroutine` already provides
    `monad_reader module_parser_config`. -/
-@[derive monad alternative monad_reader monad_state monad_parsec monad_except monad_coroutine]
-def module_parser_m := state_t parser_state $ parser_core_t $ coroutine module_parser_config module_parser_output
+@[derive monad alternative monad_reader monad_state monad_parsec monad_except]
+def module_parser_m := state_t parser_state $ parser_t module_parser_config id
 abbreviation module_parser := module_parser_m syntax
 end
 
 instance module_parser_m.lift_parser_t (ρ : Type) [has_lift_t module_parser_config ρ] :
   has_monad_lift (parser_t ρ id) module_parser_m :=
-{ monad_lift := λ α x st it nb_st, do
-    cfg ← read,
-    pure (((((λ a, (a, st)) <$> x).run ↑cfg) it).run nb_st) }
+{ monad_lift := λ α x st cfg, (λ a, (a, st)) <$> x.run ↑cfg }
 
 section
 local attribute [reducible] basic_parser_m
@@ -60,14 +51,6 @@ instance module_parser_m.basic_parser_m (ρ : Type) [has_lift_t module_parser_co
 end
 
 namespace module
-def yield_command (cmd : syntax) : module_parser_m unit :=
-do cfg ← read,
-   st ← get,
-   cache ← monad_lift get_cache,
-   pos ← cfg.file_map.to_position <$> monad_parsec.pos,
-   yield {cmd := cmd, messages := st.messages, cache := cache, pos := pos},
-   put {st with messages := message_log.empty}
-
 @[derive parser.has_view parser.has_tokens]
 def prelude.parser : basic_parser :=
 node! «prelude» ["prelude"]
@@ -87,69 +70,72 @@ node! «import» ["import", imports: import_path.parser+]
 def header.parser : basic_parser :=
 node! «header» [«prelude»: prelude.parser?, imports: import.parser*]
 
-/-- Read commands, recovering from errors inside commands (attach partial syntax tree)
+@[pattern] def eoi : syntax_node_kind := ⟨`lean.parser.module.eoi⟩
+
+def eoi.parser : module_parser := do
+  monad_parsec.eoi,
+  it ← left_over,
+  -- add `eoi` node for left-over input
+  let stop := it.to_end,
+  pure $ syntax.mk_node eoi [syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]
+
+/-- Read command, recovering from errors inside commands (attach partial syntax tree)
     as well as unknown commands (skip input). -/
-private def commands_aux : bool → nat → module_parser_m unit
+private def command_wrec_aux : bool → nat → module_parser_m (bool × syntax)
 | recovering 0            := error "unreachable"
 | recovering (nat.succ n) := do
   -- terminate at EOF
-  nat.succ _ ← remaining | pure (),
+  nat.succ _ ← remaining | (prod.mk ff) <$> eoi.parser,
   (recovering, c) ← catch (do {
     cfg ← read,
     c ← monad_lift $ command.parser.run cfg.command_parsers,
     pure (ff, some c)
   } <|> do {
-      -- unknown command: try to skip token, or else single character
-      when (¬ recovering) $ do {
-        it ← left_over,
-        log_message {expected := dlist.singleton "command", it := it, custom := some ()}
-      },
-      try (monad_lift token *> pure ()) <|> (any *> pure ()),
-      pure (tt, none)
-    }) $ λ msg, do {
-      -- error inside command: log error, return partial syntax tree
-      log_message msg,
-      pure (tt, some msg.custom.get)
+    -- unknown command: try to skip token, or else single character
+    when (¬ recovering) $ do {
+      it ← left_over,
+      log_message {expected := dlist.singleton "command", it := it, custom := some ()}
     },
+    try (monad_lift token *> pure ()) <|> (any *> pure ()),
+    pure (tt, none)
+  }) $ λ msg, do {
+    -- error inside command: log error, return partial syntax tree
+    log_message msg,
+    pure (tt, some msg.custom.get)
+  },
   /- NOTE: We need to make very sure that these recursive calls are happening in tail positions.
      Otherwise, resuming the coroutine is linear in the number of previous commands. -/
   match c with
-  | some c := yield_command c *> commands_aux recovering n
-  | none   := commands_aux recovering n
+  | some c := pure (recovering, c)
+  | none   := command_wrec_aux recovering n
 
-def commands.parser : module_parser_m unit :=
-do { rem ← remaining, commands_aux ff rem.succ }
-
-instance commands.tokens : parser.has_tokens commands.parser :=
-⟨tokens command.parser⟩
-
--- custom parser requires custom instance
-instance commands.parser.has_view : has_view (list syntax) commands.parser :=
-{..many.view command.parser}
-
-@[pattern] def eoi : syntax_node_kind := ⟨`lean.parser.module.eoi⟩
+def parse_command_with_recovery (recovering : bool) :=
+do { rem ← remaining, command_wrec_aux recovering rem.succ }
 end module
 open module
 
-def module.parser : module_parser_m unit := do
-  catch (do
-    -- `token` assumes that there is no leading whitespace
-    monad_lift whitespace,
-    monad_lift header.parser >>= yield_command,
-    commands.parser,
-    monad_parsec.eoi
-  ) $ λ msg, do {
-    -- fatal error (should only come from header.parser or eoi), yield partial syntax tree and stop
-    log_message msg,
-    yield_command msg.custom.get
-  },
-  it ← left_over,
-  -- add `eoi` node for left-over input
-  let stop := it.to_end,
-  yield_command $ syntax.mk_node eoi [syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]
+structure module_parser_snapshot :=
+-- it there was a parse error in the previous command, we shouldn't complain if parsing immediately after it
+-- fails as well
+(recovering : bool)
+(it : string.iterator)
 
-instance module.tokens : has_tokens module.parser :=
-⟨tokens prelude.parser ++ tokens import.parser ++ tokens commands.parser⟩
+def resume_module_parser {α : Type} (cfg : module_parser_config) (snap : module_parser_snapshot) (mk_res : α → syntax × module_parser_snapshot)
+  (p : module_parser_m α) : ((syntax × module_parser_snapshot) ⊕ syntax) × message_log :=
+let (r, _) := ((((prod.mk <$> p <*> left_over).run {messages:=message_log.empty}).run cfg).run_from snap.it).run {} in
+match r with
+| except.ok ((a, it), st) := let (stx, snap) := mk_res a in (sum.inl (stx, {snap with it := it}), st.messages)
+| except.error msg  := (sum.inr msg.custom.get, message_log.empty.add (message_of_parsec_message cfg msg))
+
+def parse_header (cfg : module_parser_config) :=
+let snap := {module_parser_snapshot . recovering := ff, it := cfg.input.mk_iterator} in
+resume_module_parser cfg snap (λ stx, (stx, snap)) $ do
+  -- `token` assumes that there is no leading whitespace
+  monad_lift whitespace,
+  monad_lift header.parser
+
+def parse_command (cfg) (snap) := resume_module_parser cfg snap (λ p, (prod.snd p, {snap with recovering := prod.fst p}))
+  (parse_command_with_recovery snap.recovering)
 
 end parser
 end lean

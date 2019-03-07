@@ -13,7 +13,7 @@ open lean.elaborator
 
 def mk_config (filename := "<unknown>") (input := "") : except string module_parser_config :=
 do t ← parser.mk_token_trie $
-    parser.tokens module.parser ++
+    parser.tokens module.header.parser ++
     parser.tokens command.builtin_command_parsers ++
     parser.tokens term.builtin_leading_parsers ++
     parser.tokens term.builtin_trailing_parsers,
@@ -25,32 +25,29 @@ do t ← parser.mk_token_trie $
    }
 
 meta def run_frontend (filename input : string) (print_msg : message → except_t string io unit) (collect_outputs : bool) :
-  except_t string io (list module_parser_output) := do
+  except_t string io (list syntax) := do
   parser_cfg ← monad_except.lift_except $ mk_config filename input,
+  -- TODO(Sebastian): `parse_header` should be called directly by lean.cpp
+  match parse_header parser_cfg with
+  | (sum.inr _, msgs) := msgs.to_list.mfor print_msg *> pure []
+  | (sum.inl (stx, p_snap), msgs) := do
+  msgs.to_list.mfor print_msg,
   let expander_cfg : expander_config := {filename := filename, input := input, transformers := builtin_transformers},
-  let parser_k := parser.run parser_cfg input (λ st _, module.parser st),
   let elab_k := elaborator.run {filename := filename, input := input, initial_parser_cfg := parser_cfg},
-  let add_output (out : module_parser_output) outs := if collect_outputs then out::outs else [],
-  io.prim.iterate_eio (parser_k, elab_k, parser_cfg, expander_cfg, ([] : list module_parser_output)) $ λ ⟨parser_k, elab_k, parser_cfg, expander_cfg, outs⟩, do
-    let pos := match outs with out::_ := out.pos | [] := default _,
-    r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parser_k.resume parser_cfg,
+  let add_output (out : syntax) outs := if collect_outputs then out::outs else [],
+  io.prim.iterate_eio (p_snap, elab_k, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_k, parser_cfg, expander_cfg, outs⟩, do
+    let pos := parser_cfg.file_map.to_position p_snap.it.offset,
+    r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parse_command parser_cfg p_snap,
     match r with
-    | coroutine_result_core.done p := do {
+    | (sum.inr _, msgs) := do {
       io.println "parser died!!",
+      msgs.to_list.mfor print_msg,
       pure (sum.inr outs.reverse)
     }
-    | coroutine_result_core.yielded out parser_k := do {
-      match out.messages.to_list with
-      | [] := pure () /-do
-        io.println "result:",
-        io.println (to_string stx)-/
-      | msgs := do {
-        msgs.mfor print_msg/-,
-        io.println "partial syntax tree:",
-        io.println (to_string out.cmd)-/
-      },
+    | (sum.inl (cmd, p_snap), msgs) := do {
+      msgs.to_list.mfor print_msg,
       --io.println out.cmd,
-      r ← monad_lift $ profileit_pure "expanding" pos $ λ _, (expand out.cmd).run expander_cfg,
+      r ← monad_lift $ profileit_pure "expanding" pos $ λ _, (expand cmd).run expander_cfg,
       match r with
       | except.ok cmd' := do {
         --io.println cmd',
@@ -64,14 +61,14 @@ meta def run_frontend (filename input : string) (print_msg : message → except_
             pos := ⟨1, 0⟩,
             text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
               to_string (out.cache.hit + out.cache.miss)},-/
-          pure $ sum.inr (add_output out outs).reverse
+          pure $ sum.inr (add_output cmd outs).reverse
         }
         | coroutine_result_core.yielded elab_out elab_k := do {
           elab_out.messages.to_list.mfor print_msg,
-          pure (sum.inl (parser_k, elab_k, elab_out.parser_cfg, elab_out.expander_cfg, add_output out outs))
+          pure (sum.inl (p_snap, elab_k, elab_out.parser_cfg, elab_out.expander_cfg, add_output cmd outs))
         }
       }
-      | except.error e := print_msg e *> pure (sum.inl (parser_k, elab_k, parser_cfg, expander_cfg, add_output out outs))
+      | except.error e := print_msg e *> pure (sum.inl (p_snap, elab_k, parser_cfg, expander_cfg, add_output cmd outs))
     }
 
 @[export lean_process_file]

@@ -111,16 +111,54 @@ node! «set_option» ["set_option", opt: ident.parser, val: node_choice! option_
 }]
 
 @[derive has_tokens]
-def builtin_command_parsers : list command_parser := [
-  declaration.parser, variable.parser, variables.parser, namespace.parser, end.parser,
-  open.parser, section.parser, universe.parser, notation.parser, reserve_notation.parser,
-  mixfix.parser, reserve_mixfix.parser, check.parser, attribute.parser,
-  export.parser, include.parser, omit.parser, init_quot.parser, set_option.parser]
+def builtin_command_parsers : token_map command_parser := token_map.of_list [
+  ("/--", declaration.parser),
+  ("@[", declaration.parser),
+  ("private", declaration.parser),
+  ("protected", declaration.parser),
+  ("noncomputable", declaration.parser),
+  ("meta", declaration.parser),
+  ("def", declaration.parser),
+  ("abbreviation", declaration.parser),
+  ("theorem", declaration.parser),
+  ("instance", declaration.parser),
+  ("axiom", declaration.parser),
+  ("constant", declaration.parser),
+  ("class", declaration.parser),
+  ("inductive", declaration.parser),
+  ("structure", declaration.parser),
+
+  ("variable", variable.parser),
+  ("variables", variables.parser),
+  ("namespace", namespace.parser),
+  ("end", end.parser),
+  ("open", open.parser),
+  ("section", section.parser),
+  ("universe", universe.parser),
+  ("universes", universe.parser),
+  ("local", notation.parser),
+  ("notation", notation.parser),
+  ("reserve", reserve_notation.parser),
+  ("local", mixfix.parser),
+  ("prefix", mixfix.parser),
+  ("infix", mixfix.parser),
+  ("infixl", mixfix.parser),
+  ("infixr", mixfix.parser),
+  ("postfix", mixfix.parser),
+  ("reserve", reserve_mixfix.parser),
+  ("#check", check.parser),
+  ("local", attribute.parser),
+  ("attribute", attribute.parser),
+  ("export", export.parser),
+  ("include", include.parser),
+  ("omit", omit.parser),
+  ("init_quot", init_quot.parser),
+  ("set_option", set_option.parser)]
 end «command»
 
-def command_parser.run (commands : list command_parser) (p : command_parser)
+def command_parser.run (commands : token_map command_parser) (p : command_parser)
   : parser_t command_parser_config id syntax :=
-λ cfg, (p.run cfg).run_parsec $ λ _, any_of $ commands.map (λ p, p.run cfg)
+λ cfg, (p.run cfg).run_parsec $ λ _, (indexed commands >>= any_of : command_parser).run cfg
 
 end parser
 end lean

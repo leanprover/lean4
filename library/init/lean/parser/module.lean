@@ -20,7 +20,7 @@ local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
 structure module_parser_config extends command_parser_config :=
-(command_parsers : list command_parser)
+(command_parsers : token_map command_parser)
 
 instance module_parser_config_coe : has_coe module_parser_config command_parser_config :=
 ⟨module_parser_config.to_command_parser_config⟩

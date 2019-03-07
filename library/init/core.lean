@@ -351,6 +351,7 @@ class has_mod      (α : Type u) := (mod : α → α → α)
 class has_modn     (α : Type u) := (modn : α → nat → α)
 class has_le       (α : Type u) := (le : α → α → Prop)
 class has_lt       (α : Type u) := (lt : α → α → Prop)
+class has_beq      (α : Type u) := (beq : α → α → bool)
 class has_append   (α : Type u) := (append : α → α → α)
 class has_andthen  (α : Type u) (β : Type v) (σ : out_param $ Type w) := (andthen : α → β → σ)
 class has_union    (α : Type u) := (union : α → α → α)
@@ -389,6 +390,7 @@ prefix -       := has_neg.neg
 infix <=       := has_le.le
 infix ≤        := has_le.le
 infix <        := has_lt.lt
+infix ==       := has_beq.beq
 infix ++       := has_append.append
 infix ;        := andthen
 notation `∅`   := has_emptyc.emptyc _

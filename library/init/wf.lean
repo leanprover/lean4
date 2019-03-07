@@ -228,18 +228,18 @@ acc.ndrec_on aca
       (λ xb acb
         (ihb : ∀ (y : β xa), s xa y xb → acc (lex r s) ⟨xa, y⟩),
         acc.intro ⟨xa, xb⟩ (λ p (lt : p ≺ ⟨xa, xb⟩),
-          have aux : xa = xa → xb ~= xb → acc (lex r s) p, from
-            @psigma.lex.rec_on α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 ~= xb → acc (lex r s) p₁)
+          have aux : xa = xa → xb ≅ xb → acc (lex r s) p, from
+            @psigma.lex.rec_on α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 ≅ xb → acc (lex r s) p₁)
                                p ⟨xa, xb⟩ lt
-              (λ (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ ~= xb),
+              (λ (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (eq₂ : a₂ = xa) (eq₃ : b₂ ≅ xb),
                 have aux : (∀ (y : α), r y xa → ∀ (b : β y), acc (lex r s) ⟨y, b⟩) →
                            r a₁ a₂ → ∀ (b₁ : β a₁), acc (lex r s) ⟨a₁, b₁⟩,
                 from eq.subst eq₂ (λ iha h b₁, iha a₁ h b₁),
                 aux iha h b₁)
-              (λ (a : α) (b₁ b₂ : β a) (h : s a b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ ~= xb),
+              (λ (a : α) (b₁ b₂ : β a) (h : s a b₁ b₂) (eq₂ : a = xa) (eq₃ : b₂ ≅ xb),
                 have aux : ∀ (xb : β xa), (∀ (y : β xa), s xa y xb → acc (s xa) y) →
                              (∀ (y : β xa), s xa y xb → acc (lex r s) ⟨xa, y⟩) →
-                             lex r s p ⟨xa, xb⟩ → ∀ (b₁ : β a), s a b₁ b₂ → b₂ ~= xb → acc (lex r s) ⟨a, b₁⟩,
+                             lex r s p ⟨xa, xb⟩ → ∀ (b₁ : β a), s a b₁ b₂ → b₂ ≅ xb → acc (lex r s) ⟨a, b₁⟩,
                 from eq.subst eq₂ (λ xb acb ihb lt b₁ h eq₃,
                      have new_eq₃ : b₂ = xb, from eq_of_heq eq₃,
                      have aux : (∀ (y : β a), s a y xb → acc (lex r s) ⟨a, y⟩) →

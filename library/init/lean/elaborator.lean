@@ -17,7 +17,7 @@ constant environment : Type
 @[extern "lean_environment_mk_empty"]
 constant environment.mk_empty : unit → environment
 @[extern "lean_environment_contains"]
-constant environment.contains : @& environment → @& name → bool
+constant environment.contains : (@& environment) → (@& name) → bool
 -- deprecated constructor
 @[extern "lean_expr_local"]
 constant expr.local : name → name → expr → binder_info → expr
@@ -46,7 +46,7 @@ structure old_elaborator_state :=
 (ns : name)
 
 @[extern "lean_elaborator_elaborate_command"]
-constant elaborate_command (filename : @& string) : expr → @& old_elaborator_state →
+constant elaborate_command (filename : @& string) : expr → (@& old_elaborator_state) →
   option old_elaborator_state × message_log
 
 open parser

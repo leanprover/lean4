@@ -26,7 +26,6 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 obj* l_fin_mod(obj*, obj*, obj*);
-obj* l_fin_le;
 namespace lean {
 obj* nat_mod(obj*, obj*);
 }
@@ -40,7 +39,6 @@ obj* l_fin_modn___boxed(obj*, obj*, obj*);
 obj* l_fin_has__le___boxed(obj*);
 obj* l_fin_mod___main___boxed(obj*, obj*, obj*);
 obj* l_fin_mod___main(obj*, obj*, obj*);
-obj* l_fin_lt;
 obj* l_fin_mul___boxed(obj*, obj*, obj*);
 obj* l_fin_mod___boxed(obj*, obj*, obj*);
 obj* l_fin_mul___main___boxed(obj*, obj*, obj*);
@@ -96,22 +94,6 @@ namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 uint8 l_fin_decidable__eq___rarg(obj*, obj*);
-obj* _init_l_fin_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_fin_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_fin_has__lt(obj* x_0) {
 _start:
 {
@@ -655,6 +637,4 @@ void initialize_init_data_fin_basic() {
  if (_G_initialized) return;
  _G_initialized = true;
  initialize_init_data_nat_div();
- l_fin_lt = _init_l_fin_lt();
- l_fin_le = _init_l_fin_le();
 }

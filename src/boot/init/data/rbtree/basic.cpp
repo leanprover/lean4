@@ -136,7 +136,6 @@ obj* l_rbmap_find__core___main___at_rbtree_seteq___spec__8(obj*, obj*);
 obj* l_rbtree_find___at_rbtree_seteq___spec__7___boxed(obj*, obj*);
 obj* l_rbmap_find__core___main___at_rbtree_find___spec__1(obj*, obj*);
 obj* l_rbnode_ins___main___at_rbtree_insert___spec__3___boxed(obj*, obj*);
-obj* l_rbtree;
 obj* l_rbtree_to__list(obj*, obj*);
 obj* l_rbnode_ins___main___at_rbtree_insert___spec__4(obj*, obj*);
 obj* l_rbtree_find___at_rbtree_seteq___spec__2___rarg(obj*, obj*, obj*);
@@ -255,14 +254,6 @@ obj* l_rbnode_set__black___main___rarg(obj*);
 obj* l_rbtree__of___boxed(obj*);
 obj* l_list_foldl___main___at_rbtree__of___spec__7___rarg(obj*, obj*, obj*);
 obj* l_rbtree_fold___rarg(obj*, obj*, obj*);
-obj* _init_l_rbtree() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_mk__rbtree(obj* x_0, obj* x_1) {
 _start:
 {
@@ -5232,7 +5223,6 @@ void initialize_init_data_rbtree_basic() {
  if (_G_initialized) return;
  _G_initialized = true;
  initialize_init_data_rbmap_basic();
- l_rbtree = _init_l_rbtree();
  l_rbtree_has__repr___rarg___closed__1 = _init_l_rbtree_has__repr___rarg___closed__1();
 lean::mark_persistent(l_rbtree_has__repr___rarg___closed__1);
 }

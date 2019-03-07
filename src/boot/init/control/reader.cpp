@@ -69,7 +69,6 @@ obj* l_monad__reader__adapter__trans(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad__reader___rarg(obj*);
 obj* l_reader__t_alternative___boxed(obj*, obj*);
 obj* l_reader__t_monad(obj*, obj*);
-obj* l_reader;
 obj* l_reader__t_monad__reader__adapter___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_failure___rarg___boxed(obj*, obj*, obj*);
 obj* l_reader__t_monad__except___rarg(obj*);
@@ -93,7 +92,6 @@ obj* l_reader__t_monad___rarg(obj*);
 obj* l_monad__reader__trans___rarg(obj*, obj*);
 obj* l_reader__t_monad__except___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad__state__runner(obj*, obj*, obj*, obj*);
-obj* l_reader__t;
 obj* l_reader__t_bind(obj*, obj*);
 obj* l_reader__t_monad__reader(obj*, obj*);
 obj* l_reader__t_monad__run___rarg(obj*, obj*, obj*, obj*);
@@ -109,14 +107,6 @@ obj* l_monad__reader__adapter__trans___rarg___boxed(obj*, obj*, obj*, obj*, obj*
 obj* l_reader__t_run(obj*, obj*, obj*);
 obj* l_reader__t_pure___boxed(obj*, obj*);
 obj* l_reader__t_monad___rarg___lambda__10___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* _init_l_reader__t() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_reader__t_run___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -142,14 +132,6 @@ lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
 return x_3;
-}
-}
-obj* _init_l_reader() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_reader__t_read___rarg(obj* x_0, obj* x_1) {
@@ -1157,6 +1139,4 @@ void initialize_init_control_reader() {
  initialize_init_control_id();
  initialize_init_control_alternative();
  initialize_init_control_except();
- l_reader__t = _init_l_reader__t();
- l_reader = _init_l_reader();
 }

@@ -22,7 +22,6 @@ obj* nat_add(obj*, obj*);
 obj* l_lean_position_lean_has__to__format___closed__1;
 obj* l_rbmap_of__list___main___at_lean_file__map_from__string___spec__1(obj*);
 obj* l___private_init_lean_position_1__from__string__aux___main(obj*, obj*, obj*);
-obj* l_lean_position_lt;
 obj* l_lean_position_lean_has__to__format(obj*);
 namespace lean {
 obj* string_iterator_next(obj*);
@@ -74,7 +73,6 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l_lean_file__map_to__position(obj*, obj*);
 uint8 l_rbnode_is__red___main___rarg(obj*);
-obj* l_lean_position_lt___main;
 obj* l___private_init_lean_position_1__from__string__aux___main___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_position_1__from__string__aux___boxed(obj*, obj*, obj*);
 obj* l_lean_position_inhabited;
@@ -129,22 +127,6 @@ x_3 = lean::box(x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_3;
-}
-}
-obj* _init_l_lean_position_lt___main() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_position_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* _init_l_lean_position_has__lt() {
@@ -835,8 +817,6 @@ void initialize_init_lean_position() {
  initialize_init_data_nat_default();
  initialize_init_data_rbmap_default();
  initialize_init_lean_format();
- l_lean_position_lt___main = _init_l_lean_position_lt___main();
- l_lean_position_lt = _init_l_lean_position_lt();
  l_lean_position_has__lt = _init_l_lean_position_has__lt();
 lean::mark_persistent(l_lean_position_has__lt);
  l_lean_position_decidable__lt___main___closed__1 = _init_l_lean_position_decidable__lt___main___closed__1();

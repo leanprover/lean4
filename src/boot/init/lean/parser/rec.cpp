@@ -78,7 +78,6 @@ obj* l_reader__t_monad__functor___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* string_iterator_remaining(obj*);
 }
-obj* l_lean_parser_rec__t;
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_rec_1__run__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg(obj*);
@@ -93,14 +92,6 @@ obj* l_lean_parser_monad__rec_trans___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_run__parsec___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_rec_1__run__aux___main___rarg(obj*, obj*, obj*, obj*);
-obj* _init_l_lean_parser_rec__t() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_lean_parser_rec__t_recurse___rarg___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
@@ -718,7 +709,6 @@ void initialize_init_lean_parser_rec() {
  if (_G_initialized) return;
  _G_initialized = true;
  initialize_init_lean_parser_parsec();
- l_lean_parser_rec__t = _init_l_lean_parser_rec__t();
  l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1 = _init_l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1();
 lean::mark_persistent(l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1);
 }

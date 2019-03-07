@@ -56,7 +56,6 @@ obj* l_except_monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__3(obj*, obj*);
 obj* l_except__t_bind__cont___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_monad__except___rarg___lambda__1(obj*, obj*, obj*);
-obj* l_except__t;
 obj* l_except_to__string___boxed(obj*, obj*);
 obj* l_except_repr___main(obj*, obj*);
 obj* l_monad__except_orelse___rarg(obj*, obj*, obj*, obj*);
@@ -1357,14 +1356,6 @@ obj* x_1;
 x_1 = l_except_monad(x_0);
 lean::dec(x_0);
 return x_1;
-}
-}
-obj* _init_l_except__t() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_except__t_mk___rarg(obj* x_0) {
@@ -3279,7 +3270,6 @@ lean::mark_persistent(l_except_to__string___main___rarg___closed__1);
 lean::mark_persistent(l_except_to__string___main___rarg___closed__2);
  l_except_monad___closed__1 = _init_l_except_monad___closed__1();
 lean::mark_persistent(l_except_monad___closed__1);
- l_except__t = _init_l_except__t();
  l_except__t_lift___rarg___closed__1 = _init_l_except__t_lift___rarg___closed__1();
 lean::mark_persistent(l_except__t_lift___rarg___closed__1);
  l_except_monad__except___closed__1 = _init_l_except_monad__except___closed__1();

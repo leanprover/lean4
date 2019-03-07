@@ -17,7 +17,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_level_trailing_parser_lean_parser_has__tokens___spec__2___boxed(obj*);
 obj* l_lean_parser_trailing__level__parser__m_monad__except;
 obj* l_lean_parser_parsec__t_bind__mk__res___rarg(obj*, obj*);
-obj* l_lean_parser_level__parser__m;
 obj* l_lean_parser_trie_match__prefix___rarg(obj*, obj*);
 obj* l_lean_parser_level_parser_lean_parser_has__view(obj*);
 obj* l_lean_parser_level__parser_run_lean_parser_has__view(obj*);
@@ -30,7 +29,6 @@ obj* l_lean_parser_level_add__lit_parser_lean_parser_has__tokens;
 obj* l_lean_parser_level_trailing_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_level_paren_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_level_leading_has__view;
-obj* l_lean_parser_level__parser;
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -50,7 +48,6 @@ obj* l_lean_parser_monad__parsec_error___at_lean_parser_level__parser_run___spec
 obj* l_lean_parser_number_parser___at_lean_parser_level_leading_parser_lean_parser_has__tokens___spec__2(obj*);
 obj* l_lean_parser_monad__parsec_error___at___private_init_lean_parser_token_1__finish__comment__block__aux___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_lift___boxed(obj*, obj*, obj*, obj*);
-obj* l_lean_parser_trailing__level__parser__m;
 obj* l_lean_parser_level_leading_has__view_x_27___lambda__1___closed__2;
 obj* l_lean_parser_parsec__t_try__mk__res___rarg(obj*);
 obj* l_lean_parser_level_add__lit_parser(obj*, obj*, obj*, obj*, obj*);
@@ -131,7 +128,6 @@ obj* l_lean_parser_trailing__level__parser__coe(obj*, obj*, obj*, obj*, obj*, ob
 obj* l_lean_parser_level__parser__m_monad__except;
 obj* l_lean_parser_level_trailing_parser(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_node___at_lean_parser_level_app_parser___spec__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_parser_trailing__level__parser;
 obj* l_lean_parser_level__parser__m_lean_parser_monad__basic__parser;
 obj* l_lean_parser_level_app_parser_lean_parser_has__view___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_node_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -328,22 +324,6 @@ lean::closure_set(x_3, 1, x_2);
 return x_3;
 }
 }
-obj* _init_l_lean_parser_level__parser__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_parser_level__parser() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* _init_l_lean_parser_trailing__level__parser__m_monad() {
 _start:
 {
@@ -433,22 +413,6 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_has__monad__lift__t__trans__
 lean::closure_set(x_3, 0, x_1);
 lean::closure_set(x_3, 1, x_2);
 return x_3;
-}
-}
-obj* _init_l_lean_parser_trailing__level__parser__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_parser_trailing__level__parser() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_lean_parser_trailing__level__parser__coe(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
@@ -7229,8 +7193,6 @@ lean::mark_persistent(l_lean_parser_level__parser__m_monad__except);
 lean::mark_persistent(l_lean_parser_level__parser__m_lean_parser_monad__rec);
  l_lean_parser_level__parser__m_lean_parser_monad__basic__parser = _init_l_lean_parser_level__parser__m_lean_parser_monad__basic__parser();
 lean::mark_persistent(l_lean_parser_level__parser__m_lean_parser_monad__basic__parser);
- l_lean_parser_level__parser__m = _init_l_lean_parser_level__parser__m();
- l_lean_parser_level__parser = _init_l_lean_parser_level__parser();
  l_lean_parser_trailing__level__parser__m_monad = _init_l_lean_parser_trailing__level__parser__m_monad();
 lean::mark_persistent(l_lean_parser_trailing__level__parser__m_monad);
  l_lean_parser_trailing__level__parser__m_alternative = _init_l_lean_parser_trailing__level__parser__m_alternative();
@@ -7245,8 +7207,6 @@ lean::mark_persistent(l_lean_parser_trailing__level__parser__m_monad__except);
 lean::mark_persistent(l_lean_parser_trailing__level__parser__m_lean_parser_monad__rec);
  l_lean_parser_trailing__level__parser__m_lean_parser_monad__basic__parser = _init_l_lean_parser_trailing__level__parser__m_lean_parser_monad__basic__parser();
 lean::mark_persistent(l_lean_parser_trailing__level__parser__m_lean_parser_monad__basic__parser);
- l_lean_parser_trailing__level__parser__m = _init_l_lean_parser_trailing__level__parser__m();
- l_lean_parser_trailing__level__parser = _init_l_lean_parser_trailing__level__parser();
  l_lean_parser_level_parser_lean_parser_has__tokens___closed__1 = _init_l_lean_parser_level_parser_lean_parser_has__tokens___closed__1();
 lean::mark_persistent(l_lean_parser_level_parser_lean_parser_has__tokens___closed__1);
  l_lean_parser_level_parser_lean_parser_has__view___closed__1 = _init_l_lean_parser_level_parser_lean_parser_has__view___closed__1();

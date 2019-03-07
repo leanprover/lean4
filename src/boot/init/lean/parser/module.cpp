@@ -145,7 +145,6 @@ extern obj* l_char_has__repr___closed__1;
 obj* l_lean_parser_module__parser__m_monad;
 obj* l_lean_parser_parsec__t_run__from___at_lean_parser_resume__module__parser___spec__1___boxed(obj*, obj*);
 obj* l_lean_parser_monad__parsec_any___at___private_init_lean_parser_module_1__command__wrec__aux___main___spec__2(obj*, obj*, obj*, obj*);
-obj* l_lean_parser_module__parser;
 obj* l_lean_parser_resume__module__parser___boxed(obj*);
 obj* l_lean_parser_parse__header___lambda__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_command__parser_run(obj*, obj*, obj*, obj*, obj*);
@@ -232,7 +231,6 @@ extern obj* l_lean_parser_basic__parser__m_monad__except;
 obj* l_lean_parser_parsec__t_orelse__mk__res___rarg(obj*, obj*);
 obj* l___private_init_lean_parser_module_1__command__wrec__aux(uint8, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_module__parser__m_alternative;
-obj* l_lean_parser_module__parser__m;
 extern obj* l_lean_parser_raw_view___rarg___lambda__2___closed__1;
 obj* l_lean_parser_module_header_has__view_x_27___lambda__1___closed__1;
 obj* l_list_map___main___at_lean_parser_module_import__path_has__view_x_27___spec__1(obj*);
@@ -450,22 +448,6 @@ x_11 = l_lean_parser_parser__t_monad___rarg(x_9);
 x_12 = l_lean_parser_parser__t_monad__except___rarg(x_9);
 x_13 = l_state__t_monad__except___rarg(x_11, lean::box(0), x_12);
 return x_13;
-}
-}
-obj* _init_l_lean_parser_module__parser__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_parser_module__parser() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_lean_parser_module__parser__m_lift__parser__t___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
@@ -5805,8 +5787,6 @@ lean::mark_persistent(l_lean_parser_module__parser__m_monad__state);
 lean::mark_persistent(l_lean_parser_module__parser__m_lean_parser_monad__parsec);
  l_lean_parser_module__parser__m_monad__except = _init_l_lean_parser_module__parser__m_monad__except();
 lean::mark_persistent(l_lean_parser_module__parser__m_monad__except);
- l_lean_parser_module__parser__m = _init_l_lean_parser_module__parser__m();
- l_lean_parser_module__parser = _init_l_lean_parser_module__parser();
  l_lean_parser_module__parser__m_basic__parser__m___closed__1 = _init_l_lean_parser_module__parser__m_basic__parser__m___closed__1();
 lean::mark_persistent(l_lean_parser_module__parser__m_basic__parser__m___closed__1);
  l_lean_parser_module_prelude = _init_l_lean_parser_module_prelude();

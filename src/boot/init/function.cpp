@@ -15,15 +15,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_function_swap___boxed(obj*, obj*, obj*);
-obj* l_function_has__right__inverse;
 obj* l_function_app(obj*, obj*);
 obj* l_function_combine___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_function_injective;
-obj* l_function_surjective;
 obj* l_function_dcomp___boxed(obj*, obj*, obj*);
 obj* l_function_on__fun___rarg(obj*, obj*, obj*, obj*);
 obj* l_function_dcomp(obj*, obj*, obj*);
-obj* l_function_id__of__left__inverse;
 obj* l_function_comp__right(obj*, obj*);
 obj* l_function_swap(obj*, obj*, obj*);
 obj* l_function_comp__right___boxed(obj*, obj*);
@@ -39,7 +35,6 @@ obj* l_function_combine___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_function_uncurry___rarg(obj*, obj*);
 obj* l_function_const(obj*, obj*);
 obj* l_function_const___boxed(obj*, obj*);
-obj* l_function_right__inverse;
 obj* l_function_swap___rarg(obj*, obj*, obj*);
 obj* l_function_comp__left___boxed(obj*, obj*);
 obj* l_function_uncurry___boxed(obj*, obj*, obj*);
@@ -47,12 +42,8 @@ obj* l_function_comp__right___rarg(obj*, obj*, obj*, obj*);
 obj* l_function_on__fun___boxed(obj*, obj*, obj*);
 obj* l_function_app___rarg(obj*, obj*);
 obj* l_function_dcomp___rarg(obj*, obj*, obj*);
-obj* l_function_has__left__inverse;
-obj* l_function_bijective;
-obj* l_function_id__of__right__inverse;
 obj* l_function_app___boxed(obj*, obj*);
 obj* l_function_on__fun(obj*, obj*, obj*);
-obj* l_function_left__inverse;
 obj* l_function_combine(obj*, obj*, obj*, obj*, obj*);
 obj* l_function_uncurry(obj*, obj*, obj*);
 obj* l_function_curry___boxed(obj*, obj*, obj*);
@@ -319,62 +310,6 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_function_injective() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_function_surjective() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_function_bijective() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_function_left__inverse() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_function_has__left__inverse() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_function_right__inverse() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_function_has__right__inverse() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_function_curry___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -437,35 +372,10 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* _init_l_function_id__of__left__inverse() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_function_id__of__right__inverse() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 void initialize_init_core();
 static bool _G_initialized = false;
 void initialize_init_function() {
  if (_G_initialized) return;
  _G_initialized = true;
  initialize_init_core();
- l_function_injective = _init_l_function_injective();
- l_function_surjective = _init_l_function_surjective();
- l_function_bijective = _init_l_function_bijective();
- l_function_left__inverse = _init_l_function_left__inverse();
- l_function_has__left__inverse = _init_l_function_has__left__inverse();
- l_function_right__inverse = _init_l_function_right__inverse();
- l_function_has__right__inverse = _init_l_function_has__right__inverse();
- l_function_id__of__left__inverse = _init_l_function_id__of__left__inverse();
- l_function_id__of__right__inverse = _init_l_function_id__of__right__inverse();
 }

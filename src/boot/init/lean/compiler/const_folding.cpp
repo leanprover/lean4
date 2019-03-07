@@ -157,7 +157,6 @@ obj* l_lean_compiler_fold__uint__mod___closed__1;
 extern obj* l_lean_level_one;
 obj* l_lean_compiler_fold__nat__div___boxed(obj*);
 obj* l_nat_repr(obj*);
-obj* l_lean_compiler_bin__fold__fn;
 namespace lean {
 uint32 uint32_of_nat(obj*);
 }
@@ -177,7 +176,6 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l___private_init_lean_compiler_const__folding_1__alist__find(obj*);
-obj* l_lean_compiler_un__fold__fn;
 obj* l_lean_compiler_fold__uint__div___closed__1;
 obj* l_lean_compiler_fold__nat__mul___rarg(obj*, obj*);
 obj* l_lean_compiler_fold__uint__mul___boxed(obj*, obj*, obj*);
@@ -198,22 +196,6 @@ obj* l_lean_compiler_fold__uint__add___closed__1;
 obj* l_lean_compiler_fold__uint__add(uint8, obj*, obj*);
 namespace lean {
 obj* fold_un_op_core(uint8, obj*, obj*);
-}
-obj* _init_l_lean_compiler_bin__fold__fn() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_compiler_un__fold__fn() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
 }
 obj* _init_l_lean_compiler_mk__uint__type__name___closed__1() {
 _start:
@@ -2314,8 +2296,6 @@ void initialize_init_lean_compiler_const__folding() {
  initialize_init_lean_expr();
  initialize_init_platform();
  initialize_init_lean_compiler_util();
- l_lean_compiler_bin__fold__fn = _init_l_lean_compiler_bin__fold__fn();
- l_lean_compiler_un__fold__fn = _init_l_lean_compiler_un__fold__fn();
  l_lean_compiler_mk__uint__type__name___closed__1 = _init_l_lean_compiler_mk__uint__type__name___closed__1();
 lean::mark_persistent(l_lean_compiler_mk__uint__type__name___closed__1);
  l_lean_compiler_num__scalar__types = _init_l_lean_compiler_num__scalar__types();

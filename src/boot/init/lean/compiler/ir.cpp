@@ -16,7 +16,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 uint8 l_lean_ir_alts_is__pure(obj*);
 uint8 l_lean_ir_ctor__info_beq___main(obj*, obj*);
-obj* l_lean_ir_jpid;
 obj* l_lean_ir_args_alpha__eqv___boxed(obj*, obj*, obj*);
 obj* l_lean_ir_ctor__info_beq___main___boxed(obj*, obj*);
 obj* l_lean_ir_expr_alpha__eqv___boxed(obj*, obj*, obj*);
@@ -61,9 +60,7 @@ uint8 string_dec_eq(obj*, obj*);
 }
 obj* l_lean_ir_expr_alpha__eqv___main___boxed(obj*, obj*, obj*);
 obj* l_rbmap_find___main___at_lean_ir_varid_alpha__eqv___spec__1(obj*, obj*);
-obj* l_lean_ir_fid;
 obj* l_lean_ir_type_beq___main___boxed(obj*, obj*);
-obj* l_lean_ir_varid;
 obj* l_lean_ir_alt_is__pure___boxed(obj*);
 uint8 l_lean_ir_type_beq(uint8, uint8);
 uint8 l_lean_ir_ctor__info_beq(obj*, obj*);
@@ -75,30 +72,6 @@ obj* l_lean_ir_alts_is__pure___main___boxed(obj*);
 uint8 l_lean_ir_arg_alpha__eqv(obj*, obj*, obj*);
 uint8 l_lean_ir_alt_is__pure___main(obj*);
 obj* l_lean_ir_expr_is__pure___boxed(obj*);
-obj* _init_l_lean_ir_varid() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_ir_fid() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_ir_jpid() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 uint8 l_lean_ir_type_beq___main(uint8 x_0, uint8 x_1) {
 _start:
 {
@@ -1508,9 +1481,6 @@ void initialize_init_lean_compiler_ir() {
  initialize_init_default();
  initialize_init_lean_name();
  initialize_init_lean_kvmap();
- l_lean_ir_varid = _init_l_lean_ir_varid();
- l_lean_ir_fid = _init_l_lean_ir_fid();
- l_lean_ir_jpid = _init_l_lean_ir_jpid();
  l_lean_ir_type_has__beq = _init_l_lean_ir_type_has__beq();
 lean::mark_persistent(l_lean_ir_type_has__beq);
  l_lean_ir_litval_has__beq = _init_l_lean_ir_litval_has__beq();

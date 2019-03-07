@@ -85,7 +85,6 @@ obj* l_state__t_run_x_27___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_state__t_monad__except___rarg___lambda__3___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_monad__state__runner__trans___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_monad__state__adapter_adapt__state_x_27___boxed(obj*, obj*, obj*, obj*);
-obj* l_state;
 obj* l_monad__state__trans___rarg(obj*, obj*);
 obj* l_state__t_monad(obj*, obj*);
 obj* l_state__t_modify(obj*, obj*);
@@ -133,18 +132,9 @@ obj* l_state__t_run___rarg(obj*, obj*);
 obj* l_state__t_get___rarg(obj*, obj*);
 obj* l_state__t_monad__except___rarg___boxed(obj*, obj*, obj*);
 obj* l_state__t_monad___rarg___lambda__6(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_state__t;
 obj* l_state__t_pure___boxed(obj*, obj*);
 obj* l_state__t_run_x_27___rarg___closed__1;
 obj* l_state__t_modify___boxed(obj*, obj*);
-obj* _init_l_state__t() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_state__t_run___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -236,14 +226,6 @@ x_2 = l_state__t_run_x_27(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
-}
-}
-obj* _init_l_state() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_state__t_pure___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -1626,8 +1608,6 @@ void initialize_init_control_state() {
  initialize_init_control_lift();
  initialize_init_control_id();
  initialize_init_control_except();
- l_state__t = _init_l_state__t();
  l_state__t_run_x_27___rarg___closed__1 = _init_l_state__t_run_x_27___rarg___closed__1();
 lean::mark_persistent(l_state__t_run_x_27___rarg___closed__1);
- l_state = _init_l_state();
 }

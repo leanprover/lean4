@@ -38,7 +38,6 @@ obj* l_list_foldl___main___at_string_join___spec__1___boxed(obj*, obj*);
 obj* l_string_singleton(uint32);
 obj* l_string_pushn(obj*, uint32, obj*);
 obj* l_list_as__string(obj*);
-obj* l_string_iterator_is__prefix__of__remaining;
 obj* l_string_iterator_forward___main(obj*, obj*);
 obj* l_string_iterator_has__next___boxed(obj*);
 obj* l_nat_repeat__core___main___at_string_pushn___spec__1(uint32, obj*, obj*, obj*);
@@ -616,14 +615,6 @@ x_2 = lean::string_iterator_extract(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
-}
-}
-obj* _init_l_string_iterator_is__prefix__of__remaining() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 uint8 l_string_iterator_decidable__rel(obj* x_0, obj* x_1) {
@@ -1410,7 +1401,6 @@ void initialize_init_data_string_basic() {
 lean::mark_persistent(l_string_decidable__eq);
  l_string_has__lt = _init_l_string_has__lt();
 lean::mark_persistent(l_string_has__lt);
- l_string_iterator_is__prefix__of__remaining = _init_l_string_iterator_is__prefix__of__remaining();
  l_string_inhabited = _init_l_string_inhabited();
 lean::mark_persistent(l_string_inhabited);
  l_string_has__sizeof = _init_l_string_has__sizeof();

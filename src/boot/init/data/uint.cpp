@@ -27,7 +27,6 @@ uint8 l_uint8_has__decidable__lt(uint8, uint8);
 obj* l_uint64_has__sub;
 obj* l_uint8_inhabited___boxed;
 obj* l_uint8_mod___boxed(obj*, obj*);
-obj* l_uint32_lt;
 namespace lean {
 obj* uint16_to_nat(uint16);
 }
@@ -35,7 +34,6 @@ obj* l_uint16_has__decidable__le___boxed(obj*, obj*);
 obj* l_uint16_sub___boxed(obj*, obj*);
 obj* l_uint16_has__sub;
 obj* l_uint32_has__le;
-obj* l_uint16_lt;
 uint8 l_uint16_has__decidable__le(uint16, uint16);
 obj* l_uint64_add___boxed(obj*, obj*);
 obj* l_uint16_has__decidable__lt___boxed(obj*, obj*);
@@ -87,8 +85,6 @@ obj* l_uint8_has__decidable__lt___boxed(obj*, obj*);
 obj* l_uint8_sub___boxed(obj*, obj*);
 obj* l_uint32__sz;
 obj* l_uint8_has__add;
-obj* l_uint8_le;
-obj* l_uint8_lt;
 obj* l_uint8_has__mul;
 obj* l_uint8_has__modn;
 obj* l_uint8_dec__le___boxed(obj*, obj*);
@@ -107,7 +103,6 @@ obj* l_uint8_mul___boxed(obj*, obj*);
 obj* l_uint16_has__div;
 obj* l_uint64_has__mod;
 uint16 l_uint16_inhabited;
-obj* l_uint32_le;
 obj* l_uint16_has__modn;
 obj* l_uint64__sz;
 namespace lean {
@@ -121,14 +116,12 @@ obj* l_uint64_dec__lt___boxed(obj*, obj*);
 obj* l_uint64_has__lt;
 obj* l_uint64_has__div;
 obj* l_uint16_mul___boxed(obj*, obj*);
-obj* l_uint16_le;
 obj* l_uint16_mod___boxed(obj*, obj*);
 obj* l_uint32_dec__eq___boxed(obj*, obj*);
 obj* l_uint64_has__one___boxed;
 namespace lean {
 uint64 uint64_of_nat(obj*);
 }
-obj* l_uint64_lt;
 uint8 l_uint8_has__zero;
 obj* l_uint16_of__nat___boxed(obj*);
 obj* l_uint32_has__decidable__lt___boxed(obj*, obj*);
@@ -164,7 +157,6 @@ namespace lean {
 uint32 uint32_of_nat(obj*);
 }
 obj* l_uint32_inhabited___boxed;
-obj* l_uint64_le;
 obj* l_uint32_to__nat___boxed(obj*);
 obj* l_uint16__sz;
 obj* l_uint16_has__mul;
@@ -273,22 +265,6 @@ x_3 = lean::uint8_modn(x_2, x_1);
 x_4 = lean::box(x_3);
 lean::dec(x_1);
 return x_4;
-}
-}
-obj* _init_l_uint8_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_uint8_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 uint8 _init_l_uint8_has__zero() {
@@ -578,22 +554,6 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* _init_l_uint16_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_uint16_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 uint16 _init_l_uint16_has__zero() {
 _start:
 {
@@ -879,22 +839,6 @@ x_3 = lean::uint32_modn(x_2, x_1);
 x_4 = lean::box_uint32(x_3);
 lean::dec(x_1);
 return x_4;
-}
-}
-obj* _init_l_uint32_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_uint32_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 uint32 _init_l_uint32_has__zero() {
@@ -1184,22 +1128,6 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* _init_l_uint64_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_uint64_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 uint64 _init_l_uint64_has__zero() {
 _start:
 {
@@ -1402,8 +1330,6 @@ void initialize_init_data_uint() {
  initialize_init_data_fin_basic();
  l_uint8__sz = _init_l_uint8__sz();
 lean::mark_persistent(l_uint8__sz);
- l_uint8_lt = _init_l_uint8_lt();
- l_uint8_le = _init_l_uint8_le();
  l_uint8_has__zero = _init_l_uint8_has__zero();
  l_uint8_has__zero___boxed = _init_l_uint8_has__zero___boxed();
 lean::mark_persistent(l_uint8_has__zero___boxed);
@@ -1433,8 +1359,6 @@ lean::mark_persistent(l_uint8_inhabited___boxed);
 lean::mark_persistent(l_uint8_decidable__eq);
  l_uint16__sz = _init_l_uint16__sz();
 lean::mark_persistent(l_uint16__sz);
- l_uint16_lt = _init_l_uint16_lt();
- l_uint16_le = _init_l_uint16_le();
  l_uint16_has__zero = _init_l_uint16_has__zero();
  l_uint16_has__zero___boxed = _init_l_uint16_has__zero___boxed();
 lean::mark_persistent(l_uint16_has__zero___boxed);
@@ -1464,8 +1388,6 @@ lean::mark_persistent(l_uint16_inhabited___boxed);
 lean::mark_persistent(l_uint16_decidable__eq);
  l_uint32__sz = _init_l_uint32__sz();
 lean::mark_persistent(l_uint32__sz);
- l_uint32_lt = _init_l_uint32_lt();
- l_uint32_le = _init_l_uint32_le();
  l_uint32_has__zero = _init_l_uint32_has__zero();
  l_uint32_has__zero___boxed = _init_l_uint32_has__zero___boxed();
 lean::mark_persistent(l_uint32_has__zero___boxed);
@@ -1495,8 +1417,6 @@ lean::mark_persistent(l_uint32_inhabited___boxed);
 lean::mark_persistent(l_uint32_decidable__eq);
  l_uint64__sz = _init_l_uint64__sz();
 lean::mark_persistent(l_uint64__sz);
- l_uint64_lt = _init_l_uint64_lt();
- l_uint64_le = _init_l_uint64_le();
  l_uint64_has__zero = _init_l_uint64_has__zero();
  l_uint64_has__zero___boxed = _init_l_uint64_has__zero___boxed();
 lean::mark_persistent(l_uint64_has__zero___boxed);

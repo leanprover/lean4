@@ -143,7 +143,6 @@ obj* l_option__t_alternative___rarg___lambda__6___boxed(obj*, obj*, obj*, obj*, 
 obj* l_option__t_monad__map(obj*, obj*, obj*, obj*, obj*);
 obj* l_option__t_orelse___rarg(obj*, obj*, obj*, obj*);
 obj* l_option__t_bind__cont(obj*);
-obj* l_option__t;
 obj* l_option__t_monad__run___boxed(obj*, obj*);
 obj* l_option__t_monad__except___rarg___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_option__t_pure___boxed(obj*);
@@ -164,14 +163,6 @@ obj* l_option__t_orelse___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_option__t_bind__cont___at_option__t_alternative___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_option__t_bind__cont___at_option__t_alternative___spec__6(obj*);
 obj* l_option__t_bind__cont___at_option__t_monad___spec__5___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* _init_l_option__t() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_option__t_run___rarg(obj* x_0) {
 _start:
 {
@@ -2132,5 +2123,4 @@ void initialize_init_control_option() {
  initialize_init_control_alternative();
  initialize_init_control_lift();
  initialize_init_control_except();
- l_option__t = _init_l_option__t();
 }

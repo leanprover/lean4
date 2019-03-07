@@ -57,7 +57,6 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_int_sign___main___boxed(obj*);
-obj* l_int_lt;
 obj* l_int_neg__of__nat___main(obj*);
 obj* l_int_has__lt;
 obj* l_int_int_decidable__eq;
@@ -91,7 +90,6 @@ obj* l_int_mod___boxed(obj*, obj*);
 obj* l___private_init_data_int_basic_2__dec__nonneg___boxed(obj*);
 obj* l_int_has__neg;
 obj* l_int_neg__of__nat___boxed(obj*);
-obj* l___private_init_data_int_basic_1__nonneg;
 namespace lean {
 obj* int_neg(obj*);
 }
@@ -99,11 +97,9 @@ obj* l_int_repr___main___closed__2;
 obj* l_int_neg__of__nat___main___boxed(obj*);
 obj* l_int_has__to__string;
 obj* l_nat_repr(obj*);
-obj* l___private_init_data_int_basic_1__nonneg___main;
 obj* l_int_mul___boxed(obj*, obj*);
 obj* l_int_sign___main(obj*);
 obj* l_int_has__add;
-obj* l_int_le;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
@@ -159,22 +155,6 @@ _start:
 {
 obj* x_0; 
 x_0 = l_int_one;
-return x_0;
-}
-}
-obj* _init_l___private_init_data_int_basic_1__nonneg___main() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l___private_init_data_int_basic_1__nonneg() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -333,23 +313,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_int_sub___boxed), 2, 0);
 return x_0;
 }
 }
-obj* _init_l_int_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* _init_l_int_has__le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_int_lt() {
 _start:
 {
 obj* x_0; 
@@ -707,8 +671,6 @@ lean::mark_persistent(l_int_one);
 lean::mark_persistent(l_int_has__zero);
  l_int_has__one = _init_l_int_has__one();
 lean::mark_persistent(l_int_has__one);
- l___private_init_data_int_basic_1__nonneg___main = _init_l___private_init_data_int_basic_1__nonneg___main();
- l___private_init_data_int_basic_1__nonneg = _init_l___private_init_data_int_basic_1__nonneg();
  l_int_has__neg = _init_l_int_has__neg();
 lean::mark_persistent(l_int_has__neg);
  l_int_has__add = _init_l_int_has__add();
@@ -717,10 +679,8 @@ lean::mark_persistent(l_int_has__add);
 lean::mark_persistent(l_int_has__mul);
  l_int_has__sub = _init_l_int_has__sub();
 lean::mark_persistent(l_int_has__sub);
- l_int_le = _init_l_int_le();
  l_int_has__le = _init_l_int_has__le();
 lean::mark_persistent(l_int_has__le);
- l_int_lt = _init_l_int_lt();
  l_int_has__lt = _init_l_int_has__lt();
 lean::mark_persistent(l_int_has__lt);
  l_int_int_decidable__eq = _init_l_int_int_decidable__eq();

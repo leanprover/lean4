@@ -195,7 +195,6 @@ obj* l_lean_elaborator_old__elab__command___boxed(obj*, obj*, obj*, obj*);
 uint8 l_coe__decidable__eq(uint8);
 obj* l_list_mmap___main___at_lean_elaborator_attrs__to__pexpr___spec__2(obj*, obj*, obj*);
 extern obj* l_lean_parser_command_notation;
-obj* l_lean_elaborator_elaborator__t;
 obj* l_lean_elaborator_current__command(obj*, obj*);
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__24(obj*, obj*, obj*);
 obj* l_lean_kvmap_set__name(obj*, obj*, obj*);
@@ -217,7 +216,6 @@ extern "C" obj* lean_expr_mk_mdata(obj*, obj*);
 obj* l_lean_elaborator_locally___rarg(obj*, obj*, obj*);
 obj* l_state__t_monad__state___rarg(obj*);
 obj* l_except__t_bind__cont___at_lean_elaborator_elaborator__coe__coelaborator___spec__1___boxed(obj*, obj*);
-obj* l_lean_elaborator_elaborator__m;
 obj* l_lean_elaborator_locally___at_lean_elaborator_section_elaborate___spec__2___closed__1;
 extern "C" obj* lean_expr_mk_lambda(obj*, uint8, obj*, obj*);
 obj* l_rbnode_ins___main___at_lean_elaborator_ordered__rbmap_of__list___spec__5___boxed(obj*, obj*, obj*);
@@ -390,7 +388,6 @@ extern "C" obj* lean_environment_mk_empty(obj*);
 obj* l_list_filter___main___at_lean_elaborator_resolve__context___main___spec__1(obj*, obj*, obj*);
 obj* l_lean_elaborator_elaborator__t_monad__except(obj*);
 obj* l_coroutine_bind___main___rarg(obj*, obj*, obj*);
-obj* l_lean_elaborator_coelaborator;
 obj* l_lean_expander_error___at_lean_elaborator_level__get__app__args___main___spec__1___boxed(obj*);
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__18(obj*, obj*, obj*);
 obj* l_list_foldl___main___at_lean_elaborator_mangle__ident___spec__1(obj*, obj*);
@@ -419,7 +416,6 @@ extern obj* l_lean_parser_term_projection_has__view;
 obj* l_lean_elaborator_variables_elaborate___closed__1;
 obj* l_rbmap_from__list___at_lean_elaborator_elaborators___spec__1___lambda__13(obj*, obj*);
 obj* l_list_mmap___main___at_lean_elaborator_elab__def__like___spec__2(obj*, obj*, obj*, obj*);
-obj* l_lean_elaborator_coelaborator__m;
 obj* l_lean_elaborator_to__pexpr___main___closed__12;
 obj* l_lean_elaborator_with__current__command(obj*);
 obj* l_lean_parser_syntax_to__format___main(obj*);
@@ -610,7 +606,6 @@ obj* l_lean_elaborator_attribute_elaborate___closed__1;
 obj* l_list_foldl___main___at_lean_elaborator_declaration_elaborate___spec__12(obj*, obj*);
 obj* l_list_map___main___at_lean_elaborator_elab__def__like___spec__5(obj*);
 uint8 l_lean_elaborator_match__precedence(obj*, obj*);
-obj* l_lean_elaborator_elaborator;
 obj* l_lean_elaborator_to__pexpr___main___closed__23;
 obj* l_lean_elaborator_elab__def__like___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_string_trim(obj*);
@@ -2542,46 +2537,6 @@ obj* x_1;
 x_1 = l_lean_elaborator_elaborator__t_monad__except(x_0);
 lean::dec(x_0);
 return x_1;
-}
-}
-obj* _init_l_lean_elaborator_elaborator__t() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_elaborator_elaborator__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_elaborator_elaborator() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_elaborator_coelaborator__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_elaborator_coelaborator() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_lean_parser_rec__t_recurse___at_lean_elaborator_command_elaborate___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -29893,11 +29848,6 @@ void initialize_init_lean_elaborator() {
  initialize_init_lean_options();
  l_lean_elaborator_ordered__rbmap_empty___closed__1 = _init_l_lean_elaborator_ordered__rbmap_empty___closed__1();
 lean::mark_persistent(l_lean_elaborator_ordered__rbmap_empty___closed__1);
- l_lean_elaborator_elaborator__t = _init_l_lean_elaborator_elaborator__t();
- l_lean_elaborator_elaborator__m = _init_l_lean_elaborator_elaborator__m();
- l_lean_elaborator_elaborator = _init_l_lean_elaborator_elaborator();
- l_lean_elaborator_coelaborator__m = _init_l_lean_elaborator_coelaborator__m();
- l_lean_elaborator_coelaborator = _init_l_lean_elaborator_coelaborator();
  l_lean_elaborator_coelaborator__m_monad__coroutine = _init_l_lean_elaborator_coelaborator__m_monad__coroutine();
 lean::mark_persistent(l_lean_elaborator_coelaborator__m_monad__coroutine);
  l_lean_elaborator_level__get__app__args___main___closed__1 = _init_l_lean_elaborator_level__get__app__args___main___closed__1();

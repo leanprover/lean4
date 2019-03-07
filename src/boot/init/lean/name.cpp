@@ -109,7 +109,6 @@ obj* l_lean_name_update__prefix___main(obj*, obj*);
 obj* l_lean_name_get__prefix(obj*);
 obj* l_rbnode_ins___main___at_lean_name__map_insert___spec__3___rarg(obj*, obj*, obj*);
 usize l___private_init_lean_name_1__hash__aux___main(obj*, usize);
-obj* l_lean_name__map;
 obj* l_rbmap_find___main___at_lean_name__map_find___spec__1___rarg___boxed(obj*, obj*);
 extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_nat_repr(obj*);
@@ -930,14 +929,6 @@ x_2 = l_lean_name_to__string__with__sep___main(x_1, x_0);
 x_3 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
 return x_3;
-}
-}
-obj* _init_l_lean_name__map() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_lean_mk__name__map(obj* x_0) {
@@ -1795,5 +1786,4 @@ lean::mark_persistent(l_lean_name_to__string__with__sep___main___closed__1);
 lean::mark_persistent(l_lean_name_to__string___closed__1);
  l_lean_name_has__to__string = _init_l_lean_name_has__to__string();
 lean::mark_persistent(l_lean_name_has__to__string);
- l_lean_name__map = _init_l_lean_name__map();
 }

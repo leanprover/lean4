@@ -21,7 +21,6 @@ obj* l_list_map___main___at_lean_parser_syntax_to__format___main___spec__3(obj*)
 obj* l_list_map___main___at_lean_parser_syntax_to__format___main___spec__5(obj*);
 obj* l_lean_parser_syntax_get__head__info__lst___boxed(obj*);
 extern obj* l_lean_format_paren___closed__1;
-obj* l_lean_parser_macro__scope;
 obj* l_lean_parser_syntax_as__node(obj*);
 obj* l_lean_parser_syntax_mreplace___main___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_lean_format_join__sep___main___at_lean_parser_syntax_to__format___main___spec__6(obj*, obj*);
@@ -44,7 +43,6 @@ uint8 l_lean_parser_syntax_is__of__kind___main(obj*, obj*);
 obj* l_string_quote(obj*);
 obj* l_lean_parser_syntax_update__leading___closed__1;
 obj* l_lean_parser_macro__scopes_flip___boxed(obj*, obj*);
-obj* l_lean_parser_macro__scopes;
 obj* l_lean_parser_syntax_mreplace__lst___boxed(obj*);
 obj* l_lean_parser_syntax_to__format___main___closed__7;
 namespace lean {
@@ -208,22 +206,6 @@ _start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_nat__has__to__format), 1, 0);
-return x_0;
-}
-}
-obj* _init_l_lean_parser_macro__scope() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_parser_macro__scopes() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -2806,9 +2788,6 @@ lean::mark_persistent(l_lean_parser_no__kind);
 lean::mark_persistent(l_lean_parser_macro__scope_decidable__eq);
  l_lean_parser_macro__scope_lean_has__to__format = _init_l_lean_parser_macro__scope_lean_has__to__format();
 lean::mark_persistent(l_lean_parser_macro__scope_lean_has__to__format);
- l_lean_parser_macro__scope = _init_l_lean_parser_macro__scope();
- l_lean_parser_macro__scopes = _init_l_lean_parser_macro__scopes();
-lean::mark_persistent(l_lean_parser_macro__scopes);
  l_lean_parser_inhabited = _init_l_lean_parser_inhabited();
 lean::mark_persistent(l_lean_parser_inhabited);
  l_lean_parser_substring_has__to__string = _init_l_lean_parser_substring_has__to__string();

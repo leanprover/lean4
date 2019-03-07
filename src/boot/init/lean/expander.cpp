@@ -201,7 +201,6 @@ obj* l_list_foldr___main___at_lean_expander_expand__binders___spec__3___boxed(ob
 obj* l_lean_expander_mk__simple__binder___closed__2;
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__21___boxed(obj*, obj*, obj*, obj*);
 obj* l_lean_expander_pi_transform(obj*, obj*);
-obj* l_lean_expander_transformer;
 obj* l_list_mfoldr___main___at_lean_expander_expand__binders___spec__6___closed__2;
 obj* l_lean_parser_combinators_node_view___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_expander_2__expand__core(obj*, obj*, obj*, obj*);
@@ -293,7 +292,6 @@ obj* l_lean_expander_variable_transform___closed__1;
 obj* l_list_map___main___at_lean_expander_mk__notation__transformer___spec__5(obj*);
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__13(obj*, obj*);
 obj* l_lean_expander_error___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_expander_transform__m;
 extern obj* l_lean_parser_command_constant;
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__7___boxed(obj*, obj*, obj*);
 obj* l_lean_expander_paren_transform___closed__2;
@@ -340,7 +338,6 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_lean_expander_binding__annotation__update_parser_lean_parser_has__view;
-obj* l_lean_expander_expander__m;
 obj* l_lean_file__map_to__position(obj*, obj*);
 uint8 l_rbnode_is__red___main___rarg(obj*);
 obj* l_list_foldr___main___at_lean_expander_expand__binders___spec__5(obj*, obj*, obj*);
@@ -475,22 +472,6 @@ lean::cnstr_set(x_9, 1, x_8);
 x_10 = l_except__t_monad__except___rarg(x_9);
 x_11 = l_reader__t_monad__except___rarg(x_10);
 return x_11;
-}
-}
-obj* _init_l_lean_expander_transform__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_expander_transformer() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* _init_l_lean_expander_no__expansion___closed__1() {
@@ -10476,14 +10457,6 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_lean_expander_expander__m() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* _init_l_lean_expander_expander__state_new() {
 _start:
 {
@@ -11272,8 +11245,6 @@ lean::mark_persistent(l_lean_expander_transform__m_monad);
 lean::mark_persistent(l_lean_expander_transform__m_monad__reader);
  l_lean_expander_transform__m_monad__except = _init_l_lean_expander_transform__m_monad__except();
 lean::mark_persistent(l_lean_expander_transform__m_monad__except);
- l_lean_expander_transform__m = _init_l_lean_expander_transform__m();
- l_lean_expander_transformer = _init_l_lean_expander_transformer();
  l_lean_expander_no__expansion___closed__1 = _init_l_lean_expander_no__expansion___closed__1();
 lean::mark_persistent(l_lean_expander_no__expansion___closed__1);
  l_lean_expander_coe__binder__bracketed__binder___closed__1 = _init_l_lean_expander_coe__binder__bracketed__binder___closed__1();
@@ -11418,7 +11389,6 @@ lean::mark_persistent(l_lean_expander_sorry_transform___closed__1);
 lean::mark_persistent(l_rbmap_from__list___at_lean_expander_builtin__transformers___spec__1);
  l_lean_expander_builtin__transformers = _init_l_lean_expander_builtin__transformers();
 lean::mark_persistent(l_lean_expander_builtin__transformers);
- l_lean_expander_expander__m = _init_l_lean_expander_expander__m();
  l_lean_expander_expander__state_new = _init_l_lean_expander_expander__state_new();
 lean::mark_persistent(l_lean_expander_expander__state_new);
  l___private_init_lean_expander_2__expand__core___main___closed__1 = _init_l___private_init_lean_expander_2__expand__core___main___closed__1();

@@ -63,7 +63,6 @@ obj* l___private_init_control_coroutine_1__finish__aux___main(obj*, obj*, obj*);
 obj* l_coroutine_bind(obj*, obj*, obj*, obj*);
 obj* l_coroutine_monad___lambda__8(obj*, obj*, obj*, obj*);
 obj* l_coroutine_bind___boxed(obj*, obj*, obj*, obj*);
-obj* l_coroutine__result;
 obj* l_coroutine_pure___rarg___boxed(obj*, obj*);
 obj* l_coroutine_yield___rarg___boxed(obj*, obj*);
 obj* l_coroutine_pipe___boxed(obj*, obj*, obj*, obj*);
@@ -90,14 +89,6 @@ obj* l_coroutine_yield___rarg___closed__1;
 obj* l_coroutine_pipe___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_coroutine_monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_coroutine_monad___lambda__8___boxed(obj*, obj*, obj*, obj*);
-obj* _init_l_coroutine__result() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_coroutine_resume___main___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -956,7 +947,6 @@ void initialize_init_control_coroutine() {
  initialize_init_control_monad();
  initialize_init_wf();
  initialize_init_control_reader();
- l_coroutine__result = _init_l_coroutine__result();
  l_coroutine_yield___rarg___lambda__1___closed__1 = _init_l_coroutine_yield___rarg___lambda__1___closed__1();
 lean::mark_persistent(l_coroutine_yield___rarg___lambda__1___closed__1);
  l_coroutine_yield___rarg___closed__1 = _init_l_coroutine_yield___rarg___closed__1();

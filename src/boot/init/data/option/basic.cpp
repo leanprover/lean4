@@ -85,7 +85,6 @@ obj* l_option_inhabited___boxed(obj*);
 obj* l_option_bind___main___rarg(obj*, obj*);
 obj* l_option_monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_option_to__monad(obj*, obj*);
-obj* l_option_lt;
 obj* l_option_decidable__rel__lt___rarg(obj*, obj*, obj*);
 obj* l_option_is__none___rarg___boxed(obj*);
 obj* l_option_is__none___main(obj*);
@@ -96,7 +95,6 @@ obj* l_option_to__monad___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_option_get___main(obj*);
 obj* l_option_decidable__rel__lt___boxed(obj*, obj*);
 obj* l_option_monad___lambda__2___boxed(obj*, obj*);
-obj* l_option_lt___main;
 obj* l_option_to__bool___boxed(obj*);
 obj* l_option_orelse(obj*);
 obj* l_option_monad___lambda__1(obj*, obj*, obj*, obj*);
@@ -1064,22 +1062,6 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_option_lt___main() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_option_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_option_decidable__rel__lt___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -1306,6 +1288,4 @@ void initialize_init_data_option_basic() {
 lean::mark_persistent(l_option_monad);
  l_option_alternative = _init_l_option_alternative();
 lean::mark_persistent(l_option_alternative);
- l_option_lt___main = _init_l_option_lt___main();
- l_option_lt = _init_l_option_lt();
 }

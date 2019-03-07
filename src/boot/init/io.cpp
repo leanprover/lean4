@@ -29,7 +29,6 @@ obj* l_io_print___boxed(obj*, obj*);
 obj* l_id___boxed(obj*);
 obj* l_io_fs_handle_read__to__end___boxed(obj*, obj*);
 obj* l_io_prim_lift__eio___rarg___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_io;
 obj* l_string_has__to__string___boxed(obj*);
 obj* l_coroutine__io_read___boxed(obj*, obj*);
 obj* l_coroutine__io_mk__st(obj*, obj*, obj*);
@@ -116,8 +115,6 @@ extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_io_lazy__pure___boxed(obj*);
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__4(obj*, obj*, obj*);
-obj* l_coroutine__result__io;
-obj* l_monad__io;
 obj* l_io_println___boxed(obj*, obj*);
 obj* l_io_fs_handle_mk___at_io_fs_read__file___spec__1(obj*, obj*);
 obj* l_io_prim_iterate(obj*, obj*);
@@ -148,8 +145,6 @@ obj* l_state__t_monad___rarg(obj*);
 obj* l_coroutine__io_monad__coroutine(obj*, obj*);
 obj* l_coroutine__io_monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_eio__unit_has__eval(obj*);
-obj* l_io_error;
-obj* l_eio;
 obj* l_coroutine__io_pipe___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_has__repr_has__eval___boxed(obj*);
 obj* l_eio_has__eval___rarg(obj*, obj*, obj*, obj*);
@@ -242,14 +237,6 @@ x_10 = l_state__t_monad___rarg(x_9);
 return x_10;
 }
 }
-obj* _init_l_io() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_unsafe__io___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -266,27 +253,11 @@ x_4 = lean_io_timeit(x_0, x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* _init_l_monad__io() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* _init_l_io_error_has__to__string() {
 _start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_string_has__to__string___boxed), 1, 0);
-return x_0;
-}
-}
-obj* _init_l_io_error() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
 return x_0;
 }
 }
@@ -304,14 +275,6 @@ obj* x_1;
 x_1 = l_string_has__lift(x_0);
 lean::dec(x_0);
 return x_1;
-}
-}
-obj* _init_l_eio() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_io_lazy__pure___rarg(obj* x_0, obj* x_1) {
@@ -2100,14 +2063,6 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_coroutine__result__io() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_coroutine__io_mk__st___rarg(obj* x_0) {
 _start:
 {
@@ -2974,17 +2929,12 @@ void initialize_init_io() {
  initialize_init_control_coroutine();
  l_io_monad = _init_l_io_monad();
 lean::mark_persistent(l_io_monad);
- l_io = _init_l_io();
- l_monad__io = _init_l_monad__io();
  l_io_error_has__to__string = _init_l_io_error_has__to__string();
 lean::mark_persistent(l_io_error_has__to__string);
- l_io_error = _init_l_io_error();
- l_eio = _init_l_eio();
  l_io_println___rarg___closed__1 = _init_l_io_println___rarg___closed__1();
 lean::mark_persistent(l_io_println___rarg___closed__1);
  l_eio_has__eval___rarg___closed__1 = _init_l_eio_has__eval___rarg___closed__1();
 lean::mark_persistent(l_eio_has__eval___rarg___closed__1);
- l_coroutine__result__io = _init_l_coroutine__result__io();
  l_coroutine__io_yield___rarg___closed__1 = _init_l_coroutine__io_yield___rarg___closed__1();
 lean::mark_persistent(l_coroutine__io_yield___rarg___closed__1);
  l_coroutine__io_monad___lambda__1___closed__1 = _init_l_coroutine__io_monad___lambda__1___closed__1();

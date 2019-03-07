@@ -17,7 +17,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_list_has__union___rarg(obj*);
 obj* l_list_length__aux___rarg___boxed(obj*, obj*);
 obj* l_list_has__insert___rarg(obj*);
-obj* l_list_le;
 obj* l_list_find__index___main___at_list_index__of___spec__1(obj*);
 obj* l_list_take___main___boxed(obj*);
 obj* l_list_foldl___main___rarg(obj*, obj*, obj*);
@@ -247,7 +246,6 @@ obj* l_list_foldr1__opt___main___boxed(obj*);
 obj* l_list_partition(obj*, obj*);
 obj* l_list_has__decidable__lt(obj*);
 obj* l_list_ret(obj*);
-obj* l_list_lt;
 obj* l_list_decidable__mem___boxed(obj*);
 obj* l_list_map___main(obj*, obj*);
 obj* l_list_decidable__eq___boxed(obj*);
@@ -294,7 +292,6 @@ obj* l_list_span___boxed(obj*, obj*);
 obj* l_list_erase___main(obj*);
 obj* l_list_take___main___rarg___boxed(obj*, obj*);
 obj* l_list_is__suffix__of___rarg___boxed(obj*, obj*, obj*);
-obj* l_list_mem;
 obj* l_list_join___boxed(obj*);
 obj* l_list_take___rarg___boxed(obj*, obj*);
 obj* l_list_find__index___main(obj*, obj*);
@@ -358,7 +355,6 @@ obj* l_list_reverse__core___main(obj*);
 obj* l_list_inter(obj*);
 obj* l_list_remove__nth___main(obj*);
 obj* l_list_map(obj*, obj*);
-obj* l_list_lt___main;
 obj* l_list_span___main___boxed(obj*, obj*);
 obj* l_list_drop__while___rarg(obj*, obj*);
 obj* l_list_span___main(obj*, obj*);
@@ -372,7 +368,6 @@ obj* l_list_has__decidable__lt___main___boxed(obj*);
 uint8 l_list_decidable__mem___rarg(obj*, obj*, obj*);
 obj* l_list_filter__map___rarg(obj*, obj*);
 obj* l_list_foldr1___rarg(obj*, obj*, obj*);
-obj* l_list_mem___main;
 obj* l_list_foldr___main(obj*, obj*);
 obj* l_list_zip__with(obj*, obj*, obj*);
 obj* l_list_is__suffix__of___boxed(obj*);
@@ -747,22 +742,6 @@ obj* x_1;
 x_1 = l_list_has__append(x_0);
 lean::dec(x_0);
 return x_1;
-}
-}
-obj* _init_l_list_mem___main() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_list_mem() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_list_has__mem(obj* x_0) {
@@ -5045,22 +5024,6 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_list_lt___main() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_list_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_list_has__lt(obj* x_0, obj* x_1) {
 _start:
 {
@@ -5235,14 +5198,6 @@ obj* x_1;
 x_1 = l_list_has__decidable__lt(x_0);
 lean::dec(x_0);
 return x_1;
-}
-}
-obj* _init_l_list_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_list_has__le(obj* x_0, obj* x_1) {
@@ -5685,11 +5640,6 @@ void initialize_init_data_list_basic() {
  _G_initialized = true;
  initialize_init_core();
  initialize_init_data_nat_basic();
- l_list_mem___main = _init_l_list_mem___main();
- l_list_mem = _init_l_list_mem();
  l_list_unzip___main___rarg___closed__1 = _init_l_list_unzip___main___rarg___closed__1();
 lean::mark_persistent(l_list_unzip___main___rarg___closed__1);
- l_list_lt___main = _init_l_list_lt___main();
- l_list_lt = _init_l_list_lt();
- l_list_le = _init_l_list_le();
 }

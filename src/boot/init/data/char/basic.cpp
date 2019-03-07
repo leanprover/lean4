@@ -35,7 +35,6 @@ obj* l_char_is__whitespace___boxed(obj*);
 obj* l_char_to__nat___boxed(obj*);
 obj* l_char_dec__le___boxed(obj*, obj*);
 obj* l_char_has__sizeof___boxed(obj*);
-obj* l_char_lt;
 uint32 l_char_inhabited;
 obj* l_char_has__sizeof(uint32);
 namespace lean {
@@ -51,22 +50,12 @@ obj* l_char_inhabited___boxed;
 uint8 l_char_dec__le(uint32, uint32);
 obj* l_char_has__le;
 uint8 l_char_is__alphanum(uint32);
-obj* l_char_le;
 uint8 l_char_decidable__eq(uint32, uint32);
 namespace lean {
 uint32 uint32_of_nat(obj*);
 }
 obj* l_char_to__nat(uint32);
-obj* l_is__valid__char;
 obj* l_char_is__alpha___boxed(obj*);
-obj* _init_l_is__valid__char() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_char_has__sizeof(uint32 x_0) {
 _start:
 {
@@ -82,22 +71,6 @@ uint32 x_1; obj* x_2;
 x_1 = lean::unbox_uint32(x_0);
 x_2 = l_char_has__sizeof(x_1);
 return x_2;
-}
-}
-obj* _init_l_char_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_char_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* _init_l_char_has__lt() {
@@ -554,9 +527,6 @@ void initialize_init_data_char_basic() {
  if (_G_initialized) return;
  _G_initialized = true;
  initialize_init_data_uint();
- l_is__valid__char = _init_l_is__valid__char();
- l_char_lt = _init_l_char_lt();
- l_char_le = _init_l_char_le();
  l_char_has__lt = _init_l_char_has__lt();
 lean::mark_persistent(l_char_has__lt);
  l_char_has__le = _init_l_char_has__le();

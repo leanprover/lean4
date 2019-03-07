@@ -18,13 +18,10 @@ obj* l_nat_pow___main___boxed(obj*, obj*);
 obj* l_nat_has__sub;
 obj* l_nat_mul___boxed(obj*, obj*);
 obj* l_nat_max(obj*, obj*);
-obj* l_nat_le__refl;
 obj* l_nat_repeat___rarg(obj*, obj*, obj*);
 obj* l_nat_repeat__core___rarg(obj*, obj*, obj*, obj*);
 obj* l_nat_decidable__eq;
-obj* l_nat_succ__pos;
 obj* l_nat_repeat__core___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_nat_lt_step;
 obj* l_nat_repeat(obj*);
 obj* l_nat_has__pow;
 namespace lean {
@@ -45,8 +42,6 @@ uint8 nat_dec_le(obj*, obj*);
 }
 obj* l_nat_repeat__core___main___boxed(obj*);
 obj* l_nat_beq___boxed(obj*, obj*);
-obj* l_nat_lt_base;
-obj* l_nat_lt;
 obj* l_nat_pow___main(obj*, obj*);
 obj* l_nat_pow(obj*, obj*);
 obj* l_nat_repeat__core___main___rarg(obj*, obj*, obj*, obj*);
@@ -66,8 +61,6 @@ obj* l_nat_has__le;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
-obj* l_nat_le;
-obj* l_nat_le__refl___main;
 obj* l_nat_dec__lt___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
@@ -110,23 +103,7 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* _init_l_nat_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* _init_l_nat_has__le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_nat_lt() {
 _start:
 {
 obj* x_0; 
@@ -361,30 +338,6 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_pow___boxed), 2, 0);
 return x_0;
 }
 }
-obj* _init_l_nat_le__refl___main() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_nat_le__refl() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_nat_succ__pos() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
 obj* l_nat_dec__le___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -405,22 +358,6 @@ x_3 = lean::box(x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_3;
-}
-}
-obj* _init_l_nat_lt_step() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_nat_lt_base() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_nat_max(obj* x_0, obj* x_1) {
@@ -458,10 +395,8 @@ void initialize_init_data_nat_basic() {
  initialize_init_core();
  l_nat_decidable__eq = _init_l_nat_decidable__eq();
 lean::mark_persistent(l_nat_decidable__eq);
- l_nat_le = _init_l_nat_le();
  l_nat_has__le = _init_l_nat_has__le();
 lean::mark_persistent(l_nat_has__le);
- l_nat_lt = _init_l_nat_lt();
  l_nat_has__lt = _init_l_nat_has__lt();
 lean::mark_persistent(l_nat_has__lt);
  l_nat_has__sub = _init_l_nat_has__sub();
@@ -470,9 +405,4 @@ lean::mark_persistent(l_nat_has__sub);
 lean::mark_persistent(l_nat_has__mul);
  l_nat_has__pow = _init_l_nat_has__pow();
 lean::mark_persistent(l_nat_has__pow);
- l_nat_le__refl___main = _init_l_nat_le__refl___main();
- l_nat_le__refl = _init_l_nat_le__refl();
- l_nat_succ__pos = _init_l_nat_succ__pos();
- l_nat_lt_step = _init_l_nat_lt_step();
- l_nat_lt_base = _init_l_nat_lt_base();
 }

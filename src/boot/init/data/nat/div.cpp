@@ -26,7 +26,6 @@ obj* nat_mod(obj*, obj*);
 obj* l___private_init_data_nat_div_5__mod_F(obj*, obj*, obj*);
 obj* l_nat_has__div;
 obj* l___private_init_data_nat_div_2__div_F(obj*, obj*, obj*);
-obj* l___private_init_data_nat_div_1__div__rec__lemma;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
@@ -40,14 +39,6 @@ obj* l_nat_has__mod;
 obj* l_nat_div___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
-}
-obj* _init_l___private_init_data_nat_div_1__div__rec__lemma() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
 }
 obj* l___private_init_data_nat_div_2__div_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
@@ -180,7 +171,6 @@ void initialize_init_data_nat_div() {
  _G_initialized = true;
  initialize_init_wf();
  initialize_init_data_nat_basic();
- l___private_init_data_nat_div_1__div__rec__lemma = _init_l___private_init_data_nat_div_1__div__rec__lemma();
  l_nat_has__div = _init_l_nat_has__div();
 lean::mark_persistent(l_nat_has__div);
  l_nat_has__mod = _init_l_nat_has__mod();

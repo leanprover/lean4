@@ -19,7 +19,6 @@ obj* l_lean_trace_trace___rarg___lambda__1(obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__7(obj*, obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__5___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_trace_pp___main(obj*);
-obj* l_lean_trace_trace__map;
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__9(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_lean_format_join___closed__1;
 obj* l_lean_trace_trace___rarg___lambda__1___boxed(obj*, obj*);
@@ -59,7 +58,6 @@ obj* l_rbnode_balance1___main___rarg(obj*, obj*);
 obj* l_lean_trace_trace__t_run___rarg(obj*, obj*, obj*);
 obj* l_lean_trace_monad___rarg(obj*);
 obj* l_lean_trace_lean_trace_monad__tracer___rarg___lambda__9___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_trace_trace__t;
 obj* l_lean_has__coe___boxed(obj*);
 uint8 l_lean_position_decidable__lt___main(obj*, obj*);
 obj* l_lean_trace_monad___boxed(obj*);
@@ -162,22 +160,6 @@ _start:
 obj* x_1; 
 x_1 = l_lean_trace_pp___main(x_0);
 return x_1;
-}
-}
-obj* _init_l_lean_trace_trace__map() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_lean_trace_trace__t() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_lean_trace_monad___rarg(obj* x_0) {
@@ -1317,7 +1299,4 @@ void initialize_init_lean_trace() {
  initialize_init_lean_position();
  initialize_init_lean_name();
  initialize_init_lean_options();
- l_lean_trace_trace__map = _init_l_lean_trace_trace__map();
-lean::mark_persistent(l_lean_trace_trace__map);
- l_lean_trace_trace__t = _init_l_lean_trace_trace__t();
 }

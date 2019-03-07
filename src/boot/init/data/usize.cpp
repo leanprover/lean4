@@ -38,7 +38,6 @@ usize l_usize_has__zero;
 namespace lean {
 usize usize_modn(usize, obj*);
 }
-obj* l_usize_lt;
 usize l_usize_has__one;
 obj* l_usize_has__decidable__lt___boxed(obj*, obj*);
 obj* l_usize_has__lt;
@@ -48,7 +47,6 @@ namespace lean {
 usize usize_of_nat(obj*);
 }
 obj* l_usize__sz;
-obj* l_usize_le;
 obj* l_usize_has__decidable__le___boxed(obj*, obj*);
 uint8 l_usize_has__decidable__lt(usize, usize);
 obj* l_usize_to__nat___boxed(obj*);
@@ -151,22 +149,6 @@ x_3 = lean::usize_modn(x_2, x_1);
 x_4 = lean::box_size_t(x_3);
 lean::dec(x_1);
 return x_4;
-}
-}
-obj* _init_l_usize_lt() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
-}
-}
-obj* _init_l_usize_le() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 usize _init_l_usize_has__zero() {
@@ -375,8 +357,6 @@ void initialize_init_data_usize() {
  initialize_init_data_fin_default();
  l_usize__sz = _init_l_usize__sz();
 lean::mark_persistent(l_usize__sz);
- l_usize_lt = _init_l_usize_lt();
- l_usize_le = _init_l_usize_le();
  l_usize_has__zero = _init_l_usize_has__zero();
  l_usize_has__zero___boxed = _init_l_usize_has__zero___boxed();
 lean::mark_persistent(l_usize_has__zero___boxed);

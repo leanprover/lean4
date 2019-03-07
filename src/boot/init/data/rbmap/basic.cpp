@@ -46,7 +46,6 @@ uint8 l_rbnode_all___rarg(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
-obj* l_rbmap;
 obj* l_rbmap_insert___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_repr__aux___main___at_rbmap_has__repr___spec__2___rarg(obj*, obj*, uint8, obj*);
 obj* l_rbmap_all___main(obj*, obj*, obj*);
@@ -3657,14 +3656,6 @@ lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
 return x_3;
-}
-}
-obj* _init_l_rbmap() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
 }
 }
 obj* l_mk__rbmap(obj* x_0, obj* x_1, obj* x_2) {
@@ -8127,7 +8118,6 @@ void initialize_init_data_rbmap_basic() {
  initialize_init_data_ordering_basic();
  initialize_init_coe();
  initialize_init_data_option_basic();
- l_rbmap = _init_l_rbmap();
  l_rbmap_has__repr___rarg___closed__1 = _init_l_rbmap_has__repr___rarg___closed__1();
 lean::mark_persistent(l_rbmap_has__repr___rarg___closed__1);
 }

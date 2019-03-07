@@ -46,7 +46,6 @@ uint8 l_char_is__digit(uint32);
 obj* l_lean_parser_parsec__t_labels__mk__res___rarg(obj*, obj*);
 uint32 l_char_of__nat(obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__5(obj*, obj*, obj*);
-obj* l_id___rarg___boxed(obj*);
 obj* l_string_quote(obj*);
 extern obj* l_lean_parser_monad__parsec_eoi__error___rarg___closed__1;
 obj* l_lean_parser_monad__parsec_take__while1___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__3(obj*);
@@ -96,6 +95,7 @@ obj* l_lean_parser_monad__parsec_digit___at___private_init_lean_name__mangling_2
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___spec__9(obj*, obj*, obj*);
 obj* l___private_init_lean_name__mangling_4__name_mangle__aux(obj*, obj*);
 extern obj* l_string_join___closed__1;
+obj* l_id___rarg(obj*);
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
@@ -1027,7 +1027,7 @@ obj* _init_l_lean_parser_monad__parsec_eoi___at___private_init_lean_name__mangli
 _start:
 {
 obj* x_0; obj* x_2; obj* x_3; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg), 1, 0);
 lean::inc(x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_function_comp___rarg), 3, 2);
 lean::closure_set(x_2, 0, x_0);
@@ -1465,7 +1465,7 @@ lean::dec(x_163);
 x_171 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_166);
 if (lean::obj_tag(x_171) == 0)
 {
-obj* x_172; obj* x_174; obj* x_176; obj* x_179; obj* x_180; obj* x_182; uint32 x_185; obj* x_188; obj* x_189; obj* x_190; obj* x_191; obj* x_192; 
+obj* x_172; obj* x_174; obj* x_176; obj* x_179; obj* x_180; obj* x_182; uint32 x_185; obj* x_187; obj* x_188; obj* x_189; obj* x_190; obj* x_191; 
 x_172 = lean::cnstr_get(x_171, 0);
 lean::inc(x_172);
 x_174 = lean::cnstr_get(x_171, 1);
@@ -1480,444 +1480,442 @@ x_182 = lean::nat_add(x_180, x_172);
 lean::dec(x_172);
 lean::dec(x_180);
 x_185 = l_char_of__nat(x_182);
-lean::dec(x_182);
 lean::inc(x_1);
-x_188 = lean::string_push(x_1, x_185);
-x_189 = l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main(x_6, x_188, x_174);
-x_190 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_176, x_189);
-x_191 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_168, x_190);
-x_192 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_160, x_191);
-if (lean::obj_tag(x_192) == 0)
+x_187 = lean::string_push(x_1, x_185);
+x_188 = l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main(x_6, x_187, x_174);
+x_189 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_176, x_188);
+x_190 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_168, x_189);
+x_191 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_160, x_190);
+if (lean::obj_tag(x_191) == 0)
 {
-obj* x_196; obj* x_197; obj* x_198; obj* x_199; 
+obj* x_195; obj* x_196; obj* x_197; obj* x_198; 
 lean::dec(x_6);
 lean::dec(x_1);
 lean::dec(x_2);
-x_196 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_192);
-x_197 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_196);
-x_198 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_197);
-x_199 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_198);
-return x_199;
+x_195 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_191);
+x_196 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_195);
+x_197 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_196);
+x_198 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_197);
+return x_198;
 }
 else
 {
-obj* x_200; uint8 x_202; 
-x_200 = lean::cnstr_get(x_192, 0);
-lean::inc(x_200);
-x_202 = lean::cnstr_get_scalar<uint8>(x_192, sizeof(void*)*1);
-x_149 = x_192;
-x_150 = x_200;
-x_151 = x_202;
+obj* x_199; uint8 x_201; 
+x_199 = lean::cnstr_get(x_191, 0);
+lean::inc(x_199);
+x_201 = lean::cnstr_get_scalar<uint8>(x_191, sizeof(void*)*1);
+x_149 = x_191;
+x_150 = x_199;
+x_151 = x_201;
 goto lbl_152;
 }
 }
 else
 {
-obj* x_204; uint8 x_206; obj* x_207; obj* x_208; obj* x_209; obj* x_210; obj* x_211; 
+obj* x_203; uint8 x_205; obj* x_206; obj* x_207; obj* x_208; obj* x_209; obj* x_210; 
 lean::dec(x_164);
-x_204 = lean::cnstr_get(x_171, 0);
-x_206 = lean::cnstr_get_scalar<uint8>(x_171, sizeof(void*)*1);
+x_203 = lean::cnstr_get(x_171, 0);
+x_205 = lean::cnstr_get_scalar<uint8>(x_171, sizeof(void*)*1);
 if (lean::is_exclusive(x_171)) {
- x_207 = x_171;
+ x_206 = x_171;
 } else {
- lean::inc(x_204);
+ lean::inc(x_203);
  lean::dec(x_171);
- x_207 = lean::box(0);
+ x_206 = lean::box(0);
 }
-if (lean::is_scalar(x_207)) {
- x_208 = lean::alloc_cnstr(1, 1, 1);
+if (lean::is_scalar(x_206)) {
+ x_207 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_208 = x_207;
+ x_207 = x_206;
 }
-lean::cnstr_set(x_208, 0, x_204);
-lean::cnstr_set_scalar(x_208, sizeof(void*)*1, x_206);
-x_209 = x_208;
-x_210 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_168, x_209);
-x_211 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_160, x_210);
-if (lean::obj_tag(x_211) == 0)
+lean::cnstr_set(x_207, 0, x_203);
+lean::cnstr_set_scalar(x_207, sizeof(void*)*1, x_205);
+x_208 = x_207;
+x_209 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_168, x_208);
+x_210 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_160, x_209);
+if (lean::obj_tag(x_210) == 0)
 {
-obj* x_215; obj* x_216; obj* x_217; obj* x_218; 
+obj* x_214; obj* x_215; obj* x_216; obj* x_217; 
 lean::dec(x_6);
 lean::dec(x_1);
 lean::dec(x_2);
-x_215 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_211);
-x_216 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_215);
-x_217 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_216);
-x_218 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_217);
-return x_218;
+x_214 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_210);
+x_215 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_214);
+x_216 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_215);
+x_217 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_216);
+return x_217;
 }
 else
 {
-obj* x_219; uint8 x_221; 
-x_219 = lean::cnstr_get(x_211, 0);
-lean::inc(x_219);
-x_221 = lean::cnstr_get_scalar<uint8>(x_211, sizeof(void*)*1);
-x_149 = x_211;
-x_150 = x_219;
-x_151 = x_221;
+obj* x_218; uint8 x_220; 
+x_218 = lean::cnstr_get(x_210, 0);
+lean::inc(x_218);
+x_220 = lean::cnstr_get_scalar<uint8>(x_210, sizeof(void*)*1);
+x_149 = x_210;
+x_150 = x_218;
+x_151 = x_220;
 goto lbl_152;
 }
 }
 }
 else
 {
-obj* x_222; uint8 x_224; obj* x_225; obj* x_226; obj* x_227; obj* x_228; 
-x_222 = lean::cnstr_get(x_163, 0);
-x_224 = lean::cnstr_get_scalar<uint8>(x_163, sizeof(void*)*1);
+obj* x_221; uint8 x_223; obj* x_224; obj* x_225; obj* x_226; obj* x_227; 
+x_221 = lean::cnstr_get(x_163, 0);
+x_223 = lean::cnstr_get_scalar<uint8>(x_163, sizeof(void*)*1);
 if (lean::is_exclusive(x_163)) {
- x_225 = x_163;
+ x_224 = x_163;
 } else {
- lean::inc(x_222);
+ lean::inc(x_221);
  lean::dec(x_163);
- x_225 = lean::box(0);
+ x_224 = lean::box(0);
 }
-if (lean::is_scalar(x_225)) {
- x_226 = lean::alloc_cnstr(1, 1, 1);
+if (lean::is_scalar(x_224)) {
+ x_225 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_226 = x_225;
+ x_225 = x_224;
 }
-lean::cnstr_set(x_226, 0, x_222);
-lean::cnstr_set_scalar(x_226, sizeof(void*)*1, x_224);
-x_227 = x_226;
-x_228 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_160, x_227);
-if (lean::obj_tag(x_228) == 0)
+lean::cnstr_set(x_225, 0, x_221);
+lean::cnstr_set_scalar(x_225, sizeof(void*)*1, x_223);
+x_226 = x_225;
+x_227 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_160, x_226);
+if (lean::obj_tag(x_227) == 0)
 {
-obj* x_232; obj* x_233; obj* x_234; obj* x_235; 
+obj* x_231; obj* x_232; obj* x_233; obj* x_234; 
 lean::dec(x_6);
 lean::dec(x_1);
 lean::dec(x_2);
-x_232 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_228);
-x_233 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_232);
-x_234 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_233);
-x_235 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_234);
-return x_235;
+x_231 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_227);
+x_232 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_231);
+x_233 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_232);
+x_234 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_233);
+return x_234;
 }
 else
 {
-obj* x_236; uint8 x_238; 
-x_236 = lean::cnstr_get(x_228, 0);
-lean::inc(x_236);
-x_238 = lean::cnstr_get_scalar<uint8>(x_228, sizeof(void*)*1);
-x_149 = x_228;
-x_150 = x_236;
-x_151 = x_238;
+obj* x_235; uint8 x_237; 
+x_235 = lean::cnstr_get(x_227, 0);
+lean::inc(x_235);
+x_237 = lean::cnstr_get_scalar<uint8>(x_227, sizeof(void*)*1);
+x_149 = x_227;
+x_150 = x_235;
+x_151 = x_237;
 goto lbl_152;
 }
 }
 }
 else
 {
-obj* x_239; uint8 x_241; obj* x_242; obj* x_244; obj* x_245; 
-x_239 = lean::cnstr_get(x_157, 0);
-x_241 = lean::cnstr_get_scalar<uint8>(x_157, sizeof(void*)*1);
+obj* x_238; uint8 x_240; obj* x_241; obj* x_243; obj* x_244; 
+x_238 = lean::cnstr_get(x_157, 0);
+x_240 = lean::cnstr_get_scalar<uint8>(x_157, sizeof(void*)*1);
 if (lean::is_exclusive(x_157)) {
- x_242 = x_157;
+ x_241 = x_157;
 } else {
- lean::inc(x_239);
+ lean::inc(x_238);
  lean::dec(x_157);
- x_242 = lean::box(0);
+ x_241 = lean::box(0);
 }
-lean::inc(x_239);
-if (lean::is_scalar(x_242)) {
- x_244 = lean::alloc_cnstr(1, 1, 1);
+lean::inc(x_238);
+if (lean::is_scalar(x_241)) {
+ x_243 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_244 = x_242;
+ x_243 = x_241;
 }
-lean::cnstr_set(x_244, 0, x_239);
-lean::cnstr_set_scalar(x_244, sizeof(void*)*1, x_241);
-x_245 = x_244;
-x_149 = x_245;
-x_150 = x_239;
-x_151 = x_241;
+lean::cnstr_set(x_243, 0, x_238);
+lean::cnstr_set_scalar(x_243, sizeof(void*)*1, x_240);
+x_244 = x_243;
+x_149 = x_244;
+x_150 = x_238;
+x_151 = x_240;
 goto lbl_152;
 }
 }
 else
 {
-obj* x_250; obj* x_251; obj* x_252; 
+obj* x_249; obj* x_250; obj* x_251; 
 lean::dec(x_109);
 lean::dec(x_6);
 lean::dec(x_1);
 lean::dec(x_2);
-x_250 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_108);
-x_251 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_250);
-x_252 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_251);
-return x_252;
+x_249 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_108);
+x_250 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_249);
+x_251 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_250);
+return x_251;
 }
 lbl_152:
 {
 if (x_151 == 0)
 {
-obj* x_254; obj* x_255; obj* x_256; 
+obj* x_253; obj* x_254; obj* x_255; 
 lean::dec(x_149);
-x_254 = l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1;
-x_255 = l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___closed__1;
-x_256 = l_lean_parser_monad__parsec_str__core___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__1(x_254, x_255, x_2);
-if (lean::obj_tag(x_256) == 0)
+x_253 = l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1;
+x_254 = l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___closed__1;
+x_255 = l_lean_parser_monad__parsec_str__core___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__1(x_253, x_254, x_2);
+if (lean::obj_tag(x_255) == 0)
 {
-obj* x_257; obj* x_259; obj* x_262; 
-x_257 = lean::cnstr_get(x_256, 1);
-lean::inc(x_257);
-x_259 = lean::cnstr_get(x_256, 2);
-lean::inc(x_259);
-lean::dec(x_256);
-x_262 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_257);
-if (lean::obj_tag(x_262) == 0)
+obj* x_256; obj* x_258; obj* x_261; 
+x_256 = lean::cnstr_get(x_255, 1);
+lean::inc(x_256);
+x_258 = lean::cnstr_get(x_255, 2);
+lean::inc(x_258);
+lean::dec(x_255);
+x_261 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_256);
+if (lean::obj_tag(x_261) == 0)
 {
-obj* x_263; obj* x_265; obj* x_267; obj* x_270; 
-x_263 = lean::cnstr_get(x_262, 0);
-lean::inc(x_263);
-x_265 = lean::cnstr_get(x_262, 1);
-lean::inc(x_265);
-x_267 = lean::cnstr_get(x_262, 2);
-lean::inc(x_267);
+obj* x_262; obj* x_264; obj* x_266; obj* x_269; 
+x_262 = lean::cnstr_get(x_261, 0);
+lean::inc(x_262);
+x_264 = lean::cnstr_get(x_261, 1);
+lean::inc(x_264);
+x_266 = lean::cnstr_get(x_261, 2);
+lean::inc(x_266);
+lean::dec(x_261);
+x_269 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_264);
+if (lean::obj_tag(x_269) == 0)
+{
+obj* x_270; obj* x_272; obj* x_274; obj* x_277; 
+x_270 = lean::cnstr_get(x_269, 0);
+lean::inc(x_270);
+x_272 = lean::cnstr_get(x_269, 1);
+lean::inc(x_272);
+x_274 = lean::cnstr_get(x_269, 2);
+lean::inc(x_274);
+lean::dec(x_269);
+x_277 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_272);
+if (lean::obj_tag(x_277) == 0)
+{
+obj* x_278; obj* x_280; obj* x_282; obj* x_285; 
+x_278 = lean::cnstr_get(x_277, 0);
+lean::inc(x_278);
+x_280 = lean::cnstr_get(x_277, 1);
+lean::inc(x_280);
+x_282 = lean::cnstr_get(x_277, 2);
+lean::inc(x_282);
+lean::dec(x_277);
+x_285 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_280);
+if (lean::obj_tag(x_285) == 0)
+{
+obj* x_286; obj* x_288; obj* x_290; obj* x_293; obj* x_294; obj* x_296; obj* x_297; obj* x_299; obj* x_302; obj* x_303; obj* x_305; obj* x_308; uint32 x_311; obj* x_312; obj* x_313; obj* x_315; obj* x_316; obj* x_317; obj* x_318; obj* x_319; obj* x_320; obj* x_321; obj* x_322; obj* x_323; obj* x_324; 
+x_286 = lean::cnstr_get(x_285, 0);
+lean::inc(x_286);
+x_288 = lean::cnstr_get(x_285, 1);
+lean::inc(x_288);
+x_290 = lean::cnstr_get(x_285, 2);
+lean::inc(x_290);
+lean::dec(x_285);
+x_293 = lean::mk_nat_obj(4096u);
+x_294 = lean::nat_mul(x_262, x_293);
 lean::dec(x_262);
-x_270 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_265);
-if (lean::obj_tag(x_270) == 0)
-{
-obj* x_271; obj* x_273; obj* x_275; obj* x_278; 
-x_271 = lean::cnstr_get(x_270, 0);
-lean::inc(x_271);
-x_273 = lean::cnstr_get(x_270, 1);
-lean::inc(x_273);
-x_275 = lean::cnstr_get(x_270, 2);
-lean::inc(x_275);
+x_296 = lean::mk_nat_obj(256u);
+x_297 = lean::nat_mul(x_270, x_296);
 lean::dec(x_270);
-x_278 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_273);
-if (lean::obj_tag(x_278) == 0)
-{
-obj* x_279; obj* x_281; obj* x_283; obj* x_286; 
-x_279 = lean::cnstr_get(x_278, 0);
-lean::inc(x_279);
-x_281 = lean::cnstr_get(x_278, 1);
-lean::inc(x_281);
-x_283 = lean::cnstr_get(x_278, 2);
-lean::inc(x_283);
+x_299 = lean::nat_add(x_294, x_297);
+lean::dec(x_297);
+lean::dec(x_294);
+x_302 = lean::mk_nat_obj(16u);
+x_303 = lean::nat_mul(x_278, x_302);
 lean::dec(x_278);
-x_286 = l_lean_parser_parse__hex__digit___at___private_init_lean_name__mangling_2__parse__mangled__string__aux___main___spec__2(x_281);
-if (lean::obj_tag(x_286) == 0)
-{
-obj* x_287; obj* x_289; obj* x_291; obj* x_294; obj* x_295; obj* x_297; obj* x_298; obj* x_300; obj* x_303; obj* x_304; obj* x_306; obj* x_309; uint32 x_312; obj* x_314; obj* x_315; obj* x_317; obj* x_318; obj* x_319; obj* x_320; obj* x_321; obj* x_322; obj* x_323; obj* x_324; obj* x_325; obj* x_326; 
-x_287 = lean::cnstr_get(x_286, 0);
-lean::inc(x_287);
-x_289 = lean::cnstr_get(x_286, 1);
-lean::inc(x_289);
-x_291 = lean::cnstr_get(x_286, 2);
-lean::inc(x_291);
+x_305 = lean::nat_add(x_299, x_303);
+lean::dec(x_303);
+lean::dec(x_299);
+x_308 = lean::nat_add(x_305, x_286);
 lean::dec(x_286);
-x_294 = lean::mk_nat_obj(4096u);
-x_295 = lean::nat_mul(x_263, x_294);
-lean::dec(x_263);
-x_297 = lean::mk_nat_obj(256u);
-x_298 = lean::nat_mul(x_271, x_297);
-lean::dec(x_271);
-x_300 = lean::nat_add(x_295, x_298);
-lean::dec(x_298);
-lean::dec(x_295);
-x_303 = lean::mk_nat_obj(16u);
-x_304 = lean::nat_mul(x_279, x_303);
-lean::dec(x_279);
-x_306 = lean::nat_add(x_300, x_304);
-lean::dec(x_304);
-lean::dec(x_300);
-x_309 = lean::nat_add(x_306, x_287);
-lean::dec(x_287);
-lean::dec(x_306);
-x_312 = l_char_of__nat(x_309);
-lean::dec(x_309);
-x_314 = lean::string_push(x_1, x_312);
-x_315 = l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main(x_6, x_314, x_289);
+lean::dec(x_305);
+x_311 = l_char_of__nat(x_308);
+x_312 = lean::string_push(x_1, x_311);
+x_313 = l___private_init_lean_name__mangling_2__parse__mangled__string__aux___main(x_6, x_312, x_288);
 lean::dec(x_6);
-x_317 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_291, x_315);
-x_318 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_283, x_317);
-x_319 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_275, x_318);
-x_320 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_267, x_319);
-x_321 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_259, x_320);
-x_322 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_321);
-x_323 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_322);
-x_324 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_323);
-x_325 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_324);
-x_326 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_325);
-return x_326;
+x_315 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_290, x_313);
+x_316 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_282, x_315);
+x_317 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_274, x_316);
+x_318 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_266, x_317);
+x_319 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_258, x_318);
+x_320 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_319);
+x_321 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_320);
+x_322 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_321);
+x_323 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_322);
+x_324 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_323);
+return x_324;
 }
 else
 {
-obj* x_332; uint8 x_334; obj* x_335; obj* x_336; obj* x_337; obj* x_338; obj* x_339; obj* x_340; obj* x_341; obj* x_342; obj* x_343; obj* x_344; obj* x_345; obj* x_346; 
+obj* x_330; uint8 x_332; obj* x_333; obj* x_334; obj* x_335; obj* x_336; obj* x_337; obj* x_338; obj* x_339; obj* x_340; obj* x_341; obj* x_342; obj* x_343; obj* x_344; 
 lean::dec(x_6);
 lean::dec(x_1);
-lean::dec(x_263);
-lean::dec(x_279);
-lean::dec(x_271);
-x_332 = lean::cnstr_get(x_286, 0);
-x_334 = lean::cnstr_get_scalar<uint8>(x_286, sizeof(void*)*1);
-if (lean::is_exclusive(x_286)) {
- x_335 = x_286;
+lean::dec(x_278);
+lean::dec(x_270);
+lean::dec(x_262);
+x_330 = lean::cnstr_get(x_285, 0);
+x_332 = lean::cnstr_get_scalar<uint8>(x_285, sizeof(void*)*1);
+if (lean::is_exclusive(x_285)) {
+ x_333 = x_285;
 } else {
- lean::inc(x_332);
- lean::dec(x_286);
- x_335 = lean::box(0);
+ lean::inc(x_330);
+ lean::dec(x_285);
+ x_333 = lean::box(0);
 }
-if (lean::is_scalar(x_335)) {
- x_336 = lean::alloc_cnstr(1, 1, 1);
+if (lean::is_scalar(x_333)) {
+ x_334 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_336 = x_335;
+ x_334 = x_333;
 }
-lean::cnstr_set(x_336, 0, x_332);
-lean::cnstr_set_scalar(x_336, sizeof(void*)*1, x_334);
-x_337 = x_336;
-x_338 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_283, x_337);
-x_339 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_275, x_338);
-x_340 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_267, x_339);
-x_341 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_259, x_340);
-x_342 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_341);
-x_343 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_342);
-x_344 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_343);
-x_345 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_344);
-x_346 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_345);
-return x_346;
+lean::cnstr_set(x_334, 0, x_330);
+lean::cnstr_set_scalar(x_334, sizeof(void*)*1, x_332);
+x_335 = x_334;
+x_336 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_282, x_335);
+x_337 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_274, x_336);
+x_338 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_266, x_337);
+x_339 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_258, x_338);
+x_340 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_339);
+x_341 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_340);
+x_342 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_341);
+x_343 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_342);
+x_344 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_343);
+return x_344;
 }
 }
 else
 {
-obj* x_351; uint8 x_353; obj* x_354; obj* x_355; obj* x_356; obj* x_357; obj* x_358; obj* x_359; obj* x_360; obj* x_361; obj* x_362; obj* x_363; obj* x_364; 
+obj* x_349; uint8 x_351; obj* x_352; obj* x_353; obj* x_354; obj* x_355; obj* x_356; obj* x_357; obj* x_358; obj* x_359; obj* x_360; obj* x_361; obj* x_362; 
 lean::dec(x_6);
 lean::dec(x_1);
-lean::dec(x_263);
-lean::dec(x_271);
-x_351 = lean::cnstr_get(x_278, 0);
-x_353 = lean::cnstr_get_scalar<uint8>(x_278, sizeof(void*)*1);
-if (lean::is_exclusive(x_278)) {
- x_354 = x_278;
+lean::dec(x_270);
+lean::dec(x_262);
+x_349 = lean::cnstr_get(x_277, 0);
+x_351 = lean::cnstr_get_scalar<uint8>(x_277, sizeof(void*)*1);
+if (lean::is_exclusive(x_277)) {
+ x_352 = x_277;
 } else {
- lean::inc(x_351);
- lean::dec(x_278);
- x_354 = lean::box(0);
+ lean::inc(x_349);
+ lean::dec(x_277);
+ x_352 = lean::box(0);
 }
-if (lean::is_scalar(x_354)) {
- x_355 = lean::alloc_cnstr(1, 1, 1);
+if (lean::is_scalar(x_352)) {
+ x_353 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_355 = x_354;
+ x_353 = x_352;
 }
-lean::cnstr_set(x_355, 0, x_351);
-lean::cnstr_set_scalar(x_355, sizeof(void*)*1, x_353);
-x_356 = x_355;
-x_357 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_275, x_356);
-x_358 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_267, x_357);
-x_359 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_259, x_358);
-x_360 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_359);
-x_361 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_360);
-x_362 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_361);
-x_363 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_362);
-x_364 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_363);
-return x_364;
+lean::cnstr_set(x_353, 0, x_349);
+lean::cnstr_set_scalar(x_353, sizeof(void*)*1, x_351);
+x_354 = x_353;
+x_355 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_274, x_354);
+x_356 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_266, x_355);
+x_357 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_258, x_356);
+x_358 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_357);
+x_359 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_358);
+x_360 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_359);
+x_361 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_360);
+x_362 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_361);
+return x_362;
 }
 }
 else
 {
-obj* x_368; uint8 x_370; obj* x_371; obj* x_372; obj* x_373; obj* x_374; obj* x_375; obj* x_376; obj* x_377; obj* x_378; obj* x_379; obj* x_380; 
+obj* x_366; uint8 x_368; obj* x_369; obj* x_370; obj* x_371; obj* x_372; obj* x_373; obj* x_374; obj* x_375; obj* x_376; obj* x_377; obj* x_378; 
 lean::dec(x_6);
 lean::dec(x_1);
-lean::dec(x_263);
-x_368 = lean::cnstr_get(x_270, 0);
-x_370 = lean::cnstr_get_scalar<uint8>(x_270, sizeof(void*)*1);
-if (lean::is_exclusive(x_270)) {
- x_371 = x_270;
+lean::dec(x_262);
+x_366 = lean::cnstr_get(x_269, 0);
+x_368 = lean::cnstr_get_scalar<uint8>(x_269, sizeof(void*)*1);
+if (lean::is_exclusive(x_269)) {
+ x_369 = x_269;
 } else {
- lean::inc(x_368);
- lean::dec(x_270);
- x_371 = lean::box(0);
+ lean::inc(x_366);
+ lean::dec(x_269);
+ x_369 = lean::box(0);
 }
-if (lean::is_scalar(x_371)) {
- x_372 = lean::alloc_cnstr(1, 1, 1);
+if (lean::is_scalar(x_369)) {
+ x_370 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_372 = x_371;
+ x_370 = x_369;
 }
-lean::cnstr_set(x_372, 0, x_368);
-lean::cnstr_set_scalar(x_372, sizeof(void*)*1, x_370);
-x_373 = x_372;
-x_374 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_267, x_373);
-x_375 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_259, x_374);
-x_376 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_375);
-x_377 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_376);
-x_378 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_377);
-x_379 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_378);
-x_380 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_379);
-return x_380;
+lean::cnstr_set(x_370, 0, x_366);
+lean::cnstr_set_scalar(x_370, sizeof(void*)*1, x_368);
+x_371 = x_370;
+x_372 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_266, x_371);
+x_373 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_258, x_372);
+x_374 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_373);
+x_375 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_374);
+x_376 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_375);
+x_377 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_376);
+x_378 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_377);
+return x_378;
 }
 }
 else
 {
-obj* x_383; uint8 x_385; obj* x_386; obj* x_387; obj* x_388; obj* x_389; obj* x_390; obj* x_391; obj* x_392; obj* x_393; obj* x_394; 
+obj* x_381; uint8 x_383; obj* x_384; obj* x_385; obj* x_386; obj* x_387; obj* x_388; obj* x_389; obj* x_390; obj* x_391; obj* x_392; 
 lean::dec(x_6);
 lean::dec(x_1);
-x_383 = lean::cnstr_get(x_262, 0);
-x_385 = lean::cnstr_get_scalar<uint8>(x_262, sizeof(void*)*1);
-if (lean::is_exclusive(x_262)) {
- x_386 = x_262;
+x_381 = lean::cnstr_get(x_261, 0);
+x_383 = lean::cnstr_get_scalar<uint8>(x_261, sizeof(void*)*1);
+if (lean::is_exclusive(x_261)) {
+ x_384 = x_261;
 } else {
- lean::inc(x_383);
- lean::dec(x_262);
- x_386 = lean::box(0);
+ lean::inc(x_381);
+ lean::dec(x_261);
+ x_384 = lean::box(0);
 }
-if (lean::is_scalar(x_386)) {
- x_387 = lean::alloc_cnstr(1, 1, 1);
+if (lean::is_scalar(x_384)) {
+ x_385 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_387 = x_386;
+ x_385 = x_384;
 }
-lean::cnstr_set(x_387, 0, x_383);
-lean::cnstr_set_scalar(x_387, sizeof(void*)*1, x_385);
-x_388 = x_387;
-x_389 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_259, x_388);
-x_390 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_389);
-x_391 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_390);
-x_392 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_391);
-x_393 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_392);
-x_394 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_393);
-return x_394;
+lean::cnstr_set(x_385, 0, x_381);
+lean::cnstr_set_scalar(x_385, sizeof(void*)*1, x_383);
+x_386 = x_385;
+x_387 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_258, x_386);
+x_388 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_387);
+x_389 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_388);
+x_390 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_389);
+x_391 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_390);
+x_392 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_391);
+return x_392;
 }
 }
 else
 {
-obj* x_397; uint8 x_399; obj* x_400; obj* x_401; obj* x_402; obj* x_403; obj* x_404; obj* x_405; obj* x_406; obj* x_407; 
+obj* x_395; uint8 x_397; obj* x_398; obj* x_399; obj* x_400; obj* x_401; obj* x_402; obj* x_403; obj* x_404; obj* x_405; 
 lean::dec(x_6);
 lean::dec(x_1);
-x_397 = lean::cnstr_get(x_256, 0);
-x_399 = lean::cnstr_get_scalar<uint8>(x_256, sizeof(void*)*1);
-if (lean::is_exclusive(x_256)) {
- x_400 = x_256;
+x_395 = lean::cnstr_get(x_255, 0);
+x_397 = lean::cnstr_get_scalar<uint8>(x_255, sizeof(void*)*1);
+if (lean::is_exclusive(x_255)) {
+ x_398 = x_255;
 } else {
- lean::inc(x_397);
- lean::dec(x_256);
- x_400 = lean::box(0);
+ lean::inc(x_395);
+ lean::dec(x_255);
+ x_398 = lean::box(0);
 }
-if (lean::is_scalar(x_400)) {
- x_401 = lean::alloc_cnstr(1, 1, 1);
+if (lean::is_scalar(x_398)) {
+ x_399 = lean::alloc_cnstr(1, 1, 1);
 } else {
- x_401 = x_400;
+ x_399 = x_398;
 }
-lean::cnstr_set(x_401, 0, x_397);
-lean::cnstr_set_scalar(x_401, sizeof(void*)*1, x_399);
-x_402 = x_401;
-x_403 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_402);
-x_404 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_403);
-x_405 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_404);
-x_406 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_405);
-x_407 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_406);
-return x_407;
+lean::cnstr_set(x_399, 0, x_395);
+lean::cnstr_set_scalar(x_399, sizeof(void*)*1, x_397);
+x_400 = x_399;
+x_401 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_150, x_400);
+x_402 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_401);
+x_403 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_402);
+x_404 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_403);
+x_405 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_404);
+return x_405;
 }
 }
 else
 {
-obj* x_412; obj* x_413; obj* x_414; obj* x_415; 
+obj* x_410; obj* x_411; obj* x_412; obj* x_413; 
 lean::dec(x_6);
 lean::dec(x_1);
 lean::dec(x_2);
 lean::dec(x_150);
-x_412 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_149);
-x_413 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_412);
-x_414 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_413);
-x_415 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_414);
-return x_415;
+x_410 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_109, x_149);
+x_411 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_70, x_410);
+x_412 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_33, x_411);
+x_413 = l_lean_parser_parsec__t_orelse__mk__res___rarg(x_29, x_412);
+return x_413;
 }
 }
 }
@@ -1928,13 +1926,13 @@ return x_415;
 }
 else
 {
-obj* x_416; obj* x_417; 
-x_416 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;
-x_417 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_417, 0, x_1);
-lean::cnstr_set(x_417, 1, x_2);
-lean::cnstr_set(x_417, 2, x_416);
-return x_417;
+obj* x_414; obj* x_415; 
+x_414 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;
+x_415 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_415, 0, x_1);
+lean::cnstr_set(x_415, 1, x_2);
+lean::cnstr_set(x_415, 2, x_414);
+return x_415;
 }
 }
 }

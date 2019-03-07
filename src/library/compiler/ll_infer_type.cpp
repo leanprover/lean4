@@ -18,7 +18,6 @@ static expr * g_bot = nullptr;
 class ll_infer_type_fn {
     type_checker::state  m_st;
     local_ctx            m_lctx;
-    bool                 m_use_bot;
     buffer<name> const * m_new_decl_names{nullptr};
     buffer<expr> const * m_new_decl_types{nullptr};
 

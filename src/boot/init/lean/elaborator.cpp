@@ -290,7 +290,6 @@ extern obj* l_lean_parser_command_section_has__view;
 obj* l_list_map___main___at_lean_elaborator_declaration_elaborate___spec__2(obj*);
 obj* l_lean_elaborator_mk__notation__kind___boxed(obj*);
 obj* l_list_join___main___rarg(obj*);
-obj* l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(obj*, obj*);
 obj* l_lean_elaborator_mangle__ident(obj*);
 obj* l_lean_elaborator_universe_elaborate(obj*, obj*, obj*);
 obj* l_lean_elaborator_ordered__rbmap_of__list(obj*, obj*, obj*);
@@ -480,6 +479,7 @@ extern "C" obj* lean_expr_mk_let(obj*, obj*, obj*, obj*);
 extern obj* l_lean_parser_term_app_has__view;
 obj* l_rbnode_insert___at_lean_elaborator_ordered__rbmap_insert___spec__2___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_foldr___main___at_lean_elaborator_to__level___main___spec__2___boxed(obj*, obj*);
+obj* l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(obj*, obj*);
 obj* l_list_mfoldl___main___at_lean_elaborator_update__parser__config___spec__2(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_decl__modifiers__to__pexpr___closed__6;
 obj* l_reader__t_monad__reader__adapter___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -3526,7 +3526,7 @@ obj* l_rbmap_find___main___at_lean_elaborator_to__level___main___spec__6(obj* x_
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -3537,7 +3537,7 @@ obj* x_2; obj* x_5;
 x_2 = lean::cnstr_get(x_0, 1);
 lean::inc(x_2);
 lean::dec(x_0);
-x_5 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_2, x_1);
+x_5 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_2, x_1);
 return x_5;
 }
 }
@@ -20148,7 +20148,7 @@ obj* l_rbmap_find___main___at_lean_elaborator_variables_elaborate___spec__2(obj*
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -20159,7 +20159,7 @@ obj* x_2; obj* x_5;
 x_2 = lean::cnstr_get(x_0, 1);
 lean::inc(x_2);
 lean::dec(x_0);
-x_5 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_2, x_1);
+x_5 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_2, x_1);
 return x_5;
 }
 }
@@ -29132,7 +29132,7 @@ obj* l_rbmap_find___main___at_lean_elaborator_run___spec__4(obj* x_0, obj* x_1) 
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -29522,7 +29522,7 @@ x_16 = lean::cnstr_get(x_13, 0);
 lean::inc(x_16);
 lean::dec(x_13);
 x_19 = l_lean_elaborator_elaborators;
-x_20 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_19, x_16);
+x_20 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_19, x_16);
 lean::inc(x_4);
 x_22 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_elaborator_run___lambda__2), 2, 1);
 lean::closure_set(x_22, 0, x_4);

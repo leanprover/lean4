@@ -2787,10 +2787,7 @@ return x_0;
 obj* l_false_elim(obj* x_0, uint8 x_1) {
 _start:
 {
-obj* x_2; 
 lean_unreachable();
-x_2 = lean::box(0);
-return x_2;
 }
 }
 obj* l_false_elim___boxed(obj* x_0, obj* x_1) {
@@ -2806,10 +2803,7 @@ return x_3;
 obj* l_absurd(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; 
 lean_unreachable();
-x_4 = lean::box(0);
-return x_4;
 }
 }
 obj* l_absurd___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

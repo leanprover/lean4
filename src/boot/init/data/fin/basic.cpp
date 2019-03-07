@@ -221,10 +221,7 @@ return x_1;
 obj* l_fin_elim0___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
 lean_unreachable();
-x_2 = lean::box(0);
-return x_2;
 }
 }
 obj* l_fin_elim0___main___boxed(obj* x_0, obj* x_1) {
@@ -240,10 +237,7 @@ return x_2;
 obj* l_fin_elim0(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
 lean_unreachable();
-x_2 = lean::box(0);
-return x_2;
 }
 }
 obj* l_fin_elim0___boxed(obj* x_0, obj* x_1) {

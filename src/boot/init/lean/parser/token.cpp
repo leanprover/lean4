@@ -325,7 +325,6 @@ obj* l_lean_parser_monad__parsec_take__while1___at_lean_parser_parse__hex__lit__
 obj* l_lean_parser_whitespace___boxed(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_take__while___at_lean_parser_detail__ident__part_parser_lean_parser_has__tokens___spec__21___rarg(obj*, obj*);
 obj* l___private_init_lean_parser_parsec_1__str__aux___main(obj*, obj*, obj*);
-obj* l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(obj*, obj*);
 obj* l_reader__t_bind___at_lean_parser_with__trailing___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_number_has__view_x_27___lambda__1___closed__4;
 obj* l_option_to__monad___main___at_lean_parser_indexed___spec__2(obj*);
@@ -487,6 +486,7 @@ obj* l___private_init_lean_parser_token_5__mk__consume__token(obj*, obj*, obj*, 
 obj* l_lean_parser_raw__ident_parser___rarg___closed__1;
 obj* l_lean_parser_ident_parser___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_take__while__cont___at_lean_parser_parse__oct__lit___spec__2(uint32, obj*, obj*, obj*);
+obj* l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(obj*, obj*);
 obj* l_list_map___main___at_lean_parser_number_x_27___spec__9___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_take__while__cont___at_lean_parser_detail__ident__part_parser_lean_parser_has__view___spec__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_combinators_longest__choice___at_lean_parser_number_x_27___spec__8(obj*, obj*, obj*, obj*);
@@ -27098,7 +27098,7 @@ obj* l_rbmap_find___main___at_lean_parser_indexed___spec__1___rarg(obj* x_0, obj
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -27149,7 +27149,7 @@ obj* l_rbmap_find___main___at_lean_parser_indexed___spec__3___rarg(obj* x_0, obj
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -27165,7 +27165,7 @@ obj* l_rbmap_find___main___at_lean_parser_indexed___spec__4___rarg(obj* x_0, obj
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -27181,7 +27181,7 @@ obj* l_rbmap_find___main___at_lean_parser_indexed___spec__5___rarg(obj* x_0, obj
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -27236,7 +27236,7 @@ lean::inc(x_18);
 lean::dec(x_15);
 x_21 = lean::box(0);
 x_22 = lean_name_mk_string(x_21, x_18);
-x_23 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_22);
+x_23 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_22);
 lean::dec(x_22);
 x_25 = l_option_to__monad___main___at_lean_parser_indexed___spec__2___rarg(x_23, x_2, x_3, x_4);
 x_26 = lean::cnstr_get(x_25, 0);
@@ -27265,7 +27265,7 @@ case 1:
 obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_40; obj* x_42; obj* x_43; obj* x_44; obj* x_45; 
 lean::dec(x_12);
 x_35 = l_lean_parser_indexed___rarg___lambda__1___closed__1;
-x_36 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_35);
+x_36 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_35);
 x_37 = l_option_to__monad___main___at_lean_parser_indexed___spec__2___rarg(x_36, x_2, x_3, x_4);
 x_38 = lean::cnstr_get(x_37, 0);
 x_40 = lean::cnstr_get(x_37, 1);
@@ -27297,7 +27297,7 @@ lean::dec(x_12);
 x_49 = lean::cnstr_get(x_46, 0);
 lean::inc(x_49);
 lean::dec(x_46);
-x_52 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_49);
+x_52 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_49);
 lean::dec(x_49);
 x_54 = l_option_to__monad___main___at_lean_parser_indexed___spec__2___rarg(x_52, x_2, x_3, x_4);
 x_55 = lean::cnstr_get(x_54, 0);
@@ -27344,7 +27344,7 @@ lean::inc(x_75);
 x_77 = lean::cnstr_get(x_68, 2);
 lean::inc(x_77);
 lean::dec(x_68);
-x_80 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_73);
+x_80 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_73);
 lean::dec(x_73);
 x_82 = l_option_to__monad___main___at_lean_parser_indexed___spec__2___rarg(x_80, x_2, x_75, x_70);
 x_83 = lean::cnstr_get(x_82, 0);

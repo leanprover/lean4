@@ -349,9 +349,7 @@ return x_4;
 }
 else
 {
-obj* x_5; 
-x_5 = lean::mk_nat_obj(0u);
-return x_5;
+return x_2;
 }
 }
 }

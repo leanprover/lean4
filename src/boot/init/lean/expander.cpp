@@ -151,7 +151,6 @@ obj* l_lean_expander_mixfix__to__notation__spec___closed__2;
 obj* l_lean_expander_error___at_lean_expander_mk__notation__transformer___spec__1___rarg(obj*, obj*, obj*);
 obj* l_list_map___main___at_lean_expander_expand__bracketed__binder___main___spec__15___boxed(obj*, obj*, obj*);
 obj* l_list_join___main___rarg(obj*);
-obj* l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(obj*, obj*);
 obj* l_coe___at_lean_expander_mk__notation__transformer___spec__2(obj*);
 obj* l_list_mmap___main___at_lean_expander_variables_transform___spec__1___closed__1;
 obj* l_lean_parser_syntax_get__pos(obj*);
@@ -238,6 +237,7 @@ obj* l_except__t_monad___rarg(obj*);
 extern obj* l_lean_parser_term_app_has__view;
 obj* l_lean_expander_expander__config_has__lift(obj*);
 obj* l_lean_expander_error___at___private_init_lean_expander_1__pop__stx__arg___spec__1(obj*);
+obj* l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(obj*, obj*);
 obj* l_list_mmap___main___at_lean_expander_bracketed__binders_transform___spec__1(obj*, obj*);
 obj* l_list_foldr1__opt___main___at_lean_expander_paren_transform___spec__2(obj*, obj*);
 obj* l_list_map___main___at_lean_expander_mk__notation__transformer___spec__3(obj*);
@@ -10564,7 +10564,7 @@ obj* l_rbmap_find___main___at___private_init_lean_expander_2__expand__core___mai
 _start:
 {
 obj* x_2; 
-x_2 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_0, x_1);
+x_2 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_0, x_1);
 return x_2;
 }
 }
@@ -10928,7 +10928,7 @@ x_19 = lean::cnstr_get(x_3, 1);
 lean::inc(x_19);
 x_21 = lean::cnstr_get(x_13, 0);
 lean::inc(x_21);
-x_23 = l_rbnode_find___main___at_lean_parser_token__map_insert___spec__2___rarg(x_19, x_21);
+x_23 = l_rbnode_find___main___at_lean_name__map_contains___spec__2___rarg(x_19, x_21);
 if (lean::obj_tag(x_23) == 0)
 {
 obj* x_24; obj* x_27; 

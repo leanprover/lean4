@@ -773,6 +773,8 @@ struct emit_fn_fn {
             emit_tail_call(*m_lctx.get_local_decl(e).get_value());
         } else if (is_fvar(e)) {
             m_out << "return "; emit_fvar(e); m_out << ";\n";
+        } else if (is_enf_unreachable(e)) {
+            m_out << "lean_unreachable();\n";
         } else {
             lean_unreachable();
         }

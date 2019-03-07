@@ -37,6 +37,7 @@ extern atomic<uint64> g_num_string;
 extern atomic<uint64> g_num_array;
 extern atomic<uint64> g_num_thunk;
 extern atomic<uint64> g_num_task;
+extern atomic<uint64> g_num_ext;
 extern atomic<uint64> g_num_st_inc;
 extern atomic<uint64> g_num_mt_inc;
 extern atomic<uint64> g_num_st_dec;
@@ -511,6 +512,7 @@ inline object * alloc_mpz(mpz const & m) { return new (alloc_heap_object(sizeof(
 // External objects
 
 inline object * alloc_external(external_object_class * cls, void * data) {
+    LEAN_RUNTIME_STAT_CODE(g_num_ext++);
     return new (alloc_heap_object(sizeof(external_object))) external_object(cls, data);
 }
 

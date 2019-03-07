@@ -1900,6 +1900,7 @@ atomic<uint64> g_num_string(0);
 atomic<uint64> g_num_array(0);
 atomic<uint64> g_num_thunk(0);
 atomic<uint64> g_num_task(0);
+atomic<uint64> g_num_ext(0);
 atomic<uint64> g_num_st_inc(0);
 atomic<uint64> g_num_mt_inc(0);
 atomic<uint64> g_num_st_dec(0);
@@ -1913,6 +1914,7 @@ struct runtime_stats {
         std::cerr << "num. array:          " << g_num_array << "\n";
         std::cerr << "num. thunk:          " << g_num_thunk << "\n";
         std::cerr << "num. task:           " << g_num_task << "\n";
+        std::cerr << "num. external:       " << g_num_ext << "\n";
         std::cerr << "num. ST inc:         " << g_num_st_inc << "\n";
         std::cerr << "num. MT inc:         " << g_num_mt_inc << "\n";
         std::cerr << "num. ST dec:         " << g_num_st_dec << "\n";

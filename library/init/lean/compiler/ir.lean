@@ -136,7 +136,7 @@ inductive fnbody
 /- `let x : ty := e; b` -/
 | vdecl (x : varid) (ty : type) (e : expr) (b : fnbody)
 /- Join point declaration `let j (xs) : ty := e; b` -/
-| jdecl (j : jpid) (xs : list param) (ty : type) (e : expr) (b : fnbody)
+| jdecl (j : jpid) (xs : list param) (ty : type) (v : fnbody) (b : fnbody)
 /- Store `y` at position `sizeof(void*)*i` in `x`. `x` must be a constructor object and `RC(x)` must be 1.
    This operation is not part of λ_pure is only used during optimization. -/
 | set (x : varid) (i : nat) (y : varid) (b : fnbody)
@@ -146,16 +146,12 @@ inductive fnbody
    `ty` must not be `object`, `tobject`, `irrelevant` nor `usize`. -/
 | sset (x : varid) (i : nat) (offset : nat) (y : varid) (ty : type) (b : fnbody)
 | release (x : varid) (i : nat) (b : fnbody)
-/- RC increment for `object` -/
-| inc (x : varid) (n : nat) (b : fnbody)
-/- RC decrement for `object` -/
-| dec (x : varid) (n : nat) (b : fnbody)
-/- RC increment for `tobject` -/
-| tinc (x : varid) (n : nat) (b : fnbody)
-/- RC decrement for `tobject` -/
-| tdec (x : varid) (n : nat) (b : fnbody)
+/- RC increment for `object`. If c = `tt`, then `inc` must check whether `x` is a tagged pointer or not. -/
+| inc (x : varid) (n : nat) (c : bool) (b : fnbody)
+/- RC decrement for `object`. If c = `tt`, then `inc` must check whether `x` is a tagged pointer or not. -/
+| dec (x : varid) (n : nat) (c : bool) (b : fnbody)
 | mdata (d : kvmap) (b : fnbody)
-| case (tid : name) (cs : list (alt fnbody))
+| case (tid : name) (x : varid) (cs : list (alt fnbody))
 | ret (x : varid)
 /- Jump to join point `j` -/
 | jmp (j : jpid) (ys : list arg)
@@ -185,7 +181,7 @@ with fnbody.is_pure : fnbody → bool
 | (fnbody.uset _ _ _ b)     := b.is_pure
 | (fnbody.sset _ _ _ _ _ b) := b.is_pure
 | (fnbody.mdata _ b)        := b.is_pure
-| (fnbody.case _ cs)        := alts.is_pure cs
+| (fnbody.case _ _ cs)      := alts.is_pure cs
 | (fnbody.ret _)            := tt
 | (fnbody.jmp _ _)          := tt
 | fnbody.unreachable        := tt
@@ -203,7 +199,9 @@ class has_alpha_eqv (α : Type) :=
 local notation a `=[`:50 ρ `]=`:0 b:50 := has_alpha_eqv.aeqv ρ a b
 
 def varid.alpha_eqv (ρ : name_map name) (v₁ v₂ : varid) : bool :=
-v₁ = v₂ || ρ.find v₁ = v₂
+match ρ.find v₁ with
+| some v := v = v₂
+| none   := v₁ = v₂
 
 instance varid.has_aeqv : has_alpha_eqv varid := ⟨varid.alpha_eqv⟩
 
@@ -237,6 +235,54 @@ def expr.alpha_eqv (ρ : name_map name) : expr → expr → bool
 | (expr.is_shared x₁)     (expr.is_shared x₂)     := x₁ =[ρ]= x₂
 | (expr.is_tagged_ptr x₁) (expr.is_tagged_ptr x₂) := x₁ =[ρ]= x₂
 | _                        _                      := ff
+
+instance expr.has_aeqv : has_alpha_eqv expr:= ⟨expr.alpha_eqv⟩
+
+def add_var_rename (ρ : name_map name) (x₁ x₂ : name) :=
+if x₁ = x₂ then ρ else ρ.insert x₁ x₂
+
+def add_param_rename (ρ : name_map name) (p₁ p₂ : param) : option (name_map name) :=
+if p₁.ty == p₂.ty && p₁.borrowed = p₂.borrowed then some (add_var_rename ρ p₁.x p₂.x)
+else none
+
+def add_params_rename : name_map name → list param → list param → option (name_map name)
+| ρ (p₁::ps₁) (p₂::ps₂) := do ρ ← add_param_rename ρ p₁ p₂, add_params_rename ρ ps₁ ps₂
+| ρ []        []        := some ρ
+| _ _         _         := none
+
+mutual def fnbody.alpha_eqv, alts.alpha_eqv, alt.alpha_eqv
+with fnbody.alpha_eqv : name_map name → fnbody → fnbody → bool
+| ρ (fnbody.vdecl x₁ t₁ v₁ b₁)      (fnbody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && fnbody.alpha_eqv (add_var_rename ρ x₁ x₂) b₁ b₂
+| ρ (fnbody.jdecl j₁ ys₁ t₁ v₁ b₁)  (fnbody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
+  (match add_params_rename ρ ys₁ ys₂ with
+   | some ρ' := t₁ == t₂ && fnbody.alpha_eqv ρ' v₁ v₂ && fnbody.alpha_eqv (add_var_rename ρ j₁ j₂) b₁ b₂
+   | none    := ff)
+| ρ (fnbody.set x₁ i₁ y₁ b₁)        (fnbody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ = i₂ && y₁ =[ρ]= y₂ && fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.uset x₁ i₁ y₁ b₁)       (fnbody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ = i₂ && y₁ =[ρ]= y₂ && fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.sset x₁ i₁ o₁ y₁ t₁ b₁) (fnbody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
+  x₁ =[ρ]= x₂ && i₁ = i₂ && o₁ = o₂ && y₁ =[ρ]= y₂ && t₁ == t₂ && fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.release x₁ i₁ b₁)       (fnbody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ = i₂ && fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.inc x₁ n₁ c₁ b₁)        (fnbody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ = n₂ && c₁ = c₂ && fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.dec x₁ n₁ c₁ b₁)        (fnbody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ = n₂ && c₁ = c₂ && fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.mdata m₁ b₁)            (fnbody.mdata m₂ b₂)              := fnbody.alpha_eqv ρ b₁ b₂
+| ρ (fnbody.case n₁ x₁ as₁)         (fnbody.case n₂ x₂ as₂)           := n₁ = n₂ && x₁ =[ρ]= x₂ && alts.alpha_eqv ρ as₁ as₂
+| ρ (fnbody.jmp j₁ ys₁)             (fnbody.jmp j₂ ys₂)               := j₁ = j₂ && ys₁ =[ρ]= ys₂
+| ρ (fnbody.ret x₁)                 (fnbody.ret x₂)                   := x₁ =[ρ]= x₂
+| _ fnbody.unreachable              fnbody.unreachable                := tt
+| _ _                          _                                      := ff
+with alts.alpha_eqv : name_map name → list (alt fnbody) → list (alt fnbody) → bool
+| _ []        []        := tt
+| ρ (a₁::as₁) (a₂::as₂) := alt.alpha_eqv ρ a₁ a₂ && alts.alpha_eqv ρ as₁ as₂
+| _ _         _         := ff
+with alt.alpha_eqv : name_map name → alt fnbody → alt fnbody → bool
+| ρ (alt.ctor i₁ b₁) (alt.ctor i₂ b₂) := i₁ == i₂ && fnbody.alpha_eqv ρ b₁ b₂
+| ρ (alt.default b₁) (alt.default b₂) := fnbody.alpha_eqv ρ b₁ b₂
+| _ _                _                := ff
+
+def fnbody.beq (b₁ b₂ : fnbody) : bool :=
+fnbody.alpha_eqv mk_name_map b₁ b₂
+
+instance fnbody.has_beq : has_beq fnbody := ⟨fnbody.beq⟩
 
 end ir
 end lean

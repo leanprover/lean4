@@ -376,9 +376,7 @@ void initialize_init_data_usize() {
  l_usize__sz = _init_l_usize__sz();
 lean::mark_persistent(l_usize__sz);
  l_usize_lt = _init_l_usize_lt();
-lean::mark_persistent(l_usize_lt);
  l_usize_le = _init_l_usize_le();
-lean::mark_persistent(l_usize_le);
  l_usize_has__zero = _init_l_usize_has__zero();
  l_usize_has__zero___boxed = _init_l_usize_has__zero___boxed();
 lean::mark_persistent(l_usize_has__zero___boxed);

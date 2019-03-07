@@ -952,7 +952,5 @@ void initialize_init_coe() {
  _G_initialized = true;
  initialize_init_data_list_basic();
  l_coe__bool__to__Prop = _init_l_coe__bool__to__Prop();
-lean::mark_persistent(l_coe__bool__to__Prop);
  l_coe__sort__bool = _init_l_coe__sort__bool();
-lean::mark_persistent(l_coe__sort__bool);
 }

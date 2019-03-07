@@ -460,21 +460,12 @@ void initialize_init_function() {
  _G_initialized = true;
  initialize_init_core();
  l_function_injective = _init_l_function_injective();
-lean::mark_persistent(l_function_injective);
  l_function_surjective = _init_l_function_surjective();
-lean::mark_persistent(l_function_surjective);
  l_function_bijective = _init_l_function_bijective();
-lean::mark_persistent(l_function_bijective);
  l_function_left__inverse = _init_l_function_left__inverse();
-lean::mark_persistent(l_function_left__inverse);
  l_function_has__left__inverse = _init_l_function_has__left__inverse();
-lean::mark_persistent(l_function_has__left__inverse);
  l_function_right__inverse = _init_l_function_right__inverse();
-lean::mark_persistent(l_function_right__inverse);
  l_function_has__right__inverse = _init_l_function_has__right__inverse();
-lean::mark_persistent(l_function_has__right__inverse);
  l_function_id__of__left__inverse = _init_l_function_id__of__left__inverse();
-lean::mark_persistent(l_function_id__of__left__inverse);
  l_function_id__of__right__inverse = _init_l_function_id__of__right__inverse();
-lean::mark_persistent(l_function_id__of__right__inverse);
 }

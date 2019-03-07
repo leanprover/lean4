@@ -656,7 +656,5 @@ void initialize_init_data_fin_basic() {
  _G_initialized = true;
  initialize_init_data_nat_div();
  l_fin_lt = _init_l_fin_lt();
-lean::mark_persistent(l_fin_lt);
  l_fin_le = _init_l_fin_le();
-lean::mark_persistent(l_fin_le);
 }

@@ -836,9 +836,7 @@ void initialize_init_lean_position() {
  initialize_init_data_rbmap_default();
  initialize_init_lean_format();
  l_lean_position_lt___main = _init_l_lean_position_lt___main();
-lean::mark_persistent(l_lean_position_lt___main);
  l_lean_position_lt = _init_l_lean_position_lt();
-lean::mark_persistent(l_lean_position_lt);
  l_lean_position_has__lt = _init_l_lean_position_has__lt();
 lean::mark_persistent(l_lean_position_has__lt);
  l_lean_position_decidable__lt___main___closed__1 = _init_l_lean_position_decidable__lt___main___closed__1();

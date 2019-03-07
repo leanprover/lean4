@@ -1411,7 +1411,6 @@ lean::mark_persistent(l_string_decidable__eq);
  l_string_has__lt = _init_l_string_has__lt();
 lean::mark_persistent(l_string_has__lt);
  l_string_iterator_is__prefix__of__remaining = _init_l_string_iterator_is__prefix__of__remaining();
-lean::mark_persistent(l_string_iterator_is__prefix__of__remaining);
  l_string_inhabited = _init_l_string_inhabited();
 lean::mark_persistent(l_string_inhabited);
  l_string_has__sizeof = _init_l_string_has__sizeof();

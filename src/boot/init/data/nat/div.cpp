@@ -181,7 +181,6 @@ void initialize_init_data_nat_div() {
  initialize_init_wf();
  initialize_init_data_nat_basic();
  l___private_init_data_nat_div_1__div__rec__lemma = _init_l___private_init_data_nat_div_1__div__rec__lemma();
-lean::mark_persistent(l___private_init_data_nat_div_1__div__rec__lemma);
  l_nat_has__div = _init_l_nat_has__div();
 lean::mark_persistent(l_nat_has__div);
  l_nat_has__mod = _init_l_nat_has__mod();

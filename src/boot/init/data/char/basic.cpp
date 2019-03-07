@@ -555,11 +555,8 @@ void initialize_init_data_char_basic() {
  _G_initialized = true;
  initialize_init_data_uint();
  l_is__valid__char = _init_l_is__valid__char();
-lean::mark_persistent(l_is__valid__char);
  l_char_lt = _init_l_char_lt();
-lean::mark_persistent(l_char_lt);
  l_char_le = _init_l_char_le();
-lean::mark_persistent(l_char_le);
  l_char_has__lt = _init_l_char_has__lt();
 lean::mark_persistent(l_char_has__lt);
  l_char_has__le = _init_l_char_has__le();

@@ -12101,7 +12101,6 @@ void initialize_init_lean_parser_parsec() {
  initialize_init_control_monad__fail();
  initialize_init_control_combinators();
  l_lean_parser_parsec_position = _init_l_lean_parser_parsec_position();
-lean::mark_persistent(l_lean_parser_parsec_position);
  l_lean_parser_parsec_expected_to__string___main___closed__1 = _init_l_lean_parser_parsec_expected_to__string___main___closed__1();
 lean::mark_persistent(l_lean_parser_parsec_expected_to__string___main___closed__1);
  l_lean_parser_parsec_message_text___rarg___closed__1 = _init_l_lean_parser_parsec_message_text___rarg___closed__1();
@@ -12119,17 +12118,13 @@ lean::mark_persistent(l_lean_parser_parsec_message_to__string___rarg___closed__3
  l_lean_parser_parsec_result_mk__eps___rarg___closed__1 = _init_l_lean_parser_parsec_result_mk__eps___rarg___closed__1();
 lean::mark_persistent(l_lean_parser_parsec_result_mk__eps___rarg___closed__1);
  l_lean_parser_parsec__t = _init_l_lean_parser_parsec__t();
-lean::mark_persistent(l_lean_parser_parsec__t);
  l_lean_parser_parsec = _init_l_lean_parser_parsec();
-lean::mark_persistent(l_lean_parser_parsec);
  l_lean_parser_parsec_x_27 = _init_l_lean_parser_parsec_x_27();
-lean::mark_persistent(l_lean_parser_parsec_x_27);
  l_lean_parser_parsec__t_failure___rarg___closed__1 = _init_l_lean_parser_parsec__t_failure___rarg___closed__1();
 lean::mark_persistent(l_lean_parser_parsec__t_failure___rarg___closed__1);
  l_lean_parser_parsec__t_monad__fail___rarg___closed__1 = _init_l_lean_parser_parsec__t_monad__fail___rarg___closed__1();
 lean::mark_persistent(l_lean_parser_parsec__t_monad__fail___rarg___closed__1);
  l_lean_parser_monad__parsec_x_27 = _init_l_lean_parser_monad__parsec_x_27();
-lean::mark_persistent(l_lean_parser_monad__parsec_x_27);
  l_lean_parser_monad__parsec_left__over___rarg___closed__1 = _init_l_lean_parser_monad__parsec_left__over___rarg___closed__1();
 lean::mark_persistent(l_lean_parser_monad__parsec_left__over___rarg___closed__1);
  l_lean_parser_monad__parsec_remaining___rarg___closed__1 = _init_l_lean_parser_monad__parsec_remaining___rarg___closed__1();

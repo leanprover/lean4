@@ -2133,5 +2133,4 @@ void initialize_init_control_option() {
  initialize_init_control_lift();
  initialize_init_control_except();
  l_option__t = _init_l_option__t();
-lean::mark_persistent(l_option__t);
 }

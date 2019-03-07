@@ -1307,7 +1307,5 @@ lean::mark_persistent(l_option_monad);
  l_option_alternative = _init_l_option_alternative();
 lean::mark_persistent(l_option_alternative);
  l_option_lt___main = _init_l_option_lt___main();
-lean::mark_persistent(l_option_lt___main);
  l_option_lt = _init_l_option_lt();
-lean::mark_persistent(l_option_lt);
 }

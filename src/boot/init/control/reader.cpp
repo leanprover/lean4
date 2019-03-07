@@ -1158,7 +1158,5 @@ void initialize_init_control_reader() {
  initialize_init_control_alternative();
  initialize_init_control_except();
  l_reader__t = _init_l_reader__t();
-lean::mark_persistent(l_reader__t);
  l_reader = _init_l_reader();
-lean::mark_persistent(l_reader);
 }

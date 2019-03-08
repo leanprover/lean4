@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/for_each_fn.h"
+#include "kernel/abstract.h"
 #include "library/class.h"
 #include "library/module.h"
 #include "library/attribute_manager.h"
@@ -382,6 +383,18 @@ class specialize_fn {
     struct spec_ctx {
         typedef rb_expr_map<name> cache;
         names                 m_mutual;
+        /* `m_params` contains all variables that must be lambda abstracted in the specialization.
+           It may contain let-variables that occurs inside of binders.
+           Reason: avoid work duplication.
+
+           Example: suppose we are trying to specialize the following map-application.
+           ```
+           def f2 (n : nat) (xs : list nat) : list (list nat) :=
+           let ys := list.repeat 0 n in
+           xs.map (λ x, x :: ys)
+           ```
+           We don't want to copy `list.repeat 0 n` inside of the specialized code.
+        */
         buffer<expr>          m_params;
         /* `m_vars` contains `m_params` plus all let-declarations.
 
@@ -508,30 +521,100 @@ class specialize_fn {
         return false;
     }
 
-    void collect_deps(expr e, name_set & collected, spec_ctx & ctx) {
-        buffer<expr> todo;
-        while (true) {
-            for_each(e, [&](expr const & x, unsigned) {
-                    if (!has_fvar(x)) return false;
-                    if (is_fvar(x) && !collected.contains(fvar_name(x))) {
-                        collected.insert(fvar_name(x));
-                        local_decl decl = m_lctx.get_local_decl(x);
-                        todo.push_back(decl.get_type());
-                        if (optional<expr> v = decl.get_value()) {
-                            todo.push_back(*v);
-                        } else {
-                            ctx.m_params.push_back(x);
-                        }
-                        ctx.m_vars.push_back(x);
-                    }
-                    return true;
-                });
-            if (todo.empty())
-                return;
-            e = todo.back();
-            todo.pop_back();
+    /* Auxiliary class for collecting specialization dependencies. */
+    class dep_collector {
+        local_ctx  m_lctx;
+        name_set   m_visited_not_in_binder;
+        name_set   m_visited_in_binder;
+        spec_ctx & m_ctx;
+
+        void collect_fvar(expr const & x, bool in_binder) {
+            name const & x_name = fvar_name(x);
+            if (!in_binder) {
+                if (m_visited_not_in_binder.contains(x_name))
+                    return;
+                m_visited_not_in_binder.insert(x_name);
+                local_decl decl = m_lctx.get_local_decl(x);
+                optional<expr> v = decl.get_value();
+                if (m_visited_in_binder.contains(x_name)) {
+                    /* If `x` was already visited in context inside of a binder,
+                       then it is already in `m_ctx.m_vars` and `m_ctx.m_params`. */
+                } else {
+                    /* Recall that `m_ctx.m_vars` contains all variables (lambda and let) the specialization
+                       depends on, and `m_ctx.m_params` contains the ones that should be lambda abstracted. */
+                    m_ctx.m_vars.push_back(x);
+                    /* Thus, a variable occuring outside of a binder is only lambda abstracted if it is not
+                       a let-variable. */
+                    if (!v) m_ctx.m_params.push_back(x);
+                }
+                collect(decl.get_type(), false);
+                if (v) collect(*v, false);
+            } else {
+                if (m_visited_in_binder.contains(x_name))
+                    return;
+                m_visited_in_binder.insert(x_name);
+                local_decl decl = m_lctx.get_local_decl(x);
+                optional<expr> v = decl.get_value();
+                if (m_visited_not_in_binder.contains(x_name)) {
+                    /* If `x` was already visited in a context outside of
+                       a binder, then it is already in `m_ctx.m_vars`.
+                       If `x` is not a let-variable, then it is also already in `m_ctx.m_params`. */
+                    if (v) m_ctx.m_params.push_back(x);
+                } else {
+                    /* Recall that if `x` occurs inside of a binder, then it will always be lambda
+                       abstracted. Reason: avoid work duplication.
+                       Example: suppose we are trying to specialize the following map-application.
+                       ```
+                       def f2 (n : nat) (xs : list nat) : list (list nat) :=
+                       let ys := list.repeat 0 n in
+                       xs.map (λ x, x :: ys)
+                       ```
+                       We don't want to copy `list.repeat 0 n` inside of the specialized code. */
+                    m_ctx.m_vars.push_back(x);
+                    m_ctx.m_params.push_back(x);
+                }
+                collect(decl.get_type(), true);
+                if (v) collect(*v, true);
+            }
         }
-    }
+
+        void collect(expr const & e, bool in_binder) {
+            if (!has_fvar(e)) return;
+            switch (e.kind()) {
+            case expr_kind::Lit:  case expr_kind::BVar:
+            case expr_kind::Sort: case expr_kind::Const:
+                return;
+            case expr_kind::MVar:
+                lean_unreachable();
+            case expr_kind::FVar:
+                collect_fvar(e, in_binder);
+                break;
+            case expr_kind::App:
+                collect(app_fn(e), in_binder);
+                collect(app_arg(e), in_binder);
+                break;
+            case expr_kind::Lambda: case expr_kind::Pi:
+                collect(binding_domain(e), in_binder);
+                collect(binding_body(e), true);
+                break;
+            case expr_kind::Let:
+                collect(let_type(e), in_binder);
+                collect(let_value(e), in_binder);
+                collect(let_body(e), in_binder);
+                break;
+            case expr_kind::MData:
+                collect(mdata_expr(e), in_binder);
+                break;
+            case expr_kind::Proj:
+                collect(proj_expr(e), in_binder);
+                break;
+            }
+        }
+    public:
+        dep_collector(local_ctx const & lctx, spec_ctx & ctx):
+            m_lctx(lctx), m_ctx(ctx) {}
+        void operator()(expr const & e) { return collect(e, false); }
+    };
 
     void sort_fvars(buffer<expr> & fvars) {
         ::lean::sort_fvars(m_lctx, fvars);
@@ -543,7 +626,7 @@ class specialize_fn {
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(const_name(fn), kinds);
         bool has_attr   = has_specialize_attribute(env(), const_name(fn));
-        name_set collected;
+        dep_collector collect(m_lctx, ctx);
         unsigned sz     = std::min(kinds.size(), args.size());
         unsigned i      = sz;
         bool found_inst = false;
@@ -553,14 +636,14 @@ class specialize_fn {
             case spec_arg_kind::Other:
                 break;
             case spec_arg_kind::FixedInst:
-                collect_deps(args[i], collected, ctx);
+                collect(args[i]);
                 found_inst = true;
                 break;
             case spec_arg_kind::FixedHO:
             case spec_arg_kind::FixedNeutral:
             case spec_arg_kind::Fixed:
                 if (has_attr || found_inst) {
-                    collect_deps(args[i], collected, ctx);
+                    collect(args[i]);
                 }
                 break;
             }
@@ -747,6 +830,40 @@ class specialize_fn {
         }
     }
 
+    expr abstract_spec_ctx(spec_ctx const & ctx, expr const & code) {
+        /* Important: we cannot use
+           ```
+           m_lctx.mk_lambda(ctx.m_vars, code)
+           ```
+           because we may want to lambda abstract let-variables in `ctx.m_vars`
+           to avoid code duplication. See comment at `spec_ctx` declaration.
+
+           Remark: lambda-abstracting let-decls may introduce type errors
+           when using dependent types. This is yet another place where
+           typeability may be lost. */
+        name_set letvars_in_params;
+        for (expr const & x : ctx.m_params) {
+            if (m_lctx.get_local_decl(x).get_value())
+                letvars_in_params.insert(fvar_name(x));
+        }
+        unsigned n         = ctx.m_vars.size();
+        expr const * fvars = ctx.m_vars.data();
+        expr r             = abstract(code, n, fvars);
+        unsigned i = n;
+        while (i > 0) {
+            --i;
+            local_decl const & decl = m_lctx.get_local_decl(fvar_name(fvars[i]));
+            expr type = abstract(decl.get_type(), i, fvars);
+            optional<expr> val = decl.get_value();
+            if (val && !letvars_in_params.contains(fvar_name(fvars[i]))) {
+                r = ::lean::mk_let(decl.get_user_name(), type, abstract(*val, i, fvars), r);
+            } else {
+                r = ::lean::mk_lambda(decl.get_user_name(), type, r, decl.get_info());
+            }
+        }
+        return r;
+    }
+
     void mk_new_decl(comp_decl const & pre_decl, buffer<expr> const & fvars, buffer<expr> const & fvar_vals, spec_ctx & ctx) {
         lean_assert(fvars.size() == fvar_vals.size());
         name n = pre_decl.fst();
@@ -771,7 +888,7 @@ class specialize_fn {
         }
         code = m_lctx.mk_lambda(new_fvars, code);
         code = m_lctx.mk_lambda(new_let_decls, code);
-        code = m_lctx.mk_lambda(ctx.m_vars, code);
+        code = abstract_spec_ctx(ctx, code);
         lean_assert(!has_fvar(code));
         /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
            This is a hack to make sure we can use `csimp` to simplify `code` and

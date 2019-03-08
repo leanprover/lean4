@@ -304,8 +304,11 @@ abbreviation collector := name_set → name_set → name_set
 @[inline] private def with_bv (x : varid) : collector → collector :=
 λ k bv fv, k (bv.insert x) fv
 
+def insert_params (s : var_set) (ys : list param) : var_set :=
+ys.foldl (λ s p, s.insert p.x) s
+
 @[inline] private def with_params (ys : list param) : collector → collector :=
-λ k bv fv, k (ys.foldl (λ bv ⟨x, _, _⟩, bv.insert x) bv) fv
+λ k bv fv, k (insert_params bv ys) fv
 
 @[inline] private def seq : collector → collector → collector :=
 λ k₁ k₂ bv fv, k₂ bv (k₁ bv fv)

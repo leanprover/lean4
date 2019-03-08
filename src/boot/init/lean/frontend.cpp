@@ -1339,32 +1339,41 @@ return x_85;
 }
 else
 {
-obj* x_87; obj* x_91; obj* x_92; obj* x_93; obj* x_95; obj* x_97; obj* x_98; obj* x_100; obj* x_101; obj* x_102; 
+obj* x_87; obj* x_90; obj* x_92; obj* x_95; obj* x_98; obj* x_100; obj* x_101; obj* x_104; obj* x_106; obj* x_107; obj* x_109; obj* x_110; obj* x_111; 
 lean::dec(x_71);
 x_87 = lean::cnstr_get(x_70, 1);
 lean::inc(x_87);
 lean::dec(x_70);
-lean::inc(x_1);
-x_91 = l_lean_file__map_from__string(x_1);
-x_92 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_92, 0, x_0);
-lean::cnstr_set(x_92, 1, x_1);
-lean::cnstr_set(x_92, 2, x_91);
-x_93 = l_lean_expander_builtin__transformers;
+x_90 = lean::cnstr_get(x_29, 0);
+lean::inc(x_90);
+x_92 = lean::cnstr_get(x_90, 0);
 lean::inc(x_92);
-x_95 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_95, 0, x_92);
-lean::cnstr_set(x_95, 1, x_93);
+lean::dec(x_90);
+x_95 = lean::cnstr_get(x_92, 0);
+lean::inc(x_95);
+lean::dec(x_92);
+x_98 = l_lean_expander_builtin__transformers;
+lean::inc(x_95);
+x_100 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_100, 0, x_95);
+lean::cnstr_set(x_100, 1, x_98);
+x_101 = lean::cnstr_get(x_95, 2);
+lean::inc(x_101);
+lean::dec(x_95);
+x_104 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_104, 0, x_0);
+lean::cnstr_set(x_104, 1, x_1);
+lean::cnstr_set(x_104, 2, x_101);
 lean::inc(x_29);
-x_97 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_97, 0, x_92);
-lean::cnstr_set(x_97, 1, x_29);
-x_98 = l_lean_run__frontend___closed__1;
-lean::inc(x_97);
-x_100 = l_lean_elaborator_mk__state(x_97, x_98);
-x_101 = lean::box(0);
-x_102 = l_lean_run__frontend__aux___main(x_2, x_3, x_97, x_63, x_100, x_29, x_95, x_101, x_87);
-return x_102;
+x_106 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_106, 0, x_104);
+lean::cnstr_set(x_106, 1, x_29);
+x_107 = l_lean_run__frontend___closed__1;
+lean::inc(x_106);
+x_109 = l_lean_elaborator_mk__state(x_106, x_107);
+x_110 = lean::box(0);
+x_111 = l_lean_run__frontend__aux___main(x_2, x_3, x_106, x_63, x_109, x_29, x_100, x_110, x_87);
+return x_111;
 }
 }
 }

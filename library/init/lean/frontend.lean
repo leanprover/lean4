@@ -24,7 +24,37 @@ do t ← parser.mk_token_trie $
      trailing_term_parsers := term.builtin_trailing_parsers,
    }
 
-def run_frontend (filename input : string) (print_msg : message → except_t string io unit) (collect_outputs : bool) :
+meta def run_frontend_aux (print_msg : message → except_t string io unit) (collect_outputs : bool) (elab_cfg : elaborator_config) : module_parser_snapshot → elaborator_state → module_parser_config → expander_config → list syntax → except_t string io (list syntax)
+| p_snap elab_st parser_cfg expander_cfg outs := do
+  let pos := parser_cfg.file_map.to_position p_snap.it.offset,
+  r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parse_command parser_cfg p_snap,
+  let add_output (out : syntax) outs := if collect_outputs then out::outs else [],
+  match r with
+  | (cmd, except.error msg) := do {
+    -- fatal error (should never happen?)
+    print_msg msg,
+    pure (add_output cmd outs).reverse
+  }
+  | (cmd, except.ok (p_snap, msgs)) := do {
+    msgs.to_list.mfor print_msg,
+    r ← monad_lift $ profileit_pure "expanding" pos $ λ _, (expand cmd).run expander_cfg,
+    match r with
+    | except.ok cmd' := do {
+      elab_st ← monad_lift $ profileit_pure "elaborating" pos $ λ _, elaborator.process_command elab_cfg elab_st cmd',
+      elab_st.messages.to_list.mfor print_msg,
+      if cmd'.is_of_kind module.eoi then
+        /-print_msg {filename := filename, severity := message_severity.information,
+          pos := ⟨1, 0⟩,
+          text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
+            to_string (out.cache.hit + out.cache.miss)},-/
+        pure (add_output cmd outs).reverse
+      else
+        run_frontend_aux p_snap elab_st elab_st.parser_cfg elab_st.expander_cfg (add_output cmd outs)
+    }
+    | except.error e := print_msg e *> run_frontend_aux p_snap elab_st parser_cfg expander_cfg (add_output cmd outs)
+  }
+
+meta def run_frontend (filename input : string) (print_msg : message → except_t string io unit) (collect_outputs : bool) :
   except_t string io (list syntax) := do
   parser_cfg ← monad_except.lift_except $ mk_config filename input,
   -- TODO(Sebastian): `parse_header` should be called directly by lean.cpp
@@ -36,41 +66,10 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
   let elab_cfg : elaborator_config := {filename := filename, input := input, initial_parser_cfg := parser_cfg},
   let opts := options.mk.set_bool `trace.as_messages tt,
   let elab_st := elaborator.mk_state elab_cfg opts,
-  let add_output (out : syntax) outs := if collect_outputs then out::outs else [],
-  io.prim.iterate_eio (p_snap, elab_st, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_st, parser_cfg, expander_cfg, outs⟩, do {
-    let pos := parser_cfg.file_map.to_position p_snap.it.offset,
-    r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parse_command parser_cfg p_snap,
-    match r with
-    | (cmd, except.error msg) := do {
-      -- fatal error (should never happen?)
-      print_msg msg,
-      msgs.to_list.mfor print_msg,
-      pure (sum.inr (add_output cmd outs).reverse)
-    }
-    | (cmd, except.ok (p_snap, msgs)) := do {
-      msgs.to_list.mfor print_msg,
-      r ← monad_lift $ profileit_pure "expanding" pos $ λ _, (expand cmd).run expander_cfg,
-      match r with
-      | except.ok cmd' := do {
-        --io.println cmd',
-        elab_st ← monad_lift $ profileit_pure "elaborating" pos $ λ _, elaborator.process_command elab_cfg elab_st cmd',
-        elab_st.messages.to_list.mfor print_msg,
-        if cmd'.is_of_kind module.eoi then
-          /-print_msg {filename := filename, severity := message_severity.information,
-            pos := ⟨1, 0⟩,
-            text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
-              to_string (out.cache.hit + out.cache.miss)},-/
-          pure (sum.inr (add_output cmd outs).reverse)
-        else
-          pure (sum.inl (p_snap, elab_st, elab_st.parser_cfg, elab_st.expander_cfg, add_output cmd outs))
-      }
-      | except.error e := print_msg e *> pure (sum.inl (p_snap, elab_st, parser_cfg, expander_cfg, add_output cmd outs))
-    }
-  }
-
+  run_frontend_aux print_msg collect_outputs elab_cfg p_snap elab_st parser_cfg expander_cfg []
 
 @[export lean_process_file]
-def process_file (f s : string) (json : bool) : io bool := do
+meta def process_file (f s : string) (json : bool) : io bool := do
   --let s := (s.mk_iterator.nextn 10000).prev_to_string,
   let print_msg : message → except_t string io unit := λ msg,
     if json then

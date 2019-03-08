@@ -120,12 +120,13 @@ structure module_parser_snapshot :=
 (recovering : bool)
 (it : string.iterator)
 
+-- return (partial) syntax tree and single fatal or multiple non-fatal messages
 def resume_module_parser {α : Type} (cfg : module_parser_config) (snap : module_parser_snapshot) (mk_res : α → syntax × module_parser_snapshot)
-  (p : module_parser_m α) : ((syntax × module_parser_snapshot) ⊕ syntax) × message_log :=
+  (p : module_parser_m α) : syntax × except message (module_parser_snapshot × message_log) :=
 let (r, _) := ((((prod.mk <$> p <*> left_over).run {messages:=message_log.empty}).run cfg).run_from snap.it).run {} in
 match r with
-| except.ok ((a, it), st) := let (stx, snap) := mk_res a in (sum.inl (stx, {snap with it := it}), st.messages)
-| except.error msg  := (sum.inr msg.custom.get, message_log.empty.add (message_of_parsec_message cfg msg))
+| except.ok ((a, it), st) := let (stx, snap) := mk_res a in (stx, except.ok ({snap with it := it}, st.messages))
+| except.error msg  := (msg.custom.get, except.error $ message_of_parsec_message cfg msg)
 
 def parse_header (cfg : module_parser_config) :=
 let snap := {module_parser_snapshot . recovering := ff, it := cfg.input.mk_iterator} in

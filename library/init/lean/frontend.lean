@@ -24,55 +24,53 @@ do t ← parser.mk_token_trie $
      trailing_term_parsers := term.builtin_trailing_parsers,
    }
 
-meta def run_frontend (filename input : string) (print_msg : message → except_t string io unit) (collect_outputs : bool) :
+def run_frontend (filename input : string) (print_msg : message → except_t string io unit) (collect_outputs : bool) :
   except_t string io (list syntax) := do
   parser_cfg ← monad_except.lift_except $ mk_config filename input,
   -- TODO(Sebastian): `parse_header` should be called directly by lean.cpp
   match parse_header parser_cfg with
-  | (sum.inr _, msgs) := msgs.to_list.mfor print_msg *> pure []
-  | (sum.inl (stx, p_snap), msgs) := do
+  | (_, except.error msg) := print_msg msg *> pure []
+  | (_, except.ok (p_snap, msgs)) := do
   msgs.to_list.mfor print_msg,
   let expander_cfg : expander_config := {filename := filename, input := input, transformers := builtin_transformers},
-  let elab_k := elaborator.run {filename := filename, input := input, initial_parser_cfg := parser_cfg},
+  let elab_cfg : elaborator_config := {filename := filename, input := input, initial_parser_cfg := parser_cfg},
+  let opts := options.mk.set_bool `trace.as_messages tt,
+  let elab_st := elaborator.mk_state elab_cfg opts,
   let add_output (out : syntax) outs := if collect_outputs then out::outs else [],
-  io.prim.iterate_eio (p_snap, elab_k, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_k, parser_cfg, expander_cfg, outs⟩, do
+  io.prim.iterate_eio (p_snap, elab_st, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_st, parser_cfg, expander_cfg, outs⟩, do {
     let pos := parser_cfg.file_map.to_position p_snap.it.offset,
     r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parse_command parser_cfg p_snap,
     match r with
-    | (sum.inr _, msgs) := do {
-      io.println "parser died!!",
+    | (cmd, except.error msg) := do {
+      -- fatal error (should never happen?)
+      print_msg msg,
       msgs.to_list.mfor print_msg,
-      pure (sum.inr outs.reverse)
+      pure (sum.inr (add_output cmd outs).reverse)
     }
-    | (sum.inl (cmd, p_snap), msgs) := do {
+    | (cmd, except.ok (p_snap, msgs)) := do {
       msgs.to_list.mfor print_msg,
-      --io.println out.cmd,
       r ← monad_lift $ profileit_pure "expanding" pos $ λ _, (expand cmd).run expander_cfg,
       match r with
       | except.ok cmd' := do {
         --io.println cmd',
-        r ← monad_lift $ profileit_pure "elaborating" pos $ λ _, elab_k.resume cmd',
-        match r with
-        | coroutine_result_core.done msgs := do {
-          when ¬(cmd'.is_of_kind module.eoi) $
-            io.println "elaborator died!!",
-          msgs.to_list.mfor print_msg,
+        elab_st ← monad_lift $ profileit_pure "elaborating" pos $ λ _, elaborator.process_command elab_cfg elab_st cmd',
+        elab_st.messages.to_list.mfor print_msg,
+        if cmd'.is_of_kind module.eoi then
           /-print_msg {filename := filename, severity := message_severity.information,
             pos := ⟨1, 0⟩,
             text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
               to_string (out.cache.hit + out.cache.miss)},-/
-          pure $ sum.inr (add_output cmd outs).reverse
-        }
-        | coroutine_result_core.yielded elab_out elab_k := do {
-          elab_out.messages.to_list.mfor print_msg,
-          pure (sum.inl (p_snap, elab_k, elab_out.parser_cfg, elab_out.expander_cfg, add_output cmd outs))
-        }
+          pure (sum.inr (add_output cmd outs).reverse)
+        else
+          pure (sum.inl (p_snap, elab_st, elab_st.parser_cfg, elab_st.expander_cfg, add_output cmd outs))
       }
-      | except.error e := print_msg e *> pure (sum.inl (p_snap, elab_k, parser_cfg, expander_cfg, add_output cmd outs))
+      | except.error e := print_msg e *> pure (sum.inl (p_snap, elab_st, parser_cfg, expander_cfg, add_output cmd outs))
     }
+  }
+
 
 @[export lean_process_file]
-meta def process_file (f s : string) (json : bool) : io bool := do
+def process_file (f s : string) (json : bool) : io bool := do
   --let s := (s.mk_iterator.nextn 10000).prev_to_string,
   let print_msg : message → except_t string io unit := λ msg,
     if json then

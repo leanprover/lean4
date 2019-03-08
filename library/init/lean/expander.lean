@@ -38,11 +38,11 @@ pure none
 
 def error {m : Type → Type} {ρ : Type} [monad m] [monad_reader ρ m] [has_lift_t ρ frontend_config]
   [monad_except message m] {α : Type}
-  (context : syntax) (text : string) : m α :=
+  (context : option syntax) (text : string) : m α :=
 do cfg ← read,
    throw {
      filename := frontend_config.filename ↑cfg,
-     pos := (frontend_config.file_map ↑cfg).to_position $ context.get_pos.get_or_else (default _),
+     pos := (frontend_config.file_map ↑cfg).to_position $ (context >>= syntax.get_pos).get_or_else (default _),
      text := text
    }
 

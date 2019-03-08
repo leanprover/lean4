@@ -87,7 +87,11 @@ instance elaborator_config_coe_frontend_config : has_coe elaborator_config front
 ⟨elaborator_config.to_frontend_config⟩
 
 /-- Elaborator state that will be reverted at the end of a section or namespace. -/
-structure local_state :=
+structure scope :=
+-- "section" or "namespace" (or "MODULE"), currently
+(cmd : string)
+-- Scope header, should match identifier after `end`. Can be `name.anonymous` for sections.
+(header : name)
 (notations : list notation_macro := [])
 /- The set of local universe variables.
    We remember their insertion order so that we can keep the order when copying them to declarations. -/
@@ -116,7 +120,8 @@ structure elaborator_state :=
 /- The current set of `export` declarations (active or inactive). -/
 (export_decls : list scoped_export_decl := [])
 
-(local_state : local_state := {})
+-- Stack of current scopes. The bottom-most scope is the module scope.
+(scopes : list scope)
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 (expander_cfg : expander.expander_config)
@@ -124,35 +129,24 @@ structure elaborator_state :=
 (ngen : name_generator)
 (next_inst_idx : nat := 0)
 
-@[derive monad monad_reader monad_state monad_except]
-def elaborator_t (m : Type → Type) [monad m] := reader_t elaborator_config $ state_t elaborator_state $ except_t message m
-abbreviation elaborator_m := elaborator_t id
-abbreviation elaborator := reader_t syntax elaborator_m unit
-/-- An elaborator in a coroutine. Can accept and process multiple commands asynchronously
-    (e.g. `section`) -/
-abbreviation coelaborator_m := rec_t unit unit $ elaborator_t $ coroutine syntax elaborator_state
-abbreviation coelaborator := coelaborator_m unit
+@[derive monad monad_rec monad_reader monad_state monad_except]
+def elaborator_m := rec_t syntax unit $ reader_t elaborator_config $ state_t elaborator_state $ except_t message id
+abbreviation elaborator := syntax → elaborator_m unit
 
 /-- Recursively elaborate any command. -/
-def command.elaborate : coelaborator := recurse ()
+def command.elaborate : elaborator := recurse
 
-section
-local attribute [reducible] elaborator_t
-attribute [derive monad_coroutine] coelaborator_m
-instance elaborator_t.monad_reader_adapter (m : Type → Type) [monad m] :
-  monad_reader_adapter elaborator_config elaborator_config (elaborator_t m) (elaborator_t m) :=
-infer_instance
-def current_command : coelaborator_m syntax :=
-monad_lift (coroutine.read : coroutine syntax elaborator_state _)
-def with_current_command {α : Type} (cmd : syntax) : coelaborator_m α → coelaborator_m α :=
-monad_map (λ β, (coroutine.adapt (λ _, cmd) : coroutine syntax elaborator_state β → coroutine syntax elaborator_state β))
-end
+def current_scope : elaborator_m scope := do
+  st ← get,
+  match st.scopes with
+  | [] := error none "current_scope: unreachable"
+  | sc::_ := pure sc
 
-instance elaborator_m_coe_coelaborator_m {α : Type} : has_coe (elaborator_m α) (coelaborator_m α) :=
-⟨λ x rec cfg st, except_t.mk $ pure $ x cfg st⟩
-
-instance elaborator_coe_coelaborator : has_coe elaborator coelaborator :=
-⟨λ x, do stx ← current_command, x stx⟩
+def modify_current_scope (f : scope → scope) : elaborator_m unit := do
+  st ← get,
+  match st.scopes with
+  | [] := error none "modify_current_scope: unreachable"
+  | sc::scs := put {st with scopes := f sc::scs}
 
 def mangle_ident (id : syntax_ident) : name :=
 id.scopes.foldl name.mk_numeral id.val
@@ -175,12 +169,12 @@ def level_add : level → nat → level
 def to_level : syntax → elaborator_m level
 | stx := do
   (fn, args) ← level_get_app_args stx,
-  st ← get,
+  sc ← current_scope,
   match fn.kind with
   | some level.leading := (match view level.leading fn, args with
     | level.leading.view.hole _, [] := pure $ level.mvar name.anonymous
     | level.leading.view.lit lit, [] := pure $ level.of_nat lit.to_nat
-    | level.leading.view.var id, [] := let id := mangle_ident id in (match st.local_state.univs.find id with
+    | level.leading.view.var id, [] := let id := mangle_ident id in (match sc.univs.find id with
       | some _ := pure $ level.param id
       | none   := error stx $ "unknown universe variable '" ++ to_string id ++ "'")
     | level.leading.view.max _, (arg::args) := list.foldr level.max <$> to_level arg <*> args.mmap to_level
@@ -349,8 +343,8 @@ def to_pexpr : syntax → elaborator_m expr
 
 /-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/
 def get_namespace : elaborator_m name := do
-  st ← get,
-  pure $ match st.local_state.ns_stack with
+  sc ← current_scope,
+  pure $ match sc.ns_stack with
   | ns::_ := ns
   | _     := name.anonymous
 
@@ -361,23 +355,23 @@ do cfg ← read,
    | expr.mdata m e := expr.mdata ((kvmap.set_nat m `column pos.column).set_nat `row pos.line) e
    | e := e,
    st ← get,
+   sc ← current_scope,
    ns ← get_namespace,
    let (st', msgs) := elaborate_command cfg.filename cmd {
      ns := ns,
-     univs := st.local_state.univs.entries.reverse,
-     vars := st.local_state.vars.entries.reverse,
-     include_vars := st.local_state.include_vars.to_list,
-     options := st.local_state.options,
+     univs := sc.univs.entries.reverse,
+     vars := sc.vars.entries.reverse,
+     include_vars := sc.include_vars.to_list,
+     options := sc.options,
      ..st},
    match st' with
-   | some st' := put {
-     local_state := {st.local_state with
+   | some st' := do modify_current_scope $ λ sc, {sc with
        univs := ordered_rbmap.of_list st'.univs,
        vars := ordered_rbmap.of_list st'.vars,
        include_vars := rbtree.of_list st'.include_vars,
        options := st'.options,
      },
-     ..st', ..st}
+     modify $ λ st, {..st', ..st}
    | none := pure (),  -- error
    modify $ λ st, {st with messages := st.messages ++ msgs}
 
@@ -408,12 +402,12 @@ expr.const (mangle_ident id.id) $ match id.univ_params with
   | some params := params.params.map (level.param ∘ mangle_ident)
   | none        := []
 
-/-- Execute `elab` and reset local state (universes, ...) after it has finished. -/
-@[specialize] def locally {m : Type → Type} [monad m] [monad_state elaborator_state m] (elab : m unit) :
-  m unit := do
-  local_st ← elaborator_state.local_state <$> get,
+/-- Execute `elab` and reset local scope (universes, ...) after it has finished. -/
+def locally (elab : elaborator_m unit) :
+  elaborator_m unit := do
+  sc ← current_scope,
   elab,
-  modify $ λ st, {st with local_state := local_st}
+  modify_current_scope $ λ _, sc
 
 def simple_binders_to_pexpr (bindrs : list simple_binder.view) : elaborator_m expr :=
 expr.mk_capp `_ <$> bindrs.mmap (λ b, do
@@ -430,8 +424,8 @@ match dl with
   let kind := expr.lit $ literal.nat_val kind,
   match dl.old_univ_params with
   | some uparams :=
-    modify $ λ st, {st with local_state := {st.local_state with univs :=
-      (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
+    modify_current_scope $ λ sc, {sc with univs :=
+      (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) sc.univs}
   | none := pure (),
   -- do we actually need this??
   let uparams := names_to_pexpr $ match dl.old_univ_params with
@@ -463,7 +457,7 @@ expr.lit $ literal.nat_val $ match mod with
 | some $ infer_modifier.view.strict _  := 2
 
 def declaration.elaborate : elaborator :=
-locally $ λ stx, do
+λ stx, locally $ do
   let decl := view «declaration» stx,
   match decl.inner with
   | declaration.inner.view.constant c@{sig := {params := bracketed_binders.view.simple [], type := type}, ..} := do
@@ -503,8 +497,8 @@ locally $ λ stx, do
     let mut_attrs := expr.mk_capp `_ [attrs],
     match ind.old_univ_params with
     | some uparams :=
-      modify $ λ st, {st with local_state := {st.local_state with univs :=
-        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
+      modify_current_scope $ λ sc, {sc with univs :=
+        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) sc.univs}
     | none := pure (),
     let uparams := names_to_pexpr $ match ind.old_univ_params with
     | some uparams := uparams.ids.map mangle_ident
@@ -534,8 +528,8 @@ locally $ λ stx, do
     mods ← decl_modifiers_to_pexpr decl.modifiers,
     match s.old_univ_params with
     | some uparams :=
-      modify $ λ st, {st with local_state := {st.local_state with univs :=
-        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) st.local_state.univs}}
+      modify_current_scope $ λ sc, {sc with univs :=
+        (uparams.ids.map mangle_ident).foldl (λ m id, ordered_rbmap.insert m id (level.param id)) sc.univs}
     | none := pure (),
     let uparams := names_to_pexpr $ match s.old_univ_params with
     | some uparams := uparams.ids.map mangle_ident
@@ -584,12 +578,12 @@ def variables.elaborate : elaborator :=
   | bracketed_binders.view.simple bbs := bbs.mfilter $ λ b, do
     let (bi, id, type) := b.to_binder_info,
     if type.is_of_kind binding_annotation_update then do
-      st ← get,
+      sc ← current_scope,
       let id := mangle_ident id,
-      match st.local_state.vars.find id with
+      match sc.vars.find id with
       | some (_, v) :=
-        put {st with local_state := {st.local_state with vars :=
-          st.local_state.vars.insert id {v with binder_info := bi}}}
+        modify_current_scope $ λ sc, {sc with vars :=
+          sc.vars.insert id {v with binder_info := bi}}
       | none := error (syntax.ident id) "",
       pure ff
     else pure tt
@@ -601,16 +595,16 @@ def include.elaborate : elaborator :=
 λ stx, do
   let v := view «include» stx,
   -- TODO(Sebastian): error checking
-  modify $ λ st, {st with local_state := {st.local_state with include_vars :=
-    v.ids.foldl (λ vars v, vars.insert $ mangle_ident v) st.local_state.include_vars}}
+  modify_current_scope $ λ sc, {sc with include_vars :=
+    v.ids.foldl (λ vars v, vars.insert $ mangle_ident v) sc.include_vars}
 
 -- TODO: rbmap.remove
 /-
 def omit.elaborate : elaborator :=
 λ stx, do
   let v := view «omit» stx,
-  modify $ λ st, {st with local_state := {st.local_state with include_vars :=
-    v.ids.foldl (λ vars v, vars.remove $ mangle_ident v) st.local_state.include_vars}}
+  modify $ λ st, {st with local_state := {sc with include_vars :=
+    v.ids.foldl (λ vars v, vars.remove $ mangle_ident v) sc.include_vars}}
 -/
 
 def module.header.elaborate : elaborator :=
@@ -676,24 +670,19 @@ do -- build and register parser
     effectively treating it as a cache. -/
 def update_parser_config : elaborator_m unit :=
 do st ← get,
+   sc ← current_scope,
    cfg ← read,
    let ccfg := cfg.initial_parser_cfg.to_command_parser_config,
    ccfg ← st.reserved_notations.mfoldl (λ ccfg rnota,
      match command_parser_config.register_notation_tokens rnota.spec ccfg with
      | except.ok ccfg := pure ccfg
      | except.error e := error (review reserve_notation rnota) e) ccfg,
-   ccfg ← (st.notations ++ st.local_state.notations).mfoldl (λ ccfg nota,
+   ccfg ← (st.notations ++ sc.notations).mfoldl (λ ccfg nota,
      match command_parser_config.register_notation_tokens nota.nota.spec ccfg >>=
                command_parser_config.register_notation_parser nota.kind nota.nota with
      | except.ok ccfg := pure ccfg
      | except.error e := error (review «notation» nota.nota) e) ccfg,
    put {st with parser_cfg := {cfg.initial_parser_cfg with to_command_parser_config := ccfg}}
-
-def yield_to_outside : coelaborator_m unit :=
-do st ← get,
-   yield st,
-   -- reset messages for next command
-   put {st with messages := message_log.empty}
 
 def postprocess_notation_spec (spec : notation_spec.view) : notation_spec.view :=
 -- default leading tokens to `max`
@@ -792,9 +781,9 @@ def notation.elaborate : elaborator :=
   } else do {
     nota ← notation.elaborate_aux nota,
     m ← register_notation_macro nota,
-    modify $ λ st, match nota.local with
-      | some _ := {st with local_state := {st.local_state with notations := m::st.local_state.notations}}
-      | none   := {st with notations := m::st.notations},
+    match nota.local with
+      | some _ := modify_current_scope $ λ sc, {sc with notations := m::sc.notations}
+      | none   := modify $ λ st, {st with notations := m::st.notations},
     update_parser_config
   }
 
@@ -802,9 +791,9 @@ def universe.elaborate : elaborator :=
 λ stx, do
   let univ := view «universe» stx,
   let id := mangle_ident univ.id,
-  st ← get,
-  match st.local_state.univs.find id with
-  | none   := put {st with local_state := {st.local_state with univs := st.local_state.univs.insert id (level.param id)}}
+  sc ← current_scope,
+  match sc.univs.find id with
+  | none   := modify_current_scope $ λ sc, {sc with univs := sc.univs.insert id (level.param id)}
   | some _ := error stx $ "a universe named '" ++ to_string id ++ "' has already been declared in this scope"
 
 def attribute.elaborate : elaborator :=
@@ -831,8 +820,7 @@ def open.elaborate : elaborator :=
 λ stx, do
   let v := view «open» stx,
   -- TODO: do eager sanity checks (namespace does not exist, etc.)
-  modify $ λ st, {st with local_state := {st.local_state with
-    open_decls := st.local_state.open_decls ++ v.spec}}
+  modify_current_scope $ λ sc, {sc with open_decls := sc.open_decls ++ v.spec}
 
 def export.elaborate : elaborator :=
 λ stx, do
@@ -848,8 +836,8 @@ def set_option.elaborate : elaborator :=
 λ stx, do
   let v := view «set_option» stx,
   let opt := v.opt.val,
-  st ← get,
-  let opts := st.local_state.options,
+  sc ← current_scope,
+  let opts := sc.options,
   -- TODO(Sebastian): check registered options
   let opts := match v.val with
   | option_value.view.bool b := opts.set_bool opt (match b with bool_option_value.view.true _ := tt | _ := ff)
@@ -857,72 +845,59 @@ def set_option.elaborate : elaborator :=
     | some s := opts.set_string opt s
     | none   := opts)  -- parser already failed
   | option_value.view.num lit := opts.set_nat opt lit.to_nat,
-  put {st with local_state := {st.local_state with options := opts}}
+  modify_current_scope $ λ sc, {sc with options := opts}
 
 /-- List of commands: recursively elaborate each command. -/
-def no_kind.elaborate : coelaborator := do
-  stx ← current_command,
+def no_kind.elaborate : elaborator := λ stx, do
   some n ← pure stx.as_node
     | error stx "no_kind.elaborate: unreachable",
-  n.args.mmap' (λ cmd, with_current_command cmd command.elaborate)
+  n.args.mmap' command.elaborate
 
-meta def commands.elaborate : bool → coelaborator
-| stop_on_end_cmd := do
-  cmd ← current_command,
-  let elab_and_recurse : coelaborator := do {
-    command.elaborate,
-    yield_to_outside,
-    commands.elaborate stop_on_end_cmd
-  },
-  match syntax_node.kind <$> cmd.as_node with
-  | @«end» :=
-    if stop_on_end_cmd then
-      pure ()
-    else
-      -- TODO(Sebastian): should recover
-      error cmd "invalid 'end', there is no open scope to end"
-  | module.eoi :=
-    if stop_on_end_cmd then
-      error cmd "invalid end of input, expected 'end'"
-    else
-      pure ()
-  | _ := elab_and_recurse
+def end.elaborate : elaborator :=
+λ cmd, do
+  let v := view «end» cmd,
+  st ← get,
+  -- NOTE: bottom-most (module) scope cannot be closed
+  sc::sc'::scps ← pure st.scopes
+    | error cmd "invalid 'end', there is no open scope to end",
+  let end_name := mangle_ident $ v.name.get_or_else name.anonymous,
+  when (end_name ≠ sc.header) $
+    error cmd $ "invalid end of " ++ sc.cmd ++ ", expected name '" ++
+      to_string sc.header ++ "'",
+  put {st with scopes := sc'::scps},
+  -- local notations may have vanished
+  update_parser_config
 
-def end_scope (cmd_name : string) (exp_end_name : option name) : coelaborator :=
-do -- local notations may have vanished
-   update_parser_config,
-   end_cmd ← view «end» <$> current_command,
-   let end_name := mangle_ident <$> end_cmd.name,
-   when (end_name ≠ exp_end_name) $
-     error (review «end» end_cmd) $ "invalid end of " ++ cmd_name ++ ", expected name '" ++
-       to_string (exp_end_name.get_or_else name.anonymous) ++ "'"
+def section.elaborate : elaborator :=
+λ cmd, do
+  let sec := view «section» cmd,
+  let header := mangle_ident $ sec.name.get_or_else name.anonymous,
+  sc ← current_scope,
+  modify $ λ st, {st with scopes := {sc with cmd := "section", header := header}::st.scopes}
 
-meta def section.elaborate : coelaborator :=
-do sec ← view «section» <$> current_command,
-   locally $ do {
-     yield_to_outside,
-     commands.elaborate tt
-   },
-   end_scope "section" $ mangle_ident <$> sec.name
+def namespace.elaborate : elaborator :=
+λ cmd, do
+  let v := view «namespace» cmd,
+  let header := mangle_ident v.name,
+  sc ← current_scope,
+  ns ← get_namespace,
+  let sc' := {sc with cmd := "namespace", header := header, ns_stack := (ns ++ header)::sc.ns_stack},
+  modify $ λ st, {st with scopes := sc'::st.scopes}
 
-meta def namespace.elaborate : coelaborator :=
-do v ← view «namespace» <$> current_command,
-   locally $ do {
-     yield_to_outside,
-     ns ← get_namespace,
-     modify $ λ st, {st with local_state := {st.local_state with
-       ns_stack := (ns ++ v.name.val) :: st.local_state.ns_stack}},
-     commands.elaborate tt
-   },
-   end_scope "namespace" v.name.val
+def eoi.elaborate : elaborator :=
+λ cmd, do
+  st ← get,
+  when (st.scopes.length > 1) $
+    error cmd "invalid end of input, expected 'end'"
 
 -- TODO(Sebastian): replace with attribute
-meta def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
+def elaborators : rbmap name elaborator (<) := rbmap.from_list [
   (module.header.name, module.header.elaborate),
   (notation.name, notation.elaborate),
   (reserve_notation.name, reserve_notation.elaborate),
   (universe.name, universe.elaborate),
   (no_kind.name, no_kind.elaborate),
+  (end.name, end.elaborate),
   (section.name, section.elaborate),
   (namespace.name, namespace.elaborate),
   (variables.name, variables.elaborate),
@@ -934,17 +909,18 @@ meta def elaborators : rbmap name coelaborator (<) := rbmap.from_list [
   (export.name, export.elaborate),
   (check.name, check.elaborate),
   (init_quot.name, init_quot.elaborate),
-  (set_option.name, set_option.elaborate)
+  (set_option.name, set_option.elaborate),
+  (module.eoi.name, eoi.elaborate)
 ] _
 
 -- TODO: optimize
-def is_open_namespace (st : elaborator_state) : name → bool
+def is_open_namespace (sc : scope) : name → bool
 | name.anonymous := tt
 | ns :=
   -- check surrounding namespaces
-  ns ∈ st.local_state.ns_stack ∨
+  ns ∈ sc.ns_stack ∨
   -- check opened namespaces
-  st.local_state.open_decls.any (λ od, od.id.val = ns) ∨
+  sc.open_decls.any (λ od, od.id.val = ns) ∨
   -- TODO: check active exports
   ff
 
@@ -957,10 +933,11 @@ if matches_only then some (spec.id.val ++ n) else none
 
 def resolve_context : name → elaborator_m (list name)
 | n := do
-  st ← get, pure $
+  st ← get,
+  sc ← current_scope, pure $
 
   -- TODO(Sebastian): check the interaction betwen preresolution and section variables
-  match st.local_state.vars.find n with
+  match sc.vars.find n with
   | some (_, v) := [v.uniq_name]
   | _ :=
 
@@ -968,7 +945,7 @@ def resolve_context : name → elaborator_m (list name)
 
   -- check surrounding namespaces first
   -- TODO: check for `protected`
-  match st.local_state.ns_stack.filter (λ ns, st.env.contains (ns ++ n)) with
+  match sc.ns_stack.filter (λ ns, st.env.contains (ns ++ n)) with
   | ns::_ := [ns ++ n] -- prefer innermost namespace
   | _ :=
 
@@ -979,13 +956,13 @@ def resolve_context : name → elaborator_m (list name)
    | _ := [])
   ++
   -- check opened namespaces
-  (let ns' := st.local_state.open_decls.filter_map (match_open_spec n) in
+  (let ns' := sc.open_decls.filter_map (match_open_spec n) in
    ns'.filter (λ n', st.env.contains n'))
   ++
   -- check active exports
   -- TODO: optimize
   -- TODO: Lean 3 activates an export in `foo` even on `open foo (specific_thing)`, but does that make sense?
-  (let eds' := st.export_decls.filter (λ ed, is_open_namespace st ed.in_ns) in
+  (let eds' := st.export_decls.filter (λ ed, is_open_namespace sc ed.in_ns) in
    let ns' := eds'.filter_map (λ ed, match_open_spec n ed.spec) in
    ns'.filter (λ n', st.env.contains n'))
 
@@ -1001,33 +978,30 @@ def preresolve : syntax → elaborator_m syntax
   pure $ syntax.raw_node {n with args := args}
 | stx := pure stx
 
+def mk_state (cfg : elaborator_config) (opts : options) : elaborator_state := {
+  parser_cfg := cfg.initial_parser_cfg,
+  expander_cfg := {transformers := expander.builtin_transformers, ..cfg},
+  ngen := ⟨`_ngen.fixme, 0⟩,
+  scopes := [{cmd := "MODULE", header := `MODULE, options := opts}]}
+
 def max_recursion := 100
 
-protected meta def run (cfg : elaborator_config) : coroutine syntax elaborator_state message_log :=
-do
-  let st := {elaborator_state .
-    parser_cfg := cfg.initial_parser_cfg,
-    expander_cfg := {transformers := expander.builtin_transformers, ..cfg},
-    ngen := ⟨`_ngen.fixme, 0⟩,
-    local_state := {options := options.mk.set_bool `trace.as_messages tt}},
-  p ← except_t.run $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
-    (commands.elaborate ff)
-    (λ _, modify $ λ st, {st with messages := st.messages.add {filename := "foo", pos := ⟨1,0⟩, text := "elaborator.run: out of fuel"}})
-    (λ _, do
-      cmd ← current_command,
-      cmd' ← (preresolve cmd : coelaborator_m _),
-      with_current_command cmd' $ do
-        some n ← pure cmd.as_node |
-          error cmd $ "not a command: " ++ to_string cmd,
-        catch
-          (do some elab ← pure $ elaborators.find n.kind.name |
-                error cmd $ "unknown command: " ++ to_string n.kind.name,
-              elab)
-          (λ e, modify $ λ st, {st with messages := st.messages.add e}))
-    max_recursion,
-  match p with
-  | except.ok ((), st) := pure st.messages
-  | except.error e     := pure $ message_log.empty.add e
+def process_command (cfg : elaborator_config) (st : elaborator_state) (cmd : syntax) : elaborator_state :=
+let st := {st with messages := message_log.empty} in
+let r := @except_t.run _ id _ $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
+  (command.elaborate cmd)
+  (λ _, error cmd "elaborator.run: recursion depth exceeded")
+  (λ cmd, do
+    some n ← pure cmd.as_node |
+      error cmd $ "not a command: " ++ to_string cmd,
+    some elab ← pure $ elaborators.find n.kind.name |
+      error cmd $ "unknown command: " ++ to_string n.kind.name,
+    cmd' ← preresolve cmd,
+    elab cmd')
+  max_recursion in
+match r with
+| except.ok ((), st) := st
+| except.error e     := {st with messages := st.messages.add e}
 
 end elaborator
 end lean

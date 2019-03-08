@@ -26,6 +26,7 @@ obj* l_lean_parser_number_parser___at_lean_parser_level_leading_parser_lean_pars
 obj* l_has__monad__lift__t__refl___boxed(obj*, obj*);
 obj* l_lean_parser_trailing__level__parser__m_lean_parser_monad__parsec;
 obj* l_lean_parser_level_add__lit_parser_lean_parser_has__tokens;
+obj* l_lean_parser_monad__parsec_observing___at_lean_parser_peek__token___spec__2___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_level_trailing_has__view_x_27___lambda__1___closed__1;
 obj* l_lean_parser_level_paren_has__view_x_27___lambda__2(obj*);
 obj* l_lean_parser_level_leading_has__view;
@@ -77,7 +78,6 @@ obj* l_lean_parser_level_get__leading(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_level_app_has__view;
 obj* l_lean_parser_level_parser_lean_parser_has__view___closed__1;
 obj* l_lean_parser_level__parser_run_lean_parser_has__tokens(obj*);
-obj* l_lean_parser_monad__parsec_observing___at_lean_parser_peek__token___spec__2(obj*, obj*, obj*);
 obj* l_lean_parser_level_app_parser_lean_parser_has__view;
 obj* l_lean_parser_level__parser__m_alternative;
 obj* l_lean_parser_trailing__level__parser__m_lean_parser_monad__rec;
@@ -6310,7 +6310,7 @@ _start:
 {
 obj* x_5; obj* x_6; 
 lean::inc(x_1);
-x_5 = l_lean_parser_monad__parsec_observing___at_lean_parser_peek__token___spec__2(x_1, x_2, x_3);
+x_5 = l_lean_parser_monad__parsec_observing___at_lean_parser_peek__token___spec__2___rarg(x_1, x_2, x_3);
 x_6 = lean::cnstr_get(x_5, 0);
 lean::inc(x_6);
 if (lean::obj_tag(x_6) == 0)

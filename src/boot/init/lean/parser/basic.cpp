@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.parser.basic
-// Imports: init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec init.lean.parser.trie init.lean.parser.identifier init.data.rbmap.default init.lean.message init.control.coroutine
+// Imports: init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec init.lean.parser.trie init.lean.parser.identifier init.data.rbmap.default init.lean.message
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -3453,7 +3453,6 @@ void initialize_init_lean_parser_trie();
 void initialize_init_lean_parser_identifier();
 void initialize_init_data_rbmap_default();
 void initialize_init_lean_message();
-void initialize_init_control_coroutine();
 static bool _G_initialized = false;
 void initialize_init_lean_parser_basic() {
  if (_G_initialized) return;
@@ -3465,7 +3464,6 @@ void initialize_init_lean_parser_basic() {
  initialize_init_lean_parser_identifier();
  initialize_init_data_rbmap_default();
  initialize_init_lean_message();
- initialize_init_control_coroutine();
  l_lean_parser_max__prec = _init_l_lean_parser_max__prec();
 lean::mark_persistent(l_lean_parser_max__prec);
  l_lean_parser_basic__parser__m_monad = _init_l_lean_parser_basic__parser__m_monad();

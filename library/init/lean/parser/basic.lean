@@ -59,7 +59,7 @@ structure parser_cache :=
 structure frontend_config :=
 (filename : string)
 (input    : string)
-(file_map : file_map := file_map.from_string input)
+(file_map : file_map)
 
 /- Remark: if we have a node in the trie with `some token_config`, the string induced by the path is equal to the `token_config.prefix`. -/
 structure parser_config extends frontend_config :=

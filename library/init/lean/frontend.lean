@@ -19,6 +19,7 @@ do t ← parser.mk_token_trie $
     parser.tokens term.builtin_trailing_parsers,
    pure $ {
      filename := filename, input := input, tokens := t,
+     file_map := file_map.from_string input,
      command_parsers := command.builtin_command_parsers,
      leading_term_parsers := term.builtin_leading_parsers,
      trailing_term_parsers := term.builtin_trailing_parsers,
@@ -62,8 +63,8 @@ meta def run_frontend (filename input : string) (print_msg : message → except_
   | (_, except.error msg) := print_msg msg *> pure []
   | (_, except.ok (p_snap, msgs)) := do
   msgs.to_list.mfor print_msg,
-  let expander_cfg : expander_config := {filename := filename, input := input, transformers := builtin_transformers},
-  let elab_cfg : elaborator_config := {filename := filename, input := input, initial_parser_cfg := parser_cfg},
+  let expander_cfg : expander_config := {transformers := builtin_transformers, ..parser_cfg},
+  let elab_cfg : elaborator_config := {filename := filename, input := input, initial_parser_cfg := parser_cfg, ..parser_cfg},
   let opts := options.mk.set_bool `trace.as_messages tt,
   let elab_st := elaborator.mk_state elab_cfg opts,
   run_frontend_aux print_msg collect_outputs elab_cfg p_snap elab_st parser_cfg expander_cfg []

@@ -553,13 +553,16 @@ class specialize_fn {
                 if (m_visited_in_binder.contains(x_name))
                     return;
                 m_visited_in_binder.insert(x_name);
-                local_decl decl = m_lctx.get_local_decl(x);
+                local_decl decl  = m_lctx.get_local_decl(x);
                 optional<expr> v = decl.get_value();
+                /* Remark: we must not lambda abstract join points.
+                   There is no risk of work duplication in this case, only code duplication. */
+                bool is_jp       = is_join_point_name(decl.get_user_name());
                 if (m_visited_not_in_binder.contains(x_name)) {
                     /* If `x` was already visited in a context outside of
                        a binder, then it is already in `m_ctx.m_vars`.
                        If `x` is not a let-variable, then it is also already in `m_ctx.m_params`. */
-                    if (v) m_ctx.m_params.push_back(x);
+                    if (v && !is_jp) m_ctx.m_params.push_back(x);
                 } else {
                     /* Recall that if `x` occurs inside of a binder, then it will always be lambda
                        abstracted. Reason: avoid work duplication.
@@ -571,7 +574,7 @@ class specialize_fn {
                        ```
                        We don't want to copy `list.repeat 0 n` inside of the specialized code. */
                     m_ctx.m_vars.push_back(x);
-                    m_ctx.m_params.push_back(x);
+                    if (!is_jp) m_ctx.m_params.push_back(x);
                 }
                 collect(decl.get_type(), true);
                 if (v) collect(*v, true);

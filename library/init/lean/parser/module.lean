@@ -7,12 +7,11 @@ Module-level parsers
 -/
 prelude
 import init.lean.parser.command
-import init.control.coroutine
 
 namespace lean
 namespace parser
 
-open combinators monad_parsec coroutine
+open combinators monad_parsec
 open parser.has_tokens parser.has_view
 
 local postfix `?`:10000 := optional
@@ -26,14 +25,6 @@ instance module_parser_config_coe : has_coe module_parser_config command_parser_
 ⟨module_parser_config.to_command_parser_config⟩
 
 section
-local attribute [reducible] parser_core_t
-/- We do not need `expected/consumed` handling in this top-level parser that
-   just delegates to other parsers. More importantly, the standard
-   `parsec_t.bind x f` does not call `f` in a tail position and so destroys the
-   tail recursion of `commands_aux`. -/
-local attribute [instance] parsec_t.monad'
-/- NOTE: missing the `reader_t` from `parser_t` because the `coroutine` already provides
-   `monad_reader module_parser_config`. -/
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
 def module_parser_m := state_t parser_state $ parser_t module_parser_config id
 abbreviation module_parser := module_parser_m syntax

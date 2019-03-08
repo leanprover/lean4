@@ -9,7 +9,6 @@ prelude
 import init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec
 import init.lean.parser.trie
 import init.lean.parser.identifier init.data.rbmap init.lean.message
-import init.control.coroutine
 
 namespace lean
 namespace parser
@@ -133,7 +132,6 @@ pure $ match r with
 | except.ok (a, st) := (sum.inl a, st.messages)
 | except.error msg  := (sum.inr msg.custom.get, message_log.empty.add (message_of_parsec_message cfg msg))
 
-open coroutine
 open monad_parsec
 open parser.has_view
 variables {α : Type} {m : Type → Type}

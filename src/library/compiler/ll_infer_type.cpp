@@ -168,6 +168,8 @@ class ll_infer_type_fn {
             return infer_constructor_type(e);
         } else if (is_enf_neutral(e)) {
             return mk_enf_neutral_type();
+        } else if (is_enf_unreachable(e)) {
+            return may_use_bot() ? *g_bot : mk_enf_object_type();
         } else {
             name c = mk_cstage2_name(const_name(e));
             optional<constant_info> info = env().find(c);

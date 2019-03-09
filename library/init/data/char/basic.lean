@@ -17,6 +17,19 @@ instance : has_sizeof char :=
 ⟨λ c, c.val.to_nat⟩
 
 namespace char
+local infix `&`:65 := uint32.land
+
+def utf8_size (c : char) : uint32 :=
+let v := c.val in
+     if v & 0x80 = 0    then 1
+else if v & 0xE0 = 0xC0 then 2
+else if v & 0xF0 = 0xE0 then 3
+else if v & 0xF8 = 0xF0 then 4
+else if v & 0xFC = 0xF8 then 5
+else if v & 0xFE = 0xFC then 6
+else if v = 0xFF        then 1
+else 0
+
 protected def lt (a b : char) : Prop := a.val < b.val
 protected def le (a b : char) : Prop := a.val ≤ b.val
 

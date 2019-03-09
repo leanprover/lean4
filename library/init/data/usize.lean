@@ -26,6 +26,14 @@ def usize.div (a b : usize) : usize := ⟨a.val / b.val⟩
 def usize.mod (a b : usize) : usize := ⟨a.val % b.val⟩
 @[extern cpp "lean::usize_modn"]
 def usize.modn (a : usize) (n : @& nat) : usize := ⟨a.val %ₙ n⟩
+@[extern cpp inline "#1 & #2"]
+def usize.land (a b : usize) : usize := ⟨fin.land a.val b.val⟩
+@[extern cpp inline "#1 | #2"]
+def usize.lor (a b : usize) : usize := ⟨fin.lor a.val b.val⟩
+@[extern cpp inline "#1"]
+def usize.of_uint32 (a : uint32) : usize := usize.of_nat (uint32.to_nat a)
+@[extern cpp inline "((lean::usize)#1)"]
+def usize.of_uint64 (a : uint64) : usize := usize.of_nat (uint64.to_nat a)
 def usize.lt (a b : usize) : Prop := a.val < b.val
 def usize.le (a b : usize) : Prop := a.val ≤ b.val
 

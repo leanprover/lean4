@@ -28,6 +28,10 @@ def uint8.div (a b : uint8) : uint8 := ⟨a.val / b.val⟩
 def uint8.mod (a b : uint8) : uint8 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint8_modn"]
 def uint8.modn (a : uint8) (n : @& nat) : uint8 := ⟨a.val %ₙ n⟩
+@[extern cpp inline "#1 & #2"]
+def uint8.land (a b : uint8) : uint8 := ⟨fin.land a.val b.val⟩
+@[extern cpp inline "#1 | #2"]
+def uint8.lor (a b : uint8) : uint8 := ⟨fin.lor a.val b.val⟩
 def uint8.lt (a b : uint8) : Prop := a.val < b.val
 def uint8.le (a b : uint8) : Prop := a.val ≤ b.val
 
@@ -82,6 +86,10 @@ def uint16.div (a b : uint16) : uint16 := ⟨a.val / b.val⟩
 def uint16.mod (a b : uint16) : uint16 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint16_modn"]
 def uint16.modn (a : uint16) (n : @& nat) : uint16 := ⟨a.val %ₙ n⟩
+@[extern cpp inline "#1 & #2"]
+def uint16.land (a b : uint16) : uint16 := ⟨fin.land a.val b.val⟩
+@[extern cpp inline "#1 | #2"]
+def uint16.lor (a b : uint16) : uint16 := ⟨fin.lor a.val b.val⟩
 def uint16.lt (a b : uint16) : Prop := a.val < b.val
 def uint16.le (a b : uint16) : Prop := a.val ≤ b.val
 
@@ -136,6 +144,10 @@ def uint32.div (a b : uint32) : uint32 := ⟨a.val / b.val⟩
 def uint32.mod (a b : uint32) : uint32 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint32_modn"]
 def uint32.modn (a : uint32) (n : @& nat) : uint32 := ⟨a.val %ₙ n⟩
+@[extern cpp inline "#1 & #2"]
+def uint32.land (a b : uint32) : uint32 := ⟨fin.land a.val b.val⟩
+@[extern cpp inline "#1 | #2"]
+def uint32.lor (a b : uint32) : uint32 := ⟨fin.lor a.val b.val⟩
 def uint32.lt (a b : uint32) : Prop := a.val < b.val
 def uint32.le (a b : uint32) : Prop := a.val ≤ b.val
 
@@ -190,6 +202,10 @@ def uint64.div (a b : uint64) : uint64 := ⟨a.val / b.val⟩
 def uint64.mod (a b : uint64) : uint64 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint64_modn"]
 def uint64.modn (a : uint64) (n : @& nat) : uint64 := ⟨a.val %ₙ n⟩
+@[extern cpp inline "#1 & #2"]
+def uint64.land (a b : uint64) : uint64 := ⟨fin.land a.val b.val⟩
+@[extern cpp inline "#1 | #2"]
+def uint64.lor (a b : uint64) : uint64 := ⟨fin.lor a.val b.val⟩
 def uint64.lt (a b : uint64) : Prop := a.val < b.val
 def uint64.le (a b : uint64) : Prop := a.val ≤ b.val
 

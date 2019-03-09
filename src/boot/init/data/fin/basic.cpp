@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.fin.basic
-// Imports: init.data.nat.div
+// Imports: init.data.nat.div init.data.nat.bitwise
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -22,9 +22,11 @@ obj* l_fin_modn(obj*, obj*, obj*);
 obj* l_fin_has__one(obj*);
 obj* l_fin_elim0___main(obj*, obj*);
 uint8 l_fin_dec__lt___rarg(obj*, obj*);
+extern obj* l_nat_lor___closed__1;
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_fin_lor___main(obj*, obj*, obj*);
 obj* l_fin_mod(obj*, obj*, obj*);
 namespace lean {
 obj* nat_mod(obj*, obj*);
@@ -32,11 +34,14 @@ obj* nat_mod(obj*, obj*);
 obj* l_fin_add___main___boxed(obj*, obj*, obj*);
 uint8 l_fin_dec__le___rarg(obj*, obj*);
 obj* l_fin_has__le(obj*);
+obj* l_nat_bitwise___main(obj*, obj*, obj*);
 obj* l_fin_sub___boxed(obj*, obj*, obj*);
 obj* l_fin_sub(obj*, obj*, obj*);
 obj* l_fin_decidable__eq(obj*);
 obj* l_fin_modn___boxed(obj*, obj*, obj*);
 obj* l_fin_has__le___boxed(obj*);
+obj* l_fin_land(obj*, obj*, obj*);
+obj* l_fin_lor___boxed(obj*, obj*, obj*);
 obj* l_fin_mod___main___boxed(obj*, obj*, obj*);
 obj* l_fin_mod___main(obj*, obj*, obj*);
 obj* l_fin_mul___boxed(obj*, obj*, obj*);
@@ -70,17 +75,22 @@ obj* l_fin_has__div(obj*);
 obj* l_fin_dec__le(obj*);
 obj* l_fin_has__zero(obj*);
 obj* l_fin_decidable__eq___rarg___boxed(obj*, obj*);
+extern obj* l_nat_land___closed__1;
 obj* l_fin_sub___main(obj*, obj*, obj*);
 obj* l_fin_mul(obj*, obj*, obj*);
 obj* l_fin_has__modn(obj*);
 obj* l_fin_dec__le___rarg___boxed(obj*, obj*);
 obj* l_fin_dec__lt(obj*);
 obj* l_fin_dec__le___boxed(obj*);
+obj* l_fin_land___main(obj*, obj*, obj*);
+obj* l_fin_land___main___boxed(obj*, obj*, obj*);
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
 obj* l_fin_div___main(obj*, obj*, obj*);
+obj* l_fin_land___boxed(obj*, obj*, obj*);
 obj* l_fin_dec__lt___rarg___boxed(obj*, obj*);
+obj* l_fin_lor___main___boxed(obj*, obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
@@ -90,6 +100,7 @@ obj* l_fin_modn___main(obj*, obj*, obj*);
 obj* l_fin_div(obj*, obj*, obj*);
 obj* l_fin_has__add(obj*);
 obj* l_fin_div___main___boxed(obj*, obj*, obj*);
+obj* l_fin_lor(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
@@ -495,6 +506,88 @@ lean::dec(x_2);
 return x_3;
 }
 }
+obj* l_fin_land___main(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = l_nat_land___closed__1;
+x_4 = l_nat_bitwise___main(x_3, x_1, x_2);
+x_5 = lean::nat_mod(x_4, x_0);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* l_fin_land___main___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_fin_land___main(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_fin_land(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_fin_land___main(x_0, x_1, x_2);
+return x_3;
+}
+}
+obj* l_fin_land___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_fin_land(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_fin_lor___main(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = l_nat_lor___closed__1;
+x_4 = l_nat_bitwise___main(x_3, x_1, x_2);
+x_5 = lean::nat_mod(x_4, x_0);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* l_fin_lor___main___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_fin_lor___main(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_fin_lor(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_fin_lor___main(x_0, x_1, x_2);
+return x_3;
+}
+}
+obj* l_fin_lor___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_fin_lor(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_3;
+}
+}
 obj* l_fin_has__zero(obj* x_0) {
 _start:
 {
@@ -632,9 +725,11 @@ return x_1;
 }
 }
 void initialize_init_data_nat_div();
+void initialize_init_data_nat_bitwise();
 static bool _G_initialized = false;
 void initialize_init_data_fin_basic() {
  if (_G_initialized) return;
  _G_initialized = true;
  initialize_init_data_nat_div();
+ initialize_init_data_nat_bitwise();
 }

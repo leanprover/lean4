@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.nat.div
+import init.data.nat.div init.data.nat.bitwise
 open nat
 structure fin (n : nat) := (val : nat) (is_lt : val < n)
 
@@ -51,7 +51,7 @@ protected def sub : fin n → fin n → fin n
 | ⟨a, h⟩ ⟨b, _⟩ := ⟨(a + (n - b)) % n, mlt h⟩
 
 /-
-Remark: mod/div/modn can be defined without using (% n), but
+Remark: mod/div/modn/land/lor can be defined without using (% n), but
 we are trying to minimize the number of nat theorems
 needed to boostrap Lean.
 -/
@@ -64,6 +64,12 @@ protected def div : fin n → fin n → fin n
 
 protected def modn : fin n → nat → fin n
 | ⟨a, h⟩ m := ⟨(a % m) % n, mlt h⟩
+
+def land : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(nat.land a b) % n, mlt h⟩
+
+def lor : fin n → fin n → fin n
+| ⟨a, h⟩ ⟨b, _⟩ := ⟨(nat.lor a b) % n, mlt h⟩
 
 instance : has_zero (fin (succ n)) := ⟨⟨0, succ_pos n⟩⟩
 instance : has_one (fin (succ n))  := ⟨of_nat 1⟩

@@ -402,6 +402,7 @@ obj* l_lean_parser_monad__parsec_str__core___at_lean_parser_detail__ident__suffi
 obj* l_lean_parser_number_has__view_x_27___lambda__2___closed__3;
 obj* l_lean_parser_raw_tokens___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_symbol_tokens___rarg(obj*, obj*);
+extern obj* l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 obj* l_lean_parser_parsec__t_lookahead___at___private_init_lean_parser_token_2__whitespace__aux___main___spec__4(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_number_x_27___spec__12(obj*);
 obj* l___private_init_lean_parser_parsec_4__take__while__aux___main___at_lean_parser_parse__hex__lit___spec__3(obj*, obj*, obj*);
@@ -704,7 +705,6 @@ obj* l_lean_parser_string__lit_has__view_x_27;
 obj* l_lean_parser_monad__parsec_take__while__cont___at_lean_parser_detail__ident__part_parser_lean_parser_has__tokens___spec__6(uint32, obj*, obj*, obj*);
 obj* l_lean_parser_symbol___boxed(obj*);
 obj* l_lean_parser_detail__ident__part__escaped_has__view_x_27___lambda__2(obj*);
-extern obj* l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
 obj* l_lean_parser_raw___boxed(obj*);
 obj* l___private_init_lean_parser_token_1__finish__comment__block__aux(obj*, obj*, obj*, obj*, obj*);
 namespace lean {
@@ -19430,7 +19430,7 @@ if (lean::is_exclusive(x_8)) {
 }
 x_20 = lean::unbox_uint32(x_13);
 x_21 = lean::uint32_to_nat(x_20);
-x_22 = l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
+x_22 = l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 x_23 = lean::nat_sub(x_21, x_22);
 lean::dec(x_21);
 x_25 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;
@@ -23775,7 +23775,7 @@ else
 {
 obj* x_17; obj* x_18; obj* x_19; obj* x_21; 
 x_17 = lean::uint32_to_nat(x_9);
-x_18 = l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
+x_18 = l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 x_19 = lean::nat_sub(x_17, x_18);
 lean::dec(x_17);
 x_21 = lean::nat_add(x_11, x_19);
@@ -24562,7 +24562,7 @@ if (lean::is_exclusive(x_6)) {
 }
 x_14 = lean::unbox_uint32(x_7);
 x_15 = lean::uint32_to_nat(x_14);
-x_16 = l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
+x_16 = l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 x_17 = lean::nat_sub(x_15, x_16);
 lean::dec(x_15);
 x_19 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;

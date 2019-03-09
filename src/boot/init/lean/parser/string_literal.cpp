@@ -74,6 +74,7 @@ namespace lean {
 uint8 string_iterator_has_next(obj*);
 }
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__quoted__char___spec__2(obj*, obj*, obj*);
+extern obj* l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
@@ -124,7 +125,6 @@ obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec__7___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_parse__quoted__char___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec__4___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-extern obj* l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
@@ -352,7 +352,7 @@ x_5 = lean::cnstr_get(x_2, 1);
 lean::inc(x_5);
 lean::dec(x_2);
 x_8 = lean::uint32_to_nat(x_1);
-x_9 = l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
+x_9 = l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 x_10 = lean::nat_sub(x_8, x_9);
 lean::dec(x_8);
 x_12 = lean::apply_2(x_5, lean::box(0), x_10);

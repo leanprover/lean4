@@ -87,6 +87,7 @@ obj* l_lean_parser_monad__parsec_str__core___at___private_init_lean_name__mangli
 namespace lean {
 uint8 string_iterator_has_next(obj*);
 }
+extern obj* l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
@@ -134,7 +135,6 @@ namespace lean {
 obj* nat_mul(obj*, obj*);
 }
 obj* l___private_init_lean_parser_parsec_3__mk__string__result___rarg(obj*, obj*);
-extern obj* l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
@@ -535,7 +535,7 @@ if (lean::is_exclusive(x_6)) {
 }
 x_14 = lean::unbox_uint32(x_7);
 x_15 = lean::uint32_to_nat(x_14);
-x_16 = l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
+x_16 = l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 x_17 = lean::nat_sub(x_15, x_16);
 lean::dec(x_15);
 x_19 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;

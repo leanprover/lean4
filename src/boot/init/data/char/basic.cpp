@@ -45,6 +45,7 @@ obj* uint32_to_nat(uint32);
 }
 uint8 l_char_dec__lt(uint32, uint32);
 obj* l_char_is__lower___boxed(obj*);
+uint32 l_char_utf8__size(uint32);
 obj* l_char_decidable__eq___boxed(obj*, obj*);
 obj* l_char_inhabited___boxed;
 uint8 l_char_dec__le(uint32, uint32);
@@ -56,6 +57,7 @@ uint32 uint32_of_nat(obj*);
 }
 obj* l_char_to__nat(uint32);
 obj* l_char_is__alpha___boxed(obj*);
+obj* l_char_utf8__size___boxed(obj*);
 obj* l_char_has__sizeof(uint32 x_0) {
 _start:
 {
@@ -71,6 +73,110 @@ uint32 x_1; obj* x_2;
 x_1 = lean::unbox_uint32(x_0);
 x_2 = l_char_has__sizeof(x_1);
 return x_2;
+}
+}
+uint32 l_char_utf8__size(uint32 x_0) {
+_start:
+{
+uint32 x_1; uint32 x_2; uint32 x_3; uint32 x_4; uint8 x_5; 
+x_1 = 1;
+x_2 = 128;
+x_3 = x_0 & x_2;
+x_4 = 0;
+x_5 = x_3 == x_4;
+if (x_5 == 0)
+{
+uint32 x_6; uint32 x_7; uint32 x_8; uint8 x_9; 
+x_6 = 224;
+x_7 = x_0 & x_6;
+x_8 = 192;
+x_9 = x_7 == x_8;
+if (x_9 == 0)
+{
+uint32 x_10; uint32 x_11; uint8 x_12; 
+x_10 = 240;
+x_11 = x_0 & x_10;
+x_12 = x_11 == x_6;
+if (x_12 == 0)
+{
+uint32 x_13; uint32 x_14; uint8 x_15; 
+x_13 = 248;
+x_14 = x_0 & x_13;
+x_15 = x_14 == x_10;
+if (x_15 == 0)
+{
+uint32 x_16; uint32 x_17; uint8 x_18; 
+x_16 = 252;
+x_17 = x_0 & x_16;
+x_18 = x_17 == x_13;
+if (x_18 == 0)
+{
+uint32 x_19; uint32 x_20; uint32 x_21; uint8 x_22; 
+x_19 = 6;
+x_20 = 254;
+x_21 = x_0 & x_20;
+x_22 = x_21 == x_16;
+if (x_22 == 0)
+{
+uint32 x_23; uint8 x_24; 
+x_23 = 255;
+x_24 = x_0 == x_23;
+if (x_24 == 0)
+{
+return x_4;
+}
+else
+{
+return x_1;
+}
+}
+else
+{
+return x_19;
+}
+}
+else
+{
+uint32 x_25; 
+x_25 = 5;
+return x_25;
+}
+}
+else
+{
+uint32 x_26; 
+x_26 = 4;
+return x_26;
+}
+}
+else
+{
+uint32 x_27; 
+x_27 = 3;
+return x_27;
+}
+}
+else
+{
+uint32 x_28; 
+x_28 = 2;
+return x_28;
+}
+}
+else
+{
+return x_1;
+}
+}
+}
+obj* l_char_utf8__size___boxed(obj* x_0) {
+_start:
+{
+uint32 x_1; uint32 x_2; obj* x_3; 
+x_1 = lean::unbox_uint32(x_0);
+x_2 = l_char_utf8__size(x_1);
+x_3 = lean::box_uint32(x_2);
+return x_3;
 }
 }
 obj* _init_l_char_has__lt() {

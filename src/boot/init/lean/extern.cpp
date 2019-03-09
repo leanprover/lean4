@@ -47,6 +47,7 @@ extern obj* l_list_repr__aux___main___rarg___closed__1;
 namespace lean {
 uint8 string_iterator_has_next(obj*);
 }
+extern obj* l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
@@ -86,7 +87,6 @@ uint32 uint32_of_nat(obj*);
 obj* l_lean_expand__extern__entry___main(obj*, obj*);
 obj* l_lean_mk__simple__fn__call(obj*, obj*);
 obj* l_list_foldl___main___at_lean_mk__simple__fn__call___spec__1___boxed(obj*, obj*);
-extern obj* l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
@@ -206,7 +206,7 @@ obj* x_23; uint32 x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_29; obj* x_31; o
 x_23 = lean::string_iterator_next(x_2);
 x_24 = lean::string_iterator_curr(x_23);
 x_25 = lean::uint32_to_nat(x_24);
-x_26 = l___private_init_data_string_basic_4__to__nat__core___main___closed__1;
+x_26 = l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 x_27 = lean::nat_sub(x_25, x_26);
 lean::dec(x_25);
 x_29 = lean::nat_sub(x_27, x_6);

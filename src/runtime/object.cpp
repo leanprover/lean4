@@ -1593,11 +1593,23 @@ usize string_utf8_next(b_obj_arg s, usize i) {
     return i + 1;
 }
 
+static inline bool is_utf8_first_byte(unsigned char c) {
+    return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
+}
+
 obj_res string_utf8_extract(b_obj_arg s, usize b, usize e) {
+    char const * str = string_cstr(s);
     usize sz = string_size(s) - 1;
     if (b >= e || b >= sz) return mk_string("");
+    /* In the reference implementation if `b` is not pointing to a valid UTF8
+       character start position, the result is the empty string. */
+    if (!is_utf8_first_byte(str[b])) return mk_string("");
     if (e > sz) e = sz;
     lean_assert(b < e);
+    lean_assert(e > 0);
+    /* In the reference implementation if `e` is not pointing to a valid UTF8
+       character start position, it is assumed to be at the end. */
+    if (e < sz && !is_utf8_first_byte(str[e])) e = sz;
     usize new_sz = e - b;
     lean_assert(new_sz > 0);
     obj_res r = alloc_string(new_sz+1, new_sz+1, 0);

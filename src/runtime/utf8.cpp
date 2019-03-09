@@ -29,7 +29,7 @@ unsigned get_utf8_size(unsigned char c) {
     else if (c == 0xFF)
         return 1;
     else
-        return 0;
+        return 1; /* invalid */
 }
 
 size_t utf8_strlen(char const * str) {

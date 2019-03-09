@@ -395,6 +395,9 @@ void dealloc(void * o, size_t sz) {
         return free(o);
     }
     LEAN_RUNTIME_STAT_CODE(g_num_small_dealloc++);
+    if (LEAN_UNLIKELY(g_heap == nullptr)) {
+        init_heap(false);
+    }
     lean_assert(g_heap);
     page * p = get_page_of(o);
     if (LEAN_LIKELY(p->get_heap() == g_heap)) {

@@ -73,6 +73,8 @@ struct segment {
     char         m_data[LEAN_SEGMENT_SIZE];
 
     char * get_first_page_mem() {
+        lean_assert(align_ptr(m_data, LEAN_PAGE_SIZE) >= m_data);
+        lean_assert(align_ptr(m_data, LEAN_PAGE_SIZE) > reinterpret_cast<char*>(this));
         return align_ptr(m_data, LEAN_PAGE_SIZE);
     }
 
@@ -206,16 +208,16 @@ void page::push_free_obj(void * o) {
 
 void segment::move_to_heap(heap * h) {
     /* "Move" pages in `s` to this heap */
-    page ** it  = reinterpret_cast<page**>(get_first_page_mem());
-    page ** end = reinterpret_cast<page**>(m_next_page_mem);
+    page * it  = reinterpret_cast<page*>(get_first_page_mem());
+    page * end = reinterpret_cast<page*>(m_next_page_mem);
     for (; it != end; ++it) {
-        page * p    = *it;
-        p->set_heap(h);
-        unsigned slot_idx = p->get_slot_idx();
-        if (p->in_page_free_list()) {
-            page_list_insert(h->m_page_free_list[slot_idx], p);
+        page & p    = *it;
+        p.set_heap(h);
+        unsigned slot_idx = p.get_slot_idx();
+        if (p.in_page_free_list()) {
+            page_list_insert(h->m_page_free_list[slot_idx], &p);
         } else {
-            page_list_insert(h->m_curr_page[slot_idx], p);
+            page_list_insert(h->m_curr_page[slot_idx], &p);
         }
     }
 }

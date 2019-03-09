@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.repr
-// Imports: init.data.string.basic init.data.uint init.data.usize init.data.nat.div
+// Imports: init.data.string.basic init.data.uint init.data.nat.div
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1618,7 +1618,6 @@ return x_2;
 }
 void initialize_init_data_string_basic();
 void initialize_init_data_uint();
-void initialize_init_data_usize();
 void initialize_init_data_nat_div();
 static bool _G_initialized = false;
 void initialize_init_data_repr() {
@@ -1626,7 +1625,6 @@ void initialize_init_data_repr() {
  _G_initialized = true;
  initialize_init_data_string_basic();
  initialize_init_data_uint();
- initialize_init_data_usize();
  initialize_init_data_nat_div();
  l_bool_has__repr___closed__1 = _init_l_bool_has__repr___closed__1();
 lean::mark_persistent(l_bool_has__repr___closed__1);

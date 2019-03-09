@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.hashable
-// Imports: init.data.usize init.data.string.default
+// Imports: init.data.uint init.data.string.default
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -96,13 +96,13 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_hash___boxed), 1, 0);
 return x_0;
 }
 }
-void initialize_init_data_usize();
+void initialize_init_data_uint();
 void initialize_init_data_string_default();
 static bool _G_initialized = false;
 void initialize_init_data_hashable() {
  if (_G_initialized) return;
  _G_initialized = true;
- initialize_init_data_usize();
+ initialize_init_data_uint();
  initialize_init_data_string_default();
  l_string_hashable = _init_l_string_hashable();
 lean::mark_persistent(l_string_hashable);

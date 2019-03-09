@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.array.basic
-// Imports: init.data.nat.basic init.data.fin.basic init.data.usize init.data.repr init.function init.data.to_string
+// Imports: init.data.nat.basic init.data.fin.basic init.data.uint init.data.repr init.function init.data.to_string
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1369,7 +1369,7 @@ return x_1;
 }
 void initialize_init_data_nat_basic();
 void initialize_init_data_fin_basic();
-void initialize_init_data_usize();
+void initialize_init_data_uint();
 void initialize_init_data_repr();
 void initialize_init_function();
 void initialize_init_data_to__string();
@@ -1379,7 +1379,7 @@ void initialize_init_data_array_basic() {
  _G_initialized = true;
  initialize_init_data_nat_basic();
  initialize_init_data_fin_basic();
- initialize_init_data_usize();
+ initialize_init_data_uint();
  initialize_init_data_repr();
  initialize_init_function();
  initialize_init_data_to__string();

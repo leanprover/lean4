@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.nat.basic init.data.fin.basic init.data.usize init.data.repr init.function
+import init.data.nat.basic init.data.fin.basic init.data.uint init.data.repr init.function
 import init.data.to_string
 universes u v w
 

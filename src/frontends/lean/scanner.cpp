@@ -177,7 +177,7 @@ auto scanner::read_char() -> token_kind {
         next();
         return token_kind::Char;
     }
-    if (optional<unsigned> sz = is_utf8_first_byte(c)) {
+    if (optional<unsigned> sz = get_utf8_first_byte_opt(c)) {
         m_buffer.clear();
         for (unsigned i = 0; i < *sz; i++) {
             m_buffer += c;

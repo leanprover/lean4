@@ -1121,6 +1121,8 @@ inline obj_res mk_option_some(obj_arg v) { obj_res r = alloc_cnstr(1, 1, 0); cns
 // =======================================
 // String
 
+/* instance : inhabited char := ⟨'A'⟩ */
+inline uint32 char_default_value() { return 'A'; }
 inline obj_res alloc_string(size_t size, size_t capacity, size_t len) {
     LEAN_RUNTIME_STAT_CODE(g_num_string++);
     return new (alloc_heap_object(string_byte_size(capacity))) string_object(size, capacity, len); // NOLINT
@@ -1136,6 +1138,11 @@ obj_res string_append(obj_arg s1, b_obj_arg s2);
 inline obj_res string_length(b_obj_arg s) { return nat_of_size_t(string_len(s)); }
 obj_res string_mk(obj_arg cs);
 obj_res string_data(obj_arg s);
+inline usize string_utf8_byte_size(b_obj_arg s) { return string_size(s) - 1; }
+uint32 string_utf8_get(b_obj_arg s, usize i);
+usize string_utf8_next(b_obj_arg s, usize i);
+inline uint8 string_utf8_at_end(b_obj_arg s, usize i) { return i >= string_size(s) - 1; }
+obj_res string_utf8_extract(b_obj_arg s, usize b, usize e);
 obj_res string_mk_iterator(obj_arg s);
 uint32 string_iterator_curr(b_obj_arg it);
 obj_res string_iterator_set_curr(obj_arg it, uint32 c);

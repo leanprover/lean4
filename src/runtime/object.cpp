@@ -1523,6 +1523,90 @@ obj_res string_data(obj_arg s) {
     return string_to_list_core(tmp);
 }
 
+uint32 string_utf8_get(b_obj_arg s, usize i) {
+    char const * str = string_cstr(s);
+    usize size = string_size(s) - 1;
+    if (i >= string_size(s) - 1)
+        return char_default_value();
+    unsigned c = static_cast<unsigned char>(str[i]);
+    /* zero continuation (0 to 127) */
+    if ((c & 0x80) == 0) {
+        i++;
+        return c;
+    }
+
+    /* one continuation (128 to 2047) */
+    if ((c & 0xe0) == 0xc0 && i + 1 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned r = ((c & 0x1f) << 6) | (c1 & 0x3f);
+        if (r >= 128) {
+            i += 2;
+            return r;
+        }
+    }
+
+    /* two continuations (2048 to 55295 and 57344 to 65535) */
+    if ((c & 0xf0) == 0xe0 && i + 2 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned c2 = static_cast<unsigned char>(str[i+2]);
+        unsigned r = ((c & 0x0f) << 12) | ((c1 & 0x3f) << 6) | (c2 & 0x3f);
+        if (r >= 2048 && (r < 55296 || r > 57343)) {
+            i += 3;
+            return r;
+        }
+    }
+
+    /* three continuations (65536 to 1114111) */
+    if ((c & 0xf8) == 0xf0 && i + 3 < size) {
+        unsigned c1 = static_cast<unsigned char>(str[i+1]);
+        unsigned c2 = static_cast<unsigned char>(str[i+2]);
+        unsigned c3 = static_cast<unsigned char>(str[i+3]);
+        unsigned r  = ((c & 0x07) << 18) | ((c1 & 0x3f) << 12) | ((c2 & 0x3f) << 6) | (c3 & 0x3f);
+        if (r >= 65536 && r <= 1114111) {
+            i += 4;
+            return r;
+        }
+    }
+
+    /* invalid UTF-8 encoded string */
+    return char_default_value();
+}
+
+/* The reference implementation is:
+   ```
+   def utf8_next (s : @& string) (p : utf8_pos) : utf8_pos :=
+   let c := utf8_get s p in
+   p + csize c
+   ```
+*/
+usize string_utf8_next(b_obj_arg s, usize i) {
+    char const * str = string_cstr(s);
+    usize size       = string_size(s) - 1;
+    /* `csize c` is 1 when `i` is not a valid position in the reference implementation. */
+    if (i >= size) return i+1;
+    unsigned c = static_cast<unsigned char>(str[i]);
+    if ((c & 0x80) == 0)    return i+1;
+    if ((c & 0xe0) == 0xc0) return i + 2;
+    if ((c & 0xf0) == 0xe0) return i + 3;
+    if ((c & 0xf8) == 0xf0) return i + 4;
+    /* invalid UTF-8 encoded string */
+    return i + 1;
+}
+
+obj_res string_utf8_extract(b_obj_arg s, usize b, usize e) {
+    usize sz = string_size(s) - 1;
+    if (b >= e || b >= sz) return mk_string("");
+    if (e > sz) e = sz;
+    lean_assert(b < e);
+    usize new_sz = e - b;
+    lean_assert(new_sz > 0);
+    obj_res r = alloc_string(new_sz+1, new_sz+1, 0);
+    memcpy(w_string_cstr(r), string_cstr(s) + b, new_sz);
+    w_string_cstr(r)[new_sz] = 0;
+    to_string(r)->m_length = utf8_strlen(w_string_cstr(r), new_sz);
+    return r;
+}
+
 /* `pos` is in bytes, and `remaining` is in characters */
 static obj_res mk_iterator(obj_arg s, size_t pos, size_t remaining) {
     obj_res r = alloc_cnstr(0, 1, sizeof(size_t)*2);
@@ -1543,7 +1627,7 @@ static uint32 mk_default_char() { return 65; }
 static bool is_unshared_it_string(b_obj_arg it) { return is_exclusive(it) && !is_shared(cnstr_get(it, 0)); }
 
 static unsigned get_utf8_char_size_at(std::string const & s, unsigned i) {
-    if (auto sz = is_utf8_first_byte(s[i])) {
+    if (auto sz = get_utf8_first_byte_opt(s[i])) {
         return *sz;
     } else {
         return 1;
@@ -1622,7 +1706,7 @@ obj_res string_iterator_prev(obj_arg it) {
         /* we have to walk at most 4 steps backwards */
         for (unsigned j = 0; j < 4; j++) {
             --new_i;
-            if (is_utf8_first_byte(string_cstr(s)[new_i])) {
+            if (get_utf8_first_byte_opt(string_cstr(s)[new_i])) {
                 if (is_exclusive(it)) {
                     it_set_pos(it, new_i);
                     it_set_remaining(it, r+1);

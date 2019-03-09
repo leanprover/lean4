@@ -19,6 +19,9 @@ size_t utf8_strlen(char const * str);
 /* Return the length of the string `str` encoded using UTF8.
    `str` may contain null characters. */
 size_t utf8_strlen(std::string const & str);
+/* Return the length of the string `str` encoded using UTF8.
+   `str` may contain null characters. */
+size_t utf8_strlen(char const * str, size_t sz);
 optional<size_t> utf8_char_pos(char const * str, size_t char_idx);
 char const * get_utf8_last_char(char const * str);
 std::string utf8_trim(std::string const & s);
@@ -31,7 +34,7 @@ inline unsigned utf8_to_unicode(char const * begin, char const * end) {
 /* If `c` is the first byte of an utf-8 encoded unicode scalar value,
    then return `some(n)` where `n` is the number of bytes needed to encode
    the unicode scalar value. Otherwise, return `none` */
-optional<unsigned> is_utf8_first_byte(unsigned char c);
+optional<unsigned> get_utf8_first_byte_opt(unsigned char c);
 
 /* "Read" next unicode character starting at position i in a string using UTF-8 encoding.
    Return the unicode character and update i. */

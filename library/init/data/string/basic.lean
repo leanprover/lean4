@@ -58,6 +58,50 @@ def append : string → (@& string) → string
 def to_list (s : string) : list char :=
 s.data
 
+private def csize (c : char) : usize :=
+usize.of_uint32 c.utf8_size
+
+private def utf8_byte_size_aux : list char → usize → usize
+| []      r := r
+| (c::cs) r := utf8_byte_size_aux cs (r + csize c)
+
+@[extern cpp "lean::string_utf8_byte_size"]
+def utf8_byte_size : (@& string) → usize
+| ⟨s⟩ := utf8_byte_size_aux s 0
+
+abbreviation utf8_pos := usize
+
+def utf8_begin : utf8_pos := 0
+
+private def utf8_get_aux : list char → usize → usize → char
+| []      i p := default char
+| (c::cs) i p := if i = p then c else utf8_get_aux cs (i + csize c) p
+
+@[extern cpp "lean::string_utf8_get"]
+def utf8_get : (@& string) → utf8_pos → char
+| ⟨s⟩ p := utf8_get_aux s 0 p
+
+@[extern cpp "lean::string_utf8_next"]
+def utf8_next (s : @& string) (p : utf8_pos) : utf8_pos :=
+let c := utf8_get s p in
+p + csize c
+
+@[extern cpp "lean::string_utf8_at_end"]
+def utf8_at_end : (@& string) → utf8_pos → bool
+| s p := p ≥ utf8_byte_size s
+
+private def utf8_extract_aux₂ : list char → usize → usize → list char
+| []      _ _ := []
+| (c::cs) i e := if i = e then [] else c :: utf8_extract_aux₂ cs (i + csize c) e
+
+private def utf8_extract_aux₁ : list char → usize → usize → usize → list char
+| []        _ _ _ := []
+| s@(c::cs) i b e := if i = b then utf8_extract_aux₂ s i e else utf8_extract_aux₁ cs (i + csize c) b e
+
+@[extern cpp "lean::string_utf8_extract"]
+def utf8_extract : (@& string) → utf8_pos → utf8_pos → string
+| ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8_extract_aux₁ s 0 b e⟩
+
 /- In the VM, the string iterator is implemented as a pointer to the string being iterated + index.
    TODO: mark it opaque. -/
 structure iterator :=

@@ -42,15 +42,19 @@ size_t utf8_strlen(char const * str) {
     return r;
 }
 
-size_t utf8_strlen(std::string const & str) {
+size_t utf8_strlen(char const * str, size_t sz) {
     size_t r = 0;
     size_t i = 0;
-    while (i < str.size()) {
+    while (i < sz) {
         unsigned d = get_utf8_size(str[i]);
         r++;
         i += d;
     }
     return r;
+}
+
+size_t utf8_strlen(std::string const & str) {
+    return utf8_strlen(str.data(), str.size());
 }
 
 optional<size_t> utf8_char_pos(char const * str, size_t char_idx) {
@@ -132,7 +136,7 @@ zzzzyyyy yyxxxxxx          | 1110zzzz   | 10yyyyyy    | 10xxxxxx   |
 000uuuuu zzzzyyyy yyxxxxxx | 11110uuu   | 10uuzzzz    | 10yyyyyy   | 10xxxxxx
 */
 
-optional<unsigned> is_utf8_first_byte(unsigned char c) {
+optional<unsigned> get_utf8_first_byte_opt(unsigned char c) {
     if ((c & 0x80) == 0) {
         /* 0xxxxxxx */
         return optional<unsigned>(1);

@@ -179,7 +179,7 @@ static bool is_unshared_it_vm_string(vm_obj const & it) {
 }
 
 static unsigned get_utf8_char_size_at(std::string const & s, unsigned i) {
-    if (auto sz = is_utf8_first_byte(s[i])) {
+    if (auto sz = get_utf8_first_byte_opt(s[i])) {
         return *sz;
     } else {
         return 1;
@@ -247,7 +247,7 @@ vm_obj string_iterator_prev(vm_obj const & it) {
         /* we have to walk at most 4 steps backwards */
         for (unsigned j = 0; j < 4; j++) {
             --new_i;
-            if (is_utf8_first_byte(s.m_value[new_i])) {
+            if (get_utf8_first_byte_opt(s.m_value[new_i])) {
                 return update_vm_constructor(update_vm_constructor(it, 1, mk_vm_nat(new_i)), 2, mk_vm_nat(r + 1));;
             }
         }

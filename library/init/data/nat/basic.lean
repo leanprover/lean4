@@ -5,6 +5,7 @@ Authors: Floris van Doorn, Leonardo de Moura
 -/
 prelude
 import init.core
+universes u
 
 notation `ℕ` := nat
 
@@ -83,11 +84,11 @@ instance : has_sub nat :=
 instance : has_mul nat :=
 ⟨nat.mul⟩
 
-@[specialize] def {u} repeat_core {α : Type u} (f : nat → α → α) (s : nat) : nat → α → α
+@[specialize] def repeat_core {α : Type u} (f : nat → α → α) (s : nat) : nat → α → α
 | 0         a := a
 | (succ n)  a := repeat_core n (f (s - (succ n)) a)
 
-@[inline] def {u} repeat {α : Type u} (f : nat → α → α) (n : nat) (a : α) : α :=
+@[inline] def repeat {α : Type u} (f : nat → α → α) (n : nat) (a : α) : α :=
 repeat_core f n n a
 
 protected def pow (m : nat) : nat → nat

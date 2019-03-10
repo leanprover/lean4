@@ -39,10 +39,16 @@ structure extern_attr_data :=
 
 @[export lean.mk_extern_attr_data_core] def mk_extern_attr_data := extern_attr_data.mk
 
-/-
-Remark: we only support pattern parameters: #1 to #9. This should be more than enough,
-and it simplifies the expander.
--/
+private def parse_opt_num : nat → string.iterator → nat → string.iterator × nat
+| 0     it r := (it, r)
+| (n+1) it r :=
+  if !it.has_next then (it, r)
+  else
+    let c := it.curr in
+    if '0' <= c && c <= '9'
+    then parse_opt_num n it.next (r*10 + (c.to_nat - '0'.to_nat))
+    else (it, r)
+
 def expand_extern_pattern_aux (args : list string) : nat → string.iterator → string → string
 | 0     it r := r
 | (i+1) it r :=
@@ -50,10 +56,10 @@ def expand_extern_pattern_aux (args : list string) : nat → string.iterator →
   else let c := it.curr in
     if c ≠ '#' then expand_extern_pattern_aux i it.next (r.push c)
     else
-      let it  := it.next in
-      let c   := it.curr in
-      let j   := c.to_nat - '0'.to_nat - 1 in
-      expand_extern_pattern_aux i it.next (r ++ (args.nth j).get_or_else "")
+      let it      := it.next in
+      let (it, j) := parse_opt_num it.remaining it 0 in
+      let j       := j-1 in
+      expand_extern_pattern_aux i it (r ++ (args.nth j).get_or_else "")
 
 @[export lean.expand_extern_pattern_core]
 def expand_extern_pattern (pattern : string) (args : list string) : string :=

@@ -47,7 +47,7 @@ def bfix₄ {α₁ α₂ α₃ α₄ β : Type u} (base : α₁ → α₂ → α
 | 0     a₁ a₂ a₃ a₄ := base a₁ a₂ a₃ a₄
 | (n+1) a₁ a₂ a₃ a₄ := rec (bfix₄ n) a₁ a₂ a₃ a₄
 
--- @[extern cpp inline "lean::fixpoint4(#7, #8, #9, #10, #11)"]
+@[extern cpp inline "lean::fixpoint4(#7, #8, #9, #10, #11)"]
 def fix_core₄ {α₁ α₂ α₃ α₄ β : Type u} (base : α₁ → α₂ → α₃ → α₄ → β) (rec : (α₁ → α₂ → α₃ → α₄ → β) → α₁ → α₂ → α₃ → α₄ → β) : α₁ → α₂ → α₃ → α₄ → β :=
 bfix₄ base rec usize_sz
 
@@ -58,7 +58,7 @@ def bfix₅ {α₁ α₂ α₃ α₄ α₅ β : Type u} (base : α₁ → α₂ 
 | 0     a₁ a₂ a₃ a₄ a₅ := base a₁ a₂ a₃ a₄ a₅
 | (n+1) a₁ a₂ a₃ a₄ a₅ := rec (bfix₅ n) a₁ a₂ a₃ a₄ a₅
 
--- @[extern cpp inline "lean::fixpoint5(#8, #9, #10, #11, #12, #13)"]
+@[extern cpp inline "lean::fixpoint5(#8, #9, #10, #11, #12, #13)"]
 def fix_core₅ {α₁ α₂ α₃ α₄ α₅ β : Type u} (base : α₁ → α₂ → α₃ → α₄ → α₅ → β) (rec : (α₁ → α₂ → α₃ → α₄ → α₅ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → β) : α₁ → α₂ → α₃ → α₄ → α₅ → β :=
 bfix₅ base rec usize_sz
 
@@ -69,7 +69,7 @@ def bfix₆ {α₁ α₂ α₃ α₄ α₅ α₆ β : Type u} (base : α₁ → 
 | 0     a₁ a₂ a₃ a₄ a₅ a₆ := base a₁ a₂ a₃ a₄ a₅ a₆
 | (n+1) a₁ a₂ a₃ a₄ a₅ a₆ := rec (bfix₆ n) a₁ a₂ a₃ a₄ a₅ a₆
 
--- @[extern cpp inline "lean::fixpoint6(#9, #10, #11, #12, #13, #14, #15)"]
+@[extern cpp inline "lean::fixpoint6(#9, #10, #11, #12, #13, #14, #15)"]
 def fix_core₆ {α₁ α₂ α₃ α₄ α₅ α₆ β : Type u} (base : α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) (rec : (α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) → α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β) : α₁ → α₂ → α₃ → α₄ → α₅ → α₆ → β :=
 bfix₆ base rec usize_sz
 

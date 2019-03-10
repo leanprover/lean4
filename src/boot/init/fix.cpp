@@ -23,13 +23,12 @@ obj* l_bfix_u_2083(obj*, obj*, obj*, obj*);
 obj* l_fix_u_2081___boxed(obj*, obj*);
 obj* l_bfix_u_2086___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2085___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_fix__core_u_2084___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2084___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2085___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2085___main(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2085___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2085___main___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_fix__core_u_2086___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_fix__core_u_2086___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2085___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix___rarg___lambda__1___boxed(obj*, obj*);
 obj* l_fix_u_2083___boxed(obj*, obj*, obj*, obj*);
@@ -41,7 +40,7 @@ obj* l_bfix_u_2082___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2083___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_fix__core_u_2082___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2082(obj*, obj*, obj*);
-obj* l_fix__core_u_2084___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_fix__core_u_2084___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix___rarg(obj*, obj*, obj*);
 obj* l_fix_u_2086___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix___main(obj*, obj*);
@@ -55,7 +54,6 @@ obj* l_bfix_u_2086___main(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2086___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix___rarg(obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2082___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_fix__core_u_2086___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_fix_u_2084___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2084___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -69,12 +67,10 @@ obj* l_bfix_u_2082(obj*, obj*, obj*);
 obj* l_fix(obj*, obj*);
 obj* l_bfix_u_2084___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix___rarg___lambda__1(obj*, obj*);
-obj* l_fix__core_u_2086(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_fix__core_u_2085___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2085___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2083___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix__core___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_fix__core_u_2085___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_fix__core_u_2085___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2084___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2083___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2082___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -84,7 +80,6 @@ obj* l_fix_u_2083___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_bfix___main___boxed(obj*, obj*);
 obj* l_fix_u_2083___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2081(obj*, obj*);
-extern obj* l_usize__sz;
 obj* l_fix_u_2083(obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2084___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2082___rarg___lambda__1(obj*, obj*, obj*);
@@ -92,12 +87,10 @@ obj* l_bfix_u_2082___main(obj*, obj*, obj*);
 obj* l_fix__core_u_2083___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2085___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2083___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_fix__core_u_2084(obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2085(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2085___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix_u_2081___rarg(obj*, obj*, obj*);
 obj* l_bfix_u_2085(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_fix__core_u_2085(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix_u_2086___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -682,34 +675,12 @@ lean::dec(x_4);
 return x_5;
 }
 }
-obj* l_fix__core_u_2084___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_fix__core_u_2084___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10) {
 _start:
 {
-obj* x_6; obj* x_7; 
-x_6 = l_usize__sz;
-x_7 = l_bfix_u_2084___main___rarg(x_0, x_1, x_6, x_2, x_3, x_4, x_5);
-return x_7;
-}
-}
-obj* l_fix__core_u_2084(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_fix__core_u_2084___rarg), 6, 0);
-return x_5;
-}
-}
-obj* l_fix__core_u_2084___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_fix__core_u_2084(x_0, x_1, x_2, x_3, x_4);
-lean::dec(x_0);
-lean::dec(x_1);
-lean::dec(x_2);
-lean::dec(x_3);
-lean::dec(x_4);
-return x_5;
+obj* x_11; 
+x_11 = lean::fixpoint4(x_6, x_7, x_8, x_9, x_10);
+return x_11;
 }
 }
 obj* l_fix_u_2084___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -722,12 +693,11 @@ return x_0;
 obj* l_fix_u_2084___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-obj* x_6; obj* x_7; obj* x_8; 
+obj* x_6; obj* x_7; 
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_fix_u_2084___rarg___lambda__1___boxed), 5, 1);
 lean::closure_set(x_6, 0, x_0);
-x_7 = l_usize__sz;
-x_8 = l_bfix_u_2084___main___rarg(x_6, x_1, x_7, x_2, x_3, x_4, x_5);
-return x_8;
+x_7 = lean::fixpoint4(x_1, x_2, x_3, x_4, x_5);
+return x_7;
 }
 }
 obj* l_fix_u_2084(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -862,35 +832,12 @@ lean::dec(x_5);
 return x_6;
 }
 }
-obj* l_fix__core_u_2085___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
+obj* l_fix__core_u_2085___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12) {
 _start:
 {
-obj* x_7; obj* x_8; 
-x_7 = l_usize__sz;
-x_8 = l_bfix_u_2085___main___rarg(x_0, x_1, x_7, x_2, x_3, x_4, x_5, x_6);
-return x_8;
-}
-}
-obj* l_fix__core_u_2085(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-obj* x_6; 
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_fix__core_u_2085___rarg), 7, 0);
-return x_6;
-}
-}
-obj* l_fix__core_u_2085___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-obj* x_6; 
-x_6 = l_fix__core_u_2085(x_0, x_1, x_2, x_3, x_4, x_5);
-lean::dec(x_0);
-lean::dec(x_1);
-lean::dec(x_2);
-lean::dec(x_3);
-lean::dec(x_4);
-lean::dec(x_5);
-return x_6;
+obj* x_13; 
+x_13 = lean::fixpoint5(x_7, x_8, x_9, x_10, x_11, x_12);
+return x_13;
 }
 }
 obj* l_fix_u_2085___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
@@ -903,12 +850,11 @@ return x_0;
 obj* l_fix_u_2085___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
-obj* x_7; obj* x_8; obj* x_9; 
+obj* x_7; obj* x_8; 
 x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_fix_u_2085___rarg___lambda__1___boxed), 6, 1);
 lean::closure_set(x_7, 0, x_0);
-x_8 = l_usize__sz;
-x_9 = l_bfix_u_2085___main___rarg(x_7, x_1, x_8, x_2, x_3, x_4, x_5, x_6);
-return x_9;
+x_8 = lean::fixpoint5(x_1, x_2, x_3, x_4, x_5, x_6);
+return x_8;
 }
 }
 obj* l_fix_u_2085(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
@@ -1047,36 +993,12 @@ lean::dec(x_6);
 return x_7;
 }
 }
-obj* l_fix__core_u_2086___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7) {
+obj* l_fix__core_u_2086___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12, obj* x_13, obj* x_14) {
 _start:
 {
-obj* x_8; obj* x_9; 
-x_8 = l_usize__sz;
-x_9 = l_bfix_u_2086___main___rarg(x_0, x_1, x_8, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_9;
-}
-}
-obj* l_fix__core_u_2086(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
-_start:
-{
-obj* x_7; 
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_fix__core_u_2086___rarg), 8, 0);
-return x_7;
-}
-}
-obj* l_fix__core_u_2086___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
-_start:
-{
-obj* x_7; 
-x_7 = l_fix__core_u_2086(x_0, x_1, x_2, x_3, x_4, x_5, x_6);
-lean::dec(x_0);
-lean::dec(x_1);
-lean::dec(x_2);
-lean::dec(x_3);
-lean::dec(x_4);
-lean::dec(x_5);
-lean::dec(x_6);
-return x_7;
+obj* x_15; 
+x_15 = lean::fixpoint6(x_8, x_9, x_10, x_11, x_12, x_13, x_14);
+return x_15;
 }
 }
 obj* l_fix_u_2086___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
@@ -1089,12 +1011,11 @@ return x_0;
 obj* l_fix_u_2086___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7) {
 _start:
 {
-obj* x_8; obj* x_9; obj* x_10; 
+obj* x_8; obj* x_9; 
 x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_fix_u_2086___rarg___lambda__1___boxed), 7, 1);
 lean::closure_set(x_8, 0, x_0);
-x_9 = l_usize__sz;
-x_10 = l_bfix_u_2086___main___rarg(x_8, x_1, x_9, x_2, x_3, x_4, x_5, x_6, x_7);
-return x_10;
+x_9 = lean::fixpoint6(x_1, x_2, x_3, x_4, x_5, x_6, x_7);
+return x_9;
 }
 }
 obj* l_fix_u_2086(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {

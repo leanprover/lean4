@@ -621,11 +621,31 @@ inline obj_res alloc_closure(object*(*fun)(object *, object *), unsigned num_fix
 inline obj_res alloc_closure(object*(*fun)(object *, object *, object *), unsigned num_fixed) {
     return alloc_closure(reinterpret_cast<void*>(fun), 3, num_fixed);
 }
+inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 4, num_fixed);
+}
+inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 5, num_fixed);
+}
+inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *, object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 6, num_fixed);
+}
+inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *, object *, object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 7, num_fixed);
+}
+inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object *, object *, object *, object *, object *), unsigned num_fixed) {
+    return alloc_closure(reinterpret_cast<void*>(fun), 8, num_fixed);
+}
 
 // =======================================
 // Fixpoint
 
 obj_res fixpoint(obj_arg rec, obj_arg a);
+obj_res fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2);
+obj_res fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3);
+obj_res fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4);
+obj_res fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5);
+obj_res fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6);
 
 // =======================================
 // Array of objects

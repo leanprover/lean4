@@ -3647,7 +3647,7 @@ vm_obj not_implemented_5(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj 
 vm_obj not_implemented_6(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
 vm_obj not_implemented_7(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
 vm_obj not_implemented_8(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) { throw exception("not implemented yet"); }
-
+vm_obj not_implemented_N(unsigned, vm_obj const *) { throw exception("not implemented yet"); }
 
 void initialize_vm_core() {
     g_vm_index_manager = new vm_index_manager;
@@ -3659,14 +3659,19 @@ void initialize_vm_core() {
             register_trace_class("vm");
             register_trace_class({"vm", "run"});
         });
-    DECLARE_VM_BUILTIN(name({"not_implemented_1"}),        not_implemented_1);
-    DECLARE_VM_BUILTIN(name({"not_implemented_2"}),        not_implemented_2);
-    DECLARE_VM_BUILTIN(name({"not_implemented_3"}),        not_implemented_3);
-    DECLARE_VM_BUILTIN(name({"not_implemented_4"}),        not_implemented_4);
-    DECLARE_VM_BUILTIN(name({"not_implemented_5"}),        not_implemented_5);
-    DECLARE_VM_BUILTIN(name({"not_implemented_6"}),        not_implemented_6);
-    DECLARE_VM_BUILTIN(name({"not_implemented_7"}),        not_implemented_7);
-    DECLARE_VM_BUILTIN(name({"not_implemented_8"}),        not_implemented_8);
+    DECLARE_VM_BUILTIN(name({"not_implemented_1"}),           not_implemented_1);
+    DECLARE_VM_BUILTIN(name({"not_implemented_2"}),           not_implemented_2);
+    DECLARE_VM_BUILTIN(name({"not_implemented_3"}),           not_implemented_3);
+    DECLARE_VM_BUILTIN(name({"not_implemented_4"}),           not_implemented_4);
+    DECLARE_VM_BUILTIN(name({"not_implemented_5"}),           not_implemented_5);
+    DECLARE_VM_BUILTIN(name({"not_implemented_6"}),           not_implemented_6);
+    DECLARE_VM_BUILTIN(name({"not_implemented_7"}),           not_implemented_7);
+    DECLARE_VM_BUILTIN(name({"not_implemented_8"}),           not_implemented_8);
+    for (unsigned i = 9; i < 32; i++) {
+        name n ("not_implemented");
+        n = n.append_after(i);
+        declare_vm_builtin(n, n.to_string().c_str(), i, not_implemented_N);
+    }
 }
 
 void finalize_vm_core() {

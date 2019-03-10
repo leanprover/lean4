@@ -102,16 +102,9 @@ class emit_bytecode_fn {
         } else {
 #if defined(LEAN_IGNORE_UNKNOWN_DECLS)
             if (optional<unsigned> arity = get_extern_constant_arity(m_env, fn)) {
-                switch (*arity) {
-                case 1: return *::lean::get_vm_decl(m_env, "not_implemented_1");
-                case 2: return *::lean::get_vm_decl(m_env, "not_implemented_2");
-                case 3: return *::lean::get_vm_decl(m_env, "not_implemented_3");
-                case 4: return *::lean::get_vm_decl(m_env, "not_implemented_4");
-                case 5: return *::lean::get_vm_decl(m_env, "not_implemented_5");
-                case 6: return *::lean::get_vm_decl(m_env, "not_implemented_6");
-                case 7: return *::lean::get_vm_decl(m_env, "not_implemented_7");
-                case 8: return *::lean::get_vm_decl(m_env, "not_implemented_8");
-                }
+                name n("not_implemented");
+                n = n.append_after(*arity);
+                return *::lean::get_vm_decl(m_env, n);
             }
 #endif
             throw_unknown_constant(fn);

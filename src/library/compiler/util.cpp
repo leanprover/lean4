@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include <limits>
+#include <cctype>
 #include "util/name_hash_set.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"
@@ -510,6 +511,20 @@ object * get_num_lit_core(obj_arg o);
 optional<nat> get_num_lit_ext(expr const & e) {
     inc(e.raw());
     return to_optional_nat(get_num_lit_core(e.raw()));
+}
+
+optional<unsigned> is_fix_core(name const & n) {
+    if (!n.is_atomic() || !n.is_string()) return optional<unsigned>();
+    string_ref const & r = n.get_string();
+    if (r.length() != 10) return optional<unsigned>();
+    char const * s = r.data();
+    if (std::strncmp(s, "fix_core_", 9) != 0 || !std::isdigit(s[9])) return optional<unsigned>();
+    return optional<unsigned>(s[9] - '0');
+}
+
+optional<expr> mk_enf_fix_core(unsigned n) {
+    if (n == 0 || n > 6) return none_expr();
+    return some_expr(mk_constant(name("fix_core").append_after(n)));
 }
 
 void initialize_compiler_util() {

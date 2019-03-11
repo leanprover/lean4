@@ -161,6 +161,14 @@ environment register_stage2_decl(environment const & env, name const & n, expr c
 optional<nat> get_num_lit_ext(expr const & e);
 inline bool is_morally_num_lit(expr const & e) { return static_cast<bool>(get_num_lit_ext(e)); }
 
+/* Return `some n` if `c` is of the form `fix_core_n` where `n in [1, 6]`.
+   Remark: this function is assuming the core library contains `fix_core_1` ... `fix_core_6` definitions. */
+optional<unsigned> is_fix_core(name const & c);
+/* Return the `fix_core_n` constant, and `none` if `n` is not in `[1, 6]`.
+   Remark: this function is assuming the core library contains `fix_core_1` ... `fix_core_6` definitions.
+   Remark: this function assumes universe levels have already been erased. */
+optional<expr> mk_enf_fix_core(unsigned n);
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

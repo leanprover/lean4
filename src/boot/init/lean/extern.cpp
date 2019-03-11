@@ -191,7 +191,7 @@ else
 uint32 x_8; uint32 x_9; uint8 x_10; 
 x_8 = lean::string_iterator_curr(x_1);
 x_9 = 48;
-x_10 = x_9<= x_8;
+x_10 = x_9 <= x_8;
 if (x_10 == 0)
 {
 obj* x_12; 
@@ -205,7 +205,7 @@ else
 {
 uint32 x_13; uint8 x_14; 
 x_13 = 57;
-x_14 = x_8<= x_13;
+x_14 = x_8 <= x_13;
 if (x_14 == 0)
 {
 obj* x_16; 
@@ -284,7 +284,7 @@ x_11 = lean::nat_sub(x_1, x_10);
 lean::dec(x_1);
 x_13 = lean::string_iterator_curr(x_2);
 x_14 = 35;
-x_15 = x_13== x_14;
+x_15 = x_13 == x_14;
 if (x_15 == 0)
 {
 obj* x_16; obj* x_17; 

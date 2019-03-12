@@ -523,10 +523,11 @@ class specialize_fn {
 
     /* Auxiliary class for collecting specialization dependencies. */
     class dep_collector {
-        local_ctx  m_lctx;
-        name_set   m_visited_not_in_binder;
-        name_set   m_visited_in_binder;
-        spec_ctx & m_ctx;
+        type_checker::state & m_st;
+        local_ctx             m_lctx;
+        name_set              m_visited_not_in_binder;
+        name_set              m_visited_in_binder;
+        spec_ctx &            m_ctx;
 
         void collect_fvar(expr const & x, bool in_binder) {
             name const & x_name = fvar_name(x);
@@ -556,13 +557,40 @@ class specialize_fn {
                 local_decl decl  = m_lctx.get_local_decl(x);
                 optional<expr> v = decl.get_value();
                 /* Remark: we must not lambda abstract join points.
-                   There is no risk of work duplication in this case, only code duplication. */
-                bool is_jp       = is_join_point_name(decl.get_user_name());
+                   There is no risk of work duplication in this case, only code duplication.
+
+                   Remark: in dependent type theory, lambda abstracting a let expression
+                   may produce a type incorrect term. Example:
+                   The following term is type correct
+                   ```
+                   let m : Type -> Type := state_t nat id in
+                   let f : m unit := fun s, ((), s) in
+                   f 0
+                   ```
+                   but
+                   ```
+                   (fun m : Type -> Type,
+                    let f : m unit := fun s, ((), s) in
+                    f 0) (state_t nat id)
+                   ```
+                   is not.
+
+                   So, whenever we lambda abstract a let-declaration we may risk introducing
+                   type errors that will make the compiler fail later.
+
+                   For computationally irrelevant terms such as `state_t nat id`, code duplication
+                   does not generate work duplication at runtime since they are erased later.
+                   Thus, we do **not** lambda abstract them, and avoid the problem above.
+                */
+                bool is_jp    = is_join_point_name(decl.get_user_name());
+                bool is_irrel = is_irrelevant_type(m_st, m_lctx, decl.get_type());
                 if (m_visited_not_in_binder.contains(x_name)) {
                     /* If `x` was already visited in a context outside of
                        a binder, then it is already in `m_ctx.m_vars`.
                        If `x` is not a let-variable, then it is also already in `m_ctx.m_params`. */
-                    if (v && !is_jp) m_ctx.m_params.push_back(x);
+                    if (v && !is_jp && !is_irrel) {
+                        m_ctx.m_params.push_back(x);
+                    }
                 } else {
                     /* Recall that if `x` occurs inside of a binder, then it will always be lambda
                        abstracted. Reason: avoid work duplication.
@@ -574,7 +602,9 @@ class specialize_fn {
                        ```
                        We don't want to copy `list.repeat 0 n` inside of the specialized code. */
                     m_ctx.m_vars.push_back(x);
-                    if (!is_jp) m_ctx.m_params.push_back(x);
+                    if (!is_jp && !is_irrel) {
+                        m_ctx.m_params.push_back(x);
+                    }
                 }
                 collect(decl.get_type(), true);
                 if (v) collect(*v, true);
@@ -614,8 +644,8 @@ class specialize_fn {
             }
         }
     public:
-        dep_collector(local_ctx const & lctx, spec_ctx & ctx):
-            m_lctx(lctx), m_ctx(ctx) {}
+        dep_collector(type_checker::state & st, local_ctx const & lctx, spec_ctx & ctx):
+            m_st(st), m_lctx(lctx), m_ctx(ctx) {}
         void operator()(expr const & e) { return collect(e, false); }
     };
 
@@ -629,12 +659,19 @@ class specialize_fn {
         buffer<spec_arg_kind> kinds;
         get_arg_kinds(const_name(fn), kinds);
         bool has_attr   = has_specialize_attribute(env(), const_name(fn));
-        dep_collector collect(m_lctx, ctx);
+        dep_collector collect(m_st, m_lctx, ctx);
         unsigned sz     = std::min(kinds.size(), args.size());
         unsigned i      = sz;
         bool found_inst = false;
         while (i > 0) {
             --i;
+            if (is_fvar(args[i])) {
+                lean_trace(name({"compiler", "spec_candidate"}),
+                           local_decl d = m_lctx.get_local_decl(args[i]);
+                           tout() << "specialize_init_deps [" << i << "]: " << args[i] << " : " << d.get_type();
+                           if (auto v = d.get_value()) tout() << " := " << *v;
+                           tout() << "\n";);
+            }
             switch (kinds[i]) {
             case spec_arg_kind::Other:
                 break;
@@ -891,6 +928,7 @@ class specialize_fn {
         }
         code = m_lctx.mk_lambda(new_fvars, code);
         code = m_lctx.mk_lambda(new_let_decls, code);
+        lean_trace(name("compiler", "spec_info"), tout() << "STEP 1\n" << code << "\n";);
         code = abstract_spec_ctx(ctx, code);
         lean_assert(!has_fvar(code));
         /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
@@ -912,6 +950,7 @@ class specialize_fn {
             m_st.env() = module::add(env(), aux_ax, false);
         }
         code = eta_expand_specialization(code);
+        lean_trace(name("compiler", "spec_info"), tout() << "STEP 2\n" << code << "\n";);
         code = csimp(env(), code, m_cfg);
         code = visit(code);
         m_new_decls.push_back(comp_decl(n, code));
@@ -1073,6 +1112,7 @@ public:
 
     pair<environment, comp_decls> operator()(comp_decl const & d) {
         m_base_name = d.fst();
+        lean_trace(name({"compiler", "specialize"}), tout() << "INPUT: " << d.fst() << "\n" << d.snd() << "\n";);
         expr new_v = visit(d.snd());
         comp_decl new_d(d.fst(), new_v);
         environment new_env = update(env(), m_ext);

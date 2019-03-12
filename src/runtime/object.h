@@ -1170,25 +1170,6 @@ usize string_utf8_prev(b_obj_arg s, usize i);
 obj_res string_utf8_set(obj_arg s, usize i, uint32 c);
 inline uint8 string_utf8_at_end(b_obj_arg s, usize i) { return i >= string_size(s) - 1; }
 obj_res string_utf8_extract(b_obj_arg s, usize b, usize e);
-obj_res string_mk_iterator(obj_arg s);
-uint32 string_iterator_curr(b_obj_arg it);
-obj_res string_iterator_set_curr(obj_arg it, uint32 c);
-obj_res string_iterator_next(obj_arg it);
-obj_res string_iterator_prev(obj_arg it);
-uint8 string_iterator_has_next(b_obj_arg it);
-uint8 string_iterator_has_prev(b_obj_arg it);
-obj_res string_iterator_insert(obj_arg it, b_obj_arg s);
-obj_res string_iterator_remove(obj_arg it, b_obj_arg n);
-obj_res string_iterator_remaining(b_obj_arg it);
-obj_res string_iterator_offset(b_obj_arg it);
-obj_res string_iterator_remaining_to_string(b_obj_arg it);
-obj_res string_iterator_prev_to_string(b_obj_arg it);
-obj_res string_iterator_to_string(b_obj_arg it);
-obj_res string_iterator_to_end(obj_arg it);
-obj_res string_iterator_extract(b_obj_arg it1, b_obj_arg it2);
-obj_res string_iterator_mk(obj_arg cs1, obj_arg cs2);
-obj_res string_iterator_fst(obj_arg it);
-obj_res string_iterator_snd(obj_arg it);
 
 inline bool string_eq(b_obj_arg s1, b_obj_arg s2) { return s1 == s2 || (string_size(s1) == string_size(s2) && std::memcmp(string_cstr(s1), string_cstr(s2), string_size(s1)) == 0); }
 bool string_eq(b_obj_arg s1, char const * s2);

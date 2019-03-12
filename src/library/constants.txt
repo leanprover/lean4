@@ -237,10 +237,6 @@ string.decidable_eq
 string.mk
 string.data
 string.empty
-string.iterator
-string.iterator.mk
-string.iterator.fst
-string.iterator.snd
 string.str
 string.empty_ne_str
 string.str_ne_empty

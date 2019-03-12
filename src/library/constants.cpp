@@ -242,10 +242,6 @@ name const * g_string_decidable_eq = nullptr;
 name const * g_string_mk = nullptr;
 name const * g_string_data = nullptr;
 name const * g_string_empty = nullptr;
-name const * g_string_iterator = nullptr;
-name const * g_string_iterator_mk = nullptr;
-name const * g_string_iterator_fst = nullptr;
-name const * g_string_iterator_snd = nullptr;
 name const * g_string_str = nullptr;
 name const * g_string_empty_ne_str = nullptr;
 name const * g_string_str_ne_empty = nullptr;
@@ -530,10 +526,6 @@ void initialize_constants() {
     g_string_mk = new name{"string", "mk"};
     g_string_data = new name{"string", "data"};
     g_string_empty = new name{"string", "empty"};
-    g_string_iterator = new name{"string", "iterator"};
-    g_string_iterator_mk = new name{"string", "iterator", "mk"};
-    g_string_iterator_fst = new name{"string", "iterator", "fst"};
-    g_string_iterator_snd = new name{"string", "iterator", "snd"};
     g_string_str = new name{"string", "str"};
     g_string_empty_ne_str = new name{"string", "empty_ne_str"};
     g_string_str_ne_empty = new name{"string", "str_ne_empty"};
@@ -819,10 +811,6 @@ void finalize_constants() {
     delete g_string_mk;
     delete g_string_data;
     delete g_string_empty;
-    delete g_string_iterator;
-    delete g_string_iterator_mk;
-    delete g_string_iterator_fst;
-    delete g_string_iterator_snd;
     delete g_string_str;
     delete g_string_empty_ne_str;
     delete g_string_str_ne_empty;
@@ -1107,10 +1095,6 @@ name const & get_string_decidable_eq_name() { return *g_string_decidable_eq; }
 name const & get_string_mk_name() { return *g_string_mk; }
 name const & get_string_data_name() { return *g_string_data; }
 name const & get_string_empty_name() { return *g_string_empty; }
-name const & get_string_iterator_name() { return *g_string_iterator; }
-name const & get_string_iterator_mk_name() { return *g_string_iterator_mk; }
-name const & get_string_iterator_fst_name() { return *g_string_iterator_fst; }
-name const & get_string_iterator_snd_name() { return *g_string_iterator_snd; }
 name const & get_string_str_name() { return *g_string_str; }
 name const & get_string_empty_ne_str_name() { return *g_string_empty_ne_str; }
 name const & get_string_str_ne_empty_name() { return *g_string_str_ne_empty; }

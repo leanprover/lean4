@@ -590,6 +590,7 @@ class specialize_fn {
                        If `x` is not a let-variable, then it is also already in `m_ctx.m_params`. */
                     if (v && !is_jp && !is_irrel) {
                         m_ctx.m_params.push_back(x);
+                        v = none_expr(); /* make sure we don't collect v's dependencies */
                     }
                 } else {
                     /* Recall that if `x` occurs inside of a binder, then it will always be lambda
@@ -600,10 +601,16 @@ class specialize_fn {
                        let ys := list.repeat 0 n in
                        xs.map (λ x, x :: ys)
                        ```
-                       We don't want to copy `list.repeat 0 n` inside of the specialized code. */
+                       We don't want to copy `list.repeat 0 n` inside of the specialized code.
+
+                       See comment above about join points and computationally irrelevant terms.
+
+                       Remark: if `x` is not a let-var, then we must insert it into m_ctx.m_params.
+                    */
                     m_ctx.m_vars.push_back(x);
-                    if (!is_jp && !is_irrel) {
+                    if (!v || (v && !is_jp && !is_irrel)) {
                         m_ctx.m_params.push_back(x);
+                        v = none_expr(); /* make sure we don't collect v's dependencies */
                     }
                 }
                 collect(decl.get_type(), true);
@@ -693,6 +700,8 @@ class specialize_fn {
         lean_trace(name({"compiler", "spec_candidate"}),
                    tout() << "candidate: " << mk_app(fn, args) << "\nclosure:";
                    for (expr const & p : ctx.m_vars) tout() << " " << p;
+                   tout() << "\nparams:";
+                   for (expr const & p : ctx.m_params) tout() << " " << p;
                    tout() << "\n";);
     }
 
@@ -830,7 +839,7 @@ class specialize_fn {
         new_code = *c;
         new_code = m_lctx.mk_lambda(new_fvars, new_code);
         ctx.m_pre_decls.push_back(comp_decl(new_name, new_code));
-        // lean_trace(name({"compiler", "specialize"}), tout() << "new specialization " << new_name << " :=\n" << new_code << "\n";);
+        // lean_trace(name({"compiler", "spec_info"}), tout() << "new specialization " << new_name << " :=\n" << new_code << "\n";);
         return optional<name>(new_name);
     }
 
@@ -928,7 +937,7 @@ class specialize_fn {
         }
         code = m_lctx.mk_lambda(new_fvars, code);
         code = m_lctx.mk_lambda(new_let_decls, code);
-        lean_trace(name("compiler", "spec_info"), tout() << "STEP 1\n" << code << "\n";);
+        // lean_trace(name("compiler", "spec_info"), tout() << "STEP 1 " << n << "\n" << code << "\n";);
         code = abstract_spec_ctx(ctx, code);
         lean_assert(!has_fvar(code));
         /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
@@ -950,9 +959,10 @@ class specialize_fn {
             m_st.env() = module::add(env(), aux_ax, false);
         }
         code = eta_expand_specialization(code);
-        lean_trace(name("compiler", "spec_info"), tout() << "STEP 2\n" << code << "\n";);
+        // lean_trace(name("compiler", "spec_info"), tout() << "STEP 2 " << n << "\n" << code << "\n";);
         code = csimp(env(), code, m_cfg);
         code = visit(code);
+        // lean_trace(name("compiler", "spec_info"), tout() << "STEP 3 " << n << "\n" << code << "\n";);
         m_new_decls.push_back(comp_decl(n, code));
     }
 
@@ -1011,6 +1021,7 @@ class specialize_fn {
     optional<expr> specialize(expr const & fn, buffer<expr> const & args, spec_ctx & ctx) {
         if (!is_specialize_candidate(fn, args))
             return none_expr();
+        // lean_trace(name("compiler", "specialize"), tout() << "specialize: " << fn << "\n";);
         specialize_init_deps(fn, args, ctx);
         buffer<bool> bmask;
         get_bool_mask(const_name(fn), args.size(), bmask);

@@ -190,17 +190,6 @@ class erase_irrelevant_fn {
         return visit(minor);
     }
 
-    expr elim_string_iterator_cases(buffer<expr> & args) {
-        lean_assert(args.size() == 3);
-        expr major     = visit(args[1]);
-        expr fst       = mk_simple_decl(mk_app(mk_constant(get_string_iterator_fst_name()), major), mk_list_char());
-        expr snd       = mk_simple_decl(mk_app(mk_constant(get_string_iterator_snd_name()), major), mk_list_char());
-        expr minor     = args[2];
-        minor = instantiate(binding_body(minor), fst);
-        minor = instantiate(binding_body(minor), snd);
-        return visit(minor);
-    }
-
     expr elim_nat_cases(buffer<expr> & args) {
         lean_assert(args.size() == 4);
         expr major       = visit(args[1]);
@@ -249,8 +238,6 @@ class erase_irrelevant_fn {
         name const & I_name = const_name(c).get_prefix();
         if (I_name == get_string_name()) {
             return elim_string_cases(args);
-        } else if (I_name == get_string_iterator_name()) {
-            return elim_string_iterator_cases(args);
         } else if (I_name == get_nat_name()) {
             return elim_nat_cases(args);
         } else if (I_name == get_int_name()) {

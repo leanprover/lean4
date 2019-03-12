@@ -69,6 +69,9 @@ private def utf8_byte_size_aux : list char → usize → usize
 def utf8_byte_size : (@& string) → usize
 | ⟨s⟩ := utf8_byte_size_aux s 0
 
+@[inline] def bsize (s : string) : usize :=
+utf8_byte_size s
+
 abbreviation utf8_pos := usize
 
 def utf8_begin : utf8_pos := 0
@@ -106,6 +109,12 @@ private def utf8_prev_aux : list char → usize → usize → usize
 def utf8_prev : (@& string) → utf8_pos → utf8_pos
 | ⟨s⟩ p := if p = 0 then 0 else utf8_prev_aux s 0 p
 
+def front (s : string) : char :=
+utf8_get s 0
+
+def back (s : string) : char :=
+utf8_get s (utf8_prev s (bsize s))
+
 @[extern cpp "lean::string_utf8_at_end"]
 def utf8_at_end : (@& string) → utf8_pos → bool
 | s p := p ≥ utf8_byte_size s
@@ -121,9 +130,6 @@ private def utf8_extract_aux₁ : list char → usize → usize → usize → li
 @[extern cpp "lean::string_utf8_extract"]
 def extract : (@& string) → utf8_pos → utf8_pos → string
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8_extract_aux₁ s 0 b e⟩
-
-def bsize (s : string) : usize :=
-utf8_byte_size s
 
 def trim_left_aux (s : string) : nat → utf8_pos → utf8_pos
 | 0     i := i
@@ -159,113 +165,59 @@ let e := trim_right_aux s s.bsize.to_nat s.bsize in
 if b = 0 && e = s.bsize then s
 else s.extract b e
 
-/- In the VM, the string iterator is implemented as a pointer to the string being iterated + index.
-   TODO: mark it opaque. -/
 structure iterator :=
-(fst : list char) (snd : list char)
+(s : string) (offset : nat) (i : usize)
 
-attribute [extern cpp "lean::string_iterator_mk"] iterator.mk
-attribute [extern cpp "lean::string_iterator_fst"] iterator.fst
-attribute [extern cpp "lean::string_iterator_snd"] iterator.snd
-
-@[extern cpp "lean::string_mk_iterator"]
-def mk_iterator : string → iterator
-| ⟨s⟩ := ⟨[], s⟩
+def mk_iterator (s : string) : iterator :=
+⟨s, 0, 0⟩
 
 namespace iterator
-@[extern cpp "lean::string_iterator_remaining"]
-def remaining : (@& iterator) → nat
-| ⟨p, n⟩ := n.length
+def remaining : iterator → nat
+| ⟨s, o, _⟩ := s.length - o
 
-@[extern cpp "lean::string_iterator_offset"]
-def offset : (@& iterator) → nat
-| ⟨p, n⟩ := p.length
+def to_string : iterator → string
+| ⟨s, _, _⟩ := s
 
-@[extern cpp "lean::string_iterator_curr"]
-def curr : (@& iterator) → char
-| ⟨p, c::n⟩ := c
-| _         := default char
+def remaining_bytes : iterator → usize
+| ⟨s, _, i⟩ := s.bsize - i
 
-/- In the runtime, `set_curr` is constant time if the string being iterated is not shared and linear time if it is. -/
-@[extern cpp "lean::string_iterator_set_curr"]
-def set_curr : iterator → char → iterator
-| ⟨p, c::n⟩ c' := ⟨p, c'::n⟩
-| it        c' := it
+def curr : iterator → char
+| ⟨s, _, i⟩ := utf8_get s i
 
-@[extern cpp "lean::string_iterator_next"]
 def next : iterator → iterator
-| ⟨p, c::n⟩ := ⟨c::p, n⟩
-| ⟨p, []⟩   := ⟨p, []⟩
+| ⟨s, o, i⟩ := ⟨s, o+1, utf8_next s i⟩
 
-@[extern cpp "lean::string_iterator_prev"]
 def prev : iterator → iterator
-| ⟨c::p, n⟩ := ⟨p, c::n⟩
-| ⟨[],   n⟩ := ⟨[], n⟩
+| ⟨s, o, i⟩ := ⟨s, o-1, utf8_prev s i⟩
 
-@[extern cpp "lean::string_iterator_has_next"]
-def has_next : (@& iterator) → bool
-| ⟨p, []⟩ := ff
-| _       := tt
+def has_next : iterator → bool
+| ⟨s, _, i⟩ := i < utf8_byte_size s
 
-@[extern cpp "lean::string_iterator_has_prev"]
-def has_prev : (@& iterator) → bool
-| ⟨[], n⟩ := ff
-| _       := tt
+def has_prev : iterator → bool
+| ⟨s, _, i⟩ := i > 0
 
-@[extern cpp "lean::string_iterator_insert"]
-def insert : iterator → (@& string) → iterator
-| ⟨p, n⟩ ⟨s⟩ := ⟨p, s++n⟩
+def set_curr : iterator → char → iterator
+| ⟨s, o, i⟩ c := ⟨utf8_set s i c, o, i⟩
 
-@[extern cpp "lean::string_iterator_remove"]
-def remove : iterator → (@& nat) → iterator
-| ⟨p, n⟩ m := ⟨p, n.drop m⟩
+def to_end : iterator → iterator
+| ⟨s, o, _⟩ := ⟨s, s.length, s.bsize⟩
 
-/- In the runtime, `to_string` is a constant time operation. -/
-@[extern cpp "lean::string_iterator_to_string"]
-def to_string : (@& iterator) → string
-| ⟨p, n⟩ := ⟨p.reverse ++ n⟩
+def extract : iterator → iterator → string
+| ⟨s₁, _, b⟩ ⟨s₂, _, e⟩ :=
+  if s₁ ≠ s₂ || b > e then ""
+  else s₁.extract b e
 
 def forward : iterator → nat → iterator
 | it 0     := it
 | it (n+1) := forward it.next n
 
-@[extern cpp "lean::string_iterator_to_end"]
-def to_end : iterator → iterator
-| ⟨p, n⟩ := ⟨n.reverse ++ p, []⟩
+def remaining_to_string : iterator → string
+| ⟨s, _, i⟩ := s.extract i s.bsize
 
-@[extern cpp "lean::string_iterator_remaining_to_string"]
-def remaining_to_string : (@& iterator) → string
-| ⟨p, n⟩ := ⟨n⟩
-
-@[extern cpp "lean::string_iterator_prev_to_string"]
-def prev_to_string : (@& iterator) → string
-| ⟨p, n⟩ := ⟨p.reverse⟩
-
-protected def extract_core : list char → list char → option (list char)
-| []       cs  := none
-| (c::cs₁) cs₂ :=
-  if cs₁ = cs₂ then some [c] else
-  match extract_core cs₁ cs₂ with
-  | none   := none
-  | some r := some (c::r)
-
-@[extern cpp "lean::string_iterator_extract"]
-def extract : (@& iterator) → (@& iterator) → option string
-| ⟨p₁, n₁⟩ ⟨p₂, n₂⟩ :=
-  if p₁.reverse ++ n₁ ≠ p₂.reverse ++ n₂ then none
-  else if n₁ = n₂ then some ""
-  else (match iterator.extract_core n₁ n₂ with
-        | none := none
-        | some r := some ⟨r⟩)
-
-/- (is_prefix_of_remaining it₁ it₂) is true iff `it₁.remaining_to_string` is a prefix
+/- (is_prefix_of_remaining it₁ it₂) is `tt` iff `it₁.remaining_to_string` is a prefix
    of `it₂.remaining_to_string`. -/
-def is_prefix_of_remaining (it₁ it₂ : iterator) : Prop :=
-it₂.extract (it₂.forward it₁.remaining) = some it₁.remaining_to_string
-
-instance : decidable_rel is_prefix_of_remaining :=
-λ it₁ it₂, infer_instance_as $ decidable $
-  it₂.extract (it₂.forward it₁.remaining) = some it₁.remaining_to_string
+def is_prefix_of_remaining : iterator → iterator → bool
+| ⟨s₁, _, i₁⟩ ⟨s₂, _, i₂⟩ := s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
 
 end iterator
 end string
@@ -290,12 +242,6 @@ n.repeat (λ _ s, s.push c) s
 def is_empty (s : string) : bool :=
 to_bool (s.length = 0)
 
-def front (s : string) : char :=
-s.mk_iterator.curr
-
-def back (s : string) : char :=
-s.mk_iterator.to_end.prev.curr
-
 def join (l : list string) : string :=
 l.foldl (λ r s, r ++ s) ""
 
@@ -314,15 +260,6 @@ def prevn : iterator → nat → iterator
 | it 0     := it
 | it (i+1) := prevn it.prev i
 end iterator
-
-def pop_back (s : string) : string :=
-s.mk_iterator.to_end.prev.prev_to_string
-
-def popn_back (s : string) (n : nat) : string :=
-(s.mk_iterator.to_end.prevn n).prev_to_string
-
-def backn (s : string) (n : nat) : string :=
-(s.mk_iterator.to_end.prevn n).remaining_to_string
 
 private def line_column_aux : nat → string.iterator → nat × nat → nat × nat
 | 0     it r           := r

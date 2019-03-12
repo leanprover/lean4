@@ -481,29 +481,8 @@ void initialize_vm_string() {
     DECLARE_VM_BUILTIN(name({"string", "length"}),            string_length);
     DECLARE_VM_BUILTIN(name({"string", "push"}),              string_push);
     DECLARE_VM_BUILTIN(name({"string", "append"}),            string_append);
-    DECLARE_VM_BUILTIN(name({"string", "mk_iterator"}),       string_mk_iterator);
     DECLARE_VM_BUILTIN(name({"string", "dec_eq"}),            string_has_decidable_eq);
     DECLARE_VM_BUILTIN(name({"string", "dec_lt"}),            string_has_decidable_lt);
-
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "curr"}),           string_iterator_curr);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "set_curr"}),       string_iterator_set_curr);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "next"}),           string_iterator_next);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "prev"}),           string_iterator_prev);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "has_next"}),       string_iterator_has_next);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "has_prev"}),       string_iterator_has_prev);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "insert"}),         string_iterator_insert);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "remove"}),         string_iterator_remove);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "remaining"}),      string_iterator_remaining);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "offset"}),         string_iterator_offset);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "to_string"}),      string_iterator_to_string);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "to_end"}),         string_iterator_to_end);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "remaining_to_string"}), string_iterator_remaining_to_string);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "prev_to_string"}), string_iterator_prev_to_string);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "extract"}),        string_iterator_extract);
-
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "mk"}),              string_iterator_mk);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "fst"}),             string_iterator_fst);
-    DECLARE_VM_BUILTIN(name({"string", "iterator", "snd"}),             string_iterator_snd);
 }
 
 void finalize_vm_string() {

@@ -391,7 +391,6 @@ bool is_runtime_builtin_type(name const & n) {
     /* TODO(Leo): use an attribute? */
     return
         n == get_string_name() ||
-        n == get_string_iterator_name() ||
         n == get_uint8_name()  ||
         n == get_uint16_name() ||
         n == get_uint32_name() ||

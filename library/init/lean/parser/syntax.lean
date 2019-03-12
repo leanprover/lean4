@@ -82,7 +82,7 @@ instance : inhabited syntax :=
 ⟨syntax.missing⟩
 
 def substring.to_string (s : substring) : string :=
-(s.start.extract s.stop).get_or_else ""
+s.start.extract s.stop
 
 def substring.of_string (s : string) : substring :=
 ⟨s.mk_iterator, s.mk_iterator.to_end⟩

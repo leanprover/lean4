@@ -15,7 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 uint8 l_lean_ir_alts_is__pure(obj*);
-obj* l_rbnode_find___main___at_lean_name__map_contains___spec__2(obj*, obj*, obj*, obj*, obj*);
+obj* l_rbnode_find___main___at_lean_name__map_contains___spec__2(obj*, obj*, obj*, obj*);
 obj* l_list_foldl___main___at_lean_ir_insert__params___spec__1(obj*, obj*);
 uint8 l_lean_ir_ctor__info_beq___main(obj*, obj*);
 obj* l_lean_ir_expr_has__aeqv;
@@ -837,7 +837,7 @@ _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::box(0);
-x_3 = l_rbnode_find___main___at_lean_name__map_contains___spec__2(x_2, lean::box(0), lean::box(0), x_0, x_1);
+x_3 = l_rbnode_find___main___at_lean_name__map_contains___spec__2(x_2, lean::box(0), x_0, x_1);
 return x_3;
 }
 }

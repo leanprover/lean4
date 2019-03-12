@@ -22,6 +22,7 @@ obj* l_fix__core__4___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*
 obj* l_bfix__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix__4___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix__5___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_fix__core___rarg(obj*, obj*, obj*);
 obj* l_fix__core__3___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix__4___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_fix__1___rarg___lambda__1(obj*, obj*);
@@ -65,9 +66,11 @@ obj* l_bfix__1___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_fix__1___rarg(obj*, obj*, obj*);
 obj* l_fix__1___boxed(obj*, obj*);
 obj* l_fix__5___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_fix__core___rarg___boxed(obj*, obj*, obj*);
 obj* l_bfix__3___main(obj*, obj*, obj*, obj*);
 obj* l_fix__6___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix(obj*, obj*);
+obj* l_fix__core(obj*, obj*);
 obj* l_fix__3___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_bfix__4___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_fix__5___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -76,6 +79,7 @@ obj* l_fix__1___rarg___lambda__1___boxed(obj*, obj*);
 obj* l_bfix__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix__4___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_bfix__3___boxed(obj*, obj*, obj*, obj*);
+obj* l_fix__core___boxed(obj*, obj*);
 obj* l_bfix__1___boxed(obj*, obj*);
 obj* l_fix__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_bfix__6___main___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -204,6 +208,41 @@ obj* x_5;
 x_5 = lean::fixpoint(x_3, x_4);
 lean::dec(x_2);
 return x_5;
+}
+}
+obj* l_fix__core___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::fixpoint(x_1, x_2);
+return x_3;
+}
+}
+obj* l_fix__core(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fix__core___rarg___boxed), 3, 0);
+return x_2;
+}
+}
+obj* l_fix__core___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_fix__core___rarg(x_0, x_1, x_2);
+lean::dec(x_0);
+return x_3;
+}
+}
+obj* l_fix__core___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_fix__core(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
 }
 }
 obj* l_fix__1___rarg___lambda__1(obj* x_0, obj* x_1) {

@@ -164,7 +164,7 @@ obj* l_lean_parser_parser__core__t_monad__except___boxed(obj*);
 obj* l_lean_parser_token__map__nil_tokens(obj*);
 obj* l_lean_parser_command__parser__m_lean_parser_monad__parsec___boxed(obj*);
 obj* l_lean_parser_log__message___rarg___lambda__1(obj*, obj*, obj*, obj*);
-obj* l_lean_parser_rec__t_recurse___rarg(obj*, obj*, obj*);
+obj* l_lean_parser_rec__t_recurse___rarg(obj*, obj*);
 obj* l_rbnode_insert___at_lean_parser_token__map_insert___spec__3(obj*, obj*, obj*, obj*);
 obj* l_rbmap_find___main___at_lean_parser_token__map_insert___spec__1___boxed(obj*);
 obj* l_option_get___main___at_lean_parser_run___spec__2___boxed(obj*);
@@ -1775,7 +1775,7 @@ return x_1;
 obj* _init_l_lean_parser_command__parser__m_lean_parser_monad__rec___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_14; obj* x_15; obj* x_16; 
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id_monad___lambda__1___boxed), 4, 0);
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id_monad___lambda__2___boxed), 4, 0);
 lean::inc(x_1);
@@ -1796,20 +1796,18 @@ x_9 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_9, 0, x_7);
 lean::cnstr_set(x_9, 1, x_8);
 x_10 = l_lean_parser_parser__core__t_monad___rarg(x_9);
-lean::inc(x_10);
-x_12 = l_reader__t_monad___rarg(x_10);
-lean::inc(x_12);
-x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_reader__t_lift___boxed), 4, 3);
-lean::closure_set(x_14, 0, lean::box(0));
-lean::closure_set(x_14, 1, lean::box(0));
-lean::closure_set(x_14, 2, x_12);
-x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_recurse___rarg), 3, 1);
-lean::closure_set(x_15, 0, x_10);
-x_16 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__rec_trans___rarg___boxed), 4, 3);
-lean::closure_set(x_16, 0, x_14);
-lean::closure_set(x_16, 1, x_15);
-lean::closure_set(x_16, 2, x_12);
-return x_16;
+x_11 = l_reader__t_monad___rarg(x_10);
+lean::inc(x_11);
+x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_reader__t_lift___boxed), 4, 3);
+lean::closure_set(x_13, 0, lean::box(0));
+lean::closure_set(x_13, 1, lean::box(0));
+lean::closure_set(x_13, 2, x_11);
+x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_recurse___rarg), 2, 0);
+x_15 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_monad__rec_trans___rarg___boxed), 4, 3);
+lean::closure_set(x_15, 0, x_13);
+lean::closure_set(x_15, 1, x_14);
+lean::closure_set(x_15, 2, x_11);
+return x_15;
 }
 }
 obj* l_lean_parser_command__parser__m_lean_parser_monad__rec(obj* x_0) {
@@ -1967,11 +1965,9 @@ return x_1;
 obj* _init_l_lean_parser_term__parser__m_lean_parser_monad__rec() {
 _start:
 {
-obj* x_0; obj* x_1; 
-x_0 = l_lean_parser_command__parser__m_monad___closed__1;
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_recurse___rarg), 3, 1);
-lean::closure_set(x_1, 0, x_0);
-return x_1;
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_recurse___rarg), 2, 0);
+return x_0;
 }
 }
 obj* _init_l_lean_parser_term__parser__m_lean_parser_monad__basic__parser() {

@@ -15,6 +15,9 @@ def bfix_1 {α β : Type u} (base : α → β) (rec : (α → β) → α → β)
 def fix_core_1 {α β : Type u} (base : @& (α → β)) (rec : (α → β) → α → β) : α → β :=
 bfix_1 base rec usize_sz
 
+@[inline] def fix_core {α β : Type u} (base : @& (α → β)) (rec : (α → β) → α → β) : α → β :=
+fix_core_1 base rec
+
 @[inline] def fix_1 {α β : Type u} [inhabited β] (rec : (α → β) → α → β) : α → β :=
 fix_core_1 (λ _, default β) rec
 

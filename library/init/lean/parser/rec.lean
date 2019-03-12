@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Recursion monad transformer
 -/
 prelude
-import init.lean.parser.parsec
+import init.lean.parser.parsec init.fix
 
 namespace lean.parser
 
@@ -20,23 +20,16 @@ variables {m : Type → Type} {α δ β : Type} [monad m]
 local attribute [reducible] rec_t
 
 /-- Continue at the recursion point stored at `run`. -/
-def recurse (a : α) : rec_t α δ m δ :=
-do x ← read,
-   monad_lift (x a)
-
-private def run_aux (base : α → m δ) (rec : α → rec_t α δ m δ) : nat → α → m δ
-| 0     := base
-| (n+1) := λ a, (rec a).run (run_aux n)
+@[inline] def recurse (a : α) : rec_t α δ m δ :=
+λ f, f a
 
 /-- Execute `x`, executing `rec a` whenever `recurse a` is called.
     After `max_rec` recursion steps, `base` is executed instead. -/
-protected def run (x : rec_t α δ m β) (base : α → m δ) (rec : α → rec_t α δ m δ) (max_rec : ℕ) : m β :=
-x.run (run_aux base rec max_rec)
+@[inline] protected def run (x : rec_t α δ m β) (base : α → m δ) (rec : α → rec_t α δ m δ) : m β :=
+x (fix_core base (λ a f, rec f a))
 
-protected def run_parsec {γ : Type} [monad_parsec γ m] (x : rec_t α δ m β)
-  (rec : α → rec_t α δ m δ) : m β :=
-do it ← monad_parsec.left_over,
-   rec_t.run x (λ _, monad_parsec.error "rec_t.run_parsec: no progress") rec (it.remaining+1)
+@[inline] protected def run_parsec {γ : Type} [monad_parsec γ m] (x : rec_t α δ m β) (rec : α → rec_t α δ m δ) : m β :=
+rec_t.run x (λ _, monad_parsec.error "rec_t.run_parsec: no progress") rec
 
 -- not clear how to auto-derive these given the additional constraints
 instance : monad (rec_t α δ m) := infer_instance

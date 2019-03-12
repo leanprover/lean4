@@ -469,28 +469,9 @@ extern obj* l_lean_parser_term__parser__m_alternative;
 obj* l_lean_parser_rec__t_recurse___at_lean_parser_term_parser_lean_parser_has__tokens___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-obj* x_6; obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
+obj* x_6; 
 x_6 = lean::apply_5(x_1, x_0, x_2, x_3, x_4, x_5);
-x_7 = lean::cnstr_get(x_6, 0);
-x_9 = lean::cnstr_get(x_6, 1);
-if (lean::is_exclusive(x_6)) {
- x_11 = x_6;
-} else {
- lean::inc(x_7);
- lean::inc(x_9);
- lean::dec(x_6);
- x_11 = lean::box(0);
-}
-x_12 = l_lean_parser_parsec_result_mk__eps___rarg___closed__1;
-x_13 = l_lean_parser_parsec__t_bind__mk__res___rarg(x_12, x_7);
-if (lean::is_scalar(x_11)) {
- x_14 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_14 = x_11;
-}
-lean::cnstr_set(x_14, 0, x_13);
-lean::cnstr_set(x_14, 1, x_9);
-return x_14;
+return x_6;
 }
 }
 obj* _init_l_lean_parser_term_parser_lean_parser_has__tokens___closed__1() {
@@ -559,7 +540,7 @@ obj* l_lean_parser_term_parser(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4,
 _start:
 {
 obj* x_6; obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
-x_6 = l_lean_parser_rec__t_recurse___at_lean_parser_term_parser_lean_parser_has__tokens___spec__1(x_0, x_1, x_2, x_3, x_4, x_5);
+x_6 = lean::apply_5(x_1, x_0, x_2, x_3, x_4, x_5);
 x_7 = lean::cnstr_get(x_6, 0);
 x_9 = lean::cnstr_get(x_6, 1);
 if (lean::is_exclusive(x_6)) {

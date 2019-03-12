@@ -984,8 +984,6 @@ def mk_state (cfg : elaborator_config) (opts : options) : elaborator_state := {
   ngen := ⟨`_ngen.fixme, 0⟩,
   scopes := [{cmd := "MODULE", header := `MODULE, options := opts}]}
 
-def max_recursion := 100
-
 def process_command (cfg : elaborator_config) (st : elaborator_state) (cmd : syntax) : elaborator_state :=
 let st := {st with messages := message_log.empty} in
 let r := @except_t.run _ id _ $ flip state_t.run st $ flip reader_t.run cfg $ rec_t.run
@@ -997,8 +995,7 @@ let r := @except_t.run _ id _ $ flip state_t.run st $ flip reader_t.run cfg $ re
     some elab ← pure $ elaborators.find n.kind.name |
       error cmd $ "unknown command: " ++ to_string n.kind.name,
     cmd' ← preresolve cmd,
-    elab cmd')
-  max_recursion in
+    elab cmd') in
 match r with
 | except.ok ((), st) := st
 | except.error e     := {st with messages := st.messages.add e}

@@ -1479,21 +1479,6 @@ static std::string list_as_string(b_obj_arg lst) {
     return s;
 }
 
-static std::string rev_list_as_string(b_obj_arg lst) {
-    buffer<unsigned> codes;
-    b_obj_arg o = lst;
-    while (!is_scalar(o)) {
-        codes.push_back(unbox(cnstr_get(o, 0)));
-        o  = cnstr_get(o, 1);
-    }
-    std::reverse(codes.begin(), codes.end());
-    std::string s;
-    for (unsigned c : codes) {
-        push_unicode_scalar(s, c);
-    }
-    return s;
-}
-
 static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
     buffer<unsigned> tmp;
     utf8_decode(s, tmp);

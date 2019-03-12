@@ -1619,6 +1619,46 @@ obj_res string_utf8_extract(b_obj_arg s, usize b, usize e) {
     return r;
 }
 
+usize string_utf8_prev(b_obj_arg s, usize i) {
+    usize sz = string_size(s) - 1;
+    if (i == 0 || i > sz) return 0;
+    i--;
+    char const * str = string_cstr(s);
+    while (!is_utf8_first_byte(str[i])) {
+        lean_assert(i > 0);
+        i--;
+    }
+    return i;
+}
+
+static unsigned get_utf8_char_size_at(std::string const & s, usize i) {
+    if (auto sz = get_utf8_first_byte_opt(s[i])) {
+        return *sz;
+    } else {
+        return 1;
+    }
+}
+
+obj_res string_utf8_set(obj_arg s, usize i, uint32 c) {
+    usize sz = string_size(s) - 1;
+    if (i >= sz) return s;
+    char * str = w_string_cstr(s);
+    if (is_exclusive(s)) {
+        if (static_cast<unsigned char>(str[i]) < 128 && c < 128) {
+            str[i] = c;
+            return s;
+        }
+    }
+    if (!is_utf8_first_byte(str[i])) return s;
+    /* TODO(Leo): improve performance of other special cases.
+       Example: is_exclusive(s) and new and old characters have the same size; etc. */
+    std::string tmp;
+    push_unicode_scalar(tmp, c);
+    std::string new_s = string_to_std(s);
+    new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
+    return mk_string(new_s);
+}
+
 /* `pos` is in bytes, and `remaining` is in characters */
 static obj_res mk_iterator(obj_arg s, size_t pos, size_t remaining) {
     obj_res r = alloc_cnstr(0, 1, sizeof(size_t)*2);
@@ -1637,14 +1677,6 @@ static void it_set_remaining(u_obj_arg it, size_t r) { cnstr_set_scalar<size_t>(
 /* instance : inhabited char := ⟨'A'⟩ */
 static uint32 mk_default_char() { return 65; }
 static bool is_unshared_it_string(b_obj_arg it) { return is_exclusive(it) && !is_shared(cnstr_get(it, 0)); }
-
-static unsigned get_utf8_char_size_at(std::string const & s, unsigned i) {
-    if (auto sz = get_utf8_first_byte_opt(s[i])) {
-        return *sz;
-    } else {
-        return 1;
-    }
-}
 
 obj_res string_mk_iterator(obj_arg s) {
     return mk_iterator(s, 0, string_len(s));

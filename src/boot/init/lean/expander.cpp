@@ -841,31 +841,33 @@ return x_1;
 obj* _init_l_lean_expander_coe__binder__bracketed__binder___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("(");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_coe__binder__bracketed__binder___closed__2() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(")");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* l_lean_expander_coe__binder__bracketed__binder(obj* x_0) {
@@ -1169,16 +1171,17 @@ return x_3;
 obj* _init_l_list_mmap_x_27___main___at_lean_expander_mk__notation__transformer___spec__4___closed__3() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(",");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* l_list_mmap_x_27___main___at_lean_expander_mk__notation__transformer___spec__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -3069,16 +3072,17 @@ return x_13;
 obj* _init_l_lean_expander_mixfix__to__notation__spec___closed__4() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(":");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mixfix__to__notation__spec___closed__5() {
@@ -3529,31 +3533,33 @@ return x_16;
 obj* _init_l_lean_expander_mixfix_transform___closed__3() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("notation");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mixfix_transform___closed__4() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(":=");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mixfix_transform___closed__5() {
@@ -3804,16 +3810,17 @@ return x_98;
 obj* _init_l_lean_expander_reserve__mixfix_transform___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("reserve");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* l_lean_expander_reserve__mixfix_transform(obj* x_0, obj* x_1) {
@@ -3888,106 +3895,113 @@ return x_30;
 obj* _init_l_lean_expander_mk__simple__binder___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(" : ");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mk__simple__binder___closed__2() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("{");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mk__simple__binder___closed__3() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("}");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mk__simple__binder___closed__4() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("\xe2\xa6\x83");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mk__simple__binder___closed__5() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("\xe2\xa6\x84");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mk__simple__binder___closed__6() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("[");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_lean_expander_mk__simple__binder___closed__7() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("]");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* l_lean_expander_mk__simple__binder(obj* x_0, uint8 x_1, obj* x_2) {
@@ -4140,7 +4154,7 @@ return x_1;
 obj* _init_l_lean_expander_get__opt__type___main___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
 x_0 = l_lean_parser_term_hole_has__view;
 x_1 = lean::cnstr_get(x_0, 1);
 lean::inc(x_1);
@@ -4148,13 +4162,14 @@ lean::dec(x_0);
 x_4 = lean::box(0);
 x_5 = lean::mk_string("_");
 x_6 = l_string_trim(x_5);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_4);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_8, 0, x_7);
-x_9 = lean::apply_1(x_1, x_8);
-return x_9;
+lean::dec(x_5);
+x_8 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_8, 0, x_4);
+lean::cnstr_set(x_8, 1, x_6);
+x_9 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_9, 0, x_8);
+x_10 = lean::apply_1(x_1, x_9);
+return x_10;
 }
 }
 obj* l_lean_expander_get__opt__type___main(obj* x_0) {
@@ -5219,20 +5234,22 @@ _start:
 obj* x_0; obj* x_1; 
 x_0 = lean::mk_string(" : ");
 x_1 = l_string_trim(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
 obj* _init_l_lean_expander_expand__bracketed__binder___main___closed__11() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(" : ");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+return x_4;
 }
 }
 obj* _init_l_lean_expander_expand__bracketed__binder___main___closed__12() {
@@ -6920,16 +6937,17 @@ return x_13;
 obj* _init_l_list_mfoldr___main___at_lean_expander_expand__binders___spec__6___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("match ");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_list_mfoldr___main___at_lean_expander_expand__binders___spec__6___closed__2() {
@@ -6972,22 +6990,23 @@ return x_18;
 obj* _init_l_list_mfoldr___main___at_lean_expander_expand__binders___spec__6___closed__3() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(" with ");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* _init_l_list_mfoldr___main___at_lean_expander_expand__binders___spec__6___closed__4() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; uint8 x_20; obj* x_21; obj* x_22; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_15; obj* x_16; obj* x_18; obj* x_19; obj* x_20; uint8 x_21; obj* x_22; obj* x_23; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("x");
 x_2 = lean_name_mk_string(x_0, x_1);
@@ -7010,17 +7029,18 @@ lean::inc(x_12);
 lean::dec(x_11);
 x_15 = lean::mk_string("_");
 x_16 = l_string_trim(x_15);
-x_17 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_17, 0, x_3);
-lean::cnstr_set(x_17, 1, x_16);
-x_18 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_18, 0, x_17);
-x_19 = lean::apply_1(x_12, x_18);
-x_20 = 0;
-x_21 = l_lean_expander_mk__simple__binder(x_10, x_20, x_19);
-x_22 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_22, 0, x_21);
-return x_22;
+lean::dec(x_15);
+x_18 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_18, 0, x_3);
+lean::cnstr_set(x_18, 1, x_16);
+x_19 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_19, 0, x_18);
+x_20 = lean::apply_1(x_12, x_19);
+x_21 = 0;
+x_22 = l_lean_expander_mk__simple__binder(x_10, x_21, x_20);
+x_23 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_23, 0, x_22);
+return x_23;
 }
 }
 obj* l_list_mfoldr___main___at_lean_expander_expand__binders___spec__6(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -7322,35 +7342,38 @@ _start:
 obj* x_0; obj* x_1; 
 x_0 = lean::mk_string("_");
 x_1 = l_string_trim(x_0);
+lean::dec(x_0);
 return x_1;
 }
 }
 obj* _init_l_lean_expander_expand__binders___closed__3() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("_");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+return x_4;
 }
 }
 obj* _init_l_lean_expander_expand__binders___closed__4() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("_");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* l_lean_expander_expand__binders(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -8735,33 +8758,35 @@ return x_9;
 obj* _init_l_lean_expander_let_transform___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_10; obj* x_11; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(" : ");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-x_5 = l_lean_parser_term_hole_has__view;
-x_6 = lean::cnstr_get(x_5, 1);
-lean::inc(x_6);
-lean::dec(x_5);
-x_9 = lean::mk_string("_");
-x_10 = l_string_trim(x_9);
-x_11 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_11, 0, x_0);
-lean::cnstr_set(x_11, 1, x_10);
-x_12 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_12, 0, x_11);
-x_13 = lean::apply_1(x_6, x_12);
-x_14 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_14, 0, x_4);
-lean::cnstr_set(x_14, 1, x_13);
-x_15 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_15, 0, x_14);
-return x_15;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+x_6 = l_lean_parser_term_hole_has__view;
+x_7 = lean::cnstr_get(x_6, 1);
+lean::inc(x_7);
+lean::dec(x_6);
+x_10 = lean::mk_string("_");
+x_11 = l_string_trim(x_10);
+lean::dec(x_10);
+x_13 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_13, 0, x_0);
+lean::cnstr_set(x_13, 1, x_11);
+x_14 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_14, 0, x_13);
+x_15 = lean::apply_1(x_7, x_14);
+x_16 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_16, 0, x_5);
+lean::cnstr_set(x_16, 1, x_15);
+x_17 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
+return x_17;
 }
 }
 obj* l_lean_expander_let_transform(obj* x_0, obj* x_1) {
@@ -9190,28 +9215,30 @@ return x_2;
 obj* _init_l_lean_expander_declaration_transform___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_11; obj* x_12; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("@[");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-x_5 = lean::box(0);
-x_6 = lean::mk_string("]");
-x_7 = l_string_trim(x_6);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_0);
-lean::cnstr_set(x_8, 1, x_7);
-x_9 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_9, 0, x_8);
-x_10 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_10, 0, x_4);
-lean::cnstr_set(x_10, 1, x_5);
-lean::cnstr_set(x_10, 2, x_9);
-return x_10;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+x_6 = lean::box(0);
+x_7 = lean::mk_string("]");
+x_8 = l_string_trim(x_7);
+lean::dec(x_7);
+x_10 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_10, 0, x_0);
+lean::cnstr_set(x_10, 1, x_8);
+x_11 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_11, 0, x_10);
+x_12 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_12, 0, x_5);
+lean::cnstr_set(x_12, 1, x_6);
+lean::cnstr_set(x_12, 2, x_11);
+return x_12;
 }
 }
 obj* _init_l_lean_expander_declaration_transform___closed__2() {
@@ -9246,18 +9273,19 @@ return x_12;
 obj* _init_l_lean_expander_declaration_transform___closed__3() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("structure");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-x_5 = lean::alloc_cnstr(0, 1, 0);
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_5, 0, x_4);
-return x_5;
+x_6 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_6, 0, x_5);
+return x_6;
 }
 }
 obj* l_lean_expander_declaration_transform(obj* x_0, obj* x_1) {
@@ -9717,16 +9745,17 @@ return x_2;
 obj* _init_l_lean_expander_variable_transform___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("variables");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* l_lean_expander_variable_transform(obj* x_0, obj* x_1) {
@@ -9905,51 +9934,53 @@ return x_0;
 obj* _init_l_lean_expander_binding__annotation__update_parser_lean_parser_has__view() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
 x_0 = lean::mk_string("dummy");
 x_1 = l_string_trim(x_0);
+lean::dec(x_0);
 lean::inc(x_1);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
-lean::closure_set(x_3, 0, x_1);
-x_4 = lean::mk_nat_obj(0u);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_symbol__core___at_lean_parser_command_notation__spec_precedence__term_parser_lean_parser_has__tokens___spec__1___boxed), 8, 3);
-lean::closure_set(x_5, 0, x_1);
-lean::closure_set(x_5, 1, x_4);
-lean::closure_set(x_5, 2, x_3);
-x_6 = lean::box(0);
-x_7 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = l_lean_parser_term__parser__m_monad;
-x_9 = l_lean_parser_term__parser__m_monad__except;
-x_10 = l_lean_parser_term__parser__m_lean_parser_monad__parsec;
-x_11 = l_lean_parser_term__parser__m_alternative;
-x_12 = l_lean_expander_binding__annotation__update;
-x_13 = l_lean_expander_binding__annotation__update_has__view;
-x_14 = l_lean_parser_combinators_node_view___rarg(x_8, x_9, x_10, x_11, x_12, x_7, x_13);
-lean::dec(x_7);
-return x_14;
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
+lean::closure_set(x_4, 0, x_1);
+x_5 = lean::mk_nat_obj(0u);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_symbol__core___at_lean_parser_command_notation__spec_precedence__term_parser_lean_parser_has__tokens___spec__1___boxed), 8, 3);
+lean::closure_set(x_6, 0, x_1);
+lean::closure_set(x_6, 1, x_5);
+lean::closure_set(x_6, 2, x_4);
+x_7 = lean::box(0);
+x_8 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_8, 0, x_6);
+lean::cnstr_set(x_8, 1, x_7);
+x_9 = l_lean_parser_term__parser__m_monad;
+x_10 = l_lean_parser_term__parser__m_monad__except;
+x_11 = l_lean_parser_term__parser__m_lean_parser_monad__parsec;
+x_12 = l_lean_parser_term__parser__m_alternative;
+x_13 = l_lean_expander_binding__annotation__update;
+x_14 = l_lean_expander_binding__annotation__update_has__view;
+x_15 = l_lean_parser_combinators_node_view___rarg(x_9, x_10, x_11, x_12, x_13, x_8, x_14);
+lean::dec(x_8);
+return x_15;
 }
 }
 obj* _init_l_lean_expander_binding__annotation__update_parser___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_0 = lean::mk_string("dummy");
 x_1 = l_string_trim(x_0);
+lean::dec(x_0);
 lean::inc(x_1);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
-lean::closure_set(x_3, 0, x_1);
-x_4 = lean::mk_nat_obj(0u);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_symbol__core___at_lean_parser_command_notation__spec_precedence__term_parser_lean_parser_has__tokens___spec__1___boxed), 8, 3);
-lean::closure_set(x_5, 0, x_1);
-lean::closure_set(x_5, 1, x_4);
-lean::closure_set(x_5, 2, x_3);
-x_6 = lean::box(0);
-x_7 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_dlist_singleton___rarg), 2, 1);
+lean::closure_set(x_4, 0, x_1);
+x_5 = lean::mk_nat_obj(0u);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_symbol__core___at_lean_parser_command_notation__spec_precedence__term_parser_lean_parser_has__tokens___spec__1___boxed), 8, 3);
+lean::closure_set(x_6, 0, x_1);
+lean::closure_set(x_6, 1, x_5);
+lean::closure_set(x_6, 2, x_4);
+x_7 = lean::box(0);
+x_8 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_8, 0, x_6);
+lean::cnstr_set(x_8, 1, x_7);
+return x_8;
 }
 }
 obj* l_lean_expander_binding__annotation__update_parser(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -9965,33 +9996,35 @@ return x_7;
 obj* _init_l_list_mmap___main___at_lean_expander_variables_transform___spec__1___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_10; obj* x_11; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string(" : ");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-x_5 = l_lean_expander_binding__annotation__update_has__view;
-x_6 = lean::cnstr_get(x_5, 1);
-lean::inc(x_6);
-lean::dec(x_5);
-x_9 = lean::mk_string("dummy");
-x_10 = l_string_trim(x_9);
-x_11 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_11, 0, x_0);
-lean::cnstr_set(x_11, 1, x_10);
-x_12 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_12, 0, x_11);
-x_13 = lean::apply_1(x_6, x_12);
-x_14 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_14, 0, x_4);
-lean::cnstr_set(x_14, 1, x_13);
-x_15 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_15, 0, x_14);
-return x_15;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+x_6 = l_lean_expander_binding__annotation__update_has__view;
+x_7 = lean::cnstr_get(x_6, 1);
+lean::inc(x_7);
+lean::dec(x_6);
+x_10 = lean::mk_string("dummy");
+x_11 = l_string_trim(x_10);
+lean::dec(x_10);
+x_13 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_13, 0, x_0);
+lean::cnstr_set(x_13, 1, x_11);
+x_14 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_14, 0, x_13);
+x_15 = lean::apply_1(x_7, x_14);
+x_16 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_16, 0, x_5);
+lean::cnstr_set(x_16, 1, x_15);
+x_17 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_17, 0, x_16);
+return x_17;
 }
 }
 obj* l_list_mmap___main___at_lean_expander_variables_transform___spec__1(obj* x_0, obj* x_1) {
@@ -10446,16 +10479,17 @@ return x_2;
 obj* _init_l_list_map___main___at_lean_expander_universes_transform___spec__1___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("universe");
 x_2 = l_string_trim(x_1);
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_2);
-x_4 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_4, 0, x_3);
-return x_4;
+lean::dec(x_1);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
 }
 }
 obj* l_list_map___main___at_lean_expander_universes_transform___spec__1(obj* x_0) {
@@ -10535,7 +10569,7 @@ return x_2;
 obj* _init_l_lean_expander_sorry_transform___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("sorry_ax");
 x_2 = lean_name_mk_string(x_0, x_1);
@@ -10547,30 +10581,31 @@ lean::dec(x_4);
 x_8 = lean::box(0);
 x_9 = lean::mk_string("_");
 x_10 = l_string_trim(x_9);
-x_11 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_11, 0, x_8);
-lean::cnstr_set(x_11, 1, x_10);
-x_12 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_12, 0, x_11);
-x_13 = lean::apply_1(x_5, x_12);
-x_14 = lean::mk_string("bool");
-x_15 = lean_name_mk_string(x_0, x_14);
-x_16 = lean::mk_string("ff");
-x_17 = lean_name_mk_string(x_15, x_16);
-x_18 = l_lean_expander_glob__id(x_17);
-x_19 = lean::box(0);
-x_20 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_20, 0, x_18);
-lean::cnstr_set(x_20, 1, x_19);
+lean::dec(x_9);
+x_12 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_12, 0, x_8);
+lean::cnstr_set(x_12, 1, x_10);
+x_13 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_13, 0, x_12);
+x_14 = lean::apply_1(x_5, x_13);
+x_15 = lean::mk_string("bool");
+x_16 = lean_name_mk_string(x_0, x_15);
+x_17 = lean::mk_string("ff");
+x_18 = lean_name_mk_string(x_16, x_17);
+x_19 = l_lean_expander_glob__id(x_18);
+x_20 = lean::box(0);
 x_21 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_21, 0, x_13);
+lean::cnstr_set(x_21, 0, x_19);
 lean::cnstr_set(x_21, 1, x_20);
-x_22 = l_list_foldl___main___at_lean_parser_term_mk__app___spec__1(x_3, x_21);
-x_23 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_23, 0, x_22);
+x_22 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_22, 0, x_14);
+lean::cnstr_set(x_22, 1, x_21);
+x_23 = l_list_foldl___main___at_lean_parser_term_mk__app___spec__1(x_3, x_22);
 x_24 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_24, 0, x_23);
-return x_24;
+x_25 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_25, 0, x_24);
+return x_25;
 }
 }
 obj* l_lean_expander_sorry_transform(obj* x_0, obj* x_1) {

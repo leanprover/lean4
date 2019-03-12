@@ -81,10 +81,30 @@ private def utf8_get_aux : list char → usize → usize → char
 def utf8_get : (@& string) → utf8_pos → char
 | ⟨s⟩ p := utf8_get_aux s 0 p
 
+private def utf8_set_aux (c' : char) : list char → usize → usize → list char
+| []      i p := []
+| (c::cs) i p :=
+  if i = p then (c'::cs) else c::(utf8_set_aux cs (i + csize c) p)
+
+@[extern cpp "lean::string_utf8_set"]
+def utf8_set : string → utf8_pos → char → string
+| ⟨s⟩ i c := ⟨utf8_set_aux c s 0 i⟩
+
 @[extern cpp "lean::string_utf8_next"]
 def utf8_next (s : @& string) (p : utf8_pos) : utf8_pos :=
 let c := utf8_get s p in
 p + csize c
+
+private def utf8_prev_aux : list char → usize → usize → usize
+| []      i p := 0
+| (c::cs) i p :=
+  let cz := csize c in
+  let i' := i + cz in
+  if i' = p then i else utf8_prev_aux cs i' p
+
+@[extern cpp "lean::string_utf8_prev"]
+def utf8_prev : (@& string) → utf8_pos → utf8_pos
+| ⟨s⟩ p := if p = 0 then 0 else utf8_prev_aux s 0 p
 
 @[extern cpp "lean::string_utf8_at_end"]
 def utf8_at_end : (@& string) → utf8_pos → bool
@@ -99,8 +119,45 @@ private def utf8_extract_aux₁ : list char → usize → usize → usize → li
 | s@(c::cs) i b e := if i = b then utf8_extract_aux₂ s i e else utf8_extract_aux₁ cs (i + csize c) b e
 
 @[extern cpp "lean::string_utf8_extract"]
-def utf8_extract : (@& string) → utf8_pos → utf8_pos → string
+def extract : (@& string) → utf8_pos → utf8_pos → string
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8_extract_aux₁ s 0 b e⟩
+
+def bsize (s : string) : usize :=
+utf8_byte_size s
+
+def trim_left_aux (s : string) : nat → utf8_pos → utf8_pos
+| 0     i := i
+| (n+1) i :=
+  if i ≥ s.bsize then i
+  else let c := s.utf8_get i in
+       if !c.is_whitespace then i
+       else trim_left_aux n (i + csize c)
+
+def trim_left (s : string) : string :=
+let b := trim_left_aux s s.bsize.to_nat 0 in
+if b = 0 then s
+else s.extract b s.bsize
+
+def trim_right_aux (s : string) : nat → utf8_pos → utf8_pos
+| 0     i := i
+| (n+1) i :=
+  if i = 0 then i
+  else
+    let i' := s.utf8_prev i in
+    let c  := s.utf8_get i' in
+    if !c.is_whitespace then i
+    else trim_right_aux n i'
+
+def trim_right (s : string) : string :=
+let e := trim_right_aux s s.bsize.to_nat s.bsize in
+if e = s.bsize then s
+else s.extract 0 e
+
+def trim (s : string) : string :=
+let b := trim_left_aux s s.bsize.to_nat 0 in
+let e := trim_right_aux s s.bsize.to_nat s.bsize in
+if b = 0 && e = s.bsize then s
+else s.extract b e
 
 /- In the VM, the string iterator is implemented as a pointer to the string being iterated + index.
    TODO: mark it opaque. -/
@@ -266,30 +323,6 @@ def popn_back (s : string) (n : nat) : string :=
 
 def backn (s : string) (n : nat) : string :=
 (s.mk_iterator.to_end.prevn n).remaining_to_string
-
-private def trim_left_aux : nat → iterator → iterator
-| 0 it := it
-| (n+1) it :=
-  if it.curr.is_whitespace then trim_left_aux n it.next
-  else it
-
-def trim_left (s : string) : string :=
-(trim_left_aux s.length s.mk_iterator).remaining_to_string
-
-private def trim_right_aux : nat → iterator → iterator
-| 0 it := it
-| (n+1) it :=
-  let it' := it.prev in
-  if it'.curr.is_whitespace then trim_right_aux n it'
-  else it
-
-def trim_right (s : string) : string :=
-(trim_right_aux s.length s.mk_iterator.to_end).prev_to_string
-
-def trim (s : string) : string :=
-let l := trim_left_aux s.length s.mk_iterator in
-let r := trim_right_aux s.length s.mk_iterator.to_end in
-(l.extract r).get_or_else ""
 
 private def line_column_aux : nat → string.iterator → nat × nat → nat × nat
 | 0     it r           := r

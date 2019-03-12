@@ -1166,6 +1166,8 @@ obj_res string_data(obj_arg s);
 inline usize string_utf8_byte_size(b_obj_arg s) { return string_size(s) - 1; }
 uint32 string_utf8_get(b_obj_arg s, usize i);
 usize string_utf8_next(b_obj_arg s, usize i);
+usize string_utf8_prev(b_obj_arg s, usize i);
+obj_res string_utf8_set(obj_arg s, usize i, uint32 c);
 inline uint8 string_utf8_at_end(b_obj_arg s, usize i) { return i >= string_size(s) - 1; }
 obj_res string_utf8_extract(b_obj_arg s, usize b, usize e);
 obj_res string_mk_iterator(obj_arg s);

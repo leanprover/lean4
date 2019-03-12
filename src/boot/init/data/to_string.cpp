@@ -26,6 +26,7 @@ obj* l_option_has__to__string___boxed(obj*);
 obj* l_usize_has__to__string___boxed(obj*);
 obj* l_char_has__to__string(uint32);
 extern obj* l_option_has__repr___rarg___closed__2;
+extern obj* l_string_iterator_extract___main___closed__1;
 obj* l_string_iterator_has__to__string(obj*);
 obj* l_sigma_has__to__string(obj*, obj*);
 extern obj* l_unit_has__repr___closed__1;
@@ -47,6 +48,7 @@ obj* l_string_iterator_has__to__string___boxed(obj*);
 obj* l_prod_has__to__string___rarg(obj*, obj*, obj*);
 obj* l_sum_has__to__string(obj*, obj*);
 obj* l_id_has__to__string___rarg(obj*);
+obj* l_string_iterator_remaining__to__string___main(obj*);
 extern obj* l_list_repr___main___rarg___closed__1;
 obj* l_option_has__to__string___rarg(obj*, obj*);
 obj* l_fin_has__to__string(obj*);
@@ -67,15 +69,11 @@ extern obj* l_sum_has__repr___rarg___closed__2;
 obj* l_uint8_has__to__string___boxed(obj*);
 extern obj* l_list_repr__aux___main___rarg___closed__1;
 extern obj* l_list_repr___main___rarg___closed__3;
-namespace lean {
-obj* string_iterator_remaining_to_string(obj*);
-}
 obj* l_list_to__string___rarg(obj*, obj*);
 obj* l_list_has__to__string___rarg(obj*);
 obj* l_fin_has__to__string___boxed(obj*);
 obj* l_uint32_has__to__string(uint32);
 obj* l_decidable_has__to__string___rarg(uint8);
-extern obj* l_string_join___closed__1;
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
@@ -172,7 +170,7 @@ obj* l_string_iterator_has__to__string(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::string_iterator_remaining_to_string(x_0);
+x_1 = l_string_iterator_remaining__to__string___main(x_0);
 return x_1;
 }
 }
@@ -263,7 +261,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_0);
-x_4 = l_string_join___closed__1;
+x_4 = l_string_iterator_extract___main___closed__1;
 return x_4;
 }
 else
@@ -291,7 +289,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_19; 
 lean::dec(x_0);
-x_19 = l_string_join___closed__1;
+x_19 = l_string_iterator_extract___main___closed__1;
 return x_19;
 }
 else
@@ -494,7 +492,7 @@ obj* l_char_has__to__string(uint32 x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_string_join___closed__1;
+x_1 = l_string_iterator_extract___main___closed__1;
 x_2 = lean::string_push(x_1, x_0);
 return x_2;
 }

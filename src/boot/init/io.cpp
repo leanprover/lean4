@@ -29,6 +29,7 @@ extern "C" obj* lean_io_prim_handle_mk(obj*, uint8, uint8, obj*);
 obj* l_io_prim_handle_get__line___boxed(obj*, obj*);
 obj* l_io_fs_handle_flush___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_has__eval___boxed(obj*);
+extern obj* l_string_iterator_extract___main___closed__1;
 obj* l_io_prim_handle_flush___boxed(obj*, obj*);
 obj* l_io_fs_handle_is__eof___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_io_has__eval(obj*);
@@ -92,7 +93,6 @@ obj* l_has__repr_has__eval(obj*);
 obj* l_io_println___rarg___closed__1;
 obj* l_io_print(obj*, obj*);
 obj* l_io_fs_handle_is__eof(obj*, obj*);
-extern obj* l_string_join___closed__1;
 obj* l_io_fs_handle_close___rarg(obj*, obj*, obj*, obj*, obj*);
 extern "C" obj* lean_io_prim_handle_flush(obj*, obj*);
 obj* l_io_fs_read__file___rarg___lambda__1(obj*, obj*, obj*);
@@ -1360,7 +1360,7 @@ obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__3(obj* x_0, 
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_string_join___closed__1;
+x_2 = l_string_iterator_extract___main___closed__1;
 x_3 = l_io_prim_iterate___main___at_io_fs_handle_read__to__end___spec__4(x_0, x_2, x_1);
 return x_3;
 }

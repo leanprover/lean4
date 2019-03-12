@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_lean_message__log_has__errors___boxed(obj*);
+extern obj* l_string_iterator_extract___main___closed__1;
 obj* l_lean_message_to__string___closed__5;
 obj* l_lean_message__log_append(obj*, obj*);
 uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
@@ -27,7 +28,6 @@ obj* l_lean_message_has__to__string;
 obj* l_lean_message__log_has__append;
 obj* l_lean_message__log_empty;
 obj* l_lean_message__log_add(obj*, obj*);
-extern obj* l_string_join___closed__1;
 obj* l_lean_message_to__string(obj*);
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
@@ -107,7 +107,7 @@ x_20 = lean::string_append(x_17, x_19);
 x_21 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*5);
 x_22 = lean::cnstr_get(x_0, 3);
 lean::inc(x_22);
-x_24 = l_string_join___closed__1;
+x_24 = l_string_iterator_extract___main___closed__1;
 x_25 = lean::string_dec_eq(x_22, x_24);
 switch (x_21) {
 case 0:

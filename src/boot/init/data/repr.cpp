@@ -32,6 +32,7 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 obj* l_fin_has__repr(obj*);
+extern obj* l_string_iterator_extract___main___closed__1;
 obj* l_list_repr__aux___rarg___boxed(obj*, obj*, obj*);
 obj* l_uint32_has__repr(uint32);
 obj* l_unit_has__repr___closed__1;
@@ -51,6 +52,7 @@ obj* l_string_quote(obj*);
 obj* l_sum_has__repr___rarg___closed__1;
 obj* l_option_has__repr___rarg___closed__1;
 obj* l_id_has__repr(obj*);
+obj* l_string_iterator_remaining__to__string___main(obj*);
 obj* l_nat_to__digits__core(obj*, obj*, obj*, obj*);
 uint8 l_string_is__empty(obj*);
 obj* l_nat_digit__char___boxed(obj*);
@@ -83,16 +85,12 @@ obj* l_list_repr___main___rarg___closed__3;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-namespace lean {
-obj* string_iterator_remaining_to_string(obj*);
-}
 obj* l_char_has__repr___closed__1;
 obj* l_decidable_has__repr(obj*);
 obj* l_string_quote___closed__1;
 obj* l_bool_has__repr(uint8);
 obj* l_list_repr___rarg(obj*, obj*);
 obj* l_subtype_has__repr___boxed(obj*, obj*);
-extern obj* l_string_join___closed__1;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
@@ -306,7 +304,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_0);
-x_4 = l_string_join___closed__1;
+x_4 = l_string_iterator_extract___main___closed__1;
 return x_4;
 }
 else
@@ -334,7 +332,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_19; 
 lean::dec(x_0);
-x_19 = l_string_join___closed__1;
+x_19 = l_string_iterator_extract___main___closed__1;
 return x_19;
 }
 else
@@ -1155,7 +1153,7 @@ _start:
 {
 uint32 x_1; obj* x_2; obj* x_3; 
 x_1 = l_nat_digit__char(x_0);
-x_2 = l_string_join___closed__1;
+x_2 = l_string_iterator_extract___main___closed__1;
 x_3 = lean::string_push(x_2, x_1);
 return x_3;
 }
@@ -1293,7 +1291,7 @@ x_20 = x_0 == x_19;
 if (x_20 == 0)
 {
 obj* x_21; obj* x_22; 
-x_21 = l_string_join___closed__1;
+x_21 = l_string_iterator_extract___main___closed__1;
 x_22 = lean::string_push(x_21, x_0);
 return x_22;
 }
@@ -1377,7 +1375,7 @@ _start:
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_1; 
-x_1 = l_string_join___closed__1;
+x_1 = l_string_iterator_extract___main___closed__1;
 return x_1;
 }
 else
@@ -1482,7 +1480,7 @@ obj* l_string_iterator_has__repr(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
-x_1 = lean::string_iterator_remaining_to_string(x_0);
+x_1 = l_string_iterator_remaining__to__string___main(x_0);
 x_2 = l_string_quote(x_1);
 x_3 = l_string_iterator_has__repr___closed__1;
 x_4 = lean::string_append(x_2, x_3);

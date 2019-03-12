@@ -29,6 +29,7 @@ obj* l_lean_to__string__to__format___boxed(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+extern obj* l_string_iterator_extract___main___closed__1;
 obj* l_lean_format_flatten___main(obj*);
 obj* l_lean_format_join___closed__1;
 obj* l_lean_format_join__sep___main___rarg(obj*, obj*, obj*);
@@ -81,7 +82,6 @@ obj* l_lean_list_to__format___main___rarg___closed__2;
 obj* l_lean_list_to__format___main(obj*);
 obj* l_lean_format_space__upto__line___main___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_lean_format_join(obj*);
-extern obj* l_string_join___closed__1;
 obj* l_lean_format_prefix__join___boxed(obj*);
 obj* l_lean_format_has__coe(obj*);
 obj* l_lean_format_prefix__join___main(obj*);
@@ -1002,7 +1002,7 @@ x_4 = lean::box(0);
 x_5 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_5, 0, x_3);
 lean::cnstr_set(x_5, 1, x_4);
-x_6 = l_string_join___closed__1;
+x_6 = l_string_iterator_extract___main___closed__1;
 x_7 = l_lean_format_be___main(x_1, x_2, x_6, x_5);
 return x_7;
 }

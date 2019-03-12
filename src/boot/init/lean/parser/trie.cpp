@@ -34,9 +34,6 @@ obj* l_rbnode_find___main___at___private_init_lean_parser_trie_1__insert__aux___
 obj* l_lean_parser_trie_find___boxed(obj*);
 obj* l_lean_parser_trie_match__prefix(obj*);
 obj* l___private_init_lean_parser_trie_4__to__string__aux___main___rarg___boxed(obj*);
-namespace lean {
-obj* string_iterator_next(obj*);
-}
 obj* l___private_init_lean_parser_trie_4__to__string__aux(obj*);
 obj* l___private_init_lean_parser_trie_1__insert__aux___main___rarg___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
@@ -44,12 +41,10 @@ obj* string_length(obj*);
 }
 obj* l_option_orelse___main___rarg(obj*, obj*);
 namespace lean {
-uint32 string_iterator_curr(obj*);
-}
-namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_lean_parser_trie_insert___rarg(obj*, obj*, obj*);
+obj* l_string_iterator_remaining___main(obj*);
 obj* l_option_get__or__else___main___rarg(obj*, obj*);
 obj* l_rbnode_fold___main___at___private_init_lean_parser_trie_4__to__string__aux___main___spec__3(obj*);
 obj* l___private_init_lean_parser_trie_2__find__aux___rarg(obj*, obj*, obj*);
@@ -83,15 +78,11 @@ obj* l___private_init_lean_parser_trie_4__to__string__aux___boxed(obj*);
 obj* l_rbnode_insert___at___private_init_lean_parser_trie_1__insert__aux___main___spec__2___rarg(obj*, uint32, obj*);
 obj* l_rbnode_find___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__1(obj*);
 obj* l_rbnode_ins___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__4___boxed(obj*, obj*);
-namespace lean {
-obj* string_iterator_remaining(obj*);
-}
-namespace lean {
-obj* string_mk_iterator(obj*);
-}
+obj* l_string_mk__iterator(obj*);
 obj* l_rbnode_balance1___main___rarg(obj*, obj*);
 obj* l_rbnode_ins___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__4___rarg(obj*, uint32, obj*);
 obj* l___private_init_lean_parser_trie_1__insert__aux___main___boxed(obj*);
+uint32 l_string_iterator_curr___main(obj*);
 obj* l___private_init_lean_parser_trie_2__find__aux___boxed(obj*);
 obj* l_lean_parser_trie_mk___boxed(obj*);
 obj* l_rbnode_ins___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__3___boxed(obj*, obj*);
@@ -106,6 +97,7 @@ uint8 l_rbnode_is__red___main___rarg(obj*);
 obj* l_rbnode_ins___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__3___rarg(obj*, uint32, obj*);
 obj* l_rbnode_fold___main___at___private_init_lean_parser_trie_4__to__string__aux___main___spec__3___rarg___boxed(obj*, obj*);
 obj* l_rbnode_ins___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__3(obj*, obj*);
+obj* l_string_iterator_next___main(obj*);
 obj* l_rbnode_insert___at___private_init_lean_parser_trie_1__insert__aux___main___spec__2___boxed(obj*);
 obj* l_rbnode_fold___main___at___private_init_lean_parser_trie_4__to__string__aux___main___spec__3___rarg(obj*, obj*);
 obj* l_char_quote__core(uint32);
@@ -738,13 +730,13 @@ if (lean::is_exclusive(x_2)) {
 }
 x_11 = lean::mk_nat_obj(1u);
 x_12 = lean::nat_sub(x_1, x_11);
-x_13 = lean::string_iterator_curr(x_3);
+x_13 = l_string_iterator_curr___main(x_3);
 lean::inc(x_8);
 x_15 = l_rbnode_find___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__1___rarg(x_8, x_13);
 x_16 = l_lean_parser_trie_mk___closed__1;
 x_17 = l_option_get__or__else___main___rarg(x_15, x_16);
 lean::dec(x_15);
-x_19 = lean::string_iterator_next(x_3);
+x_19 = l_string_iterator_next___main(x_3);
 x_20 = l___private_init_lean_parser_trie_1__insert__aux___main___rarg(x_0, x_12, x_17, x_19);
 lean::dec(x_12);
 x_22 = l_rbnode_insert___at___private_init_lean_parser_trie_1__insert__aux___main___spec__2___rarg(x_8, x_13, x_20);
@@ -922,7 +914,7 @@ _start:
 {
 obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::string_length(x_1);
-x_4 = lean::string_mk_iterator(x_1);
+x_4 = l_string_mk__iterator(x_1);
 x_5 = l___private_init_lean_parser_trie_1__insert__aux___main___rarg(x_2, x_3, x_0, x_4);
 lean::dec(x_3);
 return x_5;
@@ -957,7 +949,7 @@ obj* x_5; uint32 x_8; obj* x_9;
 x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
-x_8 = lean::string_iterator_curr(x_2);
+x_8 = l_string_iterator_curr___main(x_2);
 x_9 = l_rbnode_find___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__1___rarg(x_5, x_8);
 if (lean::obj_tag(x_9) == 0)
 {
@@ -976,7 +968,7 @@ lean::dec(x_9);
 x_16 = lean::mk_nat_obj(1u);
 x_17 = lean::nat_sub(x_0, x_16);
 lean::dec(x_0);
-x_19 = lean::string_iterator_next(x_2);
+x_19 = l_string_iterator_next___main(x_2);
 x_0 = x_17;
 x_1 = x_13;
 x_2 = x_19;
@@ -1042,7 +1034,7 @@ _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::string_length(x_1);
-x_3 = lean::string_mk_iterator(x_1);
+x_3 = l_string_mk__iterator(x_1);
 x_4 = l___private_init_lean_parser_trie_2__find__aux___main___rarg(x_2, x_0, x_3);
 return x_4;
 }
@@ -1081,7 +1073,7 @@ lean::dec(x_1);
 x_11 = lean::mk_nat_obj(1u);
 x_12 = lean::nat_sub(x_0, x_11);
 lean::dec(x_0);
-x_14 = lean::string_iterator_curr(x_2);
+x_14 = l_string_iterator_curr___main(x_2);
 x_15 = l_rbnode_find___main___at___private_init_lean_parser_trie_1__insert__aux___main___spec__1___rarg(x_8, x_14);
 if (lean::obj_tag(x_6) == 0)
 {
@@ -1101,7 +1093,7 @@ obj* x_21; obj* x_24;
 x_21 = lean::cnstr_get(x_15, 0);
 lean::inc(x_21);
 lean::dec(x_15);
-x_24 = lean::string_iterator_next(x_2);
+x_24 = l_string_iterator_next___main(x_2);
 x_0 = x_12;
 x_1 = x_21;
 x_2 = x_24;
@@ -1145,7 +1137,7 @@ obj* x_37; obj* x_40;
 x_37 = lean::cnstr_get(x_15, 0);
 lean::inc(x_37);
 lean::dec(x_15);
-x_40 = lean::string_iterator_next(x_2);
+x_40 = l_string_iterator_next___main(x_2);
 x_0 = x_12;
 x_1 = x_37;
 x_2 = x_40;
@@ -1244,7 +1236,7 @@ obj* l_lean_parser_trie_match__prefix___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = lean::string_iterator_remaining(x_1);
+x_2 = l_string_iterator_remaining___main(x_1);
 x_3 = lean::box(0);
 x_4 = l___private_init_lean_parser_trie_3__match__prefix__aux___main___rarg(x_2, x_0, x_1, x_3);
 return x_4;

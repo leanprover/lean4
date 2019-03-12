@@ -49,6 +49,7 @@ obj* l_lean_parser_rec__t_lean_parser_monad__parsec___boxed(obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_run__parsec___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_has__monad__lift___boxed(obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_monad__except(obj*, obj*, obj*, obj*, obj*);
+obj* l_string_iterator_remaining___main(obj*);
 obj* l_lean_parser_rec__t_run__parsec___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_run___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_monad__functor___rarg(obj*);
@@ -75,9 +76,6 @@ obj* l___private_init_lean_parser_rec_1__run__aux___main___boxed(obj*, obj*, obj
 obj* l_lean_parser_rec__t_recurse___rarg(obj*, obj*, obj*);
 obj* l_lean_parser_rec__t_run(obj*, obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad__functor___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-obj* string_iterator_remaining(obj*);
-}
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_rec__t_run__parsec___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_rec_1__run__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_reader__t_monad___rarg(obj*);
@@ -334,7 +332,7 @@ obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_10;
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_rec__t_run__parsec___rarg___lambda__1___boxed), 3, 2);
 lean::closure_set(x_5, 0, x_0);
 lean::closure_set(x_5, 1, x_1);
-x_6 = lean::string_iterator_remaining(x_4);
+x_6 = l_string_iterator_remaining___main(x_4);
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_add(x_6, x_7);
 lean::dec(x_6);

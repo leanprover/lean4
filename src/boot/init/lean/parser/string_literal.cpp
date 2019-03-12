@@ -53,9 +53,6 @@ obj* l_lean_parser_monad__parsec_unexpected__at___at_lean_parser_parse__quoted__
 obj* l_lean_parser_parse__hex__digit___rarg___lambda__3___boxed(obj*, obj*);
 obj* l_lean_parser_parse__hex__digit___rarg___lambda__1(obj*, uint32);
 namespace lean {
-uint32 string_iterator_curr(obj*);
-}
-namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec__3___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -70,9 +67,6 @@ obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec
 obj* l_lean_parser_parse__hex__digit___rarg___lambda__5(obj*, uint32);
 obj* l_lean_parser_parse__string__literal__aux___main___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, uint32);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-namespace lean {
-uint8 string_iterator_has_next(obj*);
-}
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__quoted__char___spec__2(obj*, obj*, obj*);
 extern obj* l___private_init_data_string_basic_9__to__nat__core___main___closed__1;
 namespace lean {
@@ -111,8 +105,10 @@ obj* l_lean_parser_parse__string__literal__aux___main___rarg___lambda__2___boxed
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec__8___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__quoted__char___spec__2___boxed(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec__1___boxed(obj*, obj*, obj*);
+uint32 l_string_iterator_curr___main(obj*);
 obj* l_lean_parser_monad__parsec_unexpected__at___at_lean_parser_parse__quoted__char___spec__1___boxed(obj*, obj*);
 obj* l_lean_parser_parse__string__literal__aux___main(obj*, obj*);
+uint8 l_string_iterator_has__next___main(obj*);
 obj* l_lean_parser_monad__parsec_error___at_lean_parser_parse__hex__digit___spec__1(obj*, obj*, obj*);
 obj* l_lean_parser_monad__parsec_ch___rarg(obj*, obj*, uint32);
 namespace lean {
@@ -363,7 +359,7 @@ obj* l_lean_parser_parse__hex__digit___rarg___lambda__2(obj* x_0, obj* x_1, obj*
 _start:
 {
 uint8 x_4; 
-x_4 = lean::string_iterator_has_next(x_3);
+x_4 = l_string_iterator_has__next___main(x_3);
 if (x_4 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
@@ -378,7 +374,7 @@ return x_10;
 else
 {
 uint32 x_11; uint32 x_12; uint8 x_13; uint8 x_15; 
-x_11 = lean::string_iterator_curr(x_3);
+x_11 = l_string_iterator_curr___main(x_3);
 x_12 = 97;
 x_15 = x_12 <= x_11;
 if (x_15 == 0)
@@ -490,7 +486,7 @@ obj* l_lean_parser_parse__hex__digit___rarg___lambda__4(obj* x_0, obj* x_1, obj*
 _start:
 {
 uint8 x_4; 
-x_4 = lean::string_iterator_has_next(x_3);
+x_4 = l_string_iterator_has__next___main(x_3);
 if (x_4 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
@@ -505,7 +501,7 @@ return x_10;
 else
 {
 uint32 x_11; uint32 x_12; uint8 x_13; uint8 x_15; 
-x_11 = lean::string_iterator_curr(x_3);
+x_11 = l_string_iterator_curr___main(x_3);
 x_12 = 65;
 x_15 = x_12 <= x_11;
 if (x_15 == 0)

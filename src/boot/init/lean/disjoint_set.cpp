@@ -16,7 +16,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_mk__hashmap__imp___rarg(obj*);
 obj* l_lean_disjoint__set_merge(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_merge___boxed(obj*);
 obj* l_lean_disjoint__set_rank___boxed(obj*);
 obj* l_hashmap__imp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -27,113 +26,54 @@ obj* nat_add(obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux___main(obj*);
 obj* l_lean_disjoint__set_rank___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___boxed(obj*);
 obj* l_lean_disjoint__set_merge___main___boxed(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank(obj*);
 obj* l_lean_disjoint__set_merge___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux(obj*);
-obj* l_lean_mk__disjoint__set___rarg___boxed(obj*, obj*);
 obj* l_lean_disjoint__set_merge___main(obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_lean_mk__disjoint__set___rarg(obj*, obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_d__hashmap_size___rarg(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(obj*);
-obj* l_lean_mk__disjoint__set(obj*);
+obj* l_lean_mk__disjoint__set(obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank___main(obj*);
-obj* l_lean_mk__disjoint__set___boxed(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___boxed(obj*);
+obj* l_lean_mk__disjoint__set___boxed(obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___main___rarg(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___boxed(obj*, obj*, obj*);
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux___boxed(obj*);
 obj* l_lean_disjoint__set_rank___main___boxed(obj*);
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___main___boxed(obj*);
 obj* l_lean_disjoint__set_merge___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_rank___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find(obj*);
 obj* l___private_init_lean_disjoint__set_1__find__aux___main___boxed(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___boxed(obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_lean_disjoint__set_find___boxed(obj*);
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___boxed(obj*);
 obj* l_hashmap__imp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_lean_disjoint__set_find___main(obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj*);
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg(obj* x_0) {
+obj* l_lean_mk__disjoint__set(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_1; 
-x_1 = l_mk__hashmap__imp___rarg(x_0);
-return x_1;
+obj* x_3; obj* x_4; 
+x_3 = lean::mk_nat_obj(8u);
+x_4 = l_mk__hashmap__imp___rarg(x_3);
+return x_4;
 }
 }
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___rarg), 1, 0);
-return x_3;
-}
-}
-obj* l_lean_mk__disjoint__set___rarg(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; 
-x_2 = lean::mk_nat_obj(8u);
-x_3 = l_mk__hashmap__imp___rarg(x_2);
-return x_3;
-}
-}
-obj* l_lean_mk__disjoint__set(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_mk__disjoint__set___rarg___boxed), 2, 0);
-return x_1;
-}
-}
-obj* l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_lean_mk__disjoint__set___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_mk__d__hashmap___at_lean_mk__disjoint__set___spec__1(x_0, x_1, x_2);
+x_3 = l_lean_mk__disjoint__set(x_0, x_1, x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
 return x_3;
-}
-}
-obj* l_lean_mk__disjoint__set___rarg___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_lean_mk__disjoint__set___rarg(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l_lean_mk__disjoint__set___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_lean_mk__disjoint__set(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l___private_init_lean_disjoint__set_1__find__aux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -360,70 +300,6 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___rarg), 5, 0);
-return x_1;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___rarg), 5, 0);
-return x_1;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___rarg), 5, 0);
-return x_1;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_hashmap__imp_insert___rarg(x_0, x_1, x_2, x_3, x_4);
-return x_5;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___rarg), 5, 0);
-return x_1;
-}
-}
 obj* l_lean_disjoint__set_merge___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -525,42 +401,6 @@ _start:
 {
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_disjoint__set_merge___main___rarg), 5, 0);
-return x_1;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__1(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__2(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__3(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
-obj* l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_d__hashmap_insert___at_lean_disjoint__set_merge___main___spec__4(x_0);
-lean::dec(x_0);
 return x_1;
 }
 }

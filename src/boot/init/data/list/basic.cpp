@@ -26,7 +26,7 @@ obj* l_list_empty(obj*);
 obj* l_list_foldl___boxed(obj*, obj*);
 obj* l_list_update__nth___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_map___boxed(obj*, obj*);
-uint8 l_list_foldr___main___at_list_any___spec__1___rarg(obj*, obj*);
+uint8 l_list_foldr___main___at_list_any___spec__1___rarg(obj*, uint8, obj*);
 obj* l_list_remove__all___rarg(obj*, obj*, obj*);
 obj* l_list_repeat___rarg(obj*, obj*);
 obj* l_list_length__aux(obj*);
@@ -45,7 +45,7 @@ obj* l_list_map___main___rarg(obj*, obj*);
 obj* l_list_unzip___main(obj*, obj*);
 obj* l_list_remove__nth___main___rarg___boxed(obj*, obj*);
 obj* l_list_update__nth___main(obj*);
-obj* l_list_foldr___main___at_list_all___spec__1___rarg___boxed(obj*, obj*);
+obj* l_list_foldr___main___at_list_all___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_drop___main(obj*);
 obj* l_list_nth___main___rarg(obj*, obj*);
 obj* l_list_is__prefix__of___rarg___boxed(obj*, obj*, obj*);
@@ -187,7 +187,7 @@ obj* l_list_insert___rarg(obj*, obj*, obj*);
 obj* l_list_has__decidable__lt___main___at_list_has__decidable__le___spec__1___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_list_has__inter(obj*);
 uint8 l_list_has__decidable__le___rarg(obj*, obj*, obj*, obj*);
-uint8 l_list_foldr___main___at_list_all___spec__1___rarg(obj*, obj*);
+uint8 l_list_foldr___main___at_list_all___spec__1___rarg(obj*, uint8, obj*);
 obj* l_list_has__emptyc(obj*);
 obj* l_list_zip__with___main___rarg(obj*, obj*, obj*);
 obj* l_list_empty___main___boxed(obj*);
@@ -207,7 +207,7 @@ obj* l_list_union___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_foldr1___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_drop___main___rarg(obj*, obj*);
 obj* l_list_ilast___rarg___boxed(obj*, obj*);
-uint8 l_list_foldr___main___at_list_bor___spec__1(obj*);
+uint8 l_list_foldr___main___at_list_bor___spec__1(uint8, obj*);
 obj* l_list_intersperse___main(obj*);
 obj* l_list_has__emptyc___boxed(obj*);
 obj* l_list_has__insert(obj*);
@@ -222,7 +222,7 @@ obj* l_list_filter(obj*, obj*);
 obj* l_list_last___rarg___boxed(obj*, obj*);
 obj* l_list_ilast___main___rarg(obj*, obj*);
 obj* l_list_head___main___rarg(obj*, obj*);
-uint8 l_list_foldr___main___at_list_band___spec__1(obj*);
+uint8 l_list_foldr___main___at_list_band___spec__1(uint8, obj*);
 obj* l_list_band___boxed(obj*);
 obj* l_list_filter__map___main___boxed(obj*, obj*);
 obj* l_bin__tree_to__list___boxed(obj*);
@@ -284,7 +284,7 @@ obj* l_list_drop___rarg___boxed(obj*, obj*);
 obj* l_list_intersperse___main___rarg(obj*, obj*);
 obj* l_list_zip(obj*, obj*);
 obj* l_list_foldr1(obj*);
-obj* l_list_foldr___main___at_list_bor___spec__1___boxed(obj*);
+obj* l_list_foldr___main___at_list_bor___spec__1___boxed(obj*, obj*);
 obj* l___private_init_data_list_basic_1__to__list__aux___main___boxed(obj*);
 obj* l_list_decidable__mem___main(obj*);
 obj* l_list_partition___main___rarg(obj*, obj*);
@@ -306,7 +306,7 @@ obj* l_list_erase___main___boxed(obj*);
 obj* l_list_filter___main___at_list_inter___spec__1___boxed(obj*);
 obj* l_list_has__decidable__le(obj*);
 obj* l_list_drop__while(obj*, obj*);
-obj* l_list_foldr___main___at_list_band___spec__1___boxed(obj*);
+obj* l_list_foldr___main___at_list_band___spec__1___boxed(obj*, obj*);
 obj* l_list_has__le(obj*, obj*);
 obj* l_list_empty___rarg___boxed(obj*);
 obj* l_list_ilast___rarg(obj*, obj*);
@@ -346,7 +346,7 @@ obj* l_list_union___rarg(obj*, obj*, obj*);
 obj* l_list_is__prefix__of___main___boxed(obj*);
 obj* l_list_drop___boxed(obj*);
 obj* l_list_head___main___rarg___boxed(obj*, obj*);
-obj* l_list_foldr___main___at_list_any___spec__1___rarg___boxed(obj*, obj*);
+obj* l_list_foldr___main___at_list_any___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_list_has__dec__eq___boxed(obj*);
 uint8 l_list_band(obj*);
 obj* l_list_empty___main(obj*);
@@ -3454,30 +3454,28 @@ lean::dec(x_0);
 return x_1;
 }
 }
-uint8 l_list_foldr___main___at_list_any___spec__1___rarg(obj* x_0, obj* x_1) {
+uint8 l_list_foldr___main___at_list_any___spec__1___rarg(obj* x_0, uint8 x_1, obj* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean::obj_tag(x_2) == 0)
 {
-uint8 x_3; 
 lean::dec(x_0);
-x_3 = 0;
-return x_3;
+return x_1;
 }
 else
 {
 obj* x_4; obj* x_6; obj* x_10; uint8 x_11; 
-x_4 = lean::cnstr_get(x_1, 0);
+x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
-x_6 = lean::cnstr_get(x_1, 1);
+x_6 = lean::cnstr_get(x_2, 1);
 lean::inc(x_6);
-lean::dec(x_1);
+lean::dec(x_2);
 lean::inc(x_0);
 x_10 = lean::apply_1(x_0, x_4);
 x_11 = lean::unbox(x_10);
 if (x_11 == 0)
 {
-x_1 = x_6;
+x_2 = x_6;
 goto _start;
 }
 else
@@ -3493,16 +3491,17 @@ obj* l_list_foldr___main___at_list_any___spec__1(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_foldr___main___at_list_any___spec__1___rarg___boxed), 2, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_foldr___main___at_list_any___spec__1___rarg___boxed), 3, 0);
 return x_1;
 }
 }
 uint8 l_list_any___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-uint8 x_2; 
-x_2 = l_list_foldr___main___at_list_any___spec__1___rarg(x_1, x_0);
-return x_2;
+uint8 x_2; uint8 x_3; 
+x_2 = 0;
+x_3 = l_list_foldr___main___at_list_any___spec__1___rarg(x_1, x_2, x_0);
+return x_3;
 }
 }
 obj* l_list_any(obj* x_0) {
@@ -3513,13 +3512,14 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_any___rarg___boxed), 2,
 return x_1;
 }
 }
-obj* l_list_foldr___main___at_list_any___spec__1___rarg___boxed(obj* x_0, obj* x_1) {
+obj* l_list_foldr___main___at_list_any___spec__1___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-uint8 x_2; obj* x_3; 
-x_2 = l_list_foldr___main___at_list_any___spec__1___rarg(x_0, x_1);
-x_3 = lean::box(x_2);
-return x_3;
+uint8 x_3; uint8 x_4; obj* x_5; 
+x_3 = lean::unbox(x_1);
+x_4 = l_list_foldr___main___at_list_any___spec__1___rarg(x_0, x_3, x_2);
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_list_foldr___main___at_list_any___spec__1___boxed(obj* x_0) {
@@ -3549,24 +3549,22 @@ lean::dec(x_0);
 return x_1;
 }
 }
-uint8 l_list_foldr___main___at_list_all___spec__1___rarg(obj* x_0, obj* x_1) {
+uint8 l_list_foldr___main___at_list_all___spec__1___rarg(obj* x_0, uint8 x_1, obj* x_2) {
 _start:
 {
-if (lean::obj_tag(x_1) == 0)
+if (lean::obj_tag(x_2) == 0)
 {
-uint8 x_3; 
 lean::dec(x_0);
-x_3 = 1;
-return x_3;
+return x_1;
 }
 else
 {
 obj* x_4; obj* x_6; obj* x_10; uint8 x_11; 
-x_4 = lean::cnstr_get(x_1, 0);
+x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
-x_6 = lean::cnstr_get(x_1, 1);
+x_6 = lean::cnstr_get(x_2, 1);
 lean::inc(x_6);
-lean::dec(x_1);
+lean::dec(x_2);
 lean::inc(x_0);
 x_10 = lean::apply_1(x_0, x_4);
 x_11 = lean::unbox(x_10);
@@ -3578,7 +3576,7 @@ return x_11;
 }
 else
 {
-x_1 = x_6;
+x_2 = x_6;
 goto _start;
 }
 }
@@ -3588,16 +3586,17 @@ obj* l_list_foldr___main___at_list_all___spec__1(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_foldr___main___at_list_all___spec__1___rarg___boxed), 2, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_foldr___main___at_list_all___spec__1___rarg___boxed), 3, 0);
 return x_1;
 }
 }
 uint8 l_list_all___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-uint8 x_2; 
-x_2 = l_list_foldr___main___at_list_all___spec__1___rarg(x_1, x_0);
-return x_2;
+uint8 x_2; uint8 x_3; 
+x_2 = 1;
+x_3 = l_list_foldr___main___at_list_all___spec__1___rarg(x_1, x_2, x_0);
+return x_3;
 }
 }
 obj* l_list_all(obj* x_0) {
@@ -3608,13 +3607,14 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_list_all___rarg___boxed), 2,
 return x_1;
 }
 }
-obj* l_list_foldr___main___at_list_all___spec__1___rarg___boxed(obj* x_0, obj* x_1) {
+obj* l_list_foldr___main___at_list_all___spec__1___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-uint8 x_2; obj* x_3; 
-x_2 = l_list_foldr___main___at_list_all___spec__1___rarg(x_0, x_1);
-x_3 = lean::box(x_2);
-return x_3;
+uint8 x_3; uint8 x_4; obj* x_5; 
+x_3 = lean::unbox(x_1);
+x_4 = l_list_foldr___main___at_list_all___spec__1___rarg(x_0, x_3, x_2);
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 obj* l_list_foldr___main___at_list_all___spec__1___boxed(obj* x_0) {
@@ -3644,25 +3644,23 @@ lean::dec(x_0);
 return x_1;
 }
 }
-uint8 l_list_foldr___main___at_list_bor___spec__1(obj* x_0) {
+uint8 l_list_foldr___main___at_list_bor___spec__1(uint8 x_0, obj* x_1) {
 _start:
 {
-if (lean::obj_tag(x_0) == 0)
+if (lean::obj_tag(x_1) == 0)
 {
-uint8 x_1; 
-x_1 = 0;
-return x_1;
+return x_0;
 }
 else
 {
 obj* x_2; uint8 x_3; 
-x_2 = lean::cnstr_get(x_0, 0);
+x_2 = lean::cnstr_get(x_1, 0);
 x_3 = lean::unbox(x_2);
 if (x_3 == 0)
 {
 obj* x_4; 
-x_4 = lean::cnstr_get(x_0, 1);
-x_0 = x_4;
+x_4 = lean::cnstr_get(x_1, 1);
+x_1 = x_4;
 goto _start;
 }
 else
@@ -3675,19 +3673,21 @@ return x_3;
 uint8 l_list_bor(obj* x_0) {
 _start:
 {
-uint8 x_1; 
-x_1 = l_list_foldr___main___at_list_bor___spec__1(x_0);
-return x_1;
+uint8 x_1; uint8 x_2; 
+x_1 = 0;
+x_2 = l_list_foldr___main___at_list_bor___spec__1(x_1, x_0);
+return x_2;
 }
 }
-obj* l_list_foldr___main___at_list_bor___spec__1___boxed(obj* x_0) {
+obj* l_list_foldr___main___at_list_bor___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-uint8 x_1; obj* x_2; 
-x_1 = l_list_foldr___main___at_list_bor___spec__1(x_0);
-x_2 = lean::box(x_1);
-lean::dec(x_0);
-return x_2;
+uint8 x_2; uint8 x_3; obj* x_4; 
+x_2 = lean::unbox(x_0);
+x_3 = l_list_foldr___main___at_list_bor___spec__1(x_2, x_1);
+x_4 = lean::box(x_3);
+lean::dec(x_1);
+return x_4;
 }
 }
 obj* l_list_bor___boxed(obj* x_0) {
@@ -3700,19 +3700,17 @@ lean::dec(x_0);
 return x_2;
 }
 }
-uint8 l_list_foldr___main___at_list_band___spec__1(obj* x_0) {
+uint8 l_list_foldr___main___at_list_band___spec__1(uint8 x_0, obj* x_1) {
 _start:
 {
-if (lean::obj_tag(x_0) == 0)
+if (lean::obj_tag(x_1) == 0)
 {
-uint8 x_1; 
-x_1 = 1;
-return x_1;
+return x_0;
 }
 else
 {
 obj* x_2; uint8 x_3; 
-x_2 = lean::cnstr_get(x_0, 0);
+x_2 = lean::cnstr_get(x_1, 0);
 x_3 = lean::unbox(x_2);
 if (x_3 == 0)
 {
@@ -3721,8 +3719,8 @@ return x_3;
 else
 {
 obj* x_4; 
-x_4 = lean::cnstr_get(x_0, 1);
-x_0 = x_4;
+x_4 = lean::cnstr_get(x_1, 1);
+x_1 = x_4;
 goto _start;
 }
 }
@@ -3731,19 +3729,21 @@ goto _start;
 uint8 l_list_band(obj* x_0) {
 _start:
 {
-uint8 x_1; 
-x_1 = l_list_foldr___main___at_list_band___spec__1(x_0);
-return x_1;
+uint8 x_1; uint8 x_2; 
+x_1 = 1;
+x_2 = l_list_foldr___main___at_list_band___spec__1(x_1, x_0);
+return x_2;
 }
 }
-obj* l_list_foldr___main___at_list_band___spec__1___boxed(obj* x_0) {
+obj* l_list_foldr___main___at_list_band___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-uint8 x_1; obj* x_2; 
-x_1 = l_list_foldr___main___at_list_band___spec__1(x_0);
-x_2 = lean::box(x_1);
-lean::dec(x_0);
-return x_2;
+uint8 x_2; uint8 x_3; obj* x_4; 
+x_2 = lean::unbox(x_0);
+x_3 = l_list_foldr___main___at_list_band___spec__1(x_2, x_1);
+x_4 = lean::box(x_3);
+lean::dec(x_1);
+return x_4;
 }
 }
 obj* l_list_band___boxed(obj* x_0) {

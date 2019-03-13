@@ -142,15 +142,15 @@ if (x_6 == 0)
 obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_13; obj* x_17; obj* x_18; 
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_sub(x_3, x_7);
-x_9 = lean::nat_sub(x_1, x_3);
+x_9 = lean::nat_sub(x_2, x_3);
 lean::dec(x_3);
 x_11 = lean::cnstr_get(x_0, 0);
 lean::inc(x_11);
 x_13 = lean::cnstr_get(x_11, 4);
 lean::inc(x_13);
 lean::dec(x_11);
-lean::inc(x_2);
-x_17 = lean::apply_1(x_2, x_9);
+lean::inc(x_1);
+x_17 = lean::apply_1(x_1, x_9);
 x_18 = lean::apply_4(x_13, lean::box(0), lean::box(0), x_4, x_17);
 x_3 = x_8;
 x_4 = x_18;
@@ -158,9 +158,9 @@ goto _start;
 }
 else
 {
+lean::dec(x_1);
 lean::dec(x_3);
 lean::dec(x_0);
-lean::dec(x_2);
 return x_4;
 }
 }
@@ -185,7 +185,7 @@ lean::dec(x_3);
 x_8 = lean::box(0);
 x_9 = lean::apply_2(x_5, lean::box(0), x_8);
 lean::inc(x_1);
-x_11 = l_nat_repeat__core___main___at_nat_mrepeat___spec__1___rarg(x_0, x_1, x_2, x_1, x_9);
+x_11 = l_nat_repeat__core___main___at_nat_mrepeat___spec__1___rarg(x_0, x_2, x_1, x_1, x_9);
 lean::dec(x_1);
 return x_11;
 }
@@ -203,7 +203,7 @@ _start:
 {
 obj* x_5; 
 x_5 = l_nat_repeat__core___main___at_nat_mrepeat___spec__1___rarg(x_0, x_1, x_2, x_3, x_4);
-lean::dec(x_1);
+lean::dec(x_2);
 return x_5;
 }
 }

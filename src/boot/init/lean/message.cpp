@@ -18,7 +18,7 @@ obj* l_lean_message__log_has__errors___boxed(obj*);
 extern obj* l_string_iterator_extract___main___closed__1;
 obj* l_lean_message_to__string___closed__5;
 obj* l_lean_message__log_append(obj*, obj*);
-uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj*);
+uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(uint8, obj*);
 obj* l_list_reverse___rarg(obj*);
 obj* l_lean_message__log_to__list(obj*);
 namespace lean {
@@ -34,7 +34,7 @@ uint8 string_dec_eq(obj*, obj*);
 }
 obj* l_lean_message_to__string___closed__4;
 obj* l_lean_message_to__string___closed__3;
-obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*);
+obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj*, obj*);
 obj* l_lean_message_to__string___closed__2;
 obj* l_nat_repr(obj*);
 obj* l_list_append___rarg(obj*, obj*);
@@ -241,21 +241,19 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_message__log_append), 2
 return x_0;
 }
 }
-uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(obj* x_0) {
+uint8 l_list_foldr___main___at_lean_message__log_has__errors___spec__1(uint8 x_0, obj* x_1) {
 _start:
 {
-if (lean::obj_tag(x_0) == 0)
+if (lean::obj_tag(x_1) == 0)
 {
-uint8 x_1; 
-x_1 = 0;
-return x_1;
+return x_0;
 }
 else
 {
 obj* x_2; obj* x_3; uint8 x_4; uint8 x_5; 
-x_2 = lean::cnstr_get(x_0, 0);
-x_3 = lean::cnstr_get(x_0, 1);
-x_4 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_3);
+x_2 = lean::cnstr_get(x_1, 0);
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0, x_3);
 x_5 = lean::cnstr_get_scalar<uint8>(x_2, sizeof(void*)*5);
 switch (x_5) {
 case 2:
@@ -275,19 +273,21 @@ return x_4;
 uint8 l_lean_message__log_has__errors(obj* x_0) {
 _start:
 {
-uint8 x_1; 
-x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
-return x_1;
+uint8 x_1; uint8 x_2; 
+x_1 = 0;
+x_2 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_1, x_0);
+return x_2;
 }
 }
-obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj* x_0) {
+obj* l_list_foldr___main___at_lean_message__log_has__errors___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-uint8 x_1; obj* x_2; 
-x_1 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_0);
-x_2 = lean::box(x_1);
-lean::dec(x_0);
-return x_2;
+uint8 x_2; uint8 x_3; obj* x_4; 
+x_2 = lean::unbox(x_0);
+x_3 = l_list_foldr___main___at_lean_message__log_has__errors___spec__1(x_2, x_1);
+x_4 = lean::box(x_3);
+lean::dec(x_1);
+return x_4;
 }
 }
 obj* l_lean_message__log_has__errors___boxed(obj* x_0) {

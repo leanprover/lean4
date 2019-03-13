@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.control.state init.control.except init.data.string.basic
+import init.control.state init.control.except init.data.string.basic init.fix
 
 /-- Like https://hackage.haskell.org/package/ghc-prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `io` operations. -/
@@ -26,6 +26,12 @@ abbreviation monad_io (m : Type → Type) := has_monad_lift_t io m
 -- like in https://doc.rust-lang.org/std/io/enum.ErrorKind.html
 @[irreducible, derive has_to_string]
 def io.error := string
+
+section
+local attribute [reducible] io.error
+instance : inhabited io.error :=
+⟨""⟩
+end
 
 -- The `io` primitives can also be used with [monad_except string m]
 -- via this error conversion
@@ -52,22 +58,23 @@ constant fs.handle : Type
 namespace prim
 open fs
 
-/- TODO(Leo): mark as an opaque primitive.
-   This function does not necessarily terminate, and is not marked as `meta`.
-   We ensure that the resulting system is sound by marking it as an "opaque primitive".
-   Thus, users cannot "view" its implementation. It is essentially an opaque
-   constant that is useful for writing programs in Lean.
-   In previous versions, `iterate` was indeed a `constant` instead of a definition.
-   We changed it because the Lean compiler could not specialize `iterate` applications
-   since there was no code to be specialized. -/
-@[specialize] def iterate {α β : Type} : α → (α → io (sum α β)) → io β
-| a f :=
+def iterate_aux {α β : Type} (f : α → io (sum α β)) : (α → io β) → (α → io β)
+| rec a :=
   do v ← f a,
   match v with
-  | sum.inl a' := iterate a' f
-  | sum.inr b  := pure b
+  | sum.inl a := rec a
+  | sum.inr b := pure b
 
-@[specialize] def iterate_eio {ε α β : Type} (a : α) (f : α → except_t ε io (sum α β)) : except_t ε io β :=
+instance io_inhabited {β : Type} [inhabited β] : inhabited (io β) :=
+⟨pure (default β)⟩
+
+@[specialize] def iterate {α β : Type} [inhabited β] (a : α) (f : α → io (sum α β)) : io β :=
+fix (iterate_aux f) a
+
+instance {ε α : Type} [inhabited ε] : inhabited (except ε α) :=
+⟨except.error (default ε)⟩
+
+@[specialize] def iterate_eio {ε α β : Type} [inhabited ε] (a : α) (f : α → except_t ε io (sum α β)) : except_t ε io β :=
 iterate a $ λ r, do
   r ← (f r).run,
   match r with
@@ -213,20 +220,20 @@ def io.println' (x : string) : io unit :=
 from_eio $ io.println x
 
 /-- Typeclass used for presenting the output of an `#eval` command. -/
-meta class has_eval (α : Type u) :=
+class has_eval (α : Type u) :=
 (eval : α → io unit)
 
-meta instance has_repr.has_eval {α : Type u} [has_repr α] : has_eval α :=
+instance has_repr.has_eval {α : Type u} [has_repr α] : has_eval α :=
 ⟨λ a, io.println' (repr a)⟩
 
-meta instance io.has_eval {α : Type} [has_eval α] : has_eval (io α) :=
+instance io.has_eval {α : Type} [has_eval α] : has_eval (io α) :=
 ⟨λ x, do a ← x, has_eval.eval a⟩
 
 -- special case: do not print `()`
-meta instance io_unit.has_eval : has_eval (io unit) :=
+instance io_unit.has_eval : has_eval (io unit) :=
 ⟨λ x, x⟩
 
-meta instance eio.has_eval {ε α : Type} [has_to_string ε] [has_eval α] : has_eval (except_t ε io α) :=
+instance eio.has_eval {ε α : Type} [has_to_string ε] [has_eval α] : has_eval (except_t ε io α) :=
 ⟨λ x, do
    e : except ε α ← x.run,
    match e with
@@ -234,7 +241,7 @@ meta instance eio.has_eval {ε α : Type} [has_to_string ε] [has_eval α] : has
    | except.error e := io.println' ("Error: " ++ to_string e)⟩
 
 -- special case: do not print `()`
-meta instance eio_unit.has_eval {ε : Type} [has_to_string ε] : has_eval (except_t ε io unit) :=
+instance eio_unit.has_eval {ε : Type} [has_to_string ε] : has_eval (except_t ε io unit) :=
 ⟨λ x, do
    e : except ε unit ← monad_lift $ x.run,
    match e with

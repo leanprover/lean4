@@ -1401,7 +1401,10 @@ class csimp_fn {
         for (unsigned i = 0; i < m+1; i++) {
             new_args.push_back(mk_enf_neutral());
         }
-        new_args.append(args.size() - n - 1, args.data() + n + 1);
+        /* `(base : α_1 → ... → α_n → β)` is not used in the runtime primitive.
+           So, we replace it with a neutral value :) */
+        new_args.push_back(mk_enf_neutral());
+        new_args.append(args.size() - n - 2, args.data() + n + 2);
         return mk_app(*fix_core_m, new_args);
     }
 

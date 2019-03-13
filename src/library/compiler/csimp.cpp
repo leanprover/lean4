@@ -684,6 +684,9 @@ class csimp_fn {
        ```
        The values `w_i` are the "simplified values" for the let-declaration `x_i`. */
     expr mk_let_core(buffer<pair<expr, expr>> const & entries, expr e) {
+        if (is_lc_unreachable_app(e)) {
+            return e;
+        }
         buffer<expr> fvars;
         buffer<name> user_names;
         buffer<expr> types;
@@ -693,7 +696,12 @@ class csimp_fn {
             --i;
             expr const & fvar = entries[i].first;
             fvars.push_back(fvar);
-            vals.push_back(entries[i].second);
+            expr const & val  = entries[i].second;
+            if (is_lc_unreachable_app(val)) {
+                expr type = infer_type(e);
+                return mk_lc_unreachable(m_st, m_lctx, type);
+            }
+            vals.push_back(val);
             local_decl fvar_decl = m_lctx.get_local_decl(fvar);
             user_names.push_back(fvar_decl.get_user_name());
             types.push_back(fvar_decl.get_type());
@@ -843,6 +851,9 @@ class csimp_fn {
         if (saved_fvars_size == m_fvars.size()) {
             if (!push_dep_jps(zs, top))
                 return e;
+        }
+        if (is_lc_unreachable_app(e)) {
+            return e;
         }
         /* `entries` contains pairs (let-decl fvar, new value) for building the resultant let-declaration.
            We simplify the value of some let-declarations in this method, but we don't want to create

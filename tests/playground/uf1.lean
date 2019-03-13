@@ -42,7 +42,7 @@ abbreviation M (α : Type) := ExceptT (StateT id uf_data) string α
 @[inline] def read : M uf_data := ExceptT.lift StateT.read
 @[inline] def write (s : uf_data) : M unit := ExceptT.lift (StateT.write s)
 @[inline] def updt (f : uf_data → uf_data) : M unit := ExceptT.lift (StateT.updt f)
-def error {α : Type} (e : string) : M α := ExceptT.error e
+@[inline] def error {α : Type} (e : string) : M α := ExceptT.error e
 def run {α : Type} (x : M α) (s : uf_data := array.nil) : except string α × uf_data :=
 x ⟨except.ok (), rfl⟩ ((), s)
 

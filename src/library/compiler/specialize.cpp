@@ -40,6 +40,12 @@ bool has_nospecialize_attribute(environment const & env, name const & n) {
     return false;
 }
 
+/* IMPORTANT: We currently do NOT specialize Fixed arguments.
+   Only FixedNeutral, FixedHO and FixedInst.
+   We do not have good heuristics to decide when it is a good idea to do it.
+   TODO(Leo): allow users to specify that they want to consider some Fixed arguments
+   for specialization.
+*/
 enum class spec_arg_kind { Fixed,
                            FixedNeutral, /* computationally neutral */
                            FixedHO,      /* higher order */
@@ -433,9 +439,11 @@ class specialize_fn {
                 first = false;
                 found_inst = true;
                 break;
+            case spec_arg_kind::Fixed:
+                // REMARK: We have disabled specialization for this kind of argument.
+                break;
             case spec_arg_kind::FixedHO:
             case spec_arg_kind::FixedNeutral:
-            case spec_arg_kind::Fixed:
                 if (has_attr || found_inst) {
                     mask[i] = true;
                     if (first)
@@ -510,6 +518,7 @@ class specialize_fn {
             case spec_arg_kind::Fixed:
                 /* We specialize this kind of argument if they are constructor applications or literals.
                    Remark: it is not feasible to invoke whnf since it may consume a lot of time. */
+                break; // We have disabled this kind of argument
                 w = find(args[i]);
                 if (is_constructor_app(env(), w) || is_lit(w))
                     return true;
@@ -686,9 +695,10 @@ class specialize_fn {
                 collect(args[i]);
                 found_inst = true;
                 break;
+            case spec_arg_kind::Fixed:
+                break; // We have disabled this kind of argument
             case spec_arg_kind::FixedHO:
             case spec_arg_kind::FixedNeutral:
-            case spec_arg_kind::Fixed:
                 if (has_attr || found_inst) {
                     collect(args[i]);
                 }

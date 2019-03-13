@@ -23,8 +23,10 @@ structure parser_config extends frontend_config :=
 structure parser_state :=
 (messages : message_log)
 
+abbreviation pos := string.utf8_pos
+
 structure token_cache_entry :=
-(start_it stop_it : string.iterator)
+(start_pos stop_pos : pos)
 (tk : syntax)
 
 -- Non-backtrackable state
@@ -32,24 +34,24 @@ structure parser_cache :=
 (token_cache : option token_cache_entry := none)
 
 inductive result (α : Type)
-| ok       (a : α) (it : iterator) (cache : parser_cache) (state : parser_state) (eps : bool) : result
-| error {} (it : iterator) (cache : parser_cache) (msg : string) (stx : syntax) (eps : bool) : result
+| ok       (a : α)        (i : pos) (cache : parser_cache) (state : parser_state) (eps : bool) : result
+| error {} (msg : string) (i : pos) (cache : parser_cache) (stx : syntax)         (eps : bool) : result
 
 inductive result.is_ok {α : Type} : result α → Prop
-| mk (a : α) (it : iterator) (cache : parser_cache) (state : parser_state) (eps : bool) : result.is_ok (result.ok a it cache state eps)
+| mk (a : α) (i : pos) (cache : parser_cache) (state : parser_state) (eps : bool) : result.is_ok (result.ok a i cache state eps)
 
-theorem error_is_not_ok {α : Type} {it : iterator} {cache : parser_cache} {msg : string} {stx : syntax} {eps : bool}
-                        (h : result.is_ok (@result.error α it cache msg stx eps)) : false :=
+theorem error_is_not_ok {α : Type} {msg : string} {i : pos} {cache : parser_cache} {stx : syntax} {eps : bool}
+                        (h : result.is_ok (@result.error α msg i cache stx eps)) : false :=
 match h with end
 
-@[inline] def unreachable_error {α β : Type} {it : iterator} {cache : parser_cache} {msg : string} {stx : syntax} {eps : bool}
-                                (h : result.is_ok (@result.error α it cache msg stx eps)) : β :=
+@[inline] def unreachable_error {α β : Type} {msg : string} {i : pos} {cache : parser_cache} {stx : syntax} {eps : bool}
+                                (h : result.is_ok (@result.error α msg i cache stx eps)) : β :=
 false.elim (error_is_not_ok h)
 
 def result_ok := {r : result unit // r.is_ok}
 
-@[inline] def mk_result_ok (it : iterator) (cache : parser_cache) (state : parser_state) : result_ok :=
-⟨result.ok () it cache state tt, result.is_ok.mk _ _ _ _ _⟩
+@[inline] def mk_result_ok (i : pos) (cache : parser_cache) (state : parser_state) (eps := tt) : result_ok :=
+⟨result.ok () i cache state eps, result.is_ok.mk _ _ _ _ _⟩
 
 def parser_core_m (α : Type) :=
 parser_config → result_ok → result α
@@ -57,7 +59,6 @@ abbreviation parser_core := parser_core_m syntax
 
 structure rec_parsers :=
 (cmd_parser  : parser_core)
-(lvl_parser  : nat → parser_core)
 (term_parser : nat → parser_core)
 
 def parser_m (α : Type) := rec_parsers → parser_core_m α
@@ -65,7 +66,6 @@ abbreviation parser := parser_m syntax
 abbreviation trailing_parser := syntax → parser
 
 @[inline] def command.parser : parser := λ ps, ps.cmd_parser
-@[inline] def level.parser (rbp : nat := 0) : parser := λ ps, ps.lvl_parser rbp
 @[inline] def term.parser (rbp : nat := 0) : parser  := λ ps, ps.term_parser rbp
 
 @[inline] def parser_m.pure {α : Type} (a : α) : parser_m α :=
@@ -80,11 +80,11 @@ abbreviation trailing_parser := syntax → parser
 @[inline] def parser_m.bind {α β : Type} (x : parser_m α) (f : α → parser_m β) : parser_m β :=
 λ ps cfg r,
   match x ps cfg r with
-  | result.ok a it c s e₁ :=
-    (match f a ps cfg (mk_result_ok it c s) with
-     | result.ok b it c s e₂        := result.ok b it c s (eager_and e₁ e₂)
-     | result.error it c msg stx e₂ := result.error it c msg stx (eager_and e₁ e₂))
-  | result.error it c msg stx e  := result.error it c msg stx e
+  | result.ok a i c s e₁ :=
+    (match f a ps cfg (mk_result_ok i c s) with
+     | result.ok b i c s e₂        := result.ok b i c s (eager_and e₁ e₂)
+     | result.error msg i c stx e₂ := result.error msg i c stx (eager_and e₁ e₂))
+  | result.error msg i c stx e  := result.error msg i c stx e
 
 instance : monad parser_m :=
 {pure := @parser_m.pure, bind := @parser_m.bind}
@@ -92,16 +92,16 @@ instance : monad parser_m :=
 @[inline] protected def orelse {α : Type} (p q : parser_m α) : parser_m α :=
 λ ps cfg r,
   match r with
-  | ⟨result.ok _ it₁ _ s₁ _, _⟩ :=
+  | ⟨result.ok _ i₁ _ s₁ _, _⟩ :=
     (match p ps cfg r with
-     | result.error it₂ c₂ msg₁ stx₁ tt := q ps cfg (mk_result_ok it₁ c₂ s₁)
-     | other                            := other)
+     | result.error msg₁ i₂ c₂ stx₁ tt := q ps cfg (mk_result_ok i₁ c₂ s₁)
+     | other                           := other)
   | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
 
 @[inline] protected def failure {α : Type} : parser_m α :=
 λ _ _ r,
   match r with
-  | ⟨result.ok _ it c s _, h⟩   := result.error it c "failure" syntax.missing tt
+  | ⟨result.ok _ i c s _, h⟩    := result.error "failure" i c syntax.missing tt
   | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
 
 instance : alternative parser_m :=
@@ -110,8 +110,8 @@ instance : alternative parser_m :=
   ..flat_parser.monad }
 
 def set_silent_error {α : Type} : result α → result α
-| (result.error it c msg stx _) := result.error it c msg stx tt
-| other                         := other
+| (result.error i c msg stx _) := result.error i c msg stx tt
+| other                        := other
 
 /--
 `try p` behaves like `p`, but it pretends `p` hasn't
@@ -120,31 +120,100 @@ consumed any input when `p` fails.
 @[inline] def try {α : Type} (p : parser_m α) : parser_m α :=
 λ ps cfg r, set_silent_error (p ps cfg r)
 
-/-
-private def str_aux (c : parser_cache) (s : parser_state) (str : string) : nat → iterator → iterator → result unit
-| 0     _    it := result.ok () it c s (str.length ≠ 0)
-| (n+1) s_it it :=
-  if it.has_next && s_it.curr = it.curr then str_aux n s_it.next it.next
-  else result.error
+@[inline] def at_end (cfg : parser_config) (i : pos) : bool :=
+cfg.input.utf8_at_end i
 
-def str (s : string) : parser_m string :=
--/
+@[inline] def curr (cfg : parser_config) (i : pos) : char :=
+cfg.input.utf8_get i
 
-def mk_error {α : Type} (r : result_ok) (msg : string) (stx : syntax := syntax.missing) : result α :=
-match r with
-| ⟨result.ok _ it c s _, _⟩   := result.error it c msg stx tt
+@[inline] def next (cfg : parser_config) (i : pos) : pos :=
+cfg.input.utf8_next i
+
+@[inline] def input_size (cfg : parser_config) : nat :=
+cfg.input.length
+
+@[inline] def curr_pos : result_ok → pos
+| ⟨result.ok _ i _ _ _, _⟩    := i
 | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
 
-def cmd_not_allowed : parser_core :=
-λ cfg r, mk_error r "commands are not allowed here"
+def mk_error {α : Type} (r : result_ok) (msg : string) (stx : syntax := syntax.missing) (eps := tt) : result α :=
+match r with
+| ⟨result.ok _ i c s _, _⟩    := result.error msg i c stx eps
+| ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
 
-def term_not_allowed : nat → parser_core :=
-λ rbp cfg r, mk_error r "terms are not allowed here"
+@[inline] def satisfy (p : char → bool) : parser_m char :=
+λ _ cfg r,
+  match r with
+  | ⟨result.ok _ i ch st e, _⟩ :=
+    if at_end cfg i then mk_error r "end of input"
+    else let c := curr cfg i in
+         if p c then result.ok c (next cfg i) ch st ff
+         else mk_error r "unexpected character"
+  | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
 
-def rec_lvl (parse_lvl : nat → parser) : nat → nat → parser_core
-| 0     rbp cfg r := mk_error r "parser: no progress"
-| (n+1) rbp cfg r := parse_lvl rbp ⟨cmd_not_allowed, rec_lvl n, term_not_allowed⟩ cfg r
+def any : parser_m char :=
+satisfy (λ _, tt)
 
+@[specialize] def take_until_aux (p : char → bool) (cfg : parser_config) : nat → result_ok → result unit
+| 0     r := r.val
+| (n+1) r :=
+  match r with
+  | ⟨result.ok _ i ch st e, _⟩ :=
+    if at_end cfg i then r.val
+    else let c := curr cfg i in
+         if p c then r.val
+         else take_until_aux n (mk_result_ok (next cfg i) ch st tt)
+  | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
+
+@[specialize] def take_until (p : char → bool) : parser_m unit :=
+λ ps cfg r, take_until_aux p cfg (input_size cfg) r
+
+def take_until_new_line : parser_m unit :=
+take_until (= '\n')
+
+def whitespace : parser_m unit :=
+take_until (λ c, !c.is_whitespace)
+
+-- set_option trace.compiler.boxed true
+--- set_option pp.implicit true
+
+def str_aux (cfg : parser_config) (str : string) (error : string) : nat → result_ok → pos → result unit
+| 0     r j := mk_error r error
+| (n+1) r j :=
+  if str.utf8_at_end j then r.val
+  else
+    match r with
+    | ⟨result.ok _ i ch st e, _⟩ :=
+      if at_end cfg i then result.error error i ch syntax.missing tt
+      else if curr cfg i = str.utf8_get j then str_aux n (mk_result_ok (next cfg i) ch st tt) (str.utf8_next j)
+      else result.error error i ch syntax.missing tt
+    | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
+
+-- #exit
+
+@[inline] def str (s : string) : parser_m unit :=
+λ ps cfg r, str_aux cfg s ("expected " ++ repr s) (input_size cfg) r 0
+
+@[specialize] def many1_aux (p : parser_m unit) : nat → parser_m unit
+| 0     := p
+| (n+1) := p *> (many1_aux n <|> pure ())
+
+@[specialize] def many1 (p : parser_m unit) : parser_m unit  :=
+λ ps cfg r, many1_aux p (input_size cfg) ps cfg r
+
+def dummy_parser_core : parser_core :=
+λ cfg r, mk_error r "dummy"
+
+def test_parser {α : Type} (x : parser_m α) (input : string) : string :=
+let r :=
+  x { cmd_parser := dummy_parser_core, term_parser := λ _, dummy_parser_core }
+    { filename := "test", input := input, file_map := lean.file_map.from_string input, tokens := lean.parser.trie.mk }
+    (mk_result_ok 0 {} {messages := message_log.empty}) in
+match r with
+| result.ok _ i _ _ _      := "Ok at " ++ to_string i
+| result.error msg i _ _ _ := "Error at " ++ to_string i ++ ": " ++ msg
+
+/-
 mutual def rec_cmd, rec_term (parse_cmd : parser) (parse_term : nat → parser) (parse_lvl : nat → parser_core)
 with rec_cmd  : nat → parser_core
 | 0     cfg r := mk_error r "parser: no progress"
@@ -152,7 +221,9 @@ with rec_cmd  : nat → parser_core
 with rec_term : nat → nat → parser_core
 | 0     rbp cfg r := mk_error r "parser: no progress"
 | (n+1) rbp cfg r := parse_term rbp ⟨rec_cmd n, parse_lvl, rec_term n⟩ cfg r
+-/
 
+/-
 def run_parser (x : parser) (parse_cmd : parser) (parse_lvl : nat → parser) (parse_term : nat → parser)
                (input : iterator) (cfg : parser_config) : result syntax :=
 let it := input in
@@ -163,6 +234,7 @@ let ps : rec_parsers := { cmd_parser  := rec_cmd parse_cmd parse_term pl n,
                           lvl_parser  := pl,
                           term_parser := rec_term parse_cmd parse_term pl n } in
 x ps cfg r
+-/
 
 structure parsing_tables :=
 (leading_term_parsers : token_map parser)
@@ -174,6 +246,41 @@ parsing_tables → parser_m α
 end flat_parser
 end lean
 
-def main : io uint32 :=
-io.println' "ok" *>
+def mk_big_string : nat → string → string
+| 0     s := s
+| (n+1) s := mk_big_string n (s ++ "-- new comment\n")
+
+section
+open lean.flat_parser
+
+def flat_p : parser_m unit :=
+many1 (str "--" *> take_until (= '\n') *> any *> pure ())
+
+end
+
+section
+open lean.parser
+open lean.parser.monad_parsec
+
+@[reducible] def parser (α : Type) : Type :=  reader_t lean.flat_parser.rec_parsers (reader_t lean.flat_parser.parser_config (parsec_t syntax (state_t parser_cache id))) α
+
+def test_parsec (p : parser unit) (input : string) : string :=
+let ps : lean.flat_parser.rec_parsers := { cmd_parser := lean.flat_parser.dummy_parser_core, term_parser := λ _, lean.flat_parser.dummy_parser_core } in
+let cfg : lean.flat_parser.parser_config := { filename := "test", input := input, file_map := lean.file_map.from_string input, tokens := lean.parser.trie.mk } in
+let r := p ps cfg input.mk_iterator {} in
+match r with
+| (parsec.result.ok _ it _, _)   := "OK at " ++ to_string it.offset
+| (parsec.result.error msg _, _) := "Error " ++ msg.to_string
+
+def parsec_p : parser unit :=
+many1' (str "--" *> take_until (λ c, c = '\n') *> any *> pure ())
+end
+
+def main (xs : list string) : io uint32 :=
+let s₁ := mk_big_string xs.head.to_nat "" in
+let s₂ := s₁ ++ "bad" ++ mk_big_string 20 "" in
+io.println' (lean.flat_parser.test_parser flat_p s₁) *>
+io.println' (lean.flat_parser.test_parser flat_p s₂) *>
+-- io.println' (test_parsec parsec_p s₁) *>
+-- io.println' (test_parsec parsec_p s₂) *>
 pure 0

@@ -1,3 +1,16 @@
+add_executable(lean_stage0 lean.cpp)
+target_link_libraries(lean_stage0 leanstatic_stage0)
+
+add_custom_target(export-stage1
+  COMMAND make -j8 export-stage1 "LEAN=$<TARGET_FILE:lean_stage0>"
+  DEPENDS lean_stage0
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../library")
+
+add_custom_target(update-stage0
+  COMMAND make update-stage0
+  DEPENDS export-stage1
+  WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../library")
+
 add_executable(lean lean.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)

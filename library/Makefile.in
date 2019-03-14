@@ -6,8 +6,9 @@ SRCS = $(shell find . -name '*.lean')
 OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
-BOOT_DIR = ../src/boot
-CPPS = $(addprefix $(BOOT_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
+STAGE0_DIR = ../src/boot
+STAGE1_DIR = ../src/stage1
+CPPS = $(addprefix $(STAGE1_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
 # ensure deterministic ordering
 CPPS_CORE=$(sort $(patsubst %.lean,%.cpp,$(SRCS)))
 
@@ -29,15 +30,17 @@ clean:
 	find . -name *.olean -delete
 	find . -name *.depend -delete
 
-$(BOOT_DIR)/%.cpp: %.lean %.olean
+$(STAGE1_DIR)/%.cpp: %.lean %.olean
 	@mkdir -p $(@D)
 	$(LEAN) $(OPTS) --cpp=$@ $<
 
-updatecpp: $(CPPS)
-	echo "add_library (boot OBJECT $(CPPS_CORE))" > $(BOOT_DIR)/CMakeLists.txt
+export-stage1: $(CPPS)
+	echo "add_library (cpp_stage1 OBJECT $(CPPS_CORE))" > $(STAGE1_DIR)/CMakeLists.txt
 
-cleancpp:
-	find $(BOOT_DIR) -name '*.cpp' -delete
+update-stage0:
+	rm -r $(STAGE0_DIR)/init
+	cp -R $(STAGE1_DIR)/init $(STAGE0_DIR)/init
+	echo "add_library (boot OBJECT $(CPPS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
 
 .PRECIOUS: %.depend
 

@@ -12,7 +12,7 @@ GTAGS
 .projectile
 .lean_options
 .vs
-src/emacs/dependencies
+/src/stage1
 compile_commands.json
 *.idea
 tasks.json

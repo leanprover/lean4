@@ -441,14 +441,39 @@ set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:lean_frontend>)
 add_subdirectory(init)
 set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:init>)
 add_subdirectory(boot)
-set(LEAN_OBJS ${LEAN_OBJS} $<TARGET_OBJECTS:boot>)
+if(STAGE1)
+  add_subdirectory(stage1)
+endif()
 if(EMSCRIPTEN)
     set(LEAN_LIBRARY_TYPE SHARED)
 else()
    set(LEAN_LIBRARY_TYPE STATIC)
 endif()
-add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-target_link_libraries(leanstatic ${EXTRA_LIBS})
+
+add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:boot>)
+target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
+
+if(STAGE1)
+  add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:cpp_stage1>)
+  target_link_libraries(leanstatic ${EXTRA_LIBS})
+else()
+  # Build `leanstatic` after `export-stage1`, triggering a CMake re-run after (potentially) updating
+  # `src/stage1/CMakeLists.txt`
+  add_custom_target(boot_leanstatic
+    # '-G Ninja' complains otherwise
+    BYPRODUCTS libleanstatic.a
+    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+    COMMAND "${CMAKE_COMMAND}" "${CMAKE_SOURCE_DIR}" -DSTAGE1=ON
+    COMMAND "${CMAKE_COMMAND}" --build . --target leanstatic
+    COMMAND "${CMAKE_COMMAND}" "${CMAKE_SOURCE_DIR}" -DSTAGE1=OFF
+    DEPENDS export-stage1)
+  # import the output from the nested CMake run
+  add_library(leanstatic ${LEAN_LIBRARY_TYPE} IMPORTED)
+  set_target_properties(leanstatic PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic.a"
+    INTERFACE_LINK_LIBRARIES "${EXTRA_LIBS}")
+  add_dependencies(leanstatic boot_leanstatic)
+endif()
 
 ADD_CUSTOM_TARGET(bin_lib ALL
    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
@@ -465,7 +490,7 @@ if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
     target_link_libraries(leanshared ${EXTRA_LIBS})
     install(TARGETS leanshared DESTINATION lib)
   endif()
-  install(TARGETS leanstatic DESTINATION lib)
+  install(FILES libleanstatic.a DESTINATION lib)
 endif()
 
 add_subdirectory(shell)
@@ -500,7 +525,7 @@ endfunction()
 escape_regex(LEAN_SOURCE_DIR_REGEX_SAFE ${LEAN_SOURCE_DIR})
 
 foreach(SOURCE ${LEAN_SOURCES})
-  if(${SOURCE} MATCHES "${LEAN_SOURCE_DIR_REGEX_SAFE}/boot/.*")
+  if(${SOURCE} MATCHES "${LEAN_SOURCE_DIR_REGEX_SAFE}/(boot|stage.)/.*")
     LIST(REMOVE_ITEM LEAN_SOURCES ${SOURCE})
   endif()
 endforeach()
@@ -525,6 +550,11 @@ add_custom_target(
 add_custom_target(clean-std-lib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
   COMMAND make clean
+  )
+
+add_custom_target(clean-stage1
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
+  COMMAND "${CMAKE_COMMAND}" -E remove_directory stage1
   )
 
 add_custom_target(clean-leanpkg

@@ -289,14 +289,9 @@ def mk_big_string : nat → string → string
 section
 open lean.flat_parser
 
--- set_option pp.binder_types false
--- set_option pp.implicit true
--- set_option trace.compiler.boxed true
-
 def flat_p : parser_m unit :=
 many1 (str "--" *> take_until (= '\n') *> any *> pure ())
 
--- #exit
 end
 
 section

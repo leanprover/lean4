@@ -1237,97 +1237,89 @@ return x_0;
 obj* l_char_quote__core(uint32 x_0) {
 _start:
 {
-obj* x_1; uint32 x_3; uint8 x_4; 
-x_3 = 10;
+uint32 x_1; uint8 x_2; 
+x_1 = 10;
+x_2 = x_0 == x_1;
+if (x_2 == 0)
+{
+uint32 x_3; uint8 x_4; 
+x_3 = 9;
 x_4 = x_0 == x_3;
 if (x_4 == 0)
 {
 uint32 x_5; uint8 x_6; 
-x_5 = 9;
+x_5 = 92;
 x_6 = x_0 == x_5;
 if (x_6 == 0)
 {
-obj* x_7; 
-x_7 = lean::box(0);
-x_1 = x_7;
-goto lbl_2;
-}
-else
+uint32 x_7; uint8 x_8; 
+x_7 = 34;
+x_8 = x_0 == x_7;
+if (x_8 == 0)
 {
-obj* x_8; 
-x_8 = l_char_quote__core___closed__4;
-return x_8;
-}
-}
-else
-{
-obj* x_9; 
-x_9 = l_char_quote__core___closed__5;
-return x_9;
-}
-lbl_2:
-{
-uint32 x_11; uint8 x_12; 
-lean::dec(x_1);
-x_11 = 92;
-x_12 = x_0 == x_11;
-if (x_12 == 0)
+obj* x_9; obj* x_10; uint8 x_11; 
+x_9 = lean::uint32_to_nat(x_0);
+x_10 = lean::mk_nat_obj(31u);
+x_11 = lean::nat_dec_le(x_9, x_10);
+lean::dec(x_9);
+if (x_11 == 0)
 {
 uint32 x_13; uint8 x_14; 
-x_13 = 34;
+x_13 = 127;
 x_14 = x_0 == x_13;
 if (x_14 == 0)
 {
-obj* x_15; obj* x_16; uint8 x_17; 
-x_15 = lean::uint32_to_nat(x_0);
-x_16 = lean::mk_nat_obj(31u);
-x_17 = lean::nat_dec_le(x_15, x_16);
-lean::dec(x_15);
-if (x_17 == 0)
-{
-uint32 x_19; uint8 x_20; 
-x_19 = 127;
-x_20 = x_0 == x_19;
-if (x_20 == 0)
-{
-obj* x_21; obj* x_22; 
-x_21 = l_string_iterator_extract___main___closed__1;
-x_22 = lean::string_push(x_21, x_0);
-return x_22;
+obj* x_15; obj* x_16; 
+x_15 = l_string_iterator_extract___main___closed__1;
+x_16 = lean::string_push(x_15, x_0);
+return x_16;
 }
 else
 {
-obj* x_23; obj* x_24; obj* x_25; 
-x_23 = l_char__to__hex(x_0);
-x_24 = l_char_quote__core___closed__1;
-x_25 = lean::string_append(x_24, x_23);
-lean::dec(x_23);
+obj* x_17; obj* x_18; obj* x_19; 
+x_17 = l_char__to__hex(x_0);
+x_18 = l_char_quote__core___closed__1;
+x_19 = lean::string_append(x_18, x_17);
+lean::dec(x_17);
+return x_19;
+}
+}
+else
+{
+obj* x_21; obj* x_22; obj* x_23; 
+x_21 = l_char__to__hex(x_0);
+x_22 = l_char_quote__core___closed__1;
+x_23 = lean::string_append(x_22, x_21);
+lean::dec(x_21);
+return x_23;
+}
+}
+else
+{
+obj* x_25; 
+x_25 = l_char_quote__core___closed__2;
 return x_25;
 }
 }
 else
 {
-obj* x_27; obj* x_28; obj* x_29; 
-x_27 = l_char__to__hex(x_0);
-x_28 = l_char_quote__core___closed__1;
-x_29 = lean::string_append(x_28, x_27);
-lean::dec(x_27);
-return x_29;
+obj* x_26; 
+x_26 = l_char_quote__core___closed__3;
+return x_26;
 }
 }
 else
 {
-obj* x_31; 
-x_31 = l_char_quote__core___closed__2;
-return x_31;
+obj* x_27; 
+x_27 = l_char_quote__core___closed__4;
+return x_27;
 }
 }
 else
 {
-obj* x_32; 
-x_32 = l_char_quote__core___closed__3;
-return x_32;
-}
+obj* x_28; 
+x_28 = l_char_quote__core___closed__5;
+return x_28;
 }
 }
 }

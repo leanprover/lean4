@@ -312,11 +312,22 @@ def parsec_p : parser unit :=
 many1' (str "--" *> take_until (λ c, c = '\n') *> any *> pure ())
 end
 
+@[noinline] def test_flat_p (s : string) : io unit :=
+io.println' (lean.flat_parser.test_parser flat_p s)
+
+@[noinline] def test_parsec_p (s : string) : io unit :=
+io.println' (test_parsec parsec_p s)
+
+def prof {α : Type} (msg : string) (p : io α) : io α :=
+let msg₁ := "Time for '" ++ msg ++ "':" in
+let msg₂ := "Memory usage for '" ++ msg ++ "':" in
+allocprof msg₂ (timeit msg₁ p)
+
 def main (xs : list string) : io uint32 :=
 let s₁ := mk_big_string xs.head.to_nat "" in
 let s₂ := s₁ ++ "bad" ++ mk_big_string 20 "" in
-io.println' (lean.flat_parser.test_parser flat_p s₁) *>
-io.println' (lean.flat_parser.test_parser flat_p s₂) *>
--- io.println' (test_parsec parsec_p s₁) *>
--- io.println' (test_parsec parsec_p s₂) *>
+prof "flat parser 1" (test_flat_p s₁) *>
+prof "flat parser 2" (test_flat_p s₂) *>
+prof "parsec 1" (test_parsec_p s₁) *>
+prof "parsec 2" (test_parsec_p s₂) *>
 pure 0

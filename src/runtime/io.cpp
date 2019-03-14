@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <chrono>
 #include <iomanip>
 #include "runtime/io.h"
+#include "runtime/allocprof.h"
 namespace lean {
 static obj_res const REAL_WORLD = box(0);
 
@@ -74,13 +75,13 @@ extern "C" obj_res lean_io_unsafe(obj_arg, obj_arg fn) {
     return a;
 }
 
-/* timeit {α : Type} (msg : string) (fn : io α) : io α */
-extern "C" obj_res lean_io_timeit(obj_arg, obj_arg msg, obj_arg fn, obj_arg w) {
+/* timeit {α : Type} (msg : @& string) (fn : io α) : io α */
+extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
     auto start = std::chrono::steady_clock::now();
     object * r = apply_1(fn, w);
     auto end   = std::chrono::steady_clock::now();
     auto diff  = std::chrono::duration<double>(end - start);
-    std::ostream & out = std::cerr; // TODO(Leo): replace
+    std::ostream & out = std::cerr; // TODO(Leo): replace?
     out << std::setprecision(3);
     if (diff < std::chrono::duration<double>(1)) {
         out << string_cstr(msg) << " " << std::chrono::duration<double, std::milli>(diff).count() << "ms\n";
@@ -88,5 +89,12 @@ extern "C" obj_res lean_io_timeit(obj_arg, obj_arg msg, obj_arg fn, obj_arg w) {
         out << string_cstr(msg) << " " << diff.count() << "s\n";
     }
     return r;
+}
+
+/* allocprof {α : Type} (msg : string) (fn : io α) : io α */
+extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
+    std::ostream & out = std::cerr; // TODO(Leo): replace?
+    allocprof prof(out, string_cstr(msg));
+    return apply_1(fn, w);
 }
 }

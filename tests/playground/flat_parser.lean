@@ -172,6 +172,10 @@ cfg.input.length
 | ⟨result.ok _ i _ _ _, _⟩    := i
 | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
 
+@[inline] def curr_state : result_ok → parser_state
+| ⟨result.ok _ _ _ s _, _⟩    := s
+| ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
+
 def mk_error {α : Type} (r : result_ok) (msg : string) (stx : syntax := syntax.missing) (eps := tt) : result α :=
 match r with
 | ⟨result.ok _ i c s _, _⟩    := result.error msg i c stx eps
@@ -230,12 +234,20 @@ def str_aux (cfg : parser_config) (str : string) (error : string) : nat → resu
 @[inline] def str (s : string) : parser_m unit :=
 λ ps cfg r, str_aux cfg s ("expected " ++ repr s) (input_size cfg) r 0
 
-@[specialize] def many1_aux (p : parser_m unit) : nat → parser_m unit
-| 0     := p
-| (n+1) := p *> (many1_aux n <|> pure ())
+@[specialize] def many_aux (p : parser_m unit) : nat → bool → parser_m unit
+| 0     fst := pure ()
+| (k+1) fst := λ ps cfg r,
+  let i₀ := curr_pos r in
+  let s₀ := curr_state r in
+  match p ps cfg r with
+  | result.ok a i c s _    := many_aux k ff ps cfg (mk_result_ok i c s)
+  | result.error _ _ c _ _ := result.ok () i₀ c s₀ fst
 
-@[specialize] def many1 (p : parser_m unit) : parser_m unit  :=
-λ ps cfg r, many1_aux p (input_size cfg) ps cfg r
+@[inline] def many (p : parser_m unit) : parser_m unit  :=
+λ ps cfg r, many_aux p (input_size cfg) tt ps cfg r
+
+@[inline] def many1 (p : parser_m unit) : parser_m unit  :=
+p *> many p
 
 def dummy_parser_core : parser_core :=
 λ cfg r, mk_error r "dummy"
@@ -328,6 +340,6 @@ let s₁ := mk_big_string xs.head.to_nat "" in
 let s₂ := s₁ ++ "bad" ++ mk_big_string 20 "" in
 prof "flat parser 1" (test_flat_p s₁) *>
 prof "flat parser 2" (test_flat_p s₂) *>
-prof "parsec 1" (test_parsec_p s₁) *>
-prof "parsec 2" (test_parsec_p s₂) *>
+-- prof "parsec 1" (test_parsec_p s₁) *>
+-- prof "parsec 2" (test_parsec_p s₂) *>
 pure 0

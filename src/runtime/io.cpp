@@ -80,7 +80,7 @@ extern "C" obj_res lean_io_timeit(obj_arg, obj_arg msg, obj_arg fn, obj_arg w) {
     object * r = apply_1(fn, w);
     auto end   = std::chrono::steady_clock::now();
     auto diff  = std::chrono::duration<double>(end - start);
-    std::ostream & out = std::cout; // TODO(Leo): replace
+    std::ostream & out = std::cerr; // TODO(Leo): replace
     out << std::setprecision(3);
     if (diff < std::chrono::duration<double>(1)) {
         out << string_cstr(msg) << " " << std::chrono::duration<double, std::milli>(diff).count() << "ms\n";

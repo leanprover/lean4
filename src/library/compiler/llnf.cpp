@@ -1485,8 +1485,12 @@ class explicit_boxing_fn {
     }
 
     expr get_arg_type(expr const & e) {
-        lean_assert(is_fvar(e));
-        return m_lctx.get_local_decl(e).get_type();
+        if (is_enf_neutral(e)) {
+            return mk_enf_neutral_type();
+        } else {
+            lean_assert(is_fvar(e));
+            return m_lctx.get_local_decl(e).get_type();
+        }
     }
 
     expr mk_box(unsigned n, expr const & e) {
@@ -1647,7 +1651,7 @@ class explicit_boxing_fn {
     expr visit_jmp(expr const & fn, buffer<expr> & args) {
         expr jp_type = get_arg_type(args[0]);
         for (unsigned i = 1; i < args.size(); i++) {
-            lean_assert(is_fvar(args[i]));
+            lean_assert(is_fvar(args[i]) || is_enf_neutral(args[i]));
             lean_assert(is_pi(jp_type));
             expr arg_expected_type = binding_domain(jp_type);
             expr arg_type          = get_arg_type(args[i]);

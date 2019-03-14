@@ -6,6 +6,44 @@ open string
 open parser (syntax syntax.missing)
 open parser (trie token_map)
 
+abbreviation pos := string.utf8_pos
+
+/-- A precomputed cache for quickly mapping char offsets to positions. -/
+structure file_map :=
+(offsets : array nat)
+(lines   : array nat)
+
+namespace file_map
+private def from_string_aux (s : string) : nat → nat → nat → pos → array nat → array nat → file_map
+| 0     offset line i offsets lines := ⟨offsets.push offset, lines.push line⟩
+| (k+1) offset line i offsets lines :=
+  if s.utf8_at_end i then ⟨offsets.push offset, lines.push line⟩
+  else let c := s.utf8_get i in
+       let i := s.utf8_next i in
+       let offset := offset + 1 in
+       if c = '\n'
+       then from_string_aux k offset (line+1) i (offsets.push offset) (lines.push (line+1))
+       else from_string_aux k offset line i offsets lines
+
+def from_string (s : string) : file_map :=
+from_string_aux s s.length 0 1 0 (array.nil.push 0) (array.nil.push 1)
+
+/- Remark: `offset is in [(offsets.get b), (offsets.get e)]` and `b < e` -/
+private def to_position_aux (offsets : array nat) (lines : array nat) (offset : nat) : nat → nat → nat → position
+| 0     b e := ⟨offset, 1⟩ -- unreachable
+| (k+1) b e :=
+  let offset_b := offsets.read' b in
+  if e = b + 1 then ⟨offset - offset_b, lines.read' b⟩
+  else let m := (b + e) / 2 in
+       let offset_m := offsets.read' m in
+       if offset = offset_m then ⟨0, lines.read' m⟩
+       else if offset > offset_m then to_position_aux k m e
+       else to_position_aux k b m
+
+def to_position : file_map → nat → position
+| ⟨offsets, lines⟩ offset := to_position_aux offsets lines offset offsets.size 0 (offsets.size-1)
+end file_map
+
 structure token_config :=
 («prefix» : string)
 (lbp : nat := 0)
@@ -22,8 +60,6 @@ structure parser_config extends frontend_config :=
 -- Backtrackable state
 structure parser_state :=
 (messages : message_log)
-
-abbreviation pos := string.utf8_pos
 
 structure token_cache_entry :=
 (start_pos stop_pos : pos)
@@ -207,7 +243,7 @@ def dummy_parser_core : parser_core :=
 def test_parser {α : Type} (x : parser_m α) (input : string) : string :=
 let r :=
   x { cmd_parser := dummy_parser_core, term_parser := λ _, dummy_parser_core }
-    { filename := "test", input := input, file_map := lean.file_map.from_string input, tokens := lean.parser.trie.mk }
+    { filename := "test", input := input, file_map := file_map.from_string input, tokens := lean.parser.trie.mk }
     (mk_result_ok 0 {} {messages := message_log.empty}) in
 match r with
 | result.ok _ i _ _ _      := "Ok at " ++ to_string i
@@ -253,9 +289,14 @@ def mk_big_string : nat → string → string
 section
 open lean.flat_parser
 
+-- set_option pp.binder_types false
+-- set_option pp.implicit true
+-- set_option trace.compiler.boxed true
+
 def flat_p : parser_m unit :=
 many1 (str "--" *> take_until (= '\n') *> any *> pure ())
 
+-- #exit
 end
 
 section
@@ -266,7 +307,7 @@ open lean.parser.monad_parsec
 
 def test_parsec (p : parser unit) (input : string) : string :=
 let ps : lean.flat_parser.rec_parsers := { cmd_parser := lean.flat_parser.dummy_parser_core, term_parser := λ _, lean.flat_parser.dummy_parser_core } in
-let cfg : lean.flat_parser.parser_config := { filename := "test", input := input, file_map := lean.file_map.from_string input, tokens := lean.parser.trie.mk } in
+let cfg : lean.flat_parser.parser_config := { filename := "test", input := input, file_map := lean.flat_parser.file_map.from_string input, tokens := lean.parser.trie.mk } in
 let r := p ps cfg input.mk_iterator {} in
 match r with
 | (parsec.result.ok _ it _, _)   := "OK at " ++ to_string it.offset

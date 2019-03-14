@@ -1645,7 +1645,6 @@ expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e0
     expr e = e0;
     while (true) {
         e = simp(e);
-        expr old_e = e;
         e = elim_jp1(e);
         if (!elim_jp1.expanded())
             return e;

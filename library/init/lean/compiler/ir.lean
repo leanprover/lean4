@@ -17,11 +17,11 @@ namespace lean
 namespace ir
 
 /- Variable identifier -/
-abbreviation varid := name
+abbrev varid := name
 /- Function identifier -/
-abbreviation fid := name
+abbrev fid := name
 /- Join point identifier -/
-abbreviation jpid := name
+abbrev jpid := name
 
 /- Low level IR types. Most are self explanatory.
 
@@ -157,9 +157,9 @@ inductive fnbody
 | jmp (j : jpid) (ys : list arg)
 | unreachable
 
-abbreviation alt := alt_core fnbody
-@[pattern] abbreviation alt.ctor    := @alt_core.ctor fnbody
-@[pattern] abbreviation alt.default := @alt_core.default fnbody
+abbrev alt := alt_core fnbody
+@[pattern] abbrev alt.ctor    := @alt_core.ctor fnbody
+@[pattern] abbrev alt.default := @alt_core.default fnbody
 
 inductive decl
 | fdecl  (f : fid) (xs : list param) (ty : type) (b : fnbody)
@@ -197,7 +197,7 @@ with alt.is_pure : alt → bool
 | (alt.ctor _ b)  := b.is_pure
 | (alt.default b) := ff
 
-abbreviation var_renaming := name_map name
+abbrev var_renaming := name_map name
 
 class has_alpha_eqv (α : Type) :=
 (aeqv : var_renaming → α → α → bool)
@@ -290,10 +290,10 @@ fnbody.alpha_eqv mk_name_map b₁ b₂
 
 instance fnbody.has_beq : has_beq fnbody := ⟨fnbody.beq⟩
 
-abbreviation var_set := name_set
+abbrev var_set := name_set
 
 section free_variables
-abbreviation collector := name_set → name_set → name_set
+abbrev collector := name_set → name_set → name_set
 
 @[inline] private def skip : collector :=
 λ bv fv, fv

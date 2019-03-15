@@ -28,7 +28,7 @@ instance transformer_config_coe_frontend_config : has_coe transformer_config fro
 -- TODO(Sebastian): recursive expansion
 @[derive monad monad_reader monad_except]
 def transform_m := reader_t frontend_config $ except_t message id
-abbreviation transformer := syntax → transform_m (option syntax)
+abbrev transformer := syntax → transform_m (option syntax)
 
 /-- We allow macros to refuse expansion. This means that nodes can decide whether to act as macros
     or not depending on their contents, allowing them to unfold to some normal form without changing

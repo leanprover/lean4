@@ -67,9 +67,9 @@ open parsec
 def parsec_t (μ : Type) (m : Type → Type) (α : Type) :=
 iterator → m (result μ α)
 
-abbreviation parsec (μ : Type) := parsec_t μ id
+abbrev parsec (μ : Type) := parsec_t μ id
 /-- `parsec` without custom error message type -/
-abbreviation parsec' := parsec unit
+abbrev parsec' := parsec unit
 
 namespace parsec_t
 open parsec.result
@@ -243,7 +243,7 @@ class monad_parsec (μ : out_param Type) (m : Type → Type) :=
 (map {} {α : Type} : (∀ {m'} [monad m'] {α}, parsec_t μ m' α → parsec_t μ m' α) → m α → m α)
 
 /-- `parsec` without custom error message type -/
-abbreviation monad_parsec' := monad_parsec unit
+abbrev monad_parsec' := monad_parsec unit
 
 variables {μ : Type}
 

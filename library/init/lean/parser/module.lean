@@ -27,7 +27,7 @@ instance module_parser_config_coe : has_coe module_parser_config command_parser_
 section
 @[derive monad alternative monad_reader monad_state monad_parsec monad_except]
 def module_parser_m := state_t parser_state $ parser_t module_parser_config id
-abbreviation module_parser := module_parser_m syntax
+abbrev module_parser := module_parser_m syntax
 end
 
 instance module_parser_m.lift_parser_t (ρ : Type) [has_lift_t module_parser_config ρ] :

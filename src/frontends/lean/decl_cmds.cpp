@@ -572,6 +572,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("theorem",         "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("instance",        "add new instance", instance_cmd));
     add_cmd(r, cmd_info("abbreviation",    "add new abbreviation", abbreviation_cmd));
+    add_cmd(r, cmd_info("abbrev",          "add new abbreviation", abbreviation_cmd));
     add_cmd(r, cmd_info("example",         "add new example", example_cmd));
     add_cmd(r, cmd_info("include",         "force section variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));

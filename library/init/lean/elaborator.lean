@@ -131,7 +131,7 @@ structure elaborator_state :=
 
 @[derive monad monad_rec monad_reader monad_state monad_except]
 def elaborator_m := rec_t syntax unit $ reader_t elaborator_config $ state_t elaborator_state $ except_t message id
-abbreviation elaborator := syntax → elaborator_m unit
+abbrev elaborator := syntax → elaborator_m unit
 
 /-- Recursively elaborate any command. -/
 def command.elaborate : elaborator := recurse
@@ -470,7 +470,8 @@ def declaration.elaborate : elaborator :=
       let kind := match dl.kind with
       | def_like.kind.view.theorem _ := 0
       | def_like.kind.view.def _ := 1
-      | def_like.kind.view.abbreviation _ := 5,
+      | def_like.kind.view.abbreviation _ := 5
+      | def_like.kind.view.«abbrev» _ := 5,
       elab_def_like stx decl.modifiers dl kind
 
   -- these are almost macros for `def`, except the elaborator handles them specially at a few places

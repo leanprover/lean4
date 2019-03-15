@@ -72,7 +72,7 @@ def utf8_byte_size : (@& string) → usize
 @[inline] def bsize (s : string) : usize :=
 utf8_byte_size s
 
-abbreviation utf8_pos := usize
+abbrev utf8_pos := usize
 
 def utf8_begin : utf8_pos := 0
 

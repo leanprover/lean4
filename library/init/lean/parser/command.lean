@@ -120,6 +120,7 @@ def builtin_command_parsers : token_map command_parser := token_map.of_list [
   ("unsafe", declaration.parser),
   ("def", declaration.parser),
   ("abbreviation", declaration.parser),
+  ("abbrev", declaration.parser),
   ("theorem", declaration.parser),
   ("instance", declaration.parser),
   ("axiom", declaration.parser),

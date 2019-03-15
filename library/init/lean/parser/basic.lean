@@ -76,8 +76,8 @@ parsec_t syntax $ state_t parser_cache $ m
 def parser_t (ρ : Type) (m : Type → Type) [monad m] := reader_t ρ $ parser_core_t m
 @[derive monad alternative monad_reader monad_parsec monad_except]
 def basic_parser_m := parser_t parser_config id
-abbreviation basic_parser := basic_parser_m syntax
-abbreviation monad_basic_parser := has_monad_lift_t basic_parser_m
+abbrev basic_parser := basic_parser_m syntax
+abbrev monad_basic_parser := has_monad_lift_t basic_parser_m
 
 section
 local attribute [reducible] basic_parser_m parser_t parser_core_t
@@ -180,12 +180,12 @@ end
 /- The `nat` at `rec_t` is the lbp` -/
 @[derive monad alternative monad_reader monad_parsec monad_except monad_rec monad_basic_parser]
 def term_parser_m := rec_t nat syntax $ command_parser_m parser_config
-abbreviation term_parser := term_parser_m syntax
+abbrev term_parser := term_parser_m syntax
 
 /-- A term parser for a suffix or infix notation that accepts a preceding term. -/
 @[derive monad alternative monad_reader monad_parsec monad_except monad_rec monad_basic_parser]
 def trailing_term_parser_m := reader_t syntax term_parser_m
-abbreviation trailing_term_parser := trailing_term_parser_m syntax
+abbrev trailing_term_parser := trailing_term_parser_m syntax
 
 instance trailing_term_parser_coe : has_coe term_parser trailing_term_parser :=
 ⟨λ x _, x⟩
@@ -221,7 +221,7 @@ structure command_parser_config extends parser_config :=
 instance command_parser_config_coe_parser_config : has_coe command_parser_config parser_config :=
 ⟨command_parser_config.to_parser_config⟩
 
-abbreviation command_parser := command_parser_m command_parser_config syntax
+abbrev command_parser := command_parser_m command_parser_config syntax
 
 end «parser»
 end lean

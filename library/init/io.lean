@@ -22,7 +22,7 @@ constant timeit {α : Type} (msg : @& string) (fn : io α) : io α
 @[extern 4 "lean_io_allocprof"]
 constant allocprof {α : Type} (msg : @& string) (fn : io α) : io α
 
-abbreviation monad_io (m : Type → Type) := has_monad_lift_t io m
+abbrev monad_io (m : Type → Type) := has_monad_lift_t io m
 
 -- TODO: make opaque
 -- In the future, we may want to give more concrete data
@@ -44,7 +44,7 @@ instance : has_lift io.error string :=
 /-- 'io with errors'. A useful default monad stack to use for operations
     in the `io` namespace if there is no need for additional layers or
     a more specific error type than `io.error`. -/
-abbreviation eio := except_t io.error io
+abbrev eio := except_t io.error io
 
 namespace io
 

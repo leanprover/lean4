@@ -32,9 +32,9 @@ Remark: the reducibility_hints are not related to the attributes: reducible/irre
 These attributes are used by the elaborator. The reducibility_hints are used by the kernel (and elaborator).
 Moreover, the reducibility_hints cannot be changed after a declaration is added to the kernel. -/
 inductive reducibility_hints
-| opaque  : reducibility_hints
-| abbrev  : reducibility_hints
-| regular : uint32 → reducibility_hints
+| opaque   : reducibility_hints
+| «abbrev» : reducibility_hints
+| regular  : uint32 → reducibility_hints
 
 /-- Base structure for `axiom_val`, `definition_val`, `theorem_val`, `inductive_val`, `constructor_val`, `recursor_val` and `quot_val`. -/
 structure constant_val :=

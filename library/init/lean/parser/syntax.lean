@@ -42,7 +42,7 @@ structure syntax_node_kind :=
 /-- A hygiene marker introduced by a macro expansion. -/
 @[derive decidable_eq has_to_format]
 def macro_scope := nat
-abbreviation macro_scopes := list macro_scope
+abbrev macro_scopes := list macro_scope
 
 /-
 Parsers create `syntax_node`'s with the following properties (see implementation of `combinators.node`):

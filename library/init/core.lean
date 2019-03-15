@@ -125,7 +125,7 @@ a
 
 /- `id_rhs` is an auxiliary declaration used in the equation compiler to address performance
    issues when proving equational lemmas. The equation compiler uses it as a marker. -/
-@[macro_inline] abbreviation id_rhs (α : Sort u) (a : α) : α := a
+@[macro_inline] abbrev id_rhs (α : Sort u) (a : α) : α := a
 
 inductive punit : Sort u
 | star : punit
@@ -133,9 +133,9 @@ inductive punit : Sort u
 /-- An abbreviation for `punit.{0}`, its most common instantiation.
     This type should be preferred over `punit` where possible to avoid
     unnecessary universe parameters. -/
-abbreviation unit : Type := punit
+abbrev unit : Type := punit
 
-@[pattern] abbreviation unit.star : unit := punit.star
+@[pattern] abbrev unit.star : unit := punit.star
 
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure thunk (α : Type u) : Type u :=

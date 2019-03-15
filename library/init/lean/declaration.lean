@@ -49,6 +49,10 @@ structure definition_val extends constant_val :=
 structure theorem_val extends constant_val :=
 (value : task expr)
 
+/- Value for an opaque constant declaration `constant x : t := e` -/
+structure opaque_val extends constant_val :=
+(value : expr)
+
 structure constructor :=
 (id : name) (type : expr)
 
@@ -60,6 +64,7 @@ inductive declaration
 | axiom_decl       (val : axiom_val)
 | defn_decl        (val : definition_val)
 | thm_decl         (val : theorem_val)
+| opaque_decl      (val : opaque_val)
 | quot_decl
 | mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `unsafe`
 | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool)
@@ -120,6 +125,7 @@ inductive constant_info
 | axiom_info    (val : axiom_val)
 | defn_info     (val : definition_val)
 | thm_info      (val : theorem_val)
+| opaque_info   (val : opaque_val)
 | quot_info     (val : quot_val)
 | induct_info   (val : inductive_val)
 | cnstr_info    (val : constructor_val)
@@ -131,6 +137,7 @@ def to_constant_val : constant_info → constant_val
 | (defn_info     {to_constant_val := d, ..}) := d
 | (axiom_info    {to_constant_val := d, ..}) := d
 | (thm_info      {to_constant_val := d, ..}) := d
+| (opaque_info   {to_constant_val := d, ..}) := d
 | (quot_info     {to_constant_val := d, ..}) := d
 | (induct_info   {to_constant_val := d, ..}) := d
 | (cnstr_info    {to_constant_val := d, ..}) := d

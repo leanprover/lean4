@@ -133,6 +133,18 @@ environment environment::add_theorem(declaration const & d, bool check) const {
     return add(constant_info(d));
 }
 
+environment environment::add_opaque(declaration const & d, bool check) const {
+    opaque_val const & v = d.to_opaque_val();
+    if (check) {
+        type_checker checker(*this);
+        check_constant_val(*this, v.to_constant_val(), checker);
+        expr val_type = checker.check(v.get_value(), v.get_lparams());
+        if (!checker.is_def_eq(val_type, v.get_type()))
+            throw definition_type_mismatch_exception(*this, d, val_type);
+    }
+    return add(constant_info(d));
+}
+
 environment environment::add_mutual(declaration const & d, bool check) const {
     definition_vals const & vs = d.to_definition_vals();
     /* Check declarations header */
@@ -168,6 +180,7 @@ environment environment::add(declaration const & d, bool check) const {
     case declaration_kind::Axiom:            return add_axiom(d, check);
     case declaration_kind::Definition:       return add_definition(d, check);
     case declaration_kind::Theorem:          return add_theorem(d, check);
+    case declaration_kind::Opaque:           return add_opaque(d, check);
     case declaration_kind::MutualDefinition: return add_mutual(d, check);
     case declaration_kind::Quot:             return add_quot();
     case declaration_kind::Inductive:        return add_inductive(d);

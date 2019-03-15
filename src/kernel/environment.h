@@ -67,6 +67,7 @@ class environment {
     environment add_axiom(declaration const & d, bool check) const;
     environment add_definition(declaration const & d, bool check) const;
     environment add_theorem(declaration const & d, bool check) const;
+    environment add_opaque(declaration const & d, bool check) const;
     environment add_mutual(declaration const & d, bool check) const;
     environment add_quot() const;
     environment add_inductive(declaration const & d) const;

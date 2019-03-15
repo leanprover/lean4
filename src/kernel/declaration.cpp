@@ -59,6 +59,11 @@ theorem_val::theorem_val(name const & n, names const & lparams, expr const & typ
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
 }
 
+opaque_val::opaque_val(name const & n, names const & lparams, expr const & type, expr const & val):
+    object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
+}
+
+
 quot_val::quot_val(name const & n, names const & lparams, expr const & type, quot_kind k):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(k));
@@ -101,6 +106,7 @@ bool declaration::is_unsafe() const {
     case declaration_kind::Definition:       return to_definition_val().is_unsafe();
     case declaration_kind::Axiom:            return to_axiom_val().is_unsafe();
     case declaration_kind::Theorem:          return false;
+    case declaration_kind::Opaque:           return false;
     case declaration_kind::Inductive:        return inductive_decl(*this).is_unsafe();
     case declaration_kind::Quot:             return false;
     case declaration_kind::MutualDefinition: return true;
@@ -160,6 +166,10 @@ declaration mk_theorem(name const & n, names const & params, expr const & t, exp
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, params, t, v)));
 }
 
+declaration mk_opaque(name const & n, names const & params, expr const & t, expr const & v) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Opaque), opaque_val(n, params, t, v)));
+}
+
 declaration mk_axiom(name const & n, names const & params, expr const & t, bool unsafe) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), axiom_val(n, params, t, unsafe)));
 }
@@ -212,7 +222,7 @@ bool inductive_decl::is_unsafe() const { return cnstr_get_scalar<unsigned char>(
 constant_info::constant_info():constant_info(*g_dummy) {}
 
 constant_info::constant_info(declaration const & d):object_ref(d.raw()) {
-    lean_assert(d.is_definition() || d.is_theorem() || d.is_axiom());
+    lean_assert(d.is_definition() || d.is_theorem() || d.is_axiom() || d.is_opaque());
     inc_ref(d.raw());
 }
 
@@ -250,6 +260,7 @@ bool constant_info::is_unsafe() const {
     case constant_info_kind::Axiom:       return to_axiom_val().is_unsafe();
     case constant_info_kind::Definition:  return to_definition_val().is_unsafe();
     case constant_info_kind::Theorem:     return false;
+    case constant_info_kind::Opaque:     return false;
     case constant_info_kind::Quot:        return false;
     case constant_info_kind::Inductive:   return to_inductive_val().is_unsafe();
     case constant_info_kind::Constructor: return to_constructor_val().is_unsafe();

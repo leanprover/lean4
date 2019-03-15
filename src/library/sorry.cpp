@@ -42,6 +42,7 @@ bool has_sorry(declaration const & decl) {
     case declaration_kind::Axiom:            return has_sorry(decl.to_axiom_val().get_type());
     case declaration_kind::Definition:       return has_sorry(decl.to_definition_val().get_type()) || has_sorry(decl.to_definition_val().get_value());
     case declaration_kind::Theorem:          return has_sorry(decl.to_theorem_val().get_type()) || has_sorry(decl.to_theorem_val().get_value());
+    case declaration_kind::Opaque:           return has_sorry(decl.to_opaque_val().get_type()) || has_sorry(decl.to_opaque_val().get_value());
     case declaration_kind::Quot:             return false;
     case declaration_kind::Inductive:        return false; // TODO(Leo):
     case declaration_kind::MutualDefinition: return false; // TODO(Leo):

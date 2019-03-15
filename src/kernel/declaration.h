@@ -136,6 +136,24 @@ public:
 };
 
 /*
+structure opaque_val extends constant_val :=
+(value : expr)
+*/
+class opaque_val : public object_ref {
+public:
+    opaque_val(name const & n, names const & lparams, expr const & type, expr const & val);
+    opaque_val(opaque_val const & other):object_ref(other) {}
+    opaque_val(opaque_val && other):object_ref(other) {}
+    opaque_val & operator=(opaque_val const & other) { object_ref::operator=(other); return *this; }
+    opaque_val & operator=(opaque_val && other) { object_ref::operator=(other); return *this; }
+    constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
+    expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
+};
+
+/*
 structure constructor :=
 (id : name) (type : expr)
 */
@@ -166,11 +184,12 @@ inductive declaration
 | axiom_decl       (val : axiom_val)
 | defn_decl        (val : definition_val)
 | thm_decl         (val : theorem_val)
+| opaque_decl      (val : opaque_val)
 | quot_decl        (id : name)
 | mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `unsafe`
 | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool)
 */
-enum class declaration_kind { Axiom, Definition, Theorem, Quot, MutualDefinition, Inductive };
+enum class declaration_kind { Axiom, Definition, Theorem, Opaque, Quot, MutualDefinition, Inductive };
 class declaration : public object_ref {
     object * get_val_obj() const { return cnstr_get(raw(), 0); }
     object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
@@ -191,6 +210,7 @@ public:
     bool is_definition() const { return kind() == declaration_kind::Definition; }
     bool is_axiom() const { return kind() == declaration_kind::Axiom; }
     bool is_theorem() const { return kind() == declaration_kind::Theorem; }
+    bool is_opaque() const { return kind() == declaration_kind::Opaque; }
     bool is_mutual() const { return kind() == declaration_kind::MutualDefinition; }
     bool is_inductive() const { return kind() == declaration_kind::Inductive; }
     bool is_unsafe() const;
@@ -199,6 +219,7 @@ public:
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_get_ref(raw(), 0)); }
     definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(cnstr_get_ref(raw(), 0)); }
     theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(cnstr_get_ref(raw(), 0)); }
+    opaque_val const & to_opaque_val() const { lean_assert(is_opaque()); return static_cast<opaque_val const &>(cnstr_get_ref(raw(), 0)); }
     definition_vals const & to_definition_vals() const { lean_assert(is_mutual()); return static_cast<definition_vals const &>(cnstr_get_ref(raw(), 0)); }
 
     void serialize(serializer & s) const { s.write_object(raw()); }
@@ -220,6 +241,7 @@ declaration mk_definition(environment const & env, name const & n, names const &
                           bool unsafe = false);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
+declaration mk_opaque(name const & n, names const & lparams, expr const & t, expr const & v);
 declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool unsafe = false);
 declaration mk_mutual_definitions(definition_vals const & ds);
 declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);
@@ -392,12 +414,13 @@ inductive constant_info
 | axiom_info    (val : axiom_val)
 | defn_info     (val : definition_val)
 | thm_info      (val : theorem_val)
+| opaque_info   (val : opaque_val)
 | quot_info     (val : quot_val)
 | induct_info   (val : inductive_val)
 | cnstr_info    (val : constructor_val)
 | rec_info      (val : recursor_val)
 */
-enum class constant_info_kind { Axiom, Definition, Theorem, Quot, Inductive, Constructor, Recursor };
+enum class constant_info_kind { Axiom, Definition, Theorem, Opaque, Quot, Inductive, Constructor, Recursor };
 class constant_info : public object_ref {
     object * get_val_obj() const { return cnstr_get(raw(), 0); }
     object_ref const & to_val() const { return cnstr_get_ref(*this, 0); }
@@ -425,6 +448,7 @@ public:
     bool is_definition() const { return kind() == constant_info_kind::Definition; }
     bool is_axiom() const { return kind() == constant_info_kind::Axiom; }
     bool is_theorem() const { return kind() == constant_info_kind::Theorem; }
+    bool is_opaque() const { return kind() == constant_info_kind::Opaque; }
     bool is_inductive() const { return kind() == constant_info_kind::Inductive; }
     bool is_constructor() const { return kind() == constant_info_kind::Constructor; }
     bool is_recursor() const { return kind() == constant_info_kind::Recursor; }
@@ -441,6 +465,7 @@ public:
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(to_val()); }
     definition_val const & to_definition_val() const { lean_assert(is_definition()); return static_cast<definition_val const &>(to_val()); }
     theorem_val const & to_theorem_val() const { lean_assert(is_theorem()); return static_cast<theorem_val const &>(to_val()); }
+    opaque_val const & to_opaque_val() const { lean_assert(is_opaque()); return static_cast<opaque_val const &>(to_val()); }
     inductive_val const & to_inductive_val() const { lean_assert(is_inductive()); return static_cast<inductive_val const &>(to_val()); }
     constructor_val const & to_constructor_val() const { lean_assert(is_constructor()); return static_cast<constructor_val const &>(to_val()); }
     recursor_val const & to_recursor_val() const { lean_assert(is_recursor()); return static_cast<recursor_val const &>(to_val()); }

@@ -34,8 +34,10 @@ $(STAGE1_DIR)/%.cpp: %.lean %.olean
 	@mkdir -p $(@D)
 	$(LEAN) $(OPTS) --cpp=$@ $<
 
-export-stage1: $(CPPS)
+$(STAGE1_DIR)/CMakeLists.txt: $(CPPS)
 	echo "add_library (cpp_stage1 OBJECT $(CPPS_CORE))" > $(STAGE1_DIR)/CMakeLists.txt
+
+export-stage1: $(STAGE1_DIR)/CMakeLists.txt
 
 update-stage0:
 	rm -r $(STAGE0_DIR)/init

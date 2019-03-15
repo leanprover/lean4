@@ -486,8 +486,8 @@ ADD_CUSTOM_TARGET(bin_lib ALL
 # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.
 if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
   if ("${STATIC}" MATCHES "OFF")
-    add_library(leanshared SHARED shared/init.cpp ${LEAN_OBJS})
-    target_link_libraries(leanshared ${EXTRA_LIBS})
+    add_library(leanshared SHARED shared/init.cpp)
+    target_link_libraries(leanshared leanstatic)
     install(TARGETS leanshared DESTINATION lib)
   endif()
   install(FILES libleanstatic.a DESTINATION lib)

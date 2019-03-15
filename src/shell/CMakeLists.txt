@@ -1,5 +1,10 @@
-add_executable(lean_stage0 lean.cpp)
-target_link_libraries(lean_stage0 leanstatic_stage0)
+if(REBUILD_STAGE0)
+  add_executable(lean_stage0 lean.cpp)
+  target_link_libraries(lean_stage0 leanstatic_stage0)
+else()
+  add_executable(lean_stage0 IMPORTED)
+  set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/lean_stage0")
+endif()
 
 add_custom_target(export-stage1
   COMMAND make -j8 export-stage1 "LEAN=$<TARGET_FILE:lean_stage0>"

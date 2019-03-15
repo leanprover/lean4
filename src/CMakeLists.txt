@@ -61,7 +61,9 @@ option(SMALL_ALLOCATOR     "SMALL_ALLOCATOR" ON)
 option(LAZY_RC             "LAZY_RC" OFF)
 option(RUNTIME_STATS       "RUNTIME_STATS" OFF)
 
+# development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" ON)
+option(REBUILD_STAGE0      "Automatically rebuild lean_stage0 when out of date. Can be temporarily be disabled while re-bootstrapping." ON)
 
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")

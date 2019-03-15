@@ -1,1 +1,1 @@
-*.cpp -text -diff
+*.cpp -text -diff linguist-generated=true

@@ -38,11 +38,11 @@ static eqn_compiler_result compile_equations_core(environment & env, elaborator 
     trace_compiler(tout() << "nested recursion:   " << has_nested_rec(eqns) << "\n";);
     trace_compiler(tout() << "using_well_founded: " << is_wf_equations(eqns) << "\n";);
     equations_header const & header = get_equations_header(eqns);
-    lean_assert(header.m_is_meta || !has_nested_rec(eqns));
+    lean_assert(header.m_is_unsafe || !has_nested_rec(eqns));
 
-    if (header.m_is_meta) {
+    if (header.m_is_unsafe) {
         if (is_wf_equations(eqns)) {
-            throw exception("invalid use of 'using_well_founded', we do not need to use well founded recursion for meta definitions, since they can use unbounded recursion");
+            throw exception("invalid use of 'using_well_founded', we do not need to use well founded recursion for unsafe definitions, since they can use unbounded recursion");
         }
         return unbounded_rec(env, elab, mctx, lctx, eqns);
     }
@@ -352,7 +352,7 @@ static expr compile_equations_main(environment & env, elaborator & elab,
     expr eqns = eta_expand_rec_apps_fn(ctx)(_eqns);
     equations_header const & header = get_equations_header(eqns);
     eqn_compiler_result r;
-    if (!header.m_is_meta && has_nested_rec(eqns)) {
+    if (!header.m_is_unsafe && has_nested_rec(eqns)) {
         r = pull_nested_rec_fn(env, elab, mctx, lctx)(eqns);
     } else {
         r = compile_equations_core(env, elab, mctx, lctx, eqns);
@@ -374,7 +374,7 @@ static expr compile_equations_main(environment & env, elaborator & elab,
 expr compile_equations(environment & env, elaborator & elab, metavar_context & mctx, local_context const & lctx, expr const & eqns) {
     equations_header const & header = get_equations_header(eqns);
     type_context_old ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
-    if (!header.m_is_meta &&
+    if (!header.m_is_unsafe &&
         !header.m_is_lemma &&
         !header.m_is_noncomputable &&
         /* Remark: we don't need special compilation scheme for non recursive equations */
@@ -383,15 +383,15 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
         equations_header new_header = header;
         new_header.m_gen_code       = false;
         expr result = compile_equations_main(env, elab, mctx, lctx, update_equations(eqns, new_header), true);
-        /* Then, we compile the equations again using `meta` and generate code.
+        /* Then, we compile the equations again using `unsafe` and generate code.
            The motivations are:
            - Clear execution cost semantics for recursive functions.
-           - Auxiliary meta definition may assist recursive definition unfolding in the type_context_old object.
+           - Auxiliary unsafe definition may assist recursive definition unfolding in the type_context_old object.
         */
         equations_header aux_header = header;
-        aux_header.m_is_meta    = true;
+        aux_header.m_is_unsafe  = true;
         aux_header.m_aux_lemmas = false;
-        aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_meta_rec_name);
+        aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_unsafe_rec_name);
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
         compile_equations_main(env, elab, mctx, lctx, aux_eqns, false);
         return result;

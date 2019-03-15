@@ -100,8 +100,8 @@ static environment declare_var(parser & p, environment env,
         collect_implicit_locals(p, new_ls, new_params, type);
         expr new_type = Pi(new_params, type);
 
-        bool is_meta = meta.m_modifiers.m_is_meta;
-        env = module::add(env, mk_axiom(full_n, ls, new_type, is_meta));
+        bool is_unsafe = meta.m_modifiers.m_is_unsafe;
+        env = module::add(env, mk_axiom(full_n, ls, new_type, is_unsafe));
 
         if (!ns.is_anonymous()) {
             if (meta.m_modifiers.m_is_protected)
@@ -283,8 +283,6 @@ static environment variable_cmd(parser & p, cmd_meta const & meta) {
     return variable_cmd_core(p, variable_kind::Variable, meta);
 }
 static environment axiom_cmd(parser & p, cmd_meta const & meta)    {
-    if (meta.m_modifiers.m_is_meta)
-        throw exception("invalid 'meta' modifier for axiom");
     return variable_cmd_core(p, variable_kind::Axiom, meta);
 }
 static environment constant_cmd(parser & p, cmd_meta const & meta)    {
@@ -470,8 +468,8 @@ static environment modifiers_cmd(parser & p, cmd_meta const & _meta) {
             meta.m_modifiers.m_is_noncomputable = true;
         }
     }
-    if (p.curr_is_token(get_meta_tk())) {
-        meta.m_modifiers.m_is_meta = true;
+    if (p.curr_is_token(get_unsafe_tk())) {
+        meta.m_modifiers.m_is_unsafe = true;
         p.next();
     }
 
@@ -481,7 +479,7 @@ static environment modifiers_cmd(parser & p, cmd_meta const & _meta) {
     }
 
     if (p.curr_is_token(get_private_tk()) || p.curr_is_token(get_protected_tk()) || p.curr_is_token(get_noncomputable_tk())
-        || p.curr_is_token(get_meta_tk()) || p.curr_is_token(get_mutual_tk())) {
+        || p.curr_is_token(get_unsafe_tk()) || p.curr_is_token(get_mutual_tk())) {
         throw parser_error("unexpected definition modifier", p.pos());
     }
     if (p.curr_is_token(get_attribute_tk()) || p.curr_is_token("@[")) {
@@ -565,7 +563,7 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("variables",       "declare new variables", variables_cmd));
     add_cmd(r, cmd_info("constants",       "declare new constants (aka top-level variables)", constants_cmd));
     add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
-    add_cmd(r, cmd_info("meta",            "add new meta declaration", modifiers_cmd, false));
+    add_cmd(r, cmd_info("unsafe",          "add new unsafe declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("mutual",          "add new mutual declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", modifiers_cmd, false));
     add_cmd(r, cmd_info("private",         "add new private declaration", modifiers_cmd, false));

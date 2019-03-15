@@ -196,12 +196,12 @@ declare_definition(environment const & env, decl_cmd_kind kind, buffer<name> con
     if (env.find(c_real_name)) {
         throw exception(sstream() << "invalid definition, a declaration named '" << c_real_name << "' has already been declared");
     }
-    if (val && !meta.m_modifiers.m_is_meta && !type_checker(env).is_prop(type)) {
+    if (val && !meta.m_modifiers.m_is_unsafe && !type_checker(env).is_prop(type)) {
         /* We only abstract nested proofs if the type of the definition is not a proposition */
         std::tie(new_env, type) = abstract_nested_proofs(new_env, c_real_name, type);
         std::tie(new_env, *val) = abstract_nested_proofs(new_env, c_real_name, *val);
     }
-    bool is_meta      = meta.m_modifiers.m_is_meta;
+    bool is_meta      = meta.m_modifiers.m_is_unsafe;
     auto def          =
         (kind == decl_cmd_kind::Theorem ?
          mk_theorem(c_real_name, names(lp_names), type, *val) :
@@ -472,7 +472,7 @@ static void check_example(environment const & decl_env, options const & opts,
         buffer<name> univ_params_buf; to_buffer(univ_params, univ_params_buf);
         finalize_definition(elab, params_buf, type, val, univ_params_buf);
 
-        bool is_meta      = modifiers.m_is_meta;
+        bool is_meta      = modifiers.m_is_unsafe;
         auto new_env = elab.env();
         declaration def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_meta);
         new_env = module::add(new_env, def);
@@ -565,7 +565,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
-        if (!meta.m_modifiers.m_is_meta && (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
+        if (!meta.m_modifiers.m_is_unsafe && (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
             new_env = mk_smart_unfolding_definition(new_env, p.get_options(), c_real_name);
         }
         /* Apply attributes last so that they may access any information on the new decl */
@@ -620,7 +620,7 @@ environment single_definition_cmd_core(parser & p, decl_cmd_kind kind, cmd_meta 
     bool is_instance  = (kind == decl_cmd_kind::Instance);
     bool is_abbrev    = (kind == decl_cmd_kind::Abbreviation);
     name prv_name;
-    std::tie(fn, val, prv_name) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_meta, is_abbrev);
+    std::tie(fn, val, prv_name) = parse_definition(p, lp_names, params, is_example, is_instance, meta.m_modifiers.m_is_unsafe, is_abbrev);
 
     // skip elaboration of definitions during reparsing
     if (p.get_break_at_pos())

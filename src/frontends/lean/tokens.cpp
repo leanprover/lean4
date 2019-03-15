@@ -89,7 +89,7 @@ static name const * g_private_tk = nullptr;
 static name const * g_protected_tk = nullptr;
 static name const * g_inline_tk = nullptr;
 static name const * g_definition_tk = nullptr;
-static name const * g_meta_tk = nullptr;
+static name const * g_unsafe_tk = nullptr;
 static name const * g_mutual_tk = nullptr;
 static name const * g_theorem_tk = nullptr;
 static name const * g_axiom_tk = nullptr;
@@ -215,7 +215,7 @@ void initialize_tokens() {
     g_protected_tk = new name{"protected"};
     g_inline_tk = new name{"inline"};
     g_definition_tk = new name{"definition"};
-    g_meta_tk = new name{"meta"};
+    g_unsafe_tk = new name{"unsafe"};
     g_mutual_tk = new name{"mutual"};
     g_theorem_tk = new name{"theorem"};
     g_axiom_tk = new name{"axiom"};
@@ -342,7 +342,7 @@ void finalize_tokens() {
     delete g_protected_tk;
     delete g_inline_tk;
     delete g_definition_tk;
-    delete g_meta_tk;
+    delete g_unsafe_tk;
     delete g_mutual_tk;
     delete g_theorem_tk;
     delete g_axiom_tk;
@@ -468,7 +468,7 @@ name const & get_private_tk() { return *g_private_tk; }
 name const & get_protected_tk() { return *g_protected_tk; }
 name const & get_inline_tk() { return *g_inline_tk; }
 name const & get_definition_tk() { return *g_definition_tk; }
-name const & get_meta_tk() { return *g_meta_tk; }
+name const & get_unsafe_tk() { return *g_unsafe_tk; }
 name const & get_mutual_tk() { return *g_mutual_tk; }
 name const & get_theorem_tk() { return *g_theorem_tk; }
 name const & get_axiom_tk() { return *g_axiom_tk; }

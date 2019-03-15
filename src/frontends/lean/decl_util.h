@@ -19,12 +19,12 @@ enum class decl_cmd_kind { Theorem, Definition, Example, Instance, Var, Abbrevia
 struct decl_modifiers {
     bool m_is_private{false};
     bool m_is_protected{false};
-    bool m_is_meta{false};
+    bool m_is_unsafe{false};
     bool m_is_mutual{false};
     bool m_is_noncomputable{false};
 
     operator bool() const {
-        return m_is_private || m_is_protected || m_is_meta || m_is_mutual || m_is_noncomputable;
+        return m_is_private || m_is_protected || m_is_unsafe || m_is_mutual || m_is_noncomputable;
     }
 };
 
@@ -90,25 +90,25 @@ public:
     name const & get_actual_name() const { return m_actual_name; }
 };
 
-/** \brief Auxiliary scope to switch to `meta` mode when processing a
+/** \brief Auxiliary scope to switch to `unsafe` mode when processing a
     `by tac` in a regular definition.
     We need this because we may have a match expression nested
     in `tac`, and we should not create equation lemmas for it. */
-class meta_definition_scope {
-    bool m_old_is_meta;
+class unsafe_definition_scope {
+    bool m_old_is_unsafe;
 public:
-    meta_definition_scope();
-    ~meta_definition_scope();
+    unsafe_definition_scope();
+    ~unsafe_definition_scope();
 };
 
 /** \brief Auxiliary scope to switch to the mode specified by the user.
-    That is, meta if the `meta` keyword was used, and regular otherwise.
+    That is, unsafe if the `unsafe` keyword was used, and regular otherwise.
     We need this because of quoted expressions used in tactics. */
-class restore_decl_meta_scope {
-    bool m_old_is_meta;
+class restore_decl_unsafe_scope {
+    bool m_old_is_unsafe;
 public:
-    restore_decl_meta_scope();
-    ~restore_decl_meta_scope();
+    restore_decl_unsafe_scope();
+    ~restore_decl_unsafe_scope();
 };
 
 /** \brief Return true if the current scope used match-expressions */

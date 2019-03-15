@@ -67,8 +67,8 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg /* h */, obj_arg /* w 
     lean_unreachable();
 }
 
-/* unsafe_io {α : Type} (fn : io α) : α */
-extern "C" obj_res lean_io_unsafe(obj_arg, obj_arg fn) {
+/* constant unsafe_io {α : Type} [inhabited α] (fn : io α) : α */
+extern "C" obj_res lean_io_unsafe(obj_arg, obj_arg, obj_arg fn) {
     object * r = apply_1(fn, REAL_WORLD);
     object * a = cnstr_get(r, 0);
     inc(a); dec(r);

@@ -1063,10 +1063,10 @@ struct structure_cmd_fn {
         expr structure_type = mk_structure_type();
         expr intro_type     = mk_intro_type();
         names lnames        = names(m_level_names);
-        bool is_meta        = m_meta_info.m_modifiers.m_is_meta;
+        bool is_unsafe        = m_meta_info.m_modifiers.m_is_unsafe;
         constructor cnstr(m_mk, intro_type);
         inductive_type S(m_name, structure_type, constructors(cnstr));
-        declaration decl    = mk_inductive_decl(lnames, nat(m_params.size()), inductive_types(S), is_meta);
+        declaration decl    = mk_inductive_decl(lnames, nat(m_params.size()), inductive_types(S), is_unsafe);
         m_env = module::add(m_env, decl);
         name rec_name = mk_rec_name(m_name);
         m_env = add_namespace(m_env, m_name);
@@ -1140,8 +1140,8 @@ struct structure_cmd_fn {
                 used_univs = collect_univ_params(decl_value, used_univs);
                 used_univs = collect_univ_params(decl_type, used_univs);
                 names decl_lvls = to_names(used_univs);
-                declaration new_decl = mk_definition_inferring_meta(m_env, decl_name, decl_lvls,
-                                                                       decl_type, decl_value, reducibility_hints::mk_abbreviation());
+                declaration new_decl = mk_definition_inferring_unsafe(m_env, decl_name, decl_lvls,
+                                                                      decl_type, decl_value, reducibility_hints::mk_abbreviation());
                 m_env = module::add(m_env, new_decl);
                 m_env = set_reducible(m_env, decl_name, reducible_status::Reducible, true);
             }
@@ -1151,9 +1151,9 @@ struct structure_cmd_fn {
     void add_rec_on_alias(name const & n) {
         name rec_on_name(m_name, "rec_on");
         constant_info rec_on_decl = m_env.get(rec_on_name);
-        declaration new_decl = mk_definition_inferring_meta(m_env, n, rec_on_decl.get_lparams(),
-                                                            rec_on_decl.get_type(), rec_on_decl.get_value(),
-                                                            reducibility_hints::mk_abbreviation());
+        declaration new_decl = mk_definition_inferring_unsafe(m_env, n, rec_on_decl.get_lparams(),
+                                                              rec_on_decl.get_type(), rec_on_decl.get_value(),
+                                                              reducibility_hints::mk_abbreviation());
         m_env = module::add(m_env, new_decl);
         m_env = set_reducible(m_env, n, reducible_status::Reducible, true);
         add_alias(n);
@@ -1244,8 +1244,8 @@ struct structure_cmd_fn {
             }
             coercion_value                 = Fun_p(m_params, Fun_p(st, coercion_value));
             name coercion_name             = coercion_names[i];
-            declaration coercion_decl      = mk_definition_inferring_meta(m_env, coercion_name, lnames,
-                                                                          coercion_type, coercion_value);
+            declaration coercion_decl      = mk_definition_inferring_unsafe(m_env, coercion_name, lnames,
+                                                                            coercion_type, coercion_value);
             m_env = module::add(m_env, coercion_decl);
             add_alias(coercion_name);
             m_env = compile(m_env, m_p.get_options(), coercion_name);

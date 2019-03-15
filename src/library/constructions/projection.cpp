@@ -98,7 +98,7 @@ environment mk_projections(environment const & env, name const & n, buffer<name>
         proj_type      = infer_implicit_params(proj_type, nparams, infer_kinds[i]);
         expr proj_val  = mk_proj(n, i, c);
         proj_val = lctx.mk_lambda(proj_args, proj_val);
-        declaration new_d = mk_definition_inferring_meta(env, proj_name, lvl_params, proj_type, proj_val,
+        declaration new_d = mk_definition_inferring_unsafe(env, proj_name, lvl_params, proj_type, proj_val,
                                                          reducibility_hints::mk_abbreviation());
         new_env = module::add(new_env, new_d);
         new_env = set_reducible(new_env, proj_name, reducible_status::Reducible, true);

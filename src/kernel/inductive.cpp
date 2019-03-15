@@ -79,7 +79,7 @@ class add_inductive_fn {
     local_ctx              m_lctx;
     names      m_lparams;
     unsigned               m_nparams;
-    bool                   m_is_meta;
+    bool                   m_is_unsafe;
     buffer<inductive_type> m_ind_types;
     buffer<unsigned>       m_nindices;
     level                  m_result_level;
@@ -109,14 +109,14 @@ class add_inductive_fn {
 
 public:
     add_inductive_fn(environment const & env, inductive_decl const & decl):
-        m_env(env), m_ngen(*g_ind_fresh), m_lparams(decl.get_lparams()), m_is_meta(decl.is_meta()) {
+        m_env(env), m_ngen(*g_ind_fresh), m_lparams(decl.get_lparams()), m_is_unsafe(decl.is_unsafe()) {
         if (!decl.get_nparams().is_small())
             throw kernel_exception(env, "invalid inductive datatype, number of parameters is too big");
         m_nparams = decl.get_nparams().get_small_value();
         to_buffer(decl.get_types(), m_ind_types);
     }
 
-    type_checker tc() { return type_checker(m_env, m_lctx, !m_is_meta); }
+    type_checker tc() { return type_checker(m_env, m_lctx, !m_is_unsafe); }
 
     /** Return type of the parameter at position `i` */
     expr get_param_type(unsigned i) const {
@@ -271,7 +271,7 @@ public:
                 cnstr_names.push_back(constructor_name(cnstr));
             }
             m_env.add_core(constant_info(inductive_val(n, m_lparams, ind_type.get_type(), m_nparams, m_nindices[idx],
-                                                       all, names(cnstr_names), rec, m_is_meta, reflexive)));
+                                                       all, names(cnstr_names), rec, m_is_unsafe, reflexive)));
         }
     }
 
@@ -369,7 +369,7 @@ public:
                             throw kernel_exception(m_env, sstream() << "universe level of type_of(arg #" << (i + 1) << ") "
                                                    << "of '" << n << "' is too big for the corresponding inductive datatype");
                         }
-                        if (!m_is_meta)
+                        if (!m_is_unsafe)
                             check_positivity(binding_domain(t), n, i);
                         expr local = mk_local_decl_for(t);
                         t = instantiate(binding_body(t), local);
@@ -397,7 +397,7 @@ public:
                 }
                 lean_assert(arity >= m_nparams);
                 unsigned nfields = arity - m_nparams;
-                m_env.add_core(constant_info(constructor_val(n, m_lparams, t, ind_type.get_name(), cidx, m_nparams, nfields, m_is_meta)));
+                m_env.add_core(constant_info(constructor_val(n, m_lparams, t, ind_type.get_name(), cidx, m_nparams, nfields, m_is_unsafe)));
                 cidx++;
             }
         }
@@ -694,7 +694,7 @@ public:
             names rec_lparams     = get_rec_lparams();
             m_env.add_core(constant_info(recursor_val(rec_name, rec_lparams, rec_ty, all,
                                                       m_nparams, m_nindices[d_idx], nmotives, nminors,
-                                                      rules, m_K_target, m_is_meta)));
+                                                      rules, m_K_target, m_is_unsafe)));
         }
     }
 
@@ -994,7 +994,7 @@ struct elim_nested_inductive_fn {
             m_new_types[qhead] = inductive_type(ind_type.get_name(), ind_type.get_type(), constructors(new_cnstrs));
             qhead++;
         }
-        declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_meta());
+        declaration aux_decl = mk_inductive_decl(ind_d.get_lparams(), ind_d.get_nparams(), inductive_types(m_new_types), ind_d.is_unsafe());
         return elim_nested_inductive_result(m_ngen, m_params, m_nested_aux, aux_decl);
     }
 };
@@ -1071,7 +1071,7 @@ environment environment::add_inductive(declaration const & d) const {
             new_env.add_core(constant_info(recursor_val(new_rec_name, rec_info.get_lparams(), new_rec_type,
                                                         all_ind_names, rec_val.get_nparams(), rec_val.get_nindices(), rec_val.get_nmotives(),
                                                         rec_val.get_nminors(), recursor_rules(new_rules),
-                                                        rec_val.is_k(), rec_val.is_meta())));
+                                                        rec_val.is_k(), rec_val.is_unsafe())));
         };
         for (inductive_type const & ind_type : ind_d.get_types()) {
             constant_info ind_info = aux_env.get(ind_type.get_name());
@@ -1082,14 +1082,14 @@ environment environment::add_inductive(declaration const & d) const {
             new_env.add_core(constant_info(inductive_val(ind_info.get_name(), ind_info.get_lparams(), ind_info.get_type(),
                                                          ind_val.get_nparams(), ind_val.get_nindices(),
                                                          all_ind_names, ind_val.get_cnstrs(),
-                                                         ind_val.is_rec(), ind_val.is_meta(), ind_val.is_reflexive())));
+                                                         ind_val.is_rec(), ind_val.is_unsafe(), ind_val.is_reflexive())));
             for (name const & cnstr_name : ind_val.get_cnstrs()) {
                 constant_info   cnstr_info = aux_env.get(cnstr_name);
                 constructor_val cnstr_val  = cnstr_info.to_constructor_val();
                 expr new_type = res.restore_nested(cnstr_info.get_type(), aux_env);
                 new_env.add_core(constant_info(constructor_val(cnstr_info.get_name(), cnstr_info.get_lparams(), new_type,
                                                                cnstr_val.get_induct(), cnstr_val.get_cidx(), cnstr_val.get_nparams(),
-                                                               cnstr_val.get_nfields(), cnstr_val.is_meta())));
+                                                               cnstr_val.get_nfields(), cnstr_val.is_unsafe())));
             }
             process_rec(mk_rec_name(ind_type.get_name()));
         }

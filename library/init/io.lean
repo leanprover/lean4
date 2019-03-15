@@ -14,7 +14,7 @@ constant io.real_world : Type
 def io : Type → Type := state io.real_world
 
 @[extern "lean_io_unsafe"]
-meta constant unsafe_io {α : Type} (fn : io α) : α
+constant unsafe_io {α : Type} [inhabited α] (fn : io α) : α
 
 @[extern 4 "lean_io_timeit"]
 constant timeit {α : Type} (msg : @& string) (fn : io α) : io α

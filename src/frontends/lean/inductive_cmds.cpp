@@ -721,7 +721,7 @@ public:
             }
             ind_types.push_back(inductive_type(local_name_p(r.m_inds[i]), Pi(r.m_params, local_type_p(r.m_inds[i])), constructors(cnstrs)));
         }
-        m_env = module::add(m_env, mk_inductive_decl(names(m_lp_names), nat(num_params), inductive_types(ind_types), m_meta_info.m_modifiers.m_is_meta));
+        m_env = module::add(m_env, mk_inductive_decl(names(m_lp_names), nat(num_params), inductive_types(ind_types), m_meta_info.m_modifiers.m_is_unsafe));
 
         bool has_eq   = has_eq_decls(m_env);
         bool has_heq  = has_heq_decls(m_env);

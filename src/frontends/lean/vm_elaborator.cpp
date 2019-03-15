@@ -183,7 +183,7 @@ environment elab_attribute_cmd(environment env, expr const & cmd) {
 cmd_meta to_cmd_meta(environment const & env, expr const & e) {
     auto const & data = mdata_data(e);
     cmd_meta m(to_decl_attributes(env, mdata_expr(e), false));
-    m.m_modifiers.m_is_meta = get_bool(data, "meta").value_or(false);
+    m.m_modifiers.m_is_unsafe = get_bool(data, "unsafe").value_or(false);
     m.m_modifiers.m_is_mutual = get_bool(data, "mutual").value_or(false);
     m.m_modifiers.m_is_noncomputable = get_bool(data, "noncomputable").value_or(false);
     m.m_modifiers.m_is_private = get_bool(data, "private").value_or(false);

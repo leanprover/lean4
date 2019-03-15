@@ -76,7 +76,7 @@ instance (m) [monad m] : monad_tracer (trace_t m) :=
   }
 }
 
-meta def trace_t.run {m α} [monad m] (opts : options) (x : trace_t m α) : m (α × trace_map) :=
+unsafe def trace_t.run {m α} [monad m] (opts : options) (x : trace_t m α) : m (α × trace_map) :=
 do (a, st) ← state_t.run x {opts := opts, roots := mk_rbmap _ _ _, cur_pos := none, cur_traces := []},
    pure (a, st.roots)
 

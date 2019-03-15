@@ -81,8 +81,8 @@ expr type_checker::infer_constant(expr const & e, bool infer_only) {
                                << const_name(e) << "', #"
                                << length(ps)  << " expected, #" << length(ls) << " provided");
     if (!infer_only) {
-        if (m_non_meta_only && info.is_meta()) {
-            throw kernel_exception(env(), sstream() << "invalid declaration, it uses meta declaration '"
+        if (m_safe_only && info.is_unsafe()) {
+            throw kernel_exception(env(), sstream() << "invalid declaration, it uses unsafe declaration '"
                                    << const_name(e) << "'");
         }
         for (level const & l : ls)
@@ -805,7 +805,7 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (is_proj(t_n) && is_proj(s_n) && proj_idx(t_n) == proj_idx(s_n) && is_def_eq(proj_expr(t_n), proj_expr(s_n)))
         return true;
 
-    // At this point, t_n and s_n are in weak head normal form (modulo meta-variables and proof irrelevance)
+    // At this point, t_n and s_n are in weak head normal form (modulo metavariables and proof irrelevance)
     if (is_def_eq_app(t_n, s_n))
         return true;
 
@@ -845,19 +845,19 @@ expr type_checker::eta_expand(expr const & e) {
     return m_lctx.mk_lambda(fvars, r);
 }
 
-type_checker::type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only):
+type_checker::type_checker(environment const & env, local_ctx const & lctx, bool safe_only):
     m_st_owner(true), m_st(new state(env)),
-    m_lctx(lctx), m_non_meta_only(non_meta_only), m_lparams(nullptr) {
+    m_lctx(lctx), m_safe_only(safe_only), m_lparams(nullptr) {
 }
 
-type_checker::type_checker(state & st, local_ctx const & lctx, bool non_meta_only):
+type_checker::type_checker(state & st, local_ctx const & lctx, bool safe_only):
     m_st_owner(false), m_st(&st), m_lctx(lctx),
-    m_non_meta_only(non_meta_only), m_lparams(nullptr) {
+    m_safe_only(safe_only), m_lparams(nullptr) {
 }
 
 type_checker::type_checker(type_checker && src):
     m_st_owner(src.m_st_owner), m_st(src.m_st), m_lctx(std::move(src.m_lctx)),
-    m_non_meta_only(src.m_non_meta_only), m_lparams(src.m_lparams) {
+    m_safe_only(src.m_safe_only), m_lparams(src.m_lparams) {
     src.m_st_owner = false;
 }
 

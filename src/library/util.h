@@ -299,13 +299,13 @@ name get_dep_recursor(environment const & env, name const & n);
     even if \c n is an inductive predicate. */
 name get_dep_cases_on(environment const & env, name const & n);
 
-/** We generate auxiliary meta definitions for regular recursive definitions.
-    The auxiliary meta definition has a clear runtime cost execution model, and
-    we use it in the VM. This function returns an auxiliary meta definition for the given name. */
-name mk_meta_rec_name(name const & n);
+/** We generate auxiliary unsafe definitions for regular recursive definitions.
+    The auxiliary unsafe definition has a clear runtime cost execution model, and
+    we use it in the VM and code generators. This function returns an auxiliary unsafe definition for the given name. */
+name mk_unsafe_rec_name(name const & n);
 
-/** Return some(n') if \c n is a name created using mk_meta_rec_name(n') */
-optional<name> is_meta_rec_name(name const & n);
+/** Return some(n') if \c n is a name created using mk_unsafe_rec_name(n') */
+optional<name> is_unsafe_rec_name(name const & n);
 
 /** Convert an expression representing a `name` literal into a `name` object. */
 optional<name> name_lit_to_name(expr const & name_lit);

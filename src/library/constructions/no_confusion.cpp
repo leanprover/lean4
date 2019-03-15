@@ -118,8 +118,8 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
         t1 = binding_body(t1);
     }
     expr no_confusion_type_value = lctx.mk_lambda(args, mk_app(cases_on1, outer_cases_on_args));
-    declaration new_d = mk_definition_inferring_meta(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
-                                                     reducibility_hints::mk_abbreviation());
+    declaration new_d = mk_definition_inferring_unsafe(env, no_confusion_type_name, lps, no_confusion_type_type, no_confusion_type_value,
+                                                       reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, no_confusion_type_name, reducible_status::Reducible, true);
     return some(add_protected(new_env, no_confusion_type_name));
@@ -228,8 +228,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     eq_rec = mk_app(mk_app(eq_rec, rec_type_former, gen, v2, H12), H12);
     //
     expr no_confusion_val = lctx.mk_lambda(args, eq_rec);
-    declaration new_d = mk_definition_inferring_meta(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
-                                                     reducibility_hints::mk_abbreviation());
+    declaration new_d = mk_definition_inferring_unsafe(new_env, no_confusion_name, lps, no_confusion_ty, no_confusion_val,
+                                                       reducibility_hints::mk_abbreviation());
     new_env = module::add(new_env, new_d);
     new_env = set_reducible(new_env, no_confusion_name, reducible_status::Reducible, true);
     new_env = add_no_confusion(new_env, no_confusion_name);

@@ -991,14 +991,14 @@ name get_dep_cases_on(environment const &, name const & n) {
     return name(n, "cases_on");
 }
 
-static char const * g_meta_rec_prefix = "_meta_rec";
+static char const * g_unsafe_rec_prefix = "_unsafe_rec";
 
-name mk_meta_rec_name(name const & n) {
-    return name(n, g_meta_rec_prefix);
+name mk_unsafe_rec_name(name const & n) {
+    return name(n, g_unsafe_rec_prefix);
 }
 
-optional<name> is_meta_rec_name(name const & n) {
-    if (!n.is_atomic() && n.is_string() && n.get_string() == g_meta_rec_prefix) {
+optional<name> is_unsafe_rec_name(name const & n) {
+    if (!n.is_atomic() && n.is_string() && n.get_string() == g_unsafe_rec_prefix) {
         return optional<name>(n.get_prefix());
     } else {
         return optional<name>();

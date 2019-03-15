@@ -84,10 +84,10 @@ reserve infixl `; `:1
 
 universes u v w
 
-/-- Auxiliary meta constant used by the compiler when erasing proofs from code. -/
-meta constant lc_proof {α : Prop} : α
-/-- Auxiliary meta constant used by the compiler to mark unreachable code. -/
-meta constant lc_unreachable {α : Sort u} : α
+/-- Auxiliary unsafe constant used by the compiler when erasing proofs from code. -/
+unsafe axiom lc_proof {α : Prop} : α
+/-- Auxiliary unsafe constant used by the compiler to mark unreachable code. -/
+unsafe axiom lc_unreachable {α : Sort u} : α
 
 @[inline] def id {α : Sort u} (a : α) : α := a
 

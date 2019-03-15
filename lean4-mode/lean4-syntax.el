@@ -8,7 +8,7 @@
 (require 'rx)
 
 (defconst lean4-keywords1
-  '("import" "prelude" "protected" "private" "noncomputable" "definition" "meta" "renaming"
+  '("import" "prelude" "protected" "private" "noncomputable" "definition" "unsafe" "renaming"
     "hiding" "exposing" "parameter" "parameters" "begin" "constant" "constants"
     "lemma" "variable" "variables" "theorem" "example" "abbreviation"
     "open" "export" "axiom" "axioms" "inductive" "coinductive" "with" "without"

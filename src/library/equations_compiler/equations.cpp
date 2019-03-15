@@ -40,7 +40,7 @@ bool operator==(equations_header const & h1, equations_header const & h2) {
         h1.m_fn_actual_names == h2.m_fn_actual_names &&
         h1.m_is_private == h2.m_is_private &&
         h1.m_is_lemma == h2.m_is_lemma &&
-        h1.m_is_meta == h2.m_is_meta &&
+        h1.m_is_unsafe == h2.m_is_unsafe &&
         h1.m_is_noncomputable == h2.m_is_noncomputable &&
         h1.m_aux_lemmas == h2.m_aux_lemmas &&
         h1.m_prev_errors == h2.m_prev_errors &&
@@ -154,7 +154,7 @@ equations_header get_equations_header(expr const & e) {
     h.m_num_fns          = get_nat(m, name(*g_equations_name, "num_fns"))->get_small_value();
     h.m_is_private       = *get_bool(m, name(*g_equations_name, "is_private"));
     h.m_is_lemma         = *get_bool(m, name(*g_equations_name, "is_lemma"));
-    h.m_is_meta          = *get_bool(m, name(*g_equations_name, "is_meta"));
+    h.m_is_unsafe          = *get_bool(m, name(*g_equations_name, "is_unsafe"));
     h.m_is_noncomputable = *get_bool(m, name(*g_equations_name, "is_noncomputable"));
     h.m_aux_lemmas       = *get_bool(m, name(*g_equations_name, "aux_lemmas"));
     h.m_prev_errors      = *get_bool(m, name(*g_equations_name, "prev_errors"));
@@ -196,7 +196,7 @@ expr mk_equations(equations_header const & h, unsigned num_eqs, expr const * eqs
     m = set_nat(m, name(*g_equations_name, "num_fns"), h.m_num_fns);
     m = set_bool(m, name(*g_equations_name, "is_private"), h.m_is_private);
     m = set_bool(m, name(*g_equations_name, "is_lemma"), h.m_is_lemma);
-    m = set_bool(m, name(*g_equations_name, "is_meta"), h.m_is_meta);
+    m = set_bool(m, name(*g_equations_name, "is_unsafe"), h.m_is_unsafe);
     m = set_bool(m, name(*g_equations_name, "is_noncomputable"), h.m_is_noncomputable);
     m = set_bool(m, name(*g_equations_name, "aux_lemmas"), h.m_aux_lemmas);
     m = set_bool(m, name(*g_equations_name, "prev_errors"), h.m_prev_errors);

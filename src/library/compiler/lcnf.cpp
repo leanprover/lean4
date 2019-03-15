@@ -368,7 +368,7 @@ public:
             return visit_no_confusion(fn, args, root);
         } else if (is_constructor(env(), const_name(fn))) {
             return visit_constructor(fn, args, root);
-        } else if (optional<name> n = is_meta_rec_name(const_name(fn))) {
+        } else if (optional<name> n = is_unsafe_rec_name(const_name(fn))) {
             fn = mk_constant(*n, const_levels(fn));
             return visit_app_default(fn, args, root);
         } else if (is_quot_primitive(env(), const_name(fn))) {

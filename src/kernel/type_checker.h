@@ -43,7 +43,7 @@ private:
     bool                      m_st_owner;
     state *                   m_st;
     local_ctx                 m_lctx;
-    bool                      m_non_meta_only;
+    bool                      m_safe_only;
     /* When `m_lparams != nullptr, the `check` method makes sure all level parameters
        are in `m_lparams`. */
     names const *             m_lparams;
@@ -88,10 +88,10 @@ private:
     expr check_ignore_undefined_universes(expr const & e);
 
 public:
-    type_checker(state & st, local_ctx const & lctx, bool non_meta_only = true);
-    type_checker(state & st, bool non_meta_only = true):type_checker(st, local_ctx(), non_meta_only) {}
-    type_checker(environment const & env, local_ctx const & lctx, bool non_meta_only = true);
-    type_checker(environment const & env, bool non_meta_only = true):type_checker(env, local_ctx(), non_meta_only) {}
+    type_checker(state & st, local_ctx const & lctx, bool safe_only = true);
+    type_checker(state & st, bool safe_only = true):type_checker(st, local_ctx(), safe_only) {}
+    type_checker(environment const & env, local_ctx const & lctx, bool safe_only = true);
+    type_checker(environment const & env, bool safe_only = true):type_checker(env, local_ctx(), safe_only) {}
     type_checker(type_checker &&);
     type_checker(type_checker const &) = delete;
     ~type_checker();

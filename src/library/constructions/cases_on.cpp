@@ -179,8 +179,8 @@ environment mk_cases_on(environment const & env, name const & n) {
 
     expr cases_on_type  = lctx.mk_pi(cases_on_params, rec_type);
     expr cases_on_value = lctx.mk_lambda(cases_on_params,  mk_app(rec_cnst, rec_args));
-    declaration new_d = mk_definition_inferring_meta(env, cases_on_name, rec_info.get_lparams(), cases_on_type, cases_on_value,
-                                                     reducibility_hints::mk_abbreviation());
+    declaration new_d = mk_definition_inferring_unsafe(env, cases_on_name, rec_info.get_lparams(), cases_on_type, cases_on_value,
+                                                       reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, cases_on_name);

@@ -80,11 +80,11 @@ public:
 
 /*
 structure axiom_val extends constant_val :=
-(is_meta : bool)
+(is_unsafe : bool)
 */
 class axiom_val : public object_ref {
 public:
-    axiom_val(name const & n, names const & lparams, expr const & type, bool is_meta);
+    axiom_val(name const & n, names const & lparams, expr const & type, bool is_unsafe);
     axiom_val(axiom_val const & other):object_ref(other) {}
     axiom_val(axiom_val && other):object_ref(other) {}
     axiom_val & operator=(axiom_val const & other) { object_ref::operator=(other); return *this; }
@@ -93,16 +93,16 @@ public:
     name const & get_name() const { return to_constant_val().get_name(); }
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    bool is_meta() const;
+    bool is_unsafe() const;
 };
 
 /*
 structure definition_val extends constant_val :=
-(value : expr) (hints : reducibility_hints) (is_meta : bool)
+(value : expr) (hints : reducibility_hints) (is_unsafe : bool)
 */
 class definition_val : public object_ref {
 public:
-    definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta);
+    definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_unsafe);
     definition_val(definition_val const & other):object_ref(other) {}
     definition_val(definition_val && other):object_ref(other) {}
     definition_val & operator=(definition_val const & other) { object_ref::operator=(other); return *this; }
@@ -113,7 +113,7 @@ public:
     expr const & get_type() const { return to_constant_val().get_type(); }
     expr const & get_value() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
     reducibility_hints const & get_hints() const { return static_cast<reducibility_hints const &>(cnstr_get_ref(*this, 2)); }
-    bool is_meta() const;
+    bool is_unsafe() const;
 };
 typedef list_ref<definition_val> definition_vals;
 
@@ -167,8 +167,8 @@ inductive declaration
 | defn_decl        (val : definition_val)
 | thm_decl         (val : theorem_val)
 | quot_decl        (id : name)
-| mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `meta`
-| induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
+| mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `unsafe`
+| induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool)
 */
 enum class declaration_kind { Axiom, Definition, Theorem, Quot, MutualDefinition, Inductive };
 class declaration : public object_ref {
@@ -193,7 +193,7 @@ public:
     bool is_theorem() const { return kind() == declaration_kind::Theorem; }
     bool is_mutual() const { return kind() == declaration_kind::MutualDefinition; }
     bool is_inductive() const { return kind() == declaration_kind::Inductive; }
-    bool is_meta() const;
+    bool is_unsafe() const;
     bool has_value() const { return is_theorem() || is_definition(); }
 
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(cnstr_get_ref(raw(), 0)); }
@@ -213,34 +213,34 @@ inline optional<declaration> none_declaration() { return optional<declaration>()
 inline optional<declaration> some_declaration(declaration const & o) { return optional<declaration>(o); }
 inline optional<declaration> some_declaration(declaration && o) { return optional<declaration>(std::forward<declaration>(o)); }
 
-definition_val mk_definition_val(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v, bool meta);
+definition_val mk_definition_val(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v, bool unsafe);
 declaration mk_definition(name const & n, names const & lparams, expr const & t, expr const & v,
-                          reducibility_hints const & hints, bool meta = false);
+                          reducibility_hints const & hints, bool unsafe = false);
 declaration mk_definition(environment const & env, name const & n, names const & lparams, expr const & t, expr const & v,
-                          bool meta = false);
+                          bool unsafe = false);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
 declaration mk_theorem(name const & n, names const & lparams, expr const & t, expr const & v);
-declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool meta = false);
+declaration mk_axiom(name const & n, names const & lparams, expr const & t, bool unsafe = false);
 declaration mk_mutual_definitions(definition_vals const & ds);
-declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta);
+declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe);
 declaration mk_quot_decl();
 
-/** \brief Return true iff \c e depends on meta-declarations */
-bool use_meta(environment const & env, expr const & e);
+/** \brief Return true iff \c e depends on unsafe-declarations */
+bool use_unsafe(environment const & env, expr const & e);
 
-/** \brief Similar to mk_definition but infer the value of meta flag.
-    That is, set it to true if \c t or \c v contains a meta declaration. */
-declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & lparams,
+/** \brief Similar to mk_definition but infer the value of unsafe flag.
+    That is, set it to true if \c t or \c v contains a unsafe declaration. */
+declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & lparams,
                                          expr const & t, expr const & v, reducibility_hints const & hints);
-declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & lparams,
+declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & lparams,
                                          expr const & t, expr const & v);
-/** \brief Similar to mk_axiom but infer the value of meta flag.
-    That is, set it to true if \c t or \c v contains a meta declaration. */
-declaration mk_axiom_inferring_meta(environment const & env, name const & n,
+/** \brief Similar to mk_axiom but infer the value of unsafe flag.
+    That is, set it to true if \c t or \c v contains a unsafe declaration. */
+declaration mk_axiom_inferring_unsafe(environment const & env, name const & n,
                                     names const & lparams, expr const & t);
 
 /** \brief View for manipulating declaration.induct_decl constructor.
-    | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool) */
+    | induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool) */
 class inductive_decl : public object_ref {
 public:
     inductive_decl(inductive_decl const & other):object_ref(other) {}
@@ -251,7 +251,7 @@ public:
     names const & get_lparams() const { return static_cast<names const &>(cnstr_get_ref(raw(), 0)); }
     nat const & get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(raw(), 1)); }
     inductive_types const & get_types() const { return static_cast<inductive_types const &>(cnstr_get_ref(raw(), 2)); }
-    bool is_meta() const;
+    bool is_unsafe() const;
 };
 
 /*
@@ -261,13 +261,13 @@ structure inductive_val extends constant_val :=
 (all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
 (cnstrs : list name)  -- List of all constructors for this inductive datatype
 (is_rec : bool)       -- `tt` iff it is recursive
-(is_meta : bool)
+(is_unsafe : bool)
 (is_reflexive : bool)
 */
 class inductive_val : public object_ref {
 public:
     inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                  unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_meta, bool is_reflexive);
+                  unsigned nindices, names const & all, names const & cnstrs, bool is_rec, bool is_unsafe, bool is_reflexive);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other):object_ref(other) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
@@ -279,7 +279,7 @@ public:
     names const & get_cnstrs() const { return static_cast<names const &>(cnstr_get_ref(*this, 4)); }
     unsigned get_ncnstrs() const { return length(get_cnstrs()); }
     bool is_rec() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
-    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
+    bool is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1) != 0; }
     bool is_reflexive() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2) != 0; }
 };
 
@@ -289,11 +289,11 @@ structure constructor_val extends constant_val :=
 (cidx    : nat)   -- Constructor index (i.e., position in the inductive declaration)
 (nparams : nat)   -- Number of parameters in inductive datatype `induct`
 (nfields : nat)   -- Number of fields (i.e., arity - nparams)
-(is_meta : bool)
+(is_unsafe : bool)
 */
 class constructor_val : public object_ref {
 public:
-    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_meta);
+    constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_unsafe);
     constructor_val(constructor_val const & other):object_ref(other) {}
     constructor_val(constructor_val && other):object_ref(other) {}
     constructor_val & operator=(constructor_val const & other) { object_ref::operator=(other); return *this; }
@@ -303,7 +303,7 @@ public:
     unsigned get_cidx() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 3)).get_small_value(); }
     unsigned get_nfields() const { return static_cast<nat const &>(cnstr_get_ref(*this, 4)).get_small_value(); }
-    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
+    bool is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*5) != 0; }
 };
 
 /*
@@ -335,13 +335,13 @@ structure recursor_val extends constant_val :=
 (nminors : nat)              -- Number of minor premises
 (rules : list recursor_rule) -- A reduction for each constructor
 (k : bool)                   -- It supports K-like reduction
-(is_meta : bool)
+(is_unsafe : bool)
 */
 class recursor_val : public object_ref {
 public:
     recursor_val(name const & n, names const & lparams, expr const & type,
                  names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
-                 unsigned nminors, recursor_rules const & rules, bool k, bool is_meta);
+                 unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe);
     recursor_val(recursor_val const & other):object_ref(other) {}
     recursor_val(recursor_val && other):object_ref(other) {}
     recursor_val & operator=(recursor_val const & other) { object_ref::operator=(other); return *this; }
@@ -357,7 +357,7 @@ public:
     unsigned get_major_idx() const { return get_nparams() + get_nmotives() + get_nminors() + get_nindices(); }
     recursor_rules const & get_rules() const { return static_cast<recursor_rules const &>(cnstr_get_ref(*this, 6)); }
     bool is_k() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7) != 0; }
-    bool is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }
+    bool is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1) != 0; }
 };
 
 enum class quot_kind { Type, Mk, Lift, Ind };
@@ -420,7 +420,7 @@ public:
 
     friend bool is_eqp(constant_info const & d1, constant_info const & d2) { return d1.raw() == d2.raw(); }
 
-    bool is_meta() const;
+    bool is_unsafe() const;
 
     bool is_definition() const { return kind() == constant_info_kind::Definition; }
     bool is_axiom() const { return kind() == constant_info_kind::Axiom; }

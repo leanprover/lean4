@@ -84,7 +84,7 @@ private      private
 protected    protected
 inline       inline
 definition   definition
-meta         meta
+unsafe       unsafe
 mutual       mutual
 theorem      theorem
 axiom        axiom

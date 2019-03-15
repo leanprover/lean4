@@ -139,8 +139,8 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
     expr below_type  = lctx.mk_pi(args, Type_result);
     expr below_value = lctx.mk_lambda(args, rec);
 
-    declaration new_d = mk_definition_inferring_meta(env, below_name, blvls, below_type, below_value,
-                                                     reducibility_hints::mk_abbreviation());
+    declaration new_d = mk_definition_inferring_unsafe(env, below_name, blvls, below_type, below_value,
+                                                       reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, below_name, reducible_status::Reducible, true);
     return add_protected(new_env, below_name);
@@ -340,8 +340,8 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
     expr brec_on_value = lctx.mk_lambda(args, mk_pprod_fst(tc, rec, ind));
 
 
-    declaration new_d = mk_definition_inferring_meta(env, brec_on_name, blps, brec_on_type, brec_on_value,
-                                                     reducibility_hints::mk_abbreviation());
+    declaration new_d = mk_definition_inferring_unsafe(env, brec_on_name, blps, brec_on_type, brec_on_value,
+                                                       reducibility_hints::mk_abbreviation());
     environment new_env = module::add(env, new_d);
     new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, brec_on_name);

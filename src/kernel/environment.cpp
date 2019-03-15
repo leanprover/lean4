@@ -77,32 +77,32 @@ static void check_constant_val(environment const & env, constant_val const & v, 
     checker.ensure_sort(sort, v.get_type());
 }
 
-static void check_constant_val(environment const & env, constant_val const & v, bool non_meta_only) {
-    type_checker checker(env, non_meta_only);
+static void check_constant_val(environment const & env, constant_val const & v, bool safe_only) {
+    type_checker checker(env, safe_only);
     check_constant_val(env, v, checker);
 }
 
 environment environment::add_axiom(declaration const & d, bool check) const {
     axiom_val const & v = d.to_axiom_val();
     if (check)
-        check_constant_val(*this, v.to_constant_val(), !d.is_meta());
+        check_constant_val(*this, v.to_constant_val(), !d.is_unsafe());
     return add(constant_info(d));
 }
 
 environment environment::add_definition(declaration const & d, bool check) const {
     definition_val const & v = d.to_definition_val();
-    if (v.is_meta()) {
+    if (v.is_unsafe()) {
         /* Meta definition can be recursive.
            So, we check the header, add, and then type check the body. */
         if (check) {
-            bool non_meta_only = false;
-            type_checker checker(*this, non_meta_only);
+            bool safe_only = false;
+            type_checker checker(*this, safe_only);
             check_constant_val(*this, v.to_constant_val(), checker);
         }
         environment new_env = add(constant_info(d));
         if (check) {
-            bool non_meta_only = false;
-            type_checker checker(new_env, non_meta_only);
+            bool safe_only = false;
+            type_checker checker(new_env, safe_only);
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))
                 throw definition_type_mismatch_exception(new_env, d, val_type);
@@ -137,10 +137,10 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     definition_vals const & vs = d.to_definition_vals();
     /* Check declarations header */
     if (check) {
-        bool non_meta_only = false;
-        type_checker checker(*this, non_meta_only);
+        bool safe_only = false;
+        type_checker checker(*this, safe_only);
         for (definition_val const & v : vs) {
-            if (!v.is_meta())
+            if (!v.is_unsafe())
                 throw kernel_exception(*this, "invalid mutual definition, declaration is not tagged as meta");
             check_constant_val(*this, v.to_constant_val(), checker);
         }
@@ -152,8 +152,8 @@ environment environment::add_mutual(declaration const & d, bool check) const {
     }
     /* Check actual definitions */
     if (check) {
-        bool non_meta_only = false;
-        type_checker checker(new_env, non_meta_only);
+        bool safe_only = false;
+        type_checker checker(new_env, safe_only);
         for (definition_val const & v : vs) {
             expr val_type = checker.check(v.get_value(), v.get_lparams());
             if (!checker.is_def_eq(val_type, v.get_type()))

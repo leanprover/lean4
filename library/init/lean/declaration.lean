@@ -41,10 +41,10 @@ structure constant_val :=
 (id : name) (lparams : list name) (type : expr)
 
 structure axiom_val extends constant_val :=
-(is_meta : bool)
+(is_unsafe : bool)
 
 structure definition_val extends constant_val :=
-(value : expr) (hints : reducibility_hints) (is_meta : bool)
+(value : expr) (hints : reducibility_hints) (is_unsafe : bool)
 
 structure theorem_val extends constant_val :=
 (value : task expr)
@@ -61,8 +61,8 @@ inductive declaration
 | defn_decl        (val : definition_val)
 | thm_decl         (val : theorem_val)
 | quot_decl
-| mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `meta`
-| induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_meta : bool)
+| mutual_defn_decl (defns : list definition_val) -- All definitions must be marked as `unsafe`
+| induct_decl      (lparams : list name) (nparams : nat) (types : list inductive_type) (is_unsafe : bool)
 
 /-- The kernel compiles (mutual) inductive declarations (see `inductive_decls`) into a set of
     - `declaration.induct_decl` (for each inductive datatype in the mutual declaration),
@@ -80,7 +80,7 @@ structure inductive_val extends constant_val :=
 (all : list name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
 (cnstrs : list name)  -- List of all constructors for this inductive datatype
 (is_rec : bool)       -- `tt` iff it is recursive
-(is_meta : bool)
+(is_unsafe : bool)
 (is_reflexive : bool)
 
 structure constructor_val extends constant_val :=
@@ -88,7 +88,7 @@ structure constructor_val extends constant_val :=
 (cidx    : nat)   -- Constructor index (i.e., position in the inductive declaration)
 (nparams : nat)   -- Number of parameters in inductive datatype `induct`
 (nfields : nat)   -- Number of fields (i.e., arity - nparams)
-(is_meta : bool)
+(is_unsafe : bool)
 
 /-- Information for reducing a recursor -/
 structure recursor_rule :=
@@ -104,7 +104,7 @@ structure recursor_val extends constant_val :=
 (nminor : nat)               -- Number of minor premises
 (rules : list recursor_rule) -- A reduction for each constructor
 (k : bool)                   -- It supports K-like reduction
-(is_meta : bool)
+(is_unsafe : bool)
 
 inductive quot_kind
 | type  -- `quot`

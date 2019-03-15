@@ -83,7 +83,7 @@ static void print_axioms(parser & p, message_builder & out) {
         bool has_axioms = false;
         p.env().for_each_constant([&](constant_info const & info) {
                 name const & n = info.get_name();
-                if (info.is_axiom() && !info.is_meta()) {
+                if (info.is_axiom() && !info.is_unsafe()) {
                     out << n << " : " << info.get_type() << endl;
                     has_axioms = true;
                 }
@@ -255,8 +255,8 @@ static bool print_constant(parser const & p, message_builder & out, char const *
     print_attributes(p, out, d.get_name());
     if (is_protected(p.env(), d.get_name()))
         out << "protected ";
-    if (d.is_meta())
-        out << "meta ";
+    if (d.is_unsafe())
+        out << "unsafe ";
     out << kind << " " << to_user_name(p.env(), d.get_name());
     out.get_text_stream().update_options(out.get_text_stream().get_options().update((name {"pp", "binder_types"}), true))
             << " : " << d.get_type();

@@ -150,22 +150,22 @@ buffer<expr> const & closure_helper::get_norm_closure_params() const {
 struct mk_aux_definition_fn : public closure_helper {
     mk_aux_definition_fn(type_context_old & ctx):closure_helper(ctx) {}
 
-    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, bool is_lemma, optional<bool> is_meta) {
-        lean_assert(!is_lemma || is_meta);
-        lean_assert(!is_lemma || *is_meta == false);
+    pair<environment, expr> operator()(name const & c, expr const & type, expr const & value, bool is_lemma, optional<bool> is_unsafe) {
+        lean_assert(!is_lemma || is_unsafe);
+        lean_assert(!is_lemma || *is_unsafe == false);
         expr new_type  = collect(ctx().instantiate_mvars(type));
         expr new_value = collect(ctx().instantiate_mvars(value));
         environment env = ctx().env();
         finalize_collection();
         expr def_type  = mk_pi_closure(new_type);
         expr def_value = mk_lambda_closure(new_value);
-        if (!is_meta)
-            is_meta = use_meta(env, def_type) || use_meta(env, def_value);
+        if (!is_unsafe)
+            is_unsafe = use_unsafe(env, def_type) || use_unsafe(env, def_value);
         declaration d;
         if (is_lemma) {
             d = mk_theorem(c, get_norm_level_names(), def_type, def_value);
         } else {
-            d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, *is_meta);
+            d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, *is_unsafe);
         }
         environment new_env = module::add(env, d);
         buffer<level> ls;
@@ -178,26 +178,26 @@ struct mk_aux_definition_fn : public closure_helper {
 };
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          name const & c, expr const & type, expr const & value, optional<bool> const & is_meta) {
+                                          name const & c, expr const & type, expr const & value, optional<bool> const & is_unsafe) {
     type_context_old ctx(env, options(), mctx, lctx, transparency_mode::All);
     bool is_lemma = false;
-    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
+    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_unsafe);
 }
 
 pair<environment, expr> mk_aux_definition(environment const & env, metavar_context const & mctx, local_context const & lctx,
-                                          name const & c, expr const & value, optional<bool> const & is_meta) {
+                                          name const & c, expr const & value, optional<bool> const & is_unsafe) {
     type_context_old ctx(env, options(), mctx, lctx, transparency_mode::All);
     expr type     = ctx.infer(value);
     bool is_lemma = false;
-    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
+    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_unsafe);
 }
 
 pair<environment, expr> mk_aux_lemma(environment const & env, metavar_context const & mctx, local_context const & lctx,
                                      name const & c, expr const & type, expr const & value) {
     type_context_old ctx(env, options(), mctx, lctx, transparency_mode::All);
     bool is_lemma = true;
-    optional<bool> is_meta(false);
-    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_meta);
+    optional<bool> is_unsafe(false);
+    return mk_aux_definition_fn(ctx)(c, type, value, is_lemma, is_unsafe);
 }
 
 struct abstract_nested_proofs_fn : public replace_visitor_with_tc {

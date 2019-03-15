@@ -41,19 +41,19 @@ constant_val::constant_val(name const & n, names const & lparams, expr const & t
     object_ref(mk_cnstr(0, n, lparams, type)) {
 }
 
-axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, bool is_meta):
+axiom_val::axiom_val(name const & n, names const & lparams, expr const & type, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), 1)) {
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(is_meta));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*), static_cast<unsigned char>(is_unsafe));
 }
 
-bool axiom_val::is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)) != 0; }
+bool axiom_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)) != 0; }
 
-definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_meta):
+definition_val::definition_val(name const & n, names const & lparams, expr const & type, expr const & val, reducibility_hints const & hints, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val, hints, 1)) {
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_meta));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*3, static_cast<unsigned char>(is_unsafe));
 }
 
-bool definition_val::is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
+bool definition_val::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 
 theorem_val::theorem_val(name const & n, names const & lparams, expr const & type, expr const & val):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), val)) {
@@ -71,50 +71,50 @@ recursor_rule::recursor_rule(name const & cnstr, unsigned nfields, expr const & 
 }
 
 inductive_val::inductive_val(name const & n, names const & lparams, expr const & type, unsigned nparams,
-                             unsigned nindices, names const & all, names const & cnstrs, bool rec, bool meta, bool is_refl):
+                             unsigned nindices, names const & all, names const & cnstrs, bool rec, bool unsafe, bool is_refl):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), nat(nparams), nat(nindices), all, cnstrs, 3)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(rec));
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1, static_cast<unsigned char>(meta));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 1, static_cast<unsigned char>(unsafe));
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5 + 2, static_cast<unsigned char>(is_refl));
-    lean_assert(is_meta() == meta);
+    lean_assert(is_unsafe() == unsafe);
     lean_assert(is_rec() == rec);
     lean_assert(is_reflexive() == is_refl);
 }
 
-constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_meta):
+constructor_val::constructor_val(name const & n, names const & lparams, expr const & type, name const & induct, unsigned cidx, unsigned nparams, unsigned nfields, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), induct, nat(cidx), nat(nparams), nat(nfields), 1)) {
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(is_meta));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*5, static_cast<unsigned char>(is_unsafe));
 }
 
 recursor_val::recursor_val(name const & n, names const & lparams, expr const & type,
                            names const & all, unsigned nparams, unsigned nindices, unsigned nmotives,
-                           unsigned nminors, recursor_rules const & rules, bool k, bool is_meta):
+                           unsigned nminors, recursor_rules const & rules, bool k, bool is_unsafe):
     object_ref(mk_cnstr(0, constant_val(n, lparams, type), all, nat(nparams), nat(nindices), nat(nmotives),
                         nat(nminors), rules, 2)) {
     cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*7, static_cast<unsigned char>(k));
-    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1, static_cast<unsigned char>(is_meta));
+    cnstr_set_scalar<unsigned char>(raw(), sizeof(object*)*7 + 1, static_cast<unsigned char>(is_unsafe));
 }
 
 
-bool declaration::is_meta() const {
+bool declaration::is_unsafe() const {
     switch (kind()) {
-    case declaration_kind::Definition:       return to_definition_val().is_meta();
-    case declaration_kind::Axiom:            return to_axiom_val().is_meta();
+    case declaration_kind::Definition:       return to_definition_val().is_unsafe();
+    case declaration_kind::Axiom:            return to_axiom_val().is_unsafe();
     case declaration_kind::Theorem:          return false;
-    case declaration_kind::Inductive:        return inductive_decl(*this).is_meta();
+    case declaration_kind::Inductive:        return inductive_decl(*this).is_unsafe();
     case declaration_kind::Quot:             return false;
     case declaration_kind::MutualDefinition: return true;
     }
     lean_unreachable();
 }
 
-bool use_meta(environment const & env, expr const & e) {
+bool use_unsafe(environment const & env, expr const & e) {
     bool found = false;
     for_each(e, [&](expr const & e, unsigned) {
             if (found) return false;
             if (is_constant(e)) {
                 if (auto info = env.find(const_name(e))) {
-                    if (info->is_meta()) {
+                    if (info->is_unsafe()) {
                         found = true;
                         return false;
                     }
@@ -141,45 +141,45 @@ static unsigned get_max_height(environment const & env, expr const & v) {
     return h;
 }
 
-definition_val mk_definition_val(environment const & env, name const & n, names const & params, expr const & t, expr const & v, bool meta) {
+definition_val mk_definition_val(environment const & env, name const & n, names const & params, expr const & t, expr const & v, bool unsafe) {
     unsigned h = get_max_height(env, v);
-    return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
+    return definition_val(n, params, t, v, reducibility_hints::mk_regular(h+1), unsafe);
 }
 
 declaration mk_definition(name const & n, names const & params, expr const & t, expr const & v,
-                          reducibility_hints const & h, bool meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, meta)));
+                          reducibility_hints const & h, bool unsafe) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), definition_val(n, params, t, v, h, unsafe)));
 }
 
 declaration mk_definition(environment const & env, name const & n, names const & params, expr const & t,
-                          expr const & v, bool meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, meta)));
+                          expr const & v, bool unsafe) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Definition), mk_definition_val(env, n, params, t, v, unsafe)));
 }
 
 declaration mk_theorem(name const & n, names const & params, expr const & t, expr const & v) {
     return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Theorem), theorem_val(n, params, t, v)));
 }
 
-declaration mk_axiom(name const & n, names const & params, expr const & t, bool meta) {
-    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), axiom_val(n, params, t, meta)));
+declaration mk_axiom(name const & n, names const & params, expr const & t, bool unsafe) {
+    return declaration(mk_cnstr(static_cast<unsigned>(declaration_kind::Axiom), axiom_val(n, params, t, unsafe)));
 }
 
-declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & params,
+declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & params,
                                             expr const & t, expr const & v, reducibility_hints const & hints) {
-    bool meta = use_meta(env, t) || use_meta(env, v);
-    return mk_definition(n, params, t, v, hints, meta);
+    bool unsafe = use_unsafe(env, t) || use_unsafe(env, v);
+    return mk_definition(n, params, t, v, hints, unsafe);
 }
 
-declaration mk_definition_inferring_meta(environment const & env, name const & n, names const & params,
+declaration mk_definition_inferring_unsafe(environment const & env, name const & n, names const & params,
                                          expr const & t, expr const & v) {
-    bool meta  = use_meta(env, t) && use_meta(env, v);
+    bool unsafe  = use_unsafe(env, t) && use_unsafe(env, v);
     unsigned h = get_max_height(env, v);
-    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), meta);
+    return mk_definition(n, params, t, v, reducibility_hints::mk_regular(h+1), unsafe);
 }
 
-declaration mk_axiom_inferring_meta(environment const & env, name const & n,
+declaration mk_axiom_inferring_unsafe(environment const & env, name const & n,
                                     names const & params, expr const & t) {
-    return mk_axiom(n, params, t, use_meta(env, t));
+    return mk_axiom(n, params, t, use_unsafe(env, t));
 }
 
 declaration mk_mutual_definitions(definition_vals const & ds) {
@@ -199,13 +199,13 @@ inductive_type::inductive_type(name const & id, expr const & type, constructors 
 
 static unsigned inductive_decl_scalar_offset() { return sizeof(object*)*3; }
 
-declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_meta) {
+declaration mk_inductive_decl(names const & lparams, nat const & nparams, inductive_types const & types, bool is_unsafe) {
     declaration r(mk_cnstr(static_cast<unsigned>(declaration_kind::Inductive), lparams, nparams, types, 1));
-    cnstr_set_scalar<unsigned char>(r.raw(), inductive_decl_scalar_offset(), static_cast<unsigned char>(is_meta));
+    cnstr_set_scalar<unsigned char>(r.raw(), inductive_decl_scalar_offset(), static_cast<unsigned char>(is_unsafe));
     return r;
 }
 
-bool inductive_decl::is_meta() const { return cnstr_get_scalar<unsigned char>(raw(), inductive_decl_scalar_offset()) != 0; }
+bool inductive_decl::is_unsafe() const { return cnstr_get_scalar<unsigned char>(raw(), inductive_decl_scalar_offset()) != 0; }
 
 // =======================================
 // Constant info
@@ -245,15 +245,15 @@ reducibility_hints const & constant_info::get_hints() const {
         return *g_opaque;
 }
 
-bool constant_info::is_meta() const {
+bool constant_info::is_unsafe() const {
     switch (kind()) {
-    case constant_info_kind::Axiom:       return to_axiom_val().is_meta();
-    case constant_info_kind::Definition:  return to_definition_val().is_meta();
+    case constant_info_kind::Axiom:       return to_axiom_val().is_unsafe();
+    case constant_info_kind::Definition:  return to_definition_val().is_unsafe();
     case constant_info_kind::Theorem:     return false;
     case constant_info_kind::Quot:        return false;
-    case constant_info_kind::Inductive:   return to_inductive_val().is_meta();
-    case constant_info_kind::Constructor: return to_constructor_val().is_meta();
-    case constant_info_kind::Recursor:    return to_recursor_val().is_meta();
+    case constant_info_kind::Inductive:   return to_inductive_val().is_unsafe();
+    case constant_info_kind::Constructor: return to_constructor_val().is_unsafe();
+    case constant_info_kind::Recursor:    return to_recursor_val().is_unsafe();
     }
     lean_unreachable();
 }

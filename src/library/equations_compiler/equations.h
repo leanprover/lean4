@@ -43,7 +43,7 @@ struct equations_header {
     names      m_fn_actual_names;         /* Full qualified name and/or private name */
     bool       m_is_private{false};       /* if true, it must be a private definition */
     bool       m_is_lemma{false};         /* if true, equations are defining a lemma */
-    bool       m_is_meta{false};          /* the auxiliary declarations should be tagged as meta */
+    bool       m_is_unsafe{false};          /* the auxiliary declarations should be tagged as unsafe */
     bool       m_is_noncomputable{false}; /* if true, equation is not computable and code should not be generated */
     bool       m_aux_lemmas{false};       /* if true, we must create equation lemmas and induction principle */
     /* m_prev_errors is true when errors have already being found processing the file,

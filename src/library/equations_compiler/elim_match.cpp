@@ -1291,7 +1291,7 @@ eqn_compiler_result mk_nonrec(environment & env, elaborator & elab, metavar_cont
                               local_context const & lctx, expr const & eqns) {
     equations_header header = get_equations_header(eqns);
     auto R = elim_match(env, elab, mctx, lctx, eqns);
-    if (header.m_is_meta || header.m_is_lemma) {
+    if (header.m_is_unsafe || header.m_is_lemma) {
         /* Do not generate auxiliary equation or equational lemmas */
         auto fn = mk_constant(head(header.m_fn_names));
         auto counter_examples = map2<expr>(R.m_counter_examples, [&] (list<expr> const & e) { return mk_app(fn, e); });

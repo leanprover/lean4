@@ -701,7 +701,7 @@ struct structural_rec_fn {
         brec_on_args.push_back(F);
         expr new_fn = ctx.mk_lambda(fn_args, mk_app(mk_app(brec_on_fn, brec_on_args), extra_args));
         lean_trace("eqn_compiler", tout() << "result:\n" << new_fn << "\ntype:\n" << ctx.infer(new_fn) << "\n";);
-        if (m_header.m_is_meta) {
+        if (m_header.m_is_unsafe) {
             /* We don't create auxiliary definitions for meta-definitions because we don't create lemmas
                for them. */
             return new_fn;

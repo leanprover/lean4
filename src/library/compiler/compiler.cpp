@@ -35,7 +35,7 @@ bool is_codegen_enabled(options const & opts) {
 }
 
 static name get_real_name(name const & n) {
-    if (optional<name> new_n = is_meta_rec_name(n))
+    if (optional<name> new_n = is_unsafe_rec_name(n))
         return *new_n;
     else
         return n;

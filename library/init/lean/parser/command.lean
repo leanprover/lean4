@@ -117,7 +117,7 @@ def builtin_command_parsers : token_map command_parser := token_map.of_list [
   ("private", declaration.parser),
   ("protected", declaration.parser),
   ("noncomputable", declaration.parser),
-  ("meta", declaration.parser),
+  ("unsafe", declaration.parser),
   ("def", declaration.parser),
   ("abbreviation", declaration.parser),
   ("theorem", declaration.parser),

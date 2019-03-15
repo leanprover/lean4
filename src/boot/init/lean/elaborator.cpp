@@ -17715,7 +17715,7 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::box(0);
-x_1 = lean::mk_string("meta");
+x_1 = lean::mk_string("unsafe");
 x_2 = lean_name_mk_string(x_0, x_1);
 return x_2;
 }

@@ -392,7 +392,7 @@ def decl_modifiers_to_pexpr (mods : decl_modifiers.view) : elaborator_m expr := 
     | some (visibility.view.protected _) := mdata.set_bool `protected tt
     | _ := mdata,
   let mdata := mdata.set_bool `noncomputable mods.noncomputable.is_some,
-  let mdata := mdata.set_bool `meta mods.meta.is_some,
+  let mdata := mdata.set_bool `unsafe mods.unsafe.is_some,
   expr.mdata mdata <$> attrs_to_pexpr (match mods.attrs with
     | some attrs := attrs.attrs
     | none       := [])

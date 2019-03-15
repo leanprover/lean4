@@ -46,7 +46,7 @@ node! decl_modifiers [
   attrs: decl_attributes.parser?,
   visibility: node_choice! visibility {"private", "protected"}?,
   «noncomputable»: (symbol "noncomputable")?,
-  «meta»: (symbol "meta")?,
+  «unsafe»: (symbol "unsafe")?,
 ]
 
 @[derive has_tokens has_view]

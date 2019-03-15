@@ -111,14 +111,14 @@ obj* l_io_prim_iterate___at_io_fs_handle_read__to__end___spec__4___lambda__1(obj
 obj* l_io_fs_handle_get__line___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_eio__unit_has__eval___rarg(obj*, obj*, obj*);
 obj* l_io_prim_iterate__aux(obj*, obj*);
-extern "C" obj* lean_io_unsafe(obj*, obj*);
+extern "C" obj* lean_io_unsafe(obj*, obj*, obj*);
 obj* l_io_fs_read__file(obj*, obj*);
 obj* l___private_init_io_13__put__str___at_io_println_x_27___spec__3___boxed(obj*, obj*);
 obj* l_io_prim_lift__eio___boxed(obj*, obj*, obj*);
 obj* l_io_fs_handle_flush___boxed(obj*, obj*);
 obj* l_state__t_pure___at_io_prim_io__inhabited___spec__1(obj*);
 extern "C" obj* lean_io_prim_handle_get_line(obj*, obj*);
-obj* l_unsafe__io___boxed(obj*, obj*);
+obj* l_unsafe__io___boxed(obj*, obj*, obj*);
 obj* l_io_lazy__pure(obj*);
 obj* l_io_fs_handle_mk(obj*, obj*);
 obj* l_io_fs_read__file___rarg___lambda__1___boxed(obj*, obj*, obj*);
@@ -181,12 +181,12 @@ x_10 = l_state__t_monad___rarg(x_9);
 return x_10;
 }
 }
-obj* l_unsafe__io___boxed(obj* x_0, obj* x_1) {
+obj* l_unsafe__io___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_2; 
-x_2 = lean_io_unsafe(x_0, x_1);
-return x_2;
+obj* x_3; 
+x_3 = lean_io_unsafe(x_0, x_1, x_2);
+return x_3;
 }
 }
 obj* l_timeit___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

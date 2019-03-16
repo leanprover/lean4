@@ -4,5 +4,5 @@ def foo (rec : nat → nat → nat) : nat → nat → nat
 
 def main (xs : list string) : io uint32 :=
 let v := fix_2 foo (xs.head.to_nat) 10 in
-io.println' (to_string v) *>
+io.println (to_string v) *>
 pure 0

@@ -19,7 +19,7 @@ def check : Tree → uint32
 
 def minN := 4
 
-def out (s) (n : nat) (t : uint32) := io.println' (s ++ " of depth " ++ to_string n ++ "\t check: " ++ to_string t)
+def out (s) (n : nat) (t : uint32) := io.println (s ++ " of depth " ++ to_string n ++ "\t check: " ++ to_string t)
 
 -- allocate and check lots of trees
 def sumT : uint32 -> uint32 -> uint32 -> uint32

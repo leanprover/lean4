@@ -128,5 +128,5 @@ else do
 def main (xs : list string) : io uint32 :=
 let n := xs.head.to_nat in
 match run (test n) with
-| (except.ok v, s)    := io.println' ("ok " ++ to_string v) *> pure 0
-| (except.error e, s) := io.println' ("Error : " ++ e) *> pure 1
+| (except.ok v, s)    := io.println ("ok " ++ to_string v) *> pure 0
+| (except.error e, s) := io.println ("Error : " ++ e) *> pure 1

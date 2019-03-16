@@ -1143,14 +1143,20 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         out << " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);\n";
         out << " in = n;\n";
         out << "}\n";
-        out << "obj * r = " << g_lean_main << "(in, lean::box(0));\n";
+        out << "obj * r = " << g_lean_main << "(in, lean::io_mk_world());\n";
     } else {
-        out << "obj * r = " << g_lean_main << "(lean::box(0));\n";
+        out << "obj * r = " << g_lean_main << "(lean::io_mk_world());\n";
     }
-    out << "int ret = lean::unbox(lean::cnstr_get(r, 0));\n";
-    out << "lean::dec(r);\n";
-    out << "return ret;\n";
-    out << "}\n";
+    out <<
+        "if (io_is_result_ok(r)) {\n"
+        "  int ret = lean::unbox(io_get_result(r));\n"
+        "  lean::dec_ref(r);\n"
+        "  return ret;\n"
+        "} else {\n"
+        "  lean::dec_ref(r);\n"
+        "  return 1;\n"
+        "}\n"
+        "}\n";
 }
 
 void emit_cpp(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {

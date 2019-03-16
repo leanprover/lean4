@@ -16,5 +16,5 @@ def main (xs : list string) : io uint32 :=
 let t1 := task.mk $ (λ _, f1 xs.head.to_nat) in
 let t2 := task.mk $ (λ _, f2 xs.head.to_nat) in
 dbg_sleep 1000 $ λ _,
-io.println' (to_string t1.get ++ " " ++ to_string t2.get) *>
+io.println (to_string t1.get ++ " " ++ to_string t2.get) *>
 pure 0

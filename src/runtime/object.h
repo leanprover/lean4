@@ -1438,6 +1438,18 @@ object * dbg_trace(obj_arg s, obj_arg fn);
 object * dbg_sleep(uint32 ms, obj_arg fn);
 
 // =======================================
+// IO helper functions
+inline obj_res io_mk_world() {
+    object * r = alloc_cnstr(0, 2, 0);
+    cnstr_set(r, 0, box(0));
+    cnstr_set(r, 1, box(0));
+    return r;
+}
+inline bool io_is_result_ok(b_obj_arg r) { return cnstr_tag(r) == 0; }
+inline bool io_is_result_error(b_obj_arg r) { return cnstr_tag(r) == 1; }
+inline b_obj_res io_get_result(b_obj_arg r) { lean_assert(io_is_result_ok(r)); return cnstr_get(r, 0); }
+
+// =======================================
 // Module initialization/finalization
 void initialize_object();
 void finalize_object();

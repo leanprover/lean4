@@ -15,5 +15,5 @@ def eval : Expr → nat
 | (Add l r) := eval l + eval r
 
 def main : io uint32 :=
-io.println' (to_string $ eval (mk_expr 26 1)) *>
+io.println (to_string $ eval (mk_expr 26 1)) *>
 pure 0

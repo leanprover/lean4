@@ -325,10 +325,10 @@ many1' (str "--" *> take_until (λ c, c = '\n') *> any *> pure ())
 end
 
 @[noinline] def test_flat_p (s : string) : io unit :=
-io.println' (lean.flat_parser.test_parser flat_p s)
+io.println (lean.flat_parser.test_parser flat_p s)
 
 @[noinline] def test_parsec_p (s : string) : io unit :=
-io.println' (test_parsec parsec_p s)
+io.println (test_parsec parsec_p s)
 
 def prof {α : Type} (msg : string) (p : io α) : io α :=
 let msg₁ := "Time for '" ++ msg ++ "':" in

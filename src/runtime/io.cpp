@@ -12,24 +12,33 @@ Author: Leonardo de Moura
 namespace lean {
 static obj_res const REAL_WORLD = box(0);
 
-obj_res mk_io_result(obj_arg r) {
-    object * res = alloc_cnstr(0, 2, 0);
-    cnstr_set(res, 0, r);
-    cnstr_set(res, 1, REAL_WORLD);
-    return res;
+obj_res set_io_result(obj_arg r, obj_arg a) {
+    if (is_exclusive(r)) {
+        cnstr_set(r, 0, a);
+        return r;
+    } else {
+        dec_ref(r);
+        object * new_r = alloc_cnstr(0, 2, 0);
+        cnstr_set(new_r, 0, a);
+        cnstr_set(new_r, 1, REAL_WORLD);
+        return new_r;
+    }
+}
+static obj_res option_of_io_result(obj_arg r) {
+    if (io_is_result_ok(r)) {
+        object * o = alloc_cnstr(1, 1, 0);
+        cnstr_set(o, 0, io_get_result(r));
+        dec(r);
+        return o;
+    } else {
+        dec(r);
+        return box(0);
+    }
 }
 
-/* `(r : α) → (except ε α × real_world)` */
-obj_res mk_ioe_result(obj_arg r) {
-    object * res = alloc_cnstr(1, 1, 0);
-    cnstr_set(res, 0, r);
-    return mk_io_result(res);
-}
-
-extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg /* w */) {
-    // TODO(Leo): this is a temporary hack for testing
-    std::cout << string_to_std(s);
-    return mk_ioe_result(box(0));
+extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg r) {
+    std::cout << string_to_std(s); // TODO(Leo): use out handle
+    return set_io_result(r, box(0));
 }
 
 extern "C" obj_res lean_io_prim_get_line(obj_arg /* w */) {
@@ -67,18 +76,16 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg /* h */, obj_arg /* w 
     lean_unreachable();
 }
 
-/* constant unsafe_io {α : Type} [inhabited α] (fn : io α) : α */
-extern "C" obj_res lean_io_unsafe(obj_arg, obj_arg, obj_arg fn) {
-    object * r = apply_1(fn, REAL_WORLD);
-    object * a = cnstr_get(r, 0);
-    inc(a); dec(r);
-    return a;
+/* constant unsafe_io {α : Type} (fn : io α) : option α */
+extern "C" obj_res lean_io_unsafe(obj_arg, obj_arg fn) {
+    object * r     = io_mk_world();
+    return option_of_io_result(apply_1(fn, r));
 }
 
 /* timeit {α : Type} (msg : @& string) (fn : io α) : io α */
-extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
+extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg r) {
     auto start = std::chrono::steady_clock::now();
-    object * r = apply_1(fn, w);
+    r = apply_1(fn, r);
     auto end   = std::chrono::steady_clock::now();
     auto diff  = std::chrono::duration<double>(end - start);
     std::ostream & out = std::cerr; // TODO(Leo): replace?
@@ -92,9 +99,9 @@ extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w)
 }
 
 /* allocprof {α : Type} (msg : string) (fn : io α) : io α */
-extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg w) {
+extern "C" obj_res lean_io_allocprof(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg r) {
     std::ostream & out = std::cerr; // TODO(Leo): replace?
     allocprof prof(out, string_cstr(msg));
-    return apply_1(fn, w);
+    return apply_1(fn, r);
 }
 }

@@ -86,7 +86,7 @@ nest_aux n f n e
 def deriv (i : nat) (f : Expr) : io Expr :=
 do
   let d := d "x" f,
-  io.println' (to_string (i+1) ++ " count: " ++ (to_string $ count d)),
+  io.println (to_string (i+1) ++ " count: " ++ (to_string $ count d)),
   pure d
 
 def main (xs : list string) : io uint32 :=

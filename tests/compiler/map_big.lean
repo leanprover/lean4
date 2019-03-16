@@ -4,5 +4,5 @@ xs.map (λ x, x :: ys)
 
 def main : io uint32 :=
 let n := 100000 in
-io.println' (to_string (f2 n (list.repeat 0 n)).length) *>
+io.println (to_string (f2 n (list.repeat 0 n)).length) *>
 pure 0

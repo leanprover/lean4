@@ -17,9 +17,9 @@ let x : uint8 := 100 in
 x + x + x
 
 def main : io uint32 :=
-io.println' (to_string (f 10 20)) *>
-io.println' (to_string (f 0 0)) *>
-io.println' (to_string (g 3 5)) *>
-io.println' (to_string (g 0 6)) *>
-io.println' (to_string foo) *>
+io.println (to_string (f 10 20)) *>
+io.println (to_string (f 0 0)) *>
+io.println (to_string (g 3 5)) *>
+io.println (to_string (g 0 6)) *>
+io.println (to_string foo) *>
 pure 0

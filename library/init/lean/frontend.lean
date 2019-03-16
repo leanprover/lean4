@@ -38,7 +38,7 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
   let opts := options.mk.set_bool `trace.as_messages tt,
   let elab_st := elaborator.mk_state elab_cfg env opts,
   let add_output (out : syntax) outs := if collect_outputs then out::outs else [],
-  io.prim.iterate_eio (p_snap, elab_st, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_st, parser_cfg, expander_cfg, outs⟩, do {
+  io.prim.iterate (p_snap, elab_st, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_st, parser_cfg, expander_cfg, outs⟩, do {
     let pos := parser_cfg.file_map.to_position p_snap.it.offset,
     r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parse_command parser_cfg p_snap,
     match r with
@@ -46,7 +46,7 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
       -- fatal error (should never happen?)
       print_msg msg,
       msgs.to_list.mfor print_msg,
-      pure $ sum.inr ((add_output cmd outs).reverse, elab_st.env)
+      pure $ sum.inr (except.ok ((add_output cmd outs).reverse, elab_st.env))
     }
     | (cmd, except.ok (p_snap, msgs)) := do {
       msgs.to_list.mfor print_msg,
@@ -61,7 +61,7 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
             pos := ⟨1, 0⟩,
             text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
               to_string (out.cache.hit + out.cache.miss)},-/
-          pure $ sum.inr ((add_output cmd outs).reverse, elab_st.env)
+          pure $ sum.inr (except.ok ((add_output cmd outs).reverse, elab_st.env))
         else
           pure (sum.inl (p_snap, elab_st, elab_st.parser_cfg, elab_st.expander_cfg, add_output cmd outs))
       }
@@ -69,10 +69,8 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
     }
   }
 
-
 @[export lean_process_file]
 def process_file (f s : string) (json : bool) : state_t environment (except_t unit io) unit := do
-  --let s := (s.mk_iterator.nextn 10000).prev_to_string,
   let print_msg : message → except_t string io unit := λ msg,
     if json then
       io.println $ "{\"file_name\": \"<stdin>\", \"pos_line\": " ++ to_string msg.pos.line ++

@@ -52,6 +52,11 @@ namespace estate
 
 variables {ε σ α β : Type u}
 
+instance [inhabited ε] : inhabited (estate ε σ α) :=
+⟨λ r, match r with
+      | ⟨result.ok _ s, _⟩    := result.error (default ε) s
+      | ⟨result.error _ _, h⟩ := unreachable_error h⟩
+
 @[inline] protected def pure (a : α) : estate ε σ α :=
 λ r, match r with
      | ⟨result.ok _ s, _⟩    := result.ok a s
@@ -97,9 +102,9 @@ variables {ε σ α β : Type u}
         | ok                 := ok)
      | ok                 := ok
 
-@[inline] def adapt_except {ε' : Type u} [has_lift_t ε' ε] (f : ε → ε') (x : estate ε σ α) : estate ε' σ α :=
+@[inline] def adapt_except {ε' : Type u} [has_lift ε ε'] (x : estate ε σ α) : estate ε' σ α :=
 λ r, match x r with
-     | result.error e s := result.error (f e) s
+     | result.error e s := result.error (lift e) s
      | result.ok a s    := result.ok a s
 
 @[inline] protected def bind (x : estate ε σ α) (f : α → estate ε σ β) : estate ε σ β :=

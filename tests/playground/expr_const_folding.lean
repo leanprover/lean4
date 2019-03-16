@@ -69,5 +69,5 @@ def main : io uint32 :=
 let e  := (mk_expr 23 1) in
 let v₁ := eval e in
 let v₂ := eval (const_folding (reassoc e)) in
-io.println' (to_string v₁ ++ " " ++ to_string v₂) *>
+io.println (to_string v₁ ++ " " ++ to_string v₂) *>
 pure 0

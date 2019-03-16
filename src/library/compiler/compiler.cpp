@@ -115,6 +115,13 @@ bool is_main_fn(environment const & env, name const & n) {
     return false;
 }
 
+bool is_uint32_or_unit(expr const & type) {
+    return
+        is_constant(type, get_uint32_name()) ||
+        is_constant(type, get_unit_name()) ||
+        is_constant(type, get_punit_name());
+}
+
 /* Return true iff type is `list string -> io uint32` or `io uint32` */
 bool is_main_fn_type(expr const & type) {
     if (is_arrow(type)) {
@@ -123,14 +130,14 @@ bool is_main_fn_type(expr const & type) {
         return
             is_app(r) &&
             is_constant(app_fn(r), get_io_name()) &&
-            is_constant(app_arg(r), get_uint32_name()) &&
+            is_uint32_or_unit(app_arg(r)) &&
             is_app(d) &&
             is_constant(app_fn(d), get_list_name()) &&
             is_constant(app_arg(d), get_string_name());
     } else if (is_app(type)) {
         return
             is_constant(app_fn(type), get_io_name()) &&
-            is_constant(app_arg(type), get_uint32_name());
+            is_uint32_or_unit(app_arg(type));
     } else {
         return false;
     }

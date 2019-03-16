@@ -1148,11 +1148,12 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         out << "obj * r = " << g_lean_main << "(lean::io_mk_world());\n";
     }
     out <<
-        "if (io_is_result_ok(r)) {\n"
-        "  int ret = lean::unbox(io_get_result(r));\n"
+        "if (io_result_is_ok(r)) {\n"
+        "  int ret = lean::unbox(io_result_get_value(r));\n"
         "  lean::dec_ref(r);\n"
         "  return ret;\n"
         "} else {\n"
+        "  lean::io_result_show_error(r);\n"
         "  lean::dec_ref(r);\n"
         "  return 1;\n"
         "}\n"

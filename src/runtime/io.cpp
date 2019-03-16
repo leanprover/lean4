@@ -12,6 +12,10 @@ Author: Leonardo de Moura
 namespace lean {
 static obj_res const REAL_WORLD = box(0);
 
+void io_result_show_error(b_obj_arg r) {
+    std::cerr << "uncaught exception: " << string_cstr(io_result_get_error(r)) << std::endl;
+}
+
 obj_res set_io_result(obj_arg r, obj_arg a) {
     if (is_exclusive(r)) {
         cnstr_set(r, 0, a);
@@ -25,9 +29,9 @@ obj_res set_io_result(obj_arg r, obj_arg a) {
     }
 }
 static obj_res option_of_io_result(obj_arg r) {
-    if (io_is_result_ok(r)) {
+    if (io_result_is_ok(r)) {
         object * o = alloc_cnstr(1, 1, 0);
-        cnstr_set(o, 0, io_get_result(r));
+        cnstr_set(o, 0, io_result_get_value(r));
         dec(r);
         return o;
     } else {

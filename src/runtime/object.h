@@ -1445,10 +1445,11 @@ inline obj_res io_mk_world() {
     cnstr_set(r, 1, box(0));
     return r;
 }
-inline bool io_is_result_ok(b_obj_arg r) { return cnstr_tag(r) == 0; }
-inline bool io_is_result_error(b_obj_arg r) { return cnstr_tag(r) == 1; }
-inline b_obj_res io_get_result(b_obj_arg r) { lean_assert(io_is_result_ok(r)); return cnstr_get(r, 0); }
-
+inline bool io_result_is_ok(b_obj_arg r) { return cnstr_tag(r) == 0; }
+inline bool io_result_is_error(b_obj_arg r) { return cnstr_tag(r) == 1; }
+inline b_obj_res io_result_get_value(b_obj_arg r) { lean_assert(io_result_is_ok(r)); return cnstr_get(r, 0); }
+inline b_obj_arg io_result_get_error(b_obj_arg r) { lean_assert(io_result_is_error(r)); return cnstr_get(r, 0); }
+void io_result_show_error(b_obj_arg r);
 // =======================================
 // Module initialization/finalization
 void initialize_object();

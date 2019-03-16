@@ -69,6 +69,7 @@ obj* l_estate_inhabited___rarg(obj*, obj*);
 obj* l_io_error_has__to__string;
 obj* l_io_prim_lift__io(obj*, obj*);
 obj* l_io_fs_read__file___rarg___lambda__3(obj*, obj*, obj*, obj*);
+obj* l_eio_monad__except___boxed(obj*);
 extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_io_lazy__pure___boxed(obj*);
 obj* l_io_prim_inhabited(obj*, obj*);
@@ -84,9 +85,11 @@ obj* l_io_prim_lift__io___rarg(obj*, obj*);
 obj* l_eio_monad(obj*);
 obj* l_io_prim_inhabited___rarg(obj*);
 obj* l_io_fs_handle_close___rarg(obj*, obj*);
+obj* l_eio_monad__except(obj*);
 extern "C" obj* lean_io_prim_handle_flush(obj*, obj*);
 obj* l_io_fs_read__file___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_io_println___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+extern obj* l_estate_monad__except___closed__1;
 extern obj* l_string_inhabited;
 obj* l_has__repr_has__eval___boxed(obj*);
 extern "C" obj* lean_io_prim_get_line(obj*);
@@ -141,6 +144,23 @@ _start:
 {
 obj* x_1; 
 x_1 = l_eio_monad(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_eio_monad__except(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_estate_monad__except___closed__1;
+return x_1;
+}
+}
+obj* l_eio_monad__except___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_eio_monad__except(x_0);
 lean::dec(x_0);
 return x_1;
 }

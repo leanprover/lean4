@@ -10,7 +10,7 @@ import init.control.estate init.data.string.basic init.fix
     Makes sure we never reorder `io` operations. -/
 constant io.real_world : Type := unit
 
-@[derive monad]
+@[derive monad monad_except]
 def eio (ε : Type) : Type → Type := estate ε io.real_world
 
 instance {ε : Type} {α : Type} [inhabited ε] : inhabited (eio ε α) :=

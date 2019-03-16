@@ -419,7 +419,7 @@ void env_foreach(void * /* env */, b_obj_arg /* fn */) {
 
 static external_object_class * g_env_class = nullptr;
 
-environment const & to_env(b_obj_arg o) {
+environment const & to_environment(b_obj_arg o) {
     lean_assert(external_class(o) == g_env_class);
     return *static_cast<environment *>(external_data(o));
 }
@@ -477,14 +477,14 @@ extern "C" obj_res lean_environment_mk_empty(b_obj_arg) {
 }
 
 extern "C" uint8 lean_environment_contains(b_obj_arg lean_environment, b_obj_arg vm_n) {
-    return static_cast<uint8>(static_cast<bool>(to_env(lean_environment).find(name(vm_n, true))));
+    return static_cast<uint8>(static_cast<bool>(to_environment(lean_environment).find(name(vm_n, true))));
 }
 
 /* elaborate_command (filename : string) : expr → old_elaborator_state → option old_elaborator_state × message_log */
 // TODO(Sebastian): replace `string` with `message` in the new runtime
 extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_arg vm_cmd, b_obj_arg vm_st) {
     auto vm_e = cnstr_get(vm_st, 0);
-    auto env = to_env(vm_e);
+    auto env = to_environment(vm_e);
     auto filename = string_to_std(vm_filename);
     std::stringstream in;
     auto ngen = to_name_generator(cnstr_get(vm_st, 1));

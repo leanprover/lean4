@@ -26,17 +26,17 @@ do t ← parser.mk_token_trie $
    }
 
 def run_frontend (filename input : string) (print_msg : message → except_t string io unit) (collect_outputs : bool) :
-  except_t string io (list syntax) := do
+  state_t environment (except_t string io) (list syntax) := λ env, do
   parser_cfg ← monad_except.lift_except $ mk_config filename input,
   -- TODO(Sebastian): `parse_header` should be called directly by lean.cpp
   match parse_header parser_cfg with
-  | (_, except.error msg) := print_msg msg *> pure []
+  | (_, except.error msg) := print_msg msg *> pure ([], env)
   | (_, except.ok (p_snap, msgs)) := do
   msgs.to_list.mfor print_msg,
   let expander_cfg : expander_config := {transformers := builtin_transformers, ..parser_cfg},
   let elab_cfg : elaborator_config := {filename := filename, input := input, initial_parser_cfg := parser_cfg, ..parser_cfg},
   let opts := options.mk.set_bool `trace.as_messages tt,
-  let elab_st := elaborator.mk_state elab_cfg opts,
+  let elab_st := elaborator.mk_state elab_cfg env opts,
   let add_output (out : syntax) outs := if collect_outputs then out::outs else [],
   io.prim.iterate_eio (p_snap, elab_st, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_st, parser_cfg, expander_cfg, outs⟩, do {
     let pos := parser_cfg.file_map.to_position p_snap.it.offset,
@@ -46,7 +46,7 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
       -- fatal error (should never happen?)
       print_msg msg,
       msgs.to_list.mfor print_msg,
-      pure (sum.inr (add_output cmd outs).reverse)
+      pure $ sum.inr ((add_output cmd outs).reverse, elab_st.env)
     }
     | (cmd, except.ok (p_snap, msgs)) := do {
       msgs.to_list.mfor print_msg,
@@ -61,7 +61,7 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
             pos := ⟨1, 0⟩,
             text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
               to_string (out.cache.hit + out.cache.miss)},-/
-          pure (sum.inr (add_output cmd outs).reverse)
+          pure $ sum.inr ((add_output cmd outs).reverse, elab_st.env)
         else
           pure (sum.inl (p_snap, elab_st, elab_st.parser_cfg, elab_st.expander_cfg, add_output cmd outs))
       }
@@ -71,7 +71,7 @@ def run_frontend (filename input : string) (print_msg : message → except_t str
 
 
 @[export lean_process_file]
-def process_file (f s : string) (json : bool) : io bool := do
+def process_file (f s : string) (json : bool) : state_t environment (except_t unit io) unit := do
   --let s := (s.mk_iterator.nextn 10000).prev_to_string,
   let print_msg : message → except_t string io unit := λ msg,
     if json then
@@ -84,10 +84,8 @@ def process_file (f s : string) (json : bool) : io bool := do
         ", \"caption\": " ++ repr msg.caption ++
         ", \"text\": " ++ repr msg.text ++ "}"
     else io.println msg.to_string,
-  ex ← (run_frontend f s print_msg ff).run,
-  match ex with
-  | except.ok _    := pure tt
-  | except.error e := do
-    (print_msg {filename := f, severity := message_severity.error, pos := ⟨1, 0⟩, text := e}).run,
-    pure ff
+  -- print and erase uncaught exceptions
+  adapt_except (λ _, ()) $ catch (run_frontend f s print_msg ff *> pure ()) $ λ e, do
+    monad_lift $ print_msg {filename := f, severity := message_severity.error, pos := ⟨1, 0⟩, text := e},
+    throw e
 end lean

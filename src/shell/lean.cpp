@@ -40,6 +40,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/util.h"
+#include "frontends/lean/vm_elaborator.h"
 #include "library/trace.h"
 #include "init/init.h"
 #include "frontends/lean/simple_pos_info_provider.h"
@@ -155,7 +156,7 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
 
 using namespace lean; // NOLINT
 
-object * lean_process_file(object * filename, object * contents, uint8 json, object * world);
+object * lean_process_file(object * filename, object * contents, uint8 json, object * env, object * world);
 
 #ifndef LEAN_SERVER_DEFAULT_MAX_MEMORY
 #define LEAN_SERVER_DEFAULT_MAX_MEMORY 1024
@@ -502,8 +503,18 @@ int main(int argc, char ** argv) {
             // message_log-passing state monad in the future.
             message_log l;
             scope_message_log scope_log(l);
-            object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output), box(0)) };
-            ok = static_cast<bool>(unbox(cnstr_get_ref(res, 0).raw()));
+            // res : except unit (unit \x environment) \x io.real_world
+            object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output),
+                                               to_lean_environment(env), box(0)) };
+            res = cnstr_get_ref(res, 0);
+            if (cnstr_tag(res.raw()) == 0) {
+                // except.error ()
+                ok = false;
+            } else {
+                // except.ok (env, ())
+                ok = true;
+                env = to_environment(cnstr_get_ref(cnstr_get_ref(res, 0), 1).raw());
+            }
         } else {
             message_log l;
             scope_message_log scope_log(l);
@@ -520,6 +531,7 @@ int main(int argc, char ** argv) {
                 // Messages have already been printed directly to stdout
             }
             ok = !l.has_errors();
+            env = p.env();
         }
 
         if (make_mode && ok) {
@@ -527,16 +539,16 @@ int main(int argc, char ** argv) {
             time_task t(".olean serialization",
                         message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
                                         message_severity::INFORMATION));
-            write_module(p.env(), mod_fn, olean_fn);
+            write_module(env, mod_fn, olean_fn);
         }
 
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
 
-        if (cpp_output) {
+        if (cpp_output && ok) {
             std::ofstream out(*cpp_output);
             auto mod = module_name_of_file(path.get_path(), mod_fn);
-            emit_cpp(out, p.env(), mod, to_list(imports.begin(), imports.end()));
+            emit_cpp(out, env, mod, to_list(imports.begin(), imports.end()));
         }
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {

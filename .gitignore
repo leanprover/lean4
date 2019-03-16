@@ -21,7 +21,6 @@ settings.json
 .vscode
 /*.nix
 *.produced.out
-/library/init/version.lean
 CMakeSettings.json
 CppProperties.json
 /library/Makefile

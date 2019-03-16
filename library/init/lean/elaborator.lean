@@ -15,9 +15,6 @@ namespace lean
 -- TODO(Sebastian): should probably be meta together with the whole elaborator
 constant environment : Type := unit
 
-@[extern "lean_environment_mk_empty"]
-axiom environment.mk_empty : unit → environment
-
 @[extern "lean_environment_contains"]
 constant environment.contains (env : @& environment) (n : @& name) : bool := ff
 -- deprecated constructor
@@ -126,7 +123,7 @@ structure elaborator_state :=
 (messages : message_log := message_log.empty)
 (parser_cfg : module_parser_config)
 (expander_cfg : expander.expander_config)
-(env : environment := environment.mk_empty ())
+(env : environment)
 (ngen : name_generator)
 (next_inst_idx : nat := 0)
 
@@ -980,9 +977,10 @@ def preresolve : syntax → elaborator_m syntax
   pure $ syntax.raw_node {n with args := args}
 | stx := pure stx
 
-def mk_state (cfg : elaborator_config) (opts : options) : elaborator_state := {
+def mk_state (cfg : elaborator_config) (env : environment) (opts : options) : elaborator_state := {
   parser_cfg := cfg.initial_parser_cfg,
   expander_cfg := {transformers := expander.builtin_transformers, ..cfg},
+  env := env,
   ngen := ⟨`_ngen.fixme, 0⟩,
   scopes := [{cmd := "MODULE", header := `MODULE, options := opts}]}
 

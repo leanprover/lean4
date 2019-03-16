@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Authors: Sebastian Ullrich
 
-TEMPORARY code for the old runtime
+Lean interface to the old elaborator
 */
 #pragma once
 

@@ -24,7 +24,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/choice.h"
-#include "frontends/lean/vm_elaborator.h"
+#include "frontends/lean/lean_elaborator.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {

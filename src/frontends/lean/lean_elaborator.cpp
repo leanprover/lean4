@@ -408,7 +408,6 @@ static void elaborate_command(parser & p, expr const & cmd) {
     throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");
 }
 
-/* TEMPORARY code for the old runtime */
 void env_finalizer(void * env) {
     delete static_cast<environment*>(env);
 }

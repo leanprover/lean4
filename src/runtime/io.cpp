@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <chrono>
 #include <iomanip>
-#include "runtime/io.h"
+#include "runtime/object.h"
 #include "runtime/allocprof.h"
 namespace lean {
 static obj_res const REAL_WORLD = box(0);

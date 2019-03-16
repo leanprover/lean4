@@ -13,14 +13,16 @@ import init.lean.options
 
 namespace lean
 -- TODO(Sebastian): should probably be meta together with the whole elaborator
-constant environment : Type
+constant environment : Type := unit
+
 @[extern "lean_environment_mk_empty"]
-constant environment.mk_empty : unit → environment
+axiom environment.mk_empty : unit → environment
+
 @[extern "lean_environment_contains"]
-constant environment.contains : (@& environment) → (@& name) → bool
+constant environment.contains (env : @& environment) (n : @& name) : bool := ff
 -- deprecated constructor
 @[extern "lean_expr_local"]
-constant expr.local : name → name → expr → binder_info → expr
+constant expr.local (n : name) (pp : name) (ty : expr) (bi : binder_info) : expr := default expr
 
 namespace elaborator
 -- TODO(Sebastian): move
@@ -46,8 +48,7 @@ structure old_elaborator_state :=
 (ns : name)
 
 @[extern "lean_elaborator_elaborate_command"]
-constant elaborate_command (filename : @& string) : expr → (@& old_elaborator_state) →
-  option old_elaborator_state × message_log
+constant elaborate_command (filename : @& string) (e : expr) (s : @& old_elaborator_state) : option old_elaborator_state × message_log := (none, ⟨[]⟩)
 
 open parser
 open parser.combinators
@@ -460,8 +461,8 @@ def declaration.elaborate : elaborator :=
 λ stx, locally $ do
   let decl := view «declaration» stx,
   match decl.inner with
-  | declaration.inner.view.constant c@{sig := {params := bracketed_binders.view.simple [], type := type}, ..} := do
-    let mdata := kvmap.set_name {} `command `constant,
+  | declaration.inner.view.«axiom» c@{sig := {params := bracketed_binders.view.simple [], type := type}, ..} := do
+    let mdata := kvmap.set_name {} `command `«axiom», -- CommentTo(Kha): It was `constant` here
     mods ← decl_modifiers_to_pexpr decl.modifiers,
     let id := ident_univ_params_to_pexpr c.name,
     type ← to_pexpr type.type,
@@ -470,8 +471,8 @@ def declaration.elaborate : elaborator :=
       let kind := match dl.kind with
       | def_like.kind.view.theorem _ := 0
       | def_like.kind.view.def _ := 1
-      | def_like.kind.view.abbreviation _ := 5
-      | def_like.kind.view.«abbrev» _ := 5,
+      | def_like.kind.view.abbreviation _ := 6
+      | def_like.kind.view.«abbrev» _ := 6,
       elab_def_like stx decl.modifiers dl kind
 
   -- these are almost macros for `def`, except the elaborator handles them specially at a few places
@@ -481,13 +482,13 @@ def declaration.elaborate : elaborator :=
       kind := def_like.kind.view.def,
       name := {id := name.anonymous},
       sig := {..ex.sig},
-      ..ex} 2
+      ..ex} 3
   | declaration.inner.view.instance i :=
     elab_def_like stx decl.modifiers {
       kind := def_like.kind.view.def,
       name := i.name.get_or_else {id := name.anonymous},
       sig := {..i.sig},
-      ..i} 3
+      ..i} 4
 
   | declaration.inner.view.inductive ind@{«class» := none, sig := {params := bracketed_binders.view.simple bbs}, ..} := do
     let mdata := kvmap.set_name {} `command `inductives,

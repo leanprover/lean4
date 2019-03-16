@@ -147,8 +147,8 @@ node! declaration [
       name: ident_univ_params.parser, sig: opt_decl_sig.parser, val: decl_val.parser],
     «instance»: node! «instance» ["instance", name: ident_univ_params.parser?, sig: decl_sig.parser, val: decl_val.parser],
     «example»: node! «example» ["example", sig: decl_sig.parser, val: decl_val.parser],
-    «constant»: node! «constant» [
-      kw: node_choice! constant_keyword {"constant", "axiom"},
+    «axiom»: node! «axiom» [ -- CommentTo(Kha): -- replaced `constant with `axiom
+      kw: node_choice! constant_keyword {"axiom"},
       name: ident_univ_params.parser,
       sig: decl_sig.parser],
     «inductive»: node! «inductive» [try [«class»: (symbol "class")?, "inductive"],

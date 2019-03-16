@@ -227,14 +227,14 @@ expr const & get_arg_names(expr const & e, buffer<name> & ns) {
     return fn;
 }
 
-void elab_constant_cmd(parser & p, expr const & cmd) {
+void elab_axiom_cmd(parser & p, expr const & cmd) {
     buffer<expr> args;
     buffer<name> ls;
     get_app_args(mdata_expr(cmd), args);
     auto fn = get_arg_names(args[1], ls);
     expr type = args[2];
     type = resolve_names(p, type);
-    p.set_env(elab_var(p, variable_kind::Constant, to_cmd_meta(p.env(), args[0]), get_pos_info_provider()->get_pos_info_or_some(cmd),
+    p.set_env(elab_var(p, variable_kind::Axiom, to_cmd_meta(p.env(), args[0]), get_pos_info_provider()->get_pos_info_or_some(cmd),
                        optional<binder_info>(), const_name(fn), type, ls));
 }
 
@@ -385,8 +385,8 @@ static void elaborate_command(parser & p, expr const & cmd) {
         } else if (*cmd_name == "#check") {
             elab_check_cmd(p, cmd);
             return;
-        } else if (*cmd_name == "constant") {
-            elab_constant_cmd(p, cmd);
+        } else if (*cmd_name == "axiom") {
+            elab_axiom_cmd(p, cmd);
             return;
         } else if (*cmd_name == "defs") {
             elab_defs_cmd(p, cmd);

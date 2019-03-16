@@ -14,7 +14,7 @@ struct parser;
 struct cmd_meta;
 class elaborator;
 
-enum class decl_cmd_kind { Theorem, Definition, Example, Instance, Var, Abbreviation };
+enum class decl_cmd_kind { Theorem, Definition, OpaqueConst, Example, Instance, Var, Abbreviation };
 
 struct decl_modifiers {
     bool m_is_private{false};

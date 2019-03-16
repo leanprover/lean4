@@ -16,6 +16,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_io_prim_iterate__aux___main___boxed(obj*, obj*);
 obj* l_io_prim_iterate___at_io_prim_iterate__eio___spec__1(obj*, obj*, obj*, obj*);
+obj* l_io_prim_eio__inh___rarg___closed__1;
 obj* l_io_fs_handle_mk___rarg(obj*, obj*, obj*, obj*, obj*, uint8, uint8);
 obj* l_io_fs_handle_is__eof___at_io_fs_handle_read__to__end___spec__1(obj*, obj*);
 obj* l_io_println___at_io_println_x_27___spec__1(obj*, obj*);
@@ -33,6 +34,7 @@ obj* l_io_prim_io__inhabited(obj*);
 obj* l_io_fs_handle_flush___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_has__eval___boxed(obj*);
 extern obj* l_string_iterator_extract___main___closed__1;
+obj* l___private_init_io_1__put__str___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_iterate___at_io_prim_iterate__eio___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_io_prim_handle_flush___boxed(obj*, obj*);
 obj* l_io_fs_handle_is__eof___rarg___lambda__1(obj*, obj*, obj*, obj*);
@@ -51,11 +53,10 @@ obj* l_io_prim_handle_is__eof___boxed(obj*, obj*);
 obj* l_io_prim_iterate___at_io_prim_iterate__eio___spec__1___rarg(obj*, obj*, obj*);
 obj* l_io_prim_handle_mk___boxed(obj*, obj*, obj*, obj*);
 obj* l_io_fs_read__file___rarg(obj*, obj*, obj*, obj*, obj*, uint8);
-obj* l___private_init_io_13__put__str___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_io_prim_lift__eio(obj*, obj*, obj*);
 obj* l_io_prim_io__inhabited___boxed(obj*);
+obj* l_io_prim_eio__inh(obj*);
 obj* l_io_fs_handle_mk___boxed(obj*, obj*);
-obj* l___private_init_io_13__put__str___boxed(obj*, obj*);
 obj* l_io_fs_handle_is__eof___at_io_fs_handle_read__to__end___spec__1___boxed(obj*, obj*);
 obj* l_io_println_x_27___boxed(obj*, obj*);
 obj* l_allocprof___boxed(obj*, obj*, obj*, obj*);
@@ -69,9 +70,9 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_eio_has__eval(obj*, obj*);
-obj* l___private_init_io_13__put__str___at_io_println_x_27___spec__3(obj*, obj*);
 obj* l_io_print___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_io_fs_read__file___boxed(obj*, obj*);
+obj* l___private_init_io_1__put__str(obj*, obj*);
 obj* l_io_fs_handle_is__eof___boxed(obj*, obj*);
 obj* l_io_fs_read__file___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_io_fs_handle_read__to__end(obj*, obj*);
@@ -83,6 +84,7 @@ obj* l_io_prim_io__inhabited___rarg(obj*);
 obj* l_io_fs_read__file___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*);
 extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_io_lazy__pure___boxed(obj*);
+obj* l___private_init_io_1__put__str___at_io_println_x_27___spec__3___boxed(obj*, obj*);
 obj* l_io_prim_inhabited(obj*, obj*);
 obj* l_io_println___boxed(obj*, obj*);
 obj* l_io_prim_iterate(obj*, obj*, obj*);
@@ -92,7 +94,9 @@ obj* l_has__repr_has__eval(obj*);
 obj* l_io_println___rarg___closed__1;
 obj* l_io_print(obj*, obj*);
 obj* l_io_fs_handle_is__eof(obj*, obj*);
+obj* l___private_init_io_1__put__str___boxed(obj*, obj*);
 obj* l_io_prim_iterate___at_io_prim_iterate__eio___spec__1___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_io_prim_eio__inh___boxed(obj*);
 obj* l_io_prim_inhabited___rarg(obj*);
 obj* l_io_fs_handle_close___rarg(obj*, obj*, obj*, obj*, obj*);
 extern "C" obj* lean_io_prim_handle_flush(obj*, obj*);
@@ -113,7 +117,6 @@ obj* l_eio__unit_has__eval___rarg(obj*, obj*, obj*);
 obj* l_io_prim_iterate__aux(obj*, obj*);
 extern "C" obj* lean_io_unsafe(obj*, obj*, obj*);
 obj* l_io_fs_read__file(obj*, obj*);
-obj* l___private_init_io_13__put__str___at_io_println_x_27___spec__3___boxed(obj*, obj*);
 obj* l_io_prim_lift__eio___boxed(obj*, obj*, obj*);
 obj* l_io_fs_handle_flush___boxed(obj*, obj*);
 obj* l_state__t_pure___at_io_prim_io__inhabited___spec__1(obj*);
@@ -126,7 +129,6 @@ obj* l_io_println_x_27(obj*, obj*);
 obj* l_io_lazy__pure___rarg(obj*, obj*);
 obj* l_io_error_inhabited;
 obj* l_io_fs_handle_read__to__end___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l___private_init_io_13__put__str(obj*, obj*);
 obj* l_io_prim_handle_close___boxed(obj*, obj*);
 obj* l_io_prim_iterate___at_io_fs_handle_read__to__end___spec__4(obj*, obj*, obj*);
 obj* l_id_bind___boxed(obj*, obj*);
@@ -142,6 +144,7 @@ obj* l_io_prim_inhabited___boxed(obj*, obj*);
 obj* l_io_fs_handle_close(obj*, obj*);
 obj* l_io_println___at_io_println_x_27___spec__1___boxed(obj*, obj*);
 obj* l_io__unit_has__eval(obj*, obj*);
+obj* l_io_prim_eio__inh___rarg(obj*);
 obj* l_state__t_pure___at_io_prim_io__inhabited___spec__1___boxed(obj*);
 extern "C" obj* lean_io_prim_handle_is_eof(obj*, obj*);
 obj* l_eio_has__eval___boxed(obj*, obj*);
@@ -150,6 +153,7 @@ obj* l_id_monad___lambda__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_string_has__lift(obj*);
 obj* l_io_fs_handle_get__line(obj*, obj*);
 obj* l_id_monad___lambda__3___boxed(obj*, obj*, obj*, obj*);
+obj* l___private_init_io_1__put__str___at_io_println_x_27___spec__3(obj*, obj*);
 obj* l_io_prim_iterate__eio___at_io_fs_handle_read__to__end___spec__3(obj*, obj*, obj*);
 obj* l_io_prim_iterate__aux___main(obj*, obj*);
 obj* l_io_fs_read__file___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -671,6 +675,44 @@ lean::dec(x_2);
 return x_3;
 }
 }
+obj* _init_l_io_prim_eio__inh___rarg___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::mk_string("");
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* l_io_prim_eio__inh___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_io_prim_eio__inh___rarg___closed__1;
+x_2 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_2, 0, x_1);
+lean::cnstr_set(x_2, 1, x_0);
+return x_2;
+}
+}
+obj* l_io_prim_eio__inh(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_eio__inh___rarg), 1, 0);
+return x_1;
+}
+}
+obj* l_io_prim_eio__inh___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_io_prim_eio__inh(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
 obj* l_io_prim_put__str___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -805,7 +847,7 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* l___private_init_io_13__put__str___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l___private_init_io_1__put__str___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
@@ -822,19 +864,19 @@ x_10 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_8, x_9);
 return x_10;
 }
 }
-obj* l___private_init_io_13__put__str(obj* x_0, obj* x_1) {
+obj* l___private_init_io_1__put__str(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_io_13__put__str___rarg), 5, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_io_1__put__str___rarg), 5, 0);
 return x_2;
 }
 }
-obj* l___private_init_io_13__put__str___boxed(obj* x_0, obj* x_1) {
+obj* l___private_init_io_1__put__str___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_io_13__put__str(x_0, x_1);
+x_2 = l___private_init_io_1__put__str(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -845,7 +887,7 @@ _start:
 {
 obj* x_7; obj* x_8; 
 x_7 = lean::apply_1(x_5, x_6);
-x_8 = l___private_init_io_13__put__str___rarg(x_0, x_1, x_2, x_3, x_7);
+x_8 = l___private_init_io_1__put__str___rarg(x_0, x_1, x_2, x_3, x_7);
 return x_8;
 }
 }
@@ -899,7 +941,7 @@ lean::inc(x_1);
 lean::inc(x_0);
 x_16 = l_io_print___rarg(x_0, x_1, x_2, x_3, lean::box(0), x_5, x_6);
 x_17 = l_io_println___rarg___closed__1;
-x_18 = l___private_init_io_13__put__str___rarg(x_0, x_1, x_2, x_3, x_17);
+x_18 = l___private_init_io_1__put__str___rarg(x_0, x_1, x_2, x_3, x_17);
 x_19 = lean::apply_4(x_9, lean::box(0), lean::box(0), x_16, x_18);
 return x_19;
 }
@@ -1752,7 +1794,7 @@ lean::cnstr_set(x_7, 1, x_3);
 return x_7;
 }
 }
-obj* l___private_init_io_13__put__str___at_io_println_x_27___spec__3(obj* x_0, obj* x_1) {
+obj* l___private_init_io_1__put__str___at_io_println_x_27___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
@@ -1835,7 +1877,7 @@ obj* l_io_print___at_io_println_x_27___spec__2(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_io_13__put__str___at_io_println_x_27___spec__3(x_0, x_1);
+x_2 = l___private_init_io_1__put__str___at_io_println_x_27___spec__3(x_0, x_1);
 return x_2;
 }
 }
@@ -1843,7 +1885,7 @@ obj* l_io_println___at_io_println_x_27___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l___private_init_io_13__put__str___at_io_println_x_27___spec__3(x_0, x_1);
+x_2 = l___private_init_io_1__put__str___at_io_println_x_27___spec__3(x_0, x_1);
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 if (lean::obj_tag(x_3) == 0)
@@ -1889,7 +1931,7 @@ x_14 = lean::cnstr_get(x_2, 1);
 lean::inc(x_14);
 lean::dec(x_2);
 x_17 = l_io_println___rarg___closed__1;
-x_18 = l___private_init_io_13__put__str___at_io_println_x_27___spec__3(x_17, x_14);
+x_18 = l___private_init_io_1__put__str___at_io_println_x_27___spec__3(x_17, x_14);
 return x_18;
 }
 }
@@ -1919,11 +1961,11 @@ lean::cnstr_set(x_7, 1, x_3);
 return x_7;
 }
 }
-obj* l___private_init_io_13__put__str___at_io_println_x_27___spec__3___boxed(obj* x_0, obj* x_1) {
+obj* l___private_init_io_1__put__str___at_io_println_x_27___spec__3___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_io_13__put__str___at_io_println_x_27___spec__3(x_0, x_1);
+x_2 = l___private_init_io_1__put__str___at_io_println_x_27___spec__3(x_0, x_1);
 lean::dec(x_0);
 return x_2;
 }
@@ -2172,6 +2214,8 @@ lean::mark_persistent(l_io_monad);
 lean::mark_persistent(l_io_error_has__to__string);
  l_io_error_inhabited = _init_l_io_error_inhabited();
 lean::mark_persistent(l_io_error_inhabited);
+ l_io_prim_eio__inh___rarg___closed__1 = _init_l_io_prim_eio__inh___rarg___closed__1();
+lean::mark_persistent(l_io_prim_eio__inh___rarg___closed__1);
  l_io_println___rarg___closed__1 = _init_l_io_println___rarg___closed__1();
 lean::mark_persistent(l_io_println___rarg___closed__1);
  l_eio_has__eval___rarg___closed__1 = _init_l_eio_has__eval___rarg___closed__1();

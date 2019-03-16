@@ -9,9 +9,9 @@
 
 (defconst lean4-keywords1
   '("import" "prelude" "protected" "private" "noncomputable" "definition" "unsafe" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "constant" "constants"
+    "hiding" "exposing" "parameter" "parameters" "begin" "constant"
     "lemma" "variable" "variables" "theorem" "example" "abbreviation" "abbrev"
-    "open" "export" "axiom" "axioms" "inductive" "coinductive" "with" "without"
+    "open" "export" "axiom" "inductive" "coinductive" "with" "without"
     "structure" "universe" "universes" "hide"
     "precedence" "reserve" "declare_trace" "add_key_equivalence"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
@@ -142,7 +142,7 @@
       (1 'font-lock-function-name-face))
      ;; declarations
      (,(rx word-start
-           (group (or "inductive" (group "class" (zero-or-more whitespace) "inductive") "instance" "structure" "class" "theorem" "axiom" "axioms" "lemma" "definition" "def" "constant"))
+           (group (or "inductive" (group "class" (zero-or-more whitespace) "inductive") "instance" "structure" "class" "theorem" "axiom" "lemma" "definition" "def" "constant"))
            word-end (zero-or-more whitespace)
            (group (zero-or-more "{" (zero-or-more (not (any "}"))) "}" (zero-or-more whitespace)))
            (zero-or-more whitespace)

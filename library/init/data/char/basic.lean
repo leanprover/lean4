@@ -42,8 +42,10 @@ uint32.dec_lt _ _
 instance dec_le (a b : char) : decidable (a ≤ b) :=
 uint32.dec_le _ _
 
+axiom is_valid_char_0 : is_valid_char 0
+
 @[noinline, pattern] def of_nat (n : nat) : char :=
-if h : is_valid_char (uint32.of_nat n) then {val := uint32.of_nat n, valid := h} else {val := 0, valid := sorry}
+if h : is_valid_char (uint32.of_nat n) then {val := uint32.of_nat n, valid := h} else {val := 0, valid := is_valid_char_0}
 
 @[inline] def to_nat (c : char) : nat :=
 c.val.to_nat

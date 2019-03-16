@@ -8,19 +8,20 @@ import init.control.state init.control.except init.data.string.basic init.fix
 
 /-- Like https://hackage.haskell.org/package/ghc-prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `io` operations. -/
-constant io.real_world : Type
+constant io.real_world : Type := unit
+
 -- TODO: make opaque
 @[irreducible, derive monad]
 def io : Type → Type := state io.real_world
 
 @[extern "lean_io_unsafe"]
-constant unsafe_io {α : Type} [inhabited α] (fn : io α) : α
+constant unsafe_io {α : Type} [inhabited α] (fn : io α) : α := default α
 
 @[extern 4 "lean_io_timeit"]
-constant timeit {α : Type} (msg : @& string) (fn : io α) : io α
+constant timeit {α : Type} (msg : @& string) (fn : io α) : io α := fn
 
 @[extern 4 "lean_io_allocprof"]
-constant allocprof {α : Type} (msg : @& string) (fn : io α) : io α
+constant allocprof {α : Type} (msg : @& string) (fn : io α) : io α := fn
 
 abbrev monad_io (m : Type → Type) := has_monad_lift_t io m
 
@@ -56,7 +57,7 @@ end
 
 inductive fs.mode
 | read | write | read_write | append
-constant fs.handle : Type
+constant fs.handle : Type := unit
 
 namespace prim
 open fs
@@ -85,23 +86,30 @@ iterate a $ λ r, do
   | except.ok (sum.inr r) := pure (sum.inr (except.ok r))
   | except.error e        := pure (sum.inr (except.error e))
 
+
+section
+local attribute [reducible] io
+def eio_inh {α : Type} : eio α :=
+λ s, (except.error (default io.error), s)
+end
+
 @[extern 2 "lean_io_prim_put_str"]
-constant put_str (s: @& string) : eio unit
+constant put_str (s: @& string) : eio unit := eio_inh
 @[extern 1 "lean_io_prim_get_line"]
-constant get_line : eio string
+constant get_line : eio string := eio_inh
 @[extern 4 "lean_io_prim_handle_mk"]
-constant handle.mk (s : @& string) (m : mode) (bin : bool := ff) : eio handle
+constant handle.mk (s : @& string) (m : mode) (bin : bool := ff) : eio handle := eio_inh
 @[extern 2 "lean_io_prim_handle_is_eof"]
-constant handle.is_eof (h : @& handle) : eio bool
+constant handle.is_eof (h : @& handle) : eio bool := eio_inh
 @[extern 2 "lean_io_prim_handle_flush"]
-constant handle.flush (h : @& handle) : eio unit
+constant handle.flush (h : @& handle) : eio unit := eio_inh
 @[extern 2 "lean_io_prim_handle_close"]
-constant handle.close (h : @& handle) : eio unit
+constant handle.close (h : @& handle) : eio unit := eio_inh
 -- TODO: replace `string` with byte buffer
 -- constant handle.read : handle → nat → eio string
 -- constant handle.write : handle → string → eio unit
 @[extern 2 "lean_io_prim_handle_get_line"]
-constant handle.get_line (h : @& handle) : eio string
+constant handle.get_line (h : @& handle) : eio string := eio_inh
 
 @[inline] def lift_eio {m : Type → Type} {ε α : Type} [monad_io m] [monad_except ε m] [has_lift_t io.error ε] [monad m]
   (x : eio α) : m α :=

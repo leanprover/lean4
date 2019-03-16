@@ -337,7 +337,7 @@ inductive nat
 /- Auxiliary axiom used to implement `sorry`.
    TODO: add this theorem on-demand. That is,
    we should only add it if after the first error. -/
-constant sorry_ax (α : Sort u) (synthetic := tt) : α
+unsafe axiom sorry_ax (α : Sort u) (synthetic := tt) : α
 
 /- Declare builtin and reserved notation -/
 
@@ -1724,7 +1724,7 @@ end setoid
 
 /- Propositional extensionality -/
 
-constant propext {a b : Prop} : (a ↔ b) → a = b
+axiom propext {a b : Prop} : (a ↔ b) → a = b
 
 /- Additional congruence theorems. -/
 
@@ -1766,7 +1766,7 @@ theorem iff_subst {a b : Prop} {p : Prop → Prop} (h₁ : a ↔ b) (h₂ : p a)
 eq.subst (propext h₁) h₂
 
 namespace quot
-constant sound : Π {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → quot.mk r a = quot.mk r b
+axiom sound : Π {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → quot.mk r a = quot.mk r b
 
 attribute [elab_as_eliminator] lift ind
 

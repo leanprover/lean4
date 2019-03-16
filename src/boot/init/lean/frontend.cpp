@@ -14,7 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l___private_init_io_13__put__str___at_lean_process__file___spec__3___boxed(obj*, obj*);
+obj* l___private_init_io_1__put__str___at_lean_process__file___spec__3(obj*, obj*);
 obj* l_io_prim_iterate__aux___rarg(obj*, obj*, obj*, obj*);
 obj* l_list_mmap_x_27___main___at_lean_run__frontend___spec__2(obj*, obj*, obj*);
 obj* l_lean_run__frontend___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -56,7 +56,6 @@ obj* l_lean_parser_tokens___rarg(obj*);
 extern obj* l_lean_parser_module_eoi;
 obj* l_io_println___at_lean_process__file___spec__1___boxed(obj*, obj*);
 extern obj* l_lean_format_be___main___closed__1;
-obj* l___private_init_io_13__put__str___at_lean_process__file___spec__3(obj*, obj*);
 obj* l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__2;
 obj* l_io_print___at_lean_process__file___spec__2___boxed(obj*, obj*);
@@ -70,6 +69,7 @@ obj* l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__2___boxed(obj
 obj* l_lean_message_to__string(obj*);
 obj* l_lean_process__file___lambda__1___closed__7;
 obj* l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__3;
+obj* l___private_init_io_1__put__str___at_lean_process__file___spec__3___boxed(obj*, obj*);
 obj* l_lean_file__map_from__string(obj*);
 extern obj* l_lean_parser_module_header_parser_lean_parser_has__tokens;
 obj* l_lean_process__file___boxed(obj*, obj*, obj*, obj*);
@@ -1766,7 +1766,7 @@ x_6 = l_lean_run__frontend(x_0, x_1, x_2, x_5, x_4);
 return x_6;
 }
 }
-obj* l___private_init_io_13__put__str___at_lean_process__file___spec__3(obj* x_0, obj* x_1) {
+obj* l___private_init_io_1__put__str___at_lean_process__file___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
@@ -1849,7 +1849,7 @@ obj* l_io_print___at_lean_process__file___spec__2(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_io_13__put__str___at_lean_process__file___spec__3(x_0, x_1);
+x_2 = l___private_init_io_1__put__str___at_lean_process__file___spec__3(x_0, x_1);
 return x_2;
 }
 }
@@ -1857,7 +1857,7 @@ obj* l_io_println___at_lean_process__file___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l___private_init_io_13__put__str___at_lean_process__file___spec__3(x_0, x_1);
+x_2 = l___private_init_io_1__put__str___at_lean_process__file___spec__3(x_0, x_1);
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 if (lean::obj_tag(x_3) == 0)
@@ -1903,7 +1903,7 @@ x_14 = lean::cnstr_get(x_2, 1);
 lean::inc(x_14);
 lean::dec(x_2);
 x_17 = l_lean_format_be___main___closed__1;
-x_18 = l___private_init_io_13__put__str___at_lean_process__file___spec__3(x_17, x_14);
+x_18 = l___private_init_io_1__put__str___at_lean_process__file___spec__3(x_17, x_14);
 return x_18;
 }
 }
@@ -2243,11 +2243,11 @@ return x_58;
 }
 }
 }
-obj* l___private_init_io_13__put__str___at_lean_process__file___spec__3___boxed(obj* x_0, obj* x_1) {
+obj* l___private_init_io_1__put__str___at_lean_process__file___spec__3___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_io_13__put__str___at_lean_process__file___spec__3(x_0, x_1);
+x_2 = l___private_init_io_1__put__str___at_lean_process__file___spec__3(x_0, x_1);
 lean::dec(x_0);
 return x_2;
 }

@@ -183,8 +183,7 @@ static environment compile_decl(parser & p, environment const & env,
 
 static pair<environment, name>
 declare_definition(environment const & env, decl_cmd_kind kind, buffer<name> const & lp_names,
-                   name const & c_name, name const & prv_name, expr type, optional<expr> val, cmd_meta const & meta,
-                   bool is_abbrev) {
+                   name const & c_name, name const & prv_name, expr type, optional<expr> val, cmd_meta const & meta) {
     name c_real_name;
     environment new_env = env;
     if (has_private_prefix(new_env, prv_name)) {
@@ -201,12 +200,17 @@ declare_definition(environment const & env, decl_cmd_kind kind, buffer<name> con
         std::tie(new_env, type) = abstract_nested_proofs(new_env, c_real_name, type);
         std::tie(new_env, *val) = abstract_nested_proofs(new_env, c_real_name, *val);
     }
-    bool is_meta      = meta.m_modifiers.m_is_unsafe;
-    auto def          =
-        (kind == decl_cmd_kind::Theorem ?
-         mk_theorem(c_real_name, names(lp_names), type, *val) :
-         (is_abbrev ? mk_definition(c_real_name, names(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_meta) :
-          mk_definition(new_env, c_real_name, names(lp_names), type, *val, is_meta)));
+    bool is_unsafe      = meta.m_modifiers.m_is_unsafe;
+    declaration def;
+    switch (kind) {
+    case decl_cmd_kind::Theorem:      def = mk_theorem(c_real_name, names(lp_names), type, *val); break;
+    case decl_cmd_kind::Abbreviation: def = mk_definition(c_real_name, names(lp_names), type, *val, reducibility_hints::mk_abbreviation(), is_unsafe); break;
+    case decl_cmd_kind::OpaqueConst:  def = mk_opaque(c_real_name, names(lp_names), type, *val); break;
+    case decl_cmd_kind::Instance:
+    case decl_cmd_kind::Definition:   def = mk_definition(new_env, c_real_name, names(lp_names), type, *val, is_unsafe); break;
+    default:
+        throw exception("unknown command declaration");
+    }
     new_env           = module::add(new_env, def);
 
     if (meta.m_modifiers.m_is_protected)
@@ -254,9 +258,8 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
         environment env = elab.env();
         name c_name = local_name_p(fns[i]);
         name c_real_name;
-        bool is_abbrev = false;
         std::tie(env, c_real_name) = declare_definition(env, kind, lp_names, c_name, prv_names[i],
-                                                        curr_type, some_expr(curr), meta, is_abbrev);
+                                                        curr_type, some_expr(curr), meta);
         env = add_local_ref(p, env, c_name, c_real_name, lp_names, params);
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
@@ -300,7 +303,7 @@ static environment mutual_definition_cmd_core(parser & p, decl_cmd_kind kind, cm
      Note that mlocal_pp_name_p(fn) and actual_name are different for scoped/private declarations.
 */
 static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & lp_names, buffer<expr> & params,
-                                                     bool is_example, bool is_instance, bool is_meta, bool is_abbrev) {
+                                                     bool is_example, bool is_instance, bool is_unsafe, bool is_abbrev) {
     parser::local_scope scope1(p);
     auto header_pos = p.pos();
     time_task _("parsing", p.mk_message(header_pos, INFORMATION));
@@ -309,7 +312,7 @@ static std::tuple<expr, expr, name> parse_definition(parser & p, buffer<name> & 
     expr val;
     if (p.curr_is_token(get_assign_tk())) {
         p.next();
-        if (is_meta) {
+        if (is_unsafe) {
             declaration_name_scope scope2("_main");
             fn = mk_local(local_name_p(fn), local_pp_name_p(fn), local_type_p(fn), mk_rec_info());
             p.add_local(fn);
@@ -472,9 +475,9 @@ static void check_example(environment const & decl_env, options const & opts,
         buffer<name> univ_params_buf; to_buffer(univ_params, univ_params_buf);
         finalize_definition(elab, params_buf, type, val, univ_params_buf);
 
-        bool is_meta      = modifiers.m_is_unsafe;
+        bool is_unsafe      = modifiers.m_is_unsafe;
         auto new_env = elab.env();
-        declaration def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_meta);
+        declaration def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_unsafe);
         new_env = module::add(new_env, def);
     } catch (throwable & ex) {
         message_builder error_msg(tc, decl_env, get_global_ios(),
@@ -534,7 +537,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
             opt_val = elaborate_proof(decl_env, opts, header_pos, new_params_list,
                                       new_fn, val, thm_finfo, is_rfl, type,
                                       mctx, lctx, pos_provider, use_info_manager, file_name);
-            env_n = declare_definition(elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, meta, is_abbrev);
+            env_n = declare_definition(elab.env(), kind, lp_names, c_name, prv_name, type, opt_val, meta);
         } else if (kind == decl_cmd_kind::Example) {
             auto env = p.env();
             auto opts = p.get_options();
@@ -559,7 +562,7 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
                 val = get_equations_result(val, 0);
             }
             finalize_definition(elab, new_params, type, val, lp_names);
-            env_n = declare_definition(elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), meta, is_abbrev);
+            env_n = declare_definition(elab.env(), kind, lp_names, c_name, prv_name, type, some_expr(val), meta);
         }
         time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), c_name);
         environment new_env = env_n.first;

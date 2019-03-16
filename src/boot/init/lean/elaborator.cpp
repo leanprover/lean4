@@ -312,7 +312,6 @@ obj* l_reader__t_bind___at_lean_elaborator_declaration_elaborate___spec__1___rar
 obj* l_lean_elaborator_mk__notation__kind(obj*, obj*);
 obj* l_rbnode_ins___main___at_lean_elaborator_ordered__rbmap_insert___spec__4(obj*, obj*, obj*);
 extern "C" obj* level_mk_imax(obj*, obj*);
-obj* l_lean_environment_mk__empty___boxed(obj*);
 obj* l_lean_elaborator_ordered__rbmap_empty___at_lean_elaborator_old__elab__command___spec__15___boxed(obj*);
 obj* l_rbnode_ins___main___at_lean_elaborator_old__elab__command___spec__13___boxed(obj*, obj*, obj*, obj*);
 obj* l_lean_elaborator_attribute_elaborate___closed__2;
@@ -752,14 +751,6 @@ obj* l_lean_elaborator_init__quot_elaborate___closed__1;
 obj* l_lean_elaborator_postprocess__notation__spec___closed__1;
 obj* l_lean_elaborator_mk__state___closed__1;
 extern obj* l_lean_parser_command_set__option_has__view;
-obj* l_lean_environment_mk__empty___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean_environment_mk_empty(x_0);
-return x_1;
-}
-}
 obj* l_lean_environment_contains___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -22636,7 +22627,7 @@ x_0 = lean::box(0);
 x_1 = lean::box(0);
 x_2 = lean::mk_string("command");
 x_3 = lean_name_mk_string(x_1, x_2);
-x_4 = lean::mk_string("constant");
+x_4 = lean::mk_string("axiom");
 x_5 = lean_name_mk_string(x_1, x_4);
 x_6 = l_lean_kvmap_set__name(x_0, x_3, x_5);
 return x_6;
@@ -22731,7 +22722,7 @@ lean::dec(x_17);
 x_34 = lean::cnstr_get(x_11, 0);
 lean::inc(x_34);
 lean::dec(x_11);
-x_37 = lean::mk_nat_obj(5u);
+x_37 = lean::mk_nat_obj(6u);
 x_38 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_elaborator_elab__def__like___boxed), 7, 4);
 lean::closure_set(x_38, 0, x_0);
 lean::closure_set(x_38, 1, x_34);
@@ -22779,7 +22770,7 @@ lean::cnstr_set(x_65, 1, x_46);
 lean::cnstr_set(x_65, 2, x_50);
 lean::cnstr_set(x_65, 3, x_60);
 lean::cnstr_set(x_65, 4, x_61);
-x_66 = lean::mk_nat_obj(3u);
+x_66 = lean::mk_nat_obj(4u);
 x_67 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_elaborator_elab__def__like___boxed), 7, 4);
 lean::closure_set(x_67, 0, x_0);
 lean::closure_set(x_67, 1, x_43);
@@ -22821,7 +22812,7 @@ lean::cnstr_set(x_90, 1, x_75);
 lean::cnstr_set(x_90, 2, x_89);
 lean::cnstr_set(x_90, 3, x_84);
 lean::cnstr_set(x_90, 4, x_85);
-x_91 = lean::mk_nat_obj(2u);
+x_91 = lean::mk_nat_obj(3u);
 x_92 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_elaborator_elab__def__like___boxed), 7, 4);
 lean::closure_set(x_92, 0, x_0);
 lean::closure_set(x_92, 1, x_72);

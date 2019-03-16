@@ -90,7 +90,6 @@ static environment declare_var(parser & p, environment env,
         p.add_variable(n, l);
         return env;
     } else {
-        lean_assert(k == variable_kind::Constant || k == variable_kind::Axiom);
         name const & ns = get_namespace(env);
         name full_n  = ns + n;
 
@@ -114,10 +113,6 @@ static environment declare_var(parser & p, environment env,
         env = ensure_decl_namespaces(env, full_n);
         /* Apply attributes last so that they may access any information on the new decl */
         env = meta.m_attrs.apply(env, p.ios(), full_n);
-        if (k == variable_kind::Constant) {
-            /* We need to invoke the compiler and generate boxed version if needed. */
-            env = compile(env, p.get_options(), names(full_n));
-        }
         return env;
     }
 }
@@ -137,8 +132,8 @@ optional<binder_info> parse_binder_info(parser & p, variable_kind k) {
 
 static void check_variable_kind(parser & p, variable_kind k) {
     if (in_section(p.env())) {
-        if (k == variable_kind::Axiom || k == variable_kind::Constant)
-            throw parser_error("invalid declaration, 'constant/axiom' cannot be used in sections",
+        if (k == variable_kind::Axiom)
+            throw parser_error("invalid declaration, 'axiom' cannot be used in sections",
                                p.pos());
     }
 }
@@ -157,7 +152,7 @@ static bool curr_is_binder_annotation(parser & p) {
            p.curr_is_token(get_ldcurly_tk()) || p.curr_is_token(get_lbracket_tk());
 }
 
-/* Auxiliary class to setup naming scopes for a variable/constant/axiom command.
+/* Auxiliary class to setup naming scopes for a variable/axiom command.
 
    We need the private_name_scope because the type may contain match-expressions.
    These match expressions produce private definitions, and we need to make sure
@@ -250,8 +245,8 @@ static environment variable_cmd_core(parser & p, variable_kind k, cmd_meta const
         var_decl_scope var_scope(p, meta.m_modifiers);
         /* non instance implicit cases */
         if (p.curr_is_token(get_lcurly_tk()) && (k == variable_kind::Variable))
-            throw parser_error("invalid declaration, only constants/axioms can be universe polymorphic", p.pos());
-        if (k == variable_kind::Constant || k == variable_kind::Axiom)
+            throw parser_error("invalid declaration, only axioms can be universe polymorphic", p.pos());
+        if (k == variable_kind::Axiom)
             scope1.emplace(p);
         parse_univ_params(p, ls_buffer);
         n = p.check_decl_id_next("invalid declaration, identifier expected");
@@ -285,9 +280,6 @@ static environment variable_cmd(parser & p, cmd_meta const & meta) {
 static environment axiom_cmd(parser & p, cmd_meta const & meta)    {
     return variable_cmd_core(p, variable_kind::Axiom, meta);
 }
-static environment constant_cmd(parser & p, cmd_meta const & meta)    {
-    return variable_cmd_core(p, variable_kind::Constant, meta);
-}
 
 /*
 Remark: we currently do not support declarations such as:
@@ -303,7 +295,7 @@ instead.
 */
 static void ensure_no_match_in_variables_cmd(pos_info const & pos) {
     if (used_match_idx()) {
-        throw parser_error("match-expressions are not supported in `variables/constants` commands", pos);
+        throw parser_error("match-expressions are not supported in `variables` commands", pos);
     }
 }
 
@@ -376,10 +368,10 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
                 else
                     return p.env();
             } else {
-                throw parser_error("invalid variables/constants/axioms declaration, ':' expected", pos);
+                throw parser_error("invalid variables declaration, ':' expected", pos);
             }
         }
-        if (k == variable_kind::Constant || k == variable_kind::Axiom)
+        if (k == variable_kind::Axiom)
             scope1.emplace(p);
         type = p.parse_expr();
         ensure_no_match_in_variables_cmd(pos);
@@ -401,33 +393,21 @@ static environment variables_cmd_core(parser & p, variable_kind k, cmd_meta cons
         env = declare_var(p, env, id, new_ls, new_type, k, bi, pos, meta);
     }
     if (curr_is_binder_annotation(p)) {
-        if (k == variable_kind::Constant || k == variable_kind::Axiom) {
-            // Hack: temporarily update the parser environment.
-            // We must do that to be able to process
-            //    constants (A : Type) (a : A)
-            parser::local_scope scope2(p, env);
-            return variables_cmd_core(p, k, meta);
-        } else {
-            return variables_cmd_core(p, k, meta);
-        }
+        return variables_cmd_core(p, k, meta);
     }
     return env;
 }
 static environment variables_cmd(parser & p, cmd_meta const & meta) {
     return variables_cmd_core(p, variable_kind::Variable, meta);
 }
-static environment constants_cmd(parser & p, cmd_meta const & meta) {
-    return variables_cmd_core(p, variable_kind::Constant, meta);
-}
-static environment axioms_cmd(parser & p, cmd_meta const & meta) {
-    return variables_cmd_core(p, variable_kind::Axiom, meta);
-}
-
 static environment definition_cmd(parser & p, cmd_meta const & meta) {
     return definition_cmd_core(p, decl_cmd_kind::Definition, meta);
 }
 static environment theorem_cmd(parser & p, cmd_meta const & meta) {
     return definition_cmd_core(p, decl_cmd_kind::Theorem, meta);
+}
+static environment constant_cmd(parser & p, cmd_meta const & meta) {
+    return definition_cmd_core(p, decl_cmd_kind::OpaqueConst, meta);
 }
 static environment abbreviation_cmd(parser & p, cmd_meta const & meta) {
     return definition_cmd_core(p, decl_cmd_kind::Abbreviation, meta);
@@ -559,10 +539,8 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("universes",       "declare universe levels", universes_cmd));
     add_cmd(r, cmd_info("variable",        "declare a new variable", variable_cmd));
     add_cmd(r, cmd_info("constant",        "declare a new constant (aka top-level variable)", constant_cmd));
-    add_cmd(r, cmd_info("axiom",           "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("variables",       "declare new variables", variables_cmd));
-    add_cmd(r, cmd_info("constants",       "declare new constants (aka top-level variables)", constants_cmd));
-    add_cmd(r, cmd_info("axioms",          "declare new axioms", axioms_cmd));
+    add_cmd(r, cmd_info("axiom",           "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("unsafe",          "add new unsafe declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("mutual",          "add new mutual declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", modifiers_cmd, false));

@@ -372,15 +372,15 @@ def let.transform : transformer :=
       equations := [{item := {lhs := [llp], rhs := v.body}}]}
 
 -- move parameters into type
-def constant.transform : transformer :=
+def axiom.transform : transformer :=
 λ stx, do
-  let v := view «constant» stx,
+  let v := view «axiom» stx,
   match v with
   | {sig := {params := bracketed_binders.view.extended bindrs, type := type}, ..} := do
     let bindrs := binders.view.extended {
       leading_ids := [],
       remainder := binders_remainder.view.mixed $ bindrs.map mixed_binder.view.bracketed},
-    pure $ review «constant» {v with sig := {
+    pure $ review «axiom» {v with sig := {
       params := bracketed_binders.view.simple [],
       type := {type := review pi {op := syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}
   | _ := no_expansion
@@ -482,7 +482,7 @@ def builtin_transformers : rbmap name transformer (<) := rbmap.from_list [
   (assume.name, assume.transform),
   (if.name, if.transform),
   (let.name, let.transform),
-  (constant.name, constant.transform),
+  (axiom.name, axiom.transform),
   (declaration.name, declaration.transform),
   (intro_rule.name, intro_rule.transform),
   (variable.name, variable.transform),

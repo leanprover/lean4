@@ -10,7 +10,7 @@ namespace lean
 
 /-- Print and accumulate run time of `act` when option `profiler` is set to `true`. -/
 @[extern 5 "lean_lean_profileit"]
-constant profileit {α : Type} (category : @& string) (pos : @& position) (act : io α) : io α
+constant profileit {α : Type} (category : @& string) (pos : @& position) (act : io α) : io α := act
 def profileit_pure {α : Type} (category : string) (pos : position) (fn : unit → α) : io α :=
 profileit category pos $ io.lazy_pure fn
 

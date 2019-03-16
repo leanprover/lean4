@@ -101,10 +101,9 @@ void init_token_table(token_table & t) {
          {"node_longest_choice!", g_max_prec}, {nullptr, 0}};
 
     char const * commands[] =
-        {"theorem", "axiom", "axioms", "variable", "protected", "private", "hide",
+        {"theorem", "axiom", "variable", "protected", "private", "hide",
          "definition", "unsafe", "mutual", "example", "noncomputable", "abbreviation", "abbrev",
-         "variables", "constant", "constants",
-         "using_well_founded", "[whnf]",
+         "variables", "constant", "using_well_founded", "[whnf]",
          "end", "namespace", "section", "prelude",
          "import", "inductive", "coinductive", "structure", "class", "universe", "universes", "local",
          "precedence", "reserve", "infixl", "infixr", "infix", "postfix", "prefix", "notation",

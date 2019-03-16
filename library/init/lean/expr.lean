@@ -69,15 +69,11 @@ args.foldl expr.app fn
 def mk_capp (fn : name) (args : list expr) : expr :=
 mk_app (expr.const fn []) args
 
--- Mark as opaque
 @[extern "lean_expr_hash"]
-protected def hash (n : @& expr) : usize :=
-0 -- dummy implementation
+constant hash (n : @& expr) : usize := default usize
 
--- Mark as opaque
 @[extern "lean_expr_dbg_to_string"]
-protected def dbg_to_string (e : @& expr) : string :=
-"" -- dummy implementation
+constant dbg_to_string (e : @& expr) : string := default string
 
 end expr
 

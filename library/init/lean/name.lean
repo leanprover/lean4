@@ -32,15 +32,8 @@ instance string_to_name : has_coe string name :=
 ⟨mk_simple_name⟩
 
 namespace name
-private def hash_aux : name → usize → usize
-| anonymous        r := r
-| (mk_string n s)  r := hash_aux n (mix_hash r (hash s))
-| (mk_numeral n k) r := hash_aux n (mix_hash r (hash k))
-
--- TODO: mark as opaque
 @[extern "lean_name_hash_usize"]
-protected def hash (n : @& name) : usize :=
-hash_aux n 11
+constant hash (n : @& name) : usize := default usize
 
 instance : hashable name :=
 ⟨name.hash⟩

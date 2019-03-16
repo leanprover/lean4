@@ -71,10 +71,8 @@ def level.instantiate (s : name → option level) : level → level
    | none    := l)
 | l                  := l
 
--- Mark as opaque
 @[extern "lean_level_hash"]
-protected def level.hash (n : @& level) : usize :=
-0 -- dummy implementation
+constant level.hash (n : @& level) : usize := default usize
 
 /- level to format -/
 namespace level_to_format

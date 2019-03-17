@@ -36,10 +36,10 @@ constant allocprof {α : Type} (msg : @& string) (fn : io α) : io α := default
 
 abbrev monad_io (m : Type → Type) := has_monad_lift_t io m
 
-/- The `io` primitives can also be used with [monad_except string m]
-   via this error conversion -/
-instance : has_lift io.error string :=
-⟨to_string⟩
+def io_of_except {ε α : Type} [has_to_string ε] (e : except ε α) : io α :=
+match e with
+| except.ok a    := pure a
+| except.error e := throw $ to_string e
 
 namespace io
 
@@ -61,8 +61,8 @@ def iterate_aux {α β : Type} (f : α → io (sum α β)) : (α → io β) → 
   | sum.inl a := rec a
   | sum.inr b := pure b
 
-@[specialize] def iterate {α β : Type} [inhabited β] (a : α) (f : α → io (sum α β)) : io β :=
-fix (iterate_aux f) a
+@[specialize] def iterate {α β : Type} (a : α) (f : α → io (sum α β)) : io β :=
+fix_core (λ _, throw "deep recursion") (iterate_aux f) a
 
 instance {ε α : Type} [inhabited ε] : inhabited (except ε α) :=
 ⟨except.error (default ε)⟩

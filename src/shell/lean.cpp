@@ -503,17 +503,16 @@ int main(int argc, char ** argv) {
             // message_log-passing state monad in the future.
             message_log l;
             scope_message_log scope_log(l);
-            // res : except unit (unit \x environment) \x io.real_world
+            // res : estate.result io.error io.world (prod (list syntax) environment)
             object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output),
-                                               to_lean_environment(env), box(0)) };
-            res = cnstr_get_ref(res, 0);
-            if (cnstr_tag(res.raw()) == 0) {
-                // except.error ()
+                                               to_lean_environment(env), io_mk_world()) };
+            if (io_result_is_error(res.raw())) {
+                // estate.result.error _
                 ok = false;
             } else {
-                // except.ok (env, ())
+                // estate.result.ok (prod (list syntax) environment) io.world
                 ok = true;
-                env = to_environment(cnstr_get_ref(cnstr_get_ref(res, 0), 1).raw());
+                env = to_environment(cnstr_get(io_result_get_value(res.raw()), 1));
             }
         } else {
             message_log l;

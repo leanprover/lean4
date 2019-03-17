@@ -74,8 +74,8 @@ extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_io_lazy__pure___boxed(obj*);
 obj* l_io_prim_inhabited(obj*, obj*);
 obj* l_io_println___boxed(obj*);
-obj* l_io_prim_iterate(obj*, obj*, obj*);
-obj* l_io_prim_iterate___boxed(obj*, obj*, obj*);
+obj* l_io_prim_iterate(obj*, obj*);
+obj* l_io_prim_iterate___boxed(obj*, obj*);
 obj* l_has__repr_has__eval(obj*);
 obj* l_io_println___rarg___closed__1;
 obj* l_io_print(obj*, obj*);
@@ -94,11 +94,12 @@ extern obj* l_string_inhabited;
 obj* l_has__repr_has__eval___boxed(obj*);
 extern "C" obj* lean_io_prim_get_line(obj*);
 obj* l_eio_inhabited(obj*, obj*);
-obj* l_string_has__lift___boxed(obj*);
 obj* l_io_fs_handle_get__line___rarg(obj*, obj*);
 obj* l_io_prim_iterate__aux(obj*, obj*);
 extern "C" obj* lean_io_unsafe(obj*, obj*);
+obj* l_io__of__except___boxed(obj*, obj*);
 obj* l_io_fs_read__file(obj*);
+obj* l_io__of__except___rarg(obj*, obj*, obj*);
 obj* l_io_fs_handle_flush___boxed(obj*, obj*);
 obj* l_eio_monad___boxed(obj*);
 extern "C" obj* lean_io_prim_handle_get_line(obj*, obj*);
@@ -125,9 +126,9 @@ obj* l_io_prim_iterate___at_io_fs_handle_read__to__end___spec__3___lambda__1(obj
 obj* l_io_prim_iterate___at_io_fs_handle_read__to__end___spec__3___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_io__unit_has__eval(obj*, obj*);
 obj* l_io_println___at_has__repr_has__eval___spec__1___boxed(obj*, obj*);
+obj* l_io__of__except(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_is_eof(obj*, obj*);
 obj* l_io_prim_lift__io___boxed(obj*, obj*);
-obj* l_string_has__lift(obj*);
 obj* l_io_fs_handle_get__line(obj*, obj*);
 obj* l_io_prim_iterate__aux___main(obj*, obj*);
 obj* l_io_fs_read__file___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -234,20 +235,78 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_string_has__lift(obj* x_0) {
+obj* l_io__of__except___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-lean::inc(x_0);
-return x_0;
-}
-}
-obj* l_string_has__lift___boxed(obj* x_0) {
-_start:
+if (lean::obj_tag(x_1) == 0)
 {
-obj* x_1; 
-x_1 = l_string_has__lift(x_0);
+obj* x_3; obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
+x_3 = lean::cnstr_get(x_1, 0);
+lean::inc(x_3);
+lean::dec(x_1);
+x_6 = lean::cnstr_get(x_2, 1);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_release(x_2, 0);
+ x_8 = x_2;
+} else {
+ lean::inc(x_6);
+ lean::dec(x_2);
+ x_8 = lean::box(0);
+}
+x_9 = lean::apply_1(x_0, x_3);
+if (lean::is_scalar(x_8)) {
+ x_10 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_10 = x_8;
+ lean::cnstr_set_tag(x_8, 1);
+}
+lean::cnstr_set(x_10, 0, x_9);
+lean::cnstr_set(x_10, 1, x_6);
+return x_10;
+}
+else
+{
+obj* x_12; obj* x_15; obj* x_17; obj* x_18; 
 lean::dec(x_0);
-return x_1;
+x_12 = lean::cnstr_get(x_1, 0);
+lean::inc(x_12);
+lean::dec(x_1);
+x_15 = lean::cnstr_get(x_2, 1);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_release(x_2, 0);
+ x_17 = x_2;
+} else {
+ lean::inc(x_15);
+ lean::dec(x_2);
+ x_17 = lean::box(0);
+}
+if (lean::is_scalar(x_17)) {
+ x_18 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_18 = x_17;
+}
+lean::cnstr_set(x_18, 0, x_12);
+lean::cnstr_set(x_18, 1, x_15);
+return x_18;
+}
+}
+}
+obj* l_io__of__except(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_io__of__except___rarg), 3, 0);
+return x_2;
+}
+}
+obj* l_io__of__except___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_io__of__except(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
 }
 }
 obj* l_io_lazy__pure___rarg(obj* x_0, obj* x_1) {
@@ -433,23 +492,22 @@ x_4 = lean::fixpoint2(x_3, x_0, x_2);
 return x_4;
 }
 }
-obj* l_io_prim_iterate(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_io_prim_iterate(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_iterate___rarg), 3, 0);
-return x_3;
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_io_prim_iterate___rarg), 3, 0);
+return x_2;
 }
 }
-obj* l_io_prim_iterate___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_io_prim_iterate___boxed(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; 
-x_3 = l_io_prim_iterate(x_0, x_1, x_2);
+obj* x_2; 
+x_2 = l_io_prim_iterate(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
-lean::dec(x_2);
-return x_3;
+return x_2;
 }
 }
 obj* l_io_prim_inhabited___rarg(obj* x_0) {

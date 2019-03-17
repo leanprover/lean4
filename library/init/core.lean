@@ -1395,8 +1395,7 @@ end plift
 class inhabited (α : Sort u) :=
 (default : α)
 
--- TODO: mark as opaque
-def default (α : Sort u) [inhabited α] : α :=
+constant default (α : Sort u) [inhabited α] : α :=
 inhabited.default α
 
 @[inline, irreducible] def arbitrary (α : Sort u) [inhabited α] : α :=

@@ -71,6 +71,7 @@ size_t obj_byte_size(object * o) {
     case object_kind::PArraySet:       return sizeof(parray_object);
     case object_kind::PArrayPush:      return sizeof(parray_object);
     case object_kind::PArrayPop:       return sizeof(parray_object);
+    case object_kind::Ref:             return sizeof(ref_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -90,6 +91,7 @@ size_t obj_header_size(object * o) {
     case object_kind::PArraySet:       return sizeof(parray_object);
     case object_kind::PArrayPush:      return sizeof(parray_object);
     case object_kind::PArrayPop:       return sizeof(parray_object);
+    case object_kind::Ref:             return sizeof(ref_object);
     case object_kind::External:        lean_unreachable();
     }
     lean_unreachable();
@@ -215,6 +217,10 @@ static inline void free_thunk_obj(object * o) {
     FREE_OBJ(o, sizeof(thunk_object) + sizeof(rc_type));
 }
 
+static inline void free_ref_obj(object * o) {
+    FREE_OBJ(o, sizeof(ref_object) + sizeof(rc_type));
+}
+
 static inline void free_task_obj(object * o) {
     FREE_OBJ(o, sizeof(task_object) + sizeof(rc_type));
 }
@@ -262,6 +268,10 @@ static void del_core(object * o, object * & todo) {
         if (object * c = to_thunk(o)->m_closure) dec(c, todo);
         if (object * v = to_thunk(o)->m_value) dec(v, todo);
         free_thunk_obj(o);
+        break;
+    case object_kind::Ref:
+        if (object * v = to_ref(o)->m_value) dec(v, todo);
+        free_ref_obj(o);
         break;
     case object_kind::Task:
         deactivate_task(to_task(o));
@@ -930,6 +940,9 @@ void mark_mt(object * o) {
         if (object * c = to_thunk(o)->m_closure) mark_mt(c);
         if (object * v = to_thunk(o)->m_value) mark_mt(v);
         return;
+    case object_kind::Ref:
+        if (object * v = to_ref(o)->m_value) mark_mt(v);
+        return;
     }
 }
 
@@ -1137,6 +1150,9 @@ void mark_persistent(object * o) {
     case object_kind::Thunk:
         if (object * c = to_thunk(o)->m_closure) mark_persistent(c);
         if (object * v = to_thunk(o)->m_value) mark_persistent(v);
+        return;
+    case object_kind::Ref:
+        if (object * v = to_ref(o)->m_value) mark_persistent(v);
         return;
     }
 }

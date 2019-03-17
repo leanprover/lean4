@@ -128,6 +128,16 @@ bool object_compactor::insert_thunk(object * o) {
     return true;
 }
 
+bool object_compactor::insert_ref(object * o) {
+    object * v = to_ref(o)->m_value;
+    object_offset c = to_offset(v);
+    if (c == g_null_offset)
+        return false;
+    object * r = copy_object(o);
+    to_ref(r)->m_value = c;
+    return true;
+}
+
 bool object_compactor::insert_task(object * o) {
     object * v = task_get(o);
     object_offset c = to_offset(v);
@@ -182,6 +192,7 @@ void object_compactor::operator()(object * o) {
             case object_kind::MPZ:             insert_mpz(curr); break;
             case object_kind::Thunk:           r = insert_thunk(curr); break;
             case object_kind::Task:            r = insert_task(curr); break;
+            case object_kind::Ref:             r = insert_ref(curr); break;
             case object_kind::External:        throw exception("external objects cannot be compacted");
             case object_kind::PArrayRoot:
             case object_kind::PArraySet:
@@ -254,6 +265,11 @@ inline void compacted_region::fix_thunk(object * o) {
     move(sizeof(thunk_object));
 }
 
+inline void compacted_region::fix_ref(object * o) {
+    to_ref(o)->m_value = fix_object_ptr(to_ref(o)->m_value);
+    move(sizeof(ref_object));
+}
+
 void compacted_region::fix_mpz(object * o) {
     move(sizeof(mpz_object));
     /* convert string after mpz_object into a mpz value */
@@ -296,6 +312,7 @@ object * compacted_region::read() {
             case object_kind::String:          move(string_byte_size(curr)); break;
             case object_kind::MPZ:             fix_mpz(curr); break;
             case object_kind::Thunk:           fix_thunk(curr); break;
+            case object_kind::Ref:             fix_ref(curr); break;
             case object_kind::Task:            lean_unreachable();
             case object_kind::External:        lean_unreachable();
             case object_kind::PArrayRoot:      lean_unreachable();

@@ -33,6 +33,7 @@ class object_compactor {
     bool insert_array(object * o);
     bool insert_thunk(object * o);
     bool insert_task(object * o);
+    bool insert_ref(object * o);
     void insert_mpz(object * o);
 public:
     object_compactor();
@@ -56,6 +57,7 @@ class compacted_region {
     void fix_constructor(object * o);
     void fix_array(object * o);
     void fix_thunk(object * o);
+    void fix_ref(object * o);
     void fix_mpz(object * o);
 public:
     /* Creates a compacted object region using the given region in memory.

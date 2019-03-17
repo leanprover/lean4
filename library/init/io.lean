@@ -178,6 +178,36 @@ monad_io_process.wait c
 
 end proc
 -/
+
+
+/- References -/
+constant ref (α : Type) : Type := unit
+
+namespace prim
+@[extern 3 cpp inline "lean::io_mk_ref(#2, #3)"]
+constant mk_ref {α : Type} (a : α) : io (ref α)                := default _
+@[extern 3 cpp inline "lean::io_ref_read(#2, #3)"]
+constant ref.read {α : Type} (r : @& ref α) : io α             := default _
+@[extern 4 cpp inline "lean::io_ref_write(#2, #3, #4)"]
+constant ref.write {α : Type} (r : @& ref α) (a : α) : io unit := default _
+@[extern 4 cpp inline "lean::io_ref_swap(#2, #3, #4)"]
+constant ref.swap {α : Type} (r : @& ref α) (a : α) : io α     := default _
+@[extern 3 cpp inline "lean::io_ref_reset(#2, #3)"]
+constant ref.reset {α : Type} (r : @& ref α) : io unit         := default _
+end prim
+
+section
+variables {m : Type → Type} [monad m] [monad_io m]
+@[inline] def mk_ref {α : Type} (a : α) : m (ref α) :=  prim.lift_io (prim.mk_ref a)
+@[inline] def ref.read {α : Type} (r : ref α) : m α := prim.lift_io (prim.ref.read r)
+@[inline] def ref.write {α : Type} (r : ref α) (a : α) : m unit := prim.lift_io (prim.ref.write r a)
+@[inline] def ref.swap {α : Type} (r : ref α) (a : α) : m α := prim.lift_io (prim.ref.swap r a)
+@[inline] def ref.reset {α : Type} (r : ref α) : m unit := prim.lift_io (prim.ref.reset r)
+@[inline] def ref.modify {α : Type} (r : ref α) (f : α → α) : m unit :=
+do v ← ref.read r,
+   ref.reset r,
+   ref.write r (f v)
+end
 end io
 
 /-

@@ -60,7 +60,9 @@ extern atomic<uint64> g_num_del;
 */
 enum class object_memory_kind { MTHeap = 0, STHeap, Persistent, Stack, Region };
 
-enum class object_kind { Constructor, Closure, Array, ScalarArray, PArrayRoot, PArraySet, PArrayPush, PArrayPop, String, MPZ, Thunk, Task, External };
+enum class object_kind { Constructor, Closure, Array, ScalarArray,
+                         PArrayRoot, PArraySet, PArrayPush, PArrayPop,
+                         String, MPZ, Thunk, Task, Ref, External };
 
 /* Objects are initially allocated as STHeap. When we create a task, we change it to MTHeap. */
 constexpr object_memory_kind c_init_mem_kind = object_memory_kind::STHeap;
@@ -88,9 +90,9 @@ struct object {
 
    Header size: 12 bytes in 32 bit machines and 16 bytes in 64 bit machines. */
 struct constructor_object : public object {
-    unsigned    m_tag:16;
-    unsigned    m_num_objs:16;
-    unsigned    m_scalar_size:16;
+    unsigned short m_tag;
+    unsigned short m_num_objs;
+    unsigned short m_scalar_size;
     constructor_object(unsigned tag, unsigned num_objs, unsigned scalar_sz, object_memory_kind m = c_init_mem_kind):
         object(object_kind::Constructor, m), m_tag(tag), m_num_objs(num_objs), m_scalar_size(scalar_sz) {}
 };
@@ -197,6 +199,13 @@ struct mpz_object : public object {
         object(object_kind::MPZ, m), m_value(v) {}
 };
 
+struct ref_object : public object {
+    object * m_value;
+    ref_object(object * v, object_memory_kind m = c_init_mem_kind):
+        object(object_kind::Ref, m), m_value(v) {
+    };
+};
+
 struct thunk_object : public object {
     atomic<object *> m_value;
     atomic<object *> m_closure;
@@ -284,6 +293,7 @@ inline bool is_mt_heap_obj(object * o) {
 }
 inline bool is_st_heap_obj(object * o) { return o->m_mem_kind == static_cast<unsigned>(object_memory_kind::STHeap); }
 inline bool is_heap_obj(object * o) { return is_st_heap_obj(o) || is_mt_heap_obj(o); }
+void mark_mt(object * o);
 
 inline rc_type get_rc(object * o) {
     lean_assert(!is_scalar(o));
@@ -363,6 +373,7 @@ inline bool is_mpz(object * o) { return get_kind(o) == object_kind::MPZ; }
 inline bool is_thunk(object * o) { return get_kind(o) == object_kind::Thunk; }
 inline bool is_task(object * o) { return get_kind(o) == object_kind::Task; }
 inline bool is_external(object * o) { return get_kind(o) == object_kind::External; }
+inline bool is_ref(object * o) { return get_kind(o) == object_kind::Ref; }
 
 // =======================================
 // Casting
@@ -376,6 +387,7 @@ inline string_object * to_string(object * o) { lean_assert(is_string(o)); return
 inline mpz_object * to_mpz(object * o) { lean_assert(is_mpz(o)); return static_cast<mpz_object*>(o); }
 inline thunk_object * to_thunk(object * o) { lean_assert(is_thunk(o)); return static_cast<thunk_object*>(o); }
 inline task_object * to_task(object * o) { lean_assert(is_task(o)); return static_cast<task_object*>(o); }
+inline ref_object * to_ref(object * o) { lean_assert(is_ref(o)); return static_cast<ref_object*>(o); }
 inline external_object * to_external(object * o) { lean_assert(is_external(o)); return static_cast<external_object*>(o); }
 
 /* The memory associated with all Lean objects but `mpz_object` and `external_object` can be deallocated using `free`.
@@ -1450,6 +1462,15 @@ inline bool io_result_is_error(b_obj_arg r) { return cnstr_tag(r) == 1; }
 inline b_obj_res io_result_get_value(b_obj_arg r) { lean_assert(io_result_is_ok(r)); return cnstr_get(r, 0); }
 inline b_obj_arg io_result_get_error(b_obj_arg r) { lean_assert(io_result_is_error(r)); return cnstr_get(r, 0); }
 void io_result_show_error(b_obj_arg r);
+
+// =======================================
+// IO ref primitives
+obj_res io_mk_ref(obj_arg, obj_arg);
+obj_res io_ref_read(b_obj_arg, obj_arg);
+obj_res io_ref_reset(b_obj_arg, obj_arg);
+obj_res io_ref_write(b_obj_arg, obj_arg, obj_arg);
+obj_res io_ref_swap(b_obj_arg, obj_arg, obj_arg);
+
 // =======================================
 // Module initialization/finalization
 void initialize_object();

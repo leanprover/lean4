@@ -171,7 +171,7 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     for (name const & c : cs) {
         lean_assert(!is_extern_constant(env, c));
-        if (!env.get(c).is_definition() || has_synthetic_sorry(env.get(c).get_value())) {
+        if ((!env.get(c).is_definition() && !env.get(c).is_opaque()) || has_synthetic_sorry(env.get(c).get_value())) {
             return env;
         }
     }

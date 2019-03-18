@@ -6,7 +6,7 @@ SRCS = $(shell find . -name '*.lean')
 OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
-STAGE0_DIR = ../src/boot
+STAGE0_DIR = ../src/stage0
 STAGE1_DIR = ../src/stage1
 CPPS = $(addprefix $(STAGE1_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
 # ensure deterministic ordering
@@ -43,7 +43,7 @@ $(STAGE1_DIR)/libleanstdlib.a: $(patsubst %.cpp,%.o,$(CPPS))
 update-stage0:
 	rm -r $(STAGE0_DIR)/init
 	cp -R $(STAGE1_DIR)/init $(STAGE0_DIR)/init
-	echo "add_library (boot OBJECT $(CPPS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
+	echo "add_library (stage0 OBJECT $(CPPS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
 
 .PRECIOUS: %.depend $(STAGE1_DIR)/%.cpp
 

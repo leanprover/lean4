@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "$0" )" && pwd )"
 CHECKER=$DIR/../../src/cmake/Modules/cpplint.py
 while read local_ref local_sha remote_ref remote_sha;
 do
-    CHANGED_FILES=`git diff --name-only $local_sha $remote_sha | grep '\(cpp\|h\)$' | grep -v 'src/boot/'`
+    CHANGED_FILES=`git diff --name-only $local_sha $remote_sha | grep '\(cpp\|h\)$' | grep -v 'src/stage0/'`
     if [ ! -z "$CHANGED_FILES" -a "$CHANGED_FILES" != " " ]; then
         echo $CHANGED_FILES | xargs $CHECKER
         RET=$?

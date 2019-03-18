@@ -1156,7 +1156,7 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         "  lean::dec_ref(r);\n"
         "  return ret;\n"
         "} else {\n"
-        "  lean::io_result_show_error_at_stderr(r);\n"
+        "  lean::io_result_show_error(r);\n"
         "  lean::dec_ref(r);\n"
         "  return 1;\n"
         "}\n"

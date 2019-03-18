@@ -71,9 +71,6 @@ def iterate_aux {α β : Type} (f : α → io (sum α β)) : (α → io β) → 
 @[specialize] def iterate {α β : Type} (a : α) (f : α → io (sum α β)) : io β :=
 fix_core (λ _, throw "deep recursion") (iterate_aux f) a
 
-instance {ε α : Type} [inhabited ε] : inhabited (except ε α) :=
-⟨except.error (default ε)⟩
-
 @[extern 2 "lean_io_prim_put_str"]
 constant put_str (s: @& string) : io unit := default _
 @[extern 1 "lean_io_prim_get_line"]

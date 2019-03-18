@@ -14,6 +14,9 @@ inductive except (ε : Type u) (α : Type v)
 | error {} : ε → except
 | ok {} : α → except
 
+instance {ε α : Type} [inhabited ε] : inhabited (except ε α) :=
+⟨except.error (default ε)⟩
+
 section
 variables {ε : Type u} {α : Type v}
 

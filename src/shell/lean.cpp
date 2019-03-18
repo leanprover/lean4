@@ -546,6 +546,10 @@ int main(int argc, char ** argv) {
 
         if (cpp_output && ok) {
             std::ofstream out(*cpp_output);
+            if (out.fail()) {
+                std::cerr << "failed to create '" << *cpp_output << "'\n";
+                return 1;
+            }
             auto mod = module_name_of_file(path.get_path(), mod_fn);
             emit_cpp(out, env, mod, to_list(imports.begin(), imports.end()));
         }

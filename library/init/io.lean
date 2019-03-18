@@ -10,6 +10,13 @@ import init.control.estate init.data.string.basic init.fix
     Makes sure we never reorder `io` operations. -/
 constant io.real_world : Type := unit
 
+/- TODO(Leo): mark it as an opaque definition. Reason: prevent
+   functions defined in other modules from accessing `io.real_world`.
+   We don't want action such as
+   ```
+   def get_world : io (io.real_world) := get
+   ```
+-/
 @[derive monad monad_except]
 def eio (ε : Type) : Type → Type := estate ε io.real_world
 
@@ -25,14 +32,20 @@ def io.error := string
 
 abbrev io : Type → Type := eio io.error
 
+@[derive monad monad_except]
+def init_io : Type → Type := estate io.error io.real_world
+
+instance {α : Type} : inhabited (init_io α) :=
+infer_instance_as (inhabited (estate io.error io.real_world α))
+
 @[extern "lean_io_unsafe"]
-constant unsafe_io {α : Type} (fn : io α) : option α := default (option α)
+constant unsafe_io {α : Type} (fn : io α) : option α := default _
 
 @[extern 4 "lean_io_timeit"]
-constant timeit {α : Type} (msg : @& string) (fn : io α) : io α := default (io α)
+constant timeit {α : Type} (msg : @& string) (fn : io α) : io α := default _
 
 @[extern 4 "lean_io_allocprof"]
-constant allocprof {α : Type} (msg : @& string) (fn : io α) : io α := default (io α)
+constant allocprof {α : Type} (msg : @& string) (fn : io α) : io α := default _
 
 abbrev monad_io (m : Type → Type) := has_monad_lift_t io m
 
@@ -68,22 +81,22 @@ instance {ε α : Type} [inhabited ε] : inhabited (except ε α) :=
 ⟨except.error (default ε)⟩
 
 @[extern 2 "lean_io_prim_put_str"]
-constant put_str (s: @& string) : io unit := default (io unit)
+constant put_str (s: @& string) : io unit := default _
 @[extern 1 "lean_io_prim_get_line"]
-constant get_line : io string := default (io string)
+constant get_line : io string := default _
 @[extern 4 "lean_io_prim_handle_mk"]
-constant handle.mk (s : @& string) (m : mode) (bin : bool := ff) : io handle := default (io handle)
+constant handle.mk (s : @& string) (m : mode) (bin : bool := ff) : io handle := default _
 @[extern 2 "lean_io_prim_handle_is_eof"]
-constant handle.is_eof (h : @& handle) : io bool := default (io bool)
+constant handle.is_eof (h : @& handle) : io bool := default _
 @[extern 2 "lean_io_prim_handle_flush"]
-constant handle.flush (h : @& handle) : io unit := default (io unit)
+constant handle.flush (h : @& handle) : io unit := default _
 @[extern 2 "lean_io_prim_handle_close"]
-constant handle.close (h : @& handle) : io unit := default (io unit)
+constant handle.close (h : @& handle) : io unit := default _
 -- TODO: replace `string` with byte buffer
 -- constant handle.read : handle → nat → eio string
 -- constant handle.write : handle → string → eio unit
 @[extern 2 "lean_io_prim_handle_get_line"]
-constant handle.get_line (h : @& handle) : io string := default (io string)
+constant handle.get_line (h : @& handle) : io string := default _
 
 @[inline] def lift_io {m : Type → Type} {α : Type} [monad_io m] (x : io α) : m α :=
 monad_lift x
@@ -209,6 +222,11 @@ do v ← ref.read r,
    ref.write r (f v)
 end
 end io
+
+section init_io
+@[extern 3 cpp inline "lean::io_mk_ref(#2, #3)"]
+constant mk_global_ref {α : Type} (a : α) : init_io (io.ref α) := default _
+end init_io
 
 /-
 /-- Run the external process specified by `args`.

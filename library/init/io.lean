@@ -32,12 +32,6 @@ def io.error := string
 
 abbrev io : Type → Type := eio io.error
 
-@[derive monad monad_except]
-def init_io : Type → Type := estate io.error io.real_world
-
-instance {α : Type} : inhabited (init_io α) :=
-infer_instance_as (inhabited (estate io.error io.real_world α))
-
 @[extern "lean_io_unsafe"]
 constant unsafe_io {α : Type} (fn : io α) : option α := default _
 
@@ -225,11 +219,6 @@ do v ← ref.read r,
    ref.write r (f v)
 end
 end io
-
-section init_io
-@[extern 3 cpp inline "lean::io_mk_ref(#2, #3)"]
-constant mk_global_ref {α : Type} (a : α) : init_io (io.ref α) := default _
-end init_io
 
 /-
 /-- Run the external process specified by `args`.

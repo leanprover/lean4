@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 */
 #include "runtime/sstream.h"
+#include "library/constants.h"
 #include "library/attribute_manager.h"
 #include "library/util.h"
 
@@ -40,10 +41,9 @@ optional<name> get_init_fn_name_for(environment const & env, name const & n) {
     }
 }
 
-static optional<expr> get_init_io_type_arg(expr const & t) {
+static optional<expr> get_io_type_arg(expr const & t) {
     if (!is_app(t)) return none_expr();
-    if (!is_constant(app_fn(t))) return none_expr();
-    if (const_name(app_fn(t)) != "init_io") return none_expr();
+    if (!is_constant(app_fn(t), get_io_name())) return none_expr();
     return some_expr(app_arg(t));
 }
 
@@ -59,9 +59,9 @@ void initialize_init_attribute() {
                                             if (!n_info.is_opaque()) throw exception(sstream() << "invalid [init] attribute, '" << n << "' must be a constant");
                                             expr type = n_info.get_type();
                                             expr init_fn_type = init_fn_info->get_type();
-                                            optional<expr> init_io_arg_type = get_init_io_type_arg(init_fn_type);
-                                            if (!init_io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'init_io <type>'");
-                                            if (type != *init_io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'init_io <type>' "
+                                            optional<expr> io_arg_type = get_io_type_arg(init_fn_type);
+                                            if (!io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'io <type>'");
+                                            if (type != *io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'io <type>' "
                                                                                            << "where '<type>' is the type of '" << n << "'");
                                             /* During code generation, we check whether constants tagged with the `[init]` attribute have arity 0.
                                                We cannot perform this check here because attributes are registered before code generation. */

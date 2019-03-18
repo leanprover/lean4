@@ -52,7 +52,6 @@ obj* l_io_prim_handle_mk___boxed(obj*, obj*, obj*, obj*);
 obj* l_io_fs_read__file___rarg(obj*, obj*, obj*, uint8);
 obj* l_io_ref_write___rarg(obj*, obj*, obj*, obj*);
 obj* l_io_fs_handle_mk___boxed(obj*, obj*);
-obj* l_init__io_monad__except;
 obj* l_io_fs_handle_is__eof___at_io_fs_handle_read__to__end___spec__1___boxed(obj*, obj*);
 obj* l_io_ref_swap___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_io_mk__ref___rarg___boxed(obj*, obj*, obj*);
@@ -114,12 +113,10 @@ obj* l_io_fs_read__file___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_io_println___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_estate_monad__except___closed__1;
 extern obj* l_string_inhabited;
-obj* l_init__io_monad;
 obj* l_io_ref_write___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_io_prim_ref_read___boxed(obj*, obj*, obj*);
 obj* l_has__repr_has__eval___boxed(obj*);
 extern "C" obj* lean_io_prim_get_line(obj*);
-obj* l_init__io_inhabited(obj*);
 obj* l_eio_inhabited(obj*, obj*);
 obj* l_io_fs_handle_get__line___rarg(obj*, obj*);
 obj* l_io_ref_reset___rarg___boxed(obj*, obj*, obj*);
@@ -128,7 +125,6 @@ extern "C" obj* lean_io_unsafe(obj*, obj*);
 obj* l_io__of__except___boxed(obj*, obj*);
 obj* l_io_mk__ref___boxed(obj*, obj*);
 obj* l_io_fs_read__file(obj*);
-obj* l_mk__global__ref___boxed(obj*, obj*, obj*);
 obj* l_io__of__except___rarg(obj*, obj*, obj*);
 obj* l_io_prim_mk__ref___boxed(obj*, obj*, obj*);
 obj* l_io_fs_handle_flush___boxed(obj*, obj*);
@@ -145,7 +141,6 @@ obj* l_io_mk__ref(obj*, obj*);
 obj* l_io_lazy__pure___rarg(obj*, obj*);
 obj* l_io_error_inhabited;
 obj* l_io_fs_handle_read__to__end___rarg(obj*, obj*);
-obj* l_init__io_inhabited___boxed(obj*);
 obj* l_io_prim_handle_close___boxed(obj*, obj*);
 obj* l_eio_inhabited___boxed(obj*, obj*);
 obj* l_io_ref_reset___rarg(obj*, obj*, obj*);
@@ -247,41 +242,6 @@ _start:
 obj* x_0; 
 x_0 = l_string_inhabited;
 return x_0;
-}
-}
-obj* _init_l_init__io_monad() {
-_start:
-{
-obj* x_0; 
-x_0 = l_estate_monad___closed__1;
-return x_0;
-}
-}
-obj* _init_l_init__io_monad__except() {
-_start:
-{
-obj* x_0; 
-x_0 = l_estate_monad__except___closed__1;
-return x_0;
-}
-}
-obj* l_init__io_inhabited(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; 
-x_1 = l_io_error_inhabited;
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_estate_inhabited___rarg), 2, 1);
-lean::closure_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* l_init__io_inhabited___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_init__io_inhabited(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l_unsafe__io___boxed(obj* x_0, obj* x_1) {
@@ -1635,14 +1595,6 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_mk__global__ref___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::io_mk_ref(x_1, x_2);
-return x_3;
-}
-}
 obj* l___private_init_io_1__put__str___at_has__repr_has__eval___spec__3(obj* x_0, obj* x_1) {
 _start:
 {
@@ -1862,10 +1814,6 @@ w = initialize_init_fix(w);
 lean::mark_persistent(l_io_error_has__to__string);
  l_io_error_inhabited = _init_l_io_error_inhabited();
 lean::mark_persistent(l_io_error_inhabited);
- l_init__io_monad = _init_l_init__io_monad();
-lean::mark_persistent(l_init__io_monad);
- l_init__io_monad__except = _init_l_init__io_monad__except();
-lean::mark_persistent(l_init__io_monad__except);
  l_io_println___rarg___closed__1 = _init_l_io_println___rarg___closed__1();
 lean::mark_persistent(l_io_println___rarg___closed__1);
  l_io_ref__pointed = _init_l_io_ref__pointed();

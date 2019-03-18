@@ -14,36 +14,37 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void initialize_init_data_basic();
-void initialize_init_data_nat_default();
-void initialize_init_data_char_default();
-void initialize_init_data_string_default();
-void initialize_init_data_list_default();
-void initialize_init_data_int_default();
-void initialize_init_data_array_default();
-void initialize_init_data_fin_default();
-void initialize_init_data_uint();
-void initialize_init_data_ordering_default();
-void initialize_init_data_rbtree_default();
-void initialize_init_data_rbmap_default();
-void initialize_init_data_option_basic();
-void initialize_init_data_option_instances();
+obj* initialize_init_data_basic(obj*);
+obj* initialize_init_data_nat_default(obj*);
+obj* initialize_init_data_char_default(obj*);
+obj* initialize_init_data_string_default(obj*);
+obj* initialize_init_data_list_default(obj*);
+obj* initialize_init_data_int_default(obj*);
+obj* initialize_init_data_array_default(obj*);
+obj* initialize_init_data_fin_default(obj*);
+obj* initialize_init_data_uint(obj*);
+obj* initialize_init_data_ordering_default(obj*);
+obj* initialize_init_data_rbtree_default(obj*);
+obj* initialize_init_data_rbmap_default(obj*);
+obj* initialize_init_data_option_basic(obj*);
+obj* initialize_init_data_option_instances(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_default() {
- if (_G_initialized) return;
+obj* initialize_init_data_default(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_basic();
- initialize_init_data_nat_default();
- initialize_init_data_char_default();
- initialize_init_data_string_default();
- initialize_init_data_list_default();
- initialize_init_data_int_default();
- initialize_init_data_array_default();
- initialize_init_data_fin_default();
- initialize_init_data_uint();
- initialize_init_data_ordering_default();
- initialize_init_data_rbtree_default();
- initialize_init_data_rbmap_default();
- initialize_init_data_option_basic();
- initialize_init_data_option_instances();
+w = initialize_init_data_basic(w);
+w = initialize_init_data_nat_default(w);
+w = initialize_init_data_char_default(w);
+w = initialize_init_data_string_default(w);
+w = initialize_init_data_list_default(w);
+w = initialize_init_data_int_default(w);
+w = initialize_init_data_array_default(w);
+w = initialize_init_data_fin_default(w);
+w = initialize_init_data_uint(w);
+w = initialize_init_data_ordering_default(w);
+w = initialize_init_data_rbtree_default(w);
+w = initialize_init_data_rbmap_default(w);
+w = initialize_init_data_option_basic(w);
+w = initialize_init_data_option_instances(w);
+return w;
 }

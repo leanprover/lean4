@@ -1270,14 +1270,14 @@ lean::closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-void initialize_init_lean_name();
-void initialize_init_data_option_basic();
+obj* initialize_init_lean_name(obj*);
+obj* initialize_init_data_option_basic(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_level() {
- if (_G_initialized) return;
+obj* initialize_init_lean_level(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_name();
- initialize_init_data_option_basic();
+w = initialize_init_lean_name(w);
+w = initialize_init_data_option_basic(w);
  l_lean_level__is__inhabited = _init_l_lean_level__is__inhabited();
 lean::mark_persistent(l_lean_level__is__inhabited);
  l_lean_level_one = _init_l_lean_level_one();
@@ -1296,4 +1296,5 @@ lean::mark_persistent(l_lean_level__to__format_level_to__result___main___closed_
 lean::mark_persistent(l_lean_level__to__format_level__has__to__format);
  l_lean_level__to__format_level__has__to__string = _init_l_lean_level__to__format_level__has__to__string();
 lean::mark_persistent(l_lean_level__to__format_level__has__to__string);
+return w;
 }

@@ -1498,14 +1498,15 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_data_rbmap_default();
-void initialize_init_lean_format();
+obj* initialize_init_data_rbmap_default(obj*);
+obj* initialize_init_lean_format(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_trie() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_trie(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_rbmap_default();
- initialize_init_lean_format();
+w = initialize_init_data_rbmap_default(w);
+w = initialize_init_lean_format(w);
  l_lean_parser_trie_mk___closed__1 = _init_l_lean_parser_trie_mk___closed__1();
 lean::mark_persistent(l_lean_parser_trie_mk___closed__1);
+return w;
 }

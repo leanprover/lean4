@@ -1576,18 +1576,19 @@ lean::dec(x_3);
 return x_4;
 }
 }
-void initialize_init_data_array_basic();
-void initialize_init_data_list_basic();
-void initialize_init_data_option_basic();
-void initialize_init_data_hashable();
+obj* initialize_init_data_array_basic(obj*);
+obj* initialize_init_data_list_basic(obj*);
+obj* initialize_init_data_option_basic(obj*);
+obj* initialize_init_data_hashable(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_hashmap_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_hashmap_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_array_basic();
- initialize_init_data_list_basic();
- initialize_init_data_option_basic();
- initialize_init_data_hashable();
+w = initialize_init_data_array_basic(w);
+w = initialize_init_data_list_basic(w);
+w = initialize_init_data_option_basic(w);
+w = initialize_init_data_hashable(w);
  l_mk__hashmap__imp___rarg___closed__1 = _init_l_mk__hashmap__imp___rarg___closed__1();
 lean::mark_persistent(l_mk__hashmap__imp___rarg___closed__1);
+return w;
 }

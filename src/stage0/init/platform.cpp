@@ -23,12 +23,13 @@ x_0 = lean::mk_nat_obj(64u);
 return x_0;
 }
 }
-void initialize_init_core();
+obj* initialize_init_core(obj*);
 static bool _G_initialized = false;
-void initialize_init_platform() {
- if (_G_initialized) return;
+obj* initialize_init_platform(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_core();
+w = initialize_init_core(w);
  l_system_platform_nbits = _init_l_system_platform_nbits();
 lean::mark_persistent(l_system_platform_nbits);
+return w;
 }

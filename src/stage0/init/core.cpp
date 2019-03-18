@@ -182,6 +182,7 @@ obj* l_prod_map___main___rarg(obj*, obj*, obj*);
 obj* l_subtype_decidable__eq___rarg___boxed(obj*, obj*, obj*);
 obj* l_sum_sizeof___rarg(obj*, obj*, obj*);
 obj* l_task_bind___boxed(obj*, obj*, obj*, obj*);
+obj* l_pointed__type_inhabited;
 obj* l_psum_sizeof(obj*, obj*);
 obj* l_sigma_sizeof___main___at_sigma_has__sizeof___spec__2___boxed(obj*, obj*);
 obj* l_option_sizeof___main___boxed(obj*);
@@ -3990,6 +3991,14 @@ x_0 = lean::mk_nat_obj(0u);
 return x_0;
 }
 }
+obj* _init_l_pointed__type_inhabited() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::box(0);
+return x_0;
+}
+}
 obj* l_subtype_inhabited___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -5304,8 +5313,8 @@ return x_2;
 }
 }
 static bool _G_initialized = false;
-void initialize_init_core() {
- if (_G_initialized) return;
+obj* initialize_init_core(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
  l_unit_star = _init_l_unit_star();
 lean::mark_persistent(l_unit_star);
@@ -5348,6 +5357,9 @@ lean::mark_persistent(l_bool_inhabited___boxed);
  l_true_inhabited = _init_l_true_inhabited();
  l_nat_inhabited = _init_l_nat_inhabited();
 lean::mark_persistent(l_nat_inhabited);
+ l_pointed__type_inhabited = _init_l_pointed__type_inhabited();
+lean::mark_persistent(l_pointed__type_inhabited);
  l_punit_inhabited = _init_l_punit_inhabited();
 lean::mark_persistent(l_punit_inhabited);
+return w;
 }

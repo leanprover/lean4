@@ -6636,12 +6636,12 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_parser_level__parser_ru
 return x_0;
 }
 }
-void initialize_init_lean_parser_pratt();
+obj* initialize_init_lean_parser_pratt(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_level() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_level(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_pratt();
+w = initialize_init_lean_parser_pratt(w);
  l_lean_parser_level__parser__m_monad = _init_l_lean_parser_level__parser__m_monad();
 lean::mark_persistent(l_lean_parser_level__parser__m_monad);
  l_lean_parser_level__parser__m_alternative = _init_l_lean_parser_level__parser__m_alternative();
@@ -6782,4 +6782,5 @@ lean::mark_persistent(l_lean_parser_level__parser_run_lean_parser_has__view___cl
 lean::mark_persistent(l_lean_parser_pratt__parser___at_lean_parser_level__parser_run___spec__1___closed__1);
  l_lean_parser_level__parser__coe = _init_l_lean_parser_level__parser__coe();
 lean::mark_persistent(l_lean_parser_level__parser__coe);
+return w;
 }

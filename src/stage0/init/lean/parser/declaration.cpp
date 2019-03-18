@@ -29987,12 +29987,12 @@ x_6 = l_lean_parser_combinators_node___at_lean_parser_command_doc__comment_parse
 return x_6;
 }
 }
-void initialize_init_lean_parser_term();
+obj* initialize_init_lean_parser_term(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_declaration() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_declaration(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_term();
+w = initialize_init_lean_parser_term(w);
  l_lean_parser_command_doc__comment = _init_l_lean_parser_command_doc__comment();
 lean::mark_persistent(l_lean_parser_command_doc__comment);
  l_lean_parser_command_doc__comment_has__view_x_27___lambda__1___closed__1 = _init_l_lean_parser_command_doc__comment_has__view_x_27___lambda__1___closed__1();
@@ -30535,4 +30535,5 @@ lean::mark_persistent(l_lean_parser_command_declaration_parser_lean_parser_has__
 lean::mark_persistent(l_lean_parser_command_declaration_parser_lean_parser_has__view);
  l_lean_parser_command_declaration_parser___closed__1 = _init_l_lean_parser_command_declaration_parser___closed__1();
 lean::mark_persistent(l_lean_parser_command_declaration_parser___closed__1);
+return w;
 }

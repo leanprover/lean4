@@ -10453,28 +10453,28 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_data_to__string();
-void initialize_init_data_string_basic();
-void initialize_init_data_list_basic();
-void initialize_init_control_except();
-void initialize_init_data_repr();
-void initialize_init_lean_name();
-void initialize_init_data_dlist();
-void initialize_init_control_monad__fail();
-void initialize_init_control_combinators();
+obj* initialize_init_data_to__string(obj*);
+obj* initialize_init_data_string_basic(obj*);
+obj* initialize_init_data_list_basic(obj*);
+obj* initialize_init_control_except(obj*);
+obj* initialize_init_data_repr(obj*);
+obj* initialize_init_lean_name(obj*);
+obj* initialize_init_data_dlist(obj*);
+obj* initialize_init_control_monad__fail(obj*);
+obj* initialize_init_control_combinators(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_parsec() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_parsec(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_to__string();
- initialize_init_data_string_basic();
- initialize_init_data_list_basic();
- initialize_init_control_except();
- initialize_init_data_repr();
- initialize_init_lean_name();
- initialize_init_data_dlist();
- initialize_init_control_monad__fail();
- initialize_init_control_combinators();
+w = initialize_init_data_to__string(w);
+w = initialize_init_data_string_basic(w);
+w = initialize_init_data_list_basic(w);
+w = initialize_init_control_except(w);
+w = initialize_init_data_repr(w);
+w = initialize_init_lean_name(w);
+w = initialize_init_data_dlist(w);
+w = initialize_init_control_monad__fail(w);
+w = initialize_init_control_combinators(w);
  l_lean_parser_parsec_expected_to__string___main___closed__1 = _init_l_lean_parser_parsec_expected_to__string___main___closed__1();
 lean::mark_persistent(l_lean_parser_parsec_expected_to__string___main___closed__1);
  l_lean_parser_parsec_message_text___rarg___closed__1 = _init_l_lean_parser_parsec_message_text___rarg___closed__1();
@@ -10527,4 +10527,5 @@ lean::mark_persistent(l_lean_parser_monad__parsec_sep__by1___rarg___closed__1);
 lean::mark_persistent(l_lean_parser_monad__parsec_fix__aux___main___rarg___closed__1);
  l_lean_parser_monad__parsec_longest__match___rarg___lambda__2___closed__1 = _init_l_lean_parser_monad__parsec_longest__match___rarg___lambda__2___closed__1();
 lean::mark_persistent(l_lean_parser_monad__parsec_longest__match___rarg___lambda__2___closed__1);
+return w;
 }

@@ -48957,16 +48957,16 @@ lean::dec(x_3);
 return x_8;
 }
 }
-void initialize_init_lean_parser_level();
-void initialize_init_lean_parser_notation();
-void initialize_init_lean_expr();
+obj* initialize_init_lean_parser_level(obj*);
+obj* initialize_init_lean_parser_notation(obj*);
+obj* initialize_init_lean_expr(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_term() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_term(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_level();
- initialize_init_lean_parser_notation();
- initialize_init_lean_expr();
+w = initialize_init_lean_parser_level(w);
+w = initialize_init_lean_parser_notation(w);
+w = initialize_init_lean_expr(w);
  l_lean_parser_ident__univ__spec = _init_l_lean_parser_ident__univ__spec();
 lean::mark_persistent(l_lean_parser_ident__univ__spec);
  l_lean_parser_ident__univ__spec_has__view_x_27___lambda__1___closed__1 = _init_l_lean_parser_ident__univ__spec_has__view_x_27___lambda__1___closed__1();
@@ -49983,4 +49983,5 @@ lean::mark_persistent(l___private_init_lean_parser_term_1__trailing___closed__2)
 lean::mark_persistent(l___private_init_lean_parser_term_2__leading___closed__1);
  l_lean_parser_pratt__parser___at_lean_parser_term__parser_run___spec__1___closed__1 = _init_l_lean_parser_pratt__parser___at_lean_parser_term__parser_run___spec__1___closed__1();
 lean::mark_persistent(l_lean_parser_pratt__parser___at_lean_parser_term__parser_run___spec__1___closed__1);
+return w;
 }

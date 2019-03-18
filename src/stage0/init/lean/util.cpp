@@ -68,12 +68,13 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_lean_position();
-void initialize_init_io();
+obj* initialize_init_lean_position(obj*);
+obj* initialize_init_io(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_util() {
- if (_G_initialized) return;
+obj* initialize_init_lean_util(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_position();
- initialize_init_io();
+w = initialize_init_lean_position(w);
+w = initialize_init_io(w);
+return w;
 }

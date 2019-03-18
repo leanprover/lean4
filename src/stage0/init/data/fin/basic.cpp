@@ -724,12 +724,13 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_data_nat_div();
-void initialize_init_data_nat_bitwise();
+obj* initialize_init_data_nat_div(obj*);
+obj* initialize_init_data_nat_bitwise(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_fin_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_fin_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_nat_div();
- initialize_init_data_nat_bitwise();
+w = initialize_init_data_nat_div(w);
+w = initialize_init_data_nat_bitwise(w);
+return w;
 }

@@ -33,10 +33,11 @@ x_4 = lean::dbg_sleep(x_3, x_2);
 return x_4;
 }
 }
-void initialize_init_data_string_basic();
+obj* initialize_init_data_string_basic(obj*);
 static bool _G_initialized = false;
-void initialize_init_util() {
- if (_G_initialized) return;
+obj* initialize_init_util(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_string_basic();
+w = initialize_init_data_string_basic(w);
+return w;
 }

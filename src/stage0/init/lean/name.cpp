@@ -2297,26 +2297,26 @@ lean::dec(x_1);
 return x_3;
 }
 }
-void initialize_init_data_string_basic();
-void initialize_init_coe();
-void initialize_init_data_uint();
-void initialize_init_data_to__string();
-void initialize_init_lean_format();
-void initialize_init_data_hashable();
-void initialize_init_data_rbmap_default();
-void initialize_init_data_rbtree_default();
+obj* initialize_init_data_string_basic(obj*);
+obj* initialize_init_coe(obj*);
+obj* initialize_init_data_uint(obj*);
+obj* initialize_init_data_to__string(obj*);
+obj* initialize_init_lean_format(obj*);
+obj* initialize_init_data_hashable(obj*);
+obj* initialize_init_data_rbmap_default(obj*);
+obj* initialize_init_data_rbtree_default(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_name() {
- if (_G_initialized) return;
+obj* initialize_init_lean_name(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_string_basic();
- initialize_init_coe();
- initialize_init_data_uint();
- initialize_init_data_to__string();
- initialize_init_lean_format();
- initialize_init_data_hashable();
- initialize_init_data_rbmap_default();
- initialize_init_data_rbtree_default();
+w = initialize_init_data_string_basic(w);
+w = initialize_init_coe(w);
+w = initialize_init_data_uint(w);
+w = initialize_init_data_to__string(w);
+w = initialize_init_lean_format(w);
+w = initialize_init_data_hashable(w);
+w = initialize_init_data_rbmap_default(w);
+w = initialize_init_data_rbtree_default(w);
  l_lean_inhabited = _init_l_lean_inhabited();
 lean::mark_persistent(l_lean_inhabited);
  l_lean_string__to__name = _init_l_lean_string__to__name();
@@ -2337,4 +2337,5 @@ lean::mark_persistent(l_lean_name_to__string___closed__1);
 lean::mark_persistent(l_lean_name_has__to__string);
  l_lean_mk__name__set = _init_l_lean_mk__name__set();
 lean::mark_persistent(l_lean_mk__name__set);
+return w;
 }

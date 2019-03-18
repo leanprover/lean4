@@ -14,12 +14,13 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void initialize_init_data_list_basic();
-void initialize_init_data_list_instances();
+obj* initialize_init_data_list_basic(obj*);
+obj* initialize_init_data_list_instances(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_list_default() {
- if (_G_initialized) return;
+obj* initialize_init_data_list_default(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_list_basic();
- initialize_init_data_list_instances();
+w = initialize_init_data_list_basic(w);
+w = initialize_init_data_list_instances(w);
+return w;
 }

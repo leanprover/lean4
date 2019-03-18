@@ -3501,24 +3501,24 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_lean_parser_parsec();
-void initialize_init_lean_parser_syntax();
-void initialize_init_lean_parser_rec();
-void initialize_init_lean_parser_trie();
-void initialize_init_lean_parser_identifier();
-void initialize_init_data_rbmap_default();
-void initialize_init_lean_message();
+obj* initialize_init_lean_parser_parsec(obj*);
+obj* initialize_init_lean_parser_syntax(obj*);
+obj* initialize_init_lean_parser_rec(obj*);
+obj* initialize_init_lean_parser_trie(obj*);
+obj* initialize_init_lean_parser_identifier(obj*);
+obj* initialize_init_data_rbmap_default(obj*);
+obj* initialize_init_lean_message(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_basic() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_parsec();
- initialize_init_lean_parser_syntax();
- initialize_init_lean_parser_rec();
- initialize_init_lean_parser_trie();
- initialize_init_lean_parser_identifier();
- initialize_init_data_rbmap_default();
- initialize_init_lean_message();
+w = initialize_init_lean_parser_parsec(w);
+w = initialize_init_lean_parser_syntax(w);
+w = initialize_init_lean_parser_rec(w);
+w = initialize_init_lean_parser_trie(w);
+w = initialize_init_lean_parser_identifier(w);
+w = initialize_init_data_rbmap_default(w);
+w = initialize_init_lean_message(w);
  l_lean_parser_max__prec = _init_l_lean_parser_max__prec();
 lean::mark_persistent(l_lean_parser_max__prec);
  l_lean_parser_basic__parser__m_monad = _init_l_lean_parser_basic__parser__m_monad();
@@ -3583,4 +3583,5 @@ lean::mark_persistent(l_lean_parser_trailing__term__parser__m_monad__except);
 lean::mark_persistent(l_lean_parser_trailing__term__parser__m_lean_parser_monad__rec);
  l_lean_parser_trailing__term__parser__m_lean_parser_monad__basic__parser = _init_l_lean_parser_trailing__term__parser__m_lean_parser_monad__basic__parser();
 lean::mark_persistent(l_lean_parser_trailing__term__parser__m_lean_parser_monad__basic__parser);
+return w;
 }

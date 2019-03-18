@@ -23,12 +23,13 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-void initialize_init_lean_kvmap();
+obj* initialize_init_lean_kvmap(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_options() {
- if (_G_initialized) return;
+obj* initialize_init_lean_options(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_kvmap();
+w = initialize_init_lean_kvmap(w);
  l_lean_options_mk = _init_l_lean_options_mk();
 lean::mark_persistent(l_lean_options_mk);
+return w;
 }

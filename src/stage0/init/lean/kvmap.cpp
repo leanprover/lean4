@@ -841,16 +841,17 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_kvmap_eqv___boxed), 2, 
 return x_0;
 }
 }
-void initialize_init_lean_name();
-void initialize_init_data_option_basic();
+obj* initialize_init_lean_name(obj*);
+obj* initialize_init_data_option_basic(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_kvmap() {
- if (_G_initialized) return;
+obj* initialize_init_lean_kvmap(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_name();
- initialize_init_data_option_basic();
+w = initialize_init_lean_name(w);
+w = initialize_init_data_option_basic(w);
  l_lean_data__value_has__beq = _init_l_lean_data__value_has__beq();
 lean::mark_persistent(l_lean_data__value_has__beq);
  l_lean_kvmap_has__beq = _init_l_lean_kvmap_has__beq();
 lean::mark_persistent(l_lean_kvmap_has__beq);
+return w;
 }

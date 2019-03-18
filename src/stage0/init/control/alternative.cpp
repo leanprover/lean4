@@ -358,14 +358,15 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_core();
-void initialize_init_control_applicative();
+obj* initialize_init_core(obj*);
+obj* initialize_init_control_applicative(obj*);
 static bool _G_initialized = false;
-void initialize_init_control_alternative() {
- if (_G_initialized) return;
+obj* initialize_init_control_alternative(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_core();
- initialize_init_control_applicative();
+w = initialize_init_core(w);
+w = initialize_init_control_applicative(w);
  l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
 lean::mark_persistent(l_optional___rarg___closed__1);
+return w;
 }

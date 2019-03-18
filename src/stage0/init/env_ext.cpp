@@ -15,7 +15,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 static bool _G_initialized = false;
-void initialize_init_env__ext() {
- if (_G_initialized) return;
+obj* initialize_init_env__ext(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
+return w;
 }

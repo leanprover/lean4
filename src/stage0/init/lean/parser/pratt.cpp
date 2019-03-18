@@ -951,16 +951,17 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_lean_parser_token();
+obj* initialize_init_lean_parser_token(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_pratt() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_pratt(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_token();
+w = initialize_init_lean_parser_token(w);
  l_lean_parser_curr__lbp___rarg___lambda__1___closed__1 = _init_l_lean_parser_curr__lbp___rarg___lambda__1___closed__1();
 lean::mark_persistent(l_lean_parser_curr__lbp___rarg___lambda__1___closed__1);
  l_lean_parser_curr__lbp___rarg___lambda__3___closed__1 = _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__1();
 lean::mark_persistent(l_lean_parser_curr__lbp___rarg___lambda__3___closed__1);
  l_lean_parser_curr__lbp___rarg___lambda__3___closed__2 = _init_l_lean_parser_curr__lbp___rarg___lambda__3___closed__2();
 lean::mark_persistent(l_lean_parser_curr__lbp___rarg___lambda__3___closed__2);
+return w;
 }

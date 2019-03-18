@@ -4250,16 +4250,16 @@ x_2 = l___private_init_lean_compiler_ir_9__fnbody_collect___main(x_0, x_1, x_1);
 return x_2;
 }
 }
-void initialize_init_default();
-void initialize_init_lean_name();
-void initialize_init_lean_kvmap();
+obj* initialize_init_default(obj*);
+obj* initialize_init_lean_name(obj*);
+obj* initialize_init_lean_kvmap(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_compiler_ir() {
- if (_G_initialized) return;
+obj* initialize_init_lean_compiler_ir(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_default();
- initialize_init_lean_name();
- initialize_init_lean_kvmap();
+w = initialize_init_default(w);
+w = initialize_init_lean_name(w);
+w = initialize_init_lean_kvmap(w);
  l_lean_ir_type_has__beq = _init_l_lean_ir_type_has__beq();
 lean::mark_persistent(l_lean_ir_type_has__beq);
  l_lean_ir_litval_has__beq = _init_l_lean_ir_litval_has__beq();
@@ -4276,4 +4276,5 @@ lean::mark_persistent(l_lean_ir_args_has__aeqv);
 lean::mark_persistent(l_lean_ir_expr_has__aeqv);
  l_lean_ir_fnbody_has__beq = _init_l_lean_ir_fnbody_has__beq();
 lean::mark_persistent(l_lean_ir_fnbody_has__beq);
+return w;
 }

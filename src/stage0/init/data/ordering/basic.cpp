@@ -397,16 +397,17 @@ x_5 = lean::box(x_4);
 return x_5;
 }
 }
-void initialize_init_data_repr();
+obj* initialize_init_data_repr(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_ordering_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_ordering_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_repr();
+w = initialize_init_data_repr(w);
  l_ordering_has__repr___closed__1 = _init_l_ordering_has__repr___closed__1();
 lean::mark_persistent(l_ordering_has__repr___closed__1);
  l_ordering_has__repr___closed__2 = _init_l_ordering_has__repr___closed__2();
 lean::mark_persistent(l_ordering_has__repr___closed__2);
  l_ordering_has__repr___closed__3 = _init_l_ordering_has__repr___closed__3();
 lean::mark_persistent(l_ordering_has__repr___closed__3);
+return w;
 }

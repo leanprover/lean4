@@ -3987,14 +3987,14 @@ lean::dec(x_6);
 return x_7;
 }
 }
-void initialize_init_lean_parser_basic();
-void initialize_init_data_list_instances();
+obj* initialize_init_lean_parser_basic(obj*);
+obj* initialize_init_data_list_instances(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_combinators() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_combinators(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_basic();
- initialize_init_data_list_instances();
+w = initialize_init_lean_parser_basic(w);
+w = initialize_init_data_list_instances(w);
  l___private_init_lean_parser_combinators_1__many1__aux___main___rarg___closed__1 = _init_l___private_init_lean_parser_combinators_1__many1__aux___main___rarg___closed__1();
 lean::mark_persistent(l___private_init_lean_parser_combinators_1__many1__aux___main___rarg___closed__1);
  l_lean_parser_combinators_many___rarg___closed__1 = _init_l_lean_parser_combinators_many___rarg___closed__1();
@@ -4003,4 +4003,5 @@ lean::mark_persistent(l_lean_parser_combinators_many___rarg___closed__1);
 lean::mark_persistent(l_lean_parser_combinators_any__of___rarg___closed__1);
  l_lean_parser_combinators_choice__aux___main___rarg___closed__1 = _init_l_lean_parser_combinators_choice__aux___main___rarg___closed__1();
 lean::mark_persistent(l_lean_parser_combinators_choice__aux___main___rarg___closed__1);
+return w;
 }

@@ -163,16 +163,17 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_mod___boxed), 2, 0);
 return x_0;
 }
 }
-void initialize_init_wf();
-void initialize_init_data_nat_basic();
+obj* initialize_init_wf(obj*);
+obj* initialize_init_data_nat_basic(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_nat_div() {
- if (_G_initialized) return;
+obj* initialize_init_data_nat_div(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_wf();
- initialize_init_data_nat_basic();
+w = initialize_init_wf(w);
+w = initialize_init_data_nat_basic(w);
  l_nat_has__div = _init_l_nat_has__div();
 lean::mark_persistent(l_nat_has__div);
  l_nat_has__mod = _init_l_nat_has__mod();
 lean::mark_persistent(l_nat_has__mod);
+return w;
 }

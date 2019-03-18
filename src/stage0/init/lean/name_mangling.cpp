@@ -3263,14 +3263,14 @@ return x_10;
 }
 }
 }
-void initialize_init_lean_name();
-void initialize_init_lean_parser_string__literal();
+obj* initialize_init_lean_name(obj*);
+obj* initialize_init_lean_parser_string__literal(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_name__mangling() {
- if (_G_initialized) return;
+obj* initialize_init_lean_name__mangling(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_name();
- initialize_init_lean_parser_string__literal();
+w = initialize_init_lean_name(w);
+w = initialize_init_lean_parser_string__literal(w);
  l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1 = _init_l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1();
 lean::mark_persistent(l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1);
  l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__2 = _init_l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__2();
@@ -3295,4 +3295,5 @@ lean::mark_persistent(l___private_init_lean_name__mangling_4__name_mangle__aux__
 lean::mark_persistent(l___private_init_lean_name__mangling_4__name_mangle__aux___main___closed__2);
  l___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___closed__1 = _init_l___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___closed__1();
 lean::mark_persistent(l___private_init_lean_name__mangling_5__parse__mangled__name__aux___main___closed__1);
+return w;
 }

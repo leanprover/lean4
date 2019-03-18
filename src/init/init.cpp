@@ -20,8 +20,8 @@ Author: Leonardo de Moura
 #include "frontends/lean/init_module.h"
 #include "init/init.h"
 
-void initialize_init_default();
-void initialize_init_lean_default();
+lean::object* initialize_init_default(lean::object* w);
+lean::object* initialize_init_lean_default(lean::object* w);
 
 namespace lean {
 void initialize() {
@@ -39,8 +39,15 @@ void initialize() {
     initialize_equations_compiler_module();
     initialize_frontend_lean_module();
     initialize_vm_module();
-    initialize_init_default();
-    initialize_init_lean_default();
+    object * w = initialize_init_default(io_mk_world());
+    w = initialize_init_lean_default(w);
+    if (io_result_is_error(w)) {
+        io_result_show_error(w);
+        dec(w);
+        throw exception("initialization failed");
+    } else {
+        dec(w);
+    }
 }
 
 void finalize() {

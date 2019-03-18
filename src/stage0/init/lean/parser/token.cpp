@@ -26881,14 +26881,14 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_lean_parser_combinators();
-void initialize_init_lean_parser_string__literal();
+obj* initialize_init_lean_parser_combinators(obj*);
+obj* initialize_init_lean_parser_string__literal(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_token() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_token(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_combinators();
- initialize_init_lean_parser_string__literal();
+w = initialize_init_lean_parser_combinators(w);
+w = initialize_init_lean_parser_string__literal(w);
  l_lean_parser_match__token___closed__1 = _init_l_lean_parser_match__token___closed__1();
 lean::mark_persistent(l_lean_parser_match__token___closed__1);
  l___private_init_lean_parser_token_1__finish__comment__block__aux___main___closed__1 = _init_l___private_init_lean_parser_token_1__finish__comment__block__aux___main___closed__1();
@@ -27073,4 +27073,5 @@ lean::mark_persistent(l_lean_parser_raw__ident_parser___rarg___closed__1);
 lean::mark_persistent(l_lean_parser_indexed___rarg___lambda__1___closed__1);
  l_lean_parser_indexed___rarg___closed__1 = _init_l_lean_parser_indexed___rarg___closed__1();
 lean::mark_persistent(l_lean_parser_indexed___rarg___closed__1);
+return w;
 }

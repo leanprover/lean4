@@ -441,14 +441,15 @@ lean::dec(x_3);
 return x_4;
 }
 }
-void initialize_init_lean_parser_parsec();
-void initialize_init_fix();
+obj* initialize_init_lean_parser_parsec(obj*);
+obj* initialize_init_fix(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_rec() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_rec(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_parsec();
- initialize_init_fix();
+w = initialize_init_lean_parser_parsec(w);
+w = initialize_init_fix(w);
  l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1 = _init_l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1();
 lean::mark_persistent(l_lean_parser_rec__t_run__parsec___rarg___lambda__1___closed__1);
+return w;
 }

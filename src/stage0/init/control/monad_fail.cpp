@@ -94,14 +94,15 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_control_lift();
-void initialize_init_data_string_basic();
+obj* initialize_init_control_lift(obj*);
+obj* initialize_init_data_string_basic(obj*);
 static bool _G_initialized = false;
-void initialize_init_control_monad__fail() {
- if (_G_initialized) return;
+obj* initialize_init_control_monad__fail(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_control_lift();
- initialize_init_data_string_basic();
+w = initialize_init_control_lift(w);
+w = initialize_init_data_string_basic(w);
  l_match__failed___rarg___closed__1 = _init_l_match__failed___rarg___closed__1();
 lean::mark_persistent(l_match__failed___rarg___closed__1);
+return w;
 }

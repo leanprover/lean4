@@ -353,12 +353,13 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_data_list_basic();
-void initialize_init_function();
+obj* initialize_init_data_list_basic(obj*);
+obj* initialize_init_function(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_dlist() {
- if (_G_initialized) return;
+obj* initialize_init_data_dlist(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_list_basic();
- initialize_init_function();
+w = initialize_init_data_list_basic(w);
+w = initialize_init_function(w);
+return w;
 }

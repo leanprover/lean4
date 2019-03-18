@@ -1423,24 +1423,25 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_data_nat_basic();
-void initialize_init_data_fin_basic();
-void initialize_init_data_uint();
-void initialize_init_data_repr();
-void initialize_init_function();
-void initialize_init_data_to__string();
+obj* initialize_init_data_nat_basic(obj*);
+obj* initialize_init_data_fin_basic(obj*);
+obj* initialize_init_data_uint(obj*);
+obj* initialize_init_data_repr(obj*);
+obj* initialize_init_function(obj*);
+obj* initialize_init_data_to__string(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_array_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_array_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_nat_basic();
- initialize_init_data_fin_basic();
- initialize_init_data_uint();
- initialize_init_data_repr();
- initialize_init_function();
- initialize_init_data_to__string();
+w = initialize_init_data_nat_basic(w);
+w = initialize_init_data_fin_basic(w);
+w = initialize_init_data_uint(w);
+w = initialize_init_data_repr(w);
+w = initialize_init_function(w);
+w = initialize_init_data_to__string(w);
  l_array_nil___closed__1 = _init_l_array_nil___closed__1();
 lean::mark_persistent(l_array_nil___closed__1);
  l_array_has__repr___rarg___closed__1 = _init_l_array_has__repr___rarg___closed__1();
 lean::mark_persistent(l_array_has__repr___rarg___closed__1);
+return w;
 }

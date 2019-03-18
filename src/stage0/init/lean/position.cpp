@@ -797,16 +797,16 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_data_nat_default();
-void initialize_init_data_rbmap_default();
-void initialize_init_lean_format();
+obj* initialize_init_data_nat_default(obj*);
+obj* initialize_init_data_rbmap_default(obj*);
+obj* initialize_init_lean_format(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_position() {
- if (_G_initialized) return;
+obj* initialize_init_lean_position(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_nat_default();
- initialize_init_data_rbmap_default();
- initialize_init_lean_format();
+w = initialize_init_data_nat_default(w);
+w = initialize_init_data_rbmap_default(w);
+w = initialize_init_lean_format(w);
  l_lean_position_has__lt = _init_l_lean_position_has__lt();
 lean::mark_persistent(l_lean_position_has__lt);
  l_lean_position_decidable__lt___main___closed__1 = _init_l_lean_position_decidable__lt___main___closed__1();
@@ -821,4 +821,5 @@ lean::mark_persistent(l_lean_position_lean_has__to__format___closed__2);
 lean::mark_persistent(l_lean_position_lean_has__to__format___closed__3);
  l_lean_position_inhabited = _init_l_lean_position_inhabited();
 lean::mark_persistent(l_lean_position_inhabited);
+return w;
 }

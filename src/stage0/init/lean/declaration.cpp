@@ -223,10 +223,11 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_lean_expr();
+obj* initialize_init_lean_expr(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_declaration() {
- if (_G_initialized) return;
+obj* initialize_init_lean_declaration(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_expr();
+w = initialize_init_lean_expr(w);
+return w;
 }

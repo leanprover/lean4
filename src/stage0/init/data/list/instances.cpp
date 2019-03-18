@@ -839,18 +839,19 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_data_list_basic();
-void initialize_init_control_alternative();
-void initialize_init_control_monad();
+obj* initialize_init_data_list_basic(obj*);
+obj* initialize_init_control_alternative(obj*);
+obj* initialize_init_control_monad(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_list_instances() {
- if (_G_initialized) return;
+obj* initialize_init_data_list_instances(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_list_basic();
- initialize_init_control_alternative();
- initialize_init_control_monad();
+w = initialize_init_data_list_basic(w);
+w = initialize_init_control_alternative(w);
+w = initialize_init_control_monad(w);
  l_list_monad = _init_l_list_monad();
 lean::mark_persistent(l_list_monad);
  l_list_alternative = _init_l_list_alternative();
 lean::mark_persistent(l_list_alternative);
+return w;
 }

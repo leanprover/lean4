@@ -372,10 +372,11 @@ lean::dec(x_2);
 return x_3;
 }
 }
-void initialize_init_core();
+obj* initialize_init_core(obj*);
 static bool _G_initialized = false;
-void initialize_init_function() {
- if (_G_initialized) return;
+obj* initialize_init_function(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_core();
+w = initialize_init_core(w);
+return w;
 }

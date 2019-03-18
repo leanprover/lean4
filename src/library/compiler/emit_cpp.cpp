@@ -1063,14 +1063,14 @@ static void emit_fns(std::ostream & out, environment const & env) {
 
 static void emit_initialize(std::ostream & out, environment const & env, module_name const & m, list<module_name> const & deps) {
     for (module_name const & d : deps) {
-        out << "void initialize_" << mangle(d, false) << "();\n";
+        out << "obj* initialize_" << mangle(d, false) << "(obj*);\n";
     }
     out << "static bool _G_initialized = false;\n";
-    out << "void initialize_" << mangle(m, false) << "() {\n";
-    out << " if (_G_initialized) return;\n";
+    out << "obj* initialize_" << mangle(m, false) << "(obj* w) {\n";
+    out << " if (_G_initialized) return w;\n";
     out << " _G_initialized = true;\n";
     for (module_name const & d : deps) {
-        out << " initialize_" << mangle(d, false) << "();\n";
+        out << "w = initialize_" << mangle(d, false) << "(w);\n";
     }
     comp_decls ds = get_llnf_code(env);
     for (comp_decl const & d : ds) {
@@ -1084,6 +1084,7 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
             }
         }
     }
+    out << "return w;\n";
     out << "}\n";
 }
 
@@ -1134,7 +1135,8 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         out << "lean::initialize();\n";
     else
         out << "lean::initialize_runtime_module();\n";
-    out << "initialize_" << mangle(m, false) << "();\n";
+    out << "obj * w = lean::io_mk_world();\n";
+    out << "w = initialize_" << mangle(m, false) << "(w);\n";
     out << "lean::scoped_task_manager tmanager(lean::hardware_concurrency());\n";
     if (arity == 2) {
         out << "obj* in = lean::box(0);\n";
@@ -1143,9 +1145,9 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         out << " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);\n";
         out << " in = n;\n";
         out << "}\n";
-        out << "obj * r = " << g_lean_main << "(in, lean::io_mk_world());\n";
+        out << "obj * r = " << g_lean_main << "(in, w);\n";
     } else {
-        out << "obj * r = " << g_lean_main << "(lean::io_mk_world());\n";
+        out << "obj * r = " << g_lean_main << "(w);\n";
     }
     out <<
         "if (io_result_is_ok(r)) {\n"
@@ -1153,7 +1155,7 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         "  lean::dec_ref(r);\n"
         "  return ret;\n"
         "} else {\n"
-        "  lean::io_result_show_error(r);\n"
+        "  lean::io_result_show_error_at_stderr(r);\n"
         "  lean::dec_ref(r);\n"
         "  return 1;\n"
         "}\n"

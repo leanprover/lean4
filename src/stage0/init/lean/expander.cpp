@@ -12012,14 +12012,14 @@ return x_15;
 }
 }
 }
-void initialize_init_lean_parser_module();
-void initialize_init_lean_expr();
+obj* initialize_init_lean_parser_module(obj*);
+obj* initialize_init_lean_expr(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_expander() {
- if (_G_initialized) return;
+obj* initialize_init_lean_expander(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_module();
- initialize_init_lean_expr();
+w = initialize_init_lean_parser_module(w);
+w = initialize_init_lean_expr(w);
  l_lean_expander_transform__m_monad = _init_l_lean_expander_transform__m_monad();
 lean::mark_persistent(l_lean_expander_transform__m_monad);
  l_lean_expander_transform__m_monad__reader = _init_l_lean_expander_transform__m_monad__reader();
@@ -12170,4 +12170,5 @@ lean::mark_persistent(l_lean_expander_builtin__transformers);
 lean::mark_persistent(l_lean_expander_expander__state_new);
  l___private_init_lean_expander_2__expand__core___main___closed__1 = _init_l___private_init_lean_expander_2__expand__core___main___closed__1();
 lean::mark_persistent(l___private_init_lean_expander_2__expand__core___main___closed__1);
+return w;
 }

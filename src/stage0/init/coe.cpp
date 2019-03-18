@@ -945,12 +945,13 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_data_list_basic();
+obj* initialize_init_data_list_basic(obj*);
 static bool _G_initialized = false;
-void initialize_init_coe() {
- if (_G_initialized) return;
+obj* initialize_init_coe(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_list_basic();
+w = initialize_init_data_list_basic(w);
  l_coe__bool__to__Prop = _init_l_coe__bool__to__Prop();
  l_coe__sort__bool = _init_l_coe__sort__bool();
+return w;
 }

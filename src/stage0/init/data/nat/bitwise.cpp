@@ -347,18 +347,19 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_data_nat_basic();
-void initialize_init_data_nat_div();
-void initialize_init_coe();
+obj* initialize_init_data_nat_basic(obj*);
+obj* initialize_init_data_nat_div(obj*);
+obj* initialize_init_coe(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_nat_bitwise() {
- if (_G_initialized) return;
+obj* initialize_init_data_nat_bitwise(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_nat_basic();
- initialize_init_data_nat_div();
- initialize_init_coe();
+w = initialize_init_data_nat_basic(w);
+w = initialize_init_data_nat_div(w);
+w = initialize_init_coe(w);
  l_nat_land___closed__1 = _init_l_nat_land___closed__1();
 lean::mark_persistent(l_nat_land___closed__1);
  l_nat_lor___closed__1 = _init_l_nat_lor___closed__1();
 lean::mark_persistent(l_nat_lor___closed__1);
+return w;
 }

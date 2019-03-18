@@ -14,30 +14,31 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void initialize_init_control_applicative();
-void initialize_init_control_functor();
-void initialize_init_control_alternative();
-void initialize_init_control_monad();
-void initialize_init_control_lift();
-void initialize_init_control_state();
-void initialize_init_control_id();
-void initialize_init_control_except();
-void initialize_init_control_reader();
-void initialize_init_control_option();
-void initialize_init_control_combinators();
+obj* initialize_init_control_applicative(obj*);
+obj* initialize_init_control_functor(obj*);
+obj* initialize_init_control_alternative(obj*);
+obj* initialize_init_control_monad(obj*);
+obj* initialize_init_control_lift(obj*);
+obj* initialize_init_control_state(obj*);
+obj* initialize_init_control_id(obj*);
+obj* initialize_init_control_except(obj*);
+obj* initialize_init_control_reader(obj*);
+obj* initialize_init_control_option(obj*);
+obj* initialize_init_control_combinators(obj*);
 static bool _G_initialized = false;
-void initialize_init_control_default() {
- if (_G_initialized) return;
+obj* initialize_init_control_default(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_control_applicative();
- initialize_init_control_functor();
- initialize_init_control_alternative();
- initialize_init_control_monad();
- initialize_init_control_lift();
- initialize_init_control_state();
- initialize_init_control_id();
- initialize_init_control_except();
- initialize_init_control_reader();
- initialize_init_control_option();
- initialize_init_control_combinators();
+w = initialize_init_control_applicative(w);
+w = initialize_init_control_functor(w);
+w = initialize_init_control_alternative(w);
+w = initialize_init_control_monad(w);
+w = initialize_init_control_lift(w);
+w = initialize_init_control_state(w);
+w = initialize_init_control_id(w);
+w = initialize_init_control_except(w);
+w = initialize_init_control_reader(w);
+w = initialize_init_control_option(w);
+w = initialize_init_control_combinators(w);
+return w;
 }

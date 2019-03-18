@@ -14,14 +14,15 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void initialize_init_lean_compiler_default();
-void initialize_init_lean_frontend();
-void initialize_init_lean_extern();
+obj* initialize_init_lean_compiler_default(obj*);
+obj* initialize_init_lean_frontend(obj*);
+obj* initialize_init_lean_extern(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_default() {
- if (_G_initialized) return;
+obj* initialize_init_lean_default(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_compiler_default();
- initialize_init_lean_frontend();
- initialize_init_lean_extern();
+w = initialize_init_lean_compiler_default(w);
+w = initialize_init_lean_frontend(w);
+w = initialize_init_lean_extern(w);
+return w;
 }

@@ -14,28 +14,29 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void initialize_init_core();
-void initialize_init_control_default();
-void initialize_init_data_basic();
-void initialize_init_function();
-void initialize_init_coe();
-void initialize_init_wf();
-void initialize_init_data_default();
-void initialize_init_io();
-void initialize_init_util();
-void initialize_init_fix();
+obj* initialize_init_core(obj*);
+obj* initialize_init_control_default(obj*);
+obj* initialize_init_data_basic(obj*);
+obj* initialize_init_function(obj*);
+obj* initialize_init_coe(obj*);
+obj* initialize_init_wf(obj*);
+obj* initialize_init_data_default(obj*);
+obj* initialize_init_io(obj*);
+obj* initialize_init_util(obj*);
+obj* initialize_init_fix(obj*);
 static bool _G_initialized = false;
-void initialize_init_default() {
- if (_G_initialized) return;
+obj* initialize_init_default(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_core();
- initialize_init_control_default();
- initialize_init_data_basic();
- initialize_init_function();
- initialize_init_coe();
- initialize_init_wf();
- initialize_init_data_default();
- initialize_init_io();
- initialize_init_util();
- initialize_init_fix();
+w = initialize_init_core(w);
+w = initialize_init_control_default(w);
+w = initialize_init_data_basic(w);
+w = initialize_init_function(w);
+w = initialize_init_coe(w);
+w = initialize_init_wf(w);
+w = initialize_init_data_default(w);
+w = initialize_init_io(w);
+w = initialize_init_util(w);
+w = initialize_init_fix(w);
+return w;
 }

@@ -627,12 +627,12 @@ x_3 = lean::box_uint32(x_2);
 return x_3;
 }
 }
-void initialize_init_data_uint();
+obj* initialize_init_data_uint(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_char_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_char_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_uint();
+w = initialize_init_data_uint(w);
  l_char_has__lt = _init_l_char_has__lt();
 lean::mark_persistent(l_char_has__lt);
  l_char_has__le = _init_l_char_has__le();
@@ -640,4 +640,5 @@ lean::mark_persistent(l_char_has__le);
  l_char_inhabited = _init_l_char_inhabited();
  l_char_inhabited___boxed = _init_l_char_inhabited___boxed();
 lean::mark_persistent(l_char_inhabited___boxed);
+return w;
 }

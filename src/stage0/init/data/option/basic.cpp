@@ -1272,20 +1272,21 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_core();
-void initialize_init_control_monad();
-void initialize_init_control_alternative();
-void initialize_init_coe();
+obj* initialize_init_core(obj*);
+obj* initialize_init_control_monad(obj*);
+obj* initialize_init_control_alternative(obj*);
+obj* initialize_init_coe(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_option_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_option_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_core();
- initialize_init_control_monad();
- initialize_init_control_alternative();
- initialize_init_coe();
+w = initialize_init_core(w);
+w = initialize_init_control_monad(w);
+w = initialize_init_control_alternative(w);
+w = initialize_init_coe(w);
  l_option_monad = _init_l_option_monad();
 lean::mark_persistent(l_option_monad);
  l_option_alternative = _init_l_option_alternative();
 lean::mark_persistent(l_option_alternative);
+return w;
 }

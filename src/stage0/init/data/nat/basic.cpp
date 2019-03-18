@@ -387,12 +387,12 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_core();
+obj* initialize_init_core(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_nat_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_nat_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_core();
+w = initialize_init_core(w);
  l_nat_decidable__eq = _init_l_nat_decidable__eq();
 lean::mark_persistent(l_nat_decidable__eq);
  l_nat_has__le = _init_l_nat_has__le();
@@ -405,4 +405,5 @@ lean::mark_persistent(l_nat_has__sub);
 lean::mark_persistent(l_nat_has__mul);
  l_nat_has__pow = _init_l_nat_has__pow();
 lean::mark_persistent(l_nat_has__pow);
+return w;
 }

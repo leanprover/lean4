@@ -2278,16 +2278,16 @@ x_4 = lean::fold_un_op_core(x_3, x_1, x_2);
 return x_4;
 }
 }
-void initialize_init_lean_expr();
-void initialize_init_platform();
-void initialize_init_lean_compiler_util();
+obj* initialize_init_lean_expr(obj*);
+obj* initialize_init_platform(obj*);
+obj* initialize_init_lean_compiler_util(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_compiler_const__folding() {
- if (_G_initialized) return;
+obj* initialize_init_lean_compiler_const__folding(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_expr();
- initialize_init_platform();
- initialize_init_lean_compiler_util();
+w = initialize_init_lean_expr(w);
+w = initialize_init_platform(w);
+w = initialize_init_lean_compiler_util(w);
  l_lean_compiler_mk__uint__type__name___closed__1 = _init_l_lean_compiler_mk__uint__type__name___closed__1();
 lean::mark_persistent(l_lean_compiler_mk__uint__type__name___closed__1);
  l_lean_compiler_num__scalar__types = _init_l_lean_compiler_num__scalar__types();
@@ -2346,4 +2346,5 @@ lean::mark_persistent(l_lean_compiler_bin__fold__fns);
 lean::mark_persistent(l_lean_compiler_fold__char__of__nat___closed__1);
  l_lean_compiler_un__fold__fns = _init_l_lean_compiler_un__fold__fns();
 lean::mark_persistent(l_lean_compiler_un__fold__fns);
+return w;
 }

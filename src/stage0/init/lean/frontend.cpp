@@ -2310,22 +2310,22 @@ x_6 = lean_process_file(x_0, x_1, x_5, x_3, x_4);
 return x_6;
 }
 }
-void initialize_init_default();
-void initialize_init_lean_parser_module();
-void initialize_init_lean_expander();
-void initialize_init_lean_elaborator();
-void initialize_init_lean_util();
-void initialize_init_io();
+obj* initialize_init_default(obj*);
+obj* initialize_init_lean_parser_module(obj*);
+obj* initialize_init_lean_expander(obj*);
+obj* initialize_init_lean_elaborator(obj*);
+obj* initialize_init_lean_util(obj*);
+obj* initialize_init_io(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_frontend() {
- if (_G_initialized) return;
+obj* initialize_init_lean_frontend(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_default();
- initialize_init_lean_parser_module();
- initialize_init_lean_expander();
- initialize_init_lean_elaborator();
- initialize_init_lean_util();
- initialize_init_io();
+w = initialize_init_default(w);
+w = initialize_init_lean_parser_module(w);
+w = initialize_init_lean_expander(w);
+w = initialize_init_lean_elaborator(w);
+w = initialize_init_lean_util(w);
+w = initialize_init_io(w);
  l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__1 = _init_l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__1();
 lean::mark_persistent(l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__1);
  l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__2 = _init_l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__2();
@@ -2354,4 +2354,5 @@ lean::mark_persistent(l_lean_process__file___lambda__1___closed__8);
 lean::mark_persistent(l_lean_process__file___lambda__1___closed__9);
  l_lean_process__file___closed__1 = _init_l_lean_process__file___closed__1();
 lean::mark_persistent(l_lean_process__file___closed__1);
+return w;
 }

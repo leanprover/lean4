@@ -6031,12 +6031,12 @@ x_7 = l_lean_parser_resume__module__parser___rarg(x_0, x_1, x_3, x_6);
 return x_7;
 }
 }
-void initialize_init_lean_parser_command();
+obj* initialize_init_lean_parser_command(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_module() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_module(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_command();
+w = initialize_init_lean_parser_command(w);
  l_lean_parser_module__parser__m_monad = _init_l_lean_parser_module__parser__m_monad();
 lean::mark_persistent(l_lean_parser_module__parser__m_monad);
  l_lean_parser_module__parser__m_alternative = _init_l_lean_parser_module__parser__m_alternative();
@@ -6141,4 +6141,5 @@ lean::mark_persistent(l___private_init_lean_parser_module_1__command__wrec__aux_
 lean::mark_persistent(l___private_init_lean_parser_module_1__command__wrec__aux___main___closed__2);
  l_lean_parser_parse__header___closed__1 = _init_l_lean_parser_parse__header___closed__1();
 lean::mark_persistent(l_lean_parser_parse__header___closed__1);
+return w;
 }

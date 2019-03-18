@@ -2456,14 +2456,14 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_data_char_basic();
-void initialize_init_lean_parser_parsec();
+obj* initialize_init_data_char_basic(obj*);
+obj* initialize_init_lean_parser_parsec(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_identifier() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_identifier(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_char_basic();
- initialize_init_lean_parser_parsec();
+w = initialize_init_data_char_basic(w);
+w = initialize_init_lean_parser_parsec(w);
  l_lean_id__begin__escape = _init_l_lean_id__begin__escape();
  l_lean_id__begin__escape___boxed = _init_l_lean_id__begin__escape___boxed();
 lean::mark_persistent(l_lean_id__begin__escape___boxed);
@@ -2484,4 +2484,5 @@ lean::mark_persistent(l_lean_parser_cpp__identifier___rarg___lambda__2___closed_
 lean::mark_persistent(l_lean_parser_cpp__identifier___rarg___lambda__2___closed__3);
  l_lean_parser_cpp__identifier___rarg___closed__1 = _init_l_lean_parser_cpp__identifier___rarg___closed__1();
 lean::mark_persistent(l_lean_parser_cpp__identifier___rarg___closed__1);
+return w;
 }

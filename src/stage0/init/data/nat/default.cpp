@@ -14,14 +14,15 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void initialize_init_data_nat_basic();
-void initialize_init_data_nat_div();
-void initialize_init_data_nat_bitwise();
+obj* initialize_init_data_nat_basic(obj*);
+obj* initialize_init_data_nat_div(obj*);
+obj* initialize_init_data_nat_bitwise(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_nat_default() {
- if (_G_initialized) return;
+obj* initialize_init_data_nat_default(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_nat_basic();
- initialize_init_data_nat_div();
- initialize_init_data_nat_bitwise();
+w = initialize_init_data_nat_basic(w);
+w = initialize_init_data_nat_div(w);
+w = initialize_init_data_nat_bitwise(w);
+return w;
 }

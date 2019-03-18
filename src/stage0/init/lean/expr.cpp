@@ -203,18 +203,19 @@ x_3 = l_lean_mk__bin__app(x_2, x_0, x_1);
 return x_3;
 }
 }
-void initialize_init_lean_level();
-void initialize_init_lean_kvmap();
+obj* initialize_init_lean_level(obj*);
+obj* initialize_init_lean_kvmap(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_expr() {
- if (_G_initialized) return;
+obj* initialize_init_lean_expr(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_level();
- initialize_init_lean_kvmap();
+w = initialize_init_lean_level(w);
+w = initialize_init_lean_kvmap(w);
  l_lean_expr__is__inhabited = _init_l_lean_expr__is__inhabited();
 lean::mark_persistent(l_lean_expr__is__inhabited);
  l_lean_mk__dec__is__true___closed__1 = _init_l_lean_mk__dec__is__true___closed__1();
 lean::mark_persistent(l_lean_mk__dec__is__true___closed__1);
  l_lean_mk__dec__is__false___closed__1 = _init_l_lean_mk__dec__is__false___closed__1();
 lean::mark_persistent(l_lean_mk__dec__is__false___closed__1);
+return w;
 }

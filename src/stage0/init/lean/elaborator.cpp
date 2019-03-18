@@ -33590,18 +33590,18 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_lean_parser_module();
-void initialize_init_lean_expander();
-void initialize_init_lean_expr();
-void initialize_init_lean_options();
+obj* initialize_init_lean_parser_module(obj*);
+obj* initialize_init_lean_expander(obj*);
+obj* initialize_init_lean_expr(obj*);
+obj* initialize_init_lean_options(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_elaborator() {
- if (_G_initialized) return;
+obj* initialize_init_lean_elaborator(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_module();
- initialize_init_lean_expander();
- initialize_init_lean_expr();
- initialize_init_lean_options();
+w = initialize_init_lean_parser_module(w);
+w = initialize_init_lean_expander(w);
+w = initialize_init_lean_expr(w);
+w = initialize_init_lean_options(w);
  l_lean_elaborator_ordered__rbmap_empty___closed__1 = _init_l_lean_elaborator_ordered__rbmap_empty___closed__1();
 lean::mark_persistent(l_lean_elaborator_ordered__rbmap_empty___closed__1);
  l_lean_elaborator_elaborator__m_monad = _init_l_lean_elaborator_elaborator__m_monad();
@@ -33870,4 +33870,5 @@ lean::mark_persistent(l_lean_elaborator_process__command___lambda__1___closed__1
 lean::mark_persistent(l_lean_elaborator_process__command___lambda__1___closed__2);
  l_lean_elaborator_process__command___closed__1 = _init_l_lean_elaborator_process__command___closed__1();
 lean::mark_persistent(l_lean_elaborator_process__command___closed__1);
+return w;
 }

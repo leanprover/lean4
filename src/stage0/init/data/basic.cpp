@@ -14,28 +14,29 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-void initialize_init_data_nat_basic();
-void initialize_init_data_fin_basic();
-void initialize_init_data_list_basic();
-void initialize_init_data_char_basic();
-void initialize_init_data_string_basic();
-void initialize_init_data_option_basic();
-void initialize_init_data_uint();
-void initialize_init_data_ordering_basic();
-void initialize_init_data_repr();
-void initialize_init_data_to__string();
+obj* initialize_init_data_nat_basic(obj*);
+obj* initialize_init_data_fin_basic(obj*);
+obj* initialize_init_data_list_basic(obj*);
+obj* initialize_init_data_char_basic(obj*);
+obj* initialize_init_data_string_basic(obj*);
+obj* initialize_init_data_option_basic(obj*);
+obj* initialize_init_data_uint(obj*);
+obj* initialize_init_data_ordering_basic(obj*);
+obj* initialize_init_data_repr(obj*);
+obj* initialize_init_data_to__string(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_nat_basic();
- initialize_init_data_fin_basic();
- initialize_init_data_list_basic();
- initialize_init_data_char_basic();
- initialize_init_data_string_basic();
- initialize_init_data_option_basic();
- initialize_init_data_uint();
- initialize_init_data_ordering_basic();
- initialize_init_data_repr();
- initialize_init_data_to__string();
+w = initialize_init_data_nat_basic(w);
+w = initialize_init_data_fin_basic(w);
+w = initialize_init_data_list_basic(w);
+w = initialize_init_data_char_basic(w);
+w = initialize_init_data_string_basic(w);
+w = initialize_init_data_option_basic(w);
+w = initialize_init_data_uint(w);
+w = initialize_init_data_ordering_basic(w);
+w = initialize_init_data_repr(w);
+w = initialize_init_data_to__string(w);
+return w;
 }

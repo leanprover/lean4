@@ -308,14 +308,14 @@ x_1 = l_list_reverse___rarg(x_0);
 return x_1;
 }
 }
-void initialize_init_data_to__string();
-void initialize_init_lean_position();
+obj* initialize_init_data_to__string(obj*);
+obj* initialize_init_lean_position(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_message() {
- if (_G_initialized) return;
+obj* initialize_init_lean_message(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_to__string();
- initialize_init_lean_position();
+w = initialize_init_data_to__string(w);
+w = initialize_init_lean_position(w);
  l_lean_message_to__string___closed__1 = _init_l_lean_message_to__string___closed__1();
 lean::mark_persistent(l_lean_message_to__string___closed__1);
  l_lean_message_to__string___closed__2 = _init_l_lean_message_to__string___closed__2();
@@ -332,4 +332,5 @@ lean::mark_persistent(l_lean_message_has__to__string);
 lean::mark_persistent(l_lean_message__log_empty);
  l_lean_message__log_has__append = _init_l_lean_message__log_has__append();
 lean::mark_persistent(l_lean_message__log_has__append);
+return w;
 }

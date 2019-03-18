@@ -826,16 +826,17 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_data_string_basic();
-void initialize_init_data_uint();
-void initialize_init_data_nat_div();
-void initialize_init_data_repr();
+obj* initialize_init_data_string_basic(obj*);
+obj* initialize_init_data_uint(obj*);
+obj* initialize_init_data_nat_div(obj*);
+obj* initialize_init_data_repr(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_to__string() {
- if (_G_initialized) return;
+obj* initialize_init_data_to__string(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_string_basic();
- initialize_init_data_uint();
- initialize_init_data_nat_div();
- initialize_init_data_repr();
+w = initialize_init_data_string_basic(w);
+w = initialize_init_data_uint(w);
+w = initialize_init_data_nat_div(w);
+w = initialize_init_data_repr(w);
+return w;
 }

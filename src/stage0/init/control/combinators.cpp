@@ -1506,18 +1506,19 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_control_monad();
-void initialize_init_control_alternative();
-void initialize_init_data_list_basic();
-void initialize_init_coe();
+obj* initialize_init_control_monad(obj*);
+obj* initialize_init_control_alternative(obj*);
+obj* initialize_init_data_list_basic(obj*);
+obj* initialize_init_coe(obj*);
 static bool _G_initialized = false;
-void initialize_init_control_combinators() {
- if (_G_initialized) return;
+obj* initialize_init_control_combinators(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_control_monad();
- initialize_init_control_alternative();
- initialize_init_data_list_basic();
- initialize_init_coe();
+w = initialize_init_control_monad(w);
+w = initialize_init_control_alternative(w);
+w = initialize_init_data_list_basic(w);
+w = initialize_init_coe(w);
  l_mjoin___rarg___closed__1 = _init_l_mjoin___rarg___closed__1();
 lean::mark_persistent(l_mjoin___rarg___closed__1);
+return w;
 }

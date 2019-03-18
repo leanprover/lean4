@@ -1280,18 +1280,19 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_lean_format();
-void initialize_init_data_rbmap_default();
-void initialize_init_lean_position();
-void initialize_init_lean_name();
-void initialize_init_lean_options();
+obj* initialize_init_lean_format(obj*);
+obj* initialize_init_data_rbmap_default(obj*);
+obj* initialize_init_lean_position(obj*);
+obj* initialize_init_lean_name(obj*);
+obj* initialize_init_lean_options(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_trace() {
- if (_G_initialized) return;
+obj* initialize_init_lean_trace(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_format();
- initialize_init_data_rbmap_default();
- initialize_init_lean_position();
- initialize_init_lean_name();
- initialize_init_lean_options();
+w = initialize_init_lean_format(w);
+w = initialize_init_data_rbmap_default(w);
+w = initialize_init_lean_position(w);
+w = initialize_init_lean_name(w);
+w = initialize_init_lean_options(w);
+return w;
 }

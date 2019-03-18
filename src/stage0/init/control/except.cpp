@@ -3252,18 +3252,18 @@ lean::dec(x_0);
 return x_1;
 }
 }
-void initialize_init_control_alternative();
-void initialize_init_control_lift();
-void initialize_init_data_to__string();
-void initialize_init_control_monad__fail();
+obj* initialize_init_control_alternative(obj*);
+obj* initialize_init_control_lift(obj*);
+obj* initialize_init_data_to__string(obj*);
+obj* initialize_init_control_monad__fail(obj*);
 static bool _G_initialized = false;
-void initialize_init_control_except() {
- if (_G_initialized) return;
+obj* initialize_init_control_except(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_control_alternative();
- initialize_init_control_lift();
- initialize_init_data_to__string();
- initialize_init_control_monad__fail();
+w = initialize_init_control_alternative(w);
+w = initialize_init_control_lift(w);
+w = initialize_init_data_to__string(w);
+w = initialize_init_control_monad__fail(w);
  l_except_to__string___main___rarg___closed__1 = _init_l_except_to__string___main___rarg___closed__1();
 lean::mark_persistent(l_except_to__string___main___rarg___closed__1);
  l_except_to__string___main___rarg___closed__2 = _init_l_except_to__string___main___rarg___closed__2();
@@ -3274,4 +3274,5 @@ lean::mark_persistent(l_except_monad___closed__1);
 lean::mark_persistent(l_except__t_lift___rarg___closed__1);
  l_except_monad__except___closed__1 = _init_l_except_monad__except___closed__1();
 lean::mark_persistent(l_except_monad__except___closed__1);
+return w;
 }

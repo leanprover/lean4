@@ -1606,16 +1606,16 @@ x_2 = l_char_repr(x_1);
 return x_2;
 }
 }
-void initialize_init_data_string_basic();
-void initialize_init_data_uint();
-void initialize_init_data_nat_div();
+obj* initialize_init_data_string_basic(obj*);
+obj* initialize_init_data_uint(obj*);
+obj* initialize_init_data_nat_div(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_repr() {
- if (_G_initialized) return;
+obj* initialize_init_data_repr(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_string_basic();
- initialize_init_data_uint();
- initialize_init_data_nat_div();
+w = initialize_init_data_string_basic(w);
+w = initialize_init_data_uint(w);
+w = initialize_init_data_nat_div(w);
  l_bool_has__repr___closed__1 = _init_l_bool_has__repr___closed__1();
 lean::mark_persistent(l_bool_has__repr___closed__1);
  l_bool_has__repr___closed__2 = _init_l_bool_has__repr___closed__2();
@@ -1668,4 +1668,5 @@ lean::mark_persistent(l_string_quote___closed__2);
 lean::mark_persistent(l_string_has__repr);
  l_string_iterator_has__repr___closed__1 = _init_l_string_iterator_has__repr___closed__1();
 lean::mark_persistent(l_string_iterator_has__repr___closed__1);
+return w;
 }

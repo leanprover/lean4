@@ -1088,12 +1088,12 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_lean_parser_parsec();
+obj* initialize_init_lean_parser_parsec(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_parser_string__literal() {
- if (_G_initialized) return;
+obj* initialize_init_lean_parser_string__literal(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_parser_parsec();
+w = initialize_init_lean_parser_parsec(w);
  l_lean_parser_parse__hex__digit___rarg___lambda__3___closed__1 = _init_l_lean_parser_parse__hex__digit___rarg___lambda__3___closed__1();
 lean::mark_persistent(l_lean_parser_parse__hex__digit___rarg___lambda__3___closed__1);
  l_lean_parser_parse__hex__digit___rarg___lambda__5___closed__1 = _init_l_lean_parser_parse__hex__digit___rarg___lambda__5___closed__1();
@@ -1102,4 +1102,5 @@ lean::mark_persistent(l_lean_parser_parse__hex__digit___rarg___lambda__5___close
 lean::mark_persistent(l_lean_parser_parse__hex__digit___rarg___closed__1);
  l_lean_parser_parse__quoted__char___rarg___lambda__7___closed__1 = _init_l_lean_parser_parse__quoted__char___rarg___lambda__7___closed__1();
 lean::mark_persistent(l_lean_parser_parse__quoted__char___rarg___lambda__7___closed__1);
+return w;
 }

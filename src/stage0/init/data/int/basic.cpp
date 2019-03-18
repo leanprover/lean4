@@ -649,20 +649,20 @@ lean::dec(x_1);
 return x_2;
 }
 }
-void initialize_init_data_nat_basic();
-void initialize_init_data_list_default();
-void initialize_init_coe();
-void initialize_init_data_repr();
-void initialize_init_data_to__string();
+obj* initialize_init_data_nat_basic(obj*);
+obj* initialize_init_data_list_default(obj*);
+obj* initialize_init_coe(obj*);
+obj* initialize_init_data_repr(obj*);
+obj* initialize_init_data_to__string(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_int_basic() {
- if (_G_initialized) return;
+obj* initialize_init_data_int_basic(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_nat_basic();
- initialize_init_data_list_default();
- initialize_init_coe();
- initialize_init_data_repr();
- initialize_init_data_to__string();
+w = initialize_init_data_nat_basic(w);
+w = initialize_init_data_list_default(w);
+w = initialize_init_coe(w);
+w = initialize_init_data_repr(w);
+w = initialize_init_data_to__string(w);
  l_int_zero = _init_l_int_zero();
 lean::mark_persistent(l_int_zero);
  l_int_one = _init_l_int_one();
@@ -699,4 +699,5 @@ lean::mark_persistent(l_int_sign___main___closed__1);
 lean::mark_persistent(l_int_has__div);
  l_int_has__mod = _init_l_int_has__mod();
 lean::mark_persistent(l_int_has__mod);
+return w;
 }

@@ -227,14 +227,15 @@ lean::dec(x_2);
 return x_3;
 }
 }
-void initialize_init_function();
-void initialize_init_coe();
-void initialize_init_control_monad();
+obj* initialize_init_function(obj*);
+obj* initialize_init_coe(obj*);
+obj* initialize_init_control_monad(obj*);
 static bool _G_initialized = false;
-void initialize_init_control_lift() {
- if (_G_initialized) return;
+obj* initialize_init_control_lift(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_function();
- initialize_init_coe();
- initialize_init_control_monad();
+w = initialize_init_function(w);
+w = initialize_init_coe(w);
+w = initialize_init_control_monad(w);
+return w;
 }

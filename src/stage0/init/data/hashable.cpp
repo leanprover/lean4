@@ -96,16 +96,17 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_hash___boxed), 1, 0);
 return x_0;
 }
 }
-void initialize_init_data_uint();
-void initialize_init_data_string_default();
+obj* initialize_init_data_uint(obj*);
+obj* initialize_init_data_string_default(obj*);
 static bool _G_initialized = false;
-void initialize_init_data_hashable() {
- if (_G_initialized) return;
+obj* initialize_init_data_hashable(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_uint();
- initialize_init_data_string_default();
+w = initialize_init_data_uint(w);
+w = initialize_init_data_string_default(w);
  l_string_hashable = _init_l_string_hashable();
 lean::mark_persistent(l_string_hashable);
  l_nat_hashable = _init_l_nat_hashable();
 lean::mark_persistent(l_nat_hashable);
+return w;
 }

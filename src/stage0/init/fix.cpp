@@ -1095,10 +1095,11 @@ lean::dec(x_6);
 return x_7;
 }
 }
-void initialize_init_data_uint();
+obj* initialize_init_data_uint(obj*);
 static bool _G_initialized = false;
-void initialize_init_fix() {
- if (_G_initialized) return;
+obj* initialize_init_fix(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_data_uint();
+w = initialize_init_data_uint(w);
+return w;
 }

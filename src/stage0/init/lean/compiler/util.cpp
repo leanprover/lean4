@@ -92,12 +92,12 @@ x_2 = lean_expr_mk_app(x_1, x_0);
 return x_2;
 }
 }
-void initialize_init_lean_expr();
+obj* initialize_init_lean_expr(obj*);
 static bool _G_initialized = false;
-void initialize_init_lean_compiler_util() {
- if (_G_initialized) return;
+obj* initialize_init_lean_compiler_util(obj* w) {
+ if (_G_initialized) return w;
  _G_initialized = true;
- initialize_init_lean_expr();
+w = initialize_init_lean_expr(w);
  l_lean_compiler_neutral__expr = _init_l_lean_compiler_neutral__expr();
 lean::mark_persistent(l_lean_compiler_neutral__expr);
  l_lean_compiler_unreachable__expr = _init_l_lean_compiler_unreachable__expr();
@@ -108,4 +108,5 @@ lean::mark_persistent(l_lean_compiler_object__type);
 lean::mark_persistent(l_lean_compiler_void__type);
  l_lean_compiler_mk__lc__proof___closed__1 = _init_l_lean_compiler_mk__lc__proof___closed__1();
 lean::mark_persistent(l_lean_compiler_mk__lc__proof___closed__1);
+return w;
 }

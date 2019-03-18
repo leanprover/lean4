@@ -18,9 +18,11 @@ Author: Leonardo de Moura
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/emit_cpp.h"
 #include "library/compiler/ll_infer_type.h"
+#include "library/compiler/init_attribute.h"
 
 namespace lean {
 void initialize_compiler_module() {
+    initialize_init_attribute();
     initialize_compiler_util();
     initialize_lcnf();
     initialize_elim_dead_let();
@@ -52,5 +54,6 @@ void finalize_compiler_module() {
     finalize_elim_dead_let();
     finalize_lcnf();
     finalize_compiler_util();
+    finalize_init_attribute();
 }
 }

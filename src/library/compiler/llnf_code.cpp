@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include "runtime/sstream.h"
 #include "library/module.h"
 #include "library/compiler/util.h"
+#include "library/compiler/init_attribute.h"
 
 namespace lean {
 struct llnf_code_ext : public environment_extension {
@@ -27,6 +29,14 @@ static environment update(environment const & env, llnf_code_ext const & ext) {
 
 environment save_llnf_code(environment const & env, comp_decls const & ds) {
     llnf_code_ext ext = get_extension(env);
+    /* Check whether constants with `[init]` attribute have arity 0.
+       We cannot perform this check at registration time because attributes are set before
+       code generation. */
+    for (comp_decl const & d : ds) {
+        if (has_init_attribute(env, d.fst()) && get_num_nested_lambdas(d.snd()) != 0) {
+            throw exception(sstream() << "invalid [init] attribute, '" << d.fst() << "' must not be a function");
+        }
+    }
     ext.m_code = append(ext.m_code, ds);
     return update(env, ext);
 }

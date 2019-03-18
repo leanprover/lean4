@@ -194,7 +194,10 @@ end proc
 
 
 /- References -/
-constant ref (α : Type) : Type := unit
+constant ref_pointed : pointed_type := default _
+def ref (α : Type) : Type := ref_pointed.type
+instance (α : Type) : inhabited (ref α) :=
+⟨ref_pointed.val⟩
 
 namespace prim
 @[extern 3 cpp inline "lean::io_mk_ref(#2, #3)"]

@@ -1390,6 +1390,10 @@ theorem up_down {α : Sort u} : ∀ (b : plift α), up (down b) = b
 theorem down_up {α : Sort u} (a : α) : down (up a) = a := rfl
 end plift
 
+/- pointed types -/
+structure pointed_type :=
+(type : Type u) (val : type)
+
 /- inhabited -/
 
 class inhabited (α : Sort u) :=
@@ -1415,6 +1419,8 @@ instance : inhabited bool := ⟨ff⟩
 instance : inhabited true := ⟨trivial⟩
 
 instance : inhabited nat := ⟨0⟩
+
+instance : inhabited pointed_type := ⟨{type := punit, val := ⟨⟩}⟩
 
 class inductive nonempty (α : Sort u) : Prop
 | intro (val : α) : nonempty

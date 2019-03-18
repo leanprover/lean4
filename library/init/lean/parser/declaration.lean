@@ -142,12 +142,12 @@ node! declaration [
   modifiers: decl_modifiers.parser,
   inner: node_choice! declaration.inner {
     «def_like»: node! «def_like» [
-      kind: node_choice! def_like.kind {"def", "abbreviation", "abbrev", "theorem"},
+      kind: node_choice! def_like.kind {"def", "abbreviation", "abbrev", "theorem", "constant"},
       old_univ_params: old_univ_params.parser?,
       name: ident_univ_params.parser, sig: opt_decl_sig.parser, val: decl_val.parser],
     «instance»: node! «instance» ["instance", name: ident_univ_params.parser?, sig: decl_sig.parser, val: decl_val.parser],
     «example»: node! «example» ["example", sig: decl_sig.parser, val: decl_val.parser],
-    «axiom»: node! «axiom» [ -- CommentTo(Kha): -- replaced `constant with `axiom
+    «axiom»: node! «axiom» [
       kw: node_choice! constant_keyword {"axiom"},
       name: ident_univ_params.parser,
       sig: decl_sig.parser],

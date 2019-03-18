@@ -465,9 +465,12 @@ def declaration.elaborate : elaborator :=
     type ← to_pexpr type.type,
     old_elab_command stx $ expr.mdata mdata $ expr.mk_capp `_ [mods, id, type]
   | declaration.inner.view.def_like dl := do
+      -- The numeric literals below should reflect the enum values
+      -- enum class decl_cmd_kind { Theorem, Definition, OpaqueConst, Example, Instance, Var, Abbreviation };
       let kind := match dl.kind with
       | def_like.kind.view.theorem _ := 0
       | def_like.kind.view.def _ := 1
+      | def_like.kind.view.«constant» _ := 2
       | def_like.kind.view.abbreviation _ := 6
       | def_like.kind.view.«abbrev» _ := 6,
       elab_def_like stx decl.modifiers dl kind

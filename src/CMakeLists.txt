@@ -454,7 +454,7 @@ endif()
 add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
 target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
 
-add_custom_target(build_leanstdlib
+add_custom_command(stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
@@ -463,7 +463,7 @@ add_custom_target(build_leanstdlib
 
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
 target_link_libraries(leanstatic "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a" ${EXTRA_LIBS})
-add_dependencies(leanstatic build_leanstdlib)
+add_dependencies(leanstatic stdlib)
 
 ADD_CUSTOM_TARGET(bin_lib ALL
    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
@@ -534,13 +534,6 @@ add_style_check_target(style "${LEAN_SOURCES}")
 add_test(NAME style_check COMMAND "${PYTHON_EXECUTABLE}" "${LEAN_SOURCE_DIR}/cmake/Modules/cpplint.py" ${LEAN_SOURCES})
 endif()
 
-add_custom_target(
-    standard_lib ALL
-    COMMAND make -j4
-    DEPENDS bin_lean
-    WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-    )
-
 # add_custom_target(
 #     leanpkg ALL
 #     COMMAND "${LEAN_SOURCE_DIR}/../bin/lean" --make ${LEAN_EXTRA_MAKE_OPTS}
@@ -548,7 +541,7 @@ add_custom_target(
 #     WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
 # )
 
-add_custom_target(clean-std-lib
+add_custom_target(clean-stdlib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
   COMMAND make clean
   )
@@ -559,7 +552,7 @@ add_custom_target(clean-leanpkg
   )
 
 add_custom_target(clean-olean
-  DEPENDS clean-std-lib)
+  DEPENDS clean-stdlib)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   install(FILES "${CMAKE_SOURCE_DIR}/../bin/leanpkg.bat" "${CMAKE_SOURCE_DIR}/../bin/leanpkg.bat"

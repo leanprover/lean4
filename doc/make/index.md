@@ -65,6 +65,47 @@ Pass these along with the `cmake ../../src` command.
   every `git commit`. Use this option to avoid the version check. The `.olean`
   files can be removed manually by invoking `make/ninja clean-olean`.
 
+Lean Build Pipeline
+-------------------
+
+Since version 4, Lean is a partially bootstrapped program: parts of the frontend
+and compiler are written in Lean itself and thus need to be built before
+building Lean itself - which is needed to again build those parts. Building the
+`lean` executable (e.g. via `make bin`) involves roughly the following steps:
+
+* An initial executable `lean_stage0` is compiled directly from the repository
+  contents (binaries are generally built by a target of the same name). These
+  include:
+  * `src/stage0`: the Lean standard library extracted to C++ from a previous
+    commit
+  * other parts of `src/`: the non-bootstrapped parts of Lean written in C++
+* Using `lean_stage0`, the stdlib contained in `library/` is compiled to
+  `.olean` object files as well as extracted to C++ in `src/stage1` by the
+  target `stdlib`.
+* The target `build_libleanstdlib` builds the static library
+  `src/stage1/libleanstdlib.a` from the extracted files.
+* This library is linked with the C++ source files into `libleanstatic.a` and
+  ultimately into the executable `lean`.
+* The `bin` target finally copies the executable and libraries into `bin/`.
+
+Development Workflows
+---------------------
+
+* The `stdlib` target can be used to check the standard library without
+  rebuilding `lean`.
+* In most cases, the `bin` target can be used to build and test either a Lean or
+  C++ change. The `lean` target can be used to build the same binary without copying
+  it to `bin/`, which can be useful for quickly building a debug version without
+  changing the binary used by the editor. The `LEAN_PATH` variable may need to be set
+  to the location of `library/` manually in this case.
+* When making a parallel change in both Lean and C++, there usually is no simple
+  way of writing C++ code that builds in both stage0 and stage1. In this case,
+  temporarily set `-DREBUILD_STAGE0=OFF` to deactivate rebuilding `lean_stage0`,
+  which, as described above, is used to compile the standard library. When the
+  change is complete and stage1 is working as expected, make the target
+  `update-stage0` to copy stage1 to stage0 - this is the re-bootstrapping step.
+  Reactivate `REBUILD_STAGE0` and stage0 should compile again.
+
 Further Information
 -------------------
 

@@ -24,3 +24,5 @@ settings.json
 CMakeSettings.json
 CppProperties.json
 /library/Makefile
+/bin/*.a
+/bin/leanc

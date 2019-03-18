@@ -20,9 +20,6 @@ add_executable(lean lean.cpp)
 target_link_libraries(lean leanstatic)
 install(TARGETS lean DESTINATION bin)
 
-# Configure compiler test scripts
-configure_file("${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh.in" "${LEAN_SOURCE_DIR}/../tests/compiler/test_flags.sh")
-
 if(${EMSCRIPTEN})
     set(NODE_JS "node --stack_size=8192")
 

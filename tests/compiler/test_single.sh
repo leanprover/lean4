@@ -4,10 +4,8 @@ if [ $# -ne 3 -a $# -ne 2 ]; then
     exit 1
 fi
 ulimit -s 8192
-source test_flags.sh
 LEAN=$1
 BIN_DIR=../../bin
-INCLUDE_DIR=../../src
 export LEAN_PATH=../../library:.
 if [ $# -ne 3 ]; then
     INTERACTIVE=no
@@ -15,16 +13,6 @@ else
     INTERACTIVE=$3
 fi
 ff=$2
-
-# Hack for converting a list of libraries such as `/usr/lib/gmp.so;dl` into valid liker parameters.
-LINKER_LIBS=""
-for lib in ${LIBS//;/ }; do
-  if [[ $lib == *".so" || $lib == *".dll" || $lib == *".dylib" ]]; then
-    LINKER_LIBS="$LINKER_LIBS $lib"
-  else
-    LINKER_LIBS="$LINKER_LIBS -l$lib"
-  fi
-done
 
 if [[ "$OSTYPE" == "msys" ]]; then
     # Windows running MSYS2
@@ -43,7 +31,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-$CXX -o "$ff.out" -I $INCLUDE_DIR $CXX_FLAGS $ff.cpp $BIN_DIR/libleanstatic.a $LINKER_FLAGS $LINKER_LIBS
+$BIN_DIR/leanc -o "$ff.out" $ff.cpp
 if [ $? -ne 0 ]; then
     echo "Failed to compile C++ file $ff.cpp"
     exit 1

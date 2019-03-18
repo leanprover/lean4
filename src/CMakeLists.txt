@@ -323,7 +323,7 @@ else()
     # GMP
     find_package(GMP 5.0.5 REQUIRED)
     include_directories(${GMP_INCLUDE_DIR})
-    set(EXTRA_LIBS ${EXTRA_LIBS} ${GMP_LIBRARIES})
+    set(COPY_LIBS ${COPY_LIBS} ${GMP_LIBRARIES})
 endif()
 
 # DL
@@ -344,7 +344,8 @@ endif()
 if(JEMALLOC)
   find_package(Jemalloc)
   if(${JEMALLOC_FOUND})
-    set(EXTRA_UTIL_LIBS ${EXTRA_UTIL_LIBS} ${JEMALLOC_LIBRARIES})
+    set(COPY_LIBS ${COPY_LIBS} ${JEMALLOC_LIBRARIES})
+    set(LEANC_EXTRA_LIBS "${LEANC_EXTRA_LIBS} -ljemalloc")
     message(STATUS "Using jemalloc.")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_JEMALLOC")
   else()
@@ -357,7 +358,8 @@ if(NOT "${JEMALLOC_FOUND}")
  if(TCMALLOC)
    find_package(Tcmalloc)
    if(${TCMALLOC_FOUND})
-     set(EXTRA_LIBS ${EXTRA_LIBS} ${TCMALLOC_LIBRARIES})
+     set(COPY_LIBS ${COPY_LIBS} ${TCMALLOC_LIBRARIES})
+    set(LEANC_EXTRA_LIBS "${LEANC_EXTRA_LIBS} -ltcmalloc")
      message(STATUS "Using tcmalloc.")
      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D HAS_TCMALLOC")
    else()
@@ -368,7 +370,7 @@ if(NOT "${JEMALLOC_FOUND}")
  endif()
 endif()
 
-set(EXTRA_LIBS ${EXTRA_LIBS} ${EXTRA_UTIL_LIBS})
+set(EXTRA_LIBS ${EXTRA_LIBS} ${COPY_LIBS})
 
 # Python
 find_package(PythonInterp)
@@ -479,9 +481,17 @@ endif()
 
 ADD_CUSTOM_TARGET(bin_lib ALL
    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-   COMMAND "${CMAKE_COMMAND}" -E copy "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
+   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
    DEPENDS leanstatic
 )
+# Configure leanc
+configure_file("${LEAN_SOURCE_DIR}/../bin/leanc.in" "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc")
+file(COPY "${CMAKE_CURRENT_BINARY_DIR}/tmp/leanc"
+  DESTINATION "${LEAN_SOURCE_DIR}/../bin"
+  FILE_PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+install(FILES "${LEAN_SOURCE_DIR}/../bin/leanc"
+  DESTINATION bin
+  PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.

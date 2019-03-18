@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/export_attribute.h"
 #include "library/compiler/extern_attribute.h"
+#include "library/compiler/init_attribute.h"
 
 namespace lean {
 static std::string to_cpp_type(expr const & e) {
@@ -1018,6 +1019,11 @@ public:
     void operator()(comp_decl const & d) {
         name n    = d.fst();
         expr e    = d.snd();
+        if (!is_lambda(e) && has_init_attribute(m_env, n)) {
+            /* We do not need to generate the `_init_*` function since
+               `n` has its own initialization function. */
+            return;
+        }
         m_fn_name = n;
         expr type = get_constant_ll_type(m_env, n);
         m_out << to_cpp_type(get_result_type(type)) << " ";
@@ -1078,7 +1084,13 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
         name const & n    = d.fst();
         expr const & code = d.snd();
         if (!is_lambda(code)) {
-            out << " " << to_cpp_name(env, n) << " = " << to_cpp_init_name(env, n) << "();\n";
+            if (optional<name> init_fn = get_init_fn_name_for(env, d.fst())) {
+                out << "w = " << to_cpp_name(env, *init_fn) << "(w);\n";
+                out << "if (io_result_is_error(w)) return w;\n";
+                out << " " << to_cpp_name(env, n) << " = io_result_get_value(w);\n";
+            } else {
+                out << " " << to_cpp_name(env, n) << " = " << to_cpp_init_name(env, n) << "();\n";
+            }
             expr type = get_constant_ll_type(env, n);
             if (is_pi(type) || is_enf_object_type(type)) {
                 out << "lean::mark_persistent(" << to_cpp_name(env, n) << ");\n";
@@ -1138,6 +1150,7 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         out << "lean::initialize_runtime_module();\n";
     out << "obj * w = lean::io_mk_world();\n";
     out << "w = initialize_" << mangle(m, false) << "(w);\n";
+    out << "if (io_result_is_ok(w)) {\n";
     out << "lean::scoped_task_manager tmanager(lean::hardware_concurrency());\n";
     if (arity == 2) {
         out << "obj* in = lean::box(0);\n";
@@ -1146,18 +1159,19 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         out << " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);\n";
         out << " in = n;\n";
         out << "}\n";
-        out << "obj * r = " << g_lean_main << "(in, w);\n";
+        out << "w = " << g_lean_main << "(in, w);\n";
     } else {
-        out << "obj * r = " << g_lean_main << "(w);\n";
+        out << "w = " << g_lean_main << "(w);\n";
     }
+    out << "}\n";
     out <<
-        "if (io_result_is_ok(r)) {\n"
-        "  int ret = lean::unbox(io_result_get_value(r));\n"
-        "  lean::dec_ref(r);\n"
+        "if (io_result_is_ok(w)) {\n"
+        "  int ret = lean::unbox(io_result_get_value(w));\n"
+        "  lean::dec_ref(w);\n"
         "  return ret;\n"
         "} else {\n"
-        "  lean::io_result_show_error(r);\n"
-        "  lean::dec_ref(r);\n"
+        "  lean::io_result_show_error(w);\n"
+        "  lean::dec_ref(w);\n"
         "  return 1;\n"
         "}\n"
         "}\n";

@@ -553,11 +553,6 @@ add_custom_target(clean-std-lib
   COMMAND make clean
   )
 
-add_custom_target(clean-stage1
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}"
-  COMMAND "${CMAKE_COMMAND}" -E remove_directory stage1
-  )
-
 add_custom_target(clean-leanpkg
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../leanpkg"
   COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_MODULE_PATH}/CleanOlean.cmake"

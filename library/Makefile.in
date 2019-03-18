@@ -29,6 +29,7 @@ depends: $(DEPS)
 clean:
 	find . -name *.olean -delete
 	find . -name *.depend -delete
+	find $(STAGE1_DIR) -name *.cpp -delete
 
 $(STAGE1_DIR)/%.cpp: %.lean %.olean
 	@mkdir -p $(@D)

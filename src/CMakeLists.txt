@@ -482,6 +482,9 @@ install(FILES "${LEAN_SOURCE_DIR}/../bin/leanc"
   DESTINATION bin
   PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
 
+add_custom_target(bin ALL)
+add_dependencies(bin bin_lib bin_lean)
+
 # The DLL (shared library) is not being generated correctly when we use cross-compilation (i.e., generate the Windows DLL using Linux).
 # For some strange reason, it contains a copy of pthread_equal.
 # Remark: this problem does not happen when we generate the DLL using msys2 on Windows.

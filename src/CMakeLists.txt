@@ -454,7 +454,7 @@ endif()
 add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
 target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
 
-add_custom_command(stdlib
+add_custom_target(stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"

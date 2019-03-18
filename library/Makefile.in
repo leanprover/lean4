@@ -22,18 +22,18 @@ depends: $(DEPS)
 	@echo $(<:.lean=.olean): `$(LEAN) --deps $< | python relative.py` > $@
 
 %.olean: %.lean %.depend
-	$(LEAN) $(OPTS) --make $<
+	@mkdir -p $(STAGE1_DIR)/$(@D)
+	$(LEAN) $(OPTS) --make --cpp=$(STAGE1_DIR)/$*.cpp $<
 # make sure the .olean file is newer than the .depend file to prevent infinite make cycles
-	@touch $@
+	@touch $*.olean
 
 clean:
 	find . -name *.olean -delete
 	find . -name *.depend -delete
 	find $(STAGE1_DIR) -name *.cpp -delete
 
-$(STAGE1_DIR)/%.cpp: %.lean %.olean
-	@mkdir -p $(@D)
-	$(LEAN) $(OPTS) --cpp=$@ $<
+$(STAGE1_DIR)/%.cpp: %.olean
+	@
 
 $(STAGE1_DIR)/%.o: $(STAGE1_DIR)/%.cpp
 	../bin/leanc -c -o $@ $< -O3

@@ -6,6 +6,13 @@ else()
   set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/lean_stage0")
 endif()
 
+add_custom_target(stdlib
+  # '-G Ninja' complains otherwise
+  BYPRODUCTS "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a"
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+  COMMAND make -j8 ../src/stage1/libleanstdlib.a "LEAN=$<TARGET_FILE:lean_stage0>"
+  DEPENDS lean_stage0)
+
 add_custom_target(update-stage0
   COMMAND make update-stage0
   DEPENDS lean

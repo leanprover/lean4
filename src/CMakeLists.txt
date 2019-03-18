@@ -454,13 +454,6 @@ endif()
 add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:stage0>)
 target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
 
-add_custom_target(stdlib
-  # '-G Ninja' complains otherwise
-  BYPRODUCTS "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a"
-  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND make -j8 ../src/stage1/libleanstdlib.a "LEAN=$<TARGET_FILE:lean_stage0>"
-  DEPENDS lean_stage0)
-
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
 target_link_libraries(leanstatic "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a" ${EXTRA_LIBS})
 add_dependencies(leanstatic stdlib)

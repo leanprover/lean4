@@ -1070,6 +1070,7 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
     out << " if (_G_initialized) return w;\n";
     out << " _G_initialized = true;\n";
     for (module_name const & d : deps) {
+        out << "if (io_result_is_error(w)) return w;\n";
         out << "w = initialize_" << mangle(d, false) << "(w);\n";
     }
     comp_decls ds = get_llnf_code(env);

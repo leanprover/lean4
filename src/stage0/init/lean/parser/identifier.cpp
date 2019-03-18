@@ -2462,7 +2462,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_parser_identifier(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_char_basic(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_parsec(w);
  l_lean_id__begin__escape = _init_l_lean_id__begin__escape();
  l_lean_id__begin__escape___boxed = _init_l_lean_id__begin__escape___boxed();

@@ -29992,6 +29992,7 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_parser_declaration(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_term(w);
  l_lean_parser_command_doc__comment = _init_l_lean_parser_command_doc__comment();
 lean::mark_persistent(l_lean_parser_command_doc__comment);

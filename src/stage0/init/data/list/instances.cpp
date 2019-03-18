@@ -846,8 +846,11 @@ static bool _G_initialized = false;
 obj* initialize_init_data_list_instances(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_alternative(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_monad(w);
  l_list_monad = _init_l_list_monad();
 lean::mark_persistent(l_list_monad);

@@ -5213,6 +5213,7 @@ static bool _G_initialized = false;
 obj* initialize_init_data_rbtree_basic(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_rbmap_basic(w);
  l_rbtree_has__repr___rarg___closed__1 = _init_l_rbtree_has__repr___rarg___closed__1();
 lean::mark_persistent(l_rbtree_has__repr___rarg___closed__1);

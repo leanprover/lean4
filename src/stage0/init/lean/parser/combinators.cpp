@@ -3993,7 +3993,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_parser_combinators(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_basic(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_instances(w);
  l___private_init_lean_parser_combinators_1__many1__aux___main___rarg___closed__1 = _init_l___private_init_lean_parser_combinators_1__many1__aux___main___rarg___closed__1();
 lean::mark_persistent(l___private_init_lean_parser_combinators_1__many1__aux___main___rarg___closed__1);

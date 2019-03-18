@@ -1852,8 +1852,11 @@ static bool _G_initialized = false;
 obj* initialize_init_io(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_estate(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_string_basic(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_fix(w);
  l_io_error_has__to__string = _init_l_io_error_has__to__string();
 lean::mark_persistent(l_io_error_has__to__string);

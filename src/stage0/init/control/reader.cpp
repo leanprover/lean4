@@ -1135,9 +1135,13 @@ static bool _G_initialized = false;
 obj* initialize_init_control_reader(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_lift(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_id(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_alternative(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_except(w);
 return w;
 }

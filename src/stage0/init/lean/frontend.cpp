@@ -2320,11 +2320,17 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_frontend(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_default(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_module(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expander(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_elaborator(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_util(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_io(w);
  l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__1 = _init_l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__1();
 lean::mark_persistent(l_io_prim_iterate___at_lean_run__frontend___spec__6___lambda__4___closed__1);

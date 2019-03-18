@@ -354,8 +354,11 @@ static bool _G_initialized = false;
 obj* initialize_init_data_nat_bitwise(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_basic(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_div(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
  l_nat_land___closed__1 = _init_l_nat_land___closed__1();
 lean::mark_persistent(l_nat_land___closed__1);

@@ -950,6 +950,7 @@ static bool _G_initialized = false;
 obj* initialize_init_coe(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
  l_coe__bool__to__Prop = _init_l_coe__bool__to__Prop();
  l_coe__sort__bool = _init_l_coe__sort__bool();

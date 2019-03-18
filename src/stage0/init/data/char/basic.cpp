@@ -632,6 +632,7 @@ static bool _G_initialized = false;
 obj* initialize_init_data_char_basic(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
  l_char_has__lt = _init_l_char_has__lt();
 lean::mark_persistent(l_char_has__lt);

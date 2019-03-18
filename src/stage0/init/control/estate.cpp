@@ -1575,7 +1575,9 @@ static bool _G_initialized = false;
 obj* initialize_init_control_estate(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_state(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_except(w);
  l_estate_result_to__string___main___rarg___closed__1 = _init_l_estate_result_to__string___main___rarg___closed__1();
 lean::mark_persistent(l_estate_result_to__string___main___rarg___closed__1);

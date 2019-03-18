@@ -3260,9 +3260,13 @@ static bool _G_initialized = false;
 obj* initialize_init_control_except(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_alternative(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_lift(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_to__string(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_control_monad__fail(w);
  l_except_to__string___main___rarg___closed__1 = _init_l_except_to__string___main___rarg___closed__1();
 lean::mark_persistent(l_except_to__string___main___rarg___closed__1);

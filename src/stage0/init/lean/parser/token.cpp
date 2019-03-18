@@ -26887,7 +26887,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_parser_token(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_combinators(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_string__literal(w);
  l_lean_parser_match__token___closed__1 = _init_l_lean_parser_match__token___closed__1();
 lean::mark_persistent(l_lean_parser_match__token___closed__1);

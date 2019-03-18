@@ -402,6 +402,7 @@ static bool _G_initialized = false;
 obj* initialize_init_data_ordering_basic(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
  l_ordering_has__repr___closed__1 = _init_l_ordering_has__repr___closed__1();
 lean::mark_persistent(l_ordering_has__repr___closed__1);

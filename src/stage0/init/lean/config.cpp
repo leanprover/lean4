@@ -28,6 +28,7 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_config(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
  l_lean_closure__max__args = _init_l_lean_closure__max__args();
 lean::mark_persistent(l_lean_closure__max__args);

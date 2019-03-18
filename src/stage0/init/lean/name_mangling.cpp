@@ -3269,7 +3269,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_name__mangling(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_string__literal(w);
  l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1 = _init_l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1();
 lean::mark_persistent(l___private_init_lean_name__mangling_1__string_mangle__aux___main___closed__1);

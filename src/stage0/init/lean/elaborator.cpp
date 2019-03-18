@@ -33598,9 +33598,13 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_elaborator(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_module(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expander(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_options(w);
  l_lean_elaborator_ordered__rbmap_empty___closed__1 = _init_l_lean_elaborator_ordered__rbmap_empty___closed__1();
 lean::mark_persistent(l_lean_elaborator_ordered__rbmap_empty___closed__1);

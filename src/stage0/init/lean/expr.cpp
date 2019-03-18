@@ -209,7 +209,9 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_expr(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_level(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
  l_lean_expr__is__inhabited = _init_l_lean_expr__is__inhabited();
 lean::mark_persistent(l_lean_expr__is__inhabited);

@@ -6036,6 +6036,7 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_parser_module(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_command(w);
  l_lean_parser_module__parser__m_monad = _init_l_lean_parser_module__parser__m_monad();
 lean::mark_persistent(l_lean_parser_module__parser__m_monad);

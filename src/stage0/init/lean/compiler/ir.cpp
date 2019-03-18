@@ -4257,8 +4257,11 @@ static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
 w = initialize_init_default(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
  l_lean_ir_type_has__beq = _init_l_lean_ir_type_has__beq();
 lean::mark_persistent(l_lean_ir_type_has__beq);

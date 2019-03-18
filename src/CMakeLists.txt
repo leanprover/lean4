@@ -457,31 +457,20 @@ endif()
 add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:boot>)
 target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
 
-if(STAGE1)
-  add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS:cpp_stage1>)
-  target_link_libraries(leanstatic ${EXTRA_LIBS})
-else()
-  # Build `leanstatic` after `export-stage1`, triggering a CMake re-run after (potentially) updating
-  # `src/stage1/CMakeLists.txt`
-  add_custom_target(boot_leanstatic
-    # '-G Ninja' complains otherwise
-    BYPRODUCTS libleanstatic.a
-    WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
-    COMMAND "${CMAKE_COMMAND}" "${CMAKE_SOURCE_DIR}" -DSTAGE1=ON
-    COMMAND "${CMAKE_COMMAND}" --build . --target leanstatic
-    COMMAND "${CMAKE_COMMAND}" "${CMAKE_SOURCE_DIR}" -DSTAGE1=OFF
-    DEPENDS export-stage1)
-  # import the output from the nested CMake run
-  add_library(leanstatic ${LEAN_LIBRARY_TYPE} IMPORTED)
-  set_target_properties(leanstatic PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic.a"
-    INTERFACE_LINK_LIBRARIES "${EXTRA_LIBS}")
-  add_dependencies(leanstatic boot_leanstatic)
-endif()
+add_custom_target(build_leanstdlib
+  # '-G Ninja' complains otherwise
+  BYPRODUCTS "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a"
+  WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
+  COMMAND make -j8 ../src/stage1/libleanstdlib.a "LEAN=$<TARGET_FILE:lean_stage0>"
+  DEPENDS lean_stage0)
+
+add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
+target_link_libraries(leanstatic "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a" ${EXTRA_LIBS})
+add_dependencies(leanstatic build_leanstdlib)
 
 ADD_CUSTOM_TARGET(bin_lib ALL
    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
+   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "${LEAN_SOURCE_DIR}/stage1/libleanstdlib*" "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
    DEPENDS leanstatic
 )
 # Configure leanc

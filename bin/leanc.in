@@ -16,4 +16,4 @@ for cxx in $LEAN_CXX @CMAKE_CXX_COMPILER@ /usr/bin/g++; do
     fi
 done
 [ -f $LEAN_CXX ] || command -v $LEAN_CXX || error "no suitable C++ compiler found!"
-$LEAN_CXX -std=c++14 -D LEAN_MULTI_THREAD -pthread -fPIC "-I$bindir/../src" "$@" "-L$bindir" -ldl -Wl,-Bstatic -lleanstatic -lgmp @LEANC_EXTRA_LIBS@ -static-libgcc -static-libstdc++ -Wl,-Bdynamic -Wno-unused-command-line-argument
+$LEAN_CXX -std=c++14 -D LEAN_MULTI_THREAD -pthread -fPIC "-I$bindir/../src" "$@" "-L$bindir" -ldl -Wl,-Bstatic -lleanstatic -lleanstdlib -lgmp @LEANC_EXTRA_LIBS@ -static-libgcc -static-libstdc++ -Wl,-Bdynamic -Wno-unused-command-line-argument

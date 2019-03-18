@@ -34,16 +34,17 @@ $(STAGE1_DIR)/%.cpp: %.lean %.olean
 	@mkdir -p $(@D)
 	$(LEAN) $(OPTS) --cpp=$@ $<
 
-$(STAGE1_DIR)/CMakeLists.txt: $(CPPS)
-	echo "add_library (cpp_stage1 OBJECT $(CPPS_CORE))" > $(STAGE1_DIR)/CMakeLists.txt
+$(STAGE1_DIR)/%.o: $(STAGE1_DIR)/%.cpp
+	../bin/leanc -c -o $@ $< -O3
 
-export-stage1: $(STAGE1_DIR)/CMakeLists.txt
+$(STAGE1_DIR)/libleanstdlib.a: $(patsubst %.cpp,%.o,$(CPPS))
+	@ar rcs $@ $^
 
 update-stage0:
 	rm -r $(STAGE0_DIR)/init
 	cp -R $(STAGE1_DIR)/init $(STAGE0_DIR)/init
 	echo "add_library (boot OBJECT $(CPPS_CORE))" > $(STAGE0_DIR)/CMakeLists.txt
 
-.PRECIOUS: %.depend
+.PRECIOUS: %.depend $(STAGE1_DIR)/%.cpp
 
 include $(DEPS)

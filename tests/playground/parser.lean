@@ -229,7 +229,7 @@ open lean.parser
 -- set_option trace.compiler.boxed true
 
 def test_p : parser :=
-many1 (str "--" *> take_until (= '\n') *> any *> pure ())
+many1 (str "++" <|> str "**" <|> (str "--" *> take_until (= '\n') *> any *> pure ()))
 
 def test_parser (x : parser) (input : string) : string :=
 match (x 0).run () () input with

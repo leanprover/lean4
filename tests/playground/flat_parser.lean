@@ -302,7 +302,7 @@ section
 open lean.flat_parser
 
 def flat_p : parser_m unit :=
-many1 (str "--" *> take_until (= '\n') *> any *> pure ())
+many1 (str "++" <|> str "**" <|>  (str "--" *> take_until (= '\n') *> any *> pure ()))
 
 end
 
@@ -320,8 +320,11 @@ match r with
 | (parsec.result.ok _ it _, _)   := "OK at " ++ to_string it.offset
 | (parsec.result.error msg _, _) := "Error " ++ msg.to_string
 
+@[inline] def str' (s : string) : parser unit :=
+str s *> pure ()
+
 def parsec_p : parser unit :=
-many1' (str "--" *> take_until (λ c, c = '\n') *> any *> pure ())
+many1' (str' "++" <|> str' "**" <|> (str "--" *> take_until (λ c, c = '\n') *> any *> pure ()))
 
 end
 

@@ -1,12 +1,14 @@
 import init.lean.message init.lean.parser.syntax init.lean.parser.trie init.lean.parser.basic
+import init.lean.parser.token
 
 namespace lean
 namespace flat_parser
 open string
-open parser (syntax syntax.missing)
+open parser (syntax syntax.missing syntax.atom syntax.ident syntax.raw_node number string_lit)
 open parser (trie token_map)
+def max_prec : nat := 1024
 
-abbreviation pos := string.utf8_pos
+abbrev pos := string.utf8_pos
 
 /-- A precomputed cache for quickly mapping char offsets to positions. -/
 structure file_map :=
@@ -94,29 +96,137 @@ match r with
 | ⟨result.ok _ i c s _, _⟩    := result.error msg i c stx eps
 | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
 
-def parser_core_m (ρ : Type) (α : Type) :=
-ρ → result_ok → result α
+def parser_core_m (α : Type) :=
+result_ok → result α
+abbrev parser_core := parser_core_m syntax
 
-abbrev parser_core := parser_core_m parser_config syntax
+@[inline] def parser_core_m.pure {α : Type} (a : α) : parser_core_m α :=
+λ r,
+  match r with
+  | ⟨result.ok _ it c s _, h⟩   := result.ok a it c s tt
+  | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
+
+@[inline_if_reduce] def strict_or  (b₁ b₂ : bool) := b₁ || b₂
+@[inline_if_reduce] def strict_and (b₁ b₂ : bool) := b₁ && b₂
+
+@[inline] def parser_core_m.bind {α β : Type} (x : parser_core_m α) (f : α → parser_core_m β) : parser_core_m β :=
+λ r,
+  match x r with
+  | result.ok a i c s e₁ :=
+    (match f a (mk_result_ok i c s) with
+     | result.ok b i c s e₂        := result.ok b i c s (strict_and e₁ e₂)
+     | result.error msg i c stx e₂ := result.error msg i c stx (strict_and e₁ e₂))
+  | result.error msg i c stx e  := result.error msg i c stx e
+
+instance : monad parser_core_m :=
+{bind := @parser_core_m.bind, pure := @parser_core_m.pure}
 
 instance : inhabited parser_core :=
-⟨λ _ r, mk_error r "error"⟩
+⟨λ r, mk_error r "error"⟩
 
-structure rec_parser_config extends parser_config :=
-(term_p : nat → parser_core)
+@[inline] def parser_core_m.error {α : Type} (msg : string) : parser_core_m α :=
+λ r, mk_error r msg
 
-abbrev parser_m (α : Type) : Type := parser_core_m rec_parser_config α
-abbrev parser : Type := parser_m syntax
-abbrev trailing_parser : Type := syntax → parser
+@[inline] def error {α : Type} {m : Type → Type} [has_monad_lift_t parser_core_m m] (msg : string) : m α :=
+monad_lift $ parser_core_m.error msg
 
-@[inline] def term.parser (rbp : nat := 0) : parser  :=
-λ cfg, cfg.term_p rbp cfg.to_parser_config
+abbrev basic_parser_m : Type → Type              := reader_t parser_config parser_core_m
+abbrev basic_parser : Type                       := basic_parser_m syntax
+abbrev command_parser_m (ρ : Type) : Type → Type := reader_t ρ (reader_t parser_core parser_core_m)
+abbrev term_parser_m : Type → Type               := reader_t (nat → parser_core) (command_parser_m parser_config)
+abbrev term_parser : Type                        := term_parser_m syntax
+abbrev trailing_term_parser : Type               := syntax → term_parser
 
-@[inline] def to_parser_core (rec : nat → parser) : nat → parser_core :=
-fix (λ rec_f rbp cfg, rec rbp {term_p := rec_f, ..cfg})
+structure command_parser_config extends parser_config :=
+(leading_term_parsers  : token_map term_parser)
+(trailing_term_parsers : token_map trailing_term_parser)
 
-@[inline] def parser.run (x : parser) (rec : nat → parser) : parser_core :=
-λ cfg, x {term_p := to_parser_core rec, ..cfg}
+abbrev command_parser : Type      := command_parser_m command_parser_config syntax
+abbrev command_parser_core : Type := command_parser_m parser_config syntax
+
+@[inline] def term_parser_of_basic_parser {α : Type} (p : basic_parser_m α) : term_parser_m α :=
+λ _ cfg _, p cfg
+
+@[inline] def command_parser_of_basic_parser {α : Type} (p : basic_parser_m α) : command_parser_m command_parser_config α :=
+λ cfg _, p cfg.to_parser_config
+
+instance basic2term_p    : has_monad_lift basic_parser_m term_parser_m                            := ⟨@term_parser_of_basic_parser⟩
+instance basic2command_p : has_monad_lift basic_parser_m (command_parser_m command_parser_config) := ⟨@command_parser_of_basic_parser⟩
+
+@[inline] def term.parser (rbp := 0) : term_parser := λ p _ _, p rbp
+@[inline] def command.parser : command_parser      := λ _ p, p
+
+@[inline] def read_cfg : term_parser_m parser_config :=
+λ _ cfg _, pure cfg
+
+def peek_token : basic_parser_m syntax :=
+error "TODO"
+
+def curr_lbp : term_parser_m nat :=
+do tk ← monad_lift peek_token,
+   match tk with
+   | syntax.atom ⟨_, sym⟩ := do
+     cfg ← read_cfg,
+     (match cfg.tokens.match_prefix sym.mk_iterator with
+      | some ⟨_, tk_cfg⟩ := pure tk_cfg.lbp
+      | _                := error "curr_lbp: unreachable")
+   | syntax.raw_node {kind := @number, ..}     := pure max_prec
+   | syntax.raw_node {kind := @string_lit, ..} := pure max_prec
+   | syntax.ident _                            := pure max_prec
+   | _                                         := error "curr_lbp: unknown token kind"
+
+
+
+#exit
+
+   match tk with
+   | syntax.atom ⟨_, sym⟩ := do
+     cfg ← read,
+     -- some ⟨_, tk_cfg⟩ ← pure (cfg.tokens.match_prefix sym.mk_iterator) | error "curr_lbp: unreachable",
+     pure 0
+   | syntax.ident _ := pure max_prec
+   | syntax.raw_node {kind := @number, ..} := pure max_prec
+   | syntax.raw_node {kind := @string_lit, ..} := pure max_prec
+   | _ := error "curr_lbp: unknown token kind"
+
+
+
+
+
+private def trailing (cfg : command_parser_config) : trailing_term_parser :=
+λ _ p _ _ r, p 0 r -- TODO(Leo)
+
+private def leading (cfg : command_parser_config) : term_parser :=
+λ p _ _ r, p 0 r -- TODO(Leo)
+
+def dummy : nat → parser_core :=
+λ _ r, mk_error r "dummy"
+
+def pratt (leading_p : term_parser) (trailing_p : trailing_term_parser) (p : term_parser) : command_parser_core :=
+p dummy
+
+def command_parser_of_term_parser (p : term_parser) : command_parser :=
+λ cfg rec r,
+  let leading_p  : term_parser          := leading cfg in
+  let trailing_p : trailing_term_parser := trailing cfg in
+  let cfg        : parser_config        := cfg.to_parser_config in
+  let p          : command_parser_core  := pratt leading_p trailing_p p in
+  p cfg rec r
+
+#exit
+
+def pratt_parser (cfg : command_parser_config) : term_parser :=
+leading
+
+
+
+@[inline] def to_parser_core (term_p : nat → parser) (cmd_p : parser_core) : nat → parser_core :=
+fix (λ rec_f rbp cfg r, term_p rbp cmd_p rec_f cfg r)
+
+@[inline] def parser.run (x : parser) (term_p : nat → parser) (cmd_p : parser_core) : parser_core :=
+x cmd_p (to_parser_core term_p cmd_p)
+
+
 
 
 -- STOPPED HERE
@@ -151,23 +261,6 @@ abbreviation trailing_parser := syntax → parser
 
 @[inline] def term.parser (rbp : nat := 0) : parser  := λ ps, ps.term_parser rbp
 
-@[inline] def parser_m.pure {α : Type} (a : α) : parser_m α :=
-λ _ _ r,
-  match r with
-  | ⟨result.ok _ it c s _, h⟩   := result.ok a it c s tt
-  | ⟨result.error _ _ _ _ _, h⟩ := unreachable_error h
-
-@[inline_if_reduce] def eager_or  (b₁ b₂ : bool) := b₁ || b₂
-@[inline_if_reduce] def eager_and (b₁ b₂ : bool) := b₁ && b₂
-
-@[inline] def parser_m.bind {α β : Type} (x : parser_m α) (f : α → parser_m β) : parser_m β :=
-λ ps cfg r,
-  match x ps cfg r with
-  | result.ok a i c s e₁ :=
-    (match f a ps cfg (mk_result_ok i c s) with
-     | result.ok b i c s e₂        := result.ok b i c s (eager_and e₁ e₂)
-     | result.error msg i c stx e₂ := result.error msg i c stx (eager_and e₁ e₂))
-  | result.error msg i c stx e  := result.error msg i c stx e
 
 instance : monad parser_m :=
 {pure := @parser_m.pure, bind := @parser_m.bind}

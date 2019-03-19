@@ -461,10 +461,11 @@ public:
     bool has_value(bool allow_opaque = false) const {
         return is_theorem() || is_definition() || (allow_opaque && is_opaque());
     }
-    expr const & get_value(bool allow_opaque = false) const {
+    expr const & get_value(bool DEBUG_CODE(allow_opaque)) const {
         lean_assert(has_value(allow_opaque));
         return static_cast<expr const &>(cnstr_get_ref(to_val(), 1));
     }
+    expr const & get_value() const { return get_value(false); }
     reducibility_hints const & get_hints() const;
 
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(to_val()); }

@@ -633,8 +633,8 @@ optional<expr> type_context_old::reduce_projection(expr const & e) {
 }
 
 optional<expr> type_context_old::reduce_proj(expr const & /* e */) {
-    // TODO(Leo):
-    lean_unreachable();
+    // TODO(Leo)
+    throw exception("projection reduction is only implemented in the kernel.");
 }
 
 optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {

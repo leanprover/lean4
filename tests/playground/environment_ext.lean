@@ -60,9 +60,13 @@ structure attribute_ext (state_ty : Type) :=
 structure attribute_info :=
 (attr : string)
 (add_active_entry (persistent : bool) : attribute_entry → environment → environment)
-(add_scoped_entry : attribute_entry → environment → environment)
-(get_scoped_decls : environment → list name)
-(activate_scoped_decl : environment → name → environment)
+(scoped_ext : environment_ext attribute_entry (list attribute_entry))
+
+namespace attribute_info
+def add_scoped_entry (attr : attribute_info) : attribute_entry → environment → environment := attr.scoped_ext.add_entry ff
+def activate_scoped_entries (attr : attribute_info) (decl_open : name → bool) (env : environment) : environment :=
+((attr.scoped_ext.get_state env).filter (λ e : attribute_entry, decl_open e.decl)).foldr (attr.add_active_entry tt) env
+end attribute_info
 
 def attributes_ref.init : io (io.ref (list attribute_info)) := io.mk_ref []
 @[init attributes_ref.init] private constant attributes_ref : io.ref (list attribute_info) := default _
@@ -80,11 +84,7 @@ def register (attr : string) (empty_state : state_ty)
     <*> environment_ext.register (some $ attr ++ ".scoped") [] (λ _ _ entries e, e::entries),
   attributes_ref.modify $ λ attrs, {attr := attr,
     add_active_entry := ext.active_ext.add_entry,
-    add_scoped_entry := ext.scoped_ext.add_entry ff,
-    -- TODO: could both be optimized by better cache
-    get_scoped_decls := λ env, (ext.scoped_ext.get_state env).map (λ e, e.decl),
-    activate_scoped_decl := λ env d, ((ext.scoped_ext.get_state env).filter (λ e : attribute_entry, e.decl = d)).foldr (ext.active_ext.add_entry tt) env
-  }::attrs,
+    scoped_ext := ext.scoped_ext}::attrs,
   pure ext
 end attribute_ext
 end lean

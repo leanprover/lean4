@@ -458,8 +458,13 @@ public:
     names const & get_lparams() const { return to_constant_val().get_lparams(); }
     unsigned get_num_lparams() const { return length(get_lparams()); }
     expr const & get_type() const { return to_constant_val().get_type(); }
-    bool has_value() const { return is_theorem() || is_definition(); }
-    expr const & get_value() const { lean_assert(has_value()); return static_cast<expr const &>(cnstr_get_ref(to_val(), 1)); }
+    bool has_value(bool allow_opaque = false) const {
+        return is_theorem() || is_definition() || (allow_opaque && is_opaque());
+    }
+    expr const & get_value(bool allow_opaque = false) const {
+        lean_assert(has_value(allow_opaque));
+        return static_cast<expr const &>(cnstr_get_ref(to_val(), 1));
+    }
     reducibility_hints const & get_hints() const;
 
     axiom_val const & to_axiom_val() const { lean_assert(is_axiom()); return static_cast<axiom_val const &>(to_val()); }

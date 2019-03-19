@@ -42,8 +42,9 @@ static name get_real_name(name const & n) {
 }
 
 static comp_decls to_comp_decls(environment const & env, names const & cs) {
+    bool allow_opaque = true;
     return map2<comp_decl>(cs, [&](name const & n) {
-            return comp_decl(get_real_name(n), env.get(n).get_value());
+            return comp_decl(get_real_name(n), env.get(n).get_value(allow_opaque));
         });
 }
 
@@ -143,6 +144,10 @@ bool is_main_fn_type(expr const & type) {
     }
 }
 
+static bool has_synthetic_sorry(constant_info const & cinfo) {
+    return cinfo.is_definition() && has_synthetic_sorry(cinfo.get_value());
+}
+
 environment compile(environment const & env, options const & opts, names cs) {
     if (!is_codegen_enabled(opts))
         return env;
@@ -171,9 +176,9 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     for (name const & c : cs) {
         lean_assert(!is_extern_constant(env, c));
-        if ((!env.get(c).is_definition() && !env.get(c).is_opaque()) || has_synthetic_sorry(env.get(c).get_value())) {
-            return env;
-        }
+        constant_info cinfo = env.get(c);
+        if (!cinfo.is_definition() && !cinfo.is_opaque()) return env;
+        if (has_synthetic_sorry(cinfo)) return env;
     }
 
     comp_decls ds = to_comp_decls(env, cs);

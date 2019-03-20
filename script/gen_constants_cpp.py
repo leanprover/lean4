@@ -22,8 +22,12 @@ def to_c_const(s):
     out = ""
     first = True
     for c in s:
-        if c == '.' or c == '_':
+        if c == '.':
             out += '_'
+            first = True
+        elif c == '_':
+            out += '_'
+            first = False
         elif c.isalpha() or c.isdigit():
             if c.isupper():
                 if not first:
@@ -31,9 +35,9 @@ def to_c_const(s):
                 out += c.lower()
             else:
                 out += c
+            first = False
         else:
             error("unsupported character in constant: %s" % s)
-        first = False
     return out
 
 def main(argv=None):

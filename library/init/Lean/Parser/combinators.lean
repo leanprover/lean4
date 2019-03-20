@@ -47,8 +47,8 @@ private def many1Aux (p : Parser) : List Syntax → Nat → Parser
 | as (n+1) := do
   a ← catch p (λ msg, throw {msg with custom :=
     -- append `Syntax.missing` to make clear that List is incomplete
-    Syntax.List (Syntax.missing::msg.custom.get::as).reverse}),
-  many1Aux (a::as) n <|> pure (Syntax.List (a::as).reverse)
+    Syntax.list (Syntax.missing::msg.custom.get::as).reverse}),
+  many1Aux (a::as) n <|> pure (Syntax.list (a::as).reverse)
 
 def many1 (r : Parser) : Parser :=
 do rem ← remaining, many1Aux r [] (rem+1)
@@ -60,10 +60,10 @@ instance many1.view (r : Parser) [Parser.HasView α r] : Parser.HasView (List α
 { view := λ stx, match stx.asNode with
     | some n := n.args.map (HasView.view r)
     | _ := [HasView.view r Syntax.missing],
-  review := λ as, Syntax.List $ as.map (review r) }
+  review := λ as, Syntax.list $ as.map (review r) }
 
 def many (r : Parser) : Parser :=
-many1 r <|> pure (Syntax.List [])
+many1 r <|> pure (Syntax.list [])
 
 instance many.tokens (r : Parser) [Parser.HasTokens r] : Parser.HasTokens (many r) :=
 ⟨tokens r⟩
@@ -78,12 +78,12 @@ private def sepByAux (p : m Syntax) (sep : Parser) (allowTrailingSep : Bool) : B
   let p := if pOpt then some <$> p <|> pure none else some <$> p,
   some a ← catch p (λ msg, throw {msg with custom :=
     -- append `Syntax.missing` to make clear that List is incomplete
-    Syntax.List (Syntax.missing::msg.custom.get::as).reverse})
-    | pure (Syntax.List as.reverse),
+    Syntax.list (Syntax.missing::msg.custom.get::as).reverse})
+    | pure (Syntax.list as.reverse),
   -- I don't want to think about what the output on a failed separator parse should look like
   let sep := try sep,
   some s ← some <$> sep <|> pure none
-    | pure (Syntax.List (a::as).reverse),
+    | pure (Syntax.list (a::as).reverse),
   sepByAux allowTrailingSep (s::a::as) n
 
 def sepBy (p sep : Parser) (allowTrailingSep := tt) : Parser :=
@@ -114,7 +114,7 @@ instance sepBy.view {α β} (p sep : Parser) (a) [Parser.HasView α p] [Parser.H
 { view := λ stx, match stx.asNode with
     | some n := sepBy.viewAux p sep n.args
     | _ := [⟨view p Syntax.missing, none⟩],
-  review := λ as, Syntax.List $ as.bind (λ a, match a with
+  review := λ as, Syntax.list $ as.bind (λ a, match a with
     | ⟨v, some vsep⟩ := [review p v, review sep vsep]
     | ⟨v, none⟩      := [review p v]) }
 
@@ -129,10 +129,10 @@ instance sepBy1.View {α β} (p sep : Parser) (a) [Parser.HasView α p] [Parser.
 def optional (r : Parser) : Parser :=
 do r ← optional $
      -- on error, wrap in "some"
-     catch r (λ msg, throw {msg with custom := Syntax.List [msg.custom.get]}),
+     catch r (λ msg, throw {msg with custom := Syntax.list [msg.custom.get]}),
    pure $ match r with
-   | some r := Syntax.List [r]
-   | none   := Syntax.List []
+   | some r := Syntax.list [r]
+   | none   := Syntax.list []
 
 instance optional.tokens (r : Parser) [Parser.HasTokens r] : Parser.HasTokens (optional r) :=
 ⟨tokens r⟩
@@ -142,8 +142,8 @@ instance optional.view (r : Parser) [Parser.HasView α r] : Parser.HasView (Opti
     | some {args := [stx], ..} := some $ HasView.view r stx
     | _ := some $ view r Syntax.missing,
   review := λ a, match a with
-    | some a := Syntax.List [review r a]
-    | none   := Syntax.List [] }
+    | some a := Syntax.list [review r a]
+    | none   := Syntax.list [] }
 instance optional.viewDefault (r : Parser) [Parser.HasView α r] : Parser.HasViewDefault (optional r) (Option α) none := ⟨⟩
 
 /-- Parse a List `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.

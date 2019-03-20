@@ -22,7 +22,7 @@ local postfix +:10000 := Combinators.many1
 def Term.Parser (rbp := 0) : termParser :=
 recurse rbp <?> "Term"
 
-setOption class.instanceMaxDepth 100
+set_option class.instance_max_depth 100
 
 namespace «command»
 namespace NotationSpec
@@ -42,7 +42,7 @@ def precedenceLit.View.toNat : precedenceLit.View → Nat
 def precedenceTerm.Parser : termParser :=
 nodeChoice! precedenceTerm {
   lit: precedenceLit.Parser,
-  offset: Node! precedenceOffset ["(", lit: precedenceLit.Parser,
+  offset: node! precedenceOffset ["(", lit: precedenceLit.Parser,
     op: nodeChoice! precedenceOffsetOp {" + ", " - "},
     offset: number.Parser,
     ")",
@@ -57,7 +57,7 @@ def precedenceTerm.View.toNat : precedenceTerm.View → Nat
 
 @[derive Parser.HasTokens Parser.HasView]
 def precedence.Parser : termParser :=
-Node! «precedence» [":", Term: precedenceTerm.Parser]
+node! «precedence» [":", Term: precedenceTerm.Parser]
 
 @[derive Parser.HasTokens Parser.HasView]
 def quotedSymbol.Parser : termParser :=
@@ -65,7 +65,7 @@ raw $ takeUntil (= '`')
 
 @[derive Parser.HasTokens Parser.HasView]
 def symbolQuote.Parser : termParser :=
-Node! symbolQuote [
+node! symbolQuote [
   leftQuote: rawStr "`",
   symbol: quotedSymbol.Parser,
   rightQuote: rawStr "`" tt, -- consume trailing ws
@@ -80,7 +80,7 @@ try $ do {
 
 instance unquotedSymbol.tokens : Parser.HasTokens unquotedSymbol.Parser := ⟨[]⟩
 instance unquotedSymbol.View : Parser.HasView (Option SyntaxAtom) unquotedSymbol.Parser :=
-{ View := λ stx, match stx with
+{ view := λ stx, match stx with
   | Syntax.atom atom := some atom
   | _                := none,
   review := λ a, (Syntax.atom <$> a).getOrElse Syntax.missing }
@@ -103,11 +103,11 @@ nodeChoice! mixfixSymbol {
 
 @[derive Parser.HasTokens Parser.HasView]
 def foldAction.Parser : termParser :=
-Node! foldAction [
+node! foldAction [
   "(",
   op: anyOf [symbolOrIdent "foldl", symbolOrIdent "foldr"],
   sep: notationSymbol.Parser,
-  folder: Node! foldActionFolder [
+  folder: node! foldActionFolder [
     "(",
     arg1: ident.Parser,
     arg2: ident.Parser,
@@ -122,10 +122,10 @@ Node! foldAction [
 
 @[derive Parser.HasTokens Parser.HasView]
 def action.Parser : termParser :=
-Node! action [":", kind: nodeChoice! actionKind {
+node! action [":", kind: nodeChoice! actionKind {
   prec: try precedenceTerm.Parser,
   prev: symbolOrIdent "prev",
-  scoped: Node! scopedAction [
+  scoped: node! scopedAction [
     try ["(", scoped: symbolOrIdent "scoped"],
     prec: precedence.Parser?,
     id: ident.Parser,
@@ -139,30 +139,30 @@ Node! action [":", kind: nodeChoice! actionKind {
 @[derive Parser.HasTokens Parser.HasView]
 def transition.Parser : termParser :=
 nodeChoice! transition {
-  binder: Node! binder [binder: symbolOrIdent "binder", prec: precedence.Parser?],
-  binders: Node! binders [binders: symbolOrIdent "binders", prec: precedence.Parser?],
-  Arg: Node! argument [id: ident.Parser, action: action.Parser?]
+  binder: node! binder [binder: symbolOrIdent "binder", prec: precedence.Parser?],
+  binders: node! binders [binders: symbolOrIdent "binders", prec: precedence.Parser?],
+  Arg: node! argument [id: ident.Parser, action: action.Parser?]
 }
 
 @[derive Parser.HasTokens Parser.HasView]
 def rule.Parser : termParser :=
-Node! rule [symbol: notationSymbol.Parser, transition: transition.Parser?]
+node! rule [symbol: notationSymbol.Parser, transition: transition.Parser?]
 
 end NotationSpec
 
 @[derive Parser.HasTokens Parser.HasView]
 def NotationSpec.Parser : termParser :=
-Node! NotationSpec [prefixArg: ident.Parser?, rules: NotationSpec.rule.Parser*]
+node! NotationSpec [prefixArg: ident.Parser?, rules: NotationSpec.rule.Parser*]
 
 @[derive Parser.HasTokens Parser.HasView]
 def notation.Parser : termParser :=
-Node! «notation» [
+node! «notation» [
   try [«local»: (symbol "local ")?, "notation"],
   spec: NotationSpec.Parser, ":=", Term: Term.Parser]
 
 @[derive Parser.HasTokens Parser.HasView]
 def reserveNotation.Parser : termParser :=
-Node! «reserveNotation» [try ["reserve", "notation"], spec: NotationSpec.Parser]
+node! «reserveNotation» [try ["reserve", "notation"], spec: NotationSpec.Parser]
 
 @[derive Parser.HasTokens Parser.HasView]
 def mixfix.kind.Parser : termParser :=
@@ -170,7 +170,7 @@ nodeChoice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 
 @[derive Parser.HasTokens Parser.HasView]
 def mixfix.Parser : termParser :=
-Node! «mixfix» [
+node! «mixfix» [
   try [«local»: (symbol "local ")?, kind: mixfix.kind.Parser],
   symbol: NotationSpec.mixfixSymbol.Parser, ":=", Term: Term.Parser]
 
@@ -180,7 +180,7 @@ nodeChoice! notationLike {«notation»: notation.Parser, mixfix: mixfix.Parser}
 
 @[derive Parser.HasTokens Parser.HasView]
 def reserveMixfix.Parser : termParser :=
-Node! «reserveMixfix» [
+node! «reserveMixfix» [
   try ["reserve", kind: mixfix.kind.Parser],
   symbol: NotationSpec.notationSymbol.Parser]
 

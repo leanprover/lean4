@@ -114,7 +114,7 @@ def asNode : Syntax → Option (SyntaxNode Syntax)
 | (Syntax.rawNode n) := some {n with args := n.args.map (flipScopes n.scopes), scopes := []}
 | _                   := none
 
-protected def List (args : List Syntax) :=
+protected def list (args : List Syntax) :=
 mkNode noKind args
 
 def kind : Syntax → Option SyntaxNodeKind

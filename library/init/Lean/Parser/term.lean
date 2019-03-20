@@ -17,15 +17,15 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := Combinators.many
 local postfix +:10000 := Combinators.many1
 
-setOption class.instanceMaxDepth 200
+set_option class.instance_max_depth 200
 
 @[derive Parser.HasTokens Parser.HasView]
 def identUnivSpec.Parser : basicParser :=
-Node! identUnivSpec [".{", levels: Level.Parser+, "}"]
+node! identUnivSpec [".{", levels: Level.Parser+, "}"]
 
 @[derive Parser.HasTokens Parser.HasView]
 def identUnivs.Parser : termParser :=
-Node! identUnivs [id: ident.Parser, univs: (monadLift identUnivSpec.Parser)?]
+node! identUnivs [id: ident.Parser, univs: (monadLift identUnivSpec.Parser)?]
 
 namespace Term
 /-- Access leading Term -/
@@ -35,14 +35,14 @@ instance : HasView Syntax getLeading := default _
 
 @[derive Parser.HasTokens Parser.HasView]
 def paren.Parser : termParser :=
-Node! «paren» ["(":maxPrec,
-  content: Node! parenContent [
+node! «paren» ["(":maxPrec,
+  content: node! parenContent [
     Term: Term.Parser,
     special: nodeChoice! parenSpecial {
       /- Do not allow trailing comma. Looks a bit weird and would clash with
       adding support for tuple sections (https://downloads.haskell.org/~ghc/8.2.1/docs/html/usersGuide/glasgowExts.html#tuple-sections). -/
-      tuple: Node! tuple [", ", tail: SepBy (Term.Parser 0) (symbol ", ") ff],
-      typed: Node! typed [" : ", Type: Term.Parser],
+      tuple: node! tuple [", ", tail: sepBy (Term.Parser 0) (symbol ", ") ff],
+      typed: node! typed [" : ", type: Term.Parser],
     }?,
   ]?,
   ")"
@@ -50,7 +50,7 @@ Node! «paren» ["(":maxPrec,
 
 @[derive Parser.HasTokens Parser.HasView]
 def hole.Parser : termParser :=
-Node! hole [hole: symbol "_" maxPrec]
+node! hole [hole: symbol "_" maxPrec]
 
 @[derive Parser.HasTokens Parser.HasView]
 def sort.Parser : termParser :=
@@ -58,7 +58,7 @@ nodeChoice! sort {"Sort":maxPrec, "Type":maxPrec}
 
 @[derive HasTokens HasView]
 def typeSpec.Parser : termParser :=
-Node! typeSpec [" : ", Type: Term.Parser 0]
+node! typeSpec [" : ", type: Term.Parser 0]
 
 @[derive HasTokens HasView]
 def optType.Parser : termParser :=
@@ -74,36 +74,36 @@ nodeChoice! binderIdent {id: ident.Parser, hole: hole.Parser}
 @[derive HasTokens HasView]
 def binderDefault.Parser : termParser :=
 nodeChoice! binderDefault {
-  val: Node! binderDefaultVal [":=", Term: Term.Parser 0],
-  tac: Node! binderDefaultTac [".", Term: Term.Parser 0],
+  val: node! binderDefaultVal [":=", Term: Term.Parser 0],
+  tac: node! binderDefaultTac [".", Term: Term.Parser 0],
 }
 
 @[derive HasTokens HasView]
 def binderContent.Parser : termParser :=
-Node! binderContent [
+node! binderContent [
   ids: binderIdent.Parser+,
-  Type: optType.Parser,
+  type: optType.Parser,
   default: binderDefault.Parser?
 ]
 
 @[derive HasTokens HasView]
 def simpleBinder.Parser : termParser :=
 nodeChoice! simpleBinder {
-  explicit: Node! simpleExplicitBinder ["(", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol ")"],
-  implicit: Node! simpleImplicitBinder ["{", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol "}"],
-  strictImplicit: Node! simpleStrictImplicitBinder ["⦃", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol "⦄"],
-  instImplicit: Node! simpleInstImplicitBinder ["[", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol "]"],
+  explicit: node! simpleExplicitBinder ["(", id: ident.Parser, " : ", type: Term.Parser 0, right: symbol ")"],
+  implicit: node! simpleImplicitBinder ["{", id: ident.Parser, " : ", type: Term.Parser 0, right: symbol "}"],
+  strictImplicit: node! simpleStrictImplicitBinder ["⦃", id: ident.Parser, " : ", type: Term.Parser 0, right: symbol "⦄"],
+  instImplicit: node! simpleInstImplicitBinder ["[", id: ident.Parser, " : ", type: Term.Parser 0, right: symbol "]"],
 }
 
 def simpleBinder.View.toBinderInfo : simpleBinder.View → (BinderInfo × SyntaxIdent × Syntax)
-| (simpleBinder.View.explicit {id := id, Type := Type})        := (BinderInfo.default, id, Type)
-| (simpleBinder.View.implicit {id := id, Type := Type})        := (BinderInfo.implicit, id, Type)
-| (simpleBinder.View.strictImplicit {id := id, Type := Type}) := (BinderInfo.strictImplicit, id, Type)
-| (simpleBinder.View.instImplicit {id := id, Type := Type})   := (BinderInfo.instImplicit, id, Type)
+| (simpleBinder.View.explicit {id := id, type := type, ..})       := (BinderInfo.default, id, type)
+| (simpleBinder.View.implicit {id := id, type := type, ..})       := (BinderInfo.implicit, id, type)
+| (simpleBinder.View.strictImplicit {id := id, type := type, ..}) := (BinderInfo.strictImplicit, id, type)
+| (simpleBinder.View.instImplicit {id := id, type := type, ..})   := (BinderInfo.instImplicit, id, type)
 
 @[derive Parser.HasTokens Parser.HasView]
 def anonymousConstructor.Parser : termParser :=
-Node! anonymousConstructor ["⟨":maxPrec, args: SepBy (Term.Parser 0) (symbol ","), "⟩"]
+node! anonymousConstructor ["⟨":maxPrec, args: sepBy (Term.Parser 0) (symbol ","), "⟩"]
 
 /- All binders must be surrounded with some kind of bracket. (e.g., '()', '{}', '[]').
    We use this feature when parsing examples/definitions/theorems. The goal is to avoid counter-intuitive
@@ -134,15 +134,15 @@ Node! anonymousConstructor ["⟨":maxPrec, args: SepBy (Term.Parser 0) (symbol "
 @[derive HasTokens HasView]
 def bracketedBinder.Parser : termParser :=
 nodeChoice! bracketedBinder {
-  explicit: Node! explicitBinder ["(", content: nodeChoice! explicitBinderContent {
+  explicit: node! explicitBinder ["(", content: nodeChoice! explicitBinderContent {
     «notation»: command.notationLike.Parser,
     other: binderContent.Parser
   }, right: symbol ")"],
-  implicit: Node! implicitBinder ["{", content: binderContent.Parser, "}"],
-  strictImplicit: Node! strictImplicitBinder ["⦃", content: binderContent.Parser, "⦄"],
-  instImplicit: Node! instImplicitBinder ["[", content: nodeLongestChoice! instImplicitBinderContent {
-    named: Node! instImplicitNamedBinder [id: ident.Parser, " : ", Type: Term.Parser 0],
-    anonymous: Node! instImplicitAnonymousBinder [Type: Term.Parser 0]
+  implicit: node! implicitBinder ["{", content: binderContent.Parser, "}"],
+  strictImplicit: node! strictImplicitBinder ["⦃", content: binderContent.Parser, "⦄"],
+  instImplicit: node! instImplicitBinder ["[", content: nodeLongestChoice! instImplicitBinderContent {
+    named: node! instImplicitNamedBinder [id: ident.Parser, " : ", type: Term.Parser 0],
+    anonymous: node! instImplicitAnonymousBinder [type: Term.Parser 0]
   }, "]"],
   anonymousConstructor: anonymousConstructor.Parser,
 }
@@ -156,10 +156,10 @@ nodeChoice! binder {
 
 @[derive HasTokens HasView]
 def bindersExt.Parser : termParser :=
-Node! bindersExt [
+node! bindersExt [
   leadingIds: binderIdent.Parser*,
   remainder: nodeChoice! bindersRemainder {
-    Type: Node! bindersTypes [":", Type: Term.Parser 0],
+    type: node! bindersTypes [":", type: Term.Parser 0],
     -- we allow mixing like in `a (b : β) c`, but not `a : α (b : β) c : γ`
     mixed: nodeChoice! mixedBinder {
       bracketed: bracketedBinder.Parser,
@@ -190,7 +190,7 @@ end binder
 
 @[derive Parser.HasTokens Parser.HasView]
 def lambda.Parser : termParser :=
-Node! lambda [
+node! lambda [
   op: unicodeSymbol "λ" "fun" maxPrec,
   binders: binders.Parser,
   ",",
@@ -199,10 +199,10 @@ Node! lambda [
 
 @[derive Parser.HasTokens Parser.HasView]
 def assume.Parser : termParser :=
-Node! «assume» [
+node! «assume» [
   "assume ":maxPrec,
   binders: nodeChoice! assumeBinders {
-    anonymous: Node! assumeAnonymous [": ", Type: Term.Parser],
+    anonymous: node! assumeAnonymous [": ", type: Term.Parser],
     binders: binders.Parser
   },
   ", ",
@@ -211,7 +211,7 @@ Node! «assume» [
 
 @[derive Parser.HasTokens Parser.HasView]
 def pi.Parser : termParser :=
-Node! pi [
+node! pi [
   op: anyOf [unicodeSymbol "Π" "Pi" maxPrec, unicodeSymbol "∀" "forall" maxPrec],
   binders: binders.Parser,
   ",",
@@ -220,7 +220,7 @@ Node! pi [
 
 @[derive Parser.HasTokens Parser.HasView]
 def explicit.Parser : termParser :=
-Node! explicit [
+node! explicit [
   mod: nodeChoice! explicitModifier {
     explicit: symbol "@" maxPrec,
     partialExplicit: symbol "@@" maxPrec
@@ -230,18 +230,18 @@ Node! explicit [
 
 @[derive Parser.HasTokens Parser.HasView]
 def from.Parser : termParser :=
-Node! «from» ["from ", proof: Term.Parser]
+node! «from» ["from ", proof: Term.Parser]
 
 @[derive Parser.HasTokens Parser.HasView]
 def let.Parser : termParser :=
-Node! «let» [
+node! «let» [
   "let ",
   lhs: nodeChoice! letLhs {
-    id: Node! letLhsId [
+    id: node! letLhsId [
       id: ident.Parser,
       -- NOTE: after expansion, binders are Empty
       binders: bracketedBinder.Parser*,
-      Type: optType.Parser,
+      type: optType.Parser,
     ],
     pattern: Term.Parser
   },
@@ -253,17 +253,17 @@ Node! «let» [
 
 @[derive Parser.HasTokens Parser.HasView]
 def optIdent.Parser : termParser :=
-(try Node! optIdent [id: ident.Parser, " : "])?
+(try node! optIdent [id: ident.Parser, " : "])?
 
 @[derive Parser.HasTokens Parser.HasView]
 def have.Parser : termParser :=
-Node! «have» [
+node! «have» [
   "have ",
   id: optIdent.Parser,
   prop: Term.Parser,
   proof: nodeChoice! haveProof {
-    Term: Node! haveTerm [" := ", Term: Term.Parser],
-    «from»: Node! haveFrom [", ", «from»: from.Parser],
+    Term: node! haveTerm [" := ", Term: Term.Parser],
+    «from»: node! haveFrom [", ", «from»: from.Parser],
   },
   ", ",
   body: Term.Parser,
@@ -271,7 +271,7 @@ Node! «have» [
 
 @[derive Parser.HasTokens Parser.HasView]
 def show.Parser : termParser :=
-Node! «show» [
+node! «show» [
   "show ",
   prop: Term.Parser,
   ", ",
@@ -280,21 +280,21 @@ Node! «show» [
 
 @[derive Parser.HasTokens Parser.HasView]
 def match.Parser : termParser :=
-Node! «match» [
+node! «match» [
   "match ",
   scrutinees: sepBy1 Term.Parser (symbol ", ") ff,
-  Type: optType.Parser,
+  type: optType.Parser,
   " with ",
   optBar: (symbol " | ")?,
   equations: sepBy1
-    Node! «matchEquation» [
+    node! «matchEquation» [
       lhs: sepBy1 Term.Parser (symbol ", ") ff, ":=", rhs: Term.Parser]
     (symbol " | ") ff,
 ]
 
 @[derive Parser.HasTokens Parser.HasView]
 def if.Parser : termParser :=
-Node! «if» [
+node! «if» [
   "if ",
   id: optIdent.Parser,
   prop: Term.Parser,
@@ -306,23 +306,23 @@ Node! «if» [
 
 @[derive Parser.HasTokens Parser.HasView]
 def structInst.Parser : termParser :=
-Node! structInst [
+node! structInst [
   "{":maxPrec,
-  Type: (try Node! structInstType [id: ident.Parser, " . "])?,
-  «with»: (try Node! structInstWith [source: Term.Parser, " with "])?,
-  items: SepBy nodeChoice! structInstItem {
-    field: Node! structInstField [id: ident.Parser, " := ", val: Term.Parser],
-    source: Node! structInstSource ["..", source: Term.Parser?],
+  type: (try node! structInstType [id: ident.Parser, " . "])?,
+  «with»: (try node! structInstWith [source: Term.Parser, " with "])?,
+  items: sepBy nodeChoice! structInstItem {
+    field: node! structInstField [id: ident.Parser, " := ", val: Term.Parser],
+    source: node! structInstSource ["..", source: Term.Parser?],
   } (symbol ", "),
   "}",
 ]
 
 @[derive Parser.HasTokens Parser.HasView]
 def Subtype.Parser : termParser :=
-Node! Subtype [
+node! Subtype [
   "{":maxPrec,
   id: ident.Parser,
-  Type: optType.Parser,
+  type: optType.Parser,
   "//",
   prop: Term.Parser,
   "}"
@@ -330,27 +330,27 @@ Node! Subtype [
 
 @[derive Parser.HasTokens Parser.HasView]
 def inaccessible.Parser : termParser :=
-Node! inaccessible [".(":maxPrec, Term: Term.Parser, ")"]
+node! inaccessible [".(":maxPrec, Term: Term.Parser, ")"]
 
 @[derive Parser.HasTokens Parser.HasView]
 def anonymousInaccessible.Parser : termParser :=
-Node! anonymousInaccessible ["._":maxPrec]
+node! anonymousInaccessible ["._":maxPrec]
 
 @[derive Parser.HasTokens Parser.HasView]
 def sorry.Parser : termParser :=
-Node! «sorry» ["sorry":maxPrec]
+node! «sorry» ["sorry":maxPrec]
 
 def borrowPrec := maxPrec - 1
 @[derive Parser.HasTokens Parser.HasView]
 def borrowed.Parser : termParser :=
-Node! borrowed ["@&":maxPrec, Term: Term.Parser borrowPrec]
+node! borrowed ["@&":maxPrec, Term: Term.Parser borrowPrec]
 
 -- TODO(Sebastian): replace with attribute
 @[derive HasTokens]
 def builtinLeadingParsers : TokenMap termParser := TokenMap.ofList [
   (`ident, identUnivs.Parser),
-  (number.Name, number.Parser),
-  (stringLit.Name, stringLit.Parser),
+  (number.name, number.Parser),
+  (stringLit.name, stringLit.Parser),
   ("(", paren.Parser),
   ("_", hole.Parser),
   ("Sort", sort.Parser),
@@ -381,22 +381,22 @@ def builtinLeadingParsers : TokenMap termParser := TokenMap.ofList [
 @[derive Parser.HasTokens Parser.HasView]
 def sortApp.Parser : trailingTermParser :=
 do { l ← getLeading, guard $ l.isOfKind sort } *>
-Node! sortApp [fn: getLeading, Arg: monadLift (Level.Parser maxPrec).run]
+node! sortApp [fn: getLeading, Arg: monadLift (Level.Parser maxPrec).run]
 
 @[derive Parser.HasTokens Parser.HasView]
 def app.Parser : trailingTermParser :=
-Node! app [fn: getLeading, Arg: Term.Parser maxPrec]
+node! app [fn: getLeading, Arg: Term.Parser maxPrec]
 
 def mkApp (fn : Syntax) (args : List Syntax) : Syntax :=
 args.foldl (λ fn Arg, Syntax.mkNode app [fn, Arg]) fn
 
 @[derive Parser.HasTokens Parser.HasView]
 def arrow.Parser : trailingTermParser :=
-Node! arrow [dom: getLeading, op: unicodeSymbol "→" "->" 25, range: Term.Parser 24]
+node! arrow [dom: getLeading, op: unicodeSymbol "→" "->" 25, range: Term.Parser 24]
 
 @[derive Parser.HasView]
 def projection.Parser : trailingTermParser :=
-try $ Node! projection [
+try $ node! projection [
   Term: getLeading,
   -- do not consume trailing whitespace
   «.»: rawStr ".",

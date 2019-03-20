@@ -908,7 +908,7 @@ static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
             if (p.curr_is_string()) {
                 fname = utf8_trim(p.get_str_val());
                 p.next();
-                reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
+                reader = mk_app(mk_const({"Lean", "Parser", "symbol"}), from_string(p.get_str_val()));
                 if (p.curr_is_token(":")) {
                     p.next();
                     auto prec = p.parse_expr(get_max_prec());
@@ -952,7 +952,7 @@ static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
         if (p.curr_is_string()) {
             fname = utf8_trim(p.get_str_val());
             p.next();
-            reader = mk_app(mk_const({"lean", "parser", "symbol"}), from_string(p.get_str_val()));
+            reader = mk_app(mk_const({"Lean", "Parser", "symbol"}), from_string(p.get_str_val()));
             if (p.curr_is_token(":")) {
                 p.next();
                 auto prec = p.parse_expr(get_max_prec());

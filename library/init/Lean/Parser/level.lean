@@ -36,7 +36,7 @@ instance : HasView Syntax getLeading := default _
 
 @[derive Parser.HasTokens Parser.HasView]
 def paren.Parser : levelParser :=
-Node! «paren» ["(":maxPrec, inner: Level.Parser 0, ")"]
+node! «paren» ["(":maxPrec, inner: Level.Parser 0, ")"]
 
 @[derive Parser.HasTokens Parser.HasView]
 def leading.Parser : levelParser :=
@@ -51,11 +51,11 @@ nodeChoice! leading {
 
 @[derive Parser.HasTokens Parser.HasView]
 def app.Parser : trailingLevelParser :=
-Node! app [fn: getLeading, Arg: Level.Parser maxPrec]
+node! app [fn: getLeading, Arg: Level.Parser maxPrec]
 
 @[derive Parser.HasTokens Parser.HasView]
 def addLit.Parser : trailingLevelParser :=
-Node! addLit [lhs: getLeading, "+", rhs: number.Parser]
+node! addLit [lhs: getLeading, "+", rhs: number.Parser]
 
 @[derive Parser.HasTokens Parser.HasView]
 def trailing.Parser : trailingLevelParser :=

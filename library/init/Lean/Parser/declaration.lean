@@ -26,22 +26,23 @@ local postfix +:10000 := Combinators.many1
 
 @[derive HasTokens HasView]
 def docComment.Parser : commandParser :=
-Node! docComment ["/--", doc: raw $ many' (notFollowedBy (str "-/") *> any), "-/"]
+node! docComment ["/--", doc: raw $ many' (notFollowedBy (str "-/") *> any), "-/"]
 
 @[derive HasTokens HasView]
 def attrInstance.Parser : commandParser :=
 -- use `rawIdent` because of attribute names such as `instance`
-Node! attrInstance [Name: rawIdent.Parser, args: (Term.Parser maxPrec)*]
+node! attrInstance [Name: rawIdent.Parser, args: (Term.Parser maxPrec)*]
 
 @[derive HasTokens HasView]
 def declAttributes.Parser : commandParser :=
 -- TODO(Sebastian): custom attribute parsers
-Node! declAttributes ["@[", attrs: sepBy1 attrInstance.Parser (symbol ","), "]"]
+node! declAttributes ["@[", attrs: sepBy1 attrInstance.Parser (symbol ","), "]"]
 
-setOption class.instanceMaxDepth 300
+set_option class.instance_max_depth 300
+
 @[derive HasTokens HasView]
 def declModifiers.Parser : commandParser :=
-Node! declModifiers [
+node! declModifiers [
   docComment: docComment.Parser?,
   attrs: declAttributes.Parser?,
   visibility: nodeChoice! visibility {"private", "protected"}?,
@@ -51,26 +52,26 @@ Node! declModifiers [
 
 @[derive HasTokens HasView]
 def declSig.Parser : commandParser :=
-Node! declSig [
+node! declSig [
   params: Term.bracketedBinders.Parser,
-  Type: Term.typeSpec.Parser,
+  type: Term.typeSpec.Parser,
 ]
 
 @[derive HasTokens HasView]
 def optDeclSig.Parser : commandParser :=
-Node! optDeclSig [
+node! optDeclSig [
   params: Term.bracketedBinders.Parser,
-  Type: Term.optType.Parser,
+  type: Term.optType.Parser,
 ]
 
 @[derive HasTokens HasView]
 def equation.Parser : commandParser :=
-Node! equation ["|", lhs: (Term.Parser maxPrec)+, ":=", rhs: Term.Parser]
+node! equation ["|", lhs: (Term.Parser maxPrec)+, ":=", rhs: Term.Parser]
 
 @[derive HasTokens HasView]
 def declVal.Parser : commandParser :=
 nodeChoice! declVal {
-  simple: Node! simpleDeclVal [":=", body: Term.Parser],
+  simple: node! simpleDeclVal [":=", body: Term.Parser],
   emptyMatch: symbol ".",
   «match»: equation.Parser+
 }
@@ -78,13 +79,13 @@ nodeChoice! declVal {
 @[derive HasTokens HasView]
 def inferModifier.Parser : commandParser :=
 nodeChoice! inferModifier {
-  relaxed: try $ Node! relaxedInferModifier ["{", "}"],
-  strict: try $ Node! strictInferModifier ["(", ")"],
+  relaxed: try $ node! relaxedInferModifier ["{", "}"],
+  strict: try $ node! strictInferModifier ["(", ")"],
 }
 
 @[derive HasTokens HasView]
 def introRule.Parser : commandParser :=
-Node! introRule [
+node! introRule [
   "|",
   Name: ident.Parser,
   inferMod: inferModifier.Parser?,
@@ -93,7 +94,7 @@ Node! introRule [
 
 @[derive HasTokens HasView]
 def structBinderContent.Parser : commandParser :=
-Node! structBinderContent [
+node! structBinderContent [
   ids: ident.Parser+,
   inferMod: inferModifier.Parser?,
   sig: optDeclSig.Parser,
@@ -103,55 +104,55 @@ Node! structBinderContent [
 @[derive HasTokens HasView]
 def structureFieldBlock.Parser : commandParser :=
 nodeChoice! structureFieldBlock {
-  explicit: Node! structExplicitBinder ["(", content: nodeChoice! structExplicitBinderContent {
+  explicit: node! structExplicitBinder ["(", content: nodeChoice! structExplicitBinderContent {
     «notation»: command.notationLike.Parser,
     other: structBinderContent.Parser
   }, right: symbol ")"],
-  implicit: Node! structImplicitBinder ["{", content: structBinderContent.Parser, "}"],
-  strictImplicit: Node! strictImplicitBinder ["⦃", content: structBinderContent.Parser, "⦄"],
-  instImplicit: Node! instImplicitBinder ["[", content: structBinderContent.Parser, "]"],
+  implicit: node! structImplicitBinder ["{", content: structBinderContent.Parser, "}"],
+  strictImplicit: node! strictImplicitBinder ["⦃", content: structBinderContent.Parser, "⦄"],
+  instImplicit: node! instImplicitBinder ["[", content: structBinderContent.Parser, "]"],
 }
 
 @[derive HasTokens HasView]
 def oldUnivParams.Parser : commandParser :=
-Node! oldUnivParams ["{", ids: ident.Parser+, "}"]
+node! oldUnivParams ["{", ids: ident.Parser+, "}"]
 
 @[derive Parser.HasTokens Parser.HasView]
 def identUnivParams.Parser : commandParser :=
-Node! identUnivParams [
+node! identUnivParams [
   id: ident.Parser,
-  univParams: Node! univParams [".{", params: ident.Parser+, "}"]?
+  univParams: node! univParams [".{", params: ident.Parser+, "}"]?
 ]
 
 @[derive HasTokens HasView]
 def structure.Parser : commandParser :=
-Node! «structure» [
+node! «structure» [
   keyword: nodeChoice! structureKw {"structure", "class"},
   oldUnivParams: oldUnivParams.Parser?,
   Name: identUnivParams.Parser,
   sig: optDeclSig.Parser,
-  «extends»: Node! «extends» ["extends", parents: sepBy1 Term.Parser (symbol ",")]?,
+  «extends»: node! «extends» ["extends", parents: sepBy1 Term.Parser (symbol ",")]?,
   ":=",
-  ctor: Node! structureCtor [Name: ident.Parser, inferMod: inferModifier.Parser?, "::"]?,
+  ctor: node! structureCtor [Name: ident.Parser, inferMod: inferModifier.Parser?, "::"]?,
   fieldBlocks: structureFieldBlock.Parser*,
 ]
 
 @[derive HasTokens HasView]
 def Declaration.Parser : commandParser :=
-Node! Declaration [
+node! Declaration [
   modifiers: declModifiers.Parser,
   inner: nodeChoice! Declaration.inner {
-    «defLike»: Node! «defLike» [
+    «defLike»: node! «defLike» [
       kind: nodeChoice! defLike.kind {"def", "abbreviation", "abbrev", "theorem", "constant"},
       oldUnivParams: oldUnivParams.Parser?,
       Name: identUnivParams.Parser, sig: optDeclSig.Parser, val: declVal.Parser],
-    «instance»: Node! «instance» ["instance", Name: identUnivParams.Parser?, sig: declSig.Parser, val: declVal.Parser],
-    «example»: Node! «example» ["example", sig: declSig.Parser, val: declVal.Parser],
-    «axiom»: Node! «axiom» [
+    «instance»: node! «instance» ["instance", Name: identUnivParams.Parser?, sig: declSig.Parser, val: declVal.Parser],
+    «example»: node! «example» ["example", sig: declSig.Parser, val: declVal.Parser],
+    «axiom»: node! «axiom» [
       kw: nodeChoice! constantKeyword {"axiom"},
       Name: identUnivParams.Parser,
       sig: declSig.Parser],
-    «inductive»: Node! «inductive» [try [«class»: (symbol "class")?, "inductive"],
+    «inductive»: node! «inductive» [try [«class»: (symbol "class")?, "inductive"],
       oldUnivParams: oldUnivParams.Parser?,
       Name: identUnivParams.Parser,
       sig: optDeclSig.Parser,

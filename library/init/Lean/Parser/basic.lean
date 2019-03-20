@@ -108,16 +108,16 @@ instance List.cons.tokens (r : ρ) (rs : List ρ) [Parser.HasTokens r] [Parser.H
 ⟨tokens r ++ tokens rs⟩
 
 class HasView (α : outParam Type) (r : ρ) :=
-(View : Syntax → α)
+(view : Syntax → α)
 (review : α → Syntax)
 
-export HasView (View review)
+export HasView (view review)
 
 def tryView {α : Type} (k : SyntaxNodeKind) [HasView α k] (stx : Syntax) : Option α :=
-if stx.isOfKind k then some (HasView.View k stx) else none
+if stx.isOfKind k then some (HasView.view k stx) else none
 
 instance HasView.default (r : ρ) : Inhabited (Parser.HasView Syntax r) :=
-⟨{ View := id, review := id }⟩
+⟨{ view := id, review := id }⟩
 
 class HasViewDefault (r : ρ) (α : outParam Type) [HasView α r] (default : α) := mk {}
 

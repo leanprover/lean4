@@ -1008,8 +1008,8 @@ parse_table init_nud_table() {
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
     r = r.add({transition("node!", mk_ext_action(parse_node))}, x0);
-    r = r.add({transition("node_choice!", mk_ext_action_core(parse_choice))}, x0);
-    r = r.add({transition("node_longest_choice!", mk_ext_action_core(parse_choice))}, x0);
+    r = r.add({transition("nodeChoice!", mk_ext_action_core(parse_choice))}, x0);
+    r = r.add({transition("nodeLongestChoice!", mk_ext_action_core(parse_choice))}, x0);
     return r;
 }
 

@@ -149,8 +149,8 @@ d.toConstantVal.id
 def lparams (d : ConstantInfo) : List Name :=
 d.toConstantVal.lparams
 
-def Type (d : ConstantInfo) : Expr :=
-d.toConstantVal.Type
+def type (d : ConstantInfo) : Expr :=
+d.toConstantVal.type
 
 def value : ConstantInfo → Option Expr
 | (defnInfo {value := r, ..}) := some r

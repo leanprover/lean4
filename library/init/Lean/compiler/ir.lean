@@ -14,7 +14,7 @@ The Lean to IR transformation produces λPure code. That is,
 then transformed using the procedures described in the paper above.
 -/
 namespace Lean
-namespace Ir
+namespace IR
 
 /- Variable identifier -/
 abbrev varid := Name
@@ -41,23 +41,23 @@ first need to test whether the `tobject` is really a pointer or not.
 
 Remark: the Lean runtime assumes that sizeof(void*) == sizeof(sizeT).
 Lean cannot be compiled on old platforms where this is not True. -/
-inductive Type
+inductive IRType
 | float | Uint8 | Uint16 | Uint32 | Uint64 | Usize
 | irrelevant | object | tobject
 
-def Type.beq : Type → Type → Bool
-| Type.float      Type.float      := tt
-| Type.Uint8      Type.Uint8      := tt
-| Type.Uint16     Type.Uint16     := tt
-| Type.Uint32     Type.Uint32     := tt
-| Type.Uint64     Type.Uint64     := tt
-| Type.Usize      Type.Usize      := tt
-| Type.irrelevant Type.irrelevant := tt
-| Type.object     Type.object     := tt
-| Type.tobject    Type.tobject    := tt
+def IRType.beq : IRType → IRType → Bool
+| IRType.float      IRType.float      := tt
+| IRType.Uint8      IRType.Uint8      := tt
+| IRType.Uint16     IRType.Uint16     := tt
+| IRType.Uint32     IRType.Uint32     := tt
+| IRType.Uint64     IRType.Uint64     := tt
+| IRType.Usize      IRType.Usize      := tt
+| IRType.irrelevant IRType.irrelevant := tt
+| IRType.object     IRType.object     := tt
+| IRType.tobject    IRType.tobject    := tt
 | _               _               := ff
 
-instance Type.HasBeq : HasBeq Type := ⟨Type.beq⟩
+instance IRType.HasBeq : HasBeq IRType := ⟨IRType.beq⟩
 
 /- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
@@ -82,7 +82,7 @@ instance Litval.HasBeq : HasBeq Litval := ⟨Litval.beq⟩
 
    - `id` is the Name of the Constructor in Lean.
    - `cidx` is the Constructor index (aka tag).
-   - `Usize` is the number of arguments of Type `Usize`.
+   - `Usize` is the number of arguments of type `Usize`.
    - `ssize` is the number of bytes used to store scalar values.
 
 Recall that a Constructor object contains a header, then a sequence of
@@ -114,9 +114,9 @@ inductive Expr
 | pap (c : fid) (ys : List Arg)
 /- Application. `x` must be a `pap` value. -/
 | ap  (x : varid) (ys : List Arg)
-/- Given `x : ty` where `ty` is a scalar Type, this operation returns a value of Type `tobject`.
+/- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
    For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
-| box (ty : Type) (x : varid)
+| box (ty : IRType) (x : varid)
 /- Given `x : [t]object`, obtain the scalar value. -/
 | unbox (x : varid)
 | lit (v : Litval)
@@ -126,7 +126,7 @@ inductive Expr
 | isTaggedPtr (x : varid)
 
 structure Param :=
-(x : Name) (borrowed : Bool) (ty : Type)
+(x : Name) (borrowed : Bool) (ty : IRType)
 
 inductive AltCore (Fnbody : Type) : Type
 | ctor (info : CtorInfo) (b : Fnbody) : AltCore
@@ -134,9 +134,9 @@ inductive AltCore (Fnbody : Type) : Type
 
 inductive Fnbody
 /- `let x : ty := e; b` -/
-| vdecl (x : varid) (ty : Type) (e : Expr) (b : Fnbody)
+| vdecl (x : varid) (ty : IRType) (e : Expr) (b : Fnbody)
 /- Join point Declaration `let j (xs) : ty := e; b` -/
-| jdecl (j : jpid) (xs : List Param) (ty : Type) (v : Fnbody) (b : Fnbody)
+| jdecl (j : jpid) (xs : List Param) (ty : IRType) (v : Fnbody) (b : Fnbody)
 /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    This operation is not part of λPure is only used during optimization. -/
 | set (x : varid) (i : Nat) (y : varid) (b : Fnbody)
@@ -144,7 +144,7 @@ inductive Fnbody
 | uset (x : varid) (i : Nat) (y : varid) (b : Fnbody)
 /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
-| sset (x : varid) (i : Nat) (offset : Nat) (y : varid) (ty : Type) (b : Fnbody)
+| sset (x : varid) (i : Nat) (offset : Nat) (y : varid) (ty : IRType) (b : Fnbody)
 | release (x : varid) (i : Nat) (b : Fnbody)
 /- RC increment for `object`. If c = `tt`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | inc (x : varid) (n : Nat) (c : Bool) (b : Fnbody)
@@ -162,8 +162,8 @@ abbrev alt := AltCore Fnbody
 @[pattern] abbrev alt.default := @AltCore.default Fnbody
 
 inductive Decl
-| fdecl  (f : fid) (xs : List Param) (ty : Type) (b : Fnbody)
-| extern (f : fid) (xs : List Param) (ty : Type)
+| fdecl  (f : fid) (xs : List Param) (ty : IRType) (b : Fnbody)
+| extern (f : fid) (xs : List Param) (ty : IRType)
 
 /-- `Expr.isPure e` return `tt` Iff `e` is in the `λPure` fragment. -/
 def Expr.isPure : Expr → Bool
@@ -366,5 +366,5 @@ Fnbody.collect b mkNameSet mkNameSet
 
 end freeVariables
 
-end Ir
+end IR
 end Lean

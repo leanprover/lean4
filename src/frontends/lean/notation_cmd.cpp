@@ -827,7 +827,7 @@ bool is_notation_cmd(name const & n) {
 
 void initialize_notation_cmd() {
     register_system_attribute(basic_attribute::with_check(
-            "parsing_only", "parsing-only notation declaration",
+            "parsingOnly", "parsing-only notation declaration",
             [](environment const &, name const &, bool) {
                 throw exception("invalid '[parsing_only]' attribute, can only be used in notation declarations");
             }));

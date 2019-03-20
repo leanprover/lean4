@@ -4046,6 +4046,10 @@ void initialize_elaborator() {
     register_trace_class("elaborator_detail");
     register_trace_class("elaborator_debug");
 
+    char const * elab_simple             = "elabSimple";
+    char const * elab_with_expected_type = "elabWithExpectedType";
+    char const * elab_as_eliminator      = "elabAsEliminator";
+
     register_system_attribute(
         elaborator_strategy_attribute(
             *g_elab_strategy,
@@ -4053,14 +4057,14 @@ void initialize_elaborator() {
 
     register_system_attribute(
         elaborator_strategy_proxy_attribute(
-            "elab_with_expected_type",
+            elab_with_expected_type,
             "instructs elaborator that the arguments of the function application (f ...) "
             "should be elaborated using information about the expected type",
             elaborator_strategy::WithExpectedType));
 
     register_system_attribute(
         elaborator_strategy_proxy_attribute(
-            "elab_as_eliminator",
+            elab_as_eliminator,
             "instructs elaborator that the arguments of the function application (f ...) "
             "should be elaborated as f were an eliminator",
             elaborator_strategy::AsEliminator));
@@ -4073,9 +4077,9 @@ void initialize_elaborator() {
             "to its arguments",
             elaborator_strategy::Simple));
 
-    register_incompatible("elab_simple", "elab_with_expected_type");
-    register_incompatible("elab_simple", "elab_as_eliminator");
-    register_incompatible("elab_with_expected_type", "elab_as_eliminator");
+    register_incompatible(elab_simple, elab_with_expected_type);
+    register_incompatible(elab_simple, elab_as_eliminator);
+    register_incompatible(elab_with_expected_type, elab_as_eliminator);
 
     g_elaborator_coercions          = new name{"elaborator", "coercions"};
     register_bool_option(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS,

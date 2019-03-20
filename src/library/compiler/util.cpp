@@ -547,7 +547,7 @@ void initialize_compiler_util() {
             }));
 
     register_system_attribute(basic_attribute::with_check(
-            "inline_if_reduce", "mark definition to be inlined when resultant term after reduction is not a `cases_on` application.",
+            "inlineIfReduce", "mark definition to be inlined when resultant term after reduction is not a `cases_on` application.",
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
@@ -563,7 +563,7 @@ void initialize_compiler_util() {
             }));
 
     register_system_attribute(basic_attribute::with_check(
-            "macro_inline", "mark definition to always be inlined before ANF conversion",
+            "macroInline", "mark definition to always be inlined before ANF conversion",
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
                 if (!decl.is_definition())

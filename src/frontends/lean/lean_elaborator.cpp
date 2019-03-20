@@ -397,7 +397,7 @@ static void elaborate_command(parser & p, expr const & cmd) {
         } else if (*cmd_name == "structure") {
             elab_structure_cmd(p, cmd);
             return;
-        } else if (*cmd_name == "init_quot") {
+        } else if (*cmd_name == "initQuot") {
             p.set_env(module::add(p.env(), mk_quot_decl()));
             return;
         } else if (*cmd_name == "variables") {

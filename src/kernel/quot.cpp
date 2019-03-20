@@ -17,13 +17,13 @@ name * quot_consts::g_quot_ind  = nullptr;
 name * quot_consts::g_quot_mk   = nullptr;
 
 static void check_eq_type(environment const & env) {
-    constant_info eq_info = env.get("eq");
-    if (!eq_info.is_inductive()) throw exception("failed to initialize quot module, environment does not have 'eq' type");
+    constant_info eq_info = env.get("Eq");
+    if (!eq_info.is_inductive()) throw exception("failed to initialize quot module, environment does not have 'Eq' type");
     inductive_val eq_val  = eq_info.to_inductive_val();
     if (length(eq_info.get_lparams()) != 1)
-        throw exception("failed to initialize quot module, unexpected number of universe params at 'eq' type");
+        throw exception("failed to initialize quot module, unexpected number of universe params at 'Eq' type");
     if (length(eq_val.get_cnstrs()) != 1)
-        throw exception("failed to initialize quot module, unexpected number of constructors for 'eq' type");
+        throw exception("failed to initialize quot module, unexpected number of constructors for 'Eq' type");
     local_ctx lctx;
     name_generator g;
     {
@@ -31,16 +31,16 @@ static void check_eq_type(environment const & env) {
         expr alpha = lctx.mk_local_decl(g, "α", mk_sort(u), mk_implicit_binder_info());
         expr expected_eq_type = lctx.mk_pi(alpha, mk_arrow(alpha, mk_arrow(alpha, mk_Prop())));
         if (expected_eq_type != eq_info.get_type())
-            throw exception("failed to initialize quot module, 'eq' has an expected type");
+            throw exception("failed to initialize quot module, 'Eq' has an expected type");
     }
     {
         constant_info eq_refl_info = env.get(head(eq_val.get_cnstrs()));
         level u = mk_univ_param(head(eq_refl_info.get_lparams()));
         expr alpha = lctx.mk_local_decl(g, "α", mk_sort(u), mk_implicit_binder_info());
         expr a = lctx.mk_local_decl(g, "a", alpha);
-        expr expected_eq_refl_type = lctx.mk_pi({alpha, a}, mk_app(mk_constant("eq", {u}), alpha, a, a));
+        expr expected_eq_refl_type = lctx.mk_pi({alpha, a}, mk_app(mk_constant("Eq", {u}), alpha, a, a));
         if (eq_refl_info.get_type() != expected_eq_refl_type)
-            throw exception("failed to initialize quot module, unexpected type for 'eq' type constructor");
+            throw exception("failed to initialize quot module, unexpected type for 'Eq' type constructor");
     }
 }
 
@@ -76,7 +76,7 @@ environment environment::add_quot() const {
     expr b          = lctx.mk_local_decl(g, "b", alpha);
     expr r_a_b      = mk_app(r, a, b);
     /* f a = f b */
-    expr f_a_eq_f_b = mk_app(mk_constant("eq", {v}), beta, mk_app(f, a), mk_app(f, b));
+    expr f_a_eq_f_b = mk_app(mk_constant("Eq", {v}), beta, mk_app(f, a), mk_app(f, b));
     /* (∀ a b : α, r a b → f a = f b) */
     expr sanity     = lctx.mk_pi({a, b}, mk_arrow(r_a_b, f_a_eq_f_b));
     /* constant {u v} quot.lift {α : Sort u} {r : α → α → Prop} {β : Sort v} (f : α → β)
@@ -98,10 +98,10 @@ environment environment::add_quot() const {
 }
 
 void initialize_quot() {
-    quot_consts::g_quot      = new name{"quot"};
-    quot_consts::g_quot_lift = new name{"quot", "lift"};
-    quot_consts::g_quot_ind  = new name{"quot", "ind"};
-    quot_consts::g_quot_mk   = new name{"quot", "mk"};
+    quot_consts::g_quot      = new name{"Quot"};
+    quot_consts::g_quot_lift = new name{"Quot", "lift"};
+    quot_consts::g_quot_ind  = new name{"Quot", "ind"};
+    quot_consts::g_quot_mk   = new name{"Quot", "mk"};
 }
 
 void finalize_quot() {

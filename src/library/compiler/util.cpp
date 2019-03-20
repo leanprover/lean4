@@ -97,10 +97,10 @@ bool has_inline_attribute(environment const & env, name const & n) {
 }
 
 bool has_inline_if_reduce_attribute(environment const & env, name const & n) {
-    if (has_attribute(env, "inline_if_reduce", n))
+    if (has_attribute(env, "inlineIfReduce", n))
         return true;
     if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline_if_reduce]`
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inlineIfReduce]`
            if `f` is marked. */
         return has_inline_if_reduce_attribute(env, n.get_prefix());
     }
@@ -108,10 +108,10 @@ bool has_inline_if_reduce_attribute(environment const & env, name const & n) {
 }
 
 bool has_macro_inline_attribute(environment const & env, name const & n) {
-    if (has_attribute(env, "macro_inline", n))
+    if (has_attribute(env, "macroInline", n))
         return true;
     if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[macro_inline]`
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[macroInline]`
            if `f` is marked. */
         return has_macro_inline_attribute(env, n.get_prefix());
     }
@@ -551,7 +551,7 @@ void initialize_compiler_util() {
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
-                    throw exception("invalid 'inline_if_reduce' use, only definitions can be marked as [inline_if_reduce]");
+                    throw exception("invalid 'inline_if_reduce' use, only definitions can be marked as [inlineIfReduce]");
             }));
 
     register_system_attribute(basic_attribute::with_check(
@@ -567,7 +567,7 @@ void initialize_compiler_util() {
             [](environment const & env, name const & d, bool) -> void {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
-                    throw exception("invalid 'macro_inline' use, only definitions can be marked as [macro_inline]");
+                    throw exception("invalid 'macroInline' use, only definitions can be marked as [macroInline]");
             }));
 }
 

@@ -4071,7 +4071,7 @@ void initialize_elaborator() {
 
     register_system_attribute(
         elaborator_strategy_proxy_attribute(
-            "elab_simple",
+            elab_simple,
             "instructs elaborator that the arguments of the function application (f ...) "
             "should be elaborated from left to right, and without propagating information from the expected type "
             "to its arguments",

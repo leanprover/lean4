@@ -613,7 +613,7 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("#eval",             "evaluate given expression using VM", eval_cmd));
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
-    add_cmd(r, cmd_info("init_quot",         "initialize `quot` type computational rules", init_quot_cmd));
+    add_cmd(r, cmd_info("initQuot",          "initialize `quot` type computational rules", init_quot_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));

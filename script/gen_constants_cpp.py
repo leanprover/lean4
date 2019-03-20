@@ -20,13 +20,20 @@ def error(msg):
 
 def to_c_const(s):
     out = ""
+    first = True
     for c in s:
         if c == '.' or c == '_':
             out += '_'
         elif c.isalpha() or c.isdigit():
-            out += c
+            if c.isupper():
+                if not first:
+                    out += "_"
+                out += c.lower()
+            else:
+                out += c
         else:
             error("unsupported character in constant: %s" % s)
+        first = False
     return out
 
 def main(argv=None):

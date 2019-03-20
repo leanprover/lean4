@@ -492,7 +492,7 @@ struct structure_cmd_fn {
                 if (auto const & ref = m_parent_refs[i])
                     fname = *ref;
                 else
-                    fname = name(parent_name.get_string()).append_before("to_");
+                    fname = name(parent_name.get_string()).append_before("to");
                 binder_info bi = mk_binder_info();
                 if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name))
                     // make superclass fields inst implicit
@@ -1196,7 +1196,7 @@ struct structure_cmd_fn {
                 non_unique.insert(n, idx+1);
                 n = n.append_after(idx);
             }
-            name coercion_name = m_name + n.append_before("to_");
+            name coercion_name = m_name + n.append_before("to");
             coercion_names.push_back(coercion_name);
         }
     }

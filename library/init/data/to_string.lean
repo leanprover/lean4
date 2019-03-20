@@ -9,78 +9,78 @@ open sum subtype nat
 
 universes u v
 
-class has_to_string (α : Type u) :=
-(to_string : α → string)
+class hasToString (α : Type u) :=
+(toString : α → string)
 
-export has_to_string (to_string)
+export hasToString (toString)
 
 -- This instance is needed because `id` is not reducible
-instance {α : Type u} [has_to_string α] : has_to_string (id α) :=
-infer_instance_as (has_to_string α)
+instance {α : Type u} [hasToString α] : hasToString (id α) :=
+inferInstanceAs (hasToString α)
 
-instance : has_to_string string :=
+instance : hasToString string :=
 ⟨λ s, s⟩
 
-instance : has_to_string string.iterator :=
-⟨λ it, it.remaining_to_string⟩
+instance : hasToString string.iterator :=
+⟨λ it, it.remainingToString⟩
 
-instance : has_to_string bool :=
+instance : hasToString bool :=
 ⟨λ b, cond b "tt" "ff"⟩
 
-instance {p : Prop} : has_to_string (decidable p) :=
+instance {p : Prop} : hasToString (decidable p) :=
 -- Remark: type class inference will not consider local instance `b` in the new elaborator
 ⟨λ b : decidable p, @ite p b _ "tt" "ff"⟩
 
-protected def list.to_string_aux {α : Type u} [has_to_string α] : bool → list α → string
+protected def list.toStringAux {α : Type u} [hasToString α] : bool → list α → string
 | b  []      := ""
-| tt (x::xs) := to_string x ++ list.to_string_aux ff xs
-| ff (x::xs) := ", " ++ to_string x ++ list.to_string_aux ff xs
+| tt (x::xs) := toString x ++ list.toStringAux ff xs
+| ff (x::xs) := ", " ++ toString x ++ list.toStringAux ff xs
 
-protected def list.to_string {α : Type u} [has_to_string α] : list α → string
+protected def list.toString {α : Type u} [hasToString α] : list α → string
 | []      := "[]"
-| (x::xs) := "[" ++ list.to_string_aux tt (x::xs) ++ "]"
+| (x::xs) := "[" ++ list.toStringAux tt (x::xs) ++ "]"
 
-instance {α : Type u} [has_to_string α] : has_to_string (list α) :=
-⟨list.to_string⟩
+instance {α : Type u} [hasToString α] : hasToString (list α) :=
+⟨list.toString⟩
 
-instance : has_to_string unit :=
+instance : hasToString unit :=
 ⟨λ u, "()"⟩
 
-instance : has_to_string nat :=
+instance : hasToString nat :=
 ⟨λ n, repr n⟩
 
-instance : has_to_string char :=
-⟨λ c, c.to_string⟩
+instance : hasToString char :=
+⟨λ c, c.toString⟩
 
-instance (n : nat) : has_to_string (fin n) :=
-⟨λ f, to_string (fin.val f)⟩
+instance (n : nat) : hasToString (fin n) :=
+⟨λ f, toString (fin.val f)⟩
 
-instance : has_to_string uint8 :=
-⟨λ n, to_string n.to_nat⟩
+instance : hasToString uint8 :=
+⟨λ n, toString n.toNat⟩
 
-instance : has_to_string uint16 :=
-⟨λ n, to_string n.to_nat⟩
+instance : hasToString uint16 :=
+⟨λ n, toString n.toNat⟩
 
-instance : has_to_string uint32 :=
-⟨λ n, to_string n.to_nat⟩
+instance : hasToString uint32 :=
+⟨λ n, toString n.toNat⟩
 
-instance : has_to_string uint64 :=
-⟨λ n, to_string n.to_nat⟩
+instance : hasToString uint64 :=
+⟨λ n, toString n.toNat⟩
 
-instance : has_to_string usize :=
-⟨λ n, to_string n.to_nat⟩
+instance : hasToString usize :=
+⟨λ n, toString n.toNat⟩
 
-instance {α : Type u} [has_to_string α] : has_to_string (option α) :=
-⟨λ o, match o with | none := "none" | (some a) := "(some " ++ to_string a ++ ")"⟩
+instance {α : Type u} [hasToString α] : hasToString (option α) :=
+⟨λ o, match o with | none := "none" | (some a) := "(some " ++ toString a ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [has_to_string α] [has_to_string β] : has_to_string (α ⊕ β) :=
-⟨λ s, match s with | (inl a) := "(inl " ++ to_string a ++ ")" | (inr b) := "(inr " ++ to_string b ++ ")"⟩
+instance {α : Type u} {β : Type v} [hasToString α] [hasToString β] : hasToString (α ⊕ β) :=
+⟨λ s, match s with | (inl a) := "(inl " ++ toString a ++ ")" | (inr b) := "(inr " ++ toString b ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [has_to_string α] [has_to_string β] : has_to_string (α × β) :=
-⟨λ ⟨a, b⟩, "(" ++ to_string a ++ ", " ++ to_string b ++ ")"⟩
+instance {α : Type u} {β : Type v} [hasToString α] [hasToString β] : hasToString (α × β) :=
+⟨λ ⟨a, b⟩, "(" ++ toString a ++ ", " ++ toString b ++ ")"⟩
 
-instance {α : Type u} {β : α → Type v} [has_to_string α] [s : ∀ x, has_to_string (β x)] : has_to_string (sigma β) :=
-⟨λ ⟨a, b⟩, "⟨"  ++ to_string a ++ ", " ++ to_string b ++ "⟩"⟩
+instance {α : Type u} {β : α → Type v} [hasToString α] [s : ∀ x, hasToString (β x)] : hasToString (sigma β) :=
+⟨λ ⟨a, b⟩, "⟨"  ++ toString a ++ ", " ++ toString b ++ "⟩"⟩
 
-instance {α : Type u} {p : α → Prop} [has_to_string α] : has_to_string (subtype p) :=
-⟨λ s, to_string (val s)⟩
+instance {α : Type u} {p : α → Prop} [hasToString α] : hasToString (subtype p) :=
+⟨λ s, toString (val s)⟩

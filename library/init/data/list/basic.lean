@@ -16,108 +16,108 @@ variables {α : Type u} {β : Type v} {γ : Type w}
 
 namespace list
 
-protected def has_dec_eq [decidable_eq α] : Π a b : list α, decidable (a = b)
-| []      []      := is_true rfl
-| (a::as) []      := is_false (λ h, list.no_confusion h)
-| []      (b::bs) := is_false (λ h, list.no_confusion h)
+protected def hasDecEq [decidableEq α] : Π a b : list α, decidable (a = b)
+| []      []      := isTrue rfl
+| (a::as) []      := isFalse (λ h, list.noConfusion h)
+| []      (b::bs) := isFalse (λ h, list.noConfusion h)
 | (a::as) (b::bs) :=
-  match dec_eq a b with
-  | is_true hab  :=
-    (match has_dec_eq as bs with
-     | is_true habs  := is_true (eq.subst hab (eq.subst habs rfl))
-     | is_false nabs := is_false (λ h, list.no_confusion h (λ _ habs, absurd habs nabs)))
-  | is_false nab := is_false (λ h, list.no_confusion h (λ hab _, absurd hab nab))
+  match decEq a b with
+  | isTrue hab  :=
+    (match hasDecEq as bs with
+     | isTrue habs  := isTrue (eq.subst hab (eq.subst habs rfl))
+     | isFalse nabs := isFalse (λ h, list.noConfusion h (λ _ habs, absurd habs nabs)))
+  | isFalse nab := isFalse (λ h, list.noConfusion h (λ hab _, absurd hab nab))
 
-instance [decidable_eq α] : decidable_eq (list α) :=
-{dec_eq := list.has_dec_eq}
+instance [decidableEq α] : decidableEq (list α) :=
+{decEq := list.hasDecEq}
 
-def reverse_core : list α → list α → list α
+def reverseCore : list α → list α → list α
 | []     r := r
-| (a::l) r := reverse_core l (a::r)
+| (a::l) r := reverseCore l (a::r)
 
-local infix `**`:66 := reverse_core
+local infix `**`:66 := reverseCore
 
 def reverse : list α → list α :=
-λ l, reverse_core l []
+λ l, reverseCore l []
 
 protected def append (as bs : list α) : list α :=
-reverse_core as.reverse bs
+reverseCore as.reverse bs
 
-instance : has_append (list α) :=
+instance : hasAppend (list α) :=
 ⟨list.append⟩
 
-theorem reverse_core_reverse_core_nil : ∀ (as bs : list α), (as ** bs) ** [] = bs ** as
+theorem reverseCoreReverseCoreNil : ∀ (as bs : list α), (as ** bs) ** [] = bs ** as
 | []  bs     := rfl
 | (a::as) bs :=
-  show reverse_core (reverse_core as (a::bs)) [] = reverse_core bs (a::as), from
-  reverse_core_reverse_core_nil as (a::bs)
+  show reverseCore (reverseCore as (a::bs)) [] = reverseCore bs (a::as), from
+  reverseCoreReverseCoreNil as (a::bs)
 
-theorem nil_append (as : list α) : [] ++ as = as :=
+theorem nilAppend (as : list α) : [] ++ as = as :=
 rfl
 
-theorem append_nil (as : list α) : as ++ [] = as :=
+theorem appendNil (as : list α) : as ++ [] = as :=
 show (as ** []) ** [] = as, from
-reverse_core_reverse_core_nil as []
+reverseCoreReverseCoreNil as []
 
-theorem reverse_core_reverse_core : ∀ (as bs cs : list α), (as ** bs) ** cs = bs ** ((as ** []) ** cs)
+theorem reverseCoreReverseCore : ∀ (as bs cs : list α), (as ** bs) ** cs = bs ** ((as ** []) ** cs)
 | []      bs cs := rfl
 | (a::as) bs cs :=
   show (as ** a::bs) ** cs = bs ** ((as ** [a]) ** cs), from
-  have h₁ : (as ** a::bs) ** cs = bs ** a::((as ** []) ** cs),       from reverse_core_reverse_core as (a::bs) cs,
-  have h₂ : ((as ** [a]) ** cs) = a::((as ** []) ** cs),             from reverse_core_reverse_core as [a] cs,
-  have h₃ : bs ** a::((as ** []) ** cs) = bs ** ((as ** [a]) ** cs), from congr_arg (λ b, bs ** b) h₂.symm,
+  have h₁ : (as ** a::bs) ** cs = bs ** a::((as ** []) ** cs),       from reverseCoreReverseCore as (a::bs) cs,
+  have h₂ : ((as ** [a]) ** cs) = a::((as ** []) ** cs),             from reverseCoreReverseCore as [a] cs,
+  have h₃ : bs ** a::((as ** []) ** cs) = bs ** ((as ** [a]) ** cs), from congrArg (λ b, bs ** b) h₂.symm,
   eq.trans h₁ h₃
 
-theorem cons_append (a : α) (as bs : list α) : (a::as) ++ bs = a::(as ++ bs) :=
-reverse_core_reverse_core as [a] bs
+theorem consAppend (a : α) (as bs : list α) : (a::as) ++ bs = a::(as ++ bs) :=
+reverseCoreReverseCore as [a] bs
 
-theorem append_assoc : ∀ (as bs cs : list α), (as ++ bs) ++ cs = as ++ (bs ++ cs)
+theorem appendAssoc : ∀ (as bs cs : list α), (as ++ bs) ++ cs = as ++ (bs ++ cs)
 | []      bs cs := rfl
 | (a::as) bs cs :=
   show ((a::as) ++ bs) ++ cs = (a::as) ++ (bs ++ cs),      from
-  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congr_arg (++ cs) (cons_append a as bs),
-  have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs),   from cons_append a (as++bs) cs,
-  have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congr_arg (λ as, a::as) (append_assoc as bs cs),
-  have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (cons_append a as (bs++cs)).symm,
+  have h₁ : ((a::as) ++ bs) ++ cs = a::(as++bs) ++ cs,     from congrArg (++ cs) (consAppend a as bs),
+  have h₂ : a::(as++bs) ++ cs     = a::((as++bs) ++ cs),   from consAppend a (as++bs) cs,
+  have h₃ : a::((as++bs) ++ cs)   = a::(as ++ (bs ++ cs)), from congrArg (λ as, a::as) (appendAssoc as bs cs),
+  have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (consAppend a as (bs++cs)).symm,
   eq.trans (eq.trans (eq.trans h₁ h₂) h₃) h₄
 
 protected def mem : α → list α → Prop
 | a []       := false
 | a (b :: l) := a = b ∨ mem a l
 
-instance : has_mem α (list α) :=
+instance : hasMem α (list α) :=
 ⟨list.mem⟩
 
-instance decidable_mem [decidable_eq α] (a : α) : ∀ (l : list α), decidable (a ∈ l)
-| []     := is_false not_false
+instance decidableMem [decidableEq α] (a : α) : ∀ (l : list α), decidable (a ∈ l)
+| []     := isFalse notFalse
 | (b::l) :=
-  if h₁ : a = b then is_true (or.inl h₁)
-  else match decidable_mem l with
-       | is_true  h₂ := is_true (or.inr h₂)
-       | is_false h₂ := is_false (not_or h₁ h₂)
+  if h₁ : a = b then isTrue (or.inl h₁)
+  else match decidableMem l with
+       | isTrue  h₂ := isTrue (or.inr h₂)
+       | isFalse h₂ := isFalse (notOr h₁ h₂)
 
-instance : has_emptyc (list α) :=
+instance : hasEmptyc (list α) :=
 ⟨list.nil⟩
 
-protected def erase {α} [decidable_eq α] : list α → α → list α
+protected def erase {α} [decidableEq α] : list α → α → list α
 | []     b := []
 | (a::l) b := if a = b then l else a :: erase l b
 
-protected def bag_inter {α} [decidable_eq α] : list α → list α → list α
+protected def bagInter {α} [decidableEq α] : list α → list α → list α
 | []      _   := []
 | _       []  := []
-| (a::l₁) l₂  := if a ∈ l₂ then a :: bag_inter l₁ (l₂.erase a) else bag_inter l₁ l₂
+| (a::l₁) l₂  := if a ∈ l₂ then a :: bagInter l₁ (l₂.erase a) else bagInter l₁ l₂
 
-protected def diff {α} [decidable_eq α] : list α → list α → list α
+protected def diff {α} [decidableEq α] : list α → list α → list α
 | l      []      := l
 | l₁     (a::l₂) := if a ∈ l₁ then diff (l₁.erase a) l₂ else diff l₁ l₂
 
-def length_aux : list α → nat → nat
+def lengthAux : list α → nat → nat
 | []      n := n
-| (a::as) n := length_aux as (n+1)
+| (a::as) n := lengthAux as (n+1)
 
 def length (as : list α) : nat :=
-length_aux as 0
+lengthAux as 0
 
 def empty : list α → bool
 | []       := tt
@@ -151,52 +151,52 @@ def join : list (list α) → list α
 | []        := []
 | (l :: ls) := l ++ join ls
 
-def filter_map (f : α → option β) : list α → list β
+def filterMap (f : α → option β) : list α → list β
 | []     := []
 | (a::l) :=
   match f a with
-  | none   := filter_map l
-  | some b := b :: filter_map l
+  | none   := filterMap l
+  | some b := b :: filterMap l
 
-def filter (p : α → Prop) [decidable_pred p] : list α → list α
+def filter (p : α → Prop) [decidablePred p] : list α → list α
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
 
-def partition (p : α → Prop) [decidable_pred p] : list α → list α × list α
+def partition (p : α → Prop) [decidablePred p] : list α → list α × list α
 | []     := ([], [])
 | (a::l) := let (l₁, l₂) := partition l in if p a then (a :: l₁, l₂) else (l₁, a :: l₂)
 
-def drop_while (p : α → Prop) [decidable_pred p] : list α → list α
+def dropWhile (p : α → Prop) [decidablePred p] : list α → list α
 | []     := []
-| (a::l) := if p a then drop_while l else a::l
+| (a::l) := if p a then dropWhile l else a::l
 
-def span (p : α → Prop) [decidable_pred p] : list α → list α × list α
+def span (p : α → Prop) [decidablePred p] : list α → list α × list α
 | []      := ([], [])
 | (a::xs) := if p a then let (l, r) := span xs in (a :: l, r) else ([], a::xs)
 
-def find_index (p : α → Prop) [decidable_pred p] : list α → nat
+def findIndex (p : α → Prop) [decidablePred p] : list α → nat
 | []     := 0
-| (a::l) := if p a then 0 else succ (find_index l)
+| (a::l) := if p a then 0 else succ (findIndex l)
 
-def index_of [decidable_eq α] (a : α) (l : list α) : nat :=
-find_index (eq a) l
+def indexOf [decidableEq α] (a : α) (l : list α) : nat :=
+findIndex (eq a) l
 
-def assoc [decidable_eq α] : list (α × β) → α → option β
+def assoc [decidableEq α] : list (α × β) → α → option β
 | []         _  := none
 | ((a,b)::l) a' := if a = a' then some b else assoc l a'
 
-def remove_all [decidable_eq α] (xs ys : list α) : list α :=
+def removeAll [decidableEq α] (xs ys : list α) : list α :=
 filter (∉ ys) xs
 
-def update_nth : list α → ℕ → α → list α
+def updateNth : list α → ℕ → α → list α
 | (x::xs) 0     a := a :: xs
-| (x::xs) (i+1) a := x :: update_nth xs i a
+| (x::xs) (i+1) a := x :: updateNth xs i a
 | []      _     _ := []
 
-def remove_nth : list α → ℕ → list α
+def removeNth : list α → ℕ → list α
 | []      _     := []
 | (x::xs) 0     := xs
-| (x::xs) (i+1) := x :: remove_nth xs i
+| (x::xs) (i+1) := x :: removeNth xs i
 
 def drop : ℕ → list α → list α
 | 0        a      := a
@@ -219,11 +219,11 @@ def take : ℕ → list α → list α
 @[specialize] def foldr1 (f : α → α → α) : Π (xs : list α), xs ≠ [] → α
 | []              nem := false.elim (nem rfl)
 | [a]             nem := a
-| (a :: l@(_::_)) nem := f a (foldr1 l (λ eq, list.no_confusion eq))
+| (a :: l@(_::_)) nem := f a (foldr1 l (λ eq, list.noConfusion eq))
 
-@[specialize] def foldr1_opt (f : α → α → α) : list α → option α
+@[specialize] def foldr1Opt (f : α → α → α) : list α → option α
 | []       := none
-| (a :: l) := some $ foldr1 f (a :: l) (λ eq, list.no_confusion eq)
+| (a :: l) := some $ foldr1 f (a :: l) (λ eq, list.noConfusion eq)
 
 @[inline] def any (l : list α) (p : α → bool) : bool :=
 foldr (λ a r, p a || r) ff l
@@ -235,59 +235,59 @@ def bor  (l : list bool) : bool := any l id
 
 def band (l : list bool) : bool := all l id
 
-def zip_with (f : α → β → γ) : list α → list β → list γ
-| (x::xs) (y::ys) := f x y :: zip_with xs ys
+def zipWith (f : α → β → γ) : list α → list β → list γ
+| (x::xs) (y::ys) := f x y :: zipWith xs ys
 | _       _       := []
 
 def zip : list α → list β → list (prod α β) :=
-zip_with prod.mk
+zipWith prod.mk
 
 def unzip : list (α × β) → list α × list β
 | []            := ([], [])
 | ((a, b) :: t) := match unzip t with | (al, bl) := (a::al, b::bl)
 
-protected def insert [decidable_eq α] (a : α) (l : list α) : list α :=
+protected def insert [decidableEq α] (a : α) (l : list α) : list α :=
 if a ∈ l then l else a :: l
 
-instance [decidable_eq α] : has_insert α (list α) :=
+instance [decidableEq α] : hasInsert α (list α) :=
 ⟨list.insert⟩
 
-protected def union [decidable_eq α] (l₁ l₂ : list α) : list α :=
+protected def union [decidableEq α] (l₁ l₂ : list α) : list α :=
 foldr insert l₂ l₁
 
-instance [decidable_eq α] : has_union (list α) :=
+instance [decidableEq α] : hasUnion (list α) :=
 ⟨list.union⟩
 
-protected def inter [decidable_eq α] (l₁ l₂ : list α) : list α :=
+protected def inter [decidableEq α] (l₁ l₂ : list α) : list α :=
 filter (∈ l₂) l₁
 
-instance [decidable_eq α] : has_inter (list α) :=
+instance [decidableEq α] : hasInter (list α) :=
 ⟨list.inter⟩
 
 def repeat (a : α) (n : ℕ) : list α :=
 n.repeat (λ _ xs, a :: xs) []
 
-def range_core : ℕ → list ℕ → list ℕ
+def rangeCore : ℕ → list ℕ → list ℕ
 | 0        l := l
-| (succ n) l := range_core n (n :: l)
+| (succ n) l := rangeCore n (n :: l)
 
 def range (n : ℕ) : list ℕ :=
-range_core n []
+rangeCore n []
 
 def iota : ℕ → list ℕ
 | 0        := []
 | (succ n) := succ n :: iota n
 
-def enum_from : ℕ → list α → list (ℕ × α)
+def enumFrom : ℕ → list α → list (ℕ × α)
 | n [] := nil
-| n (x :: xs) := (n, x) :: enum_from (n + 1) xs
+| n (x :: xs) := (n, x) :: enumFrom (n + 1) xs
 
-def enum : list α → list (ℕ × α) := enum_from 0
+def enum : list α → list (ℕ × α) := enumFrom 0
 
 def last : Π l : list α, l ≠ [] → α
 | []        h := absurd rfl h
 | [a]       h := a
-| (a::b::l) h := last (b::l) (λ h, list.no_confusion h)
+| (a::b::l) h := last (b::l) (λ h, list.noConfusion h)
 
 def ilast [inhabited α] : list α → α
 | []        := arbitrary α
@@ -314,65 +314,65 @@ join (map b a)
 @[inline] protected def ret {α : Type u} (a : α) : list α :=
 [a]
 
-protected def lt [has_lt α] : list α → list α → Prop
+protected def lt [hasLt α] : list α → list α → Prop
 | []      []      := false
 | []      (b::bs) := true
 | (a::as) []      := false
 | (a::as) (b::bs) := a < b ∨ (¬ b < a ∧ lt as bs)
 
-instance [has_lt α] : has_lt (list α) :=
+instance [hasLt α] : hasLt (list α) :=
 ⟨list.lt⟩
 
-instance has_decidable_lt [has_lt α] [h : decidable_rel ((<) : α → α → Prop)] : Π l₁ l₂ : list α, decidable (l₁ < l₂)
-| []      []      := is_false not_false
-| []      (b::bs) := is_true trivial
-| (a::as) []      := is_false not_false
+instance hasDecidableLt [hasLt α] [h : decidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : list α, decidable (l₁ < l₂)
+| []      []      := isFalse notFalse
+| []      (b::bs) := isTrue trivial
+| (a::as) []      := isFalse notFalse
 | (a::as) (b::bs) :=
   match h a b with
-  | is_true h₁  := is_true (or.inl h₁)
-  | is_false h₁ :=
+  | isTrue h₁  := isTrue (or.inl h₁)
+  | isFalse h₁ :=
     match h b a with
-    | is_true h₂  := is_false (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨h, _⟩, absurd h₂ h))
-    | is_false h₂ :=
-      match has_decidable_lt as bs with
-      | is_true h₃  := is_true (or.inr ⟨h₂, h₃⟩)
-      | is_false h₃ := is_false (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨_, h⟩, absurd h h₃))
+    | isTrue h₂  := isFalse (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨h, _⟩, absurd h₂ h))
+    | isFalse h₂ :=
+      match hasDecidableLt as bs with
+      | isTrue h₃  := isTrue (or.inr ⟨h₂, h₃⟩)
+      | isFalse h₃ := isFalse (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨_, h⟩, absurd h h₃))
 
-@[reducible] protected def le [has_lt α] (a b : list α) : Prop :=
+@[reducible] protected def le [hasLt α] (a b : list α) : Prop :=
 ¬ b < a
 
-instance [has_lt α] : has_le (list α) :=
+instance [hasLt α] : hasLe (list α) :=
 ⟨list.le⟩
 
-instance has_decidable_le [has_lt α] [h : decidable_rel ((<) : α → α → Prop)] : Π l₁ l₂ : list α, decidable (l₁ ≤ l₂) :=
+instance hasDecidableLe [hasLt α] [h : decidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : list α, decidable (l₁ ≤ l₂) :=
 λ a b, not.decidable
 
-lemma le_eq_not_gt [has_lt α] : ∀ l₁ l₂ : list α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
+lemma leEqNotGt [hasLt α] : ∀ l₁ l₂ : list α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
 λ l₁ l₂, rfl
 
-lemma lt_eq_not_ge [has_lt α] [decidable_rel ((<) : α → α → Prop)] : ∀ l₁ l₂ : list α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
+lemma ltEqNotGe [hasLt α] [decidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : list α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
 λ l₁ l₂,
   show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
-  eq.subst (propext (not_not_iff (l₁ < l₂))).symm rfl
+  eq.subst (propext (notNotIff (l₁ < l₂))).symm rfl
 
-/--  `is_prefix_of l₁ l₂` returns `tt` iff `l₁` is a prefix of `l₂`. -/
-def is_prefix_of [decidable_eq α] : list α → list α → bool
+/--  `isPrefixOf l₁ l₂` returns `tt` iff `l₁` is a prefix of `l₂`. -/
+def isPrefixOf [decidableEq α] : list α → list α → bool
 | []      _       := tt
 | _       []      := ff
-| (a::as) (b::bs) := to_bool (a = b) && is_prefix_of as bs
+| (a::as) (b::bs) := toBool (a = b) && isPrefixOf as bs
 
-/--  `is_suffix_of l₁ l₂` returns `tt` iff `l₁` is a suffix of `l₂`. -/
-def is_suffix_of [decidable_eq α] (l₁ l₂ : list α) : bool :=
-is_prefix_of l₁.reverse l₂.reverse
+/--  `isSuffixOf l₁ l₂` returns `tt` iff `l₁` is a suffix of `l₂`. -/
+def isSuffixOf [decidableEq α] (l₁ l₂ : list α) : bool :=
+isPrefixOf l₁.reverse l₂.reverse
 
 end list
 
-namespace bin_tree
-private def to_list_aux : bin_tree α → list α → list α
+namespace binTree
+private def toListAux : binTree α → list α → list α
 | empty      as := as
 | (leaf a)   as := a::as
-| (node l r) as := to_list_aux l (to_list_aux r as)
+| (node l r) as := toListAux l (toListAux r as)
 
-def to_list (t : bin_tree α) : list α :=
-to_list_aux t []
-end bin_tree
+def toList (t : binTree α) : list α :=
+toListAux t []
+end binTree

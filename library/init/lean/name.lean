@@ -4,179 +4,179 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.string.basic init.coe init.data.uint init.data.to_string
+import init.data.string.basic init.coe init.data.uint init.data.toString
 import init.lean.format init.data.hashable init.data.rbmap init.data.rbtree
 namespace lean
 
 inductive name
 | anonymous  : name
-| mk_string  : name → string → name
-| mk_numeral : name → nat → name
+| mkString  : name → string → name
+| mkNumeral : name → nat → name
 
-attribute [extern "lean_name_mk_string"] name.mk_string
-attribute [extern "lean_name_mk_numeral"] name.mk_numeral
+attribute [extern "leanNameMkString"] name.mkString
+attribute [extern "leanNameMkNumeral"] name.mkNumeral
 
 instance : inhabited name :=
 ⟨name.anonymous⟩
 
-def mk_str_name (p : name) (s : string) : name :=
-name.mk_string p s
+def mkStrName (p : name) (s : string) : name :=
+name.mkString p s
 
-def mk_num_name (p : name) (v : nat) : name :=
-name.mk_numeral p v
+def mkNumName (p : name) (v : nat) : name :=
+name.mkNumeral p v
 
-def mk_simple_name (s : string) : name :=
-mk_str_name name.anonymous s
+def mkSimpleName (s : string) : name :=
+mkStrName name.anonymous s
 
-instance string_to_name : has_coe string name :=
-⟨mk_simple_name⟩
+instance stringToName : hasCoe string name :=
+⟨mkSimpleName⟩
 
 namespace name
-@[extern "lean_name_hash_usize"]
+@[extern "leanNameHashUsize"]
 constant hash (n : @& name) : usize := default usize
 
 instance : hashable name :=
 ⟨name.hash⟩
 
-def get_prefix : name → name
+def getPrefix : name → name
 | anonymous        := anonymous
-| (mk_string p s)  := p
-| (mk_numeral p s) := p
+| (mkString p s)  := p
+| (mkNumeral p s) := p
 
-def update_prefix : name → name → name
-| anonymous        new_p := anonymous
-| (mk_string p s)  new_p := mk_string new_p s
-| (mk_numeral p s) new_p := mk_numeral new_p s
+def updatePrefix : name → name → name
+| anonymous        newP := anonymous
+| (mkString p s)  newP := mkString newP s
+| (mkNumeral p s) newP := mkNumeral newP s
 
 def components' : name → list name
 | anonymous                := []
-| (mk_string n s)          := mk_string anonymous s :: components' n
-| (mk_numeral n v)         := mk_numeral anonymous v :: components' n
+| (mkString n s)          := mkString anonymous s :: components' n
+| (mkNumeral n v)         := mkNumeral anonymous v :: components' n
 
 def components (n : name) : list name :=
 n.components'.reverse
 
-@[extern "lean_name_dec_eq"]
-protected def dec_eq : Π (a b : @& name), decidable (a = b)
-| anonymous          anonymous          := is_true rfl
-| (mk_string p₁ s₁)  (mk_string p₂ s₂)  :=
+@[extern "leanNameDecEq"]
+protected def decEq : Π (a b : @& name), decidable (a = b)
+| anonymous          anonymous          := isTrue rfl
+| (mkString p₁ s₁)  (mkString p₂ s₂)  :=
   if h₁ : s₁ = s₂ then
-    match dec_eq p₁ p₂ with
-    | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
-    | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
-  else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
-| (mk_numeral p₁ n₁) (mk_numeral p₂ n₂) :=
+    match decEq p₁ p₂ with
+    | isTrue h₂  := isTrue $ h₁ ▸ h₂ ▸ rfl
+    | isFalse h₂ := isFalse $ λ h, name.noConfusion h $ λ hp hs, absurd hp h₂
+  else isFalse $ λ h, name.noConfusion h $ λ hp hs, absurd hs h₁
+| (mkNumeral p₁ n₁) (mkNumeral p₂ n₂) :=
   if h₁ : n₁ = n₂ then
-    match dec_eq p₁ p₂ with
-    | is_true h₂  := is_true $ h₁ ▸ h₂ ▸ rfl
-    | is_false h₂ := is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hp h₂
-  else is_false $ λ h, name.no_confusion h $ λ hp hs, absurd hs h₁
-| anonymous          (mk_string _ _)    := is_false $ λ h, name.no_confusion h
-| anonymous          (mk_numeral _ _)   := is_false $ λ h, name.no_confusion h
-| (mk_string _ _)    anonymous          := is_false $ λ h, name.no_confusion h
-| (mk_string _ _)    (mk_numeral _ _)   := is_false $ λ h, name.no_confusion h
-| (mk_numeral _ _)   anonymous          := is_false $ λ h, name.no_confusion h
-| (mk_numeral _ _)   (mk_string _ _)    := is_false $ λ h, name.no_confusion h
+    match decEq p₁ p₂ with
+    | isTrue h₂  := isTrue $ h₁ ▸ h₂ ▸ rfl
+    | isFalse h₂ := isFalse $ λ h, name.noConfusion h $ λ hp hs, absurd hp h₂
+  else isFalse $ λ h, name.noConfusion h $ λ hp hs, absurd hs h₁
+| anonymous          (mkString _ _)    := isFalse $ λ h, name.noConfusion h
+| anonymous          (mkNumeral _ _)   := isFalse $ λ h, name.noConfusion h
+| (mkString _ _)    anonymous          := isFalse $ λ h, name.noConfusion h
+| (mkString _ _)    (mkNumeral _ _)   := isFalse $ λ h, name.noConfusion h
+| (mkNumeral _ _)   anonymous          := isFalse $ λ h, name.noConfusion h
+| (mkNumeral _ _)   (mkString _ _)    := isFalse $ λ h, name.noConfusion h
 
-instance : decidable_eq name :=
-{dec_eq := name.dec_eq}
+instance : decidableEq name :=
+{decEq := name.decEq}
 
 protected def append : name → name → name
 | n anonymous := n
-| n (mk_string p s) :=
-  mk_string (append n p) s
-| n (mk_numeral p d) :=
-  mk_numeral (append n p) d
+| n (mkString p s) :=
+  mkString (append n p) s
+| n (mkNumeral p d) :=
+  mkNumeral (append n p) d
 
-instance : has_append name :=
+instance : hasAppend name :=
 ⟨name.append⟩
 
-def replace_prefix : name → name → name → name
-| anonymous anonymous new_p := new_p
+def replacePrefix : name → name → name → name
+| anonymous anonymous newP := newP
 | anonymous _         _     := anonymous
-| n@(mk_string p s) query_p new_p :=
-  if n = query_p then
-    new_p
+| n@(mkString p s) queryP newP :=
+  if n = queryP then
+    newP
   else
-    mk_string (p.replace_prefix query_p new_p) s
-| n@(mk_numeral p s) query_p new_p :=
-  if n = query_p then
-    new_p
+    mkString (p.replacePrefix queryP newP) s
+| n@(mkNumeral p s) queryP newP :=
+  if n = queryP then
+    newP
   else
-    mk_numeral (p.replace_prefix query_p new_p) s
+    mkNumeral (p.replacePrefix queryP newP) s
 
-def quick_lt_core : name → name → bool
+def quickLtCore : name → name → bool
 | anonymous        anonymous          := ff
 | anonymous        _                  := tt
-| (mk_numeral n v) (mk_numeral n' v') := v < v' || (v = v' && n.quick_lt_core n')
-| (mk_numeral _ _) (mk_string _ _)    := tt
-| (mk_string n s)  (mk_string n' s')  := s < s' || (s = s' && n.quick_lt_core n')
+| (mkNumeral n v) (mkNumeral n' v') := v < v' || (v = v' && n.quickLtCore n')
+| (mkNumeral _ _) (mkString _ _)    := tt
+| (mkString n s)  (mkString n' s')  := s < s' || (s = s' && n.quickLtCore n')
 | _                _                  := ff
 
-def quick_lt (n₁ n₂ : name) : bool :=
+def quickLt (n₁ n₂ : name) : bool :=
 if n₁.hash < n₂.hash then tt
 else if n₁.hash > n₂.hash then ff
-else quick_lt_core n₁ n₂
+else quickLtCore n₁ n₂
 
-/- Alternative has_lt instance. -/
-@[inline] protected def has_lt_quick : has_lt name :=
-⟨λ a b, name.quick_lt a b = tt⟩
+/- Alternative hasLt instance. -/
+@[inline] protected def hasLtQuick : hasLt name :=
+⟨λ a b, name.quickLt a b = tt⟩
 
-@[inline] instance : decidable_rel (@has_lt.lt name name.has_lt_quick) :=
-infer_instance_as (decidable_rel (λ a b, name.quick_lt a b = tt))
+@[inline] instance : decidableRel (@hasLt.lt name name.hasLtQuick) :=
+inferInstanceAs (decidableRel (λ a b, name.quickLt a b = tt))
 
-def to_string_with_sep (sep : string) : name → string
+def toStringWithSep (sep : string) : name → string
 | anonymous                := "[anonymous]"
-| (mk_string anonymous s)  := s
-| (mk_numeral anonymous v) := to_string v
-| (mk_string n s)          := to_string_with_sep n ++ sep ++ s
-| (mk_numeral n v)         := to_string_with_sep n ++ sep ++ repr v
+| (mkString anonymous s)  := s
+| (mkNumeral anonymous v) := toString v
+| (mkString n s)          := toStringWithSep n ++ sep ++ s
+| (mkNumeral n v)         := toStringWithSep n ++ sep ++ repr v
 
-protected def to_string : name → string :=
-to_string_with_sep "."
+protected def toString : name → string :=
+toStringWithSep "."
 
-instance : has_to_string name :=
-⟨name.to_string⟩
+instance : hasToString name :=
+⟨name.toString⟩
 
-instance : has_to_format name :=
-⟨λ n, n.to_string⟩
+instance : hasToFormat name :=
+⟨λ n, n.toString⟩
 
-theorem mk_string_ne_mk_string_of_ne_prefix {p₁ : name} (s₁ : string) {p₂ : name} (s₂ : string) : p₁ ≠ p₂ → mk_string p₁ s₁ ≠ mk_string p₂ s₂ :=
-λ h₁ h₂, name.no_confusion h₂ (λ h _, absurd h h₁)
+theorem mkStringNeMkStringOfNePrefix {p₁ : name} (s₁ : string) {p₂ : name} (s₂ : string) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
+λ h₁ h₂, name.noConfusion h₂ (λ h _, absurd h h₁)
 
-theorem mk_string_ne_mk_string_of_ne_string (p₁ : name) {s₁ : string} (p₂ : name) {s₂ : string} : s₁ ≠ s₂ → mk_string p₁ s₁ ≠ mk_string p₂ s₂ :=
-λ h₁ h₂, name.no_confusion h₂ (λ _ h, absurd h h₁)
+theorem mkStringNeMkStringOfNeString (p₁ : name) {s₁ : string} (p₂ : name) {s₂ : string} : s₁ ≠ s₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
+λ h₁ h₂, name.noConfusion h₂ (λ _ h, absurd h h₁)
 
-theorem mk_numeral_ne_mk_numeral_of_ne_prefix {p₁ : name} (n₁ : nat) {p₂ : name} (n₂ : nat) : p₁ ≠ p₂ → mk_numeral p₁ n₁ ≠ mk_numeral p₂ n₂ :=
-λ h₁ h₂, name.no_confusion h₂ (λ h _, absurd h h₁)
+theorem mkNumeralNeMkNumeralOfNePrefix {p₁ : name} (n₁ : nat) {p₂ : name} (n₂ : nat) : p₁ ≠ p₂ → mkNumeral p₁ n₁ ≠ mkNumeral p₂ n₂ :=
+λ h₁ h₂, name.noConfusion h₂ (λ h _, absurd h h₁)
 
-theorem mk_numeral_ne_mk_numeral_of_ne_numeral (p₁ : name) {n₁ : nat} (p₂ : name) {n₂ : nat} : n₁ ≠ n₂ → mk_numeral p₁ n₁ ≠ mk_numeral p₂ n₂ :=
-λ h₁ h₂, name.no_confusion h₂ (λ _ h, absurd h h₁)
+theorem mkNumeralNeMkNumeralOfNeNumeral (p₁ : name) {n₁ : nat} (p₂ : name) {n₂ : nat} : n₁ ≠ n₂ → mkNumeral p₁ n₁ ≠ mkNumeral p₂ n₂ :=
+λ h₁ h₂, name.noConfusion h₂ (λ _ h, absurd h h₁)
 
 end name
 
 section
-local attribute [instance] name.has_lt_quick
-def name_map (α : Type) := rbmap name α (<)
+local attribute [instance] name.hasLtQuick
+def nameMap (α : Type) := rbmap name α (<)
 variable {α : Type}
-@[inline] def mk_name_map : name_map α :=
-mk_rbmap name α (<)
-def name_map.insert (m : name_map α) (n : name) (a : α) :=
+@[inline] def mkNameMap : nameMap α :=
+mkRbmap name α (<)
+def nameMap.insert (m : nameMap α) (n : name) (a : α) :=
 rbmap.insert m n a
-def name_map.contains (m : name_map α) (n : name) : bool :=
+def nameMap.contains (m : nameMap α) (n : name) : bool :=
 rbmap.contains m n
-@[inline] def name_map.find (m : name_map α) (n : name) : option α :=
+@[inline] def nameMap.find (m : nameMap α) (n : name) : option α :=
 rbmap.find m n
 end
 
 section
-local attribute [instance] name.has_lt_quick
-def name_set := rbtree name (<)
-@[inline] def mk_name_set : name_set :=
-mk_rbtree name (<)
-def name_set.insert (s : name_set) (n : name)  :=
+local attribute [instance] name.hasLtQuick
+def nameSet := rbtree name (<)
+@[inline] def mkNameSet : nameSet :=
+mkRbtree name (<)
+def nameSet.insert (s : nameSet) (n : name)  :=
 rbtree.insert s n
-def name_set.contains (s : name_set) (n : name) : bool :=
+def nameSet.contains (s : nameSet) (n : name) : bool :=
 rbmap.contains s n
 end
 

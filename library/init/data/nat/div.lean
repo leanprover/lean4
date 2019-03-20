@@ -7,101 +7,101 @@ prelude
 import init.wf init.data.nat.basic
 namespace nat
 
-private def div_rec_lemma {x y : nat} : 0 < y ∧ y ≤ x → x - y < x :=
-λ h, and.rec (λ ypos ylex, sub_lt (nat.lt_of_lt_of_le ypos ylex) ypos) h
+private def divRecLemma {x y : nat} : 0 < y ∧ y ≤ x → x - y < x :=
+λ h, and.rec (λ ypos ylex, subLt (nat.ltOfLtOfLe ypos ylex) ypos) h
 
 private def div.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
-if h : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma h) y + 1 else zero
+if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y + 1 else zero
 
-@[extern cpp "lean::nat_div"]
+@[extern cpp "lean::natDiv"]
 protected def div (a b : @& nat) : nat :=
-well_founded.fix lt_wf div.F a b
+wellFounded.fix ltWf div.F a b
 
-instance : has_div nat :=
+instance : hasDiv nat :=
 ⟨nat.div⟩
 
-private lemma div_def_aux (x y : nat) : x / y = if h : 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
-congr_fun (well_founded.fix_eq lt_wf div.F x) y
+private lemma divDefAux (x y : nat) : x / y = if h : 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
+congrFun (wellFounded.fixEq ltWf div.F x) y
 
-lemma div_def (x y : nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
-dif_eq_if (0 < y ∧ y ≤ x) ((x - y) / y + 1) 0 ▸ div_def_aux x y
+lemma divDef (x y : nat) : x / y = if 0 < y ∧ y ≤ x then (x - y) / y + 1 else 0 :=
+difEqIf (0 < y ∧ y ≤ x) ((x - y) / y + 1) 0 ▸ divDefAux x y
 
 private lemma {u} div.induction.F
         (C : nat → nat → Sort u)
         (h₁ : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
         (h₂ : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
         (x : nat) (f : ∀ (x₁ : nat), x₁ < x → ∀ (y : nat), C x₁ y) (y : nat) : C x y :=
-if h : 0 < y ∧ y ≤ x then h₁ x y h (f (x - y) (div_rec_lemma h) y) else h₂ x y h
+if h : 0 < y ∧ y ≤ x then h₁ x y h (f (x - y) (divRecLemma h) y) else h₂ x y h
 
-@[elab_as_eliminator]
-lemma {u} div.induction_on
+@[elabAsEliminator]
+lemma {u} div.inductionOn
       {C : nat → nat → Sort u}
       (x y : nat)
       (h₁ : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
       (h₂ : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
       : C x y :=
-well_founded.fix nat.lt_wf (div.induction.F C h₁ h₂) x y
+wellFounded.fix nat.ltWf (div.induction.F C h₁ h₂) x y
 
 private def mod.F (x : nat) (f : Π x₁, x₁ < x → nat → nat) (y : nat) : nat :=
-if h : 0 < y ∧ y ≤ x then f (x - y) (div_rec_lemma h) y else x
+if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y else x
 
-@[extern cpp "lean::nat_mod"]
+@[extern cpp "lean::natMod"]
 protected def mod (a b : @& nat) : nat :=
-well_founded.fix lt_wf mod.F a b
+wellFounded.fix ltWf mod.F a b
 
-instance : has_mod nat :=
+instance : hasMod nat :=
 ⟨nat.mod⟩
 
-private lemma mod_def_aux (x y : nat) : x % y = if h : 0 < y ∧ y ≤ x then (x - y) % y else x :=
-congr_fun (well_founded.fix_eq lt_wf mod.F x) y
+private lemma modDefAux (x y : nat) : x % y = if h : 0 < y ∧ y ≤ x then (x - y) % y else x :=
+congrFun (wellFounded.fixEq ltWf mod.F x) y
 
-lemma mod_def (x y : nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
-dif_eq_if (0 < y ∧ y ≤ x) ((x - y) % y) x ▸ mod_def_aux x y
+lemma modDef (x y : nat) : x % y = if 0 < y ∧ y ≤ x then (x - y) % y else x :=
+difEqIf (0 < y ∧ y ≤ x) ((x - y) % y) x ▸ modDefAux x y
 
-@[elab_as_eliminator]
-lemma {u} mod.induction_on
+@[elabAsEliminator]
+lemma {u} mod.inductionOn
       {C : nat → nat → Sort u}
       (x y : nat)
       (h₁ : ∀ x y, 0 < y ∧ y ≤ x → C (x - y) y → C x y)
       (h₂ : ∀ x y, ¬(0 < y ∧ y ≤ x) → C x y)
       : C x y :=
-div.induction_on x y h₁ h₂
+div.inductionOn x y h₁ h₂
 
-lemma mod_zero (a : nat) : a % 0 = a :=
-suffices (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a, from (mod_def a 0).symm ▸ this,
-have h : ¬ (0 < 0 ∧ 0 ≤ a), from λ ⟨h₁, _⟩, absurd h₁ (nat.lt_irrefl _),
-if_neg h
+lemma modZero (a : nat) : a % 0 = a :=
+suffices (if 0 < 0 ∧ 0 ≤ a then (a - 0) % 0 else a) = a, from (modDef a 0).symm ▸ this,
+have h : ¬ (0 < 0 ∧ 0 ≤ a), from λ ⟨h₁, _⟩, absurd h₁ (nat.ltIrrefl _),
+ifNeg h
 
-lemma mod_eq_of_lt {a b : nat} (h : a < b) : a % b = a :=
-suffices (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a, from (mod_def a b).symm ▸ this,
-have h' : ¬(0 < b ∧ b ≤ a), from λ ⟨_, h₁⟩, absurd h₁ (nat.not_le_of_gt h),
-if_neg h'
+lemma modEqOfLt {a b : nat} (h : a < b) : a % b = a :=
+suffices (if 0 < b ∧ b ≤ a then (a - b) % b else a) = a, from (modDef a b).symm ▸ this,
+have h' : ¬(0 < b ∧ b ≤ a), from λ ⟨_, h₁⟩, absurd h₁ (nat.notLeOfGt h),
+ifNeg h'
 
-lemma mod_eq_sub_mod {a b : nat} (h : a ≥ b) : a % b = (a - b) % b :=
-or.elim (eq_zero_or_pos b)
-  (λ h₁, h₁.symm ▸ (nat.sub_zero a).symm ▸ rfl)
-  (λ h₁, (mod_def a b).symm ▸ if_pos ⟨h₁, h⟩)
+lemma modEqSubMod {a b : nat} (h : a ≥ b) : a % b = (a - b) % b :=
+or.elim (eqZeroOrPos b)
+  (λ h₁, h₁.symm ▸ (nat.subZero a).symm ▸ rfl)
+  (λ h₁, (modDef a b).symm ▸ ifPos ⟨h₁, h⟩)
 
-lemma mod_lt (x : nat) {y : nat} : y > 0 → x % y < y :=
-mod.induction_on x y
+lemma modLt (x : nat) {y : nat} : y > 0 → x % y < y :=
+mod.inductionOn x y
   (λ x y ⟨_, h₁⟩ h₂ h₃,
    have ih  : (x - y) % y < y, from h₂ h₃,
-   have heq : x % y = (x - y) % y, from mod_eq_sub_mod h₁,
+   have heq : x % y = (x - y) % y, from modEqSubMod h₁,
    heq.symm ▸ ih)
   (λ x y h₁ h₂,
-    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x, from iff.mp (decidable.not_and_iff_or_not _ _) h₁,
+    have h₁ : ¬ 0 < y ∨ ¬ y ≤ x, from iff.mp (decidable.notAndIffOrNot _ _) h₁,
     or.elim h₁
      (λ h₁, absurd h₂ h₁)
      (λ h₁,
-        have hgt : y > x, from gt_of_not_le h₁,
-        have heq : x % y = x, from mod_eq_of_lt hgt,
+        have hgt : y > x, from gtOfNotLe h₁,
+        have heq : x % y = x, from modEqOfLt hgt,
         heq.symm ▸ hgt))
 
-theorem mod_le (x y : ℕ) : x % y ≤ x :=
-or.elim (nat.lt_or_ge x y)
-  (λ h₁ : x < y, (mod_eq_of_lt h₁).symm ▸ nat.le_refl _)
-  (λ h₁ : x ≥ y, or.elim (eq_zero_or_pos y)
-    (λ h₂ : y = 0, h₂.symm ▸ (nat.mod_zero x).symm ▸ nat.le_refl _)
-    (λ h₂ : y > 0, nat.le_trans (nat.le_of_lt (nat.mod_lt _ h₂)) h₁))
+theorem modLe (x y : ℕ) : x % y ≤ x :=
+or.elim (nat.ltOrGe x y)
+  (λ h₁ : x < y, (modEqOfLt h₁).symm ▸ nat.leRefl _)
+  (λ h₁ : x ≥ y, or.elim (eqZeroOrPos y)
+    (λ h₂ : y = 0, h₂.symm ▸ (nat.modZero x).symm ▸ nat.leRefl _)
+    (λ h₂ : y > 0, nat.leTrans (nat.leOfLt (nat.modLt _ h₂)) h₁))
 
 end nat

@@ -11,7 +11,7 @@ universes u v
 inductive ordering
 | lt | eq | gt
 
-instance : has_repr ordering :=
+instance : hasRepr ordering :=
 ⟨(λ s, match s with | ordering.lt := "lt" | ordering.eq := "eq" | ordering.gt := "gt")⟩
 
 namespace ordering
@@ -20,40 +20,40 @@ def swap : ordering → ordering
 | eq := eq
 | gt := lt
 
-@[inline] def or_else : ordering → ordering → ordering
+@[inline] def orElse : ordering → ordering → ordering
 | lt _ := lt
 | eq o := o
 | gt _ := gt
 
-theorem swap_swap : ∀ (o : ordering), o.swap.swap = o
+theorem swapSwap : ∀ (o : ordering), o.swap.swap = o
 | lt := rfl
 | eq := rfl
 | gt := rfl
 end ordering
 
-@[inline] def cmp_using {α : Type u} (lt : α → α → Prop) [decidable_rel lt] (a b : α) : ordering :=
+@[inline] def cmpUsing {α : Type u} (lt : α → α → Prop) [decidableRel lt] (a b : α) : ordering :=
 if lt a b      then ordering.lt
 else if lt b a then ordering.gt
 else                ordering.eq
 
-def cmp {α : Type u} [has_lt α] [decidable_rel ((<) : α → α → Prop)] (a b : α) : ordering :=
-cmp_using (<) a b
+def cmp {α : Type u} [hasLt α] [decidableRel ((<) : α → α → Prop)] (a b : α) : ordering :=
+cmpUsing (<) a b
 
-instance : decidable_eq ordering :=
-{dec_eq := λ a b,
+instance : decidableEq ordering :=
+{decEq := λ a b,
   match a with
   | ordering.lt :=
     (match b with
-     | ordering.lt := is_true rfl
-     | ordering.eq := is_false (λ h, ordering.no_confusion h)
-     | ordering.gt := is_false (λ h, ordering.no_confusion h))
+     | ordering.lt := isTrue rfl
+     | ordering.eq := isFalse (λ h, ordering.noConfusion h)
+     | ordering.gt := isFalse (λ h, ordering.noConfusion h))
   | ordering.eq :=
     (match b with
-     | ordering.lt := is_false (λ h, ordering.no_confusion h)
-     | ordering.eq := is_true rfl
-     | ordering.gt := is_false (λ h, ordering.no_confusion h))
+     | ordering.lt := isFalse (λ h, ordering.noConfusion h)
+     | ordering.eq := isTrue rfl
+     | ordering.gt := isFalse (λ h, ordering.noConfusion h))
   | ordering.gt :=
     match b with
-    | ordering.lt := is_false (λ h, ordering.no_confusion h)
-    | ordering.eq := is_false (λ h, ordering.no_confusion h)
-    | ordering.gt := is_true rfl}
+    | ordering.lt := isFalse (λ h, ordering.noConfusion h)
+    | ordering.eq := isFalse (λ h, ordering.noConfusion h)
+    | ordering.gt := isTrue rfl}

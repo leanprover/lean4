@@ -9,11 +9,11 @@ import init.lean.expr
 namespace lean
 namespace compiler
 
-def neutral_expr : expr       := expr.const `_neutral []
-def unreachable_expr : expr   := expr.const `_unreachable []
-def object_type : expr        := expr.const `_obj []
-def void_type : expr          := expr.const `_void []
-def mk_lc_proof (pred : expr) := expr.app (expr.const `lc_proof []) pred
+def neutralExpr : expr       := expr.const `_neutral []
+def unreachableExpr : expr   := expr.const `_unreachable []
+def objectType : expr        := expr.const `_obj []
+def voidType : expr          := expr.const `_void []
+def mkLcProof (pred : expr) := expr.app (expr.const `lcProof []) pred
 
 end compiler
 end lean

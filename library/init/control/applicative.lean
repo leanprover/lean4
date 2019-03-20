@@ -8,27 +8,27 @@ import init.control.functor
 open function
 universes u v
 
-class has_pure (f : Type u → Type v) :=
+class hasPure (f : Type u → Type v) :=
 (pure {} {α : Type u} : α → f α)
 
-export has_pure (pure)
+export hasPure (pure)
 
-class has_seq (f : Type u → Type v) : Type (max (u+1) v) :=
+class hasSeq (f : Type u → Type v) : Type (max (u+1) v) :=
 (seq  : Π {α β : Type u}, f (α → β) → f α → f β)
 
-infixl ` <*> `:60 := has_seq.seq
+infixl ` <*> `:60 := hasSeq.seq
 
-class has_seq_left (f : Type u → Type v) : Type (max (u+1) v) :=
-(seq_left : Π {α β : Type u}, f α → f β → f α)
+class hasSeqLeft (f : Type u → Type v) : Type (max (u+1) v) :=
+(seqLeft : Π {α β : Type u}, f α → f β → f α)
 
-infixl ` <* `:60  := has_seq_left.seq_left
+infixl ` <* `:60  := hasSeqLeft.seqLeft
 
-class has_seq_right (f : Type u → Type v) : Type (max (u+1) v) :=
-(seq_right : Π {α β : Type u}, f α → f β → f β)
+class hasSeqRight (f : Type u → Type v) : Type (max (u+1) v) :=
+(seqRight : Π {α β : Type u}, f α → f β → f β)
 
-infixl ` *> `:60  := has_seq_right.seq_right
+infixl ` *> `:60  := hasSeqRight.seqRight
 
-class applicative (f : Type u → Type v) extends functor f, has_pure f, has_seq f, has_seq_left f, has_seq_right f :=
+class applicative (f : Type u → Type v) extends functor f, hasPure f, hasSeq f, hasSeqLeft f, hasSeqRight f :=
 (map       := λ _ _ x y, pure x <*> y)
-(seq_left  := λ α β a b, const β <$> a <*> b)
-(seq_right := λ α β a b, const α id <$> a <*> b)
+(seqLeft  := λ α β a b, const β <$> a <*> b)
+(seqRight := λ α β a b, const α id <$> a <*> b)

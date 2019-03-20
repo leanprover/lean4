@@ -8,17 +8,17 @@ import init.lean.parser.parsec
 
 namespace lean
 namespace parser
-open monad_parsec
-variables {m : Type → Type} {μ : Type} [monad m] [monad_parsec μ m] [alternative m]
+open monadParsec
+variables {m : Type → Type} {μ : Type} [monad m] [monadParsec μ m] [alternative m]
 
-def parse_hex_digit : m nat :=
-(    (do d ← digit, pure $ d.to_nat - '0'.to_nat)
- <|> (do c ← satisfy (λ c, 'a'.val ≤ c.val && c.val ≤ 'f'.val), pure $ 10 + (c.to_nat - 'a'.to_nat))
- <|> (do c ← satisfy (λ c, 'A'.val ≤ c.val && c.val ≤ 'F'.val), pure $ 10 + (c.to_nat - 'A'.to_nat)))
+def parseHexDigit : m nat :=
+(    (do d ← digit, pure $ d.toNat - '0'.toNat)
+ <|> (do c ← satisfy (λ c, 'a'.val ≤ c.val && c.val ≤ 'f'.val), pure $ 10 + (c.toNat - 'a'.toNat))
+ <|> (do c ← satisfy (λ c, 'A'.val ≤ c.val && c.val ≤ 'F'.val), pure $ 10 + (c.toNat - 'A'.toNat)))
 <?> "hexadecimal"
 
-def parse_quoted_char : m char :=
-do it ← left_over,
+def parseQuotedChar : m char :=
+do it ← leftOver,
    c ← any,
    if c = '\\'      then pure '\\'
    else if c = '\"' then pure '\"'
@@ -26,29 +26,29 @@ do it ← left_over,
    else if c = 'n' then pure '\n'
    else if c = 't' then pure '\t'
    else if c = 'x'  then do {
-     d₁ ← parse_hex_digit,
-     d₂ ← parse_hex_digit,
-     pure $ char.of_nat (16*d₁ + d₂) }
+     d₁ ← parseHexDigit,
+     d₂ ← parseHexDigit,
+     pure $ char.ofNat (16*d₁ + d₂) }
    else if c = 'u'  then do {
-     d₁ ← parse_hex_digit,
-     d₂ ← parse_hex_digit,
-     d₃ ← parse_hex_digit,
-     d₄ ← parse_hex_digit,
-     pure $ char.of_nat (16*(16*(16*d₁ + d₂) + d₃) + d₄) }
-   else unexpected_at "quoted character" it
+     d₁ ← parseHexDigit,
+     d₂ ← parseHexDigit,
+     d₃ ← parseHexDigit,
+     d₄ ← parseHexDigit,
+     pure $ char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄) }
+   else unexpectedAt "quoted character" it
 
-def parse_string_literal_aux : nat → string → m string
+def parseStringLiteralAux : nat → string → m string
 | 0     s := ch '\"' *> pure s
 | (n+1) s := do
   c ← any,
-  if c = '\\' then do c ← parse_quoted_char, parse_string_literal_aux n (s.push c)
+  if c = '\\' then do c ← parseQuotedChar, parseStringLiteralAux n (s.push c)
   else if c = '\"' then pure s
-  else parse_string_literal_aux n (s.push c)
+  else parseStringLiteralAux n (s.push c)
 
-def parse_string_literal : m string :=
+def parseStringLiteral : m string :=
 do ch '\"',
    r ← remaining,
-   parse_string_literal_aux r ""
+   parseStringLiteralAux r ""
 
 end parser
 end lean

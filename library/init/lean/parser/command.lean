@@ -11,107 +11,107 @@ import init.lean.parser.declaration
 namespace lean
 namespace parser
 
-open combinators monad_parsec
-open parser.has_tokens parser.has_view
+open combinators monadParsec
+open parser.hasTokens parser.hasView
 
 local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
-set_option class.instance_max_depth 300
+setOption class.instanceMaxDepth 300
 
-@[derive parser.has_view parser.has_tokens]
-def command.parser : command_parser :=
+@[derive parser.hasView parser.hasTokens]
+def command.parser : commandParser :=
 recurse () <?> "command"
 
 namespace «command»
 
-@[derive parser.has_view parser.has_tokens]
-def open_spec.parser : command_parser :=
-node! open_spec [
+@[derive parser.hasView parser.hasTokens]
+def openSpec.parser : commandParser :=
+node! openSpec [
  id: ident.parser,
- as: node! open_spec.as ["as", id: ident.parser]?,
- only: node! open_spec.only [try ["(", id: ident.parser], ids: ident.parser*, ")"]?,
- «renaming»: node! open_spec.renaming [try ["(", "renaming"], items: node! open_spec.renaming.item [«from»: ident.parser, "->", to: ident.parser]+, ")"]?,
- «hiding»: node! open_spec.hiding ["(", "hiding", ids: ident.parser+, ")"]?
+ as: node! openSpec.as ["as", id: ident.parser]?,
+ only: node! openSpec.only [try ["(", id: ident.parser], ids: ident.parser*, ")"]?,
+ «renaming»: node! openSpec.renaming [try ["(", "renaming"], items: node! openSpec.renaming.item [«from»: ident.parser, "->", to: ident.parser]+, ")"]?,
+ «hiding»: node! openSpec.hiding ["(", "hiding", ids: ident.parser+, ")"]?
 ]+
 
-@[derive parser.has_tokens]
-def open.parser : command_parser :=
-node! «open» ["open", spec: open_spec.parser]
+@[derive parser.hasTokens]
+def open.parser : commandParser :=
+node! «open» ["open", spec: openSpec.parser]
 
-@[derive parser.has_tokens]
-def export.parser : command_parser :=
-node! «export» ["export", spec: open_spec.parser]
+@[derive parser.hasTokens]
+def export.parser : commandParser :=
+node! «export» ["export", spec: openSpec.parser]
 
-@[derive parser.has_tokens]
-def section.parser : command_parser :=
+@[derive parser.hasTokens]
+def section.parser : commandParser :=
 node! «section» ["section", name: ident.parser?]
 
-@[derive parser.has_tokens]
-def namespace.parser : command_parser :=
+@[derive parser.hasTokens]
+def namespace.parser : commandParser :=
 node! «namespace» ["namespace", name: ident.parser]
 
-@[derive parser.has_tokens]
-def variable.parser : command_parser :=
+@[derive parser.hasTokens]
+def variable.parser : commandParser :=
 node! «variable» ["variable", binder: term.binder.parser]
 
-@[derive parser.has_tokens]
-def variables.parser : command_parser :=
+@[derive parser.hasTokens]
+def variables.parser : commandParser :=
 -- TODO: should require at least one binder
-node! «variables» ["variables", binders: term.bracketed_binders.parser]
+node! «variables» ["variables", binders: term.bracketedBinders.parser]
 
-@[derive parser.has_tokens]
-def include.parser : command_parser :=
+@[derive parser.hasTokens]
+def include.parser : commandParser :=
 node! «include» ["include ", ids: ident.parser+]
 
-@[derive parser.has_tokens]
-def omit.parser : command_parser :=
+@[derive parser.hasTokens]
+def omit.parser : commandParser :=
 node! «omit» ["omit ", ids: ident.parser+]
 
-@[derive parser.has_tokens]
-def end.parser : command_parser :=
+@[derive parser.hasTokens]
+def end.parser : commandParser :=
 node! «end» ["end", name: ident.parser?]
 
-@[derive parser.has_tokens]
-def universe.parser : command_parser :=
-any_of [
+@[derive parser.hasTokens]
+def universe.parser : commandParser :=
+anyOf [
   node! «universes» ["universes", ids: ident.parser+],
   node! «universe» ["universe", id: ident.parser]
 ]
 
-@[derive parser.has_tokens parser.has_view]
-def check.parser : command_parser :=
+@[derive parser.hasTokens parser.hasView]
+def check.parser : commandParser :=
 node! check ["#check", term: term.parser]
 
-@[derive parser.has_tokens parser.has_view]
-def attribute.parser : command_parser :=
+@[derive parser.hasTokens parser.hasView]
+def attribute.parser : commandParser :=
 node! «attribute» [
   try [«local»: (symbol "local ")?, "attribute "],
   "[",
-  attrs: sep_by1 attr_instance.parser (symbol ", "),
+  attrs: sepBy1 attrInstance.parser (symbol ", "),
   "] ",
   ids: ident.parser*
 ]
 
-@[derive parser.has_tokens parser.has_view]
-def init_quot.parser : command_parser :=
-node! «init_quot» ["init_quot"]
+@[derive parser.hasTokens parser.hasView]
+def initQuot.parser : commandParser :=
+node! «initQuot» ["initQuot"]
 
-@[derive parser.has_tokens parser.has_view]
-def set_option.parser : command_parser :=
-node! «set_option» ["set_option", opt: ident.parser, val: node_choice! option_value {
-  bool: node_choice! bool_option_value {
-    true: symbol_or_ident "true",
-    false: symbol_or_ident "true",
+@[derive parser.hasTokens parser.hasView]
+def setOption.parser : commandParser :=
+node! «setOption» ["setOption", opt: ident.parser, val: nodeChoice! optionValue {
+  bool: nodeChoice! boolOptionValue {
+    true: symbolOrIdent "true",
+    false: symbolOrIdent "true",
   },
-  string: string_lit.parser,
+  string: stringLit.parser,
   -- TODO(Sebastian): fractional numbers
   num: number.parser,
 }]
 
-@[derive has_tokens]
-def builtin_command_parsers : token_map command_parser := token_map.of_list [
+@[derive hasTokens]
+def builtinCommandParsers : tokenMap commandParser := tokenMap.ofList [
   ("/--", declaration.parser),
   ("@[", declaration.parser),
   ("private", declaration.parser),
@@ -139,27 +139,27 @@ def builtin_command_parsers : token_map command_parser := token_map.of_list [
   ("universes", universe.parser),
   ("local", notation.parser),
   ("notation", notation.parser),
-  ("reserve", reserve_notation.parser),
+  ("reserve", reserveNotation.parser),
   ("local", mixfix.parser),
   ("prefix", mixfix.parser),
   ("infix", mixfix.parser),
   ("infixl", mixfix.parser),
   ("infixr", mixfix.parser),
   ("postfix", mixfix.parser),
-  ("reserve", reserve_mixfix.parser),
+  ("reserve", reserveMixfix.parser),
   ("#check", check.parser),
   ("local", attribute.parser),
   ("attribute", attribute.parser),
   ("export", export.parser),
   ("include", include.parser),
   ("omit", omit.parser),
-  ("init_quot", init_quot.parser),
-  ("set_option", set_option.parser)]
+  ("initQuot", initQuot.parser),
+  ("setOption", setOption.parser)]
 end «command»
 
-def command_parser.run (commands : token_map command_parser) (p : command_parser)
-  : parser_t command_parser_config id syntax :=
-λ cfg, (p.run cfg).run_parsec $ λ _, (indexed commands >>= any_of : command_parser).run cfg
+def commandParser.run (commands : tokenMap commandParser) (p : commandParser)
+  : parserT commandParserConfig id syntax :=
+λ cfg, (p.run cfg).runParsec $ λ _, (indexed commands >>= anyOf : commandParser).run cfg
 
 end parser
 end lean

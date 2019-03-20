@@ -12,155 +12,155 @@ import init.lean.compiler.util
 namespace lean
 namespace compiler
 
-def bin_fold_fn := bool → expr → expr → option expr
-def un_fold_fn  := bool → expr → option expr
+def binFoldFn := bool → expr → expr → option expr
+def unFoldFn  := bool → expr → option expr
 
-def mk_uint_type_name (nbytes : nat) : name :=
-mk_simple_name ("uint" ++ to_string nbytes)
+def mkUintTypeName (nbytes : nat) : name :=
+mkSimpleName ("uint" ++ toString nbytes)
 
-structure num_scalar_type_info :=
+structure numScalarTypeInfo :=
 (nbits : nat)
-(id : name        := mk_uint_type_name nbits)
-(of_nat_fn : name := name.mk_string id "of_nat")
+(id : name        := mkUintTypeName nbits)
+(ofNatFn : name := name.mkString id "ofNat")
 (size : nat       := 2^nbits)
 
-def num_scalar_types : list num_scalar_type_info :=
+def numScalarTypes : list numScalarTypeInfo :=
 [{nbits := 8}, {nbits := 16}, {nbits := 32}, {nbits := 64},
  {id := `usize, nbits := system.platform.nbits}]
 
-def is_of_nat (fn : name) : bool :=
-num_scalar_types.any (λ info, info.of_nat_fn = fn)
+def isOfNat (fn : name) : bool :=
+numScalarTypes.any (λ info, info.ofNatFn = fn)
 
-def get_info_from_fn (fn : name) : list num_scalar_type_info → option num_scalar_type_info
+def getInfoFromFn (fn : name) : list numScalarTypeInfo → option numScalarTypeInfo
 | []            := none
 | (info::infos) :=
-  if info.of_nat_fn = fn then some info
-  else get_info_from_fn infos
+  if info.ofNatFn = fn then some info
+  else getInfoFromFn infos
 
-def get_info_from_val : expr → option num_scalar_type_info
-| (expr.app (expr.const fn _) _) := get_info_from_fn fn num_scalar_types
+def getInfoFromVal : expr → option numScalarTypeInfo
+| (expr.app (expr.const fn _) _) := getInfoFromFn fn numScalarTypes
 | _ := none
 
-@[export lean.get_num_lit_core]
-def get_num_lit : expr → option nat
-| (expr.lit (literal.nat_val n)) := some n
-| (expr.app (expr.const fn _) a) := if is_of_nat fn then get_num_lit a else none
+@[export lean.getNumLitCore]
+def getNumLit : expr → option nat
+| (expr.lit (literal.natVal n)) := some n
+| (expr.app (expr.const fn _) a) := if isOfNat fn then getNumLit a else none
 | _                              := none
 
-def mk_uint_lit (info : num_scalar_type_info) (n : nat) : expr :=
-expr.app (expr.const info.of_nat_fn []) (expr.lit (literal.nat_val (n%info.size)))
+def mkUintLit (info : numScalarTypeInfo) (n : nat) : expr :=
+expr.app (expr.const info.ofNatFn []) (expr.lit (literal.natVal (n%info.size)))
 
-def mk_uint32_lit (n : nat) : expr :=
-mk_uint_lit {nbits := 32} n
+def mkUint32Lit (n : nat) : expr :=
+mkUintLit {nbits := 32} n
 
-def fold_bin_uint (fn : num_scalar_type_info → bool → nat → nat → nat) (before_erasure : bool) (a₁ a₂ : expr) : option expr :=
-do n₁   ← get_num_lit a₁,
-   n₂   ← get_num_lit a₂,
-   info ← get_info_from_val a₁,
-   pure $ mk_uint_lit info (fn info before_erasure n₁ n₂)
+def foldBinUint (fn : numScalarTypeInfo → bool → nat → nat → nat) (beforeErasure : bool) (a₁ a₂ : expr) : option expr :=
+do n₁   ← getNumLit a₁,
+   n₂   ← getNumLit a₂,
+   info ← getInfoFromVal a₁,
+   pure $ mkUintLit info (fn info beforeErasure n₁ n₂)
 
-def fold_uint_add := fold_bin_uint $ λ _ _, (+)
-def fold_uint_mul := fold_bin_uint $ λ _ _, (*)
-def fold_uint_div := fold_bin_uint $ λ _ _, (/)
-def fold_uint_mod := fold_bin_uint $ λ _ _, (%)
-def fold_uint_sub := fold_bin_uint $ λ info _ a b, (a + (info.size - b))
+def foldUintAdd := foldBinUint $ λ _ _, (+)
+def foldUintMul := foldBinUint $ λ _ _, (*)
+def foldUintDiv := foldBinUint $ λ _ _, (/)
+def foldUintMod := foldBinUint $ λ _ _, (%)
+def foldUintSub := foldBinUint $ λ info _ a b, (a + (info.size - b))
 
-def pre_uint_bin_fold_fns : list (name × bin_fold_fn) :=
-[(`add, fold_uint_add), (`mul, fold_uint_mul), (`div, fold_uint_div),
- (`mod, fold_uint_mod), (`sub, fold_uint_sub)]
+def preUintBinFoldFns : list (name × binFoldFn) :=
+[(`add, foldUintAdd), (`mul, foldUintMul), (`div, foldUintDiv),
+ (`mod, foldUintMod), (`sub, foldUintSub)]
 
-def uint_bin_fold_fns : list (name × bin_fold_fn) :=
-num_scalar_types.foldl (λ r info, r ++ (pre_uint_bin_fold_fns.map (λ ⟨suffix, fn⟩, (info.id ++ suffix, fn)))) []
+def uintBinFoldFns : list (name × binFoldFn) :=
+numScalarTypes.foldl (λ r info, r ++ (preUintBinFoldFns.map (λ ⟨suffix, fn⟩, (info.id ++ suffix, fn)))) []
 
-def fold_nat_bin_op (fn : nat → nat → nat) (a₁ a₂ : expr) : option expr :=
-do n₁   ← get_num_lit a₁,
-   n₂   ← get_num_lit a₂,
-   pure $ expr.lit (literal.nat_val (fn n₁ n₂))
+def foldNatBinOp (fn : nat → nat → nat) (a₁ a₂ : expr) : option expr :=
+do n₁   ← getNumLit a₁,
+   n₂   ← getNumLit a₂,
+   pure $ expr.lit (literal.natVal (fn n₁ n₂))
 
-def fold_nat_add (_ : bool) := fold_nat_bin_op (+)
-def fold_nat_mul (_ : bool) := fold_nat_bin_op (*)
-def fold_nat_div (_ : bool) := fold_nat_bin_op (/)
-def fold_nat_mod (_ : bool) := fold_nat_bin_op (%)
+def foldNatAdd (_ : bool) := foldNatBinOp (+)
+def foldNatMul (_ : bool) := foldNatBinOp (*)
+def foldNatDiv (_ : bool) := foldNatBinOp (/)
+def foldNatMod (_ : bool) := foldNatBinOp (%)
 
-def mk_nat_eq (a b : expr) : expr :=
-mk_bin_app (expr.app (expr.const `eq [level.one]) (expr.const `nat [])) a b
+def mkNatEq (a b : expr) : expr :=
+mkBinApp (expr.app (expr.const `eq [level.one]) (expr.const `nat [])) a b
 
-def mk_nat_lt (a b : expr) : expr :=
-mk_bin_app (mk_bin_app (expr.const `has_lt.lt [level.zero]) (expr.const `nat []) (expr.const `nat.has_lt [])) a b
+def mkNatLt (a b : expr) : expr :=
+mkBinApp (mkBinApp (expr.const `hasLt.lt [level.zero]) (expr.const `nat []) (expr.const `nat.hasLt [])) a b
 
-def mk_nat_le (a b : expr) : expr :=
-mk_bin_app (mk_bin_app (expr.const `has_lt.le [level.zero]) (expr.const `nat []) (expr.const `nat.has_le [])) a b
+def mkNatLe (a b : expr) : expr :=
+mkBinApp (mkBinApp (expr.const `hasLt.le [level.zero]) (expr.const `nat []) (expr.const `nat.hasLe [])) a b
 
-def to_decidable_expr (before_erasure : bool) (pred : expr) (r : bool) : expr :=
-match before_erasure, r with
-| ff, tt := mk_dec_is_true  neutral_expr neutral_expr
-| ff, ff := mk_dec_is_false neutral_expr neutral_expr
-| tt, tt := mk_dec_is_true pred (mk_lc_proof pred)
-| tt, ff := mk_dec_is_false pred (mk_lc_proof pred)
+def toDecidableExpr (beforeErasure : bool) (pred : expr) (r : bool) : expr :=
+match beforeErasure, r with
+| ff, tt := mkDecIsTrue  neutralExpr neutralExpr
+| ff, ff := mkDecIsFalse neutralExpr neutralExpr
+| tt, tt := mkDecIsTrue pred (mkLcProof pred)
+| tt, ff := mkDecIsFalse pred (mkLcProof pred)
 
-def fold_nat_bin_pred (mk_pred : expr → expr → expr) (fn : nat → nat → bool)
-                      (before_erasure : bool) (a₁ a₂ : expr) : option expr :=
-do n₁   ← get_num_lit a₁,
-   n₂   ← get_num_lit a₂,
-   pure $ to_decidable_expr before_erasure (mk_pred a₁ a₂) (fn n₁ n₂)
+def foldNatBinPred (mkPred : expr → expr → expr) (fn : nat → nat → bool)
+                      (beforeErasure : bool) (a₁ a₂ : expr) : option expr :=
+do n₁   ← getNumLit a₁,
+   n₂   ← getNumLit a₂,
+   pure $ toDecidableExpr beforeErasure (mkPred a₁ a₂) (fn n₁ n₂)
 
-def fold_nat_dec_eq := fold_nat_bin_pred mk_nat_eq (λ a b, a = b)
-def fold_nat_dec_lt := fold_nat_bin_pred mk_nat_lt (λ a b, a < b)
-def fold_nat_dec_le := fold_nat_bin_pred mk_nat_le (λ a b, a ≤ b)
+def foldNatDecEq := foldNatBinPred mkNatEq (λ a b, a = b)
+def foldNatDecLt := foldNatBinPred mkNatLt (λ a b, a < b)
+def foldNatDecLe := foldNatBinPred mkNatLe (λ a b, a ≤ b)
 
-def nat_fold_fns : list (name × bin_fold_fn) :=
-[(`nat.add, fold_nat_add),
- (`nat.mul, fold_nat_mul),
- (`nat.div, fold_nat_div),
- (`nat.mod, fold_nat_mod),
- (`nat.dec_eq, fold_nat_dec_eq),
- (`nat.dec_lt, fold_nat_dec_lt),
- (`nat.dec_le, fold_nat_dec_le)]
+def natFoldFns : list (name × binFoldFn) :=
+[(`nat.add, foldNatAdd),
+ (`nat.mul, foldNatMul),
+ (`nat.div, foldNatDiv),
+ (`nat.mod, foldNatMod),
+ (`nat.decEq, foldNatDecEq),
+ (`nat.decLt, foldNatDecLt),
+ (`nat.decLe, foldNatDecLe)]
 
-def bin_fold_fns : list (name × bin_fold_fn) :=
-uint_bin_fold_fns ++ nat_fold_fns
+def binFoldFns : list (name × binFoldFn) :=
+uintBinFoldFns ++ natFoldFns
 
-def fold_nat_succ (_ : bool) (a : expr) : option expr :=
-do n   ← get_num_lit a,
-   pure $ expr.lit (literal.nat_val (n+1))
+def foldNatSucc (_ : bool) (a : expr) : option expr :=
+do n   ← getNumLit a,
+   pure $ expr.lit (literal.natVal (n+1))
 
-def fold_char_of_nat (before_erasure : bool) (a : expr) : option expr :=
-do guard (!before_erasure),
-   n ← get_num_lit a,
+def foldCharOfNat (beforeErasure : bool) (a : expr) : option expr :=
+do guard (!beforeErasure),
+   n ← getNumLit a,
    pure $
-     if is_valid_char (uint32.of_nat n) then mk_uint32_lit n
-     else mk_uint32_lit 0
+     if isValidChar (uint32.ofNat n) then mkUint32Lit n
+     else mkUint32Lit 0
 
-def un_fold_fns : list (name × un_fold_fn) :=
-[(`nat.succ, fold_nat_succ),
- (`char.of_nat, fold_char_of_nat)]
+def unFoldFns : list (name × unFoldFn) :=
+[(`nat.succ, foldNatSucc),
+ (`char.ofNat, foldCharOfNat)]
 
 -- TODO(Leo): move
-private def {u} alist_find {α : Type u} (n : name) : list (name × α) → option α
+private def {u} alistFind {α : Type u} (n : name) : list (name × α) → option α
 | []          := none
 | ((k, v)::r) :=
-  if n = k then some v else alist_find r
+  if n = k then some v else alistFind r
 
-def find_bin_fold_fn (fn : name) : option bin_fold_fn :=
-alist_find fn bin_fold_fns
+def findBinFoldFn (fn : name) : option binFoldFn :=
+alistFind fn binFoldFns
 
-def find_un_fold_fn (fn : name) : option un_fold_fn :=
-alist_find fn un_fold_fns
+def findUnFoldFn (fn : name) : option unFoldFn :=
+alistFind fn unFoldFns
 
-@[export lean.fold_bin_op_core]
-def fold_bin_op (before_erasure : bool) (f : expr) (a : expr) (b : expr) : option expr :=
+@[export lean.foldBinOpCore]
+def foldBinOp (beforeErasure : bool) (f : expr) (a : expr) (b : expr) : option expr :=
 match f with
 | expr.const fn _ := do
-   fold_fn ← find_bin_fold_fn fn,
-   fold_fn before_erasure a b
+   foldFn ← findBinFoldFn fn,
+   foldFn beforeErasure a b
 | _ := none
 
-@[export lean.fold_un_op_core]
-def fold_un_op (before_erasure : bool) (f : expr) (a : expr) : option expr :=
+@[export lean.foldUnOpCore]
+def foldUnOp (beforeErasure : bool) (f : expr) (a : expr) : option expr :=
 match f with
 | expr.const fn _ := do
-   fold_fn ← find_un_fold_fn fn,
-   fold_fn before_erasure a
+   foldFn ← findUnFoldFn fn,
+   foldFn beforeErasure a
 | _ := none
 
 end compiler

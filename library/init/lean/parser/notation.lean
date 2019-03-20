@@ -11,103 +11,103 @@ import init.lean.parser.token
 namespace lean
 namespace parser
 
-open combinators monad_parsec
-open parser.has_tokens parser.has_view
+open combinators monadParsec
+open parser.hasTokens parser.hasView
 
 local postfix `?`:10000 := optional
 local postfix *:10000 := combinators.many
 local postfix +:10000 := combinators.many1
 
-@[derive parser.has_tokens parser.has_view]
-def term.parser (rbp := 0) : term_parser :=
+@[derive parser.hasTokens parser.hasView]
+def term.parser (rbp := 0) : termParser :=
 recurse rbp <?> "term"
 
-set_option class.instance_max_depth 100
+setOption class.instanceMaxDepth 100
 
 namespace «command»
-namespace notation_spec
-@[derive parser.has_tokens parser.has_view]
-def precedence_lit.parser : term_parser :=
-node_choice! precedence_lit {
+namespace notationSpec
+@[derive parser.hasTokens parser.hasView]
+def precedenceLit.parser : termParser :=
+nodeChoice! precedenceLit {
   num: number.parser,
-  max: symbol_or_ident "max",
-  -- TODO(Sebastian): `prec_of`?
+  max: symbolOrIdent "max",
+  -- TODO(Sebastian): `precOf`?
 }
 
-def precedence_lit.view.to_nat : precedence_lit.view → nat
-| (precedence_lit.view.num n) := n.to_nat
-| (precedence_lit.view.max _) := max_prec
+def precedenceLit.view.toNat : precedenceLit.view → nat
+| (precedenceLit.view.num n) := n.toNat
+| (precedenceLit.view.max _) := maxPrec
 
-@[derive parser.has_tokens parser.has_view]
-def precedence_term.parser : term_parser :=
-node_choice! precedence_term {
-  lit: precedence_lit.parser,
-  offset: node! precedence_offset ["(", lit: precedence_lit.parser,
-    op: node_choice! precedence_offset_op {" + ", " - "},
+@[derive parser.hasTokens parser.hasView]
+def precedenceTerm.parser : termParser :=
+nodeChoice! precedenceTerm {
+  lit: precedenceLit.parser,
+  offset: node! precedenceOffset ["(", lit: precedenceLit.parser,
+    op: nodeChoice! precedenceOffsetOp {" + ", " - "},
     offset: number.parser,
     ")",
   ]
 }
 
-def precedence_term.view.to_nat : precedence_term.view → nat
-| (precedence_term.view.lit l) := l.to_nat
-| (precedence_term.view.offset o) := match o.op with
-  | (precedence_offset_op.view.«+» _) := o.lit.to_nat.add o.offset.to_nat
-  | (precedence_offset_op.view.«-» _) := o.lit.to_nat - o.offset.to_nat
+def precedenceTerm.view.toNat : precedenceTerm.view → nat
+| (precedenceTerm.view.lit l) := l.toNat
+| (precedenceTerm.view.offset o) := match o.op with
+  | (precedenceOffsetOp.view.«+» _) := o.lit.toNat.add o.offset.toNat
+  | (precedenceOffsetOp.view.«-» _) := o.lit.toNat - o.offset.toNat
 
-@[derive parser.has_tokens parser.has_view]
-def precedence.parser : term_parser :=
-node! «precedence» [":", term: precedence_term.parser]
+@[derive parser.hasTokens parser.hasView]
+def precedence.parser : termParser :=
+node! «precedence» [":", term: precedenceTerm.parser]
 
-@[derive parser.has_tokens parser.has_view]
-def quoted_symbol.parser : term_parser :=
-raw $ take_until (= '`')
+@[derive parser.hasTokens parser.hasView]
+def quotedSymbol.parser : termParser :=
+raw $ takeUntil (= '`')
 
-@[derive parser.has_tokens parser.has_view]
-def symbol_quote.parser : term_parser :=
-node! symbol_quote [
-  left_quote: raw_str "`",
-  symbol: quoted_symbol.parser,
-  right_quote: raw_str "`" tt, -- consume trailing ws
+@[derive parser.hasTokens parser.hasView]
+def symbolQuote.parser : termParser :=
+node! symbolQuote [
+  leftQuote: rawStr "`",
+  symbol: quotedSymbol.parser,
+  rightQuote: rawStr "`" tt, -- consume trailing ws
   prec: precedence.parser?]
 
-def unquoted_symbol.parser : term_parser :=
+def unquotedSymbol.parser : termParser :=
 try $ do {
-  it ← left_over,
-  stx@(syntax.atom _) ← monad_lift token | error "" (dlist.singleton "symbol") it,
+  it ← leftOver,
+  stx@(syntax.atom _) ← monadLift token | error "" (dlist.singleton "symbol") it,
   pure stx
 } <?> "symbol"
 
-instance unquoted_symbol.tokens : parser.has_tokens unquoted_symbol.parser := ⟨[]⟩
-instance unquoted_symbol.view : parser.has_view (option syntax_atom) unquoted_symbol.parser :=
+instance unquotedSymbol.tokens : parser.hasTokens unquotedSymbol.parser := ⟨[]⟩
+instance unquotedSymbol.view : parser.hasView (option syntaxAtom) unquotedSymbol.parser :=
 { view := λ stx, match stx with
   | syntax.atom atom := some atom
   | _                := none,
-  review := λ a, (syntax.atom <$> a).get_or_else syntax.missing }
+  review := λ a, (syntax.atom <$> a).getOrElse syntax.missing }
 
 --TODO(Sebastian): cannot be called `symbol` because of hygiene problems
-@[derive parser.has_tokens parser.has_view]
-def notation_symbol.parser : term_parser :=
-node_choice! notation_symbol {
-  quoted: symbol_quote.parser,
+@[derive parser.hasTokens parser.hasView]
+def notationSymbol.parser : termParser :=
+nodeChoice! notationSymbol {
+  quoted: symbolQuote.parser,
   --TODO(Sebastian): decide if we want this in notations
-  --unquoted: unquoted_symbol.parser
+  --unquoted: unquotedSymbol.parser
 }
 
-@[derive parser.has_tokens parser.has_view]
-def mixfix_symbol.parser : term_parser :=
-node_choice! mixfix_symbol {
-  quoted: symbol_quote.parser,
-  unquoted: unquoted_symbol.parser
+@[derive parser.hasTokens parser.hasView]
+def mixfixSymbol.parser : termParser :=
+nodeChoice! mixfixSymbol {
+  quoted: symbolQuote.parser,
+  unquoted: unquotedSymbol.parser
 }
 
-@[derive parser.has_tokens parser.has_view]
-def fold_action.parser : term_parser :=
-node! fold_action [
+@[derive parser.hasTokens parser.hasView]
+def foldAction.parser : termParser :=
+node! foldAction [
   "(",
-  op: any_of [symbol_or_ident "foldl", symbol_or_ident "foldr"],
-  sep: notation_symbol.parser,
-  folder: node! fold_action_folder [
+  op: anyOf [symbolOrIdent "foldl", symbolOrIdent "foldr"],
+  sep: notationSymbol.parser,
+  folder: node! foldActionFolder [
     "(",
     arg1: ident.parser,
     arg2: ident.parser,
@@ -116,73 +116,73 @@ node! fold_action [
     ")"
   ],
   init: term.parser,
-  end_tk: notation_symbol.parser,
+  endTk: notationSymbol.parser,
   ")"
 ]
 
-@[derive parser.has_tokens parser.has_view]
-def action.parser : term_parser :=
-node! action [":", kind: node_choice! action_kind {
-  prec: try precedence_term.parser,
-  prev: symbol_or_ident "prev",
-  scoped: node! scoped_action [
-    try ["(", scoped: symbol_or_ident "scoped"],
+@[derive parser.hasTokens parser.hasView]
+def action.parser : termParser :=
+node! action [":", kind: nodeChoice! actionKind {
+  prec: try precedenceTerm.parser,
+  prev: symbolOrIdent "prev",
+  scoped: node! scopedAction [
+    try ["(", scoped: symbolOrIdent "scoped"],
     prec: precedence.parser?,
     id: ident.parser,
     ", ",
     term: term.parser,
     ")",
   ],
-  fold: fold_action.parser
+  fold: foldAction.parser
 }]
 
-@[derive parser.has_tokens parser.has_view]
-def transition.parser : term_parser :=
-node_choice! transition {
-  binder: node! binder [binder: symbol_or_ident "binder", prec: precedence.parser?],
-  binders: node! binders [binders: symbol_or_ident "binders", prec: precedence.parser?],
+@[derive parser.hasTokens parser.hasView]
+def transition.parser : termParser :=
+nodeChoice! transition {
+  binder: node! binder [binder: symbolOrIdent "binder", prec: precedence.parser?],
+  binders: node! binders [binders: symbolOrIdent "binders", prec: precedence.parser?],
   arg: node! argument [id: ident.parser, action: action.parser?]
 }
 
-@[derive parser.has_tokens parser.has_view]
-def rule.parser : term_parser :=
-node! rule [symbol: notation_symbol.parser, transition: transition.parser?]
+@[derive parser.hasTokens parser.hasView]
+def rule.parser : termParser :=
+node! rule [symbol: notationSymbol.parser, transition: transition.parser?]
 
-end notation_spec
+end notationSpec
 
-@[derive parser.has_tokens parser.has_view]
-def notation_spec.parser : term_parser :=
-node! notation_spec [prefix_arg: ident.parser?, rules: notation_spec.rule.parser*]
+@[derive parser.hasTokens parser.hasView]
+def notationSpec.parser : termParser :=
+node! notationSpec [prefixArg: ident.parser?, rules: notationSpec.rule.parser*]
 
-@[derive parser.has_tokens parser.has_view]
-def notation.parser : term_parser :=
+@[derive parser.hasTokens parser.hasView]
+def notation.parser : termParser :=
 node! «notation» [
   try [«local»: (symbol "local ")?, "notation"],
-  spec: notation_spec.parser, ":=", term: term.parser]
+  spec: notationSpec.parser, ":=", term: term.parser]
 
-@[derive parser.has_tokens parser.has_view]
-def reserve_notation.parser : term_parser :=
-node! «reserve_notation» [try ["reserve", "notation"], spec: notation_spec.parser]
+@[derive parser.hasTokens parser.hasView]
+def reserveNotation.parser : termParser :=
+node! «reserveNotation» [try ["reserve", "notation"], spec: notationSpec.parser]
 
-@[derive parser.has_tokens parser.has_view]
-def mixfix.kind.parser : term_parser :=
-node_choice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
+@[derive parser.hasTokens parser.hasView]
+def mixfix.kind.parser : termParser :=
+nodeChoice! mixfix.kind {"prefix", "infix", "infixl", "infixr", "postfix"}
 
-@[derive parser.has_tokens parser.has_view]
-def mixfix.parser : term_parser :=
+@[derive parser.hasTokens parser.hasView]
+def mixfix.parser : termParser :=
 node! «mixfix» [
   try [«local»: (symbol "local ")?, kind: mixfix.kind.parser],
-  symbol: notation_spec.mixfix_symbol.parser, ":=", term: term.parser]
+  symbol: notationSpec.mixfixSymbol.parser, ":=", term: term.parser]
 
-@[derive parser.has_tokens parser.has_view]
-def notation_like.parser : term_parser :=
-node_choice! notation_like {«notation»: notation.parser, mixfix: mixfix.parser}
+@[derive parser.hasTokens parser.hasView]
+def notationLike.parser : termParser :=
+nodeChoice! notationLike {«notation»: notation.parser, mixfix: mixfix.parser}
 
-@[derive parser.has_tokens parser.has_view]
-def reserve_mixfix.parser : term_parser :=
-node! «reserve_mixfix» [
+@[derive parser.hasTokens parser.hasView]
+def reserveMixfix.parser : termParser :=
+node! «reserveMixfix» [
   try ["reserve", kind: mixfix.kind.parser],
-  symbol: notation_spec.notation_symbol.parser]
+  symbol: notationSpec.notationSymbol.parser]
 
 end «command»
 end parser

@@ -18,8 +18,8 @@ inductive format
 | choice       : format → format → format
 
 namespace format
-instance : has_append format     := ⟨compose ff⟩
-instance : has_coe string format := ⟨text⟩
+instance : hasAppend format     := ⟨compose ff⟩
+instance : hasCoe string format := ⟨text⟩
 
 def join (xs : list format) : format :=
 xs.foldl (++) ""
@@ -39,7 +39,7 @@ def group : format → format
 | f@(compose tt _ _) := f
 | f                  := choice (flatten f) f
 
-structure space_result :=
+structure spaceResult :=
 (found    := ff)
 (exceeded := ff)
 (space    := 0)
@@ -47,24 +47,24 @@ structure space_result :=
 /-
 TODO: mark as `@[inline]` as soon as we fix the code inliner.
 -/
-private def merge (w : nat) (r₁ : space_result) (r₂ : thunk space_result) : space_result :=
+private def merge (w : nat) (r₁ : spaceResult) (r₂ : thunk spaceResult) : spaceResult :=
 if r₁.exceeded || r₁.found then r₁
 else let y := r₂.get in
      if y.exceeded || y.found then y
-     else let new_space := r₁.space + y.space in
-          { space := new_space, exceeded := new_space > w }
+     else let newSpace := r₁.space + y.space in
+          { space := newSpace, exceeded := newSpace > w }
 
-def space_upto_line : format → nat → space_result
+def spaceUptoLine : format → nat → spaceResult
 | nil               w := {}
 | line              w := { found := tt }
 | (text s)          w := { space := s.length, exceeded := s.length > w }
-| (compose _ f₁ f₂) w := merge w (space_upto_line f₁ w) (space_upto_line f₂ w)
-| (nest _ f)        w := space_upto_line f w
-| (choice f₁ f₂)    w := space_upto_line f₂ w
+| (compose _ f₁ f₂) w := merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
+| (nest _ f)        w := spaceUptoLine f w
+| (choice f₁ f₂)    w := spaceUptoLine f₂ w
 
-def space_upto_line' : list (nat × format) → nat → space_result
+def spaceUptoLine' : list (nat × format) → nat → spaceResult
 | []      w := {}
-| (p::ps) w := merge w (space_upto_line p.2 w) (space_upto_line' ps w)
+| (p::ps) w := merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
 
 def be : nat → nat → string → list (nat × format) → string
 | w k out []                           := out
@@ -74,7 +74,7 @@ def be : nat → nat → string → list (nat × format) → string
 | w k out ((i, text s)::z)             := be w (k + s.length) (out ++ s) z
 | w k out ((i, line)::z)               := be w i ((out ++ "\n").pushn ' ' i) z
 | w k out ((i, choice f₁ f₂)::z)       :=
-  let r := merge w (space_upto_line f₁ w) (space_upto_line' z w) in
+  let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w) in
   if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
 
 def pretty (f : format) (w : nat := 80) : string :=
@@ -93,53 +93,53 @@ end format
 
 open lean.format
 
-class has_to_format (α : Type u) :=
-(to_format : α → format)
+class hasToFormat (α : Type u) :=
+(toFormat : α → format)
 
-export lean.has_to_format (to_format)
+export lean.hasToFormat (toFormat)
 
-def to_fmt {α : Type u} [has_to_format α] : α → format :=
-to_format
+def toFmt {α : Type u} [hasToFormat α] : α → format :=
+toFormat
 
-instance to_string_to_format {α : Type u} [has_to_string α] : has_to_format α :=
-⟨text ∘ to_string⟩
+instance toStringToFormat {α : Type u} [hasToString α] : hasToFormat α :=
+⟨text ∘ toString⟩
 
 -- note: must take precendence over the above instance to avoid premature formatting
-instance format_has_to_format : has_to_format format :=
+instance formatHasToFormat : hasToFormat format :=
 ⟨id⟩
 
-instance string_has_to_format : has_to_format string := ⟨format.text⟩
+instance stringHasToFormat : hasToFormat string := ⟨format.text⟩
 
-def format.join_sep {α : Type u} [has_to_format α] : list α → format → format
+def format.joinSep {α : Type u} [hasToFormat α] : list α → format → format
 | []      sep  := nil
-| [a]     sep := to_fmt a
-| (a::as) sep := to_fmt a ++ sep ++ format.join_sep as sep
+| [a]     sep := toFmt a
+| (a::as) sep := toFmt a ++ sep ++ format.joinSep as sep
 
-def format.prefix_join {α : Type u} [has_to_format α] (pre : format) : list α → format
+def format.prefixJoin {α : Type u} [hasToFormat α] (pre : format) : list α → format
 | []      := nil
-| (a::as) := pre ++ to_fmt a ++ format.prefix_join as
+| (a::as) := pre ++ toFmt a ++ format.prefixJoin as
 
-def format.join_suffix {α : Type u} [has_to_format α] : list α → format → format
+def format.joinSuffix {α : Type u} [hasToFormat α] : list α → format → format
 | []      suffix := nil
-| (a::as) suffix := to_fmt a ++ suffix ++ format.join_suffix as suffix
+| (a::as) suffix := toFmt a ++ suffix ++ format.joinSuffix as suffix
 
-def list.to_format {α : Type u} [has_to_format α] : list α → format
+def list.toFormat {α : Type u} [hasToFormat α] : list α → format
 | [] := "[]"
-| xs := sbracket $ format.join_sep xs ("," ++ line)
+| xs := sbracket $ format.joinSep xs ("," ++ line)
 
-instance list_has_to_format {α : Type u} [has_to_format α] : has_to_format (list α) :=
-⟨list.to_format⟩
+instance listHasToFormat {α : Type u} [hasToFormat α] : hasToFormat (list α) :=
+⟨list.toFormat⟩
 
-instance prod_has_to_format {α : Type u} {β : Type v} [has_to_format α] [has_to_format β] : has_to_format (prod α β) :=
-⟨λ ⟨a, b⟩, paren $ to_format a ++ "," ++ line ++ to_format b⟩
+instance prodHasToFormat {α : Type u} {β : Type v} [hasToFormat α] [hasToFormat β] : hasToFormat (prod α β) :=
+⟨λ ⟨a, b⟩, paren $ toFormat a ++ "," ++ line ++ toFormat b⟩
 
-instance nat_has_to_format : has_to_format nat    := ⟨λ n, to_string n⟩
-instance uint16_has_to_format : has_to_format uint16 := ⟨λ n, to_string n⟩
-instance uint32_has_to_format : has_to_format uint32 := ⟨λ n, to_string n⟩
-instance uint64_has_to_format : has_to_format uint64 := ⟨λ n, to_string n⟩
-instance usize_has_to_format : has_to_format usize := ⟨λ n, to_string n⟩
+instance natHasToFormat : hasToFormat nat    := ⟨λ n, toString n⟩
+instance uint16HasToFormat : hasToFormat uint16 := ⟨λ n, toString n⟩
+instance uint32HasToFormat : hasToFormat uint32 := ⟨λ n, toString n⟩
+instance uint64HasToFormat : hasToFormat uint64 := ⟨λ n, toString n⟩
+instance usizeHasToFormat : hasToFormat usize := ⟨λ n, toString n⟩
 
-instance format_has_to_string : has_to_string format := ⟨pretty⟩
+instance formatHasToString : hasToString format := ⟨pretty⟩
 
 protected def format.repr : format → format
 | nil := "format.nil"
@@ -149,6 +149,6 @@ protected def format.repr : format → format
 | (compose b f₁ f₂) := paren $ "format.compose " ++ repr b ++ line ++ format.repr f₁ ++ line ++ format.repr f₂
 | (choice f₁ f₂) := paren $ "format.choice" ++ line ++ format.repr f₁ ++ line ++ format.repr f₂
 
-instance : has_repr format := ⟨format.pretty ∘ format.repr⟩
+instance : hasRepr format := ⟨format.pretty ∘ format.repr⟩
 
 end lean

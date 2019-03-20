@@ -8,59 +8,59 @@ import init.control.alternative init.control.lift init.control.except
 
 universes u v
 
-def option_t (m : Type u → Type v) (α : Type u) : Type v :=
+def optionT (m : Type u → Type v) (α : Type u) : Type v :=
 m (option α)
 
-@[inline] def option_t.run {m : Type u → Type v} {α : Type u} (x : option_t m α) : m (option α) :=
+@[inline] def optionT.run {m : Type u → Type v} {α : Type u} (x : optionT m α) : m (option α) :=
 x
 
-namespace option_t
+namespace optionT
   variables {m : Type u → Type v} [monad m] {α β : Type u}
 
-  @[inline] protected def bind_cont {α β : Type u} (f : α → option_t m β) : option α → m (option β)
+  @[inline] protected def bindCont {α β : Type u} (f : α → optionT m β) : option α → m (option β)
   | (some a) := f a
   | none     := pure none
 
-  @[inline] protected def bind (ma : option_t m α) (f : α → option_t m β) : option_t m β :=
-  (ma >>= option_t.bind_cont f : m (option β))
+  @[inline] protected def bind (ma : optionT m α) (f : α → optionT m β) : optionT m β :=
+  (ma >>= optionT.bindCont f : m (option β))
 
-  @[inline] protected def pure (a : α) : option_t m α :=
+  @[inline] protected def pure (a : α) : optionT m α :=
   (pure (some a) : m (option α))
 
-  instance : monad (option_t m) :=
-  { pure := @option_t.pure _ _, bind := @option_t.bind _ _ }
+  instance : monad (optionT m) :=
+  { pure := @optionT.pure _ _, bind := @optionT.bind _ _ }
 
-  protected def orelse (ma : option_t m α) (mb : option_t m α) : option_t m α :=
+  protected def orelse (ma : optionT m α) (mb : optionT m α) : optionT m α :=
   (do { some a ← ma | mb,
         pure (some a) } : m (option α))
 
-  @[inline] protected def fail : option_t m α :=
+  @[inline] protected def fail : optionT m α :=
   (pure none : m (option α))
 
-  instance : alternative (option_t m) :=
-  { failure := @option_t.fail m _,
-    orelse  := @option_t.orelse m _,
-    ..option_t.monad }
+  instance : alternative (optionT m) :=
+  { failure := @optionT.fail m _,
+    orelse  := @optionT.orelse m _,
+    ..optionT.monad }
 
-  @[inline] protected def lift (ma : m α) : option_t m α :=
+  @[inline] protected def lift (ma : m α) : optionT m α :=
   (some <$> ma : m (option α))
 
-  instance : has_monad_lift m (option_t m) :=
-  ⟨@option_t.lift _ _⟩
+  instance : hasMonadLift m (optionT m) :=
+  ⟨@optionT.lift _ _⟩
 
-  @[inline] protected def monad_map {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : option_t m α → option_t m' α :=
+  @[inline] protected def monadMap {m'} [monad m'] {α} (f : ∀ {α}, m α → m' α) : optionT m α → optionT m' α :=
   λ x, f x
 
-  instance (m') [monad m'] : monad_functor m m' (option_t m) (option_t m') :=
-  ⟨λ α, option_t.monad_map⟩
+  instance (m') [monad m'] : monadFunctor m m' (optionT m) (optionT m') :=
+  ⟨λ α, optionT.monadMap⟩
 
-  protected def catch (ma : option_t m α) (handle : unit → option_t m α) : option_t m α :=
+  protected def catch (ma : optionT m α) (handle : unit → optionT m α) : optionT m α :=
   (do { some a ← ma | (handle ()),
         pure a } : m (option α))
 
-  instance : monad_except unit (option_t m) :=
-  { throw := λ _ _, option_t.fail, catch := @option_t.catch _ _ }
+  instance : monadExcept unit (optionT m) :=
+  { throw := λ _ _, optionT.fail, catch := @optionT.catch _ _ }
 
-  instance (m out) [monad_run out m] : monad_run (λ α, out (option α)) (option_t m) :=
-  ⟨λ α, monad_run.run⟩
-end option_t
+  instance (m out) [monadRun out m] : monadRun (λ α, out (option α)) (optionT m) :=
+  ⟨λ α, monadRun.run⟩
+end optionT

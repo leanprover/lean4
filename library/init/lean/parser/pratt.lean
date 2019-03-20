@@ -9,48 +9,48 @@ prelude
 import init.lean.parser.token
 
 namespace lean.parser
-open monad_parsec combinators
+open monadParsec combinators
 
-variables {base_m : Type → Type}
-variables [monad base_m] [monad_basic_parser base_m] [monad_parsec syntax base_m] [monad_reader parser_config base_m]
+variables {baseM : Type → Type}
+variables [monad baseM] [monadBasicParser baseM] [monadParsec syntax baseM] [monadReader parserConfig baseM]
 
-local notation `m` := rec_t nat syntax base_m
+local notation `m` := recT nat syntax baseM
 local notation `parser` := m syntax
 
-def curr_lbp : m nat :=
-do except.ok tk ← monad_lift peek_token | pure 0,
+def currLbp : m nat :=
+do except.ok tk ← monadLift peekToken | pure 0,
    match tk with
    | syntax.atom ⟨_, sym⟩ := do
      cfg ← read,
-     some ⟨_, tk_cfg⟩ ← pure (cfg.tokens.match_prefix sym.mk_iterator) | error "curr_lbp: unreachable",
-     pure tk_cfg.lbp
-   | syntax.ident _ := pure max_prec
-   | syntax.raw_node {kind := @number, ..} := pure max_prec
-   | syntax.raw_node {kind := @string_lit, ..} := pure max_prec
-   | _ := error "curr_lbp: unknown token kind"
+     some ⟨_, tkCfg⟩ ← pure (cfg.tokens.matchPrefix sym.mkIterator) | error "currLbp: unreachable",
+     pure tkCfg.lbp
+   | syntax.ident _ := pure maxPrec
+   | syntax.rawNode {kind := @number, ..} := pure maxPrec
+   | syntax.rawNode {kind := @stringLit, ..} := pure maxPrec
+   | _ := error "currLbp: unknown token kind"
 
-private def trailing_loop (trailing : reader_t syntax m syntax) (rbp : nat) : nat → syntax → parser
+private def trailingLoop (trailing : readerT syntax m syntax) (rbp : nat) : nat → syntax → parser
 | 0 _ := error "unreachable"
 | (n+1) left := do
-lbp ← curr_lbp,
+lbp ← currLbp,
 if rbp < lbp then do
   left ← trailing.run left,
-  trailing_loop n left
+  trailingLoop n left
 else
   pure left
 
-variables [monad_except (parsec.message syntax) base_m] [alternative base_m]
-variables (leading : m syntax) (trailing : reader_t syntax m syntax) (p : m syntax)
+variables [monadExcept (parsec.message syntax) baseM] [alternative baseM]
+variables (leading : m syntax) (trailing : readerT syntax m syntax) (p : m syntax)
 
-def pratt_parser : base_m syntax :=
-rec_t.run_parsec p $ λ rbp, do
+def prattParser : baseM syntax :=
+recT.runParsec p $ λ rbp, do
 left ← leading,
 n ← remaining,
-trailing_loop trailing rbp (n+1) left
+trailingLoop trailing rbp (n+1) left
 
-instance pratt_parser.tokens [has_tokens leading] [has_tokens trailing] : has_tokens (pratt_parser leading trailing p) :=
-⟨has_tokens.tokens leading ++ has_tokens.tokens trailing⟩
-instance pratt_parser.view : has_view syntax (pratt_parser leading trailing p) :=
+instance prattParser.tokens [hasTokens leading] [hasTokens trailing] : hasTokens (prattParser leading trailing p) :=
+⟨hasTokens.tokens leading ++ hasTokens.tokens trailing⟩
+instance prattParser.view : hasView syntax (prattParser leading trailing p) :=
 default _
 
 end lean.parser

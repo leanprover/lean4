@@ -16,5 +16,5 @@ universe u
 
 @[inline] def id.run {α : Type u} (x : id α) : α := x
 
-@[inline] instance : monad_run id id :=
+@[inline] instance : monadRun id id :=
 ⟨@id.run⟩

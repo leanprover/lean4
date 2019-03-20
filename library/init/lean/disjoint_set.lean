@@ -12,42 +12,42 @@ import init.data.hashmap.basic
 
 namespace lean
 universes u
-structure disjoint_set.node (α : Type u) :=
+structure disjointSet.node (α : Type u) :=
 (find : α)
 (rank : nat := 0)
 
-structure disjoint_set (α : Type u) [decidable_eq α] [hashable α] : Type u :=
-(map : hashmap α (disjoint_set.node α))
+structure disjointSet (α : Type u) [decidableEq α] [hashable α] : Type u :=
+(map : hashmap α (disjointSet.node α))
 
-def mk_disjoint_set (α : Type u) [decidable_eq α] [hashable α] : disjoint_set α :=
-⟨mk_hashmap⟩
+def mkDisjointSet (α : Type u) [decidableEq α] [hashable α] : disjointSet α :=
+⟨mkHashmap⟩
 
 variables {α : Type u}
 
-namespace disjoint_set
-variables [decidable_eq α] [hashable α]
+namespace disjointSet
+variables [decidableEq α] [hashable α]
 
-private def find_aux : nat → α → hashmap α (node α) → node α
+private def findAux : nat → α → hashmap α (node α) → node α
 | 0     a m := { find := a, rank := 0 }
 | (n+1) a m :=
   match m.find a with
-  | some r := if r.find = a then r else find_aux n r.find m
+  | some r := if r.find = a then r else findAux n r.find m
   | none   := { find := a, rank := 0 }
 
-def find : disjoint_set α → α → α
-| ⟨m⟩ a := (find_aux m.size a m).find
+def find : disjointSet α → α → α
+| ⟨m⟩ a := (findAux m.size a m).find
 
-def rank : disjoint_set α → α → nat
-| ⟨m⟩ a := (find_aux m.size a m).rank
+def rank : disjointSet α → α → nat
+| ⟨m⟩ a := (findAux m.size a m).rank
 
-def merge : disjoint_set α → α → α → disjoint_set α
+def merge : disjointSet α → α → α → disjointSet α
 | ⟨m⟩ a b :=
-  let ra := find_aux m.size a m in
-  let rb := find_aux m.size b m in
+  let ra := findAux m.size a m in
+  let rb := findAux m.size b m in
   if ra.find = rb.find then ⟨m⟩
   else if ra.rank < rb.rank then ⟨m.insert a { find := b }⟩
   else if ra.rank = rb.rank then ⟨(m.insert a { find := b }).insert b { find := b, rank := rb.rank + 1 }⟩
   else ⟨m.insert b { find := a }⟩
 
-end disjoint_set
+end disjointSet
 end lean

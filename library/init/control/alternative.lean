@@ -7,12 +7,12 @@ prelude
 import init.core init.control.applicative
 universes u v
 
-class has_orelse (f : Type u → Type v) : Type (max (u+1) v) :=
+class hasOrelse (f : Type u → Type v) : Type (max (u+1) v) :=
 (orelse  : Π {α : Type u}, f α → f α → f α)
 
-infixr ` <|> `:2 := has_orelse.orelse
+infixr ` <|> `:2 := hasOrelse.orelse
 
-class alternative (f : Type u → Type v) extends applicative f, has_orelse f : Type (max (u+1) v) :=
+class alternative (f : Type u → Type v) extends applicative f, hasOrelse f : Type (max (u+1) v) :=
 (failure : Π {α : Type u}, f α)
 
 section

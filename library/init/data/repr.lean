@@ -9,54 +9,54 @@ open sum subtype nat
 
 universes u v
 
-class has_repr (α : Type u) :=
+class hasRepr (α : Type u) :=
 (repr : α → string)
 
-export has_repr (repr)
+export hasRepr (repr)
 
 -- This instance is needed because `id` is not reducible
-instance {α : Type u} [has_repr α] : has_repr (id α) :=
-infer_instance_as (has_repr α)
+instance {α : Type u} [hasRepr α] : hasRepr (id α) :=
+inferInstanceAs (hasRepr α)
 
-instance : has_repr bool :=
+instance : hasRepr bool :=
 ⟨λ b, cond b "tt" "ff"⟩
 
-instance {p : Prop} : has_repr (decidable p) :=
+instance {p : Prop} : hasRepr (decidable p) :=
 ⟨λ b : decidable p, @ite p b _ "tt" "ff"⟩
 
-protected def list.repr_aux {α : Type u} [has_repr α] : bool → list α → string
+protected def list.reprAux {α : Type u} [hasRepr α] : bool → list α → string
 | b  []      := ""
-| tt (x::xs) := repr x ++ list.repr_aux ff xs
-| ff (x::xs) := ", " ++ repr x ++ list.repr_aux ff xs
+| tt (x::xs) := repr x ++ list.reprAux ff xs
+| ff (x::xs) := ", " ++ repr x ++ list.reprAux ff xs
 
-protected def list.repr {α : Type u} [has_repr α] : list α → string
+protected def list.repr {α : Type u} [hasRepr α] : list α → string
 | []      := "[]"
-| (x::xs) := "[" ++ list.repr_aux tt (x::xs) ++ "]"
+| (x::xs) := "[" ++ list.reprAux tt (x::xs) ++ "]"
 
-instance {α : Type u} [has_repr α] : has_repr (list α) :=
+instance {α : Type u} [hasRepr α] : hasRepr (list α) :=
 ⟨list.repr⟩
 
-instance : has_repr unit :=
+instance : hasRepr unit :=
 ⟨λ u, "()"⟩
 
-instance {α : Type u} [has_repr α] : has_repr (option α) :=
+instance {α : Type u} [hasRepr α] : hasRepr (option α) :=
 ⟨λ o, match o with | none := "none" | (some a) := "(some " ++ repr a ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [has_repr α] [has_repr β] : has_repr (α ⊕ β) :=
+instance {α : Type u} {β : Type v} [hasRepr α] [hasRepr β] : hasRepr (α ⊕ β) :=
 ⟨λ s, match s with | (inl a) := "(inl " ++ repr a ++ ")" | (inr b) := "(inr " ++ repr b ++ ")"⟩
 
-instance {α : Type u} {β : Type v} [has_repr α] [has_repr β] : has_repr (α × β) :=
+instance {α : Type u} {β : Type v} [hasRepr α] [hasRepr β] : hasRepr (α × β) :=
 ⟨λ ⟨a, b⟩, "(" ++ repr a ++ ", " ++ repr b ++ ")"⟩
 
-instance {α : Type u} {β : α → Type v} [has_repr α] [s : ∀ x, has_repr (β x)] : has_repr (sigma β) :=
+instance {α : Type u} {β : α → Type v} [hasRepr α] [s : ∀ x, hasRepr (β x)] : hasRepr (sigma β) :=
 ⟨λ ⟨a, b⟩, "⟨"  ++ repr a ++ ", " ++ repr b ++ "⟩"⟩
 
-instance {α : Type u} {p : α → Prop} [has_repr α] : has_repr (subtype p) :=
+instance {α : Type u} {p : α → Prop} [hasRepr α] : hasRepr (subtype p) :=
 ⟨λ s, repr (val s)⟩
 
 namespace nat
 
-def digit_char (n : ℕ) : char :=
+def digitChar (n : ℕ) : char :=
 if n = 0 then '0' else
 if n = 1 then '1' else
 if n = 2 then '2' else
@@ -75,66 +75,66 @@ if n = 0xe then 'e' else
 if n = 0xf then 'f' else
 '*'
 
-def to_digits_core (base : nat) : nat → nat → list char → list char
+def toDigitsCore (base : nat) : nat → nat → list char → list char
 | 0        n ds := ds
 | (fuel+1) n ds :=
-  let d  := digit_char $ n % base in
+  let d  := digitChar $ n % base in
   let n' := n / base in
   if n' = 0 then d::ds
-  else to_digits_core fuel n' (d::ds)
+  else toDigitsCore fuel n' (d::ds)
 
-def to_digits (base : nat) (n : nat) : list char :=
-to_digits_core base (n+1) n []
+def toDigits (base : nat) (n : nat) : list char :=
+toDigitsCore base (n+1) n []
 
 protected def repr (n : ℕ) : string :=
-(to_digits 10 n).as_string
+(toDigits 10 n).asString
 
 end nat
 
-instance : has_repr nat :=
+instance : hasRepr nat :=
 ⟨nat.repr⟩
 
-def hex_digit_repr (n : nat) : string :=
-string.singleton $ nat.digit_char n
+def hexDigitRepr (n : nat) : string :=
+string.singleton $ nat.digitChar n
 
-def char_to_hex (c : char) : string :=
-let n  := char.to_nat c,
+def charToHex (c : char) : string :=
+let n  := char.toNat c,
     d2 := n / 16,
     d1 := n % 16
-in hex_digit_repr d2 ++ hex_digit_repr d1
+in hexDigitRepr d2 ++ hexDigitRepr d1
 
-def char.quote_core (c : char) : string :=
+def char.quoteCore (c : char) : string :=
 if       c = '\n' then "\\n"
 else if  c = '\t' then "\\t"
 else if  c = '\\' then "\\\\"
 else if  c = '\"' then "\\\""
-else if  c.to_nat <= 31 ∨ c = '\x7f' then "\\x" ++ char_to_hex c
+else if  c.toNat <= 31 ∨ c = '\x7f' then "\\x" ++ charToHex c
 else string.singleton c
 
-instance : has_repr char :=
-⟨λ c, "'" ++ char.quote_core c ++ "'"⟩
+instance : hasRepr char :=
+⟨λ c, "'" ++ char.quoteCore c ++ "'"⟩
 
-def string.quote_aux : list char → string
+def string.quoteAux : list char → string
 | []      := ""
-| (x::xs) := char.quote_core x ++ string.quote_aux xs
+| (x::xs) := char.quoteCore x ++ string.quoteAux xs
 
 def string.quote (s : string) : string :=
-if s.is_empty = tt then "\"\""
-else "\"" ++ string.quote_aux s.to_list ++ "\""
+if s.isEmpty = tt then "\"\""
+else "\"" ++ string.quoteAux s.toList ++ "\""
 
-instance : has_repr string :=
+instance : hasRepr string :=
 ⟨string.quote⟩
 
-instance : has_repr string.iterator :=
-⟨λ it, it.remaining_to_string.quote ++ ".mk_iterator"⟩
+instance : hasRepr string.iterator :=
+⟨λ it, it.remainingToString.quote ++ ".mkIterator"⟩
 
-instance (n : nat) : has_repr (fin n) :=
+instance (n : nat) : hasRepr (fin n) :=
 ⟨λ f, repr (fin.val f)⟩
 
-instance : has_repr uint16 := ⟨λ n, repr n.to_nat⟩
-instance : has_repr uint32 := ⟨λ n, repr n.to_nat⟩
-instance : has_repr uint64 := ⟨λ n, repr n.to_nat⟩
-instance : has_repr usize  := ⟨λ n, repr n.to_nat⟩
+instance : hasRepr uint16 := ⟨λ n, repr n.toNat⟩
+instance : hasRepr uint32 := ⟨λ n, repr n.toNat⟩
+instance : hasRepr uint64 := ⟨λ n, repr n.toNat⟩
+instance : hasRepr usize  := ⟨λ n, repr n.toNat⟩
 
 def char.repr (c : char) : string :=
 repr c

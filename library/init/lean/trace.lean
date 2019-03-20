@@ -11,73 +11,73 @@ universe u
 namespace lean
 
 inductive message
-| from_format (fmt : format)
+| fromFormat (fmt : format)
 
-instance : has_coe format message :=
-⟨message.from_format⟩
+instance : hasCoe format message :=
+⟨message.fromFormat⟩
 
 inductive trace
 | mk (msg : message) (subtraces : list trace)
 
 def trace.pp : trace → format
-| (trace.mk (message.from_format fmt) subtraces) :=
+| (trace.mk (message.fromFormat fmt) subtraces) :=
 fmt ++ format.nest 2 (format.join $ subtraces.map (λ t, format.line ++ t.pp))
 
 namespace trace
 
-def trace_map := rbmap position trace (<)
+def traceMap := rbmap position trace (<)
 
-structure trace_state :=
+structure traceState :=
 (opts : options)
-(roots : trace_map)
-(cur_pos : option position)
-(cur_traces : list trace)
+(roots : traceMap)
+(curPos : option position)
+(curTraces : list trace)
 
-def trace_t (m : Type → Type u) := state_t trace_state m
-local attribute [reducible] trace_t
+def traceT (m : Type → Type u) := stateT traceState m
+local attribute [reducible] traceT
 
-instance (m) [monad m] : monad (trace_t m) := infer_instance
+instance (m) [monad m] : monad (traceT m) := inferInstance
 
-class monad_tracer (m : Type → Type u) :=
-(trace_root {α} : position → name → message → thunk (m α) → m α)
-(trace_ctx {α} : name → message → thunk (m α) → m α)
+class monadTracer (m : Type → Type u) :=
+(traceRoot {α} : position → name → message → thunk (m α) → m α)
+(traceCtx {α} : name → message → thunk (m α) → m α)
 
-export monad_tracer (trace_root trace_ctx)
+export monadTracer (traceRoot traceCtx)
 
-def trace {m} [monad m] [monad_tracer m] (cls : name) (msg : message) : m unit :=
-trace_ctx cls msg (pure () : m unit)
+def trace {m} [monad m] [monadTracer m] (cls : name) (msg : message) : m unit :=
+traceCtx cls msg (pure () : m unit)
 
-instance (m) [monad m] : monad_tracer (trace_t m) :=
-{ trace_root := λ α pos cls msg ctx, do {
+instance (m) [monad m] : monadTracer (traceT m) :=
+{ traceRoot := λ α pos cls msg ctx, do {
     st ← get,
-    if st.opts.get_bool cls = some tt then do {
-      modify $ λ st, {cur_pos := pos, cur_traces := [], ..st},
+    if st.opts.getBool cls = some tt then do {
+      modify $ λ st, {curPos := pos, curTraces := [], ..st},
       a ← ctx.get,
-      modify $ λ (st : trace_state), {roots := st.roots.insert pos ⟨msg, st.cur_traces⟩, ..st},
+      modify $ λ (st : traceState), {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st},
       pure a
     } else ctx.get
   },
-  trace_ctx := λ α cls msg ctx, do {
+  traceCtx := λ α cls msg ctx, do {
     st ← get,
     -- tracing enabled?
-    some _ ← pure st.cur_pos | ctx.get,
+    some _ ← pure st.curPos | ctx.get,
     -- trace class enabled?
-    if st.opts.get_bool cls = some tt then do {
-      put {cur_traces := [], ..st},
+    if st.opts.getBool cls = some tt then do {
+      put {curTraces := [], ..st},
       a ← ctx.get,
-      modify $ λ (st' : trace_state), {cur_traces := st.cur_traces ++ [⟨msg, st'.cur_traces⟩], ..st'},
+      modify $ λ (st' : traceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'},
       pure a
     } else
       -- disable tracing inside 'ctx'
-      adapt_state'
-        (λ _, {cur_pos := none, ..st})
-        (λ st', {cur_pos := st.cur_pos, ..st'})
+      adaptState'
+        (λ _, {curPos := none, ..st})
+        (λ st', {curPos := st.curPos, ..st'})
         ctx.get
   }
 }
 
-unsafe def trace_t.run {m α} [monad m] (opts : options) (x : trace_t m α) : m (α × trace_map) :=
-do (a, st) ← state_t.run x {opts := opts, roots := mk_rbmap _ _ _, cur_pos := none, cur_traces := []},
+unsafe def traceT.run {m α} [monad m] (opts : options) (x : traceT m α) : m (α × traceMap) :=
+do (a, st) ← stateT.run x {opts := opts, roots := mkRbmap _ _ _, curPos := none, curTraces := []},
    pure (a, st.roots)
 
 end trace

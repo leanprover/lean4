@@ -13,48 +13,48 @@ structure position :=
 (column : nat)
 
 namespace position
-instance : decidable_eq position :=
-{dec_eq := λ ⟨l₁, c₁⟩ ⟨l₂, c₂⟩,
+instance : decidableEq position :=
+{decEq := λ ⟨l₁, c₁⟩ ⟨l₂, c₂⟩,
   if h₁ : l₁ = l₂ then
-  if h₂ : c₁ = c₂ then is_true (eq.rec_on h₁ (eq.rec_on h₂ rfl))
-  else is_false (λ contra, position.no_confusion contra (λ e₁ e₂, absurd e₂ h₂))
-  else is_false (λ contra, position.no_confusion contra (λ e₁ e₂, absurd e₁ h₁))}
+  if h₂ : c₁ = c₂ then isTrue (eq.recOn h₁ (eq.recOn h₂ rfl))
+  else isFalse (λ contra, position.noConfusion contra (λ e₁ e₂, absurd e₂ h₂))
+  else isFalse (λ contra, position.noConfusion contra (λ e₁ e₂, absurd e₁ h₁))}
 
 protected def lt : position → position → Prop
 | ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := (l₁, c₁) < (l₂, c₂)
 
-instance : has_lt position := ⟨position.lt⟩
+instance : hasLt position := ⟨position.lt⟩
 
-instance decidable_lt : Π (p₁ p₂ : position), decidable (p₁ < p₂)
-| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := infer_instance_as $ decidable ((l₁, c₁) < (l₂, c₂))
+instance decidableLt : Π (p₁ p₂ : position), decidable (p₁ < p₂)
+| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := inferInstanceAs $ decidable ((l₁, c₁) < (l₂, c₂))
 
-instance : has_to_format position :=
-⟨λ ⟨l, c⟩, "⟨" ++ to_fmt l ++ ", " ++ to_fmt c ++ "⟩"⟩
+instance : hasToFormat position :=
+⟨λ ⟨l, c⟩, "⟨" ++ toFmt l ++ ", " ++ toFmt c ++ "⟩"⟩
 
 instance : inhabited position := ⟨⟨1, 0⟩⟩
 end position
 
 /-- A precomputed cache for quickly mapping char offsets to positionitions. -/
-structure file_map :=
+structure fileMap :=
 -- A mapping from char offset of line start to line index
 (lines : rbmap nat nat (<))
 
-namespace file_map
-private def from_string_aux : nat → string.iterator → nat → list (nat × nat)
+namespace fileMap
+private def fromStringAux : nat → string.iterator → nat → list (nat × nat)
 | 0     it line := []
 | (k+1) it line :=
-  if it.has_next = ff then []
+  if it.hasNext = ff then []
   else match it.curr with
-       | '\n'  := (it.next.offset, line+1) :: from_string_aux k it.next (line+1)
-       | other := from_string_aux k it.next line
+       | '\n'  := (it.next.offset, line+1) :: fromStringAux k it.next (line+1)
+       | other := fromStringAux k it.next line
 
-def from_string (s : string) : file_map :=
-{lines := rbmap.of_list $ from_string_aux s.length s.mk_iterator 1}
+def fromString (s : string) : fileMap :=
+{lines := rbmap.ofList $ fromStringAux s.length s.mkIterator 1}
 
-def to_position (m : file_map) (off : nat) : position :=
-match m.lines.lower_bound off with
+def toPosition (m : fileMap) (off : nat) : position :=
+match m.lines.lowerBound off with
 | some ⟨start, l⟩ := ⟨l, off - start⟩
 | none            := ⟨1, off⟩
-end file_map
+end fileMap
 
 end lean

@@ -13,7 +13,7 @@ class hashable (α : Type u) :=
 export hashable (hash)
 
 -- TODO: mark as builtin and opaque
-def mix_hash (u₁ u₂ : usize) : usize :=
+def mixHash (u₁ u₂ : usize) : usize :=
 default usize
 
 -- TODO: mark as builtin
@@ -24,6 +24,6 @@ instance : hashable string := ⟨string.hash⟩
 
 -- TODO: add builtin
 protected def nat.hash (n : nat) : usize :=
-usize.of_nat n
+usize.ofNat n
 
 instance : hashable nat := ⟨nat.hash⟩

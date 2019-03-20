@@ -11,11 +11,11 @@ universes u v
 
 namespace option
 
-def to_monad {m : Type → Type} [monad m] [alternative m] {A} : option A → m A
+def toMonad {m : Type → Type} [monad m] [alternative m] {A} : option A → m A
 | none := failure
 | (some a) := pure a
 
-def get_or_else {α : Type u} : option α → α → α
+def getOrElse {α : Type u} : option α → α → α
 | (some x) _ := x
 | none     e := e
 
@@ -23,15 +23,15 @@ def get {α : Type u} [inhabited α] : option α → α
 | (some x) := x
 | none     := default α
 
-def to_bool {α : Type u} : option α → bool
+def toBool {α : Type u} : option α → bool
 | (some _) := tt
 | none     := ff
 
-def is_some {α : Type u} : option α → bool
+def isSome {α : Type u} : option α → bool
 | (some _) := tt
 | none     := ff
 
-def is_none {α : Type u} : option α → bool
+def isNone {α : Type u} : option α → bool
 | (some _) := ff
 | none     := tt
 
@@ -42,7 +42,7 @@ def is_none {α : Type u} : option α → bool
 @[inline] protected def map {α β} (f : α → β) (o : option α) : option β :=
 option.bind o (some ∘ f)
 
-theorem map_id {α} : (option.map id : option α → option α) = id :=
+theorem mapId {α} : (option.map id : option α → option α) = id :=
 funext (λo, match o with | none := rfl | some x := rfl)
 
 instance : monad option :=
@@ -63,25 +63,25 @@ protected def lt {α : Type u} (r : α → α → Prop) : option α → option �
 | (some x) (some y) := r x y
 | _ _               := false
 
-instance decidable_rel_lt {α : Type u} (r : α → α → Prop) [s : decidable_rel r] : decidable_rel (option.lt r)
-| none     (some y) := is_true  trivial
+instance decidableRelLt {α : Type u} (r : α → α → Prop) [s : decidableRel r] : decidableRel (option.lt r)
+| none     (some y) := isTrue  trivial
 | (some x) (some y) := s x y
-| (some x) none     := is_false not_false
-| none     none     := is_false not_false
+| (some x) none     := isFalse notFalse
+| none     none     := isFalse notFalse
 
 end option
 
 instance (α : Type u) : inhabited (option α) :=
 ⟨none⟩
 
-instance {α : Type u} [decidable_eq α] : decidable_eq (option α) :=
-{dec_eq := λ a b, match a, b with
- | none,      none      := is_true rfl
- | none,      (some v₂) := is_false (λ h, option.no_confusion h)
- | (some v₁), none      := is_false (λ h, option.no_confusion h)
+instance {α : Type u} [decidableEq α] : decidableEq (option α) :=
+{decEq := λ a b, match a, b with
+ | none,      none      := isTrue rfl
+ | none,      (some v₂) := isFalse (λ h, option.noConfusion h)
+ | (some v₁), none      := isFalse (λ h, option.noConfusion h)
  | (some v₁), (some v₂) :=
-   match dec_eq v₁ v₂ with
-   | (is_true e)  := is_true (congr_arg (@some α) e)
-   | (is_false n) := is_false (λ h, option.no_confusion h (λ e, absurd e n))}
+   match decEq v₁ v₂ with
+   | (isTrue e)  := isTrue (congrArg (@some α) e)
+   | (isFalse n) := isFalse (λ h, option.noConfusion h (λ e, absurd e n))}
 
-instance {α : Type u} [has_lt α] : has_lt (option α) := ⟨option.lt (<)⟩
+instance {α : Type u} [hasLt α] : hasLt (option α) := ⟨option.lt (<)⟩

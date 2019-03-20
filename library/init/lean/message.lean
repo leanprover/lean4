@@ -6,58 +6,58 @@ Author: Sebastian Ullrich
 Message type used by the Lean frontend
 -/
 prelude
-import init.data.to_string init.lean.position
+import init.data.toString init.lean.position
 
 namespace lean
-inductive message_severity
+inductive messageSeverity
 | information | warning | error
 
 -- TODO: structured messages
 structure message :=
 (filename : string)
 (pos      : position)
-(end_pos  : option position  := none)
-(severity : message_severity := message_severity.error)
+(endPos  : option position  := none)
+(severity : messageSeverity := messageSeverity.error)
 (caption  : string           := "")
 (text     : string)
 
 namespace message
-protected def to_string (msg : message) : string :=
-msg.filename ++ ":" ++ to_string msg.pos.line ++ ":" ++ to_string msg.pos.column ++ ": " ++
+protected def toString (msg : message) : string :=
+msg.filename ++ ":" ++ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ ": " ++
 (match msg.severity with
- | message_severity.information := ""
- | message_severity.warning := "warning: "
- | message_severity.error := "error: ") ++
+ | messageSeverity.information := ""
+ | messageSeverity.warning := "warning: "
+ | messageSeverity.error := "error: ") ++
 (if msg.caption = "" then "" else msg.caption ++ ":\n") ++
 msg.text
 
-instance : has_to_string message :=
-⟨message.to_string⟩
+instance : hasToString message :=
+⟨message.toString⟩
 end message
 
-structure message_log :=
+structure messageLog :=
 -- messages are stored in reverse for efficient append
-(rev_list : list message)
+(revList : list message)
 
-namespace message_log
-def empty : message_log :=
+namespace messageLog
+def empty : messageLog :=
 ⟨[]⟩
 
-def add (msg : message) (log : message_log) : message_log :=
-⟨msg :: log.rev_list⟩
+def add (msg : message) (log : messageLog) : messageLog :=
+⟨msg :: log.revList⟩
 
-protected def append (l₁ l₂ : message_log) : message_log :=
-⟨l₂.rev_list ++ l₁.rev_list⟩
+protected def append (l₁ l₂ : messageLog) : messageLog :=
+⟨l₂.revList ++ l₁.revList⟩
 
-instance : has_append message_log :=
-⟨message_log.append⟩
+instance : hasAppend messageLog :=
+⟨messageLog.append⟩
 
-def has_errors (log : message_log) : bool :=
-log.rev_list.any $ λ m, match m.severity with
-| message_severity.error := tt
+def hasErrors (log : messageLog) : bool :=
+log.revList.any $ λ m, match m.severity with
+| messageSeverity.error := tt
 | _                      := ff
 
-def to_list (log : message_log) : list message :=
-log.rev_list.reverse
-end message_log
+def toList (log : messageLog) : list message :=
+log.revList.reverse
+end messageLog
 end lean

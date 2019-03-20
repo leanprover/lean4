@@ -8,11 +8,11 @@ import init.control.lift init.data.string.basic
 
 universes u v
 
-class monad_fail (m : Type u → Type v) :=
+class monadFail (m : Type u → Type v) :=
 (fail {} : Π {a}, string → m a)
 
-def match_failed {α : Type u} {m : Type u → Type v} [monad_fail m] : m α :=
-monad_fail.fail "match failed"
+def matchFailed {α : Type u} {m : Type u → Type v} [monadFail m] : m α :=
+monadFail.fail "match failed"
 
-instance monad_fail_lift (m n : Type u → Type v) [has_monad_lift m n] [monad_fail m] [monad n] : monad_fail n :=
-{ fail := λ α s, monad_lift (monad_fail.fail s : m α) }
+instance monadFailLift (m n : Type u → Type v) [hasMonadLift m n] [monadFail m] [monad n] : monadFail n :=
+{ fail := λ α s, monadLift (monadFail.fail s : m α) }

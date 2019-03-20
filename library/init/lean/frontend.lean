@@ -11,81 +11,81 @@ open lean.parser
 open lean.expander
 open lean.elaborator
 
-def mk_config (filename := "<unknown>") (input := "") : except string module_parser_config :=
-do t ← parser.mk_token_trie $
+def mkConfig (filename := "<unknown>") (input := "") : except string moduleParserConfig :=
+do t ← parser.mkTokenTrie $
     parser.tokens module.header.parser ++
-    parser.tokens command.builtin_command_parsers ++
-    parser.tokens term.builtin_leading_parsers ++
-    parser.tokens term.builtin_trailing_parsers,
+    parser.tokens command.builtinCommandParsers ++
+    parser.tokens term.builtinLeadingParsers ++
+    parser.tokens term.builtinTrailingParsers,
    pure $ {
      filename := filename, input := input, tokens := t,
-     file_map := file_map.from_string input,
-     command_parsers := command.builtin_command_parsers,
-     leading_term_parsers := term.builtin_leading_parsers,
-     trailing_term_parsers := term.builtin_trailing_parsers,
+     fileMap := fileMap.fromString input,
+     commandParsers := command.builtinCommandParsers,
+     leadingTermParsers := term.builtinLeadingParsers,
+     trailingTermParsers := term.builtinTrailingParsers,
    }
 
-def run_frontend (filename input : string) (print_msg : message → io unit) (collect_outputs : bool) :
-  state_t environment io (list syntax) := λ env, do
-  parser_cfg ← io_of_except $ mk_config filename input,
-  -- TODO(Sebastian): `parse_header` should be called directly by lean.cpp
-  match parse_header parser_cfg with
-  | (_, except.error msg)         := print_msg msg *> pure ([], env)
-  | (_, except.ok (p_snap, msgs)) := do
-  msgs.to_list.mfor print_msg,
-  let expander_cfg : expander_config := {transformers := builtin_transformers, ..parser_cfg},
-  let elab_cfg : elaborator_config := {filename := filename, input := input, initial_parser_cfg := parser_cfg, ..parser_cfg},
-  let opts := options.mk.set_bool `trace.as_messages tt,
-  let elab_st := elaborator.mk_state elab_cfg env opts,
-  let add_output (out : syntax) outs := if collect_outputs then out::outs else [],
-  io.prim.iterate (p_snap, elab_st, parser_cfg, expander_cfg, ([] : list syntax)) $ λ ⟨p_snap, elab_st, parser_cfg, expander_cfg, outs⟩, do {
-    let pos := parser_cfg.file_map.to_position p_snap.it.offset,
-    r ← monad_lift $ profileit_pure "parsing" pos $ λ _, parse_command parser_cfg p_snap,
+def runFrontend (filename input : string) (printMsg : message → io unit) (collectOutputs : bool) :
+  stateT environment io (list syntax) := λ env, do
+  parserCfg ← ioOfExcept $ mkConfig filename input,
+  -- TODO(Sebastian): `parseHeader` should be called directly by lean.cpp
+  match parseHeader parserCfg with
+  | (_, except.error msg)         := printMsg msg *> pure ([], env)
+  | (_, except.ok (pSnap, msgs)) := do
+  msgs.toList.mfor printMsg,
+  let expanderCfg : expanderConfig := {transformers := builtinTransformers, ..parserCfg},
+  let elabCfg : elaboratorConfig := {filename := filename, input := input, initialParserCfg := parserCfg, ..parserCfg},
+  let opts := options.mk.setBool `trace.asMessages tt,
+  let elabSt := elaborator.mkState elabCfg env opts,
+  let addOutput (out : syntax) outs := if collectOutputs then out::outs else [],
+  io.prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : list syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {
+    let pos := parserCfg.fileMap.toPosition pSnap.it.offset,
+    r ← monadLift $ profileitPure "parsing" pos $ λ _, parseCommand parserCfg pSnap,
     match r with
     | (cmd, except.error msg) := do {
       -- fatal error (should never happen?)
-      print_msg msg,
-      msgs.to_list.mfor print_msg,
-      pure $ sum.inr ((add_output cmd outs).reverse, elab_st.env)
+      printMsg msg,
+      msgs.toList.mfor printMsg,
+      pure $ sum.inr ((addOutput cmd outs).reverse, elabSt.env)
     }
-    | (cmd, except.ok (p_snap, msgs)) := do {
-      msgs.to_list.mfor print_msg,
-      r ← monad_lift $ profileit_pure "expanding" pos $ λ _, (expand cmd).run expander_cfg,
+    | (cmd, except.ok (pSnap, msgs)) := do {
+      msgs.toList.mfor printMsg,
+      r ← monadLift $ profileitPure "expanding" pos $ λ _, (expand cmd).run expanderCfg,
       match r with
       | except.ok cmd' := do {
         --io.println cmd',
-        elab_st ← monad_lift $ profileit_pure "elaborating" pos $ λ _, elaborator.process_command elab_cfg elab_st cmd',
-        elab_st.messages.to_list.mfor print_msg,
-        if cmd'.is_of_kind module.eoi then
-          /-print_msg {filename := filename, severity := message_severity.information,
+        elabSt ← monadLift $ profileitPure "elaborating" pos $ λ _, elaborator.processCommand elabCfg elabSt cmd',
+        elabSt.messages.toList.mfor printMsg,
+        if cmd'.isOfKind module.eoi then
+          /-printMsg {filename := filename, severity := messageSeverity.information,
             pos := ⟨1, 0⟩,
-            text := "parser cache hit rate: " ++ to_string out.cache.hit ++ "/" ++
-              to_string (out.cache.hit + out.cache.miss)},-/
-          pure $ sum.inr ((add_output cmd outs).reverse, elab_st.env)
+            text := "parser cache hit rate: " ++ toString out.cache.hit ++ "/" ++
+              toString (out.cache.hit + out.cache.miss)},-/
+          pure $ sum.inr ((addOutput cmd outs).reverse, elabSt.env)
         else
-          pure (sum.inl (p_snap, elab_st, elab_st.parser_cfg, elab_st.expander_cfg, add_output cmd outs))
+          pure (sum.inl (pSnap, elabSt, elabSt.parserCfg, elabSt.expanderCfg, addOutput cmd outs))
       }
-      | except.error e := print_msg e *> pure (sum.inl (p_snap, elab_st, parser_cfg, expander_cfg, add_output cmd outs))
+      | except.error e := printMsg e *> pure (sum.inl (pSnap, elabSt, parserCfg, expanderCfg, addOutput cmd outs))
     }
   }
 
-@[export lean_process_file]
-def process_file (f s : string) (json : bool) : state_t environment io unit := do
-  let print_msg : message → io unit := λ msg,
+@[export leanProcessFile]
+def processFile (f s : string) (json : bool) : stateT environment io unit := do
+  let printMsg : message → io unit := λ msg,
     if json then
-      io.println $ "{\"file_name\": \"<stdin>\", \"pos_line\": " ++ to_string msg.pos.line ++
-        ", \"pos_col\": " ++ to_string msg.pos.column ++
+      io.println $ "{\"fileName\": \"<stdin>\", \"posLine\": " ++ toString msg.pos.line ++
+        ", \"posCol\": " ++ toString msg.pos.column ++
         ", \"severity\": " ++ repr (match msg.severity with
-          | message_severity.information := "information"
-          | message_severity.warning := "warning"
-          | message_severity.error := "error") ++
+          | messageSeverity.information := "information"
+          | messageSeverity.warning := "warning"
+          | messageSeverity.error := "error") ++
         ", \"caption\": " ++ repr msg.caption ++
         ", \"text\": " ++ repr msg.text ++ "}"
-    else io.println msg.to_string,
+    else io.println msg.toString,
    -- print and erase uncaught exceptions
    catch
-     (run_frontend f s print_msg ff *> pure ())
+     (runFrontend f s printMsg ff *> pure ())
      (λ e, do
-        monad_lift (print_msg {filename := f, severity := message_severity.error, pos := ⟨1, 0⟩, text := e}),
+        monadLift (printMsg {filename := f, severity := messageSeverity.error, pos := ⟨1, 0⟩, text := e}),
         throw e)
 end lean

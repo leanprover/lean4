@@ -18,29 +18,29 @@ universes u v w
     Like [MonadTrans](https://hackage.haskell.org/package/transformers-0.5.5.0/docs/Control-Monad-Trans-Class.html),
     but `n` does not have to be a monad transformer.
     Alternatively, an implementation of [MonadLayer](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLayer) without `layerInvmap` (so far). -/
-class has_monad_lift (m : Type u → Type v) (n : Type u → Type w) :=
-(monad_lift {} : ∀ {α}, m α → n α)
+class hasMonadLift (m : Type u → Type v) (n : Type u → Type w) :=
+(monadLift {} : ∀ {α}, m α → n α)
 
-/-- The reflexive-transitive closure of `has_monad_lift`.
-    `monad_lift` is used to transitively lift monadic computations such as `state_t.get` or `state_t.put s`.
+/-- The reflexive-transitive closure of `hasMonadLift`.
+    `monadLift` is used to transitively lift monadic computations such as `stateT.get` or `stateT.put s`.
     Corresponds to [MonadLift](https://hackage.haskell.org/package/layers-0.1/docs/Control-Monad-Layer.html#t:MonadLift). -/
-class has_monad_lift_t (m : Type u → Type v) (n : Type u → Type w) :=
-(monad_lift {} : ∀ {α}, m α → n α)
+class hasMonadLiftT (m : Type u → Type v) (n : Type u → Type w) :=
+(monadLift {} : ∀ {α}, m α → n α)
 
-export has_monad_lift_t (monad_lift)
+export hasMonadLiftT (monadLift)
 
 /-- A coercion that may reduce the need for explicit lifting.
     Because of [limitations of the current coercion resolution](https://github.com/leanprover/lean/issues/1402), this definition is not marked as a global instance and should be marked locally instead. -/
-@[reducible] def has_monad_lift_to_has_coe {m n} [has_monad_lift_t m n] {α} : has_coe (m α) (n α) :=
-⟨monad_lift⟩
+@[reducible] def hasMonadLiftToHasCoe {m n} [hasMonadLiftT m n] {α} : hasCoe (m α) (n α) :=
+⟨monadLift⟩
 
-instance has_monad_lift_t_trans (m n o) [has_monad_lift n o] [has_monad_lift_t m n] : has_monad_lift_t m o :=
-⟨λ α ma, has_monad_lift.monad_lift (monad_lift ma : n α)⟩
+instance hasMonadLiftTTrans (m n o) [hasMonadLift n o] [hasMonadLiftT m n] : hasMonadLiftT m o :=
+⟨λ α ma, hasMonadLift.monadLift (monadLift ma : n α)⟩
 
-instance has_monad_lift_t_refl (m) : has_monad_lift_t m m :=
+instance hasMonadLiftTRefl (m) : hasMonadLiftT m m :=
 ⟨λ α, id⟩
 
-lemma monad_lift_refl {m : Type u → Type v} {α} : (monad_lift : m α → m α) = id := rfl
+lemma monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α) = id := rfl
 
 
 /-- A functor in the control of monads. Can be used to lift monad-transforming functions.
@@ -50,37 +50,37 @@ lemma monad_lift_refl {m : Type u → Type v} {α} : (monad_lift : m α → m α
 
 
     Remark: other libraries equate `m` and `m'`, and `n` and `n'`. We need to distinguish them to be able to implement
-    gadgets such as `monad_state_adapter` and `monad_reader_adapter`. -/
-class monad_functor (m m' : Type u → Type v) (n n' : Type u → Type w) :=
-(monad_map {} {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
+    gadgets such as `monadStateAdapter` and `monadReaderAdapter`. -/
+class monadFunctor (m m' : Type u → Type v) (n n' : Type u → Type w) :=
+(monadMap {} {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
 
-/-- The reflexive-transitive closure of `monad_functor`.
-    `monad_map` is used to transitively lift monad morphisms such as `state_t.zoom`.
+/-- The reflexive-transitive closure of `monadFunctor`.
+    `monadMap` is used to transitively lift monad morphisms such as `stateT.zoom`.
     A generalization of [MonadLiftFunctor](http://duairc.netsoc.ie/layers-docs/Control-Monad-Layer.html#t:MonadLiftFunctor), which can only lift endomorphisms (i.e. m = m', n = n'). -/
-class monad_functor_t (m m' : Type u → Type v) (n n' : Type u → Type w) :=
-(monad_map {} {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
+class monadFunctorT (m m' : Type u → Type v) (n n' : Type u → Type w) :=
+(monadMap {} {α : Type u} : (∀ {β}, m β → m' β) → n α → n' α)
 
-export monad_functor_t (monad_map)
+export monadFunctorT (monadMap)
 
-instance monad_functor_t_trans (m m' n n' o o') [monad_functor n n' o o'] [monad_functor_t m m' n n'] :
-  monad_functor_t m m' o o' :=
-⟨λ α f, monad_functor.monad_map (λ β, (monad_map @f : n β → n' β))⟩
+instance monadFunctorTTrans (m m' n n' o o') [monadFunctor n n' o o'] [monadFunctorT m m' n n'] :
+  monadFunctorT m m' o o' :=
+⟨λ α f, monadFunctor.monadMap (λ β, (monadMap @f : n β → n' β))⟩
 
-instance monad_functor_t_refl (m m') : monad_functor_t m m' m m' :=
+instance monadFunctorTRefl (m m') : monadFunctorT m m' m m' :=
 ⟨λ α f, f⟩
 
-lemma monad_map_refl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monad_map @f : m α → m' α) = f := rfl
+lemma monadMapRefl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monadMap @f : m α → m' α) = f := rfl
 
 /-- Run a monad stack to completion.
     `run` should be the composition of the transformers' individual `run` functions.
     This class mostly saves some typing when using highly nested monad stacks:
     ```
-    @[reducible] def my_monad := reader_t my_cfg $ state_t my_state $ except_t my_err id
-    -- def my_monad.run {α : Type} (x : my_monad α) (cfg : my_cfg) (st : my_state) := ((x.run cfg).run st).run
-    def my_monad.run {α : Type} (x : my_monad α) := monad_run.run x
+    @[reducible] def myMonad := readerT myCfg $ stateT myState $ exceptT myErr id
+    -- def myMonad.run {α : Type} (x : myMonad α) (cfg : myCfg) (st : myState) := ((x.run cfg).run st).run
+    def myMonad.run {α : Type} (x : myMonad α) := monadRun.run x
     ```
     -/
-class monad_run (out : out_param $ Type u → Type v) (m : Type u → Type v) :=
+class monadRun (out : outParam $ Type u → Type v) (m : Type u → Type v) :=
 (run {} {α : Type u} : m α → out α)
 
-export monad_run (run)
+export monadRun (run)

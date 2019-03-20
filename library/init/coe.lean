@@ -6,144 +6,144 @@ Authors: Leonardo de Moura
 
 /-
 The elaborator tries to insert coercions automatically.
-Only instances of has_coe type class are considered in the process.
+Only instances of hasCoe type class are considered in the process.
 
 Lean also provides a "lifting" operator: ↑a.
-It uses all instances of has_lift type class.
-Every has_coe instance is also a has_lift instance.
+It uses all instances of hasLift type class.
+Every hasCoe instance is also a hasLift instance.
 
-We recommend users only use has_coe for coercions that do not produce a lot
+We recommend users only use hasCoe for coercions that do not produce a lot
 of ambiguity.
 
 All coercions and lifts can be identified with the constant coe.
 
-We use the has_coe_to_fun type class for encoding coercions from
+We use the hasCoeToFun type class for encoding coercions from
 a type to a function space.
 
-We use the has_coe_to_sort type class for encoding coercions from
+We use the hasCoeToSort type class for encoding coercions from
 a type to a sort.
 -/
 prelude
 import init.data.list.basic
 universes u v
 
-class has_lift (a : Sort u) (b : Sort v) :=
+class hasLift (a : Sort u) (b : Sort v) :=
 (lift : a → b)
 
-/-- Auxiliary class that contains the transitive closure of has_lift. -/
-class has_lift_t (a : Sort u) (b : Sort v) :=
+/-- Auxiliary class that contains the transitive closure of hasLift. -/
+class hasLiftT (a : Sort u) (b : Sort v) :=
 (lift : a → b)
 
-class has_coe (a : Sort u) (b : Sort v) :=
+class hasCoe (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
-/-- Auxiliary class that contains the transitive closure of has_coe. -/
-class has_coe_t (a : Sort u) (b : Sort v) :=
+/-- Auxiliary class that contains the transitive closure of hasCoe. -/
+class hasCoeT (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
-class has_coe_to_fun (a : Sort u) : Sort (max u (v+1)) :=
+class hasCoeToFun (a : Sort u) : Sort (max u (v+1)) :=
 (F : a → Sort v) (coe : Π x, F x)
 
-class has_coe_to_sort (a : Sort u) : Type (max u (v+1)) :=
+class hasCoeToSort (a : Sort u) : Type (max u (v+1)) :=
 (S : Sort v) (coe : a → S)
 
-@[inline] def lift {a : Sort u} {b : Sort v} [has_lift a b] : a → b :=
-@has_lift.lift a b _
+@[inline] def lift {a : Sort u} {b : Sort v} [hasLift a b] : a → b :=
+@hasLift.lift a b _
 
-@[inline] def lift_t {a : Sort u} {b : Sort v} [has_lift_t a b] : a → b :=
-@has_lift_t.lift a b _
+@[inline] def liftT {a : Sort u} {b : Sort v} [hasLiftT a b] : a → b :=
+@hasLiftT.lift a b _
 
-@[inline] def coe_b {a : Sort u} {b : Sort v} [has_coe a b] : a → b :=
-@has_coe.coe a b _
+@[inline] def coeB {a : Sort u} {b : Sort v} [hasCoe a b] : a → b :=
+@hasCoe.coe a b _
 
-@[inline] def coe_t {a : Sort u} {b : Sort v} [has_coe_t a b] : a → b :=
-@has_coe_t.coe a b _
+@[inline] def coeT {a : Sort u} {b : Sort v} [hasCoeT a b] : a → b :=
+@hasCoeT.coe a b _
 
-@[inline] def coe_fn_b {a : Sort u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
-has_coe_to_fun.coe
+@[inline] def coeFnB {a : Sort u} [hasCoeToFun.{u v} a] : Π x : a, hasCoeToFun.F.{u v} x :=
+hasCoeToFun.coe
 
 /- User level coercion operators -/
 
-@[reducible, inline] def coe {a : Sort u} {b : Sort v} [has_lift_t a b] : a → b :=
-lift_t
+@[reducible, inline] def coe {a : Sort u} {b : Sort v} [hasLiftT a b] : a → b :=
+liftT
 
-@[reducible, inline] def coe_fn {a : Sort u} [has_coe_to_fun.{u v} a] : Π x : a, has_coe_to_fun.F.{u v} x :=
-has_coe_to_fun.coe
+@[reducible, inline] def coeFn {a : Sort u} [hasCoeToFun.{u v} a] : Π x : a, hasCoeToFun.F.{u v} x :=
+hasCoeToFun.coe
 
-@[reducible, inline] def coe_sort {a : Sort u} [has_coe_to_sort.{u v} a] : a → has_coe_to_sort.S.{u v} a :=
-has_coe_to_sort.coe
+@[reducible, inline] def coeSort {a : Sort u} [hasCoeToSort.{u v} a] : a → hasCoeToSort.S.{u v} a :=
+hasCoeToSort.coe
 
 /- Notation -/
 
 notation `↑`:max x:max := coe x
 
-notation `⇑`:max x:max := coe_fn x
+notation `⇑`:max x:max := coeFn x
 
-notation `↥`:max x:max := coe_sort x
+notation `↥`:max x:max := coeSort x
 
 universes u₁ u₂ u₃
 
-/- Transitive closure for has_lift, has_coe, has_coe_to_fun -/
+/- Transitive closure for hasLift, hasCoe, hasCoeToFun -/
 
-instance lift_trans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [has_lift a b] [has_lift_t b c] : has_lift_t a c :=
-⟨λ x, lift_t (lift x : b)⟩
+instance liftTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [hasLift a b] [hasLiftT b c] : hasLiftT a c :=
+⟨λ x, liftT (lift x : b)⟩
 
-instance lift_refl {a : Sort u} : has_lift_t a a :=
+instance liftRefl {a : Sort u} : hasLiftT a a :=
 ⟨id⟩
 
-instance coe_trans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [has_coe a b] [has_coe_t b c] : has_coe_t a c :=
-⟨λ x, coe_t (coe_b x : b)⟩
+instance coeTrans {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [hasCoe a b] [hasCoeT b c] : hasCoeT a c :=
+⟨λ x, coeT (coeB x : b)⟩
 
-instance coe_base {a : Sort u} {b : Sort v} [has_coe a b] : has_coe_t a b :=
-⟨coe_b⟩
+instance coeBase {a : Sort u} {b : Sort v} [hasCoe a b] : hasCoeT a b :=
+⟨coeB⟩
 
-/- We add this instance directly into has_coe_t to avoid non-termination.
+/- We add this instance directly into hasCoeT to avoid non-termination.
 
-   Suppose coe_option had type (has_coe a (option a)).
-   Then, we can loop when searching a coercion from α to β (has_coe_t α β)
-   1- coe_trans at (has_coe_t α β)
-          (has_coe α ?b₁) and (has_coe_t ?b₁ c)
-   2- coe_option at (has_coe α ?b₁)
+   Suppose coeOption had type (hasCoe a (option a)).
+   Then, we can loop when searching a coercion from α to β (hasCoeT α β)
+   1- coeTrans at (hasCoeT α β)
+          (hasCoe α ?b₁) and (hasCoeT ?b₁ c)
+   2- coeOption at (hasCoe α ?b₁)
           ?b₁ := option α
-   3- coe_trans at (has_coe_t (option α) β)
-          (has_coe (option α) ?b₂) and (has_coe_t ?b₂ β)
-   4- coe_option at (has_coe (option α) ?b₂)
+   3- coeTrans at (hasCoeT (option α) β)
+          (hasCoe (option α) ?b₂) and (hasCoeT ?b₂ β)
+   4- coeOption at (hasCoe (option α) ?b₂)
           ?b₂ := option (option α))
    ...
 -/
-instance coe_option {a : Type u} : has_coe_t a (option a) :=
+instance coeOption {a : Type u} : hasCoeT a (option a) :=
 ⟨λ x, some x⟩
 
-/- Auxiliary transitive closure for has_coe which does not contain
-   instances such as coe_option.
+/- Auxiliary transitive closure for hasCoe which does not contain
+   instances such as coeOption.
 
-   They would produce non-termination when combined with coe_fn_trans and coe_sort_trans.
+   They would produce non-termination when combined with coeFnTrans and coeSortTrans.
 -/
-class has_coe_t_aux (a : Sort u) (b : Sort v) :=
+class hasCoeTAux (a : Sort u) (b : Sort v) :=
 (coe : a → b)
 
-instance coe_trans_aux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [has_coe a b] [has_coe_t_aux b c] : has_coe_t_aux a c :=
-⟨λ x : a, @has_coe_t_aux.coe b c _ (coe_b x)⟩
+instance coeTransAux {a : Sort u₁} {b : Sort u₂} {c : Sort u₃} [hasCoe a b] [hasCoeTAux b c] : hasCoeTAux a c :=
+⟨λ x : a, @hasCoeTAux.coe b c _ (coeB x)⟩
 
-instance coe_base_aux {a : Sort u} {b : Sort v} [has_coe a b] : has_coe_t_aux a b :=
-⟨coe_b⟩
+instance coeBaseAux {a : Sort u} {b : Sort v} [hasCoe a b] : hasCoeTAux a b :=
+⟨coeB⟩
 
-instance coe_fn_trans {a : Sort u₁} {b : Sort u₂} [has_coe_t_aux a b] [has_coe_to_fun.{u₂ u₃} b] : has_coe_to_fun.{u₁ u₃} a :=
-{ F   := λ x, @has_coe_to_fun.F.{u₂ u₃} b _ (@has_coe_t_aux.coe a b _ x),
-  coe := λ x, coe_fn (@has_coe_t_aux.coe a b _ x) }
+instance coeFnTrans {a : Sort u₁} {b : Sort u₂} [hasCoeTAux a b] [hasCoeToFun.{u₂ u₃} b] : hasCoeToFun.{u₁ u₃} a :=
+{ F   := λ x, @hasCoeToFun.F.{u₂ u₃} b _ (@hasCoeTAux.coe a b _ x),
+  coe := λ x, coeFn (@hasCoeTAux.coe a b _ x) }
 
-instance coe_sort_trans {a : Sort u₁} {b : Sort u₂} [has_coe_t_aux a b] [has_coe_to_sort.{u₂ u₃} b] : has_coe_to_sort.{u₁ u₃} a :=
-{ S   := has_coe_to_sort.S.{u₂ u₃} b,
-  coe := λ x, coe_sort (@has_coe_t_aux.coe a b _ x) }
+instance coeSortTrans {a : Sort u₁} {b : Sort u₂} [hasCoeTAux a b] [hasCoeToSort.{u₂ u₃} b] : hasCoeToSort.{u₁ u₃} a :=
+{ S   := hasCoeToSort.S.{u₂ u₃} b,
+  coe := λ x, coeSort (@hasCoeTAux.coe a b _ x) }
 
 /- Every coercion is also a lift -/
 
-instance coe_to_lift {a : Sort u} {b : Sort v} [has_coe_t a b] : has_lift_t a b :=
-⟨coe_t⟩
+instance coeToLift {a : Sort u} {b : Sort v} [hasCoeT a b] : hasLiftT a b :=
+⟨coeT⟩
 
 /- basic coercions -/
 
-instance coe_bool_to_Prop : has_coe bool Prop :=
+instance coeBoolToProp : hasCoe bool Prop :=
 ⟨λ y, y = tt⟩
 
 /- Tactics such as the simplifier only unfold reducible constants when checking whether two terms are definitionally
@@ -151,38 +151,38 @@ instance coe_bool_to_Prop : has_coe bool Prop :=
    In particular, when simplifying `p -> q`, the tactic `simp` only visits `p` if it can establish that it is a proposition.
    Thus, we mark the following instance as @[reducible], otherwise `simp` will not visit `↑p` when simplifying `↑p -> q`.
 -/
-@[reducible] instance coe_sort_bool : has_coe_to_sort bool :=
+@[reducible] instance coeSortBool : hasCoeToSort bool :=
 ⟨Prop, λ y, y = tt⟩
 
-instance coe_decidable_eq (x : bool) : decidable (coe x) :=
-show decidable (x = tt), from dec_eq x tt
+instance coeDecidableEq (x : bool) : decidable (coe x) :=
+show decidable (x = tt), from decEq x tt
 
-instance coe_subtype {a : Sort u} {p : a → Prop} : has_coe {x // p x} a :=
+instance coeSubtype {a : Sort u} {p : a → Prop} : hasCoe {x // p x} a :=
 ⟨subtype.val⟩
 
 /- basic lifts -/
 
 universes ua ua₁ ua₂ ub ub₁ ub₂
 
-/- Remark: we can't use [has_lift_t a₂ a₁] since it will produce non-termination whenever a type class resolution
+/- Remark: we can't use [hasLiftT a₂ a₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
-instance lift_fn {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [has_lift a₂ a₁] [has_lift_t b₁ b₂] : has_lift (a₁ → b₁) (a₂ → b₂) :=
+instance liftFn {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [hasLift a₂ a₁] [hasLiftT b₁ b₂] : hasLift (a₁ → b₁) (a₂ → b₂) :=
 ⟨λ f x, ↑(f ↑x)⟩
 
-instance lift_fn_range {a : Sort ua} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [has_lift_t b₁ b₂] : has_lift (a → b₁) (a → b₂) :=
+instance liftFnRange {a : Sort ua} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [hasLiftT b₁ b₂] : hasLift (a → b₁) (a → b₂) :=
 ⟨λ f x, ↑(f x)⟩
 
-instance lift_fn_dom {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b : Sort ub} [has_lift a₂ a₁] : has_lift (a₁ → b) (a₂ → b) :=
+instance liftFnDom {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b : Sort ub} [hasLift a₂ a₁] : hasLift (a₁ → b) (a₂ → b) :=
 ⟨λ f x, f ↑x⟩
 
-instance lift_pair {a₁ : Type ua₁} {a₂ : Type ub₂} {b₁ : Type ub₁} {b₂ : Type ub₂} [has_lift_t a₁ a₂] [has_lift_t b₁ b₂] : has_lift (a₁ × b₁) (a₂ × b₂) :=
-⟨λ p, prod.cases_on p (λ x y, (↑x, ↑y))⟩
+instance liftPair {a₁ : Type ua₁} {a₂ : Type ub₂} {b₁ : Type ub₁} {b₂ : Type ub₂} [hasLiftT a₁ a₂] [hasLiftT b₁ b₂] : hasLift (a₁ × b₁) (a₂ × b₂) :=
+⟨λ p, prod.casesOn p (λ x y, (↑x, ↑y))⟩
 
-instance lift_pair₁ {a₁ : Type ua₁} {a₂ : Type ua₂} {b : Type ub} [has_lift_t a₁ a₂] : has_lift (a₁ × b) (a₂ × b) :=
-⟨λ p, prod.cases_on p (λ x y, (↑x, y))⟩
+instance liftPair₁ {a₁ : Type ua₁} {a₂ : Type ua₂} {b : Type ub} [hasLiftT a₁ a₂] : hasLift (a₁ × b) (a₂ × b) :=
+⟨λ p, prod.casesOn p (λ x y, (↑x, y))⟩
 
-instance lift_pair₂ {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [has_lift_t b₁ b₂] : has_lift (a × b₁) (a × b₂) :=
-⟨λ p, prod.cases_on p (λ x y, (x, ↑y))⟩
+instance liftPair₂ {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [hasLiftT b₁ b₂] : hasLift (a × b₁) (a × b₂) :=
+⟨λ p, prod.casesOn p (λ x y, (x, ↑y))⟩
 
-instance lift_list {a : Type u} {b : Type v} [has_lift_t a b] : has_lift (list a) (list b) :=
+instance liftList {a : Type u} {b : Type v} [hasLiftT a b] : hasLift (list a) (list b) :=
 ⟨λ l, list.map (@coe a b _) l⟩

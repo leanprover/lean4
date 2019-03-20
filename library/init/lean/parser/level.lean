@@ -10,67 +10,67 @@ import init.lean.parser.pratt
 
 namespace lean
 namespace parser
-open combinators parser.has_view monad_parsec
+open combinators parser.hasView monadParsec
 
-@[derive monad alternative monad_reader monad_parsec monad_except monad_rec monad_basic_parser]
-def level_parser_m := rec_t nat syntax basic_parser_m
-abbrev level_parser := level_parser_m syntax
+@[derive monad alternative monadReader monadParsec monadExcept monadRec monadBasicParser]
+def levelParserM := recT nat syntax basicParserM
+abbrev levelParser := levelParserM syntax
 
 /-- A level parser for a suffix or infix notation that accepts a preceding term level. -/
-@[derive monad alternative monad_reader monad_parsec monad_except monad_rec monad_basic_parser]
-def trailing_level_parser_m := reader_t syntax level_parser_m
-abbrev trailing_level_parser := trailing_level_parser_m syntax
+@[derive monad alternative monadReader monadParsec monadExcept monadRec monadBasicParser]
+def trailingLevelParserM := readerT syntax levelParserM
+abbrev trailingLevelParser := trailingLevelParserM syntax
 
-instance trailing_level_parser_coe : has_coe level_parser trailing_level_parser :=
+instance trailingLevelParserCoe : hasCoe levelParser trailingLevelParser :=
 ⟨λ x _, x⟩
 
-@[derive parser.has_tokens parser.has_view]
-def level.parser (rbp := 0) : level_parser :=
+@[derive parser.hasTokens parser.hasView]
+def level.parser (rbp := 0) : levelParser :=
 recurse rbp <?> "universe level"
 
 namespace level
 /-- Access leading term -/
-def get_leading : trailing_level_parser := read
-instance : has_tokens get_leading := default _
-instance : has_view syntax get_leading := default _
+def getLeading : trailingLevelParser := read
+instance : hasTokens getLeading := default _
+instance : hasView syntax getLeading := default _
 
-@[derive parser.has_tokens parser.has_view]
-def paren.parser : level_parser :=
-node! «paren» ["(":max_prec, inner: level.parser 0, ")"]
+@[derive parser.hasTokens parser.hasView]
+def paren.parser : levelParser :=
+node! «paren» ["(":maxPrec, inner: level.parser 0, ")"]
 
-@[derive parser.has_tokens parser.has_view]
-def leading.parser : level_parser :=
-node_choice! leading {
-  max: symbol_or_ident "max",
-  imax: symbol_or_ident "imax",
-  hole: symbol "_" max_prec,
+@[derive parser.hasTokens parser.hasView]
+def leading.parser : levelParser :=
+nodeChoice! leading {
+  max: symbolOrIdent "max",
+  imax: symbolOrIdent "imax",
+  hole: symbol "_" maxPrec,
   paren: paren.parser,
   lit: number.parser,
   var: ident.parser
 }
 
-@[derive parser.has_tokens parser.has_view]
-def app.parser : trailing_level_parser :=
-node! app [fn: get_leading, arg: level.parser max_prec]
+@[derive parser.hasTokens parser.hasView]
+def app.parser : trailingLevelParser :=
+node! app [fn: getLeading, arg: level.parser maxPrec]
 
-@[derive parser.has_tokens parser.has_view]
-def add_lit.parser : trailing_level_parser :=
-node! add_lit [lhs: get_leading, "+", rhs: number.parser]
+@[derive parser.hasTokens parser.hasView]
+def addLit.parser : trailingLevelParser :=
+node! addLit [lhs: getLeading, "+", rhs: number.parser]
 
-@[derive parser.has_tokens parser.has_view]
-def trailing.parser : trailing_level_parser :=
-node_choice! trailing {
+@[derive parser.hasTokens parser.hasView]
+def trailing.parser : trailingLevelParser :=
+nodeChoice! trailing {
   app: app.parser,
-  add_lit: add_lit.parser
+  addLit: addLit.parser
 }
 end level
 
-@[derive parser.has_tokens parser.has_view]
-def level_parser.run (p : level_parser) : basic_parser :=
-pratt_parser level.leading.parser level.trailing.parser p
+@[derive parser.hasTokens parser.hasView]
+def levelParser.run (p : levelParser) : basicParser :=
+prattParser level.leading.parser level.trailing.parser p
 
-instance level_parser_coe : has_coe level_parser basic_parser :=
-⟨level_parser.run⟩
+instance levelParserCoe : hasCoe levelParser basicParser :=
+⟨levelParser.run⟩
 
 end parser
 end lean

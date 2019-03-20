@@ -43,7 +43,7 @@ protected def List.toString {α : Type u} [HasToString α] : List α → String
 instance {α : Type u} [HasToString α] : HasToString (List α) :=
 ⟨List.toString⟩
 
-instance : HasToString unit :=
+instance : HasToString Unit :=
 ⟨λ u, "()"⟩
 
 instance : HasToString Nat :=

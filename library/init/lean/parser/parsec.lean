@@ -18,7 +18,7 @@ open String (Iterator)
 namespace Parsec
 @[reducible] def Position : Type := Nat
 
-structure Message (μ : Type := unit) :=
+structure Message (μ : Type := Unit) :=
 (it         : Iterator)
 (unexpected : String       := "")          -- unexpected input
 (expected   : Dlist String := Dlist.Empty) -- expected productions
@@ -69,7 +69,7 @@ Iterator → m (Result μ α)
 
 abbrev Parsec (μ : Type) := ParsecT μ id
 /-- `Parsec` without custom error Message Type -/
-abbrev Parsec' := Parsec unit
+abbrev Parsec' := Parsec Unit
 
 namespace ParsecT
 open Parsec.Result
@@ -90,7 +90,7 @@ do r ← p it,
 @[inline] protected def pure (a : α) : ParsecT μ m α :=
 λ it, pure (mkEps a it)
 
-def eps : ParsecT μ m unit :=
+def eps : ParsecT μ m Unit :=
 ParsecT.pure ()
 
 protected def failure : ParsecT μ m α :=
@@ -243,7 +243,7 @@ class MonadParsec (μ : outParam Type) (m : Type → Type) :=
 (map {} {α : Type} : (∀ {m'} [Monad m'] {α}, ParsecT μ m' α → ParsecT μ m' α) → m α → m α)
 
 /-- `Parsec` without custom error Message Type -/
-abbrev MonadParsec' := MonadParsec unit
+abbrev MonadParsec' := MonadParsec Unit
 
 variables {μ : Type}
 
@@ -307,7 +307,7 @@ map (λ m' inst β p, @ParsecT.try m' inst μ β p) p
 map (λ m' inst β p, @ParsecT.lookahead m' inst μ β p) p
 
 /-- Faster version of `notFollowedBy (satisfy p)` -/
-@[inline] def notFollowedBySat (p : Char → Bool) : m unit :=
+@[inline] def notFollowedBySat (p : Char → Bool) : m Unit :=
 do it ← leftOver,
    if !it.hasNext then pure ()
    else let c := it.curr in
@@ -423,11 +423,11 @@ takeWhile (λ c, !p c)
 @[inline] def takeUntil1 (p : Char → Bool) : m String :=
 takeWhile1 (λ c, !p c)
 
-private def mkConsumedResult (consumed : Bool) (it : Iterator) : Result μ unit :=
+private def mkConsumedResult (consumed : Bool) (it : Iterator) : Result μ Unit :=
 if consumed then Result.ok () it none
 else Result.mkEps () it
 
-@[specialize] private def takeWhileAux' (p : Char → Bool) : Nat → Bool → Iterator → Result μ unit
+@[specialize] private def takeWhileAux' (p : Char → Bool) : Nat → Bool → Iterator → Result μ Unit
 | 0     consumed it := mkConsumedResult consumed it
 | (n+1) consumed it :=
   if !it.hasNext then mkConsumedResult consumed it
@@ -436,15 +436,15 @@ else Result.mkEps () it
        else mkConsumedResult consumed it
 
 /-- Similar to `takeWhile` but it does not return the consumed input. -/
-@[specialize] def takeWhile' (p : Char → Bool) : m unit :=
+@[specialize] def takeWhile' (p : Char → Bool) : m Unit :=
 lift $ λ it, takeWhileAux' p it.remaining ff it
 
 /-- Similar to `takeWhile1` but it does not return the consumed input. -/
-@[specialize] def takeWhile1' (p : Char → Bool) : m unit :=
+@[specialize] def takeWhile1' (p : Char → Bool) : m Unit :=
 satisfy p *> takeWhile' p
 
 /-- Consume zero or more whitespaces. -/
-@[noinline] def whitespace : m unit :=
+@[noinline] def whitespace : m Unit :=
 takeWhile' Char.isWhitespace
 
 /-- Shorthand for `p <* whitespace` -/
@@ -456,7 +456,7 @@ p <* whitespace
 String.toNat <$> (takeWhile1 Char.isDigit)
 
 /-- Succeed only if there are at least `n` characters left. -/
-def ensure (n : Nat) : m unit :=
+def ensure (n : Nat) : m Unit :=
 do it ← leftOver,
    if n ≤ it.remaining then pure ()
    else error "end of input" (Dlist.singleton ("at least " ++ toString n ++ " characters"))
@@ -467,12 +467,12 @@ String.Iterator.offset <$> leftOver
 
 
 /-- `notFollowedBy p` succeeds when Parser `p` fails -/
-@[inline] def notFollowedBy [MonadExcept (Message μ) m] (p : m α) (msg : String := "input") : m unit :=
+@[inline] def notFollowedBy [MonadExcept (Message μ) m] (p : m α) (msg : String := "input") : m Unit :=
 do it ← leftOver,
    b ← lookahead $ catch (p *> pure ff) (λ _, pure tt),
    if b then pure () else error msg Dlist.Empty it
 
-def eoi : m unit :=
+def eoi : m Unit :=
 do it ← leftOver,
    if it.remaining = 0 then pure ()
    else error (repr it.curr) (Dlist.singleton ("end of input"))
@@ -489,14 +489,14 @@ do r ← remaining, many1Aux p r
 @[specialize] def many [Alternative m] (p : m α) : m (List α) :=
 many1 p <|> pure []
 
-@[specialize] def many1Aux' [Alternative m] (p : m α) : Nat → m unit
+@[specialize] def many1Aux' [Alternative m] (p : m α) : Nat → m Unit
 | 0     := p *> pure ()
 | (n+1) := p *> (many1Aux' n <|> pure ())
 
-@[inline] def many1' [Alternative m] (p : m α) : m unit :=
+@[inline] def many1' [Alternative m] (p : m α) : m Unit :=
 do r ← remaining, many1Aux' p r
 
-@[specialize] def many' [Alternative m] (p : m α) : m unit :=
+@[specialize] def many' [Alternative m] (p : m α) : m Unit :=
 many1' p <|> pure ()
 
 @[specialize] def sepBy1 [Alternative m] (p : m α) (sep : m β) : m (List α) :=
@@ -568,7 +568,7 @@ end MonadParsec
 
 namespace MonadParsec
 open ParsecT
-variables {m : Type → Type} [Monad m] [MonadParsec unit m] {α β : Type}
+variables {m : Type → Type} [Monad m] [MonadParsec Unit m] {α β : Type}
 
 end MonadParsec
 

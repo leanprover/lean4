@@ -21,7 +21,7 @@ variables {f : Type u → Type v} [Alternative f] {α : Type u}
 @[inline] def failure : f α :=
 Alternative.failure f
 
-@[inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f unit :=
+@[inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f Unit :=
 if p then pure () else failure
 
 @[inline] def assert {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f (Inhabited p) :=
@@ -29,7 +29,7 @@ if h : p then pure ⟨h⟩ else failure
 
 /- Later we define a coercion from Bool to Prop, but this version will still be useful.
    Given (t : tactic Bool), we can write t >>= guardb -/
-@[inline] def guardb {f : Type → Type v} [Alternative f] : Bool → f unit
+@[inline] def guardb {f : Type → Type v} [Alternative f] : Bool → f Unit
 | tt := pure ()
 | ff := failure
 

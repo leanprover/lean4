@@ -24,7 +24,7 @@ do cfg ← read,
    it ← leftOver,
    pure $ Prod.snd <$> cfg.tokens.matchPrefix it
 
-private def finishCommentBlockAux : Nat → Nat → BasicParserM unit
+private def finishCommentBlockAux : Nat → Nat → BasicParserM Unit
 | nesting (n+1) :=
   str "/-" *> finishCommentBlockAux (nesting + 1) n
   <|>
@@ -33,11 +33,11 @@ private def finishCommentBlockAux : Nat → Nat → BasicParserM unit
   any *> finishCommentBlockAux nesting n
 | _ _ := error "unreachable"
 
-def finishCommentBlock (nesting := 1) : BasicParserM unit :=
+def finishCommentBlock (nesting := 1) : BasicParserM Unit :=
 do r ← remaining,
    finishCommentBlockAux nesting (r+1) <?> "end of comment block"
 
-private def whitespaceAux : Nat → BasicParserM unit
+private def whitespaceAux : Nat → BasicParserM Unit
 | (n+1) :=
 do whitespace,
    str "--" *> takeWhile' (≠ '\n') *> whitespaceAux n
@@ -53,7 +53,7 @@ local notation `Parser` := m Syntax
 local notation `lift` := @monadLift BasicParserM _ _ _
 
 /-- Skip whitespace and comments. -/
-def whitespace : BasicParserM unit :=
+def whitespace : BasicParserM Unit :=
 hidden $ do
   start ← leftOver,
   -- every `whitespaceAux` loop reads at least one Char
@@ -130,12 +130,12 @@ nodeChoice! detailIdentPart {
 }
 
 @[derive HasTokens HasView]
-def detailIdentSuffix.Parser : RecT unit Syntax BasicParserM Syntax :=
+def detailIdentSuffix.Parser : RecT Unit Syntax BasicParserM Syntax :=
 -- consume '.' only when followed by a character starting an detailIdentPart
 try (lookahead (ch '.' *> (ch idBeginEscape <|> satisfy isIdFirst)))
 *> node! detailIdentSuffix [«.»: rawStr ".", ident: recurse ()]
 
-def detailIdent' : RecT unit Syntax BasicParserM Syntax :=
+def detailIdent' : RecT Unit Syntax BasicParserM Syntax :=
 node! detailIdent [part: monadLift detailIdentPart.Parser, suffix: optional detailIdentSuffix.Parser]
 
 /-- A Parser that gives a more detailed View of `SyntaxIdent.rawVal`. Not used by default for
@@ -162,7 +162,7 @@ do
 
 -- the Node macro doesn't seem to like these...
 --TODO(Sebastian): these should probably generate better error messages
-def parseBinLit : BasicParserM unit :=
+def parseBinLit : BasicParserM Unit :=
 ch '0' *> (ch 'b' <|> ch 'B') *> many1' (ch '0' <|> ch '1')
 
 def parseOctLit : BasicParserM String :=

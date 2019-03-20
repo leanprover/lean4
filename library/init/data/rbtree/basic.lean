@@ -8,10 +8,10 @@ import init.data.rbmap.basic
 universes u v w
 
 def Rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
-Rbmap α unit lt
+Rbmap α Unit lt
 
 @[inline] def mkRbtree (α : Type u) (lt : α → α → Prop) : Rbtree α lt :=
-mkRbmap α unit lt
+mkRbmap α Unit lt
 
 namespace Rbtree
 variables {α : Type u} {β : Type v} {lt : α → α → Prop}

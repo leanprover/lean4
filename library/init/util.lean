@@ -9,9 +9,9 @@ import init.data.string.basic
 universes u
 /- debugging helper functions -/
 @[extern cpp inline "lean::dbg_trace(#2, #3)"]
-def dbgTrace {α : Type u} (s : String) (f : unit → α) : α :=
+def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α :=
 f ()
 
 @[extern cpp inline "lean::dbg_sleep(#2, #3)"]
-def dbgSleep {α : Type u} (ms : Uint32) (f : unit → α) : α :=
+def dbgSleep {α : Type u} (ms : Uint32) (f : Unit → α) : α :=
 f ()

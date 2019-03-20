@@ -13,7 +13,7 @@ import init.lean.options
 
 namespace Lean
 -- TODO(Sebastian): should probably be meta together with the whole Elaborator
-constant environment : Type := unit
+constant environment : Type := Unit
 
 @[extern "lean_environment_contains"]
 constant environment.contains (env : @& environment) (n : @& Name) : Bool := ff
@@ -128,8 +128,8 @@ structure ElaboratorState :=
 (nextInstIdx : Nat := 0)
 
 @[derive Monad MonadRec MonadReader MonadState MonadExcept]
-def ElaboratorM := RecT Syntax unit $ ReaderT ElaboratorConfig $ StateT ElaboratorState $ ExceptT Message id
-abbrev Elaborator := Syntax → ElaboratorM unit
+def ElaboratorM := RecT Syntax Unit $ ReaderT ElaboratorConfig $ StateT ElaboratorState $ ExceptT Message id
+abbrev Elaborator := Syntax → ElaboratorM Unit
 
 /-- Recursively elaborate any command. -/
 def command.elaborate : Elaborator := recurse
@@ -140,7 +140,7 @@ def currentScope : ElaboratorM Scope := do
   | [] := error none "currentScope: unreachable"
   | sc::_ := pure sc
 
-def modifyCurrentScope (f : Scope → Scope) : ElaboratorM unit := do
+def modifyCurrentScope (f : Scope → Scope) : ElaboratorM Unit := do
   st ← get,
   match st.scopes with
   | [] := error none "modifyCurrentScope: unreachable"
@@ -346,7 +346,7 @@ def getNamespace : ElaboratorM Name := do
   | ns::_ := ns
   | _     := Name.anonymous
 
-def oldElabCommand (stx : Syntax) (cmd : Expr) : ElaboratorM unit :=
+def oldElabCommand (stx : Syntax) (cmd : Expr) : ElaboratorM Unit :=
 do cfg ← read,
    let pos := cfg.fileMap.toPosition $ stx.getPos.getOrElse (default _),
    let cmd := match cmd with
@@ -401,8 +401,8 @@ Expr.const (mangleIdent id.id) $ match id.univParams with
   | none        := []
 
 /-- Execute `elab` and reset local Scope (universes, ...) after it has finished. -/
-def locally (elab : ElaboratorM unit) :
-  ElaboratorM unit := do
+def locally (elab : ElaboratorM Unit) :
+  ElaboratorM Unit := do
   sc ← currentScope,
   elab,
   modifyCurrentScope $ λ _, sc
@@ -414,7 +414,7 @@ Expr.mkCapp `_ <$> bindrs.mmap (λ b, do
   type ← toPexpr type,
   pure $ Expr.local id id type bi)
 
-def elabDefLike (stx : Syntax) (mods : declModifiers.View) (dl : defLike.View) (kind : Nat) : ElaboratorM unit :=
+def elabDefLike (stx : Syntax) (mods : declModifiers.View) (dl : defLike.View) (kind : Nat) : ElaboratorM Unit :=
 match dl with
 | {sig := {params := bracketedBinders.View.simple bbs}, ..} := do
   let mdata := Kvmap.setName {} `command `defs,
@@ -670,7 +670,7 @@ do -- build and register Parser
 
 /-- Recreate `ElaboratorState.parserCfg` from the Elaborator State and the initial config,
     effectively treating it as a cache. -/
-def updateParserConfig : ElaboratorM unit :=
+def updateParserConfig : ElaboratorM Unit :=
 do st ← get,
    sc ← currentScope,
    cfg ← read,

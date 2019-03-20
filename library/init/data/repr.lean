@@ -36,7 +36,7 @@ protected def List.repr {α : Type u} [HasRepr α] : List α → String
 instance {α : Type u} [HasRepr α] : HasRepr (List α) :=
 ⟨List.repr⟩
 
-instance : HasRepr unit :=
+instance : HasRepr Unit :=
 ⟨λ u, "()"⟩
 
 instance {α : Type u} [HasRepr α] : HasRepr (Option α) :=

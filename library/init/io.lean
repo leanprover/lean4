@@ -8,7 +8,7 @@ import init.control.estate init.data.string.basic init.fix
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
     Makes sure we never reorder `IO` operations. -/
-constant IO.RealWorld : Type := unit
+constant IO.RealWorld : Type := Unit
 
 /- TODO(Leo): mark it as an opaque definition. Reason: prevent
    functions defined in other modules from accessing `IO.RealWorld`.
@@ -50,13 +50,13 @@ match e with
 
 namespace IO
 
-def lazyPure {α : Type} (fn : unit → α) : IO α :=
+def lazyPure {α : Type} (fn : Unit → α) : IO α :=
 pure (fn ())
 
 inductive Fs.Mode
 | read | write | readWrite | append
 
-constant Fs.handle : Type := unit
+constant Fs.handle : Type := Unit
 
 namespace Prim
 open Fs
@@ -72,7 +72,7 @@ def iterateAux {α β : Type} (f : α → IO (Sum α β)) : (α → IO β) → (
 fixCore (λ _, throw "deep recursion") (iterateAux f) a
 
 @[extern 2 "lean_io_prim_put_str"]
-constant putStr (s: @& String) : IO unit := default _
+constant putStr (s: @& String) : IO Unit := default _
 @[extern 1 "lean_io_prim_get_line"]
 constant getLine : IO String := default _
 @[extern 4 "lean_io_prim_handle_mk"]
@@ -80,12 +80,12 @@ constant handle.mk (s : @& String) (m : Mode) (bin : Bool := ff) : IO handle := 
 @[extern 2 "lean_io_prim_handle_is_eof"]
 constant handle.isEof (h : @& handle) : IO Bool := default _
 @[extern 2 "lean_io_prim_handle_flush"]
-constant handle.flush (h : @& handle) : IO unit := default _
+constant handle.flush (h : @& handle) : IO Unit := default _
 @[extern 2 "lean_io_prim_handle_close"]
-constant handle.close (h : @& handle) : IO unit := default _
+constant handle.close (h : @& handle) : IO Unit := default _
 -- TODO: replace `String` with byte buffer
 -- constant handle.read : handle → Nat → EIO String
--- constant handle.write : handle → String → EIO unit
+-- constant handle.write : handle → String → EIO Unit
 @[extern 2 "lean_io_prim_handle_get_line"]
 constant handle.getLine (h : @& handle) : IO String := default _
 
@@ -96,13 +96,13 @@ end Prim
 section
 variables {m : Type → Type} [Monad m] [monadIO m]
 
-private def putStr : String → m unit :=
+private def putStr : String → m Unit :=
 Prim.liftIO ∘ Prim.putStr
 
-def print {α} [HasToString α] (s : α) : m unit :=
+def print {α} [HasToString α] (s : α) : m Unit :=
 putStr ∘ toString $ s
 
-def println {α} [HasToString α] (s : α) : m unit :=
+def println {α} [HasToString α] (s : α) : m Unit :=
 print s *> putStr "\n"
 end
 
@@ -111,10 +111,10 @@ variables {m : Type → Type} [Monad m] [monadIO m]
 
 def handle.mk (s : String) (Mode : Mode) (bin : Bool := ff) : m handle := Prim.liftIO (Prim.handle.mk s Mode bin)
 def handle.isEof : handle → m Bool := Prim.liftIO ∘ Prim.handle.isEof
-def handle.flush : handle → m unit := Prim.liftIO ∘ Prim.handle.flush
-def handle.close : handle → m unit := Prim.liftIO ∘ Prim.handle.flush
+def handle.flush : handle → m Unit := Prim.liftIO ∘ Prim.handle.flush
+def handle.close : handle → m Unit := Prim.liftIO ∘ Prim.handle.flush
 -- def handle.read (h : handle) (bytes : Nat) : m String := Prim.liftEIO (Prim.handle.read h bytes)
--- def handle.write (h : handle) (s : String) : m unit := Prim.liftEIO (Prim.handle.write h s)
+-- def handle.write (h : handle) (s : String) : m Unit := Prim.liftEIO (Prim.handle.write h s)
 def handle.getLine : handle → m String := Prim.liftIO ∘ Prim.handle.getLine
 
 /-
@@ -124,13 +124,13 @@ do b ← h.read 1,
    else pure b.mkIterator.curr
 -/
 
--- def handle.putChar (h : handle) (c : Char) : m unit :=
+-- def handle.putChar (h : handle) (c : Char) : m Unit :=
 -- h.write (toString c)
 
--- def handle.putStr (h : handle) (s : String) : m unit :=
+-- def handle.putStr (h : handle) (s : String) : m Unit :=
 -- h.write s
 
--- def handle.putStrLn (h : handle) (s : String) : m unit :=
+-- def handle.putStrLn (h : handle) (s : String) : m Unit :=
 -- h.putStr s *> h.putStr "\n"
 
 def handle.readToEnd (h : handle) : m String :=
@@ -149,7 +149,7 @@ do h ← handle.mk fname Mode.read bin,
    h.close,
    pure r
 
--- def writeFile (fname : String) (data : String) (bin := ff) : m unit :=
+-- def writeFile (fname : String) (data : String) (bin := ff) : m Unit :=
 -- do h ← handle.mk fname Mode.write bin,
 --   h.write data,
 --   h.close
@@ -196,21 +196,21 @@ constant mkRef {α : Type} (a : α) : IO (Ref α)                := default _
 @[extern 3 cpp inline "lean::io_ref_read(#2, #3)"]
 constant Ref.read {α : Type} (r : @& Ref α) : IO α             := default _
 @[extern 4 cpp inline "lean::io_ref_write(#2, #3, #4)"]
-constant Ref.write {α : Type} (r : @& Ref α) (a : α) : IO unit := default _
+constant Ref.write {α : Type} (r : @& Ref α) (a : α) : IO Unit := default _
 @[extern 4 cpp inline "lean::io_ref_swap(#2, #3, #4)"]
 constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α     := default _
 @[extern 3 cpp inline "lean::io_ref_reset(#2, #3)"]
-constant Ref.reset {α : Type} (r : @& Ref α) : IO unit         := default _
+constant Ref.reset {α : Type} (r : @& Ref α) : IO Unit         := default _
 end Prim
 
 section
 variables {m : Type → Type} [Monad m] [monadIO m]
 @[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  Prim.liftIO (Prim.mkRef a)
 @[inline] def Ref.read {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.read r)
-@[inline] def Ref.write {α : Type} (r : Ref α) (a : α) : m unit := Prim.liftIO (Prim.Ref.write r a)
+@[inline] def Ref.write {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.write r a)
 @[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
-@[inline] def Ref.reset {α : Type} (r : Ref α) : m unit := Prim.liftIO (Prim.Ref.reset r)
-@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m unit :=
+@[inline] def Ref.reset {α : Type} (r : Ref α) : m Unit := Prim.liftIO (Prim.Ref.reset r)
+@[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit :=
 do v ← r.read,
    r.reset,
    r.write (f v)
@@ -235,7 +235,7 @@ universe u
 
 /-- Typeclass used for presenting the output of an `#eval` command. -/
 class HasEval (α : Type u) :=
-(eval : α → IO unit)
+(eval : α → IO Unit)
 
 instance HasRepr.HasEval {α : Type u} [HasRepr α] : HasEval α :=
 ⟨λ a, IO.println (repr a)⟩
@@ -244,5 +244,5 @@ instance IO.HasEval {α : Type} [HasEval α] : HasEval (IO α) :=
 ⟨λ x, do a ← x, HasEval.eval a⟩
 
 -- special case: do not print `()`
-instance ioUnit.HasEval : HasEval (IO unit) :=
+instance IOUnit.HasEval : HasEval (IO Unit) :=
 ⟨λ x, x⟩

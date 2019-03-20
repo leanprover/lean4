@@ -36,7 +36,7 @@ namespace Array
 variables {α : Type u} {β : Type v}
 
 @[extern cpp inline "lean::mk_nil_array()"]
-def mkNil (_ : unit) : Array α :=
+def mkNil (_ : Unit) : Array α :=
 { sz   := 0,
   data := λ ⟨x, h⟩, absurd h (Nat.notLtZero x) }
 

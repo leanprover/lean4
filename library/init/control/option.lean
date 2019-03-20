@@ -54,11 +54,11 @@ namespace OptionT
   instance (m') [Monad m'] : MonadFunctor m m' (OptionT m) (OptionT m') :=
   ⟨λ α, OptionT.monadMap⟩
 
-  protected def catch (ma : OptionT m α) (handle : unit → OptionT m α) : OptionT m α :=
+  protected def catch (ma : OptionT m α) (handle : Unit → OptionT m α) : OptionT m α :=
   (do { some a ← ma | (handle ()),
         pure a } : m (Option α))
 
-  instance : MonadExcept unit (OptionT m) :=
+  instance : MonadExcept Unit (OptionT m) :=
   { throw := λ _ _, OptionT.fail, catch := @OptionT.catch _ _ }
 
   instance (m out) [MonadRun out m] : MonadRun (λ α, out (Option α)) (OptionT m) :=

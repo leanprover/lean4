@@ -138,7 +138,7 @@ variables {α : Type} {m : Type → Type}
 local notation `Parser` := m Syntax
 
 def logMessage {μ : Type} [Monad m] [MonadReader ρ m] [HasLiftT ρ FrontendConfig] [MonadState ParserState m]
-  (msg : Parsec.Message μ) : m unit :=
+  (msg : Parsec.Message μ) : m Unit :=
 do cfg ← read,
    modify (λ st, {st with messages := st.messages.add (messageOfParsecMessage ↑cfg msg)})
 
@@ -166,7 +166,7 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
    on a recursive call to `command.Parser`, i.e. it forgets about locally registered parsers,
    but that's not an issue for our intended uses of it. -/
 @[derive Monad Alternative MonadReader MonadParsec MonadExcept MonadRec]
-def CommandParserM (ρ : Type) := ReaderT ρ $ RecT unit Syntax $ parserCoreT id
+def CommandParserM (ρ : Type) := ReaderT ρ $ RecT Unit Syntax $ parserCoreT id
 
 section
 local attribute [reducible] ParserT CommandParserM

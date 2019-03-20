@@ -133,13 +133,13 @@ inductive Punit : Sort u
 /-- An abbreviation for `Punit.{0}`, its most common instantiation.
     This Type should be preferred over `Punit` where possible to avoid
     unnecessary universe parameters. -/
-abbrev unit : Type := Punit
+abbrev Unit : Type := Punit
 
-@[pattern] abbrev unit.star : unit := Punit.star
+@[pattern] abbrev Unit.star : Unit := Punit.star
 
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure Thunk (α : Type u) : Type u :=
-(fn : unit → α)
+(fn : Unit → α)
 
 attribute [extern cpp inline "lean::mk_thunk(#2)"] Thunk.mk
 
@@ -158,7 +158,7 @@ protected def Thunk.bind {α : Type u} {β : Type v} (x : Thunk α) (f : α → 
 
 /- Remark: tasks have an efficient implementation in the runtime. -/
 structure Task (α : Type u) : Type u :=
-(fn : unit → α)
+(fn : Unit → α)
 
 attribute [extern cpp inline "lean::mk_task(#2)"] Task.mk
 

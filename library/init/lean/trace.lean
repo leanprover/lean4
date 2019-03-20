@@ -44,8 +44,8 @@ class MonadTracer (m : Type → Type u) :=
 
 export MonadTracer (traceRoot traceCtx)
 
-def Trace {m} [Monad m] [MonadTracer m] (cls : Name) (msg : Message) : m unit :=
-traceCtx cls msg (pure () : m unit)
+def Trace {m} [Monad m] [MonadTracer m] (cls : Name) (msg : Message) : m Unit :=
+traceCtx cls msg (pure () : m Unit)
 
 instance (m) [Monad m] : MonadTracer (TraceT m) :=
 { traceRoot := λ α pos cls msg ctx, do {

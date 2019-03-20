@@ -264,8 +264,8 @@ transRelRight
 True
 True.intro
 typedExpr
-unit
-unit.star
+Unit
+Unit.star
 monadFromPureBind
 Uint8
 Uint16

@@ -25,7 +25,7 @@ do t ← Parser.mkTokenTrie $
      trailingTermParsers := Term.builtinTrailingParsers,
    }
 
-def runFrontend (filename input : String) (printMsg : Message → IO unit) (collectOutputs : Bool) :
+def runFrontend (filename input : String) (printMsg : Message → IO Unit) (collectOutputs : Bool) :
   StateT environment IO (List Syntax) := λ env, do
   parserCfg ← ioOfExcept $ mkConfig filename input,
   -- TODO(Sebastian): `parseHeader` should be called directly by Lean.cpp
@@ -70,8 +70,8 @@ def runFrontend (filename input : String) (printMsg : Message → IO unit) (coll
   }
 
 @[export lean_process_file]
-def processFile (f s : String) (json : Bool) : StateT environment IO unit := do
-  let printMsg : Message → IO unit := λ msg,
+def processFile (f s : String) (json : Bool) : StateT environment IO Unit := do
+  let printMsg : Message → IO Unit := λ msg,
     if json then
       IO.println $ "{\"fileName\": \"<stdin>\", \"posLine\": " ++ toString msg.pos.line ++
         ", \"posCol\": " ++ toString msg.pos.column ++

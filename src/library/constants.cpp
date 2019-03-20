@@ -553,8 +553,8 @@ void initialize_constants() {
     g_true = new name{"True"};
     g_true_intro = new name{"True", "intro"};
     g_typed_expr = new name{"typedExpr"};
-    g_unit = new name{"unit"};
-    g_unit_star = new name{"unit", "star"};
+    g_unit = new name{"Unit"};
+    g_unit_star = new name{"Unit", "star"};
     g_monad_from_pure_bind = new name{"monadFromPureBind"};
     g_uint8 = new name{"Uint8"};
     g_uint16 = new name{"Uint16"};

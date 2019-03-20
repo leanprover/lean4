@@ -10,7 +10,7 @@ import init.control.monad init.control.alternative init.data.list.basic init.coe
 universes u v w
 
 @[specialize]
-def Nat.mrepeat {m} [Monad m] (n : Nat) (f : Nat → m unit) : m unit :=
+def Nat.mrepeat {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
 n.repeat (λ i a, a *> f i) (pure ())
 
 @[specialize]
@@ -64,14 +64,14 @@ def List.mforall {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Boo
 | []      := pure tt
 | (a::as) := do b ← f a, if b then List.mforall as else pure ff
 
-@[macroInline] def when {m : Type → Type u} [Monad m] (c : Prop) [h : Decidable c] (t : m unit) : m unit :=
+@[macroInline] def when {m : Type → Type u} [Monad m] (c : Prop) [h : Decidable c] (t : m Unit) : m Unit :=
 if c then t else pure ()
 
-@[macroInline] def unless {m : Type → Type u} [Monad m] (c : Prop) [h : Decidable c] (e : m unit) : m unit :=
+@[macroInline] def unless {m : Type → Type u} [Monad m] (c : Prop) [h : Decidable c] (e : m Unit) : m Unit :=
 if c then pure () else e
 
 @[macroInline] def mcond {m : Type → Type u} [Monad m] {α : Type} (mbool : m Bool) (tm fm : m α) : m α :=
 do b ← mbool, cond b tm fm
 
-@[macroInline] def mwhen {m : Type → Type u} [Monad m] (c : m Bool) (t : m unit) : m unit :=
+@[macroInline] def mwhen {m : Type → Type u} [Monad m] (c : m Bool) (t : m Unit) : m Unit :=
 mcond c t (pure ())

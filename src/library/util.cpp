@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/error_msgs.h"
 #include "library/locals.h"
 #include "library/util.h"
+#include "library/suffixes.h"
 #include "library/annotation.h"
 #include "library/constants.h"
 #include "library/pp_options.h"
@@ -818,7 +819,7 @@ expr mk_absurd(abstract_type_context & ctx, expr const & t, expr const & e, expr
 }
 
 bool is_exists(expr const & e, expr & A, expr & p) {
-    if (is_app_of(e, get_Exists_name(), 2)) {
+    if (is_app_of(e, get_exists_name(), 2)) {
         A = app_arg(app_fn(e));
         p = app_arg(e);
         return true;
@@ -828,7 +829,7 @@ bool is_exists(expr const & e, expr & A, expr & p) {
 }
 
 bool is_exists(expr const & e) {
-    return is_app_of(e, get_Exists_name(), 2);
+    return is_app_of(e, get_exists_name(), 2);
 }
 
 optional<expr> get_binary_op(expr const & e) {
@@ -984,11 +985,11 @@ expr mk_bool_ff() { return *g_bool_ff; }
 expr to_bool_expr(bool b) { return b ? mk_bool_tt() : mk_bool_ff(); }
 
 name get_dep_recursor(environment const &, name const & n) {
-    return name(n, "rec");
+    return name(n, g_rec);
 }
 
 name get_dep_cases_on(environment const &, name const & n) {
-    return name(n, "cases_on");
+    return name(n, g_cases_on);
 }
 
 static char const * g_unsafe_rec_prefix = "_unsafe_rec";

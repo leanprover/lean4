@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
 #include "library/module.h"
+#include "library/suffixes.h"
 #include "library/protected.h"
 #include "library/reducible.h"
 #include "library/constants.h"
@@ -43,8 +44,8 @@ static bool is_type_former_arg(buffer<name> const & C_ids, expr const & arg) {
 environment mk_cases_on(environment const & env, name const & n) {
     constant_info ind_info = env.get(n);
     if (!ind_info.is_inductive())
-        throw exception(sstream() << "error in 'cases_on' generation, '" << n << "' is not an inductive datatype");
-    name cases_on_name(n, "cases_on");
+        throw exception(sstream() << "error in '" << g_cases_on << "' generation, '" << n << "' is not an inductive datatype");
+    name cases_on_name(n, g_cases_on);
     local_ctx lctx;
     inductive_val ind_val  = ind_info.to_inductive_val();
     name_generator ngen    = mk_constructions_name_generator();

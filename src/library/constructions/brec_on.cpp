@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/reducible.h"
 #include "library/module.h"
 #include "library/bin_app.h"
+#include "library/suffixes.h"
 #include "library/util.h"
 #include "library/aux_recursors.h"
 #include "library/constructions/util.h"
@@ -335,7 +336,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
         rec = mk_app(rec, ref_args[i]);
 
     type_checker tc(env, lctx);
-    name brec_on_name  = name(n, ind ? "binduction_on" : "brec_on");
+    name brec_on_name  = name(n, ind ? g_binduction_on : g_brec_on);
     expr brec_on_type  = lctx.mk_pi(args, result_type);
     expr brec_on_value = lctx.mk_lambda(args, mk_pprod_fst(tc, rec, ind));
 

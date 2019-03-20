@@ -581,7 +581,7 @@ class to_lambda_pure_fn {
         expr reachable_case;
         unsigned num_reachable = 0;
         expr some_reachable;
-        /* We use `is_id` to track whether this "cases_on"-application is of the form
+        /* We use `is_id` to track whether this "g_cases_on"-application is of the form
            ```
            C.cases_on major (fun ..., _cnstr.0.0) ... (fun ..., _cnstr.(n-1).0)
            ```
@@ -638,7 +638,7 @@ class to_lambda_pure_fn {
                 minor      = ensure_terminal(minor);
             minor          = visit(minor);
             if (!is_enf_unreachable(minor)) {
-                /* If `minor` is not the constructor `i`, then this "cases_on" application is not the identity. */
+                /* If `minor` is not the constructor `i`, then this "g_cases_on" application is not the identity. */
                 unsigned cidx, nusizes, ssz;
                 if (!(is_llnf_cnstr(minor, cidx, nusizes, ssz) && cidx == i && nusizes == 0 && ssz == 0)) {
                     is_id = false;

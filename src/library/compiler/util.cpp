@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/kernel_exception.h"
 #include "library/util.h"
+#include "library/suffixes.h"
 #include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
 #include "library/replace_visitor.h"
@@ -196,7 +197,7 @@ expr unfold_macro_defs(environment const & env, expr const & e) {
 }
 
 bool is_cases_on_recursor(environment const & env, name const & n) {
-    return ::lean::is_aux_recursor(env, n) && n.get_string() == "cases_on";
+    return ::lean::is_aux_recursor(env, n) && n.get_string() == g_cases_on;
 }
 
 unsigned get_cases_on_arity(environment const & env, name const & c, bool before_erasure) {

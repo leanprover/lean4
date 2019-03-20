@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "library/user_recursors.h"
 #include "library/aux_recursors.h"
 #include "library/attribute_manager.h"
+#include "library/suffixes.h"
 
 namespace lean {
 bool recursor_info::is_minor(unsigned pos) const {
@@ -107,16 +108,16 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
         return recursor_info(r, I_name, universe_pos, has_dep_elim, is_rec,
                              num_args, major_pos, params_pos, indices_pos, produce_motive);
     } else if (is_aux_recursor(env, r) &&
-               (r.get_string() == "cases_on" ||
-                r.get_string() == "rec_on"   ||
-                r.get_string() == "brec_on")) {
+               (r.get_string() == g_cases_on ||
+                r.get_string() == g_rec_on   ||
+                r.get_string() == g_brec_on)) {
         name I_name           = r.get_prefix();
         inductive_val I_val   = env.get(I_name).to_inductive_val();
         unsigned num_indices  = I_val.get_nindices();
         unsigned num_params   = I_val.get_nparams();
         has_given_major_pos   = true;
         unsigned num_motives;
-        if (r.get_string() == "cases_on") {
+        if (r.get_string() == g_cases_on) {
             num_motives = 1;
         } else {
             num_motives = env.get(mk_rec_name(I_name)).to_recursor_val().get_nmotives();

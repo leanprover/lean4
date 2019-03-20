@@ -37,6 +37,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/type_context.h"
 #include "library/app_builder.h"
+#include "library/suffixes.h"
 #include "library/compiler/compiler.h"
 #include "library/constructions/rec_on.h"
 #include "library/constructions/projection.h"
@@ -1149,7 +1150,7 @@ struct structure_cmd_fn {
     }
 
     void add_rec_on_alias(name const & n) {
-        name rec_on_name(m_name, "rec_on");
+        name rec_on_name(m_name, g_rec_on);
         constant_info rec_on_decl = m_env.get(rec_on_name);
         declaration new_decl = mk_definition_inferring_unsafe(m_env, n, rec_on_decl.get_lparams(),
                                                               rec_on_decl.get_type(), rec_on_decl.get_value(),
@@ -1161,10 +1162,10 @@ struct structure_cmd_fn {
 
     void declare_auxiliary() {
         m_env = mk_rec_on(m_env, m_name);
-        name rec_on_name(m_name, "rec_on");
+        name rec_on_name(m_name, g_rec_on);
         add_rec_alias(rec_on_name);
         m_env = add_aux_recursor(m_env, rec_on_name);
-        name cases_on_name(m_name, "cases_on");
+        name cases_on_name(m_name, g_cases_on);
         add_rec_on_alias(cases_on_name);
         m_env = add_aux_recursor(m_env, cases_on_name);
     }
@@ -1264,7 +1265,7 @@ struct structure_cmd_fn {
         if (!has_heq_decls(m_env))
             return;
         m_env = mk_no_confusion(m_env, m_name);
-        name no_confusion_name(m_name, "no_confusion");
+        name no_confusion_name(m_name, g_no_confusion);
         add_alias(no_confusion_name);
     }
 

@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/reducible.h"
 #include "library/protected.h"
+#include "library/suffixes.h"
 #include "library/aux_recursors.h"
 #include "library/constructions/util.h"
 
@@ -19,10 +20,10 @@ namespace lean {
 environment mk_rec_on(environment const & env, name const & n) {
     constant_info ind_info = env.get(n);
     if (!ind_info.is_inductive())
-        throw exception(sstream() << "error in 'rec_on' generation, '" << n << "' is not an inductive datatype");
+        throw exception(sstream() << "error in '" << g_rec_on << "' generation, '" << n << "' is not an inductive datatype");
     name_generator ngen = mk_constructions_name_generator();
     local_ctx lctx;
-    name rec_on_name(n, "rec_on");
+    name rec_on_name(n, g_rec_on);
     constant_info rec_info = env.get(mk_rec_name(n));
     recursor_val  rec_val  = rec_info.to_recursor_val();
     buffer<expr> locals;

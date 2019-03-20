@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/module.h"
 #include "library/util.h"
+#include "library/suffixes.h"
 #include "library/reducible.h"
 #include "library/constants.h"
 #include "library/aux_recursors.h"
@@ -19,7 +20,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 static void throw_corrupted(name const & n) {
-    throw exception(sstream() << "error in 'no_confusion' generation, '" << n << "' inductive datatype declaration is corrupted");
+    throw exception(sstream() << "error in '" << g_no_confusion << "' generation, '" << n << "' inductive datatype declaration is corrupted");
 }
 
 static optional<environment> mk_no_confusion_type(environment const & env, name const & n) {
@@ -30,7 +31,7 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
     local_ctx lctx;
     name_generator ngen      = mk_constructions_name_generator();
     unsigned nparams         = ind_val.get_nparams();
-    constant_info cases_info = env.get(name(n, "cases_on"));
+    constant_info cases_info = env.get(name(n, g_cases_on));
     names lps                = cases_info.get_lparams();
     level  plvl              = mk_univ_param(head(lps));
     levels ilvls             = lparams_to_levels(tail(lps));
@@ -56,7 +57,7 @@ static optional<environment> mk_no_confusion_type(environment const & env, name 
     args.push_back(v2);
     expr R = mk_sort(rlvl);
     expr Pres = P;
-    name no_confusion_type_name{n, "no_confusion_type"};
+    name no_confusion_type_name{n, g_no_confusion_type};
     expr no_confusion_type_type = lctx.mk_pi(args, R);
     /* Create type former */
     buffer<expr> type_former_args;
@@ -135,8 +136,8 @@ environment mk_no_confusion(environment const & env, name const & n) {
     constant_info ind_info               = new_env.get(n);
     inductive_val ind_val                = ind_info.to_inductive_val();
     unsigned nparams                     = ind_val.get_nparams();
-    constant_info no_confusion_type_info = new_env.get(name{n, "no_confusion_type"});
-    constant_info cases_info             = new_env.get(name(n, "cases_on"));
+    constant_info no_confusion_type_info = new_env.get(name{n, g_no_confusion_type});
+    constant_info cases_info             = new_env.get(name(n, g_cases_on));
     names lps                            = no_confusion_type_info.get_lparams();
     levels ls                            = lparams_to_levels(lps);
     expr ind_type                        = instantiate_type_lparams(ind_info, tail(ls));
@@ -156,7 +157,7 @@ environment mk_no_confusion(environment const & env, name const & n) {
     expr eq_v         = mk_app(mk_constant(get_eq_name(), levels(v_lvl)), v_type);
     expr H12          = lctx.mk_local_decl(ngen, "h12", mk_app(eq_v, v1, v2), mk_binder_info());
     args.push_back(H12);
-    name no_confusion_name{n, "no_confusion"};
+    name no_confusion_name{n, g_no_confusion};
     expr no_confusion_ty = lctx.mk_pi(args, range);
     // The gen proof is of the form
     //   (fun H11 : v1 = v1, cases_on Params (fun Indices v1, no_confusion_type Params Indices P v1 v1) Indices v1

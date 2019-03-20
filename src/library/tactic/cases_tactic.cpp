@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/app_builder.h"
 #include "library/trace.h"
+#include "library/suffixes.h"
 #include "library/tactic/cases_tactic.h"
 #include "library/tactic/intro_tactic.h"
 #include "library/tactic/clear_tactic.h"
@@ -104,7 +105,7 @@ struct cases_tactic_fn {
             return false;
         if (!is_inductive(m_env, const_name(fn)))
             return false;
-        if (!m_env.find(name{const_name(fn), "cases_on"}) || !m_env.find(get_eq_name()))
+        if (!m_env.find(name{const_name(fn), g_cases_on}) || !m_env.find(get_eq_name()))
             return false;
         if (!m_env.find(get_heq_name()))
             return false;
@@ -386,7 +387,7 @@ struct cases_tactic_fn {
                     if (!A_info.is_inductive())
                         throw_ill_formed_datatype();
                     inductive_val A_val  = A_info.to_inductive_val();
-                    name no_confusion_name(const_name(A_fn), "no_confusion");
+                    name no_confusion_name(const_name(A_fn), g_no_confusion);
                     if (!m_env.find(no_confusion_name)) {
                         throw exception(sstream() << "cases tactic failed, construction '"
                                         << no_confusion_name << "' is not available in the environment");

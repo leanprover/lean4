@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/annotation.h"
 #include "library/idx_metavar.h"
 #include "library/reducible.h"
+#include "library/suffixes.h"
 #include "library/constants.h"
 #include "library/metavar_util.h"
 #include "library/exception.h"
@@ -676,7 +677,7 @@ optional<expr> type_context_old::reduce_aux_recursor(expr const & e) {
            This fix is a little bit hackish and non modular because `brec_on` auxiliary recursors are defined in
            a completely different module, and type_context should not be aware of them.
         */
-        if (r && const_name(f).get_string() == "brec_on") {
+        if (r && const_name(f).get_string() == g_brec_on) {
             if (auto r2 = reduce_projection(*r))
                 return r2;
         }

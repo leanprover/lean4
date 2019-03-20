@@ -21,6 +21,7 @@ Author: Leonardo de Moura
 #include "library/aux_recursors.h"
 #include "library/app_builder.h"
 #include "library/constants.h"
+#include "library/suffixes.h"
 #include "library/placeholder.h"
 #include "library/explicit.h"
 #include "library/string.h"
@@ -398,7 +399,7 @@ auto elaborator::get_elim_info_for_builtin(name const & fn) -> elim_info {
     nminors              = length(I_val.get_cnstrs());
 
     elim_info r;
-    if (fn.get_string() == "brec_on" || fn.get_string() == "binduction_on") {
+    if (fn.get_string() == g_brec_on || fn.get_string() == g_binduction_on) {
         r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + 1;
     } else {
         r.m_arity      = nparams + 1 /* motive */ + nindices + 1 /* major */ + nminors;

@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/locals.h"
 #include "library/class.h"
 #include "library/util.h"
+#include "library/suffixes.h"
 #include "library/pattern_attribute.h"
 #include "library/app_builder.h"
 #include "library/replace_visitor_with_tc.h"
@@ -225,7 +226,7 @@ struct structural_rec_fn {
         name I_name   = const_name(I);
         inductive_val I_val = m_env.get(I_name).to_inductive_val();
         m_reflexive   = I_val.is_reflexive();
-        if (!m_env.find(name(I_name, "brec_on"))) {
+        if (!m_env.find(name(I_name, g_brec_on))) {
             trace_struct(tout() << "structural recursion on argument #" << (arg_idx+1) << " was not used "
                          << "for '" << fn << "' because the inductive type '" << I << "' does have brec_on recursor\n  "
                          << arg_type << "\n";);
@@ -550,8 +551,8 @@ struct structural_rec_fn {
     }
 
     void update_eqs(type_context_old & ctx, unpack_eqns & ues, expr const & fn, expr const & new_fn) {
-        /* C is a temporary "abstract" motive, we use it to access the "brec_on dictionary".
-           The "brec_on dictionary is an element of type below, and it is the last argument of the new function. */
+        /* C is a temporary "abstract" motive, we use it to access the "g_brec_on dictionary".
+           The g_brec_on dictionary is an element of type below, and it is the last argument of the new function. */
         expr C = mk_local(ctx.next_name(), "_C", m_motive_type, mk_binder_info());
         buffer<expr> & eqns = ues.get_eqns_of(0);
         buffer<expr> new_eqns;
@@ -677,7 +678,7 @@ struct structural_rec_fn {
         buffer<expr> below_args;
         expr below        = get_app_args(below_type, below_args);
         expr motive       = below_args[nparams];
-        name brec_on_name = name(I_name, m_use_ibelow ? "binduction_on" : "brec_on");
+        name brec_on_name = name(I_name, m_use_ibelow ? g_binduction_on : g_brec_on);
         expr brec_on_fn   = mk_constant(brec_on_name, const_levels(below));
         buffer<expr> brec_on_args;
         buffer<expr> F_domain; /* domain for F argument for brec_on */

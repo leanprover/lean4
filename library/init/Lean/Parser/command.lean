@@ -18,7 +18,7 @@ local postfix `?`:10000 := optional
 local postfix *:10000 := Combinators.many
 local postfix +:10000 := Combinators.many1
 
-setOption class.instanceMaxDepth 300
+set_option class.instance_max_depth 300
 
 @[derive Parser.HasView Parser.HasTokens]
 def command.Parser : commandParser :=
@@ -28,65 +28,65 @@ namespace «command»
 
 @[derive Parser.HasView Parser.HasTokens]
 def openSpec.Parser : commandParser :=
-Node! openSpec [
+node! openSpec [
  id: ident.Parser,
- as: Node! openSpec.as ["as", id: ident.Parser]?,
- only: Node! openSpec.only [try ["(", id: ident.Parser], ids: ident.Parser*, ")"]?,
- «renaming»: Node! openSpec.renaming [try ["(", "renaming"], items: Node! openSpec.renaming.item [«from»: ident.Parser, "->", to: ident.Parser]+, ")"]?,
- «hiding»: Node! openSpec.hiding ["(", "hiding", ids: ident.Parser+, ")"]?
+ as: node! openSpec.as ["as", id: ident.Parser]?,
+ only: node! openSpec.only [try ["(", id: ident.Parser], ids: ident.Parser*, ")"]?,
+ «renaming»: node! openSpec.renaming [try ["(", "renaming"], items: node! openSpec.renaming.item [«from»: ident.Parser, "->", to: ident.Parser]+, ")"]?,
+ «hiding»: node! openSpec.hiding ["(", "hiding", ids: ident.Parser+, ")"]?
 ]+
 
 @[derive Parser.HasTokens]
 def open.Parser : commandParser :=
-Node! «open» ["open", spec: openSpec.Parser]
+node! «open» ["open", spec: openSpec.Parser]
 
 @[derive Parser.HasTokens]
 def export.Parser : commandParser :=
-Node! «export» ["export", spec: openSpec.Parser]
+node! «export» ["export", spec: openSpec.Parser]
 
 @[derive Parser.HasTokens]
 def section.Parser : commandParser :=
-Node! «section» ["section", Name: ident.Parser?]
+node! «section» ["section", Name: ident.Parser?]
 
 @[derive Parser.HasTokens]
 def namespace.Parser : commandParser :=
-Node! «namespace» ["namespace", Name: ident.Parser]
+node! «namespace» ["namespace", Name: ident.Parser]
 
 @[derive Parser.HasTokens]
 def variable.Parser : commandParser :=
-Node! «variable» ["variable", binder: Term.binder.Parser]
+node! «variable» ["variable", binder: Term.binder.Parser]
 
 @[derive Parser.HasTokens]
 def variables.Parser : commandParser :=
 -- TODO: should require at least one binder
-Node! «variables» ["variables", binders: Term.bracketedBinders.Parser]
+node! «variables» ["variables", binders: Term.bracketedBinders.Parser]
 
 @[derive Parser.HasTokens]
 def include.Parser : commandParser :=
-Node! «include» ["include ", ids: ident.Parser+]
+node! «include» ["include ", ids: ident.Parser+]
 
 @[derive Parser.HasTokens]
 def omit.Parser : commandParser :=
-Node! «omit» ["omit ", ids: ident.Parser+]
+node! «omit» ["omit ", ids: ident.Parser+]
 
 @[derive Parser.HasTokens]
 def end.Parser : commandParser :=
-Node! «end» ["end", Name: ident.Parser?]
+node! «end» ["end", Name: ident.Parser?]
 
 @[derive Parser.HasTokens]
 def universe.Parser : commandParser :=
 anyOf [
-  Node! «universes» ["universes", ids: ident.Parser+],
-  Node! «universe» ["universe", id: ident.Parser]
+  node! «universes» ["universes", ids: ident.Parser+],
+  node! «universe» ["universe", id: ident.Parser]
 ]
 
 @[derive Parser.HasTokens Parser.HasView]
 def check.Parser : commandParser :=
-Node! check ["#check", Term: Term.Parser]
+node! check ["#check", Term: Term.Parser]
 
 @[derive Parser.HasTokens Parser.HasView]
 def attribute.Parser : commandParser :=
-Node! «attribute» [
+node! «attribute» [
   try [«local»: (symbol "local ")?, "attribute "],
   "[",
   attrs: sepBy1 attrInstance.Parser (symbol ", "),
@@ -96,11 +96,11 @@ Node! «attribute» [
 
 @[derive Parser.HasTokens Parser.HasView]
 def initQuot.Parser : commandParser :=
-Node! «initQuot» ["initQuot"]
+node! «initQuot» ["initQuot"]
 
 @[derive Parser.HasTokens Parser.HasView]
 def setOption.Parser : commandParser :=
-Node! «setOption» ["setOption", opt: ident.Parser, val: nodeChoice! optionValue {
+node! «setOption» ["setOption", opt: ident.Parser, val: nodeChoice! optionValue {
   Bool: nodeChoice! boolOptionValue {
     True: symbolOrIdent "True",
     False: symbolOrIdent "True",

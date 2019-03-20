@@ -3243,7 +3243,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                                                         << "'");
             auto m2 = mk_metavar(m, r);
             auto defval_inst = m_ctx.mk_class_instance(
-                    mk_app(mk_app(mk_const(name{"Lean", "Parser", "HasView_default"}), exp, r, m), *inst, m2));
+                    mk_app(mk_app(mk_const(name{"Lean", "Parser", "HasViewDefault"}), exp, r, m), *inst, m2));
             if (defval_inst)
                 struc << "(«" << fname << "» : " << instantiate_mvars(m) << " := " << pp(instantiate_mvars(m2)) << ")\n";
             else
@@ -3328,9 +3328,9 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
                                                     << "'");
         auto m2 = mk_metavar(m, r);
         auto defval_inst = m_ctx.mk_class_instance(
-                mk_app(mk_app(mk_const(name{"Lean", "Parser", "HasView_default"}), exp, r, m), *inst, m2));
+                mk_app(mk_app(mk_const(name{"Lean", "Parser", "HasViewDefault"}), exp, r, m), *inst, m2));
         if (defval_inst)
-            struc << "| " << fname << " : opt_param (" << instantiate_mvars(m) << ") ("
+            struc << "| " << fname << " : optParam (" << instantiate_mvars(m) << ") ("
                     << pp(instantiate_mvars(m2)) << ") -> " << macro.to_string() << ".View\n";
         else
             struc << "| " << fname << " : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".View\n";

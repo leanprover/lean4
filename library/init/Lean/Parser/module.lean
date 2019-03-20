@@ -44,22 +44,22 @@ end
 namespace Module
 @[derive Parser.HasView Parser.HasTokens]
 def prelude.Parser : basicParser :=
-Node! «prelude» ["prelude"]
+node! «prelude» ["prelude"]
 
 @[derive Parser.HasView Parser.HasTokens]
 def importPath.Parser : basicParser :=
 -- use `raw` to ignore registered tokens like ".."
-Node! importPath [
+node! importPath [
   dirups: (rawStr ".")*,
   Module: ident.Parser]
 
 @[derive Parser.HasView Parser.HasTokens]
 def import.Parser : basicParser :=
-Node! «import» ["import", imports: importPath.Parser+]
+node! «import» ["import", imports: importPath.Parser+]
 
 @[derive Parser.HasView Parser.HasTokens]
 def header.Parser : basicParser :=
-Node! «header» [«prelude»: prelude.Parser?, imports: import.Parser*]
+node! «header» [«prelude»: prelude.Parser?, imports: import.Parser*]
 
 @[pattern] def eoi : SyntaxNodeKind := ⟨`Lean.Parser.Module.eoi⟩
 

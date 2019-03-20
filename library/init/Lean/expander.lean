@@ -42,7 +42,7 @@ def error {m : Type → Type} {ρ : Type} [Monad m] [MonadReader ρ m] [HasLiftT
 do cfg ← read,
    throw {
      filename := FrontendConfig.filename ↑cfg,
-     pos := (FrontendConfig.FileMap ↑cfg).toPosition $ (context >>= Syntax.getPos).getOrElse (default _),
+     pos := (FrontendConfig.fileMap ↑cfg).toPosition $ (context >>= Syntax.getPos).getOrElse (default _),
      text := text
    }
 
@@ -121,9 +121,9 @@ def mkNotationTransformer (nota : NotationMacro) : transformer :=
       | _ := error stx "mkNotationTransformer: unreachable",
       match r.transition with
       | some (transition.View.binder b) :=
-        do { stxArg ← popStxArg, modify $ λ st, {st with scoped := some $ binders.View.extended {leadingIds := [View binderIdent.Parser stxArg]}} }
+        do { stxArg ← popStxArg, modify $ λ st, {st with scoped := some $ binders.View.extended {leadingIds := [view binderIdent.Parser stxArg]}} }
       | some (transition.View.binders b) :=
-        do { stxArg ← popStxArg, modify $ λ st, {st with scoped := some $ View Term.binders.Parser stxArg} }
+        do { stxArg ← popStxArg, modify $ λ st, {st with scoped := some $ view Term.binders.Parser stxArg} }
       | some (transition.View.Arg {action := none, id := id}) :=
         do { stxArg ← popStxArg, modify $ λ st, {st with substs := (id, stxArg)::st.substs} }
       | some (transition.View.Arg {action := some {kind := actionKind.View.prec _}, id := id}) :=
@@ -193,7 +193,7 @@ match k with
 
 def mixfix.transform : transformer :=
 λ stx, do
-  let v := View mixfix stx,
+  let v := view mixfix stx,
   let notaSym := match v.symbol with
   | mixfixSymbol.View.quoted q := notationSymbol.View.quoted q
   | mixfixSymbol.View.unquoted u := notationSymbol.View.quoted {symbol := u},
@@ -211,21 +211,21 @@ def mixfix.transform : transformer :=
 
 def reserveMixfix.transform : transformer :=
 λ stx, do
-  let v := View reserveMixfix stx,
+  let v := view reserveMixfix stx,
   spec ← mixfixToNotationSpec v.kind v.symbol,
   pure $ review reserveNotation {spec := spec}
 
 end «notation»
 
-def mkSimpleBinder (id : SyntaxIdent) (bi : BinderInfo) (Type : Syntax) : simpleBinder.View :=
-let bc : binderContent.View := {ids := [id], Type := some {Type := Type}} in
+def mkSimpleBinder (id : SyntaxIdent) (bi : BinderInfo) (type : Syntax) : simpleBinder.View :=
+let bc : binderContent.View := {ids := [id], type := some {type := type}} in
 match bi with
-| BinderInfo.default := simpleBinder.View.explicit {id := id, Type := Type}
-| BinderInfo.implicit := simpleBinder.View.implicit {id := id, Type := Type}
-| BinderInfo.strictImplicit := simpleBinder.View.strictImplicit {id := id, Type := Type}
-| BinderInfo.instImplicit := simpleBinder.View.instImplicit {id := id, Type := Type}
+| BinderInfo.default := simpleBinder.View.explicit {id := id, type := type}
+| BinderInfo.implicit := simpleBinder.View.implicit {id := id, type := type}
+| BinderInfo.strictImplicit := simpleBinder.View.strictImplicit {id := id, type := type}
+| BinderInfo.instImplicit := simpleBinder.View.instImplicit {id := id, type := type}
 | BinderInfo.auxDecl := /- should not happen -/
-  simpleBinder.View.explicit {id := id, Type := Type}
+  simpleBinder.View.explicit {id := id, type := type}
 
 def binderIdentToIdent : binderIdent.View → SyntaxIdent
 | (binderIdent.View.id id)  := id
@@ -233,7 +233,7 @@ def binderIdentToIdent : binderIdent.View → SyntaxIdent
 
 def getOptType : Option typeSpec.View → Syntax
 | none     := review hole {}
-| (some v) := v.Type
+| (some v) := v.type
 
 def expandBracketedBinder : bracketedBinder.View → TransformM (List simpleBinder.View)
 -- local notation: should have been handled by caller, erase
@@ -248,19 +248,19 @@ def expandBracketedBinder : bracketedBinder.View → TransformM (List simpleBind
   | bracketedBinder.View.instImplicit {content := bc} :=
     pure $ Prod.mk BinderInfo.instImplicit $ (match bc with
       | instImplicitBinderContent.View.anonymous bca :=
-        {ids := ["_inst_"], Type := some {Type := bca.Type}}
+        {ids := ["_inst_"], type := some {type := bca.type}}
       | instImplicitBinderContent.View.named bcn :=
-        {ids := [bcn.id], Type := some {Type := bcn.Type}})
+        {ids := [bcn.id], type := some {type := bcn.type}})
   | bracketedBinder.View.anonymousConstructor ctor :=
     error (review anonymousConstructor ctor) "unexpected anonymous Constructor",
-  let Type := getOptType bc.Type,
-  Type ← match bc.default with
-  | none := pure Type
-  | some (binderDefault.View.val bdv) := pure $ mkApp (globId `optParam) [Type, bdv.Term]
-  | some bdv@(binderDefault.View.tac bdt) := match bc.Type with
+  let type := getOptType bc.type,
+  type ← match bc.default with
+  | none := pure type
+  | some (binderDefault.View.val bdv) := pure $ mkApp (globId `optParam) [type, bdv.Term]
+  | some bdv@(binderDefault.View.tac bdt) := match bc.type with
     | none := pure $ mkApp (globId `autoParam) [bdt.Term]
     | some _ := error (review binderDefault bdv) "unexpected auto Param after Type annotation",
-  pure $ bc.ids.map (λ bid, mkSimpleBinder (binderIdentToIdent bid) bi Type)
+  pure $ bc.ids.map (λ bid, mkSimpleBinder (binderIdentToIdent bid) bi type)
 
 /-- Unfold `binders.View.extended` into `binders.View.simple`. -/
 def expandBinders (mkBinding : binders.View → Syntax → Syntax) (bnders : binders.View)
@@ -286,7 +286,7 @@ def expandBinders (mkBinding : binders.View → Syntax → Syntax) (bnders : bin
     ) r
   | _ := pure r,
   let leadingTy := match extBinders.remainder with
-  | bindersRemainder.View.Type brt := brt.Type
+  | bindersRemainder.View.type brt := brt.type
   | _ := review hole {},
   let r := extBinders.leadingIds.foldr (λ bid r,
     mkBinding (mkSimpleBinder (binderIdentToIdent bid) BinderInfo.default leadingTy) r) r,
@@ -294,7 +294,7 @@ def expandBinders (mkBinding : binders.View → Syntax → Syntax) (bnders : bin
 
 def bracketedBinders.transform : transformer :=
 λ stx, do
-  let v := View bracketedBinders stx,
+  let v := view bracketedBinders stx,
   match v with
   | bracketedBinders.View.simple _ := noExpansion
   | bracketedBinders.View.extended bnders := do
@@ -303,60 +303,60 @@ def bracketedBinders.transform : transformer :=
 
 def lambda.transform : transformer :=
 λ stx, do
-  let v := View lambda stx,
+  let v := view lambda stx,
   expandBinders (λ binders body, review lambda {binders := binders, body := body}) v.binders v.body
 
 def pi.transform : transformer :=
 λ stx, do
-  let v := View pi stx,
+  let v := view pi stx,
   expandBinders (λ binders body, review pi {op := v.op, binders := binders, range := body}) v.binders v.range
 
 def arrow.transform : transformer :=
 λ stx, do
-  let v := View arrow stx,
+  let v := view arrow stx,
   pure $ review pi {
     op := Syntax.atom {val := "Π"},
-    binders := binders.View.simple $ simpleBinder.View.explicit {id := `a, Type := v.dom},
+    binders := binders.View.simple $ simpleBinder.View.explicit {id := `a, type := v.dom},
     range := v.range}
 
 def paren.transform : transformer :=
 λ stx, do
-  let v := View paren stx,
+  let v := view paren stx,
   match v.content with
   | none := pure $ globId `unit.star
   | some {Term := t, special := none} := pure t
   | some {Term := t, special := parenSpecial.View.tuple tup} :=
     pure $ (t::tup.tail.map SepBy.Elem.View.item).foldr1Opt (λ t tup, mkApp (globId `Prod.mk) [t, tup])
   | some {Term := t, special := parenSpecial.View.typed pst} :=
-    pure $ mkApp (globId `typedExpr) [pst.Type, t]
+    pure $ mkApp (globId `typedExpr) [pst.type, t]
 
 def assume.transform : transformer :=
 λ stx, do
-  let v := View «assume» stx,
+  let v := view «assume» stx,
   let binders : binders.View := match v.binders with
   | assumeBinders.View.anonymous aba := binders.View.simple $
     -- TODO(Sebastian): unhygienic!
-    simpleBinder.View.explicit {id := "this", Type := aba.Type}
+    simpleBinder.View.explicit {id := "this", type := aba.type}
   | assumeBinders.View.binders abb := abb,
   pure $ review lambda {binders := binders, body := v.body}
 
 def if.transform : transformer :=
 λ stx, do
-  let v := View «if» stx,
+  let v := view «if» stx,
   pure $ match v.id with
   | some id := mkApp (globId `dite) [v.prop,
-    review lambda {binders := binders.View.simple $ simpleBinder.View.explicit {id := id.id, Type := v.prop}, body := v.thenBranch},
-    review lambda {binders := binders.View.simple $ simpleBinder.View.explicit {id := id.id, Type := mkApp (globId `not) [v.prop]}, body := v.elseBranch}]
+    review lambda {binders := binders.View.simple $ simpleBinder.View.explicit {id := id.id, type := v.prop}, body := v.thenBranch},
+    review lambda {binders := binders.View.simple $ simpleBinder.View.explicit {id := id.id, type := mkApp (globId `not) [v.prop]}, body := v.elseBranch}]
   | none := mkApp (globId `ite) [v.prop, v.thenBranch, v.elseBranch]
 
 def let.transform : transformer :=
 λ stx, do
-  let v := View «let» stx,
+  let v := view «let» stx,
   match v.lhs with
-  | letLhs.View.id {id := _, binders := [], Type := some _} := noExpansion
-  | letLhs.View.id lli@{id := _, binders := [], Type := none} :=
-    pure $ review «let» {v with lhs := letLhs.View.id {lli with Type := some {Type := review hole {}}}}
-  | letLhs.View.id lli@{id := _, binders := _, Type := ty} :=
+  | letLhs.View.id {id := _, binders := [], type := some _} := noExpansion
+  | letLhs.View.id lli@{id := _, binders := [], type := none} :=
+    pure $ review «let» {v with lhs := letLhs.View.id {lli with type := some {type := review hole {}}}}
+  | letLhs.View.id lli@{id := _, binders := _, type := ty} :=
     let bindrs := binders.View.extended {
       leadingIds := [],
       remainder := bindersRemainder.View.mixed $ lli.binders.map mixedBinder.View.bracketed} in
@@ -364,7 +364,7 @@ def let.transform : transformer :=
       lhs := letLhs.View.id {
         id := lli.id,
         binders := [],
-        Type := some {Type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs, range := getOptType ty}}},
+        type := some {type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs, range := getOptType ty}}},
       value := review lambda {binders := bindrs, body := v.value}}
   | letLhs.View.pattern llp :=
     pure $ review «match» {
@@ -374,20 +374,20 @@ def let.transform : transformer :=
 -- move parameters into Type
 def axiom.transform : transformer :=
 λ stx, do
-  let v := View «axiom» stx,
+  let v := view «axiom» stx,
   match v with
-  | {sig := {params := bracketedBinders.View.extended bindrs, Type := Type}, ..} := do
+  | {sig := {params := bracketedBinders.View.extended bindrs, type := type}, ..} := do
     let bindrs := binders.View.extended {
       leadingIds := [],
       remainder := bindersRemainder.View.mixed $ bindrs.map mixedBinder.View.bracketed},
     pure $ review «axiom» {v with sig := {
       params := bracketedBinders.View.simple [],
-      Type := {Type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs, range := Type.Type}}}}
+      type := {type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}
   | _ := noExpansion
 
 def Declaration.transform : transformer :=
 λ stx, do
-  let v := View «Declaration» stx,
+  let v := view «Declaration» stx,
   match v.inner with
   | Declaration.inner.View.inductive ind@{«class» := some _, ..} :=
     let attrs := v.modifiers.attrs.getOrElse {attrs := []} in
@@ -407,63 +407,63 @@ def Declaration.transform : transformer :=
 
 def introRule.transform : transformer :=
 λ stx, do
-  let v := View «introRule» stx,
+  let v := view «introRule» stx,
   match v.sig with
-  | {params := bracketedBinders.View.extended bindrs, Type := some Type} := do
+  | {params := bracketedBinders.View.extended bindrs, type := some type} := do
     let bindrs := binders.View.extended {
       leadingIds := [],
       remainder := bindersRemainder.View.mixed $ bindrs.map mixedBinder.View.bracketed},
     pure $ review «introRule» {v with sig := {
       params := bracketedBinders.View.simple [],
-      Type := some {Type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs,
-        range := Type.Type}}}}
+      type := some {type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs,
+        range := type.type}}}}
   | _ := noExpansion
 
 /- We expand `variable` into `variables` instead of the other way around since, in theory,
    elaborating multiple variables at the same time makes it possible to omit more information. -/
 def variable.transform : transformer :=
 λ stx, do
-  let v := View «variable» stx,
+  let v := view «variable» stx,
   pure $ review «variables» {binders := bracketedBinders.View.extended [v.binder]}
 
 @[derive HasView]
 def bindingAnnotationUpdate.Parser : termParser :=
-Node! bindingAnnotationUpdate ["dummy"] -- FIXME: bad Node! expansion
+node! bindingAnnotationUpdate ["dummy"] -- FIXME: bad node! expansion
 
 def variables.transform : transformer :=
 λ stx, do
-  let v := View «variables» stx,
+  let v := view «variables» stx,
   match v.binders with
   | bracketedBinders.View.simple _ := noExpansion
   | bracketedBinders.View.extended bnders := do
     bnders ← bnders.mmap $ λ b, match b with
     -- binding annotation update
     | bracketedBinder.View.explicit eb@{content :=
-      explicitBinderContent.View.other bc@{ids := ids, Type := none, default := none}} :=
+      explicitBinderContent.View.other bc@{ids := ids, type := none, default := none}} :=
       expandBracketedBinder $ bracketedBinder.View.explicit {eb with content :=
-        explicitBinderContent.View.other {bc with Type := some {Type := review bindingAnnotationUpdate {}}}}
+        explicitBinderContent.View.other {bc with type := some {type := review bindingAnnotationUpdate {}}}}
     | _ := expandBracketedBinder b,
     pure $ review «variables» {binders := bracketedBinders.View.simple $ List.join bnders}
 
 def Level.leading.transform : transformer :=
 λ stx, do
-  let v := View Level.leading stx,
+  let v := view Level.leading stx,
   match v with
   | Level.leading.View.paren p := pure p.inner
   | _ := noExpansion
 
 def Subtype.transform : transformer :=
 λ stx, do
-  let v := View Term.Subtype stx,
+  let v := view Term.Subtype stx,
   pure $ mkApp (globId `Subtype) [review lambda {
-    binders := mkSimpleBinder v.id BinderInfo.default $ getOptType v.Type,
+    binders := mkSimpleBinder v.id BinderInfo.default $ getOptType v.type,
     body := v.prop
   }]
 
 def universes.transform : transformer :=
 λ stx, do
-  let v := View «universes» stx,
-  pure $ Syntax.List $ v.ids.map (λ id, review «universe» {id := id})
+  let v := view «universes» stx,
+  pure $ Syntax.list $ v.ids.map (λ id, review «universe» {id := id})
 
 def sorry.transform : transformer :=
 λ stx, pure $ mkApp (globId `sorryAx) [review hole {}, globId `Bool.ff]
@@ -472,25 +472,25 @@ local attribute [instance] Name.hasLtQuick
 
 -- TODO(Sebastian): replace with attribute
 def builtinTransformers : Rbmap Name transformer (<) := Rbmap.fromList [
-  (mixfix.Name, mixfix.transform),
-  (reserveMixfix.Name, reserveMixfix.transform),
-  (bracketedBinders.Name, bracketedBinders.transform),
-  (lambda.Name, lambda.transform),
-  (pi.Name, pi.transform),
-  (arrow.Name, arrow.transform),
-  (paren.Name, paren.transform),
-  (assume.Name, assume.transform),
-  (if.Name, if.transform),
-  (let.Name, let.transform),
-  (axiom.Name, axiom.transform),
-  (Declaration.Name, Declaration.transform),
-  (introRule.Name, introRule.transform),
-  (variable.Name, variable.transform),
-  (variables.Name, variables.transform),
-  (Level.leading.Name, Level.leading.transform),
-  (Term.Subtype.Name, Subtype.transform),
-  (universes.Name, universes.transform),
-  (sorry.Name, sorry.transform)
+  (mixfix.name, mixfix.transform),
+  (reserveMixfix.name, reserveMixfix.transform),
+  (bracketedBinders.name, bracketedBinders.transform),
+  (lambda.name, lambda.transform),
+  (pi.name, pi.transform),
+  (arrow.name, arrow.transform),
+  (paren.name, paren.transform),
+  (assume.name, assume.transform),
+  (if.name, if.transform),
+  (let.name, let.transform),
+  (axiom.name, axiom.transform),
+  (Declaration.name, Declaration.transform),
+  (introRule.name, introRule.transform),
+  (variable.name, variable.transform),
+  (variables.name, variables.transform),
+  (Level.leading.name, Level.leading.transform),
+  (Term.Subtype.name, Subtype.transform),
+  (universes.name, universes.transform),
+  (sorry.name, sorry.transform)
 ] _
 
 structure ExpanderState :=
@@ -518,7 +518,7 @@ private def expandCore : Nat → Syntax → ExpanderM Syntax
 | (fuel + 1) stx :=
 do some n ← pure stx.asNode | pure stx,
    cfg ← read,
-   some t ← pure $ cfg.transformers.find n.kind.Name
+   some t ← pure $ cfg.transformers.find n.kind.name
      -- not a macro: recurse
      | Syntax.mkNode n.kind <$> n.args.mmap (expandCore fuel),
    sc ← mkScope,

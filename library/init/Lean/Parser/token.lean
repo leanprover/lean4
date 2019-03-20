@@ -292,7 +292,7 @@ def number.View.toNat : number.View → Nat
 | (number.View.base16 (some atom)) := toNatBase atom.val 16
 | _ := 1138 -- should never happen, but let's still choose a grep-able number
 
-def number.view.ofNat (n : Nat) : number.View :=
+def number.View.ofNat (n : Nat) : number.View :=
 number.View.base10 (some {val := toString n})
 
 def stringLit.Parser : Parser :=

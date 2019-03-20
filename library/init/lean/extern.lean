@@ -22,15 +22,15 @@ inductive externEntry
 /-
 - `@[extern]`
    encoding: ```.entries = [adhoc `all]```
-- `@[extern "levelHash"]`
+- `@[extern "level_hash"]`
    encoding: ```.entries = [standard `all "levelHash"]```
-- `@[extern cpp "lean::stringSize" llvm "leanStrSize"]`
-   encoding: ```.entries = [standard `cpp "lean::stringSize", standard `llvm "leanStrSize"]```
+- `@[extern cpp "lean::string_size" llvm "lean_str_size"]`
+   encoding: ```.entries = [standard `cpp "lean::string_size", standard `llvm "leanStrSize"]```
 - `@[extern cpp inline "#1 + #2"]`
    encoding: ```.entries = [inline `cpp "#1 + #2"]```
 - `@[extern cpp "foo" llvm adhoc]`
    encoding: ```.entries = [standard `cpp "foo", adhoc `llvm]```
-- `@[extern 2 cpp "ioPrimPrintln"]`
+- `@[extern 2 cpp "io_prim_println"]`
    encoding: ```.arity = 2, .entries = [standard `cpp "ioPrimPrintln"]```
 -/
 structure externAttrData :=

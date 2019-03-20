@@ -13,8 +13,8 @@ inductive name
 | mkString  : name → string → name
 | mkNumeral : name → nat → name
 
-attribute [extern "leanNameMkString"] name.mkString
-attribute [extern "leanNameMkNumeral"] name.mkNumeral
+attribute [extern "lean_name_mk_string"] name.mkString
+attribute [extern "lean_name_mk_numeral"] name.mkNumeral
 
 instance : inhabited name :=
 ⟨name.anonymous⟩
@@ -32,7 +32,7 @@ instance stringToName : hasCoe string name :=
 ⟨mkSimpleName⟩
 
 namespace name
-@[extern "leanNameHashUsize"]
+@[extern "lean_name_hash_usize"]
 constant hash (n : @& name) : usize := default usize
 
 instance : hashable name :=
@@ -56,7 +56,7 @@ def components' : name → list name
 def components (n : name) : list name :=
 n.components'.reverse
 
-@[extern "leanNameDecEq"]
+@[extern "lean_name_dec_eq"]
 protected def decEq : Π (a b : @& name), decidable (a = b)
 | anonymous          anonymous          := isTrue rfl
 | (mkString p₁ s₁)  (mkString p₂ s₂)  :=

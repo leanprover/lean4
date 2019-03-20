@@ -32,13 +32,13 @@ def io.error := string
 
 abbrev io : Type → Type := eio io.error
 
-@[extern "leanIoUnsafe"]
+@[extern "lean_io_unsafe"]
 constant unsafeIo {α : Type} (fn : io α) : option α := default _
 
-@[extern 4 "leanIoTimeit"]
+@[extern 4 "lean_io_timeit"]
 constant timeit {α : Type} (msg : @& string) (fn : io α) : io α := default _
 
-@[extern 4 "leanIoAllocprof"]
+@[extern 4 "lean_io_allocprof"]
 constant allocprof {α : Type} (msg : @& string) (fn : io α) : io α := default _
 
 abbrev monadIo (m : Type → Type) := hasMonadLiftT io m
@@ -71,22 +71,22 @@ def iterateAux {α β : Type} (f : α → io (sum α β)) : (α → io β) → (
 @[specialize] def iterate {α β : Type} (a : α) (f : α → io (sum α β)) : io β :=
 fixCore (λ _, throw "deep recursion") (iterateAux f) a
 
-@[extern 2 "leanIoPrimPutStr"]
+@[extern 2 "lean_io_prim_put_str"]
 constant putStr (s: @& string) : io unit := default _
-@[extern 1 "leanIoPrimGetLine"]
+@[extern 1 "lean_io_prim_get_line"]
 constant getLine : io string := default _
-@[extern 4 "leanIoPrimHandleMk"]
+@[extern 4 "lean_io_prim_handle_mk"]
 constant handle.mk (s : @& string) (m : mode) (bin : bool := ff) : io handle := default _
-@[extern 2 "leanIoPrimHandleIsEof"]
+@[extern 2 "lean_io_prim_handle_is_eof"]
 constant handle.isEof (h : @& handle) : io bool := default _
-@[extern 2 "leanIoPrimHandleFlush"]
+@[extern 2 "lean_io_prim_handle_flush"]
 constant handle.flush (h : @& handle) : io unit := default _
-@[extern 2 "leanIoPrimHandleClose"]
+@[extern 2 "lean_io_prim_handle_close"]
 constant handle.close (h : @& handle) : io unit := default _
 -- TODO: replace `string` with byte buffer
 -- constant handle.read : handle → nat → eio string
 -- constant handle.write : handle → string → eio unit
-@[extern 2 "leanIoPrimHandleGetLine"]
+@[extern 2 "lean_io_prim_handle_get_line"]
 constant handle.getLine (h : @& handle) : io string := default _
 
 @[inline] def liftIo {m : Type → Type} {α : Type} [monadIo m] (x : io α) : m α :=
@@ -191,15 +191,15 @@ instance (α : Type) : inhabited (ref α) :=
 ⟨refPointed.val⟩
 
 namespace prim
-@[extern 3 cpp inline "lean::ioMkRef(#2, #3)"]
+@[extern 3 cpp inline "lean::io_mk_ref(#2, #3)"]
 constant mkRef {α : Type} (a : α) : io (ref α)                := default _
-@[extern 3 cpp inline "lean::ioRefRead(#2, #3)"]
+@[extern 3 cpp inline "lean::io_ref_read(#2, #3)"]
 constant ref.read {α : Type} (r : @& ref α) : io α             := default _
-@[extern 4 cpp inline "lean::ioRefWrite(#2, #3, #4)"]
+@[extern 4 cpp inline "lean::io_ref_write(#2, #3, #4)"]
 constant ref.write {α : Type} (r : @& ref α) (a : α) : io unit := default _
-@[extern 4 cpp inline "lean::ioRefSwap(#2, #3, #4)"]
+@[extern 4 cpp inline "lean::io_ref_swap(#2, #3, #4)"]
 constant ref.swap {α : Type} (r : @& ref α) (a : α) : io α     := default _
-@[extern 3 cpp inline "lean::ioRefReset(#2, #3)"]
+@[extern 3 cpp inline "lean::io_ref_reset(#2, #3)"]
 constant ref.reset {α : Type} (r : @& ref α) : io unit         := default _
 end prim
 

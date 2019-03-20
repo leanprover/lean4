@@ -141,18 +141,18 @@ abbrev unit : Type := punit
 structure thunk (α : Type u) : Type u :=
 (fn : unit → α)
 
-attribute [extern cpp inline "lean::mkThunk(#2)"] thunk.mk
+attribute [extern cpp inline "lean::mk_thunk(#2)"] thunk.mk
 
-@[noinline, extern cpp inline "lean::thunkPure(#2)"]
+@[noinline, extern cpp inline "lean::thunk_pure(#2)"]
 protected def thunk.pure {α : Type u} (a : α) : thunk α :=
 ⟨λ _, a⟩
-@[noinline, extern cpp inline "lean::thunkGet(#2)"]
+@[noinline, extern cpp inline "lean::thunk_get(#2)"]
 protected def thunk.get {α : Type u} (x : @& thunk α) : α :=
 x.fn ()
-@[noinline, extern cpp inline "lean::thunkMap(#3, #4)"]
+@[noinline, extern cpp inline "lean::thunk_map(#3, #4)"]
 protected def thunk.map {α : Type u} {β : Type v} (f : α → β) (x : thunk α) : thunk β :=
 ⟨λ _, f x.get⟩
-@[noinline, extern cpp inline "lean::thunkBind(#3, #4)"]
+@[noinline, extern cpp inline "lean::thunk_bind(#3, #4)"]
 protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → thunk β) : thunk β :=
 ⟨λ _, (f x.get).get⟩
 
@@ -160,18 +160,18 @@ protected def thunk.bind {α : Type u} {β : Type v} (x : thunk α) (f : α → 
 structure task (α : Type u) : Type u :=
 (fn : unit → α)
 
-attribute [extern cpp inline "lean::mkTask(#2)"] task.mk
+attribute [extern cpp inline "lean::mk_task(#2)"] task.mk
 
-@[noinline, extern cpp inline "lean::taskPure(#2)"]
+@[noinline, extern cpp inline "lean::task_pure(#2)"]
 protected def task.pure {α : Type u} (a : α) : task α :=
 ⟨λ _, a⟩
-@[noinline, extern cpp inline "lean::taskGet(#2)"]
+@[noinline, extern cpp inline "lean::task_get(#2)"]
 protected def task.get {α : Type u} (x : @& task α) : α :=
 x.fn ()
-@[noinline, extern cpp inline "lean::taskMap(#3, #4)"]
+@[noinline, extern cpp inline "lean::task_map(#3, #4)"]
 protected def task.map {α : Type u} {β : Type v} (f : α → β) (x : task α) : task β :=
 ⟨λ _, f x.get⟩
-@[noinline, extern cpp inline "lean::taskBind(#3, #4)"]
+@[noinline, extern cpp inline "lean::task_bind(#3, #4)"]
 protected def task.bind {α : Type u} {β : Type v} (x : task α) (f : α → task β) : task β :=
 ⟨λ _, (f x.get).get⟩
 
@@ -439,7 +439,7 @@ export hasInsert (insert)
 hasInsert.insert a ∅
 
 /- nat basic instances -/
-@[extern cpp "lean::natAdd"]
+@[extern cpp "lean::nat_add"]
 protected def nat.add : (@& nat) → (@& nat) → nat
 | a  nat.zero     := a
 | a  (nat.succ b) := nat.succ (nat.add a b)

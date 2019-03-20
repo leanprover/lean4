@@ -12,9 +12,9 @@ def uint8Sz : nat := 256
 structure uint8 :=
 (val : fin uint8Sz)
 
-@[extern cpp "lean::uint8OfNat"]
+@[extern cpp "lean::uint8_of_nat"]
 def uint8.ofNat (n : @& nat) : uint8 := ⟨fin.ofNat n⟩
-@[extern cpp "lean::uint8ToNat"]
+@[extern cpp "lean::uint8_to_nat"]
 def uint8.toNat (n : uint8) : nat := n.val.val
 @[extern cpp inline "#1 + #2"]
 def uint8.add (a b : uint8) : uint8 := ⟨a.val + b.val⟩
@@ -26,7 +26,7 @@ def uint8.mul (a b : uint8) : uint8 := ⟨a.val * b.val⟩
 def uint8.div (a b : uint8) : uint8 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
 def uint8.mod (a b : uint8) : uint8 := ⟨a.val % b.val⟩
-@[extern cpp "lean::uint8Modn"]
+@[extern cpp "lean::uint8_modn"]
 def uint8.modn (a : uint8) (n : @& nat) : uint8 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
 def uint8.land (a b : uint8) : uint8 := ⟨fin.land a.val b.val⟩
@@ -70,9 +70,9 @@ def uint16Sz : nat := 65536
 structure uint16 :=
 (val : fin uint16Sz)
 
-@[extern cpp "lean::uint16OfNat"]
+@[extern cpp "lean::uint16_of_nat"]
 def uint16.ofNat (n : @& nat) : uint16 := ⟨fin.ofNat n⟩
-@[extern cpp "lean::uint16ToNat"]
+@[extern cpp "lean::uint16_to_nat"]
 def uint16.toNat (n : uint16) : nat := n.val.val
 @[extern cpp inline "#1 + #2"]
 def uint16.add (a b : uint16) : uint16 := ⟨a.val + b.val⟩
@@ -84,7 +84,7 @@ def uint16.mul (a b : uint16) : uint16 := ⟨a.val * b.val⟩
 def uint16.div (a b : uint16) : uint16 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
 def uint16.mod (a b : uint16) : uint16 := ⟨a.val % b.val⟩
-@[extern cpp "lean::uint16Modn"]
+@[extern cpp "lean::uint16_modn"]
 def uint16.modn (a : uint16) (n : @& nat) : uint16 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
 def uint16.land (a b : uint16) : uint16 := ⟨fin.land a.val b.val⟩
@@ -128,9 +128,9 @@ def uint32Sz : nat := 4294967296
 structure uint32 :=
 (val : fin uint32Sz)
 
-@[extern cpp "lean::uint32OfNat"]
+@[extern cpp "lean::uint32_of_nat"]
 def uint32.ofNat (n : @& nat) : uint32 := ⟨fin.ofNat n⟩
-@[extern cpp "lean::uint32ToNat"]
+@[extern cpp "lean::uint32_to_nat"]
 def uint32.toNat (n : uint32) : nat := n.val.val
 @[extern cpp inline "#1 + #2"]
 def uint32.add (a b : uint32) : uint32 := ⟨a.val + b.val⟩
@@ -142,7 +142,7 @@ def uint32.mul (a b : uint32) : uint32 := ⟨a.val * b.val⟩
 def uint32.div (a b : uint32) : uint32 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
 def uint32.mod (a b : uint32) : uint32 := ⟨a.val % b.val⟩
-@[extern cpp "lean::uint32Modn"]
+@[extern cpp "lean::uint32_modn"]
 def uint32.modn (a : uint32) (n : @& nat) : uint32 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
 def uint32.land (a b : uint32) : uint32 := ⟨fin.land a.val b.val⟩
@@ -186,9 +186,9 @@ def uint64Sz : nat := 18446744073709551616
 structure uint64 :=
 (val : fin uint64Sz)
 
-@[extern cpp "lean::uint64OfNat"]
+@[extern cpp "lean::uint64_of_nat"]
 def uint64.ofNat (n : @& nat) : uint64 := ⟨fin.ofNat n⟩
-@[extern cpp "lean::uint64ToNat"]
+@[extern cpp "lean::uint64_to_nat"]
 def uint64.toNat (n : uint64) : nat := n.val.val
 @[extern cpp inline "#1 + #2"]
 def uint64.add (a b : uint64) : uint64 := ⟨a.val + b.val⟩
@@ -200,7 +200,7 @@ def uint64.mul (a b : uint64) : uint64 := ⟨a.val * b.val⟩
 def uint64.div (a b : uint64) : uint64 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
 def uint64.mod (a b : uint64) : uint64 := ⟨a.val % b.val⟩
-@[extern cpp "lean::uint64Modn"]
+@[extern cpp "lean::uint64_modn"]
 def uint64.modn (a : uint64) (n : @& nat) : uint64 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
 def uint64.land (a b : uint64) : uint64 := ⟨fin.land a.val b.val⟩
@@ -244,9 +244,9 @@ def usizeSz : nat := (2:nat) ^ system.platform.nbits
 structure usize :=
 (val : fin usizeSz)
 
-@[extern cpp "lean::usizeOfNat"]
+@[extern cpp "lean::usize_of_nat"]
 def usize.ofNat (n : @& nat) : usize := ⟨fin.ofNat n⟩
-@[extern cpp "lean::usizeToNat"]
+@[extern cpp "lean::usize_to_nat"]
 def usize.toNat (n : usize) : nat := n.val.val
 @[extern cpp inline "#1 + #2"]
 def usize.add (a b : usize) : usize := ⟨a.val + b.val⟩
@@ -258,7 +258,7 @@ def usize.mul (a b : usize) : usize := ⟨a.val * b.val⟩
 def usize.div (a b : usize) : usize := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
 def usize.mod (a b : usize) : usize := ⟨a.val % b.val⟩
-@[extern cpp "lean::usizeModn"]
+@[extern cpp "lean::usize_modn"]
 def usize.modn (a : usize) (n : @& nat) : usize := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
 def usize.land (a b : usize) : usize := ⟨fin.land a.val b.val⟩

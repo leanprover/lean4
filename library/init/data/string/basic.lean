@@ -13,10 +13,10 @@ import init.data.option.basic
 structure string :=
 (data : list char)
 
-attribute [extern cpp "lean::stringMk"] string.mk
-attribute [extern cpp "lean::stringData"] string.data
+attribute [extern cpp "lean::string_mk"] string.mk
+attribute [extern cpp "lean::string_data"] string.data
 
-@[extern cpp "lean::stringDecEq"]
+@[extern cpp "lean::string_dec_eq"]
 def string.decEq (s₁ s₂ : @& string) : decidable (s₁ = s₂) :=
 match s₁, s₂ with
 | ⟨s₁⟩, ⟨s₂⟩ :=
@@ -34,23 +34,23 @@ instance : hasLt string :=
 ⟨λ s₁ s₂, s₁.data < s₂.data⟩
 
 /- Remark: this function has a VM builtin efficient implementation. -/
-@[extern cpp "lean::stringDecLt"]
+@[extern cpp "lean::string_dec_lt"]
 instance decLt (s₁ s₂ : @& string) : decidable (s₁ < s₂) :=
 list.hasDecidableLt s₁.data s₂.data
 
-@[extern cpp "lean::stringLength"]
+@[extern cpp "lean::string_length"]
 def length : (@& string) → nat
 | ⟨s⟩  := s.length
 
 /- The internal implementation uses dynamic arrays and will perform destructive updates
    if the string is not shared. -/
-@[extern cpp "lean::stringPush"]
+@[extern cpp "lean::string_push"]
 def push : string → char → string
 | ⟨s⟩ c := ⟨s ++ [c]⟩
 
 /- The internal implementation uses dynamic arrays and will perform destructive updates
    if the string is not shared. -/
-@[extern cpp "lean::stringAppend"]
+@[extern cpp "lean::string_append"]
 def append : string → (@& string) → string
 | ⟨a⟩ ⟨b⟩ := ⟨a ++ b⟩
 
@@ -65,7 +65,7 @@ private def utf8ByteSizeAux : list char → usize → usize
 | []      r := r
 | (c::cs) r := utf8ByteSizeAux cs (r + csize c)
 
-@[extern cpp "lean::stringUtf8ByteSize"]
+@[extern cpp "lean::string_utf8_byte_size"]
 def utf8ByteSize : (@& string) → usize
 | ⟨s⟩ := utf8ByteSizeAux s 0
 
@@ -80,7 +80,7 @@ private def utf8GetAux : list char → usize → usize → char
 | []      i p := default char
 | (c::cs) i p := if i = p then c else utf8GetAux cs (i + csize c) p
 
-@[extern cpp "lean::stringUtf8Get"]
+@[extern cpp "lean::string_utf8_get"]
 def utf8Get : (@& string) → utf8Pos → char
 | ⟨s⟩ p := utf8GetAux s 0 p
 
@@ -89,11 +89,11 @@ private def utf8SetAux (c' : char) : list char → usize → usize → list char
 | (c::cs) i p :=
   if i = p then (c'::cs) else c::(utf8SetAux cs (i + csize c) p)
 
-@[extern cpp "lean::stringUtf8Set"]
+@[extern cpp "lean::string_utf8_set"]
 def utf8Set : string → utf8Pos → char → string
 | ⟨s⟩ i c := ⟨utf8SetAux c s 0 i⟩
 
-@[extern cpp "lean::stringUtf8Next"]
+@[extern cpp "lean::string_utf8_next"]
 def utf8Next (s : @& string) (p : utf8Pos) : utf8Pos :=
 let c := utf8Get s p in
 p + csize c
@@ -105,7 +105,7 @@ private def utf8PrevAux : list char → usize → usize → usize
   let i' := i + cz in
   if i' = p then i else utf8PrevAux cs i' p
 
-@[extern cpp "lean::stringUtf8Prev"]
+@[extern cpp "lean::string_utf8_prev"]
 def utf8Prev : (@& string) → utf8Pos → utf8Pos
 | ⟨s⟩ p := if p = 0 then 0 else utf8PrevAux s 0 p
 
@@ -115,7 +115,7 @@ utf8Get s 0
 def back (s : string) : char :=
 utf8Get s (utf8Prev s (bsize s))
 
-@[extern cpp "lean::stringUtf8AtEnd"]
+@[extern cpp "lean::string_utf8_at_end"]
 def utf8AtEnd : (@& string) → utf8Pos → bool
 | s p := p ≥ utf8ByteSize s
 
@@ -127,7 +127,7 @@ private def utf8ExtractAux₁ : list char → usize → usize → usize → list
 | []        _ _ _ := []
 | s@(c::cs) i b e := if i = b then utf8ExtractAux₂ s i e else utf8ExtractAux₁ cs (i + csize c) b e
 
-@[extern cpp "lean::stringUtf8Extract"]
+@[extern cpp "lean::string_utf8_extract"]
 def extract : (@& string) → utf8Pos → utf8Pos → string
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
 

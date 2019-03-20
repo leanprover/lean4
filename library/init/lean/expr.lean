@@ -49,18 +49,18 @@ inductive expr
 instance exprIsInhabited : inhabited expr :=
 ⟨expr.sort level.zero⟩
 
-attribute [extern "leanExprMkBvar"]   expr.bvar
-attribute [extern "leanExprMkFvar"]   expr.fvar
-attribute [extern "leanExprMkMvar"]   expr.mvar
-attribute [extern "leanExprMkSort"]   expr.sort
-attribute [extern "leanExprMkConst"]  expr.const
-attribute [extern "leanExprMkApp"]    expr.app
-attribute [extern "leanExprMkLambda"] expr.lam
-attribute [extern "leanExprMkPi"]     expr.pi
-attribute [extern "leanExprMkLet"]    expr.elet
-attribute [extern "leanExprMkLit"]    expr.lit
-attribute [extern "leanExprMkMdata"]  expr.mdata
-attribute [extern "leanExprMkProj"]   expr.proj
+attribute [extern "lean_expr_mk_bvar"]   expr.bvar
+attribute [extern "lean_expr_mk_fvar"]   expr.fvar
+attribute [extern "lean_expr_mk_mvar"]   expr.mvar
+attribute [extern "lean_expr_mk_sort"]   expr.sort
+attribute [extern "lean_expr_mk_const"]  expr.const
+attribute [extern "lean_expr_mk_app"]    expr.app
+attribute [extern "lean_expr_mk_lambda"] expr.lam
+attribute [extern "lean_expr_mk_pi"]     expr.pi
+attribute [extern "lean_expr_mk_let"]    expr.elet
+attribute [extern "lean_expr_mk_lit"]    expr.lit
+attribute [extern "lean_expr_mk_mdata"]  expr.mdata
+attribute [extern "lean_expr_mk_proj"]   expr.proj
 
 namespace expr
 def mkApp (fn : expr) (args : list expr) : expr :=
@@ -69,10 +69,10 @@ args.foldl expr.app fn
 def mkCapp (fn : name) (args : list expr) : expr :=
 mkApp (expr.const fn []) args
 
-@[extern "leanExprHash"]
+@[extern "lean_expr_hash"]
 constant hash (n : @& expr) : usize := default usize
 
-@[extern "leanExprDbgToString"]
+@[extern "lean_expr_dbg_to_string"]
 constant dbgToString (e : @& expr) : string := default string
 
 end expr

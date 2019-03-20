@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import re
+import regex as re
 import os
 import sys
 
@@ -10,7 +10,7 @@ def to_camel_case(snake_str):
     # with the 'title' method and join them together.
     return components[0] + ''.join(x.title() for x in components[1:])
 
-snake = re.compile("[^\W_]+_\w+", re.MULTILINE)
+snake = re.compile(r"(?<!(#|lean::|\[export )\w*|\[extern [^]]*)[^\W_]+_\w+", re.MULTILINE)
 fpath = sys.argv[1]
 with open(fpath) as f:
     s = f.read()

@@ -9,7 +9,7 @@ import init.data.uint
 n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
 /-- The `char` type represents an unicode scalar value.
-    See http://www.unicode.org/glossary/#unicodeScalarValue). -/
+    See http://www.unicode.org/glossary/#unicode_scalar_value). -/
 structure char :=
 (val : uint32) (valid : isValidChar val)
 

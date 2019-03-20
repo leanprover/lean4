@@ -11,7 +11,7 @@ notation `ℕ` := nat
 
 namespace nat
 
-@[extern cpp "lean::natDecEq"]
+@[extern cpp "lean::nat_dec_eq"]
 def beq : nat → nat → bool
 | zero     zero     := tt
 | zero     (succ m) := ff
@@ -36,7 +36,7 @@ theorem neOfBeqEqFf : ∀ {n m : nat}, beq n m = ff → n ≠ m
   have n ≠ m, from neOfBeqEqFf this,
   nat.noConfusion h₂ (λ h₂, absurd h₂ this)
 
-@[extern cpp "lean::natDecEq"]
+@[extern cpp "lean::nat_dec_eq"]
 protected def decEq (n m : @& nat) : decidable (n = m) :=
 if h : beq n m = tt then isTrue (eqOfBeqEqTt h)
 else isFalse (neOfBeqEqFf (eqFfOfNeTt h))
@@ -44,7 +44,7 @@ else isFalse (neOfBeqEqFf (eqFfOfNeTt h))
 @[inline] instance : decidableEq nat :=
 {decEq := nat.decEq}
 
-@[extern cpp "lean::natDecLe"]
+@[extern cpp "lean::nat_dec_le"]
 def ble : nat → nat → bool
 | zero     zero     := tt
 | zero     (succ m) := tt
@@ -63,17 +63,17 @@ nat.le (succ n) m
 instance : hasLt nat :=
 ⟨nat.lt⟩
 
-@[extern cpp inline "lean::natSub(#1, lean::box(1))"]
+@[extern cpp inline "lean::nat_sub(#1, lean::box(1))"]
 def pred : nat → nat
 | 0     := 0
 | (a+1) := a
 
-@[extern cpp "lean::natSub"]
+@[extern cpp "lean::nat_sub"]
 protected def sub : (@& nat) → (@& nat) → nat
 | a 0     := a
 | a (b+1) := pred (sub a b)
 
-@[extern cpp "lean::natMul"]
+@[extern cpp "lean::nat_mul"]
 protected def mul : (@& nat) → (@& nat) → nat
 | a 0     := 0
 | a (b+1) := (mul a b) + a
@@ -259,11 +259,11 @@ theorem predLePred : ∀ {n m : nat}, n ≤ m → pred n ≤ pred m
 theorem leOfSuccLeSucc {n m : nat} : succ n ≤ succ m → n ≤ m :=
 predLePred
 
-@[extern cpp "lean::natDecLe"]
+@[extern cpp "lean::nat_dec_le"]
 instance decLe (n m : @& nat) : decidable (n ≤ m) :=
 decEq (ble n m) tt
 
-@[extern cpp "lean::natDecLt"]
+@[extern cpp "lean::nat_dec_lt"]
 instance decLt (n m : @& nat) : decidable (n < m) :=
 nat.decLe (succ n) m
 

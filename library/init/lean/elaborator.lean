@@ -15,10 +15,10 @@ namespace lean
 -- TODO(Sebastian): should probably be meta together with the whole elaborator
 constant environment : Type := unit
 
-@[extern "leanEnvironmentContains"]
+@[extern "lean_environment_contains"]
 constant environment.contains (env : @& environment) (n : @& name) : bool := ff
 -- deprecated constructor
-@[extern "leanExprLocal"]
+@[extern "lean_expr_local"]
 constant expr.local (n : name) (pp : name) (ty : expr) (bi : binderInfo) : expr := default expr
 
 namespace elaborator
@@ -44,7 +44,7 @@ structure oldElaboratorState :=
 (nextInstIdx : nat)
 (ns : name)
 
-@[extern "leanElaboratorElaborateCommand"]
+@[extern "lean_elaborator_elaborate_command"]
 constant elaborateCommand (filename : @& string) (e : expr) (s : @& oldElaboratorState) : option oldElaboratorState × messageLog := (none, ⟨[]⟩)
 
 open parser

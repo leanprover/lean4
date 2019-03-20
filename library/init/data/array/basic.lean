@@ -18,13 +18,13 @@ structure array (α : Type u) :=
 (sz   : nat)
 (data : fin sz → α)
 
-attribute [extern cpp inline "lean::arraySz(#2)"] array.sz
+attribute [extern cpp inline "lean::array_sz(#2)"] array.sz
 
-@[extern cpp inline "lean::arrayGetSize(#2)"]
+@[extern cpp inline "lean::array_get_size(#2)"]
 def array.size {α : Type u} (a : @& array α) : nat :=
 a.sz
 
-@[extern cpp inline "lean::mkArray(#2, #3)"]
+@[extern cpp inline "lean::mk_array(#2, #3)"]
 def mkArray {α : Type u} (n : nat) (v : α) : array α :=
 { sz   := n,
   data := λ _, v}
@@ -35,7 +35,7 @@ rfl
 namespace array
 variables {α : Type u} {β : Type v}
 
-@[extern cpp inline "lean::mkNilArray()"]
+@[extern cpp inline "lean::mk_nil_array()"]
 def mkNil (_ : unit) : array α :=
 { sz   := 0,
   data := λ ⟨x, h⟩, absurd h (nat.notLtZero x) }
@@ -46,11 +46,11 @@ mkNil ()
 def empty (a : array α) : bool :=
 a.size = 0
 
-@[extern cpp inline "lean::arrayRead(#2, #3)"]
+@[extern cpp inline "lean::array_read(#2, #3)"]
 def read (a : @& array α) (i : @& fin a.sz) : α :=
 a.data i
 
-@[extern cpp inline "lean::arrayWrite(#2, #3, #4)"]
+@[extern cpp inline "lean::array_write(#2, #3, #4)"]
 def write (a : array α) (i : @& fin a.sz) (v : α) : array α :=
 { sz   := a.sz,
   data := λ j, if h : i = j then v else a.data j }
@@ -58,38 +58,38 @@ def write (a : array α) (i : @& fin a.sz) (v : α) : array α :=
 theorem szWriteEq (a : array α) (i : fin a.sz) (v : α) : (write a i v).sz = a.sz :=
 rfl
 
-@[extern cpp inline "lean::arraySafeRead(#2, #3, #4)"]
+@[extern cpp inline "lean::array_safe_read(#2, #3, #4)"]
 def read' [inhabited α] (a : @& array α) (i : @& nat) : α :=
 if h : i < a.sz then a.read ⟨i, h⟩ else default α
 
-@[extern cpp inline "lean::arraySafeWrite(#2, #3, #4)"]
+@[extern cpp inline "lean::array_safe_write(#2, #3, #4)"]
 def write' (a : array α) (i : @& nat) (v : α) : array α :=
 if h : i < a.sz then a.write ⟨i, h⟩ v else a
 
-@[extern cpp inline "lean::arrayUread(#2, #3)"]
+@[extern cpp inline "lean::array_uread(#2, #3)"]
 def uread (a : @& array α) (i : usize) (h : i.toNat < a.sz) : α :=
 a.read ⟨i.toNat, h⟩
 
-@[extern cpp inline "lean::arrayUwrite(#2, #3, #4)"]
+@[extern cpp inline "lean::array_uwrite(#2, #3, #4)"]
 def uwrite (a : @& array α) (i : usize) (v : @& α) (h : i.toNat < a.sz) : array α :=
 a.write ⟨i.toNat, h⟩ v
 
-@[extern cpp inline "lean::arraySafeUread(#2, #3, #4)"]
+@[extern cpp inline "lean::array_safe_uread(#2, #3, #4)"]
 def uread' [inhabited α] (a : array α) (i : usize) : α :=
 if h : i.toNat < a.sz then a.read ⟨i.toNat, h⟩ else default α
 
-@[extern cpp inline "lean::arraySafeUwrite(#2, #3, #4)"]
+@[extern cpp inline "lean::array_safe_uwrite(#2, #3, #4)"]
 def uwrite' (a : array α) (i : usize) (v : α) : array α :=
 if h : i.toNat < a.sz then a.write ⟨i.toNat, h⟩ v else a
 
-@[extern cpp inline "lean::arrayPush(#2, #3)"]
+@[extern cpp inline "lean::array_push(#2, #3)"]
 def push (a : array α) (v : α) : array α :=
 { sz   := nat.succ a.sz,
   data := λ ⟨j, h₁⟩,
     if h₂ : j = a.sz then v
     else a.data ⟨j, nat.ltOfLeOfNe (nat.leOfLtSucc h₁) h₂⟩ }
 
-@[extern cpp inline "lean::arrayPop(#2)"]
+@[extern cpp inline "lean::array_pop(#2)"]
 def pop (a : array α) : array α :=
 { sz   := nat.pred a.sz,
   data := λ ⟨j, h⟩, a.read ⟨j, nat.ltOfLtOfLe h (nat.predLe _)⟩ }

@@ -69,7 +69,7 @@ def runFrontend (filename input : string) (printMsg : message → io unit) (coll
     }
   }
 
-@[export leanProcessFile]
+@[export lean_process_file]
 def processFile (f s : string) (json : bool) : stateT environment io unit := do
   let printMsg : message → io unit := λ msg,
     if json then

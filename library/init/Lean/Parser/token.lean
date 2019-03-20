@@ -116,7 +116,7 @@ instance rawStr.viewDefault (s) (t) : Parser.HasViewDefault (rawStr s t : Parser
 
 end
 
-setOption class.instanceMaxDepth 200
+set_option class.instance_max_depth 200
 
 @[derive HasTokens HasView]
 def detailIdentPart.Parser : BasicParserM Syntax :=

@@ -296,7 +296,7 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-attribute [ppUsingAnonymousConstructor] Sigma Psigma Subtype Pprod and
+attribute [ppAnonymousCtor] Sigma Psigma Subtype Pprod and
 
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable
@@ -1392,7 +1392,7 @@ end Plift
 
 /- pointed types -/
 structure PointedType :=
-(Type : Type u) (val : Type)
+(type : Type u) (val : type)
 
 /- Inhabited -/
 
@@ -1420,7 +1420,7 @@ instance : Inhabited True := ⟨trivial⟩
 
 instance : Inhabited Nat := ⟨0⟩
 
-instance : Inhabited PointedType := ⟨{Type := Punit, val := ⟨⟩}⟩
+instance : Inhabited PointedType := ⟨{type := Punit, val := ⟨⟩}⟩
 
 class inductive nonempty (α : Sort u) : Prop
 | intro (val : α) : nonempty

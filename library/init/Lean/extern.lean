@@ -24,8 +24,8 @@ inductive ExternEntry
    encoding: ```.entries = [adhoc `all]```
 - `@[extern "level_hash"]`
    encoding: ```.entries = [standard `all "levelHash"]```
-- `@[extern cpp "Lean::string_size" llvm "lean_str_size"]`
-   encoding: ```.entries = [standard `cpp "Lean::string_size", standard `llvm "leanStrSize"]```
+- `@[extern cpp "lean::string_size" llvm "lean_str_size"]`
+   encoding: ```.entries = [standard `cpp "lean::string_size", standard `llvm "leanStrSize"]```
 - `@[extern cpp inline "#1 + #2"]`
    encoding: ```.entries = [inline `cpp "#1 + #2"]```
 - `@[extern cpp "foo" llvm adhoc]`

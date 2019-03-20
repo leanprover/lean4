@@ -13,7 +13,7 @@ private def divRecLemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
 private def div.F (x : Nat) (f : Π x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
 if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y + 1 else zero
 
-@[extern cpp "Lean::nat_div"]
+@[extern cpp "lean::nat_div"]
 protected def div (a b : @& Nat) : Nat :=
 WellFounded.fix ltWf div.F a b
 
@@ -45,7 +45,7 @@ WellFounded.fix Nat.ltWf (div.induction.F C h₁ h₂) x y
 private def mod.F (x : Nat) (f : Π x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
 if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y else x
 
-@[extern cpp "Lean::nat_mod"]
+@[extern cpp "lean::nat_mod"]
 protected def mod (a b : @& Nat) : Nat :=
 WellFounded.fix ltWf mod.F a b
 

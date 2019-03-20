@@ -31,7 +31,7 @@ structure NameGenerator :=
 structure SectionVar :=
 (uniqName : Name)
 (BinderInfo : BinderInfo)
-(Type : Expr)
+(type : Expr)
 
 /-- Simplified State of the Lean 3 Parser. Maps are replaced with lists for easier interop. -/
 structure OldElaboratorState :=
@@ -153,7 +153,7 @@ def levelGetAppArgs : Syntax → ElaboratorM (Syntax × List Syntax)
 | stx := do
   match stx.kind with
   | some Level.leading := pure (stx, [])
-  | some Level.trailing := (match View Level.trailing stx with
+  | some Level.trailing := (match view Level.trailing stx with
     | Level.trailing.View.app lta := do
       (fn, args) ← levelGetAppArgs lta.fn,
       pure (fn, lta.Arg :: args)
@@ -169,7 +169,7 @@ def toLevel : Syntax → ElaboratorM Level
   (fn, args) ← levelGetAppArgs stx,
   sc ← currentScope,
   match fn.kind with
-  | some Level.leading := (match View Level.leading fn, args with
+  | some Level.leading := (match view Level.leading fn, args with
     | Level.leading.View.hole _, [] := pure $ Level.mvar Name.anonymous
     | Level.leading.View.lit lit, [] := pure $ Level.ofNat lit.toNat
     | Level.leading.View.var id, [] := let id := mangleIdent id in (match sc.univs.find id with
@@ -178,7 +178,7 @@ def toLevel : Syntax → ElaboratorM Level
     | Level.leading.View.max _, (Arg::args) := List.foldr Level.max <$> toLevel Arg <*> args.mmap toLevel
     | Level.leading.View.imax _, (Arg::args) := List.foldr Level.imax <$> toLevel Arg <*> args.mmap toLevel
     | _, _ := error stx "ill-formed universe Level")
-  | some Level.trailing := (match View Level.trailing fn, args with
+  | some Level.trailing := (match view Level.trailing fn, args with
     | Level.trailing.View.addLit lta, [] := do
       l ← toLevel lta.lhs,
       pure $ levelAdd l lta.rhs.toNat
@@ -190,9 +190,9 @@ Expr.mdata (Kvmap.setName {} `annotation ann) e
 
 def dummy : Expr := Expr.const `Prop []
 
-def mkEqns (Type : Expr) (eqns : List (Name × List Expr × Expr)): Expr :=
+def mkEqns (type : Expr) (eqns : List (Name × List Expr × Expr)): Expr :=
   let eqns := eqns.map $ λ ⟨fn, lhs, rhs⟩, do {
-    let fn := Expr.local fn fn Type BinderInfo.auxDecl,
+    let fn := Expr.local fn fn type BinderInfo.auxDecl,
     let lhs := Expr.mkApp (Expr.mkAnnotation `@ fn) lhs,
     Expr.app lhs rhs
   } in
@@ -202,42 +202,42 @@ def toPexpr : Syntax → ElaboratorM Expr
 | stx@(Syntax.rawNode {kind := k, args := args}) := do
   e ← match k with
   | @identUnivs := do
-    let v := View identUnivs stx,
+    let v := view identUnivs stx,
     e ← match v with
     | {id := id, univs := some univs} := Expr.const (mangleIdent id) <$> univs.levels.mmap toLevel
     | {id := id, univs := none}       := pure $ Expr.const (mangleIdent id) [],
     let m := Kvmap.setName {} `annotation `preresolved,
     let m := v.id.preresolved.enum.foldl (λ m ⟨i, n⟩, Kvmap.setName m (Name.anonymous.mkNumeral i) n) m,
     pure $ Expr.mdata m e
-  | @app   := let v := View app stx in
+  | @app   := let v := view app stx in
     Expr.app <$> toPexpr v.fn <*> toPexpr v.Arg
   | @lambda := do
-    let lam := View lambda stx,
+    let lam := view lambda stx,
     binders.View.simple bnder ← pure lam.binders
       | error stx "ill-formed lambda",
-    (bi, id, Type) ← pure bnder.toBinderInfo,
-    Expr.lam (mangleIdent id) bi <$> toPexpr Type <*> toPexpr lam.body
+    (bi, id, type) ← pure bnder.toBinderInfo,
+    Expr.lam (mangleIdent id) bi <$> toPexpr type <*> toPexpr lam.body
   | @pi := do
-    let v := View pi stx,
+    let v := view pi stx,
     binders.View.simple bnder ← pure v.binders
       | error stx "ill-formed pi",
-    (bi, id, Type) ← pure bnder.toBinderInfo,
-    Expr.pi (mangleIdent id) bi <$> toPexpr Type <*> toPexpr v.range
-  | @sort := (match View sort stx with
+    (bi, id, type) ← pure bnder.toBinderInfo,
+    Expr.pi (mangleIdent id) bi <$> toPexpr type <*> toPexpr v.range
+  | @sort := (match view sort stx with
     | sort.View.Sort _ := pure $ Expr.sort Level.zero
     | sort.View.Type _ := pure $ Expr.sort $ Level.succ Level.zero)
   | @sortApp := do
-    let v := View sortApp stx,
-    (match View sort v.fn with
+    let v := view sortApp stx,
+    (match view sort v.fn with
      | sort.View.Sort _ := Expr.sort <$> toLevel v.Arg
      | sort.View.Type _ := (Expr.sort ∘ Level.succ) <$> toLevel v.Arg)
   | @anonymousConstructor := do
-    let v := View anonymousConstructor stx,
+    let v := view anonymousConstructor stx,
     p ← toPexpr $ mkApp (review hole {}) (v.args.map SepBy.Elem.View.item),
     pure $ Expr.mkAnnotation `anonymousConstructor p
   | @hole := pure $ Expr.mvar Name.anonymous dummy
   | @«have» := do
-    let v := View «have» stx,
+    let v := view «have» stx,
     let id := (mangleIdent <$> optIdent.View.id <$> v.id).getOrElse `this,
     let proof := match v.proof with
     | haveProof.View.Term hpt := hpt.Term
@@ -245,38 +245,38 @@ def toPexpr : Syntax → ElaboratorM Expr
     lam ← Expr.lam id BinderInfo.default <$> toPexpr v.prop <*> toPexpr v.body,
     Expr.app (Expr.mkAnnotation `have lam) <$> toPexpr proof
   | @«show» := do
-    let v := View «show» stx,
+    let v := view «show» stx,
     prop ← toPexpr v.prop,
     proof ← toPexpr v.from.proof,
     pure $ Expr.mkAnnotation `show $ Expr.app (Expr.lam `this BinderInfo.default prop $ Expr.bvar 0) proof
   | @«let» := do
-    let v := View «let» stx,
-    letLhs.View.id {id := id, binders := [], Type := some ty} ← pure v.lhs
+    let v := view «let» stx,
+    letLhs.View.id {id := id, binders := [], type := some ty} ← pure v.lhs
       | error stx "ill-formed let",
-    Expr.elet (mangleIdent id) <$> toPexpr ty.Type <*> toPexpr v.value <*> toPexpr v.body
+    Expr.elet (mangleIdent id) <$> toPexpr ty.type <*> toPexpr v.value <*> toPexpr v.body
   | @projection := do
-    let v := View projection stx,
+    let v := view projection stx,
     let val := match v.proj with
     | projectionSpec.View.id id := DataValue.ofName id.val
     | projectionSpec.View.num n := DataValue.ofNat n.toNat,
     Expr.mdata (Kvmap.insert {} `fieldNotation val) <$> toPexpr v.Term
   | @explicit := do
-    let v := View explicit stx,
+    let v := view explicit stx,
     let ann := match v.mod with
     | explicitModifier.View.explicit _         := `@
     | explicitModifier.View.partialExplicit _ := `@@,
     Expr.mkAnnotation ann <$> toPexpr (review identUnivs v.id)
   | @inaccessible := do
-    let v := View inaccessible stx,
+    let v := view inaccessible stx,
     Expr.mkAnnotation `innaccessible <$> toPexpr v.Term  -- sic
   | @borrowed := do
-    let v := View borrowed stx,
+    let v := view borrowed stx,
     Expr.mkAnnotation `borrowed <$> toPexpr v.Term
   | @number := do
-    let v := View number stx,
+    let v := view number stx,
     pure $ Expr.lit $ Literal.natVal v.toNat
   | @stringLit := do
-    let v := View stringLit stx,
+    let v := view stringLit stx,
     pure $ Expr.lit $ Literal.strVal (v.value.getOrElse "NOTAString")
   | @choice := do
     last::rev ← List.reverse <$> args.mmap (λ a, toPexpr a)
@@ -284,7 +284,7 @@ def toPexpr : Syntax → ElaboratorM Expr
     pure $ Expr.mdata (Kvmap.setNat {} `choice args.length) $
       rev.reverse.foldr Expr.app last
   | @structInst := do
-    let v := View structInst stx,
+    let v := view structInst stx,
     -- order should be: fields*, sources*, catchall?
     let (fields, other) := v.items.span (λ it, ↑match SepBy.Elem.View.item it with
       | structInstItem.View.field _ := tt
@@ -311,30 +311,30 @@ def toPexpr : Syntax → ElaboratorM Expr
     let m := Kvmap.setNat {} "structure instance" fields.length,
     let m := Kvmap.setBool m `catchall catchall,
     let m := Kvmap.setName m `struct $
-      (mangleIdent <$> structInstType.View.id <$> v.Type).getOrElse Name.anonymous,
+      (mangleIdent <$> structInstType.View.id <$> v.type).getOrElse Name.anonymous,
     let dummy := Expr.sort Level.zero,
     pure $ Expr.mdata m $ (fields ++ sources).foldr Expr.app dummy
   | @«match» := do
-    let v := View «match» stx,
+    let v := view «match» stx,
     eqns ← (v.equations.map SepBy.Elem.View.item).mmap $ λ (eqn : matchEquation.View), do {
       lhs ← eqn.lhs.mmap $ λ l, toPexpr l.item,
       rhs ← toPexpr eqn.rhs,
       pure (`_matchFn, lhs, rhs)
     },
-    Type ← toPexpr $ getOptType v.Type,
-    let eqns := mkEqns Type eqns,
+    type ← toPexpr $ getOptType v.type,
+    let eqns := mkEqns type eqns,
     Expr.mdata mdata e ← pure eqns
       | error stx "toPexpr: unreachable",
     let eqns := Expr.mdata (mdata.setBool `match tt) e,
     Expr.mkApp eqns <$> v.scrutinees.mmap (λ scr, toPexpr scr.item)
-  | _ := error stx $ "toPexpr: unexpected Node: " ++ toString k.Name,
+  | _ := error stx $ "toPexpr: unexpected Node: " ++ toString k.name,
   (match k with
   | @app := pure e -- no Position
   | _ := do
     cfg ← read,
     match stx.getPos with
     | some pos :=
-      let pos := cfg.FileMap.toPosition pos in
+      let pos := cfg.fileMap.toPosition pos in
       pure $ Expr.mdata ((Kvmap.setNat {} `column pos.column).setNat `row pos.line) e
     | none := pure e)
 | stx := error stx $ "toPexpr: unexpected: " ++ toString stx
@@ -348,7 +348,7 @@ def getNamespace : ElaboratorM Name := do
 
 def oldElabCommand (stx : Syntax) (cmd : Expr) : ElaboratorM unit :=
 do cfg ← read,
-   let pos := cfg.FileMap.toPosition $ stx.getPos.getOrElse (default _),
+   let pos := cfg.fileMap.toPosition $ stx.getPos.getOrElse (default _),
    let cmd := match cmd with
    | Expr.mdata m e := Expr.mdata ((Kvmap.setNat m `column pos.column).setNat `row pos.line) e
    | e := e,
@@ -409,10 +409,10 @@ def locally (elab : ElaboratorM unit) :
 
 def simpleBindersToPexpr (bindrs : List simpleBinder.View) : ElaboratorM Expr :=
 Expr.mkCapp `_ <$> bindrs.mmap (λ b, do
-  let (bi, id, Type) := b.toBinderInfo,
+  let (bi, id, type) := b.toBinderInfo,
   let id := mangleIdent id,
-  Type ← toPexpr Type,
-  pure $ Expr.local id id Type bi)
+  type ← toPexpr type,
+  pure $ Expr.local id id type bi)
 
 def elabDefLike (stx : Syntax) (mods : declModifiers.View) (dl : defLike.View) (kind : Nat) : ElaboratorM unit :=
 match dl with
@@ -430,19 +430,19 @@ match dl with
   | some uparams := uparams.ids.map mangleIdent
   | none := [],
   let id := mangleIdent dl.Name.id,
-  let Type := getOptType dl.sig.Type,
-  Type ← toPexpr Type,
-  let fns := Expr.mkCapp `_ [Expr.local id id Type BinderInfo.auxDecl],
+  let type := getOptType dl.sig.type,
+  type ← toPexpr type,
+  let fns := Expr.mkCapp `_ [Expr.local id id type BinderInfo.auxDecl],
   val ← match dl.val with
   | declVal.View.simple val  := toPexpr val.body
-  | declVal.View.emptyMatch _ := pure $ mkEqns Type []
+  | declVal.View.emptyMatch _ := pure $ mkEqns type []
   | declVal.View.match eqns  := do {
     eqns ← eqns.mmap (λ (eqn : equation.View), do
       lhs ← eqn.lhs.mmap toPexpr,
       rhs ← toPexpr eqn.rhs,
       pure (id, lhs, rhs)
     ),
-    pure $ mkEqns Type eqns
+    pure $ mkEqns type eqns
   },
   params ← simpleBindersToPexpr bbs,
   oldElabCommand stx $ Expr.mdata mdata $ Expr.mkCapp `_ [mods, kind, uparams, fns, params, val]
@@ -456,14 +456,14 @@ Expr.lit $ Literal.natVal $ match mod with
 
 def Declaration.elaborate : Elaborator :=
 λ stx, locally $ do
-  let Decl := View «Declaration» stx,
+  let Decl := view «Declaration» stx,
   match Decl.inner with
-  | Declaration.inner.View.«axiom» c@{sig := {params := bracketedBinders.View.simple [], Type := Type}, ..} := do
+  | Declaration.inner.View.«axiom» c@{sig := {params := bracketedBinders.View.simple [], type := type}, ..} := do
     let mdata := Kvmap.setName {} `command `«axiom», -- CommentTo(Kha): It was `constant` here
     mods ← declModifiersToPexpr Decl.modifiers,
     let id := identUnivParamsToPexpr c.Name,
-    Type ← toPexpr Type.Type,
-    oldElabCommand stx $ Expr.mdata mdata $ Expr.mkCapp `_ [mods, id, Type]
+    type ← toPexpr type.type,
+    oldElabCommand stx $ Expr.mdata mdata $ Expr.mkCapp `_ [mods, id, type]
   | Declaration.inner.View.defLike dl := do
       -- The numeric literals below should reflect the enum values
       -- enum class declCmdKind { Theorem, Definition, OpaqueConst, Example, Instance, Var, Abbreviation };
@@ -506,17 +506,17 @@ def Declaration.elaborate : Elaborator :=
     | some uparams := uparams.ids.map mangleIdent
     | none := [],
     let id := mangleIdent ind.Name.id,
-    let Type := getOptType ind.sig.Type,
-    Type ← toPexpr Type,
-    let indL := Expr.local id id Type BinderInfo.default,
+    let type := getOptType ind.sig.type,
+    type ← toPexpr type,
+    let indL := Expr.local id id type BinderInfo.default,
     let inds := Expr.mkCapp `_ [indL],
     params ← simpleBindersToPexpr bbs,
     introRules ← ind.introRules.mmap (λ (r : introRule.View), do
-      ({params := bracketedBinders.View.simple [], Type := some ty}) ← pure r.sig
+      ({params := bracketedBinders.View.simple [], type := some ty}) ← pure r.sig
         | error stx "Declaration.elaborate: unexpected input",
-      Type ← toPexpr ty.Type,
+      type ← toPexpr ty.type,
       let Name := mangleIdent r.Name,
-      pure $ Expr.local Name Name Type BinderInfo.default),
+      pure $ Expr.local Name Name type BinderInfo.default),
     let introRules := Expr.mkCapp `_ introRules,
     let introRules := Expr.mkCapp `_ [introRules],
     let inferKinds := ind.introRules.map $ λ (r : introRule.View), inferModToPexpr r.inferMod,
@@ -538,8 +538,8 @@ def Declaration.elaborate : Elaborator :=
     | none := [],
     let Name := mangleIdent s.Name.id,
     let Name := Expr.local Name Name dummy BinderInfo.default,
-    let Type := getOptType s.sig.Type,
-    Type ← toPexpr Type,
+    let type := getOptType s.sig.type,
+    type ← toPexpr type,
     params ← simpleBindersToPexpr bbs,
     let parents := match s.extends with
     | some ex := ex.parents
@@ -563,23 +563,23 @@ def Declaration.elaborate : Elaborator :=
       let bi := Expr.local `_ `_ dummy bi,
       let ids := namesToPexpr $ content.ids.map mangleIdent,
       let kind := inferModToPexpr content.inferMod,
-      let Type := getOptType content.sig.Type,
-      Type ← toPexpr Type,
-      pure $ Expr.mkCapp `_ [bi, ids, kind, Type]),
+      let type := getOptType content.sig.type,
+      type ← toPexpr type,
+      pure $ Expr.mkCapp `_ [bi, ids, kind, type]),
     let fieldBlocks := Expr.mkCapp `_ fieldBlocks,
     oldElabCommand stx $ Expr.mdata mdata $
-      Expr.mkCapp `_ [mods, uparams, Name, params, parents, Type, mk, infer, fieldBlocks]
+      Expr.mkCapp `_ [mods, uparams, Name, params, parents, type, mk, infer, fieldBlocks]
   | _ :=
     error stx "Declaration.elaborate: unexpected input"
 
 def variables.elaborate : Elaborator :=
 λ stx, do
   let mdata := Kvmap.setName {} `command `variables,
-  let v := View «variables» stx,
+  let v := view «variables» stx,
   vars ← match v.binders with
   | bracketedBinders.View.simple bbs := bbs.mfilter $ λ b, do
-    let (bi, id, Type) := b.toBinderInfo,
-    if Type.isOfKind bindingAnnotationUpdate then do
+    let (bi, id, type) := b.toBinderInfo,
+    if type.isOfKind bindingAnnotationUpdate then do
       sc ← currentScope,
       let id := mangleIdent id,
       match sc.vars.find id with
@@ -595,7 +595,7 @@ def variables.elaborate : Elaborator :=
 
 def include.elaborate : Elaborator :=
 λ stx, do
-  let v := View «include» stx,
+  let v := view «include» stx,
   -- TODO(Sebastian): error checking
   modifyCurrentScope $ λ sc, {sc with includeVars :=
     v.ids.foldl (λ vars v, vars.insert $ mangleIdent v) sc.includeVars}
@@ -611,7 +611,7 @@ def omit.elaborate : Elaborator :=
 
 def Module.header.elaborate : Elaborator :=
 λ stx, do
-  let header := View Module.header stx,
+  let header := view Module.header stx,
   match header with
   | {«prelude» := some _, imports := []} := pure ()
   | _ := error stx "not implemented: imports"
@@ -659,13 +659,13 @@ do -- build and register Parser
    let ps := ps.bind id,
    cfg ← match nota.local, nota.spec.prefixArg with
    | none,   none   := pure {cfg with leadingTermParsers :=
-     cfg.leadingTermParsers.insert firstTk $ Parser.Combinators.Node k ps}
+     cfg.leadingTermParsers.insert firstTk $ Parser.Combinators.node k ps}
    | some _, none   := pure {cfg with localLeadingTermParsers :=
-     cfg.localLeadingTermParsers.insert firstTk $ Parser.Combinators.Node k ps}
+     cfg.localLeadingTermParsers.insert firstTk $ Parser.Combinators.node k ps}
    | none,   some _ := pure {cfg with trailingTermParsers :=
-     cfg.trailingTermParsers.insert firstTk $ Parser.Combinators.Node k (getLeading::ps.map coe)}
+     cfg.trailingTermParsers.insert firstTk $ Parser.Combinators.node k (getLeading::ps.map coe)}
    | some _, some _ := pure {cfg with localTrailingTermParsers :=
-     cfg.localTrailingTermParsers.insert firstTk $ Parser.Combinators.Node k (getLeading::ps.map coe)},
+     cfg.localTrailingTermParsers.insert firstTk $ Parser.Combinators.node k (getLeading::ps.map coe)},
    pure cfg
 
 /-- Recreate `ElaboratorState.parserCfg` from the Elaborator State and the initial config,
@@ -698,7 +698,7 @@ match spec with
 
 def reserveNotation.elaborate : Elaborator :=
 λ stx, do
-  let v := View reserveNotation stx,
+  let v := view reserveNotation stx,
   let v := {v with spec := postprocessNotationSpec v.spec},
   -- TODO: sanity checks?
   modify $ λ st, {st with reservedNotations := v::st.reservedNotations},
@@ -758,7 +758,7 @@ def notation.elaborateAux : notation.View → ElaboratorM notation.View :=
 def mkNotationKind : ElaboratorM SyntaxNodeKind :=
 do st ← get,
    put {st with notationCounter := st.notationCounter + 1},
-   pure {Name := (`_notation).mkNumeral st.notationCounter}
+   pure {name := (`_notation).mkNumeral st.notationCounter}
 
 /-- Register a notation in the Expander. Unlike with notation parsers, there is no harm in
     keeping local notation macros registered after closing a section. -/
@@ -766,12 +766,12 @@ def registerNotationMacro (nota : notation.View) : ElaboratorM NotationMacro :=
 do k ← mkNotationKind,
    let m : NotationMacro := ⟨k, nota⟩,
    let transf := mkNotationTransformer m,
-   modify $ λ st, {st with expanderCfg := {st.expanderCfg with transformers := st.expanderCfg.transformers.insert k.Name transf}},
+   modify $ λ st, {st with expanderCfg := {st.expanderCfg with transformers := st.expanderCfg.transformers.insert k.name transf}},
    pure m
 
 def notation.elaborate : Elaborator :=
 λ stx, do
-  let nota := View «notation» stx,
+  let nota := view «notation» stx,
   -- HACK: ignore List Literal notation using :fold
   let usesFold := nota.spec.rules.any $ λ r, match r.transition with
     | some (transition.View.Arg {action := some {kind := actionKind.View.fold _, ..}, ..}) := tt
@@ -791,7 +791,7 @@ def notation.elaborate : Elaborator :=
 
 def universe.elaborate : Elaborator :=
 λ stx, do
-  let univ := View «universe» stx,
+  let univ := view «universe» stx,
   let id := mangleIdent univ.id,
   sc ← currentScope,
   match sc.univs.find id with
@@ -800,7 +800,7 @@ def universe.elaborate : Elaborator :=
 
 def attribute.elaborate : Elaborator :=
 λ stx, do
-  let attr := View «attribute» stx,
+  let attr := view «attribute» stx,
   let mdata := Kvmap.setName {} `command `attribute,
   let mdata := mdata.setBool `local $ attr.local.isSome,
   attrs ← attrsToPexpr attr.attrs,
@@ -813,20 +813,20 @@ def attribute.elaborate : Elaborator :=
 
 def check.elaborate : Elaborator :=
 λ stx, do
-  let v := View check stx,
+  let v := view check stx,
   let mdata := Kvmap.setName {} `command `#check,
   e ← toPexpr v.Term,
   oldElabCommand stx $ Expr.mdata mdata e
 
 def open.elaborate : Elaborator :=
 λ stx, do
-  let v := View «open» stx,
+  let v := view «open» stx,
   -- TODO: do eager sanity checks (namespace does not exist, etc.)
   modifyCurrentScope $ λ sc, {sc with openDecls := sc.openDecls ++ v.spec}
 
 def export.elaborate : Elaborator :=
 λ stx, do
-  let v := View «export» stx,
+  let v := view «export» stx,
   ns ← getNamespace,
   -- TODO: do eager sanity checks (namespace does not exist, etc.)
   modify $ λ st, {st with exportDecls := st.exportDecls ++ v.spec.map (λ spec, ⟨ns, spec⟩)}
@@ -836,7 +836,7 @@ def initQuot.elaborate : Elaborator :=
 
 def setOption.elaborate : Elaborator :=
 λ stx, do
-  let v := View «setOption» stx,
+  let v := view «setOption» stx,
   let opt := v.opt.val,
   sc ← currentScope,
   let opts := sc.Options,
@@ -857,7 +857,7 @@ def noKind.elaborate : Elaborator := λ stx, do
 
 def end.elaborate : Elaborator :=
 λ cmd, do
-  let v := View «end» cmd,
+  let v := view «end» cmd,
   st ← get,
   -- NOTE: bottom-most (Module) Scope cannot be closed
   sc::sc'::scps ← pure st.scopes
@@ -872,14 +872,14 @@ def end.elaborate : Elaborator :=
 
 def section.elaborate : Elaborator :=
 λ cmd, do
-  let sec := View «section» cmd,
+  let sec := view «section» cmd,
   let header := mangleIdent $ sec.Name.getOrElse Name.anonymous,
   sc ← currentScope,
   modify $ λ st, {st with scopes := {sc with cmd := "section", header := header}::st.scopes}
 
 def namespace.elaborate : Elaborator :=
 λ cmd, do
-  let v := View «namespace» cmd,
+  let v := view «namespace» cmd,
   let header := mangleIdent v.Name,
   sc ← currentScope,
   ns ← getNamespace,
@@ -894,25 +894,25 @@ def eoi.elaborate : Elaborator :=
 
 -- TODO(Sebastian): replace with attribute
 def elaborators : Rbmap Name Elaborator (<) := Rbmap.fromList [
-  (Module.header.Name, Module.header.elaborate),
-  (notation.Name, notation.elaborate),
-  (reserveNotation.Name, reserveNotation.elaborate),
-  (universe.Name, universe.elaborate),
-  (noKind.Name, noKind.elaborate),
-  (end.Name, end.elaborate),
-  (section.Name, section.elaborate),
-  (namespace.Name, namespace.elaborate),
-  (variables.Name, variables.elaborate),
-  (include.Name, include.elaborate),
-  --(omit.Name, omit.elaborate),
-  (Declaration.Name, Declaration.elaborate),
-  (attribute.Name, attribute.elaborate),
-  (open.Name, open.elaborate),
-  (export.Name, export.elaborate),
-  (check.Name, check.elaborate),
-  (initQuot.Name, initQuot.elaborate),
-  (setOption.Name, setOption.elaborate),
-  (Module.eoi.Name, eoi.elaborate)
+  (Module.header.name, Module.header.elaborate),
+  (notation.name, notation.elaborate),
+  (reserveNotation.name, reserveNotation.elaborate),
+  (universe.name, universe.elaborate),
+  (noKind.name, noKind.elaborate),
+  (end.name, end.elaborate),
+  (section.name, section.elaborate),
+  (namespace.name, namespace.elaborate),
+  (variables.name, variables.elaborate),
+  (include.name, include.elaborate),
+  --(omit.name, omit.elaborate),
+  (Declaration.name, Declaration.elaborate),
+  (attribute.name, attribute.elaborate),
+  (open.name, open.elaborate),
+  (export.name, export.elaborate),
+  (check.name, check.elaborate),
+  (initQuot.name, initQuot.elaborate),
+  (setOption.name, setOption.elaborate),
+  (Module.eoi.name, eoi.elaborate)
 ] _
 
 -- TODO: optimize
@@ -995,8 +995,8 @@ let r := @ExceptT.run _ id _ $ flip StateT.run st $ flip ReaderT.run cfg $ RecT.
   (λ cmd, do
     some n ← pure cmd.asNode |
       error cmd $ "not a command: " ++ toString cmd,
-    some elab ← pure $ elaborators.find n.kind.Name |
-      error cmd $ "unknown command: " ++ toString n.kind.Name,
+    some elab ← pure $ elaborators.find n.kind.name |
+      error cmd $ "unknown command: " ++ toString n.kind.name,
     cmd' ← preresolve cmd,
     elab cmd') in
 match r with

@@ -151,8 +151,8 @@ export MonadStateAdapter (adaptState)
 section
 variables {σ σ' : Type u} {m m' : Type u → Type v}
 
-def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toΣ : σ' → σ) (fromΣ : σ → σ') : m α → m' α :=
-adaptState (λ st, (toΣ st, Punit.star)) (λ st _, fromΣ st)
+def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toSigma : σ' → σ) (fromSigma : σ → σ') : m α → m' α :=
+adaptState (λ st, (toSigma st, Punit.star)) (λ st _, fromSigma st)
 export MonadStateAdapter (adaptState')
 
 instance monadStateAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadStateAdapter σ σ' m m'] : MonadStateAdapter σ σ' n n' :=

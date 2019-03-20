@@ -186,7 +186,7 @@ end Proc
 
 /- References -/
 constant RefPointed : PointedType := default _
-def Ref (α : Type) : Type := RefPointed.Type
+def Ref (α : Type) : Type := RefPointed.type
 instance (α : Type) : Inhabited (Ref α) :=
 ⟨RefPointed.val⟩
 

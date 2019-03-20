@@ -38,7 +38,7 @@ inductive ReducibilityHints
 
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `inductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
 structure ConstantVal :=
-(id : Name) (lparams : List Name) (Type : Expr)
+(id : Name) (lparams : List Name) (type : Expr)
 
 structure AxiomVal extends ConstantVal :=
 (isUnsafe : Bool)
@@ -54,10 +54,10 @@ structure OpaqueVal extends ConstantVal :=
 (value : Expr)
 
 structure Constructor :=
-(id : Name) (Type : Expr)
+(id : Name) (type : Expr)
 
 structure inductiveType :=
-(id : Name) (Type : Expr) (cnstrs : List Constructor)
+(id : Name) (type : Expr) (cnstrs : List Constructor)
 
 /-- Declaration object that can be sent to the kernel. -/
 inductive Declaration
@@ -112,7 +112,7 @@ structure RecursorVal extends ConstantVal :=
 (isUnsafe : Bool)
 
 inductive QuotKind
-| Type  -- `Quot`
+| type  -- `Quot`
 | cnstr -- `Quot.mk`
 | lift  -- `Quot.lift`
 | ind   -- `Quot.ind`

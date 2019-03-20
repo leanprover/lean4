@@ -550,7 +550,7 @@ optional<expr> elaborator::mk_coercion_core(expr const & e, expr const & e_type,
     if (e_type == mk_Prop() && m_ctx.is_def_eq(type, mk_bool())) {
         return mk_Prop_to_bool_coercion(e, ref);
     } else if (is_thunk(type) && m_ctx.is_def_eq(e_type, app_arg(type))) {
-        return some_expr(::lean::mk_app(mk_constant(name{"thunk", "mk"}, const_levels(app_fn(type))),
+        return some_expr(::lean::mk_app(mk_constant(name{"Thunk", "mk"}, const_levels(app_fn(type))),
                                         app_arg(type),
                                         ::lean::mk_lambda("_", mk_constant(get_unit_name()), e)));
     } else if (!has_expr_metavar(e_type) && !has_expr_metavar(type)) {

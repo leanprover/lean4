@@ -841,8 +841,8 @@ void initialize_expr() {
     g_Prop         = new expr(mk_sort(mk_level_zero()));
     /* TODO(Leo): add support for builtin constants in the kernel.
        Something similar to what we have in the library directory. */
-    g_nat_type     = new expr(mk_constant("nat"));
-    g_string_type  = new expr(mk_constant("string"));
+    g_nat_type     = new expr(mk_constant("Nat"));
+    g_string_type  = new expr(mk_constant("String"));
 }
 
 void finalize_expr() {

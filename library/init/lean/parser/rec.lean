@@ -6,51 +6,51 @@ Author: Sebastian Ullrich
 Recursion monad transformer
 -/
 prelude
-import init.lean.parser.parsec init.fix
+import init.Lean.Parser.Parsec init.fix
 
-namespace lean.parser
+namespace Lean.Parser
 
-/-- A small wrapper of `readerT` that simplifies introducing and invoking
+/-- A small wrapper of `ReaderT` that simplifies introducing and invoking
     recursion points in a computation. -/
-def recT (α δ : Type) (m : Type → Type) (β : Type) :=
-readerT (α → m δ) m β
+def RecT (α δ : Type) (m : Type → Type) (β : Type) :=
+ReaderT (α → m δ) m β
 
-namespace recT
-variables {m : Type → Type} {α δ β : Type} [monad m]
-local attribute [reducible] recT
+namespace RecT
+variables {m : Type → Type} {α δ β : Type} [Monad m]
+local attribute [reducible] RecT
 
 /-- Continue at the recursion point stored at `run`. -/
-@[inline] def recurse (a : α) : recT α δ m δ :=
+@[inline] def recurse (a : α) : RecT α δ m δ :=
 λ f, f a
 
 /-- Execute `x`, executing `rec a` whenever `recurse a` is called.
     After `maxRec` recursion steps, `base` is executed instead. -/
-@[inline] protected def run (x : recT α δ m β) (base : α → m δ) (rec : α → recT α δ m δ) : m β :=
+@[inline] protected def run (x : RecT α δ m β) (base : α → m δ) (rec : α → RecT α δ m δ) : m β :=
 x (fixCore base (λ a f, rec f a))
 
-@[inline] protected def runParsec {γ : Type} [monadParsec γ m] (x : recT α δ m β) (rec : α → recT α δ m δ) : m β :=
-recT.run x (λ _, monadParsec.error "recT.runParsec: no progress") rec
+@[inline] protected def runParsec {γ : Type} [MonadParsec γ m] (x : RecT α δ m β) (rec : α → RecT α δ m δ) : m β :=
+RecT.run x (λ _, MonadParsec.error "RecT.runParsec: no progress") rec
 
 -- not clear how to auto-derive these given the additional constraints
-instance : monad (recT α δ m) := inferInstance
-instance [alternative m] : alternative (recT α δ m) := inferInstance
-instance : hasMonadLift m (recT α δ m) := inferInstance
-instance (ε) [monadExcept ε m] : monadExcept ε (recT α δ m) := inferInstance
-instance (μ) [monadParsec μ m] : monadParsec μ (recT α δ m) :=
+instance : Monad (RecT α δ m) := inferInstance
+instance [Alternative m] : Alternative (RecT α δ m) := inferInstance
+instance : HasMonadLift m (RecT α δ m) := inferInstance
+instance (ε) [MonadExcept ε m] : MonadExcept ε (RecT α δ m) := inferInstance
+instance (μ) [MonadParsec μ m] : MonadParsec μ (RecT α δ m) :=
 inferInstance
--- NOTE: does not allow to vary `m` because of its occurrence in the reader state
-instance [monad m] : monadFunctor m m (recT α δ m) (recT α δ m) :=
+-- NOTE: does not allow to vary `m` because of its occurrence in the Reader State
+instance [Monad m] : MonadFunctor m m (RecT α δ m) (RecT α δ m) :=
 inferInstance
-end recT
+end RecT
 
-class monadRec (α δ : outParam Type) (m : Type → Type) :=
+class MonadRec (α δ : outParam Type) (m : Type → Type) :=
 (recurse {} : α → m δ)
-export monadRec (recurse)
+export MonadRec (recurse)
 
-instance monadRec.trans (α δ m m') [hasMonadLift m m'] [monadRec α δ m] [monad m] : monadRec α δ m' :=
+instance MonadRec.trans (α δ m m') [HasMonadLift m m'] [MonadRec α δ m] [Monad m] : MonadRec α δ m' :=
 { recurse := λ a, monadLift (recurse a : m δ) }
 
-instance monadRec.base (α δ m) [monad m] : monadRec α δ (recT α δ m) :=
-{ recurse := recT.recurse }
+instance MonadRec.base (α δ m) [Monad m] : MonadRec α δ (RecT α δ m) :=
+{ recurse := RecT.recurse }
 
-end lean.parser
+end Lean.Parser

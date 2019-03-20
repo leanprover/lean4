@@ -3,74 +3,74 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Level-level parsers
+Level-Level parsers
 -/
 prelude
-import init.lean.parser.pratt
+import init.Lean.Parser.pratt
 
-namespace lean
-namespace parser
-open combinators parser.hasView monadParsec
+namespace Lean
+namespace Parser
+open Combinators Parser.HasView MonadParsec
 
-@[derive monad alternative monadReader monadParsec monadExcept monadRec monadBasicParser]
-def levelParserM := recT nat syntax basicParserM
-abbrev levelParser := levelParserM syntax
+@[derive Monad Alternative MonadReader MonadParsec MonadExcept MonadRec monadBasicParser]
+def LevelParserM := RecT Nat Syntax BasicParserM
+abbrev levelParser := LevelParserM Syntax
 
-/-- A level parser for a suffix or infix notation that accepts a preceding term level. -/
-@[derive monad alternative monadReader monadParsec monadExcept monadRec monadBasicParser]
-def trailingLevelParserM := readerT syntax levelParserM
-abbrev trailingLevelParser := trailingLevelParserM syntax
+/-- A Level Parser for a suffix or infix notation that accepts a preceding Term Level. -/
+@[derive Monad Alternative MonadReader MonadParsec MonadExcept MonadRec monadBasicParser]
+def TrailingLevelParserM := ReaderT Syntax LevelParserM
+abbrev trailingLevelParser := TrailingLevelParserM Syntax
 
-instance trailingLevelParserCoe : hasCoe levelParser trailingLevelParser :=
+instance trailingLevelParserCoe : HasCoe levelParser trailingLevelParser :=
 ⟨λ x _, x⟩
 
-@[derive parser.hasTokens parser.hasView]
-def level.parser (rbp := 0) : levelParser :=
-recurse rbp <?> "universe level"
+@[derive Parser.HasTokens Parser.HasView]
+def Level.Parser (rbp := 0) : levelParser :=
+recurse rbp <?> "universe Level"
 
-namespace level
-/-- Access leading term -/
+namespace Level
+/-- Access leading Term -/
 def getLeading : trailingLevelParser := read
-instance : hasTokens getLeading := default _
-instance : hasView syntax getLeading := default _
+instance : HasTokens getLeading := default _
+instance : HasView Syntax getLeading := default _
 
-@[derive parser.hasTokens parser.hasView]
-def paren.parser : levelParser :=
-node! «paren» ["(":maxPrec, inner: level.parser 0, ")"]
+@[derive Parser.HasTokens Parser.HasView]
+def paren.Parser : levelParser :=
+Node! «paren» ["(":maxPrec, inner: Level.Parser 0, ")"]
 
-@[derive parser.hasTokens parser.hasView]
-def leading.parser : levelParser :=
+@[derive Parser.HasTokens Parser.HasView]
+def leading.Parser : levelParser :=
 nodeChoice! leading {
   max: symbolOrIdent "max",
   imax: symbolOrIdent "imax",
   hole: symbol "_" maxPrec,
-  paren: paren.parser,
-  lit: number.parser,
-  var: ident.parser
+  paren: paren.Parser,
+  lit: number.Parser,
+  var: ident.Parser
 }
 
-@[derive parser.hasTokens parser.hasView]
-def app.parser : trailingLevelParser :=
-node! app [fn: getLeading, arg: level.parser maxPrec]
+@[derive Parser.HasTokens Parser.HasView]
+def app.Parser : trailingLevelParser :=
+Node! app [fn: getLeading, Arg: Level.Parser maxPrec]
 
-@[derive parser.hasTokens parser.hasView]
-def addLit.parser : trailingLevelParser :=
-node! addLit [lhs: getLeading, "+", rhs: number.parser]
+@[derive Parser.HasTokens Parser.HasView]
+def addLit.Parser : trailingLevelParser :=
+Node! addLit [lhs: getLeading, "+", rhs: number.Parser]
 
-@[derive parser.hasTokens parser.hasView]
-def trailing.parser : trailingLevelParser :=
+@[derive Parser.HasTokens Parser.HasView]
+def trailing.Parser : trailingLevelParser :=
 nodeChoice! trailing {
-  app: app.parser,
-  addLit: addLit.parser
+  app: app.Parser,
+  addLit: addLit.Parser
 }
-end level
+end Level
 
-@[derive parser.hasTokens parser.hasView]
+@[derive Parser.HasTokens Parser.HasView]
 def levelParser.run (p : levelParser) : basicParser :=
-prattParser level.leading.parser level.trailing.parser p
+prattParser Level.leading.Parser Level.trailing.Parser p
 
-instance levelParserCoe : hasCoe levelParser basicParser :=
+instance levelParserCoe : HasCoe levelParser basicParser :=
 ⟨levelParser.run⟩
 
-end parser
-end lean
+end Parser
+end Lean

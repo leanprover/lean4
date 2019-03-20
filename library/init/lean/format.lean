@@ -4,27 +4,27 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.control.except init.control.reader init.control.state
+import init.control.Except init.control.Reader init.control.State
 universes u v
 
-namespace lean
+namespace Lean
 
-inductive format
-| nil          : format
-| line         : format
-| text         : string → format
-| nest         : nat → format → format
-| compose      : bool → format → format → format
-| choice       : format → format → format
+inductive Format
+| nil          : Format
+| line         : Format
+| text         : String → Format
+| nest         : Nat → Format → Format
+| compose      : Bool → Format → Format → Format
+| choice       : Format → Format → Format
 
-namespace format
-instance : hasAppend format     := ⟨compose ff⟩
-instance : hasCoe string format := ⟨text⟩
+namespace Format
+instance : HasAppend Format     := ⟨compose ff⟩
+instance : HasCoe String Format := ⟨text⟩
 
-def join (xs : list format) : format :=
+def join (xs : List Format) : Format :=
 xs.foldl (++) ""
 
-def flatten : format → format
+def flatten : Format → Format
 | nil                  := nil
 | line                 := text " "
 | f@(text _)           := f
@@ -33,13 +33,13 @@ def flatten : format → format
 | f@(compose tt _ _)   := f
 | f@(compose ff f₁ f₂) := compose tt (flatten f₁) (flatten f₂)
 
-def group : format → format
+def group : Format → Format
 | nil                := nil
 | f@(text _)         := f
 | f@(compose tt _ _) := f
 | f                  := choice (flatten f) f
 
-structure spaceResult :=
+structure SpaceResult :=
 (found    := ff)
 (exceeded := ff)
 (space    := 0)
@@ -47,14 +47,14 @@ structure spaceResult :=
 /-
 TODO: mark as `@[inline]` as soon as we fix the code inliner.
 -/
-private def merge (w : nat) (r₁ : spaceResult) (r₂ : thunk spaceResult) : spaceResult :=
+private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Thunk SpaceResult) : SpaceResult :=
 if r₁.exceeded || r₁.found then r₁
 else let y := r₂.get in
      if y.exceeded || y.found then y
      else let newSpace := r₁.space + y.space in
           { space := newSpace, exceeded := newSpace > w }
 
-def spaceUptoLine : format → nat → spaceResult
+def spaceUptoLine : Format → Nat → SpaceResult
 | nil               w := {}
 | line              w := { found := tt }
 | (text s)          w := { space := s.length, exceeded := s.length > w }
@@ -62,11 +62,11 @@ def spaceUptoLine : format → nat → spaceResult
 | (nest _ f)        w := spaceUptoLine f w
 | (choice f₁ f₂)    w := spaceUptoLine f₂ w
 
-def spaceUptoLine' : list (nat × format) → nat → spaceResult
+def spaceUptoLine' : List (Nat × Format) → Nat → SpaceResult
 | []      w := {}
 | (p::ps) w := merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
 
-def be : nat → nat → string → list (nat × format) → string
+def be : Nat → Nat → String → List (Nat × Format) → String
 | w k out []                           := out
 | w k out ((i, nil)::z)                := be w k out z
 | w k out ((i, (compose _ f₁ f₂))::z)  := be w k out ((i, f₁)::(i, f₂)::z)
@@ -77,78 +77,78 @@ def be : nat → nat → string → list (nat × format) → string
   let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w) in
   if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
 
-def pretty (f : format) (w : nat := 80) : string :=
+def pretty (f : Format) (w : Nat := 80) : String :=
 be w 0 "" [(0, f)]
 
-@[inline] def bracket (l : string) (f : format) (r : string) : format :=
+@[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
 group (nest l.length $ l ++ f ++ r)
 
-@[inline] def paren (f : format) : format :=
+@[inline] def paren (f : Format) : Format :=
 bracket "(" f ")"
 
-@[inline] def sbracket (f : format) : format :=
+@[inline] def sbracket (f : Format) : Format :=
 bracket "[" f "]"
 
-end format
+end Format
 
-open lean.format
+open Lean.Format
 
-class hasToFormat (α : Type u) :=
-(toFormat : α → format)
+class HasToFormat (α : Type u) :=
+(toFormat : α → Format)
 
-export lean.hasToFormat (toFormat)
+export Lean.HasToFormat (toFormat)
 
-def toFmt {α : Type u} [hasToFormat α] : α → format :=
+def toFmt {α : Type u} [HasToFormat α] : α → Format :=
 toFormat
 
-instance toStringToFormat {α : Type u} [hasToString α] : hasToFormat α :=
+instance toStringToFormat {α : Type u} [HasToString α] : HasToFormat α :=
 ⟨text ∘ toString⟩
 
 -- note: must take precendence over the above instance to avoid premature formatting
-instance formatHasToFormat : hasToFormat format :=
+instance formatHasToFormat : HasToFormat Format :=
 ⟨id⟩
 
-instance stringHasToFormat : hasToFormat string := ⟨format.text⟩
+instance stringHasToFormat : HasToFormat String := ⟨Format.text⟩
 
-def format.joinSep {α : Type u} [hasToFormat α] : list α → format → format
+def Format.joinSep {α : Type u} [HasToFormat α] : List α → Format → Format
 | []      sep  := nil
 | [a]     sep := toFmt a
-| (a::as) sep := toFmt a ++ sep ++ format.joinSep as sep
+| (a::as) sep := toFmt a ++ sep ++ Format.joinSep as sep
 
-def format.prefixJoin {α : Type u} [hasToFormat α] (pre : format) : list α → format
+def Format.prefixJoin {α : Type u} [HasToFormat α] (pre : Format) : List α → Format
 | []      := nil
-| (a::as) := pre ++ toFmt a ++ format.prefixJoin as
+| (a::as) := pre ++ toFmt a ++ Format.prefixJoin as
 
-def format.joinSuffix {α : Type u} [hasToFormat α] : list α → format → format
+def Format.joinSuffix {α : Type u} [HasToFormat α] : List α → Format → Format
 | []      suffix := nil
-| (a::as) suffix := toFmt a ++ suffix ++ format.joinSuffix as suffix
+| (a::as) suffix := toFmt a ++ suffix ++ Format.joinSuffix as suffix
 
-def list.toFormat {α : Type u} [hasToFormat α] : list α → format
+def List.toFormat {α : Type u} [HasToFormat α] : List α → Format
 | [] := "[]"
-| xs := sbracket $ format.joinSep xs ("," ++ line)
+| xs := sbracket $ Format.joinSep xs ("," ++ line)
 
-instance listHasToFormat {α : Type u} [hasToFormat α] : hasToFormat (list α) :=
-⟨list.toFormat⟩
+instance listHasToFormat {α : Type u} [HasToFormat α] : HasToFormat (List α) :=
+⟨List.toFormat⟩
 
-instance prodHasToFormat {α : Type u} {β : Type v} [hasToFormat α] [hasToFormat β] : hasToFormat (prod α β) :=
+instance prodHasToFormat {α : Type u} {β : Type v} [HasToFormat α] [HasToFormat β] : HasToFormat (Prod α β) :=
 ⟨λ ⟨a, b⟩, paren $ toFormat a ++ "," ++ line ++ toFormat b⟩
 
-instance natHasToFormat : hasToFormat nat    := ⟨λ n, toString n⟩
-instance uint16HasToFormat : hasToFormat uint16 := ⟨λ n, toString n⟩
-instance uint32HasToFormat : hasToFormat uint32 := ⟨λ n, toString n⟩
-instance uint64HasToFormat : hasToFormat uint64 := ⟨λ n, toString n⟩
-instance usizeHasToFormat : hasToFormat usize := ⟨λ n, toString n⟩
+instance natHasToFormat : HasToFormat Nat    := ⟨λ n, toString n⟩
+instance uint16HasToFormat : HasToFormat Uint16 := ⟨λ n, toString n⟩
+instance uint32HasToFormat : HasToFormat Uint32 := ⟨λ n, toString n⟩
+instance uint64HasToFormat : HasToFormat Uint64 := ⟨λ n, toString n⟩
+instance usizeHasToFormat : HasToFormat Usize := ⟨λ n, toString n⟩
 
-instance formatHasToString : hasToString format := ⟨pretty⟩
+instance formatHasToString : HasToString Format := ⟨pretty⟩
 
-protected def format.repr : format → format
-| nil := "format.nil"
-| line := "format.line"
-| (text s) := paren $ "format.text" ++ line ++ repr s
-| (nest n f) := paren $ "format.nest" ++ line ++ repr n ++ line ++ format.repr f
-| (compose b f₁ f₂) := paren $ "format.compose " ++ repr b ++ line ++ format.repr f₁ ++ line ++ format.repr f₂
-| (choice f₁ f₂) := paren $ "format.choice" ++ line ++ format.repr f₁ ++ line ++ format.repr f₂
+protected def Format.repr : Format → Format
+| nil := "Format.nil"
+| line := "Format.line"
+| (text s) := paren $ "Format.text" ++ line ++ repr s
+| (nest n f) := paren $ "Format.nest" ++ line ++ repr n ++ line ++ Format.repr f
+| (compose b f₁ f₂) := paren $ "Format.compose " ++ repr b ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
+| (choice f₁ f₂) := paren $ "Format.choice" ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
 
-instance : hasRepr format := ⟨format.pretty ∘ format.repr⟩
+instance : HasRepr Format := ⟨Format.pretty ∘ Format.repr⟩
 
-end lean
+end Lean

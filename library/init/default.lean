@@ -5,5 +5,5 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.core init.control init.data.basic
-import init.function init.coe init.wf
-import init.data init.io init.util init.fix
+import init.Function init.coe init.wf
+import init.data init.Io init.util init.fix

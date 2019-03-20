@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.char.basic init.lean.parser.parsec
+import init.data.Char.basic init.Lean.Parser.Parsec
 
-namespace lean
+namespace Lean
 
-def isGreek (c : char) : bool :=
+def isGreek (c : Char) : Bool :=
 0x391 ≤ c.val && c.val ≤ 0x3dd
 
-def isLetterLike (c : char) : bool :=
+def isLetterLike (c : Char) : Bool :=
 (0x3b1  ≤ c.val && c.val ≤ 0x3c9 && c.val ≠ 0x3bb) ||                  -- Lower greek, but lambda
 (0x391  ≤ c.val && c.val ≤ 0x3A9 && c.val ≠ 0x3A0 && c.val ≠ 0x3A3) || -- Upper greek, but Pi and Sigma
 (0x3ca  ≤ c.val && c.val ≤ 0x3fb) ||                                   -- Coptic letters
@@ -19,52 +19,52 @@ def isLetterLike (c : char) : bool :=
 (0x2100 ≤ c.val && c.val ≤ 0x214f) ||                                  -- Letter like block
 (0x1d49c ≤ c.val && c.val ≤ 0x1d59f)                                   -- Latin letters, Script, Double-struck, Fractur
 
-def isSubScriptAlnum (c : char) : bool :=
+def isSubScriptAlnum (c : Char) : Bool :=
 (0x207f ≤ c.val && c.val ≤ 0x2089) || -- n superscript and numberic subscripts
 (0x2090 ≤ c.val && c.val ≤ 0x209c) ||
 (0x1d62 ≤ c.val && c.val ≤ 0x1d6a)
 
-def isIdFirst (c : char) : bool :=
+def isIdFirst (c : Char) : Bool :=
 c.isAlpha || c = '_' || isLetterLike c
 
-def isIdRest (c : char) : bool :=
+def isIdRest (c : Char) : Bool :=
 c.isAlphanum || c = '_' || c = '\'' || isLetterLike c || isSubScriptAlnum c
 
 def idBeginEscape := '«'
 def idEndEscape   := '»'
-def isIdBeginEscape (c : char) : bool :=
+def isIdBeginEscape (c : Char) : Bool :=
 c = idBeginEscape
-def isIdEndEscape (c : char) : bool :=
+def isIdEndEscape (c : Char) : Bool :=
 c = idEndEscape
 
-namespace parser
-variables {m : Type → Type} {μ : Type} [monad m] [monadParsec μ m] [alternative m]
-open monadParsec
+namespace Parser
+variables {m : Type → Type} {μ : Type} [Monad m] [MonadParsec μ m] [Alternative m]
+open MonadParsec
 
-def idPartDefault : m string :=
+def idPartDefault : m String :=
 do c ← satisfy isIdFirst,
    takeWhileCont isIdRest (toString c)
 
-def idPartEscaped : m string :=
+def idPartEscaped : m String :=
 ch idBeginEscape *> takeUntil1 isIdEndEscape <* ch idEndEscape
 
-def idPart : m string :=
+def idPart : m String :=
 cond isIdBeginEscape
   idPartEscaped
   idPartDefault
 
-def identifier : m name :=
+def identifier : m Name :=
 (try $ do s  ← idPart,
-       foldl name.mkString (mkSimpleName s) (ch '.' *> idPart)) <?> "identifier"
+       foldl Name.mkString (mkSimpleName s) (ch '.' *> idPart)) <?> "identifier"
 
-def cIdentifier : m string :=
+def cIdentifier : m String :=
 (try $ do c ← satisfy (λ c, c.isAlpha || c = '_'),
        takeWhileCont (λ c, c.isAlphanum || c = '_') (toString c)) <?> "C identifier"
 
-def cppIdentifier : m string :=
+def cppIdentifier : m String :=
 (try $ do n ← cIdentifier,
        ns ← many ((++) <$> str "::" <*> cIdentifier),
-       pure $ string.join (n::ns)) <?> "C++ identifier"
+       pure $ String.join (n::ns)) <?> "C++ identifier"
 
-end parser
-end lean
+end Parser
+end Lean

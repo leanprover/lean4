@@ -3,94 +3,94 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Module-level parsers
+Module-Level parsers
 -/
 prelude
-import init.lean.parser.command
+import init.Lean.Parser.command
 
-namespace lean
-namespace parser
+namespace Lean
+namespace Parser
 
-open combinators monadParsec
-open parser.hasTokens parser.hasView
+open Combinators MonadParsec
+open Parser.HasTokens Parser.HasView
 
 local postfix `?`:10000 := optional
-local postfix *:10000 := combinators.many
-local postfix +:10000 := combinators.many1
+local postfix *:10000 := Combinators.many
+local postfix +:10000 := Combinators.many1
 
-structure moduleParserConfig extends commandParserConfig :=
-(commandParsers : tokenMap commandParser)
+structure ModuleParserConfig extends CommandParserConfig :=
+(commandParsers : TokenMap commandParser)
 
-instance moduleParserConfigCoe : hasCoe moduleParserConfig commandParserConfig :=
-⟨moduleParserConfig.toCommandParserConfig⟩
+instance moduleParserConfigCoe : HasCoe ModuleParserConfig CommandParserConfig :=
+⟨ModuleParserConfig.toCommandParserConfig⟩
 
 section
-@[derive monad alternative monadReader monadState monadParsec monadExcept]
-def moduleParserM := stateT parserState $ parserT moduleParserConfig id
-abbrev moduleParser := moduleParserM syntax
+@[derive Monad Alternative MonadReader MonadState MonadParsec MonadExcept]
+def ModuleParserM := StateT ParserState $ ParserT ModuleParserConfig id
+abbrev moduleParser := ModuleParserM Syntax
 end
 
-instance moduleParserM.liftParserT (ρ : Type) [hasLiftT moduleParserConfig ρ] :
-  hasMonadLift (parserT ρ id) moduleParserM :=
+instance ModuleParserM.liftParserT (ρ : Type) [HasLiftT ModuleParserConfig ρ] :
+  HasMonadLift (ParserT ρ id) ModuleParserM :=
 { monadLift := λ α x st cfg, (λ a, (a, st)) <$> x.run ↑cfg }
 
 section
-local attribute [reducible] basicParserM
-instance moduleParserM.basicParserM (ρ : Type) [hasLiftT moduleParserConfig ρ] :
-  hasMonadLift basicParserM moduleParserM :=
+local attribute [reducible] BasicParserM
+instance ModuleParserM.BasicParserM (ρ : Type) [HasLiftT ModuleParserConfig ρ] :
+  HasMonadLift BasicParserM ModuleParserM :=
   inferInstance
 end
 
-namespace module
-@[derive parser.hasView parser.hasTokens]
-def prelude.parser : basicParser :=
-node! «prelude» ["prelude"]
+namespace Module
+@[derive Parser.HasView Parser.HasTokens]
+def prelude.Parser : basicParser :=
+Node! «prelude» ["prelude"]
 
-@[derive parser.hasView parser.hasTokens]
-def importPath.parser : basicParser :=
+@[derive Parser.HasView Parser.HasTokens]
+def importPath.Parser : basicParser :=
 -- use `raw` to ignore registered tokens like ".."
-node! importPath [
+Node! importPath [
   dirups: (rawStr ".")*,
-  module: ident.parser]
+  Module: ident.Parser]
 
-@[derive parser.hasView parser.hasTokens]
-def import.parser : basicParser :=
-node! «import» ["import", imports: importPath.parser+]
+@[derive Parser.HasView Parser.HasTokens]
+def import.Parser : basicParser :=
+Node! «import» ["import", imports: importPath.Parser+]
 
-@[derive parser.hasView parser.hasTokens]
-def header.parser : basicParser :=
-node! «header» [«prelude»: prelude.parser?, imports: import.parser*]
+@[derive Parser.HasView Parser.HasTokens]
+def header.Parser : basicParser :=
+Node! «header» [«prelude»: prelude.Parser?, imports: import.Parser*]
 
-@[pattern] def eoi : syntaxNodeKind := ⟨`lean.parser.module.eoi⟩
+@[pattern] def eoi : SyntaxNodeKind := ⟨`Lean.Parser.Module.eoi⟩
 
-def eoi.parser : moduleParser := do
-  monadParsec.eoi,
+def eoi.Parser : moduleParser := do
+  MonadParsec.eoi,
   it ← leftOver,
-  -- add `eoi` node for left-over input
+  -- add `eoi` Node for left-over input
   let stop := it.toEnd,
-  pure $ syntax.mkNode eoi [syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]
+  pure $ Syntax.mkNode eoi [Syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]
 
-/-- Read command, recovering from errors inside commands (attach partial syntax tree)
+/-- Read command, recovering from errors inside commands (attach partial Syntax tree)
     as well as unknown commands (skip input). -/
-private def commandWrecAux : bool → nat → moduleParserM (bool × syntax)
+private def commandWrecAux : Bool → Nat → ModuleParserM (Bool × Syntax)
 | recovering 0            := error "unreachable"
-| recovering (nat.succ n) := do
+| recovering (Nat.succ n) := do
   -- terminate at EOF
-  nat.succ _ ← remaining | (prod.mk ff) <$> eoi.parser,
+  Nat.succ _ ← remaining | (Prod.mk ff) <$> eoi.Parser,
   (recovering, c) ← catch (do {
     cfg ← read,
-    c ← monadLift $ command.parser.run cfg.commandParsers,
+    c ← monadLift $ command.Parser.run cfg.commandParsers,
     pure (ff, some c)
   } <|> do {
     -- unknown command: try to skip token, or else single character
     when (¬ recovering) $ do {
       it ← leftOver,
-      logMessage {expected := dlist.singleton "command", it := it, custom := some ()}
+      logMessage {expected := Dlist.singleton "command", it := it, custom := some ()}
     },
     try (monadLift token *> pure ()) <|> (any *> pure ()),
     pure (tt, none)
   }) $ λ msg, do {
-    -- error inside command: log error, return partial syntax tree
+    -- error inside command: log error, return partial Syntax tree
     logMessage msg,
     pure (tt, some msg.custom.get)
   },
@@ -100,34 +100,34 @@ private def commandWrecAux : bool → nat → moduleParserM (bool × syntax)
   | some c := pure (recovering, c)
   | none   := commandWrecAux recovering n
 
-def parseCommandWithRecovery (recovering : bool) :=
+def parseCommandWithRecovery (recovering : Bool) :=
 do { rem ← remaining, commandWrecAux recovering rem.succ }
-end module
-open module
+end Module
+open Module
 
-structure moduleParserSnapshot :=
+structure ModuleParserSnapshot :=
 -- it there was a parse error in the previous command, we shouldn't complain if parsing immediately after it
 -- fails as well
-(recovering : bool)
-(it : string.iterator)
+(recovering : Bool)
+(it : String.Iterator)
 
--- return (partial) syntax tree and single fatal or multiple non-fatal messages
-def resumeModuleParser {α : Type} (cfg : moduleParserConfig) (snap : moduleParserSnapshot) (mkRes : α → syntax × moduleParserSnapshot)
-  (p : moduleParserM α) : syntax × except message (moduleParserSnapshot × messageLog) :=
-let (r, _) := ((((prod.mk <$> p <*> leftOver).run {messages:=messageLog.empty}).run cfg).runFrom snap.it).run {} in
+-- return (partial) Syntax tree and single fatal or multiple non-fatal messages
+def resumeModuleParser {α : Type} (cfg : ModuleParserConfig) (snap : ModuleParserSnapshot) (mkRes : α → Syntax × ModuleParserSnapshot)
+  (p : ModuleParserM α) : Syntax × Except Message (ModuleParserSnapshot × MessageLog) :=
+let (r, _) := ((((Prod.mk <$> p <*> leftOver).run {messages:=MessageLog.Empty}).run cfg).runFrom snap.it).run {} in
 match r with
-| except.ok ((a, it), st) := let (stx, snap) := mkRes a in (stx, except.ok ({snap with it := it}, st.messages))
-| except.error msg  := (msg.custom.get, except.error $ messageOfParsecMessage cfg msg)
+| Except.ok ((a, it), st) := let (stx, snap) := mkRes a in (stx, Except.ok ({snap with it := it}, st.messages))
+| Except.error msg  := (msg.custom.get, Except.error $ messageOfParsecMessage cfg msg)
 
-def parseHeader (cfg : moduleParserConfig) :=
-let snap := {moduleParserSnapshot . recovering := ff, it := cfg.input.mkIterator} in
+def parseHeader (cfg : ModuleParserConfig) :=
+let snap := {ModuleParserSnapshot . recovering := ff, it := cfg.input.mkIterator} in
 resumeModuleParser cfg snap (λ stx, (stx, snap)) $ do
   -- `token` assumes that there is no leading whitespace
   monadLift whitespace,
-  monadLift header.parser
+  monadLift header.Parser
 
-def parseCommand (cfg) (snap) := resumeModuleParser cfg snap (λ p, (prod.snd p, {snap with recovering := prod.fst p}))
+def parseCommand (cfg) (snap) := resumeModuleParser cfg snap (λ p, (Prod.snd p, {snap with recovering := Prod.fst p}))
   (parseCommandWithRecovery snap.recovering)
 
-end parser
-end lean
+end Parser
+end Lean

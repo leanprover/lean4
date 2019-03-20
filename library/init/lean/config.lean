@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.core
 
-namespace lean
+namespace Lean
 /--
 For functions `f` with more than `closureMaxArgs`, we need to generate a curried version
 ```
@@ -17,7 +17,7 @@ obj* fCurried(obj** args) {
 The curried version is used when a closure for `f` is created.
 
 Remark: whenever the value of this constant is modified, we have to regenerate
-`src/util/apply.cpp` and `src/util/apply.h` using the meta program `gen/apply.lean`.
+`src/util/apply.cpp` and `src/util/apply.h` using the meta program `gen/apply.Lean`.
 -/
 def closureMaxArgs := 16
-end lean
+end Lean

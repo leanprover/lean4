@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.lean.kvmap
+import init.Lean.Kvmap
 universe u
 
-namespace lean
+namespace Lean
 
-def options := kvmap
+def Options := Kvmap
 
-def options.mk : options :=
-{kvmap .}
+def Options.mk : Options :=
+{Kvmap .}
 
-end lean
+end Lean

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.basic init.data.nat init.data.char init.data.string
-import init.data.list init.data.int init.data.array
-import init.data.fin init.data.uint init.data.ordering
-import init.data.rbtree init.data.rbmap init.data.option.basic init.data.option.instances
+import init.data.basic init.data.Nat init.data.Char init.data.String
+import init.data.List init.data.Int init.data.Array
+import init.data.Fin init.data.uint init.data.Ordering
+import init.data.Rbtree init.data.Rbmap init.data.Option.basic init.data.Option.instances

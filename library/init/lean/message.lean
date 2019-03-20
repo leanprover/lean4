@@ -3,61 +3,61 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Message type used by the Lean frontend
+Message Type used by the Lean frontend
 -/
 prelude
-import init.data.toString init.lean.position
+import init.data.toString init.Lean.Position
 
-namespace lean
-inductive messageSeverity
+namespace Lean
+inductive MessageSeverity
 | information | warning | error
 
 -- TODO: structured messages
-structure message :=
-(filename : string)
-(pos      : position)
-(endPos  : option position  := none)
-(severity : messageSeverity := messageSeverity.error)
-(caption  : string           := "")
-(text     : string)
+structure Message :=
+(filename : String)
+(pos      : Position)
+(endPos  : Option Position  := none)
+(severity : MessageSeverity := MessageSeverity.error)
+(caption  : String           := "")
+(text     : String)
 
-namespace message
-protected def toString (msg : message) : string :=
+namespace Message
+protected def toString (msg : Message) : String :=
 msg.filename ++ ":" ++ toString msg.pos.line ++ ":" ++ toString msg.pos.column ++ ": " ++
 (match msg.severity with
- | messageSeverity.information := ""
- | messageSeverity.warning := "warning: "
- | messageSeverity.error := "error: ") ++
+ | MessageSeverity.information := ""
+ | MessageSeverity.warning := "warning: "
+ | MessageSeverity.error := "error: ") ++
 (if msg.caption = "" then "" else msg.caption ++ ":\n") ++
 msg.text
 
-instance : hasToString message :=
-⟨message.toString⟩
-end message
+instance : HasToString Message :=
+⟨Message.toString⟩
+end Message
 
-structure messageLog :=
+structure MessageLog :=
 -- messages are stored in reverse for efficient append
-(revList : list message)
+(revList : List Message)
 
-namespace messageLog
-def empty : messageLog :=
+namespace MessageLog
+def Empty : MessageLog :=
 ⟨[]⟩
 
-def add (msg : message) (log : messageLog) : messageLog :=
+def add (msg : Message) (log : MessageLog) : MessageLog :=
 ⟨msg :: log.revList⟩
 
-protected def append (l₁ l₂ : messageLog) : messageLog :=
+protected def append (l₁ l₂ : MessageLog) : MessageLog :=
 ⟨l₂.revList ++ l₁.revList⟩
 
-instance : hasAppend messageLog :=
-⟨messageLog.append⟩
+instance : HasAppend MessageLog :=
+⟨MessageLog.append⟩
 
-def hasErrors (log : messageLog) : bool :=
+def hasErrors (log : MessageLog) : Bool :=
 log.revList.any $ λ m, match m.severity with
-| messageSeverity.error := tt
+| MessageSeverity.error := tt
 | _                      := ff
 
-def toList (log : messageLog) : list message :=
+def toList (log : MessageLog) : List Message :=
 log.revList.reverse
-end messageLog
-end lean
+end MessageLog
+end Lean

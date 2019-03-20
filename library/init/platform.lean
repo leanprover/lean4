@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 prelude
 import init.core
 
-namespace system
+namespace System
 
 -- TODO: mark as opaque, the VM provides platform specific implementation
-def platform.nbits : nat := 64
+def platform.nbits : Nat := 64
 
-end system
+end System

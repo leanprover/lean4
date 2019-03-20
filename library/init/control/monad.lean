@@ -4,20 +4,20 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Luke Nelson, Jared Roesch, Sebastian Ullrich
 -/
 prelude
-import init.control.applicative
+import init.control.Applicative
 universes u v
 
-open function
+open Function
 
-class hasBind (m : Type u → Type v) :=
+class HasBind (m : Type u → Type v) :=
 (bind : Π {α β : Type u}, m α → (α → m β) → m β)
 
-export hasBind (bind)
+export HasBind (bind)
 
 infixl ` >>= `:55 := bind
 
-class monad (m : Type u → Type v) extends applicative m, hasBind m : Type (max (u+1) v) :=
+class Monad (m : Type u → Type v) extends Applicative m, HasBind m : Type (max (u+1) v) :=
 (map       := λ α β f x, x >>= pure ∘ f)
-(seq       := λ α β f x, f >>= (<$> x))
+(Seq       := λ α β f x, f >>= (<$> x))
 (seqLeft  := λ α β x y, x >>= λ a, y >>= λ _, pure a)
 (seqRight := λ α β x y, x >>= λ _, y)

@@ -4,132 +4,132 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.lean.name init.lean.parser.parsec
+import init.Lean.Name init.Lean.Parser.Parsec
 
-namespace lean
-namespace parser
+namespace Lean
+namespace Parser
 
 --TODO(Sebastian): move
-structure substring :=
-(start : string.iterator)
-(stop : string.iterator)
+structure Substring :=
+(start : String.Iterator)
+(stop : String.Iterator)
 
-structure sourceInfo :=
-/- Will be inferred after parsing by `syntax.updateLeading`. During parsing,
+structure SourceInfo :=
+/- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
    it is not at all clear what the preceding token was, especially with backtracking. -/
-(leading  : substring)
-(pos      : parsec.position)
-(trailing : substring)
+(leading  : Substring)
+(pos      : Parsec.Position)
+(trailing : Substring)
 
-structure syntaxAtom :=
-(info : option sourceInfo := none) (val : string)
+structure SyntaxAtom :=
+(info : Option SourceInfo := none) (val : String)
 
-/-- A simple wrapper that should remind you to use the static declaration instead
-    of hard-coding the node name. -/
-structure syntaxNodeKind :=
--- should be equal to the name of the declaration this structure instance was bound to
-(name : name)
+/-- A simple wrapper that should remind you to use the static Declaration instead
+    of hard-coding the Node Name. -/
+structure SyntaxNodeKind :=
+-- should be equal to the Name of the Declaration this structure instance was bound to
+(Name : Name)
 
-/-- Signifies ambiguous syntax to be disambiguated by the elaborator. Should have at least two children.
+/-- Signifies ambiguous Syntax to be disambiguated by the Elaborator. Should have at least two children.
 
-    This node kind is special-cased by `syntax.reprint` since its children's outputs should not be concatenated. -/
-@[pattern] def choice : syntaxNodeKind := ⟨`lean.parser.choice⟩
-/-- A nondescriptive kind that can be used for merely grouping syntax trees into a node.
+    This Node kind is special-cased by `Syntax.reprint` since its children's outputs should not be concatenated. -/
+@[pattern] def choice : SyntaxNodeKind := ⟨`Lean.Parser.choice⟩
+/-- A nondescriptive kind that can be used for merely grouping Syntax trees into a Node.
 
-    This node kind is special-cased by `syntax.format` to be printed as brackets `[...]` without a node kind. -/
-@[pattern] def noKind : syntaxNodeKind := ⟨`lean.parser.noKind⟩
+    This Node kind is special-cased by `Syntax.Format` to be printed as brackets `[...]` without a Node kind. -/
+@[pattern] def noKind : SyntaxNodeKind := ⟨`Lean.Parser.noKind⟩
 
 /-- A hygiene marker introduced by a macro expansion. -/
-@[derive decidableEq hasToFormat]
-def macroScope := nat
-abbrev macroScopes := list macroScope
+@[derive DecidableEq HasToFormat]
+def MacroScope := Nat
+abbrev macroScopes := List MacroScope
 
 /-
-Parsers create `syntaxNode`'s with the following properties (see implementation of `combinators.node`):
-- If `args` contains a `syntax.missing`, then all subsequent elements are also `syntax.missing`.
-- The first argument in `args` is not `syntax.missing`
+Parsers create `SyntaxNode`'s with the following properties (see implementation of `Combinators.Node`):
+- If `args` contains a `Syntax.missing`, then all subsequent elements are also `Syntax.missing`.
+- The first argument in `args` is not `Syntax.missing`
 
-Remark: We do create `syntaxNode`'s with an empty `args` field (e.g. for representing `option.none`).
+Remark: We do create `SyntaxNode`'s with an Empty `args` field (e.g. for representing `Option.none`).
 -/
-structure syntaxNode (syntax : Type) :=
-(kind : syntaxNodeKind)
-(args : list syntax)
--- Lazily propagated scopes. Scopes are pushed inwards when a node is destructed via `syntax.asNode`,
+structure SyntaxNode (Syntax : Type) :=
+(kind : SyntaxNodeKind)
+(args : List Syntax)
+-- Lazily propagated scopes. Scopes are pushed inwards when a Node is destructed via `Syntax.asNode`,
 -- until an ident or an atom (in which the scopes vanish) is reached.
--- Scopes are stored in a stack with the most recent scope at the top.
+-- Scopes are stored in a stack with the most recent Scope at the top.
 (scopes : macroScopes := [])
 
-structure syntaxIdent :=
-(info : option sourceInfo := none)
-(rawVal : substring)
-(val : name)
-/- A list of overloaded, global names that this identifier could have referred to in the lexical context
+structure SyntaxIdent :=
+(info : Option SourceInfo := none)
+(rawVal : Substring)
+(val : Name)
+/- A List of overloaded, global names that this identifier could have referred to in the lexical context
    where it was parsed.
    If the identifier does not resolve to a local binding, it should instead resolve to one of
    these preresolved constants. -/
-(preresolved : list name := [])
+(preresolved : List Name := [])
 (scopes : macroScopes := [])
 
-inductive syntax
-| atom (val : syntaxAtom)
-| ident (val : syntaxIdent)
--- note: use `syntax.asNode` instead of matching against this constructor so that
+inductive Syntax
+| atom (val : SyntaxAtom)
+| ident (val : SyntaxIdent)
+-- note: use `Syntax.asNode` instead of matching against this Constructor so that
 -- macro scopes are propagated
-| rawNode (val : syntaxNode syntax)
+| rawNode (val : SyntaxNode Syntax)
 | missing
 
-instance : inhabited syntax :=
-⟨syntax.missing⟩
+instance : Inhabited Syntax :=
+⟨Syntax.missing⟩
 
-def substring.toString (s : substring) : string :=
+def Substring.toString (s : Substring) : String :=
 s.start.extract s.stop
 
-def substring.ofString (s : string) : substring :=
+def Substring.ofString (s : String) : Substring :=
 ⟨s.mkIterator, s.mkIterator.toEnd⟩
 
-instance substring.hasToString : hasToString substring :=
-⟨substring.toString⟩
+instance Substring.HasToString : HasToString Substring :=
+⟨Substring.toString⟩
 
 -- TODO(Sebastian): exhaustively argue why (if?) this is correct
--- The basic idea is list concatenation with elimination of adjacent identical scopes
+-- The basic idea is List concatenation with elimination of adjacent identical scopes
 def macroScopes.flip : macroScopes → macroScopes → macroScopes
 | ys (x::xs) := (match macroScopes.flip ys xs with
   | y::ys := if x = y then ys else x::y::ys
   | []    := [x])
 | ys []      := ys
 
-namespace syntax
-open lean.format
+namespace Syntax
+open Lean.Format
 
-def flipScopes (scopes : macroScopes) : syntax → syntax
-| (syntax.ident n) := syntax.ident {n with scopes := n.scopes.flip scopes}
-| (syntax.rawNode n) := syntax.rawNode {n with scopes := n.scopes.flip scopes}
+def flipScopes (scopes : macroScopes) : Syntax → Syntax
+| (Syntax.ident n) := Syntax.ident {n with scopes := n.scopes.flip scopes}
+| (Syntax.rawNode n) := Syntax.rawNode {n with scopes := n.scopes.flip scopes}
 | stx := stx
 
-def mkNode (kind : syntaxNodeKind) (args : list syntax) :=
-syntax.rawNode { kind := kind, args := args }
+def mkNode (kind : SyntaxNodeKind) (args : List Syntax) :=
+Syntax.rawNode { kind := kind, args := args }
 
-/-- Match against `syntax.rawNode`, propagating lazy macro scopes. -/
-def asNode : syntax → option (syntaxNode syntax)
-| (syntax.rawNode n) := some {n with args := n.args.map (flipScopes n.scopes), scopes := []}
+/-- Match against `Syntax.rawNode`, propagating lazy macro scopes. -/
+def asNode : Syntax → Option (SyntaxNode Syntax)
+| (Syntax.rawNode n) := some {n with args := n.args.map (flipScopes n.scopes), scopes := []}
 | _                   := none
 
-protected def list (args : list syntax) :=
+protected def List (args : List Syntax) :=
 mkNode noKind args
 
-def kind : syntax → option syntaxNodeKind
-| (syntax.rawNode n) := some n.kind
+def kind : Syntax → Option SyntaxNodeKind
+| (Syntax.rawNode n) := some n.kind
 | _                   := none
 
-def isOfKind (k : syntaxNodeKind) : syntax → bool
-| (syntax.rawNode n) := k.name = n.kind.name
+def isOfKind (k : SyntaxNodeKind) : Syntax → Bool
+| (Syntax.rawNode n) := k.Name = n.kind.Name
 | _ := ff
 
 section
-variables {m : Type → Type} [monad m] (r : syntax → m (option syntax))
+variables {m : Type → Type} [Monad m] (r : Syntax → m (Option Syntax))
 
 mutual def mreplace, mreplaceLst
-with mreplace : syntax → m syntax
+with mreplace : Syntax → m Syntax
 | stx@(rawNode n) := do
   o ← r stx,
   (match o with
@@ -138,16 +138,16 @@ with mreplace : syntax → m syntax
 | stx := do
   o ← r stx,
   pure $ o.getOrElse stx
-with mreplaceLst : list syntax → m (list syntax)
+with mreplaceLst : List Syntax → m (List Syntax)
 | []      := pure []
-| (s::ss) := list.cons <$> mreplace s <*> mreplaceLst ss
+| (s::ss) := List.cons <$> mreplace s <*> mreplaceLst ss
 
 def replace := @mreplace id _
 end
 
-/- Remark: the state `string.iterator` is the `sourceInfo.trailing.stop` of the previous token,
-   or the beginning of the string. -/
-private def updateLeadingAux : syntax → state string.iterator (option syntax)
+/- Remark: the State `String.Iterator` is the `SourceInfo.trailing.stop` of the previous token,
+   or the beginning of the String. -/
+private def updateLeadingAux : Syntax → State String.Iterator (Option Syntax)
 | (atom a@{info := some info, ..}) := do
   last ← get,
   put info.trailing.stop,
@@ -158,47 +158,47 @@ private def updateLeadingAux : syntax → state string.iterator (option syntax)
   pure $ some $ ident {id with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
 | _ := pure none
 
-/-- Set `sourceInfo.leading` according to the trailing stop of the preceding token.
-    The result is a round-tripping syntax tree IF, in the input syntax tree,
+/-- Set `SourceInfo.leading` according to the trailing stop of the preceding token.
+    The Result is a round-tripping Syntax tree IF, in the input Syntax tree,
     * all leading stops, atom contents, and trailing starts are correct
     * trailing stops are between the trailing start and the next leading stop.
 
-    Remark: after parsing all `sourceInfo.leading` fields are empty.
-    The syntax argument is the output produced by the parser for `source`.
-    This function "fixes" the `source.leanding` field.
+    Remark: after parsing all `SourceInfo.leading` fields are Empty.
+    The Syntax argument is the output produced by the Parser for `source`.
+    This Function "fixes" the `source.leanding` field.
 
-    Note that, the `sourceInfo.trailing` fields are correct.
-    The implementation of this function relies on this property. -/
-def updateLeading (source : string) : syntax → syntax :=
-λ stx, prod.fst $ (mreplace updateLeadingAux stx).run source.mkIterator
+    Note that, the `SourceInfo.trailing` fields are correct.
+    The implementation of this Function relies on this property. -/
+def updateLeading (source : String) : Syntax → Syntax :=
+λ stx, Prod.fst $ (mreplace updateLeadingAux stx).run source.mkIterator
 
-/-- Retrieve the left-most leaf's info in the syntax tree. -/
+/-- Retrieve the left-most leaf's info in the Syntax tree. -/
 mutual def getHeadInfo, getHeadInfoLst
-with getHeadInfo : syntax → option sourceInfo
+with getHeadInfo : Syntax → Option SourceInfo
 | (atom a)   := a.info
 | (ident id) := id.info
 | (rawNode n) := getHeadInfoLst n.args
 | _ := none
-with getHeadInfoLst : list syntax → option sourceInfo
+with getHeadInfoLst : List Syntax → Option SourceInfo
 | [] := none
 | (stx::stxs) := getHeadInfo stx <|> getHeadInfoLst stxs
 
-def getPos (stx : syntax) : option parsec.position :=
+def getPos (stx : Syntax) : Option Parsec.Position :=
 do i ← stx.getHeadInfo,
    pure i.pos
 
-def reprintAtom : syntaxAtom → string
+def reprintAtom : SyntaxAtom → String
 | ⟨some info, s⟩ := info.leading.toString ++ s ++ info.trailing.toString
 | ⟨none, s⟩      := s
 
 mutual def reprint, reprintLst
-with reprint : syntax → option string
+with reprint : Syntax → Option String
 | (atom ⟨some info, s⟩) := pure $ info.leading.toString ++ s ++ info.trailing.toString
 | (atom ⟨none, s⟩)      := pure s
 | (ident id@{info := some info, ..}) := pure $ info.leading.toString ++ id.rawVal.toString ++ info.trailing.toString
 | (ident id@{info := none,      ..}) := pure id.rawVal.toString
 | (rawNode n) :=
-  if n.kind.name = choice.name then match n.args with
+  if n.kind.Name = choice.Name then match n.args with
   -- should never happen
   | [] := failure
   -- check that every choice prints the same
@@ -207,9 +207,9 @@ with reprint : syntax → option string
     ss ← reprintLst ns,
     guard $ ss.all (= s),
     pure s
-  else string.join <$> reprintLst n.args
+  else String.join <$> reprintLst n.args
 | missing := ""
-with reprintLst : list syntax → option (list string)
+with reprintLst : List Syntax → Option (List String)
 | []      := pure []
 | (n::ns) := do
   s ← reprint n,
@@ -217,7 +217,7 @@ with reprintLst : list syntax → option (list string)
   pure $ s::ss
 
 protected mutual def toFormat, toFormatLst
-with toFormat : syntax → format
+with toFormat : Syntax → Format
 | (atom ⟨_, s⟩) := toFmt $ repr s
 | (ident id)    :=
   let scopes := id.preresolved.map toFmt ++ id.scopes.reverse.map toFmt in
@@ -225,17 +225,17 @@ with toFormat : syntax → format
   toFmt "`" ++ toFmt id.val ++ scopes
 | stx@(rawNode n) :=
   let scopes := match n.scopes with [] := toFmt "" | _ := bracket "{" (joinSep n.scopes.reverse ", ") "}" in
-  if n.kind.name = `lean.parser.noKind then sbracket $ scopes ++ joinSep (toFormatLst n.args) line
-  else let shorterName := n.kind.name.replacePrefix `lean.parser name.anonymous
+  if n.kind.Name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (toFormatLst n.args) line
+  else let shorterName := n.kind.Name.replacePrefix `Lean.Parser Name.anonymous
        in paren $ joinSep ((toFmt shorterName ++ scopes) :: toFormatLst n.args) line
 | missing := "<missing>"
-with toFormatLst : list syntax → list format
+with toFormatLst : List Syntax → List Format
 | []      := []
 | (s::ss) := toFormat s :: toFormatLst ss
 
-instance : hasToFormat syntax := ⟨syntax.toFormat⟩
-instance : hasToString syntax := ⟨toString ∘ toFmt⟩
-end syntax
+instance : HasToFormat Syntax := ⟨Syntax.toFormat⟩
+instance : HasToString Syntax := ⟨toString ∘ toFmt⟩
+end Syntax
 
-end parser
-end lean
+end Parser
+end Lean

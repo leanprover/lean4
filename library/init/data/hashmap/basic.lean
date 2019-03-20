@@ -4,73 +4,73 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.array.basic init.data.list.basic
-import init.data.option.basic init.data.hashable
+import init.data.Array.basic init.data.List.basic
+import init.data.Option.basic init.data.Hashable
 universes u v w
 
 def bucketArray (α : Type u) (β : α → Type v) :=
-{ b : array (list (Σ a, β a)) // b.sz > 0 }
+{ b : Array (List (Σ a, β a)) // b.sz > 0 }
 
-def bucketArray.uwrite {α : Type u} {β : α → Type v} (data : bucketArray α β) (i : usize) (d : list (Σ a, β a)) (h : i.toNat < data.val.sz) : bucketArray α β :=
+def bucketArray.uwrite {α : Type u} {β : α → Type v} (data : bucketArray α β) (i : Usize) (d : List (Σ a, β a)) (h : i.toNat < data.val.sz) : bucketArray α β :=
 ⟨ data.val.uwrite i d h,
-  transRelRight gt (array.szWriteEq (data.val) ⟨usize.toNat i, h⟩ d) data.property ⟩
+  transRelRight gt (Array.szWriteEq (data.val) ⟨Usize.toNat i, h⟩ d) data.property ⟩
 
-structure hashmapImp (α : Type u) (β : α → Type v) :=
-(size       : nat)
+structure HashmapImp (α : Type u) (β : α → Type v) :=
+(size       : Nat)
 (buckets    : bucketArray α β)
 
-def mkHashmapImp {α : Type u} {β : α → Type v} (nbuckets := 8) : hashmapImp α β :=
+def mkHashmapImp {α : Type u} {β : α → Type v} (nbuckets := 8) : HashmapImp α β :=
 let n := if nbuckets = 0 then 8 else nbuckets in
 { size       := 0,
   buckets    :=
   ⟨ mkArray n [],
-    have p₁ : (mkArray n ([] : list (Σ a, β a))).sz = n, from szMkArrayEq _ _,
+    have p₁ : (mkArray n ([] : List (Σ a, β a))).sz = n, from szMkArrayEq _ _,
     have p₂ : n = (if nbuckets = 0 then 8 else nbuckets), from rfl,
     have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0, from
               match nbuckets with
-              | 0            := nat.zeroLtSucc _
-              | (nat.succ x) := nat.zeroLtSucc _,
-    transRelRight gt (eq.trans p₁ p₂) p₃ ⟩ }
+              | 0            := Nat.zeroLtSucc _
+              | (Nat.succ x) := Nat.zeroLtSucc _,
+    transRelRight gt (Eq.trans p₁ p₂) p₃ ⟩ }
 
-namespace hashmapImp
+namespace HashmapImp
 variables {α : Type u} {β : α → Type v}
 
-def mkIdx {n : nat} (h : n > 0) (u : usize) : { u : usize // u.toNat < n } :=
-⟨u %ₙ n, usize.modnLt _ h⟩
+def mkIdx {n : Nat} (h : n > 0) (u : Usize) : { u : Usize // u.toNat < n } :=
+⟨u %ₙ n, Usize.modnLt _ h⟩
 
-def reinsertAux (hashFn : α → usize) (data : bucketArray α β) (a : α) (b : β a) : bucketArray α β :=
+def reinsertAux (hashFn : α → Usize) (data : bucketArray α β) (a : α) (b : β a) : bucketArray α β :=
 let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
 data.uwrite i (⟨a, b⟩ :: data.val.uread i h) h
 
 def foldBuckets {δ : Type w} (data : bucketArray α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 data.val.foldl d (λ b d, b.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d)
 
-def findAux [decidableEq α] (a : α) : list (Σ a, β a) → option (β a)
+def findAux [DecidableEq α] (a : α) : List (Σ a, β a) → Option (β a)
 | []          := none
 | (⟨a',b⟩::t) :=
-  if h : a' = a then some (eq.recOn h b) else findAux t
+  if h : a' = a then some (Eq.recOn h b) else findAux t
 
-def containsAux [decidableEq α] (a : α) (l : list (Σ a, β a)) : bool :=
+def containsAux [DecidableEq α] (a : α) (l : List (Σ a, β a)) : Bool :=
 (findAux a l).isSome
 
-def find [decidableEq α] [hashable α] (m : hashmapImp α β) (a : α) : option (β a) :=
+def find [DecidableEq α] [Hashable α] (m : HashmapImp α β) (a : α) : Option (β a) :=
 match m with
 | ⟨_, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
   findAux a (buckets.val.uread i h)
 
-def fold {δ : Type w} (m : hashmapImp α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
+def fold {δ : Type w} (m : HashmapImp α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 foldBuckets m.buckets d f
 
-def replaceAux [decidableEq α] (a : α) (b : β a) : list (Σ a, β a) → list (Σ a, β a)
+def replaceAux [DecidableEq α] (a : α) (b : β a) : List (Σ a, β a) → List (Σ a, β a)
 | []            := []
 | (⟨a', b'⟩::t) := if a' = a then ⟨a, b⟩::t else ⟨a', b'⟩ :: replaceAux t
 
-def eraseAux [decidableEq α] (a : α) : list (Σ a, β a) → list (Σ a, β a)
+def eraseAux [DecidableEq α] (a : α) : List (Σ a, β a) → List (Σ a, β a)
 | []            := []
 | (⟨a', b'⟩::t) := if a' = a then t else ⟨a', b'⟩ :: eraseAux t
 
-def insert [decidableEq α] [hashable α] (m : hashmapImp α β) (a : α) (b : β a) : hashmapImp α β :=
+def insert [DecidableEq α] [Hashable α] (m : HashmapImp α β) (a : α) (b : β a) : HashmapImp α β :=
 match m with
 | ⟨size, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
@@ -82,11 +82,11 @@ match m with
        if size' <= buckets.val.sz
        then ⟨size', buckets'⟩
        else let nbuckets' := buckets.val.sz * 2 in
-            let nz' : nbuckets' > 0 := nat.mulPos buckets.property (nat.zeroLtBit0 nat.oneNeZero) in
+            let nz' : nbuckets' > 0 := Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero) in
             ⟨ size',
               foldBuckets buckets' ⟨mkArray nbuckets' [], nz'⟩ (reinsertAux hash) ⟩
 
-def erase [decidableEq α] [hashable α] (m : hashmapImp α β) (a : α) : hashmapImp α β :=
+def erase [DecidableEq α] [Hashable α] (m : HashmapImp α β) (a : α) : HashmapImp α β :=
 match m with
 | ⟨ size, buckets ⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
@@ -94,80 +94,80 @@ match m with
   if containsAux a bkt then ⟨size - 1, buckets.uwrite i (eraseAux a bkt) h⟩
   else m
 
-inductive wellFormed [decidableEq α] [hashable α] : hashmapImp α β → Prop
-| mkWff     : ∀ n,                     wellFormed (mkHashmapImp n)
-| insertWff : ∀ m a b, wellFormed m → wellFormed (insert m a b)
-| eraseWff  : ∀ m a,   wellFormed m → wellFormed (erase m a)
+inductive WellFormed [DecidableEq α] [Hashable α] : HashmapImp α β → Prop
+| mkWff     : ∀ n,                     WellFormed (mkHashmapImp n)
+| insertWff : ∀ m a b, WellFormed m → WellFormed (insert m a b)
+| eraseWff  : ∀ m a,   WellFormed m → WellFormed (erase m a)
 
-end hashmapImp
+end HashmapImp
 
-def dHashmap (α : Type u) (β : α → Type v) [decidableEq α] [hashable α] :=
-{ m : hashmapImp α β // m.wellFormed }
+def DHashmap (α : Type u) (β : α → Type v) [DecidableEq α] [Hashable α] :=
+{ m : HashmapImp α β // m.WellFormed }
 
-open hashmapImp
+open HashmapImp
 
-def mkDHashmap {α : Type u} {β : α → Type v} [decidableEq α] [hashable α] (nbuckets := 8) : dHashmap α β :=
-⟨ mkHashmapImp nbuckets, wellFormed.mkWff nbuckets ⟩
+def mkDHashmap {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α] (nbuckets := 8) : DHashmap α β :=
+⟨ mkHashmapImp nbuckets, WellFormed.mkWff nbuckets ⟩
 
-namespace dHashmap
-variables {α : Type u} {β : α → Type v} [decidableEq α] [hashable α]
+namespace DHashmap
+variables {α : Type u} {β : α → Type v} [DecidableEq α] [Hashable α]
 
-def insert (m : dHashmap α β) (a : α) (b : β a) : dHashmap α β :=
+def insert (m : DHashmap α β) (a : α) (b : β a) : DHashmap α β :=
 match m with
-| ⟨ m, hw ⟩ := ⟨ m.insert a b, wellFormed.insertWff m a b hw ⟩
+| ⟨ m, hw ⟩ := ⟨ m.insert a b, WellFormed.insertWff m a b hw ⟩
 
-def erase (m : dHashmap α β) (a : α) : dHashmap α β :=
+def erase (m : DHashmap α β) (a : α) : DHashmap α β :=
 match m with
-| ⟨ m, hw ⟩ := ⟨ m.erase a, wellFormed.eraseWff m a hw ⟩
+| ⟨ m, hw ⟩ := ⟨ m.erase a, WellFormed.eraseWff m a hw ⟩
 
-def find (m : dHashmap α β) (a : α) : option (β a) :=
+def find (m : DHashmap α β) (a : α) : Option (β a) :=
 match m with
 | ⟨ m, _ ⟩ := m.find a
 
-@[inline] def contains (m : dHashmap α β) (a : α) : bool :=
+@[inline] def contains (m : DHashmap α β) (a : α) : Bool :=
 (m.find a).isSome
 
-def fold {δ : Type w} (m : dHashmap α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
+def fold {δ : Type w} (m : DHashmap α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 match m with
 | ⟨ m, _ ⟩ := m.fold d f
 
-def size (m : dHashmap α β) : nat :=
+def size (m : DHashmap α β) : Nat :=
 match m with
 | ⟨ {size := sz, ..}, _ ⟩ := sz
 
-@[inline] def empty (m : dHashmap α β) : bool :=
+@[inline] def Empty (m : DHashmap α β) : Bool :=
 m.size = 0
 
-end dHashmap
+end DHashmap
 
-def hashmap (α : Type u) (β : Type v) [decidableEq α] [hashable α] :=
-dHashmap α (λ _, β)
+def Hashmap (α : Type u) (β : Type v) [DecidableEq α] [Hashable α] :=
+DHashmap α (λ _, β)
 
-def mkHashmap {α : Type u} {β : Type v} [decidableEq α] [hashable α] (nbuckets := 8) : hashmap α β  :=
+def mkHashmap {α : Type u} {β : Type v} [DecidableEq α] [Hashable α] (nbuckets := 8) : Hashmap α β  :=
 mkDHashmap nbuckets
 
-namespace hashmap
-variables {α : Type u} {β : Type v} [decidableEq α] [hashable α]
+namespace Hashmap
+variables {α : Type u} {β : Type v} [DecidableEq α] [Hashable α]
 
-@[inline] def insert (m : hashmap α β) (a : α) (b : β) : hashmap α β :=
-dHashmap.insert m a b
+@[inline] def insert (m : Hashmap α β) (a : α) (b : β) : Hashmap α β :=
+DHashmap.insert m a b
 
-@[inline] def erase (m : hashmap α β) (a : α) : hashmap α β :=
-dHashmap.erase m a
+@[inline] def erase (m : Hashmap α β) (a : α) : Hashmap α β :=
+DHashmap.erase m a
 
-@[inline] def find (m : hashmap α β) (a : α) : option β :=
-dHashmap.find m a
+@[inline] def find (m : Hashmap α β) (a : α) : Option β :=
+DHashmap.find m a
 
-@[inline] def contains (m : hashmap α β) (a : α) : bool :=
+@[inline] def contains (m : Hashmap α β) (a : α) : Bool :=
 (m.find a).isSome
 
-@[inline] def fold {δ : Type w} (m : hashmap α β) (d : δ) (f : δ → α → β → δ) : δ :=
-dHashmap.fold m d f
+@[inline] def fold {δ : Type w} (m : Hashmap α β) (d : δ) (f : δ → α → β → δ) : δ :=
+DHashmap.fold m d f
 
-@[inline] def size (m : hashmap α β) : nat :=
-dHashmap.size m
+@[inline] def size (m : Hashmap α β) : Nat :=
+DHashmap.size m
 
-@[inline] def empty (m : hashmap α β) : bool :=
-dHashmap.empty m
+@[inline] def Empty (m : Hashmap α β) : Bool :=
+DHashmap.Empty m
 
-end hashmap
+end Hashmap

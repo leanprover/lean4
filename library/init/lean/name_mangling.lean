@@ -4,40 +4,40 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.lean.name init.lean.parser.stringLiteral
-namespace lean
-open lean.parser
-open lean.parser.monadParsec
+import init.Lean.Name init.Lean.Parser.stringLiteral
+namespace Lean
+open Lean.Parser
+open Lean.Parser.MonadParsec
 
-private def string.mangleAux : nat → string.iterator → string → string
+private def String.mangleAux : Nat → String.Iterator → String → String
 | 0     it r := r
 | (i+1) it r :=
   let c := it.curr in
   if c.isAlpha || c.isDigit then
-    string.mangleAux i it.next (r.push c)
+    String.mangleAux i it.next (r.push c)
   else if c = '_' then
-    string.mangleAux i it.next (r ++ "__")
+    String.mangleAux i it.next (r ++ "__")
   else if c.toNat < 255 then
     let n := c.toNat in
     let r := r ++ "_x" in
-    let r := r.push $ nat.digitChar (n / 16) in
-    let r := r.push $ nat.digitChar (n % 16) in
-    string.mangleAux i it.next r
+    let r := r.push $ Nat.digitChar (n / 16) in
+    let r := r.push $ Nat.digitChar (n % 16) in
+    String.mangleAux i it.next r
   else
     let n := c.toNat in
     let r := r ++ "_u" in
-    let r := r.push $ nat.digitChar (n / 4096) in
+    let r := r.push $ Nat.digitChar (n / 4096) in
     let n := n % 4096 in
-    let r := r.push $ nat.digitChar (n / 256) in
+    let r := r.push $ Nat.digitChar (n / 256) in
     let n := n % 256 in
-    let r := r.push $ nat.digitChar (n / 16) in
-    let r := r.push $ nat.digitChar (n % 16) in
-    string.mangleAux i it.next r
+    let r := r.push $ Nat.digitChar (n / 16) in
+    let r := r.push $ Nat.digitChar (n % 16) in
+    String.mangleAux i it.next r
 
-def string.mangle (s : string) : string :=
-string.mangleAux s.length s.mkIterator ""
+def String.mangle (s : String) : String :=
+String.mangleAux s.length s.mkIterator ""
 
-private def parseMangledStringAux : nat → string → parsec' string
+private def parseMangledStringAux : Nat → String → Parsec' String
 | 0     r := pure r
 | (i+1) r :=
      (eoi *> pure r)
@@ -45,43 +45,43 @@ private def parseMangledStringAux : nat → string → parsec' string
  <|> (do c ← digit, parseMangledStringAux i (r.push c))
  <|> (do str "__", parseMangledStringAux i (r.push '_'))
  <|> (do str "_x", d₂ ← parseHexDigit, d₁ ← parseHexDigit,
-         parseMangledStringAux i (r.push (char.ofNat (d₂ * 16 + d₁))))
+         parseMangledStringAux i (r.push (Char.ofNat (d₂ * 16 + d₁))))
  <|> (do str "_u", d₄ ← parseHexDigit, d₃ ← parseHexDigit, d₂ ← parseHexDigit, d₁ ← parseHexDigit,
-         parseMangledStringAux i (r.push (char.ofNat (d₄ * 4096 + d₃ * 256 + d₂ * 16 + d₁))))
+         parseMangledStringAux i (r.push (Char.ofNat (d₄ * 4096 + d₃ * 256 + d₂ * 16 + d₁))))
 
-private def parseMangledString : parsec' string :=
+private def parseMangledString : Parsec' String :=
 do r ← remaining, parseMangledStringAux r ""
 
-def string.demangle (s : string) : option string :=
-(parsec.parse parseMangledString s).toOption
+def String.demangle (s : String) : Option String :=
+(Parsec.parse parseMangledString s).toOption
 
-private def name.mangleAux (pre : string) : name → string
-| name.anonymous       := pre
-| (name.mkString p s) :=
-  let r := name.mangleAux p in
-  let m := string.mangle s in
+private def Name.mangleAux (pre : String) : Name → String
+| Name.anonymous       := pre
+| (Name.mkString p s) :=
+  let r := Name.mangleAux p in
+  let m := String.mangle s in
   r ++ "_s" ++ toString m.length ++ "_" ++ m
-| (name.mkNumeral p n) :=
-  let r := name.mangleAux p in
+| (Name.mkNumeral p n) :=
+  let r := Name.mangleAux p in
   r ++ "_" ++ toString n ++ "_"
 
-def name.mangle (n : name) (pre : string := "_l") : string :=
-name.mangleAux pre n
+def Name.mangle (n : Name) (pre : String := "_l") : String :=
+Name.mangleAux pre n
 
-private def parseMangledNameAux : nat → name → parsec' name
+private def parseMangledNameAux : Nat → Name → Parsec' Name
 | 0 r     := pure r
 | (i+1) r :=
       (eoi *> pure r)
   <|> (do str "_s", n ← num, ch '_',
-          (some s) ← string.demangle <$> take n,
+          (some s) ← String.demangle <$> take n,
           parseMangledNameAux i (r.mkString s))
   <|> (do ch '_', n ← num, ch '_',
           parseMangledNameAux i (r.mkNumeral n))
 
-private def parseMangledName (pre : string) : parsec' name :=
-do str pre, r ← remaining, parseMangledNameAux r name.anonymous
+private def parseMangledName (pre : String) : Parsec' Name :=
+do str pre, r ← remaining, parseMangledNameAux r Name.anonymous
 
-def name.demangle (s : string) (pre : string := "_l") : option name :=
-(parsec.parse (parseMangledName pre) s).toOption
+def Name.demangle (s : String) (pre : String := "_l") : Option Name :=
+(Parsec.parse (parseMangledName pre) s).toOption
 
-end lean
+end Lean

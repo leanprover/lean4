@@ -4,56 +4,56 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.lean.format init.data.rbmap init.lean.position init.lean.name init.lean.options
+import init.Lean.Format init.data.Rbmap init.Lean.Position init.Lean.Name init.Lean.Options
 
 universe u
 
-namespace lean
+namespace Lean
 
-inductive message
-| fromFormat (fmt : format)
+inductive Message
+| fromFormat (fmt : Format)
 
-instance : hasCoe format message :=
-⟨message.fromFormat⟩
+instance : HasCoe Format Message :=
+⟨Message.fromFormat⟩
 
-inductive trace
-| mk (msg : message) (subtraces : list trace)
+inductive Trace
+| mk (msg : Message) (subtraces : List Trace)
 
-def trace.pp : trace → format
-| (trace.mk (message.fromFormat fmt) subtraces) :=
-fmt ++ format.nest 2 (format.join $ subtraces.map (λ t, format.line ++ t.pp))
+def Trace.pp : Trace → Format
+| (Trace.mk (Message.fromFormat fmt) subtraces) :=
+fmt ++ Format.nest 2 (Format.join $ subtraces.map (λ t, Format.line ++ t.pp))
 
-namespace trace
+namespace Trace
 
-def traceMap := rbmap position trace (<)
+def TraceMap := Rbmap Position Trace (<)
 
-structure traceState :=
-(opts : options)
-(roots : traceMap)
-(curPos : option position)
-(curTraces : list trace)
+structure TraceState :=
+(opts : Options)
+(roots : TraceMap)
+(curPos : Option Position)
+(curTraces : List Trace)
 
-def traceT (m : Type → Type u) := stateT traceState m
-local attribute [reducible] traceT
+def TraceT (m : Type → Type u) := StateT TraceState m
+local attribute [reducible] TraceT
 
-instance (m) [monad m] : monad (traceT m) := inferInstance
+instance (m) [Monad m] : Monad (TraceT m) := inferInstance
 
-class monadTracer (m : Type → Type u) :=
-(traceRoot {α} : position → name → message → thunk (m α) → m α)
-(traceCtx {α} : name → message → thunk (m α) → m α)
+class MonadTracer (m : Type → Type u) :=
+(traceRoot {α} : Position → Name → Message → Thunk (m α) → m α)
+(traceCtx {α} : Name → Message → Thunk (m α) → m α)
 
-export monadTracer (traceRoot traceCtx)
+export MonadTracer (traceRoot traceCtx)
 
-def trace {m} [monad m] [monadTracer m] (cls : name) (msg : message) : m unit :=
+def Trace {m} [Monad m] [MonadTracer m] (cls : Name) (msg : Message) : m unit :=
 traceCtx cls msg (pure () : m unit)
 
-instance (m) [monad m] : monadTracer (traceT m) :=
+instance (m) [Monad m] : MonadTracer (TraceT m) :=
 { traceRoot := λ α pos cls msg ctx, do {
     st ← get,
     if st.opts.getBool cls = some tt then do {
       modify $ λ st, {curPos := pos, curTraces := [], ..st},
       a ← ctx.get,
-      modify $ λ (st : traceState), {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st},
+      modify $ λ (st : TraceState), {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st},
       pure a
     } else ctx.get
   },
@@ -61,11 +61,11 @@ instance (m) [monad m] : monadTracer (traceT m) :=
     st ← get,
     -- tracing enabled?
     some _ ← pure st.curPos | ctx.get,
-    -- trace class enabled?
+    -- Trace class enabled?
     if st.opts.getBool cls = some tt then do {
       put {curTraces := [], ..st},
       a ← ctx.get,
-      modify $ λ (st' : traceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'},
+      modify $ λ (st' : TraceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'},
       pure a
     } else
       -- disable tracing inside 'ctx'
@@ -76,9 +76,9 @@ instance (m) [monad m] : monadTracer (traceT m) :=
   }
 }
 
-unsafe def traceT.run {m α} [monad m] (opts : options) (x : traceT m α) : m (α × traceMap) :=
-do (a, st) ← stateT.run x {opts := opts, roots := mkRbmap _ _ _, curPos := none, curTraces := []},
+unsafe def TraceT.run {m α} [Monad m] (opts : Options) (x : TraceT m α) : m (α × TraceMap) :=
+do (a, st) ← StateT.run x {opts := opts, roots := mkRbmap _ _ _, curPos := none, curTraces := []},
    pure (a, st.roots)
 
-end trace
-end lean
+end Trace
+end Lean

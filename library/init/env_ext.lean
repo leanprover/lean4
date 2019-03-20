@@ -5,57 +5,57 @@ Environment extensions:
 
 - private
   * unsigned       mCounter
-  * nameMap<name> mInvMap;  // map: hidden-name -> user-name (for pretty printing purposes) it is serialized
-  * nameSet       mPrivatePrefixes; // transient (it is used for registerPrivateName)
+  * NameMap<Name> mInvMap;  // map: hidden-Name -> user-Name (for pretty printing purposes) it is serialized
+  * NameSet       mPrivatePrefixes; // transient (it is used for registerPrivateName)
 
 - protected
-  * nameSet mProtected;
+  * NameSet mProtected;
 
 - noncomputable
-  * nameSet
+  * NameSet
 
 - exportDecl: it is used to implement the `export` command
-  * nameMap<list<exportDecl>> mNsMap;   // mapping from namespace to "export declaration"
+  * NameMap<List<exportDecl>> mNsMap;   // mapping from namespace to "export Declaration"
 
 - auxRecursors
-  * nameSet mAuxRecursorSet;
-  * nameSet mNoConfusionSet;
+  * NameSet mAuxRecursorSet;
+  * NameSet mNoConfusionSet;
 
-- aliases: this is a transient object used during elaboration. We use it to store the mappings (user-facing-name -> private name); implementing `open` command; simulating `section` parameters; etc.
-  * bool             mInSection;
-  * nameMap<names>  mAliases;
-  * nameMap<name>   mInvAliases;
-  * nameMap<name>   mLevelAliases;
-  * nameMap<name>   mInvLevelAliases;
-  * nameMap<expr>   mLocalRefs;
+- aliases: this is a transient object used during elaboration. We use it to store the mappings (user-facing-Name -> private Name); implementing `open` command; simulating `section` parameters; etc.
+  * Bool             mInSection;
+  * NameMap<names>  mAliases;
+  * NameMap<Name>   mInvAliases;
+  * NameMap<Name>   mLevelAliases;
+  * NameMap<Name>   mInvLevelAliases;
+  * NameMap<Expr>   mLocalRefs;
 
 - projection: it will be deleted
 
 - user attributes:
-  * nameMap<attributePtr> mAttrs;
+  * NameMap<attributePtr> mAttrs;
 
 - Bytecode
   * unsignedMap<vmDecl>           mDecls;
   * unsignedMap<vmCasesFunction> mCases;
-  * name                            mMonitor;
+  * Name                            mMonitor;
 
-- module
+- Module
   *  std::vector<moduleName> mDirectImports;
-  *  list<std::sharedPtr<modification const>> mModifications;
+  *  List<std::sharedPtr<modification const>> mModifications;
   *  names        mModuleUnivs;
   *  names        mModuleDecls;
-  *  nameSet     mModuleDefs;
-  *  nameSet     mImported;
-  *  // Map from declaration name to olean file where it was defined
-  *  nameMap<std::string>     mDecl2Olean;
-  *  nameMap<posInfo>        mDecl2PosInfo;
+  *  NameSet     mModuleDefs;
+  *  NameSet     mImported;
+  *  // Map from Declaration Name to olean file where it was defined
+  *  NameMap<std::String>     mDecl2Olean;
+  *  NameMap<posInfo>        mDecl2PosInfo;
 
 - scopedExt: a general purpose scoped extension. It is used to implement
-  * parser/scanner tables
+  * Parser/scanner tables
   * attributeManager (do we need them? we can try to keep user attributes only)
     * elaboration strategy
     * user commands
-    * use annonymous constructor when pretty printing
+    * use annonymous Constructor when pretty printing
     * "parsing-only"
     * reducibility annotations
     * [inline]
@@ -66,6 +66,6 @@ Environment extensions:
   * activeExportDecls
   * class
   * userRecursors
-    * nameMap<recursorInfo> mRecursors;
-    * nameMap<names>         mType2Recursors;
+    * NameMap<recursorInfo> mRecursors;
+    * NameMap<names>         mType2Recursors;
 -/

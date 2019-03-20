@@ -4,43 +4,43 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.data.nat init.data.rbmap init.lean.format
+import init.data.Nat init.data.Rbmap init.Lean.Format
 
-namespace lean
+namespace Lean
 
-structure position :=
-(line   : nat)
-(column : nat)
+structure Position :=
+(line   : Nat)
+(column : Nat)
 
-namespace position
-instance : decidableEq position :=
+namespace Position
+instance : DecidableEq Position :=
 {decEq := λ ⟨l₁, c₁⟩ ⟨l₂, c₂⟩,
   if h₁ : l₁ = l₂ then
-  if h₂ : c₁ = c₂ then isTrue (eq.recOn h₁ (eq.recOn h₂ rfl))
-  else isFalse (λ contra, position.noConfusion contra (λ e₁ e₂, absurd e₂ h₂))
-  else isFalse (λ contra, position.noConfusion contra (λ e₁ e₂, absurd e₁ h₁))}
+  if h₂ : c₁ = c₂ then isTrue (Eq.recOn h₁ (Eq.recOn h₂ rfl))
+  else isFalse (λ contra, Position.noConfusion contra (λ e₁ e₂, absurd e₂ h₂))
+  else isFalse (λ contra, Position.noConfusion contra (λ e₁ e₂, absurd e₁ h₁))}
 
-protected def lt : position → position → Prop
+protected def lt : Position → Position → Prop
 | ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := (l₁, c₁) < (l₂, c₂)
 
-instance : hasLt position := ⟨position.lt⟩
+instance : HasLt Position := ⟨Position.lt⟩
 
-instance decidableLt : Π (p₁ p₂ : position), decidable (p₁ < p₂)
-| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := inferInstanceAs $ decidable ((l₁, c₁) < (l₂, c₂))
+instance decidableLt : Π (p₁ p₂ : Position), Decidable (p₁ < p₂)
+| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := inferInstanceAs $ Decidable ((l₁, c₁) < (l₂, c₂))
 
-instance : hasToFormat position :=
+instance : HasToFormat Position :=
 ⟨λ ⟨l, c⟩, "⟨" ++ toFmt l ++ ", " ++ toFmt c ++ "⟩"⟩
 
-instance : inhabited position := ⟨⟨1, 0⟩⟩
-end position
+instance : Inhabited Position := ⟨⟨1, 0⟩⟩
+end Position
 
-/-- A precomputed cache for quickly mapping char offsets to positionitions. -/
-structure fileMap :=
--- A mapping from char offset of line start to line index
-(lines : rbmap nat nat (<))
+/-- A precomputed cache for quickly mapping Char offsets to positionitions. -/
+structure FileMap :=
+-- A mapping from Char offset of line start to line index
+(lines : Rbmap Nat Nat (<))
 
-namespace fileMap
-private def fromStringAux : nat → string.iterator → nat → list (nat × nat)
+namespace FileMap
+private def fromStringAux : Nat → String.Iterator → Nat → List (Nat × Nat)
 | 0     it line := []
 | (k+1) it line :=
   if it.hasNext = ff then []
@@ -48,13 +48,13 @@ private def fromStringAux : nat → string.iterator → nat → list (nat × nat
        | '\n'  := (it.next.offset, line+1) :: fromStringAux k it.next (line+1)
        | other := fromStringAux k it.next line
 
-def fromString (s : string) : fileMap :=
-{lines := rbmap.ofList $ fromStringAux s.length s.mkIterator 1}
+def fromString (s : String) : FileMap :=
+{lines := Rbmap.ofList $ fromStringAux s.length s.mkIterator 1}
 
-def toPosition (m : fileMap) (off : nat) : position :=
+def toPosition (m : FileMap) (off : Nat) : Position :=
 match m.lines.lowerBound off with
 | some ⟨start, l⟩ := ⟨l, off - start⟩
 | none            := ⟨1, off⟩
-end fileMap
+end FileMap
 
-end lean
+end Lean

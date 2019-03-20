@@ -6,146 +6,146 @@ Author: Sebastian Ullrich
 Parser for the Lean language
 -/
 prelude
-import init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec
-import init.lean.parser.trie
-import init.lean.parser.identifier init.data.rbmap init.lean.message
+import init.Lean.Parser.Parsec init.Lean.Parser.Syntax init.Lean.Parser.rec
+import init.Lean.Parser.Trie
+import init.Lean.Parser.identifier init.data.Rbmap init.Lean.Message
 
-namespace lean
-namespace parser
+namespace Lean
+namespace Parser
 
-/- Maximum standard precedence. This is the precedence of function application.
+/- Maximum standard precedence. This is the precedence of Function application.
    In the standard Lean language, only the token `.` has a left-binding power greater
    than `maxPrec` (so that field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
    not `(g (h x)).f`). -/
-def maxPrec : nat := 1024
+def maxPrec : Nat := 1024
 
-structure tokenConfig :=
-(«prefix» : string)
-/- Left-binding power used by the term parser. The term parser operates in the context
-   of a right-binding power between 0 (used by parentheses and on the top-level) and
-   (usually) `maxPrec` (used by function application). After parsing an initial term,
-   it continues parsing and expanding that term only when the left-binding power of
+structure TokenConfig :=
+(«prefix» : String)
+/- Left-binding power used by the Term Parser. The Term Parser operates in the context
+   of a right-binding power between 0 (used by parentheses and on the top-Level) and
+   (usually) `maxPrec` (used by Function application). After parsing an initial Term,
+   it continues parsing and expanding that Term only when the left-binding power of
    the next token is greater than the current right-binding power. For example, it
    never continues parsing an argument after the initial parse, unless a token with
-   lbp > maxPrec is encountered. Conversely, the term parser will always continue
+   lbp > maxPrec is encountered. Conversely, the Term Parser will always continue
    parsing inside parentheses until it finds a token with lbp 0 (such as `)`). -/
-(lbp : nat := 0)
--- reading a token should not need any state
-/- An optional parser that is activated after matching `prefix`.
-   It should return a syntax tree with a "hole" for the
-   `sourceInfo` surrounding the token, which will be supplied
-   by the `token` parser.
+(lbp : Nat := 0)
+-- reading a token should not need any State
+/- An optional Parser that is activated after matching `prefix`.
+   It should return a Syntax tree with a "hole" for the
+   `SourceInfo` surrounding the token, which will be supplied
+   by the `token` Parser.
 
    Remark: `suffixParser` has many applications for example for parsing
-   hexdecimal numbers, `prefix` is `0x` and `suffixParser` is the parser `digit*`.
-   We also use it to parse string literals: here `prefix` is just `"`.
+   hexdecimal numbers, `prefix` is `0x` and `suffixParser` is the Parser `digit*`.
+   We also use it to parse String literals: here `prefix` is just `"`.
 -/
-(suffixParser : option (parsec' (sourceInfo → syntax)) := none)
+(suffixParser : Option (Parsec' (SourceInfo → Syntax)) := none)
 
--- Backtrackable state
-structure parserState :=
-(messages : messageLog)
+-- Backtrackable State
+structure ParserState :=
+(messages : MessageLog)
 
-structure tokenCacheEntry :=
-(startIt stopIt : string.iterator)
-(tk : syntax)
+structure TokenCacheEntry :=
+(startIt stopIt : String.Iterator)
+(tk : Syntax)
 
--- Non-backtrackable state
-structure parserCache :=
-(tokenCache : option tokenCacheEntry := none)
+-- Non-backtrackable State
+structure ParserCache :=
+(tokenCache : Option TokenCacheEntry := none)
 -- for profiling
-(hit miss : nat := 0)
+(hit miss : Nat := 0)
 
-structure frontendConfig :=
-(filename : string)
-(input    : string)
-(fileMap : fileMap)
+structure FrontendConfig :=
+(filename : String)
+(input    : String)
+(FileMap : FileMap)
 
-/- Remark: if we have a node in the trie with `some tokenConfig`, the string induced by the path is equal to the `tokenConfig.prefix`. -/
-structure parserConfig extends frontendConfig :=
-(tokens : trie tokenConfig)
+/- Remark: if we have a Node in the Trie with `some TokenConfig`, the String induced by the path is equal to the `TokenConfig.prefix`. -/
+structure ParserConfig extends FrontendConfig :=
+(tokens : Trie TokenConfig)
 
-instance parserConfigCoe : hasCoe parserConfig frontendConfig :=
-⟨parserConfig.toFrontendConfig⟩
+instance parserConfigCoe : HasCoe ParserConfig FrontendConfig :=
+⟨ParserConfig.toFrontendConfig⟩
 
-@[derive monad alternative monadParsec monadExcept]
-def parserCoreT (m : Type → Type) [monad m] :=
-parsecT syntax $ stateT parserCache $ m
+@[derive Monad Alternative MonadParsec MonadExcept]
+def parserCoreT (m : Type → Type) [Monad m] :=
+ParsecT Syntax $ StateT ParserCache $ m
 
-@[derive monad alternative monadReader monadParsec monadExcept]
-def parserT (ρ : Type) (m : Type → Type) [monad m] := readerT ρ $ parserCoreT m
-@[derive monad alternative monadReader monadParsec monadExcept]
-def basicParserM := parserT parserConfig id
-abbrev basicParser := basicParserM syntax
-abbrev monadBasicParser := hasMonadLiftT basicParserM
+@[derive Monad Alternative MonadReader MonadParsec MonadExcept]
+def ParserT (ρ : Type) (m : Type → Type) [Monad m] := ReaderT ρ $ parserCoreT m
+@[derive Monad Alternative MonadReader MonadParsec MonadExcept]
+def BasicParserM := ParserT ParserConfig id
+abbrev basicParser := BasicParserM Syntax
+abbrev monadBasicParser := HasMonadLiftT BasicParserM
 
 section
-local attribute [reducible] basicParserM parserT parserCoreT
-@[inline] def getCache : basicParserM parserCache :=
-monadLift (get : stateT parserCache id _)
+local attribute [reducible] BasicParserM ParserT parserCoreT
+@[inline] def getCache : BasicParserM ParserCache :=
+monadLift (get : StateT ParserCache id _)
 
-@[inline] def putCache : parserCache → basicParserM punit :=
-λ c, monadLift (put c : stateT parserCache id _)
+@[inline] def putCache : ParserCache → BasicParserM Punit :=
+λ c, monadLift (put c : StateT ParserCache id _)
 end
 
- -- an arbitrary `parser` type; parsers are usually some monad stack based on `basicParserM` returning `syntax`
+ -- an arbitrary `Parser` Type; parsers are usually some Monad stack based on `BasicParserM` returning `Syntax`
 variable {ρ : Type}
 
-class hasTokens (r : ρ) := mk {} ::
-(tokens : list tokenConfig)
+class HasTokens (r : ρ) := mk {} ::
+(tokens : List TokenConfig)
 
-@[noinline, nospecialize] def tokens (r : ρ) [hasTokens r] :=
-hasTokens.tokens r
+@[noinline, nospecialize] def tokens (r : ρ) [HasTokens r] :=
+HasTokens.tokens r
 
-instance hasTokens.inhabited (r : ρ) : inhabited (hasTokens r) :=
+instance HasTokens.Inhabited (r : ρ) : Inhabited (HasTokens r) :=
 ⟨⟨[]⟩⟩
 
-instance list.nil.tokens : parser.hasTokens ([] : list ρ) :=
+instance List.nil.tokens : Parser.HasTokens ([] : List ρ) :=
 default _
 
-instance list.cons.tokens (r : ρ) (rs : list ρ) [parser.hasTokens r] [parser.hasTokens rs] :
-  parser.hasTokens (r::rs) :=
+instance List.cons.tokens (r : ρ) (rs : List ρ) [Parser.HasTokens r] [Parser.HasTokens rs] :
+  Parser.HasTokens (r::rs) :=
 ⟨tokens r ++ tokens rs⟩
 
-class hasView (α : outParam Type) (r : ρ) :=
-(view : syntax → α)
-(review : α → syntax)
+class HasView (α : outParam Type) (r : ρ) :=
+(View : Syntax → α)
+(review : α → Syntax)
 
-export hasView (view review)
+export HasView (View review)
 
-def tryView {α : Type} (k : syntaxNodeKind) [hasView α k] (stx : syntax) : option α :=
-if stx.isOfKind k then some (hasView.view k stx) else none
+def tryView {α : Type} (k : SyntaxNodeKind) [HasView α k] (stx : Syntax) : Option α :=
+if stx.isOfKind k then some (HasView.View k stx) else none
 
-instance hasView.default (r : ρ) : inhabited (parser.hasView syntax r) :=
-⟨{ view := id, review := id }⟩
+instance HasView.default (r : ρ) : Inhabited (Parser.HasView Syntax r) :=
+⟨{ View := id, review := id }⟩
 
-class hasViewDefault (r : ρ) (α : outParam Type) [hasView α r] (default : α) := mk {}
+class HasViewDefault (r : ρ) (α : outParam Type) [HasView α r] (default : α) := mk {}
 
-def messageOfParsecMessage {μ : Type} (cfg : frontendConfig) (msg : parsec.message μ) : message :=
-{filename := cfg.filename, pos := cfg.fileMap.toPosition msg.it.offset, text := msg.text}
+def messageOfParsecMessage {μ : Type} (cfg : FrontendConfig) (msg : Parsec.Message μ) : Message :=
+{filename := cfg.filename, pos := cfg.FileMap.toPosition msg.it.offset, text := msg.text}
 
-/-- Run parser stack, returning a partial syntax tree in case of a fatal error -/
-protected def run {m : Type → Type} {α ρ : Type} [monad m] [hasCoeT ρ frontendConfig] (cfg : ρ) (s : string) (r : stateT parserState (parserT ρ m) α) :
-m (sum α syntax × messageLog) :=
-do (r, _) ← (((r.run {messages:=messageLog.empty}).run cfg).parse s).run {},
+/-- Run Parser stack, returning a partial Syntax tree in case of a fatal error -/
+protected def run {m : Type → Type} {α ρ : Type} [Monad m] [HasCoeT ρ FrontendConfig] (cfg : ρ) (s : String) (r : StateT ParserState (ParserT ρ m) α) :
+m (Sum α Syntax × MessageLog) :=
+do (r, _) ← (((r.run {messages:=MessageLog.Empty}).run cfg).parse s).run {},
 pure $ match r with
-| except.ok (a, st) := (sum.inl a, st.messages)
-| except.error msg  := (sum.inr msg.custom.get, messageLog.empty.add (messageOfParsecMessage cfg msg))
+| Except.ok (a, st) := (Sum.inl a, st.messages)
+| Except.error msg  := (Sum.inr msg.custom.get, MessageLog.Empty.add (messageOfParsecMessage cfg msg))
 
-open monadParsec
-open parser.hasView
+open MonadParsec
+open Parser.HasView
 variables {α : Type} {m : Type → Type}
-local notation `parser` := m syntax
+local notation `Parser` := m Syntax
 
-def logMessage {μ : Type} [monad m] [monadReader ρ m] [hasLiftT ρ frontendConfig] [monadState parserState m]
-  (msg : parsec.message μ) : m unit :=
+def logMessage {μ : Type} [Monad m] [MonadReader ρ m] [HasLiftT ρ FrontendConfig] [MonadState ParserState m]
+  (msg : Parsec.Message μ) : m unit :=
 do cfg ← read,
    modify (λ st, {st with messages := st.messages.add (messageOfParsecMessage ↑cfg msg)})
 
-def mkTokenTrie (tokens : list tokenConfig) : except string (trie tokenConfig) :=
-do -- the only hardcoded tokens, because they are never directly mentioned by a `parser`
-   let builtinTokens : list tokenConfig := [{«prefix» := "/-"}, {«prefix» := "--"}],
-   t ← (builtinTokens ++ tokens).mfoldl (λ (t : trie tokenConfig) tk,
+def mkTokenTrie (tokens : List TokenConfig) : Except String (Trie TokenConfig) :=
+do -- the only hardcoded tokens, because they are never directly mentioned by a `Parser`
+   let builtinTokens : List TokenConfig := [{«prefix» := "/-"}, {«prefix» := "--"}],
+   t ← (builtinTokens ++ tokens).mfoldl (λ (t : Trie TokenConfig) tk,
      match t.find tk.prefix with
      | some tk' := (match tk.lbp, tk'.lbp with
        | l, 0  := pure $ t.insert tk.prefix tk
@@ -154,74 +154,74 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
          "invalid token '" ++ tk.prefix ++ "', has been defined with precedences " ++
          toString l ++ " and " ++ toString l')
      | none := pure $ t.insert tk.prefix tk)
-     trie.mk,
+     Trie.mk,
    pure t
 
 
 /- Monad stacks used in multiple files -/
 
-/- NOTE: We move `recT` under `parserT`'s `readerT` so that `termParser`, which does not
-   have access to `commandParser`'s ρ (=`commandParserConfig`) can still recurse into it
-   (for command quotations). This means that the `commandParserConfig` will be reset
-   on a recursive call to `command.parser`, i.e. it forgets about locally registered parsers,
+/- NOTE: We move `RecT` under `ParserT`'s `ReaderT` so that `termParser`, which does not
+   have access to `commandParser`'s ρ (=`CommandParserConfig`) can still recurse into it
+   (for command quotations). This means that the `CommandParserConfig` will be reset
+   on a recursive call to `command.Parser`, i.e. it forgets about locally registered parsers,
    but that's not an issue for our intended uses of it. -/
-@[derive monad alternative monadReader monadParsec monadExcept monadRec]
-def commandParserM (ρ : Type) := readerT ρ $ recT unit syntax $ parserCoreT id
+@[derive Monad Alternative MonadReader MonadParsec MonadExcept MonadRec]
+def CommandParserM (ρ : Type) := ReaderT ρ $ RecT unit Syntax $ parserCoreT id
 
 section
-local attribute [reducible] parserT commandParserM
-instance commandParserM.monadReaderAdapter (ρ ρ' : Type) :
-  monadReaderAdapter ρ ρ' (commandParserM ρ) (commandParserM ρ') :=
+local attribute [reducible] ParserT CommandParserM
+instance CommandParserM.MonadReaderAdapter (ρ ρ' : Type) :
+  MonadReaderAdapter ρ ρ' (CommandParserM ρ) (CommandParserM ρ') :=
 inferInstance
-instance commandParserM.basicParser (ρ : Type) [hasLiftT ρ parserConfig] : monadBasicParser (commandParserM ρ) :=
+instance CommandParserM.basicParser (ρ : Type) [HasLiftT ρ ParserConfig] : monadBasicParser (CommandParserM ρ) :=
 ⟨λ _ x cfg rec, x.run ↑cfg⟩
 end
 
-/- The `nat` at `recT` is the lbp` -/
-@[derive monad alternative monadReader monadParsec monadExcept monadRec monadBasicParser]
-def termParserM := recT nat syntax $ commandParserM parserConfig
-abbrev termParser := termParserM syntax
+/- The `Nat` at `RecT` is the lbp` -/
+@[derive Monad Alternative MonadReader MonadParsec MonadExcept MonadRec monadBasicParser]
+def TermParserM := RecT Nat Syntax $ CommandParserM ParserConfig
+abbrev termParser := TermParserM Syntax
 
-/-- A term parser for a suffix or infix notation that accepts a preceding term. -/
-@[derive monad alternative monadReader monadParsec monadExcept monadRec monadBasicParser]
-def trailingTermParserM := readerT syntax termParserM
-abbrev trailingTermParser := trailingTermParserM syntax
+/-- A Term Parser for a suffix or infix notation that accepts a preceding Term. -/
+@[derive Monad Alternative MonadReader MonadParsec MonadExcept MonadRec monadBasicParser]
+def TrailingTermParserM := ReaderT Syntax TermParserM
+abbrev trailingTermParser := TrailingTermParserM Syntax
 
-instance trailingTermParserCoe : hasCoe termParser trailingTermParser :=
+instance trailingTermParserCoe : HasCoe termParser trailingTermParser :=
 ⟨λ x _, x⟩
 
-local attribute [instance] name.hasLtQuick
+local attribute [instance] Name.hasLtQuick
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
-def tokenMap (α : Type) := rbmap name (list α) (<)
+def TokenMap (α : Type) := Rbmap Name (List α) (<)
 
-def tokenMap.insert {α : Type} (map : tokenMap α) (k : name) (v : α) : tokenMap α :=
+def TokenMap.insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
 match map.find k with
 | none    := map.insert k [v]
 | some vs := map.insert k (v::vs)
 
-def tokenMap.ofList {α : Type} : list (name × α) → tokenMap α
+def TokenMap.ofList {α : Type} : List (Name × α) → TokenMap α
 | []          := mkRbmap _ _ _
-| (⟨k,v⟩::xs) := (tokenMap.ofList xs).insert k v
+| (⟨k,v⟩::xs) := (TokenMap.ofList xs).insert k v
 
-instance tokenMapNil.tokens : parser.hasTokens $ @tokenMap.ofList ρ [] :=
+instance tokenMapNil.tokens : Parser.HasTokens $ @TokenMap.ofList ρ [] :=
 default _
 
-instance tokenMapCons.tokens (k : name) (r : ρ) (rs : list (name × ρ)) [parser.hasTokens r] [parser.hasTokens $ tokenMap.ofList rs] :
-  parser.hasTokens $ tokenMap.ofList ((k,r)::rs) :=
-⟨tokens r ++ tokens (tokenMap.ofList rs)⟩
+instance tokenMapCons.tokens (k : Name) (r : ρ) (rs : List (Name × ρ)) [Parser.HasTokens r] [Parser.HasTokens $ TokenMap.ofList rs] :
+  Parser.HasTokens $ TokenMap.ofList ((k,r)::rs) :=
+⟨tokens r ++ tokens (TokenMap.ofList rs)⟩
 
 -- This needs to be a separate structure since `termParser`s cannot contain themselves in their config
-structure commandParserConfig extends parserConfig :=
-(leadingTermParsers : tokenMap termParser)
-(trailingTermParsers : tokenMap trailingTermParser)
--- local term parsers (such as from `local notation`) hide previous parsers instead of overloading them
-(localLeadingTermParsers : tokenMap termParser := mkRbmap _ _ _)
-(localTrailingTermParsers : tokenMap trailingTermParser := mkRbmap _ _ _)
+structure CommandParserConfig extends ParserConfig :=
+(leadingTermParsers : TokenMap termParser)
+(trailingTermParsers : TokenMap trailingTermParser)
+-- local Term parsers (such as from `local notation`) hide previous parsers instead of overloading them
+(localLeadingTermParsers : TokenMap termParser := mkRbmap _ _ _)
+(localTrailingTermParsers : TokenMap trailingTermParser := mkRbmap _ _ _)
 
-instance commandParserConfigCoeParserConfig : hasCoe commandParserConfig parserConfig :=
-⟨commandParserConfig.toParserConfig⟩
+instance commandParserConfigCoeParserConfig : HasCoe CommandParserConfig ParserConfig :=
+⟨CommandParserConfig.toParserConfig⟩
 
-abbrev commandParser := commandParserM commandParserConfig syntax
+abbrev commandParser := CommandParserM CommandParserConfig Syntax
 
-end «parser»
-end lean
+end «Parser»
+end Lean

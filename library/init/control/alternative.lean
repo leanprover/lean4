@@ -4,36 +4,36 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.core init.control.applicative
+import init.core init.control.Applicative
 universes u v
 
-class hasOrelse (f : Type u → Type v) : Type (max (u+1) v) :=
+class HasOrelse (f : Type u → Type v) : Type (max (u+1) v) :=
 (orelse  : Π {α : Type u}, f α → f α → f α)
 
-infixr ` <|> `:2 := hasOrelse.orelse
+infixr ` <|> `:2 := HasOrelse.orelse
 
-class alternative (f : Type u → Type v) extends applicative f, hasOrelse f : Type (max (u+1) v) :=
+class Alternative (f : Type u → Type v) extends Applicative f, HasOrelse f : Type (max (u+1) v) :=
 (failure : Π {α : Type u}, f α)
 
 section
-variables {f : Type u → Type v} [alternative f] {α : Type u}
+variables {f : Type u → Type v} [Alternative f] {α : Type u}
 
 @[inline] def failure : f α :=
-alternative.failure f
+Alternative.failure f
 
-@[inline] def guard {f : Type → Type v} [alternative f] (p : Prop) [decidable p] : f unit :=
+@[inline] def guard {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f unit :=
 if p then pure () else failure
 
-@[inline] def assert {f : Type → Type v} [alternative f] (p : Prop) [decidable p] : f (inhabited p) :=
+@[inline] def assert {f : Type → Type v} [Alternative f] (p : Prop) [Decidable p] : f (Inhabited p) :=
 if h : p then pure ⟨h⟩ else failure
 
-/- Later we define a coercion from bool to Prop, but this version will still be useful.
-   Given (t : tactic bool), we can write t >>= guardb -/
-@[inline] def guardb {f : Type → Type v} [alternative f] : bool → f unit
+/- Later we define a coercion from Bool to Prop, but this version will still be useful.
+   Given (t : tactic Bool), we can write t >>= guardb -/
+@[inline] def guardb {f : Type → Type v} [Alternative f] : Bool → f unit
 | tt := pure ()
 | ff := failure
 
-@[inline] def optional (x : f α) : f (option α) :=
+@[inline] def optional (x : f α) : f (Option α) :=
 some <$> x <|> pure none
 
 end

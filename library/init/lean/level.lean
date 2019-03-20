@@ -4,129 +4,129 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.name init.data.option.basic
+import init.Lean.Name init.data.Option.basic
 
-namespace lean
+namespace Lean
 
-inductive level
-| zero   : level
-| succ   : level → level
-| max    : level → level → level
-| imax   : level → level → level
-| param  : name → level
-| mvar   : name → level
+inductive Level
+| zero   : Level
+| succ   : Level → Level
+| max    : Level → Level → Level
+| imax   : Level → Level → Level
+| Param  : Name → Level
+| mvar   : Name → Level
 
-attribute [extern "level_mk_succ"]  level.succ
-attribute [extern "level_mk_max"]   level.max
-attribute [extern "level_mk_imax"]  level.imax
-attribute [extern "level_mk_param"] level.param
-attribute [extern "level_mk_mvar"]  level.mvar
+attribute [extern "level_mk_succ"]  Level.succ
+attribute [extern "level_mk_max"]   Level.max
+attribute [extern "level_mk_imax"]  Level.imax
+attribute [extern "level_mk_param"] Level.Param
+attribute [extern "level_mk_mvar"]  Level.mvar
 
-instance levelIsInhabited : inhabited level :=
-⟨level.zero⟩
+instance levelIsInhabited : Inhabited Level :=
+⟨Level.zero⟩
 
-def level.one : level := level.succ level.zero
+def Level.one : Level := Level.succ Level.zero
 
-def level.hasParam : level → bool
-| (level.param _)    := tt
-| (level.succ l)     := level.hasParam l
-| (level.max l₁ l₂)  := level.hasParam l₁ || level.hasParam l₂
-| (level.imax l₁ l₂) := level.hasParam l₁ || level.hasParam l₂
+def Level.hasParam : Level → Bool
+| (Level.Param _)    := tt
+| (Level.succ l)     := Level.hasParam l
+| (Level.max l₁ l₂)  := Level.hasParam l₁ || Level.hasParam l₂
+| (Level.imax l₁ l₂) := Level.hasParam l₁ || Level.hasParam l₂
 | _                  := ff
 
-def level.hasMvar : level → bool
-| (level.mvar _)     := tt
-| (level.succ l)     := level.hasParam l
-| (level.max l₁ l₂)  := level.hasParam l₁ || level.hasParam l₂
-| (level.imax l₁ l₂) := level.hasParam l₁ || level.hasParam l₂
+def Level.hasMvar : Level → Bool
+| (Level.mvar _)     := tt
+| (Level.succ l)     := Level.hasParam l
+| (Level.max l₁ l₂)  := Level.hasParam l₁ || Level.hasParam l₂
+| (Level.imax l₁ l₂) := Level.hasParam l₁ || Level.hasParam l₂
 | _                  := ff
 
-def level.ofNat : nat → level
-| 0     := level.zero
-| (n+1) := level.succ (level.ofNat n)
+def Level.ofNat : Nat → Level
+| 0     := Level.zero
+| (n+1) := Level.succ (Level.ofNat n)
 
-def nat.imax (n m : nat) : nat :=
-if m = 0 then 0 else nat.max n m
+def Nat.imax (n m : Nat) : Nat :=
+if m = 0 then 0 else Nat.max n m
 
-def level.toNat : level → option nat
-| level.zero         := some 0
-| (level.succ l)     := nat.succ <$> level.toNat l
-| (level.max l₁ l₂)  := nat.max  <$> level.toNat l₁ <*> level.toNat l₂
-| (level.imax l₁ l₂) := nat.imax <$> level.toNat l₁ <*> level.toNat l₂
+def Level.toNat : Level → Option Nat
+| Level.zero         := some 0
+| (Level.succ l)     := Nat.succ <$> Level.toNat l
+| (Level.max l₁ l₂)  := Nat.max  <$> Level.toNat l₁ <*> Level.toNat l₂
+| (Level.imax l₁ l₂) := Nat.imax <$> Level.toNat l₁ <*> Level.toNat l₂
 | _                  := none
 
-def level.toOffset : level → level × nat
-| level.zero     := (level.zero, 0)
-| (level.succ l) := let (l', k) := level.toOffset l in (l', k+1)
+def Level.toOffset : Level → Level × Nat
+| Level.zero     := (Level.zero, 0)
+| (Level.succ l) := let (l', k) := Level.toOffset l in (l', k+1)
 | l              := (l, 0)
 
-def level.instantiate (s : name → option level) : level → level
-| level.zero         := level.zero
-| (level.succ l)     := level.succ (level.instantiate l)
-| (level.max l₁ l₂)  := level.max (level.instantiate l₁) (level.instantiate l₂)
-| (level.imax l₁ l₂) := level.imax (level.instantiate l₁) (level.instantiate l₂)
-| l@(level.param n)  :=
+def Level.instantiate (s : Name → Option Level) : Level → Level
+| Level.zero         := Level.zero
+| (Level.succ l)     := Level.succ (Level.instantiate l)
+| (Level.max l₁ l₂)  := Level.max (Level.instantiate l₁) (Level.instantiate l₂)
+| (Level.imax l₁ l₂) := Level.imax (Level.instantiate l₁) (Level.instantiate l₂)
+| l@(Level.Param n)  :=
   (match s n with
    | some l' := l'
    | none    := l)
 | l                  := l
 
 @[extern "lean_level_hash"]
-constant level.hash (n : @& level) : usize := default usize
+constant Level.hash (n : @& Level) : Usize := default Usize
 
-/- level to format -/
-namespace levelToFormat
-inductive result
-| leaf      : format → result
-| num       : nat → result
-| offset    : result → nat → result
-| maxNode  : list result → result
-| imaxNode : list result → result
+/- Level to Format -/
+namespace LevelToFormat
+inductive Result
+| leaf      : Format → Result
+| num       : Nat → Result
+| offset    : Result → Nat → Result
+| maxNode  : List Result → Result
+| imaxNode : List Result → Result
 
-def result.succ : result → result
-| (result.offset f k) := result.offset f (k+1)
-| (result.num k)      := result.num (k+1)
-| f                   := result.offset f 1
+def Result.succ : Result → Result
+| (Result.offset f k) := Result.offset f (k+1)
+| (Result.num k)      := Result.num (k+1)
+| f                   := Result.offset f 1
 
-def result.max : result → result → result
-| f (result.maxNode fs) := result.maxNode (f::fs)
-| f₁ f₂                  := result.maxNode [f₁, f₂]
+def Result.max : Result → Result → Result
+| f (Result.maxNode Fs) := Result.maxNode (f::Fs)
+| f₁ f₂                  := Result.maxNode [f₁, f₂]
 
-def result.imax : result → result → result
-| f (result.imaxNode fs) := result.imaxNode (f::fs)
-| f₁ f₂                   := result.imaxNode [f₁, f₂]
+def Result.imax : Result → Result → Result
+| f (Result.imaxNode Fs) := Result.imaxNode (f::Fs)
+| f₁ f₂                   := Result.imaxNode [f₁, f₂]
 
-def parenIfFalse : format → bool → format
+def parenIfFalse : Format → Bool → Format
 | f tt := f
 | f ff := f.paren
 
-mutual def result.toFormat, resultList.toFormat
-with result.toFormat : result → bool → format
-| (result.leaf f)         _ := f
-| (result.num k)          _ := toString k
-| (result.offset f 0)     r := result.toFormat f r
-| (result.offset f (k+1)) r :=
-  let f' := result.toFormat f ff in
+mutual def Result.toFormat, resultList.toFormat
+with Result.toFormat : Result → Bool → Format
+| (Result.leaf f)         _ := f
+| (Result.num k)          _ := toString k
+| (Result.offset f 0)     r := Result.toFormat f r
+| (Result.offset f (k+1)) r :=
+  let f' := Result.toFormat f ff in
   parenIfFalse (f' ++ "+" ++ toFmt (k+1)) r
-| (result.maxNode fs)    r := parenIfFalse (format.group $ "max" ++ resultList.toFormat fs) r
-| (result.imaxNode fs)   r := parenIfFalse (format.group $ "imax" ++ resultList.toFormat fs) r
-with resultList.toFormat : list result → format
-| []      := format.nil
-| (r::rs) := format.line ++ result.toFormat r ff ++ resultList.toFormat rs
+| (Result.maxNode Fs)    r := parenIfFalse (Format.group $ "max" ++ resultList.toFormat Fs) r
+| (Result.imaxNode Fs)   r := parenIfFalse (Format.group $ "imax" ++ resultList.toFormat Fs) r
+with resultList.toFormat : List Result → Format
+| []      := Format.nil
+| (r::rs) := Format.line ++ Result.toFormat r ff ++ resultList.toFormat rs
 
-def level.toResult : level → result
-| level.zero         := result.num 0
-| (level.succ l)     := result.succ (level.toResult l)
-| (level.max l₁ l₂)  := result.max (level.toResult l₁) (level.toResult l₂)
-| (level.imax l₁ l₂) := result.imax (level.toResult l₁) (level.toResult l₂)
-| (level.param n)    := result.leaf (toFmt n)
-| (level.mvar n)     := result.leaf (toFmt n)
+def Level.toResult : Level → Result
+| Level.zero         := Result.num 0
+| (Level.succ l)     := Result.succ (Level.toResult l)
+| (Level.max l₁ l₂)  := Result.max (Level.toResult l₁) (Level.toResult l₂)
+| (Level.imax l₁ l₂) := Result.imax (Level.toResult l₁) (Level.toResult l₂)
+| (Level.Param n)    := Result.leaf (toFmt n)
+| (Level.mvar n)     := Result.leaf (toFmt n)
 
-def level.toFormat (l : level) : format :=
-(level.toResult l).toFormat tt
+def Level.toFormat (l : Level) : Format :=
+(Level.toResult l).toFormat tt
 
-instance levelHasToFormat : hasToFormat level := ⟨level.toFormat⟩
-instance levelHasToString : hasToString level := ⟨format.pretty ∘ level.toFormat⟩
-end levelToFormat
+instance levelHasToFormat : HasToFormat Level := ⟨Level.toFormat⟩
+instance levelHasToString : HasToString Level := ⟨Format.pretty ∘ Level.toFormat⟩
+end LevelToFormat
 
-end lean
+end Lean

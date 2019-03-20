@@ -3,175 +3,175 @@ Copyright (c) 2017 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jared Roesch, Sebastian Ullrich
 
-The except monad transformer.
+The Except monad transformer.
 -/
 prelude
-import init.control.alternative init.control.lift init.data.toString
-import init.control.monadFail
+import init.control.Alternative init.control.lift init.data.toString
+import init.control.MonadFail
 universes u v w
 
-inductive except (ε : Type u) (α : Type v)
-| error {} : ε → except
-| ok {} : α → except
+inductive Except (ε : Type u) (α : Type v)
+| error {} : ε → Except
+| ok {} : α → Except
 
-instance {ε α : Type} [inhabited ε] : inhabited (except ε α) :=
-⟨except.error (default ε)⟩
+instance {ε α : Type} [Inhabited ε] : Inhabited (Except ε α) :=
+⟨Except.error (default ε)⟩
 
 section
 variables {ε : Type u} {α : Type v}
 
-protected def except.toString [hasToString ε] [hasToString α] : except ε α → string
-| (except.error e) := "(error " ++ toString e ++ ")"
-| (except.ok a)    := "(ok " ++ toString a ++ ")"
+protected def Except.toString [HasToString ε] [HasToString α] : Except ε α → String
+| (Except.error e) := "(error " ++ toString e ++ ")"
+| (Except.ok a)    := "(ok " ++ toString a ++ ")"
 
-protected def except.repr [hasRepr ε] [hasRepr α] : except ε α → string
-| (except.error e) := "(error " ++ repr e ++ ")"
-| (except.ok a)    := "(ok " ++ repr a ++ ")"
+protected def Except.repr [HasRepr ε] [HasRepr α] : Except ε α → String
+| (Except.error e) := "(error " ++ repr e ++ ")"
+| (Except.ok a)    := "(ok " ++ repr a ++ ")"
 
-instance [hasToString ε] [hasToString α] : hasToString (except ε α) :=
-⟨except.toString⟩
+instance [HasToString ε] [HasToString α] : HasToString (Except ε α) :=
+⟨Except.toString⟩
 
-instance [hasRepr ε] [hasRepr α] : hasRepr (except ε α) :=
-⟨except.repr⟩
+instance [HasRepr ε] [HasRepr α] : HasRepr (Except ε α) :=
+⟨Except.repr⟩
 end
 
-namespace except
+namespace Except
 variables {ε : Type u}
 
-@[inline] protected def return {α : Type v} (a : α) : except ε α :=
-except.ok a
+@[inline] protected def return {α : Type v} (a : α) : Except ε α :=
+Except.ok a
 
-@[inline] protected def map {α β : Type v} (f : α → β) : except ε α → except ε β
-| (except.error err) := except.error err
-| (except.ok v) := except.ok $ f v
+@[inline] protected def map {α β : Type v} (f : α → β) : Except ε α → Except ε β
+| (Except.error err) := Except.error err
+| (Except.ok v) := Except.ok $ f v
 
-@[inline] protected def mapError {ε' : Type u} {α : Type v} (f : ε → ε') : except ε α → except ε' α
-| (except.error err) := except.error $ f err
-| (except.ok v) := except.ok v
+@[inline] protected def mapError {ε' : Type u} {α : Type v} (f : ε → ε') : Except ε α → Except ε' α
+| (Except.error err) := Except.error $ f err
+| (Except.ok v) := Except.ok v
 
-@[inline] protected def bind {α β : Type v} (ma : except ε α) (f : α → except ε β) : except ε β :=
+@[inline] protected def bind {α β : Type v} (ma : Except ε α) (f : α → Except ε β) : Except ε β :=
 match ma with
-| (except.error err) := except.error err
-| (except.ok v) := f v
+| (Except.error err) := Except.error err
+| (Except.ok v) := f v
 
-@[inline] protected def toBool {α : Type v} : except ε α → bool
-| (except.ok _)    := tt
-| (except.error _) := ff
+@[inline] protected def toBool {α : Type v} : Except ε α → Bool
+| (Except.ok _)    := tt
+| (Except.error _) := ff
 
-@[inline] protected def toOption {α : Type v} : except ε α → option α
-| (except.ok a)    := some a
-| (except.error _) := none
+@[inline] protected def toOption {α : Type v} : Except ε α → Option α
+| (Except.ok a)    := some a
+| (Except.error _) := none
 
-@[inline] protected def catch {α : Type u} (ma : except ε α) (handle : ε → except ε α) : except ε α :=
+@[inline] protected def catch {α : Type u} (ma : Except ε α) (handle : ε → Except ε α) : Except ε α :=
 match ma with
-| except.ok a    := except.ok a
-| except.error e := handle e
+| Except.ok a    := Except.ok a
+| Except.error e := handle e
 
-instance : monad (except ε) :=
-{ pure := @except.return _, bind := @except.bind _ }
-end except
+instance : Monad (Except ε) :=
+{ pure := @Except.return _, bind := @Except.bind _ }
+end Except
 
-def exceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
-m (except ε α)
+def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
+m (Except ε α)
 
-@[inline] def exceptT.mk {ε : Type u} {m : Type u → Type v} {α : Type u} (x : m (except ε α)) : exceptT ε m α :=
+@[inline] def ExceptT.mk {ε : Type u} {m : Type u → Type v} {α : Type u} (x : m (Except ε α)) : ExceptT ε m α :=
 x
 
-@[inline] def exceptT.run {ε : Type u} {m : Type u → Type v} {α : Type u} (x : exceptT ε m α) : m (except ε α) :=
+@[inline] def ExceptT.run {ε : Type u} {m : Type u → Type v} {α : Type u} (x : ExceptT ε m α) : m (Except ε α) :=
 x
 
-namespace exceptT
-variables {ε : Type u} {m : Type u → Type v} [monad m]
+namespace ExceptT
+variables {ε : Type u} {m : Type u → Type v} [Monad m]
 
-@[inline] protected def return {α : Type u} (a : α) : exceptT ε m α :=
-exceptT.mk $ pure (except.ok a)
+@[inline] protected def return {α : Type u} (a : α) : ExceptT ε m α :=
+ExceptT.mk $ pure (Except.ok a)
 
-@[inline] protected def bindCont {α β : Type u} (f : α → exceptT ε m β) : except ε α → m (except ε β)
-| (except.ok a)    := f a
-| (except.error e) := pure (except.error e)
+@[inline] protected def bindCont {α β : Type u} (f : α → ExceptT ε m β) : Except ε α → m (Except ε β)
+| (Except.ok a)    := f a
+| (Except.error e) := pure (Except.error e)
 
-@[inline] protected def bind {α β : Type u} (ma : exceptT ε m α) (f : α → exceptT ε m β) : exceptT ε m β :=
-exceptT.mk $ ma >>= exceptT.bindCont f
+@[inline] protected def bind {α β : Type u} (ma : ExceptT ε m α) (f : α → ExceptT ε m β) : ExceptT ε m β :=
+ExceptT.mk $ ma >>= ExceptT.bindCont f
 
-@[inline] protected def lift {α : Type u} (t : m α) : exceptT ε m α :=
-exceptT.mk $ except.ok <$> t
+@[inline] protected def lift {α : Type u} (t : m α) : ExceptT ε m α :=
+ExceptT.mk $ Except.ok <$> t
 
-instance exceptTOfExcept : hasMonadLift (except ε) (exceptT ε m) :=
-⟨λ α e, exceptT.mk $ pure e⟩
+instance exceptTOfExcept : HasMonadLift (Except ε) (ExceptT ε m) :=
+⟨λ α e, ExceptT.mk $ pure e⟩
 
-instance : hasMonadLift m (exceptT ε m) :=
-⟨@exceptT.lift _ _ _⟩
+instance : HasMonadLift m (ExceptT ε m) :=
+⟨@ExceptT.lift _ _ _⟩
 
-@[inline] protected def catch {α : Type u} (ma : exceptT ε m α) (handle : ε → exceptT ε m α) : exceptT ε m α :=
-exceptT.mk $ ma >>= λ res, match res with
- | except.ok a    := pure (except.ok a)
- | except.error e := (handle e)
+@[inline] protected def catch {α : Type u} (ma : ExceptT ε m α) (handle : ε → ExceptT ε m α) : ExceptT ε m α :=
+ExceptT.mk $ ma >>= λ res, match res with
+ | Except.ok a    := pure (Except.ok a)
+ | Except.error e := (handle e)
 
-instance (m') [monad m'] : monadFunctor m m' (exceptT ε m) (exceptT ε m') :=
+instance (m') [Monad m'] : MonadFunctor m m' (ExceptT ε m) (ExceptT ε m') :=
 ⟨λ _ f x, f x⟩
 
-instance : monad (exceptT ε m) :=
-{ pure := @exceptT.return _ _ _, bind := @exceptT.bind _ _ _ }
+instance : Monad (ExceptT ε m) :=
+{ pure := @ExceptT.return _ _ _, bind := @ExceptT.bind _ _ _ }
 
-@[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : exceptT ε m α → exceptT ε' m α :=
-λ x, exceptT.mk $ except.mapError f <$> x
-end exceptT
+@[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α :=
+λ x, ExceptT.mk $ Except.mapError f <$> x
+end ExceptT
 
 /-- An implementation of [MonadError](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Except.html#t:MonadError) -/
-class monadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
+class MonadExcept (ε : outParam (Type u)) (m : Type v → Type w) :=
 (throw {} {α : Type v} : ε → m α)
 (catch {} {α : Type v} : m α → (ε → m α) → m α)
 
-namespace monadExcept
+namespace MonadExcept
 variables {ε : Type u} {m : Type v → Type w}
 
-@[inline] protected def orelse [monadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
+@[inline] protected def orelse [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) : m α :=
 catch t₁ $ λ _, t₂
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
-@[inline] def orelse' [monadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := tt) : m α :=
+@[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := tt) : m α :=
 catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if useFirstEx then e₁ else e₂)
 
-@[inline] def liftExcept {ε' : Type u} [monadExcept ε m] [hasLiftT ε' ε] [monad m] {α : Type v} : except ε' α → m α
-| (except.error e) := throw ↑e
-| (except.ok a)    := pure a
-end monadExcept
+@[inline] def liftExcept {ε' : Type u} [MonadExcept ε m] [HasLiftT ε' ε] [Monad m] {α : Type v} : Except ε' α → m α
+| (Except.error e) := throw ↑e
+| (Except.ok a)    := pure a
+end MonadExcept
 
-export monadExcept (throw catch)
+export MonadExcept (throw catch)
 
-instance (m : Type u → Type v) (ε : Type u) [monad m] : monadExcept ε (exceptT ε m) :=
-{ throw := λ α e, exceptT.mk $ pure (except.error e),
-  catch := @exceptT.catch ε _ _ }
+instance (m : Type u → Type v) (ε : Type u) [Monad m] : MonadExcept ε (ExceptT ε m) :=
+{ throw := λ α e, ExceptT.mk $ pure (Except.error e),
+  catch := @ExceptT.catch ε _ _ }
 
-instance (ε) : monadExcept ε (except ε) :=
-{ throw := λ α, except.error, catch := @except.catch _ }
+instance (ε) : MonadExcept ε (Except ε) :=
+{ throw := λ α, Except.error, catch := @Except.catch _ }
 
-/-- Adapt a monad stack, changing its top-most error type.
+/-- Adapt a Monad stack, changing its top-most error Type.
 
     Note: This class can be seen as a simplification of the more "principled" definition
     ```
-    class monadExceptFunctor (ε ε' : outParam (Type u)) (n n' : Type u → Type u) :=
-    (map {} {α : Type u} : (∀ {m : Type u → Type u} [monad m], exceptT ε m α → exceptT ε' m α) → n α → n' α)
+    class MonadExceptFunctor (ε ε' : outParam (Type u)) (n n' : Type u → Type u) :=
+    (map {} {α : Type u} : (∀ {m : Type u → Type u} [Monad m], ExceptT ε m α → ExceptT ε' m α) → n α → n' α)
     ```
 -/
-class monadExceptAdapter (ε ε' : outParam (Type u)) (m m' : Type u → Type v) :=
+class MonadExceptAdapter (ε ε' : outParam (Type u)) (m m' : Type u → Type v) :=
 (adaptExcept {} {α : Type u} : (ε → ε') → m α → m' α)
-export monadExceptAdapter (adaptExcept)
+export MonadExceptAdapter (adaptExcept)
 
 section
 variables {ε ε' : Type u} {m m' : Type u → Type v}
 
-instance monadExceptAdapterTrans {n n' : Type u → Type v} [monadFunctor m m' n n'] [monadExceptAdapter ε ε' m m'] : monadExceptAdapter ε ε' n n' :=
+instance monadExceptAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadExceptAdapter ε ε' m m'] : MonadExceptAdapter ε ε' n n' :=
 ⟨λ α f, monadMap (λ α, (adaptExcept f : m α → m' α))⟩
 
-instance [monad m] : monadExceptAdapter ε ε' (exceptT ε m) (exceptT ε' m) :=
-⟨λ α, exceptT.adapt⟩
+instance [Monad m] : MonadExceptAdapter ε ε' (ExceptT ε m) (ExceptT ε' m) :=
+⟨λ α, ExceptT.adapt⟩
 end
 
-instance (ε m out) [monadRun out m] : monadRun (λ α, out (except ε α)) (exceptT ε m) :=
+instance (ε m out) [MonadRun out m] : MonadRun (λ α, out (Except ε α)) (ExceptT ε m) :=
 ⟨λ α, run⟩
 
 -- useful for implicit failures in do-notation
-instance (m : Type → Type) [monad m] : monadFail (exceptT string m) :=
+instance (m : Type → Type) [Monad m] : MonadFail (ExceptT String m) :=
 ⟨λ _, throw⟩

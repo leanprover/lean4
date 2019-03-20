@@ -5,26 +5,26 @@ Author: Sebastian Ullrich
 
 Tokenizer for the Lean language
 
-Even though our parser architecture does not statically depend on a tokenizer but works directly on
-the input string, we still use a "tokenizer" parser in the Lean parser in some circumstances:
+Even though our Parser architecture does not statically depend on a tokenizer but works directly on
+the input String, we still use a "tokenizer" Parser in the Lean Parser in some circumstances:
 * to distinguish between identifiers and keywords
 * for error recovery: advance until next command token
 * ...?
 -/
 
 prelude
-import init.lean.parser.combinators init.lean.parser.stringLiteral
+import init.Lean.Parser.Combinators init.Lean.Parser.stringLiteral
 
-namespace lean
-namespace parser
-open monadParsec combinators string hasView
+namespace Lean
+namespace Parser
+open MonadParsec Combinators String HasView
 
-def matchToken : basicParserM (option tokenConfig) :=
+def matchToken : BasicParserM (Option TokenConfig) :=
 do cfg ← read,
    it ← leftOver,
-   pure $ prod.snd <$> cfg.tokens.matchPrefix it
+   pure $ Prod.snd <$> cfg.tokens.matchPrefix it
 
-private def finishCommentBlockAux : nat → nat → basicParserM unit
+private def finishCommentBlockAux : Nat → Nat → BasicParserM unit
 | nesting (n+1) :=
   str "/-" *> finishCommentBlockAux (nesting + 1) n
   <|>
@@ -33,11 +33,11 @@ private def finishCommentBlockAux : nat → nat → basicParserM unit
   any *> finishCommentBlockAux nesting n
 | _ _ := error "unreachable"
 
-def finishCommentBlock (nesting := 1) : basicParserM unit :=
+def finishCommentBlock (nesting := 1) : BasicParserM unit :=
 do r ← remaining,
    finishCommentBlockAux nesting (r+1) <?> "end of comment block"
 
-private def whitespaceAux : nat → basicParserM unit
+private def whitespaceAux : Nat → BasicParserM unit
 | (n+1) :=
 do whitespace,
    str "--" *> takeWhile' (≠ '\n') *> whitespaceAux n
@@ -49,20 +49,20 @@ do whitespace,
 | 0 := error "unreachable"
 
 variables {m : Type → Type}
-local notation `parser` := m syntax
-local notation `lift` := @monadLift basicParserM _ _ _
+local notation `Parser` := m Syntax
+local notation `lift` := @monadLift BasicParserM _ _ _
 
 /-- Skip whitespace and comments. -/
-def whitespace : basicParserM unit :=
+def whitespace : BasicParserM unit :=
 hidden $ do
   start ← leftOver,
-  -- every `whitespaceAux` loop reads at least one char
+  -- every `whitespaceAux` loop reads at least one Char
   whitespaceAux (start.remaining+1)
 
 section
-variables [monad m] [monadParsec syntax m]
+variables [Monad m] [MonadParsec Syntax m]
 
-@[inline] def asSubstring {α : Type} (p : m α) : m substring :=
+@[inline] def asSubstring {α : Type} (p : m α) : m Substring :=
 do start ← leftOver,
    p,
    stop ← leftOver,
@@ -71,57 +71,57 @@ do start ← leftOver,
 variables [monadBasicParser m]
 
 private mutual def updateTrailing, updateTrailingLst
-with updateTrailing : substring → syntax → syntax
-| trailing (syntax.atom a@⟨some info, _⟩) := syntax.atom {a with info := some {info with trailing := trailing}}
-| trailing (syntax.ident id@{info := some info, ..}) := syntax.ident {id with info := some {info with trailing := trailing}}
-| trailing (syntax.rawNode n) := syntax.rawNode {n with args := updateTrailingLst trailing n.args}
+with updateTrailing : Substring → Syntax → Syntax
+| trailing (Syntax.atom a@⟨some info, _⟩) := Syntax.atom {a with info := some {info with trailing := trailing}}
+| trailing (Syntax.ident id@{info := some info, ..}) := Syntax.ident {id with info := some {info with trailing := trailing}}
+| trailing (Syntax.rawNode n) := Syntax.rawNode {n with args := updateTrailingLst trailing n.args}
 | trailing stx := stx
-with updateTrailingLst : substring → list syntax → list syntax
+with updateTrailingLst : Substring → List Syntax → List Syntax
 | trailing [] := []
 | trailing [stx] := [updateTrailing trailing stx]
 | trailing (stx::stxs) := stx :: updateTrailingLst trailing stxs
 
-def withTrailing (stx : syntax) : m syntax :=
+def withTrailing (stx : Syntax) : m Syntax :=
 do -- TODO(Sebastian): less greedy, more natural whitespace assignment
    -- E.g. only read up to the next line break
    trailing ← lift $ asSubstring $ whitespace,
    pure $ updateTrailing trailing stx
 
-def mkRawRes (start stop : string.iterator) : syntax :=
-let ss : substring := ⟨start, stop⟩ in
-syntax.atom ⟨some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩}, ss.toString⟩
+def mkRawRes (start stop : String.Iterator) : Syntax :=
+let ss : Substring := ⟨start, stop⟩ in
+Syntax.atom ⟨some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩}, ss.toString⟩
 
-/-- Match an arbitrary parser and return the consumed string in a `syntax.atom`. -/
-@[inline] def raw {α : Type} (p : m α) (trailingWs := ff) : parser := do
+/-- Match an arbitrary Parser and return the consumed String in a `Syntax.atom`. -/
+@[inline] def raw {α : Type} (p : m α) (trailingWs := ff) : Parser := do
   start ← leftOver,
   p,
   stop ← leftOver,
   let stx := mkRawRes start stop,
   if trailingWs then withTrailing stx else pure stx
 
-instance raw.tokens {α} (p : m α) (t) : parser.hasTokens (raw p t : parser) := default _
-instance raw.view {α} (p : m α) (t) : parser.hasView (option syntaxAtom) (raw p t : parser) :=
-{ view := λ stx, match stx with
-  | syntax.atom atom := some atom
+instance raw.tokens {α} (p : m α) (t) : Parser.HasTokens (raw p t : Parser) := default _
+instance raw.View {α} (p : m α) (t) : Parser.HasView (Option SyntaxAtom) (raw p t : Parser) :=
+{ View := λ stx, match stx with
+  | Syntax.atom atom := some atom
   | _                := none,
-  review := λ a, (syntax.atom <$> a).getOrElse syntax.missing }
+  review := λ a, (Syntax.atom <$> a).getOrElse Syntax.missing }
 
 /-- Like `raw (str s)`, but default to `s` in views. -/
-@[inline, derive hasTokens hasView]
-def rawStr (s : string) (trailingWs := ff) : parser :=
+@[inline, derive HasTokens HasView]
+def rawStr (s : String) (trailingWs := ff) : Parser :=
 raw (str s) trailingWs
 
-instance rawStr.viewDefault (s) (t) : parser.hasViewDefault (rawStr s t : parser) (option syntaxAtom) (some {val := s}) :=
+instance rawStr.viewDefault (s) (t) : Parser.HasViewDefault (rawStr s t : Parser) (Option SyntaxAtom) (some {val := s}) :=
 ⟨⟩
 
 end
 
 setOption class.instanceMaxDepth 200
 
-@[derive hasTokens hasView]
-def detailIdentPart.parser : basicParserM syntax :=
+@[derive HasTokens HasView]
+def detailIdentPart.Parser : BasicParserM Syntax :=
 nodeChoice! detailIdentPart {
-  escaped: node! detailIdentPartEscaped [
+  escaped: Node! detailIdentPartEscaped [
     escBegin: rawStr idBeginEscape.toString,
     escaped: raw $ takeUntil1 isIdEndEscape,
     escEnd: rawStr idEndEscape.toString,
@@ -129,68 +129,68 @@ nodeChoice! detailIdentPart {
   default: raw $ satisfy isIdFirst *> takeWhile isIdRest
 }
 
-@[derive hasTokens hasView]
-def detailIdentSuffix.parser : recT unit syntax basicParserM syntax :=
+@[derive HasTokens HasView]
+def detailIdentSuffix.Parser : RecT unit Syntax BasicParserM Syntax :=
 -- consume '.' only when followed by a character starting an detailIdentPart
 try (lookahead (ch '.' *> (ch idBeginEscape <|> satisfy isIdFirst)))
-*> node! detailIdentSuffix [«.»: rawStr ".", ident: recurse ()]
+*> Node! detailIdentSuffix [«.»: rawStr ".", ident: recurse ()]
 
-def detailIdent' : recT unit syntax basicParserM syntax :=
-node! detailIdent [part: monadLift detailIdentPart.parser, suffix: optional detailIdentSuffix.parser]
+def detailIdent' : RecT unit Syntax BasicParserM Syntax :=
+Node! detailIdent [part: monadLift detailIdentPart.Parser, suffix: optional detailIdentSuffix.Parser]
 
-/-- A parser that gives a more detailed view of `syntaxIdent.rawVal`. Not used by default for
+/-- A Parser that gives a more detailed View of `SyntaxIdent.rawVal`. Not used by default for
     performance reasons. -/
-def detailIdent.parser : basicParserM syntax :=
-recT.runParsec detailIdent' $ λ _, detailIdent'
+def detailIdent.Parser : BasicParserM Syntax :=
+RecT.runParsec detailIdent' $ λ _, detailIdent'
 
 private def ident' : basicParser :=
 do
   start ← leftOver,
   s  ← idPart,
-  n ← foldl name.mkString (mkSimpleName s) $ do {
+  n ← foldl Name.mkString (mkSimpleName s) $ do {
     -- consume '.' only when followed by a character starting an detailIdentPart
     try (lookahead (ch '.' *> (ch idBeginEscape <|> satisfy isIdFirst))),
     ch '.',
     idPart
   },
   stop ← leftOver,
-  pure $ syntax.ident {
+  pure $ Syntax.ident {
     info := some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩},
     rawVal := ⟨start, stop⟩,
     val := n
   }
 
--- the node macro doesn't seem to like these...
+-- the Node macro doesn't seem to like these...
 --TODO(Sebastian): these should probably generate better error messages
-def parseBinLit : basicParserM unit :=
+def parseBinLit : BasicParserM unit :=
 ch '0' *> (ch 'b' <|> ch 'B') *> many1' (ch '0' <|> ch '1')
 
-def parseOctLit : basicParserM string :=
+def parseOctLit : BasicParserM String :=
 ch '0' *> (ch 'o' <|> ch 'O') *> takeWhile1 (λ c, c ≥ '0' && c < '8')
 
-def parseHexLit : basicParserM string :=
+def parseHexLit : BasicParserM String :=
 ch '0' *> (ch 'x' <|> ch 'X') *> takeWhile1 (λ c, c.isDigit || c.isAlpha)
 
 --TODO(Sebastian): other bases
 def number' : basicParser :=
 nodeLongestChoice! number {
-  base10: raw $ takeWhile1 char.isDigit,
+  base10: raw $ takeWhile1 Char.isDigit,
   base2:  raw parseBinLit,
   base8:  raw parseOctLit,
   base16: raw parseHexLit,
 }
 
 def stringLit' : basicParser :=
-node! stringLit [val: raw parseStringLiteral]
+Node! stringLit [val: raw parseStringLiteral]
 
-private def mkConsumeToken (tk : tokenConfig) (it : string.iterator) : basicParser :=
+private def mkConsumeToken (tk : TokenConfig) (it : String.Iterator) : basicParser :=
 let it' := it.nextn tk.prefix.length in
-monadParsec.lift $ λ _, parsec.result.ok (mkRawRes it it') it' none
+MonadParsec.lift $ λ _, Parsec.Result.ok (mkRawRes it it') it' none
 
 def numberOrStringLit : basicParser :=
 number' <|> stringLit'
 
-def tokenCont (it : string.iterator) (tk : tokenConfig) : basicParser :=
+def tokenCont (it : String.Iterator) (tk : TokenConfig) : basicParser :=
 do id ← ident',
    it' ← leftOver,
    -- if a token is both a symbol and a valid identifier (i.e. a keyword),
@@ -207,8 +207,8 @@ do it ← leftOver,
      -- check token cache
      some tkc ← pure cache.tokenCache | failure,
      guard (it.offset = tkc.startIt.offset),
-     -- hackishly update parsec position
-     monadParsec.lift (λ it, parsec.result.ok () tkc.stopIt none),
+     -- hackishly update Parsec Position
+     MonadParsec.lift (λ it, Parsec.Result.ok () tkc.stopIt none),
      putCache {cache with hit := cache.hit + 1},
      pure tkc.tk
    ) (λ _, do
@@ -218,58 +218,58 @@ do it ← leftOver,
      tk ← matchToken,
      tk ← match tk, identStart with
      | some tk@{suffixParser := some _, ..}, _ :=
-       error "token: not implemented" --str tk *> monadParsec.lift r
-     | some tk, except.ok _    := tokenCont it tk
-     | some tk, except.error _ := mkConsumeToken tk it
-     | none, except.ok _       := ident'
-     | none, except.error _    := numberOrStringLit,
+       error "token: not implemented" --str tk *> MonadParsec.lift r
+     | some tk, Except.ok _    := tokenCont it tk
+     | some tk, Except.error _ := mkConsumeToken tk it
+     | none, Except.ok _       := ident'
+     | none, Except.error _    := numberOrStringLit,
      tk ← withTrailing tk,
      newIt ← leftOver,
      putCache {cache with tokenCache := some ⟨it, newIt, tk⟩, miss := cache.miss + 1},
      pure tk
    )
 
-def peekToken : basicParserM (except (parsec.message syntax) syntax) :=
+def peekToken : BasicParserM (Except (Parsec.Message Syntax) Syntax) :=
 observing (try (lookahead token))
 
 variable [monadBasicParser m]
 
-def symbolCore (sym : string) (lbp : nat) (ex : dlist string) : parser :=
+def symbolCore (sym : String) (lbp : Nat) (ex : Dlist String) : Parser :=
 lift $ try $ do {
   it ← leftOver,
-  stx@(syntax.atom ⟨_, sym'⟩) ← token | error "" ex it,
+  stx@(Syntax.atom ⟨_, sym'⟩) ← token | error "" ex it,
   when (sym ≠ sym') $
     error sym' ex it,
   pure stx
 } <?> sym
 
-@[inline] def symbol (sym : string) (lbp := 0) : parser :=
+@[inline] def symbol (sym : String) (lbp := 0) : Parser :=
 let sym := sym.trim in
-symbolCore sym lbp (dlist.singleton sym)
+symbolCore sym lbp (Dlist.singleton sym)
 
-instance symbol.tokens (sym lbp) : parser.hasTokens (symbol sym lbp : parser) :=
+instance symbol.tokens (sym lbp) : Parser.HasTokens (symbol sym lbp : Parser) :=
 ⟨[⟨sym.trim, lbp, none⟩]⟩
-instance symbol.view (sym lbp) : parser.hasView (option syntaxAtom) (symbol sym lbp : parser) :=
-{ view := λ stx, match stx with
-  | syntax.atom atom := some atom
+instance symbol.View (sym lbp) : Parser.HasView (Option SyntaxAtom) (symbol sym lbp : Parser) :=
+{ View := λ stx, match stx with
+  | Syntax.atom atom := some atom
   | _                := none,
-  review := λ a, (syntax.atom <$> a).getOrElse syntax.missing }
-instance symbol.viewDefault (sym lbp) : parser.hasViewDefault (symbol sym lbp : parser) _
+  review := λ a, (Syntax.atom <$> a).getOrElse Syntax.missing }
+instance symbol.viewDefault (sym lbp) : Parser.HasViewDefault (symbol sym lbp : Parser) _
   (some {info := none, val := sym.trim}) := ⟨⟩
 
-def number.parser : parser :=
+def number.Parser : Parser :=
 lift $ try $ do {
   it ← leftOver,
   stx ← token,
-  some _ ← pure $ tryView number stx | error "" (dlist.singleton "number") it,
+  some _ ← pure $ tryView number stx | error "" (Dlist.singleton "number") it,
   pure stx
 } <?> "number"
 
-instance number.parser.tokens : parser.hasTokens (number.parser : parser) := default _
-instance number.parser.view : parser.hasView number.view (number.parser : parser) :=
-{..number.hasView}
+instance number.Parser.tokens : Parser.HasTokens (number.Parser : Parser) := default _
+instance number.Parser.View : Parser.HasView number.View (number.Parser : Parser) :=
+{..number.HasView}
 
-private def toNatCore (base : nat) : string.iterator → nat → nat → nat
+private def toNatCore (base : Nat) : String.Iterator → Nat → Nat → Nat
 | it      0     r := r
 | it      (i+1) r :=
   let c := it.curr in
@@ -282,98 +282,98 @@ private def toNatCore (base : nat) : string.iterator → nat → nat → nat
   let r := r*base + val in
   toNatCore it.next i r
 
-private def toNatBase (s : string) (base : nat) : nat :=
+private def toNatBase (s : String) (base : Nat) : Nat :=
 toNatCore base s.mkIterator s.length 0
 
-def number.view.toNat : number.view → nat
-| (number.view.base10 (some atom)) := atom.val.toNat
-| (number.view.base2  (some atom)) := toNatBase atom.val 2
-| (number.view.base8  (some atom)) := toNatBase atom.val 8
-| (number.view.base16 (some atom)) := toNatBase atom.val 16
+def number.View.toNat : number.View → Nat
+| (number.View.base10 (some atom)) := atom.val.toNat
+| (number.View.base2  (some atom)) := toNatBase atom.val 2
+| (number.View.base8  (some atom)) := toNatBase atom.val 8
+| (number.View.base16 (some atom)) := toNatBase atom.val 16
 | _ := 1138 -- should never happen, but let's still choose a grep-able number
 
-def number.view.ofNat (n : nat) : number.view :=
-number.view.base10 (some {val := toString n})
+def number.View.ofNat (n : Nat) : number.View :=
+number.View.base10 (some {val := toString n})
 
-def stringLit.parser : parser :=
+def stringLit.Parser : Parser :=
 lift $ try $ do {
   it ← leftOver,
   stx ← token,
-  some _ ← pure $ tryView stringLit stx | error "" (dlist.singleton "string") it,
+  some _ ← pure $ tryView stringLit stx | error "" (Dlist.singleton "String") it,
   pure stx
-} <?> "string"
+} <?> "String"
 
-instance stringLit.parser.tokens : parser.hasTokens (stringLit.parser : parser) := default _
-instance stringLit.parser.view : parser.hasView stringLit.view (stringLit.parser : parser) :=
-{..stringLit.hasView}
+instance stringLit.Parser.tokens : Parser.HasTokens (stringLit.Parser : Parser) := default _
+instance stringLit.Parser.View : Parser.HasView stringLit.View (stringLit.Parser : Parser) :=
+{..stringLit.HasView}
 
-def stringLit.view.value (lit : stringLit.view) : option string := do
+def stringLit.View.value (lit : stringLit.View) : Option String := do
   atom ← lit.val,
-  except.ok s ← pure $ parsec.parse (parseStringLiteral : parsec' _) atom.val
+  Except.ok s ← pure $ Parsec.parse (parseStringLiteral : Parsec' _) atom.val
     | failure,
   pure s
 
-def ident.parser : parser :=
+def ident.Parser : Parser :=
 lift $ try $ do {
   it ← leftOver,
-  stx@(syntax.ident _) ← token | error "" (dlist.singleton "identifier") it,
+  stx@(Syntax.ident _) ← token | error "" (Dlist.singleton "identifier") it,
   pure stx
 } <?> "identifier"
 
-instance ident.parser.tokens : parser.hasTokens (ident.parser : parser) := default _
-instance ident.parser.view : parser.hasView syntaxIdent (ident.parser : parser) :=
-{ view := λ stx, match stx with
-    | syntax.ident id := id
-    | _               := {rawVal := substring.ofString "NOTAnIdent", val := `NOTAnIdent},
-  review := syntax.ident }
+instance ident.Parser.tokens : Parser.HasTokens (ident.Parser : Parser) := default _
+instance ident.Parser.View : Parser.HasView SyntaxIdent (ident.Parser : Parser) :=
+{ View := λ stx, match stx with
+    | Syntax.ident id := id
+    | _               := {rawVal := Substring.ofString "NOTAnIdent", val := `NOTAnIdent},
+  review := Syntax.ident }
 
 /-- Read identifier without consulting the token table. -/
-def rawIdent.parser : parser :=
+def rawIdent.Parser : Parser :=
 lift $ ident' >>= withTrailing
 
-instance rawIdent.parser.tokens : parser.hasTokens (rawIdent.parser : parser) := default _
-instance rawIdent.parser.view : parser.hasView syntaxIdent (rawIdent.parser : parser) :=
-{..(ident.parser.view : hasView _ (_ : parser))}
+instance rawIdent.Parser.tokens : Parser.HasTokens (rawIdent.Parser : Parser) := default _
+instance rawIdent.Parser.View : Parser.HasView SyntaxIdent (rawIdent.Parser : Parser) :=
+{..(ident.Parser.View : HasView _ (_ : Parser))}
 
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
     been so by some unrelated code).
 
-    For example, the universe `max` function is parsed using this combinator so that
+    For example, the universe `max` Function is parsed using this Combinator so that
     it can still be used as an identifier outside of universes (but registering it
-    as a token in a term syntax would not break the universe parser). -/
-def symbolOrIdent (sym : string) : parser :=
+    as a token in a Term Syntax would not break the universe Parser). -/
+def symbolOrIdent (sym : String) : Parser :=
 lift $ try $ do
   it ← leftOver,
   stx ← token,
   let sym' := match stx with
-  | syntax.atom ⟨_, sym'⟩ := some sym'
-  | syntax.ident id := some id.rawVal.toString
+  | Syntax.atom ⟨_, sym'⟩ := some sym'
+  | Syntax.ident id := some id.rawVal.toString
   | _ := none,
   when (sym' ≠ some sym) $
-    error "" (dlist.singleton (repr sym)) it,
+    error "" (Dlist.singleton (repr sym)) it,
   pure stx
 
-instance symbolOrIdent.tokens (sym) : parser.hasTokens (symbolOrIdent sym : parser) :=
+instance symbolOrIdent.tokens (sym) : Parser.HasTokens (symbolOrIdent sym : Parser) :=
 default _
-instance symbolOrIdent.view (sym) : parser.hasView syntax (symbolOrIdent sym : parser) := default _
+instance symbolOrIdent.View (sym) : Parser.HasView Syntax (symbolOrIdent sym : Parser) := default _
 
 /-- A unicode symbol with an ASCII fallback -/
-@[derive hasTokens hasView]
-def unicodeSymbol (unicode ascii : string) (lbp := 0) : parser :=
+@[derive HasTokens HasView]
+def unicodeSymbol (unicode ascii : String) (lbp := 0) : Parser :=
 lift $ anyOf [symbol unicode lbp, symbol ascii lbp]
 -- use unicode variant by default
-instance unicodeSymbol.viewDefault (u a lbp) : parser.hasViewDefault (unicodeSymbol u a lbp : parser) _ (syntax.atom ⟨none, u⟩) := ⟨⟩
+instance unicodeSymbol.viewDefault (u a lbp) : Parser.HasViewDefault (unicodeSymbol u a lbp : Parser) _ (Syntax.atom ⟨none, u⟩) := ⟨⟩
 
-def indexed {α : Type} (map : tokenMap α) : m (list α) :=
+def indexed {α : Type} (map : TokenMap α) : m (List α) :=
 lift $ do
-  except.ok tk ← peekToken | error "",
+  Except.ok tk ← peekToken | error "",
   n ← match tk with
-  | syntax.atom ⟨_, s⟩ := pure $ mkSimpleName s
-  | syntax.ident _ := pure `ident
-  | syntax.rawNode n := pure n.kind.name
+  | Syntax.atom ⟨_, s⟩ := pure $ mkSimpleName s
+  | Syntax.ident _ := pure `ident
+  | Syntax.rawNode n := pure n.kind.Name
   | _ := error "",
-  option.toMonad $ map.find n
+  Option.toMonad $ map.find n
 
-end «parser»
-end lean
+end «Parser»
+end Lean

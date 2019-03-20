@@ -6,155 +6,155 @@ Authors: Jeremy Avigad, Leonardo de Moura
 The integers, with addition, multiplication, and subtraction.
 -/
 prelude
-import init.data.nat.basic init.data.list init.coe init.data.repr init.data.toString
-open nat
+import init.data.Nat.basic init.data.List init.coe init.data.repr init.data.toString
+open Nat
 
-/- the type, coercions, and notation -/
+/- the Type, coercions, and notation -/
 
-inductive int : Type
-| ofNat : nat → int
-| negSuccOfNat : nat → int
+inductive Int : Type
+| ofNat : Nat → Int
+| negSuccOfNat : Nat → Int
 
-attribute [extern cpp "lean::nat2int"] int.ofNat
-attribute [extern cpp "lean::int_neg_succ_of_nat"] int.negSuccOfNat
+attribute [extern cpp "Lean::nat2int"] Int.ofNat
+attribute [extern cpp "Lean::int_neg_succ_of_nat"] Int.negSuccOfNat
 
-notation `ℤ` := int
+notation `ℤ` := Int
 
-instance : hasCoe nat int := ⟨int.ofNat⟩
+instance : HasCoe Nat Int := ⟨Int.ofNat⟩
 
-notation `-[1+ ` n `]` := int.negSuccOfNat n
+notation `-[1+ ` n `]` := Int.negSuccOfNat n
 
-namespace int
-protected def zero : int := ofNat 0
-protected def one  : int := ofNat 1
+namespace Int
+protected def zero : Int := ofNat 0
+protected def one  : Int := ofNat 1
 
-instance : hasZero int := ⟨int.zero⟩
-instance : hasOne int := ⟨int.one⟩
+instance : HasZero Int := ⟨Int.zero⟩
+instance : HasOne Int := ⟨Int.one⟩
 
-private def nonneg : int → Prop
-| (ofNat _) := true
-| -[1+ _]    := false
+private def nonneg : Int → Prop
+| (ofNat _) := True
+| -[1+ _]    := False
 
-def negOfNat : nat → int
+def negOfNat : Nat → Int
 | 0        := 0
 | (succ m) := -[1+ m]
 
-@[extern cpp "lean::int_neg"]
-protected def neg (n : @& int) : int :=
+@[extern cpp "Lean::int_neg"]
+protected def neg (n : @& Int) : Int :=
 match n with
 | (ofNat n) := negOfNat n
 | -[1+ n]    := succ n
 
-def subNatNat (m n : nat) : int :=
-match (n - m : nat) with
+def subNatNat (m n : Nat) : Int :=
+match (n - m : Nat) with
 | 0        := ofNat (m - n)  -- m ≥ n
 | (succ k) := -[1+ k]         -- m < n, and n - m = succ k
 
-@[extern cpp "lean::int_add"]
-protected def add (m n : @& int) : int :=
+@[extern cpp "Lean::int_add"]
+protected def add (m n : @& Int) : Int :=
 match m, n with
 | (ofNat m), (ofNat n) := ofNat (m + n)
 | (ofNat m), -[1+ n]    := subNatNat m (succ n)
 | -[1+ m],    (ofNat n) := subNatNat n (succ m)
 | -[1+ m],    -[1+ n]    := -[1+ succ (m + n)]
 
-@[extern cpp "lean::int_mul"]
-protected def mul (m n : @& int) : int :=
+@[extern cpp "Lean::int_mul"]
+protected def mul (m n : @& Int) : Int :=
 match m, n with
 | (ofNat m), (ofNat n) := ofNat (m * n)
 | (ofNat m), -[1+ n]    := negOfNat (m * succ n)
 | -[1+ m],    (ofNat n) := negOfNat (succ m * n)
 | -[1+ m],    -[1+ n]    := ofNat (succ m * succ n)
 
-instance : hasNeg int := ⟨int.neg⟩
-instance : hasAdd int := ⟨int.add⟩
-instance : hasMul int := ⟨int.mul⟩
+instance : HasNeg Int := ⟨Int.neg⟩
+instance : HasAdd Int := ⟨Int.add⟩
+instance : HasMul Int := ⟨Int.mul⟩
 
-@[extern cpp "lean::int_sub"]
-protected def sub (m n : @& int) : int :=
+@[extern cpp "Lean::int_sub"]
+protected def sub (m n : @& Int) : Int :=
 m + -n
 
-instance : hasSub int := ⟨int.sub⟩
+instance : HasSub Int := ⟨Int.sub⟩
 
-protected def le (a b : int) : Prop := nonneg (b - a)
+protected def le (a b : Int) : Prop := nonneg (b - a)
 
-instance : hasLe int := ⟨int.le⟩
+instance : HasLe Int := ⟨Int.le⟩
 
-protected def lt (a b : int) : Prop := (a + 1) ≤ b
+protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : hasLt int := ⟨int.lt⟩
+instance : HasLt Int := ⟨Int.lt⟩
 
-@[extern cpp "lean::int_dec_eq"]
-protected def decEq (a b : @& int) : decidable (a = b) :=
+@[extern cpp "Lean::int_dec_eq"]
+protected def decEq (a b : @& Int) : Decidable (a = b) :=
 match a, b with
  | (ofNat a), (ofNat b) :=
    if h : a = b then isTrue (h ▸ rfl)
-   else isFalse (λ h', int.noConfusion h' (λ h', absurd h' h))
+   else isFalse (λ h', Int.noConfusion h' (λ h', absurd h' h))
  | (negSuccOfNat a), (negSuccOfNat b) :=
    if h : a = b then isTrue (h ▸ rfl)
-   else isFalse (λ h', int.noConfusion h' (λ h', absurd h' h))
- | (ofNat a), (int.negSuccOfNat b) := isFalse (λ h, int.noConfusion h)
- | (negSuccOfNat a), (ofNat b) := isFalse (λ h, int.noConfusion h)
+   else isFalse (λ h', Int.noConfusion h' (λ h', absurd h' h))
+ | (ofNat a), (Int.negSuccOfNat b) := isFalse (λ h, Int.noConfusion h)
+ | (negSuccOfNat a), (ofNat b) := isFalse (λ h, Int.noConfusion h)
 
-instance int.decidableEq : decidableEq int :=
-{decEq := int.decEq}
+instance Int.DecidableEq : DecidableEq Int :=
+{decEq := Int.decEq}
 
-@[extern cpp "lean::int_dec_nonneg"]
-private def decNonneg (m : @& int) : decidable (nonneg m) :=
+@[extern cpp "Lean::int_dec_nonneg"]
+private def decNonneg (m : @& Int) : Decidable (nonneg m) :=
 match m with
-| (ofNat m) := show decidable true,  from inferInstance
-| -[1+ m]    := show decidable false, from inferInstance
+| (ofNat m) := show Decidable True,  from inferInstance
+| -[1+ m]    := show Decidable False, from inferInstance
 
-@[extern cpp "lean::int_dec_le"]
-instance decLe (a b : @& int) : decidable (a ≤ b) :=
+@[extern cpp "Lean::int_dec_le"]
+instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
 decNonneg _
 
-@[extern cpp "lean::int_dec_lt"]
-instance decLt (a b : @& int) : decidable (a < b) :=
+@[extern cpp "Lean::int_dec_lt"]
+instance decLt (a b : @& Int) : Decidable (a < b) :=
 decNonneg _
 
-@[extern cpp "lean::nat_abs"]
-def natAbs (m : @& int) : nat :=
+@[extern cpp "Lean::nat_abs"]
+def natAbs (m : @& Int) : Nat :=
 match m with
 | (ofNat m)          := m
-| (negSuccOfNat m) := nat.succ m
+| (negSuccOfNat m) := Nat.succ m
 
-protected def repr : int → string
-| (ofNat n)          := nat.repr n
-| (negSuccOfNat n) := "-" ++ nat.repr (succ n)
+protected def repr : Int → String
+| (ofNat n)          := Nat.repr n
+| (negSuccOfNat n) := "-" ++ Nat.repr (succ n)
 
-instance : hasRepr int :=
-⟨int.repr⟩
+instance : HasRepr Int :=
+⟨Int.repr⟩
 
-instance : hasToString int :=
-⟨int.repr⟩
+instance : HasToString Int :=
+⟨Int.repr⟩
 
-def sign : int → int
-| (n+1:nat) := 1
+def sign : Int → Int
+| (n+1:Nat) := 1
 | 0       := 0
 | -[1+ n] := -1
 
-@[extern cpp "lean::int_div"]
-def div : (@& int) → (@& int) → int
+@[extern cpp "Lean::int_div"]
+def div : (@& Int) → (@& Int) → Int
 | (ofNat m) (ofNat n) := ofNat (m / n)
 | (ofNat m) -[1+ n]    := -ofNat (m / succ n)
 | -[1+ m]    (ofNat n) := -ofNat (succ m / n)
 | -[1+ m]    -[1+ n]    := ofNat (succ m / succ n)
 
-@[extern cpp "lean::int_mod"]
-def mod : (@& int) → (@& int) → int
+@[extern cpp "Lean::int_mod"]
+def mod : (@& Int) → (@& Int) → Int
 | (ofNat m) (ofNat n) := ofNat (m % n)
 | (ofNat m) -[1+ n]    := ofNat (m % succ n)
 | -[1+ m]    (ofNat n) := -ofNat (succ m % n)
 | -[1+ m]    -[1+ n]    := -ofNat (succ m % succ n)
 
-instance : hasDiv int := ⟨int.div⟩
-instance : hasMod int := ⟨int.mod⟩
+instance : HasDiv Int := ⟨Int.div⟩
+instance : HasMod Int := ⟨Int.mod⟩
 
-def toNat : int → nat
-| (n : nat) := n
+def toNat : Int → Nat
+| (n : Nat) := n
 | -[1+ n] := 0
 
-def natMod (m n : int) : nat := (m % n).toNat
+def natMod (m n : Int) : Nat := (m % n).toNat
 
-end int
+end Int

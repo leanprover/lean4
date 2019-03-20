@@ -3,122 +3,122 @@ Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 
-Term-level parsers
+Term-Level parsers
 -/
 prelude
-import init.lean.parser.level init.lean.parser.notation
-import init.lean.expr
+import init.Lean.Parser.Level init.Lean.Parser.notation
+import init.Lean.Expr
 
-namespace lean
-namespace parser
-open combinators parser.hasView monadParsec
+namespace Lean
+namespace Parser
+open Combinators Parser.HasView MonadParsec
 
 local postfix `?`:10000 := optional
-local postfix *:10000 := combinators.many
-local postfix +:10000 := combinators.many1
+local postfix *:10000 := Combinators.many
+local postfix +:10000 := Combinators.many1
 
 setOption class.instanceMaxDepth 200
 
-@[derive parser.hasTokens parser.hasView]
-def identUnivSpec.parser : basicParser :=
-node! identUnivSpec [".{", levels: level.parser+, "}"]
+@[derive Parser.HasTokens Parser.HasView]
+def identUnivSpec.Parser : basicParser :=
+Node! identUnivSpec [".{", levels: Level.Parser+, "}"]
 
-@[derive parser.hasTokens parser.hasView]
-def identUnivs.parser : termParser :=
-node! identUnivs [id: ident.parser, univs: (monadLift identUnivSpec.parser)?]
+@[derive Parser.HasTokens Parser.HasView]
+def identUnivs.Parser : termParser :=
+Node! identUnivs [id: ident.Parser, univs: (monadLift identUnivSpec.Parser)?]
 
-namespace term
-/-- Access leading term -/
+namespace Term
+/-- Access leading Term -/
 def getLeading : trailingTermParser := read
-instance : hasTokens getLeading := default _
-instance : hasView syntax getLeading := default _
+instance : HasTokens getLeading := default _
+instance : HasView Syntax getLeading := default _
 
-@[derive parser.hasTokens parser.hasView]
-def paren.parser : termParser :=
-node! «paren» ["(":maxPrec,
-  content: node! parenContent [
-    term: term.parser,
+@[derive Parser.HasTokens Parser.HasView]
+def paren.Parser : termParser :=
+Node! «paren» ["(":maxPrec,
+  content: Node! parenContent [
+    Term: Term.Parser,
     special: nodeChoice! parenSpecial {
       /- Do not allow trailing comma. Looks a bit weird and would clash with
       adding support for tuple sections (https://downloads.haskell.org/~ghc/8.2.1/docs/html/usersGuide/glasgowExts.html#tuple-sections). -/
-      tuple: node! tuple [", ", tail: sepBy (term.parser 0) (symbol ", ") ff],
-      typed: node! typed [" : ", type: term.parser],
+      tuple: Node! tuple [", ", tail: SepBy (Term.Parser 0) (symbol ", ") ff],
+      typed: Node! typed [" : ", Type: Term.Parser],
     }?,
   ]?,
   ")"
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def hole.parser : termParser :=
-node! hole [hole: symbol "_" maxPrec]
+@[derive Parser.HasTokens Parser.HasView]
+def hole.Parser : termParser :=
+Node! hole [hole: symbol "_" maxPrec]
 
-@[derive parser.hasTokens parser.hasView]
-def sort.parser : termParser :=
+@[derive Parser.HasTokens Parser.HasView]
+def sort.Parser : termParser :=
 nodeChoice! sort {"Sort":maxPrec, "Type":maxPrec}
 
-@[derive hasTokens hasView]
-def typeSpec.parser : termParser :=
-node! typeSpec [" : ", type: term.parser 0]
+@[derive HasTokens HasView]
+def typeSpec.Parser : termParser :=
+Node! typeSpec [" : ", Type: Term.Parser 0]
 
-@[derive hasTokens hasView]
-def optType.parser : termParser :=
-typeSpec.parser?
+@[derive HasTokens HasView]
+def optType.Parser : termParser :=
+typeSpec.Parser?
 
-instance optType.viewDefault : hasViewDefault optType.parser _ none := ⟨⟩
+instance optType.viewDefault : HasViewDefault optType.Parser _ none := ⟨⟩
 
 section binder
-@[derive hasTokens hasView]
-def binderIdent.parser : termParser :=
-nodeChoice! binderIdent {id: ident.parser, hole: hole.parser}
+@[derive HasTokens HasView]
+def binderIdent.Parser : termParser :=
+nodeChoice! binderIdent {id: ident.Parser, hole: hole.Parser}
 
-@[derive hasTokens hasView]
-def binderDefault.parser : termParser :=
+@[derive HasTokens HasView]
+def binderDefault.Parser : termParser :=
 nodeChoice! binderDefault {
-  val: node! binderDefaultVal [":=", term: term.parser 0],
-  tac: node! binderDefaultTac [".", term: term.parser 0],
+  val: Node! binderDefaultVal [":=", Term: Term.Parser 0],
+  tac: Node! binderDefaultTac [".", Term: Term.Parser 0],
 }
 
-@[derive hasTokens hasView]
-def binderContent.parser : termParser :=
-node! binderContent [
-  ids: binderIdent.parser+,
-  type: optType.parser,
-  default: binderDefault.parser?
+@[derive HasTokens HasView]
+def binderContent.Parser : termParser :=
+Node! binderContent [
+  ids: binderIdent.Parser+,
+  Type: optType.Parser,
+  default: binderDefault.Parser?
 ]
 
-@[derive hasTokens hasView]
-def simpleBinder.parser : termParser :=
+@[derive HasTokens HasView]
+def simpleBinder.Parser : termParser :=
 nodeChoice! simpleBinder {
-  explicit: node! simpleExplicitBinder ["(", id: ident.parser, " : ", type: term.parser 0, right: symbol ")"],
-  implicit: node! simpleImplicitBinder ["{", id: ident.parser, " : ", type: term.parser 0, right: symbol "}"],
-  strictImplicit: node! simpleStrictImplicitBinder ["⦃", id: ident.parser, " : ", type: term.parser 0, right: symbol "⦄"],
-  instImplicit: node! simpleInstImplicitBinder ["[", id: ident.parser, " : ", type: term.parser 0, right: symbol "]"],
+  explicit: Node! simpleExplicitBinder ["(", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol ")"],
+  implicit: Node! simpleImplicitBinder ["{", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol "}"],
+  strictImplicit: Node! simpleStrictImplicitBinder ["⦃", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol "⦄"],
+  instImplicit: Node! simpleInstImplicitBinder ["[", id: ident.Parser, " : ", Type: Term.Parser 0, right: symbol "]"],
 }
 
-def simpleBinder.view.toBinderInfo : simpleBinder.view → (binderInfo × syntaxIdent × syntax)
-| (simpleBinder.view.explicit {id := id, type := type})        := (binderInfo.default, id, type)
-| (simpleBinder.view.implicit {id := id, type := type})        := (binderInfo.implicit, id, type)
-| (simpleBinder.view.strictImplicit {id := id, type := type}) := (binderInfo.strictImplicit, id, type)
-| (simpleBinder.view.instImplicit {id := id, type := type})   := (binderInfo.instImplicit, id, type)
+def simpleBinder.View.toBinderInfo : simpleBinder.View → (BinderInfo × SyntaxIdent × Syntax)
+| (simpleBinder.View.explicit {id := id, Type := Type})        := (BinderInfo.default, id, Type)
+| (simpleBinder.View.implicit {id := id, Type := Type})        := (BinderInfo.implicit, id, Type)
+| (simpleBinder.View.strictImplicit {id := id, Type := Type}) := (BinderInfo.strictImplicit, id, Type)
+| (simpleBinder.View.instImplicit {id := id, Type := Type})   := (BinderInfo.instImplicit, id, Type)
 
-@[derive parser.hasTokens parser.hasView]
-def anonymousConstructor.parser : termParser :=
-node! anonymousConstructor ["⟨":maxPrec, args: sepBy (term.parser 0) (symbol ","), "⟩"]
+@[derive Parser.HasTokens Parser.HasView]
+def anonymousConstructor.Parser : termParser :=
+Node! anonymousConstructor ["⟨":maxPrec, args: SepBy (Term.Parser 0) (symbol ","), "⟩"]
 
 /- All binders must be surrounded with some kind of bracket. (e.g., '()', '{}', '[]').
    We use this feature when parsing examples/definitions/theorems. The goal is to avoid counter-intuitive
    declarations such as:
 
-     example p : false := trivial
-     def main proof : false := trivial
+     example p : False := trivial
+     def main proof : False := trivial
 
    which would be parsed as
 
-     example (p : false) : _ := trivial
+     example (p : False) : _ := trivial
 
-     def main (proof : false) : _ := trivial
+     def main (proof : False) : _ := trivial
 
-   where `_` in both cases is elaborated into `true`. This issue was raised by @gebner in the slack channel.
+   where `_` in both cases is elaborated into `True`. This issue was raised by @gebner in the slack channel.
 
 
    Remark: we still want implicit delimiters for lambda/pi expressions. That is, we want to
@@ -131,297 +131,297 @@ node! anonymousConstructor ["⟨":maxPrec, args: sepBy (term.parser 0) (symbol "
    instead of
 
        fun (x : t), s -/
-@[derive hasTokens hasView]
-def bracketedBinder.parser : termParser :=
+@[derive HasTokens HasView]
+def bracketedBinder.Parser : termParser :=
 nodeChoice! bracketedBinder {
-  explicit: node! explicitBinder ["(", content: nodeChoice! explicitBinderContent {
-    «notation»: command.notationLike.parser,
-    other: binderContent.parser
+  explicit: Node! explicitBinder ["(", content: nodeChoice! explicitBinderContent {
+    «notation»: command.notationLike.Parser,
+    other: binderContent.Parser
   }, right: symbol ")"],
-  implicit: node! implicitBinder ["{", content: binderContent.parser, "}"],
-  strictImplicit: node! strictImplicitBinder ["⦃", content: binderContent.parser, "⦄"],
-  instImplicit: node! instImplicitBinder ["[", content: nodeLongestChoice! instImplicitBinderContent {
-    named: node! instImplicitNamedBinder [id: ident.parser, " : ", type: term.parser 0],
-    anonymous: node! instImplicitAnonymousBinder [type: term.parser 0]
+  implicit: Node! implicitBinder ["{", content: binderContent.Parser, "}"],
+  strictImplicit: Node! strictImplicitBinder ["⦃", content: binderContent.Parser, "⦄"],
+  instImplicit: Node! instImplicitBinder ["[", content: nodeLongestChoice! instImplicitBinderContent {
+    named: Node! instImplicitNamedBinder [id: ident.Parser, " : ", Type: Term.Parser 0],
+    anonymous: Node! instImplicitAnonymousBinder [Type: Term.Parser 0]
   }, "]"],
-  anonymousConstructor: anonymousConstructor.parser,
+  anonymousConstructor: anonymousConstructor.Parser,
 }
 
-@[derive hasTokens hasView]
-def binder.parser : termParser :=
+@[derive HasTokens HasView]
+def binder.Parser : termParser :=
 nodeChoice! binder {
-  bracketed: bracketedBinder.parser,
-  unbracketed: binderContent.parser,
+  bracketed: bracketedBinder.Parser,
+  unbracketed: binderContent.Parser,
 }
 
-@[derive hasTokens hasView]
-def bindersExt.parser : termParser :=
-node! bindersExt [
-  leadingIds: binderIdent.parser*,
+@[derive HasTokens HasView]
+def bindersExt.Parser : termParser :=
+Node! bindersExt [
+  leadingIds: binderIdent.Parser*,
   remainder: nodeChoice! bindersRemainder {
-    type: node! bindersTypes [":", type: term.parser 0],
+    Type: Node! bindersTypes [":", Type: Term.Parser 0],
     -- we allow mixing like in `a (b : β) c`, but not `a : α (b : β) c : γ`
     mixed: nodeChoice! mixedBinder {
-      bracketed: bracketedBinder.parser,
-      id: binderIdent.parser,
+      bracketed: bracketedBinder.Parser,
+      id: binderIdent.Parser,
     }+,
   }?
 ]
 
 /-- We normalize binders to simpler singleton ones during expansion. -/
-@[derive hasTokens hasView]
-def binders.parser : termParser :=
+@[derive HasTokens HasView]
+def binders.Parser : termParser :=
 nodeChoice! binders {
-  extended: bindersExt.parser,
+  extended: bindersExt.Parser,
   -- a strict subset of `extended`, so only useful after parsing
-  simple: simpleBinder.parser,
+  simple: simpleBinder.Parser,
 }
 
 /-- We normalize binders to simpler ones during expansion. These always-bracketed
     binders are used in declarations and cannot be reduced to nested singleton binders. -/
-@[derive hasTokens hasView]
-def bracketedBinders.parser : termParser :=
+@[derive HasTokens HasView]
+def bracketedBinders.Parser : termParser :=
 nodeChoice! bracketedBinders {
-  extended: bracketedBinder.parser*,
+  extended: bracketedBinder.Parser*,
   -- a strict subset of `extended`, so only useful after parsing
-  simple: simpleBinder.parser*,
+  simple: simpleBinder.Parser*,
 }
 end binder
 
-@[derive parser.hasTokens parser.hasView]
-def lambda.parser : termParser :=
-node! lambda [
+@[derive Parser.HasTokens Parser.HasView]
+def lambda.Parser : termParser :=
+Node! lambda [
   op: unicodeSymbol "λ" "fun" maxPrec,
-  binders: binders.parser,
+  binders: binders.Parser,
   ",",
-  body: term.parser 0
+  body: Term.Parser 0
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def assume.parser : termParser :=
-node! «assume» [
+@[derive Parser.HasTokens Parser.HasView]
+def assume.Parser : termParser :=
+Node! «assume» [
   "assume ":maxPrec,
   binders: nodeChoice! assumeBinders {
-    anonymous: node! assumeAnonymous [": ", type: term.parser],
-    binders: binders.parser
+    anonymous: Node! assumeAnonymous [": ", Type: Term.Parser],
+    binders: binders.Parser
   },
   ", ",
-  body: term.parser 0
+  body: Term.Parser 0
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def pi.parser : termParser :=
-node! pi [
+@[derive Parser.HasTokens Parser.HasView]
+def pi.Parser : termParser :=
+Node! pi [
   op: anyOf [unicodeSymbol "Π" "Pi" maxPrec, unicodeSymbol "∀" "forall" maxPrec],
-  binders: binders.parser,
+  binders: binders.Parser,
   ",",
-  range: term.parser 0
+  range: Term.Parser 0
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def explicit.parser : termParser :=
-node! explicit [
+@[derive Parser.HasTokens Parser.HasView]
+def explicit.Parser : termParser :=
+Node! explicit [
   mod: nodeChoice! explicitModifier {
     explicit: symbol "@" maxPrec,
     partialExplicit: symbol "@@" maxPrec
   },
-  id: identUnivs.parser
+  id: identUnivs.Parser
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def from.parser : termParser :=
-node! «from» ["from ", proof: term.parser]
+@[derive Parser.HasTokens Parser.HasView]
+def from.Parser : termParser :=
+Node! «from» ["from ", proof: Term.Parser]
 
-@[derive parser.hasTokens parser.hasView]
-def let.parser : termParser :=
-node! «let» [
+@[derive Parser.HasTokens Parser.HasView]
+def let.Parser : termParser :=
+Node! «let» [
   "let ",
   lhs: nodeChoice! letLhs {
-    id: node! letLhsId [
-      id: ident.parser,
-      -- NOTE: after expansion, binders are empty
-      binders: bracketedBinder.parser*,
-      type: optType.parser,
+    id: Node! letLhsId [
+      id: ident.Parser,
+      -- NOTE: after expansion, binders are Empty
+      binders: bracketedBinder.Parser*,
+      Type: optType.Parser,
     ],
-    pattern: term.parser
+    pattern: Term.Parser
   },
   " := ",
-  value: term.parser,
+  value: Term.Parser,
   " in ",
-  body: term.parser,
+  body: Term.Parser,
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def optIdent.parser : termParser :=
-(try node! optIdent [id: ident.parser, " : "])?
+@[derive Parser.HasTokens Parser.HasView]
+def optIdent.Parser : termParser :=
+(try Node! optIdent [id: ident.Parser, " : "])?
 
-@[derive parser.hasTokens parser.hasView]
-def have.parser : termParser :=
-node! «have» [
+@[derive Parser.HasTokens Parser.HasView]
+def have.Parser : termParser :=
+Node! «have» [
   "have ",
-  id: optIdent.parser,
-  prop: term.parser,
+  id: optIdent.Parser,
+  prop: Term.Parser,
   proof: nodeChoice! haveProof {
-    term: node! haveTerm [" := ", term: term.parser],
-    «from»: node! haveFrom [", ", «from»: from.parser],
+    Term: Node! haveTerm [" := ", Term: Term.Parser],
+    «from»: Node! haveFrom [", ", «from»: from.Parser],
   },
   ", ",
-  body: term.parser,
+  body: Term.Parser,
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def show.parser : termParser :=
-node! «show» [
+@[derive Parser.HasTokens Parser.HasView]
+def show.Parser : termParser :=
+Node! «show» [
   "show ",
-  prop: term.parser,
+  prop: Term.Parser,
   ", ",
-  «from»: from.parser,
+  «from»: from.Parser,
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def match.parser : termParser :=
-node! «match» [
+@[derive Parser.HasTokens Parser.HasView]
+def match.Parser : termParser :=
+Node! «match» [
   "match ",
-  scrutinees: sepBy1 term.parser (symbol ", ") ff,
-  type: optType.parser,
+  scrutinees: sepBy1 Term.Parser (symbol ", ") ff,
+  Type: optType.Parser,
   " with ",
   optBar: (symbol " | ")?,
   equations: sepBy1
-    node! «matchEquation» [
-      lhs: sepBy1 term.parser (symbol ", ") ff, ":=", rhs: term.parser]
+    Node! «matchEquation» [
+      lhs: sepBy1 Term.Parser (symbol ", ") ff, ":=", rhs: Term.Parser]
     (symbol " | ") ff,
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def if.parser : termParser :=
-node! «if» [
+@[derive Parser.HasTokens Parser.HasView]
+def if.Parser : termParser :=
+Node! «if» [
   "if ",
-  id: optIdent.parser,
-  prop: term.parser,
+  id: optIdent.Parser,
+  prop: Term.Parser,
   " then ",
-  thenBranch: term.parser,
+  thenBranch: Term.Parser,
   " else ",
-  elseBranch: term.parser,
+  elseBranch: Term.Parser,
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def structInst.parser : termParser :=
-node! structInst [
+@[derive Parser.HasTokens Parser.HasView]
+def structInst.Parser : termParser :=
+Node! structInst [
   "{":maxPrec,
-  type: (try node! structInstType [id: ident.parser, " . "])?,
-  «with»: (try node! structInstWith [source: term.parser, " with "])?,
-  items: sepBy nodeChoice! structInstItem {
-    field: node! structInstField [id: ident.parser, " := ", val: term.parser],
-    source: node! structInstSource ["..", source: term.parser?],
+  Type: (try Node! structInstType [id: ident.Parser, " . "])?,
+  «with»: (try Node! structInstWith [source: Term.Parser, " with "])?,
+  items: SepBy nodeChoice! structInstItem {
+    field: Node! structInstField [id: ident.Parser, " := ", val: Term.Parser],
+    source: Node! structInstSource ["..", source: Term.Parser?],
   } (symbol ", "),
   "}",
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def subtype.parser : termParser :=
-node! subtype [
+@[derive Parser.HasTokens Parser.HasView]
+def Subtype.Parser : termParser :=
+Node! Subtype [
   "{":maxPrec,
-  id: ident.parser,
-  type: optType.parser,
+  id: ident.Parser,
+  Type: optType.Parser,
   "//",
-  prop: term.parser,
+  prop: Term.Parser,
   "}"
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def inaccessible.parser : termParser :=
-node! inaccessible [".(":maxPrec, term: term.parser, ")"]
+@[derive Parser.HasTokens Parser.HasView]
+def inaccessible.Parser : termParser :=
+Node! inaccessible [".(":maxPrec, Term: Term.Parser, ")"]
 
-@[derive parser.hasTokens parser.hasView]
-def anonymousInaccessible.parser : termParser :=
-node! anonymousInaccessible ["._":maxPrec]
+@[derive Parser.HasTokens Parser.HasView]
+def anonymousInaccessible.Parser : termParser :=
+Node! anonymousInaccessible ["._":maxPrec]
 
-@[derive parser.hasTokens parser.hasView]
-def sorry.parser : termParser :=
-node! «sorry» ["sorry":maxPrec]
+@[derive Parser.HasTokens Parser.HasView]
+def sorry.Parser : termParser :=
+Node! «sorry» ["sorry":maxPrec]
 
 def borrowPrec := maxPrec - 1
-@[derive parser.hasTokens parser.hasView]
-def borrowed.parser : termParser :=
-node! borrowed ["@&":maxPrec, term: term.parser borrowPrec]
+@[derive Parser.HasTokens Parser.HasView]
+def borrowed.Parser : termParser :=
+Node! borrowed ["@&":maxPrec, Term: Term.Parser borrowPrec]
 
 -- TODO(Sebastian): replace with attribute
-@[derive hasTokens]
-def builtinLeadingParsers : tokenMap termParser := tokenMap.ofList [
-  (`ident, identUnivs.parser),
-  (number.name, number.parser),
-  (stringLit.name, stringLit.parser),
-  ("(", paren.parser),
-  ("_", hole.parser),
-  ("Sort", sort.parser),
-  ("Type", sort.parser),
-  ("λ", lambda.parser),
-  ("fun", lambda.parser),
-  ("Π", pi.parser),
-  ("Pi", pi.parser),
-  ("∀", pi.parser),
-  ("forall", pi.parser),
-  ("⟨", anonymousConstructor.parser),
-  ("@", explicit.parser),
-  ("@@", explicit.parser),
-  ("let", let.parser),
-  ("have", have.parser),
-  ("show", show.parser),
-  ("assume", assume.parser),
-  ("match", match.parser),
-  ("if", if.parser),
-  ("{", structInst.parser),
-  ("{", subtype.parser),
-  (".(", inaccessible.parser),
-  ("._", anonymousInaccessible.parser),
-  ("sorry", sorry.parser),
-  ("@&", borrowed.parser)
+@[derive HasTokens]
+def builtinLeadingParsers : TokenMap termParser := TokenMap.ofList [
+  (`ident, identUnivs.Parser),
+  (number.Name, number.Parser),
+  (stringLit.Name, stringLit.Parser),
+  ("(", paren.Parser),
+  ("_", hole.Parser),
+  ("Sort", sort.Parser),
+  ("Type", sort.Parser),
+  ("λ", lambda.Parser),
+  ("fun", lambda.Parser),
+  ("Π", pi.Parser),
+  ("Pi", pi.Parser),
+  ("∀", pi.Parser),
+  ("forall", pi.Parser),
+  ("⟨", anonymousConstructor.Parser),
+  ("@", explicit.Parser),
+  ("@@", explicit.Parser),
+  ("let", let.Parser),
+  ("have", have.Parser),
+  ("show", show.Parser),
+  ("assume", assume.Parser),
+  ("match", match.Parser),
+  ("if", if.Parser),
+  ("{", structInst.Parser),
+  ("{", Subtype.Parser),
+  (".(", inaccessible.Parser),
+  ("._", anonymousInaccessible.Parser),
+  ("sorry", sorry.Parser),
+  ("@&", borrowed.Parser)
 ]
 
-@[derive parser.hasTokens parser.hasView]
-def sortApp.parser : trailingTermParser :=
+@[derive Parser.HasTokens Parser.HasView]
+def sortApp.Parser : trailingTermParser :=
 do { l ← getLeading, guard $ l.isOfKind sort } *>
-node! sortApp [fn: getLeading, arg: monadLift (level.parser maxPrec).run]
+Node! sortApp [fn: getLeading, Arg: monadLift (Level.Parser maxPrec).run]
 
-@[derive parser.hasTokens parser.hasView]
-def app.parser : trailingTermParser :=
-node! app [fn: getLeading, arg: term.parser maxPrec]
+@[derive Parser.HasTokens Parser.HasView]
+def app.Parser : trailingTermParser :=
+Node! app [fn: getLeading, Arg: Term.Parser maxPrec]
 
-def mkApp (fn : syntax) (args : list syntax) : syntax :=
-args.foldl (λ fn arg, syntax.mkNode app [fn, arg]) fn
+def mkApp (fn : Syntax) (args : List Syntax) : Syntax :=
+args.foldl (λ fn Arg, Syntax.mkNode app [fn, Arg]) fn
 
-@[derive parser.hasTokens parser.hasView]
-def arrow.parser : trailingTermParser :=
-node! arrow [dom: getLeading, op: unicodeSymbol "→" "->" 25, range: term.parser 24]
+@[derive Parser.HasTokens Parser.HasView]
+def arrow.Parser : trailingTermParser :=
+Node! arrow [dom: getLeading, op: unicodeSymbol "→" "->" 25, range: Term.Parser 24]
 
-@[derive parser.hasView]
-def projection.parser : trailingTermParser :=
-try $ node! projection [
-  term: getLeading,
+@[derive Parser.HasView]
+def projection.Parser : trailingTermParser :=
+try $ Node! projection [
+  Term: getLeading,
   -- do not consume trailing whitespace
   «.»: rawStr ".",
   proj: nodeChoice! projectionSpec {
-    id: parser.ident.parser,
-    num: number.parser,
+    id: Parser.ident.Parser,
+    num: number.Parser,
   },
 ]
 
 -- register '.' manually because of `rawStr`
-instance projection.tokens : hasTokens projection.parser :=
+instance projection.tokens : HasTokens projection.Parser :=
 /- Use maxPrec + 1 so that it bind more tightly than application:
    `a (b).c` should be parsed as `a ((b).c)`. -/
 ⟨[{«prefix» := ".", lbp := maxPrec.succ}]⟩
 
-@[derive hasTokens]
-def builtinTrailingParsers : tokenMap trailingTermParser := tokenMap.ofList [
-  ("→", arrow.parser),
-  ("->", arrow.parser),
-  (".", projection.parser)
+@[derive HasTokens]
+def builtinTrailingParsers : TokenMap trailingTermParser := TokenMap.ofList [
+  ("→", arrow.Parser),
+  ("->", arrow.Parser),
+  (".", projection.Parser)
 ]
 
-end term
+end Term
 
-private def trailing (cfg : commandParserConfig) : trailingTermParser :=
+private def trailing (cfg : CommandParserConfig) : trailingTermParser :=
 -- try local parsers first, starting with the newest one
 (do ps ← indexed cfg.localTrailingTermParsers, ps.foldr (<|>) (error ""))
 <|>
@@ -432,9 +432,9 @@ private def trailing (cfg : commandParserConfig) : trailingTermParser :=
 -- e.g. `a + b` should not be parsed as `a (+ b)`.
 -- TODO(Sebastian): We should be able to remove this workaround using
 -- the proposed more robust precedence handling
-anyOf [term.sortApp.parser, term.app.parser]
+anyOf [Term.sortApp.Parser, Term.app.Parser]
 
-private def leading (cfg : commandParserConfig) : termParser :=
+private def leading (cfg : CommandParserConfig) : termParser :=
 (do ps ← indexed cfg.localLeadingTermParsers, ps.foldr (<|>) (error ""))
 <|>
 (do ps ← indexed cfg.leadingTermParsers, longestMatch ps)
@@ -443,5 +443,5 @@ def termParser.run (p : termParser) : commandParser :=
 do cfg ← read,
    adaptReader coe $ prattParser (leading cfg) (trailing cfg) p
 
-end parser
-end lean
+end Parser
+end Lean

@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.list.basic
-import init.control.alternative init.control.monad
-open list
+import init.data.List.basic
+import init.control.Alternative init.control.Monad
+open List
 
 universes u v
 
-instance : monad list :=
-{ pure := @list.ret, map := @list.map, bind := @list.bind }
+instance : Monad List :=
+{ pure := @List.ret, map := @List.map, bind := @List.bind }
 
-instance : alternative list :=
-{ failure := @list.nil,
-  orelse  := @list.append,
-  ..list.monad }
+instance : Alternative List :=
+{ failure := @List.nil,
+  orelse  := @List.append,
+  ..List.Monad }

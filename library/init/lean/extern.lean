@@ -4,28 +4,28 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.expr init.data.option.basic
+import init.Lean.Expr init.data.Option.basic
 
-namespace lean
+namespace Lean
 
-inductive externEntry
-| adhoc    (backend : name)
-| inline   (backend : name) (pattern : string)
-| standard (backend : name) (fn : string)
-| foreign  (backend : name) (fn : string)
+inductive ExternEntry
+| adhoc    (backend : Name)
+| inline   (backend : Name) (pattern : String)
+| standard (backend : Name) (fn : String)
+| foreign  (backend : Name) (fn : String)
 
-@[export lean.mkAdhocExtEntryCore]   def mkAdhocExtEntry   := externEntry.adhoc
-@[export lean.mkInlineExtEntryCore]  def mkInlineExtEntry  := externEntry.inline
-@[export lean.mkStdExtEntryCore]     def mkStdExtEntry     := externEntry.standard
-@[export lean.mkForeignExtEntryCore] def mkForeignExtEntry := externEntry.foreign
+@[export Lean.mkAdhocExtEntryCore]   def mkAdhocExtEntry   := ExternEntry.adhoc
+@[export Lean.mkInlineExtEntryCore]  def mkInlineExtEntry  := ExternEntry.inline
+@[export Lean.mkStdExtEntryCore]     def mkStdExtEntry     := ExternEntry.standard
+@[export Lean.mkForeignExtEntryCore] def mkForeignExtEntry := ExternEntry.foreign
 
 /-
 - `@[extern]`
    encoding: ```.entries = [adhoc `all]```
 - `@[extern "level_hash"]`
    encoding: ```.entries = [standard `all "levelHash"]```
-- `@[extern cpp "lean::string_size" llvm "lean_str_size"]`
-   encoding: ```.entries = [standard `cpp "lean::string_size", standard `llvm "leanStrSize"]```
+- `@[extern cpp "Lean::string_size" llvm "lean_str_size"]`
+   encoding: ```.entries = [standard `cpp "Lean::string_size", standard `llvm "leanStrSize"]```
 - `@[extern cpp inline "#1 + #2"]`
    encoding: ```.entries = [inline `cpp "#1 + #2"]```
 - `@[extern cpp "foo" llvm adhoc]`
@@ -33,13 +33,13 @@ inductive externEntry
 - `@[extern 2 cpp "io_prim_println"]`
    encoding: ```.arity = 2, .entries = [standard `cpp "ioPrimPrintln"]```
 -/
-structure externAttrData :=
-(arity    : option nat := none)
-(entries  : list externEntry)
+structure ExternAttrData :=
+(arity    : Option Nat := none)
+(entries  : List ExternEntry)
 
-@[export lean.mkExternAttrDataCore] def mkExternAttrData := externAttrData.mk
+@[export Lean.mkExternAttrDataCore] def mkExternAttrData := ExternAttrData.mk
 
-private def parseOptNum : nat → string.iterator → nat → string.iterator × nat
+private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
 | 0     it r := (it, r)
 | (n+1) it r :=
   if !it.hasNext then (it, r)
@@ -49,7 +49,7 @@ private def parseOptNum : nat → string.iterator → nat → string.iterator ×
     then parseOptNum n it.next (r*10 + (c.toNat - '0'.toNat))
     else (it, r)
 
-def expandExternPatternAux (args : list string) : nat → string.iterator → string → string
+def expandExternPatternAux (args : List String) : Nat → String.Iterator → String → String
 | 0     it r := r
 | (i+1) it r :=
   if ¬ it.hasNext then r
@@ -61,39 +61,39 @@ def expandExternPatternAux (args : list string) : nat → string.iterator → st
       let j       := j-1 in
       expandExternPatternAux i it (r ++ (args.nth j).getOrElse "")
 
-@[export lean.expandExternPatternCore]
-def expandExternPattern (pattern : string) (args : list string) : string :=
+@[export Lean.expandExternPatternCore]
+def expandExternPattern (pattern : String) (args : List String) : String :=
 expandExternPatternAux args pattern.length pattern.mkIterator ""
 
-def mkSimpleFnCall (fn : string) (args : list string) : string :=
+def mkSimpleFnCall (fn : String) (args : List String) : String :=
 fn ++ "(" ++ ((args.intersperse ", ").foldl (++) "") ++ ")"
 
-def expandExternEntry : externEntry → list string → option string
-| (externEntry.adhoc _) args        := none -- backend must expand it
-| (externEntry.standard _ fn) args  := some (mkSimpleFnCall fn args)
-| (externEntry.inline _ pat) args   := some (expandExternPattern pat args)
-| (externEntry.foreign _ fn) args   := some (mkSimpleFnCall fn args)
+def expandExternEntry : ExternEntry → List String → Option String
+| (ExternEntry.adhoc _) args        := none -- backend must expand it
+| (ExternEntry.standard _ fn) args  := some (mkSimpleFnCall fn args)
+| (ExternEntry.inline _ pat) args   := some (expandExternPattern pat args)
+| (ExternEntry.foreign _ fn) args   := some (mkSimpleFnCall fn args)
 
-def externEntry.backend : externEntry → name
-| (externEntry.adhoc n)      := n
-| (externEntry.inline n _)   := n
-| (externEntry.standard n _) := n
-| (externEntry.foreign n _)  := n
+def ExternEntry.backend : ExternEntry → Name
+| (ExternEntry.adhoc n)      := n
+| (ExternEntry.inline n _)   := n
+| (ExternEntry.standard n _) := n
+| (ExternEntry.foreign n _)  := n
 
-def getExternEntryForAux (backend : name) : list externEntry → option externEntry
+def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEntry
 | []      := none
 | (e::es) :=
   if e.backend = `all then some e
   else if e.backend = backend then some e
   else getExternEntryForAux es
 
-@[export lean.getExternEntryForCore]
-def getExternEntryFor (d : externAttrData) (backend : name) : option externEntry :=
+@[export Lean.getExternEntryForCore]
+def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry :=
 getExternEntryForAux backend d.entries
 
-@[export lean.mkExternCallCore]
-def mkExternCall (d : externAttrData) (backend : name) (args : list string) : option string :=
+@[export Lean.mkExternCallCore]
+def mkExternCall (d : ExternAttrData) (backend : Name) (args : List String) : Option String :=
 do e ← getExternEntryFor d backend,
    expandExternEntry e args
 
-end lean
+end Lean

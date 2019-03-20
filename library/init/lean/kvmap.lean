@@ -4,91 +4,91 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.name init.data.option.basic
+import init.Lean.Name init.data.Option.basic
 
-namespace lean
+namespace Lean
 
-inductive dataValue
-| ofString (v : string)
-| ofNat    (v : nat)
-| ofBool   (v : bool)
-| ofName   (v : name)
+inductive DataValue
+| ofString (v : String)
+| ofNat    (v : Nat)
+| ofBool   (v : Bool)
+| ofName   (v : Name)
 
-def dataValue.beq : dataValue → dataValue → bool
-| (dataValue.ofString s₁) (dataValue.ofString s₂) := s₁ = s₂
-| (dataValue.ofNat n₁)    (dataValue.ofNat n₂)    := n₂ = n₂
-| (dataValue.ofBool b₁)   (dataValue.ofBool b₂)   := b₁ = b₂
+def DataValue.beq : DataValue → DataValue → Bool
+| (DataValue.ofString s₁) (DataValue.ofString s₂) := s₁ = s₂
+| (DataValue.ofNat n₁)    (DataValue.ofNat n₂)    := n₂ = n₂
+| (DataValue.ofBool b₁)   (DataValue.ofBool b₂)   := b₁ = b₂
 | _                         _                         := ff
 
-instance dataValue.hasBeq : hasBeq dataValue := ⟨dataValue.beq⟩
+instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
 
-/- Remark: we do not use rbmap here because we need to manipulate kvmap objects in
-   C++ and rbmap is implemented in Lean. So, we use just a list until we can
+/- Remark: we do not use Rbmap here because we need to manipulate Kvmap objects in
+   C++ and Rbmap is implemented in Lean. So, we use just a List until we can
    generate C++ code from Lean code. -/
-structure kvmap :=
-(entries : list (name × dataValue) := [])
+structure Kvmap :=
+(entries : List (Name × DataValue) := [])
 
-namespace kvmap
-def findCore : list (name × dataValue) → name → option dataValue
+namespace Kvmap
+def findCore : List (Name × DataValue) → Name → Option DataValue
 | []         k' := none
 | ((k,v)::m) k' := if k = k' then some v else findCore m k'
 
-def find : kvmap → name → option dataValue
+def find : Kvmap → Name → Option DataValue
 | ⟨m⟩ k := findCore m k
 
-def insertCore : list (name × dataValue) → name → dataValue → list (name × dataValue)
+def insertCore : List (Name × DataValue) → Name → DataValue → List (Name × DataValue)
 | []         k' v' := [(k',v')]
 | ((k,v)::m) k' v' := if k = k' then (k, v') :: m else (k, v) :: insertCore m k' v'
 
-def insert : kvmap → name → dataValue → kvmap
+def insert : Kvmap → Name → DataValue → Kvmap
 | ⟨m⟩ k v := ⟨insertCore m k v⟩
 
-def contains (m : kvmap) (n : name) : bool :=
+def contains (m : Kvmap) (n : Name) : Bool :=
 (m.find n).isSome
 
-def getString (m : kvmap) (k : name) : option string :=
+def getString (m : Kvmap) (k : Name) : Option String :=
 match m.find k with
-| some (dataValue.ofString v) := some v
+| some (DataValue.ofString v) := some v
 | _                             := none
 
-def getNat (m : kvmap) (k : name) : option nat :=
+def getNat (m : Kvmap) (k : Name) : Option Nat :=
 match m.find k with
-| some (dataValue.ofNat v) := some v
+| some (DataValue.ofNat v) := some v
 | _                          := none
 
-def getBool (m : kvmap) (k : name) : option bool :=
+def getBool (m : Kvmap) (k : Name) : Option Bool :=
 match m.find k with
-| some (dataValue.ofBool v) := some v
+| some (DataValue.ofBool v) := some v
 | _                           := none
 
-def getName (m : kvmap) (k : name) : option name :=
+def getName (m : Kvmap) (k : Name) : Option Name :=
 match m.find k with
-| some (dataValue.ofName v) := some v
+| some (DataValue.ofName v) := some v
 | _                           := none
 
-def setString (m : kvmap) (k : name) (v : string) : kvmap :=
-m.insert k (dataValue.ofString v)
+def setString (m : Kvmap) (k : Name) (v : String) : Kvmap :=
+m.insert k (DataValue.ofString v)
 
-def setNat (m : kvmap) (k : name) (v : nat) : kvmap :=
-m.insert k (dataValue.ofNat v)
+def setNat (m : Kvmap) (k : Name) (v : Nat) : Kvmap :=
+m.insert k (DataValue.ofNat v)
 
-def setBool (m : kvmap) (k : name) (v : bool) : kvmap :=
-m.insert k (dataValue.ofBool v)
+def setBool (m : Kvmap) (k : Name) (v : Bool) : Kvmap :=
+m.insert k (DataValue.ofBool v)
 
-def setName (m : kvmap) (k : name) (v : name) : kvmap :=
-m.insert k (dataValue.ofName v)
+def setName (m : Kvmap) (k : Name) (v : Name) : Kvmap :=
+m.insert k (DataValue.ofName v)
 
-def subset : kvmap → kvmap → bool
+def subset : Kvmap → Kvmap → Bool
 | ⟨[]⟩          m₂ := tt
 | ⟨(k, v₁)::m₁⟩ m₂ :=
   (match m₂.find k with
    | some v₂ := v₁ == v₂ && subset ⟨m₁⟩ m₂
    | none    := ff)
 
-def eqv (m₁ m₂ : kvmap) : bool :=
+def eqv (m₁ m₂ : Kvmap) : Bool :=
 subset m₁ m₂ && subset m₂ m₁
 
-instance : hasBeq kvmap := ⟨eqv⟩
+instance : HasBeq Kvmap := ⟨eqv⟩
 
-end kvmap
-end lean
+end Kvmap
+end Lean

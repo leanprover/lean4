@@ -4,26 +4,26 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.uint init.data.string
+import init.data.uint init.data.String
 universes u
 
-class hashable (α : Type u) :=
-(hash : α → usize)
+class Hashable (α : Type u) :=
+(hash : α → Usize)
 
-export hashable (hash)
+export Hashable (hash)
 
 -- TODO: mark as builtin and opaque
-def mixHash (u₁ u₂ : usize) : usize :=
-default usize
+def mixHash (u₁ u₂ : Usize) : Usize :=
+default Usize
 
 -- TODO: mark as builtin
-protected def string.hash (s : string) : usize :=
-default usize
+protected def String.hash (s : String) : Usize :=
+default Usize
 
-instance : hashable string := ⟨string.hash⟩
+instance : Hashable String := ⟨String.hash⟩
 
 -- TODO: add builtin
-protected def nat.hash (n : nat) : usize :=
-usize.ofNat n
+protected def Nat.hash (n : Nat) : Usize :=
+Usize.ofNat n
 
-instance : hashable nat := ⟨nat.hash⟩
+instance : Hashable Nat := ⟨Nat.hash⟩

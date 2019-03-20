@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.lean.position init.io
+import init.Lean.Position init.Io
 
-namespace lean
+namespace Lean
 
-/-- Print and accumulate run time of `act` when option `profiler` is set to `true`. -/
+/-- Print and accumulate run time of `act` when Option `profiler` is set to `True`. -/
 @[extern 5 "lean_lean_profileit"]
-constant profileit {α : Type} (category : @& string) (pos : @& position) (act : io α) : io α := act
-def profileitPure {α : Type} (category : string) (pos : position) (fn : unit → α) : io α :=
-profileit category pos $ io.lazyPure fn
+constant profileit {α : Type} (category : @& String) (pos : @& Position) (act : Io α) : Io α := act
+def profileitPure {α : Type} (category : String) (pos : Position) (fn : unit → α) : Io α :=
+profileit category pos $ Io.lazyPure fn
 
-end lean
+end Lean

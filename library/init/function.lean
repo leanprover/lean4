@@ -9,7 +9,7 @@ prelude
 import init.core
 universes u₁ u₂ u₃ u₄
 
-namespace function
+namespace Function
 variables {α : Sort u₁} {β : Sort u₂} {φ : Sort u₃} {δ : Sort u₄} {ζ : Sort u₁}
 
 @[inline, reducible] def comp (f : β → φ) (g : α → β) : α → φ :=
@@ -19,8 +19,8 @@ variables {α : Sort u₁} {β : Sort u₂} {φ : Sort u₃} {δ : Sort u₄} {�
   (f : Π {x : α} (y : β x), φ y) (g : Π x, β x) : Π x, φ (g x) :=
 λ x, f (g x)
 
-infixr  ` ∘ `      := function.comp
-infixr  ` ∘' `:80  := function.dcomp
+infixr  ` ∘ `      := Function.comp
+infixr  ` ∘' `:80  := Function.dcomp
 
 @[inline, reducible] def compRight (f : β → β → β) (g : α → β) : β → α → β :=
 λ b a, f b (g a)
@@ -70,7 +70,7 @@ assume a₁ a₂, assume h, hf (hg h)
 
 lemma surjectiveComp {g : β → φ} {f : α → β} (hg : surjective g) (hf : surjective f) : surjective (g ∘ f) :=
 λ (c : φ), exists.elim (hg c) (λ b hb, exists.elim (hf b) (λ a ha,
-  exists.intro a (show g (f a) = c, from (eq.trans (congrArg g ha) hb))))
+  exists.intro a (show g (f a) = c, from (Eq.trans (congrArg g ha) hb))))
 
 def bijective (f : α → β) := injective f ∧ surjective f
 
@@ -89,10 +89,10 @@ def hasRightInverse (f : α → β) : Prop := ∃ finv : β → α, rightInverse
 
 lemma injectiveOfLeftInverse {g : β → α} {f : α → β} : leftInverse g f → injective f :=
 assume h, assume a b, assume faeqfb,
-have h₁ : a = g (f a),       from eq.symm (h a),
+have h₁ : a = g (f a),       from Eq.symm (h a),
 have h₂ : g (f b) = b,       from h b,
 have h₃ : g (f a) = g (f b), from congrArg g faeqfb,
-eq.trans h₁ (eq.trans h₃ h₂)
+Eq.trans h₁ (Eq.trans h₃ h₂)
 
 lemma injectiveOfHasLeftInverse {f : α → β} : hasLeftInverse f → injective f :=
 assume h, exists.elim h (λ finv inv, injectiveOfLeftInverse inv)
@@ -112,9 +112,9 @@ lemma leftInverseOfSurjectiveOfRightInverse {f : α → β} {g : β → α}
   leftInverse f g :=
 assume y, exists.elim (surjf y) $ λ x hx,
   have h₁ : f (g y) = f (g (f x)), from hx ▸ rfl,
-  have h₂ : f (g (f x)) = f x,     from eq.symm (rfg x) ▸ rfl,
+  have h₂ : f (g (f x)) = f x,     from Eq.symm (rfg x) ▸ rfl,
   have h₃ : f x = y,               from hx,
-  eq.trans h₁ $ eq.trans h₂ h₃
+  Eq.trans h₁ $ Eq.trans h₂ h₃
 
 lemma injectiveId : injective (@id α) := assume a₁ a₂ h, h
 
@@ -122,9 +122,9 @@ lemma surjectiveId : surjective (@id α) := assume a, ⟨a, rfl⟩
 
 lemma bijectiveId : bijective (@id α) := ⟨injectiveId, surjectiveId⟩
 
-end function
+end Function
 
-namespace function
+namespace Function
 variables {α : Type u₁} {β : Type u₂} {φ : Type u₃}
 
 @[inline] def curry : (α × β → φ) → α → β → φ :=
@@ -145,4 +145,4 @@ assume h, funext h
 def idOfRightInverse {g : β → α} {f : α → β} : rightInverse g f → f ∘ g = id :=
 assume h, funext h
 
-end function
+end Function

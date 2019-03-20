@@ -4,16 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.expr
+import init.Lean.Expr
 
-namespace lean
-namespace compiler
+namespace Lean
+namespace Compiler
 
-def neutralExpr : expr       := expr.const `_neutral []
-def unreachableExpr : expr   := expr.const `_unreachable []
-def objectType : expr        := expr.const `_obj []
-def voidType : expr          := expr.const `_void []
-def mkLcProof (pred : expr) := expr.app (expr.const `lcProof []) pred
+def neutralExpr : Expr       := Expr.const `_neutral []
+def unreachableExpr : Expr   := Expr.const `_unreachable []
+def objectType : Expr        := Expr.const `_obj []
+def voidType : Expr          := Expr.const `_void []
+def mkLcProof (pred : Expr) := Expr.app (Expr.const `lcProof []) pred
 
-end compiler
-end lean
+end Compiler
+end Lean

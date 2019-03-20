@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.nat.basic init.data.nat.div init.coe
-namespace nat
+import init.data.Nat.basic init.data.Nat.div init.coe
+namespace Nat
 
-def bitwise (f : bool → bool → bool) : nat → nat → nat | n m :=
+def bitwise (f : Bool → Bool → Bool) : Nat → Nat → Nat | n m :=
 if n = 0 then      (if f ff tt then m else 0)
 else if m = 0 then (if f tt ff then n else 0)
 else
@@ -18,7 +18,7 @@ else
   let r  := bitwise n' m' in
   if f b₁ b₂ then bit1 r else bit0 r
 
-def land : nat → nat → nat := bitwise band
-def lor  : nat → nat → nat := bitwise bor
+def land : Nat → Nat → Nat := bitwise band
+def lor  : Nat → Nat → Nat := bitwise bor
 
-end nat
+end Nat

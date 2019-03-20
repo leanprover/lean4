@@ -6,57 +6,57 @@ Author: Sebastian Ullrich
 Trie for tokenizing the Lean language
 -/
 prelude
-import init.data.rbmap
-import init.lean.format
+import init.data.Rbmap
+import init.Lean.Format
 
-namespace lean
-namespace parser
+namespace Lean
+namespace Parser
 
-inductive trie (α : Type)
-| node : option α → rbnode char (λ _, trie) → trie
+inductive Trie (α : Type)
+| Node : Option α → Rbnode Char (λ _, Trie) → Trie
 
-namespace trie
+namespace Trie
 variables {α : Type}
 
-protected def mk : trie α :=
-⟨none, rbnode.leaf⟩
+protected def mk : Trie α :=
+⟨none, Rbnode.leaf⟩
 
-private def insertAux (val : α) : nat → trie α → string.iterator → trie α
-| 0     (trie.node _ map)    _ := trie.node (some val) map   -- NOTE: overrides old value
-| (n+1) (trie.node val map) it :=
-  let t' := (rbnode.find (<) map it.curr).getOrElse trie.mk in
-  trie.node val (rbnode.insert (<) map it.curr (insertAux n t' it.next))
+private def insertAux (val : α) : Nat → Trie α → String.Iterator → Trie α
+| 0     (Trie.Node _ map)    _ := Trie.Node (some val) map   -- NOTE: overrides old value
+| (n+1) (Trie.Node val map) it :=
+  let t' := (Rbnode.find (<) map it.curr).getOrElse Trie.mk in
+  Trie.Node val (Rbnode.insert (<) map it.curr (insertAux n t' it.next))
 
-def insert (t : trie α) (s : string) (val : α) : trie α :=
+def insert (t : Trie α) (s : String) (val : α) : Trie α :=
 insertAux val s.length t s.mkIterator
 
-private def findAux : nat → trie α → string.iterator → option α
-| 0     (trie.node val _)    _ := val
-| (n+1) (trie.node val map) it := do
-  t' ← rbnode.find (<) map it.curr,
+private def findAux : Nat → Trie α → String.Iterator → Option α
+| 0     (Trie.Node val _)    _ := val
+| (n+1) (Trie.Node val map) it := do
+  t' ← Rbnode.find (<) map it.curr,
   findAux n t' it.next
 
-def find (t : trie α) (s : string) : option α :=
+def find (t : Trie α) (s : String) : Option α :=
 findAux s.length t s.mkIterator
 
-private def matchPrefixAux : nat → trie α → string.iterator → option (string.iterator × α) → option (string.iterator × α)
-| 0     (trie.node val map) it acc := prod.mk it <$> val <|> acc
-| (n+1) (trie.node val map) it acc :=
-  let acc' := prod.mk it <$> val <|> acc in
-  match rbnode.find (<) map it.curr with
-    | some t := matchPrefixAux n t it.next acc'
-    | none   := acc'
+private def matchPrefixAux : Nat → Trie α → String.Iterator → Option (String.Iterator × α) → Option (String.Iterator × α)
+| 0     (Trie.Node val map) it Acc := Prod.mk it <$> val <|> Acc
+| (n+1) (Trie.Node val map) it Acc :=
+  let Acc' := Prod.mk it <$> val <|> Acc in
+  match Rbnode.find (<) map it.curr with
+    | some t := matchPrefixAux n t it.next Acc'
+    | none   := Acc'
 
-def matchPrefix {α : Type} (t : trie α) (it : string.iterator) : option (string.iterator × α) :=
+def matchPrefix {α : Type} (t : Trie α) (it : String.Iterator) : Option (String.Iterator × α) :=
 matchPrefixAux it.remaining t it none
 
-private def toStringAux {α : Type} : trie α → list format
-| (trie.node val map) := flip rbnode.fold map (λ c t fs,
-  toFormat (repr c) :: (format.group $ format.nest 2 $ flip format.joinSep format.line $ toStringAux t) :: fs) []
+private def toStringAux {α : Type} : Trie α → List Format
+| (Trie.Node val map) := flip Rbnode.fold map (λ c t Fs,
+  toFormat (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
 
-instance {α : Type} : hasToString (trie α) :=
-⟨λ t, (flip format.joinSep format.line $ toStringAux t).pretty 0⟩
-end trie
+instance {α : Type} : HasToString (Trie α) :=
+⟨λ t, (flip Format.joinSep Format.line $ toStringAux t).pretty 0⟩
+end Trie
 
-end parser
-end lean
+end Parser
+end Lean

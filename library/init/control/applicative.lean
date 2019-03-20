@@ -4,31 +4,31 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.control.functor
-open function
+import init.control.Functor
+open Function
 universes u v
 
-class hasPure (f : Type u → Type v) :=
+class HasPure (f : Type u → Type v) :=
 (pure {} {α : Type u} : α → f α)
 
-export hasPure (pure)
+export HasPure (pure)
 
-class hasSeq (f : Type u → Type v) : Type (max (u+1) v) :=
-(seq  : Π {α β : Type u}, f (α → β) → f α → f β)
+class HasSeq (f : Type u → Type v) : Type (max (u+1) v) :=
+(Seq  : Π {α β : Type u}, f (α → β) → f α → f β)
 
-infixl ` <*> `:60 := hasSeq.seq
+infixl ` <*> `:60 := HasSeq.Seq
 
-class hasSeqLeft (f : Type u → Type v) : Type (max (u+1) v) :=
+class HasSeqLeft (f : Type u → Type v) : Type (max (u+1) v) :=
 (seqLeft : Π {α β : Type u}, f α → f β → f α)
 
-infixl ` <* `:60  := hasSeqLeft.seqLeft
+infixl ` <* `:60  := HasSeqLeft.seqLeft
 
-class hasSeqRight (f : Type u → Type v) : Type (max (u+1) v) :=
+class HasSeqRight (f : Type u → Type v) : Type (max (u+1) v) :=
 (seqRight : Π {α β : Type u}, f α → f β → f β)
 
-infixl ` *> `:60  := hasSeqRight.seqRight
+infixl ` *> `:60  := HasSeqRight.seqRight
 
-class applicative (f : Type u → Type v) extends functor f, hasPure f, hasSeq f, hasSeqLeft f, hasSeqRight f :=
+class Applicative (f : Type u → Type v) extends Functor f, HasPure f, HasSeq f, HasSeqLeft f, HasSeqRight f :=
 (map       := λ _ _ x y, pure x <*> y)
 (seqLeft  := λ α β a b, const β <$> a <*> b)
 (seqRight := λ α β a b, const α id <$> a <*> b)

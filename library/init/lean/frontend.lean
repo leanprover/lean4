@@ -4,88 +4,88 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 
-import init.lean.parser.module init.lean.expander init.lean.elaborator init.lean.util init.io
+import init.Lean.Parser.Module init.Lean.Expander init.Lean.Elaborator init.Lean.util init.Io
 
-namespace lean
-open lean.parser
-open lean.expander
-open lean.elaborator
+namespace Lean
+open Lean.Parser
+open Lean.Expander
+open Lean.Elaborator
 
-def mkConfig (filename := "<unknown>") (input := "") : except string moduleParserConfig :=
-do t ← parser.mkTokenTrie $
-    parser.tokens module.header.parser ++
-    parser.tokens command.builtinCommandParsers ++
-    parser.tokens term.builtinLeadingParsers ++
-    parser.tokens term.builtinTrailingParsers,
+def mkConfig (filename := "<unknown>") (input := "") : Except String ModuleParserConfig :=
+do t ← Parser.mkTokenTrie $
+    Parser.tokens Module.header.Parser ++
+    Parser.tokens command.builtinCommandParsers ++
+    Parser.tokens Term.builtinLeadingParsers ++
+    Parser.tokens Term.builtinTrailingParsers,
    pure $ {
      filename := filename, input := input, tokens := t,
-     fileMap := fileMap.fromString input,
+     FileMap := FileMap.fromString input,
      commandParsers := command.builtinCommandParsers,
-     leadingTermParsers := term.builtinLeadingParsers,
-     trailingTermParsers := term.builtinTrailingParsers,
+     leadingTermParsers := Term.builtinLeadingParsers,
+     trailingTermParsers := Term.builtinTrailingParsers,
    }
 
-def runFrontend (filename input : string) (printMsg : message → io unit) (collectOutputs : bool) :
-  stateT environment io (list syntax) := λ env, do
+def runFrontend (filename input : String) (printMsg : Message → Io unit) (collectOutputs : Bool) :
+  StateT environment Io (List Syntax) := λ env, do
   parserCfg ← ioOfExcept $ mkConfig filename input,
-  -- TODO(Sebastian): `parseHeader` should be called directly by lean.cpp
+  -- TODO(Sebastian): `parseHeader` should be called directly by Lean.cpp
   match parseHeader parserCfg with
-  | (_, except.error msg)         := printMsg msg *> pure ([], env)
-  | (_, except.ok (pSnap, msgs)) := do
+  | (_, Except.error msg)         := printMsg msg *> pure ([], env)
+  | (_, Except.ok (pSnap, msgs)) := do
   msgs.toList.mfor printMsg,
-  let expanderCfg : expanderConfig := {transformers := builtinTransformers, ..parserCfg},
-  let elabCfg : elaboratorConfig := {filename := filename, input := input, initialParserCfg := parserCfg, ..parserCfg},
-  let opts := options.mk.setBool `trace.asMessages tt,
-  let elabSt := elaborator.mkState elabCfg env opts,
-  let addOutput (out : syntax) outs := if collectOutputs then out::outs else [],
-  io.prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : list syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {
-    let pos := parserCfg.fileMap.toPosition pSnap.it.offset,
+  let expanderCfg : ExpanderConfig := {transformers := builtinTransformers, ..parserCfg},
+  let elabCfg : ElaboratorConfig := {filename := filename, input := input, initialParserCfg := parserCfg, ..parserCfg},
+  let opts := Options.mk.setBool `Trace.asMessages tt,
+  let elabSt := Elaborator.mkState elabCfg env opts,
+  let addOutput (out : Syntax) outs := if collectOutputs then out::outs else [],
+  Io.Prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : List Syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {
+    let pos := parserCfg.FileMap.toPosition pSnap.it.offset,
     r ← monadLift $ profileitPure "parsing" pos $ λ _, parseCommand parserCfg pSnap,
     match r with
-    | (cmd, except.error msg) := do {
+    | (cmd, Except.error msg) := do {
       -- fatal error (should never happen?)
       printMsg msg,
       msgs.toList.mfor printMsg,
-      pure $ sum.inr ((addOutput cmd outs).reverse, elabSt.env)
+      pure $ Sum.inr ((addOutput cmd outs).reverse, elabSt.env)
     }
-    | (cmd, except.ok (pSnap, msgs)) := do {
+    | (cmd, Except.ok (pSnap, msgs)) := do {
       msgs.toList.mfor printMsg,
       r ← monadLift $ profileitPure "expanding" pos $ λ _, (expand cmd).run expanderCfg,
       match r with
-      | except.ok cmd' := do {
-        --io.println cmd',
-        elabSt ← monadLift $ profileitPure "elaborating" pos $ λ _, elaborator.processCommand elabCfg elabSt cmd',
+      | Except.ok cmd' := do {
+        --Io.println cmd',
+        elabSt ← monadLift $ profileitPure "elaborating" pos $ λ _, Elaborator.processCommand elabCfg elabSt cmd',
         elabSt.messages.toList.mfor printMsg,
-        if cmd'.isOfKind module.eoi then
-          /-printMsg {filename := filename, severity := messageSeverity.information,
+        if cmd'.isOfKind Module.eoi then
+          /-printMsg {filename := filename, severity := MessageSeverity.information,
             pos := ⟨1, 0⟩,
-            text := "parser cache hit rate: " ++ toString out.cache.hit ++ "/" ++
+            text := "Parser cache hit rate: " ++ toString out.cache.hit ++ "/" ++
               toString (out.cache.hit + out.cache.miss)},-/
-          pure $ sum.inr ((addOutput cmd outs).reverse, elabSt.env)
+          pure $ Sum.inr ((addOutput cmd outs).reverse, elabSt.env)
         else
-          pure (sum.inl (pSnap, elabSt, elabSt.parserCfg, elabSt.expanderCfg, addOutput cmd outs))
+          pure (Sum.inl (pSnap, elabSt, elabSt.parserCfg, elabSt.expanderCfg, addOutput cmd outs))
       }
-      | except.error e := printMsg e *> pure (sum.inl (pSnap, elabSt, parserCfg, expanderCfg, addOutput cmd outs))
+      | Except.error e := printMsg e *> pure (Sum.inl (pSnap, elabSt, parserCfg, expanderCfg, addOutput cmd outs))
     }
   }
 
 @[export lean_process_file]
-def processFile (f s : string) (json : bool) : stateT environment io unit := do
-  let printMsg : message → io unit := λ msg,
+def processFile (f s : String) (json : Bool) : StateT environment Io unit := do
+  let printMsg : Message → Io unit := λ msg,
     if json then
-      io.println $ "{\"fileName\": \"<stdin>\", \"posLine\": " ++ toString msg.pos.line ++
+      Io.println $ "{\"fileName\": \"<stdin>\", \"posLine\": " ++ toString msg.pos.line ++
         ", \"posCol\": " ++ toString msg.pos.column ++
         ", \"severity\": " ++ repr (match msg.severity with
-          | messageSeverity.information := "information"
-          | messageSeverity.warning := "warning"
-          | messageSeverity.error := "error") ++
+          | MessageSeverity.information := "information"
+          | MessageSeverity.warning := "warning"
+          | MessageSeverity.error := "error") ++
         ", \"caption\": " ++ repr msg.caption ++
         ", \"text\": " ++ repr msg.text ++ "}"
-    else io.println msg.toString,
+    else Io.println msg.toString,
    -- print and erase uncaught exceptions
    catch
      (runFrontend f s printMsg ff *> pure ())
      (λ e, do
-        monadLift (printMsg {filename := f, severity := messageSeverity.error, pos := ⟨1, 0⟩, text := e}),
+        monadLift (printMsg {filename := f, severity := MessageSeverity.error, pos := ⟨1, 0⟩, text := e}),
         throw e)
-end lean
+end Lean

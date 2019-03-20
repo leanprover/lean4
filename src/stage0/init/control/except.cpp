@@ -50,6 +50,7 @@ obj* l_monad__except_orelse___boxed(obj*, obj*);
 obj* l_except__t_monad(obj*, obj*);
 obj* l_except__t_return___boxed(obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__6___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_except_inhabited___rarg(obj*);
 obj* l_monad__except_lift__except___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_except__t_monad__functor(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_except_monad___lambda__4___boxed(obj*, obj*, obj*, obj*);
@@ -68,6 +69,7 @@ obj* l_except_monad___closed__1;
 obj* l_except__t_catch___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_except_monad___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__2___boxed(obj*, obj*);
+obj* l_except_inhabited(obj*, obj*);
 obj* l_except__t_monad__run___boxed(obj*, obj*, obj*);
 obj* l_except_repr___boxed(obj*, obj*);
 obj* l_except_has__to__string___boxed(obj*, obj*);
@@ -143,6 +145,7 @@ obj* l_except_monad__except___lambda__1___boxed(obj*, obj*);
 obj* l_except__t_bind__cont___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_except_monad___lambda__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_except_map__error___main___rarg(obj*, obj*);
+obj* l_except_inhabited___boxed(obj*, obj*);
 obj* l_except_repr___main___rarg(obj*, obj*, obj*);
 obj* l_except_to__bool(obj*, obj*);
 obj* l_except__t_bind__cont___at_except__t_monad___spec__5___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -231,6 +234,33 @@ obj* l_except__t_bind__cont___at_except__t_monad___spec__2___rarg(obj*, obj*, ob
 obj* l_except__t_monad___rarg___lambda__8(obj*, obj*);
 obj* l_except__t_catch___rarg(obj*, obj*, obj*, obj*);
 obj* l_except__t_return(obj*, obj*);
+obj* l_except_inhabited___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
+}
+}
+obj* l_except_inhabited(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_except_inhabited___rarg), 1, 0);
+return x_2;
+}
+}
+obj* l_except_inhabited___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_except_inhabited(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
+}
+}
 obj* _init_l_except_to__string___main___rarg___closed__1() {
 _start:
 {

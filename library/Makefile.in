@@ -7,7 +7,9 @@ OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 STAGE0_DIR = ../src/stage0
-STAGE1_DIR = ../src/stage1
+ifndef STAGE1_DIR
+$(error "`STAGE1_DIR` must be set (use cmake)")
+endif
 CPPS = $(addprefix $(STAGE1_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
 # ensure deterministic ordering
 CPPS_CORE=$(sort $(patsubst %.lean,%.cpp,$(SRCS)))

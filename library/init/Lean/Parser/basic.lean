@@ -59,7 +59,7 @@ structure ParserCache :=
 structure FrontendConfig :=
 (filename : String)
 (input    : String)
-(FileMap : FileMap)
+(fileMap  : FileMap)
 
 /- Remark: if we have a Node in the Trie with `some TokenConfig`, the String induced by the path is equal to the `TokenConfig.prefix`. -/
 structure ParserConfig extends FrontendConfig :=
@@ -122,7 +122,7 @@ instance HasView.default (r : ρ) : Inhabited (Parser.HasView Syntax r) :=
 class HasViewDefault (r : ρ) (α : outParam Type) [HasView α r] (default : α) := mk {}
 
 def messageOfParsecMessage {μ : Type} (cfg : FrontendConfig) (msg : Parsec.Message μ) : Message :=
-{filename := cfg.filename, pos := cfg.FileMap.toPosition msg.it.offset, text := msg.text}
+{filename := cfg.filename, pos := cfg.fileMap.toPosition msg.it.offset, text := msg.text}
 
 /-- Run Parser stack, returning a partial Syntax tree in case of a fatal error -/
 protected def run {m : Type → Type} {α ρ : Type} [Monad m] [HasCoeT ρ FrontendConfig] (cfg : ρ) (s : String) (r : StateT ParserState (ParserT ρ m) α) :

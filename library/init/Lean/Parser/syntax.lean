@@ -28,7 +28,7 @@ structure SyntaxAtom :=
     of hard-coding the Node Name. -/
 structure SyntaxNodeKind :=
 -- should be equal to the Name of the Declaration this structure instance was bound to
-(Name : Name)
+(name : Name)
 
 /-- Signifies ambiguous Syntax to be disambiguated by the Elaborator. Should have at least two children.
 
@@ -122,7 +122,7 @@ def kind : Syntax → Option SyntaxNodeKind
 | _                   := none
 
 def isOfKind (k : SyntaxNodeKind) : Syntax → Bool
-| (Syntax.rawNode n) := k.Name = n.kind.Name
+| (Syntax.rawNode n) := k.name = n.kind.name
 | _ := ff
 
 section
@@ -198,7 +198,7 @@ with reprint : Syntax → Option String
 | (ident id@{info := some info, ..}) := pure $ info.leading.toString ++ id.rawVal.toString ++ info.trailing.toString
 | (ident id@{info := none,      ..}) := pure id.rawVal.toString
 | (rawNode n) :=
-  if n.kind.Name = choice.Name then match n.args with
+  if n.kind.name = choice.name then match n.args with
   -- should never happen
   | [] := failure
   -- check that every choice prints the same
@@ -225,8 +225,8 @@ with toFormat : Syntax → Format
   toFmt "`" ++ toFmt id.val ++ scopes
 | stx@(rawNode n) :=
   let scopes := match n.scopes with [] := toFmt "" | _ := bracket "{" (joinSep n.scopes.reverse ", ") "}" in
-  if n.kind.Name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (toFormatLst n.args) line
-  else let shorterName := n.kind.Name.replacePrefix `Lean.Parser Name.anonymous
+  if n.kind.name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (toFormatLst n.args) line
+  else let shorterName := n.kind.name.replacePrefix `Lean.Parser Name.anonymous
        in paren $ joinSep ((toFmt shorterName ++ scopes) :: toFormatLst n.args) line
 | missing := "<missing>"
 with toFormatLst : List Syntax → List Format

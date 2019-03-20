@@ -100,8 +100,8 @@ Syntax.atom ⟨some {leading := ⟨start, start⟩, pos := start.offset, trailin
   if trailingWs then withTrailing stx else pure stx
 
 instance raw.tokens {α} (p : m α) (t) : Parser.HasTokens (raw p t : Parser) := default _
-instance raw.View {α} (p : m α) (t) : Parser.HasView (Option SyntaxAtom) (raw p t : Parser) :=
-{ View := λ stx, match stx with
+instance raw.view {α} (p : m α) (t) : Parser.HasView (Option SyntaxAtom) (raw p t : Parser) :=
+{ view := λ stx, match stx with
   | Syntax.atom atom := some atom
   | _                := none,
   review := λ a, (Syntax.atom <$> a).getOrElse Syntax.missing }
@@ -121,7 +121,7 @@ set_option class.instance_max_depth 200
 @[derive HasTokens HasView]
 def detailIdentPart.Parser : BasicParserM Syntax :=
 nodeChoice! detailIdentPart {
-  escaped: Node! detailIdentPartEscaped [
+  escaped: node! detailIdentPartEscaped [
     escBegin: rawStr idBeginEscape.toString,
     escaped: raw $ takeUntil1 isIdEndEscape,
     escEnd: rawStr idEndEscape.toString,
@@ -133,10 +133,10 @@ nodeChoice! detailIdentPart {
 def detailIdentSuffix.Parser : RecT unit Syntax BasicParserM Syntax :=
 -- consume '.' only when followed by a character starting an detailIdentPart
 try (lookahead (ch '.' *> (ch idBeginEscape <|> satisfy isIdFirst)))
-*> Node! detailIdentSuffix [«.»: rawStr ".", ident: recurse ()]
+*> node! detailIdentSuffix [«.»: rawStr ".", ident: recurse ()]
 
 def detailIdent' : RecT unit Syntax BasicParserM Syntax :=
-Node! detailIdent [part: monadLift detailIdentPart.Parser, suffix: optional detailIdentSuffix.Parser]
+node! detailIdent [part: monadLift detailIdentPart.Parser, suffix: optional detailIdentSuffix.Parser]
 
 /-- A Parser that gives a more detailed View of `SyntaxIdent.rawVal`. Not used by default for
     performance reasons. -/
@@ -181,7 +181,7 @@ nodeLongestChoice! number {
 }
 
 def stringLit' : basicParser :=
-Node! stringLit [val: raw parseStringLiteral]
+node! stringLit [val: raw parseStringLiteral]
 
 private def mkConsumeToken (tk : TokenConfig) (it : String.Iterator) : basicParser :=
 let it' := it.nextn tk.prefix.length in
@@ -250,7 +250,7 @@ symbolCore sym lbp (Dlist.singleton sym)
 instance symbol.tokens (sym lbp) : Parser.HasTokens (symbol sym lbp : Parser) :=
 ⟨[⟨sym.trim, lbp, none⟩]⟩
 instance symbol.View (sym lbp) : Parser.HasView (Option SyntaxAtom) (symbol sym lbp : Parser) :=
-{ View := λ stx, match stx with
+{ view := λ stx, match stx with
   | Syntax.atom atom := some atom
   | _                := none,
   review := λ a, (Syntax.atom <$> a).getOrElse Syntax.missing }
@@ -266,7 +266,7 @@ lift $ try $ do {
 } <?> "number"
 
 instance number.Parser.tokens : Parser.HasTokens (number.Parser : Parser) := default _
-instance number.Parser.View : Parser.HasView number.View (number.Parser : Parser) :=
+instance number.Parser.view : Parser.HasView number.View (number.Parser : Parser) :=
 {..number.HasView}
 
 private def toNatCore (base : Nat) : String.Iterator → Nat → Nat → Nat
@@ -292,7 +292,7 @@ def number.View.toNat : number.View → Nat
 | (number.View.base16 (some atom)) := toNatBase atom.val 16
 | _ := 1138 -- should never happen, but let's still choose a grep-able number
 
-def number.View.ofNat (n : Nat) : number.View :=
+def number.view.ofNat (n : Nat) : number.View :=
 number.View.base10 (some {val := toString n})
 
 def stringLit.Parser : Parser :=
@@ -322,7 +322,7 @@ lift $ try $ do {
 
 instance ident.Parser.tokens : Parser.HasTokens (ident.Parser : Parser) := default _
 instance ident.Parser.View : Parser.HasView SyntaxIdent (ident.Parser : Parser) :=
-{ View := λ stx, match stx with
+{ view := λ stx, match stx with
     | Syntax.ident id := id
     | _               := {rawVal := Substring.ofString "NOTAnIdent", val := `NOTAnIdent},
   review := Syntax.ident }
@@ -371,7 +371,7 @@ lift $ do
   n ← match tk with
   | Syntax.atom ⟨_, s⟩ := pure $ mkSimpleName s
   | Syntax.ident _ := pure `ident
-  | Syntax.rawNode n := pure n.kind.Name
+  | Syntax.rawNode n := pure n.kind.name
   | _ := error "",
   Option.toMonad $ map.find n
 

@@ -3221,7 +3221,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     unsigned i = 0;
     struc << "@[pattern] def " << esc_macro.to_string();
     struc << " := {SyntaxNodeKind . name := `" << full_macro.to_string() << "}\n"
-            << "structure " << macro.to_string() << ".view :=\n";
+            << "structure " << macro.to_string() << ".View :=\n";
     buffer<expr> new_args;
     // unhygiene when nested in namespaces
     auto opts = update(options(), {"pp", "full_names"}, true);
@@ -3243,7 +3243,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                                                         << "'");
             auto m2 = mk_metavar(m, r);
             auto defval_inst = m_ctx.mk_class_instance(
-                    mk_app(mk_app(mk_const(name{"Lean", "Parser", "hasView_default"}), exp, r, m), *inst, m2));
+                    mk_app(mk_app(mk_const(name{"Lean", "Parser", "HasView_default"}), exp, r, m), *inst, m2));
             if (defval_inst)
                 struc << "(«" << fname << "» : " << instantiate_mvars(m) << " := " << pp(instantiate_mvars(m2)) << ")\n";
             else
@@ -3264,7 +3264,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
         if (is_mdata(r)) {
             new_args.push_back(add_field(r));
         } else {// try block
-            binds << "let stxs := match stxs with stx::stxs := (match stx.as_node with some n := n.args ++ stxs | _ := stxs) | _ := stxs in\n";
+            binds << "let stxs := match stxs with stx::stxs := (match stx.asNode with some n := n.args ++ stxs | _ := stxs) | _ := stxs in\n";
             reviews << "Syntax.list [";
             buffer<expr> new_try_args;
             for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args)) {
@@ -3273,17 +3273,17 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             }
             reviews << "]";
             new_args.push_back(mk_app(mk_const({"Lean", "Parser", "MonadParsec", "try"}),
-                                      mk_app(mk_const({"Lean", "Parser", "combinators", "seq"}),
+                                      mk_app(mk_const({"Lean", "Parser", "Combinators", "seq"}),
                                              mk_lean_list(new_try_args))));
         }
     }
-    struc << "def " << macro.to_string() << ".hasView' : HasView " << macro.to_string() << ".view " << esc_macro.to_string() << " :=\n"
-            << "{ view := fun stx, let stxs : List Syntax := match stx.as_node with"
+    struc << "def " << macro.to_string() << ".HasView' : HasView " << macro.to_string() << ".View " << esc_macro.to_string() << " :=\n"
+            << "{ view := fun stx, let stxs : List Syntax := match stx.asNode with"
             << "| some n := n.args | _ := [] in\n"
             << binds.str()
-            << macro.to_string() << ".view.mk " << mk_args.str() << ",\n"
+            << macro.to_string() << ".View.mk " << mk_args.str() << ",\n"
             << "review := fun ⟨" << view_pat.str() << "⟩, Syntax.mkNode " << esc_macro.to_string() << " [" << reviews.str() << "] }";
-    struc << "instance " << macro.to_string() << ".hasView := " << macro.to_string() << ".hasView'";
+    struc << "instance " << macro.to_string() << ".HasView := " << macro.to_string() << ".HasView'";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), in, get_pos_info_provider()->get_file_name());
@@ -3294,7 +3294,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     p.parse_command_like();
     m_env = p.env();
     m_ctx.set_env(m_env);
-    return visit(mk_app(mk_const({"Lean", "Parser", "combinators", "Node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(new_args)),
+    return visit(mk_app(mk_const({"Lean", "Parser", "Combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(new_args)),
                  expected_type);
 }
 
@@ -3310,7 +3310,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
     unsigned i = 0;
     struc << "@[pattern] def " << esc_macro.to_string();
     struc << " := {SyntaxNodeKind . name := `" << full_macro.to_string() << "}\n"
-          << "inductive " << macro.to_string() << ".view\n";
+          << "inductive " << macro.to_string() << ".View\n";
     buffer<expr> new_args;
     // unhygiene when nested in namespaces
     auto opts = update(options(), {"pp", "full_names"}, true);
@@ -3331,38 +3331,38 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
                 mk_app(mk_app(mk_const(name{"Lean", "Parser", "HasView_default"}), exp, r, m), *inst, m2));
         if (defval_inst)
             struc << "| " << fname << " : opt_param (" << instantiate_mvars(m) << ") ("
-                    << pp(instantiate_mvars(m2)) << ") -> " << macro.to_string() << ".view\n";
+                    << pp(instantiate_mvars(m2)) << ") -> " << macro.to_string() << ".View\n";
         else
-            struc << "| " << fname << " : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".view\n";
+            struc << "| " << fname << " : " << instantiate_mvars(m) << " -> " << macro.to_string() << ".View\n";
 
         view_cases << "| ";
         if (is_app(app_arg(e)))
             view_cases << i;
         else
             view_cases << "_";
-        view_cases << " := " << macro.to_string() << ".view." << fname << " $ Parser.HasView.view (" << pp(r)
+        view_cases << " := " << macro.to_string() << ".View." << fname << " $ Parser.HasView.view (" << pp(r)
                 << " : " << pp(exp) << ") stx\n";
-        review_cases << "| " << macro.to_string() << ".view." << fname << " a := "
-                << "Syntax.mkNode (SyntaxNodeKind.mk (Name.mkNumeral Name.Anonymous " << i << ")) "
+        review_cases << "| " << macro.to_string() << ".View." << fname << " a := "
+                << "Syntax.mkNode (SyntaxNodeKind.mk (Name.mkNumeral Name.anonymous " << i << ")) "
                 << "[review (" << pp(r) << " : " << pp(exp) << ") a]\n";
         i++;
         new_args.push_back(mk_as_is(r));
     }
-    struc << "def " << macro.to_string() << ".hasView' : HasView " << macro.to_string() << ".view "
+    struc << "def " << macro.to_string() << ".HasView' : HasView " << macro.to_string() << ".View "
           << esc_macro.to_string() << " :=\n"
-          << "{ view := fun stx, let (stx, i) := match stx.as_node : _ -> Prod Syntax Nat with\n"
+          << "{ view := fun stx, let (stx, i) := match stx.asNode : _ -> Prod Syntax Nat with\n"
           << "| some {kind := " << esc_macro.to_string() << ", args := [stx], ..} := (match stx.asNode  : _ -> Prod Syntax Nat with\n"
-          << "  | some {kind := SyntaxNodeKind.mk (Name.mkNumeral Name.Anonymous i), args := [stx], ..} := (stx, i)\n"
-          << "  | _ := (Syntax.Missing, 0))\n"
-          << "| _ := (Syntax.Missing, 0) in\n"
+          << "  | some {kind := SyntaxNodeKind.mk (Name.mkNumeral Name.anonymous i), args := [stx], ..} := (stx, i)\n"
+          << "  | _ := (Syntax.missing, 0))\n"
+          << "| _ := (Syntax.missing, 0) in\n"
           << "match i with\n"
           << view_cases.str() << ",\n"
           << "review := fun v, Syntax.mkNode " << esc_macro.to_string()
           << " [match v with\n"
           << review_cases.str()
           << "] }";
-    struc << "instance " << macro.to_string() << ".hasView := " << macro.to_string() << ".hasView'";
-    trace_elab_detail(tout() << "expansion of node_choice! macro:\n" << struc.str(););
+    struc << "instance " << macro.to_string() << ".HasView := " << macro.to_string() << ".HasView'";
+    trace_elab_detail(tout() << "expansion of nodeChoice! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), in, "foo");
     p.set_imports_parsed();
@@ -3372,10 +3372,10 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
     p.parse_command_like();
     m_env = p.env();
     m_ctx.set_env(m_env);
-    return visit(mk_app(mk_const({"Lean", "Parser", "combinators", "node"}),
+    return visit(mk_app(mk_const({"Lean", "Parser", "Combinators", "node"}),
                         mk_const(full_macro),
                         mk_app(mk_const({"List", "cons"}),
-                               mk_app(mk_const({"Lean", "Parser", "combinators", longest_match ? "longestChoice" : "choice"}),
+                               mk_app(mk_const({"Lean", "Parser", "Combinators", longest_match ? "longestChoice" : "choice"}),
                                       mk_lean_list(new_args)),
                                mk_const({"List", "nil"}))), expected_type);
 }

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.data.Nat init.data.Rbmap init.Lean.Format
+import init.data.nat init.data.rbmap init.lean.format
 
 namespace Lean
 

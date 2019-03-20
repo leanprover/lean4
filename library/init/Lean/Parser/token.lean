@@ -13,7 +13,7 @@ the input String, we still use a "tokenizer" Parser in the Lean Parser in some c
 -/
 
 prelude
-import init.Lean.Parser.Combinators init.Lean.Parser.stringLiteral
+import init.lean.parser.combinators init.lean.parser.stringliteral
 
 namespace Lean
 namespace Parser

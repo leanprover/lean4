@@ -8,8 +8,8 @@ paper:
 https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/Parsec-paper-letter.pdf
 -/
 prelude
-import init.data.toString init.data.String.basic init.data.List.basic init.control.Except
-import init.data.repr init.Lean.Name init.data.Dlist init.control.MonadFail init.control.Combinators
+import init.data.tostring init.data.string.basic init.data.list.basic init.control.except
+import init.data.repr init.lean.name init.data.dlist init.control.monadfail init.control.combinators
 
 namespace Lean
 namespace Parser

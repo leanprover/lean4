@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.Hashmap.basic
+import init.data.hashmap.basic
 
 /- Disjoint set datastructure using union-find algorithm.
    We use hashmaps to implement. Thus, we should be disjoint sets

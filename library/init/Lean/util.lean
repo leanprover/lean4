@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.Lean.Position init.IO
+import init.lean.position init.io
 
 namespace Lean
 

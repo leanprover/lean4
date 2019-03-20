@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Command parsers
 -/
 prelude
-import init.Lean.Parser.Declaration
+import init.lean.parser.declaration
 
 namespace Lean
 namespace Parser

@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Module-Level parsers
 -/
 prelude
-import init.Lean.Parser.command
+import init.lean.parser.command
 
 namespace Lean
 namespace Parser

@@ -6,9 +6,9 @@ Author: Sebastian Ullrich
 Parser for the Lean language
 -/
 prelude
-import init.Lean.Parser.Parsec init.Lean.Parser.Syntax init.Lean.Parser.rec
-import init.Lean.Parser.Trie
-import init.Lean.Parser.identifier init.data.Rbmap init.Lean.Message
+import init.lean.parser.parsec init.lean.parser.syntax init.lean.parser.rec
+import init.lean.parser.trie
+import init.lean.parser.identifier init.data.rbmap init.lean.message
 
 namespace Lean
 namespace Parser

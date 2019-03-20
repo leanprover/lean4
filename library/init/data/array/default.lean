@@ -4,4 +4,4 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Gabriel Ebner
 -/
 prelude
-import init.data.Array.basic
+import init.data.array.basic

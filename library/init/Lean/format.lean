@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.control.Except init.control.Reader init.control.State
+import init.control.except init.control.reader init.control.state
 universes u v
 
 namespace Lean

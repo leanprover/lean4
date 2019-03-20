@@ -8,7 +8,7 @@ of memory allocations using the approach described in the paper
 "Counting immutable beans" by Sebastian and Leo
 -/
 prelude
-import init.control.State init.control.Except
+import init.control.state init.control.except
 universes u v
 
 namespace Estate

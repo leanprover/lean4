@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 A Combinator for building Pratt parsers
 -/
 prelude
-import init.Lean.Parser.token
+import init.lean.parser.token
 
 namespace Lean.Parser
 open MonadParsec Combinators

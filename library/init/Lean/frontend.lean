@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 
-import init.Lean.Parser.Module init.Lean.Expander init.Lean.Elaborator init.Lean.util init.Io
+import init.lean.parser.module init.lean.expander init.lean.elaborator init.lean.util init.io
 
 namespace Lean
 open Lean.Parser

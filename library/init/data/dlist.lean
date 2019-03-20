@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.List.basic init.Function
+import init.data.list.basic init.function
 universes u
 /--
 A difference List is a Function that, given a List, returns the original

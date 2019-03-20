@@ -6,8 +6,8 @@ Author: Sebastian Ullrich
 Syntax-tree creating Parser Combinators
 -/
 prelude
-import init.Lean.Parser.basic
-import init.data.List.instances
+import init.lean.parser.basic
+import init.data.list.instances
 
 namespace Lean
 namespace Parser

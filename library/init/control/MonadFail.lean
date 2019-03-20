@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.control.lift init.data.String.basic
+import init.control.lift init.data.string.basic
 
 universes u v
 

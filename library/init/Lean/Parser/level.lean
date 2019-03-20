@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Level-Level parsers
 -/
 prelude
-import init.Lean.Parser.pratt
+import init.lean.parser.pratt
 
 namespace Lean
 namespace Parser

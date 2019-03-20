@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.wf init.data.Nat.basic
+import init.wf init.data.nat.basic
 namespace Nat
 
 private def divRecLemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=

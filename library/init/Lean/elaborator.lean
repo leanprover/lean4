@@ -6,10 +6,10 @@ Author: Sebastian Ullrich
 Elaborator for the Lean language: takes commands and produces side effects
 -/
 prelude
-import init.Lean.Parser.Module
-import init.Lean.Expander
-import init.Lean.Expr
-import init.Lean.Options
+import init.lean.parser.module
+import init.lean.expander
+import init.lean.expr
+import init.lean.options
 
 namespace Lean
 -- TODO(Sebastian): should probably be meta together with the whole Elaborator

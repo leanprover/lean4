@@ -9,8 +9,8 @@ TODO(Sebastian): document/link to documentation of algorithm
 
 -/
 prelude
-import init.Lean.Parser.Module
-import init.Lean.Expr
+import init.lean.parser.module
+import init.lean.expr
 
 namespace Lean
 namespace Expander

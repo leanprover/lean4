@@ -6,7 +6,7 @@ Authors: Jeremy Avigad, Leonardo de Moura
 Monad Combinators, as in Haskell's Control.Monad.
 -/
 prelude
-import init.control.Monad init.control.Alternative init.data.List.basic init.coe
+import init.control.monad init.control.alternative init.data.list.basic init.coe
 universes u v w
 
 @[specialize]

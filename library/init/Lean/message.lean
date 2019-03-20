@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Message Type used by the Lean frontend
 -/
 prelude
-import init.data.toString init.Lean.Position
+import init.data.tostring init.lean.position
 
 namespace Lean
 inductive MessageSeverity

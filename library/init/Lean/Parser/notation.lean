@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Notation parsers
 -/
 prelude
-import init.Lean.Parser.token
+import init.lean.parser.token
 
 namespace Lean
 namespace Parser

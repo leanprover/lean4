@@ -6,8 +6,8 @@ Author: Sebastian Ullrich
 Term-Level parsers
 -/
 prelude
-import init.Lean.Parser.Level init.Lean.Parser.notation
-import init.Lean.Expr
+import init.lean.parser.level init.lean.parser.notation
+import init.lean.expr
 
 namespace Lean
 namespace Parser

@@ -7,7 +7,7 @@ Parsers for commands that declare things
 -/
 
 prelude
-import init.Lean.Parser.Term
+import init.lean.parser.term
 
 namespace Lean
 namespace Parser

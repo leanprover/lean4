@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.Char.basic init.Lean.Parser.Parsec
+import init.data.char.basic init.lean.parser.parsec
 
 namespace Lean
 

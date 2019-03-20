@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Ullrich
 -/
 prelude
-import init.Lean.Kvmap
+import init.lean.kvmap
 universe u
 
 namespace Lean

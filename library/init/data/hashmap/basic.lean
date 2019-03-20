@@ -4,8 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.Array.basic init.data.List.basic
-import init.data.Option.basic init.data.Hashable
+import init.data.array.basic init.data.list.basic
+import init.data.option.basic init.data.hashable
 universes u v w
 
 def bucketArray (α : Type u) (β : α → Type v) :=

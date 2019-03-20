@@ -43,9 +43,8 @@ variables {entry_ty' state_ty' : Type}
 @[extern "lean_environment_ext_get_state"] constant get_state [inhabited state_ty] : environment_ext entry_ty state_ty → environment → state_ty := default _
 end environment_ext
 
-/-- An attribute applied to a declaration with some arguments. -/
+/-- A datum as used by `attribute_ext`. -/
 structure attribute_entry :=
-(attr : string)
 (decl : name)
 (args : parser.syntax)
 
@@ -71,7 +70,7 @@ end attribute_info
 def attributes_ref.init : io (io.ref (list attribute_info)) := io.mk_ref []
 @[init attributes_ref.init] private constant attributes_ref : io.ref (list attribute_info) := default _
 /-- The list of all attributes registered by `attribute_ext.register`. -/
-def attributes : io (list attribute_info) := attributes_ref.get
+def attributes : io (list attribute_info) := attributes_ref.read
 
 namespace attribute_ext
 variable {state_ty : Type}

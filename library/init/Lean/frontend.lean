@@ -19,14 +19,14 @@ do t ← Parser.mkTokenTrie $
     Parser.tokens Term.builtinTrailingParsers,
    pure $ {
      filename := filename, input := input, tokens := t,
-     FileMap := FileMap.fromString input,
+     fileMap := FileMap.fromString input,
      commandParsers := command.builtinCommandParsers,
      leadingTermParsers := Term.builtinLeadingParsers,
      trailingTermParsers := Term.builtinTrailingParsers,
    }
 
-def runFrontend (filename input : String) (printMsg : Message → Io unit) (collectOutputs : Bool) :
-  StateT environment Io (List Syntax) := λ env, do
+def runFrontend (filename input : String) (printMsg : Message → IO unit) (collectOutputs : Bool) :
+  StateT environment IO (List Syntax) := λ env, do
   parserCfg ← ioOfExcept $ mkConfig filename input,
   -- TODO(Sebastian): `parseHeader` should be called directly by Lean.cpp
   match parseHeader parserCfg with
@@ -38,8 +38,8 @@ def runFrontend (filename input : String) (printMsg : Message → Io unit) (coll
   let opts := Options.mk.setBool `Trace.asMessages tt,
   let elabSt := Elaborator.mkState elabCfg env opts,
   let addOutput (out : Syntax) outs := if collectOutputs then out::outs else [],
-  Io.Prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : List Syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {
-    let pos := parserCfg.FileMap.toPosition pSnap.it.offset,
+  IO.Prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : List Syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {
+    let pos := parserCfg.fileMap.toPosition pSnap.it.offset,
     r ← monadLift $ profileitPure "parsing" pos $ λ _, parseCommand parserCfg pSnap,
     match r with
     | (cmd, Except.error msg) := do {
@@ -53,7 +53,7 @@ def runFrontend (filename input : String) (printMsg : Message → Io unit) (coll
       r ← monadLift $ profileitPure "expanding" pos $ λ _, (expand cmd).run expanderCfg,
       match r with
       | Except.ok cmd' := do {
-        --Io.println cmd',
+        --IO.println cmd',
         elabSt ← monadLift $ profileitPure "elaborating" pos $ λ _, Elaborator.processCommand elabCfg elabSt cmd',
         elabSt.messages.toList.mfor printMsg,
         if cmd'.isOfKind Module.eoi then
@@ -70,10 +70,10 @@ def runFrontend (filename input : String) (printMsg : Message → Io unit) (coll
   }
 
 @[export lean_process_file]
-def processFile (f s : String) (json : Bool) : StateT environment Io unit := do
-  let printMsg : Message → Io unit := λ msg,
+def processFile (f s : String) (json : Bool) : StateT environment IO unit := do
+  let printMsg : Message → IO unit := λ msg,
     if json then
-      Io.println $ "{\"fileName\": \"<stdin>\", \"posLine\": " ++ toString msg.pos.line ++
+      IO.println $ "{\"fileName\": \"<stdin>\", \"posLine\": " ++ toString msg.pos.line ++
         ", \"posCol\": " ++ toString msg.pos.column ++
         ", \"severity\": " ++ repr (match msg.severity with
           | MessageSeverity.information := "information"
@@ -81,7 +81,7 @@ def processFile (f s : String) (json : Bool) : StateT environment Io unit := do
           | MessageSeverity.error := "error") ++
         ", \"caption\": " ++ repr msg.caption ++
         ", \"text\": " ++ repr msg.text ++ "}"
-    else Io.println msg.toString,
+    else IO.println msg.toString,
    -- print and erase uncaught exceptions
    catch
      (runFrontend f s printMsg ff *> pure ())

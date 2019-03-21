@@ -96,10 +96,10 @@ nodeChoice! simpleBinder {
 }
 
 def simpleBinder.View.toBinderInfo : simpleBinder.View → (BinderInfo × SyntaxIdent × Syntax)
-| (simpleBinder.View.explicit {id := id, type := type, ..})       := (BinderInfo.default, id, type)
-| (simpleBinder.View.implicit {id := id, type := type, ..})       := (BinderInfo.implicit, id, type)
-| (simpleBinder.View.strictImplicit {id := id, type := type, ..}) := (BinderInfo.strictImplicit, id, type)
-| (simpleBinder.View.instImplicit {id := id, type := type, ..})   := (BinderInfo.instImplicit, id, type)
+| (simpleBinder.View.explicit {id := id, type := type})       := (BinderInfo.default, id, type)
+| (simpleBinder.View.implicit {id := id, type := type})       := (BinderInfo.implicit, id, type)
+| (simpleBinder.View.strictImplicit {id := id, type := type}) := (BinderInfo.strictImplicit, id, type)
+| (simpleBinder.View.instImplicit {id := id, type := type})   := (BinderInfo.instImplicit, id, type)
 
 @[derive Parser.HasTokens Parser.HasView]
 def anonymousConstructor.Parser : termParser :=

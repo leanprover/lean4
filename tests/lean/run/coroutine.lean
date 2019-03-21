@@ -43,7 +43,7 @@ mk $ λ a, done a
 mk $ λ a, c.resume (f a)
 
 /-- Return the control to the invoker with Result `d` -/
-@[inline] protected def yield (d : δ) : coroutine α δ Punit :=
+@[inline] protected def yield (d : δ) : coroutine α δ PUnit :=
 mk $ λ a : α, yielded d (coroutine.pure ⟨⟩)
 
 /-
@@ -131,7 +131,7 @@ end coroutine
 
 /-- Auxiliary class for lifiting `yield` -/
 class monadCoroutine (α : outParam (Type u)) (δ : outParam (Type v)) (m : Type w → Type r) :=
-(yield {} : δ → m Punit)
+(yield {} : δ → m PUnit)
 
 instance (α : Type u) (δ : Type v) : monadCoroutine α δ (coroutine α δ) :=
 { yield  := coroutine.yield }
@@ -166,7 +166,7 @@ do c  ← pure $ visit t,
    IO.println $ toString v₂,
    pure ()
 
-#eval tst (tree.Node (tree.Node (tree.Node tree.leaf 5 tree.leaf) 10 (tree.Node tree.leaf 20 tree.leaf)) 30 tree.leaf)
+-- #eval tst (tree.Node (tree.Node (tree.Node tree.leaf 5 tree.leaf) 10 (tree.Node tree.leaf 20 tree.leaf)) 30 tree.leaf)
 
 end ex1
 
@@ -195,6 +195,6 @@ do let c := StateT.run ex 5,
    IO.println "done",
    pure ()
 
-#eval tst2
+-- #eval tst2
 
 end ex2

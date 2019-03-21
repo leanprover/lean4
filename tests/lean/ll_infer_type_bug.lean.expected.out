@@ -1,6 +1,6 @@
-f._main._cstage2 : _obj → uint8
-f1._main._cstage2 : _obj → uint8
-f2._main._cstage2 : _obj → uint8
-f3._main._cstage2 : _obj → uint8
-f4._main._cstage2 : _obj → uint8
-f5._main._cstage2 : _obj → uint8
+f._main._cstage2 : _obj → UInt8
+f1._main._cstage2 : _obj → UInt8
+f2._main._cstage2 : _obj → UInt8
+f3._main._cstage2 : _obj → UInt8
+f4._main._cstage2 : _obj → UInt8
+f5._main._cstage2 : _obj → UInt8

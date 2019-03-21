@@ -1,5 +1,5 @@
 /- Benchmark for new code generator -/
-import init.IO
+import init.io
 
 inductive Expr
 | Val : Int → Expr
@@ -11,14 +11,14 @@ inductive Expr
 
 open Expr
 
-meta def pown : Int → Int → Int
+unsafe def pown : Int → Int → Int
 | a 0 := 1
 | a 1 := a
 | a n :=
   let b := pown a (n / 2) in
   b * b * (if n % 2 = 0 then 1 else a)
 
-meta def add : Expr → Expr → Expr
+unsafe def add : Expr → Expr → Expr
 | (Val n)   (Val m)         := Val (n + m)
 | (Val 0)   f               := f
 | f         (Val 0)         := f
@@ -28,7 +28,7 @@ meta def add : Expr → Expr → Expr
 | (Add f g) h               := add f (add g h)
 | f         g               := Add f g
 
-meta def mul : Expr → Expr → Expr
+unsafe def mul : Expr → Expr → Expr
 | (Val n)   (Val m)         := Val (n*m)
 | (Val 0)   _               := Val 0
 | _         (Val 0)         := Val 0
@@ -40,7 +40,7 @@ meta def mul : Expr → Expr → Expr
 | (Mul f g) h               := mul f (mul g h)
 | f         g               := Mul f g
 
-meta def pow : Expr → Expr → Expr
+unsafe def pow : Expr → Expr → Expr
 | (Val m) (Val n) := Val (pown m n)
 | _       (Val 0) := Val 1
 | f       (Val 1) := f
@@ -51,7 +51,7 @@ def ln : Expr → Expr
 | (Val 1) := Val 0
 | f       := Ln f
 
-meta def d (x : String) : Expr → Expr
+unsafe def d (x : String) : Expr → Expr
 | (Val _)   := Val 0
 | (Var y)   := if x = y then Val 1 else Val 0
 | (Add f g) := add (d f) (d g)
@@ -78,18 +78,18 @@ def Expr.toString : Expr → String
 instance : HasToString Expr :=
 ⟨Expr.toString⟩
 
-meta def nest (f : Expr → Eio Expr) : Nat → Expr → Eio Expr
+unsafe def nest (f : Expr → IO Expr) : Nat → Expr → IO Expr
 | 0     x := pure x
 | (n+1) x := f x >>= nest n
 
-meta def deriv (f : Expr) : Eio Expr :=
+unsafe def deriv (f : Expr) : IO Expr :=
 do
   let d := d "x" f,
   IO.print "count: ",
   IO.println (count f),
   pure d
 
-meta def main : Eio Unit :=
+unsafe def main : IO Unit :=
 do let x := Var "x",
    let f := pow x x,
    nest deriv 9 f,

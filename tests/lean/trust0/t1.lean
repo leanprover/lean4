@@ -1,2 +1,2 @@
-import init.IO
+import init.io
 #print trust

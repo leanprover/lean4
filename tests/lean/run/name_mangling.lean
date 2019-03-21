@@ -1,4 +1,4 @@
-import init.Lean.nameMangling init.Lean.Parser.identifier
+import init.lean.parser.identifier
 open Lean Lean.Parser
 
 #exit

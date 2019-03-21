@@ -8,7 +8,7 @@ inductive foo
 
 #print foo
 #print foo.rec
-setOption pp.all True
+set_option pp.all true
 #print foo.below
 
 mutual inductive foo2, arrow2

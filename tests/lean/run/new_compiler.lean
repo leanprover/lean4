@@ -1,11 +1,10 @@
-import init.Lean.Parser.Parsec
-import init.control.coroutine
+import init.lean.parser.parsec
 universes u v w r s
 
-setOption Trace.Compiler.stage1 True
+set_option trace.compiler.stage1 true
 -- setOption pp.implicit True
-setOption pp.binderTypes False
-setOption pp.proofs True
+set_option pp.binder_types false
+set_option pp.proofs true
 
 def foo (n : Nat) : Nat :=
 let x := Nat.zero in
@@ -43,10 +42,10 @@ def add' : Nat → Nat → Nat
 def aux (i : Nat) (h : i > 0) :=
 i
 
-def foo2 : Nat :=
+unsafe def foo2 : Nat :=
 @False.rec (λ _, Nat) sorry
 
-setOption pp.notation False
+set_option pp.notation false
 
 def foo3 (n : Nat) : Nat :=
 (λ a : Nat, a + a + a) (n*n)
@@ -56,10 +55,10 @@ let f := @List.cons Nat in
 f a (f a l)
 
 def bla (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
-@and.rec _ _ (λ _, Nat) (λ h₁ h₂, aux i h₁ + aux i h₁) h
+@And.rec _ _ (λ _, Nat) (λ h₁ h₂, aux i h₁ + aux i h₁) h
 
 def bla' (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
-@and.casesOn _ _ (λ _, Nat) h (λ h₁ h₂, aux i h₁ + aux i h₁)
+@And.casesOn _ _ (λ _, Nat) h (λ h₁ h₂, aux i h₁ + aux i h₁)
 
 inductive vec (α : Type u) : Nat → Type u
 | nil {}  : vec 0
@@ -68,22 +67,3 @@ inductive vec (α : Type u) : Nat → Type u
 def vec.map {α β σ : Type u} (f : α → β → σ) : Π {n : Nat}, vec α n → vec β n → vec σ n
 | _ vec.nil vec.nil                 := vec.nil
 | _ (vec.cons a as) (vec.cons b bs) := vec.cons (f a b) (vec.map as bs)
-
-namespace coroutine
-variables {α : Type u} {δ : Type v} {β γ : Type w}
-
-def pipe2 : coroutine α δ β → coroutine δ γ β → coroutine α γ β
-| (mk k₁) (mk k₂) := mk $ λ a,
-  match k₁ a, rfl : ∀ (n : _), n = k₁ a → _ with
-  | done b, h        := done b
-  | yielded d k₁', h :=
-    match k₂ d with
-    | done b        := done b
-    | yielded r k₂' :=
-      -- have directSubcoroutine k₁' (mk k₁), { apply directSubcoroutine.mk k₁ a d, rw h },
-      yielded r (pipe2 k₁' k₂')
-
-end coroutine
-
-setOption pp.all True
-setOption pp.binderTypes True

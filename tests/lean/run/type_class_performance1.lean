@@ -1,4 +1,4 @@
-#print Usize
+#print USize
 
 def foo1 (a b : UInt64) : Bool :=
 a = b
@@ -9,5 +9,5 @@ a = b
 def foo3 (a b : UInt32) : Bool :=
 a = b
 
-def foo4 (a b : Usize) : Bool :=
+def foo4 (a b : USize) : Bool :=
 a = b

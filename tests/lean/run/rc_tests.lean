@@ -1,16 +1,16 @@
 universes u v
 
 -- setOption pp.binderTypes False
-setOption pp.implicit True
-setOption Trace.Compiler.llnf True
-setOption Trace.Compiler.boxed True
+set_option pp.implicit true
+set_option trace.compiler.llnf true
+set_option trace.compiler.boxed true
 
 namespace x1
 
 def f (x : Bool) (y z : Nat) : Nat :=
 match x with
-| tt := y
-| ff := z + y + y
+| true := y
+| false := z + y + y
 
 end x1
 

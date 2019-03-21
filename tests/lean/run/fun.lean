@@ -1,21 +1,21 @@
 open Function Bool
 
 
-constant f : Nat → Bool
-constant g : Nat → Nat
+constant f : Nat → Bool := default _
+constant g : Nat → Nat := default _
 
 #check f ∘ g ∘ g
 
 #check (id : Nat → Nat)
 
-constant h : Nat → Bool → Nat
+constant h : Nat → Bool → Nat := default _
 
 #check swap h
-#check swap h ff Nat.zero
+#check swap h false Nat.zero
 
-#check (swap h ff Nat.zero : Nat)
+#check (swap h false Nat.zero : Nat)
 
-constant f1 : Nat → Nat → Bool
-constant f2 : Bool → Nat
+constant f1 : Nat → Nat → Bool := default _
+constant f2 : Bool → Nat := default _
 
-#check (f1 on f2) ff tt
+#check (f1 on f2) false true

@@ -28,6 +28,9 @@ instance : HasLe ℕ :=
 @[reducible] protected def le (n m : ℕ) := Nat.lessThanOrEqual n m
 @[reducible] protected def lt (n m : ℕ) := Nat.lessThanOrEqual (succ n) m
 
+set_option codegen false
+
+
 instance : HasLt ℕ :=
 ⟨Nat.lt⟩
 
@@ -113,7 +116,7 @@ instance decidableLt : ∀ a b : ℕ, Decidable (a < b) :=
 λ a b, Nat.decidableLe (succ a) b
 
 protected lemma eqOrLtOfLe {a b : ℕ} (h : a ≤ b) : a = b ∨ a < b :=
-lessThanOrEqual.casesOn h (or.inl rfl) (λ n h, or.inr (succLeSucc h))
+lessThanOrEqual.casesOn h (Or.inl rfl) (λ n h, Or.inr (succLeSucc h))
 
 lemma ltSuccOfLe {a b : ℕ} : a ≤ b → a < succ b :=
 succLeSucc

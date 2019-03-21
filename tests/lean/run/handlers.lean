@@ -1,4 +1,4 @@
-import init.IO
+import init.io
 
 #exit
 

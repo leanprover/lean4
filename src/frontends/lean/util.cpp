@@ -465,7 +465,7 @@ void initialize_frontend_lean_util() {
     g_auto_param_check_exists = new name({"auto_param", "check_exists"});
     register_bool_option(*g_auto_param_check_exists, LEAN_DEFAULT_AUTO_PARAM_CHECK_EXISTS,
                          "Eagerly check that a tactic declaration of the given name exists when declaring an auto param");
-    g_field_notation_name   = new name("field_notation");
+    g_field_notation_name   = new name("fieldNotation");
 }
 
 environment compile_expr(environment const & env, options const & opts, name const & n, names const & ls, expr const & type, expr const & e, pos_info const & /* pos */) {

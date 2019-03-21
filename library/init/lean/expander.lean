@@ -323,7 +323,7 @@ def paren.transform : transformer :=
 λ stx, do
   let v := view paren stx,
   match v.content with
-  | none := pure $ globId `unit.star
+  | none := pure $ globId `Unit.star
   | some {Term := t, special := none} := pure t
   | some {Term := t, special := parenSpecial.View.tuple tup} :=
     pure $ (t::tup.tail.map SepBy.Elem.View.item).foldr1Opt (λ t tup, mkApp (globId `Prod.mk) [t, tup])

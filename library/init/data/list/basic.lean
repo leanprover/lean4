@@ -91,9 +91,9 @@ instance : HasMem α (List α) :=
 instance decidableMem [DecidableEq α] (a : α) : ∀ (l : List α), Decidable (a ∈ l)
 | []     := isFalse notFalse
 | (b::l) :=
-  if h₁ : a = b then isTrue (or.inl h₁)
+  if h₁ : a = b then isTrue (Or.inl h₁)
   else match decidableMem l with
-       | isTrue  h₂ := isTrue (or.inr h₂)
+       | isTrue  h₂ := isTrue (Or.inr h₂)
        | isFalse h₂ := isFalse (notOr h₁ h₂)
 
 instance : HasEmptyc (List α) :=
@@ -329,14 +329,14 @@ instance hasDecidableLt [HasLt α] [h : decidableRel ((<) : α → α → Prop)]
 | (a::as) []      := isFalse notFalse
 | (a::as) (b::bs) :=
   match h a b with
-  | isTrue h₁  := isTrue (or.inl h₁)
+  | isTrue h₁  := isTrue (Or.inl h₁)
   | isFalse h₁ :=
     match h b a with
-    | isTrue h₂  := isFalse (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨h, _⟩, absurd h₂ h))
+    | isTrue h₂  := isFalse (λ h, Or.elim h (λ h, absurd h h₁) (λ ⟨h, _⟩, absurd h₂ h))
     | isFalse h₂ :=
       match hasDecidableLt as bs with
-      | isTrue h₃  := isTrue (or.inr ⟨h₂, h₃⟩)
-      | isFalse h₃ := isFalse (λ h, or.elim h (λ h, absurd h h₁) (λ ⟨_, h⟩, absurd h h₃))
+      | isTrue h₃  := isTrue (Or.inr ⟨h₂, h₃⟩)
+      | isFalse h₃ := isFalse (λ h, Or.elim h (λ h, absurd h h₁) (λ ⟨_, h⟩, absurd h h₃))
 
 @[reducible] protected def le [HasLt α] (a b : List α) : Prop :=
 ¬ b < a

@@ -78,7 +78,7 @@ have h' : ¬(0 < b ∧ b ≤ a), from λ ⟨_, h₁⟩, absurd h₁ (Nat.notLeOf
 ifNeg h'
 
 lemma modEqSubMod {a b : Nat} (h : a ≥ b) : a % b = (a - b) % b :=
-or.elim (eqZeroOrPos b)
+Or.elim (eqZeroOrPos b)
   (λ h₁, h₁.symm ▸ (Nat.subZero a).symm ▸ rfl)
   (λ h₁, (modDef a b).symm ▸ ifPos ⟨h₁, h⟩)
 
@@ -90,7 +90,7 @@ mod.inductionOn x y
    Heq.symm ▸ ih)
   (λ x y h₁ h₂,
     have h₁ : ¬ 0 < y ∨ ¬ y ≤ x, from Iff.mp (Decidable.notAndIffOrNot _ _) h₁,
-    or.elim h₁
+    Or.elim h₁
      (λ h₁, absurd h₂ h₁)
      (λ h₁,
         have hgt : y > x, from gtOfNotLe h₁,
@@ -98,9 +98,9 @@ mod.inductionOn x y
         Heq.symm ▸ hgt))
 
 theorem modLe (x y : ℕ) : x % y ≤ x :=
-or.elim (Nat.ltOrGe x y)
+Or.elim (Nat.ltOrGe x y)
   (λ h₁ : x < y, (modEqOfLt h₁).symm ▸ Nat.leRefl _)
-  (λ h₁ : x ≥ y, or.elim (eqZeroOrPos y)
+  (λ h₁ : x ≥ y, Or.elim (eqZeroOrPos y)
     (λ h₂ : y = 0, h₂.symm ▸ (Nat.modZero x).symm ▸ Nat.leRefl _)
     (λ h₂ : y > 0, Nat.leTrans (Nat.leOfLt (Nat.modLt _ h₂)) h₁))
 

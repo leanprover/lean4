@@ -491,7 +491,7 @@ void initialize_constants() {
     g_of_eq_true = new name{"ofEqTrue"};
     g_of_iff_true = new name{"ofIffTrue"};
     g_opt_param = new name{"optParam"};
-    g_or = new name{"or"};
+    g_or = new name{"Or"};
     g_out_param = new name{"outParam"};
     g_pexpr = new name{"pexpr"};
     g_pexpr_subst = new name{"pexpr", "subst"};

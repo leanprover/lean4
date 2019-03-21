@@ -268,15 +268,15 @@ instance decLt (n m : @& Nat) : Decidable (n < m) :=
 Nat.decLe (succ n) m
 
 protected theorem eqOrLtOfLe : ∀ {n m: Nat}, n ≤ m → n = m ∨ n < m
-| zero     zero     h := or.inl rfl
-| zero     (succ n) h := or.inr $ zeroLe n
+| zero     zero     h := Or.inl rfl
+| zero     (succ n) h := Or.inr $ zeroLe n
 | (succ n) zero     h := Bool.noConfusion h
 | (succ n) (succ m) h :=
   have n ≤ m, from h,
   have n = m ∨ n < m, from eqOrLtOfLe this,
-  or.elim this
-   (λ h, or.inl $ congrArg succ h)
-   (λ h, or.inr $ succLtSucc h)
+  Or.elim this
+   (λ h, Or.inl $ congrArg succ h)
+   (λ h, Or.inr $ succLtSucc h)
 
 theorem ltSuccOfLe {n m : Nat} : n ≤ m → n < succ m :=
 succLeSucc
@@ -342,8 +342,8 @@ leOfSuccLe h
 def lt.step {n m : Nat} : n < m → n < succ m := leStep
 
 theorem eqZeroOrPos : ∀ (n : Nat), n = 0 ∨ n > 0
-| 0     := or.inl rfl
-| (n+1) := or.inr (succPos _)
+| 0     := Or.inl rfl
+| (n+1) := Or.inr (succPos _)
 
 protected theorem ltTrans {n m k : Nat} (h₁ : n < m) : m < k → n < k :=
 Nat.leTrans (leStep h₁)
@@ -366,22 +366,22 @@ protected theorem leAntisymm : ∀ {n m : Nat}, n ≤ m → m ≤ n → n = m
   congrArg succ this
 
 protected theorem ltOrGe : ∀ (n m : Nat), n < m ∨ n ≥ m
-| n 0     := or.inr (zeroLe n)
+| n 0     := Or.inr (zeroLe n)
 | n (m+1) :=
   match ltOrGe n m with
-  | or.inl h := or.inl (leSuccOfLe h)
-  | or.inr h :=
+  | Or.inl h := Or.inl (leSuccOfLe h)
+  | Or.inr h :=
     match Nat.eqOrLtOfLe h with
-    | or.inl h1 := or.inl (h1 ▸ ltSuccSelf m)
-    | or.inr h1 := or.inr h1
+    | Or.inl h1 := Or.inl (h1 ▸ ltSuccSelf m)
+    | Or.inr h1 := Or.inr h1
 
 protected theorem leTotal (m n : Nat) : m ≤ n ∨ n ≤ m :=
-or.elim (Nat.ltOrGe m n)
-  (λ h, or.inl (Nat.leOfLt h))
-  or.inr
+Or.elim (Nat.ltOrGe m n)
+  (λ h, Or.inl (Nat.leOfLt h))
+  Or.inr
 
 protected theorem ltOfLeAndNe {m n : Nat} (h1 : m ≤ n) : m ≠ n → m < n :=
-resolveRight (or.swap (Nat.eqOrLtOfLe h1))
+resolveRight (Or.swap (Nat.eqOrLtOfLe h1))
 
 theorem eqZeroOfLeZero {n : Nat} (h : n ≤ 0) : n = 0 :=
 Nat.leAntisymm h (zeroLe _)
@@ -400,11 +400,11 @@ h
 
 theorem ltOrEqOrLeSucc {m n : Nat} (h : m ≤ succ n) : m ≤ n ∨ m = succ n :=
 Decidable.byCases
-  (λ h' : m = succ n, or.inr h')
+  (λ h' : m = succ n, Or.inr h')
   (λ h' : m ≠ succ n,
      have m < succ n, from Nat.ltOfLeAndNe h h',
      have succ m ≤ succ n, from succLeOfLt this,
-     or.inl (leOfSuccLeSucc this))
+     Or.inl (leOfSuccLeSucc this))
 
 theorem leAddRight : ∀ (n k : Nat), n ≤ n + k
 | n 0     := Nat.leRefl n
@@ -427,17 +427,17 @@ theorem le.intro {n m k : Nat} (h : n + k = m) : n ≤ m :=
 h ▸ leAddRight n k
 
 protected theorem notLeOfGt {n m : Nat} (h : n > m) : ¬ n ≤ m :=
-λ h₁, or.elim (Nat.ltOrGe n m)
+λ h₁, Or.elim (Nat.ltOrGe n m)
   (λ h₂, absurd (Nat.ltTrans h h₂) (Nat.ltIrrefl _))
   (λ h₂, have Heq : n = m, from Nat.leAntisymm h₁ h₂, absurd (@Eq.subst _ _ _ _ Heq h) (Nat.ltIrrefl m))
 
 theorem gtOfNotLe {n m : Nat} (h : ¬ n ≤ m) : n > m :=
-or.elim (Nat.ltOrGe m n)
+Or.elim (Nat.ltOrGe m n)
   (λ h₁, h₁)
   (λ h₁, absurd h₁ h)
 
 protected theorem ltOfLeOfNe {n m : Nat} (h₁ : n ≤ m) (h₂ : n ≠ m) : n < m :=
-or.elim (Nat.ltOrGe n m)
+Or.elim (Nat.ltOrGe n m)
   (λ h₃, h₃)
   (λ h₃, absurd (Nat.leAntisymm h₁ h₃) h₂)
 
@@ -667,7 +667,7 @@ theorem powLePowOfLeRight {n : Nat} (hx : n > 0) {i : Nat} : ∀ {j}, i ≤ j �
   have i = 0, from eqZeroOfLeZero h,
   this.symm ▸ Nat.leRefl _
 | (succ j) h :=
-  or.elim (ltOrEqOrLeSucc h)
+  Or.elim (ltOrEqOrLeSucc h)
     (λ h, show n^i ≤ n^j * n, from
           suffices n^i * 1 ≤ n^j * n, from Nat.mulOne (n^i) ▸ this,
           Nat.mulLeMul (powLePowOfLeRight h) hx)

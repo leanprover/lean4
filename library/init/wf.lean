@@ -133,7 +133,7 @@ def Nat.ltWf : WellFounded Nat.lt :=
 ⟨Nat.rec
   (Acc.intro 0 (λ n h, absurd h (Nat.notLtZero n)))
   (λ n ih, Acc.intro (Nat.succ n) (λ m h,
-     or.elim (Nat.eqOrLtOfLe (Nat.leOfSuccLeSucc h))
+     Or.elim (Nat.eqOrLtOfLe (Nat.leOfSuccLeSucc h))
         (λ e, Eq.substr e ih) (Acc.inv ih)))⟩
 
 def measure {α : Sort u} : (α → ℕ) → α → α → Prop :=

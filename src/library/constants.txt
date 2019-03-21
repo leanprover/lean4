@@ -202,7 +202,7 @@ notOfEqFalse
 ofEqTrue
 ofIffTrue
 optParam
-or
+Or
 outParam
 pexpr
 pexpr.subst

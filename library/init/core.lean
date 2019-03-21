@@ -269,15 +269,15 @@ inductive Psum (α : Sort u) (β : Sort v)
 | inl {} (val : α) : Psum
 | inr {} (val : β) : Psum
 
-inductive or (a b : Prop) : Prop
-| inl {} (h : a) : or
-| inr {} (h : b) : or
+inductive Or (a b : Prop) : Prop
+| inl {} (h : a) : Or
+| inr {} (h : b) : Or
 
-def or.introLeft {a : Prop} (b : Prop) (ha : a) : or a b :=
-or.inl ha
+def Or.introLeft {a : Prop} (b : Prop) (ha : a) : Or a b :=
+Or.inl ha
 
-def or.introRight (a : Prop) {b : Prop} (hb : b) : or a b :=
-or.inr hb
+def Or.introRight (a : Prop) {b : Prop} (hb : b) : Or a b :=
+Or.inr hb
 
 structure Sigma {α : Type u} (β : α → Type v) :=
 mk :: (fst : α) (snd : β fst)
@@ -405,8 +405,8 @@ infix ≈        := HasEquiv.equiv
 infixr ^       := HasPow.pow
 infixr /\      := and
 infixr ∧       := and
-infixr \/      := or
-infixr ∨       := or
+infixr \/      := Or
+infixr ∨       := Or
 infix <->      := Iff
 infix ↔        := Iff
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
@@ -792,21 +792,21 @@ assume ⟨ha, hb⟩, ⟨hb, ha⟩
 
 def and.symm := @and.swap
 
-theorem or.elim (h₁ : a ∨ b) (h₂ : a → c) (h₃ : b → c) : c :=
-or.rec h₂ h₃ h₁
+theorem Or.elim (h₁ : a ∨ b) (h₂ : a → c) (h₃ : b → c) : c :=
+Or.rec h₂ h₃ h₁
 
 theorem nonContradictoryEm (a : Prop) : ¬¬(a ∨ ¬a) :=
 assume notEm : ¬(a ∨ ¬a),
   have negA : ¬a, from
-    assume posA : a, absurd (or.inl posA) notEm,
-  absurd (or.inr negA) notEm
+    assume posA : a, absurd (Or.inl posA) notEm,
+  absurd (Or.inr negA) notEm
 
 def notNotEm := nonContradictoryEm
 
-theorem or.swap (h : a ∨ b) : b ∨ a :=
-or.elim h or.inr or.inl
+theorem Or.swap (h : a ∨ b) : b ∨ a :=
+Or.elim h Or.inr Or.inl
 
-def or.symm := @or.swap
+def Or.symm := @Or.swap
 
 /- xor -/
 def xor (a b : Prop) := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
@@ -982,50 +982,50 @@ Iff.intro and.left (assume h, ⟨h, h⟩)
 /- or simp rules -/
 
 theorem orCongr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
-Iff.intro (λ h, or.elim h (λ h, or.inl (Iff.mp h₁ h)) (λ h, or.inr (Iff.mp h₂ h)))
-          (λ h, or.elim h (λ h, or.inl (Iff.mpr h₁ h)) (λ h, or.inr (Iff.mpr h₂ h)))
+Iff.intro (λ h, Or.elim h (λ h, Or.inl (Iff.mp h₁ h)) (λ h, Or.inr (Iff.mp h₂ h)))
+          (λ h, Or.elim h (λ h, Or.inl (Iff.mpr h₁ h)) (λ h, Or.inr (Iff.mpr h₂ h)))
 
-theorem orComm : a ∨ b ↔ b ∨ a := Iff.intro or.swap or.swap
+theorem orComm : a ∨ b ↔ b ∨ a := Iff.intro Or.swap Or.swap
 
 theorem orAssoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
-Iff.intro (λ h, or.elim h (λ h, or.elim h or.inl (λ h, or.inr (or.inl h))) (λ h, or.inr (or.inr h)))
-          (λ h, or.elim h (λ h, or.inl (or.inl h)) (λ h, or.elim h (λ h, or.inl (or.inr h)) or.inr))
+Iff.intro (λ h, Or.elim h (λ h, Or.elim h Or.inl (λ h, Or.inr (Or.inl h))) (λ h, Or.inr (Or.inr h)))
+          (λ h, Or.elim h (λ h, Or.inl (Or.inl h)) (λ h, Or.elim h (λ h, Or.inl (Or.inr h)) Or.inr))
 
 theorem orLeftComm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
 Iff.trans (Iff.symm orAssoc) (Iff.trans (orCongr orComm (Iff.refl c)) orAssoc)
 
 theorem orTrue (a : Prop) : a ∨ True ↔ True :=
-iffTrueIntro (or.inr trivial)
+iffTrueIntro (Or.inr trivial)
 
 theorem trueOr (a : Prop) : True ∨ a ↔ True :=
-iffTrueIntro (or.inl trivial)
+iffTrueIntro (Or.inl trivial)
 
 theorem orFalse (a : Prop) : a ∨ False ↔ a :=
-Iff.intro (λ h, or.elim h id False.elim) or.inl
+Iff.intro (λ h, Or.elim h id False.elim) Or.inl
 
 theorem falseOr (a : Prop) : False ∨ a ↔ a :=
 Iff.trans orComm (orFalse a)
 
 theorem orSelf (a : Prop) : a ∨ a ↔ a :=
-Iff.intro (λ h, or.elim h id id) or.inl
+Iff.intro (λ h, Or.elim h id id) Or.inl
 
 theorem notOr {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
-| hna hnb (or.inl ha) := absurd ha hna
-| hna hnb (or.inr hb) := absurd hb hnb
+| hna hnb (Or.inl ha) := absurd ha hna
+| hna hnb (Or.inr hb) := absurd hb hnb
 
 /- or resolution rulses -/
 
 theorem resolveLeft {a b : Prop} (h : a ∨ b) (na : ¬ a) : b :=
-or.elim h (λ ha, absurd ha na) id
+Or.elim h (λ ha, absurd ha na) id
 
 theorem negResolveLeft {a b : Prop} (h : ¬ a ∨ b) (ha : a) : b :=
-or.elim h (λ na, absurd ha na) id
+Or.elim h (λ na, absurd ha na) id
 
 theorem resolveRight {a b : Prop} (h : a ∨ b) (nb : ¬ b) : a :=
-or.elim h id (λ hb, absurd hb nb)
+Or.elim h id (λ hb, absurd hb nb)
 
 theorem negResolveRight {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
-or.elim h id (λ nb, absurd hb nb)
+Or.elim h id (λ nb, absurd hb nb)
 
 /- Iff simp rules -/
 
@@ -1129,7 +1129,7 @@ match s with
 | isFalse h := h2 h
 
 theorem em (p : Prop) [Decidable p] : p ∨ ¬p :=
-byCases or.inl or.inr
+byCases Or.inl Or.inr
 
 theorem byContradiction [Decidable p] (h : ¬p → False) : p :=
 byCases id (λ np : ¬p, False.elim (h np))
@@ -1144,19 +1144,19 @@ theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : 
 Iff.intro
 (λ h, match d₁, d₂ with
       | isTrue h₁,  isTrue h₂  := absurd (and.intro h₁ h₂) h
-      | _,           isFalse h₂ := or.inr h₂
-      | isFalse h₁, _           := or.inl h₁)
-(λ h ⟨hp, hq⟩, or.elim h (λ h, h hp) (λ h, h hq))
+      | _,           isFalse h₂ := Or.inr h₂
+      | isFalse h₁, _           := Or.inl h₁)
+(λ h ⟨hp, hq⟩, Or.elim h (λ h, h hp) (λ h, h hq))
 
 theorem notOrIffAndNot (p q) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∨ q) ↔ ¬ p ∧ ¬ q :=
 Iff.intro
   (λ h, match d₁ with
-        | isTrue h₁  := False.elim $ h (or.inl h₁)
+        | isTrue h₁  := False.elim $ h (Or.inl h₁)
         | isFalse h₁ :=
           match d₂ with
-          | isTrue h₂  := False.elim $ h (or.inr h₂)
+          | isTrue h₂  := False.elim $ h (Or.inr h₂)
           | isFalse h₂ := ⟨h₁, h₂⟩)
-  (λ ⟨np, nq⟩ h, or.elim h np nq)
+  (λ ⟨np, nq⟩ h, Or.elim h np nq)
 end Decidable
 
 section
@@ -1173,7 +1173,7 @@ protected def or.byCases [Decidable p] [Decidable q] {α : Sort u}
                           (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
 if hp : p then h₁ hp else
   if hq : q then h₂ hq else
-    False.rec _ (or.elim h hp hq)
+    False.rec _ (Or.elim h hp hq)
 end
 
 section
@@ -1186,9 +1186,9 @@ if hp : p then
 else isFalse (assume h : p ∧ q, hp (and.left h))
 
 @[macroInline] instance [Decidable p] [Decidable q] : Decidable (p ∨ q) :=
-if hp : p then isTrue (or.inl hp) else
-  if hq : q then isTrue (or.inr hq) else
-    isFalse (λ h, or.elim h hp hq)
+if hp : p then isTrue (Or.inl hp) else
+  if hq : q then isTrue (Or.inr hq) else
+    isFalse (λ h, Or.elim h hp hq)
 
 instance [Decidable p] : Decidable (¬p) :=
 if hp : p then isFalse (absurd hp) else isTrue hp
@@ -1209,11 +1209,11 @@ else
 
 instance [Decidable p] [Decidable q] : Decidable (xor p q) :=
 if hp : p then
-  if hq : q then isFalse (λ h, or.elim h (λ ⟨_, h⟩, h hq : ¬(p ∧ ¬ q)) (λ ⟨_, h⟩, h hp : ¬(q ∧ ¬ p)))
-  else isTrue $ or.inl ⟨hp, hq⟩
+  if hq : q then isFalse (λ h, Or.elim h (λ ⟨_, h⟩, h hq : ¬(p ∧ ¬ q)) (λ ⟨_, h⟩, h hp : ¬(q ∧ ¬ p)))
+  else isTrue $ Or.inl ⟨hp, hq⟩
 else
-  if hq : q then isTrue $ or.inr ⟨hq, hp⟩
-  else isFalse (λ h, or.elim h (λ ⟨h, _⟩, hp h : ¬(p ∧ ¬ q)) (λ ⟨h, _⟩, hq h : ¬(q ∧ ¬ p)))
+  if hq : q then isTrue $ Or.inr ⟨hq, hp⟩
+  else isFalse (λ h, Or.elim h (λ ⟨h, _⟩, hp h : ¬(p ∧ ¬ q)) (λ ⟨h, _⟩, hq h : ¬(q ∧ ¬ p)))
 
 instance existsPropDecidable {p} (P : p → Prop) [Decidable p] [s : ∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
 if h : p then decidableOfDecidableOfIff (s h)
@@ -1654,7 +1654,7 @@ instance prodHasDecidableLt
          [HasLt α] [HasLt β] [DecidableEq α] [DecidableEq β]
          [Π a b : α, Decidable (a < b)] [Π a b : β, Decidable (a < b)]
          : Π s t : α × β, Decidable (s < t) :=
-λ t s, or.Decidable
+λ t s, Or.Decidable
 
 theorem Prod.ltDef [HasLt α] [HasLt β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
 rfl
@@ -2091,37 +2091,37 @@ theorem chooseSpec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose 
 theorem em (p : Prop) : p ∨ ¬p :=
 let U (x : Prop) : Prop := x = True ∨ p in
 let V (x : Prop) : Prop := x = False ∨ p in
-have exU : ∃ x, U x, from ⟨True, or.inl rfl⟩,
-have exV : ∃ x, V x, from ⟨False, or.inl rfl⟩,
+have exU : ∃ x, U x, from ⟨True, Or.inl rfl⟩,
+have exV : ∃ x, V x, from ⟨False, Or.inl rfl⟩,
 let u : Prop := choose exU in
 let v : Prop := choose exV in
 have uDef : U u, from chooseSpec exU,
 have vDef : V v, from chooseSpec exV,
 have notUvOrP : u ≠ v ∨ p, from
-  or.elim uDef
+  Or.elim uDef
     (assume hut : u = True,
-      or.elim vDef
+      Or.elim vDef
         (assume hvf : v = False,
           have hne : u ≠ v, from hvf.symm ▸ hut.symm ▸ trueNeFalse,
-          or.inl hne)
-        or.inr)
-    or.inr,
+          Or.inl hne)
+        Or.inr)
+    Or.inr,
 have pImpliesUv : p → u = v, from
   assume hp : p,
   have hpred : U = V, from
     funext $ assume x : Prop,
       have hl : (x = True ∨ p) → (x = False ∨ p), from
-        assume a, or.inr hp,
+        assume a, Or.inr hp,
       have hr : (x = False ∨ p) → (x = True ∨ p), from
-        assume a, or.inr hp,
+        assume a, Or.inr hp,
       show (x = True ∨ p) = (x = False ∨ p), from
         propext (Iff.intro hl hr),
   have h₀ : ∀ exU exV, @choose _ U exU = @choose _ V exV, from
     hpred ▸ λ exU exV, rfl,
   show u = v, from h₀ _ _,
-or.elim notUvOrP
-  (assume hne : u ≠ v, or.inr (mt pImpliesUv hne))
-  or.inl
+Or.elim notUvOrP
+  (assume hne : u ≠ v, Or.inr (mt pImpliesUv hne))
+  Or.inl
 
 theorem existsTrueOfNonempty {α : Sort u} : nonempty α → ∃ x : α, True
 | ⟨x⟩ := ⟨x, trivial⟩
@@ -2135,7 +2135,7 @@ inhabitedOfNonempty (exists.elim h (λ w hw, ⟨w⟩))
 
 /- all propositions are Decidable -/
 noncomputable def propDecidable (a : Prop) : Decidable a :=
-choice $ or.elim (em a)
+choice $ Or.elim (em a)
   (assume ha, ⟨isTrue ha⟩)
   (assume hna, ⟨isFalse hna⟩)
 local attribute [instance] propDecidable
@@ -2186,9 +2186,9 @@ theorem skolem {α : Sort u} {b : α → Sort v} {p : Π x, b x → Prop} :
 ⟨axiomOfChoice, λ ⟨f, hw⟩ x, ⟨f x, hw x⟩⟩
 
 theorem propComplete (a : Prop) : a = True ∨ a = False :=
-or.elim (em a)
-  (λ t, or.inl (eqTrueIntro t))
-  (λ f, or.inr (eqFalseIntro f))
+Or.elim (em a)
+  (λ t, Or.inl (eqTrueIntro t))
+  (λ f, Or.inr (eqFalseIntro f))
 
 -- this supercedes byCases in Decidable
 def byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=

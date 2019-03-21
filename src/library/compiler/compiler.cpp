@@ -123,7 +123,7 @@ bool is_uint32_or_unit(expr const & type) {
         is_constant(type, get_punit_name());
 }
 
-/* Return true iff type is `list string -> io uint32` or `io uint32` */
+/* Return true iff type is `List String -> IO UInt32` or `IO UInt32` */
 bool is_main_fn_type(expr const & type) {
     if (is_arrow(type)) {
         expr d = binding_domain(type);
@@ -158,7 +158,7 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     for (name const & c : cs) {
         if (is_main_fn(env, c) && !is_main_fn_type(env.get(c).get_type())) {
-            throw exception("invalid `main` function, it must have type `list string -> io uint32`");
+            throw exception("invalid `main` function, it must have type `List String -> IO UInt32`");
         }
     }
 

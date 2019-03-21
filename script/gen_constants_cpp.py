@@ -20,8 +20,8 @@ def error(msg):
     exit(1)
 
 def to_c_const(s):
-    # insert '_' instead of '.' and between lower case and upper case
-    s = re.sub(r"\.|(?<=[a-z0-9])(?=[A-Z])", '_', s)
+    # insert '_' instead of '.', between lower case and upper case, and after 'IO'
+    s = re.sub(r"\.|(?<=[a-z0-9])(?=[A-Z])|(?<=IO)(?=[A-Z][a-z])", '_', s)
     return s.lower()
 
 def main(argv=None):

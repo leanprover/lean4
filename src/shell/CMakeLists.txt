@@ -6,6 +6,11 @@ else()
   set_target_properties(lean_stage0 PROPERTIES IMPORTED_LOCATION "${CMAKE_CURRENT_BINARY_DIR}/lean_stage0")
 endif()
 
+ADD_CUSTOM_TARGET(bin_lean_stage0 ALL
+  COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:lean_stage0>" "${LEAN_SOURCE_DIR}/../bin/lean"
+  DEPENDS lean_stage0
+)
+
 add_custom_target(stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"

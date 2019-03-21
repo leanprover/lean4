@@ -97,7 +97,10 @@ Development Workflows
   C++ change. The `lean` target can be used to build the same binary without copying
   it to `bin/`, which can be useful for quickly building a debug version without
   changing the binary used by the editor. The `LEAN_PATH` variable may need to be set
-  to the location of `library/` manually in this case.
+  to the location of `library/` manually in this case. Conversely, if you did a C++
+  change but the stdlib fails to build, you can use the `bin_lean_stage0` target to
+  temporarily use `lean_stage0` as `bin/lean` so that you can fix the stdlib in your
+  editor.
 * When making a parallel change in both Lean and C++, there usually is no simple
   way of writing C++ code that builds in both stage0 and stage1. In this case,
   temporarily set `-DREBUILD_STAGE0=OFF` to deactivate rebuilding `lean_stage0`,

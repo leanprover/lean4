@@ -222,12 +222,12 @@ structure Prod (α : Type u) (β : Type v) :=
 structure Pprod (α : Sort u) (β : Sort v) :=
 (fst : α) (snd : β)
 
-structure and (a b : Prop) : Prop :=
+structure And (a b : Prop) : Prop :=
 intro :: (left : a) (right : b)
 
-def and.elimLeft {a b : Prop} (h : and a b) : a := h.1
+def And.elimLeft {a b : Prop} (h : And a b) : a := h.1
 
-def and.elimRight {a b : Prop} (h : and a b) : b := h.2
+def And.elimRight {a b : Prop} (h : And a b) : b := h.2
 
 structure Iff (a b : Prop) : Prop :=
 intro :: (mp : a → b) (mpr : b → a)
@@ -296,7 +296,7 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-attribute [ppAnonymousCtor] Sigma Psigma Subtype Pprod and
+attribute [ppAnonymousCtor] Sigma Psigma Subtype Pprod And
 
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable
@@ -403,8 +403,8 @@ infix ⊂        := HasSsubset.ssubset
 infix \        := HasSdiff.sdiff
 infix ≈        := HasEquiv.equiv
 infixr ^       := HasPow.pow
-infixr /\      := and
-infixr ∧       := and
+infixr /\      := And
+infixr ∧       := And
 infixr \/      := Or
 infixr ∨       := Or
 infix <->      := Iff
@@ -785,7 +785,7 @@ theorem castHeq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
 variables {a b c d : Prop}
 
 theorem and.elim (h₁ : a ∧ b) (h₂ : a → b → c) : c :=
-and.rec h₂ h₁
+And.rec h₂ h₁
 
 theorem and.swap : a ∧ b → b ∧ a :=
 assume ⟨ha, hb⟩, ⟨hb, ha⟩
@@ -820,7 +820,7 @@ theorem Iff.elimLeft : (a ↔ b) → a → b := Iff.mp
 theorem Iff.elimRight : (a ↔ b) → b → a := Iff.mpr
 
 theorem iffIffImpliesAndImplies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
-Iff.intro (λ h, and.intro h.mp h.mpr) (λ h, Iff.intro h.left h.right)
+Iff.intro (λ h, And.intro h.mp h.mpr) (λ h, Iff.intro h.left h.right)
 
 theorem Iff.refl (a : Prop) : a ↔ a :=
 Iff.intro (assume h, h) (assume h, h)
@@ -959,16 +959,16 @@ theorem andLeftComm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
 Iff.trans (Iff.symm andAssoc) (Iff.trans (andCongr andComm (Iff.refl c)) andAssoc)
 
 theorem andTrue (a : Prop) : a ∧ True ↔ a :=
-Iff.intro and.left (λ ha, ⟨ha, trivial⟩)
+Iff.intro And.left (λ ha, ⟨ha, trivial⟩)
 
 theorem trueAnd (a : Prop) : True ∧ a ↔ a :=
-Iff.intro and.right (λ h, ⟨trivial, h⟩)
+Iff.intro And.right (λ h, ⟨trivial, h⟩)
 
 theorem andFalse (a : Prop) : a ∧ False ↔ False :=
-iffFalseIntro and.right
+iffFalseIntro And.right
 
 theorem falseAnd (a : Prop) : False ∧ a ↔ False :=
-iffFalseIntro and.left
+iffFalseIntro And.left
 
 theorem notAndSelf (a : Prop) : (¬a ∧ a) ↔ False :=
 iffFalseIntro (λ h, and.elim h (λ h₁ h₂, absurd h₂ h₁))
@@ -977,7 +977,7 @@ theorem andNotSelf (a : Prop) : (a ∧ ¬a) ↔ False :=
 iffFalseIntro (assume ⟨h₁, h₂⟩, absurd h₁ h₂)
 
 theorem andSelf (a : Prop) : a ∧ a ↔ a :=
-Iff.intro and.left (assume h, ⟨h, h⟩)
+Iff.intro And.left (assume h, ⟨h, h⟩)
 
 /- or simp rules -/
 
@@ -1143,7 +1143,7 @@ Iff.intro ofNotNot notNotIntro
 theorem notAndIffOrNot (p q : Prop) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∧ q) ↔ ¬ p ∨ ¬ q :=
 Iff.intro
 (λ h, match d₁, d₂ with
-      | isTrue h₁,  isTrue h₂  := absurd (and.intro h₁ h₂) h
+      | isTrue h₁,  isTrue h₂  := absurd (And.intro h₁ h₂) h
       | _,           isFalse h₂ := Or.inr h₂
       | isFalse h₁, _           := Or.inl h₁)
 (λ h ⟨hp, hq⟩, Or.elim h (λ h, h hp) (λ h, h hq))
@@ -1182,8 +1182,8 @@ variables {p q : Prop}
 @[macroInline] instance [Decidable p] [Decidable q] : Decidable (p ∧ q) :=
 if hp : p then
   if hq : q then isTrue ⟨hp, hq⟩
-  else isFalse (assume h : p ∧ q, hq (and.right h))
-else isFalse (assume h : p ∧ q, hp (and.left h))
+  else isFalse (assume h : p ∧ q, hq (And.right h))
+else isFalse (assume h : p ∧ q, hp (And.left h))
 
 @[macroInline] instance [Decidable p] [Decidable q] : Decidable (p ∨ q) :=
 if hp : p then isTrue (Or.inl hp) else

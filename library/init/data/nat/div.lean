@@ -8,7 +8,7 @@ import init.wf init.data.nat.basic
 namespace Nat
 
 private def divRecLemma {x y : Nat} : 0 < y ∧ y ≤ x → x - y < x :=
-λ h, and.rec (λ ypos ylex, subLt (Nat.ltOfLtOfLe ypos ylex) ypos) h
+λ h, And.rec (λ ypos ylex, subLt (Nat.ltOfLtOfLe ypos ylex) ypos) h
 
 private def div.F (x : Nat) (f : Π x₁, x₁ < x → Nat → Nat) (y : Nat) : Nat :=
 if h : 0 < y ∧ y ≤ x then f (x - y) (divRecLemma h) y + 1 else zero

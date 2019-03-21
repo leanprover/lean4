@@ -1064,7 +1064,7 @@ void initialize_builtin_exprs() {
     register_bool_option(*g_parser_checkpoint_have, LEAN_DEFAULT_PARSER_CHECKPOINT_HAVE,
                          "(parser) introduces a checkpoint on have-expressions, checkpoints are like Prolog-cuts");
 
-    g_anonymous_constructor = new name("anonymous_constructor");
+    g_anonymous_constructor = new name("anonymousConstructor");
     register_annotation(*g_anonymous_constructor);
 }
 

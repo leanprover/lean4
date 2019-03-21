@@ -1187,7 +1187,7 @@ void emit_cpp(std::ostream & out, environment const & env, module_name const & m
 
 void initialize_emit_cpp() {
     g_cpp  = new name("cpp");
-    g_lean = new name("lean");
+    g_lean = new name("Lean");
 }
 
 void finalize_emit_cpp() {

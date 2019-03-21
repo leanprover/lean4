@@ -1230,8 +1230,8 @@ match decEq a b with
 theorem Bool.falseNeTrue (h : false = true) : False :=
 Bool.noConfusion h
 
-def isDecEq {α : Sort u} (p : α → α → Bool) : Prop   := ∀ ⦃x y : α⦄, p x y = true → x = y
-def isDecRefl {α : Sort u} (p : α → α → Bool) : Prop := ∀ x, p x x = true
+def IsDecEq {α : Sort u} (p : α → α → Bool) : Prop   := ∀ ⦃x y : α⦄, p x y = true → x = y
+def IsDecRefl {α : Sort u} (p : α → α → Bool) : Prop := ∀ x, p x x = true
 
 instance : DecidableEq Bool :=
 {decEq := λ a b, match a, b with
@@ -1241,7 +1241,7 @@ instance : DecidableEq Bool :=
  | true, true   := isTrue rfl}
 
 @[inline]
-def decidableEqOfBoolPred {α : Sort u} {p : α → α → Bool} (h₁ : isDecEq p) (h₂ : isDecRefl p) : DecidableEq α :=
+def decidableEqOfBoolPred {α : Sort u} {p : α → α → Bool} (h₁ : IsDecEq p) (h₂ : IsDecRefl p) : DecidableEq α :=
 {decEq := λ x y : α,
  if hp : p x y = true then isTrue (h₁ hp)
  else isFalse (assume hxy : x = y, absurd (h₂ y) (@Eq.recOn _ _ (λ z _, ¬p z y = true) _ hxy hp))}
@@ -1546,27 +1546,27 @@ local postfix `⁻¹`:max := inv
 variable g : α → α → α
 local infix + := g
 
-def commutative        := ∀ a b, a * b = b * a
-def associative        := ∀ a b c, (a * b) * c = a * (b * c)
-def leftIdentity      := ∀ a, one * a = a
-def rightIdentity     := ∀ a, a * one = a
-def rightInverse      := ∀ a, a * a⁻¹ = one
-def leftCancelative   := ∀ a b c, a * b = a * c → b = c
-def rightCancelative  := ∀ a b c, a * b = c * b → a = c
-def leftDistributive  := ∀ a b c, a * (b + c) = a * b + a * c
-def rightDistributive := ∀ a b c, (a + b) * c = a * c + b * c
-def rightCommutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
-def leftCommutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
+def Commutative        := ∀ a b, a * b = b * a
+def Associative        := ∀ a b c, (a * b) * c = a * (b * c)
+def LeftIdentity      := ∀ a, one * a = a
+def RightIdentity     := ∀ a, a * one = a
+def RightInverse      := ∀ a, a * a⁻¹ = one
+def LeftCancelative   := ∀ a b c, a * b = a * c → b = c
+def RightCancelative  := ∀ a b c, a * b = c * b → a = c
+def LeftDistributive  := ∀ a b c, a * (b + c) = a * b + a * c
+def RightDistributive := ∀ a b c, (a + b) * c = a * c + b * c
+def RightCommutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
+def LeftCommutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
 
 local infix `◾`:50 := Eq.trans
 
-theorem leftComm : commutative f → associative f → leftCommutative f :=
+theorem leftComm : Commutative f → Associative f → LeftCommutative f :=
 assume hcomm hassoc, assume a b c,
   Eq.symm (hassoc a b c)
 ◾ (hcomm a b ▸ rfl : (a*b)*c = (b*a)*c)
 ◾ hassoc b a c
 
-theorem rightComm : commutative f → associative f → rightCommutative f :=
+theorem rightComm : Commutative f → Associative f → RightCommutative f :=
 assume hcomm hassoc, assume a b c,
   hassoc a b c
 ◾ (hcomm b c ▸ rfl : a*(b*c) = a*(c*b))
@@ -2023,20 +2023,20 @@ instance {α : Sort u} {s : Setoid α} [d : ∀ a b : α, Decidable (a ≈ b)] :
 namespace Function
 variables {α : Sort u} {β : α → Sort v}
 
-protected def equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
+protected def Equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
 
-local infix `~` := Function.equiv
+local infix `~` := Function.Equiv
 
-protected theorem equiv.refl (f : Π x : α, β x) : f ~ f := assume x, rfl
+protected theorem Equiv.refl (f : Π x : α, β x) : f ~ f := assume x, rfl
 
-protected theorem equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₁ :=
+protected theorem Equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₁ :=
 λ h x, Eq.symm (h x)
 
-protected theorem equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
+protected theorem Equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
 λ h₁ h₂ x, Eq.trans (h₁ x) (h₂ x)
 
-protected theorem equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.equiv α β) :=
-mkEquivalence (@Function.equiv α β) (@equiv.refl α β) (@equiv.symm α β) (@equiv.trans α β)
+protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) :=
+mkEquivalence (@Function.Equiv α β) (@Equiv.refl α β) (@Equiv.symm α β) (@Equiv.trans α β)
 end Function
 
 section
@@ -2045,7 +2045,7 @@ variables {α : Sort u} {β : α → Sort v}
 
 @[instance]
 private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (Π x : α, β x) :=
-Setoid.mk (@Function.equiv α β) (Function.equiv.isEquivalence α β)
+Setoid.mk (@Function.Equiv α β) (Function.Equiv.isEquivalence α β)
 
 private def extfun (α : Sort u) (β : α → Sort v) : Sort (imax u v) :=
 Quotient (funSetoid α β)
@@ -2063,7 +2063,7 @@ show extfunApp ⟦f₁⟧ = extfunApp ⟦f₂⟧, from
 congrArg extfunApp (sound h)
 end
 
-local infix `~` := Function.equiv
+local infix `~` := Function.Equiv
 
 instance Pi.Subsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (Π a, β a) :=
 ⟨λ f₁ f₂, funext (λ a, Subsingleton.elim (f₁ a) (f₂ a))⟩

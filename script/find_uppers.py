@@ -3,7 +3,7 @@ import regex as re
 import os
 import sys
 
-upper = re.compile(r"^\s*(?:namespace|class|structure|inductive) ((?!inductive)[\w.]+)|(?:def|constant) ([\w.]+).*: Type$", re.MULTILINE)
+upper = re.compile(r"^\s*(?:namespace|class|structure|inductive) ((?!inductive)[\w.]+)|(?:def|constant) ([\w.]+).*(: (Type|Prop)$|:= ∀)", re.MULTILINE)
 fpath = sys.argv[1]
 with open(fpath) as f:
     s = f.read()

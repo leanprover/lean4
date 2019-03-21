@@ -47,7 +47,11 @@ def main(argv=None):
     constants     = []
     with open(infile, 'r') as f:
         for line in f:
-            constants.append([to_c_const(line.strip()), line.strip()])
+            p = line.split()
+            if len(p) == 2:
+                constants.append([p[1].strip(), p[0].strip()])
+            else:
+                constants.append([to_c_const(line.strip()), line.strip()])
 
     basedir, name = os.path.split(infile)
     os.chdir(basedir)

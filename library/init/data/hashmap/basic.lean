@@ -11,9 +11,9 @@ universes u v w
 def bucketArray (α : Type u) (β : α → Type v) :=
 { b : Array (List (Σ a, β a)) // b.sz > 0 }
 
-def bucketArray.uwrite {α : Type u} {β : α → Type v} (data : bucketArray α β) (i : Usize) (d : List (Σ a, β a)) (h : i.toNat < data.val.sz) : bucketArray α β :=
+def bucketArray.uwrite {α : Type u} {β : α → Type v} (data : bucketArray α β) (i : USize) (d : List (Σ a, β a)) (h : i.toNat < data.val.sz) : bucketArray α β :=
 ⟨ data.val.uwrite i d h,
-  transRelRight gt (Array.szWriteEq (data.val) ⟨Usize.toNat i, h⟩ d) data.property ⟩
+  transRelRight gt (Array.szWriteEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
 
 structure HashmapImp (α : Type u) (β : α → Type v) :=
 (size       : Nat)
@@ -35,10 +35,10 @@ let n := if nbuckets = 0 then 8 else nbuckets in
 namespace HashmapImp
 variables {α : Type u} {β : α → Type v}
 
-def mkIdx {n : Nat} (h : n > 0) (u : Usize) : { u : Usize // u.toNat < n } :=
-⟨u %ₙ n, Usize.modnLt _ h⟩
+def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
+⟨u %ₙ n, USize.modnLt _ h⟩
 
-def reinsertAux (hashFn : α → Usize) (data : bucketArray α β) (a : α) (b : β a) : bucketArray α β :=
+def reinsertAux (hashFn : α → USize) (data : bucketArray α β) (a : α) (b : β a) : bucketArray α β :=
 let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
 data.uwrite i (⟨a, b⟩ :: data.val.uread i h) h
 

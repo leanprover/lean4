@@ -267,11 +267,11 @@ typedExpr
 Unit
 Unit.star
 monadFromPureBind
-Uint8
-Uint16
-Uint32
-Uint64
-Usize
+UInt8 uint8
+UInt16 uint16
+UInt32 uint32
+UInt64 uint64
+USize usize
 userAttribute
 userAttribute.parseReflect
 WellFounded.fix

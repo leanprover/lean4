@@ -34,7 +34,7 @@ Moreover, the ReducibilityHints cannot be changed after a Declaration is added t
 inductive ReducibilityHints
 | opaque   : ReducibilityHints
 | «abbrev» : ReducibilityHints
-| regular  : Uint32 → ReducibilityHints
+| regular  : UInt32 → ReducibilityHints
 
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `inductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
 structure ConstantVal :=

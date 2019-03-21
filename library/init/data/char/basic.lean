@@ -5,21 +5,21 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.uint
-@[inline, reducible] def isValidChar (n : Uint32) : Prop :=
+@[inline, reducible] def isValidChar (n : UInt32) : Prop :=
 n < 0xd800 ∨ (0xdfff < n ∧ n < 0x110000)
 
 /-- The `Char` Type represents an unicode scalar value.
     See http://www.unicode.org/glossary/#unicode_scalar_value). -/
 structure Char :=
-(val : Uint32) (valid : isValidChar val)
+(val : UInt32) (valid : isValidChar val)
 
 instance : HasSizeof Char :=
 ⟨λ c, c.val.toNat⟩
 
 namespace Char
-local infix `&`:65 := Uint32.land
+local infix `&`:65 := UInt32.land
 
-def utf8Size (c : Char) : Uint32 :=
+def utf8Size (c : Char) : UInt32 :=
 let v := c.val in
      if v & 0x80 = 0    then 1
 else if v & 0xE0 = 0xC0 then 2
@@ -37,15 +37,15 @@ instance : HasLt Char := ⟨Char.lt⟩
 instance : HasLe Char := ⟨Char.le⟩
 
 instance decLt (a b : Char) :  Decidable (a < b) :=
-Uint32.decLt _ _
+UInt32.decLt _ _
 
 instance decLe (a b : Char) : Decidable (a ≤ b) :=
-Uint32.decLe _ _
+UInt32.decLe _ _
 
 axiom isValidChar0 : isValidChar 0
 
 @[noinline, pattern] def ofNat (n : Nat) : Char :=
-if h : isValidChar (Uint32.ofNat n) then {val := Uint32.ofNat n, valid := h} else {val := 0, valid := isValidChar0}
+if h : isValidChar (UInt32.ofNat n) then {val := UInt32.ofNat n, valid := h} else {val := 0, valid := isValidChar0}
 
 @[inline] def toNat (c : Char) : Nat :=
 c.val.toNat

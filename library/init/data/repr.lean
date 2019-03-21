@@ -131,10 +131,10 @@ instance : HasRepr String.Iterator :=
 instance (n : Nat) : HasRepr (Fin n) :=
 ⟨λ f, repr (Fin.val f)⟩
 
-instance : HasRepr Uint16 := ⟨λ n, repr n.toNat⟩
-instance : HasRepr Uint32 := ⟨λ n, repr n.toNat⟩
-instance : HasRepr Uint64 := ⟨λ n, repr n.toNat⟩
-instance : HasRepr Usize  := ⟨λ n, repr n.toNat⟩
+instance : HasRepr UInt16 := ⟨λ n, repr n.toNat⟩
+instance : HasRepr UInt32 := ⟨λ n, repr n.toNat⟩
+instance : HasRepr UInt64 := ⟨λ n, repr n.toNat⟩
+instance : HasRepr USize  := ⟨λ n, repr n.toNat⟩
 
 def Char.repr (c : Char) : String :=
 repr c

@@ -9,298 +9,298 @@ import init.data.fin.basic init.platform
 open Nat
 
 def uint8Sz : Nat := 256
-structure Uint8 :=
+structure UInt8 :=
 (val : Fin uint8Sz)
 
 @[extern cpp "lean::uint8_of_nat"]
-def Uint8.ofNat (n : @& Nat) : Uint8 := ⟨Fin.ofNat n⟩
+def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨Fin.ofNat n⟩
 @[extern cpp "lean::uint8_to_nat"]
-def Uint8.toNat (n : Uint8) : Nat := n.val.val
+def UInt8.toNat (n : UInt8) : Nat := n.val.val
 @[extern cpp inline "#1 + #2"]
-def Uint8.add (a b : Uint8) : Uint8 := ⟨a.val + b.val⟩
+def UInt8.add (a b : UInt8) : UInt8 := ⟨a.val + b.val⟩
 @[extern cpp inline "#1 - #2"]
-def Uint8.sub (a b : Uint8) : Uint8 := ⟨a.val - b.val⟩
+def UInt8.sub (a b : UInt8) : UInt8 := ⟨a.val - b.val⟩
 @[extern cpp inline "#1 * #2"]
-def Uint8.mul (a b : Uint8) : Uint8 := ⟨a.val * b.val⟩
+def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.val * b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 / #2"]
-def Uint8.div (a b : Uint8) : Uint8 := ⟨a.val / b.val⟩
+def UInt8.div (a b : UInt8) : UInt8 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
-def Uint8.mod (a b : Uint8) : Uint8 := ⟨a.val % b.val⟩
+def UInt8.mod (a b : UInt8) : UInt8 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint8_modn"]
-def Uint8.modn (a : Uint8) (n : @& Nat) : Uint8 := ⟨a.val %ₙ n⟩
+def UInt8.modn (a : UInt8) (n : @& Nat) : UInt8 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
-def Uint8.land (a b : Uint8) : Uint8 := ⟨Fin.land a.val b.val⟩
+def UInt8.land (a b : UInt8) : UInt8 := ⟨Fin.land a.val b.val⟩
 @[extern cpp inline "#1 | #2"]
-def Uint8.lor (a b : Uint8) : Uint8 := ⟨Fin.lor a.val b.val⟩
-def Uint8.lt (a b : Uint8) : Prop := a.val < b.val
-def Uint8.le (a b : Uint8) : Prop := a.val ≤ b.val
+def UInt8.lor (a b : UInt8) : UInt8 := ⟨Fin.lor a.val b.val⟩
+def UInt8.lt (a b : UInt8) : Prop := a.val < b.val
+def UInt8.le (a b : UInt8) : Prop := a.val ≤ b.val
 
-instance : HasZero Uint8     := ⟨Uint8.ofNat 0⟩
-instance : HasOne Uint8      := ⟨Uint8.ofNat 1⟩
-instance : HasAdd Uint8      := ⟨Uint8.add⟩
-instance : HasSub Uint8      := ⟨Uint8.sub⟩
-instance : HasMul Uint8      := ⟨Uint8.mul⟩
-instance : HasMod Uint8      := ⟨Uint8.mod⟩
-instance : HasModn Uint8     := ⟨Uint8.modn⟩
-instance : HasDiv Uint8      := ⟨Uint8.div⟩
-instance : HasLt Uint8       := ⟨Uint8.lt⟩
-instance : HasLe Uint8       := ⟨Uint8.le⟩
-instance : Inhabited Uint8    := ⟨0⟩
+instance : HasZero UInt8     := ⟨UInt8.ofNat 0⟩
+instance : HasOne UInt8      := ⟨UInt8.ofNat 1⟩
+instance : HasAdd UInt8      := ⟨UInt8.add⟩
+instance : HasSub UInt8      := ⟨UInt8.sub⟩
+instance : HasMul UInt8      := ⟨UInt8.mul⟩
+instance : HasMod UInt8      := ⟨UInt8.mod⟩
+instance : HasModn UInt8     := ⟨UInt8.modn⟩
+instance : HasDiv UInt8      := ⟨UInt8.div⟩
+instance : HasLt UInt8       := ⟨UInt8.lt⟩
+instance : HasLe UInt8       := ⟨UInt8.le⟩
+instance : Inhabited UInt8    := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
-def Uint8.decEq (a b : Uint8) : Decidable (a = b) :=
-Uint8.casesOn a $ λ n, Uint8.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', Uint8.noConfusion h' (λ h', absurd h' h))
+def UInt8.decEq (a b : UInt8) : Decidable (a = b) :=
+UInt8.casesOn a $ λ n, UInt8.casesOn b $ λ m,
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt8.noConfusion h' (λ h', absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
-def Uint8.decLt (a b : Uint8) : Decidable (a < b) :=
-Uint8.casesOn a $ λ n, Uint8.casesOn b $ λ m,
+def UInt8.decLt (a b : UInt8) : Decidable (a < b) :=
+UInt8.casesOn a $ λ n, UInt8.casesOn b $ λ m,
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
-def Uint8.decLe (a b : Uint8) : Decidable (a ≤ b) :=
-Uint8.casesOn a $ λ n, Uint8.casesOn b $ λ m,
+def UInt8.decLe (a b : UInt8) : Decidable (a ≤ b) :=
+UInt8.casesOn a $ λ n, UInt8.casesOn b $ λ m,
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq Uint8 := {decEq := Uint8.decEq}
-instance Uint8.hasDecidableLt (a b : Uint8) : Decidable (a < b) := Uint8.decLt a b
-instance Uint8.hasDecidableLe (a b : Uint8) : Decidable (a ≤ b) := Uint8.decLe a b
+instance : DecidableEq UInt8 := {decEq := UInt8.decEq}
+instance UInt8.hasDecidableLt (a b : UInt8) : Decidable (a < b) := UInt8.decLt a b
+instance UInt8.hasDecidableLe (a b : UInt8) : Decidable (a ≤ b) := UInt8.decLe a b
 
 def uint16Sz : Nat := 65536
-structure Uint16 :=
+structure UInt16 :=
 (val : Fin uint16Sz)
 
 @[extern cpp "lean::uint16_of_nat"]
-def Uint16.ofNat (n : @& Nat) : Uint16 := ⟨Fin.ofNat n⟩
+def UInt16.ofNat (n : @& Nat) : UInt16 := ⟨Fin.ofNat n⟩
 @[extern cpp "lean::uint16_to_nat"]
-def Uint16.toNat (n : Uint16) : Nat := n.val.val
+def UInt16.toNat (n : UInt16) : Nat := n.val.val
 @[extern cpp inline "#1 + #2"]
-def Uint16.add (a b : Uint16) : Uint16 := ⟨a.val + b.val⟩
+def UInt16.add (a b : UInt16) : UInt16 := ⟨a.val + b.val⟩
 @[extern cpp inline "#1 - #2"]
-def Uint16.sub (a b : Uint16) : Uint16 := ⟨a.val - b.val⟩
+def UInt16.sub (a b : UInt16) : UInt16 := ⟨a.val - b.val⟩
 @[extern cpp inline "#1 * #2"]
-def Uint16.mul (a b : Uint16) : Uint16 := ⟨a.val * b.val⟩
+def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.val * b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 / #2"]
-def Uint16.div (a b : Uint16) : Uint16 := ⟨a.val / b.val⟩
+def UInt16.div (a b : UInt16) : UInt16 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
-def Uint16.mod (a b : Uint16) : Uint16 := ⟨a.val % b.val⟩
+def UInt16.mod (a b : UInt16) : UInt16 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint16_modn"]
-def Uint16.modn (a : Uint16) (n : @& Nat) : Uint16 := ⟨a.val %ₙ n⟩
+def UInt16.modn (a : UInt16) (n : @& Nat) : UInt16 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
-def Uint16.land (a b : Uint16) : Uint16 := ⟨Fin.land a.val b.val⟩
+def UInt16.land (a b : UInt16) : UInt16 := ⟨Fin.land a.val b.val⟩
 @[extern cpp inline "#1 | #2"]
-def Uint16.lor (a b : Uint16) : Uint16 := ⟨Fin.lor a.val b.val⟩
-def Uint16.lt (a b : Uint16) : Prop := a.val < b.val
-def Uint16.le (a b : Uint16) : Prop := a.val ≤ b.val
+def UInt16.lor (a b : UInt16) : UInt16 := ⟨Fin.lor a.val b.val⟩
+def UInt16.lt (a b : UInt16) : Prop := a.val < b.val
+def UInt16.le (a b : UInt16) : Prop := a.val ≤ b.val
 
-instance : HasZero Uint16     := ⟨Uint16.ofNat 0⟩
-instance : HasOne Uint16      := ⟨Uint16.ofNat 1⟩
-instance : HasAdd Uint16      := ⟨Uint16.add⟩
-instance : HasSub Uint16      := ⟨Uint16.sub⟩
-instance : HasMul Uint16      := ⟨Uint16.mul⟩
-instance : HasMod Uint16      := ⟨Uint16.mod⟩
-instance : HasModn Uint16     := ⟨Uint16.modn⟩
-instance : HasDiv Uint16      := ⟨Uint16.div⟩
-instance : HasLt Uint16       := ⟨Uint16.lt⟩
-instance : HasLe Uint16       := ⟨Uint16.le⟩
-instance : Inhabited Uint16    := ⟨0⟩
+instance : HasZero UInt16     := ⟨UInt16.ofNat 0⟩
+instance : HasOne UInt16      := ⟨UInt16.ofNat 1⟩
+instance : HasAdd UInt16      := ⟨UInt16.add⟩
+instance : HasSub UInt16      := ⟨UInt16.sub⟩
+instance : HasMul UInt16      := ⟨UInt16.mul⟩
+instance : HasMod UInt16      := ⟨UInt16.mod⟩
+instance : HasModn UInt16     := ⟨UInt16.modn⟩
+instance : HasDiv UInt16      := ⟨UInt16.div⟩
+instance : HasLt UInt16       := ⟨UInt16.lt⟩
+instance : HasLe UInt16       := ⟨UInt16.le⟩
+instance : Inhabited UInt16    := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
-def Uint16.decEq (a b : Uint16) : Decidable (a = b) :=
-Uint16.casesOn a $ λ n, Uint16.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', Uint16.noConfusion h' (λ h', absurd h' h))
+def UInt16.decEq (a b : UInt16) : Decidable (a = b) :=
+UInt16.casesOn a $ λ n, UInt16.casesOn b $ λ m,
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt16.noConfusion h' (λ h', absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
-def Uint16.decLt (a b : Uint16) : Decidable (a < b) :=
-Uint16.casesOn a $ λ n, Uint16.casesOn b $ λ m,
+def UInt16.decLt (a b : UInt16) : Decidable (a < b) :=
+UInt16.casesOn a $ λ n, UInt16.casesOn b $ λ m,
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
-def Uint16.decLe (a b : Uint16) : Decidable (a ≤ b) :=
-Uint16.casesOn a $ λ n, Uint16.casesOn b $ λ m,
+def UInt16.decLe (a b : UInt16) : Decidable (a ≤ b) :=
+UInt16.casesOn a $ λ n, UInt16.casesOn b $ λ m,
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq Uint16 := {decEq := Uint16.decEq}
-instance Uint16.hasDecidableLt (a b : Uint16) : Decidable (a < b) := Uint16.decLt a b
-instance Uint16.hasDecidableLe (a b : Uint16) : Decidable (a ≤ b) := Uint16.decLe a b
+instance : DecidableEq UInt16 := {decEq := UInt16.decEq}
+instance UInt16.hasDecidableLt (a b : UInt16) : Decidable (a < b) := UInt16.decLt a b
+instance UInt16.hasDecidableLe (a b : UInt16) : Decidable (a ≤ b) := UInt16.decLe a b
 
 def uint32Sz : Nat := 4294967296
-structure Uint32 :=
+structure UInt32 :=
 (val : Fin uint32Sz)
 
 @[extern cpp "lean::uint32_of_nat"]
-def Uint32.ofNat (n : @& Nat) : Uint32 := ⟨Fin.ofNat n⟩
+def UInt32.ofNat (n : @& Nat) : UInt32 := ⟨Fin.ofNat n⟩
 @[extern cpp "lean::uint32_to_nat"]
-def Uint32.toNat (n : Uint32) : Nat := n.val.val
+def UInt32.toNat (n : UInt32) : Nat := n.val.val
 @[extern cpp inline "#1 + #2"]
-def Uint32.add (a b : Uint32) : Uint32 := ⟨a.val + b.val⟩
+def UInt32.add (a b : UInt32) : UInt32 := ⟨a.val + b.val⟩
 @[extern cpp inline "#1 - #2"]
-def Uint32.sub (a b : Uint32) : Uint32 := ⟨a.val - b.val⟩
+def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.val - b.val⟩
 @[extern cpp inline "#1 * #2"]
-def Uint32.mul (a b : Uint32) : Uint32 := ⟨a.val * b.val⟩
+def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.val * b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 / #2"]
-def Uint32.div (a b : Uint32) : Uint32 := ⟨a.val / b.val⟩
+def UInt32.div (a b : UInt32) : UInt32 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
-def Uint32.mod (a b : Uint32) : Uint32 := ⟨a.val % b.val⟩
+def UInt32.mod (a b : UInt32) : UInt32 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint32_modn"]
-def Uint32.modn (a : Uint32) (n : @& Nat) : Uint32 := ⟨a.val %ₙ n⟩
+def UInt32.modn (a : UInt32) (n : @& Nat) : UInt32 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
-def Uint32.land (a b : Uint32) : Uint32 := ⟨Fin.land a.val b.val⟩
+def UInt32.land (a b : UInt32) : UInt32 := ⟨Fin.land a.val b.val⟩
 @[extern cpp inline "#1 | #2"]
-def Uint32.lor (a b : Uint32) : Uint32 := ⟨Fin.lor a.val b.val⟩
-def Uint32.lt (a b : Uint32) : Prop := a.val < b.val
-def Uint32.le (a b : Uint32) : Prop := a.val ≤ b.val
+def UInt32.lor (a b : UInt32) : UInt32 := ⟨Fin.lor a.val b.val⟩
+def UInt32.lt (a b : UInt32) : Prop := a.val < b.val
+def UInt32.le (a b : UInt32) : Prop := a.val ≤ b.val
 
-instance : HasZero Uint32     := ⟨Uint32.ofNat 0⟩
-instance : HasOne Uint32      := ⟨Uint32.ofNat 1⟩
-instance : HasAdd Uint32      := ⟨Uint32.add⟩
-instance : HasSub Uint32      := ⟨Uint32.sub⟩
-instance : HasMul Uint32      := ⟨Uint32.mul⟩
-instance : HasMod Uint32      := ⟨Uint32.mod⟩
-instance : HasModn Uint32     := ⟨Uint32.modn⟩
-instance : HasDiv Uint32      := ⟨Uint32.div⟩
-instance : HasLt Uint32       := ⟨Uint32.lt⟩
-instance : HasLe Uint32       := ⟨Uint32.le⟩
-instance : Inhabited Uint32    := ⟨0⟩
+instance : HasZero UInt32     := ⟨UInt32.ofNat 0⟩
+instance : HasOne UInt32      := ⟨UInt32.ofNat 1⟩
+instance : HasAdd UInt32      := ⟨UInt32.add⟩
+instance : HasSub UInt32      := ⟨UInt32.sub⟩
+instance : HasMul UInt32      := ⟨UInt32.mul⟩
+instance : HasMod UInt32      := ⟨UInt32.mod⟩
+instance : HasModn UInt32     := ⟨UInt32.modn⟩
+instance : HasDiv UInt32      := ⟨UInt32.div⟩
+instance : HasLt UInt32       := ⟨UInt32.lt⟩
+instance : HasLe UInt32       := ⟨UInt32.le⟩
+instance : Inhabited UInt32    := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
-def Uint32.decEq (a b : Uint32) : Decidable (a = b) :=
-Uint32.casesOn a $ λ n, Uint32.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', Uint32.noConfusion h' (λ h', absurd h' h))
+def UInt32.decEq (a b : UInt32) : Decidable (a = b) :=
+UInt32.casesOn a $ λ n, UInt32.casesOn b $ λ m,
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt32.noConfusion h' (λ h', absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
-def Uint32.decLt (a b : Uint32) : Decidable (a < b) :=
-Uint32.casesOn a $ λ n, Uint32.casesOn b $ λ m,
+def UInt32.decLt (a b : UInt32) : Decidable (a < b) :=
+UInt32.casesOn a $ λ n, UInt32.casesOn b $ λ m,
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
-def Uint32.decLe (a b : Uint32) : Decidable (a ≤ b) :=
-Uint32.casesOn a $ λ n, Uint32.casesOn b $ λ m,
+def UInt32.decLe (a b : UInt32) : Decidable (a ≤ b) :=
+UInt32.casesOn a $ λ n, UInt32.casesOn b $ λ m,
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq Uint32 := {decEq := Uint32.decEq}
-instance Uint32.hasDecidableLt (a b : Uint32) : Decidable (a < b) := Uint32.decLt a b
-instance Uint32.hasDecidableLe (a b : Uint32) : Decidable (a ≤ b) := Uint32.decLe a b
+instance : DecidableEq UInt32 := {decEq := UInt32.decEq}
+instance UInt32.hasDecidableLt (a b : UInt32) : Decidable (a < b) := UInt32.decLt a b
+instance UInt32.hasDecidableLe (a b : UInt32) : Decidable (a ≤ b) := UInt32.decLe a b
 
 def uint64Sz : Nat := 18446744073709551616
-structure Uint64 :=
+structure UInt64 :=
 (val : Fin uint64Sz)
 
 @[extern cpp "lean::uint64_of_nat"]
-def Uint64.ofNat (n : @& Nat) : Uint64 := ⟨Fin.ofNat n⟩
+def UInt64.ofNat (n : @& Nat) : UInt64 := ⟨Fin.ofNat n⟩
 @[extern cpp "lean::uint64_to_nat"]
-def Uint64.toNat (n : Uint64) : Nat := n.val.val
+def UInt64.toNat (n : UInt64) : Nat := n.val.val
 @[extern cpp inline "#1 + #2"]
-def Uint64.add (a b : Uint64) : Uint64 := ⟨a.val + b.val⟩
+def UInt64.add (a b : UInt64) : UInt64 := ⟨a.val + b.val⟩
 @[extern cpp inline "#1 - #2"]
-def Uint64.sub (a b : Uint64) : Uint64 := ⟨a.val - b.val⟩
+def UInt64.sub (a b : UInt64) : UInt64 := ⟨a.val - b.val⟩
 @[extern cpp inline "#1 * #2"]
-def Uint64.mul (a b : Uint64) : Uint64 := ⟨a.val * b.val⟩
+def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.val * b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 / #2"]
-def Uint64.div (a b : Uint64) : Uint64 := ⟨a.val / b.val⟩
+def UInt64.div (a b : UInt64) : UInt64 := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
-def Uint64.mod (a b : Uint64) : Uint64 := ⟨a.val % b.val⟩
+def UInt64.mod (a b : UInt64) : UInt64 := ⟨a.val % b.val⟩
 @[extern cpp "lean::uint64_modn"]
-def Uint64.modn (a : Uint64) (n : @& Nat) : Uint64 := ⟨a.val %ₙ n⟩
+def UInt64.modn (a : UInt64) (n : @& Nat) : UInt64 := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
-def Uint64.land (a b : Uint64) : Uint64 := ⟨Fin.land a.val b.val⟩
+def UInt64.land (a b : UInt64) : UInt64 := ⟨Fin.land a.val b.val⟩
 @[extern cpp inline "#1 | #2"]
-def Uint64.lor (a b : Uint64) : Uint64 := ⟨Fin.lor a.val b.val⟩
-def Uint64.lt (a b : Uint64) : Prop := a.val < b.val
-def Uint64.le (a b : Uint64) : Prop := a.val ≤ b.val
+def UInt64.lor (a b : UInt64) : UInt64 := ⟨Fin.lor a.val b.val⟩
+def UInt64.lt (a b : UInt64) : Prop := a.val < b.val
+def UInt64.le (a b : UInt64) : Prop := a.val ≤ b.val
 
-instance : HasZero Uint64     := ⟨Uint64.ofNat 0⟩
-instance : HasOne Uint64      := ⟨Uint64.ofNat 1⟩
-instance : HasAdd Uint64      := ⟨Uint64.add⟩
-instance : HasSub Uint64      := ⟨Uint64.sub⟩
-instance : HasMul Uint64      := ⟨Uint64.mul⟩
-instance : HasMod Uint64      := ⟨Uint64.mod⟩
-instance : HasModn Uint64     := ⟨Uint64.modn⟩
-instance : HasDiv Uint64      := ⟨Uint64.div⟩
-instance : HasLt Uint64       := ⟨Uint64.lt⟩
-instance : HasLe Uint64       := ⟨Uint64.le⟩
-instance : Inhabited Uint64    := ⟨0⟩
+instance : HasZero UInt64     := ⟨UInt64.ofNat 0⟩
+instance : HasOne UInt64      := ⟨UInt64.ofNat 1⟩
+instance : HasAdd UInt64      := ⟨UInt64.add⟩
+instance : HasSub UInt64      := ⟨UInt64.sub⟩
+instance : HasMul UInt64      := ⟨UInt64.mul⟩
+instance : HasMod UInt64      := ⟨UInt64.mod⟩
+instance : HasModn UInt64     := ⟨UInt64.modn⟩
+instance : HasDiv UInt64      := ⟨UInt64.div⟩
+instance : HasLt UInt64       := ⟨UInt64.lt⟩
+instance : HasLe UInt64       := ⟨UInt64.le⟩
+instance : Inhabited UInt64    := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
-def Uint64.decEq (a b : Uint64) : Decidable (a = b) :=
-Uint64.casesOn a $ λ n, Uint64.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', Uint64.noConfusion h' (λ h', absurd h' h))
+def UInt64.decEq (a b : UInt64) : Decidable (a = b) :=
+UInt64.casesOn a $ λ n, UInt64.casesOn b $ λ m,
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', UInt64.noConfusion h' (λ h', absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
-def Uint64.decLt (a b : Uint64) : Decidable (a < b) :=
-Uint64.casesOn a $ λ n, Uint64.casesOn b $ λ m,
+def UInt64.decLt (a b : UInt64) : Decidable (a < b) :=
+UInt64.casesOn a $ λ n, UInt64.casesOn b $ λ m,
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
-def Uint64.decLe (a b : Uint64) : Decidable (a ≤ b) :=
-Uint64.casesOn a $ λ n, Uint64.casesOn b $ λ m,
+def UInt64.decLe (a b : UInt64) : Decidable (a ≤ b) :=
+UInt64.casesOn a $ λ n, UInt64.casesOn b $ λ m,
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq Uint64 := {decEq := Uint64.decEq}
-instance Uint64.hasDecidableLt (a b : Uint64) : Decidable (a < b) := Uint64.decLt a b
-instance Uint64.hasDecidableLe (a b : Uint64) : Decidable (a ≤ b) := Uint64.decLe a b
+instance : DecidableEq UInt64 := {decEq := UInt64.decEq}
+instance UInt64.hasDecidableLt (a b : UInt64) : Decidable (a < b) := UInt64.decLt a b
+instance UInt64.hasDecidableLe (a b : UInt64) : Decidable (a ≤ b) := UInt64.decLe a b
 
 def usizeSz : Nat := (2:Nat) ^ System.platform.nbits
-structure Usize :=
+structure USize :=
 (val : Fin usizeSz)
 
 @[extern cpp "lean::usize_of_nat"]
-def Usize.ofNat (n : @& Nat) : Usize := ⟨Fin.ofNat n⟩
+def USize.ofNat (n : @& Nat) : USize := ⟨Fin.ofNat n⟩
 @[extern cpp "lean::usize_to_nat"]
-def Usize.toNat (n : Usize) : Nat := n.val.val
+def USize.toNat (n : USize) : Nat := n.val.val
 @[extern cpp inline "#1 + #2"]
-def Usize.add (a b : Usize) : Usize := ⟨a.val + b.val⟩
+def USize.add (a b : USize) : USize := ⟨a.val + b.val⟩
 @[extern cpp inline "#1 - #2"]
-def Usize.sub (a b : Usize) : Usize := ⟨a.val - b.val⟩
+def USize.sub (a b : USize) : USize := ⟨a.val - b.val⟩
 @[extern cpp inline "#1 * #2"]
-def Usize.mul (a b : Usize) : Usize := ⟨a.val * b.val⟩
+def USize.mul (a b : USize) : USize := ⟨a.val * b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 / #2"]
-def Usize.div (a b : Usize) : Usize := ⟨a.val / b.val⟩
+def USize.div (a b : USize) : USize := ⟨a.val / b.val⟩
 @[extern cpp inline "#2 == 0 ? 0 : #1 % #2"]
-def Usize.mod (a b : Usize) : Usize := ⟨a.val % b.val⟩
+def USize.mod (a b : USize) : USize := ⟨a.val % b.val⟩
 @[extern cpp "lean::usize_modn"]
-def Usize.modn (a : Usize) (n : @& Nat) : Usize := ⟨a.val %ₙ n⟩
+def USize.modn (a : USize) (n : @& Nat) : USize := ⟨a.val %ₙ n⟩
 @[extern cpp inline "#1 & #2"]
-def Usize.land (a b : Usize) : Usize := ⟨Fin.land a.val b.val⟩
+def USize.land (a b : USize) : USize := ⟨Fin.land a.val b.val⟩
 @[extern cpp inline "#1 | #2"]
-def Usize.lor (a b : Usize) : Usize := ⟨Fin.lor a.val b.val⟩
+def USize.lor (a b : USize) : USize := ⟨Fin.lor a.val b.val⟩
 @[extern cpp inline "#1"]
-def Usize.ofUint32 (a : Uint32) : Usize := Usize.ofNat (Uint32.toNat a)
+def USize.ofUInt32 (a : UInt32) : USize := USize.ofNat (UInt32.toNat a)
 @[extern cpp inline "((lean::usize)#1)"]
-def Usize.ofUint64 (a : Uint64) : Usize := Usize.ofNat (Uint64.toNat a)
-def Usize.lt (a b : Usize) : Prop := a.val < b.val
-def Usize.le (a b : Usize) : Prop := a.val ≤ b.val
+def USize.ofUInt64 (a : UInt64) : USize := USize.ofNat (UInt64.toNat a)
+def USize.lt (a b : USize) : Prop := a.val < b.val
+def USize.le (a b : USize) : Prop := a.val ≤ b.val
 
-instance : HasZero Usize     := ⟨Usize.ofNat 0⟩
-instance : HasOne Usize      := ⟨Usize.ofNat 1⟩
-instance : HasAdd Usize      := ⟨Usize.add⟩
-instance : HasSub Usize      := ⟨Usize.sub⟩
-instance : HasMul Usize      := ⟨Usize.mul⟩
-instance : HasMod Usize      := ⟨Usize.mod⟩
-instance : HasModn Usize     := ⟨Usize.modn⟩
-instance : HasDiv Usize      := ⟨Usize.div⟩
-instance : HasLt Usize       := ⟨Usize.lt⟩
-instance : HasLe Usize       := ⟨Usize.le⟩
-instance : Inhabited Usize    := ⟨0⟩
+instance : HasZero USize     := ⟨USize.ofNat 0⟩
+instance : HasOne USize      := ⟨USize.ofNat 1⟩
+instance : HasAdd USize      := ⟨USize.add⟩
+instance : HasSub USize      := ⟨USize.sub⟩
+instance : HasMul USize      := ⟨USize.mul⟩
+instance : HasMod USize      := ⟨USize.mod⟩
+instance : HasModn USize     := ⟨USize.modn⟩
+instance : HasDiv USize      := ⟨USize.div⟩
+instance : HasLt USize       := ⟨USize.lt⟩
+instance : HasLe USize       := ⟨USize.le⟩
+instance : Inhabited USize    := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
-def Usize.decEq (a b : Usize) : Decidable (a = b) :=
-Usize.casesOn a $ λ n, Usize.casesOn b $ λ m,
-  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', Usize.noConfusion h' (λ h', absurd h' h))
+def USize.decEq (a b : USize) : Decidable (a = b) :=
+USize.casesOn a $ λ n, USize.casesOn b $ λ m,
+  if h : n = m then isTrue (h ▸ rfl) else isFalse (λ h', USize.noConfusion h' (λ h', absurd h' h))
 
 @[extern cpp inline "#1 < #2"]
-def Usize.decLt (a b : Usize) : Decidable (a < b) :=
-Usize.casesOn a $ λ n, Usize.casesOn b $ λ m,
+def USize.decLt (a b : USize) : Decidable (a < b) :=
+USize.casesOn a $ λ n, USize.casesOn b $ λ m,
   inferInstanceAs (Decidable (n < m))
 
 @[extern cpp inline "#1 <= #2"]
-def Usize.decLe (a b : Usize) : Decidable (a ≤ b) :=
-Usize.casesOn a $ λ n, Usize.casesOn b $ λ m,
+def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
+USize.casesOn a $ λ n, USize.casesOn b $ λ m,
   inferInstanceAs (Decidable (n <= m))
 
-instance : DecidableEq Usize := {decEq := Usize.decEq}
-instance Usize.hasDecidableLt (a b : Usize) : Decidable (a < b) := Usize.decLt a b
-instance Usize.hasDecidableLe (a b : Usize) : Decidable (a ≤ b) := Usize.decLe a b
+instance : DecidableEq USize := {decEq := USize.decEq}
+instance USize.hasDecidableLt (a b : USize) : Decidable (a < b) := USize.decLt a b
+instance USize.hasDecidableLe (a b : USize) : Decidable (a ≤ b) := USize.decLe a b
 
-theorem Usize.modnLt {m : Nat} : ∀ (u : Usize), m > 0 → Usize.toNat (u %ₙ m) < m
+theorem USize.modnLt {m : Nat} : ∀ (u : USize), m > 0 → USize.toNat (u %ₙ m) < m
 | ⟨u⟩ h := Fin.modnLt u h

@@ -26,7 +26,7 @@ namespace Elaborator
 -- TODO(Sebastian): should be its own Monad?
 structure NameGenerator :=
 («prefix» : Name)
-(nextIdx : Uint32)
+(nextIdx : UInt32)
 
 structure SectionVar :=
 (uniqName : Name)

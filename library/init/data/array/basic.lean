@@ -67,19 +67,19 @@ def write' (a : Array α) (i : @& Nat) (v : α) : Array α :=
 if h : i < a.sz then a.write ⟨i, h⟩ v else a
 
 @[extern cpp inline "lean::array_uread(#2, #3)"]
-def uread (a : @& Array α) (i : Usize) (h : i.toNat < a.sz) : α :=
+def uread (a : @& Array α) (i : USize) (h : i.toNat < a.sz) : α :=
 a.read ⟨i.toNat, h⟩
 
 @[extern cpp inline "lean::array_uwrite(#2, #3, #4)"]
-def uwrite (a : @& Array α) (i : Usize) (v : @& α) (h : i.toNat < a.sz) : Array α :=
+def uwrite (a : @& Array α) (i : USize) (v : @& α) (h : i.toNat < a.sz) : Array α :=
 a.write ⟨i.toNat, h⟩ v
 
 @[extern cpp inline "lean::array_safe_uread(#2, #3, #4)"]
-def uread' [Inhabited α] (a : Array α) (i : Usize) : α :=
+def uread' [Inhabited α] (a : Array α) (i : USize) : α :=
 if h : i.toNat < a.sz then a.read ⟨i.toNat, h⟩ else default α
 
 @[extern cpp inline "lean::array_safe_uwrite(#2, #3, #4)"]
-def uwrite' (a : Array α) (i : Usize) (v : α) : Array α :=
+def uwrite' (a : Array α) (i : USize) (v : α) : Array α :=
 if h : i.toNat < a.sz then a.write ⟨i.toNat, h⟩ v else a
 
 @[extern cpp inline "lean::array_push(#2, #3)"]

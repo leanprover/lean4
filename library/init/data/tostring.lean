@@ -55,19 +55,19 @@ instance : HasToString Char :=
 instance (n : Nat) : HasToString (Fin n) :=
 ⟨λ f, toString (Fin.val f)⟩
 
-instance : HasToString Uint8 :=
+instance : HasToString UInt8 :=
 ⟨λ n, toString n.toNat⟩
 
-instance : HasToString Uint16 :=
+instance : HasToString UInt16 :=
 ⟨λ n, toString n.toNat⟩
 
-instance : HasToString Uint32 :=
+instance : HasToString UInt32 :=
 ⟨λ n, toString n.toNat⟩
 
-instance : HasToString Uint64 :=
+instance : HasToString UInt64 :=
 ⟨λ n, toString n.toNat⟩
 
-instance : HasToString Usize :=
+instance : HasToString USize :=
 ⟨λ n, toString n.toNat⟩
 
 instance {α : Type u} [HasToString α] : HasToString (Option α) :=

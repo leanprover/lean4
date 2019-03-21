@@ -70,7 +70,7 @@ def mkCapp (fn : Name) (args : List Expr) : Expr :=
 mkApp (Expr.const fn []) args
 
 @[extern "lean_expr_hash"]
-constant hash (n : @& Expr) : Usize := default Usize
+constant hash (n : @& Expr) : USize := default USize
 
 @[extern "lean_expr_dbg_to_string"]
 constant dbgToString (e : @& Expr) : String := default String

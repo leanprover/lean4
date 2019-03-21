@@ -72,7 +72,7 @@ def Level.instantiate (s : Name → Option Level) : Level → Level
 | l                  := l
 
 @[extern "lean_level_hash"]
-constant Level.hash (n : @& Level) : Usize := default Usize
+constant Level.hash (n : @& Level) : USize := default USize
 
 /- Level to Format -/
 namespace LevelToFormat

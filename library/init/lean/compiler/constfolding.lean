@@ -16,7 +16,7 @@ def BinFoldFn := Bool → Expr → Expr → Option Expr
 def UnFoldFn  := Bool → Expr → Option Expr
 
 def mkUintTypeName (nbytes : Nat) : Name :=
-mkSimpleName ("uint" ++ toString nbytes)
+mkSimpleName ("UInt" ++ toString nbytes)
 
 structure NumScalarTypeInfo :=
 (nbits : Nat)
@@ -47,17 +47,17 @@ def getNumLit : Expr → Option Nat
 | (Expr.app (Expr.const fn _) a) := if isOfNat fn then getNumLit a else none
 | _                              := none
 
-def mkUintLit (info : NumScalarTypeInfo) (n : Nat) : Expr :=
+def mkUIntLit (info : NumScalarTypeInfo) (n : Nat) : Expr :=
 Expr.app (Expr.const info.ofNatFn []) (Expr.lit (Literal.natVal (n%info.size)))
 
-def mkUint32Lit (n : Nat) : Expr :=
-mkUintLit {nbits := 32} n
+def mkUInt32Lit (n : Nat) : Expr :=
+mkUIntLit {nbits := 32} n
 
 def foldBinUint (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
 do n₁   ← getNumLit a₁,
    n₂   ← getNumLit a₂,
    info ← getInfoFromVal a₁,
-   pure $ mkUintLit info (fn info beforeErasure n₁ n₂)
+   pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
 def foldUintAdd := foldBinUint $ λ _ _, (+)
 def foldUintMul := foldBinUint $ λ _ _, (*)
@@ -128,8 +128,8 @@ def foldCharOfNat (beforeErasure : Bool) (a : Expr) : Option Expr :=
 do guard (!beforeErasure),
    n ← getNumLit a,
    pure $
-     if isValidChar (Uint32.ofNat n) then mkUint32Lit n
-     else mkUint32Lit 0
+     if isValidChar (UInt32.ofNat n) then mkUInt32Lit n
+     else mkUInt32Lit 0
 
 def unFoldFns : List (Name × UnFoldFn) :=
 [(`Nat.succ, foldNatSucc),

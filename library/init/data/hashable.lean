@@ -8,22 +8,22 @@ import init.data.uint init.data.string
 universes u
 
 class Hashable (α : Type u) :=
-(hash : α → Usize)
+(hash : α → USize)
 
 export Hashable (hash)
 
 -- TODO: mark as builtin and opaque
-def mixHash (u₁ u₂ : Usize) : Usize :=
-default Usize
+def mixHash (u₁ u₂ : USize) : USize :=
+default USize
 
 -- TODO: mark as builtin
-protected def String.hash (s : String) : Usize :=
-default Usize
+protected def String.hash (s : String) : USize :=
+default USize
 
 instance : Hashable String := ⟨String.hash⟩
 
 -- TODO: add builtin
-protected def Nat.hash (n : Nat) : Usize :=
-Usize.ofNat n
+protected def Nat.hash (n : Nat) : USize :=
+USize.ofNat n
 
 instance : Hashable Nat := ⟨Nat.hash⟩

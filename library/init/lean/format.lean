@@ -134,10 +134,10 @@ instance prodHasToFormat {α : Type u} {β : Type v} [HasToFormat α] [HasToForm
 ⟨λ ⟨a, b⟩, paren $ toFormat a ++ "," ++ line ++ toFormat b⟩
 
 instance natHasToFormat : HasToFormat Nat    := ⟨λ n, toString n⟩
-instance uint16HasToFormat : HasToFormat Uint16 := ⟨λ n, toString n⟩
-instance uint32HasToFormat : HasToFormat Uint32 := ⟨λ n, toString n⟩
-instance uint64HasToFormat : HasToFormat Uint64 := ⟨λ n, toString n⟩
-instance usizeHasToFormat : HasToFormat Usize := ⟨λ n, toString n⟩
+instance uint16HasToFormat : HasToFormat UInt16 := ⟨λ n, toString n⟩
+instance uint32HasToFormat : HasToFormat UInt32 := ⟨λ n, toString n⟩
+instance uint64HasToFormat : HasToFormat UInt64 := ⟨λ n, toString n⟩
+instance usizeHasToFormat : HasToFormat USize := ⟨λ n, toString n⟩
 
 instance formatHasToString : HasToString Format := ⟨pretty⟩
 

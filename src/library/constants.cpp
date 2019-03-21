@@ -556,11 +556,11 @@ void initialize_constants() {
     g_unit = new name{"Unit"};
     g_unit_star = new name{"Unit", "star"};
     g_monad_from_pure_bind = new name{"monadFromPureBind"};
-    g_uint8 = new name{"Uint8"};
-    g_uint16 = new name{"Uint16"};
-    g_uint32 = new name{"Uint32"};
-    g_uint64 = new name{"Uint64"};
-    g_usize = new name{"Usize"};
+    g_uint8 = new name{"UInt8"};
+    g_uint16 = new name{"UInt16"};
+    g_uint32 = new name{"UInt32"};
+    g_uint64 = new name{"UInt64"};
+    g_usize = new name{"USize"};
     g_user_attribute = new name{"userAttribute"};
     g_user_attribute_parse_reflect = new name{"userAttribute", "parseReflect"};
     g_well_founded_fix = new name{"WellFounded", "fix"};

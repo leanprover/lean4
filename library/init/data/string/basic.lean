@@ -58,25 +58,25 @@ def append : String → (@& String) → String
 def toList (s : String) : List Char :=
 s.data
 
-private def csize (c : Char) : Usize :=
-Usize.ofUint32 c.utf8Size
+private def csize (c : Char) : USize :=
+USize.ofUInt32 c.utf8Size
 
-private def utf8ByteSizeAux : List Char → Usize → Usize
+private def utf8ByteSizeAux : List Char → USize → USize
 | []      r := r
 | (c::cs) r := utf8ByteSizeAux cs (r + csize c)
 
 @[extern cpp "lean::string_utf8_byte_size"]
-def utf8ByteSize : (@& String) → Usize
+def utf8ByteSize : (@& String) → USize
 | ⟨s⟩ := utf8ByteSizeAux s 0
 
-@[inline] def bsize (s : String) : Usize :=
+@[inline] def bsize (s : String) : USize :=
 utf8ByteSize s
 
-abbrev utf8Pos := Usize
+abbrev utf8Pos := USize
 
 def utf8Begin : utf8Pos := 0
 
-private def utf8GetAux : List Char → Usize → Usize → Char
+private def utf8GetAux : List Char → USize → USize → Char
 | []      i p := default Char
 | (c::cs) i p := if i = p then c else utf8GetAux cs (i + csize c) p
 
@@ -84,7 +84,7 @@ private def utf8GetAux : List Char → Usize → Usize → Char
 def utf8Get : (@& String) → utf8Pos → Char
 | ⟨s⟩ p := utf8GetAux s 0 p
 
-private def utf8SetAux (c' : Char) : List Char → Usize → Usize → List Char
+private def utf8SetAux (c' : Char) : List Char → USize → USize → List Char
 | []      i p := []
 | (c::cs) i p :=
   if i = p then (c'::cs) else c::(utf8SetAux cs (i + csize c) p)
@@ -98,7 +98,7 @@ def utf8Next (s : @& String) (p : utf8Pos) : utf8Pos :=
 let c := utf8Get s p in
 p + csize c
 
-private def utf8PrevAux : List Char → Usize → Usize → Usize
+private def utf8PrevAux : List Char → USize → USize → USize
 | []      i p := 0
 | (c::cs) i p :=
   let cz := csize c in
@@ -119,11 +119,11 @@ utf8Get s (utf8Prev s (bsize s))
 def utf8AtEnd : (@& String) → utf8Pos → Bool
 | s p := p ≥ utf8ByteSize s
 
-private def utf8ExtractAux₂ : List Char → Usize → Usize → List Char
+private def utf8ExtractAux₂ : List Char → USize → USize → List Char
 | []      _ _ := []
 | (c::cs) i e := if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e
 
-private def utf8ExtractAux₁ : List Char → Usize → Usize → Usize → List Char
+private def utf8ExtractAux₁ : List Char → USize → USize → USize → List Char
 | []        _ _ _ := []
 | s@(c::cs) i b e := if i = b then utf8ExtractAux₂ s i e else utf8ExtractAux₁ cs (i + csize c) b e
 
@@ -166,7 +166,7 @@ if b = 0 && e = s.bsize then s
 else s.extract b e
 
 structure Iterator :=
-(s : String) (offset : Nat) (i : Usize)
+(s : String) (offset : Nat) (i : USize)
 
 def mkIterator (s : String) : Iterator :=
 ⟨s, 0, 0⟩
@@ -178,7 +178,7 @@ def remaining : Iterator → Nat
 def toString : Iterator → String
 | ⟨s, _, _⟩ := s
 
-def remainingBytes : Iterator → Usize
+def remainingBytes : Iterator → USize
 | ⟨s, _, i⟩ := s.bsize - i
 
 def curr : Iterator → Char

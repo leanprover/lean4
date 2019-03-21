@@ -5,8 +5,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#if !defined(__has_warning) || __has_warning("-Wreturn-std-move")
+#if defined(__clang__)
+#if defined(__has_warning) && __has_warning("-Wreturn-std-move")
 #pragma clang diagnostic ignored "-Wreturn-std-move"
+#endif
 #endif
 #include <utility>
 #include <algorithm>

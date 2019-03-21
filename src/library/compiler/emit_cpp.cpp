@@ -797,7 +797,7 @@ struct emit_fn_fn {
 
     bool is_scalar_proj(expr const & x) {
         expr rhs = get_instr_rhs(x);
-        return is_llnf_sproj(app_fn(rhs)) || is_llnf_uproj(app_fn(rhs));
+        return is_app(rhs) && (is_llnf_sproj(app_fn(rhs)) || is_llnf_uproj(app_fn(rhs)));
     }
 
     optional<expr> is_inc(expr const & x) {

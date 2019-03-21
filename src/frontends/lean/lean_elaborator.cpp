@@ -107,7 +107,7 @@ struct resolve_names_fn : public replace_visitor {
     virtual expr visit(expr const & e) override {
         if (is_placeholder(e) || is_as_is(e) || is_emptyc_or_emptys(e) || is_as_atomic(e)) {
             return e;
-        } else if (is_annotation(e, "pre_equations")) {
+        } else if (is_annotation(e, "preEquations")) {
             return visit_pre_equations(e);
         } else if (is_annotation(e, "preresolved")) {
             expr e2 = unwrap_pos(e);
@@ -268,14 +268,14 @@ static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> 
         prv_names.push_back(scope2.get_actual_name());
         fn = mk_local(n, n, fn_type, mk_rec_info());
         p.add_local(fn);
-        if (!is_annotation(val, "pre_equations")) {
+        if (!is_annotation(val, "preEquations")) {
             val = resolve_names(p, val);
         }
     }
     optional<expr> wf_tacs;
     if (args.size() > 6)
         wf_tacs = args[6];
-    if (is_annotation(val, "pre_equations")) {
+    if (is_annotation(val, "preEquations")) {
         // TODO(Sebastian): this uses the wrong declaration name scope
         val = resolve_names(p, val);
         to_equations(val, eqns);

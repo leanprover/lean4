@@ -296,7 +296,7 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-attribute [ppAnonymousCtor] Sigma PSigma Subtype PProd And
+attribute [ppAsAnonymousCtor] Sigma PSigma Subtype PProd And
 
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable

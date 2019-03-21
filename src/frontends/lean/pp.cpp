@@ -138,7 +138,7 @@ void initialize_pp() {
     g_partial_explicit_fmt    = new format(highlight_keyword(format("@@")));
     g_nat_numeral_pp  = new nat_numeral_pp();
 
-    g_pp_using_anonymous_constructor = new name("ppAnonymousCtor");
+    g_pp_using_anonymous_constructor = new name("ppAsAnonymousCtor");
 
     register_system_attribute(basic_attribute::with_check(
                                   *g_pp_using_anonymous_constructor,

@@ -63,7 +63,7 @@ instance (m) [Monad m] : MonadTracer (TraceT m) :=
     some _ ← pure st.curPos | ctx.get,
     -- Trace class enabled?
     if st.opts.getBool cls = some true then do {
-      put {curTraces := [], ..st},
+      set {curTraces := [], ..st},
       a ← ctx.get,
       modify $ λ (st' : TraceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'},
       pure a

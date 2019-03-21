@@ -100,7 +100,7 @@ structure NotationTransformerState :=
 private def popStxArg : StateT NotationTransformerState TransformM Syntax :=
 do st ← get,
    match st.stxArgs with
-   | Arg::args := put {st with stxArgs := args} *> pure Arg
+   | Arg::args := set {st with stxArgs := args} *> pure Arg
    | _         := error st.stx "mkNotationTransformer: unreachable"
 
 def mkNotationTransformer (nota : NotationMacro) : transformer :=
@@ -509,7 +509,7 @@ local attribute [reducible] MacroScope
 def ExpanderState.new : ExpanderState := ⟨0⟩
 def mkScope : ExpanderM MacroScope :=
 do st ← get,
-   put {st with nextScope := st.nextScope + 1},
+   set {st with nextScope := st.nextScope + 1},
    pure st.nextScope
 end
 

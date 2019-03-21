@@ -194,9 +194,9 @@ namespace Prim
 @[extern 3 cpp inline "lean::io_mk_ref(#2, #3)"]
 constant mkRef {α : Type} (a : α) : IO (Ref α)                := default _
 @[extern 3 cpp inline "lean::io_ref_read(#2, #3)"]
-constant Ref.read {α : Type} (r : @& Ref α) : IO α             := default _
+constant Ref.get {α : Type} (r : @& Ref α) : IO α             := default _
 @[extern 4 cpp inline "lean::io_ref_write(#2, #3, #4)"]
-constant Ref.write {α : Type} (r : @& Ref α) (a : α) : IO Unit := default _
+constant Ref.set {α : Type} (r : @& Ref α) (a : α) : IO Unit  := default _
 @[extern 4 cpp inline "lean::io_ref_swap(#2, #3, #4)"]
 constant Ref.swap {α : Type} (r : @& Ref α) (a : α) : IO α     := default _
 @[extern 3 cpp inline "lean::io_ref_reset(#2, #3)"]
@@ -206,14 +206,14 @@ end Prim
 section
 variables {m : Type → Type} [Monad m] [monadIO m]
 @[inline] def mkRef {α : Type} (a : α) : m (Ref α) :=  Prim.liftIO (Prim.mkRef a)
-@[inline] def Ref.read {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.read r)
-@[inline] def Ref.write {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.write r a)
+@[inline] def Ref.get {α : Type} (r : Ref α) : m α := Prim.liftIO (Prim.Ref.get r)
+@[inline] def Ref.set {α : Type} (r : Ref α) (a : α) : m Unit := Prim.liftIO (Prim.Ref.set r a)
 @[inline] def Ref.swap {α : Type} (r : Ref α) (a : α) : m α := Prim.liftIO (Prim.Ref.swap r a)
 @[inline] def Ref.reset {α : Type} (r : Ref α) : m Unit := Prim.liftIO (Prim.Ref.reset r)
 @[inline] def Ref.modify {α : Type} (r : Ref α) (f : α → α) : m Unit :=
-do v ← r.read,
+do v ← r.get,
    r.reset,
-   r.write (f v)
+   r.set (f v)
 end
 end IO
 

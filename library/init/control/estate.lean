@@ -62,7 +62,7 @@ instance [Inhabited ε] : Inhabited (EState ε σ α) :=
      | ⟨Result.ok _ s, _⟩    := Result.ok a s
      | ⟨Result.error _ _, h⟩ := unreachableError h
 
-@[inline] protected def put (s : σ) : EState ε σ PUnit :=
+@[inline] protected def set (s : σ) : EState ε σ PUnit :=
 λ r, match r with
      | ⟨Result.ok _ _, _⟩    := Result.ok ⟨⟩ s
      | ⟨Result.error _ _, h⟩ := unreachableError h
@@ -124,7 +124,7 @@ instance : HasOrelse (EState ε σ) :=
 { orelse := @EState.orelse _ _ }
 
 instance : MonadState σ (EState ε σ) :=
-{ put := @EState.put _ _, get := @EState.get _ _, modify := @EState.modify _ _ }
+{ set := @EState.set _ _, get := @EState.get _ _, modify := @EState.modify _ _ }
 
 instance : MonadExcept ε (EState ε σ) :=
 { throw := @EState.throw _ _, catch := @EState.catch _ _}

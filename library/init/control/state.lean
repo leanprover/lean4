@@ -52,7 +52,7 @@ section
   @[inline] protected def get : StateT σ m σ :=
   λ s, pure (s, s)
 
-  @[inline] protected def put : σ → StateT σ m PUnit :=
+  @[inline] protected def set : σ → StateT σ m PUnit :=
   λ s' s, pure (PUnit.star, s')
 
   @[inline] protected def modify (f : σ → σ) : StateT σ m PUnit :=
@@ -86,14 +86,14 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 /- Obtain the top-most State of a Monad stack. -/
 (get {} : m σ)
 /- Set the top-most State of a Monad stack. -/
-(put {} : σ → m PUnit)
+(set {} : σ → m PUnit)
 /- Map the top-most State of a Monad stack.
 
    Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
    does not use the State linearly (without sufficient inlining). -/
 (modify {} : (σ → σ) → m PUnit)
 
-export MonadState (get put modify)
+export MonadState (get set modify)
 
 section
 variables {σ : Type u} {m : Type u → Type v}
@@ -102,12 +102,12 @@ variables {σ : Type u} {m : Type u → Type v}
 -- will be picked first
 instance monadStateTrans {n : Type u → Type w} [HasMonadLift m n] [MonadState σ m] : MonadState σ n :=
 { get := monadLift (MonadState.get : m _),
-  put := λ st, monadLift (MonadState.put st : m _),
+  set := λ st, monadLift (MonadState.set st : m _),
   modify := λ f, monadLift (MonadState.modify f : m _) }
 
 instance [Monad m] : MonadState σ (StateT σ m) :=
 { get := StateT.get,
-  put := StateT.put,
+  set := StateT.set,
   modify := StateT.modify }
 end
 

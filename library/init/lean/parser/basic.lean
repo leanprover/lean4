@@ -85,7 +85,7 @@ local attribute [reducible] BasicParserM ParserT parserCoreT
 monadLift (get : StateT ParserCache id _)
 
 @[inline] def putCache : ParserCache → BasicParserM PUnit :=
-λ c, monadLift (put c : StateT ParserCache id _)
+λ c, monadLift (set c : StateT ParserCache id _)
 end
 
  -- an arbitrary `Parser` Type; parsers are usually some Monad stack based on `BasicParserM` returning `Syntax`

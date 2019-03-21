@@ -144,7 +144,7 @@ def modifyCurrentScope (f : Scope → Scope) : ElaboratorM Unit := do
   st ← get,
   match st.scopes with
   | [] := error none "modifyCurrentScope: unreachable"
-  | sc::scs := put {st with scopes := f sc::scs}
+  | sc::scs := set {st with scopes := f sc::scs}
 
 def mangleIdent (id : SyntaxIdent) : Name :=
 id.scopes.foldl Name.mkNumeral id.val
@@ -684,7 +684,7 @@ do st ← get,
                CommandParserConfig.registerNotationParser nota.kind nota.nota with
      | Except.ok ccfg := pure ccfg
      | Except.error e := error (review «notation» nota.nota) e) ccfg,
-   put {st with parserCfg := {cfg.initialParserCfg with toCommandParserConfig := ccfg}}
+   set {st with parserCfg := {cfg.initialParserCfg with toCommandParserConfig := ccfg}}
 
 def postprocessNotationSpec (spec : NotationSpec.View) : NotationSpec.View :=
 -- default leading tokens to `max`
@@ -757,7 +757,7 @@ def notation.elaborateAux : notation.View → ElaboratorM notation.View :=
 -- TODO(Sebastian): better kind names, Module prefix?
 def mkNotationKind : ElaboratorM SyntaxNodeKind :=
 do st ← get,
-   put {st with notationCounter := st.notationCounter + 1},
+   set {st with notationCounter := st.notationCounter + 1},
    pure {name := (`_notation).mkNumeral st.notationCounter}
 
 /-- Register a notation in the Expander. Unlike with notation parsers, there is no harm in
@@ -866,7 +866,7 @@ def end.elaborate : Elaborator :=
   when (endName ≠ sc.header) $
     error cmd $ "invalid end of " ++ sc.cmd ++ ", expected Name '" ++
       toString sc.header ++ "'",
-  put {st with scopes := sc'::scps},
+  set {st with scopes := sc'::scps},
   -- local notations may have vanished
   updateParserConfig
 

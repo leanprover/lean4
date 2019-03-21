@@ -150,11 +150,11 @@ end
 private def updateLeadingAux : Syntax → State String.Iterator (Option Syntax)
 | (atom a@{info := some info, ..}) := do
   last ← get,
-  put info.trailing.stop,
+  set info.trailing.stop,
   pure $ some $ atom {a with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
 | (ident id@{info := some info, ..}) := do
   last ← get,
-  put info.trailing.stop,
+  set info.trailing.stop,
   pure $ some $ ident {id with info := some {info with leading := ⟨last, last.nextn (info.pos - last.offset)⟩}}
 | _ := pure none
 

@@ -590,11 +590,11 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
     Later, we define a coercion from `BinTree` into `List`.
 -/
 inductive BinTree (α : Type u)
-| Empty {}       : BinTree
+| empty {}       : BinTree
 | leaf (val : α) : BinTree
-| Node (left right : BinTree) : BinTree
+| node (left right : BinTree) : BinTree
 
-attribute [elabSimple] BinTree.Node BinTree.leaf
+attribute [elabSimple] BinTree.node BinTree.leaf
 
 /-- Like `by applyInstance`, but not dependent on the tactic framework. -/
 @[reducible] def inferInstance {α : Type u} [i : α] : α := i
@@ -721,11 +721,11 @@ theorem trueNeFalse : ¬True = False :=
 neFalseOfSelf trivial
 end Ne
 
-theorem eqFfOfNeTt : ∀ {b : Bool}, b ≠ true → b = false
+theorem eqFalseOfNeTrue : ∀ {b : Bool}, b ≠ true → b = false
 | true h := False.elim (h rfl)
 | false h := rfl
 
-theorem eqTtOfNeFf : ∀ {b : Bool}, b ≠ false → b = true
+theorem eqTrueOfNeFalse : ∀ {b : Bool}, b ≠ false → b = true
 | true h := rfl
 | false h := False.elim (h rfl)
 
@@ -784,13 +784,13 @@ theorem castHeq : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≅ a
 
 variables {a b c d : Prop}
 
-theorem and.elim (h₁ : a ∧ b) (h₂ : a → b → c) : c :=
+theorem And.elim (h₁ : a ∧ b) (h₂ : a → b → c) : c :=
 And.rec h₂ h₁
 
-theorem and.swap : a ∧ b → b ∧ a :=
+theorem And.swap : a ∧ b → b ∧ a :=
 assume ⟨ha, hb⟩, ⟨hb, ha⟩
 
-def and.symm := @and.swap
+def And.symm := @And.swap
 
 theorem Or.elim (h₁ : a ∨ b) (h₂ : a → c) (h₃ : b → c) : c :=
 Or.rec h₂ h₃ h₁
@@ -809,7 +809,7 @@ Or.elim h Or.inr Or.inl
 def Or.symm := @Or.swap
 
 /- xor -/
-def xor (a b : Prop) := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
+def Xor (a b : Prop) : Prop := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
 
 @[recursor 5]
 theorem Iff.elim (h₁ : (a → b) → (b → a) → c) (h₂ : a ↔ b) : c :=
@@ -948,7 +948,7 @@ theorem andCongr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
 Iff.intro (and.imp (Iff.mp h₁) (Iff.mp h₂)) (and.imp (Iff.mpr h₁) (Iff.mpr h₂))
 
 theorem andComm : a ∧ b ↔ b ∧ a :=
-Iff.intro and.swap and.swap
+Iff.intro And.swap And.swap
 
 theorem andAssoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
 Iff.intro
@@ -971,7 +971,7 @@ theorem falseAnd (a : Prop) : False ∧ a ↔ False :=
 iffFalseIntro And.left
 
 theorem notAndSelf (a : Prop) : (¬a ∧ a) ↔ False :=
-iffFalseIntro (λ h, and.elim h (λ h₁ h₂, absurd h₂ h₁))
+iffFalseIntro (λ h, And.elim h (λ h₁ h₂, absurd h₂ h₁))
 
 theorem andNotSelf (a : Prop) : (a ∧ ¬a) ↔ False :=
 iffFalseIntro (assume ⟨h₁, h₂⟩, absurd h₁ h₂)
@@ -1059,12 +1059,9 @@ Iff.intro (λ h, trivial) (λ ha h, False.elim h)
 theorem trueImpliesIff (α : Prop) : (True → α) ↔ α :=
 Iff.intro (λ h, h trivial) (λ h h', h)
 
-/- exists -/
+/- Exists -/
 
-@[pattern]
-def exists.intro := @Exists.intro
-
-theorem exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
+theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   (h₁ : ∃ x, p x) (h₂ : ∀ (a : α), p a → b) : b :=
 Exists.rec h₂ h₁
 
@@ -1073,7 +1070,7 @@ theorem forallCongr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a))
 Iff.intro (λ p a, Iff.mp (h a) (p a)) (λ q a, Iff.mpr (h a) (q a))
 
 theorem existsImpExists {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a → q a)) (p : ∃ a, p a) : ∃ a, q a :=
-exists.elim p (λ a hp, ⟨a, h a hp⟩)
+Exists.elim p (λ a hp, ⟨a, h a hp⟩)
 
 theorem existsCongr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
 Iff.intro
@@ -1090,10 +1087,10 @@ Decidable.casesOn h (λ h₁, false) (λ h₂, true)
 
 export Decidable (isTrue isFalse toBool)
 
-theorem toBoolTrueEqTt (h : Decidable True) : @toBool True h = true :=
+theorem toBoolTrueEqTrue (h : Decidable True) : @toBool True h = true :=
 Decidable.casesOn h (λ h, False.elim (Iff.mp notTrue h)) (λ _, rfl)
 
-theorem toBoolFalseEqFf (h : Decidable False) : @toBool False h = false :=
+theorem toBoolFalseEqFalse (h : Decidable False) : @toBool False h = false :=
 Decidable.casesOn h (λ h, rfl) (λ h, False.elim h)
 
 instance : Decidable True :=
@@ -1207,7 +1204,7 @@ else
   if hq : q then isFalse $ λh, hp (h.2 hq)
   else isTrue $ ⟨λh, absurd h hp, λh, absurd h hq⟩
 
-instance [Decidable p] [Decidable q] : Decidable (xor p q) :=
+instance [Decidable p] [Decidable q] : Decidable (Xor p q) :=
 if hp : p then
   if hq : q then isFalse (λ h, Or.elim h (λ ⟨_, h⟩, h hq : ¬(p ∧ ¬ q)) (λ ⟨_, h⟩, h hp : ¬(q ∧ ¬ p)))
   else isTrue $ Or.inl ⟨hp, hq⟩
@@ -1367,28 +1364,28 @@ match h₁, h₂ with
 | (isFalse hC), h₂ := False.elim h₂
 
 /-- Universe lifting operation -/
-structure {r s} Ulift (α : Type s) : Type (max s r) :=
+structure {r s} ULift (α : Type s) : Type (max s r) :=
 up :: (down : α)
 
-namespace Ulift
-/- Bijection between α and Ulift.{v} α -/
-theorem upDown {α : Type u} : ∀ (b : Ulift.{v} α), up (down b) = b
+namespace ULift
+/- Bijection between α and ULift.{v} α -/
+theorem upDown {α : Type u} : ∀ (b : ULift.{v} α), up (down b) = b
 | (up a) := rfl
 
 theorem downUp {α : Type u} (a : α) : down (up.{v} a) = a := rfl
-end Ulift
+end ULift
 
 /-- Universe lifting operation from Sort to Type -/
-structure Plift (α : Sort u) : Type u :=
+structure PLift (α : Sort u) : Type u :=
 up :: (down : α)
 
-namespace Plift
-/- Bijection between α and Plift α -/
-theorem upDown {α : Sort u} : ∀ (b : Plift α), up (down b) = b
+namespace PLift
+/- Bijection between α and PLift α -/
+theorem upDown {α : Sort u} : ∀ (b : PLift α), up (down b) = b
 | (up a) := rfl
 
 theorem downUp {α : Sort u} (a : α) : down (up a) = a := rfl
-end Plift
+end PLift
 
 /- pointed types -/
 structure PointedType :=
@@ -2131,7 +2128,7 @@ noncomputable def inhabitedOfNonempty {α : Sort u} (h : nonempty α) : Inhabite
 
 noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) :
   Inhabited α :=
-inhabitedOfNonempty (exists.elim h (λ w hw, ⟨w⟩))
+inhabitedOfNonempty (Exists.elim h (λ w hw, ⟨w⟩))
 
 /- all propositions are Decidable -/
 noncomputable def propDecidable (a : Prop) : Decidable a :=

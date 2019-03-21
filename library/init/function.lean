@@ -69,8 +69,8 @@ assume a₁ a₂, assume h, hf (hg h)
 @[reducible] def surjective (f : α → β) : Prop := ∀ b, ∃ a, f a = b
 
 lemma surjectiveComp {g : β → φ} {f : α → β} (hg : surjective g) (hf : surjective f) : surjective (g ∘ f) :=
-λ (c : φ), exists.elim (hg c) (λ b hb, exists.elim (hf b) (λ a ha,
-  exists.intro a (show g (f a) = c, from (Eq.trans (congrArg g ha) hb))))
+λ (c : φ), Exists.elim (hg c) (λ b hb, Exists.elim (hf b) (λ a ha,
+  Exists.intro a (show g (f a) = c, from (Eq.trans (congrArg g ha) hb))))
 
 def bijective (f : α → β) := injective f ∧ surjective f
 
@@ -95,7 +95,7 @@ have h₃ : g (f a) = g (f b), from congrArg g faeqfb,
 Eq.trans h₁ (Eq.trans h₃ h₂)
 
 lemma injectiveOfHasLeftInverse {f : α → β} : hasLeftInverse f → injective f :=
-assume h, exists.elim h (λ finv inv, injectiveOfLeftInverse inv)
+assume h, Exists.elim h (λ finv inv, injectiveOfLeftInverse inv)
 
 lemma rightInverseOfInjectiveOfLeftInverse {f : α → β} {g : β → α}
     (injf : injective f) (lfg : leftInverse f g) :
@@ -110,7 +110,7 @@ lemma surjectiveOfHasRightInverse {f : α → β} : hasRightInverse f → surjec
 lemma leftInverseOfSurjectiveOfRightInverse {f : α → β} {g : β → α}
     (surjf : surjective f) (rfg : rightInverse f g) :
   leftInverse f g :=
-assume y, exists.elim (surjf y) $ λ x hx,
+assume y, Exists.elim (surjf y) $ λ x hx,
   have h₁ : f (g y) = f (g (f x)), from hx ▸ rfl,
   have h₂ : f (g (f x)) = f x,     from Eq.symm (rfg x) ▸ rfl,
   have h₃ : f x = y,               from hx,

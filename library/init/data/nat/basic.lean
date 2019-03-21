@@ -39,7 +39,7 @@ theorem neOfBeqEqFf : ∀ {n m : Nat}, beq n m = false → n ≠ m
 @[extern cpp "lean::nat_dec_eq"]
 protected def decEq (n m : @& Nat) : Decidable (n = m) :=
 if h : beq n m = true then isTrue (eqOfBeqEqTt h)
-else isFalse (neOfBeqEqFf (eqFfOfNeTt h))
+else isFalse (neOfBeqEqFf (eqFalseOfNeTrue h))
 
 @[inline] instance : DecidableEq Nat :=
 {decEq := Nat.decEq}

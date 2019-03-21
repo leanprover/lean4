@@ -369,9 +369,9 @@ end List
 
 namespace BinTree
 private def toListAux : BinTree α → List α → List α
-| Empty      as := as
+| empty      as := as
 | (leaf a)   as := a::as
-| (Node l r) as := toListAux l (toListAux r as)
+| (node l r) as := toListAux l (toListAux r as)
 
 def toList (t : BinTree α) : List α :=
 toListAux t []

@@ -9,6 +9,9 @@ let it₁ := s.mkIterator in
 let it₂ := it₁.next in
 it₁.remainingToString ++ "-" ++ it₂.remainingToString
 
+
+#exit -- Disabled until we implement new VM
+
 def r (s : String) : String :=
 let it₁ := s.mkIterator.toEnd in
 let it₂ := it₁.prev in
@@ -18,6 +21,7 @@ def s (s : String) : String :=
 let it₁ := s.mkIterator.toEnd in
 let it₂ := it₁.prev in
 (it₁.insert "abc").toString ++ (it₂.insert "de").toString
+
 
 #eval "hello" ++ "hello"
 #eval f "hello"

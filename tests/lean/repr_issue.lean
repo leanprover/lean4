@@ -9,6 +9,8 @@ foo
 def ex₂ : ExceptT String (StateT (Array Nat) id) Nat :=
 foo
 
+#exit
+
 -- The following examples were producing an element of Type `id (Except String Nat)`.
 -- Type class resolution was failing to produce an instance for `HasRepr (id (Except String Nat))` because `id` is not transparent.
 #eval run ex₁ (mkArray 10 1000)

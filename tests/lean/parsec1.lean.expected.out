@@ -1,15 +1,1 @@
-Failure 1
-error at line 1, column 5:
-unexpected end of input
-expected variable, numeral or '('
----------
-Failure 2
-error at line 1, column 0:
-unexpected end of input
-expected variable, numeral or '('
----------
-Failure 3
-error at line 1, column 0:
-unexpected '*'
-expected digit or letter
----------
+parsec1.lean:20:0: warning: using 'exit' to interrupt Lean

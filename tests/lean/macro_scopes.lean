@@ -1,9 +1,11 @@
-import init.Lean.Expander init.IO
+import init.lean.expander init.io
 open Lean.Expander  -- for coercions
 open Lean.Parser
 open Lean.Parser.Term
 
 local attribute [reducible] MacroScope
+
+#exit -- Disabled until we implement new VM
 
 -- TODO(Sebastian): `Syntax.toFormat` should probably propagate scopes by itself in the end
 

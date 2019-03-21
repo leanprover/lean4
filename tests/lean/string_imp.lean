@@ -1,3 +1,5 @@
+#exit -- Disabled until we implement new VM
+
 #eval ("abc" ++ "cde").length
 #eval "abc".popBack
 #eval "".popBack

@@ -1,6 +1,6 @@
 --
 
-#check and.intro
-#check or.elim
+#check And.intro
+#check Or.elim
 #check Eq
 #check Eq.rec

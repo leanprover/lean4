@@ -1,3 +1,4 @@
+#exit -- Disabled until we implement new VM
 #eval "abc"
 
 /- some "a" -/

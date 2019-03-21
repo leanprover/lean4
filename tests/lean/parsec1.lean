@@ -1,21 +1,23 @@
-import init.Lean.Parser.identifier init.Lean.Ir.Parser init.Lean.Ir.Format
+import init.lean.parser.identifier
 open Lean.Parser
 open Lean.Parser.MonadParsec
 
-def test {α} [DecidableEq α] (p : Parsec' α) (s : String) (e : α) : Eio Unit :=
+def test {α} [DecidableEq α] (p : Parsec' α) (s : String) (e : α) : IO Unit :=
 match Parsec.parse p s with
 | Except.ok a    := if a = e then pure () else IO.println "unexpected Result"
 | Except.error e := IO.println e
 
-def testFailure {α} (p : Parsec' α) (s : String) : Eio Unit :=
+def testFailure {α} (p : Parsec' α) (s : String) : IO Unit :=
 match Parsec.parse p s with
 | Except.ok a    := IO.println "unexpected success"
 | Except.error e := pure ()
 
-def showResult {α} [HasToString α] (p : Parsec' α) (s : String) : Eio Unit :=
+def showResult {α} [HasToString α] (p : Parsec' α) (s : String) : IO Unit :=
 match Parsec.parse p s with
 | Except.ok a    := IO.println "Result: " *> IO.println (repr $ toString a)
 | Except.error e := IO.println e
+
+#exit -- Disabled until we implement new VM
 
 #eval test (ch 'a') "a" 'a'
 #eval test any "a" 'a'

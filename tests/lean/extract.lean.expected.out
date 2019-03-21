@@ -1,12 +1,1 @@
-"abc"
-(some "a")
-(some "")
-none
-(some "abc")
-(some "bcde")
-(some "abcde")
-(some "ab")
-none
-none
-(some "a")
-(some "a")
+extract.lean:1:0: warning: using 'exit' to interrupt Lean

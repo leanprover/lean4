@@ -1,10 +1,12 @@
-import init.Lean.frontend init.IO
+import init.lean.frontend init.io
 open Lean
 open Lean.Parser
 open Lean.Expander
 open Lean.Elaborator
 
-def checkReprint (p : List moduleParserOutput) (s : String) : ExceptT String IO Unit :=
+#exit -- Test contain many type errors, `#eval` is not working
+
+def checkReprint (p : List ModuleParserOutput) (s : String) : ExceptT String IO Unit :=
 do let stx := Syntax.List $ p.map (λ o, o.cmd),
    let stx := stx.updateLeading s,
    some s' ← pure $ stx.reprint | IO.println "reprint fail: choice Node",

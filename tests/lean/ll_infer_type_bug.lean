@@ -1,5 +1,5 @@
 def f : List Nat → Bool
-| []      := ff
+| []      := false
 | (a::as) := a > 0 && f as
 
 #check f._main._cstage2
@@ -18,8 +18,8 @@ with f4 : Nat → Bool
 | 0     := f5 0
 | (x+1) := f4 x
 with f5 : Nat → Bool
-| 0 := tt
-| _ := ff
+| 0 := true
+| _ := false
 
 #check f1._main._cstage2
 #check f2._main._cstage2

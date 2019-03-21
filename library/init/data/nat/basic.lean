@@ -522,7 +522,7 @@ protected theorem bit1NeOne : ∀ {n : Nat}, n ≠ 0 → bit1 n ≠ 1
 | (n+1) h h1 := Nat.noConfusion h1 (λ h2, absurd h2 (succNeZero _))
 
 protected theorem bit0NeOne : ∀ n : Nat, bit0 n ≠ 1
-| 0     h := absurd h (ne.symm Nat.oneNeZero)
+| 0     h := absurd h (Ne.symm Nat.oneNeZero)
 | (n+1) h :=
   have h1 : succ (succ (n + n)) = 1, from succAdd n n ▸ h,
   Nat.noConfusion h1
@@ -535,7 +535,7 @@ protected theorem addSelfNeOne : ∀ (n : Nat), n + n ≠ 1
   Nat.noConfusion h1 (λ h2, absurd h2 (Nat.succNeZero (n + n)))
 
 protected theorem bit1NeBit0 : ∀ (n m : Nat), bit1 n ≠ bit0 m
-| 0     m     h := absurd h (ne.symm (Nat.addSelfNeOne m))
+| 0     m     h := absurd h (Ne.symm (Nat.addSelfNeOne m))
 | (n+1) 0     h :=
   have h1 : succ (bit0 (succ n)) = 0, from h,
   absurd h1 (Nat.succNeZero _)
@@ -547,7 +547,7 @@ protected theorem bit1NeBit0 : ∀ (n m : Nat), bit1 n ≠ bit0 m
   absurd h2 (bit1NeBit0 n m)
 
 protected theorem bit0NeBit1 : ∀ (n m : Nat), bit0 n ≠ bit1 m :=
-λ n m : Nat, ne.symm (Nat.bit1NeBit0 m n)
+λ n m : Nat, Ne.symm (Nat.bit1NeBit0 m n)
 
 protected theorem bit0Inj : ∀ {n m : Nat}, bit0 n = bit0 m → n = m
 | 0     0     h := rfl
@@ -574,16 +574,16 @@ protected theorem bit1Ne {n m : Nat} : n ≠ m → bit1 n ≠ bit1 m :=
 λ h₁ h₂, absurd (Nat.bit1Inj h₂) h₁
 
 protected theorem zeroNeBit0 {n : Nat} : n ≠ 0 → 0 ≠ bit0 n :=
-λ h, ne.symm (Nat.bit0NeZero h)
+λ h, Ne.symm (Nat.bit0NeZero h)
 
 protected theorem zeroNeBit1 (n : Nat) : 0 ≠ bit1 n :=
-ne.symm (Nat.bit1NeZero n)
+Ne.symm (Nat.bit1NeZero n)
 
 protected theorem oneNeBit0 (n : Nat) : 1 ≠ bit0 n :=
-ne.symm (Nat.bit0NeOne n)
+Ne.symm (Nat.bit0NeOne n)
 
 protected theorem oneNeBit1 {n : Nat} : n ≠ 0 → 1 ≠ bit1 n :=
-λ h, ne.symm (Nat.bit1NeOne h)
+λ h, Ne.symm (Nat.bit1NeOne h)
 
 protected theorem oneLtBit1 : ∀ {n : Nat}, n ≠ 0 → 1 < bit1 n
 | 0        h := absurd rfl h

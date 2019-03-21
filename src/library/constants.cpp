@@ -485,7 +485,7 @@ void initialize_constants() {
     g_nat_ble = new name{"Nat", "ble"};
     g_ne = new name{"ne"};
     g_neq_of_not_iff = new name{"neqOfNotIff"};
-    g_not = new name{"not"};
+    g_not = new name{"Not"};
     g_not_of_iff_false = new name{"notOfIffFalse"};
     g_not_of_eq_false = new name{"notOfEqFalse"};
     g_of_eq_true = new name{"ofEqTrue"};

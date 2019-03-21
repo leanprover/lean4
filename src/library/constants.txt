@@ -196,7 +196,7 @@ Nat.beq
 Nat.ble
 ne
 neqOfNotIff
-not
+Not
 notOfIffFalse
 notOfEqFalse
 ofEqTrue

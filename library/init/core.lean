@@ -182,8 +182,8 @@ inductive False : Prop
 
 inductive Empty : Type
 
-def not (a : Prop) : Prop := a → False
-prefix `¬` := not
+def Not (a : Prop) : Prop := a → False
+prefix `¬` := Not
 
 inductive Eq {α : Sort u} (a : α) : α → Prop
 | refl : Eq a
@@ -691,25 +691,25 @@ theorem castProofIrrel {α β : Sort u} (h₁ h₂ : α = β) (a : α) : cast h�
 
 theorem castEq {α : Sort u} (h : α = α) (a : α) : cast h a = a := rfl
 
-@[reducible] def ne {α : Sort u} (a b : α) := ¬(a = b)
-infix ≠ := ne
+@[reducible] def Ne {α : Sort u} (a b : α) := ¬(a = b)
+infix ≠ := Ne
 
-theorem ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) := rfl
+theorem Ne.def {α : Sort u} (a b : α) : a ≠ b = ¬ (a = b) := rfl
 
-section ne
+section Ne
 variable {α : Sort u}
 variables {a b : α} {p : Prop}
 
-theorem ne.intro (h : a = b → False) : a ≠ b := h
+theorem Ne.intro (h : a = b → False) : a ≠ b := h
 
-theorem ne.elim (h : a ≠ b) : a = b → False := h
+theorem Ne.elim (h : a ≠ b) : a = b → False := h
 
-theorem ne.irrefl (h : a ≠ a) : False := h rfl
+theorem Ne.irrefl (h : a ≠ a) : False := h rfl
 
-theorem ne.symm (h : a ≠ b) : b ≠ a :=
+theorem Ne.symm (h : a ≠ b) : b ≠ a :=
 assume (h₁ : b = a), h (h₁.symm)
 
-theorem falseOfNe : a ≠ a → False := ne.irrefl
+theorem falseOfNe : a ≠ a → False := Ne.irrefl
 
 theorem neFalseOfSelf : p → p ≠ False :=
 assume (hp : p) (Heq : p = False), Heq ▸ hp
@@ -719,7 +719,7 @@ assume (hnp : ¬p) (Heq : p = True), (Heq ▸ hnp) trivial
 
 theorem trueNeFalse : ¬True = False :=
 neFalseOfSelf trivial
-end ne
+end Ne
 
 theorem eqFfOfNeTt : ∀ {b : Bool}, b ≠ true → b = false
 | true h := False.elim (h rfl)
@@ -901,7 +901,7 @@ iffTrueIntro notFalse
 theorem notCongr (h : a ↔ b) : ¬a ↔ ¬b :=
 Iff.intro (λ h₁ h₂, h₁ (Iff.mpr h h₂)) (λ h₁ h₂, h₁ (Iff.mp h h₂))
 
-theorem neSelfIffFalse {α : Sort u} (a : α) : (not (a = a)) ↔ False :=
+theorem neSelfIffFalse {α : Sort u} (a : α) : (Not (a = a)) ↔ False :=
 Iff.intro falseOfNe False.elim
 
 theorem eqSelfIffTrue {α : Sort u} (a : α) : (a = a) ↔ True :=
@@ -1240,7 +1240,7 @@ instance : DecidableEq Bool :=
 {decEq := λ a b, match a, b with
  | false, false := isTrue rfl
  | false, true  := isFalse Bool.falseNeTrue
- | true, false  := isFalse (ne.symm Bool.falseNeTrue)
+ | true, false  := isFalse (Ne.symm Bool.falseNeTrue)
  | true, true   := isTrue rfl}
 
 @[inline]
@@ -2147,10 +2147,10 @@ local attribute [instance] decidableInhabited
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
 {decEq := λ x y, propDecidable (x = y)}
 
-noncomputable def typeDecidable (α : Sort u) : Psum α (α → False) :=
+noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
 match (propDecidable (nonempty α)) with
-| (isTrue hp)  := Psum.inl (@Inhabited.default _ (inhabitedOfNonempty hp))
-| (isFalse hn) := Psum.inr (λ a, absurd (nonempty.intro a) hn)
+| (isTrue hp)  := PSum.inl (@Inhabited.default _ (inhabitedOfNonempty hp))
+| (isFalse hn) := PSum.inr (λ a, absurd (nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
   (h : nonempty α) : {x : α // (∃ y : α, p y) → p x} :=

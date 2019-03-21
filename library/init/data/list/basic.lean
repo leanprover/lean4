@@ -345,7 +345,7 @@ instance [HasLt α] : HasLe (List α) :=
 ⟨List.le⟩
 
 instance hasDecidableLe [HasLt α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
-λ a b, not.Decidable
+λ a b, Not.Decidable
 
 lemma leEqNotGt [HasLt α] : ∀ l₁ l₂ : List α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
 λ l₁ l₂, rfl

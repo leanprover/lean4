@@ -112,21 +112,21 @@ def wf (f : α → β) (h : WellFounded r) : WellFounded (InvImage r f) :=
 end InvImage
 
 -- The transitive closure of a well-founded relation is well-founded
-namespace Tc
+namespace TC
 variables {α : Sort u} {r : α → α → Prop}
-local notation `r⁺` := Tc r
+local notation `r⁺` := TC r
 
-def accessible {z : α} (ac : Acc r z) : Acc (Tc r) z :=
+def accessible {z : α} (ac : Acc r z) : Acc (TC r) z :=
 Acc.ndrecOn ac (λ x acx ih,
   Acc.intro x (λ y rel,
-    Tc.ndrecOn rel
+    TC.ndrecOn rel
       (λ a b rab acx ih, ih a rab)
       (λ a b c rab rbc ih₁ ih₂ acx ih, Acc.inv (ih₂ acx ih) rab)
       acx ih))
 
 def wf (h : WellFounded r) : WellFounded r⁺ :=
 ⟨λ a, accessible (apply h a)⟩
-end Tc
+end TC
 
 -- less-than is well-founded
 def Nat.ltWf : WellFounded Nat.lt :=

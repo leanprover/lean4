@@ -1402,13 +1402,13 @@ Inhabited.default α
 @[inline, irreducible] def arbitrary (α : Sort u) [Inhabited α] : α :=
 default α
 
-instance prop.Inhabited : Inhabited Prop :=
+instance Prop.Inhabited : Inhabited Prop :=
 ⟨True⟩
 
-instance fun.Inhabited (α : Sort u) {β : Sort v} [h : Inhabited β] : Inhabited (α → β) :=
+instance Fun.Inhabited (α : Sort u) {β : Sort v} [h : Inhabited β] : Inhabited (α → β) :=
 Inhabited.casesOn h (λ b, ⟨λ a, b⟩)
 
-instance pi.Inhabited (α : Sort u) {β : α → Sort v} [Π x, Inhabited (β x)] : Inhabited (Π x, β x) :=
+instance Pi.Inhabited (α : Sort u) {β : α → Sort v} [Π x, Inhabited (β x)] : Inhabited (Π x, β x) :=
 ⟨λ a, default (β a)⟩
 
 instance : Inhabited Bool := ⟨false⟩
@@ -1419,34 +1419,34 @@ instance : Inhabited Nat := ⟨0⟩
 
 instance : Inhabited PointedType := ⟨{type := PUnit, val := ⟨⟩}⟩
 
-class inductive nonempty (α : Sort u) : Prop
-| intro (val : α) : nonempty
+class inductive Nonempty (α : Sort u) : Prop
+| intro (val : α) : Nonempty
 
-protected def nonempty.elim {α : Sort u} {p : Prop} (h₁ : nonempty α) (h₂ : α → p) : p :=
-nonempty.rec h₂ h₁
+protected def Nonempty.elim {α : Sort u} {p : Prop} (h₁ : Nonempty α) (h₂ : α → p) : p :=
+Nonempty.rec h₂ h₁
 
-instance nonemptyOfInhabited {α : Sort u} [Inhabited α] : nonempty α :=
+instance nonemptyOfInhabited {α : Sort u} [Inhabited α] : Nonempty α :=
 ⟨default α⟩
 
-theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : (∃ x, p x) → nonempty α
+theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : (∃ x, p x) → Nonempty α
 | ⟨w, h⟩ := ⟨w⟩
 
-/- subsingleton -/
+/- Subsingleton -/
 
-class inductive subsingleton (α : Sort u) : Prop
-| intro (h : ∀ a b : α, a = b) : subsingleton
+class inductive Subsingleton (α : Sort u) : Prop
+| intro (h : ∀ a b : α, a = b) : Subsingleton
 
-protected def subsingleton.elim {α : Sort u} [h : subsingleton α] : ∀ (a b : α), a = b :=
-subsingleton.casesOn h (λ p, p)
+protected def Subsingleton.elim {α : Sort u} [h : Subsingleton α] : ∀ (a b : α), a = b :=
+Subsingleton.casesOn h (λ p, p)
 
-protected def subsingleton.helim {α β : Sort u} [h : subsingleton α] (h : α = β) : ∀ (a : α) (b : β), a ≅ b :=
-Eq.recOn h (λ a b : α, heqOfEq (subsingleton.elim a b))
+protected def Subsingleton.helim {α β : Sort u} [h : Subsingleton α] (h : α = β) : ∀ (a : α) (b : β), a ≅ b :=
+Eq.recOn h (λ a b : α, heqOfEq (Subsingleton.elim a b))
 
-instance subsingletonProp (p : Prop) : subsingleton p :=
+instance subsingletonProp (p : Prop) : Subsingleton p :=
 ⟨λ a b, proofIrrel a b⟩
 
-instance (p : Prop) : subsingleton (Decidable p) :=
-subsingleton.intro (λ d₁,
+instance (p : Prop) : Subsingleton (Decidable p) :=
+Subsingleton.intro (λ d₁,
   match d₁ with
   | (isTrue t₁) := (λ d₂,
     match d₂ with
@@ -1458,8 +1458,8 @@ subsingleton.intro (λ d₁,
     | (isFalse f₂) := Eq.recOn (proofIrrel f₁ f₂) rfl))
 
 protected theorem recSubsingleton {p : Prop} [h : Decidable p] {h₁ : p → Sort u} {h₂ : ¬p → Sort u}
-                                 [h₃ : Π (h : p), subsingleton (h₁ h)] [h₄ : Π (h : ¬p), subsingleton (h₂ h)]
-                                 : subsingleton (Decidable.casesOn h h₂ h₁) :=
+                                 [h₃ : Π (h : p), Subsingleton (h₁ h)] [h₄ : Π (h : ¬p), Subsingleton (h₂ h)]
+                                 : Subsingleton (Decidable.casesOn h h₂ h₁) :=
 match h with
 | (isTrue h)  := h₃ h
 | (isFalse h) := h₄ h
@@ -1485,22 +1485,22 @@ section relation
 variables {α : Sort u} {β : Sort v} (r : β → β → Prop)
 local infix `≺`:50 := r
 
-def reflexive := ∀ x, x ≺ x
+def Reflexive := ∀ x, x ≺ x
 
-def symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
+def Symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
 
-def transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
+def Transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
 
-def equivalence := reflexive r ∧ symmetric r ∧ transitive r
+def Equivalence := Reflexive r ∧ Symmetric r ∧ Transitive r
 
-def total := ∀ x y, x ≺ y ∨ y ≺ x
+def Total := ∀ x y, x ≺ y ∨ y ≺ x
 
-def mkEquivalence (rfl : reflexive r) (symm : symmetric r) (trans : transitive r) : equivalence r :=
+def mkEquivalence (rfl : Reflexive r) (symm : Symmetric r) (trans : Transitive r) : Equivalence r :=
 ⟨rfl, symm, trans⟩
 
-def irreflexive := ∀ x, ¬ x ≺ x
+def Irreflexive := ∀ x, ¬ x ≺ x
 
-def antiSymmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
+def AntiSymmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
 
 def emptyRelation := λ a₁ a₂ : α, False
 
@@ -1509,30 +1509,30 @@ def Subrelation (q r : β → β → Prop) := ∀ ⦃x y⦄, q x y → r x y
 def InvImage (f : α → β) : α → α → Prop :=
 λ a₁ a₂, f a₁ ≺ f a₂
 
-theorem InvImage.trans (f : α → β) (h : transitive r) : transitive (InvImage r f) :=
+theorem InvImage.Transitive (f : α → β) (h : Transitive r) : Transitive (InvImage r f) :=
 λ (a₁ a₂ a₃ : α) (h₁ : InvImage r f a₁ a₂) (h₂ : InvImage r f a₂ a₃), h h₁ h₂
 
-theorem InvImage.irreflexive (f : α → β) (h : irreflexive r) : irreflexive (InvImage r f) :=
+theorem InvImage.Irreflexive (f : α → β) (h : Irreflexive r) : Irreflexive (InvImage r f) :=
 λ (a : α) (h₁ : InvImage r f a a), h (f a) h₁
 
-inductive Tc {α : Sort u} (r : α → α → Prop) : α → α → Prop
-| base  : ∀ a b, r a b → Tc a b
-| trans : ∀ a b c, Tc a b → Tc b c → Tc a c
+inductive TC {α : Sort u} (r : α → α → Prop) : α → α → Prop
+| base  : ∀ a b, r a b → TC a b
+| trans : ∀ a b c, TC a b → TC b c → TC a c
 
 @[elabAsEliminator]
-theorem {u1 u2} Tc.ndrec {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
+theorem {u1 u2} TC.ndrec {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
                 (m₁ : ∀ (a b : α), r a b → C a b)
-                (m₂ : ∀ (a b c : α), Tc r a b → Tc r b c → C a b → C b c → C a c)
-                {a b : α} (h : Tc r a b) : C a b :=
-@Tc.rec α r (λ a b _, C a b) m₁ m₂ a b h
+                (m₂ : ∀ (a b c : α), TC r a b → TC r b c → C a b → C b c → C a c)
+                {a b : α} (h : TC r a b) : C a b :=
+@TC.rec α r (λ a b _, C a b) m₁ m₂ a b h
 
 @[elabAsEliminator]
-theorem {u1 u2} Tc.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
-                {a b : α} (h : Tc r a b)
+theorem {u1 u2} TC.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → α → Prop}
+                {a b : α} (h : TC r a b)
                 (m₁ : ∀ (a b : α), r a b → C a b)
-                (m₂ : ∀ (a b c : α), Tc r a b → Tc r b c → C a b → C b c → C a c)
+                (m₂ : ∀ (a b c : α), TC r a b → TC r b c → C a b → C b c → C a c)
                 : C a b :=
-@Tc.rec α r (λ a b _, C a b) m₁ m₂ a b h
+@TC.rec α r (λ a b _, C a b) m₁ m₂ a b h
 
 end relation
 
@@ -1691,8 +1691,8 @@ PUnit.recOn a (PUnit.recOn b rfl)
 theorem punitEqPUnit (a : PUnit) : a = () :=
 punitEq a ()
 
-instance : subsingleton PUnit :=
-subsingleton.intro punitEq
+instance : Subsingleton PUnit :=
+Subsingleton.intro punitEq
 
 instance : Inhabited PUnit :=
 ⟨()⟩
@@ -1703,7 +1703,7 @@ instance : DecidableEq PUnit :=
 /- Setoid -/
 
 class Setoid (α : Sort u) :=
-(r : α → α → Prop) (iseqv : equivalence r)
+(r : α → α → Prop) (iseqv : Equivalence r)
 
 instance setoidHasEquiv {α : Sort u} [Setoid α] : HasEquiv α :=
 ⟨Setoid.r⟩
@@ -1823,8 +1823,8 @@ Quot.rec f h q
 
 @[reducible, elabAsEliminator, inline]
 protected def recOnSubsingleton
-   [h : ∀ a, subsingleton (β ⟦a⟧)] (q : Quot r) (f : Π a, β ⟦a⟧) : β q :=
-Quot.rec f (λ a b h, subsingleton.elim _ (f b)) q
+   [h : ∀ a, Subsingleton (β ⟦a⟧)] (q : Quot r) (f : Π a, β ⟦a⟧) : β q :=
+Quot.rec f (λ a b h, Subsingleton.elim _ (f b)) q
 
 @[reducible, elabAsEliminator, inline]
 protected def hrecOn
@@ -1888,7 +1888,7 @@ Quot.recOn q f h
 
 @[reducible, elabAsEliminator, inline]
 protected def recOnSubsingleton
-   [h : ∀ a, subsingleton (β ⟦a⟧)] (q : Quotient s) (f : Π a, β ⟦a⟧) : β q :=
+   [h : ∀ a, Subsingleton (β ⟦a⟧)] (q : Quotient s) (f : Π a, β ⟦a⟧) : β q :=
 @Quot.recOnSubsingleton _ _ _ h q f
 
 @[reducible, elabAsEliminator, inline]
@@ -1974,7 +1974,7 @@ include s₁ s₂
 
 @[reducible, elabAsEliminator]
 protected def recOnSubsingleton₂
-   {φ : Quotient s₁ → Quotient s₂ → Sort uC} [h : ∀ a b, subsingleton (φ ⟦a⟧ ⟦b⟧)]
+   {φ : Quotient s₁ → Quotient s₂ → Sort uC} [h : ∀ a b, Subsingleton (φ ⟦a⟧ ⟦b⟧)]
    (q₁ : Quotient s₁) (q₂ : Quotient s₂) (f : Π a b, φ ⟦a⟧ ⟦b⟧) : φ q₁ q₂:=
 @Quotient.recOnSubsingleton _ s₁ (λ q, φ q q₂) (λ a, Quotient.ind (λ b, h a b) q₂) q₁
   (λ a, Quotient.recOnSubsingleton q₂ (λ b, f a b))
@@ -1992,7 +1992,7 @@ inductive EqvGen : α → α → Prop
 | symm {} : Π x y, EqvGen x y → EqvGen y x
 | trans {} : Π x y z, EqvGen x y → EqvGen y z → EqvGen x z
 
-theorem EqvGen.isEquivalence : equivalence (@EqvGen α r) :=
+theorem EqvGen.isEquivalence : Equivalence (@EqvGen α r) :=
 mkEquivalence _ EqvGen.refl EqvGen.symm EqvGen.trans
 
 def EqvGen.Setoid : Setoid α :=
@@ -2035,7 +2035,7 @@ protected theorem equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂
 protected theorem equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
 λ h₁ h₂ x, Eq.trans (h₁ x) (h₂ x)
 
-protected theorem equiv.isEquivalence (α : Sort u) (β : α → Sort v) : equivalence (@Function.equiv α β) :=
+protected theorem equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.equiv α β) :=
 mkEquivalence (@Function.equiv α β) (@equiv.refl α β) (@equiv.symm α β) (@equiv.trans α β)
 end Function
 
@@ -2065,14 +2065,14 @@ end
 
 local infix `~` := Function.equiv
 
-instance pi.subsingleton {α : Sort u} {β : α → Sort v} [∀ a, subsingleton (β a)] : subsingleton (Π a, β a) :=
-⟨λ f₁ f₂, funext (λ a, subsingleton.elim (f₁ a) (f₂ a))⟩
+instance Pi.Subsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (Π a, β a) :=
+⟨λ f₁ f₂, funext (λ a, Subsingleton.elim (f₁ a) (f₂ a))⟩
 
 /- Classical reasoning support -/
 
 namespace Classical
 
-axiom choice {α : Sort u} : nonempty α → α
+axiom choice {α : Sort u} : Nonempty α → α
 
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop)
   (h : ∃ x, p x) : {x // p x} :=
@@ -2120,10 +2120,10 @@ Or.elim notUvOrP
   (assume hne : u ≠ v, Or.inr (mt pImpliesUv hne))
   Or.inl
 
-theorem existsTrueOfNonempty {α : Sort u} : nonempty α → ∃ x : α, True
+theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → ∃ x : α, True
 | ⟨x⟩ := ⟨x, trivial⟩
 
-noncomputable def inhabitedOfNonempty {α : Sort u} (h : nonempty α) : Inhabited α :=
+noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
 ⟨choice h⟩
 
 noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) :
@@ -2145,12 +2145,12 @@ noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
 {decEq := λ x y, propDecidable (x = y)}
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
-match (propDecidable (nonempty α)) with
+match (propDecidable (Nonempty α)) with
 | (isTrue hp)  := PSum.inl (@Inhabited.default _ (inhabitedOfNonempty hp))
-| (isFalse hn) := PSum.inr (λ a, absurd (nonempty.intro a) hn)
+| (isFalse hn) := PSum.inr (λ a, absurd (Nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
-  (h : nonempty α) : {x : α // (∃ y : α, p y) → p x} :=
+  (h : Nonempty α) : {x : α // (∃ y : α, p y) → p x} :=
 if hp : ∃ x : α, p x then
   let xp := indefiniteDescription _ hp in
   ⟨xp.val, λ h', xp.property⟩
@@ -2158,10 +2158,10 @@ else ⟨choice h, λ h, absurd h hp⟩
 
 /- the Hilbert epsilon Function -/
 
-noncomputable def epsilon {α : Sort u} [h : nonempty α] (p : α → Prop) : α :=
+noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α :=
 (strongIndefiniteDescription p h).val
 
-theorem epsilonSpecAux {α : Sort u} (h : nonempty α) (p : α → Prop)
+theorem epsilonSpecAux {α : Sort u} (h : Nonempty α) (p : α → Prop)
   : (∃ y, p y) → p (@epsilon α h p) :=
 (strongIndefiniteDescription p h).property
 

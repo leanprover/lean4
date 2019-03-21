@@ -8,8 +8,8 @@ import init.data.nat.basic init.data.nat.div init.coe
 namespace Nat
 
 def bitwise (f : Bool → Bool → Bool) : Nat → Nat → Nat | n m :=
-if n = 0 then      (if f ff tt then m else 0)
-else if m = 0 then (if f tt ff then n else 0)
+if n = 0 then      (if f false true then m else 0)
+else if m = 0 then (if f true false then n else 0)
 else
   let n' := n / 2 in
   let m' := m / 2 in

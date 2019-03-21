@@ -41,7 +41,7 @@ node! «paren» ["(":maxPrec,
     special: nodeChoice! parenSpecial {
       /- Do not allow trailing comma. Looks a bit weird and would clash with
       adding support for tuple sections (https://downloads.haskell.org/~ghc/8.2.1/docs/html/usersGuide/glasgowExts.html#tuple-sections). -/
-      tuple: node! tuple [", ", tail: sepBy (Term.Parser 0) (symbol ", ") ff],
+      tuple: node! tuple [", ", tail: sepBy (Term.Parser 0) (symbol ", ") false],
       typed: node! typed [" : ", type: Term.Parser],
     }?,
   ]?,
@@ -282,14 +282,14 @@ node! «show» [
 def match.Parser : termParser :=
 node! «match» [
   "match ",
-  scrutinees: sepBy1 Term.Parser (symbol ", ") ff,
+  scrutinees: sepBy1 Term.Parser (symbol ", ") false,
   type: optType.Parser,
   " with ",
   optBar: (symbol " | ")?,
   equations: sepBy1
     node! «matchEquation» [
-      lhs: sepBy1 Term.Parser (symbol ", ") ff, ":=", rhs: Term.Parser]
-    (symbol " | ") ff,
+      lhs: sepBy1 Term.Parser (symbol ", ") false, ":=", rhs: Term.Parser]
+    (symbol " | ") false,
 ]
 
 @[derive Parser.HasTokens Parser.HasView]

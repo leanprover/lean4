@@ -106,24 +106,24 @@ def replacePrefix : Name → Name → Name → Name
     mkNumeral (p.replacePrefix queryP newP) s
 
 def quickLtCore : Name → Name → Bool
-| anonymous        anonymous          := ff
-| anonymous        _                  := tt
-| (mkNumeral n v) (mkNumeral n' v') := v < v' || (v = v' && n.quickLtCore n')
-| (mkNumeral _ _) (mkString _ _)    := tt
-| (mkString n s)  (mkString n' s')  := s < s' || (s = s' && n.quickLtCore n')
-| _                _                  := ff
+| anonymous        anonymous          := false
+| anonymous        _                  := true
+| (mkNumeral n v) (mkNumeral n' v')   := v < v' || (v = v' && n.quickLtCore n')
+| (mkNumeral _ _) (mkString _ _)      := true
+| (mkString n s)  (mkString n' s')    := s < s' || (s = s' && n.quickLtCore n')
+| _                _                  := false
 
 def quickLt (n₁ n₂ : Name) : Bool :=
-if n₁.hash < n₂.hash then tt
-else if n₁.hash > n₂.hash then ff
+if n₁.hash < n₂.hash then true
+else if n₁.hash > n₂.hash then false
 else quickLtCore n₁ n₂
 
 /- Alternative HasLt instance. -/
 @[inline] protected def hasLtQuick : HasLt Name :=
-⟨λ a b, Name.quickLt a b = tt⟩
+⟨λ a b, Name.quickLt a b = true⟩
 
 @[inline] instance : decidableRel (@HasLt.lt Name Name.hasLtQuick) :=
-inferInstanceAs (decidableRel (λ a b, Name.quickLt a b = tt))
+inferInstanceAs (decidableRel (λ a b, Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String
 | anonymous                := "[anonymous]"

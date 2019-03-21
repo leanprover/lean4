@@ -172,7 +172,7 @@ void parser::scan() {
 }
 
 expr parser::mk_sorry(pos_info const & p, bool synthetic) {
-    return save_pos(::lean::mk_app(mk_constant(get_sorry_ax_name()), mk_expr_placeholder(), synthetic ? mk_bool_tt() : mk_bool_ff()), p);
+    return save_pos(::lean::mk_app(mk_constant(get_sorry_ax_name()), mk_expr_placeholder(), synthetic ? mk_bool_true() : mk_bool_false()), p);
 }
 
 void parser::updt_options() {

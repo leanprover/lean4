@@ -144,7 +144,7 @@ instance coeToLift {a : Sort u} {b : Sort v} [HasCoeT a b] : HasLiftT a b :=
 /- basic coercions -/
 
 instance coeBoolToProp : HasCoe Bool Prop :=
-⟨λ y, y = tt⟩
+⟨λ y, y = true⟩
 
 /- Tactics such as the simplifier only unfold reducible constants when checking whether two terms are definitionally
    equal or a Term is a proposition. The motivation is performance.
@@ -152,10 +152,10 @@ instance coeBoolToProp : HasCoe Bool Prop :=
    Thus, we mark the following instance as @[reducible], otherwise `simp` will not visit `↑p` when simplifying `↑p -> q`.
 -/
 @[reducible] instance coeSortBool : HasCoeToSort Bool :=
-⟨Prop, λ y, y = tt⟩
+⟨Prop, λ y, y = true⟩
 
 instance coeDecidableEq (x : Bool) : Decidable (coe x) :=
-show Decidable (x = tt), from decEq x tt
+show Decidable (x = true), from decEq x true
 
 instance coeSubtype {a : Sort u} {p : a → Prop} : HasCoe {x // p x} a :=
 ⟨Subtype.val⟩

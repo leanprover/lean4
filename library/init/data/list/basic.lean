@@ -119,9 +119,9 @@ def lengthAux : List α → Nat → Nat
 def length (as : List α) : Nat :=
 lengthAux as 0
 
-def Empty : List α → Bool
-| []       := tt
-| (_ :: _) := ff
+def empty : List α → Bool
+| []       := true
+| (_ :: _) := false
 
 open Option Nat
 
@@ -226,10 +226,10 @@ def take : ℕ → List α → List α
 | (a :: l) := some $ foldr1 f (a :: l) (λ Eq, List.noConfusion Eq)
 
 @[inline] def any (l : List α) (p : α → Bool) : Bool :=
-foldr (λ a r, p a || r) ff l
+foldr (λ a r, p a || r) false l
 
 @[inline] def all (l : List α) (p : α → Bool) : Bool :=
-foldr (λ a r, p a && r) tt l
+foldr (λ a r, p a && r) true l
 
 def bor  (l : List Bool) : Bool := any l id
 
@@ -355,13 +355,13 @@ lemma ltEqNotGe [HasLt α] [decidableRel ((<) : α → α → Prop)] : ∀ l₁ 
   show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
   Eq.subst (propext (notNotIff (l₁ < l₂))).symm rfl
 
-/--  `isPrefixOf l₁ l₂` returns `tt` Iff `l₁` is a prefix of `l₂`. -/
+/--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
 def isPrefixOf [DecidableEq α] : List α → List α → Bool
-| []      _       := tt
-| _       []      := ff
+| []      _       := true
+| _       []      := false
 | (a::as) (b::bs) := toBool (a = b) && isPrefixOf as bs
 
-/--  `isSuffixOf l₁ l₂` returns `tt` Iff `l₁` is a suffix of `l₂`. -/
+/--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`. -/
 def isSuffixOf [DecidableEq α] (l₁ l₂ : List α) : Bool :=
 isPrefixOf l₁.reverse l₂.reverse
 

@@ -55,8 +55,8 @@ match ma with
 | (Except.ok v) := f v
 
 @[inline] protected def toBool {α : Type v} : Except ε α → Bool
-| (Except.ok _)    := tt
-| (Except.error _) := ff
+| (Except.ok _)    := true
+| (Except.error _) := false
 
 @[inline] protected def toOption {α : Type v} : Except ε α → Option α
 | (Except.ok a)    := some a
@@ -130,7 +130,7 @@ catch t₁ $ λ _, t₂
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
-@[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := tt) : m α :=
+@[inline] def orelse' [MonadExcept ε m] {α : Type v} (t₁ t₂ : m α) (useFirstEx := true) : m α :=
 catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if useFirstEx then e₁ else e₂)
 
 @[inline] def liftExcept {ε' : Type u} [MonadExcept ε m] [HasLiftT ε' ε] [Monad m] {α : Type v} : Except ε' α → m α

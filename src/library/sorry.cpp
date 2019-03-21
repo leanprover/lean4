@@ -15,7 +15,7 @@ Author: Leonardo de Moura
 namespace lean {
 expr mk_sorry(abstract_type_context & ctx, expr const & ty, bool synthetic) {
     level u = get_level(ctx, ty);
-    return mk_app(mk_constant(get_sorry_ax_name(), levels(u)), ty, synthetic ? mk_bool_tt() : mk_bool_ff());
+    return mk_app(mk_constant(get_sorry_ax_name(), levels(u)), ty, synthetic ? mk_bool_true() : mk_bool_false());
 }
 
 bool is_sorry(expr const & e) {
@@ -26,7 +26,7 @@ bool is_synthetic_sorry(expr const & e) {
     if (!is_sorry(e)) return false;
     buffer<expr> args;
     get_app_args(e, args);
-    return is_constant(args[1], get_bool_tt_name());
+    return is_constant(args[1], get_bool_true_name());
 }
 
 bool has_synthetic_sorry(expr const & ex) {

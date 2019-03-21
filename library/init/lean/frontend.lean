@@ -35,7 +35,7 @@ def runFrontend (filename input : String) (printMsg : Message → IO Unit) (coll
   msgs.toList.mfor printMsg,
   let expanderCfg : ExpanderConfig := {transformers := builtinTransformers, ..parserCfg},
   let elabCfg : ElaboratorConfig := {filename := filename, input := input, initialParserCfg := parserCfg, ..parserCfg},
-  let opts := Options.mk.setBool `Trace.asMessages tt,
+  let opts := Options.mk.setBool `Trace.asMessages true,
   let elabSt := Elaborator.mkState elabCfg env opts,
   let addOutput (out : Syntax) outs := if collectOutputs then out::outs else [],
   IO.Prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : List Syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {
@@ -84,7 +84,7 @@ def processFile (f s : String) (json : Bool) : StateT environment IO Unit := do
     else IO.println msg.toString,
    -- print and erase uncaught exceptions
    catch
-     (runFrontend f s printMsg ff *> pure ())
+     (runFrontend f s printMsg false *> pure ())
      (λ e, do
         monadLift (printMsg {filename := f, severity := MessageSeverity.error, pos := ⟨1, 0⟩, text := e}),
         throw e)

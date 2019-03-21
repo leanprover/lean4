@@ -93,10 +93,10 @@ mkBinApp (mkBinApp (Expr.const `HasLt.le [Level.zero]) (Expr.const `Nat []) (Exp
 
 def toDecidableExpr (beforeErasure : Bool) (pred : Expr) (r : Bool) : Expr :=
 match beforeErasure, r with
-| ff, tt := mkDecIsTrue  neutralExpr neutralExpr
-| ff, ff := mkDecIsFalse neutralExpr neutralExpr
-| tt, tt := mkDecIsTrue pred (mkLcProof pred)
-| tt, ff := mkDecIsFalse pred (mkLcProof pred)
+| false, true  := mkDecIsTrue  neutralExpr neutralExpr
+| false, false := mkDecIsFalse neutralExpr neutralExpr
+| true,  true  := mkDecIsTrue pred (mkLcProof pred)
+| true,  false := mkDecIsFalse pred (mkLcProof pred)
 
 def foldNatBinPred (mkPred : Expr → Expr → Expr) (fn : Nat → Nat → Bool)
                       (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=

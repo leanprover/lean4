@@ -94,7 +94,7 @@ def eps : ParsecT μ m Unit :=
 ParsecT.pure ()
 
 protected def failure : ParsecT μ m α :=
-λ it, pure (error { unexpected := "failure", it := it, custom := none } ff)
+λ it, pure (error { unexpected := "failure", it := it, custom := none } false)
 
 def merge (msg₁ msg₂ : Message μ) : Message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
@@ -102,9 +102,9 @@ def merge (msg₁ msg₂ : Message μ) : Message μ :=
 @[inlineIfReduce] def bindMkRes (ex₁ : Option (Dlist String)) (r : Result μ β) : Result μ β :=
 match ex₁, r with
 | none,     ok b it _          := ok b it none
-| none,     error msg _        := error msg tt
+| none,     error msg _        := error msg true
 | some ex₁, ok b it (some ex₂) := ok b it (some $ ex₁ ++ ex₂)
-| some ex₁, error msg₂ ff      := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } ff
+| some ex₁, error msg₂ false      := error { expected := ex₁ ++ msg₂.expected, .. msg₂ } false
 | some ex₁, other              := other
 
 /--
@@ -137,10 +137,10 @@ def Monad' : Monad (ParsecT μ m) :=
 { bind := λ _ _, ParsecT.bind', pure := λ _, ParsecT.pure }
 
 instance : MonadFail Parsec' :=
-{ fail := λ _ s it, error { unexpected := s, it := it, custom := () } ff }
+{ fail := λ _ s it, error { unexpected := s, it := it, custom := () } false }
 
 instance : MonadExcept (Message μ) (ParsecT μ m) :=
-{ throw := λ _ msg it, pure (error msg ff),
+{ throw := λ _ msg it, pure (error msg false),
   catch := λ _ p c it, do
     r ← p it,
     match r with
@@ -160,7 +160,7 @@ def expect (msg : Message μ) (exp : String) : Message μ :=
 @[inlineIfReduce] def labelsMkRes (r : Result μ α) (lbls : Dlist String) : Result μ α :=
 match r with
   | ok a it (some _) := ok a it (some lbls)
-  | error msg ff     := error {expected := lbls, ..msg} ff
+  | error msg false     := error {expected := lbls, ..msg} false
   | other            := other
 
 @[inline] def labels (p : ParsecT μ m α) (lbls : Dlist String) : ParsecT μ m α :=
@@ -170,7 +170,7 @@ match r with
 
 @[inlineIfReduce] def tryMkRes (r : Result μ α) : Result μ α :=
 match r with
-| error msg _  := error msg ff
+| error msg _  := error msg false
 | other        := other
 
 /--
@@ -198,7 +198,7 @@ Without the `try` Combinator we will not be able to backtrack on the `let` keywo
 @[inlineIfReduce] def orelseMkRes (msg₁ : Message μ) (r : Result μ α) : Result μ α :=
 match r with
 | ok a it' (some ex₂) := ok a it' (some $ msg₁.expected ++ ex₂)
-| error msg₂ ff       := error (merge msg₁ msg₂) ff
+| error msg₂ false       := error (merge msg₁ msg₂) false
 | other               := other
 
 /--
@@ -217,7 +217,7 @@ match r with
 λ it, do
   r ← p it,
   match r with
-  | error msg₁ ff := do { r ← q it, pure $ orelseMkRes msg₁ r }
+  | error msg₁ false := do { r ← q it, pure $ orelseMkRes msg₁ r }
   | other         := pure other
 
 instance : Alternative (ParsecT μ m) :=
@@ -261,7 +261,7 @@ variables {m : Type → Type} [Monad m] [MonadParsec μ m] {α β : Type}
 
 def error {α : Type} (unexpected : String) (expected : Dlist String := Dlist.Empty)
           (it : Option Iterator := none) (custom : Option μ := none) : m α :=
-lift $ λ it', Result.error { unexpected := unexpected, expected := expected, it := it.getOrElse it', custom := custom } ff
+lift $ λ it', Result.error { unexpected := unexpected, expected := expected, it := it.getOrElse it', custom := custom } false
 
 @[inline] def leftOver : m Iterator :=
 lift $ λ it, Result.mkEps it it
@@ -315,7 +315,7 @@ do it ← leftOver,
        else pure ()
 
 def eoiError (it : Iterator) : Result μ α :=
-Result.error { it := it, unexpected := "end of input", custom := default _ } ff
+Result.error { it := it, unexpected := "end of input", custom := default _ } false
 
 def curr : m Char :=
 String.Iterator.curr <$> leftOver
@@ -368,7 +368,7 @@ def strCore (s : String) (ex : Dlist String) : m String :=
 if s.isEmpty then pure ""
 else lift $ λ it, match strAux s.length s.mkIterator it with
   | some it' := Result.ok s it' none
-  | none     := Result.error { it := it, expected := ex, custom := none } ff
+  | none     := Result.error { it := it, expected := ex, custom := none } false
 
 @[inline] def str (s : String) : m String :=
 strCore s (Dlist.singleton (repr s))
@@ -398,9 +398,9 @@ private def takeWhileAux (p : Char → Bool) : Nat → String → Iterator → R
        else mkStringResult r it
 
 /--
-Consume input as long as the predicate returns `tt`, and return the consumed input.
+Consume input as long as the predicate returns `true`, and return the consumed input.
 This Parser does not fail. It will return an Empty String if the predicate
-returns `ff` on the current character. -/
+returns `false` on the current character. -/
 @[specialize] def takeWhile (p : Char → Bool) : m String :=
 lift $ λ it, takeWhileAux p it.remaining "" it
 
@@ -408,14 +408,14 @@ lift $ λ it, takeWhileAux p it.remaining "" it
 lift $ λ it, takeWhileAux p it.remaining ini it
 
 /--
-Consume input as long as the predicate returns `tt`, and return the consumed input.
+Consume input as long as the predicate returns `true`, and return the consumed input.
 This Parser requires the predicate to succeed on at least once. -/
 @[specialize] def takeWhile1 (p : Char → Bool) : m String :=
 do c ← satisfy p,
    takeWhileCont p (toString c)
 
 /--
-Consume input as long as the predicate returns `ff` (i.e. until it returns `tt`), and return the consumed input.
+Consume input as long as the predicate returns `false` (i.e. until it returns `true`), and return the consumed input.
 This Parser does not fail. -/
 @[inline] def takeUntil (p : Char → Bool) : m String :=
 takeWhile (λ c, !p c)
@@ -432,12 +432,12 @@ else Result.mkEps () it
 | (n+1) consumed it :=
   if !it.hasNext then mkConsumedResult consumed it
   else let c := it.curr in
-       if p c then takeWhileAux' n tt it.next
+       if p c then takeWhileAux' n true it.next
        else mkConsumedResult consumed it
 
 /-- Similar to `takeWhile` but it does not return the consumed input. -/
 @[specialize] def takeWhile' (p : Char → Bool) : m Unit :=
-lift $ λ it, takeWhileAux' p it.remaining ff it
+lift $ λ it, takeWhileAux' p it.remaining false it
 
 /-- Similar to `takeWhile1` but it does not return the consumed input. -/
 @[specialize] def takeWhile1' (p : Char → Bool) : m Unit :=
@@ -469,7 +469,7 @@ String.Iterator.offset <$> leftOver
 /-- `notFollowedBy p` succeeds when Parser `p` fails -/
 @[inline] def notFollowedBy [MonadExcept (Message μ) m] (p : m α) (msg : String := "input") : m Unit :=
 do it ← leftOver,
-   b ← lookahead $ catch (p *> pure ff) (λ _, pure tt),
+   b ← lookahead $ catch (p *> pure false) (λ _, pure true),
    if b then pure () else error msg Dlist.Empty it
 
 def eoi : m Unit :=
@@ -554,7 +554,7 @@ do it ← leftOver,
          | _                     := Result.ok [a] it none)
        (λ msg, pure $ match r with
            | Result.error msg' _ := if msg'.it.offset > msg.it.offset then r
-             else if msg.it.offset > msg'.it.offset then Result.error msg tt
+             else if msg.it.offset > msg'.it.offset then Result.error msg true
              else Result.error (merge msg msg') (msg.it.offset > it.offset)
            | _ := r))
     ((error "longestMatch: Empty List" : Parsec _ _) it),

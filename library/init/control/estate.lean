@@ -94,7 +94,7 @@ instance [Inhabited ε] : Inhabited (Estate ε σ α) :=
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
-@[inline] protected def orelse' (x₁ x₂ : Estate ε σ α) (useFirstEx := tt) : Estate ε σ α :=
+@[inline] protected def orelse' (x₁ x₂ : Estate ε σ α) (useFirstEx := true) : Estate ε σ α :=
 λ r, match x₁ r with
      | Result.error e₁ s₁ :=
        (match x₂ (resultOk.mk ⟨⟩ s₁) with

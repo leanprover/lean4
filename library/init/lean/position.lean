@@ -43,7 +43,7 @@ namespace FileMap
 private def fromStringAux : Nat → String.Iterator → Nat → List (Nat × Nat)
 | 0     it line := []
 | (k+1) it line :=
-  if it.hasNext = ff then []
+  if it.hasNext = false then []
   else match it.curr with
        | '\n'  := (it.next.offset, line+1) :: fromStringAux k it.next (line+1)
        | other := fromStringAux k it.next line

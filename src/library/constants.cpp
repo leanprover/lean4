@@ -20,8 +20,8 @@ name const * g_bin_tree_empty = nullptr;
 name const * g_bin_tree_leaf = nullptr;
 name const * g_bin_tree_node = nullptr;
 name const * g_bool = nullptr;
-name const * g_bool_ff = nullptr;
-name const * g_bool_tt = nullptr;
+name const * g_bool_false = nullptr;
+name const * g_bool_true = nullptr;
 name const * g_combinator_k = nullptr;
 name const * g_cast = nullptr;
 name const * g_char = nullptr;
@@ -304,8 +304,8 @@ void initialize_constants() {
     g_bin_tree_leaf = new name{"BinTree", "leaf"};
     g_bin_tree_node = new name{"BinTree", "Node"};
     g_bool = new name{"Bool"};
-    g_bool_ff = new name{"Bool", "ff"};
-    g_bool_tt = new name{"Bool", "tt"};
+    g_bool_false = new name{"Bool", "false"};
+    g_bool_true = new name{"Bool", "true"};
     g_combinator_k = new name{"Combinator", "K"};
     g_cast = new name{"cast"};
     g_char = new name{"Char"};
@@ -589,8 +589,8 @@ void finalize_constants() {
     delete g_bin_tree_leaf;
     delete g_bin_tree_node;
     delete g_bool;
-    delete g_bool_ff;
-    delete g_bool_tt;
+    delete g_bool_false;
+    delete g_bool_true;
     delete g_combinator_k;
     delete g_cast;
     delete g_char;
@@ -873,8 +873,8 @@ name const & get_bin_tree_empty_name() { return *g_bin_tree_empty; }
 name const & get_bin_tree_leaf_name() { return *g_bin_tree_leaf; }
 name const & get_bin_tree_node_name() { return *g_bin_tree_node; }
 name const & get_bool_name() { return *g_bool; }
-name const & get_bool_ff_name() { return *g_bool_ff; }
-name const & get_bool_tt_name() { return *g_bool_tt; }
+name const & get_bool_false_name() { return *g_bool_false; }
+name const & get_bool_true_name() { return *g_bool_true; }
 name const & get_combinator_k_name() { return *g_combinator_k; }
 name const & get_cast_name() { return *g_cast; }
 name const & get_char_name() { return *g_char; }

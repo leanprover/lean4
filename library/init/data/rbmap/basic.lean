@@ -47,11 +47,11 @@ protected def max : Rbnode α β → Option (Σ k : α, β k)
 | (Node _ l k v r)   b := revFold l (f k v (revFold r b))
 
 @[specialize] def all (p : Π k : α, β k → Bool) : Rbnode α β → Bool
-| leaf                 := tt
+| leaf                 := true
 | (Node _ l k v r)     := p k v && all l && all r
 
 @[specialize] def any (p : Π k : α, β k → Bool) : Rbnode α β → Bool
-| leaf                 := ff
+| leaf                 := false
 | (Node _ l k v r)   := p k v || any l || any r
 
 def balance1 : Rbnode α β → Rbnode α β → Rbnode α β
@@ -67,8 +67,8 @@ def balance2 : Rbnode α β → Rbnode α β → Rbnode α β
 | _                                                        _    := leaf -- unreachable
 
 def isRed : Rbnode α β → Bool
-| (Node red _ _ _ _) := tt
-| _                  := ff
+| (Node red _ _ _ _) := true
+| _                  := false
 
 section insert
 
@@ -167,8 +167,8 @@ t.val.depth f
 t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
 
 @[inline] def Empty : Rbmap α β lt → Bool
-| ⟨leaf, _⟩ := tt
-| _         := ff
+| ⟨leaf, _⟩ := true
+| _         := false
 
 @[specialize] def toList : Rbmap α β lt → List (α × β)
 | ⟨t, _⟩ := t.revFold (λ k v ps, (k, v)::ps) []

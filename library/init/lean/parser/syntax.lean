@@ -123,7 +123,7 @@ def kind : Syntax → Option SyntaxNodeKind
 
 def isOfKind (k : SyntaxNodeKind) : Syntax → Bool
 | (Syntax.rawNode n) := k.name = n.kind.name
-| _ := ff
+| _ := false
 
 section
 variables {m : Type → Type} [Monad m] (r : Syntax → m (Option Syntax))

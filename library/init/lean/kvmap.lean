@@ -18,7 +18,7 @@ def DataValue.beq : DataValue → DataValue → Bool
 | (DataValue.ofString s₁) (DataValue.ofString s₂) := s₁ = s₂
 | (DataValue.ofNat n₁)    (DataValue.ofNat n₂)    := n₂ = n₂
 | (DataValue.ofBool b₁)   (DataValue.ofBool b₂)   := b₁ = b₂
-| _                         _                         := ff
+| _                         _                     := false
 
 instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
 
@@ -79,11 +79,11 @@ def setName (m : Kvmap) (k : Name) (v : Name) : Kvmap :=
 m.insert k (DataValue.ofName v)
 
 def subset : Kvmap → Kvmap → Bool
-| ⟨[]⟩          m₂ := tt
+| ⟨[]⟩          m₂ := true
 | ⟨(k, v₁)::m₁⟩ m₂ :=
   (match m₂.find k with
    | some v₂ := v₁ == v₂ && subset ⟨m₁⟩ m₂
-   | none    := ff)
+   | none    := false)
 
 def eqv (m₁ m₂ : Kvmap) : Bool :=
 subset m₁ m₂ && subset m₂ m₁

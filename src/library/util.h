@@ -267,8 +267,8 @@ expr mk_nary_app(expr const & op, buffer<expr> const & nary_args);
 expr mk_nary_app(expr const & op, unsigned num_nary_args, expr const * nary_args);
 
 expr mk_bool();
-expr mk_bool_tt();
-expr mk_bool_ff();
+expr mk_bool_true();
+expr mk_bool_false();
 expr to_bool_expr(bool b);
 
 /* Similar to is_head_beta, but ignores annotations around the function. */

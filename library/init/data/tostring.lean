@@ -25,20 +25,20 @@ instance : HasToString String.Iterator :=
 ⟨λ it, it.remainingToString⟩
 
 instance : HasToString Bool :=
-⟨λ b, cond b "tt" "ff"⟩
+⟨λ b, cond b "true" "false"⟩
 
 instance {p : Prop} : HasToString (Decidable p) :=
 -- Remark: type class inference will not consider local instance `b` in the new Elaborator
-⟨λ b : Decidable p, @ite p b _ "tt" "ff"⟩
+⟨λ b : Decidable p, @ite p b _ "true" "false"⟩
 
 protected def List.toStringAux {α : Type u} [HasToString α] : Bool → List α → String
-| b  []      := ""
-| tt (x::xs) := toString x ++ List.toStringAux ff xs
-| ff (x::xs) := ", " ++ toString x ++ List.toStringAux ff xs
+| b     []      := ""
+| true  (x::xs) := toString x ++ List.toStringAux false xs
+| false (x::xs) := ", " ++ toString x ++ List.toStringAux false xs
 
 protected def List.toString {α : Type u} [HasToString α] : List α → String
 | []      := "[]"
-| (x::xs) := "[" ++ List.toStringAux tt (x::xs) ++ "]"
+| (x::xs) := "[" ++ List.toStringAux true (x::xs) ++ "]"
 
 instance {α : Type u} [HasToString α] : HasToString (List α) :=
 ⟨List.toString⟩

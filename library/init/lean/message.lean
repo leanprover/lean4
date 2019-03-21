@@ -54,8 +54,8 @@ instance : HasAppend MessageLog :=
 
 def hasErrors (log : MessageLog) : Bool :=
 log.revList.any $ λ m, match m.severity with
-| MessageSeverity.error := tt
-| _                      := ff
+| MessageSeverity.error := true
+| _                     := false
 
 def toList (log : MessageLog) : List Message :=
 log.revList.reverse

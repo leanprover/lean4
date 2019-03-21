@@ -13,32 +13,32 @@ namespace Nat
 
 @[extern cpp "lean::nat_dec_eq"]
 def beq : Nat → Nat → Bool
-| zero     zero     := tt
-| zero     (succ m) := ff
-| (succ n) zero     := ff
+| zero     zero     := true
+| zero     (succ m) := false
+| (succ n) zero     := false
 | (succ n) (succ m) := beq n m
 
-theorem eqOfBeqEqTt : ∀ {n m : Nat}, beq n m = tt → n = m
+theorem eqOfBeqEqTt : ∀ {n m : Nat}, beq n m = true → n = m
 | zero     zero     h := rfl
 | zero     (succ m) h := Bool.noConfusion h
 | (succ n) zero     h := Bool.noConfusion h
 | (succ n) (succ m) h :=
-  have beq n m = tt, from h,
+  have beq n m = true, from h,
   have n = m, from eqOfBeqEqTt this,
   congrArg succ this
 
-theorem neOfBeqEqFf : ∀ {n m : Nat}, beq n m = ff → n ≠ m
+theorem neOfBeqEqFf : ∀ {n m : Nat}, beq n m = false → n ≠ m
 | zero     zero     h₁ h₂ := Bool.noConfusion h₁
 | zero     (succ m) h₁ h₂ := Nat.noConfusion h₂
 | (succ n) zero     h₁ h₂ := Nat.noConfusion h₂
 | (succ n) (succ m) h₁ h₂ :=
-  have beq n m = ff, from h₁,
+  have beq n m = false, from h₁,
   have n ≠ m, from neOfBeqEqFf this,
   Nat.noConfusion h₂ (λ h₂, absurd h₂ this)
 
 @[extern cpp "lean::nat_dec_eq"]
 protected def decEq (n m : @& Nat) : Decidable (n = m) :=
-if h : beq n m = tt then isTrue (eqOfBeqEqTt h)
+if h : beq n m = true then isTrue (eqOfBeqEqTt h)
 else isFalse (neOfBeqEqFf (eqFfOfNeTt h))
 
 @[inline] instance : DecidableEq Nat :=
@@ -46,13 +46,13 @@ else isFalse (neOfBeqEqFf (eqFfOfNeTt h))
 
 @[extern cpp "lean::nat_dec_le"]
 def ble : Nat → Nat → Bool
-| zero     zero     := tt
-| zero     (succ m) := tt
-| (succ n) zero     := ff
+| zero     zero     := true
+| zero     (succ m) := true
+| (succ n) zero     := false
 | (succ n) (succ m) := ble n m
 
 protected def le (n m : Nat) : Prop :=
-ble n m = tt
+ble n m = true
 
 instance : HasLe Nat :=
 ⟨Nat.le⟩
@@ -261,7 +261,7 @@ predLePred
 
 @[extern cpp "lean::nat_dec_le"]
 instance decLe (n m : @& Nat) : Decidable (n ≤ m) :=
-decEq (ble n m) tt
+decEq (ble n m) true
 
 @[extern cpp "lean::nat_dec_lt"]
 instance decLt (n m : @& Nat) : Decidable (n < m) :=

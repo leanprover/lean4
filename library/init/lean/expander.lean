@@ -466,7 +466,7 @@ def universes.transform : transformer :=
   pure $ Syntax.list $ v.ids.map (λ id, review «universe» {id := id})
 
 def sorry.transform : transformer :=
-λ stx, pure $ mkApp (globId `sorryAx) [review hole {}, globId `Bool.ff]
+λ stx, pure $ mkApp (globId `sorryAx) [review hole {}, globId `Bool.false]
 
 local attribute [instance] Name.hasLtQuick
 

@@ -84,7 +84,7 @@ structure inductiveVal extends ConstantVal :=
 (nindices : Nat)      -- Number of indices
 (all : List Name)     -- List of all (including this one) inductive datatypes in the mutual Declaration containing this one
 (cnstrs : List Name)  -- List of all constructors for this inductive datatype
-(isRec : Bool)       -- `tt` Iff it is recursive
+(isRec : Bool)       -- `true` Iff it is recursive
 (isUnsafe : Bool)
 (isReflexive : Bool)
 

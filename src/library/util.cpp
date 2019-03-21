@@ -964,25 +964,25 @@ expr infer_implicit_params(expr const & type, unsigned nparams, implicit_infer_k
 }
 
 static expr * g_bool = nullptr;
-static expr * g_bool_tt = nullptr;
-static expr * g_bool_ff = nullptr;
+static expr * g_bool_true = nullptr;
+static expr * g_bool_false = nullptr;
 
 void initialize_bool() {
     g_bool = new expr(mk_constant(get_bool_name()));
-    g_bool_ff = new expr(mk_constant(get_bool_ff_name()));
-    g_bool_tt = new expr(mk_constant(get_bool_tt_name()));
+    g_bool_false = new expr(mk_constant(get_bool_false_name()));
+    g_bool_true = new expr(mk_constant(get_bool_true_name()));
 }
 
 void finalize_bool() {
     delete g_bool;
-    delete g_bool_ff;
-    delete g_bool_tt;
+    delete g_bool_false;
+    delete g_bool_true;
 }
 
 expr mk_bool() { return *g_bool; }
-expr mk_bool_tt() { return *g_bool_tt; }
-expr mk_bool_ff() { return *g_bool_ff; }
-expr to_bool_expr(bool b) { return b ? mk_bool_tt() : mk_bool_ff(); }
+expr mk_bool_true() { return *g_bool_true; }
+expr mk_bool_false() { return *g_bool_false; }
+expr to_bool_expr(bool b) { return b ? mk_bool_true() : mk_bool_false(); }
 
 name get_dep_recursor(environment const &, name const & n) {
     return name(n, g_rec);

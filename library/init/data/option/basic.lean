@@ -24,16 +24,16 @@ def get {α : Type u} [Inhabited α] : Option α → α
 | none     := default α
 
 def toBool {α : Type u} : Option α → Bool
-| (some _) := tt
-| none     := ff
+| (some _) := true
+| none     := false
 
 def isSome {α : Type u} : Option α → Bool
-| (some _) := tt
-| none     := ff
+| (some _) := true
+| none     := false
 
 def isNone {α : Type u} : Option α → Bool
-| (some _) := ff
-| none     := tt
+| (some _) := false
+| none     := true
 
 @[inline] protected def bind {α : Type u} {β : Type v} : Option α → (α → Option β) → Option β
 | none     b := none

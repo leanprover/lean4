@@ -15,8 +15,8 @@ BinTree.Empty
 BinTree.leaf
 BinTree.Node
 Bool
-Bool.ff
-Bool.tt
+Bool.false
+Bool.true
 Combinator.K
 cast
 Char

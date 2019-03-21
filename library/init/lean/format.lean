@@ -18,30 +18,30 @@ inductive Format
 | choice       : Format → Format → Format
 
 namespace Format
-instance : HasAppend Format     := ⟨compose ff⟩
+instance : HasAppend Format     := ⟨compose false⟩
 instance : HasCoe String Format := ⟨text⟩
 
 def join (xs : List Format) : Format :=
 xs.foldl (++) ""
 
 def flatten : Format → Format
-| nil                  := nil
-| line                 := text " "
-| f@(text _)           := f
-| (nest _ f)           := flatten f
-| (choice f _)         := flatten f
-| f@(compose tt _ _)   := f
-| f@(compose ff f₁ f₂) := compose tt (flatten f₁) (flatten f₂)
+| nil                     := nil
+| line                    := text " "
+| f@(text _)              := f
+| (nest _ f)              := flatten f
+| (choice f _)            := flatten f
+| f@(compose true _ _)    := f
+| f@(compose false f₁ f₂) := compose true (flatten f₁) (flatten f₂)
 
 def group : Format → Format
-| nil                := nil
-| f@(text _)         := f
-| f@(compose tt _ _) := f
-| f                  := choice (flatten f) f
+| nil                  := nil
+| f@(text _)           := f
+| f@(compose true _ _) := f
+| f                    := choice (flatten f) f
 
 structure SpaceResult :=
-(found    := ff)
-(exceeded := ff)
+(found    := false)
+(exceeded := false)
 (space    := 0)
 
 /-
@@ -56,7 +56,7 @@ else let y := r₂.get in
 
 def spaceUptoLine : Format → Nat → SpaceResult
 | nil               w := {}
-| line              w := { found := tt }
+| line              w := { found := true }
 | (text s)          w := { space := s.length, exceeded := s.length > w }
 | (compose _ f₁ f₂) w := merge w (spaceUptoLine f₁ w) (spaceUptoLine f₂ w)
 | (nest _ f)        w := spaceUptoLine f w

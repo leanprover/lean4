@@ -68,7 +68,7 @@ def symbolQuote.Parser : termParser :=
 node! symbolQuote [
   leftQuote: rawStr "`",
   symbol: quotedSymbol.Parser,
-  rightQuote: rawStr "`" tt, -- consume trailing ws
+  rightQuote: rawStr "`" true, -- consume trailing ws
   prec: precedence.Parser?]
 
 def unquotedSymbol.Parser : termParser :=

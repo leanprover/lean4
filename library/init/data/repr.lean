@@ -19,19 +19,19 @@ instance {α : Type u} [HasRepr α] : HasRepr (id α) :=
 inferInstanceAs (HasRepr α)
 
 instance : HasRepr Bool :=
-⟨λ b, cond b "tt" "ff"⟩
+⟨λ b, cond b "true" "false"⟩
 
 instance {p : Prop} : HasRepr (Decidable p) :=
-⟨λ b : Decidable p, @ite p b _ "tt" "ff"⟩
+⟨λ b : Decidable p, @ite p b _ "true" "false"⟩
 
 protected def List.reprAux {α : Type u} [HasRepr α] : Bool → List α → String
-| b  []      := ""
-| tt (x::xs) := repr x ++ List.reprAux ff xs
-| ff (x::xs) := ", " ++ repr x ++ List.reprAux ff xs
+| b     []      := ""
+| true  (x::xs) := repr x ++ List.reprAux false xs
+| false (x::xs) := ", " ++ repr x ++ List.reprAux false xs
 
 protected def List.repr {α : Type u} [HasRepr α] : List α → String
 | []      := "[]"
-| (x::xs) := "[" ++ List.reprAux tt (x::xs) ++ "]"
+| (x::xs) := "[" ++ List.reprAux true (x::xs) ++ "]"
 
 instance {α : Type u} [HasRepr α] : HasRepr (List α) :=
 ⟨List.repr⟩
@@ -119,7 +119,7 @@ def String.quoteAux : List Char → String
 | (x::xs) := Char.quoteCore x ++ String.quoteAux xs
 
 def String.quote (s : String) : String :=
-if s.isEmpty = tt then "\"\""
+if s.isEmpty = true then "\"\""
 else "\"" ++ String.quoteAux s.toList ++ "\""
 
 instance : HasRepr String :=

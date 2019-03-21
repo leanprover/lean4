@@ -28,18 +28,18 @@ instance levelIsInhabited : Inhabited Level :=
 def Level.one : Level := Level.succ Level.zero
 
 def Level.hasParam : Level → Bool
-| (Level.Param _)    := tt
+| (Level.Param _)    := true
 | (Level.succ l)     := Level.hasParam l
 | (Level.max l₁ l₂)  := Level.hasParam l₁ || Level.hasParam l₂
 | (Level.imax l₁ l₂) := Level.hasParam l₁ || Level.hasParam l₂
-| _                  := ff
+| _                  := false
 
 def Level.hasMvar : Level → Bool
-| (Level.mvar _)     := tt
+| (Level.mvar _)     := true
 | (Level.succ l)     := Level.hasParam l
 | (Level.max l₁ l₂)  := Level.hasParam l₁ || Level.hasParam l₂
 | (Level.imax l₁ l₂) := Level.hasParam l₁ || Level.hasParam l₂
-| _                  := ff
+| _                  := false
 
 def Level.ofNat : Nat → Level
 | 0     := Level.zero
@@ -97,8 +97,8 @@ def Result.imax : Result → Result → Result
 | f₁ f₂                   := Result.imaxNode [f₁, f₂]
 
 def parenIfFalse : Format → Bool → Format
-| f tt := f
-| f ff := f.paren
+| f true  := f
+| f false := f.paren
 
 mutual def Result.toFormat, resultList.toFormat
 with Result.toFormat : Result → Bool → Format
@@ -106,13 +106,13 @@ with Result.toFormat : Result → Bool → Format
 | (Result.num k)          _ := toString k
 | (Result.offset f 0)     r := Result.toFormat f r
 | (Result.offset f (k+1)) r :=
-  let f' := Result.toFormat f ff in
+  let f' := Result.toFormat f false in
   parenIfFalse (f' ++ "+" ++ toFmt (k+1)) r
 | (Result.maxNode Fs)    r := parenIfFalse (Format.group $ "max" ++ resultList.toFormat Fs) r
 | (Result.imaxNode Fs)   r := parenIfFalse (Format.group $ "imax" ++ resultList.toFormat Fs) r
 with resultList.toFormat : List Result → Format
 | []      := Format.nil
-| (r::rs) := Format.line ++ Result.toFormat r ff ++ resultList.toFormat rs
+| (r::rs) := Format.line ++ Result.toFormat r false ++ resultList.toFormat rs
 
 def Level.toResult : Level → Result
 | Level.zero         := Result.num 0
@@ -123,7 +123,7 @@ def Level.toResult : Level → Result
 | (Level.mvar n)     := Result.leaf (toFmt n)
 
 def Level.toFormat (l : Level) : Format :=
-(Level.toResult l).toFormat tt
+(Level.toResult l).toFormat true
 
 instance levelHasToFormat : HasToFormat Level := ⟨Level.toFormat⟩
 instance levelHasToString : HasToString Level := ⟨Format.pretty ∘ Level.toFormat⟩

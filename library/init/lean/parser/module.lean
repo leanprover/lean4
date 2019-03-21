@@ -76,11 +76,11 @@ private def commandWrecAux : Bool → Nat → ModuleParserM (Bool × Syntax)
 | recovering 0            := error "unreachable"
 | recovering (Nat.succ n) := do
   -- terminate at EOF
-  Nat.succ _ ← remaining | (Prod.mk ff) <$> eoi.Parser,
+  Nat.succ _ ← remaining | (Prod.mk false) <$> eoi.Parser,
   (recovering, c) ← catch (do {
     cfg ← read,
     c ← monadLift $ command.Parser.run cfg.commandParsers,
-    pure (ff, some c)
+    pure (false, some c)
   } <|> do {
     -- unknown command: try to skip token, or else single character
     when (¬ recovering) $ do {
@@ -88,11 +88,11 @@ private def commandWrecAux : Bool → Nat → ModuleParserM (Bool × Syntax)
       logMessage {expected := Dlist.singleton "command", it := it, custom := some ()}
     },
     try (monadLift token *> pure ()) <|> (any *> pure ()),
-    pure (tt, none)
+    pure (true, none)
   }) $ λ msg, do {
     -- error inside command: log error, return partial Syntax tree
     logMessage msg,
-    pure (tt, some msg.custom.get)
+    pure (true, some msg.custom.get)
   },
   /- NOTE: We need to make very sure that these recursive calls are happening in tail positions.
      Otherwise, resuming the coroutine is linear in the number of previous commands. -/
@@ -120,7 +120,7 @@ match r with
 | Except.error msg  := (msg.custom.get, Except.error $ messageOfParsecMessage cfg msg)
 
 def parseHeader (cfg : ModuleParserConfig) :=
-let snap := {ModuleParserSnapshot . recovering := ff, it := cfg.input.mkIterator} in
+let snap := {ModuleParserSnapshot . recovering := false, it := cfg.input.mkIterator} in
 resumeModuleParser cfg snap (λ stx, (stx, snap)) $ do
   -- `token` assumes that there is no leading whitespace
   monadLift whitespace,

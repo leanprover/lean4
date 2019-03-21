@@ -46,16 +46,16 @@ inductive IRType
 | irrelevant | object | tobject
 
 def IRType.beq : IRType → IRType → Bool
-| IRType.float      IRType.float      := tt
-| IRType.Uint8      IRType.Uint8      := tt
-| IRType.Uint16     IRType.Uint16     := tt
-| IRType.Uint32     IRType.Uint32     := tt
-| IRType.Uint64     IRType.Uint64     := tt
-| IRType.Usize      IRType.Usize      := tt
-| IRType.irrelevant IRType.irrelevant := tt
-| IRType.object     IRType.object     := tt
-| IRType.tobject    IRType.tobject    := tt
-| _               _               := ff
+| IRType.float      IRType.float      := true
+| IRType.Uint8      IRType.Uint8      := true
+| IRType.Uint16     IRType.Uint16     := true
+| IRType.Uint32     IRType.Uint32     := true
+| IRType.Uint64     IRType.Uint64     := true
+| IRType.Usize      IRType.Usize      := true
+| IRType.irrelevant IRType.irrelevant := true
+| IRType.object     IRType.object     := true
+| IRType.tobject    IRType.tobject    := true
+| _               _                   := false
 
 instance IRType.HasBeq : HasBeq IRType := ⟨IRType.beq⟩
 
@@ -74,7 +74,7 @@ inductive Litval
 def Litval.beq : Litval → Litval → Bool
 | (Litval.num v₁) (Litval.num v₂) := v₁ = v₂
 | (Litval.str v₁) (Litval.str v₂) := v₁ = v₂
-| _               _               := ff
+| _               _               := false
 
 instance Litval.HasBeq : HasBeq Litval := ⟨Litval.beq⟩
 
@@ -146,9 +146,9 @@ inductive Fnbody
    `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
 | sset (x : varid) (i : Nat) (offset : Nat) (y : varid) (ty : IRType) (b : Fnbody)
 | release (x : varid) (i : Nat) (b : Fnbody)
-/- RC increment for `object`. If c = `tt`, then `inc` must check whether `x` is a tagged pointer or not. -/
+/- RC increment for `object`. If c = `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | inc (x : varid) (n : Nat) (c : Bool) (b : Fnbody)
-/- RC decrement for `object`. If c = `tt`, then `inc` must check whether `x` is a tagged pointer or not. -/
+/- RC decrement for `object`. If c = `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | dec (x : varid) (n : Nat) (c : Bool) (b : Fnbody)
 | mdata (d : Kvmap) (b : Fnbody)
 | case (tid : Name) (x : varid) (cs : List (AltCore Fnbody))
@@ -165,19 +165,19 @@ inductive Decl
 | fdecl  (f : fid) (xs : List Param) (ty : IRType) (b : Fnbody)
 | extern (f : fid) (xs : List Param) (ty : IRType)
 
-/-- `Expr.isPure e` return `tt` Iff `e` is in the `λPure` fragment. -/
+/-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
 def Expr.isPure : Expr → Bool
-| (Expr.ctor _ _)  := tt
-| (Expr.proj _ _)  := tt
-| (Expr.uproj _ _) := tt
-| (Expr.sproj _ _) := tt
-| (Expr.fap _ _)   := tt
-| (Expr.pap _ _)   := tt
-| (Expr.ap _ _)    := tt
-| (Expr.lit _)     := tt
-| _                := ff
+| (Expr.ctor _ _)  := true
+| (Expr.proj _ _)  := true
+| (Expr.uproj _ _) := true
+| (Expr.sproj _ _) := true
+| (Expr.fap _ _)   := true
+| (Expr.pap _ _)   := true
+| (Expr.ap _ _)    := true
+| (Expr.lit _)     := true
+| _                := false
 
-/-- `Fnbody.isPure b` return `tt` Iff `b` is in the `λPure` fragment. -/
+/-- `Fnbody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
 mutual def Fnbody.isPure, alts.isPure, alt.isPure
 with Fnbody.isPure : Fnbody → Bool
 | (Fnbody.vdecl _ _ e b)    := e.isPure && b.isPure
@@ -186,16 +186,16 @@ with Fnbody.isPure : Fnbody → Bool
 | (Fnbody.sset _ _ _ _ _ b) := b.isPure
 | (Fnbody.mdata _ b)        := b.isPure
 | (Fnbody.case _ _ cs)      := alts.isPure cs
-| (Fnbody.ret _)            := tt
-| (Fnbody.jmp _ _)          := tt
-| Fnbody.unreachable        := tt
-| _                         := ff
+| (Fnbody.ret _)            := true
+| (Fnbody.jmp _ _)          := true
+| Fnbody.unreachable        := true
+| _                         := false
 with alts.isPure : List alt → Bool
-| []      := tt
+| []      := true
 | (a::as) := a.isPure && alts.isPure as
 with alt.isPure : alt → Bool
 | (alt.ctor _ b)  := b.isPure
-| (alt.default b) := ff
+| (alt.default b) := false
 
 abbrev varRenaming := NameMap Name
 
@@ -213,15 +213,15 @@ instance varid.hasAeqv : HasAlphaEqv varid := ⟨varid.alphaEqv⟩
 
 def Arg.alphaEqv (ρ : varRenaming) : Arg → Arg → Bool
 | (Arg.var v₁)   (Arg.var v₂)   := v₁ =[ρ]= v₂
-| Arg.irrelevant Arg.irrelevant := tt
-| _              _              := ff
+| Arg.irrelevant Arg.irrelevant := true
+| _              _              := false
 
 instance Arg.hasAeqv : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
 def args.alphaEqv (ρ : varRenaming) : List Arg → List Arg → Bool
-| []      []      := tt
+| []      []      := true
 | (a::as) (b::bs) := a =[ρ]= b && args.alphaEqv as bs
-| _       _       := ff
+| _       _       := false
 
 instance args.hasAeqv : HasAlphaEqv (List Arg) := ⟨args.alphaEqv⟩
 
@@ -240,7 +240,7 @@ def Expr.alphaEqv (ρ : varRenaming) : Expr → Expr → Bool
 | (Expr.lit v₁)           (Expr.lit v₂)           := v₁ == v₂
 | (Expr.isShared x₁)     (Expr.isShared x₂)     := x₁ =[ρ]= x₂
 | (Expr.isTaggedPtr x₁) (Expr.isTaggedPtr x₂) := x₁ =[ρ]= x₂
-| _                        _                      := ff
+| _                        _                      := false
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
 
@@ -262,7 +262,7 @@ with Fnbody.alphaEqv : varRenaming → Fnbody → Fnbody → Bool
 | ρ (Fnbody.jdecl j₁ ys₁ t₁ v₁ b₁)  (Fnbody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
   (match addParamsRename ρ ys₁ ys₂ with
    | some ρ' := t₁ == t₂ && Fnbody.alphaEqv ρ' v₁ v₂ && Fnbody.alphaEqv (addVarRename ρ j₁ j₂) b₁ b₂
-   | none    := ff)
+   | none    := false)
 | ρ (Fnbody.set x₁ i₁ y₁ b₁)        (Fnbody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ = i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.uset x₁ i₁ y₁ b₁)       (Fnbody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ = i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.sset x₁ i₁ o₁ y₁ t₁ b₁) (Fnbody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
@@ -274,16 +274,16 @@ with Fnbody.alphaEqv : varRenaming → Fnbody → Fnbody → Bool
 | ρ (Fnbody.case n₁ x₁ as₁)         (Fnbody.case n₂ x₂ as₂)           := n₁ = n₂ && x₁ =[ρ]= x₂ && alts.alphaEqv ρ as₁ as₂
 | ρ (Fnbody.jmp j₁ ys₁)             (Fnbody.jmp j₂ ys₂)               := j₁ = j₂ && ys₁ =[ρ]= ys₂
 | ρ (Fnbody.ret x₁)                 (Fnbody.ret x₂)                   := x₁ =[ρ]= x₂
-| _ Fnbody.unreachable              Fnbody.unreachable                := tt
-| _ _                               _                                 := ff
+| _ Fnbody.unreachable              Fnbody.unreachable                := true
+| _ _                               _                                 := false
 with alts.alphaEqv : varRenaming → List alt → List alt → Bool
-| _ []        []        := tt
+| _ []        []        := true
 | ρ (a₁::as₁) (a₂::as₂) := alt.alphaEqv ρ a₁ a₂ && alts.alphaEqv ρ as₁ as₂
-| _ _         _         := ff
+| _ _         _         := false
 with alt.alphaEqv : varRenaming → alt → alt → Bool
 | ρ (alt.ctor i₁ b₁) (alt.ctor i₂ b₂) := i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (alt.default b₁) (alt.default b₂) := Fnbody.alphaEqv ρ b₁ b₂
-| _ _                _                := ff
+| _ _                _                := false
 
 def Fnbody.beq (b₁ b₂ : Fnbody) : Bool :=
 Fnbody.alphaEqv mkNameMap b₁ b₂

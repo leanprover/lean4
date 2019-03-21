@@ -214,7 +214,7 @@ def forward : Iterator → Nat → Iterator
 def remainingToString : Iterator → String
 | ⟨s, _, i⟩ := s.extract i s.bsize
 
-/- (isPrefixOfRemaining it₁ it₂) is `tt` Iff `it₁.remainingToString` is a prefix
+/- (isPrefixOfRemaining it₁ it₂) is `true` Iff `it₁.remainingToString` is a prefix
    of `it₂.remainingToString`. -/
 def isPrefixOfRemaining : Iterator → Iterator → Bool
 | ⟨s₁, _, i₁⟩ ⟨s₂, _, i₂⟩ := s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
@@ -264,7 +264,7 @@ end Iterator
 private def lineColumnAux : Nat → String.Iterator → Nat × Nat → Nat × Nat
 | 0     it r           := r
 | (k+1) it r@(line, col) :=
-  if it.hasNext = ff then r
+  if it.hasNext = false then r
   else match it.curr with
        | '\n'  := lineColumnAux k it.next (line+1, 0)
        | other := lineColumnAux k it.next (line, col+1)

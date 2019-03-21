@@ -76,7 +76,7 @@ constant putStr (s: @& String) : IO Unit := default _
 @[extern 1 "lean_io_prim_get_line"]
 constant getLine : IO String := default _
 @[extern 4 "lean_io_prim_handle_mk"]
-constant handle.mk (s : @& String) (m : Mode) (bin : Bool := ff) : IO handle := default _
+constant handle.mk (s : @& String) (m : Mode) (bin : Bool := false) : IO handle := default _
 @[extern 2 "lean_io_prim_handle_is_eof"]
 constant handle.isEof (h : @& handle) : IO Bool := default _
 @[extern 2 "lean_io_prim_handle_flush"]
@@ -109,7 +109,7 @@ end
 namespace Fs
 variables {m : Type → Type} [Monad m] [monadIO m]
 
-def handle.mk (s : String) (Mode : Mode) (bin : Bool := ff) : m handle := Prim.liftIO (Prim.handle.mk s Mode bin)
+def handle.mk (s : String) (Mode : Mode) (bin : Bool := false) : m handle := Prim.liftIO (Prim.handle.mk s Mode bin)
 def handle.isEof : handle → m Bool := Prim.liftIO ∘ Prim.handle.isEof
 def handle.flush : handle → m Unit := Prim.liftIO ∘ Prim.handle.flush
 def handle.close : handle → m Unit := Prim.liftIO ∘ Prim.handle.flush
@@ -143,13 +143,13 @@ Prim.liftIO $ Prim.iterate "" $ λ r, do
     c ← h.getLine,
     pure $ Sum.inl (r ++ c) -- continue
 
-def readFile (fname : String) (bin := ff) : m String :=
+def readFile (fname : String) (bin := false) : m String :=
 do h ← handle.mk fname Mode.read bin,
    r ← h.readToEnd,
    h.close,
    pure r
 
--- def writeFile (fname : String) (data : String) (bin := ff) : m Unit :=
+-- def writeFile (fname : String) (data : String) (bin := false) : m Unit :=
 -- do h ← handle.mk fname Mode.write bin,
 --   h.write data,
 --   h.close

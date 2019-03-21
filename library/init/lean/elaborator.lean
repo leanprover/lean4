@@ -16,7 +16,7 @@ namespace Lean
 constant environment : Type := Unit
 
 @[extern "lean_environment_contains"]
-constant environment.contains (env : @& environment) (n : @& Name) : Bool := ff
+constant environment.contains (env : @& environment) (n : @& Name) : Bool := false
 -- deprecated Constructor
 @[extern "lean_expr_local"]
 constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := default Expr
@@ -287,14 +287,14 @@ def toPexpr : Syntax → ElaboratorM Expr
     let v := view structInst stx,
     -- order should be: fields*, sources*, catchall?
     let (fields, other) := v.items.span (λ it, ↑match SepBy.Elem.View.item it with
-      | structInstItem.View.field _ := tt
-      | _ := ff),
+      | structInstItem.View.field _ := true
+      | _ := false),
     let (sources, catchall) := other.span (λ it, ↑match SepBy.Elem.View.item it with
-      | structInstItem.View.source {source := some _} := tt
-      | _ := ff),
+      | structInstItem.View.source {source := some _} := true
+      | _ := false),
     catchall ← match catchall with
-    | [] := pure ff
-    | [{item := structInstItem.View.source _}] := pure tt
+    | [] := pure false
+    | [{item := structInstItem.View.source _}] := pure true
     | {item := it}::_ := error (review structInstItem it) $ "unexpected item in structure instance notation",
 
     fields ← fields.mmap (λ f, match SepBy.Elem.View.item f with
@@ -325,7 +325,7 @@ def toPexpr : Syntax → ElaboratorM Expr
     let eqns := mkEqns type eqns,
     Expr.mdata mdata e ← pure eqns
       | error stx "toPexpr: unreachable",
-    let eqns := Expr.mdata (mdata.setBool `match tt) e,
+    let eqns := Expr.mdata (mdata.setBool `match true) e,
     Expr.mkApp eqns <$> v.scrutinees.mmap (λ scr, toPexpr scr.item)
   | _ := error stx $ "toPexpr: unexpected Node: " ++ toString k.name,
   (match k with
@@ -386,8 +386,8 @@ def declModifiersToPexpr (mods : declModifiers.View) : ElaboratorM Expr := do
     | some {doc := some doc, ..} := mdata.setString `docString doc.val
     | _ := mdata,
   let mdata := match mods.visibility with
-    | some (visibility.View.private _) := mdata.setBool `private tt
-    | some (visibility.View.protected _) := mdata.setBool `protected tt
+    | some (visibility.View.private _) := mdata.setBool `private true
+    | some (visibility.View.protected _) := mdata.setBool `protected true
     | _ := mdata,
   let mdata := mdata.setBool `noncomputable mods.noncomputable.isSome,
   let mdata := mdata.setBool `unsafe mods.unsafe.isSome,
@@ -587,8 +587,8 @@ def variables.elaborate : Elaborator :=
         modifyCurrentScope $ λ sc, {sc with vars :=
           sc.vars.insert id {v with BinderInfo := bi}}
       | none := error (Syntax.ident id) "",
-      pure ff
-    else pure tt
+      pure false
+    else pure true
   | _ := error stx "variables.elaborate: unexpected input",
   vars ← simpleBindersToPexpr vars,
   oldElabCommand stx $ Expr.mdata mdata vars
@@ -705,9 +705,9 @@ def reserveNotation.elaborate : Elaborator :=
   updateParserConfig
 
 def matchPrecedence : Option precedence.View → Option precedence.View → Bool
-| none      (some rp) := tt
+| none      (some rp) := true
 | (some sp) (some rp) := sp.Term.toNat = rp.Term.toNat
-| _         _         := ff
+| _         _         := false
 
 /-- Check if a notation is compatible with a reserved notation, and if so, copy missing
     precedences in the notation from the reserved notation. -/
@@ -774,8 +774,8 @@ def notation.elaborate : Elaborator :=
   let nota := view «notation» stx,
   -- HACK: ignore List Literal notation using :fold
   let usesFold := nota.spec.rules.any $ λ r, match r.transition with
-    | some (transition.View.Arg {action := some {kind := actionKind.View.fold _, ..}, ..}) := tt
-    | _ := ff,
+    | some (transition.View.Arg {action := some {kind := actionKind.View.fold _, ..}, ..}) := true
+    | _ := false,
   if usesFold then do {
     cfg ← read,
     modify $ λ st, {st with messages := st.messages.add {filename := cfg.filename, pos := ⟨1,0⟩,
@@ -842,7 +842,7 @@ def setOption.elaborate : Elaborator :=
   let opts := sc.Options,
   -- TODO(Sebastian): check registered Options
   let opts := match v.val with
-  | optionValue.View.Bool b := opts.setBool opt (match b with boolOptionValue.View.True _ := tt | _ := ff)
+  | optionValue.View.Bool b := opts.setBool opt (match b with boolOptionValue.View.True _ := true | _ := false)
   | optionValue.View.String lit := (match lit.value with
     | some s := opts.setString opt s
     | none   := opts)  -- Parser already failed
@@ -917,19 +917,19 @@ def elaborators : Rbmap Name Elaborator (<) := Rbmap.fromList [
 
 -- TODO: optimize
 def isOpenNamespace (sc : Scope) : Name → Bool
-| Name.anonymous := tt
+| Name.anonymous := true
 | ns :=
   -- check surrounding namespaces
   ns ∈ sc.nsStack ∨
   -- check opened namespaces
   sc.openDecls.any (λ od, od.id.val = ns) ∨
   -- TODO: check active exports
-  ff
+  false
 
 -- TODO: `hiding`, `as`, `renaming`
 def matchOpenSpec (n : Name) (spec : openSpec.View) : Option Name :=
 let matchesOnly := match spec.only with
-| none := tt
+| none := true
 | some only := n = only.id.val ∨ only.ids.any (λ id, n = id.val) in
 if matchesOnly then some (spec.id.val ++ n) else none
 
@@ -954,7 +954,7 @@ def resolveContext : Name → ElaboratorM (List Name)
   -- check environment directly
   (let unrooted := n.replacePrefix `_root_ Name.anonymous in
    match st.env.contains unrooted with
-   | tt := [unrooted]
+   | true := [unrooted]
    | _ := [])
   ++
   -- check opened namespaces

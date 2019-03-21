@@ -56,13 +56,13 @@ def List.mfirst {m : Type u → Type v} [Monad m] [Alternative m] {α : Type w} 
 
 @[specialize]
 def List.mexists {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
-| []      := pure ff
-| (a::as) := do b ← f a, if b then pure tt else List.mexists as
+| []      := pure false
+| (a::as) := do b ← f a, if b then pure true else List.mexists as
 
 @[specialize]
 def List.mforall {m : Type → Type u} [Monad m] {α : Type v} (f : α → m Bool) : List α → m Bool
-| []      := pure tt
-| (a::as) := do b ← f a, if b then List.mforall as else pure ff
+| []      := pure true
+| (a::as) := do b ← f a, if b then List.mforall as else pure false
 
 @[macroInline] def when {m : Type → Type u} [Monad m] (c : Prop) [h : Decidable c] (t : m Unit) : m Unit :=
 if c then t else pure ()

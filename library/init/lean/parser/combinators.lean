@@ -86,11 +86,11 @@ private def sepByAux (p : m Syntax) (sep : Parser) (allowTrailingSep : Bool) : B
     | pure (Syntax.list (a::as).reverse),
   sepByAux allowTrailingSep (s::a::as) n
 
-def sepBy (p sep : Parser) (allowTrailingSep := tt) : Parser :=
-do rem ← remaining, sepByAux p sep allowTrailingSep tt [] (rem+1)
+def sepBy (p sep : Parser) (allowTrailingSep := true) : Parser :=
+do rem ← remaining, sepByAux p sep allowTrailingSep true [] (rem+1)
 
-def sepBy1 (p sep : Parser) (allowTrailingSep := tt) : Parser :=
-do rem ← remaining, sepByAux p sep allowTrailingSep ff [] (rem+1)
+def sepBy1 (p sep : Parser) (allowTrailingSep := true) : Parser :=
+do rem ← remaining, sepByAux p sep allowTrailingSep false [] (rem+1)
 
 instance sepBy.tokens (p sep : Parser) (a) [Parser.HasTokens p] [Parser.HasTokens sep] :
   Parser.HasTokens (sepBy p sep a) :=

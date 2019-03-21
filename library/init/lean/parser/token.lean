@@ -92,7 +92,7 @@ let ss : Substring := ⟨start, stop⟩ in
 Syntax.atom ⟨some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩}, ss.toString⟩
 
 /-- Match an arbitrary Parser and return the consumed String in a `Syntax.atom`. -/
-@[inline] def raw {α : Type} (p : m α) (trailingWs := ff) : Parser := do
+@[inline] def raw {α : Type} (p : m α) (trailingWs := false) : Parser := do
   start ← leftOver,
   p,
   stop ← leftOver,
@@ -108,7 +108,7 @@ instance raw.view {α} (p : m α) (t) : Parser.HasView (Option SyntaxAtom) (raw 
 
 /-- Like `raw (str s)`, but default to `s` in views. -/
 @[inline, derive HasTokens HasView]
-def rawStr (s : String) (trailingWs := ff) : Parser :=
+def rawStr (s : String) (trailingWs := false) : Parser :=
 raw (str s) trailingWs
 
 instance rawStr.viewDefault (s) (t) : Parser.HasViewDefault (rawStr s t : Parser) (Option SyntaxAtom) (some {val := s}) :=

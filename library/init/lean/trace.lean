@@ -50,7 +50,7 @@ traceCtx cls msg (pure () : m Unit)
 instance (m) [Monad m] : MonadTracer (TraceT m) :=
 { traceRoot := λ α pos cls msg ctx, do {
     st ← get,
-    if st.opts.getBool cls = some tt then do {
+    if st.opts.getBool cls = some true then do {
       modify $ λ st, {curPos := pos, curTraces := [], ..st},
       a ← ctx.get,
       modify $ λ (st : TraceState), {roots := st.roots.insert pos ⟨msg, st.curTraces⟩, ..st},
@@ -62,7 +62,7 @@ instance (m) [Monad m] : MonadTracer (TraceT m) :=
     -- tracing enabled?
     some _ ← pure st.curPos | ctx.get,
     -- Trace class enabled?
-    if st.opts.getBool cls = some tt then do {
+    if st.opts.getBool cls = some true then do {
       put {curTraces := [], ..st},
       a ← ctx.get,
       modify $ λ (st' : TraceState), {curTraces := st.curTraces ++ [⟨msg, st'.curTraces⟩], ..st'},

@@ -286,8 +286,8 @@ structure Psigma {α : Sort u} (β : α → Sort v) :=
 mk :: (fst : α) (snd : β fst)
 
 inductive Bool : Type
-| ff : Bool
-| tt : Bool
+| false : Bool
+| true : Bool
 
 /- Remark: Subtype must take a Sort instead of Type because of the axiom strongIndefiniteDescription. -/
 structure Subtype {α : Sort u} (p : α → Prop) :=
@@ -321,7 +321,7 @@ inductive Option (α : Type u)
 | some (val : α) : Option
 
 export Option (none some)
-export Bool (ff tt)
+export Bool (false true)
 
 inductive List (T : Type u)
 | nil {} : List
@@ -337,7 +337,7 @@ inductive Nat
 /- Auxiliary axiom used to implement `sorry`.
    TODO: add this theorem on-demand. That is,
    we should only add it if after the first error. -/
-unsafe axiom sorryAx (α : Sort u) (synthetic := tt) : α
+unsafe axiom sorryAx (α : Sort u) (synthetic := true) : α
 
 /- Declare builtin and reserved notation -/
 
@@ -603,25 +603,25 @@ attribute [elabSimple] BinTree.Node BinTree.leaf
 /- Boolean operators -/
 
 @[macroInline] def cond {a : Type u} : Bool → a → a → a
-| tt x y := x
-| ff x y := y
+| true  x y := x
+| false x y := y
 
 @[macroInline] def bor : Bool → Bool → Bool
-| tt _  := tt
-| ff b  := b
+| true  _  := true
+| false b  := b
 
 @[macroInline] def band : Bool → Bool → Bool
-| ff _  := ff
-| tt b  := b
+| false _  := false
+| true  b  := b
 
 @[macroInline] def bnot : Bool → Bool
-| tt := ff
-| ff := tt
+| true  := false
+| false := true
 
 @[macroInline] def bxor : Bool → Bool → Bool
-| tt ff  := tt
-| ff tt  := tt
-| _  _   := ff
+| true  false := true
+| false true  := true
+| _  _        := false
 
 prefix ! := bnot
 infix || := bor
@@ -721,13 +721,13 @@ theorem trueNeFalse : ¬True = False :=
 neFalseOfSelf trivial
 end ne
 
-theorem eqFfOfNeTt : ∀ {b : Bool}, b ≠ tt → b = ff
-| tt h := False.elim (h rfl)
-| ff h := rfl
+theorem eqFfOfNeTt : ∀ {b : Bool}, b ≠ true → b = false
+| true h := False.elim (h rfl)
+| false h := rfl
 
-theorem eqTtOfNeFf : ∀ {b : Bool}, b ≠ ff → b = tt
-| tt h := rfl
-| ff h := False.elim (h rfl)
+theorem eqTtOfNeFf : ∀ {b : Bool}, b ≠ false → b = true
+| true h := rfl
+| false h := False.elim (h rfl)
 
 section
 variables {α β φ : Sort u} {a a' : α} {b b' : β} {c : φ}
@@ -1086,14 +1086,14 @@ theorem forallNotOfNotExists {α : Sort u} {p : α → Prop} : ¬(∃ x, p x) �
 /- Decidable -/
 
 @[macroInline] def Decidable.toBool (p : Prop) [h : Decidable p] : Bool :=
-Decidable.casesOn h (λ h₁, Bool.ff) (λ h₂, Bool.tt)
+Decidable.casesOn h (λ h₁, false) (λ h₂, true)
 
 export Decidable (isTrue isFalse toBool)
 
-theorem toBoolTrueEqTt (h : Decidable True) : @toBool True h = tt :=
+theorem toBoolTrueEqTt (h : Decidable True) : @toBool True h = true :=
 Decidable.casesOn h (λ h, False.elim (Iff.mp notTrue h)) (λ _, rfl)
 
-theorem toBoolFalseEqFf (h : Decidable False) : @toBool False h = ff :=
+theorem toBoolFalseEqFf (h : Decidable False) : @toBool False h = false :=
 Decidable.casesOn h (λ h, rfl) (λ h, False.elim h)
 
 instance : Decidable True :=
@@ -1230,24 +1230,24 @@ match decEq a b with
 | isTrue h := isFalse $ λ h', absurd h h'
 | isFalse h := isTrue h
 
-theorem Bool.ffNeTt (h : ff = tt) : False :=
+theorem Bool.falseNeTrue (h : false = true) : False :=
 Bool.noConfusion h
 
-def isDecEq {α : Sort u} (p : α → α → Bool) : Prop   := ∀ ⦃x y : α⦄, p x y = tt → x = y
-def isDecRefl {α : Sort u} (p : α → α → Bool) : Prop := ∀ x, p x x = tt
+def isDecEq {α : Sort u} (p : α → α → Bool) : Prop   := ∀ ⦃x y : α⦄, p x y = true → x = y
+def isDecRefl {α : Sort u} (p : α → α → Bool) : Prop := ∀ x, p x x = true
 
 instance : DecidableEq Bool :=
 {decEq := λ a b, match a, b with
- | ff, ff := isTrue rfl
- | ff, tt := isFalse Bool.ffNeTt
- | tt, ff := isFalse (ne.symm Bool.ffNeTt)
- | tt, tt := isTrue rfl}
+ | false, false := isTrue rfl
+ | false, true  := isFalse Bool.falseNeTrue
+ | true, false  := isFalse (ne.symm Bool.falseNeTrue)
+ | true, true   := isTrue rfl}
 
 @[inline]
 def decidableEqOfBoolPred {α : Sort u} {p : α → α → Bool} (h₁ : isDecEq p) (h₂ : isDecRefl p) : DecidableEq α :=
 {decEq := λ x y : α,
- if hp : p x y = tt then isTrue (h₁ hp)
- else isFalse (assume hxy : x = y, absurd (h₂ y) (@Eq.recOn _ _ (λ z _, ¬p z y = tt) _ hxy hp))}
+ if hp : p x y = true then isTrue (h₁ hp)
+ else isFalse (assume hxy : x = y, absurd (h₂ y) (@Eq.recOn _ _ (λ z _, ¬p z y = true) _ hxy hp))}
 
 theorem decidableEqInlRefl {α : Sort u} [DecidableEq α] (a : α) : decEq a a = isTrue (Eq.refl a) :=
 match (decEq a a) with
@@ -1414,7 +1414,7 @@ Inhabited.casesOn h (λ b, ⟨λ a, b⟩)
 instance pi.Inhabited (α : Sort u) {β : α → Sort v} [Π x, Inhabited (β x)] : Inhabited (Π x, β x) :=
 ⟨λ a, default (β a)⟩
 
-instance : Inhabited Bool := ⟨ff⟩
+instance : Inhabited Bool := ⟨false⟩
 
 instance : Inhabited True := ⟨trivial⟩
 

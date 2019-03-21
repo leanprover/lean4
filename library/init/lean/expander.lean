@@ -346,7 +346,7 @@ def if.transform : transformer :=
   pure $ match v.id with
   | some id := mkApp (globId `dite) [v.prop,
     review lambda {binders := binders.View.simple $ simpleBinder.View.explicit {id := id.id, type := v.prop}, body := v.thenBranch},
-    review lambda {binders := binders.View.simple $ simpleBinder.View.explicit {id := id.id, type := mkApp (globId `not) [v.prop]}, body := v.elseBranch}]
+    review lambda {binders := binders.View.simple $ simpleBinder.View.explicit {id := id.id, type := mkApp (globId `Not) [v.prop]}, body := v.elseBranch}]
   | none := mkApp (globId `ite) [v.prop, v.thenBranch, v.elseBranch]
 
 def let.transform : transformer :=

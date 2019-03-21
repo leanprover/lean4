@@ -91,7 +91,7 @@ struct resolve_names_fn : public replace_visitor {
                 bool skip_main_fn = true;
                 lhs = m_p.patexpr_to_pattern(lhs, skip_main_fn, new_locals);
                 if (is_match)
-                    new_locals.insert(0, mk_local("_match_fn", mk_expr_placeholder()));
+                    new_locals.insert(0, mk_local("_matchFn", mk_expr_placeholder()));
                 names locals = m_locals;
                 // NOTE: appends `new_locals` to `locals` in reverse
                 for (auto const & l : new_locals)
@@ -188,7 +188,7 @@ cmd_meta to_cmd_meta(environment const & env, expr const & e) {
     m.m_modifiers.m_is_noncomputable = get_bool(data, "noncomputable").value_or(false);
     m.m_modifiers.m_is_private = get_bool(data, "private").value_or(false);
     m.m_modifiers.m_is_protected = get_bool(data, "protected").value_or(false);
-    if (auto s = get_string(data, "doc_string"))
+    if (auto s = get_string(data, "docString"))
         m.m_doc_string = s->to_std_string();
     return m;
 }
@@ -286,6 +286,7 @@ static expr unpack_mutual_definition(parser & p, expr const & cmd, buffer<name> 
 
 void elab_defs_cmd(parser & p, expr const & cmd) {
     buffer<expr> args;
+    // std::cout << "elab_defs_cmd\n" << cmd << "\n--------------\n";
     get_app_args(mdata_expr(cmd), args);
     auto meta = to_cmd_meta(p.env(), args[0]);
     auto kind = static_cast<decl_cmd_kind>(lit_value(args[1]).get_nat().get_small_value());

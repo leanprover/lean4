@@ -42,15 +42,15 @@ first need to test whether the `tobject` is really a pointer or not.
 Remark: the Lean runtime assumes that sizeof(void*) == sizeof(sizeT).
 Lean cannot be compiled on old platforms where this is not True. -/
 inductive IRType
-| float | Uint8 | Uint16 | Uint32 | Uint64 | Usize
+| float | uint8 | uint16 | uint32 | uint64 | Usize
 | irrelevant | object | tobject
 
 def IRType.beq : IRType → IRType → Bool
 | IRType.float      IRType.float      := true
-| IRType.Uint8      IRType.Uint8      := true
-| IRType.Uint16     IRType.Uint16     := true
-| IRType.Uint32     IRType.Uint32     := true
-| IRType.Uint64     IRType.Uint64     := true
+| IRType.uint8      IRType.uint8      := true
+| IRType.uint16     IRType.uint16     := true
+| IRType.uint32     IRType.uint32     := true
+| IRType.uint64     IRType.uint64     := true
 | IRType.Usize      IRType.Usize      := true
 | IRType.irrelevant IRType.irrelevant := true
 | IRType.object     IRType.object     := true
@@ -120,9 +120,9 @@ inductive Expr
 /- Given `x : [t]object`, obtain the scalar value. -/
 | unbox (x : varid)
 | lit (v : Litval)
-/- Return `1 : Uint8` Iff `RC(x) > 1` -/
+/- Return `1 : uint8` Iff `RC(x) > 1` -/
 | isShared (x : varid)
-/- Return `1 : Uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
+/- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
 | isTaggedPtr (x : varid)
 
 structure Param :=

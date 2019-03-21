@@ -15,12 +15,12 @@ namespace Compiler
 def BinFoldFn := Bool → Expr → Expr → Option Expr
 def UnFoldFn  := Bool → Expr → Option Expr
 
-def mkUintTypeName (nbytes : Nat) : Name :=
+def mkUIntTypeName (nbytes : Nat) : Name :=
 mkSimpleName ("UInt" ++ toString nbytes)
 
 structure NumScalarTypeInfo :=
 (nbits : Nat)
-(id : Name        := mkUintTypeName nbits)
+(id : Name        := mkUIntTypeName nbits)
 (ofNatFn : Name := Name.mkString id "ofNat")
 (size : Nat       := 2^nbits)
 
@@ -53,24 +53,24 @@ Expr.app (Expr.const info.ofNatFn []) (Expr.lit (Literal.natVal (n%info.size)))
 def mkUInt32Lit (n : Nat) : Expr :=
 mkUIntLit {nbits := 32} n
 
-def foldBinUint (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
+def foldBinUInt (fn : NumScalarTypeInfo → Bool → Nat → Nat → Nat) (beforeErasure : Bool) (a₁ a₂ : Expr) : Option Expr :=
 do n₁   ← getNumLit a₁,
    n₂   ← getNumLit a₂,
    info ← getInfoFromVal a₁,
    pure $ mkUIntLit info (fn info beforeErasure n₁ n₂)
 
-def foldUintAdd := foldBinUint $ λ _ _, (+)
-def foldUintMul := foldBinUint $ λ _ _, (*)
-def foldUintDiv := foldBinUint $ λ _ _, (/)
-def foldUintMod := foldBinUint $ λ _ _, (%)
-def foldUintSub := foldBinUint $ λ info _ a b, (a + (info.size - b))
+def foldUIntAdd := foldBinUInt $ λ _ _, (+)
+def foldUIntMul := foldBinUInt $ λ _ _, (*)
+def foldUIntDiv := foldBinUInt $ λ _ _, (/)
+def foldUIntMod := foldBinUInt $ λ _ _, (%)
+def foldUIntSub := foldBinUInt $ λ info _ a b, (a + (info.size - b))
 
-def preUintBinFoldFns : List (Name × BinFoldFn) :=
-[(`add, foldUintAdd), (`mul, foldUintMul), (`div, foldUintDiv),
- (`mod, foldUintMod), (`sub, foldUintSub)]
+def preUIntBinFoldFns : List (Name × BinFoldFn) :=
+[(`add, foldUIntAdd), (`mul, foldUIntMul), (`div, foldUIntDiv),
+ (`mod, foldUIntMod), (`sub, foldUIntSub)]
 
 def uintBinFoldFns : List (Name × BinFoldFn) :=
-numScalarTypes.foldl (λ r info, r ++ (preUintBinFoldFns.map (λ ⟨suffix, fn⟩, (info.id ++ suffix, fn)))) []
+numScalarTypes.foldl (λ r info, r ++ (preUIntBinFoldFns.map (λ ⟨suffix, fn⟩, (info.id ++ suffix, fn)))) []
 
 def foldNatBinOp (fn : Nat → Nat → Nat) (a₁ a₂ : Expr) : Option Expr :=
 do n₁   ← getNumLit a₁,

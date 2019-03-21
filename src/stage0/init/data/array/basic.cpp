@@ -540,7 +540,7 @@ lean::inc(x_8);
 lean::inc(x_1);
 x_13 = lean::apply_3(x_1, x_8, x_10, x_4);
 x_2 = x_8;
-x_3 = x_0;
+x_3 = lean::box(0);
 x_4 = x_13;
 goto _start;
 }
@@ -668,7 +668,7 @@ x_11 = lean::array_read(x_2, x_9);
 lean::inc(x_1);
 x_13 = lean::apply_2(x_1, x_11, x_5);
 x_3 = x_9;
-x_4 = x_0;
+x_4 = lean::box(0);
 x_5 = x_13;
 goto _start;
 }
@@ -762,7 +762,7 @@ x_11 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_11, 0, x_10);
 lean::cnstr_set(x_11, 1, x_4);
 x_2 = x_8;
-x_3 = x_0;
+x_3 = lean::box(0);
 x_4 = x_11;
 goto _start;
 }

@@ -43,7 +43,6 @@ namespace lean {
 uint32 string_utf8_get(obj*, usize);
 }
 obj* l_String_utf8Set___boxed(obj*, obj*, obj*);
-uint32 l___private_init_data_string_basic_3__utf8GetAux___main___closed__1;
 obj* l_String_trimRightAux___main___boxed(obj*, obj*, obj*);
 uint8 l_String_isEmpty(obj*);
 obj* l_String_trim___boxed(obj*);
@@ -108,7 +107,6 @@ obj* l_String_Iterator_setCurr___boxed(obj*, obj*);
 obj* l_String_decEq___boxed(obj*, obj*);
 obj* l_String_Iterator_prev(obj*);
 obj* l_String_str(obj*, uint32);
-uint32 l_Char_ofNat(obj*);
 usize l_String_bsize(obj*);
 obj* l_String_Iterator_remainingToString___boxed(obj*);
 obj* l_String_Iterator_nextn(obj*, obj*);
@@ -134,7 +132,6 @@ obj* l_String_Iterator_nextn___main(obj*, obj*);
 obj* l_String_isEmpty___boxed(obj*);
 obj* l_Nat_repeatCore___main___at_String_pushn___spec__1(uint32, obj*, obj*, obj*);
 obj* l_List_map___main___at_String_intercalate___spec__1(obj*);
-extern uint32 l_Char_isWhitespace___closed__3;
 obj* l_String_toList(obj*);
 obj* l_String_utf8Begin___boxed;
 obj* l_String_trimRight___boxed(obj*);
@@ -176,6 +173,9 @@ obj* l_String_Iterator_remaining(obj*);
 obj* l___private_init_data_string_basic_3__utf8GetAux___main___boxed(obj*, obj*, obj*);
 obj* l_String_Iterator_extract___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_7__utf8ExtractAux_u_2081___main___boxed(obj*, obj*, obj*, obj*);
+namespace lean {
+uint32 uint32_of_nat(obj*);
+}
 uint8 l_String_Iterator_hasNext___main(obj*);
 namespace lean {
 obj* string_utf8_extract(obj*, usize, usize);
@@ -212,7 +212,6 @@ namespace lean {
 obj* usize_to_nat(usize);
 }
 obj* l_String_Iterator_toEnd(obj*);
-obj* l___private_init_data_string_basic_3__utf8GetAux___main___closed__1___boxed;
 obj* l_String_bsize___boxed(obj*);
 namespace lean {
 obj* nat_mul(obj*, obj*);
@@ -430,22 +429,13 @@ x_1 = lean::box_size_t(x_0);
 return x_1;
 }
 }
-uint32 _init_l___private_init_data_string_basic_3__utf8GetAux___main___closed__1() {
-_start:
-{
-obj* x_0; uint32 x_1; 
-x_0 = lean::mk_nat_obj(65u);
-x_1 = l_Char_ofNat(x_0);
-return x_1;
-}
-}
 uint32 l___private_init_data_string_basic_3__utf8GetAux___main(obj* x_0, usize x_1, usize x_2) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
 {
 uint32 x_3; 
-x_3 = l___private_init_data_string_basic_3__utf8GetAux___main___closed__1;
+x_3 = 65;
 return x_3;
 }
 else
@@ -471,15 +461,6 @@ x_11 = lean::unbox_uint32(x_4);
 return x_11;
 }
 }
-}
-}
-obj* _init_l___private_init_data_string_basic_3__utf8GetAux___main___closed__1___boxed() {
-_start:
-{
-uint32 x_0; obj* x_1; 
-x_0 = l___private_init_data_string_basic_3__utf8GetAux___main___closed__1;
-x_1 = lean::box_uint32(x_0);
-return x_1;
 }
 }
 obj* l___private_init_data_string_basic_3__utf8GetAux___main___boxed(obj* x_0, obj* x_1, obj* x_2) {
@@ -2156,7 +2137,7 @@ x_15 = lean::mk_nat_obj(1u);
 x_16 = lean::nat_sub(x_0, x_15);
 lean::dec(x_0);
 x_18 = l_String_Iterator_curr___main(x_1);
-x_19 = l_Char_isWhitespace___closed__3;
+x_19 = 10;
 x_20 = x_18 == x_19;
 if (x_20 == 0)
 {
@@ -2262,11 +2243,10 @@ return x_2;
 obj* _init_l___private_init_data_string_basic_9__toNatCore___main___closed__1() {
 _start:
 {
-obj* x_0; uint32 x_1; obj* x_2; 
-x_0 = lean::mk_nat_obj(48u);
-x_1 = l_Char_ofNat(x_0);
-x_2 = lean::uint32_to_nat(x_1);
-return x_2;
+uint32 x_0; obj* x_1; 
+x_0 = 48;
+x_1 = lean::uint32_to_nat(x_0);
+return x_1;
 }
 }
 obj* l___private_init_data_string_basic_9__toNatCore___main(obj* x_0, obj* x_1, obj* x_2) {
@@ -2352,9 +2332,6 @@ lean::mark_persistent(l_String_HasLt);
  l_String_utf8Begin = _init_l_String_utf8Begin();
  l_String_utf8Begin___boxed = _init_l_String_utf8Begin___boxed();
 lean::mark_persistent(l_String_utf8Begin___boxed);
- l___private_init_data_string_basic_3__utf8GetAux___main___closed__1 = _init_l___private_init_data_string_basic_3__utf8GetAux___main___closed__1();
- l___private_init_data_string_basic_3__utf8GetAux___main___closed__1___boxed = _init_l___private_init_data_string_basic_3__utf8GetAux___main___closed__1___boxed();
-lean::mark_persistent(l___private_init_data_string_basic_3__utf8GetAux___main___closed__1___boxed);
  l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1 = _init_l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1();
  l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1___boxed = _init_l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1___boxed();
 lean::mark_persistent(l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1___boxed);

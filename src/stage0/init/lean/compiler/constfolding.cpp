@@ -70,7 +70,6 @@ obj* l_Lean_Compiler_isOfNat___boxed(obj*);
 obj* l_Lean_Compiler_foldCharOfNat___closed__1;
 obj* l_Lean_Compiler_findUnFoldFn(obj*);
 obj* l_Lean_Compiler_foldNatAdd___rarg(obj*, obj*);
-extern uint32 l_Char_ofNat___closed__1;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
@@ -154,7 +153,6 @@ obj* l_Lean_Compiler_foldUIntSub___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_constfolding_1__alistFind___rarg___boxed(obj*, obj*);
 extern obj* l_Lean_Compiler_mkLcProof___closed__1;
 obj* l_Lean_Compiler_foldUIntAdd___lambda__1(obj*, uint8, obj*, obj*);
-extern uint32 l_Char_ofNat___closed__3;
 obj* l_Lean_Compiler_foldUIntMul___lambda__1(obj*, uint8, obj*, obj*);
 obj* l_Lean_Compiler_foldUIntDiv(uint8, obj*, obj*);
 uint8 l_Lean_Compiler_foldNatDecLt___lambda__1(obj*, obj*);
@@ -162,7 +160,6 @@ obj* l_Lean_Compiler_binFoldFns;
 namespace lean {
 uint32 uint32_of_nat(obj*);
 }
-extern uint32 l_Char_ofNat___closed__2;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
@@ -1927,12 +1924,12 @@ if (lean::is_exclusive(x_2)) {
  x_6 = lean::box(0);
 }
 x_7 = lean::uint32_of_nat(x_4);
-x_8 = l_Char_ofNat___closed__1;
+x_8 = 55296;
 x_9 = x_7 < x_8;
 if (x_9 == 0)
 {
 uint32 x_10; uint8 x_11; 
-x_10 = l_Char_ofNat___closed__2;
+x_10 = 57343;
 x_11 = x_10 < x_7;
 if (x_11 == 0)
 {
@@ -1945,7 +1942,7 @@ return x_14;
 else
 {
 uint32 x_15; uint8 x_16; 
-x_15 = l_Char_ofNat___closed__3;
+x_15 = 1114112;
 x_16 = x_7 < x_15;
 if (x_16 == 0)
 {

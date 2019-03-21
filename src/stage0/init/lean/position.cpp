@@ -15,42 +15,37 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 uint32 l_String_Iterator_curr___main(obj*);
+obj* l_RBNode_setBlack___main___rarg(obj*);
+obj* l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1___boxed(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_Position_DecidableEq___boxed(obj*, obj*);
-obj* l_Rbnode_balance1___main___rarg(obj*, obj*);
 obj* l___private_init_lean_position_1__fromStringAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Position_decidableLt___boxed(obj*, obj*);
 obj* l_Lean_Position_Lean_HasToFormat___closed__3;
-obj* l_Rbmap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1___boxed(obj*, obj*);
 obj* l_Nat_decEq___boxed(obj*, obj*);
 obj* l_Lean_Position_Inhabited;
-obj* l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(obj*, obj*, obj*);
-obj* l_Rbnode_balance2___main___rarg(obj*, obj*);
+obj* l_RBNode_balance2___main___rarg(obj*, obj*);
 obj* l_Nat_repr(obj*);
-obj* l_Rbnode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(obj*, obj*, obj*);
-obj* l_Rbnode_insert___at_Lean_FileMap_fromString___spec__3(obj*, obj*, obj*);
 obj* l_Lean_Position_decidableLt___main___closed__2;
-obj* l_Rbmap_ofList___main___at_Lean_FileMap_fromString___spec__1(obj*);
 extern usize l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
 obj* l_String_Iterator_next___main(obj*);
+obj* l_RBNode_insert___at_Lean_FileMap_fromString___spec__3(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Lean_Position_Lean_HasToFormat___closed__1;
-obj* l_Rbnode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_position_1__fromStringAux___boxed(obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
-obj* l_Rbmap_insert___main___at_Lean_FileMap_fromString___spec__2(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-uint8 l_Rbnode_isRed___main___rarg(obj*);
+obj* l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(obj*);
 obj* l_Lean_toFmt___at_Lean_Position_Lean_HasToFormat___spec__1(obj*);
-extern uint32 l_Char_isWhitespace___closed__3;
+uint8 l_RBNode_isRed___main___rarg(obj*);
 obj* l_Lean_Position_Lean_HasToFormat___closed__2;
 obj* l_Lean_Position_decidableLt___main___boxed(obj*, obj*);
 obj* l___private_init_lean_position_1__fromStringAux(obj*, obj*, obj*);
@@ -59,14 +54,21 @@ uint8 l_Lean_Position_DecidableEq(obj*, obj*);
 obj* l_Lean_Position_Lean_HasToFormat(obj*);
 obj* l_Nat_decLt___boxed(obj*, obj*);
 obj* l_Lean_Position_decidableLt___main___closed__1;
-obj* l_Rbmap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(obj*, obj*);
+obj* l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(obj*, obj*, obj*);
+obj* l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2___boxed(obj*, obj*, obj*);
+obj* l_RBNode_balance1___main___rarg(obj*, obj*);
+namespace lean {
+uint32 uint32_of_nat(obj*);
+}
 uint8 l_String_Iterator_hasNext___main(obj*);
 uint8 l_prodHasDecidableLt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Rbnode_setBlack___main___rarg(obj*);
 uint8 l_Lean_Position_decidableLt___main(obj*, obj*);
+obj* l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(obj*, obj*);
 obj* l_Lean_FileMap_toPosition(obj*, obj*);
 obj* l_Lean_Position_HasLt;
 obj* l_Lean_FileMap_fromString(obj*);
+obj* l_RBMap_insert___main___at_Lean_FileMap_fromString___spec__2(obj*, obj*, obj*);
+obj* l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(obj*, obj*, obj*);
 uint8 l_Lean_Position_decidableLt(obj*, obj*);
 namespace lean {
 obj* string_length(obj*);
@@ -307,7 +309,7 @@ x_9 = lean::mk_nat_obj(1u);
 x_10 = lean::nat_sub(x_0, x_9);
 lean::dec(x_0);
 x_12 = l_String_Iterator_curr___main(x_1);
-x_13 = l_Char_isWhitespace___closed__3;
+x_13 = 10;
 x_14 = x_12 == x_13;
 if (x_14 == 0)
 {
@@ -373,7 +375,7 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -440,7 +442,7 @@ return x_21;
 else
 {
 obj* x_22; obj* x_23; obj* x_24; 
-x_22 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_13, x_1, x_2);
+x_22 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_13, x_1, x_2);
 if (lean::is_scalar(x_15)) {
  x_23 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -458,7 +460,7 @@ return x_24;
 else
 {
 obj* x_25; obj* x_26; obj* x_27; 
-x_25 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_7, x_1, x_2);
+x_25 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_7, x_1, x_2);
 if (lean::is_scalar(x_15)) {
  x_26 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -520,11 +522,11 @@ return x_42;
 else
 {
 uint8 x_43; 
-x_43 = l_Rbnode_isRed___main___rarg(x_34);
+x_43 = l_RBNode_isRed___main___rarg(x_34);
 if (x_43 == 0)
 {
 obj* x_44; obj* x_45; obj* x_46; 
-x_44 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_34, x_1, x_2);
+x_44 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_34, x_1, x_2);
 if (lean::is_scalar(x_36)) {
  x_45 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -553,8 +555,8 @@ lean::cnstr_set(x_48, 2, x_32);
 lean::cnstr_set(x_48, 3, x_47);
 lean::cnstr_set_scalar(x_48, sizeof(void*)*4, x_6);
 x_49 = x_48;
-x_50 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_34, x_1, x_2);
-x_51 = l_Rbnode_balance2___main___rarg(x_49, x_50);
+x_50 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_34, x_1, x_2);
+x_51 = l_RBNode_balance2___main___rarg(x_49, x_50);
 return x_51;
 }
 }
@@ -562,11 +564,11 @@ return x_51;
 else
 {
 uint8 x_52; 
-x_52 = l_Rbnode_isRed___main___rarg(x_28);
+x_52 = l_RBNode_isRed___main___rarg(x_28);
 if (x_52 == 0)
 {
 obj* x_53; obj* x_54; obj* x_55; 
-x_53 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_28, x_1, x_2);
+x_53 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_28, x_1, x_2);
 if (lean::is_scalar(x_36)) {
  x_54 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -595,8 +597,8 @@ lean::cnstr_set(x_57, 2, x_32);
 lean::cnstr_set(x_57, 3, x_34);
 lean::cnstr_set_scalar(x_57, sizeof(void*)*4, x_6);
 x_58 = x_57;
-x_59 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_28, x_1, x_2);
-x_60 = l_Rbnode_balance1___main___rarg(x_58, x_59);
+x_59 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_28, x_1, x_2);
+x_60 = l_RBNode_balance1___main___rarg(x_58, x_59);
 return x_60;
 }
 }
@@ -604,35 +606,35 @@ return x_60;
 }
 }
 }
-obj* l_Rbnode_insert___at_Lean_FileMap_fromString___spec__3(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBNode_insert___at_Lean_FileMap_fromString___spec__3(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; 
-x_3 = l_Rbnode_isRed___main___rarg(x_0);
+x_3 = l_RBNode_isRed___main___rarg(x_0);
 if (x_3 == 0)
 {
 obj* x_4; 
-x_4 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_0, x_1, x_2);
+x_4 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_0, x_1, x_2);
 return x_4;
 }
 else
 {
 obj* x_5; obj* x_6; 
-x_5 = l_Rbnode_ins___main___at_Lean_FileMap_fromString___spec__4(x_0, x_1, x_2);
-x_6 = l_Rbnode_setBlack___main___rarg(x_5);
+x_5 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(x_0, x_1, x_2);
+x_6 = l_RBNode_setBlack___main___rarg(x_5);
 return x_6;
 }
 }
 }
-obj* l_Rbmap_insert___main___at_Lean_FileMap_fromString___spec__2(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBMap_insert___main___at_Lean_FileMap_fromString___spec__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Rbnode_insert___at_Lean_FileMap_fromString___spec__3(x_0, x_1, x_2);
+x_3 = l_RBNode_insert___at_Lean_FileMap_fromString___spec__3(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_Rbmap_ofList___main___at_Lean_FileMap_fromString___spec__1(obj* x_0) {
+obj* l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -654,8 +656,8 @@ lean::inc(x_7);
 x_9 = lean::cnstr_get(x_2, 1);
 lean::inc(x_9);
 lean::dec(x_2);
-x_12 = l_Rbmap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_4);
-x_13 = l_Rbnode_insert___at_Lean_FileMap_fromString___spec__3(x_12, x_7, x_9);
+x_12 = l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_4);
+x_13 = l_RBNode_insert___at_Lean_FileMap_fromString___spec__3(x_12, x_7, x_9);
 return x_13;
 }
 }
@@ -674,11 +676,11 @@ lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_3);
 x_5 = x_4;
 x_6 = lean::mk_nat_obj(1u);
 x_7 = l___private_init_lean_position_1__fromStringAux___main(x_1, x_5, x_6);
-x_8 = l_Rbmap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_7);
+x_8 = l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_7);
 return x_8;
 }
 }
-obj* l_Rbnode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -739,12 +741,12 @@ goto _start;
 }
 }
 }
-obj* l_Rbmap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(obj* x_0, obj* x_1) {
+obj* l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::box(0);
-x_3 = l_Rbnode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(x_0, x_1, x_2);
+x_3 = l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(x_0, x_1, x_2);
 return x_3;
 }
 }
@@ -752,7 +754,7 @@ obj* l_Lean_FileMap_toPosition(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Rbmap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(x_0, x_1);
+x_2 = l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; obj* x_4; 
@@ -783,20 +785,20 @@ return x_16;
 }
 }
 }
-obj* l_Rbnode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Rbnode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(x_0, x_1, x_2);
+x_3 = l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(x_0, x_1, x_2);
 lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Rbmap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1___boxed(obj* x_0, obj* x_1) {
+obj* l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Rbmap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(x_0, x_1);
+x_2 = l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }

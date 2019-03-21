@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Lean_IR_alts_isPure___main___boxed(obj*);
+obj* l_RBMap_insert___main___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Lean_IR_Litval_beq___main___boxed(obj*, obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_IR_varid_hasAeqv;
@@ -27,17 +28,14 @@ obj* l_Lean_IR_varid_alphaEqv___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_9__alts_collect(obj*, obj*, obj*);
 uint8 l_Lean_IR_IRType_beq___main(uint8, uint8);
 obj* l_Lean_IR_addParamRename(obj*, obj*, obj*);
-obj* l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
 obj* l_Lean_IR_CtorInfo_HasBeq;
 obj* l___private_init_lean_compiler_ir_3__withBv(obj*, obj*, obj*, obj*);
-obj* l_Rbmap_insert___main___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_5__Seq(obj*, obj*, obj*, obj*);
 uint8 l_Lean_IR_alt_isPure___main(obj*);
 obj* l_Lean_IR_alt_ctor(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_8__Expr_collect(obj*, obj*, obj*);
 obj* l_Lean_IR_insertParams(obj*, obj*);
 uint8 l_Lean_IR_Fnbody_beq(obj*, obj*);
-obj* l_Rbmap_find___main___at_Lean_IR_varid_alphaEqv___spec__1___boxed(obj*, obj*);
 uint8 l_Lean_Kvmap_eqv(obj*, obj*);
 obj* l_Lean_IR_alts_isPure___boxed(obj*);
 uint8 l_Lean_IR_CtorInfo_beq(obj*, obj*);
@@ -56,6 +54,7 @@ obj* l_Lean_IR_freeVars(obj*);
 uint8 l_Lean_IR_varid_alphaEqv(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_9__Fnbody_collect___main(obj*, obj*, obj*);
 uint8 l_Lean_IR_Litval_beq(obj*, obj*);
+obj* l_RBNode_find___main___at_Lean_NameMap_contains___spec__2(obj*, obj*, obj*, obj*);
 uint8 l_Lean_IR_alts_isPure(obj*);
 obj* l_Lean_IR_alts_alphaEqv___main___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_9__alt_collect(obj*, obj*, obj*);
@@ -70,6 +69,7 @@ uint8 l_Lean_IR_Expr_alphaEqv(obj*, obj*, obj*);
 uint8 l_Lean_IR_Fnbody_alphaEqv(obj*, obj*, obj*);
 uint8 l_Lean_IR_alt_alphaEqv___main(obj*, obj*, obj*);
 obj* l_Lean_IR_alt_alphaEqv___main___boxed(obj*, obj*, obj*);
+obj* l_RBMap_find___main___at_Lean_IR_varid_alphaEqv___spec__1___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
@@ -90,7 +90,6 @@ uint8 l_Lean_IR_args_alphaEqv___main(obj*, obj*, obj*);
 obj* l_Lean_IR_Expr_isPure___main___boxed(obj*);
 obj* l_Lean_IR_addVarRename(obj*, obj*, obj*);
 obj* l_Lean_IR_Fnbody_isPure___boxed(obj*);
-obj* l_Rbnode_find___main___at_Lean_NameMap_contains___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_alt_isPure___main___boxed(obj*);
 uint8 l_Lean_IR_Arg_alphaEqv___main(obj*, obj*, obj*);
 uint8 l_Lean_IR_Fnbody_alphaEqv___main(obj*, obj*, obj*);
@@ -102,10 +101,11 @@ uint8 l_Lean_IR_Expr_isPure(obj*);
 obj* l___private_init_lean_compiler_ir_9__alt_collect___main(obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_IR_insertParams___spec__1(obj*, obj*);
 obj* l_Lean_IR_Arg_hasAeqv;
+obj* l_RBMap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_9__Fnbody_collect(obj*, obj*, obj*);
 obj* l_Lean_IR_IRType_beq___boxed(obj*, obj*);
 obj* l_Lean_IR_Expr_alphaEqv___main___boxed(obj*, obj*, obj*);
-obj* l_Rbmap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(obj*, obj*);
+obj* l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
 obj* l_Lean_IR_addParamsRename___main(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_1__skip___rarg___boxed(obj*);
 obj* l_Lean_IR_Fnbody_beq___boxed(obj*, obj*);
@@ -832,12 +832,12 @@ lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_Rbmap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(obj* x_0, obj* x_1) {
+obj* l_RBMap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::box(0);
-x_3 = l_Rbnode_find___main___at_Lean_NameMap_contains___spec__2(x_2, lean::box(0), x_0, x_1);
+x_3 = l_RBNode_find___main___at_Lean_NameMap_contains___spec__2(x_2, lean::box(0), x_0, x_1);
 return x_3;
 }
 }
@@ -845,7 +845,7 @@ uint8 l_Lean_IR_varid_alphaEqv(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Rbmap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(x_0, x_1);
+x_3 = l_RBMap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(x_0, x_1);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
@@ -886,11 +886,11 @@ return x_13;
 }
 }
 }
-obj* l_Rbmap_find___main___at_Lean_IR_varid_alphaEqv___spec__1___boxed(obj* x_0, obj* x_1) {
+obj* l_RBMap_find___main___at_Lean_IR_varid_alphaEqv___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Rbmap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(x_0, x_1);
+x_2 = l_RBMap_find___main___at_Lean_IR_varid_alphaEqv___spec__1(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
@@ -1555,7 +1555,7 @@ x_3 = lean_name_dec_eq(x_1, x_2);
 if (x_3 == 0)
 {
 obj* x_4; 
-x_4 = l_Rbmap_insert___main___at_Lean_NameMap_insert___spec__1___rarg(x_0, x_1, x_2);
+x_4 = l_RBMap_insert___main___at_Lean_NameMap_insert___spec__1___rarg(x_0, x_1, x_2);
 return x_4;
 }
 else
@@ -3522,7 +3522,7 @@ if (x_3 == 0)
 {
 obj* x_4; obj* x_5; 
 x_4 = lean::box(0);
-x_5 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_0, x_4);
+x_5 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_0, x_4);
 return x_5;
 }
 else
@@ -3537,7 +3537,7 @@ _start:
 {
 obj* x_4; obj* x_5; obj* x_6; 
 x_4 = lean::box(0);
-x_5 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_0, x_4);
+x_5 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_0, x_4);
 x_6 = lean::apply_2(x_1, x_5, x_3);
 return x_6;
 }
@@ -3561,7 +3561,7 @@ x_7 = lean::cnstr_get(x_2, 0);
 lean::inc(x_7);
 lean::dec(x_2);
 x_10 = lean::box(0);
-x_11 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_0, x_7, x_10);
+x_11 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_0, x_7, x_10);
 x_0 = x_11;
 x_1 = x_4;
 goto _start;
@@ -3609,7 +3609,7 @@ if (x_6 == 0)
 {
 obj* x_7; obj* x_8; 
 x_7 = lean::box(0);
-x_8 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_3, x_7);
+x_8 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_3, x_7);
 return x_8;
 }
 else
@@ -3692,7 +3692,7 @@ if (x_13 == 0)
 {
 obj* x_14; obj* x_15; obj* x_16; 
 x_14 = lean::box(0);
-x_15 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_7, x_14);
+x_15 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_7, x_14);
 x_16 = l___private_init_lean_compiler_ir_7__args_collect___main(x_9, x_1, x_15);
 return x_16;
 }
@@ -3715,7 +3715,7 @@ if (x_22 == 0)
 {
 obj* x_23; obj* x_24; 
 x_23 = lean::box(0);
-x_24 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_19, x_23);
+x_24 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_19, x_23);
 return x_24;
 }
 else
@@ -3735,7 +3735,7 @@ if (x_29 == 0)
 {
 obj* x_30; obj* x_31; 
 x_30 = lean::box(0);
-x_31 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_26, x_30);
+x_31 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_26, x_30);
 return x_31;
 }
 else
@@ -3755,7 +3755,7 @@ if (x_36 == 0)
 {
 obj* x_37; obj* x_38; 
 x_37 = lean::box(0);
-x_38 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_33, x_37);
+x_38 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_33, x_37);
 return x_38;
 }
 else
@@ -3796,7 +3796,7 @@ if (x_54 == 0)
 {
 obj* x_55; obj* x_56; obj* x_57; 
 x_55 = lean::box(0);
-x_56 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_48, x_55);
+x_56 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_48, x_55);
 x_57 = l___private_init_lean_compiler_ir_7__args_collect___main(x_50, x_1, x_56);
 return x_57;
 }
@@ -3825,7 +3825,7 @@ if (x_65 == 0)
 {
 obj* x_66; obj* x_67; 
 x_66 = lean::box(0);
-x_67 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_62, x_66);
+x_67 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_62, x_66);
 return x_67;
 }
 else
@@ -3862,7 +3862,7 @@ lean::dec(x_0);
 lean::inc(x_1);
 x_11 = l___private_init_lean_compiler_ir_8__Expr_collect___main(x_5, x_1, x_2);
 x_12 = lean::box(0);
-x_13 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_1, x_3, x_12);
+x_13 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_1, x_3, x_12);
 x_0 = x_7;
 x_1 = x_13;
 x_2 = x_11;
@@ -3884,7 +3884,7 @@ lean::inc(x_1);
 x_25 = l_List_foldl___main___at_Lean_IR_insertParams___spec__1(x_1, x_17);
 x_26 = l___private_init_lean_compiler_ir_9__Fnbody_collect___main(x_19, x_25, x_2);
 x_27 = lean::box(0);
-x_28 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_1, x_15, x_27);
+x_28 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_1, x_15, x_27);
 x_0 = x_21;
 x_1 = x_28;
 x_2 = x_26;
@@ -3908,11 +3908,11 @@ if (x_38 == 0)
 {
 obj* x_41; obj* x_42; 
 x_41 = lean::box(0);
-x_42 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_30, x_41);
+x_42 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_30, x_41);
 if (x_40 == 0)
 {
 obj* x_43; 
-x_43 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_42, x_32, x_41);
+x_43 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_42, x_32, x_41);
 x_0 = x_34;
 x_2 = x_43;
 goto _start;
@@ -3932,7 +3932,7 @@ if (x_40 == 0)
 {
 obj* x_48; obj* x_49; 
 x_48 = lean::box(0);
-x_49 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_32, x_48);
+x_49 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_32, x_48);
 x_0 = x_34;
 x_2 = x_49;
 goto _start;
@@ -3963,11 +3963,11 @@ if (x_61 == 0)
 {
 obj* x_64; obj* x_65; 
 x_64 = lean::box(0);
-x_65 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_53, x_64);
+x_65 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_53, x_64);
 if (x_63 == 0)
 {
 obj* x_66; 
-x_66 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_65, x_55, x_64);
+x_66 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_65, x_55, x_64);
 x_0 = x_57;
 x_2 = x_66;
 goto _start;
@@ -3987,7 +3987,7 @@ if (x_63 == 0)
 {
 obj* x_71; obj* x_72; 
 x_71 = lean::box(0);
-x_72 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_55, x_71);
+x_72 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_55, x_71);
 x_0 = x_57;
 x_2 = x_72;
 goto _start;
@@ -4018,11 +4018,11 @@ if (x_84 == 0)
 {
 obj* x_87; obj* x_88; 
 x_87 = lean::box(0);
-x_88 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_76, x_87);
+x_88 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_76, x_87);
 if (x_86 == 0)
 {
 obj* x_89; 
-x_89 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_88, x_78, x_87);
+x_89 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_88, x_78, x_87);
 x_0 = x_80;
 x_2 = x_89;
 goto _start;
@@ -4042,7 +4042,7 @@ if (x_86 == 0)
 {
 obj* x_94; obj* x_95; 
 x_94 = lean::box(0);
-x_95 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_78, x_94);
+x_95 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_78, x_94);
 x_0 = x_80;
 x_2 = x_95;
 goto _start;
@@ -4078,7 +4078,7 @@ if (x_109 == 0)
 {
 obj* x_110; obj* x_111; obj* x_112; 
 x_110 = lean::box(0);
-x_111 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_103, x_110);
+x_111 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_103, x_110);
 x_112 = l___private_init_lean_compiler_ir_9__alts_collect___main(x_105, x_1, x_111);
 return x_112;
 }
@@ -4101,7 +4101,7 @@ if (x_118 == 0)
 {
 obj* x_119; obj* x_120; 
 x_119 = lean::box(0);
-x_120 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_115, x_119);
+x_120 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_115, x_119);
 return x_120;
 }
 else
@@ -4124,7 +4124,7 @@ if (x_128 == 0)
 {
 obj* x_129; obj* x_130; obj* x_131; 
 x_129 = lean::box(0);
-x_130 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_122, x_129);
+x_130 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_122, x_129);
 x_131 = l___private_init_lean_compiler_ir_7__args_collect___main(x_124, x_1, x_130);
 return x_131;
 }
@@ -4155,7 +4155,7 @@ if (x_141 == 0)
 {
 obj* x_142; obj* x_143; 
 x_142 = lean::box(0);
-x_143 = l_Rbmap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_135, x_142);
+x_143 = l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(x_2, x_135, x_142);
 x_0 = x_137;
 x_2 = x_143;
 goto _start;

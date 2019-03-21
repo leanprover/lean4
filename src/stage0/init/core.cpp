@@ -15,14 +15,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_cast___rarg(obj*);
-obj* l_Psum_HasSizeof___rarg(obj*, obj*);
 obj* l_Or_Decidable___rarg___boxed(obj*, obj*);
 obj* l_Sum_DecidableEq___boxed(obj*, obj*);
 obj* l_Eq_ndrecOn___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Iff_Decidable(obj*, obj*);
 obj* l_Prod_DecidableEq(obj*, obj*);
-obj* l_ne_Decidable___rarg___boxed(obj*, obj*, obj*);
-obj* l_Psigma_sizeof(obj*, obj*);
 uint8 l_bor___main(uint8, uint8);
 obj* l_Quot_recOnSubsingleton___boxed(obj*, obj*, obj*, obj*);
 obj* l_bor___boxed(obj*, obj*);
@@ -30,123 +27,113 @@ obj* l_Quotient_liftOn___rarg(obj*, obj*, obj*);
 obj* l_Sigma_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_Prod_sizeof___main(obj*, obj*);
 uint8 l_band___main(uint8, uint8);
-obj* l_xor_Decidable___rarg___boxed(obj*, obj*);
+obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2(obj*, obj*);
 obj* l_idDelta___rarg___boxed(obj*);
 obj* l_Quotient_DecidableEq___rarg___lambda__1___boxed(obj*, obj*, obj*);
+obj* l_Fun_Inhabited(obj*, obj*);
 obj* l_inline___rarg(obj*);
 obj* l_inferInstanceAs___rarg(obj*);
 obj* l_Nat_Inhabited;
 obj* l_id___boxed(obj*);
-obj* l_Psigma_sizeof___main___rarg(obj*, obj*, obj*);
-obj* l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1___boxed(obj*, obj*);
+obj* l_Fun_Inhabited___rarg___boxed(obj*, obj*);
 obj* l_Quot_rec___rarg___boxed(obj*, obj*, obj*);
+obj* l_Not_Decidable(obj*);
 obj* l_Decidable_recOnTrue___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_bxor___boxed(obj*, obj*);
 obj* l_cond___boxed(obj*);
-uint8 l_ne_Decidable___rarg(obj*, obj*, obj*);
-obj* l_ne_Decidable(obj*);
-obj* l_Punit_sizeof(obj*);
 obj* l_prodHasDecidableLt(obj*, obj*, obj*, obj*);
 obj* l_ite_Decidable___boxed(obj*, obj*, obj*);
+obj* l_Xor_Decidable___boxed(obj*, obj*);
+obj* l_PSum_HasSizeof(obj*, obj*);
 obj* l_Quotient_lift_u_2082___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Sum_sizeof___main___rarg(obj*, obj*, obj*);
-obj* l_Psigma_sizeof___main___boxed(obj*, obj*);
 obj* l_std_priority_max;
-obj* l___private_init_core_24__funSetoid(obj*, obj*);
 obj* l_Thunk_bind___boxed(obj*, obj*, obj*, obj*);
-obj* l_forallPropDecidable___boxed(obj*, obj*);
 obj* l_decidableOfDecidableOfEq___boxed(obj*, obj*);
 obj* l_ite___boxed(obj*);
 obj* l_Quot_liftOn___rarg(obj*, obj*, obj*);
 uint8 l_Decidable_toBool___rarg(uint8);
 uint8 l_Bool_DecidableEq(uint8, uint8);
 obj* l_inline(obj*);
-obj* l_Psum_sizeof___main___boxed(obj*, obj*);
 obj* l_Nat_HasSizeof;
 obj* l_List_sizeof___main___boxed(obj*);
-obj* l___private_init_core_27__extfunApp___boxed(obj*, obj*);
+obj* l_PSum_HasSizeof___rarg(obj*, obj*);
 obj* l_Sigma_sizeof___boxed(obj*, obj*);
 obj* l_bit1___rarg(obj*, obj*, obj*);
 obj* l_bit1___boxed(obj*);
-obj* l_Punit_Inhabited;
-obj* l___private_init_core_24__funSetoid___boxed(obj*, obj*);
 obj* l_Thunk_pure___boxed(obj*, obj*);
 obj* l_Option_sizeof___main___boxed(obj*);
 obj* l_Prod_sizeof___rarg(obj*, obj*, obj*);
 obj* l_cond___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_Quotient_recOn___rarg(obj*, obj*, obj*);
 obj* l_Quotient_liftOn_u_2082___rarg(obj*, obj*, obj*, obj*);
-obj* l_ne_Decidable___boxed(obj*);
 obj* l_Quotient_recOnSubsingleton_u_2082___rarg(obj*, obj*, obj*);
 obj* l_flip___rarg(obj*, obj*, obj*);
 obj* l_Quotient_mk(obj*, obj*);
 obj* l_inline___rarg___boxed(obj*);
+obj* l_Fun_Inhabited___rarg(obj*, obj*);
 obj* l_Quotient_mk___boxed(obj*, obj*);
 obj* l_cast___boxed(obj*, obj*, obj*);
 obj* l_Sum_sizeof(obj*, obj*);
 obj* l_Combinator_K___boxed(obj*, obj*);
+obj* l___private_init_core_22__extfunApp___rarg(obj*, obj*);
 obj* l_decidableOfDecidableOfIff(obj*, obj*);
-obj* l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2___rarg(obj*, obj*, obj*);
 obj* l_defaultHasSizeof(obj*);
 obj* l_arbitrary___rarg___boxed(obj*);
 obj* l_Sigma_sizeof___rarg(obj*, obj*, obj*);
 obj* l_Sigma_sizeof___main(obj*, obj*);
 obj* l_cast___rarg___boxed(obj*);
-obj* l_Psigma_HasSizeof___boxed(obj*, obj*);
 obj* l_bxor___main___boxed(obj*, obj*);
-obj* l_forallPropDecidable(obj*, obj*);
 obj* l_Prod_map___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_Thunk_map___boxed(obj*, obj*, obj*, obj*);
 obj* l_Quotient_hrecOn___rarg(obj*, obj*, obj*);
 obj* l_Prod_HasLt___boxed(obj*, obj*, obj*, obj*);
-obj* l_not_Decidable(obj*);
 obj* l_bor___main___boxed(obj*, obj*);
 obj* l_List_sizeof___main(obj*);
 obj* l_inferInstanceAs___boxed(obj*);
 obj* l_Sum_inhabitedRight___rarg(obj*);
 obj* l_Quot_liftOn___boxed(obj*, obj*, obj*);
+obj* l_PSum_HasSizeof___boxed(obj*, obj*);
 obj* l_Decidable_recOnFalse(obj*);
-uint8 l_decidableEqOfBoolPred___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Decidable_recOnFalse___rarg(uint8, obj*, obj*, obj*, obj*);
-obj* l_not_Decidable___boxed(obj*);
+obj* l_PSum_sizeof___main(obj*, obj*);
 obj* l_prodHasDecidableLt___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Quotient_recOnSubsingleton___rarg(obj*, obj*);
 obj* l_Prod_sizeof(obj*, obj*);
 obj* l_Quot_hrecOn___rarg(obj*, obj*, obj*);
 obj* l_singleton___rarg(obj*, obj*, obj*);
 obj* l_decidableOfDecidableOfIff___rarg___boxed(obj*, obj*);
-uint8 l_forallPropDecidable___rarg(uint8, obj*);
-uint8 l_existsPropDecidable___rarg(uint8, obj*);
 obj* l_Combinator_I(obj*);
 obj* l_True_Decidable___boxed;
 obj* l_decidableOfDecidableEq___boxed(obj*);
 obj* l_ite___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_existsPropDecidable(obj*, obj*);
+obj* l___private_init_core_22__extfunApp(obj*, obj*);
 obj* l_Option_HasSizeof___rarg(obj*);
 obj* l_Combinator_K___rarg(obj*, obj*);
 obj* l_Subtype_sizeof___main___rarg(obj*, obj*, obj*);
+obj* l_Not_Decidable___rarg___boxed(obj*);
 obj* l_id___rarg___boxed(obj*);
 uint8 l_bxor___main(uint8, uint8);
+obj* l_PSum_sizeof___main___boxed(obj*, obj*);
 obj* l_setoidHasEquiv(obj*, obj*);
 obj* l_Nat_sizeof___main___boxed(obj*);
 obj* l_flip___boxed(obj*, obj*, obj*);
-obj* l_decidableEqOfBoolPred(obj*);
-obj* l_Punit_DecidableEq___boxed(obj*, obj*);
+obj* l_Pi_Inhabited___rarg(obj*, obj*);
 obj* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Task_get___boxed(obj*, obj*);
+obj* l_Prop_Inhabited;
 obj* l_Eq_ndrec___rarg(obj*, obj*, obj*);
 obj* l_default_sizeof___boxed(obj*, obj*);
 obj* l_decidableOfDecidableOfEq___rarg___boxed(obj*, obj*);
 obj* l_dite_Decidable___rarg(uint8, obj*, obj*);
+obj* l_PUnit_sizeof___main___boxed(obj*);
 obj* l_typedExpr(obj*);
 obj* l_dite_Decidable___boxed(obj*, obj*, obj*);
 obj* l_Eq_mpr(obj*, obj*, obj*);
 obj* l_Subtype_DecidableEq___boxed(obj*, obj*);
 obj* l_Iff_Decidable___rarg___boxed(obj*, obj*);
-obj* l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2___boxed(obj*, obj*);
 obj* l_Quotient_DecidableEq(obj*);
 obj* l_Eq_ndrec___boxed(obj*, obj*, obj*);
-obj* l_or_byCases___boxed(obj*, obj*);
 obj* l_Sum_inhabitedRight___boxed(obj*, obj*);
 obj* l_idDelta___rarg(obj*);
 obj* l_Sum_inhabitedLeft___boxed(obj*, obj*);
@@ -156,6 +143,7 @@ obj* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1(obj*, obj*);
 obj* l_Quotient_recOnSubsingleton_u_2082___at_Quotient_DecidableEq___spec__1___boxed(obj*, obj*);
 obj* l_default_sizeof___main(obj*, obj*);
 obj* l_Sigma_HasSizeof___boxed(obj*, obj*);
+obj* l___private_init_core_22__extfunApp___boxed(obj*, obj*);
 obj* l_std_priority_default;
 obj* l_Quotient_DecidableEq___rarg(obj*, obj*, obj*, obj*);
 obj* l_Unit_star;
@@ -163,62 +151,65 @@ obj* l_arbitrary___rarg(obj*);
 obj* l_Prod_HasSizeof(obj*, obj*);
 obj* l_Prod_DecidableEq___boxed(obj*, obj*);
 obj* l_Subtype_sizeof___main(obj*);
-obj* l_Punit_HasSizeof;
 obj* l_Quot_recOnSubsingleton(obj*, obj*, obj*, obj*);
 obj* l_Prod_HasSizeof___boxed(obj*, obj*);
 obj* l_Combinator_S___boxed(obj*, obj*, obj*);
 obj* l_band___boxed(obj*, obj*);
-obj* l_decidableEqOfBoolPred___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Quotient_liftOn___boxed(obj*, obj*, obj*);
+obj* l_PSum_sizeof(obj*, obj*);
 obj* l_Task_map___boxed(obj*, obj*, obj*, obj*);
 obj* l_Prod_Inhabited___rarg(obj*, obj*);
 obj* l_Combinator_S(obj*, obj*, obj*);
 obj* l_inferInstance___rarg(obj*);
 obj* l_Option_sizeof___main(obj*);
+uint8 l_Ne_Decidable___rarg(obj*, obj*, obj*);
 obj* l_Quotient_mk___rarg(obj*);
 obj* l_Quot_recOn___boxed(obj*, obj*, obj*);
 obj* l_inferInstanceAs___rarg___boxed(obj*);
+uint8 l_Not_Decidable___rarg(uint8);
 obj* l_dite(obj*);
+obj* l_PSum_sizeof___boxed(obj*, obj*);
 obj* l_Eq_ndrecOn___rarg___boxed(obj*);
 obj* l_default___boxed(obj*);
+obj* l_Fun_Inhabited___boxed(obj*, obj*);
 obj* l_dite___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_sizeof___boxed(obj*);
 obj* l_Quotient_lift_u_2082___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Combinator_S___rarg(obj*, obj*, obj*);
 obj* l_idDelta(obj*);
+obj* l_PUnit_Inhabited;
+obj* l_Xor_Decidable___rarg___boxed(obj*, obj*);
 obj* l_Nat_HasOne;
-obj* l_or_byCases___rarg(uint8, uint8, obj*, obj*, obj*, obj*);
 obj* l_Subtype_DecidableEq(obj*, obj*);
-obj* l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1___rarg(obj*, obj*, obj*);
-obj* l_fun_Inhabited___boxed(obj*, obj*);
 obj* l_Decidable_recOnFalse___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Quot_rec(obj*, obj*, obj*);
+obj* l_Pi_Inhabited(obj*, obj*);
 obj* l_Quotient_recOn(obj*, obj*, obj*);
-obj* l___private_init_core_27__extfunApp(obj*, obj*);
 obj* l_Subtype_Inhabited___rarg___boxed(obj*, obj*);
 obj* l_Quot_indep___rarg(obj*, obj*);
 obj* l_Nat_sizeof___main(obj*);
 obj* l_Prod_Inhabited(obj*, obj*);
+obj* l_PSigma_HasSizeof(obj*, obj*);
 obj* l_dite_Decidable___rarg___boxed(obj*, obj*, obj*);
 obj* l_And_Decidable___boxed(obj*, obj*);
 uint8 l_bnot___main(uint8);
 obj* l_Quot_indep(obj*, obj*, obj*);
+obj* l_Not_Decidable___boxed(obj*);
 obj* l_Prod_map___main(obj*, obj*, obj*, obj*);
 obj* l_List_HasSizeof___rarg(obj*);
 obj* l_ite_Decidable___rarg___boxed(obj*, obj*, obj*);
-obj* l_Psum_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_decidableOfDecidableEq___rarg(obj*, obj*, obj*);
 obj* l_Subtype_sizeof___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_default_sizeof___main___boxed(obj*, obj*);
 obj* l_default___rarg(obj*);
 obj* l_implies_Decidable___boxed(obj*, obj*);
+obj* l_PSigma_sizeof___main___boxed(obj*, obj*);
 obj* l_False_Decidable___boxed;
 obj* l_Subtype_HasSizeof___rarg(obj*, obj*);
 obj* l_Bool_sizeof___boxed(obj*);
 obj* l_bit1(obj*);
 obj* l_Nat_sizeof(obj*);
 obj* l_Quot_indep___boxed(obj*, obj*, obj*);
-obj* l_or_byCases(obj*, obj*);
 obj* l_List_HasSizeof(obj*);
 obj* l_Prod_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_Quot_recOn___rarg___boxed(obj*, obj*, obj*);
@@ -234,8 +225,6 @@ obj* l_bit0___boxed(obj*);
 obj* l_False_elim___boxed(obj*, obj*);
 obj* l_Nat_HasZero;
 obj* l_Thunk_get___boxed(obj*, obj*);
-obj* l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1(obj*, obj*);
-obj* l_Psum_sizeof___main(obj*, obj*);
 obj* l_Quotient_rec(obj*, obj*, obj*);
 uint8 l_Prod_DecidableEq___rarg(obj*, obj*, obj*, obj*);
 obj* l_Sum_sizeof___main(obj*, obj*);
@@ -244,8 +233,8 @@ obj* l_Eq_mpr___rarg(obj*);
 obj* l_Eq_ndrecOn___rarg(obj*);
 obj* l_Quot_rec___boxed(obj*, obj*, obj*);
 obj* l_Prod_map___rarg(obj*, obj*, obj*);
+obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1(obj*, obj*);
 obj* l_Sum_HasSizeof___rarg(obj*, obj*);
-obj* l_xor_Decidable(obj*, obj*);
 obj* l_std_prec_arrow;
 obj* l_Quotient_DecidableEq___boxed(obj*);
 obj* l_bit0___rarg(obj*, obj*);
@@ -254,15 +243,13 @@ obj* l_bit0(obj*);
 obj* l_Prod_DecidableEq___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_id(obj*);
 obj* l_Task_bind___boxed(obj*, obj*, obj*, obj*);
-obj* l_pi_Inhabited(obj*, obj*);
 obj* l_arbitrary___boxed(obj*);
-obj* l_decidableEqOfBoolPred___boxed(obj*);
 obj* l_List_sizeof___rarg(obj*, obj*);
 obj* l_Subtype_sizeof___rarg(obj*, obj*, obj*);
 obj* l_decidableOfDecidableOfIff___boxed(obj*, obj*);
 obj* l_Quotient_rec___boxed(obj*, obj*, obj*);
 obj* l_defaultHasSizeof___boxed(obj*);
-obj* l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2(obj*, obj*);
+obj* l_PUnit_sizeof(obj*);
 obj* l_False_elim(obj*, uint8);
 obj* l_Quotient_liftOn_u_2082___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_inline___boxed(obj*);
@@ -270,19 +257,18 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 obj* l_Subtype_sizeof___boxed(obj*);
+obj* l_PSigma_sizeof___boxed(obj*, obj*);
 obj* l_bnot___boxed(obj*);
 obj* l_Quot_liftOn___rarg___boxed(obj*, obj*, obj*);
+obj* l_PUnit_sizeof___main(obj*);
 uint8 l_Or_Decidable___rarg(uint8, uint8);
 obj* l_Combinator_I___rarg(obj*);
-obj* l_existsPropDecidable___boxed(obj*, obj*);
 obj* l_Bool_HasSizeof;
 obj* l_Quotient_recOnSubsingleton_u_2082___at_Quotient_DecidableEq___spec__1___rarg(obj*, obj*, obj*);
 obj* l_default_sizeof(obj*, obj*);
 obj* l_ite___rarg(uint8, obj*, obj*, obj*);
 obj* l_Eq_ndrec___rarg___boxed(obj*, obj*, obj*);
 obj* l_cast(obj*, obj*, obj*);
-obj* l_prop_Inhabited;
-obj* l_Psigma_HasSizeof___rarg(obj*, obj*);
 obj* l_Quotient_liftOn(obj*, obj*, obj*);
 obj* l_Subtype_Inhabited(obj*, obj*);
 obj* l_EqvGen_Setoid___boxed(obj*, obj*);
@@ -293,12 +279,12 @@ obj* l_Eq_mpr___boxed(obj*, obj*, obj*);
 obj* l_std_prec_maxPlus;
 obj* l_Or_Decidable(obj*, obj*);
 obj* l_Prod_map___main___rarg(obj*, obj*, obj*);
-obj* l_pi_Inhabited___rarg(obj*, obj*);
-obj* l___private_init_core_26__funToExtfun___boxed(obj*, obj*);
 uint8 l_ite_Decidable___rarg(uint8, uint8, uint8);
-obj* l_Psum_HasSizeof(obj*, obj*);
+obj* l___private_init_core_21__funSetoid(obj*, obj*);
 obj* l_Quot_hrecOn___boxed(obj*, obj*, obj*);
+obj* l_Xor_Decidable(obj*, obj*);
 obj* l_Nat_add___boxed(obj*, obj*);
+obj* l_PSum_sizeof___rarg(obj*, obj*, obj*);
 obj* l_And_Decidable(obj*, obj*);
 obj* l_Quotient_lift___rarg(obj*, obj*, obj*);
 obj* l_Eq_mp(obj*, obj*, obj*);
@@ -310,28 +296,21 @@ obj* l_List_sizeof(obj*);
 obj* l_Option_sizeof___boxed(obj*);
 obj* l_decidableOfDecidableEq(obj*);
 obj* l_Decidable_byCases___rarg(uint8, obj*, obj*);
-obj* l_Psum_HasSizeof___boxed(obj*, obj*);
 uint8 l_Iff_Decidable___rarg(uint8, uint8);
-obj* l_xor_Decidable___boxed(obj*, obj*);
 obj* l_Sum_HasSizeof___boxed(obj*, obj*);
+obj* l_Ne_Decidable(obj*);
+obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Subtype_DecidableEq___rarg___boxed(obj*, obj*, obj*);
 obj* l_Quotient_DecidableEq___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_fun_Inhabited___rarg(obj*, obj*);
 obj* l_Sum_sizeof___boxed(obj*, obj*);
 obj* l_Bool_Inhabited___boxed;
 obj* l_Iff_Decidable___boxed(obj*, obj*);
 obj* l_Quotient_hrecOn___rarg___boxed(obj*, obj*, obj*);
-obj* l_Psigma_sizeof___boxed(obj*, obj*);
-obj* l_not_Decidable___rarg___boxed(obj*);
 obj* l_Task_pure___boxed(obj*, obj*);
-obj* l_Punit_sizeof___main___boxed(obj*);
 obj* l_Subtype_HasSizeof(obj*);
 obj* l_Sigma_sizeof___main___at_Sigma_HasSizeof___spec__2(obj*, obj*);
 obj* l_Sum_DecidableEq(obj*, obj*);
 obj* l_default___rarg___boxed(obj*);
-obj* l_fun_Inhabited___rarg___boxed(obj*, obj*);
-obj* l_Psigma_sizeof___main(obj*, obj*);
-obj* l_fun_Inhabited(obj*, obj*);
 obj* l_dite___rarg(uint8, obj*, obj*, obj*);
 obj* l_Quot_recOnSubsingleton___rarg(obj*, obj*);
 obj* l_dite_Decidable(obj*, obj*, obj*);
@@ -343,18 +322,19 @@ obj* l_EqvGen_Setoid(obj*, obj*);
 obj* l_idRhs___rarg(obj*);
 obj* l_Sigma_sizeof___main___at_Sigma_HasSizeof___spec__2___rarg(obj*, obj*, obj*);
 obj* l_Prod_HasSizeof___rarg(obj*, obj*);
-uint8 l_not_Decidable___rarg(uint8);
 obj* l_singleton(obj*, obj*);
+obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___boxed(obj*, obj*);
+uint8 l_PUnit_DecidableEq(obj*, obj*);
 obj* l_Quotient_recOnSubsingleton(obj*, obj*, obj*, obj*);
-obj* l___private_init_core_27__extfunApp___rarg(obj*, obj*);
 obj* l_defaultHasSizeof___closed__1;
+uint8 l_Xor_Decidable___rarg(uint8, uint8);
 obj* l_typedExpr___boxed(obj*);
 obj* l_Decidable_byCases___boxed(obj*, obj*);
 obj* l_cond___rarg(uint8, obj*, obj*);
 obj* l_Decidable_toBool(obj*);
 obj* l_Bool_sizeof(uint8);
+obj* l_Pi_Inhabited___boxed(obj*, obj*);
 obj* l_Prod_map(obj*, obj*, obj*, obj*);
-uint8 l_xor_Decidable___rarg(uint8, uint8);
 obj* l_decidableOfDecidableOfEq(obj*, obj*);
 obj* l_Quot_recOn___rarg(obj*, obj*, obj*);
 obj* l_Sigma_HasSizeof___rarg(obj*, obj*);
@@ -369,11 +349,7 @@ obj* l_Sum_DecidableEq___rarg___boxed(obj*, obj*, obj*, obj*);
 uint8 l_And_Decidable___rarg(uint8, uint8);
 uint8 l_band(uint8, uint8);
 obj* l_flip(obj*, obj*, obj*);
-obj* l_or_byCases___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_existsPropDecidable___rarg___boxed(obj*, obj*);
-obj* l_Psigma_HasSizeof(obj*, obj*);
-uint8 l_Punit_DecidableEq(obj*, obj*);
-obj* l_forallPropDecidable___rarg___boxed(obj*, obj*);
+obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___boxed(obj*, obj*);
 obj* l_std_prec_max;
 obj* l_True_Inhabited;
 obj* l_Bool_sizeof___main___boxed(obj*);
@@ -381,11 +357,10 @@ obj* l_Combinator_K(obj*, obj*);
 obj* l_cond___main(obj*);
 uint8 l_decidableOfDecidableOfEq___rarg(uint8, obj*);
 uint8 l_False_Decidable;
-obj* l_Psum_sizeof___rarg(obj*, obj*, obj*);
 obj* l_Quotient_rec___rarg(obj*, obj*, obj*);
 obj* l_Bool_DecidableEq___boxed(obj*, obj*);
-obj* l_Psigma_sizeof___rarg(obj*, obj*, obj*);
 obj* l_cond___rarg___boxed(obj*, obj*, obj*);
+obj* l_PUnit_sizeof___boxed(obj*);
 obj* l_Quotient_recOn___rarg___boxed(obj*, obj*, obj*);
 obj* l_Subtype_HasSizeof___rarg___boxed(obj*, obj*);
 obj* l_Sum_HasSizeof(obj*, obj*);
@@ -399,10 +374,10 @@ obj* l_Subtype_sizeof___rarg___boxed(obj*, obj*, obj*);
 uint8 l_bxor(uint8, uint8);
 obj* l_default(obj*);
 obj* l_Quotient_recOn___boxed(obj*, obj*, obj*);
+obj* l_Ne_Decidable___rarg___boxed(obj*, obj*, obj*);
 obj* l_Subtype_sizeof(obj*);
 obj* l_inferInstance___boxed(obj*);
 uint8 l_Subtype_DecidableEq___rarg(obj*, obj*, obj*);
-obj* l___private_init_core_26__funToExtfun___rarg___boxed(obj*);
 obj* l_Sum_sizeof___main___boxed(obj*, obj*);
 obj* l_Sum_inhabitedLeft___rarg(obj*);
 obj* l_Sigma_HasSizeof(obj*, obj*);
@@ -412,61 +387,66 @@ obj* l_idRhs(obj*);
 obj* l_Eq_mp___boxed(obj*, obj*, obj*);
 obj* l_Quot_hrecOn(obj*, obj*, obj*);
 obj* l_List_sizeof___main___rarg(obj*, obj*);
-obj* l___private_init_core_26__funToExtfun(obj*, obj*);
 obj* l_Quotient_mk___rarg___boxed(obj*);
 obj* l_Quot_rec___rarg(obj*, obj*, obj*);
 obj* l_PointedType_Inhabited;
 obj* l_dite___boxed(obj*);
 uint8 l_Quotient_DecidableEq___rarg___lambda__1(obj*, obj*, obj*);
-obj* l___private_init_core_26__funToExtfun___rarg(obj*);
 obj* l_inferInstanceAs(obj*);
 obj* l_absurd___boxed(obj*, obj*, obj*, obj*);
+obj* l_PSigma_HasSizeof___boxed(obj*, obj*);
 uint8 l_prodHasDecidableLt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Psum_sizeof___boxed(obj*, obj*);
 obj* l_Nat_sizeof___boxed(obj*);
 obj* l_Quotient_recOnSubsingleton_u_2082___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Quotient_rec___rarg___boxed(obj*, obj*, obj*);
 obj* l_Decidable_recOnTrue(obj*);
+obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___rarg(obj*, obj*, obj*);
 obj* l_Prod_HasLt(obj*, obj*, obj*, obj*);
 obj* l_Nat_HasAdd;
 uint8 l_bor(uint8, uint8);
 obj* l_Subtype_Inhabited___rarg(obj*, obj*);
 obj* l_Quot_hrecOn___rarg___boxed(obj*, obj*, obj*);
+obj* l_PUnit_DecidableEq___boxed(obj*, obj*);
 obj* l_Sigma_sizeof___main___at_Sigma_HasSizeof___spec__2___boxed(obj*, obj*);
+obj* l_PUnit_HasSizeof;
 obj* l_idDelta___boxed(obj*);
 uint8 l_Sum_DecidableEq___rarg(obj*, obj*, obj*, obj*);
 uint8 l_Bool_Inhabited;
 obj* l_Quotient_lift___rarg___boxed(obj*, obj*, obj*);
 obj* l_Quot_liftOn(obj*, obj*, obj*);
 obj* l_Quotient_recOnSubsingleton_u_2082(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_PSigma_HasSizeof___rarg(obj*, obj*);
 obj* l_typedExpr___rarg(obj*);
 obj* l_Option_HasSizeof(obj*);
 obj* l_idRhs___boxed(obj*);
 obj* l_inferInstance___rarg___boxed(obj*);
 obj* l_Decidable_recOnTrue___rarg(uint8, obj*, obj*, obj*, obj*);
 obj* l_Eq_mp___rarg___boxed(obj*);
+obj* l_PSigma_sizeof___main(obj*, obj*);
 obj* l_inferInstance(obj*);
 uint8 l_bnot(uint8);
 obj* l_absurd(obj*, obj*, obj*, obj*);
-obj* l_pi_Inhabited___boxed(obj*, obj*);
 uint8 l_decidableOfDecidableOfIff___rarg(uint8, obj*);
 obj* l_Decidable_toBool___boxed(obj*);
+obj* l_PSigma_sizeof___rarg(obj*, obj*, obj*);
 obj* l_Decidable_byCases(obj*, obj*);
-obj* l_Psum_sizeof(obj*, obj*);
+obj* l_Ne_Decidable___boxed(obj*);
 obj* l_bnot___main___boxed(obj*);
 obj* l_arbitrary(obj*);
 obj* l_Sum_sizeof___rarg(obj*, obj*, obj*);
 obj* l_Quotient_liftOn_u_2082___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_cond___main___rarg(uint8, obj*, obj*);
+obj* l_PSum_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_Prod_sizeof___boxed(obj*, obj*);
+obj* l_PSigma_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_Option_sizeof(obj*);
 obj* l_Quotient_recOnSubsingleton___boxed(obj*, obj*, obj*, obj*);
 obj* l_Decidable_toBool___rarg___boxed(obj*);
 obj* l_Sigma_sizeof___main___boxed(obj*, obj*);
-obj* l_Punit_sizeof___main(obj*);
 obj* l_Sum_inhabitedLeft(obj*, obj*);
 obj* l_cond(obj*);
 obj* l_Option_HasSizeof___boxed(obj*);
+obj* l_PSigma_sizeof(obj*, obj*);
 obj* l_Subtype_Inhabited___boxed(obj*, obj*);
 obj* l_Decidable_recOnTrue___boxed(obj*);
 obj* l_Bool_sizeof___main(uint8);
@@ -475,8 +455,8 @@ obj* l_Quot_recOn(obj*, obj*, obj*);
 obj* l_implies_Decidable(obj*, obj*);
 obj* l_setoidHasEquiv___boxed(obj*, obj*);
 obj* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1___boxed(obj*, obj*);
+obj* l___private_init_core_21__funSetoid___boxed(obj*, obj*);
 obj* l_Or_Decidable___boxed(obj*, obj*);
-obj* l_Punit_sizeof___boxed(obj*);
 obj* l_Decidable_recOnFalse___boxed(obj*);
 obj* l_Eq_mp___rarg(obj*);
 obj* l_Quotient_hrecOn___boxed(obj*, obj*, obj*);
@@ -1308,7 +1288,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psum_sizeof___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_PSum_sizeof___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
@@ -1339,73 +1319,73 @@ return x_17;
 }
 }
 }
-obj* l_Psum_sizeof___main(obj* x_0, obj* x_1) {
+obj* l_PSum_sizeof___main(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psum_sizeof___main___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSum_sizeof___main___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_Psum_sizeof___main___boxed(obj* x_0, obj* x_1) {
+obj* l_PSum_sizeof___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psum_sizeof___main(x_0, x_1);
+x_2 = l_PSum_sizeof___main(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psum_sizeof___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_PSum_sizeof___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Psum_sizeof___main___rarg(x_0, x_1, x_2);
+x_3 = l_PSum_sizeof___main___rarg(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_Psum_sizeof(obj* x_0, obj* x_1) {
+obj* l_PSum_sizeof(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psum_sizeof___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSum_sizeof___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_Psum_sizeof___boxed(obj* x_0, obj* x_1) {
+obj* l_PSum_sizeof___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psum_sizeof(x_0, x_1);
+x_2 = l_PSum_sizeof(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psum_HasSizeof___rarg(obj* x_0, obj* x_1) {
+obj* l_PSum_HasSizeof___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psum_sizeof___rarg), 3, 2);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSum_sizeof___rarg), 3, 2);
 lean::closure_set(x_2, 0, x_0);
 lean::closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-obj* l_Psum_HasSizeof(obj* x_0, obj* x_1) {
+obj* l_PSum_HasSizeof(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psum_HasSizeof___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSum_HasSizeof___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_Psum_HasSizeof___boxed(obj* x_0, obj* x_1) {
+obj* l_PSum_HasSizeof___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psum_HasSizeof(x_0, x_1);
+x_2 = l_PSum_HasSizeof(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -1569,7 +1549,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_PSigma_sizeof___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
@@ -1590,51 +1570,51 @@ lean::dec(x_11);
 return x_14;
 }
 }
-obj* l_Psigma_sizeof___main(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof___main(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psigma_sizeof___main___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSigma_sizeof___main___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___main___boxed(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psigma_sizeof___main(x_0, x_1);
+x_2 = l_PSigma_sizeof___main(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_PSigma_sizeof___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Psigma_sizeof___main___rarg(x_0, x_1, x_2);
+x_3 = l_PSigma_sizeof___main___rarg(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_Psigma_sizeof(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psigma_sizeof___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSigma_sizeof___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___boxed(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psigma_sizeof(x_0, x_1);
+x_2 = l_PSigma_sizeof(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
@@ -1655,79 +1635,79 @@ lean::dec(x_11);
 return x_14;
 }
 }
-obj* l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2___rarg(x_0, x_1, x_2);
+x_3 = l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___rarg(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1___rarg), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___rarg), 3, 0);
 return x_2;
 }
 }
-obj* l_Psigma_HasSizeof___rarg(obj* x_0, obj* x_1) {
+obj* l_PSigma_HasSizeof___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1___rarg), 3, 2);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___rarg), 3, 2);
 lean::closure_set(x_2, 0, x_0);
 lean::closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-obj* l_Psigma_HasSizeof(obj* x_0, obj* x_1) {
+obj* l_PSigma_HasSizeof(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Psigma_HasSizeof___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_PSigma_HasSizeof___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2___boxed(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psigma_sizeof___main___at_Psigma_HasSizeof___spec__2(x_0, x_1);
+x_2 = l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1___boxed(obj* x_0, obj* x_1) {
+obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psigma_sizeof___at_Psigma_HasSizeof___spec__1(x_0, x_1);
+x_2 = l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Psigma_HasSizeof___boxed(obj* x_0, obj* x_1) {
+obj* l_PSigma_HasSizeof___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Psigma_HasSizeof(x_0, x_1);
+x_2 = l_PSigma_HasSizeof(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Punit_sizeof___main(obj* x_0) {
+obj* l_PUnit_sizeof___main(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -1735,16 +1715,16 @@ x_1 = lean::mk_nat_obj(1u);
 return x_1;
 }
 }
-obj* l_Punit_sizeof___main___boxed(obj* x_0) {
+obj* l_PUnit_sizeof___main___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Punit_sizeof___main(x_0);
+x_1 = l_PUnit_sizeof___main(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Punit_sizeof(obj* x_0) {
+obj* l_PUnit_sizeof(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -1752,20 +1732,20 @@ x_1 = lean::mk_nat_obj(1u);
 return x_1;
 }
 }
-obj* l_Punit_sizeof___boxed(obj* x_0) {
+obj* l_PUnit_sizeof___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Punit_sizeof(x_0);
+x_1 = l_PUnit_sizeof(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_Punit_HasSizeof() {
+obj* _init_l_PUnit_HasSizeof() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Punit_sizeof___boxed), 1, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_PUnit_sizeof___boxed), 1, 0);
 return x_0;
 }
 }
@@ -3090,55 +3070,6 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_or_byCases___rarg(uint8 x_0, uint8 x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-if (x_0 == 0)
-{
-obj* x_7; 
-lean::dec(x_4);
-x_7 = lean::apply_1(x_5, lean::box(0));
-return x_7;
-}
-else
-{
-obj* x_9; 
-lean::dec(x_5);
-x_9 = lean::apply_1(x_4, lean::box(0));
-return x_9;
-}
-}
-}
-obj* l_or_byCases(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_or_byCases___rarg___boxed), 6, 0);
-return x_2;
-}
-}
-obj* l_or_byCases___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
-_start:
-{
-uint8 x_6; uint8 x_7; obj* x_8; 
-x_6 = lean::unbox(x_0);
-x_7 = lean::unbox(x_1);
-x_8 = l_or_byCases___rarg(x_6, x_7, x_2, x_3, x_4, x_5);
-lean::dec(x_2);
-lean::dec(x_3);
-return x_8;
-}
-}
-obj* l_or_byCases___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_or_byCases(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_2;
-}
-}
 uint8 l_And_Decidable___rarg(uint8 x_0, uint8 x_1) {
 _start:
 {
@@ -3249,7 +3180,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-uint8 l_not_Decidable___rarg(uint8 x_0) {
+uint8 l_Not_Decidable___rarg(uint8 x_0) {
 _start:
 {
 if (x_0 == 0)
@@ -3266,29 +3197,29 @@ return x_2;
 }
 }
 }
-obj* l_not_Decidable(obj* x_0) {
+obj* l_Not_Decidable(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_not_Decidable___rarg___boxed), 1, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Not_Decidable___rarg___boxed), 1, 0);
 return x_1;
 }
 }
-obj* l_not_Decidable___rarg___boxed(obj* x_0) {
+obj* l_Not_Decidable___rarg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; uint8 x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
-x_2 = l_not_Decidable___rarg(x_1);
+x_2 = l_Not_Decidable___rarg(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* l_not_Decidable___boxed(obj* x_0) {
+obj* l_Not_Decidable___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_not_Decidable(x_0);
+x_1 = l_Not_Decidable(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -3412,7 +3343,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-uint8 l_xor_Decidable___rarg(uint8 x_0, uint8 x_1) {
+uint8 l_Xor_Decidable___rarg(uint8 x_0, uint8 x_1) {
 _start:
 {
 if (x_0 == 0)
@@ -3447,152 +3378,36 @@ return x_5;
 }
 }
 }
-obj* l_xor_Decidable(obj* x_0, obj* x_1) {
+obj* l_Xor_Decidable(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_xor_Decidable___rarg___boxed), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Xor_Decidable___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* l_xor_Decidable___rarg___boxed(obj* x_0, obj* x_1) {
+obj* l_Xor_Decidable___rarg___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; uint8 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = l_xor_Decidable___rarg(x_2, x_3);
+x_4 = l_Xor_Decidable___rarg(x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
 }
 }
-obj* l_xor_Decidable___boxed(obj* x_0, obj* x_1) {
+obj* l_Xor_Decidable___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_xor_Decidable(x_0, x_1);
+x_2 = l_Xor_Decidable(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-uint8 l_existsPropDecidable___rarg(uint8 x_0, obj* x_1) {
-_start:
-{
-if (x_0 == 0)
-{
-uint8 x_3; 
-lean::dec(x_1);
-x_3 = 0;
-return x_3;
-}
-else
-{
-obj* x_4; uint8 x_5; 
-x_4 = lean::apply_1(x_1, lean::box(0));
-x_5 = lean::unbox(x_4);
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
-}
-}
-}
-obj* l_existsPropDecidable(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_existsPropDecidable___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-obj* l_existsPropDecidable___rarg___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-uint8 x_2; uint8 x_3; obj* x_4; 
-x_2 = lean::unbox(x_0);
-x_3 = l_existsPropDecidable___rarg(x_2, x_1);
-x_4 = lean::box(x_3);
-return x_4;
-}
-}
-obj* l_existsPropDecidable___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_existsPropDecidable(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_2;
-}
-}
-uint8 l_forallPropDecidable___rarg(uint8 x_0, obj* x_1) {
-_start:
-{
-if (x_0 == 0)
-{
-uint8 x_3; 
-lean::dec(x_1);
-x_3 = 1;
-return x_3;
-}
-else
-{
-obj* x_4; uint8 x_5; 
-x_4 = lean::apply_1(x_1, lean::box(0));
-x_5 = lean::unbox(x_4);
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
-}
-}
-}
-obj* l_forallPropDecidable(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_forallPropDecidable___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-obj* l_forallPropDecidable___rarg___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-uint8 x_2; uint8 x_3; obj* x_4; 
-x_2 = lean::unbox(x_0);
-x_3 = l_forallPropDecidable___rarg(x_2, x_1);
-x_4 = lean::box(x_3);
-return x_4;
-}
-}
-obj* l_forallPropDecidable___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_forallPropDecidable(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_2;
-}
-}
-uint8 l_ne_Decidable___rarg(obj* x_0, obj* x_1, obj* x_2) {
+uint8 l_Ne_Decidable___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -3612,28 +3427,28 @@ return x_6;
 }
 }
 }
-obj* l_ne_Decidable(obj* x_0) {
+obj* l_Ne_Decidable(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_ne_Decidable___rarg___boxed), 3, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Ne_Decidable___rarg___boxed), 3, 0);
 return x_1;
 }
 }
-obj* l_ne_Decidable___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Ne_Decidable___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = l_ne_Decidable___rarg(x_0, x_1, x_2);
+x_3 = l_Ne_Decidable___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* l_ne_Decidable___boxed(obj* x_0) {
+obj* l_Ne_Decidable___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_ne_Decidable(x_0);
+x_1 = l_Ne_Decidable(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -3682,54 +3497,6 @@ x_3 = lean::unbox(x_1);
 x_4 = l_Bool_DecidableEq(x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
-}
-}
-uint8 l_decidableEqOfBoolPred___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; uint8 x_6; 
-x_5 = lean::apply_2(x_0, x_3, x_4);
-x_6 = lean::unbox(x_5);
-if (x_6 == 0)
-{
-uint8 x_7; 
-x_7 = 0;
-return x_7;
-}
-else
-{
-uint8 x_8; 
-x_8 = 1;
-return x_8;
-}
-}
-}
-obj* l_decidableEqOfBoolPred(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_decidableEqOfBoolPred___rarg___boxed), 5, 0);
-return x_1;
-}
-}
-obj* l_decidableEqOfBoolPred___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-uint8 x_5; obj* x_6; 
-x_5 = l_decidableEqOfBoolPred___rarg(x_0, x_1, x_2, x_3, x_4);
-x_6 = lean::box(x_5);
-lean::dec(x_1);
-lean::dec(x_2);
-return x_6;
-}
-}
-obj* l_decidableEqOfBoolPred___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_decidableEqOfBoolPred(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 uint8 l_ite_Decidable___rarg(uint8 x_0, uint8 x_1, uint8 x_2) {
@@ -3889,7 +3656,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_prop_Inhabited() {
+obj* _init_l_Prop_Inhabited() {
 _start:
 {
 obj* x_0; 
@@ -3897,42 +3664,42 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* l_fun_Inhabited___rarg(obj* x_0, obj* x_1) {
+obj* l_Fun_Inhabited___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 lean::inc(x_0);
 return x_0;
 }
 }
-obj* l_fun_Inhabited(obj* x_0, obj* x_1) {
+obj* l_Fun_Inhabited(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fun_Inhabited___rarg___boxed), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Fun_Inhabited___rarg___boxed), 2, 0);
 return x_2;
 }
 }
-obj* l_fun_Inhabited___rarg___boxed(obj* x_0, obj* x_1) {
+obj* l_Fun_Inhabited___rarg___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_fun_Inhabited___rarg(x_0, x_1);
+x_2 = l_Fun_Inhabited___rarg(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_fun_Inhabited___boxed(obj* x_0, obj* x_1) {
+obj* l_Fun_Inhabited___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_fun_Inhabited(x_0, x_1);
+x_2 = l_Fun_Inhabited(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_pi_Inhabited___rarg(obj* x_0, obj* x_1) {
+obj* l_Pi_Inhabited___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -3940,19 +3707,19 @@ x_2 = lean::apply_1(x_0, x_1);
 return x_2;
 }
 }
-obj* l_pi_Inhabited(obj* x_0, obj* x_1) {
+obj* l_Pi_Inhabited(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_pi_Inhabited___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Pi_Inhabited___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l_pi_Inhabited___boxed(obj* x_0, obj* x_1) {
+obj* l_Pi_Inhabited___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_pi_Inhabited(x_0, x_1);
+x_2 = l_Pi_Inhabited(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -4530,7 +4297,7 @@ lean::dec(x_3);
 return x_4;
 }
 }
-obj* _init_l_Punit_Inhabited() {
+obj* _init_l_PUnit_Inhabited() {
 _start:
 {
 obj* x_0; 
@@ -4538,7 +4305,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-uint8 l_Punit_DecidableEq(obj* x_0, obj* x_1) {
+uint8 l_PUnit_DecidableEq(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; 
@@ -4546,11 +4313,11 @@ x_2 = 1;
 return x_2;
 }
 }
-obj* l_Punit_DecidableEq___boxed(obj* x_0, obj* x_1) {
+obj* l_PUnit_DecidableEq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_Punit_DecidableEq(x_0, x_1);
+x_2 = l_PUnit_DecidableEq(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_0);
 lean::dec(x_1);
@@ -5234,7 +5001,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l___private_init_core_24__funSetoid(obj* x_0, obj* x_1) {
+obj* l___private_init_core_21__funSetoid(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -5242,51 +5009,17 @@ x_2 = lean::box(0);
 return x_2;
 }
 }
-obj* l___private_init_core_24__funSetoid___boxed(obj* x_0, obj* x_1) {
+obj* l___private_init_core_21__funSetoid___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_core_24__funSetoid(x_0, x_1);
+x_2 = l___private_init_core_21__funSetoid(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l___private_init_core_26__funToExtfun___rarg(obj* x_0) {
-_start:
-{
-lean::inc(x_0);
-return x_0;
-}
-}
-obj* l___private_init_core_26__funToExtfun(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_core_26__funToExtfun___rarg___boxed), 1, 0);
-return x_2;
-}
-}
-obj* l___private_init_core_26__funToExtfun___rarg___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l___private_init_core_26__funToExtfun___rarg(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
-obj* l___private_init_core_26__funToExtfun___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_core_26__funToExtfun(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_2;
-}
-}
-obj* l___private_init_core_27__extfunApp___rarg(obj* x_0, obj* x_1) {
+obj* l___private_init_core_22__extfunApp___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -5294,19 +5027,19 @@ x_2 = lean::apply_1(x_0, x_1);
 return x_2;
 }
 }
-obj* l___private_init_core_27__extfunApp(obj* x_0, obj* x_1) {
+obj* l___private_init_core_22__extfunApp(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_core_27__extfunApp___rarg), 2, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_core_22__extfunApp___rarg), 2, 0);
 return x_2;
 }
 }
-obj* l___private_init_core_27__extfunApp___boxed(obj* x_0, obj* x_1) {
+obj* l___private_init_core_22__extfunApp___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l___private_init_core_27__extfunApp(x_0, x_1);
+x_2 = l___private_init_core_22__extfunApp(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -5340,8 +5073,8 @@ lean::mark_persistent(l_std_prec_maxPlus);
 lean::mark_persistent(l_defaultHasSizeof___closed__1);
  l_Nat_HasSizeof = _init_l_Nat_HasSizeof();
 lean::mark_persistent(l_Nat_HasSizeof);
- l_Punit_HasSizeof = _init_l_Punit_HasSizeof();
-lean::mark_persistent(l_Punit_HasSizeof);
+ l_PUnit_HasSizeof = _init_l_PUnit_HasSizeof();
+lean::mark_persistent(l_PUnit_HasSizeof);
  l_Bool_HasSizeof = _init_l_Bool_HasSizeof();
 lean::mark_persistent(l_Bool_HasSizeof);
  l_True_Decidable = _init_l_True_Decidable();
@@ -5350,7 +5083,7 @@ lean::mark_persistent(l_True_Decidable___boxed);
  l_False_Decidable = _init_l_False_Decidable();
  l_False_Decidable___boxed = _init_l_False_Decidable___boxed();
 lean::mark_persistent(l_False_Decidable___boxed);
- l_prop_Inhabited = _init_l_prop_Inhabited();
+ l_Prop_Inhabited = _init_l_Prop_Inhabited();
  l_Bool_Inhabited = _init_l_Bool_Inhabited();
  l_Bool_Inhabited___boxed = _init_l_Bool_Inhabited___boxed();
 lean::mark_persistent(l_Bool_Inhabited___boxed);
@@ -5359,7 +5092,7 @@ lean::mark_persistent(l_Bool_Inhabited___boxed);
 lean::mark_persistent(l_Nat_Inhabited);
  l_PointedType_Inhabited = _init_l_PointedType_Inhabited();
 lean::mark_persistent(l_PointedType_Inhabited);
- l_Punit_Inhabited = _init_l_Punit_Inhabited();
-lean::mark_persistent(l_Punit_Inhabited);
+ l_PUnit_Inhabited = _init_l_PUnit_Inhabited();
+lean::mark_persistent(l_PUnit_Inhabited);
 return w;
 }

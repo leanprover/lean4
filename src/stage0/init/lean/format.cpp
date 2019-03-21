@@ -77,7 +77,6 @@ obj* uint64_to_nat(uint64);
 obj* l_Lean_Format_joinSuffix___rarg(obj*, obj*, obj*);
 obj* l_Lean_Format_HasAppend(obj*, obj*);
 obj* l_Lean_uint32HasToFormat(uint32);
-extern uint32 l_Char_isWhitespace___closed__1;
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -114,6 +113,9 @@ obj* l_Lean_Format_prefixJoin(obj*);
 obj* l_Lean_HasRepr;
 obj* l_Lean_List_toFormat___boxed(obj*);
 obj* l_Lean_toFmt___boxed(obj*);
+namespace lean {
+uint32 uint32_of_nat(obj*);
+}
 obj* l_Lean_prodHasToFormat___boxed(obj*, obj*);
 obj* l_Lean_Format_prefixJoin___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Format_joinSuffix___main___rarg(obj*, obj*, obj*);
@@ -763,7 +765,7 @@ lean::inc(x_19);
 lean::dec(x_6);
 x_22 = l_Lean_Format_be___main___closed__1;
 x_23 = lean::string_append(x_2, x_22);
-x_24 = l_Char_isWhitespace___closed__1;
+x_24 = 32;
 lean::inc(x_19);
 x_26 = l_Nat_repeatCore___main___at_String_pushn___spec__1(x_24, x_19, x_19, x_23);
 x_1 = x_19;

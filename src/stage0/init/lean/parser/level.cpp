@@ -1883,87 +1883,11 @@ return x_1;
 obj* _init_l_Lean_Parser_Level_leading_HasView_x_27___lambda__1___closed__4() {
 _start:
 {
-obj* x_0; uint8 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::nat_dec_eq(x_0, x_0);
-if (x_1 == 0)
-{
-obj* x_2; uint8 x_3; 
-x_2 = lean::mk_nat_obj(1u);
-x_3 = lean::nat_dec_eq(x_0, x_2);
-if (x_3 == 0)
-{
-obj* x_4; uint8 x_5; 
-x_4 = lean::mk_nat_obj(2u);
-x_5 = lean::nat_dec_eq(x_0, x_4);
-if (x_5 == 0)
-{
-obj* x_6; uint8 x_7; 
-x_6 = lean::mk_nat_obj(3u);
-x_7 = lean::nat_dec_eq(x_0, x_6);
-if (x_7 == 0)
-{
-obj* x_8; uint8 x_9; 
-x_8 = lean::mk_nat_obj(4u);
-x_9 = lean::nat_dec_eq(x_0, x_8);
-if (x_9 == 0)
-{
-obj* x_10; 
-x_10 = l_Lean_Parser_Level_leading_HasView_x_27___lambda__1___closed__2;
-return x_10;
-}
-else
-{
-obj* x_11; obj* x_12; obj* x_15; obj* x_16; obj* x_17; 
-x_11 = l_Lean_Parser_number_HasView;
-x_12 = lean::cnstr_get(x_11, 0);
-lean::inc(x_12);
-lean::dec(x_11);
-x_15 = lean::box(3);
-x_16 = lean::apply_1(x_12, x_15);
-x_17 = lean::alloc_cnstr(4, 1, 0);
-lean::cnstr_set(x_17, 0, x_16);
-return x_17;
-}
-}
-else
-{
-obj* x_18; obj* x_19; obj* x_22; obj* x_23; obj* x_24; 
-x_18 = l_Lean_Parser_Level_paren_HasView;
-x_19 = lean::cnstr_get(x_18, 0);
-lean::inc(x_19);
-lean::dec(x_18);
-x_22 = lean::box(3);
-x_23 = lean::apply_1(x_19, x_22);
-x_24 = lean::alloc_cnstr(3, 1, 0);
-lean::cnstr_set(x_24, 0, x_23);
-return x_24;
-}
-}
-else
-{
-obj* x_25; 
-x_25 = l_Lean_Parser_Level_leading_HasView_x_27___lambda__1___closed__3;
-return x_25;
-}
-}
-else
-{
-obj* x_26; obj* x_27; 
-x_26 = lean::box(3);
-x_27 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_27, 0, x_26);
-return x_27;
-}
-}
-else
-{
-obj* x_28; obj* x_29; 
-x_28 = lean::box(3);
-x_29 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_29, 0, x_28);
-return x_29;
-}
+obj* x_0; obj* x_1; 
+x_0 = lean::box(3);
+x_1 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_1, 0, x_0);
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_Level_leading_HasView_x_27___lambda__1___closed__5() {
@@ -5151,35 +5075,16 @@ return x_8;
 obj* _init_l_Lean_Parser_Level_trailing_HasView_x_27___lambda__1___closed__1() {
 _start:
 {
-obj* x_0; uint8 x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::nat_dec_eq(x_0, x_0);
-if (x_1 == 0)
-{
-obj* x_2; obj* x_3; obj* x_6; obj* x_7; obj* x_8; 
-x_2 = l_Lean_Parser_Level_addLit_HasView;
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-lean::dec(x_2);
-x_6 = lean::box(3);
-x_7 = lean::apply_1(x_3, x_6);
-x_8 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_8, 0, x_7);
-return x_8;
-}
-else
-{
-obj* x_9; obj* x_10; obj* x_13; obj* x_14; obj* x_15; 
-x_9 = l_Lean_Parser_Level_app_HasView;
-x_10 = lean::cnstr_get(x_9, 0);
-lean::inc(x_10);
-lean::dec(x_9);
-x_13 = lean::box(3);
-x_14 = lean::apply_1(x_10, x_13);
-x_15 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_15, 0, x_14);
-return x_15;
-}
+obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; 
+x_0 = l_Lean_Parser_Level_app_HasView;
+x_1 = lean::cnstr_get(x_0, 0);
+lean::inc(x_1);
+lean::dec(x_0);
+x_4 = lean::box(3);
+x_5 = lean::apply_1(x_1, x_4);
+x_6 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_6, 0, x_5);
+return x_6;
 }
 }
 obj* _init_l_Lean_Parser_Level_trailing_HasView_x_27___lambda__1___closed__2() {

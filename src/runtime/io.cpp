@@ -137,7 +137,7 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
     return reinterpret_cast<atomic<object*> *>(&(to_ref(o)->m_value));
 }
 
-obj_res io_ref_read(b_obj_arg ref, obj_arg r) {
+obj_res io_ref_get(b_obj_arg ref, obj_arg r) {
     if (is_mt_heap_obj(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * val = val_addr->exchange(nullptr);
@@ -176,7 +176,7 @@ obj_res io_ref_reset(b_obj_arg ref, obj_arg r) {
     }
 }
 
-obj_res io_ref_write(b_obj_arg ref, obj_arg a, obj_arg r) {
+obj_res io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
     if (is_mt_heap_obj(ref)) {
         if (is_st_heap_obj(a)) {
             /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.

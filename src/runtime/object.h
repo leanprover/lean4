@@ -1466,9 +1466,9 @@ void io_result_show_error(b_obj_arg r);
 // =======================================
 // IO ref primitives
 obj_res io_mk_ref(obj_arg, obj_arg);
-obj_res io_ref_read(b_obj_arg, obj_arg);
+obj_res io_ref_get(b_obj_arg, obj_arg);
+obj_res io_ref_set(b_obj_arg, obj_arg, obj_arg);
 obj_res io_ref_reset(b_obj_arg, obj_arg);
-obj_res io_ref_write(b_obj_arg, obj_arg, obj_arg);
 obj_res io_ref_swap(b_obj_arg, obj_arg, obj_arg);
 
 // =======================================

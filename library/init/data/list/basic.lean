@@ -81,20 +81,24 @@ theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ 
   have h₄ : a::(as ++ (bs ++ cs)) = (a::as ++ (bs ++ cs)), from (consAppend a as (bs++cs)).symm,
   Eq.trans (Eq.trans (Eq.trans h₁ h₂) h₃) h₄
 
-protected def mem : α → List α → Prop
-| a []       := False
-| a (b :: l) := a = b ∨ mem a l
+inductive mem : α → List α → Prop
+| eqHead (a : α) (as : List α) : mem a (a::as)
+| inTail {a : α} (b : α) {bs : List α} (h : mem a bs) : mem a (b::bs)
 
 instance : HasMem α (List α) :=
 ⟨List.mem⟩
 
+theorem notMem : ∀ {a b : α} {bs : List α}, a ≠ b → ¬ a ∈ bs → ¬ a ∈ b :: bs
+| _ _ _ h _  (mem.eqHead _ _)  := absurd rfl h
+| _ _ _ _ h₁ (mem.inTail _ h₂) := absurd h₂ h₁
+
 instance decidableMem [DecidableEq α] (a : α) : ∀ (l : List α), Decidable (a ∈ l)
-| []     := isFalse notFalse
-| (b::l) :=
-  if h₁ : a = b then isTrue (Or.inl h₁)
-  else match decidableMem l with
-       | isTrue  h₂ := isTrue (Or.inr h₂)
-       | isFalse h₂ := isFalse (notOr h₁ h₂)
+| []      := isFalse (λ h, match h with end)
+| (b::bs) :=
+  if h₁ : a = b then isTrue (h₁.symm ▸ mem.eqHead b bs)
+  else match decidableMem bs with
+       | isTrue  h₂ := isTrue (mem.inTail _ h₂)
+       | isFalse h₂ := isFalse (notMem h₁ h₂)
 
 instance : HasEmptyc (List α) :=
 ⟨List.nil⟩
@@ -158,28 +162,39 @@ def filterMap (f : α → Option β) : List α → List β
   | none   := filterMap l
   | some b := b :: filterMap l
 
-def filter (p : α → Prop) [DecidablePred p] : List α → List α
+def filter (p : α → Bool) : List α → List α
 | []     := []
-| (a::l) := if p a then a :: filter l else filter l
+| (a::l) := match p a with
+            | true  := a :: filter l
+            | false := filter l
 
-def partition (p : α → Prop) [DecidablePred p] : List α → List α × List α
+def partition (p : α → Bool) : List α → List α × List α
 | []     := ([], [])
-| (a::l) := let (l₁, l₂) := partition l in if p a then (a :: l₁, l₂) else (l₁, a :: l₂)
+| (a::l) := let (l₁, l₂) := partition l in
+            match p a with
+            | true  := (a :: l₁, l₂)
+            | false := (l₁, a :: l₂)
 
-def dropWhile (p : α → Prop) [DecidablePred p] : List α → List α
+def dropWhile (p : α → Bool) : List α → List α
 | []     := []
-| (a::l) := if p a then dropWhile l else a::l
+| (a::l) := match p a with
+            | true  := dropWhile l
+            | false :=  a::l
 
-def span (p : α → Prop) [DecidablePred p] : List α → List α × List α
+def span (p : α → Bool) : List α → List α × List α
 | []      := ([], [])
-| (a::xs) := if p a then let (l, r) := span xs in (a :: l, r) else ([], a::xs)
+| (a::xs) := match p a with
+             | true  := let (l, r) := span xs in (a :: l, r)
+             | false := ([], a::xs)
 
-def findIndex (p : α → Prop) [DecidablePred p] : List α → Nat
+def findIndex (p : α → Bool) : List α → Nat
 | []     := 0
-| (a::l) := if p a then 0 else succ (findIndex l)
+| (a::l) := match p a with
+            | true  := 0
+            | false := succ (findIndex l)
 
 def indexOf [DecidableEq α] (a : α) (l : List α) : Nat :=
-findIndex (Eq a) l
+findIndex (λ b, a = b) l
 
 def assoc [DecidableEq α] : List (α × β) → α → Option β
 | []         _  := none

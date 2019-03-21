@@ -13,32 +13,16 @@
 # This script is used to generate src/library/constants.cpp and src/library/constants.h
 import sys
 import os
+import re
 
 def error(msg):
     print("Error: %s" % msg)
     exit(1)
 
 def to_c_const(s):
-    out = ""
-    first = True
-    for c in s:
-        if c == '.':
-            out += '_'
-            first = True
-        elif c == '_':
-            out += '_'
-            first = False
-        elif c.isalpha() or c.isdigit():
-            if c.isupper():
-                if not first:
-                    out += "_"
-                out += c.lower()
-            else:
-                out += c
-            first = False
-        else:
-            error("unsupported character in constant: %s" % s)
-    return out
+    # insert '_' instead of '.' and between lower case and upper case
+    s = re.sub(r"\.|(?<=[a-z0-9])(?=[A-Z])", '_', s)
+    return s.lower()
 
 def main(argv=None):
     if argv is None:

@@ -22,8 +22,8 @@ def DataValue.beq : DataValue → DataValue → Bool
 
 instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
 
-/- Remark: we do not use Rbmap here because we need to manipulate Kvmap objects in
-   C++ and Rbmap is implemented in Lean. So, we use just a List until we can
+/- Remark: we do not use RBMap here because we need to manipulate Kvmap objects in
+   C++ and RBMap is implemented in Lean. So, we use just a List until we can
    generate C++ code from Lean code. -/
 structure Kvmap :=
 (entries : List (Name × DataValue) := [])

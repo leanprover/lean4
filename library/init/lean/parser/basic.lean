@@ -84,7 +84,7 @@ local attribute [reducible] BasicParserM ParserT parserCoreT
 @[inline] def getCache : BasicParserM ParserCache :=
 monadLift (get : StateT ParserCache id _)
 
-@[inline] def putCache : ParserCache → BasicParserM Punit :=
+@[inline] def putCache : ParserCache → BasicParserM PUnit :=
 λ c, monadLift (put c : StateT ParserCache id _)
 end
 
@@ -192,7 +192,7 @@ instance trailingTermParserCoe : HasCoe termParser trailingTermParser :=
 
 local attribute [instance] Name.hasLtQuick
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
-def TokenMap (α : Type) := Rbmap Name (List α) (<)
+def TokenMap (α : Type) := RBMap Name (List α) (<)
 
 def TokenMap.insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
 match map.find k with
@@ -200,7 +200,7 @@ match map.find k with
 | some vs := map.insert k (v::vs)
 
 def TokenMap.ofList {α : Type} : List (Name × α) → TokenMap α
-| []          := mkRbmap _ _ _
+| []          := mkRBMap _ _ _
 | (⟨k,v⟩::xs) := (TokenMap.ofList xs).insert k v
 
 instance tokenMapNil.tokens : Parser.HasTokens $ @TokenMap.ofList ρ [] :=
@@ -215,8 +215,8 @@ structure CommandParserConfig extends ParserConfig :=
 (leadingTermParsers : TokenMap termParser)
 (trailingTermParsers : TokenMap trailingTermParser)
 -- local Term parsers (such as from `local notation`) hide previous parsers instead of overloading them
-(localLeadingTermParsers : TokenMap termParser := mkRbmap _ _ _)
-(localTrailingTermParsers : TokenMap trailingTermParser := mkRbmap _ _ _)
+(localLeadingTermParsers : TokenMap termParser := mkRBMap _ _ _)
+(localTrailingTermParsers : TokenMap trailingTermParser := mkRBMap _ _ _)
 
 instance commandParserConfigCoeParserConfig : HasCoe CommandParserConfig ParserConfig :=
 ⟨CommandParserConfig.toParserConfig⟩

@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
+#pragma clang diagnostic ignored "-Wreturn-std-move"
 #include <utility>
 #include <algorithm>
 #include "runtime/optional.h"

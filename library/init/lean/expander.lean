@@ -471,7 +471,7 @@ def sorry.transform : transformer :=
 local attribute [instance] Name.hasLtQuick
 
 -- TODO(Sebastian): replace with attribute
-def builtinTransformers : Rbmap Name transformer (<) := Rbmap.fromList [
+def builtinTransformers : RBMap Name transformer (<) := RBMap.fromList [
   (mixfix.name, mixfix.transform),
   (reserveMixfix.name, reserveMixfix.transform),
   (bracketedBinders.name, bracketedBinders.transform),
@@ -497,7 +497,7 @@ structure ExpanderState :=
 (nextScope : MacroScope)
 
 structure ExpanderConfig extends TransformerConfig :=
-(transformers : Rbmap Name transformer (<))
+(transformers : RBMap Name transformer (<))
 
 instance ExpanderConfig.HasLift : HasLift ExpanderConfig TransformerConfig :=
 ⟨ExpanderConfig.toTransformerConfig⟩

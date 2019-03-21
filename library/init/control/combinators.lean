@@ -19,12 +19,12 @@ def List.mmap {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f :
 | (h :: t) := do h' ← f h, t' ← List.mmap t, pure (h' :: t')
 
 @[specialize]
-def List.mmap' {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m Punit
+def List.mmap' {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
 | []       := pure ⟨⟩
 | (h :: t) := f h *> List.mmap' t
 
 @[specialize]
-def List.mfor {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m Punit :=
+def List.mfor {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit :=
 List.mmap' f
 
 def mjoin {m : Type u → Type u} [Monad m] {α : Type u} (a : m (m α)) : m α :=

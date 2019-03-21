@@ -18,10 +18,10 @@ constant IO.RealWorld : Type := Unit
    ```
 -/
 @[derive Monad MonadExcept]
-def EIO (ε : Type) : Type → Type := Estate ε IO.RealWorld
+def EIO (ε : Type) : Type → Type := EState ε IO.RealWorld
 
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
-inferInstanceAs (Inhabited (Estate ε IO.RealWorld α))
+inferInstanceAs (Inhabited (EState ε IO.RealWorld α))
 
 /-
 In the future, we may want to give more concrete data

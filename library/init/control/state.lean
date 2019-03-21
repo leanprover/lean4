@@ -52,11 +52,11 @@ section
   @[inline] protected def get : StateT σ m σ :=
   λ s, pure (s, s)
 
-  @[inline] protected def put : σ → StateT σ m Punit :=
-  λ s' s, pure (Punit.star, s')
+  @[inline] protected def put : σ → StateT σ m PUnit :=
+  λ s' s, pure (PUnit.star, s')
 
-  @[inline] protected def modify (f : σ → σ) : StateT σ m Punit :=
-  λ s, pure (Punit.star, f s)
+  @[inline] protected def modify (f : σ → σ) : StateT σ m PUnit :=
+  λ s, pure (PUnit.star, f s)
 
   @[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
   λ s, do a ← t, pure (a, s)
@@ -86,12 +86,12 @@ class MonadState (σ : outParam (Type u)) (m : Type u → Type v) :=
 /- Obtain the top-most State of a Monad stack. -/
 (get {} : m σ)
 /- Set the top-most State of a Monad stack. -/
-(put {} : σ → m Punit)
+(put {} : σ → m PUnit)
 /- Map the top-most State of a Monad stack.
 
    Note: `modify f` may be preferable to `f <$> get >>= put` because the latter
    does not use the State linearly (without sufficient inlining). -/
-(modify {} : (σ → σ) → m Punit)
+(modify {} : (σ → σ) → m PUnit)
 
 export MonadState (get put modify)
 
@@ -152,7 +152,7 @@ section
 variables {σ σ' : Type u} {m m' : Type u → Type v}
 
 def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toSigma : σ' → σ) (fromSigma : σ → σ') : m α → m' α :=
-adaptState (λ st, (toSigma st, Punit.star)) (λ st _, fromSigma st)
+adaptState (λ st, (toSigma st, PUnit.star)) (λ st _, fromSigma st)
 export MonadStateAdapter (adaptState')
 
 instance monadStateAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadStateAdapter σ σ' m m'] : MonadStateAdapter σ σ' n n' :=

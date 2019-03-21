@@ -37,7 +37,7 @@ end Position
 /-- A precomputed cache for quickly mapping Char offsets to positionitions. -/
 structure FileMap :=
 -- A mapping from Char offset of line start to line index
-(lines : Rbmap Nat Nat (<))
+(lines : RBMap Nat Nat (<))
 
 namespace FileMap
 private def fromStringAux : Nat → String.Iterator → Nat → List (Nat × Nat)
@@ -49,7 +49,7 @@ private def fromStringAux : Nat → String.Iterator → Nat → List (Nat × Nat
        | other := fromStringAux k it.next line
 
 def fromString (s : String) : FileMap :=
-{lines := Rbmap.ofList $ fromStringAux s.length s.mkIterator 1}
+{lines := RBMap.ofList $ fromStringAux s.length s.mkIterator 1}
 
 def toPosition (m : FileMap) (off : Nat) : Position :=
 match m.lines.lowerBound off with

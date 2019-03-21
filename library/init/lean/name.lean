@@ -157,27 +157,27 @@ end Name
 
 section
 local attribute [instance] Name.hasLtQuick
-def NameMap (α : Type) := Rbmap Name α (<)
+def NameMap (α : Type) := RBMap Name α (<)
 variable {α : Type}
 @[inline] def mkNameMap : NameMap α :=
-mkRbmap Name α (<)
+mkRBMap Name α (<)
 def NameMap.insert (m : NameMap α) (n : Name) (a : α) :=
-Rbmap.insert m n a
+RBMap.insert m n a
 def NameMap.contains (m : NameMap α) (n : Name) : Bool :=
-Rbmap.contains m n
+RBMap.contains m n
 @[inline] def NameMap.find (m : NameMap α) (n : Name) : Option α :=
-Rbmap.find m n
+RBMap.find m n
 end
 
 section
 local attribute [instance] Name.hasLtQuick
-def NameSet := Rbtree Name (<)
+def NameSet := RBTree Name (<)
 @[inline] def mkNameSet : NameSet :=
-mkRbtree Name (<)
+mkRBTree Name (<)
 def NameSet.insert (s : NameSet) (n : Name)  :=
-Rbtree.insert s n
+RBTree.insert s n
 def NameSet.contains (s : NameSet) (n : Name) : Bool :=
-Rbmap.contains s n
+RBMap.contains s n
 end
 
 end Lean

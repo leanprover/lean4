@@ -127,15 +127,15 @@ a
    issues when proving equational lemmas. The equation Compiler uses it as a marker. -/
 @[macroInline] abbrev idRhs (α : Sort u) (a : α) : α := a
 
-inductive Punit : Sort u
-| star : Punit
+inductive PUnit : Sort u
+| star : PUnit
 
-/-- An abbreviation for `Punit.{0}`, its most common instantiation.
-    This Type should be preferred over `Punit` where possible to avoid
+/-- An abbreviation for `PUnit.{0}`, its most common instantiation.
+    This Type should be preferred over `PUnit` where possible to avoid
     unnecessary universe parameters. -/
-abbrev Unit : Type := Punit
+abbrev Unit : Type := PUnit
 
-@[pattern] abbrev Unit.star : Unit := Punit.star
+@[pattern] abbrev Unit.star : Unit := PUnit.star
 
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure Thunk (α : Type u) : Type u :=
@@ -219,7 +219,7 @@ structure Prod (α : Type u) (β : Type v) :=
 
 /-- Similar to `Prod`, but α and β can be propositions.
    We use this Type internally to automatically generate the brecOn recursor. -/
-structure Pprod (α : Sort u) (β : Sort v) :=
+structure PProd (α : Sort u) (β : Sort v) :=
 (fst : α) (snd : β)
 
 structure And (a b : Prop) : Prop :=
@@ -265,9 +265,9 @@ inductive Sum (α : Type u) (β : Type v)
 | inl {} (val : α) : Sum
 | inr {} (val : β) : Sum
 
-inductive Psum (α : Sort u) (β : Sort v)
-| inl {} (val : α) : Psum
-| inr {} (val : β) : Psum
+inductive PSum (α : Sort u) (β : Sort v)
+| inl {} (val : α) : PSum
+| inr {} (val : β) : PSum
 
 inductive Or (a b : Prop) : Prop
 | inl {} (h : a) : Or
@@ -282,7 +282,7 @@ Or.inr hb
 structure Sigma {α : Type u} (β : α → Type v) :=
 mk :: (fst : α) (snd : β fst)
 
-structure Psigma {α : Sort u} (β : α → Sort v) :=
+structure PSigma {α : Sort u} (β : α → Sort v) :=
 mk :: (fst : α) (snd : β fst)
 
 inductive Bool : Type
@@ -296,7 +296,7 @@ structure Subtype {α : Sort u} (p : α → Prop) :=
 inductive Exists {α : Sort u} (p : α → Prop) : Prop
 | intro (w : α) (h : p w) : Exists
 
-attribute [ppAnonymousCtor] Sigma Psigma Subtype Pprod And
+attribute [ppAnonymousCtor] Sigma PSigma Subtype PProd And
 
 class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable
@@ -358,10 +358,10 @@ class HasAppend   (α : Type u) := (append : α → α → α)
 class HasAndthen  (α : Type u) (β : Type v) (σ : outParam $ Type w) := (andthen : α → β → σ)
 class HasUnion    (α : Type u) := (union : α → α → α)
 class HasInter    (α : Type u) := (inter : α → α → α)
-class HasSdiff    (α : Type u) := (sdiff : α → α → α)
+class HasSDiff    (α : Type u) := (sdiff : α → α → α)
 class HasEquiv    (α : Sort u) := (equiv : α → α → Prop)
 class HasSubset   (α : Type u) := (subset : α → α → Prop)
-class HasSsubset  (α : Type u) := (ssubset : α → α → Prop)
+class HasSSubset  (α : Type u) := (ssubset : α → α → Prop)
 /- Type classes HasEmptyc and HasInsert are
    used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
@@ -399,8 +399,8 @@ notation `∅`   := HasEmptyc.emptyc _
 infix ∪        := HasUnion.union
 infix ∩        := HasInter.inter
 infix ⊆        := HasSubset.subset
-infix ⊂        := HasSsubset.ssubset
-infix \        := HasSdiff.sdiff
+infix ⊂        := HasSSubset.ssubset
+infix \        := HasSDiff.sdiff
 infix ≈        := HasEquiv.equiv
 infixr ^       := HasPow.pow
 infixr /\      := And
@@ -422,7 +422,7 @@ infix ≥        := ge
 infix >        := gt
 
 @[reducible] def superset {α : Type u} [HasSubset α] (a b : α) : Prop := HasSubset.subset b a
-@[reducible] def ssuperset {α : Type u} [HasSsubset α] (a b : α) : Prop := HasSsubset.ssubset b a
+@[reducible] def ssuperset {α : Type u} [HasSSubset α] (a b : α) : Prop := HasSSubset.ssubset b a
 
 infix ⊇        := superset
 infix ⊃        := ssuperset
@@ -518,12 +518,12 @@ protected def Sum.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof �
 instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Sum α β) :=
 ⟨Sum.sizeof⟩
 
-protected def Psum.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof β] : (Psum α β) → Nat
-| (Psum.inl a) := 1 + sizeof a
-| (Psum.inr b) := 1 + sizeof b
+protected def PSum.sizeof {α : Type u} {β : Type v} [HasSizeof α] [HasSizeof β] : (PSum α β) → Nat
+| (PSum.inl a) := 1 + sizeof a
+| (PSum.inr b) := 1 + sizeof b
 
-instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (Psum α β) :=
-⟨Psum.sizeof⟩
+instance (α : Type u) (β : Type v) [HasSizeof α] [HasSizeof β] : HasSizeof (PSum α β) :=
+⟨PSum.sizeof⟩
 
 protected def Sigma.sizeof {α : Type u} {β : α → Type v} [HasSizeof α] [∀ a, HasSizeof (β a)] : Sigma β → Nat
 | ⟨a, b⟩ := 1 + sizeof a + sizeof b
@@ -531,16 +531,16 @@ protected def Sigma.sizeof {α : Type u} {β : α → Type v} [HasSizeof α] [�
 instance (α : Type u) (β : α → Type v) [HasSizeof α] [∀ a, HasSizeof (β a)] : HasSizeof (Sigma β) :=
 ⟨Sigma.sizeof⟩
 
-protected def Psigma.sizeof {α : Type u} {β : α → Type v} [HasSizeof α] [∀ a, HasSizeof (β a)] : Psigma β → Nat
+protected def PSigma.sizeof {α : Type u} {β : α → Type v} [HasSizeof α] [∀ a, HasSizeof (β a)] : PSigma β → Nat
 | ⟨a, b⟩ := 1 + sizeof a + sizeof b
 
-instance (α : Type u) (β : α → Type v) [HasSizeof α] [∀ a, HasSizeof (β a)] : HasSizeof (Psigma β) :=
-⟨Psigma.sizeof⟩
+instance (α : Type u) (β : α → Type v) [HasSizeof α] [∀ a, HasSizeof (β a)] : HasSizeof (PSigma β) :=
+⟨PSigma.sizeof⟩
 
-protected def Punit.sizeof : Punit → Nat
+protected def PUnit.sizeof : PUnit → Nat
 | u := 1
 
-instance : HasSizeof Punit := ⟨Punit.sizeof⟩
+instance : HasSizeof PUnit := ⟨PUnit.sizeof⟩
 
 protected def Bool.sizeof : Bool → Nat
 | b := 1
@@ -1420,7 +1420,7 @@ instance : Inhabited True := ⟨trivial⟩
 
 instance : Inhabited Nat := ⟨0⟩
 
-instance : Inhabited PointedType := ⟨{type := Punit, val := ⟨⟩}⟩
+instance : Inhabited PointedType := ⟨{type := PUnit, val := ⟨⟩}⟩
 
 class inductive nonempty (α : Sort u) : Prop
 | intro (val : α) : nonempty
@@ -1667,7 +1667,7 @@ def {u₁ u₂ v₁ v₂} Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β�
 /- Dependent products -/
 
 notation `Σ` binders `, ` r:(scoped p, Sigma p) := r
-notation `Σ'` binders `, ` r:(scoped p, Psigma p) := r
+notation `Σ'` binders `, ` r:(scoped p, PSigma p) := r
 
 theorem exOfPsig {α : Type u} {p : α → Prop} : (Σ' x, p x) → ∃ x, p x
 | ⟨x, hx⟩ := ⟨x, hx⟩
@@ -1682,25 +1682,25 @@ end
 section
 variables {α : Sort u} {β : α → Sort v}
 
-protected theorem Psigma.Eq : ∀ {p₁ p₂ : Psigma β} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
+protected theorem PSigma.Eq : ∀ {p₁ p₂ : PSigma β} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
 | ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
 end
 
 /- Universe polymorphic unit -/
 
-theorem punitEq (a b : Punit) : a = b :=
-Punit.recOn a (Punit.recOn b rfl)
+theorem punitEq (a b : PUnit) : a = b :=
+PUnit.recOn a (PUnit.recOn b rfl)
 
-theorem punitEqPunit (a : Punit) : a = () :=
+theorem punitEqPUnit (a : PUnit) : a = () :=
 punitEq a ()
 
-instance : subsingleton Punit :=
+instance : subsingleton PUnit :=
 subsingleton.intro punitEq
 
-instance : Inhabited Punit :=
+instance : Inhabited PUnit :=
 ⟨()⟩
 
-instance : DecidableEq Punit :=
+instance : DecidableEq PUnit :=
 {decEq := λ a b, isTrue (punitEq a b)}
 
 /- Setoid -/
@@ -1800,13 +1800,13 @@ variable {β : Quot r → Sort v}
 local notation `⟦`:max a `⟧` := Quot.mk r a
 
 @[reducible, macroInline]
-protected def indep (f : Π a, β ⟦a⟧) (a : α) : Psigma β :=
+protected def indep (f : Π a, β ⟦a⟧) (a : α) : PSigma β :=
 ⟨⟦a⟧, f a⟩
 
 protected theorem indepCoherent (f : Π a, β ⟦a⟧)
                      (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
                      : ∀ a b, r a b → Quot.indep f a = Quot.indep f b  :=
-λ a b e, Psigma.Eq (sound e) (h a b e)
+λ a b e, PSigma.Eq (sound e) (h a b e)
 
 protected theorem liftIndepPr1
   (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)

@@ -203,14 +203,14 @@ instance HasWellFounded {α : Type u} {β : Type v} [s₁ : HasWellFounded α] [
 
 end Prod
 
-namespace Psigma
+namespace PSigma
 section
 variables {α : Sort u} {β : α → Sort v}
 variable  (r  : α → α → Prop)
 variable  (s  : ∀ a, β a → β a → Prop)
 
 -- Lexicographical order based on r and s
-inductive Lex : Psigma β → Psigma β → Prop
+inductive Lex : PSigma β → PSigma β → Prop
 | left  : ∀ {a₁ : α} (b₁ : β a₁) {a₂ : α} (b₂ : β a₂), r a₁ a₂ → Lex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 | right : ∀ (a : α)  {b₁ b₂ : β a}, s a b₁ b₂ → Lex ⟨a, b₁⟩ ⟨a, b₂⟩
 end
@@ -229,7 +229,7 @@ Acc.ndrecOn aca
         (ihb : ∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩),
         Acc.intro ⟨xa, xb⟩ (λ p (lt : p ≺ ⟨xa, xb⟩),
           have aux : xa = xa → xb ≅ xb → Acc (Lex r s) p, from
-            @Psigma.Lex.recOn α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 ≅ xb → Acc (Lex r s) p₁)
+            @PSigma.Lex.recOn α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 ≅ xb → Acc (Lex r s) p₁)
                                p ⟨xa, xb⟩ lt
               (λ (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (Eq₂ : a₂ = xa) (Eq₃ : b₂ ≅ xb),
                 have aux : (∀ (y : α), r y xa → ∀ (b : β y), Acc (Lex r s) ⟨y, b⟩) →
@@ -269,7 +269,7 @@ section
 variables {α : Sort u} {β : Sort v}
 
 -- Reverse lexicographical order based on r and s
-inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @Psigma α (λ a, β) → @Psigma α (λ a, β) → Prop
+inductive RevLex (r  : α → α → Prop) (s  : β → β → Prop) : @PSigma α (λ a, β) → @PSigma α (λ a, β) → Prop
 | left  : ∀ {a₁ a₂ : α} (b : β), r a₁ a₂ → RevLex ⟨a₁, b⟩ ⟨a₂, b⟩
 | right : ∀ (a₁ : α) {b₁ : β} (a₂ : α) {b₂ : β}, s b₁ b₂ → RevLex ⟨a₁, b₁⟩ ⟨a₂, b₂⟩
 end
@@ -305,7 +305,7 @@ WellFounded.intro $ λ ⟨a, b⟩, revLexAccessible (apply hb b) (WellFounded.ap
 end
 
 section
-def skipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @Psigma α (λ a, β) → @Psigma α (λ a, β) → Prop :=
+def skipLeft (α : Type u) {β : Type v} (s : β → β → Prop) : @PSigma α (λ a, β) → @PSigma α (λ a, β) → Prop :=
 RevLex emptyRelation s
 
 def skipLeftWf (α : Type u) {β : Type v} {s : β → β → Prop} (hb : WellFounded s) : WellFounded (skipLeft α s) :=
@@ -316,10 +316,10 @@ def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → P
 RevLex.right _ _ _ h
 end
 
-instance HasWellFounded {α : Type u} {β : α → Type v} [s₁ : HasWellFounded α] [s₂ : ∀ a, HasWellFounded (β a)] : HasWellFounded (Psigma β) :=
+instance HasWellFounded {α : Type u} {β : α → Type v} [s₁ : HasWellFounded α] [s₂ : ∀ a, HasWellFounded (β a)] : HasWellFounded (PSigma β) :=
 {r := Lex s₁.r (λ a, (s₂ a).r), wf := lexWf s₁.wf (λ a, (s₂ a).wf)}
 
-end Psigma
+end PSigma
 
 /- Temporary hack for bootstrapping Lean.
    TODO: DELETE!!!!

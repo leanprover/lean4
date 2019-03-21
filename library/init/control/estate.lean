@@ -11,7 +11,7 @@ prelude
 import init.control.state init.control.except
 universes u v
 
-namespace Estate
+namespace EState
 
 inductive Result (ε σ α : Type u)
 | ok    {} : α → σ → Result
@@ -44,57 +44,57 @@ protected def Result.repr [HasRepr ε] [HasRepr α] : Result ε σ α → String
 instance [HasToString ε] [HasToString α] : HasToString (Result ε σ α) := ⟨Result.toString⟩
 instance [HasRepr ε] [HasRepr α] : HasRepr (Result ε σ α) := ⟨Result.repr⟩
 
-end Estate
+end EState
 
-def Estate (ε σ α : Type u) := Estate.resultOk Punit σ Punit → Estate.Result ε σ α
+def EState (ε σ α : Type u) := EState.resultOk PUnit σ PUnit → EState.Result ε σ α
 
-namespace Estate
+namespace EState
 
 variables {ε σ α β : Type u}
 
-instance [Inhabited ε] : Inhabited (Estate ε σ α) :=
+instance [Inhabited ε] : Inhabited (EState ε σ α) :=
 ⟨λ r, match r with
       | ⟨Result.ok _ s, _⟩    := Result.error (default ε) s
       | ⟨Result.error _ _, h⟩ := unreachableError h⟩
 
-@[inline] protected def pure (a : α) : Estate ε σ α :=
+@[inline] protected def pure (a : α) : EState ε σ α :=
 λ r, match r with
      | ⟨Result.ok _ s, _⟩    := Result.ok a s
      | ⟨Result.error _ _, h⟩ := unreachableError h
 
-@[inline] protected def put (s : σ) : Estate ε σ Punit :=
+@[inline] protected def put (s : σ) : EState ε σ PUnit :=
 λ r, match r with
      | ⟨Result.ok _ _, _⟩    := Result.ok ⟨⟩ s
      | ⟨Result.error _ _, h⟩ := unreachableError h
 
-@[inline] protected def get : Estate ε σ σ :=
+@[inline] protected def get : EState ε σ σ :=
 λ r, match r with
      | ⟨Result.ok _ s, _⟩    := Result.ok s s
      | ⟨Result.error _ _, h⟩ := unreachableError h
 
-@[inline] protected def modify (f : σ → σ) : Estate ε σ Punit :=
+@[inline] protected def modify (f : σ → σ) : EState ε σ PUnit :=
 λ r, match r with
      | ⟨Result.ok _ s, _⟩    := Result.ok ⟨⟩ (f s)
      | ⟨Result.error _ _, h⟩ := unreachableError h
 
-@[inline] protected def throw (e : ε) : Estate ε σ α :=
+@[inline] protected def throw (e : ε) : EState ε σ α :=
 λ r, match r with
      | ⟨Result.ok _ s, _⟩    := Result.error e s
      | ⟨Result.error _ _, h⟩ := unreachableError h
 
-@[inline] protected def catch (x : Estate ε σ α) (handle : ε → Estate ε σ α) : Estate ε σ α :=
+@[inline] protected def catch (x : EState ε σ α) (handle : ε → EState ε σ α) : EState ε σ α :=
 λ r, match x r with
      | Result.error e s := handle e (resultOk.mk ⟨⟩ s)
      | ok               := ok
 
-@[inline] protected def orelse (x₁ x₂ : Estate ε σ α) : Estate ε σ α :=
+@[inline] protected def orelse (x₁ x₂ : EState ε σ α) : EState ε σ α :=
 λ r, match x₁ r with
      | Result.error _ s := x₂ (resultOk.mk ⟨⟩ s)
      | ok               := ok
 
 /-- Alternative orelse operator that allows to select which exception should be used.
     The default is to use the first exception since the standard `orelse` uses the second. -/
-@[inline] protected def orelse' (x₁ x₂ : Estate ε σ α) (useFirstEx := true) : Estate ε σ α :=
+@[inline] protected def orelse' (x₁ x₂ : EState ε σ α) (useFirstEx := true) : EState ε σ α :=
 λ r, match x₁ r with
      | Result.error e₁ s₁ :=
        (match x₂ (resultOk.mk ⟨⟩ s₁) with
@@ -102,31 +102,31 @@ instance [Inhabited ε] : Inhabited (Estate ε σ α) :=
         | ok                 := ok)
      | ok                 := ok
 
-@[inline] def adaptExcept {ε' : Type u} [HasLift ε ε'] (x : Estate ε σ α) : Estate ε' σ α :=
+@[inline] def adaptExcept {ε' : Type u} [HasLift ε ε'] (x : EState ε σ α) : EState ε' σ α :=
 λ r, match x r with
      | Result.error e s := Result.error (lift e) s
      | Result.ok a s    := Result.ok a s
 
-@[inline] protected def bind (x : Estate ε σ α) (f : α → Estate ε σ β) : Estate ε σ β :=
+@[inline] protected def bind (x : EState ε σ α) (f : α → EState ε σ β) : EState ε σ β :=
 λ r, match x r with
      | Result.ok a s    := f a (resultOk.mk ⟨⟩ s)
      | Result.error e s := Result.error e s
 
-@[inline] protected def map (f : α → β) (x : Estate ε σ α) : Estate ε σ β :=
+@[inline] protected def map (f : α → β) (x : EState ε σ α) : EState ε σ β :=
 λ r, match x r with
      | Result.ok a s    := Result.ok (f a) s
      | Result.error e s := Result.error e s
 
-instance : Monad (Estate ε σ) :=
-{ bind := @Estate.bind _ _, pure := @Estate.pure _ _, map := @Estate.map _ _ }
+instance : Monad (EState ε σ) :=
+{ bind := @EState.bind _ _, pure := @EState.pure _ _, map := @EState.map _ _ }
 
-instance : HasOrelse (Estate ε σ) :=
-{ orelse := @Estate.orelse _ _ }
+instance : HasOrelse (EState ε σ) :=
+{ orelse := @EState.orelse _ _ }
 
-instance : MonadState σ (Estate ε σ) :=
-{ put := @Estate.put _ _, get := @Estate.get _ _, modify := @Estate.modify _ _ }
+instance : MonadState σ (EState ε σ) :=
+{ put := @EState.put _ _, get := @EState.get _ _, modify := @EState.modify _ _ }
 
-instance : MonadExcept ε (Estate ε σ) :=
-{ throw := @Estate.throw _ _, catch := @Estate.catch _ _}
+instance : MonadExcept ε (EState ε σ) :=
+{ throw := @EState.throw _ _, catch := @EState.catch _ _}
 
-end Estate
+end EState

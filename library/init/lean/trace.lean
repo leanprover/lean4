@@ -25,7 +25,7 @@ fmt ++ Format.nest 2 (Format.join $ subtraces.map (λ t, Format.line ++ t.pp))
 
 namespace Trace
 
-def TraceMap := Rbmap Position Trace (<)
+def TraceMap := RBMap Position Trace (<)
 
 structure TraceState :=
 (opts : Options)
@@ -77,7 +77,7 @@ instance (m) [Monad m] : MonadTracer (TraceT m) :=
 }
 
 unsafe def TraceT.run {m α} [Monad m] (opts : Options) (x : TraceT m α) : m (α × TraceMap) :=
-do (a, st) ← StateT.run x {opts := opts, roots := mkRbmap _ _ _, curPos := none, curTraces := []},
+do (a, st) ← StateT.run x {opts := opts, roots := mkRBMap _ _ _, curPos := none, curTraces := []},
    pure (a, st.roots)
 
 end Trace

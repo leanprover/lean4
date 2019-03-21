@@ -57,26 +57,26 @@ open Expander
 local attribute [instance] Name.hasLtQuick
 
 -- TODO(Sebastian): move
-/-- An Rbmap that remembers the insertion order. -/
-structure OrderedRbmap (α β : Type) (lt : α → α → Prop) :=
+/-- An RBMap that remembers the insertion order. -/
+structure OrderedRBMap (α β : Type) (lt : α → α → Prop) :=
 (entries : List (α × β))
-(map : Rbmap α (Nat × β) lt)
+(map : RBMap α (Nat × β) lt)
 (size : Nat)
 
-namespace OrderedRbmap
-variables {α β : Type} {lt : α → α → Prop} [DecidableRel lt] (m : OrderedRbmap α β lt)
+namespace OrderedRBMap
+variables {α β : Type} {lt : α → α → Prop} [DecidableRel lt] (m : OrderedRBMap α β lt)
 
-def Empty : OrderedRbmap α β lt := {entries := [], map := mkRbmap _ _ _, size := 0}
+def Empty : OrderedRBMap α β lt := {entries := [], map := mkRBMap _ _ _, size := 0}
 
-def insert (k : α) (v : β) : OrderedRbmap α β lt :=
+def insert (k : α) (v : β) : OrderedRBMap α β lt :=
 {entries := (k, v)::m.entries, map := m.map.insert k (m.size, v), size := m.size + 1}
 
 def find (a : α) : Option (Nat × β) :=
 m.map.find a
 
-def ofList (l : List (α × β)) : OrderedRbmap α β lt :=
-l.foldl (λ m p, OrderedRbmap.insert m (Prod.fst p) (Prod.snd p)) OrderedRbmap.Empty
-end OrderedRbmap
+def ofList (l : List (α × β)) : OrderedRBMap α β lt :=
+l.foldl (λ m p, OrderedRBMap.insert m (Prod.fst p) (Prod.snd p)) OrderedRBMap.Empty
+end OrderedRBMap
 
 structure ElaboratorConfig extends FrontendConfig :=
 (initialParserCfg : ModuleParserConfig)
@@ -93,11 +93,11 @@ structure Scope :=
 (notations : List NotationMacro := [])
 /- The set of local universe variables.
    We remember their insertion order so that we can keep the order when copying them to declarations. -/
-(univs : OrderedRbmap Name Level (<) := OrderedRbmap.Empty)
+(univs : OrderedRBMap Name Level (<) := OrderedRBMap.Empty)
 /- The set of local variables. -/
-(vars : OrderedRbmap Name SectionVar (<) := OrderedRbmap.Empty)
+(vars : OrderedRBMap Name SectionVar (<) := OrderedRBMap.Empty)
 /- The subset of `vars` that is tagged as always included. -/
-(includeVars : Rbtree Name (<) := mkRbtree _ _)
+(includeVars : RBTree Name (<) := mkRBTree _ _)
 /- The stack of nested active `namespace` commands. -/
 (nsStack : List Name := [])
 /- The set of active `open` declarations. -/
@@ -364,9 +364,9 @@ do cfg ← read,
      ..st},
    match st' with
    | some st' := do modifyCurrentScope $ λ sc, {sc with
-       univs := OrderedRbmap.ofList st'.univs,
-       vars := OrderedRbmap.ofList st'.vars,
-       includeVars := Rbtree.ofList st'.includeVars,
+       univs := OrderedRBMap.ofList st'.univs,
+       vars := OrderedRBMap.ofList st'.vars,
+       includeVars := RBTree.ofList st'.includeVars,
        Options := st'.Options,
      },
      modify $ λ st, {..st', ..st}
@@ -423,7 +423,7 @@ match dl with
   match dl.oldUnivParams with
   | some uparams :=
     modifyCurrentScope $ λ sc, {sc with univs :=
-      (uparams.ids.map mangleIdent).foldl (λ m id, OrderedRbmap.insert m id (Level.Param id)) sc.univs}
+      (uparams.ids.map mangleIdent).foldl (λ m id, OrderedRBMap.insert m id (Level.Param id)) sc.univs}
   | none := pure (),
   -- do we actually need this??
   let uparams := namesToPexpr $ match dl.oldUnivParams with
@@ -500,7 +500,7 @@ def Declaration.elaborate : Elaborator :=
     match ind.oldUnivParams with
     | some uparams :=
       modifyCurrentScope $ λ sc, {sc with univs :=
-        (uparams.ids.map mangleIdent).foldl (λ m id, OrderedRbmap.insert m id (Level.Param id)) sc.univs}
+        (uparams.ids.map mangleIdent).foldl (λ m id, OrderedRBMap.insert m id (Level.Param id)) sc.univs}
     | none := pure (),
     let uparams := namesToPexpr $ match ind.oldUnivParams with
     | some uparams := uparams.ids.map mangleIdent
@@ -531,7 +531,7 @@ def Declaration.elaborate : Elaborator :=
     match s.oldUnivParams with
     | some uparams :=
       modifyCurrentScope $ λ sc, {sc with univs :=
-        (uparams.ids.map mangleIdent).foldl (λ m id, OrderedRbmap.insert m id (Level.Param id)) sc.univs}
+        (uparams.ids.map mangleIdent).foldl (λ m id, OrderedRBMap.insert m id (Level.Param id)) sc.univs}
     | none := pure (),
     let uparams := namesToPexpr $ match s.oldUnivParams with
     | some uparams := uparams.ids.map mangleIdent
@@ -600,7 +600,7 @@ def include.elaborate : Elaborator :=
   modifyCurrentScope $ λ sc, {sc with includeVars :=
     v.ids.foldl (λ vars v, vars.insert $ mangleIdent v) sc.includeVars}
 
--- TODO: Rbmap.remove
+-- TODO: RBMap.remove
 /-
 def omit.elaborate : Elaborator :=
 λ stx, do
@@ -893,7 +893,7 @@ def eoi.elaborate : Elaborator :=
     error cmd "invalid end of input, expected 'end'"
 
 -- TODO(Sebastian): replace with attribute
-def elaborators : Rbmap Name Elaborator (<) := Rbmap.fromList [
+def elaborators : RBMap Name Elaborator (<) := RBMap.fromList [
   (Module.header.name, Module.header.elaborate),
   (notation.name, notation.elaborate),
   (reserveNotation.name, reserveNotation.elaborate),

@@ -768,14 +768,6 @@ end
 theorem eqRecHeq {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} (h : a = a') (p : φ a), (Eq.recOn h p : φ a') ≅ p
 | a _ rfl p := Heq.refl p
 
-theorem heqOfEqRecLeft {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a = a') (h₂ : (Eq.recOn e p₁ : φ a') = p₂), p₁ ≅ p₂
-| a _ p₁ p₂ rfl h := Eq.recOn h (Heq.refl p₁)
-
-theorem heqOfEqRecRight {α : Sort u} {φ : α → Sort v} : ∀ {a a' : α} {p₁ : φ a} {p₂ : φ a'} (e : a' = a) (h₂ : p₁ = Eq.recOn e p₂), p₁ ≅ p₂
-| a _ p₁ p₂ rfl h :=
-  have p₁ = p₂, from h,
-  this ▸ Heq.refl p₁
-
 theorem ofHeqTrue {a : Prop} (h : a ≅ True) : a :=
 ofEqTrue (eqOfHeq h)
 
@@ -794,14 +786,6 @@ def And.symm := @And.swap
 
 theorem Or.elim (h₁ : a ∨ b) (h₂ : a → c) (h₃ : b → c) : c :=
 Or.rec h₂ h₃ h₁
-
-theorem nonContradictoryEm (a : Prop) : ¬¬(a ∨ ¬a) :=
-assume notEm : ¬(a ∨ ¬a),
-  have negA : ¬a, from
-    assume posA : a, absurd (Or.inl posA) notEm,
-  absurd (Or.inr negA) notEm
-
-def notNotEm := nonContradictoryEm
 
 theorem Or.swap (h : a ∨ b) : b ∨ a :=
 Or.elim h Or.inr Or.inl
@@ -865,153 +849,11 @@ Iff.intro
 theorem iffFalseIntro (h : ¬a) : a ↔ False :=
 Iff.intro h (False.rec (λ _, a))
 
-theorem impCongr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a → b) ↔ (c → d) :=
-Iff.intro
-  (λ hab hc, Iff.mp h₂ (hab (Iff.mpr h₁ hc)))
-  (λ hcd ha, Iff.mpr h₂ (hcd (Iff.mp h₁ ha)))
-
-theorem impCongrCtx (h₁ : a ↔ c) (h₂ : c → (b ↔ d)) : (a → b) ↔ (c → d) :=
-Iff.intro
-  (λ hab hc, have ha : a, from Iff.mpr h₁ hc,
-             have hb : b, from hab ha,
-             Iff.mp (h₂ hc) hb)
-  (λ hcd ha, have hc : c, from Iff.mp h₁ ha,
-             have hd : d, from hcd hc,
-Iff.mpr (h₂ hc) hd)
-
-theorem impCongrRight (h : a → (b ↔ c)) : (a → b) ↔ (a → c) :=
-Iff.intro
-  (assume hab ha, Iff.elimLeft (h ha) (hab ha))
-  (assume hab ha, Iff.elimRight (h ha) (hab ha))
-
 theorem notNotIntro (ha : a) : ¬¬a :=
 assume hna : ¬a, hna ha
 
-theorem notOfNotNotNot (h : ¬¬¬a) : ¬a :=
-λ ha, absurd (notNotIntro ha) h
-
 theorem notTrue : (¬ True) ↔ False :=
 iffFalseIntro (notNotIntro trivial)
-
-def notTrueIff := notTrue
-
-theorem notFalseIff : (¬ False) ↔ True :=
-iffTrueIntro notFalse
-
-theorem notCongr (h : a ↔ b) : ¬a ↔ ¬b :=
-Iff.intro (λ h₁ h₂, h₁ (Iff.mpr h h₂)) (λ h₁ h₂, h₁ (Iff.mp h h₂))
-
-theorem neSelfIffFalse {α : Sort u} (a : α) : (Not (a = a)) ↔ False :=
-Iff.intro falseOfNe False.elim
-
-theorem eqSelfIffTrue {α : Sort u} (a : α) : (a = a) ↔ True :=
-iffTrueIntro rfl
-
-theorem heqSelfIffTrue {α : Sort u} (a : α) : (a ≅ a) ↔ True :=
-iffTrueIntro (Heq.refl a)
-
-theorem iffNotSelf (a : Prop) : (a ↔ ¬a) ↔ False :=
-iffFalseIntro (λ h,
-   have h' : ¬a, from (λ ha, (Iff.mp h ha) ha),
-   h' (Iff.mpr h h'))
-
-theorem notIffSelf (a : Prop) : (¬a ↔ a) ↔ False :=
-iffFalseIntro (λ h,
-   have h' : ¬a, from (λ ha, (Iff.mpr h ha) ha),
-   h' (Iff.mp h h'))
-
-theorem trueIffFalse : (True ↔ False) ↔ False :=
-iffFalseIntro (λ h, Iff.mp h trivial)
-
-theorem falseIffTrue : (False ↔ True) ↔ False :=
-iffFalseIntro (λ h, Iff.mpr h trivial)
-
-theorem falseOfTrueIffFalse : (True ↔ False) → False :=
-assume h, Iff.mp h trivial
-
-theorem falseOfTrueEqFalse : (True = False) → False :=
-assume h, h ▸ trivial
-
-theorem trueEqFalseOfFalse : False → (True = False) :=
-False.elim
-
-theorem eqComm {α : Sort u} {a b : α} : a = b ↔ b = a :=
-⟨Eq.symm, Eq.symm⟩
-
-/- and simp rules -/
-theorem and.imp (hac : a → c) (hbd : b → d) : a ∧ b → c ∧ d :=
-assume ⟨ha, hb⟩, ⟨hac ha, hbd hb⟩
-
-def andImplies := @and.imp
-
-theorem andCongr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∧ b) ↔ (c ∧ d) :=
-Iff.intro (and.imp (Iff.mp h₁) (Iff.mp h₂)) (and.imp (Iff.mpr h₁) (Iff.mpr h₂))
-
-theorem andComm : a ∧ b ↔ b ∧ a :=
-Iff.intro And.swap And.swap
-
-theorem andAssoc : (a ∧ b) ∧ c ↔ a ∧ (b ∧ c) :=
-Iff.intro
-  (assume ⟨⟨ha, hb⟩, hc⟩, ⟨ha, ⟨hb, hc⟩⟩)
-  (assume ⟨ha, ⟨hb, hc⟩⟩, ⟨⟨ha, hb⟩, hc⟩)
-
-theorem andLeftComm : a ∧ (b ∧ c) ↔ b ∧ (a ∧ c) :=
-Iff.trans (Iff.symm andAssoc) (Iff.trans (andCongr andComm (Iff.refl c)) andAssoc)
-
-theorem andTrue (a : Prop) : a ∧ True ↔ a :=
-Iff.intro And.left (λ ha, ⟨ha, trivial⟩)
-
-theorem trueAnd (a : Prop) : True ∧ a ↔ a :=
-Iff.intro And.right (λ h, ⟨trivial, h⟩)
-
-theorem andFalse (a : Prop) : a ∧ False ↔ False :=
-iffFalseIntro And.right
-
-theorem falseAnd (a : Prop) : False ∧ a ↔ False :=
-iffFalseIntro And.left
-
-theorem notAndSelf (a : Prop) : (¬a ∧ a) ↔ False :=
-iffFalseIntro (λ h, And.elim h (λ h₁ h₂, absurd h₂ h₁))
-
-theorem andNotSelf (a : Prop) : (a ∧ ¬a) ↔ False :=
-iffFalseIntro (assume ⟨h₁, h₂⟩, absurd h₁ h₂)
-
-theorem andSelf (a : Prop) : a ∧ a ↔ a :=
-Iff.intro And.left (assume h, ⟨h, h⟩)
-
-/- or simp rules -/
-
-theorem orCongr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ∨ b) ↔ (c ∨ d) :=
-Iff.intro (λ h, Or.elim h (λ h, Or.inl (Iff.mp h₁ h)) (λ h, Or.inr (Iff.mp h₂ h)))
-          (λ h, Or.elim h (λ h, Or.inl (Iff.mpr h₁ h)) (λ h, Or.inr (Iff.mpr h₂ h)))
-
-theorem orComm : a ∨ b ↔ b ∨ a := Iff.intro Or.swap Or.swap
-
-theorem orAssoc : (a ∨ b) ∨ c ↔ a ∨ (b ∨ c) :=
-Iff.intro (λ h, Or.elim h (λ h, Or.elim h Or.inl (λ h, Or.inr (Or.inl h))) (λ h, Or.inr (Or.inr h)))
-          (λ h, Or.elim h (λ h, Or.inl (Or.inl h)) (λ h, Or.elim h (λ h, Or.inl (Or.inr h)) Or.inr))
-
-theorem orLeftComm : a ∨ (b ∨ c) ↔ b ∨ (a ∨ c) :=
-Iff.trans (Iff.symm orAssoc) (Iff.trans (orCongr orComm (Iff.refl c)) orAssoc)
-
-theorem orTrue (a : Prop) : a ∨ True ↔ True :=
-iffTrueIntro (Or.inr trivial)
-
-theorem trueOr (a : Prop) : True ∨ a ↔ True :=
-iffTrueIntro (Or.inl trivial)
-
-theorem orFalse (a : Prop) : a ∨ False ↔ a :=
-Iff.intro (λ h, Or.elim h id False.elim) Or.inl
-
-theorem falseOr (a : Prop) : False ∨ a ↔ a :=
-Iff.trans orComm (orFalse a)
-
-theorem orSelf (a : Prop) : a ∨ a ↔ a :=
-Iff.intro (λ h, Or.elim h id id) Or.inl
-
-theorem notOr {a b : Prop} : ¬ a → ¬ b → ¬ (a ∨ b)
-| hna hnb (Or.inl ha) := absurd ha hna
-| hna hnb (Or.inr hb) := absurd hb hnb
 
 /- or resolution rulses -/
 
@@ -1027,58 +869,11 @@ Or.elim h id (λ hb, absurd hb nb)
 theorem negResolveRight {a b : Prop} (h : a ∨ ¬ b) (hb : b) : a :=
 Or.elim h id (λ nb, absurd hb nb)
 
-/- Iff simp rules -/
-
-theorem iffTrue (a : Prop) : (a ↔ True) ↔ a :=
-Iff.intro (assume h, Iff.mpr h trivial) iffTrueIntro
-
-theorem trueIff (a : Prop) : (True ↔ a) ↔ a :=
-Iff.trans Iff.comm (iffTrue a)
-
-theorem iffFalse (a : Prop) : (a ↔ False) ↔ ¬ a :=
-Iff.intro Iff.mp iffFalseIntro
-
-theorem falseIff (a : Prop) : (False ↔ a) ↔ ¬ a :=
-Iff.trans Iff.comm (iffFalse a)
-
-theorem iffSelf (a : Prop) : (a ↔ a) ↔ True :=
-iffTrueIntro Iff.rfl
-
-theorem iffCongr (h₁ : a ↔ c) (h₂ : b ↔ d) : (a ↔ b) ↔ (c ↔ d) :=
-(iffIffImpliesAndImplies a b).trans
-  ((andCongr (impCongr h₁ h₂) (impCongr h₂ h₁)).trans
-    (iffIffImpliesAndImplies c d).symm)
-
-/- implies simp rule -/
-theorem impliesTrueIff (α : Sort u) : (α → True) ↔ True :=
-Iff.intro (λ h, trivial) (λ ha h, trivial)
-
-theorem falseImpliesIff (a : Prop) : (False → a) ↔ True :=
-Iff.intro (λ h, trivial) (λ ha h, False.elim h)
-
-theorem trueImpliesIff (α : Prop) : (True → α) ↔ α :=
-Iff.intro (λ h, h trivial) (λ h h', h)
-
 /- Exists -/
 
 theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
   (h₁ : ∃ x, p x) (h₂ : ∀ (a : α), p a → b) : b :=
 Exists.rec h₂ h₁
-
-/- exists and forall congruences -/
-theorem forallCongr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (∀ a, p a) ↔ ∀ a, q a :=
-Iff.intro (λ p a, Iff.mp (h a) (p a)) (λ q a, Iff.mpr (h a) (q a))
-
-theorem existsImpExists {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a → q a)) (p : ∃ a, p a) : ∃ a, q a :=
-Exists.elim p (λ a hp, ⟨a, h a hp⟩)
-
-theorem existsCongr {α : Sort u} {p q : α → Prop} (h : ∀ a, (p a ↔ q a)) : (Exists p) ↔ ∃ a, q a :=
-Iff.intro
-  (existsImpExists (λ a, Iff.mp (h a)))
-  (existsImpExists (λ a, Iff.mpr (h a)))
-
-theorem forallNotOfNotExists {α : Sort u} {p : α → Prop} : ¬(∃ x, p x) → (∀ x, ¬p x) :=
-λ hne x hp, hne ⟨x, hp⟩
 
 /- Decidable -/
 
@@ -1145,15 +940,6 @@ Iff.intro
       | isFalse h₁, _           := Or.inl h₁)
 (λ h ⟨hp, hq⟩, Or.elim h (λ h, h hp) (λ h, h hq))
 
-theorem notOrIffAndNot (p q) [d₁ : Decidable p] [d₂ : Decidable q] : ¬ (p ∨ q) ↔ ¬ p ∧ ¬ q :=
-Iff.intro
-  (λ h, match d₁ with
-        | isTrue h₁  := False.elim $ h (Or.inl h₁)
-        | isFalse h₁ :=
-          match d₂ with
-          | isTrue h₂  := False.elim $ h (Or.inr h₂)
-          | isFalse h₂ := ⟨h₁, h₂⟩)
-  (λ ⟨np, nq⟩ h, Or.elim h np nq)
 end Decidable
 
 section
@@ -1164,13 +950,6 @@ else isFalse (Iff.mp (notIffNotOfIff h) hp)
 
 @[inline] def  decidableOfDecidableOfEq (hp : Decidable p) (h : p = q) : Decidable q :=
 decidableOfDecidableOfIff hp h.toIff
-
-@[macroInline]
-protected def or.byCases [Decidable p] [Decidable q] {α : Sort u}
-                          (h : p ∨ q) (h₁ : p → α) (h₂ : q → α) : α :=
-if hp : p then h₁ hp else
-  if hq : q then h₂ hq else
-    False.rec _ (Or.elim h hp hq)
 end
 
 section
@@ -1212,14 +991,6 @@ else
   if hq : q then isTrue $ Or.inr ⟨hq, hp⟩
   else isFalse (λ h, Or.elim h (λ ⟨h, _⟩, hp h : ¬(p ∧ ¬ q)) (λ ⟨h, _⟩, hq h : ¬(q ∧ ¬ p)))
 
-instance existsPropDecidable {p} (P : p → Prop) [Decidable p] [s : ∀ h, Decidable (P h)] : Decidable (∃ h, P h) :=
-if h : p then decidableOfDecidableOfIff (s h)
-  ⟨λ h2, ⟨h, h2⟩, λ ⟨h', h2⟩, h2⟩ else isFalse (mt (λ ⟨h, _⟩, h) h)
-
-instance forallPropDecidable {p} (P : p → Prop)
-  [Dp : Decidable p] [DP : ∀ h, Decidable (P h)] : Decidable (∀ h, P h) :=
-if h : p then decidableOfDecidableOfIff (DP h)
-  ⟨λ h2 _, h2, λal, al h⟩ else isTrue (λ h2, absurd h2 h)
 end
 
 @[inline] instance {α : Sort u} [DecidableEq α] (a b : α) : Decidable (a ≠ b) :=
@@ -1230,32 +1001,12 @@ match decEq a b with
 theorem Bool.falseNeTrue (h : false = true) : False :=
 Bool.noConfusion h
 
-def IsDecEq {α : Sort u} (p : α → α → Bool) : Prop   := ∀ ⦃x y : α⦄, p x y = true → x = y
-def IsDecRefl {α : Sort u} (p : α → α → Bool) : Prop := ∀ x, p x x = true
-
 instance : DecidableEq Bool :=
 {decEq := λ a b, match a, b with
  | false, false := isTrue rfl
  | false, true  := isFalse Bool.falseNeTrue
  | true, false  := isFalse (Ne.symm Bool.falseNeTrue)
  | true, true   := isTrue rfl}
-
-@[inline]
-def decidableEqOfBoolPred {α : Sort u} {p : α → α → Bool} (h₁ : IsDecEq p) (h₂ : IsDecRefl p) : DecidableEq α :=
-{decEq := λ x y : α,
- if hp : p x y = true then isTrue (h₁ hp)
- else isFalse (assume hxy : x = y, absurd (h₂ y) (@Eq.recOn _ _ (λ z _, ¬p z y = true) _ hxy hp))}
-
-theorem decidableEqInlRefl {α : Sort u} [DecidableEq α] (a : α) : decEq a a = isTrue (Eq.refl a) :=
-match (decEq a a) with
-| (isTrue e)  := rfl
-| (isFalse n) := absurd rfl n
-
-theorem decidableEqInrNeg {α : Sort u} [DecidableEq α] {a b : α} : Π n : a ≠ b, decEq a b = isFalse n :=
-assume n,
-match decEq a b with
-| isTrue e   := absurd e n
-| isFalse n₁ := proofIrrel n n₁ ▸ Eq.refl (isFalse n)
 
 /- if-then-else expression theorems -/
 
@@ -1268,73 +1019,6 @@ theorem ifNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t e : α} 
 match h with
 | (isTrue hc)   := absurd hc hnc
 | (isFalse hnc) := rfl
-
-theorem ifTT (c : Prop) [h : Decidable c] {α : Sort u} (t : α) : (ite c t t) = t :=
-match h with
-| (isTrue hc)   := rfl
-| (isFalse hnc) := rfl
-
-theorem ifCtxCongr {α : Sort u} {b c : Prop} [decB : Decidable b] [decC : Decidable c]
-                   {x y u v : α}
-                   (hC : b ↔ c) (hT : c → x = u) (hE : ¬c → y = v) :
-        ite b x y = ite c u v :=
-match decB, decC with
-| (isFalse h₁), (isFalse h₂) := hE h₂
-| (isTrue h₁),  (isTrue h₂)  := hT h₂
-| (isFalse h₁), (isTrue h₂)  := absurd h₂ (Iff.mp (notIffNotOfIff hC) h₁)
-| (isTrue h₁),  (isFalse h₂) := absurd h₁ (Iff.mpr (notIffNotOfIff hC) h₂)
-
-theorem ifCongr {α : Sort u} {b c : Prop} [decB : Decidable b] [decC : Decidable c]
-               {x y u v : α}
-               (hC : b ↔ c) (hT : x = u) (hE : y = v) :
-        ite b x y = ite c u v :=
-@ifCtxCongr α b c decB decC x y u v hC (λ h, hT) (λ h, hE)
-
-theorem ifCtxSimpCongr {α : Sort u} {b c : Prop} [decB : Decidable b] {x y u v : α}
-                        (hC : b ↔ c) (hT : c → x = u) (hE : ¬c → y = v) :
-        ite b x y = (@ite c (decidableOfDecidableOfIff decB hC) α u v) :=
-@ifCtxCongr α b c decB (decidableOfDecidableOfIff decB hC) x y u v hC hT hE
-
-theorem ifSimpCongr {α : Sort u} {b c : Prop} [decB : Decidable b] {x y u v : α}
-                    (hC : b ↔ c) (hT : x = u) (hE : y = v) :
-        ite b x y = (@ite c (decidableOfDecidableOfIff decB hC) α u v) :=
-@ifCtxSimpCongr α b c decB x y u v hC (λ h, hT) (λ h, hE)
-
-theorem ifTrue {α : Sort u} {h : Decidable True} (t e : α) : (@ite True h α t e) = t :=
-ifPos trivial
-
-theorem ifFalse {α : Sort u} {h : Decidable False} (t e : α) : (@ite False h α t e) = e :=
-ifNeg notFalse
-
-theorem difPos {c : Prop} [h : Decidable c] (hc : c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = t hc :=
-match h with
-| (isTrue hc)   := rfl
-| (isFalse hnc) := absurd hc hnc
-
-theorem difNeg {c : Prop} [h : Decidable c] (hnc : ¬c) {α : Sort u} {t : c → α} {e : ¬ c → α} : dite c t e = e hnc :=
-match h with
-| (isTrue hc)   := absurd hc hnc
-| (isFalse hnc) := rfl
-
-theorem difCtxCongr {α : Sort u} {b c : Prop} [decB : Decidable b] [decC : Decidable c]
-                    {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
-                    (hC : b ↔ c)
-                    (hT : ∀ (h : c),    x (Iff.mpr hC h)                      = u h)
-                    (hE : ∀ (h : ¬c),   y (Iff.mpr (notIffNotOfIff hC) h) = v h) :
-        (@dite b decB α x y) = (@dite c decC α u v) :=
-match decB, decC with
-| (isFalse h₁), (isFalse h₂) := hE h₂
-| (isTrue h₁),  (isTrue h₂)  := hT h₂
-| (isFalse h₁), (isTrue h₂)  := absurd h₂ (Iff.mp (notIffNotOfIff hC) h₁)
-| (isTrue h₁),  (isFalse h₂) := absurd h₁ (Iff.mpr (notIffNotOfIff hC) h₂)
-
-theorem difCtxSimpCongr {α : Sort u} {b c : Prop} [decB : Decidable b]
-                         {x : b → α} {u : c → α} {y : ¬b → α} {v : ¬c → α}
-                         (hC : b ↔ c)
-                         (hT : ∀ (h : c),    x (Iff.mpr hC h)                      = u h)
-                         (hE : ∀ (h : ¬c),   y (Iff.mpr (notIffNotOfIff hC) h) = v h) :
-        (@dite b decB α x y) = (@dite c (decidableOfDecidableOfIff decB hC) α u v) :=
-@difCtxCongr α b c decB (decidableOfDecidableOfIff decB hC) x u y v hC hT hE
 
 -- Remark: dite and ite are "defally equal" when we ignore the proofs.
 theorem difEqIf (c : Prop) [h : Decidable c] {α : Sort u} (t : α) (e : α) : dite c (λ h, t) (λ h, e) = ite c t e :=
@@ -1351,17 +1035,6 @@ instance {c : Prop} {t : c → Prop} {e : ¬c → Prop} [dC : Decidable c] [dT :
 match dC with
 | (isTrue hc)  := dT hc
 | (isFalse hc) := dE hc
-
-def asTrue (c : Prop) [Decidable c] : Prop :=
-if c then True else False
-
-def asFalse (c : Prop) [Decidable c] : Prop :=
-if c then False else True
-
-def ofAsTrue {c : Prop} [h₁ : Decidable c] (h₂ : asTrue c) : c :=
-match h₁, h₂ with
-| (isTrue hC),  h₂ := hC
-| (isFalse hC), h₂ := False.elim h₂
 
 /-- Universe lifting operation -/
 structure {r s} ULift (α : Type s) : Type (max s r) :=
@@ -1464,23 +1137,6 @@ match h with
 | (isTrue h)  := h₃ h
 | (isFalse h) := h₄ h
 
-/- Equalities for rewriting let-expressions -/
-theorem letValueEq {α : Sort u} {β : Sort v} {a₁ a₂ : α} (b : α → β) :
-                   a₁ = a₂ → (let x : α := a₁ in b x) = (let x : α := a₂ in b x) :=
-λ h, Eq.ndrecOn h rfl
-
-theorem letValueHeq {α : Sort v} {β : α → Sort u} {a₁ a₂ : α} (b : Π x : α, β x) :
-                    a₁ = a₂ → (let x : α := a₁ in b x) ≅ (let x : α := a₂ in b x) :=
-λ h, Eq.ndrecOn h (Heq.refl (b a₁))
-
-theorem letBodyEq {α : Sort v} {β : α → Sort u} (a : α) {b₁ b₂ : Π x : α, β x} :
-                  (∀ x, b₁ x = b₂ x) → (let x : α := a in b₁ x) = (let x : α := a in b₂ x) :=
-λ h, h a
-
-theorem letEq {α : Sort v} {β : Sort u} {a₁ a₂ : α} {b₁ b₂ : α → β} :
-             a₁ = a₂ → (∀ x, b₁ x = b₂ x) → (let x : α := a₁ in b₁ x) = (let x : α := a₂ in b₂ x) :=
-λ h₁ h₂, Eq.ndrecOn h₁ (h₂ a₁)
-
 section relation
 variables {α : Sort u} {β : Sort v} (r : β → β → Prop)
 local infix `≺`:50 := r
@@ -1539,22 +1195,10 @@ end relation
 section binary
 variables {α : Type u} {β : Type v}
 variable f : α → α → α
-variable inv : α → α
-variable one : α
 local infix * := f
-local postfix `⁻¹`:max := inv
-variable g : α → α → α
-local infix + := g
 
 def Commutative        := ∀ a b, a * b = b * a
 def Associative        := ∀ a b c, (a * b) * c = a * (b * c)
-def LeftIdentity      := ∀ a, one * a = a
-def RightIdentity     := ∀ a, a * one = a
-def RightInverse      := ∀ a, a * a⁻¹ = one
-def LeftCancelative   := ∀ a b c, a * b = a * c → b = c
-def RightCancelative  := ∀ a b c, a * b = c * b → a = c
-def LeftDistributive  := ∀ a b c, a * (b + c) = a * b + a * c
-def RightDistributive := ∀ a b c, (a + b) * c = a * c + b * c
 def RightCommutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
 def LeftCommutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
 
@@ -1585,18 +1229,18 @@ variables {α : Type u} {p : α → Prop}
 theorem tagIrrelevant {a : α} (h1 h2 : p a) : mk a h1 = mk a h2 :=
 rfl
 
-protected theorem Eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
+protected theorem eq : ∀ {a1 a2 : {x // p x}}, val a1 = val a2 → a1 = a2
 | ⟨x, h1⟩ ⟨.(x), h2⟩ rfl := rfl
 
 theorem eta (a : {x // p x}) (h : p (val a)) : mk (val a) h = a :=
-Subtype.Eq rfl
+Subtype.eq rfl
 
 instance {α : Type u} {p : α → Prop} {a : α} (h : p a) : Inhabited {x // p x} :=
 ⟨⟨a, h⟩⟩
 
 instance {α : Type u} {p : α → Prop} [DecidableEq α] : DecidableEq {x : α // p x} :=
 {decEq := λ ⟨a, h₁⟩ ⟨b, h₂⟩,
-  if h : a = b then isTrue (Subtype.Eq h)
+  if h : a = b then isTrue (Subtype.eq h)
   else isFalse (λ h', Subtype.noConfusion h' (λ h', absurd h' h))}
 end Subtype
 
@@ -1628,9 +1272,6 @@ end
 
 section
 variables {α : Type u} {β : Type v}
-
-theorem Prod.mk.eta : ∀{p : α × β}, (p.1, p.2) = p
-| (a, b) := rfl
 
 instance [Inhabited α] [Inhabited β] : Inhabited (Prod α β) :=
 ⟨(default α, default β)⟩
@@ -1728,38 +1369,11 @@ end Setoid
 
 axiom propext {a b : Prop} : (a ↔ b) → a = b
 
-/- Additional congruence theorems. -/
-
-theorem forallCongrEq {a : Sort u} {p q : a → Prop} (h : ∀ x, p x = q x) : (∀ x, p x) = ∀ x, q x :=
-propext (forallCongr (λ a, (h a).toIff))
-
-theorem impCongrEq {a b c d : Prop} (h₁ : a = c) (h₂ : b = d) : (a → b) = (c → d) :=
-propext (impCongr h₁.toIff h₂.toIff)
-
-theorem impCongrCtxEq {a b c d : Prop} (h₁ : a = c) (h₂ : c → (b = d)) : (a → b) = (c → d) :=
-propext (impCongrCtx h₁.toIff (λ hc, (h₂ hc).toIff))
-
 theorem eqTrueIntro {a : Prop} (h : a) : a = True :=
 propext (iffTrueIntro h)
 
 theorem eqFalseIntro {a : Prop} (h : ¬a) : a = False :=
 propext (iffFalseIntro h)
-
-theorem Iff.toEq {a b : Prop} (h : a ↔ b) : a = b :=
-propext h
-
-theorem iffEqEq {a b : Prop} : (a ↔ b) = (a = b) :=
-propext (Iff.intro
-  (assume h, Iff.toEq h)
-  (assume h, h.toIff))
-
-theorem eqFalse {a : Prop} : (a = False) = (¬ a) :=
-have (a ↔ False) = (¬ a), from propext (iffFalse a),
-Eq.subst (@iffEqEq a False) this
-
-theorem eqTrue {a : Prop} : (a = True) = a :=
-have (a ↔ True) = a, from propext (iffTrue a),
-Eq.subst (@iffEqEq a True) this
 
 /- Quotients -/
 
@@ -2047,12 +1661,7 @@ variables {α : Sort u} {β : α → Sort v}
 private def funSetoid (α : Sort u) (β : α → Sort v) : Setoid (Π x : α, β x) :=
 Setoid.mk (@Function.Equiv α β) (Function.Equiv.isEquivalence α β)
 
-private def extfun (α : Sort u) (β : α → Sort v) : Sort (imax u v) :=
-Quotient (funSetoid α β)
-
-private def funToExtfun (f : Π x : α, β x) : extfun α β :=
-⟦f⟧
-private def extfunApp (f : extfun α β) : Π x : α, β x :=
+private def extfunApp (f : Quotient $ funSetoid α β) : Π x : α, β x :=
 assume x,
 Quot.liftOn f
   (λ f : Π x : α, β x, f x)

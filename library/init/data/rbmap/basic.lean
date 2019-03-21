@@ -72,7 +72,7 @@ def isRed : Rbnode α β → Bool
 
 section insert
 
-variables (lt : α → α → Prop) [decidableRel lt]
+variables (lt : α → α → Prop) [DecidableRel lt]
 
 def ins : Rbnode α β → Π k : α, β k → Rbnode α β
 | leaf                 kx vx := Node red leaf kx vx leaf
@@ -104,7 +104,7 @@ end insert
 section membership
 variable (lt : α → α → Prop)
 
-variable [decidableRel lt]
+variable [DecidableRel lt]
 
 def findCore : Rbnode α β → Π k : α, Option (Σ k : α, β k)
 | leaf               x := none
@@ -134,7 +134,7 @@ end membership
 
 inductive WellFormed (lt : α → α → Prop) : Rbnode α β → Prop
 | leafWff : WellFormed leaf
-| insertWff {n n' : Rbnode α β} {k : α} {v : β k} [decidableRel lt] : WellFormed n → n' = insert lt n k v → WellFormed n'
+| insertWff {n n' : Rbnode α β} {k : α} {v : β k} [DecidableRel lt] : WellFormed n → n' = insert lt n k v → WellFormed n'
 
 end Rbnode
 
@@ -188,7 +188,7 @@ t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
 instance [HasRepr α] [HasRepr β] : HasRepr (Rbmap α β lt) :=
 ⟨λ t, "rbmapOf " ++ repr t.toList⟩
 
-variables [decidableRel lt]
+variables [DecidableRel lt]
 
 def insert : Rbmap α β lt → α → β → Rbmap α β lt
 | ⟨t, w⟩   k v := ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
@@ -211,7 +211,7 @@ def lowerBound : Rbmap α β lt → α → Option (Σ k : α, β)
 @[inline] def contains (t : Rbmap α β lt) (a : α) : Bool :=
 (t.find a).isSome
 
-def fromList (l : List (α × β)) (lt : α → α → Prop) [decidableRel lt] : Rbmap α β lt :=
+def fromList (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : Rbmap α β lt :=
 l.foldl (λ r p, r.insert p.1 p.2) (mkRbmap α β lt)
 
 @[inline] def all : Rbmap α β lt → (α → β → Bool) → Bool
@@ -222,5 +222,5 @@ l.foldl (λ r p, r.insert p.1 p.2) (mkRbmap α β lt)
 
 end Rbmap
 
-def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Prop) [decidableRel lt] : Rbmap α β lt :=
+def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : Rbmap α β lt :=
 Rbmap.fromList l lt

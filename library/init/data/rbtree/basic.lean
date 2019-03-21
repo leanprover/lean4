@@ -50,7 +50,7 @@ match Rbmap.max t with
 instance [HasRepr α] : HasRepr (Rbtree α lt) :=
 ⟨λ t, "rbtreeOf " ++ repr t.toList⟩
 
-variables [decidableRel lt]
+variables [DecidableRel lt]
 
 @[inline] def insert (t : Rbtree α lt) (a : α) : Rbtree α lt :=
 Rbmap.insert t a ()
@@ -67,7 +67,7 @@ match Rbmap.findCore t a with
 @[inline] def contains (t : Rbtree α lt) (a : α) : Bool :=
 (t.find a).isSome
 
-def fromList (l : List α) (lt : α → α → Prop) [decidableRel lt] : Rbtree α lt :=
+def fromList (l : List α) (lt : α → α → Prop) [DecidableRel lt] : Rbtree α lt :=
 l.foldl insert (mkRbtree α lt)
 
 @[inline] def all (t : Rbtree α lt) (p : α → Bool) : Bool :=
@@ -84,5 +84,5 @@ subset t₁ t₂ && subset t₂ t₁
 
 end Rbtree
 
-def rbtreeOf {α : Type u} (l : List α) (lt : α → α → Prop) [decidableRel lt] : Rbtree α lt :=
+def rbtreeOf {α : Type u} (l : List α) (lt : α → α → Prop) [DecidableRel lt] : Rbtree α lt :=
 Rbtree.fromList l lt

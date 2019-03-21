@@ -63,7 +63,7 @@ protected def lt {α : Type u} (r : α → α → Prop) : Option α → Option �
 | (some x) (some y) := r x y
 | _ _               := False
 
-instance decidableRelLt {α : Type u} (r : α → α → Prop) [s : decidableRel r] : decidableRel (Option.lt r)
+instance decidableRelLt {α : Type u} (r : α → α → Prop) [s : DecidableRel r] : DecidableRel (Option.lt r)
 | none     (some y) := isTrue  trivial
 | (some x) (some y) := s x y
 | (some x) none     := isFalse notFalse

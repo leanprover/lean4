@@ -39,17 +39,17 @@ instance : Hashable Name :=
 ⟨Name.hash⟩
 
 def getPrefix : Name → Name
-| anonymous        := anonymous
+| anonymous       := anonymous
 | (mkString p s)  := p
 | (mkNumeral p s) := p
 
 def updatePrefix : Name → Name → Name
-| anonymous        newP := anonymous
+| anonymous       newP := anonymous
 | (mkString p s)  newP := mkString newP s
 | (mkNumeral p s) newP := mkNumeral newP s
 
 def components' : Name → List Name
-| anonymous                := []
+| anonymous               := []
 | (mkString n s)          := mkString anonymous s :: components' n
 | (mkNumeral n v)         := mkNumeral anonymous v :: components' n
 
@@ -71,11 +71,11 @@ protected def decEq : Π (a b : @& Name), Decidable (a = b)
     | isTrue h₂  := isTrue $ h₁ ▸ h₂ ▸ rfl
     | isFalse h₂ := isFalse $ λ h, Name.noConfusion h $ λ hp hs, absurd hp h₂
   else isFalse $ λ h, Name.noConfusion h $ λ hp hs, absurd hs h₁
-| anonymous          (mkString _ _)    := isFalse $ λ h, Name.noConfusion h
-| anonymous          (mkNumeral _ _)   := isFalse $ λ h, Name.noConfusion h
-| (mkString _ _)    anonymous          := isFalse $ λ h, Name.noConfusion h
+| anonymous         (mkString _ _)    := isFalse $ λ h, Name.noConfusion h
+| anonymous         (mkNumeral _ _)   := isFalse $ λ h, Name.noConfusion h
+| (mkString _ _)    anonymous         := isFalse $ λ h, Name.noConfusion h
 | (mkString _ _)    (mkNumeral _ _)   := isFalse $ λ h, Name.noConfusion h
-| (mkNumeral _ _)   anonymous          := isFalse $ λ h, Name.noConfusion h
+| (mkNumeral _ _)   anonymous         := isFalse $ λ h, Name.noConfusion h
 | (mkNumeral _ _)   (mkString _ _)    := isFalse $ λ h, Name.noConfusion h
 
 instance : DecidableEq Name :=
@@ -122,8 +122,8 @@ else quickLtCore n₁ n₂
 @[inline] protected def hasLtQuick : HasLt Name :=
 ⟨λ a b, Name.quickLt a b = true⟩
 
-@[inline] instance : decidableRel (@HasLt.lt Name Name.hasLtQuick) :=
-inferInstanceAs (decidableRel (λ a b, Name.quickLt a b = true))
+@[inline] instance : DecidableRel (@HasLt.lt Name Name.hasLtQuick) :=
+inferInstanceAs (DecidableRel (λ a b, Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String
 | anonymous                := "[anonymous]"

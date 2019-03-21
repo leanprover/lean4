@@ -302,10 +302,10 @@ class inductive Decidable (p : Prop)
 | isFalse (h : ¬p) : Decidable
 | isTrue  (h : p) : Decidable
 
-@[reducible] def decidablePred {α : Sort u} (r : α → Prop) :=
+@[reducible] def DecidablePred {α : Sort u} (r : α → Prop) :=
 Π (a : α), Decidable (r a)
 
-@[reducible] def decidableRel {α : Sort u} (r : α → α → Prop) :=
+@[reducible] def DecidableRel {α : Sort u} (r : α → α → Prop) :=
 Π (a b : α), Decidable (r a b)
 
 class DecidableEq (α : Sort u) :=

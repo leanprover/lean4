@@ -158,23 +158,23 @@ def filterMap (f : α → Option β) : List α → List β
   | none   := filterMap l
   | some b := b :: filterMap l
 
-def filter (p : α → Prop) [decidablePred p] : List α → List α
+def filter (p : α → Prop) [DecidablePred p] : List α → List α
 | []     := []
 | (a::l) := if p a then a :: filter l else filter l
 
-def partition (p : α → Prop) [decidablePred p] : List α → List α × List α
+def partition (p : α → Prop) [DecidablePred p] : List α → List α × List α
 | []     := ([], [])
 | (a::l) := let (l₁, l₂) := partition l in if p a then (a :: l₁, l₂) else (l₁, a :: l₂)
 
-def dropWhile (p : α → Prop) [decidablePred p] : List α → List α
+def dropWhile (p : α → Prop) [DecidablePred p] : List α → List α
 | []     := []
 | (a::l) := if p a then dropWhile l else a::l
 
-def span (p : α → Prop) [decidablePred p] : List α → List α × List α
+def span (p : α → Prop) [DecidablePred p] : List α → List α × List α
 | []      := ([], [])
 | (a::xs) := if p a then let (l, r) := span xs in (a :: l, r) else ([], a::xs)
 
-def findIndex (p : α → Prop) [decidablePred p] : List α → Nat
+def findIndex (p : α → Prop) [DecidablePred p] : List α → Nat
 | []     := 0
 | (a::l) := if p a then 0 else succ (findIndex l)
 
@@ -323,7 +323,7 @@ protected def lt [HasLt α] : List α → List α → Prop
 instance [HasLt α] : HasLt (List α) :=
 ⟨List.lt⟩
 
-instance hasDecidableLt [HasLt α] [h : decidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
+instance hasDecidableLt [HasLt α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
 | []      []      := isFalse notFalse
 | []      (b::bs) := isTrue trivial
 | (a::as) []      := isFalse notFalse
@@ -344,13 +344,13 @@ instance hasDecidableLt [HasLt α] [h : decidableRel ((<) : α → α → Prop)]
 instance [HasLt α] : HasLe (List α) :=
 ⟨List.le⟩
 
-instance hasDecidableLe [HasLt α] [h : decidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
+instance hasDecidableLe [HasLt α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
 λ a b, not.Decidable
 
 lemma leEqNotGt [HasLt α] : ∀ l₁ l₂ : List α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
 λ l₁ l₂, rfl
 
-lemma ltEqNotGe [HasLt α] [decidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : List α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
+lemma ltEqNotGe [HasLt α] [DecidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : List α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
 λ l₁ l₂,
   show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
   Eq.subst (propext (notNotIff (l₁ < l₂))).symm rfl

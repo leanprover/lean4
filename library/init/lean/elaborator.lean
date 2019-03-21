@@ -64,7 +64,7 @@ structure OrderedRbmap (α β : Type) (lt : α → α → Prop) :=
 (size : Nat)
 
 namespace OrderedRbmap
-variables {α β : Type} {lt : α → α → Prop} [decidableRel lt] (m : OrderedRbmap α β lt)
+variables {α β : Type} {lt : α → α → Prop} [DecidableRel lt] (m : OrderedRbmap α β lt)
 
 def Empty : OrderedRbmap α β lt := {entries := [], map := mkRbmap _ _ _, size := 0}
 

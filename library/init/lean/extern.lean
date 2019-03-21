@@ -14,10 +14,10 @@ inductive ExternEntry
 | standard (backend : Name) (fn : String)
 | foreign  (backend : Name) (fn : String)
 
-@[export Lean.mkAdhocExtEntryCore]   def mkAdhocExtEntry   := ExternEntry.adhoc
-@[export Lean.mkInlineExtEntryCore]  def mkInlineExtEntry  := ExternEntry.inline
-@[export Lean.mkStdExtEntryCore]     def mkStdExtEntry     := ExternEntry.standard
-@[export Lean.mkForeignExtEntryCore] def mkForeignExtEntry := ExternEntry.foreign
+@[export lean.mk_adhoc_ext_entry_core]   def mkAdhocExtEntry   := ExternEntry.adhoc
+@[export lean.mk_inline_ext_entry_core]  def mkInlineExtEntry  := ExternEntry.inline
+@[export lean.mk_std_ext_entry_core]     def mkStdExtEntry     := ExternEntry.standard
+@[export lean.mk_foreign_ext_entry_core] def mkForeignExtEntry := ExternEntry.foreign
 
 /-
 - `@[extern]`
@@ -37,7 +37,7 @@ structure ExternAttrData :=
 (arity    : Option Nat := none)
 (entries  : List ExternEntry)
 
-@[export Lean.mkExternAttrDataCore] def mkExternAttrData := ExternAttrData.mk
+@[export lean.mk_extern_attr_data_core] def mkExternAttrData := ExternAttrData.mk
 
 private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
 | 0     it r := (it, r)
@@ -61,7 +61,7 @@ def expandExternPatternAux (args : List String) : Nat → String.Iterator → St
       let j       := j-1 in
       expandExternPatternAux i it (r ++ (args.nth j).getOrElse "")
 
-@[export Lean.expandExternPatternCore]
+@[export lean.expand_extern_pattern_core]
 def expandExternPattern (pattern : String) (args : List String) : String :=
 expandExternPatternAux args pattern.length pattern.mkIterator ""
 
@@ -87,11 +87,11 @@ def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEn
   else if e.backend = backend then some e
   else getExternEntryForAux es
 
-@[export Lean.getExternEntryForCore]
+@[export lean.get_extern_entry_for_core]
 def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry :=
 getExternEntryForAux backend d.entries
 
-@[export Lean.mkExternCallCore]
+@[export lean.mk_extern_call_core]
 def mkExternCall (d : ExternAttrData) (backend : Name) (args : List String) : Option String :=
 do e ← getExternEntryFor d backend,
    expandExternEntry e args

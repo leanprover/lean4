@@ -176,7 +176,7 @@ def ex : StateT Nat (coroutine Nat String) Unit :=
 do
   x ← read,
   y ← get,
-  put (y+5),
+  set (y+5),
   yield ("1) val: " ++ toString (x+y)),
   x ← read,
   y ← get,

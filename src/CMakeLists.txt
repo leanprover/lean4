@@ -455,12 +455,12 @@ add_library(leanstatic_stage0 ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS} $<TARGET_OBJECTS
 target_link_libraries(leanstatic_stage0 ${EXTRA_LIBS})
 
 add_library(leanstatic ${LEAN_LIBRARY_TYPE} ${LEAN_OBJS})
-target_link_libraries(leanstatic "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a" ${EXTRA_LIBS})
+target_link_libraries(leanstatic "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" ${EXTRA_LIBS})
 add_dependencies(leanstatic stdlib)
 
 ADD_CUSTOM_TARGET(bin_lib ALL
    COMMAND "${CMAKE_COMMAND}" -E make_directory "${LEAN_SOURCE_DIR}/../bin"
-   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "${LEAN_SOURCE_DIR}/stage1/libleanstdlib*" "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
+   COMMAND "${CMAKE_COMMAND}" -E copy ${COPY_LIBS} "${CMAKE_BINARY_DIR}/stage1/libleanstdlib*" "${CMAKE_CURRENT_BINARY_DIR}/libleanstatic*" "${LEAN_SOURCE_DIR}/../bin"
    DEPENDS leanstatic
 )
 # Configure leanc

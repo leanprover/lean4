@@ -83,7 +83,7 @@ building Lean itself - which is needed to again build those parts. Building the
   `.olean` object files as well as extracted to C++ in `src/stage1` by the
   target `stdlib`.
 * The target `build_libleanstdlib` builds the static library
-  `src/stage1/libleanstdlib.a` from the extracted files.
+  `stage1/libleanstdlib.a` from the extracted files.
 * This library is linked with the C++ source files into `libleanstatic.a` and
   ultimately into the executable `lean`.
 * The `bin` target finally copies the executable and libraries into `bin/`.

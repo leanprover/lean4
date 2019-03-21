@@ -8,7 +8,7 @@ endif()
 
 add_custom_target(stdlib
   # '-G Ninja' complains otherwise
-  BYPRODUCTS "${LEAN_SOURCE_DIR}/stage1/libleanstdlib.a"
+  BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
   COMMAND make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "STAGE1_DIR=${CMAKE_BINARY_DIR}/stage1"
   DEPENDS lean_stage0)

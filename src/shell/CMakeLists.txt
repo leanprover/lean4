@@ -15,11 +15,11 @@ add_custom_target(stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "STAGE1_DIR=${CMAKE_BINARY_DIR}/stage1"
+  COMMAND make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
   DEPENDS lean_stage0)
 
 add_custom_target(update-stage0
-  COMMAND make update-stage0 "STAGE1_DIR=${CMAKE_BINARY_DIR}/stage1"
+  COMMAND make update-stage0 "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
   DEPENDS lean
   WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/../library")
 

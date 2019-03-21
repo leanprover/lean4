@@ -536,7 +536,7 @@ endif()
 
 add_custom_target(clean-stdlib
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND make clean STAGE1_DIR="${CMAKE_BINARY_DIR}/stage1"
+  COMMAND make clean STAGE1_OUT="${CMAKE_BINARY_DIR}/stage1"
   )
 
 add_custom_target(clean-leanpkg

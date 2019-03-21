@@ -7,8 +7,9 @@ OBJS = $(SRCS:.lean=.olean)
 DEPS = $(SRCS:.lean=.depend)
 OPTS = @LEAN_EXTRA_MAKE_OPTS@
 STAGE0_DIR = ../src/stage0
-ifndef STAGE1_DIR
-$(error "`STAGE1_DIR` must be set (use cmake)")
+STAGE1_DIR = ../src/stage1
+ifndef STAGE1_OUT
+$(error "`STAGE1_OUT` must be set (use cmake)")
 endif
 CPPS = $(addprefix $(STAGE1_DIR)/,$(patsubst %.lean,%.cpp,$(SRCS)))
 # ensure deterministic ordering
@@ -37,10 +38,11 @@ clean:
 $(STAGE1_DIR)/%.cpp: %.olean
 	@
 
-$(STAGE1_DIR)/%.o: $(STAGE1_DIR)/%.cpp
+$(STAGE1_OUT)/%.o: $(STAGE1_DIR)/%.cpp
+	@mkdir -p "$(@D)"
 	../bin/leanc -c -o $@ $< -O3
 
-$(STAGE1_DIR)/libleanstdlib.a: $(patsubst %.cpp,%.o,$(CPPS))
+$(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,$(SRCS)))
 	@ar rcs $@ $^
 
 update-stage0:

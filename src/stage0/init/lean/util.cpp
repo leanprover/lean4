@@ -14,14 +14,14 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_lean_profileit__pure(obj*);
+obj* l_Lean_profileit___boxed(obj*, obj*, obj*, obj*, obj*);
 extern "C" obj* lean_lean_profileit(obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_profileit___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_lean_profileit__pure___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_io_lazy__pure___rarg(obj*, obj*);
-obj* l_lean_profileit__pure___boxed(obj*);
-obj* l_lean_profileit__pure___rarg(obj*, obj*, obj*, obj*);
-obj* l_lean_profileit___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Lean_profileitPure(obj*);
+obj* l_Lean_profileitPure___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_profileitPure___rarg(obj*, obj*, obj*, obj*);
+obj* l_Lean_profileitPure___boxed(obj*);
+obj* l_IO_lazyPure___rarg(obj*, obj*);
+obj* l_Lean_profileit___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
@@ -31,39 +31,39 @@ lean::dec(x_2);
 return x_5;
 }
 }
-obj* l_lean_profileit__pure___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_profileitPure___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_io_lazy__pure___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_lazyPure___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_2);
 x_5 = lean_lean_profileit(lean::box(0), x_0, x_1, x_4, x_3);
 return x_5;
 }
 }
-obj* l_lean_profileit__pure(obj* x_0) {
+obj* l_Lean_profileitPure(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_profileit__pure___rarg___boxed), 4, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_profileitPure___rarg___boxed), 4, 0);
 return x_1;
 }
 }
-obj* l_lean_profileit__pure___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_profileitPure___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_lean_profileit__pure___rarg(x_0, x_1, x_2, x_3);
+x_4 = l_Lean_profileitPure___rarg(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_lean_profileit__pure___boxed(obj* x_0) {
+obj* l_Lean_profileitPure___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_lean_profileit__pure(x_0);
+x_1 = l_Lean_profileitPure(x_0);
 lean::dec(x_0);
 return x_1;
 }

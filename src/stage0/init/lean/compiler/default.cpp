@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.default
-// Imports: init.lean.compiler.const_folding
+// Imports: init.lean.compiler.constfolding
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -14,12 +14,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* initialize_init_lean_compiler_const__folding(obj*);
+obj* initialize_init_lean_compiler_constfolding(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_default(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_const__folding(w);
+w = initialize_init_lean_compiler_constfolding(w);
 return w;
 }

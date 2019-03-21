@@ -15,29 +15,29 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_cmp(obj*, obj*);
-obj* l_ordering_or__else___boxed(obj*, obj*);
+obj* l_Ordering_HasRepr___closed__1;
 obj* l_cmp___rarg___boxed(obj*, obj*, obj*);
-uint8 l_ordering_swap___main(uint8);
-uint8 l_cmp__using___rarg(obj*, obj*, obj*);
-obj* l_cmp__using___boxed(obj*, obj*);
-obj* l_ordering_or__else___main___boxed(obj*, obj*);
-obj* l_ordering_swap___boxed(obj*);
-obj* l_cmp__using(obj*, obj*);
-obj* l_ordering_swap___main___boxed(obj*);
-uint8 l_ordering_or__else(uint8, uint8);
-uint8 l_ordering_decidable__eq(uint8, uint8);
-obj* l_ordering_has__repr___closed__1;
-uint8 l_ordering_swap(uint8);
-obj* l_ordering_has__repr(uint8);
-obj* l_ordering_decidable__eq___boxed(obj*, obj*);
-obj* l_ordering_has__repr___closed__2;
-uint8 l_ordering_or__else___main(uint8, uint8);
-obj* l_ordering_has__repr___closed__3;
+obj* l_cmpUsing(obj*, obj*);
+obj* l_Ordering_orElse___boxed(obj*, obj*);
+uint8 l_Ordering_orElse___main(uint8, uint8);
+obj* l_Ordering_HasRepr(uint8);
+obj* l_Ordering_orElse___main___boxed(obj*, obj*);
+uint8 l_Ordering_swap___main(uint8);
+obj* l_cmpUsing___rarg___boxed(obj*, obj*, obj*);
+obj* l_Ordering_HasRepr___boxed(obj*);
+obj* l_Ordering_HasRepr___closed__3;
+obj* l_Ordering_swap___main___boxed(obj*);
+uint8 l_cmpUsing___rarg(obj*, obj*, obj*);
+uint8 l_Ordering_swap(uint8);
+obj* l_Ordering_HasRepr___closed__2;
+obj* l_Ordering_DecidableEq___boxed(obj*, obj*);
+obj* l_cmpUsing___boxed(obj*, obj*);
+uint8 l_Ordering_DecidableEq(uint8, uint8);
 uint8 l_cmp___rarg(obj*, obj*, obj*);
-obj* l_cmp__using___rarg___boxed(obj*, obj*, obj*);
-obj* l_ordering_has__repr___boxed(obj*);
+uint8 l_Ordering_orElse(uint8, uint8);
+obj* l_Ordering_swap___boxed(obj*);
 obj* l_cmp___boxed(obj*, obj*);
-obj* _init_l_ordering_has__repr___closed__1() {
+obj* _init_l_Ordering_HasRepr___closed__1() {
 _start:
 {
 obj* x_0; 
@@ -45,15 +45,15 @@ x_0 = lean::mk_string("lt");
 return x_0;
 }
 }
-obj* _init_l_ordering_has__repr___closed__2() {
+obj* _init_l_Ordering_HasRepr___closed__2() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("eq");
+x_0 = lean::mk_string("Eq");
 return x_0;
 }
 }
-obj* _init_l_ordering_has__repr___closed__3() {
+obj* _init_l_Ordering_HasRepr___closed__3() {
 _start:
 {
 obj* x_0; 
@@ -61,41 +61,41 @@ x_0 = lean::mk_string("gt");
 return x_0;
 }
 }
-obj* l_ordering_has__repr(uint8 x_0) {
+obj* l_Ordering_HasRepr(uint8 x_0) {
 _start:
 {
 switch (x_0) {
 case 0:
 {
 obj* x_1; 
-x_1 = l_ordering_has__repr___closed__1;
+x_1 = l_Ordering_HasRepr___closed__1;
 return x_1;
 }
 case 1:
 {
 obj* x_2; 
-x_2 = l_ordering_has__repr___closed__2;
+x_2 = l_Ordering_HasRepr___closed__2;
 return x_2;
 }
 default:
 {
 obj* x_3; 
-x_3 = l_ordering_has__repr___closed__3;
+x_3 = l_Ordering_HasRepr___closed__3;
 return x_3;
 }
 }
 }
 }
-obj* l_ordering_has__repr___boxed(obj* x_0) {
+obj* l_Ordering_HasRepr___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
 x_1 = lean::unbox(x_0);
-x_2 = l_ordering_has__repr(x_1);
+x_2 = l_Ordering_HasRepr(x_1);
 return x_2;
 }
 }
-uint8 l_ordering_swap___main(uint8 x_0) {
+uint8 l_Ordering_swap___main(uint8 x_0) {
 _start:
 {
 switch (x_0) {
@@ -118,35 +118,35 @@ return x_2;
 }
 }
 }
-obj* l_ordering_swap___main___boxed(obj* x_0) {
+obj* l_Ordering_swap___main___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; uint8 x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
-x_2 = l_ordering_swap___main(x_1);
+x_2 = l_Ordering_swap___main(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-uint8 l_ordering_swap(uint8 x_0) {
+uint8 l_Ordering_swap(uint8 x_0) {
 _start:
 {
 uint8 x_1; 
-x_1 = l_ordering_swap___main(x_0);
+x_1 = l_Ordering_swap___main(x_0);
 return x_1;
 }
 }
-obj* l_ordering_swap___boxed(obj* x_0) {
+obj* l_Ordering_swap___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; uint8 x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
-x_2 = l_ordering_swap(x_1);
+x_2 = l_Ordering_swap(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-uint8 l_ordering_or__else___main(uint8 x_0, uint8 x_1) {
+uint8 l_Ordering_orElse___main(uint8 x_0, uint8 x_1) {
 _start:
 {
 switch (x_0) {
@@ -161,18 +161,18 @@ return x_0;
 }
 }
 }
-obj* l_ordering_or__else___main___boxed(obj* x_0, obj* x_1) {
+obj* l_Ordering_orElse___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; uint8 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = l_ordering_or__else___main(x_2, x_3);
+x_4 = l_Ordering_orElse___main(x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
 }
 }
-uint8 l_ordering_or__else(uint8 x_0, uint8 x_1) {
+uint8 l_Ordering_orElse(uint8 x_0, uint8 x_1) {
 _start:
 {
 switch (x_0) {
@@ -187,18 +187,18 @@ return x_0;
 }
 }
 }
-obj* l_ordering_or__else___boxed(obj* x_0, obj* x_1) {
+obj* l_Ordering_orElse___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; uint8 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = l_ordering_or__else(x_2, x_3);
+x_4 = l_Ordering_orElse(x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
 }
 }
-uint8 l_cmp__using___rarg(obj* x_0, obj* x_1, obj* x_2) {
+uint8 l_cmpUsing___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_6; uint8 x_7; 
@@ -236,28 +236,28 @@ return x_15;
 }
 }
 }
-obj* l_cmp__using(obj* x_0, obj* x_1) {
+obj* l_cmpUsing(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_cmp__using___rarg___boxed), 3, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_cmpUsing___rarg___boxed), 3, 0);
 return x_2;
 }
 }
-obj* l_cmp__using___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_cmpUsing___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = l_cmp__using___rarg(x_0, x_1, x_2);
+x_3 = l_cmpUsing___rarg(x_0, x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* l_cmp__using___boxed(obj* x_0, obj* x_1) {
+obj* l_cmpUsing___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_cmp__using(x_0, x_1);
+x_2 = l_cmpUsing(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -328,7 +328,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-uint8 l_ordering_decidable__eq(uint8 x_0, uint8 x_1) {
+uint8 l_Ordering_DecidableEq(uint8 x_0, uint8 x_1) {
 _start:
 {
 switch (x_0) {
@@ -386,13 +386,13 @@ return x_7;
 }
 }
 }
-obj* l_ordering_decidable__eq___boxed(obj* x_0, obj* x_1) {
+obj* l_Ordering_DecidableEq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; uint8 x_3; uint8 x_4; obj* x_5; 
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
-x_4 = l_ordering_decidable__eq(x_2, x_3);
+x_4 = l_Ordering_DecidableEq(x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
 }
@@ -404,11 +404,11 @@ obj* initialize_init_data_ordering_basic(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
- l_ordering_has__repr___closed__1 = _init_l_ordering_has__repr___closed__1();
-lean::mark_persistent(l_ordering_has__repr___closed__1);
- l_ordering_has__repr___closed__2 = _init_l_ordering_has__repr___closed__2();
-lean::mark_persistent(l_ordering_has__repr___closed__2);
- l_ordering_has__repr___closed__3 = _init_l_ordering_has__repr___closed__3();
-lean::mark_persistent(l_ordering_has__repr___closed__3);
+ l_Ordering_HasRepr___closed__1 = _init_l_Ordering_HasRepr___closed__1();
+lean::mark_persistent(l_Ordering_HasRepr___closed__1);
+ l_Ordering_HasRepr___closed__2 = _init_l_Ordering_HasRepr___closed__2();
+lean::mark_persistent(l_Ordering_HasRepr___closed__2);
+ l_Ordering_HasRepr___closed__3 = _init_l_Ordering_HasRepr___closed__3();
+lean::mark_persistent(l_Ordering_HasRepr___closed__3);
 return w;
 }

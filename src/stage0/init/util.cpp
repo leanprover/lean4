@@ -14,9 +14,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_dbg__sleep___boxed(obj*, obj*, obj*);
-obj* l_dbg__trace___boxed(obj*, obj*, obj*);
-obj* l_dbg__trace___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_dbgSleep___boxed(obj*, obj*, obj*);
+obj* l_dbgTrace___boxed(obj*, obj*, obj*);
+obj* l_dbgTrace___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -24,7 +24,7 @@ x_3 = lean::dbg_trace(x_1, x_2);
 return x_3;
 }
 }
-obj* l_dbg__sleep___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_dbgSleep___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 uint32 x_3; obj* x_4; 

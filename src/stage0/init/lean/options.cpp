@@ -14,8 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_lean_options_mk;
-obj* _init_l_lean_options_mk() {
+obj* l_Lean_Options_mk;
+obj* _init_l_Lean_Options_mk() {
 _start:
 {
 obj* x_0; 
@@ -30,7 +30,7 @@ obj* initialize_init_lean_options(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
- l_lean_options_mk = _init_l_lean_options_mk();
-lean::mark_persistent(l_lean_options_mk);
+ l_Lean_Options_mk = _init_l_Lean_Options_mk();
+lean::mark_persistent(l_Lean_Options_mk);
 return w;
 }

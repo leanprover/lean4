@@ -14,8 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_lean_closure__max__args;
-obj* _init_l_lean_closure__max__args() {
+obj* l_Lean_closureMaxArgs;
+obj* _init_l_Lean_closureMaxArgs() {
 _start:
 {
 obj* x_0; 
@@ -30,7 +30,7 @@ obj* initialize_init_lean_config(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
- l_lean_closure__max__args = _init_l_lean_closure__max__args();
-lean::mark_persistent(l_lean_closure__max__args);
+ l_Lean_closureMaxArgs = _init_l_Lean_closureMaxArgs();
+lean::mark_persistent(l_Lean_closureMaxArgs);
 return w;
 }

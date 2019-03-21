@@ -14,8 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_system_platform_nbits;
-obj* _init_l_system_platform_nbits() {
+obj* l_System_platform_nbits;
+obj* _init_l_System_platform_nbits() {
 _start:
 {
 obj* x_0; 
@@ -30,7 +30,7 @@ obj* initialize_init_platform(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
- l_system_platform_nbits = _init_l_system_platform_nbits();
-lean::mark_persistent(l_system_platform_nbits);
+ l_System_platform_nbits = _init_l_System_platform_nbits();
+lean::mark_persistent(l_System_platform_nbits);
 return w;
 }

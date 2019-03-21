@@ -14,32 +14,32 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_nat_mod___boxed(obj*, obj*);
 obj* l___private_init_data_nat_div_2__div_F___boxed(obj*, obj*, obj*);
-obj* l___private_init_data_nat_div_5__mod_F___boxed(obj*, obj*, obj*);
 namespace lean {
-obj* nat_add(obj*, obj*);
+obj* nat_sub(obj*, obj*);
+}
+obj* l___private_init_data_nat_div_5__mod_F___boxed(obj*, obj*, obj*);
+obj* l_Nat_div___boxed(obj*, obj*);
+obj* l___private_init_data_nat_div_5__mod_F(obj*, obj*, obj*);
+obj* l___private_init_data_nat_div_2__div_F(obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
 }
 namespace lean {
 obj* nat_mod(obj*, obj*);
 }
-obj* l___private_init_data_nat_div_5__mod_F(obj*, obj*, obj*);
-obj* l_nat_has__div;
-obj* l___private_init_data_nat_div_2__div_F(obj*, obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
+obj* l_Nat_HasMod;
 namespace lean {
 obj* nat_div(obj*, obj*);
 }
-namespace lean {
-obj* nat_sub(obj*, obj*);
-}
-obj* l_nat_has__mod;
-obj* l_nat_div___boxed(obj*, obj*);
-namespace lean {
-uint8 nat_dec_lt(obj*, obj*);
-}
+obj* l_Nat_mod___boxed(obj*, obj*);
+obj* l_Nat_HasDiv;
 obj* l___private_init_data_nat_div_2__div_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -84,7 +84,7 @@ lean::dec(x_0);
 return x_3;
 }
 }
-obj* l_nat_div___boxed(obj* x_0, obj* x_1) {
+obj* l_Nat_div___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -94,11 +94,11 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_nat_has__div() {
+obj* _init_l_Nat_HasDiv() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_div___boxed), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_div___boxed), 2, 0);
 return x_0;
 }
 }
@@ -145,7 +145,7 @@ lean::dec(x_0);
 return x_3;
 }
 }
-obj* l_nat_mod___boxed(obj* x_0, obj* x_1) {
+obj* l_Nat_mod___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -155,11 +155,11 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* _init_l_nat_has__mod() {
+obj* _init_l_Nat_HasMod() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_nat_mod___boxed), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_mod___boxed), 2, 0);
 return x_0;
 }
 }
@@ -173,9 +173,9 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_wf(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_basic(w);
- l_nat_has__div = _init_l_nat_has__div();
-lean::mark_persistent(l_nat_has__div);
- l_nat_has__mod = _init_l_nat_has__mod();
-lean::mark_persistent(l_nat_has__mod);
+ l_Nat_HasDiv = _init_l_Nat_HasDiv();
+lean::mark_persistent(l_Nat_HasDiv);
+ l_Nat_HasMod = _init_l_Nat_HasMod();
+lean::mark_persistent(l_Nat_HasMod);
 return w;
 }

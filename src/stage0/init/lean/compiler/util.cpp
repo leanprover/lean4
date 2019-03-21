@@ -14,16 +14,16 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_lean_compiler_mk__lc__proof___closed__1;
-extern "C" obj* lean_name_mk_string(obj*, obj*);
-obj* l_lean_compiler_object__type;
-extern "C" obj* lean_expr_mk_const(obj*, obj*);
-obj* l_lean_compiler_void__type;
-obj* l_lean_compiler_mk__lc__proof(obj*);
-obj* l_lean_compiler_neutral__expr;
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
-obj* l_lean_compiler_unreachable__expr;
-obj* _init_l_lean_compiler_neutral__expr() {
+obj* l_Lean_Compiler_mkLcProof(obj*);
+extern "C" obj* lean_expr_mk_const(obj*, obj*);
+obj* l_Lean_Compiler_objectType;
+extern "C" obj* lean_name_mk_string(obj*, obj*);
+obj* l_Lean_Compiler_voidType;
+obj* l_Lean_Compiler_mkLcProof___closed__1;
+obj* l_Lean_Compiler_neutralExpr;
+obj* l_Lean_Compiler_unreachableExpr;
+obj* _init_l_Lean_Compiler_neutralExpr() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
@@ -35,7 +35,7 @@ x_4 = lean_expr_mk_const(x_2, x_3);
 return x_4;
 }
 }
-obj* _init_l_lean_compiler_unreachable__expr() {
+obj* _init_l_Lean_Compiler_unreachableExpr() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
@@ -47,7 +47,7 @@ x_4 = lean_expr_mk_const(x_2, x_3);
 return x_4;
 }
 }
-obj* _init_l_lean_compiler_object__type() {
+obj* _init_l_Lean_Compiler_objectType() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
@@ -59,7 +59,7 @@ x_4 = lean_expr_mk_const(x_2, x_3);
 return x_4;
 }
 }
-obj* _init_l_lean_compiler_void__type() {
+obj* _init_l_Lean_Compiler_voidType() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
@@ -71,23 +71,23 @@ x_4 = lean_expr_mk_const(x_2, x_3);
 return x_4;
 }
 }
-obj* _init_l_lean_compiler_mk__lc__proof___closed__1() {
+obj* _init_l_Lean_Compiler_mkLcProof___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_0 = lean::box(0);
-x_1 = lean::mk_string("lc_proof");
+x_1 = lean::mk_string("lcProof");
 x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::box(0);
 x_4 = lean_expr_mk_const(x_2, x_3);
 return x_4;
 }
 }
-obj* l_lean_compiler_mk__lc__proof(obj* x_0) {
+obj* l_Lean_Compiler_mkLcProof(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_lean_compiler_mk__lc__proof___closed__1;
+x_1 = l_Lean_Compiler_mkLcProof___closed__1;
 x_2 = lean_expr_mk_app(x_1, x_0);
 return x_2;
 }
@@ -99,15 +99,15 @@ obj* initialize_init_lean_compiler_util(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
- l_lean_compiler_neutral__expr = _init_l_lean_compiler_neutral__expr();
-lean::mark_persistent(l_lean_compiler_neutral__expr);
- l_lean_compiler_unreachable__expr = _init_l_lean_compiler_unreachable__expr();
-lean::mark_persistent(l_lean_compiler_unreachable__expr);
- l_lean_compiler_object__type = _init_l_lean_compiler_object__type();
-lean::mark_persistent(l_lean_compiler_object__type);
- l_lean_compiler_void__type = _init_l_lean_compiler_void__type();
-lean::mark_persistent(l_lean_compiler_void__type);
- l_lean_compiler_mk__lc__proof___closed__1 = _init_l_lean_compiler_mk__lc__proof___closed__1();
-lean::mark_persistent(l_lean_compiler_mk__lc__proof___closed__1);
+ l_Lean_Compiler_neutralExpr = _init_l_Lean_Compiler_neutralExpr();
+lean::mark_persistent(l_Lean_Compiler_neutralExpr);
+ l_Lean_Compiler_unreachableExpr = _init_l_Lean_Compiler_unreachableExpr();
+lean::mark_persistent(l_Lean_Compiler_unreachableExpr);
+ l_Lean_Compiler_objectType = _init_l_Lean_Compiler_objectType();
+lean::mark_persistent(l_Lean_Compiler_objectType);
+ l_Lean_Compiler_voidType = _init_l_Lean_Compiler_voidType();
+lean::mark_persistent(l_Lean_Compiler_voidType);
+ l_Lean_Compiler_mkLcProof___closed__1 = _init_l_Lean_Compiler_mkLcProof___closed__1();
+lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__1);
 return w;
 }

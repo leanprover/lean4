@@ -14,54 +14,54 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_lean_data__value_has__beq;
-obj* l_lean_kvmap_set__bool___boxed(obj*, obj*, obj*);
-obj* l_lean_kvmap_subset___boxed(obj*, obj*);
-obj* l_lean_kvmap_get__nat___boxed(obj*, obj*);
-obj* l_lean_data__value_beq___main___boxed(obj*, obj*);
-obj* l_lean_kvmap_set__string(obj*, obj*, obj*);
-obj* l_lean_kvmap_insert__core(obj*, obj*, obj*);
-uint8 l_lean_kvmap_contains(obj*, obj*);
-obj* l_lean_data__value_beq___boxed(obj*, obj*);
-obj* l_lean_kvmap_find___main___boxed(obj*, obj*);
-obj* l_lean_kvmap_subset___main___boxed(obj*, obj*);
-uint8 l_lean_data__value_beq___main(obj*, obj*);
-obj* l_lean_kvmap_get__bool(obj*, obj*);
-obj* l_lean_kvmap_set__name(obj*, obj*, obj*);
-obj* l_lean_kvmap_find___boxed(obj*, obj*);
-obj* l_lean_kvmap_set__nat(obj*, obj*, obj*);
-obj* l_lean_kvmap_find__core(obj*, obj*);
-obj* l_lean_kvmap_set__bool(obj*, obj*, uint8);
-uint8 l_option_is__some___main___rarg(obj*);
-obj* l_lean_kvmap_get__bool___boxed(obj*, obj*);
-obj* l_lean_kvmap_find__core___boxed(obj*, obj*);
-obj* l_lean_kvmap_find__core___main___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_findCore___main___boxed(obj*, obj*);
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+uint8 l_Lean_DataValue_beq(obj*, obj*);
+obj* l_Lean_Kvmap_find___main___boxed(obj*, obj*);
+uint8 l_Option_isSome___main___rarg(obj*);
+obj* l_Lean_Kvmap_subset___main___boxed(obj*, obj*);
+uint8 l_Lean_Kvmap_subset(obj*, obj*);
+uint8 l_Lean_Kvmap_contains(obj*, obj*);
+obj* l_Lean_DataValue_beq___main___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_findCore___boxed(obj*, obj*);
+uint8 l_Lean_Kvmap_subset___main(obj*, obj*);
+uint8 l_Lean_Kvmap_eqv(obj*, obj*);
+obj* l_Lean_Kvmap_find___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_getBool(obj*, obj*);
+obj* l_Lean_Kvmap_setString(obj*, obj*, obj*);
+obj* l_Lean_Kvmap_HasBeq;
+obj* l_Lean_Kvmap_find(obj*, obj*);
+obj* l_Lean_Kvmap_subset___boxed(obj*, obj*);
+obj* l_Lean_DataValue_HasBeq;
+obj* l_Lean_Kvmap_setBool(obj*, obj*, uint8);
+obj* l_Lean_DataValue_beq___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_getName___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_getName(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_lean_kvmap_eqv___boxed(obj*, obj*);
-obj* l_lean_kvmap_get__name___boxed(obj*, obj*);
-obj* l_lean_kvmap_contains___boxed(obj*, obj*);
-obj* l_lean_kvmap_insert(obj*, obj*, obj*);
-uint8 l_lean_kvmap_subset(obj*, obj*);
-uint8 l_lean_kvmap_eqv(obj*, obj*);
-obj* l_lean_kvmap_find___main(obj*, obj*);
-extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+obj* l_Lean_Kvmap_setNat(obj*, obj*, obj*);
+obj* l_Lean_Kvmap_setName(obj*, obj*, obj*);
+obj* l_Lean_Kvmap_getNat(obj*, obj*);
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
-obj* l_lean_kvmap_find(obj*, obj*);
-obj* l_lean_kvmap_get__name(obj*, obj*);
-obj* l_lean_kvmap_insert__core___main(obj*, obj*, obj*);
-obj* l_lean_kvmap_find__core___main(obj*, obj*);
-obj* l_lean_kvmap_get__string(obj*, obj*);
-obj* l_lean_kvmap_has__beq;
-obj* l_lean_kvmap_get__string___boxed(obj*, obj*);
-uint8 l_lean_kvmap_subset___main(obj*, obj*);
-uint8 l_lean_data__value_beq(obj*, obj*);
-obj* l_lean_kvmap_get__nat(obj*, obj*);
-obj* l_lean_kvmap_insert___main(obj*, obj*, obj*);
-uint8 l_lean_data__value_beq___main(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_findCore(obj*, obj*);
+obj* l_Lean_Kvmap_getString___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_getString(obj*, obj*);
+obj* l_Lean_Kvmap_insertCore___main(obj*, obj*, obj*);
+obj* l_Lean_Kvmap_find___main(obj*, obj*);
+obj* l_Lean_Kvmap_setBool___boxed(obj*, obj*, obj*);
+obj* l_Lean_Kvmap_insertCore(obj*, obj*, obj*);
+obj* l_Lean_Kvmap_contains___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_findCore___main(obj*, obj*);
+obj* l_Lean_Kvmap_getNat___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_eqv___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_insert___main(obj*, obj*, obj*);
+uint8 l_Lean_DataValue_beq___main(obj*, obj*);
+obj* l_Lean_Kvmap_getBool___boxed(obj*, obj*);
+obj* l_Lean_Kvmap_insert(obj*, obj*, obj*);
+uint8 l_Lean_DataValue_beq___main(obj* x_0, obj* x_1) {
 _start:
 {
 switch (lean::obj_tag(x_0)) {
@@ -181,45 +181,45 @@ return x_20;
 }
 }
 }
-obj* l_lean_data__value_beq___main___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_DataValue_beq___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_lean_data__value_beq___main(x_0, x_1);
+x_2 = l_Lean_DataValue_beq___main(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_3;
 }
 }
-uint8 l_lean_data__value_beq(obj* x_0, obj* x_1) {
+uint8 l_Lean_DataValue_beq(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = l_lean_data__value_beq___main(x_0, x_1);
+x_2 = l_Lean_DataValue_beq___main(x_0, x_1);
 return x_2;
 }
 }
-obj* l_lean_data__value_beq___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_DataValue_beq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_lean_data__value_beq(x_0, x_1);
+x_2 = l_Lean_DataValue_beq(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_3;
 }
 }
-obj* _init_l_lean_data__value_has__beq() {
+obj* _init_l_Lean_DataValue_HasBeq() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_data__value_beq___boxed), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_DataValue_beq___boxed), 2, 0);
 return x_0;
 }
 }
-obj* l_lean_kvmap_find__core___main(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_findCore___main(obj* x_0, obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -260,67 +260,67 @@ return x_18;
 }
 }
 }
-obj* l_lean_kvmap_find__core___main___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_findCore___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_find__core(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_findCore(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_find__core___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_findCore___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_find___main(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_find___main(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_find___main___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_find___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_find___main(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_find(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_find(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_find___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_find___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find(x_0, x_1);
+x_2 = l_Lean_Kvmap_find(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_insert__core___main(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_insertCore___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -356,7 +356,7 @@ if (x_12 == 0)
 {
 obj* x_14; obj* x_15; 
 lean::dec(x_10);
-x_14 = l_lean_kvmap_insert__core___main(x_7, x_1, x_2);
+x_14 = l_Lean_Kvmap_insertCore___main(x_7, x_1, x_2);
 if (lean::is_scalar(x_9)) {
  x_15 = lean::alloc_cnstr(1, 2, 0);
 } else {
@@ -397,55 +397,55 @@ return x_19;
 }
 }
 }
-obj* l_lean_kvmap_insert__core(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_insertCore(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_lean_kvmap_insert__core___main(x_0, x_1, x_2);
+x_3 = l_Lean_Kvmap_insertCore___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_lean_kvmap_insert___main(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_insert___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_lean_kvmap_insert__core___main(x_0, x_1, x_2);
+x_3 = l_Lean_Kvmap_insertCore___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_lean_kvmap_insert(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_insert(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_lean_kvmap_insert__core___main(x_0, x_1, x_2);
+x_3 = l_Lean_Kvmap_insertCore___main(x_0, x_1, x_2);
 return x_3;
 }
 }
-uint8 l_lean_kvmap_contains(obj* x_0, obj* x_1) {
+uint8 l_Lean_Kvmap_contains(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
-x_3 = l_option_is__some___main___rarg(x_2);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
+x_3 = l_Option_isSome___main___rarg(x_2);
 lean::dec(x_2);
 return x_3;
 }
 }
-obj* l_lean_kvmap_contains___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_contains___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_lean_kvmap_contains(x_0, x_1);
+x_2 = l_Lean_Kvmap_contains(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_lean_kvmap_get__string(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getString(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -491,20 +491,20 @@ return x_13;
 }
 }
 }
-obj* l_lean_kvmap_get__string___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getString___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_get__string(x_0, x_1);
+x_2 = l_Lean_Kvmap_getString(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_get__nat(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getNat(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -550,20 +550,20 @@ return x_13;
 }
 }
 }
-obj* l_lean_kvmap_get__nat___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getNat___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_get__nat(x_0, x_1);
+x_2 = l_Lean_Kvmap_getNat(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_get__bool(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getBool(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -609,20 +609,20 @@ return x_13;
 }
 }
 }
-obj* l_lean_kvmap_get__bool___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getBool___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_get__bool(x_0, x_1);
+x_2 = l_Lean_Kvmap_getBool(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_get__name(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getName(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_find__core___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_findCore___main(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -668,66 +668,66 @@ return x_13;
 }
 }
 }
-obj* l_lean_kvmap_get__name___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_getName___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_lean_kvmap_get__name(x_0, x_1);
+x_2 = l_Lean_Kvmap_getName(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_set__string(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_setString(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
-x_4 = l_lean_kvmap_insert__core___main(x_0, x_1, x_3);
+x_4 = l_Lean_Kvmap_insertCore___main(x_0, x_1, x_3);
 return x_4;
 }
 }
-obj* l_lean_kvmap_set__nat(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_setNat(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
-x_4 = l_lean_kvmap_insert__core___main(x_0, x_1, x_3);
+x_4 = l_Lean_Kvmap_insertCore___main(x_0, x_1, x_3);
 return x_4;
 }
 }
-obj* l_lean_kvmap_set__bool(obj* x_0, obj* x_1, uint8 x_2) {
+obj* l_Lean_Kvmap_setBool(obj* x_0, obj* x_1, uint8 x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::alloc_cnstr(2, 0, 1);
 lean::cnstr_set_scalar(x_3, 0, x_2);
 x_4 = x_3;
-x_5 = l_lean_kvmap_insert__core___main(x_0, x_1, x_4);
+x_5 = l_Lean_Kvmap_insertCore___main(x_0, x_1, x_4);
 return x_5;
 }
 }
-obj* l_lean_kvmap_set__bool___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_setBool___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
 x_3 = lean::unbox(x_2);
-x_4 = l_lean_kvmap_set__bool(x_0, x_1, x_3);
+x_4 = l_Lean_Kvmap_setBool(x_0, x_1, x_3);
 return x_4;
 }
 }
-obj* l_lean_kvmap_set__name(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Lean_Kvmap_setName(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = lean::alloc_cnstr(3, 1, 0);
 lean::cnstr_set(x_3, 0, x_2);
-x_4 = l_lean_kvmap_insert__core___main(x_0, x_1, x_3);
+x_4 = l_Lean_Kvmap_insertCore___main(x_0, x_1, x_3);
 return x_4;
 }
 }
-uint8 l_lean_kvmap_subset___main(obj* x_0, obj* x_1) {
+uint8 l_Lean_Kvmap_subset___main(obj* x_0, obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -745,7 +745,7 @@ x_5 = lean::cnstr_get(x_0, 1);
 x_6 = lean::cnstr_get(x_4, 0);
 x_7 = lean::cnstr_get(x_4, 1);
 lean::inc(x_1);
-x_9 = l_lean_kvmap_find__core___main(x_1, x_6);
+x_9 = l_Lean_Kvmap_findCore___main(x_1, x_6);
 if (lean::obj_tag(x_9) == 0)
 {
 uint8 x_11; 
@@ -759,7 +759,7 @@ obj* x_12; uint8 x_15;
 x_12 = lean::cnstr_get(x_9, 0);
 lean::inc(x_12);
 lean::dec(x_9);
-x_15 = l_lean_data__value_beq___main(x_7, x_12);
+x_15 = l_Lean_DataValue_beq___main(x_7, x_12);
 lean::dec(x_12);
 if (x_15 == 0)
 {
@@ -775,40 +775,40 @@ goto _start;
 }
 }
 }
-obj* l_lean_kvmap_subset___main___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_subset___main___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_lean_kvmap_subset___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_subset___main(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_0);
 return x_3;
 }
 }
-uint8 l_lean_kvmap_subset(obj* x_0, obj* x_1) {
+uint8 l_Lean_Kvmap_subset(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; 
-x_2 = l_lean_kvmap_subset___main(x_0, x_1);
+x_2 = l_Lean_Kvmap_subset___main(x_0, x_1);
 return x_2;
 }
 }
-obj* l_lean_kvmap_subset___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_subset___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_lean_kvmap_subset(x_0, x_1);
+x_2 = l_Lean_Kvmap_subset(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_0);
 return x_3;
 }
 }
-uint8 l_lean_kvmap_eqv(obj* x_0, obj* x_1) {
+uint8 l_Lean_Kvmap_eqv(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_3; 
 lean::inc(x_1);
-x_3 = l_lean_kvmap_subset___main(x_0, x_1);
+x_3 = l_Lean_Kvmap_subset___main(x_0, x_1);
 if (x_3 == 0)
 {
 lean::dec(x_1);
@@ -818,26 +818,26 @@ return x_3;
 else
 {
 uint8 x_6; 
-x_6 = l_lean_kvmap_subset___main(x_1, x_0);
+x_6 = l_Lean_Kvmap_subset___main(x_1, x_0);
 lean::dec(x_1);
 return x_6;
 }
 }
 }
-obj* l_lean_kvmap_eqv___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_Kvmap_eqv___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_lean_kvmap_eqv(x_0, x_1);
+x_2 = l_Lean_Kvmap_eqv(x_0, x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* _init_l_lean_kvmap_has__beq() {
+obj* _init_l_Lean_Kvmap_HasBeq() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_lean_kvmap_eqv___boxed), 2, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Kvmap_eqv___boxed), 2, 0);
 return x_0;
 }
 }
@@ -851,9 +851,9 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
- l_lean_data__value_has__beq = _init_l_lean_data__value_has__beq();
-lean::mark_persistent(l_lean_data__value_has__beq);
- l_lean_kvmap_has__beq = _init_l_lean_kvmap_has__beq();
-lean::mark_persistent(l_lean_kvmap_has__beq);
+ l_Lean_DataValue_HasBeq = _init_l_Lean_DataValue_HasBeq();
+lean::mark_persistent(l_Lean_DataValue_HasBeq);
+ l_Lean_Kvmap_HasBeq = _init_l_Lean_Kvmap_HasBeq();
+lean::mark_persistent(l_Lean_Kvmap_HasBeq);
 return w;
 }

@@ -7,7 +7,7 @@ a
 
 def main : IO UInt32 :=
 do
- let a : Array Nat := Array.nil,
+ let a : Array Nat := Array.empty,
  IO.println (toString a),
  IO.println (toString a.sz),
  let a := foo a,

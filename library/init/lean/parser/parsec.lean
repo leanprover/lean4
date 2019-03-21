@@ -21,7 +21,7 @@ namespace Parsec
 structure Message (μ : Type := Unit) :=
 (it         : Iterator)
 (unexpected : String       := "")          -- unexpected input
-(expected   : Dlist String := Dlist.Empty) -- expected productions
+(expected   : Dlist String := Dlist.empty) -- expected productions
 (custom     : Option μ)
 
 def expected.toString : List String → String
@@ -59,7 +59,7 @@ inductive Result (μ α : Type)
 | error {} (msg : Message μ) (consumed : Bool)                     : Result
 
 @[inline] def Result.mkEps {μ α : Type} (a : α) (it : Iterator) : Result μ α :=
-Result.ok a it (some Dlist.Empty)
+Result.ok a it (some Dlist.empty)
 end Parsec
 
 open Parsec
@@ -259,7 +259,7 @@ namespace MonadParsec
 open ParsecT
 variables {m : Type → Type} [Monad m] [MonadParsec μ m] {α β : Type}
 
-def error {α : Type} (unexpected : String) (expected : Dlist String := Dlist.Empty)
+def error {α : Type} (unexpected : String) (expected : Dlist String := Dlist.empty)
           (it : Option Iterator := none) (custom : Option μ := none) : m α :=
 lift $ λ it', Result.error { unexpected := unexpected, expected := expected, it := it.getOrElse it', custom := custom } false
 
@@ -279,7 +279,7 @@ labels p (Dlist.singleton lbl)
 infixr ` <?> `:2 := label
 
 @[inline] def hidden (p : m α) : m α :=
-labels p Dlist.Empty
+labels p Dlist.empty
 
 /--
 `try p` behaves like `p`, but it pretends `p` hasn't
@@ -470,7 +470,7 @@ String.Iterator.offset <$> leftOver
 @[inline] def notFollowedBy [MonadExcept (Message μ) m] (p : m α) (msg : String := "input") : m Unit :=
 do it ← leftOver,
    b ← lookahead $ catch (p *> pure false) (λ _, pure true),
-   if b then pure () else error msg Dlist.Empty it
+   if b then pure () else error msg Dlist.empty it
 
 def eoi : m Unit :=
 do it ← leftOver,
@@ -534,7 +534,7 @@ def unexpected (msg : String) : m α :=
 error msg
 
 def unexpectedAt (msg : String) (it : Iterator) : m α :=
-error msg Dlist.Empty it
+error msg Dlist.empty it
 
 /- Execute all parsers in `ps` and return the Result of the longest parse(s) if any,
    or else the Result of the furthest error. If there are two parses of

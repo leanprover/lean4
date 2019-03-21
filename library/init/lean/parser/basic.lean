@@ -127,10 +127,10 @@ def messageOfParsecMessage {μ : Type} (cfg : FrontendConfig) (msg : Parsec.Mess
 /-- Run Parser stack, returning a partial Syntax tree in case of a fatal error -/
 protected def run {m : Type → Type} {α ρ : Type} [Monad m] [HasCoeT ρ FrontendConfig] (cfg : ρ) (s : String) (r : StateT ParserState (ParserT ρ m) α) :
 m (Sum α Syntax × MessageLog) :=
-do (r, _) ← (((r.run {messages:=MessageLog.Empty}).run cfg).parse s).run {},
+do (r, _) ← (((r.run {messages:=MessageLog.empty}).run cfg).parse s).run {},
 pure $ match r with
 | Except.ok (a, st) := (Sum.inl a, st.messages)
-| Except.error msg  := (Sum.inr msg.custom.get, MessageLog.Empty.add (messageOfParsecMessage cfg msg))
+| Except.error msg  := (Sum.inr msg.custom.get, MessageLog.empty.add (messageOfParsecMessage cfg msg))
 
 open MonadParsec
 open Parser.HasView

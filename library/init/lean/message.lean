@@ -40,7 +40,7 @@ structure MessageLog :=
 (revList : List Message)
 
 namespace MessageLog
-def Empty : MessageLog :=
+def empty : MessageLog :=
 ⟨[]⟩
 
 def add (msg : Message) (log : MessageLog) : MessageLog :=

@@ -114,7 +114,7 @@ structure ModuleParserSnapshot :=
 -- return (partial) Syntax tree and single fatal or multiple non-fatal messages
 def resumeModuleParser {α : Type} (cfg : ModuleParserConfig) (snap : ModuleParserSnapshot) (mkRes : α → Syntax × ModuleParserSnapshot)
   (p : ModuleParserM α) : Syntax × Except Message (ModuleParserSnapshot × MessageLog) :=
-let (r, _) := ((((Prod.mk <$> p <*> leftOver).run {messages:=MessageLog.Empty}).run cfg).runFrom snap.it).run {} in
+let (r, _) := ((((Prod.mk <$> p <*> leftOver).run {messages:=MessageLog.empty}).run cfg).runFrom snap.it).run {} in
 match r with
 | Except.ok ((a, it), st) := let (stx, snap) := mkRes a in (stx, Except.ok ({snap with it := it}, st.messages))
 | Except.error msg  := (msg.custom.get, Except.error $ messageOfParsecMessage cfg msg)

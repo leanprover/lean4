@@ -40,10 +40,10 @@ def mkNil (_ : Unit) : Array α :=
 { sz   := 0,
   data := λ ⟨x, h⟩, absurd h (Nat.notLtZero x) }
 
-def nil : Array α :=
+def empty : Array α :=
 mkNil ()
 
-def Empty (a : Array α) : Bool :=
+def isEmpty (a : Array α) : Bool :=
 a.size = 0
 
 @[extern cpp inline "lean::array_read(#2, #3)"]
@@ -155,4 +155,4 @@ def List.toArrayAux {α : Type u} : List α → Array α → Array α
 | (a::as) r := List.toArrayAux as (r.push a)
 
 def List.toArray {α : Type u} (l : List α) : Array α :=
-l.toArrayAux Array.nil
+l.toArrayAux Array.empty

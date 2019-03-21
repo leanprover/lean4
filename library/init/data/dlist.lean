@@ -23,7 +23,7 @@ open List
 def ofList (l : List α) : Dlist α :=
 ⟨append l, λ t, (appendNil l).symm ▸ rfl⟩
 
-def Empty : Dlist α :=
+def empty : Dlist α :=
 ⟨id, λ t, rfl⟩
 
 def toList : Dlist α → List α

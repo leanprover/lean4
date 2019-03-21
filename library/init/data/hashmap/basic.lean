@@ -135,7 +135,7 @@ def size (m : DHashmap α β) : Nat :=
 match m with
 | ⟨ {size := sz, ..}, _ ⟩ := sz
 
-@[inline] def Empty (m : DHashmap α β) : Bool :=
+@[inline] def empty (m : DHashmap α β) : Bool :=
 m.size = 0
 
 end DHashmap
@@ -167,7 +167,7 @@ DHashmap.fold m d f
 @[inline] def size (m : Hashmap α β) : Nat :=
 DHashmap.size m
 
-@[inline] def Empty (m : Hashmap α β) : Bool :=
-DHashmap.Empty m
+@[inline] def empty (m : Hashmap α β) : Bool :=
+DHashmap.empty m
 
 end Hashmap

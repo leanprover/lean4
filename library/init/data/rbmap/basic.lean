@@ -166,7 +166,7 @@ t.val.depth f
 @[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m σ) (t : RBMap α β lt) : m PUnit :=
 t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
 
-@[inline] def Empty : RBMap α β lt → Bool
+@[inline] def empty : RBMap α β lt → Bool
 | ⟨leaf, _⟩ := true
 | _         := false
 

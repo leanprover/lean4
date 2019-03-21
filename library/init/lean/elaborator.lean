@@ -66,7 +66,7 @@ structure OrderedRBMap (α β : Type) (lt : α → α → Prop) :=
 namespace OrderedRBMap
 variables {α β : Type} {lt : α → α → Prop} [DecidableRel lt] (m : OrderedRBMap α β lt)
 
-def Empty : OrderedRBMap α β lt := {entries := [], map := mkRBMap _ _ _, size := 0}
+def empty : OrderedRBMap α β lt := {entries := [], map := mkRBMap _ _ _, size := 0}
 
 def insert (k : α) (v : β) : OrderedRBMap α β lt :=
 {entries := (k, v)::m.entries, map := m.map.insert k (m.size, v), size := m.size + 1}
@@ -75,7 +75,7 @@ def find (a : α) : Option (Nat × β) :=
 m.map.find a
 
 def ofList (l : List (α × β)) : OrderedRBMap α β lt :=
-l.foldl (λ m p, OrderedRBMap.insert m (Prod.fst p) (Prod.snd p)) OrderedRBMap.Empty
+l.foldl (λ m p, OrderedRBMap.insert m (Prod.fst p) (Prod.snd p)) OrderedRBMap.empty
 end OrderedRBMap
 
 structure ElaboratorConfig extends FrontendConfig :=
@@ -93,9 +93,9 @@ structure Scope :=
 (notations : List NotationMacro := [])
 /- The set of local universe variables.
    We remember their insertion order so that we can keep the order when copying them to declarations. -/
-(univs : OrderedRBMap Name Level (<) := OrderedRBMap.Empty)
+(univs : OrderedRBMap Name Level (<) := OrderedRBMap.empty)
 /- The set of local variables. -/
-(vars : OrderedRBMap Name SectionVar (<) := OrderedRBMap.Empty)
+(vars : OrderedRBMap Name SectionVar (<) := OrderedRBMap.empty)
 /- The subset of `vars` that is tagged as always included. -/
 (includeVars : RBTree Name (<) := mkRBTree _ _)
 /- The stack of nested active `namespace` commands. -/
@@ -120,7 +120,7 @@ structure ElaboratorState :=
 
 -- Stack of current scopes. The bottom-most Scope is the Module Scope.
 (scopes : List Scope)
-(messages : MessageLog := MessageLog.Empty)
+(messages : MessageLog := MessageLog.empty)
 (parserCfg : ModuleParserConfig)
 (expanderCfg : Expander.ExpanderConfig)
 (env : environment)
@@ -988,7 +988,7 @@ def mkState (cfg : ElaboratorConfig) (env : environment) (opts : Options) : Elab
   scopes := [{cmd := "MODULE", header := `MODULE, Options := opts}]}
 
 def processCommand (cfg : ElaboratorConfig) (st : ElaboratorState) (cmd : Syntax) : ElaboratorState :=
-let st := {st with messages := MessageLog.Empty} in
+let st := {st with messages := MessageLog.empty} in
 let r := @ExceptT.run _ id _ $ flip StateT.run st $ flip ReaderT.run cfg $ RecT.run
   (command.elaborate cmd)
   (λ _, error cmd "Elaborator.run: recursion depth exceeded")

@@ -69,7 +69,7 @@ instance many.tokens (r : Parser) [Parser.HasTokens r] : Parser.HasTokens (many 
 ⟨tokens r⟩
 
 instance many.view (r : Parser) [HasView α r] : Parser.HasView (List α) (many r) :=
-/- Remark: `many1.view` can handle Empty List. -/
+/- Remark: `many1.view` can handle empty list. -/
 {..many1.view r}
 
 private def sepByAux (p : m Syntax) (sep : Parser) (allowTrailingSep : Bool) : Bool → List Syntax → Nat → Parser

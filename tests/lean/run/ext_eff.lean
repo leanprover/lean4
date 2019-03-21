@@ -1,6 +1,6 @@
 -- TODO: renable test after we restore tactic framework
 #exit
-import init.io
+import init.IO
 
 /- An extensible effects library, inspired by "Freer Monads, More Extensible Effects" (O. Kiselyov, H. Ishii)
    and https://github.com/lexi-lambda/freer-simple -/
@@ -9,90 +9,90 @@ def N := 100 -- Default number of interations for testing
 
 def effect := Type → Type
 
-class member {α : Type*} (x : α) (xs : list α) :=
+class member {α : Type*} (x : α) (xs : List α) :=
 (idx : ℕ)
 (prf : xs.nth idx = some x)
 
-instance member_head {α : Type*} (x : α) (xs) : member x (x::xs) :=
+instance memberHead {α : Type*} (x : α) (xs) : member x (x::xs) :=
 ⟨0, by simp⟩
 
-instance member_tail {α : Type*} (x y : α) (ys) [member x ys] : member x (y::ys) :=
+instance memberTail {α : Type*} (x y : α) (ys) [member x ys] : member x (y::ys) :=
 ⟨member.idx x ys + 1, by simp [member.prf x ys]⟩
 
-class last_member {α : Type*} (x : out_param α) (xs : list α) extends member x xs
+class lastMember {α : Type*} (x : outParam α) (xs : List α) extends member x xs
 
-instance last_member_singleton {α : Type*} (x : α) : last_member x [x] := {}
-instance last_member_tail {α : Type*} (x y : α) (ys) [last_member x ys] : last_member x (y::ys) := {}
+instance lastMemberSingleton {α : Type*} (x : α) : lastMember x [x] := {}
+instance lastMemberTail {α : Type*} (x y : α) (ys) [lastMember x ys] : lastMember x (y::ys) := {}
 
 
-structure union (effs : list effect) (α : Type) :=
+structure union (effs : List effect) (α : Type) :=
 (eff : effect)
 [mem : member eff effs]
 (val : eff α)
 
 section
-variables {α : Type} {effs : list effect} {eff : effect}
+variables {α : Type} {effs : List effect} {eff : effect}
 
 @[inline] def union.inj (val : eff α) [member eff effs] : union effs α :=
 { eff := eff, val := val }
 
-@[inline] def union.prj (u : union effs α) (eff : effect) [mem : member eff effs] : option (eff α) :=
+@[inline] def union.prj (u : union effs α) (eff : effect) [mem : member eff effs] : Option (eff α) :=
 if h : member.idx eff effs = @member.idx _ u.eff effs u.mem then
   have u.eff = eff,
-    by apply option.some.inj; rw [←member.prf eff effs, ←@member.prf _ u.eff effs u.mem, h],
-  some $ cast (congr_fun this _) u.val
+    by apply Option.some.inj; rw [←member.prf eff effs, ←@member.prf _ u.eff effs u.mem, h],
+  some $ cast (congrFun this _) u.val
 else none
 
 @[inline] def union.decomp (u : union (eff::effs) α) : eff α ⊕ union effs α :=
 begin
   have prf := @member.prf _ u.eff (eff::effs) u.mem,
   cases h : @member.idx _ u.eff (eff::effs) u.mem,
-  case nat.zero {
+  case Nat.zero {
     have : u.eff = eff,
-    by apply option.some.inj; rw [←prf, h, list.nth],
+    by apply Option.some.inj; rw [←prf, h, List.nth],
     rw ←this,
-    exact sum.inl u.val
+    exact Sum.inl u.val
   },
-  case nat.succ : idx {
+  case Nat.succ : idx {
     rw [h] at prf,
-    exact sum.inr { mem := ⟨idx, prf⟩, ..u }
+    exact Sum.inr { mem := ⟨idx, prf⟩, ..u }
   }
 end
 end
 
 
-inductive eff (effs : list effect) (α : Type)
+inductive eff (effs : List effect) (α : Type)
 | pure {} (a : α) : eff
 | impure {β : Type} (u : union effs β) (k : β → eff) : eff
 
-def eff.bind {α β : Type} {effs : list effect} : eff effs α → (α → eff effs β) → eff effs β
+def eff.bind {α β : Type} {effs : List effect} : eff effs α → (α → eff effs β) → eff effs β
 | (eff.pure a) f := f a
 | (@eff.impure _ _ β u k) f := eff.impure u (λ b, eff.bind (k b) f)
 
-instance (effs) : monad (eff effs) :=
+instance (effs) : Monad (eff effs) :=
 { pure := λ α, eff.pure,
   bind := λ α β, eff.bind }
 
 @[inline] def eff.send {e : effect} {effs α} [member e effs] : e α → eff effs α :=
 λ x, eff.impure (union.inj x) pure
 
-@[inline] def eff.send_m {e : effect} {effs α} [monad e] [last_member e effs] : e α → eff effs α :=
+@[inline] def eff.sendM {e : effect} {effs α} [Monad e] [lastMember e effs] : e α → eff effs α :=
 λ x, eff.impure (union.inj x) pure
 
-@[inline] def eff.handle_relay {e : effect} {effs α β} (ret : β → eff effs α)
+@[inline] def eff.handleRelay {e : effect} {effs α β} (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff (e :: effs) β → eff effs α
 | (eff.pure a) := ret a
 | (@eff.impure _ _ β u k) := match u.decomp with
-  | sum.inl e := h e (λ b, eff.handle_relay (k b))
-  | sum.inr u := eff.impure u (λ b, eff.handle_relay (k b))
+  | Sum.inl e := h e (λ b, eff.handleRelay (k b))
+  | Sum.inr u := eff.impure u (λ b, eff.handleRelay (k b))
 
 
-@[inline] def eff.handle_relay_σ {e : effect} {effs α β} {σ : Type} (ret : σ → β → eff effs α)
+@[inline] def eff.handleRelayΣ {e : effect} {effs α β} {σ : Type} (ret : σ → β → eff effs α)
   (h : ∀ {β}, σ → e β → (σ → β → eff effs α) → eff effs α) : σ → eff (e :: effs) β → eff effs α
 | st (eff.pure a) := ret st a
 | st (@eff.impure _ _ β u k) := match u.decomp with
-  | sum.inl e := h st e (λ st b, eff.handle_relay_σ st (k b))
-  | sum.inr u := eff.impure u (λ b, eff.handle_relay_σ st (k b))
+  | Sum.inl e := h st e (λ st b, eff.handleRelayΣ st (k b))
+  | Sum.inr u := eff.impure u (λ b, eff.handleRelayΣ st (k b))
 
 
 @[inline] def eff.interpose (e : effect) {effs α β} [member e effs] (ret : β → eff effs α)
@@ -107,26 +107,26 @@ inductive Reader (ρ : Type) : Type → Type
 | read {} : Reader ρ
 
 @[inline] def eff.read {ρ effs} [member (Reader ρ) effs] : eff effs ρ := eff.send Reader.read
-instance {ρ effs} [member (Reader ρ) effs] : monad_reader ρ (eff effs) := ⟨eff.read⟩
+instance {ρ effs} [member (Reader ρ) effs] : MonadReader ρ (eff effs) := ⟨eff.read⟩
 
 @[inline] def Reader.run {ρ effs α} (env : ρ) : eff (Reader ρ :: effs) α → eff effs α :=
-eff.handle_relay pure (λ β x k, by cases x; exact k env)
+eff.handleRelay pure (λ β x k, by cases x; exact k env)
 
 
 inductive State (σ : Type) : Type → Type
 | get {} : State σ
-| put : σ → State unit
+| put : σ → State Unit
 
 @[inline] def eff.get {σ effs} [member (State σ) effs] : eff effs σ := eff.send State.get
-@[inline] def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs unit := eff.send (State.put s)
-instance {σ effs} [member (State σ) effs] : monad_state σ (eff effs) :=
+@[inline] def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs Unit := eff.send (State.put s)
+instance {σ effs} [member (State σ) effs] : MonadState σ (eff effs) :=
 ⟨λ α x, do st ← eff.get,
            let ⟨a, s'⟩ := x.run st,
            eff.put s',
            pure a⟩
 
 @[inline] def State.run {σ effs α} (st : σ) : eff (State σ :: effs) α → eff effs (α × σ) :=
-eff.handle_relay_σ (λ st a, pure (a, st)) (λ β st x k, begin
+eff.handleRelayΣ (λ st a, pure (a, st)) (λ β st x k, begin
   cases x,
   case State.get { exact k st st },
   case State.put : st' { exact k st' () }
@@ -138,110 +138,110 @@ inductive Exception (ε α : Type) : Type
 @[inline] def eff.throw {ε α effs} [member (Exception ε) effs] (ex : ε) : eff effs α := eff.send (Exception.throw ex)
 @[inline] def eff.catch {ε α effs} [member (Exception ε) effs] (x : eff effs α) (handle : ε → eff effs α) : eff effs α :=
 x.interpose (Exception ε) pure (λ β x k, match x with Exception.throw e := handle e)
-instance {ε effs} [member (Exception ε) effs] : monad_except ε (eff effs) :=
+instance {ε effs} [member (Exception ε) effs] : MonadExcept ε (eff effs) :=
 ⟨λ α, eff.throw, λ α, eff.catch⟩
 
-@[inline] def Exception.run {ε effs α} : eff (Exception ε :: effs) α → eff effs (except ε α) :=
-eff.handle_relay (pure ∘ except.ok) (λ β x k, match x with Exception.throw e := pure (except.error e))
+@[inline] def Exception.run {ε effs α} : eff (Exception ε :: effs) α → eff effs (Except ε α) :=
+eff.handleRelay (pure ∘ Except.ok) (λ β x k, match x with Exception.throw e := pure (Except.error e))
 
 
 def eff.run {α : Type} : eff [] α → α
 | (eff.pure a) := a
 
-def eff.run_m {α : Type} {m} [monad m] : eff [m] α → m α
+def eff.runM {α : Type} {m} [Monad m] : eff [m] α → m α
 | (eff.pure a) := pure a
 | (eff.impure u k) := match u.decomp with
-  | sum.inl m := m >>= λ a, eff.run_m (k a)
+  | Sum.inl m := m >>= λ a, eff.runM (k a)
 
-instance (m effs) [member m effs] : has_monad_lift m (eff effs) :=
+instance (m effs) [member m effs] : HasMonadLift m (eff effs) :=
 ⟨λ α, eff.send⟩
 
 section examples
 
 -- from http://okmij.org/ftp/Haskell/extensible/EffDynCatch.hs
 
-@[inline] def io.try {α} : io α → io (except io.error α) :=
-λ x, io.catch (except.ok <$> x) (pure ∘ except.error)
+@[inline] def IO.try {α} : IO α → IO (Except IO.error α) :=
+λ x, IO.catch (Except.ok <$> x) (pure ∘ Except.error)
 
-instance : has_repr io.error :=
+instance : HasRepr IO.error :=
 ⟨λ e, match e with
-      | io.error.sys n := "io.error.sys " ++ repr n
-      | io.error.other s := "io.error.other " ++ repr s⟩
+      | IO.error.sys n := "IO.error.sys " ++ repr n
+      | IO.error.other s := "IO.error.other " ++ repr s⟩
 
-@[inline] def eff.catch_io {effs α} [member io effs] (x : eff effs α) (catch : io.error → eff effs α) : eff effs α :=
-x.interpose io pure (λ β x k, do ex ← monad_lift x.try,
+@[inline] def eff.catchIO {effs α} [member IO effs] (x : eff effs α) (catch : IO.error → eff effs α) : eff effs α :=
+x.interpose IO pure (λ β x k, do ex ← monadLift x.try,
                                  match ex with
-                                 | except.ok b := k b
-                                 | except.error e := catch e)
+                                 | Except.ok b := k b
+                                 | Except.error e := catch e)
 
--- like `io.try`, but can be used at any point, not just in the very last layer
-@[inline] def eff.try_io {α effs} [member io effs] (x : eff effs α) : eff effs (except io.error α) :=
-eff.catch_io (except.ok <$> x) (pure ∘ except.error)
+-- like `IO.try`, but can be used at any point, not just in the very last layer
+@[inline] def eff.tryIO {α effs} [member IO effs] (x : eff effs α) : eff effs (Except IO.error α) :=
+eff.catchIO (Except.ok <$> x) (pure ∘ Except.error)
 
-@[inline] def exfn : bool → io bool
-| tt := io.fail "thrown"
+@[inline] def exfn : Bool → IO Bool
+| tt := IO.fail "thrown"
 | ff := pure tt
 
 -- handle IO exceptions before State
 def test1 :=
-  let tf : bool → eff [io] _ := λ (x : bool), Reader.run x $ State.run ([] : list string) $ eff.try_io $
+  let tf : Bool → eff [IO] _ := λ (x : Bool), Reader.run x $ State.run ([] : List String) $ eff.tryIo $
   do modify (λ xs, "begin"::xs),
      x ← read,
-     r ← monad_lift $ exfn x,
+     r ← monadLift $ exfn x,
      modify (λ xs, "end"::xs),
      pure r in
-  do repr <$> eff.run_m (tf tt) >>= io.println,
-     repr <$> eff.run_m (tf ff) >>= io.println
+  do repr <$> eff.runM (tf tt) >>= IO.println,
+     repr <$> eff.runM (tf ff) >>= IO.println
 
 #eval test1
 
 -- handle IO exceptions after State
 def test2 :=
-  let tf : bool → eff [io] _ := λ (x : bool), Reader.run x $ eff.try_io $ State.run ([] : list string) $
+  let tf : Bool → eff [IO] _ := λ (x : Bool), Reader.run x $ eff.tryIo $ State.run ([] : List String) $
   do modify (λ xs, "begin"::xs),
      x ← read,
-     r ← monad_lift $ exfn x,
+     r ← monadLift $ exfn x,
      modify (λ xs, "end"::xs),
      pure r in
-  do repr <$> eff.run_m (tf tt) >>= io.println,
-     repr <$> eff.run_m (tf ff) >>= io.println
+  do repr <$> eff.runM (tf tt) >>= IO.println,
+     repr <$> eff.runM (tf ff) >>= IO.println
 
 #eval test2
 
 end examples
 
 section benchmarks
-def state.run {σ α : Type*} : state σ α → σ → α × σ := state_t.run
+def State.run {σ α : Type*} : State σ α → σ → α × σ := StateT.run
 
-def bench_state_classy {m : Type → Type*} [monad m] [monad_state ℕ m] : ℕ → m ℕ
+def benchStateClassy {m : Type → Type*} [Monad m] [MonadState ℕ m] : ℕ → m ℕ
 | 0 := get
-| (nat.succ n) := modify (+n) >> bench_state_classy n
+| (Nat.succ n) := modify (+n) >> benchStateClassy n
 
-set_option profiler true
-#eval state.run (bench_state_classy N) 0
-#eval eff.run $ State.run 0 (bench_state_classy N)
+setOption profiler True
+#eval State.run (benchStateClassy N) 0
+#eval eff.run $ State.run 0 (benchStateClassy N)
 
-#eval state.run (reader_t.run (reader_t.run (reader_t.run (bench_state_classy N) 0) 0) 0) 0
-#eval eff.run $ State.run 0 $ Reader.run 0 $ Reader.run 0 $ Reader.run 0 (bench_state_classy N)
+#eval State.run (ReaderT.run (ReaderT.run (ReaderT.run (benchStateClassy N) 0) 0) 0) 0
+#eval eff.run $ State.run 0 $ Reader.run 0 $ Reader.run 0 $ Reader.run 0 (benchStateClassy N)
 
 -- left-associated binds lead to quadratic run time (section 2.6)
-def bench_state_classy' {m : Type → Type*} [monad m] [monad_state ℕ m] : ℕ → m ℕ
+def benchStateClassy' {m : Type → Type*} [Monad m] [MonadState ℕ m] : ℕ → m ℕ
 | 0 := get
-| (nat.succ n) := bench_state_classy' n <* modify (+n)
+| (Nat.succ n) := benchStateClassy' n <* modify (+n)
 
-#eval eff.run $ State.run 0 (bench_state_classy' (N/100))
-#eval eff.run $ State.run 0 (bench_state_classy' (N/20))
-#eval eff.run $ State.run 0 (bench_state_classy' (N/10))
+#eval eff.run $ State.run 0 (benchStateClassy' (N/100))
+#eval eff.run $ State.run 0 (benchStateClassy' (N/20))
+#eval eff.run $ State.run 0 (benchStateClassy' (N/10))
 
-def bench_state_t : ℕ → state ℕ ℕ
+def benchStateT : ℕ → State ℕ ℕ
 | 0 := get
-| (nat.succ n) := modify (+n) >> bench_state_t n
+| (Nat.succ n) := modify (+n) >> benchStateT n
 
-#eval state.run (bench_state_t N) 0
+#eval State.run (benchStateT N) 0
 
-def bench_State : ℕ → eff [State ℕ] ℕ
+def benchState : ℕ → eff [State ℕ] ℕ
 | 0 := get
-| (nat.succ n) := modify (+n) >> bench_State n
+| (Nat.succ n) := modify (+n) >> benchState n
 
-#eval eff.run $ State.run 0 (bench_State N)
+#eval eff.run $ State.run 0 (benchState N)
 end benchmarks

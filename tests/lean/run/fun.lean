@@ -1,21 +1,21 @@
-open function bool
+open Function Bool
 
 
-constant f : nat → bool
-constant g : nat → nat
+constant f : Nat → Bool
+constant g : Nat → Nat
 
 #check f ∘ g ∘ g
 
-#check (id : nat → nat)
+#check (id : Nat → Nat)
 
-constant h : nat → bool → nat
+constant h : Nat → Bool → Nat
 
 #check swap h
-#check swap h ff nat.zero
+#check swap h ff Nat.zero
 
-#check (swap h ff nat.zero : nat)
+#check (swap h ff Nat.zero : Nat)
 
-constant f1 : nat → nat → bool
-constant f2 : bool → nat
+constant f1 : Nat → Nat → Bool
+constant f2 : Bool → Nat
 
 #check (f1 on f2) ff tt

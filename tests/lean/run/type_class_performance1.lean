@@ -1,13 +1,13 @@
-#print usize
+#print Usize
 
-def foo1 (a b : uint64) : bool :=
+def foo1 (a b : UInt64) : Bool :=
 a = b
 
-def foo2 (a b : uint16) : bool :=
+def foo2 (a b : UInt16) : Bool :=
 a = b
 
-def foo3 (a b : uint32) : bool :=
+def foo3 (a b : UInt32) : Bool :=
 a = b
 
-def foo4 (a b : usize) : bool :=
+def foo4 (a b : Usize) : Bool :=
 a = b

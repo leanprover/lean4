@@ -1,71 +1,71 @@
-import init.lean.parser.parsec
+import init.Lean.Parser.Parsec
 import init.control.coroutine
 universes u v w r s
 
-set_option trace.compiler.stage1 true
--- set_option pp.implicit true
-set_option pp.binder_types false
-set_option pp.proofs true
+setOption Trace.Compiler.stage1 True
+-- setOption pp.implicit True
+setOption pp.binderTypes False
+setOption pp.proofs True
 
-def foo (n : nat) : nat :=
-let x := nat.zero in
-let x_1 := nat.succ x in
-let x_2 := nat.succ x_1 in
-let x_3 := nat.succ x_2 in
-let x_4 := nat.succ x_3 in
-let x_5 := nat.succ x_4 in
-let x_6 := nat.succ x_5 in
-let x_7 := nat.succ x   in
-let x_8 := nat.succ x_7 in
-let y_1 := x in
-let y_2 := y_1 in
-y_2 + n
+def foo (n : Nat) : Nat :=
+let x := Nat.zero in
+let x1 := Nat.succ x in
+let x2 := Nat.succ x1 in
+let x3 := Nat.succ x2 in
+let x4 := Nat.succ x3 in
+let x5 := Nat.succ x4 in
+let x6 := Nat.succ x5 in
+let x7 := Nat.succ x   in
+let x8 := Nat.succ x7 in
+let y1 := x in
+let y2 := y1 in
+y2 + n
 
-def cse_tst (n : nat) : nat :=
-let y := nat.succ ((λ x, x) n) in
-let z := nat.succ n in
+def cseTst (n : Nat) : Nat :=
+let y := Nat.succ ((λ x, x) n) in
+let z := Nat.succ n in
 y + z
 
-def tst1 (n : nat) : nat :=
-let p := (nat.succ n, n) in
+def tst1 (n : Nat) : Nat :=
+let p := (Nat.succ n, n) in
 let q := (p, p) in
-prod.cases_on q (λ x y, prod.cases_on x (λ z w, z))
+Prod.casesOn q (λ x y, Prod.casesOn x (λ z w, z))
 
-def tst2 (n : nat) : nat :=
-let p := (λ x, nat.succ x, nat.zero)  in
-let f := λ p : (nat → nat) × nat, p.1 in
+def tst2 (n : Nat) : Nat :=
+let p := (λ x, Nat.succ x, Nat.zero)  in
+let f := λ p : (Nat → Nat) × Nat, p.1 in
 f p n
 
-def add' : nat → nat → nat
-| 0 b     := nat.succ b
-| (a+1) b := nat.succ (nat.succ (add' a b))
+def add' : Nat → Nat → Nat
+| 0 b     := Nat.succ b
+| (a+1) b := Nat.succ (Nat.succ (add' a b))
 
-def aux (i : nat) (h : i > 0) :=
+def aux (i : Nat) (h : i > 0) :=
 i
 
-def foo2 : nat :=
-@false.rec (λ _, nat) sorry
+def foo2 : Nat :=
+@False.rec (λ _, Nat) sorry
 
-set_option pp.notation false
+setOption pp.notation False
 
-def foo3 (n : nat) : nat :=
-(λ a : nat, a + a + a) (n*n)
+def foo3 (n : Nat) : Nat :=
+(λ a : Nat, a + a + a) (n*n)
 
-def boo (a : nat) (l : list nat) : list nat :=
-let f := @list.cons nat in
+def boo (a : Nat) (l : List Nat) : List Nat :=
+let f := @List.cons Nat in
 f a (f a l)
 
-def bla (i : nat) (h : i > 0 ∧ i ≠ 10) : nat :=
-@and.rec _ _ (λ _, nat) (λ h₁ h₂, aux i h₁ + aux i h₁) h
+def bla (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
+@and.rec _ _ (λ _, Nat) (λ h₁ h₂, aux i h₁ + aux i h₁) h
 
-def bla' (i : nat) (h : i > 0 ∧ i ≠ 10) : nat :=
-@and.cases_on _ _ (λ _, nat) h (λ h₁ h₂, aux i h₁ + aux i h₁)
+def bla' (i : Nat) (h : i > 0 ∧ i ≠ 10) : Nat :=
+@and.casesOn _ _ (λ _, Nat) h (λ h₁ h₂, aux i h₁ + aux i h₁)
 
-inductive vec (α : Type u) : nat → Type u
+inductive vec (α : Type u) : Nat → Type u
 | nil {}  : vec 0
-| cons    : Π {n}, α → vec n → vec (nat.succ n)
+| cons    : Π {n}, α → vec n → vec (Nat.succ n)
 
-def vec.map {α β σ : Type u} (f : α → β → σ) : Π {n : nat}, vec α n → vec β n → vec σ n
+def vec.map {α β σ : Type u} (f : α → β → σ) : Π {n : Nat}, vec α n → vec β n → vec σ n
 | _ vec.nil vec.nil                 := vec.nil
 | _ (vec.cons a as) (vec.cons b bs) := vec.cons (f a b) (vec.map as bs)
 
@@ -80,10 +80,10 @@ def pipe2 : coroutine α δ β → coroutine δ γ β → coroutine α γ β
     match k₂ d with
     | done b        := done b
     | yielded r k₂' :=
-      -- have direct_subcoroutine k₁' (mk k₁), { apply direct_subcoroutine.mk k₁ a d, rw h },
+      -- have directSubcoroutine k₁' (mk k₁), { apply directSubcoroutine.mk k₁ a d, rw h },
       yielded r (pipe2 k₁' k₂')
 
 end coroutine
 
-set_option pp.all true
-set_option pp.binder_types true
+setOption pp.all True
+setOption pp.binderTypes True

@@ -1,19 +1,19 @@
 inductive Expr
-| Var : nat → Expr
-| Val : nat → Expr
+| Var : Nat → Expr
+| Val : Nat → Expr
 | Add : Expr → Expr → Expr
 
-open Expr nat
+open Expr Nat
 
-def mk_expr : nat → nat → Expr
+def mkExpr : Nat → Nat → Expr
 | 0        v := Val v
-| (succ n) v := Add (mk_expr n (v+1)) (mk_expr n (v-1))
+| (succ n) v := Add (mkExpr n (v+1)) (mkExpr n (v-1))
 
-def eval : Expr → nat
+def eval : Expr → Nat
 | (Var x) := 0
 | (Val v) := v
 | (Add l r) := eval l + eval r
 
-def main : io uint32 :=
-io.println (to_string $ eval (mk_expr 26 1)) *>
+def main : IO UInt32 :=
+IO.println (toString $ eval (mkExpr 26 1)) *>
 pure 0

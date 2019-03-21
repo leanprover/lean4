@@ -1,14 +1,14 @@
-@[reducible] def map : Type := rbmap nat bool (<)
+@[reducible] def map : Type := Rbmap Nat Bool (<)
 
-def mk_map_aux : nat → map → map
+def mkMapAux : Nat → map → map
 | 0 m := m
-| (n+1) m := mk_map_aux n (m.insert n (n % 10 = 0))
+| (n+1) m := mkMapAux n (m.insert n (n % 10 = 0))
 
-def mk_map (n : nat) :=
-mk_map_aux n (mk_rbmap nat bool (<))
+def mkMap (n : Nat) :=
+mkMapAux n (mkRbmap Nat Bool (<))
 
-def main (xs : list string) : io uint32 :=
-let m := mk_map xs.head.to_nat in
-let v := rbmap.fold (λ (k : nat) (v : bool) (r : nat), if v then r + 1 else r) m 0 in
-io.println (to_string v) *>
+def main (xs : List String) : IO UInt32 :=
+let m := mkMap xs.head.toNat in
+let v := Rbmap.fold (λ (k : Nat) (v : Bool) (r : Nat), if v then r + 1 else r) m 0 in
+IO.println (toString v) *>
 pure 0

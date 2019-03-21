@@ -1,23 +1,23 @@
-def f : list nat → bool
+def f : List Nat → Bool
 | []      := ff
 | (a::as) := a > 0 && f as
 
 #check f._main._cstage2
 
 mutual def f1, f2, f3, f4, f5
-with f1 : nat → bool
+with f1 : Nat → Bool
 | 0 := f3 0
 | x := f2 x
-with f2 : nat → bool
+with f2 : Nat → Bool
 | 0 := f4 0
 | x := f3 x
-with f3 : nat → bool
+with f3 : Nat → Bool
 | 0 := f5 0
 | x := f4 x
-with f4 : nat → bool
+with f4 : Nat → Bool
 | 0     := f5 0
 | (x+1) := f4 x
-with f5 : nat → bool
+with f5 : Nat → Bool
 | 0 := tt
 | _ := ff
 

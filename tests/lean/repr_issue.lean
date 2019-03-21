@@ -1,15 +1,15 @@
-def foo {m} [monad m] [monad_except string m] [monad_state (array nat) m] : m nat :=
-catch (do modify $ λ a : array nat, a.write' 0 33,
+def foo {m} [Monad m] [MonadExcept String m] [MonadState (Array Nat) m] : m Nat :=
+catch (do modify $ λ a : Array Nat, a.write' 0 33,
           throw "error")
       (λ _, do a ← get, pure $ a.read' 0)
 
-def ex₁ : state_t (array nat) (except_t string id) nat :=
+def ex₁ : StateT (Array Nat) (ExceptT String id) Nat :=
 foo
 
-def ex₂ : except_t string (state_t (array nat) id) nat :=
+def ex₂ : ExceptT String (StateT (Array Nat) id) Nat :=
 foo
 
--- The following examples were producing an element of type `id (except string nat)`.
--- Type class resolution was failing to produce an instance for `has_repr (id (except string nat))` because `id` is not transparent.
-#eval run ex₁ (mk_array 10 1000)
-#eval run ex₂ (mk_array 10 1000)
+-- The following examples were producing an element of Type `id (Except String Nat)`.
+-- Type class resolution was failing to produce an instance for `HasRepr (id (Except String Nat))` because `id` is not transparent.
+#eval run ex₁ (mkArray 10 1000)
+#eval run ex₂ (mkArray 10 1000)

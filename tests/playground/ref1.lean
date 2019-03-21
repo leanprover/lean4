@@ -1,22 +1,22 @@
-def inc (r : io.ref nat) : io unit :=
+def inc (r : IO.ref Nat) : IO Unit :=
 do v ← r.read,
    r.write (v+1),
-   io.println (">> " ++ to_string v)
+   IO.println (">> " ++ toString v)
 
-def init_array (r : io.ref (array nat)) (n : nat) : io unit :=
+def initArray (r : IO.ref (Array Nat)) (n : Nat) : IO Unit :=
 n.mrepeat $ λ i, do
   r.modify $ λ a, a.push (2*i)
 
-def show_array_ref (r : io.ref (array nat)) : io unit :=
-do a ← r.swap array.nil,
-   a.size.mrepeat (λ i, io.println ("[" ++ to_string i ++ "]: " ++ to_string (a.read' i))),
+def showArrayRef (r : IO.ref (Array Nat)) : IO Unit :=
+do a ← r.swap Array.nil,
+   a.size.mrepeat (λ i, IO.println ("[" ++ toString i ++ "]: " ++ toString (a.read' i))),
    r.swap a,
    pure ()
 
-def main (xs : list string) : io unit :=
-do let n := xs.head.to_nat,
-   r₁ ← io.mk_ref 0,
+def main (xs : List String) : IO Unit :=
+do let n := xs.head.toNat,
+   r₁ ← IO.mkRef 0,
    n.mrepeat (λ _, inc r₁),
-   r₂ ← io.mk_ref (array.nil : array nat),
-   init_array r₂ n,
-   show_array_ref r₂
+   r₂ ← IO.mkRef (Array.nil : Array Nat),
+   initArray r₂ n,
+   showArrayRef r₂

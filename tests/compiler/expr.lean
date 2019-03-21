@@ -1,8 +1,8 @@
 import init.lean.expr
-open lean
+open Lean
 
-def main : io uint32 :=
-let e := expr.app (expr.const `f []) (expr.const `a []) in
-io.println e.dbg_to_string *>
-io.println ("hash: " ++ to_string e.hash) *>
+def main : IO UInt32 :=
+let e := Expr.app (Expr.const `f []) (Expr.const `a []) in
+IO.println e.dbgToString *>
+IO.println ("hash: " ++ toString e.hash) *>
 pure 0

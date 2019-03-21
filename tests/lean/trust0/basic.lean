@@ -6,30 +6,30 @@ Authors: Floris van Doorn, Leonardo de Moura
 prelude
 import init.core
 
-notation `ℕ` := nat
+notation `ℕ` := Nat
 
-namespace nat
+namespace Nat
 
-inductive less_than_or_equal (a : ℕ) : ℕ → Prop
-| refl : less_than_or_equal a
-| step : Π {b}, less_than_or_equal b → less_than_or_equal (succ b)
+inductive lessThanOrEqual (a : ℕ) : ℕ → Prop
+| refl : lessThanOrEqual a
+| step : Π {b}, lessThanOrEqual b → lessThanOrEqual (succ b)
 
-@[elab_as_eliminator]
-theorem less_than_or_equal.ndrec  {a : nat} {C : nat → Prop} (m₁ : C a) (m₂ : ∀ (b : nat), less_than_or_equal a b → C b → C (succ b)) {b : ℕ} (h : less_than_or_equal a b) : C b :=
-@less_than_or_equal.rec a (λ b _, C b) m₁ m₂ b h
+@[elabAsEliminator]
+theorem lessThanOrEqual.ndrec  {a : Nat} {C : Nat → Prop} (m₁ : C a) (m₂ : ∀ (b : Nat), lessThanOrEqual a b → C b → C (succ b)) {b : ℕ} (h : lessThanOrEqual a b) : C b :=
+@lessThanOrEqual.rec a (λ b _, C b) m₁ m₂ b h
 
-@[elab_as_eliminator]
-theorem less_than_or_equal.ndrec_on {a : nat} {C : nat → Prop} {b : ℕ} (h : less_than_or_equal a b) (m₁ : C a) (m₂ : ∀ (b : nat), less_than_or_equal a b → C b → C (succ b)) : C b :=
-@less_than_or_equal.rec a (λ b _, C b) m₁ m₂ b h
+@[elabAsEliminator]
+theorem lessThanOrEqual.ndrecOn {a : Nat} {C : Nat → Prop} {b : ℕ} (h : lessThanOrEqual a b) (m₁ : C a) (m₂ : ∀ (b : Nat), lessThanOrEqual a b → C b → C (succ b)) : C b :=
+@lessThanOrEqual.rec a (λ b _, C b) m₁ m₂ b h
 
-instance : has_le ℕ :=
-⟨nat.less_than_or_equal⟩
+instance : HasLe ℕ :=
+⟨Nat.lessThanOrEqual⟩
 
-@[reducible] protected def le (n m : ℕ) := nat.less_than_or_equal n m
-@[reducible] protected def lt (n m : ℕ) := nat.less_than_or_equal (succ n) m
+@[reducible] protected def le (n m : ℕ) := Nat.lessThanOrEqual n m
+@[reducible] protected def lt (n m : ℕ) := Nat.lessThanOrEqual (succ n) m
 
-instance : has_lt ℕ :=
-⟨nat.lt⟩
+instance : HasLt ℕ :=
+⟨Nat.lt⟩
 
 def pred : ℕ → ℕ
 | 0     := 0
@@ -39,119 +39,119 @@ protected def sub : ℕ → ℕ → ℕ
 | a 0     := a
 | a (b+1) := pred (sub a b)
 
-protected def mul : nat → nat → nat
+protected def mul : Nat → Nat → Nat
 | a 0     := 0
 | a (b+1) := (mul a b) + a
 
-instance : has_sub ℕ :=
-⟨nat.sub⟩
+instance : HasSub ℕ :=
+⟨Nat.sub⟩
 
-instance : has_mul ℕ :=
-⟨nat.mul⟩
+instance : HasMul ℕ :=
+⟨Nat.mul⟩
 
-def has_dec_eq : Π a b : nat, decidable (a = b)
-| zero     zero     := is_true rfl
-| (succ x) zero     := is_false (λ h, nat.no_confusion h)
-| zero     (succ y) := is_false (λ h, nat.no_confusion h)
+def hasDecEq : Π a b : Nat, Decidable (a = b)
+| zero     zero     := isTrue rfl
+| (succ x) zero     := isFalse (λ h, Nat.noConfusion h)
+| zero     (succ y) := isFalse (λ h, Nat.noConfusion h)
 | (succ x) (succ y) :=
-    match has_dec_eq x y with
-    | is_true xeqy := is_true (xeqy ▸ eq.refl (succ x))
-    | is_false xney := is_false (λ h, nat.no_confusion h (λ xeqy, absurd xeqy xney))
+    match hasDecEq x y with
+    | isTrue xeqy := isTrue (xeqy ▸ Eq.refl (succ x))
+    | isFalse xney := isFalse (λ h, Nat.noConfusion h (λ xeqy, absurd xeqy xney))
 
-instance : decidable_eq ℕ :=
-{dec_eq := has_dec_eq}
+instance : DecidableEq ℕ :=
+{decEq := hasDecEq}
 
 def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0         a := a
 | (succ n)  a := f n (repeat n a)
 
-lemma nat_zero_eq_zero : nat.zero = 0 :=
+lemma natZeroEqZero : Nat.zero = 0 :=
 rfl
 
 /- properties of inequality -/
 
-protected def le_refl : ∀ a : ℕ, a ≤ a :=
-less_than_or_equal.refl
+protected def leRefl : ∀ a : ℕ, a ≤ a :=
+lessThanOrEqual.refl
 
-lemma le_succ (n : ℕ) : n ≤ succ n :=
-less_than_or_equal.step (nat.le_refl n)
+lemma leSucc (n : ℕ) : n ≤ succ n :=
+lessThanOrEqual.step (Nat.leRefl n)
 
-lemma succ_le_succ {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
-λ h, less_than_or_equal.ndrec (nat.le_refl (succ n)) (λ a b, less_than_or_equal.step) h
+lemma succLeSucc {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
+λ h, lessThanOrEqual.ndrec (Nat.leRefl (succ n)) (λ a b, lessThanOrEqual.step) h
 
-lemma zero_le : ∀ (n : ℕ), 0 ≤ n
-| 0     := nat.le_refl 0
-| (n+1) := less_than_or_equal.step (zero_le n)
+lemma zeroLe : ∀ (n : ℕ), 0 ≤ n
+| 0     := Nat.leRefl 0
+| (n+1) := lessThanOrEqual.step (zeroLe n)
 
-lemma zero_lt_succ (n : ℕ) : 0 < succ n :=
-succ_le_succ (zero_le n)
+lemma zeroLtSucc (n : ℕ) : 0 < succ n :=
+succLeSucc (zeroLe n)
 
-def succ_pos := zero_lt_succ
+def succPos := zeroLtSucc
 
-lemma not_succ_le_zero : ∀ (n : ℕ), succ n ≤ 0 → false
+lemma notSuccLeZero : ∀ (n : ℕ), succ n ≤ 0 → False
 .
 
-lemma not_lt_zero (a : ℕ) : ¬ a < 0 := not_succ_le_zero a
+lemma notLtZero (a : ℕ) : ¬ a < 0 := notSuccLeZero a
 
-lemma pred_le_pred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
-λ h, less_than_or_equal.ndrec_on h
-  (nat.le_refl (pred n))
-  (λ n, nat.rec (λ a b, b) (λ a b c, less_than_or_equal.step) n)
+lemma predLePred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
+λ h, lessThanOrEqual.ndrecOn h
+  (Nat.leRefl (pred n))
+  (λ n, Nat.rec (λ a b, b) (λ a b c, lessThanOrEqual.step) n)
 
-lemma le_of_succ_le_succ {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
-pred_le_pred
+lemma leOfSuccLeSucc {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
+predLePred
 
-instance decidable_le : ∀ a b : ℕ, decidable (a ≤ b)
-| 0     b     := is_true (zero_le b)
-| (a+1) 0     := is_false (not_succ_le_zero a)
+instance decidableLe : ∀ a b : ℕ, Decidable (a ≤ b)
+| 0     b     := isTrue (zeroLe b)
+| (a+1) 0     := isFalse (notSuccLeZero a)
 | (a+1) (b+1) :=
-  match decidable_le a b with
-  | is_true h  := is_true (succ_le_succ h)
-  | is_false h := is_false (λ a, h (le_of_succ_le_succ a))
+  match decidableLe a b with
+  | isTrue h  := isTrue (succLeSucc h)
+  | isFalse h := isFalse (λ a, h (leOfSuccLeSucc a))
 
-instance decidable_lt : ∀ a b : ℕ, decidable (a < b) :=
-λ a b, nat.decidable_le (succ a) b
+instance decidableLt : ∀ a b : ℕ, Decidable (a < b) :=
+λ a b, Nat.decidableLe (succ a) b
 
-protected lemma eq_or_lt_of_le {a b : ℕ} (h : a ≤ b) : a = b ∨ a < b :=
-less_than_or_equal.cases_on h (or.inl rfl) (λ n h, or.inr (succ_le_succ h))
+protected lemma eqOrLtOfLe {a b : ℕ} (h : a ≤ b) : a = b ∨ a < b :=
+lessThanOrEqual.casesOn h (or.inl rfl) (λ n h, or.inr (succLeSucc h))
 
-lemma lt_succ_of_le {a b : ℕ} : a ≤ b → a < succ b :=
-succ_le_succ
+lemma ltSuccOfLe {a b : ℕ} : a ≤ b → a < succ b :=
+succLeSucc
 
-lemma succ_sub_succ_eq_sub (a b : ℕ) : succ a - succ b = a - b :=
-nat.rec_on b
-  (show succ a - succ zero = a - zero, from (eq.refl (succ a - succ zero)))
-  (λ b, congr_arg pred)
+lemma succSubSuccEqSub (a b : ℕ) : succ a - succ b = a - b :=
+Nat.recOn b
+  (show succ a - succ zero = a - zero, from (Eq.refl (succ a - succ zero)))
+  (λ b, congrArg pred)
 
-lemma not_succ_le_self : ∀ n : ℕ, ¬succ n ≤ n :=
-λ n, nat.rec (not_succ_le_zero 0) (λ a b c, b (le_of_succ_le_succ c)) n
+lemma notSuccLeSelf : ∀ n : ℕ, ¬succ n ≤ n :=
+λ n, Nat.rec (notSuccLeZero 0) (λ a b c, b (leOfSuccLeSucc c)) n
 
-protected lemma lt_irrefl (n : ℕ) : ¬n < n :=
-not_succ_le_self n
+protected lemma ltIrrefl (n : ℕ) : ¬n < n :=
+notSuccLeSelf n
 
-protected lemma le_trans {n m k : ℕ} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
-less_than_or_equal.ndrec h1 (λ p h2, less_than_or_equal.step)
+protected lemma leTrans {n m k : ℕ} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
+lessThanOrEqual.ndrec h1 (λ p h2, lessThanOrEqual.step)
 
-lemma pred_le : ∀ (n : ℕ), pred n ≤ n
-| 0        := less_than_or_equal.refl 0
-| (succ a) := less_than_or_equal.step (less_than_or_equal.refl a)
+lemma predLe : ∀ (n : ℕ), pred n ≤ n
+| 0        := lessThanOrEqual.refl 0
+| (succ a) := lessThanOrEqual.step (lessThanOrEqual.refl a)
 
-lemma pred_lt : ∀ {n : ℕ}, n ≠ 0 → pred n < n
+lemma predLt : ∀ {n : ℕ}, n ≠ 0 → pred n < n
 | 0        h := absurd rfl h
-| (succ a) h := lt_succ_of_le (less_than_or_equal.refl _)
+| (succ a) h := ltSuccOfLe (lessThanOrEqual.refl _)
 
-lemma sub_le (a b : ℕ) : a - b ≤ a :=
-nat.rec_on b (nat.le_refl (a - 0)) (λ b₁, nat.le_trans (pred_le (a - b₁)))
+lemma subLe (a b : ℕ) : a - b ≤ a :=
+Nat.recOn b (Nat.leRefl (a - 0)) (λ b₁, Nat.leTrans (predLe (a - b₁)))
 
-lemma sub_lt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
-| 0     b     h1 h2 := absurd h1 (nat.lt_irrefl 0)
-| (a+1) 0     h1 h2 := absurd h2 (nat.lt_irrefl 0)
+lemma subLt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
+| 0     b     h1 h2 := absurd h1 (Nat.ltIrrefl 0)
+| (a+1) 0     h1 h2 := absurd h2 (Nat.ltIrrefl 0)
 | (a+1) (b+1) h1 h2 :=
-  eq.symm (succ_sub_succ_eq_sub a b) ▸
+  Eq.symm (succSubSuccEqSub a b) ▸
     show a - b < succ a, from
-    lt_succ_of_le (sub_le a b)
+    ltSuccOfLe (subLe a b)
 
-protected lemma lt_of_lt_of_le {n m k : ℕ} : n < m → m ≤ k → n < k :=
-nat.le_trans
+protected lemma ltOfLtOfLe {n m k : ℕ} : n < m → m ≤ k → n < k :=
+Nat.leTrans
 
-end nat
+end Nat

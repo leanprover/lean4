@@ -1,13 +1,13 @@
-import init.io
-import init.lean.ir.lirc
-open lean.ir io
+import init.IO
+import init.Lean.Ir.lirc
+open Lean.Ir IO
 
-def main : io unit :=
-do args ← io.cmdline_args,
+def main : IO Unit :=
+do args ← IO.cmdlineArgs,
    unless (args.length = 1) $
-     io.fail "Error: incorrect number of arguments, expected `lirc file.lean`",
+     IO.fail "Error: incorrect number of arguments, expected `lirc file.Lean`",
    let fname := args.head,
-   input ← fs.read_file fname,
-   match lirc input {main_proc := some "main"} with
-   | except.ok r    := fs.write_file (fname ++ ".cpp") r
-   | except.error e := io.fail (to_string e)
+   input ← Fs.readFile fname,
+   match lirc input {mainProc := some "main"} with
+   | Except.ok r    := Fs.writeFile (fname ++ ".cpp") r
+   | Except.error e := IO.fail (toString e)

@@ -1,15 +1,15 @@
-import init.lean.ir.lirc
-open lean.ir
+import init.Lean.Ir.lirc
+open Lean.Ir
 
-def comp (s : string) : eio unit :=
+def comp (s : String) : Eio Unit :=
 match lirc s with
-| except.ok r    := io.print r
-| except.error e := io.print "Error: " *> io.print e
+| Except.ok r    := IO.print r
+| Except.error e := IO.print "Error: " *> IO.print e
 
 def PRG1 := "
-[make_my_pair] external foo (a : object) (b : object) : object
+[makeMyPair] external foo (a : object) (b : object) : object
 
-def bla (g : object) (a : object) (z : uint32) : object :=
+def bla (g : object) (a : object) (z : UInt32) : object :=
 main:
   a' := call foo a a;
   c d := call boo a;
@@ -17,8 +17,8 @@ main:
   w   := call f a a a a a a a a a a a a a a a a a a;
   w'  := apply g a a a;
   w''  := apply g a a a a a a a a a a a a a a a a a a;
-  one : uint32 := 1;
-  z' : uint32 := add z one;
+  one : UInt32 := 1;
+  z' : UInt32 := add z one;
   h := closure foo a;
   h' := closure f a a a;
   n : object := 1000;

@@ -1,7 +1,7 @@
 structure S :=
-(x : nat) (y : bool) (z : nat) (w : nat)
+(x : Nat) (y : Bool) (z : Nat) (w : Nat)
 
-set_option trace.compiler.stage1 true
+setOption Trace.Compiler.stage1 True
 
 def g : S → S
 | s@{ x := x, ..} := { x := x + 1, ..s}

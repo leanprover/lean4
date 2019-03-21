@@ -1,17 +1,17 @@
-def f {α : Type} [has_add α] (x : α) :=
+def f {α : Type} [HasAdd α] (x : α) :=
 x + x + x
 
-def h : nat → nat
+def h : Nat → Nat
 | 0     := 10
 | (n+1) := n * h n
 
-set_option pp.all true
-set_option trace.compiler true
+setOption pp.all True
+setOption Trace.Compiler True
 
-def g1 (x : nat) :=
+def g1 (x : Nat) :=
 inline f x
 
-def g2 (x : nat) :=
+def g2 (x : Nat) :=
 inline h x
 
 def g3 :=

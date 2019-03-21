@@ -1,5 +1,5 @@
 structure S :=
-(a : nat) (h : a > 0) (b : nat)
+(a : Nat) (h : a > 0) (b : Nat)
 
 def f (s : S) :=
 s.b - s.a

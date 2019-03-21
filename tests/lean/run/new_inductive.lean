@@ -1,71 +1,71 @@
 universes u v
 
-inductive my_list (α : Type u)
-| nil  : my_list
-| cons : α → my_list → my_list
+inductive myList (α : Type u)
+| nil  : myList
+| cons : α → myList → myList
 
-inductive my_pair (α : Type u) (β : Type v)
-| mk : α → β → my_pair
+inductive myPair (α : Type u) (β : Type v)
+| mk : α → β → myPair
 
 mutual inductive bla, boo (α : Type u) (m : α → Type v)
-with bla : nat → Type (max u v)
-| mk₁ (n : nat) : α → boo n → bla (n+1)
-| mk₂ (a : α)   : m a → string → bla 0
-with boo : nat → Type (max u v)
-| mk₃ (n : nat) : bla n → bla (n+1) → boo (n+2)
+with bla : Nat → Type (max u v)
+| mk₁ (n : Nat) : α → boo n → bla (n+1)
+| mk₂ (a : α)   : m a → String → bla 0
+with boo : Nat → Type (max u v)
+| mk₃ (n : Nat) : bla n → bla (n+1) → boo (n+2)
 
 #print bla
 
-inductive term (α : Type) (β : Type)
-| var : α → bla term (λ _, term) 10 → term
-| foo (p : nat → my_pair term (my_list term)) (n : β) : my_list (my_list term) → term
+inductive Term (α : Type) (β : Type)
+| var : α → bla Term (λ _, Term) 10 → Term
+| foo (p : Nat → myPair Term (myList Term)) (n : β) : myList (myList Term) → Term
 
-#print term
-#print term.below
-#check @term.cases_on
-#print term.no_confusion_type
-#print term.no_confusion
+#print Term
+#print Term.below
+#check @Term.casesOn
+#print Term.noConfusionType
+#print Term.noConfusion
 
 inductive arrow (α β : Type)
-| mk (s : nat → my_pair α β) : arrow
+| mk (s : Nat → myPair α β) : arrow
 
 mutual inductive tst1, tst2
 with tst1 : Type
-| mk : (arrow (my_pair tst2 bool) tst2) → tst1
+| mk : (arrow (myPair tst2 Bool) tst2) → tst1
 with tst2 : Type
 | mk : tst1 → tst2
 
-#check @tst1.cases_on
-#check @tst2.cases_on
-#check @tst1.rec_on
+#check @tst1.casesOn
+#check @tst2.casesOn
+#check @tst1.recOn
 
 namespace test
 
-inductive rbnode (α : Type u)
-| leaf  {}                                                 : rbnode
-| red_node   (lchild : rbnode) (val : α) (rchild : rbnode) : rbnode
-| black_node (lchild : rbnode) (val : α) (rchild : rbnode) : rbnode
+inductive Rbnode (α : Type u)
+| leaf  {}                                                 : Rbnode
+| redNode   (lchild : Rbnode) (val : α) (rchild : Rbnode) : Rbnode
+| blackNode (lchild : Rbnode) (val : α) (rchild : Rbnode) : Rbnode
 
-#check @rbnode.brec_on
+#check @Rbnode.brecOn
 
-namespace rbnode
+namespace Rbnode
 variables {α : Type u}
 
-constant insert (lt : α → α → Prop) [decidable_rel lt] (t : rbnode α) (x : α) : rbnode α
+constant insert (lt : α → α → Prop) [decidableRel lt] (t : Rbnode α) (x : α) : Rbnode α
 
-inductive well_formed (lt : α → α → Prop) : rbnode α → Prop
-| leaf_wff : well_formed leaf
-| insert_wff {n n' : rbnode α} {x : α} (s : decidable_rel lt) : well_formed n → n' = insert lt n x → well_formed n'
+inductive WellFormed (lt : α → α → Prop) : Rbnode α → Prop
+| leafWff : WellFormed leaf
+| insertWff {n n' : Rbnode α} {x : α} (s : decidableRel lt) : WellFormed n → n' = insert lt n x → WellFormed n'
 
-end rbnode
+end Rbnode
 
-def rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
-{t : rbnode α // t.well_formed lt }
+def Rbtree (α : Type u) (lt : α → α → Prop) : Type u :=
+{t : Rbnode α // t.WellFormed lt }
 
-inductive trie
-| empty : trie
-| mk    : char → rbnode (my_pair char trie) → trie
+inductive Trie
+| Empty : Trie
+| mk    : Char → Rbnode (myPair Char Trie) → Trie
 
-#print trie.rec
-#print trie.no_confusion
+#print Trie.rec
+#print Trie.noConfusion
 end test

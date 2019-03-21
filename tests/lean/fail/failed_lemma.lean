@@ -1,1 +1,1 @@
-lemma wrong : false := by tactic.failed
+lemma wrong : False := by tactic.failed

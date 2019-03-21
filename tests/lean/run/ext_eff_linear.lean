@@ -7,106 +7,106 @@ def N := 100 -- Default number of interations for testing
 
 def effect := Type → Type
 
-class member {α : Type*} (x : α) (xs : list α) :=
+class member {α : Type*} (x : α) (xs : List α) :=
 (idx : ℕ)
 (prf : xs.nth idx = some x)
 
-instance member_head {α : Type*} (x : α) (xs) : member x (x::xs) :=
+instance memberHead {α : Type*} (x : α) (xs) : member x (x::xs) :=
 ⟨0, by simp⟩
 
-instance member_tail {α : Type*} (x y : α) (ys) [member x ys] : member x (y::ys) :=
+instance memberTail {α : Type*} (x y : α) (ys) [member x ys] : member x (y::ys) :=
 ⟨member.idx x ys + 1, by simp [member.prf x ys]⟩
 
 
-structure union (effs : list effect) (α : Type) :=
+structure union (effs : List effect) (α : Type) :=
 (eff : effect)
 [mem : member eff effs]
 (val : eff α)
 
 section
-variables {α : Type} {effs : list effect} {eff : effect}
+variables {α : Type} {effs : List effect} {eff : effect}
 
 @[inline] def union.inj (val : eff α) [member eff effs] : union effs α :=
 { eff := eff, val := val }
 
-@[inline] def union.prj (u : union effs α) (eff : effect) [mem : member eff effs] : option (eff α) :=
+@[inline] def union.prj (u : union effs α) (eff : effect) [mem : member eff effs] : Option (eff α) :=
 if h : member.idx eff effs = @member.idx _ u.eff effs u.mem then
   have u.eff = eff,
-    by apply option.some.inj; rw [←member.prf eff effs, ←@member.prf _ u.eff effs u.mem, h],
-  some $ cast (congr_fun this _) u.val
+    by apply Option.some.inj; rw [←member.prf eff effs, ←@member.prf _ u.eff effs u.mem, h],
+  some $ cast (congrFun this _) u.val
 else none
 
 @[inline] def union.decomp (u : union (eff::effs) α) : eff α ⊕ union effs α :=
 begin
   have prf := @member.prf _ u.eff (eff::effs) u.mem,
   cases h : @member.idx _ u.eff (eff::effs) u.mem,
-  case nat.zero {
+  case Nat.zero {
     have : u.eff = eff,
-    by apply option.some.inj; rw [←prf, h, list.nth],
+    by apply Option.some.inj; rw [←prf, h, List.nth],
     rw ←this,
-    exact sum.inl u.val
+    exact Sum.inl u.val
   },
-  case nat.succ : idx {
+  case Nat.succ : idx {
     rw [h] at prf,
-    exact sum.inr { mem := ⟨idx, prf⟩, ..u }
+    exact Sum.inr { mem := ⟨idx, prf⟩, ..u }
   }
 end
 end
 
-inductive ftc_queue (m : Type → Type 1) : Type → Type → Type 1
-| leaf {α β} (f : α → m β) : ftc_queue α β
-| node {α β γ} : thunk (ftc_queue α β) → thunk (ftc_queue β γ) → ftc_queue α γ
+inductive ftcQueue (m : Type → Type 1) : Type → Type → Type 1
+| leaf {α β} (f : α → m β) : ftcQueue α β
+| Node {α β γ} : Thunk (ftcQueue α β) → Thunk (ftcQueue β γ) → ftcQueue α γ
 
-inductive ftc_queue.l_view (m : Type → Type 1) : Type → Type → Type 1
-| single {α β} (f : α → m β) : ftc_queue.l_view α β
-| cons {α β γ} (f : α → m β) : (unit → ftc_queue m β γ) → ftc_queue.l_view α γ
+inductive ftcQueue.lView (m : Type → Type 1) : Type → Type → Type 1
+| single {α β} (f : α → m β) : ftcQueue.lView α β
+| cons {α β γ} (f : α → m β) : (Unit → ftcQueue m β γ) → ftcQueue.lView α γ
 
-meta def ftc_queue.view_l_aux {m : Type → Type 1} {α} : Π {β γ}, ftc_queue m α β → thunk (ftc_queue m β γ) → ftc_queue.l_view m α γ
-| β γ (ftc_queue.leaf f) q := ftc_queue.l_view.cons f q
-| β γ (ftc_queue.node n m) q := ftc_queue.view_l_aux (n ()) (ftc_queue.node (m ()) (q ()))
+meta def ftcQueue.viewLAux {m : Type → Type 1} {α} : Π {β γ}, ftcQueue m α β → Thunk (ftcQueue m β γ) → ftcQueue.lView m α γ
+| β γ (ftcQueue.leaf f) q := ftcQueue.lView.cons f q
+| β γ (ftcQueue.Node n m) q := ftcQueue.viewLAux (n ()) (ftcQueue.Node (m ()) (q ()))
 
-meta def ftc_queue.view_l {m : Type → Type 1} {α β} : ftc_queue m α β → ftc_queue.l_view m α β
-| (ftc_queue.leaf f) := ftc_queue.l_view.single f
-| (ftc_queue.node n m) := ftc_queue.view_l_aux (n ()) (m ())
+meta def ftcQueue.viewL {m : Type → Type 1} {α β} : ftcQueue m α β → ftcQueue.lView m α β
+| (ftcQueue.leaf f) := ftcQueue.lView.single f
+| (ftcQueue.Node n m) := ftcQueue.viewLAux (n ()) (m ())
 
-meta inductive eff (effs : list effect) : Type → Type 1
+meta inductive eff (effs : List effect) : Type → Type 1
 | pure {} {α : Type} (a : α) : eff α
-| impure {α β : Type} (u : union effs β) (k : ftc_queue eff β α) : eff α
+| impure {α β : Type} (u : union effs β) (k : ftcQueue eff β α) : eff α
 
-meta abbreviation arrs (effs) := ftc_queue (eff effs)
+meta abbreviation arrs (effs) := ftcQueue (eff effs)
 
 meta def arrs.apply {effs} : Π {α β}, arrs effs α β → α → eff effs β
-| α β q a := match q.view_l with
-  | ftc_queue.l_view.single f := f a
-  | ftc_queue.l_view.cons f q := match f a with
+| α β q a := match q.viewL with
+  | ftcQueue.lView.single f := f a
+  | ftcQueue.lView.cons f q := match f a with
     | eff.pure b := arrs.apply (q ()) b
-    | eff.impure u k := eff.impure u (ftc_queue.node k (q ()))
+    | eff.impure u k := eff.impure u (ftcQueue.Node k (q ()))
 
-meta def eff.bind {α β : Type} {effs : list effect} : eff effs α → (α → eff effs β) → eff effs β
+meta def eff.bind {α β : Type} {effs : List effect} : eff effs α → (α → eff effs β) → eff effs β
 | (eff.pure a) f := f a
-| (@eff.impure _ _ β u k) f := eff.impure u (ftc_queue.node k (ftc_queue.leaf f))
+| (@eff.impure _ _ β u k) f := eff.impure u (ftcQueue.Node k (ftcQueue.leaf f))
 
-meta instance (effs) : monad (eff effs) :=
+meta instance (effs) : Monad (eff effs) :=
 { pure := λ α, eff.pure,
   bind := λ α β, eff.bind }
 
 @[inline] meta def eff.send {e : effect} {effs α} [member e effs] : e α → eff effs α :=
-λ x, eff.impure (union.inj x) (ftc_queue.leaf pure)
+λ x, eff.impure (union.inj x) (ftcQueue.leaf pure)
 
-@[inline] meta def eff.handle_relay {e : effect} {effs α β} (ret : β → eff effs α)
+@[inline] meta def eff.handleRelay {e : effect} {effs α β} (ret : β → eff effs α)
   (h : ∀ {β}, e β → (β → eff effs α) → eff effs α) : eff (e :: effs) β → eff effs α
 | (eff.pure a) := ret a
 | (@eff.impure _ _ γ u k) := match u.decomp with
-  | sum.inl e := h e (λ c, eff.handle_relay (arrs.apply k c))
-  | sum.inr u := eff.impure u (ftc_queue.leaf (λ c, eff.handle_relay (arrs.apply k c)))
+  | Sum.inl e := h e (λ c, eff.handleRelay (arrs.apply k c))
+  | Sum.inr u := eff.impure u (ftcQueue.leaf (λ c, eff.handleRelay (arrs.apply k c)))
 
 
-@[inline] meta def eff.handle_relay_σ {e : effect} {effs α β} {σ : Type} (ret : σ → β → eff effs α)
+@[inline] meta def eff.handleRelayΣ {e : effect} {effs α β} {σ : Type} (ret : σ → β → eff effs α)
   (h : ∀ {β}, σ → e β → (σ → β → eff effs α) → eff effs α) : σ → eff (e :: effs) β → eff effs α
 | st (eff.pure a) := ret st a
 | st (@eff.impure _ _ γ u k) := match u.decomp with
-  | sum.inl e := h st e (λ st c, eff.handle_relay_σ st (arrs.apply k c))
-  | sum.inr u := eff.impure u (ftc_queue.leaf (λ c, eff.handle_relay_σ st (arrs.apply k c)))
+  | Sum.inl e := h st e (λ st c, eff.handleRelayΣ st (arrs.apply k c))
+  | Sum.inr u := eff.impure u (ftcQueue.leaf (λ c, eff.handleRelayΣ st (arrs.apply k c)))
 
 
 @[inline] meta def eff.interpose {e : effect} {effs α β} [member e effs] (ret : β → eff effs α)
@@ -114,33 +114,33 @@ meta instance (effs) : monad (eff effs) :=
 | (eff.pure a) := ret a
 | (@eff.impure _ _ γ u k) := match u.prj e with
   | some e := h e (λ c, eff.interpose (arrs.apply k c))
-  | none   := eff.impure u (ftc_queue.leaf (λ c, eff.interpose (arrs.apply k c)))
+  | none   := eff.impure u (ftcQueue.leaf (λ c, eff.interpose (arrs.apply k c)))
 
 
 inductive Reader (ρ : Type) : Type → Type
 | read {} : Reader ρ
 
 @[inline] meta def eff.read {ρ effs} [member (Reader ρ) effs] : eff effs ρ := eff.send Reader.read
-meta instance {ρ effs} [member (Reader ρ) effs] : monad_reader ρ (eff effs) := ⟨eff.read⟩
+meta instance {ρ effs} [member (Reader ρ) effs] : MonadReader ρ (eff effs) := ⟨eff.read⟩
 
 @[inline] meta def Reader.run {ρ effs α} (env : ρ) : eff (Reader ρ :: effs) α → eff effs α :=
-eff.handle_relay pure (λ β x k, by cases x; exact k env)
+eff.handleRelay pure (λ β x k, by cases x; exact k env)
 
 
 inductive State (σ : Type) : Type → Type
 | get {} : State σ
-| put : σ → State unit
+| put : σ → State Unit
 
 @[inline] meta def eff.get {σ effs} [member (State σ) effs] : eff effs σ := eff.send State.get
-@[inline] meta def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs unit := eff.send (State.put s)
-meta instance {σ effs} [member (State σ) effs] : monad_state σ (eff effs) :=
+@[inline] meta def eff.put {σ effs} [member (State σ) effs] (s : σ) : eff effs Unit := eff.send (State.put s)
+meta instance {σ effs} [member (State σ) effs] : MonadState σ (eff effs) :=
 ⟨λ α x, do st ← eff.get,
            let ⟨a, s'⟩ := x.run st,
            eff.put s',
            pure a⟩
 
 meta def State.run {σ effs α} (st : σ) : eff (State σ :: effs) α → eff effs (α × σ) :=
-eff.handle_relay_σ (λ st a, pure (a, st)) (λ β st x k, begin
+eff.handleRelayΣ (λ st a, pure (a, st)) (λ β st x k, begin
   cases x,
   case State.get { exact k st st },
   case State.put : st' { exact k st' () }
@@ -152,11 +152,11 @@ inductive Exception (ε α : Type) : Type
 @[inline] meta def eff.throw {ε α effs} [member (Exception ε) effs] (ex : ε) : eff effs α := eff.send (Exception.throw ex)
 @[inline] meta def eff.catch {ε α effs} [member (Exception ε) effs] (x : eff effs α) (handle : ε → eff effs α) : eff effs α :=
 x.interpose pure (λ β x k, match (x : Exception ε β) with Exception.throw e := handle e)
-meta instance {ε effs} [member (Exception ε) effs] : monad_except ε (eff effs) :=
+meta instance {ε effs} [member (Exception ε) effs] : MonadExcept ε (eff effs) :=
 ⟨λ α, eff.throw, λ α, eff.catch⟩
 
-@[inline] meta def Exception.run {ε effs α} : eff (Exception ε :: effs) α → eff effs (except ε α) :=
-eff.handle_relay (pure ∘ except.ok) (λ β x k, match x with Exception.throw e := pure (except.error e))
+@[inline] meta def Exception.run {ε effs α} : eff (Exception ε :: effs) α → eff effs (Except ε α) :=
+eff.handleRelay (pure ∘ Except.ok) (λ β x k, match x with Exception.throw e := pure (Except.error e))
 
 
 meta def eff.run {α : Type} : eff [] α → α
@@ -164,38 +164,38 @@ meta def eff.run {α : Type} : eff [] α → α
 
 
 section benchmarks
-def state.run {σ α : Type*} : state σ α → σ → α × σ := state_t.run
+def State.run {σ α : Type*} : State σ α → σ → α × σ := StateT.run
 
-def bench_state_classy {m : Type → Type*} [monad m] [monad_state ℕ m] : ℕ → m ℕ
+def benchStateClassy {m : Type → Type*} [Monad m] [MonadState ℕ m] : ℕ → m ℕ
 | 0 := get
-| (nat.succ n) := bench_state_classy n <* modify (+n)
+| (Nat.succ n) := benchStateClassy n <* modify (+n)
 
-set_option profiler true
-#eval state.run (bench_state_classy N) 0
-#eval eff.run $ State.run 0 (bench_state_classy N)
+setOption profiler True
+#eval State.run (benchStateClassy N) 0
+#eval eff.run $ State.run 0 (benchStateClassy N)
 
-#eval state.run (reader_t.run (reader_t.run (reader_t.run (bench_state_classy N) 0) 0) 0) 0
-#eval eff.run $ State.run 0 $ Reader.run 0 $ Reader.run 0 $ Reader.run 0 (bench_state_classy N)
+#eval State.run (ReaderT.run (ReaderT.run (ReaderT.run (benchStateClassy N) 0) 0) 0) 0
+#eval eff.run $ State.run 0 $ Reader.run 0 $ Reader.run 0 $ Reader.run 0 (benchStateClassy N)
 
--- ftc_queue removes the quadratic slowdown
-def bench_state_classy' {m : Type → Type*} [monad m] [monad_state ℕ m] : ℕ → m ℕ
+-- ftcQueue removes the quadratic slowdown
+def benchStateClassy' {m : Type → Type*} [Monad m] [MonadState ℕ m] : ℕ → m ℕ
 | 0 := get
-| (nat.succ n) := bench_state_classy' n <* modify (+n)
+| (Nat.succ n) := benchStateClassy' n <* modify (+n)
 
 
-#eval eff.run $ State.run 0 (bench_state_classy' (N/100))
-#eval eff.run $ State.run 0 (bench_state_classy' (N/20))
-#eval eff.run $ State.run 0 (bench_state_classy' N)
+#eval eff.run $ State.run 0 (benchStateClassy' (N/100))
+#eval eff.run $ State.run 0 (benchStateClassy' (N/20))
+#eval eff.run $ State.run 0 (benchStateClassy' N)
 
-def bench_state_t : ℕ → state ℕ ℕ
+def benchStateT : ℕ → State ℕ ℕ
 | 0 := get
-| (nat.succ n) := modify (+n) >> bench_state_t n
+| (Nat.succ n) := modify (+n) >> benchStateT n
 
-#eval state.run (bench_state_t N) 0
+#eval State.run (benchStateT N) 0
 
-meta def bench_State : ℕ → eff [State ℕ] ℕ
+meta def benchState : ℕ → eff [State ℕ] ℕ
 | 0 := get
-| (nat.succ n) := modify (+n) >> bench_State n
+| (Nat.succ n) := modify (+n) >> benchState n
 
-#eval eff.run $ State.run 0 (bench_State N)
+#eval eff.run $ State.run 0 (benchState N)
 end benchmarks

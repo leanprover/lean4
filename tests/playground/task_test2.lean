@@ -1,12 +1,12 @@
-def run1 (i : nat) (n : nat) (xs : list nat) : nat :=
+def run1 (i : Nat) (n : Nat) (xs : List Nat) : Nat :=
 n.repeat (λ _ r,
-  dbg_trace (">> [" ++ to_string i ++ "] " ++ to_string r) $ λ _,
+  dbgTrace (">> [" ++ toString i ++ "] " ++ toString r) $ λ _,
   xs.foldl (+) r)
 0
 
-def main (xs : list string) : io uint32 :=
-let ys := (list.repeat 1 xs.head.to_nat) in
-let ts : list (task nat) := (list.iota 10).map (λ i, task.mk $ λ _, run1 (i+1) xs.head.to_nat ys) in
-let ns : list nat := ts.map task.get in
-io.println (">> " ++ to_string ns) *>
+def main (xs : List String) : IO UInt32 :=
+let ys := (List.repeat 1 xs.head.toNat) in
+let ts : List (Task Nat) := (List.iota 10).map (λ i, Task.mk $ λ _, run1 (i+1) xs.head.toNat ys) in
+let ns : List Nat := ts.map Task.get in
+IO.println (">> " ++ toString ns) *>
 pure 0

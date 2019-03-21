@@ -1,20 +1,20 @@
-def g (x : nat) : nat :=
-dbg_trace ("g: " ++ to_string x) $ λ _,
+def g (x : Nat) : Nat :=
+dbgTrace ("g: " ++ toString x) $ λ _,
   x + 1
 
-def f1 (x : nat) : nat :=
-dbg_sleep 1000 $ λ _,
-dbg_trace ("f1: " ++ to_string x) $ λ _,
+def f1 (x : Nat) : Nat :=
+dbgSleep 1000 $ λ _,
+dbgTrace ("f1: " ++ toString x) $ λ _,
   g (x + 1)
 
-def f2 (x : nat) : nat :=
-dbg_sleep 100 $ λ _,
-dbg_trace ("f2: " ++ to_string x) $ λ _,
+def f2 (x : Nat) : Nat :=
+dbgSleep 100 $ λ _,
+dbgTrace ("f2: " ++ toString x) $ λ _,
   g x
 
-def main (xs : list string) : io uint32 :=
-let t1 := task.mk $ (λ _, f1 xs.head.to_nat) in
-let t2 := task.mk $ (λ _, f2 xs.head.to_nat) in
-dbg_sleep 1000 $ λ _,
-io.println (to_string t1.get ++ " " ++ to_string t2.get) *>
+def main (xs : List String) : IO UInt32 :=
+let t1 := Task.mk $ (λ _, f1 xs.head.toNat) in
+let t2 := Task.mk $ (λ _, f2 xs.head.toNat) in
+dbgSleep 1000 $ λ _,
+IO.println (toString t1.get ++ " " ++ toString t2.get) *>
 pure 0

@@ -1,9 +1,9 @@
-class c (α : Type) (β : out_param Type) :=
-(n : α → nat)
+class c (α : Type) (β : outParam Type) :=
+(n : α → Nat)
 
 variables {α β : Type} [c α β]
 
-def f : nat := 1
+def f : Nat := 1
 #print f -- don't include anything
-def g (a : α) : nat := c.n a
+def g (a : α) : Nat := c.n a
 #print g -- include everything

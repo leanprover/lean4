@@ -1,69 +1,69 @@
-def f (s : string) : string :=
+def f (s : String) : String :=
 s ++ " " ++ s
 
-def g (s : string) : string :=
+def g (s : String) : String :=
 s.push ' ' ++ s.push '-'
 
-def h (s : string) : string :=
-let it₁ := s.mk_iterator in
+def h (s : String) : String :=
+let it₁ := s.mkIterator in
 let it₂ := it₁.next in
-it₁.remaining_to_string ++ "-" ++ it₂.remaining_to_string
+it₁.remainingToString ++ "-" ++ it₂.remainingToString
 
-def r (s : string) : string :=
-let it₁ := s.mk_iterator.to_end in
+def r (s : String) : String :=
+let it₁ := s.mkIterator.toEnd in
 let it₂ := it₁.prev in
-it₁.prev_to_string ++ "-" ++ it₂.prev_to_string
+it₁.prevToString ++ "-" ++ it₂.prevToString
 
-def s (s : string) : string :=
-let it₁ := s.mk_iterator.to_end in
+def s (s : String) : String :=
+let it₁ := s.mkIterator.toEnd in
 let it₂ := it₁.prev in
-(it₁.insert "abc").to_string ++ (it₂.insert "de").to_string
+(it₁.insert "abc").toString ++ (it₂.insert "de").toString
 
 #eval "hello" ++ "hello"
 #eval f "hello"
 #eval (f "αβ").length
-#eval "hello".to_list
-#eval "αβ".to_list
-#eval "".to_list
-#eval "αβγ".to_list
-#eval "αβγ".mk_iterator.1
-#eval "αβγ".mk_iterator.next.1
-#eval "αβγ".mk_iterator.next.next.1
-#eval "αβγ".mk_iterator.next.2
+#eval "hello".toList
+#eval "αβ".toList
+#eval "".toList
+#eval "αβγ".toList
+#eval "αβγ".mkIterator.1
+#eval "αβγ".mkIterator.next.1
+#eval "αβγ".mkIterator.next.next.1
+#eval "αβγ".mkIterator.next.2
 #eval "αβ".1
 #eval "αβ".push 'a'
 #eval g "α"
-#eval "".mk_iterator.curr
-#eval ("αβγ".mk_iterator.set_curr 'a').to_string
-#eval (("αβγ".mk_iterator.set_curr 'a').next.set_curr 'b').to_string
-#eval ((("αβγ".mk_iterator.set_curr 'a').next.set_curr 'b').next.set_curr 'c').to_string
-#eval ((("αβγ".mk_iterator.set_curr 'a').next.set_curr 'b').prev.set_curr 'c').to_string
-#eval ("abc".mk_iterator.set_curr '0').to_string
-#eval (("abc".mk_iterator.set_curr '0').next.set_curr '1').to_string
-#eval ((("abc".mk_iterator.set_curr '0').next.set_curr '1').next.set_curr '2').to_string
-#eval ((("abc".mk_iterator.set_curr '0').next.set_curr '1').prev.set_curr '2').to_string
-#eval ("abc".mk_iterator.set_curr (char.of_nat 955)).to_string
+#eval "".mkIterator.curr
+#eval ("αβγ".mkIterator.setCurr 'a').toString
+#eval (("αβγ".mkIterator.setCurr 'a').next.setCurr 'b').toString
+#eval ((("αβγ".mkIterator.setCurr 'a').next.setCurr 'b').next.setCurr 'c').toString
+#eval ((("αβγ".mkIterator.setCurr 'a').next.setCurr 'b').prev.setCurr 'c').toString
+#eval ("abc".mkIterator.setCurr '0').toString
+#eval (("abc".mkIterator.setCurr '0').next.setCurr '1').toString
+#eval ((("abc".mkIterator.setCurr '0').next.setCurr '1').next.setCurr '2').toString
+#eval ((("abc".mkIterator.setCurr '0').next.setCurr '1').prev.setCurr '2').toString
+#eval ("abc".mkIterator.setCurr (Char.ofNat 955)).toString
 #eval h "abc"
-#eval "abc".mk_iterator.remaining_to_string
-#eval ("a".push (char.of_nat 0)) ++ "bb"
-#eval (("a".push (char.of_nat 0)) ++ "αb").length
+#eval "abc".mkIterator.remainingToString
+#eval ("a".push (Char.ofNat 0)) ++ "bb"
+#eval (("a".push (Char.ofNat 0)) ++ "αb").length
 #eval r "abc"
-#eval "abc".mk_iterator.to_end.prev_to_string
-#eval "".mk_iterator.has_next
-#eval "a".mk_iterator.has_next
-#eval "a".mk_iterator.next.has_next
-#eval "".mk_iterator.has_prev
-#eval "a".mk_iterator.next.has_prev
-#eval "αβ".mk_iterator.next.has_prev
-#eval "αβ".mk_iterator.next.prev.has_prev
-#eval ("αβ".mk_iterator.to_end.insert "abc").to_string
-#eval ("αβ".mk_iterator.next.insert "abc").to_string
+#eval "abc".mkIterator.toEnd.prevToString
+#eval "".mkIterator.hasNext
+#eval "a".mkIterator.hasNext
+#eval "a".mkIterator.next.hasNext
+#eval "".mkIterator.hasPrev
+#eval "a".mkIterator.next.hasPrev
+#eval "αβ".mkIterator.next.hasPrev
+#eval "αβ".mkIterator.next.prev.hasPrev
+#eval ("αβ".mkIterator.toEnd.insert "abc").toString
+#eval ("αβ".mkIterator.next.insert "abc").toString
 #eval s "αβ"
-#eval ("abcdef".mk_iterator.next.remove 2).to_string
-#eval ("abcdef".mk_iterator.next.next.remove 2).to_string
-#eval ("abcdef".mk_iterator.next.remove 3).to_string
-#eval (("abcdef".mk_iterator.next.next.next.remove 100).prev.set_curr 'a').to_string
-#eval ("abcdef".mk_iterator.next.next.next.remove 100).has_next
-#eval ("abcdef".mk_iterator.next.next.next.remove 100).prev.has_next
-#eval to_bool $ "abc" = "abc"
-#eval to_bool $ "abc" = "abd"
+#eval ("abcdef".mkIterator.next.remove 2).toString
+#eval ("abcdef".mkIterator.next.next.remove 2).toString
+#eval ("abcdef".mkIterator.next.remove 3).toString
+#eval (("abcdef".mkIterator.next.next.next.remove 100).prev.setCurr 'a').toString
+#eval ("abcdef".mkIterator.next.next.next.remove 100).hasNext
+#eval ("abcdef".mkIterator.next.next.next.remove 100).prev.hasNext
+#eval toBool $ "abc" = "abc"
+#eval toBool $ "abc" = "abd"

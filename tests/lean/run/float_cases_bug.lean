@@ -1,2 +1,2 @@
-def foo (xs : list nat) :=
-xs.span (λ n, ↑(to_bool (n = 1)))
+def foo (xs : List Nat) :=
+xs.span (λ n, ↑(toBool (n = 1)))

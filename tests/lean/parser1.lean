@@ -1,59 +1,59 @@
-import init.lean.frontend init.io
-open lean
-open lean.parser
-open lean.expander
-open lean.elaborator
+import init.Lean.frontend init.IO
+open Lean
+open Lean.Parser
+open Lean.Expander
+open Lean.Elaborator
 
-def check_reprint (p : list module_parser_output) (s : string) : except_t string io unit :=
-do let stx := syntax.list $ p.map (λ o, o.cmd),
-   let stx := stx.update_leading s,
-   some s' ← pure $ stx.reprint | io.println "reprint fail: choice node",
+def checkReprint (p : List moduleParserOutput) (s : String) : ExceptT String IO Unit :=
+do let stx := Syntax.List $ p.map (λ o, o.cmd),
+   let stx := stx.updateLeading s,
+   some s' ← pure $ stx.reprint | IO.println "reprint fail: choice Node",
    when (s ≠ s') (
-     io.println "reprint fail:" *>
-     io.println s'
+     IO.println "reprint fail:" *>
+     IO.println s'
    )
 
-def show_result (p : list module_parser_output) (s : string) : except_t string io unit :=
-let stx := syntax.list $ p.map (λ r, r.cmd) in
-let stx := stx.update_leading s in
-let msgs := (do r ← p, r.messages.to_list) in
+def showResult (p : List moduleParserOutput) (s : String) : ExceptT String IO Unit :=
+let stx := Syntax.List $ p.map (λ r, r.cmd) in
+let stx := stx.updateLeading s in
+let msgs := (do r ← p, r.messages.toList) in
 match msgs with
 | [] := do
-  io.println "result:",
-  io.println (to_string stx)
+  IO.println "Result:",
+  IO.println (toString stx)
 | msgs := do
-  msgs.mfor $ λ e, io.println e.to_string,
-  io.println "partial syntax tree:",
-  io.println (to_string stx)
+  msgs.mfor $ λ e, IO.println e.toString,
+  IO.println "partial Syntax tree:",
+  IO.println (toString stx)
 
-def parse_module (s : string) : except string (list module_parser_output) :=
-do cfg ← mk_config,
-   (outputs, sum.inl (), ⟨[]⟩) ← pure $ coroutine.finish (λ_, cfg)
-     (parser.run cfg s (λ st _, module.parser.run st)) cfg
-     | except.error "final parser output should be empty!",
+def parseModule (s : String) : Except String (List moduleParserOutput) :=
+do cfg ← mkConfig,
+   (outputs, Sum.inl (), ⟨[]⟩) ← pure $ coroutine.finish (λ_, cfg)
+     (Parser.run cfg s (λ st _, Module.Parser.run st)) cfg
+     | Except.error "final Parser output should be Empty!",
    pure outputs
 
-def show_parse (s : string) : except_t string io unit :=
-do r ← monad_except.lift_except $ parse_module s,
-   check_reprint r s,
-   show_result r s
+def showParse (s : String) : ExceptT String IO Unit :=
+do r ← MonadExcept.liftExcept $ parseModule s,
+   checkReprint r s,
+   showResult r s
 
-#eval show_parse "prelude"
-#eval show_parse "import me"
-#eval show_parse "importme"
-#eval show_parse "import"
+#eval showParse "prelude"
+#eval showParse "import me"
+#eval showParse "importme"
+#eval showParse "import"
 
-#eval show_parse "prelude
+#eval showParse "prelude
 import ..a b
 import c"
 
-#eval show_parse "open me you"
-#eval show_parse "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
-#eval show_parse "open me you."
-#eval show_parse "open open"
-#eval show_parse "open me import open you"
+#eval showParse "open me you"
+#eval showParse "open me as you (a b c) (renaming a->b c->d) (hiding a b)"
+#eval showParse "open me you."
+#eval showParse "open open"
+#eval showParse "open me import open you"
 
-#eval show_parse "open a
+#eval showParse "open a
 section b
   open c
   section d
@@ -61,17 +61,17 @@ section b
   end d
 end b"
 
--- should not be a parser error
-#eval show_parse "section a end"
+-- should not be a Parser error
+#eval showParse "section a end"
 
 universes u v
 #check Type max u v  -- eh
--- parsed as `Type (max) (u) (v)`, will fail on elaboration ("max: must have at least two arguments", "function expected at 'Type'", "unknown identifier 'u'/'v'")
-#eval show_parse "#check Type max u v"
+-- parsed as `Type (max) (u) (v)`, will fail on elaboration ("max: must have at least two arguments", "Function expected at 'Type'", "unknown identifier 'u'/'v'")
+#eval showParse "#check Type max u v"
 
 #eval do
-  [header, nota, eoi] ← parse_module "infixl `+`:65 := nat.add" | throw "huh",
-  except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "foo", input := "", transformers := builtin_transformers} | throw "heh",
+  [header, nota, eoi] ← parseModule "infixl `+`:65 := Nat.add" | throw "huh",
+  Except.ok cmd' ← pure $ (expand nota.cmd).run {filename := "foo", input := "", transformers := builtinTransformers} | throw "heh",
   pure cmd'.reprint
 
 -- test overloading
@@ -86,7 +86,7 @@ end foo
 constant b : α
 open foo
 constant c : α",
-  run_frontend s (io.println ∘ message.to_string),
+  runFrontend s (IO.println ∘ Message.toString),
   pure ()
 
 -- "sticky" `open`
@@ -96,15 +96,15 @@ prelude
 open foo
 constant foo.α : Type
 constant b : α",
-  run_frontend s (io.println ∘ message.to_string),
+  runFrontend s (IO.println ∘ Message.toString),
   pure ()
 
 #exit
 
 -- slowly progressing...
-set_option profiler true
+setOption profiler True
 #eval do
-  s ← io.fs.read_file "../../library/init/core.lean",
-  --let s := (s.mk_iterator.nextn 10000).prev_to_string,
-  run_frontend "core.lean" s (io.println ∘ message.to_string),
+  s ← IO.Fs.readFile "../../library/init/core.Lean",
+  --let s := (s.mkIterator.nextn 10000).prevToString,
+  runFrontend "core.Lean" s (IO.println ∘ Message.toString),
   pure ()

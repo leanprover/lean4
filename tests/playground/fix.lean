@@ -1,8 +1,8 @@
-def foo (rec : nat → nat → nat) : nat → nat → nat
+def foo (rec : Nat → Nat → Nat) : Nat → Nat → Nat
 | 0     a := a
 | (n+1) a := rec n a + a + rec n (a+1)
 
-def main (xs : list string) : io uint32 :=
-let v := fix_2 foo (xs.head.to_nat) 10 in
-io.println (to_string v) *>
+def main (xs : List String) : IO UInt32 :=
+let v := fix2 foo (xs.head.toNat) 10 in
+IO.println (toString v) *>
 pure 0

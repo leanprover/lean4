@@ -1,11 +1,11 @@
-def tst (n : nat) : nat :=
-let xs := list.repeat 1 n in
+def tst (n : Nat) : Nat :=
+let xs := List.repeat 1 n in
 xs.foldl (+) 0
 
-def perf (n : nat) : io unit :=
+def perf (n : Nat) : IO Unit :=
 do v ← pure $ tst n,
-   io.println ("result " ++ to_string v)
+   IO.println ("Result " ++ toString v)
 
-def main (xs : list string) : io uint32 :=
-timeit "tst" (perf xs.head.to_nat) *>
+def main (xs : List String) : IO UInt32 :=
+timeit "tst" (perf xs.head.toNat) *>
 pure 0

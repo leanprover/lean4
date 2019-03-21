@@ -1,13 +1,13 @@
-def init_x : io (io.ref nat) :=
-io.mk_ref 0
+def initX : IO (IO.ref Nat) :=
+IO.mkRef 0
 
-@[init init_x] constant x : io.ref nat := default _
+@[init initX] constant x : IO.ref Nat := default _
 
-def inc : io unit :=
+def inc : IO Unit :=
 do v ← x.read,
    x.write (v+1),
-   io.println (">> " ++ to_string v)
+   IO.println (">> " ++ toString v)
 
-def main (xs : list string) : io unit :=
-do let n := xs.head.to_nat,
+def main (xs : List String) : IO Unit :=
+do let n := xs.head.toNat,
    n.mrepeat (λ _, inc)

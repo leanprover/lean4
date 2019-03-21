@@ -1,9 +1,9 @@
 /- Benchmark for new code generator -/
-import init.io
+import init.IO
 
 inductive Expr
-| Val : int → Expr
-| Var : string → Expr
+| Val : Int → Expr
+| Var : String → Expr
 | Add : Expr → Expr → Expr
 | Mul : Expr → Expr → Expr
 | Pow : Expr → Expr → Expr
@@ -11,7 +11,7 @@ inductive Expr
 
 open Expr
 
-meta def pown : int → int → int
+meta def pown : Int → Int → Int
 | a 0 := 1
 | a 1 := a
 | a n :=
@@ -51,7 +51,7 @@ def ln : Expr → Expr
 | (Val 1) := Val 0
 | f       := Ln f
 
-meta def d (x : string) : Expr → Expr
+meta def d (x : String) : Expr → Expr
 | (Val _)   := Val 0
 | (Var y)   := if x = y then Val 1 else Val 0
 | (Add f g) := add (d f) (d g)
@@ -59,7 +59,7 @@ meta def d (x : string) : Expr → Expr
 | (Pow f g) := mul (pow f g) (add (mul (mul g (d f)) (pow f (Val (-1)))) (mul (ln f) (d g)))
 | (Ln f)    := mul (d f) (pow f (Val (-1)))
 
-def count : Expr → nat
+def count : Expr → Nat
 | (Val _) := 1
 | (Var _) := 1
 | (Add f g) := count f + count g
@@ -67,29 +67,29 @@ def count : Expr → nat
 | (Pow f g) := count f + count g
 | (Ln f)    := count f
 
-def Expr.to_string : Expr → string
-| (Val n) := to_string n
+def Expr.toString : Expr → String
+| (Val n) := toString n
 | (Var x) := x
-| (Add f g) := "(" ++ Expr.to_string f ++ " + " ++ Expr.to_string g ++ ")"
-| (Mul f g) := "(" ++ Expr.to_string f ++ " * " ++ Expr.to_string g ++ ")"
-| (Pow f g) := "(" ++ Expr.to_string f ++ " ^ " ++ Expr.to_string g ++ ")"
-| (Ln f)    := "ln(" ++ Expr.to_string f ++ ")"
+| (Add f g) := "(" ++ Expr.toString f ++ " + " ++ Expr.toString g ++ ")"
+| (Mul f g) := "(" ++ Expr.toString f ++ " * " ++ Expr.toString g ++ ")"
+| (Pow f g) := "(" ++ Expr.toString f ++ " ^ " ++ Expr.toString g ++ ")"
+| (Ln f)    := "ln(" ++ Expr.toString f ++ ")"
 
-instance : has_to_string Expr :=
-⟨Expr.to_string⟩
+instance : HasToString Expr :=
+⟨Expr.toString⟩
 
-meta def nest (f : Expr → eio Expr) : nat → Expr → eio Expr
+meta def nest (f : Expr → Eio Expr) : Nat → Expr → Eio Expr
 | 0     x := pure x
 | (n+1) x := f x >>= nest n
 
-meta def deriv (f : Expr) : eio Expr :=
+meta def deriv (f : Expr) : Eio Expr :=
 do
   let d := d "x" f,
-  io.print "count: ",
-  io.println (count f),
+  IO.print "count: ",
+  IO.println (count f),
   pure d
 
-meta def main : eio unit :=
+meta def main : Eio Unit :=
 do let x := Var "x",
    let f := pow x x,
    nest deriv 9 f,

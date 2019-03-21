@@ -1,61 +1,61 @@
-import init.lean.ir.parser init.lean.ir.format
-import init.lean.ir.elim_phi init.lean.ir.type_check
-import init.lean.ir.extract_cpp
+import init.Lean.Ir.Parser init.Lean.Ir.Format
+import init.Lean.Ir.elimPhi init.Lean.Ir.typeCheck
+import init.Lean.Ir.extractCpp
 
-open lean.parser
-open lean.parser.monad_parsec
-open lean.ir
+open Lean.Parser
+open Lean.Parser.MonadParsec
+open Lean.Ir
 
-abbreviation m := except_t string io
+abbreviation m := ExceptT String IO
 
-def check_decl (d : decl) : m unit :=
-match type_check d with
-| except.ok _    := pure ()
-| except.error e := io.println (to_string e)
+def checkDecl (d : Decl) : m Unit :=
+match typeCheck d with
+| Except.ok _    := pure ()
+| Except.error e := IO.println (toString e)
 
-def show_result (p : parsec' decl) (s : string) : m unit :=
-match parsec.parse p s with
-| except.ok d    := io.println (lean.to_fmt d) *> check_decl d
-| except.error e := io.println e
+def showResult (p : Parsec' Decl) (s : String) : m Unit :=
+match Parsec.parse p s with
+| Except.ok d    := IO.println (Lean.toFmt d) *> checkDecl d
+| Except.error e := IO.println e
 
 def IR1 := "
-def succ (x : uint32) : uint32 :=
-main: one : uint32 := 1; x1 : uint32 := add x one; ret x1;
+def succ (x : UInt32) : UInt32 :=
+main: one : UInt32 := 1; x1 : UInt32 := add x one; ret x1;
 "
 
-#eval show_result (whitespace *> parse_def) IR1
+#eval showResult (whitespace *> parseDef) IR1
 
 def IR2 := "
-def add_n (x : uint32) (y : uint32) (n : uint32) : uint32 :=
+def addN (x : UInt32) (y : UInt32) (n : UInt32) : UInt32 :=
 main: jmp loop;
 loop:
-  r1   : uint32 := phi x r2;
-  y1   : uint32 := phi y y1;
-  n1   : uint32 := phi n n2;
-  r2   : uint32 := add r1 y1;
-  one  : uint32 := 1;
-  n2   : uint32 := sub n1 one;
-  zero : uint32 := 0;
-  c    : bool   := eq n2 zero;
+  r1   : UInt32 := phi x r2;
+  y1   : UInt32 := phi y y1;
+  n1   : UInt32 := phi n n2;
+  r2   : UInt32 := add r1 y1;
+  one  : UInt32 := 1;
+  n2   : UInt32 := sub n1 one;
+  zero : UInt32 := 0;
+  c    : Bool   := Eq n2 zero;
   case c [loop, end];
 end:
-  r3   : uint32 := phi r2;
+  r3   : UInt32 := phi r2;
   ret r3;
 "
 
-#eval show_result (whitespace *> parse_def) IR2
+#eval showResult (whitespace *> parseDef) IR2
 
-def tst_elim_phi (s : string) : m unit :=
-do d ← monad_except.lift_except $ parsec.parse (whitespace *> parse_def) s,
-   check_decl d,
-   io.println (lean.to_fmt (elim_phi d))
+def tstElimPhi (s : String) : m Unit :=
+do d ← MonadExcept.liftExcept $ Parsec.parse (whitespace *> parseDef) s,
+   checkDecl d,
+   IO.println (Lean.toFmt (elimPhi d))
 
 #exit
 
-#eval tst_elim_phi IR2
+#eval tstElimPhi IR2
 
 def IR3 := "
-def mk_struct (d1 : object) (d2 : uint32) (d3 : usize) (d4 : uint32) (d5 : bool) (d6 : bool) : object :=
+def mkStruct (d1 : object) (d2 : UInt32) (d3 : Usize) (d4 : UInt32) (d5 : Bool) (d6 : Bool) : object :=
 main:
   o := cnstr 0 1 18;
   set o 0 d1;
@@ -66,17 +66,17 @@ main:
   sset o 25 d6;
   ret o;
 "
-#eval show_result (whitespace *> parse_def) IR3
+#eval showResult (whitespace *> parseDef) IR3
 
-def tst_extract_cpp (s : string) : m unit :=
-do d ← monad_except.lift_except $ parsec.parse (whitespace *> parse_def) s,
-   check_decl d,
-   match extract_cpp [elim_phi d] with
-   | except.ok code := io.println code
-   | except.error s := io.println s
+def tstExtractCpp (s : String) : m Unit :=
+do d ← MonadExcept.liftExcept $ Parsec.parse (whitespace *> parseDef) s,
+   checkDecl d,
+   match extractCpp [elimPhi d] with
+   | Except.ok code := IO.println code
+   | Except.error s := IO.println s
 
-#eval tst_extract_cpp IR3
-#eval tst_extract_cpp IR2
+#eval tstExtractCpp IR3
+#eval tstExtractCpp IR2
 
 def IR4 := "
 def swap (d1 : object) (d2 : object) : object object :=
@@ -92,4 +92,4 @@ main:
   ret r1 r2;
 "
 
-#eval tst_extract_cpp IR4
+#eval tstExtractCpp IR4

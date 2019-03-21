@@ -738,7 +738,7 @@ struct emit_fn_fn {
         exprs params = *m_jp_vars.find(fvar_name(jp));
         lean_assert(length(params) == args.size() - 1);
         for (unsigned i = 1; i < args.size(); i++) {
-            emit_fvar(head(params)); m_out << " = "; emit_fvar(args[i]); m_out << ";\n";
+            emit_fvar(head(params)); m_out << " = "; emit_arg(args[i]); m_out << ";\n";
             params = tail(params);
         }
         m_out << "goto "; emit_lbl(jp); m_out << ";\n";
@@ -759,7 +759,7 @@ struct emit_fn_fn {
         lean_assert(args.size() == m_fn_args.size());
         for (unsigned i = 0; i < args.size(); i++) {
             if (args[i] != m_fn_args[i]) {
-                emit_fvar(m_fn_args[i]); m_out << " = "; emit_fvar(args[i]); m_out << ";\n";
+                emit_fvar(m_fn_args[i]); m_out << " = "; emit_arg(args[i]); m_out << ";\n";
             }
         }
         m_out << "goto _start;\n";

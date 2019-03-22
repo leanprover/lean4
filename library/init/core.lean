@@ -414,18 +414,18 @@ notation `∃` binders `, ` r:(scoped P, Exists P) := r
 
 export HasAppend (append)
 
-@[reducible] def ge {α : Type u} [HasLe α] (a b : α) : Prop := HasLe.le b a
-@[reducible] def gt {α : Type u} [HasLt α] (a b : α) : Prop := HasLt.lt b a
+@[reducible] def GreaterEq {α : Type u} [HasLe α] (a b : α) : Prop := HasLe.le b a
+@[reducible] def Greater {α : Type u} [HasLt α] (a b : α) : Prop   := HasLt.lt b a
 
-infix >=       := ge
-infix ≥        := ge
-infix >        := gt
+infix >=       := GreaterEq
+infix ≥        := GreaterEq
+infix >        := Greater
 
-@[reducible] def superset {α : Type u} [HasSubset α] (a b : α) : Prop := HasSubset.subset b a
-@[reducible] def ssuperset {α : Type u} [HasSSubset α] (a b : α) : Prop := HasSSubset.ssubset b a
+@[reducible] def Superset {α : Type u} [HasSubset α] (a b : α) : Prop := HasSubset.subset b a
+@[reducible] def SSuperset {α : Type u} [HasSSubset α] (a b : α) : Prop := HasSSubset.ssubset b a
 
-infix ⊇        := superset
-infix ⊃        := ssuperset
+infix ⊇        := Superset
+infix ⊃        := SSuperset
 
 @[inline] def bit0 {α : Type u} [s  : HasAdd α] (a  : α)                 : α := a + a
 @[inline] def bit1 {α : Type u} [s₁ : HasOne α] [s₂ : HasAdd α] (a : α) : α := (bit0 a) + 1
@@ -569,32 +569,7 @@ instance {α : Type u} [HasSizeof α] (p : α → Prop) : HasSizeof (Subtype p) 
 
 theorem natAddZero (n : Nat) : n + 0 = n := rfl
 
-/- Combinator calculus -/
-namespace Combinator
-universes u₁ u₂ u₃
-def I {α : Type u₁} (a : α) := a
-def K {α : Type u₁} {β : Type u₂} (a : α) (b : β) := a
-def S {α : Type u₁} {β : Type u₂} {γ : Type u₃} (x : α → β → γ) (y : α → β) (z : α) := x z (y z)
-end Combinator
-
 theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rfl
-
-/-- Auxiliary datatype for #[ ... ] notation.
-    #[1, 2, 3, 4] is notation for
-
-    BinTree.Node
-      (BinTree.Node (BinTree.leaf 1) (BinTree.leaf 2))
-      (BinTree.Node (BinTree.leaf 3) (BinTree.leaf 4))
-
-    We use this notation to input long sequences without exhausting the System stack space.
-    Later, we define a coercion from `BinTree` into `List`.
--/
-inductive BinTree (α : Type u)
-| empty {}       : BinTree
-| leaf (val : α) : BinTree
-| node (left right : BinTree) : BinTree
-
-attribute [elabSimple] BinTree.node BinTree.leaf
 
 /-- Like `by applyInstance`, but not dependent on the tactic framework. -/
 @[reducible] def inferInstance {α : Type u} [i : α] : α := i
@@ -643,8 +618,6 @@ False.rec (λ _, C) h
 False.elim (h₂ h₁)
 
 theorem mt {a b : Prop} (h₁ : a → b) (h₂ : ¬b) : ¬a := assume ha : a, h₂ (h₁ ha)
-
-theorem not.intro {a : Prop} (h : a → False) : ¬ a := h
 
 theorem notFalse : ¬False := id
 

@@ -13,7 +13,7 @@ def bucketArray (α : Type u) (β : α → Type v) :=
 
 def bucketArray.updt {α : Type u} {β : α → Type v} (data : bucketArray α β) (i : USize) (d : List (Σ a, β a)) (h : i.toNat < data.val.sz) : bucketArray α β :=
 ⟨ data.val.updt i d h,
-  transRelRight gt (Array.szUpdateEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
+  transRelRight Greater (Array.szUpdateEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
 
 structure HashmapImp (α : Type u) (β : α → Type v) :=
 (size       : Nat)
@@ -30,7 +30,7 @@ let n := if nbuckets = 0 then 8 else nbuckets in
               match nbuckets with
               | 0            := Nat.zeroLtSucc _
               | (Nat.succ x) := Nat.zeroLtSucc _,
-    transRelRight gt (Eq.trans p₁ p₂) p₃ ⟩ }
+    transRelRight Greater (Eq.trans p₁ p₂) p₃ ⟩ }
 
 namespace HashmapImp
 variables {α : Type u} {β : α → Type v}

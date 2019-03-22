@@ -853,6 +853,9 @@ Exists.rec h₂ h₁
 @[macroInline] def Decidable.toBool (p : Prop) [h : Decidable p] : Bool :=
 Decidable.casesOn h (λ h₁, false) (λ h₂, true)
 
+instance beqOfEq {α : Type u} [DecidableEq α] : HasBeq α :=
+⟨λ a b, Decidable.toBool (a = b)⟩
+
 export Decidable (isTrue isFalse toBool)
 
 theorem toBoolTrueEqTrue (h : Decidable True) : @toBool True h = true :=

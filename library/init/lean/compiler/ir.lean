@@ -72,8 +72,8 @@ inductive Litval
 | str (v : String)
 
 def Litval.beq : Litval → Litval → Bool
-| (Litval.num v₁) (Litval.num v₂) := v₁ = v₂
-| (Litval.str v₁) (Litval.str v₂) := v₁ = v₂
+| (Litval.num v₁) (Litval.num v₂) := v₁ == v₂
+| (Litval.str v₁) (Litval.str v₂) := v₁ == v₂
 | _               _               := false
 
 instance Litval.HasBeq : HasBeq Litval := ⟨Litval.beq⟩
@@ -92,8 +92,8 @@ structure CtorInfo :=
 (id : Name) (cidx : Nat) (Usize : Nat) (ssize : Nat)
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
-| ⟨id₁, cidx₁, Usize₁, ssize₁⟩ ⟨id₂, cidx₂, Usize₂, ssize₂⟩ :=
-  id₁ = id₂ && cidx₁ = cidx₂ && Usize₁ = Usize₂ && ssize₁ = ssize₂
+| ⟨id₁, cidx₁, usize₁, ssize₁⟩ ⟨id₂, cidx₂, usize₂, ssize₂⟩ :=
+  id₁ == id₂ && cidx₁ == cidx₂ && usize₁ == usize₂ && ssize₁ == ssize₂
 
 instance CtorInfo.HasBeq : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
 
@@ -146,9 +146,9 @@ inductive Fnbody
    `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
 | sset (x : varid) (i : Nat) (offset : Nat) (y : varid) (ty : IRType) (b : Fnbody)
 | release (x : varid) (i : Nat) (b : Fnbody)
-/- RC increment for `object`. If c = `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
+/- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | inc (x : varid) (n : Nat) (c : Bool) (b : Fnbody)
-/- RC decrement for `object`. If c = `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
+/- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | dec (x : varid) (n : Nat) (c : Bool) (b : Fnbody)
 | mdata (d : Kvmap) (b : Fnbody)
 | case (tid : Name) (x : varid) (cs : List (AltCore Fnbody))
@@ -206,8 +206,8 @@ local notation a `=[`:50 ρ `]=`:0 b:50 := HasAlphaEqv.aeqv ρ a b
 
 def varid.alphaEqv (ρ : varRenaming) (v₁ v₂ : varid) : Bool :=
 match ρ.find v₁ with
-| some v := v = v₂
-| none   := v₁ = v₂
+| some v := v == v₂
+| none   := v₁ == v₂
 
 instance varid.hasAeqv : HasAlphaEqv varid := ⟨varid.alphaEqv⟩
 
@@ -229,17 +229,17 @@ def Expr.alphaEqv (ρ : varRenaming) : Expr → Expr → Bool
 | (Expr.ctor i₁ ys₁)      (Expr.ctor i₂ ys₂)      := i₁ == i₂ && ys₁ =[ρ]= ys₂
 | (Expr.reset x₁)         (Expr.reset x₂)         := x₁ =[ρ]= x₂
 | (Expr.reuse x₁ i₁ ys₁)  (Expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && i₁ == i₂ && ys₁ =[ρ]= ys₂
-| (Expr.proj i₁ x₁)       (Expr.proj i₂ x₂)       := i₁ = i₂ && x₁ =[ρ]= x₂
-| (Expr.uproj i₁ x₁)      (Expr.uproj i₂ x₂)      := i₁ = i₂ && x₁ =[ρ]= x₂
-| (Expr.sproj n₁ x₁)      (Expr.sproj n₂ x₂)      := n₁ = n₂ && x₁ =[ρ]= x₂
-| (Expr.fap c₁ ys₁)       (Expr.fap c₂ ys₂)       := c₁ = c₂ && ys₁ =[ρ]= ys₂
-| (Expr.pap c₁ ys₁)       (Expr.pap c₂ ys₂)       := c₁ = c₂ && ys₂ =[ρ]= ys₂
+| (Expr.proj i₁ x₁)       (Expr.proj i₂ x₂)       := i₁ == i₂ && x₁ =[ρ]= x₂
+| (Expr.uproj i₁ x₁)      (Expr.uproj i₂ x₂)      := i₁ == i₂ && x₁ =[ρ]= x₂
+| (Expr.sproj n₁ x₁)      (Expr.sproj n₂ x₂)      := n₁ == n₂ && x₁ =[ρ]= x₂
+| (Expr.fap c₁ ys₁)       (Expr.fap c₂ ys₂)       := c₁ == c₂ && ys₁ =[ρ]= ys₂
+| (Expr.pap c₁ ys₁)       (Expr.pap c₂ ys₂)       := c₁ == c₂ && ys₂ =[ρ]= ys₂
 | (Expr.ap x₁ ys₁)        (Expr.ap x₂ ys₂)        := x₁ =[ρ]= x₂ && ys₁ =[ρ]= ys₂
 | (Expr.box ty₁ x₁)       (Expr.box ty₂ x₂)       := ty₁ == ty₂ && x₁ =[ρ]= x₂
 | (Expr.unbox x₁)         (Expr.unbox x₂)         := x₁ =[ρ]= x₂
 | (Expr.lit v₁)           (Expr.lit v₂)           := v₁ == v₂
-| (Expr.isShared x₁)     (Expr.isShared x₂)     := x₁ =[ρ]= x₂
-| (Expr.isTaggedPtr x₁) (Expr.isTaggedPtr x₂) := x₁ =[ρ]= x₂
+| (Expr.isShared x₁)     (Expr.isShared x₂)       := x₁ =[ρ]= x₂
+| (Expr.isTaggedPtr x₁) (Expr.isTaggedPtr x₂)     := x₁ =[ρ]= x₂
 | _                        _                      := false
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
@@ -263,16 +263,16 @@ with Fnbody.alphaEqv : varRenaming → Fnbody → Fnbody → Bool
   (match addParamsRename ρ ys₁ ys₂ with
    | some ρ' := t₁ == t₂ && Fnbody.alphaEqv ρ' v₁ v₂ && Fnbody.alphaEqv (addVarRename ρ j₁ j₂) b₁ b₂
    | none    := false)
-| ρ (Fnbody.set x₁ i₁ y₁ b₁)        (Fnbody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ = i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.uset x₁ i₁ y₁ b₁)       (Fnbody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ = i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
+| ρ (Fnbody.set x₁ i₁ y₁ b₁)        (Fnbody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
+| ρ (Fnbody.uset x₁ i₁ y₁ b₁)       (Fnbody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.sset x₁ i₁ o₁ y₁ t₁ b₁) (Fnbody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
   x₁ =[ρ]= x₂ && i₁ = i₂ && o₁ = o₂ && y₁ =[ρ]= y₂ && t₁ == t₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.release x₁ i₁ b₁)       (Fnbody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ = i₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.inc x₁ n₁ c₁ b₁)        (Fnbody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ = n₂ && c₁ = c₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.dec x₁ n₁ c₁ b₁)        (Fnbody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ = n₂ && c₁ = c₂ && Fnbody.alphaEqv ρ b₁ b₂
+| ρ (Fnbody.release x₁ i₁ b₁)       (Fnbody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
+| ρ (Fnbody.inc x₁ n₁ c₁ b₁)        (Fnbody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
+| ρ (Fnbody.dec x₁ n₁ c₁ b₁)        (Fnbody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.mdata m₁ b₁)            (Fnbody.mdata m₂ b₂)              := m₁ == m₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.case n₁ x₁ as₁)         (Fnbody.case n₂ x₂ as₂)           := n₁ = n₂ && x₁ =[ρ]= x₂ && alts.alphaEqv ρ as₁ as₂
-| ρ (Fnbody.jmp j₁ ys₁)             (Fnbody.jmp j₂ ys₂)               := j₁ = j₂ && ys₁ =[ρ]= ys₂
+| ρ (Fnbody.case n₁ x₁ as₁)         (Fnbody.case n₂ x₂ as₂)           := n₁ == n₂ && x₁ =[ρ]= x₂ && alts.alphaEqv ρ as₁ as₂
+| ρ (Fnbody.jmp j₁ ys₁)             (Fnbody.jmp j₂ ys₂)               := j₁ == j₂ && ys₁ =[ρ]= ys₂
 | ρ (Fnbody.ret x₁)                 (Fnbody.ret x₂)                   := x₁ =[ρ]= x₂
 | _ Fnbody.unreachable              Fnbody.unreachable                := true
 | _ _                               _                                 := false
@@ -336,8 +336,8 @@ private def Expr.collect : Expr → collector
 | (Expr.box ty x)        := var.collect x
 | (Expr.unbox x)         := var.collect x
 | (Expr.lit v)           := skip
-| (Expr.isShared x)     := var.collect x
-| (Expr.isTaggedPtr x) := var.collect x
+| (Expr.isShared x)      := var.collect x
+| (Expr.isTaggedPtr x)   := var.collect x
 
 private mutual def Fnbody.collect, alts.collect, alt.collect
 with Fnbody.collect : Fnbody → collector

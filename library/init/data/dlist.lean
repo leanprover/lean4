@@ -26,6 +26,9 @@ def ofList (l : List α) : DList α :=
 def empty : DList α :=
 ⟨id, λ t, rfl⟩
 
+instance : HasEmptyc (DList α) :=
+⟨DList.empty⟩
+
 def toList : DList α → List α
 | ⟨f, h⟩ := f []
 

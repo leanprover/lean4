@@ -21,7 +21,7 @@ namespace Parsec
 structure Message (μ : Type := Unit) :=
 (it         : Iterator)
 (unexpected : String       := "")          -- unexpected input
-(expected   : DList String := DList.empty) -- expected productions
+(expected   : DList String := ∅) -- expected productions
 (custom     : Option μ)
 
 def expected.toString : List String → String
@@ -59,7 +59,7 @@ inductive Result (μ α : Type)
 | error {} (msg : Message μ) (consumed : Bool)                     : Result
 
 @[inline] def Result.mkEps {μ α : Type} (a : α) (it : Iterator) : Result μ α :=
-Result.ok a it (some DList.empty)
+Result.ok a it (some ∅)
 end Parsec
 
 open Parsec
@@ -259,7 +259,7 @@ namespace MonadParsec
 open ParsecT
 variables {m : Type → Type} [Monad m] [MonadParsec μ m] {α β : Type}
 
-def error {α : Type} (unexpected : String) (expected : DList String := DList.empty)
+def error {α : Type} (unexpected : String) (expected : DList String := ∅)
           (it : Option Iterator := none) (custom : Option μ := none) : m α :=
 lift $ λ it', Result.error { unexpected := unexpected, expected := expected, it := it.getOrElse it', custom := custom } false
 
@@ -279,7 +279,7 @@ labels p (DList.singleton lbl)
 infixr ` <?> `:2 := label
 
 @[inline] def hidden (p : m α) : m α :=
-labels p DList.empty
+labels p ∅
 
 /--
 `try p` behaves like `p`, but it pretends `p` hasn't
@@ -470,7 +470,7 @@ String.Iterator.offset <$> leftOver
 @[inline] def notFollowedBy [MonadExcept (Message μ) m] (p : m α) (msg : String := "input") : m Unit :=
 do it ← leftOver,
    b ← lookahead $ catch (p *> pure false) (λ _, pure true),
-   if b then pure () else error msg DList.empty it
+   if b then pure () else error msg ∅ it
 
 def eoi : m Unit :=
 do it ← leftOver,
@@ -534,7 +534,7 @@ def unexpected (msg : String) : m α :=
 error msg
 
 def unexpectedAt (msg : String) (it : Iterator) : m α :=
-error msg DList.empty it
+error msg ∅ it
 
 /- Execute all parsers in `ps` and return the Result of the longest parse(s) if any,
    or else the Result of the furthest error. If there are two parses of

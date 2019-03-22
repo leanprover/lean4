@@ -43,6 +43,9 @@ def mkNil (_ : Unit) : Array α :=
 def empty : Array α :=
 mkNil ()
 
+instance : HasEmptyc (Array α) :=
+⟨Array.empty⟩
+
 def isEmpty (a : Array α) : Bool :=
 a.size = 0
 
@@ -155,4 +158,4 @@ def List.toArrayAux {α : Type u} : List α → Array α → Array α
 | (a::as) r := List.toArrayAux as (r.push a)
 
 def List.toArray {α : Type u} (l : List α) : Array α :=
-l.toArrayAux Array.empty
+l.toArrayAux ∅

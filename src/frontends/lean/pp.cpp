@@ -679,7 +679,7 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     if (is_enf_unreachable(e) && m_unicode)
         return format("⊥");
     name n = const_name(e);
-    if (m_notation && n == get_unit_star_name())
+    if (m_notation && n == get_unit_unit_name())
         return format("()");
     if (!num_ref_univ_params) {
         if (auto r = pp_local_ref(e))

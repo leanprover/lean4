@@ -207,7 +207,7 @@ pexpr
 pexpr.subst
 PUnit
 PUnit.casesOn
-PUnit.star
+PUnit.unit
 Prod.mk
 PProd
 PProd.mk
@@ -264,7 +264,7 @@ True
 True.intro
 typedExpr
 Unit
-Unit.star
+Unit.unit
 monadFromPureBind
 UInt8 uint8
 UInt16 uint16

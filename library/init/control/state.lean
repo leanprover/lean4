@@ -53,10 +53,10 @@ section
   λ s, pure (s, s)
 
   @[inline] protected def set : σ → StateT σ m PUnit :=
-  λ s' s, pure (PUnit.star, s')
+  λ s' s, pure (PUnit.unit, s')
 
   @[inline] protected def modify (f : σ → σ) : StateT σ m PUnit :=
-  λ s, pure (PUnit.star, f s)
+  λ s, pure (PUnit.unit, f s)
 
   @[inline] protected def lift {α : Type u} (t : m α) : StateT σ m α :=
   λ s, do a ← t, pure (a, s)
@@ -152,7 +152,7 @@ section
 variables {σ σ' : Type u} {m m' : Type u → Type v}
 
 def MonadStateAdapter.adaptState' [MonadStateAdapter σ σ' m m'] {α : Type u} (toSigma : σ' → σ) (fromSigma : σ → σ') : m α → m' α :=
-adaptState (λ st, (toSigma st, PUnit.star)) (λ st _, fromSigma st)
+adaptState (λ st, (toSigma st, PUnit.unit)) (λ st _, fromSigma st)
 export MonadStateAdapter (adaptState')
 
 instance monadStateAdapterTrans {n n' : Type u → Type v} [MonadFunctor m m' n n'] [MonadStateAdapter σ σ' m m'] : MonadStateAdapter σ σ' n n' :=

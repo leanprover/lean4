@@ -175,7 +175,7 @@ bool has_constructor(environment const & env, name const & c, name const & I, un
 }
 
 bool has_punit_decls(environment const & env) {
-    return has_constructor(env, get_punit_star_name(), get_punit_name(), 0);
+    return has_constructor(env, get_punit_unit_name(), get_punit_name(), 0);
 }
 
 bool has_eq_decls(environment const & env) {
@@ -429,7 +429,7 @@ expr mk_unit(level const & l) {
 }
 
 expr mk_unit_mk(level const & l) {
-    return mk_constant(get_punit_star_name(), {l});
+    return mk_constant(get_punit_unit_name(), {l});
 }
 
 static expr * g_unit = nullptr;
@@ -1048,7 +1048,7 @@ optional<expr> to_optional_expr(obj_arg o) {
 
 void initialize_library_util() {
     g_unit           = new expr(mk_constant(get_unit_name()));
-    g_unit_mk        = new expr(mk_constant(get_unit_star_name()));
+    g_unit_mk        = new expr(mk_constant(get_unit_unit_name()));
     g_true           = new expr(mk_constant(get_true_name()));
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));
     g_and            = new expr(mk_constant(get_and_name()));

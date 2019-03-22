@@ -133,7 +133,6 @@ name const * g_int_of_nat = nullptr;
 name const * g_int_neg_succ_of_nat = nullptr;
 name const * g_interactive_param_desc = nullptr;
 name const * g_interactive_parse = nullptr;
-name const * g_io_core = nullptr;
 name const * g_monad_io_impl = nullptr;
 name const * g_monad_io_terminal_impl = nullptr;
 name const * g_monad_io_file_system_impl = nullptr;
@@ -213,7 +212,7 @@ name const * g_pexpr = nullptr;
 name const * g_pexpr_subst = nullptr;
 name const * g_punit = nullptr;
 name const * g_punit_cases_on = nullptr;
-name const * g_punit_star = nullptr;
+name const * g_punit_unit = nullptr;
 name const * g_prod_mk = nullptr;
 name const * g_pprod = nullptr;
 name const * g_pprod_mk = nullptr;
@@ -270,7 +269,7 @@ name const * g_true = nullptr;
 name const * g_true_intro = nullptr;
 name const * g_typed_expr = nullptr;
 name const * g_unit = nullptr;
-name const * g_unit_star = nullptr;
+name const * g_unit_unit = nullptr;
 name const * g_monad_from_pure_bind = nullptr;
 name const * g_uint8 = nullptr;
 name const * g_uint16 = nullptr;
@@ -417,7 +416,6 @@ void initialize_constants() {
     g_int_neg_succ_of_nat = new name{"Int", "negSuccOfNat"};
     g_interactive_param_desc = new name{"interactive", "paramDesc"};
     g_interactive_parse = new name{"interactive", "parse"};
-    g_io_core = new name{"ioCore"};
     g_monad_io_impl = new name{"monadIOImpl"};
     g_monad_io_terminal_impl = new name{"monadIOTerminalImpl"};
     g_monad_io_file_system_impl = new name{"monadIOFileSystemImpl"};
@@ -497,7 +495,7 @@ void initialize_constants() {
     g_pexpr_subst = new name{"pexpr", "subst"};
     g_punit = new name{"PUnit"};
     g_punit_cases_on = new name{"PUnit", "casesOn"};
-    g_punit_star = new name{"PUnit", "star"};
+    g_punit_unit = new name{"PUnit", "unit"};
     g_prod_mk = new name{"Prod", "mk"};
     g_pprod = new name{"PProd"};
     g_pprod_mk = new name{"PProd", "mk"};
@@ -554,7 +552,7 @@ void initialize_constants() {
     g_true_intro = new name{"True", "intro"};
     g_typed_expr = new name{"typedExpr"};
     g_unit = new name{"Unit"};
-    g_unit_star = new name{"Unit", "star"};
+    g_unit_unit = new name{"Unit", "unit"};
     g_monad_from_pure_bind = new name{"monadFromPureBind"};
     g_uint8 = new name{"UInt8"};
     g_uint16 = new name{"UInt16"};
@@ -702,7 +700,6 @@ void finalize_constants() {
     delete g_int_neg_succ_of_nat;
     delete g_interactive_param_desc;
     delete g_interactive_parse;
-    delete g_io_core;
     delete g_monad_io_impl;
     delete g_monad_io_terminal_impl;
     delete g_monad_io_file_system_impl;
@@ -782,7 +779,7 @@ void finalize_constants() {
     delete g_pexpr_subst;
     delete g_punit;
     delete g_punit_cases_on;
-    delete g_punit_star;
+    delete g_punit_unit;
     delete g_prod_mk;
     delete g_pprod;
     delete g_pprod_mk;
@@ -839,7 +836,7 @@ void finalize_constants() {
     delete g_true_intro;
     delete g_typed_expr;
     delete g_unit;
-    delete g_unit_star;
+    delete g_unit_unit;
     delete g_monad_from_pure_bind;
     delete g_uint8;
     delete g_uint16;
@@ -986,7 +983,6 @@ name const & get_int_of_nat_name() { return *g_int_of_nat; }
 name const & get_int_neg_succ_of_nat_name() { return *g_int_neg_succ_of_nat; }
 name const & get_interactive_param_desc_name() { return *g_interactive_param_desc; }
 name const & get_interactive_parse_name() { return *g_interactive_parse; }
-name const & get_io_core_name() { return *g_io_core; }
 name const & get_monad_io_impl_name() { return *g_monad_io_impl; }
 name const & get_monad_io_terminal_impl_name() { return *g_monad_io_terminal_impl; }
 name const & get_monad_io_file_system_impl_name() { return *g_monad_io_file_system_impl; }
@@ -1066,7 +1062,7 @@ name const & get_pexpr_name() { return *g_pexpr; }
 name const & get_pexpr_subst_name() { return *g_pexpr_subst; }
 name const & get_punit_name() { return *g_punit; }
 name const & get_punit_cases_on_name() { return *g_punit_cases_on; }
-name const & get_punit_star_name() { return *g_punit_star; }
+name const & get_punit_unit_name() { return *g_punit_unit; }
 name const & get_prod_mk_name() { return *g_prod_mk; }
 name const & get_pprod_name() { return *g_pprod; }
 name const & get_pprod_mk_name() { return *g_pprod_mk; }
@@ -1123,7 +1119,7 @@ name const & get_true_name() { return *g_true; }
 name const & get_true_intro_name() { return *g_true_intro; }
 name const & get_typed_expr_name() { return *g_typed_expr; }
 name const & get_unit_name() { return *g_unit; }
-name const & get_unit_star_name() { return *g_unit_star; }
+name const & get_unit_unit_name() { return *g_unit_unit; }
 name const & get_monad_from_pure_bind_name() { return *g_monad_from_pure_bind; }
 name const & get_uint8_name() { return *g_uint8; }
 name const & get_uint16_name() { return *g_uint16; }

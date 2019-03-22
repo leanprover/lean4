@@ -128,14 +128,14 @@ a
 @[macroInline] abbrev idRhs (α : Sort u) (a : α) : α := a
 
 inductive PUnit : Sort u
-| star : PUnit
+| unit : PUnit
 
 /-- An abbreviation for `PUnit.{0}`, its most common instantiation.
     This Type should be preferred over `PUnit` where possible to avoid
     unnecessary universe parameters. -/
 abbrev Unit : Type := PUnit
 
-@[pattern] abbrev Unit.star : Unit := PUnit.star
+@[pattern] abbrev Unit.unit : Unit := PUnit.unit
 
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure Thunk (α : Type u) : Type u :=

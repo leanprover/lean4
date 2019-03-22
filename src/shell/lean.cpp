@@ -467,7 +467,11 @@ int main(int argc, char ** argv) {
         }
         mod_fn = lrealpath(argv[optind]);
         contents = read_file(mod_fn);
-        env      = set_main_module_name(env, module_name_of_file(path.get_path(), mod_fn));
+        search_path input_path = path.get_path();
+        /* We accept stand-alone files as input, but imports should always be part of a package so that we can give
+         * them a (stable) absolute name. */
+        input_path.push_back(dirname(mod_fn));
+        env      = set_main_module_name(env, module_name_of_file(input_path, mod_fn));
     }
     try {
         scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});

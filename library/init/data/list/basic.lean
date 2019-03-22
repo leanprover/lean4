@@ -246,9 +246,9 @@ foldr (λ a r, p a || r) false l
 @[inline] def all (l : List α) (p : α → Bool) : Bool :=
 foldr (λ a r, p a && r) true l
 
-def bor  (l : List Bool) : Bool := any l id
+def or  (bs : List Bool) : Bool := bs.any id
 
-def band (l : List Bool) : Bool := all l id
+def and (bs : List Bool) : Bool := bs.all id
 
 def zipWith (f : α → β → γ) : List α → List β → List γ
 | (x::xs) (y::ys) := f x y :: zipWith xs ys

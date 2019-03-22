@@ -18,7 +18,7 @@ else
   let r  := bitwise n' m' in
   if f b₁ b₂ then bit1 r else bit0 r
 
-def land : Nat → Nat → Nat := bitwise band
-def lor  : Nat → Nat → Nat := bitwise bor
+def land : Nat → Nat → Nat := bitwise and
+def lor  : Nat → Nat → Nat := bitwise or
 
 end Nat

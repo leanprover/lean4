@@ -581,26 +581,26 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 | true  x y := x
 | false x y := y
 
-@[macroInline] def bor : Bool → Bool → Bool
+@[macroInline] def or : Bool → Bool → Bool
 | true  _  := true
 | false b  := b
 
-@[macroInline] def band : Bool → Bool → Bool
+@[macroInline] def and : Bool → Bool → Bool
 | false _  := false
 | true  b  := b
 
-@[macroInline] def bnot : Bool → Bool
+@[macroInline] def not : Bool → Bool
 | true  := false
 | false := true
 
-@[macroInline] def bxor : Bool → Bool → Bool
+@[macroInline] def xor : Bool → Bool → Bool
 | true  false := true
 | false true  := true
 | _  _        := false
 
-prefix ! := bnot
-infix || := bor
-infix && := band
+prefix ! := not
+infix || := or
+infix && := and
 
 /- Logical connectives an equality -/
 

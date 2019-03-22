@@ -35,7 +35,7 @@ depends: $(DEPS)
 clean:
 	find . -name *.olean -delete
 	find . -name *.depend -delete
-	-rm -r "$(STAGE1_DIR)"
+	-rm -r "$(STAGE1_DIR)" "$(STAGE1_OUT)"
 
 $(STAGE1_DIR)/%.cpp: %.olean
 	@

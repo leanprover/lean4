@@ -4,41 +4,41 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.data.Ordering.basic init.coe init.data.Option.basic init.IO
+import init.data.ordering.basic init.coe init.data.option.basic init.io
 
 universes u v w w'
 
 inductive color
 | Red | Black
 
-inductive Node
-| Leaf  {}                                                                       : Node
-| Node  (color : color) (lchild : Node) (key : Nat) (val : Bool) (rchild : Node) : Node
+inductive Tree
+| Leaf  {}                                                                       : Tree
+| Node  (color : color) (lchild : Tree) (key : Nat) (val : Bool) (rchild : Tree) : Tree
 
 variables {σ : Type w}
-open color Nat Node
+open color Nat Tree
 
-def fold (f : Nat → Bool → σ → σ) : Node → σ → σ
+def fold (f : Nat → Bool → σ → σ) : Tree → σ → σ
 | Leaf b               := b
 | (Node _ l k v r)   b := fold r (f k v (fold l b))
 
-def balance1 : Node → Node → Node
+def balance1 : Tree → Tree → Tree
 | (Node _ _ kv vv t) (Node _ (Node Red l kx vx r₁) ky vy r₂) := Node Red (Node Black l kx vx r₁) ky vy (Node Black r₂ kv vv t)
 | (Node _ _ kv vv t) (Node _ l₁ ky vy (Node Red l₂ kx vx r)) := Node Red (Node Black l₁ ky vy l₂) kx vx (Node Black r kv vv t)
 | (Node _ _ kv vv t) (Node _ l  ky vy r)                     := Node Black (Node Red l ky vy r) kv vv t
 | _                                                        _ := Leaf
 
-def balance2 : Node → Node → Node
+def balance2 : Tree → Tree → Tree
 | (Node _ t kv vv _) (Node _ (Node Red l kx₁ vx₁ r₁) ky vy r₂)  := Node Red (Node Black t kv vv l) kx₁ vx₁ (Node Black r₁ ky vy r₂)
 | (Node _ t kv vv _) (Node _ l₁ ky vy (Node Red l₂ kx₂ vx₂ r₂)) := Node Red (Node Black t kv vv l₁) ky vy (Node Black l₂ kx₂ vx₂ r₂)
 | (Node _ t kv vv _) (Node _ l ky vy r)                         := Node Black t kv vv (Node Red l ky vy r)
 | _                                                        _    := Leaf
 
-def isRed : Node → Bool
-| (Node Red _ _ _ _) := tt
-| _                  := ff
+def isRed : Tree → Bool
+| (Node Red _ _ _ _) := true
+| _                  := false
 
-def ins : Node → Nat → Bool → Node
+def ins : Tree → Nat → Bool → Tree
 | Leaf                 kx vx := Node Red Leaf kx vx Leaf
 | (Node Red a ky vy b) kx vx :=
    (if kx < ky then Node Red (ins a kx vx) ky vy b
@@ -52,15 +52,15 @@ def ins : Node → Nat → Bool → Node
     else if isRed b then balance2 (Node Black a ky vy Leaf) (ins b kx vx)
          else Node Black a ky vy (ins b kx vx)
 
-def setBlack : Node → Node
+def setBlack : Tree → Tree
 | (Node _ l k v r) := Node Black l k v r
 | e                := e
 
-def insert (t : Node) (k : Nat) (v : Bool) : Node :=
+def insert (t : Tree) (k : Nat) (v : Bool) : Tree :=
 if isRed t then setBlack (ins t k v)
 else ins t k v
 
-def mkMapAux : Nat → Node → Node
+def mkMapAux : Nat → Tree → Tree
 | 0 m := m
 | (n+1) m := mkMapAux n (insert m n (n % 10 = 0))
 

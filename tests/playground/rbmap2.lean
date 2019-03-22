@@ -49,11 +49,11 @@ protected def max : Rbnode α β → Option (Σ k : α, β k)
 | (Node _ l k v r)   b := revFold l (f k v (revFold r b))
 
 @[specialize] def all (p : Π k : α, β k → Bool) : Rbnode α β → Bool
-| leaf                 := tt
+| leaf                 := true
 | (Node _ l k v r)     := p k v && all l && all r
 
 @[specialize] def any (p : Π k : α, β k → Bool) : Rbnode α β → Bool
-| leaf               := ff
+| leaf               := false
 | (Node _ l k v r)   := p k v || any l || any r
 
 def balance (rb : Rbcolor) (t1 : Rbnode α β) (k : α) (vk : β k) (t2 : Rbnode α β) :=
@@ -78,7 +78,7 @@ match t with
 | Node _ a x vx b := Node black a x vx b
 
 section insert
-variables (lt : α → α → Prop) [decidableRel lt]
+variables (lt : α → α → Prop) [DecidableRel lt]
 
 def ins (x : α) (vx : β x) : Rbnode α β → Rbnode α β
 | leaf := Node red leaf x vx leaf
@@ -95,7 +95,7 @@ end insert
 section membership
 variable (lt : α → α → Prop)
 
-variable [decidableRel lt]
+variable [DecidableRel lt]
 
 def findCore : Rbnode α β → Π k : α, Option (Σ k : α, β k)
 | leaf               x := none
@@ -124,7 +124,7 @@ end membership
 
 inductive WellFormed (lt : α → α → Prop) : Rbnode α β → Prop
 | leafWff : WellFormed leaf
-| insertWff {n n' : Rbnode α β} {k : α} {v : β k} [decidableRel lt] : WellFormed n → n' = insert lt n k v → WellFormed n'
+| insertWff {n n' : Rbnode α β} {k : α} {v : β k} [DecidableRel lt] : WellFormed n → n' = insert lt n k v → WellFormed n'
 
 end Rbnode
 
@@ -153,12 +153,12 @@ t.val.depth f
 @[inline] def mfold {m : Type w → Type w'} [Monad m] (f : α → β → σ → m σ) : Rbmap α β lt → σ → m σ
 | ⟨t, _⟩ b := t.mfold f b
 
-@[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m σ) (t : Rbmap α β lt) : m Punit :=
+@[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m σ) (t : Rbmap α β lt) : m PUnit :=
 t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
 
-@[inline] def Empty : Rbmap α β lt → Bool
-| ⟨leaf, _⟩ := tt
-| _         := ff
+@[inline] def empty : Rbmap α β lt → Bool
+| ⟨leaf, _⟩ := true
+| _         := false
 
 @[specialize] def toList : Rbmap α β lt → List (α × β)
 | ⟨t, _⟩ := t.revFold (λ k v ps, (k, v)::ps) []
@@ -178,7 +178,7 @@ t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
 instance [HasRepr α] [HasRepr β] : HasRepr (Rbmap α β lt) :=
 ⟨λ t, "rbmapOf " ++ repr t.toList⟩
 
-variables [decidableRel lt]
+variables [DecidableRel lt]
 
 def insert : Rbmap α β lt → α → β → Rbmap α β lt
 | ⟨t, w⟩   k v := ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
@@ -201,7 +201,7 @@ def lowerBound : Rbmap α β lt → α → Option (Σ k : α, β)
 @[inline] def contains (t : Rbmap α β lt) (a : α) : Bool :=
 (t.find a).isSome
 
-def fromList (l : List (α × β)) (lt : α → α → Prop) [decidableRel lt] : Rbmap α β lt :=
+def fromList (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : Rbmap α β lt :=
 l.foldl (λ r p, r.insert p.1 p.2) (mkRbmap α β lt)
 
 @[inline] def all : Rbmap α β lt → (α → β → Bool) → Bool
@@ -212,7 +212,7 @@ l.foldl (λ r p, r.insert p.1 p.2) (mkRbmap α β lt)
 
 end Rbmap
 
-def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Prop) [decidableRel lt] : Rbmap α β lt :=
+def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Prop) [DecidableRel lt] : Rbmap α β lt :=
 Rbmap.fromList l lt
 
 end tst

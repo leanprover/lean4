@@ -1,28 +1,28 @@
-def StateT (m : Type → Type) (σ : Type) (α : Type) := σ → m (α × σ)
-namespace StateT
+def StateT' (m : Type → Type) (σ : Type) (α : Type) := σ → m (α × σ)
+namespace StateT'
 variables {m : Type → Type} [Monad m] {σ : Type} {α β : Type}
-@[inline] protected def pure (a : α) : StateT m σ α := λ s, pure (a, s)
-@[inline] protected def bind (x : StateT m σ α) (f : α → StateT m σ β) : StateT m σ β := λ s, do (a, s') ← x s, f a s'
-@[inline] def read : StateT m σ σ := λ s, pure (s, s)
-@[inline] def write (s' : σ) : StateT m σ Unit := λ s, pure ((), s')
-@[inline] def updt (f : σ → σ) : StateT m σ Unit := λ s, pure ((), f s)
-instance : Monad (StateT m σ) :=
-{pure := @StateT.pure _ _ _, bind := @StateT.bind _ _ _}
-end StateT
+@[inline] protected def pure (a : α) : StateT' m σ α := λ s, pure (a, s)
+@[inline] protected def bind (x : StateT' m σ α) (f : α → StateT' m σ β) : StateT' m σ β := λ s, do (a, s') ← x s, f a s'
+@[inline] def read : StateT' m σ σ := λ s, pure (s, s)
+@[inline] def write (s' : σ) : StateT' m σ Unit := λ s, pure ((), s')
+@[inline] def updt (f : σ → σ) : StateT' m σ Unit := λ s, pure ((), f s)
+instance : Monad (StateT' m σ) :=
+{pure := @StateT'.pure _ _ _, bind := @StateT'.bind _ _ _}
+end StateT'
 
-def ExceptT (m : Type → Type) (ε : Type) (α : Type) := m (Except ε α)
-namespace ExceptT
+def ExceptT' (m : Type → Type) (ε : Type) (α : Type) := m (Except ε α)
+namespace ExceptT'
 variables {m : Type → Type} [Monad m] {ε : Type} {α β : Type}
-@[inline] protected def pure (a : α) : ExceptT m ε α := (pure (Except.ok a) : m (Except ε α))
-@[inline] protected def bind (x : ExceptT m ε α) (f : α → ExceptT m ε β) : ExceptT m ε β :=
+@[inline] protected def pure (a : α) : ExceptT' m ε α := (pure (Except.ok a) : m (Except ε α))
+@[inline] protected def bind (x : ExceptT' m ε α) (f : α → ExceptT' m ε β) : ExceptT' m ε β :=
 (do { v ← x, match v with
        | Except.error e := pure (Except.error e)
        | Except.ok a    := f a } : m (Except ε β))
-@[inline] def error (e : ε) : ExceptT m ε α := (pure (Except.error e) : m (Except ε α))
-@[inline] def lift (x : m α) : ExceptT m ε α := (do {a ← x, pure (Except.ok a) } : m (Except ε α))
-instance : Monad (ExceptT m ε) :=
-{pure := @ExceptT.pure _ _ _, bind := @ExceptT.bind _ _ _}
-end ExceptT
+@[inline] def error (e : ε) : ExceptT' m ε α := (pure (Except.error e) : m (Except ε α))
+@[inline] def lift (x : m α) : ExceptT' m ε α := (do {a ← x, pure (Except.ok a) } : m (Except ε α))
+instance : Monad (ExceptT' m ε) :=
+{pure := @ExceptT'.pure _ _ _, bind := @ExceptT'.bind _ _ _}
+end ExceptT'
 
 abbreviation Node := Nat
 
@@ -31,12 +31,12 @@ structure nodeData :=
 
 abbreviation ufData := Array nodeData
 
-abbreviation M (α : Type) := ExceptT (StateT id ufData) String α
-@[inline] def read : M ufData := ExceptT.lift StateT.read
-@[inline] def write (s : ufData) : M Unit := ExceptT.lift (StateT.write s)
-@[inline] def updt (f : ufData → ufData) : M Unit := ExceptT.lift (StateT.updt f)
-@[inline] def error {α : Type} (e : String) : M α := ExceptT.error e
-def run {α : Type} (x : M α) (s : ufData := Array.nil) : Except String α × ufData :=
+abbreviation M (α : Type) := ExceptT' (StateT' id ufData) String α
+@[inline] def read : M ufData := ExceptT'.lift StateT'.read
+@[inline] def write (s : ufData) : M Unit := ExceptT'.lift (StateT'.write s)
+@[inline] def updt (f : ufData → ufData) : M Unit := ExceptT'.lift (StateT'.updt f)
+@[inline] def error {α : Type} (e : String) : M α := ExceptT'.error e
+def run {α : Type} (x : M α) (s : ufData := ∅) : Except String α × ufData :=
 x s
 
 def capacity : M Nat :=
@@ -47,10 +47,10 @@ def findEntryAux : Nat → Node → M nodeData
 | (i+1) n :=
   do s ← read,
      if h : n < s.size then
-       do { let e := s.read ⟨n, h⟩,
+       do { let e := s.index ⟨n, h⟩,
             if e.find = n then pure e
             else do e₁ ← findEntryAux i e.find,
-                    updt (λ s, s.write' n e₁),
+                    updt (λ s, s.set n e₁),
                     pure e₁ }
      else error "invalid Node"
 
@@ -71,11 +71,11 @@ do r₁ ← findEntry n₁,
    r₂ ← findEntry n₂,
    if r₁.find = r₂.find then pure ()
    else updt $ λ s,
-     if r₁.rank < r₂.rank then s.write' r₁.find { find := r₂.find }
+     if r₁.rank < r₂.rank then s.set r₁.find { find := r₂.find }
      else if r₁.rank = r₂.rank then
-        let s₁ := s.write' r₁.find { find := r₂.find } in
-        s₁.write' r₂.find { rank := r₂.rank + 1, .. r₂}
-     else s.write' r₂.find { find := r₁.find }
+        let s₁ := s.set r₁.find { find := r₂.find } in
+        s₁.set r₂.find { rank := r₂.rank + 1, .. r₂}
+     else s.set r₂.find { find := r₁.find }
 
 
 def mkNodes : Nat → M Unit

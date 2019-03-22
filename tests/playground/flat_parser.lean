@@ -1,4 +1,4 @@
-import init.Lean.Message init.Lean.Parser.Syntax init.Lean.Parser.Trie init.Lean.Parser.basic
+import init.lean.message init.lean.parser.syntax init.lean.parser.trie init.lean.parser.basic
 
 namespace Lean
 namespace flatParser
@@ -26,17 +26,17 @@ private def fromStringAux (s : String) : Nat → Nat → Nat → pos → Array N
        else fromStringAux k offset line i offsets lines
 
 def fromString (s : String) : FileMap :=
-fromStringAux s s.length 0 1 0 (Array.nil.push 0) (Array.nil.push 1)
+fromStringAux s s.length 0 1 0 (Array.empty.push 0) (Array.empty.push 1)
 
 /- Remark: `offset is in [(offsets.get b), (offsets.get e)]` and `b < e` -/
 private def toPositionAux (offsets : Array Nat) (lines : Array Nat) (offset : Nat) : Nat → Nat → Nat → Position
 | 0     b e := ⟨offset, 1⟩ -- unreachable
 | (k+1) b e :=
-  let offsetB := offsets.read' b in
-  if e = b + 1 then ⟨offset - offsetB, lines.read' b⟩
+  let offsetB := offsets.get b in
+  if e = b + 1 then ⟨offset - offsetB, lines.get b⟩
   else let m := (b + e) / 2 in
-       let offsetM := offsets.read' m in
-       if offset = offsetM then ⟨0, lines.read' m⟩
+       let offsetM := offsets.get m in
+       if offset = offsetM then ⟨0, lines.get m⟩
        else if offset > offsetM then toPositionAux k m e
        else toPositionAux k b m
 
@@ -86,7 +86,7 @@ False.elim (errorIsNotOk h)
 
 def resultOk := {r : Result Unit // r.IsOk}
 
-@[inline] def mkResultOk (i : pos) (cache : ParserCache) (State : ParserState) (eps := tt) : resultOk :=
+@[inline] def mkResultOk (i : pos) (cache : ParserCache) (State : ParserState) (eps := true) : resultOk :=
 ⟨Result.ok () i cache State eps, Result.IsOk.mk _ _ _ _ _⟩
 
 def parserCoreM (α : Type) :=
@@ -107,7 +107,7 @@ abbreviation trailingParser := Syntax → Parser
 @[inline] def parserM.pure {α : Type} (a : α) : parserM α :=
 λ _ _ r,
   match r with
-  | ⟨Result.ok _ it c s _, h⟩   := Result.ok a it c s tt
+  | ⟨Result.ok _ it c s _, h⟩   := Result.ok a it c s true
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 @[inlineIfReduce] def eagerOr  (b₁ b₂ : Bool) := b₁ || b₂
@@ -130,14 +130,14 @@ instance : Monad parserM :=
   match r with
   | ⟨Result.ok _ i₁ _ s₁ _, _⟩ :=
     (match p ps cfg r with
-     | Result.error msg₁ i₂ c₂ stx₁ tt := q ps cfg (mkResultOk i₁ c₂ s₁)
+     | Result.error msg₁ i₂ c₂ stx₁ true := q ps cfg (mkResultOk i₁ c₂ s₁)
      | other                           := other)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 @[inline] protected def failure {α : Type} : parserM α :=
 λ _ _ r,
   match r with
-  | ⟨Result.ok _ i c s _, h⟩    := Result.error "failure" i c Syntax.missing tt
+  | ⟨Result.ok _ i c s _, h⟩    := Result.error "failure" i c Syntax.missing true
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 instance : Alternative parserM :=
@@ -146,7 +146,7 @@ instance : Alternative parserM :=
   ..flatParser.Monad }
 
 def setSilentError {α : Type} : Result α → Result α
-| (Result.error i c msg stx _) := Result.error i c msg stx tt
+| (Result.error i c msg stx _) := Result.error i c msg stx true
 | other                        := other
 
 /--
@@ -176,7 +176,7 @@ cfg.input.length
 | ⟨Result.ok _ _ _ s _, _⟩    := s
 | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-def mkError {α : Type} (r : resultOk) (msg : String) (stx : Syntax := Syntax.missing) (eps := tt) : Result α :=
+def mkError {α : Type} (r : resultOk) (msg : String) (stx : Syntax := Syntax.missing) (eps := true) : Result α :=
 match r with
 | ⟨Result.ok _ i c s _, _⟩    := Result.error msg i c stx eps
 | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
@@ -187,12 +187,12 @@ match r with
   | ⟨Result.ok _ i ch st e, _⟩ :=
     if atEnd cfg i then mkError r "end of input"
     else let c := curr cfg i in
-         if p c then Result.ok c (next cfg i) ch st ff
+         if p c then Result.ok c (next cfg i) ch st false
          else mkError r "unexpected character"
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 def any : parserM Char :=
-satisfy (λ _, tt)
+satisfy (λ _, true)
 
 @[specialize] def takeUntilAux (p : Char → Bool) (cfg : ParserConfig) : Nat → resultOk → Result Unit
 | 0     r := r.val
@@ -202,7 +202,7 @@ satisfy (λ _, tt)
     if atEnd cfg i then r.val
     else let c := curr cfg i in
          if p c then r.val
-         else takeUntilAux n (mkResultOk (next cfg i) ch st tt)
+         else takeUntilAux n (mkResultOk (next cfg i) ch st true)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 @[specialize] def takeUntil (p : Char → Bool) : parserM Unit :=
@@ -224,9 +224,9 @@ def strAux (cfg : ParserConfig) (str : String) (error : String) : Nat → result
   else
     match r with
     | ⟨Result.ok _ i ch st e, _⟩ :=
-      if atEnd cfg i then Result.error error i ch Syntax.missing tt
-      else if curr cfg i = str.utf8Get j then strAux n (mkResultOk (next cfg i) ch st tt) (str.utf8Next j)
-      else Result.error error i ch Syntax.missing tt
+      if atEnd cfg i then Result.error error i ch Syntax.missing true
+      else if curr cfg i = str.utf8Get j then strAux n (mkResultOk (next cfg i) ch st true) (str.utf8Next j)
+      else Result.error error i ch Syntax.missing true
     | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 -- #exit
@@ -240,11 +240,11 @@ def strAux (cfg : ParserConfig) (str : String) (error : String) : Nat → result
   let i₀ := currPos r in
   let s₀ := currState r in
   match p ps cfg r with
-  | Result.ok a i c s _    := manyAux k ff ps cfg (mkResultOk i c s)
+  | Result.ok a i c s _    := manyAux k false ps cfg (mkResultOk i c s)
   | Result.error _ _ c _ _ := Result.ok () i₀ c s₀ fst
 
 @[inline] def many (p : parserM Unit) : parserM Unit  :=
-λ ps cfg r, manyAux p (inputSize cfg) tt ps cfg r
+λ ps cfg r, manyAux p (inputSize cfg) true ps cfg r
 
 @[inline] def many1 (p : parserM Unit) : parserM Unit  :=
 p *> many p
@@ -256,7 +256,7 @@ def testParser {α : Type} (x : parserM α) (input : String) : String :=
 let r :=
   x { cmdParser := dummyParserCore, termParser := λ _, dummyParserCore }
     { filename := "test", input := input, FileMap := FileMap.fromString input, tokens := Lean.Parser.Trie.mk }
-    (mkResultOk 0 {} {messages := MessageLog.Empty}) in
+    (mkResultOk 0 {} {messages := MessageLog.empty}) in
 match r with
 | Result.ok _ i _ _ _      := "Ok at " ++ toString i
 | Result.error msg i _ _ _ := "Error at " ++ toString i ++ ": " ++ msg

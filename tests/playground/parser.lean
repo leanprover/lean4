@@ -25,7 +25,7 @@ False.elim (errorIsNotOk h)
 
 def input (σ δ μ : Type) : Type := { r : Result σ δ μ Unit // r.IsOk }
 
-@[inline] def mkInput {σ δ μ : Type} (i : pos) (st : σ) (bst : δ) (eps := tt) : input σ δ μ :=
+@[inline] def mkInput {σ δ μ : Type} (i : pos) (st : σ) (bst : δ) (eps := true) : input σ δ μ :=
 ⟨Result.ok () i st bst eps, Result.IsOk.mk _ _ _ _ _⟩
 
 def parserM (σ δ μ α : Type) :=
@@ -39,7 +39,7 @@ p s (mkInput 0 st bst)
 @[inline] def parserM.pure (a : α) : parserM σ δ μ α :=
 λ _ inp,
   match inp with
-  | ⟨Result.ok _ it st bst _, h⟩ := Result.ok a it st bst tt
+  | ⟨Result.ok _ it st bst _, h⟩ := Result.ok a it st bst true
   | ⟨Result.error _ _ _ _ _, h⟩  := unreachableError h
 
 @[inlineIfReduce] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
@@ -57,7 +57,7 @@ p s (mkInput 0 st bst)
 instance parserMIsMonad : Monad (parserM σ δ μ) :=
 {pure := @parserM.pure _ _ _, bind := @parserM.bind _ _ _}
 
-def mkError (r : input σ δ μ) (msg : String) (eps := tt) : Result σ δ μ α :=
+def mkError (r : input σ δ μ) (msg : String) (eps := true) : Result σ δ μ α :=
 match r with
 | ⟨Result.ok _ i c s _, _⟩    := Result.error msg i c none eps
 | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
@@ -80,7 +80,7 @@ instance : Alternative (parserM σ δ μ) :=
   .. Parser.parserMIsMonad }
 
 def setSilentError : Result σ δ μ α → Result σ δ μ α
-| (Result.error msg i st ext _) := Result.error msg i st ext tt
+| (Result.error msg i st ext _) := Result.error msg i st ext true
 | other                         := other
 
 @[inline] def curr (str : String) (i : pos) : Char   := str.utf8Get i
@@ -100,7 +100,7 @@ namespace Prim
   match inp with
   | ⟨Result.ok _ i _ bst _, _⟩ :=
     (match p str inp with
-     | Result.ok a _ st _ _ := Result.ok a i st bst tt
+     | Result.ok a _ st _ _ := Result.ok a i st bst true
      | other                := other)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
@@ -110,7 +110,7 @@ namespace Prim
   | ⟨Result.ok _ i st bst _, _⟩ :=
     if atEnd str i then mkError inp "end of input"
     else let c := curr str i in
-         if p c then Result.ok c (next str i) st bst ff
+         if p c then Result.ok c (next str i) st bst false
          else mkError inp "unexpected character"
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
@@ -122,7 +122,7 @@ namespace Prim
     if atEnd str i then inp.val
     else let c := curr str i in
          if p c then inp.val
-         else takeUntilAux n str (mkInput (next str i) st bst ff)
+         else takeUntilAux n str (mkInput (next str i) st bst false)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def takeUntil (p : Char → Bool) : parserM σ δ μ Unit :=
@@ -136,7 +136,7 @@ def strAux (inS : String) (s : String) (errorMsg : String) : Nat → input σ δ
     match inp with
     | ⟨Result.ok _ i st bst e, _⟩ :=
       if atEnd inS i then mkError inp errorMsg
-      else if curr inS i = curr s j then strAux n (mkInput (next inS i) st bst ff) (next s j)
+      else if curr inS i = curr s j then strAux n (mkInput (next inS i) st bst false) (next s j)
       else mkError inp errorMsg
     | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
@@ -149,13 +149,13 @@ def strAux (inS : String) (s : String) (errorMsg : String) : Nat → input σ δ
   match inp with
   | ⟨Result.ok _ i₀ _ bst₀ _, _⟩ :=
     (match p str inp with
-     | Result.ok _ i st bst _   := manyLoop k ff str (mkInput i st bst)
+     | Result.ok _ i st bst _   := manyLoop k false str (mkInput i st bst)
      | Result.error _ _ st _ _  := Result.ok a i₀ st bst₀ fst)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 -- Auxiliary Function used to lift manyAux
 @[inline] def manyAux (a : α) (p : parserM σ δ μ α) : parserM σ δ μ α :=
-λ str inp, manyLoop a p str.length tt str inp
+λ str inp, manyLoop a p str.length true str inp
 
 @[inline] def many (p : parserM σ δ μ Unit) : parserM σ δ μ Unit  :=
 manyAux () p

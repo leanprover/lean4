@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.control.lift
-// Imports: init.function init.coe init.control.monad
+// Imports: init.coe init.control.monad
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -227,15 +227,12 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* initialize_init_function(obj*);
 obj* initialize_init_coe(obj*);
 obj* initialize_init_control_monad(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_control_lift(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
-if (io_result_is_error(w)) return w;
-w = initialize_init_function(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
 if (io_result_is_error(w)) return w;

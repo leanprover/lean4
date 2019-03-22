@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.array.basic
-// Imports: init.data.nat.basic init.data.fin.basic init.data.uint init.data.repr init.function init.data.tostring
+// Imports: init.data.nat.basic init.data.fin.basic init.data.uint init.data.repr init.data.tostring
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1426,7 +1426,6 @@ obj* initialize_init_data_nat_basic(obj*);
 obj* initialize_init_data_fin_basic(obj*);
 obj* initialize_init_data_uint(obj*);
 obj* initialize_init_data_repr(obj*);
-obj* initialize_init_function(obj*);
 obj* initialize_init_data_tostring(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_data_array_basic(obj* w) {
@@ -1440,8 +1439,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_function(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_tostring(w);
  l_Array_empty___closed__1 = _init_l_Array_empty___closed__1();

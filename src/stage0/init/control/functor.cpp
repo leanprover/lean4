@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.control.functor
-// Imports: init.core init.function
+// Imports: init.core
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -99,14 +99,11 @@ return x_1;
 }
 }
 obj* initialize_init_core(obj*);
-obj* initialize_init_function(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_control_functor(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_function(w);
 return w;
 }

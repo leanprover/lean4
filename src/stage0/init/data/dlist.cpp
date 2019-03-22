@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.dlist
-// Imports: init.data.list.basic init.function
+// Imports: init.data.list.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -373,14 +373,11 @@ return x_1;
 }
 }
 obj* initialize_init_data_list_basic(obj*);
-obj* initialize_init_function(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_data_dlist(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_function(w);
 return w;
 }

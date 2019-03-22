@@ -74,7 +74,7 @@ node! symbolQuote [
 def unquotedSymbol.Parser : termParser :=
 try $ do {
   it ← leftOver,
-  stx@(Syntax.atom _) ← monadLift token | error "" (Dlist.singleton "symbol") it,
+  stx@(Syntax.atom _) ← monadLift token | error "" (DList.singleton "symbol") it,
   pure stx
 } <?> "symbol"
 

@@ -234,7 +234,7 @@ observing (try (lookahead token))
 
 variable [monadBasicParser m]
 
-def symbolCore (sym : String) (lbp : Nat) (ex : Dlist String) : Parser :=
+def symbolCore (sym : String) (lbp : Nat) (ex : DList String) : Parser :=
 lift $ try $ do {
   it ← leftOver,
   stx@(Syntax.atom ⟨_, sym'⟩) ← token | error "" ex it,
@@ -245,7 +245,7 @@ lift $ try $ do {
 
 @[inline] def symbol (sym : String) (lbp := 0) : Parser :=
 let sym := sym.trim in
-symbolCore sym lbp (Dlist.singleton sym)
+symbolCore sym lbp (DList.singleton sym)
 
 instance symbol.tokens (sym lbp) : Parser.HasTokens (symbol sym lbp : Parser) :=
 ⟨[⟨sym.trim, lbp, none⟩]⟩
@@ -261,7 +261,7 @@ def number.Parser : Parser :=
 lift $ try $ do {
   it ← leftOver,
   stx ← token,
-  some _ ← pure $ tryView number stx | error "" (Dlist.singleton "number") it,
+  some _ ← pure $ tryView number stx | error "" (DList.singleton "number") it,
   pure stx
 } <?> "number"
 
@@ -299,7 +299,7 @@ def stringLit.Parser : Parser :=
 lift $ try $ do {
   it ← leftOver,
   stx ← token,
-  some _ ← pure $ tryView stringLit stx | error "" (Dlist.singleton "String") it,
+  some _ ← pure $ tryView stringLit stx | error "" (DList.singleton "String") it,
   pure stx
 } <?> "String"
 
@@ -316,7 +316,7 @@ def stringLit.View.value (lit : stringLit.View) : Option String := do
 def ident.Parser : Parser :=
 lift $ try $ do {
   it ← leftOver,
-  stx@(Syntax.ident _) ← token | error "" (Dlist.singleton "identifier") it,
+  stx@(Syntax.ident _) ← token | error "" (DList.singleton "identifier") it,
   pure stx
 } <?> "identifier"
 
@@ -351,7 +351,7 @@ lift $ try $ do
   | Syntax.ident id := some id.rawVal.toString
   | _ := none,
   when (sym' ≠ some sym) $
-    error "" (Dlist.singleton (repr sym)) it,
+    error "" (DList.singleton (repr sym)) it,
   pure stx
 
 instance symbolOrIdent.tokens (sym) : Parser.HasTokens (symbolOrIdent sym : Parser) :=

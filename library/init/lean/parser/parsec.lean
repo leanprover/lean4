@@ -21,7 +21,7 @@ namespace Parsec
 structure Message (μ : Type := Unit) :=
 (it         : Iterator)
 (unexpected : String       := "")          -- unexpected input
-(expected   : Dlist String := Dlist.empty) -- expected productions
+(expected   : DList String := DList.empty) -- expected productions
 (custom     : Option μ)
 
 def expected.toString : List String → String
@@ -55,11 +55,11 @@ They contain the error that would have occurred if a
 successful "epsilon" Alternative was not taken.
 -/
 inductive Result (μ α : Type)
-| ok {} (a : α) (it : Iterator) (expected : Option $ Dlist String) : Result
+| ok {} (a : α) (it : Iterator) (expected : Option $ DList String) : Result
 | error {} (msg : Message μ) (consumed : Bool)                     : Result
 
 @[inline] def Result.mkEps {μ α : Type} (a : α) (it : Iterator) : Result μ α :=
-Result.ok a it (some Dlist.empty)
+Result.ok a it (some DList.empty)
 end Parsec
 
 open Parsec
@@ -99,7 +99,7 @@ protected def failure : ParsecT μ m α :=
 def merge (msg₁ msg₂ : Message μ) : Message μ :=
 { expected := msg₁.expected ++ msg₂.expected, ..msg₁ }
 
-@[inlineIfReduce] def bindMkRes (ex₁ : Option (Dlist String)) (r : Result μ β) : Result μ β :=
+@[inlineIfReduce] def bindMkRes (ex₁ : Option (DList String)) (r : Result μ β) : Result μ β :=
 match ex₁, r with
 | none,     ok b it _          := ok b it none
 | none,     error msg _        := error msg true
@@ -155,15 +155,15 @@ instance : HasMonadLift m (ParsecT μ m) :=
 { monadLift := λ α x it, do a ← x, pure (mkEps a it) }
 
 def expect (msg : Message μ) (exp : String) : Message μ :=
-{expected := Dlist.singleton exp, ..msg}
+{expected := DList.singleton exp, ..msg}
 
-@[inlineIfReduce] def labelsMkRes (r : Result μ α) (lbls : Dlist String) : Result μ α :=
+@[inlineIfReduce] def labelsMkRes (r : Result μ α) (lbls : DList String) : Result μ α :=
 match r with
   | ok a it (some _) := ok a it (some lbls)
   | error msg false     := error {expected := lbls, ..msg} false
   | other            := other
 
-@[inline] def labels (p : ParsecT μ m α) (lbls : Dlist String) : ParsecT μ m α :=
+@[inline] def labels (p : ParsecT μ m α) (lbls : DList String) : ParsecT μ m α :=
 λ it, do
   r ← p it,
   pure $ labelsMkRes r lbls
@@ -259,7 +259,7 @@ namespace MonadParsec
 open ParsecT
 variables {m : Type → Type} [Monad m] [MonadParsec μ m] {α β : Type}
 
-def error {α : Type} (unexpected : String) (expected : Dlist String := Dlist.empty)
+def error {α : Type} (unexpected : String) (expected : DList String := DList.empty)
           (it : Option Iterator := none) (custom : Option μ := none) : m α :=
 lift $ λ it', Result.error { unexpected := unexpected, expected := expected, it := it.getOrElse it', custom := custom } false
 
@@ -270,16 +270,16 @@ lift $ λ it, Result.mkEps it it
 @[inline] def remaining : m Nat :=
 String.Iterator.remaining <$> leftOver
 
-@[inline] def labels (p : m α) (lbls : Dlist String) : m α :=
+@[inline] def labels (p : m α) (lbls : DList String) : m α :=
 map (λ m' inst β p, @ParsecT.labels m' inst μ β p lbls) p
 
 @[inline] def label (p : m α) (lbl : String) : m α :=
-labels p (Dlist.singleton lbl)
+labels p (DList.singleton lbl)
 
 infixr ` <?> `:2 := label
 
 @[inline] def hidden (p : m α) : m α :=
-labels p Dlist.empty
+labels p DList.empty
 
 /--
 `try p` behaves like `p`, but it pretends `p` hasn't
@@ -364,14 +364,14 @@ This Parser consumes no input if it fails (even if a partial match).
 Note: The behaviour of this Parser is different to that the `String` Parser in the ParsecT Μ M Haskell library,
 as this one is all-or-nothing.
 -/
-def strCore (s : String) (ex : Dlist String) : m String :=
+def strCore (s : String) (ex : DList String) : m String :=
 if s.isEmpty then pure ""
 else lift $ λ it, match strAux s.length s.mkIterator it with
   | some it' := Result.ok s it' none
   | none     := Result.error { it := it, expected := ex, custom := none } false
 
 @[inline] def str (s : String) : m String :=
-strCore s (Dlist.singleton (repr s))
+strCore s (DList.singleton (repr s))
 
 private def takeAux : Nat → String → Iterator → Result μ String
 | 0     r it := Result.ok r it none
@@ -459,7 +459,7 @@ String.toNat <$> (takeWhile1 Char.isDigit)
 def ensure (n : Nat) : m Unit :=
 do it ← leftOver,
    if n ≤ it.remaining then pure ()
-   else error "end of input" (Dlist.singleton ("at least " ++ toString n ++ " characters"))
+   else error "end of input" (DList.singleton ("at least " ++ toString n ++ " characters"))
 
 /-- Return the current Position. -/
 def pos : m Position :=
@@ -470,12 +470,12 @@ String.Iterator.offset <$> leftOver
 @[inline] def notFollowedBy [MonadExcept (Message μ) m] (p : m α) (msg : String := "input") : m Unit :=
 do it ← leftOver,
    b ← lookahead $ catch (p *> pure false) (λ _, pure true),
-   if b then pure () else error msg Dlist.empty it
+   if b then pure () else error msg DList.empty it
 
 def eoi : m Unit :=
 do it ← leftOver,
    if it.remaining = 0 then pure ()
-   else error (repr it.curr) (Dlist.singleton ("end of input"))
+   else error (repr it.curr) (DList.singleton ("end of input"))
 
 @[specialize] def many1Aux [Alternative m] (p : m α) : Nat → m (List α)
 | 0     := do a ← p, pure [a]
@@ -534,7 +534,7 @@ def unexpected (msg : String) : m α :=
 error msg
 
 def unexpectedAt (msg : String) (it : Iterator) : m α :=
-error msg Dlist.empty it
+error msg DList.empty it
 
 /- Execute all parsers in `ps` and return the Result of the longest parse(s) if any,
    or else the Result of the furthest error. If there are two parses of

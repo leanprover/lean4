@@ -85,7 +85,7 @@ private def commandWrecAux : Bool → Nat → ModuleParserM (Bool × Syntax)
     -- unknown command: try to skip token, or else single character
     when (¬ recovering) $ do {
       it ← leftOver,
-      logMessage {expected := Dlist.singleton "command", it := it, custom := some ()}
+      logMessage {expected := DList.singleton "command", it := it, custom := some ()}
     },
     try (monadLift token *> pure ()) <|> (any *> pure ()),
     pure (true, none)

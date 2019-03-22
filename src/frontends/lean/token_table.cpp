@@ -86,7 +86,7 @@ void init_token_table(token_table & t) {
          {"```(", g_max_prec}, {"`[", g_max_prec}, {"`", g_max_prec},
          {"%%", g_max_prec}, {"()", g_max_prec}, {"(::)", g_max_prec}, {")", 0}, {"'", 0},
          {"{", g_max_prec}, {"}", 0}, {"_", g_max_prec},
-         {"[", g_max_prec}, {"#[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0},
+         {"[", g_max_prec}, {"]", 0}, {"⦃", g_max_prec}, {"⦄", 0}, {".{", 0},
          {"{!", g_max_prec}, {"!}", 0},
          {"Type", g_max_prec}, {"Type*", g_max_prec}, {"Sort", g_max_prec}, {"Sort*", g_max_prec},
          {"(:", g_max_prec}, {":)", 0}, {".(", g_max_prec}, {"._", g_max_prec},

@@ -310,9 +310,6 @@ optional<name> is_unsafe_rec_name(name const & n);
 /** Convert an expression representing a `name` literal into a `name` object. */
 optional<name> name_lit_to_name(expr const & name_lit);
 
-/** Return (tactic unit) type */
-expr mk_tactic_unit();
-
 std::string const & get_version_string();
 
 expr const & extract_mdata(expr const &);

@@ -85,6 +85,10 @@ def main(argv=None):
             f.write('name const & get_%s_name() { return *g_%s; }\n' % (c[0], c[0]))
         # end namespace
         f.write('}\n')
+    for c in constants:
+        cmd = ("cd .. && grep --silent --include=\"*.h\" --include=\"*.cpp\" --exclude=\".#*\" --exclude=\"constants.*\" -R \"get_%s_name\" *" % c[0])
+        if os.system(cmd) != 0:
+            print("Warning: generated function 'get_%s_name' is not used in the source code" % c[0])
     # TODO: enable test file again
     return 0
     with open(tst_file, 'w') as f:
@@ -95,10 +99,6 @@ def main(argv=None):
         f.write("do env ← get_env, (env^.get n >> return ()) <|> (guard $ env^.is_namespace n) <|> (attribute.get_instances n >> return ()) <|> fail (\"identifier '\" ++ to_string n ++ \"' is not a constant, namespace nor attribute\")\n");
         for c in constants:
             f.write("run_cmd script_check_id `%s\n" % c[1])
-    for c in constants:
-        cmd = ("cd .. && grep --silent --include=\"*.h\" --include=\"*.cpp\" --exclude=\".#*\" --exclude=\"constants.*\" -R \"get_%s_name\" *" % c[0])
-        if os.system(cmd) != 0:
-            print("Warning: generated function 'get_%s_name' is not used in the source code" % c[0])
     print("done")
     return 0
 

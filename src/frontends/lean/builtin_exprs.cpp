@@ -866,36 +866,6 @@ expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info c
     return save_pos(r, pos);
 }
 
-static expr mk_bin_tree(parser & p, buffer<expr> const & args, unsigned start, unsigned end, pos_info const & pos) {
-    lean_assert(start < end);
-    lean_assert(end <= args.size());
-    if (end == start+1)
-        return p.save_pos(mk_app(p.save_pos(mk_constant(get_bin_tree_leaf_name()), pos), args[start]), pos);
-    unsigned mid = (start + end)/2;
-    expr left  = mk_bin_tree(p, args, start, mid, pos);
-    expr right = mk_bin_tree(p, args, mid, end, pos);
-    return p.save_pos(mk_app(p.save_pos(mk_constant(get_bin_tree_node_name()), pos),
-                             left, right),
-                      pos);
-}
-
-
-static expr parse_bin_tree(parser & p, unsigned, expr const *, pos_info const & pos) {
-    buffer<expr> es;
-    while (!p.curr_is_token(get_rbracket_tk())) {
-        es.push_back(p.parse_expr());
-        if (!p.curr_is_token(get_comma_tk()))
-            break;
-        p.next();
-    }
-    p.check_token_next(get_rbracket_tk(), "invalid `#[...]`, `]` expected");
-    if (es.empty()) {
-        return p.save_pos(mk_constant(get_bin_tree_empty_name()), pos);
-    } else {
-        return mk_bin_tree(p, es, 0, es.size(), pos);
-    }
-}
-
 static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
     name macro = p.check_id_next("identifier expected");
     std::function<buffer<expr>()> go;
@@ -990,7 +960,6 @@ parse_table init_nud_table() {
     r = r.add({transition(".(", mk_ext_action(parse_inaccessible))}, x0);
     r = r.add({transition("._", mk_ext_action(parse_atomic_inaccessible))}, x0);
     r = r.add({transition("`", mk_ext_action(parse_quoted_name))}, x0);
-    r = r.add({transition("#[", mk_ext_action(parse_bin_tree))}, x0);
     // r = r.add({transition("(:", Expr), transition(":)", mk_ext_action(parse_pattern))}, x0);
     r = r.add({transition("()", mk_ext_action(parse_unit))}, x0);
     r = r.add({transition("(::)", mk_ext_action(parse_lambda_cons))}, x0);

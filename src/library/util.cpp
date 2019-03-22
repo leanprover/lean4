@@ -1022,12 +1022,6 @@ optional<name> name_lit_to_name(expr const & name_lit) {
     return optional<name>();
 }
 
-static expr * g_tactic_unit = nullptr;
-
-expr mk_tactic_unit() {
-    return *g_tactic_unit;
-}
-
 static std::string * g_version_string = nullptr;
 std::string const & get_version_string() { return *g_version_string; }
 
@@ -1055,7 +1049,6 @@ void initialize_library_util() {
     g_and_intro      = new expr(mk_constant(get_and_intro_name()));
     g_and_left  = new expr(mk_constant(get_and_left_name()));
     g_and_right = new expr(mk_constant(get_and_right_name()));
-    g_tactic_unit    = new expr(mk_app(mk_constant(get_tactic_name(), {mk_level_zero()}), mk_constant(get_unit_name())));
     initialize_nat();
     initialize_int();
     initialize_char();
@@ -1094,7 +1087,6 @@ void finalize_library_util() {
     delete g_and_intro;
     delete g_and_left;
     delete g_and_right;
-    delete g_tactic_unit;
     delete g_unit_mk;
     delete g_unit;
 }

@@ -40,7 +40,7 @@ instance hasMonadLiftTTrans (m n o) [HasMonadLift n o] [HasMonadLiftT m n] : Has
 instance hasMonadLiftTRefl (m) : HasMonadLiftT m m :=
 ⟨λ α, id⟩
 
-lemma monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α) = id := rfl
+theorem monadLiftRefl {m : Type u → Type v} {α} : (monadLift : m α → m α) = id := rfl
 
 
 /-- A Functor in the control of monads. Can be used to lift Monad-transforming functions.
@@ -69,7 +69,7 @@ instance monadFunctorTTrans (m m' n n' o o') [MonadFunctor n n' o o'] [MonadFunc
 instance monadFunctorTRefl (m m') : MonadFunctorT m m' m m' :=
 ⟨λ α f, f⟩
 
-lemma monadMapRefl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monadMap @f : m α → m' α) = f := rfl
+theorem monadMapRefl {m m' : Type u → Type v} (f : ∀ {β}, m β → m' β) {α} : (monadMap @f : m α → m' α) = f := rfl
 
 /-- Run a Monad stack to completion.
     `run` should be the composition of the transformers' individual `run` functions.

@@ -362,10 +362,10 @@ instance [HasLt α] : HasLe (List α) :=
 instance hasDecidableLe [HasLt α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
 λ a b, Not.Decidable
 
-lemma leEqNotGt [HasLt α] : ∀ l₁ l₂ : List α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
+theorem leEqNotGt [HasLt α] : ∀ l₁ l₂ : List α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
 λ l₁ l₂, rfl
 
-lemma ltEqNotGe [HasLt α] [DecidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : List α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
+theorem ltEqNotGe [HasLt α] [DecidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : List α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
 λ l₁ l₂,
   show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
   Eq.subst (propext (notNotIff (l₁ < l₂))).symm rfl

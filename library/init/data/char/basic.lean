@@ -50,16 +50,16 @@ if h : isValidChar (UInt32.ofNat n) then {val := UInt32.ofNat n, valid := h} els
 @[inline] def toNat (c : Char) : Nat :=
 c.val.toNat
 
-lemma eqOfVeq : ∀ {c d : Char}, c.val = d.val → c = d
+theorem eqOfVeq : ∀ {c d : Char}, c.val = d.val → c = d
 | ⟨v, h⟩ ⟨_, _⟩ rfl := rfl
 
-lemma veqOfEq : ∀ {c d : Char}, c = d → c.val = d.val
+theorem veqOfEq : ∀ {c d : Char}, c = d → c.val = d.val
 | _ _ rfl := rfl
 
-lemma neOfVne {c d : Char} (h : c.val ≠ d.val) : c ≠ d :=
+theorem neOfVne {c d : Char} (h : c.val ≠ d.val) : c ≠ d :=
 λ h', absurd (veqOfEq h') h
 
-lemma vneOfNe {c d : Char} (h : c ≠ d) : c.val ≠ d.val :=
+theorem vneOfNe {c d : Char} (h : c ≠ d) : c.val ≠ d.val :=
 λ h', absurd (eqOfVeq h') h
 
 instance : DecidableEq Char :=

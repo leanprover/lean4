@@ -97,7 +97,6 @@ obj* l_Lean_Parser_MonadParsec_take___at___private_init_lean_name__mangling_5__p
 obj* l_Lean_String_mangle(obj*);
 obj* l___private_init_lean_name__mangling_2__parseMangledStringAux___main___closed__2;
 extern obj* l_matchFailed___rarg___closed__1;
-obj* l_Dlist_singleton___rarg(obj*, obj*);
 obj* l___private_init_lean_name__mangling_2__parseMangledStringAux___main(obj*, obj*, obj*);
 obj* l___private_init_lean_name__mangling_2__parseMangledStringAux___main___closed__1;
 obj* l_Lean_Parser_ParsecT_run___at_Lean_Parser_Parsec_parse___spec__1___rarg(obj*, obj*, obj*);
@@ -110,6 +109,7 @@ extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l___private_init_lean_name__mangling_5__parseMangledNameAux(obj*, obj*, obj*);
 obj* l___private_init_lean_name__mangling_1__String_mangleAux(obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_num___at___private_init_lean_name__mangling_5__parseMangledNameAux___main___spec__2(obj*);
+obj* l_DList_singleton___rarg(obj*, obj*);
 obj* l___private_init_lean_name__mangling_2__parseMangledStringAux(obj*, obj*, obj*);
 obj* l___private_init_lean_name__mangling_5__parseMangledNameAux___main___closed__1;
 obj* l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__1;
@@ -506,7 +506,7 @@ _start:
 {
 obj* x_0; obj* x_1; 
 x_0 = lean::mk_string("hexadecimal");
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
@@ -1031,7 +1031,7 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_string("_u");
 x_1 = l_String_quote(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1042,7 +1042,7 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_string("_x");
 x_1 = l_String_quote(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -1053,7 +1053,7 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_string("__");
 x_1 = l_String_quote(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -2567,7 +2567,7 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_string("_s");
 x_1 = l_String_quote(x_0);
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_2, 0, x_1);
 return x_2;
 }
@@ -3204,7 +3204,7 @@ _start:
 obj* x_3; obj* x_4; obj* x_5; 
 lean::inc(x_0);
 x_3 = l_String_quote(x_0);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_3);
 x_5 = l_Lean_Parser_MonadParsec_strCore___at___private_init_lean_name__mangling_2__parseMangledStringAux___main___spec__1(x_0, x_4, x_1);
 if (lean::obj_tag(x_5) == 0)

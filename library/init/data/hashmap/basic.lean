@@ -11,9 +11,9 @@ universes u v w
 def bucketArray (α : Type u) (β : α → Type v) :=
 { b : Array (List (Σ a, β a)) // b.sz > 0 }
 
-def bucketArray.uwrite {α : Type u} {β : α → Type v} (data : bucketArray α β) (i : USize) (d : List (Σ a, β a)) (h : i.toNat < data.val.sz) : bucketArray α β :=
-⟨ data.val.uwrite i d h,
-  transRelRight gt (Array.szWriteEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
+def bucketArray.updt {α : Type u} {β : α → Type v} (data : bucketArray α β) (i : USize) (d : List (Σ a, β a)) (h : i.toNat < data.val.sz) : bucketArray α β :=
+⟨ data.val.updt i d h,
+  transRelRight gt (Array.szUpdateEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
 
 structure HashmapImp (α : Type u) (β : α → Type v) :=
 (size       : Nat)
@@ -40,7 +40,7 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 
 def reinsertAux (hashFn : α → USize) (data : bucketArray α β) (a : α) (b : β a) : bucketArray α β :=
 let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
-data.uwrite i (⟨a, b⟩ :: data.val.uread i h) h
+data.updt i (⟨a, b⟩ :: data.val.idx i h) h
 
 def foldBuckets {δ : Type w} (data : bucketArray α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 data.val.foldl d (λ b d, b.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d)
@@ -57,7 +57,7 @@ def find [DecidableEq α] [Hashable α] (m : HashmapImp α β) (a : α) : Option
 match m with
 | ⟨_, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
-  findAux a (buckets.val.uread i h)
+  findAux a (buckets.val.idx i h)
 
 def fold {δ : Type w} (m : HashmapImp α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
 foldBuckets m.buckets d f
@@ -74,11 +74,11 @@ def insert [DecidableEq α] [Hashable α] (m : HashmapImp α β) (a : α) (b : �
 match m with
 | ⟨size, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
-  let bkt    := buckets.val.uread i h in
+  let bkt    := buckets.val.idx i h in
   if containsAux a bkt
-  then ⟨size, buckets.uwrite i (replaceAux a b bkt) h⟩
+  then ⟨size, buckets.updt i (replaceAux a b bkt) h⟩
   else let size'    := size + 1 in
-       let buckets' := buckets.uwrite i (⟨a, b⟩::bkt) h in
+       let buckets' := buckets.updt i (⟨a, b⟩::bkt) h in
        if size' <= buckets.val.sz
        then ⟨size', buckets'⟩
        else let nbuckets' := buckets.val.sz * 2 in
@@ -90,8 +90,8 @@ def erase [DecidableEq α] [Hashable α] (m : HashmapImp α β) (a : α) : Hashm
 match m with
 | ⟨ size, buckets ⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
-  let bkt    := buckets.val.uread i h in
-  if containsAux a bkt then ⟨size - 1, buckets.uwrite i (eraseAux a bkt) h⟩
+  let bkt    := buckets.val.idx i h in
+  if containsAux a bkt then ⟨size - 1, buckets.updt i (eraseAux a bkt) h⟩
   else m
 
 inductive WellFormed [DecidableEq α] [Hashable α] : HashmapImp α β → Prop

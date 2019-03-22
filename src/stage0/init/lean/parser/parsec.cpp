@@ -407,7 +407,6 @@ obj* l_Lean_Parser_MonadParsec_leftOver(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parsec_4__takeWhileAux___main___at_Lean_Parser_MonadParsec_takeUntil___spec__2(obj*);
 obj* l_Lean_Parser_MonadParsec_remaining___boxed(obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_whitespace___boxed(obj*, obj*);
-obj* l_Dlist_singleton___rarg(obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_foldr___boxed(obj*, obj*);
 obj* l_Lean_Parser_ParsecT_runFrom(obj*);
 namespace lean {
@@ -425,6 +424,7 @@ obj* l___private_init_lean_parser_parsec_5__mkConsumedResult(obj*);
 obj* l_Lean_Parser_MonadParsec_foldrAux___main(obj*, obj*, obj*);
 obj* l_String_Iterator_remaining___boxed(obj*);
 obj* l_Lean_Parser_MonadParsec_takeWhile1___at_Lean_Parser_MonadParsec_takeUntil1___spec__1(obj*, obj*);
+obj* l_DList_toList___main___rarg(obj*);
 obj* l_Lean_Parser_ParsecT_Monad(obj*);
 obj* l_Lean_Parser_ParsecT_run___at_Lean_Parser_Parsec_parse___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_bind_x_27___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -432,7 +432,6 @@ obj* l_Lean_Parser_MonadParsec_many_x_27(obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_cond(obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_ch___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_try___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
-obj* l_Dlist_toList___main___rarg(obj*);
 obj* l_Lean_Parser_MonadParsec_alpha___boxed(obj*, obj*);
 obj* l_Lean_Parser_ParsecT_run___at_Lean_Parser_Parsec_parse___spec__1(obj*, obj*);
 obj* l_Lean_Parser_ParsecT_Monad___boxed(obj*);
@@ -526,6 +525,7 @@ obj* l_Lean_Parser_MonadParsec_eoi___at_Lean_Parser_ParsecT_parseWithEoi___spec_
 obj* l_Lean_Parser_ParsecT_run___at_Lean_Parser_ParsecT_parseWithLeftOver___spec__1(obj*);
 obj* l_Lean_Parser_MonadParsec_fix___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_MonadExcept___rarg___boxed(obj*, obj*);
+obj* l_DList_singleton___rarg(obj*, obj*);
 obj* l_Lean_Parser_ParsecT_Monad___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_bindMkRes(obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_takeWhile1___at_Lean_Parser_MonadParsec_takeUntil1___spec__1___rarg___lambda__2(obj*, obj*, obj*, uint32);
@@ -848,7 +848,7 @@ x_4 = lean::string_dec_eq(x_1, x_3);
 x_5 = lean::cnstr_get(x_0, 2);
 lean::inc(x_5);
 lean::dec(x_0);
-x_8 = l_Dlist_toList___main___rarg(x_5);
+x_8 = l_DList_toList___main___rarg(x_5);
 x_9 = lean::box(0);
 x_10 = l_List_hasDecEq___main___at_Lean_Parser_Parsec_Message_text___spec__1(x_8, x_9);
 if (x_4 == 0)
@@ -3327,7 +3327,7 @@ x_2 = lean::cnstr_get(x_0, 0);
 lean::inc(x_2);
 x_4 = lean::cnstr_get(x_0, 1);
 lean::inc(x_4);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_6, 0, x_1);
 x_7 = lean::cnstr_get(x_0, 3);
 lean::inc(x_7);
@@ -4475,7 +4475,7 @@ obj* l_Lean_Parser_MonadParsec_label___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x
 _start:
 {
 obj* x_4; obj* x_5; obj* x_8; obj* x_9; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_3);
 x_5 = lean::cnstr_get(x_0, 1);
 lean::inc(x_5);
@@ -5848,7 +5848,7 @@ _start:
 obj* x_4; obj* x_5; obj* x_6; 
 lean::inc(x_2);
 x_4 = l_String_quote(x_2);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_5, 0, x_4);
 x_6 = l_Lean_Parser_MonadParsec_strCore___rarg(x_0, x_1, x_2, x_5);
 return x_6;
@@ -7440,7 +7440,7 @@ x_10 = lean::string_append(x_9, x_8);
 lean::dec(x_8);
 x_12 = l_Lean_Parser_MonadParsec_ensure___rarg___lambda__1___closed__2;
 x_13 = lean::string_append(x_10, x_12);
-x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_14, 0, x_13);
 x_15 = lean::box(0);
 x_16 = l_Lean_Parser_MonadParsec_eoiError___rarg___closed__1;
@@ -7721,7 +7721,7 @@ _start:
 {
 obj* x_0; obj* x_1; 
 x_0 = lean::mk_string("end of input");
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 return x_1;
 }

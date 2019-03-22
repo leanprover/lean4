@@ -1355,38 +1355,35 @@ inline size_t size_t_of_nat_core(b_obj_arg n) {
 
 object * mk_array(obj_arg n, obj_arg v);
 
-inline object * mk_nil_array() {
+inline object * mk_empty_array() {
     return alloc_array(0, 0);
 }
 
-inline object * array_uread(b_obj_arg a, usize i) {
+inline object * array_idx(b_obj_arg a, usize i) {
     object * r = array_get(a, i); inc(r);
     return r;
 }
 
-inline obj_res array_read(b_obj_arg a, b_obj_arg i) {
-    return array_uread(a, size_t_of_nat_core(i));
+inline obj_res array_index(b_obj_arg a, b_obj_arg i) {
+    return array_idx(a, size_t_of_nat_core(i));
 }
 
-inline object * array_safe_uread(obj_arg def_val, b_obj_arg a, usize i) {
-    if (i < array_size(a)) {
-        dec(def_val);
-        return array_uread(a, i);
+inline object * array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) {
+    if (is_scalar(i)) {
+        usize idx = unbox(i);
+        if (idx < array_size(a)) {
+            dec(def_val);
+            return array_idx(a, idx);
+        } else {
+            return def_val;
+        }
     } else {
+        /* The index must be out of bounds because
+           i > LEAN_MAX_SMALL_NAT == std::numeric_limits<unsigned>::max() >> 1,
+           but each array entry is 8 bytes in 64-bit machines and 4 in 32-bit ones.
+           In both cases, we would be out-of-memory. */
         return def_val;
     }
-}
-
-inline object * array_safe_read(obj_arg def_val, b_obj_arg a, b_obj_arg i) {
-    size_t idx;
-    if (is_scalar(i)) {
-        idx = unbox(i);
-    } else {
-        mpz const & v = mpz_value(i);
-        if (!v.is_unsigned_long_int()) return def_val;
-        idx = v.get_unsigned_long_int();
-    }
-    return array_safe_uread(def_val, a, idx);
 }
 
 obj_res copy_array(obj_arg a, bool expand = false);
@@ -1396,7 +1393,7 @@ inline obj_res ensure_exclusive_array(obj_arg a) {
     return copy_array(a);
 }
 
-inline object * array_uwrite(obj_arg a, usize i, obj_arg v) {
+inline object * array_updt(obj_arg a, usize i, obj_arg v) {
     object * r   = ensure_exclusive_array(a);
     object ** it = array_cptr(r) + i;
     dec(*it);
@@ -1404,32 +1401,27 @@ inline object * array_uwrite(obj_arg a, usize i, obj_arg v) {
     return r;
 }
 
+inline object * array_update(obj_arg a, b_obj_arg i, obj_arg v) {
+    return array_updt(a, size_t_of_nat_core(i), v);
+}
+
 inline object * array_safe_uwrite(obj_arg a, usize i, obj_arg v) {
     if (i < array_size(a)) {
-        return array_uwrite(a, i, v);
+        return array_updt(a, i, v);
     } else {
         dec(v);
         return a;
     }
 }
 
-inline object * array_write(obj_arg a, b_obj_arg i, obj_arg v) {
-    return array_uwrite(a, size_t_of_nat_core(i), v);
-}
-
-inline object * array_safe_write(obj_arg a, b_obj_arg i, obj_arg v) {
-    size_t idx;
+inline object * array_set(obj_arg a, b_obj_arg i, obj_arg v) {
     if (is_scalar(i)) {
-        idx = unbox(i);
-    } else {
-        mpz const & m = mpz_value(i);
-        if (!m.is_unsigned_long_int()) {
-            dec(v);
-            return a;
-        }
-        idx = m.get_unsigned_long_int();
+        usize idx = unbox(i);
+        if (idx < array_size(a))
+            return array_updt(a, idx, v);
     }
-    return array_safe_uwrite(a, idx, v);
+    dec(v);
+    return a;
 }
 
 inline object * array_pop(obj_arg a) {

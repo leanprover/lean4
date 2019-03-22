@@ -156,7 +156,6 @@ obj* l_Lean_Parser_Level_paren_HasView_x_27___lambda__2(obj*);
 obj* l_Lean_Parser_levelParser_run_Lean_Parser_HasTokens___boxed(obj*);
 obj* l_Lean_Parser_Level_Parser_Lean_Parser_HasView(obj*);
 obj* l_Lean_Parser_Level_trailing_HasView_x_27___lambda__1___closed__2;
-obj* l_Dlist_singleton___rarg(obj*, obj*);
 obj* l_Lean_Parser_Level_addLit_Parser___closed__1;
 obj* l_Lean_Parser_Level_app_HasView_x_27___lambda__2(obj*);
 obj* l_Lean_Parser_Level_trailing;
@@ -199,6 +198,7 @@ obj* l_Lean_Parser_Level_app_Parser_Lean_Parser_HasTokens;
 obj* l_Lean_Parser_TrailingLevelParserM_Lean_Parser_MonadParsec;
 obj* l_Lean_Parser_Level_app_HasView_x_27___lambda__1(obj*);
 obj* l_Lean_Parser_Level_Parser_Lean_Parser_HasTokens___boxed(obj*);
+obj* l_DList_singleton___rarg(obj*, obj*);
 obj* l_Lean_Parser_Level_getLeading___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Level_trailing_Parser_Lean_Parser_HasTokens;
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_levelParser_run___spec__3___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -490,7 +490,7 @@ _start:
 {
 obj* x_0; obj* x_1; 
 x_0 = lean::mk_string("universe Level");
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
@@ -1016,7 +1016,7 @@ if (lean::is_exclusive(x_9)) {
  x_14 = lean::box(0);
 }
 lean::inc(x_0);
-x_16 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_16 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_16, 0, x_0);
 if (lean::obj_tag(x_10) == 0)
 {
@@ -1325,7 +1325,7 @@ x_0 = lean::mk_string("(");
 x_1 = l_String_trim(x_0);
 lean::dec(x_0);
 lean::inc(x_1);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_1);
 x_5 = l_Lean_Parser_maxPrec;
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_paren_Parser_Lean_Parser_HasTokens___spec__1___boxed), 7, 3);
@@ -1339,7 +1339,7 @@ x_9 = lean::mk_string(")");
 x_10 = l_String_trim(x_9);
 lean::dec(x_9);
 lean::inc(x_10);
-x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_13, 0, x_10);
 x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_paren_Parser_Lean_Parser_HasTokens___spec__1___boxed), 7, 3);
 lean::closure_set(x_14, 0, x_10);
@@ -1781,7 +1781,7 @@ x_0 = lean::mk_string("(");
 x_1 = l_String_trim(x_0);
 lean::dec(x_0);
 lean::inc(x_1);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_1);
 x_5 = l_Lean_Parser_maxPrec;
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_paren_Parser_Lean_Parser_HasTokens___spec__1___boxed), 7, 3);
@@ -1795,7 +1795,7 @@ x_9 = lean::mk_string(")");
 x_10 = l_String_trim(x_9);
 lean::dec(x_9);
 lean::inc(x_10);
-x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_13, 0, x_10);
 x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_paren_Parser_Lean_Parser_HasTokens___spec__1___boxed), 7, 3);
 lean::closure_set(x_14, 0, x_10);
@@ -2570,7 +2570,7 @@ obj* x_59; obj* x_60; obj* x_61; obj* x_62; obj* x_63; obj* x_64; obj* x_68;
 lean::dec(x_12);
 lean::dec(x_19);
 x_59 = l_String_quote(x_0);
-x_60 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_60 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_60, 0, x_59);
 x_61 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_61, 0, x_3);
@@ -2725,7 +2725,7 @@ _start:
 {
 obj* x_0; obj* x_1; 
 x_0 = lean::mk_string("number");
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
@@ -2901,7 +2901,7 @@ _start:
 {
 obj* x_0; obj* x_1; 
 x_0 = lean::mk_string("identifier");
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
@@ -3431,7 +3431,7 @@ x_4 = lean::mk_string("_");
 x_5 = l_String_trim(x_4);
 lean::dec(x_4);
 lean::inc(x_5);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_8, 0, x_5);
 x_9 = l_Lean_Parser_maxPrec;
 x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_paren_Parser_Lean_Parser_HasTokens___spec__1___boxed), 7, 3);
@@ -3492,7 +3492,7 @@ x_4 = lean::mk_string("_");
 x_5 = l_String_trim(x_4);
 lean::dec(x_4);
 lean::inc(x_5);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_8, 0, x_5);
 x_9 = l_Lean_Parser_maxPrec;
 x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_paren_Parser_Lean_Parser_HasTokens___spec__1___boxed), 7, 3);
@@ -4505,7 +4505,7 @@ if (lean::is_exclusive(x_10)) {
  x_15 = lean::box(0);
 }
 lean::inc(x_0);
-x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_17, 0, x_0);
 if (lean::obj_tag(x_11) == 0)
 {
@@ -4986,7 +4986,7 @@ x_0 = lean::mk_string("+");
 x_1 = l_String_trim(x_0);
 lean::dec(x_0);
 lean::inc(x_1);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_1);
 x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_addLit_Parser_Lean_Parser_HasTokens___spec__1___boxed), 8, 3);
@@ -5024,7 +5024,7 @@ x_0 = lean::mk_string("+");
 x_1 = l_String_trim(x_0);
 lean::dec(x_0);
 lean::inc(x_1);
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Dlist_singleton___rarg), 2, 1);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
 lean::closure_set(x_4, 0, x_1);
 x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_symbolCore___at_Lean_Parser_Level_addLit_Parser_Lean_Parser_HasTokens___spec__1___boxed), 8, 3);

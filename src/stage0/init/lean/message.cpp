@@ -14,12 +14,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_Lean_MessageLog_empty;
 obj* l_Lean_Message_toString___closed__2;
 obj* l_Lean_Message_toString___closed__1;
 obj* l_Lean_MessageLog_append(obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_Lean_MessageLog_toList(obj*);
-obj* l_Lean_MessageLog_Empty;
 obj* l_Lean_Message_toString___closed__3;
 obj* l_Lean_Message_HasToString;
 obj* l_Nat_repr(obj*);
@@ -207,7 +207,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Message_toString), 1, 0
 return x_0;
 }
 }
-obj* _init_l_Lean_MessageLog_Empty() {
+obj* _init_l_Lean_MessageLog_empty() {
 _start:
 {
 obj* x_0; 
@@ -330,8 +330,8 @@ lean::mark_persistent(l_Lean_Message_toString___closed__4);
 lean::mark_persistent(l_Lean_Message_toString___closed__5);
  l_Lean_Message_HasToString = _init_l_Lean_Message_HasToString();
 lean::mark_persistent(l_Lean_Message_HasToString);
- l_Lean_MessageLog_Empty = _init_l_Lean_MessageLog_Empty();
-lean::mark_persistent(l_Lean_MessageLog_Empty);
+ l_Lean_MessageLog_empty = _init_l_Lean_MessageLog_empty();
+lean::mark_persistent(l_Lean_MessageLog_empty);
  l_Lean_MessageLog_HasAppend = _init_l_Lean_MessageLog_HasAppend();
 lean::mark_persistent(l_Lean_MessageLog_HasAppend);
 return w;

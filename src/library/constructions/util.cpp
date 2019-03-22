@@ -23,14 +23,14 @@ expr mk_and_intro(type_checker & ctx, expr const & Ha, expr const & Hb) {
     return mk_app(mk_constant(get_and_intro_name()), ctx.infer(Ha), ctx.infer(Hb), Ha, Hb);
 }
 
-expr mk_and_elim_left(type_checker & ctx, expr const & H) {
+expr mk_and_left(type_checker & ctx, expr const & H) {
     expr a_and_b = ctx.whnf(ctx.infer(H));
-    return mk_app(mk_constant(get_and_elim_left_name()), app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+    return mk_app(mk_constant(get_and_left_name()), app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
 }
 
-expr mk_and_elim_right(type_checker & ctx, expr const & H) {
+expr mk_and_right(type_checker & ctx, expr const & H) {
     expr a_and_b = ctx.whnf(ctx.infer(H));
-    return mk_app(mk_constant(get_and_elim_right_name()), app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+    return mk_app(mk_constant(get_and_right_name()), app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
 }
 
 expr mk_pprod(type_checker & ctx, expr const & A, expr const & B) {
@@ -70,11 +70,11 @@ expr mk_pprod_mk(type_checker & ctx, expr const & a, expr const & b, bool prop) 
 }
 
 expr mk_pprod_fst(type_checker & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_left(ctx, p) : mk_pprod_fst(ctx, p);
+    return prop ? mk_and_left(ctx, p) : mk_pprod_fst(ctx, p);
 }
 
 expr mk_pprod_snd(type_checker & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_right(ctx, p) : mk_pprod_snd(ctx, p);
+    return prop ? mk_and_right(ctx, p) : mk_pprod_snd(ctx, p);
 }
 
 name_generator mk_constructions_name_generator() {

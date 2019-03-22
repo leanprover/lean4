@@ -7,8 +7,8 @@ name const * g_absurd = nullptr;
 name const * g_acc_cases_on = nullptr;
 name const * g_acc_rec = nullptr;
 name const * g_and = nullptr;
-name const * g_and_elim_left = nullptr;
-name const * g_and_elim_right = nullptr;
+name const * g_and_left = nullptr;
+name const * g_and_right = nullptr;
 name const * g_and_intro = nullptr;
 name const * g_and_rec = nullptr;
 name const * g_and_cases_on = nullptr;
@@ -290,8 +290,8 @@ void initialize_constants() {
     g_acc_cases_on = new name{"Acc", "casesOn"};
     g_acc_rec = new name{"Acc", "rec"};
     g_and = new name{"And"};
-    g_and_elim_left = new name{"And", "elimLeft"};
-    g_and_elim_right = new name{"And", "elimRight"};
+    g_and_left = new name{"And", "left"};
+    g_and_right = new name{"And", "right"};
     g_and_intro = new name{"And", "intro"};
     g_and_rec = new name{"And", "rec"};
     g_and_cases_on = new name{"And", "casesOn"};
@@ -574,8 +574,8 @@ void finalize_constants() {
     delete g_acc_cases_on;
     delete g_acc_rec;
     delete g_and;
-    delete g_and_elim_left;
-    delete g_and_elim_right;
+    delete g_and_left;
+    delete g_and_right;
     delete g_and_intro;
     delete g_and_rec;
     delete g_and_cases_on;
@@ -857,8 +857,8 @@ name const & get_absurd_name() { return *g_absurd; }
 name const & get_acc_cases_on_name() { return *g_acc_cases_on; }
 name const & get_acc_rec_name() { return *g_acc_rec; }
 name const & get_and_name() { return *g_and; }
-name const & get_and_elim_left_name() { return *g_and_elim_left; }
-name const & get_and_elim_right_name() { return *g_and_elim_right; }
+name const & get_and_left_name() { return *g_and_left; }
+name const & get_and_right_name() { return *g_and_right; }
 name const & get_and_intro_name() { return *g_and_intro; }
 name const & get_and_rec_name() { return *g_and_rec; }
 name const & get_and_cases_on_name() { return *g_and_cases_on; }

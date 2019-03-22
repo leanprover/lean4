@@ -377,8 +377,8 @@ static expr * g_true = nullptr;
 static expr * g_true_intro = nullptr;
 static expr * g_and = nullptr;
 static expr * g_and_intro = nullptr;
-static expr * g_and_elim_left = nullptr;
-static expr * g_and_elim_right = nullptr;
+static expr * g_and_left = nullptr;
+static expr * g_and_right = nullptr;
 
 expr mk_true() {
     return *g_true;
@@ -414,14 +414,14 @@ expr mk_and_intro(abstract_type_context & ctx, expr const & Ha, expr const & Hb)
     return mk_app(*g_and_intro, ctx.infer(Ha), ctx.infer(Hb), Ha, Hb);
 }
 
-expr mk_and_elim_left(abstract_type_context & ctx, expr const & H) {
+expr mk_and_left(abstract_type_context & ctx, expr const & H) {
     expr a_and_b = ctx.whnf(ctx.infer(H));
-    return mk_app(*g_and_elim_left, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+    return mk_app(*g_and_left, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
 }
 
-expr mk_and_elim_right(abstract_type_context & ctx, expr const & H) {
+expr mk_and_right(abstract_type_context & ctx, expr const & H) {
     expr a_and_b = ctx.whnf(ctx.infer(H));
-    return mk_app(*g_and_elim_right, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
+    return mk_app(*g_and_right, app_arg(app_fn(a_and_b)), app_arg(a_and_b), H);
 }
 
 expr mk_unit(level const & l) {
@@ -539,10 +539,10 @@ expr mk_pprod_mk(abstract_type_context & ctx, expr const & a, expr const & b, bo
     return prop ? mk_and_intro(ctx, a, b) : mk_pprod_mk(ctx, a, b);
 }
 expr mk_pprod_fst(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_left(ctx, p) : mk_pprod_fst(ctx, p);
+    return prop ? mk_and_left(ctx, p) : mk_pprod_fst(ctx, p);
 }
 expr mk_pprod_snd(abstract_type_context & ctx, expr const & p, bool prop) {
-    return prop ? mk_and_elim_right(ctx, p) : mk_pprod_snd(ctx, p);
+    return prop ? mk_and_right(ctx, p) : mk_pprod_snd(ctx, p);
 }
 
 bool is_ite(expr const & e) {
@@ -1053,8 +1053,8 @@ void initialize_library_util() {
     g_true_intro     = new expr(mk_constant(get_true_intro_name()));
     g_and            = new expr(mk_constant(get_and_name()));
     g_and_intro      = new expr(mk_constant(get_and_intro_name()));
-    g_and_elim_left  = new expr(mk_constant(get_and_elim_left_name()));
-    g_and_elim_right = new expr(mk_constant(get_and_elim_right_name()));
+    g_and_left  = new expr(mk_constant(get_and_left_name()));
+    g_and_right = new expr(mk_constant(get_and_right_name()));
     g_tactic_unit    = new expr(mk_app(mk_constant(get_tactic_name(), {mk_level_zero()}), mk_constant(get_unit_name())));
     initialize_nat();
     initialize_int();
@@ -1092,8 +1092,8 @@ void finalize_library_util() {
     delete g_true_intro;
     delete g_and;
     delete g_and_intro;
-    delete g_and_elim_left;
-    delete g_and_elim_right;
+    delete g_and_left;
+    delete g_and_right;
     delete g_tactic_unit;
     delete g_unit_mk;
     delete g_unit;

@@ -2,8 +2,8 @@ absurd
 Acc.casesOn
 Acc.rec
 And
-And.elimLeft
-And.elimRight
+And.left
+And.right
 And.intro
 And.rec
 And.casesOn

@@ -225,10 +225,6 @@ structure PProd (α : Sort u) (β : Sort v) :=
 structure And (a b : Prop) : Prop :=
 intro :: (left : a) (right : b)
 
-def And.elimLeft {a b : Prop} (h : And a b) : a := h.1
-
-def And.elimRight {a b : Prop} (h : And a b) : b := h.2
-
 structure Iff (a b : Prop) : Prop :=
 intro :: (mp : a → b) (mpr : b → a)
 
@@ -772,9 +768,9 @@ def Xor (a b : Prop) : Prop := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
 theorem Iff.elim (h₁ : (a → b) → (b → a) → c) (h₂ : a ↔ b) : c :=
 Iff.rec h₁ h₂
 
-theorem Iff.elimLeft : (a ↔ b) → a → b := Iff.mp
+theorem Iff.left : (a ↔ b) → a → b := Iff.mp
 
-theorem Iff.elimRight : (a ↔ b) → b → a := Iff.mpr
+theorem Iff.right : (a ↔ b) → b → a := Iff.mpr
 
 theorem iffIffImpliesAndImplies (a b : Prop) : (a ↔ b) ↔ (a → b) ∧ (b → a) :=
 Iff.intro (λ h, And.intro h.mp h.mpr) (λ h, Iff.intro h.left h.right)
@@ -791,7 +787,7 @@ Iff.intro
   (assume hc, Iff.mpr h₁ (Iff.mpr h₂ hc))
 
 theorem Iff.symm (h : a ↔ b) : b ↔ a :=
-Iff.intro (Iff.elimRight h) (Iff.elimLeft h)
+Iff.intro (Iff.right h) (Iff.left h)
 
 theorem Iff.comm : (a ↔ b) ↔ (b ↔ a) :=
 Iff.intro Iff.symm Iff.symm
@@ -806,8 +802,8 @@ absurd this h₁
 
 theorem notIffNotOfIff (h₁ : a ↔ b) : ¬a ↔ ¬b :=
 Iff.intro
- (assume (hna : ¬ a) (hb : b), hna (Iff.elimRight h₁ hb))
- (assume (hnb : ¬ b) (ha : a), hnb (Iff.elimLeft h₁ ha))
+ (assume (hna : ¬ a) (hb : b), hna (Iff.right h₁ hb))
+ (assume (hnb : ¬ b) (ha : a), hnb (Iff.left h₁ ha))
 
 theorem ofIffTrue (h : a ↔ True) : a :=
 Iff.mp (Iff.symm h) trivial

@@ -137,8 +137,25 @@ static inline atomic<object*> * mt_ref_val_addr(object * o) {
     return reinterpret_cast<atomic<object*> *>(&(to_ref(o)->m_value));
 }
 
+/*
+  Important: we have added support for initializing global constants
+  at program startup. This feature is particularly useful for
+  initializing `IO.Ref` values. Any `IO.Ref` value created during
+  initialization will be marked as persistent. Thus, to make `IO.Ref`
+  API thread-safe, we must treat persistent `IO.Ref` objects created
+  during initialization as a multi-threaded object. Then, whenever we store
+  a value `val` into a global `IO.Ref`, we have to mark `va`l as a multi-threaded
+  object as we do for multi-threaded `IO.Ref`s. It makes sense since
+  the global `IO.Ref` may be used to communicate data between threads.
+*/
+static inline bool ref_maybe_mt(b_obj_arg ref) {
+    return
+        ref->m_mem_kind == static_cast<unsigned>(object_memory_kind::MTHeap) ||
+        ref->m_mem_kind == static_cast<unsigned>(object_memory_kind::Persistent);
+}
+
 obj_res io_ref_get(b_obj_arg ref, obj_arg r) {
-    if (is_mt_heap_obj(ref)) {
+    if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * val = val_addr->exchange(nullptr);
         if (val == nullptr)
@@ -162,7 +179,7 @@ obj_res io_ref_get(b_obj_arg ref, obj_arg r) {
 static_assert(sizeof(atomic<unsigned short>) == sizeof(unsigned short), "`atomic<unsigned short>` and `unsigned short` must have the same size"); // NOLINT
 
 obj_res io_ref_reset(b_obj_arg ref, obj_arg r) {
-    if (is_mt_heap_obj(ref)) {
+    if (ref_maybe_mt(ref)) {
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(nullptr);
         if (old_a != nullptr)
@@ -177,7 +194,7 @@ obj_res io_ref_reset(b_obj_arg ref, obj_arg r) {
 }
 
 obj_res io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
-    if (is_mt_heap_obj(ref)) {
+    if (ref_maybe_mt(ref)) {
         if (is_st_heap_obj(a)) {
             /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
                Reason: our runtime relies on the fact that a single-threaded object
@@ -198,7 +215,7 @@ obj_res io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
 }
 
 obj_res io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg r) {
-    if (is_mt_heap_obj(ref)) {
+    if (ref_maybe_mt(ref)) {
         if (is_st_heap_obj(a)) {
             /* See io_ref_write */
             mark_mt(a);

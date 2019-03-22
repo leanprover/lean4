@@ -9,8 +9,7 @@ This theory is roughly modeled after the Haskell 'layers' package https://hackag
 Please see https://hackage.haskell.org/package/layers-0.1/docs/Documentation-Layers-Overview.html for an exhaustive discussion of the different approaches to lift functions.
 -/
 prelude
-import init.function init.coe
-import init.control.monad
+import init.coe init.control.monad
 
 universes u v w
 

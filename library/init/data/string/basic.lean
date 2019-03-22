@@ -74,14 +74,12 @@ utf8ByteSize s
 
 abbrev Pos := USize
 
-def utf8Begin : Pos := 0
-
 private def utf8GetAux : List Char → USize → USize → Char
 | []      i p := default Char
 | (c::cs) i p := if i = p then c else utf8GetAux cs (i + csize c) p
 
 @[extern cpp "lean::string_utf8_get"]
-def utf8Get : (@& String) → Pos → Char
+def get : (@& String) → Pos → Char
 | ⟨s⟩ p := utf8GetAux s 0 p
 
 private def utf8SetAux (c' : Char) : List Char → USize → USize → List Char
@@ -90,12 +88,12 @@ private def utf8SetAux (c' : Char) : List Char → USize → USize → List Char
   if i = p then (c'::cs) else c::(utf8SetAux cs (i + csize c) p)
 
 @[extern cpp "lean::string_utf8_set"]
-def utf8Set : String → Pos → Char → String
+def set : String → Pos → Char → String
 | ⟨s⟩ i c := ⟨utf8SetAux c s 0 i⟩
 
 @[extern cpp "lean::string_utf8_next"]
-def utf8Next (s : @& String) (p : Pos) : Pos :=
-let c := utf8Get s p in
+def next (s : @& String) (p : Pos) : Pos :=
+let c := get s p in
 p + csize c
 
 private def utf8PrevAux : List Char → USize → USize → USize
@@ -106,17 +104,17 @@ private def utf8PrevAux : List Char → USize → USize → USize
   if i' = p then i else utf8PrevAux cs i' p
 
 @[extern cpp "lean::string_utf8_prev"]
-def utf8Prev : (@& String) → Pos → Pos
+def prev : (@& String) → Pos → Pos
 | ⟨s⟩ p := if p = 0 then 0 else utf8PrevAux s 0 p
 
 def front (s : String) : Char :=
-utf8Get s 0
+get s 0
 
 def back (s : String) : Char :=
-utf8Get s (utf8Prev s (bsize s))
+get s (prev s (bsize s))
 
 @[extern cpp "lean::string_utf8_at_end"]
-def utf8AtEnd : (@& String) → Pos → Bool
+def atEnd : (@& String) → Pos → Bool
 | s p := p ≥ utf8ByteSize s
 
 private def utf8ExtractAux₂ : List Char → USize → USize → List Char
@@ -135,7 +133,7 @@ def trimLeftAux (s : String) : Nat → Pos → Pos
 | 0     i := i
 | (n+1) i :=
   if i ≥ s.bsize then i
-  else let c := s.utf8Get i in
+  else let c := s.get i in
        if !c.isWhitespace then i
        else trimLeftAux n (i + csize c)
 
@@ -149,8 +147,8 @@ def trimRightAux (s : String) : Nat → Pos → Pos
 | (n+1) i :=
   if i = 0 then i
   else
-    let i' := s.utf8Prev i in
-    let c  := s.utf8Get i' in
+    let i' := s.prev i in
+    let c  := s.get i' in
     if !c.isWhitespace then i
     else trimRightAux n i'
 
@@ -182,13 +180,13 @@ def remainingBytes : Iterator → USize
 | ⟨s, _, i⟩ := s.bsize - i
 
 def curr : Iterator → Char
-| ⟨s, _, i⟩ := utf8Get s i
+| ⟨s, _, i⟩ := get s i
 
 def next : Iterator → Iterator
-| ⟨s, o, i⟩ := ⟨s, o+1, utf8Next s i⟩
+| ⟨s, o, i⟩ := ⟨s, o+1, s.next i⟩
 
 def prev : Iterator → Iterator
-| ⟨s, o, i⟩ := ⟨s, o-1, utf8Prev s i⟩
+| ⟨s, o, i⟩ := ⟨s, o-1, s.prev i⟩
 
 def hasNext : Iterator → Bool
 | ⟨s, _, i⟩ := i < utf8ByteSize s
@@ -197,7 +195,7 @@ def hasPrev : Iterator → Bool
 | ⟨s, _, i⟩ := i > 0
 
 def setCurr : Iterator → Char → Iterator
-| ⟨s, o, i⟩ c := ⟨utf8Set s i c, o, i⟩
+| ⟨s, o, i⟩ c := ⟨s.set i c, o, i⟩
 
 def toEnd : Iterator → Iterator
 | ⟨s, o, _⟩ := ⟨s, s.length, s.bsize⟩

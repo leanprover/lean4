@@ -60,7 +60,6 @@ obj* l_RBMap_toList___main___boxed(obj*, obj*, obj*);
 obj* l_RBMap_min(obj*, obj*, obj*);
 obj* l_RBMap_toList___rarg(obj*);
 obj* l_RBMap_depth___rarg___boxed(obj*, obj*);
-obj* l_RBMap_empty___main___boxed(obj*, obj*, obj*);
 obj* l_RBNode_isRed___rarg___boxed(obj*);
 obj* l_RBNode_ins___main___at_rbmapOf___spec__4___rarg(obj*, obj*, obj*, obj*);
 uint8 l_RBNode_all___rarg(obj*, obj*);
@@ -102,7 +101,6 @@ obj* l_RBMap_depth(obj*, obj*, obj*);
 obj* l_RBNode_max(obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBMap_mfor___spec__1(obj*, obj*, obj*, obj*);
 obj* l_RBNode_findCore___main___at_RBMap_findCore___main___spec__1___boxed(obj*, obj*, obj*);
-obj* l_RBMap_empty___boxed(obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_isRed(obj*, obj*);
 obj* l_RBMap_toList___main(obj*, obj*, obj*);
@@ -124,14 +122,14 @@ obj* l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg(obj*, obj*, obj*, ob
 obj* l_List_reprAux___main___at_RBMap_HasRepr___spec__2___boxed(obj*, obj*);
 obj* l_RBMap_lowerBound(obj*, obj*, obj*);
 obj* l_RBNode_lowerBound___main___boxed(obj*, obj*, obj*);
-obj* l_RBMap_empty___main(obj*, obj*, obj*);
 obj* l_List_foldl___main___at_rbmapOf___spec__6(obj*, obj*, obj*);
+obj* l_RBMap_isEmpty(obj*, obj*, obj*);
 obj* l_RBNode_setBlack___boxed(obj*, obj*);
 obj* l_RBNode_balance2___main___rarg(obj*, obj*);
-uint8 l_RBMap_empty___main___rarg(obj*);
 obj* l_RBNode_ins___main___at_RBNode_insert___spec__2___boxed(obj*, obj*, obj*);
 obj* l_RBMap_mfor___rarg(obj*, obj*, obj*);
 obj* l_mkRBMap___boxed(obj*, obj*, obj*);
+obj* l_RBMap_isEmpty___main___boxed(obj*, obj*, obj*);
 obj* l_RBNode_insert___at_RBMap_insert___main___spec__1(obj*, obj*, obj*);
 obj* l_RBMap_toList___main___rarg(obj*);
 obj* l_RBMap_ofList___main___rarg(obj*, obj*);
@@ -190,6 +188,7 @@ obj* l_RBNode_max___boxed(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_RBMap_HasEmptyc___boxed(obj*, obj*, obj*);
 obj* l_RBNode_isRed___main___boxed(obj*, obj*);
 obj* l_RBMap_HasRepr___rarg(obj*, obj*, obj*);
 obj* l_RBNode_setBlack___main___boxed(obj*, obj*);
@@ -221,8 +220,8 @@ obj* l_RBMap_any___main___boxed(obj*, obj*, obj*);
 obj* l_RBNode_any___main___rarg___boxed(obj*, obj*);
 obj* l_RBMap_max___main(obj*, obj*, obj*);
 obj* l_RBNode_all___main(obj*, obj*);
-obj* l_RBMap_empty(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_rbmapOf___spec__5___rarg(obj*, obj*, obj*, obj*);
+uint8 l_RBMap_isEmpty___main___rarg(obj*);
 obj* l_RBNode_max___rarg(obj*);
 obj* l_RBMap_all___main___boxed(obj*, obj*, obj*);
 obj* l_List_repr___main___at_RBMap_HasRepr___spec__1(obj*, obj*);
@@ -233,6 +232,7 @@ obj* l_RBNode_all___rarg___boxed(obj*, obj*);
 obj* l_rbmapOf___boxed(obj*, obj*);
 obj* l_RBNode_depth___main(obj*, obj*);
 obj* l_RBNode_mfold___main___boxed(obj*, obj*, obj*, obj*);
+obj* l_RBMap_isEmpty___main(obj*, obj*, obj*);
 obj* l_RBNode_find___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBMap_insert___main(obj*, obj*, obj*);
 obj* l_RBMap_lowerBound___main___boxed(obj*, obj*, obj*);
@@ -244,7 +244,6 @@ obj* l_RBMap_mfold___main___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_RBNode_any___main___boxed(obj*, obj*);
 obj* l_RBMap_fold(obj*, obj*, obj*, obj*);
 obj* l_List_reprAux___main___at_RBMap_HasRepr___spec__2___rarg___boxed(obj*, obj*, obj*, obj*);
-obj* l_RBMap_empty___rarg___boxed(obj*);
 obj* l_RBNode_ins___main___at_RBMap_insert___main___spec__3___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_balance1___main(obj*, obj*);
 obj* l_RBNode_any___boxed(obj*, obj*);
@@ -264,6 +263,7 @@ obj* l_RBMap_insert___main___at_RBMap_fromList___spec__1___boxed(obj*, obj*, obj
 obj* l_RBNode_revFold___main(obj*, obj*, obj*);
 obj* l_RBNode_revFold___main___at_RBMap_toList___main___spec__1(obj*, obj*);
 obj* l_RBMap_lowerBound___main___rarg(obj*, obj*, obj*);
+obj* l_RBMap_isEmpty___boxed(obj*, obj*, obj*);
 uint8 l_RBMap_all___main___rarg(obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBMap_mfor___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_RBNode_balance1___boxed(obj*, obj*);
@@ -281,13 +281,14 @@ obj* l_RBNode_max___main(obj*, obj*);
 obj* l_RBNode_setBlack___rarg(obj*);
 obj* l_RBMap_lowerBound___rarg(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_RBMap_ofList___main___spec__4___boxed(obj*, obj*, obj*);
+obj* l_RBMap_HasEmptyc(obj*, obj*, obj*);
 obj* l_RBMap_insert___main___at_RBMap_ofList___main___spec__1___boxed(obj*, obj*, obj*);
 obj* l_RBNode_min___main___boxed(obj*, obj*);
 obj* l_RBMap_insert___main___at_rbmapOf___spec__2(obj*, obj*, obj*);
 obj* l_RBNode_depth___boxed(obj*, obj*);
-uint8 l_RBMap_empty___rarg(obj*);
 obj* l_RBMap_find___main___rarg(obj*, obj*, obj*);
 obj* l_RBNode_balance1___main___rarg(obj*, obj*);
+obj* l_RBMap_isEmpty___rarg___boxed(obj*);
 obj* l_rbmapOf___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBNode_revFold___main___rarg(obj*, obj*, obj*);
 obj* l_mkRBMap(obj*, obj*, obj*);
@@ -315,6 +316,7 @@ obj* l_RBNode_all___main___boxed(obj*, obj*);
 obj* l_RBNode_mfold(obj*, obj*, obj*, obj*);
 obj* l_RBNode_insert___at_rbmapOf___spec__3___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_RBMap_fromList___spec__4(obj*, obj*, obj*);
+obj* l_RBMap_isEmpty___main___rarg___boxed(obj*);
 obj* l_RBNode_balance1___rarg(obj*, obj*);
 obj* l_RBMap_find___main(obj*, obj*, obj*);
 extern obj* l_List_repr___main___rarg___closed__2;
@@ -333,8 +335,8 @@ obj* l_RBNode_insert___at_rbmapOf___spec__3(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_RBMap_insert___main___spec__2(obj*, obj*, obj*);
 obj* l_RBMap_max___rarg(obj*);
 obj* l_RBMap_max___main___rarg(obj*);
+uint8 l_RBMap_isEmpty___rarg(obj*);
 extern obj* l_String_Iterator_extract___main___closed__1;
-obj* l_RBMap_empty___main___rarg___boxed(obj*);
 obj* l_List_repr___main___at_RBMap_HasRepr___spec__1___rarg(obj*, obj*, obj*);
 obj* l_List_foldl___main___at_rbmapOf___spec__6___rarg(obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -3676,6 +3678,25 @@ lean::dec(x_2);
 return x_3;
 }
 }
+obj* l_RBMap_HasEmptyc(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::box(0);
+return x_3;
+}
+}
+obj* l_RBMap_HasEmptyc___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_RBMap_HasEmptyc(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_3;
+}
+}
 obj* l_RBMap_depth___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -4011,7 +4032,7 @@ lean::dec(x_4);
 return x_5;
 }
 }
-uint8 l_RBMap_empty___main___rarg(obj* x_0) {
+uint8 l_RBMap_isEmpty___main___rarg(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -4028,36 +4049,36 @@ return x_2;
 }
 }
 }
-obj* l_RBMap_empty___main(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBMap_isEmpty___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_RBMap_empty___main___rarg___boxed), 1, 0);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_RBMap_isEmpty___main___rarg___boxed), 1, 0);
 return x_3;
 }
 }
-obj* l_RBMap_empty___main___rarg___boxed(obj* x_0) {
+obj* l_RBMap_isEmpty___main___rarg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
-x_1 = l_RBMap_empty___main___rarg(x_0);
+x_1 = l_RBMap_isEmpty___main___rarg(x_0);
 x_2 = lean::box(x_1);
 lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_RBMap_empty___main___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBMap_isEmpty___main___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_RBMap_empty___main(x_0, x_1, x_2);
+x_3 = l_RBMap_isEmpty___main(x_0, x_1, x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
 return x_3;
 }
 }
-uint8 l_RBMap_empty___rarg(obj* x_0) {
+uint8 l_RBMap_isEmpty___rarg(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -4074,29 +4095,29 @@ return x_2;
 }
 }
 }
-obj* l_RBMap_empty(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBMap_isEmpty(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_RBMap_empty___rarg___boxed), 1, 0);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_RBMap_isEmpty___rarg___boxed), 1, 0);
 return x_3;
 }
 }
-obj* l_RBMap_empty___rarg___boxed(obj* x_0) {
+obj* l_RBMap_isEmpty___rarg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
-x_1 = l_RBMap_empty___rarg(x_0);
+x_1 = l_RBMap_isEmpty___rarg(x_0);
 x_2 = lean::box(x_1);
 lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_RBMap_empty___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBMap_isEmpty___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_RBMap_empty(x_0, x_1, x_2);
+x_3 = l_RBMap_isEmpty(x_0, x_1, x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);

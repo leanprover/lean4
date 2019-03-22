@@ -17,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_Lean_getAppFn___main(obj*);
 obj* l_Lean_Expr_hash___boxed(obj*);
 obj* l_Lean_mkBinApp(obj*, obj*, obj*);
+obj* l_Lean_MData_empty;
 obj* l_Lean_getAppFn(obj*);
 obj* l_Lean_exprIsInhabited;
 extern "C" usize lean_expr_hash(obj*);
@@ -27,6 +28,7 @@ obj* l_Lean_Expr_mkCapp(obj*, obj*);
 obj* l_Lean_mkDecIsFalse___closed__1;
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Expr_mkApp___spec__1(obj*, obj*);
+obj* l_Lean_MData_HasEmptyc;
 obj* l_Lean_Expr_dbgToString___boxed(obj*);
 obj* l_Lean_mkDecIsTrue___closed__1;
 obj* l_Lean_mkDecIsFalse(obj*, obj*);
@@ -34,6 +36,22 @@ extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_getAppFn___boxed(obj*);
 obj* l_Lean_mkDecIsTrue(obj*, obj*);
 obj* l_Lean_Expr_mkApp(obj*, obj*);
+obj* _init_l_Lean_MData_empty() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::box(0);
+return x_0;
+}
+}
+obj* _init_l_Lean_MData_HasEmptyc() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::box(0);
+return x_0;
+}
+}
 obj* _init_l_Lean_exprIsInhabited() {
 _start:
 {
@@ -213,6 +231,10 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_level(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
+ l_Lean_MData_empty = _init_l_Lean_MData_empty();
+lean::mark_persistent(l_Lean_MData_empty);
+ l_Lean_MData_HasEmptyc = _init_l_Lean_MData_HasEmptyc();
+lean::mark_persistent(l_Lean_MData_HasEmptyc);
  l_Lean_exprIsInhabited = _init_l_Lean_exprIsInhabited();
 lean::mark_persistent(l_Lean_exprIsInhabited);
  l_Lean_mkDecIsTrue___closed__1 = _init_l_Lean_mkDecIsTrue___closed__1();

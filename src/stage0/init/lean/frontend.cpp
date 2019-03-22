@@ -17,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6___lambda__1(obj*, obj*, obj*);
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6___lambda__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6___lambda__1___boxed(obj*, obj*, obj*);
+obj* l_Lean_KVMap_setBool(obj*, obj*, uint8);
 extern obj* l_Lean_Parser_Term_builtinTrailingParsers_Lean_Parser_HasTokens;
 extern obj* l_Lean_Parser_Term_builtinLeadingParsers;
 obj* l_Lean_Elaborator_processCommand(obj*, obj*, obj*);
@@ -24,7 +25,6 @@ obj* l_Lean_mkConfig(obj*, obj*);
 obj* l_Lean_processFile___lambda__1___closed__7;
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6___lambda__4___closed__2;
 obj* l_Lean_processFile___lambda__1___closed__1;
-extern obj* l_Lean_Options_mk;
 obj* l_Lean_runFrontend___closed__1;
 extern obj* l_Lean_Parser_command_builtinCommandParsers;
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6___lambda__4(obj*, obj*, uint8, obj*, obj*, obj*, obj*);
@@ -34,6 +34,7 @@ obj* l_Lean_processFile___lambda__1___closed__4;
 obj* l_ioOfExcept___at_Lean_runFrontend___spec__1(obj*, obj*);
 obj* l_Lean_Parser_mkTokenTrie(obj*);
 obj* l_List_mmap_x_27___main___at_Lean_runFrontend___spec__4(obj*, obj*, obj*);
+extern obj* l_Lean_Options_empty;
 extern obj* l_Lean_Parser_Module_header_Parser_Lean_Parser_HasTokens;
 extern obj* l_Lean_Elaborator_notation_elaborate___closed__1;
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6___lambda__4___closed__1;
@@ -44,7 +45,6 @@ obj* l_Lean_processFile___closed__1;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
-obj* l_Lean_Kvmap_setBool(obj*, obj*, uint8);
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6(obj*, uint8, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Expander_builtinTransformers;
 obj* l_Lean_Elaborator_mkState(obj*, obj*, obj*);
@@ -1565,9 +1565,9 @@ x_1 = lean::mk_string("Trace");
 x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_string("asMessages");
 x_4 = lean_name_mk_string(x_2, x_3);
-x_5 = l_Lean_Options_mk;
+x_5 = l_Lean_Options_empty;
 x_6 = 1;
-x_7 = l_Lean_Kvmap_setBool(x_5, x_4, x_6);
+x_7 = l_Lean_KVMap_setBool(x_5, x_4, x_6);
 return x_7;
 }
 }

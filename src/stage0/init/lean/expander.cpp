@@ -8105,7 +8105,7 @@ obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7;
 x_0 = lean::box(0);
 x_1 = lean::mk_string("Unit");
 x_2 = lean_name_mk_string(x_0, x_1);
-x_3 = lean::mk_string("star");
+x_3 = lean::mk_string("unit");
 x_4 = lean_name_mk_string(x_2, x_3);
 x_5 = l_Lean_Expander_globId(x_4);
 x_6 = lean::alloc_cnstr(1, 1, 0);

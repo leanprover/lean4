@@ -28,7 +28,6 @@ obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__8(obj*, obj*, obj*, ob
 obj* l_Lean_Trace_Trace___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_insert___at_Lean_Trace_Lean_Trace_MonadTracer___spec__2(obj*, obj*, obj*);
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__12___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Kvmap_getBool(obj*, obj*);
 obj* l_Lean_Trace_TraceT_run___rarg___lambda__1(obj*, obj*);
 obj* l_Lean_Trace_pp(obj*);
 obj* l_Lean_Trace_Monad___boxed(obj*);
@@ -37,6 +36,7 @@ obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__10(obj*, obj*, obj*, o
 obj* l_Lean_Trace_Lean_Trace_MonadTracer(obj*);
 obj* l_RBNode_balance2___main___rarg(obj*, obj*);
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__6___boxed(obj*, obj*, obj*);
+obj* l_Lean_KVMap_getBool(obj*, obj*);
 obj* l_MonadStateAdapter_adaptState_x_27___at_Lean_Trace_Lean_Trace_MonadTracer___spec__4___boxed(obj*);
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___boxed(obj*);
@@ -676,7 +676,7 @@ if (lean::is_exclusive(x_6)) {
 x_12 = lean::cnstr_get(x_7, 0);
 lean::inc(x_12);
 lean::dec(x_7);
-x_15 = l_Lean_Kvmap_getBool(x_12, x_0);
+x_15 = l_Lean_KVMap_getBool(x_12, x_0);
 if (lean::obj_tag(x_15) == 0)
 {
 obj* x_21; obj* x_23; 
@@ -943,7 +943,7 @@ if (lean::is_exclusive(x_8)) {
 x_27 = lean::cnstr_get(x_1, 0);
 lean::inc(x_27);
 lean::inc(x_27);
-x_32 = l_Lean_Kvmap_getBool(x_27, x_4);
+x_32 = l_Lean_KVMap_getBool(x_27, x_4);
 if (lean::obj_tag(x_32) == 0)
 {
 obj* x_37; 

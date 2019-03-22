@@ -40,6 +40,7 @@ obj* l_Lean_Name_replacePrefix___boxed(obj*, obj*, obj*);
 obj* l_RBMap_insert___main___at_Lean_NameMap_insert___spec__1___boxed(obj*);
 obj* l_Lean_NameMap_contains___boxed(obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3___boxed(obj*);
+obj* l_Lean_NameMap_HasEmptyc(obj*);
 obj* l_Lean_Name_components(obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -125,6 +126,7 @@ obj* l_RBMap_find___main___at_Lean_NameMap_find___spec__1___rarg___boxed(obj*, o
 obj* l_Lean_Name_replacePrefix___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Name_HasAppend;
 obj* l_Lean_NameSet_insert(obj*, obj*);
+obj* l_Lean_NameMap_HasEmptyc___boxed(obj*);
 obj* l_RBMap_insert___main___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
 obj* l_RBMap_find___main___at_Lean_NameMap_contains___spec__1___rarg(obj*, obj*);
 obj* l_Lean_NameMap_contains___rarg___boxed(obj*, obj*);
@@ -135,6 +137,7 @@ obj* l_Lean_mkNumName(obj*, obj*);
 obj* l_Lean_Name_toString(obj*);
 obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__2(obj*, obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3___rarg(obj*, obj*, obj*, obj*);
+obj* l_Lean_NameSet_HasEmptyc;
 obj* l_Lean_NameMap_find___rarg___boxed(obj*, obj*);
 obj* _init_l_Lean_Inhabited() {
 _start:
@@ -901,6 +904,23 @@ _start:
 {
 obj* x_1; 
 x_1 = l_Lean_mkNameMap(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Lean_NameMap_HasEmptyc(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::box(0);
+return x_1;
+}
+}
+obj* l_Lean_NameMap_HasEmptyc___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_NameMap_HasEmptyc(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -1732,6 +1752,14 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
+obj* _init_l_Lean_NameSet_HasEmptyc() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::box(0);
+return x_0;
+}
+}
 obj* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -2345,5 +2373,7 @@ lean::mark_persistent(l_Lean_Name_toString___closed__1);
 lean::mark_persistent(l_Lean_Name_HasToString);
  l_Lean_mkNameSet = _init_l_Lean_mkNameSet();
 lean::mark_persistent(l_Lean_mkNameSet);
+ l_Lean_NameSet_HasEmptyc = _init_l_Lean_NameSet_HasEmptyc();
+lean::mark_persistent(l_Lean_NameSet_HasEmptyc);
 return w;
 }

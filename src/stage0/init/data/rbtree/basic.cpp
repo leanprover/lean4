@@ -18,6 +18,7 @@ obj* l_RBNode_all___main___at_RBTree_subset___spec__4___boxed(obj*, obj*);
 obj* l_RBTree_min___boxed(obj*, obj*);
 obj* l_RBNode_ins___main___at_RBTree_insert___spec__4___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_setBlack___main___rarg(obj*);
+obj* l_RBTree_HasEmptyc___boxed(obj*, obj*);
 uint8 l_RBNode_all___main___at_RBTree_seteq___spec__10___rarg(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_RBTree_fromList___spec__5___boxed(obj*, obj*);
 obj* l_RBNode_any___main___at_RBTree_any___spec__1(obj*);
@@ -57,6 +58,7 @@ obj* l_RBNode_findCore___main___at_RBTree_seteq___spec__9___boxed(obj*, obj*);
 obj* l_RBMap_findCore___main___at_RBTree_subset___spec__2(obj*, obj*);
 obj* l_RBNode_findCore___main___at_RBTree_seteq___spec__9___rarg(obj*, obj*, obj*);
 obj* l_RBTree_any___rarg___boxed(obj*, obj*);
+obj* l_RBTree_isEmpty___rarg___boxed(obj*);
 obj* l_RBNode_ins___main___at_rbtreeOf___spec__6___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_RBTree_fromList___spec__4(obj*, obj*);
 uint8 l_RBTree_all___rarg(obj*, obj*);
@@ -79,7 +81,6 @@ obj* l_RBNode_findCore___main___at_RBTree_seteq___spec__4___boxed(obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBMap_findCore___main___at_RBTree_seteq___spec__3___rarg(obj*, obj*, obj*);
 obj* l_RBTree_contains___boxed(obj*, obj*);
-obj* l_RBTree_empty(obj*, obj*);
 obj* l_RBTree_toList___rarg(obj*);
 obj* l_RBNode_ins___main___at_rbtreeOf___spec__5___boxed(obj*, obj*);
 obj* l_RBTree_HasRepr___boxed(obj*, obj*);
@@ -100,7 +101,6 @@ obj* l_RBTree_find___at_RBTree_contains___spec__1___rarg(obj*, obj*, obj*);
 uint8 l_RBTree_any___rarg(obj*, obj*);
 obj* l_RBNode_balance2___main___rarg(obj*, obj*);
 obj* l_RBMap_insert___main___at_RBTree_ofList___main___spec__1___boxed(obj*, obj*);
-obj* l_RBTree_empty___boxed(obj*, obj*);
 obj* l_RBTree_fromList___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBMap_findCore___main___at_RBTree_contains___spec__2___rarg(obj*, obj*, obj*);
 obj* l_RBMap_insert___main___at_RBTree_fromList___spec__2___rarg(obj*, obj*, obj*, obj*);
@@ -138,13 +138,14 @@ obj* l_RBMap_findCore___main___at_RBTree_contains___spec__2___boxed(obj*, obj*);
 obj* l_RBTree_fromList___boxed(obj*);
 obj* l_RBTree_subset___at_RBTree_seteq___spec__1___boxed(obj*, obj*);
 obj* l_RBTree_seteq(obj*, obj*);
+obj* l_RBTree_HasEmptyc(obj*, obj*);
 obj* l_RBTree_insert___at_RBTree_fromList___spec__1___boxed(obj*, obj*);
 obj* l_RBNode_all___main___at_RBTree_seteq___spec__10___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBTree_revFold___boxed(obj*, obj*, obj*);
 obj* l_RBTree_find___at_RBTree_seteq___spec__7___boxed(obj*, obj*);
-obj* l_RBTree_empty___rarg___boxed(obj*);
 obj* l_RBNode_all___main___at_RBTree_seteq___spec__10___boxed(obj*, obj*);
 uint8 l_Option_toBool___main___rarg(obj*);
+obj* l_RBTree_isEmpty(obj*, obj*);
 obj* l_List_foldl___main___at_rbtreeOf___spec__7(obj*, obj*);
 obj* l_RBTree_mfold___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBNode_revFold___main___at_RBTree_revFold___spec__1(obj*, obj*);
@@ -192,7 +193,6 @@ obj* l_RBTree_insert___at_rbtreeOf___spec__2___rarg(obj*, obj*, obj*);
 obj* l_RBMap_insert___main___at_RBTree_fromList___spec__2(obj*, obj*);
 obj* l_RBTree_fold(obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___rarg(obj*, obj*, obj*, obj*);
-uint8 l_RBTree_empty___rarg(obj*);
 obj* l_RBNode_ins___main___at_RBTree_insert___spec__3___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_all___main___at_RBTree_all___spec__1___rarg___boxed(obj*, obj*);
 obj* l_RBTree_contains(obj*, obj*);
@@ -213,6 +213,7 @@ obj* l_RBNode_any___main___at_RBTree_any___spec__1___boxed(obj*);
 obj* l_RBTree_find___at_RBTree_subset___spec__1___rarg(obj*, obj*, obj*);
 obj* l_RBTree_ofList___main___rarg(obj*, obj*);
 obj* l_RBMap_findCore___main___at_RBTree_subset___spec__2___boxed(obj*, obj*);
+obj* l_RBTree_isEmpty___boxed(obj*, obj*);
 uint8 l_RBNode_all___main___at_RBTree_seteq___spec__5___rarg(obj*, obj*, obj*);
 obj* l_RBTree_max___rarg(obj*);
 obj* l_RBTree_mfold___rarg(obj*, obj*, obj*, obj*);
@@ -220,6 +221,7 @@ obj* l_RBTree_insert(obj*, obj*);
 obj* l_RBNode_revFold___main___at_RBTree_toList___spec__1___boxed(obj*);
 uint8 l_RBTree_subset___at_RBTree_seteq___spec__6___rarg(obj*, obj*, obj*);
 obj* l_RBNode_insert___at_rbtreeOf___spec__4(obj*, obj*);
+uint8 l_RBTree_isEmpty___rarg(obj*);
 obj* l_RBTree_ofList(obj*, obj*);
 obj* l_RBNode_balance1___main___rarg(obj*, obj*);
 obj* l_RBTree_ofList___main___boxed(obj*, obj*);
@@ -266,6 +268,24 @@ _start:
 {
 obj* x_2; 
 x_2 = l_mkRBTree(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_RBTree_HasEmptyc(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::box(0);
+return x_2;
+}
+}
+obj* l_RBTree_HasEmptyc___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_RBTree_HasEmptyc(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -680,7 +700,7 @@ lean::dec(x_3);
 return x_4;
 }
 }
-uint8 l_RBTree_empty___rarg(obj* x_0) {
+uint8 l_RBTree_isEmpty___rarg(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -697,29 +717,29 @@ return x_2;
 }
 }
 }
-obj* l_RBTree_empty(obj* x_0, obj* x_1) {
+obj* l_RBTree_isEmpty(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_RBTree_empty___rarg___boxed), 1, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_RBTree_isEmpty___rarg___boxed), 1, 0);
 return x_2;
 }
 }
-obj* l_RBTree_empty___rarg___boxed(obj* x_0) {
+obj* l_RBTree_isEmpty___rarg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
-x_1 = l_RBTree_empty___rarg(x_0);
+x_1 = l_RBTree_isEmpty___rarg(x_0);
 x_2 = lean::box(x_1);
 lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_RBTree_empty___boxed(obj* x_0, obj* x_1) {
+obj* l_RBTree_isEmpty___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBTree_empty(x_0, x_1);
+x_2 = l_RBTree_isEmpty(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;

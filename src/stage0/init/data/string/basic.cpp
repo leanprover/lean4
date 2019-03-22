@@ -17,7 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_String_utf8ByteSize___boxed(obj*);
 uint32 l_String_Iterator_curr___main(obj*);
 obj* l_String_Iterator_extract(obj*, obj*);
-obj* l_String_utf8AtEnd___boxed(obj*, obj*);
+obj* l_String_prev___boxed(obj*, obj*);
 obj* l_String_mkIterator(obj*);
 obj* l___private_init_data_string_basic_2__utf8ByteSizeAux___main___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_4__utf8SetAux(uint32, obj*, usize, usize);
@@ -40,19 +40,14 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l_String_toNat(obj*);
 namespace lean {
-uint32 string_utf8_get(obj*, usize);
+usize string_utf8_prev(obj*, usize);
 }
-obj* l_String_utf8Set___boxed(obj*, obj*, obj*);
 obj* l_String_trimRightAux___main___boxed(obj*, obj*, obj*);
 uint8 l_String_isEmpty(obj*);
 obj* l_String_trim___boxed(obj*);
-namespace lean {
-usize string_utf8_prev(obj*, usize);
-}
 obj* l_String_intercalate(obj*, obj*);
 obj* l_String_lineColumn(obj*, obj*);
 obj* l_String_Iterator_hasPrev___boxed(obj*);
-usize l_String_utf8Begin;
 obj* l_String_Iterator_extract___main(obj*, obj*);
 obj* l_String_trimRightAux___boxed(obj*, obj*, obj*);
 obj* l___private_init_data_string_basic_9__toNatCore___main(obj*, obj*, obj*);
@@ -60,7 +55,6 @@ obj* l_String_Iterator_toString___main___boxed(obj*);
 uint8 l_String_Iterator_hasPrev___main(obj*);
 obj* l_Char_toString___boxed(obj*);
 obj* l_String_push___boxed(obj*, obj*);
-obj* l_String_utf8Get___boxed(obj*, obj*);
 obj* l_String_Iterator_remaining___main___boxed(obj*);
 obj* l___private_init_data_string_basic_4__utf8SetAux___main(uint32, obj*, usize, usize);
 obj* l___private_init_data_string_basic_7__utf8ExtractAux_u_2081(obj*, usize, usize, usize);
@@ -69,6 +63,7 @@ obj* l_String_Iterator_isPrefixOfRemaining___boxed(obj*, obj*);
 usize l_String_Iterator_remainingBytes___main(obj*);
 obj* l_String_trimLeftAux___boxed(obj*, obj*, obj*);
 obj* l_String_pushn___boxed(obj*, obj*, obj*);
+obj* l_String_get___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_2__utf8ByteSizeAux___boxed(obj*, obj*);
 uint8 l_String_Iterator_hasNext(obj*);
 obj* l_String_HasAppend;
@@ -104,6 +99,9 @@ namespace lean {
 uint8 string_dec_lt(obj*, obj*);
 }
 obj* l_String_Iterator_setCurr___boxed(obj*, obj*);
+namespace lean {
+uint8 string_utf8_at_end(obj*, usize);
+}
 obj* l_String_decEq___boxed(obj*, obj*);
 obj* l_String_Iterator_prev(obj*);
 obj* l_String_str(obj*, uint32);
@@ -113,6 +111,7 @@ obj* l_String_Iterator_nextn(obj*, obj*);
 obj* l_String_Iterator_curr___main___boxed(obj*);
 obj* l_String_Iterator_toString___boxed(obj*);
 obj* l_String_trimLeftAux___main___boxed(obj*, obj*, obj*);
+obj* l_String_set___boxed(obj*, obj*, obj*);
 obj* l_String_Iterator_remainingToString___main___boxed(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
@@ -124,16 +123,16 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_String_append___boxed(obj*, obj*);
-namespace lean {
-uint8 string_utf8_at_end(obj*, usize);
-}
 obj* l___private_init_data_string_basic_5__utf8PrevAux___boxed(obj*, obj*, obj*);
 obj* l_String_Iterator_nextn___main(obj*, obj*);
 obj* l_String_isEmpty___boxed(obj*);
 obj* l_Nat_repeatCore___main___at_String_pushn___spec__1(uint32, obj*, obj*, obj*);
 obj* l_List_map___main___at_String_intercalate___spec__1(obj*);
 obj* l_String_toList(obj*);
-obj* l_String_utf8Begin___boxed;
+obj* l_String_atEnd___boxed(obj*, obj*);
+namespace lean {
+uint32 string_utf8_get(obj*, usize);
+}
 obj* l_String_trimRight___boxed(obj*);
 obj* l_String_singleton(uint32);
 namespace lean {
@@ -147,7 +146,6 @@ obj* l_String_decLt___boxed(obj*, obj*);
 obj* l_String_DecidableEq;
 obj* l_String_trim(obj*);
 obj* l___private_init_data_string_basic_6__utf8ExtractAux_u_2082___boxed(obj*, obj*, obj*);
-obj* l_String_utf8Next___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_1__csize___boxed(obj*);
 namespace lean {
 obj* string_data(obj*);
@@ -156,7 +154,6 @@ obj* l_String_extract___boxed(obj*, obj*, obj*);
 uint32 l_String_Iterator_curr(obj*);
 obj* l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1___boxed;
 obj* l_String_pushn(obj*, uint32, obj*);
-obj* l_String_utf8Prev___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_3__utf8GetAux___boxed(obj*, obj*, obj*);
 uint8 l_Char_isWhitespace(uint32);
 obj* l_String_Iterator_remainingBytes___boxed(obj*);
@@ -170,6 +167,9 @@ obj* l___private_init_data_string_basic_6__utf8ExtractAux_u_2082___main___boxed(
 uint32 l_Char_utf8Size(uint32);
 obj* l_String_Iterator_toEnd___main(obj*);
 obj* l_String_Iterator_remaining(obj*);
+namespace lean {
+usize string_utf8_next(obj*, usize);
+}
 obj* l___private_init_data_string_basic_3__utf8GetAux___main___boxed(obj*, obj*, obj*);
 obj* l_String_Iterator_extract___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_7__utf8ExtractAux_u_2081___main___boxed(obj*, obj*, obj*, obj*);
@@ -197,13 +197,7 @@ obj* uint32_to_nat(uint32);
 }
 obj* l___private_init_data_string_basic_5__utf8PrevAux___main___boxed(obj*, obj*, obj*);
 obj* l_String_trimLeft___boxed(obj*);
-namespace lean {
-usize string_utf8_next(obj*, usize);
-}
 uint8 l_String_Iterator_hasPrev(obj*);
-namespace lean {
-obj* string_utf8_set(obj*, usize, uint32);
-}
 obj* l_List_foldl___main___at_String_join___spec__1(obj*, obj*);
 usize l_String_trimLeftAux___main(obj*, obj*, usize);
 obj* l_String_Iterator_setCurr(obj*, uint32);
@@ -220,6 +214,7 @@ uint8 l_String_Iterator_isPrefixOfRemaining___main(obj*, obj*);
 obj* l_String_Iterator_setCurr___main(obj*, uint32);
 obj* l___private_init_data_string_basic_7__utf8ExtractAux_u_2081___boxed(obj*, obj*, obj*, obj*);
 obj* l_String_str___boxed(obj*, obj*);
+obj* l_String_next___boxed(obj*, obj*);
 obj* l_String_trimLeft(obj*);
 usize l___private_init_data_string_basic_2__utf8ByteSizeAux(obj*, usize);
 obj* l_String_Iterator_extract___main___closed__1;
@@ -229,6 +224,9 @@ obj* l_String_trimRight(obj*);
 uint32 l_String_back(obj*);
 usize l_String_Iterator_remainingBytes(obj*);
 obj* l_String_Iterator_remainingToString(obj*);
+namespace lean {
+obj* string_utf8_set(obj*, usize, uint32);
+}
 namespace lean {
 obj* string_length(obj*);
 }
@@ -411,24 +409,6 @@ lean::dec(x_0);
 return x_2;
 }
 }
-usize _init_l_String_utf8Begin() {
-_start:
-{
-obj* x_0; usize x_1; 
-x_0 = lean::mk_nat_obj(0u);
-x_1 = lean::usize_of_nat(x_0);
-return x_1;
-}
-}
-obj* _init_l_String_utf8Begin___boxed() {
-_start:
-{
-usize x_0; obj* x_1; 
-x_0 = l_String_utf8Begin;
-x_1 = lean::box_size_t(x_0);
-return x_1;
-}
-}
 uint32 l___private_init_data_string_basic_3__utf8GetAux___main(obj* x_0, usize x_1, usize x_2) {
 _start:
 {
@@ -495,7 +475,7 @@ lean::dec(x_0);
 return x_6;
 }
 }
-obj* l_String_utf8Get___boxed(obj* x_0, obj* x_1) {
+obj* l_String_get___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 usize x_2; uint32 x_3; obj* x_4; 
@@ -592,7 +572,7 @@ x_7 = l___private_init_data_string_basic_4__utf8SetAux(x_4, x_1, x_5, x_6);
 return x_7;
 }
 }
-obj* l_String_utf8Set___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_String_set___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 usize x_3; uint32 x_4; obj* x_5; 
@@ -602,7 +582,7 @@ x_5 = lean::string_utf8_set(x_0, x_3, x_4);
 return x_5;
 }
 }
-obj* l_String_utf8Next___boxed(obj* x_0, obj* x_1) {
+obj* l_String_next___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 usize x_2; usize x_3; obj* x_4; 
@@ -694,7 +674,7 @@ lean::dec(x_0);
 return x_6;
 }
 }
-obj* l_String_utf8Prev___boxed(obj* x_0, obj* x_1) {
+obj* l_String_prev___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 usize x_2; usize x_3; obj* x_4; 
@@ -744,7 +724,7 @@ lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_String_utf8AtEnd___boxed(obj* x_0, obj* x_1) {
+obj* l_String_atEnd___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 usize x_2; uint8 x_3; obj* x_4; 
@@ -2329,9 +2309,6 @@ w = initialize_init_data_option_basic(w);
 lean::mark_persistent(l_String_DecidableEq);
  l_String_HasLt = _init_l_String_HasLt();
 lean::mark_persistent(l_String_HasLt);
- l_String_utf8Begin = _init_l_String_utf8Begin();
- l_String_utf8Begin___boxed = _init_l_String_utf8Begin___boxed();
-lean::mark_persistent(l_String_utf8Begin___boxed);
  l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1 = _init_l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1();
  l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1___boxed = _init_l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1___boxed();
 lean::mark_persistent(l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1___boxed);

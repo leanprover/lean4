@@ -1,4 +1,4 @@
-import init.Lean init.Lean.Parser.Syntax
+import init.lean init.lean.parser.syntax
 
 namespace Lean
 /-- An extension of the State held by an `environment` object. The new State
@@ -62,15 +62,15 @@ structure attributeInfo :=
 (scopedExt : environmentExt attributeEntry (List attributeEntry))
 
 namespace attributeInfo
-def addScopedEntry (attr : attributeInfo) : attributeEntry → environment → environment := attr.scopedExt.addEntry ff
+def addScopedEntry (attr : attributeInfo) : attributeEntry → environment → environment := attr.scopedExt.addEntry false
 def activateScopedEntries (attr : attributeInfo) (declOpen : Name → Bool) (env : environment) : environment :=
-((attr.scopedExt.getState env).filter (λ e : attributeEntry, declOpen e.Decl)).foldr (attr.addActiveEntry tt) env
+((attr.scopedExt.getState env).filter (λ e : attributeEntry, declOpen e.Decl)).foldr (attr.addActiveEntry true) env
 end attributeInfo
 
-def attributesRef.init : IO (IO.ref (List attributeInfo)) := IO.mkRef []
-@[init attributesRef.init] private constant attributesRef : IO.ref (List attributeInfo) := default _
+def attributesRef.init : IO (IO.Ref (List attributeInfo)) := IO.mkRef []
+@[init attributesRef.init] private constant attributesRef : IO.Ref (List attributeInfo) := default _
 /-- The List of all attributes registered by `attributeExt.register`. -/
-def attributes : IO (List attributeInfo) := attributesRef.read
+def attributes : IO (List attributeInfo) := attributesRef.get
 
 namespace attributeExt
 variable {stateTy : Type}

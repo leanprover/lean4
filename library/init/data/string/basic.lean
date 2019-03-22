@@ -72,16 +72,16 @@ def utf8ByteSize : (@& String) → USize
 @[inline] def bsize (s : String) : USize :=
 utf8ByteSize s
 
-abbrev utf8Pos := USize
+abbrev Pos := USize
 
-def utf8Begin : utf8Pos := 0
+def utf8Begin : Pos := 0
 
 private def utf8GetAux : List Char → USize → USize → Char
 | []      i p := default Char
 | (c::cs) i p := if i = p then c else utf8GetAux cs (i + csize c) p
 
 @[extern cpp "lean::string_utf8_get"]
-def utf8Get : (@& String) → utf8Pos → Char
+def utf8Get : (@& String) → Pos → Char
 | ⟨s⟩ p := utf8GetAux s 0 p
 
 private def utf8SetAux (c' : Char) : List Char → USize → USize → List Char
@@ -90,11 +90,11 @@ private def utf8SetAux (c' : Char) : List Char → USize → USize → List Char
   if i = p then (c'::cs) else c::(utf8SetAux cs (i + csize c) p)
 
 @[extern cpp "lean::string_utf8_set"]
-def utf8Set : String → utf8Pos → Char → String
+def utf8Set : String → Pos → Char → String
 | ⟨s⟩ i c := ⟨utf8SetAux c s 0 i⟩
 
 @[extern cpp "lean::string_utf8_next"]
-def utf8Next (s : @& String) (p : utf8Pos) : utf8Pos :=
+def utf8Next (s : @& String) (p : Pos) : Pos :=
 let c := utf8Get s p in
 p + csize c
 
@@ -106,7 +106,7 @@ private def utf8PrevAux : List Char → USize → USize → USize
   if i' = p then i else utf8PrevAux cs i' p
 
 @[extern cpp "lean::string_utf8_prev"]
-def utf8Prev : (@& String) → utf8Pos → utf8Pos
+def utf8Prev : (@& String) → Pos → Pos
 | ⟨s⟩ p := if p = 0 then 0 else utf8PrevAux s 0 p
 
 def front (s : String) : Char :=
@@ -116,7 +116,7 @@ def back (s : String) : Char :=
 utf8Get s (utf8Prev s (bsize s))
 
 @[extern cpp "lean::string_utf8_at_end"]
-def utf8AtEnd : (@& String) → utf8Pos → Bool
+def utf8AtEnd : (@& String) → Pos → Bool
 | s p := p ≥ utf8ByteSize s
 
 private def utf8ExtractAux₂ : List Char → USize → USize → List Char
@@ -128,10 +128,10 @@ private def utf8ExtractAux₁ : List Char → USize → USize → USize → List
 | s@(c::cs) i b e := if i = b then utf8ExtractAux₂ s i e else utf8ExtractAux₁ cs (i + csize c) b e
 
 @[extern cpp "lean::string_utf8_extract"]
-def extract : (@& String) → utf8Pos → utf8Pos → String
+def extract : (@& String) → Pos → Pos → String
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
 
-def trimLeftAux (s : String) : Nat → utf8Pos → utf8Pos
+def trimLeftAux (s : String) : Nat → Pos → Pos
 | 0     i := i
 | (n+1) i :=
   if i ≥ s.bsize then i
@@ -144,7 +144,7 @@ let b := trimLeftAux s s.bsize.toNat 0 in
 if b = 0 then s
 else s.extract b s.bsize
 
-def trimRightAux (s : String) : Nat → utf8Pos → utf8Pos
+def trimRightAux (s : String) : Nat → Pos → Pos
 | 0     i := i
 | (n+1) i :=
   if i = 0 then i

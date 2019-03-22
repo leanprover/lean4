@@ -16,8 +16,10 @@ inductive BinderInfo
 | default | implicit | strictImplicit | instImplicit | auxDecl
 
 abbrev MData := KVMap
-abbrev MData.empty : MData := {KVMap .}
-instance : HasEmptyc MData := ⟨MData.empty⟩
+namespace MData
+abbrev empty : MData := {KVMap .}
+instance : HasEmptyc MData := ⟨empty⟩
+end MData
 
 /-
 TODO(Leo): fix the `mvar` Constructor.

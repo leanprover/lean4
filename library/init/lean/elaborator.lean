@@ -102,7 +102,7 @@ structure Scope :=
 (nsStack : List Name := [])
 /- The set of active `open` declarations. -/
 (openDecls : List openSpec.View := [])
-(Options : Options := Options.mk)
+(Options : Options := {})
 
 /-- An `export` command together with the namespace it was declared in. Opening the namespace activates
     the export. -/

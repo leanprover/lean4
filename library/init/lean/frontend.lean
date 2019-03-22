@@ -35,7 +35,7 @@ def runFrontend (filename input : String) (printMsg : Message → IO Unit) (coll
   msgs.toList.mfor printMsg,
   let expanderCfg : ExpanderConfig := {transformers := builtinTransformers, ..parserCfg},
   let elabCfg : ElaboratorConfig := {filename := filename, input := input, initialParserCfg := parserCfg, ..parserCfg},
-  let opts := Options.mk.setBool `Trace.asMessages true,
+  let opts := Options.empty.setBool `Trace.asMessages true,
   let elabSt := Elaborator.mkState elabCfg env opts,
   let addOutput (out : Syntax) outs := if collectOutputs then out::outs else [],
   IO.Prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : List Syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {

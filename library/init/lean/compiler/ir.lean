@@ -24,8 +24,10 @@ abbrev FunId := Name
 abbrev JoinPointId := Name
 
 abbrev MData := KVMap
-abbrev MData.empty : MData := {KVMap .}
-instance : HasEmptyc MData := ⟨MData.empty⟩
+namespace MData
+abbrev empty : MData := {KVMap .}
+instance : HasEmptyc MData := ⟨empty⟩
+end MData
 
 /- Low Level IR types. Most are self explanatory.
 

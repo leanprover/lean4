@@ -163,6 +163,22 @@ let e := trimRightAux s s.bsize.toNat s.bsize in
 if b = 0 && e = s.bsize then s
 else s.extract b e
 
+def splitAux (s sep : String) : Nat → Pos → Pos → Pos → List String → List String
+| 0     b i j r := [] -- unreachable
+| (k+1) b i j r :=
+  if s.atEnd i then
+    let r := if sep.atEnd j then ""::(s.extract b (i-j))::r else (s.extract b i)::r
+    in r.reverse
+  else if s.get i == sep.get j then
+    let i := s.next i in
+    let j := sep.next j in
+    if sep.atEnd j then splitAux k i i 0 (s.extract b (i-j)::r)
+    else splitAux k b i j r
+  else splitAux k b (s.next i) 0 r
+
+def split (s : String) (sep : String := " ") : List String :=
+if sep == "" then [s] else splitAux s sep (s.length+1) 0 0 0 []
+
 structure Iterator :=
 (s : String) (offset : Nat) (i : USize)
 

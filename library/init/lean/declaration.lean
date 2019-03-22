@@ -36,7 +36,7 @@ inductive ReducibilityHints
 | «abbrev» : ReducibilityHints
 | regular  : UInt32 → ReducibilityHints
 
-/-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `inductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
+/-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `InductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
 structure ConstantVal :=
 (id : Name) (lparams : List Name) (type : Expr)
 
@@ -79,7 +79,7 @@ inductive Declaration
 
     A series of checks are performed by the kernel to check whether a `inductiveDecls`
     is valid or not. -/
-structure inductiveVal extends ConstantVal :=
+structure InductiveVal extends ConstantVal :=
 (nparams : Nat)       -- Number of parameters
 (nindices : Nat)      -- Number of indices
 (all : List Name)     -- List of all (including this one) inductive datatypes in the mutual Declaration containing this one
@@ -127,7 +127,7 @@ inductive ConstantInfo
 | thmInfo      (val : TheoremVal)
 | opaqueInfo   (val : OpaqueVal)
 | quotInfo     (val : QuotVal)
-| inductInfo   (val : inductiveVal)
+| inductInfo   (val : InductiveVal)
 | cnstrInfo    (val : ConstructorVal)
 | recInfo      (val : RecursorVal)
 

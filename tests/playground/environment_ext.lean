@@ -5,9 +5,9 @@ namespace Lean
     holds objects of Type `entryTy`, which optionally are persisted to the
     .olean file and collected when loading imports. Objects can be retrieved
     using an appropriate `stateTy` data structure, which is computed on-demand. -/
-constant environmentExt (entryTy stateTy : Type) : Type := Unit
+constant EnvironmentExt (entryTy stateTy : Type) : Type := Unit
 
-namespace environmentExt
+namespace EnvironmentExt
 variables {entryTy stateTy : Type}
 /-- Register a new environment extension. The Result should usually be bound to
     a top-Level definition, after which it can be used to access and modify the
@@ -24,7 +24,7 @@ variables {entryTy stateTy : Type}
      cache from the loaded imports, in which case the input cache may assumed to
      be unshared and amenable to destructive updates. -/
   (addEntry : Π (init : Bool), environment → stateTy → entryTy → stateTy) :
-  IO (environmentExt entryTy stateTy) := default _
+  IO (EnvironmentExt entryTy stateTy) := default _
 
 variables {entryTy' stateTy' : Type}
 
@@ -32,58 +32,60 @@ variables {entryTy' stateTy' : Type}
    That is, whenever an entry `e` is added to `fromExt`,
    Lean also adds an entry `convertEntry e` to `toExt`. -/
 @[extern "lean_environment_ext_register_dep"] constant registerDep
-   (fromExt : environmentExt entryTy stateTy)
-   (toExt : environmentExt entryTy' stateTy')
+   (fromExt : EnvironmentExt entryTy stateTy)
+   (toExt : EnvironmentExt entryTy' stateTy')
    (convertEntry : entryTy → entryTy')
    : IO Unit := default _
 
-@[extern "lean_environment_ext_add_entry"] constant addEntry (ext : environmentExt entryTy stateTy) (persistent : Bool) (entry : entryTy) : environment → environment := id
+@[extern "lean_environment_ext_add_entry"] constant addEntry (ext : EnvironmentExt entryTy stateTy) (persistent : Bool) (entry : entryTy) : environment → environment := id
+
+--constant getModuleEntries (ext : EnvironmentExt entryTy stateTy) (mod : ModID) : IO (Array entryTy)
 
 /-- Retrieve the State of an environment extension. -/
-@[extern "lean_environment_ext_get_state"] constant getState [Inhabited stateTy] : environmentExt entryTy stateTy → environment → stateTy := default _
-end environmentExt
+@[extern "lean_environment_ext_get_state"] constant getState [Inhabited stateTy] : EnvironmentExt entryTy stateTy → environment → stateTy := default _
+end EnvironmentExt
 
-/-- A datum as used by `attributeExt`. -/
-structure attributeEntry :=
-(Decl : Name)
+/-- A datum as used by `AttributeExt`. -/
+structure AttributeEntry :=
+(decl : Name)
 (args : Parser.Syntax)
 
 /-- The Result of registering an attribute in the global State. -/
-structure attributeExt (stateTy : Type) :=
+structure AttributeExt (stateTy : Type) :=
 -- global and local attribute entries as well as "active" scoped entries
-(activeExt : environmentExt attributeEntry stateTy)
+(activeExt : EnvironmentExt AttributeEntry stateTy)
 -- all scoped entries
-(scopedExt : environmentExt attributeEntry (List attributeEntry))
+(scopedExt : EnvironmentExt AttributeEntry (List AttributeEntry))
 
 /-- `cacheTy`-oblivious attribute data available to the Elaborator. -/
-structure attributeInfo :=
-(attr : String)
-(addActiveEntry (persistent : Bool) : attributeEntry → environment → environment)
-(scopedExt : environmentExt attributeEntry (List attributeEntry))
+structure AttributeInfo :=
+(attr : Name)
+(addActiveEntry (persistent : Bool) : AttributeEntry → environment → environment)
+(scopedExt : EnvironmentExt AttributeEntry (List AttributeEntry))
 
-namespace attributeInfo
-def addScopedEntry (attr : attributeInfo) : attributeEntry → environment → environment := attr.scopedExt.addEntry false
-def activateScopedEntries (attr : attributeInfo) (declOpen : Name → Bool) (env : environment) : environment :=
-((attr.scopedExt.getState env).filter (λ e : attributeEntry, declOpen e.Decl)).foldr (attr.addActiveEntry true) env
-end attributeInfo
+namespace AttributeInfo
+def addScopedEntry (attr : AttributeInfo) : AttributeEntry → environment → environment := attr.scopedExt.addEntry false
+def activateScopedEntries (attr : AttributeInfo) (declOpen : Name → Bool) (env : environment) : environment :=
+((attr.scopedExt.getState env).filter (λ e : AttributeEntry, declOpen e.decl)).foldr (attr.addActiveEntry true) env
+end AttributeInfo
 
-def attributesRef.init : IO (IO.Ref (List attributeInfo)) := IO.mkRef []
-@[init attributesRef.init] private constant attributesRef : IO.Ref (List attributeInfo) := default _
+def attributesRef.init : IO (IO.Ref (List AttributeInfo)) := IO.mkRef []
+@[init attributesRef.init] private constant attributesRef : IO.Ref (List AttributeInfo) := default _
 /-- The List of all attributes registered by `attributeExt.register`. -/
-def attributes : IO (List attributeInfo) := attributesRef.get
+def attributes : IO (List AttributeInfo) := attributesRef.get
 
-namespace attributeExt
+namespace AttributeExt
 variable {stateTy : Type}
 
-def register (attr : String) (emptyState : stateTy)
-  (addEntry : Π (init : Bool), environment → stateTy → attributeEntry → stateTy)
-  : IO (attributeExt stateTy) := do
-  ext ← attributeExt.mk
-    <$> environmentExt.register attr emptyState addEntry
-    <*> environmentExt.register (some $ attr ++ ".scoped") [] (λ _ _ entries e, e::entries),
+def register (attr : Name) (emptyState : stateTy)
+  (addEntry : Π (init : Bool), environment → stateTy → AttributeEntry → stateTy)
+  : IO (AttributeExt stateTy) := do
+  ext ← AttributeExt.mk
+    <$> EnvironmentExt.register (toString attr) emptyState addEntry
+    <*> EnvironmentExt.register (some $ toString $ attr ++ `scoped) [] (λ _ _ entries e, e::entries),
   attributesRef.modify $ λ attrs, {attr := attr,
     addActiveEntry := ext.activeExt.addEntry,
     scopedExt := ext.scopedExt}::attrs,
   pure ext
-end attributeExt
+end AttributeExt
 end Lean

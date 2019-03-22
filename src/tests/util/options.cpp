@@ -30,8 +30,6 @@ static void tst2() {
     opt = update(opt, name{"test", "foo"}, 10);
     opt = update(opt, name{"color"}, 20);
     opt = update(opt, name{"ratio"}, 10.5);
-    sexpr s{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    opt = update(opt, name{"sp", "order"}, sexpr{s, s, s, s, s, s});
     opt = update(opt, name{"test", "long", "names", "with", "several", "parts"}, true);
     std::cout << pp(opt) << "\n";
     check_serializer(opt);
@@ -69,8 +67,6 @@ static void tst4() {
     opt = update(opt, "freq", 0.5);
     std::cout << opt << "\n";
     lean_assert(opt.size() == 2);
-    lean_assert(opt.get_double("freq", 0.0) == 0.5);
-    lean_assert(opt.get_double(name("freq"), 0.0) == 0.5);
     lean_assert(opt.get_unsigned("color", 0) == 3);
     lean_assert(opt.get_unsigned(name("color"), 0) == 3);
     opt = update(opt, "name", "Leo");
@@ -86,10 +82,7 @@ static void tst4() {
     lean_assert(opt.get_bool("flag", false));
     lean_assert(opt.get_bool(name("flag"), false));
     lean_assert(!opt.get_bool("flag2", false));
-    opt = update(opt, "list", sexpr{1, 2, 3});
     std::cout << opt << "\n";
-    lean_assert(opt.get_sexpr("list", sexpr()) == sexpr({1, 2, 3}));
-    lean_assert(opt.get_sexpr(name("list"), sexpr()) == sexpr({1, 2, 3}));
     lean_assert(opt.contains("name"));
     lean_assert(!opt.contains("name2"));
     lean_assert(opt.contains("color"));
@@ -105,7 +98,6 @@ static void tst4() {
     lean_assert(strcmp(opt3.get_string("name", ""), "Leo") == 0);
     lean_assert(opt3.get_unsigned("value", 0) == 10);
     lean_assert(opt3.get_unsigned("color", 0) == 3);
-    lean_assert(opt3.get_double(name("freq"), 0.0) == 0.5);
     lean_assert(opt3.get_unsigned(name("freq"), 0) == 0);
     check_serializer(opt3);
     std::ostringstream s;
@@ -113,11 +105,8 @@ static void tst4() {
     k = BoolOption; s << k << " ";
     k = IntOption; s << k << " ";
     k = UnsignedOption; s << k << " ";
-    k = DoubleOption; s << k << " ";
     k = StringOption; s << k << " ";
-    k = SExprOption; s << k;
     std::cout << s.str() << "\n";
-    lean_assert(s.str() == "Bool Int Unsigned Int Double String S-Expression");
 }
 
 static void tst5() {

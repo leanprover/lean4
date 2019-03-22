@@ -32,21 +32,12 @@ void option_declaration::display_value(std::ostream & out, options const & o) co
                 contains = true;
             }
             break;
-        case DoubleOption:
-            if (!is_nil(s) && is_double(s)) {
-                out << to_double(s);
-                contains = true;
-            }
-            break;
         case StringOption:
             if (!is_nil(s) && is_string(s)) {
                 out << to_string(s);
                 contains = true;
             }
             break;
-        case SExprOption:
-            out << mk_pair(flatten(pp(s)), o);
-            contains = true;
         }
     }
     if (!contains)

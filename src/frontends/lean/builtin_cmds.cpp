@@ -215,8 +215,6 @@ environment set_option_cmd(parser & p) {
             throw parser_error("invalid option value, given option is not a string", p.pos());
         p.set_option(id, p.get_str_val());
         p.next();
-    } else if (k == DoubleOption) {
-        p.set_option(id, p.parse_double());
     } else if (k == UnsignedOption || k == IntOption) {
         p.set_option(id, p.parse_small_nat());
     } else {

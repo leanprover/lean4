@@ -269,8 +269,6 @@ options set_config_option(options const & opts, char const * in) {
             else
                 throw lean::exception(lean::sstream() << "invalid -D parameter, invalid configuration option '" << opt
                                       << "' value, it must be true/false");
-        case DoubleOption:
-            return opts.update(opt, atof(val.c_str()));
         case lean::IntOption:
         case lean::UnsignedOption:
             return opts.update(opt, atoi(val.c_str()));

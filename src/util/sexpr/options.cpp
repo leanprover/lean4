@@ -56,9 +56,7 @@ std::ostream & operator<<(std::ostream & out, option_kind k) {
     case BoolOption: out << "Bool"; break;
     case IntOption:  out << "Int"; break;
     case UnsignedOption: out << "Unsigned Int"; break;
-    case DoubleOption: out << "Double"; break;
     case StringOption: out << "String"; break;
-    case SExprOption: out << "S-Expression"; break;
     }
     return out;
 }
@@ -99,11 +97,6 @@ bool options::get_bool(name const & n, bool default_value) const {
     return !is_nil(r) && is_bool(r) ? to_bool(r) != 0 : default_value;
 }
 
-double options::get_double(name const & n, double default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_double(r) ? to_double(r) : default_value;
-}
-
 char const * options::get_string(name const & n, char const * default_value) const {
     sexpr const & r = get_sexpr(n);
     return !is_nil(r) && is_string(r) ? to_string(r).c_str() : default_value;
@@ -127,11 +120,6 @@ unsigned options::get_unsigned(char const * n, unsigned default_value) const {
 bool options::get_bool(char const * n, bool default_value) const {
     sexpr const & r = get_sexpr(n);
     return !is_nil(r) && is_bool(r) ? to_bool(r) != 0 : default_value;
-}
-
-double options::get_double(char const * n, double default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_double(r) ? to_double(r) : default_value;
 }
 
 char const * options::get_string(char const * n, char const * default_value) const {

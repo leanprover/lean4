@@ -25,15 +25,15 @@ bool get_profiler(options const & opts) {
 }
 
 second_duration get_profiling_threshold(options const & opts) {
-    return second_duration(opts.get_double(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD));
+    return second_duration(static_cast<double>(opts.get_unsigned(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD))/1000.0);
 }
 
 void initialize_profiling() {
     g_profiler           = new name{"profiler"};
     g_profiler_threshold = new name{"profiler", "threshold"};
     register_bool_option(*g_profiler, LEAN_DEFAULT_PROFILER, "(profiler) profile tactics and vm_eval command");
-    register_double_option(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD,
-                           "(profiler) threshold in seconds, profiling times under threshold will not be reported");
+    register_unsigned_option(*g_profiler_threshold, LEAN_DEFAULT_PROFILER_THRESHOLD,
+                             "(profiler) threshold in milliseconds, profiling times under threshold will not be reported");
 }
 
 void finalize_profiling() {

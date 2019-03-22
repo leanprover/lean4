@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/sexpr/format.h"
 
 namespace lean {
-enum option_kind { BoolOption, IntOption, UnsignedOption, DoubleOption, StringOption, SExprOption };
+enum option_kind { BoolOption, IntOption, UnsignedOption, StringOption };
 std::ostream & operator<<(std::ostream & out, option_kind k);
 
 /** \brief Configuration options. */
@@ -37,14 +37,12 @@ public:
     bool         get_bool(name const & n, bool default_value = false) const;
     int          get_int(name const & n, int default_value = 0) const;
     unsigned     get_unsigned(name const & n, unsigned default_value = 0) const;
-    double       get_double(name const & n, double default_value = 0.0) const;
     char const * get_string(name const & n, char const * default_value = nullptr) const;
     sexpr        get_sexpr(name const & n, sexpr const & default_value = sexpr()) const;
 
     bool         get_bool(char const * n, bool default_value = false) const;
     int          get_int(char const * n, int default_value = 0) const;
     unsigned     get_unsigned(char const * n, unsigned default_value = 0) const;
-    double       get_double(char const * n, double default_value = 0.0) const;
     char const * get_string(char const * n, char const * default_value = nullptr) const;
     sexpr        get_sexpr(char const * n, sexpr const & default_value = sexpr()) const;
 

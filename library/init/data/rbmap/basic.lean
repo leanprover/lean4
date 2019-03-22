@@ -148,6 +148,9 @@ def RBMap (α : Type u) (β : Type v) (lt : α → α → Prop) : Type (max u v)
 @[inline] def mkRBMap (α : Type u) (β : Type v) (lt : α → α → Prop) : RBMap α β lt :=
 ⟨leaf, WellFormed.leafWff lt⟩
 
+instance (α : Type u) (β : Type v) (lt : α → α → Prop) : HasEmptyc (RBMap α β lt) :=
+⟨mkRBMap α β lt⟩
+
 namespace RBMap
 variables {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Prop}
 
@@ -166,7 +169,7 @@ t.val.depth f
 @[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m σ) (t : RBMap α β lt) : m PUnit :=
 t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
 
-@[inline] def empty : RBMap α β lt → Bool
+@[inline] def isEmpty : RBMap α β lt → Bool
 | ⟨leaf, _⟩ := true
 | _         := false
 

@@ -155,29 +155,35 @@ theorem mkNumeralNeMkNumeralOfNeNumeral (p₁ : Name) {n₁ : Nat} (p₂ : Name)
 
 end Name
 
-section
 local attribute [instance] Name.hasLtQuick
 def NameMap (α : Type) := RBMap Name α (<)
+
+@[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α (<)
+
+namespace NameMap
 variable {α : Type}
-@[inline] def mkNameMap : NameMap α :=
-mkRBMap Name α (<)
-def NameMap.insert (m : NameMap α) (n : Name) (a : α) :=
-RBMap.insert m n a
-def NameMap.contains (m : NameMap α) (n : Name) : Bool :=
-RBMap.contains m n
-@[inline] def NameMap.find (m : NameMap α) (n : Name) : Option α :=
-RBMap.find m n
-end
 
-section
-local attribute [instance] Name.hasLtQuick
+instance (α : Type) : HasEmptyc (NameMap α) := ⟨mkNameMap α⟩
+
+def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
+
+def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
+
+@[inline] def find (m : NameMap α) (n : Name) : Option α := RBMap.find m n
+
+end NameMap
+
 def NameSet := RBTree Name (<)
-@[inline] def mkNameSet : NameSet :=
-mkRBTree Name (<)
-def NameSet.insert (s : NameSet) (n : Name)  :=
-RBTree.insert s n
-def NameSet.contains (s : NameSet) (n : Name) : Bool :=
-RBMap.contains s n
-end
 
+@[inline] def mkNameSet : NameSet := mkRBTree Name (<)
+
+namespace NameSet
+
+instance : HasEmptyc NameSet := ⟨mkNameSet⟩
+
+def insert (s : NameSet) (n : Name)  := RBTree.insert s n
+
+def contains (s : NameSet) (n : Name) : Bool := RBMap.contains s n
+
+end NameSet
 end Lean

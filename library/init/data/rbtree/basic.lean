@@ -13,6 +13,9 @@ RBMap α Unit lt
 @[inline] def mkRBTree (α : Type u) (lt : α → α → Prop) : RBTree α lt :=
 mkRBMap α Unit lt
 
+instance (α : Type u) (lt : α → α → Prop) : HasEmptyc (RBTree α lt) :=
+⟨mkRBTree α lt⟩
+
 namespace RBTree
 variables {α : Type u} {β : Type v} {lt : α → α → Prop}
 
@@ -31,8 +34,8 @@ RBMap.mfold (λ a _ r, f a r) t b
 @[inline] def mfor {m : Type v → Type w} [Monad m] (f : α → m β) (t : RBTree α lt) : m PUnit :=
 t.mfold (λ a _, f a *> pure ⟨⟩) ⟨⟩
 
-@[inline] def empty (t : RBTree α lt) : Bool :=
-RBMap.empty t
+@[inline] def isEmpty (t : RBTree α lt) : Bool :=
+RBMap.isEmpty t
 
 @[specialize] def toList (t : RBTree α lt) : List α :=
 t.revFold (::) []

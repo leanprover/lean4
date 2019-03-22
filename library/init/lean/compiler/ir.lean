@@ -17,11 +17,11 @@ namespace Lean
 namespace IR
 
 /- Variable identifier -/
-abbrev varid := Name
+abbrev VarId := Name
 /- Function identifier -/
-abbrev fid := Name
+abbrev FunId := Name
 /- Join point identifier -/
-abbrev jpid := Name
+abbrev JoinPointId := Name
 
 /- Low Level IR types. Most are self explanatory.
 
@@ -64,7 +64,7 @@ instance IRType.HasBeq : HasBeq IRType := ⟨IRType.beq⟩
    Recall that for a Function `f`, we also generate `f._rarg` which does not take
    `irrelevant` arguments. However, `f._rarg` is only safe to be used in full applications. -/
 inductive Arg
-| var (id : varid)
+| var (id : VarId)
 | irrelevant
 
 inductive Litval
@@ -99,31 +99,31 @@ instance CtorInfo.HasBeq : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
 
 inductive Expr
 | ctor (i : CtorInfo) (ys : List Arg)
-| reset (x : varid)
+| reset (x : VarId)
 /- `reuse x in ctorI ys` instruction in the paper. -/
-| reuse (x : varid) (i : CtorInfo) (ys : List Arg)
+| reuse (x : VarId) (i : CtorInfo) (ys : List Arg)
 /- Extract the `tobject` value at Position `sizeof(void)*i` from `x`. -/
-| proj (i : Nat) (x : varid)
+| proj (i : Nat) (x : VarId)
 /- Extract the `Usize` value at Position `sizeof(void)*i` from `x`. -/
-| uproj (i : Nat) (x : varid)
+| uproj (i : Nat) (x : VarId)
 /- Extract the scalar value at Position `n` (in bytes) from `x`. -/
-| sproj (n : Nat) (x : varid)
+| sproj (n : Nat) (x : VarId)
 /- Full application. -/
-| fap (c : fid) (ys : List Arg)
+| fap (c : FunId) (ys : List Arg)
 /- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
-| pap (c : fid) (ys : List Arg)
+| pap (c : FunId) (ys : List Arg)
 /- Application. `x` must be a `pap` value. -/
-| ap  (x : varid) (ys : List Arg)
+| ap  (x : VarId) (ys : List Arg)
 /- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
    For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
-| box (ty : IRType) (x : varid)
+| box (ty : IRType) (x : VarId)
 /- Given `x : [t]object`, obtain the scalar value. -/
-| unbox (x : varid)
+| unbox (x : VarId)
 | lit (v : Litval)
 /- Return `1 : uint8` Iff `RC(x) > 1` -/
-| isShared (x : varid)
+| isShared (x : VarId)
 /- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
-| isTaggedPtr (x : varid)
+| isTaggedPtr (x : VarId)
 
 structure Param :=
 (x : Name) (borrowed : Bool) (ty : IRType)
@@ -134,36 +134,36 @@ inductive AltCore (Fnbody : Type) : Type
 
 inductive Fnbody
 /- `let x : ty := e; b` -/
-| vdecl (x : varid) (ty : IRType) (e : Expr) (b : Fnbody)
+| vdecl (x : VarId) (ty : IRType) (e : Expr) (b : Fnbody)
 /- Join point Declaration `let j (xs) : ty := e; b` -/
-| jdecl (j : jpid) (xs : List Param) (ty : IRType) (v : Fnbody) (b : Fnbody)
+| jdecl (j : JoinPointId) (xs : List Param) (ty : IRType) (v : Fnbody) (b : Fnbody)
 /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    This operation is not part of λPure is only used during optimization. -/
-| set (x : varid) (i : Nat) (y : varid) (b : Fnbody)
+| set (x : VarId) (i : Nat) (y : VarId) (b : Fnbody)
 /- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
-| uset (x : varid) (i : Nat) (y : varid) (b : Fnbody)
+| uset (x : VarId) (i : Nat) (y : VarId) (b : Fnbody)
 /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
-| sset (x : varid) (i : Nat) (offset : Nat) (y : varid) (ty : IRType) (b : Fnbody)
-| release (x : varid) (i : Nat) (b : Fnbody)
+| sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : Fnbody)
+| release (x : VarId) (i : Nat) (b : Fnbody)
 /- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
-| inc (x : varid) (n : Nat) (c : Bool) (b : Fnbody)
+| inc (x : VarId) (n : Nat) (c : Bool) (b : Fnbody)
 /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
-| dec (x : varid) (n : Nat) (c : Bool) (b : Fnbody)
+| dec (x : VarId) (n : Nat) (c : Bool) (b : Fnbody)
 | mdata (d : Kvmap) (b : Fnbody)
-| case (tid : Name) (x : varid) (cs : List (AltCore Fnbody))
-| ret (x : varid)
+| case (tid : Name) (x : VarId) (cs : List (AltCore Fnbody))
+| ret (x : VarId)
 /- Jump to join point `j` -/
-| jmp (j : jpid) (ys : List Arg)
+| jmp (j : JoinPointId) (ys : List Arg)
 | unreachable
 
-abbrev alt := AltCore Fnbody
-@[pattern] abbrev alt.ctor    := @AltCore.ctor Fnbody
-@[pattern] abbrev alt.default := @AltCore.default Fnbody
+abbrev Alt := AltCore Fnbody
+@[pattern] abbrev Alt.ctor    := @AltCore.ctor Fnbody
+@[pattern] abbrev Alt.default := @AltCore.default Fnbody
 
 inductive Decl
-| fdecl  (f : fid) (xs : List Param) (ty : IRType) (b : Fnbody)
-| extern (f : fid) (xs : List Param) (ty : IRType)
+| fdecl  (f : FunId) (xs : List Param) (ty : IRType) (b : Fnbody)
+| extern (f : FunId) (xs : List Param) (ty : IRType)
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
 def Expr.isPure : Expr → Bool
@@ -178,54 +178,54 @@ def Expr.isPure : Expr → Bool
 | _                := false
 
 /-- `Fnbody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
-mutual def Fnbody.isPure, alts.isPure, alt.isPure
+mutual def Fnbody.isPure, Alts.isPure, Alt.isPure
 with Fnbody.isPure : Fnbody → Bool
 | (Fnbody.vdecl _ _ e b)    := e.isPure && b.isPure
 | (Fnbody.jdecl _ _ _ e b)  := e.isPure && b.isPure
 | (Fnbody.uset _ _ _ b)     := b.isPure
 | (Fnbody.sset _ _ _ _ _ b) := b.isPure
 | (Fnbody.mdata _ b)        := b.isPure
-| (Fnbody.case _ _ cs)      := alts.isPure cs
+| (Fnbody.case _ _ cs)      := Alts.isPure cs
 | (Fnbody.ret _)            := true
 | (Fnbody.jmp _ _)          := true
 | Fnbody.unreachable        := true
 | _                         := false
-with alts.isPure : List alt → Bool
+with Alts.isPure : List Alt → Bool
 | []      := true
-| (a::as) := a.isPure && alts.isPure as
-with alt.isPure : alt → Bool
-| (alt.ctor _ b)  := b.isPure
-| (alt.default b) := false
+| (a::as) := a.isPure && Alts.isPure as
+with Alt.isPure : Alt → Bool
+| (Alt.ctor _ b)  := b.isPure
+| (Alt.default b) := false
 
-abbrev varRenaming := NameMap Name
+abbrev VarRenaming := NameMap Name
 
 class HasAlphaEqv (α : Type) :=
-(aeqv : varRenaming → α → α → Bool)
+(aeqv : VarRenaming → α → α → Bool)
 
 local notation a `=[`:50 ρ `]=`:0 b:50 := HasAlphaEqv.aeqv ρ a b
 
-def varid.alphaEqv (ρ : varRenaming) (v₁ v₂ : varid) : Bool :=
+def VarId.alphaEqv (ρ : VarRenaming) (v₁ v₂ : VarId) : Bool :=
 match ρ.find v₁ with
 | some v := v == v₂
 | none   := v₁ == v₂
 
-instance varid.hasAeqv : HasAlphaEqv varid := ⟨varid.alphaEqv⟩
+instance VarId.hasAeqv : HasAlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
-def Arg.alphaEqv (ρ : varRenaming) : Arg → Arg → Bool
+def Arg.alphaEqv (ρ : VarRenaming) : Arg → Arg → Bool
 | (Arg.var v₁)   (Arg.var v₂)   := v₁ =[ρ]= v₂
 | Arg.irrelevant Arg.irrelevant := true
 | _              _              := false
 
 instance Arg.hasAeqv : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
-def args.alphaEqv (ρ : varRenaming) : List Arg → List Arg → Bool
+def args.alphaEqv (ρ : VarRenaming) : List Arg → List Arg → Bool
 | []      []      := true
 | (a::as) (b::bs) := a =[ρ]= b && args.alphaEqv as bs
 | _       _       := false
 
 instance args.hasAeqv : HasAlphaEqv (List Arg) := ⟨args.alphaEqv⟩
 
-def Expr.alphaEqv (ρ : varRenaming) : Expr → Expr → Bool
+def Expr.alphaEqv (ρ : VarRenaming) : Expr → Expr → Bool
 | (Expr.ctor i₁ ys₁)      (Expr.ctor i₂ ys₂)      := i₁ == i₂ && ys₁ =[ρ]= ys₂
 | (Expr.reset x₁)         (Expr.reset x₂)         := x₁ =[ρ]= x₂
 | (Expr.reuse x₁ i₁ ys₁)  (Expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && i₁ == i₂ && ys₁ =[ρ]= ys₂
@@ -244,20 +244,20 @@ def Expr.alphaEqv (ρ : varRenaming) : Expr → Expr → Bool
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
 
-def addVarRename (ρ : varRenaming) (x₁ x₂ : Name) :=
+def addVarRename (ρ : VarRenaming) (x₁ x₂ : Name) :=
 if x₁ = x₂ then ρ else ρ.insert x₁ x₂
 
-def addParamRename (ρ : varRenaming) (p₁ p₂ : Param) : Option varRenaming :=
+def addParamRename (ρ : VarRenaming) (p₁ p₂ : Param) : Option VarRenaming :=
 if p₁.ty == p₂.ty && p₁.borrowed = p₂.borrowed then some (addVarRename ρ p₁.x p₂.x)
 else none
 
-def addParamsRename : varRenaming → List Param → List Param → Option varRenaming
+def addParamsRename : VarRenaming → List Param → List Param → Option VarRenaming
 | ρ (p₁::ps₁) (p₂::ps₂) := do ρ ← addParamRename ρ p₁ p₂, addParamsRename ρ ps₁ ps₂
 | ρ []        []        := some ρ
 | _ _         _         := none
 
-mutual def Fnbody.alphaEqv, alts.alphaEqv, alt.alphaEqv
-with Fnbody.alphaEqv : varRenaming → Fnbody → Fnbody → Bool
+mutual def Fnbody.alphaEqv, Alts.alphaEqv, Alt.alphaEqv
+with Fnbody.alphaEqv : VarRenaming → Fnbody → Fnbody → Bool
 | ρ (Fnbody.vdecl x₁ t₁ v₁ b₁)      (Fnbody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && Fnbody.alphaEqv (addVarRename ρ x₁ x₂) b₁ b₂
 | ρ (Fnbody.jdecl j₁ ys₁ t₁ v₁ b₁)  (Fnbody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
   (match addParamsRename ρ ys₁ ys₂ with
@@ -271,98 +271,98 @@ with Fnbody.alphaEqv : varRenaming → Fnbody → Fnbody → Bool
 | ρ (Fnbody.inc x₁ n₁ c₁ b₁)        (Fnbody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.dec x₁ n₁ c₁ b₁)        (Fnbody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.mdata m₁ b₁)            (Fnbody.mdata m₂ b₂)              := m₁ == m₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.case n₁ x₁ as₁)         (Fnbody.case n₂ x₂ as₂)           := n₁ == n₂ && x₁ =[ρ]= x₂ && alts.alphaEqv ρ as₁ as₂
+| ρ (Fnbody.case n₁ x₁ as₁)         (Fnbody.case n₂ x₂ as₂)           := n₁ == n₂ && x₁ =[ρ]= x₂ && Alts.alphaEqv ρ as₁ as₂
 | ρ (Fnbody.jmp j₁ ys₁)             (Fnbody.jmp j₂ ys₂)               := j₁ == j₂ && ys₁ =[ρ]= ys₂
 | ρ (Fnbody.ret x₁)                 (Fnbody.ret x₂)                   := x₁ =[ρ]= x₂
 | _ Fnbody.unreachable              Fnbody.unreachable                := true
 | _ _                               _                                 := false
-with alts.alphaEqv : varRenaming → List alt → List alt → Bool
+with Alts.alphaEqv : VarRenaming → List Alt → List Alt → Bool
 | _ []        []        := true
-| ρ (a₁::as₁) (a₂::as₂) := alt.alphaEqv ρ a₁ a₂ && alts.alphaEqv ρ as₁ as₂
+| ρ (a₁::as₁) (a₂::as₂) := Alt.alphaEqv ρ a₁ a₂ && Alts.alphaEqv ρ as₁ as₂
 | _ _         _         := false
-with alt.alphaEqv : varRenaming → alt → alt → Bool
-| ρ (alt.ctor i₁ b₁) (alt.ctor i₂ b₂) := i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (alt.default b₁) (alt.default b₂) := Fnbody.alphaEqv ρ b₁ b₂
+with Alt.alphaEqv : VarRenaming → Alt → Alt → Bool
+| ρ (Alt.ctor i₁ b₁) (Alt.ctor i₂ b₂) := i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
+| ρ (Alt.default b₁) (Alt.default b₂) := Fnbody.alphaEqv ρ b₁ b₂
 | _ _                _                := false
 
 def Fnbody.beq (b₁ b₂ : Fnbody) : Bool :=
-Fnbody.alphaEqv mkNameMap b₁ b₂
+Fnbody.alphaEqv ∅  b₁ b₂
 
 instance Fnbody.HasBeq : HasBeq Fnbody := ⟨Fnbody.beq⟩
 
-abbrev varSet := NameSet
+abbrev VarSet := NameSet
 
 section freeVariables
-abbrev collector := NameSet → NameSet → NameSet
+abbrev Collector := NameSet → NameSet → NameSet
 
-@[inline] private def skip : collector :=
+@[inline] private def skip : Collector :=
 λ bv fv, fv
 
-@[inline] private def var.collect (x : varid) : collector :=
+@[inline] private def collectVar (x : VarId) : Collector :=
 λ bv fv, if bv.contains x then fv else fv.insert x
 
-@[inline] private def withBv (x : varid) : collector → collector :=
+@[inline] private def withBv (x : VarId) : Collector → Collector :=
 λ k bv fv, k (bv.insert x) fv
 
-def insertParams (s : varSet) (ys : List Param) : varSet :=
+def insertParams (s : VarSet) (ys : List Param) : VarSet :=
 ys.foldl (λ s p, s.insert p.x) s
 
-@[inline] private def withParams (ys : List Param) : collector → collector :=
+@[inline] private def withParams (ys : List Param) : Collector → Collector :=
 λ k bv fv, k (insertParams bv ys) fv
 
-@[inline] private def Seq : collector → collector → collector :=
+@[inline] private def Seq : Collector → Collector → Collector :=
 λ k₁ k₂ bv fv, k₂ bv (k₁ bv fv)
 
 local infix *> := Seq
 
-private def Arg.collect : Arg → collector
-| (Arg.var x) := var.collect x
+private def collectArg : Arg → Collector
+| (Arg.var x) := collectVar x
 | irrelevant  := skip
 
-private def args.collect : List Arg → collector
+private def collectArgs : List Arg → Collector
 | []      := skip
-| (a::as) := Arg.collect a *> args.collect as
+| (a::as) := collectArg a *> collectArgs as
 
-private def Expr.collect : Expr → collector
-| (Expr.ctor i ys)       := args.collect ys
-| (Expr.reset x)         := var.collect x
-| (Expr.reuse x i ys)    := var.collect x *> args.collect ys
-| (Expr.proj i x)        := var.collect x
-| (Expr.uproj i x)       := var.collect x
-| (Expr.sproj n x)       := var.collect x
-| (Expr.fap c ys)        := args.collect ys
-| (Expr.pap c ys)        := args.collect ys
-| (Expr.ap x ys)         := var.collect x *> args.collect ys
-| (Expr.box ty x)        := var.collect x
-| (Expr.unbox x)         := var.collect x
+private def collectExpr : Expr → Collector
+| (Expr.ctor i ys)       := collectArgs ys
+| (Expr.reset x)         := collectVar x
+| (Expr.reuse x i ys)    := collectVar x *> collectArgs ys
+| (Expr.proj i x)        := collectVar x
+| (Expr.uproj i x)       := collectVar x
+| (Expr.sproj n x)       := collectVar x
+| (Expr.fap c ys)        := collectArgs ys
+| (Expr.pap c ys)        := collectArgs ys
+| (Expr.ap x ys)         := collectVar x *> collectArgs ys
+| (Expr.box ty x)        := collectVar x
+| (Expr.unbox x)         := collectVar x
 | (Expr.lit v)           := skip
-| (Expr.isShared x)      := var.collect x
-| (Expr.isTaggedPtr x)   := var.collect x
+| (Expr.isShared x)      := collectVar x
+| (Expr.isTaggedPtr x)   := collectVar x
 
-private mutual def Fnbody.collect, alts.collect, alt.collect
-with Fnbody.collect : Fnbody → collector
-| (Fnbody.vdecl x _ v b)    := Expr.collect v *> withBv x (Fnbody.collect b)
-| (Fnbody.jdecl j ys _ v b) := withParams ys (Fnbody.collect v) *> withBv j (Fnbody.collect b)
-| (Fnbody.set x _ y b)      := var.collect x *> var.collect y *> Fnbody.collect b
-| (Fnbody.uset x _ y b)     := var.collect x *> var.collect y *> Fnbody.collect b
-| (Fnbody.sset x _ _ y _ b) := var.collect x *> var.collect y *> Fnbody.collect b
-| (Fnbody.release x _ b)    := var.collect x *> Fnbody.collect b
-| (Fnbody.inc x _ _ b)      := var.collect x *> Fnbody.collect b
-| (Fnbody.dec x _ _ b)      := var.collect x *> Fnbody.collect b
-| (Fnbody.mdata _ b)        := Fnbody.collect b
-| (Fnbody.case _ x as)      := var.collect x *> alts.collect as
-| (Fnbody.jmp j ys)         := var.collect j *> args.collect ys
-| (Fnbody.ret x)            := var.collect x
+private mutual def collectFnBody, collectAlts, collectAlt
+with collectFnBody : Fnbody → Collector
+| (Fnbody.vdecl x _ v b)    := collectExpr v *> withBv x (collectFnBody b)
+| (Fnbody.jdecl j ys _ v b) := withParams ys (collectFnBody v) *> withBv j (collectFnBody b)
+| (Fnbody.set x _ y b)      := collectVar x *> collectVar y *> collectFnBody b
+| (Fnbody.uset x _ y b)     := collectVar x *> collectVar y *> collectFnBody b
+| (Fnbody.sset x _ _ y _ b) := collectVar x *> collectVar y *> collectFnBody b
+| (Fnbody.release x _ b)    := collectVar x *> collectFnBody b
+| (Fnbody.inc x _ _ b)      := collectVar x *> collectFnBody b
+| (Fnbody.dec x _ _ b)      := collectVar x *> collectFnBody b
+| (Fnbody.mdata _ b)        := collectFnBody b
+| (Fnbody.case _ x as)      := collectVar x *> collectAlts as
+| (Fnbody.jmp j ys)         := collectVar j *> collectArgs ys
+| (Fnbody.ret x)            := collectVar x
 | Fnbody.unreachable        := skip
-with alts.collect : List alt → collector
+with collectAlts : List Alt → Collector
 | []      := skip
-| (a::as) := alt.collect a *> alts.collect as
-with alt.collect : alt → collector
-| (alt.ctor _ b)  := Fnbody.collect b
-| (alt.default b) := Fnbody.collect b
+| (a::as) := collectAlt a *> collectAlts as
+with collectAlt : Alt → Collector
+| (Alt.ctor _ b)  := collectFnBody b
+| (Alt.default b) := collectFnBody b
 
-def freeVars (b : Fnbody) : varSet :=
-Fnbody.collect b mkNameSet mkNameSet
+def freeVars (b : Fnbody) : VarSet :=
+collectFnBody b ∅ ∅
 
 end freeVariables
 

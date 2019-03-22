@@ -186,7 +186,7 @@ def toLevel : Syntax → ElaboratorM Level
   | _ := error stx $ "toLevel: unexpected input: " ++ toString stx
 
 def Expr.mkAnnotation (ann : Name) (e : Expr) :=
-Expr.mdata (Kvmap.setName {} `annotation ann) e
+Expr.mdata (MData.empty.setName `annotation ann) e
 
 def dummy : Expr := Expr.const `Prop []
 
@@ -206,8 +206,8 @@ def toPexpr : Syntax → ElaboratorM Expr
     e ← match v with
     | {id := id, univs := some univs} := Expr.const (mangleIdent id) <$> univs.levels.mmap toLevel
     | {id := id, univs := none}       := pure $ Expr.const (mangleIdent id) [],
-    let m := Kvmap.setName {} `annotation `preresolved,
-    let m := v.id.preresolved.enum.foldl (λ m ⟨i, n⟩, Kvmap.setName m (Name.anonymous.mkNumeral i) n) m,
+    let m := MData.empty.setName `annotation `preresolved,
+    let m := v.id.preresolved.enum.foldl (λ (m : MData) ⟨i, n⟩, m.setName (Name.anonymous.mkNumeral i) n) m,
     pure $ Expr.mdata m e
   | @app   := let v := view app stx in
     Expr.app <$> toPexpr v.fn <*> toPexpr v.Arg
@@ -259,7 +259,7 @@ def toPexpr : Syntax → ElaboratorM Expr
     let val := match v.proj with
     | projectionSpec.View.id id := DataValue.ofName id.val
     | projectionSpec.View.num n := DataValue.ofNat n.toNat,
-    Expr.mdata (Kvmap.insert {} `fieldNotation val) <$> toPexpr v.Term
+    Expr.mdata (MData.empty.insert `fieldNotation val) <$> toPexpr v.Term
   | @explicit := do
     let v := view explicit stx,
     let ann := match v.mod with
@@ -281,7 +281,7 @@ def toPexpr : Syntax → ElaboratorM Expr
   | @choice := do
     last::rev ← List.reverse <$> args.mmap (λ a, toPexpr a)
       | error stx "ill-formed choice",
-    pure $ Expr.mdata (Kvmap.setNat {} `choice args.length) $
+    pure $ Expr.mdata (MData.empty.setNat `choice args.length) $
       rev.reverse.foldr Expr.app last
   | @structInst := do
     let v := view structInst stx,
@@ -299,7 +299,7 @@ def toPexpr : Syntax → ElaboratorM Expr
 
     fields ← fields.mmap (λ f, match SepBy.Elem.View.item f with
       | structInstItem.View.field f :=
-        Expr.mdata (Kvmap.setName {} `field $ mangleIdent f.id) <$> toPexpr f.val
+        Expr.mdata (MData.empty.setName `field $ mangleIdent f.id) <$> toPexpr f.val
       | _ := error stx "toPexpr: unreachable"),
     sources ← sources.mmap (λ src, match SepBy.Elem.View.item src with
       | structInstItem.View.source {source := some src} := toPexpr src
@@ -308,9 +308,9 @@ def toPexpr : Syntax → ElaboratorM Expr
     | none     := pure sources
     | some src := do { src ← toPexpr src.source, pure $ sources ++ [src]},
 
-    let m := Kvmap.setNat {} "structure instance" fields.length,
-    let m := Kvmap.setBool m `catchall catchall,
-    let m := Kvmap.setName m `struct $
+    let m := MData.empty.setNat "structure instance" fields.length,
+    let m := m.setBool `catchall catchall,
+    let m := m.setName `struct $
       (mangleIdent <$> structInstType.View.id <$> v.type).getOrElse Name.anonymous,
     let dummy := Expr.sort Level.zero,
     pure $ Expr.mdata m $ (fields ++ sources).foldr Expr.app dummy
@@ -335,7 +335,7 @@ def toPexpr : Syntax → ElaboratorM Expr
     match stx.getPos with
     | some pos :=
       let pos := cfg.fileMap.toPosition pos in
-      pure $ Expr.mdata ((Kvmap.setNat {} `column pos.column).setNat `row pos.line) e
+      pure $ Expr.mdata ((MData.empty.setNat `column pos.column).setNat `row pos.line) e
     | none := pure e)
 | stx := error stx $ "toPexpr: unexpected: " ++ toString stx
 
@@ -350,7 +350,7 @@ def oldElabCommand (stx : Syntax) (cmd : Expr) : ElaboratorM Unit :=
 do cfg ← read,
    let pos := cfg.fileMap.toPosition $ stx.getPos.getOrElse (default _),
    let cmd := match cmd with
-   | Expr.mdata m e := Expr.mdata ((Kvmap.setNat m `column pos.column).setNat `row pos.line) e
+   | Expr.mdata m e := Expr.mdata ((m.setNat `column pos.column).setNat `row pos.line) e
    | e := e,
    st ← get,
    sc ← currentScope,
@@ -381,7 +381,7 @@ Expr.mkCapp `_ <$> attrs.mmap (λ attr,
   Expr.mkCapp attr.item.Name.val <$> attr.item.args.mmap toPexpr)
 
 def declModifiersToPexpr (mods : declModifiers.View) : ElaboratorM Expr := do
-  let mdata : Kvmap := {},
+  let mdata : MData := {},
   let mdata := match mods.docComment with
     | some {doc := some doc, ..} := mdata.setString `docString doc.val
     | _ := mdata,
@@ -417,7 +417,7 @@ Expr.mkCapp `_ <$> bindrs.mmap (λ b, do
 def elabDefLike (stx : Syntax) (mods : declModifiers.View) (dl : defLike.View) (kind : Nat) : ElaboratorM Unit :=
 match dl with
 | {sig := {params := bracketedBinders.View.simple bbs}, ..} := do
-  let mdata := Kvmap.setName {} `command `defs,
+  let mdata := MData.empty.setName `command `defs,
   mods ← declModifiersToPexpr mods,
   let kind := Expr.lit $ Literal.natVal kind,
   match dl.oldUnivParams with
@@ -459,7 +459,7 @@ def Declaration.elaborate : Elaborator :=
   let Decl := view «Declaration» stx,
   match Decl.inner with
   | Declaration.inner.View.«axiom» c@{sig := {params := bracketedBinders.View.simple [], type := type}, ..} := do
-    let mdata := Kvmap.setName {} `command `«axiom», -- CommentTo(Kha): It was `constant` here
+    let mdata := MData.empty.setName `command `«axiom», -- CommentTo(Kha): It was `constant` here
     mods ← declModifiersToPexpr Decl.modifiers,
     let id := identUnivParamsToPexpr c.Name,
     type ← toPexpr type.type,
@@ -491,7 +491,7 @@ def Declaration.elaborate : Elaborator :=
       ..i} 4
 
   | Declaration.inner.View.inductive ind@{«class» := none, sig := {params := bracketedBinders.View.simple bbs}, ..} := do
-    let mdata := Kvmap.setName {} `command `inductives,
+    let mdata := MData.empty.setName `command `inductives,
     mods ← declModifiersToPexpr Decl.modifiers,
     attrs ← attrsToPexpr (match Decl.modifiers.attrs with
       | some attrs := attrs.attrs
@@ -526,7 +526,7 @@ def Declaration.elaborate : Elaborator :=
       Expr.mkCapp `_ [mods, mutAttrs, uparams, inds, params, introRules, inferKinds]
 
   | Declaration.inner.View.structure s@{keyword := structureKw.View.structure _, sig := {params := bracketedBinders.View.simple bbs}, ..} := do
-    let mdata := Kvmap.setName {} `command `structure,
+    let mdata := MData.empty.setName `command `structure,
     mods ← declModifiersToPexpr Decl.modifiers,
     match s.oldUnivParams with
     | some uparams :=
@@ -574,7 +574,7 @@ def Declaration.elaborate : Elaborator :=
 
 def variables.elaborate : Elaborator :=
 λ stx, do
-  let mdata := Kvmap.setName {} `command `variables,
+  let mdata := MData.empty.setName `command `variables,
   let v := view «variables» stx,
   vars ← match v.binders with
   | bracketedBinders.View.simple bbs := bbs.mfilter $ λ b, do
@@ -801,7 +801,7 @@ def universe.elaborate : Elaborator :=
 def attribute.elaborate : Elaborator :=
 λ stx, do
   let attr := view «attribute» stx,
-  let mdata := Kvmap.setName {} `command `attribute,
+  let mdata := MData.empty.setName `command `attribute,
   let mdata := mdata.setBool `local $ attr.local.isSome,
   attrs ← attrsToPexpr attr.attrs,
   ids ← attr.ids.mmap (λ id, match id.preresolved with
@@ -814,7 +814,7 @@ def attribute.elaborate : Elaborator :=
 def check.elaborate : Elaborator :=
 λ stx, do
   let v := view check stx,
-  let mdata := Kvmap.setName {} `command `#check,
+  let mdata := MData.empty.setName `command `#check,
   e ← toPexpr v.Term,
   oldElabCommand stx $ Expr.mdata mdata e
 
@@ -832,7 +832,7 @@ def export.elaborate : Elaborator :=
   modify $ λ st, {st with exportDecls := st.exportDecls ++ v.spec.map (λ spec, ⟨ns, spec⟩)}
 
 def initQuot.elaborate : Elaborator :=
-λ stx, oldElabCommand stx $ Expr.mdata (Kvmap.setName {} `command `initQuot) dummy
+λ stx, oldElabCommand stx $ Expr.mdata (MData.empty.setName `command `initQuot) dummy
 
 def setOption.elaborate : Elaborator :=
 λ stx, do

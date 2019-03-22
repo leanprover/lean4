@@ -15,6 +15,10 @@ inductive Literal
 inductive BinderInfo
 | default | implicit | strictImplicit | instImplicit | auxDecl
 
+abbrev MData := KVMap
+abbrev MData.empty : MData := {KVMap .}
+instance : HasEmptyc MData := ⟨MData.empty⟩
+
 /-
 TODO(Leo): fix the `mvar` Constructor.
 In Lean3 (and Lean4), we have two kinds of metavariables: regular and temporary.
@@ -39,11 +43,11 @@ inductive Expr
 | sort  : Level → Expr                              -- Sort
 | const : Name → List Level → Expr                  -- constants
 | app   : Expr → Expr → Expr                        -- application
-| lam   : Name → BinderInfo → Expr → Expr → Expr   -- lambda abstraction
-| pi    : Name → BinderInfo → Expr → Expr → Expr   -- Pi
+| lam   : Name → BinderInfo → Expr → Expr → Expr    -- lambda abstraction
+| pi    : Name → BinderInfo → Expr → Expr → Expr    -- Pi
 | elet  : Name → Expr → Expr → Expr → Expr          -- let expressions
 | lit   : Literal → Expr                            -- literals
-| mdata : Kvmap → Expr → Expr                       -- metadata
+| mdata : MData → Expr → Expr                       -- metadata
 | proj  : Name → Nat → Expr → Expr                  -- projection
 
 instance exprIsInhabited : Inhabited Expr :=

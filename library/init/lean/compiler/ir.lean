@@ -23,6 +23,10 @@ abbrev FunId := Name
 /- Join point identifier -/
 abbrev JoinPointId := Name
 
+abbrev MData := KVMap
+abbrev MData.empty : MData := {KVMap .}
+instance : HasEmptyc MData := ⟨MData.empty⟩
+
 /- Low Level IR types. Most are self explanatory.
 
    - `Usize` represents the C++ `sizeT` Type. We have it here
@@ -150,7 +154,7 @@ inductive Fnbody
 | inc (x : VarId) (n : Nat) (c : Bool) (b : Fnbody)
 /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | dec (x : VarId) (n : Nat) (c : Bool) (b : Fnbody)
-| mdata (d : Kvmap) (b : Fnbody)
+| mdata (d : MData) (b : Fnbody)
 | case (tid : Name) (x : VarId) (cs : List (AltCore Fnbody))
 | ret (x : VarId)
 /- Jump to join point `j` -/

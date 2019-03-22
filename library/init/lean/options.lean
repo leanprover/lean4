@@ -9,9 +9,9 @@ universe u
 
 namespace Lean
 
-def Options := Kvmap
+def Options := KVMap
 
 def Options.mk : Options :=
-{Kvmap .}
+{KVMap .}
 
 end Lean

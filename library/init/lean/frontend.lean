@@ -35,7 +35,7 @@ def runFrontend (filename input : String) (printMsg : Message → IO Unit) (coll
   msgs.toList.mfor printMsg,
   let expanderCfg : ExpanderConfig := {transformers := builtinTransformers, ..parserCfg},
   let elabCfg : ElaboratorConfig := {filename := filename, input := input, initialParserCfg := parserCfg, ..parserCfg},
-  let opts := Options.empty.setBool `Trace.asMessages true,
+  let opts := Options.empty.setBool `trace.as_messages true,
   let elabSt := Elaborator.mkState elabCfg env opts,
   let addOutput (out : Syntax) outs := if collectOutputs then out::outs else [],
   IO.Prim.iterate (pSnap, elabSt, parserCfg, expanderCfg, ([] : List Syntax)) $ λ ⟨pSnap, elabSt, parserCfg, expanderCfg, outs⟩, do {
@@ -73,8 +73,8 @@ def runFrontend (filename input : String) (printMsg : Message → IO Unit) (coll
 def processFile (f s : String) (json : Bool) : StateT environment IO Unit := do
   let printMsg : Message → IO Unit := λ msg,
     if json then
-      IO.println $ "{\"fileName\": \"<stdin>\", \"posLine\": " ++ toString msg.pos.line ++
-        ", \"posCol\": " ++ toString msg.pos.column ++
+      IO.println $ "{\"file_name\": \"<stdin>\", \"pos_line\": " ++ toString msg.pos.line ++
+        ", \"pos_col\": " ++ toString msg.pos.column ++
         ", \"severity\": " ++ repr (match msg.severity with
           | MessageSeverity.information := "information"
           | MessageSeverity.warning := "warning"

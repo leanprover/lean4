@@ -38,7 +38,7 @@ inductive ReducibilityHints
 
 /-- Base structure for `AxiomVal`, `DefinitionVal`, `TheoremVal`, `InductiveVal`, `ConstructorVal`, `RecursorVal` and `QuotVal`. -/
 structure ConstantVal :=
-(id : Name) (lparams : List Name) (type : Expr)
+(name : Name) (lparams : List Name) (type : Expr)
 
 structure AxiomVal extends ConstantVal :=
 (isUnsafe : Bool)
@@ -54,10 +54,10 @@ structure OpaqueVal extends ConstantVal :=
 (value : Expr)
 
 structure Constructor :=
-(id : Name) (type : Expr)
+(name : Name) (type : Expr)
 
 structure inductiveType :=
-(id : Name) (type : Expr) (cnstrs : List Constructor)
+(name : Name) (type : Expr) (ctors : List Constructor)
 
 /-- Declaration object that can be sent to the kernel. -/
 inductive Declaration
@@ -71,7 +71,7 @@ inductive Declaration
 
 /-- The kernel compiles (mutual) inductive declarations (see `inductiveDecls`) into a set of
     - `Declaration.inductDecl` (for each inductive datatype in the mutual Declaration),
-    - `Declaration.cnstrDecl` (for each Constructor in the mutual Declaration),
+    - `Declaration.ctorDecl` (for each Constructor in the mutual Declaration),
     - `Declaration.recDecl` (automatically generated recursors).
 
     This data is used to implement iota-reduction efficiently and compile nested inductive
@@ -83,8 +83,8 @@ structure InductiveVal extends ConstantVal :=
 (nparams : Nat)       -- Number of parameters
 (nindices : Nat)      -- Number of indices
 (all : List Name)     -- List of all (including this one) inductive datatypes in the mutual Declaration containing this one
-(cnstrs : List Name)  -- List of all constructors for this inductive datatype
-(isRec : Bool)       -- `true` Iff it is recursive
+(ctors : List Name)   -- List of all constructors for this inductive datatype
+(isRec : Bool)        -- `true` Iff it is recursive
 (isUnsafe : Bool)
 (isReflexive : Bool)
 
@@ -97,7 +97,7 @@ structure ConstructorVal extends ConstantVal :=
 
 /-- Information for reducing a recursor -/
 structure RecursorRule :=
-(cnstr : Name)  -- Reduction rule for this Constructor
+(ctor : Name)   -- Reduction rule for this Constructor
 (nfields : Nat) -- Number of fields (i.e., without counting inductive datatype parameters)
 (rhs : Expr)    -- Right hand side of the reduction rule
 
@@ -107,13 +107,13 @@ structure RecursorVal extends ConstantVal :=
 (nindices : Nat)             -- Number of indices
 (nmotives : Nat)             -- Number of motives
 (nminor : Nat)               -- Number of minor premises
-(rules : List RecursorRule) -- A reduction for each Constructor
+(rules : List RecursorRule)  -- A reduction for each Constructor
 (k : Bool)                   -- It supports K-like reduction
 (isUnsafe : Bool)
 
 inductive QuotKind
 | type  -- `Quot`
-| cnstr -- `Quot.mk`
+| ctor  -- `Quot.mk`
 | lift  -- `Quot.lift`
 | ind   -- `Quot.ind`
 
@@ -128,7 +128,7 @@ inductive ConstantInfo
 | opaqueInfo   (val : OpaqueVal)
 | quotInfo     (val : QuotVal)
 | inductInfo   (val : InductiveVal)
-| cnstrInfo    (val : ConstructorVal)
+| ctorInfo     (val : ConstructorVal)
 | recInfo      (val : RecursorVal)
 
 namespace ConstantInfo
@@ -140,11 +140,11 @@ def toConstantVal : ConstantInfo → ConstantVal
 | (opaqueInfo   {toConstantVal := d, ..}) := d
 | (quotInfo     {toConstantVal := d, ..}) := d
 | (inductInfo   {toConstantVal := d, ..}) := d
-| (cnstrInfo    {toConstantVal := d, ..}) := d
+| (ctorInfo     {toConstantVal := d, ..}) := d
 | (recInfo      {toConstantVal := d, ..}) := d
 
-def id (d : ConstantInfo) : Name :=
-d.toConstantVal.id
+def name (d : ConstantInfo) : Name :=
+d.toConstantVal.name
 
 def lparams (d : ConstantInfo) : List Name :=
 d.toConstantVal.lparams
@@ -155,11 +155,11 @@ d.toConstantVal.type
 def value : ConstantInfo → Option Expr
 | (defnInfo {value := r, ..}) := some r
 | (thmInfo  {value := r, ..}) := some r.get
-| _                            := none
+| _                           := none
 
 def hints : ConstantInfo → ReducibilityHints
 | (defnInfo {hints := r, ..}) := r
-| _                            := ReducibilityHints.opaque
+| _                           := ReducibilityHints.opaque
 
 end ConstantInfo
 end Lean

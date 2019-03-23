@@ -344,20 +344,20 @@ class HasMul      (α : Type u) := (mul : α → α → α)
 class HasNeg      (α : Type u) := (neg : α → α)
 class HasSub      (α : Type u) := (sub : α → α → α)
 class HasDiv      (α : Type u) := (div : α → α → α)
-class HasDvd      (α : Type u) := (dvd : α → α → Prop)
+class HasDivides  (α : Type u) := (Divides : α → α → Prop)
 class HasMod      (α : Type u) := (mod : α → α → α)
 class HasModn     (α : Type u) := (modn : α → Nat → α)
-class HasLe       (α : Type u) := (le : α → α → Prop)
-class HasLt       (α : Type u) := (lt : α → α → Prop)
+class HasLessEq   (α : Type u) := (LessEq : α → α → Prop)
+class HasLess     (α : Type u) := (Less : α → α → Prop)
 class HasBeq      (α : Type u) := (beq : α → α → Bool)
 class HasAppend   (α : Type u) := (append : α → α → α)
 class HasAndthen  (α : Type u) (β : Type v) (σ : outParam $ Type w) := (andthen : α → β → σ)
 class HasUnion    (α : Type u) := (union : α → α → α)
 class HasInter    (α : Type u) := (inter : α → α → α)
 class HasSDiff    (α : Type u) := (sdiff : α → α → α)
-class HasEquiv    (α : Sort u) := (equiv : α → α → Prop)
-class HasSubset   (α : Type u) := (subset : α → α → Prop)
-class HasSSubset  (α : Type u) := (ssubset : α → α → Prop)
+class HasEquiv    (α : Sort u) := (Equiv : α → α → Prop)
+class HasSubset   (α : Type u) := (Subset : α → α → Prop)
+class HasSSubset  (α : Type u) := (SSubset : α → α → Prop)
 /- Type classes HasEmptyc and HasInsert are
    used to implement polymorphic notation for collections.
    Example: {a, b, c}. -/
@@ -381,23 +381,23 @@ infix +        := HasAdd.add
 infix *        := HasMul.mul
 infix -        := HasSub.sub
 infix /        := HasDiv.div
-infix ∣        := HasDvd.dvd
+infix ∣        := HasDivides.Divides
 infix %        := HasMod.mod
 infix %ₙ       := HasModn.modn
 prefix -       := HasNeg.neg
-infix <=       := HasLe.le
-infix ≤        := HasLe.le
-infix <        := HasLt.lt
+infix <=       := HasLessEq.LessEq
+infix ≤        := HasLessEq.LessEq
+infix <        := HasLess.Less
 infix ==       := HasBeq.beq
 infix ++       := HasAppend.append
 infix ;        := andthen
 notation `∅`   := HasEmptyc.emptyc _
 infix ∪        := HasUnion.union
 infix ∩        := HasInter.inter
-infix ⊆        := HasSubset.subset
-infix ⊂        := HasSSubset.ssubset
+infix ⊆        := HasSubset.Subset
+infix ⊂        := HasSSubset.SSubset
 infix \        := HasSDiff.sdiff
-infix ≈        := HasEquiv.equiv
+infix ≈        := HasEquiv.Equiv
 infixr ^       := HasPow.pow
 infixr /\      := And
 infixr ∧       := And
@@ -410,15 +410,15 @@ notation `∃` binders `, ` r:(scoped P, Exists P) := r
 
 export HasAppend (append)
 
-@[reducible] def GreaterEq {α : Type u} [HasLe α] (a b : α) : Prop := HasLe.le b a
-@[reducible] def Greater {α : Type u} [HasLt α] (a b : α) : Prop   := HasLt.lt b a
+@[reducible] def GreaterEq {α : Type u} [HasLessEq α] (a b : α) : Prop := HasLessEq.LessEq b a
+@[reducible] def Greater {α : Type u} [HasLess α] (a b : α) : Prop     := HasLess.Less b a
 
 infix >=       := GreaterEq
 infix ≥        := GreaterEq
 infix >        := Greater
 
-@[reducible] def Superset {α : Type u} [HasSubset α] (a b : α) : Prop := HasSubset.subset b a
-@[reducible] def SSuperset {α : Type u} [HasSSubset α] (a b : α) : Prop := HasSSubset.ssubset b a
+@[reducible] def Superset {α : Type u} [HasSubset α] (a b : α) : Prop := HasSubset.Subset b a
+@[reducible] def SSuperset {α : Type u} [HasSSubset α] (a b : α) : Prop := HasSSubset.SSubset b a
 
 infix ⊇        := Superset
 infix ⊃        := SSuperset
@@ -1257,16 +1257,16 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
      | (isFalse n₂) := isFalse (assume h, Prod.noConfusion h (λ e₁' e₂', absurd e₂' n₂)))
   | (isFalse n₁) := isFalse (assume h, Prod.noConfusion h (λ e₁' e₂', absurd e₁' n₁))}
 
-instance [HasLt α] [HasLt β] : HasLt (α × β) :=
+instance [HasLess α] [HasLess β] : HasLess (α × β) :=
 ⟨λ s t, s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)⟩
 
 instance prodHasDecidableLt
-         [HasLt α] [HasLt β] [DecidableEq α] [DecidableEq β]
+         [HasLess α] [HasLess β] [DecidableEq α] [DecidableEq β]
          [Π a b : α, Decidable (a < b)] [Π a b : β, Decidable (a < b)]
          : Π s t : α × β, Decidable (s < t) :=
 λ t s, Or.Decidable
 
-theorem Prod.ltDef [HasLt α] [HasLt β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
+theorem Prod.ltDef [HasLess α] [HasLess β] (s t : α × β) : (s < t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
 rfl
 end
 

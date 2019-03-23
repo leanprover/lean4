@@ -22,7 +22,7 @@ theorem lessThanOrEqual.ndrec  {a : Nat} {C : Nat → Prop} (m₁ : C a) (m₂ :
 theorem lessThanOrEqual.ndrecOn {a : Nat} {C : Nat → Prop} {b : ℕ} (h : lessThanOrEqual a b) (m₁ : C a) (m₂ : ∀ (b : Nat), lessThanOrEqual a b → C b → C (succ b)) : C b :=
 @lessThanOrEqual.rec a (λ b _, C b) m₁ m₂ b h
 
-instance : HasLe ℕ :=
+instance : HasLessEq ℕ :=
 ⟨Nat.lessThanOrEqual⟩
 
 @[reducible] protected def le (n m : ℕ) := Nat.lessThanOrEqual n m
@@ -31,7 +31,7 @@ instance : HasLe ℕ :=
 set_option codegen false
 
 
-instance : HasLt ℕ :=
+instance : HasLess ℕ :=
 ⟨Nat.lt⟩
 
 def pred : ℕ → ℕ

@@ -119,10 +119,10 @@ else if n₁.hash > n₂.hash then false
 else quickLtCore n₁ n₂
 
 /- Alternative HasLt instance. -/
-@[inline] protected def hasLtQuick : HasLt Name :=
+@[inline] protected def hasLtQuick : HasLess Name :=
 ⟨λ a b, Name.quickLt a b = true⟩
 
-@[inline] instance : DecidableRel (@HasLt.lt Name Name.hasLtQuick) :=
+@[inline] instance : DecidableRel (@HasLess.Less Name Name.hasLtQuick) :=
 inferInstanceAs (DecidableRel (λ a b, Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String

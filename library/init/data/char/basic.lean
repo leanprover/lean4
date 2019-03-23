@@ -33,8 +33,8 @@ else 0
 protected def lt (a b : Char) : Prop := a.val < b.val
 protected def le (a b : Char) : Prop := a.val ≤ b.val
 
-instance : HasLt Char := ⟨Char.lt⟩
-instance : HasLe Char := ⟨Char.le⟩
+instance : HasLess Char   := ⟨Char.lt⟩
+instance : HasLessEq Char := ⟨Char.le⟩
 
 instance decLt (a b : Char) :  Decidable (a < b) :=
 UInt32.decLt _ _

@@ -78,11 +78,11 @@ instance : HasSub Int := ⟨Int.sub⟩
 
 protected def le (a b : Int) : Prop := nonneg (b - a)
 
-instance : HasLe Int := ⟨Int.le⟩
+instance : HasLessEq Int := ⟨Int.le⟩
 
 protected def lt (a b : Int) : Prop := (a + 1) ≤ b
 
-instance : HasLt Int := ⟨Int.lt⟩
+instance : HasLess Int := ⟨Int.lt⟩
 
 @[extern cpp "lean::int_dec_eq"]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=

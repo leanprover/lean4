@@ -30,7 +30,7 @@ def List.asString (s : List Char) : String :=
 ⟨s⟩
 
 namespace String
-instance : HasLt String :=
+instance : HasLess String :=
 ⟨λ s₁ s₂, s₁.data < s₂.data⟩
 
 /- Remark: this Function has a VM builtin efficient implementation. -/

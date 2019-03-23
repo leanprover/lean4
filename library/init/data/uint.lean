@@ -43,9 +43,9 @@ instance : HasMul UInt8      := ⟨UInt8.mul⟩
 instance : HasMod UInt8      := ⟨UInt8.mod⟩
 instance : HasModn UInt8     := ⟨UInt8.modn⟩
 instance : HasDiv UInt8      := ⟨UInt8.div⟩
-instance : HasLt UInt8       := ⟨UInt8.lt⟩
-instance : HasLe UInt8       := ⟨UInt8.le⟩
-instance : Inhabited UInt8    := ⟨0⟩
+instance : HasLess UInt8     := ⟨UInt8.lt⟩
+instance : HasLessEq UInt8   := ⟨UInt8.le⟩
+instance : Inhabited UInt8   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt8.decEq (a b : UInt8) : Decidable (a = b) :=
@@ -101,9 +101,9 @@ instance : HasMul UInt16      := ⟨UInt16.mul⟩
 instance : HasMod UInt16      := ⟨UInt16.mod⟩
 instance : HasModn UInt16     := ⟨UInt16.modn⟩
 instance : HasDiv UInt16      := ⟨UInt16.div⟩
-instance : HasLt UInt16       := ⟨UInt16.lt⟩
-instance : HasLe UInt16       := ⟨UInt16.le⟩
-instance : Inhabited UInt16    := ⟨0⟩
+instance : HasLess UInt16     := ⟨UInt16.lt⟩
+instance : HasLessEq UInt16   := ⟨UInt16.le⟩
+instance : Inhabited UInt16   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt16.decEq (a b : UInt16) : Decidable (a = b) :=
@@ -159,9 +159,9 @@ instance : HasMul UInt32      := ⟨UInt32.mul⟩
 instance : HasMod UInt32      := ⟨UInt32.mod⟩
 instance : HasModn UInt32     := ⟨UInt32.modn⟩
 instance : HasDiv UInt32      := ⟨UInt32.div⟩
-instance : HasLt UInt32       := ⟨UInt32.lt⟩
-instance : HasLe UInt32       := ⟨UInt32.le⟩
-instance : Inhabited UInt32    := ⟨0⟩
+instance : HasLess UInt32     := ⟨UInt32.lt⟩
+instance : HasLessEq UInt32   := ⟨UInt32.le⟩
+instance : Inhabited UInt32   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt32.decEq (a b : UInt32) : Decidable (a = b) :=
@@ -217,9 +217,9 @@ instance : HasMul UInt64      := ⟨UInt64.mul⟩
 instance : HasMod UInt64      := ⟨UInt64.mod⟩
 instance : HasModn UInt64     := ⟨UInt64.modn⟩
 instance : HasDiv UInt64      := ⟨UInt64.div⟩
-instance : HasLt UInt64       := ⟨UInt64.lt⟩
-instance : HasLe UInt64       := ⟨UInt64.le⟩
-instance : Inhabited UInt64    := ⟨0⟩
+instance : HasLess UInt64     := ⟨UInt64.lt⟩
+instance : HasLessEq UInt64   := ⟨UInt64.le⟩
+instance : Inhabited UInt64   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def UInt64.decEq (a b : UInt64) : Decidable (a = b) :=
@@ -279,9 +279,9 @@ instance : HasMul USize      := ⟨USize.mul⟩
 instance : HasMod USize      := ⟨USize.mod⟩
 instance : HasModn USize     := ⟨USize.modn⟩
 instance : HasDiv USize      := ⟨USize.div⟩
-instance : HasLt USize       := ⟨USize.lt⟩
-instance : HasLe USize       := ⟨USize.le⟩
-instance : Inhabited USize    := ⟨0⟩
+instance : HasLess USize     := ⟨USize.lt⟩
+instance : HasLessEq USize   := ⟨USize.le⟩
+instance : Inhabited USize   := ⟨0⟩
 
 @[extern cpp inline "#1 == #2"]
 def USize.decEq (a b : USize) : Decidable (a = b) :=

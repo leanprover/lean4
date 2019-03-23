@@ -18,8 +18,8 @@ a.val < b.val
 protected def le {n} (a b : Fin n) : Prop :=
 a.val ≤ b.val
 
-instance {n} : HasLt (Fin n)  := ⟨Fin.lt⟩
-instance {n} : HasLe (Fin n)  := ⟨Fin.le⟩
+instance {n} : HasLess (Fin n)    := ⟨Fin.lt⟩
+instance {n} : HasLessEq (Fin n)  := ⟨Fin.le⟩
 
 instance decLt {n} (a b : Fin n) :  Decidable (a < b) :=
 Nat.decLt _ _

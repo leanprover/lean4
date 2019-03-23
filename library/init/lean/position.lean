@@ -23,7 +23,7 @@ instance : DecidableEq Position :=
 protected def lt : Position → Position → Prop
 | ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := (l₁, c₁) < (l₂, c₂)
 
-instance : HasLt Position := ⟨Position.lt⟩
+instance : HasLess Position := ⟨Position.lt⟩
 
 instance decidableLt : Π (p₁ p₂ : Position), Decidable (p₁ < p₂)
 | ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := inferInstanceAs $ Decidable ((l₁, c₁) < (l₂, c₂))

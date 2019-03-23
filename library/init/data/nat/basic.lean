@@ -54,13 +54,13 @@ def ble : Nat → Nat → Bool
 protected def le (n m : Nat) : Prop :=
 ble n m = true
 
-instance : HasLe Nat :=
+instance : HasLessEq Nat :=
 ⟨Nat.le⟩
 
 protected def lt (n m : Nat) : Prop :=
 Nat.le (succ n) m
 
-instance : HasLt Nat :=
+instance : HasLess Nat :=
 ⟨Nat.lt⟩
 
 @[extern cpp inline "lean::nat_sub(#1, lean::box(1))"]

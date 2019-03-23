@@ -36,7 +36,7 @@ if lt a b      then Ordering.lt
 else if lt b a then Ordering.gt
 else                Ordering.Eq
 
-def cmp {α : Type u} [HasLt α] [DecidableRel ((<) : α → α → Prop)] (a b : α) : Ordering :=
+def cmp {α : Type u} [HasLess α] [DecidableRel ((<) : α → α → Prop)] (a b : α) : Ordering :=
 cmpUsing (<) a b
 
 instance : DecidableEq Ordering :=

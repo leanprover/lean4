@@ -329,16 +329,16 @@ join (map b a)
 @[inline] protected def ret {α : Type u} (a : α) : List α :=
 [a]
 
-protected def lt [HasLt α] : List α → List α → Prop
+protected def lt [HasLess α] : List α → List α → Prop
 | []      []      := False
 | []      (b::bs) := True
 | (a::as) []      := False
 | (a::as) (b::bs) := a < b ∨ (¬ b < a ∧ lt as bs)
 
-instance [HasLt α] : HasLt (List α) :=
+instance [HasLess α] : HasLess (List α) :=
 ⟨List.lt⟩
 
-instance hasDecidableLt [HasLt α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
+instance hasDecidableLt [HasLess α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
 | []      []      := isFalse notFalse
 | []      (b::bs) := isTrue trivial
 | (a::as) []      := isFalse notFalse
@@ -353,19 +353,19 @@ instance hasDecidableLt [HasLt α] [h : DecidableRel ((<) : α → α → Prop)]
       | isTrue h₃  := isTrue (Or.inr ⟨h₂, h₃⟩)
       | isFalse h₃ := isFalse (λ h, Or.elim h (λ h, absurd h h₁) (λ ⟨_, h⟩, absurd h h₃))
 
-@[reducible] protected def le [HasLt α] (a b : List α) : Prop :=
+@[reducible] protected def le [HasLess α] (a b : List α) : Prop :=
 ¬ b < a
 
-instance [HasLt α] : HasLe (List α) :=
+instance [HasLess α] : HasLessEq (List α) :=
 ⟨List.le⟩
 
-instance hasDecidableLe [HasLt α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
+instance hasDecidableLe [HasLess α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
 λ a b, Not.Decidable
 
-theorem leEqNotGt [HasLt α] : ∀ l₁ l₂ : List α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
+theorem leEqNotGt [HasLess α] : ∀ l₁ l₂ : List α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
 λ l₁ l₂, rfl
 
-theorem ltEqNotGe [HasLt α] [DecidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : List α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
+theorem ltEqNotGe [HasLess α] [DecidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : List α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
 λ l₁ l₂,
   show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
   Eq.subst (propext (notNotIff (l₁ < l₂))).symm rfl

@@ -195,12 +195,10 @@ obj_res io_ref_reset(b_obj_arg ref, obj_arg r) {
 
 obj_res io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
     if (ref_maybe_mt(ref)) {
-        if (is_st_heap_obj(a)) {
-            /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
-               Reason: our runtime relies on the fact that a single-threaded object
-               cannot be reached from a multi-thread object. */
-            mark_mt(a);
-        }
+        /* We must mark `a` as multi-threaded if `ref` is marked as multi-threaded.
+           Reason: our runtime relies on the fact that a single-threaded object
+           cannot be reached from a multi-thread object. */
+        mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(a);
         if (old_a != nullptr)
@@ -216,10 +214,8 @@ obj_res io_ref_set(b_obj_arg ref, obj_arg a, obj_arg r) {
 
 obj_res io_ref_swap(b_obj_arg ref, obj_arg a, obj_arg r) {
     if (ref_maybe_mt(ref)) {
-        if (is_st_heap_obj(a)) {
-            /* See io_ref_write */
-            mark_mt(a);
-        }
+        /* See io_ref_write */
+        mark_mt(a);
         atomic<object *> * val_addr = mt_ref_val_addr(ref);
         object * old_a = val_addr->exchange(a);
         if (old_a == nullptr)

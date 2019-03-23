@@ -30,6 +30,9 @@ like in https://doc.rust-lang.org/std/IO/enum.ErrorKind.html
 @[derive HasToString Inhabited]
 def IO.error := String
 
+def IO.userError (s : String) : IO.error :=
+s
+
 abbrev IO : Type → Type := EIO IO.error
 
 @[extern "lean_io_unsafe"]

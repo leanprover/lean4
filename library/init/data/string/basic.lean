@@ -290,12 +290,36 @@ end String
 protected def Char.toString (c : Char) : String :=
 String.singleton c
 
-private def toNatCore : String.Iterator → Nat → Nat → Nat
-| it      0     r := r
-| it      (i+1) r :=
-  let c := it.curr in
-  let r := r*10 + c.toNat - '0'.toNat in
-  toNatCore it.next i r
+namespace String
+universes u
+@[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) : Nat → Pos → α → α
+| 0     _ a := a
+| (k+1) i a :=
+  if s.atEnd i then a
+  else foldlAux k (s.next i) (f a (s.get i))
 
-def String.toNat (s : String) : Nat :=
-toNatCore s.mkIterator s.length 0
+@[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : String) (start : Pos := 0) : α :=
+foldlAux f s s.length 0 a
+
+@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) : Nat → Pos → α
+| 0     i := a
+| (k+1) i :=
+  if s.atEnd i then a
+  else f (s.get i) (foldrAux k (s.next i))
+
+@[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : String) (start : Pos := 0) : α :=
+foldrAux f a s s.length start
+
+@[inline] def any (s : String) (p : Char → Bool) (start : Pos := 0) : Bool :=
+s.foldr (λ a r, p a || r) false start
+
+@[inline] def all (s : String) (p : Char → Bool) (start : Pos := 0) : Bool :=
+s.foldr (λ a r, p a && r) true start
+
+def toNat (s : String) : Nat :=
+s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0
+
+def isNat (s : String) : Bool :=
+s.all $ λ c, c.isDigit
+
+end String

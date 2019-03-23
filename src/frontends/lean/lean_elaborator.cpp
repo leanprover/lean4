@@ -528,6 +528,7 @@ extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_
         auto s = p.mk_snapshot();
         p.reset(snapshot(p.env(), ngen, lds, eds, lvars, vars, includes, options, true, false,
                          parser_scope_stack(), nat(cnstr_get(vm_st, 6), true).get_small_value(), pos_info{1, 0}));
+        p.m_last_cmd_pos = pos;
         auto ns = name(cnstr_get(vm_st, 7), true);
         p.set_env(set_namespace(env, ns));
 

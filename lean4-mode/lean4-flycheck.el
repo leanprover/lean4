@@ -21,7 +21,7 @@
 (defun lean4-flycheck-command ()
   (let ((command
          (-concat `(,(lean4-get-executable lean4-executable-name))
-                  lean4-extra-arguments
+                  '((eval lean4-extra-arguments))
                   '("--json" "--stdin"))))
     command))
 

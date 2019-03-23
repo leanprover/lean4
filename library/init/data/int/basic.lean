@@ -158,3 +158,19 @@ def toNat : Int → Nat
 def natMod (m n : Int) : Nat := (m % n).toNat
 
 end Int
+
+namespace String
+
+def toInt (s : String) : Int :=
+if s.get 0 = '-' then
+ - Int.ofNat (s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0 1)
+else
+ Int.ofNat s.toNat
+
+def isInt (s : String) : Bool :=
+if s.get 0 = '-' then
+  s.all (λ c, c.isDigit) 1
+else
+  s.isNat
+
+end String

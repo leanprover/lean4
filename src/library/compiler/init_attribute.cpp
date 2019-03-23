@@ -18,6 +18,8 @@ struct init_attr_data : public attr_data {
     virtual unsigned hash() const override { return m_init_fn.hash(); }
     virtual void parse(expr const & e) override {
         buffer<expr> args; get_app_args(e, args);
+        if (args.size() == 0)
+            return;
         if (args.size() != 1 || !is_const(extract_mdata(args[0])))
             throw parser_error("constant expected", get_pos_info_provider()->get_pos_info_or_some(e));
         m_init_fn = const_name(extract_mdata(args[0]));
@@ -33,9 +35,19 @@ static init_attr const & get_init_attr() {
     return static_cast<init_attr const &>(get_system_attribute("init"));
 }
 
+bool is_io_unit_init_fn(environment const & env, name const & n) {
+    if (auto const & data = get_init_attr().get(env, n))
+        return data->m_init_fn.is_anonymous();
+    else
+        return false;
+}
+
 optional<name> get_init_fn_name_for(environment const & env, name const & n) {
     if (auto const & data = get_init_attr().get(env, n)) {
-        return optional<name>(data->m_init_fn);
+        if (data->m_init_fn.is_anonymous())
+            return optional<name>();
+        else
+            return optional<name>(data->m_init_fn);
     } else {
         return optional<name>();
     }
@@ -53,19 +65,28 @@ void initialize_init_attribute() {
                                             if (!persistent) throw exception("invalid [init] attribute, it must be persistent");
                                             auto const & data = *get_init_attr().get(env, n);
                                             name init_fn = data.m_init_fn;
-                                            optional<constant_info> init_fn_info = env.find(init_fn);
-                                            if (!init_fn_info) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' not found");
-                                            constant_info n_info = env.get(n);
-                                            if (!n_info.is_opaque()) throw exception(sstream() << "invalid [init] attribute, '" << n << "' must be a constant");
-                                            expr type = n_info.get_type();
-                                            expr init_fn_type = init_fn_info->get_type();
-                                            optional<expr> io_arg_type = get_io_type_arg(init_fn_type);
-                                            if (!io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'io <type>'");
-                                            if (type != *io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'io <type>' "
-                                                                                           << "where '<type>' is the type of '" << n << "'");
-                                            /* During code generation, we check whether constants tagged with the `[init]` attribute have arity 0.
-                                               We cannot perform this check here because attributes are registered before code generation. */
-                                            return env;
+                                            if (init_fn.is_anonymous()) {
+                                                expr type = env.get(n).get_type();
+                                                optional<expr> io_arg_type = get_io_type_arg(type);
+                                                if (!io_arg_type || !is_constant(*io_arg_type, get_unit_name()))
+                                                    throw exception(sstream() << "invalid [init] attribute, initialization function '" <<
+                                                                    n << "' must have type of the form 'IO Unit'");
+                                                return env;
+                                            } else {
+                                                optional<constant_info> init_fn_info = env.find(init_fn);
+                                                if (!init_fn_info) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' not found");
+                                                constant_info n_info = env.get(n);
+                                                if (!n_info.is_opaque()) throw exception(sstream() << "invalid [init] attribute, '" << n << "' must be a constant");
+                                                expr type = n_info.get_type();
+                                                expr init_fn_type = init_fn_info->get_type();
+                                                optional<expr> io_arg_type = get_io_type_arg(init_fn_type);
+                                                if (!io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'IO <type>'");
+                                                if (type != *io_arg_type) throw exception(sstream() << "invalid [init] attribute, initialization function '" << init_fn << "' must have type of the form 'IO <type>' "
+                                                                                          << "where '<type>' is the type of '" << n << "'");
+                                                /* During code generation, we check whether constants tagged with the `[init]` attribute have arity 0.
+                                                   We cannot perform this check here because attributes are registered before code generation. */
+                                                return env;
+                                            }
                                         }));
 }
 

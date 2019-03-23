@@ -8,6 +8,7 @@ Authors: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
+bool is_io_unit_init_fn(environment const & env, name const & n);
 optional<name> get_init_fn_name_for(environment const & env, name const & n);
 inline bool has_init_attribute(environment const & env, name const & n) {
     return static_cast<bool>(get_init_fn_name_for(env, n));

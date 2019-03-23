@@ -1083,7 +1083,10 @@ static void emit_initialize(std::ostream & out, environment const & env, module_
     for (comp_decl const & d : ds) {
         name const & n    = d.fst();
         expr const & code = d.snd();
-        if (!is_lambda(code)) {
+        if (is_io_unit_init_fn(env, n)) {
+            out << "w = " << to_cpp_name(env, n) << "(w);\n";
+            out << "if (io_result_is_error(w)) return w;\n";
+        } else if (!is_lambda(code)) {
             if (optional<name> init_fn = get_init_fn_name_for(env, d.fst())) {
                 out << "w = " << to_cpp_name(env, *init_fn) << "(w);\n";
                 out << "if (io_result_is_error(w)) return w;\n";

@@ -1115,24 +1115,24 @@ local infix `≺`:50 := r
 
 def Reflexive := ∀ x, x ≺ x
 
-def Symmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x
+def Symmetric := ∀ {x y}, x ≺ y → y ≺ x
 
-def Transitive := ∀ ⦃x y z⦄, x ≺ y → y ≺ z → x ≺ z
+def Transitive := ∀ {x y z}, x ≺ y → y ≺ z → x ≺ z
 
 def Equivalence := Reflexive r ∧ Symmetric r ∧ Transitive r
 
 def Total := ∀ x y, x ≺ y ∨ y ≺ x
 
 def mkEquivalence (rfl : Reflexive r) (symm : Symmetric r) (trans : Transitive r) : Equivalence r :=
-⟨rfl, symm, trans⟩
+⟨rfl, @symm, @trans⟩
 
 def Irreflexive := ∀ x, ¬ x ≺ x
 
-def AntiSymmetric := ∀ ⦃x y⦄, x ≺ y → y ≺ x → x = y
+def AntiSymmetric := ∀ {x y}, x ≺ y → y ≺ x → x = y
 
 def emptyRelation := λ a₁ a₂ : α, False
 
-def Subrelation (q r : β → β → Prop) := ∀ ⦃x y⦄, q x y → r x y
+def Subrelation (q r : β → β → Prop) := ∀ {x y}, q x y → r x y
 
 def InvImage (f : α → β) : α → α → Prop :=
 λ a₁ a₂, f a₁ ≺ f a₂

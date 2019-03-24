@@ -86,14 +86,14 @@ WellFounded.intro (λ (a : α),
 
 -- Subrelation of a well-founded relation is well-founded
 namespace Subrelation
-variables {α : Sort u} {r Q : α → α → Prop}
+variables {α : Sort u} {r q : α → α → Prop}
 
-def accessible {a : α} (h₁ : Subrelation Q r) (ac : Acc r a) : Acc Q a :=
-Acc.recOn ac (λ x ax ih,
-  Acc.intro x (λ (y : α) (lt : Q y x), ih y (h₁ lt)))
+def accessible {a : α} (h₁ : Subrelation q r) (ac : Acc r a) : Acc q a :=
+Acc.recOn ac $ λ x ax ih,
+  Acc.intro x $ λ (y : α) (lt : q y x), ih y (h₁ lt)
 
-def wf (h₁ : Subrelation Q r) (h₂ : WellFounded r) : WellFounded Q :=
-⟨λ a, accessible h₁ (apply h₂ a)⟩
+def wf (h₁ : Subrelation q r) (h₂ : WellFounded r) : WellFounded q :=
+⟨λ a, accessible @h₁ (apply h₂ a)⟩
 end Subrelation
 
 -- The inverse image of a well-founded relation is well-founded
@@ -101,8 +101,9 @@ namespace InvImage
 variables {α : Sort u} {β : Sort v} {r : β → β → Prop}
 
 private def accAux (f : α → β) {b : β} (ac : Acc r b) : ∀ (x : α), f x = b → Acc (InvImage r f) x :=
-Acc.ndrecOn ac (λ x acx ih z e,
-  Acc.intro z (λ y lt, Eq.ndrecOn e (λ acx ih, ih (f y) lt y rfl) acx ih))
+Acc.ndrecOn ac $ λ x acx ih z e,
+  Acc.intro z  $ λ y lt,
+    Eq.ndrecOn e (λ acx ih, ih (f y) lt y rfl) acx ih
 
 def accessible {a : α} (f : α → β) (ac : Acc r (f a)) : Acc (InvImage r f) a :=
 accAux f ac a rfl
@@ -117,12 +118,12 @@ variables {α : Sort u} {r : α → α → Prop}
 local notation `r⁺` := TC r
 
 def accessible {z : α} (ac : Acc r z) : Acc (TC r) z :=
-Acc.ndrecOn ac (λ x acx ih,
-  Acc.intro x (λ y rel,
+Acc.ndrecOn ac $ λ x acx ih,
+  Acc.intro x $ λ y rel,
     TC.ndrecOn rel
       (λ a b rab acx ih, ih a rab)
       (λ a b c rab rbc ih₁ ih₂ acx ih, Acc.inv (ih₂ acx ih) rab)
-      acx ih))
+      acx ih
 
 def wf (h : WellFounded r) : WellFounded r⁺ :=
 ⟨λ a, accessible (apply h a)⟩
@@ -132,9 +133,9 @@ end TC
 def Nat.ltWf : WellFounded Nat.lt :=
 ⟨Nat.rec
   (Acc.intro 0 (λ n h, absurd h (Nat.notLtZero n)))
-  (λ n ih, Acc.intro (Nat.succ n) (λ m h,
+  (λ n ih, Acc.intro (Nat.succ n) $ λ m h,
      Or.elim (Nat.eqOrLtOfLe (Nat.leOfSuccLeSucc h))
-        (λ e, Eq.substr e ih) (Acc.inv ih)))⟩
+        (λ e, Eq.substr e ih) (Acc.inv ih))⟩
 
 def measure {α : Sort u} : (α → ℕ) → α → α → Prop :=
 InvImage (<)
@@ -175,19 +176,19 @@ variables {ra  : α → α → Prop} {rb  : β → β → Prop}
 local infix `≺`:50 := Lex ra rb
 
 def lexAccessible {a} (aca : Acc ra a) (acb : ∀ b, Acc rb b): ∀ b, Acc (Lex ra rb) (a, b) :=
-Acc.ndrecOn aca (λ xa aca iha b,
-  Acc.ndrecOn (acb b) (λ xb acb ihb,
-    Acc.intro (xa, xb) (λ p lt,
+Acc.ndrecOn aca $ λ xa aca iha b,
+  Acc.ndrecOn (acb b) $ λ xb acb ihb,
+    Acc.intro (xa, xb)  $ λ p lt,
       have aux : xa = xa → xb = xb → Acc (Lex ra rb) p, from
         @Prod.Lex.recOn α β ra rb (λ p₁ p₂ _, fst p₂ = xa → snd p₂ = xb → Acc (Lex ra rb) p₁)
                          p (xa, xb) lt
           (λ a₁ b₁ a₂ b₂ h (Eq₂ : a₂ = xa) (Eq₃ : b₂ = xb), iha a₁ (Eq.recOn Eq₂ h) b₁)
           (λ a b₁ b₂ h (Eq₂ : a = xa) (Eq₃ : b₂ = xb), Eq.recOn Eq₂.symm (ihb b₁ (Eq.recOn Eq₃ h))),
-      aux rfl rfl)))
+      aux rfl rfl
 
 -- The lexicographical order of well founded relations is well-founded
 def lexWf (ha : WellFounded ra) (hb : WellFounded rb) : WellFounded (Lex ra rb) :=
-⟨λ p, casesOn p (λ a b, lexAccessible (apply ha a) (WellFounded.apply hb) b)⟩
+⟨λ p, casesOn p $ λ a b, lexAccessible (apply ha a) (WellFounded.apply hb) b⟩
 
 -- relational product is a Subrelation of the Lex
 def rprodSubLex : ∀ a b, Rprod ra rb a b → Lex ra rb a b :=
@@ -220,34 +221,30 @@ variables {α : Sort u} {β : α → Sort v}
 variables {r  : α → α → Prop} {s : Π a : α, β a → β a → Prop}
 local infix `≺`:50 := Lex r s
 
-def lexAccessible {a} (aca : Acc r a) (acb : ∀ a, WellFounded (s a))
-                     : ∀ (b : β a), Acc (Lex r s) ⟨a, b⟩ :=
-Acc.ndrecOn aca
-  (λ xa aca (iha : ∀ y, r y xa → ∀ b : β y, Acc (Lex r s) ⟨y, b⟩),
-    λ b : β xa, Acc.ndrecOn (WellFounded.apply (acb xa) b)
-      (λ xb acb
-        (ihb : ∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩),
-        Acc.intro ⟨xa, xb⟩ (λ p (lt : p ≺ ⟨xa, xb⟩),
-          have aux : xa = xa → xb ≅ xb → Acc (Lex r s) p, from
-            @PSigma.Lex.recOn α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 ≅ xb → Acc (Lex r s) p₁)
-                               p ⟨xa, xb⟩ lt
-              (λ (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (Eq₂ : a₂ = xa) (Eq₃ : b₂ ≅ xb),
-                have aux : (∀ (y : α), r y xa → ∀ (b : β y), Acc (Lex r s) ⟨y, b⟩) →
-                           r a₁ a₂ → ∀ (b₁ : β a₁), Acc (Lex r s) ⟨a₁, b₁⟩,
-                from Eq.subst Eq₂ (λ iha h b₁, iha a₁ h b₁),
-                aux iha h b₁)
-              (λ (a : α) (b₁ b₂ : β a) (h : s a b₁ b₂) (Eq₂ : a = xa) (Eq₃ : b₂ ≅ xb),
-                have aux : ∀ (xb : β xa), (∀ (y : β xa), s xa y xb → Acc (s xa) y) →
-                             (∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩) →
-                             Lex r s p ⟨xa, xb⟩ → ∀ (b₁ : β a), s a b₁ b₂ → b₂ ≅ xb → Acc (Lex r s) ⟨a, b₁⟩,
-                from Eq.subst Eq₂ (λ xb acb ihb lt b₁ h Eq₃,
-                     have newEq₃ : b₂ = xb, from eqOfHeq Eq₃,
-                     have aux : (∀ (y : β a), s a y xb → Acc (Lex r s) ⟨a, y⟩) →
-                                ∀ (b₁ : β a), s a b₁ b₂ → Acc (Lex r s) ⟨a, b₁⟩,
-                     from Eq.subst newEq₃ (λ ihb b₁ h, ihb b₁ h),
-                     aux ihb b₁ h),
-                aux xb acb ihb lt b₁ h Eq₃),
-          aux rfl (Heq.refl xb))))
+def lexAccessible {a} (aca : Acc r a) (acb : ∀ a, WellFounded (s a)) : ∀ (b : β a), Acc (Lex r s) ⟨a, b⟩ :=
+Acc.ndrecOn aca $ λ xa aca (iha : ∀ y, r y xa → ∀ b : β y, Acc (Lex r s) ⟨y, b⟩) (b : β xa),
+  Acc.ndrecOn (WellFounded.apply (acb xa) b) $ λ xb acb (ihb : ∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩),
+     Acc.intro ⟨xa, xb⟩ $ λ p (lt : p ≺ ⟨xa, xb⟩),
+        have aux : xa = xa → xb ≅ xb → Acc (Lex r s) p, from
+          @PSigma.Lex.recOn α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 ≅ xb → Acc (Lex r s) p₁)
+                            p ⟨xa, xb⟩ lt
+            (λ (a₁ : α) (b₁ : β a₁) (a₂ : α) (b₂ : β a₂) (h : r a₁ a₂) (Eq₂ : a₂ = xa) (Eq₃ : b₂ ≅ xb),
+              have aux : (∀ (y : α), r y xa → ∀ (b : β y), Acc (Lex r s) ⟨y, b⟩) →
+                         r a₁ a₂ → ∀ (b₁ : β a₁), Acc (Lex r s) ⟨a₁, b₁⟩,
+              from Eq.subst Eq₂ (λ iha h b₁, iha a₁ h b₁),
+              aux iha h b₁)
+            (λ (a : α) (b₁ b₂ : β a) (h : s a b₁ b₂) (Eq₂ : a = xa) (Eq₃ : b₂ ≅ xb),
+              have aux : ∀ (xb : β xa), (∀ (y : β xa), s xa y xb → Acc (s xa) y) →
+                           (∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩) →
+                           Lex r s p ⟨xa, xb⟩ → ∀ (b₁ : β a), s a b₁ b₂ → b₂ ≅ xb → Acc (Lex r s) ⟨a, b₁⟩,
+              from Eq.subst Eq₂ $ λ xb acb ihb lt b₁ h Eq₃,
+                have newEq₃ : b₂ = xb, from eqOfHeq Eq₃,
+                have aux : (∀ (y : β a), s a y xb → Acc (Lex r s) ⟨a, y⟩) →
+                           ∀ (b₁ : β a), s a b₁ b₂ → Acc (Lex r s) ⟨a, b₁⟩,
+                from Eq.subst newEq₃ (λ ihb b₁ h, ihb b₁ h),
+                aux ihb b₁ h,
+              aux xb acb ihb lt b₁ h Eq₃),
+        aux rfl (Heq.refl xb)
 
 -- The lexicographical order of well founded relations is well-founded
 def lexWf (ha : WellFounded r) (hb : ∀ x, WellFounded (s x)) : WellFounded (Lex r s) :=
@@ -281,24 +278,22 @@ variables {r  : α → α → Prop} {s : β → β → Prop}
 local infix `≺`:50 := RevLex r s
 
 def revLexAccessible {b} (acb : Acc s b) (aca : ∀ a, Acc r a): ∀ a, Acc (RevLex r s) ⟨a, b⟩ :=
-Acc.recOn acb
-  (λ xb acb (ihb : ∀ y, s y xb → ∀ a, Acc (RevLex r s) ⟨a, y⟩),
-    λ a, Acc.recOn (aca a)
-      (λ xa aca (iha : ∀ y, r y xa → Acc (RevLex r s) (mk y xb)),
-        Acc.intro ⟨xa, xb⟩ (λ p (lt : p ≺ ⟨xa, xb⟩),
-          have aux : xa = xa → xb = xb → Acc (RevLex r s) p, from
-            @RevLex.recOn α β r s (λ p₁ p₂ _, fst p₂ = xa → snd p₂ = xb → Acc (RevLex r s) p₁)
+Acc.recOn acb $ λ xb acb (ihb : ∀ y, s y xb → ∀ a, Acc (RevLex r s) ⟨a, y⟩) a,
+  Acc.recOn (aca a) $ λ xa aca (iha : ∀ y, r y xa → Acc (RevLex r s) (mk y xb)),
+    Acc.intro ⟨xa, xb⟩ $ λ p (lt : p ≺ ⟨xa, xb⟩),
+      have aux : xa = xa → xb = xb → Acc (RevLex r s) p, from
+        @RevLex.recOn α β r s (λ p₁ p₂ _, fst p₂ = xa → snd p₂ = xb → Acc (RevLex r s) p₁)
                             p ⟨xa, xb⟩ lt
-             (λ a₁ a₂ b (h : r a₁ a₂) (Eq₂ : a₂ = xa) (Eq₃ : b = xb),
-               show Acc (RevLex r s) ⟨a₁, b⟩, from
-               have r₁ : r a₁ xa, from Eq.recOn Eq₂ h,
-               have aux : Acc (RevLex r s) ⟨a₁, xb⟩, from iha a₁ r₁,
-               Eq.recOn (Eq.symm Eq₃) aux)
-             (λ a₁ b₁ a₂ b₂ (h : s b₁ b₂) (Eq₂ : a₂ = xa) (Eq₃ : b₂ = xb),
-               show Acc (RevLex r s) (mk a₁ b₁), from
-               have s₁ : s b₁ xb, from Eq.recOn Eq₃ h,
-               ihb b₁ s₁ a₁),
-          aux rfl rfl)))
+          (λ a₁ a₂ b (h : r a₁ a₂) (Eq₂ : a₂ = xa) (Eq₃ : b = xb),
+             show Acc (RevLex r s) ⟨a₁, b⟩, from
+             have r₁ : r a₁ xa, from Eq.recOn Eq₂ h,
+             have aux : Acc (RevLex r s) ⟨a₁, xb⟩, from iha a₁ r₁,
+             Eq.recOn (Eq.symm Eq₃) aux)
+          (λ a₁ b₁ a₂ b₂ (h : s b₁ b₂) (Eq₂ : a₂ = xa) (Eq₃ : b₂ = xb),
+            show Acc (RevLex r s) (mk a₁ b₁), from
+            have s₁ : s b₁ xb, from Eq.recOn Eq₃ h,
+            ihb b₁ s₁ a₁),
+      aux rfl rfl
 
 def revLexWf (ha : WellFounded r) (hb : WellFounded s) : WellFounded (RevLex r s) :=
 WellFounded.intro $ λ ⟨a, b⟩, revLexAccessible (apply hb b) (WellFounded.apply ha) a
@@ -311,8 +306,7 @@ RevLex emptyRelation s
 def skipLeftWf (α : Type u) {β : Type v} {s : β → β → Prop} (hb : WellFounded s) : WellFounded (skipLeft α s) :=
 revLexWf emptyWf hb
 
-def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop}
-                   (a₁ a₂ : α) (h : s b₁ b₂) : skipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
+def mkSkipLeft {α : Type u} {β : Type v} {b₁ b₂ : β} {s : β → β → Prop} (a₁ a₂ : α) (h : s b₁ b₂) : skipLeft α s ⟨a₁, b₁⟩ ⟨a₂, b₂⟩ :=
 RevLex.right _ _ _ h
 end
 

@@ -10,13 +10,14 @@ Author: Leonardo de Moura
 #include "util/name.h"
 
 namespace lean {
-enum class data_value_kind { String, Nat, Bool, Name };
+enum class data_value_kind { String, Bool, Name, Nat /*, Int*/ };
 /*
-inductive data_value
-| of_string (v : string)
-| of_nat    (v : nat)
-| of_bool   (v : bool)
-| of_name   (v : name)
+inductive DataValue
+| ofString (v : String)
+| ofBool   (v : Bool)
+| ofName   (v : Name)
+| ofNat    (v : Nat)
+| ofInt    (v : Int)
 */
 class data_value : public object_ref {
     data_value(b_obj_arg o, bool b):object_ref(o, b) {}

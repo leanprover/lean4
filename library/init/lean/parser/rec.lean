@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Recursion monad transformer
 -/
 prelude
-import init.lean.parser.parsec init.fix
+import init.control.reader init.lean.parser.parsec init.fix
 
 namespace Lean.Parser
 

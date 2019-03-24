@@ -55,7 +55,7 @@ private def toStringAux {α : Type} : Trie α → List Format
   toFormat (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
 
 instance {α : Type} : HasToString (Trie α) :=
-⟨λ t, (flip Format.joinSep Format.line $ toStringAux t).pretty 0⟩
+⟨λ t, (flip Format.joinSep Format.line $ toStringAux t).pretty⟩
 end Trie
 
 end Parser

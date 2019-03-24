@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.control.except init.control.reader init.control.state
+import init.lean.options
 universes u v
 
 namespace Lean
@@ -77,9 +77,6 @@ def be : Nat → Nat → String → List (Nat × Format) → String
   let r := merge w (spaceUptoLine f₁ w) (spaceUptoLine' z w) in
   if r.exceeded then be w k out ((i, f₂)::z) else be w k out ((i, f₁)::z)
 
-def pretty (f : Format) (w : Nat := 80) : String :=
-be w 0 "" [(0, f)]
-
 @[inline] def bracket (l : String) (f : Format) (r : String) : Format :=
 group (nest l.length $ l ++ f ++ r)
 
@@ -88,6 +85,25 @@ bracket "(" f ")"
 
 @[inline] def sbracket (f : Format) : Format :=
 bracket "[" f "]"
+
+def defIndent  := 4
+def defUnicode := true
+def defWidth   := 120
+
+def getWidth (o : Options) : Nat    := o.get `format.width  defWidth
+def getIndent (o : Options) : Nat   := o.get `format.indent defIndent
+def getUnicode (o : Options) : Bool := o.get `format.unicode defUnicode
+
+@[init] def indentOption : IO Unit :=
+registerOption `format.indent { defValue := defIndent, group := "format", descr := "indentation" }
+@[init] def unicodeOption : IO Unit :=
+registerOption `format.unicode { defValue := defUnicode, group := "format", descr := "unicode characters" }
+@[init] def widthOption : IO Unit :=
+registerOption `format.width { defValue := defWidth, group := "format", descr := "line width" }
+
+def pretty (f : Format) (o : Options := {}) : String :=
+let w := getWidth o in
+be w 0 "" [(0, f)]
 
 end Format
 
@@ -133,13 +149,12 @@ instance listHasToFormat {α : Type u} [HasToFormat α] : HasToFormat (List α) 
 instance prodHasToFormat {α : Type u} {β : Type v} [HasToFormat α] [HasToFormat β] : HasToFormat (Prod α β) :=
 ⟨λ ⟨a, b⟩, paren $ toFormat a ++ "," ++ line ++ toFormat b⟩
 
-instance natHasToFormat : HasToFormat Nat    := ⟨λ n, toString n⟩
+instance natHasToFormat : HasToFormat Nat       := ⟨λ n, toString n⟩
 instance uint16HasToFormat : HasToFormat UInt16 := ⟨λ n, toString n⟩
 instance uint32HasToFormat : HasToFormat UInt32 := ⟨λ n, toString n⟩
 instance uint64HasToFormat : HasToFormat UInt64 := ⟨λ n, toString n⟩
-instance usizeHasToFormat : HasToFormat USize := ⟨λ n, toString n⟩
-
-instance formatHasToString : HasToString Format := ⟨pretty⟩
+instance usizeHasToFormat : HasToFormat USize   := ⟨λ n, toString n⟩
+instance nameHasToFormat : HasToFormat Name     := ⟨λ n, n.toString⟩
 
 protected def Format.repr : Format → Format
 | nil := "Format.nil"
@@ -148,6 +163,9 @@ protected def Format.repr : Format → Format
 | (nest n f) := paren $ "Format.nest" ++ line ++ repr n ++ line ++ Format.repr f
 | (compose b f₁ f₂) := paren $ "Format.compose " ++ repr b ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
 | (choice f₁ f₂) := paren $ "Format.choice" ++ line ++ Format.repr f₁ ++ line ++ Format.repr f₂
+
+
+instance formatHasToString : HasToString Format := ⟨Format.pretty⟩
 
 instance : HasRepr Format := ⟨Format.pretty ∘ Format.repr⟩
 

@@ -10,6 +10,7 @@ https://www.microsoft.com/en-us/research/wp-content/uploads/2016/02/Parsec-paper
 prelude
 import init.data.tostring init.data.string.basic init.data.list.basic init.control.except
 import init.data.repr init.lean.name init.data.dlist init.control.monadfail init.control.combinators
+import init.lean.format
 
 namespace Lean
 namespace Parser

@@ -5,7 +5,7 @@ Author: Leonardo de Moura
 -/
 prelude
 import init.data.string.basic init.coe init.data.uint init.data.tostring
-import init.lean.format init.data.hashable init.data.rbmap init.data.rbtree
+import init.data.hashable init.data.rbmap init.data.rbtree
 namespace Lean
 
 inductive Name
@@ -137,9 +137,6 @@ toStringWithSep "."
 
 instance : HasToString Name :=
 ⟨Name.toString⟩
-
-instance : HasToFormat Name :=
-⟨λ n, n.toString⟩
 
 theorem mkStringNeMkStringOfNePrefix {p₁ : Name} (s₁ : String) {p₂ : Name} (s₂ : String) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
 λ h₁ h₂, Name.noConfusion h₂ (λ h _, absurd h h₁)

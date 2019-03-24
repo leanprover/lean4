@@ -10,9 +10,9 @@ namespace Lean
 
 inductive DataValue
 | ofString (v : String)
-| ofNat    (v : Nat)
 | ofBool   (v : Bool)
 | ofName   (v : Name)
+| ofNat    (v : Nat)
 | ofInt    (v : Int)
 
 def DataValue.beq : DataValue → DataValue → Bool
@@ -22,6 +22,12 @@ def DataValue.beq : DataValue → DataValue → Bool
 | _                         _                     := false
 
 instance DataValue.HasBeq : HasBeq DataValue := ⟨DataValue.beq⟩
+
+instance string2DataValue : HasCoe String DataValue := ⟨DataValue.ofString⟩
+instance bool2DataValue   : HasCoe Bool DataValue   := ⟨DataValue.ofBool⟩
+instance name2DataValue   : HasCoe Name DataValue   := ⟨DataValue.ofName⟩
+instance nat2DataValue    : HasCoe Nat DataValue    := ⟨DataValue.ofNat⟩
+instance int2DataValue    : HasCoe Int DataValue    := ⟨DataValue.ofInt⟩
 
 /- Remark: we do not use RBMap here because we need to manipulate KVMap objects in
    C++ and RBMap is implemented in Lean. So, we use just a List until we can
@@ -47,30 +53,30 @@ def insert : KVMap → Name → DataValue → KVMap
 def contains (m : KVMap) (n : Name) : Bool :=
 (m.find n).isSome
 
-def getString (m : KVMap) (k : Name) : Option String :=
+def getString (m : KVMap) (k : Name) (defVal := "") : String :=
 match m.find k with
-| some (DataValue.ofString v) := some v
-| _                             := none
+| some (DataValue.ofString v) := v
+| _                           := defVal
 
-def getNat (m : KVMap) (k : Name) : Option Nat :=
+def getNat (m : KVMap) (k : Name) (defVal := 0) : Nat :=
 match m.find k with
-| some (DataValue.ofNat v) := some v
-| _                          := none
+| some (DataValue.ofNat v) := v
+| _                        := defVal
 
-def getInt (m : KVMap) (k : Name) : Option Int :=
+def getInt (m : KVMap) (k : Name) (defVal : Int := 0) : Int :=
 match m.find k with
-| some (DataValue.ofInt v) := some v
-| _                        := none
+| some (DataValue.ofInt v) := v
+| _                        := defVal
 
-def getBool (m : KVMap) (k : Name) : Option Bool :=
+def getBool (m : KVMap) (k : Name) (defVal := false) : Bool :=
 match m.find k with
-| some (DataValue.ofBool v) := some v
-| _                           := none
+| some (DataValue.ofBool v) := v
+| _                         := defVal
 
-def getName (m : KVMap) (k : Name) : Option Name :=
+def getName (m : KVMap) (k : Name) (defVal := Name.anonymous) : Name :=
 match m.find k with
-| some (DataValue.ofName v) := some v
-| _                           := none
+| some (DataValue.ofName v) := v
+| _                         := defVal
 
 def setString (m : KVMap) (k : Name) (v : String) : KVMap :=
 m.insert k (DataValue.ofString v)
@@ -98,6 +104,31 @@ def eqv (m₁ m₂ : KVMap) : Bool :=
 subset m₁ m₂ && subset m₂ m₁
 
 instance : HasBeq KVMap := ⟨eqv⟩
+
+class isKVMapVal (α : Type) :=
+(defVal : α)
+(set    : KVMap → Name → α → KVMap)
+(get    : KVMap → Name → α → α)
+
+export isKVMapVal (set)
+
+@[inline] def get {α : Type} [isKVMapVal α] (m : KVMap) (k : Name) (defVal := isKVMapVal.defVal α) : α :=
+isKVMapVal.get m k defVal
+
+instance boolVal : isKVMapVal Bool :=
+{ defVal := false, set := setBool, get := λ k n v, getBool k n v }
+
+instance natVal : isKVMapVal Nat :=
+{ defVal := 0, set := setNat, get := λ k n v, getNat k n v }
+
+instance intVal : isKVMapVal Int :=
+{ defVal := 0, set := setInt, get := λ k n v, getInt k n v }
+
+instance nameVal : isKVMapVal Name :=
+{ defVal := Name.anonymous, set := setName, get := λ k n v, getName k n v }
+
+instance stringVal : isKVMapVal String :=
+{ defVal := "", set := setString, get := λ k n v, getString k n v }
 
 end KVMap
 end Lean

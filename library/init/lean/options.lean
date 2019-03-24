@@ -9,6 +9,7 @@ import init.lean.kvmap init.io init.control.combinators init.data.tostring
 namespace Lean
 
 def Options := KVMap
+
 namespace Options
 def empty : Options  := {KVMap .}
 instance : HasEmptyc Options := ⟨empty⟩
@@ -16,6 +17,7 @@ end Options
 
 structure OptionDecl :=
 (defValue : DataValue)
+(group    : String := "")
 (descr    : String := "")
 
 def OptionDecls := NameMap OptionDecl
@@ -39,6 +41,10 @@ do decls ← getOptionDecls,
    (some decl) ← pure (decls.find name) | throw $ IO.userError ("unknown option '" ++ toString name ++ "'"),
    pure decl
 
+def getOptionDefaulValue (name : Name) : IO DataValue :=
+do decl ← getOptionDecl name,
+   pure decl.defValue
+
 def getOptionDescr (name : Name) : IO String :=
 do decl ← getOptionDecl name,
    pure decl.descr
@@ -46,10 +52,8 @@ do decl ← getOptionDecl name,
 def setOptionFromString (opts : Options) (entry : String) : IO Options :=
 do let ps := (entry.split "=").map String.trim,
    [key, val] ← pure ps | throw "invalid configuration option entry, it must be of the form '<key> = <value>'",
-   let key := key.toName,
-   decls ← getOptionDecls,
-   (some decl) ← pure (decls.find key) | throw $ IO.userError ("unknown option '" ++ toString key ++ "'"),
-   match decl.defValue with
+   defValue ← getOptionDefaulValue key.toName,
+   match defValue with
    | DataValue.ofString v := pure $ opts.setString key val
    | DataValue.ofBool v   :=
      if key == "true" then pure $ opts.setBool key true
@@ -62,4 +66,5 @@ do let ps := (entry.split "=").map String.trim,
    | DataValue.ofInt v    := do
      unless val.isInt $ throw (IO.userError ("invalid Int option value '" ++ val ++ "'")),
      pure $ opts.setInt key val.toInt
+
 end Lean

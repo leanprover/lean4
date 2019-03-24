@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.name init.data.option.basic
+import init.data.option.basic init.lean.name init.lean.format
 
 namespace Lean
 
@@ -80,8 +80,8 @@ inductive Result
 | leaf      : Format → Result
 | num       : Nat → Result
 | offset    : Result → Nat → Result
-| maxNode  : List Result → Result
-| imaxNode : List Result → Result
+| maxNode   : List Result → Result
+| imaxNode  : List Result → Result
 
 def Result.succ : Result → Result
 | (Result.offset f k) := Result.offset f (k+1)

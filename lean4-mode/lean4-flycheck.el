@@ -18,15 +18,13 @@
    (flycheck-mode (flycheck-mode -1))
    (t             (flycheck-mode  1))))
 
-(defun lean4-flycheck-command ()
+(defun lean4-flycheck-command (extra-args)
   (let ((command
          (-concat `(,(lean4-get-executable lean4-executable-name))
                   '((eval lean4-extra-arguments))
+                  extra-args
                   '("--json" "--stdin"))))
     command))
-
-(defun lean4-bootstrapped-flycheck-command ()
-  `(,(s-concat (lean4-get-executable lean4-executable-name) "-bootstrapped") source-inplace))
 
 (cl-defun lean4-flycheck-parse-task (checker buffer cur-file-name
                                             &key pos_line pos_col desc file_name &allow-other-keys)
@@ -104,13 +102,14 @@
   "Initialize lean4-flycheck checker"
   (flycheck-define-command-checker 'lean4-checker
     "A Lean syntax checker."
-    :command (lean4-flycheck-command)
+    :command (lean4-flycheck-command '())
     :standard-input t
     :error-parser #'lean4-flycheck-parse-errors
     :modes '(lean4-mode))
   (flycheck-define-command-checker 'lean4-bootstrapped-checker
     "Bootstrapped Lean syntax checker."
-    :command (lean4-bootstrapped-flycheck-command)
+    :command (lean4-flycheck-command '("--new-frontend"))
+    :standard-input t
     :error-parser #'lean4-flycheck-parse-errors
     :modes '(lean4-mode))
   (add-to-list 'flycheck-checkers 'lean4-checker))

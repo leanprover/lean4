@@ -21,53 +21,48 @@ x r
 
 namespace ReaderT
 section
-  variable  {ρ : Type u}
-  variable  {m : Type u → Type v}
-  variable  [Monad m]
-  variables {α β : Type u}
+variables {ρ : Type u} {m : Type u → Type v} [Monad m] {α β : Type u}
 
-  @[inline] protected def read : ReaderT ρ m ρ :=
-  pure
+@[inline] protected def read : ReaderT ρ m ρ :=
+pure
 
-  @[inline] protected def pure (a : α) : ReaderT ρ m α :=
-  λ r, pure a
+@[inline] protected def pure (a : α) : ReaderT ρ m α :=
+λ r, pure a
 
-  @[inline] protected def bind (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
-  λ r, do a ← x r,
-          f a r
+@[inline] protected def bind (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
+λ r, do a ← x r, f a r
 
-  instance : Monad (ReaderT ρ m) :=
-  { pure := @ReaderT.pure _ _ _, bind := @ReaderT.bind _ _ _ }
+instance : Monad (ReaderT ρ m) :=
+{ pure := @ReaderT.pure _ _ _, bind := @ReaderT.bind _ _ _ }
 
-  @[inline] protected def lift (a : m α) : ReaderT ρ m α :=
-  λ r, a
+@[inline] protected def lift (a : m α) : ReaderT ρ m α :=
+λ r, a
 
-  instance (m) [Monad m] : HasMonadLift m (ReaderT ρ m) :=
-  ⟨@ReaderT.lift ρ m _⟩
+instance (m) [Monad m] : HasMonadLift m (ReaderT ρ m) :=
+⟨@ReaderT.lift ρ m _⟩
 
-  instance (ρ m m') [Monad m] [Monad m'] : MonadFunctor m m' (ReaderT ρ m) (ReaderT ρ m') :=
-  ⟨λ _ f x, λ r, f (x r)⟩
+instance (ρ m m') [Monad m] [Monad m'] : MonadFunctor m m' (ReaderT ρ m) (ReaderT ρ m') :=
+⟨λ _ f x, λ r, f (x r)⟩
 
-  @[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
-  λ x r, x (f r)
+@[inline] protected def adapt {ρ' : Type u} [Monad m] {α : Type u} (f : ρ' → ρ) : ReaderT ρ m α → ReaderT ρ' m α :=
+λ x r, x (f r)
 
-  @[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
-  λ s, x₁ s <|> x₂ s
+@[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : ReaderT ρ m α) : ReaderT ρ m α :=
+λ s, x₁ s <|> x₂ s
 
-  @[inline] protected def failure [Alternative m] {α : Type u} : ReaderT ρ m α :=
-  λ s, failure
+@[inline] protected def failure [Alternative m] {α : Type u} : ReaderT ρ m α :=
+λ s, failure
 
-  instance [Alternative m] : Alternative (ReaderT ρ m) :=
-  { failure := @ReaderT.failure _ _ _ _,
-    orelse  := @ReaderT.orelse _ _ _ _,
-    ..ReaderT.Monad }
+instance [Alternative m] : Alternative (ReaderT ρ m) :=
+{ failure := @ReaderT.failure _ _ _ _,
+  orelse  := @ReaderT.orelse _ _ _ _,
+  ..ReaderT.Monad }
 
-  instance (ε) [Monad m] [MonadExcept ε m] : MonadExcept ε (ReaderT ρ m) :=
-  { throw := λ α, ReaderT.lift ∘ throw,
-    catch := λ α x c r, catch (x r) (λ e, (c e) r) }
+instance (ε) [Monad m] [MonadExcept ε m] : MonadExcept ε (ReaderT ρ m) :=
+{ throw := λ α, ReaderT.lift ∘ throw,
+  catch := λ α x c r, catch (x r) (λ e, (c e) r) }
 end
 end ReaderT
-
 
 /-- An implementation of [MonadReader](https://hackage.haskell.org/package/mtl-2.2.2/docs/Control-Monad-Reader-Class.html#t:MonadReader).
     It does not contain `local` because this Function cannot be lifted using `monadLift`.

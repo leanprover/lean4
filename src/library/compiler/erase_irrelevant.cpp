@@ -342,6 +342,10 @@ class erase_irrelevant_fn {
                 return visit_quot_mk(args);
             } else if (fn == get_quot_lift_name()) {
                 return visit_quot_lift(args);
+            } else if (fn == get_decidable_to_bool_name() && args.size() == 2) {
+                /* Decidable.toBool is the "identify" function since Decidable and Bool have
+                   the same runtime representation. */
+                return args[1];
             }
         }
         return visit_app_default(f, args);

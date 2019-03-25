@@ -846,7 +846,7 @@ Exists.rec h₂ h₁
 
 /- Decidable -/
 
-@[macroInline] def Decidable.toBool (p : Prop) [h : Decidable p] : Bool :=
+@[inlineIfReduce, nospecialize] def Decidable.toBool (p : Prop) [h : Decidable p] : Bool :=
 Decidable.casesOn h (λ h₁, false) (λ h₂, true)
 
 instance beqOfEq {α : Type u} [DecidableEq α] : HasBeq α :=

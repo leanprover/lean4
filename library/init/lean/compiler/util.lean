@@ -49,7 +49,7 @@ def visit (x : Name) : Expr → Visitor
 end atMostOnce
 
 /-- Return true iff the free variable with id `x` occurs at most once in `e` -/
-@[export lean.at_most_once]
+@[export lean.at_most_once_core]
 def atMostOnce (e : Expr) (x : Name) : Bool :=
 let {result := result, ..} := atMostOnce.visit x e {found := false, result := true} in
 result

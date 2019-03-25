@@ -1514,6 +1514,13 @@ public:
     }
 };
 
+uint8 at_most_once_core(obj_arg e, obj_arg x);
+
+bool at_most_once(expr const & e, name const & x) {
+    inc_ref(e.raw()); inc_ref(x.raw());
+    return at_most_once_core(e.raw(), x.raw());
+}
+
 /* Eliminate join-points that are used only once */
 class elim_jp1_fn {
     environment const & m_env;
@@ -1576,19 +1583,7 @@ class elim_jp1_fn {
 
     bool at_most_once(expr const & e, expr const & jp) {
         lean_assert(is_fvar(jp));
-        bool found  = false;
-        bool result = true;
-        for_each(e, [&](expr const & e, unsigned) {
-                if (!has_fvar(e)) return false;
-                if (result == false) return false; /* stop search */
-                if (e == jp) {
-                    if (found) result = false;
-                    else found = true;
-                    return false;
-                }
-                return true;
-            });
-        return result;
+        return lean::at_most_once(e, fvar_name(jp));
     }
 
     expr visit_let(expr e) {

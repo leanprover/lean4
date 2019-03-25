@@ -18,7 +18,7 @@ extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_seq(obj*, obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
 namespace lean {
-uint8 at_most_once(obj*, obj*);
+uint8 at_most_once_core(obj*, obj*);
 }
 obj* l_Lean_Compiler_atMostOnce_visit___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main___boxed(obj*, obj*, obj*);
@@ -573,7 +573,7 @@ return x_4;
 }
 }
 namespace lean {
-uint8 at_most_once(obj* x_0, obj* x_1) {
+uint8 at_most_once_core(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; uint8 x_6; 
@@ -591,7 +591,7 @@ obj* l_Lean_Compiler_atMostOnce___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = lean::at_most_once(x_0, x_1);
+x_2 = lean::at_most_once_core(x_0, x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }

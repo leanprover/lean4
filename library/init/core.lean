@@ -590,9 +590,8 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 | false := true
 
 @[macroInline] def xor : Bool → Bool → Bool
-| true  false := true
-| false true  := true
-| _  _        := false
+| true  b := not b
+| false b := b
 
 prefix ! := not
 infix || := or

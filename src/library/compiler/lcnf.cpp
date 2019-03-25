@@ -177,21 +177,59 @@ public:
                    Then, replace `k` with major premise at new_minor.
                    This transformation is important for code like this:
                    ```
-                   def foo : expr -> expr
-                   | (expr.app f a) := f
+                   def foo : Expr -> Expr
+                   | (Expr.app f a) := f
                    | e              := e
                    ```
                    The equation compiler will "complete" the wildcard case `e := e` by expanding `e`.
 
                    Remark: this transformation is only safe for non-dependent elimination.
-                   It may produce type incorrect terms otherwise. We ignore this issue in the compiler. */
+                   It may produce type incorrect terms otherwise. We ignore this issue in the compiler.
+
+                   Remark: we *must* redesign the equation compiler. This transformation
+                   may produce unexpected results. For example, we seldom want it for `Bool`.
+                   For example, we don't want `or`
+                   ```
+                   def or (x y : Bool) : Bool :=
+                   match x with
+                   | true  := true
+                   | false := y
+                   ```
+                   to be transformed into
+                   ```
+                   def or (x y : Bool) : Bool :=
+                   match x with
+                   | true  := x
+                   | false := y
+                   ```
+
+                   On the other hand, we want the transformation to be applied to:
+                   ```
+                   def flatten : Format → Format
+                   | nil                     := nil
+                   | line                    := text " "
+                   | f@(text _)              := f
+                   | (nest _ f)              := flatten f
+                   | (choice f _)            := flatten f
+                   | f@(compose true _ _)    := f -- If we don't apply the transformation, we will "re-create" `f` here
+                   | f@(compose false f₁ f₂) := compose true (flatten f₁) (flatten f₂)
+                   ```
+
+                   Summary: we need to make sure the equation compiler preserves the user intent, and then
+                   disable this transformation.
+
+                   For now, we don't apply this transformation for Bool when the minor premise is equal to the major.
+                   That is, we make sure we don't do it for `and`, `or`, etc.
+                */
                 expr k    = mk_app(mk_app(mk_constant(cnstr_name, tail(rec_levels)), nparams, args.data()), minor_fvars);
-                expr new_new_minor = replace(new_minor, [&](expr const & e, unsigned) {
-                        if (e == k) return some_expr(major);
-                        else return none_expr();
-                    });
-                if (new_new_minor != new_minor)
-                    new_minor = elim_trivial_let_decls(new_new_minor);
+                if (I_name != get_bool_name() || new_minor != k) {
+                    expr new_new_minor = replace(new_minor, [&](expr const & e, unsigned) {
+                            if (e == k) return some_expr(major);
+                            else return none_expr();
+                        });
+                    if (new_new_minor != new_minor)
+                        new_minor = elim_trivial_let_decls(new_new_minor);
+                }
                 new_minor      = m_lctx.mk_lambda(minor_fvars, new_minor);
                 args[i]        = new_minor;
             }

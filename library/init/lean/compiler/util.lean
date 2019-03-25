@@ -32,7 +32,7 @@ def Visitor := AtMostOnceData → AtMostOnceData
 @[inline] def visitFVar (x y : Name) : Visitor
 | d@{result := false, ..}  := d
 | {found := false, result := true} := {found := x == y, result := true}
-| {found := true,  result := true} := {found := true, result := !x == y}
+| {found := true,  result := true} := {found := true, result := x != y}
 
 local infix *> := seq
 

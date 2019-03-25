@@ -22,6 +22,7 @@ reserve infix ` <-> `:20
 reserve infix ` ↔ `:20
 reserve infix ` = `:50
 reserve infix ` == `:50
+reserve infix ` != `:50
 reserve infix ` ~= `:50
 reserve infix ` ≅ `:50
 reserve infix ` ≠ `:50
@@ -596,6 +597,11 @@ theorem optParamEq (α : Sort u) (default : α) : optParam α default = α := rf
 prefix ! := not
 infix || := or
 infix && := and
+
+@[inline] def bne {α : Type u} [HasBeq α] (a b : α) : Bool :=
+!(a == b)
+
+infix != := bne
 
 /- Logical connectives an equality -/
 

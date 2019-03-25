@@ -49,9 +49,9 @@ Pass these along with the `cmake ../../src` command.
   [Some people report][ninja_work] that using
   Ninja can reduce the build time, esp when a build is
   incremental. Call `ninja` instead of `make` to build the project.
-  
+
   [ninja_work]: https://plus.google.com/108996039294665965197/posts/SfhrFAhRyyd
-  
+
 * `-D CMAKE_BUILD_TYPE=`
   Select the build type. Valid values are `RELEASE` (default), `DEBUG`,
   `RELWITHDEBINFO`, and `MINSIZEREL`.
@@ -108,6 +108,22 @@ Development Workflows
   change is complete and stage1 is working as expected, make the target
   `update-stage0` to copy stage1 to stage0 - this is the re-bootstrapping step.
   Reactivate `REBUILD_STAGE0` and stage0 should compile again.
+
+Troubleshooting
+---------------
+
+* The `Makefile` at `library/` does not need to be invoked directly. However,
+  we may want to do it while investigating problems, e.g., Lean is looping while
+  compiling a file. To manually invoke this `Makefile`, we should use:
+```bash
+cd library/
+STAGE1_OUT=<build_dir_path>/stage1 make <build_dir_path>/stage1/libleanstdlib.a
+```
+For example, if our build directory is located at `build/release/`, the command above should be
+```bash
+cd library/
+STAGE1_OUT=../build/release/stage1 make ../build/release/stage1/libleanstdlib.a
+```
 
 Further Information
 -------------------

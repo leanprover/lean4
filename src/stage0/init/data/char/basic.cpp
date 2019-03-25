@@ -419,18 +419,7 @@ else
 uint32 x_4; uint8 x_5; 
 x_4 = 90;
 x_5 = x_0 <= x_4;
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
+return x_5;
 }
 }
 }
@@ -461,18 +450,7 @@ else
 uint32 x_4; uint8 x_5; 
 x_4 = 122;
 x_5 = x_0 <= x_4;
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
+return x_5;
 }
 }
 }
@@ -499,7 +477,9 @@ return x_2;
 }
 else
 {
-return x_1;
+uint8 x_3; 
+x_3 = 1;
+return x_3;
 }
 }
 }
@@ -530,18 +510,7 @@ else
 uint32 x_4; uint8 x_5; 
 x_4 = 57;
 x_5 = x_0 <= x_4;
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
+return x_5;
 }
 }
 }
@@ -568,7 +537,9 @@ return x_2;
 }
 else
 {
-return x_1;
+uint8 x_3; 
+x_3 = 1;
+return x_3;
 }
 }
 }

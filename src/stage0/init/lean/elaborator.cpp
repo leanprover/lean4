@@ -26103,18 +26103,7 @@ x_20 = l_Lean_Parser_command_NotationSpec_precedenceTerm_View_toNat___main(x_17)
 x_21 = lean::nat_dec_eq(x_16, x_20);
 lean::dec(x_20);
 lean::dec(x_16);
-if (x_21 == 0)
-{
-uint8 x_24; 
-x_24 = 0;
-return x_24;
-}
-else
-{
-uint8 x_25; 
-x_25 = 1;
-return x_25;
-}
+return x_21;
 }
 }
 }

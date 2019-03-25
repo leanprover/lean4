@@ -599,24 +599,13 @@ obj* x_2; obj* x_3; uint8 x_4;
 x_2 = lean::cnstr_get(x_1, 0);
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean_name_dec_eq(x_0, x_3);
-if (x_4 == 0)
+return x_4;
+}
+default:
 {
 uint8 x_5; 
 x_5 = 0;
 return x_5;
-}
-else
-{
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-default:
-{
-uint8 x_7; 
-x_7 = 0;
-return x_7;
 }
 }
 }

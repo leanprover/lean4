@@ -1271,18 +1271,7 @@ x_1 = l_DHashmap_size___rarg(x_0);
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_1);
-if (x_3 == 0)
-{
-uint8 x_5; 
-x_5 = 0;
-return x_5;
-}
-else
-{
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
+return x_3;
 }
 }
 obj* l_DHashmap_empty(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
@@ -1532,18 +1521,7 @@ x_1 = l_DHashmap_size___rarg(x_0);
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_1);
-if (x_3 == 0)
-{
-uint8 x_5; 
-x_5 = 0;
-return x_5;
-}
-else
-{
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
+return x_3;
 }
 }
 obj* l_Hashmap_empty(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

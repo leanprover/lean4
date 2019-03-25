@@ -570,9 +570,7 @@ uint8 x_10;
 x_10 = lean::string_dec_eq(x_6, x_8);
 if (x_10 == 0)
 {
-uint8 x_11; 
-x_11 = 0;
-return x_11;
+return x_9;
 }
 else
 {
@@ -583,16 +581,16 @@ goto _start;
 }
 else
 {
-uint8 x_13; 
-x_13 = 1;
-return x_13;
+uint8 x_12; 
+x_12 = 1;
+return x_12;
 }
 }
 default:
 {
-uint8 x_14; 
-x_14 = 0;
-return x_14;
+uint8 x_13; 
+x_13 = 0;
+return x_13;
 }
 }
 }
@@ -601,46 +599,44 @@ default:
 switch (lean::obj_tag(x_1)) {
 case 0:
 {
-uint8 x_15; 
-x_15 = 0;
-return x_15;
+uint8 x_14; 
+x_14 = 0;
+return x_14;
 }
 case 1:
 {
-uint8 x_16; 
-x_16 = 1;
-return x_16;
+uint8 x_15; 
+x_15 = 1;
+return x_15;
 }
 default:
 {
-obj* x_17; obj* x_18; obj* x_19; obj* x_20; uint8 x_21; 
-x_17 = lean::cnstr_get(x_0, 0);
-x_18 = lean::cnstr_get(x_0, 1);
-x_19 = lean::cnstr_get(x_1, 0);
-x_20 = lean::cnstr_get(x_1, 1);
-x_21 = lean::nat_dec_lt(x_18, x_20);
+obj* x_16; obj* x_17; obj* x_18; obj* x_19; uint8 x_20; 
+x_16 = lean::cnstr_get(x_0, 0);
+x_17 = lean::cnstr_get(x_0, 1);
+x_18 = lean::cnstr_get(x_1, 0);
+x_19 = lean::cnstr_get(x_1, 1);
+x_20 = lean::nat_dec_lt(x_17, x_19);
+if (x_20 == 0)
+{
+uint8 x_21; 
+x_21 = lean::nat_dec_eq(x_17, x_19);
 if (x_21 == 0)
 {
-uint8 x_22; 
-x_22 = lean::nat_dec_eq(x_18, x_20);
-if (x_22 == 0)
-{
-uint8 x_23; 
-x_23 = 0;
-return x_23;
+return x_20;
 }
 else
 {
-x_0 = x_17;
-x_1 = x_19;
+x_0 = x_16;
+x_1 = x_18;
 goto _start;
 }
 }
 else
 {
-uint8 x_25; 
-x_25 = 1;
-return x_25;
+uint8 x_23; 
+x_23 = 1;
+return x_23;
 }
 }
 }

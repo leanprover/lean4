@@ -887,18 +887,12 @@ x_14 = lean::apply_2(x_0, x_6, x_8);
 x_15 = lean::unbox(x_14);
 if (x_15 == 0)
 {
-lean::dec(x_4);
-if (x_15 == 0)
-{
+uint8 x_19; 
 lean::dec(x_10);
 lean::dec(x_0);
-return x_15;
-}
-else
-{
-x_1 = x_10;
-goto _start;
-}
+lean::dec(x_4);
+x_19 = 0;
+return x_19;
 }
 else
 {
@@ -907,9 +901,11 @@ lean::inc(x_0);
 x_21 = l_RBNode_all___main___rarg(x_0, x_4);
 if (x_21 == 0)
 {
+uint8 x_24; 
 lean::dec(x_10);
 lean::dec(x_0);
-return x_21;
+x_24 = 0;
+return x_24;
 }
 else
 {
@@ -1019,25 +1015,21 @@ goto _start;
 }
 else
 {
+uint8 x_21; 
 lean::dec(x_10);
 lean::dec(x_0);
-return x_17;
+x_21 = 1;
+return x_21;
 }
 }
 else
 {
+uint8 x_25; 
+lean::dec(x_10);
+lean::dec(x_0);
 lean::dec(x_4);
-if (x_15 == 0)
-{
-x_1 = x_10;
-goto _start;
-}
-else
-{
-lean::dec(x_10);
-lean::dec(x_0);
-return x_15;
-}
+x_25 = 1;
+return x_25;
 }
 }
 }

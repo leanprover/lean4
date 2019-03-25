@@ -198,7 +198,7 @@ obj* l_List_HasSizeof___rarg(obj*);
 obj* l_ite_Decidable___rarg___boxed(obj*, obj*, obj*);
 obj* l_decidableOfDecidableEq___rarg(obj*, obj*, obj*);
 obj* l_Subtype_sizeof___main___rarg___boxed(obj*, obj*, obj*);
-uint8 l_beqOfEq___rarg(obj*, obj*, obj*);
+obj* l_beqOfEq___rarg(obj*, obj*, obj*);
 obj* l_default_sizeof___main___boxed(obj*, obj*);
 obj* l_default___rarg(obj*);
 obj* l_implies_Decidable___boxed(obj*, obj*);
@@ -433,7 +433,6 @@ obj* l_absurd(obj*, obj*, obj*, obj*);
 obj* l_xor___main___boxed(obj*, obj*);
 uint8 l_decidableOfDecidableOfIff___rarg(uint8, obj*);
 obj* l_Decidable_toBool___boxed(obj*);
-obj* l_beqOfEq___rarg___boxed(obj*, obj*, obj*);
 obj* l_PSigma_sizeof___rarg(obj*, obj*, obj*);
 obj* l_Decidable_byCases(obj*, obj*);
 obj* l_Ne_Decidable___boxed(obj*);
@@ -2256,7 +2255,9 @@ return x_1;
 }
 else
 {
-return x_0;
+uint8 x_2; 
+x_2 = 1;
+return x_2;
 }
 }
 }
@@ -2280,7 +2281,9 @@ return x_1;
 }
 else
 {
-return x_0;
+uint8 x_2; 
+x_2 = 1;
+return x_2;
 }
 }
 }
@@ -2300,7 +2303,9 @@ _start:
 {
 if (x_0 == 0)
 {
-return x_0;
+uint8 x_2; 
+x_2 = 0;
+return x_2;
 }
 else
 {
@@ -2324,7 +2329,9 @@ _start:
 {
 if (x_0 == 0)
 {
-return x_0;
+uint8 x_2; 
+x_2 = 0;
+return x_2;
 }
 else
 {
@@ -2646,41 +2653,20 @@ lean::dec(x_0);
 return x_1;
 }
 }
-uint8 l_beqOfEq___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_beqOfEq___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; uint8 x_4; 
+obj* x_3; 
 x_3 = lean::apply_2(x_0, x_1, x_2);
-x_4 = lean::unbox(x_3);
-if (x_4 == 0)
-{
-uint8 x_5; 
-x_5 = 0;
-return x_5;
-}
-else
-{
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
+return x_3;
 }
 }
 obj* l_beqOfEq(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_beqOfEq___rarg___boxed), 3, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_beqOfEq___rarg), 3, 0);
 return x_1;
-}
-}
-obj* l_beqOfEq___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; obj* x_4; 
-x_3 = l_beqOfEq___rarg(x_0, x_1, x_2);
-x_4 = lean::box(x_3);
-return x_4;
 }
 }
 obj* l_beqOfEq___boxed(obj* x_0) {

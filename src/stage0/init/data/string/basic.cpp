@@ -1883,18 +1883,7 @@ x_1 = lean::cnstr_get(x_0, 0);
 x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
 x_3 = lean::string_utf8_byte_size(x_1);
 x_4 = x_2 < x_3;
-if (x_4 == 0)
-{
-uint8 x_5; 
-x_5 = 0;
-return x_5;
-}
-else
-{
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
+return x_4;
 }
 }
 obj* l_String_Iterator_hasNext___main___boxed(obj* x_0) {
@@ -1932,18 +1921,7 @@ usize x_1; usize x_2; uint8 x_3;
 x_1 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
 x_2 = l_String_toSubstring___closed__1;
 x_3 = x_2 < x_1;
-if (x_3 == 0)
-{
-uint8 x_4; 
-x_4 = 0;
-return x_4;
-}
-else
-{
-uint8 x_5; 
-x_5 = 1;
-return x_5;
-}
+return x_3;
 }
 }
 obj* l_String_Iterator_hasPrev___main___boxed(obj* x_0) {
@@ -2204,18 +2182,7 @@ x_10 = lean::string_utf8_extract(x_4, x_5, x_9);
 x_11 = lean::string_dec_eq(x_7, x_10);
 lean::dec(x_10);
 lean::dec(x_7);
-if (x_11 == 0)
-{
-uint8 x_14; 
-x_14 = 0;
-return x_14;
-}
-else
-{
-uint8 x_15; 
-x_15 = 1;
-return x_15;
-}
+return x_11;
 }
 }
 obj* l_String_Iterator_isPrefixOfRemaining___main___boxed(obj* x_0, obj* x_1) {
@@ -4201,18 +4168,7 @@ x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
 x_3 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
 x_4 = x_2 + x_1;
 x_5 = x_4 == x_3;
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
+return x_5;
 }
 }
 obj* l_Substring_atEnd___main___boxed(obj* x_0, obj* x_1) {
@@ -4234,18 +4190,7 @@ x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
 x_3 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
 x_4 = x_2 + x_1;
 x_5 = x_4 == x_3;
-if (x_5 == 0)
-{
-uint8 x_6; 
-x_6 = 0;
-return x_6;
-}
-else
-{
-uint8 x_7; 
-x_7 = 1;
-return x_7;
-}
+return x_5;
 }
 }
 obj* l_Substring_atEnd___boxed(obj* x_0, obj* x_1) {

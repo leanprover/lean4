@@ -92,72 +92,61 @@ obj* x_2; obj* x_3; uint8 x_4;
 x_2 = lean::cnstr_get(x_0, 0);
 x_3 = lean::cnstr_get(x_1, 0);
 x_4 = lean::string_dec_eq(x_2, x_3);
-if (x_4 == 0)
+return x_4;
+}
+default:
 {
 uint8 x_5; 
 x_5 = 0;
 return x_5;
 }
-else
-{
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
-}
-default:
-{
-uint8 x_7; 
-x_7 = 0;
-return x_7;
-}
 }
 }
 case 1:
 {
-uint8 x_8; 
-x_8 = lean::cnstr_get_scalar<uint8>(x_0, 0);
+uint8 x_6; 
+x_6 = lean::cnstr_get_scalar<uint8>(x_0, 0);
 switch (lean::obj_tag(x_1)) {
 case 1:
 {
-uint8 x_9; 
-x_9 = lean::cnstr_get_scalar<uint8>(x_1, 0);
-if (x_8 == 0)
+uint8 x_7; 
+x_7 = lean::cnstr_get_scalar<uint8>(x_1, 0);
+if (x_6 == 0)
 {
-if (x_9 == 0)
+if (x_7 == 0)
+{
+uint8 x_8; 
+x_8 = 1;
+return x_8;
+}
+else
+{
+uint8 x_9; 
+x_9 = 0;
+return x_9;
+}
+}
+else
+{
+if (x_7 == 0)
 {
 uint8 x_10; 
-x_10 = 1;
+x_10 = 0;
 return x_10;
 }
 else
 {
 uint8 x_11; 
-x_11 = 0;
+x_11 = 1;
 return x_11;
-}
-}
-else
-{
-if (x_9 == 0)
-{
-uint8 x_12; 
-x_12 = 0;
-return x_12;
-}
-else
-{
-uint8 x_13; 
-x_13 = 1;
-return x_13;
 }
 }
 }
 default:
 {
-uint8 x_14; 
-x_14 = 0;
-return x_14;
+uint8 x_12; 
+x_12 = 0;
+return x_12;
 }
 }
 }
@@ -166,35 +155,24 @@ case 3:
 switch (lean::obj_tag(x_1)) {
 case 3:
 {
-obj* x_15; uint8 x_16; 
-x_15 = lean::cnstr_get(x_1, 0);
-x_16 = lean::nat_dec_eq(x_15, x_15);
-if (x_16 == 0)
-{
-uint8 x_17; 
-x_17 = 0;
-return x_17;
-}
-else
-{
-uint8 x_18; 
-x_18 = 1;
-return x_18;
-}
+obj* x_13; uint8 x_14; 
+x_13 = lean::cnstr_get(x_1, 0);
+x_14 = lean::nat_dec_eq(x_13, x_13);
+return x_14;
 }
 default:
 {
-uint8 x_19; 
-x_19 = 0;
-return x_19;
+uint8 x_15; 
+x_15 = 0;
+return x_15;
 }
 }
 }
 default:
 {
-uint8 x_20; 
-x_20 = 0;
-return x_20;
+uint8 x_16; 
+x_16 = 0;
+return x_16;
 }
 }
 }
@@ -833,8 +811,10 @@ x_15 = l_Lean_DataValue_beq___main(x_7, x_12);
 lean::dec(x_12);
 if (x_15 == 0)
 {
+uint8 x_18; 
 lean::dec(x_1);
-return x_15;
+x_18 = 0;
+return x_18;
 }
 else
 {
@@ -881,16 +861,18 @@ lean::inc(x_1);
 x_3 = l_Lean_KVMap_subset___main(x_0, x_1);
 if (x_3 == 0)
 {
+uint8 x_6; 
 lean::dec(x_1);
 lean::dec(x_0);
-return x_3;
+x_6 = 0;
+return x_6;
 }
 else
 {
-uint8 x_6; 
-x_6 = l_Lean_KVMap_subset___main(x_1, x_0);
+uint8 x_7; 
+x_7 = l_Lean_KVMap_subset___main(x_1, x_0);
 lean::dec(x_1);
-return x_6;
+return x_7;
 }
 }
 }

@@ -3356,18 +3356,12 @@ x_12 = lean::apply_1(x_0, x_6);
 x_13 = lean::unbox(x_12);
 if (x_13 == 0)
 {
-lean::dec(x_4);
-if (x_13 == 0)
-{
+uint8 x_17; 
 lean::dec(x_8);
 lean::dec(x_0);
-return x_13;
-}
-else
-{
-x_1 = x_8;
-goto _start;
-}
+lean::dec(x_4);
+x_17 = 0;
+return x_17;
 }
 else
 {
@@ -3376,9 +3370,11 @@ lean::inc(x_0);
 x_19 = l_RBNode_all___main___at_RBTree_all___spec__1___rarg(x_0, x_4);
 if (x_19 == 0)
 {
+uint8 x_22; 
 lean::dec(x_8);
 lean::dec(x_0);
-return x_19;
+x_22 = 0;
+return x_22;
 }
 else
 {
@@ -3486,25 +3482,21 @@ goto _start;
 }
 else
 {
+uint8 x_19; 
 lean::dec(x_8);
 lean::dec(x_0);
-return x_15;
+x_19 = 1;
+return x_19;
 }
 }
 else
 {
+uint8 x_23; 
+lean::dec(x_8);
+lean::dec(x_0);
 lean::dec(x_4);
-if (x_13 == 0)
-{
-x_1 = x_8;
-goto _start;
-}
-else
-{
-lean::dec(x_8);
-lean::dec(x_0);
-return x_13;
-}
+x_23 = 1;
+return x_23;
 }
 }
 }
@@ -3735,19 +3727,13 @@ x_16 = l_Option_toBool___main___rarg(x_15);
 lean::dec(x_15);
 if (x_16 == 0)
 {
-lean::dec(x_6);
-if (x_16 == 0)
-{
+uint8 x_22; 
 lean::dec(x_10);
 lean::dec(x_1);
 lean::dec(x_0);
-return x_16;
-}
-else
-{
-x_2 = x_10;
-goto _start;
-}
+lean::dec(x_6);
+x_22 = 0;
+return x_22;
 }
 else
 {
@@ -3757,10 +3743,12 @@ lean::inc(x_0);
 x_25 = l_RBNode_all___main___at_RBTree_subset___spec__4___rarg(x_0, x_1, x_6);
 if (x_25 == 0)
 {
+uint8 x_29; 
 lean::dec(x_10);
 lean::dec(x_1);
 lean::dec(x_0);
-return x_25;
+x_29 = 0;
+return x_29;
 }
 else
 {
@@ -4027,19 +4015,13 @@ x_16 = l_Option_toBool___main___rarg(x_15);
 lean::dec(x_15);
 if (x_16 == 0)
 {
-lean::dec(x_6);
-if (x_16 == 0)
-{
+uint8 x_22; 
 lean::dec(x_10);
 lean::dec(x_1);
 lean::dec(x_0);
-return x_16;
-}
-else
-{
-x_2 = x_10;
-goto _start;
-}
+lean::dec(x_6);
+x_22 = 0;
+return x_22;
 }
 else
 {
@@ -4049,10 +4031,12 @@ lean::inc(x_0);
 x_25 = l_RBNode_all___main___at_RBTree_seteq___spec__5___rarg(x_0, x_1, x_6);
 if (x_25 == 0)
 {
+uint8 x_29; 
 lean::dec(x_10);
 lean::dec(x_1);
 lean::dec(x_0);
-return x_25;
+x_29 = 0;
+return x_29;
 }
 else
 {
@@ -4251,19 +4235,13 @@ x_16 = l_Option_toBool___main___rarg(x_15);
 lean::dec(x_15);
 if (x_16 == 0)
 {
-lean::dec(x_6);
-if (x_16 == 0)
-{
+uint8 x_22; 
 lean::dec(x_10);
 lean::dec(x_1);
 lean::dec(x_0);
-return x_16;
-}
-else
-{
-x_2 = x_10;
-goto _start;
-}
+lean::dec(x_6);
+x_22 = 0;
+return x_22;
 }
 else
 {
@@ -4273,10 +4251,12 @@ lean::inc(x_0);
 x_25 = l_RBNode_all___main___at_RBTree_seteq___spec__10___rarg(x_0, x_1, x_6);
 if (x_25 == 0)
 {
+uint8 x_29; 
 lean::dec(x_10);
 lean::dec(x_1);
 lean::dec(x_0);
-return x_25;
+x_29 = 0;
+return x_29;
 }
 else
 {
@@ -4321,16 +4301,18 @@ lean::inc(x_0);
 x_6 = l_RBNode_all___main___at_RBTree_seteq___spec__5___rarg(x_0, x_2, x_1);
 if (x_6 == 0)
 {
+uint8 x_10; 
 lean::dec(x_1);
 lean::dec(x_0);
 lean::dec(x_2);
-return x_6;
+x_10 = 0;
+return x_10;
 }
 else
 {
-uint8 x_10; 
-x_10 = l_RBNode_all___main___at_RBTree_seteq___spec__10___rarg(x_0, x_1, x_2);
-return x_10;
+uint8 x_11; 
+x_11 = l_RBNode_all___main___at_RBTree_seteq___spec__10___rarg(x_0, x_1, x_2);
+return x_11;
 }
 }
 }

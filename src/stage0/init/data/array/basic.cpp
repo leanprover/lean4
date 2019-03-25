@@ -220,18 +220,7 @@ x_1 = lean::array_get_size(x_0);
 x_2 = lean::mk_nat_obj(0u);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_1);
-if (x_3 == 0)
-{
-uint8 x_5; 
-x_5 = 0;
-return x_5;
-}
-else
-{
-uint8 x_6; 
-x_6 = 1;
-return x_6;
-}
+return x_3;
 }
 }
 obj* l_Array_isEmpty(obj* x_0) {

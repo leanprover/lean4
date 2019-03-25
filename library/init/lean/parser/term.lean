@@ -345,6 +345,11 @@ def borrowPrec := maxPrec - 1
 def borrowed.Parser : termParser :=
 node! borrowed ["@&":maxPrec, Term: Term.Parser borrowPrec]
 
+--- Agda's `(x : e) → f`
+@[derive Parser.HasTokens Parser.HasView]
+def depArrow.Parser : termParser :=
+node! depArrow [binder: bracketedBinder.Parser, op: unicodeSymbol "→" "->" 25, range: Term.Parser 24]
+
 -- TODO(Sebastian): replace with attribute
 @[derive HasTokens]
 def builtinLeadingParsers : TokenMap termParser := TokenMap.ofList [
@@ -352,6 +357,7 @@ def builtinLeadingParsers : TokenMap termParser := TokenMap.ofList [
   (number.name, number.Parser),
   (stringLit.name, stringLit.Parser),
   ("(", paren.Parser),
+  ("(", depArrow.Parser),
   ("_", hole.Parser),
   ("Sort", sort.Parser),
   ("Type", sort.Parser),
@@ -372,6 +378,8 @@ def builtinLeadingParsers : TokenMap termParser := TokenMap.ofList [
   ("if", if.Parser),
   ("{", structInst.Parser),
   ("{", Subtype.Parser),
+  ("{", depArrow.Parser),
+  ("[", depArrow.Parser),
   (".(", inaccessible.Parser),
   ("._", anonymousInaccessible.Parser),
   ("sorry", sorry.Parser),

@@ -64,8 +64,14 @@ instance coeIdentIdentUnivs : HasCoe SyntaxIdent identUnivs.View :=
 instance coeIdentBinderId : HasCoe SyntaxIdent binderIdent.View :=
 ⟨binderIdent.View.id⟩
 
-instance coeBindersExt {α : Type} [HasCoeT α binderIdent.View] : HasCoe (List α) Term.bindersExt.View :=
+instance coeIdentsBindersExt {α : Type} [HasCoeT α binderIdent.View] : HasCoe (List α) Term.bindersExt.View :=
 ⟨λ ids, {leadingIds := ids.map coe}⟩
+
+instance coeBracketedBinderMixedBinder : HasCoe bracketedBinder.View mixedBinder.View :=
+⟨mixedBinder.View.bracketed⟩
+
+instance coeMixedBindersBindersExt {α : Type} [HasCoeT α mixedBinder.View] : HasCoe (List α) Term.bindersExt.View :=
+⟨λ mbs, {leadingIds := [], remainder := some $ bindersRemainder.View.mixed $ mbs.map coe}⟩
 
 instance coeBindersExtBinders : HasCoe Term.bindersExt.View Term.binders.View :=
 ⟨Term.binders.View.extended⟩
@@ -311,43 +317,20 @@ def pi.transform : transformer :=
   let v := view pi stx,
   expandBinders (λ binders body, review pi {op := v.op, binders := binders, range := body}) v.binders v.range
 
-def getAppArgs : Syntax → (Syntax × List Syntax)
-| stx := match tryView app stx with
-  | some v := let (fn, args) := getAppArgs v.fn in (fn, v.Arg::args)
-  | none   := (stx, [])
-
-def termToIdentsUnivs : Syntax → List identUnivs.View × Option Syntax
-| stx := match stx.kind with
-  | some @identUnivs := ([view identUnivs stx], none)
-  | some @app         :=
-    let v := view app stx in
-    (match tryView identUnivs v.fn with
-     | some id :=
-       let (ids, rem) := termToIdentsUnivs v.Arg in (id::ids, rem)
-     | none := ([], some stx))
-  | _ := ([], some stx)
-
-def termToExplicitBinder (stx : Syntax) : Option explicitBinder.View := do
-  v ← tryView paren stx,
-  {Term := t, special := parenSpecial.View.typed pst} ← v.content | failure,
-  (ids, none) ← pure $ termToIdentsUnivs t | failure,
-  let bids := ids.map $ λ id, binderIdent.View.id id.id,
-  pure {content := explicitBinderContent.View.other {ids := bids, type := some $ {type := pst.type}}}
+def depArrow.transform : transformer :=
+λ stx, do
+  let v := view depArrow stx,
+  pure $ review pi {
+    op := Syntax.atom {val := "Π"},
+    binders := binders.View.extended [v.binder],
+    range := v.range}
 
 def arrow.transform : transformer :=
 λ stx, do
   let v := view arrow stx,
-  -- if `stx` is of the form `(id... : e)... → f`, use the type expressions as binders
-  -- Ex: `(a : b) -> c` ~> `Π (a : b), c`
-  let (fn, args) := getAppArgs v.dom,
-  let groups := fn::args,
   pure $ review pi {
     op := Syntax.atom {val := "Π"},
-    binders := match groups.mmap termToExplicitBinder with
-      | some bnders := binders.View.extended {
-        leadingIds := [],
-        remainder := bindersRemainder.View.mixed $ bnders.map (mixedBinder.View.bracketed ∘ bracketedBinder.View.explicit)}
-      | none := binders.View.simple $ simpleBinder.View.explicit {id := `a, type := v.dom},
+    binders := binders.View.simple $ simpleBinder.View.explicit {id := `a, type := v.dom},
     range := v.range}
 
 def paren.transform : transformer :=
@@ -388,9 +371,7 @@ def let.transform : transformer :=
   | letLhs.View.id lli@{id := _, binders := [], type := none} :=
     pure $ review «let» {v with lhs := letLhs.View.id {lli with type := some {type := review hole {}}}}
   | letLhs.View.id lli@{id := _, binders := _, type := ty} :=
-    let bindrs := binders.View.extended {
-      leadingIds := [],
-      remainder := bindersRemainder.View.mixed $ lli.binders.map mixedBinder.View.bracketed} in
+    let bindrs := binders.View.extended lli.binders in
     pure $ review «let» {v with
       lhs := letLhs.View.id {
         id := lli.id,
@@ -408,9 +389,7 @@ def axiom.transform : transformer :=
   let v := view «axiom» stx,
   match v with
   | {sig := {params := bracketedBinders.View.extended bindrs, type := type}, ..} := do
-    let bindrs := binders.View.extended {
-      leadingIds := [],
-      remainder := bindersRemainder.View.mixed $ bindrs.map mixedBinder.View.bracketed},
+    let bindrs := binders.View.extended bindrs,
     pure $ review «axiom» {v with sig := {
       params := bracketedBinders.View.simple [],
       type := {type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}
@@ -441,9 +420,7 @@ def introRule.transform : transformer :=
   let v := view «introRule» stx,
   match v.sig with
   | {params := bracketedBinders.View.extended bindrs, type := some type} := do
-    let bindrs := binders.View.extended {
-      leadingIds := [],
-      remainder := bindersRemainder.View.mixed $ bindrs.map mixedBinder.View.bracketed},
+    let bindrs := binders.View.extended bindrs,
     pure $ review «introRule» {v with sig := {
       params := bracketedBinders.View.simple [],
       type := some {type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs,
@@ -508,6 +485,7 @@ def builtinTransformers : RBMap Name transformer (<) := RBMap.fromList [
   (bracketedBinders.name, bracketedBinders.transform),
   (lambda.name, lambda.transform),
   (pi.name, pi.transform),
+  (depArrow.name, depArrow.transform),
   (arrow.name, arrow.transform),
   (paren.name, paren.transform),
   (assume.name, assume.transform),

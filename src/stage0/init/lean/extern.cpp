@@ -20,9 +20,9 @@ namespace lean {
 obj* mk_extern_attr_data_core(obj*, obj*);
 }
 obj* l_Lean_expandExternPatternAux(obj*, obj*, obj*, obj*);
+extern obj* l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_ExternEntry_backend(obj*);
-extern obj* l___private_init_data_string_basic_9__toNatCore___main___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
@@ -32,6 +32,7 @@ obj* mk_adhoc_ext_entry_core(obj*);
 namespace lean {
 obj* mk_foreign_ext_entry_core(obj*, obj*);
 }
+extern usize l_String_toSubstring___closed__1;
 obj* l_List_intersperse___main___rarg(obj*, obj*);
 obj* l_Lean_expandExternEntry(obj*, obj*);
 obj* l_Lean_getExternEntryForAux___main___closed__1;
@@ -41,12 +42,11 @@ obj* l_Lean_expandExternEntry___main(obj*, obj*);
 namespace lean {
 obj* mk_extern_call_core(obj*, obj*, obj*);
 }
+obj* l_String_Iterator_remainingBytes___main(obj*);
 obj* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1(obj*, obj*);
 namespace lean {
 obj* string_push(obj*, uint32);
 }
-obj* l_String_Iterator_remaining___main(obj*);
-extern usize l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
 obj* l_Lean_ExternEntry_backend___boxed(obj*);
 namespace lean {
 obj* expand_extern_pattern_core(obj*, obj*);
@@ -93,7 +93,7 @@ namespace lean {
 obj* nat_mul(obj*, obj*);
 }
 obj* l_Lean_ExternEntry_backend___main(obj*);
-extern obj* l_String_Iterator_extract___main___closed__1;
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_mkSimpleFnCall(obj*, obj*);
 namespace lean {
 obj* string_length(obj*);
@@ -216,7 +216,7 @@ x_21 = lean::mk_nat_obj(10u);
 x_22 = lean::nat_mul(x_2, x_21);
 lean::dec(x_2);
 x_24 = lean::uint32_to_nat(x_8);
-x_25 = l___private_init_data_string_basic_9__toNatCore___main___closed__1;
+x_25 = l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 x_26 = lean::nat_sub(x_24, x_25);
 lean::dec(x_24);
 x_28 = lean::nat_add(x_22, x_26);
@@ -289,7 +289,7 @@ else
 {
 obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_27; obj* x_30; obj* x_31; obj* x_32; obj* x_34; 
 x_19 = l_String_Iterator_next___main(x_2);
-x_20 = l_String_Iterator_remaining___main(x_19);
+x_20 = l_String_Iterator_remainingBytes___main(x_19);
 x_21 = l___private_init_lean_extern_1__parseOptNum___main(x_20, x_19, x_4);
 x_22 = lean::cnstr_get(x_21, 0);
 lean::inc(x_22);
@@ -300,7 +300,7 @@ x_27 = lean::nat_sub(x_24, x_10);
 lean::dec(x_24);
 lean::inc(x_0);
 x_30 = l_List_nth___main___rarg(x_0, x_27);
-x_31 = l_String_Iterator_extract___main___closed__1;
+x_31 = l_String_splitAux___main___closed__1;
 x_32 = l_Option_getOrElse___main___rarg(x_30, x_31);
 lean::dec(x_30);
 x_34 = lean::string_append(x_3, x_32);
@@ -333,18 +333,16 @@ namespace lean {
 obj* expand_extern_pattern_core(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; usize x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_2 = lean::string_length(x_0);
-x_3 = lean::mk_nat_obj(0u);
-x_4 = l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
-x_5 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
-lean::cnstr_set(x_5, 0, x_0);
-lean::cnstr_set(x_5, 1, x_3);
-lean::cnstr_set_scalar(x_5, sizeof(void*)*2, x_4);
-x_6 = x_5;
-x_7 = l_String_Iterator_extract___main___closed__1;
-x_8 = l_Lean_expandExternPatternAux___main(x_1, x_2, x_6, x_7);
-return x_8;
+x_3 = l_String_toSubstring___closed__1;
+x_4 = lean::alloc_cnstr(0, 1, sizeof(size_t)*1);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_3);
+x_5 = x_4;
+x_6 = l_String_splitAux___main___closed__1;
+x_7 = l_Lean_expandExternPatternAux___main(x_1, x_2, x_5, x_6);
+return x_7;
 }
 }
 }
@@ -375,7 +373,7 @@ x_2 = l_Prod_HasRepr___rarg___closed__1;
 x_3 = lean::string_append(x_0, x_2);
 x_4 = l_List_reprAux___main___rarg___closed__1;
 x_5 = l_List_intersperse___main___rarg(x_4, x_1);
-x_6 = l_String_Iterator_extract___main___closed__1;
+x_6 = l_String_splitAux___main___closed__1;
 x_7 = l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1(x_6, x_5);
 lean::dec(x_5);
 x_9 = lean::string_append(x_3, x_7);

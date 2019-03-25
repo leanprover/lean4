@@ -82,8 +82,8 @@ obj* l_Lean_FileMap_fromString(obj*);
 obj* l_IO_Prim_iterateAux___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_runFrontend___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_iterate___at_Lean_runFrontend___spec__6___lambda__4___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-extern obj* l_String_Iterator_extract___main___closed__1;
 obj* l_Lean_Expander_expand(obj*, obj*);
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_Parser_parseHeader(obj*);
 obj* l_Lean_processFile___lambda__1___closed__9;
 obj* l_Lean_mkConfig(obj* x_0, obj* x_1) {
@@ -1561,9 +1561,9 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; uint8 x_6; obj* x_7; 
 x_0 = lean::box(0);
-x_1 = lean::mk_string("Trace");
+x_1 = lean::mk_string("trace");
 x_2 = lean_name_mk_string(x_0, x_1);
-x_3 = lean::mk_string("asMessages");
+x_3 = lean::mk_string("as_messages");
 x_4 = lean_name_mk_string(x_2, x_3);
 x_5 = l_Lean_Options_empty;
 x_6 = 1;
@@ -1887,7 +1887,7 @@ obj* _init_l_Lean_processFile___lambda__1___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("{\"fileName\": \"<stdin>\", \"posLine\": ");
+x_0 = lean::mk_string("{\"file_name\": \"<stdin>\", \"pos_line\": ");
 return x_0;
 }
 }
@@ -1895,7 +1895,7 @@ obj* _init_l_Lean_processFile___lambda__1___closed__2() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string(", \"posCol\": ");
+x_0 = lean::mk_string(", \"pos_col\": ");
 return x_0;
 }
 }
@@ -2066,10 +2066,10 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_15; obj* x_16; obj* x_17; obj* x_19; obj* x_20; obj* x_22; obj* x_23; obj* x_24; obj* x_26; obj* x_27; 
 x_0 = lean::mk_nat_obj(1u);
 x_1 = l_Nat_repr(x_0);
-x_2 = lean::mk_string("{\"fileName\": \"<stdin>\", \"posLine\": ");
+x_2 = lean::mk_string("{\"file_name\": \"<stdin>\", \"pos_line\": ");
 x_3 = lean::string_append(x_2, x_1);
 lean::dec(x_1);
-x_5 = lean::mk_string(", \"posCol\": ");
+x_5 = lean::mk_string(", \"pos_col\": ");
 x_6 = lean::string_append(x_3, x_5);
 lean::dec(x_5);
 x_8 = lean::mk_nat_obj(0u);
@@ -2174,7 +2174,7 @@ obj* x_29; obj* x_30; uint8 x_31; obj* x_32; obj* x_34; obj* x_35; obj* x_36; ob
 x_29 = lean::box(0);
 x_30 = l_Lean_Elaborator_notation_elaborate___closed__1;
 x_31 = 2;
-x_32 = l_String_Iterator_extract___main___closed__1;
+x_32 = l_String_splitAux___main___closed__1;
 lean::inc(x_22);
 x_34 = lean::alloc_cnstr(0, 5, 1);
 lean::cnstr_set(x_34, 0, x_0);

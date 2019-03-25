@@ -24,12 +24,14 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_currLbp___spec__3(obj*, obj*);
+extern usize l_String_toSubstring___closed__1;
 obj* l_Lean_Parser_prattParser_View___boxed(obj*);
 extern obj* l_mjoin___rarg___closed__1;
 obj* l_Lean_Parser_currLbp___rarg___lambda__3___closed__2;
 obj* l___private_init_lean_parser_pratt_1__trailingLoop___main___boxed(obj*);
 obj* l___private_init_lean_parser_pratt_1__trailingLoop___main___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_currLbp___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_String_OldIterator_remaining___main(obj*);
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_currLbp___spec__3___boxed(obj*, obj*);
 obj* l_Lean_Parser_currLbp(obj*);
 obj* l___private_init_lean_parser_pratt_1__trailingLoop___main(obj*);
@@ -38,9 +40,7 @@ obj* l_Lean_Parser_currLbp___rarg___lambda__1___closed__1;
 obj* l_Lean_Parser_prattParser_View___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_pratt_1__trailingLoop___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_prattParser___rarg___lambda__1___boxed(obj*, obj*);
-obj* l_String_Iterator_remaining___main(obj*);
 obj* l_Lean_Parser_currLbp___boxed(obj*);
-extern usize l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
 obj* l___private_init_lean_parser_pratt_1__trailingLoop(obj*);
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_currLbp___spec__2___boxed(obj*, obj*);
 obj* l_Lean_Parser_prattParser___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -215,7 +215,7 @@ x_6 = lean::cnstr_get(x_5, 1);
 lean::inc(x_6);
 lean::dec(x_5);
 x_9 = lean::mk_nat_obj(0u);
-x_10 = l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
+x_10 = l_String_toSubstring___closed__1;
 x_11 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_11, 0, x_0);
 lean::cnstr_set(x_11, 1, x_9);
@@ -742,7 +742,7 @@ obj* l_Lean_Parser_prattParser___rarg___lambda__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_6; obj* x_9; 
-x_2 = l_String_Iterator_remaining___main(x_1);
+x_2 = l_String_OldIterator_remaining___main(x_1);
 x_3 = lean::cnstr_get(x_0, 0);
 lean::inc(x_3);
 lean::dec(x_0);

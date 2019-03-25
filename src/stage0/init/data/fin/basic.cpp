@@ -14,8 +14,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_Fin_HasLe___boxed(obj*);
 obj* l_Fin_HasZero___boxed(obj*);
+obj* l_Fin_HasLess___boxed(obj*);
 obj* l_Nat_bitwise___main(obj*, obj*, obj*);
 obj* l_Fin_elim0___boxed(obj*, obj*);
 obj* l_Fin_add___main(obj*, obj*, obj*);
@@ -43,7 +43,6 @@ obj* l_Fin_elim0___main___boxed(obj*, obj*);
 obj* l_Fin_DecidableEq___rarg___boxed(obj*, obj*);
 obj* l_Fin_modn(obj*, obj*, obj*);
 obj* l_Fin_mod___main(obj*, obj*, obj*);
-obj* l_Fin_HasLt(obj*);
 obj* l_Fin_HasAdd(obj*);
 obj* l_Fin_decLe___boxed(obj*);
 obj* l_Fin_div(obj*, obj*, obj*);
@@ -54,6 +53,7 @@ obj* l_Fin_sub(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
+obj* l_Fin_HasLessEq(obj*);
 obj* l_Fin_elim0___main(obj*, obj*);
 obj* l_Fin_DecidableEq___boxed(obj*);
 namespace lean {
@@ -78,7 +78,6 @@ obj* l_Fin_decLt___boxed(obj*);
 obj* l_Fin_add___main___boxed(obj*, obj*, obj*);
 obj* l_Fin_sub___main(obj*, obj*, obj*);
 obj* l_Fin_HasMul(obj*);
-obj* l_Fin_HasLt___boxed(obj*);
 obj* l_Fin_decLe___rarg___boxed(obj*, obj*);
 extern obj* l_Nat_land___closed__1;
 obj* l_Fin_HasOne(obj*);
@@ -86,6 +85,7 @@ obj* l_Fin_decLt___rarg___boxed(obj*, obj*);
 obj* l_Fin_ofNat(obj*, obj*);
 uint8 l_Fin_decLt___rarg(obj*, obj*);
 obj* l_Fin_land___main(obj*, obj*, obj*);
+obj* l_Fin_HasLessEq___boxed(obj*);
 obj* l_Fin_lor___boxed(obj*, obj*, obj*);
 obj* l_Fin_mul___boxed(obj*, obj*, obj*);
 namespace lean {
@@ -97,15 +97,15 @@ obj* nat_div(obj*, obj*);
 }
 obj* l_Fin_ofNat___boxed(obj*, obj*);
 obj* l_Fin_mod___main___boxed(obj*, obj*, obj*);
-obj* l_Fin_HasLe(obj*);
 obj* l_Fin_HasZero(obj*);
 obj* l_Fin_add___boxed(obj*, obj*, obj*);
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
 obj* l_Fin_HasOne___boxed(obj*);
+obj* l_Fin_HasLess(obj*);
 obj* l_Fin_mul___main(obj*, obj*, obj*);
-obj* l_Fin_HasLt(obj* x_0) {
+obj* l_Fin_HasLess(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -113,16 +113,16 @@ x_1 = lean::box(0);
 return x_1;
 }
 }
-obj* l_Fin_HasLt___boxed(obj* x_0) {
+obj* l_Fin_HasLess___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Fin_HasLt(x_0);
+x_1 = l_Fin_HasLess(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Fin_HasLe(obj* x_0) {
+obj* l_Fin_HasLessEq(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -130,11 +130,11 @@ x_1 = lean::box(0);
 return x_1;
 }
 }
-obj* l_Fin_HasLe___boxed(obj* x_0) {
+obj* l_Fin_HasLessEq___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Fin_HasLe(x_0);
+x_1 = l_Fin_HasLessEq(x_0);
 lean::dec(x_0);
 return x_1;
 }

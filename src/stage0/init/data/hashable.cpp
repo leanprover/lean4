@@ -14,9 +14,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern usize l_String_toSubstring___closed__1;
 obj* l_String_Hashable;
 usize l_Nat_hash(obj*);
-extern usize l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
 usize l_String_hash(obj*);
 obj* l_String_hash___boxed(obj*);
 obj* l_Nat_Hashable;
@@ -30,7 +30,7 @@ usize l_mixHash(usize x_0, usize x_1) {
 _start:
 {
 usize x_2; 
-x_2 = l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
+x_2 = l_String_toSubstring___closed__1;
 return x_2;
 }
 }
@@ -49,7 +49,7 @@ usize l_String_hash(obj* x_0) {
 _start:
 {
 usize x_1; 
-x_1 = l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
+x_1 = l_String_toSubstring___closed__1;
 return x_1;
 }
 }

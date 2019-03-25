@@ -28,12 +28,14 @@ obj* l_UInt64_HasMod;
 obj* l_UInt32_HasDiv;
 obj* l_UInt64_HasOne___boxed;
 uint8 l_UInt16_hasDecidableLe(uint16, uint16);
+obj* l_UInt32_HasLessEq;
 uint16 l_UInt16_HasZero;
 obj* l_UInt64_HasSub;
 obj* l_UInt32_Inhabited___boxed;
 obj* l_UInt64_Inhabited___boxed;
 obj* l_UInt16_DecidableEq;
 obj* l_UInt64_ofNat___boxed(obj*);
+obj* l_USize_HasLess;
 obj* l_UInt16_modn___boxed(obj*, obj*);
 obj* l_UInt32_HasZero___boxed;
 namespace lean {
@@ -63,7 +65,6 @@ obj* l_UInt8_decLt___boxed(obj*, obj*);
 obj* l_UInt32_lor___boxed(obj*, obj*);
 obj* l_USize_mul___boxed(obj*, obj*);
 extern obj* l_System_platform_nbits;
-obj* l_UInt16_HasLe;
 obj* l_USize_HasZero___boxed;
 obj* l_USize_decLe___boxed(obj*, obj*);
 obj* l_USize_div___boxed(obj*, obj*);
@@ -73,8 +74,10 @@ obj* l_USize_HasDiv;
 obj* l_uint64Sz;
 usize l_USize_HasZero;
 obj* l_UInt64_HasMul;
+obj* l_USize_HasLessEq;
 obj* l_UInt16_toNat___boxed(obj*);
 obj* l_UInt32_decLt___boxed(obj*, obj*);
+obj* l_UInt8_HasLessEq;
 obj* l_UInt64_decLt___boxed(obj*, obj*);
 obj* l_USize_hasDecidableLe___boxed(obj*, obj*);
 obj* l_UInt32_div___boxed(obj*, obj*);
@@ -82,7 +85,6 @@ uint64 l_UInt64_Inhabited;
 uint8 l_UInt8_hasDecidableLt(uint8, uint8);
 obj* l_UInt16_land___boxed(obj*, obj*);
 obj* l_USize_modn___boxed(obj*, obj*);
-obj* l_UInt16_HasLt;
 obj* l_UInt16_hasDecidableLe___boxed(obj*, obj*);
 obj* l_UInt8_modn___boxed(obj*, obj*);
 obj* l_USize_sub___boxed(obj*, obj*);
@@ -90,13 +92,13 @@ obj* l_USize_ofUInt64___boxed(obj*);
 namespace lean {
 uint64 uint64_of_nat(obj*);
 }
-obj* l_UInt64_HasLe;
 obj* l_USize_HasMod;
 obj* l_UInt8_HasZero___boxed;
 obj* l_UInt16_decLe___boxed(obj*, obj*);
 obj* l_USize_HasOne___boxed;
 obj* l_UInt64_add___boxed(obj*, obj*);
 usize l_USize_HasOne;
+obj* l_UInt32_HasLess;
 obj* l_UInt16_HasModn;
 obj* l_UInt64_land___boxed(obj*, obj*);
 obj* l_UInt32_decEq___boxed(obj*, obj*);
@@ -130,8 +132,6 @@ obj* l_UInt16_mul___boxed(obj*, obj*);
 obj* l_UInt16_HasZero___boxed;
 obj* l_uint8Sz;
 obj* l_UInt64_decLe___boxed(obj*, obj*);
-obj* l_UInt32_HasLe;
-obj* l_USize_HasLt;
 obj* l_USize_land___boxed(obj*, obj*);
 obj* l_UInt16_hasDecidableLt___boxed(obj*, obj*);
 obj* l_UInt32_sub___boxed(obj*, obj*);
@@ -143,6 +143,7 @@ obj* l_USize_hasDecidableLt___boxed(obj*, obj*);
 obj* l_UInt64_HasZero___boxed;
 uint8 l_UInt32_hasDecidableLt(uint32, uint32);
 obj* l_UInt64_HasAdd;
+obj* l_UInt8_HasLess;
 obj* l_USize_ofUInt32___boxed(obj*);
 obj* l_USize_lor___boxed(obj*, obj*);
 uint64 l_UInt64_HasOne;
@@ -152,13 +153,13 @@ obj* l_UInt32_HasModn;
 obj* l_UInt8_HasDiv;
 obj* l_UInt64_toNat___boxed(obj*);
 obj* l_Nat_pow___main(obj*, obj*);
-obj* l_UInt32_HasLt;
 obj* l_UInt16_HasMod;
 obj* l_UInt32_land___boxed(obj*, obj*);
 obj* l_UInt16_HasMul;
 obj* l_USize_decEq___boxed(obj*, obj*);
 obj* l_UInt8_decEq___boxed(obj*, obj*);
 obj* l_UInt64_hasDecidableLt___boxed(obj*, obj*);
+obj* l_UInt64_HasLessEq;
 obj* l_UInt16_HasAdd;
 obj* l_USize_mod___boxed(obj*, obj*);
 obj* l_UInt16_mod___boxed(obj*, obj*);
@@ -169,7 +170,6 @@ usize usize_modn(usize, obj*);
 }
 obj* l_USize_HasAdd;
 obj* l_USize_toNat___boxed(obj*);
-obj* l_USize_HasLe;
 obj* l_UInt32_DecidableEq;
 obj* l_UInt8_mul___boxed(obj*, obj*);
 obj* l_UInt32_decLe___boxed(obj*, obj*);
@@ -177,7 +177,6 @@ obj* l_UInt64_modn___boxed(obj*, obj*);
 obj* l_UInt64_mul___boxed(obj*, obj*);
 obj* l_USize_HasModn;
 obj* l_UInt16_ofNat___boxed(obj*);
-obj* l_UInt8_HasLt;
 obj* l_UInt8_HasModn;
 obj* l_uint16Sz;
 obj* l_UInt32_hasDecidableLe___boxed(obj*, obj*);
@@ -193,13 +192,13 @@ namespace lean {
 usize usize_of_nat(obj*);
 }
 obj* l_UInt64_mod___boxed(obj*, obj*);
-obj* l_UInt8_HasLe;
-obj* l_UInt64_HasLt;
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
 obj* l_UInt8_div___boxed(obj*, obj*);
 obj* l_UInt32_toNat___boxed(obj*);
+obj* l_UInt16_HasLess;
+obj* l_UInt16_HasLessEq;
 obj* l_UInt64_decEq___boxed(obj*, obj*);
 uint32 l_UInt32_Inhabited;
 obj* l_UInt8_lor___boxed(obj*, obj*);
@@ -221,6 +220,7 @@ namespace lean {
 uint32 uint32_modn(uint32, obj*);
 }
 uint16 l_UInt16_Inhabited;
+obj* l_UInt64_HasLess;
 obj* l_UInt64_DecidableEq;
 obj* l_UInt64_lor___boxed(obj*, obj*);
 obj* l_UInt16_sub___boxed(obj*, obj*);
@@ -425,7 +425,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_UInt8_div___boxed), 2, 0);
 return x_0;
 }
 }
-obj* _init_l_UInt8_HasLt() {
+obj* _init_l_UInt8_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -433,7 +433,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_UInt8_HasLe() {
+obj* _init_l_UInt8_HasLessEq() {
 _start:
 {
 obj* x_0; 
@@ -734,7 +734,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_UInt16_div___boxed), 2, 0);
 return x_0;
 }
 }
-obj* _init_l_UInt16_HasLt() {
+obj* _init_l_UInt16_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -742,7 +742,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_UInt16_HasLe() {
+obj* _init_l_UInt16_HasLessEq() {
 _start:
 {
 obj* x_0; 
@@ -1043,7 +1043,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_UInt32_div___boxed), 2, 0);
 return x_0;
 }
 }
-obj* _init_l_UInt32_HasLt() {
+obj* _init_l_UInt32_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -1051,7 +1051,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_UInt32_HasLe() {
+obj* _init_l_UInt32_HasLessEq() {
 _start:
 {
 obj* x_0; 
@@ -1352,7 +1352,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_UInt64_div___boxed), 2, 0);
 return x_0;
 }
 }
-obj* _init_l_UInt64_HasLt() {
+obj* _init_l_UInt64_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -1360,7 +1360,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_UInt64_HasLe() {
+obj* _init_l_UInt64_HasLessEq() {
 _start:
 {
 obj* x_0; 
@@ -1685,7 +1685,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_USize_div___boxed), 2, 0);
 return x_0;
 }
 }
-obj* _init_l_USize_HasLt() {
+obj* _init_l_USize_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -1693,7 +1693,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_USize_HasLe() {
+obj* _init_l_USize_HasLessEq() {
 _start:
 {
 obj* x_0; 
@@ -1828,10 +1828,10 @@ lean::mark_persistent(l_UInt8_HasMod);
 lean::mark_persistent(l_UInt8_HasModn);
  l_UInt8_HasDiv = _init_l_UInt8_HasDiv();
 lean::mark_persistent(l_UInt8_HasDiv);
- l_UInt8_HasLt = _init_l_UInt8_HasLt();
-lean::mark_persistent(l_UInt8_HasLt);
- l_UInt8_HasLe = _init_l_UInt8_HasLe();
-lean::mark_persistent(l_UInt8_HasLe);
+ l_UInt8_HasLess = _init_l_UInt8_HasLess();
+lean::mark_persistent(l_UInt8_HasLess);
+ l_UInt8_HasLessEq = _init_l_UInt8_HasLessEq();
+lean::mark_persistent(l_UInt8_HasLessEq);
  l_UInt8_Inhabited = _init_l_UInt8_Inhabited();
  l_UInt8_Inhabited___boxed = _init_l_UInt8_Inhabited___boxed();
 lean::mark_persistent(l_UInt8_Inhabited___boxed);
@@ -1857,10 +1857,10 @@ lean::mark_persistent(l_UInt16_HasMod);
 lean::mark_persistent(l_UInt16_HasModn);
  l_UInt16_HasDiv = _init_l_UInt16_HasDiv();
 lean::mark_persistent(l_UInt16_HasDiv);
- l_UInt16_HasLt = _init_l_UInt16_HasLt();
-lean::mark_persistent(l_UInt16_HasLt);
- l_UInt16_HasLe = _init_l_UInt16_HasLe();
-lean::mark_persistent(l_UInt16_HasLe);
+ l_UInt16_HasLess = _init_l_UInt16_HasLess();
+lean::mark_persistent(l_UInt16_HasLess);
+ l_UInt16_HasLessEq = _init_l_UInt16_HasLessEq();
+lean::mark_persistent(l_UInt16_HasLessEq);
  l_UInt16_Inhabited = _init_l_UInt16_Inhabited();
  l_UInt16_Inhabited___boxed = _init_l_UInt16_Inhabited___boxed();
 lean::mark_persistent(l_UInt16_Inhabited___boxed);
@@ -1886,10 +1886,10 @@ lean::mark_persistent(l_UInt32_HasMod);
 lean::mark_persistent(l_UInt32_HasModn);
  l_UInt32_HasDiv = _init_l_UInt32_HasDiv();
 lean::mark_persistent(l_UInt32_HasDiv);
- l_UInt32_HasLt = _init_l_UInt32_HasLt();
-lean::mark_persistent(l_UInt32_HasLt);
- l_UInt32_HasLe = _init_l_UInt32_HasLe();
-lean::mark_persistent(l_UInt32_HasLe);
+ l_UInt32_HasLess = _init_l_UInt32_HasLess();
+lean::mark_persistent(l_UInt32_HasLess);
+ l_UInt32_HasLessEq = _init_l_UInt32_HasLessEq();
+lean::mark_persistent(l_UInt32_HasLessEq);
  l_UInt32_Inhabited = _init_l_UInt32_Inhabited();
  l_UInt32_Inhabited___boxed = _init_l_UInt32_Inhabited___boxed();
 lean::mark_persistent(l_UInt32_Inhabited___boxed);
@@ -1915,10 +1915,10 @@ lean::mark_persistent(l_UInt64_HasMod);
 lean::mark_persistent(l_UInt64_HasModn);
  l_UInt64_HasDiv = _init_l_UInt64_HasDiv();
 lean::mark_persistent(l_UInt64_HasDiv);
- l_UInt64_HasLt = _init_l_UInt64_HasLt();
-lean::mark_persistent(l_UInt64_HasLt);
- l_UInt64_HasLe = _init_l_UInt64_HasLe();
-lean::mark_persistent(l_UInt64_HasLe);
+ l_UInt64_HasLess = _init_l_UInt64_HasLess();
+lean::mark_persistent(l_UInt64_HasLess);
+ l_UInt64_HasLessEq = _init_l_UInt64_HasLessEq();
+lean::mark_persistent(l_UInt64_HasLessEq);
  l_UInt64_Inhabited = _init_l_UInt64_Inhabited();
  l_UInt64_Inhabited___boxed = _init_l_UInt64_Inhabited___boxed();
 lean::mark_persistent(l_UInt64_Inhabited___boxed);
@@ -1944,10 +1944,10 @@ lean::mark_persistent(l_USize_HasMod);
 lean::mark_persistent(l_USize_HasModn);
  l_USize_HasDiv = _init_l_USize_HasDiv();
 lean::mark_persistent(l_USize_HasDiv);
- l_USize_HasLt = _init_l_USize_HasLt();
-lean::mark_persistent(l_USize_HasLt);
- l_USize_HasLe = _init_l_USize_HasLe();
-lean::mark_persistent(l_USize_HasLe);
+ l_USize_HasLess = _init_l_USize_HasLess();
+lean::mark_persistent(l_USize_HasLess);
+ l_USize_HasLessEq = _init_l_USize_HasLessEq();
+lean::mark_persistent(l_USize_HasLessEq);
  l_USize_Inhabited = _init_l_USize_Inhabited();
  l_USize_Inhabited___boxed = _init_l_USize_Inhabited___boxed();
 lean::mark_persistent(l_USize_Inhabited___boxed);

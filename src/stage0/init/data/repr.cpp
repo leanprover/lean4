@@ -20,6 +20,7 @@ obj* l_Char_repr___boxed(obj*);
 obj* l_Sum_HasRepr___rarg___closed__1;
 obj* l_USize_HasRepr(usize);
 obj* l_Fin_HasRepr___boxed(obj*);
+obj* l_Substring_HasRepr___boxed(obj*);
 obj* l_Decidable_HasRepr___rarg___boxed(obj*);
 obj* l_UInt32_HasRepr(uint32);
 obj* l_String_HasRepr;
@@ -33,6 +34,7 @@ obj* l_List_repr___rarg(obj*, obj*);
 uint8 l_String_isEmpty(obj*);
 obj* l_String_Iterator_HasRepr___boxed(obj*);
 obj* l_charToHex(uint32);
+obj* l_Substring_HasRepr(obj*);
 obj* l_Subtype_HasRepr(obj*, obj*);
 obj* l_Char_quoteCore___closed__3;
 obj* l_List_HasRepr___boxed(obj*);
@@ -65,6 +67,7 @@ obj* l_Nat_repr(obj*);
 obj* l_String_quote___closed__1;
 obj* l_Prod_HasRepr___rarg(obj*, obj*, obj*);
 obj* l_Bool_HasRepr(uint8);
+obj* l_Substring_HasRepr___closed__1;
 obj* l_List_repr___main___rarg___closed__3;
 obj* l_Nat_HasRepr;
 obj* l_Decidable_HasRepr(obj*);
@@ -134,6 +137,9 @@ namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
 namespace lean {
+obj* string_utf8_extract(obj*, usize, usize);
+}
+namespace lean {
 obj* string_mk(obj*);
 }
 obj* l_Nat_toDigitsCore___boxed(obj*, obj*, obj*, obj*);
@@ -162,12 +168,12 @@ obj* l_String_Iterator_HasRepr___closed__1;
 obj* l_Bool_HasRepr___closed__1;
 obj* l_List_repr(obj*);
 obj* l_List_HasRepr___rarg(obj*);
-extern obj* l_String_Iterator_extract___main___closed__1;
 obj* l_hexDigitRepr___boxed(obj*);
 obj* l_Fin_HasRepr(obj*);
 obj* l_String_Iterator_HasRepr(obj*);
 obj* l_List_repr___main___rarg(obj*, obj*);
 obj* l_Unit_HasRepr___closed__1;
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_Char_quoteCore___closed__4;
 obj* l_id_HasRepr___rarg(obj* x_0) {
 _start:
@@ -304,7 +310,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_0);
-x_4 = l_String_Iterator_extract___main___closed__1;
+x_4 = l_String_splitAux___main___closed__1;
 return x_4;
 }
 else
@@ -332,7 +338,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_19; 
 lean::dec(x_0);
-x_19 = l_String_Iterator_extract___main___closed__1;
+x_19 = l_String_splitAux___main___closed__1;
 return x_19;
 }
 else
@@ -1153,7 +1159,7 @@ _start:
 {
 uint32 x_1; obj* x_2; obj* x_3; 
 x_1 = l_Nat_digitChar(x_0);
-x_2 = l_String_Iterator_extract___main___closed__1;
+x_2 = l_String_splitAux___main___closed__1;
 x_3 = lean::string_push(x_2, x_1);
 return x_3;
 }
@@ -1270,7 +1276,7 @@ x_14 = x_0 == x_13;
 if (x_14 == 0)
 {
 obj* x_15; obj* x_16; 
-x_15 = l_String_Iterator_extract___main___closed__1;
+x_15 = l_String_splitAux___main___closed__1;
 x_16 = lean::string_push(x_15, x_0);
 return x_16;
 }
@@ -1367,7 +1373,7 @@ _start:
 if (lean::obj_tag(x_0) == 0)
 {
 obj* x_1; 
-x_1 = l_String_Iterator_extract___main___closed__1;
+x_1 = l_String_splitAux___main___closed__1;
 return x_1;
 }
 else
@@ -1458,6 +1464,37 @@ _start:
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_String_quote), 1, 0);
 return x_0;
+}
+}
+obj* _init_l_Substring_HasRepr___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_string(".toSubstring");
+return x_0;
+}
+}
+obj* l_Substring_HasRepr(obj* x_0) {
+_start:
+{
+obj* x_1; usize x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+x_1 = lean::cnstr_get(x_0, 0);
+x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
+x_3 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
+x_4 = lean::string_utf8_extract(x_1, x_2, x_3);
+x_5 = l_String_quote(x_4);
+x_6 = l_Substring_HasRepr___closed__1;
+x_7 = lean::string_append(x_5, x_6);
+return x_7;
+}
+}
+obj* l_Substring_HasRepr___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Substring_HasRepr(x_0);
+lean::dec(x_0);
+return x_1;
 }
 }
 obj* _init_l_String_Iterator_HasRepr___closed__1() {
@@ -1669,6 +1706,8 @@ lean::mark_persistent(l_String_quote___closed__1);
 lean::mark_persistent(l_String_quote___closed__2);
  l_String_HasRepr = _init_l_String_HasRepr();
 lean::mark_persistent(l_String_HasRepr);
+ l_Substring_HasRepr___closed__1 = _init_l_Substring_HasRepr___closed__1();
+lean::mark_persistent(l_Substring_HasRepr___closed__1);
  l_String_Iterator_HasRepr___closed__1 = _init_l_String_Iterator_HasRepr___closed__1();
 lean::mark_persistent(l_String_Iterator_HasRepr___closed__1);
 return w;

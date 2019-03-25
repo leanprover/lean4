@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.level
-// Imports: init.lean.name init.data.option.basic
+// Imports: init.data.option.basic init.lean.name init.lean.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1270,16 +1270,19 @@ lean::closure_set(x_2, 1, x_1);
 return x_2;
 }
 }
-obj* initialize_init_lean_name(obj*);
 obj* initialize_init_data_option_basic(obj*);
+obj* initialize_init_lean_name(obj*);
+obj* initialize_init_lean_format(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_level(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
+w = initialize_init_data_option_basic(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_data_option_basic(w);
+w = initialize_init_lean_format(w);
  l_Lean_levelIsInhabited = _init_l_Lean_levelIsInhabited();
 lean::mark_persistent(l_Lean_levelIsInhabited);
  l_Lean_Level_one = _init_l_Lean_Level_one();

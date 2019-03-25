@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.position
-// Imports: init.data.nat.default init.data.rbmap.default init.lean.format
+// Imports: init.data.nat.default init.data.rbmap.default init.lean.format init.lean.parser.parsec
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -14,13 +14,14 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-uint32 l_String_Iterator_curr___main(obj*);
 obj* l_RBNode_setBlack___main___rarg(obj*);
 obj* l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1___boxed(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_Position_DecidableEq___boxed(obj*, obj*);
+extern usize l_String_toSubstring___closed__1;
+uint32 l_String_OldIterator_curr___main(obj*);
 obj* l___private_init_lean_position_1__fromStringAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Position_decidableLt___boxed(obj*, obj*);
 obj* l_Lean_Position_Lean_HasToFormat___closed__3;
@@ -29,14 +30,14 @@ obj* l_Lean_Position_Inhabited;
 obj* l_RBNode_balance2___main___rarg(obj*, obj*);
 obj* l_Nat_repr(obj*);
 obj* l_Lean_Position_decidableLt___main___closed__2;
-extern usize l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
-obj* l_String_Iterator_next___main(obj*);
 obj* l_RBNode_insert___at_Lean_FileMap_fromString___spec__3(obj*, obj*, obj*);
+obj* l_String_OldIterator_next___main(obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Lean_Position_Lean_HasToFormat___closed__1;
 obj* l___private_init_lean_position_1__fromStringAux___boxed(obj*, obj*, obj*);
+uint8 l_String_OldIterator_hasNext___main(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -60,12 +61,11 @@ obj* l_RBNode_balance1___main___rarg(obj*, obj*);
 namespace lean {
 uint32 uint32_of_nat(obj*);
 }
-uint8 l_String_Iterator_hasNext___main(obj*);
 uint8 l_prodHasDecidableLt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_Position_decidableLt___main(obj*, obj*);
 obj* l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(obj*, obj*);
 obj* l_Lean_FileMap_toPosition(obj*, obj*);
-obj* l_Lean_Position_HasLt;
+obj* l_Lean_Position_HasLess;
 obj* l_Lean_FileMap_fromString(obj*);
 obj* l_RBMap_insert___main___at_Lean_FileMap_fromString___spec__2(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__4(obj*, obj*, obj*);
@@ -118,7 +118,7 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* _init_l_Lean_Position_HasLt() {
+obj* _init_l_Lean_Position_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -293,7 +293,7 @@ x_4 = lean::nat_dec_eq(x_0, x_3);
 if (x_4 == 0)
 {
 uint8 x_5; 
-x_5 = l_String_Iterator_hasNext___main(x_1);
+x_5 = l_String_OldIterator_hasNext___main(x_1);
 if (x_5 == 0)
 {
 obj* x_8; 
@@ -308,13 +308,13 @@ obj* x_9; obj* x_10; uint32 x_12; uint32 x_13; uint8 x_14;
 x_9 = lean::mk_nat_obj(1u);
 x_10 = lean::nat_sub(x_0, x_9);
 lean::dec(x_0);
-x_12 = l_String_Iterator_curr___main(x_1);
+x_12 = l_String_OldIterator_curr___main(x_1);
 x_13 = 10;
 x_14 = x_12 == x_13;
 if (x_14 == 0)
 {
 obj* x_15; 
-x_15 = l_String_Iterator_next___main(x_1);
+x_15 = l_String_OldIterator_next___main(x_1);
 x_0 = x_10;
 x_1 = x_15;
 goto _start;
@@ -322,7 +322,7 @@ goto _start;
 else
 {
 obj* x_17; obj* x_18; obj* x_20; obj* x_22; obj* x_23; obj* x_25; 
-x_17 = l_String_Iterator_next___main(x_1);
+x_17 = l_String_OldIterator_next___main(x_1);
 x_18 = lean::cnstr_get(x_17, 1);
 lean::inc(x_18);
 x_20 = lean::nat_add(x_2, x_9);
@@ -668,7 +668,7 @@ _start:
 obj* x_1; obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_1 = lean::string_length(x_0);
 x_2 = lean::mk_nat_obj(0u);
-x_3 = l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
+x_3 = l_String_toSubstring___closed__1;
 x_4 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_4, 0, x_0);
 lean::cnstr_set(x_4, 1, x_2);
@@ -806,6 +806,7 @@ return x_2;
 obj* initialize_init_data_nat_default(obj*);
 obj* initialize_init_data_rbmap_default(obj*);
 obj* initialize_init_lean_format(obj*);
+obj* initialize_init_lean_parser_parsec(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_position(obj* w) {
  if (_G_initialized) return w;
@@ -816,8 +817,10 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_rbmap_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_format(w);
- l_Lean_Position_HasLt = _init_l_Lean_Position_HasLt();
-lean::mark_persistent(l_Lean_Position_HasLt);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_parser_parsec(w);
+ l_Lean_Position_HasLess = _init_l_Lean_Position_HasLess();
+lean::mark_persistent(l_Lean_Position_HasLess);
  l_Lean_Position_decidableLt___main___closed__1 = _init_l_Lean_Position_decidableLt___main___closed__1();
 lean::mark_persistent(l_Lean_Position_decidableLt___main___closed__1);
  l_Lean_Position_decidableLt___main___closed__2 = _init_l_Lean_Position_decidableLt___main___closed__2();

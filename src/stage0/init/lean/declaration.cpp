@@ -14,15 +14,15 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_Lean_ConstantInfo_name(obj*);
+obj* l_Lean_ConstantInfo_name___boxed(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal(obj*);
 obj* l_Lean_ConstantInfo_hints___main(obj*);
-obj* l_Lean_ConstantInfo_id___boxed(obj*);
 obj* l_Lean_ConstantInfo_value(obj*);
 obj* l_Lean_ConstantInfo_lparams(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal___main(obj*);
 obj* l_Lean_ConstantInfo_hints___boxed(obj*);
 obj* l_Lean_ConstantInfo_value___main(obj*);
-obj* l_Lean_ConstantInfo_id(obj*);
 obj* l_Lean_ConstantInfo_hints(obj*);
 obj* l_Lean_ConstantInfo_hints___main___boxed(obj*);
 obj* l_Lean_ConstantInfo_toConstantVal___boxed(obj*);
@@ -66,7 +66,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Lean_ConstantInfo_id(obj* x_0) {
+obj* l_Lean_ConstantInfo_name(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -77,11 +77,11 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_ConstantInfo_id___boxed(obj* x_0) {
+obj* l_Lean_ConstantInfo_name___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Lean_ConstantInfo_id(x_0);
+x_1 = l_Lean_ConstantInfo_name(x_0);
 lean::dec(x_0);
 return x_1;
 }

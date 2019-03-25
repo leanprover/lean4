@@ -19,7 +19,6 @@ obj* l_Lean_Parser_command_univParams_HasView_x_27___lambda__1(obj*);
 obj* l_Lean_Parser_command_defLike_HasView;
 obj* l_Lean_Parser_withTrailing___rarg___lambda__1(obj*, obj*);
 obj* l_Lean_Parser_command_declAttributes_HasView_x_27___lambda__1(obj*);
-uint32 l_String_Iterator_curr___main(obj*);
 obj* l_Lean_Parser_command_equation_Parser_Lean_Parser_HasView;
 obj* l_Lean_Parser_command_declAttributes_HasView_x_27___lambda__2(obj*);
 obj* l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasTokens___spec__7(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -79,6 +78,7 @@ obj* l_Lean_Parser_command_univParams_HasView_x_27___lambda__1___closed__1;
 extern obj* l_Lean_Parser_Combinators_choiceAux___main___rarg___closed__1;
 obj* l_Lean_Parser_command_extends_HasView_x_27___lambda__1___closed__3;
 obj* l_Lean_Parser_command_axiom_HasView_x_27;
+extern usize l_String_toSubstring___closed__1;
 obj* l_Lean_Parser_command_declAttributes_HasView_x_27___lambda__1___closed__2;
 obj* l_List_mfoldl___main___at_Lean_Parser_command_docComment_Parser___spec__5(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_command_oldUnivParams_Parser_Lean_Parser_HasView;
@@ -129,6 +129,7 @@ obj* l_Lean_Parser_command_structImplicitBinder_HasView_x_27___lambda__1___close
 obj* l_Function_comp___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_command_relaxedInferModifier_HasView_x_27___lambda__1(obj*);
 obj* l_Lean_Parser_ParsecT_labelsMkRes___rarg(obj*, obj*);
+uint32 l_String_OldIterator_curr___main(obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser___spec__3(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_command_relaxedInferModifier_HasView;
@@ -156,6 +157,7 @@ obj* l_Lean_Parser_command_attrInstance_HasView_x_27;
 obj* l_Lean_Parser_command_constantKeyword_HasView_x_27___lambda__2___closed__1;
 obj* l_Lean_Parser_command_declVal_HasView_x_27___lambda__1___closed__4;
 obj* l_Lean_Parser_command_declSig_Parser(obj*, obj*, obj*, obj*);
+obj* l_String_OldIterator_remaining___main(obj*);
 obj* l_Lean_Parser_MonadParsec_many_x_27___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasView___spec__2(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_combinators_3__sepBy_viewAux___main___at_Lean_Parser_command_extends_HasView_x_27___spec__1(obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_Parser_command_oldUnivParams_HasView_x_27___spec__2(obj*);
@@ -213,7 +215,6 @@ obj* l_Lean_Parser_command_inductive_HasView;
 obj* l_Lean_Parser_command_attrInstance_HasView;
 obj* l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasTokens___spec__10___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_command_structure_HasView_x_27___lambda__1___closed__4;
-obj* l_String_Iterator_remaining___main(obj*);
 obj* l_Lean_Parser_command_introRule_HasView;
 obj* l_Lean_Parser_command_strictInferModifier_HasView_x_27___lambda__2___closed__1;
 obj* l_Lean_Parser_mkRawRes(obj*, obj*);
@@ -222,9 +223,9 @@ obj* l_ReaderT_lift___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasTo
 extern obj* l_Lean_Parser_MonadParsec_eoiError___rarg___closed__1;
 obj* l_Lean_Parser_command_declSig_HasView;
 obj* l_Lean_Parser_command_declVal_HasView_x_27___lambda__1___closed__3;
-extern usize l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
 obj* l_Lean_Parser_command_introRule_Parser_Lean_Parser_HasTokens;
 extern obj* l_Lean_Parser_command_notationLike_Parser_Lean_Parser_HasTokens;
+obj* l___private_init_lean_parser_parsec_2__strAux___main(obj*, obj*, obj*);
 obj* l_Lean_Parser_command_equation_HasView_x_27___lambda__1___closed__1;
 obj* l_Lean_Parser_command_oldUnivParams_Parser_Lean_Parser_HasTokens;
 obj* l_Lean_Parser_command_optDeclSig_Parser(obj*, obj*, obj*, obj*);
@@ -242,7 +243,6 @@ obj* l_Lean_Parser_command_instImplicitBinder_HasView_x_27;
 obj* l_Lean_Parser_command_strictImplicitBinder_HasView;
 extern obj* l_Lean_Parser_command_notationLike_HasView;
 obj* l_List_join___main___rarg(obj*);
-obj* l_String_Iterator_next___main(obj*);
 obj* l_Lean_Parser_command_inductive_HasView_x_27___lambda__1___closed__2;
 obj* l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasView___spec__3___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_command_strictInferModifier_HasView_x_27___lambda__1(obj*);
@@ -258,6 +258,7 @@ obj* string_append(obj*, obj*);
 }
 obj* l_Lean_Parser_command_defLike_HasView_x_27___lambda__2(obj*);
 obj* l_Lean_Parser_command_instImplicitBinder;
+obj* l_String_OldIterator_next___main(obj*);
 obj* l_Lean_Parser_command_declModifiers_HasView_x_27___lambda__1(obj*);
 obj* l_Lean_Parser_command_structBinderContent_HasView_x_27___lambda__1___closed__1;
 obj* l_Lean_Parser_command_attrInstance_Parser(obj*, obj*, obj*, obj*);
@@ -299,6 +300,7 @@ obj* l_Lean_Parser_command_introRule_HasView_x_27;
 obj* l_Lean_Parser_command_structBinderContent_Parser_Lean_Parser_HasView;
 obj* l_Char_quoteCore(uint32);
 obj* l_Lean_Parser_ParsecT_orelseMkRes___rarg(obj*, obj*);
+uint8 l_String_OldIterator_hasNext___main(obj*);
 obj* l_Lean_Parser_command_Declaration_HasView_x_27___lambda__1___closed__1;
 obj* l_Lean_Parser_command_introRule_HasView_x_27___lambda__2(obj*);
 namespace lean {
@@ -466,7 +468,6 @@ obj* l_Lean_Parser_command_example_HasView_x_27___lambda__1___closed__1;
 obj* l_Lean_Parser_command_docComment_Parser___closed__1;
 obj* l_Lean_Parser_command_simpleDeclVal_HasView_x_27___lambda__1___closed__1;
 obj* l_Lean_Parser_command_declVal_HasView_x_27___lambda__1___closed__5;
-obj* l___private_init_lean_parser_parsec_1__strAux___main(obj*, obj*, obj*);
 extern obj* l_Lean_Parser_Term_binderContent_HasView_x_27___lambda__1___closed__2;
 obj* l_Lean_Parser_command_strictInferModifier;
 obj* l_List_map___main___at_Lean_Parser_command_oldUnivParams_HasView_x_27___spec__1(obj*);
@@ -479,7 +480,6 @@ obj* l_Lean_Parser_command_declAttributes_HasView;
 obj* l_Lean_Parser_command_univParams_HasView;
 extern obj* l_Lean_Parser_number_HasView_x_27___lambda__2___closed__6;
 extern obj* l_Lean_Parser_detailIdentPart_HasView_x_27___lambda__2___closed__1;
-uint8 l_String_Iterator_hasNext___main(obj*);
 obj* l_Lean_Parser_command_structure_Parser___closed__1;
 obj* l_Lean_Parser_command_structureCtor_HasView_x_27___lambda__1(obj*);
 extern obj* l_Lean_Parser_Term_paren_HasView_x_27___lambda__2___closed__2;
@@ -551,7 +551,6 @@ obj* l_Lean_Parser_command_equation_Parser(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_command_strictInferModifier_HasView_x_27;
 obj* l_Lean_Parser_command_structureKw_HasView_x_27;
 obj* l_Lean_Parser_command_structureKw_HasView_x_27___lambda__1___closed__1;
-extern obj* l_String_Iterator_extract___main___closed__1;
 obj* l_Lean_Parser_command_axiom_HasView_x_27___lambda__1(obj*);
 obj* l_Lean_Parser_command_declSig_Parser___closed__1;
 obj* l_Lean_Parser_command_docComment_Parser_Lean_Parser_HasView___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -564,6 +563,7 @@ obj* l_Lean_Parser_command_declVal_HasView_x_27___lambda__1___closed__2;
 obj* l_Lean_Parser_command_constantKeyword_HasView_x_27___lambda__1___closed__1;
 obj* l_Lean_Parser_command_strictImplicitBinder_HasView_x_27___lambda__2(obj*);
 obj* l_Lean_Parser_command_structExplicitBinder;
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_Parser_command_Declaration_Parser_Lean_Parser_HasView;
 namespace lean {
 obj* string_length(obj*);
@@ -1368,7 +1368,7 @@ lean::dec(x_27);
 x_100 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_100, 0, x_5);
 x_101 = lean::box(0);
-x_102 = l_String_Iterator_extract___main___closed__1;
+x_102 = l_String_splitAux___main___closed__1;
 x_103 = l_Lean_Parser_MonadParsec_error___at___private_init_lean_parser_token_1__finishCommentBlockAux___main___spec__1___rarg(x_102, x_2, x_100, x_101, x_7, x_22, x_15);
 lean::dec(x_22);
 lean::dec(x_7);
@@ -1447,7 +1447,7 @@ if (x_6 == 0)
 obj* x_7; obj* x_8; usize x_9; obj* x_11; obj* x_12; obj* x_14; 
 x_7 = lean::string_length(x_0);
 x_8 = lean::mk_nat_obj(0u);
-x_9 = l___private_init_data_string_basic_5__utf8PrevAux___main___closed__1;
+x_9 = l_String_toSubstring___closed__1;
 lean::inc(x_0);
 x_11 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_11, 0, x_0);
@@ -1455,13 +1455,13 @@ lean::cnstr_set(x_11, 1, x_8);
 lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_9);
 x_12 = x_11;
 lean::inc(x_4);
-x_14 = l___private_init_lean_parser_parsec_1__strAux___main(x_7, x_12, x_4);
+x_14 = l___private_init_lean_parser_parsec_2__strAux___main(x_7, x_12, x_4);
 if (lean::obj_tag(x_14) == 0)
 {
 obj* x_16; obj* x_17; obj* x_18; uint8 x_19; obj* x_20; obj* x_21; obj* x_22; 
 lean::dec(x_0);
 x_16 = lean::box(0);
-x_17 = l_String_Iterator_extract___main___closed__1;
+x_17 = l_String_splitAux___main___closed__1;
 x_18 = lean::alloc_cnstr(0, 4, 0);
 lean::cnstr_set(x_18, 0, x_4);
 lean::cnstr_set(x_18, 1, x_17);
@@ -1501,7 +1501,7 @@ else
 obj* x_33; obj* x_34; obj* x_35; obj* x_36; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_33 = l_String_Iterator_extract___main___closed__1;
+x_33 = l_String_splitAux___main___closed__1;
 x_34 = l_Lean_Parser_Parsec_Result_mkEps___rarg___closed__1;
 x_35 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_35, 0, x_33);
@@ -1689,7 +1689,7 @@ obj* l_Lean_Parser_MonadParsec_any___at_Lean_Parser_command_docComment_Parser_Le
 _start:
 {
 uint8 x_4; 
-x_4 = l_String_Iterator_hasNext___main(x_2);
+x_4 = l_String_OldIterator_hasNext___main(x_2);
 if (x_4 == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_12; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
@@ -1722,7 +1722,7 @@ return x_17;
 else
 {
 uint32 x_18; uint8 x_19; 
-x_18 = l_String_Iterator_curr___main(x_2);
+x_18 = l_String_OldIterator_curr___main(x_2);
 x_19 = l_True_Decidable;
 if (x_19 == 0)
 {
@@ -1760,7 +1760,7 @@ return x_36;
 else
 {
 obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; 
-x_37 = l_String_Iterator_next___main(x_2);
+x_37 = l_String_OldIterator_next___main(x_2);
 x_38 = lean::box(0);
 x_39 = lean::box_uint32(x_18);
 x_40 = lean::alloc_cnstr(0, 3, 0);
@@ -2049,7 +2049,7 @@ obj* l_Lean_Parser_MonadParsec_many_x_27___at_Lean_Parser_command_docComment_Par
 _start:
 {
 obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
-x_5 = l_String_Iterator_remaining___main(x_3);
+x_5 = l_String_OldIterator_remaining___main(x_3);
 lean::inc(x_3);
 x_7 = l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasTokens___spec__7(x_0, x_5, x_1, x_2, x_3, x_4);
 lean::dec(x_5);
@@ -2419,7 +2419,7 @@ obj* l_Lean_Parser_MonadParsec_many_x_27___at_Lean_Parser_command_docComment_Par
 _start:
 {
 obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
-x_5 = l_String_Iterator_remaining___main(x_3);
+x_5 = l_String_OldIterator_remaining___main(x_3);
 lean::inc(x_3);
 x_7 = l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasTokens___spec__10(x_0, x_5, x_1, x_2, x_3, x_4);
 lean::dec(x_5);
@@ -3140,7 +3140,7 @@ obj* l_Lean_Parser_MonadParsec_many_x_27___at_Lean_Parser_command_docComment_Par
 _start:
 {
 obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
-x_5 = l_String_Iterator_remaining___main(x_3);
+x_5 = l_String_OldIterator_remaining___main(x_3);
 lean::inc(x_3);
 x_7 = l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser_Lean_Parser_HasView___spec__3(x_0, x_5, x_1, x_2, x_3, x_4);
 lean::dec(x_5);
@@ -4120,7 +4120,7 @@ obj* l_Lean_Parser_MonadParsec_many_x_27___at_Lean_Parser_command_docComment_Par
 _start:
 {
 obj* x_5; obj* x_7; obj* x_9; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
-x_5 = l_String_Iterator_remaining___main(x_3);
+x_5 = l_String_OldIterator_remaining___main(x_3);
 lean::inc(x_3);
 x_7 = l_Lean_Parser_MonadParsec_many1Aux_x_27___main___at_Lean_Parser_command_docComment_Parser___spec__3(x_0, x_5, x_1, x_2, x_3, x_4);
 lean::dec(x_5);
@@ -5938,7 +5938,7 @@ obj* l_Lean_Parser_Combinators_many1___at_Lean_Parser_command_attrInstance_Parse
 _start:
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_12; obj* x_14; obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
-x_5 = l_String_Iterator_remaining___main(x_3);
+x_5 = l_String_OldIterator_remaining___main(x_3);
 x_6 = lean::box(0);
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_add(x_5, x_7);
@@ -7760,7 +7760,7 @@ obj* l_Lean_Parser_Combinators_sepBy1___at_Lean_Parser_command_declAttributes_Pa
 _start:
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_10; uint8 x_12; obj* x_13; obj* x_15; obj* x_17; obj* x_19; obj* x_20; obj* x_21; obj* x_22; 
-x_7 = l_String_Iterator_remaining___main(x_5);
+x_7 = l_String_OldIterator_remaining___main(x_5);
 x_8 = lean::box(0);
 x_9 = lean::mk_nat_obj(1u);
 x_10 = lean::nat_add(x_7, x_9);
@@ -15198,7 +15198,7 @@ lean::dec(x_22);
 x_42 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_42, 0, x_2);
 x_43 = lean::box(0);
-x_44 = l_String_Iterator_extract___main___closed__1;
+x_44 = l_String_splitAux___main___closed__1;
 x_45 = l_Lean_Parser_ident_Parser___at_Lean_Parser_command_NotationSpec_foldAction_Parser_Lean_Parser_HasTokens___spec__4___rarg___closed__1;
 x_46 = l_Lean_Parser_MonadParsec_error___at___private_init_lean_parser_token_1__finishCommentBlockAux___main___spec__1___rarg(x_44, x_45, x_42, x_43, x_4, x_17, x_12);
 lean::dec(x_17);

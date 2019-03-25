@@ -68,6 +68,7 @@ obj* l_Prod_sizeof___rarg(obj*, obj*, obj*);
 obj* l_cond___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_Quotient_recOn___rarg(obj*, obj*, obj*);
 obj* l_Quotient_liftOn_u_2082___rarg(obj*, obj*, obj*, obj*);
+obj* l_Prod_HasLess___boxed(obj*, obj*, obj*, obj*);
 obj* l_Quotient_recOnSubsingleton_u_2082___rarg(obj*, obj*, obj*);
 obj* l_flip___rarg(obj*, obj*, obj*);
 obj* l_Quotient_mk(obj*, obj*);
@@ -87,7 +88,6 @@ obj* l_Function_onFun___rarg(obj*, obj*, obj*, obj*);
 obj* l_Prod_map___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_Thunk_map___boxed(obj*, obj*, obj*, obj*);
 obj* l_Quotient_hrecOn___rarg(obj*, obj*, obj*);
-obj* l_Prod_HasLt___boxed(obj*, obj*, obj*, obj*);
 obj* l_Function_comp___rarg(obj*, obj*, obj*);
 obj* l_List_sizeof___main(obj*);
 obj* l_inferInstanceAs___boxed(obj*);
@@ -284,6 +284,7 @@ obj* l_PSum_sizeof___rarg(obj*, obj*, obj*);
 obj* l_And_Decidable(obj*, obj*);
 obj* l_Quotient_lift___rarg(obj*, obj*, obj*);
 obj* l_Eq_mp(obj*, obj*, obj*);
+obj* l_Prod_HasLess(obj*, obj*, obj*, obj*);
 obj* l_Prod_map___boxed(obj*, obj*, obj*, obj*);
 obj* l_Sigma_sizeof(obj*, obj*);
 obj* l_And_Decidable___rarg___boxed(obj*, obj*);
@@ -407,7 +408,6 @@ obj* l_Quotient_recOnSubsingleton_u_2082___boxed(obj*, obj*, obj*, obj*, obj*, o
 obj* l_Quotient_rec___rarg___boxed(obj*, obj*, obj*);
 obj* l_Decidable_recOnTrue(obj*);
 obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___rarg(obj*, obj*, obj*);
-obj* l_Prod_HasLt(obj*, obj*, obj*, obj*);
 obj* l_Nat_HasAdd;
 obj* l_Subtype_Inhabited___rarg(obj*, obj*);
 obj* l_Quot_hrecOn___rarg___boxed(obj*, obj*, obj*);
@@ -4066,7 +4066,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Prod_HasLt(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Prod_HasLess(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
@@ -4074,11 +4074,11 @@ x_4 = lean::box(0);
 return x_4;
 }
 }
-obj* l_Prod_HasLt___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Prod_HasLess___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Prod_HasLt(x_0, x_1, x_2, x_3);
+x_4 = l_Prod_HasLess(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);

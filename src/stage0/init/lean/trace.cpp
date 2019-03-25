@@ -36,7 +36,7 @@ obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__10(obj*, obj*, obj*, o
 obj* l_Lean_Trace_Lean_Trace_MonadTracer(obj*);
 obj* l_RBNode_balance2___main___rarg(obj*, obj*);
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__6___boxed(obj*, obj*, obj*);
-obj* l_Lean_KVMap_getBool(obj*, obj*);
+uint8 l_Lean_KVMap_getBool(obj*, obj*, uint8);
 obj* l_MonadStateAdapter_adaptState_x_27___at_Lean_Trace_Lean_Trace_MonadTracer___spec__4___boxed(obj*);
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___boxed(obj*);
@@ -660,7 +660,7 @@ return x_13;
 obj* l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
-obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_15; 
+obj* x_7; obj* x_9; obj* x_11; obj* x_12; uint8 x_15; uint8 x_16; 
 x_7 = lean::cnstr_get(x_6, 0);
 x_9 = lean::cnstr_get(x_6, 1);
 if (lean::is_exclusive(x_6)) {
@@ -676,88 +676,57 @@ if (lean::is_exclusive(x_6)) {
 x_12 = lean::cnstr_get(x_7, 0);
 lean::inc(x_12);
 lean::dec(x_7);
-x_15 = l_Lean_KVMap_getBool(x_12, x_0);
-if (lean::obj_tag(x_15) == 0)
+x_15 = 0;
+x_16 = l_Lean_KVMap_getBool(x_12, x_0, x_15);
+if (x_16 == 0)
 {
-obj* x_21; obj* x_23; 
+obj* x_22; obj* x_24; 
 lean::dec(x_5);
 lean::dec(x_11);
 lean::dec(x_4);
 lean::dec(x_3);
 lean::dec(x_2);
-x_21 = lean::thunk_get(x_1);
+x_22 = lean::thunk_get(x_1);
 lean::dec(x_1);
-x_23 = lean::apply_1(x_21, x_9);
-return x_23;
+x_24 = lean::apply_1(x_22, x_9);
+return x_24;
 }
 else
 {
-obj* x_24; obj* x_26; uint8 x_27; 
-x_24 = lean::cnstr_get(x_15, 0);
-if (lean::is_exclusive(x_15)) {
- lean::cnstr_set(x_15, 0, lean::box(0));
- x_26 = x_15;
-} else {
- lean::inc(x_24);
- lean::dec(x_15);
- x_26 = lean::box(0);
-}
-x_27 = lean::unbox(x_24);
-if (x_27 == 0)
-{
-obj* x_34; obj* x_36; 
-lean::dec(x_5);
-lean::dec(x_11);
-lean::dec(x_4);
-lean::dec(x_3);
-lean::dec(x_2);
-lean::dec(x_26);
-x_34 = lean::thunk_get(x_1);
-lean::dec(x_1);
-x_36 = lean::apply_1(x_34, x_9);
-return x_36;
-}
-else
-{
-obj* x_37; obj* x_39; obj* x_43; obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_49; obj* x_51; obj* x_52; 
-x_37 = lean::cnstr_get(x_9, 0);
-lean::inc(x_37);
-x_39 = lean::cnstr_get(x_9, 1);
-lean::inc(x_39);
+obj* x_25; obj* x_27; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_35; obj* x_37; obj* x_39; obj* x_40; 
+x_25 = lean::cnstr_get(x_9, 0);
+lean::inc(x_25);
+x_27 = lean::cnstr_get(x_9, 1);
+lean::inc(x_27);
 lean::dec(x_9);
 lean::inc(x_2);
-if (lean::is_scalar(x_26)) {
- x_43 = lean::alloc_cnstr(1, 1, 0);
-} else {
- x_43 = x_26;
-}
-lean::cnstr_set(x_43, 0, x_2);
-x_44 = lean::box(0);
-x_45 = lean::alloc_cnstr(0, 4, 0);
-lean::cnstr_set(x_45, 0, x_37);
-lean::cnstr_set(x_45, 1, x_39);
-lean::cnstr_set(x_45, 2, x_43);
-lean::cnstr_set(x_45, 3, x_44);
-x_46 = lean::box(0);
+x_31 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_31, 0, x_2);
+x_32 = lean::box(0);
+x_33 = lean::alloc_cnstr(0, 4, 0);
+lean::cnstr_set(x_33, 0, x_25);
+lean::cnstr_set(x_33, 1, x_27);
+lean::cnstr_set(x_33, 2, x_31);
+lean::cnstr_set(x_33, 3, x_32);
+x_34 = lean::box(0);
 if (lean::is_scalar(x_11)) {
- x_47 = lean::alloc_cnstr(0, 2, 0);
+ x_35 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_47 = x_11;
+ x_35 = x_11;
 }
-lean::cnstr_set(x_47, 0, x_46);
-lean::cnstr_set(x_47, 1, x_45);
+lean::cnstr_set(x_35, 0, x_34);
+lean::cnstr_set(x_35, 1, x_33);
 lean::inc(x_3);
-x_49 = lean::apply_2(x_3, lean::box(0), x_47);
+x_37 = lean::apply_2(x_3, lean::box(0), x_35);
 lean::inc(x_5);
-x_51 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__3___boxed), 6, 5);
-lean::closure_set(x_51, 0, x_1);
-lean::closure_set(x_51, 1, x_4);
-lean::closure_set(x_51, 2, x_2);
-lean::closure_set(x_51, 3, x_3);
-lean::closure_set(x_51, 4, x_5);
-x_52 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_49, x_51);
-return x_52;
-}
+x_39 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__3___boxed), 6, 5);
+lean::closure_set(x_39, 0, x_1);
+lean::closure_set(x_39, 1, x_4);
+lean::closure_set(x_39, 2, x_2);
+lean::closure_set(x_39, 3, x_3);
+lean::closure_set(x_39, 4, x_5);
+x_40 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_37, x_39);
+return x_40;
 }
 }
 }
@@ -914,10 +883,10 @@ if (lean::obj_tag(x_9) == 0)
 obj* x_17; obj* x_20; obj* x_22; 
 lean::dec(x_5);
 lean::dec(x_7);
+lean::dec(x_4);
 lean::dec(x_1);
 lean::dec(x_6);
 lean::dec(x_3);
-lean::dec(x_2);
 x_17 = lean::cnstr_get(x_8, 1);
 lean::inc(x_17);
 lean::dec(x_8);
@@ -928,7 +897,7 @@ return x_22;
 }
 else
 {
-obj* x_24; obj* x_26; obj* x_27; obj* x_29; obj* x_32; 
+obj* x_24; obj* x_26; obj* x_27; uint8 x_29; uint8 x_31; 
 lean::dec(x_9);
 x_24 = lean::cnstr_get(x_8, 1);
 if (lean::is_exclusive(x_8)) {
@@ -942,85 +911,59 @@ if (lean::is_exclusive(x_8)) {
 }
 x_27 = lean::cnstr_get(x_1, 0);
 lean::inc(x_27);
+x_29 = 0;
 lean::inc(x_27);
-x_32 = l_Lean_KVMap_getBool(x_27, x_4);
-if (lean::obj_tag(x_32) == 0)
+x_31 = l_Lean_KVMap_getBool(x_27, x_2, x_29);
+if (x_31 == 0)
 {
-obj* x_37; 
+obj* x_36; obj* x_37; obj* x_38; obj* x_40; 
 lean::dec(x_5);
 lean::dec(x_26);
 lean::dec(x_7);
 lean::dec(x_6);
-x_37 = lean::box(0);
-x_29 = x_37;
-goto lbl_30;
-}
-else
-{
-obj* x_38; uint8 x_41; 
-x_38 = lean::cnstr_get(x_32, 0);
-lean::inc(x_38);
-lean::dec(x_32);
-x_41 = lean::unbox(x_38);
-if (x_41 == 0)
-{
-obj* x_46; 
-lean::dec(x_5);
-lean::dec(x_26);
-lean::dec(x_7);
-lean::dec(x_6);
-x_46 = lean::box(0);
-x_29 = x_46;
-goto lbl_30;
-}
-else
-{
-obj* x_49; obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_56; obj* x_58; obj* x_59; 
-lean::dec(x_3);
-lean::dec(x_24);
-x_49 = lean::cnstr_get(x_1, 1);
-lean::inc(x_49);
-x_51 = lean::box(0);
-x_52 = lean::alloc_cnstr(0, 4, 0);
-lean::cnstr_set(x_52, 0, x_27);
-lean::cnstr_set(x_52, 1, x_49);
-lean::cnstr_set(x_52, 2, x_2);
-lean::cnstr_set(x_52, 3, x_51);
-x_53 = lean::box(0);
-if (lean::is_scalar(x_26)) {
- x_54 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_54 = x_26;
-}
-lean::cnstr_set(x_54, 0, x_53);
-lean::cnstr_set(x_54, 1, x_52);
-lean::inc(x_5);
-x_56 = lean::apply_2(x_5, lean::box(0), x_54);
-lean::inc(x_7);
-x_58 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__9___boxed), 7, 6);
-lean::closure_set(x_58, 0, x_0);
-lean::closure_set(x_58, 1, x_1);
-lean::closure_set(x_58, 2, x_6);
-lean::closure_set(x_58, 3, x_51);
-lean::closure_set(x_58, 4, x_5);
-lean::closure_set(x_58, 5, x_7);
-x_59 = lean::apply_4(x_7, lean::box(0), lean::box(0), x_56, x_58);
-return x_59;
-}
-}
-lbl_30:
-{
-obj* x_61; obj* x_62; obj* x_63; obj* x_65; 
-lean::dec(x_29);
-x_61 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__6___boxed), 3, 2);
-lean::closure_set(x_61, 0, x_1);
-lean::closure_set(x_61, 1, x_27);
-x_62 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__7), 2, 1);
-lean::closure_set(x_62, 0, x_2);
-x_63 = lean::thunk_get(x_0);
+x_36 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__6___boxed), 3, 2);
+lean::closure_set(x_36, 0, x_1);
+lean::closure_set(x_36, 1, x_27);
+x_37 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__7), 2, 1);
+lean::closure_set(x_37, 0, x_3);
+x_38 = lean::thunk_get(x_0);
 lean::dec(x_0);
-x_65 = l_MonadStateAdapter_adaptState_x_27___at_Lean_Trace_Lean_Trace_MonadTracer___spec__4___rarg(x_3, lean::box(0), x_61, x_62, x_63, x_24);
-return x_65;
+x_40 = l_MonadStateAdapter_adaptState_x_27___at_Lean_Trace_Lean_Trace_MonadTracer___spec__4___rarg(x_4, lean::box(0), x_36, x_37, x_38, x_24);
+return x_40;
+}
+else
+{
+obj* x_43; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_50; obj* x_52; obj* x_53; 
+lean::dec(x_4);
+lean::dec(x_24);
+x_43 = lean::cnstr_get(x_1, 1);
+lean::inc(x_43);
+x_45 = lean::box(0);
+x_46 = lean::alloc_cnstr(0, 4, 0);
+lean::cnstr_set(x_46, 0, x_27);
+lean::cnstr_set(x_46, 1, x_43);
+lean::cnstr_set(x_46, 2, x_3);
+lean::cnstr_set(x_46, 3, x_45);
+x_47 = lean::box(0);
+if (lean::is_scalar(x_26)) {
+ x_48 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_48 = x_26;
+}
+lean::cnstr_set(x_48, 0, x_47);
+lean::cnstr_set(x_48, 1, x_46);
+lean::inc(x_5);
+x_50 = lean::apply_2(x_5, lean::box(0), x_48);
+lean::inc(x_7);
+x_52 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__9___boxed), 7, 6);
+lean::closure_set(x_52, 0, x_0);
+lean::closure_set(x_52, 1, x_1);
+lean::closure_set(x_52, 2, x_6);
+lean::closure_set(x_52, 3, x_45);
+lean::closure_set(x_52, 4, x_5);
+lean::closure_set(x_52, 5, x_7);
+x_53 = lean::apply_4(x_7, lean::box(0), lean::box(0), x_50, x_52);
+return x_53;
 }
 }
 }
@@ -1055,8 +998,8 @@ lean::inc(x_5);
 x_19 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__10___boxed), 9, 8);
 lean::closure_set(x_19, 0, x_1);
 lean::closure_set(x_19, 1, x_7);
-lean::closure_set(x_19, 2, x_12);
-lean::closure_set(x_19, 3, x_2);
+lean::closure_set(x_19, 2, x_2);
+lean::closure_set(x_19, 3, x_12);
 lean::closure_set(x_19, 4, x_3);
 lean::closure_set(x_19, 5, x_0);
 lean::closure_set(x_19, 6, x_4);
@@ -1086,8 +1029,8 @@ lean::inc(x_6);
 x_18 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__11), 7, 6);
 lean::closure_set(x_18, 0, x_10);
 lean::closure_set(x_18, 1, x_4);
-lean::closure_set(x_18, 2, x_0);
-lean::closure_set(x_18, 3, x_2);
+lean::closure_set(x_18, 2, x_2);
+lean::closure_set(x_18, 3, x_0);
 lean::closure_set(x_18, 4, x_3);
 lean::closure_set(x_18, 5, x_6);
 x_19 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_16, x_18);
@@ -1185,7 +1128,7 @@ _start:
 {
 obj* x_9; 
 x_9 = l_Lean_Trace_Lean_Trace_MonadTracer___rarg___lambda__10(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
-lean::dec(x_4);
+lean::dec(x_2);
 return x_9;
 }
 }

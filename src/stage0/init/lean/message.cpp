@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+extern obj* l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
 obj* l_Lean_MessageLog_empty;
 obj* l_Lean_Message_toString___closed__2;
 obj* l_Lean_Message_toString___closed__1;
@@ -24,8 +25,8 @@ obj* l_Lean_Message_toString___closed__3;
 obj* l_Lean_Message_HasToString;
 obj* l_Nat_repr(obj*);
 obj* l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1___boxed(obj*, obj*);
+extern obj* l_EState_Result_toString___main___rarg___closed__2;
 uint8 l_Lean_MessageLog_hasErrors(obj*);
-obj* l_Lean_Message_toString___closed__4;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
@@ -38,8 +39,7 @@ obj* l_Lean_Message_toString(obj*);
 obj* l_Lean_MessageLog_HasAppend;
 obj* l_Lean_MessageLog_hasErrors___boxed(obj*);
 uint8 l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1(uint8, obj*);
-extern obj* l_String_Iterator_extract___main___closed__1;
-obj* l_Lean_Message_toString___closed__5;
+extern obj* l_String_splitAux___main___closed__1;
 obj* _init_l_Lean_Message_toString___closed__1() {
 _start:
 {
@@ -60,23 +60,7 @@ obj* _init_l_Lean_Message_toString___closed__3() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string(":\n");
-return x_0;
-}
-}
-obj* _init_l_Lean_Message_toString___closed__4() {
-_start:
-{
-obj* x_0; 
 x_0 = lean::mk_string("warning: ");
-return x_0;
-}
-}
-obj* _init_l_Lean_Message_toString___closed__5() {
-_start:
-{
-obj* x_0; 
-x_0 = lean::mk_string("error: ");
 return x_0;
 }
 }
@@ -107,7 +91,7 @@ x_20 = lean::string_append(x_17, x_19);
 x_21 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*5);
 x_22 = lean::cnstr_get(x_0, 3);
 lean::inc(x_22);
-x_24 = l_String_Iterator_extract___main___closed__1;
+x_24 = l_String_splitAux___main___closed__1;
 x_25 = lean::string_dec_eq(x_22, x_24);
 switch (x_21) {
 case 0:
@@ -120,7 +104,7 @@ x_29 = lean::string_append(x_20, x_24);
 if (x_25 == 0)
 {
 obj* x_30; obj* x_31; obj* x_32; obj* x_34; 
-x_30 = l_Lean_Message_toString___closed__3;
+x_30 = l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
 x_31 = lean::string_append(x_22, x_30);
 x_32 = lean::string_append(x_29, x_31);
 lean::dec(x_31);
@@ -144,12 +128,12 @@ obj* x_40; obj* x_43; obj* x_44;
 x_40 = lean::cnstr_get(x_0, 4);
 lean::inc(x_40);
 lean::dec(x_0);
-x_43 = l_Lean_Message_toString___closed__4;
+x_43 = l_Lean_Message_toString___closed__3;
 x_44 = lean::string_append(x_20, x_43);
 if (x_25 == 0)
 {
 obj* x_45; obj* x_46; obj* x_47; obj* x_49; 
-x_45 = l_Lean_Message_toString___closed__3;
+x_45 = l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
 x_46 = lean::string_append(x_22, x_45);
 x_47 = lean::string_append(x_44, x_46);
 lean::dec(x_46);
@@ -173,12 +157,12 @@ obj* x_55; obj* x_58; obj* x_59;
 x_55 = lean::cnstr_get(x_0, 4);
 lean::inc(x_55);
 lean::dec(x_0);
-x_58 = l_Lean_Message_toString___closed__5;
+x_58 = l_EState_Result_toString___main___rarg___closed__2;
 x_59 = lean::string_append(x_20, x_58);
 if (x_25 == 0)
 {
 obj* x_60; obj* x_61; obj* x_62; obj* x_64; 
-x_60 = l_Lean_Message_toString___closed__3;
+x_60 = l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
 x_61 = lean::string_append(x_22, x_60);
 x_62 = lean::string_append(x_59, x_61);
 lean::dec(x_61);
@@ -324,10 +308,6 @@ lean::mark_persistent(l_Lean_Message_toString___closed__1);
 lean::mark_persistent(l_Lean_Message_toString___closed__2);
  l_Lean_Message_toString___closed__3 = _init_l_Lean_Message_toString___closed__3();
 lean::mark_persistent(l_Lean_Message_toString___closed__3);
- l_Lean_Message_toString___closed__4 = _init_l_Lean_Message_toString___closed__4();
-lean::mark_persistent(l_Lean_Message_toString___closed__4);
- l_Lean_Message_toString___closed__5 = _init_l_Lean_Message_toString___closed__5();
-lean::mark_persistent(l_Lean_Message_toString___closed__5);
  l_Lean_Message_HasToString = _init_l_Lean_Message_HasToString();
 lean::mark_persistent(l_Lean_Message_HasToString);
  l_Lean_MessageLog_empty = _init_l_Lean_MessageLog_empty();

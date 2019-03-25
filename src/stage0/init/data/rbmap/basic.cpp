@@ -336,7 +336,6 @@ obj* l_RBNode_ins___main___at_RBMap_insert___main___spec__2(obj*, obj*, obj*);
 obj* l_RBMap_max___rarg(obj*);
 obj* l_RBMap_max___main___rarg(obj*);
 uint8 l_RBMap_isEmpty___rarg(obj*);
-extern obj* l_String_Iterator_extract___main___closed__1;
 obj* l_List_repr___main___at_RBMap_HasRepr___spec__1___rarg(obj*, obj*, obj*);
 obj* l_List_foldl___main___at_rbmapOf___spec__6___rarg(obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -346,6 +345,7 @@ obj* l_RBMap_fromList___at_rbmapOf___spec__1___boxed(obj*, obj*, obj*);
 uint8 l_RBMap_contains___rarg(obj*, obj*, obj*);
 obj* l_RBNode_revFold___boxed(obj*, obj*, obj*);
 obj* l_RBMap_mfold___boxed(obj*, obj*, obj*, obj*, obj*);
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_RBMap_max___boxed(obj*, obj*, obj*);
 obj* l_RBNode_depth___main___rarg(obj* x_0, obj* x_1) {
 _start:
@@ -4475,7 +4475,7 @@ if (lean::obj_tag(x_3) == 0)
 obj* x_6; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_6 = l_String_Iterator_extract___main___closed__1;
+x_6 = l_String_splitAux___main___closed__1;
 return x_6;
 }
 else
@@ -4519,7 +4519,7 @@ if (lean::obj_tag(x_3) == 0)
 obj* x_37; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_37 = l_String_Iterator_extract___main___closed__1;
+x_37 = l_String_splitAux___main___closed__1;
 return x_37;
 }
 else

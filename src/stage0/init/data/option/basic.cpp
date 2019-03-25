@@ -32,6 +32,7 @@ obj* l_Option_orelse___main___boxed(obj*);
 obj* l_Option_bind___main(obj*, obj*);
 obj* l_Option_Monad;
 obj* l_Option_get___rarg___boxed(obj*, obj*);
+obj* l_Option_HasLess___boxed(obj*, obj*);
 obj* l_Option_Monad___lambda__5(obj*, obj*, obj*, obj*);
 obj* l_Option_decidableRelLt___boxed(obj*, obj*);
 obj* l_Option_Monad___lambda__2(obj*, obj*);
@@ -56,18 +57,17 @@ obj* l_Option_map(obj*, obj*);
 obj* l_Option_Monad___lambda__1(obj*, obj*, obj*, obj*);
 uint8 l_Option_toBool___rarg(obj*);
 obj* l_Option_getOrElse___main___rarg(obj*, obj*);
-obj* l_Option_HasLt___boxed(obj*, obj*);
 obj* l_Option_get___main___boxed(obj*);
 obj* l_Option_toMonad___rarg(obj*, obj*, obj*);
 obj* l_Option_DecidableEq___boxed(obj*);
 obj* l_Option_toMonad___rarg___boxed(obj*, obj*, obj*);
 uint8 l_Option_toBool___main___rarg(obj*);
 obj* l_Option_toMonad___main(obj*);
+obj* l_Option_HasLess(obj*, obj*);
 obj* l_Option_orelse___main___rarg(obj*, obj*);
 obj* l_Option_isSome___main___boxed(obj*);
 obj* l_Option_Alternative___lambda__1___boxed(obj*);
 obj* l_Option_Alternative___lambda__1(obj*);
-obj* l_Option_HasLt(obj*, obj*);
 uint8 l_Option_DecidableEq___rarg(obj*, obj*, obj*);
 obj* l_Option_Inhabited___boxed(obj*);
 obj* l_Option_Inhabited(obj*);
@@ -1254,7 +1254,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Option_HasLt(obj* x_0, obj* x_1) {
+obj* l_Option_HasLess(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -1262,11 +1262,11 @@ x_2 = lean::box(0);
 return x_2;
 }
 }
-obj* l_Option_HasLt___boxed(obj* x_0, obj* x_1) {
+obj* l_Option_HasLess___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Option_HasLt(x_0, x_1);
+x_2 = l_Option_HasLess(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;

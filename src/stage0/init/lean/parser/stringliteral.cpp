@@ -15,11 +15,10 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1;
-uint32 l_String_Iterator_curr___main(obj*);
 obj* l_Lean_Parser_parseStringLiteralAux___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, uint32);
+extern obj* l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__1(obj*, uint32);
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__7(obj*, obj*, obj*, obj*, obj*, uint32);
-extern obj* l___private_init_data_string_basic_9__toNatCore___main___closed__1;
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__3___boxed(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -32,6 +31,7 @@ obj* l_Lean_Parser_parseStringLiteralAux___main___rarg___lambda__1___boxed(obj*,
 obj* l_Lean_Parser_parseQuotedChar___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_parseStringLiteralAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_parseStringLiteral___boxed(obj*, obj*);
+uint32 l_String_OldIterator_curr___main(obj*);
 obj* l_Lean_Parser_MonadParsec_any___rarg(obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_error___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_parseStringLiteralAux___main___rarg___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -63,6 +63,7 @@ obj* l_Lean_Parser_parseStringLiteral___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_parseStringLiteralAux___boxed(obj*, obj*);
 obj* l_Char_quoteCore(uint32);
+uint8 l_String_OldIterator_hasNext___main(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -90,7 +91,6 @@ obj* l_Lean_Parser_MonadParsec_labels___rarg___lambda__1___boxed(obj*, obj*, obj
 namespace lean {
 uint32 uint32_of_nat(obj*);
 }
-uint8 l_String_Iterator_hasNext___main(obj*);
 obj* l_Lean_Parser_parseStringLiteralAux___main(obj*, obj*);
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__8(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__6(obj*, obj*, obj*, obj*);
@@ -115,7 +115,7 @@ x_5 = lean::cnstr_get(x_2, 1);
 lean::inc(x_5);
 lean::dec(x_2);
 x_8 = lean::uint32_to_nat(x_1);
-x_9 = l___private_init_data_string_basic_9__toNatCore___main___closed__1;
+x_9 = l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 x_10 = lean::nat_sub(x_8, x_9);
 lean::dec(x_8);
 x_12 = lean::apply_2(x_5, lean::box(0), x_10);
@@ -126,7 +126,7 @@ obj* l_Lean_Parser_parseHexDigit___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2
 _start:
 {
 uint8 x_3; 
-x_3 = l_String_Iterator_hasNext___main(x_2);
+x_3 = l_String_OldIterator_hasNext___main(x_2);
 if (x_3 == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
@@ -141,7 +141,7 @@ return x_9;
 else
 {
 uint32 x_10; uint32 x_11; uint8 x_12; 
-x_10 = l_String_Iterator_curr___main(x_2);
+x_10 = l_String_OldIterator_curr___main(x_2);
 x_11 = 97;
 x_12 = x_11 <= x_10;
 if (x_12 == 0)
@@ -228,7 +228,7 @@ obj* l_Lean_Parser_parseHexDigit___rarg___lambda__4(obj* x_0, obj* x_1, obj* x_2
 _start:
 {
 uint8 x_3; 
-x_3 = l_String_Iterator_hasNext___main(x_2);
+x_3 = l_String_OldIterator_hasNext___main(x_2);
 if (x_3 == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
@@ -243,7 +243,7 @@ return x_9;
 else
 {
 uint32 x_10; uint32 x_11; uint8 x_12; 
-x_10 = l_String_Iterator_curr___main(x_2);
+x_10 = l_String_OldIterator_curr___main(x_2);
 x_11 = 65;
 x_12 = x_11 <= x_10;
 if (x_12 == 0)

@@ -29,7 +29,6 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Nat_decEq___boxed(obj*, obj*);
 obj* l_Nat_sub___boxed(obj*, obj*);
-obj* l_Nat_HasLe;
 obj* l_Nat_mul___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
@@ -40,7 +39,6 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Nat_repeatCore___main___rarg(obj*, obj*, obj*, obj*);
-obj* l_Nat_HasLt;
 obj* l_Nat_repeatCore___main(obj*);
 obj* l_Nat_repeat___rarg(obj*, obj*, obj*);
 obj* l_Nat_pow___main(obj*, obj*);
@@ -52,7 +50,9 @@ obj* l_Nat_repeatCore___rarg(obj*, obj*, obj*, obj*);
 obj* l_Nat_pow(obj*, obj*);
 obj* l_Nat_repeatCore___main___boxed(obj*);
 obj* l_Nat_pred___boxed(obj*);
+obj* l_Nat_HasLessEq;
 obj* l_Nat_pow___boxed(obj*, obj*);
+obj* l_Nat_HasLess;
 obj* l_Nat_repeatCore___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Nat_HasMul;
 obj* l_Nat_repeatCore(obj*);
@@ -103,7 +103,7 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* _init_l_Nat_HasLe() {
+obj* _init_l_Nat_HasLessEq() {
 _start:
 {
 obj* x_0; 
@@ -111,7 +111,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_Nat_HasLt() {
+obj* _init_l_Nat_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -396,10 +396,10 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
  l_Nat_DecidableEq = _init_l_Nat_DecidableEq();
 lean::mark_persistent(l_Nat_DecidableEq);
- l_Nat_HasLe = _init_l_Nat_HasLe();
-lean::mark_persistent(l_Nat_HasLe);
- l_Nat_HasLt = _init_l_Nat_HasLt();
-lean::mark_persistent(l_Nat_HasLt);
+ l_Nat_HasLessEq = _init_l_Nat_HasLessEq();
+lean::mark_persistent(l_Nat_HasLessEq);
+ l_Nat_HasLess = _init_l_Nat_HasLess();
+lean::mark_persistent(l_Nat_HasLess);
  l_Nat_HasSub = _init_l_Nat_HasSub();
 lean::mark_persistent(l_Nat_HasSub);
  l_Nat_HasMul = _init_l_Nat_HasMul();

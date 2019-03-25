@@ -22,10 +22,10 @@ uint32 l_Char_Inhabited;
 uint8 l_Char_isLower(uint32);
 obj* l_Char_decLt___boxed(obj*, obj*);
 uint8 l_Char_isAlpha(uint32);
-obj* l_Char_HasLt;
-obj* l_Char_HasLe;
+obj* l_Char_HasLessEq;
 obj* l_Char_decLe___boxed(obj*, obj*);
 obj* l_Char_DecidableEq___boxed(obj*, obj*);
+obj* l_Char_HasLess;
 obj* l_Char_toNat(uint32);
 uint32 l_Char_ofNat(obj*);
 uint8 l_Char_isUpper(uint32);
@@ -179,7 +179,7 @@ x_3 = lean::box_uint32(x_2);
 return x_3;
 }
 }
-obj* _init_l_Char_HasLt() {
+obj* _init_l_Char_HasLess() {
 _start:
 {
 obj* x_0; 
@@ -187,7 +187,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* _init_l_Char_HasLe() {
+obj* _init_l_Char_HasLessEq() {
 _start:
 {
 obj* x_0; 
@@ -634,10 +634,10 @@ obj* initialize_init_data_char_basic(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
- l_Char_HasLt = _init_l_Char_HasLt();
-lean::mark_persistent(l_Char_HasLt);
- l_Char_HasLe = _init_l_Char_HasLe();
-lean::mark_persistent(l_Char_HasLe);
+ l_Char_HasLess = _init_l_Char_HasLess();
+lean::mark_persistent(l_Char_HasLess);
+ l_Char_HasLessEq = _init_l_Char_HasLessEq();
+lean::mark_persistent(l_Char_HasLessEq);
  l_Char_Inhabited = _init_l_Char_Inhabited();
  l_Char_Inhabited___boxed = _init_l_Char_Inhabited___boxed();
 lean::mark_persistent(l_Char_Inhabited___boxed);

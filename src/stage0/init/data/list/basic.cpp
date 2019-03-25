@@ -87,6 +87,7 @@ obj* l_List_findIndex___main___boxed(obj*);
 obj* l_List_bind(obj*, obj*);
 obj* l_List_inter(obj*);
 obj* l_List_take(obj*);
+obj* l_List_HasLess(obj*, obj*);
 uint8 l_List_hasDecidableLe___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_empty___rarg___boxed(obj*);
 obj* l_List_take___main___rarg___boxed(obj*, obj*);
@@ -111,7 +112,6 @@ obj* l_List_reverse(obj*);
 obj* l_List_foldr___main___at_List_any___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_length___rarg___boxed(obj*);
 obj* l_List_foldr1___rarg(obj*, obj*, obj*);
-obj* l_List_HasLe___boxed(obj*, obj*);
 obj* l_List_hasDecidableLe___boxed(obj*);
 obj* l_List_ret___rarg(obj*);
 obj* l_List_enumFrom(obj*);
@@ -124,6 +124,7 @@ obj* l_List_last___main___rarg(obj*, obj*);
 obj* l_List_updateNth___rarg(obj*, obj*, obj*);
 obj* l_List_insert___rarg(obj*, obj*, obj*);
 obj* l_List_map___main___rarg(obj*, obj*);
+obj* l_List_HasLess___boxed(obj*, obj*);
 obj* l_List_reverseCore___rarg(obj*, obj*);
 obj* l_List_foldr___main___at_List_all___spec__1___boxed(obj*);
 obj* l_List_drop(obj*);
@@ -192,6 +193,7 @@ obj* l_List_tail___main(obj*);
 obj* l_List_join___main___rarg(obj*);
 obj* l_List_last___main(obj*);
 obj* l_List_erase___main(obj*);
+obj* l_List_HasLessEq___boxed(obj*, obj*);
 obj* l_List_intersperse___rarg(obj*, obj*);
 obj* l_List_lengthAux(obj*);
 obj* l_List_foldr___main___at_List_any___spec__1___boxed(obj*);
@@ -208,6 +210,7 @@ obj* l_List_assoc___rarg(obj*, obj*, obj*);
 obj* l_List_findIndex___rarg(obj*, obj*);
 obj* l_List_foldl___main___boxed(obj*, obj*);
 obj* l_List_removeNth___main___boxed(obj*);
+obj* l_List_HasLessEq(obj*, obj*);
 obj* l_List_assoc___main___boxed(obj*, obj*);
 uint8 l_List_decidableMem___main___rarg(obj*, obj*, obj*);
 obj* l_List_foldr1Opt___main___rarg(obj*, obj*);
@@ -257,7 +260,6 @@ obj* l_List_HasMem___boxed(obj*);
 obj* l_List_take___main___boxed(obj*);
 obj* l_List_foldr1___boxed(obj*);
 obj* l_List_updateNth___main___rarg___boxed(obj*, obj*, obj*);
-obj* l_List_HasLe(obj*, obj*);
 obj* l_List_init___main(obj*);
 obj* l_List_foldr___main___at_List_union___spec__1___rarg(obj*, obj*, obj*);
 obj* l_List_zipWith(obj*, obj*, obj*);
@@ -282,7 +284,6 @@ obj* l_List_enumFrom___boxed(obj*);
 obj* l_List_partition___main___rarg(obj*, obj*);
 obj* l_List_bagInter___main(obj*);
 uint8 l_List_and(obj*);
-obj* l_List_HasLt___boxed(obj*, obj*);
 obj* l_List_head(obj*);
 obj* l_List_map___main(obj*, obj*);
 obj* l_List_foldr___main(obj*, obj*);
@@ -295,7 +296,6 @@ obj* l_List_map_u_2082___boxed(obj*, obj*, obj*);
 obj* l_List_assoc___main___rarg(obj*, obj*, obj*);
 obj* l_List_HasUnion(obj*);
 obj* l_List_diff___rarg(obj*, obj*, obj*);
-obj* l_List_HasLt(obj*, obj*);
 obj* l_List_reverse___boxed(obj*);
 obj* l_List_HasInsert(obj*);
 obj* l_List_lengthAux___rarg(obj*, obj*);
@@ -4899,7 +4899,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_List_HasLt(obj* x_0, obj* x_1) {
+obj* l_List_HasLess(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -4907,11 +4907,11 @@ x_2 = lean::box(0);
 return x_2;
 }
 }
-obj* l_List_HasLt___boxed(obj* x_0, obj* x_1) {
+obj* l_List_HasLess___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_List_HasLt(x_0, x_1);
+x_2 = l_List_HasLess(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
@@ -5075,7 +5075,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_List_HasLe(obj* x_0, obj* x_1) {
+obj* l_List_HasLessEq(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -5083,11 +5083,11 @@ x_2 = lean::box(0);
 return x_2;
 }
 }
-obj* l_List_HasLe___boxed(obj* x_0, obj* x_1) {
+obj* l_List_HasLessEq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_List_HasLe(x_0, x_1);
+x_2 = l_List_HasLessEq(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;

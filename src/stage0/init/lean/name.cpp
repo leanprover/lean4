@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.name
-// Imports: init.data.string.basic init.coe init.data.uint init.data.tostring init.lean.format init.data.hashable init.data.rbmap.default init.data.rbtree.default
+// Imports: init.data.string.basic init.coe init.data.uint init.data.tostring init.data.hashable init.data.rbmap.default init.data.rbtree.default
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -31,7 +31,6 @@ uint8 l_Option_isSome___main___rarg(obj*);
 obj* l_RBMap_find___main___at_Lean_NameSet_contains___spec__1___boxed(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Name_Hashable;
-obj* l_Lean_Name_Lean_HasToFormat(obj*);
 obj* l_Lean_stringToName;
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__2___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_Name_hasLtQuick;
@@ -71,6 +70,7 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_RBMap_find___main___at_Lean_NameSet_contains___spec__1(obj*, obj*);
+obj* l_List_foldl___main___at_String_toName___spec__1(obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main___boxed(obj*, obj*);
 namespace lean {
 uint8 string_dec_lt(obj*, obj*);
@@ -104,14 +104,17 @@ obj* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__3(obj*, obj*, obj*, ob
 obj* l_RBMap_find___main___at_Lean_NameMap_contains___spec__1___rarg___boxed(obj*, obj*);
 obj* l_Lean_NameMap_contains(obj*);
 obj* l_Lean_Name_updatePrefix___main(obj*, obj*);
+obj* l_String_trim(obj*);
 uint8 l_Lean_Name_quickLtCore___main(obj*, obj*);
 obj* l_Lean_Name_replacePrefix___main(obj*, obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__2___boxed(obj*);
 obj* l_Lean_NameMap_insert___boxed(obj*);
+obj* l_String_split(obj*, obj*);
 obj* l_Lean_Name_toStringWithSep(obj*, obj*);
 obj* l_Lean_Name_append___boxed(obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 extern "C" obj* lean_name_mk_numeral(obj*, obj*);
+obj* l_String_toName(obj*);
 obj* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Name_getPrefix___main(obj*);
 obj* l_Lean_Name_components_x_27___main(obj*);
@@ -121,6 +124,7 @@ obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_Name_replacePrefix(obj*, obj*, obj*);
 obj* l_Lean_Name_getPrefix___main___boxed(obj*);
 obj* l_Lean_mkNameMap___boxed(obj*);
+obj* l_List_foldl___main___at_String_toName___spec__1___boxed(obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__4___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBMap_find___main___at_Lean_NameMap_find___spec__1___rarg___boxed(obj*, obj*);
 obj* l_Lean_Name_replacePrefix___main___boxed(obj*, obj*, obj*);
@@ -878,17 +882,6 @@ _start:
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Name_toString), 1, 0);
 return x_0;
-}
-}
-obj* l_Lean_Name_Lean_HasToFormat(obj* x_0) {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = l_Lean_Name_toString___closed__1;
-x_2 = l_Lean_Name_toStringWithSep___main(x_1, x_0);
-x_3 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_3, 0, x_2);
-return x_3;
 }
 }
 obj* l_Lean_mkNameMap(obj* x_0) {
@@ -2325,11 +2318,51 @@ lean::dec(x_1);
 return x_3;
 }
 }
+obj* l_List_foldl___main___at_String_toName___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_1) == 0)
+{
+return x_0;
+}
+else
+{
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+x_2 = lean::cnstr_get(x_1, 0);
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = l_String_trim(x_2);
+x_5 = lean_name_mk_string(x_0, x_4);
+x_0 = x_5;
+x_1 = x_3;
+goto _start;
+}
+}
+}
+obj* l_String_toName(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_1 = l_Lean_Name_toString___closed__1;
+x_2 = l_String_split(x_0, x_1);
+x_3 = lean::box(0);
+x_4 = l_List_foldl___main___at_String_toName___spec__1(x_3, x_2);
+lean::dec(x_2);
+return x_4;
+}
+}
+obj* l_List_foldl___main___at_String_toName___spec__1___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_List_foldl___main___at_String_toName___spec__1(x_0, x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
 obj* initialize_init_data_string_basic(obj*);
 obj* initialize_init_coe(obj*);
 obj* initialize_init_data_uint(obj*);
 obj* initialize_init_data_tostring(obj*);
-obj* initialize_init_lean_format(obj*);
 obj* initialize_init_data_hashable(obj*);
 obj* initialize_init_data_rbmap_default(obj*);
 obj* initialize_init_data_rbtree_default(obj*);
@@ -2345,8 +2378,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_tostring(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_lean_format(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_hashable(w);
 if (io_result_is_error(w)) return w;

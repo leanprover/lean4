@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.parser.rec
-// Imports: init.lean.parser.parsec init.fix
+// Imports: init.control.reader init.lean.parser.parsec init.fix
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -441,12 +441,15 @@ lean::dec(x_3);
 return x_4;
 }
 }
+obj* initialize_init_control_reader(obj*);
 obj* initialize_init_lean_parser_parsec(obj*);
 obj* initialize_init_fix(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_parser_rec(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
+if (io_result_is_error(w)) return w;
+w = initialize_init_control_reader(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_parsec(w);
 if (io_result_is_error(w)) return w;

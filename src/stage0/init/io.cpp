@@ -56,6 +56,7 @@ extern obj* l_String_Inhabited;
 obj* l_allocprof___boxed(obj*, obj*, obj*, obj*);
 obj* l_EIO_MonadExcept(obj*);
 obj* l_IO_print___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_IO_userError(obj*);
 obj* l_IO_Ref_swap___rarg(obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_handle_flush(obj*, obj*);
 obj* l_IO_Prim_Ref_get___boxed(obj*, obj*, obj*);
@@ -68,6 +69,7 @@ obj* l_IO_Ref_set___rarg(obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_readFile___rarg___lambda__3(obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_iterate___rarg___closed__1;
 obj* l_IO_print___rarg(obj*, obj*, obj*, obj*);
+obj* l_IO_userError___boxed(obj*);
 obj* l_IO_Prim_getLine___boxed(obj*);
 obj* l_IO_Prim_handle_isEof___boxed(obj*, obj*);
 obj* l_IO_Ref_set___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -160,7 +162,6 @@ obj* l_IO_Prim_mkRef___boxed(obj*, obj*, obj*);
 obj* l_IO_lazyPure___rarg(obj*, obj*);
 obj* l_IO_Fs_readFile(obj*);
 obj* l_EState_Inhabited___rarg(obj*, obj*);
-extern obj* l_String_Iterator_extract___main___closed__1;
 obj* l___private_init_io_1__putStr___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___rarg___lambda__1___closed__1;
 obj* l___private_init_io_1__putStr___at_HasRepr_HasEval___spec__3(obj*, obj*);
@@ -168,6 +169,7 @@ obj* l___private_init_io_1__putStr___at_HasRepr_HasEval___spec__3___boxed(obj*, 
 obj* l_IO_println___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_io_1__putStr___rarg(obj*, obj*);
 obj* l_IO_Ref_modify___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_EIO_Monad(obj* x_0) {
 _start:
 {
@@ -243,6 +245,22 @@ _start:
 obj* x_0; 
 x_0 = l_String_Inhabited;
 return x_0;
+}
+}
+obj* l_IO_userError(obj* x_0) {
+_start:
+{
+lean::inc(x_0);
+return x_0;
+}
+}
+obj* l_IO_userError___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_IO_userError(x_0);
+lean::dec(x_0);
+return x_1;
 }
 }
 obj* l_unsafeIO___boxed(obj* x_0, obj* x_1) {
@@ -1123,7 +1141,7 @@ obj* l_IO_Fs_handle_readToEnd___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = l_String_Iterator_extract___main___closed__1;
+x_2 = l_String_splitAux___main___closed__1;
 x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3), 3, 2);
 lean::closure_set(x_3, 0, x_1);
 lean::closure_set(x_3, 1, x_2);

@@ -47,6 +47,7 @@ obj* l_UInt64_HasToString(uint64);
 obj* l_Option_HasToString___boxed(obj*);
 extern obj* l_Bool_HasRepr___closed__2;
 obj* l_id_HasToString(obj*);
+obj* l_Substring_HasToString___boxed(obj*);
 obj* l_UInt32_HasToString(uint32);
 namespace lean {
 obj* string_push(obj*, uint32);
@@ -54,6 +55,7 @@ obj* string_push(obj*, uint32);
 obj* l_Prod_HasToString___boxed(obj*, obj*);
 obj* l_Sigma_HasToString___rarg(obj*, obj*, obj*);
 obj* l_Nat_repr(obj*);
+obj* l_Substring_HasToString(obj*);
 obj* l_List_HasToString(obj*);
 extern obj* l_List_repr___main___rarg___closed__3;
 obj* l_Decidable_HasToString___boxed(obj*);
@@ -94,6 +96,9 @@ obj* l_Fin_HasToString(obj*);
 obj* l_Fin_HasToString___boxed(obj*);
 obj* l_String_HasToString(obj*);
 obj* l_Decidable_HasToString___rarg___boxed(obj*);
+namespace lean {
+obj* string_utf8_extract(obj*, usize, usize);
+}
 obj* l_List_toStringAux___boxed(obj*);
 obj* l_id_HasToString___rarg___boxed(obj*);
 obj* l_Bool_HasToString___boxed(obj*);
@@ -110,13 +115,13 @@ obj* usize_to_nat(usize);
 obj* l_Decidable_HasToString(obj*);
 extern obj* l_Bool_HasRepr___closed__1;
 obj* l_List_toString___boxed(obj*);
-extern obj* l_String_Iterator_extract___main___closed__1;
 obj* l_Sigma_HasToString___boxed(obj*, obj*);
 obj* l_String_Iterator_HasToString(obj*);
 extern obj* l_Unit_HasRepr___closed__1;
 obj* l_UInt64_HasToString___boxed(obj*);
 obj* l_USize_HasToString(usize);
 obj* l_List_toStringAux___main___boxed(obj*);
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_id_HasToString___rarg(obj* x_0) {
 _start:
 {
@@ -162,6 +167,26 @@ _start:
 {
 obj* x_1; 
 x_1 = l_String_HasToString(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Substring_HasToString(obj* x_0) {
+_start:
+{
+obj* x_1; usize x_2; usize x_3; obj* x_4; 
+x_1 = lean::cnstr_get(x_0, 0);
+x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
+x_3 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
+x_4 = lean::string_utf8_extract(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_Substring_HasToString___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Substring_HasToString(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -261,7 +286,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_0);
-x_4 = l_String_Iterator_extract___main___closed__1;
+x_4 = l_String_splitAux___main___closed__1;
 return x_4;
 }
 else
@@ -289,7 +314,7 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_19; 
 lean::dec(x_0);
-x_19 = l_String_Iterator_extract___main___closed__1;
+x_19 = l_String_splitAux___main___closed__1;
 return x_19;
 }
 else
@@ -492,7 +517,7 @@ obj* l_Char_HasToString(uint32 x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = l_String_Iterator_extract___main___closed__1;
+x_1 = l_String_splitAux___main___closed__1;
 x_2 = lean::string_push(x_1, x_0);
 return x_2;
 }

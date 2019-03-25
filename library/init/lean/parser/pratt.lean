@@ -22,7 +22,7 @@ do Except.ok tk ← monadLift peekToken | pure 0,
    match tk with
    | Syntax.atom ⟨_, sym⟩ := do
      cfg ← read,
-     some ⟨_, tkCfg⟩ ← pure (cfg.tokens.matchPrefix sym.mkIterator) | error "currLbp: unreachable",
+     some ⟨_, tkCfg⟩ ← pure (cfg.tokens.matchPrefix sym.mkOldIterator) | error "currLbp: unreachable",
      pure tkCfg.lbp
    | Syntax.ident _ := pure maxPrec
    | Syntax.rawNode {kind := @number, ..} := pure maxPrec

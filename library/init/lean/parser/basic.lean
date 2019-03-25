@@ -47,7 +47,7 @@ structure ParserState :=
 (messages : MessageLog)
 
 structure TokenCacheEntry :=
-(startIt stopIt : String.Iterator)
+(startIt stopIt : String.OldIterator)
 (tk : Syntax)
 
 -- Non-backtrackable State

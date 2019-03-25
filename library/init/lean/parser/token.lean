@@ -87,7 +87,7 @@ do -- TODO(Sebastian): less greedy, more natural whitespace assignment
    trailing ← lift $ asSubstring $ whitespace,
    pure $ updateTrailing trailing stx
 
-def mkRawRes (start stop : String.Iterator) : Syntax :=
+def mkRawRes (start stop : String.OldIterator) : Syntax :=
 let ss : Substring := ⟨start, stop⟩ in
 Syntax.atom ⟨some {leading := ⟨start, start⟩, pos := start.offset, trailing := ⟨stop, stop⟩}, ss.toString⟩
 
@@ -183,14 +183,14 @@ nodeLongestChoice! number {
 def stringLit' : basicParser :=
 node! stringLit [val: raw parseStringLiteral]
 
-private def mkConsumeToken (tk : TokenConfig) (it : String.Iterator) : basicParser :=
+private def mkConsumeToken (tk : TokenConfig) (it : String.OldIterator) : basicParser :=
 let it' := it.nextn tk.prefix.length in
 MonadParsec.lift $ λ _, Parsec.Result.ok (mkRawRes it it') it' none
 
 def numberOrStringLit : basicParser :=
 number' <|> stringLit'
 
-def tokenCont (it : String.Iterator) (tk : TokenConfig) : basicParser :=
+def tokenCont (it : String.OldIterator) (tk : TokenConfig) : basicParser :=
 do id ← ident',
    it' ← leftOver,
    -- if a token is both a symbol and a valid identifier (i.e. a keyword),
@@ -269,7 +269,7 @@ instance number.Parser.tokens : Parser.HasTokens (number.Parser : Parser) := def
 instance number.Parser.view : Parser.HasView number.View (number.Parser : Parser) :=
 {..number.HasView}
 
-private def toNatCore (base : Nat) : String.Iterator → Nat → Nat → Nat
+private def toNatCore (base : Nat) : String.OldIterator → Nat → Nat → Nat
 | it      0     r := r
 | it      (i+1) r :=
   let c := it.curr in
@@ -283,7 +283,7 @@ private def toNatCore (base : Nat) : String.Iterator → Nat → Nat → Nat
   toNatCore it.next i r
 
 private def toNatBase (s : String) (base : Nat) : Nat :=
-toNatCore base s.mkIterator s.length 0
+toNatCore base s.mkOldIterator s.length 0
 
 def number.View.toNat : number.View → Nat
 | (number.View.base10 (some atom)) := atom.val.toNat

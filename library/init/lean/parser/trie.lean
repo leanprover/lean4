@@ -7,7 +7,7 @@ Trie for tokenizing the Lean language
 -/
 prelude
 import init.data.rbmap
-import init.lean.format
+import init.lean.format init.lean.parser.parsec
 
 namespace Lean
 namespace Parser
@@ -39,7 +39,7 @@ private def findAux : Nat → Trie α → String.Iterator → Option α
 def find (t : Trie α) (s : String) : Option α :=
 findAux s.length t s.mkIterator
 
-private def matchPrefixAux : Nat → Trie α → String.Iterator → Option (String.Iterator × α) → Option (String.Iterator × α)
+private def matchPrefixAux : Nat → Trie α → String.OldIterator → Option (String.OldIterator × α) → Option (String.OldIterator × α)
 | 0     (Trie.Node val map) it Acc := Prod.mk it <$> val <|> Acc
 | (n+1) (Trie.Node val map) it Acc :=
   let Acc' := Prod.mk it <$> val <|> Acc in
@@ -47,7 +47,7 @@ private def matchPrefixAux : Nat → Trie α → String.Iterator → Option (Str
     | some t := matchPrefixAux n t it.next Acc'
     | none   := Acc'
 
-def matchPrefix {α : Type} (t : Trie α) (it : String.Iterator) : Option (String.Iterator × α) :=
+def matchPrefix {α : Type} (t : Trie α) (it : String.OldIterator) : Option (String.OldIterator × α) :=
 matchPrefixAux it.remaining t it none
 
 private def toStringAux {α : Type} : Trie α → List Format

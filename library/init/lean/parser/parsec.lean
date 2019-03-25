@@ -12,15 +12,94 @@ import init.data.tostring init.data.string.basic init.data.list.basic init.contr
 import init.data.repr init.lean.name init.data.dlist init.control.monadfail init.control.combinators
 import init.lean.format
 
+/- Old String iterator -/
+namespace String
+structure OldIterator :=
+(s : String) (offset : Nat) (i : USize)
+
+def mkOldIterator (s : String) : OldIterator :=
+⟨s, 0, 0⟩
+
+namespace OldIterator
+def remaining : OldIterator → Nat
+| ⟨s, o, _⟩ := s.length - o
+
+def toString : OldIterator → String
+| ⟨s, _, _⟩ := s
+
+def remainingBytes : OldIterator → USize
+| ⟨s, _, i⟩ := s.bsize - i
+
+def curr : OldIterator → Char
+| ⟨s, _, i⟩ := get s i
+
+def next : OldIterator → OldIterator
+| ⟨s, o, i⟩ := ⟨s, o+1, s.next i⟩
+
+def prev : OldIterator → OldIterator
+| ⟨s, o, i⟩ := ⟨s, o-1, s.prev i⟩
+
+def hasNext : OldIterator → Bool
+| ⟨s, _, i⟩ := i < utf8ByteSize s
+
+def hasPrev : OldIterator → Bool
+| ⟨s, _, i⟩ := i > 0
+
+def setCurr : OldIterator → Char → OldIterator
+| ⟨s, o, i⟩ c := ⟨s.set i c, o, i⟩
+
+def toEnd : OldIterator → OldIterator
+| ⟨s, o, _⟩ := ⟨s, s.length, s.bsize⟩
+
+def extract : OldIterator → OldIterator → String
+| ⟨s₁, _, b⟩ ⟨s₂, _, e⟩ :=
+  if s₁ ≠ s₂ || b > e then ""
+  else s₁.extract b e
+
+def forward : OldIterator → Nat → OldIterator
+| it 0     := it
+| it (n+1) := forward it.next n
+
+def remainingToString : OldIterator → String
+| ⟨s, _, i⟩ := s.extract i s.bsize
+
+/- (isPrefixOfRemaining it₁ it₂) is `true` Iff `it₁.remainingToString` is a prefix
+   of `it₂.remainingToString`. -/
+def isPrefixOfRemaining : OldIterator → OldIterator → Bool
+| ⟨s₁, _, i₁⟩ ⟨s₂, _, i₂⟩ := s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
+
+def nextn : OldIterator → Nat → OldIterator
+| it 0     := it
+| it (i+1) := nextn it.next i
+
+def prevn : OldIterator → Nat → OldIterator
+| it 0     := it
+| it (i+1) := prevn it.prev i
+end OldIterator
+
+private def oldLineColumnAux : Nat → String.OldIterator → Nat × Nat → Nat × Nat
+| 0     it r           := r
+| (k+1) it r@(line, col) :=
+  if it.hasNext = false then r
+  else match it.curr with
+       | '\n'  := oldLineColumnAux k it.next (line+1, 0)
+       | other := oldLineColumnAux k it.next (line, col+1)
+
+def oldLineColumn (s : String) (offset : Nat) : Nat × Nat :=
+oldLineColumnAux offset s.mkOldIterator (1, 0)
+
+end String
+
+
 namespace Lean
 namespace Parser
-open String (Iterator)
+open String (OldIterator)
 
 namespace Parsec
 @[reducible] def Position : Type := Nat
 
 structure Message (μ : Type := Unit) :=
-(it         : Iterator)
+(it         : OldIterator)
 (unexpected : String       := "")          -- unexpected input
 (expected   : DList String := ∅) -- expected productions
 (custom     : Option μ)
@@ -39,7 +118,7 @@ let expected := if exList = [] then [] else ["expected " ++ expected.toString ex
 
 
 protected def Message.toString {μ : Type} (msg : Message μ) : String :=
-let (line, col) := msg.it.toString.lineColumn msg.it.offset in
+let (line, col) := msg.it.toString.oldLineColumn msg.it.offset in
 -- always print ":"; we assume at least one of `unexpected` and `expected` to be non-Empty
 "error at line " ++ toString line ++ ", column " ++ toString col ++ ":\n" ++ msg.text
 
@@ -56,17 +135,17 @@ They contain the error that would have occurred if a
 successful "epsilon" Alternative was not taken.
 -/
 inductive Result (μ α : Type)
-| ok {} (a : α) (it : Iterator) (expected : Option $ DList String) : Result
+| ok {} (a : α) (it : OldIterator) (expected : Option $ DList String) : Result
 | error {} (msg : Message μ) (consumed : Bool)                     : Result
 
-@[inline] def Result.mkEps {μ α : Type} (a : α) (it : Iterator) : Result μ α :=
+@[inline] def Result.mkEps {μ α : Type} (a : α) (it : OldIterator) : Result μ α :=
 Result.ok a it (some ∅)
 end Parsec
 
 open Parsec
 
 def ParsecT (μ : Type) (m : Type → Type) (α : Type) :=
-Iterator → m (Result μ α)
+OldIterator → m (Result μ α)
 
 abbrev Parsec (μ : Type) := ParsecT μ id
 /-- `Parsec` without custom error Message Type -/
@@ -77,12 +156,12 @@ open Parsec.Result
 variables {m : Type → Type} [Monad m] {μ α β : Type}
 
 def run (p : ParsecT μ m α) (s : String) (fname := "") : m (Except (Message μ) α) :=
-do r ← p s.mkIterator,
+do r ← p s.mkOldIterator,
    pure $ match r with
    | ok a _ _     := Except.ok a
    | error msg _  := Except.error msg
 
-def runFrom (p : ParsecT μ m α) (it : Iterator) (fname := "") : m (Except (Message μ) α) :=
+def runFrom (p : ParsecT μ m α) (it : OldIterator) (fname := "") : m (Except (Message μ) α) :=
 do r ← p it,
    pure $ match r with
    | ok a _ _     := Except.ok a
@@ -261,15 +340,15 @@ open ParsecT
 variables {m : Type → Type} [Monad m] [MonadParsec μ m] {α β : Type}
 
 def error {α : Type} (unexpected : String) (expected : DList String := ∅)
-          (it : Option Iterator := none) (custom : Option μ := none) : m α :=
+          (it : Option OldIterator := none) (custom : Option μ := none) : m α :=
 lift $ λ it', Result.error { unexpected := unexpected, expected := expected, it := it.getOrElse it', custom := custom } false
 
-@[inline] def leftOver : m Iterator :=
+@[inline] def leftOver : m OldIterator :=
 lift $ λ it, Result.mkEps it it
 
 /-- Return the number of characters left to be parsed. -/
 @[inline] def remaining : m Nat :=
-String.Iterator.remaining <$> leftOver
+String.OldIterator.remaining <$> leftOver
 
 @[inline] def labels (p : m α) (lbls : DList String) : m α :=
 map (λ m' inst β p, @ParsecT.labels m' inst μ β p lbls) p
@@ -315,11 +394,11 @@ do it ← leftOver,
        if p c then error (repr c)
        else pure ()
 
-def eoiError (it : Iterator) : Result μ α :=
+def eoiError (it : OldIterator) : Result μ α :=
 Result.error { it := it, unexpected := "end of input", custom := default _ } false
 
 def curr : m Char :=
-String.Iterator.curr <$> leftOver
+String.OldIterator.curr <$> leftOver
 
 @[inline] def cond (p : Char → Bool) (t : m α) (e : m α) : m α :=
 mcond (p <$> curr) t e
@@ -353,7 +432,7 @@ satisfy Char.isLower
 def any : m Char :=
 satisfy (λ _, True)
 
-private def strAux : Nat → Iterator → Iterator → Option Iterator
+private def strAux : Nat → OldIterator → OldIterator → Option OldIterator
 | 0     _    it := some it
 | (n+1) sIt it :=
   if it.hasNext ∧ sIt.curr = it.curr then strAux n sIt.next it.next
@@ -367,14 +446,14 @@ as this one is all-or-nothing.
 -/
 def strCore (s : String) (ex : DList String) : m String :=
 if s.isEmpty then pure ""
-else lift $ λ it, match strAux s.length s.mkIterator it with
+else lift $ λ it, match strAux s.length s.mkOldIterator it with
   | some it' := Result.ok s it' none
   | none     := Result.error { it := it, expected := ex, custom := none } false
 
 @[inline] def str (s : String) : m String :=
 strCore s (DList.singleton (repr s))
 
-private def takeAux : Nat → String → Iterator → Result μ String
+private def takeAux : Nat → String → OldIterator → Result μ String
 | 0     r it := Result.ok r it none
 | (n+1) r it :=
   if !it.hasNext then eoiError it
@@ -385,12 +464,12 @@ def take (n : Nat) : m String :=
 if n = 0 then pure ""
 else lift $ takeAux n ""
 
-private def mkStringResult (r : String) (it : Iterator) : Result μ String :=
+private def mkStringResult (r : String) (it : OldIterator) : Result μ String :=
 if r.isEmpty then Result.mkEps r it
 else Result.ok r it none
 
 @[specialize]
-private def takeWhileAux (p : Char → Bool) : Nat → String → Iterator → Result μ String
+private def takeWhileAux (p : Char → Bool) : Nat → String → OldIterator → Result μ String
 | 0     r it := mkStringResult r it
 | (n+1) r it :=
   if !it.hasNext then mkStringResult r it
@@ -424,11 +503,11 @@ takeWhile (λ c, !p c)
 @[inline] def takeUntil1 (p : Char → Bool) : m String :=
 takeWhile1 (λ c, !p c)
 
-private def mkConsumedResult (consumed : Bool) (it : Iterator) : Result μ Unit :=
+private def mkConsumedResult (consumed : Bool) (it : OldIterator) : Result μ Unit :=
 if consumed then Result.ok () it none
 else Result.mkEps () it
 
-@[specialize] private def takeWhileAux' (p : Char → Bool) : Nat → Bool → Iterator → Result μ Unit
+@[specialize] private def takeWhileAux' (p : Char → Bool) : Nat → Bool → OldIterator → Result μ Unit
 | 0     consumed it := mkConsumedResult consumed it
 | (n+1) consumed it :=
   if !it.hasNext then mkConsumedResult consumed it
@@ -464,7 +543,7 @@ do it ← leftOver,
 
 /-- Return the current Position. -/
 def pos : m Position :=
-String.Iterator.offset <$> leftOver
+String.OldIterator.offset <$> leftOver
 
 
 /-- `notFollowedBy p` succeeds when Parser `p` fails -/
@@ -534,7 +613,7 @@ do it ← leftOver,
 def unexpected (msg : String) : m α :=
 error msg
 
-def unexpectedAt (msg : String) (it : Iterator) : m α :=
+def unexpectedAt (msg : String) (it : OldIterator) : m α :=
 error msg ∅ it
 
 /- Execute all parsers in `ps` and return the Result of the longest parse(s) if any,
@@ -583,7 +662,7 @@ run p s fname
 def parseWithEoi (p : ParsecT μ m α) (s : String) (fname := "") : m (Except (Message μ) α) :=
 run (p <* eoi) s fname
 
-def parseWithLeftOver (p : ParsecT μ m α) (s : String) (fname := "") : m (Except (Message μ) (α × Iterator)) :=
+def parseWithLeftOver (p : ParsecT μ m α) (s : String) (fname := "") : m (Except (Message μ) (α × OldIterator)) :=
 run (Prod.mk <$> p <*> leftOver) s fname
 
 end ParsecT

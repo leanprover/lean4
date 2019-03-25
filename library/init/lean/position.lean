@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Sebastian Ullrich
 -/
 prelude
-import init.data.nat init.data.rbmap init.lean.format
+import init.data.nat init.data.rbmap init.lean.format init.lean.parser.parsec
 
 namespace Lean
 
@@ -40,7 +40,7 @@ structure FileMap :=
 (lines : RBMap Nat Nat (<))
 
 namespace FileMap
-private def fromStringAux : Nat → String.Iterator → Nat → List (Nat × Nat)
+private def fromStringAux : Nat → String.OldIterator → Nat → List (Nat × Nat)
 | 0     it line := []
 | (k+1) it line :=
   if it.hasNext = false then []
@@ -49,7 +49,7 @@ private def fromStringAux : Nat → String.Iterator → Nat → List (Nat × Nat
        | other := fromStringAux k it.next line
 
 def fromString (s : String) : FileMap :=
-{lines := RBMap.ofList $ fromStringAux s.length s.mkIterator 1}
+{lines := RBMap.ofList $ fromStringAux s.length s.mkOldIterator 1}
 
 def toPosition (m : FileMap) (off : Nat) : Position :=
 match m.lines.lowerBound off with

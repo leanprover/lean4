@@ -180,44 +180,44 @@ def split (s : String) (sep : String := " ") : List String :=
 if sep == "" then [s] else splitAux s sep (s.length+1) 0 0 0 []
 
 structure Iterator :=
-(s : String) (offset : Nat) (i : USize)
+(s : String) (i : USize)
 
 def mkIterator (s : String) : Iterator :=
-⟨s, 0, 0⟩
+⟨s, 0⟩
 
 namespace Iterator
-def remaining : Iterator → Nat
-| ⟨s, o, _⟩ := s.length - o
-
 def toString : Iterator → String
-| ⟨s, _, _⟩ := s
+| ⟨s, _⟩ := s
 
-def remainingBytes : Iterator → USize
-| ⟨s, _, i⟩ := s.bsize - i
+def remainingBytes : Iterator → Nat
+| ⟨s, i⟩ := (s.bsize - i).toNat
+
+def pos : Iterator → Pos
+| ⟨s, i⟩ := i
 
 def curr : Iterator → Char
-| ⟨s, _, i⟩ := get s i
+| ⟨s, i⟩ := get s i
 
 def next : Iterator → Iterator
-| ⟨s, o, i⟩ := ⟨s, o+1, s.next i⟩
+| ⟨s, i⟩ := ⟨s, s.next i⟩
 
 def prev : Iterator → Iterator
-| ⟨s, o, i⟩ := ⟨s, o-1, s.prev i⟩
+| ⟨s, i⟩ := ⟨s, s.prev i⟩
 
 def hasNext : Iterator → Bool
-| ⟨s, _, i⟩ := i < utf8ByteSize s
+| ⟨s, i⟩ := i < utf8ByteSize s
 
 def hasPrev : Iterator → Bool
-| ⟨s, _, i⟩ := i > 0
+| ⟨s, i⟩ := i > 0
 
 def setCurr : Iterator → Char → Iterator
-| ⟨s, o, i⟩ c := ⟨s.set i c, o, i⟩
+| ⟨s, i⟩ c := ⟨s.set i c, i⟩
 
 def toEnd : Iterator → Iterator
-| ⟨s, o, _⟩ := ⟨s, s.length, s.bsize⟩
+| ⟨s, _⟩ := ⟨s, s.bsize⟩
 
 def extract : Iterator → Iterator → String
-| ⟨s₁, _, b⟩ ⟨s₂, _, e⟩ :=
+| ⟨s₁, b⟩ ⟨s₂, e⟩ :=
   if s₁ ≠ s₂ || b > e then ""
   else s₁.extract b e
 
@@ -226,12 +226,12 @@ def forward : Iterator → Nat → Iterator
 | it (n+1) := forward it.next n
 
 def remainingToString : Iterator → String
-| ⟨s, _, i⟩ := s.extract i s.bsize
+| ⟨s, i⟩ := s.extract i s.bsize
 
 /- (isPrefixOfRemaining it₁ it₂) is `true` Iff `it₁.remainingToString` is a prefix
    of `it₂.remainingToString`. -/
 def isPrefixOfRemaining : Iterator → Iterator → Bool
-| ⟨s₁, _, i₁⟩ ⟨s₂, _, i₂⟩ := s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
+| ⟨s₁, i₁⟩ ⟨s₂, i₂⟩ := s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
 
 end Iterator
 end String
@@ -275,16 +275,26 @@ def prevn : Iterator → Nat → Iterator
 | it (i+1) := prevn it.prev i
 end Iterator
 
-private def lineColumnAux : Nat → String.Iterator → Nat × Nat → Nat × Nat
-| 0     it r           := r
-| (k+1) it r@(line, col) :=
-  if it.hasNext = false then r
-  else match it.curr with
-       | '\n'  := lineColumnAux k it.next (line+1, 0)
-       | other := lineColumnAux k it.next (line, col+1)
+private def lineColumnAux (s : String) : Nat → Pos → Nat × Nat → Nat × Nat
+| 0     i r            := r
+| (k+1) i r@(line, col) :=
+  if atEnd s i then r
+  else let c := s.get i in
+       if c = '\n' then lineColumnAux k (s.next i) (line+1, 0)
+       else lineColumnAux k (s.next i) (line, col+1)
 
-def lineColumn (s : String) (offset : Nat) : Nat × Nat :=
-lineColumnAux offset s.mkIterator (1, 0)
+def lineColumn (s : String) (pos : Pos) : Nat × Nat :=
+lineColumnAux s s.length 0 (1, 0)
+
+def offsetOfPosAux (s : String) (pos : Pos) : Nat → Pos → Nat → Nat
+| 0     _ offset := offset
+| (k+1) i offset :=
+  if i == pos || s.atEnd i then offset
+  else offsetOfPosAux k (s.next i) (offset+1)
+
+def offsetOfPos (s : String) (pos : Pos) : Nat :=
+offsetOfPosAux s pos s.length 0 0
+
 end String
 
 protected def Char.toString (c : Char) : String :=

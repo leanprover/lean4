@@ -57,7 +57,7 @@ def expandExternPatternAux (args : List String) : Nat → String.Iterator → St
     if c ≠ '#' then expandExternPatternAux i it.next (r.push c)
     else
       let it      := it.next in
-      let (it, j) := parseOptNum it.remaining it 0 in
+      let (it, j) := parseOptNum it.remainingBytes it 0 in
       let j       := j-1 in
       expandExternPatternAux i it (r ++ (args.nth j).getOrElse "")
 

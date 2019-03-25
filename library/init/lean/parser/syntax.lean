@@ -11,8 +11,8 @@ namespace Parser
 
 --TODO(Sebastian): move
 structure Substring :=
-(start : String.Iterator)
-(stop : String.Iterator)
+(start : String.OldIterator)
+(stop : String.OldIterator)
 
 structure SourceInfo :=
 /- Will be inferred after parsing by `Syntax.updateLeading`. During parsing,
@@ -85,7 +85,7 @@ def Substring.toString (s : Substring) : String :=
 s.start.extract s.stop
 
 def Substring.ofString (s : String) : Substring :=
-⟨s.mkIterator, s.mkIterator.toEnd⟩
+⟨s.mkOldIterator, s.mkOldIterator.toEnd⟩
 
 instance Substring.HasToString : HasToString Substring :=
 ⟨Substring.toString⟩
@@ -147,7 +147,7 @@ end
 
 /- Remark: the State `String.Iterator` is the `SourceInfo.trailing.stop` of the previous token,
    or the beginning of the String. -/
-private def updateLeadingAux : Syntax → State String.Iterator (Option Syntax)
+private def updateLeadingAux : Syntax → State String.OldIterator (Option Syntax)
 | (atom a@{info := some info, ..}) := do
   last ← get,
   set info.trailing.stop,
@@ -170,7 +170,7 @@ private def updateLeadingAux : Syntax → State String.Iterator (Option Syntax)
     Note that, the `SourceInfo.trailing` fields are correct.
     The implementation of this Function relies on this property. -/
 def updateLeading (source : String) : Syntax → Syntax :=
-λ stx, Prod.fst $ (mreplace updateLeadingAux stx).run source.mkIterator
+λ stx, Prod.fst $ (mreplace updateLeadingAux stx).run source.mkOldIterator
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 mutual def getHeadInfo, getHeadInfoLst

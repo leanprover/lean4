@@ -109,7 +109,7 @@ structure ModuleParserSnapshot :=
 -- it there was a parse error in the previous command, we shouldn't complain if parsing immediately after it
 -- fails as well
 (recovering : Bool)
-(it : String.Iterator)
+(it : String.OldIterator)
 
 -- return (partial) Syntax tree and single fatal or multiple non-fatal messages
 def resumeModuleParser {α : Type} (cfg : ModuleParserConfig) (snap : ModuleParserSnapshot) (mkRes : α → Syntax × ModuleParserSnapshot)
@@ -120,7 +120,7 @@ match r with
 | Except.error msg  := (msg.custom.get, Except.error $ messageOfParsecMessage cfg msg)
 
 def parseHeader (cfg : ModuleParserConfig) :=
-let snap := {ModuleParserSnapshot . recovering := false, it := cfg.input.mkIterator} in
+let snap := {ModuleParserSnapshot . recovering := false, it := cfg.input.mkOldIterator} in
 resumeModuleParser cfg snap (λ stx, (stx, snap)) $ do
   -- `token` assumes that there is no leading whitespace
   monadLift whitespace,

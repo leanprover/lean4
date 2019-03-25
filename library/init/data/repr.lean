@@ -125,6 +125,9 @@ else "\"" ++ String.quoteAux s.toList ++ "\""
 instance : HasRepr String :=
 ⟨String.quote⟩
 
+instance : HasRepr Substring :=
+⟨λ s, String.quote s.toString ++ ".toSubstring"⟩
+
 instance : HasRepr String.Iterator :=
 ⟨λ it, it.remainingToString.quote ++ ".mkIterator"⟩
 

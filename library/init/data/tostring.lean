@@ -21,6 +21,9 @@ inferInstanceAs (HasToString α)
 instance : HasToString String :=
 ⟨λ s, s⟩
 
+instance : HasToString Substring :=
+⟨λ s, s.toString⟩
+
 instance : HasToString String.Iterator :=
 ⟨λ it, it.remainingToString⟩
 

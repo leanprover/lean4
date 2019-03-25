@@ -11,6 +11,11 @@ import init.data.option.basic
 structure String :=
 (data : List Char)
 
+abbrev String.Pos := USize
+
+structure Substring :=
+(str : String) (startPos : String.Pos) (endPos : String.Pos)
+
 attribute [extern cpp "lean::string_mk"] String.mk
 attribute [extern cpp "lean::string_data"] String.data
 
@@ -69,7 +74,8 @@ def utf8ByteSize : (@& String) → USize
 @[inline] def bsize (s : String) : USize :=
 utf8ByteSize s
 
-abbrev Pos := USize
+def toSubstring (s : String) : Substring :=
+{str := s, startPos := 0, endPos := s.bsize}
 
 private def utf8GetAux : List Char → USize → USize → Char
 | []      i p := default Char
@@ -317,6 +323,69 @@ def isNat (s : String) : Bool :=
 s.all $ λ c, c.isDigit
 
 end String
+
+namespace Substring
+
+@[inline] def toString : Substring → String
+| ⟨s, b, e⟩ := s.extract b e
+
+@[inline] def toIterator : Substring → String.Iterator
+| ⟨s, b, _⟩ := ⟨s, b⟩
+
+@[inline] def get : Substring → String.Pos → Char
+| ⟨s, b, _⟩ p := s.get (b+p)
+
+@[inline] def next : Substring → String.Pos → String.Pos
+| ⟨s, b, e⟩ p :=
+  let p := s.next (b+p) in
+  if p > e then e - b else p - b
+
+@[inline] def prev : Substring → String.Pos → String.Pos
+| ⟨s, b, _⟩ p :=
+  if p = b then p else s.prev (b+p) - b
+
+@[inline] def front (s : Substring) : Char :=
+s.get 0
+
+@[inline] def atEnd : Substring → String.Pos → Bool
+| ⟨s, b, e⟩ p := b + p == e
+
+@[inline] def extract : Substring → String.Pos → String.Pos → Substring
+| ⟨s, b, _⟩ b' e' := if b' ≥ e' then ⟨"", 0, 1⟩ else ⟨s, b+b', b+e'⟩
+
+def splitAux (s sep : String) (endPos : String.Pos) : Nat → String.Pos → String.Pos → String.Pos → List Substring → List Substring
+| 0     b i j r := [] -- unreachable
+| (k+1) b i j r :=
+  if i == endPos then
+    let r := if sep.atEnd j then "".toSubstring::{str := s, startPos := b, endPos := i-j}::r else {str := s, startPos := b, endPos := i}::r
+    in r.reverse
+  else if s.get i == sep.get j then
+    let i := s.next i in
+    let j := sep.next j in
+    if sep.atEnd j then splitAux k i i 0 ({str := s, startPos := b, endPos := i-j}::r)
+    else splitAux k b i j r
+  else splitAux k b (s.next i) 0 r
+
+def split (s : Substring) (sep : String := " ") : List Substring :=
+if sep == "" then [s] else splitAux s.str sep s.endPos (s.str.length+1) s.startPos s.startPos 0 []
+
+@[inline] def trimLeft : Substring → Substring
+| ⟨s, b, e⟩ :=
+  let b := String.trimLeftAux s s.bsize.toNat b in
+  ⟨s, b, e⟩
+
+@[inline] def trimRight : Substring → Substring
+| ⟨s, b, e⟩ :=
+  let e := String.trimRightAux s s.bsize.toNat e in
+  ⟨s, b, e⟩
+
+@[inline] def trim : Substring → Substring
+| ⟨s, b, e⟩ :=
+  let b := String.trimLeftAux s s.bsize.toNat b in
+  let e := String.trimRightAux s s.bsize.toNat e in
+  ⟨s, b, e⟩
+
+end Substring
 
 protected def Char.toString (c : Char) : String :=
 String.singleton c

@@ -8,8 +8,6 @@ import init.data.list.basic
 import init.data.char.basic
 import init.data.option.basic
 
-/- In the VM, strings are implemented using a dynamic Array and UTF-8 encoding.
-   TODO: mark as opaque -/
 structure String :=
 (data : List Char)
 
@@ -33,7 +31,6 @@ namespace String
 instance : HasLess String :=
 ⟨λ s₁ s₂, s₁.data < s₂.data⟩
 
-/- Remark: this Function has a VM builtin efficient implementation. -/
 @[extern cpp "lean::string_dec_lt"]
 instance decLt (s₁ s₂ : @& String) : Decidable (s₁ < s₂) :=
 List.hasDecidableLt s₁.data s₂.data
@@ -179,6 +176,32 @@ def splitAux (s sep : String) : Nat → Pos → Pos → Pos → List String → 
 def split (s : String) (sep : String := " ") : List String :=
 if sep == "" then [s] else splitAux s sep (s.length+1) 0 0 0 []
 
+instance : Inhabited String :=
+⟨""⟩
+
+instance : HasSizeof String :=
+⟨String.length⟩
+
+instance : HasAppend String :=
+⟨String.append⟩
+
+def str : String → Char → String := push
+
+def pushn (s : String) (c : Char) (n : Nat) : String :=
+n.repeat (λ _ s, s.push c) s
+
+def isEmpty (s : String) : Bool :=
+toBool (s.length = 0)
+
+def join (l : List String) : String :=
+l.foldl (λ r s, r ++ s) ""
+
+def singleton (c : Char) : String :=
+"".push c
+
+def intercalate (s : String) (ss : List String) : String :=
+(List.intercalate s.toList (ss.map toList)).asString
+
 structure Iterator :=
 (s : String) (i : USize)
 
@@ -233,39 +256,6 @@ def remainingToString : Iterator → String
 def isPrefixOfRemaining : Iterator → Iterator → Bool
 | ⟨s₁, i₁⟩ ⟨s₂, i₂⟩ := s₁.extract i₁ s₁.bsize = s₂.extract i₂ (i₂ + (s₁.bsize - i₁))
 
-end Iterator
-end String
-
-/- The following definitions do not have builtin support in the VM -/
-
-instance : Inhabited String :=
-⟨""⟩
-
-instance : HasSizeof String :=
-⟨String.length⟩
-
-instance : HasAppend String :=
-⟨String.append⟩
-
-namespace String
-def str : String → Char → String := push
-
-def pushn (s : String) (c : Char) (n : Nat) : String :=
-n.repeat (λ _ s, s.push c) s
-
-def isEmpty (s : String) : Bool :=
-toBool (s.length = 0)
-
-def join (l : List String) : String :=
-l.foldl (λ r s, r ++ s) ""
-
-def singleton (c : Char) : String :=
-"".push c
-
-def intercalate (s : String) (ss : List String) : String :=
-(List.intercalate s.toList (ss.map toList)).asString
-
-namespace Iterator
 def nextn : Iterator → Nat → Iterator
 | it 0     := it
 | it (i+1) := nextn it.next i
@@ -295,12 +285,6 @@ def offsetOfPosAux (s : String) (pos : Pos) : Nat → Pos → Nat → Nat
 def offsetOfPos (s : String) (pos : Pos) : Nat :=
 offsetOfPosAux s pos s.length 0 0
 
-end String
-
-protected def Char.toString (c : Char) : String :=
-String.singleton c
-
-namespace String
 universes u
 @[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) : Nat → Pos → α → α
 | 0     _ a := a
@@ -333,3 +317,6 @@ def isNat (s : String) : Bool :=
 s.all $ λ c, c.isDigit
 
 end String
+
+protected def Char.toString (c : Char) : String :=
+String.singleton c

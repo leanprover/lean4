@@ -163,13 +163,13 @@ namespace String
 
 def toInt (s : String) : Int :=
 if s.get 0 = '-' then
- - Int.ofNat (s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0 1)
+ - Int.ofNat (s.toSubstring.drop 1).toNat
 else
  Int.ofNat s.toNat
 
 def isInt (s : String) : Bool :=
 if s.get 0 = '-' then
-  s.all (λ c, c.isDigit) 1
+  (s.toSubstring.drop 1).isNat
 else
   s.isNat
 

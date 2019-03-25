@@ -4,9 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.data.list.basic
-import init.data.char.basic
-import init.data.option.basic
+import init.data.list.basic init.data.char.basic init.data.option.basic
+universes u
 
 structure String :=
 (data : List Char)
@@ -74,7 +73,12 @@ def utf8ByteSize : (@& String) → USize
 @[inline] def bsize (s : String) : USize :=
 utf8ByteSize s
 
-def toSubstring (s : String) : Substring :=
+/- Auxiliary method for making it explicit when string size is being used as "fuel" in
+   a recursive definition. -/
+@[inline] def toFuel (s : String) : Nat :=
+s.bsize.toNat + 1
+
+@[inline] def toSubstring (s : String) : Substring :=
 {str := s, startPos := 0, endPos := s.bsize}
 
 private def utf8GetAux : List Char → USize → USize → Char
@@ -120,6 +124,16 @@ get s (prev s (bsize s))
 def atEnd : (@& String) → Pos → Bool
 | s p := p ≥ utf8ByteSize s
 
+def posOfAux (s : String) (c : Char) (endPos : Pos) : Nat → Pos → Pos
+| 0     pos := pos
+| (k+1) pos :=
+  if pos == endPos then pos
+  else if s.get pos == c then pos
+       else posOfAux k (s.next pos)
+
+@[inline] def posOf (s : String) (c : Char) : Pos :=
+posOfAux s c s.bsize s.toFuel 0
+
 private def utf8ExtractAux₂ : List Char → USize → USize → List Char
 | []      _ _ := []
 | (c::cs) i e := if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e
@@ -131,40 +145,6 @@ private def utf8ExtractAux₁ : List Char → USize → USize → USize → List
 @[extern cpp "lean::string_utf8_extract"]
 def extract : (@& String) → Pos → Pos → String
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
-
-def trimLeftAux (s : String) : Nat → Pos → Pos
-| 0     i := i
-| (n+1) i :=
-  if i ≥ s.bsize then i
-  else let c := s.get i in
-       if !c.isWhitespace then i
-       else trimLeftAux n (i + csize c)
-
-def trimLeft (s : String) : String :=
-let b := trimLeftAux s s.bsize.toNat 0 in
-if b = 0 then s
-else s.extract b s.bsize
-
-def trimRightAux (s : String) : Nat → Pos → Pos
-| 0     i := i
-| (n+1) i :=
-  if i = 0 then i
-  else
-    let i' := s.prev i in
-    let c  := s.get i' in
-    if !c.isWhitespace then i
-    else trimRightAux n i'
-
-def trimRight (s : String) : String :=
-let e := trimRightAux s s.bsize.toNat s.bsize in
-if e = s.bsize then s
-else s.extract 0 e
-
-def trim (s : String) : String :=
-let b := trimLeftAux s s.bsize.toNat 0 in
-let e := trimRightAux s s.bsize.toNat s.bsize in
-if b = 0 && e = s.bsize then s
-else s.extract b e
 
 def splitAux (s sep : String) : Nat → Pos → Pos → Pos → List String → List String
 | 0     b i j r := [] -- unreachable
@@ -180,7 +160,7 @@ def splitAux (s sep : String) : Nat → Pos → Pos → Pos → List String → 
   else splitAux k b (s.next i) 0 r
 
 def split (s : String) (sep : String := " ") : List String :=
-if sep == "" then [s] else splitAux s sep (s.length+1) 0 0 0 []
+if sep == "" then [s] else splitAux s sep s.toFuel 0 0 0 []
 
 instance : Inhabited String :=
 ⟨""⟩
@@ -197,7 +177,7 @@ def pushn (s : String) (c : Char) (n : Nat) : String :=
 n.repeat (λ _ s, s.push c) s
 
 def isEmpty (s : String) : Bool :=
-toBool (s.length = 0)
+toBool (s.bsize == 0)
 
 def join (l : List String) : String :=
 l.foldl (λ r s, r ++ s) ""
@@ -280,7 +260,7 @@ private def lineColumnAux (s : String) : Nat → Pos → Nat × Nat → Nat × N
        else lineColumnAux k (s.next i) (line, col+1)
 
 def lineColumn (s : String) (pos : Pos) : Nat × Nat :=
-lineColumnAux s s.length 0 (1, 0)
+lineColumnAux s s.toFuel 0 (1, 0)
 
 def offsetOfPosAux (s : String) (pos : Pos) : Nat → Pos → Nat → Nat
 | 0     _ offset := offset
@@ -289,32 +269,52 @@ def offsetOfPosAux (s : String) (pos : Pos) : Nat → Pos → Nat → Nat
   else offsetOfPosAux k (s.next i) (offset+1)
 
 def offsetOfPos (s : String) (pos : Pos) : Nat :=
-offsetOfPosAux s pos s.length 0 0
+offsetOfPosAux s pos s.toFuel 0 0
 
-universes u
-@[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) : Nat → Pos → α → α
+@[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (endPos : Pos) : Nat → Pos → α → α
 | 0     _ a := a
 | (k+1) i a :=
-  if s.atEnd i then a
+  if i == endPos then a
   else foldlAux k (s.next i) (f a (s.get i))
 
-@[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : String) (start : Pos := 0) : α :=
-foldlAux f s s.length 0 a
+@[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : String) : α :=
+foldlAux f s s.bsize s.toFuel 0 a
 
-@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) : Nat → Pos → α
+@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (endPos : Pos) : Nat → Pos → α
 | 0     i := a
 | (k+1) i :=
-  if s.atEnd i then a
+  if i == endPos then a
   else f (s.get i) (foldrAux k (s.next i))
 
-@[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : String) (start : Pos := 0) : α :=
-foldrAux f a s s.length start
+@[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : String) : α :=
+foldrAux f a s s.bsize s.toFuel 0
 
-@[inline] def any (s : String) (p : Char → Bool) (start : Pos := 0) : Bool :=
-s.foldr (λ a r, p a || r) false start
+@[specialize] def anyAux (s : String) (endPos : Pos) (p : Char → Bool) : Nat → Pos → Bool
+| 0     _ := false
+| (k+1) i :=
+  if i == endPos then false
+  else if p (s.get i) then true
+  else anyAux k (s.next i)
 
-@[inline] def all (s : String) (p : Char → Bool) (start : Pos := 0) : Bool :=
-s.foldr (λ a r, p a && r) true start
+@[inline] def any (s : String) (p : Char → Bool) : Bool :=
+anyAux s s.bsize p s.toFuel 0
+
+@[inline] def all (s : String) (p : Char → Bool) : Bool :=
+!s.any (λ c, !p c)
+
+def contains (s : String) (c : Char) : Bool :=
+s.any (== c)
+
+@[specialize] def mapAux (f : Char → Char) : Nat → Pos → String → String
+| 0     i s := s
+| (k+1) i s :=
+  if s.atEnd i then s
+  else let c := f (s.get i) in
+       let s := s.set i c in
+       mapAux k (s.next i) s
+
+@[inline] def map (f : Char → Char) (s : String) : String :=
+mapAux f s.toFuel 0 s
 
 def toNat (s : String) : Nat :=
 s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0
@@ -347,6 +347,34 @@ namespace Substring
 @[inline] def front (s : Substring) : Char :=
 s.get 0
 
+@[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
+match s with
+| ⟨s, b, e⟩ := (String.posOfAux s c e s.toFuel b) - b
+
+@[inline] def drop : Substring → Nat → Substring
+| ⟨s, b, e⟩ n :=
+  let n := USize.ofNat n in
+  if b + n ≥ e then "".toSubstring
+  else ⟨s, b+n, e⟩
+
+@[inline] def dropRight : Substring → Nat → Substring
+| ⟨s, b, e⟩ n :=
+  let n := USize.ofNat n in
+  if e - n ≤ e then "".toSubstring
+  else ⟨s, b, e - n⟩
+
+@[inline] def take : Substring → Nat → Substring
+| ⟨s, b, e⟩ n :=
+  let n := USize.ofNat n in
+  let e := if b + n ≥ e then e else b + n in
+  ⟨s, b, e⟩
+
+@[inline] def takeRight : Substring → Nat → Substring
+| ⟨s, b, e⟩ n :=
+  let n := USize.ofNat n in
+  let b := if e - n ≤ b then b else e - n in
+  ⟨s, b, e⟩
+
 @[inline] def atEnd : Substring → String.Pos → Bool
 | ⟨s, b, e⟩ p := b + p == e
 
@@ -367,25 +395,112 @@ def splitAux (s sep : String) (endPos : String.Pos) : Nat → String.Pos → Str
   else splitAux k b (s.next i) 0 r
 
 def split (s : Substring) (sep : String := " ") : List Substring :=
-if sep == "" then [s] else splitAux s.str sep s.endPos (s.str.length+1) s.startPos s.startPos 0 []
+if sep == "" then [s] else splitAux s.str sep s.endPos s.str.toFuel s.startPos s.startPos 0 []
 
-@[inline] def trimLeft : Substring → Substring
-| ⟨s, b, e⟩ :=
-  let b := String.trimLeftAux s s.bsize.toNat b in
+@[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : Substring) : α :=
+match s with
+| ⟨s, b, e⟩ := String.foldlAux f s e s.toFuel b a
+
+@[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : Substring) : α :=
+match s with
+| ⟨s, b, e⟩ := String.foldrAux f a s e s.toFuel b
+
+@[inline] def any (s : Substring) (p : Char → Bool) : Bool :=
+match s with
+| ⟨s, b, e⟩ := String.anyAux s e p s.toFuel b
+
+@[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
+!s.any (λ c, !p c)
+
+def contains (s : Substring) (c : Char) : Bool :=
+s.any (== c)
+
+@[specialize] def takeWhileAux (s : String) (endPos : String.Pos) (p : Char → Bool) : Nat → String.Pos → String.Pos
+| 0     i := i
+| (k+1) i :=
+  if i == endPos then i
+  else if p (s.get i) then takeWhileAux k (s.next i)
+  else i
+
+@[inline] def takeWhile : Substring → (Char → Bool) → Substring
+| ⟨s, b, e⟩ p :=
+  let e := takeWhileAux s e p s.toFuel b in
   ⟨s, b, e⟩
 
-@[inline] def trimRight : Substring → Substring
-| ⟨s, b, e⟩ :=
-  let e := String.trimRightAux s s.bsize.toNat e in
+@[inline] def dropWhile : Substring → (Char → Bool) → Substring
+| ⟨s, b, e⟩ p :=
+  let b := takeWhileAux s e p s.toFuel b in
   ⟨s, b, e⟩
+
+@[specialize] def takeRightWhileAux (s : String) (begPos : String.Pos) (p : Char → Bool) : Nat → String.Pos → String.Pos
+| 0     i := begPos
+| (k+1) i :=
+  if i == begPos then i
+  else let i' := s.prev i in
+       let c  := s.get i' in
+       if !p c then i
+       else takeRightWhileAux k i'
+
+@[inline] def takeRightWhile : Substring → (Char → Bool) → Substring
+| ⟨s, b, e⟩ p :=
+  let b := takeRightWhileAux s b p s.toFuel e in
+  ⟨s, b, e⟩
+
+@[inline] def dropRightWhile : Substring → (Char → Bool) → Substring
+| ⟨s, b, e⟩ p :=
+  let e := takeRightWhileAux s b p s.toFuel e in
+  ⟨s, b, e⟩
+
+@[inline] def trimLeft (s : Substring) : Substring :=
+s.dropWhile Char.isWhitespace
+
+@[inline] def trimRight (s : Substring) : Substring :=
+s.dropRightWhile Char.isWhitespace
 
 @[inline] def trim : Substring → Substring
 | ⟨s, b, e⟩ :=
-  let b := String.trimLeftAux s s.bsize.toNat b in
-  let e := String.trimRightAux s s.bsize.toNat e in
+  let b := takeWhileAux s e Char.isWhitespace s.toFuel b in
+  let e := takeRightWhileAux s b Char.isWhitespace s.toFuel e in
   ⟨s, b, e⟩
 
+def toNat (s : Substring) : Nat :=
+s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0
+
+def isNat (s : Substring) : Bool :=
+s.all $ λ c, c.isDigit
+
 end Substring
+
+namespace String
+
+def drop (s : String) (n : Nat) : String :=
+(s.toSubstring.drop n).toString
+
+def dropRight (s : String) (n : Nat) : String :=
+(s.toSubstring.dropRight n).toString
+
+def take (s : String) (n : Nat) : String :=
+(s.toSubstring.take n).toString
+
+def takeRight (s : String) (n : Nat) : String :=
+(s.toSubstring.takeRight n).toString
+
+def takeWhile (s : String) (p : Char → Bool) : String :=
+(s.toSubstring.takeWhile p).toString
+
+def dropWhile (s : String) (p : Char → Bool) : String :=
+(s.toSubstring.dropWhile p).toString
+
+def trimRight (s : String) : String :=
+s.toSubstring.trimRight.toString
+
+def trimLeft (s : String) : String :=
+s.toSubstring.trimLeft.toString
+
+def trim (s : String) : String :=
+s.toSubstring.trim.toString
+
+end String
 
 protected def Char.toString (c : Char) : String :=
 String.singleton c

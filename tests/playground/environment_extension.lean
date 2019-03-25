@@ -37,13 +37,52 @@ variables {entryTy' stateTy' : Type}
    (convertEntry : entryTy → entryTy')
    : IO Unit := default _
 
-@[extern "lean_environment_ext_add_entry"] constant addEntry (ext : EnvironmentExtension entryTy stateTy) (persistent : Bool) (entry : entryTy) : environment → environment := id
+@[extern "lean_environment_ext_add_entry"] constant addEntry (ext : EnvironmentExtension entryTy stateTy) (entry : entryTy) : environment → environment := id
 
 --constant getModuleEntries (ext : EnvironmentExtension entryTy stateTy) (mod : ModID) : IO (Array entryTy)
 
 /-- Retrieve the State of an environment extension. -/
 @[extern "lean_environment_ext_get_state"] constant getState [Inhabited stateTy] : EnvironmentExtension entryTy stateTy → environment → stateTy := default _
 end EnvironmentExtension
+
+structure ScopedEnvironmentExtension.Scope (entryTy stateTy : Type) :=
+(state : stateTy)
+(localEntries : List entryTy)
+
+def ScopedEnvironmentExtension (entryTy stateTy : Type) :=
+EnvironmentExtension (Bool × entryTy) (List (ScopedEnvironmentExtension.Scope entryTy stateTy))
+
+namespace ScopedEnvironmentExtension
+structure Info :=
+(pushScope popScope : environment → environment)
+
+def scopedExtsRef.init : IO (IO.Ref (List Info)) := IO.mkRef []
+@[init scopedExtsRef.init] private constant scopedExtsRef : IO.Ref (List Info) := default _
+def scopedExts : IO (List Info) := scopedExtsRef.get
+
+variables {entryTy stateTy : Type}
+
+def register (key : Option String) (emptyState : stateTy)
+  (addEntry : Π (init : Bool), environment → stateTy → entryTy → stateTy)
+  : IO (ScopedEnvironmentExtension entryTy stateTy) :=
+EnvironmentExtension.register key [{state := emptyState, localEntries := []}] $
+  λ init env st ⟨persistent, e⟩,
+    if persistent then st.map (λ scope, {scope with state := addEntry init env scope.state e})
+    else match st with
+    | ⟨st, es⟩::scopes := ⟨st, e::es⟩::scopes
+    | [] := []
+
+def addEntry (ext : ScopedEnvironmentExtension entryTy stateTy) (persistent : Bool) (entry : entryTy) (env : environment) : environment :=
+EnvironmentExtension.addEntry ext (persistent, entry) env
+
+def pushScope (env : environment) : IO environment := do
+  exts ← scopedExts,
+  pure $ exts.foldr Info.pushScope env
+
+def popScope (env : environment) : IO environment := do
+  exts ← scopedExts,
+  pure $ exts.foldr Info.popScope env
+end ScopedEnvironmentExtension
 
 /-- A datum as used by `AttributeExtension`. -/
 structure AttributeEntry :=
@@ -53,7 +92,7 @@ structure AttributeEntry :=
 /-- The Result of registering an attribute in the global State. -/
 structure AttributeExtension (stateTy : Type) :=
 -- global and local attribute entries as well as "active" scoped entries
-(activeExt : EnvironmentExtension AttributeEntry stateTy)
+(activeExt : ScopedEnvironmentExtension AttributeEntry stateTy)
 -- all scoped entries
 (scopedExt : EnvironmentExtension AttributeEntry (List AttributeEntry))
 
@@ -64,7 +103,7 @@ structure AttributeInfo :=
 (scopedExt : EnvironmentExtension AttributeEntry (List AttributeEntry))
 
 namespace AttributeInfo
-def addScopedEntry (attr : AttributeInfo) : AttributeEntry → environment → environment := attr.scopedExt.addEntry false
+def addScopedEntry (attr : AttributeInfo) : AttributeEntry → environment → environment := attr.scopedExt.addEntry
 def activateScopedEntries (attr : AttributeInfo) (declOpen : Name → Bool) (env : environment) : environment :=
 ((attr.scopedExt.getState env).filter (λ e : AttributeEntry, declOpen e.decl)).foldr (attr.addActiveEntry true) env
 end AttributeInfo
@@ -81,7 +120,7 @@ def register (attr : Name) (emptyState : stateTy)
   (addEntry : Π (init : Bool), environment → stateTy → AttributeEntry → stateTy)
   : IO (AttributeExtension stateTy) := do
   ext ← AttributeExtension.mk
-    <$> EnvironmentExtension.register (toString attr) emptyState addEntry
+    <$> ScopedEnvironmentExtension.register (toString attr) emptyState addEntry
     <*> EnvironmentExtension.register (some $ toString $ attr ++ `scoped) [] (λ _ _ entries e, e::entries),
   attributesRef.modify $ λ attrs, {attr := attr,
     addActiveEntry := ext.activeExt.addEntry,

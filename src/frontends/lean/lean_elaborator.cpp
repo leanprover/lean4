@@ -31,6 +31,7 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/util.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/simple_pos_info_provider.h"
+#include "frontends/lean/lean_environment.h"
 
 namespace lean {
 struct resolve_names_fn : public replace_visitor {
@@ -409,25 +410,6 @@ static void elaborate_command(parser & p, expr const & cmd) {
     throw elaborator_exception(cmd, "unexpected input to 'elaborate_command'");
 }
 
-void env_finalizer(void * env) {
-    delete static_cast<environment*>(env);
-}
-
-void env_foreach(void * /* env */, b_obj_arg /* fn */) {
-    // TODO(leo, kha)
-}
-
-static external_object_class * g_env_class = nullptr;
-
-environment const & to_environment(b_obj_arg o) {
-    lean_assert(external_class(o) == g_env_class);
-    return *static_cast<environment *>(external_data(o));
-}
-
-obj_res to_lean_environment(environment const & env) {
-    return alloc_external(g_env_class, new environment(env));
-}
-
 options to_options(b_obj_arg o) {
     options opts;
     kvmap m = kvmap(o, true);
@@ -470,14 +452,6 @@ object_ref to_obj(name_generator const & ngen) {
     auto o = mk_cnstr(0, ngen.m_prefix, sizeof(uint32 ));
     cnstr_set_scalar(o.raw(), sizeof(void*), ngen.m_next_idx);
     return o;
-}
-
-extern "C" obj_res lean_environment_mk_empty(b_obj_arg) {
-    return to_lean_environment(environment());
-}
-
-extern "C" uint8 lean_environment_contains(b_obj_arg lean_environment, b_obj_arg vm_n) {
-    return static_cast<uint8>(static_cast<bool>(to_environment(lean_environment).find(name(vm_n, true))));
 }
 
 /* elaborate_command (filename : string) : expr → old_elaborator_state → option old_elaborator_state × message_log */
@@ -592,23 +566,12 @@ static vm_obj vm_lean_expr_local(vm_obj const &, vm_obj const &, vm_obj const &,
     throw exception("elaborator support has not been implemented in the old VM");
 }
 
-static vm_obj vm_lean_environment_mk_empty(vm_obj const &) {
-    throw exception("elaborator support has not been implemented in the old VM");
-}
-
-static vm_obj vm_lean_environment_contains(vm_obj const &, vm_obj const &) {
-    throw exception("elaborator support has not been implemented in the old VM");
-}
-
 static vm_obj vm_lean_elaborator_elaborate_command(vm_obj const &, vm_obj const &, vm_obj const &) {
     throw exception("elaborator support has not been implemented in the old VM");
 }
 
 void initialize_vm_elaborator() {
-    g_env_class = register_external_object_class(env_finalizer, env_foreach);
     DECLARE_VM_BUILTIN(name({"lean", "expr", "local"}), vm_lean_expr_local);
-    DECLARE_VM_BUILTIN(name({"lean", "environment", "mk_empty"}), vm_lean_environment_mk_empty);
-    DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_lean_environment_contains);
     DECLARE_VM_BUILTIN(name({"lean", "elaborator", "elaborate_command"}), vm_lean_elaborator_elaborate_command);
 }
 

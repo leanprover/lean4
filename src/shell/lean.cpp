@@ -40,7 +40,7 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/lean_elaborator.h"
+#include "frontends/lean/lean_environment.h"
 #include "library/trace.h"
 #include "init/init.h"
 #include "frontends/lean/simple_pos_info_provider.h"

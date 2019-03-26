@@ -1028,6 +1028,15 @@ class insert_reset_reuse_fn {
         return mk_app(r, args);
     }
 
+    expr replace_const(replace_ctx const & rctx, expr const & e) {
+        unsigned cidx; unsigned nusize; unsigned ssz;
+        if (is_llnf_cnstr(e, cidx, nusize, ssz) && (nusize != 0 || ssz != 0)) {
+            return replace_cnstr(rctx, e);
+        } else {
+            return e;
+        }
+    }
+
     expr replace_app(replace_ctx const & rctx, expr const & e) {
         if (is_llnf_cnstr(get_app_fn(e))) {
             return replace_cnstr(rctx, e);
@@ -1065,6 +1074,7 @@ class insert_reset_reuse_fn {
 
     expr replace(replace_ctx const & rctx, expr const & e) {
         switch (e.kind()) {
+        case expr_kind::Const:  return replace_const(rctx, e);
         case expr_kind::App:    return replace_app(rctx, e);
         case expr_kind::Let:    return replace_let(rctx, e);
         case expr_kind::Lambda: return replace_lambda(rctx, e);

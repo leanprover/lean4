@@ -13,7 +13,7 @@ def neutralExpr : Expr       := Expr.const `_neutral []
 def unreachableExpr : Expr   := Expr.const `_unreachable []
 def objectType : Expr        := Expr.const `_obj []
 def voidType : Expr          := Expr.const `_void []
-def mkLcProof (pred : Expr) := Expr.app (Expr.const `lcProof []) pred
+def mkLcProof (pred : Expr)  := Expr.app (Expr.const `lcProof []) pred
 
 namespace atMostOnce
 

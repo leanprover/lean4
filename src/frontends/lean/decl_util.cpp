@@ -404,6 +404,7 @@ struct definition_info {
        Remark: a regular (i.e., safe) declaration provided by the user may contain a unsafe subexpression (e.g., tactic).
     */
     bool     m_is_unsafe{false};      // true iff current block
+    bool     m_is_partial{false};
     bool     m_is_noncomputable{false};
     bool     m_is_lemma{false};
     bool     m_aux_lemmas{false};
@@ -422,8 +423,9 @@ declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind ki
         info.m_actual_prefix = ns;
     }
     info.m_is_private       = modifiers.m_is_private;
-    info.m_is_unsafe_decl     = modifiers.m_is_unsafe;
-    info.m_is_unsafe          = modifiers.m_is_unsafe;
+    info.m_is_unsafe_decl   = modifiers.m_is_unsafe;
+    info.m_is_unsafe        = modifiers.m_is_unsafe;
+    info.m_is_partial       = modifiers.m_is_partial;
     info.m_is_noncomputable = modifiers.m_is_noncomputable;
     info.m_is_lemma         = kind == decl_cmd_kind::Theorem;
     info.m_aux_lemmas       = kind != decl_cmd_kind::Theorem && !modifiers.m_is_unsafe;
@@ -452,6 +454,7 @@ equations_header mk_equations_header(names const & ns, names const & actual_ns) 
     h.m_fn_actual_names  = actual_ns;
     h.m_is_private       = get_definition_info().m_is_private;
     h.m_is_unsafe        = get_definition_info().m_is_unsafe;
+    h.m_is_partial       = get_definition_info().m_is_partial;
     h.m_is_noncomputable = get_definition_info().m_is_noncomputable;
     h.m_is_lemma         = get_definition_info().m_is_lemma;
     h.m_aux_lemmas       = get_definition_info().m_aux_lemmas;

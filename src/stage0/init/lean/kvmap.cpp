@@ -940,7 +940,7 @@ obj* _init_l_Lean_KVMap_natVal() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; 
-x_0 = lean::mk_nat_obj(0u);
+x_0 = lean::mk_nat_obj(0ul);
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_KVMap_setNat), 3, 0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_KVMap_getNat___boxed), 3, 0);
 x_3 = lean::alloc_cnstr(0, 3, 0);

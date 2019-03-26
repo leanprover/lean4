@@ -834,82 +834,82 @@ uint32 l_Nat_digitChar(obj* x_0) {
 _start:
 {
 obj* x_1; uint8 x_2; 
-x_1 = lean::mk_nat_obj(0u);
+x_1 = lean::mk_nat_obj(0ul);
 x_2 = lean::nat_dec_eq(x_0, x_1);
 if (x_2 == 0)
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(1u);
+x_3 = lean::mk_nat_obj(1ul);
 x_4 = lean::nat_dec_eq(x_0, x_3);
 if (x_4 == 0)
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(2u);
+x_5 = lean::mk_nat_obj(2ul);
 x_6 = lean::nat_dec_eq(x_0, x_5);
 if (x_6 == 0)
 {
 obj* x_7; uint8 x_8; 
-x_7 = lean::mk_nat_obj(3u);
+x_7 = lean::mk_nat_obj(3ul);
 x_8 = lean::nat_dec_eq(x_0, x_7);
 if (x_8 == 0)
 {
 obj* x_9; uint8 x_10; 
-x_9 = lean::mk_nat_obj(4u);
+x_9 = lean::mk_nat_obj(4ul);
 x_10 = lean::nat_dec_eq(x_0, x_9);
 if (x_10 == 0)
 {
 obj* x_11; uint8 x_12; 
-x_11 = lean::mk_nat_obj(5u);
+x_11 = lean::mk_nat_obj(5ul);
 x_12 = lean::nat_dec_eq(x_0, x_11);
 if (x_12 == 0)
 {
 obj* x_13; uint8 x_14; 
-x_13 = lean::mk_nat_obj(6u);
+x_13 = lean::mk_nat_obj(6ul);
 x_14 = lean::nat_dec_eq(x_0, x_13);
 if (x_14 == 0)
 {
 obj* x_15; uint8 x_16; 
-x_15 = lean::mk_nat_obj(7u);
+x_15 = lean::mk_nat_obj(7ul);
 x_16 = lean::nat_dec_eq(x_0, x_15);
 if (x_16 == 0)
 {
 obj* x_17; uint8 x_18; 
-x_17 = lean::mk_nat_obj(8u);
+x_17 = lean::mk_nat_obj(8ul);
 x_18 = lean::nat_dec_eq(x_0, x_17);
 if (x_18 == 0)
 {
 obj* x_19; uint8 x_20; 
-x_19 = lean::mk_nat_obj(9u);
+x_19 = lean::mk_nat_obj(9ul);
 x_20 = lean::nat_dec_eq(x_0, x_19);
 if (x_20 == 0)
 {
 obj* x_21; uint8 x_22; 
-x_21 = lean::mk_nat_obj(10u);
+x_21 = lean::mk_nat_obj(10ul);
 x_22 = lean::nat_dec_eq(x_0, x_21);
 if (x_22 == 0)
 {
 obj* x_23; uint8 x_24; 
-x_23 = lean::mk_nat_obj(11u);
+x_23 = lean::mk_nat_obj(11ul);
 x_24 = lean::nat_dec_eq(x_0, x_23);
 if (x_24 == 0)
 {
 obj* x_25; uint8 x_26; 
-x_25 = lean::mk_nat_obj(12u);
+x_25 = lean::mk_nat_obj(12ul);
 x_26 = lean::nat_dec_eq(x_0, x_25);
 if (x_26 == 0)
 {
 obj* x_27; uint8 x_28; 
-x_27 = lean::mk_nat_obj(13u);
+x_27 = lean::mk_nat_obj(13ul);
 x_28 = lean::nat_dec_eq(x_0, x_27);
 if (x_28 == 0)
 {
 obj* x_29; uint8 x_30; 
-x_29 = lean::mk_nat_obj(14u);
+x_29 = lean::mk_nat_obj(14ul);
 x_30 = lean::nat_dec_eq(x_0, x_29);
 if (x_30 == 0)
 {
 obj* x_31; uint8 x_32; 
-x_31 = lean::mk_nat_obj(15u);
+x_31 = lean::mk_nat_obj(15ul);
 x_32 = lean::nat_dec_eq(x_0, x_31);
 if (x_32 == 0)
 {
@@ -1044,7 +1044,7 @@ obj* l_Nat_toDigitsCore___main(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
-x_4 = lean::mk_nat_obj(0u);
+x_4 = lean::mk_nat_obj(0ul);
 x_5 = lean::nat_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
@@ -1058,7 +1058,7 @@ x_11 = lean::nat_dec_eq(x_9, x_4);
 if (x_11 == 0)
 {
 obj* x_12; obj* x_13; obj* x_15; obj* x_16; 
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_sub(x_1, x_12);
 lean::dec(x_1);
 x_15 = lean::box_uint32(x_7);
@@ -1120,7 +1120,7 @@ obj* l_Nat_toDigits(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
-x_2 = lean::mk_nat_obj(1u);
+x_2 = lean::mk_nat_obj(1ul);
 x_3 = lean::nat_add(x_1, x_2);
 x_4 = lean::box(0);
 x_5 = l_Nat_toDigitsCore___main(x_0, x_3, x_1, x_4);
@@ -1140,7 +1140,7 @@ obj* l_Nat_repr(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::mk_nat_obj(10u);
+x_1 = lean::mk_nat_obj(10ul);
 x_2 = l_Nat_toDigits(x_1, x_0);
 x_3 = lean::string_mk(x_2);
 return x_3;
@@ -1178,7 +1178,7 @@ _start:
 {
 obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_8; obj* x_10; 
 x_1 = lean::uint32_to_nat(x_0);
-x_2 = lean::mk_nat_obj(16u);
+x_2 = lean::mk_nat_obj(16ul);
 x_3 = lean::nat_div(x_1, x_2);
 x_4 = lean::nat_mod(x_1, x_2);
 lean::dec(x_1);
@@ -1265,7 +1265,7 @@ if (x_8 == 0)
 {
 obj* x_9; obj* x_10; uint8 x_11; 
 x_9 = lean::uint32_to_nat(x_0);
-x_10 = lean::mk_nat_obj(31u);
+x_10 = lean::mk_nat_obj(31ul);
 x_11 = lean::nat_dec_le(x_9, x_10);
 lean::dec(x_9);
 if (x_11 == 0)

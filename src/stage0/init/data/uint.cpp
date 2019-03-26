@@ -232,7 +232,7 @@ obj* _init_l_uint8Sz() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(256u);
+x_0 = lean::mk_nat_obj(256ul);
 return x_0;
 }
 }
@@ -541,7 +541,7 @@ obj* _init_l_uint16Sz() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(65536u);
+x_0 = lean::mk_nat_obj(65536ul);
 return x_0;
 }
 }
@@ -850,7 +850,7 @@ obj* _init_l_uint32Sz() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(lean::mpz("4294967296"));
+x_0 = lean::mk_nat_obj(4294967296ul);
 return x_0;
 }
 }
@@ -1468,7 +1468,7 @@ obj* _init_l_usizeSz() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_nat_obj(2u);
+x_0 = lean::mk_nat_obj(2ul);
 x_1 = l_System_platform_nbits;
 x_2 = l_Nat_pow___main(x_0, x_1);
 return x_2;
@@ -1605,7 +1605,7 @@ usize _init_l_USize_HasZero() {
 _start:
 {
 obj* x_0; usize x_1; 
-x_0 = lean::mk_nat_obj(0u);
+x_0 = lean::mk_nat_obj(0ul);
 x_1 = lean::usize_of_nat(x_0);
 return x_1;
 }
@@ -1623,7 +1623,7 @@ usize _init_l_USize_HasOne() {
 _start:
 {
 obj* x_0; usize x_1; 
-x_0 = lean::mk_nat_obj(1u);
+x_0 = lean::mk_nat_obj(1ul);
 x_1 = lean::usize_of_nat(x_0);
 return x_1;
 }
@@ -1705,7 +1705,7 @@ usize _init_l_USize_Inhabited() {
 _start:
 {
 obj* x_0; usize x_1; 
-x_0 = lean::mk_nat_obj(0u);
+x_0 = lean::mk_nat_obj(0ul);
 x_1 = lean::usize_of_nat(x_0);
 return x_1;
 }

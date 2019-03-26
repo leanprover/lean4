@@ -231,7 +231,7 @@ obj* l_Lean_Parser_Substring_ofString(obj* x_0) {
 _start:
 {
 obj* x_1; usize x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_7; 
-x_1 = lean::mk_nat_obj(0u);
+x_1 = lean::mk_nat_obj(0ul);
 x_2 = l_String_toSubstring___closed__1;
 x_3 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_3, 0, x_0);
@@ -1451,7 +1451,7 @@ obj* l_Lean_Parser_Syntax_updateLeading(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 x_3 = l_String_toSubstring___closed__1;
 x_4 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_4, 0, x_0);

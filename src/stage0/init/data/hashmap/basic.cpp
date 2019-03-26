@@ -190,9 +190,9 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_0 = lean::box(0);
-x_1 = lean::mk_nat_obj(8u);
+x_1 = lean::mk_nat_obj(8ul);
 x_2 = lean::mk_array(x_1, x_0);
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_2);
@@ -203,7 +203,7 @@ obj* l_mkHashmapImp___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; uint8 x_2; 
-x_1 = lean::mk_nat_obj(0u);
+x_1 = lean::mk_nat_obj(0ul);
 x_2 = lean::nat_dec_eq(x_0, x_1);
 if (x_2 == 0)
 {
@@ -359,7 +359,7 @@ return x_4;
 else
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_17; 
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_add(x_3, x_12);
 x_14 = lean::array_index(x_2, x_3);
 lean::dec(x_3);
@@ -383,7 +383,7 @@ obj* l_HashmapImp_foldBuckets___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 lean::inc(x_0);
 x_5 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_0, x_2, x_0, x_3, x_1);
 lean::dec(x_0);
@@ -613,7 +613,7 @@ obj* x_3; obj* x_6; obj* x_8;
 x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
 lean::dec(x_0);
-x_6 = lean::mk_nat_obj(0u);
+x_6 = lean::mk_nat_obj(0ul);
 lean::inc(x_3);
 x_8 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_3, x_2, x_3, x_6, x_1);
 lean::dec(x_3);
@@ -888,7 +888,7 @@ if (x_21 == 0)
 {
 obj* x_23; obj* x_24; obj* x_26; obj* x_27; obj* x_28; uint8 x_31; 
 lean::dec(x_0);
-x_23 = lean::mk_nat_obj(1u);
+x_23 = lean::mk_nat_obj(1ul);
 x_24 = lean::nat_add(x_5, x_23);
 lean::dec(x_5);
 x_26 = lean::alloc_cnstr(0, 2, 0);
@@ -904,14 +904,14 @@ x_31 = lean::nat_dec_le(x_24, x_11);
 if (x_31 == 0)
 {
 obj* x_32; obj* x_33; obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_40; obj* x_42; 
-x_32 = lean::mk_nat_obj(2u);
+x_32 = lean::mk_nat_obj(2ul);
 x_33 = lean::nat_mul(x_11, x_32);
 lean::dec(x_11);
 x_35 = lean::box(0);
 x_36 = lean::mk_array(x_33, x_35);
 x_37 = lean::alloc_closure(reinterpret_cast<void*>(l_HashmapImp_reinsertAux___rarg), 4, 1);
 lean::closure_set(x_37, 0, x_1);
-x_38 = lean::mk_nat_obj(0u);
+x_38 = lean::mk_nat_obj(0ul);
 lean::inc(x_28);
 x_40 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_28, x_37, x_28, x_38, x_36);
 lean::dec(x_28);
@@ -1017,7 +1017,7 @@ if (lean::is_exclusive(x_2)) {
  lean::dec(x_2);
  x_25 = lean::box(0);
 }
-x_26 = lean::mk_nat_obj(1u);
+x_26 = lean::mk_nat_obj(1ul);
 x_27 = lean::nat_sub(x_4, x_26);
 lean::dec(x_4);
 x_29 = l_HashmapImp_eraseAux___main___rarg(x_0, x_3, x_15);
@@ -1268,7 +1268,7 @@ _start:
 {
 obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = l_DHashmap_size___rarg(x_0);
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_1);
 return x_3;
@@ -1518,7 +1518,7 @@ _start:
 {
 obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = l_DHashmap_size___rarg(x_0);
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_1);
 return x_3;

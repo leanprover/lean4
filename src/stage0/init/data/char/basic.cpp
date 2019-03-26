@@ -558,7 +558,7 @@ _start:
 {
 obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = lean::uint32_to_nat(x_0);
-x_2 = lean::mk_nat_obj(65u);
+x_2 = lean::mk_nat_obj(65ul);
 x_3 = lean::nat_dec_le(x_2, x_1);
 if (x_3 == 0)
 {
@@ -568,7 +568,7 @@ return x_0;
 else
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(90u);
+x_5 = lean::mk_nat_obj(90ul);
 x_6 = lean::nat_dec_le(x_1, x_5);
 if (x_6 == 0)
 {
@@ -578,7 +578,7 @@ return x_0;
 else
 {
 obj* x_8; obj* x_9; uint32 x_11; 
-x_8 = lean::mk_nat_obj(32u);
+x_8 = lean::mk_nat_obj(32ul);
 x_9 = lean::nat_add(x_1, x_8);
 lean::dec(x_1);
 x_11 = l_Char_ofNat(x_9);

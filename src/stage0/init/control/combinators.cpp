@@ -415,12 +415,12 @@ obj* l_Nat_repeatCore___main___at_Nat_mrepeat___spec__1___rarg(obj* x_0, obj* x_
 _start:
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::nat_dec_eq(x_3, x_5);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_13; obj* x_17; obj* x_18; 
-x_7 = lean::mk_nat_obj(1u);
+x_7 = lean::mk_nat_obj(1ul);
 x_8 = lean::nat_sub(x_3, x_7);
 x_9 = lean::nat_sub(x_2, x_3);
 lean::dec(x_3);

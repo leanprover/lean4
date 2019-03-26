@@ -2064,7 +2064,7 @@ obj* _init_l_Lean_processFile___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_15; obj* x_16; obj* x_17; obj* x_19; obj* x_20; obj* x_22; obj* x_23; obj* x_24; obj* x_26; obj* x_27; 
-x_0 = lean::mk_nat_obj(1u);
+x_0 = lean::mk_nat_obj(1ul);
 x_1 = l_Nat_repr(x_0);
 x_2 = lean::mk_string("{\"file_name\": \"<stdin>\", \"pos_line\": ");
 x_3 = lean::string_append(x_2, x_1);
@@ -2072,7 +2072,7 @@ lean::dec(x_1);
 x_5 = lean::mk_string(", \"pos_col\": ");
 x_6 = lean::string_append(x_3, x_5);
 lean::dec(x_5);
-x_8 = lean::mk_nat_obj(0u);
+x_8 = lean::mk_nat_obj(0ul);
 x_9 = l_Nat_repr(x_8);
 x_10 = lean::string_append(x_6, x_9);
 lean::dec(x_9);

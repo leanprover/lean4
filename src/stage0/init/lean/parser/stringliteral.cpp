@@ -217,7 +217,7 @@ x_8 = lean::uint32_to_nat(x_1);
 x_9 = l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1;
 x_10 = lean::nat_sub(x_8, x_9);
 lean::dec(x_8);
-x_12 = lean::mk_nat_obj(10u);
+x_12 = lean::mk_nat_obj(10ul);
 x_13 = lean::nat_add(x_12, x_10);
 lean::dec(x_10);
 x_15 = lean::apply_2(x_5, lean::box(0), x_13);
@@ -319,7 +319,7 @@ x_8 = lean::uint32_to_nat(x_1);
 x_9 = l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1;
 x_10 = lean::nat_sub(x_8, x_9);
 lean::dec(x_8);
-x_12 = lean::mk_nat_obj(10u);
+x_12 = lean::mk_nat_obj(10ul);
 x_13 = lean::nat_add(x_12, x_10);
 lean::dec(x_10);
 x_15 = lean::apply_2(x_5, lean::box(0), x_13);
@@ -446,7 +446,7 @@ lean::dec(x_0);
 x_8 = lean::cnstr_get(x_5, 1);
 lean::inc(x_8);
 lean::dec(x_5);
-x_11 = lean::mk_nat_obj(16u);
+x_11 = lean::mk_nat_obj(16ul);
 x_12 = lean::nat_mul(x_11, x_1);
 x_13 = lean::nat_add(x_12, x_2);
 lean::dec(x_12);
@@ -519,7 +519,7 @@ lean::dec(x_0);
 x_6 = lean::cnstr_get(x_3, 1);
 lean::inc(x_6);
 lean::dec(x_3);
-x_9 = lean::mk_nat_obj(16u);
+x_9 = lean::mk_nat_obj(16ul);
 x_10 = lean::nat_mul(x_9, x_1);
 x_11 = lean::nat_add(x_10, x_2);
 lean::dec(x_10);
@@ -874,12 +874,12 @@ obj* l_Lean_Parser_parseStringLiteralAux___main___rarg(obj* x_0, obj* x_1, obj* 
 _start:
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::nat_dec_eq(x_3, x_5);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_9; obj* x_13; obj* x_15; obj* x_16; 
-x_7 = lean::mk_nat_obj(1u);
+x_7 = lean::mk_nat_obj(1ul);
 x_8 = lean::nat_sub(x_3, x_7);
 x_9 = lean::cnstr_get(x_0, 1);
 lean::inc(x_9);

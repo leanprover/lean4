@@ -44,7 +44,7 @@ obj* l___private_init_data_nat_div_2__div_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::nat_dec_lt(x_3, x_2);
 if (x_4 == 0)
 {
@@ -67,7 +67,7 @@ else
 obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
 x_10 = lean::nat_sub(x_0, x_2);
 x_11 = lean::apply_3(x_1, x_10, lean::box(0), x_2);
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_add(x_11, x_12);
 lean::dec(x_11);
 return x_13;
@@ -106,7 +106,7 @@ obj* l___private_init_data_nat_div_5__mod_F(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::nat_dec_lt(x_3, x_2);
 if (x_4 == 0)
 {

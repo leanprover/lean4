@@ -19,7 +19,7 @@ obj* _init_l_System_platform_nbits() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(64u);
+x_0 = lean::mk_nat_obj(64ul);
 return x_0;
 }
 }

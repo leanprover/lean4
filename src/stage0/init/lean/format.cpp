@@ -478,7 +478,7 @@ _start:
 {
 uint8 x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_0 = 0;
-x_1 = lean::mk_nat_obj(0u);
+x_1 = lean::mk_nat_obj(0ul);
 x_2 = lean::alloc_cnstr(0, 1, 2);
 lean::cnstr_set(x_2, 0, x_1);
 lean::cnstr_set_scalar(x_2, sizeof(void*)*1, x_0);
@@ -494,7 +494,7 @@ _start:
 uint8 x_0; uint8 x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_0 = 1;
 x_1 = 0;
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 x_3 = lean::alloc_cnstr(0, 1, 2);
 lean::cnstr_set(x_3, 0, x_2);
 lean::cnstr_set_scalar(x_3, sizeof(void*)*1, x_0);
@@ -1054,7 +1054,7 @@ obj* _init_l_Lean_Format_defIndent() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(4u);
+x_0 = lean::mk_nat_obj(4ul);
 return x_0;
 }
 }
@@ -1079,7 +1079,7 @@ obj* _init_l_Lean_Format_defWidth() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(120u);
+x_0 = lean::mk_nat_obj(120ul);
 return x_0;
 }
 }
@@ -1244,7 +1244,7 @@ obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_2 = l_Lean_Format_getWidth___closed__1;
 x_3 = l_Lean_Format_defWidth;
 x_4 = l_Lean_KVMap_getNat(x_1, x_2, x_3);
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_6, 0, x_5);
 lean::cnstr_set(x_6, 1, x_0);

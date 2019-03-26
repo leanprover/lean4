@@ -44,7 +44,7 @@ obj* l_Nat_bitwise___main(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::nat_dec_eq(x_1, x_3);
 if (x_4 == 0)
 {
@@ -53,7 +53,7 @@ x_5 = lean::nat_dec_eq(x_2, x_3);
 if (x_5 == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_10; obj* x_13; obj* x_14; uint8 x_15; obj* x_17; uint8 x_18; obj* x_20; obj* x_21; obj* x_22; uint8 x_23; 
-x_6 = lean::mk_nat_obj(2u);
+x_6 = lean::mk_nat_obj(2ul);
 x_7 = lean::nat_div(x_1, x_6);
 x_8 = lean::nat_div(x_2, x_6);
 lean::inc(x_0);
@@ -61,7 +61,7 @@ x_10 = l_Nat_bitwise___main(x_0, x_7, x_8);
 lean::dec(x_8);
 lean::dec(x_7);
 x_13 = lean::nat_mod(x_1, x_6);
-x_14 = lean::mk_nat_obj(1u);
+x_14 = lean::mk_nat_obj(1ul);
 x_15 = lean::nat_dec_eq(x_13, x_14);
 lean::dec(x_13);
 x_17 = lean::nat_mod(x_2, x_6);

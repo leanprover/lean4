@@ -245,7 +245,7 @@ obj* _init_l_Lean_Parser_maxPrec() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(1024u);
+x_0 = lean::mk_nat_obj(1024ul);
 return x_0;
 }
 }
@@ -1039,7 +1039,7 @@ obj* l_Lean_Parser_ParsecT_run___at_Lean_Parser_run___spec__1___rarg(obj* x_0, o
 _start:
 {
 obj* x_7; usize x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
-x_7 = lean::mk_nat_obj(0u);
+x_7 = lean::mk_nat_obj(0ul);
 x_8 = l_String_toSubstring___closed__1;
 x_9 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_9, 0, x_4);
@@ -1173,7 +1173,7 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::box(0);
-x_1 = lean::mk_nat_obj(0u);
+x_1 = lean::mk_nat_obj(0ul);
 x_2 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_2, 0, x_0);
 lean::cnstr_set(x_2, 1, x_1);
@@ -1374,7 +1374,7 @@ lean::inc(x_15);
 lean::dec(x_12);
 x_18 = lean::cnstr_get(x_3, 1);
 lean::inc(x_18);
-x_20 = lean::mk_nat_obj(0u);
+x_20 = lean::mk_nat_obj(0ul);
 x_21 = lean::nat_dec_eq(x_18, x_20);
 if (x_21 == 0)
 {
@@ -1465,7 +1465,7 @@ _start:
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_0 = lean::box(0);
 x_1 = lean::mk_string("/-");
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 x_3 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);

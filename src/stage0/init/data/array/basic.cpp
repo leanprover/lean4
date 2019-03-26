@@ -217,7 +217,7 @@ _start:
 {
 obj* x_1; obj* x_2; uint8 x_3; 
 x_1 = lean::array_get_size(x_0);
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 x_3 = lean::nat_dec_eq(x_1, x_2);
 lean::dec(x_1);
 return x_3;
@@ -343,7 +343,7 @@ return x_3;
 else
 {
 obj* x_11; obj* x_12; obj* x_13; obj* x_15; 
-x_11 = lean::mk_nat_obj(1u);
+x_11 = lean::mk_nat_obj(1ul);
 x_12 = lean::nat_add(x_2, x_11);
 x_13 = lean::array_index(x_0, x_2);
 lean::inc(x_1);
@@ -402,7 +402,7 @@ obj* l_Array_iterate___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 x_4 = l___private_init_data_array_basic_1__iterateAux___main___rarg(x_0, x_2, x_3, x_1);
 return x_4;
 }
@@ -443,7 +443,7 @@ return x_4;
 else
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_17; 
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_add(x_3, x_12);
 x_14 = lean::array_index(x_2, x_3);
 lean::dec(x_3);
@@ -467,7 +467,7 @@ obj* l_Array_foldl___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 lean::inc(x_0);
 x_5 = l___private_init_data_array_basic_1__iterateAux___main___at_Array_foldl___spec__1___rarg(x_0, x_2, x_0, x_3, x_1);
 lean::dec(x_0);
@@ -515,12 +515,12 @@ obj* l___private_init_data_array_basic_2__revIterateAux___main___rarg(obj* x_0, 
 _start:
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::nat_dec_eq(x_2, x_5);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_10; obj* x_13; 
-x_7 = lean::mk_nat_obj(1u);
+x_7 = lean::mk_nat_obj(1ul);
 x_8 = lean::nat_sub(x_2, x_7);
 lean::dec(x_2);
 x_10 = lean::array_index(x_0, x_8);
@@ -644,12 +644,12 @@ obj* l___private_init_data_array_basic_2__revIterateAux___main___at_Array_revFol
 _start:
 {
 obj* x_6; uint8 x_7; 
-x_6 = lean::mk_nat_obj(0u);
+x_6 = lean::mk_nat_obj(0ul);
 x_7 = lean::nat_dec_eq(x_3, x_6);
 if (x_7 == 0)
 {
 obj* x_8; obj* x_9; obj* x_11; obj* x_13; 
-x_8 = lean::mk_nat_obj(1u);
+x_8 = lean::mk_nat_obj(1ul);
 x_9 = lean::nat_sub(x_3, x_8);
 lean::dec(x_3);
 x_11 = lean::array_index(x_2, x_9);
@@ -737,12 +737,12 @@ obj* l___private_init_data_array_basic_2__revIterateAux___main___at_Array_toList
 _start:
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::nat_dec_eq(x_2, x_5);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_10; obj* x_11; 
-x_7 = lean::mk_nat_obj(1u);
+x_7 = lean::mk_nat_obj(1ul);
 x_8 = lean::nat_sub(x_2, x_7);
 lean::dec(x_2);
 x_10 = lean::array_index(x_1, x_8);
@@ -911,7 +911,7 @@ return x_4;
 else
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_17; obj* x_18; 
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_add(x_3, x_12);
 x_14 = lean::array_index(x_2, x_3);
 lean::inc(x_3);
@@ -937,7 +937,7 @@ obj* l___private_init_data_array_basic_3__foreachAux___rarg(obj* x_0, obj* x_1) 
 _start:
 {
 obj* x_2; obj* x_5; 
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 lean::inc(x_0);
 lean::inc(x_0);
 x_5 = l___private_init_data_array_basic_1__iterateAux___main___at___private_init_data_array_basic_3__foreachAux___spec__1___rarg(x_0, x_1, x_0, x_2, x_0);
@@ -998,7 +998,7 @@ return x_4;
 else
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_17; obj* x_18; 
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_add(x_3, x_12);
 x_14 = lean::array_index(x_2, x_3);
 lean::inc(x_3);
@@ -1024,7 +1024,7 @@ obj* l_Array_foreach___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_5; 
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 lean::inc(x_0);
 lean::inc(x_0);
 x_5 = l___private_init_data_array_basic_1__iterateAux___main___at_Array_foreach___spec__1___rarg(x_0, x_1, x_0, x_2, x_0);
@@ -1085,7 +1085,7 @@ return x_4;
 else
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_16; obj* x_17; 
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_add(x_3, x_12);
 x_14 = lean::array_index(x_2, x_3);
 lean::inc(x_0);
@@ -1110,7 +1110,7 @@ obj* l_Array_map___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_5; 
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 lean::inc(x_1);
 lean::inc(x_1);
 x_5 = l___private_init_data_array_basic_1__iterateAux___main___at_Array_map___spec__1___rarg(x_0, x_1, x_1, x_2, x_1);
@@ -1171,7 +1171,7 @@ return x_5;
 else
 {
 obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_18; obj* x_19; 
-x_13 = lean::mk_nat_obj(1u);
+x_13 = lean::mk_nat_obj(1ul);
 x_14 = lean::nat_add(x_4, x_13);
 x_15 = lean::array_index(x_3, x_4);
 x_16 = lean::array_index(x_1, x_4);
@@ -1211,7 +1211,7 @@ return x_5;
 else
 {
 obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_18; obj* x_19; 
-x_13 = lean::mk_nat_obj(1u);
+x_13 = lean::mk_nat_obj(1ul);
 x_14 = lean::nat_add(x_4, x_13);
 x_15 = lean::array_index(x_3, x_4);
 x_16 = lean::array_index(x_2, x_4);
@@ -1245,7 +1245,7 @@ lean::dec(x_3);
 if (x_5 == 0)
 {
 obj* x_8; obj* x_11; 
-x_8 = lean::mk_nat_obj(0u);
+x_8 = lean::mk_nat_obj(0ul);
 lean::inc(x_2);
 lean::inc(x_2);
 x_11 = l___private_init_data_array_basic_1__iterateAux___main___at_Array_map_u_2082___spec__1___rarg(x_0, x_1, x_2, x_2, x_8, x_2);
@@ -1256,7 +1256,7 @@ return x_11;
 else
 {
 obj* x_14; obj* x_17; 
-x_14 = lean::mk_nat_obj(0u);
+x_14 = lean::mk_nat_obj(0ul);
 lean::inc(x_1);
 lean::inc(x_1);
 x_17 = l___private_init_data_array_basic_1__iterateAux___main___at_Array_map_u_2082___spec__2___rarg(x_0, x_1, x_2, x_1, x_14, x_1);

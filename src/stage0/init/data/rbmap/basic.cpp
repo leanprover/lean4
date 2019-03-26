@@ -354,7 +354,7 @@ if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
 lean::dec(x_0);
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 return x_3;
 }
 else
@@ -367,7 +367,7 @@ x_7 = l_RBNode_depth___main___rarg(x_0, x_4);
 lean::inc(x_0);
 x_9 = l_RBNode_depth___main___rarg(x_0, x_5);
 x_10 = lean::apply_2(x_0, x_7, x_9);
-x_11 = lean::mk_nat_obj(1u);
+x_11 = lean::mk_nat_obj(1ul);
 x_12 = lean::nat_add(x_10, x_11);
 lean::dec(x_10);
 return x_12;

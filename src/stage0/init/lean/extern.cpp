@@ -161,7 +161,7 @@ obj* l___private_init_lean_extern_1__parseOptNum___main(obj* x_0, obj* x_1, obj*
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::nat_dec_eq(x_0, x_3);
 if (x_4 == 0)
 {
@@ -208,11 +208,11 @@ return x_16;
 else
 {
 obj* x_17; obj* x_18; obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_25; obj* x_26; obj* x_28; 
-x_17 = lean::mk_nat_obj(1u);
+x_17 = lean::mk_nat_obj(1ul);
 x_18 = lean::nat_sub(x_0, x_17);
 lean::dec(x_0);
 x_20 = l_String_Iterator_next___main(x_1);
-x_21 = lean::mk_nat_obj(10u);
+x_21 = lean::mk_nat_obj(10ul);
 x_22 = lean::nat_mul(x_2, x_21);
 lean::dec(x_2);
 x_24 = lean::uint32_to_nat(x_8);
@@ -253,7 +253,7 @@ obj* l_Lean_expandExternPatternAux___main(obj* x_0, obj* x_1, obj* x_2, obj* x_3
 _start:
 {
 obj* x_4; uint8 x_5; 
-x_4 = lean::mk_nat_obj(0u);
+x_4 = lean::mk_nat_obj(0ul);
 x_5 = lean::nat_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
@@ -269,7 +269,7 @@ return x_3;
 else
 {
 obj* x_10; obj* x_11; uint32 x_13; uint32 x_14; uint8 x_15; 
-x_10 = lean::mk_nat_obj(1u);
+x_10 = lean::mk_nat_obj(1ul);
 x_11 = lean::nat_sub(x_1, x_10);
 lean::dec(x_1);
 x_13 = l_String_Iterator_curr___main(x_2);

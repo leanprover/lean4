@@ -247,7 +247,7 @@ obj* l_Fin_ofNat(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_4; 
-x_2 = lean::mk_nat_obj(1u);
+x_2 = lean::mk_nat_obj(1ul);
 x_3 = lean::nat_add(x_0, x_2);
 x_4 = lean::nat_mod(x_1, x_3);
 lean::dec(x_3);
@@ -592,7 +592,7 @@ obj* l_Fin_HasZero(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_nat_obj(0u);
+x_1 = lean::mk_nat_obj(0ul);
 return x_1;
 }
 }
@@ -609,7 +609,7 @@ obj* l_Fin_HasOne(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::mk_nat_obj(1u);
+x_1 = lean::mk_nat_obj(1ul);
 x_2 = l_Fin_ofNat(x_0, x_1);
 return x_2;
 }

@@ -276,8 +276,8 @@ obj* _init_l_Lean_Position_Inhabited() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
-x_0 = lean::mk_nat_obj(1u);
-x_1 = lean::mk_nat_obj(0u);
+x_0 = lean::mk_nat_obj(1ul);
+x_1 = lean::mk_nat_obj(0ul);
 x_2 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_2, 0, x_0);
 lean::cnstr_set(x_2, 1, x_1);
@@ -288,7 +288,7 @@ obj* l___private_init_lean_position_1__fromStringAux___main(obj* x_0, obj* x_1, 
 _start:
 {
 obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(0u);
+x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::nat_dec_eq(x_0, x_3);
 if (x_4 == 0)
 {
@@ -305,7 +305,7 @@ return x_8;
 else
 {
 obj* x_9; obj* x_10; uint32 x_12; uint32 x_13; uint8 x_14; 
-x_9 = lean::mk_nat_obj(1u);
+x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_sub(x_0, x_9);
 lean::dec(x_0);
 x_12 = l_String_OldIterator_curr___main(x_1);
@@ -667,14 +667,14 @@ _start:
 {
 obj* x_1; obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_1 = lean::string_length(x_0);
-x_2 = lean::mk_nat_obj(0u);
+x_2 = lean::mk_nat_obj(0ul);
 x_3 = l_String_toSubstring___closed__1;
 x_4 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_4, 0, x_0);
 lean::cnstr_set(x_4, 1, x_2);
 lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_3);
 x_5 = x_4;
-x_6 = lean::mk_nat_obj(1u);
+x_6 = lean::mk_nat_obj(1ul);
 x_7 = l___private_init_lean_position_1__fromStringAux___main(x_1, x_5, x_6);
 x_8 = l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_7);
 return x_8;
@@ -758,7 +758,7 @@ x_2 = l_RBMap_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(x_0, x_1)
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; obj* x_4; 
-x_3 = lean::mk_nat_obj(1u);
+x_3 = lean::mk_nat_obj(1ul);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set(x_4, 1, x_1);

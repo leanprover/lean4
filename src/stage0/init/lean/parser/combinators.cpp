@@ -705,12 +705,12 @@ obj* l___private_init_lean_parser_combinators_1__many1Aux___main___rarg(obj* x_0
 _start:
 {
 obj* x_7; uint8 x_8; 
-x_7 = lean::mk_nat_obj(0u);
+x_7 = lean::mk_nat_obj(0ul);
 x_8 = lean::nat_dec_eq(x_6, x_7);
 if (x_8 == 0)
 {
 obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_17; obj* x_19; obj* x_20; obj* x_21; 
-x_9 = lean::mk_nat_obj(1u);
+x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_sub(x_6, x_9);
 x_11 = lean::cnstr_get(x_0, 1);
 lean::inc(x_11);
@@ -824,7 +824,7 @@ _start:
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
 x_6 = lean::box(0);
-x_7 = lean::mk_nat_obj(1u);
+x_7 = lean::mk_nat_obj(1ul);
 x_8 = lean::nat_add(x_5, x_7);
 x_9 = l___private_init_lean_parser_combinators_1__many1Aux___main___rarg(x_0, x_1, x_2, x_3, x_4, x_6, x_8);
 lean::dec(x_8);
@@ -1268,12 +1268,12 @@ obj* l___private_init_lean_parser_combinators_2__sepByAux___main___rarg(obj* x_0
 _start:
 {
 obj* x_10; uint8 x_11; 
-x_10 = lean::mk_nat_obj(0u);
+x_10 = lean::mk_nat_obj(0ul);
 x_11 = lean::nat_dec_eq(x_9, x_10);
 if (x_11 == 0)
 {
 obj* x_12; obj* x_13; obj* x_14; obj* x_16; obj* x_20; obj* x_21; obj* x_25; 
-x_12 = lean::mk_nat_obj(1u);
+x_12 = lean::mk_nat_obj(1ul);
 x_13 = lean::nat_sub(x_9, x_12);
 x_14 = lean::cnstr_get(x_0, 1);
 lean::inc(x_14);
@@ -1448,7 +1448,7 @@ _start:
 {
 obj* x_8; obj* x_9; obj* x_10; uint8 x_11; obj* x_12; 
 x_8 = lean::box(0);
-x_9 = lean::mk_nat_obj(1u);
+x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_add(x_7, x_9);
 x_11 = 1;
 x_12 = l___private_init_lean_parser_combinators_2__sepByAux___main___rarg(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_11, x_8, x_10);
@@ -1530,7 +1530,7 @@ _start:
 {
 obj* x_8; obj* x_9; obj* x_10; uint8 x_11; obj* x_12; 
 x_8 = lean::box(0);
-x_9 = lean::mk_nat_obj(1u);
+x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_add(x_7, x_9);
 x_11 = 0;
 x_12 = l___private_init_lean_parser_combinators_2__sepByAux___main___rarg(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_11, x_8, x_10);
@@ -3063,7 +3063,7 @@ x_23 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_Combinators_cho
 lean::closure_set(x_23, 0, x_2);
 lean::closure_set(x_23, 1, x_4);
 x_24 = lean::apply_4(x_19, lean::box(0), lean::box(0), x_12, x_23);
-x_25 = lean::mk_nat_obj(1u);
+x_25 = lean::mk_nat_obj(1ul);
 x_26 = lean::nat_add(x_4, x_25);
 lean::dec(x_4);
 x_28 = l_Lean_Parser_Combinators_choiceAux___main___rarg(x_0, x_1, x_2, x_14, x_26);
@@ -3127,7 +3127,7 @@ obj* l_Lean_Parser_Combinators_choice___rarg(obj* x_0, obj* x_1, obj* x_2, obj* 
 _start:
 {
 obj* x_5; obj* x_6; 
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = l_Lean_Parser_Combinators_choiceAux___main___rarg(x_0, x_2, x_3, x_4, x_5);
 return x_6;
 }
@@ -3289,7 +3289,7 @@ _start:
 obj* x_5; obj* x_7; obj* x_8; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
 x_5 = lean::cnstr_get(x_0, 1);
 lean::inc(x_5);
-x_7 = lean::mk_nat_obj(0u);
+x_7 = lean::mk_nat_obj(0ul);
 x_8 = l_List_enumFrom___main___rarg(x_7, x_4);
 lean::inc(x_5);
 lean::inc(x_3);

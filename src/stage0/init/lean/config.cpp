@@ -19,7 +19,7 @@ obj* _init_l_Lean_closureMaxArgs() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_nat_obj(16u);
+x_0 = lean::mk_nat_obj(16ul);
 return x_0;
 }
 }

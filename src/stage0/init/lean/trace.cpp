@@ -141,7 +141,7 @@ lean::dec(x_0);
 x_6 = l_List_map___main___at_Lean_Trace_pp___main___spec__1(x_3);
 x_7 = l_Lean_Format_join___closed__1;
 x_8 = l_List_foldl___main___at_Lean_Format_join___spec__1(x_7, x_6);
-x_9 = lean::mk_nat_obj(2u);
+x_9 = lean::mk_nat_obj(2ul);
 x_10 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_8);

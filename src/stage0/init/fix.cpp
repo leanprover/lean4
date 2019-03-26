@@ -115,12 +115,12 @@ obj* l_bfix1___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
-x_4 = lean::mk_nat_obj(0u);
+x_4 = lean::mk_nat_obj(0ul);
 x_5 = lean::nat_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {
 obj* x_6; obj* x_7; obj* x_9; obj* x_10; 
-x_6 = lean::mk_nat_obj(1u);
+x_6 = lean::mk_nat_obj(1ul);
 x_7 = lean::nat_sub(x_2, x_6);
 lean::inc(x_1);
 x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix1___main___rarg___boxed), 4, 3);
@@ -324,12 +324,12 @@ obj* l_bfix2___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::nat_dec_eq(x_2, x_5);
 if (x_6 == 0)
 {
 obj* x_7; obj* x_8; obj* x_10; obj* x_11; 
-x_7 = lean::mk_nat_obj(1u);
+x_7 = lean::mk_nat_obj(1ul);
 x_8 = lean::nat_sub(x_2, x_7);
 lean::inc(x_1);
 x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix2___main___rarg___boxed), 5, 3);
@@ -471,12 +471,12 @@ obj* l_bfix3___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj
 _start:
 {
 obj* x_6; uint8 x_7; 
-x_6 = lean::mk_nat_obj(0u);
+x_6 = lean::mk_nat_obj(0ul);
 x_7 = lean::nat_dec_eq(x_2, x_6);
 if (x_7 == 0)
 {
 obj* x_8; obj* x_9; obj* x_11; obj* x_12; 
-x_8 = lean::mk_nat_obj(1u);
+x_8 = lean::mk_nat_obj(1ul);
 x_9 = lean::nat_sub(x_2, x_8);
 lean::inc(x_1);
 x_11 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix3___main___rarg___boxed), 6, 3);
@@ -622,12 +622,12 @@ obj* l_bfix4___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj
 _start:
 {
 obj* x_7; uint8 x_8; 
-x_7 = lean::mk_nat_obj(0u);
+x_7 = lean::mk_nat_obj(0ul);
 x_8 = lean::nat_dec_eq(x_2, x_7);
 if (x_8 == 0)
 {
 obj* x_9; obj* x_10; obj* x_12; obj* x_13; 
-x_9 = lean::mk_nat_obj(1u);
+x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_sub(x_2, x_9);
 lean::inc(x_1);
 x_12 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix4___main___rarg___boxed), 7, 3);
@@ -777,12 +777,12 @@ obj* l_bfix5___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj
 _start:
 {
 obj* x_8; uint8 x_9; 
-x_8 = lean::mk_nat_obj(0u);
+x_8 = lean::mk_nat_obj(0ul);
 x_9 = lean::nat_dec_eq(x_2, x_8);
 if (x_9 == 0)
 {
 obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
-x_10 = lean::mk_nat_obj(1u);
+x_10 = lean::mk_nat_obj(1ul);
 x_11 = lean::nat_sub(x_2, x_10);
 lean::inc(x_1);
 x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix5___main___rarg___boxed), 8, 3);
@@ -936,12 +936,12 @@ obj* l_bfix6___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj
 _start:
 {
 obj* x_9; uint8 x_10; 
-x_9 = lean::mk_nat_obj(0u);
+x_9 = lean::mk_nat_obj(0ul);
 x_10 = lean::nat_dec_eq(x_2, x_9);
 if (x_10 == 0)
 {
 obj* x_11; obj* x_12; obj* x_14; obj* x_15; 
-x_11 = lean::mk_nat_obj(1u);
+x_11 = lean::mk_nat_obj(1ul);
 x_12 = lean::nat_sub(x_2, x_11);
 lean::inc(x_1);
 x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_bfix6___main___rarg___boxed), 9, 3);

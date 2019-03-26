@@ -60,7 +60,7 @@ obj* l_Lean_mkDisjointSet(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
-x_3 = lean::mk_nat_obj(8u);
+x_3 = lean::mk_nat_obj(8ul);
 x_4 = l_mkHashmapImp___rarg(x_3);
 return x_4;
 }
@@ -80,7 +80,7 @@ obj* l___private_init_lean_disjoint__set_1__findAux___main___rarg(obj* x_0, obj*
 _start:
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::mk_nat_obj(0u);
+x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::nat_dec_eq(x_2, x_5);
 if (x_6 == 0)
 {
@@ -118,7 +118,7 @@ if (x_25 == 0)
 {
 obj* x_27; obj* x_28; 
 lean::dec(x_17);
-x_27 = lean::mk_nat_obj(1u);
+x_27 = lean::mk_nat_obj(1ul);
 x_28 = lean::nat_sub(x_2, x_27);
 lean::dec(x_2);
 x_2 = x_28;
@@ -342,7 +342,7 @@ if (x_31 == 0)
 {
 obj* x_34; obj* x_35; obj* x_36; 
 lean::dec(x_27);
-x_34 = lean::mk_nat_obj(0u);
+x_34 = lean::mk_nat_obj(0ul);
 x_35 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_35, 0, x_3);
 lean::cnstr_set(x_35, 1, x_34);
@@ -352,7 +352,7 @@ return x_36;
 else
 {
 obj* x_37; obj* x_39; obj* x_42; obj* x_43; obj* x_44; obj* x_47; obj* x_48; 
-x_37 = lean::mk_nat_obj(0u);
+x_37 = lean::mk_nat_obj(0ul);
 lean::inc(x_4);
 x_39 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_39, 0, x_4);
@@ -360,7 +360,7 @@ lean::cnstr_set(x_39, 1, x_37);
 lean::inc(x_1);
 lean::inc(x_0);
 x_42 = l_HashmapImp_insert___rarg(x_0, x_1, x_2, x_3, x_39);
-x_43 = lean::mk_nat_obj(1u);
+x_43 = lean::mk_nat_obj(1ul);
 x_44 = lean::nat_add(x_27, x_43);
 lean::dec(x_27);
 lean::inc(x_4);
@@ -376,7 +376,7 @@ else
 obj* x_51; obj* x_52; obj* x_53; 
 lean::dec(x_24);
 lean::dec(x_27);
-x_51 = lean::mk_nat_obj(0u);
+x_51 = lean::mk_nat_obj(0ul);
 x_52 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_52, 0, x_4);
 lean::cnstr_set(x_52, 1, x_51);

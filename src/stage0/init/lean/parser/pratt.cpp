@@ -214,7 +214,7 @@ obj* x_6; obj* x_9; usize x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj*
 x_6 = lean::cnstr_get(x_5, 1);
 lean::inc(x_6);
 lean::dec(x_5);
-x_9 = lean::mk_nat_obj(0u);
+x_9 = lean::mk_nat_obj(0ul);
 x_10 = l_String_toSubstring___closed__1;
 x_11 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 lean::cnstr_set(x_11, 0, x_0);
@@ -277,7 +277,7 @@ lean::dec(x_0);
 x_14 = lean::cnstr_get(x_11, 1);
 lean::inc(x_14);
 lean::dec(x_11);
-x_17 = lean::mk_nat_obj(0u);
+x_17 = lean::mk_nat_obj(0ul);
 x_18 = lean::apply_2(x_14, lean::box(0), x_17);
 return x_18;
 }
@@ -592,12 +592,12 @@ obj* l___private_init_lean_parser_pratt_1__trailingLoop___main___rarg(obj* x_0, 
 _start:
 {
 obj* x_9; uint8 x_10; 
-x_9 = lean::mk_nat_obj(0u);
+x_9 = lean::mk_nat_obj(0ul);
 x_10 = lean::nat_dec_eq(x_6, x_9);
 if (x_10 == 0)
 {
 obj* x_11; obj* x_12; obj* x_13; obj* x_20; obj* x_22; obj* x_23; 
-x_11 = lean::mk_nat_obj(1u);
+x_11 = lean::mk_nat_obj(1ul);
 x_12 = lean::nat_sub(x_6, x_11);
 x_13 = lean::cnstr_get(x_0, 1);
 lean::inc(x_13);
@@ -757,7 +757,7 @@ obj* l_Lean_Parser_prattParser___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, 
 _start:
 {
 obj* x_9; obj* x_10; obj* x_11; 
-x_9 = lean::mk_nat_obj(1u);
+x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_add(x_8, x_9);
 x_11 = l___private_init_lean_parser_pratt_1__trailingLoop___main___rarg(x_0, x_1, x_2, x_3, x_4, x_5, x_10, x_6, x_7);
 lean::dec(x_10);

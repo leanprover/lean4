@@ -244,10 +244,12 @@ struct external_object : public object {
         object(object_kind::External, m), m_class(cls), m_data(data) {}
 };
 
+static_assert(sizeof(size_t) == sizeof(void*), "runtime assumes that size_t and void* have the same size, we do not plan to support old platforms where this is not true");
+
 inline bool is_null(object * o) { return o == nullptr; }
-inline bool is_scalar(object * o) { return (reinterpret_cast<uintptr_t>(o) & 1) == 1; }
-inline object * box(unsigned n) { return reinterpret_cast<object*>((static_cast<uintptr_t>(n) << 1) | 1); }
-inline unsigned unbox(object * o) { return reinterpret_cast<uintptr_t>(o) >> 1; }
+inline bool is_scalar(object * o) { return (reinterpret_cast<size_t>(o) & 1) == 1; }
+inline object * box(size_t n) { return reinterpret_cast<object*>((static_cast<size_t>(n) << 1) | 1); }
+inline size_t unbox(object * o) { return reinterpret_cast<size_t>(o) >> 1; }
 
 /* Generic Lean object delete operation.
 
@@ -534,7 +536,7 @@ inline void * external_data(object * o) { return to_external(o)->m_data; }
 // =======================================
 // Natural numbers auxiliary functions
 
-#define LEAN_MAX_SMALL_NAT (sizeof(void*) == 8 ? std::numeric_limits<unsigned>::max() : (std::numeric_limits<unsigned>::max() >> 1)) // NOLINT
+#define LEAN_MAX_SMALL_NAT (std::numeric_limits<size_t>::max() >> 1) // NOLINT
 inline object * mk_nat_obj_core(mpz const & m) {
     lean_assert(m > LEAN_MAX_SMALL_NAT);
     return alloc_mpz(m);
@@ -777,20 +779,22 @@ b_obj_res io_wait_any_core(b_obj_arg task_list);
 // Natural numbers
 
 inline obj_res mk_nat_obj(mpz const & m) {
-    if (m > LEAN_MAX_SMALL_NAT)
-        return mk_nat_obj_core(m);
+    if (m <= LEAN_MAX_SMALL_NAT)
+        return box(m.get_unsigned_long_int());
     else
-        return box(m.get_unsigned_int());
+        return mk_nat_obj_core(m);
 }
 
-inline obj_res mk_nat_obj(unsigned n) {
-    if (sizeof(void*) == 8) { // NOLINT
-        return box(n);
-    } else if (n <= LEAN_MAX_SMALL_NAT) {
+inline obj_res mk_nat_obj(usize n) {
+    if (n <= LEAN_MAX_SMALL_NAT) {
         return box(n);
     } else {
         return mk_nat_obj_core(mpz(n));
     }
+}
+
+inline obj_res mk_nat_obj(unsigned n) {
+    return mk_nat_obj(static_cast<usize>(n));
 }
 
 inline obj_res mk_nat_obj(uint64 n) {
@@ -799,10 +803,6 @@ inline obj_res mk_nat_obj(uint64 n) {
     } else {
         return mk_nat_obj_core(mpz(n));
     }
-}
-
-inline obj_res nat_of_size_t(size_t n) {
-    return (sizeof(size_t) == sizeof(unsigned)) ? mk_nat_obj(static_cast<unsigned>(n)) : mk_nat_obj(static_cast<uint64>(n));
 }
 
 inline uint64 nat2uint64(b_obj_arg a) {
@@ -820,7 +820,11 @@ inline obj_res nat_succ(b_obj_arg a) {
 
 inline obj_res nat_add(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        return mk_nat_obj(nat2uint64(a1) + nat2uint64(a2));
+        usize r  = unbox(a1) + unbox(a2);
+        if (r <= LEAN_MAX_SMALL_NAT)
+            return box(r);
+        else
+            return mk_nat_obj_core(mpz(r));
     } else {
         return nat_big_add(a1, a2);
     }
@@ -828,8 +832,8 @@ inline obj_res nat_add(b_obj_arg a1, b_obj_arg a2) {
 
 inline obj_res nat_sub(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        unsigned n1 = unbox(a1);
-        unsigned n2 = unbox(a2);
+        usize n1 = unbox(a1);
+        usize n2 = unbox(a2);
         if (n1 < n2)
             return box(0);
         else
@@ -841,7 +845,15 @@ inline obj_res nat_sub(b_obj_arg a1, b_obj_arg a2) {
 
 inline obj_res nat_mul(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        return mk_nat_obj(nat2uint64(a1) * nat2uint64(a2));
+        usize n1 = unbox(a1);
+        if (n1 == 0)
+            return a1;
+        usize n2 = unbox(a2);
+        usize r  = n1*n2;
+        if (r / n1 == n2)
+            return box(r);
+        else
+            return mk_nat_obj_core(mpz(n1)*mpz(n2));
     } else {
         return nat_big_mul(a1, a2);
     }
@@ -849,8 +861,8 @@ inline obj_res nat_mul(b_obj_arg a1, b_obj_arg a2) {
 
 inline obj_res nat_div(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        unsigned n1 = unbox(a1);
-        unsigned n2 = unbox(a2);
+        usize n1 = unbox(a1);
+        usize n2 = unbox(a2);
         if (n2 == 0)
             return box(0);
         else
@@ -862,8 +874,8 @@ inline obj_res nat_div(b_obj_arg a1, b_obj_arg a2) {
 
 inline obj_res nat_mod(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        unsigned n1 = unbox(a1);
-        unsigned n2 = unbox(a2);
+        usize n1 = unbox(a1);
+        usize n2 = unbox(a2);
         if (n2 == 0)
             return box(0);
         else
@@ -909,7 +921,7 @@ inline uint8 nat_dec_lt(b_obj_arg a1, b_obj_arg a2) { return nat_lt(a1, a2); }
 
 inline obj_res nat_land(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(a1) & reinterpret_cast<uintptr_t>(a2));
+        return reinterpret_cast<object*>(reinterpret_cast<usize>(a1) & reinterpret_cast<usize>(a2));
     } else {
         return nat_big_land(a1, a2);
     }
@@ -917,7 +929,7 @@ inline obj_res nat_land(b_obj_arg a1, b_obj_arg a2) {
 
 inline obj_res nat_lor(b_obj_arg a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a1) && is_scalar(a2))) {
-        return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(a1) | reinterpret_cast<uintptr_t>(a2));
+        return reinterpret_cast<object*>(reinterpret_cast<usize>(a1) | reinterpret_cast<usize>(a2));
     } else {
         return nat_big_lor(a1, a2);
     }
@@ -962,7 +974,7 @@ inline obj_res mk_int_obj(int64 n) {
 inline int64 int2int64(b_obj_arg a) {
     lean_assert(is_scalar(a));
     if (sizeof(void*) == 8) { // NOLINT
-        return static_cast<int>(unbox(a));
+        return static_cast<int>(static_cast<unsigned>(unbox(a)));
     } else {
         return static_cast<int>(reinterpret_cast<size_t>(a)) >> 1;
     }
@@ -971,7 +983,7 @@ inline int64 int2int64(b_obj_arg a) {
 inline int int2int(b_obj_arg a) {
     lean_assert(is_scalar(a));
     if (sizeof(void*) == 8) { // NOLINT
-        return static_cast<int>(unbox(a));
+        return static_cast<int>(static_cast<unsigned>(unbox(a)));
     } else {
         return static_cast<int>(reinterpret_cast<size_t>(a)) >> 1;
     }
@@ -979,7 +991,7 @@ inline int int2int(b_obj_arg a) {
 
 inline obj_res nat2int(obj_arg a) {
     if (is_scalar(a)) {
-        unsigned v = unbox(a);
+        usize v = unbox(a);
         if (v <= LEAN_MAX_SMALL_INT) {
             return a;
         } else {
@@ -1172,7 +1184,7 @@ inline size_t string_size(b_obj_arg o) { return to_string(o)->m_size; }
 inline size_t string_len(b_obj_arg o) { return to_string(o)->m_length; }
 obj_res string_push(obj_arg s, uint32 c);
 obj_res string_append(obj_arg s1, b_obj_arg s2);
-inline obj_res string_length(b_obj_arg s) { return nat_of_size_t(string_len(s)); }
+inline obj_res string_length(b_obj_arg s) { return mk_nat_obj(string_len(s)); } // TODO(Leo): improve
 obj_res string_mk(obj_arg cs);
 obj_res string_data(obj_arg s);
 
@@ -1202,7 +1214,7 @@ inline uint8 string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return string_lt(s1, s2
 // =======================================
 // uint8
 inline uint8 uint8_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint8>(unbox(a)) : 0; }
-inline obj_res uint8_to_nat(uint8 a) { return mk_nat_obj(static_cast<unsigned>(a)); }
+inline obj_res uint8_to_nat(uint8 a) { return mk_nat_obj(static_cast<usize>(a)); }
 inline uint8 uint8_add(uint8 a1, uint8 a2) { return a1+a2; }
 inline uint8 uint8_sub(uint8 a1, uint8 a2) { return a1-a2; }
 inline uint8 uint8_mul(uint8 a1, uint8 a2) { return a1*a2; }
@@ -1223,7 +1235,7 @@ inline uint8 uint8_dec_le(uint8 a1, uint8 a2) { return a1 <= a2; }
 // =======================================
 // uint16
 inline uint16 uint16_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint16>(unbox(a)) : 0; }
-inline obj_res uint16_to_nat(uint16 a) { return mk_nat_obj(static_cast<unsigned>(a)); }
+inline obj_res uint16_to_nat(uint16 a) { return mk_nat_obj(static_cast<usize>(a)); }
 inline uint16 uint16_add(uint16 a1, uint16 a2) { return a1+a2; }
 inline uint16 uint16_sub(uint16 a1, uint16 a2) { return a1-a2; }
 inline uint16 uint16_mul(uint16 a1, uint16 a2) { return a1*a2; }
@@ -1245,7 +1257,11 @@ inline uint8 uint16_dec_le(uint16 a1, uint16 a2) { return a1 <= a2; }
 // uint32
 inline uint32 uint32_of_nat(b_obj_arg a) {
     if (is_scalar(a)) {
-        return unbox(a);
+        usize v = unbox(a);
+        if (v < std::numeric_limits<uint32>::max())
+            return v;
+        else
+            return 0;
     } else if (sizeof(void*) == 4) {
         // 32-bit
         mpz const & m = mpz_value(a);
@@ -1255,7 +1271,7 @@ inline uint32 uint32_of_nat(b_obj_arg a) {
         return 0;
     }
 }
-inline obj_res uint32_to_nat(uint32 a) { return mk_nat_obj(a); }
+inline obj_res uint32_to_nat(uint32 a) { return mk_nat_obj(static_cast<usize>(a)); }
 inline uint32 uint32_add(uint32 a1, uint32 a2) { return a1+a2; }
 inline uint32 uint32_sub(uint32 a1, uint32 a2) { return a1-a2; }
 inline uint32 uint32_mul(uint32 a1, uint32 a2) { return a1*a2; }
@@ -1263,7 +1279,7 @@ inline uint32 uint32_div(uint32 a1, uint32 a2) { return a2 == 0 ? 0 : a1/a2; }
 inline uint32 uint32_mod(uint32 a1, uint32 a2) { return a2 == 0 ? 0 : a1%a2; }
 inline uint32 uint32_modn(uint32 a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a2))) {
-        unsigned n2 = unbox(a2);
+        usize n2 = unbox(a2);
         return n2 == 0 ? 0 : a1 % n2;
     } else if (sizeof(void*) == 4) {
         // 32-bit
@@ -1296,7 +1312,7 @@ inline uint64 uint64_div(uint64 a1, uint64 a2) { return a2 == 0 ? 0 : a1/a2; }
 inline uint64 uint64_mod(uint64 a1, uint64 a2) { return a2 == 0 ? 0 : a1%a2; }
 inline uint64 uint64_modn(uint64 a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a2))) {
-        unsigned n2 = unbox(a2);
+        usize n2 = unbox(a2);
         return n2 == 0 ? 0 : a1 % n2;
     } else {
         // TODO(Leo)
@@ -1318,10 +1334,7 @@ inline usize usize_of_nat(b_obj_arg a) {
     }
 }
 inline obj_res usize_to_nat(usize a) {
-    if (sizeof(void*) == 4)
-        return mk_nat_obj(static_cast<unsigned>(a));
-    else
-        return mk_nat_obj(static_cast<uint64>(a));
+    return mk_nat_obj(a);
 }
 inline usize usize_add(usize a1, usize a2) { return a1+a2; }
 inline usize usize_sub(usize a1, usize a2) { return a1-a2; }
@@ -1330,7 +1343,7 @@ inline usize usize_div(usize a1, usize a2) { return a2 == 0 ? 0 : a1/a2; }
 inline usize usize_mod(usize a1, usize a2) { return a2 == 0 ? 0 : a1%a2; }
 inline usize usize_modn(usize a1, b_obj_arg a2) {
     if (LEAN_LIKELY(is_scalar(a2))) {
-        unsigned n2 = unbox(a2);
+        usize n2 = unbox(a2);
         return n2 == 0 ? 0 : a1 % n2;
     } else {
         // TODO(Leo)
@@ -1346,20 +1359,13 @@ inline uint8 usize_dec_le(usize a1, usize a2) { return a1 <= a2; }
 static_assert(sizeof(unsigned long) == sizeof(size_t), "we assume that `unsigned long` and `size_t` have the same size");
 
 inline object * array_sz(obj_arg a) {
-    object * r = nat_of_size_t(array_size(a));
+    object * r = box(array_size(a));
     dec(a);
     return r;
 }
 
 inline object * array_get_size(b_obj_arg a) {
-    object * r = nat_of_size_t(array_size(a));
-    return r;
-}
-
-/* This function assumes that `n` fits in a size_t */
-inline size_t size_t_of_nat_core(b_obj_arg n) {
-    if (is_scalar(n)) return unbox(n);
-    else return mpz_value(n).get_unsigned_long_int();
+    return box(array_size(a));
 }
 
 object * mk_array(obj_arg n, obj_arg v);
@@ -1374,7 +1380,7 @@ inline object * array_idx(b_obj_arg a, usize i) {
 }
 
 inline obj_res array_index(b_obj_arg a, b_obj_arg i) {
-    return array_idx(a, size_t_of_nat_core(i));
+    return array_idx(a, unbox(i));
 }
 
 inline object * array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) {
@@ -1411,7 +1417,7 @@ inline object * array_updt(obj_arg a, usize i, obj_arg v) {
 }
 
 inline object * array_update(obj_arg a, b_obj_arg i, obj_arg v) {
-    return array_updt(a, size_t_of_nat_core(i), v);
+    return array_updt(a, unbox(i), v);
 }
 
 inline object * array_safe_uwrite(obj_arg a, usize i, obj_arg v) {

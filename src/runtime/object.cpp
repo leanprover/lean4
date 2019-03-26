@@ -1213,8 +1213,8 @@ object * nat_big_div(object * a1, object * a2) {
         lean_assert(unbox(a1) / mpz_value(a2) == 0);
         return box(0);
     } else if (is_scalar(a2)) {
-        unsigned n2 = unbox(a2);
-        return n2 == 0 ? a2 : mk_nat_obj(mpz_value(a1) / n2);
+        usize n2 = unbox(a2);
+        return n2 == 0 ? a2 : mk_nat_obj(mpz_value(a1) / mpz(n2));
     } else {
         lean_assert(mpz_value(a2) != 0);
         return mk_nat_obj(mpz_value(a1) / mpz_value(a2));
@@ -1227,7 +1227,7 @@ object * nat_big_mod(object * a1, object * a2) {
         lean_assert(mpz_value(a2) != 0);
         return a1;
     } else if (is_scalar(a2)) {
-        unsigned n2 = unbox(a2);
+        usize n2 = unbox(a2);
         return n2 == 0 ? a2 : box((mpz_value(a1) % mpz(n2)).get_unsigned_int());
     } else {
         lean_assert(mpz_value(a2) != 0);

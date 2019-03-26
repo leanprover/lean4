@@ -1106,7 +1106,7 @@ static expr * g_nat_succ = nullptr;
 expr nat_lit_to_constructor(expr const & e) {
     lean_assert(is_nat_lit(e));
     nat const & v = lit_value(e).get_nat();
-    if (v == 0)
+    if (v == 0u)
         return *g_nat_zero;
     else
         return mk_app(*g_nat_succ, mk_lit(literal(v - nat(1))));

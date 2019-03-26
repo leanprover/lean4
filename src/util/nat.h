@@ -16,8 +16,9 @@ public:
     nat():object_ref(box(0)) {}
     explicit nat(obj_arg o):object_ref(o) {}
     nat(b_obj_arg o, bool b):object_ref(o, b) {}
-    explicit nat(int v):object_ref(mk_nat_obj(v < 0 ? 0u : static_cast<unsigned>(v))) {}
+    explicit nat(int v):object_ref(mk_nat_obj(v < 0 ? static_cast<usize>(0) : static_cast<usize>(v))) {}
     explicit nat(unsigned v):object_ref(mk_nat_obj(v)) {}
+    explicit nat(unsigned long v):object_ref(mk_nat_obj(v)) {}
     explicit nat(mpz const & v):object_ref(mk_nat_obj(v)) {}
     explicit nat(char const * v):object_ref(box(0)) {
         mpz m(v);
@@ -49,6 +50,12 @@ public:
     friend bool operator<(nat const & a,  unsigned b)    { return a < nat(b); }
     friend bool operator>=(nat const & a, unsigned b)    { return a >= nat(b); }
     friend bool operator>(nat const & a,  unsigned b)    { return a > nat(b); }
+    friend bool operator==(nat const & a, unsigned long b)    { return a == nat(b); }
+    friend bool operator!=(nat const & a, unsigned long b)    { return !(a == b); }
+    friend bool operator<=(nat const & a, unsigned long b)    { return a <= nat(b); }
+    friend bool operator<(nat const & a,  unsigned long b)    { return a < nat(b); }
+    friend bool operator>=(nat const & a, unsigned long b)    { return a >= nat(b); }
+    friend bool operator>(nat const & a,  unsigned long b)    { return a > nat(b); }
     friend nat operator+(nat const & a, nat const & b)   { return wrap(nat_add(a.raw(), b.raw())); }
     friend nat operator-(nat const & a, nat const & b)   { return wrap(nat_sub(a.raw(), b.raw())); }
     friend nat operator*(nat const & a, nat const & b)   { return wrap(nat_mul(a.raw(), b.raw())); }

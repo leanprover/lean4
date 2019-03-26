@@ -272,10 +272,10 @@ int name::cmp_core(object * i1, object * i2) {
 }
 
 static unsigned num_digits(nat k) {
-    if (k == 0)
+    if (k == 0u)
         return 1;
     int r = 0;
-    while (k != 0) {
+    while (k != 0u) {
         k = k / nat(10);
         r++;
     }

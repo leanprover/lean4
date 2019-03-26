@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "util/object_ref.h"
 #include "util/init_module.h"
+#include "util/nat.h"
 using namespace lean;
 
 #define USED(x) (void)(x)
@@ -839,6 +840,18 @@ void tst19() {
     dec_ref(s2); dec_ref(s6); dec_ref(b); dec_ref(s8);
 }
 
+void tst20() {
+    lean_assert(nat(LEAN_MAX_SMALL_NAT+1) == nat(LEAN_MAX_SMALL_NAT) + nat(1));
+    lean_assert(!nat(LEAN_MAX_SMALL_NAT+1).is_small());
+    lean_assert(nat(LEAN_MAX_SMALL_NAT).is_small());
+    lean_assert(nat(2) + nat(3) == nat(5));
+    lean_assert(!(nat(LEAN_MAX_SMALL_NAT) * nat(LEAN_MAX_SMALL_NAT)).is_small());
+    nat tmp = (nat(LEAN_MAX_SMALL_NAT) * nat(LEAN_MAX_SMALL_NAT))/nat(LEAN_MAX_SMALL_NAT);
+    lean_assert(tmp.is_small());
+    lean_assert(tmp == LEAN_MAX_SMALL_NAT);
+    lean_assert(nat(LEAN_MAX_SMALL_NAT) * nat(LEAN_MAX_SMALL_NAT) > nat(LEAN_MAX_SMALL_NAT));
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -863,6 +876,7 @@ int main() {
     // tst18(4000, 3000);
     tst18(400, 30);
     tst19();
+    tst20();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

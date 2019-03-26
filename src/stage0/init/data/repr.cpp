@@ -137,7 +137,7 @@ namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
 namespace lean {
-obj* string_utf8_extract(obj*, usize, usize);
+obj* string_utf8_extract_old(obj*, usize, usize);
 }
 namespace lean {
 obj* string_mk(obj*);
@@ -1481,7 +1481,7 @@ obj* x_1; usize x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7;
 x_1 = lean::cnstr_get(x_0, 0);
 x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
 x_3 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
-x_4 = lean::string_utf8_extract(x_1, x_2, x_3);
+x_4 = lean::string_utf8_extract_old(x_1, x_2, x_3);
 x_5 = l_String_quote(x_4);
 x_6 = l_Substring_HasRepr___closed__1;
 x_7 = lean::string_append(x_5, x_6);

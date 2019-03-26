@@ -1524,7 +1524,7 @@ obj_res string_data(obj_arg s) {
     return string_to_list_core(tmp);
 }
 
-uint32 string_utf8_get(b_obj_arg s, usize i) {
+uint32 string_utf8_get_old(b_obj_arg s, usize i) {
     char const * str = string_cstr(s);
     usize size = string_size(s) - 1;
     if (i >= string_size(s) - 1)
@@ -1580,7 +1580,7 @@ uint32 string_utf8_get(b_obj_arg s, usize i) {
    p + csize c
    ```
 */
-usize string_utf8_next(b_obj_arg s, usize i) {
+usize string_utf8_next_old(b_obj_arg s, usize i) {
     char const * str = string_cstr(s);
     usize size       = string_size(s) - 1;
     /* `csize c` is 1 when `i` is not a valid position in the reference implementation. */
@@ -1598,7 +1598,7 @@ static inline bool is_utf8_first_byte(unsigned char c) {
     return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
 }
 
-obj_res string_utf8_extract(b_obj_arg s, usize b, usize e) {
+obj_res string_utf8_extract_old(b_obj_arg s, usize b, usize e) {
     char const * str = string_cstr(s);
     usize sz = string_size(s) - 1;
     if (b >= e || b >= sz) return mk_string("");
@@ -1620,7 +1620,7 @@ obj_res string_utf8_extract(b_obj_arg s, usize b, usize e) {
     return r;
 }
 
-usize string_utf8_prev(b_obj_arg s, usize i) {
+usize string_utf8_prev_old(b_obj_arg s, usize i) {
     usize sz = string_size(s) - 1;
     if (i == 0 || i > sz) return 0;
     i--;
@@ -1640,7 +1640,7 @@ static unsigned get_utf8_char_size_at(std::string const & s, usize i) {
     }
 }
 
-obj_res string_utf8_set(obj_arg s, usize i, uint32 c) {
+obj_res string_utf8_set_old(obj_arg s, usize i, uint32 c) {
     usize sz = string_size(s) - 1;
     if (i >= sz) return s;
     char * str = w_string_cstr(s);

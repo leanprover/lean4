@@ -83,7 +83,7 @@ obj* l_Int_HasSub;
 obj* l_Int_sign___main(obj*);
 uint8 l_String_isInt___closed__1;
 namespace lean {
-uint32 string_utf8_get(obj*, usize);
+uint32 string_utf8_get_old(obj*, usize);
 }
 obj* l_String_isInt___closed__1___boxed;
 obj* l_String_toInt___closed__2;
@@ -113,7 +113,7 @@ obj* l_Int_subNatNat___boxed(obj*, obj*);
 obj* l_Int_negOfNat(obj*);
 obj* l_Int_sign___main___closed__1;
 namespace lean {
-usize string_utf8_byte_size(obj*);
+usize string_utf8_byte_size_old(obj*);
 }
 obj* l_Int_decEq___boxed(obj*, obj*);
 obj* l_Int_repr___main___boxed(obj*);
@@ -693,7 +693,7 @@ obj* x_0; usize x_1; obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7
 x_0 = lean::mk_nat_obj(0u);
 x_1 = lean::usize_of_nat(x_0);
 x_2 = lean::mk_string("");
-x_3 = lean::string_utf8_byte_size(x_2);
+x_3 = lean::string_utf8_byte_size_old(x_2);
 x_4 = lean::alloc_cnstr(0, 1, sizeof(size_t)*2);
 lean::cnstr_set(x_4, 0, x_2);
 lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_1);
@@ -713,7 +713,7 @@ _start:
 {
 usize x_1; uint32 x_2; uint32 x_3; uint8 x_4; 
 x_1 = l_String_toSubstring___closed__1;
-x_2 = lean::string_utf8_get(x_0, x_1);
+x_2 = lean::string_utf8_get_old(x_0, x_1);
 x_3 = 45;
 x_4 = x_2 == x_3;
 if (x_4 == 0)
@@ -727,7 +727,7 @@ return x_7;
 else
 {
 usize x_8; usize x_9; uint8 x_10; 
-x_8 = lean::string_utf8_byte_size(x_0);
+x_8 = lean::string_utf8_byte_size_old(x_0);
 x_9 = l_String_toInt___closed__1;
 x_10 = x_8 <= x_9;
 if (x_10 == 0)
@@ -772,7 +772,7 @@ obj* x_0; usize x_1; obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; uint8 x_
 x_0 = lean::mk_nat_obj(0u);
 x_1 = lean::usize_of_nat(x_0);
 x_2 = lean::mk_string("");
-x_3 = lean::string_utf8_byte_size(x_2);
+x_3 = lean::string_utf8_byte_size_old(x_2);
 x_4 = lean::alloc_cnstr(0, 1, sizeof(size_t)*2);
 lean::cnstr_set(x_4, 0, x_2);
 lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_1);
@@ -789,7 +789,7 @@ _start:
 {
 usize x_1; uint32 x_2; uint32 x_3; uint8 x_4; 
 x_1 = l_String_toSubstring___closed__1;
-x_2 = lean::string_utf8_get(x_0, x_1);
+x_2 = lean::string_utf8_get_old(x_0, x_1);
 x_3 = 45;
 x_4 = x_2 == x_3;
 if (x_4 == 0)
@@ -802,7 +802,7 @@ return x_5;
 else
 {
 usize x_7; usize x_8; uint8 x_9; 
-x_7 = lean::string_utf8_byte_size(x_0);
+x_7 = lean::string_utf8_byte_size_old(x_0);
 x_8 = l_String_toInt___closed__1;
 x_9 = x_7 <= x_8;
 if (x_9 == 0)

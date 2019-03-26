@@ -66,7 +66,7 @@ private def utf8ByteSizeAux : List Char → USize → USize
 | []      r := r
 | (c::cs) r := utf8ByteSizeAux cs (r + csize c)
 
-@[extern cpp "lean::string_utf8_byte_size"]
+@[extern cpp "lean::string_utf8_byte_size_old"]
 def utf8ByteSize : (@& String) → USize
 | ⟨s⟩ := utf8ByteSizeAux s 0
 
@@ -85,7 +85,7 @@ private def utf8GetAux : List Char → USize → USize → Char
 | []      i p := default Char
 | (c::cs) i p := if i = p then c else utf8GetAux cs (i + csize c) p
 
-@[extern cpp "lean::string_utf8_get"]
+@[extern cpp "lean::string_utf8_get_old"]
 def get : (@& String) → Pos → Char
 | ⟨s⟩ p := utf8GetAux s 0 p
 
@@ -94,11 +94,11 @@ private def utf8SetAux (c' : Char) : List Char → USize → USize → List Char
 | (c::cs) i p :=
   if i = p then (c'::cs) else c::(utf8SetAux cs (i + csize c) p)
 
-@[extern cpp "lean::string_utf8_set"]
+@[extern cpp "lean::string_utf8_set_old"]
 def set : String → Pos → Char → String
 | ⟨s⟩ i c := ⟨utf8SetAux c s 0 i⟩
 
-@[extern cpp "lean::string_utf8_next"]
+@[extern cpp "lean::string_utf8_next_old"]
 def next (s : @& String) (p : Pos) : Pos :=
 let c := get s p in
 p + csize c
@@ -110,7 +110,7 @@ private def utf8PrevAux : List Char → USize → USize → USize
   let i' := i + cz in
   if i' = p then i else utf8PrevAux cs i' p
 
-@[extern cpp "lean::string_utf8_prev"]
+@[extern cpp "lean::string_utf8_prev_old"]
 def prev : (@& String) → Pos → Pos
 | ⟨s⟩ p := if p = 0 then 0 else utf8PrevAux s 0 p
 
@@ -120,7 +120,7 @@ get s 0
 def back (s : String) : Char :=
 get s (prev s (bsize s))
 
-@[extern cpp "lean::string_utf8_at_end"]
+@[extern cpp "lean::string_utf8_at_end_old"]
 def atEnd : (@& String) → Pos → Bool
 | s p := p ≥ utf8ByteSize s
 
@@ -142,7 +142,7 @@ private def utf8ExtractAux₁ : List Char → USize → USize → USize → List
 | []        _ _ _ := []
 | s@(c::cs) i b e := if i = b then utf8ExtractAux₂ s i e else utf8ExtractAux₁ cs (i + csize c) b e
 
-@[extern cpp "lean::string_utf8_extract"]
+@[extern cpp "lean::string_utf8_extract_old"]
 def extract : (@& String) → Pos → Pos → String
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
 

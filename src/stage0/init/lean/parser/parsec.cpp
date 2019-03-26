@@ -62,7 +62,7 @@ obj* l_Lean_Parser_MonadParsec_upper___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_orelse___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_Monad___rarg___lambda__11(obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
-usize string_utf8_prev(obj*, usize);
+usize string_utf8_prev_old(obj*, usize);
 }
 obj* l_Lean_Parser_MonadParsec_takeWhile_x_27___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_notFollowedBy(obj*, obj*);
@@ -437,7 +437,7 @@ obj* l_Lean_Parser_MonadParsec_takeWhileCont___at_Lean_Parser_MonadParsec_takeUn
 obj* l_Lean_Parser_ParsecT_MonadExcept___rarg___lambda__3(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_fix(obj*, obj*);
 namespace lean {
-uint32 string_utf8_get(obj*, usize);
+uint32 string_utf8_get_old(obj*, usize);
 }
 obj* l_Lean_Parser_MonadParsec_leftOver(obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_remaining___boxed(obj*, obj*);
@@ -597,7 +597,7 @@ obj* l_Lean_Parser_MonadParsec_labels___rarg___lambda__1___boxed(obj*, obj*, obj
 obj* l_Lean_Parser_MonadParsec_unexpectedAt___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_many1Aux___main___rarg___lambda__3(obj*, obj*);
 namespace lean {
-usize string_utf8_next(obj*, usize);
+usize string_utf8_next_old(obj*, usize);
 }
 obj* l_Lean_Parser_ParsecT_bind_x_27(obj*);
 extern uint8 l_True_Decidable;
@@ -622,7 +622,7 @@ namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
 namespace lean {
-obj* string_utf8_extract(obj*, usize, usize);
+obj* string_utf8_extract_old(obj*, usize, usize);
 }
 obj* l_Lean_Parser_MonadParsec_whitespace(obj*, obj*);
 obj* l_Lean_Parser_Parsec_parse___rarg___boxed(obj*, obj*, obj*);
@@ -639,7 +639,7 @@ obj* l_Lean_Parser_MonadParsec_fixAux___main___rarg___boxed(obj*, obj*, obj*, ob
 obj* l_Lean_Parser_MonadParsec_takeWhile_x_27___at_Lean_Parser_MonadParsec_whitespace___spec__1___rarg(obj*);
 obj* l_Lean_Parser_MonadParsec_observing___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 namespace lean {
-usize string_utf8_byte_size(obj*);
+usize string_utf8_byte_size_old(obj*);
 }
 obj* l_Lean_Parser_MonadParsec_fix___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_parser_parsec_3__takeAux___main___rarg(obj*, obj*, obj*);
@@ -736,7 +736,7 @@ obj* l_Lean_Parser_ParsecT_Monad_x_27___rarg___lambda__2(obj*, obj*, obj*, obj*,
 obj* l_Lean_Parser_MonadParsec_takeWhile1___at_Lean_Parser_MonadParsec_num___spec__1___rarg___lambda__1(obj*, obj*, uint32);
 extern obj* l_String_splitAux___main___closed__1;
 namespace lean {
-obj* string_utf8_set(obj*, usize, uint32);
+obj* string_utf8_set_old(obj*, usize, uint32);
 }
 obj* l_Lean_Parser_MonadParsec_hidden___rarg___lambda__1(obj*, obj*);
 namespace lean {
@@ -836,7 +836,7 @@ _start:
 obj* x_1; usize x_2; usize x_3; usize x_4; 
 x_1 = lean::cnstr_get(x_0, 0);
 x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
-x_3 = lean::string_utf8_byte_size(x_1);
+x_3 = lean::string_utf8_byte_size_old(x_1);
 x_4 = x_3 - x_2;
 return x_4;
 }
@@ -875,7 +875,7 @@ _start:
 obj* x_1; usize x_2; uint32 x_3; 
 x_1 = lean::cnstr_get(x_0, 0);
 x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
-x_3 = lean::string_utf8_get(x_1, x_2);
+x_3 = lean::string_utf8_get_old(x_1, x_2);
 return x_3;
 }
 }
@@ -925,7 +925,7 @@ if (lean::is_exclusive(x_0)) {
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_add(x_3, x_7);
 lean::dec(x_3);
-x_10 = lean::string_utf8_next(x_1, x_5);
+x_10 = lean::string_utf8_next_old(x_1, x_5);
 if (lean::is_scalar(x_6)) {
  x_11 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 } else {
@@ -964,7 +964,7 @@ if (lean::is_exclusive(x_0)) {
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_sub(x_3, x_7);
 lean::dec(x_3);
-x_10 = lean::string_utf8_prev(x_1, x_5);
+x_10 = lean::string_utf8_prev_old(x_1, x_5);
 if (lean::is_scalar(x_6)) {
  x_11 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 } else {
@@ -991,7 +991,7 @@ _start:
 obj* x_1; usize x_2; usize x_3; uint8 x_4; 
 x_1 = lean::cnstr_get(x_0, 0);
 x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
-x_3 = lean::string_utf8_byte_size(x_1);
+x_3 = lean::string_utf8_byte_size_old(x_1);
 x_4 = x_2 < x_3;
 return x_4;
 }
@@ -1077,7 +1077,7 @@ if (lean::is_exclusive(x_0)) {
  lean::dec(x_0);
  x_7 = lean::box(0);
 }
-x_8 = lean::string_utf8_set(x_2, x_6, x_1);
+x_8 = lean::string_utf8_set_old(x_2, x_6, x_1);
 if (lean::is_scalar(x_7)) {
  x_9 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 } else {
@@ -1130,7 +1130,7 @@ if (lean::is_exclusive(x_0)) {
  x_3 = lean::box(0);
 }
 x_4 = lean::string_length(x_1);
-x_5 = lean::string_utf8_byte_size(x_1);
+x_5 = lean::string_utf8_byte_size_old(x_1);
 if (lean::is_scalar(x_3)) {
  x_6 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
 } else {
@@ -1173,7 +1173,7 @@ x_8 = x_5 < x_2;
 if (x_8 == 0)
 {
 obj* x_9; 
-x_9 = lean::string_utf8_extract(x_3, x_2, x_5);
+x_9 = lean::string_utf8_extract_old(x_3, x_2, x_5);
 return x_9;
 }
 else
@@ -1251,8 +1251,8 @@ _start:
 obj* x_1; usize x_2; usize x_3; obj* x_4; 
 x_1 = lean::cnstr_get(x_0, 0);
 x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
-x_3 = lean::string_utf8_byte_size(x_1);
-x_4 = lean::string_utf8_extract(x_1, x_2, x_3);
+x_3 = lean::string_utf8_byte_size_old(x_1);
+x_4 = lean::string_utf8_extract_old(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -1290,11 +1290,11 @@ x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
 x_3 = lean::cnstr_get(x_0, 0);
 x_4 = lean::cnstr_get(x_1, 0);
 x_5 = lean::cnstr_get_scalar<usize>(x_1, sizeof(void*)*2);
-x_6 = lean::string_utf8_byte_size(x_3);
-x_7 = lean::string_utf8_extract(x_3, x_2, x_6);
+x_6 = lean::string_utf8_byte_size_old(x_3);
+x_7 = lean::string_utf8_extract_old(x_3, x_2, x_6);
 x_8 = x_6 - x_2;
 x_9 = x_5 + x_8;
-x_10 = lean::string_utf8_extract(x_4, x_5, x_9);
+x_10 = lean::string_utf8_extract_old(x_4, x_5, x_9);
 x_11 = lean::string_dec_eq(x_7, x_10);
 lean::dec(x_10);
 lean::dec(x_7);

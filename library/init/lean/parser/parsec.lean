@@ -15,7 +15,7 @@ import init.lean.format
 /- Old String iterator -/
 namespace String
 structure OldIterator :=
-(s : String) (offset : Nat) (i : USize)
+(s : String) (offset : Nat) (i : Nat)
 
 def mkOldIterator (s : String) : OldIterator :=
 ⟨s, 0, 0⟩
@@ -27,7 +27,7 @@ def remaining : OldIterator → Nat
 def toString : OldIterator → String
 | ⟨s, _, _⟩ := s
 
-def remainingBytes : OldIterator → USize
+def remainingBytes : OldIterator → Nat
 | ⟨s, _, i⟩ := s.bsize - i
 
 def curr : OldIterator → Char

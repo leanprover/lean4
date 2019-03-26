@@ -10,7 +10,7 @@ universes u
 structure String :=
 (data : List Char)
 
-abbrev String.Pos := USize
+abbrev String.Pos := Nat
 
 structure Substring :=
 (str : String) (startPos : String.Pos) (endPos : String.Pos)
@@ -59,59 +59,59 @@ def append : String → (@& String) → String
 def toList (s : String) : List Char :=
 s.data
 
-private def csize (c : Char) : USize :=
-USize.ofUInt32 c.utf8Size
+private def csize (c : Char) : Nat :=
+c.utf8Size.toNat
 
-private def utf8ByteSizeAux : List Char → USize → USize
+private def utf8ByteSizeAux : List Char → Nat → Nat
 | []      r := r
 | (c::cs) r := utf8ByteSizeAux cs (r + csize c)
 
-@[extern cpp "lean::string_utf8_byte_size_old"]
-def utf8ByteSize : (@& String) → USize
+@[extern cpp "lean::string_utf8_byte_size"]
+def utf8ByteSize : (@& String) → Nat
 | ⟨s⟩ := utf8ByteSizeAux s 0
 
-@[inline] def bsize (s : String) : USize :=
+@[inline] def bsize (s : String) : Nat :=
 utf8ByteSize s
 
 /- Auxiliary method for making it explicit when string size is being used as "fuel" in
    a recursive definition. -/
 @[inline] def toFuel (s : String) : Nat :=
-s.bsize.toNat + 1
+s.bsize + 1
 
 @[inline] def toSubstring (s : String) : Substring :=
 {str := s, startPos := 0, endPos := s.bsize}
 
-private def utf8GetAux : List Char → USize → USize → Char
+private def utf8GetAux : List Char → Pos → Pos → Char
 | []      i p := default Char
 | (c::cs) i p := if i = p then c else utf8GetAux cs (i + csize c) p
 
-@[extern cpp "lean::string_utf8_get_old"]
-def get : (@& String) → Pos → Char
+@[extern cpp "lean::string_utf8_get"]
+def get : (@& String) → (@& Pos) → Char
 | ⟨s⟩ p := utf8GetAux s 0 p
 
-private def utf8SetAux (c' : Char) : List Char → USize → USize → List Char
+private def utf8SetAux (c' : Char) : List Char → Pos → Pos → List Char
 | []      i p := []
 | (c::cs) i p :=
   if i = p then (c'::cs) else c::(utf8SetAux cs (i + csize c) p)
 
-@[extern cpp "lean::string_utf8_set_old"]
-def set : String → Pos → Char → String
+@[extern cpp "lean::string_utf8_set"]
+def set : String → (@& Pos) → Char → String
 | ⟨s⟩ i c := ⟨utf8SetAux c s 0 i⟩
 
-@[extern cpp "lean::string_utf8_next_old"]
-def next (s : @& String) (p : Pos) : Pos :=
+@[extern cpp "lean::string_utf8_next"]
+def next (s : @& String) (p : @& Pos) : Pos :=
 let c := get s p in
 p + csize c
 
-private def utf8PrevAux : List Char → USize → USize → USize
+private def utf8PrevAux : List Char → Pos → Pos → Pos
 | []      i p := 0
 | (c::cs) i p :=
   let cz := csize c in
   let i' := i + cz in
   if i' = p then i else utf8PrevAux cs i' p
 
-@[extern cpp "lean::string_utf8_prev_old"]
-def prev : (@& String) → Pos → Pos
+@[extern cpp "lean::string_utf8_prev"]
+def prev : (@& String) → (@& Pos) → Pos
 | ⟨s⟩ p := if p = 0 then 0 else utf8PrevAux s 0 p
 
 def front (s : String) : Char :=
@@ -120,8 +120,8 @@ get s 0
 def back (s : String) : Char :=
 get s (prev s (bsize s))
 
-@[extern cpp "lean::string_utf8_at_end_old"]
-def atEnd : (@& String) → Pos → Bool
+@[extern cpp "lean::string_utf8_at_end"]
+def atEnd : (@& String) → (@& Pos) → Bool
 | s p := p ≥ utf8ByteSize s
 
 def posOfAux (s : String) (c : Char) (endPos : Pos) : Nat → Pos → Pos
@@ -134,16 +134,16 @@ def posOfAux (s : String) (c : Char) (endPos : Pos) : Nat → Pos → Pos
 @[inline] def posOf (s : String) (c : Char) : Pos :=
 posOfAux s c s.bsize s.toFuel 0
 
-private def utf8ExtractAux₂ : List Char → USize → USize → List Char
+private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
 | []      _ _ := []
 | (c::cs) i e := if i = e then [] else c :: utf8ExtractAux₂ cs (i + csize c) e
 
-private def utf8ExtractAux₁ : List Char → USize → USize → USize → List Char
+private def utf8ExtractAux₁ : List Char → Pos → Pos → Pos → List Char
 | []        _ _ _ := []
 | s@(c::cs) i b e := if i = b then utf8ExtractAux₂ s i e else utf8ExtractAux₁ cs (i + csize c) b e
 
-@[extern cpp "lean::string_utf8_extract_old"]
-def extract : (@& String) → Pos → Pos → String
+@[extern cpp "lean::string_utf8_extract"]
+def extract : (@& String) → (@& Pos) → (@& Pos) → String
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
 
 def splitAux (s sep : String) : Nat → Pos → Pos → Pos → List String → List String
@@ -189,7 +189,7 @@ def intercalate (s : String) (ss : List String) : String :=
 (List.intercalate s.toList (ss.map toList)).asString
 
 structure Iterator :=
-(s : String) (i : USize)
+(s : String) (i : Pos)
 
 def mkIterator (s : String) : Iterator :=
 ⟨s, 0⟩
@@ -199,7 +199,7 @@ def toString : Iterator → String
 | ⟨s, _⟩ := s
 
 def remainingBytes : Iterator → Nat
-| ⟨s, i⟩ := (s.bsize - i).toNat
+| ⟨s, i⟩ := s.bsize - i
 
 def pos : Iterator → Pos
 | ⟨s, i⟩ := i
@@ -353,25 +353,21 @@ match s with
 
 @[inline] def drop : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
-  let n := USize.ofNat n in
   if b + n ≥ e then "".toSubstring
   else ⟨s, b+n, e⟩
 
 @[inline] def dropRight : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
-  let n := USize.ofNat n in
   if e - n ≤ e then "".toSubstring
   else ⟨s, b, e - n⟩
 
 @[inline] def take : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
-  let n := USize.ofNat n in
   let e := if b + n ≥ e then e else b + n in
   ⟨s, b, e⟩
 
 @[inline] def takeRight : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
-  let n := USize.ofNat n in
   let b := if e - n ≤ b then b else e - n in
   ⟨s, b, e⟩
 

@@ -37,7 +37,6 @@ obj* l_Lean_Parser_ModuleParserM_liftParserT___boxed(obj*);
 obj* l_Lean_Parser_resumeModuleParser___boxed(obj*);
 obj* l_Lean_Parser_Module_header_HasView_x_27___lambda__1___closed__3;
 obj* l_Lean_Parser_ParserT_Lean_Parser_MonadParsec___rarg(obj*);
-extern usize l_String_toSubstring___closed__1;
 obj* l_Lean_Parser_MonadParsec_eoi___at_Lean_Parser_Module_eoi_Parser___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Module_importPath_Parser_Lean_Parser_HasView___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_runFrom___at_Lean_Parser_resumeModuleParser___spec__1(obj*, obj*);
@@ -5475,7 +5474,7 @@ return x_2;
 obj* l_Lean_Parser_parseHeader(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_3; obj* x_6; obj* x_9; obj* x_12; usize x_13; obj* x_14; obj* x_15; uint8 x_16; obj* x_17; obj* x_18; obj* x_20; obj* x_21; obj* x_22; 
+obj* x_1; obj* x_3; obj* x_6; obj* x_9; obj* x_12; obj* x_13; uint8 x_14; obj* x_15; obj* x_16; obj* x_18; obj* x_19; obj* x_20; 
 x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 x_3 = lean::cnstr_get(x_1, 0);
@@ -5488,23 +5487,21 @@ x_9 = lean::cnstr_get(x_6, 1);
 lean::inc(x_9);
 lean::dec(x_6);
 x_12 = lean::mk_nat_obj(0ul);
-x_13 = l_String_toSubstring___closed__1;
-x_14 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
-lean::cnstr_set(x_14, 0, x_9);
-lean::cnstr_set(x_14, 1, x_12);
-lean::cnstr_set_scalar(x_14, sizeof(void*)*2, x_13);
-x_15 = x_14;
-x_16 = 0;
-x_17 = lean::alloc_cnstr(0, 1, 1);
-lean::cnstr_set(x_17, 0, x_15);
-lean::cnstr_set_scalar(x_17, sizeof(void*)*1, x_16);
-x_18 = x_17;
-lean::inc(x_18);
-x_20 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_parseHeader___lambda__1), 2, 1);
-lean::closure_set(x_20, 0, x_18);
-x_21 = l_Lean_Parser_parseHeader___closed__1;
-x_22 = l_Lean_Parser_resumeModuleParser___rarg(x_0, x_18, x_20, x_21);
-return x_22;
+x_13 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_13, 0, x_9);
+lean::cnstr_set(x_13, 1, x_12);
+lean::cnstr_set(x_13, 2, x_12);
+x_14 = 0;
+x_15 = lean::alloc_cnstr(0, 1, 1);
+lean::cnstr_set(x_15, 0, x_13);
+lean::cnstr_set_scalar(x_15, sizeof(void*)*1, x_14);
+x_16 = x_15;
+lean::inc(x_16);
+x_18 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_parseHeader___lambda__1), 2, 1);
+lean::closure_set(x_18, 0, x_16);
+x_19 = l_Lean_Parser_parseHeader___closed__1;
+x_20 = l_Lean_Parser_resumeModuleParser___rarg(x_0, x_16, x_18, x_19);
+return x_20;
 }
 }
 obj* l_StateT_bind___at_Lean_Parser_parseHeader___spec__1___boxed(obj* x_0, obj* x_1) {

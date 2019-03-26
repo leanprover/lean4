@@ -1697,12 +1697,6 @@ obj_res string_utf8_set(obj_arg s, b_obj_arg i0, uint32 c) {
     return mk_string(new_s);
 }
 
-uint32 string_utf8_get_old(b_obj_arg s, usize i) { return string_utf8_get(s, box(i)); }
-usize string_utf8_next_old(b_obj_arg s, usize i) { return unbox(string_utf8_next(s, box(i))); }
-usize string_utf8_prev_old(b_obj_arg s, usize i) { return unbox(string_utf8_prev(s, box(i))); }
-obj_res string_utf8_set_old(obj_arg s, usize i, uint32 c) { return string_utf8_set(s, box(i), c); }
-obj_res string_utf8_extract_old(b_obj_arg s, usize b, usize e) { return string_utf8_extract(s, box(b), box(e)); }
-
 // =======================================
 // array functions for generated code
 

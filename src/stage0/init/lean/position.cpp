@@ -20,7 +20,6 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_Position_DecidableEq___boxed(obj*, obj*);
-extern usize l_String_toSubstring___closed__1;
 uint32 l_String_OldIterator_curr___main(obj*);
 obj* l___private_init_lean_position_1__fromStringAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Position_decidableLt___boxed(obj*, obj*);
@@ -665,19 +664,17 @@ return x_13;
 obj* l_Lean_FileMap_fromString(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_1 = lean::string_length(x_0);
 x_2 = lean::mk_nat_obj(0ul);
-x_3 = l_String_toSubstring___closed__1;
-x_4 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
-lean::cnstr_set(x_4, 0, x_0);
-lean::cnstr_set(x_4, 1, x_2);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_3);
-x_5 = x_4;
-x_6 = lean::mk_nat_obj(1ul);
-x_7 = l___private_init_lean_position_1__fromStringAux___main(x_1, x_5, x_6);
-x_8 = l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_7);
-return x_8;
+x_3 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_3, 0, x_0);
+lean::cnstr_set(x_3, 1, x_2);
+lean::cnstr_set(x_3, 2, x_2);
+x_4 = lean::mk_nat_obj(1ul);
+x_5 = l___private_init_lean_position_1__fromStringAux___main(x_1, x_3, x_4);
+x_6 = l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_5);
+return x_6;
 }
 }
 obj* l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__2(obj* x_0, obj* x_1, obj* x_2) {

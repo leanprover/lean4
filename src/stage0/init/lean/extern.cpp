@@ -32,7 +32,6 @@ obj* mk_adhoc_ext_entry_core(obj*);
 namespace lean {
 obj* mk_foreign_ext_entry_core(obj*, obj*);
 }
-extern usize l_String_toSubstring___closed__1;
 obj* l_List_intersperse___main___rarg(obj*, obj*);
 obj* l_Lean_expandExternEntry(obj*, obj*);
 obj* l_Lean_getExternEntryForAux___main___closed__1;
@@ -333,16 +332,15 @@ namespace lean {
 obj* expand_extern_pattern_core(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_2 = lean::string_length(x_0);
-x_3 = l_String_toSubstring___closed__1;
-x_4 = lean::alloc_cnstr(0, 1, sizeof(size_t)*1);
+x_3 = lean::mk_nat_obj(0ul);
+x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_0);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_3);
-x_5 = x_4;
-x_6 = l_String_splitAux___main___closed__1;
-x_7 = l_Lean_expandExternPatternAux___main(x_1, x_2, x_5, x_6);
-return x_7;
+lean::cnstr_set(x_4, 1, x_3);
+x_5 = l_String_splitAux___main___closed__1;
+x_6 = l_Lean_expandExternPatternAux___main(x_1, x_2, x_4, x_5);
+return x_6;
 }
 }
 }

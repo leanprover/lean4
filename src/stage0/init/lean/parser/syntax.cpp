@@ -31,7 +31,6 @@ obj* l_Lean_Parser_Syntax_mreplaceLst___main___at_Lean_Parser_Syntax_updateLeadi
 obj* l_Lean_Parser_Syntax_getHeadInfo___boxed(obj*);
 extern obj* l_Lean_Format_paren___closed__2;
 obj* l_List_map___main___at_Lean_Parser_Syntax_asNode___main___spec__1(obj*, obj*);
-extern usize l_String_toSubstring___closed__1;
 obj* l_Lean_Parser_Syntax_updateLeading___closed__1;
 obj* l_Lean_Parser_Syntax_getHeadInfoLst___main(obj*);
 obj* l_Lean_Parser_MacroScope_DecidableEq;
@@ -230,20 +229,18 @@ return x_1;
 obj* l_Lean_Parser_Substring_ofString(obj* x_0) {
 _start:
 {
-obj* x_1; usize x_2; obj* x_3; obj* x_4; obj* x_6; obj* x_7; 
+obj* x_1; obj* x_2; obj* x_4; obj* x_5; 
 x_1 = lean::mk_nat_obj(0ul);
-x_2 = l_String_toSubstring___closed__1;
-x_3 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
-lean::cnstr_set(x_3, 0, x_0);
-lean::cnstr_set(x_3, 1, x_1);
-lean::cnstr_set_scalar(x_3, sizeof(void*)*2, x_2);
-x_4 = x_3;
-lean::inc(x_4);
-x_6 = l_String_OldIterator_toEnd___main(x_4);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_4);
-lean::cnstr_set(x_7, 1, x_6);
-return x_7;
+x_2 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_2, 0, x_0);
+lean::cnstr_set(x_2, 1, x_1);
+lean::cnstr_set(x_2, 2, x_1);
+lean::inc(x_2);
+x_4 = l_String_OldIterator_toEnd___main(x_2);
+x_5 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_5, 0, x_2);
+lean::cnstr_set(x_5, 1, x_4);
+return x_5;
 }
 }
 obj* _init_l_Lean_Parser_Substring_HasToString() {
@@ -1450,20 +1447,18 @@ return x_0;
 obj* l_Lean_Parser_Syntax_updateLeading(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_2 = lean::mk_nat_obj(0ul);
-x_3 = l_String_toSubstring___closed__1;
-x_4 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
-lean::cnstr_set(x_4, 0, x_0);
-lean::cnstr_set(x_4, 1, x_2);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_3);
-x_5 = x_4;
-x_6 = l_Lean_Parser_Syntax_updateLeading___closed__1;
-x_7 = l_Lean_Parser_Syntax_mreplace___main___at_Lean_Parser_Syntax_updateLeading___spec__1(x_6, x_1, x_5);
-x_8 = lean::cnstr_get(x_7, 0);
-lean::inc(x_8);
-lean::dec(x_7);
-return x_8;
+x_3 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_3, 0, x_0);
+lean::cnstr_set(x_3, 1, x_2);
+lean::cnstr_set(x_3, 2, x_2);
+x_4 = l_Lean_Parser_Syntax_updateLeading___closed__1;
+x_5 = l_Lean_Parser_Syntax_mreplace___main___at_Lean_Parser_Syntax_updateLeading___spec__1(x_4, x_1, x_3);
+x_6 = lean::cnstr_get(x_5, 0);
+lean::inc(x_6);
+lean::dec(x_5);
+return x_6;
 }
 }
 obj* l_Lean_Parser_Syntax_getHeadInfo___main(obj* x_0) {

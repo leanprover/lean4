@@ -97,7 +97,7 @@ obj* l_Fin_HasToString___boxed(obj*);
 obj* l_String_HasToString(obj*);
 obj* l_Decidable_HasToString___rarg___boxed(obj*);
 namespace lean {
-obj* string_utf8_extract_old(obj*, usize, usize);
+obj* string_utf8_extract(obj*, obj*, obj*);
 }
 obj* l_List_toStringAux___boxed(obj*);
 obj* l_id_HasToString___rarg___boxed(obj*);
@@ -174,11 +174,11 @@ return x_1;
 obj* l_Substring_HasToString(obj* x_0) {
 _start:
 {
-obj* x_1; usize x_2; usize x_3; obj* x_4; 
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
 x_1 = lean::cnstr_get(x_0, 0);
-x_2 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*1);
-x_3 = lean::cnstr_get_scalar<usize>(x_0, sizeof(void*)*2);
-x_4 = lean::string_utf8_extract_old(x_1, x_2, x_3);
+x_2 = lean::cnstr_get(x_0, 1);
+x_3 = lean::cnstr_get(x_0, 2);
+x_4 = lean::string_utf8_extract(x_1, x_2, x_3);
 return x_4;
 }
 }

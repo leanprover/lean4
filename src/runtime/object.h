@@ -1196,14 +1196,6 @@ inline uint8 string_utf8_at_end(b_obj_arg s, b_obj_arg i) { return !is_scalar(i)
 obj_res string_utf8_extract(b_obj_arg s, b_obj_arg b, b_obj_arg e);
 inline obj_res string_utf8_byte_size(b_obj_arg s) { return mk_nat_obj(string_size(s) - 1); }
 
-uint32 string_utf8_get_old(b_obj_arg s, usize i);
-usize string_utf8_next_old(b_obj_arg s, usize i);
-usize string_utf8_prev_old(b_obj_arg s, usize i);
-obj_res string_utf8_set_old(obj_arg s, usize i, uint32 c);
-inline uint8 string_utf8_at_end_old(b_obj_arg s, usize i) { return i >= string_size(s) - 1; }
-obj_res string_utf8_extract_old(b_obj_arg s, usize b, usize e);
-inline usize string_utf8_byte_size_old(b_obj_arg s) { return string_size(s) - 1; }
-
 inline bool string_eq(b_obj_arg s1, b_obj_arg s2) { return s1 == s2 || (string_size(s1) == string_size(s2) && std::memcmp(string_cstr(s1), string_cstr(s2), string_size(s1)) == 0); }
 bool string_eq(b_obj_arg s1, char const * s2);
 inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }

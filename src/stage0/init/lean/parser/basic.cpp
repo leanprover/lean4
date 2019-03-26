@@ -38,7 +38,6 @@ extern obj* l_Lean_Parser_Trie_mk___closed__1;
 obj* l_Lean_Parser_messageOfParsecMessage(obj*);
 obj* l_Lean_Parser_MonadRec_trans___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParserT_Lean_Parser_MonadParsec___rarg(obj*);
-extern usize l_String_toSubstring___closed__1;
 obj* l_Lean_Parser_logMessage___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_TokenMap_ofList___rarg(obj*);
 obj* l_Lean_Parser_ParserT_Alternative___rarg(obj*);
@@ -1038,21 +1037,19 @@ return x_33;
 obj* l_Lean_Parser_ParsecT_run___at_Lean_Parser_run___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
-obj* x_7; usize x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
+obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; obj* x_13; 
 x_7 = lean::mk_nat_obj(0ul);
-x_8 = l_String_toSubstring___closed__1;
-x_9 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
-lean::cnstr_set(x_9, 0, x_4);
-lean::cnstr_set(x_9, 1, x_7);
-lean::cnstr_set_scalar(x_9, sizeof(void*)*2, x_8);
-x_10 = x_9;
-x_11 = lean::cnstr_get(x_0, 1);
-lean::inc(x_11);
-x_13 = lean::apply_2(x_3, x_10, x_6);
-x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_run___at_Lean_Parser_run___spec__1___rarg___lambda__1), 2, 1);
-lean::closure_set(x_14, 0, x_0);
-x_15 = lean::apply_4(x_11, lean::box(0), lean::box(0), x_13, x_14);
-return x_15;
+x_8 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_8, 0, x_4);
+lean::cnstr_set(x_8, 1, x_7);
+lean::cnstr_set(x_8, 2, x_7);
+x_9 = lean::cnstr_get(x_0, 1);
+lean::inc(x_9);
+x_11 = lean::apply_2(x_3, x_8, x_6);
+x_12 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_run___at_Lean_Parser_run___spec__1___rarg___lambda__1), 2, 1);
+lean::closure_set(x_12, 0, x_0);
+x_13 = lean::apply_4(x_9, lean::box(0), lean::box(0), x_11, x_12);
+return x_13;
 }
 }
 obj* l_Lean_Parser_ParsecT_run___at_Lean_Parser_run___spec__1(obj* x_0) {

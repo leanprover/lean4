@@ -24,7 +24,6 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_currLbp___spec__3(obj*, obj*);
-extern usize l_String_toSubstring___closed__1;
 obj* l_Lean_Parser_prattParser_View___boxed(obj*);
 extern obj* l_mjoin___rarg___closed__1;
 obj* l_Lean_Parser_currLbp___rarg___lambda__3___closed__2;
@@ -210,32 +209,30 @@ return x_20;
 obj* l_Lean_Parser_currLbp___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-obj* x_6; obj* x_9; usize x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_16; obj* x_20; obj* x_21; obj* x_22; 
+obj* x_6; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_14; obj* x_18; obj* x_19; obj* x_20; 
 x_6 = lean::cnstr_get(x_5, 1);
 lean::inc(x_6);
 lean::dec(x_5);
 x_9 = lean::mk_nat_obj(0ul);
-x_10 = l_String_toSubstring___closed__1;
-x_11 = lean::alloc_cnstr(0, 2, sizeof(size_t)*1);
-lean::cnstr_set(x_11, 0, x_0);
-lean::cnstr_set(x_11, 1, x_9);
-lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_10);
-x_12 = x_11;
-x_13 = l_Lean_Parser_Trie_matchPrefix___rarg(x_6, x_12);
-x_14 = lean::cnstr_get(x_1, 0);
+x_10 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_10, 0, x_0);
+lean::cnstr_set(x_10, 1, x_9);
+lean::cnstr_set(x_10, 2, x_9);
+x_11 = l_Lean_Parser_Trie_matchPrefix___rarg(x_6, x_10);
+x_12 = lean::cnstr_get(x_1, 0);
+lean::inc(x_12);
+x_14 = lean::cnstr_get(x_12, 1);
 lean::inc(x_14);
-x_16 = lean::cnstr_get(x_14, 1);
-lean::inc(x_16);
-lean::dec(x_14);
-lean::inc(x_16);
-x_20 = lean::apply_2(x_16, lean::box(0), x_13);
-x_21 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_currLbp___rarg___lambda__1___boxed), 5, 4);
-lean::closure_set(x_21, 0, x_1);
-lean::closure_set(x_21, 1, x_2);
-lean::closure_set(x_21, 2, x_3);
-lean::closure_set(x_21, 3, x_16);
-x_22 = lean::apply_4(x_4, lean::box(0), lean::box(0), x_20, x_21);
-return x_22;
+lean::dec(x_12);
+lean::inc(x_14);
+x_18 = lean::apply_2(x_14, lean::box(0), x_11);
+x_19 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_currLbp___rarg___lambda__1___boxed), 5, 4);
+lean::closure_set(x_19, 0, x_1);
+lean::closure_set(x_19, 1, x_2);
+lean::closure_set(x_19, 2, x_3);
+lean::closure_set(x_19, 3, x_14);
+x_20 = lean::apply_4(x_4, lean::box(0), lean::box(0), x_18, x_19);
+return x_20;
 }
 }
 obj* _init_l_Lean_Parser_currLbp___rarg___lambda__3___closed__1() {

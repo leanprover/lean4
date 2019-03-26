@@ -14,9 +14,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern usize l_String_toSubstring___closed__1;
 obj* l_String_Hashable;
 usize l_Nat_hash(obj*);
+obj* l_mixHash___closed__1___boxed;
 usize l_String_hash(obj*);
 obj* l_String_hash___boxed(obj*);
 obj* l_Nat_Hashable;
@@ -26,12 +26,31 @@ namespace lean {
 usize usize_of_nat(obj*);
 }
 obj* l_Nat_hash___boxed(obj*);
+usize l_mixHash___closed__1;
+usize _init_l_mixHash___closed__1() {
+_start:
+{
+obj* x_0; usize x_1; 
+x_0 = lean::mk_nat_obj(0ul);
+x_1 = lean::usize_of_nat(x_0);
+return x_1;
+}
+}
 usize l_mixHash(usize x_0, usize x_1) {
 _start:
 {
 usize x_2; 
-x_2 = l_String_toSubstring___closed__1;
+x_2 = l_mixHash___closed__1;
 return x_2;
+}
+}
+obj* _init_l_mixHash___closed__1___boxed() {
+_start:
+{
+usize x_0; obj* x_1; 
+x_0 = l_mixHash___closed__1;
+x_1 = lean::box_size_t(x_0);
+return x_1;
 }
 }
 obj* l_mixHash___boxed(obj* x_0, obj* x_1) {
@@ -49,7 +68,7 @@ usize l_String_hash(obj* x_0) {
 _start:
 {
 usize x_1; 
-x_1 = l_String_toSubstring___closed__1;
+x_1 = l_mixHash___closed__1;
 return x_1;
 }
 }
@@ -107,6 +126,9 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_string_default(w);
+ l_mixHash___closed__1 = _init_l_mixHash___closed__1();
+ l_mixHash___closed__1___boxed = _init_l_mixHash___closed__1___boxed();
+lean::mark_persistent(l_mixHash___closed__1___boxed);
  l_String_Hashable = _init_l_String_Hashable();
 lean::mark_persistent(l_String_Hashable);
  l_Nat_Hashable = _init_l_Nat_Hashable();

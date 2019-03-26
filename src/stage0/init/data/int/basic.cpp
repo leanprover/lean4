@@ -29,7 +29,6 @@ obj* nat2int(obj*);
 namespace lean {
 obj* int_sub(obj*, obj*);
 }
-extern usize l_String_toSubstring___closed__1;
 obj* l_Int_HasDiv;
 namespace lean {
 obj* int_neg_succ_of_nat(obj*);
@@ -60,7 +59,7 @@ obj* l_Int_HasZero;
 obj* l_Int_HasOne;
 obj* l_Nat_repr(obj*);
 obj* l_Int_HasMod;
-usize l_String_toInt___closed__1;
+obj* l_String_toInt___closed__1;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
@@ -83,10 +82,9 @@ obj* l_Int_HasSub;
 obj* l_Int_sign___main(obj*);
 uint8 l_String_isInt___closed__1;
 namespace lean {
-uint32 string_utf8_get_old(obj*, usize);
+uint32 string_utf8_get(obj*, obj*);
 }
 obj* l_String_isInt___closed__1___boxed;
-obj* l_String_toInt___closed__2;
 obj* l_Int_decLt___boxed(obj*, obj*);
 obj* l_Int_repr___main___closed__1;
 obj* l_Int_HasNeg;
@@ -107,13 +105,13 @@ namespace lean {
 obj* nat_abs(obj*);
 }
 namespace lean {
-usize usize_of_nat(obj*);
+uint8 nat_dec_le(obj*, obj*);
 }
 obj* l_Int_subNatNat___boxed(obj*, obj*);
 obj* l_Int_negOfNat(obj*);
 obj* l_Int_sign___main___closed__1;
 namespace lean {
-usize string_utf8_byte_size_old(obj*);
+obj* string_utf8_byte_size(obj*);
 }
 obj* l_Int_decEq___boxed(obj*, obj*);
 obj* l_Int_repr___main___boxed(obj*);
@@ -126,7 +124,6 @@ namespace lean {
 uint8 int_dec_le(obj*, obj*);
 }
 obj* l_Int_natMod___boxed(obj*, obj*);
-obj* l_String_toInt___closed__1___boxed;
 obj* l_Int_sub___boxed(obj*, obj*);
 namespace lean {
 uint8 int_dec_lt(obj*, obj*);
@@ -674,46 +671,30 @@ lean::dec(x_1);
 return x_2;
 }
 }
-usize _init_l_String_toInt___closed__1() {
+obj* _init_l_String_toInt___closed__1() {
 _start:
 {
-obj* x_0; usize x_1; obj* x_2; usize x_3; usize x_4; 
-x_0 = lean::mk_nat_obj(0ul);
-x_1 = lean::usize_of_nat(x_0);
-x_2 = lean::mk_nat_obj(1ul);
-x_3 = lean::usize_of_nat(x_2);
-x_4 = x_1 + x_3;
-return x_4;
-}
-}
-obj* _init_l_String_toInt___closed__2() {
-_start:
-{
-obj* x_0; usize x_1; obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_9; obj* x_10; 
-x_0 = lean::mk_nat_obj(0ul);
-x_1 = lean::usize_of_nat(x_0);
-x_2 = lean::mk_string("");
-x_3 = lean::string_utf8_byte_size_old(x_2);
-x_4 = lean::alloc_cnstr(0, 1, sizeof(size_t)*2);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_1);
-x_5 = x_4;
-lean::cnstr_set_scalar(x_5, sizeof(void*)*2, x_3);
-x_6 = x_5;
-x_7 = l_Substring_toNat(x_6);
-lean::dec(x_6);
-x_9 = lean::nat2int(x_7);
-x_10 = lean::int_neg(x_9);
-lean::dec(x_9);
-return x_10;
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_0 = lean::mk_string("");
+x_1 = lean::string_utf8_byte_size(x_0);
+x_2 = lean::mk_nat_obj(0ul);
+x_3 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_3, 0, x_0);
+lean::cnstr_set(x_3, 1, x_2);
+lean::cnstr_set(x_3, 2, x_1);
+x_4 = l_Substring_toNat(x_3);
+x_5 = lean::nat2int(x_4);
+x_6 = lean::int_neg(x_5);
+lean::dec(x_5);
+return x_6;
 }
 }
 obj* l_String_toInt(obj* x_0) {
 _start:
 {
-usize x_1; uint32 x_2; uint32 x_3; uint8 x_4; 
-x_1 = l_String_toSubstring___closed__1;
-x_2 = lean::string_utf8_get_old(x_0, x_1);
+obj* x_1; uint32 x_2; uint32 x_3; uint8 x_4; 
+x_1 = lean::mk_nat_obj(0ul);
+x_2 = lean::string_utf8_get(x_0, x_1);
 x_3 = 45;
 x_4 = x_2 == x_3;
 if (x_4 == 0)
@@ -726,70 +707,55 @@ return x_7;
 }
 else
 {
-usize x_8; usize x_9; uint8 x_10; 
-x_8 = lean::string_utf8_byte_size_old(x_0);
-x_9 = l_String_toInt___closed__1;
-x_10 = x_8 <= x_9;
+obj* x_8; obj* x_9; uint8 x_10; 
+x_8 = lean::string_utf8_byte_size(x_0);
+x_9 = lean::mk_nat_obj(1ul);
+x_10 = lean::nat_dec_le(x_8, x_9);
 if (x_10 == 0)
 {
-obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_16; obj* x_17; 
-x_11 = lean::alloc_cnstr(0, 1, sizeof(size_t)*2);
+obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
+x_11 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_11, 0, x_0);
-lean::cnstr_set_scalar(x_11, sizeof(void*)*1, x_9);
-x_12 = x_11;
-lean::cnstr_set_scalar(x_12, sizeof(void*)*2, x_8);
-x_13 = x_12;
-x_14 = l_Substring_toNat(x_13);
+lean::cnstr_set(x_11, 1, x_9);
+lean::cnstr_set(x_11, 2, x_8);
+x_12 = l_Substring_toNat(x_11);
+x_13 = lean::nat2int(x_12);
+x_14 = lean::int_neg(x_13);
 lean::dec(x_13);
-x_16 = lean::nat2int(x_14);
-x_17 = lean::int_neg(x_16);
-lean::dec(x_16);
-return x_17;
+return x_14;
 }
 else
 {
-obj* x_20; 
+obj* x_18; 
 lean::dec(x_0);
-x_20 = l_String_toInt___closed__2;
-return x_20;
+lean::dec(x_8);
+x_18 = l_String_toInt___closed__1;
+return x_18;
 }
 }
-}
-}
-obj* _init_l_String_toInt___closed__1___boxed() {
-_start:
-{
-usize x_0; obj* x_1; 
-x_0 = l_String_toInt___closed__1;
-x_1 = lean::box_size_t(x_0);
-return x_1;
 }
 }
 uint8 _init_l_String_isInt___closed__1() {
 _start:
 {
-obj* x_0; usize x_1; obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; uint8 x_7; 
-x_0 = lean::mk_nat_obj(0ul);
-x_1 = lean::usize_of_nat(x_0);
-x_2 = lean::mk_string("");
-x_3 = lean::string_utf8_byte_size_old(x_2);
-x_4 = lean::alloc_cnstr(0, 1, sizeof(size_t)*2);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_1);
-x_5 = x_4;
-lean::cnstr_set_scalar(x_5, sizeof(void*)*2, x_3);
-x_6 = x_5;
-x_7 = l_Substring_isNat(x_6);
-lean::dec(x_6);
-return x_7;
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; uint8 x_4; 
+x_0 = lean::mk_string("");
+x_1 = lean::string_utf8_byte_size(x_0);
+x_2 = lean::mk_nat_obj(0ul);
+x_3 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_3, 0, x_0);
+lean::cnstr_set(x_3, 1, x_2);
+lean::cnstr_set(x_3, 2, x_1);
+x_4 = l_Substring_isNat(x_3);
+return x_4;
 }
 }
 uint8 l_String_isInt(obj* x_0) {
 _start:
 {
-usize x_1; uint32 x_2; uint32 x_3; uint8 x_4; 
-x_1 = l_String_toSubstring___closed__1;
-x_2 = lean::string_utf8_get_old(x_0, x_1);
+obj* x_1; uint32 x_2; uint32 x_3; uint8 x_4; 
+x_1 = lean::mk_nat_obj(0ul);
+x_2 = lean::string_utf8_get(x_0, x_1);
 x_3 = 45;
 x_4 = x_2 == x_3;
 if (x_4 == 0)
@@ -801,29 +767,27 @@ return x_5;
 }
 else
 {
-usize x_7; usize x_8; uint8 x_9; 
-x_7 = lean::string_utf8_byte_size_old(x_0);
-x_8 = l_String_toInt___closed__1;
-x_9 = x_7 <= x_8;
+obj* x_7; obj* x_8; uint8 x_9; 
+x_7 = lean::string_utf8_byte_size(x_0);
+x_8 = lean::mk_nat_obj(1ul);
+x_9 = lean::nat_dec_le(x_7, x_8);
 if (x_9 == 0)
 {
-obj* x_10; obj* x_11; obj* x_12; uint8 x_13; 
-x_10 = lean::alloc_cnstr(0, 1, sizeof(size_t)*2);
+obj* x_10; uint8 x_11; 
+x_10 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_10, 0, x_0);
-lean::cnstr_set_scalar(x_10, sizeof(void*)*1, x_8);
-x_11 = x_10;
-lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_7);
-x_12 = x_11;
-x_13 = l_Substring_isNat(x_12);
-lean::dec(x_12);
-return x_13;
+lean::cnstr_set(x_10, 1, x_8);
+lean::cnstr_set(x_10, 2, x_7);
+x_11 = l_Substring_isNat(x_10);
+return x_11;
 }
 else
 {
-uint8 x_16; 
+uint8 x_14; 
+lean::dec(x_7);
 lean::dec(x_0);
-x_16 = l_String_isInt___closed__1;
-return x_16;
+x_14 = l_String_isInt___closed__1;
+return x_14;
 }
 }
 }
@@ -902,10 +866,7 @@ lean::mark_persistent(l_Int_HasDiv);
  l_Int_HasMod = _init_l_Int_HasMod();
 lean::mark_persistent(l_Int_HasMod);
  l_String_toInt___closed__1 = _init_l_String_toInt___closed__1();
- l_String_toInt___closed__2 = _init_l_String_toInt___closed__2();
-lean::mark_persistent(l_String_toInt___closed__2);
- l_String_toInt___closed__1___boxed = _init_l_String_toInt___closed__1___boxed();
-lean::mark_persistent(l_String_toInt___closed__1___boxed);
+lean::mark_persistent(l_String_toInt___closed__1);
  l_String_isInt___closed__1 = _init_l_String_isInt___closed__1();
  l_String_isInt___closed__1___boxed = _init_l_String_isInt___closed__1___boxed();
 lean::mark_persistent(l_String_isInt___closed__1___boxed);

@@ -27,7 +27,6 @@ obj* nat_sub(obj*, obj*);
 obj* l_Lean_Format_pretty(obj*, obj*);
 obj* l_Lean_Parser_Trie_insert___boxed(obj*);
 obj* l_Lean_Parser_Trie_mk___closed__1;
-extern usize l_String_toSubstring___closed__1;
 obj* l_Lean_Format_group___main(obj*);
 obj* l___private_init_lean_parser_trie_4__toStringAux___main___rarg(obj*);
 obj* l_RBNode_ins___main___at___private_init_lean_parser_trie_1__insertAux___main___spec__3(obj*);
@@ -913,16 +912,15 @@ return x_1;
 obj* l_Lean_Parser_Trie_insert___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; usize x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_3 = lean::string_length(x_1);
-x_4 = l_String_toSubstring___closed__1;
-x_5 = lean::alloc_cnstr(0, 1, sizeof(size_t)*1);
+x_4 = lean::mk_nat_obj(0ul);
+x_5 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_5, 0, x_1);
-lean::cnstr_set_scalar(x_5, sizeof(void*)*1, x_4);
-x_6 = x_5;
-x_7 = l___private_init_lean_parser_trie_1__insertAux___main___rarg(x_2, x_3, x_0, x_6);
+lean::cnstr_set(x_5, 1, x_4);
+x_6 = l___private_init_lean_parser_trie_1__insertAux___main___rarg(x_2, x_3, x_0, x_5);
 lean::dec(x_3);
-return x_7;
+return x_6;
 }
 }
 obj* l_Lean_Parser_Trie_insert(obj* x_0) {
@@ -1037,15 +1035,14 @@ return x_1;
 obj* l_Lean_Parser_Trie_find___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; usize x_3; obj* x_4; obj* x_5; obj* x_6; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_2 = lean::string_length(x_1);
-x_3 = l_String_toSubstring___closed__1;
-x_4 = lean::alloc_cnstr(0, 1, sizeof(size_t)*1);
+x_3 = lean::mk_nat_obj(0ul);
+x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_1);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_3);
-x_5 = x_4;
-x_6 = l___private_init_lean_parser_trie_2__findAux___main___rarg(x_2, x_0, x_5);
-return x_6;
+lean::cnstr_set(x_4, 1, x_3);
+x_5 = l___private_init_lean_parser_trie_2__findAux___main___rarg(x_2, x_0, x_4);
+return x_5;
 }
 }
 obj* l_Lean_Parser_Trie_find(obj* x_0) {

@@ -56,6 +56,7 @@ uint8 l_Bool_DecidableEq(uint8, uint8);
 obj* l_Function_onFun___boxed(obj*, obj*, obj*);
 obj* l_inline(obj*);
 obj* l_Nat_HasSizeof;
+uint8 l_bne___rarg(obj*, obj*, obj*);
 obj* l_beqOfEq(obj*);
 obj* l_List_sizeof___main___boxed(obj*);
 obj* l_PSum_HasSizeof___rarg(obj*, obj*);
@@ -111,6 +112,7 @@ obj* l_or___main___boxed(obj*, obj*);
 obj* l___private_init_core_22__extfunApp(obj*, obj*);
 obj* l_Option_HasSizeof___rarg(obj*);
 obj* l_Subtype_sizeof___main___rarg(obj*, obj*, obj*);
+obj* l_bne(obj*);
 obj* l_Not_Decidable___rarg___boxed(obj*);
 obj* l_id___rarg___boxed(obj*);
 obj* l_PSum_sizeof___main___boxed(obj*, obj*);
@@ -124,6 +126,7 @@ obj* l_Prop_Inhabited;
 obj* l_Eq_ndrec___rarg(obj*, obj*, obj*);
 obj* l_default_sizeof___boxed(obj*, obj*);
 obj* l_decidableOfDecidableOfEq___rarg___boxed(obj*, obj*);
+obj* l_bne___boxed(obj*);
 obj* l_dite_Decidable___rarg(uint8, obj*, obj*);
 obj* l_PUnit_sizeof___main___boxed(obj*);
 obj* l_beqOfEq___boxed(obj*);
@@ -184,6 +187,7 @@ obj* l_Quotient_recOn(obj*, obj*, obj*);
 obj* l_Subtype_Inhabited___rarg___boxed(obj*, obj*);
 obj* l_Quot_indep___rarg(obj*, obj*);
 obj* l_not___boxed(obj*);
+obj* l_bne___rarg___boxed(obj*, obj*, obj*);
 obj* l_Nat_sizeof___main(obj*);
 obj* l_xor___boxed(obj*, obj*);
 obj* l_Prod_Inhabited(obj*, obj*);
@@ -2468,6 +2472,52 @@ x_3 = lean::unbox(x_1);
 x_4 = l_xor(x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
+}
+}
+uint8 l_bne___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; uint8 x_4; 
+x_3 = lean::apply_2(x_0, x_1, x_2);
+x_4 = lean::unbox(x_3);
+if (x_4 == 0)
+{
+uint8 x_5; 
+x_5 = 1;
+return x_5;
+}
+else
+{
+uint8 x_6; 
+x_6 = 0;
+return x_6;
+}
+}
+}
+obj* l_bne(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_bne___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+obj* l_bne___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; obj* x_4; 
+x_3 = l_bne___rarg(x_0, x_1, x_2);
+x_4 = lean::box(x_3);
+return x_4;
+}
+}
+obj* l_bne___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_bne(x_0);
+lean::dec(x_0);
+return x_1;
 }
 }
 obj* l_False_elim(obj* x_0, uint8 x_1) {

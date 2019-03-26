@@ -448,8 +448,14 @@ static environment modifiers_cmd(parser & p, cmd_meta const & _meta) {
             meta.m_modifiers.m_is_noncomputable = true;
         }
     }
+
     if (p.curr_is_token(get_unsafe_tk())) {
         meta.m_modifiers.m_is_unsafe = true;
+        p.next();
+    }
+
+    if (p.curr_is_token(get_partial_tk())) {
+        meta.m_modifiers.m_is_partial = true;
         p.next();
     }
 
@@ -542,11 +548,12 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("variables",       "declare new variables", variables_cmd));
     add_cmd(r, cmd_info("axiom",           "declare a new axiom", axiom_cmd));
     add_cmd(r, cmd_info("unsafe",          "add new unsafe declaration", modifiers_cmd, false));
+    add_cmd(r, cmd_info("partial",         "add new partial declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("mutual",          "add new mutual declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("noncomputable",   "add new noncomputable definition", modifiers_cmd, false));
     add_cmd(r, cmd_info("private",         "add new private declaration", modifiers_cmd, false));
     add_cmd(r, cmd_info("protected",       "add new protected declaration", modifiers_cmd, false));
-    add_cmd(r, cmd_info("definition",      "add new definition", definition_cmd));
+    add_cmd(r, cmd_info("def",             "add new definition", definition_cmd));
     add_cmd(r, cmd_info("theorem",         "add new theorem", theorem_cmd));
     add_cmd(r, cmd_info("instance",        "add new instance", instance_cmd));
     add_cmd(r, cmd_info("abbreviation",    "add new abbreviation", abbreviation_cmd));

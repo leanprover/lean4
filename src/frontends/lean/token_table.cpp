@@ -102,7 +102,7 @@ void init_token_table(token_table & t) {
 
     char const * commands[] =
         {"theorem", "axiom", "variable", "protected", "private", "hide",
-         "definition", "unsafe", "mutual", "example", "noncomputable", "abbreviation", "abbrev",
+         "def", "unsafe", "partial", "mutual", "example", "noncomputable", "abbreviation", "abbrev",
          "variables", "constant", "using_well_founded", "[whnf]",
          "end", "namespace", "section", "prelude",
          "import", "inductive", "coinductive", "structure", "class", "universe", "universes", "local",
@@ -117,8 +117,7 @@ void init_token_table(token_table & t) {
          {"∀", "Pi"}, {"Π", "Pi"}, {"(|", "⟨"}, {"|)", "⟩"}, {nullptr, nullptr}};
 
     pair<char const *, char const *> cmd_aliases[] =
-        {{"lemma", "theorem"}, {"def", "definition"},
-         {nullptr, nullptr}};
+        {{nullptr, nullptr}};
 
     auto it = builtin;
     while (it->first) {

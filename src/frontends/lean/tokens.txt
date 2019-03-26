@@ -85,6 +85,7 @@ protected    protected
 inline       inline
 definition   definition
 unsafe       unsafe
+partial      partial
 mutual       mutual
 theorem      theorem
 axiom        axiom

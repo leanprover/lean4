@@ -20,11 +20,12 @@ struct decl_modifiers {
     bool m_is_private{false};
     bool m_is_protected{false};
     bool m_is_unsafe{false};
+    bool m_is_partial{false};
     bool m_is_mutual{false};
     bool m_is_noncomputable{false};
 
     operator bool() const {
-        return m_is_private || m_is_protected || m_is_unsafe || m_is_mutual || m_is_noncomputable;
+        return m_is_private || m_is_protected || m_is_unsafe || m_is_partial || m_is_mutual || m_is_noncomputable;
     }
 };
 

@@ -92,6 +92,7 @@ name const & get_protected_tk();
 name const & get_inline_tk();
 name const & get_definition_tk();
 name const & get_unsafe_tk();
+name const & get_partial_tk();
 name const & get_mutual_tk();
 name const & get_theorem_tk();
 name const & get_axiom_tk();

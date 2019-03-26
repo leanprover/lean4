@@ -8,12 +8,12 @@
 (require 'rx)
 
 (defconst lean4-keywords1
-  '("import" "prelude" "protected" "private" "noncomputable" "definition" "unsafe" "renaming"
-    "hiding" "exposing" "parameter" "parameters" "begin" "constant"
-    "lemma" "variable" "variables" "theorem" "example" "abbreviation" "abbrev"
+  '("import" "prelude" "protected" "private" "noncomputable"
+    "unsafe" "partial" "renaming" "hiding" "exposing" "begin" "constant"
+    "variable" "variables" "theorem" "example" "abbreviation" "abbrev"
     "open" "export" "axiom" "inductive" "coinductive" "with" "without"
     "structure" "universe" "universes" "hide"
-    "precedence" "reserve" "declare_trace" "add_key_equivalence"
+    "precedence" "reserve"
     "match" "infix" "infixl" "infixr" "notation" "postfix" "prefix" "instance"
     "end" "this" "using" "using_well_founded" "namespace" "section"
     "attribute" "local" "set_option" "extends" "include" "omit" "classes" "class"

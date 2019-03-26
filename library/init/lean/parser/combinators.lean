@@ -126,7 +126,10 @@ instance sepBy1.View {α β} (p sep : Parser) (a) [Parser.HasView α p] [Parser.
   Parser.HasView (List (SepBy.Elem.View α β)) (sepBy1 p sep a) :=
 {..sepBy.view p sep a}
 
-def optional (r : Parser) : Parser :=
+/-- Optionally parse `r`. `require` can be used to conditionally override the
+    behavior without changing the structure of the syntax tree. -/
+def optional (r : Parser) (require := false) : Parser :=
+if require then r else
 do r ← optional $
      -- on error, wrap in "some"
      catch r (λ msg, throw {msg with custom := Syntax.list [msg.custom.get]}),
@@ -134,9 +137,9 @@ do r ← optional $
    | some r := Syntax.list [r]
    | none   := Syntax.list []
 
-instance optional.tokens (r : Parser) [Parser.HasTokens r] : Parser.HasTokens (optional r) :=
+instance optional.tokens (r : Parser) [Parser.HasTokens r] (req) : Parser.HasTokens (optional r req) :=
 ⟨tokens r⟩
-instance optional.view (r : Parser) [Parser.HasView α r] : Parser.HasView (Option α) (optional r) :=
+instance optional.view (r : Parser) [Parser.HasView α r] (req) : Parser.HasView (Option α) (optional r req) :=
 { view := λ stx, match stx.asNode with
     | some {args := [], ..} := none
     | some {args := [stx], ..} := some $ HasView.view r stx
@@ -144,7 +147,7 @@ instance optional.view (r : Parser) [Parser.HasView α r] : Parser.HasView (Opti
   review := λ a, match a with
     | some a := Syntax.list [review r a]
     | none   := Syntax.list [] }
-instance optional.viewDefault (r : Parser) [Parser.HasView α r] : Parser.HasViewDefault (optional r) (Option α) none := ⟨⟩
+instance optional.viewDefault (r : Parser) [Parser.HasView α r] (req) : Parser.HasViewDefault (optional r req) (Option α) none := ⟨⟩
 
 /-- Parse a List `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
     Note that there is NO explicit encoding of which Parser was chosen;

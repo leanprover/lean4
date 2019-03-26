@@ -79,10 +79,10 @@ nodeChoice! binderDefault {
 }
 
 @[derive HasTokens HasView]
-def binderContent.Parser : termParser :=
+def binderContent.Parser (requireType := false) : termParser :=
 node! binderContent [
   ids: binderIdent.Parser+,
-  type: optType.Parser,
+  type: optional typeSpec.Parser requireType,
   default: binderDefault.Parser?
 ]
 
@@ -132,11 +132,11 @@ node! anonymousConstructor ["⟨":maxPrec, args: sepBy (Term.Parser 0) (symbol "
 
        fun (x : t), s -/
 @[derive HasTokens HasView]
-def bracketedBinder.Parser : termParser :=
+def bracketedBinder.Parser (requireType := false) : termParser :=
 nodeChoice! bracketedBinder {
   explicit: node! explicitBinder ["(", content: nodeChoice! explicitBinderContent {
     «notation»: command.notationLike.Parser,
-    other: binderContent.Parser
+    other: binderContent.Parser requireType
   }, right: symbol ")"],
   implicit: node! implicitBinder ["{", content: binderContent.Parser, "}"],
   strictImplicit: node! strictImplicitBinder ["⦃", content: binderContent.Parser, "⦄"],
@@ -348,7 +348,7 @@ node! borrowed ["@&":maxPrec, Term: Term.Parser borrowPrec]
 --- Agda's `(x : e) → f`
 @[derive Parser.HasTokens Parser.HasView]
 def depArrow.Parser : termParser :=
-node! depArrow [binder: bracketedBinder.Parser, op: unicodeSymbol "→" "->" 25, range: Term.Parser 24]
+node! depArrow [binder: bracketedBinder.Parser true, op: unicodeSymbol "→" "->" 25, range: Term.Parser 24]
 
 -- TODO(Sebastian): replace with attribute
 @[derive HasTokens]

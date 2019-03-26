@@ -1,7 +1,7 @@
 namespace Lean
 namespace Parser
 
-abbrev pos := String.utf8Pos
+abbrev Pos := String.Pos
 
 /-
 σ  is the non-backtrackable State
@@ -9,23 +9,23 @@ abbrev pos := String.utf8Pos
 μ  is the extra error Message data
 -/
 inductive Result (σ δ μ α : Type)
-| ok    {} (a : α)        (i : pos) (st : σ) (bst : δ)          (eps : Bool) : Result
-| error {} (msg : String) (i : pos) (st : σ) (extra : Option μ) (eps : Bool) : Result
+| ok    {} (a : α)        (i : Pos) (st : σ) (bst : δ)          (eps : Bool) : Result
+| error {} (msg : String) (i : Pos) (st : σ) (extra : Option μ) (eps : Bool) : Result
 
 inductive Result.IsOk {σ δ μ α : Type} : Result σ δ μ α → Prop
-| mk (a : α) (i : pos) (st : σ) (bst : δ) (eps : Bool) : Result.IsOk (Result.ok a i st bst eps)
+| mk (a : α) (i : Pos) (st : σ) (bst : δ) (eps : Bool) : Result.IsOk (Result.ok a i st bst eps)
 
-theorem errorIsNotOk {σ δ μ α : Type} {msg : String} {i : pos} {st : σ} {extra : Option μ} {eps : Bool}
-                        (h : Result.IsOk (@Result.error σ δ μ α msg i st extra eps)) : False :=
+theorem errorIsNotOk {σ δ μ α : Type} {msg : String} {i : Pos} {st : σ} {extra : Option μ} {eps : Bool}
+                     (h : Result.IsOk (@Result.error σ δ μ α msg i st extra eps)) : False :=
 match h with end
 
-@[inline] def unreachableError {σ δ μ α β : Type} {msg : String} {i : pos} {st : σ} {extra : Option μ} {eps : Bool}
+@[inline] def unreachableError {σ δ μ α β : Type} {msg : String} {i : Pos} {st : σ} {extra : Option μ} {eps : Bool}
                                 (h : Result.IsOk (@Result.error σ δ μ α msg i st extra eps)) : β :=
 False.elim (errorIsNotOk h)
 
 def input (σ δ μ : Type) : Type := { r : Result σ δ μ Unit // r.IsOk }
 
-@[inline] def mkInput {σ δ μ : Type} (i : pos) (st : σ) (bst : δ) (eps := true) : input σ δ μ :=
+@[inline] def mkInput {σ δ μ : Type} (i : Pos) (st : σ) (bst : δ) (eps := true) : input σ δ μ :=
 ⟨Result.ok () i st bst eps, Result.IsOk.mk _ _ _ _ _⟩
 
 def parserM (σ δ μ α : Type) :=
@@ -83,11 +83,7 @@ def setSilentError : Result σ δ μ α → Result σ δ μ α
 | (Result.error msg i st ext _) := Result.error msg i st ext true
 | other                         := other
 
-@[inline] def curr (str : String) (i : pos) : Char   := str.utf8Get i
-@[inline] def next (str : String) (i : pos) : pos    := str.utf8Next i
-@[inline] def atEnd (str : String) (i : pos) : Bool := str.utf8AtEnd i
-
-@[inline] def currPos : input σ δ μ → pos
+@[inline] def currPos : input σ δ μ → Pos
 | ⟨Result.ok _ i _ _ _, _⟩    := i
 | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
@@ -108,9 +104,9 @@ namespace Prim
 λ str inp,
   match inp with
   | ⟨Result.ok _ i st bst _, _⟩ :=
-    if atEnd str i then mkError inp "end of input"
-    else let c := curr str i in
-         if p c then Result.ok c (next str i) st bst false
+    if str.atEnd i then mkError inp "end of input"
+    else let c := str.get i in
+         if p c then Result.ok c (str.next i) st bst false
          else mkError inp "unexpected character"
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
@@ -119,24 +115,24 @@ namespace Prim
 | (n+1) str inp :=
   match inp with
   | ⟨Result.ok _ i st bst _, _⟩ :=
-    if atEnd str i then inp.val
-    else let c := curr str i in
+    if str.atEnd i then inp.val
+    else let c := str.get i in
          if p c then inp.val
-         else takeUntilAux n str (mkInput (next str i) st bst false)
+         else takeUntilAux n str (mkInput (str.next i) st bst false)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def takeUntil (p : Char → Bool) : parserM σ δ μ Unit :=
 λ str inp, takeUntilAux p str.length str inp
 
-def strAux (inS : String) (s : String) (errorMsg : String) : Nat → input σ δ μ → pos → Result σ δ μ Unit
+def strAux (inS : String) (s : String) (errorMsg : String) : Nat → input σ δ μ → Pos → Result σ δ μ Unit
 | 0     inp j := mkError inp errorMsg
 | (n+1) inp j :=
-  if atEnd s j then inp.val
+  if s.atEnd j then inp.val
   else
     match inp with
     | ⟨Result.ok _ i st bst e, _⟩ :=
-      if atEnd inS i then mkError inp errorMsg
-      else if curr inS i = curr s j then strAux n (mkInput (next inS i) st bst false) (next s j)
+      if inS.atEnd i then mkError inp errorMsg
+      else if inS.get i = s.get j then strAux n (mkInput (inS.next i) st bst false) (s.next j)
       else mkError inp errorMsg
     | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 

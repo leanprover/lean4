@@ -1524,7 +1524,23 @@ obj_res string_data(obj_arg s) {
     return string_to_list_core(tmp);
 }
 
-uint32 string_utf8_get_old(b_obj_arg s, usize i) {
+uint32 string_utf8_get(b_obj_arg s, b_obj_arg i0) {
+    if (!is_scalar(i0)) {
+        /* If `i0` is not a scalar, then it must be > LEAN_MAX_SMALL_NAT,
+           and should not be a valid index.
+
+           Recall that LEAN_MAX_SMALL_NAT is 2^31-1 in 32-bit machines and
+           2^63 - 1 in 64-bit ones.
+
+           `i0` would only be a valid index if `s` had more than `LEAN_MAX_SMALL_NAT`
+           bytes which is unlikely.
+
+           For example, Linux for 64-bit machines can address at most 256 Tb which
+           is less than 2^63 - 1.
+        */
+        return char_default_value();
+    }
+    usize i = unbox(i0);
     char const * str = string_cstr(s);
     usize size = string_size(s) - 1;
     if (i >= string_size(s) - 1)
@@ -1575,30 +1591,41 @@ uint32 string_utf8_get_old(b_obj_arg s, usize i) {
 
 /* The reference implementation is:
    ```
-   def utf8_next (s : @& string) (p : utf8_pos) : utf8_pos :=
+   def utf8_next (s : @& String) (p : @& Pos) : Ppos :=
    let c := utf8_get s p in
    p + csize c
    ```
 */
-usize string_utf8_next_old(b_obj_arg s, usize i) {
+obj_res string_utf8_next(b_obj_arg s, b_obj_arg i0) {
+    if (!is_scalar(i0)) {
+        /* See comment at string_utf8_get */
+        return nat_add(i0, box(1));
+    }
+    usize i = unbox(i0);
     char const * str = string_cstr(s);
     usize size       = string_size(s) - 1;
     /* `csize c` is 1 when `i` is not a valid position in the reference implementation. */
-    if (i >= size) return i+1;
+    if (i >= size) return box(i+1);
     unsigned c = static_cast<unsigned char>(str[i]);
-    if ((c & 0x80) == 0)    return i+1;
-    if ((c & 0xe0) == 0xc0) return i + 2;
-    if ((c & 0xf0) == 0xe0) return i + 3;
-    if ((c & 0xf8) == 0xf0) return i + 4;
+    if ((c & 0x80) == 0)    return box(i+1);
+    if ((c & 0xe0) == 0xc0) return box(i+2);
+    if ((c & 0xf0) == 0xe0) return box(i+3);
+    if ((c & 0xf8) == 0xf0) return box(i+4);
     /* invalid UTF-8 encoded string */
-    return i + 1;
+    return box(i+1);
 }
 
 static inline bool is_utf8_first_byte(unsigned char c) {
     return (c & 0x80) == 0 || (c & 0xe0) == 0xc0 || (c & 0xf0) == 0xe0 || (c & 0xf8) == 0xf0;
 }
 
-obj_res string_utf8_extract_old(b_obj_arg s, usize b, usize e) {
+obj_res string_utf8_extract(b_obj_arg s, b_obj_arg b0, b_obj_arg e0) {
+    if (!is_scalar(b0) || !is_scalar(e0)) {
+        /* See comment at string_utf8_get */
+        return s;
+    }
+    usize b = unbox(b0);
+    usize e = unbox(e0);
     char const * str = string_cstr(s);
     usize sz = string_size(s) - 1;
     if (b >= e || b >= sz) return mk_string("");
@@ -1620,16 +1647,21 @@ obj_res string_utf8_extract_old(b_obj_arg s, usize b, usize e) {
     return r;
 }
 
-usize string_utf8_prev_old(b_obj_arg s, usize i) {
+obj_res string_utf8_prev(b_obj_arg s, b_obj_arg i0) {
+    if (!is_scalar(i0)) {
+        /* See comment at string_utf8_get */
+        return nat_sub(i0, box(1));
+    }
+    usize i  = unbox(i0);
     usize sz = string_size(s) - 1;
-    if (i == 0 || i > sz) return 0;
+    if (i == 0 || i > sz) return box(0);
     i--;
     char const * str = string_cstr(s);
     while (!is_utf8_first_byte(str[i])) {
         lean_assert(i > 0);
         i--;
     }
-    return i;
+    return box(i);
 }
 
 static unsigned get_utf8_char_size_at(std::string const & s, usize i) {
@@ -1640,7 +1672,12 @@ static unsigned get_utf8_char_size_at(std::string const & s, usize i) {
     }
 }
 
-obj_res string_utf8_set_old(obj_arg s, usize i, uint32 c) {
+obj_res string_utf8_set(obj_arg s, b_obj_arg i0, uint32 c) {
+    if (!is_scalar(i0)) {
+        /* See comment at string_utf8_get */
+        return s;
+    }
+    usize i  = unbox(i0);
     usize sz = string_size(s) - 1;
     if (i >= sz) return s;
     char * str = w_string_cstr(s);
@@ -1659,6 +1696,12 @@ obj_res string_utf8_set_old(obj_arg s, usize i, uint32 c) {
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
     return mk_string(new_s);
 }
+
+uint32 string_utf8_get_old(b_obj_arg s, usize i) { return string_utf8_get(s, box(i)); }
+usize string_utf8_next_old(b_obj_arg s, usize i) { return unbox(string_utf8_next(s, box(i))); }
+usize string_utf8_prev_old(b_obj_arg s, usize i) { return unbox(string_utf8_prev(s, box(i))); }
+obj_res string_utf8_set_old(obj_arg s, usize i, uint32 c) { return string_utf8_set(s, box(i), c); }
+obj_res string_utf8_extract_old(b_obj_arg s, usize b, usize e) { return string_utf8_extract(s, box(b), box(e)); }
 
 // =======================================
 // array functions for generated code

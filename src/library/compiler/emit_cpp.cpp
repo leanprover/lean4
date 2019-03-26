@@ -376,8 +376,8 @@ struct emit_fn_fn {
 
     void emit_num_lit_core(expr const & x, nat const & v) {
         if (is_obj(x)) {
-            if (v < std::numeric_limits<unsigned>::max()) {
-                m_out << "lean::mk_nat_obj(" << v << "u)";
+            if (v <= std::numeric_limits<unsigned long>::max()) {
+                m_out << "lean::mk_nat_obj(" << v << "ul)";
             } else {
                 m_out << "lean::mk_nat_obj(lean::mpz(\"" << v << "\"))";
             }

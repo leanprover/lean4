@@ -3217,9 +3217,15 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     if (!expected_type)
         throw elaborator_exception(e, "node!: expected type must be known");
     expr exp = expected_type.value();
-    sstream struc, binds, mk_args, view_pat, reviews, default_val;
+    sstream params, args, struc, binds, mk_args, view_pat, reviews, default_val;
     unsigned i = 0;
-    struc << "@[pattern] def " << esc_macro.to_string();
+    collected_locals ls;
+    collect_locals(e2, ls);
+    for (auto const & p : ls.get_collected()) {
+        params << "(" << local_pp_name_p(p) << " : " << instantiate_mvars(infer_type(p)) << ")";
+        args << " " << local_pp_name_p(p);
+    }
+    struc << "@[pattern] def " << esc_macro.to_string() << " " << params.str();
     struc << " := {SyntaxNodeKind . name := `" << full_macro.to_string() << "}\n"
             << "structure " << macro.to_string() << ".View :=\n";
     buffer<expr> new_args;
@@ -3277,13 +3283,13 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
                                              mk_lean_list(new_try_args))));
         }
     }
-    struc << "def " << macro.to_string() << ".HasView' : HasView " << macro.to_string() << ".View " << esc_macro.to_string() << " :=\n"
+    struc << "def " << macro.to_string() << ".HasView' " << params.str() << " : HasView " << macro.to_string() << ".View (" << esc_macro.to_string() << args.str() << ") :=\n"
             << "{ view := fun stx, let stxs : List Syntax := match stx.asNode with"
             << "| some n := n.args | _ := [] in\n"
             << binds.str()
             << macro.to_string() << ".View.mk " << mk_args.str() << ",\n"
             << "review := fun ⟨" << view_pat.str() << "⟩, Syntax.mkNode " << esc_macro.to_string() << " [" << reviews.str() << "] }";
-    struc << "instance " << macro.to_string() << ".HasView := " << macro.to_string() << ".HasView'";
+    struc << "instance " << macro.to_string() << ".HasView  := @" << macro.to_string() << ".HasView'";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), in, get_pos_info_provider()->get_file_name());
@@ -3306,9 +3312,15 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
     if (!expected_type)
         throw elaborator_exception(e, "nodeChoice!: expected type must be known");
     expr exp = expected_type.value();
-    sstream struc, default_view_case, view_cases, review_cases;
+    sstream params, pargs, struc, default_view_case, view_cases, review_cases;
     unsigned i = 0;
-    struc << "@[pattern] def " << esc_macro.to_string();
+    collected_locals ls;
+    collect_locals(e, ls);
+    for (auto const & p : ls.get_collected()) {
+        params << "(" << local_pp_name_p(p) << " : " << instantiate_mvars(infer_type(p)) << ")";
+        pargs << " " << local_pp_name_p(p);
+    }
+    struc << "@[pattern] def " << esc_macro.to_string() << " " << params.str();
     struc << " := {SyntaxNodeKind . name := `" << full_macro.to_string() << "}\n"
           << "inductive " << macro.to_string() << ".View\n";
     buffer<expr> new_args;
@@ -3348,20 +3360,20 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
         i++;
         new_args.push_back(mk_as_is(r));
     }
-    struc << "def " << macro.to_string() << ".HasView' : HasView " << macro.to_string() << ".View "
-          << esc_macro.to_string() << " :=\n"
+    struc << "def " << macro.to_string() << ".HasView' " << params.str() << " : HasView " << macro.to_string() << ".View ("
+          << esc_macro.to_string() << " " << pargs.str() << ") :=\n"
           << "{ view := fun stx, let (stx, i) := match stx.asNode : _ -> Prod Syntax Nat with\n"
-          << "| some {kind := " << esc_macro.to_string() << ", args := [stx], ..} := (match stx.asNode  : _ -> Prod Syntax Nat with\n"
+          << "| some {kind := @" << esc_macro.to_string() << " " << pargs.str() << ", args := [stx], ..} := (match stx.asNode  : _ -> Prod Syntax Nat with\n"
           << "  | some {kind := SyntaxNodeKind.mk (Name.mkNumeral Name.anonymous i), args := [stx], ..} := (stx, i)\n"
           << "  | _ := (Syntax.missing, 0))\n"
           << "| _ := (Syntax.missing, 0) in\n"
           << "match i with\n"
           << view_cases.str() << ",\n"
-          << "review := fun v, Syntax.mkNode " << esc_macro.to_string()
+          << "review := fun v, Syntax.mkNode (" << esc_macro.to_string() << " " << pargs.str() << ")"
           << " [match v with\n"
           << review_cases.str()
           << "] }";
-    struc << "instance " << macro.to_string() << ".HasView := " << macro.to_string() << ".HasView'";
+    struc << "instance " << macro.to_string() << ".HasView := @" << macro.to_string() << ".HasView'";
     trace_elab_detail(tout() << "expansion of nodeChoice! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
     parser p(m_env, get_global_ios(), in, "foo");

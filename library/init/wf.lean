@@ -314,13 +314,3 @@ instance HasWellFounded {α : Type u} {β : α → Type v} [s₁ : HasWellFounde
 {r := Lex s₁.r (λ a, (s₂ a).r), wf := lexWf s₁.wf (λ a, (s₂ a).wf)}
 
 end PSigma
-
-/- Temporary hack for bootstrapping Lean.
-   TODO: DELETE!!!!
-
-   This axiom is inconsistent. We can use it to prove that any Function terminates.
-   We are temporarily using this axiom until the new code generator is ready.
-   With the new code generator, we will pre-compile into C/C++ a default
-   tactic for proving termination. This tactic is then used to define the Lean Compiler.
--/
-axiom wfTermHack {α : Type u} [HasWellFounded α] (x y : α) : HasWellFounded.r x y

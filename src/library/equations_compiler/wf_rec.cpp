@@ -174,69 +174,54 @@ struct wf_rec_fn {
         }
 
         /* Prove that y < x */
-        expr mk_dec_proof(expr const & y, expr const & /* ref */) {
-            if (!m_parent.m_dec_tac) {
-                /* Structure `well_founded_tactics` has not been defined yet.
-
-                   For now, we just use the (unsound) axiom `wf_term_hack`.
-                   In the future, we should invoke a tactic compiled into C/C++ to prove y < x.
-                */
-                lean_assert(m_parent.m_has_well_founded_inst);
-                try {
-                    return mk_app(m_ctx, get_wf_term_hack_name(), *m_parent.m_has_well_founded_inst, y, m_x);
-                } catch (exception & ex) {
-                    throw nested_exception("failed to use wf_term_hack axiom",
-                                           std::current_exception());
-                }
-            } else {
-                throw exception("tactic framework has been deleted");
+        expr mk_dec_proof(expr const & /* y */, expr const & /* ref */) {
+            throw exception("well founded recursion is disabled because we deleted the tactic framework");
 #if 0
-                expr y_R_x = mk_app(m_parent.m_R, y, m_x);
-                metavar_context mctx = m_ctx.mctx();
-                tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.get_options(),
-                                                     name(m_fn_name, "_wf_rec_mk_dec_tactic"), mctx, m_ctx.lctx(), y_R_x);
-                try {
-                    vm_obj r = tactic_evaluator(m_ctx, m_parent.get_options(), ref)(*m_parent.m_dec_tac, s);
-                    if (auto new_s = tactic::is_success(r)) {
-                        mctx = new_s->mctx();
-                        expr r = mctx.instantiate_mvars(new_s->main());
-                        m_parent.m_env = new_s->env();
-                        m_ctx.set_env(new_s->env());
-                        m_ctx.set_mctx(mctx);
-                        return r;
-                    }
-                } catch (elaborator_exception & ex) {
-                    bool using_well_founded = is_wf_equations(m_parent.m_ref);
-                    auto R = m_parent.m_R;
-                    nested_exception ex2(
-                        ex.get_pos(),
-                        [=](formatter const & fmt) {
-                            format r;
-                            formatter _fmt = fmt;
-                            if (is_app_of(R, get_has_well_founded_r_name())) {
-                                options o = fmt.get_options();
-                                o         = o.update_if_undef(get_pp_implicit_name(), true);
-                                _fmt      = fmt.update_options(o);
-                            }
-                            r += format("failed to prove recursive application is decreasing, well founded relation");
-                            r += pp_indent_expr(_fmt, R);
-                            if (!using_well_founded) {
-                                r += line() + format("Possible solutions: ");
-                                r += line() + format("  - Use 'using_well_founded' keyword in the end of your definition "
-                                                     "to specify tactics for synthesizing well founded relations and "
-                                                     "decreasing proofs.");
-                                r += line() + format("  - The default decreasing tactic uses the 'assumption' tactic, "
-                                                     "thus hints (aka local proofs) can be provided using 'have'-expressions.");
-                            }
-                            r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
-                            return r;
-                        },
-                        std::current_exception());
-                    if (!m_parent.m_elab.try_report(ex2)) throw ex2;
+            expr y_R_x = mk_app(m_parent.m_R, y, m_x);
+            metavar_context mctx = m_ctx.mctx();
+            tactic_state s = mk_tactic_state_for(m_parent.m_env, m_parent.get_options(),
+                                                 name(m_fn_name, "_wf_rec_mk_dec_tactic"), mctx, m_ctx.lctx(), y_R_x);
+            try {
+                vm_obj r = tactic_evaluator(m_ctx, m_parent.get_options(), ref)(*m_parent.m_dec_tac, s);
+                if (auto new_s = tactic::is_success(r)) {
+                    mctx = new_s->mctx();
+                    expr r = mctx.instantiate_mvars(new_s->main());
+                    m_parent.m_env = new_s->env();
+                    m_ctx.set_env(new_s->env());
+                    m_ctx.set_mctx(mctx);
+                    return r;
                 }
-                return m_parent.m_elab.mk_sorry(y_R_x);
-#endif
+            } catch (elaborator_exception & ex) {
+                bool using_well_founded = is_wf_equations(m_parent.m_ref);
+                auto R = m_parent.m_R;
+                nested_exception ex2(
+                    ex.get_pos(),
+                    [=](formatter const & fmt) {
+                        format r;
+                        formatter _fmt = fmt;
+                        if (is_app_of(R, get_has_well_founded_r_name())) {
+                            options o = fmt.get_options();
+                            o         = o.update_if_undef(get_pp_implicit_name(), true);
+                            _fmt      = fmt.update_options(o);
+                        }
+                        r += format("failed to prove recursive application is decreasing, well founded relation");
+                        r += pp_indent_expr(_fmt, R);
+                        if (!using_well_founded) {
+                            r += line() + format("Possible solutions: ");
+                            r += line() + format("  - Use 'using_well_founded' keyword in the end of your definition "
+                                                 "to specify tactics for synthesizing well founded relations and "
+                                                 "decreasing proofs.");
+                            r += line() + format("  - The default decreasing tactic uses the 'assumption' tactic, "
+                                                 "thus hints (aka local proofs) can be provided using 'have'-expressions.");
+                        }
+                        r += line() + format("The nested exception contains the failure state for the decreasing tactic.");
+                        return r;
+                    },
+                    std::current_exception());
+                if (!m_parent.m_elab.try_report(ex2)) throw ex2;
             }
+            return m_parent.m_elab.mk_sorry(y_R_x);
+#endif
         }
 
         virtual expr visit_app(expr const & e) {

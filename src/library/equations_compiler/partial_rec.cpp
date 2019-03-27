@@ -40,6 +40,25 @@ struct partial_rec_fn {
         return mk_type_context(m_lctx);
     }
 
+    optional<expr> find_arg_with_given_type(type_context_old & ctx, buffer<expr> const & args, expr const & type) {
+        type_context_old::transparency_scope scope(ctx, transparency_mode::Reducible);
+        for (expr const & arg : args) {
+            if (ctx.is_def_eq(ctx.infer(arg), type)) {
+                return some_expr(arg);
+            }
+        }
+        return none_expr();
+    }
+
+    optional<expr> mk_inhabitant(type_context_old & ctx, expr const & type) {
+        level lvl        = get_level(ctx, type);
+        expr inhabited_result     = mk_app(mk_constant(get_inhabited_name(), {lvl}), type);
+        optional<expr> inhabitant = ctx.mk_class_instance(inhabited_result);
+        if (!inhabitant)
+            return none_expr();
+        return some_expr(mk_app(mk_constant(get_inhabited_default_name(), {lvl}), type, *inhabitant));
+    }
+
     expr mk_base_case_eq(type_context_old & ctx, expr const & fn, unsigned arity, expr const & new_fn) {
         expr fn_type     = ctx.infer(fn);
         expr result_type = fn_type;
@@ -49,13 +68,14 @@ struct partial_rec_fn {
             expr arg     = args.push_local_from_binding(result_type);
             result_type  = instantiate(binding_body(result_type), arg);
         }
-        level result_level        = get_level(ctx, result_type);
-        expr inhabited_result     = mk_app(mk_constant(get_inhabited_name(), {result_level}), result_type);
-        optional<expr> inhabitant = ctx.mk_class_instance(inhabited_result);
-        if (!inhabitant) {
+        expr rhs;
+        if (optional<expr> inh = mk_inhabitant(ctx, result_type)) {
+            rhs = *inh;
+        } else if (optional<expr> arg = find_arg_with_given_type(ctx, args.as_buffer(), result_type)) {
+            rhs = *arg;
+        } else {
             throw generic_exception(m_ref, "failed to compile partial definition, failed to synthesize result type inhabitant");
         }
-        expr rhs    = mk_app(mk_constant(get_inhabited_default_name(), {result_level}), result_type, *inhabitant);
         expr zero   = mk_constant(get_nat_zero_name());
         expr lhs    = mk_app(mk_app(new_fn, zero), args.as_buffer());
         expr new_eq = mk_equation(lhs, rhs);

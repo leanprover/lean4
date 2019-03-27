@@ -98,7 +98,7 @@ def pop (a : Array α) : Array α :=
   data := λ ⟨j, h⟩, a.index ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
 
 -- TODO(Leo): justify termination using wf-rec
-@[specialize] private def iterateAux (a : Array α) (f : Π i : Fin a.sz, α → β → β) : Nat → β → β
+@[specialize] partial def iterateAux (a : Array α) (f : Π i : Fin a.sz, α → β → β) : Nat → β → β
 | i b :=
   if h : i < a.sz then
      let idx : Fin a.sz := ⟨i, h⟩ in

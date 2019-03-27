@@ -100,19 +100,19 @@ def parenIfFalse : Format → Bool → Format
 | f true  := f
 | f false := f.paren
 
-mutual def Result.toFormat, resultList.toFormat
-with Result.toFormat : Result → Bool → Format
+@[specialize] private def formatLst (fmt : Result → Format) : List Result → Format
+| []      := Format.nil
+| (r::rs) := Format.line ++ fmt r ++ formatLst rs
+
+partial def Result.toFormat : Result → Bool → Format
 | (Result.leaf f)         _ := f
 | (Result.num k)          _ := toString k
 | (Result.offset f 0)     r := Result.toFormat f r
 | (Result.offset f (k+1)) r :=
   let f' := Result.toFormat f false in
   parenIfFalse (f' ++ "+" ++ toFmt (k+1)) r
-| (Result.maxNode Fs)    r := parenIfFalse (Format.group $ "max" ++ resultList.toFormat Fs) r
-| (Result.imaxNode Fs)   r := parenIfFalse (Format.group $ "imax" ++ resultList.toFormat Fs) r
-with resultList.toFormat : List Result → Format
-| []      := Format.nil
-| (r::rs) := Format.line ++ Result.toFormat r false ++ resultList.toFormat rs
+| (Result.maxNode fs)    r := parenIfFalse (Format.group $ "max"  ++ formatLst (λ r, Result.toFormat r false) fs) r
+| (Result.imaxNode fs)   r := parenIfFalse (Format.group $ "imax" ++ formatLst (λ r, Result.toFormat r false) fs) r
 
 def Level.toResult : Level → Result
 | Level.zero         := Result.num 0

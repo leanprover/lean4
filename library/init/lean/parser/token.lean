@@ -70,16 +70,16 @@ do start ← leftOver,
 
 variables [monadBasicParser m]
 
-private mutual def updateTrailing, updateTrailingLst
-with updateTrailing : Substring → Syntax → Syntax
+@[specialize] def updateLast (f : Syntax → Syntax) (trailing : Substring) : List Syntax → List Syntax
+| []          := []
+| [stx]       := [f stx]
+| (stx::stxs) := stx :: updateLast stxs
+
+private partial def updateTrailing : Substring → Syntax → Syntax
 | trailing (Syntax.atom a@⟨some info, _⟩) := Syntax.atom {a with info := some {info with trailing := trailing}}
 | trailing (Syntax.ident id@{info := some info, ..}) := Syntax.ident {id with info := some {info with trailing := trailing}}
-| trailing (Syntax.rawNode n) := Syntax.rawNode {n with args := updateTrailingLst trailing n.args}
+| trailing (Syntax.rawNode n) := Syntax.rawNode {n with args := updateLast (updateTrailing trailing) trailing n.args}
 | trailing stx := stx
-with updateTrailingLst : Substring → List Syntax → List Syntax
-| trailing [] := []
-| trailing [stx] := [updateTrailing trailing stx]
-| trailing (stx::stxs) := stx :: updateTrailingLst trailing stxs
 
 def withTrailing (stx : Syntax) : m Syntax :=
 do -- TODO(Sebastian): less greedy, more natural whitespace assignment

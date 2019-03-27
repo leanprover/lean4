@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include <vector>
 #include <string>
 #include <cstdlib>
+#include <limits>
 #if !defined(__APPLE__)
 #include <malloc.h>
 #endif

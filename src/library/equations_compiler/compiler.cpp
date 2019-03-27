@@ -19,6 +19,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/structural_rec.h"
 #include "library/equations_compiler/unbounded_rec.h"
 #include "library/equations_compiler/wf_rec.h"
+#include "library/equations_compiler/partial_rec.h"
 #include "library/equations_compiler/elim_match.h"
 #include "frontends/lean/elaborator.h"
 
@@ -38,6 +39,7 @@ static eqn_compiler_result compile_equations_core(environment & env, elaborator 
     trace_compiler(tout() << "nested recursion:   " << has_nested_rec(eqns) << "\n";);
     trace_compiler(tout() << "using_well_founded: " << is_wf_equations(eqns) << "\n";);
     equations_header const & header = get_equations_header(eqns);
+    trace_compiler(tout() << "partial:            " << header.m_is_partial << "\n";);
     lean_assert(header.m_is_unsafe || !has_nested_rec(eqns));
 
     if (header.m_is_unsafe) {
@@ -45,6 +47,13 @@ static eqn_compiler_result compile_equations_core(environment & env, elaborator 
             throw exception("invalid use of 'using_well_founded', we do not need to use well founded recursion for unsafe definitions, since they can use unbounded recursion");
         }
         return unbounded_rec(env, elab, mctx, lctx, eqns);
+    }
+
+    if (header.m_is_partial && is_recursive_eqns(ctx, eqns)) {
+        if (is_wf_equations(eqns)) {
+            throw exception("invalid use of 'using_well_founded', we do not need to use well founded recursion for partial definitions, since they can use unbounded recursion");
+        }
+        return partial_rec(env, elab, mctx, lctx, eqns);
     }
 
     if (is_wf_equations(eqns)) {
@@ -386,10 +395,10 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
         /* Then, we compile the equations again using `unsafe` and generate code.
            The motivations are:
            - Clear execution cost semantics for recursive functions.
-           - Auxiliary unsafe definition may assist recursive definition unfolding in the type_context_old object.
-        */
+           - Auxiliary unsafe definition may assist recursive definition unfolding in the type_context_old object. */
         equations_header aux_header = header;
         aux_header.m_is_unsafe  = true;
+        aux_header.m_is_partial = false;
         aux_header.m_aux_lemmas = false;
         aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_unsafe_rec_name);
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));

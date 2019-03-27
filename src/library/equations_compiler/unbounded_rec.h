@@ -11,7 +11,7 @@ namespace lean {
 class elaborator;
 /** \brief Eliminate "recursive calls" using rec_fn_macro.
 
-    This compilation step can only be used to compile meta definitions.
+    This compilation step can only be used to compile unsafe definitions.
     If we use it on regular definitions, the kernel will reject it. */
 eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
                                   metavar_context & mctx, local_context const & lctx,

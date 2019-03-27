@@ -33,14 +33,15 @@ obj* l_HashmapImp_insert(obj*, obj*);
 uint8 l_Option_isSome___main___rarg(obj*);
 obj* l_HashmapImp_foldBuckets___boxed(obj*, obj*, obj*);
 obj* l_HashmapImp_reinsertAux(obj*, obj*);
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 uint8 l_HashmapImp_containsAux___rarg(obj*, obj*, obj*);
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2(obj*, obj*, obj*);
 obj* l_Hashmap_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_Hashmap_size___boxed(obj*, obj*, obj*, obj*);
 obj* l_DHashmap_find___boxed(obj*, obj*);
 uint8 l_Hashmap_contains___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashmapImp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashmapImp_reinsertAux___rarg(obj*, obj*, obj*, obj*);
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___boxed(obj*, obj*, obj*);
 obj* l_Hashmap_size(obj*, obj*, obj*, obj*);
 obj* l_HashmapImp_containsAux(obj*, obj*);
 obj* l_mkHashmapImp(obj*, obj*);
@@ -54,7 +55,7 @@ obj* l_bucketArray_updt___rarg(obj*, usize, obj*, obj*);
 obj* l_HashmapImp_replaceAux___boxed(obj*, obj*);
 obj* l_List_foldl___main___at_HashmapImp_foldBuckets___spec__1___boxed(obj*, obj*, obj*);
 obj* l_HashmapImp_findAux___main___rarg(obj*, obj*, obj*);
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___boxed(obj*, obj*, obj*);
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashmapImp_fold___rarg(obj*, obj*, obj*);
 obj* l_HashmapImp_erase___boxed(obj*, obj*);
 obj* l_HashmapImp_containsAux___boxed(obj*, obj*);
@@ -119,7 +120,6 @@ obj* l_Hashmap_contains___boxed(obj*, obj*);
 obj* l_HashmapImp_eraseAux(obj*, obj*);
 obj* l_DHashmap_size___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashmapImp_eraseAux___boxed(obj*, obj*);
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Hashmap_erase(obj*, obj*);
 usize l_HashmapImp_mkIdx(obj*, obj*, usize);
 obj* l_DHashmap_erase___boxed(obj*, obj*);
@@ -128,6 +128,7 @@ uint8 nat_dec_le(obj*, obj*);
 }
 obj* l_DHashmap_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_mkHashmapImp___rarg___closed__1;
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_HashmapImp_foldBuckets___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Hashmap_insert___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashmapImp_foldBuckets(obj*, obj*, obj*);
@@ -135,7 +136,6 @@ obj* l_DHashmap_empty(obj*, obj*, obj*, obj*);
 obj* l_DHashmap_fold___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_DHashmap_fold___rarg(obj*, obj*, obj*);
 obj* l_bucketArray_updt___boxed(obj*, obj*);
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2(obj*, obj*, obj*);
 obj* l_DHashmap_erase___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashmapImp_fold___boxed(obj*, obj*, obj*);
 obj* l_mkHashmap(obj*, obj*, obj*, obj*);
@@ -341,7 +341,7 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_List_foldl___main___at_Hashm
 return x_3;
 }
 }
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_6; uint8 x_7; 
@@ -371,11 +371,11 @@ goto _start;
 }
 }
 }
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg___boxed), 5, 0);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg___boxed), 5, 0);
 return x_3;
 }
 }
@@ -385,7 +385,7 @@ _start:
 obj* x_3; obj* x_5; 
 x_3 = lean::mk_nat_obj(0ul);
 lean::inc(x_0);
-x_5 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_0, x_2, x_0, x_3, x_1);
+x_5 = l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_0, x_2, x_0, x_3, x_1);
 lean::dec(x_0);
 return x_5;
 }
@@ -409,20 +409,20 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_0, x_1, x_2, x_3, x_4);
+x_5 = l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_0, x_1, x_2, x_3, x_4);
 lean::dec(x_0);
 return x_5;
 }
 }
-obj* l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2(x_0, x_1, x_2);
+x_3 = l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2(x_0, x_1, x_2);
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);
@@ -615,7 +615,7 @@ lean::inc(x_3);
 lean::dec(x_0);
 x_6 = lean::mk_nat_obj(0ul);
 lean::inc(x_3);
-x_8 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_3, x_2, x_3, x_6, x_1);
+x_8 = l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_3, x_2, x_3, x_6, x_1);
 lean::dec(x_3);
 return x_8;
 }
@@ -913,7 +913,7 @@ x_37 = lean::alloc_closure(reinterpret_cast<void*>(l_HashmapImp_reinsertAux___ra
 lean::closure_set(x_37, 0, x_1);
 x_38 = lean::mk_nat_obj(0ul);
 lean::inc(x_28);
-x_40 = l___private_init_data_array_basic_1__iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_28, x_37, x_28, x_38, x_36);
+x_40 = l_Array_iterateAux___main___at_HashmapImp_foldBuckets___spec__2___rarg(x_28, x_37, x_28, x_38, x_36);
 lean::dec(x_28);
 if (lean::is_scalar(x_9)) {
  x_42 = lean::alloc_cnstr(0, 2, 0);

@@ -76,6 +76,7 @@ namespace lean {
 uint8 string_dec_lt(obj*, obj*);
 }
 obj* l_Lean_NameMap_find(obj*);
+obj* l_Lean_NameMap_Inhabited___boxed(obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
@@ -115,7 +116,9 @@ obj* l_Lean_Name_append___boxed(obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
 extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_String_toName(obj*);
+obj* l_Lean_NameMap_Inhabited(obj*);
 obj* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__3___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_NameSet_Inhabited;
 obj* l_Lean_Name_getPrefix___main(obj*);
 obj* l_Lean_Name_components_x_27___main(obj*);
 uint8 l_Lean_Name_DecidableRel(obj*, obj*);
@@ -910,6 +913,23 @@ _start:
 {
 obj* x_1; 
 x_1 = l_Lean_NameMap_HasEmptyc(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Lean_NameMap_Inhabited(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::box(0);
+return x_1;
+}
+}
+obj* l_Lean_NameMap_Inhabited___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_NameMap_Inhabited(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -1749,6 +1769,14 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
+obj* _init_l_Lean_NameSet_Inhabited() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::box(0);
+return x_0;
+}
+}
 obj* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -2402,5 +2430,7 @@ lean::mark_persistent(l_Lean_Name_HasToString);
 lean::mark_persistent(l_Lean_mkNameSet);
  l_Lean_NameSet_HasEmptyc = _init_l_Lean_NameSet_HasEmptyc();
 lean::mark_persistent(l_Lean_NameSet_HasEmptyc);
+ l_Lean_NameSet_Inhabited = _init_l_Lean_NameSet_Inhabited();
+lean::mark_persistent(l_Lean_NameSet_Inhabited);
 return w;
 }

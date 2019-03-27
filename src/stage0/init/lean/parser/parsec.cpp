@@ -274,7 +274,6 @@ obj* l_Lean_Parser_MonadParsec_takeWhileCont___at_Lean_Parser_MonadParsec_takeUn
 obj* l_Lean_Parser_ParsecT_MonadExcept___rarg___lambda__4(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_try(obj*);
 obj* l_Lean_Parser_MonadParsec_lower___rarg(obj*, obj*);
-obj* l_fix1___rarg___lambda__1___boxed(obj*, obj*);
 obj* l_Lean_Parser_ParsecT_Monad___rarg___lambda__7(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_eoiError___rarg___closed__1;
 obj* l_Lean_Parser_MonadParsec_takeWhileCont___at_Lean_Parser_MonadParsec_takeUntil1___spec__2(obj*, obj*, obj*);
@@ -409,6 +408,7 @@ obj* l_Lean_Parser_Parsec_HasLift___boxed(obj*);
 obj* l_Lean_Parser_MonadParsec_alpha(obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_takeUntil___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_run(obj*);
+obj* l_ExceptT_Monad___rarg___lambda__8___boxed(obj*, obj*);
 obj* l_String_OldIterator_remaining___boxed(obj*);
 obj* l_Lean_Parser_ParsecT_Monad_x_27___rarg___lambda__3(obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_lookahead___rarg___lambda__1(obj*, obj*, obj*);
@@ -10270,7 +10270,7 @@ obj* l_Lean_Parser_MonadParsec_longestMatch___rarg___lambda__1(obj* x_0, obj* x_
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_fix1___rarg___lambda__1___boxed), 2, 1);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_ExceptT_Monad___rarg___lambda__8___boxed), 2, 1);
 lean::closure_set(x_2, 0, x_1);
 x_3 = lean::apply_2(x_0, lean::box(0), x_2);
 return x_3;

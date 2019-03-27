@@ -302,6 +302,7 @@ uint8 l_Iff_Decidable___rarg(uint8, uint8);
 obj* l_Sum_HasSizeof___boxed(obj*, obj*);
 obj* l_Ne_Decidable(obj*);
 obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1___rarg(obj*, obj*, obj*);
+obj* l_hugeFuel;
 obj* l_Subtype_DecidableEq___rarg___boxed(obj*, obj*, obj*);
 obj* l_Quotient_DecidableEq___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Sum_sizeof___boxed(obj*, obj*);
@@ -948,6 +949,14 @@ _start:
 {
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_add___boxed), 2, 0);
+return x_0;
+}
+}
+obj* _init_l_hugeFuel() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_nat_obj(10000ul);
 return x_0;
 }
 }
@@ -5204,6 +5213,8 @@ lean::mark_persistent(l_Nat_HasZero);
 lean::mark_persistent(l_Nat_HasOne);
  l_Nat_HasAdd = _init_l_Nat_HasAdd();
 lean::mark_persistent(l_Nat_HasAdd);
+ l_hugeFuel = _init_l_hugeFuel();
+lean::mark_persistent(l_hugeFuel);
  l_std_priority_default = _init_l_std_priority_default();
 lean::mark_persistent(l_std_priority_default);
  l_std_priority_max = _init_l_std_priority_max();

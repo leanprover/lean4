@@ -140,6 +140,7 @@ obj* l_List_isPrefixOf___main(obj*);
 obj* l_List_findIndex___boxed(obj*);
 obj* l_List_tail___boxed(obj*);
 obj* l_List_isPrefixOf___main___boxed(obj*);
+obj* l_List_isEqv___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_drop___main(obj*);
 obj* l_List_span(obj*);
 obj* l_List_init___main___rarg(obj*);
@@ -148,6 +149,7 @@ obj* l_List_unzip___main___rarg(obj*);
 obj* l_List_updateNth___main(obj*);
 obj* l_List_foldr___main___rarg(obj*, obj*, obj*);
 obj* l_List_empty___boxed(obj*);
+obj* l_List_isEqv___boxed(obj*);
 obj* l_List_repeat(obj*);
 obj* l_List_append(obj*);
 obj* l_List_span___boxed(obj*);
@@ -173,6 +175,7 @@ obj* l_List_map___boxed(obj*, obj*);
 uint8 l_List_empty___rarg(obj*);
 obj* l_List_removeNth___boxed(obj*);
 obj* l_List_zipWith___main(obj*, obj*, obj*);
+obj* l_List_isEqv(obj*);
 obj* l_List_empty___main___boxed(obj*);
 obj* l_List_hasDecEq___main___boxed(obj*);
 obj* l_List_ret___boxed(obj*);
@@ -241,6 +244,7 @@ obj* nat_add(obj*, obj*);
 obj* l_List_foldr1(obj*);
 obj* l_List_partition___main___boxed(obj*);
 obj* l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___boxed(obj*);
+obj* l_List_isEqv___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_HasUnion___boxed(obj*);
 obj* l_List_last___main___rarg___boxed(obj*, obj*);
 namespace lean {
@@ -260,12 +264,14 @@ obj* l_List_foldr1___boxed(obj*);
 obj* l_List_updateNth___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_init___main(obj*);
 obj* l_List_foldr___main___at_List_union___spec__1___rarg(obj*, obj*, obj*);
+obj* l_List_isEqv___main___boxed(obj*);
 obj* l_List_zipWith(obj*, obj*, obj*);
 obj* l_List_zip___boxed(obj*, obj*);
 obj* l_List_isPrefixOf___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_last___rarg___boxed(obj*, obj*);
 obj* l_List_foldr1___main(obj*);
 obj* l_Nat_repeatCore___main___at_List_repeat___spec__1(obj*);
+uint8 l_List_isEqv___main___rarg(obj*, obj*, obj*);
 obj* l_List_lengthAux___rarg___boxed(obj*, obj*);
 obj* l_List_HasAppend(obj*);
 obj* l_List_HasEmptyc___boxed(obj*);
@@ -357,6 +363,7 @@ obj* l_List_nth___main___rarg(obj*, obj*);
 obj* l_List_filter___rarg(obj*, obj*);
 uint8 l_List_hasDecEq___rarg(obj*, obj*, obj*);
 obj* l_List_foldr1___rarg___boxed(obj*, obj*, obj*);
+obj* l_List_isEqv___main(obj*);
 uint8 l_List_hasDecidableLt___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_any(obj*);
 obj* l_List_foldr1___main___boxed(obj*);
@@ -398,6 +405,7 @@ obj* l_List_isPrefixOf___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_foldl(obj*, obj*);
 obj* l_List_hasDecidableLt___main___boxed(obj*);
 obj* l_List_enum(obj*);
+uint8 l_List_isEqv___rarg(obj*, obj*, obj*);
 obj* l_List_unzip___main(obj*, obj*);
 obj* l_List_foldr___main___at_List_or___spec__1___boxed(obj*, obj*);
 obj* l_List_filterMap___main(obj*, obj*);
@@ -5353,6 +5361,131 @@ _start:
 {
 obj* x_1; 
 x_1 = l_List_isSuffixOf(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+uint8 l_List_isEqv___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+if (lean::obj_tag(x_0) == 0)
+{
+lean::dec(x_2);
+if (lean::obj_tag(x_1) == 0)
+{
+uint8 x_4; 
+x_4 = 1;
+return x_4;
+}
+else
+{
+uint8 x_6; 
+lean::dec(x_1);
+x_6 = 0;
+return x_6;
+}
+}
+else
+{
+if (lean::obj_tag(x_1) == 0)
+{
+uint8 x_9; 
+lean::dec(x_0);
+lean::dec(x_2);
+x_9 = 0;
+return x_9;
+}
+else
+{
+obj* x_10; obj* x_12; obj* x_15; obj* x_17; obj* x_21; uint8 x_22; 
+x_10 = lean::cnstr_get(x_0, 0);
+lean::inc(x_10);
+x_12 = lean::cnstr_get(x_0, 1);
+lean::inc(x_12);
+lean::dec(x_0);
+x_15 = lean::cnstr_get(x_1, 0);
+lean::inc(x_15);
+x_17 = lean::cnstr_get(x_1, 1);
+lean::inc(x_17);
+lean::dec(x_1);
+lean::inc(x_2);
+x_21 = lean::apply_2(x_2, x_10, x_15);
+x_22 = lean::unbox(x_21);
+if (x_22 == 0)
+{
+uint8 x_26; 
+lean::dec(x_17);
+lean::dec(x_2);
+lean::dec(x_12);
+x_26 = 0;
+return x_26;
+}
+else
+{
+x_0 = x_12;
+x_1 = x_17;
+goto _start;
+}
+}
+}
+}
+}
+obj* l_List_isEqv___main(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_isEqv___main___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+obj* l_List_isEqv___main___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; obj* x_4; 
+x_3 = l_List_isEqv___main___rarg(x_0, x_1, x_2);
+x_4 = lean::box(x_3);
+return x_4;
+}
+}
+obj* l_List_isEqv___main___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_List_isEqv___main(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+uint8 l_List_isEqv___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; 
+x_3 = l_List_isEqv___main___rarg(x_0, x_1, x_2);
+return x_3;
+}
+}
+obj* l_List_isEqv(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_isEqv___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+obj* l_List_isEqv___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; obj* x_4; 
+x_3 = l_List_isEqv___rarg(x_0, x_1, x_2);
+x_4 = lean::box(x_3);
+return x_4;
+}
+}
+obj* l_List_isEqv___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_List_isEqv(x_0);
 lean::dec(x_0);
 return x_1;
 }

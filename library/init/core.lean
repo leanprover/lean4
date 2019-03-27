@@ -451,6 +451,9 @@ instance : HasOne Nat := ⟨Nat.succ (Nat.zero)⟩
 
 instance : HasAdd Nat := ⟨Nat.add⟩
 
+/- Auxiliary constant used by equation compiler. -/
+constant hugeFuel : Nat := 10000
+
 def std.priority.default : Nat := 1000
 def std.priority.max     : Nat := 0xFFFFFFFF
 

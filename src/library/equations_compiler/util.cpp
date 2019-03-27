@@ -170,6 +170,13 @@ expr unpack_eqn::add_var(name const & n, expr const & type) {
     return m_vars.back();
 }
 
+expr unpack_eqn::add_var_front(name const & n, expr const & type) {
+    m_modified_vars = true;
+    expr x = m_locals.push_local(n, type);
+    m_vars.insert(0, x);
+    return x;
+}
+
 expr unpack_eqn::repack() {
     if (!m_modified_vars &&
         equation_lhs(m_nested_src) == m_lhs &&

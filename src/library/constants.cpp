@@ -82,6 +82,7 @@ name const * g_heq_refl = nullptr;
 name const * g_heq_symm = nullptr;
 name const * g_heq_trans = nullptr;
 name const * g_heq_of_eq = nullptr;
+name const * g_huge_fuel = nullptr;
 name const * g_id = nullptr;
 name const * g_id_rhs = nullptr;
 name const * g_id_delta = nullptr;
@@ -93,6 +94,8 @@ name const * g_iff_refl = nullptr;
 name const * g_iff_symm = nullptr;
 name const * g_iff_trans = nullptr;
 name const * g_iff_true_intro = nullptr;
+name const * g_inhabited = nullptr;
+name const * g_inhabited_default = nullptr;
 name const * g_int = nullptr;
 name const * g_int_nat_abs = nullptr;
 name const * g_int_lt = nullptr;
@@ -261,6 +264,7 @@ void initialize_constants() {
     g_heq_symm = new name{"Heq", "symm"};
     g_heq_trans = new name{"Heq", "trans"};
     g_heq_of_eq = new name{"heqOfEq"};
+    g_huge_fuel = new name{"hugeFuel"};
     g_id = new name{"id"};
     g_id_rhs = new name{"idRhs"};
     g_id_delta = new name{"idDelta"};
@@ -272,6 +276,8 @@ void initialize_constants() {
     g_iff_symm = new name{"Iff", "symm"};
     g_iff_trans = new name{"Iff", "trans"};
     g_iff_true_intro = new name{"iffTrueIntro"};
+    g_inhabited = new name{"Inhabited"};
+    g_inhabited_default = new name{"Inhabited", "default"};
     g_int = new name{"Int"};
     g_int_nat_abs = new name{"Int", "natAbs"};
     g_int_lt = new name{"Int", "lt"};
@@ -441,6 +447,7 @@ void finalize_constants() {
     delete g_heq_symm;
     delete g_heq_trans;
     delete g_heq_of_eq;
+    delete g_huge_fuel;
     delete g_id;
     delete g_id_rhs;
     delete g_id_delta;
@@ -452,6 +459,8 @@ void finalize_constants() {
     delete g_iff_symm;
     delete g_iff_trans;
     delete g_iff_true_intro;
+    delete g_inhabited;
+    delete g_inhabited_default;
     delete g_int;
     delete g_int_nat_abs;
     delete g_int_lt;
@@ -620,6 +629,7 @@ name const & get_heq_refl_name() { return *g_heq_refl; }
 name const & get_heq_symm_name() { return *g_heq_symm; }
 name const & get_heq_trans_name() { return *g_heq_trans; }
 name const & get_heq_of_eq_name() { return *g_heq_of_eq; }
+name const & get_huge_fuel_name() { return *g_huge_fuel; }
 name const & get_id_name() { return *g_id; }
 name const & get_id_rhs_name() { return *g_id_rhs; }
 name const & get_id_delta_name() { return *g_id_delta; }
@@ -631,6 +641,8 @@ name const & get_iff_refl_name() { return *g_iff_refl; }
 name const & get_iff_symm_name() { return *g_iff_symm; }
 name const & get_iff_trans_name() { return *g_iff_trans; }
 name const & get_iff_true_intro_name() { return *g_iff_true_intro; }
+name const & get_inhabited_name() { return *g_inhabited; }
+name const & get_inhabited_default_name() { return *g_inhabited_default; }
 name const & get_int_name() { return *g_int; }
 name const & get_int_nat_abs_name() { return *g_int_nat_abs; }
 name const & get_int_lt_name() { return *g_int_lt; }

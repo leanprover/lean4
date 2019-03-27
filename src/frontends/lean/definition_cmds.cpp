@@ -568,7 +568,8 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
         new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
-        if (!meta.m_modifiers.m_is_unsafe && (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
+        if (!meta.m_modifiers.m_is_unsafe && !meta.m_modifiers.m_is_partial &&
+            (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
             new_env = mk_smart_unfolding_definition(new_env, p.get_options(), c_real_name);
         }
         /* Apply attributes last so that they may access any information on the new decl */

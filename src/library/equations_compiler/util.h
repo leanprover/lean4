@@ -65,6 +65,7 @@ class unpack_eqn {
 public:
     unpack_eqn(type_context_old & ctx, expr const & eqn);
     expr add_var(name const & n, expr const & type);
+    expr add_var_front(name const & n, expr const & type);
     buffer<expr> & get_vars() { return m_vars; }
     expr & lhs() { return m_lhs; }
     expr & rhs() { return m_rhs; }

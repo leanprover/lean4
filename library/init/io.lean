@@ -64,15 +64,12 @@ constant Fs.handle : Type := Unit
 namespace Prim
 open Fs
 
-def iterateAux {α β : Type} (f : α → IO (Sum α β)) : (α → IO β) → (α → IO β)
-| rec a :=
+@[specialize] partial def iterate {α β : Type} : α → (α → IO (Sum α β)) → IO β
+| a f :=
   do v ← f a,
   match v with
-  | Sum.inl a := rec a
+  | Sum.inl a := iterate a f
   | Sum.inr b := pure b
-
-@[specialize] def iterate {α β : Type} (a : α) (f : α → IO (Sum α β)) : IO β :=
-fixCore (λ _, throw "deep recursion") (iterateAux f) a
 
 @[extern 2 "lean_io_prim_put_str"]
 constant putStr (s: @& String) : IO Unit := default _

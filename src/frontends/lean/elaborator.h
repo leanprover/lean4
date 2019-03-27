@@ -314,6 +314,7 @@ public:
     expr elaborate(expr const & e);
     expr elaborate_type(expr const & e);
     expr_pair elaborate_with_type(expr const & e, expr const & e_type);
+    void ensure_no_unassigned_metavars_core(expr & e);
     void ensure_no_unassigned_metavars(expr & e);
     /**
        \brief Finalize all expressions in \c es.

@@ -2634,10 +2634,23 @@ expr elaborator::visit_equations(expr const & e) {
         new_e = copy_pos(e, mk_equations(header, new_eqs.size(), new_eqs.data()));
     }
     new_e = instantiate_mvars(new_e);
-    ensure_no_unassigned_metavars(new_e);
+    ensure_no_unassigned_metavars_core(new_e);
     if (has_sorry(new_e))
         // aborting here prevents many additional errors
         throw elaborator_exception(e, "[abort visit_equation]").ignore_if(true);
+    if (!has_synth_sorry(new_e) && has_expr_metavar(e)) {
+        /* We perform this check to be able to reject code such as:
+           ```
+           @[pattern] def badPattern (x : Nat) : Nat := 0
+           def tst (x : Nat) : Nat :=
+           match x with
+           | (@badPattern _) := 1
+           | _               := 2
+           ```
+        */
+        // TODO(Leo, Kha): enable the following check
+        // throw elaborator_exception(new_e, "invalid pattern");
+    }
     metavar_context mctx = m_ctx.mctx();
     expr r = compile_equations(m_env, *this, mctx, m_ctx.lctx(), new_e);
     m_ctx.set_env(m_env);
@@ -3793,7 +3806,7 @@ void elaborator::synthesize() {
     synthesize_type_class_instances();
 }
 
-void elaborator::ensure_no_unassigned_metavars(expr & e) {
+void elaborator::ensure_no_unassigned_metavars_core(expr & e) {
     e = instantiate_mvars(e);
     if (!has_expr_metavar(e))
         return;
@@ -3832,6 +3845,10 @@ void elaborator::ensure_no_unassigned_metavars(expr & e) {
         }
     }
     e = instantiate_mvars(e);
+}
+
+void elaborator::ensure_no_unassigned_metavars(expr & e) {
+    ensure_no_unassigned_metavars_core(e);
     /* If we still have an unassigned mvar, it means the mvar doesn't directly correspond to a user-facing mvar.
      * That's bad (because we can't generate a sensible error message) and shouldn't happen. */
     lean_assert(has_synth_sorry(e) || !has_expr_metavar(e));

@@ -40,14 +40,15 @@ struct partial_rec_fn {
         return mk_type_context(m_lctx);
     }
 
-    optional<expr> find_arg_with_given_type(type_context_old & ctx, buffer<expr> const & args, expr const & type) {
+    optional<expr> find_arg_with_given_type(type_context_old & ctx, expr const & type) {
         type_context_old::transparency_scope scope(ctx, transparency_mode::Reducible);
-        for (expr const & arg : args) {
-            if (ctx.is_def_eq(ctx.infer(arg), type)) {
-                return some_expr(arg);
-            }
-        }
-        return none_expr();
+        optional<expr> result;
+        ctx.lctx().for_each([&](local_decl const & decl) {
+                if (!result && ctx.is_def_eq(decl.get_type(), type)) {
+                    result = decl.mk_ref();
+                }
+            });
+        return result;
     }
 
     optional<expr> mk_inhabitant(type_context_old & ctx, expr const & type) {
@@ -71,7 +72,7 @@ struct partial_rec_fn {
         expr rhs;
         if (optional<expr> inh = mk_inhabitant(ctx, result_type)) {
             rhs = *inh;
-        } else if (optional<expr> arg = find_arg_with_given_type(ctx, args.as_buffer(), result_type)) {
+        } else if (optional<expr> arg = find_arg_with_given_type(ctx, result_type)) {
             rhs = *arg;
         } else {
             throw generic_exception(m_ref, "failed to compile partial definition, failed to synthesize result type inhabitant");

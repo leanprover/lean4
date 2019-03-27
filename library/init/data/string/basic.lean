@@ -73,11 +73,6 @@ def utf8ByteSize : (@& String) → Nat
 @[inline] def bsize (s : String) : Nat :=
 utf8ByteSize s
 
-/- Auxiliary method for making it explicit when string size is being used as "fuel" in
-   a recursive definition. -/
-@[inline] def toFuel (s : String) : Nat :=
-s.bsize + 1
-
 @[inline] def toSubstring (s : String) : Substring :=
 {str := s, startPos := 0, endPos := s.bsize}
 
@@ -124,15 +119,17 @@ get s (prev s (bsize s))
 def atEnd : (@& String) → (@& Pos) → Bool
 | s p := p ≥ utf8ByteSize s
 
-def posOfAux (s : String) (c : Char) (endPos : Pos) : Nat → Pos → Pos
-| 0     pos := pos
-| (k+1) pos :=
+/- TODO: remove `partial` keywords after we restore the tactic
+  framework and wellfounded recursion support -/
+
+partial def posOfAux (s : String) (c : Char) (endPos : Pos) : Pos → Pos
+| pos :=
   if pos == endPos then pos
   else if s.get pos == c then pos
-       else posOfAux k (s.next pos)
+       else posOfAux (s.next pos)
 
 @[inline] def posOf (s : String) (c : Char) : Pos :=
-posOfAux s c s.bsize s.toFuel 0
+posOfAux s c s.bsize 0
 
 private def utf8ExtractAux₂ : List Char → Pos → Pos → List Char
 | []      _ _ := []
@@ -146,21 +143,20 @@ private def utf8ExtractAux₁ : List Char → Pos → Pos → Pos → List Char
 def extract : (@& String) → (@& Pos) → (@& Pos) → String
 | ⟨s⟩ b e := if b ≥ e then ⟨[]⟩ else ⟨utf8ExtractAux₁ s 0 b e⟩
 
-def splitAux (s sep : String) : Nat → Pos → Pos → Pos → List String → List String
-| 0     b i j r := [] -- unreachable
-| (k+1) b i j r :=
+partial def splitAux (s sep : String) : Pos → Pos → Pos → List String → List String
+| b i j r :=
   if s.atEnd i then
     let r := if sep.atEnd j then ""::(s.extract b (i-j))::r else (s.extract b i)::r
     in r.reverse
   else if s.get i == sep.get j then
     let i := s.next i in
     let j := sep.next j in
-    if sep.atEnd j then splitAux k i i 0 (s.extract b (i-j)::r)
-    else splitAux k b i j r
-  else splitAux k b (s.next i) 0 r
+    if sep.atEnd j then splitAux i i 0 (s.extract b (i-j)::r)
+    else splitAux b i j r
+  else splitAux b (s.next i) 0 r
 
 def split (s : String) (sep : String := " ") : List String :=
-if sep == "" then [s] else splitAux s sep s.toFuel 0 0 0 []
+if sep == "" then [s] else splitAux s sep 0 0 0 []
 
 instance : Inhabited String :=
 ⟨""⟩
@@ -251,53 +247,48 @@ def prevn : Iterator → Nat → Iterator
 | it (i+1) := prevn it.prev i
 end Iterator
 
-private def lineColumnAux (s : String) : Nat → Pos → Nat × Nat → Nat × Nat
-| 0     i r            := r
-| (k+1) i r@(line, col) :=
+private partial def lineColumnAux (s : String) : Pos → Nat × Nat → Nat × Nat
+| i r@(line, col) :=
   if atEnd s i then r
   else let c := s.get i in
-       if c = '\n' then lineColumnAux k (s.next i) (line+1, 0)
-       else lineColumnAux k (s.next i) (line, col+1)
+       if c = '\n' then lineColumnAux (s.next i) (line+1, 0)
+       else lineColumnAux (s.next i) (line, col+1)
 
 def lineColumn (s : String) (pos : Pos) : Nat × Nat :=
-lineColumnAux s s.toFuel 0 (1, 0)
+lineColumnAux s 0 (1, 0)
 
-def offsetOfPosAux (s : String) (pos : Pos) : Nat → Pos → Nat → Nat
-| 0     _ offset := offset
-| (k+1) i offset :=
+partial def offsetOfPosAux (s : String) (pos : Pos) : Pos → Nat → Nat
+| i offset :=
   if i == pos || s.atEnd i then offset
-  else offsetOfPosAux k (s.next i) (offset+1)
+  else offsetOfPosAux (s.next i) (offset+1)
 
 def offsetOfPos (s : String) (pos : Pos) : Nat :=
-offsetOfPosAux s pos s.toFuel 0 0
+offsetOfPosAux s pos 0 0
 
-@[specialize] def foldlAux {α : Type u} (f : α → Char → α) (s : String) (endPos : Pos) : Nat → Pos → α → α
-| 0     _ a := a
-| (k+1) i a :=
+@[specialize] partial def foldlAux {α : Type u} (f : α → Char → α) (s : String) (endPos : Pos) : Pos → α → α
+| i a :=
   if i == endPos then a
-  else foldlAux k (s.next i) (f a (s.get i))
+  else foldlAux (s.next i) (f a (s.get i))
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : String) : α :=
-foldlAux f s s.bsize s.toFuel 0 a
+foldlAux f s s.bsize 0 a
 
-@[specialize] def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (endPos : Pos) : Nat → Pos → α
-| 0     i := a
-| (k+1) i :=
+@[specialize] partial def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (endPos : Pos) : Pos → α
+| i :=
   if i == endPos then a
-  else f (s.get i) (foldrAux k (s.next i))
+  else f (s.get i) (foldrAux (s.next i))
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : String) : α :=
-foldrAux f a s s.bsize s.toFuel 0
+foldrAux f a s s.bsize 0
 
-@[specialize] def anyAux (s : String) (endPos : Pos) (p : Char → Bool) : Nat → Pos → Bool
-| 0     _ := false
-| (k+1) i :=
+@[specialize] partial def anyAux (s : String) (endPos : Pos) (p : Char → Bool) : Pos → Bool
+| i :=
   if i == endPos then false
   else if p (s.get i) then true
-  else anyAux k (s.next i)
+  else anyAux (s.next i)
 
 @[inline] def any (s : String) (p : Char → Bool) : Bool :=
-anyAux s s.bsize p s.toFuel 0
+anyAux s s.bsize p 0
 
 @[inline] def all (s : String) (p : Char → Bool) : Bool :=
 !s.any (λ c, !p c)
@@ -305,16 +296,15 @@ anyAux s s.bsize p s.toFuel 0
 def contains (s : String) (c : Char) : Bool :=
 s.any (== c)
 
-@[specialize] def mapAux (f : Char → Char) : Nat → Pos → String → String
-| 0     i s := s
-| (k+1) i s :=
+@[specialize] partial def mapAux (f : Char → Char) : Pos → String → String
+| i s :=
   if s.atEnd i then s
   else let c := f (s.get i) in
        let s := s.set i c in
-       mapAux k (s.next i) s
+       mapAux (s.next i) s
 
 @[inline] def map (f : Char → Char) (s : String) : String :=
-mapAux f s.toFuel 0 s
+mapAux f 0 s
 
 def toNat (s : String) : Nat :=
 s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0
@@ -349,7 +339,7 @@ s.get 0
 
 @[inline] def posOf (s : Substring) (c : Char) : String.Pos :=
 match s with
-| ⟨s, b, e⟩ := (String.posOfAux s c e s.toFuel b) - b
+| ⟨s, b, e⟩ := (String.posOfAux s c e b) - b
 
 @[inline] def drop : Substring → Nat → Substring
 | ⟨s, b, e⟩ n :=
@@ -377,33 +367,32 @@ match s with
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
 | ⟨s, b, _⟩ b' e' := if b' ≥ e' then ⟨"", 0, 1⟩ else ⟨s, b+b', b+e'⟩
 
-def splitAux (s sep : String) (endPos : String.Pos) : Nat → String.Pos → String.Pos → String.Pos → List Substring → List Substring
-| 0     b i j r := [] -- unreachable
-| (k+1) b i j r :=
+partial def splitAux (s sep : String) (endPos : String.Pos) : String.Pos → String.Pos → String.Pos → List Substring → List Substring
+| b i j r :=
   if i == endPos then
     let r := if sep.atEnd j then "".toSubstring::{str := s, startPos := b, endPos := i-j}::r else {str := s, startPos := b, endPos := i}::r
     in r.reverse
   else if s.get i == sep.get j then
     let i := s.next i in
     let j := sep.next j in
-    if sep.atEnd j then splitAux k i i 0 ({str := s, startPos := b, endPos := i-j}::r)
-    else splitAux k b i j r
-  else splitAux k b (s.next i) 0 r
+    if sep.atEnd j then splitAux i i 0 ({str := s, startPos := b, endPos := i-j}::r)
+    else splitAux b i j r
+  else splitAux b (s.next i) 0 r
 
 def split (s : Substring) (sep : String := " ") : List Substring :=
-if sep == "" then [s] else splitAux s.str sep s.endPos s.str.toFuel s.startPos s.startPos 0 []
+if sep == "" then [s] else splitAux s.str sep s.endPos s.startPos s.startPos 0 []
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : Substring) : α :=
 match s with
-| ⟨s, b, e⟩ := String.foldlAux f s e s.toFuel b a
+| ⟨s, b, e⟩ := String.foldlAux f s e b a
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : Substring) : α :=
 match s with
-| ⟨s, b, e⟩ := String.foldrAux f a s e s.toFuel b
+| ⟨s, b, e⟩ := String.foldrAux f a s e b
 
 @[inline] def any (s : Substring) (p : Char → Bool) : Bool :=
 match s with
-| ⟨s, b, e⟩ := String.anyAux s e p s.toFuel b
+| ⟨s, b, e⟩ := String.anyAux s e p b
 
 @[inline] def all (s : Substring) (p : Char → Bool) : Bool :=
 !s.any (λ c, !p c)
@@ -411,40 +400,38 @@ match s with
 def contains (s : Substring) (c : Char) : Bool :=
 s.any (== c)
 
-@[specialize] def takeWhileAux (s : String) (endPos : String.Pos) (p : Char → Bool) : Nat → String.Pos → String.Pos
-| 0     i := i
-| (k+1) i :=
+@[specialize] partial def takeWhileAux (s : String) (endPos : String.Pos) (p : Char → Bool) : String.Pos → String.Pos
+| i :=
   if i == endPos then i
-  else if p (s.get i) then takeWhileAux k (s.next i)
+  else if p (s.get i) then takeWhileAux (s.next i)
   else i
 
 @[inline] def takeWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let e := takeWhileAux s e p s.toFuel b in
+  let e := takeWhileAux s e p b in
   ⟨s, b, e⟩
 
 @[inline] def dropWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let b := takeWhileAux s e p s.toFuel b in
+  let b := takeWhileAux s e p b in
   ⟨s, b, e⟩
 
-@[specialize] def takeRightWhileAux (s : String) (begPos : String.Pos) (p : Char → Bool) : Nat → String.Pos → String.Pos
-| 0     i := begPos
-| (k+1) i :=
+@[specialize] partial def takeRightWhileAux (s : String) (begPos : String.Pos) (p : Char → Bool) : String.Pos → String.Pos
+| i :=
   if i == begPos then i
   else let i' := s.prev i in
        let c  := s.get i' in
        if !p c then i
-       else takeRightWhileAux k i'
+       else takeRightWhileAux i'
 
 @[inline] def takeRightWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let b := takeRightWhileAux s b p s.toFuel e in
+  let b := takeRightWhileAux s b p e in
   ⟨s, b, e⟩
 
 @[inline] def dropRightWhile : Substring → (Char → Bool) → Substring
 | ⟨s, b, e⟩ p :=
-  let e := takeRightWhileAux s b p s.toFuel e in
+  let e := takeRightWhileAux s b p e in
   ⟨s, b, e⟩
 
 @[inline] def trimLeft (s : Substring) : Substring :=
@@ -455,8 +442,8 @@ s.dropRightWhile Char.isWhitespace
 
 @[inline] def trim : Substring → Substring
 | ⟨s, b, e⟩ :=
-  let b := takeWhileAux s e Char.isWhitespace s.toFuel b in
-  let e := takeRightWhileAux s b Char.isWhitespace s.toFuel e in
+  let b := takeWhileAux s e Char.isWhitespace b in
+  let e := takeRightWhileAux s b Char.isWhitespace e in
   ⟨s, b, e⟩
 
 def toNat (s : Substring) : Nat :=

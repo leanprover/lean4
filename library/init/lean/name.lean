@@ -162,6 +162,8 @@ variable {α : Type}
 
 instance (α : Type) : HasEmptyc (NameMap α) := ⟨mkNameMap α⟩
 
+instance (α : Type) : Inhabited (NameMap α) := ⟨{}⟩
+
 def insert (m : NameMap α) (n : Name) (a : α) := RBMap.insert m n a
 
 def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
@@ -177,6 +179,8 @@ def NameSet := RBTree Name (<)
 namespace NameSet
 
 instance : HasEmptyc NameSet := ⟨mkNameSet⟩
+
+instance : Inhabited NameSet := ⟨{}⟩
 
 def insert (s : NameSet) (n : Name)  := RBTree.insert s n
 

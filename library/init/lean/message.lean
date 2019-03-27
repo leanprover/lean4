@@ -31,6 +31,9 @@ msg.filename ++ ":" ++ toString msg.pos.line ++ ":" ++ toString msg.pos.column +
 (if msg.caption = "" then "" else msg.caption ++ ":\n") ++
 msg.text
 
+instance : Inhabited Message :=
+⟨{ filename := "", pos := ⟨0, 1⟩, text := ""}⟩
+
 instance : HasToString Message :=
 ⟨Message.toString⟩
 end Message

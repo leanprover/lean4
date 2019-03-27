@@ -93,12 +93,15 @@ m.insert k (DataValue.ofBool v)
 def setName (m : KVMap) (k : Name) (v : Name) : KVMap :=
 m.insert k (DataValue.ofName v)
 
-def subset : KVMap → KVMap → Bool
-| ⟨[]⟩          m₂ := true
-| ⟨(k, v₁)::m₁⟩ m₂ :=
+def subsetAux : List (Name × DataValue) → KVMap → Bool
+| []            m₂ := true
+| ((k, v₁)::m₁) m₂ :=
   (match m₂.find k with
-   | some v₂ := v₁ == v₂ && subset ⟨m₁⟩ m₂
+   | some v₂ := v₁ == v₂ && subsetAux m₁ m₂
    | none    := false)
+
+def subset : KVMap → KVMap → Bool
+| ⟨m₁⟩ m₂ := subsetAux m₁ m₂
 
 def eqv (m₁ m₂ : KVMap) : Bool :=
 subset m₁ m₂ && subset m₂ m₁

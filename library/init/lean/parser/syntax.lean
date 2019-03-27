@@ -127,20 +127,17 @@ def isOfKind (k : SyntaxNodeKind) : Syntax → Bool
 
 section
 variables {m : Type → Type} [Monad m] (r : Syntax → m (Option Syntax))
+local attribute [instance] monadInhabited
 
-mutual def mreplace, mreplaceLst
-with mreplace : Syntax → m Syntax
+partial def mreplace : Syntax → m Syntax
 | stx@(rawNode n) := do
   o ← r stx,
   (match o with
   | some stx' := pure stx'
-  | none      := do args' ← mreplaceLst n.args, pure $ rawNode {n with args := args'})
+  | none      := do args' ← n.args.mmap mreplace, pure $ rawNode {n with args := args'})
 | stx := do
   o ← r stx,
   pure $ o.getOrElse stx
-with mreplaceLst : List Syntax → m (List Syntax)
-| []      := pure []
-| (s::ss) := List.cons <$> mreplace s <*> mreplaceLst ss
 
 def replace := @mreplace id _
 end
@@ -173,15 +170,11 @@ def updateLeading (source : String) : Syntax → Syntax :=
 λ stx, Prod.fst $ (mreplace updateLeadingAux stx).run source.mkOldIterator
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
-mutual def getHeadInfo, getHeadInfoLst
-with getHeadInfo : Syntax → Option SourceInfo
-| (atom a)   := a.info
-| (ident id) := id.info
-| (rawNode n) := getHeadInfoLst n.args
-| _ := none
-with getHeadInfoLst : List Syntax → Option SourceInfo
-| [] := none
-| (stx::stxs) := getHeadInfo stx <|> getHeadInfoLst stxs
+partial def getHeadInfo : Syntax → Option SourceInfo
+| (atom a)    := a.info
+| (ident id)  := id.info
+| (rawNode n) := n.args.foldr (λ s r, getHeadInfo s <|> r) none
+| _           := none
 
 def getPos (stx : Syntax) : Option Parsec.Position :=
 do i ← stx.getHeadInfo,
@@ -191,8 +184,7 @@ def reprintAtom : SyntaxAtom → String
 | ⟨some info, s⟩ := info.leading.toString ++ s ++ info.trailing.toString
 | ⟨none, s⟩      := s
 
-mutual def reprint, reprintLst
-with reprint : Syntax → Option String
+partial def reprint : Syntax → Option String
 | (atom ⟨some info, s⟩) := pure $ info.leading.toString ++ s ++ info.trailing.toString
 | (atom ⟨none, s⟩)      := pure s
 | (ident id@{info := some info, ..}) := pure $ info.leading.toString ++ id.rawVal.toString ++ info.trailing.toString
@@ -204,20 +196,13 @@ with reprint : Syntax → Option String
   -- check that every choice prints the same
   | n::ns := do
     s ← reprint n,
-    ss ← reprintLst ns,
+    ss ← ns.mmap reprint,
     guard $ ss.all (= s),
     pure s
-  else String.join <$> reprintLst n.args
+  else String.join <$> n.args.mmap reprint
 | missing := ""
-with reprintLst : List Syntax → Option (List String)
-| []      := pure []
-| (n::ns) := do
-  s ← reprint n,
-  ss ← reprintLst ns,
-  pure $ s::ss
 
-protected mutual def toFormat, toFormatLst
-with toFormat : Syntax → Format
+protected partial def toFormat : Syntax → Format
 | (atom ⟨_, s⟩) := toFmt $ repr s
 | (ident id)    :=
   let scopes := id.preresolved.map toFmt ++ id.scopes.reverse.map toFmt in
@@ -225,13 +210,10 @@ with toFormat : Syntax → Format
   toFmt "`" ++ toFmt id.val ++ scopes
 | stx@(rawNode n) :=
   let scopes := match n.scopes with [] := toFmt "" | _ := bracket "{" (joinSep n.scopes.reverse ", ") "}" in
-  if n.kind.name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (toFormatLst n.args) line
+  if n.kind.name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (n.args.map toFormat) line
   else let shorterName := n.kind.name.replacePrefix `Lean.Parser Name.anonymous
-       in paren $ joinSep ((toFmt shorterName ++ scopes) :: toFormatLst n.args) line
+       in paren $ joinSep ((toFmt shorterName ++ scopes) :: n.args.map toFormat) line
 | missing := "<missing>"
-with toFormatLst : List Syntax → List Format
-| []      := []
-| (s::ss) := toFormat s :: toFormatLst ss
 
 instance : HasToFormat Syntax := ⟨Syntax.toFormat⟩
 instance : HasToString Syntax := ⟨toString ∘ toFmt⟩

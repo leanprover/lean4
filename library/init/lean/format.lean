@@ -20,6 +20,7 @@ inductive Format
 namespace Format
 instance : HasAppend Format     := ⟨compose false⟩
 instance : HasCoe String Format := ⟨text⟩
+instance : Inhabited Format     := ⟨nil⟩
 
 def join (xs : List Format) : Format :=
 xs.foldl (++) ""
@@ -44,10 +45,7 @@ structure SpaceResult :=
 (exceeded := false)
 (space    := 0)
 
-/-
-TODO: mark as `@[inline]` as soon as we fix the code inliner.
--/
-private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Thunk SpaceResult) : SpaceResult :=
+@[inline] private def merge (w : Nat) (r₁ : SpaceResult) (r₂ : Thunk SpaceResult) : SpaceResult :=
 if r₁.exceeded || r₁.found then r₁
 else let y := r₂.get in
      if y.exceeded || y.found then y
@@ -66,7 +64,7 @@ def spaceUptoLine' : List (Nat × Format) → Nat → SpaceResult
 | []      w := {}
 | (p::ps) w := merge w (spaceUptoLine p.2 w) (spaceUptoLine' ps w)
 
-def be : Nat → Nat → String → List (Nat × Format) → String
+partial def be : Nat → Nat → String → List (Nat × Format) → String
 | w k out []                           := out
 | w k out ((i, nil)::z)                := be w k out z
 | w k out ((i, (compose _ f₁ f₂))::z)  := be w k out ((i, f₁)::(i, f₂)::z)

@@ -184,24 +184,20 @@ def Expr.isPure : Expr → Bool
 | _                := false
 
 /-- `Fnbody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
-mutual def Fnbody.isPure, Alts.isPure, Alt.isPure
-with Fnbody.isPure : Fnbody → Bool
+partial def Fnbody.isPure : Fnbody → Bool
 | (Fnbody.vdecl _ _ e b)    := e.isPure && b.isPure
 | (Fnbody.jdecl _ _ _ e b)  := e.isPure && b.isPure
 | (Fnbody.uset _ _ _ b)     := b.isPure
 | (Fnbody.sset _ _ _ _ _ b) := b.isPure
 | (Fnbody.mdata _ b)        := b.isPure
-| (Fnbody.case _ _ cs)      := Alts.isPure cs
+| (Fnbody.case _ _ alts)    := alts.any $ λ alt,
+  (match alt with
+   | (Alt.ctor _ b)  := b.isPure
+   | (Alt.default b) := false)
 | (Fnbody.ret _)            := true
 | (Fnbody.jmp _ _)          := true
 | Fnbody.unreachable        := true
 | _                         := false
-with Alts.isPure : List Alt → Bool
-| []      := true
-| (a::as) := a.isPure && Alts.isPure as
-with Alt.isPure : Alt → Bool
-| (Alt.ctor _ b)  := b.isPure
-| (Alt.default b) := false
 
 abbrev VarRenaming := NameMap Name
 
@@ -262,8 +258,7 @@ def addParamsRename : VarRenaming → List Param → List Param → Option VarRe
 | ρ []        []        := some ρ
 | _ _         _         := none
 
-mutual def Fnbody.alphaEqv, Alts.alphaEqv, Alt.alphaEqv
-with Fnbody.alphaEqv : VarRenaming → Fnbody → Fnbody → Bool
+partial def Fnbody.alphaEqv : VarRenaming → Fnbody → Fnbody → Bool
 | ρ (Fnbody.vdecl x₁ t₁ v₁ b₁)      (Fnbody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && Fnbody.alphaEqv (addVarRename ρ x₁ x₂) b₁ b₂
 | ρ (Fnbody.jdecl j₁ ys₁ t₁ v₁ b₁)  (Fnbody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
   (match addParamsRename ρ ys₁ ys₂ with
@@ -277,19 +272,15 @@ with Fnbody.alphaEqv : VarRenaming → Fnbody → Fnbody → Bool
 | ρ (Fnbody.inc x₁ n₁ c₁ b₁)        (Fnbody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.dec x₁ n₁ c₁ b₁)        (Fnbody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
 | ρ (Fnbody.mdata m₁ b₁)            (Fnbody.mdata m₂ b₂)              := m₁ == m₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.case n₁ x₁ as₁)         (Fnbody.case n₂ x₂ as₂)           := n₁ == n₂ && x₁ =[ρ]= x₂ && Alts.alphaEqv ρ as₁ as₂
+| ρ (Fnbody.case n₁ x₁ alts₁)       (Fnbody.case n₂ x₂ alts₂)         := n₁ == n₂ && x₁ =[ρ]= x₂ && List.isEqv alts₁ alts₂ (λ alt₁ alt₂,
+   match alt₁, alt₂ with
+   | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ := i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
+   | Alt.default b₁, Alt.default b₂ := Fnbody.alphaEqv ρ b₁ b₂
+   | _,              _              := false)
 | ρ (Fnbody.jmp j₁ ys₁)             (Fnbody.jmp j₂ ys₂)               := j₁ == j₂ && ys₁ =[ρ]= ys₂
 | ρ (Fnbody.ret x₁)                 (Fnbody.ret x₂)                   := x₁ =[ρ]= x₂
 | _ Fnbody.unreachable              Fnbody.unreachable                := true
 | _ _                               _                                 := false
-with Alts.alphaEqv : VarRenaming → List Alt → List Alt → Bool
-| _ []        []        := true
-| ρ (a₁::as₁) (a₂::as₂) := Alt.alphaEqv ρ a₁ a₂ && Alts.alphaEqv ρ as₁ as₂
-| _ _         _         := false
-with Alt.alphaEqv : VarRenaming → Alt → Alt → Bool
-| ρ (Alt.ctor i₁ b₁) (Alt.ctor i₂ b₂) := i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Alt.default b₁) (Alt.default b₂) := Fnbody.alphaEqv ρ b₁ b₂
-| _ _                _                := false
 
 def Fnbody.beq (b₁ b₂ : Fnbody) : Bool :=
 Fnbody.alphaEqv ∅  b₁ b₂
@@ -345,8 +336,7 @@ private def collectExpr : Expr → Collector
 | (Expr.isShared x)      := collectVar x
 | (Expr.isTaggedPtr x)   := collectVar x
 
-private mutual def collectFnBody, collectAlts, collectAlt
-with collectFnBody : Fnbody → Collector
+private partial def collectFnBody : Fnbody → Collector
 | (Fnbody.vdecl x _ v b)    := collectExpr v *> withBv x (collectFnBody b)
 | (Fnbody.jdecl j ys _ v b) := withParams ys (collectFnBody v) *> withBv j (collectFnBody b)
 | (Fnbody.set x _ y b)      := collectVar x *> collectVar y *> collectFnBody b
@@ -356,16 +346,14 @@ with collectFnBody : Fnbody → Collector
 | (Fnbody.inc x _ _ b)      := collectVar x *> collectFnBody b
 | (Fnbody.dec x _ _ b)      := collectVar x *> collectFnBody b
 | (Fnbody.mdata _ b)        := collectFnBody b
-| (Fnbody.case _ x as)      := collectVar x *> collectAlts as
+| (Fnbody.case _ x alts)    := collectVar x *> λ bv fv, alts.foldl (λ fv alt,
+   match alt with
+   | Alt.ctor _ b  := collectFnBody b bv fv
+   | Alt.default b := collectFnBody b bv fv)
+   fv
 | (Fnbody.jmp j ys)         := collectVar j *> collectArgs ys
 | (Fnbody.ret x)            := collectVar x
 | Fnbody.unreachable        := skip
-with collectAlts : List Alt → Collector
-| []      := skip
-| (a::as) := collectAlt a *> collectAlts as
-with collectAlt : Alt → Collector
-| (Alt.ctor _ b)  := collectFnBody b
-| (Alt.default b) := collectFnBody b
 
 def freeVars (b : Fnbody) : VarSet :=
 collectFnBody b ∅ ∅

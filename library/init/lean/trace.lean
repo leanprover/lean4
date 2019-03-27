@@ -19,7 +19,7 @@ instance : HasCoe Format Message :=
 inductive Trace
 | mk (msg : Message) (subtraces : List Trace)
 
-def Trace.pp : Trace → Format
+partial def Trace.pp : Trace → Format
 | (Trace.mk (Message.fromFormat fmt) subtraces) :=
 fmt ++ Format.nest 2 (Format.join $ subtraces.map (λ t, Format.line ++ t.pp))
 

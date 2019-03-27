@@ -90,11 +90,11 @@ def Result.succ : Result → Result
 
 def Result.max : Result → Result → Result
 | f (Result.maxNode Fs) := Result.maxNode (f::Fs)
-| f₁ f₂                  := Result.maxNode [f₁, f₂]
+| f₁ f₂                 := Result.maxNode [f₁, f₂]
 
 def Result.imax : Result → Result → Result
 | f (Result.imaxNode Fs) := Result.imaxNode (f::Fs)
-| f₁ f₂                   := Result.imaxNode [f₁, f₂]
+| f₁ f₂                  := Result.imaxNode [f₁, f₂]
 
 def parenIfFalse : Format → Bool → Format
 | f true  := f

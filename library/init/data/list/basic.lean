@@ -380,4 +380,8 @@ def isPrefixOf [DecidableEq α] : List α → List α → Bool
 def isSuffixOf [DecidableEq α] (l₁ l₂ : List α) : Bool :=
 isPrefixOf l₁.reverse l₂.reverse
 
+@[specialize] def isEqv : List α → List α → (α → α → Bool) → Bool
+| []      []      _   := true
+| (a::as) (b::bs) eqv := eqv a b && isEqv as bs eqv
+| _       _       eqv := false
 end List

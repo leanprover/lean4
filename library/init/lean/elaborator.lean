@@ -131,6 +131,9 @@ structure ElaboratorState :=
 def ElaboratorM := RecT Syntax Unit $ ReaderT ElaboratorConfig $ StateT ElaboratorState $ ExceptT Message id
 abbrev Elaborator := Syntax → ElaboratorM Unit
 
+instance elaboratorInh (α : Type) : Inhabited (ElaboratorM α) :=
+⟨λ _ _ _, Except.error (default _)⟩
+
 /-- Recursively elaborate any command. -/
 def command.elaborate : Elaborator := recurse
 
@@ -149,7 +152,7 @@ def modifyCurrentScope (f : Scope → Scope) : ElaboratorM Unit := do
 def mangleIdent (id : SyntaxIdent) : Name :=
 id.scopes.foldl Name.mkNumeral id.val
 
-def levelGetAppArgs : Syntax → ElaboratorM (Syntax × List Syntax)
+partial def levelGetAppArgs : Syntax → ElaboratorM (Syntax × List Syntax)
 | stx := do
   match stx.kind with
   | some Level.leading := pure (stx, [])
@@ -164,7 +167,7 @@ def levelAdd : Level → Nat → Level
 | l 0     := l
 | l (n+1) := (levelAdd l n).succ
 
-def toLevel : Syntax → ElaboratorM Level
+partial def toLevel : Syntax → ElaboratorM Level
 | stx := do
   (fn, args) ← levelGetAppArgs stx,
   sc ← currentScope,
@@ -198,7 +201,7 @@ def mkEqns (type : Expr) (eqns : List (Name × List Expr × Expr)): Expr :=
   } in
   Expr.mkAnnotation `preEquations $ Expr.mkCapp `_ eqns
 
-def toPexpr : Syntax → ElaboratorM Expr
+partial def toPexpr : Syntax → ElaboratorM Expr
 | stx@(Syntax.rawNode {kind := k, args := args}) := do
   e ← match k with
   | @identUnivs := do
@@ -970,7 +973,7 @@ def resolveContext : Name → ElaboratorM (List Name)
 
   -- TODO: projection notation
 
-def preresolve : Syntax → ElaboratorM Syntax
+partial def preresolve : Syntax → ElaboratorM Syntax
 | (Syntax.ident id) := do
   let n := mangleIdent id,
   ns ← resolveContext n,

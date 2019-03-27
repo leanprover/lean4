@@ -4,6 +4,8 @@ def f : List Nat → Bool
 
 #check f._main._cstage2
 
+#exit
+
 mutual def f1, f2, f3, f4, f5
 with f1 : Nat → Bool
 | 0 := f3 0

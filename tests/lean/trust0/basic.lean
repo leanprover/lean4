@@ -68,7 +68,7 @@ def {u} repeat {α : Type u} (f : ℕ → α → α) : ℕ → α → α
 | 0         a := a
 | (succ n)  a := f n (repeat n a)
 
-lemma natZeroEqZero : Nat.zero = 0 :=
+theorem natZeroEqZero : Nat.zero = 0 :=
 rfl
 
 /- properties of inequality -/
@@ -76,32 +76,32 @@ rfl
 protected def leRefl : ∀ a : ℕ, a ≤ a :=
 lessThanOrEqual.refl
 
-lemma leSucc (n : ℕ) : n ≤ succ n :=
+theorem leSucc (n : ℕ) : n ≤ succ n :=
 lessThanOrEqual.step (Nat.leRefl n)
 
-lemma succLeSucc {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
+theorem succLeSucc {n m : ℕ} : n ≤ m → succ n ≤ succ m :=
 λ h, lessThanOrEqual.ndrec (Nat.leRefl (succ n)) (λ a b, lessThanOrEqual.step) h
 
-lemma zeroLe : ∀ (n : ℕ), 0 ≤ n
+theorem zeroLe : ∀ (n : ℕ), 0 ≤ n
 | 0     := Nat.leRefl 0
 | (n+1) := lessThanOrEqual.step (zeroLe n)
 
-lemma zeroLtSucc (n : ℕ) : 0 < succ n :=
+theorem zeroLtSucc (n : ℕ) : 0 < succ n :=
 succLeSucc (zeroLe n)
 
 def succPos := zeroLtSucc
 
-lemma notSuccLeZero : ∀ (n : ℕ), succ n ≤ 0 → False
+theorem notSuccLeZero : ∀ (n : ℕ), succ n ≤ 0 → False
 .
 
-lemma notLtZero (a : ℕ) : ¬ a < 0 := notSuccLeZero a
+theorem notLtZero (a : ℕ) : ¬ a < 0 := notSuccLeZero a
 
-lemma predLePred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
+theorem predLePred {n m : ℕ} : n ≤ m → pred n ≤ pred m :=
 λ h, lessThanOrEqual.ndrecOn h
   (Nat.leRefl (pred n))
   (λ n, Nat.rec (λ a b, b) (λ a b c, lessThanOrEqual.step) n)
 
-lemma leOfSuccLeSucc {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
+theorem leOfSuccLeSucc {n m : ℕ} : succ n ≤ succ m → n ≤ m :=
 predLePred
 
 instance decidableLe : ∀ a b : ℕ, Decidable (a ≤ b)
@@ -115,38 +115,38 @@ instance decidableLe : ∀ a b : ℕ, Decidable (a ≤ b)
 instance decidableLt : ∀ a b : ℕ, Decidable (a < b) :=
 λ a b, Nat.decidableLe (succ a) b
 
-protected lemma eqOrLtOfLe {a b : ℕ} (h : a ≤ b) : a = b ∨ a < b :=
+protected theorem eqOrLtOfLe {a b : ℕ} (h : a ≤ b) : a = b ∨ a < b :=
 lessThanOrEqual.casesOn h (Or.inl rfl) (λ n h, Or.inr (succLeSucc h))
 
-lemma ltSuccOfLe {a b : ℕ} : a ≤ b → a < succ b :=
+theorem ltSuccOfLe {a b : ℕ} : a ≤ b → a < succ b :=
 succLeSucc
 
-lemma succSubSuccEqSub (a b : ℕ) : succ a - succ b = a - b :=
+theorem succSubSuccEqSub (a b : ℕ) : succ a - succ b = a - b :=
 Nat.recOn b
   (show succ a - succ zero = a - zero, from (Eq.refl (succ a - succ zero)))
   (λ b, congrArg pred)
 
-lemma notSuccLeSelf : ∀ n : ℕ, ¬succ n ≤ n :=
+theorem notSuccLeSelf : ∀ n : ℕ, ¬succ n ≤ n :=
 λ n, Nat.rec (notSuccLeZero 0) (λ a b c, b (leOfSuccLeSucc c)) n
 
-protected lemma ltIrrefl (n : ℕ) : ¬n < n :=
+protected theorem ltIrrefl (n : ℕ) : ¬n < n :=
 notSuccLeSelf n
 
-protected lemma leTrans {n m k : ℕ} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
+protected theorem leTrans {n m k : ℕ} (h1 : n ≤ m) : m ≤ k → n ≤ k :=
 lessThanOrEqual.ndrec h1 (λ p h2, lessThanOrEqual.step)
 
-lemma predLe : ∀ (n : ℕ), pred n ≤ n
+theorem predLe : ∀ (n : ℕ), pred n ≤ n
 | 0        := lessThanOrEqual.refl 0
 | (succ a) := lessThanOrEqual.step (lessThanOrEqual.refl a)
 
-lemma predLt : ∀ {n : ℕ}, n ≠ 0 → pred n < n
+theorem predLt : ∀ {n : ℕ}, n ≠ 0 → pred n < n
 | 0        h := absurd rfl h
 | (succ a) h := ltSuccOfLe (lessThanOrEqual.refl _)
 
-lemma subLe (a b : ℕ) : a - b ≤ a :=
+theorem subLe (a b : ℕ) : a - b ≤ a :=
 Nat.recOn b (Nat.leRefl (a - 0)) (λ b₁, Nat.leTrans (predLe (a - b₁)))
 
-lemma subLt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
+theorem subLt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
 | 0     b     h1 h2 := absurd h1 (Nat.ltIrrefl 0)
 | (a+1) 0     h1 h2 := absurd h2 (Nat.ltIrrefl 0)
 | (a+1) (b+1) h1 h2 :=
@@ -154,7 +154,7 @@ lemma subLt : ∀ {a b : ℕ}, 0 < a → 0 < b → a - b < a
     show a - b < succ a, from
     ltSuccOfLe (subLe a b)
 
-protected lemma ltOfLtOfLe {n m k : ℕ} : n < m → m ≤ k → n < k :=
+protected theorem ltOfLtOfLe {n m k : ℕ} : n < m → m ≤ k → n < k :=
 Nat.leTrans
 
 end Nat

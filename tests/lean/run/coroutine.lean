@@ -89,7 +89,9 @@ open wellFoundedTactics
 
 -/
 
-@[inlineIfReduce] protected def bind : coroutine α δ β → (β → coroutine α δ γ) → coroutine α δ γ
+/- TODO: remove `unsafe` keyword after we restore well-founded recursion -/
+
+@[inlineIfReduce] protected unsafe def bind : coroutine α δ β → (β → coroutine α δ γ) → coroutine α δ γ
 | (mk k) f := mk $ λ a,
     match k a, rfl : ∀ (n : _), n = k a → _ with
     | done b, _      := coroutine.resume (f b) a
@@ -98,7 +100,7 @@ open wellFoundedTactics
       yielded d (bind c f)
 --  usingWellFounded { decTac := unfoldWfRel >> processLex (tactic.assumption) }
 
-def pipe : coroutine α δ β → coroutine δ γ β → coroutine α γ β
+unsafe def pipe : coroutine α δ β → coroutine δ γ β → coroutine α γ β
 | (mk k₁) (mk k₂) := mk $ λ a,
   match k₁ a, rfl : ∀ (n : _), n = k₁ a → _ with
   | done b, h        := done b
@@ -110,21 +112,21 @@ def pipe : coroutine α δ β → coroutine δ γ β → coroutine α γ β
       yielded r (pipe k₁' k₂')
 -- usingWellFounded { decTac := unfoldWfRel >> processLex (tactic.assumption) }
 
-private def finishAux (f : δ → α) : coroutine α δ β → α → List δ → List δ × β
+private unsafe def finishAux (f : δ → α) : coroutine α δ β → α → List δ → List δ × β
 | (mk k) a ds :=
   match k a with
   | done b       := (ds.reverse, b)
   | yielded d k' := finishAux k' (f d) (d::ds)
 
 /-- Run a coroutine to completion, feeding back yielded items after transforming them with `f`. -/
-def finish (f : δ → α) : coroutine α δ β → α → List δ × β :=
+unsafe def finish (f : δ → α) : coroutine α δ β → α → List δ × β :=
 λ k a, finishAux f k a []
 
-instance : Monad (coroutine α δ) :=
+unsafe instance : Monad (coroutine α δ) :=
 { pure := @coroutine.pure _ _,
   bind := @coroutine.bind _ _ }
 
-instance : MonadReader α (coroutine α δ) :=
+unsafe instance : MonadReader α (coroutine α δ) :=
 { read := @coroutine.read _ _ }
 
 end coroutine
@@ -151,14 +153,14 @@ inductive tree (α : Type u)
 | Node    : tree → α → tree → tree
 
 /-- Coroutine as generators/iterators -/
-def visit {α : Type v} : tree α → coroutine Unit α Unit
+unsafe def visit {α : Type v} : tree α → coroutine Unit α Unit
 | tree.leaf         := pure ()
 | (tree.Node l a r) := do
   visit l,
   yield a,
   visit r
 
-def tst {α : Type} [HasToString α] (t : tree α) : ExceptT String IO Unit :=
+unsafe def tst {α : Type} [HasToString α] (t : tree α) : ExceptT String IO Unit :=
 do c  ← pure $ visit t,
    (yielded v₁ c) ← pure $ resume c (),
    (yielded v₂ c) ← pure $ resume c (),
@@ -172,7 +174,7 @@ end ex1
 
 namespace ex2
 
-def ex : StateT Nat (coroutine Nat String) Unit :=
+unsafe def ex : StateT Nat (coroutine Nat String) Unit :=
 do
   x ← read,
   y ← get,
@@ -183,7 +185,7 @@ do
   yield ("2) val: " ++ toString (x+y)),
   pure ()
 
-def tst2 : ExceptT String IO Unit :=
+unsafe def tst2 : ExceptT String IO Unit :=
 do let c := StateT.run ex 5,
    (yielded r c₁) ← pure $ resume c 10,
    IO.println r,

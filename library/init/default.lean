@@ -6,4 +6,3 @@ Authors: Leonardo de Moura
 prelude
 import init.core init.control init.data.basic
 import init.coe init.wf init.data init.io init.util
-import init.fix

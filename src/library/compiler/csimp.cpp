@@ -1377,48 +1377,6 @@ class csimp_fn {
         return mk_app(mk_constant(get_nat_add_name()), arg, mk_lit(literal(nat(1))));
     }
 
-    /*
-      Replace `fix_core_n f a_1 ... a_m`
-      with `fix_core_m f a_1 ... a_m` whenever `n < m`.
-
-      This optimization is for writing reusable/generic code. For
-      example, we cannot write an efficient `rec_t` monad transformer
-      without it because we don't know the arity of `m A` when we write `rec_t`.
-
-      Remark: the runtime provides a small set of `fix_core_i` implementations (`i in [1, 6]`).
-      This methods does nothing if `m > 6`. */
-    expr visit_fix_core(expr const & e, unsigned n) {
-        if (m_before_erasure) return visit_app_default(e);
-        buffer<expr> args;
-        expr fn = get_app_args(e, args);
-        lean_assert(is_constant(fn) && is_fix_core(const_name(fn)));
-        unsigned arity =
-            n + /* α_1 ... α_n Type arguments */
-            1 + /* β : Type */
-            1 + /* (base : α_1 → ... → α_n → β) */
-            1 + /* (rec : (α_1 → ... → α_n → β) → α_1 → ... → α_n → β) */
-            n; /* α_1 → ... → α_n */
-        if (args.size() <= arity) return visit_app_default(e);
-        /* This `fix_core_n` application is an overapplication.
-           The `fix_core_n` is implemented by the runtime, and the result
-           is a closure. This is bad for performance. We should
-           replace it with `fix_core_m` (if the runtime contains one) */
-        unsigned num_extra = args.size() - arity;
-        unsigned m = n + num_extra;
-        optional<expr> fix_core_m = mk_enf_fix_core(m);
-        if (!fix_core_m) return visit_app_default(e);
-        buffer<expr> new_args;
-        /* Add α_1 ... α_n and β */
-        for (unsigned i = 0; i < m+1; i++) {
-            new_args.push_back(mk_enf_neutral());
-        }
-        /* `(base : α_1 → ... → α_n → β)` is not used in the runtime primitive.
-           So, we replace it with a neutral value :) */
-        new_args.push_back(mk_enf_neutral());
-        new_args.append(args.size() - n - 2, args.data() + n + 2);
-        return mk_app(*fix_core_m, new_args);
-    }
-
     expr visit_app(expr const & e, bool is_let_val) {
         if (is_cases_on_app(env(), e)) {
             return visit_cases(e, is_let_val);
@@ -1459,8 +1417,6 @@ class csimp_fn {
                 return mk_lit(literal(nat(0)));
             } else if (optional<expr> r = try_inline(fn, e, is_let_val)) {
                 return *r;
-            } else if (optional<unsigned> i = is_fix_core(n)) {
-                return visit_fix_core(e, *i);
             } else {
                 return visit_app_default(e);
             }

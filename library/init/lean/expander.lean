@@ -113,7 +113,7 @@ def mkNotationTransformer (nota : NotationMacro) : transformer :=
 λ stx, do
   some {args := stxArgs, ..} ← pure stx.asNode
     | error stx "mkNotationTransformer: unreachable",
-  flip StateT.run' {NotationTransformerState . stx := stx, stxArgs := stxArgs} $ do
+  flip StateT.run' {NotationTransformerState . stx := stx, stxArgs := stxArgs.toList} $ do
     let spec := nota.nota.spec,
     -- Walk through the notation specification, consuming `stx` args and building up substitutions
     -- for the notation RHS.
@@ -471,7 +471,7 @@ def Subtype.transform : transformer :=
 def universes.transform : transformer :=
 λ stx, do
   let v := view «universes» stx,
-  pure $ Syntax.list $ v.ids.map (λ id, review «universe» {id := id})
+  pure $ Syntax.list $ List.toArray $ v.ids.map (λ id, review «universe» {id := id})
 
 def sorry.transform : transformer :=
 λ stx, pure $ mkApp (globId `sorryAx) [review hole {}, globId `Bool.false]

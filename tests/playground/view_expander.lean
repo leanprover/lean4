@@ -27,7 +27,7 @@ match expand stx {cfg with transformers := RBMap.fromList transformers _} with
 
 def testNoOp  := test []
 def testNoExp := test [(`node, λ stx, noExpansion)]
-def testSimple := test [(`node, λ stx, pure $ Syntax.mkNode ⟨`node2⟩ $ let v := view node stx in v.children)]
+def testSimple := test [(`node, λ stx, pure $ Syntax.mkNode ⟨`node2⟩ $ let v := view node stx in v.children.toArray)]
 
 def main (xs : List String) : IO Unit := do
   let stx := mkStx 11, --xs.head.toNat,

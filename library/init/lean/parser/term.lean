@@ -396,7 +396,7 @@ def app.Parser : trailingTermParser :=
 node! app [fn: getLeading, Arg: Term.Parser maxPrec]
 
 def mkApp (fn : Syntax) (args : List Syntax) : Syntax :=
-args.foldl (λ fn Arg, Syntax.mkNode app [fn, Arg]) fn
+args.foldl (λ fn Arg, Syntax.mkNode app [fn, Arg].toArray) fn
 
 @[derive Parser.HasTokens Parser.HasView]
 def arrow.Parser : trailingTermParser :=

@@ -68,7 +68,7 @@ def eoi.Parser : moduleParser := do
   it ← leftOver,
   -- add `eoi` Node for left-over input
   let stop := it.toEnd,
-  pure $ Syntax.mkNode eoi [Syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩]
+  pure $ Syntax.mkNode eoi $ Array.singleton $ Syntax.atom ⟨some ⟨⟨stop, stop⟩, stop.offset, ⟨stop, stop⟩⟩, ""⟩
 
 /-- Read command, recovering from errors inside commands (attach partial Syntax tree)
     as well as unknown commands (skip input). -/

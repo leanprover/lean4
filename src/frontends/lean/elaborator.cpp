@@ -3230,8 +3230,8 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     if (!expected_type)
         throw elaborator_exception(e, "node!: expected type must be known");
     expr exp = expected_type.value();
-    sstream params, args, struc, binds, mk_args, view_pat, reviews, default_val;
-    unsigned i = 0;
+    sstream params, args, struc, lets, mk_args, view_pat, reviews, default_val;
+    unsigned i = 0, idx = 0;
     collected_locals ls;
     collect_locals(e2, ls);
     for (auto const & p : ls.get_collected()) {
@@ -3247,8 +3247,8 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
     auto pp = ::lean::mk_pp_ctx(m_env, opts, m_ctx.mctx(), m_ctx.lctx());
     for (expr args = app_arg(e2); is_app(args); args = app_arg(args)) {
         expr r = app_arg(app_fn(args));
-        std::function<expr(expr)> add_field;
-        add_field = [&](expr r) {
+        std::function<expr(expr, std::string const &, unsigned)>
+        add_field = [&](expr r, std::string  const & src, unsigned idx) {
             name fname = *get_name(mdata_data(r), "fname");
             r = mdata_expr(r);
             r = visit(r, expected_type);
@@ -3268,9 +3268,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             else
                 struc << "(«" << fname << "» : " << instantiate_mvars(m) << ")\n";
 
-            binds << "let (stxs, stx) := match stxs : _ -> Prod (List Syntax) Syntax with (stx::stxs) := (stxs, stx) | _ := (stxs, Syntax.missing) in\n"
-            << "let a" << i << " := Parser.HasView.view (" << pp(r) << " : " << pp(exp) << ")" << " stx in\n";
-            mk_args << "a" << i << " ";
+            mk_args << "(Parser.HasView.view (" << pp(r) << " : " << pp(exp) << ") (" << src << ".get " << idx << ")) ";
             if (i != 0)
                 view_pat << ", ";
             view_pat << "a" << i;
@@ -3281,27 +3279,28 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             return mk_as_is(r);
         };
         if (is_mdata(r)) {
-            new_args.push_back(add_field(r));
+            new_args.push_back(add_field(r, "args", idx));
         } else {// try block
-            binds << "let stxs := match stxs with stx::stxs := (match stx.asNode with some n := n.args ++ stxs | _ := stxs) | _ := stxs in\n";
-            reviews << "Syntax.list [";
+            std::string let = (sstream() << "args" << idx).str();
+            lets << "let args" << idx << " := (args.get " << idx << ").args in ";
+            reviews << "Syntax.list $ List.toArray [";
             buffer<expr> new_try_args;
-            for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args)) {
+            unsigned j = 0;
+            for (expr args = app_arg(app_arg(r)); is_app(args); args = app_arg(args), j++) {
                 expr r = app_arg(app_fn(args));
-                new_try_args.push_back(add_field(r));
+                new_try_args.push_back(add_field(r, let, j));
             }
             reviews << "]";
             new_args.push_back(mk_app(mk_const({"Lean", "Parser", "MonadParsec", "try"}),
                                       mk_app(mk_const({"Lean", "Parser", "Combinators", "seq"}),
                                              mk_lean_list(new_try_args))));
         }
+        idx++;
     }
     struc << "def " << macro.to_string() << ".HasView' " << params.str() << " : HasView " << macro.to_string() << ".View (" << esc_macro.to_string() << args.str() << ") :=\n"
-            << "{ view := fun stx, let stxs : List Syntax := match stx.asNode with"
-            << "| some n := n.args | _ := [] in\n"
-            << binds.str()
+            << "{ view := fun stx, let args := stx.args in " << lets.str()
             << macro.to_string() << ".View.mk " << mk_args.str() << ",\n"
-            << "review := fun ⟨" << view_pat.str() << "⟩, Syntax.mkNode " << esc_macro.to_string() << " [" << reviews.str() << "] }";
+            << "review := fun ⟨" << view_pat.str() << "⟩, Syntax.mkNode " << esc_macro.to_string() << "(List.toArray [" << reviews.str() << "])}";
     struc << "instance " << macro.to_string() << ".HasView  := @" << macro.to_string() << ".HasView'";
     trace_elab_detail(tout() << "expansion of node! macro:\n" << struc.str(););
     std::istringstream in(struc.str());
@@ -3369,23 +3368,23 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
                 << " : " << pp(exp) << ") stx\n";
         review_cases << "| " << macro.to_string() << ".View." << fname << " a := "
                 << "Syntax.mkNode (SyntaxNodeKind.mk (Name.mkNumeral Name.anonymous " << i << ")) "
-                << "[review (" << pp(r) << " : " << pp(exp) << ") a]\n";
+                << "$ Array.singleton $ review (" << pp(r) << " : " << pp(exp) << ") a\n";
         i++;
         new_args.push_back(mk_as_is(r));
     }
     struc << "def " << macro.to_string() << ".HasView' " << params.str() << " : HasView " << macro.to_string() << ".View ("
           << esc_macro.to_string() << " " << pargs.str() << ") :=\n"
           << "{ view := fun stx, let (stx, i) := match stx.asNode : _ -> Prod Syntax Nat with\n"
-          << "| some {kind := @" << esc_macro.to_string() << " " << pargs.str() << ", args := [stx], ..} := (match stx.asNode  : _ -> Prod Syntax Nat with\n"
-          << "  | some {kind := SyntaxNodeKind.mk (Name.mkNumeral Name.anonymous i), args := [stx], ..} := (stx, i)\n"
+          << "| some {kind := @" << esc_macro.to_string() << " " << pargs.str() << ", args := args, ..} := (match (args.get 0).asNode  : _ -> Prod Syntax Nat with\n"
+          << "  | some {kind := SyntaxNodeKind.mk (Name.mkNumeral Name.anonymous i), args := args, ..} := (args.get 0, i)\n"
           << "  | _ := (Syntax.missing, 0))\n"
           << "| _ := (Syntax.missing, 0) in\n"
           << "match i with\n"
           << view_cases.str() << ",\n"
           << "review := fun v, Syntax.mkNode (" << esc_macro.to_string() << " " << pargs.str() << ")"
-          << " [match v with\n"
+          << " $ Array.singleton $ match v with\n"
           << review_cases.str()
-          << "] }";
+          << "}";
     struc << "instance " << macro.to_string() << ".HasView := @" << macro.to_string() << ".HasView'";
     trace_elab_detail(tout() << "expansion of nodeChoice! macro:\n" << struc.str(););
     std::istringstream in(struc.str());

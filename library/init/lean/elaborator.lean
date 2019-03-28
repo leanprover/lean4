@@ -282,9 +282,9 @@ partial def toPexpr : Syntax → ElaboratorM Expr
     let v := view stringLit stx,
     pure $ Expr.lit $ Literal.strVal (v.value.getOrElse "NOTAString")
   | @choice := do
-    last::rev ← List.reverse <$> args.mmap (λ a, toPexpr a)
+    last::rev ← List.reverse <$> args.toList.mmap (λ a, toPexpr a)
       | error stx "ill-formed choice",
-    pure $ Expr.mdata (MData.empty.setNat `choice args.length) $
+    pure $ Expr.mdata (MData.empty.setNat `choice args.size) $
       rev.reverse.foldr Expr.app last
   | @structInst := do
     let v := view structInst stx,
@@ -856,7 +856,7 @@ def setOption.elaborate : Elaborator :=
 def noKind.elaborate : Elaborator := λ stx, do
   some n ← pure stx.asNode
     | error stx "noKind.elaborate: unreachable",
-  n.args.mfor command.elaborate
+  n.args.toList.mfor command.elaborate
 
 def end.elaborate : Elaborator :=
 λ cmd, do

@@ -20,17 +20,17 @@ local notation `Parser` := m Syntax
 variables [Monad m] [MonadExcept (Parsec.Message Syntax) m] [MonadParsec Syntax m] [Alternative m]
 
 def node (k : SyntaxNodeKind) (rs : List Parser) : Parser :=
-do args ← rs.mfoldl (λ (args : List Syntax) r, do
+do args ← rs.mfoldl (λ (args : Array Syntax) r, do
      -- on error, append partial Syntax tree to previous successful parses and rethrow
-     a ← catch r $ λ msg, match args with
-       -- do not wrap an error in the first argument to uphold the invariant documented at `SyntaxNode`
-       | [] := throw msg
-       | _  :=
-         let args := msg.custom.get :: args in
-         throw {msg with custom := Syntax.mkNode k args.reverse},
-     pure (a::args)
-   ) [],
-   pure $ Syntax.mkNode k args.reverse
+     a ← catch r $ λ msg, if args.isEmpty then
+         -- do not wrap an error in the first argument to uphold the invariant documented at `SyntaxNode`
+         throw msg
+       else
+         let args := args.push msg.custom.get in
+         throw {msg with custom := Syntax.mkNode k args},
+     pure $ args.push a
+   ) Array.empty,
+   pure $ Syntax.mkNode k args
 
 @[reducible] def seq : List Parser → Parser := node noKind
 
@@ -42,28 +42,29 @@ instance node.view (k) (rs : List Parser) [i : HasView α k] : Parser.HasView α
 
 -- Each Parser Combinator comes equipped with `HasView` and `HasTokens` instances
 
-private def many1Aux (p : Parser) : List Syntax → Nat → Parser
+private def many1Aux (p : Parser) : Array Syntax → Nat → Parser
 | as 0     := error "unreachable"
 | as (n+1) := do
   a ← catch p (λ msg, throw {msg with custom :=
     -- append `Syntax.missing` to make clear that List is incomplete
-    Syntax.list (Syntax.missing::msg.custom.get::as).reverse}),
-  many1Aux (a::as) n <|> pure (Syntax.list (a::as).reverse)
+    Syntax.list $ (as.push msg.custom.get).push Syntax.missing}),
+  many1Aux (as.push a) n <|> pure (Syntax.list $ as.push a)
 
 def many1 (r : Parser) : Parser :=
-do rem ← remaining, many1Aux r [] (rem+1)
+do rem ← remaining, many1Aux r Array.empty (rem+1)
 
 instance many1.tokens (r : Parser) [Parser.HasTokens r] : Parser.HasTokens (many1 r) :=
 ⟨tokens r⟩
 
+--TODO(Sebastian): should this be an `Array` as well?
 instance many1.view (r : Parser) [Parser.HasView α r] : Parser.HasView (List α) (many1 r) :=
 { view := λ stx, match stx.asNode with
-    | some n := n.args.map (HasView.view r)
+    | some n := n.args.toList.map (HasView.view r)
     | _ := [HasView.view r Syntax.missing],
-  review := λ as, Syntax.list $ as.map (review r) }
+  review := λ as, Syntax.list $ List.toArray $ as.map (review r) }
 
 def many (r : Parser) : Parser :=
-many1 r <|> pure (Syntax.list [])
+many1 r <|> pure (Syntax.list Array.empty)
 
 instance many.tokens (r : Parser) [Parser.HasTokens r] : Parser.HasTokens (many r) :=
 ⟨tokens r⟩
@@ -72,25 +73,25 @@ instance many.view (r : Parser) [HasView α r] : Parser.HasView (List α) (many 
 /- Remark: `many1.view` can handle empty list. -/
 {..many1.view r}
 
-private def sepByAux (p : m Syntax) (sep : Parser) (allowTrailingSep : Bool) : Bool → List Syntax → Nat → Parser
+private def sepByAux (p : m Syntax) (sep : Parser) (allowTrailingSep : Bool) : Bool → Array Syntax → Nat → Parser
 | pOpt as 0     := error "unreachable"
 | pOpt as (n+1) := do
   let p := if pOpt then some <$> p <|> pure none else some <$> p,
   some a ← catch p (λ msg, throw {msg with custom :=
     -- append `Syntax.missing` to make clear that List is incomplete
-    Syntax.list (Syntax.missing::msg.custom.get::as).reverse})
-    | pure (Syntax.list as.reverse),
+    Syntax.list $ (as.push msg.custom.get).push Syntax.missing})
+    | pure (Syntax.list as),
   -- I don't want to think about what the output on a failed separator parse should look like
   let sep := try sep,
   some s ← some <$> sep <|> pure none
-    | pure (Syntax.list (a::as).reverse),
-  sepByAux allowTrailingSep (s::a::as) n
+    | pure (Syntax.list (as.push a)),
+  sepByAux allowTrailingSep ((as.push a).push s) n
 
 def sepBy (p sep : Parser) (allowTrailingSep := true) : Parser :=
-do rem ← remaining, sepByAux p sep allowTrailingSep true [] (rem+1)
+do rem ← remaining, sepByAux p sep allowTrailingSep true Array.empty (rem+1)
 
 def sepBy1 (p sep : Parser) (allowTrailingSep := true) : Parser :=
-do rem ← remaining, sepByAux p sep allowTrailingSep false [] (rem+1)
+do rem ← remaining, sepByAux p sep allowTrailingSep false Array.empty (rem+1)
 
 instance sepBy.tokens (p sep : Parser) (a) [Parser.HasTokens p] [Parser.HasTokens sep] :
   Parser.HasTokens (sepBy p sep a) :=
@@ -112,9 +113,9 @@ private def sepBy.viewAux {α β} (p sep : Parser) [Parser.HasView α p] [Parser
 instance sepBy.view {α β} (p sep : Parser) (a) [Parser.HasView α p] [Parser.HasView β sep] :
   Parser.HasView (List (SepBy.Elem.View α β)) (sepBy p sep a) :=
 { view := λ stx, match stx.asNode with
-    | some n := sepBy.viewAux p sep n.args
+    | some n := sepBy.viewAux p sep n.args.toList
     | _ := [⟨view p Syntax.missing, none⟩],
-  review := λ as, Syntax.list $ as.bind (λ a, match a with
+  review := λ as, Syntax.list $ List.toArray $ as.bind (λ a, match a with
     | ⟨v, some vsep⟩ := [review p v, review sep vsep]
     | ⟨v, none⟩      := [review p v]) }
 
@@ -132,21 +133,20 @@ def optional (r : Parser) (require := false) : Parser :=
 if require then r else
 do r ← optional $
      -- on error, wrap in "some"
-     catch r (λ msg, throw {msg with custom := Syntax.list [msg.custom.get]}),
+     catch r (λ msg, throw {msg with custom := Syntax.list $ Array.singleton msg.custom.get}),
    pure $ match r with
-   | some r := Syntax.list [r]
-   | none   := Syntax.list []
+   | some r := Syntax.list $ Array.singleton r
+   | none   := Syntax.list $ Array.empty
 
 instance optional.tokens (r : Parser) [Parser.HasTokens r] (req) : Parser.HasTokens (optional r req) :=
 ⟨tokens r⟩
 instance optional.view (r : Parser) [Parser.HasView α r] (req) : Parser.HasView (Option α) (optional r req) :=
 { view := λ stx, match stx.asNode with
-    | some {args := [], ..} := none
-    | some {args := [stx], ..} := some $ HasView.view r stx
+    | some n := HasView.view r <$> n.args.getOpt 0
     | _ := some $ view r Syntax.missing,
   review := λ a, match a with
-    | some a := Syntax.list [review r a]
-    | none   := Syntax.list [] }
+    | some a := Syntax.list $ Array.singleton $ review r a
+    | none   := Syntax.list $ Array.empty }
 instance optional.viewDefault (r : Parser) [Parser.HasView α r] (req) : Parser.HasViewDefault (optional r req) (Option α) none := ⟨⟩
 
 /-- Parse a List `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
@@ -169,7 +169,7 @@ def longestMatch (rs : List Parser) : Parser :=
 do stxs ← MonadParsec.longestMatch rs,
    match stxs with
    | [stx] := pure stx
-   | _     := pure $ Syntax.mkNode choice stxs
+   | _     := pure $ Syntax.mkNode choice stxs.toArray
 
 instance longestMatch.tokens (rs : List Parser) [Parser.HasTokens rs] : Parser.HasTokens (longestMatch rs) :=
 ⟨tokens rs⟩
@@ -179,7 +179,7 @@ def choiceAux : List Parser → Nat → Parser
 | []      _ := error "choice: Empty List"
 | (r::rs) i :=
   do { stx ← r,
-       pure $ Syntax.mkNode ⟨Name.mkNumeral Name.anonymous i⟩ [stx] }
+       pure $ Syntax.mkNode ⟨Name.mkNumeral Name.anonymous i⟩ $ Array.singleton stx }
   <|> choiceAux rs (i+1)
 
 /-- Parse a List `[p1, ..., pn]` of parsers as `p1 <|> ... <|> pn`.
@@ -198,7 +198,7 @@ instance choice.tokens (rs : List Parser) [Parser.HasTokens rs] : Parser.HasToke
 def longestChoice (rs : List Parser) : Parser :=
 do stx::stxs ← MonadParsec.longestMatch $ rs.enum.map $ λ ⟨i, r⟩, do {
      stx ← r,
-     pure $ Syntax.mkNode ⟨Name.mkNumeral Name.anonymous i⟩ [stx]
+     pure $ Syntax.mkNode ⟨Name.mkNumeral Name.anonymous i⟩ $ Array.singleton stx
    } | error "unreachable",
    pure stx
 

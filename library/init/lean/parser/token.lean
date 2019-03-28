@@ -70,10 +70,11 @@ do start ← leftOver,
 
 variables [monadBasicParser m]
 
-@[specialize] def updateLast (f : Syntax → Syntax) (trailing : Substring) : List Syntax → List Syntax
-| []          := []
-| [stx]       := [f stx]
-| (stx::stxs) := stx :: updateLast stxs
+@[specialize] def updateLast (f : Syntax → Syntax) (trailing : Substring) (args : Array Syntax) : Array Syntax :=
+if args.isEmpty then args
+else
+  let i := args.size - 1 in
+  args.set i (f $ args.get i)
 
 private partial def updateTrailing : Substring → Syntax → Syntax
 | trailing (Syntax.atom a@⟨some info, _⟩) := Syntax.atom {a with info := some {info with trailing := trailing}}

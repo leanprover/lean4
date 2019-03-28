@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Sebastian Ullrich
 -/
 prelude
-import init.lean.name init.lean.parser.parsec
+import init.lean.name init.lean.parser.parsec init.data.array
 
 namespace Lean
 namespace Parser
@@ -53,7 +53,7 @@ Remark: We do create `SyntaxNode`'s with an Empty `args` field (e.g. for represe
 -/
 structure SyntaxNode (Syntax : Type) :=
 (kind : SyntaxNodeKind)
-(args : List Syntax)
+(args : Array Syntax)
 -- Lazily propagated scopes. Scopes are pushed inwards when a Node is destructed via `Syntax.asNode`,
 -- until an ident or an atom (in which the scopes vanish) is reached.
 -- Scopes are stored in a stack with the most recent Scope at the top.
@@ -106,7 +106,7 @@ def flipScopes (scopes : macroScopes) : Syntax → Syntax
 | (Syntax.rawNode n) := Syntax.rawNode {n with scopes := n.scopes.flip scopes}
 | stx := stx
 
-def mkNode (kind : SyntaxNodeKind) (args : List Syntax) :=
+def mkNode (kind : SyntaxNodeKind) (args : Array Syntax) :=
 Syntax.rawNode { kind := kind, args := args }
 
 /-- Match against `Syntax.rawNode`, propagating lazy macro scopes. -/
@@ -114,7 +114,13 @@ def asNode : Syntax → Option (SyntaxNode Syntax)
 | (Syntax.rawNode n) := some {n with args := n.args.map (flipScopes n.scopes), scopes := []}
 | _                   := none
 
-protected def list (args : List Syntax) :=
+-- helper function used by the `node!` macro, to make sure its `view` function is branch-less
+@[noinline] def args (stx : Syntax) : Array Syntax :=
+match stx.asNode with
+| some n := n.args
+| _      := Array.empty
+
+protected def list (args : Array Syntax) :=
 mkNode noKind args
 
 def kind : Syntax → Option SyntaxNodeKind
@@ -173,7 +179,7 @@ def updateLeading (source : String) : Syntax → Syntax :=
 partial def getHeadInfo : Syntax → Option SourceInfo
 | (atom a)    := a.info
 | (ident id)  := id.info
-| (rawNode n) := n.args.foldr (λ s r, getHeadInfo s <|> r) none
+| (rawNode n) := n.args.foldl (λ s r, getHeadInfo s <|> r) none
 | _           := none
 
 def getPos (stx : Syntax) : Option Parsec.Position :=
@@ -190,7 +196,7 @@ partial def reprint : Syntax → Option String
 | (ident id@{info := some info, ..}) := pure $ info.leading.toString ++ id.rawVal.toString ++ info.trailing.toString
 | (ident id@{info := none,      ..}) := pure id.rawVal.toString
 | (rawNode n) :=
-  if n.kind.name = choice.name then match n.args with
+  if n.kind.name = choice.name then match n.args.toList with
   -- should never happen
   | [] := failure
   -- check that every choice prints the same
@@ -199,7 +205,7 @@ partial def reprint : Syntax → Option String
     ss ← ns.mmap reprint,
     guard $ ss.all (= s),
     pure s
-  else String.join <$> n.args.mmap reprint
+  else String.join <$> n.args.toList.mmap reprint
 | missing := ""
 
 protected partial def toFormat : Syntax → Format
@@ -210,9 +216,9 @@ protected partial def toFormat : Syntax → Format
   toFmt "`" ++ toFmt id.val ++ scopes
 | stx@(rawNode n) :=
   let scopes := match n.scopes with [] := toFmt "" | _ := bracket "{" (joinSep n.scopes.reverse ", ") "}" in
-  if n.kind.name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (n.args.map toFormat) line
+  if n.kind.name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (n.args.toList.map toFormat) line
   else let shorterName := n.kind.name.replacePrefix `Lean.Parser Name.anonymous
-       in paren $ joinSep ((toFmt shorterName ++ scopes) :: n.args.map toFormat) line
+       in paren $ joinSep ((toFmt shorterName ++ scopes) :: n.args.toList.map toFormat) line
 | missing := "<missing>"
 
 instance : HasToFormat Syntax := ⟨Syntax.toFormat⟩

@@ -15,8 +15,8 @@ def leaf : SyntaxNodeKind := ⟨`leaf⟩
 def node.arity := 4
 
 def mkStx : ℕ → Syntax
-| 0 := Syntax.mkNode leaf []
-| (n+1) := Syntax.mkNode node $ (List.replicate node.arity Syntax.missing).map (λ _, mkStx n)
+| 0 := Syntax.mkNode leaf Array.empty
+| (n+1) := Syntax.mkNode node $ (Array.mkArray node.arity Syntax.missing).map (λ _, mkStx n)
 
 def cfg : FrontendConfig := {filename := "foo", fileMap := FileMap.fromString "", input := ""}
 

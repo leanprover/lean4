@@ -42,9 +42,6 @@ p s (mkInput 0 st bst)
   | ⟨Result.ok _ it st bst _, h⟩ := Result.ok a it st bst true
   | ⟨Result.error _ _ _ _ _, h⟩  := unreachableError h
 
-@[inlineIfReduce] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
-@[inlineIfReduce] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
-
 @[inline] def parserM.bind (x : parserM σ δ μ α) (f : α → parserM σ δ μ β) : parserM σ δ μ β :=
 λ str inp,
   match x str inp with

@@ -60,6 +60,18 @@ struct partial_rec_fn {
         return some_expr(mk_app(mk_constant(get_inhabited_default_name(), {lvl}), type, *inhabitant));
     }
 
+    optional<expr> mk_fn_inhabitant(type_context_old & ctx, expr fn_type, buffer<expr> const & args) {
+        if (args.empty()) return none_expr();
+        for (unsigned i = 0; i < args.size() - 1; i++) {
+            if (optional<expr> inh = mk_inhabitant(ctx, fn_type)) {
+                return some_expr(mk_app(*inh, args.size() - i, args.data() + i));
+            }
+            fn_type  = ctx.relaxed_whnf(fn_type);
+            fn_type  = instantiate(binding_body(fn_type), args[i]);
+        }
+        return none_expr();
+    }
+
     expr mk_base_case_eq(type_context_old & ctx, expr const & fn, unsigned arity, expr const & new_fn) {
         expr fn_type     = ctx.infer(fn);
         expr result_type = fn_type;
@@ -74,6 +86,8 @@ struct partial_rec_fn {
             rhs = *inh;
         } else if (optional<expr> arg = find_arg_with_given_type(ctx, result_type)) {
             rhs = *arg;
+        } else if (optional<expr> inh = mk_fn_inhabitant(ctx, fn_type, args.as_buffer())) {
+            rhs = *inh;
         } else {
             throw generic_exception(m_ref, "failed to compile partial definition, failed to synthesize result type inhabitant");
         }

@@ -10,29 +10,37 @@ Author: Leonardo de Moura
 #include "util/name.h"
 
 namespace lean {
+static char to_hex_digit(unsigned c) {
+    lean_assert(c < 16);
+    if (c < 10)
+        return '0' + c;
+    else
+        return 'a' + (c - 10);
+}
+
 static std::string mangle(std::string const & s) {
     std::string out;
     size_t i = 0;
     while (i < s.size()) {
         unsigned c = next_utf8(s, i);
-        if (c < 255) {
+        if (c <= 255) {
             if (isalnum(c)) {
                 out += static_cast<unsigned char>(c);
             } else if (c == '_') {
                 out += "__";
             } else {
                 out += "_x_";
-                out += ('0' + (c / 16));
-                out += ('0' + (c % 16));
+                out += to_hex_digit(c / 16);
+                out += to_hex_digit(c % 16);
             }
         } else {
             out += "_u_";
-            out += ('0' + (c / 4096));
+            out += to_hex_digit(c / 4096);
             c %= 4096;
-            out += ('0' + (c / 256));
+            out += to_hex_digit(c / 256);
             c %= 256;
-            out += ('0' + (c / 16));
-            out += ('0' + (c % 16));
+            out += to_hex_digit(c / 16);
+            out += to_hex_digit(c % 16);
         }
     }
     return out;

@@ -8,6 +8,7 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "library/locals.h"
 #include "library/private.h"
+#include "library/util.h"
 #include "library/aliases.h"
 #include "library/trace.h"
 #include "library/aux_definition.h"
@@ -157,6 +158,12 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             fn = helper.mk_lambda_closure(fn);
 
             bool is_meta      = true;
+            if (optional<name> safe_fn_name = is_unsafe_rec_name(fn_name)) {
+                constant_info safe_fn_info = env.get(*safe_fn_name);
+                if (!ctx.is_def_eq(safe_fn_info.get_type(), fn_type)) {
+                    throw generic_exception(e, sstream() << "equation compiler failed to generate auxiliary declaration '" << fn_name << "' for the compiler with matching type");
+                }
+            }
             new_defs.push_back(mk_definition_val(env, fn_name, lvl_names, fn_type, fn, is_meta));
             fn_actual_names   = tail(fn_actual_names);
         }

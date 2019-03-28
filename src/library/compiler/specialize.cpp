@@ -627,38 +627,46 @@ class specialize_fn {
             }
         }
 
-        void collect(expr const & e, bool in_binder) {
-            if (!has_fvar(e)) return;
-            switch (e.kind()) {
-            case expr_kind::Lit:  case expr_kind::BVar:
-            case expr_kind::Sort: case expr_kind::Const:
-                return;
-            case expr_kind::MVar:
-                lean_unreachable();
-            case expr_kind::FVar:
-                collect_fvar(e, in_binder);
-                break;
-            case expr_kind::App:
-                collect(app_fn(e), in_binder);
-                collect(app_arg(e), in_binder);
-                break;
-            case expr_kind::Lambda: case expr_kind::Pi:
-                collect(binding_domain(e), in_binder);
-                collect(binding_body(e), true);
-                break;
-            case expr_kind::Let:
-                collect(let_type(e), in_binder);
-                collect(let_value(e), in_binder);
-                collect(let_body(e), in_binder);
-                break;
-            case expr_kind::MData:
-                collect(mdata_expr(e), in_binder);
-                break;
-            case expr_kind::Proj:
-                collect(proj_expr(e), in_binder);
-                break;
+        void collect(expr e, bool in_binder) {
+            while (true) {
+                if (!has_fvar(e)) return;
+                switch (e.kind()) {
+                case expr_kind::Lit:  case expr_kind::BVar:
+                case expr_kind::Sort: case expr_kind::Const:
+                    return;
+                case expr_kind::MVar:
+                    lean_unreachable();
+                case expr_kind::FVar:
+                    collect_fvar(e, in_binder);
+                    return;
+                case expr_kind::App:
+                    collect(app_arg(e), in_binder);
+                    e = app_fn(e);
+                    break;
+                case expr_kind::Lambda: case expr_kind::Pi:
+                    collect(binding_domain(e), in_binder);
+                    if (!in_binder) {
+                        collect(binding_body(e), true);
+                        return;
+                    } else {
+                        e = binding_body(e);
+                        break;
+                    }
+                case expr_kind::Let:
+                    collect(let_type(e), in_binder);
+                    collect(let_value(e), in_binder);
+                    e = let_body(e);
+                    break;
+                case expr_kind::MData:
+                    e = mdata_expr(e);
+                    break;
+                case expr_kind::Proj:
+                    e = proj_expr(e);
+                    break;
+                }
             }
         }
+
     public:
         dep_collector(type_checker::state & st, local_ctx const & lctx, spec_ctx & ctx):
             m_st(st), m_lctx(lctx), m_ctx(ctx) {}

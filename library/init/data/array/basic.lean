@@ -108,7 +108,7 @@ def pop (a : Array α) : Array α :=
 @[inline] def iterate (a : Array α) (b : β) (f : Π i : Fin a.sz, α → β → β) : β :=
 iterateAux a f 0 b
 
-@[inline] def foldl (a : Array α) (b : β) (f : α → β → β) : β :=
+@[inline] def foldl (a : Array α) (f : α → β → β) (b : β) : β :=
 iterate a b (λ _, f)
 
 @[specialize] private def revIterateAux (a : Array α) (f : Π i : Fin a.sz, α → β → β) : Π (i : Nat), i ≤ a.sz → β → β

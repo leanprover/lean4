@@ -43,7 +43,7 @@ let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
 data.updt i (⟨a, b⟩ :: data.val.idx i h) h
 
 def foldBuckets {δ : Type w} (data : bucketArray α β) (d : δ) (f : δ → Π a, β a → δ) : δ :=
-data.val.foldl d (λ b d, b.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d)
+data.val.foldl (λ b d, b.foldl (λ r (p : Σ a, β a), f r p.1 p.2) d) d
 
 def findAux [DecidableEq α] (a : α) : List (Σ a, β a) → Option (β a)
 | []          := none

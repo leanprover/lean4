@@ -516,15 +516,17 @@ optional<nat> get_num_lit_ext(expr const & e) {
 optional<unsigned> is_fix_core(name const & n) {
     if (!n.is_atomic() || !n.is_string()) return optional<unsigned>();
     string_ref const & r = n.get_string();
-    if (r.length() != 10) return optional<unsigned>();
+    if (r.length() != 8) return optional<unsigned>();
     char const * s = r.data();
-    if (std::strncmp(s, "fix_core_", 9) != 0 || !std::isdigit(s[9])) return optional<unsigned>();
-    return optional<unsigned>(s[9] - '0');
+    if (std::strncmp(s, "fixCore", 7) != 0 || !std::isdigit(s[7])) return optional<unsigned>();
+    return optional<unsigned>(s[7] - '0');
 }
 
 optional<expr> mk_enf_fix_core(unsigned n) {
     if (n == 0 || n > 6) return none_expr();
-    return some_expr(mk_constant(name("fix_core").append_after(n)));
+    std::ostringstream s;
+    s << "fixCore" << n;
+    return some_expr(mk_constant(name(s.str())));
 }
 
 void initialize_compiler_util() {

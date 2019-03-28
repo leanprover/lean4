@@ -6,7 +6,7 @@ Author: Sebastian Ullrich
 Recursion monad transformer
 -/
 prelude
-import init.control.reader init.lean.parser.parsec
+import init.control.reader init.lean.parser.parsec init.fix
 
 namespace Lean.Parser
 
@@ -23,13 +23,10 @@ local attribute [reducible] RecT
 @[inline] def recurse (a : α) : RecT α δ m δ :=
 λ f, f a
 
-@[specialize] private partial def runAux : m δ → (α → RecT α δ m δ) → α → m δ
-| b rec a := rec a (runAux b rec)
-
 /-- Execute `x`, executing `rec a` whenever `recurse a` is called.
     After `maxRec` recursion steps, `base` is executed instead. -/
-@[inline] protected def run (x : RecT α δ m β) (base : Unit → m δ) (rec : α → RecT α δ m δ) : m β :=
-x.run (runAux (base ()) rec)
+@[inline] protected def run (x : RecT α δ m β) (base : α → m δ) (rec : α → RecT α δ m δ) : m β :=
+x (fixCore base (λ a f, rec f a))
 
 @[inline] protected def runParsec {γ : Type} [MonadParsec γ m] (x : RecT α δ m β) (rec : α → RecT α δ m δ) : m β :=
 RecT.run x (λ _, MonadParsec.error "RecT.runParsec: no progress") rec

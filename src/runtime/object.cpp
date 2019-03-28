@@ -1757,6 +1757,107 @@ object * array_push(obj_arg a, obj_arg v) {
 }
 
 // =======================================
+// fixpoint
+
+static inline object * ptr_to_weak_ptr(object * p) {
+    return reinterpret_cast<object*>(reinterpret_cast<uintptr_t>(p) | 1);
+}
+
+static inline object * weak_ptr_to_ptr(object * w) {
+    return reinterpret_cast<object*>((reinterpret_cast<uintptr_t>(w) >> 1) << 1);
+}
+
+obj_res fixpoint_aux(obj_arg rec, obj_arg weak_k, obj_arg a) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    inc(k);
+    return apply_2(rec, k, a);
+}
+
+obj_res fixpoint(obj_arg rec, obj_arg a) {
+    object * k = alloc_closure(fixpoint_aux, 2);
+    inc(rec);
+    closure_set(k, 0, rec);
+    closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = apply_2(rec, k, a);
+    return r;
+}
+
+obj_res fixpoint_aux2(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    inc(k);
+    return apply_3(rec, k, a1, a2);
+}
+
+obj_res fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2) {
+    object * k = alloc_closure(fixpoint_aux2, 2);
+    inc(rec);
+    closure_set(k, 0, rec);
+    closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = apply_3(rec, k, a1, a2);
+    return r;
+}
+
+obj_res fixpoint_aux3(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    inc(k);
+    return apply_4(rec, k, a1, a2, a3);
+}
+
+obj_res fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3) {
+    object * k = alloc_closure(fixpoint_aux3, 2);
+    inc(rec);
+    closure_set(k, 0, rec);
+    closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = apply_4(rec, k, a1, a2, a3);
+    return r;
+}
+
+obj_res fixpoint_aux4(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    inc(k);
+    return apply_5(rec, k, a1, a2, a3, a4);
+}
+
+obj_res fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4) {
+    object * k = alloc_closure(fixpoint_aux4, 2);
+    inc(rec);
+    closure_set(k, 0, rec);
+    closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = apply_5(rec, k, a1, a2, a3, a4);
+    return r;
+}
+
+obj_res fixpoint_aux5(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    inc(k);
+    return apply_6(rec, k, a1, a2, a3, a4, a5);
+}
+
+obj_res fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5) {
+    object * k = alloc_closure(fixpoint_aux5, 2);
+    inc(rec);
+    closure_set(k, 0, rec);
+    closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = apply_6(rec, k, a1, a2, a3, a4, a5);
+    return r;
+}
+
+obj_res fixpoint_aux6(obj_arg rec, obj_arg weak_k, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
+    object * k = weak_ptr_to_ptr(weak_k);
+    inc(k);
+    return apply_7(rec, k, a1, a2, a3, a4, a5, a6);
+}
+
+obj_res fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6) {
+    object * k = alloc_closure(fixpoint_aux6, 2);
+    inc(rec);
+    closure_set(k, 0, rec);
+    closure_set(k, 1, ptr_to_weak_ptr(k));
+    object * r = apply_7(rec, k, a1, a2, a3, a4, a5, a6);
+    return r;
+}
+
+// =======================================
 // Debugging helper functions
 
 void dbg_print_str(object * o) {

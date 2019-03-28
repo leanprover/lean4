@@ -653,6 +653,16 @@ inline obj_res alloc_closure(object*(*fun)(object *, object *, object *, object 
 }
 
 // =======================================
+// Fixpoint
+
+obj_res fixpoint(obj_arg rec, obj_arg a);
+obj_res fixpoint2(obj_arg rec, obj_arg a1, obj_arg a2);
+obj_res fixpoint3(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3);
+obj_res fixpoint4(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4);
+obj_res fixpoint5(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5);
+obj_res fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, obj_arg a5, obj_arg a6);
+
+// =======================================
 // Array of objects
 
 inline obj_res alloc_array(size_t size, size_t capacity) {

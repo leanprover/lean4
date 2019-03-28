@@ -1238,6 +1238,16 @@ class csimp_fn {
                 }));
     }
 
+    bool uses_unsafe_inductive(name const & c) {
+        constant_info info = env().get(c);
+        return static_cast<bool>(::lean::find(info.get_value(), [&](expr const & e, unsigned) {
+                    if (!is_constant(e) || !is_cases_on_recursor(env(), const_name(e))) return false;
+                    name const & I = const_name(e).get_prefix();
+                    constant_info I_cinfo = env().get(I);
+                    return I_cinfo.is_unsafe();
+                }));
+    }
+
     bool is_stuck_at_cases(expr e) {
         type_checker tc(m_st, m_lctx);
         while (true) {
@@ -1302,6 +1312,7 @@ class csimp_fn {
                 return none_expr();
             }
             if (!inline_if_reduce_attr && is_recursive(c)) return none_expr();
+            if (uses_unsafe_inductive(c)) return none_expr();
             expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
             if (inline_if_reduce_attr && !inline_attr) {
                 return beta_reduce_if_not_cases(new_fn, e, is_let_val);
@@ -1317,6 +1328,7 @@ class csimp_fn {
             if (arity == 0 || get_app_num_args(e) < arity) return none_expr();
             if (get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold) return none_expr();
             if (is_recursive(c)) return none_expr();
+            if (uses_unsafe_inductive(c)) return none_expr();
             return some_expr(beta_reduce(info->get_value(), e, is_let_val));
         }
     }

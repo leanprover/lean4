@@ -46,12 +46,14 @@ class erase_irrelevant_fn {
         }
     }
 
-    /* Return (some idx) iff inductive datatype `I_name` has only one constructor,
+    /* Return (some idx) iff inductive datatype `I_name` is safe, has only one constructor,
        and this constructor has only one relevant field, `idx` is the field position. */
     optional<unsigned> has_trivial_structure(name const & I_name) {
         if (is_runtime_builtin_type(I_name))
             return optional<unsigned>();
         inductive_val I_val = env().get(I_name).to_inductive_val();
+        if (I_val.is_unsafe())
+            return optional<unsigned>();
         if (I_val.get_ncnstrs() != 1)
             return optional<unsigned>();
         buffer<bool> rel_fields;

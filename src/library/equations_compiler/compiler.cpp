@@ -355,7 +355,8 @@ struct eta_expand_rec_apps_fn : public replace_visitor_with_tc {
 };
 
 static expr compile_equations_main(environment & env, elaborator & elab,
-                                   metavar_context & mctx, local_context const & lctx, expr const & _eqns, bool report_cexs) {
+                                   metavar_context & mctx, local_context const & lctx, expr const & _eqns,
+                                   bool report_cexs) {
     // all following code assumes that all recursive occurrences are applications
     type_context_old ctx(env, mctx, lctx, elab.get_cache(), transparency_mode::Semireducible);
     expr eqns = eta_expand_rec_apps_fn(ctx)(_eqns);
@@ -402,7 +403,8 @@ expr compile_equations(environment & env, elaborator & elab, metavar_context & m
         aux_header.m_aux_lemmas = false;
         aux_header.m_fn_actual_names = map(header.m_fn_actual_names, mk_unsafe_rec_name);
         expr aux_eqns = remove_wf_annotation_from_equations(update_equations(eqns, aux_header));
-        compile_equations_main(env, elab, mctx, lctx, aux_eqns, false);
+        aux_eqns      = eta_expand_rec_apps_fn(ctx)(aux_eqns);
+        unbounded_rec(env, elab, mctx, lctx, aux_eqns, some_expr(result));
         return result;
     } else {
         return compile_equations_main(env, elab, mctx, lctx, eqns, true);

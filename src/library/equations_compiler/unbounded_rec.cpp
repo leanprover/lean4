@@ -82,7 +82,8 @@ static expr fix_rec_apps(expr const & e, name_map<name> const & aux_rec_name2act
 
 eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
                                   metavar_context & mctx, local_context const & lctx,
-                                  expr const & e) {
+                                  expr const & e, optional<expr> const & safe_result) {
+    lean_assert(!safe_result || is_equations_result(*safe_result));
     /* Split recursive equations by using new auxiliary `.rec` locals */
     buffer<expr> aux_rec_fns;
     buffer<expr> es;
@@ -117,6 +118,11 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             fn_types.push_back(helper.collect(ctx.infer(ues.get_fn(0))));
             for (list<expr> const & ts : R.m_counter_examples) {
                 counter_examples.push_back(mk_app(ues.get_fn(0), ts));
+            }
+            if (safe_result) {
+                lean_assert(is_equations_result(*safe_result));
+                lean_assert(get_equations_result_size(*safe_result) == es.size());
+                helper.collect(get_equations_result(*safe_result, fidx));
             }
         }
         helper.finalize_collection();

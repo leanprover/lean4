@@ -28,21 +28,32 @@ def input (σ δ μ : Type) : Type := { r : Result σ δ μ Unit // r.IsOk }
 @[inline] def mkInput {σ δ μ : Type} (i : Pos) (st : σ) (bst : δ) (eps := true) : input σ δ μ :=
 ⟨Result.ok () i st bst eps, Result.IsOk.mk _ _ _ _ _⟩
 
-def parserM (σ δ μ α : Type) :=
+def ParserM (σ δ μ α : Type) :=
 String → input σ δ μ → Result σ δ μ α
 
 variables {σ δ μ α β : Type}
 
-@[inline] def parserM.run (p : parserM σ δ μ α) (st : σ) (bst : δ) (s : String) : Result σ δ μ α :=
+namespace ParserM
+
+protected def default : ParserM σ δ μ α :=
+λ _ inp,
+  match inp with
+  | ⟨Result.ok _ i st bst _, h⟩ := Result.error "" i st none true
+  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+
+instance : Inhabited (ParserM σ δ μ α) :=
+⟨ParserM.default⟩
+
+@[inline] def run (p : ParserM σ δ μ α) (st : σ) (bst : δ) (s : String) : Result σ δ μ α :=
 p s (mkInput 0 st bst)
 
-@[inline] def parserM.pure (a : α) : parserM σ δ μ α :=
+@[inline] def pure (a : α) : ParserM σ δ μ α :=
 λ _ inp,
   match inp with
   | ⟨Result.ok _ it st bst _, h⟩ := Result.ok a it st bst true
   | ⟨Result.error _ _ _ _ _, h⟩  := unreachableError h
 
-@[inline] def parserM.bind (x : parserM σ δ μ α) (f : α → parserM σ δ μ β) : parserM σ δ μ β :=
+@[inline] def bind (x : ParserM σ δ μ α) (f : α → ParserM σ δ μ β) : ParserM σ δ μ β :=
 λ str inp,
   match x str inp with
   | Result.ok a i st bst e₁ :=
@@ -51,15 +62,15 @@ p s (mkInput 0 st bst)
      | Result.error msg i st ext e₂ := Result.error msg i st ext (strictAnd e₁ e₂))
   | Result.error msg i st etx e  := Result.error msg i st etx e
 
-instance parserMIsMonad : Monad (parserM σ δ μ) :=
-{pure := @parserM.pure _ _ _, bind := @parserM.bind _ _ _}
+instance isMonad : Monad (ParserM σ δ μ) :=
+{pure := @ParserM.pure _ _ _, bind := @ParserM.bind _ _ _}
 
 def mkError (r : input σ δ μ) (msg : String) (eps := true) : Result σ δ μ α :=
 match r with
 | ⟨Result.ok _ i c s _, _⟩    := Result.error msg i c none eps
 | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[inline] def parserM.orelse (p q : parserM σ δ μ α) : parserM σ δ μ α :=
+@[inline] def orelse (p q : ParserM σ δ μ α) : ParserM σ δ μ α :=
 λ str inp,
   match inp with
   | ⟨Result.ok _ i₁ _ bst₁ _, _⟩ :=
@@ -68,13 +79,13 @@ match r with
      | other                     := other)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[inline] def parserM.failure : parserM σ δ μ α :=
+@[inline] def failure : ParserM σ δ μ α :=
 λ _ inp, mkError inp "failure"
 
-instance : Alternative (parserM σ δ μ) :=
-{ orelse         := @parserM.orelse _ _ _,
-  failure        := @parserM.failure _ _ _,
-  .. Parser.parserMIsMonad }
+instance : Alternative (ParserM σ δ μ) :=
+{ orelse         := @ParserM.orelse _ _ _,
+  failure        := @ParserM.failure _ _ _,
+  .. ParserM.isMonad }
 
 def setSilentError : Result σ δ μ α → Result σ δ μ α
 | (Result.error msg i st ext _) := Result.error msg i st ext true
@@ -84,11 +95,10 @@ def setSilentError : Result σ δ μ α → Result σ δ μ α
 | ⟨Result.ok _ i _ _ _, _⟩    := i
 | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-namespace Prim
-@[inline] def try {α : Type} (p : parserM σ δ μ α) : parserM σ δ μ α :=
+@[inline] def try {α : Type} (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
 λ str inp, setSilentError (p str inp)
 
-@[inline] def lookahead (p : parserM σ δ μ α) : parserM σ δ μ α :=
+@[inline] def lookahead (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
 λ str inp,
   match inp with
   | ⟨Result.ok _ i _ bst _, _⟩ :=
@@ -97,7 +107,7 @@ namespace Prim
      | other                := other)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[specialize] def satisfy (p : Char → Bool) : parserM σ δ μ Char :=
+@[specialize] def satisfy (p : Char → Bool) : ParserM σ δ μ Char :=
 λ str inp,
   match inp with
   | ⟨Result.ok _ i st bst _, _⟩ :=
@@ -107,62 +117,58 @@ namespace Prim
          else mkError inp "unexpected character"
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[specialize] def takeUntilAux (p : Char → Bool) : Nat → parserM σ δ μ Unit
-| 0     str inp := inp.val
-| (n+1) str inp :=
+@[specialize] partial def takeUntilAux (p : Char → Bool) : ParserM σ δ μ Unit
+| str inp :=
   match inp with
   | ⟨Result.ok _ i st bst _, _⟩ :=
     if str.atEnd i then inp.val
     else let c := str.get i in
          if p c then inp.val
-         else takeUntilAux n str (mkInput (str.next i) st bst false)
+         else takeUntilAux str (mkInput (str.next i) st bst false)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[inline] def takeUntil (p : Char → Bool) : parserM σ δ μ Unit :=
-λ str inp, takeUntilAux p str.length str inp
+@[inline] def takeUntil (p : Char → Bool) : ParserM σ δ μ Unit :=
+λ str inp, takeUntilAux p str inp
 
-def strAux (inS : String) (s : String) (errorMsg : String) : Nat → input σ δ μ → Pos → Result σ δ μ Unit
-| 0     inp j := mkError inp errorMsg
-| (n+1) inp j :=
+partial def strAux (s : String) (errorMsg : String) : Pos → ParserM σ δ μ Unit
+| j str inp :=
   if s.atEnd j then inp.val
-  else
-    match inp with
-    | ⟨Result.ok _ i st bst e, _⟩ :=
-      if inS.atEnd i then mkError inp errorMsg
-      else if inS.get i = s.get j then strAux n (mkInput (inS.next i) st bst false) (s.next j)
+  else match inp with
+    | ⟨Result.ok _ i st bst _, _⟩ :=
+      if str.atEnd i then mkError inp errorMsg
+      else if s.get j == str.get i then strAux (s.next j) str (mkInput (str.next i) st bst false)
       else mkError inp errorMsg
     | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
-@[inline] def str (s : String) : parserM σ δ μ Unit :=
-λ inStr inp, strAux inStr s ("expected '" ++ repr s ++ "'") inStr.length inp 0
+@[inline] def str (s : String) : ParserM σ δ μ Unit :=
+strAux s ("expected '" ++ repr s ++ "'") 0
 
-@[specialize] def manyLoop (a : α) (p : parserM σ δ μ α) : Nat → Bool → parserM σ δ μ α
-| 0     fst := pure a
-| (k+1) fst := λ str inp,
+@[specialize] partial def manyLoop (a : α) (p : ParserM σ δ μ α) : Bool → ParserM σ δ μ α
+| fst str inp :=
   match inp with
   | ⟨Result.ok _ i₀ _ bst₀ _, _⟩ :=
     (match p str inp with
-     | Result.ok _ i st bst _   := manyLoop k false str (mkInput i st bst)
+     | Result.ok _ i st bst _   := manyLoop false str (mkInput i st bst)
      | Result.error _ _ st _ _  := Result.ok a i₀ st bst₀ fst)
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 -- Auxiliary Function used to lift manyAux
-@[inline] def manyAux (a : α) (p : parserM σ δ μ α) : parserM σ δ μ α :=
-λ str inp, manyLoop a p str.length true str inp
+@[inline] def manyAux (a : α) (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
+manyLoop a p true
 
-@[inline] def many (p : parserM σ δ μ Unit) : parserM σ δ μ Unit  :=
+@[inline] def many (p : ParserM σ δ μ Unit) : ParserM σ δ μ Unit  :=
 manyAux () p
 
-@[inline] def many1 (p : parserM σ δ μ Unit) : parserM σ δ μ Unit  :=
+@[inline] def many1 (p : ParserM σ δ μ Unit) : ParserM σ δ μ Unit  :=
 p *> many p
 
-end Prim
+end ParserM
 
 class monadParser (σ : outParam Type) (δ : outParam Type) (μ : outParam Type) (m : Type → Type) :=
-(lift {} {α : Type} : parserM σ δ μ α → m α)
-(map {} {α : Type} : (Π β, parserM σ δ μ β → parserM σ δ μ β) → m α → m α)
+(lift {} {α : Type} : ParserM σ δ μ α → m α)
+(map {} {α : Type} : (Π β, ParserM σ δ μ β → ParserM σ δ μ β) → m α → m α)
 
-instance monadParserBase : monadParser σ δ μ (parserM σ δ μ) :=
+instance monadParserBase : monadParser σ δ μ (ParserM σ δ μ) :=
 { lift := λ α, id,
   map  := λ α f x, f α x }
 
@@ -171,9 +177,9 @@ instance monadParserTrans {m n : Type → Type} [HasMonadLift m n] [MonadFunctor
   map  := λ α f x, monadMap (λ β x, (monadParser.map @f x : m β)) x }
 
 class monadParserAux (σ : outParam Type) (δ : outParam Type) (μ : outParam Type) (m : Type → Type) :=
-(map {} {α : Type} : (parserM σ δ μ α → parserM σ δ μ α) → m α → m α)
+(map {} {α : Type} : (ParserM σ δ μ α → ParserM σ δ μ α) → m α → m α)
 
-instance monadParserAuxBase : monadParserAux σ δ μ (parserM σ δ μ) :=
+instance monadParserAuxBase : monadParserAux σ δ μ (ParserM σ δ μ) :=
 { map  := λ α, id }
 
 instance monadParserAuxReader {m : Type → Type} {ρ : Type} [Monad m] [monadParserAux σ δ μ m] : monadParserAux σ δ μ (ReaderT ρ m) :=
@@ -182,7 +188,7 @@ instance monadParserAuxReader {m : Type → Type} {ρ : Type} [Monad m] [monadPa
 section
 variables {m : Type → Type} [monadParser σ δ μ m]
 
-@[inline] def satisfy (p : Char → Bool) : m Char := monadParser.lift (Prim.satisfy p)
+@[inline] def satisfy (p : Char → Bool) : m Char := monadParser.lift (ParserM.satisfy p)
 def ch (c : Char) : m Char := satisfy (= c)
 def alpha : m Char := satisfy Char.isAlpha
 def digit : m Char := satisfy Char.isDigit
@@ -190,12 +196,12 @@ def upper : m Char := satisfy Char.isUpper
 def lower : m Char := satisfy Char.isLower
 def any   : m Char := satisfy (λ _, True)
 
-@[inline] def takeUntil (p : Char → Bool) : m Unit := monadParser.lift (Prim.takeUntil p)
+@[inline] def takeUntil (p : Char → Bool) : m Unit := monadParser.lift (ParserM.takeUntil p)
 
-@[inline] def str (s : String) : m Unit := monadParser.lift (Prim.str s)
+@[inline] def str (s : String) : m Unit := monadParser.lift (ParserM.str s)
 
 @[inline] def lookahead (p : m α) : m α :=
-monadParser.map (λ β p, Prim.lookahead p) p
+monadParser.map (λ β p, ParserM.lookahead p) p
 
 @[inline] def takeWhile (p : Char → Bool) : m Unit := takeUntil (λ c, !p c)
 
@@ -206,15 +212,15 @@ end
 section
 variables {m : Type → Type} [monadParserAux σ δ μ m]
 
-@[inline] def many (p : m Unit) : m Unit  := monadParserAux.map Prim.many p
-@[inline] def many1 (p : m Unit) : m Unit := monadParserAux.map Prim.many1 p
+@[inline] def many (p : m Unit) : m Unit  := monadParserAux.map ParserM.many p
+@[inline] def many1 (p : m Unit) : m Unit := monadParserAux.map ParserM.many1 p
 
 end
 
 end Parser
 end Lean
 
-abbrev Parser := ReaderT Nat (Lean.Parser.parserM Unit Unit Unit) Unit
+abbrev Parser := ReaderT Nat (Lean.Parser.ParserM Unit Unit Unit) Unit
 
 open Lean.Parser
 

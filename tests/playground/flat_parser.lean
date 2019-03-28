@@ -6,7 +6,7 @@ open String
 open Parser (Syntax Syntax.missing)
 open Parser (Trie TokenMap)
 
-abbreviation pos := String.utf8Pos
+abbreviation pos := String.Pos
 
 /-- A precomputed cache for quickly mapping Char offsets to positions. -/
 structure FileMap :=
@@ -17,9 +17,9 @@ namespace FileMap
 private def fromStringAux (s : String) : Nat → Nat → Nat → pos → Array Nat → Array Nat → FileMap
 | 0     offset line i offsets lines := ⟨offsets.push offset, lines.push line⟩
 | (k+1) offset line i offsets lines :=
-  if s.utf8AtEnd i then ⟨offsets.push offset, lines.push line⟩
-  else let c := s.utf8Get i in
-       let i := s.utf8Next i in
+  if s.atEnd i then ⟨offsets.push offset, lines.push line⟩
+  else let c := s.get i in
+       let i := s.next i in
        let offset := offset + 1 in
        if c = '\n'
        then fromStringAux k offset (line+1) i (offsets.push offset) (lines.push (line+1))
@@ -157,13 +157,13 @@ consumed any input when `p` fails.
 λ ps cfg r, setSilentError (p ps cfg r)
 
 @[inline] def atEnd (cfg : ParserConfig) (i : pos) : Bool :=
-cfg.input.utf8AtEnd i
+cfg.input.atEnd i
 
 @[inline] def curr (cfg : ParserConfig) (i : pos) : Char :=
-cfg.input.utf8Get i
+cfg.input.get i
 
 @[inline] def next (cfg : ParserConfig) (i : pos) : pos :=
-cfg.input.utf8Next i
+cfg.input.next i
 
 @[inline] def inputSize (cfg : ParserConfig) : Nat :=
 cfg.input.length
@@ -220,12 +220,12 @@ takeUntil (λ c, !c.isWhitespace)
 def strAux (cfg : ParserConfig) (str : String) (error : String) : Nat → resultOk → pos → Result Unit
 | 0     r j := mkError r error
 | (n+1) r j :=
-  if str.utf8AtEnd j then r.val
+  if str.atEnd j then r.val
   else
     match r with
     | ⟨Result.ok _ i ch st e, _⟩ :=
       if atEnd cfg i then Result.error error i ch Syntax.missing true
-      else if curr cfg i = str.utf8Get j then strAux n (mkResultOk (next cfg i) ch st true) (str.utf8Next j)
+      else if curr cfg i = str.get j then strAux n (mkResultOk (next cfg i) ch st true) (str.next j)
       else Result.error error i ch Syntax.missing true
     | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
@@ -315,7 +315,7 @@ open Lean.Parser.MonadParsec
 def testParsec (p : Parser Unit) (input : String) : String :=
 let ps : Lean.flatParser.recParsers := { cmdParser := Lean.flatParser.dummyParserCore, termParser := λ _, Lean.flatParser.dummyParserCore } in
 let cfg : Lean.flatParser.ParserConfig := { filename := "test", input := input, FileMap := Lean.flatParser.FileMap.fromString input, tokens := Lean.Parser.Trie.mk } in
-let r := p ps cfg input.mkIterator {} in
+let r := p ps cfg input.mkOldIterator {} in
 match r with
 | (Parsec.Result.ok _ it _, _)   := "OK at " ++ toString it.offset
 | (Parsec.Result.error msg _, _) := "Error " ++ msg.toString

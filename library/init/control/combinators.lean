@@ -30,15 +30,20 @@ mcond c t (pure ())
 
 namespace Nat
 
-@[specialize]
-def mfor {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
-n.for (λ i a, a *> f i) (pure ())
+@[specialize] def mforAux {m} [Monad m] (f : Nat → m Unit) : Nat → m Unit
+| 0     := pure ()
+| (i+1) := f i *> mforAux i
 
+@[inline] def mfor {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
+mforAux f n
+
+-- TODO: enable after we have support for marking arguments that should be considered for specialization.
+/-
 @[specialize]
 def mrepeat {m} [Monad m] : Nat → m Unit → m Unit
 | 0     f := pure ()
 | (k+1) f := f *> mrepeat k f
-
+-/
 end Nat
 
 namespace List

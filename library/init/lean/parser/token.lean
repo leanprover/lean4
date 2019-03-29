@@ -261,9 +261,9 @@ def number.Parser : Parser :=
 lift $ try $ do {
   it ← leftOver,
   stx ← token,
-  some _ ← pure $ tryView number stx | error "" (DList.singleton "number") it,
-  pure stx
-} <?> "number"
+  if stx.isOfKind number then pure stx
+  else error "" (DList.singleton "number") it
+}
 
 instance number.Parser.tokens : Parser.HasTokens (number.Parser : Parser) := default _
 instance number.Parser.view : Parser.HasView number.View (number.Parser : Parser) :=

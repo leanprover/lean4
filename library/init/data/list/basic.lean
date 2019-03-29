@@ -279,25 +279,25 @@ filter (∈ l₂) l₁
 instance [DecidableEq α] : HasInter (List α) :=
 ⟨List.inter⟩
 
-def repeat (a : α) (n : ℕ) : List α :=
-n.repeat (λ _ xs, a :: xs) []
+def replicate (n : Nat) (a : α) : List α :=
+n.repeat (λ xs, a :: xs) []
 
-def rangeCore : ℕ → List ℕ → List ℕ
+def rangeCore : Nat → List Nat → List Nat
 | 0        l := l
 | (succ n) l := rangeCore n (n :: l)
 
-def range (n : ℕ) : List ℕ :=
+def range (n : Nat) : List Nat :=
 rangeCore n []
 
-def iota : ℕ → List ℕ
+def iota : Nat → List Nat
 | 0        := []
 | (succ n) := succ n :: iota n
 
-def enumFrom : ℕ → List α → List (ℕ × α)
+def enumFrom : Nat → List α → List (Nat × α)
 | n [] := nil
 | n (x :: xs) := (n, x) :: enumFrom (n + 1) xs
 
-def enum : List α → List (ℕ × α) := enumFrom 0
+def enum : List α → List (Nat × α) := enumFrom 0
 
 def last : Π l : List α, l ≠ [] → α
 | []        h := absurd rfl h

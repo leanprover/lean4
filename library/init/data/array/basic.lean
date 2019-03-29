@@ -42,7 +42,7 @@ def push (a : Array α) (v : α) : Array α :=
 
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α :=
 let a : Array α := mkEmpty n in
-n.repeat (λ _ a, a.push v) a
+n.repeat (λ a, a.push v) a
 
 def empty : Array α :=
 mkEmpty 0
@@ -183,36 +183,24 @@ end Array
 
 export Array (mkArray)
 
-private theorem repeatCoreIndexIndep {α : Type u} (f : α → α) (n m₁ m₂ : Nat) :
-  ∀ (a : α), Nat.repeatCore (λ _ a, f a) m₁ n a =
-  Nat.repeatCore (λ _ a, f a) m₂ n a :=
-Nat.recOn n (λ a, rfl) (λ n ih a,
-  show Nat.repeatCore (λ _ a, f a) m₁ n (f a) =
-       Nat.repeatCore (λ _ a, f a) m₂ n (f a), from
-  ih (f a))
-
-private theorem repeatCorePushSz {α : Type u} : ∀ (n m : Nat) (v : α) (a : Array α),
-   (Nat.repeatCore (λ _ (a : Array α), a.push v) m n (a.push v)).sz =
-   (Nat.repeatCore (λ _ (a : Array α), a.push v) m n a).sz.succ
-| 0            _ _ _ := rfl
-| (Nat.succ n) m v a :=
-  show (Nat.repeatCore (λ _ (a : Array α), a.push v) m n ((a.push v).push v)).sz =
-       (Nat.repeatCore (λ _ (a : Array α), a.push v) m n (a.push v)).sz.succ, from
-  repeatCorePushSz n m v (a.push v)
+private theorem repeatCorePushSz {α : Type u} : ∀ (n : Nat) (v : α) (a : Array α),
+   (Nat.repeatCore (λ (a : Array α), a.push v) n (a.push v)).sz =
+   (Nat.repeatCore (λ (a : Array α), a.push v) n a).sz.succ
+| 0            _ _ := rfl
+| (Nat.succ n) v a :=
+  show (Nat.repeatCore (λ (a : Array α), a.push v) n ((a.push v).push v)).sz =
+       (Nat.repeatCore (λ (a : Array α), a.push v) n (a.push v)).sz.succ, from
+  repeatCorePushSz n v (a.push v)
 
 theorem szMkArrayEq {α : Type u} (n : Nat) (v : α) : (mkArray n v).sz = n :=
 Nat.recOn n rfl $ λ n ih,
-  have aux₁ : (Nat.repeatCore (λ _ (a : Array α), a.push v) n n (Array.mkEmpty n)).sz = n, from ih,
-  have aux₂ : (Nat.repeatCore (λ _ (a : Array α), a.push v) n.succ n (Array.mkEmpty n)).sz = n, from
-    repeatCoreIndexIndep (λ (a : Array α), a.push v) n n n.succ (Array.mkEmpty n) ▸ aux₁,
-  have aux₃ : (Nat.repeatCore (λ _ (a : Array α), a.push v) n.succ n ((Array.mkEmpty n).push v)).sz =
-              (Nat.repeatCore (λ _ (a : Array α), a.push v) n.succ n (Array.mkEmpty n)).sz.succ, from
-    repeatCorePushSz _ _ _ _,
-  have aux₄ : (Nat.repeatCore (λ _ (a : Array α), a.push v) n.succ n (Array.mkEmpty n)).sz.succ = n.succ, from
-    congrArg _ aux₂,
-  have aux₄ : (Nat.repeatCore (λ _ (a : Array α), a.push v) n.succ n ((Array.mkEmpty n).push v)).sz = n.succ, from
-    Eq.trans aux₃ aux₄,
-  aux₄
+  have aux₁ : (Nat.repeatCore (λ (a : Array α), a.push v) n (Array.mkEmpty n)).sz = n, from ih,
+  have aux₂ : (Nat.repeatCore (λ (a : Array α), a.push v) n ((Array.mkEmpty n).push v)).sz =
+              (Nat.repeatCore (λ (a : Array α), a.push v) n (Array.mkEmpty n)).sz.succ, from
+    repeatCorePushSz _ _ _,
+  have aux₃ : (Nat.repeatCore (λ (a : Array α), a.push v) n (Array.mkEmpty n)).sz.succ = n.succ, from
+    congrArg _ aux₁,
+  Eq.trans aux₂ aux₃
 
 @[inlineIfReduce] def List.toArrayAux {α : Type u} : List α → Array α → Array α
 | []      r := r

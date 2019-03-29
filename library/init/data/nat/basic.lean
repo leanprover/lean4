@@ -84,12 +84,19 @@ instance : HasSub Nat :=
 instance : HasMul Nat :=
 ⟨Nat.mul⟩
 
-@[specialize] def repeatCore {α : Type u} (f : Nat → α → α) (s : Nat) : Nat → α → α
+@[specialize] def forCore {α : Type u} (f : Nat → α → α) (s : Nat) : Nat → α → α
 | 0         a := a
-| (succ n)  a := repeatCore n (f (s - (succ n)) a)
+| (succ n)  a := forCore n (f (s - (succ n)) a)
 
-@[inline] def repeat {α : Type u} (f : Nat → α → α) (n : Nat) (a : α) : α :=
-repeatCore f n n a
+@[inline] def for {α : Type u} (f : Nat → α → α) (n : Nat) (a : α) : α :=
+forCore f n n a
+
+@[specialize] def repeatCore {α : Type u} (f : α → α) : Nat → α → α
+| 0         a := a
+| (succ n)  a := repeatCore n (f a)
+
+@[inline] def repeat {α : Type u} (f : α → α) (n : Nat) (a : α) : α :=
+repeatCore f n a
 
 protected def pow (m : Nat) : Nat → Nat
 | 0        := 1

@@ -170,7 +170,7 @@ instance : HasAppend String :=
 def str : String → Char → String := push
 
 def pushn (s : String) (c : Char) (n : Nat) : String :=
-n.repeat (λ _ s, s.push c) s
+n.repeat (λ s, s.push c) s
 
 def isEmpty (s : String) : Bool :=
 toBool (s.bsize == 0)

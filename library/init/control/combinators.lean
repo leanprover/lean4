@@ -31,8 +31,13 @@ mcond c t (pure ())
 namespace Nat
 
 @[specialize]
-def mrepeat {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
-n.repeat (λ i a, a *> f i) (pure ())
+def mfor {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
+n.for (λ i a, a *> f i) (pure ())
+
+@[specialize]
+def mrepeat {m} [Monad m] : Nat → m Unit → m Unit
+| 0     f := pure ()
+| (k+1) f := f *> mrepeat k f
 
 end Nat
 

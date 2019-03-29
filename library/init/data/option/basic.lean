@@ -15,23 +15,23 @@ def toMonad {m : Type → Type} [Monad m] [Alternative m] {A} : Option A → m A
 | none := failure
 | (some a) := pure a
 
-def getOrElse {α : Type u} : Option α → α → α
+@[macroInline] def getOrElse {α : Type u} : Option α → α → α
 | (some x) _ := x
 | none     e := e
 
-def get {α : Type u} [Inhabited α] : Option α → α
+@[inline] def get {α : Type u} [Inhabited α] : Option α → α
 | (some x) := x
 | none     := default α
 
-def toBool {α : Type u} : Option α → Bool
+@[inline] def toBool {α : Type u} : Option α → Bool
 | (some _) := true
 | none     := false
 
-def isSome {α : Type u} : Option α → Bool
+@[inline] def isSome {α : Type u} : Option α → Bool
 | (some _) := true
 | none     := false
 
-def isNone {α : Type u} : Option α → Bool
+@[inline] def isNone {α : Type u} : Option α → Bool
 | (some _) := false
 | none     := true
 
@@ -48,17 +48,18 @@ funext (λo, match o with | none := rfl | some x := rfl)
 instance : Monad Option :=
 {pure := @some, bind := @Option.bind, map := @Option.map}
 
-protected def orelse {α : Type u} : Option α → Option α → Option α
-| (some a) o         := some a
-| none     (some a)  := some a
-| none     none      := none
+@[macroInline] protected def orelse {α : Type u} : Option α → Option α → Option α
+| (some a) _  := some a
+| none     b  := b
 
+/- Remark: when using the polymorphic notation `a <|> b` is not a `[macroInline]`.
+   Thus, `a <|> b` will make `Option.orelse` to behave like it was marked as `[inline]`. -/
 instance : Alternative Option :=
 { failure := @none,
   orelse  := @Option.orelse,
   ..Option.Monad }
 
-protected def lt {α : Type u} (r : α → α → Prop) : Option α → Option α → Prop
+@[inline] protected def lt {α : Type u} (r : α → α → Prop) : Option α → Option α → Prop
 | none (some x)     := True
 | (some x) (some y) := r x y
 | _ _               := False

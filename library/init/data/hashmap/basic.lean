@@ -82,9 +82,10 @@ match m with
        if size' <= buckets.val.sz
        then ⟨size', buckets'⟩
        else let nbuckets' := buckets.val.sz * 2 in
-            let nz' : nbuckets' > 0 := Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero) in
+            let aux₁ : nbuckets' > 0 := Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero) in
+            let aux₂ : (mkArray nbuckets' ([] : List (Σ a, β a))).sz = nbuckets' := szMkArrayEq _ _ in
             ⟨ size',
-              foldBuckets buckets' ⟨mkArray nbuckets' [], nz'⟩ (reinsertAux hash) ⟩
+              foldBuckets buckets' ⟨mkArray nbuckets' [], aux₂.symm ▸ aux₁⟩ (reinsertAux hash) ⟩
 
 def erase [DecidableEq α] [Hashable α] (m : HashmapImp α β) (a : α) : HashmapImp α β :=
 match m with

@@ -22,7 +22,6 @@ obj* l_Lean_KVMap_setBool(obj*, obj*, uint8);
 uint8 l_Lean_DataValue_beq(obj*, obj*);
 obj* l_Lean_KVMap_subset___boxed(obj*, obj*);
 obj* l_Lean_KVMap_getInt(obj*, obj*, obj*);
-uint8 l_Option_isSome___main___rarg(obj*);
 obj* l_Lean_KVMap_getString(obj*, obj*, obj*);
 obj* l_Lean_DataValue_beq___main___boxed(obj*, obj*);
 obj* l_Lean_KVMap_findCore___main(obj*, obj*);
@@ -479,11 +478,21 @@ return x_3;
 uint8 l_Lean_KVMap_contains(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; uint8 x_3; 
+obj* x_2; 
 x_2 = l_Lean_KVMap_findCore___main(x_0, x_1);
-x_3 = l_Option_isSome___main___rarg(x_2);
-lean::dec(x_2);
+if (lean::obj_tag(x_2) == 0)
+{
+uint8 x_3; 
+x_3 = 0;
 return x_3;
+}
+else
+{
+uint8 x_5; 
+lean::dec(x_2);
+x_5 = 1;
+return x_5;
+}
 }
 }
 obj* l_Lean_KVMap_contains___boxed(obj* x_0, obj* x_1) {

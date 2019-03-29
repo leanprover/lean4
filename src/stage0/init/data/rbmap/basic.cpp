@@ -47,7 +47,6 @@ obj* l_RBMap_any___main(obj*, obj*, obj*);
 obj* l_RBMap_contains___boxed(obj*, obj*, obj*);
 obj* l_RBMap_any___main___rarg___boxed(obj*, obj*);
 obj* l_RBNode_setBlack(obj*, obj*);
-uint8 l_Option_isSome___main___rarg(obj*);
 obj* l_RBNode_isRed___boxed(obj*, obj*);
 obj* l_RBNode_ins___main(obj*, obj*, obj*);
 obj* l_RBNode_balance2___main___boxed(obj*, obj*);
@@ -6498,11 +6497,21 @@ return x_3;
 uint8 l_RBMap_contains___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; uint8 x_4; 
+obj* x_3; 
 x_3 = l_RBNode_find___main___at_RBMap_contains___spec__2___rarg(x_0, lean::box(0), x_1, x_2);
-x_4 = l_Option_isSome___main___rarg(x_3);
-lean::dec(x_3);
+if (lean::obj_tag(x_3) == 0)
+{
+uint8 x_4; 
+x_4 = 0;
 return x_4;
+}
+else
+{
+uint8 x_6; 
+lean::dec(x_3);
+x_6 = 1;
+return x_6;
+}
 }
 }
 obj* l_RBMap_contains(obj* x_0, obj* x_1, obj* x_2) {

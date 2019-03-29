@@ -1367,10 +1367,14 @@ inline object * array_get_size(b_obj_arg a) {
     return box(array_size(a));
 }
 
-object * mk_array(obj_arg n, obj_arg v);
-
 inline object * mk_empty_array() {
     return alloc_array(0, 0);
+}
+
+inline object * mk_empty_array(b_obj_arg capacity) {
+    if (!is_scalar(capacity)) throw std::bad_alloc(); // we will run out of memory
+    usize cap = unbox(capacity);
+    return alloc_array(0, cap);
 }
 
 inline object * array_idx(b_obj_arg a, usize i) {

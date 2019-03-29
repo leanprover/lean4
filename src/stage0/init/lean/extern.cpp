@@ -55,7 +55,6 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 extern obj* l_List_reprAux___main___rarg___closed__1;
-obj* l_Option_getOrElse___main___rarg(obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__3;
 obj* l_Lean_expandExternPatternAux___main(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
@@ -286,7 +285,7 @@ goto _start;
 }
 else
 {
-obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_27; obj* x_30; obj* x_31; obj* x_32; obj* x_34; 
+obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_27; obj* x_30; 
 x_19 = l_String_Iterator_next___main(x_2);
 x_20 = l_String_Iterator_remainingBytes___main(x_19);
 x_21 = l___private_init_lean_extern_1__parseOptNum___main(x_20, x_19, x_4);
@@ -299,15 +298,29 @@ x_27 = lean::nat_sub(x_24, x_10);
 lean::dec(x_24);
 lean::inc(x_0);
 x_30 = l_List_nth___main___rarg(x_0, x_27);
+if (lean::obj_tag(x_30) == 0)
+{
+obj* x_31; obj* x_32; 
 x_31 = l_String_splitAux___main___closed__1;
-x_32 = l_Option_getOrElse___main___rarg(x_30, x_31);
-lean::dec(x_30);
-x_34 = lean::string_append(x_3, x_32);
-lean::dec(x_32);
+x_32 = lean::string_append(x_3, x_31);
 x_1 = x_11;
 x_2 = x_22;
-x_3 = x_34;
+x_3 = x_32;
 goto _start;
+}
+else
+{
+obj* x_34; obj* x_37; 
+x_34 = lean::cnstr_get(x_30, 0);
+lean::inc(x_34);
+lean::dec(x_30);
+x_37 = lean::string_append(x_3, x_34);
+lean::dec(x_34);
+x_1 = x_11;
+x_2 = x_22;
+x_3 = x_37;
+goto _start;
+}
 }
 }
 }

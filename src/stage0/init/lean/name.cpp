@@ -27,7 +27,6 @@ obj* l_RBMap_insert___main___at_Lean_NameMap_insert___spec__1(obj*);
 obj* l_RBMap_find___main___at_Lean_NameMap_find___spec__1___rarg(obj*, obj*);
 obj* l_RBMap_find___main___at_Lean_NameMap_find___spec__1___boxed(obj*);
 obj* l_Lean_NameMap_insert(obj*);
-uint8 l_Option_isSome___main___rarg(obj*);
 obj* l_RBMap_find___main___at_Lean_NameSet_contains___spec__1___boxed(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Name_Hashable;
@@ -1621,11 +1620,21 @@ return x_1;
 uint8 l_Lean_NameMap_contains___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; uint8 x_3; 
+obj* x_2; 
 x_2 = l_RBMap_find___main___at_Lean_NameMap_contains___spec__1___rarg(x_0, x_1);
-x_3 = l_Option_isSome___main___rarg(x_2);
-lean::dec(x_2);
+if (lean::obj_tag(x_2) == 0)
+{
+uint8 x_3; 
+x_3 = 0;
 return x_3;
+}
+else
+{
+uint8 x_5; 
+lean::dec(x_2);
+x_5 = 1;
+return x_5;
+}
 }
 }
 obj* l_Lean_NameMap_contains(obj* x_0) {
@@ -2316,11 +2325,21 @@ return x_3;
 uint8 l_Lean_NameSet_contains(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; uint8 x_3; 
+obj* x_2; 
 x_2 = l_RBMap_find___main___at_Lean_NameSet_contains___spec__1(x_0, x_1);
-x_3 = l_Option_isSome___main___rarg(x_2);
-lean::dec(x_2);
+if (lean::obj_tag(x_2) == 0)
+{
+uint8 x_3; 
+x_3 = 0;
 return x_3;
+}
+else
+{
+uint8 x_5; 
+lean::dec(x_2);
+x_5 = 1;
+return x_5;
+}
 }
 }
 obj* l_RBMap_find___main___at_Lean_NameSet_contains___spec__1___boxed(obj* x_0, obj* x_1) {

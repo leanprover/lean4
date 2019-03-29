@@ -66,8 +66,8 @@ obj* l_Option_toMonad___main(obj*);
 obj* l_Option_HasLess(obj*, obj*);
 obj* l_Option_orelse___main___rarg(obj*, obj*);
 obj* l_Option_isSome___main___boxed(obj*);
-obj* l_Option_Alternative___lambda__1___boxed(obj*);
-obj* l_Option_Alternative___lambda__1(obj*);
+obj* l_Option_Alternative___lambda__1___boxed(obj*, obj*, obj*);
+obj* l_Option_Alternative___lambda__1(obj*, obj*, obj*);
 uint8 l_Option_DecidableEq___rarg(obj*, obj*, obj*);
 obj* l_Option_Inhabited___boxed(obj*);
 obj* l_Option_Inhabited(obj*);
@@ -78,6 +78,7 @@ obj* l_Option_toBool___rarg___boxed(obj*);
 obj* l_Option_get(obj*);
 obj* l_Option_getOrElse___boxed(obj*);
 obj* l_Option_bind___main___rarg(obj*, obj*);
+obj* l_Option_Alternative___lambda__2(obj*);
 obj* l_Option_isSome___rarg___boxed(obj*);
 obj* l_Option_orelse(obj*);
 obj* l_Option_getOrElse___main(obj*);
@@ -95,6 +96,7 @@ obj* l_Option_isNone___main___boxed(obj*);
 obj* l_Option_isSome(obj*);
 obj* l_Option_decidableRelLt___main___boxed(obj*, obj*);
 obj* l_Option_Monad___lambda__3(obj*, obj*, obj*, obj*);
+obj* l_Option_Alternative___lambda__2___boxed(obj*);
 obj* l_Option_getOrElse___main___boxed(obj*);
 obj* l_Option_decidableRelLt___main(obj*, obj*);
 obj* l_Option_toMonad(obj*, obj*);
@@ -244,9 +246,18 @@ return x_1;
 obj* l_Option_getOrElse___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_Option_getOrElse___main___rarg(x_0, x_1);
-return x_2;
+if (lean::obj_tag(x_0) == 0)
+{
+lean::inc(x_1);
+return x_1;
+}
+else
+{
+obj* x_3; 
+x_3 = lean::cnstr_get(x_0, 0);
+lean::inc(x_3);
+return x_3;
+}
 }
 }
 obj* l_Option_getOrElse(obj* x_0) {
@@ -323,9 +334,18 @@ return x_1;
 obj* l_Option_get___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_Option_get___main___rarg(x_0, x_1);
-return x_2;
+if (lean::obj_tag(x_1) == 0)
+{
+lean::inc(x_0);
+return x_0;
+}
+else
+{
+obj* x_3; 
+x_3 = lean::cnstr_get(x_1, 0);
+lean::inc(x_3);
+return x_3;
+}
 }
 }
 obj* l_Option_get(obj* x_0) {
@@ -402,9 +422,18 @@ return x_1;
 uint8 l_Option_toBool___rarg(obj* x_0) {
 _start:
 {
+if (lean::obj_tag(x_0) == 0)
+{
 uint8 x_1; 
-x_1 = l_Option_toBool___main___rarg(x_0);
+x_1 = 0;
 return x_1;
+}
+else
+{
+uint8 x_2; 
+x_2 = 1;
+return x_2;
+}
 }
 }
 obj* l_Option_toBool(obj* x_0) {
@@ -481,9 +510,18 @@ return x_1;
 uint8 l_Option_isSome___rarg(obj* x_0) {
 _start:
 {
+if (lean::obj_tag(x_0) == 0)
+{
 uint8 x_1; 
-x_1 = l_Option_isSome___main___rarg(x_0);
+x_1 = 0;
 return x_1;
+}
+else
+{
+uint8 x_2; 
+x_2 = 1;
+return x_2;
+}
 }
 }
 obj* l_Option_isSome(obj* x_0) {
@@ -560,9 +598,18 @@ return x_1;
 uint8 l_Option_isNone___rarg(obj* x_0) {
 _start:
 {
+if (lean::obj_tag(x_0) == 0)
+{
 uint8 x_1; 
-x_1 = l_Option_isNone___main___rarg(x_0);
+x_1 = 1;
 return x_1;
+}
+else
+{
+uint8 x_2; 
+x_2 = 0;
+return x_2;
+}
 }
 }
 obj* l_Option_isNone(obj* x_0) {
@@ -985,9 +1032,16 @@ return x_1;
 obj* l_Option_orelse___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_Option_orelse___main___rarg(x_0, x_1);
-return x_2;
+if (lean::obj_tag(x_0) == 0)
+{
+lean::inc(x_1);
+return x_1;
+}
+else
+{
+lean::inc(x_0);
+return x_0;
+}
 }
 }
 obj* l_Option_orelse(obj* x_0) {
@@ -1017,7 +1071,22 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Option_Alternative___lambda__1(obj* x_0) {
+obj* l_Option_Alternative___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+if (lean::obj_tag(x_1) == 0)
+{
+lean::inc(x_2);
+return x_2;
+}
+else
+{
+lean::inc(x_1);
+return x_1;
+}
+}
+}
+obj* l_Option_Alternative___lambda__2(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -1044,8 +1113,8 @@ lean::cnstr_set(x_7, 1, x_3);
 lean::cnstr_set(x_7, 2, x_4);
 lean::cnstr_set(x_7, 3, x_5);
 lean::cnstr_set(x_7, 4, x_6);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_orelse___boxed), 1, 0);
-x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Alternative___lambda__1___boxed), 1, 0);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Alternative___lambda__1___boxed), 3, 0);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_Option_Alternative___lambda__2___boxed), 1, 0);
 x_10 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_10, 0, x_7);
 lean::cnstr_set(x_10, 1, x_8);
@@ -1053,11 +1122,22 @@ lean::cnstr_set(x_10, 2, x_9);
 return x_10;
 }
 }
-obj* l_Option_Alternative___lambda__1___boxed(obj* x_0) {
+obj* l_Option_Alternative___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Option_Alternative___lambda__1(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_Option_Alternative___lambda__2___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Option_Alternative___lambda__1(x_0);
+x_1 = l_Option_Alternative___lambda__2(x_0);
 lean::dec(x_0);
 return x_1;
 }

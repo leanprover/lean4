@@ -415,7 +415,7 @@ x_4 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*1);
 if (x_4 == 0)
 {
 obj* x_5; uint8 x_6; 
-x_5 = lean::thunk_get(x_2);
+x_5 = lean::thunk_get_own(x_2);
 x_6 = lean::cnstr_get_scalar<uint8>(x_5, sizeof(void*)*1 + 1);
 if (x_6 == 0)
 {
@@ -573,7 +573,7 @@ x_27 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Format_spaceUptoLine__
 lean::closure_set(x_27, 0, x_19);
 lean::closure_set(x_27, 1, x_1);
 x_28 = lean::mk_thunk(x_27);
-x_29 = lean::thunk_get(x_28);
+x_29 = lean::thunk_get_own(x_28);
 lean::dec(x_28);
 x_31 = lean::cnstr_get_scalar<uint8>(x_29, sizeof(void*)*1 + 1);
 if (x_31 == 0)
@@ -704,7 +704,7 @@ x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Format_spaceUptoLine_x
 lean::closure_set(x_17, 0, x_6);
 lean::closure_set(x_17, 1, x_1);
 x_18 = lean::mk_thunk(x_17);
-x_19 = lean::thunk_get(x_18);
+x_19 = lean::thunk_get_own(x_18);
 lean::dec(x_18);
 x_21 = lean::cnstr_get_scalar<uint8>(x_19, sizeof(void*)*1 + 1);
 if (x_21 == 0)
@@ -990,7 +990,7 @@ x_96 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Format_spaceUptoLine_x
 lean::closure_set(x_96, 0, x_76);
 lean::closure_set(x_96, 1, x_0);
 x_97 = lean::mk_thunk(x_96);
-x_98 = lean::thunk_get(x_97);
+x_98 = lean::thunk_get_own(x_97);
 lean::dec(x_97);
 x_100 = lean::cnstr_get_scalar<uint8>(x_98, sizeof(void*)*1 + 1);
 if (x_100 == 0)

@@ -33,6 +33,7 @@ obj* l_Fun_Inhabited(obj*, obj*);
 obj* l_inline___rarg(obj*);
 obj* l_inferInstanceAs___rarg(obj*);
 obj* l_Nat_Inhabited;
+obj* l_strictAnd___boxed(obj*, obj*);
 obj* l_id___boxed(obj*);
 obj* l_Fun_Inhabited___rarg___boxed(obj*, obj*);
 obj* l_Quot_rec___rarg___boxed(obj*, obj*, obj*);
@@ -236,6 +237,7 @@ obj* l_Quot_rec___boxed(obj*, obj*, obj*);
 obj* l_Prod_map___rarg(obj*, obj*, obj*);
 obj* l_PSigma_sizeof___at_PSigma_HasSizeof___spec__1(obj*, obj*);
 obj* l_Sum_HasSizeof___rarg(obj*, obj*);
+obj* l_strictOr___boxed(obj*, obj*);
 obj* l_std_prec_arrow;
 obj* l_Quotient_DecidableEq___boxed(obj*);
 obj* l_bit0___rarg(obj*, obj*);
@@ -257,6 +259,7 @@ obj* l_inline___boxed(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+uint8 l_strictOr(uint8, uint8);
 obj* l_Subtype_sizeof___boxed(obj*);
 obj* l_PSigma_sizeof___boxed(obj*, obj*);
 uint8 l_not___main(uint8);
@@ -471,6 +474,7 @@ uint8 l_or___main(uint8, uint8);
 obj* l___private_init_core_21__funSetoid___boxed(obj*, obj*);
 obj* l_Or_Decidable___boxed(obj*, obj*);
 obj* l_Decidable_recOnFalse___boxed(obj*);
+uint8 l_strictAnd(uint8, uint8);
 obj* l_Eq_mp___rarg(obj*);
 obj* l_Quotient_hrecOn___boxed(obj*, obj*, obj*);
 obj* l_id___rarg(obj* x_0) {
@@ -685,7 +689,7 @@ obj* l_Thunk_get___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::thunk_get(x_1);
+x_2 = lean::thunk_get_own(x_1);
 lean::dec(x_1);
 return x_2;
 }
@@ -2479,6 +2483,58 @@ uint8 x_2; uint8 x_3; uint8 x_4; obj* x_5;
 x_2 = lean::unbox(x_0);
 x_3 = lean::unbox(x_1);
 x_4 = l_xor(x_2, x_3);
+x_5 = lean::box(x_4);
+return x_5;
+}
+}
+uint8 l_strictOr(uint8 x_0, uint8 x_1) {
+_start:
+{
+if (x_0 == 0)
+{
+return x_1;
+}
+else
+{
+uint8 x_2; 
+x_2 = 1;
+return x_2;
+}
+}
+}
+obj* l_strictOr___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; uint8 x_3; uint8 x_4; obj* x_5; 
+x_2 = lean::unbox(x_0);
+x_3 = lean::unbox(x_1);
+x_4 = l_strictOr(x_2, x_3);
+x_5 = lean::box(x_4);
+return x_5;
+}
+}
+uint8 l_strictAnd(uint8 x_0, uint8 x_1) {
+_start:
+{
+if (x_0 == 0)
+{
+uint8 x_2; 
+x_2 = 0;
+return x_2;
+}
+else
+{
+return x_1;
+}
+}
+}
+obj* l_strictAnd___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; uint8 x_3; uint8 x_4; obj* x_5; 
+x_2 = lean::unbox(x_0);
+x_3 = lean::unbox(x_1);
+x_4 = l_strictAnd(x_2, x_3);
 x_5 = lean::box(x_4);
 return x_5;
 }

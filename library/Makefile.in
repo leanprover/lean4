@@ -42,7 +42,7 @@ $(STAGE1_DIR)/%.cpp: %.olean
 
 $(STAGE1_OUT)/%.o: $(STAGE1_DIR)/%.cpp
 	@mkdir -p "$(@D)"
-	../bin/leanc -c -o $@ $< -O3
+	../bin/leanc -c -o $@ $< $(LEANC_OPTS)
 
 $(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,$(SRCS)))
 	@ar rcs $@ $^

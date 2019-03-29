@@ -11,11 +11,18 @@ ADD_CUSTOM_TARGET(bin_lean_stage0 ALL
   DEPENDS lean_stage0
 )
 
+string(TOUPPER "${CMAKE_BUILD_TYPE}" uppercase_CMAKE_BUILD_TYPE)
+if(uppercase_CMAKE_BUILD_TYPE MATCHES "RELEASE")
+  set(LEANC_OPTS "-O3")
+else()
+  set(LEANC_OPTS "-g")
+endif()
+
 add_custom_target(stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
+  COMMAND make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
   DEPENDS lean_stage0)
 
 add_custom_target(update-stage0

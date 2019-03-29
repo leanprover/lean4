@@ -152,7 +152,7 @@ def mkNotationTransformer (nota : NotationMacro) : transformer :=
     -- that cannot be abstracted over.
     let substs := st.substs.map (λ ⟨id, t⟩, (id.val, t)),
     let t := nota.nota.Term.replace $ λ stx, match tryView identUnivs stx with
-      | some {id := id, univs := none} := pure $ substs.assoc id.val
+      | some {id := id, univs := none} := pure $ substs.lookup id.val
       | _                              := pure none,
     pure $ some $ t
 

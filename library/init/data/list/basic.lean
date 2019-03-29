@@ -31,45 +31,45 @@ protected def hasDecEq [DecidableEq α] : Π a b : List α, Decidable (a = b)
 instance [DecidableEq α] : DecidableEq (List α) :=
 {decEq := List.hasDecEq}
 
-def reverseCore : List α → List α → List α
+def reverseAux : List α → List α → List α
 | []     r := r
-| (a::l) r := reverseCore l (a::r)
+| (a::l) r := reverseAux l (a::r)
 
-local infix `**`:66 := reverseCore
+local infix `**`:66 := reverseAux
 
 def reverse : List α → List α :=
-λ l, reverseCore l []
+λ l, reverseAux l []
 
 protected def append (as bs : List α) : List α :=
-reverseCore as.reverse bs
+reverseAux as.reverse bs
 
 instance : HasAppend (List α) :=
 ⟨List.append⟩
 
-theorem reverseCoreReverseCoreNil : ∀ (as bs : List α), (as ** bs) ** [] = bs ** as
+theorem reverseAuxReverseAuxNil : ∀ (as bs : List α), (as ** bs) ** [] = bs ** as
 | []  bs     := rfl
 | (a::as) bs :=
-  show reverseCore (reverseCore as (a::bs)) [] = reverseCore bs (a::as), from
-  reverseCoreReverseCoreNil as (a::bs)
+  show reverseAux (reverseAux as (a::bs)) [] = reverseAux bs (a::as), from
+  reverseAuxReverseAuxNil as (a::bs)
 
 theorem nilAppend (as : List α) : [] ++ as = as :=
 rfl
 
 theorem appendNil (as : List α) : as ++ [] = as :=
 show (as ** []) ** [] = as, from
-reverseCoreReverseCoreNil as []
+reverseAuxReverseAuxNil as []
 
-theorem reverseCoreReverseCore : ∀ (as bs cs : List α), (as ** bs) ** cs = bs ** ((as ** []) ** cs)
+theorem reverseAuxReverseAux : ∀ (as bs cs : List α), (as ** bs) ** cs = bs ** ((as ** []) ** cs)
 | []      bs cs := rfl
 | (a::as) bs cs :=
   show (as ** a::bs) ** cs = bs ** ((as ** [a]) ** cs), from
-  have h₁ : (as ** a::bs) ** cs = bs ** a::((as ** []) ** cs),       from reverseCoreReverseCore as (a::bs) cs,
-  have h₂ : ((as ** [a]) ** cs) = a::((as ** []) ** cs),             from reverseCoreReverseCore as [a] cs,
+  have h₁ : (as ** a::bs) ** cs = bs ** a::((as ** []) ** cs),       from reverseAuxReverseAux as (a::bs) cs,
+  have h₂ : ((as ** [a]) ** cs) = a::((as ** []) ** cs),             from reverseAuxReverseAux as [a] cs,
   have h₃ : bs ** a::((as ** []) ** cs) = bs ** ((as ** [a]) ** cs), from congrArg (λ b, bs ** b) h₂.symm,
   Eq.trans h₁ h₃
 
 theorem consAppend (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=
-reverseCoreReverseCore as [a] bs
+reverseAuxReverseAux as [a] bs
 
 theorem appendAssoc : ∀ (as bs cs : List α), (as ++ bs) ++ cs = as ++ (bs ++ cs)
 | []      bs cs := rfl
@@ -107,15 +107,6 @@ protected def erase {α} [DecidableEq α] : List α → α → List α
 | []     b := []
 | (a::l) b := if a = b then l else a :: erase l b
 
-protected def bagInter {α} [DecidableEq α] : List α → List α → List α
-| []      _   := []
-| _       []  := []
-| (a::l₁) l₂  := if a ∈ l₂ then a :: bagInter l₁ (l₂.erase a) else bagInter l₁ l₂
-
-protected def diff {α} [DecidableEq α] : List α → List α → List α
-| l      []      := l
-| l₁     (a::l₂) := if a ∈ l₁ then diff (l₁.erase a) l₂ else diff l₁ l₂
-
 def lengthAux : List α → Nat → Nat
 | []      n := n
 | (a::as) n := lengthAux as (n+1)
@@ -123,57 +114,66 @@ def lengthAux : List α → Nat → Nat
 def length (as : List α) : Nat :=
 lengthAux as 0
 
-def empty : List α → Bool
+def isEmpty : List α → Bool
 | []       := true
 | (_ :: _) := false
 
-open Option Nat
+def get [Inhabited α] : Nat → List α → α
+| 0     (a::as) := a
+| (n+1) (a::as) := get n as
+| _     _       := default α
 
-def nth : List α → Nat → Option α
-| []       n     := none
-| (a :: l) 0     := some a
-| (a :: l) (n+1) := nth l n
+def getOpt : Nat → List α → Option α
+| 0     (a::as) := some a
+| (n+1) (a::as) := getOpt n as
+| _     _       := none
 
 def head [Inhabited α] : List α → α
-| []       := default α
-| (a :: l) := a
+| []     := default α
+| (a::_) := a
 
 def tail : List α → List α
-| []       := []
-| (a :: l) := l
+| []      := []
+| (a::as) := as
 
 @[specialize] def map (f : α → β) : List α → List β
-| []       := []
-| (a :: l) := f a :: map l
+| []      := []
+| (a::as) := f a :: map as
 
 @[specialize] def map₂ (f : α → β → γ) : List α → List β → List γ
 | []      _       := []
 | _       []      := []
-| (x::xs) (y::ys) := f x y :: map₂ xs ys
+| (a::as) (b::bs) := f a b :: map₂ as bs
 
 def join : List (List α) → List α
 | []        := []
-| (l :: ls) := l ++ join ls
+| (a :: as) := a ++ join as
 
-def filterMap (f : α → Option β) : List α → List β
+@[specialize] def filterMap (f : α → Option β) : List α → List β
 | []     := []
-| (a::l) :=
+| (a::as) :=
   match f a with
-  | none   := filterMap l
-  | some b := b :: filterMap l
+  | none   := filterMap as
+  | some b := b :: filterMap as
 
-def filter (p : α → Bool) : List α → List α
-| []     := []
-| (a::l) := match p a with
-            | true  := a :: filter l
-            | false := filter l
+@[specialize] def filterAux (p : α → Bool) : List α → List α → List α
+| []      rs := rs.reverse
+| (a::as) rs := match p a with
+   | true  := filterAux as (a::rs)
+   | false := filterAux as rs
 
-def partition (p : α → Bool) : List α → List α × List α
-| []     := ([], [])
-| (a::l) := let (l₁, l₂) := partition l in
-            match p a with
-            | true  := (a :: l₁, l₂)
-            | false := (l₁, a :: l₂)
+@[inline] def filter (p : α → Bool) (as : List α) : List α :=
+filterAux p as []
+
+@[specialize] def partitionAux (p : α → Bool) : List α → List α × List α → List α × List α
+| []      (bs, cs) := (bs.reverse, cs.reverse)
+| (a::as) (bs, cs) :=
+  match p a with
+  | true  := partitionAux as (a::bs, cs)
+  | false := partitionAux as (bs, a::cs)
+
+@[inline] def partition (p : α → Bool) (as : List α) : List α × List α :=
+partitionAux p as ([], [])
 
 def dropWhile (p : α → Bool) : List α → List α
 | []     := []
@@ -181,47 +181,48 @@ def dropWhile (p : α → Bool) : List α → List α
             | true  := dropWhile l
             | false :=  a::l
 
-def span (p : α → Bool) : List α → List α × List α
-| []      := ([], [])
-| (a::xs) := match p a with
-             | true  := let (l, r) := span xs in (a :: l, r)
-             | false := ([], a::xs)
+def find (p : α → Bool) : List α → Option α
+| []      := none
+| (a::as) := match p a with
+  | true  := some a
+  | false := find as
 
-def findIndex (p : α → Bool) : List α → Nat
-| []     := 0
-| (a::l) := match p a with
-            | true  := 0
-            | false := succ (findIndex l)
+def elem [HasBeq α] (a : α) : List α → Bool
+| []      := false
+| (b::bs) := match a == b with
+  | true  := true
+  | false := elem bs
 
-def indexOf [DecidableEq α] (a : α) (l : List α) : Nat :=
-findIndex (λ b, a = b) l
+def notElem [HasBeq α] (a : α) (as : List α) : Bool :=
+!(as.elem a)
 
-def assoc [DecidableEq α] : List (α × β) → α → Option β
-| []         _  := none
-| ((a,b)::l) a' := if a = a' then some b else assoc l a'
+@[specialize] def spanAux (p : α → Bool) : List α → List α → List α × List α
+| []      rs := (rs.reverse, [])
+| (a::as) rs := match p a with
+  | true  := spanAux as (a::rs)
+  | false := (rs.reverse, a::as)
 
-def removeAll [DecidableEq α] (xs ys : List α) : List α :=
-filter (∉ ys) xs
+@[inline] def span (p : α → Bool) (as : List α) : List α × List α :=
+spanAux p as []
 
-def updateNth : List α → ℕ → α → List α
-| (x::xs) 0     a := a :: xs
-| (x::xs) (i+1) a := x :: updateNth xs i a
-| []      _     _ := []
+def lookup [HasBeq α] : α → List (α × β) → Option β
+| _ []          := none
+| a ((k,b)::es) := match a == k with
+  | true  := some b
+  | false := lookup a es
 
-def removeNth : List α → ℕ → List α
-| []      _     := []
-| (x::xs) 0     := xs
-| (x::xs) (i+1) := x :: removeNth xs i
+def removeAll [HasBeq α] (xs ys : List α) : List α :=
+xs.filter (λ x, ys.notElem x)
 
-def drop : ℕ → List α → List α
-| 0        a      := a
-| (succ n) []     := []
-| (succ n) (x::r) := drop n r
+def drop : Nat → List α → List α
+| 0     a       := a
+| (n+1) []      := []
+| (n+1) (a::as) := drop n as
 
-def take : ℕ → List α → List α
-| 0        a        := []
-| (succ n) []       := []
-| (succ n) (x :: r) := x :: take n r
+def take : Nat → List α → List α
+| 0     a       := []
+| (n+1) []      := []
+| (n+1) (a::as) := a :: take n as
 
 @[specialize] def foldl (f : α → β → α) : α → List β → α
 | a []       := a
@@ -232,13 +233,13 @@ def take : ℕ → List α → List α
 | (a :: l) := f a (foldr l)
 
 @[specialize] def foldr1 (f : α → α → α) : Π (xs : List α), xs ≠ [] → α
-| []              nem := False.elim (nem rfl)
-| [a]             nem := a
-| (a :: l@(_::_)) nem := f a (foldr1 l (λ Eq, List.noConfusion Eq))
+| []               h := absurd rfl h
+| [a]              _ := a
+| (a :: as@(_::_)) _ := f a (foldr1 as (λ h, List.noConfusion h))
 
 @[specialize] def foldr1Opt (f : α → α → α) : List α → Option α
-| []       := none
-| (a :: l) := some $ foldr1 f (a :: l) (λ Eq, List.noConfusion Eq)
+| []        := none
+| (a :: as) := some $ foldr1 f (a :: as) (λ h, List.noConfusion h)
 
 @[inline] def any (l : List α) (p : α → Bool) : Bool :=
 foldr (λ a r, p a || r) false l
@@ -267,31 +268,19 @@ if a ∈ l then l else a :: l
 instance [DecidableEq α] : HasInsert α (List α) :=
 ⟨List.insert⟩
 
-protected def union [DecidableEq α] (l₁ l₂ : List α) : List α :=
-foldr insert l₂ l₁
-
-instance [DecidableEq α] : HasUnion (List α) :=
-⟨List.union⟩
-
-protected def inter [DecidableEq α] (l₁ l₂ : List α) : List α :=
-filter (∈ l₂) l₁
-
-instance [DecidableEq α] : HasInter (List α) :=
-⟨List.inter⟩
-
 def replicate (n : Nat) (a : α) : List α :=
 n.repeat (λ xs, a :: xs) []
 
-def rangeCore : Nat → List Nat → List Nat
-| 0        l := l
-| (succ n) l := rangeCore n (n :: l)
+def rangeAux : Nat → List Nat → List Nat
+| 0     ns := ns
+| (n+1) ns := rangeAux n (n::ns)
 
 def range (n : Nat) : List Nat :=
-rangeCore n []
+rangeAux n []
 
 def iota : Nat → List Nat
-| 0        := []
-| (succ n) := succ n :: iota n
+| 0       := []
+| m@(n+1) := m :: iota n
 
 def enumFrom : Nat → List α → List (Nat × α)
 | n [] := nil
@@ -299,16 +288,14 @@ def enumFrom : Nat → List α → List (Nat × α)
 
 def enum : List α → List (Nat × α) := enumFrom 0
 
-def last : Π l : List α, l ≠ [] → α
-| []        h := absurd rfl h
-| [a]       h := a
-| (a::b::l) h := last (b::l) (λ h, List.noConfusion h)
+def getLastOfNonNil : Π (as : List α), as ≠ [] → α
+| []         h := absurd rfl h
+| [a]        h := a
+| (a::b::as) h := getLastOfNonNil (b::as) (λ h, List.noConfusion h)
 
-def ilast [Inhabited α] : List α → α
-| []        := arbitrary α
-| [a]       := a
-| [a, b]    := b
-| (a::b::l) := ilast l
+def getLast [Inhabited α] : List α → α
+| []      := arbitrary α
+| (a::as) := getLastOfNonNil (a::as) (λ h, List.noConfusion h)
 
 def init : List α → List α
 | []     := []
@@ -326,58 +313,53 @@ join (intersperse sep xs)
 @[inline] protected def bind {α : Type u} {β : Type v} (a : List α) (b : α → List β) : List β :=
 join (map b a)
 
-@[inline] protected def ret {α : Type u} (a : α) : List α :=
+@[inline] protected def pure {α : Type u} (a : α) : List α :=
 [a]
 
-protected def lt [HasLess α] : List α → List α → Prop
-| []      []      := False
-| []      (b::bs) := True
-| (a::as) []      := False
-| (a::as) (b::bs) := a < b ∨ (¬ b < a ∧ lt as bs)
+inductive Less [HasLess α] : List α → List α → Prop
+| nil  (b : α) (bs : List α) : Less [] (b::bs)
+| head {a : α} (as : List α) {b : α} (bs : List α) : a < b → Less (a::as) (b::bs)
+| tail {a : α} {as : List α} {b : α} {bs : List α} : ¬ a < b → ¬ b < a → Less as bs → Less (a::as) (b::bs)
 
 instance [HasLess α] : HasLess (List α) :=
-⟨List.lt⟩
+⟨List.Less⟩
 
 instance hasDecidableLt [HasLess α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ < l₂)
-| []      []      := isFalse notFalse
-| []      (b::bs) := isTrue trivial
-| (a::as) []      := isFalse notFalse
+| []      []      := isFalse (λ h, match h with end)
+| []      (b::bs) := isTrue (Less.nil _ _)
+| (a::as) []      := isFalse (λ h, match h with end)
 | (a::as) (b::bs) :=
   match h a b with
-  | isTrue h₁  := isTrue (Or.inl h₁)
+  | isTrue h₁  := isTrue (Less.head _ _ h₁)
   | isFalse h₁ :=
     match h b a with
-    | isTrue h₂  := isFalse (λ h, Or.elim h (λ h, absurd h h₁) (λ ⟨h, _⟩, absurd h₂ h))
+    | isTrue h₂  := isFalse (λ h, match h with
+       | Less.head _ _ h₁' := absurd h₁' h₁
+       | Less.tail _ h₂' _ := absurd h₂ h₂')
     | isFalse h₂ :=
       match hasDecidableLt as bs with
-      | isTrue h₃  := isTrue (Or.inr ⟨h₂, h₃⟩)
-      | isFalse h₃ := isFalse (λ h, Or.elim h (λ h, absurd h h₁) (λ ⟨_, h⟩, absurd h h₃))
+      | isTrue h₃  := isTrue (Less.tail h₁ h₂ h₃)
+      | isFalse h₃ := isFalse (λ h, match h with
+         | Less.head _ _ h₁' := absurd h₁' h₁
+         | Less.tail _ _ h₃' := absurd h₃' h₃)
 
-@[reducible] protected def le [HasLess α] (a b : List α) : Prop :=
+@[reducible] protected def LessEq [HasLess α] (a b : List α) : Prop :=
 ¬ b < a
 
 instance [HasLess α] : HasLessEq (List α) :=
-⟨List.le⟩
+⟨List.LessEq⟩
 
 instance hasDecidableLe [HasLess α] [h : DecidableRel ((<) : α → α → Prop)] : Π l₁ l₂ : List α, Decidable (l₁ ≤ l₂) :=
 λ a b, Not.Decidable
 
-theorem leEqNotGt [HasLess α] : ∀ l₁ l₂ : List α, (l₁ ≤ l₂) = ¬ (l₂ < l₁) :=
-λ l₁ l₂, rfl
-
-theorem ltEqNotGe [HasLess α] [DecidableRel ((<) : α → α → Prop)] : ∀ l₁ l₂ : List α, (l₁ < l₂) = ¬ (l₂ ≤ l₁) :=
-λ l₁ l₂,
-  show (l₁ < l₂) = ¬ ¬ (l₁ < l₂), from
-  Eq.subst (propext (notNotIff (l₁ < l₂))).symm rfl
-
 /--  `isPrefixOf l₁ l₂` returns `true` Iff `l₁` is a prefix of `l₂`. -/
-def isPrefixOf [DecidableEq α] : List α → List α → Bool
+def isPrefixOf [HasBeq α] : List α → List α → Bool
 | []      _       := true
 | _       []      := false
-| (a::as) (b::bs) := toBool (a = b) && isPrefixOf as bs
+| (a::as) (b::bs) := a == b && isPrefixOf as bs
 
 /--  `isSuffixOf l₁ l₂` returns `true` Iff `l₁` is a suffix of `l₂`. -/
-def isSuffixOf [DecidableEq α] (l₁ l₂ : List α) : Bool :=
+def isSuffixOf [HasBeq α] (l₁ l₂ : List α) : Bool :=
 isPrefixOf l₁.reverse l₂.reverse
 
 @[specialize] def isEqv : List α → List α → (α → α → Bool) → Bool

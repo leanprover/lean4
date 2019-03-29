@@ -11,7 +11,7 @@ open List
 universes u v
 
 instance : Monad List :=
-{ pure := @List.ret, map := @List.map, bind := @List.bind }
+{ pure := @List.pure, map := @List.map, bind := @List.bind }
 
 instance : Alternative List :=
 { failure := @List.nil,

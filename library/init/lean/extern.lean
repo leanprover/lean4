@@ -59,7 +59,7 @@ def expandExternPatternAux (args : List String) : Nat → String.Iterator → St
       let it      := it.next in
       let (it, j) := parseOptNum it.remainingBytes it 0 in
       let j       := j-1 in
-      expandExternPatternAux i it (r ++ (args.nth j).getOrElse "")
+      expandExternPatternAux i it (r ++ (args.getOpt j).getOrElse "")
 
 @[export lean.expand_extern_pattern_core]
 def expandExternPattern (pattern : String) (args : List String) : String :=

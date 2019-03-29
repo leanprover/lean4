@@ -856,7 +856,7 @@ def setOption.elaborate : Elaborator :=
 def noKind.elaborate : Elaborator := λ stx, do
   some n ← pure stx.asNode
     | error stx "noKind.elaborate: unreachable",
-  n.args.mmap' command.elaborate
+  n.args.mfor command.elaborate
 
 def end.elaborate : Elaborator :=
 λ cmd, do

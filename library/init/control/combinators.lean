@@ -54,13 +54,9 @@ def mmap {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α �
 | (h :: t) := do h' ← f h, t' ← mmap t, pure (h' :: t')
 
 @[specialize]
-def mmap' {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
+def mfor {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
 | []       := pure ⟨⟩
-| (h :: t) := f h *> mmap' t
-
-@[specialize]
-def mfor {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit :=
-List.mmap' f
+| (h :: t) := f h *> mfor t
 
 @[specialize]
 def mfilter {m : Type → Type v} [Monad m] {α : Type} (f : α → m Bool) : List α → m (List α)

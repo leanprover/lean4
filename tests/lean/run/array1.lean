@@ -9,7 +9,7 @@ def f : Fin w.sz → Nat :=
 Array.casesOn w (λ _ f, f)
 
 def arraySum (a : Array Nat) : Nat :=
-a.foldl 0 (+)
+a.foldl (+) 0
 
 #exit
 

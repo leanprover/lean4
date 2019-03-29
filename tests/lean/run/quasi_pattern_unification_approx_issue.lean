@@ -1,7 +1,7 @@
 variables {δ σ : Type}
 
-def foo1 : StateT δ (StateT σ id) σ :=
-monadLift (get : StateT σ id σ)
+def foo1 : StateT δ (StateT σ Id) σ :=
+monadLift (get : StateT σ Id σ)
 /-
 In Lean3, we used to use the quasi-pattern approximation during elaboration.
 The example above demonstrates why it produces counterintuitive behavior.
@@ -41,6 +41,6 @@ Haskell would work on this example since it always uses
 first-order unification.
 -/
 
-def foo2 : StateT δ (StateT σ id) σ :=
-do s : σ  ← monadLift (get : StateT σ id σ),
+def foo2 : StateT δ (StateT σ Id) σ :=
+do s : σ  ← monadLift (get : StateT σ Id σ),
    pure s

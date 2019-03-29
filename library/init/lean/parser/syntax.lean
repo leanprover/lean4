@@ -139,7 +139,7 @@ partial def mreplace : Syntax → m Syntax
   o ← r stx,
   pure $ o.getOrElse stx
 
-def replace := @mreplace id _
+def replace := @mreplace Id _
 end
 
 /- Remark: the State `String.Iterator` is the `SourceInfo.trailing.stop` of the previous token,

@@ -158,7 +158,7 @@ def builtinCommandParsers : TokenMap commandParser := TokenMap.ofList [
 end «command»
 
 def commandParser.run (commands : TokenMap commandParser) (p : commandParser)
-  : ParserT CommandParserConfig id Syntax :=
+  : ParserT CommandParserConfig Id Syntax :=
 λ cfg, (p.run cfg).runParsec $ λ _, (indexed commands >>= anyOf : commandParser).run cfg
 
 end Parser

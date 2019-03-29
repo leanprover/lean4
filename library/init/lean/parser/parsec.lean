@@ -147,7 +147,7 @@ open Parsec
 def ParsecT (μ : Type) (m : Type → Type) (α : Type) :=
 OldIterator → m (Result μ α)
 
-abbrev Parsec (μ : Type) := ParsecT μ id
+abbrev Parsec (μ : Type) := ParsecT μ Id
 /-- `Parsec` without custom error Message Type -/
 abbrev Parsec' := Parsec Unit
 

@@ -27,7 +27,7 @@ instance transformerConfigCoeFrontendConfig : HasCoe TransformerConfig FrontendC
 
 -- TODO(Sebastian): recursive expansion
 @[derive Monad MonadReader MonadExcept]
-def TransformM := ReaderT FrontendConfig $ ExceptT Message id
+def TransformM := ReaderT FrontendConfig $ ExceptT Message Id
 abbrev transformer := Syntax → TransformM (Option Syntax)
 
 /-- We allow macros to refuse expansion. This means that nodes can decide whether to act as macros
@@ -511,7 +511,7 @@ structure ExpanderConfig extends TransformerConfig :=
 instance ExpanderConfig.HasLift : HasLift ExpanderConfig TransformerConfig :=
 ⟨ExpanderConfig.toTransformerConfig⟩
 
-@[reducible] def ExpanderM := StateT ExpanderState $ ReaderT ExpanderConfig $ ExceptT Message id
+@[reducible] def ExpanderM := StateT ExpanderState $ ReaderT ExpanderConfig $ ExceptT Message Id
 
 section
 local attribute [reducible] MacroScope

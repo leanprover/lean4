@@ -26,12 +26,12 @@ instance moduleParserConfigCoe : HasCoe ModuleParserConfig CommandParserConfig :
 
 section
 @[derive Monad Alternative MonadReader MonadState MonadParsec MonadExcept]
-def ModuleParserM := StateT ParserState $ ParserT ModuleParserConfig id
+def ModuleParserM := StateT ParserState $ ParserT ModuleParserConfig Id
 abbrev moduleParser := ModuleParserM Syntax
 end
 
 instance ModuleParserM.liftParserT (ρ : Type) [HasLiftT ModuleParserConfig ρ] :
-  HasMonadLift (ParserT ρ id) ModuleParserM :=
+  HasMonadLift (ParserT ρ Id) ModuleParserM :=
 { monadLift := λ α x st cfg, (λ a, (a, st)) <$> x.run ↑cfg }
 
 section

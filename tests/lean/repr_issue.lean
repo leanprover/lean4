@@ -3,10 +3,10 @@ catch (do modify $ λ a : Array Nat, a.set 0 33,
           throw "error")
       (λ _, do a ← get, pure $ a.get 0)
 
-def ex₁ : StateT (Array Nat) (ExceptT String id) Nat :=
+def ex₁ : StateT (Array Nat) (ExceptT String Id) Nat :=
 foo
 
-def ex₂ : ExceptT String (StateT (Array Nat) id) Nat :=
+def ex₂ : ExceptT String (StateT (Array Nat) Id) Nat :=
 foo
 
 #exit

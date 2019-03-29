@@ -75,17 +75,17 @@ ParsecT Syntax $ StateT ParserCache $ m
 @[derive Monad Alternative MonadReader MonadParsec MonadExcept]
 def ParserT (ρ : Type) (m : Type → Type) [Monad m] := ReaderT ρ $ parserCoreT m
 @[derive Monad Alternative MonadReader MonadParsec MonadExcept]
-def BasicParserM := ParserT ParserConfig id
+def BasicParserM := ParserT ParserConfig Id
 abbrev basicParser := BasicParserM Syntax
 abbrev monadBasicParser := HasMonadLiftT BasicParserM
 
 section
 local attribute [reducible] BasicParserM ParserT parserCoreT
 @[inline] def getCache : BasicParserM ParserCache :=
-monadLift (get : StateT ParserCache id _)
+monadLift (get : StateT ParserCache Id _)
 
 @[inline] def putCache : ParserCache → BasicParserM PUnit :=
-λ c, monadLift (set c : StateT ParserCache id _)
+λ c, monadLift (set c : StateT ParserCache Id _)
 end
 
  -- an arbitrary `Parser` Type; parsers are usually some Monad stack based on `BasicParserM` returning `Syntax`
@@ -166,7 +166,7 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
    on a recursive call to `command.Parser`, i.e. it forgets about locally registered parsers,
    but that's not an issue for our intended uses of it. -/
 @[derive Monad Alternative MonadReader MonadParsec MonadExcept MonadRec]
-def CommandParserM (ρ : Type) := ReaderT ρ $ RecT Unit Syntax $ parserCoreT id
+def CommandParserM (ρ : Type) := ReaderT ρ $ RecT Unit Syntax $ parserCoreT Id
 
 section
 local attribute [reducible] ParserT CommandParserM

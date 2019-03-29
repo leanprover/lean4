@@ -123,7 +123,7 @@ miterate a b (λ _, f)
 end
 
 @[inline] def iterate (a : Array α) (b : β) (f : Π i : Fin a.sz, α → β → β) : β :=
-id.run $ miterateAux a f 0 b
+Id.run $ miterateAux a f 0 b
 
 @[inline] def foldl (a : Array α) (f : α → β → β) (b : β) : β :=
 iterate a b (λ _, f)
@@ -166,10 +166,10 @@ mforeach a (λ _, f)
 end
 
 @[inline] def foreach (a : Array α) (f : Π i : Fin a.sz, α → α) : Array α :=
-id.run $ mforeach a f
+Id.run $ mforeach a f
 
 theorem szForeachEq (a : Array α) (f : Π i : Fin a.sz, α → α) : (foreach a f).sz = a.sz :=
-(id.run $ mforeachAux a f).property
+(Id.run $ mforeachAux a f).property
 
 @[inline] def map (f : α → α) (a : Array α) : Array α :=
 foreach a (λ _, f)

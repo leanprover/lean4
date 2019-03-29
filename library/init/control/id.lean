@@ -9,12 +9,19 @@ prelude
 import init.control.lift
 universe u
 
-@[inline] def id.bind {α β : Type u} (x : α) (f : α → id β) : id β := f x
+def Id (type : Type u) : Type u := type
 
-@[inline] instance : Monad.{u u} id :=
-{ pure := @id, bind := @id.bind }
+@[inline] def Id.pure {α : Type u} (x : α) : Id α :=
+x
 
-@[inline] def id.run {α : Type u} (x : id α) : α := x
+@[inline] def Id.bind {α β : Type u} (x : Id α) (f : α → Id β) : Id β :=
+f x
 
-@[inline] instance : MonadRun id id :=
-⟨@id.run⟩
+@[inline] instance : Monad Id :=
+{ pure := @Id.pure, bind := @Id.bind }
+
+@[inline] def Id.run {α : Type u} (x : Id α) : α :=
+x
+
+@[inline] instance : MonadRun id Id :=
+⟨@Id.run⟩

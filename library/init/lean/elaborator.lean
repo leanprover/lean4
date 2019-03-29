@@ -128,7 +128,7 @@ structure ElaboratorState :=
 (nextInstIdx : Nat := 0)
 
 @[derive Monad MonadRec MonadReader MonadState MonadExcept]
-def ElaboratorM := RecT Syntax Unit $ ReaderT ElaboratorConfig $ StateT ElaboratorState $ ExceptT Message id
+def ElaboratorM := RecT Syntax Unit $ ReaderT ElaboratorConfig $ StateT ElaboratorState $ ExceptT Message Id
 abbrev Elaborator := Syntax → ElaboratorM Unit
 
 instance elaboratorInh (α : Type) : Inhabited (ElaboratorM α) :=
@@ -992,7 +992,7 @@ def mkState (cfg : ElaboratorConfig) (env : environment) (opts : Options) : Elab
 
 def processCommand (cfg : ElaboratorConfig) (st : ElaboratorState) (cmd : Syntax) : ElaboratorState :=
 let st := {st with messages := MessageLog.empty} in
-let r := @ExceptT.run _ id _ $ flip StateT.run st $ flip ReaderT.run cfg $ RecT.run
+let r := @ExceptT.run _ Id _ $ flip StateT.run st $ flip ReaderT.run cfg $ RecT.run
   (command.elaborate cmd)
   (λ _, error cmd "Elaborator.run: recursion depth exceeded")
   (λ cmd, do

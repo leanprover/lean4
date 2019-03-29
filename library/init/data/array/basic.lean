@@ -5,7 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.nat.basic init.data.fin.basic init.data.uint
-import init.data.repr init.data.tostring
+import init.data.repr init.data.tostring init.control.id
 universes u v w
 
 /-
@@ -46,8 +46,14 @@ mkEmpty ()
 instance : HasEmptyc (Array α) :=
 ⟨Array.empty⟩
 
+instance : Inhabited (Array α) :=
+⟨Array.empty⟩
+
 def isEmpty (a : Array α) : Bool :=
 a.size = 0
+
+def singleton (v : α) : Array α :=
+mkArray 1 v
 
 @[extern cpp inline "lean::array_index(#2, #3)"]
 def index (a : @& Array α) (i : @& Fin a.sz) : α :=
@@ -64,6 +70,9 @@ a.index ⟨i.toNat, h⟩
 @[extern cpp inline "lean::array_get(#2, #3, #4)"]
 def get [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
 if h : i < a.sz then a.index ⟨i, h⟩ else default α
+
+def getOpt (a : Array α) (i : Nat) : Option α :=
+if h : i < a.size then some (a.index ⟨i, h⟩) else none
 
 @[extern cpp inline "lean::array_update(#2, #3, #4)"]
 def update (a : Array α) (i : @& Fin a.sz) (v : α) : Array α :=
@@ -97,16 +106,27 @@ def pop (a : Array α) : Array α :=
 { sz   := Nat.pred a.sz,
   data := λ ⟨j, h⟩, a.index ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
 
+section
+variables {m : Type v → Type v} [Monad m]
+local attribute [instance] monadInhabited'
+
 -- TODO(Leo): justify termination using wf-rec
-@[specialize] partial def iterateAux (a : Array α) (f : Π i : Fin a.sz, α → β → β) : Nat → β → β
+@[specialize] partial def miterateAux (a : Array α) (f : Π i : Fin a.sz, α → β → m β) : Nat → β → m β
 | i b :=
   if h : i < a.sz then
      let idx : Fin a.sz := ⟨i, h⟩ in
-     iterateAux (i+1) (f idx (a.index idx) b)
-  else b
+     f idx (a.index idx) b >>= miterateAux (i+1)
+  else pure b
+
+@[inline] def miterate (a : Array α) (b : β) (f : Π i : Fin a.sz, α → β → m β) : m β :=
+miterateAux a f 0 b
+
+@[inline] def mfoldl (a : Array α) (b : β) (f : α → β → m β) : m β :=
+miterate a b (λ _, f)
+end
 
 @[inline] def iterate (a : Array α) (b : β) (f : Π i : Fin a.sz, α → β → β) : β :=
-iterateAux a f 0 b
+id.run $ miterateAux a f 0 b
 
 @[inline] def foldl (a : Array α) (f : α → β → β) (b : β) : β :=
 iterate a b (λ _, f)
@@ -132,16 +152,27 @@ instance [HasRepr α] : HasRepr (Array α) :=
 instance [HasToString α] : HasToString (Array α) :=
 ⟨toString ∘ toList⟩
 
-@[inline] private def foreachAux (a : Array α) (f : Π i : Fin a.sz, α → α) : { a' : Array α // a'.sz = a.sz } :=
-iterate a ⟨a, rfl⟩ $ λ i v ⟨a', h⟩,
-  let i' : Fin a'.sz := Eq.recOn h.symm i in
-  ⟨a'.update i' (f i v), (szUpdateEq a' i' (f i v)) ▸ h⟩
+section
+variables {m : Type u → Type u} [Monad m]
+
+@[inline] private def mforeachAux (a : Array α) (f : Π i : Fin a.sz, α → m α) : m { a' : Array α // a'.sz = a.sz } :=
+miterate a ⟨a, rfl⟩ $ λ i v ⟨a', h⟩, do
+  let i' : Fin a'.sz := Eq.recOn h.symm i,
+  x ← f i v,
+  pure $ ⟨a'.update i' x, (szUpdateEq a' i' x) ▸ h⟩
+
+@[inline] def mforeach (a : Array α) (f : Π i : Fin a.sz, α → m α) : m (Array α) :=
+Subtype.val <$> mforeachAux a f
+
+@[inline] def mmap (f : α → m α) (a : Array α) : m (Array α) :=
+mforeach a (λ _, f)
+end
 
 @[inline] def foreach (a : Array α) (f : Π i : Fin a.sz, α → α) : Array α :=
-(foreachAux a f).val
+id.run $ mforeach a f
 
 theorem szForeachEq (a : Array α) (f : Π i : Fin a.sz, α → α) : (foreach a f).sz = a.sz :=
-(foreachAux a f).property
+(id.run $ mforeachAux a f).property
 
 @[inline] def map (f : α → α) (a : Array α) : Array α :=
 foreach a (λ _, f)
@@ -153,9 +184,9 @@ else foreach b (λ ⟨i, h'⟩, f (a.index ⟨i, Nat.ltTrans h' (Nat.gtOfNotLe h
 
 end Array
 
-def List.toArrayAux {α : Type u} : List α → Array α → Array α
+@[inlineIfReduce] def List.toArrayAux {α : Type u} : List α → Array α → Array α
 | []      r := r
 | (a::as) r := List.toArrayAux as (r.push a)
 
-def List.toArray {α : Type u} (l : List α) : Array α :=
+@[inline] def List.toArray {α : Type u} (l : List α) : Array α :=
 l.toArrayAux ∅

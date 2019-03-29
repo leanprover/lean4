@@ -186,6 +186,11 @@ def getPos (stx : Syntax) : Option Parsec.Position :=
 do i ← stx.getHeadInfo,
    pure i.pos
 
+partial def hasMissing : Syntax → Bool
+| missing     := true
+| (rawNode n) := n.args.foldl (λ s r, hasMissing s || r) false
+| _           := false
+
 def reprintAtom : SyntaxAtom → String
 | ⟨some info, s⟩ := info.leading.toString ++ s ++ info.trailing.toString
 | ⟨none, s⟩      := s

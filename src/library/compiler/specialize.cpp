@@ -1046,10 +1046,7 @@ class specialize_fn {
         buffer<optional<expr>> mask;
         buffer<expr> fvars;
         buffer<expr> fvar_vals;
-        /* We only try to cache specialization for type class instances.
-           For functions marked with the attribute `@[specialize]`, we also specialize other
-           fixed arguments (e.g., closures), and most of the time it is not worth to cache the result. */
-        bool gcache_enabled = !has_specialize_attribute(env(), const_name(fn));
+        bool gcache_enabled = true;
         buffer<expr> gcache_key_args;
         for (unsigned i = 0; i < bmask.size(); i++) {
             if (bmask[i]) {

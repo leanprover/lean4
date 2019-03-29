@@ -28,7 +28,7 @@ namespace Array
 variables {α : Type u} {β : Type v}
 
 /- The parameter `c` is the initial capacity -/
-@[extern cpp inline "lean::mk_empty_array(#1)"]
+@[extern cpp inline "lean::mk_empty_array(#2)"]
 def mkEmpty (c : @& Nat) : Array α :=
 { sz   := 0,
   data := λ ⟨x, h⟩, absurd h (Nat.notLtZero x) }

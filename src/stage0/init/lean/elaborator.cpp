@@ -78,7 +78,6 @@ obj* l_Lean_Elaborator_attribute_elaborate___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__6;
 obj* l_Lean_Elaborator_toPexpr___main___closed__21;
 obj* l_Lean_Elaborator_matchSpec(obj*, obj*);
-obj* l_List_mmap_x_27___main___at_Lean_Elaborator_noKind_elaborate___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_matchOpenSpec(obj*, obj*);
 obj* l_Lean_Elaborator_Declaration_elaborate___lambda__4(obj*, obj*);
 obj* l_Lean_Elaborator_elaboratorInh(obj*, obj*, obj*, obj*);
@@ -329,6 +328,7 @@ obj* l_Lean_Elaborator_toPexpr___main___closed__17;
 obj* l_RBNode_insert___at_Lean_Elaborator_oldElabCommand___spec__19___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Elaborator_oldElabCommand___spec__16___boxed(obj*, obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_Elaborator_toLevel___main___spec__7___boxed(obj*, obj*, obj*, obj*);
+obj* l_List_mfor___main___at_Lean_Elaborator_noKind_elaborate___spec__1(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_currLbp___rarg___lambda__3___closed__1;
 obj* l_RBMap_find___main___at_Lean_Elaborator_processCommand___spec__3___boxed(obj*, obj*);
 namespace lean {
@@ -29746,7 +29746,7 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_List_mmap_x_27___main___at_Lean_Elaborator_noKind_elaborate___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_List_mfor___main___at_Lean_Elaborator_noKind_elaborate___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -29847,7 +29847,7 @@ lean::dec(x_5);
 x_16 = lean::cnstr_get(x_13, 1);
 lean::inc(x_16);
 lean::dec(x_13);
-x_19 = l_List_mmap_x_27___main___at_Lean_Elaborator_noKind_elaborate___spec__1(x_16, x_1, x_2, x_3);
+x_19 = l_List_mfor___main___at_Lean_Elaborator_noKind_elaborate___spec__1(x_16, x_1, x_2, x_3);
 return x_19;
 }
 }

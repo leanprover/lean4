@@ -244,8 +244,9 @@ pair<unsigned, unsigned> get_cases_on_minors_range(environment const & env, name
 
 expr mk_lc_unreachable(type_checker::state & s, local_ctx const & lctx, expr const & type) {
     type_checker tc(s, lctx);
-    level lvl = sort_level(tc.ensure_type(type));
-    return mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), type);
+    expr t    = cheap_beta_reduce(type);
+    level lvl = sort_level(tc.ensure_type(t));
+    return mk_app(mk_constant(get_lc_unreachable_name(), {lvl}), t);
 }
 
 bool is_join_point_name(name const & n) {

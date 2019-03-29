@@ -735,11 +735,17 @@ inline obj_res thunk_pure(obj_arg v) {
     return new (alloc_heap_object(sizeof(thunk_object))) thunk_object(v, true); // NOLINT
 }
 
-/* Primitive for implementing the IR instruction for thunk.get : thunk A -> A */
 inline b_obj_res thunk_get(b_obj_arg t) {
     if (object * r = to_thunk(t)->m_value)
         return r;
     return thunk_get_core(t);
+}
+
+/* Primitive for implementing the IR instruction for thunk.get : thunk A -> A */
+inline obj_res thunk_get_own(b_obj_arg t) {
+    object * r = thunk_get(t);
+    inc(r);
+    return r;
 }
 
 obj_res thunk_map(obj_arg f, obj_arg t);

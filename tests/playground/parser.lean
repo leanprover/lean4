@@ -67,7 +67,7 @@ instance isMonad : Monad (ParserM σ δ μ) :=
 
 def mkError (r : input σ δ μ) (msg : String) (eps := true) : Result σ δ μ α :=
 match r with
-| ⟨Result.ok _ i c s _, _⟩    := Result.error msg i c none eps
+| ⟨Result.ok _ i st _ _, _⟩   := Result.error msg i st none eps
 | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def orelse (p q : ParserM σ δ μ α) : ParserM σ δ μ α :=
@@ -117,6 +117,12 @@ def setSilentError : Result σ δ μ α → Result σ δ μ α
          else mkError inp "unexpected character"
   | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
 
+@[inline] def ch (c : Char) : ParserM σ δ μ Char :=
+satisfy (== c)
+
+@[inline] def any : ParserM σ δ μ Char :=
+satisfy (λ _, true)
+
 @[specialize] partial def takeUntilAux (p : Char → Bool) : ParserM σ δ μ Unit
 | str inp :=
   match inp with
@@ -162,6 +168,63 @@ manyAux () p
 @[inline] def many1 (p : ParserM σ δ μ Unit) : ParserM σ δ μ Unit  :=
 p *> many p
 
+def pos : ParserM σ δ μ Pos :=
+λ str inp,
+  match inp with
+  | ⟨Result.ok _ i st bst _, _⟩ := Result.ok i i st bst true
+  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+
+def error {α : Type} (msg : String) : ParserM σ δ μ α :=
+λ _ inp, mkError inp msg
+
+def errorAt {α : Type} (pos : Pos) (msg : String) (eps : Bool := true) : ParserM σ δ μ α :=
+λ _ inp, match inp with
+| ⟨Result.ok _ _ st _ _, _⟩   := Result.error msg pos st none eps
+| ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+
+def hexDigit : ParserM σ δ μ Nat
+| str inp := match inp with
+  | ⟨Result.ok _ i st bst _, _⟩ :=
+    if str.atEnd i then mkError inp "unexpected end of input"
+    else
+      let c := str.get i in
+      let i := str.next i in
+      if c.isDigit then Result.ok (c.toNat - '0'.toNat) i st bst false
+      else if 'a' <= c && c <= 'f' then Result.ok (10 + c.toNat - 'a'.toNat) i st bst false
+      else if 'A' <= c && c <= 'F' then Result.ok (10 + c.toNat - 'A'.toNat) i st bst false
+      else mkError inp "invalid hexadecimal numeral, hexadecimal digit expected"
+  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+
+def quotedChar : ParserM σ δ μ Char :=
+do p ← pos,
+   c ← any,
+   if c = '\\'      then pure '\\'
+   else if c = '\"' then pure '\"'
+   else if c = '\'' then pure '\''
+   else if c = 'n'  then pure '\n'
+   else if c = 't'  then pure '\t'
+   else if c = 'x'  then do {
+     d₁ ← hexDigit,
+     d₂ ← hexDigit,
+     pure $ Char.ofNat (16*d₁ + d₂) }
+   else if c = 'u'  then do {
+     d₁ ← hexDigit,
+     d₂ ← hexDigit,
+     d₃ ← hexDigit,
+     d₄ ← hexDigit,
+     pure $ Char.ofNat (16*(16*(16*d₁ + d₂) + d₃) + d₄) }
+   else errorAt p "invalid escape sequence"
+
+partial def strLitAux : String → ParserM σ δ μ String
+| out := do
+  c ← any,
+  if c == '\"' then pure out
+  else if c == '\\' then do c ← quotedChar, strLitAux (out.push c)
+  else strLitAux (out.push c)
+
+def strLit : ParserM σ δ μ String :=
+ch '\"' *> strLitAux ""
+
 end ParserM
 
 class monadParser (σ : outParam Type) (δ : outParam Type) (μ : outParam Type) (m : Type → Type) :=
@@ -189,12 +252,12 @@ section
 variables {m : Type → Type} [monadParser σ δ μ m]
 
 @[inline] def satisfy (p : Char → Bool) : m Char := monadParser.lift (ParserM.satisfy p)
-def ch (c : Char) : m Char := satisfy (= c)
+def ch (c : Char) : m Char := satisfy (== c)
 def alpha : m Char := satisfy Char.isAlpha
 def digit : m Char := satisfy Char.isDigit
 def upper : m Char := satisfy Char.isUpper
 def lower : m Char := satisfy Char.isLower
-def any   : m Char := satisfy (λ _, True)
+def any   : m Char := satisfy (λ _, true)
 
 @[inline] def takeUntil (p : Char → Bool) : m Unit := monadParser.lift (ParserM.takeUntil p)
 
@@ -207,6 +270,7 @@ monadParser.map (λ β p, ParserM.lookahead p) p
 
 @[inline] def whitespace : m Unit := takeWhile Char.isWhitespace
 
+@[inline] def strLit : m String := monadParser.lift (ParserM.strLit)
 end
 
 section
@@ -220,35 +284,54 @@ end
 end Parser
 end Lean
 
-abbrev Parser := ReaderT Nat (Lean.Parser.ParserM Unit Unit Unit) Unit
+abbrev Parser (α : Type) := ReaderT Nat (Lean.Parser.ParserM Unit Unit Unit) α
 
 open Lean.Parser
 
 -- setOption pp.implicit True
 -- setOption Trace.Compiler.boxed True
 
-def testP : Parser :=
+def testP : Parser Unit :=
 many1 (str "++" <|> str "**" <|> (str "--" *> takeUntil (= '\n') *> any *> pure ()))
 
-def testParser (x : Parser) (input : String) : String :=
-match (x 0).run () () input with
-| Lean.Parser.Result.ok _ i _ _ _      := "Ok at " ++ toString i
-| Result.error msg i _ _ _ := "Error at " ++ toString i ++ ": " ++ msg
+def testP2 : Parser Unit :=
+many1 ((strLit *> whitespace *> pure ()) <|> (str "--" *> takeUntil (= '\n') *> any *> pure ()))
 
-@[noinline] def test (s : String) : IO Unit :=
-IO.println (testParser testP s)
+def testParser (x : Parser Unit) (input : String) : String :=
+match (x 0).run () () input with
+| Lean.Parser.Result.ok _ i _ _ _  := "Ok at " ++ toString i
+| Result.error msg i _ _ _         := "Error at " ++ toString i ++ ": " ++ msg
+
+def IO.testParser {α : Type} [HasToString α] (x : Parser α) (input : String) : IO Unit :=
+match (x 0).run () () input with
+| Lean.Parser.Result.ok a _ _ _ _  := IO.println ("Ok " ++ toString a)
+| _                                := throw "ERROR"
+
+@[noinline] def test (p : Parser Unit) (s : String) : IO Unit :=
+IO.println (testParser p s)
 
 def mkBigString : Nat → String → String
 | 0     s := s
 | (n+1) s := mkBigString n (s ++ "-- new comment\n")
+
+def mkBigString2 : Nat → String → String
+| 0     s := s
+| (n+1) s := mkBigString2 n (s ++ "\"hello\\nworld\"\n-- comment\n")
 
 def prof {α : Type} (msg : String) (p : IO α) : IO α :=
 let msg₁ := "Time for '" ++ msg ++ "':" in
 let msg₂ := "Memory usage for '" ++ msg ++ "':" in
 allocprof msg₂ (timeit msg₁ p)
 
+def tst1 : IO Unit :=
+IO.testParser strLit "\"hello\n\""
+
 def main (xs : List String) : IO Unit :=
-let s₁ := mkBigString xs.head.toNat "" in
-let s₂ := s₁ ++ "bad" ++ mkBigString 20 "" in
-prof "Parser 1" (test s₁) *>
-prof "Parser 2" (test s₂)
+do
+-- tst1,
+-- let s₁ := mkBigString xs.head.toNat "",
+-- let s₂ := s₁ ++ "bad" ++ mkBigString 20 "",
+let s₃ := mkBigString2 xs.head.toNat "",
+-- prof "Parser 1" (test testP s₁),
+-- prof "Parser 2" (test testP s₂),
+prof "Parser 3" (test testP2 s₃)

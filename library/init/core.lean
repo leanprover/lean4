@@ -601,8 +601,8 @@ prefix ! := not
 infix || := or
 infix && := and
 
-@[inlineIfReduce] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
-@[inlineIfReduce] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
+@[inlineIfReduce, extern cpp inline "#1 || #2"] def strictOr  (b₁ b₂ : Bool) := b₁ || b₂
+@[inlineIfReduce, extern cpp inline "#1 && #2"] def strictAnd (b₁ b₂ : Bool) := b₁ && b₂
 
 @[inline] def bne {α : Type u} [HasBeq α] (a b : α) : Bool :=
 !(a == b)

@@ -1,4 +1,5 @@
 import init.lean.message init.lean.parser.syntax init.lean.parser.trie init.lean.parser.basic init.lean.parser.stringliteral
+import init.lean.parser.token
 
 namespace Lean
 namespace flatParser
@@ -294,10 +295,6 @@ parsingTables → parserM α
 end flatParser
 end Lean
 
-def mkBigString : Nat → String → String
-| 0     s := s
-| (n+1) s := mkBigString n (s ++ "-- new comment\n")
-
 section
 open Lean.flatParser
 
@@ -331,9 +328,44 @@ many1' ((parseStringLiteral *> whitespace *> pure ()) <|> (str "--" *> takeUntil
 
 end
 
+
+namespace BasicParser
+open Lean.Parser
+open Lean.Parser.MonadParsec
+
+def testBasicParser (p : BasicParserM Unit) (input : String) : String :=
+let cfg : Lean.Parser.ParserConfig := {
+filename := "test", input := input, fileMap := { lines := {} }, tokens := Lean.Parser.Trie.empty } in
+let r := p cfg input.mkOldIterator {} in
+match r with
+| (Parsec.Result.ok _ it _, _)   := "OK at " ++ toString it.offset
+| (Parsec.Result.error msg _, _) := "Error " ++ msg.toString
+
+@[inline] def str' (s : String) : BasicParserM Unit :=
+str s *> pure ()
+
+def parserP : BasicParserM Unit :=
+many1' (str' "++" <|> str' "**" <|> (str "--" *> takeUntil (λ c, c = '\n') *> any *> pure ()))
+
+def parser2 : BasicParserM Unit :=
+many1' ((parseStringLiteral *> Lean.Parser.MonadParsec.whitespace *> pure ()) <|> (str "--" *> takeUntil (λ c, c = '\n') *> any *> pure ()))
+
+def parser3 : BasicParserM Unit :=
+Lean.Parser.whitespace
+
+end BasicParser
+
+def mkBigString : Nat → String → String
+| 0     s := s
+| (n+1) s := mkBigString n (s ++ "-- new comment\n")
+
 def mkBigString2 : Nat → String → String
 | 0     s := s
 | (n+1) s := mkBigString2 n (s ++ "\"hello\\nworld\"\n-- comment\n")
+
+def mkBigString3 : Nat → String → String
+| 0     s := s
+| (n+1) s := mkBigString3 n (s ++ "/- /- comment 1 -/ -/ \n -- comment 2 \n \t \n ")
 
 @[noinline] def testFlatP (s : String) : IO Unit :=
 IO.println (Lean.flatParser.testParser flatP s)
@@ -341,17 +373,22 @@ IO.println (Lean.flatParser.testParser flatP s)
 @[noinline] def testParsecP (p : Parser Unit) (s : String) : IO Unit :=
 IO.println (testParsec p s)
 
+@[noinline] def testBasicParser (p : Lean.Parser.BasicParserM Unit) (s : String) : IO Unit :=
+IO.println (BasicParser.testBasicParser p s)
+
 @[noinline] def prof {α : Type} (msg : String) (p : IO α) : IO α :=
 let msg₁ := "Time for '" ++ msg ++ "':" in
 let msg₂ := "Memory usage for '" ++ msg ++ "':" in
 allocprof msg₂ (timeit msg₁ p)
 
 def main (xs : List String) : IO Unit :=
-let s₁ := mkBigString xs.head.toNat "" in
-let s₂ := s₁ ++ "bad" ++ mkBigString 20 "" in
-let s₃ := mkBigString2 xs.head.toNat "" in
-prof "flat Parser 1" (testFlatP s₁) *>
-prof "flat Parser 2" (testFlatP s₂) *>
-prof "Parsec 1" (testParsecP parsecP s₁) *>
-prof "Parsec 2" (testParsecP parsecP s₂) *>
-prof "Parsec 3" (testParsecP parsecP2 s₃)
+-- let s₁ := mkBigString xs.head.toNat "" in
+-- let s₂ := s₁ ++ "bad" ++ mkBigString 20 "" in
+-- let s₃ := mkBigString2 xs.head.toNat "" in
+let s₄ := mkBigString3 xs.head.toNat "" in
+-- prof "flat Parser 1" (testFlatP s₁) *>
+-- prof "flat Parser 2" (testFlatP s₂) *>
+-- prof "Parsec 1" (testParsecP parsecP s₁) *>
+-- prof "Parsec 2" (testParsecP parsecP s₂) *>
+-- prof "Parsec 3" (testParsecP parsecP2 s₃) *>
+prof "Basic parser 1" (testBasicParser BasicParser.parser3 s₄)

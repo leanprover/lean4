@@ -225,6 +225,74 @@ partial def strLitAux : String → ParserM σ δ μ String
 def strLit : ParserM σ δ μ String :=
 ch '\"' *> strLitAux ""
 
+/- Execute `p` and then `q` but does not combine epsilon flag.
+   This combinator is useful for preserving tail recursion. -/
+@[inline] def seqCore (p : ParserM σ δ μ α) (q : ParserM σ δ μ β) : ParserM σ δ μ β :=
+λ str inp,
+  match p str inp with
+  | Result.ok _ i st bst _       := q str (mkInput i st bst)
+  | Result.error msg i st etx e  := Result.error msg i st etx e
+
+@[inline] def fixEpsilon (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
+λ str inp,
+  let i := currPos inp in
+  match p str inp with
+  | Result.ok a i₁ st bst _  := Result.ok a i₁ st bst (i₁ > i)
+  | other                    := other
+
+partial def finishCommentBlock : Nat → ParserM σ δ μ Unit
+| nesting str inp :=
+  match inp with
+  | ⟨Result.ok _ i st bst _, _⟩ :=
+    if str.atEnd i then mkError inp "end of input"
+    else
+      let c := str.get i in
+      let i := str.next i in
+      if c == '-' then
+        if str.atEnd i then mkError inp "end of input"
+        else
+          let c := str.get i in
+          if c == '/' then -- "-/" end of comment
+            if nesting == 1 then Result.ok () (str.next i) st bst false
+            else finishCommentBlock (nesting-1) str (mkInput (str.next i) st bst)
+          else
+            finishCommentBlock nesting str (mkInput i st bst)
+      else if c == '/' then
+        if str.atEnd i then mkError inp "end of input"
+        else
+          let c := str.get i in
+          if c == '-' then finishCommentBlock (nesting+1) str (mkInput (str.next i) st bst)
+          else finishCommentBlock nesting str (mkInput i st bst)
+      else finishCommentBlock nesting str (mkInput i st bst)
+  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+
+partial def leanWhitespaceAux : ParserM σ δ μ Unit
+| str inp :=
+  match inp with
+  | ⟨Result.ok _ i st bst _, _⟩ :=
+    if str.atEnd i then inp.val
+    else let c := str.get i in
+         if c.isWhitespace then leanWhitespaceAux str (mkInput (str.next i) st bst)
+         else if c == '-' then
+           let i := str.next i in
+           let c := str.get i in
+           if c == '-' then seqCore (takeUntil (= '\n')) leanWhitespaceAux str (mkInput i st bst)
+           else inp.val
+         else if c == '/' then
+           let i := str.next i in
+           let c := str.get i in
+           if c == '-' then
+              let i := str.next i in
+              let c := str.get i in
+              if c == '-' then inp.val -- "/--" doc comment is an actual token
+              else seqCore (finishCommentBlock 1) leanWhitespaceAux str (mkInput i st bst)
+           else inp.val
+         else inp.val
+  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+
+def leanWhitespace : ParserM σ δ μ Unit :=
+fixEpsilon leanWhitespaceAux
+
 end ParserM
 
 class monadParser (σ : outParam Type) (δ : outParam Type) (μ : outParam Type) (m : Type → Type) :=
@@ -271,6 +339,8 @@ monadParser.map (λ β p, ParserM.lookahead p) p
 @[inline] def whitespace : m Unit := takeWhile Char.isWhitespace
 
 @[inline] def strLit : m String := monadParser.lift (ParserM.strLit)
+
+@[inline] def leanWhitespace : m Unit := monadParser.lift ParserM.leanWhitespace
 end
 
 section
@@ -297,6 +367,9 @@ many1 (str "++" <|> str "**" <|> (str "--" *> takeUntil (= '\n') *> any *> pure 
 def testP2 : Parser Unit :=
 many1 ((strLit *> whitespace *> pure ()) <|> (str "--" *> takeUntil (= '\n') *> any *> pure ()))
 
+def testP3 : Parser Unit :=
+leanWhitespace
+
 def testParser (x : Parser Unit) (input : String) : String :=
 match (x 0).run () () input with
 | Lean.Parser.Result.ok _ i _ _ _  := "Ok at " ++ toString i
@@ -318,6 +391,10 @@ def mkBigString2 : Nat → String → String
 | 0     s := s
 | (n+1) s := mkBigString2 n (s ++ "\"hello\\nworld\"\n-- comment\n")
 
+def mkBigString3 : Nat → String → String
+| 0     s := s
+| (n+1) s := mkBigString3 n (s ++ "/- /- comment 1 -/ -/ \n -- comment 2 \n \t \n ")
+
 def prof {α : Type} (msg : String) (p : IO α) : IO α :=
 let msg₁ := "Time for '" ++ msg ++ "':" in
 let msg₂ := "Memory usage for '" ++ msg ++ "':" in
@@ -331,7 +408,10 @@ do
 -- tst1,
 -- let s₁ := mkBigString xs.head.toNat "",
 -- let s₂ := s₁ ++ "bad" ++ mkBigString 20 "",
-let s₃ := mkBigString2 xs.head.toNat "",
+-- let s₃ := mkBigString2 xs.head.toNat "",
+let s₄ := mkBigString3 xs.head.toNat "",
+IO.println s₄.length,
 -- prof "Parser 1" (test testP s₁),
 -- prof "Parser 2" (test testP s₂),
-prof "Parser 3" (test testP2 s₃)
+-- prof "Parser 3" (test testP2 s₃),
+prof "Parser 4" (test testP3 s₄)

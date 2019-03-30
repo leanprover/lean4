@@ -154,7 +154,7 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
          "invalid token '" ++ tk.prefix ++ "', has been defined with precedences " ++
          toString l ++ " and " ++ toString l')
      | none := pure $ t.insert tk.prefix tk)
-     Trie.mk,
+     Trie.empty,
    pure t
 
 

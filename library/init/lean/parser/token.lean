@@ -22,7 +22,7 @@ open MonadParsec Combinators String HasView
 def matchToken : BasicParserM (Option TokenConfig) :=
 do cfg ← read,
    it ← leftOver,
-   pure $ Prod.snd <$> cfg.tokens.matchPrefix it
+   pure $ Prod.snd <$> cfg.tokens.oldMatchPrefix it
 
 private def finishCommentBlockAux : Nat → Nat → BasicParserM Unit
 | nesting (n+1) :=

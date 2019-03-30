@@ -54,6 +54,9 @@ protected def max : RBNode α β → Option (Σ k : α, β k)
 | leaf                 := false
 | (Node _ l k v r)   := p k v || any l || any r
 
+def singleton (k : α) (v : β k) : RBNode α β :=
+Node red leaf k v leaf
+
 def balance1 : RBNode α β → RBNode α β → RBNode α β
 | (Node _ _ kv vv t) (Node _ (Node red l kx vx r₁) ky vy r₂) := Node red (Node black l kx vx r₁) ky vy (Node black r₂ kv vv t)
 | (Node _ _ kv vv t) (Node _ l₁ ky vy (Node red l₂ kx vx r)) := Node red (Node black l₁ ky vy l₂) kx vx (Node black r kv vv t)

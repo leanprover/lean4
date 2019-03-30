@@ -1,7 +1,7 @@
 /-
 Copyright (c) 2018 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Author: Sebastian Ullrich
+Author: Sebastian Ullrich, Leonardo de Moura
 
 Trie for tokenizing the Lean language
 -/
@@ -18,37 +18,81 @@ inductive Trie (α : Type)
 namespace Trie
 variables {α : Type}
 
-protected def mk : Trie α :=
+def empty : Trie α :=
 ⟨none, RBNode.leaf⟩
 
-private def insertAux (val : α) : Nat → Trie α → String.Iterator → Trie α
-| 0     (Trie.Node _ map)    _ := Trie.Node (some val) map   -- NOTE: overrides old value
-| (n+1) (Trie.Node val map) it :=
-  let t' := (RBNode.find (<) map it.curr).getOrElse Trie.mk in
-  Trie.Node val (RBNode.insert (<) map it.curr (insertAux n t' it.next))
+instance : Inhabited (Trie α) :=
+⟨Node none RBNode.leaf⟩
+
+private partial def insertEmptyAux (s : String) (val : α) : String.Pos → Trie α
+| i := match s.atEnd i with
+  | true := Trie.Node (some val) RBNode.leaf
+  | false :=
+    let c := s.get i in
+    let t := insertEmptyAux (s.next i) in
+    Trie.Node none (RBNode.singleton c t)
+
+private partial def insertAux (s : String) (val : α) : Trie α → String.Pos → Trie α
+| (Trie.Node v m) i :=
+  match s.atEnd i with
+  | true := Trie.Node (some val) m -- overrides old value
+  | false :=
+    let c := s.get i in
+    let i := s.next i in
+    let t := match RBNode.find (<) m c with
+      | none   := insertEmptyAux s val i
+      | some t := insertAux t i in
+    Trie.Node v (RBNode.insert (<) m c t)
 
 def insert (t : Trie α) (s : String) (val : α) : Trie α :=
-insertAux val s.length t s.mkIterator
+insertAux s val t 0
 
-private def findAux : Nat → Trie α → String.Iterator → Option α
-| 0     (Trie.Node val _)    _ := val
-| (n+1) (Trie.Node val map) it := do
-  t' ← RBNode.find (<) map it.curr,
-  findAux n t' it.next
+private partial def findAux (s : String) : Trie α → String.Pos → Option α
+| (Trie.Node val m) i :=
+  match s.atEnd i with
+  | true  := val
+  | false :=
+    let c := s.get i in
+    let i := s.next i in
+    match RBNode.find (<) m c with
+    | none   := none
+    | some t := findAux t i
 
 def find (t : Trie α) (s : String) : Option α :=
-findAux s.length t s.mkIterator
+findAux s t 0
 
-private def matchPrefixAux : Nat → Trie α → String.OldIterator → Option (String.OldIterator × α) → Option (String.OldIterator × α)
+private def updtAcc (v : Option α) (i : String.Pos) (acc : String.Pos × Option α) : String.Pos × Option α :=
+match v, acc with
+| some v, (j, w) := (i, some v)  -- we pattern match on `acc` to enable memory reuse
+| none,   acc    := acc
+
+private partial def matchPrefixAux (s : String) : Trie α → String.Pos → (String.Pos × Option α) → String.Pos × Option α
+| (Trie.Node v m) i acc :=
+  match s.atEnd i with
+  | true  := updtAcc v i acc
+  | false :=
+    let acc := updtAcc v i acc in
+    let c   := s.get i in
+    let i   := s.next i in
+    match RBNode.find (<) m c with
+    | some t := matchPrefixAux t i acc
+    | none   := acc
+
+def matchPrefix (s : String) (t : Trie α) (i : String.Pos) : String.Pos × Option α :=
+matchPrefixAux s t i (i, none)
+
+-- TODO: delete
+private def oldMatchPrefixAux : Nat → Trie α → String.OldIterator → Option (String.OldIterator × α) → Option (String.OldIterator × α)
 | 0     (Trie.Node val map) it Acc := Prod.mk it <$> val <|> Acc
 | (n+1) (Trie.Node val map) it Acc :=
   let Acc' := Prod.mk it <$> val <|> Acc in
   match RBNode.find (<) map it.curr with
-    | some t := matchPrefixAux n t it.next Acc'
-    | none   := Acc'
+  | some t := oldMatchPrefixAux n t it.next Acc'
+  | none   := Acc'
 
-def matchPrefix {α : Type} (t : Trie α) (it : String.OldIterator) : Option (String.OldIterator × α) :=
-matchPrefixAux it.remaining t it none
+-- TODO: delete
+def oldMatchPrefix {α : Type} (t : Trie α) (it : String.OldIterator) : Option (String.OldIterator × α) :=
+oldMatchPrefixAux it.remaining t it none
 
 private partial def toStringAux {α : Type} : Trie α → List Format
 | (Trie.Node val map) := flip RBNode.fold map (λ c t Fs,

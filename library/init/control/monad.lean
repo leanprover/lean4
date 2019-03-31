@@ -17,8 +17,8 @@ export HasBind (bind)
 infixl ` >>= `:55 := bind
 
 class Monad (m : Type u → Type v) extends Applicative m, HasBind m : Type (max (u+1) v) :=
-(map       := λ α β f x, x >>= pure ∘ f)
-(Seq       := λ α β f x, f >>= (<$> x))
+(map      := λ α β f x, x >>= pure ∘ f)
+(seq      := λ α β f x, f >>= (<$> x))
 (seqLeft  := λ α β x y, x >>= λ a, y >>= λ _, pure a)
 (seqRight := λ α β x y, x >>= λ _, y)
 

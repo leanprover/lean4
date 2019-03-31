@@ -14,9 +14,9 @@ class HasPure (f : Type u → Type v) :=
 export HasPure (pure)
 
 class HasSeq (f : Type u → Type v) : Type (max (u+1) v) :=
-(Seq  : Π {α β : Type u}, f (α → β) → f α → f β)
+(seq  : Π {α β : Type u}, f (α → β) → f α → f β)
 
-infixl ` <*> `:60 := HasSeq.Seq
+infixl ` <*> `:60 := HasSeq.seq
 
 class HasSeqLeft (f : Type u → Type v) : Type (max (u+1) v) :=
 (seqLeft : Π {α β : Type u}, f α → f β → f α)

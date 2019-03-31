@@ -105,18 +105,18 @@ instance : Alternative (ParserM σ δ μ) :=
      | other              := other)
   | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
-@[specialize] def satisfy (p : Char → Bool) : ParserM σ δ μ Char :=
+@[specialize] def satisfy (p : Char → Bool) (errorMsg := "unexpected character") : ParserM σ δ μ Char :=
 λ str inp,
   match inp with
   | ⟨Result.ok _ i st bst, _⟩ :=
     if str.atEnd i then mkError inp "end of input"
     else let c := str.get i in
          if p c then Result.ok c (str.next i) st bst
-         else mkError inp "unexpected character"
+         else mkError inp errorMsg
   | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def ch (c : Char) : ParserM σ δ μ Char :=
-satisfy (== c)
+satisfy (== c) ("expected " ++ repr c)
 
 @[inline] def any : ParserM σ δ μ Char :=
 satisfy (λ _, true)
@@ -134,18 +134,20 @@ satisfy (λ _, true)
 @[inline] def takeUntil (p : Char → Bool) : ParserM σ δ μ Unit :=
 λ str inp, takeUntilAux p str inp
 
-partial def strAux (s : String) (errorMsg : String) : Pos → ParserM σ δ μ Unit
+partial def strAux (s : String) (errorMsg : String) (initPos : Pos) : Pos → ParserM σ δ μ Unit
 | j str inp :=
   if s.atEnd j then inp.val
   else match inp with
     | ⟨Result.ok _ i st bst, _⟩ :=
-      if str.atEnd i then mkError inp errorMsg
+      if str.atEnd i then Result.error errorMsg initPos st none
       else if s.get j == str.get i then strAux (s.next j) str (mkInput (str.next i) st bst)
-      else mkError inp errorMsg
+      else Result.error errorMsg initPos st none
     | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def str (s : String) : ParserM σ δ μ Unit :=
-strAux s ("expected '" ++ repr s ++ "'") 0
+λ str inp,
+  let initPos := currPos inp in
+  strAux s ("expected " ++ repr s) initPos 0 str inp
 
 @[specialize] partial def manyAux (a : α) (p : ParserM σ δ μ α) : ParserM σ δ μ α
 | str inp :=
@@ -217,7 +219,7 @@ partial def strLitAux : String → ParserM σ δ μ String
   else strLitAux (out.push c)
 
 def strLit : ParserM σ δ μ String :=
-ch '\"' *> strLitAux ""
+satisfy (== '\"') "expected string literal" *> strLitAux ""
 
 partial def finishCommentBlock : Nat → ParserM σ δ μ Unit
 | nesting str inp :=
@@ -297,7 +299,7 @@ section
 variables {m : Type → Type} [monadParser σ δ μ m]
 
 @[inline] def satisfy (p : Char → Bool) : m Char := monadParser.lift (ParserM.satisfy p)
-def ch (c : Char) : m Char := satisfy (== c)
+def ch (c : Char) : m Char := monadParser.lift (ParserM.ch c)
 def alpha : m Char := satisfy Char.isAlpha
 def digit : m Char := satisfy Char.isDigit
 def upper : m Char := satisfy Char.isUpper
@@ -308,8 +310,11 @@ def any   : m Char := satisfy (λ _, true)
 
 @[inline] def str (s : String) : m Unit := monadParser.lift (ParserM.str s)
 
+@[inline] def try (p : m α) : m α :=
+monadParser.map (λ _ p, ParserM.try p) p
+
 @[inline] def lookahead (p : m α) : m α :=
-monadParser.map (λ β p, ParserM.lookahead p) p
+monadParser.map (λ _ p, ParserM.lookahead p) p
 
 @[inline] def takeWhile (p : Char → Bool) : m Unit := takeUntil (λ c, !p c)
 
@@ -380,9 +385,46 @@ allocprof msg₂ (timeit msg₁ p)
 def tst1 : IO Unit :=
 IO.testParser strLit "\"hello\n\""
 
+def check {α} [HasBeq α] (p : Parser α) (s : String) (e : α) : IO Unit :=
+match (p 0).run () () s with
+| Lean.Parser.Result.ok v i _ _  := do
+  IO.println ("Ok at " ++ toString i),
+  unless (v == e) (throw "unexpected result")
+| Result.error msg _ _ _         := throw msg
+
+def checkFailure {α} (p : Parser α) (s : String) : IO Unit :=
+match (p 0).run () () s with
+| Lean.Parser.Result.ok _ i _ _  := throw "Worked"
+| Result.error msg i _ _         := IO.println ("failed as expected at " ++ toString i ++ ", error: " ++ toString msg)
+
+def str' (s : String) : Parser String :=
+str s *> pure s
+
+def tst2 : IO Unit :=
+do check (ch 'a') "a" 'a',
+   check any "a" 'a',
+   check any "b" 'b',
+   check (str' "foo" <|> str' "bla" <|> str' "boo") "bla" "bla",
+   check (try (str' "foo" *> str' "foo") <|> str' "foo2" <|> str' "boo") "foo2" "foo2",
+   checkFailure ((str' "foo" *> str' "abc") <|> str' "foo2" <|> str' "boo") "foo2",
+   check (str' "foofoo" <|> str' "foo2" <|> str' "boo") "foo2" "foo2",
+   check (leanWhitespace *> str' "hello") "   \n-- comment\nhello" "hello",
+   check (takeUntil (== '\n') *> ch '\n' *> str' "test") "\ntest" "test",
+   check (takeUntil (== 't') *> str' "test") "test" "test",
+   check (takeUntil (== '\n') *> ch '\n' *> str' "test") "abc\ntest" "test",
+   check (try (ch 'a' *> ch 'b') <|> (ch 'a' *> ch 'c')) "ac" 'c',
+   checkFailure ((ch 'a' *> ch 'b') <|> (ch 'a' *> ch 'c')) "ac",
+   check (lookahead (ch 'a')) "abc" 'a',
+   check (lookahead (ch 'a') *> str' "abc") "abc" "abc",
+   check strLit "\"abc\\nd\"" "abc\nd",
+   checkFailure strLit "abc\\nd\"",
+   checkFailure strLit "\"abc",
+   checkFailure strLit "\"abc\\ab̈\""
+
+
 def main (xs : List String) : IO Unit :=
 do
-tst1,
+tst1, tst2,
 let s₁ := mkBigString xs.head.toNat "",
 let s₂ := s₁ ++ "bad" ++ mkBigString 20 "",
 let s₃ := mkBigString2 xs.head.toNat "",

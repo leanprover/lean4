@@ -9,24 +9,24 @@ abbrev Pos := String.Pos
 μ  is the extra error Message data
 -/
 inductive Result (σ δ μ α : Type)
-| ok    {} (a : α)        (i : Pos) (st : σ) (bst : δ)          (eps : Bool) : Result
-| error {} (msg : String) (i : Pos) (st : σ) (extra : Option μ) (eps : Bool) : Result
+| ok    {} (a : α)        (i : Pos) (st : σ) (bst : δ)          : Result
+| error {} (msg : String) (i : Pos) (st : σ) (extra : Option μ) : Result
 
 inductive Result.IsOk {σ δ μ α : Type} : Result σ δ μ α → Prop
-| mk (a : α) (i : Pos) (st : σ) (bst : δ) (eps : Bool) : Result.IsOk (Result.ok a i st bst eps)
+| mk (a : α) (i : Pos) (st : σ) (bst : δ) : Result.IsOk (Result.ok a i st bst)
 
-theorem errorIsNotOk {σ δ μ α : Type} {msg : String} {i : Pos} {st : σ} {extra : Option μ} {eps : Bool}
-                     (h : Result.IsOk (@Result.error σ δ μ α msg i st extra eps)) : False :=
+theorem errorIsNotOk {σ δ μ α : Type} {msg : String} {i : Pos} {st : σ} {extra : Option μ}
+                     (h : Result.IsOk (@Result.error σ δ μ α msg i st extra)) : False :=
 match h with end
 
-@[inline] def unreachableError {σ δ μ α β : Type} {msg : String} {i : Pos} {st : σ} {extra : Option μ} {eps : Bool}
-                                (h : Result.IsOk (@Result.error σ δ μ α msg i st extra eps)) : β :=
+@[inline] def unreachableError {σ δ μ α β : Type} {msg : String} {i : Pos} {st : σ} {extra : Option μ}
+                               (h : Result.IsOk (@Result.error σ δ μ α msg i st extra)) : β :=
 False.elim (errorIsNotOk h)
 
 def input (σ δ μ : Type) : Type := { r : Result σ δ μ Unit // r.IsOk }
 
-@[inline] def mkInput {σ δ μ : Type} (i : Pos) (st : σ) (bst : δ) (eps := true) : input σ δ μ :=
-⟨Result.ok () i st bst eps, Result.IsOk.mk _ _ _ _ _⟩
+@[inline] def mkInput {σ δ μ : Type} (i : Pos) (st : σ) (bst : δ) : input σ δ μ :=
+⟨Result.ok () i st bst, Result.IsOk.mk _ _ _ _⟩
 
 def ParserM (σ δ μ α : Type) :=
 String → input σ δ μ → Result σ δ μ α
@@ -38,8 +38,8 @@ namespace ParserM
 protected def default : ParserM σ δ μ α :=
 λ _ inp,
   match inp with
-  | ⟨Result.ok _ i st bst _, h⟩ := Result.error "" i st none true
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+  | ⟨Result.ok _ i st bst, h⟩ := Result.error "" i st none
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 instance : Inhabited (ParserM σ δ μ α) :=
 ⟨ParserM.default⟩
@@ -50,34 +50,31 @@ p s (mkInput 0 st bst)
 @[inline] def pure (a : α) : ParserM σ δ μ α :=
 λ _ inp,
   match inp with
-  | ⟨Result.ok _ it st bst _, h⟩ := Result.ok a it st bst true
-  | ⟨Result.error _ _ _ _ _, h⟩  := unreachableError h
+  | ⟨Result.ok _ it st bst, h⟩ := Result.ok a it st bst
+  | ⟨Result.error _ _ _ _, h⟩  := unreachableError h
 
 @[inline] def bind (x : ParserM σ δ μ α) (f : α → ParserM σ δ μ β) : ParserM σ δ μ β :=
 λ str inp,
   match x str inp with
-  | Result.ok a i st bst e₁ :=
-    (match f a str (mkInput i st bst) with
-     | Result.ok b i st bst e₂      := Result.ok b i st bst (strictAnd e₁ e₂)
-     | Result.error msg i st ext e₂ := Result.error msg i st ext (strictAnd e₁ e₂))
-  | Result.error msg i st etx e  := Result.error msg i st etx e
+  | Result.ok a i st bst      := f a str (mkInput i st bst)
+  | Result.error msg i st etx := Result.error msg i st etx
 
 instance isMonad : Monad (ParserM σ δ μ) :=
 {pure := @ParserM.pure _ _ _, bind := @ParserM.bind _ _ _}
 
-def mkError (r : input σ δ μ) (msg : String) (eps := true) : Result σ δ μ α :=
+def mkError (r : input σ δ μ) (msg : String) : Result σ δ μ α :=
 match r with
-| ⟨Result.ok _ i st _ _, _⟩   := Result.error msg i st none eps
-| ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+| ⟨Result.ok _ i st _, _⟩   := Result.error msg i st none
+| ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def orelse (p q : ParserM σ δ μ α) : ParserM σ δ μ α :=
 λ str inp,
   match inp with
-  | ⟨Result.ok _ i₁ _ bst₁ _, _⟩ :=
+  | ⟨Result.ok _ i₁ _ bst₁, _⟩ :=
     (match p str inp with
-     | Result.error _ _ st₂ _ tt := q str (mkInput i₁ st₂ bst₁)
-     | other                     := other)
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+     | err@(Result.error _ i₂ st₂ _) := if i₁ == i₂ then q str (mkInput i₁ st₂ bst₁) else err
+     | other                         := other)
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def failure : ParserM σ δ μ α :=
 λ _ inp, mkError inp "failure"
@@ -87,35 +84,36 @@ instance : Alternative (ParserM σ δ μ) :=
   failure        := @ParserM.failure _ _ _,
   .. ParserM.isMonad }
 
-def setSilentError : Result σ δ μ α → Result σ δ μ α
-| (Result.error msg i st ext _) := Result.error msg i st ext true
-| other                         := other
-
 @[inline] def currPos : input σ δ μ → Pos
-| ⟨Result.ok _ i _ _ _, _⟩    := i
-| ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+| ⟨Result.ok _ i _ _, _⟩    := i
+| ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def try {α : Type} (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
-λ str inp, setSilentError (p str inp)
+λ str inp,
+  match inp with
+  | ⟨Result.ok _ i _ _, _⟩    := (match p str inp with
+    | Result.error msg _ st x := Result.error msg i st x
+    | other                   := other)
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def lookahead (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
 λ str inp,
   match inp with
-  | ⟨Result.ok _ i _ bst _, _⟩ :=
+  | ⟨Result.ok _ i _ bst, _⟩ :=
     (match p str inp with
-     | Result.ok a _ st _ _ := Result.ok a i st bst true
-     | other                := other)
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+     | Result.ok a _ st _ := Result.ok a i st bst
+     | other              := other)
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[specialize] def satisfy (p : Char → Bool) : ParserM σ δ μ Char :=
 λ str inp,
   match inp with
-  | ⟨Result.ok _ i st bst _, _⟩ :=
+  | ⟨Result.ok _ i st bst, _⟩ :=
     if str.atEnd i then mkError inp "end of input"
     else let c := str.get i in
-         if p c then Result.ok c (str.next i) st bst false
+         if p c then Result.ok c (str.next i) st bst
          else mkError inp "unexpected character"
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def ch (c : Char) : ParserM σ δ μ Char :=
 satisfy (== c)
@@ -126,12 +124,12 @@ satisfy (λ _, true)
 @[specialize] partial def takeUntilAux (p : Char → Bool) : ParserM σ δ μ Unit
 | str inp :=
   match inp with
-  | ⟨Result.ok _ i st bst _, _⟩ :=
+  | ⟨Result.ok _ i st bst, _⟩ :=
     if str.atEnd i then inp.val
     else let c := str.get i in
          if p c then inp.val
-         else takeUntilAux str (mkInput (str.next i) st bst false)
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+         else takeUntilAux str (mkInput (str.next i) st bst)
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def takeUntil (p : Char → Bool) : ParserM σ δ μ Unit :=
 λ str inp, takeUntilAux p str inp
@@ -140,27 +138,23 @@ partial def strAux (s : String) (errorMsg : String) : Pos → ParserM σ δ μ U
 | j str inp :=
   if s.atEnd j then inp.val
   else match inp with
-    | ⟨Result.ok _ i st bst _, _⟩ :=
+    | ⟨Result.ok _ i st bst, _⟩ :=
       if str.atEnd i then mkError inp errorMsg
-      else if s.get j == str.get i then strAux (s.next j) str (mkInput (str.next i) st bst false)
+      else if s.get j == str.get i then strAux (s.next j) str (mkInput (str.next i) st bst)
       else mkError inp errorMsg
-    | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+    | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def str (s : String) : ParserM σ δ μ Unit :=
 strAux s ("expected '" ++ repr s ++ "'") 0
 
-@[specialize] partial def manyLoop (a : α) (p : ParserM σ δ μ α) : Bool → ParserM σ δ μ α
-| fst str inp :=
+@[specialize] partial def manyAux (a : α) (p : ParserM σ δ μ α) : ParserM σ δ μ α
+| str inp :=
   match inp with
-  | ⟨Result.ok _ i₀ _ bst₀ _, _⟩ :=
+  | ⟨Result.ok _ i₀ _ bst₀, _⟩ :=
     (match p str inp with
-     | Result.ok _ i st bst _   := manyLoop false str (mkInput i st bst)
-     | Result.error _ _ st _ _  := Result.ok a i₀ st bst₀ fst)
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
-
--- Auxiliary Function used to lift manyAux
-@[inline] def manyAux (a : α) (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
-manyLoop a p true
+     | Result.ok _ i st bst   := manyAux str (mkInput i st bst)
+     | Result.error _ _ st _  := Result.ok a i₀ st bst₀)
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 @[inline] def many (p : ParserM σ δ μ Unit) : ParserM σ δ μ Unit  :=
 manyAux () p
@@ -171,29 +165,29 @@ p *> many p
 def pos : ParserM σ δ μ Pos :=
 λ str inp,
   match inp with
-  | ⟨Result.ok _ i st bst _, _⟩ := Result.ok i i st bst true
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+  | ⟨Result.ok _ i st bst, _⟩ := Result.ok i i st bst
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 def error {α : Type} (msg : String) : ParserM σ δ μ α :=
 λ _ inp, mkError inp msg
 
-def errorAt {α : Type} (pos : Pos) (msg : String) (eps : Bool := true) : ParserM σ δ μ α :=
+def errorAt {α : Type} (pos : Pos) (msg : String) : ParserM σ δ μ α :=
 λ _ inp, match inp with
-| ⟨Result.ok _ _ st _ _, _⟩   := Result.error msg pos st none eps
-| ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+| ⟨Result.ok _ _ st _, _⟩   := Result.error msg pos st none
+| ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 def hexDigit : ParserM σ δ μ Nat
 | str inp := match inp with
-  | ⟨Result.ok _ i st bst _, _⟩ :=
+  | ⟨Result.ok _ i st bst, _⟩ :=
     if str.atEnd i then mkError inp "unexpected end of input"
     else
       let c := str.get i in
       let i := str.next i in
-      if c.isDigit then Result.ok (c.toNat - '0'.toNat) i st bst false
-      else if 'a' <= c && c <= 'f' then Result.ok (10 + c.toNat - 'a'.toNat) i st bst false
-      else if 'A' <= c && c <= 'F' then Result.ok (10 + c.toNat - 'A'.toNat) i st bst false
+      if c.isDigit then Result.ok (c.toNat - '0'.toNat) i st bst
+      else if 'a' <= c && c <= 'f' then Result.ok (10 + c.toNat - 'a'.toNat) i st bst
+      else if 'A' <= c && c <= 'F' then Result.ok (10 + c.toNat - 'A'.toNat) i st bst
       else mkError inp "invalid hexadecimal numeral, hexadecimal digit expected"
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 def quotedChar : ParserM σ δ μ Char :=
 do p ← pos,
@@ -225,25 +219,10 @@ partial def strLitAux : String → ParserM σ δ μ String
 def strLit : ParserM σ δ μ String :=
 ch '\"' *> strLitAux ""
 
-/- Execute `p` and then `q` but does not combine epsilon flag.
-   This combinator is useful for preserving tail recursion. -/
-@[inline] def seqCore (p : ParserM σ δ μ α) (q : ParserM σ δ μ β) : ParserM σ δ μ β :=
-λ str inp,
-  match p str inp with
-  | Result.ok _ i st bst _       := q str (mkInput i st bst)
-  | Result.error msg i st etx e  := Result.error msg i st etx e
-
-@[inline] def fixEpsilon (p : ParserM σ δ μ α) : ParserM σ δ μ α :=
-λ str inp,
-  let i := currPos inp in
-  match p str inp with
-  | Result.ok a i₁ st bst _  := Result.ok a i₁ st bst (i₁ > i)
-  | other                    := other
-
 partial def finishCommentBlock : Nat → ParserM σ δ μ Unit
 | nesting str inp :=
   match inp with
-  | ⟨Result.ok _ i st bst _, _⟩ :=
+  | ⟨Result.ok _ i st bst, _⟩ :=
     if str.atEnd i then mkError inp "end of input"
     else
       let c := str.get i in
@@ -253,7 +232,7 @@ partial def finishCommentBlock : Nat → ParserM σ δ μ Unit
         else
           let c := str.get i in
           if c == '/' then -- "-/" end of comment
-            if nesting == 1 then Result.ok () (str.next i) st bst false
+            if nesting == 1 then Result.ok () (str.next i) st bst
             else finishCommentBlock (nesting-1) str (mkInput (str.next i) st bst)
           else
             finishCommentBlock nesting str (mkInput i st bst)
@@ -264,34 +243,32 @@ partial def finishCommentBlock : Nat → ParserM σ δ μ Unit
           if c == '-' then finishCommentBlock (nesting+1) str (mkInput (str.next i) st bst)
           else finishCommentBlock nesting str (mkInput i st bst)
       else finishCommentBlock nesting str (mkInput i st bst)
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
-partial def leanWhitespaceAux : ParserM σ δ μ Unit
+partial def leanWhitespace : ParserM σ δ μ Unit
 | str inp :=
   match inp with
-  | ⟨Result.ok _ i st bst _, _⟩ :=
+  | ⟨Result.ok _ i st bst, _⟩ :=
     if str.atEnd i then inp.val
-    else let c := str.get i in
-         if c.isWhitespace then leanWhitespaceAux str (mkInput (str.next i) st bst)
-         else if c == '-' then
-           let i := str.next i in
-           let c := str.get i in
-           if c == '-' then seqCore (takeUntil (= '\n')) leanWhitespaceAux str (mkInput i st bst)
-           else inp.val
-         else if c == '/' then
-           let i := str.next i in
-           let c := str.get i in
-           if c == '-' then
-              let i := str.next i in
-              let c := str.get i in
-              if c == '-' then inp.val -- "/--" doc comment is an actual token
-              else seqCore (finishCommentBlock 1) leanWhitespaceAux str (mkInput i st bst)
-           else inp.val
-         else inp.val
-  | ⟨Result.error _ _ _ _ _, h⟩ := unreachableError h
-
-def leanWhitespace : ParserM σ δ μ Unit :=
-fixEpsilon leanWhitespaceAux
+    else
+      let c := str.get i in
+      if c.isWhitespace then leanWhitespace str (mkInput (str.next i) st bst)
+      else if c == '-' then
+        let i := str.next i in
+        let c := str.get i in
+        if c == '-' then ((takeUntil (= '\n')) *> leanWhitespace) str (mkInput i st bst)
+        else inp.val
+      else if c == '/' then
+        let i := str.next i in
+        let c := str.get i in
+        if c == '-' then
+          let i := str.next i in
+          let c := str.get i in
+          if c == '-' then inp.val -- "/--" doc comment is an actual token
+          else ((finishCommentBlock 1) *> leanWhitespace) str (mkInput i st bst)
+        else inp.val
+      else inp.val
+  | ⟨Result.error _ _ _ _, h⟩ := unreachableError h
 
 end ParserM
 
@@ -372,13 +349,13 @@ leanWhitespace
 
 def testParser (x : Parser Unit) (input : String) : String :=
 match (x 0).run () () input with
-| Lean.Parser.Result.ok _ i _ _ _  := "Ok at " ++ toString i
-| Result.error msg i _ _ _         := "Error at " ++ toString i ++ ": " ++ msg
+| Lean.Parser.Result.ok _ i _ _  := "Ok at " ++ toString i
+| Result.error msg i _ _         := "Error at " ++ toString i ++ ": " ++ msg
 
 def IO.testParser {α : Type} [HasToString α] (x : Parser α) (input : String) : IO Unit :=
 match (x 0).run () () input with
-| Lean.Parser.Result.ok a _ _ _ _  := IO.println ("Ok " ++ toString a)
-| _                                := throw "ERROR"
+| Lean.Parser.Result.ok a _ _ _  := IO.println ("Ok " ++ toString a)
+| _                              := throw "ERROR"
 
 @[noinline] def test (p : Parser Unit) (s : String) : IO Unit :=
 IO.println (testParser p s)
@@ -405,13 +382,13 @@ IO.testParser strLit "\"hello\n\""
 
 def main (xs : List String) : IO Unit :=
 do
--- tst1,
--- let s₁ := mkBigString xs.head.toNat "",
--- let s₂ := s₁ ++ "bad" ++ mkBigString 20 "",
--- let s₃ := mkBigString2 xs.head.toNat "",
+tst1,
+let s₁ := mkBigString xs.head.toNat "",
+let s₂ := s₁ ++ "bad" ++ mkBigString 20 "",
+let s₃ := mkBigString2 xs.head.toNat "",
 let s₄ := mkBigString3 xs.head.toNat "",
 IO.println s₄.length,
--- prof "Parser 1" (test testP s₁),
--- prof "Parser 2" (test testP s₂),
--- prof "Parser 3" (test testP2 s₃),
+prof "Parser 1" (test testP s₁),
+prof "Parser 2" (test testP s₂),
+prof "Parser 3" (test testP2 s₃),
 prof "Parser 4" (test testP3 s₄)

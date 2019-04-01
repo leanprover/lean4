@@ -112,11 +112,6 @@ def mkLetLhsIdKind : IO SyntaxNodeKind  := nextKind `letLhsId
 def mkLetLhsPatternKind : IO SyntaxNodeKind  := nextKind `letLhsPattern
 @[init mkLetLhsPatternKind] constant letLhsPatternKind  : SyntaxNodeKind := default _
 
-@[inline] def Syntax.getKind (n : Syntax) : SyntaxNodeKind :=
-match n with
-| Syntax.node k _ _ := k
-| other             := nullKind
-
 @[inline] def withArgs {α : Type} (n : SyntaxNode) (fn : Array Syntax → α) : α :=
 match n with
 | ⟨Syntax.node _ args _, _⟩   := fn args
@@ -253,16 +248,9 @@ match n with
 | Syntax.node k args s := fn k ⟨Syntax.node k args s, IsNode.mk _ _ _⟩
 | other                := pure none
 
-def SyntaxNode.getKind (n : SyntaxNode) : SyntaxNodeKind :=
-match n with
-| ⟨Syntax.node k _ _, _⟩      := k
-| ⟨Syntax.missing, h⟩         := unreachIsNodeMissing h
-| ⟨Syntax.atom _ _, h⟩        := unreachIsNodeAtom h
-| ⟨Syntax.ident _ _ _ _ _, h⟩ := unreachIsNodeIdent h
-
 /- Version without using the combinator <?>. -/
 def letTransformer' : Transformer :=
-λ n, withLet n $ λ lhs val body,
+  λ n, withLet n $ λ lhs val body,
   lhs.isNode $ λ k lhs, -- lhs is now a SyntaxNode
   if k == letLhsIdKind then withLetLhsId lhs $ λ id binders type,
     if binders.getNumChildren == 0 then

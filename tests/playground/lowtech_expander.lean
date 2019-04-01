@@ -10,11 +10,25 @@ structure SourceInfo :=
 (pos      : Nat)
 (trailing : Substring)
 
+def mkUniqIdRef : IO (IO.Ref Nat) :=
+IO.mkRef 0
+
+@[init mkUniqIdRef]
+constant nextUniqId : IO.Ref Nat := default _
+
 structure SyntaxNodeKind :=
-(name : Name)
+(name : Name) (id : Nat)
+
+instance : Inhabited SyntaxNodeKind :=
+⟨{name := default _, id := default _}⟩
 
 instance : HasBeq SyntaxNodeKind :=
-⟨λ k₁ k₂, k₁.name == k₂.name⟩
+⟨λ k₁ k₂, k₁.id == k₂.id⟩
+
+def nextKind (name : Name) : IO SyntaxNodeKind :=
+do id ← nextUniqId.get,
+   nextUniqId.set (id+1),
+   pure { name := name, id := id }
 
 inductive Syntax
 | missing
@@ -50,8 +64,10 @@ match s with
   else base
 | other := base
 
-@[pattern] def notKind : SyntaxNodeKind := ⟨`not⟩
-@[pattern] def ifKind  : SyntaxNodeKind := ⟨`if⟩
+def mkNotKind : IO SyntaxNodeKind := nextKind `not
+@[init mkNotKind] constant notKind : SyntaxNodeKind := default _
+def mkIfKind : IO SyntaxNodeKind  := nextKind `if
+@[init mkIfKind] constant ifKind  : SyntaxNodeKind := default _
 
 @[inline] def mkAtom (val : String) : Syntax :=
 Syntax.atom none val

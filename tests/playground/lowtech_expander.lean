@@ -1,6 +1,6 @@
 import init.lean.name
 
-open Lean (Name)
+open Lean (Name NameMap)
 
 def MacroScope := Nat
 abbrev MacroScopes := List MacroScope
@@ -25,10 +25,19 @@ instance : Inhabited SyntaxNodeKind :=
 instance : HasBeq SyntaxNodeKind :=
 ⟨λ k₁ k₂, k₁.id == k₂.id⟩
 
-def nextKind (name : Name) : IO SyntaxNodeKind :=
-do id ← nextUniqId.get,
+def mkNameToKindTable : IO (IO.Ref (NameMap Nat)) :=
+IO.mkRef {}
+
+@[init mkNameToKindTable]
+constant nameToKindTable : IO.Ref (NameMap Nat) := default _
+
+def nextKind (k : Name) : IO SyntaxNodeKind :=
+do m ← nameToKindTable.get,
+   when (m.contains k) (throw $ IO.userError ("Error kind '" ++ toString k ++ "' already exists")),
+   id ← nextUniqId.get,
+   nameToKindTable.set (m.insert k id),
    nextUniqId.set (id+1),
-   pure { name := name, id := id }
+   pure { name := k, id := id }
 
 inductive Syntax
 | missing
@@ -38,6 +47,20 @@ inductive Syntax
 
 instance : Inhabited Syntax :=
 ⟨Syntax.missing⟩
+
+def SyntaxNodeKind.fix : SyntaxNodeKind → IO SyntaxNodeKind
+| {name := n, ..} := do
+  m ← nameToKindTable.get,
+  match m.find n with
+  | some id := pure {name := n, id := id}
+  | none    := throw $ IO.userError ("Error unknown Syntax kind '" ++ toString n ++ "'")
+
+partial def Syntax.fixKinds : Syntax → IO Syntax
+| (Syntax.node k args scopes) := do
+  k ← k.fix,
+  args ← args.mmap Syntax.fixKinds,
+  pure (Syntax.node k args scopes)
+| other                       := pure other
 
 inductive IsNode : Syntax → Prop
 | mk (kind : SyntaxNodeKind) (args : Array Syntax) (scopes : MacroScopes) : IsNode (Syntax.node kind args scopes)

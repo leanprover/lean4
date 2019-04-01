@@ -206,5 +206,9 @@ Nat.recOn n rfl $ λ n ih,
 | []      r := r
 | (a::as) r := List.toArrayAux as (r.push a)
 
+@[inlineIfReduce] def List.redLength {α : Type u} : List α → Nat
+| []      := 0
+| (_::as) := as.redLength + 1
+
 @[inline] def List.toArray {α : Type u} (as : List α) : Array α :=
-as.toArrayAux (Array.mkEmpty as.length)
+as.toArrayAux (Array.mkEmpty as.redLength)

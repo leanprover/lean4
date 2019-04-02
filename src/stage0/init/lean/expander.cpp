@@ -35,7 +35,6 @@ obj* l_Lean_Expander_coeBinderBracketedBinder___closed__1;
 obj* l_Lean_Expander_expandBracketedBinder___main(obj*, obj*);
 obj* l_Lean_Expander_Declaration_transform___boxed(obj*, obj*);
 obj* l_Lean_Parser_Syntax_mreplace___main___at_Lean_Parser_Syntax_replace___spec__1(obj*, obj*);
-obj* l_id___boxed(obj*);
 extern obj* l_Lean_Parser_Term_hole_HasView;
 obj* l_Lean_Expander_depArrow_transform(obj*, obj*);
 namespace lean {
@@ -64,7 +63,6 @@ obj* l_Lean_Expander_bindingAnnotationUpdate_HasView_x_27___lambda__1(obj*);
 extern obj* l_Lean_Parser_command_mixfix;
 obj* l_Lean_Expander_paren_transform(obj*, obj*);
 obj* l_Lean_Expander_mkNotationTransformer___lambda__1(obj*, obj*);
-obj* l_List_assoc___main___at_Lean_Expander_mkNotationTransformer___spec__7(obj*, obj*);
 obj* l_Lean_Expander_Declaration_transform___closed__1;
 extern obj* l_Lean_Parser_command_reserveMixfix_HasView;
 obj* l_List_map___main___at_Lean_Expander_expandBracketedBinder___main___spec__17(obj*, obj*);
@@ -129,7 +127,6 @@ obj* l_ReaderT_read___rarg(obj*, obj*);
 obj* l___private_init_lean_expander_2__expandCore(obj*, obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_Expander_expandBracketedBinder___main___spec__3___boxed(obj*, obj*, obj*);
 obj* l_Lean_Parser_Syntax_asNode___main(obj*);
-obj* l_id_Monad___lambda__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_foldr1Opt___main___at_Lean_Expander_paren_transform___spec__2(obj*);
 extern obj* l_Lean_Parser_Term_depArrow;
 extern obj* l_Lean_Parser_command_introRule_HasView;
@@ -179,7 +176,9 @@ obj* l_Lean_Expander_introRule_transform(obj*, obj*);
 obj* l_Lean_Expander_expandBracketedBinder___main___closed__8;
 obj* l_List_map___main___at_Lean_Expander_expandBracketedBinder___main___spec__18(obj*, obj*);
 extern obj* l_Lean_Parser_Term_depArrow_HasView;
+obj* l_Id_Monad___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Expander_Subtype_transform(obj*, obj*);
+obj* l_Id_Monad___lambda__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Syntax_getPos(obj*);
 obj* l_Lean_Expander_builtinTransformers;
 obj* l_RBNode_insert___at_Lean_Expander_builtinTransformers___spec__3(obj*, obj*, obj*, obj*);
@@ -221,7 +220,7 @@ obj* l_Lean_Expander_mkSimpleBinder___closed__6;
 obj* l_List_mmap___main___at___private_init_lean_expander_2__expandCore___main___spec__5(obj*, obj*, obj*, obj*);
 obj* l_Lean_Expander_error___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_identUnivs;
-obj* l_List_assoc___main___at_Lean_Expander_mkNotationTransformer___spec__7___boxed(obj*, obj*);
+obj* l_List_lookup___main___at_Lean_Expander_mkNotationTransformer___spec__7___boxed(obj*, obj*);
 obj* l_Lean_Expander_ExpanderConfig_HasLift___boxed(obj*);
 extern obj* l_Lean_Parser_command_Declaration;
 extern obj* l_Lean_Parser_Term_Subtype_HasView;
@@ -233,6 +232,7 @@ obj* l_Lean_Expander_if_transform___closed__2;
 obj* l_Lean_Expander_expandBracketedBinder___main___closed__1;
 extern obj* l_Lean_Parser_Level_leading;
 obj* l_Lean_Expander_error___at___private_init_lean_expander_1__popStxArg___spec__1___boxed(obj*);
+obj* l_Id_pure___boxed(obj*);
 extern obj* l_Lean_Parser_command_notation_HasView;
 obj* l_List_mfoldr___main___at_Lean_Expander_expandBinders___spec__6___closed__2;
 obj* l_Lean_Expander_axiom_transform(obj*, obj*);
@@ -279,10 +279,12 @@ obj* l_Lean_Expander_reserveMixfix_transform(obj*, obj*);
 obj* l_coe___at_Lean_Expander_coeMixedBindersBindersExt___spec__1(obj*);
 obj* l_List_map___main___at_Lean_Expander_coeMixedBindersBindersExt___spec__2___rarg(obj*, obj*);
 extern obj* l_Lean_Parser_Term_anonymousConstructor_HasView;
+obj* l_Id_Monad___lambda__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Expander_TransformM_MonadExcept;
 obj* l_List_map___main___at_Lean_Expander_expandBracketedBinder___main___spec__21(uint8, obj*, obj*);
 obj* l_Lean_Expander_let_transform___closed__1;
 obj* l_Lean_Expander_Declaration_transform___closed__2;
+obj* l_Id_bind___boxed(obj*, obj*);
 obj* l_Lean_Expander_mkSimpleBinder___closed__3;
 obj* l_Lean_Expander_introRule_transform___boxed(obj*, obj*);
 obj* l_Lean_Expander_error___at___private_init_lean_expander_1__popStxArg___spec__1(obj*);
@@ -290,7 +292,6 @@ obj* l_Lean_Parser_number_View_ofNat(obj*);
 obj* l_List_map___main___at_Lean_Expander_expandBracketedBinder___main___spec__1(uint8, obj*, obj*);
 obj* l_Lean_Expander_depArrow_transform___closed__1;
 obj* l_DList_singleton___rarg(obj*, obj*);
-obj* l_id_Monad___lambda__3___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_Level_leading_HasView;
 obj* l_List_mmap___main___at_Lean_Expander_variables_transform___spec__1___closed__1;
 obj* l_Lean_Expander_pi_transform___lambda__1(obj*, obj*, obj*);
@@ -304,7 +305,7 @@ obj* l_Lean_Expander_mkSimpleBinder___closed__7;
 obj* l_ExceptT_Monad___rarg(obj*);
 obj* l_Lean_Expander_variables_transform(obj*, obj*);
 obj* l_List_foldr___main___at_Lean_Expander_expandBinders___spec__8___boxed(obj*, obj*, obj*, obj*);
-obj* l_id_Monad___lambda__1___boxed(obj*, obj*, obj*, obj*);
+obj* l_List_lookup___main___at_Lean_Expander_mkNotationTransformer___spec__7(obj*, obj*);
 extern obj* l_Lean_Parser_Term_paren_HasView;
 extern obj* l_Lean_Parser_Term_lambda;
 obj* l_RBNode_balance1___main___rarg(obj*, obj*);
@@ -319,7 +320,6 @@ obj* l_Lean_Expander_expandBracketedBinder___main___closed__6;
 obj* l_coe___at_Lean_Expander_coeIdentsBindersExt___spec__1___boxed(obj*);
 obj* l_Lean_Expander_expandBracketedBinder___main___closed__7;
 obj* l_List_map___main___at_Lean_Expander_expandBracketedBinder___main___spec__15(obj*, obj*);
-obj* l_id_bind___boxed(obj*, obj*);
 obj* l_Lean_Expander_variable_transform___boxed(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_Expander_builtinTransformers___spec__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Expander_builtinTransformers___spec__6___boxed(obj*, obj*, obj*);
@@ -403,22 +403,22 @@ obj* _init_l_Lean_Expander_TransformM_Monad() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__1___boxed), 4, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__2___boxed), 4, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__1___boxed), 4, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__2___boxed), 4, 0);
 lean::inc(x_1);
 lean::inc(x_0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_0);
 lean::cnstr_set(x_4, 1, x_1);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_id___boxed), 1, 0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__3___boxed), 4, 0);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_pure___boxed), 1, 0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__3___boxed), 4, 0);
 x_7 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_7, 0, x_4);
 lean::cnstr_set(x_7, 1, x_5);
 lean::cnstr_set(x_7, 2, x_0);
 lean::cnstr_set(x_7, 3, x_1);
 lean::cnstr_set(x_7, 4, x_6);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_id_bind___boxed), 2, 0);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_bind___boxed), 2, 0);
 x_9 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_9, 0, x_7);
 lean::cnstr_set(x_9, 1, x_8);
@@ -431,22 +431,22 @@ obj* _init_l_Lean_Expander_TransformM_MonadReader() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__1___boxed), 4, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__2___boxed), 4, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__1___boxed), 4, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__2___boxed), 4, 0);
 lean::inc(x_1);
 lean::inc(x_0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_0);
 lean::cnstr_set(x_4, 1, x_1);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_id___boxed), 1, 0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__3___boxed), 4, 0);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_pure___boxed), 1, 0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__3___boxed), 4, 0);
 x_7 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_7, 0, x_4);
 lean::cnstr_set(x_7, 1, x_5);
 lean::cnstr_set(x_7, 2, x_0);
 lean::cnstr_set(x_7, 3, x_1);
 lean::cnstr_set(x_7, 4, x_6);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_id_bind___boxed), 2, 0);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_bind___boxed), 2, 0);
 x_9 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_9, 0, x_7);
 lean::cnstr_set(x_9, 1, x_8);
@@ -460,22 +460,22 @@ obj* _init_l_Lean_Expander_TransformM_MonadExcept() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__1___boxed), 4, 0);
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__2___boxed), 4, 0);
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__1___boxed), 4, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__2___boxed), 4, 0);
 lean::inc(x_1);
 lean::inc(x_0);
 x_4 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_4, 0, x_0);
 lean::cnstr_set(x_4, 1, x_1);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_id___boxed), 1, 0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_id_Monad___lambda__3___boxed), 4, 0);
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_pure___boxed), 1, 0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_Monad___lambda__3___boxed), 4, 0);
 x_7 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_7, 0, x_4);
 lean::cnstr_set(x_7, 1, x_5);
 lean::cnstr_set(x_7, 2, x_0);
 lean::cnstr_set(x_7, 3, x_1);
 lean::cnstr_set(x_7, 4, x_6);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_id_bind___boxed), 2, 0);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Id_bind___boxed), 2, 0);
 x_9 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_9, 0, x_7);
 lean::cnstr_set(x_9, 1, x_8);
@@ -2837,10 +2837,10 @@ return x_10;
 }
 }
 }
-obj* l_List_assoc___main___at_Lean_Expander_mkNotationTransformer___spec__7(obj* x_0, obj* x_1) {
+obj* l_List_lookup___main___at_Lean_Expander_mkNotationTransformer___spec__7(obj* x_0, obj* x_1) {
 _start:
 {
-if (lean::obj_tag(x_0) == 0)
+if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
 x_2 = lean::box(0);
@@ -2849,22 +2849,22 @@ return x_2;
 else
 {
 obj* x_3; obj* x_5; obj* x_8; obj* x_10; uint8 x_13; 
-x_3 = lean::cnstr_get(x_0, 0);
+x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
-x_5 = lean::cnstr_get(x_0, 1);
+x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
-lean::dec(x_0);
+lean::dec(x_1);
 x_8 = lean::cnstr_get(x_3, 0);
 lean::inc(x_8);
 x_10 = lean::cnstr_get(x_3, 1);
 lean::inc(x_10);
 lean::dec(x_3);
-x_13 = lean_name_dec_eq(x_8, x_1);
+x_13 = lean_name_dec_eq(x_0, x_8);
 lean::dec(x_8);
 if (x_13 == 0)
 {
 lean::dec(x_10);
-x_0 = x_5;
+x_1 = x_5;
 goto _start;
 }
 else
@@ -2908,7 +2908,7 @@ lean::dec(x_6);
 x_14 = lean::cnstr_get(x_11, 2);
 lean::inc(x_14);
 lean::dec(x_11);
-x_17 = l_List_assoc___main___at_Lean_Expander_mkNotationTransformer___spec__7(x_0, x_14);
+x_17 = l_List_lookup___main___at_Lean_Expander_mkNotationTransformer___spec__7(x_14, x_0);
 lean::dec(x_14);
 return x_17;
 }
@@ -3162,12 +3162,12 @@ lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_List_assoc___main___at_Lean_Expander_mkNotationTransformer___spec__7___boxed(obj* x_0, obj* x_1) {
+obj* l_List_lookup___main___at_Lean_Expander_mkNotationTransformer___spec__7___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_List_assoc___main___at_Lean_Expander_mkNotationTransformer___spec__7(x_0, x_1);
-lean::dec(x_1);
+x_2 = l_List_lookup___main___at_Lean_Expander_mkNotationTransformer___spec__7(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }

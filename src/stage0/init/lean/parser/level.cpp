@@ -27,6 +27,7 @@ extern obj* l_Lean_Parser_BasicParserM_Lean_Parser_MonadParsec;
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_Level_leading_Parser_Lean_Parser_HasTokens___spec__5___boxed(obj*);
 extern obj* l_Lean_Parser_BasicParserM_Alternative;
 obj* l_Lean_Parser_trailingLevelParserCoe(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_Parser_Trie_oldMatchPrefix___rarg(obj*, obj*);
 obj* l_Lean_Parser_symbol_tokens___rarg(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -132,7 +133,6 @@ obj* l_Lean_Parser_Level_leading_HasView_x_27___lambda__2(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
-obj* l_Lean_Parser_Trie_matchPrefix___rarg(obj*, obj*);
 obj* l_Lean_Parser_Level_addLit_HasView_x_27___lambda__1___closed__1;
 extern obj* l_Lean_Parser_number_HasView_x_27___lambda__2___closed__4;
 obj* l_Lean_Parser_tokens___rarg(obj*);
@@ -6016,7 +6016,7 @@ x_46 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_46, 0, x_40);
 lean::cnstr_set(x_46, 1, x_45);
 lean::cnstr_set(x_46, 2, x_45);
-x_47 = l_Lean_Parser_Trie_matchPrefix___rarg(x_43, x_46);
+x_47 = l_Lean_Parser_Trie_oldMatchPrefix___rarg(x_43, x_46);
 if (lean::obj_tag(x_47) == 0)
 {
 obj* x_49; obj* x_50; obj* x_51; obj* x_52; obj* x_54; obj* x_56; obj* x_58; obj* x_59; obj* x_60; obj* x_61; obj* x_62; obj* x_63; 

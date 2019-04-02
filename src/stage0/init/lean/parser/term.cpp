@@ -60,6 +60,7 @@ obj* l_Lean_Parser_Term_binderContent_HasView_x_27___boxed(obj*);
 obj* l_Lean_Parser_Term_explicitModifier_HasView_x_27___lambda__1___closed__3;
 obj* l_Lean_Parser_Term_assume_Parser___closed__1;
 obj* l_Lean_Parser_Term_lambda_Parser_Lean_Parser_HasView;
+obj* l_Lean_Parser_Trie_oldMatchPrefix___rarg(obj*, obj*);
 obj* l_ReaderT_orelse___at___private_init_lean_parser_term_1__trailing___spec__11___boxed(obj*);
 obj* l_Lean_Parser_Term_hole_Parser___closed__1;
 obj* l_Lean_Parser_Term_builtinTrailingParsers_Lean_Parser_HasTokens;
@@ -583,7 +584,6 @@ obj* l_Lean_Parser_Term_paren_Parser_Lean_Parser_HasView;
 obj* l_Lean_Parser_Term_sorry;
 obj* l_Lean_Parser_Term_match;
 obj* l_Lean_Parser_identUnivSpec_Parser_Lean_Parser_HasTokens;
-obj* l_Lean_Parser_Trie_matchPrefix___rarg(obj*, obj*);
 obj* l_Lean_Parser_Term_simpleStrictImplicitBinder_HasView_x_27___lambda__1___closed__1;
 extern obj* l_Lean_Parser_number_HasView_x_27___lambda__2___closed__4;
 obj* l_Lean_Parser_identUnivs_Parser_Lean_Parser_HasView___lambda__1___boxed(obj*, obj*, obj*, obj*);
@@ -46454,7 +46454,7 @@ x_47 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_47, 0, x_41);
 lean::cnstr_set(x_47, 1, x_46);
 lean::cnstr_set(x_47, 2, x_46);
-x_48 = l_Lean_Parser_Trie_matchPrefix___rarg(x_44, x_47);
+x_48 = l_Lean_Parser_Trie_oldMatchPrefix___rarg(x_44, x_47);
 if (lean::obj_tag(x_48) == 0)
 {
 obj* x_50; obj* x_51; obj* x_52; obj* x_53; obj* x_55; obj* x_57; obj* x_59; obj* x_60; obj* x_61; obj* x_62; obj* x_63; obj* x_64; 

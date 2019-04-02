@@ -18,6 +18,7 @@ obj* l_Lean_Parser_prattParser_View___rarg(obj*, obj*, obj*, obj*, obj*, obj*, o
 extern obj* l_Lean_Parser_indexed___rarg___closed__1;
 obj* l_fixCore___rarg___boxed(obj*, obj*, obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+obj* l_Lean_Parser_Trie_oldMatchPrefix___rarg(obj*, obj*);
 obj* l_Lean_Parser_prattParser_tokens___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_currLbp___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
@@ -59,7 +60,6 @@ obj* nat_add(obj*, obj*);
 }
 obj* l___private_init_lean_parser_pratt_1__trailingLoop___boxed(obj*);
 obj* l_Lean_Parser_currLbp___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Parser_Trie_matchPrefix___rarg(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
@@ -218,7 +218,7 @@ x_10 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_10, 0, x_0);
 lean::cnstr_set(x_10, 1, x_9);
 lean::cnstr_set(x_10, 2, x_9);
-x_11 = l_Lean_Parser_Trie_matchPrefix___rarg(x_6, x_10);
+x_11 = l_Lean_Parser_Trie_oldMatchPrefix___rarg(x_6, x_10);
 x_12 = lean::cnstr_get(x_1, 0);
 lean::inc(x_12);
 x_14 = lean::cnstr_get(x_12, 1);

@@ -140,6 +140,7 @@ obj* l_RBMap_revFold___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBMap_insert___main___at_RBMap_ofList___main___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_RBMap_insert___main___spec__3(obj*, obj*, obj*);
 extern obj* l_List_repr___main___rarg___closed__3;
+obj* l_RBNode_singleton(obj*, obj*);
 obj* l_RBMap_ofList___rarg(obj*, obj*);
 obj* l_RBNode_find___main___boxed(obj*, obj*);
 obj* l_RBMap_fold___main___boxed(obj*, obj*, obj*, obj*);
@@ -182,6 +183,7 @@ obj* l_RBNode_all___boxed(obj*, obj*);
 obj* l_RBNode_find___main(obj*, obj*);
 obj* l_RBMap_insert___main___boxed(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_RBMap_fromList___spec__4___rarg(obj*, obj*, obj*, obj*);
+obj* l_RBNode_singleton___rarg(obj*, obj*);
 obj* l_RBNode_revFold___main___boxed(obj*, obj*, obj*);
 obj* l_RBNode_max___boxed(obj*, obj*);
 namespace lean {
@@ -243,6 +245,7 @@ obj* l_RBMap_mfold___main___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_RBNode_any___main___boxed(obj*, obj*);
 obj* l_RBMap_fold(obj*, obj*, obj*, obj*);
 obj* l_List_reprAux___main___at_RBMap_HasRepr___spec__2___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_RBNode_singleton___boxed(obj*, obj*);
 obj* l_RBNode_ins___main___at_RBMap_insert___main___spec__3___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_balance1___main(obj*, obj*);
 obj* l_RBNode_any___boxed(obj*, obj*);
@@ -1090,6 +1093,40 @@ _start:
 {
 obj* x_2; 
 x_2 = l_RBNode_any(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_RBNode_singleton___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; uint8 x_3; obj* x_4; obj* x_5; 
+x_2 = lean::box(0);
+x_3 = 0;
+x_4 = lean::alloc_cnstr(1, 4, 1);
+lean::cnstr_set(x_4, 0, x_2);
+lean::cnstr_set(x_4, 1, x_0);
+lean::cnstr_set(x_4, 2, x_1);
+lean::cnstr_set(x_4, 3, x_2);
+lean::cnstr_set_scalar(x_4, sizeof(void*)*4, x_3);
+x_5 = x_4;
+return x_5;
+}
+}
+obj* l_RBNode_singleton(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_RBNode_singleton___rarg), 2, 0);
+return x_2;
+}
+}
+obj* l_RBNode_singleton___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_RBNode_singleton(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;

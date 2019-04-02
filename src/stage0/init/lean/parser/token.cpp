@@ -48,6 +48,7 @@ obj* l_Lean_Parser_symbolOrIdent_View___boxed(obj*);
 obj* l_Lean_Parser_raw___boxed(obj*);
 obj* l_Lean_Parser_symbol_tokens(obj*, obj*);
 obj* l_Lean_Parser_ident_Parser_tokens(obj*, obj*);
+obj* l_Lean_Parser_Trie_oldMatchPrefix___rarg(obj*, obj*);
 obj* l_Lean_Parser_symbolOrIdent___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_ParsecT_lookahead___at___private_init_lean_parser_token_2__whitespaceAux___main___spec__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_rawIdent_Parser_View___boxed(obj*);
@@ -346,7 +347,6 @@ obj* l_Lean_Parser_updateLast___main___at___private_init_lean_parser_token_3__up
 obj* l_ReaderT_bind___at_Lean_Parser_withTrailing___spec__2(obj*, obj*);
 obj* l_Lean_Parser_detailIdentPart;
 obj* l___private_init_lean_parser_token_8__toNatBase(obj*, obj*);
-obj* l_Lean_Parser_Trie_matchPrefix___rarg(obj*, obj*);
 obj* l_Lean_Parser_detailIdentPart_Parser_Lean_Parser_HasView___lambda__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_foldlAux___main___at___private_init_lean_parser_token_4__ident_x_27___spec__9___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_number_HasView_x_27___lambda__2___closed__4;
@@ -665,7 +665,7 @@ x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
 lean::dec(x_0);
 lean::inc(x_1);
-x_7 = l_Lean_Parser_Trie_matchPrefix___rarg(x_3, x_1);
+x_7 = l_Lean_Parser_Trie_oldMatchPrefix___rarg(x_3, x_1);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; 

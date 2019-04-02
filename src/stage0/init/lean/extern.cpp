@@ -34,6 +34,7 @@ obj* mk_foreign_ext_entry_core(obj*, obj*);
 }
 obj* l_List_intersperse___main___rarg(obj*, obj*);
 obj* l_Lean_expandExternEntry(obj*, obj*);
+obj* l_List_getOpt___main___rarg(obj*, obj*);
 obj* l_Lean_getExternEntryForAux___main___closed__1;
 obj* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1___boxed(obj*, obj*);
 obj* l_Lean_ExternEntry_backend___main___boxed(obj*);
@@ -76,7 +77,6 @@ namespace lean {
 uint32 uint32_of_nat(obj*);
 }
 uint8 l_String_Iterator_hasNext___main(obj*);
-obj* l_List_nth___main___rarg(obj*, obj*);
 obj* l_Lean_getExternEntryForAux___main(obj*, obj*);
 namespace lean {
 obj* get_extern_entry_for_core(obj*, obj*);
@@ -297,7 +297,7 @@ lean::dec(x_21);
 x_27 = lean::nat_sub(x_24, x_10);
 lean::dec(x_24);
 lean::inc(x_0);
-x_30 = l_List_nth___main___rarg(x_0, x_27);
+x_30 = l_List_getOpt___main___rarg(x_27, x_0);
 if (lean::obj_tag(x_30) == 0)
 {
 obj* x_31; obj* x_32; 

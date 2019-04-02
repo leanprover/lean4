@@ -81,7 +81,7 @@ class csimp_fn {
     /* Mapping from projection to eliminated variable.
        Example: at
        ```
-       prod.cases_on p
+       Prod.cases_on p
          (λ (p_fst : A) (p_snd : B),
             t[p.1, p.2])
        ```
@@ -89,6 +89,18 @@ class csimp_fn {
     */
     typedef rb_map<pair<expr, unsigned>, expr, pair_cmp<expr_quick_cmp, unsigned_cmp>> proj2var;
     proj2var                 m_proj2var;
+    /* Mapping from variable name to constructor it is bound to.
+       We update the mapping when visiting a `cases_on` branch.
+       For example, given
+       ```
+       List.cases_on x
+         <nil_case>
+         (fun h t, <cons_case h t>)
+       ```
+       We can assume `x` is bound to `h::t` when visiting `<cons_case h t>`.
+       We use this information to reduce nested cases_on applications. */
+    typedef name_map<expr> var2ctor;
+    var2ctor                 m_var2ctor;
 
     environment const & env() const { return m_st.env(); }
 
@@ -175,8 +187,13 @@ class csimp_fn {
         return get_lcnf_size(env(), e) <= m_cfg.m_inline_jp_threshold;
     }
 
-    expr find(expr const & e, bool skip_mdata = true) const {
+    expr find(expr const & e, bool skip_mdata = true, bool use_var2ctor = false) const {
         if (is_fvar(e)) {
+            if (use_var2ctor) {
+                if (expr const * ctor = m_var2ctor.find(fvar_name(e))) {
+                    return *ctor;
+                }
+            }
             if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
                 if (optional<expr> v = decl->get_value()) {
                     if (!is_join_point_name(decl->get_user_name()))
@@ -189,6 +206,10 @@ class csimp_fn {
             return find(mdata_expr(e), true);
         }
         return e;
+    }
+
+    expr find_ctor(expr const & e) const {
+        return find(e, true, true);
     }
 
     type_checker tc() {
@@ -585,6 +606,25 @@ class csimp_fn {
         return new_jp_var;
     }
 
+    /* Add entry `x := cidx fields` to m_var2ctor */
+    void update_var2ctor(expr const & x, expr const & c_fn, buffer<expr> const & c_args, unsigned cidx, buffer<expr> const & fields) {
+        if (!is_fvar(x)) return;
+        inductive_val I_val = get_cases_on_inductive_val(env(), c_fn);
+        name ctor_name      = get_ith(I_val.get_cnstrs(), cidx);
+        levels ctor_lvls;
+        buffer<expr> ctor_args;
+        if (m_before_erasure) {
+            ctor_lvls = tail(const_levels(c_fn));
+            ctor_args.append(I_val.get_nparams(), c_args.data());
+        } else {
+            for (unsigned i = 0; i < I_val.get_nparams(); i++)
+                ctor_args.push_back(mk_enf_neutral());
+        }
+        ctor_args.append(fields);
+        expr ctor = mk_app(mk_constant(ctor_name, ctor_lvls), ctor_args);
+        m_var2ctor.insert(fvar_name(x), ctor);
+    }
+
     /* Given `e[x]`
       ```
       cases_on m
@@ -647,7 +687,10 @@ class csimp_fn {
             buffer<expr> zs;
             unsigned saved_fvars_size = m_fvars.size();
             flet<proj2var> save_proj2var(m_proj2var, m_proj2var);
-            expr minor_val            = visit(get_minor_body(major, minor, zs), false);
+            expr minor_val            = get_minor_body(major, minor, zs);
+            flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
+            update_var2ctor(major, c_fn, c_args, i, zs);
+            minor_val                 = visit(minor_val, false);
             expr new_minor;
             if (is_join_point_app(minor_val)) {
                 buffer<expr> jp_args;
@@ -1180,12 +1223,14 @@ class csimp_fn {
         unsigned minor_idx; unsigned minors_end;
         std::tie(minor_idx, minors_end) = get_cases_on_minors_range(env(), const_name(c), m_before_erasure);
         expr const & major = args[minor_idx-1];
-        for (; minor_idx < minors_end; minor_idx++) {
+        for (unsigned cidx = 0; minor_idx < minors_end; minor_idx++, cidx++) {
             expr minor                = args[minor_idx];
             unsigned saved_fvars_size = m_fvars.size();
             flet<proj2var> save_proj2var(m_proj2var, m_proj2var);
             buffer<expr> zs;
             minor          = get_minor_body(major, minor, zs);
+            flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
+            update_var2ctor(major, c, args, cidx, zs);
             expr new_minor = visit(minor, false);
             new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
             new_minor = mk_minor_lambda(zs, new_minor);
@@ -1203,9 +1248,12 @@ class csimp_fn {
         inductive_val I_val      = get_cases_on_inductive_val(env(), c);
         unsigned major_idx       = get_cases_on_major_idx(env(), const_name(c), m_before_erasure);
         lean_assert(major_idx < args.size());
-        expr major               = find(args[major_idx]);
-        if (is_nat_lit(major))
+        expr major               = find_ctor(args[major_idx]);
+
+        if (is_nat_lit(major)) {
             major = nat_lit_to_constructor(major);
+        }
+
         if (is_constructor_app(env(), major)) {
             return reduce_cases_cnstr(args, I_val, major, is_let_val);
         } else if (!is_let_val) {

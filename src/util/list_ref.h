@@ -254,4 +254,9 @@ template<typename T> list_ref<T> append(list_ref<T> const & l1, list_ref<T> cons
         return r;
     }
 }
+
+template<typename T>
+T const & get_ith(list_ref<T> const & l, unsigned idx) {
+    return idx == 0 ? head(l) : get_ith(tail(l), idx - 1);
+}
 }

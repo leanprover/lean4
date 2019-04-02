@@ -111,17 +111,16 @@ x_17 = x_0 & x_16;
 x_18 = x_17 == x_13;
 if (x_18 == 0)
 {
-uint32 x_19; uint32 x_20; uint32 x_21; uint8 x_22; 
-x_19 = 6;
-x_20 = 254;
-x_21 = x_0 & x_20;
-x_22 = x_21 == x_16;
-if (x_22 == 0)
+uint32 x_19; uint32 x_20; uint8 x_21; 
+x_19 = 254;
+x_20 = x_0 & x_19;
+x_21 = x_20 == x_16;
+if (x_21 == 0)
 {
-uint32 x_23; uint8 x_24; 
-x_23 = 255;
-x_24 = x_0 == x_23;
-if (x_24 == 0)
+uint32 x_22; uint8 x_23; 
+x_22 = 255;
+x_23 = x_0 == x_22;
+if (x_23 == 0)
 {
 return x_4;
 }
@@ -132,7 +131,9 @@ return x_1;
 }
 else
 {
-return x_19;
+uint32 x_24; 
+x_24 = 6;
+return x_24;
 }
 }
 else

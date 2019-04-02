@@ -13339,46 +13339,46 @@ x_2346 = lean_name_dec_eq(x_8, x_2345);
 lean::dec(x_8);
 if (x_2346 == 0)
 {
-obj* x_2348; obj* x_2349; 
-x_2348 = lean::box(0);
-x_2349 = l_Lean_Parser_Syntax_getPos(x_0);
+obj* x_2348; 
+x_2348 = l_Lean_Parser_Syntax_getPos(x_0);
 lean::dec(x_0);
-if (lean::obj_tag(x_2349) == 0)
+if (lean::obj_tag(x_2348) == 0)
 {
-obj* x_2352; obj* x_2353; 
+obj* x_2351; obj* x_2352; 
 lean::dec(x_2);
 if (lean::is_scalar(x_2333)) {
- x_2352 = lean::alloc_cnstr(0, 2, 0);
+ x_2351 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_2352 = x_2333;
+ x_2351 = x_2333;
 }
-lean::cnstr_set(x_2352, 0, x_2344);
-lean::cnstr_set(x_2352, 1, x_2331);
+lean::cnstr_set(x_2351, 0, x_2344);
+lean::cnstr_set(x_2351, 1, x_2331);
 if (lean::is_scalar(x_2328)) {
- x_2353 = lean::alloc_cnstr(1, 1, 0);
+ x_2352 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_2353 = x_2328;
+ x_2352 = x_2328;
 }
-lean::cnstr_set(x_2353, 0, x_2352);
-return x_2353;
+lean::cnstr_set(x_2352, 0, x_2351);
+return x_2352;
 }
 else
 {
-obj* x_2354; obj* x_2357; obj* x_2360; obj* x_2363; obj* x_2364; obj* x_2366; obj* x_2367; obj* x_2368; obj* x_2371; obj* x_2372; obj* x_2373; obj* x_2374; obj* x_2375; 
-x_2354 = lean::cnstr_get(x_2349, 0);
-lean::inc(x_2354);
-lean::dec(x_2349);
+obj* x_2353; obj* x_2356; obj* x_2357; obj* x_2360; obj* x_2363; obj* x_2364; obj* x_2366; obj* x_2367; obj* x_2368; obj* x_2371; obj* x_2372; obj* x_2373; obj* x_2374; obj* x_2375; 
+x_2353 = lean::cnstr_get(x_2348, 0);
+lean::inc(x_2353);
+lean::dec(x_2348);
+x_2356 = lean::box(0);
 x_2357 = lean::cnstr_get(x_2, 0);
 lean::inc(x_2357);
 lean::dec(x_2);
 x_2360 = lean::cnstr_get(x_2357, 2);
 lean::inc(x_2360);
 lean::dec(x_2357);
-x_2363 = l_Lean_FileMap_toPosition(x_2360, x_2354);
+x_2363 = l_Lean_FileMap_toPosition(x_2360, x_2353);
 x_2364 = lean::cnstr_get(x_2363, 1);
 lean::inc(x_2364);
 x_2366 = l_Lean_Elaborator_toPexpr___main___closed__3;
-x_2367 = l_Lean_KVMap_setNat(x_2348, x_2366, x_2364);
+x_2367 = l_Lean_KVMap_setNat(x_2356, x_2366, x_2364);
 x_2368 = lean::cnstr_get(x_2363, 0);
 lean::inc(x_2368);
 lean::dec(x_2363);

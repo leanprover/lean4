@@ -182,345 +182,317 @@ return x_3;
 uint8 l_Lean_isLetterLike(uint32 x_0) {
 _start:
 {
-uint32 x_1; uint8 x_2; uint8 x_4; uint8 x_6; uint8 x_8; uint8 x_10; 
+uint32 x_1; uint8 x_2; uint8 x_4; uint8 x_6; uint8 x_8; 
 x_1 = 945;
-x_10 = x_1 <= x_0;
+x_8 = x_1 <= x_0;
+if (x_8 == 0)
+{
+uint32 x_9; uint8 x_10; 
+x_9 = 913;
+x_10 = x_9 <= x_0;
 if (x_10 == 0)
 {
 uint8 x_11; 
 x_11 = 0;
-x_8 = x_11;
-goto lbl_9;
+x_6 = x_11;
+goto lbl_7;
 }
 else
 {
 uint32 x_12; uint8 x_13; 
-x_12 = 969;
+x_12 = 937;
 x_13 = x_0 <= x_12;
 if (x_13 == 0)
 {
 uint8 x_14; 
 x_14 = 0;
-x_8 = x_14;
-goto lbl_9;
+x_6 = x_14;
+goto lbl_7;
 }
 else
 {
 uint32 x_15; uint8 x_16; 
-x_15 = 955;
+x_15 = 928;
 x_16 = x_0 == x_15;
 if (x_16 == 0)
 {
-uint8 x_17; 
-x_17 = 1;
-return x_17;
+uint32 x_17; uint8 x_18; 
+x_17 = 931;
+x_18 = x_0 == x_17;
+if (x_18 == 0)
+{
+uint8 x_19; 
+x_19 = 1;
+return x_19;
 }
 else
 {
-uint8 x_18; 
-x_18 = 0;
-x_8 = x_18;
-goto lbl_9;
+uint8 x_20; 
+x_20 = 0;
+x_6 = x_20;
+goto lbl_7;
+}
+}
+else
+{
+uint8 x_21; 
+x_21 = 0;
+x_6 = x_21;
+goto lbl_7;
+}
+}
+}
+}
+else
+{
+uint32 x_22; uint8 x_23; 
+x_22 = 969;
+x_23 = x_0 <= x_22;
+if (x_23 == 0)
+{
+uint32 x_24; uint8 x_25; 
+x_24 = 913;
+x_25 = x_24 <= x_0;
+if (x_25 == 0)
+{
+uint8 x_26; 
+x_26 = 0;
+x_6 = x_26;
+goto lbl_7;
+}
+else
+{
+uint32 x_27; uint8 x_28; 
+x_27 = 937;
+x_28 = x_0 <= x_27;
+if (x_28 == 0)
+{
+uint8 x_29; 
+x_29 = 0;
+x_6 = x_29;
+goto lbl_7;
+}
+else
+{
+uint32 x_30; uint8 x_31; 
+x_30 = 928;
+x_31 = x_0 == x_30;
+if (x_31 == 0)
+{
+uint32 x_32; uint8 x_33; 
+x_32 = 931;
+x_33 = x_0 == x_32;
+if (x_33 == 0)
+{
+uint8 x_34; 
+x_34 = 1;
+return x_34;
+}
+else
+{
+uint8 x_35; 
+x_35 = 0;
+x_6 = x_35;
+goto lbl_7;
+}
+}
+else
+{
+uint8 x_36; 
+x_36 = 0;
+x_6 = x_36;
+goto lbl_7;
+}
+}
+}
+}
+else
+{
+uint32 x_37; uint8 x_38; uint8 x_40; 
+x_37 = 955;
+x_40 = x_0 == x_37;
+if (x_40 == 0)
+{
+uint8 x_41; 
+x_41 = 1;
+x_38 = x_41;
+goto lbl_39;
+}
+else
+{
+uint8 x_42; 
+x_42 = 0;
+x_38 = x_42;
+goto lbl_39;
+}
+lbl_39:
+{
+if (x_38 == 0)
+{
+uint32 x_43; uint8 x_44; 
+x_43 = 913;
+x_44 = x_43 <= x_0;
+if (x_44 == 0)
+{
+x_6 = x_38;
+goto lbl_7;
+}
+else
+{
+uint32 x_45; uint8 x_46; 
+x_45 = 937;
+x_46 = x_0 <= x_45;
+if (x_46 == 0)
+{
+x_6 = x_38;
+goto lbl_7;
+}
+else
+{
+uint32 x_47; uint8 x_48; 
+x_47 = 928;
+x_48 = x_0 == x_47;
+if (x_48 == 0)
+{
+uint32 x_49; uint8 x_50; 
+x_49 = 931;
+x_50 = x_0 == x_49;
+if (x_50 == 0)
+{
+uint8 x_51; 
+x_51 = 1;
+return x_51;
+}
+else
+{
+uint8 x_52; 
+x_52 = 0;
+x_6 = x_52;
+goto lbl_7;
+}
+}
+else
+{
+x_6 = x_38;
+goto lbl_7;
+}
+}
+}
+}
+else
+{
+uint8 x_53; 
+x_53 = 1;
+return x_53;
+}
 }
 }
 }
 lbl_3:
 {
-uint32 x_19; uint8 x_20; 
-x_19 = 8448;
-x_20 = x_19 <= x_0;
-if (x_20 == 0)
+uint32 x_54; uint8 x_55; 
+x_54 = 8448;
+x_55 = x_54 <= x_0;
+if (x_55 == 0)
 {
-if (x_2 == 0)
-{
-uint32 x_21; uint8 x_22; 
-x_21 = 119964;
-x_22 = x_21 <= x_0;
-if (x_22 == 0)
+uint32 x_56; uint8 x_57; 
+x_56 = 119964;
+x_57 = x_56 <= x_0;
+if (x_57 == 0)
 {
 return x_2;
 }
 else
 {
-uint32 x_23; uint8 x_24; 
-x_23 = 120223;
-x_24 = x_0 <= x_23;
-return x_24;
+uint32 x_58; uint8 x_59; 
+x_58 = 120223;
+x_59 = x_0 <= x_58;
+return x_59;
 }
 }
 else
 {
-uint8 x_25; 
-x_25 = 1;
-return x_25;
+uint32 x_60; uint8 x_61; 
+x_60 = 8527;
+x_61 = x_0 <= x_60;
+if (x_61 == 0)
+{
+uint32 x_62; uint8 x_63; 
+x_62 = 119964;
+x_63 = x_62 <= x_0;
+if (x_63 == 0)
+{
+return x_61;
+}
+else
+{
+uint32 x_64; uint8 x_65; 
+x_64 = 120223;
+x_65 = x_0 <= x_64;
+return x_65;
 }
 }
 else
 {
-uint32 x_26; uint8 x_27; 
-x_26 = 8527;
-x_27 = x_0 <= x_26;
-if (x_27 == 0)
-{
-uint32 x_28; uint8 x_29; 
-x_28 = 119964;
-x_29 = x_28 <= x_0;
-if (x_29 == 0)
-{
-return x_27;
-}
-else
-{
-uint32 x_30; uint8 x_31; 
-x_30 = 120223;
-x_31 = x_0 <= x_30;
-return x_31;
-}
-}
-else
-{
-uint8 x_32; 
-x_32 = 1;
-return x_32;
+uint8 x_66; 
+x_66 = 1;
+return x_66;
 }
 }
 }
 lbl_5:
 {
-uint32 x_33; uint8 x_34; 
-x_33 = 7936;
-x_34 = x_33 <= x_0;
-if (x_34 == 0)
-{
-if (x_4 == 0)
+uint32 x_67; uint8 x_68; 
+x_67 = 7936;
+x_68 = x_67 <= x_0;
+if (x_68 == 0)
 {
 x_2 = x_4;
 goto lbl_3;
 }
 else
 {
-uint8 x_35; 
-x_35 = 1;
-return x_35;
-}
-}
-else
+uint32 x_69; uint8 x_70; 
+x_69 = 8190;
+x_70 = x_0 <= x_69;
+if (x_70 == 0)
 {
-uint32 x_36; uint8 x_37; 
-x_36 = 8190;
-x_37 = x_0 <= x_36;
-if (x_37 == 0)
-{
-x_2 = x_37;
+x_2 = x_70;
 goto lbl_3;
 }
 else
 {
-uint8 x_38; 
-x_38 = 1;
-return x_38;
+uint8 x_71; 
+x_71 = 1;
+return x_71;
 }
 }
 }
 lbl_7:
 {
-uint32 x_39; uint8 x_40; 
-x_39 = 970;
-x_40 = x_39 <= x_0;
-if (x_40 == 0)
-{
-if (x_6 == 0)
+uint32 x_72; uint8 x_73; 
+x_72 = 970;
+x_73 = x_72 <= x_0;
+if (x_73 == 0)
 {
 x_4 = x_6;
 goto lbl_5;
 }
 else
 {
-uint8 x_41; 
-x_41 = 1;
-return x_41;
-}
-}
-else
+uint32 x_74; uint8 x_75; 
+x_74 = 1019;
+x_75 = x_0 <= x_74;
+if (x_75 == 0)
 {
-uint32 x_42; uint8 x_43; 
-x_42 = 1019;
-x_43 = x_0 <= x_42;
-if (x_43 == 0)
-{
-x_4 = x_43;
+x_4 = x_75;
 goto lbl_5;
 }
 else
 {
-uint8 x_44; 
-x_44 = 1;
-return x_44;
-}
-}
-}
-lbl_9:
-{
-uint32 x_45; uint8 x_46; 
-x_45 = 913;
-x_46 = x_45 <= x_0;
-if (x_46 == 0)
-{
-if (x_8 == 0)
-{
-if (x_8 == 0)
-{
-if (x_8 == 0)
-{
-x_6 = x_8;
-goto lbl_7;
-}
-else
-{
-uint8 x_47; 
-x_47 = 1;
-return x_47;
-}
-}
-else
-{
-uint32 x_48; uint8 x_49; 
-x_48 = 931;
-x_49 = x_0 == x_48;
-if (x_49 == 0)
-{
-uint8 x_50; 
-x_50 = 1;
-return x_50;
-}
-else
-{
-uint8 x_51; 
-x_51 = 0;
-x_6 = x_51;
-goto lbl_7;
-}
-}
-}
-else
-{
-uint32 x_52; uint8 x_53; 
-x_52 = 928;
-x_53 = x_0 == x_52;
-if (x_53 == 0)
-{
-uint32 x_54; uint8 x_55; 
-x_54 = 931;
-x_55 = x_0 == x_54;
-if (x_55 == 0)
-{
-uint8 x_56; 
-x_56 = 1;
-return x_56;
-}
-else
-{
-uint8 x_57; 
-x_57 = 0;
-x_6 = x_57;
-goto lbl_7;
-}
-}
-else
-{
-if (x_8 == 0)
-{
-x_6 = x_8;
-goto lbl_7;
-}
-else
-{
-uint8 x_58; 
-x_58 = 1;
-return x_58;
-}
-}
-}
-}
-else
-{
-uint32 x_59; uint8 x_60; 
-x_59 = 937;
-x_60 = x_0 <= x_59;
-if (x_60 == 0)
-{
-if (x_8 == 0)
-{
-if (x_8 == 0)
-{
-x_6 = x_8;
-goto lbl_7;
-}
-else
-{
-uint8 x_61; 
-x_61 = 1;
-return x_61;
-}
-}
-else
-{
-uint32 x_62; uint8 x_63; 
-x_62 = 931;
-x_63 = x_0 == x_62;
-if (x_63 == 0)
-{
-uint8 x_64; 
-x_64 = 1;
-return x_64;
-}
-else
-{
-uint8 x_65; 
-x_65 = 0;
-x_6 = x_65;
-goto lbl_7;
-}
-}
-}
-else
-{
-uint32 x_66; uint8 x_67; 
-x_66 = 928;
-x_67 = x_0 == x_66;
-if (x_67 == 0)
-{
-uint32 x_68; uint8 x_69; 
-x_68 = 931;
-x_69 = x_0 == x_68;
-if (x_69 == 0)
-{
-uint8 x_70; 
-x_70 = 1;
-return x_70;
-}
-else
-{
-uint8 x_71; 
-x_71 = 0;
-x_6 = x_71;
-goto lbl_7;
-}
-}
-else
-{
-if (x_8 == 0)
-{
-x_6 = x_8;
-goto lbl_7;
-}
-else
-{
-uint8 x_72; 
-x_72 = 1;
-return x_72;
-}
-}
+uint8 x_76; 
+x_76 = 1;
+return x_76;
 }
 }
 }
@@ -573,8 +545,6 @@ x_9 = 8336;
 x_10 = x_9 <= x_0;
 if (x_10 == 0)
 {
-if (x_2 == 0)
-{
 uint32 x_11; uint8 x_12; 
 x_11 = 7522;
 x_12 = x_11 <= x_0;
@@ -592,38 +562,31 @@ return x_14;
 }
 else
 {
-uint8 x_15; 
-x_15 = 1;
-return x_15;
+uint32 x_15; uint8 x_16; 
+x_15 = 8348;
+x_16 = x_0 <= x_15;
+if (x_16 == 0)
+{
+uint32 x_17; uint8 x_18; 
+x_17 = 7522;
+x_18 = x_17 <= x_0;
+if (x_18 == 0)
+{
+return x_16;
+}
+else
+{
+uint32 x_19; uint8 x_20; 
+x_19 = 7530;
+x_20 = x_0 <= x_19;
+return x_20;
 }
 }
 else
 {
-uint32 x_16; uint8 x_17; 
-x_16 = 8348;
-x_17 = x_0 <= x_16;
-if (x_17 == 0)
-{
-uint32 x_18; uint8 x_19; 
-x_18 = 7522;
-x_19 = x_18 <= x_0;
-if (x_19 == 0)
-{
-return x_17;
-}
-else
-{
-uint32 x_20; uint8 x_21; 
-x_20 = 7530;
-x_21 = x_0 <= x_20;
+uint8 x_21; 
+x_21 = 1;
 return x_21;
-}
-}
-else
-{
-uint8 x_22; 
-x_22 = 1;
-return x_22;
 }
 }
 }

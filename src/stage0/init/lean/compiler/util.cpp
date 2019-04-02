@@ -517,46 +517,37 @@ x_43 = l_Lean_Compiler_atMostOnce_visit___main(x_0, x_40, x_2);
 x_44 = lean::cnstr_get_scalar<uint8>(x_43, 1);
 if (x_44 == 0)
 {
-if (x_44 == 0)
-{
 return x_43;
 }
 else
 {
-x_1 = x_42;
-x_2 = x_43;
-goto _start;
-}
-}
-else
+obj* x_45; uint8 x_46; 
+x_45 = l_Lean_Compiler_atMostOnce_visit___main(x_0, x_41, x_43);
+x_46 = lean::cnstr_get_scalar<uint8>(x_45, 1);
+if (x_46 == 0)
 {
-obj* x_46; uint8 x_47; 
-x_46 = l_Lean_Compiler_atMostOnce_visit___main(x_0, x_41, x_43);
-x_47 = lean::cnstr_get_scalar<uint8>(x_46, 1);
-if (x_47 == 0)
-{
-return x_46;
+return x_45;
 }
 else
 {
 x_1 = x_42;
-x_2 = x_46;
+x_2 = x_45;
 goto _start;
 }
 }
 }
 case 10:
 {
-obj* x_49; 
-x_49 = lean::cnstr_get(x_1, 1);
-x_1 = x_49;
+obj* x_48; 
+x_48 = lean::cnstr_get(x_1, 1);
+x_1 = x_48;
 goto _start;
 }
 case 11:
 {
-obj* x_51; 
-x_51 = lean::cnstr_get(x_1, 2);
-x_1 = x_51;
+obj* x_50; 
+x_50 = lean::cnstr_get(x_1, 2);
+x_1 = x_50;
 goto _start;
 }
 default:

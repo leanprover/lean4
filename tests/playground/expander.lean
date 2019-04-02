@@ -31,9 +31,17 @@ def testSimple := test [(`node, λ stx, match stx.asNode with
   | some n := pure $ Syntax.mkNode ⟨`node2⟩ n.args
   | none   := pure Syntax.missing)]
 
+-- direct transformation, no hygiene system
+partial def toNode2 : Syntax → Syntax
+| (Syntax.rawNode ⟨kind, as, scopes⟩) := Syntax.rawNode ⟨⟨`node2⟩, as.map toNode2, scopes⟩
+| other                               := other
+
+def testToNode2 (stx : Syntax) : IO Syntax := pure $ toNode2 stx
+
 def main (xs : List String) : IO Unit := do
   let stx := mkStx 11, --xs.head.toNat,
   prof "testNoOp" $ testNoOp stx,
   prof "testNoExp" $ testNoExp stx,
   prof "testSimple" $ testSimple stx,
+  prof "testToNode2" $ testToNode2 stx,
   pure ()

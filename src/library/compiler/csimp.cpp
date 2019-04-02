@@ -78,17 +78,6 @@ class csimp_fn {
     expr_map<optional<expr>> m_jp2fvar;
     /* Join points that do not depend on any free variable. */
     exprs                    m_closed_jps;
-    /* Mapping from projection to eliminated variable.
-       Example: at
-       ```
-       Prod.cases_on p
-         (λ (p_fst : A) (p_snd : B),
-            t[p.1, p.2])
-       ```
-       replace `p.1` with `p_fst` and `p.2` with `p_snd`.
-    */
-    typedef rb_map<pair<expr, unsigned>, expr, pair_cmp<expr_quick_cmp, unsigned_cmp>> proj2var;
-    proj2var                 m_proj2var;
     /* Mapping from variable name to constructor it is bound to.
        We update the mapping when visiting a `cases_on` branch.
        For example, given
@@ -98,7 +87,7 @@ class csimp_fn {
          (fun h t, <cons_case h t>)
        ```
        We can assume `x` is bound to `h::t` when visiting `<cons_case h t>`.
-       We use this information to reduce nested cases_on applications. */
+       We use this information to reduce nested cases_on applications and projections. */
     typedef name_map<expr> var2ctor;
     var2ctor                 m_var2ctor;
 
@@ -336,13 +325,12 @@ class csimp_fn {
         return instantiate_rev(e, xs.size(), xs.data());
     }
 
-    expr get_minor_body(expr const & major, expr e, buffer<expr> & xs) {
+    expr get_minor_body(expr e, buffer<expr> & xs) {
         unsigned i = 0;
         while (is_lambda(e)) {
             expr d = instantiate_rev(binding_domain(e), xs.size(), xs.data());
             expr x = m_lctx.mk_local_decl(ngen(), binding_name(e), d, binding_info(e));
             xs.push_back(x);
-            m_proj2var.insert(mk_pair(major, i), x);
             i++;
             e  = binding_body(e);
         }
@@ -686,8 +674,7 @@ class csimp_fn {
             expr minor                = c_args[minor_idx];
             buffer<expr> zs;
             unsigned saved_fvars_size = m_fvars.size();
-            flet<proj2var> save_proj2var(m_proj2var, m_proj2var);
-            expr minor_val            = get_minor_body(major, minor, zs);
+            expr minor_val            = get_minor_body(minor, zs);
             flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
             update_var2ctor(major, c_fn, c_args, i, zs);
             minor_val                 = visit(minor_val, false);
@@ -1188,9 +1175,9 @@ class csimp_fn {
         expr const & s_fn = get_app_fn(s);
         if (optional<expr> k_app = try_inline_instance(s_fn, s))
             return visit(proj_constructor(*k_app, proj_idx(e).get_small_value()), is_let_val);
-        if (proj_idx(e).is_small()) {
-            if (expr const * x = m_proj2var.find(mk_pair(s, proj_idx(e).get_small_value())))
-                return *x;
+        if (is_fvar(s)) {
+            if (expr const * ctor = m_var2ctor.find(fvar_name(s)))
+                return proj_constructor(*ctor, proj_idx(e).get_small_value());
         }
         expr new_arg = visit_arg(proj_expr(e));
         if (is_eqp(proj_expr(e), new_arg))
@@ -1226,9 +1213,8 @@ class csimp_fn {
         for (unsigned cidx = 0; minor_idx < minors_end; minor_idx++, cidx++) {
             expr minor                = args[minor_idx];
             unsigned saved_fvars_size = m_fvars.size();
-            flet<proj2var> save_proj2var(m_proj2var, m_proj2var);
             buffer<expr> zs;
-            minor          = get_minor_body(major, minor, zs);
+            minor          = get_minor_body(minor, zs);
             flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
             update_var2ctor(major, c, args, cidx, zs);
             expr new_minor = visit(minor, false);

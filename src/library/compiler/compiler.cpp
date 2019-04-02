@@ -221,6 +221,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "simp"}), ds);
     std::tie(new_env, ds) = extract_closed(new_env, ds);
     ds = apply(elim_dead_let, ds);
+    ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "extract_closed"}), ds);
     new_env = cache_stage2(new_env, ds);
     trace_compiler(name({"compiler", "stage2"}), ds);

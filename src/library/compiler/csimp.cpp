@@ -325,7 +325,10 @@ class csimp_fn {
         return instantiate_rev(e, xs.size(), xs.data());
     }
 
-    expr get_minor_body(expr e, buffer<expr> & xs) {
+    /* Return a pair `(body, flag)` where `body` is the body of the minor premise `e`,
+       the field variables are stored in `xs`, and `flag` is `true` iff `e` does depends
+       on the variables in `xs`. */
+    pair<expr, bool> get_minor_body(expr e, buffer<expr> & xs) {
         unsigned i = 0;
         while (is_lambda(e)) {
             expr d = instantiate_rev(binding_domain(e), xs.size(), xs.data());
@@ -334,7 +337,7 @@ class csimp_fn {
             i++;
             e  = binding_body(e);
         }
-        return instantiate_rev(e, xs.size(), xs.data());
+        return mk_pair(instantiate_rev(e, xs.size(), xs.data()), has_loose_bvars(e));
     }
 
     /* Move let-decl `fvar` to the minor premise at position `minor_idx` of cases_on-application `c`. */
@@ -674,7 +677,7 @@ class csimp_fn {
             expr minor                = c_args[minor_idx];
             buffer<expr> zs;
             unsigned saved_fvars_size = m_fvars.size();
-            expr minor_val            = get_minor_body(minor, zs);
+            expr minor_val            = get_minor_body(minor, zs).first;
             flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
             update_var2ctor(major, c_fn, c_args, i, zs);
             minor_val                 = visit(minor_val, false);
@@ -1207,20 +1210,35 @@ class csimp_fn {
         buffer<expr> args;
         expr const & c = get_app_args(e, args);
         /* simplify minor premises */
+        bool all_equal_opt = true;
+        optional<expr> a_minor;
         unsigned minor_idx; unsigned minors_end;
         std::tie(minor_idx, minors_end) = get_cases_on_minors_range(env(), const_name(c), m_before_erasure);
         expr const & major = args[minor_idx-1];
         for (unsigned cidx = 0; minor_idx < minors_end; minor_idx++, cidx++) {
             expr minor                = args[minor_idx];
             unsigned saved_fvars_size = m_fvars.size();
-            buffer<expr> zs;
-            minor          = get_minor_body(minor, zs);
+            buffer<expr> zs; bool depends_on_zs;
+            std::tie(minor, depends_on_zs) = get_minor_body(minor, zs);
             flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
             update_var2ctor(major, c, args, cidx, zs);
             expr new_minor = visit(minor, false);
             new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
+            if (depends_on_zs) {
+                all_equal_opt = false;
+            }
+            if (all_equal_opt) {
+                if (!a_minor) {
+                    a_minor = new_minor;
+                } else if (new_minor != *a_minor) {
+                    all_equal_opt = false;
+                }
+            }
             new_minor = mk_minor_lambda(zs, new_minor);
             args[minor_idx] = new_minor;
+        }
+        if (all_equal_opt && a_minor) {
+            return *a_minor;
         }
         expr r = mk_app(c, args);
         mark_simplified(r);

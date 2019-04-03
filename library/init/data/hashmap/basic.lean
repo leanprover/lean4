@@ -42,7 +42,7 @@ def reinsertAux (hashFn : α → USize) (data : HashMapBucket α β) (a : α) (b
 let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
 data.update i (AssocList.cons a b (data.val.idx i h)) h
 
-def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
+@[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
 data.val.foldl (λ b d, b.foldl f d) d
 
 def find [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
@@ -57,8 +57,15 @@ match m with
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
   (buckets.val.idx i h).contains a
 
-def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
+@[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
+
+def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
+let nbuckets := buckets.val.size * 2 in
+let aux₁ : nbuckets > 0 := Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero) in
+let aux₂ : (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets := szMkArrayEq _ _ in
+{ size    := size,
+  buckets := foldBuckets buckets ⟨mkArray nbuckets AssocList.nil, aux₂.symm ▸ aux₁⟩ (reinsertAux hash) }
 
 def insert [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
 match m with
@@ -67,15 +74,12 @@ match m with
   let bkt    := buckets.val.idx i h in
   if bkt.contains a
   then ⟨size, buckets.update i (bkt.replace a b) h⟩
-  else let size'    := size + 1 in
-       let buckets' := buckets.update i (AssocList.cons a b bkt) h in
-       if size' <= buckets.val.size
-       then ⟨size', buckets'⟩
-       else let nbuckets' := buckets.val.size * 2 in
-            let aux₁ : nbuckets' > 0 := Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero) in
-            let aux₂ : (mkArray nbuckets' (@AssocList.nil α β)).size = nbuckets' := szMkArrayEq _ _ in
-            ⟨ size',
-              foldBuckets buckets' ⟨mkArray nbuckets' AssocList.nil, aux₂.symm ▸ aux₁⟩ (reinsertAux hash) ⟩
+  else
+    let size'    := size + 1 in
+    let buckets' := buckets.update i (AssocList.cons a b bkt) h in
+    if size' ≤ buckets.val.size
+    then { size := size', buckets := buckets' }
+    else expand size' buckets'
 
 def erase [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp α β :=
 match m with

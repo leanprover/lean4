@@ -1430,6 +1430,7 @@ inline object * array_pop(obj_arg a) {
 }
 
 object * array_push(obj_arg a, obj_arg v);
+object * mk_array(obj_arg n, obj_arg v);
 
 // =======================================
 // debugging helper functions

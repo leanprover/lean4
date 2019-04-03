@@ -40,9 +40,13 @@ def push (a : Array α) (v : α) : Array α :=
     if h₂ : j = a.sz then v
     else a.data ⟨j, Nat.ltOfLeOfNe (Nat.leOfLtSucc h₁) h₂⟩ }
 
+@[extern cpp inline "lean::mk_array(#2, #3)"]
 def mkArray {α : Type u} (n : Nat) (v : α) : Array α :=
-let a : Array α := mkEmpty n in
-n.repeat (λ a, a.push v) a
+{ sz   := n,
+  data := λ _, v}
+
+theorem szMkArrayEq {α : Type u} (n : Nat) (v : α) : (mkArray n v).sz = n :=
+rfl
 
 def empty : Array α :=
 mkEmpty 0
@@ -182,25 +186,6 @@ else foreach b (λ ⟨i, h'⟩, f (a.index ⟨i, Nat.ltTrans h' (Nat.gtOfNotLe h
 end Array
 
 export Array (mkArray)
-
-private theorem repeatCorePushSz {α : Type u} : ∀ (n : Nat) (v : α) (a : Array α),
-   (Nat.repeatCore (λ (a : Array α), a.push v) n (a.push v)).sz =
-   (Nat.repeatCore (λ (a : Array α), a.push v) n a).sz.succ
-| 0            _ _ := rfl
-| (Nat.succ n) v a :=
-  show (Nat.repeatCore (λ (a : Array α), a.push v) n ((a.push v).push v)).sz =
-       (Nat.repeatCore (λ (a : Array α), a.push v) n (a.push v)).sz.succ, from
-  repeatCorePushSz n v (a.push v)
-
-theorem szMkArrayEq {α : Type u} (n : Nat) (v : α) : (mkArray n v).sz = n :=
-Nat.recOn n rfl $ λ n ih,
-  have aux₁ : (Nat.repeatCore (λ (a : Array α), a.push v) n (Array.mkEmpty n)).sz = n, from ih,
-  have aux₂ : (Nat.repeatCore (λ (a : Array α), a.push v) n ((Array.mkEmpty n).push v)).sz =
-              (Nat.repeatCore (λ (a : Array α), a.push v) n (Array.mkEmpty n)).sz.succ, from
-    repeatCorePushSz _ _ _,
-  have aux₃ : (Nat.repeatCore (λ (a : Array α), a.push v) n (Array.mkEmpty n)).sz.succ = n.succ, from
-    congrArg _ aux₁,
-  Eq.trans aux₂ aux₃
 
 @[inlineIfReduce] def List.toArrayAux {α : Type u} : List α → Array α → Array α
 | []      r := r

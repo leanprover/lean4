@@ -24,7 +24,7 @@ let n := if nbuckets = 0 then 8 else nbuckets in
 { size       := 0,
   buckets    :=
   ⟨ mkArray n AssocList.nil,
-    have p₁ : (mkArray n (@AssocList.nil α β)).size = n, from szMkArrayEq _ _,
+    have p₁ : (mkArray n (@AssocList.nil α β)).size = n, from Array.szMkArrayEq _ _,
     have p₂ : n = (if nbuckets = 0 then 8 else nbuckets), from rfl,
     have p₃ : (if nbuckets = 0 then 8 else nbuckets) > 0, from
               match nbuckets with
@@ -63,7 +63,7 @@ foldBuckets m.buckets d f
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
 let nbuckets := buckets.val.size * 2 in
 let aux₁ : nbuckets > 0 := Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero) in
-let aux₂ : (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets := szMkArrayEq _ _ in
+let aux₂ : (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets := Array.szMkArrayEq _ _ in
 { size    := size,
   buckets := foldBuckets buckets ⟨mkArray nbuckets AssocList.nil, aux₂.symm ▸ aux₁⟩ (reinsertAux hash) }
 

@@ -60,12 +60,25 @@ match m with
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
 
+-- TODO: remove `partial` by using well-founded recursion
+partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → HashMapBucket α β → HashMapBucket α β
+| i source target :=
+  if h : i < source.size then
+     let idx : Fin source.size := ⟨i, h⟩ in
+     let es  : AssocList α β   := source.index idx in
+     -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
+     let source                := source.update idx AssocList.nil in
+     let target                := es.foldl (reinsertAux hash) target in
+     moveEntries (i+1) source target
+  else target
+
 def expand [Hashable α] (size : Nat) (buckets : HashMapBucket α β) : HashMapImp α β :=
 let nbuckets := buckets.val.size * 2 in
-let aux₁ : nbuckets > 0 := Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero) in
-let aux₂ : (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets := Array.szMkArrayEq _ _ in
+have aux₁  : nbuckets > 0, from Nat.mulPos buckets.property (Nat.zeroLtBit0 Nat.oneNeZero),
+have aux₂  : (mkArray nbuckets (@AssocList.nil α β)).size = nbuckets, from Array.szMkArrayEq _ _,
+let new_buckets : HashMapBucket α β := ⟨mkArray nbuckets AssocList.nil, aux₂.symm ▸ aux₁⟩ in
 { size    := size,
-  buckets := foldBuckets buckets ⟨mkArray nbuckets AssocList.nil, aux₂.symm ▸ aux₁⟩ (reinsertAux hash) }
+  buckets := moveEntries 0 buckets.val new_buckets }
 
 def insert [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
 match m with

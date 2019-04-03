@@ -12,59 +12,51 @@ open Nat
 /- the Type, coercions, and notation -/
 
 inductive Int : Type
-| ofNat : Nat → Int
-| negSuccOfNat : Nat → Int
+| ofNat   : Nat → Int
+| negSucc : Nat → Int
 
 attribute [extern cpp "lean::nat2int"] Int.ofNat
-attribute [extern cpp "lean::int_neg_succ_of_nat"] Int.negSuccOfNat
-
-notation `ℤ` := Int
+attribute [extern cpp "lean::int_neg_succ_of_nat"] Int.negSucc
 
 instance : HasCoe Nat Int := ⟨Int.ofNat⟩
-
-notation `-[1+ ` n `]` := Int.negSuccOfNat n
 
 namespace Int
 protected def zero : Int := ofNat 0
 protected def one  : Int := ofNat 1
 
 instance : HasZero Int := ⟨Int.zero⟩
-instance : HasOne Int := ⟨Int.one⟩
-
-private def nonneg : Int → Prop
-| (ofNat _) := True
-| -[1+ _]    := False
+instance : HasOne Int  := ⟨Int.one⟩
 
 def negOfNat : Nat → Int
 | 0        := 0
-| (succ m) := -[1+ m]
+| (succ m) := negSucc m
 
 @[extern cpp "lean::int_neg"]
 protected def neg (n : @& Int) : Int :=
 match n with
-| (ofNat n) := negOfNat n
-| -[1+ n]    := succ n
+| ofNat n   := negOfNat n
+| negSucc n := succ n
 
 def subNatNat (m n : Nat) : Int :=
 match (n - m : Nat) with
 | 0        := ofNat (m - n)  -- m ≥ n
-| (succ k) := -[1+ k]         -- m < n, and n - m = succ k
+| (succ k) := negSucc k
 
 @[extern cpp "lean::int_add"]
 protected def add (m n : @& Int) : Int :=
 match m, n with
-| (ofNat m), (ofNat n) := ofNat (m + n)
-| (ofNat m), -[1+ n]    := subNatNat m (succ n)
-| -[1+ m],    (ofNat n) := subNatNat n (succ m)
-| -[1+ m],    -[1+ n]    := -[1+ succ (m + n)]
+| ofNat m,   ofNat n   := ofNat (m + n)
+| ofNat m,   negSucc n := subNatNat m (succ n)
+| negSucc m, ofNat n   := subNatNat n (succ m)
+| negSucc m, negSucc n := negSucc (m + n)
 
 @[extern cpp "lean::int_mul"]
 protected def mul (m n : @& Int) : Int :=
 match m, n with
-| (ofNat m), (ofNat n) := ofNat (m * n)
-| (ofNat m), -[1+ n]    := negOfNat (m * succ n)
-| -[1+ m],    (ofNat n) := negOfNat (succ m * n)
-| -[1+ m],    -[1+ n]    := ofNat (succ m * succ n)
+| ofNat m,   ofNat n   := ofNat (m * n)
+| ofNat m,   negSucc n := negOfNat (m * succ n)
+| negSucc m, ofNat n   := negOfNat (succ m * n)
+| negSucc m, negSucc n := ofNat (succ m * succ n)
 
 instance : HasNeg Int := ⟨Int.neg⟩
 instance : HasAdd Int := ⟨Int.add⟩
@@ -76,34 +68,37 @@ m + -n
 
 instance : HasSub Int := ⟨Int.sub⟩
 
-protected def le (a b : Int) : Prop := nonneg (b - a)
+inductive NonNeg : Int → Prop
+| mk (n : Nat) : NonNeg (ofNat n)
 
-instance : HasLessEq Int := ⟨Int.le⟩
+protected def LessEq (a b : Int) : Prop := NonNeg (b - a)
 
-protected def lt (a b : Int) : Prop := (a + 1) ≤ b
+instance : HasLessEq Int := ⟨Int.LessEq⟩
 
-instance : HasLess Int := ⟨Int.lt⟩
+protected def Less (a b : Int) : Prop := (a + 1) ≤ b
+
+instance : HasLess Int := ⟨Int.Less⟩
 
 @[extern cpp "lean::int_dec_eq"]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
 match a, b with
- | (ofNat a), (ofNat b) :=
-   if h : a = b then isTrue (h ▸ rfl)
-   else isFalse (λ h', Int.noConfusion h' (λ h', absurd h' h))
- | (negSuccOfNat a), (negSuccOfNat b) :=
-   if h : a = b then isTrue (h ▸ rfl)
-   else isFalse (λ h', Int.noConfusion h' (λ h', absurd h' h))
- | (ofNat a), (Int.negSuccOfNat b) := isFalse (λ h, Int.noConfusion h)
- | (negSuccOfNat a), (ofNat b) := isFalse (λ h, Int.noConfusion h)
+ | ofNat a, ofNat b := (match decEq a b with
+   | isTrue h  := isTrue  $ h ▸ rfl
+   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h))
+ | negSucc a, negSucc b := (match decEq a b with
+   | isTrue h  := isTrue  $ h ▸ rfl
+   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h))
+ | ofNat a, negSucc b := isFalse $ λ h, Int.noConfusion h
+ | negSucc a, ofNat b := isFalse $ λ h, Int.noConfusion h
 
 instance Int.DecidableEq : DecidableEq Int :=
 {decEq := Int.decEq}
 
 @[extern cpp "lean::int_dec_nonneg"]
-private def decNonneg (m : @& Int) : Decidable (nonneg m) :=
+private def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
 match m with
-| (ofNat m) := show Decidable True,  from inferInstance
-| -[1+ m]    := show Decidable False, from inferInstance
+| ofNat m   := isTrue $ NonNeg.mk m
+| negSucc m := isFalse $ λ h, match h with end
 
 @[extern cpp "lean::int_dec_le"]
 instance decLe (a b : @& Int) : Decidable (a ≤ b) :=
@@ -116,12 +111,12 @@ decNonneg _
 @[extern cpp "lean::nat_abs"]
 def natAbs (m : @& Int) : Nat :=
 match m with
-| (ofNat m)          := m
-| (negSuccOfNat m) := Nat.succ m
+| ofNat m   := m
+| negSucc m := m.succ
 
 protected def repr : Int → String
-| (ofNat n)          := Nat.repr n
-| (negSuccOfNat n) := "-" ++ Nat.repr (succ n)
+| (ofNat m)   := Nat.repr m
+| (negSucc m) := "-" ++ Nat.repr (succ m)
 
 instance : HasRepr Int :=
 ⟨Int.repr⟩
@@ -129,31 +124,26 @@ instance : HasRepr Int :=
 instance : HasToString Int :=
 ⟨Int.repr⟩
 
-def sign : Int → Int
-| (n+1:Nat) := 1
-| 0       := 0
-| -[1+ n] := -1
-
 @[extern cpp "lean::int_div"]
 def div : (@& Int) → (@& Int) → Int
-| (ofNat m) (ofNat n) := ofNat (m / n)
-| (ofNat m) -[1+ n]    := -ofNat (m / succ n)
-| -[1+ m]    (ofNat n) := -ofNat (succ m / n)
-| -[1+ m]    -[1+ n]    := ofNat (succ m / succ n)
+| (ofNat m)   (ofNat n)   := ofNat (m / n)
+| (ofNat m)   (negSucc n) := -ofNat (m / succ n)
+| (negSucc m) (ofNat n)   := -ofNat (succ m / n)
+| (negSucc m) (negSucc n) := ofNat (succ m / succ n)
 
 @[extern cpp "lean::int_mod"]
 def mod : (@& Int) → (@& Int) → Int
-| (ofNat m) (ofNat n) := ofNat (m % n)
-| (ofNat m) -[1+ n]    := ofNat (m % succ n)
-| -[1+ m]    (ofNat n) := -ofNat (succ m % n)
-| -[1+ m]    -[1+ n]    := -ofNat (succ m % succ n)
+| (ofNat m)   (ofNat n)   := ofNat (m % n)
+| (ofNat m)   (negSucc n) := ofNat (m % succ n)
+| (negSucc m) (ofNat n)   := -ofNat (succ m % n)
+| (negSucc m) (negSucc n) := -ofNat (succ m % succ n)
 
 instance : HasDiv Int := ⟨Int.div⟩
 instance : HasMod Int := ⟨Int.mod⟩
 
 def toNat : Int → Nat
-| (n : Nat) := n
-| -[1+ n] := 0
+| (ofNat n)   := n
+| (negSucc n) := 0
 
 def natMod (m n : Int) : Nat := (m % n).toNat
 

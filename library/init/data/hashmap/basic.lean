@@ -38,7 +38,7 @@ variables {α : Type u} {β : Type v}
 def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 ⟨u %ₙ n, USize.modnLt _ h⟩
 
-def reinsertAux (hashFn : α → USize) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
+@[inline] def reinsertAux (hashFn : α → USize) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
 let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
 data.update i (AssocList.cons a b (data.val.idx i h)) h
 

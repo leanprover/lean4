@@ -512,8 +512,6 @@ _start:
 usize x_5; obj* x_6; 
 x_5 = lean::unbox_size_t(x_2);
 x_6 = lean::array_updt(x_1, x_5, x_3);
-lean::dec(x_1);
-lean::dec(x_3);
 return x_6;
 }
 }

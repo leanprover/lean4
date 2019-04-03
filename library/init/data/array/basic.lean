@@ -87,7 +87,7 @@ def update (a : Array α) (i : @& Fin a.sz) (v : α) : Array α :=
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `update` may be slightly slower than `updt`. -/
 @[extern cpp inline "lean::array_updt(#2, #3, #4)"]
-def updt (a : @& Array α) (i : USize) (v : @& α) (h : i.toNat < a.sz) : Array α :=
+def updt (a : Array α) (i : USize) (v : α) (h : i.toNat < a.sz) : Array α :=
 a.update ⟨i.toNat, h⟩ v
 
 /- "Comfortable" version of `update`. It performs a bound check at runtime. -/

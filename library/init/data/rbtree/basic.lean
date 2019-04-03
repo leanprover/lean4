@@ -60,7 +60,7 @@ RBMap.insert t a ()
 | []      := mkRBTree _ _
 | (x::xs) := (ofList xs).insert x
 
-def find (t : RBTree α lt) (a : α) : Option α :=
+@[inline] def find (t : RBTree α lt) (a : α) : Option α :=
 match RBMap.findCore t a with
 | some ⟨a, _⟩ := some a
 | none        := none

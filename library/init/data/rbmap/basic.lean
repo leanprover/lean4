@@ -80,7 +80,7 @@ section insert
 
 variables (lt : α → α → Bool)
 
-def ins : RBNode α β → Π k : α, β k → RBNode α β
+@[specialize] def ins : RBNode α β → Π k : α, β k → RBNode α β
 | leaf                 kx vx := node red leaf kx vx leaf
 | (node red a ky vy b) kx vx :=
    if lt kx ky then node red (ins a kx vx) ky vy b
@@ -100,7 +100,7 @@ def setBlack : RBNode α β → RBNode α β
 | (node _ l k v r) := node black l k v r
 | e                := e
 
-def insert (t : RBNode α β) (k : α) (v : β k) : RBNode α β :=
+@[inline] def insert (t : RBNode α β) (k : α) (v : β k) : RBNode α β :=
 if isRed t then setBlack (ins lt t k v)
 else ins lt t k v
 
@@ -109,21 +109,21 @@ end insert
 section membership
 variable (lt : α → α → Bool)
 
-def findCore : RBNode α β → Π k : α, Option (Σ k : α, β k)
+@[specialize] def findCore : RBNode α β → Π k : α, Option (Σ k : α, β k)
 | leaf               x := none
 | (node _ a ky vy b) x :=
    if lt x ky then findCore a x
    else if lt ky x then findCore b x
    else some ⟨ky, vy⟩
 
-def find {β : Type v} : RBNode α (λ _, β) → α → Option β
+@[specialize] def find {β : Type v} : RBNode α (λ _, β) → α → Option β
 | leaf               x := none
 | (node _ a ky vy b) x :=
   if lt x ky then find a x
   else if lt ky x then find b x
   else some vy
 
-def lowerBound : RBNode α β → α → Option (Sigma β) → Option (Sigma β)
+@[specialize] def lowerBound : RBNode α β → α → Option (Sigma β) → Option (Sigma β)
 | leaf               x lb := lb
 | (node _ a ky vy b) x lb :=
   if lt x ky then lowerBound a x lb
@@ -191,28 +191,28 @@ t.mfold (λ _ k v,  f k v *> pure ⟨⟩) ⟨⟩
 instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 ⟨λ t, "rbmapOf " ++ repr t.toList⟩
 
-def insert : RBMap α β lt → α → β → RBMap α β lt
+@[inline] def insert : RBMap α β lt → α → β → RBMap α β lt
 | ⟨t, w⟩   k v := ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
 
 @[specialize] def ofList : List (α × β) → RBMap α β lt
 | []          := mkRBMap _ _ _
 | (⟨k,v⟩::xs) := (ofList xs).insert k v
 
-def findCore : RBMap α β lt → α → Option (Σ k : α, β)
+@[inline] def findCore : RBMap α β lt → α → Option (Σ k : α, β)
 | ⟨t, _⟩ x := t.findCore lt x
 
-def find : RBMap α β lt → α → Option β
+@[inline] def find : RBMap α β lt → α → Option β
 | ⟨t, _⟩ x := t.find lt x
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
-def lowerBound : RBMap α β lt → α → Option (Σ k : α, β)
+@[inline] def lowerBound : RBMap α β lt → α → Option (Σ k : α, β)
 | ⟨t, _⟩ x := t.lowerBound lt x none
 
 @[inline] def contains (t : RBMap α β lt) (a : α) : Bool :=
 (t.find a).isSome
 
-def fromList (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=
+@[inline] def fromList (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=
 l.foldl (λ r p, r.insert p.1 p.2) (mkRBMap α β lt)
 
 @[inline] def all : RBMap α β lt → (α → β → Bool) → Bool

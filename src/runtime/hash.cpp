@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
+#include <cstddef>
+
 namespace lean {
 
 void mix(unsigned & a, unsigned & b, unsigned & c) {
@@ -20,8 +22,9 @@ void mix(unsigned & a, unsigned & b, unsigned & c) {
 
 // Bob Jenkin's hash function.
 // http://burtleburtle.net/bob/hash/doobs.html
-unsigned hash_str(unsigned length, char const * str, unsigned init_value) {
-    unsigned a, b, c, len;
+unsigned hash_str(size_t length, char const * str, unsigned init_value) {
+    unsigned a, b, c;
+    size_t len;
 
     /* Set up the internal state */
     len = length;

@@ -15,9 +15,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Int_HasCoe(obj*);
-namespace lean {
-uint8 int_dec_nonneg(obj*);
-}
 obj* l_Int_negOfNat___main___boxed(obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -31,9 +28,6 @@ obj* int_sub(obj*, obj*);
 }
 obj* l_Int_HasDiv;
 namespace lean {
-obj* int_neg_succ_of_nat(obj*);
-}
-namespace lean {
 uint8 int_dec_eq(obj*, obj*);
 }
 obj* l_Int_HasRepr;
@@ -41,8 +35,8 @@ obj* l_Int_negOfNat___boxed(obj*);
 obj* l_Int_natMod(obj*, obj*);
 obj* l_Int_repr___boxed(obj*);
 obj* l_Int_toNat___main(obj*);
+obj* l___private_init_data_int_basic_1__decNonneg___boxed(obj*);
 obj* l_Int_div___boxed(obj*, obj*);
-obj* l___private_init_data_int_basic_2__decNonneg___boxed(obj*);
 obj* l_Int_toNat___main___boxed(obj*);
 namespace lean {
 obj* int_neg(obj*);
@@ -75,14 +69,15 @@ obj* nat_add(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_Int_sign(obj*);
 obj* l_Int_natAbs___boxed(obj*);
 uint8 l_String_isInt(obj*);
 obj* l_Int_HasSub;
-obj* l_Int_sign___main(obj*);
 uint8 l_String_isInt___closed__1;
 namespace lean {
 uint32 string_utf8_get(obj*, obj*);
+}
+namespace lean {
+uint8 int_dec_nonneg(obj*);
 }
 obj* l_String_isInt___closed__1___boxed;
 obj* l_Int_decLt___boxed(obj*, obj*);
@@ -109,7 +104,6 @@ uint8 nat_dec_le(obj*, obj*);
 }
 obj* l_Int_subNatNat___boxed(obj*, obj*);
 obj* l_Int_negOfNat(obj*);
-obj* l_Int_sign___main___closed__1;
 namespace lean {
 obj* string_utf8_byte_size(obj*);
 }
@@ -128,14 +122,15 @@ obj* l_Int_sub___boxed(obj*, obj*);
 namespace lean {
 uint8 int_dec_lt(obj*, obj*);
 }
-obj* l_Int_sign___main___boxed(obj*);
 obj* l_String_toInt(obj*);
 namespace lean {
 obj* int_div(obj*, obj*);
 }
-obj* l_Int_sign___boxed(obj*);
 namespace lean {
 obj* int_mod(obj*, obj*);
+}
+namespace lean {
+obj* int_neg_succ_of_nat(obj*);
 }
 obj* l_Int_mul___boxed(obj*, obj*);
 obj* l_Int_HasCoe(obj* x_0) {
@@ -370,7 +365,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_decEq___boxed), 2, 0);
 return x_0;
 }
 }
-obj* l___private_init_data_int_basic_2__decNonneg___boxed(obj* x_0) {
+obj* l___private_init_data_int_basic_1__decNonneg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; obj* x_2; 
@@ -498,75 +493,6 @@ _start:
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Int_repr___boxed), 1, 0);
 return x_0;
-}
-}
-obj* _init_l_Int_sign___main___closed__1() {
-_start:
-{
-obj* x_0; obj* x_1; 
-x_0 = l_Int_one;
-x_1 = lean::int_neg(x_0);
-return x_1;
-}
-}
-obj* l_Int_sign___main(obj* x_0) {
-_start:
-{
-obj* x_1; uint8 x_2; 
-x_1 = l_Int_repr___main___closed__1;
-x_2 = lean::int_dec_lt(x_0, x_1);
-if (x_2 == 0)
-{
-obj* x_3; obj* x_4; uint8 x_5; 
-x_3 = lean::nat_abs(x_0);
-x_4 = lean::mk_nat_obj(0ul);
-x_5 = lean::nat_dec_eq(x_3, x_4);
-lean::dec(x_3);
-if (x_5 == 0)
-{
-obj* x_7; 
-x_7 = l_Int_one;
-return x_7;
-}
-else
-{
-obj* x_8; 
-x_8 = l_Int_zero;
-return x_8;
-}
-}
-else
-{
-obj* x_9; 
-x_9 = l_Int_sign___main___closed__1;
-return x_9;
-}
-}
-}
-obj* l_Int_sign___main___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_Int_sign___main(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
-obj* l_Int_sign(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_Int_sign___main(x_0);
-return x_1;
-}
-}
-obj* l_Int_sign___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_Int_sign(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* l_Int_div___boxed(obj* x_0, obj* x_1) {
@@ -859,8 +785,6 @@ lean::mark_persistent(l_Int_repr___main___closed__2);
 lean::mark_persistent(l_Int_HasRepr);
  l_Int_HasToString = _init_l_Int_HasToString();
 lean::mark_persistent(l_Int_HasToString);
- l_Int_sign___main___closed__1 = _init_l_Int_sign___main___closed__1();
-lean::mark_persistent(l_Int_sign___main___closed__1);
  l_Int_HasDiv = _init_l_Int_HasDiv();
 lean::mark_persistent(l_Int_HasDiv);
  l_Int_HasMod = _init_l_Int_HasMod();

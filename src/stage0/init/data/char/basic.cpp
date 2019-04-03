@@ -35,9 +35,11 @@ obj* nat_add(obj*, obj*);
 obj* l_Char_isWhitespace___boxed(obj*);
 uint8 l_Char_isDigit(uint32);
 uint8 l_Char_decLe(uint32, uint32);
+uint8 l_Char_lt(uint32, uint32);
 uint8 l_Char_decLt(uint32, uint32);
 obj* l_Char_utf8Size___boxed(obj*);
 obj* l_Char_isAlpha___boxed(obj*);
+obj* l_Char_lt___boxed(obj*, obj*);
 uint8 l_Char_isWhitespace(uint32);
 obj* l_Char_HasSizeof(uint32);
 obj* l_Char_isAlphanum___boxed(obj*);
@@ -194,6 +196,25 @@ _start:
 obj* x_0; 
 x_0 = lean::box(0);
 return x_0;
+}
+}
+uint8 l_Char_lt(uint32 x_0, uint32 x_1) {
+_start:
+{
+uint8 x_2; 
+x_2 = x_0 < x_1;
+return x_2;
+}
+}
+obj* l_Char_lt___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint32 x_2; uint32 x_3; uint8 x_4; obj* x_5; 
+x_2 = lean::unbox_uint32(x_0);
+x_3 = lean::unbox_uint32(x_1);
+x_4 = l_Char_lt(x_2, x_3);
+x_5 = lean::box(x_4);
+return x_5;
 }
 }
 uint8 l_Char_decLt(uint32 x_0, uint32 x_1) {

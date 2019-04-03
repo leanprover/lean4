@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.control.combinators
-// Imports: init.control.monad init.control.alternative init.data.list.basic init.coe
+// Imports: init.control.monad init.control.alternative init.data.list.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1253,7 +1253,7 @@ return x_4;
 }
 else
 {
-obj* x_7; obj* x_10; uint8 x_13; obj* x_14; obj* x_15; 
+obj* x_7; obj* x_10; obj* x_13; obj* x_14; 
 lean::dec(x_1);
 lean::dec(x_2);
 x_7 = lean::cnstr_get(x_0, 0);
@@ -1262,10 +1262,9 @@ lean::dec(x_0);
 x_10 = lean::cnstr_get(x_7, 1);
 lean::inc(x_10);
 lean::dec(x_7);
-x_13 = 1;
-x_14 = lean::box(x_13);
-x_15 = lean::apply_2(x_10, lean::box(0), x_14);
-return x_15;
+x_13 = lean::box(x_3);
+x_14 = lean::apply_2(x_10, lean::box(0), x_13);
+return x_14;
 }
 }
 }
@@ -1382,7 +1381,7 @@ _start:
 {
 if (x_3 == 0)
 {
-obj* x_6; obj* x_9; uint8 x_12; obj* x_13; obj* x_14; 
+obj* x_6; obj* x_9; obj* x_12; obj* x_13; 
 lean::dec(x_1);
 lean::dec(x_2);
 x_6 = lean::cnstr_get(x_0, 0);
@@ -1391,16 +1390,15 @@ lean::dec(x_0);
 x_9 = lean::cnstr_get(x_6, 1);
 lean::inc(x_9);
 lean::dec(x_6);
-x_12 = 0;
-x_13 = lean::box(x_12);
-x_14 = lean::apply_2(x_9, lean::box(0), x_13);
-return x_14;
+x_12 = lean::box(x_3);
+x_13 = lean::apply_2(x_9, lean::box(0), x_12);
+return x_13;
 }
 else
 {
-obj* x_15; 
-x_15 = l_List_mforall___main___rarg(x_0, lean::box(0), x_1, x_2);
-return x_15;
+obj* x_14; 
+x_14 = l_List_mforall___main___rarg(x_0, lean::box(0), x_1, x_2);
+return x_14;
 }
 }
 }
@@ -1515,7 +1513,6 @@ return x_1;
 obj* initialize_init_control_monad(obj*);
 obj* initialize_init_control_alternative(obj*);
 obj* initialize_init_data_list_basic(obj*);
-obj* initialize_init_coe(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_control_combinators(obj* w) {
  if (_G_initialized) return w;
@@ -1526,8 +1523,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_alternative(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_coe(w);
  l_mjoin___rarg___closed__1 = _init_l_mjoin___rarg___closed__1();
 lean::mark_persistent(l_mjoin___rarg___closed__1);
 return w;

@@ -325,10 +325,7 @@ class csimp_fn {
         return instantiate_rev(e, xs.size(), xs.data());
     }
 
-    /* Return a pair `(body, flag)` where `body` is the body of the minor premise `e`,
-       the field variables are stored in `xs`, and `flag` is `true` iff `e` does depends
-       on the variables in `xs`. */
-    pair<expr, bool> get_minor_body(expr e, buffer<expr> & xs) {
+    expr get_minor_body(expr e, buffer<expr> & xs) {
         unsigned i = 0;
         while (is_lambda(e)) {
             expr d = instantiate_rev(binding_domain(e), xs.size(), xs.data());
@@ -337,7 +334,7 @@ class csimp_fn {
             i++;
             e  = binding_body(e);
         }
-        return mk_pair(instantiate_rev(e, xs.size(), xs.data()), has_loose_bvars(e));
+        return instantiate_rev(e, xs.size(), xs.data());
     }
 
     /* Move let-decl `fvar` to the minor premise at position `minor_idx` of cases_on-application `c`. */
@@ -677,7 +674,7 @@ class csimp_fn {
             expr minor                = c_args[minor_idx];
             buffer<expr> zs;
             unsigned saved_fvars_size = m_fvars.size();
-            expr minor_val            = get_minor_body(minor, zs).first;
+            expr minor_val            = get_minor_body(minor, zs);
             flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
             update_var2ctor(major, c_fn, c_args, i, zs);
             minor_val                 = visit(minor_val, false);
@@ -1218,14 +1215,23 @@ class csimp_fn {
         for (unsigned cidx = 0; minor_idx < minors_end; minor_idx++, cidx++) {
             expr minor                = args[minor_idx];
             unsigned saved_fvars_size = m_fvars.size();
-            buffer<expr> zs; bool depends_on_zs;
-            std::tie(minor, depends_on_zs) = get_minor_body(minor, zs);
+            buffer<expr> zs;
+            minor = get_minor_body(minor, zs);
             flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
             update_var2ctor(major, c, args, cidx, zs);
             expr new_minor = visit(minor, false);
             new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
-            if (depends_on_zs) {
-                all_equal_opt = false;
+            expr result_minor = mk_minor_lambda(zs, new_minor);
+            if (all_equal_opt) {
+                expr result_minor_body = result_minor;
+                for (unsigned i = 0; i < zs.size(); i++) {
+                    result_minor_body = binding_body(result_minor_body);
+                    if (has_loose_bvars(result_minor_body)) {
+                        /* Minor premise depends on constructor fields. */
+                        all_equal_opt = false;
+                        break;
+                    }
+                }
             }
             if (all_equal_opt) {
                 if (!a_minor) {
@@ -1234,8 +1240,7 @@ class csimp_fn {
                     all_equal_opt = false;
                 }
             }
-            new_minor = mk_minor_lambda(zs, new_minor);
-            args[minor_idx] = new_minor;
+            args[minor_idx] = result_minor;
         }
         if (all_equal_opt && a_minor) {
             return *a_minor;

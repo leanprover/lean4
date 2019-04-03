@@ -12,17 +12,13 @@ class Hashable (α : Type u) :=
 
 export Hashable (hash)
 
--- TODO: mark as builtin and opaque
-def mixHash (u₁ u₂ : USize) : USize :=
-default USize
+@[extern cpp "lean::usize_mix_hash"]
+constant mixHash (u₁ u₂ : USize) : USize := default _
 
--- TODO: mark as builtin
-protected def String.hash (s : String) : USize :=
-default USize
-
+@[extern cpp "lean::string_hash"]
+protected constant String.hash (s : String) : USize := default _
 instance : Hashable String := ⟨String.hash⟩
 
--- TODO: add builtin
 protected def Nat.hash (n : Nat) : USize :=
 USize.ofNat n
 

@@ -1384,6 +1384,54 @@ bool int_big_lt(object * a1, object * a2) {
 }
 
 // =======================================
+// UInt
+
+uint8 uint8_of_big_nat(b_obj_arg a) {
+    mpz r;
+    mod2k(r, mpz_value(a), 8);
+    return static_cast<uint8>(r.get_unsigned_int());
+}
+uint16 uint16_of_big_nat(b_obj_arg a) {
+    mpz r;
+    mod2k(r, mpz_value(a), 16);
+    return static_cast<uint16>(r.get_unsigned_int());
+}
+uint32 uint32_of_big_nat(b_obj_arg a) {
+    mpz r;
+    mod2k(r, mpz_value(a), 32);
+    return static_cast<uint32>(r.get_unsigned_int());
+}
+uint64 uint64_of_big_nat(b_obj_arg a) {
+    mpz r;
+    mod2k(r, mpz_value(a), 64);
+    if (sizeof(void*) == 8) {
+        // 64 bit
+        return static_cast<uint64>(r.get_unsigned_long_int());
+    } else {
+        // 32 bit
+        mpz l;
+        mod2k(l, r, 32);
+        mpz h;
+        div2k(h, r, 32);
+        return (static_cast<uint64>(h.get_unsigned_int()) << 32) + static_cast<uint64>(l.get_unsigned_int());
+    }
+}
+
+usize usize_of_big_nat(b_obj_arg a) {
+    if (sizeof(void*) == 8)
+        return uint64_of_big_nat(a);
+    else
+        return uint32_of_big_nat(a);
+}
+
+usize usize_mix_hash(usize a1, usize a2) {
+    if (sizeof(void*) == 8)
+        return hash(static_cast<uint64>(a1), static_cast<uint64>(a2));
+    else
+        return hash(static_cast<uint32>(a1), static_cast<uint32>(a2));
+}
+
+// =======================================
 // Strings
 
 static inline char * w_string_cstr(object * o) { lean_assert(is_string(o)); return reinterpret_cast<char *>(o) + sizeof(string_object); }
@@ -1591,8 +1639,8 @@ uint32 string_utf8_get(b_obj_arg s, b_obj_arg i0) {
 
 /* The reference implementation is:
    ```
-   def utf8_next (s : @& String) (p : @& Pos) : Ppos :=
-   let c := utf8_get s p in
+   def next (s : @& String) (p : @& Pos) : Ppos :=
+   let c := get s p in
    p + csize c
    ```
 */
@@ -1695,6 +1743,12 @@ obj_res string_utf8_set(obj_arg s, b_obj_arg i0, uint32 c) {
     std::string new_s = string_to_std(s);
     new_s.replace(i, get_utf8_char_size_at(new_s, i), tmp);
     return mk_string(new_s);
+}
+
+usize string_hash(b_obj_arg s) {
+    usize sz = string_size(s) - 1;
+    char const * str = string_cstr(s);
+    return hash_str(sz, str, 11);
 }
 
 // =======================================

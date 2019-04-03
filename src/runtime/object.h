@@ -1209,10 +1209,12 @@ inline bool string_ne(b_obj_arg s1, b_obj_arg s2) { return !string_eq(s1, s2); }
 bool string_lt(b_obj_arg s1, b_obj_arg s2);
 inline uint8 string_dec_eq(b_obj_arg s1, b_obj_arg s2) { return string_eq(s1, s2); }
 inline uint8 string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return string_lt(s1, s2); }
+usize string_hash(b_obj_arg);
 
 // =======================================
 // uint8
-inline uint8 uint8_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint8>(unbox(a)) : 0; }
+uint8 uint8_of_big_nat(b_obj_arg a);
+inline uint8 uint8_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint8>(unbox(a)) : uint8_of_big_nat(a); }
 inline obj_res uint8_to_nat(uint8 a) { return mk_nat_obj(static_cast<usize>(a)); }
 inline uint8 uint8_add(uint8 a1, uint8 a2) { return a1+a2; }
 inline uint8 uint8_sub(uint8 a1, uint8 a2) { return a1-a2; }
@@ -1233,7 +1235,8 @@ inline uint8 uint8_dec_le(uint8 a1, uint8 a2) { return a1 <= a2; }
 
 // =======================================
 // uint16
-inline uint16 uint16_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint16>(unbox(a)) : 0; }
+uint16 uint16_of_big_nat(b_obj_arg a);
+inline uint16 uint16_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint16>(unbox(a)) : uint16_of_big_nat(a); }
 inline obj_res uint16_to_nat(uint16 a) { return mk_nat_obj(static_cast<usize>(a)); }
 inline uint16 uint16_add(uint16 a1, uint16 a2) { return a1+a2; }
 inline uint16 uint16_sub(uint16 a1, uint16 a2) { return a1-a2; }
@@ -1254,22 +1257,8 @@ inline uint8 uint16_dec_le(uint16 a1, uint16 a2) { return a1 <= a2; }
 
 // =======================================
 // uint32
-inline uint32 uint32_of_nat(b_obj_arg a) {
-    if (is_scalar(a)) {
-        usize v = unbox(a);
-        if (v < std::numeric_limits<uint32>::max())
-            return v;
-        else
-            return 0;
-    } else if (sizeof(void*) == 4) {
-        // 32-bit
-        mpz const & m = mpz_value(a);
-        return m.is_unsigned_int() ? mpz_value(a).get_unsigned_int() : 0;
-    } else {
-        // 64-bit
-        return 0;
-    }
-}
+uint32 uint32_of_big_nat(b_obj_arg a);
+inline uint32 uint32_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint32>(unbox(a)) : uint32_of_big_nat(a); }
 inline obj_res uint32_to_nat(uint32 a) { return mk_nat_obj(static_cast<usize>(a)); }
 inline uint32 uint32_add(uint32 a1, uint32 a2) { return a1+a2; }
 inline uint32 uint32_sub(uint32 a1, uint32 a2) { return a1-a2; }
@@ -1295,14 +1284,8 @@ inline uint8 uint32_dec_le(uint32 a1, uint32 a2) { return a1 <= a2; }
 
 // =======================================
 // uint64
-inline uint64 uint64_of_nat(b_obj_arg a) {
-    if (is_scalar(a)) {
-        return unbox(a);
-    } else {
-        // TODO(Leo):
-        return 0;
-    }
-}
+uint64 uint64_of_big_nat(b_obj_arg a);
+inline uint64 uint64_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint64>(unbox(a)) : uint64_of_big_nat(a); }
 inline obj_res uint64_to_nat(uint64 a) { return mk_nat_obj(a); }
 inline uint64 uint64_add(uint64 a1, uint64 a2) { return a1+a2; }
 inline uint64 uint64_sub(uint64 a1, uint64 a2) { return a1-a2; }
@@ -1324,14 +1307,8 @@ inline uint8 uint64_dec_le(uint64 a1, uint64 a2) { return a1 <= a2; }
 
 // =======================================
 // usize
-inline usize usize_of_nat(b_obj_arg a) {
-    if (is_scalar(a)) {
-        return unbox(a);
-    } else {
-        // TODO(Leo):
-        return 0;
-    }
-}
+usize usize_of_big_nat(b_obj_arg a);
+inline usize usize_of_nat(b_obj_arg a) { return is_scalar(a) ? unbox(a) : usize_of_big_nat(a); }
 inline obj_res usize_to_nat(usize a) {
     return mk_nat_obj(a);
 }
@@ -1352,7 +1329,7 @@ inline usize usize_modn(usize a1, b_obj_arg a2) {
 inline uint8 usize_dec_eq(usize a1, usize a2) { return a1 == a2; }
 inline uint8 usize_dec_lt(usize a1, usize a2) { return a1 < a2; }
 inline uint8 usize_dec_le(usize a1, usize a2) { return a1 <= a2; }
-
+usize usize_mix_hash(usize a1, usize a2);
 // =======================================
 // array functions for generated code
 static_assert(sizeof(unsigned long) == sizeof(size_t), "we assume that `unsigned long` and `size_t` have the same size");

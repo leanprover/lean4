@@ -209,6 +209,8 @@ public:
     friend void mul2k(mpz & a, mpz const & b, unsigned k) { mpz_mul_2exp(a.m_val, b.m_val, k); }
     // a <- b / 2^k
     friend void div2k(mpz & a, mpz const & b, unsigned k) { mpz_tdiv_q_2exp(a.m_val, b.m_val, k); }
+    // a <- b % 2^k
+    friend void mod2k(mpz & a, mpz const & b, unsigned k) { mpz_tdiv_r_2exp(a.m_val, b.m_val, k); }
 
     /**
        \brief Return the position of the most significant bit.

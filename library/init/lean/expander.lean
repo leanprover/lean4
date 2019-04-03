@@ -476,10 +476,8 @@ def universes.transform : transformer :=
 def sorry.transform : transformer :=
 λ stx, pure $ mkApp (globId `sorryAx) [review hole {}, globId `Bool.false]
 
-local attribute [instance] Name.hasLtQuick
-
 -- TODO(Sebastian): replace with attribute
-def builtinTransformers : RBMap Name transformer (<) := RBMap.fromList [
+def builtinTransformers : RBMap Name transformer Name.quickLt := RBMap.fromList [
   (mixfix.name, mixfix.transform),
   (reserveMixfix.name, reserveMixfix.transform),
   (bracketedBinders.name, bracketedBinders.transform),
@@ -506,7 +504,7 @@ structure ExpanderState :=
 (nextScope : MacroScope)
 
 structure ExpanderConfig extends TransformerConfig :=
-(transformers : RBMap Name transformer (<))
+(transformers : RBMap Name transformer Name.quickLt)
 
 instance ExpanderConfig.HasLift : HasLift ExpanderConfig TransformerConfig :=
 ⟨ExpanderConfig.toTransformerConfig⟩

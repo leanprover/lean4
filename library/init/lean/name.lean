@@ -152,10 +152,9 @@ theorem mkNumeralNeMkNumeralOfNeNumeral (p₁ : Name) {n₁ : Nat} (p₂ : Name)
 
 end Name
 
-local attribute [instance] Name.hasLtQuick
-def NameMap (α : Type) := RBMap Name α (<)
+def NameMap (α : Type) := RBMap Name α Name.quickLt
 
-@[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α (<)
+@[inline] def mkNameMap (α : Type) : NameMap α := mkRBMap Name α Name.quickLt
 
 namespace NameMap
 variable {α : Type}
@@ -172,9 +171,9 @@ def contains (m : NameMap α) (n : Name) : Bool := RBMap.contains m n
 
 end NameMap
 
-def NameSet := RBTree Name (<)
+def NameSet := RBTree Name Name.quickLt
 
-@[inline] def mkNameSet : NameSet := mkRBTree Name (<)
+@[inline] def mkNameSet : NameSet := mkRBTree Name Name.quickLt
 
 namespace NameSet
 

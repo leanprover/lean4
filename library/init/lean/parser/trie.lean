@@ -39,10 +39,10 @@ private partial def insertAux (s : String) (val : α) : Trie α → String.Pos �
   | false :=
     let c := s.get i in
     let i := s.next i in
-    let t := match RBNode.find (<) m c with
+    let t := match RBNode.find Char.lt m c with
       | none   := insertEmptyAux s val i
       | some t := insertAux t i in
-    Trie.Node v (RBNode.insert (<) m c t)
+    Trie.Node v (RBNode.insert Char.lt m c t)
 
 def insert (t : Trie α) (s : String) (val : α) : Trie α :=
 insertAux s val t 0
@@ -54,7 +54,7 @@ private partial def findAux (s : String) : Trie α → String.Pos → Option α
   | false :=
     let c := s.get i in
     let i := s.next i in
-    match RBNode.find (<) m c with
+    match RBNode.find Char.lt m c with
     | none   := none
     | some t := findAux t i
 
@@ -74,7 +74,7 @@ private partial def matchPrefixAux (s : String) : Trie α → String.Pos → (St
     let acc := updtAcc v i acc in
     let c   := s.get i in
     let i   := s.next i in
-    match RBNode.find (<) m c with
+    match RBNode.find Char.lt m c with
     | some t := matchPrefixAux t i acc
     | none   := acc
 
@@ -86,7 +86,7 @@ private def oldMatchPrefixAux : Nat → Trie α → String.OldIterator → Optio
 | 0     (Trie.Node val map) it Acc := Prod.mk it <$> val <|> Acc
 | (n+1) (Trie.Node val map) it Acc :=
   let Acc' := Prod.mk it <$> val <|> Acc in
-  match RBNode.find (<) map it.curr with
+  match RBNode.find Char.lt map it.curr with
   | some t := oldMatchPrefixAux n t it.next Acc'
   | none   := Acc'
 

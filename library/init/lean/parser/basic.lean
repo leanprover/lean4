@@ -190,9 +190,8 @@ abbrev trailingTermParser := TrailingTermParserM Syntax
 instance trailingTermParserCoe : HasCoe termParser trailingTermParser :=
 ⟨λ x _, x⟩
 
-local attribute [instance] Name.hasLtQuick
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
-def TokenMap (α : Type) := RBMap Name (List α) (<)
+def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
 
 def TokenMap.insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
 match map.find k with

@@ -20,13 +20,8 @@ instance : DecidableEq Position :=
   else isFalse (λ contra, Position.noConfusion contra (λ e₁ e₂, absurd e₂ h₂))
   else isFalse (λ contra, Position.noConfusion contra (λ e₁ e₂, absurd e₁ h₁))}
 
-protected def lt : Position → Position → Prop
+protected def lt : Position → Position → Bool
 | ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := (l₁, c₁) < (l₂, c₂)
-
-instance : HasLess Position := ⟨Position.lt⟩
-
-instance decidableLt : Π (p₁ p₂ : Position), Decidable (p₁ < p₂)
-| ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := inferInstanceAs $ Decidable ((l₁, c₁) < (l₂, c₂))
 
 instance : HasToFormat Position :=
 ⟨λ ⟨l, c⟩, "⟨" ++ toFmt l ++ ", " ++ toFmt c ++ "⟩"⟩
@@ -37,7 +32,7 @@ end Position
 /-- A precomputed cache for quickly mapping Char offsets to positionitions. -/
 structure FileMap :=
 -- A mapping from Char offset of line start to line index
-(lines : RBMap Nat Nat (<))
+(lines : RBMap Nat Nat (λ a b, a < b))
 
 namespace FileMap
 private def fromStringAux : Nat → String.OldIterator → Nat → List (Nat × Nat)

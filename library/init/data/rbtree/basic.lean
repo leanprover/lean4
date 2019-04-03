@@ -7,17 +7,17 @@ prelude
 import init.data.rbmap.basic
 universes u v w
 
-def RBTree (α : Type u) (lt : α → α → Prop) : Type u :=
+def RBTree (α : Type u) (lt : α → α → Bool) : Type u :=
 RBMap α Unit lt
 
-@[inline] def mkRBTree (α : Type u) (lt : α → α → Prop) : RBTree α lt :=
+@[inline] def mkRBTree (α : Type u) (lt : α → α → Bool) : RBTree α lt :=
 mkRBMap α Unit lt
 
-instance (α : Type u) (lt : α → α → Prop) : HasEmptyc (RBTree α lt) :=
+instance (α : Type u) (lt : α → α → Bool) : HasEmptyc (RBTree α lt) :=
 ⟨mkRBTree α lt⟩
 
 namespace RBTree
-variables {α : Type u} {β : Type v} {lt : α → α → Prop}
+variables {α : Type u} {β : Type v} {lt : α → α → Bool}
 
 @[inline] def depth (f : Nat → Nat → Nat) (t : RBTree α lt) : Nat :=
 RBMap.depth f t
@@ -53,8 +53,6 @@ match RBMap.max t with
 instance [HasRepr α] : HasRepr (RBTree α lt) :=
 ⟨λ t, "rbtreeOf " ++ repr t.toList⟩
 
-variables [DecidableRel lt]
-
 @[inline] def insert (t : RBTree α lt) (a : α) : RBTree α lt :=
 RBMap.insert t a ()
 
@@ -70,7 +68,7 @@ match RBMap.findCore t a with
 @[inline] def contains (t : RBTree α lt) (a : α) : Bool :=
 (t.find a).isSome
 
-def fromList (l : List α) (lt : α → α → Prop) [DecidableRel lt] : RBTree α lt :=
+def fromList (l : List α) (lt : α → α → Bool) : RBTree α lt :=
 l.foldl insert (mkRBTree α lt)
 
 @[inline] def all (t : RBTree α lt) (p : α → Bool) : Bool :=
@@ -87,5 +85,5 @@ subset t₁ t₂ && subset t₂ t₁
 
 end RBTree
 
-def rbtreeOf {α : Type u} (l : List α) (lt : α → α → Prop) [DecidableRel lt] : RBTree α lt :=
+def rbtreeOf {α : Type u} (l : List α) (lt : α → α → Bool) : RBTree α lt :=
 RBTree.fromList l lt

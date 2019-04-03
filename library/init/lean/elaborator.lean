@@ -54,17 +54,15 @@ open Parser.command
 open Parser.command.NotationSpec
 open Expander
 
-local attribute [instance] Name.hasLtQuick
-
 -- TODO(Sebastian): move
 /-- An RBMap that remembers the insertion order. -/
-structure OrderedRBMap (α β : Type) (lt : α → α → Prop) :=
+structure OrderedRBMap (α β : Type) (lt : α → α → Bool) :=
 (entries : List (α × β))
 (map : RBMap α (Nat × β) lt)
 (size : Nat)
 
 namespace OrderedRBMap
-variables {α β : Type} {lt : α → α → Prop} [DecidableRel lt] (m : OrderedRBMap α β lt)
+variables {α β : Type} {lt : α → α → Bool} (m : OrderedRBMap α β lt)
 
 def empty : OrderedRBMap α β lt := {entries := [], map := mkRBMap _ _ _, size := 0}
 
@@ -93,11 +91,11 @@ structure Scope :=
 (notations : List NotationMacro := [])
 /- The set of local universe variables.
    We remember their insertion order so that we can keep the order when copying them to declarations. -/
-(univs : OrderedRBMap Name Level (<) := OrderedRBMap.empty)
+(univs : OrderedRBMap Name Level Name.quickLt := OrderedRBMap.empty)
 /- The set of local variables. -/
-(vars : OrderedRBMap Name SectionVar (<) := OrderedRBMap.empty)
+(vars : OrderedRBMap Name SectionVar Name.quickLt := OrderedRBMap.empty)
 /- The subset of `vars` that is tagged as always included. -/
-(includeVars : RBTree Name (<) := mkRBTree _ _)
+(includeVars : RBTree Name Name.quickLt := mkRBTree _ _)
 /- The stack of nested active `namespace` commands. -/
 (nsStack : List Name := [])
 /- The set of active `open` declarations. -/
@@ -896,7 +894,7 @@ def eoi.elaborate : Elaborator :=
     error cmd "invalid end of input, expected 'end'"
 
 -- TODO(Sebastian): replace with attribute
-def elaborators : RBMap Name Elaborator (<) := RBMap.fromList [
+def elaborators : RBMap Name Elaborator Name.quickLt := RBMap.fromList [
   (Module.header.name, Module.header.elaborate),
   (notation.name, notation.elaborate),
   (reserveNotation.name, reserveNotation.elaborate),

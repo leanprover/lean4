@@ -30,11 +30,13 @@ else if v & 0xFE = 0xFC then 6
 else if v = 0xFF        then 1
 else 0
 
-protected def lt (a b : Char) : Prop := a.val < b.val
-protected def le (a b : Char) : Prop := a.val ≤ b.val
+protected def Less (a b : Char) : Prop := a.val < b.val
+protected def LessEq (a b : Char) : Prop := a.val ≤ b.val
 
-instance : HasLess Char   := ⟨Char.lt⟩
-instance : HasLessEq Char := ⟨Char.le⟩
+instance : HasLess Char   := ⟨Char.Less⟩
+instance : HasLessEq Char := ⟨Char.LessEq⟩
+
+protected def lt (a b : Char) : Bool := a.val < b.val
 
 instance decLt (a b : Char) :  Decidable (a < b) :=
 UInt32.decLt _ _

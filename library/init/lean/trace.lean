@@ -25,7 +25,7 @@ fmt ++ Format.nest 2 (Format.join $ subtraces.map (λ t, Format.line ++ t.pp))
 
 namespace Trace
 
-def TraceMap := RBMap Position Trace (<)
+def TraceMap := RBMap Position Trace Position.lt
 
 structure TraceState :=
 (opts : Options)

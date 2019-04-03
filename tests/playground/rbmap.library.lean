@@ -9,6 +9,6 @@ mkMapAux n {}
 
 def main (xs : List String) : IO UInt32 :=
 let m := mkMap xs.head.toNat in
-let v := RBMap.fold (λ (k : Nat) (v : Bool) (r : Nat), if v then r + 1 else r) m 0 in
+let v := m.fold (λ (r : Nat) (k : Nat) (v : Bool), if v then r + 1 else r) 0 in
 IO.println (toString v) *>
 pure 0

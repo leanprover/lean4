@@ -57,7 +57,7 @@ match m with
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
   (buckets.val.idx i h).contains a
 
-def fold {δ : Type w} (m : HashMapImp α β) (d : δ) (f : δ → α → β → δ) : δ :=
+def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
 
 def insert [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : HashMapImp α β :=
@@ -125,9 +125,9 @@ match m with
 match m with
 | ⟨ m, _ ⟩ := m.contains a
 
-@[inline] def fold {δ : Type w} (m : HashMap α β) (d : δ) (f : δ → α → β → δ) : δ :=
+@[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMap α β) : δ :=
 match m with
-| ⟨ m, _ ⟩ := m.fold d f
+| ⟨ m, _ ⟩ := m.fold f d
 
 @[inline] def size (m : HashMap α β) : Nat :=
 match m with

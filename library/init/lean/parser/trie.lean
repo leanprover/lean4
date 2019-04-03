@@ -95,7 +95,7 @@ def oldMatchPrefix {α : Type} (t : Trie α) (it : String.OldIterator) : Option 
 oldMatchPrefixAux it.remaining t it none
 
 private partial def toStringAux {α : Type} : Trie α → List Format
-| (Trie.Node val map) := flip RBNode.fold map (λ c t Fs,
+| (Trie.Node val map) := map.fold (λ Fs c t,
   toFormat (repr c) :: (Format.group $ Format.nest 2 $ flip Format.joinSep Format.line $ toStringAux t) :: Fs) []
 
 instance {α : Type} : HasToString (Trie α) :=

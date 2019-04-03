@@ -17,12 +17,12 @@ mkMap2Aux n {}
 
 def tst1 (n : Nat) : IO Unit :=
 do let m := mkMap1 n,
-   let v := m.fold (λ (k : Nat) (v : Bool) (r : Nat), if v then r + 1 else r) 0,
+   let v := m.fold (λ (r : Nat) (k : Nat) (v : Bool), if v then r + 1 else r) 0,
    IO.println ("Result " ++ toString v)
 
 def tst2 (n : Nat) : IO Unit :=
 do let m := mkMap2 n,
-   let v := m.fold 0 (λ (r : Nat) (k : Nat) (v : Bool), if v then r + 1 else r),
+   let v := m.fold (λ (r : Nat) (k : Nat) (v : Bool), if v then r + 1 else r) 0,
    IO.println ("Result " ++ toString v)
 
 def main (xs : List String) : IO Unit :=

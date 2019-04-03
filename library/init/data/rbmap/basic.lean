@@ -34,17 +34,20 @@ protected def max : RBNode α β → Option (Σ k : α, β k)
 | (node _ _ k v leaf)   := some ⟨k, v⟩
 | (node _ _ k v r)      := max r
 
-@[specialize] def fold (f : Π (k : α), β k → σ → σ) : RBNode α β → σ → σ
-| leaf b               := b
-| (node _ l k v r)   b := fold r (f k v (fold l b))
+@[specialize] def fold (f : σ → Π (k : α), β k → σ) : σ → RBNode α β → σ
+| b leaf             := b
+| b (node _ l k v r) := fold (f (fold b l) k v) r
 
-@[specialize] def mfold {m : Type w → Type w'} [Monad m] (f : Π (k : α), β k → σ → m σ) : RBNode α β → σ → m σ
-| leaf b               := pure b
-| (node _ l k v r) b   := do b₁ ← mfold l b, b₂ ← f k v b₁, mfold r b₂
+@[specialize] def mfold {m : Type w → Type w'} [Monad m] (f : σ → Π (k : α), β k → m σ) : σ → RBNode α β → m σ
+| b leaf             := pure b
+| b (node _ l k v r) := do
+  b ← mfold b l,
+  b ← f b k v,
+  mfold b r
 
-@[specialize] def revFold (f : Π (k : α), β k → σ → σ) : RBNode α β → σ → σ
-| leaf b               := b
-| (node _ l k v r)   b := revFold l (f k v (revFold r b))
+@[specialize] def revFold (f : σ → Π (k : α), β k → σ) : σ → RBNode α β → σ
+| b leaf               := b
+| b (node _ l k v r)   := revFold (f (revFold b r) k v) l
 
 @[specialize] def all (p : Π k : α, β k → Bool) : RBNode α β → Bool
 | leaf                 := true
@@ -154,24 +157,24 @@ variables {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Bool}
 def depth (f : Nat → Nat → Nat) (t : RBMap α β lt) : Nat :=
 t.val.depth f
 
-@[inline] def fold (f : α → β → σ → σ) : RBMap α β lt → σ → σ
-| ⟨t, _⟩ b := t.fold f b
+@[inline] def fold (f : σ → α → β → σ) : σ → RBMap α β lt → σ
+| b ⟨t, _⟩ := t.fold f b
 
-@[inline] def revFold (f : α → β → σ → σ) : RBMap α β lt → σ → σ
-| ⟨t, _⟩ b := t.revFold f b
+@[inline] def revFold (f : σ → α → β → σ) : σ → RBMap α β lt → σ
+| b ⟨t, _⟩ := t.revFold f b
 
-@[inline] def mfold {m : Type w → Type w'} [Monad m] (f : α → β → σ → m σ) : RBMap α β lt → σ → m σ
-| ⟨t, _⟩ b := t.mfold f b
+@[inline] def mfold {m : Type w → Type w'} [Monad m] (f : σ → α → β → m σ) : σ → RBMap α β lt → m σ
+| b ⟨t, _⟩ := t.mfold f b
 
 @[inline] def mfor {m : Type w → Type w'} [Monad m] (f : α → β → m σ) (t : RBMap α β lt) : m PUnit :=
-t.mfold (λ k v _, f k v *> pure ⟨⟩) ⟨⟩
+t.mfold (λ _ k v,  f k v *> pure ⟨⟩) ⟨⟩
 
 @[inline] def isEmpty : RBMap α β lt → Bool
 | ⟨leaf, _⟩ := true
 | _         := false
 
 @[specialize] def toList : RBMap α β lt → List (α × β)
-| ⟨t, _⟩ := t.revFold (λ k v ps, (k, v)::ps) []
+| ⟨t, _⟩ := t.revFold (λ ps k v, (k, v)::ps) []
 
 @[inline] protected def min : RBMap α β lt → Option (α × β)
 | ⟨t, _⟩ :=

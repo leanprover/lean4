@@ -22,23 +22,23 @@ variables {α : Type u} {β : Type v} {lt : α → α → Bool}
 @[inline] def depth (f : Nat → Nat → Nat) (t : RBTree α lt) : Nat :=
 RBMap.depth f t
 
-@[inline] def fold (f : α → β → β) (t : RBTree α lt) (b : β) : β :=
-RBMap.fold (λ a _ r, f a r) t b
+@[inline] def fold (f : β → α → β) (b : β) (t : RBTree α lt) : β :=
+RBMap.fold (λ r a _, f r a) b t
 
-@[inline] def revFold (f : α → β → β) (t : RBTree α lt) (b : β) : β :=
-RBMap.revFold (λ a _ r, f a r) t b
+@[inline] def revFold (f : β → α → β) (b : β) (t : RBTree α lt) : β :=
+RBMap.revFold (λ r a _, f r a) b t
 
-@[inline] def mfold {m : Type v → Type w} [Monad m] (f : α → β → m β) (t : RBTree α lt) (b : β) : m β :=
-RBMap.mfold (λ a _ r, f a r) t b
+@[inline] def mfold {m : Type v → Type w} [Monad m] (f : β → α → m β) (b : β) (t : RBTree α lt) : m β :=
+RBMap.mfold (λ r a _, f r a) b t
 
 @[inline] def mfor {m : Type v → Type w} [Monad m] (f : α → m β) (t : RBTree α lt) : m PUnit :=
-t.mfold (λ a _, f a *> pure ⟨⟩) ⟨⟩
+t.mfold (λ _ a, f a *> pure ⟨⟩) ⟨⟩
 
 @[inline] def isEmpty (t : RBTree α lt) : Bool :=
 RBMap.isEmpty t
 
 @[specialize] def toList (t : RBTree α lt) : List α :=
-t.revFold (::) []
+t.revFold (λ as a, a::as) []
 
 @[inline] protected def min (t : RBTree α lt) : Option α :=
 match RBMap.min t with

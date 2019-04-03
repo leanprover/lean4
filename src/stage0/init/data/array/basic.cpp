@@ -15,7 +15,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_List_toArrayAux___rarg(obj*, obj*);
-obj* l_Nat_repeatCore___main___at_Array_mkArray___spec__1(obj*);
 obj* l_Array_miterateAux___main___at___private_init_data_array_basic_2__mforeachAux___spec__1___boxed(obj*, obj*);
 obj* l_Array_toList___rarg___boxed(obj*);
 obj* l_Array_empty___closed__1;
@@ -29,7 +28,6 @@ obj* l_Array_update___boxed(obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___main___at_Array_toList___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_revFoldl(obj*, obj*);
 obj* l_Array_miterate___boxed(obj*, obj*, obj*);
-obj* l_Array_mkArray(obj*);
 obj* l_Array_isEmpty___boxed(obj*);
 obj* l_Array_mfoldl___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_iterate___spec__1(obj*, obj*);
@@ -64,7 +62,7 @@ obj* l_List_toArrayAux___main___boxed(obj*);
 obj* l_List_toArrayAux(obj*);
 obj* l_Array_miterateAux___main___at_Array_map___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mforeach___rarg___closed__1;
-obj* l_Array_mkArray___boxed(obj*);
+obj* l_Array_mkArray___boxed(obj*, obj*, obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_toList___boxed(obj*);
 obj* l_Array_map___rarg(obj*, obj*);
@@ -111,7 +109,6 @@ uint8 l_Array_isEmpty___rarg(obj*);
 obj* l_Array_push___boxed(obj*, obj*, obj*);
 obj* l_Array_map(obj*);
 obj* l_Array_map___boxed(obj*);
-obj* l_Array_mkArray___rarg(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_foldl___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mmap___rarg(obj*, obj*, obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___boxed(obj*, obj*);
@@ -133,7 +130,6 @@ obj* l_Array_updt___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_toArray___boxed(obj*);
 obj* l_Array_isEmpty___rarg___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Array_mforeach___spec__1___boxed(obj*, obj*);
-obj* l_Nat_repeatCore___main___at_Array_mkArray___spec__1___boxed(obj*);
 obj* l_Array_iterate___rarg(obj*, obj*, obj*);
 obj* l_List_toArray___rarg(obj*);
 obj* l_Array_empty___boxed(obj*);
@@ -163,7 +159,6 @@ uint8 nat_dec_le(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_foreach___spec__1(obj*);
 obj* l_Array_revIterate___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_foldl___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
-obj* l_Nat_repeatCore___main___at_Array_mkArray___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Array_getOpt___boxed(obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___main___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at___private_init_data_array_basic_2__mforeachAux___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*);
@@ -224,73 +219,12 @@ x_3 = lean::array_push(x_1, x_2);
 return x_3;
 }
 }
-obj* l_Nat_repeatCore___main___at_Array_mkArray___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Array_mkArray___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; uint8 x_4; 
-x_3 = lean::mk_nat_obj(0ul);
-x_4 = lean::nat_dec_eq(x_1, x_3);
-if (x_4 == 0)
-{
-obj* x_5; obj* x_6; obj* x_9; 
-x_5 = lean::mk_nat_obj(1ul);
-x_6 = lean::nat_sub(x_1, x_5);
-lean::dec(x_1);
-lean::inc(x_0);
-x_9 = lean::array_push(x_2, x_0);
-x_1 = x_6;
-x_2 = x_9;
-goto _start;
-}
-else
-{
-lean::dec(x_1);
-lean::dec(x_0);
-return x_2;
-}
-}
-}
-obj* l_Nat_repeatCore___main___at_Array_mkArray___spec__1(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repeatCore___main___at_Array_mkArray___spec__1___rarg), 3, 0);
-return x_1;
-}
-}
-obj* l_Array_mkArray___rarg(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; obj* x_3; 
-x_2 = lean::mk_empty_array(x_0);
-x_3 = l_Nat_repeatCore___main___at_Array_mkArray___spec__1___rarg(x_1, x_0, x_2);
+obj* x_3; 
+x_3 = lean::mk_array(x_1, x_2);
 return x_3;
-}
-}
-obj* l_Array_mkArray(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_mkArray___rarg), 2, 0);
-return x_1;
-}
-}
-obj* l_Nat_repeatCore___main___at_Array_mkArray___spec__1___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_Nat_repeatCore___main___at_Array_mkArray___spec__1(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
-obj* l_Array_mkArray___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_Array_mkArray(x_0);
-lean::dec(x_0);
-return x_1;
 }
 }
 obj* _init_l_Array_empty___closed__1() {
@@ -396,7 +330,7 @@ _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = lean::mk_nat_obj(1ul);
-x_2 = l_Array_mkArray___rarg(x_1, x_0);
+x_2 = lean::mk_array(x_1, x_0);
 return x_2;
 }
 }

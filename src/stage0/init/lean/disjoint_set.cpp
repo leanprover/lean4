@@ -41,7 +41,6 @@ obj* l_Lean_DisjointSet_find___main(obj*);
 obj* l_Lean_DisjointSet_find(obj*);
 obj* l_HashMapImp_find___at___private_init_lean_disjoint__set_1__findAux___main___spec__1___boxed(obj*);
 uint8 l_AssocList_contains___main___at_Lean_DisjointSet_merge___main___spec__11___rarg(obj*, obj*, obj*);
-obj* l_HashMapImp_reinsertAux___rarg(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_disjoint__set_1__findAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_DisjointSet_find___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_DisjointSet_merge___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -64,8 +63,6 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_AssocList_contains___main___at_Lean_DisjointSet_merge___main___spec__2(obj*);
 obj* l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__12___rarg(obj*, obj*, obj*, obj*);
-obj* l_Array_mkArray___rarg(obj*, obj*);
-obj* l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_DisjointSet_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_DisjointSet_merge___main___boxed(obj*);
 obj* l_AssocList_contains___main___at_Lean_DisjointSet_merge___main___spec__2___rarg___boxed(obj*, obj*, obj*);
@@ -107,13 +104,11 @@ obj* l___private_init_lean_disjoint__set_1__findAux___rarg(obj*, obj*, obj*, obj
 uint8 l_AssocList_contains___main___at_Lean_DisjointSet_merge___main___spec__8___rarg(obj*, obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_DisjointSet_merge___main___spec__10___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_find___at___private_init_lean_disjoint__set_1__findAux___main___spec__1___rarg(obj*, obj*, obj*, obj*);
-namespace lean {
-obj* nat_mul(obj*, obj*);
-}
 obj* l_Lean_DisjointSet_find___boxed(obj*);
 obj* l___private_init_lean_disjoint__set_1__findAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__9___boxed(obj*);
 obj* l_HashMapImp_find___at___private_init_lean_disjoint__set_1__findAux___main___spec__1___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_HashMapImp_expand___rarg(obj*, obj*, obj*);
 obj* l_Lean_mkDisjointSet(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -641,59 +636,43 @@ lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
 x_26 = lean::array_updt(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
+lean::dec(x_10);
 if (x_27 == 0)
 {
-obj* x_28; obj* x_29; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_36; obj* x_38; 
-x_28 = lean::mk_nat_obj(2ul);
-x_29 = lean::nat_mul(x_10, x_28);
-lean::dec(x_10);
-x_31 = lean::box(0);
-x_32 = l_Array_mkArray___rarg(x_29, x_31);
-x_33 = lean::alloc_closure(reinterpret_cast<void*>(l_HashMapImp_reinsertAux___rarg), 4, 1);
-lean::closure_set(x_33, 0, x_1);
-x_34 = lean::mk_nat_obj(0ul);
-lean::inc(x_26);
-x_36 = l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__1___rarg(x_26, x_33, x_26, x_34, x_32);
-lean::dec(x_26);
-if (lean::is_scalar(x_9)) {
- x_38 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_38 = x_9;
-}
-lean::cnstr_set(x_38, 0, x_23);
-lean::cnstr_set(x_38, 1, x_36);
-return x_38;
+obj* x_30; 
+lean::dec(x_9);
+x_30 = l_HashMapImp_expand___rarg(x_1, x_23, x_26);
+return x_30;
 }
 else
 {
-obj* x_41; 
-lean::dec(x_10);
+obj* x_32; 
 lean::dec(x_1);
 if (lean::is_scalar(x_9)) {
- x_41 = lean::alloc_cnstr(0, 2, 0);
+ x_32 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_41 = x_9;
+ x_32 = x_9;
 }
-lean::cnstr_set(x_41, 0, x_23);
-lean::cnstr_set(x_41, 1, x_26);
-return x_41;
+lean::cnstr_set(x_32, 0, x_23);
+lean::cnstr_set(x_32, 1, x_26);
+return x_32;
 }
 }
 else
 {
-obj* x_44; obj* x_45; obj* x_46; 
+obj* x_35; obj* x_36; obj* x_37; 
 lean::dec(x_10);
 lean::dec(x_1);
-x_44 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__3___rarg(x_0, x_3, x_4, x_16);
-x_45 = lean::array_updt(x_7, x_15, x_44);
+x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__3___rarg(x_0, x_3, x_4, x_16);
+x_36 = lean::array_updt(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
- x_46 = lean::alloc_cnstr(0, 2, 0);
+ x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_46 = x_9;
+ x_37 = x_9;
 }
-lean::cnstr_set(x_46, 0, x_5);
-lean::cnstr_set(x_46, 1, x_45);
-return x_46;
+lean::cnstr_set(x_37, 0, x_5);
+lean::cnstr_set(x_37, 1, x_36);
+return x_37;
 }
 }
 }
@@ -867,59 +846,43 @@ lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
 x_26 = lean::array_updt(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
+lean::dec(x_10);
 if (x_27 == 0)
 {
-obj* x_28; obj* x_29; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_36; obj* x_38; 
-x_28 = lean::mk_nat_obj(2ul);
-x_29 = lean::nat_mul(x_10, x_28);
-lean::dec(x_10);
-x_31 = lean::box(0);
-x_32 = l_Array_mkArray___rarg(x_29, x_31);
-x_33 = lean::alloc_closure(reinterpret_cast<void*>(l_HashMapImp_reinsertAux___rarg), 4, 1);
-lean::closure_set(x_33, 0, x_1);
-x_34 = lean::mk_nat_obj(0ul);
-lean::inc(x_26);
-x_36 = l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__1___rarg(x_26, x_33, x_26, x_34, x_32);
-lean::dec(x_26);
-if (lean::is_scalar(x_9)) {
- x_38 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_38 = x_9;
-}
-lean::cnstr_set(x_38, 0, x_23);
-lean::cnstr_set(x_38, 1, x_36);
-return x_38;
+obj* x_30; 
+lean::dec(x_9);
+x_30 = l_HashMapImp_expand___rarg(x_1, x_23, x_26);
+return x_30;
 }
 else
 {
-obj* x_41; 
-lean::dec(x_10);
+obj* x_32; 
 lean::dec(x_1);
 if (lean::is_scalar(x_9)) {
- x_41 = lean::alloc_cnstr(0, 2, 0);
+ x_32 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_41 = x_9;
+ x_32 = x_9;
 }
-lean::cnstr_set(x_41, 0, x_23);
-lean::cnstr_set(x_41, 1, x_26);
-return x_41;
+lean::cnstr_set(x_32, 0, x_23);
+lean::cnstr_set(x_32, 1, x_26);
+return x_32;
 }
 }
 else
 {
-obj* x_44; obj* x_45; obj* x_46; 
+obj* x_35; obj* x_36; obj* x_37; 
 lean::dec(x_10);
 lean::dec(x_1);
-x_44 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__6___rarg(x_0, x_3, x_4, x_16);
-x_45 = lean::array_updt(x_7, x_15, x_44);
+x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__6___rarg(x_0, x_3, x_4, x_16);
+x_36 = lean::array_updt(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
- x_46 = lean::alloc_cnstr(0, 2, 0);
+ x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_46 = x_9;
+ x_37 = x_9;
 }
-lean::cnstr_set(x_46, 0, x_5);
-lean::cnstr_set(x_46, 1, x_45);
-return x_46;
+lean::cnstr_set(x_37, 0, x_5);
+lean::cnstr_set(x_37, 1, x_36);
+return x_37;
 }
 }
 }
@@ -1093,59 +1056,43 @@ lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
 x_26 = lean::array_updt(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
+lean::dec(x_10);
 if (x_27 == 0)
 {
-obj* x_28; obj* x_29; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_36; obj* x_38; 
-x_28 = lean::mk_nat_obj(2ul);
-x_29 = lean::nat_mul(x_10, x_28);
-lean::dec(x_10);
-x_31 = lean::box(0);
-x_32 = l_Array_mkArray___rarg(x_29, x_31);
-x_33 = lean::alloc_closure(reinterpret_cast<void*>(l_HashMapImp_reinsertAux___rarg), 4, 1);
-lean::closure_set(x_33, 0, x_1);
-x_34 = lean::mk_nat_obj(0ul);
-lean::inc(x_26);
-x_36 = l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__1___rarg(x_26, x_33, x_26, x_34, x_32);
-lean::dec(x_26);
-if (lean::is_scalar(x_9)) {
- x_38 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_38 = x_9;
-}
-lean::cnstr_set(x_38, 0, x_23);
-lean::cnstr_set(x_38, 1, x_36);
-return x_38;
+obj* x_30; 
+lean::dec(x_9);
+x_30 = l_HashMapImp_expand___rarg(x_1, x_23, x_26);
+return x_30;
 }
 else
 {
-obj* x_41; 
-lean::dec(x_10);
+obj* x_32; 
 lean::dec(x_1);
 if (lean::is_scalar(x_9)) {
- x_41 = lean::alloc_cnstr(0, 2, 0);
+ x_32 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_41 = x_9;
+ x_32 = x_9;
 }
-lean::cnstr_set(x_41, 0, x_23);
-lean::cnstr_set(x_41, 1, x_26);
-return x_41;
+lean::cnstr_set(x_32, 0, x_23);
+lean::cnstr_set(x_32, 1, x_26);
+return x_32;
 }
 }
 else
 {
-obj* x_44; obj* x_45; obj* x_46; 
+obj* x_35; obj* x_36; obj* x_37; 
 lean::dec(x_10);
 lean::dec(x_1);
-x_44 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__9___rarg(x_0, x_3, x_4, x_16);
-x_45 = lean::array_updt(x_7, x_15, x_44);
+x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__9___rarg(x_0, x_3, x_4, x_16);
+x_36 = lean::array_updt(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
- x_46 = lean::alloc_cnstr(0, 2, 0);
+ x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_46 = x_9;
+ x_37 = x_9;
 }
-lean::cnstr_set(x_46, 0, x_5);
-lean::cnstr_set(x_46, 1, x_45);
-return x_46;
+lean::cnstr_set(x_37, 0, x_5);
+lean::cnstr_set(x_37, 1, x_36);
+return x_37;
 }
 }
 }
@@ -1319,59 +1266,43 @@ lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
 x_26 = lean::array_updt(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
+lean::dec(x_10);
 if (x_27 == 0)
 {
-obj* x_28; obj* x_29; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_36; obj* x_38; 
-x_28 = lean::mk_nat_obj(2ul);
-x_29 = lean::nat_mul(x_10, x_28);
-lean::dec(x_10);
-x_31 = lean::box(0);
-x_32 = l_Array_mkArray___rarg(x_29, x_31);
-x_33 = lean::alloc_closure(reinterpret_cast<void*>(l_HashMapImp_reinsertAux___rarg), 4, 1);
-lean::closure_set(x_33, 0, x_1);
-x_34 = lean::mk_nat_obj(0ul);
-lean::inc(x_26);
-x_36 = l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__1___rarg(x_26, x_33, x_26, x_34, x_32);
-lean::dec(x_26);
-if (lean::is_scalar(x_9)) {
- x_38 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_38 = x_9;
-}
-lean::cnstr_set(x_38, 0, x_23);
-lean::cnstr_set(x_38, 1, x_36);
-return x_38;
+obj* x_30; 
+lean::dec(x_9);
+x_30 = l_HashMapImp_expand___rarg(x_1, x_23, x_26);
+return x_30;
 }
 else
 {
-obj* x_41; 
-lean::dec(x_10);
+obj* x_32; 
 lean::dec(x_1);
 if (lean::is_scalar(x_9)) {
- x_41 = lean::alloc_cnstr(0, 2, 0);
+ x_32 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_41 = x_9;
+ x_32 = x_9;
 }
-lean::cnstr_set(x_41, 0, x_23);
-lean::cnstr_set(x_41, 1, x_26);
-return x_41;
+lean::cnstr_set(x_32, 0, x_23);
+lean::cnstr_set(x_32, 1, x_26);
+return x_32;
 }
 }
 else
 {
-obj* x_44; obj* x_45; obj* x_46; 
+obj* x_35; obj* x_36; obj* x_37; 
 lean::dec(x_10);
 lean::dec(x_1);
-x_44 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__12___rarg(x_0, x_3, x_4, x_16);
-x_45 = lean::array_updt(x_7, x_15, x_44);
+x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__12___rarg(x_0, x_3, x_4, x_16);
+x_36 = lean::array_updt(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
- x_46 = lean::alloc_cnstr(0, 2, 0);
+ x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_46 = x_9;
+ x_37 = x_9;
 }
-lean::cnstr_set(x_46, 0, x_5);
-lean::cnstr_set(x_46, 1, x_45);
-return x_46;
+lean::cnstr_set(x_37, 0, x_5);
+lean::cnstr_set(x_37, 1, x_36);
+return x_37;
 }
 }
 }

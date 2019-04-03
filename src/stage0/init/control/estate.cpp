@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_EState_modify___boxed(obj*, obj*);
+obj* l_EState_seqRight___rarg(obj*, obj*, obj*);
 obj* l_EState_resultOk_mk___rarg(obj*, obj*);
 obj* l_EState_Monad___lambda__3___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_HasRepr___rarg(obj*, obj*);
@@ -44,6 +45,7 @@ obj* l_EState_adaptExcept___rarg(obj*, obj*, obj*);
 obj* l_EState_Result_toString___main___rarg___closed__2;
 obj* l_EState_bind(obj*, obj*, obj*, obj*);
 obj* l_EState_pure___boxed(obj*, obj*, obj*);
+obj* l_EState_seqRight___boxed(obj*, obj*, obj*, obj*);
 obj* l_EState_modify(obj*, obj*);
 obj* l_EState_unreachableError___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_Result_toString___boxed(obj*, obj*, obj*);
@@ -51,7 +53,6 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_EState_Result_repr___main___rarg(obj*, obj*, obj*);
-obj* l_EState_Monad___lambda__4___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Option_HasRepr___rarg___closed__3;
 obj* l_EState_HasOrelse___closed__1;
 obj* l_EState_pure(obj*, obj*, obj*);
@@ -67,7 +68,6 @@ obj* l_EState_HasRepr___boxed(obj*, obj*, obj*);
 obj* l_EState_adaptExcept(obj*, obj*, obj*, obj*);
 obj* l_EState_bind___boxed(obj*, obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__2(obj*, obj*, obj*, obj*, obj*);
-obj* l_EState_Monad___lambda__4(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_HasRepr(obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_catch___boxed(obj*, obj*, obj*);
@@ -80,6 +80,7 @@ obj* l_EState_Result_repr___rarg(obj*, obj*, obj*);
 obj* l_EState_get___boxed(obj*, obj*);
 obj* l_EState_orelse___rarg(obj*, obj*, obj*);
 obj* l_EState_orelse___boxed(obj*, obj*, obj*);
+obj* l_EState_seqRight(obj*, obj*, obj*, obj*);
 obj* l_EState_MonadState(obj*, obj*);
 obj* l_EState_pure___rarg(obj*, obj*);
 obj* l_EState_HasToString(obj*, obj*, obj*);
@@ -1085,6 +1086,79 @@ lean::dec(x_3);
 return x_4;
 }
 }
+obj* l_EState_seqRight___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::apply_1(x_0, x_2);
+if (lean::obj_tag(x_3) == 0)
+{
+obj* x_4; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+x_4 = lean::cnstr_get(x_3, 1);
+if (lean::is_exclusive(x_3)) {
+ lean::cnstr_release(x_3, 0);
+ x_6 = x_3;
+} else {
+ lean::inc(x_4);
+ lean::dec(x_3);
+ x_6 = lean::box(0);
+}
+x_7 = lean::box(0);
+if (lean::is_scalar(x_6)) {
+ x_8 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_8 = x_6;
+}
+lean::cnstr_set(x_8, 0, x_7);
+lean::cnstr_set(x_8, 1, x_4);
+x_9 = lean::apply_1(x_1, x_8);
+return x_9;
+}
+else
+{
+obj* x_11; obj* x_13; obj* x_15; obj* x_16; 
+lean::dec(x_1);
+x_11 = lean::cnstr_get(x_3, 0);
+x_13 = lean::cnstr_get(x_3, 1);
+if (lean::is_exclusive(x_3)) {
+ x_15 = x_3;
+} else {
+ lean::inc(x_11);
+ lean::inc(x_13);
+ lean::dec(x_3);
+ x_15 = lean::box(0);
+}
+if (lean::is_scalar(x_15)) {
+ x_16 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_16 = x_15;
+}
+lean::cnstr_set(x_16, 0, x_11);
+lean::cnstr_set(x_16, 1, x_13);
+return x_16;
+}
+}
+}
+obj* l_EState_seqRight(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_seqRight___rarg), 3, 0);
+return x_4;
+}
+}
+obj* l_EState_seqRight___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_EState_seqRight(x_0, x_1, x_2, x_3);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+lean::dec(x_3);
+return x_4;
+}
+}
 obj* l_EState_Monad___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -1332,59 +1406,6 @@ return x_31;
 }
 }
 }
-obj* l_EState_Monad___lambda__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = lean::apply_1(x_2, x_4);
-if (lean::obj_tag(x_5) == 0)
-{
-obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
-x_6 = lean::cnstr_get(x_5, 1);
-if (lean::is_exclusive(x_5)) {
- lean::cnstr_release(x_5, 0);
- x_8 = x_5;
-} else {
- lean::inc(x_6);
- lean::dec(x_5);
- x_8 = lean::box(0);
-}
-x_9 = lean::box(0);
-if (lean::is_scalar(x_8)) {
- x_10 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_10 = x_8;
-}
-lean::cnstr_set(x_10, 0, x_9);
-lean::cnstr_set(x_10, 1, x_6);
-x_11 = lean::apply_1(x_3, x_10);
-return x_11;
-}
-else
-{
-obj* x_13; obj* x_15; obj* x_17; obj* x_18; 
-lean::dec(x_3);
-x_13 = lean::cnstr_get(x_5, 0);
-x_15 = lean::cnstr_get(x_5, 1);
-if (lean::is_exclusive(x_5)) {
- x_17 = x_5;
-} else {
- lean::inc(x_13);
- lean::inc(x_15);
- lean::dec(x_5);
- x_17 = lean::box(0);
-}
-if (lean::is_scalar(x_17)) {
- x_18 = lean::alloc_cnstr(1, 2, 0);
-} else {
- x_18 = x_17;
-}
-lean::cnstr_set(x_18, 0, x_13);
-lean::cnstr_set(x_18, 1, x_15);
-return x_18;
-}
-}
-}
 obj* _init_l_EState_Monad___closed__1() {
 _start:
 {
@@ -1399,15 +1420,17 @@ lean::cnstr_set(x_2, 1, x_1);
 x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_pure___boxed), 3, 2);
 lean::closure_set(x_3, 0, lean::box(0));
 lean::closure_set(x_3, 1, lean::box(0));
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__2___boxed), 5, 0);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__3___boxed), 5, 0);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__4___boxed), 5, 0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_seqRight___boxed), 4, 2);
+lean::closure_set(x_4, 0, lean::box(0));
+lean::closure_set(x_4, 1, lean::box(0));
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__2___boxed), 5, 0);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_Monad___lambda__3___boxed), 5, 0);
 x_7 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_7, 0, x_2);
 lean::cnstr_set(x_7, 1, x_3);
-lean::cnstr_set(x_7, 2, x_4);
-lean::cnstr_set(x_7, 3, x_5);
-lean::cnstr_set(x_7, 4, x_6);
+lean::cnstr_set(x_7, 2, x_5);
+lean::cnstr_set(x_7, 3, x_6);
+lean::cnstr_set(x_7, 4, x_4);
 x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_bind___boxed), 4, 2);
 lean::closure_set(x_8, 0, lean::box(0));
 lean::closure_set(x_8, 1, lean::box(0));
@@ -1450,16 +1473,6 @@ _start:
 {
 obj* x_5; 
 x_5 = l_EState_Monad___lambda__3(x_0, x_1, x_2, x_3, x_4);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_5;
-}
-}
-obj* l_EState_Monad___lambda__4___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_EState_Monad___lambda__4(x_0, x_1, x_2, x_3, x_4);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_5;

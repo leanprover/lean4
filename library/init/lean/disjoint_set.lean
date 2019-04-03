@@ -16,18 +16,18 @@ structure DisjointSet.Node (α : Type u) :=
 (find : α)
 (rank : Nat := 0)
 
-structure DisjointSet (α : Type u) [DecidableEq α] [Hashable α] : Type u :=
-(map : Hashmap α (DisjointSet.Node α))
+structure DisjointSet (α : Type u) [HasBeq α] [Hashable α] : Type u :=
+(map : HashMap α (DisjointSet.Node α))
 
-def mkDisjointSet (α : Type u) [DecidableEq α] [Hashable α] : DisjointSet α :=
-⟨mkHashmap⟩
+def mkDisjointSet (α : Type u) [HasBeq α] [Hashable α] : DisjointSet α :=
+⟨mkHashMap⟩
 
 variables {α : Type u}
 
 namespace DisjointSet
 variables [DecidableEq α] [Hashable α]
 
-private def findAux : Nat → α → Hashmap α (Node α) → Node α
+private def findAux : Nat → α → HashMap α (Node α) → Node α
 | 0     a m := { find := a, rank := 0 }
 | (n+1) a m :=
   match m.find a with

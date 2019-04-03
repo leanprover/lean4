@@ -30,10 +30,13 @@ variables [Monad m] {α β : Type u}
 λ s, pure (a, s)
 
 @[inline] protected def bind (x : StateT σ m α) (f : α → StateT σ m β) : StateT σ m β :=
-λ s, do (a, s') ← x s, f a s'
+λ s, do (a, s) ← x s, f a s
+
+@[inline] protected def map (f : α → β) (x : StateT σ m α) : StateT σ m β :=
+λ s, do (a, s) ← x s, pure (f a, s)
 
 instance : Monad (StateT σ m) :=
-{ pure := @StateT.pure _ _ _, bind := @StateT.bind _ _ _ }
+{ pure := @StateT.pure _ _ _, bind := @StateT.bind _ _ _, map := @StateT.map _ _ _ }
 
 @[inline] protected def orelse [Alternative m] {α : Type u} (x₁ x₂ : StateT σ m α) : StateT σ m α :=
 λ s, x₁ s <|> x₂ s

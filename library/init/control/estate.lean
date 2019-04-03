@@ -117,8 +117,13 @@ instance [Inhabited ε] : Inhabited (EState ε σ α) :=
      | Result.ok a s    := Result.ok (f a) s
      | Result.error e s := Result.error e s
 
+@[inline] protected def seqRight (x : EState ε σ α) (y : EState ε σ β) : EState ε σ β :=
+λ r, match x r with
+     | Result.ok _ s    := y (resultOk.mk ⟨⟩ s)
+     | Result.error e s := Result.error e s
+
 instance : Monad (EState ε σ) :=
-{ bind := @EState.bind _ _, pure := @EState.pure _ _, map := @EState.map _ _ }
+{ bind := @EState.bind _ _, pure := @EState.pure _ _, map := @EState.map _ _, seqRight := @EState.seqRight _ _ }
 
 instance : HasOrelse (EState ε σ) :=
 { orelse := @EState.orelse _ _ }

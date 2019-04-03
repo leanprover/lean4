@@ -15,11 +15,11 @@ def mjoin {m : Type u → Type u} [Monad m] {α : Type u} (a : m (m α)) : m α 
 bind a id
 
 @[macroInline]
-def when {m : Type → Type u} [Monad m] (c : Prop) [h : Decidable c] (t : m Unit) : m Unit :=
+def when {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (t : m Unit) : m Unit :=
 if c then t else pure ()
 
 @[macroInline]
-def unless {m : Type → Type u} [Monad m] (c : Prop) [h : Decidable c] (e : m Unit) : m Unit :=
+def unless {m : Type → Type u} [Applicative m] (c : Prop) [h : Decidable c] (e : m Unit) : m Unit :=
 if c then pure () else e
 
 @[macroInline]
@@ -32,11 +32,11 @@ mcond c t (pure ())
 
 namespace Nat
 
-@[specialize] def mforAux {m} [Monad m] (f : Nat → m Unit) : Nat → m Unit
+@[specialize] def mforAux {m} [Applicative m] (f : Nat → m Unit) : Nat → m Unit
 | 0     := pure ()
 | (i+1) := f i *> mforAux i
 
-@[inline] def mfor {m} [Monad m] (n : Nat) (f : Nat → m Unit) : m Unit :=
+@[inline] def mfor {m} [Applicative m] (n : Nat) (f : Nat → m Unit) : m Unit :=
 mforAux f n
 
 -- TODO: enable after we have support for marking arguments that should be considered for specialization.
@@ -51,12 +51,12 @@ end Nat
 namespace List
 
 @[specialize]
-def mmap {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
-| []       := pure []
-| (h :: t) := do h' ← f h, t' ← mmap t, pure (h' :: t')
+def mmap {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m (List β)
+| []      := pure []
+| (a::as) := (::) <$> (f a) <*> mmap as
 
 @[specialize]
-def mfor {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
+def mfor {m : Type u → Type v} [Applicative m] {α : Type w} {β : Type u} (f : α → m β) : List α → m PUnit
 | []       := pure ⟨⟩
 | (h :: t) := f h *> mfor t
 

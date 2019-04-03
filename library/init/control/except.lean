@@ -68,7 +68,7 @@ match ma with
 | Except.error e := handle e
 
 instance : Monad (Except ε) :=
-{ pure := @Except.return _, bind := @Except.bind _ }
+{ pure := @Except.return _, bind := @Except.bind _, map := @Except.map _ }
 end Except
 
 def ExceptT (ε : Type u) (m : Type u → Type v) (α : Type u) : Type v :=
@@ -83,7 +83,7 @@ x
 namespace ExceptT
 variables {ε : Type u} {m : Type u → Type v} [Monad m]
 
-@[inline] protected def return {α : Type u} (a : α) : ExceptT ε m α :=
+@[inline] protected def pure {α : Type u} (a : α) : ExceptT ε m α :=
 ExceptT.mk $ pure (Except.ok a)
 
 @[inline] protected def bindCont {α β : Type u} (f : α → ExceptT ε m β) : Except ε α → m (Except ε β)
@@ -92,6 +92,11 @@ ExceptT.mk $ pure (Except.ok a)
 
 @[inline] protected def bind {α β : Type u} (ma : ExceptT ε m α) (f : α → ExceptT ε m β) : ExceptT ε m β :=
 ExceptT.mk $ ma >>= ExceptT.bindCont f
+
+@[inline] protected def map {α β : Type u} (f : α → β) (x : ExceptT ε m α) : ExceptT ε m β :=
+ExceptT.mk $ x >>= λ a, match a with
+  | (Except.ok a)    := pure $ Except.ok (f a)
+  | (Except.error e) := pure $ Except.error e
 
 @[inline] protected def lift {α : Type u} (t : m α) : ExceptT ε m α :=
 ExceptT.mk $ Except.ok <$> t
@@ -111,7 +116,7 @@ instance (m') [Monad m'] : MonadFunctor m m' (ExceptT ε m) (ExceptT ε m') :=
 ⟨λ _ f x, f x⟩
 
 instance : Monad (ExceptT ε m) :=
-{ pure := @ExceptT.return _ _ _, bind := @ExceptT.bind _ _ _ }
+{ pure := @ExceptT.pure _ _ _, bind := @ExceptT.bind _ _ _, map := @ExceptT.map _ _ _ }
 
 @[inline] protected def adapt {ε' α : Type u} (f : ε → ε') : ExceptT ε m α → ExceptT ε' m α :=
 λ x, ExceptT.mk $ Except.mapError f <$> x

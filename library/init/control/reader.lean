@@ -32,8 +32,11 @@ pure
 @[inline] protected def bind (x : ReaderT ρ m α) (f : α → ReaderT ρ m β) : ReaderT ρ m β :=
 λ r, do a ← x r, f a r
 
+@[inline] protected def map (f : α → β) (x : ReaderT ρ m α) : ReaderT ρ m β :=
+λ r, f <$> x r
+
 instance : Monad (ReaderT ρ m) :=
-{ pure := @ReaderT.pure _ _ _, bind := @ReaderT.bind _ _ _ }
+{ pure := @ReaderT.pure _ _ _, bind := @ReaderT.bind _ _ _, map := @ReaderT.map _ _ _ }
 
 @[inline] protected def lift (a : m α) : ReaderT ρ m α :=
 λ r, a

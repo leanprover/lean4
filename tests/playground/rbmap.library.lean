@@ -1,4 +1,4 @@
-@[reducible] def Map : Type := RBMap Nat Bool (<)
+@[reducible] def Map : Type := RBMap Nat Bool (λ a b, a < b)
 
 def mkMapAux : Nat → Map → Map
 | 0 m := m

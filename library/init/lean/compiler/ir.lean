@@ -310,7 +310,8 @@ ys.foldl (λ s p, s.insert p.x) s
 @[inline] private def seq : Collector → Collector → Collector :=
 λ k₁ k₂ bv fv, k₂ bv (k₁ bv fv)
 
-local infixr >>> := seq
+instance : HasAndthen Collector Collector Collector :=
+⟨seq⟩
 
 private def collectArg : Arg → Collector
 | (Arg.var x) := collectVar x
@@ -318,45 +319,46 @@ private def collectArg : Arg → Collector
 
 private def collectArgs : List Arg → Collector
 | []      := skip
-| (a::as) := collectArg a >>> collectArgs as
+| (a::as) := collectArg a; collectArgs as
 
 private def collectExpr : Expr → Collector
 | (Expr.ctor i ys)       := collectArgs ys
 | (Expr.reset x)         := collectVar x
-| (Expr.reuse x i ys)    := collectVar x >>> collectArgs ys
+| (Expr.reuse x i ys)    := collectVar x; collectArgs ys
 | (Expr.proj i x)        := collectVar x
 | (Expr.uproj i x)       := collectVar x
 | (Expr.sproj n x)       := collectVar x
 | (Expr.fap c ys)        := collectArgs ys
 | (Expr.pap c ys)        := collectArgs ys
-| (Expr.ap x ys)         := collectVar x >>> collectArgs ys
+| (Expr.ap x ys)         := collectVar x; collectArgs ys
 | (Expr.box ty x)        := collectVar x
 | (Expr.unbox x)         := collectVar x
 | (Expr.lit v)           := skip
 | (Expr.isShared x)      := collectVar x
 | (Expr.isTaggedPtr x)   := collectVar x
 
+private def collectAlts (f : Fnbody → Collector) : List Alt → Collector
+| []                      := skip
+| (Alt.ctor _ b :: alts)  := f b; collectAlts alts
+| (Alt.default b :: alts) := f b; collectAlts alts
+
 private partial def collectFnBody : Fnbody → Collector
-| (Fnbody.vdecl x _ v b)    := collectExpr v >>> withBv x (collectFnBody b)
-| (Fnbody.jdecl j ys _ v b) := withParams ys (collectFnBody v) >>> withBv j (collectFnBody b)
-| (Fnbody.set x _ y b)      := collectVar x >>> collectVar y >>> collectFnBody b
-| (Fnbody.uset x _ y b)     := collectVar x >>> collectVar y >>> collectFnBody b
-| (Fnbody.sset x _ _ y _ b) := collectVar x >>> collectVar y >>> collectFnBody b
-| (Fnbody.release x _ b)    := collectVar x >>> collectFnBody b
-| (Fnbody.inc x _ _ b)      := collectVar x >>> collectFnBody b
-| (Fnbody.dec x _ _ b)      := collectVar x >>> collectFnBody b
+| (Fnbody.vdecl x _ v b)    := collectExpr v; withBv x (collectFnBody b)
+| (Fnbody.jdecl j ys _ v b) := withParams ys (collectFnBody v); withBv j (collectFnBody b)
+| (Fnbody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
+| (Fnbody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
+| (Fnbody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
+| (Fnbody.release x _ b)    := collectVar x; collectFnBody b
+| (Fnbody.inc x _ _ b)      := collectVar x; collectFnBody b
+| (Fnbody.dec x _ _ b)      := collectVar x; collectFnBody b
 | (Fnbody.mdata _ b)        := collectFnBody b
-| (Fnbody.case _ x alts)    := collectVar x >>> λ bv fv, alts.foldl (λ fv alt,
-   match alt with
-   | Alt.ctor _ b  := collectFnBody b bv fv
-   | Alt.default b := collectFnBody b bv fv)
-   fv
-| (Fnbody.jmp j ys)         := collectVar j >>> collectArgs ys
+| (Fnbody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
+| (Fnbody.jmp j ys)         := collectVar j; collectArgs ys
 | (Fnbody.ret x)            := collectVar x
 | Fnbody.unreachable        := skip
 
 def freeVars (b : Fnbody) : VarSet :=
-collectFnBody b ∅ ∅
+collectFnBody b {} {}
 
 end freeVariables
 

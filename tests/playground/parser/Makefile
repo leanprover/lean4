@@ -1,15 +1,16 @@
 LEANC=../../../bin/leanc
 LEAN=../../../bin/lean
-SRCS = $(shell ls *.lean)
+COMMON_SRCS = parser.lean
+SRCS = $(COMMON_SRCS) test1.lean test2.lean
 OLEANS = $(SRCS:.lean=.olean)
 CPPS = $(SRCS:.lean=.cpp)
-OBJS = $(SRCS:.lean=.o)
+COMMON_OBJS = $(COMMON_SRCS:.lean=.o)
 DEPS = $(SRCS:.lean=.depend)
 CPPFLAGS = -O3
 
 .PHONY: all clean
 
-all: parser $(OLEANS)
+all: test1 test2 $(OLEANS)
 
 depends: $(DEPS)
 
@@ -27,14 +28,17 @@ depends: $(DEPS)
 %.o: %.cpp
 	$(LEANC) -c $(CPPFLAGS) -o $@ $<
 
-parser: $(OBJS)
-	$(LEANC) -o parser $(OBJS)
+test1: test1.o $(COMMON_OBJS)
+	$(LEANC) -o $@ $?
+
+test2: test2.o $(COMMON_OBJS)
+	$(LEANC) -o $@ $?
 
 clean:
 	rm -f *.olean
 	rm -f *.cpp
 	rm -f *.o
 	rm -f *.depend
-	rm -f parser
+	rm -f test1 test2
 
 include $(DEPS)

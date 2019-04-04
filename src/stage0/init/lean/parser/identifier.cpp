@@ -1219,26 +1219,26 @@ return x_2;
 obj* l_Lean_Parser_idPartEscaped___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_6; obj* x_8; uint32 x_11; obj* x_14; obj* x_17; obj* x_18; uint32 x_19; obj* x_20; obj* x_21; 
+obj* x_3; obj* x_6; uint32 x_8; obj* x_11; obj* x_12; obj* x_17; uint32 x_18; obj* x_19; obj* x_20; obj* x_21; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 lean::dec(x_2);
-x_6 = lean::cnstr_get(x_3, 3);
+x_6 = lean::cnstr_get(x_3, 4);
 lean::inc(x_6);
-x_8 = lean::cnstr_get(x_3, 4);
-lean::inc(x_8);
-lean::dec(x_3);
-x_11 = l_Lean_idBeginEscape;
+x_8 = l_Lean_idBeginEscape;
 lean::inc(x_1);
 lean::inc(x_0);
-x_14 = l_Lean_Parser_MonadParsec_ch___rarg(x_0, x_1, x_11);
+x_11 = l_Lean_Parser_MonadParsec_ch___rarg(x_0, x_1, x_8);
+x_12 = lean::cnstr_get(x_3, 3);
+lean::inc(x_12);
+lean::dec(x_3);
 lean::inc(x_1);
 lean::inc(x_0);
 x_17 = l_Lean_Parser_MonadParsec_takeWhile1___at_Lean_Parser_idPartEscaped___spec__1___rarg(x_0, x_1);
-x_18 = lean::apply_4(x_8, lean::box(0), lean::box(0), x_14, x_17);
-x_19 = l_Lean_idEndEscape;
-x_20 = l_Lean_Parser_MonadParsec_ch___rarg(x_0, x_1, x_19);
-x_21 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_18, x_20);
+x_18 = l_Lean_idEndEscape;
+x_19 = l_Lean_Parser_MonadParsec_ch___rarg(x_0, x_1, x_18);
+x_20 = lean::apply_4(x_12, lean::box(0), lean::box(0), x_17, x_19);
+x_21 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_11, x_20);
 return x_21;
 }
 }

@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+obj* l_Lean_Compiler_atMostOnce_HasAndthen;
 obj* l_Lean_Compiler_atMostOnce_seq(obj*, obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
 namespace lean {
@@ -126,6 +127,14 @@ obj* x_6;
 x_6 = lean::apply_1(x_1, x_3);
 return x_6;
 }
+}
+}
+obj* _init_l_Lean_Compiler_atMostOnce_HasAndthen() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_atMostOnce_seq), 3, 0);
+return x_0;
 }
 }
 obj* l_Lean_Compiler_atMostOnce_skip(obj* x_0) {
@@ -640,6 +649,8 @@ lean::mark_persistent(l_Lean_Compiler_objectType);
 lean::mark_persistent(l_Lean_Compiler_voidType);
  l_Lean_Compiler_mkLcProof___closed__1 = _init_l_Lean_Compiler_mkLcProof___closed__1();
 lean::mark_persistent(l_Lean_Compiler_mkLcProof___closed__1);
+ l_Lean_Compiler_atMostOnce_HasAndthen = _init_l_Lean_Compiler_atMostOnce_HasAndthen();
+lean::mark_persistent(l_Lean_Compiler_atMostOnce_HasAndthen);
  l_Lean_Compiler_atMostOnce___closed__1 = _init_l_Lean_Compiler_atMostOnce___closed__1();
 lean::mark_persistent(l_Lean_Compiler_atMostOnce___closed__1);
 return w;

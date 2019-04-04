@@ -14,12 +14,44 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_mcomp___boxed(obj*, obj*, obj*, obj*);
 obj* l_monadInhabited_x_27___rarg(obj*);
 obj* l_monadInhabited___rarg(obj*, obj*);
 obj* l_monadInhabited(obj*, obj*);
+obj* l_mcomp(obj*, obj*, obj*, obj*);
 obj* l_monadInhabited_x_27___boxed(obj*, obj*);
+obj* l_mcomp___rarg(obj*, obj*, obj*, obj*);
 obj* l_monadInhabited___boxed(obj*, obj*);
 obj* l_monadInhabited_x_27(obj*, obj*);
+obj* l_mcomp___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; 
+x_4 = lean::apply_1(x_1, x_3);
+x_5 = lean::apply_4(x_0, lean::box(0), lean::box(0), x_4, x_2);
+return x_5;
+}
+}
+obj* l_mcomp(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_mcomp___rarg), 4, 0);
+return x_4;
+}
+}
+obj* l_mcomp___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_mcomp(x_0, x_1, x_2, x_3);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+lean::dec(x_3);
+return x_4;
+}
+}
 obj* l_monadInhabited___rarg(obj* x_0, obj* x_1) {
 _start:
 {

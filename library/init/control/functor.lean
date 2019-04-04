@@ -12,13 +12,13 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) :=
 (map : Π {α β : Type u}, (α → β) → f α → f β)
 (mapConst : Π {α β : Type u}, α → f β → f α := λ α β, map ∘ const β)
 
-infixr ` <$> `:100 := Functor.map
-infixr ` <$ `:100  := Functor.mapConst
+infixr <$> := Functor.map
+infixr <$  := Functor.mapConst
 
 @[reducible] def Functor.mapConstRev {f : Type u → Type v} [Functor f] {α β : Type u} : f β → α → f α :=
 λ a b, b <$ a
-infixr ` $> `:100  := Functor.mapConstRev
+infixr $>  := Functor.mapConstRev
 
 @[reducible] def Functor.mapRev {f : Type u → Type v} [Functor f] {α β : Type u} : f α → (α → β) → f β :=
 λ a f, f <$> a
-infixl ` <&> `:100  := Functor.mapRev
+infixl <&> := Functor.mapRev

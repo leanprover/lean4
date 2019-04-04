@@ -5,7 +5,7 @@ Authors: Leonardo de Moura, Luke Nelson, Jared Roesch, Sebastian Ullrich
 -/
 prelude
 import init.control.applicative
-universes u v
+universes u v w
 
 open Function
 
@@ -14,14 +14,18 @@ class HasBind (m : Type u → Type v) :=
 
 export HasBind (bind)
 
-infixl ` >>= `:55 := bind
+infixr >>= := bind
+
+@[inline] def mcomp {α : Type u} {β δ : Type v} {m : Type v → Type w} [HasBind m] (f : α → m β) (g : β → m δ) : α → m δ :=
+λ a, f a >>= g
+
+infixr >=> := mcomp
 
 class Monad (m : Type u → Type v) extends Applicative m, HasBind m : Type (max (u+1) v) :=
 (map      := λ α β f x, x >>= pure ∘ f)
 (seq      := λ α β f x, f >>= (<$> x))
 (seqLeft  := λ α β x y, x >>= λ a, y >>= λ _, pure a)
 (seqRight := λ α β x y, x >>= λ _, y)
-
 
 /- We do not add these instances by default because they are rarely needed,
    and could slow down the current type class resolution procedure. -/

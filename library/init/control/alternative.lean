@@ -10,7 +10,7 @@ universes u v
 class HasOrelse (f : Type u → Type v) : Type (max (u+1) v) :=
 (orelse  : Π {α : Type u}, f α → f α → f α)
 
-infixr ` <|> `:2 := HasOrelse.orelse
+infixr <|> := HasOrelse.orelse
 
 class Alternative (f : Type u → Type v) extends Applicative f, HasOrelse f : Type (max (u+1) v) :=
 (failure : Π {α : Type u}, f α)

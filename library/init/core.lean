@@ -83,6 +83,19 @@ reserve infixl ` ++ `:65
 reserve infixr ` :: `:67
 reserve infixl `; `:1
 
+/- Control -/
+reserve infixr ` <|> `:2
+reserve infixr ` >>= `:55
+reserve infixr ` >=> `:55
+reserve infixl ` <*> `:60
+reserve infixl ` <* ` :60
+reserve infixr ` *> ` :60
+reserve infixr ` >>> `:60
+reserve infixr ` <$> `:100
+reserve infixr ` <$ ` :100
+reserve infixr ` $> ` :100
+reserve infixl ` <&> `:100
+
 universes u v w
 
 /-- Auxiliary unsafe constant used by the Compiler when erasing proofs from code. -/

@@ -16,17 +16,17 @@ export HasPure (pure)
 class HasSeq (f : Type u → Type v) : Type (max (u+1) v) :=
 (seq  : Π {α β : Type u}, f (α → β) → f α → f β)
 
-infixl ` <*> `:60 := HasSeq.seq
+infixl <*> := HasSeq.seq
 
 class HasSeqLeft (f : Type u → Type v) : Type (max (u+1) v) :=
 (seqLeft : Π {α β : Type u}, f α → f β → f α)
 
-infixl ` <* `:60  := HasSeqLeft.seqLeft
+infixl <* := HasSeqLeft.seqLeft
 
 class HasSeqRight (f : Type u → Type v) : Type (max (u+1) v) :=
 (seqRight : Π {α β : Type u}, f α → f β → f β)
 
-infixl ` *> `:60  := HasSeqRight.seqRight
+infixr *> := HasSeqRight.seqRight
 
 class Applicative (f : Type u → Type v) extends Functor f, HasPure f, HasSeq f, HasSeqLeft f, HasSeqRight f :=
 (map      := λ _ _ x y, pure x <*> y)

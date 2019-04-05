@@ -20,11 +20,11 @@ f x
 @[inline] def Id.map {α β : Type u} (f : α → β) (x : Id α) : Id β :=
 f x
 
-@[inline] instance : Monad Id :=
+instance : Monad Id :=
 { pure := @Id.pure, bind := @Id.bind, map := @Id.map }
 
 @[inline] def Id.run {α : Type u} (x : Id α) : α :=
 x
 
-@[inline] instance : MonadRun id Id :=
+instance : MonadRun id Id :=
 ⟨@Id.run⟩

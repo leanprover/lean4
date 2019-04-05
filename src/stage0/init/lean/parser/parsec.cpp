@@ -4715,44 +4715,22 @@ return x_3;
 obj* l_Lean_Parser_ParsecT_Alternative___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; obj* x_5; obj* x_6; obj* x_8; obj* x_10; obj* x_12; obj* x_14; obj* x_15; obj* x_17; obj* x_18; obj* x_19; 
+obj* x_3; obj* x_4; obj* x_8; obj* x_9; obj* x_10; 
 lean::inc(x_0);
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Monad___rarg___lambda__2___boxed), 6, 1);
-lean::closure_set(x_3, 0, x_0);
+x_3 = l_Lean_Parser_ParsecT_Monad___rarg(x_0, lean::box(0));
+x_4 = lean::cnstr_get(x_3, 0);
+lean::inc(x_4);
+lean::dec(x_3);
 lean::inc(x_0);
-x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Monad___rarg___lambda__4___boxed), 6, 1);
-lean::closure_set(x_5, 0, x_0);
-x_6 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_6, 0, x_3);
-lean::cnstr_set(x_6, 1, x_5);
-lean::inc(x_0);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Monad___rarg___lambda__5___boxed), 4, 1);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Alternative___rarg___lambda__1___boxed), 5, 1);
 lean::closure_set(x_8, 0, x_0);
-lean::inc(x_0);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Monad___rarg___lambda__8___boxed), 6, 1);
-lean::closure_set(x_10, 0, x_0);
-lean::inc(x_0);
-x_12 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Monad___rarg___lambda__11___boxed), 6, 1);
-lean::closure_set(x_12, 0, x_0);
-lean::inc(x_0);
-x_14 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Monad___rarg___lambda__13___boxed), 6, 1);
-lean::closure_set(x_14, 0, x_0);
-x_15 = lean::alloc_cnstr(0, 5, 0);
-lean::cnstr_set(x_15, 0, x_6);
-lean::cnstr_set(x_15, 1, x_8);
-lean::cnstr_set(x_15, 2, x_10);
-lean::cnstr_set(x_15, 3, x_12);
-lean::cnstr_set(x_15, 4, x_14);
-lean::inc(x_0);
-x_17 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Alternative___rarg___lambda__1___boxed), 5, 1);
-lean::closure_set(x_17, 0, x_0);
-x_18 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Alternative___rarg___lambda__2___boxed), 3, 1);
-lean::closure_set(x_18, 0, x_0);
-x_19 = lean::alloc_cnstr(0, 3, 0);
-lean::cnstr_set(x_19, 0, x_15);
-lean::cnstr_set(x_19, 1, x_17);
-lean::cnstr_set(x_19, 2, x_18);
-return x_19;
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_ParsecT_Alternative___rarg___lambda__2___boxed), 3, 1);
+lean::closure_set(x_9, 0, x_0);
+x_10 = lean::alloc_cnstr(0, 3, 0);
+lean::cnstr_set(x_10, 0, x_4);
+lean::cnstr_set(x_10, 1, x_8);
+lean::cnstr_set(x_10, 2, x_9);
+return x_10;
 }
 }
 obj* l_Lean_Parser_ParsecT_Alternative(obj* x_0) {

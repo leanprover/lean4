@@ -67,7 +67,6 @@ obj* l_Lean_Parser_MonadParsec_error___at___private_init_lean_parser_token_1__fi
 obj* l_Lean_Parser_MonadParsec_error___at_Lean_Parser_Level_leading_Parser_Lean_Parser_HasTokens___spec__5(obj*);
 obj* l_Lean_Parser_symbolCore___at_Lean_Parser_Level_paren_Parser_Lean_Parser_HasTokens___spec__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Level_paren_Parser___closed__1;
-obj* l_id___rarg___boxed(obj*);
 obj* l_Lean_Parser_Level_app;
 obj* l_String_OldIterator_remaining___main(obj*);
 obj* l_Lean_Parser_Level_addLit;
@@ -555,13 +554,12 @@ return x_0;
 obj* _init_l_Lean_Parser_Level_Lean_Parser_HasView() {
 _start:
 {
-obj* x_0; obj* x_2; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_2, 0, x_0);
-lean::cnstr_set(x_2, 1, x_0);
-return x_2;
+obj* x_0; obj* x_1; 
+x_0 = l_mjoin___rarg___closed__1;
+x_1 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_1, 0, x_0);
+lean::cnstr_set(x_1, 1, x_0);
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_Level_paren() {

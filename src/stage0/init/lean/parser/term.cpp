@@ -2724,13 +2724,12 @@ return x_0;
 obj* _init_l_Lean_Parser_Term_Lean_Parser_HasView() {
 _start:
 {
-obj* x_0; obj* x_2; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
-lean::inc(x_0);
-x_2 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_2, 0, x_0);
-lean::cnstr_set(x_2, 1, x_0);
-return x_2;
+obj* x_0; obj* x_1; 
+x_0 = l_mjoin___rarg___closed__1;
+x_1 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_1, 0, x_0);
+lean::cnstr_set(x_1, 1, x_0);
+return x_1;
 }
 }
 obj* _init_l_Lean_Parser_Term_tuple() {

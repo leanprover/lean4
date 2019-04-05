@@ -20,6 +20,8 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/expr_pair_maps.h"
 #include "library/compiler/util.h"
+#include "library/compiler/cse.h"
+#include "library/compiler/elim_dead_let.h"
 #include "library/compiler/csimp.h"
 #include "library/compiler/reduce_arity.h"
 
@@ -1779,9 +1781,17 @@ expr csimp_core(environment const & env, local_ctx const & lctx, expr const & e0
     expr e = e0;
     while (true) {
         e = simp(e);
+        bool modified = false;
         e = elim_jp1(e);
-        if (!elim_jp1.expanded())
+        if (elim_jp1.expanded())
+            modified = true;
+        expr new_e = cse_core(env, e, before_erasure);
+        new_e = elim_dead_let(new_e);
+        if (e != new_e)
+            modified = true;
+        if (!modified)
             return e;
+        e = new_e;
     }
 }
 }

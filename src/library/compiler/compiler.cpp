@@ -194,10 +194,6 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "cce"}), ds);
     ds = apply(simp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
-    ds = apply(elim_dead_let, ds);
-    trace_compiler(name({"compiler", "elim_dead_let"}), ds);
-    ds = apply(cse, env, ds);
-    trace_compiler(name({"compiler", "cse"}), ds);
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);
     environment new_env = cache_stage1(env, ds);
@@ -209,10 +205,6 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
-    ds = apply(elim_dead_let, ds);
-    trace_compiler(name({"compiler", "elim_dead_let"}), ds);
-    ds = apply(ecse, new_env, ds);
-    trace_compiler(name({"compiler", "cse"}), ds);
     ds = reduce_arity(new_env, ds);
     trace_compiler(name({"compiler", "reduce_arity"}), ds);
     std::tie(new_env, ds) = lambda_lifting(new_env, ds);

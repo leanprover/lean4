@@ -1136,29 +1136,6 @@ class csimp_fn {
             return false;
     }
 
-    optional<expr> try_inline_instance(expr const & fn, expr const & e) {
-        if (!m_before_erasure)
-            return none_expr();
-        if (!is_constant(fn) || !should_inline_instance(const_name(fn)))
-            return none_expr();
-        lean_assert(is_constant(fn));
-        optional<constant_info> info = env().find(mk_cstage1_name(const_name(fn)));
-        if (!info || !info->is_definition()) return none_expr();
-        if (get_app_num_args(e) < get_num_nested_lambdas(info->get_value())) return none_expr();
-        unsigned  saved_fvars_size = m_fvars.size();
-        expr new_fn = instantiate_value_lparams(*info, const_levels(fn));
-        expr r      = find(beta_reduce(new_fn, e, false));
-        if (is_constructor_app(env(), r)) {
-            return some_expr(r);
-        } else if (optional<expr> new_r = try_inline_instance(get_app_fn(r), r)) {
-            return new_r;
-        } else {
-            lean_trace(name({"compiler", "erase_irrelevant"}), tout() << ">> r: " << r << "\n";);
-            m_fvars.resize(saved_fvars_size);
-            return none_expr();
-        }
-    }
-
     expr proj_constructor(expr const & k_app, unsigned proj_idx) {
         lean_assert(is_constructor_app(env(), k_app));
         buffer<expr> args;
@@ -1168,17 +1145,98 @@ class csimp_fn {
         return args[k_val.get_nparams() + proj_idx];
     }
 
+    optional<expr> try_inline_proj_instance_aux(expr s) {
+        lean_assert(m_before_erasure);
+        s = find(s);
+        if (is_constructor_app(env(), s)) {
+            return some_expr(s);
+        } else if (is_proj(s)) {
+            if (optional<expr> new_nested_s = try_inline_proj_instance_aux(proj_expr(s))) {
+                lean_assert(is_constructor_app(env(), new_nested_s));
+                expr r = proj_constructor(*new_nested_s, proj_idx(s).get_small_value());
+                return try_inline_proj_instance_aux(r);
+            }
+        } else {
+            expr const & s_fn = get_app_fn(s);
+            if (!is_constant(s_fn) || !should_inline_instance(const_name(s_fn)))
+                return none_expr();
+            optional<constant_info> info = env().find(mk_cstage1_name(const_name(s_fn)));
+            if (!info || !info->is_definition()) return none_expr();
+            if (get_app_num_args(s) < get_num_nested_lambdas(info->get_value())) return none_expr();
+            expr new_s_fn = instantiate_value_lparams(*info, const_levels(s_fn));
+            expr r        = find(beta_reduce(new_s_fn, s, false));
+            if (is_constructor_app(env(), r)) {
+                return some_expr(r);
+            } else if (optional<expr> new_r = try_inline_proj_instance_aux(r)) {
+                return new_r;
+            }
+        }
+        return none_expr();
+    }
+
+    bool is_type_class(expr type) {
+        type = cheap_beta_reduce(type);
+        expr const & fn = get_app_fn(type);
+        if (!is_constant(fn)) return false;
+        return is_class(env(), const_name(fn));
+    }
+
+    /* Auxiliary function for projecting "type class dictionary access".
+       That is, we are trying to extract one of the type class instance elements.
+
+       Remark: We do not consider parent instances to be elements.
+       For example, suppose `e` is `_x_4.1`, and we have
+       ```
+       _x_2 : Monad (ReaderT Bool (ExceptT String Id)) := @ReaderT.Monad Bool (ExceptT String Id) _x_1,
+       _x_3 : Applicative (ReaderT Bool (ExceptT String Id)) := _x_2.1
+       _x_4 : Functor (ReaderT Bool (ExceptT String Id)) := _x_3.1
+       ```
+       Then, we will expand `_x_4.1` since it corresponds to the `Functor` `map` element,
+       and its type is not a type class, but is of the form
+       ```
+       (Π {α β : Type u}, (α → β) → ...)
+       ```
+       In the example above, the compiler should not expand `_x_3.1` or `_x_2.1` since their
+       types type class applications: `Functor` and `Applicative` respectively.
+       By eagerly expanding them, we may produce inefficient and bloated code.
+       For example, we may be using `_x_3.1` to invoke a function that expects a `Functor` instance.
+       By expanding `_x_3.1` we will be just expanding the code that creates this instance.
+    */
+    optional<expr> try_inline_proj_instance(expr const & e, bool is_let_val) {
+        lean_assert(is_proj(e));
+        if (!m_before_erasure) return none_expr();
+        expr e_type = infer_type(e);
+        if (is_type_class(e_type)) {
+            /* If `typeof(e)` is a type class, then we should not instantiate it.
+               See comment above. */
+            return none_expr();
+        }
+
+        unsigned saved_fvars_size = m_fvars.size();
+        if (optional<expr> new_s = try_inline_proj_instance_aux(proj_expr(e))) {
+            lean_assert(is_constructor_app(env(), new_s));
+            expr r = proj_constructor(*new_s, proj_idx(e).get_small_value());
+            return some_expr(visit(r, is_let_val));
+        }
+        m_fvars.resize(saved_fvars_size);
+        return none_expr();
+    }
+
     expr visit_proj(expr const & e, bool is_let_val) {
         expr s = find(proj_expr(e));
+
         if (is_constructor_app(env(), s))
             return proj_constructor(s, proj_idx(e).get_small_value());
-        expr const & s_fn = get_app_fn(s);
-        if (optional<expr> k_app = try_inline_instance(s_fn, s))
-            return visit(proj_constructor(*k_app, proj_idx(e).get_small_value()), is_let_val);
+
         if (is_fvar(s)) {
             if (expr const * ctor = m_var2ctor.find(fvar_name(s)))
                 return proj_constructor(*ctor, proj_idx(e).get_small_value());
         }
+
+        if (optional<expr> r = try_inline_proj_instance(e, is_let_val)) {
+            return *r;
+        }
+
         expr new_arg = visit_arg(proj_expr(e));
         if (is_eqp(proj_expr(e), new_arg))
             return e;

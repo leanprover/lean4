@@ -178,4 +178,3 @@ wellFoundedTactics
 wellFoundedTactics.default
 wellFoundedTactics.relTac
 wellFoundedTactics.decTac
-wfTermHack

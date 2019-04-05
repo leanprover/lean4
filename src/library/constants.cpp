@@ -183,7 +183,6 @@ name const * g_well_founded_tactics = nullptr;
 name const * g_well_founded_tactics_default = nullptr;
 name const * g_well_founded_tactics_rel_tac = nullptr;
 name const * g_well_founded_tactics_dec_tac = nullptr;
-name const * g_wf_term_hack = nullptr;
 void initialize_constants() {
     g_absurd = new name{"absurd"};
     g_and = new name{"And"};
@@ -365,7 +364,6 @@ void initialize_constants() {
     g_well_founded_tactics_default = new name{"wellFoundedTactics", "default"};
     g_well_founded_tactics_rel_tac = new name{"wellFoundedTactics", "relTac"};
     g_well_founded_tactics_dec_tac = new name{"wellFoundedTactics", "decTac"};
-    g_wf_term_hack = new name{"wfTermHack"};
 }
 void finalize_constants() {
     delete g_absurd;
@@ -548,7 +546,6 @@ void finalize_constants() {
     delete g_well_founded_tactics_default;
     delete g_well_founded_tactics_rel_tac;
     delete g_well_founded_tactics_dec_tac;
-    delete g_wf_term_hack;
 }
 name const & get_absurd_name() { return *g_absurd; }
 name const & get_and_name() { return *g_and; }
@@ -730,5 +727,4 @@ name const & get_well_founded_tactics_name() { return *g_well_founded_tactics; }
 name const & get_well_founded_tactics_default_name() { return *g_well_founded_tactics_default; }
 name const & get_well_founded_tactics_rel_tac_name() { return *g_well_founded_tactics_rel_tac; }
 name const & get_well_founded_tactics_dec_tac_name() { return *g_well_founded_tactics_dec_tac; }
-name const & get_wf_term_hack_name() { return *g_wf_term_hack; }
 }

@@ -185,5 +185,4 @@ name const & get_well_founded_tactics_name();
 name const & get_well_founded_tactics_default_name();
 name const & get_well_founded_tactics_rel_tac_name();
 name const & get_well_founded_tactics_dec_tac_name();
-name const & get_wf_term_hack_name();
 }

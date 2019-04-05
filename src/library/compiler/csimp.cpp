@@ -1580,13 +1580,13 @@ class csimp_fn {
         } else if (is_constant(fn)) {
             unsigned nargs = get_app_num_args(e);
             if (nargs == 1) {
-                expr a1 = find(app_arg(e));
+                expr a1 = find(visit_arg(app_arg(e)));
                 if (optional<expr> r = fold_un_op(m_before_erasure, fn, a1)) {
                     return *r;
                 }
             } else if (nargs == 2) {
-                expr a1 = find(app_arg(app_fn(e)));
-                expr a2 = find(app_arg(e));
+                expr a1 = find(visit_arg(app_arg(app_fn(e))));
+                expr a2 = find(visit_arg(app_arg(e)));
                 if (optional<expr> r = fold_bin_op(m_before_erasure, fn, a1, a2)) {
                     return *r;
                 }

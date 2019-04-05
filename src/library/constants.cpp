@@ -168,6 +168,8 @@ name const * g_psum_inl = nullptr;
 name const * g_psum_inr = nullptr;
 name const * g_task = nullptr;
 name const * g_thunk = nullptr;
+name const * g_thunk_mk = nullptr;
+name const * g_thunk_get = nullptr;
 name const * g_true = nullptr;
 name const * g_true_intro = nullptr;
 name const * g_typed_expr = nullptr;
@@ -349,6 +351,8 @@ void initialize_constants() {
     g_psum_inr = new name{"PSum", "inr"};
     g_task = new name{"Task"};
     g_thunk = new name{"Thunk"};
+    g_thunk_mk = new name{"Thunk", "mk"};
+    g_thunk_get = new name{"Thunk", "get"};
     g_true = new name{"True"};
     g_true_intro = new name{"True", "intro"};
     g_typed_expr = new name{"typedExpr"};
@@ -531,6 +535,8 @@ void finalize_constants() {
     delete g_psum_inr;
     delete g_task;
     delete g_thunk;
+    delete g_thunk_mk;
+    delete g_thunk_get;
     delete g_true;
     delete g_true_intro;
     delete g_typed_expr;
@@ -712,6 +718,8 @@ name const & get_psum_inl_name() { return *g_psum_inl; }
 name const & get_psum_inr_name() { return *g_psum_inr; }
 name const & get_task_name() { return *g_task; }
 name const & get_thunk_name() { return *g_thunk; }
+name const & get_thunk_mk_name() { return *g_thunk_mk; }
+name const & get_thunk_get_name() { return *g_thunk_get; }
 name const & get_true_name() { return *g_true; }
 name const & get_true_intro_name() { return *g_true_intro; }
 name const & get_typed_expr_name() { return *g_typed_expr; }

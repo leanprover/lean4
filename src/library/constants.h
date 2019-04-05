@@ -170,6 +170,8 @@ name const & get_psum_inl_name();
 name const & get_psum_inr_name();
 name const & get_task_name();
 name const & get_thunk_name();
+name const & get_thunk_mk_name();
+name const & get_thunk_get_name();
 name const & get_true_name();
 name const & get_true_intro_name();
 name const & get_typed_expr_name();

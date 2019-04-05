@@ -1504,6 +1504,18 @@ class csimp_fn {
         return mk_app(mk_constant(get_nat_add_name()), arg, mk_lit(literal(nat(1))));
     }
 
+    expr visit_thunk_get(expr const & e, bool is_let_val) {
+        buffer<expr> args;
+        expr fn = get_app_args(e, args);
+        lean_assert(is_constant(fn, get_thunk_get_name()));
+        if (args.size() != 2) return visit_app_default(e);
+        expr mk = find(args[1]);
+        if (!is_app_of(mk, get_thunk_mk_name(), 2)) return visit_app_default(e);
+        // @Thunk.get _ (@Thunk.mk _ g) => g ()
+        expr g = app_arg(mk);
+        return visit(mk_app(g, mk_unit_mk()), is_let_val);
+    }
+
     /*
       Replace `fixCore<n> f a_1 ... a_m`
       with `fixCore<m> f a_1 ... a_m` whenever `n < m`.
@@ -1582,6 +1594,8 @@ class csimp_fn {
                 return visit_nat_succ(e);
             } else if (n == get_nat_zero_name()) {
                 return mk_lit(literal(nat(0)));
+            } else if (n == get_thunk_get_name()) {
+                return visit_thunk_get(e, is_let_val);
             } else if (optional<expr> r = try_inline(fn, e, is_let_val)) {
                 return *r;
             } else if (optional<unsigned> i = is_fix_core(n)) {

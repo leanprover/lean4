@@ -163,6 +163,8 @@ PSum.inl
 PSum.inr
 Task
 Thunk
+Thunk.mk
+Thunk.get
 True
 True.intro
 typedExpr

@@ -80,7 +80,7 @@ class csimp_fn {
     expr_map<optional<expr>> m_jp2fvar;
     /* Join points that do not depend on any free variable. */
     exprs                    m_closed_jps;
-    /* Mapping from variable name to constructor it is bound to.
+    /* Mapping from `casesOn` scrutinee to constructor it is bound to.
        We update the mapping when visiting a `cases_on` branch.
        For example, given
        ```
@@ -90,8 +90,8 @@ class csimp_fn {
        ```
        We can assume `x` is bound to `h::t` when visiting `<cons_case h t>`.
        We use this information to reduce nested cases_on applications and projections. */
-    typedef name_map<expr> var2ctor;
-    var2ctor                 m_var2ctor;
+    typedef rb_expr_map<expr> expr2ctor;
+    expr2ctor                m_expr2ctor;
 
     environment const & env() const { return m_st.env(); }
 
@@ -178,13 +178,13 @@ class csimp_fn {
         return get_lcnf_size(env(), e) <= m_cfg.m_inline_jp_threshold;
     }
 
-    expr find(expr const & e, bool skip_mdata = true, bool use_var2ctor = false) const {
-        if (is_fvar(e)) {
-            if (use_var2ctor) {
-                if (expr const * ctor = m_var2ctor.find(fvar_name(e))) {
-                    return *ctor;
-                }
+    expr find(expr const & e, bool skip_mdata = true, bool use_expr2ctor = false) const {
+        if (use_expr2ctor) {
+            if (expr const * ctor = m_expr2ctor.find(e)) {
+                return *ctor;
             }
+        }
+        if (is_fvar(e)) {
             if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
                 if (optional<expr> v = decl->get_value()) {
                     if (!is_join_point_name(decl->get_user_name()))
@@ -596,9 +596,8 @@ class csimp_fn {
         return new_jp_var;
     }
 
-    /* Add entry `x := cidx fields` to m_var2ctor */
-    void update_var2ctor(expr const & x, expr const & c_fn, buffer<expr> const & c_args, unsigned cidx, buffer<expr> const & fields) {
-        if (!is_fvar(x)) return;
+    /* Add entry `x := cidx fields` to m_expr2ctor */
+    void update_expr2ctor(expr const & x, expr const & c_fn, buffer<expr> const & c_args, unsigned cidx, buffer<expr> const & fields) {
         inductive_val I_val = get_cases_on_inductive_val(env(), c_fn);
         name ctor_name      = get_ith(I_val.get_cnstrs(), cidx);
         levels ctor_lvls;
@@ -612,7 +611,7 @@ class csimp_fn {
         }
         ctor_args.append(fields);
         expr ctor = mk_app(mk_constant(ctor_name, ctor_lvls), ctor_args);
-        m_var2ctor.insert(fvar_name(x), ctor);
+        m_expr2ctor.insert(x, ctor);
     }
 
     /* Given `e[x]`
@@ -677,8 +676,8 @@ class csimp_fn {
             buffer<expr> zs;
             unsigned saved_fvars_size = m_fvars.size();
             expr minor_val            = get_minor_body(minor, zs);
-            flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
-            update_var2ctor(major, c_fn, c_args, i, zs);
+            flet<expr2ctor> save_expr2ctor(m_expr2ctor, m_expr2ctor);
+            update_expr2ctor(major, c_fn, c_args, i, zs);
             minor_val                 = visit(minor_val, false);
             expr new_minor;
             if (is_join_point_app(minor_val)) {
@@ -1230,9 +1229,8 @@ class csimp_fn {
         if (is_constructor_app(env(), s))
             return proj_constructor(s, proj_idx(e).get_small_value());
 
-        if (is_fvar(s)) {
-            if (expr const * ctor = m_var2ctor.find(fvar_name(s)))
-                return proj_constructor(*ctor, proj_idx(e).get_small_value());
+        if (expr const * ctor = m_expr2ctor.find(s)) {
+            return proj_constructor(*ctor, proj_idx(e).get_small_value());
         }
 
         if (optional<expr> r = try_inline_proj_instance(e, is_let_val)) {
@@ -1277,8 +1275,8 @@ class csimp_fn {
             unsigned saved_fvars_size = m_fvars.size();
             buffer<expr> zs;
             minor = get_minor_body(minor, zs);
-            flet<var2ctor> save_var2ctor(m_var2ctor, m_var2ctor);
-            update_var2ctor(major, c, args, cidx, zs);
+            flet<expr2ctor> save_expr2ctor(m_expr2ctor, m_expr2ctor);
+            update_expr2ctor(major, c, args, cidx, zs);
             expr new_minor = visit(minor, false);
             new_minor = mk_let(zs, saved_fvars_size, new_minor, false);
             expr result_minor = mk_minor_lambda(zs, new_minor);

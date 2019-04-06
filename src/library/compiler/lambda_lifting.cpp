@@ -14,6 +14,20 @@ Author: Leonardo de Moura
 #include "library/compiler/closed_term_cache.h"
 
 namespace lean {
+name mk_lambda_lifting_name(name const & fn, unsigned idx) {
+    name r(fn, "_lambda");
+    return r.append_after(idx);
+}
+
+bool is_lambda_lifting_name(name fn) {
+    while (!fn.is_atomic()) {
+        if (fn.is_string() && strncmp(fn.get_string().data(), "_lambda", 7) == 0)
+            return true;
+        fn = fn.get_prefix();
+    }
+    return false;
+}
+
 class lambda_lifting_fn {
     environment         m_env;
     name_generator      m_ngen;
@@ -122,8 +136,7 @@ class lambda_lifting_fn {
     }
 
     name next_name() {
-        name r(m_base_name, "_lambda");
-        r = r.append_after(m_next_idx);
+        name r = mk_lambda_lifting_name(m_base_name, m_next_idx);
         m_next_idx++;
         return r;
     }

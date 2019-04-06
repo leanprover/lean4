@@ -2,18 +2,11 @@ import init.lean.name
 open Lean
 
 /-
-We need the following compiler improvements for this experiment:
-
-- Thunk.get (Thunk.mk f) => f ()
+We need the following compiler improvement for this experiment:
 
 - The cases-merging optimization does not work when scrutinee is a constant.
   We need more tests for cases-merging.
-
-- @[inline] does not work for constants
-
-- Eager lambda lifting at stage1 for terminal lambdas.
 -/
-
 def ParserCache := Nat -- TODO
 def Syntax      := String -- TODO
 
@@ -107,12 +100,12 @@ def liftParser {ρ : Type} [ParserFnLift ρ] (info : Thunk ParserInfo) (fn : Par
 
 @[inline]
 def mapParser {ρ : Type} [ParserFnLift ρ] (infoFn : ParserInfo → ParserInfo) (pFn : ParserFn → ParserFn) : AbsParser ρ → AbsParser ρ :=
-λ ⟨info, fn⟩, { info := infoFn info.get, fn := ParserFnLift.map pFn fn }
+λ p, { info := infoFn p.info.get, fn := ParserFnLift.map pFn p.fn }
 
 @[inline]
 def mapParser₂ {ρ : Type} [ParserFnLift ρ] (infoFn : ParserInfo → ParserInfo → ParserInfo) (pFn : ParserFn → ParserFn → ParserFn)
                : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
-λ ⟨info₁, fn₁⟩ ⟨info₂, fn₂⟩, { info := infoFn info₁.get info₂.get, fn := ParserFnLift.map₂ pFn fn₁ fn₂ }
+λ p q, { info := infoFn p.info.get q.info.get, fn := ParserFnLift.map₂ pFn p.fn q.fn }
 
 def EnvParserFn (α : Type) (ρ : Type) :=
 α → ρ
@@ -171,8 +164,8 @@ abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConf
 instance basic2term : HasCoe BasicParser TermParser :=
 ⟨basicParser2TermParser⟩
 
-local infix `;`:10 := _root_.andthen
-local infix `||`:5 := _root_.orelse
+local infix ` ; `:10 := _root_.andthen
+local infix ` || `:5 := _root_.orelse
 
 set_option pp.implicit true
 set_option pp.binder_types false
@@ -192,7 +185,7 @@ token "opt3"; token "boo"
 
 def p2 : TermParser :=
 -- token "boo"; p1; p1; p0
-p0; p1
+p1; p0; p1
 
 def p4 (s : String) : CommandParser :=
 token s; token "boo"

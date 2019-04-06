@@ -154,6 +154,7 @@ void collect_used(expr const & e, name_hash_set & S);
 /* Return true iff `e` contains a free variable in `s` */
 bool depends_on(expr const & e, name_hash_set const & s);
 
+bool is_stage2_decl(environment const & env, name const & n);
 environment register_stage1_decl(environment const & env, name const & n, names const & ls, expr const & t, expr const & v);
 environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v);
 

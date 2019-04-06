@@ -499,6 +499,10 @@ environment register_stage1_decl(environment const & env, name const & n, names 
     return module::add(env, aux_decl, false);
 }
 
+bool is_stage2_decl(environment const & env, name const & n) {
+    return static_cast<bool>(env.find(mk_cstage2_name(n)));
+}
+
 environment register_stage2_decl(environment const & env, name const & n, expr const & t, expr const & v) {
     declaration aux_decl = mk_definition(mk_cstage2_name(n), names(), t,
                                          v, reducibility_hints::mk_opaque(), true);

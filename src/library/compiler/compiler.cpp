@@ -87,7 +87,7 @@ static expr ensure_arity(expr const & t, unsigned arity) {
     return update_binding(t, binding_domain(t), ensure_arity(binding_body(t), arity-1));
 }
 
-static environment cache_stage2(environment env, comp_decls const & ds) {
+static environment cache_stage2(environment env, comp_decls const & ds, bool only_new_ones = false) {
     buffer<expr> ts;
     ll_infer_type(env, ds, ts);
     lean_assert(ts.size() == length(ds));
@@ -95,15 +95,22 @@ static environment cache_stage2(environment env, comp_decls const & ds) {
     for (comp_decl const & d : ds) {
         name n = d.fst();
         expr v = d.snd();
-        expr t = ts[i];
-        unsigned arity = get_num_nested_lambdas(v);
-        t = ensure_arity(t, arity);
-        lean_trace(name({"compiler", "stage2"}), tout() << n << " : " << t << "\n";);
-        lean_trace(name({"compiler", "ll_infer_type"}), tout() << n << " : " << t << "\n";);
-        env = register_stage2_decl(env, n, t, v);
+        if (!only_new_ones || !is_stage2_decl(env, n)) {
+            expr t = ts[i];
+            unsigned arity = get_num_nested_lambdas(v);
+            t = ensure_arity(t, arity);
+            lean_trace(name({"compiler", "stage2"}), tout() << n << " : " << t << "\n";);
+            lean_trace(name({"compiler", "ll_infer_type"}), tout() << n << " : " << t << "\n";);
+            env = register_stage2_decl(env, n, t, v);
+        }
         i++;
     }
     return env;
+}
+
+/* Cache the declarations in `ds` that have not already been cached. */
+static environment cache_new_stage2(environment env, comp_decls const & ds) {
+    return cache_stage2(env, ds, true);
 }
 
 #define trace_compiler(k, ds) lean_trace(k, trace(ds);)
@@ -211,12 +218,13 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "lambda_lifting"}), ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
+    new_env = cache_stage2(new_env, ds);
+    trace_compiler(name({"compiler", "stage2"}), ds);
     std::tie(new_env, ds) = extract_closed(new_env, ds);
     ds = apply(elim_dead_let, ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "extract_closed"}), ds);
-    new_env = cache_stage2(new_env, ds);
-    trace_compiler(name({"compiler", "stage2"}), ds);
+    new_env = cache_new_stage2(new_env, ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     ds = apply(simp_app_args, new_env, ds);

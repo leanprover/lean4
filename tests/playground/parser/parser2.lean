@@ -132,8 +132,8 @@ x (fix (λ f a, rec a f))
 
 end RecParserFn
 
-@[noinline] def tokenFn (s : String) : ParserFn :=
-λ s d, d
+@[noinline] def tokenFn (tk : String) : ParserFn :=
+λ s d, { errorMsg := some (s ++ tk), .. d}
 
 @[noinline] def tokenInfo (s : String) : ParserInfo :=
 { updateTokens := λ m, m.insert (mkSimpleName s),
@@ -168,15 +168,12 @@ local infix ` ; `:10 := _root_.andthen
 local infix ` || `:5 := _root_.orelse
 
 
+
+@[inline2]
 def p0 : BasicParser :=
 token "foo"; token "boo"
 
-set_option pp.implicit true
-set_option pp.binder_types false
-set_option trace.compiler.stage1 true
-set_option trace.compiler.lcnf true
--- set_option trace.compiler.simp true
-
+@[inline2]
 def p1 (s : String) : TermParser :=
 token "hello"; token "world"; token "boo"
 ||
@@ -184,15 +181,28 @@ token s
 ||
 token "opt3"; token "boo"
 
-@[noinline] def p1_info (s : String) : ParserInfo := {}
-@[noinline] def p1_fn   (s : String) : TermParserFn   := default _
+set_option pp.implicit true
+set_option pp.binder_types false
+set_option trace.compiler.stage2 true
+-- set_option trace.compiler.boxed true
+-- set_option trace.compiler.stage1 true
+-- set_option trace.compiler.lcnf true
+-- set_option trace.compiler.lcnf true
+-- set_option trace.compiler.simp true
 
-@[inline] def p1_aux (s : String) : TermParser :=
-{ info := Thunk.mk (λ _, p1_info s), fn := p1_fn s }
-
+@[inline2]
 def p2 (s : String) : TermParser :=
 -- token "boo"; p1; p1; p0
-p1_aux "hello"; p0; p1_aux s
+p1 "hello"; p0; p1 s
 
+@[inline2]
+def p3 (s : String) : TermParser :=
+p1 s
+||
+p2 s
+||
+token "boo"; p2 s
+
+@[inline2]
 def p4 (s : String) : CommandParser :=
 token s; token "boo"

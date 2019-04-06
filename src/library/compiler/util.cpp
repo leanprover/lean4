@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/module.h"
+#include "library/compiler/lambda_lifting.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -87,6 +88,19 @@ unsigned get_num_nested_lambdas(expr e) {
 
 bool has_inline_attribute(environment const & env, name const & n) {
     if (has_attribute(env, "inline", n))
+        return true;
+    if (is_internal_name(n) && !n.is_atomic()) {
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline]`
+           if `f` is marked. */
+        return has_inline_attribute(env, n.get_prefix());
+    }
+    return false;
+}
+
+bool has_inline2_attribute(environment const & env, name const & n) {
+    if (is_lambda_lifting_name(n))
+        return false; // don't undo lambda lifting
+    if (has_attribute(env, "inline2", n))
         return true;
     if (is_internal_name(n) && !n.is_atomic()) {
         /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline]`
@@ -551,6 +565,14 @@ void initialize_compiler_util() {
                 auto decl = env.get(d);
                 if (!decl.is_definition())
                     throw exception("invalid 'inline' use, only definitions can be marked as [inline]");
+            }));
+
+    register_system_attribute(basic_attribute::with_check(
+            "inline2", "mark definition to always be inlined at stage 2",
+            [](environment const & env, name const & d, bool) -> void {
+                auto decl = env.get(d);
+                if (!decl.is_definition())
+                    throw exception("invalid 'inline2' use, only definitions can be marked as [inline2]");
             }));
 
     register_system_attribute(basic_attribute::with_check(

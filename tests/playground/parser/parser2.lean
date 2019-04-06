@@ -100,12 +100,12 @@ def liftParser {ρ : Type} [ParserFnLift ρ] (info : Thunk ParserInfo) (fn : Par
 
 @[inline]
 def mapParser {ρ : Type} [ParserFnLift ρ] (infoFn : ParserInfo → ParserInfo) (pFn : ParserFn → ParserFn) : AbsParser ρ → AbsParser ρ :=
-λ p, { info := infoFn p.info.get, fn := ParserFnLift.map pFn p.fn }
+λ p, { info := Thunk.mk (λ _, infoFn p.info.get), fn := ParserFnLift.map pFn p.fn }
 
 @[inline]
 def mapParser₂ {ρ : Type} [ParserFnLift ρ] (infoFn : ParserInfo → ParserInfo → ParserInfo) (pFn : ParserFn → ParserFn → ParserFn)
                : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
-λ p q, { info := infoFn p.info.get q.info.get, fn := ParserFnLift.map₂ pFn p.fn q.fn }
+λ p q, { info := Thunk.mk (λ _, infoFn p.info.get q.info.get), fn := ParserFnLift.map₂ pFn p.fn q.fn }
 
 def EnvParserFn (α : Type) (ρ : Type) :=
 α → ρ
@@ -159,7 +159,7 @@ abbrev TrailingTermParser : Type     := AbsParser (EnvParserFn Syntax TermParser
 abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConfig)
 
 @[inline] def basicParser2TermParser (p : BasicParser) : TermParser :=
-{ info := p.info, fn := λ _ cfg _, p.fn cfg }
+{ info := Thunk.mk (λ _, p.info.get), fn := λ _ cfg _, p.fn cfg }
 
 instance basic2term : HasCoe BasicParser TermParser :=
 ⟨basicParser2TermParser⟩
@@ -167,25 +167,32 @@ instance basic2term : HasCoe BasicParser TermParser :=
 local infix ` ; `:10 := _root_.andthen
 local infix ` || `:5 := _root_.orelse
 
-set_option pp.implicit true
-set_option pp.binder_types false
-set_option trace.compiler.stage1 true
 
 def p0 : BasicParser :=
 token "foo"; token "boo"
 
-def p1 : TermParser :=
+set_option pp.implicit true
+set_option pp.binder_types false
+set_option trace.compiler.stage1 true
+set_option trace.compiler.lcnf true
+-- set_option trace.compiler.simp true
+
+def p1 (s : String) : TermParser :=
 token "hello"; token "world"; token "boo"
 ||
-token "opt2"
+token s
 ||
 token "opt3"; token "boo"
 
--- set_option trace.compiler.simp true
+@[noinline] def p1_info (s : String) : ParserInfo := {}
+@[noinline] def p1_fn   (s : String) : TermParserFn   := default _
 
-def p2 : TermParser :=
+@[inline] def p1_aux (s : String) : TermParser :=
+{ info := Thunk.mk (λ _, p1_info s), fn := p1_fn s }
+
+def p2 (s : String) : TermParser :=
 -- token "boo"; p1; p1; p0
-p1; p0; p1
+p1_aux "hello"; p0; p1_aux s
 
 def p4 (s : String) : CommandParser :=
 token s; token "boo"

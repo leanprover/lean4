@@ -12,7 +12,7 @@ do
  IO.println (toString a.sz),
  let a := foo a,
  IO.println (toString a),
- let a := a.map (+10),
+ let a := a.hmap (+10),
  IO.println (toString a),
  IO.println (toString a.sz),
  let a1 := a.pop,
@@ -21,4 +21,5 @@ do
  IO.println (toString a2),
  let a2 := a.pop,
  IO.println a2,
+ IO.println $ (([1, 2, 3, 4].toArray).hmap (+2)).map toString,
  pure 0

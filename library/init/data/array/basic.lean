@@ -124,6 +124,26 @@ miterateAux a f 0 b
 
 @[inline] def mfoldl (a : Array α) (b : β) (f : α → β → m β) : m β :=
 miterate a b (λ _, f)
+
+@[inline] def mfoldlFrom (a : Array α) (b : β) (f : α → β → m β) (ini : Nat := 0) : m β :=
+miterateAux a (λ _, f) ini b
+
+local attribute [instance] monadInhabited
+
+-- TODO(Leo): justify termination using wf-rec
+@[specialize] partial def mfindAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
+| i :=
+  if h : i < a.sz then
+     let idx : Fin a.sz := ⟨i, h⟩ in
+     do r ← f (a.index idx),
+        (match r with
+         | some v := pure r
+         | none   := mfindAux (i+1))
+  else pure none
+
+@[inline] def mfind (a : Array α) (f : α → m (Option β)) : m (Option β) :=
+mfindAux a f 0
+
 end
 
 @[inline] def iterate (a : Array α) (b : β) (f : Π i : Fin a.sz, α → β → β) : β :=
@@ -131,6 +151,12 @@ Id.run $ miterateAux a f 0 b
 
 @[inline] def foldl (a : Array α) (f : α → β → β) (b : β) : β :=
 iterate a b (λ _, f)
+
+@[inline] def foldlFrom (a : Array α) (f : α → β → β) (b : β) (ini : Nat := 0) : β :=
+Id.run $ mfoldlFrom a b f ini
+
+@[inline] def find (a : Array α) (f : α → Option β) : Option β :=
+Id.run $ mfindAux a f 0
 
 @[specialize] private def revIterateAux (a : Array α) (f : Π i : Fin a.sz, α → β → β) : Π (i : Nat), i ≤ a.sz → β → β
 | 0     h b := b
@@ -175,13 +201,17 @@ Id.run $ mforeach a f
 theorem szForeachEq (a : Array α) (f : Π i : Fin a.sz, α → α) : (foreach a f).sz = a.sz :=
 (Id.run $ mforeachAux a f).property
 
-@[inline] def map (f : α → α) (a : Array α) : Array α :=
+/- Homogeneous map -/
+@[inline] def hmap (f : α → α) (a : Array α) : Array α :=
 foreach a (λ _, f)
 
-@[inline] def map₂ (f : α → α → α) (a b : Array α) : Array α :=
+@[inline] def hmap₂ (f : α → α → α) (a b : Array α) : Array α :=
 if h : a.size ≤ b.size
 then foreach a (λ ⟨i, h'⟩, f (b.index ⟨i, Nat.ltOfLtOfLe h' h⟩))
 else foreach b (λ ⟨i, h'⟩, f (a.index ⟨i, Nat.ltTrans h' (Nat.gtOfNotLe h)⟩))
+
+def map (f : α → β) (as : Array α) : Array β :=
+as.foldl (λ a bs, bs.push (f a)) (mkEmpty as.sz)
 
 end Array
 

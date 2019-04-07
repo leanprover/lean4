@@ -70,6 +70,28 @@ structure ParserInfo :=
 { updateTokens := q.updateTokens ∘ p.updateTokens,
   firstToken   := p.firstToken }
 
+def ParserData.mkNode (d : ParserData) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserData :=
+match d with
+| ⟨stack, pos, cache, err⟩ :=
+  if err != none && stack.size == iniStackSz then
+    -- If there is an error but there are no new nodes on the stack, we just return `d`
+    d
+  else
+    let newNode := Syntax.node k (stack.extract iniStackSz stack.size) [] in
+    let stack   := stack.shrink iniStackSz in
+    let stack   := stack.push newNode in
+    ⟨stack, pos, cache, err⟩
+
+@[inline] def nodeFn (k : SyntaxNodeKind) (p : ParserFn) : ParserFn :=
+λ s d,
+  let iniSz := d.stackSize in
+  let d     := p s d in
+  d.mkNode k iniSz
+
+@[noinline] def nodeInfo (p : ParserInfo) : ParserInfo :=
+{ updateTokens := p.updateTokens,
+  firstToken   := p.firstToken }
+
 @[inline] def orelseFn (p q : ParserFn) : ParserFn :=
 λ s d,
   let iniPos := d.pos in
@@ -168,6 +190,9 @@ liftParser (tokenInfo s) (tokenFn s)
 @[inline] def andthen {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
 mapParser₂ andthenInfo andthenFn
 
+@[inline] def node {ρ : Type} [ParserFnLift ρ] (k : SyntaxNodeKind) : AbsParser ρ → AbsParser ρ :=
+mapParser nodeInfo (nodeFn k)
+
 @[inline] def orelse {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
 mapParser₂ orelseInfo orelseFn
 
@@ -190,19 +215,8 @@ instance basic2term : HasCoe BasicParser TermParser :=
 local infix ` ; `:10 := Parser.andthen
 local infix ` || `:5 := Parser.orelse
 
-
-
-@[inline2]
-def p0 : BasicParser :=
-token "foo"; token "boo"
-
-@[inline2]
-def p1 (s : String) : TermParser :=
-token "hello"; token "world"; token "boo"
-||
-token s
-||
-token "opt3"; token "boo"
+def mkTestKind : IO SyntaxNodeKind := nextKind `test
+@[init mkTestKind] constant testKind : SyntaxNodeKind := default _
 
 set_option pp.implicit true
 set_option pp.binder_types false
@@ -212,6 +226,18 @@ set_option trace.compiler.stage2 true
 -- set_option trace.compiler.lcnf true
 -- set_option trace.compiler.lcnf true
 -- set_option trace.compiler.simp true
+
+@[inline2]
+def p0 : BasicParser :=
+node testKind (token "foo"; token "boo")
+
+@[inline2]
+def p1 (s : String) : TermParser :=
+token "hello"; token "world"; token "boo"
+||
+token s
+||
+token "opt3"; token "boo"
 
 @[inline2]
 def p2 (s : String) : TermParser :=

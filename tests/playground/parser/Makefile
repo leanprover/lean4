@@ -1,6 +1,6 @@
 LEANC=../../../bin/leanc
 LEAN=../../../bin/lean
-COMMON_SRCS = parser.lean
+COMMON_SRCS = parser.lean syntax.lean
 SRCS = $(COMMON_SRCS) test1.lean test2.lean
 OLEANS = $(SRCS:.lean=.olean)
 CPPS = $(SRCS:.lean=.cpp)

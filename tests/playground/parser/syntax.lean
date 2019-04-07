@@ -5,9 +5,9 @@ Author: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
 import init.lean.name init.lean.format init.data.array
-
-namespace Lean
+-- namespace Lean
 namespace Parser
+open Lean
 
 /-- A hygiene marker introduced by a macro expansion. -/
 @[derive DecidableEq HasToFormat]
@@ -220,4 +220,4 @@ partial def reprint : Syntax → Option String
 end Syntax
 
 end Parser
-end Lean
+-- end Lean

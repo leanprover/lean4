@@ -1,14 +1,41 @@
-import init.lean.name
+import init.lean.name init.lean.position init.lean.parser.trie
+import syntax
+
 open Lean
+export Lean.Parser (Trie)
+-- namespace Lean
+namespace Parser
 
-/-
-We need the following compiler improvement for this experiment:
+structure FrontendConfig :=
+(filename : String)
+(input    : String)
+(fileMap  : FileMap)
 
-- The cases-merging optimization does not work when scrutinee is a constant.
-  We need more tests for cases-merging.
--/
-def ParserCache := Nat -- TODO
-def Syntax      := String -- TODO
+structure TokenConfig :=
+(val : String)
+(lbp : Nat := 0)
+
+namespace TokenConfig
+
+def beq : TokenConfig → TokenConfig → Bool
+| ⟨prefix₁, lbp₁⟩ ⟨prefix₂, lbp₂⟩ := prefix₁ == prefix₂ && lbp₁ == lbp₂
+
+instance : HasBeq TokenConfig :=
+⟨beq⟩
+
+end TokenConfig
+
+structure TokenCacheEntry :=
+(startPos stopPos : String.Pos)
+(token : Syntax)
+
+structure ParserCache :=
+(tokenCache : Option TokenCacheEntry := none)
+
+structure ParserConfig extends FrontendConfig :=
+(tokens : Trie TokenConfig)
+
+def CommandParserConfig := List String -- TODO
 
 structure ParserData :=
 (stxStack : Array Syntax) (pos : String.Pos) (cache : ParserCache) (errorMsg : Option String)
@@ -19,19 +46,13 @@ d.errorMsg != none
 @[inline] def ParserData.stackSize (d : ParserData) : Nat :=
 d.stxStack.size
 
-@[inline] def Array.shrink {α : Type} (a : Array α) (sz : Nat) : Array α :=
-a -- TODO
-
 @[inline] def ParserData.restore : ParserData → Nat → ParserData
 | ⟨stack, pos, cache, _⟩ sz := ⟨stack.shrink sz, pos, cache, none⟩
 
 def ParserFn := String → ParserData → ParserData
 
-def ParserConfig        := List String -- TODO
-def CommandParserConfig := List String -- TODO
-
-structure TokenConfig :=
-(val : String) (lbp : Nat := 0)
+instance : Inhabited ParserFn :=
+⟨λ s, id⟩
 
 structure ParserInfo :=
 (updateTokens : NameSet → NameSet  := λ m, m)
@@ -58,7 +79,10 @@ structure ParserInfo :=
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo :=
 { updateTokens := q.updateTokens ∘ p.updateTokens,
-  firstToken   := none }
+  firstToken   :=
+  match p.firstToken, q.firstToken with
+  | some tk₁, some tk₂ := if tk₁ == tk₂ then some tk₁ else none
+  | _, _               := none }
 
 def ParserData.resetPos : ParserData → String.Pos → ParserData
 | ⟨stack, _, cache, errorMsg⟩ pos := ⟨stack, pos, cache, errorMsg⟩
@@ -73,9 +97,6 @@ def ParserData.resetPos : ParserData → String.Pos → ParserData
 { updateTokens := p.updateTokens,
   firstToken   := none }
 
-instance : Inhabited ParserFn :=
-⟨λ s, id⟩
-
 structure AbsParser (ρ : Type) :=
 (info : Thunk ParserInfo) (fn : ρ)
 
@@ -89,7 +110,7 @@ class ParserFnLift (ρ : Type) :=
 instance parserLiftInhabited {ρ : Type} [ParserFnLift ρ] : Inhabited ρ :=
 ⟨ParserFnLift.lift (default _)⟩
 
-instance : ParserFnLift ParserFn :=
+instance idParserLift : ParserFnLift ParserFn :=
 { lift := λ p, p,
   map  := λ m p, m p,
   map₂ := λ m p1 p2, m p1 p2 }
@@ -113,12 +134,12 @@ def EnvParserFn (α : Type) (ρ : Type) :=
 def RecParserFn (α ρ : Type) :=
 EnvParserFn (α → ρ) ρ
 
-instance (α ρ : Type) [ParserFnLift ρ] : ParserFnLift (EnvParserFn α ρ) :=
+instance envParserLift (α ρ : Type) [ParserFnLift ρ] : ParserFnLift (EnvParserFn α ρ) :=
 { lift    := λ p a, ParserFnLift.lift p,
   map     := λ m p a, ParserFnLift.map m (p a),
   map₂    := λ m p1 p2 a, ParserFnLift.map₂ m (p1 a) (p2 a) }
 
-instance (α ρ : Type) [ParserFnLift ρ] : ParserFnLift (RecParserFn α ρ) :=
+instance recParserLift (α ρ : Type) [ParserFnLift ρ] : ParserFnLift (RecParserFn α ρ) :=
 inferInstanceAs (ParserFnLift (EnvParserFn (α → ρ) ρ))
 
 namespace RecParserFn
@@ -132,12 +153,14 @@ x (fix (λ f a, rec a f))
 
 end RecParserFn
 
+-- TODO
 @[noinline] def tokenFn (tk : String) : ParserFn :=
 λ s d, { errorMsg := some (s ++ tk), .. d}
 
+-- TODO
 @[noinline] def tokenInfo (s : String) : ParserInfo :=
 { updateTokens := λ m, m.insert (mkSimpleName s),
-  firstToken   := some { val := s } }
+  firstToken   := none }
 
 @[inline] def token {ρ : Type} [ParserFnLift ρ] (s : String) : AbsParser ρ :=
 liftParser (tokenInfo s) (tokenFn s)
@@ -164,8 +187,8 @@ abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConf
 instance basic2term : HasCoe BasicParser TermParser :=
 ⟨basicParser2TermParser⟩
 
-local infix ` ; `:10 := _root_.andthen
-local infix ` || `:5 := _root_.orelse
+local infix ` ; `:10 := Parser.andthen
+local infix ` || `:5 := Parser.orelse
 
 
 
@@ -206,3 +229,6 @@ token "boo"; p2 s
 @[inline2]
 def p4 (s : String) : CommandParser :=
 token s; token "boo"
+
+end Parser
+-- end Lean

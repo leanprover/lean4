@@ -46,8 +46,9 @@ d.errorMsg != none
 @[inline] def ParserData.stackSize (d : ParserData) : Nat :=
 d.stxStack.size
 
-@[inline] def ParserData.restore : ParserData → Nat → ParserData
-| ⟨stack, pos, cache, _⟩ sz := ⟨stack.shrink sz, pos, cache, none⟩
+def ParserData.restore (d : ParserData) (iniStackSz : Nat) (iniPos : Nat) : ParserData :=
+match d with
+| ⟨stack, _, cache, _⟩ := ⟨stack.shrink iniStackSz, iniPos, cache, none⟩
 
 def ParserFn := String → ParserData → ParserData
 
@@ -94,10 +95,10 @@ match d with
 
 @[inline] def orelseFn (p q : ParserFn) : ParserFn :=
 λ s d,
-  let iniPos := d.pos in
   let iniSz  := d.stackSize in
+  let iniPos := d.pos in
   let d      := p s d in
-  if d.hasError && d.pos == iniPos then q s (d.restore iniSz) else d
+  if d.hasError && d.pos == iniPos then q s (d.restore iniSz iniPos) else d
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo :=
 { updateTokens := q.updateTokens ∘ p.updateTokens,
@@ -118,6 +119,26 @@ def ParserData.resetPos : ParserData → String.Pos → ParserData
 @[noinline] def tryInfo (p : ParserInfo) : ParserInfo :=
 { updateTokens := p.updateTokens,
   firstToken   := none }
+
+def ParserData.mkError (d : ParserData) (msg : String) : ParserData :=
+match d with
+| ⟨stack, pos, cache, _⟩ := ⟨stack, pos, cache, some msg⟩
+
+@[specialize] partial def manyAux (p : ParserFn) : String → ParserData → ParserData
+| s d :=
+  let iniSz  := d.stackSize in
+  let iniPos := d.pos in
+  let d      := p s d in
+  if d.hasError then d.restore iniSz iniPos
+  else if iniPos == d.pos then d.mkError "invalid 'many' parser combinator application, parser did not consume anything"
+  else manyAux s d
+
+@[inline] def manyInfo (info : ParserInfo) : ParserInfo :=
+{ updateTokens := info.updateTokens,
+  firstToken   := none }
+
+@[inline] def manyFn (p : ParserFn) : ParserFn :=
+manyAux p
 
 structure AbsParser (ρ : Type) :=
 (info : Thunk ParserInfo) (fn : ρ)
@@ -199,6 +220,12 @@ mapParser₂ orelseInfo orelseFn
 @[inline] def try {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ :=
 mapParser tryInfo tryFn
 
+@[inline] def many {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ :=
+mapParser manyInfo manyFn
+
+@[inline] def many1 {ρ : Type} [ParserFnLift ρ] (p : AbsParser ρ) : AbsParser ρ :=
+andthen p (many p)
+
 abbrev BasicParser : Type            := AbsParser (EnvParserFn ParserConfig ParserFn)
 abbrev CmdParserFn (ρ : Type) : Type := EnvParserFn ρ (RecParserFn Unit ParserFn)
 abbrev TermParserFn : Type           := RecParserFn Nat (CmdParserFn ParserConfig)
@@ -229,7 +256,7 @@ set_option trace.compiler.stage2 true
 
 @[inline2]
 def p0 : BasicParser :=
-node testKind (token "foo"; token "boo")
+node testKind (token "foo"; many (token "boo"))
 
 @[inline2]
 def p1 (s : String) : TermParser :=

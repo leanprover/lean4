@@ -12,8 +12,6 @@ universes u v w
 The Compiler has special support for arrays.
 They are implemented using dynamic arrays: https://en.wikipedia.org/wiki/Dynamic_array
 -/
-
--- TODO(Leo): mark as opaque
 structure Array (α : Type u) :=
 (sz   : Nat)
 (data : Fin sz → α)
@@ -106,6 +104,10 @@ rfl
 def pop (a : Array α) : Array α :=
 { sz   := Nat.pred a.sz,
   data := λ ⟨j, h⟩, a.index ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
+
+-- TODO(Leo): justify termination using wf-rec
+partial def shrink : Array α → Nat → Array α
+| a n := if a.size ≥ n then a else shrink a.pop n
 
 section
 variables {m : Type v → Type v} [Monad m]

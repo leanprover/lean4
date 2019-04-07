@@ -22,4 +22,8 @@ do
  let a2 := a.pop,
  IO.println a2,
  IO.println $ (([1, 2, 3, 4].toArray).hmap (+2)).map toString,
+ IO.println $ ([1, 2, 3, 4].toArray.extract 1 3),
+ IO.println $ ([1, 2, 3, 4].toArray.extract 0 100),
+ IO.println $ ([1, 2, 3, 4].toArray.extract 1 1),
+ IO.println $ ([1, 2, 3, 4].toArray.extract 2 4),
  pure 0

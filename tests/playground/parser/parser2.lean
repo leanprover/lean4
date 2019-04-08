@@ -116,9 +116,17 @@ def ParserData.resetPos : ParserData → String.Pos → ParserData
   let d := p s d in
   if d.hasError then d.resetPos iniPos else d
 
-@[noinline] def tryInfo (p : ParserInfo) : ParserInfo :=
-{ updateTokens := p.updateTokens,
+@[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo :=
+{ updateTokens := info.updateTokens,
   firstToken   := none }
+
+@[inline] def optionalFn (p : ParserFn) : ParserFn :=
+λ s d,
+  let iniSz  := d.stackSize in
+  let iniPos := d.pos in
+  let d := p s d in
+  let d := if d.hasError then d.restore iniSz iniPos else d in
+  d.mkNode nullKind iniSz
 
 def ParserData.mkError (d : ParserData) (msg : String) : ParserData :=
 match d with
@@ -133,12 +141,11 @@ match d with
   else if iniPos == d.pos then d.mkError "invalid 'many' parser combinator application, parser did not consume anything"
   else manyAux s d
 
-@[inline] def manyInfo (info : ParserInfo) : ParserInfo :=
-{ updateTokens := info.updateTokens,
-  firstToken   := none }
-
 @[inline] def manyFn (p : ParserFn) : ParserFn :=
-manyAux p
+λ s d,
+  let iniSz  := d.stackSize in
+  let d := manyAux p s d in
+  d.mkNode nullKind iniSz
 
 structure AbsParser (ρ : Type) :=
 (info : Thunk ParserInfo) (fn : ρ)
@@ -218,10 +225,13 @@ mapParser nodeInfo (nodeFn k)
 mapParser₂ orelseInfo orelseFn
 
 @[inline] def try {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ :=
-mapParser tryInfo tryFn
+mapParser noFirstTokenInfo tryFn
 
 @[inline] def many {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ :=
-mapParser manyInfo manyFn
+mapParser noFirstTokenInfo manyFn
+
+@[inline] def optional {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ :=
+mapParser noFirstTokenInfo optionalFn
 
 @[inline] def many1 {ρ : Type} [ParserFnLift ρ] (p : AbsParser ρ) : AbsParser ρ :=
 andthen p (many p)

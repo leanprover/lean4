@@ -349,6 +349,12 @@ abbrev TermParser : Type             := AbsParser TermParserFn
 abbrev TrailingTermParser : Type     := AbsParser (EnvParserFn Syntax TermParserFn)
 abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConfig)
 
+@[inline] def Term.parser (rbp : Nat := 0) : TermParser :=
+{ info := Thunk.pure {}, fn := RecParserFn.recurse rbp }
+
+@[inline] def Command.parser : CommandParser :=
+{ info := Thunk.pure {}, fn := λ _, RecParserFn.recurse () }
+
 @[inline] def basicParser2TermParser (p : BasicParser) : TermParser :=
 { info := Thunk.mk (λ _, p.info.get), fn := λ _ cfg _, p.fn cfg }
 

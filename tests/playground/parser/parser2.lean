@@ -50,6 +50,10 @@ def ParserData.restore (d : ParserData) (iniStackSz : Nat) (iniPos : Nat) : Pars
 match d with
 | ⟨stack, _, cache, _⟩ := ⟨stack.shrink iniStackSz, iniPos, cache, none⟩
 
+def ParserData.setPos (d : ParserData) (pos : Nat) : ParserData :=
+match d with
+| ⟨stack, _, cache, msg⟩ := ⟨stack, pos, cache, msg⟩
+
 def ParserFn := String → ParserData → ParserData
 
 instance : Inhabited ParserFn :=
@@ -59,11 +63,8 @@ structure ParserInfo :=
 (updateTokens : NameSet → NameSet  := λ m, m)
 (firstToken   : Option TokenConfig := none)
 
-@[inline] def ParserFn.eps : ParserFn :=
-λ s d, d
-
-@[inline] def andthenFn (p q : ParserFn) : ParserFn :=
-λ s d,
+@[inline] def andthenFn (p q : ParserFn) : ParserFn
+| s d :=
   let d := p s d in
   if d.hasError then d else q s d
 
@@ -83,8 +84,8 @@ match d with
     let stack   := stack.push newNode in
     ⟨stack, pos, cache, err⟩
 
-@[inline] def nodeFn (k : SyntaxNodeKind) (p : ParserFn) : ParserFn :=
-λ s d,
+@[inline] def nodeFn (k : SyntaxNodeKind) (p : ParserFn) : ParserFn
+| s d :=
   let iniSz := d.stackSize in
   let d     := p s d in
   d.mkNode k iniSz
@@ -93,8 +94,8 @@ match d with
 { updateTokens := p.updateTokens,
   firstToken   := p.firstToken }
 
-@[inline] def orelseFn (p q : ParserFn) : ParserFn :=
-λ s d,
+@[inline] def orelseFn (p q : ParserFn) : ParserFn
+| s d :=
   let iniSz  := d.stackSize in
   let iniPos := d.pos in
   let d      := p s d in
@@ -110,8 +111,8 @@ match d with
 def ParserData.resetPos : ParserData → String.Pos → ParserData
 | ⟨stack, _, cache, errorMsg⟩ pos := ⟨stack, pos, cache, errorMsg⟩
 
-@[inline] def tryFn (p : ParserFn) : ParserFn :=
-λ s d,
+@[inline] def tryFn (p : ParserFn) : ParserFn
+| s d :=
   let iniPos := d.pos in
   let d := p s d in
   if d.hasError then d.resetPos iniPos else d
@@ -132,6 +133,9 @@ def ParserData.mkError (d : ParserData) (msg : String) : ParserData :=
 match d with
 | ⟨stack, pos, cache, _⟩ := ⟨stack, pos, cache, some msg⟩
 
+def ParserData.mkEOIError (d : ParserData) : ParserData :=
+d.mkError "end of input"
+
 @[specialize] partial def manyAux (p : ParserFn) : String → ParserData → ParserData
 | s d :=
   let iniSz  := d.stackSize in
@@ -141,11 +145,113 @@ match d with
   else if iniPos == d.pos then d.mkError "invalid 'many' parser combinator application, parser did not consume anything"
   else manyAux s d
 
-@[inline] def manyFn (p : ParserFn) : ParserFn :=
-λ s d,
+@[inline] def manyFn (p : ParserFn) : ParserFn
+| s d :=
   let iniSz  := d.stackSize in
   let d := manyAux p s d in
   d.mkNode nullKind iniSz
+
+@[specialize] partial def takeUntil (p : Char → Bool) : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d
+  else
+    let c := s.get i in
+    if p c then d
+    else takeUntil s (d.setPos (s.next i))
+
+partial def finishCommentBlock : Nat → ParserFn
+| nesting s d :=
+  let i := d.pos in
+  if s.atEnd i then d.mkEOIError
+  else
+    let c := s.get i in
+    let i := s.next i in
+    if c == '-' then
+      if s.atEnd i then d.mkEOIError
+      else
+        let c := s.get i in
+        if c == '/' then -- "-/" end of comment
+          if nesting == 1 then d.setPos (s.next i)
+          else finishCommentBlock (nesting-1) s (d.setPos (s.next i))
+        else
+          finishCommentBlock nesting s (d.setPos (s.next i))
+    else if c == '/' then
+      if s.atEnd i then d.mkEOIError
+      else
+        let c := s.get i in
+        if c == '-' then finishCommentBlock (nesting+1) s (d.setPos (s.next i))
+        else finishCommentBlock nesting s (d.setPos i)
+    else finishCommentBlock nesting s (d.setPos i)
+
+/- Consume whitespace and comments -/
+partial def whitespace : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d
+  else
+    let c := s.get i in
+    if c.isWhitespace then whitespace s (d.setPos (s.next i))
+    else if c == '-' then
+      let i := s.next i in
+      let c := s.get i in
+      if c == '-' then andthenFn (takeUntil (= '\n')) whitespace s (d.setPos (s.next i))
+      else d
+    else if c == '/' then
+      let i := s.next i in
+      let c := s.get i in
+      if c == '-' then
+        let i := s.next i in
+        let c := s.get i in
+        if c == '-' then d -- "/--" doc comment is an actual token
+        else andthenFn (finishCommentBlock 1) whitespace s (d.setPos (s.next i))
+      else d
+    else d
+
+def hexDigit : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d.mkEOIError
+  else
+    let c := s.get i in
+    let i := s.next i in
+    if c.isDigit || ('a' <= c && c <= 'f') || ('A' <= c && c <= 'F') then d.setPos i
+    else d.mkError "invalid hexadecimal numeral, hexadecimal digit expected"
+
+def quotedChar : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d.mkEOIError
+  else
+    let c := s.get i in
+    if c == '\\' || c == '\"' || c == '\'' || c == '\n' || c == '\t' then
+      d.setPos (s.next i)
+    else if c == 'x' then
+      andthenFn hexDigit hexDigit s (d.setPos (s.next i))
+    else if c == 'u' then
+      andthenFn hexDigit (andthenFn hexDigit (andthenFn hexDigit hexDigit)) s (d.setPos (s.next i))
+    else
+      d.mkError "invalid escape sequence"
+
+partial def strLitAux : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d.mkEOIError
+  else
+    let c := s.get i in
+    let d := d.setPos (s.next i) in
+    if c == '\"' then d
+    else if c == '\\' then andthenFn quotedChar strLitAux s d
+    else strLitAux s d
+
+def strLit : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d.mkEOIError
+  else
+    let c := s.get i in
+    if c == '\"' then strLitAux s (d.setPos (s.next i))
+    else d.mkError "expected string literal"
 
 structure AbsParser (ρ : Type) :=
 (info : Thunk ParserInfo) (fn : ρ)

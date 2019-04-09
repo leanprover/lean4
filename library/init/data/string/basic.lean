@@ -13,7 +13,7 @@ structure String :=
 abbrev String.Pos := Nat
 
 structure Substring :=
-(str : String) (startPos : String.Pos) (endPos : String.Pos)
+(str : String) (startPos : String.Pos) (stopPos : String.Pos)
 
 attribute [extern cpp "lean::string_mk"] String.mk
 attribute [extern cpp "lean::string_data"] String.data
@@ -74,7 +74,7 @@ def utf8ByteSize : (@& String) → Nat
 utf8ByteSize s
 
 @[inline] def toSubstring (s : String) : Substring :=
-{str := s, startPos := 0, endPos := s.bsize}
+{str := s, startPos := 0, stopPos := s.bsize}
 
 private def utf8GetAux : List Char → Pos → Pos → Char
 | []      i p := default Char
@@ -122,9 +122,9 @@ def atEnd : (@& String) → (@& Pos) → Bool
 /- TODO: remove `partial` keywords after we restore the tactic
   framework and wellfounded recursion support -/
 
-partial def posOfAux (s : String) (c : Char) (endPos : Pos) : Pos → Pos
+partial def posOfAux (s : String) (c : Char) (stopPos : Pos) : Pos → Pos
 | pos :=
-  if pos == endPos then pos
+  if pos == stopPos then pos
   else if s.get pos == c then pos
        else posOfAux (s.next pos)
 
@@ -265,25 +265,25 @@ partial def offsetOfPosAux (s : String) (pos : Pos) : Pos → Nat → Nat
 def offsetOfPos (s : String) (pos : Pos) : Nat :=
 offsetOfPosAux s pos 0 0
 
-@[specialize] partial def foldlAux {α : Type u} (f : α → Char → α) (s : String) (endPos : Pos) : Pos → α → α
+@[specialize] partial def foldlAux {α : Type u} (f : α → Char → α) (s : String) (stopPos : Pos) : Pos → α → α
 | i a :=
-  if i == endPos then a
+  if i == stopPos then a
   else foldlAux (s.next i) (f a (s.get i))
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : String) : α :=
 foldlAux f s s.bsize 0 a
 
-@[specialize] partial def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (endPos : Pos) : Pos → α
+@[specialize] partial def foldrAux {α : Type u} (f : Char → α → α) (a : α) (s : String) (stopPos : Pos) : Pos → α
 | i :=
-  if i == endPos then a
+  if i == stopPos then a
   else f (s.get i) (foldrAux (s.next i))
 
 @[inline] def foldr {α : Type u} (f : Char → α → α) (a : α) (s : String) : α :=
 foldrAux f a s s.bsize 0
 
-@[specialize] partial def anyAux (s : String) (endPos : Pos) (p : Char → Bool) : Pos → Bool
+@[specialize] partial def anyAux (s : String) (stopPos : Pos) (p : Char → Bool) : Pos → Bool
 | i :=
-  if i == endPos then false
+  if i == stopPos then false
   else if p (s.get i) then true
   else anyAux (s.next i)
 
@@ -367,20 +367,20 @@ match s with
 @[inline] def extract : Substring → String.Pos → String.Pos → Substring
 | ⟨s, b, _⟩ b' e' := if b' ≥ e' then ⟨"", 0, 1⟩ else ⟨s, b+b', b+e'⟩
 
-partial def splitAux (s sep : String) (endPos : String.Pos) : String.Pos → String.Pos → String.Pos → List Substring → List Substring
+partial def splitAux (s sep : String) (stopPos : String.Pos) : String.Pos → String.Pos → String.Pos → List Substring → List Substring
 | b i j r :=
-  if i == endPos then
-    let r := if sep.atEnd j then "".toSubstring::{str := s, startPos := b, endPos := i-j}::r else {str := s, startPos := b, endPos := i}::r
+  if i == stopPos then
+    let r := if sep.atEnd j then "".toSubstring::{str := s, startPos := b, stopPos := i-j}::r else {str := s, startPos := b, stopPos := i}::r
     in r.reverse
   else if s.get i == sep.get j then
     let i := s.next i in
     let j := sep.next j in
-    if sep.atEnd j then splitAux i i 0 ({str := s, startPos := b, endPos := i-j}::r)
+    if sep.atEnd j then splitAux i i 0 ({str := s, startPos := b, stopPos := i-j}::r)
     else splitAux b i j r
   else splitAux b (s.next i) 0 r
 
 def split (s : Substring) (sep : String := " ") : List Substring :=
-if sep == "" then [s] else splitAux s.str sep s.endPos s.startPos s.startPos 0 []
+if sep == "" then [s] else splitAux s.str sep s.stopPos s.startPos s.startPos 0 []
 
 @[inline] def foldl {α : Type u} (f : α → Char → α) (a : α) (s : Substring) : α :=
 match s with
@@ -400,9 +400,9 @@ match s with
 def contains (s : Substring) (c : Char) : Bool :=
 s.any (== c)
 
-@[specialize] partial def takeWhileAux (s : String) (endPos : String.Pos) (p : Char → Bool) : String.Pos → String.Pos
+@[specialize] partial def takeWhileAux (s : String) (stopPos : String.Pos) (p : Char → Bool) : String.Pos → String.Pos
 | i :=
-  if i == endPos then i
+  if i == stopPos then i
   else if p (s.get i) then takeWhileAux (s.next i)
   else i
 

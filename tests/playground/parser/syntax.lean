@@ -21,6 +21,9 @@ structure SourceInfo :=
 (pos      : String.Pos)
 (trailing : Substring)
 
+def SourceInfo.updateTrailing : SourceInfo → Substring → SourceInfo
+| ⟨leading, pos, _⟩ trailing := ⟨leading, pos, trailing⟩
+
 /- Node kind generation -/
 
 def mkUniqIdRef : IO (IO.Ref Nat) :=
@@ -190,6 +193,18 @@ private def updateLeadingAux : Syntax → State String.Pos (Option Syntax)
     The implementation of this Function relies on this property. -/
 def updateLeading : Syntax → Syntax :=
 λ stx, Prod.fst <$> (mreplace updateLeadingAux stx).run 0
+
+partial def updateTrailing (trailing : Substring) : Syntax → Syntax
+| (Syntax.atom (some info) val)                     := Syntax.atom (some (info.updateTrailing trailing)) val
+| (Syntax.ident (some info) rawVal val pre scopes)  := Syntax.ident (some (info.updateTrailing trailing)) rawVal val pre scopes
+| n@(Syntax.node k args scopes)                     :=
+  if args.size == 0 then n
+  else
+   let i    := args.size - 1 in
+   let last := updateTrailing (args.get i) in
+   let args := args.set i last in
+   Syntax.node k args scopes
+| other := other
 
 /-- Retrieve the left-most leaf's info in the Syntax tree. -/
 partial def getHeadInfo : Syntax → Option SourceInfo

@@ -54,6 +54,9 @@ def ParserData.setPos (d : ParserData) (pos : Nat) : ParserData :=
 match d with
 | ⟨stack, _, cache, msg⟩ := ⟨stack, pos, cache, msg⟩
 
+def ParserData.next (d : ParserData) (s : String) (pos : Nat) : ParserData :=
+d.setPos (s.next pos)
+
 def ParserFn := String → ParserData → ParserData
 
 instance : Inhabited ParserFn :=
@@ -151,6 +154,15 @@ d.mkError "end of input"
   let d := manyAux p s d in
   d.mkNode nullKind iniSz
 
+@[specialize] partial def satisfy (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d.mkEOIError
+  else
+    let c := s.get i in
+    if p c then d.next s i
+    else d.mkError errorMsg
+
 @[specialize] partial def takeUntil (p : Char → Bool) : ParserFn
 | s d :=
   let i := d.pos in
@@ -158,7 +170,13 @@ d.mkError "end of input"
   else
     let c := s.get i in
     if p c then d
-    else takeUntil s (d.setPos (s.next i))
+    else takeUntil s (d.next s i)
+
+@[specialize] def takeWhile (p : Char → Bool) : ParserFn :=
+takeUntil (λ c, !p c)
+
+@[inline] def takeWhile1 (p : Char → Bool) (errorMsg : String) : ParserFn :=
+andthenFn (satisfy p errorMsg) (takeWhile p)
 
 partial def finishCommentBlock : Nat → ParserFn
 | nesting s d :=
@@ -172,15 +190,15 @@ partial def finishCommentBlock : Nat → ParserFn
       else
         let c := s.get i in
         if c == '/' then -- "-/" end of comment
-          if nesting == 1 then d.setPos (s.next i)
-          else finishCommentBlock (nesting-1) s (d.setPos (s.next i))
+          if nesting == 1 then d.next s i
+          else finishCommentBlock (nesting-1) s (d.next s i)
         else
-          finishCommentBlock nesting s (d.setPos (s.next i))
+          finishCommentBlock nesting s (d.next s i)
     else if c == '/' then
       if s.atEnd i then d.mkEOIError
       else
         let c := s.get i in
-        if c == '-' then finishCommentBlock (nesting+1) s (d.setPos (s.next i))
+        if c == '-' then finishCommentBlock (nesting+1) s (d.next s i)
         else finishCommentBlock nesting s (d.setPos i)
     else finishCommentBlock nesting s (d.setPos i)
 
@@ -191,11 +209,11 @@ partial def whitespace : ParserFn
   if s.atEnd i then d
   else
     let c := s.get i in
-    if c.isWhitespace then whitespace s (d.setPos (s.next i))
+    if c.isWhitespace then whitespace s (d.next s i)
     else if c == '-' then
       let i := s.next i in
       let c := s.get i in
-      if c == '-' then andthenFn (takeUntil (= '\n')) whitespace s (d.setPos (s.next i))
+      if c == '-' then andthenFn (takeUntil (= '\n')) whitespace s (d.next s i)
       else d
     else if c == '/' then
       let i := s.next i in
@@ -204,7 +222,7 @@ partial def whitespace : ParserFn
         let i := s.next i in
         let c := s.get i in
         if c == '-' then d -- "/--" doc comment is an actual token
-        else andthenFn (finishCommentBlock 1) whitespace s (d.setPos (s.next i))
+        else andthenFn (finishCommentBlock 1) whitespace s (d.next s i)
       else d
     else d
 
@@ -225,11 +243,11 @@ def quotedChar : ParserFn
   else
     let c := s.get i in
     if c == '\\' || c == '\"' || c == '\'' || c == '\n' || c == '\t' then
-      d.setPos (s.next i)
+      d.next s i
     else if c == 'x' then
-      andthenFn hexDigit hexDigit s (d.setPos (s.next i))
+      andthenFn hexDigit hexDigit s (d.next s i)
     else if c == 'u' then
-      andthenFn hexDigit (andthenFn hexDigit (andthenFn hexDigit hexDigit)) s (d.setPos (s.next i))
+      andthenFn hexDigit (andthenFn hexDigit (andthenFn hexDigit hexDigit)) s (d.next s i)
     else
       d.mkError "invalid escape sequence"
 
@@ -250,8 +268,54 @@ def strLit : ParserFn
   if s.atEnd i then d.mkEOIError
   else
     let c := s.get i in
-    if c == '\"' then strLitAux s (d.setPos (s.next i))
+    if c == '\"' then strLitAux s (d.next s i)
     else d.mkError "expected string literal"
+
+def decimalNumber : ParserFn
+| s d :=
+  let d := takeWhile (λ c, c.isDigit) s d in
+  let i := d.pos in
+  let c := s.get i in
+  if c == '.' then
+    let i := s.next i in
+    let c := s.get i in
+    if c.isDigit then
+      takeWhile (λ c, c.isDigit) s (d.setPos i)
+    else
+      d
+  else
+    d
+
+def binNumber : ParserFn :=
+takeWhile1 (λ c, c == '0' || c == '1') "expected binary number"
+
+def octalNumber : ParserFn :=
+takeWhile1 (λ c, '0' ≤ c && c ≤ '7') "expected octal number"
+
+def hexNumber : ParserFn :=
+takeWhile1 (λ c, ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "expected hexadecimal number"
+
+def number : ParserFn
+| s d :=
+  let i := d.pos in
+  if s.atEnd i then d.mkEOIError
+  else
+    let c := s.get i in
+    if c == '0' then
+      let i := s.next i in
+      let c := s.get i in
+      if c == 'b' || c == 'B' then
+        binNumber s (d.next s i)
+      else if c == 'o' || c == 'O' then
+        octalNumber s (d.next s i)
+      else if c == 'x' || c == 'X' then
+        hexNumber s (d.next s i)
+      else
+        decimalNumber s (d.next s i)
+    else if c.isDigit then
+      decimalNumber s (d.next s i)
+    else
+      d.mkError "expected numeral"
 
 structure AbsParser (ρ : Type) :=
 (info : Thunk ParserInfo) (fn : ρ)

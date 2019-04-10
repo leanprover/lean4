@@ -77,6 +77,9 @@ a.index ⟨i.toNat, h⟩
 def get [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
 if h : i < a.size then a.index ⟨i, h⟩ else default α
 
+def back [Inhabited α] (a : Array α) : α :=
+a.get (a.size - 1)
+
 def getOpt (a : Array α) (i : Nat) : Option α :=
 if h : i < a.size then some (a.index ⟨i, h⟩) else none
 

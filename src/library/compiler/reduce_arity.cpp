@@ -26,7 +26,7 @@ bool arity_was_reduced(comp_decl const & cdecl) {
     expr const & f = get_app_fn(v);
     if (!is_constant(f)) return false;
     name const & n = const_name(f);
-    return is_reduce_arity_aux_fn(n);
+    return is_reduce_arity_aux_fn(n) && n.get_prefix() == cdecl.fst();
 }
 
 comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {

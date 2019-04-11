@@ -23,6 +23,7 @@ Author: Leonardo de Moura
 #include "library/compiler/cse.h"
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/csimp.h"
+#include "library/compiler/extract_closed.h"
 #include "library/compiler/reduce_arity.h"
 
 namespace lean {
@@ -1435,6 +1436,8 @@ class csimp_fn {
                 return some_expr(beta_reduce(new_fn, e, is_let_val));
             }
         } else {
+            /* We should not inline closed constants we have extracted. */
+            if (is_extract_closed_aux_fn(const_name(fn))) return none_expr();
             name c = mk_cstage2_name(const_name(fn));
             optional<constant_info> info = env().find(c);
             if (!info || !info->is_definition()) return none_expr();

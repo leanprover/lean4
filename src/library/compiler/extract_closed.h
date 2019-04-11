@@ -8,5 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "library/compiler/util.h"
 namespace lean {
+bool is_extract_closed_aux_fn(name const & n);
 pair<environment, comp_decls> extract_closed(environment env, comp_decls const & ds);
 }

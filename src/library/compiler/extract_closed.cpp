@@ -14,6 +14,15 @@ Author: Leonardo de Moura
 #include "library/compiler/reduce_arity.h"
 
 namespace lean {
+name mk_extract_closed_aux_fn(name const & n, unsigned idx) {
+    return name(n, "_closed").append_after(idx);
+}
+
+bool is_extract_closed_aux_fn(name const & n) {
+    if (!n.is_string() || n.is_atomic()) return false;
+    return strncmp(n.get_string().data(), "_closed", 7) == 0;
+}
+
 class extract_closed_fn {
     environment         m_env;
     name_generator      m_ngen;
@@ -27,7 +36,7 @@ class extract_closed_fn {
     name_generator & ngen() { return m_ngen; }
 
     name next_name() {
-        name r = name(m_base_name, "_closed").append_after(m_next_idx);
+        name r = mk_extract_closed_aux_fn(m_base_name, m_next_idx);
         m_next_idx++;
         return r;
     }

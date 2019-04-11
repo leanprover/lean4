@@ -103,9 +103,9 @@ bool has_inline2_attribute(environment const & env, name const & n) {
     if (has_attribute(env, "inline2", n))
         return true;
     if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline]`
+        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline2]`
            if `f` is marked. */
-        return has_inline_attribute(env, n.get_prefix());
+        return has_inline2_attribute(env, n.get_prefix());
     }
     return false;
 }

@@ -110,7 +110,7 @@ def pop (a : Array α) : Array α :=
 
 -- TODO(Leo): justify termination using wf-rec
 partial def shrink : Array α → Nat → Array α
-| a n := if a.size ≥ n then a else shrink a.pop n
+| a n := if n ≥ a.size then a else shrink a.pop n
 
 section
 variables {m : Type v → Type v} [Monad m]

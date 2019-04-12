@@ -1,7 +1,7 @@
 LEANC=../../../bin/leanc
 LEAN=../../../bin/lean
 COMMON_SRCS = parser.lean syntax.lean filemap.lean
-SRCS = $(COMMON_SRCS) test1.lean test2.lean
+SRCS = $(COMMON_SRCS) test1.lean
 OLEANS = $(SRCS:.lean=.olean)
 CPPS = $(SRCS:.lean=.cpp)
 COMMON_OBJS = $(COMMON_SRCS:.lean=.o)
@@ -31,8 +31,8 @@ depends: $(DEPS)
 test1: test1.o $(COMMON_OBJS)
 	$(LEANC) -o $@ $^
 
-test2: test2.o $(COMMON_OBJS)
-	$(LEANC) -o $@ $^
+# test2: test2.o $(COMMON_OBJS)
+#	$(LEANC) -o $@ $^
 
 clean:
 	rm -f *.olean

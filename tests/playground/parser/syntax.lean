@@ -236,6 +236,25 @@ partial def reprint : Syntax → Option String
   else args.mfoldl "" (λ stx r, do s ← reprint stx, pure $ r ++ s)
 | missing := ""
 
+open Lean.Format
+
+protected partial def toFormat : Syntax → Format
+| (atom info val) := toFmt $ repr val
+| (ident _ _ val pre scopes) :=
+  let scopes := pre.map toFmt ++ scopes.reverse.map toFmt in
+  let scopes := match scopes with [] := toFmt "" | _ := bracket "{" (joinSep scopes ", ") "}" in
+  toFmt "`" ++ toFmt val ++ scopes
+| (node kind args scopes) :=
+  let scopes := match scopes with [] := toFmt "" | _ := bracket "{" (joinSep scopes.reverse ", ") "}" in
+  if kind.name = `Lean.Parser.noKind then
+    sbracket $ scopes ++ joinSep (args.toList.map toFormat) line
+  else
+    let shorterName := kind.name.replacePrefix `Lean.Parser Name.anonymous in
+    paren $ joinSep ((toFmt shorterName ++ scopes) :: args.toList.map toFormat) line
+| missing := "<missing>"
+
+instance : HasToFormat Syntax := ⟨Syntax.toFormat⟩
+instance : HasToString Syntax := ⟨toString ∘ toFmt⟩
 end Syntax
 
 end Parser

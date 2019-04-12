@@ -368,7 +368,7 @@ def numberFnAux : ParserFn
       else if c == 'x' || c == 'X' then
         hexNumberFn startPos s (d.next s i)
       else
-        decimalNumberFn startPos s (d.next s i)
+        decimalNumberFn startPos s (d.setPos i)
     else if c.isDigit then
       decimalNumberFn startPos s (d.next s startPos)
     else
@@ -407,6 +407,7 @@ match tk with
   let val       := tk.val in
   let stopPos   := startPos + val.bsize in
   let d         := d.setPos stopPos in
+  let d         := whitespace s d in
   let wsStopPos := d.pos in
   let trailing  := { Substring . str := s, startPos := stopPos, stopPos := wsStopPos } in
   let atom      := Syntax.atom (some { leading := leading, pos := startPos, trailing := trailing }) val in

@@ -143,6 +143,10 @@ def MacroScopes.flip : MacroScopes → MacroScopes → MacroScopes
   | []    := [x]
 
 namespace Syntax
+def isOfKind : Syntax → SyntaxNodeKind → Bool
+| (Syntax.node kind _ _) k := k == kind
+| other                  _ := false
+
 def flipScopes (scopes : MacroScopes) : Syntax → Syntax
 | (Syntax.ident info rawVal val pre scopes) := Syntax.ident info rawVal val pre (scopes.flip scopes)
 | (Syntax.node kind args scopes)            := Syntax.node kind args (scopes.flip scopes)
@@ -161,8 +165,8 @@ local attribute [instance] monadInhabited
 @[inline] def replace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) := @mreplace Id _
 
 private def updateInfo : SourceInfo → String.Pos → SourceInfo
-| {leading := {str := s, startPos := sPos, endPos := ePos}, pos := pos, trailing := trailing} last :=
-  {leading := {str := s, startPos := last, endPos := pos}, pos := pos, trailing := trailing}
+| {leading := {str := s, startPos := _, stopPos := _}, pos := pos, trailing := trailing} last :=
+  {leading := {str := s, startPos := last, stopPos := pos}, pos := pos, trailing := trailing}
 
 /- Remark: the State `String.Pos` is the `SourceInfo.trailing.endPos` of the previous token,
    or the beginning of the String. -/
@@ -170,12 +174,12 @@ private def updateInfo : SourceInfo → String.Pos → SourceInfo
 private def updateLeadingAux : Syntax → State String.Pos (Option Syntax)
 | (atom (some info) val) := do
   last ← get,
-  set info.trailing.endPos,
+  set info.trailing.stopPos,
   let newInfo := updateInfo info last in
   pure $ some (atom (some newInfo) val)
 | (ident (some info) rawVal val pre scopes) := do
   last ← get,
-  set info.trailing.endPos,
+  set info.trailing.stopPos,
   let newInfo := updateInfo info last in
   pure $ some (ident (some newInfo) rawVal val pre scopes)
 | _ := pure none

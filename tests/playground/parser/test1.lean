@@ -16,8 +16,8 @@ many numPair
 
 @[noinline] def test (p : BasicParser) (s : String) : IO Unit :=
 match p.run s with
-| Except.error msg := IO.println "error"
-| Except.ok stx    := IO.println "ok"
+| Except.error msg := IO.println msg
+| Except.ok stx    := IO.println stx
 
 def mkNumPairString : Nat → String → String
 | 0     s := s

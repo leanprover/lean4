@@ -10,7 +10,7 @@ CPPFLAGS = -O3
 
 .PHONY: all clean
 
-all: test1 test2 $(OLEANS)
+all: test1 $(OLEANS)
 
 depends: $(DEPS)
 
@@ -40,5 +40,7 @@ clean:
 	rm -f *.o
 	rm -f *.depend
 	rm -f test1 test2
+
+.PRECIOUS: %.depend %.cpp
 
 include $(DEPS)

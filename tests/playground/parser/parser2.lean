@@ -1,5 +1,5 @@
-import init.lean.name init.lean.position init.lean.parser.trie init.lean.parser.identifier
-import syntax
+import init.lean.name init.lean.parser.trie init.lean.parser.identifier
+import syntax filemap
 
 open Lean
 export Lean.Parser (Trie)
@@ -62,6 +62,13 @@ match d with
 
 def ParserData.next (d : ParserData) (s : String) (pos : Nat) : ParserData :=
 d.setPos (s.next pos)
+
+def ParserData.toErrorMsg (d : ParserData) (cfg : ParserConfig) : String :=
+match d.errorMsg with
+| none     := ""
+| some msg :=
+  let pos := cfg.fileMap.toPosition d.pos in
+  cfg.filename ++ ":" ++ toString pos.line ++ ":" ++ toString pos.column ++ " " ++ msg
 
 def ParserFn := String → ParserData → ParserData
 
@@ -345,7 +352,7 @@ def hexNumberFn (startPos : Nat) : ParserFn
   let d := takeWhile1Fn (λ c, ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "expected hexadecimal number" s d in
   mkNodeToken numberKind startPos s d
 
-def numberFn : ParserFn
+def numberFnAux : ParserFn
 | s d :=
   let startPos := d.pos in
   if s.atEnd startPos then d.mkEOIError
@@ -450,7 +457,8 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Par
       mkTokenAndFixPos startPos tk s d
 
 structure AbsParser (ρ : Type) :=
-(info : Thunk ParserInfo) (fn : ρ)
+(info : Thunk ParserInfo := Thunk.mk (λ _, {}))
+(fn   : ρ)
 
 abbrev Parser := AbsParser ParserFn
 
@@ -545,10 +553,10 @@ structure CommandParserConfig extends ParserConfig :=
 abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConfig)
 
 @[inline] def Term.parser (rbp : Nat := 0) : TermParser :=
-{ info := Thunk.pure {}, fn := RecParserFn.recurse rbp }
+{ fn := RecParserFn.recurse rbp }
 
 @[inline] def Command.parser : CommandParser :=
-{ info := Thunk.pure {}, fn := λ _, RecParserFn.recurse () }
+{ fn := λ _, RecParserFn.recurse () }
 
 @[inline] def basicParser2TermParser (p : BasicParser) : TermParser :=
 { info := Thunk.mk (λ _, p.info.get), fn := λ _ cfg _, p.fn cfg }
@@ -569,7 +577,7 @@ private def tokenFnAux : BasicParserFn
   if c == '\"' then
     strLitFnAux i s (d.next s i)
   else if c.isDigit then
-    numberFn s d
+    numberFnAux s d
   else
     let (_, tk) := cfg.tokens.matchPrefix s i in
     identFnAux i tk Name.anonymous s d
@@ -620,6 +628,45 @@ def symbolInfo (sym : String) (lbp : Nat) : ParserInfo :=
 @[inline] def symbol (sym : String) (lbp : Nat := 0) : BasicParser :=
 { info := Thunk.mk (λ _, symbolInfo sym lbp),
   fn := symbolFn sym }
+
+def numberFn : BasicParserFn
+| cfg s d :=
+  let d := tokenFn cfg s d in
+  if d.hasError || !(d.stxStack.back.isOfKind numberKind) then
+    d.mkError "expected numeral"
+  else
+    d
+
+@[inline] def number : BasicParser :=
+{ fn := numberFn }
+
+def strLitFn : BasicParserFn
+| cfg s d :=
+  let d := tokenFn cfg s d in
+  if d.hasError || !(d.stxStack.back.isOfKind strLitKind) then
+    d.mkError "expected string literal"
+  else
+    d
+
+@[inline] def strLit : BasicParser :=
+{ fn := numberFn }
+
+def mkFrontendConfig (filename input : String) : FrontendConfig :=
+{ filename := filename,
+  input    := input,
+  fileMap  := input.toFileMap }
+
+def BasicParser.run (p : BasicParser) (input : String) (filename : String := "<input>") : Except String Syntax :=
+let frontendCfg        := mkFrontendConfig filename input in
+let tokens             := p.info.get.updateTokens {} in
+let cfg : ParserConfig := { tokens := tokens, .. frontendCfg } in
+let d : ParserData     := { stxStack := Array.empty, pos := 0, cache := {}, errorMsg := none } in
+let d                  := p.fn cfg input d in
+if d.hasError then
+  Except.error (d.toErrorMsg cfg)
+else
+  Except.ok d.stxStack.back
+
 
 local infix ` ; `:10 := Parser.andthen
 local infix ` || `:5 := Parser.orelse

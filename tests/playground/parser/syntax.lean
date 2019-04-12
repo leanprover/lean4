@@ -49,7 +49,7 @@ constant nameToKindTable : IO.Ref (NameMap Nat) := default _
 
 def nextKind (k : Name) : IO SyntaxNodeKind :=
 do m ← nameToKindTable.get,
-   when (m.contains k) (throw $ IO.userError ("Error kind '" ++ toString k ++ "' already exists")),
+   when (m.contains k) (throw $ IO.userError ("kind '" ++ toString k ++ "' already exists")),
    id ← nextUniqId.get,
    nameToKindTable.set (m.insert k id),
    nextUniqId.set (id+1),
@@ -64,7 +64,7 @@ def mkChoiceKind : IO SyntaxNodeKind := nextKind `choice
 def mkOptionSomeKind : IO SyntaxNodeKind := nextKind `some
 @[init mkOptionSomeKind] constant optionSomeKind : SyntaxNodeKind := default _
 def mkOptionNoneKind : IO SyntaxNodeKind := nextKind `none
-@[init mkOptionSomeKind] constant optionNoneKind : SyntaxNodeKind := default _
+@[init mkOptionNoneKind] constant optionNoneKind : SyntaxNodeKind := default _
 def mkManyKind : IO SyntaxNodeKind := nextKind `many
 @[init mkManyKind] constant manyKind : SyntaxNodeKind := default _
 def mkHoleKind : IO SyntaxNodeKind := nextKind `hole

@@ -124,14 +124,13 @@ match d with
   | some tk₁, some tk₂ := if tk₁ == tk₂ then some tk₁ else none
   | _, _               := none }
 
-def ParserData.resetPos : ParserData → String.Pos → ParserData
-| ⟨stack, _, cache, errorMsg⟩ pos := ⟨stack, pos, cache, errorMsg⟩
-
 @[inline] def tryFn (p : ParserFn) : ParserFn
 | s d :=
+  let iniSz  := d.stackSize in
   let iniPos := d.pos in
-  let d := p s d in
-  if d.hasError then d.resetPos iniPos else d
+  match p s d with
+  | ⟨stack, _, cache, some msg⟩ := ⟨stack.shrink iniSz, iniPos, cache, some msg⟩
+  | other                       := other
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo :=
 { updateTokens := info.updateTokens,

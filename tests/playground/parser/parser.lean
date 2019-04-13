@@ -707,6 +707,9 @@ def strLitFn : BasicParserFn
 @[inline] def strLit : BasicParser :=
 { fn := numberFn }
 
+instance string2basic : HasCoe String BasicParser :=
+⟨symbol⟩
+
 def mkFrontendConfig (filename input : String) : FrontendConfig :=
 { filename := filename,
   input    := input,

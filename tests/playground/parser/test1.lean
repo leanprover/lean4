@@ -3,16 +3,24 @@ open Parser
 local infix ` ; `:10 := Parser.andthen
 local infix ` || `:5 := Parser.orelse
 
-def mkTestKind : IO SyntaxNodeKind := nextKind `test
-@[init mkTestKind] constant testKind : SyntaxNodeKind := default _
+def mkNumPairKind : IO SyntaxNodeKind := nextKind `numPair
+@[init mkNumPairKind] constant numPairKind : SyntaxNodeKind := default _
+
+def mkNumSetKind : IO SyntaxNodeKind := nextKind `numSet
+@[init mkNumSetKind] constant numSetKind : SyntaxNodeKind := default _
 
 @[inline2]
 def numPair : BasicParser :=
-node testKind $
-  symbol "("; number; symbol ","; number; symbol ")"
+node numPairKind $
+  "("; number; ","; number; ")"
 
-def numPairs : BasicParser :=
-many numPair
+@[inline2]
+def numSet : BasicParser :=
+node numSetKind $
+  "{"; sepBy number ","; "}"
+
+def testParser : BasicParser :=
+many (numPair || numSet)
 
 @[noinline] def test (p : BasicParser) (s : String) : IO Unit :=
 match p.run s with
@@ -21,8 +29,11 @@ match p.run s with
 
 def mkNumPairString : Nat → String → String
 | 0     s := s
-| (n+1) s := mkNumPairString n (s ++ "(" ++ toString n ++ ", " ++ toString n ++ ") -- comment\n")
+| (n+1) s := mkNumPairString n $
+  s ++ "{} /- /- comment2 -/ -/ "
+  ++ "{" ++ toString n ++ "," ++ toString (n+1) ++ ",   " ++ toString (n+2) ++ "}"
+  ++ "(" ++ toString n ++ ", " ++ toString n ++ ") -- comment\n"
 
 def main (xs : List String) : IO Unit :=
 let s := mkNumPairString xs.head.toNat "" in
-test numPairs s
+test testParser s

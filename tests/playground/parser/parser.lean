@@ -657,13 +657,22 @@ def tokenFn : BasicParserFn
 
 def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn
 | cfg s d :=
-  let d := tokenFn cfg s d in
+  let iniPos := d.pos in
+  let d      := tokenFn cfg s d in
   if d.hasError then
+    let d := d.setPos iniPos in
     d.mkError errorMsg
   else
     match d.stxStack.back with
-    | Syntax.atom _ sym' := if sym == sym' then d else d.mkError errorMsg
-    | _                  := d.mkError errorMsg
+    | Syntax.atom _ sym' :=
+      if sym == sym' then
+        d
+      else
+        let d := d.setPos iniPos in
+        d.mkError errorMsg
+    | _ :=
+      let d := d.setPos iniPos in
+      d.mkError errorMsg
 
 @[inline] def symbolFn (sym : String) : BasicParserFn :=
 symbolFnAux sym ("expected '" ++ sym ++ "'")

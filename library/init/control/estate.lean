@@ -125,8 +125,8 @@ instance [Inhabited ε] : Inhabited (EState ε σ α) :=
 instance : Monad (EState ε σ) :=
 { bind := @EState.bind _ _, pure := @EState.pure _ _, map := @EState.map _ _, seqRight := @EState.seqRight _ _ }
 
-instance : HasOrelse (EState ε σ) :=
-{ orelse := @EState.orelse _ _ }
+instance : HasOrelse (EState ε σ α) :=
+{ orelse := @EState.orelse _ _ _ }
 
 instance : MonadState σ (EState ε σ) :=
 { set := @EState.set _ _, get := @EState.get _ _, modify := @EState.modify _ _ }

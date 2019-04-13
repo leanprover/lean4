@@ -140,8 +140,8 @@ match d with
 λ s d,
   let iniSz  := d.stackSize in
   let iniPos := d.pos in
-  let d := p s d in
-  let d := if d.hasError then d.restore iniSz iniPos else d in
+  let d      := p s d in
+  let d      := if d.hasError then d.restore iniSz iniPos else d in
   d.mkNode nullKind iniSz
 
 def ParserData.mkError (d : ParserData) (msg : String) : ParserData :=
@@ -165,6 +165,47 @@ d.mkError "end of input"
   let iniSz  := d.stackSize in
   let d := manyAux p s d in
   d.mkNode nullKind iniSz
+
+@[specialize] private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep : Bool) (iniSz : Nat) : Bool → ParserFn
+| pOpt s d :=
+  let sz  := d.stackSize in
+  let pos := d.pos in
+  let d   := p s d in
+  if d.hasError then
+    let d := d.restore sz pos in
+    if pOpt then
+      d.mkNode nullKind iniSz
+    else
+      -- append `Syntax.missing` to make clear that List is incomplete
+      let d := d.pushSyntax Syntax.missing in
+      d.mkNode nullKind iniSz
+  else
+    let sz  := d.stackSize in
+    let pos := d.pos in
+    let d   := sep s d in
+    if d.hasError then
+      let d := d.restore sz pos in
+      d.mkNode nullKind iniSz
+    else
+      sepByFnAux allowTrailingSep s d
+
+@[specialize] def sepByFn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn
+| s d :=
+  let iniSz := d.stackSize in
+  sepByFnAux p sep allowTrailingSep iniSz true s d
+
+@[specialize] def sepBy1Fn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn
+| s d :=
+  let iniSz := d.stackSize in
+  sepByFnAux p sep allowTrailingSep iniSz false s d
+
+@[noinline] def sepByInfo (p sep : ParserInfo) : ParserInfo :=
+{ updateTokens := sep.updateTokens ∘ p.updateTokens,
+  firstToken   := none }
+
+@[noinline] def sepBy1Info (p sep : ParserInfo) : ParserInfo :=
+{ updateTokens := sep.updateTokens ∘ p.updateTokens,
+  firstToken   := p.firstToken }
 
 @[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn
 | s d :=
@@ -533,6 +574,12 @@ mapParser noFirstTokenInfo optionalFn
 
 @[inline] def many1 {ρ : Type} [ParserFnLift ρ] (p : AbsParser ρ) : AbsParser ρ :=
 andthen p (many p)
+
+@[inline] def sepBy {ρ : Type} [ParserFnLift ρ] (p sep : AbsParser ρ) (allowTrailingSep : Bool := false) : AbsParser ρ :=
+mapParser₂ sepByInfo (sepByFn allowTrailingSep) p sep
+
+@[inline] def sepBy1 {ρ : Type} [ParserFnLift ρ] (p sep : AbsParser ρ) (allowTrailingSep : Bool := false) : AbsParser ρ :=
+mapParser₂ sepBy1Info (sepBy1Fn allowTrailingSep) p sep
 
 abbrev BasicParserFn : Type          := EnvParserFn ParserConfig ParserFn
 abbrev BasicParser : Type            := AbsParser BasicParserFn

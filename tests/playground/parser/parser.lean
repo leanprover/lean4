@@ -677,11 +677,17 @@ end RecParserFn
 @[inline] def andthen {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
 mapParser₂ andthenInfo andthenFn
 
+instance absParserAndthen {ρ : Type} [ParserFnLift ρ] : HasAndthen (AbsParser ρ) :=
+⟨andthen⟩
+
 @[inline] def node {ρ : Type} [ParserFnLift ρ] (k : SyntaxNodeKind) : AbsParser ρ → AbsParser ρ :=
 mapParser nodeInfo (nodeFn k)
 
 @[inline] def orelse {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
 mapParser₂ orelseInfo orelseFn
+
+instance absParserHasOrelse {ρ : Type} [ParserFnLift ρ] : HasOrelse (AbsParser ρ) :=
+⟨orelse⟩
 
 @[inline] def try {ρ : Type} [ParserFnLift ρ] : AbsParser ρ → AbsParser ρ :=
 mapParser noFirstTokenInfo tryFn

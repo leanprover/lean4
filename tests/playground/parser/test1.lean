@@ -1,7 +1,5 @@
 import parser
 open Parser
-local infix ` ; `:10 := Parser.andthen
-local infix ` || `:5 := Parser.orelse
 
 def mkNumPairKind : IO SyntaxNodeKind := nextKind `numPair
 @[init mkNumPairKind] constant numPairKind : SyntaxNodeKind := default _
@@ -33,7 +31,7 @@ node numSetKind $
   "{"; sepBy number ","; "}"
 
 def testParser1 : TermParser :=
-many (numPairP || numSetP)
+many (numPairP <|> numSetP)
 
 def parenIdentP : TermParser :=
 node parenIdentKind $

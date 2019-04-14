@@ -81,10 +81,10 @@ reserve infix ` \ `:70
 reserve infix ` ∣ `:50
 reserve infixl ` ++ `:65
 reserve infixr ` :: `:67
-reserve infixl `; `:1
 
 /- Control -/
 reserve infixr ` <|> `:2
+reserve infixr `; `   :3
 reserve infixr ` >>= `:55
 reserve infixr ` >=> `:55
 reserve infixl ` <*> `:60
@@ -365,7 +365,8 @@ class HasLessEq   (α : Type u) := (LessEq : α → α → Prop)
 class HasLess     (α : Type u) := (Less : α → α → Prop)
 class HasBeq      (α : Type u) := (beq : α → α → Bool)
 class HasAppend   (α : Type u) := (append : α → α → α)
-class HasAndthen  (α : Type u) (β : Type v) (σ : outParam $ Type w) := (andthen : α → β → σ)
+class HasOrelse   (α : Type u) := (orelse  : α → α → α)
+class HasAndthen  (α : Type u) := (andthen : α → α → α)
 class HasUnion    (α : Type u) := (union : α → α → α)
 class HasInter    (α : Type u) := (inter : α → α → α)
 class HasSDiff    (α : Type u) := (sdiff : α → α → α)
@@ -404,7 +405,6 @@ infix ≤        := HasLessEq.LessEq
 infix <        := HasLess.Less
 infix ==       := HasBeq.beq
 infix ++       := HasAppend.append
-infix ;        := andthen
 notation `∅`   := HasEmptyc.emptyc _
 infix ∪        := HasUnion.union
 infix ∩        := HasInter.inter
@@ -421,6 +421,8 @@ infix <->      := Iff
 infix ↔        := Iff
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
 notation `∃` binders `, ` r:(scoped P, Exists P) := r
+infixr <|>     := HasOrelse.orelse
+infixr ;       := HasAndthen.andthen
 
 export HasAppend (append)
 

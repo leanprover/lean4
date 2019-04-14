@@ -310,7 +310,7 @@ ys.foldl (λ s p, s.insert p.x) s
 @[inline] private def seq : Collector → Collector → Collector :=
 λ k₁ k₂ bv fv, k₂ bv (k₁ bv fv)
 
-instance : HasAndthen Collector Collector Collector :=
+instance : HasAndthen Collector :=
 ⟨seq⟩
 
 private def collectArg : Arg → Collector

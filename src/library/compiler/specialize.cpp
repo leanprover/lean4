@@ -942,8 +942,13 @@ class specialize_fn {
         name y("_y");
         for (unsigned i = 0; i < fvars.size(); i++) {
             expr type     = tc.infer(fvar_vals[i]);
-            expr new_fvar = m_lctx.mk_local_decl(fvar_name(fvars[i]), y.append_after(i+1), type, fvar_vals[i]).mk_ref();
-            new_let_decls.push_back(new_fvar);
+            if (is_irrelevant_type(m_st, m_lctx, type)) {
+                /* In LCNF, the type `ty` at `let x : ty := v in t` must not be irrelevant. */
+                code = replace_fvar(code, fvars[i], fvar_vals[i]);
+            } else {
+                expr new_fvar = m_lctx.mk_local_decl(fvar_name(fvars[i]), y.append_after(i+1), type, fvar_vals[i]).mk_ref();
+                new_let_decls.push_back(new_fvar);
+            }
         }
         code = m_lctx.mk_lambda(new_let_decls, code);
         // lean_trace(name("compiler", "spec_info"), tout() << "STEP 1 " << n << "\n" << code << "\n";);

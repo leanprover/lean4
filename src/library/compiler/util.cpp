@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/module.h"
 #include "library/trace.h"
 #include "library/compiler/lambda_lifting.h"
+#include "library/compiler/eager_lambda_lifting.h"
 #include "library/compiler/util.h"
 
 namespace lean {
@@ -88,6 +89,8 @@ unsigned get_num_nested_lambdas(expr e) {
 }
 
 bool has_inline_attribute(environment const & env, name const & n) {
+    if (is_elambda_lifting_name(n))
+        return false; // don't undo lambda lifting
     if (has_attribute(env, "inline", n))
         return true;
     if (is_internal_name(n) && !n.is_atomic()) {
@@ -99,7 +102,7 @@ bool has_inline_attribute(environment const & env, name const & n) {
 }
 
 bool has_inline2_attribute(environment const & env, name const & n) {
-    if (is_lambda_lifting_name(n))
+    if (is_lambda_lifting_name(n) || is_elambda_lifting_name(n))
         return false; // don't undo lambda lifting
     if (has_attribute(env, "inline2", n))
         return true;
@@ -112,6 +115,8 @@ bool has_inline2_attribute(environment const & env, name const & n) {
 }
 
 bool has_inline_if_reduce_attribute(environment const & env, name const & n) {
+    if (is_elambda_lifting_name(n))
+        return false; // don't undo lambda lifting
     if (has_attribute(env, "inlineIfReduce", n))
         return true;
     if (is_internal_name(n) && !n.is_atomic()) {

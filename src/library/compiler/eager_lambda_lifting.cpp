@@ -7,7 +7,10 @@ Author: Leonardo de Moura
 #include "runtime/flet.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
+#include "kernel/for_each_fn.h"
+#include "kernel/type_checker.h"
 #include "library/trace.h"
+#include "library/module.h"
 #include "library/class.h"
 #include "library/compiler/util.h"
 #include "library/compiler/closed_term_cache.h"
@@ -76,15 +79,80 @@ class eager_lambda_lifting_fn {
     name                m_base_name;
     name_set            m_terminal_lambdas;
     name_set            m_nonterminal_lambdas;
+    unsigned            m_next_idx{1};
 
     environment const & env() const { return m_st.env(); }
 
     name_generator & ngen() { return m_st.ngen(); }
 
+    name next_name() {
+        name r = mk_elambda_lifting_name(m_base_name, m_next_idx);
+        m_next_idx++;
+        return r;
+    }
+
+    bool collect_fvars_core(expr const & e, name_set collected, buffer<expr> & fvars) {
+        if (!has_fvar(e)) return true;
+        bool ok = true;
+        for_each(e, [&](expr const & x, unsigned) {
+                if (!has_fvar(x)) return false;
+                if (!ok) return false;
+                if (is_fvar(x)) {
+                    if (!collected.contains(fvar_name(x))) {
+                        collected.insert(fvar_name(x));
+                        local_decl d = m_lctx.get_local_decl(x);
+                        /* We do not eagerly lift a lambda if we need to copy a join-point.
+                           Remark: we may revise this decision in the future, and use the same
+                           approach we use at `lambda_lifting.cpp`.
+                         */
+                        if (is_join_point_name(d.get_user_name())) {
+                            ok = false;
+                            return false;
+                        } else {
+                            fvars.push_back(x);
+                        }
+                    }
+                }
+                return true;
+            });
+        return ok;
+    }
+
+    bool collect_fvars(expr const & e, buffer<expr> & fvars) {
+        if (!has_fvar(e)) return true;
+        name_set collected;
+        if (collect_fvars_core(e, collected, fvars)) {
+            sort_fvars(m_lctx, fvars);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     expr lift_lambda(expr const & e) {
         lean_assert(is_lambda(e));
-        // tout() << "FOUND: " << e << "\n";
-        return e;
+        buffer<expr> fvars;
+        if (!collect_fvars(e, fvars)) {
+            return e;
+        }
+        expr code = abstract(e, fvars.size(), fvars.data());
+        unsigned i = fvars.size();
+        while (i > 0) {
+            --i;
+            local_decl const & decl = m_lctx.get_local_decl(fvars[i]);
+            expr type = abstract(decl.get_type(), i, fvars.data());
+            code = ::lean::mk_lambda(decl.get_user_name(), type, code);
+        }
+        expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
+        name n    = next_name();
+        /* We add the auxiliary declaration `n` as a "meta" axiom to the environment.
+           This is a hack to make sure we can use `csimp` to simplify `code` and
+           other definitions that use `n`.
+           We used a similar hack at `specialize.cpp`. */
+        declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
+        m_st.env() = module::add(env(), aux_ax, false);
+        m_new_decls.push_back(comp_decl(n, code));
+        return mk_app(mk_constant(n), fvars);
     }
 
     /* Given a free variable `x`, follow let-decls and return a pair `(x, v)`.

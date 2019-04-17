@@ -1154,7 +1154,7 @@ class csimp_fn {
             return some_expr(s);
         } else if (is_proj(s)) {
             if (optional<expr> new_nested_s = try_inline_proj_instance_aux(proj_expr(s))) {
-                lean_assert(is_constructor_app(env(), new_nested_s));
+                lean_assert(is_constructor_app(env(), *new_nested_s));
                 expr r = proj_constructor(*new_nested_s, proj_idx(s).get_small_value());
                 return try_inline_proj_instance_aux(r);
             }
@@ -1216,7 +1216,7 @@ class csimp_fn {
 
         unsigned saved_fvars_size = m_fvars.size();
         if (optional<expr> new_s = try_inline_proj_instance_aux(proj_expr(e))) {
-            lean_assert(is_constructor_app(env(), new_s));
+            lean_assert(is_constructor_app(env(), *new_s));
             expr r = proj_constructor(*new_s, proj_idx(e).get_small_value());
             return some_expr(visit(r, is_let_val));
         }

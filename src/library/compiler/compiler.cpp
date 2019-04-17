@@ -205,6 +205,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "stage1"}), ds);
     environment new_env = cache_stage1(env, ds);
     std::tie(new_env, ds) = specialize(new_env, ds, cfg);
+    // lcnf_check_let_decls(new_env, ds);
     trace_compiler(name({"compiler", "specialize"}), ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);

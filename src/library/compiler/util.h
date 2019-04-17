@@ -171,6 +171,9 @@ optional<unsigned> is_fix_core(name const & c);
    Remark: this function assumes universe levels have already been erased. */
 optional<expr> mk_enf_fix_core(unsigned n);
 
+bool lcnf_check_let_decls(environment const & env, comp_decl const & d);
+bool lcnf_check_let_decls(environment const & env, comp_decls const & ds);
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

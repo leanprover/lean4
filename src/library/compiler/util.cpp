@@ -22,6 +22,7 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/constants.h"
 #include "library/module.h"
+#include "library/trace.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/util.h"
 
@@ -546,6 +547,103 @@ optional<expr> mk_enf_fix_core(unsigned n) {
     std::ostringstream s;
     s << "fixCore" << n;
     return some_expr(mk_constant(name(s.str())));
+}
+
+
+/* Auxiliary visitor used to detect let-decl LCNF violations.
+   In LCNF, the type `ty` in `let x : ty := v in t` must not be irrelevant. */
+class lcnf_valid_let_decls_fn {
+    type_checker::state m_st;
+    local_ctx           m_lctx;
+
+    environment const & env() const { return m_st.env(); }
+
+    name_generator & ngen() { return m_st.ngen(); }
+
+    optional<expr> visit_cases(expr const & e) {
+        buffer<expr> args;
+        expr const & c = get_app_args(e, args);
+        unsigned minor_idx; unsigned minors_end;
+        bool before_erasure = true;
+        std::tie(minor_idx, minors_end) = get_cases_on_minors_range(env(), const_name(c), before_erasure);
+        for (; minor_idx < minors_end; minor_idx++) {
+            if (optional<expr> found = visit(args[minor_idx]))
+                return found;
+        }
+        return none_expr();
+    }
+
+    optional<expr> visit_app(expr const & e) {
+        if (is_cases_on_app(env(), e)) {
+            return visit_cases(e);
+        } else {
+            return none_expr();
+        }
+    }
+
+    optional<expr> visit_lambda(expr e) {
+        buffer<expr> fvars;
+        while (is_lambda(e)) {
+            expr new_d    = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), new_d, binding_info(e));
+            fvars.push_back(new_fvar);
+            e = binding_body(e);
+        }
+        e = instantiate_rev(e, fvars.size(), fvars.data());
+        return visit(e);
+    }
+
+    optional<expr> visit_let(expr e) {
+        buffer<expr> fvars;
+        while (is_let(e)) {
+            expr new_type = instantiate_rev(let_type(e), fvars.size(), fvars.data());
+            if (is_irrelevant_type(m_st, m_lctx, new_type)) {
+                return some_expr(e);
+            }
+            if (optional<expr> found = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data())))
+                return found;
+            e = let_body(e);
+        }
+        return visit(instantiate_rev(e, fvars.size(), fvars.data()));
+    }
+
+    optional<expr> visit(expr const & e) {
+        switch (e.kind()) {
+        case expr_kind::Lambda: return visit_lambda(e);
+        case expr_kind::Let:    return visit_let(e);
+        case expr_kind::App:    return visit_app(e);
+        default:                return none_expr();
+        }
+    }
+
+public:
+    lcnf_valid_let_decls_fn(environment const & env, local_ctx const & lctx):
+        m_st(env), m_lctx(lctx) {}
+
+    optional<expr> operator()(expr const & e) {
+        return visit(e);
+    }
+};
+
+optional<expr> lcnf_valid_let_decls(environment const & env, expr const & e) {
+    return lcnf_valid_let_decls_fn(env, local_ctx())(e);
+}
+
+bool lcnf_check_let_decls(environment const & env, comp_decl const & d) {
+    if (optional<expr> v = lcnf_valid_let_decls(env, d.snd())) {
+        tout() << "LCNF violation at " << d.fst() << "\n" << *v << "\n";
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool lcnf_check_let_decls(environment const & env, comp_decls const & ds) {
+    for (comp_decl const & d : ds) {
+        if (!lcnf_check_let_decls(env, d))
+            return false;
+    }
+    return true;
 }
 
 void initialize_compiler_util() {

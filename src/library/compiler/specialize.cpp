@@ -936,14 +936,6 @@ class specialize_fn {
         name n = pre_decl.fst();
         expr code = pre_decl.snd();
         flet<local_ctx> save_lctx(m_lctx, m_lctx);
-        buffer<expr> new_fvars;
-        while (is_lambda(code)) {
-            expr type     = instantiate_rev(binding_domain(code), new_fvars.size(), new_fvars.data());
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(code), type, binding_info(code));
-            new_fvars.push_back(new_fvar);
-            code = binding_body(code);
-        }
-        code = instantiate_rev(code, new_fvars.size(), new_fvars.data());
         /* Add fvars decls */
         type_checker tc(m_st, m_lctx);
         buffer<expr> new_let_decls;
@@ -953,7 +945,6 @@ class specialize_fn {
             expr new_fvar = m_lctx.mk_local_decl(fvar_name(fvars[i]), y.append_after(i+1), type, fvar_vals[i]).mk_ref();
             new_let_decls.push_back(new_fvar);
         }
-        code = m_lctx.mk_lambda(new_fvars, code);
         code = m_lctx.mk_lambda(new_let_decls, code);
         // lean_trace(name("compiler", "spec_info"), tout() << "STEP 1 " << n << "\n" << code << "\n";);
         code = abstract_spec_ctx(ctx, code);

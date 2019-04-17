@@ -600,8 +600,11 @@ class lcnf_valid_let_decls_fn {
             if (is_irrelevant_type(m_st, m_lctx, new_type)) {
                 return some_expr(e);
             }
-            if (optional<expr> found = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data())))
+            expr new_val  = instantiate_rev(let_value(e), fvars.size(), fvars.data());
+            if (optional<expr> found = visit(new_val))
                 return found;
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), let_name(e), new_type, new_val);
+            fvars.push_back(new_fvar);
             e = let_body(e);
         }
         return visit(instantiate_rev(e, fvars.size(), fvars.data()));
@@ -632,9 +635,9 @@ optional<expr> lcnf_valid_let_decls(environment const & env, expr const & e) {
 bool lcnf_check_let_decls(environment const & env, comp_decl const & d) {
     if (optional<expr> v = lcnf_valid_let_decls(env, d.snd())) {
         tout() << "LCNF violation at " << d.fst() << "\n" << *v << "\n";
-        return true;
-    } else {
         return false;
+    } else {
+        return true;
     }
 }
 

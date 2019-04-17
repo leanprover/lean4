@@ -16,6 +16,7 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/erase_irrelevant.h"
 #include "library/compiler/specialize.h"
+#include "library/compiler/eager_lambda_lifting.h"
 #include "library/compiler/lambda_lifting.h"
 #include "library/compiler/extract_closed.h"
 #include "library/compiler/reduce_arity.h"
@@ -201,9 +202,12 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "cce"}), ds);
     ds = apply(simp, env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
+    environment new_env = env;
+    std::tie(new_env, ds) = eager_lambda_lifting(new_env, ds);
+    trace_compiler(name({"compiler", "eager_lambda_lifting"}), ds);
     ds = apply(max_sharing, ds);
     trace_compiler(name({"compiler", "stage1"}), ds);
-    environment new_env = cache_stage1(env, ds);
+    new_env = cache_stage1(new_env, ds);
     std::tie(new_env, ds) = specialize(new_env, ds, cfg);
     lean_assert(lcnf_check_let_decls(new_env, ds));
     trace_compiler(name({"compiler", "specialize"}), ds);
@@ -260,6 +264,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "stage1"});
     register_trace_class({"compiler", "stage2"});
     register_trace_class({"compiler", "erase_irrelevant"});
+    register_trace_class({"compiler", "eager_lambda_lifting"});
     register_trace_class({"compiler", "lambda_lifting"});
     register_trace_class({"compiler", "extract_closed"});
     register_trace_class({"compiler", "reduce_arity"});

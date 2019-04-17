@@ -566,38 +566,14 @@ class specialize_fn {
                 local_decl decl  = m_lctx.get_local_decl(x);
                 optional<expr> v = decl.get_value();
                 /* Remark: we must not lambda abstract join points.
-                   There is no risk of work duplication in this case, only code duplication.
-
-                   Remark: in dependent type theory, lambda abstracting a let expression
-                   may produce a type incorrect term. Example:
-                   The following term is type correct
-                   ```
-                   let m : Type -> Type := state_t nat id in
-                   let f : m unit := fun s, ((), s) in
-                   f 0
-                   ```
-                   but
-                   ```
-                   (fun m : Type -> Type,
-                    let f : m unit := fun s, ((), s) in
-                    f 0) (state_t nat id)
-                   ```
-                   is not.
-
-                   So, whenever we lambda abstract a let-declaration we may risk introducing
-                   type errors that will make the compiler fail later.
-
-                   For computationally irrelevant terms such as `state_t nat id`, code duplication
-                   does not generate work duplication at runtime since they are erased later.
-                   Thus, we do **not** lambda abstract them, and avoid the problem above.
-                */
+                   There is no risk of work duplication in this case, only code duplication. */
                 bool is_jp    = is_join_point_name(decl.get_user_name());
-                bool is_irrel = is_irrelevant_type(m_st, m_lctx, decl.get_type());
+                lean_assert(!v || !is_irrelevant_type(m_st, m_lctx, decl.get_type()));
                 if (m_visited_not_in_binder.contains(x_name)) {
                     /* If `x` was already visited in a context outside of
                        a binder, then it is already in `m_ctx.m_vars`.
                        If `x` is not a let-variable, then it is also already in `m_ctx.m_params`. */
-                    if (v && !is_jp && !is_irrel) {
+                    if (v && !is_jp) {
                         m_ctx.m_params.push_back(x);
                         v = none_expr(); /* make sure we don't collect v's dependencies */
                     }
@@ -612,12 +588,12 @@ class specialize_fn {
                        ```
                        We don't want to copy `list.repeat 0 n` inside of the specialized code.
 
-                       See comment above about join points and computationally irrelevant terms.
+                       See comment above about join points.
 
                        Remark: if `x` is not a let-var, then we must insert it into m_ctx.m_params.
                     */
                     m_ctx.m_vars.push_back(x);
-                    if (!v || (v && !is_jp && !is_irrel)) {
+                    if (!v || (v && !is_jp)) {
                         m_ctx.m_params.push_back(x);
                         v = none_expr(); /* make sure we don't collect v's dependencies */
                     }

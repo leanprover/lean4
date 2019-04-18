@@ -9,14 +9,14 @@ inductive Expr
 
 open Expr
 
-def pown : Int → Int → Int
+partial def pown : Int → Int → Int
 | a 0 := 1
 | a 1 := a
 | a n :=
   let b := pown a (n / 2) in
   b * b * (if n % 2 = 0 then 1 else a)
 
-def add : Expr → Expr → Expr
+partial def add : Expr → Expr → Expr
 | (Val n)   (Val m)         := Val (n + m)
 | (Val 0)   f               := f
 | f         (Val 0)         := f
@@ -26,7 +26,7 @@ def add : Expr → Expr → Expr
 | (Add f g) h               := add f (add g h)
 | f         g               := Add f g
 
-def mul : Expr → Expr → Expr
+partial def mul : Expr → Expr → Expr
 | (Val n)   (Val m)         := Val (n*m)
 | (Val 0)   _               := Val 0
 | _         (Val 0)         := Val 0

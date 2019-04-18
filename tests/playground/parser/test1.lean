@@ -9,12 +9,10 @@ def mkNumPairKind : IO SyntaxNodeKind := nextKind `numPair
 def mkNumSetKind : IO SyntaxNodeKind := nextKind `numSet
 @[init mkNumSetKind] constant numSetKind : SyntaxNodeKind := default _
 
-@[inline2]
 def numPair : BasicParser :=
 node numPairKind $
   "("; number; ","; number; ")"
 
-@[inline2]
 def numSet : BasicParser :=
 node numSetKind $
   "{"; sepBy number ","; "}"

@@ -9,6 +9,8 @@ def mkNumPairKind : IO SyntaxNodeKind := nextKind `numPair
 def mkNumSetKind : IO SyntaxNodeKind := nextKind `numSet
 @[init mkNumSetKind] constant numSetKind : SyntaxNodeKind := default _
 
+-- set_option trace.compiler.boxed true
+
 def numPair : BasicParser :=
 node numPairKind $
   "("; number; ","; number; ")"

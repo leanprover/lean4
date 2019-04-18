@@ -498,7 +498,7 @@ partial def identFnAux (startPos : Nat) (tk : Option TokenConfig) : Name → Par
       mkTokenAndFixPos startPos tk s d
 
 structure AbsParser (ρ : Type) :=
-(info : Thunk ParserInfo := Thunk.mk (λ _, {}))
+(info : ParserInfo := {})
 (fn   : ρ)
 
 abbrev Parser := AbsParser ParserFn
@@ -517,17 +517,17 @@ instance idParserLift : ParserFnLift ParserFn :=
   map₂ := λ m p1 p2, m p1 p2 }
 
 @[inline]
-def liftParser {ρ : Type} [ParserFnLift ρ] (info : Thunk ParserInfo) (fn : ParserFn) : AbsParser ρ :=
+def liftParser {ρ : Type} [ParserFnLift ρ] (info : ParserInfo) (fn : ParserFn) : AbsParser ρ :=
 { info := info, fn := ParserFnLift.lift fn }
 
 @[inline]
 def mapParser {ρ : Type} [ParserFnLift ρ] (infoFn : ParserInfo → ParserInfo) (pFn : ParserFn → ParserFn) : AbsParser ρ → AbsParser ρ :=
-λ p, { info := Thunk.mk (λ _, infoFn p.info.get), fn := ParserFnLift.map pFn p.fn }
+λ p, { info := infoFn p.info, fn := ParserFnLift.map pFn p.fn }
 
 @[inline]
 def mapParser₂ {ρ : Type} [ParserFnLift ρ] (infoFn : ParserInfo → ParserInfo → ParserInfo) (pFn : ParserFn → ParserFn → ParserFn)
                : AbsParser ρ → AbsParser ρ → AbsParser ρ :=
-λ p q, { info := Thunk.mk (λ _, infoFn p.info.get q.info.get), fn := ParserFnLift.map₂ pFn p.fn q.fn }
+λ p q, { info := infoFn p.info q.info, fn := ParserFnLift.map₂ pFn p.fn q.fn }
 
 def EnvParserFn (α : Type) (ρ : Type) :=
 α → ρ
@@ -606,13 +606,13 @@ abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConf
 { fn := λ _, RecParserFn.recurse () }
 
 @[inline] def basicParser2TermParser (p : BasicParser) : TermParser :=
-{ info := Thunk.mk (λ _, p.info.get), fn := λ _ cfg _, p.fn cfg }
+{ info := p.info, fn := λ _ cfg _, p.fn cfg }
 
 instance basic2term : HasCoe BasicParser TermParser :=
 ⟨basicParser2TermParser⟩
 
 @[inline] def basicParser2CmdParser (p : BasicParser) : CommandParser :=
-{ info := Thunk.mk (λ _, p.info.get), fn := λ cfg _, p.fn cfg.toParserConfig }
+{ info := p.info, fn := λ cfg _, p.fn cfg.toParserConfig }
 
 instance basicmd : HasCoe BasicParser CommandParser :=
 ⟨basicParser2CmdParser⟩
@@ -682,7 +682,7 @@ def symbolInfo (sym : String) (lbp : Nat) : ParserInfo :=
   firstToken   := some { val := sym, lbp := lbp } }
 
 @[inline] def symbol (sym : String) (lbp : Nat := 0) : BasicParser :=
-{ info := Thunk.mk (λ _, symbolInfo sym lbp),
+{ info := symbolInfo sym lbp,
   fn := symbolFn sym }
 
 def numberFn : BasicParserFn
@@ -717,7 +717,7 @@ def mkFrontendConfig (filename input : String) : FrontendConfig :=
 
 def BasicParser.run (p : BasicParser) (input : String) (filename : String := "<input>") : Except String Syntax :=
 let frontendCfg        := mkFrontendConfig filename input in
-let tokens             := p.info.get.updateTokens {} in
+let tokens             := p.info.updateTokens {} in
 let cfg : ParserConfig := { tokens := tokens, .. frontendCfg } in
 let d : ParserData     := { stxStack := Array.empty, pos := 0, cache := {}, errorMsg := none } in
 let d                  := p.fn cfg input d in

@@ -211,7 +211,7 @@ class eager_lambda_lifting_fn {
     }
 
     expr visit_terminal(expr const & e) {
-        expr t = find(e).second;
+        expr t = is_fvar(e) ? find(e).second : e;
         if (is_constructor_app(env(), t)) {
             buffer<expr> args;
             get_app_args(e, args);

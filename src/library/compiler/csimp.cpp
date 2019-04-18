@@ -861,6 +861,69 @@ class csimp_fn {
         sort_entries(entries);
     }
 
+    /*
+      Given `x := val`, the entries `y_1 := w_1; ...; y_n := w_n`, and the set `S` of all free variables
+      in `entries`. Return true if we may move `x := val` after these entries. */
+    bool may_move_after(expr const & x, expr const & /* val */, buffer<expr_pair> const & entries, name_hash_set const & S) {
+        lean_assert(is_fvar(x));
+        if (S.find(fvar_name(x)) != S.end()) {
+            /* If `x` is used in the entries `y_1 := w_1; ...; y_n := w_n`,
+               then we must *not* move `x` after them since it would produce
+               an ill-formed expression. */
+            return false;
+        }
+        /* The condition above is sufficient to make sure the resulting expression is well-formed.
+           However, moving `x := val` after `entries` may affect perform by preventing destructive
+           updates from happening and memory from being reused. Consider the following example
+           ```
+           let x := z.1 in
+           let y := f z in
+           C
+           ```
+           If we move `x := z.1` after `y := f z` obtaining the expression:
+           ```
+           let y := f z in
+           let x := z.1 in
+           C
+           ```
+           Then, `RC(z)` will be greater than 1 when we invoke `f z` because we would need to include
+           an `inc z` instruction before `y := f z`. The `inc z` is needed because `z` would still be
+           alive after `f z`.
+
+           In the example above, `val` contains a variable (`z`) used in `entries`.
+           However, this test is not sufficient. Here is a more intricate example:
+           ```
+           let w := z.1 in
+           let x := Array.size w in
+           let y := f z in
+           C
+           ```
+           If we move `x := Array.size w` after `y := f z`, we get
+           ```
+           let w := z.1 in
+           let y := f z in
+           let x := Array.size w in
+           C
+           ```
+           `f z` and `Array.size w` do not share any free variable, but it `w` is an reference to a field of `w`.
+           In the example above, `w` is an array, and `f z` will not be able to update the array nested there if
+           we have `let x := Array.size w` after it.
+
+           The example above suggests that a sufficient condition for preventing this issue is:
+           - Any memory cell reachable from `val` is not reachable from `entries`.
+
+           A simpler sufficient condition for preventing the issue is:
+           - `entries` code does not perform destructive updates or tries to reuse memory cells.
+           Here we use an even simpler check: `entries` contains only projection operations.
+        */
+        for (expr_pair const & p : entries) {
+            expr const & w = p.second;
+            if (!is_proj(w))
+                return false;
+        }
+        return true;
+    }
+
     /* Create a let-expression with body `e`, and
        all "used" let-declarations `m_fvars[i]` for `i in [saved_fvars_size, m_fvars.size)`.
        We also include all join points that depends on these free variables,
@@ -971,9 +1034,9 @@ class csimp_fn {
 
             if (!is_jp && e_is_cases && used_in_e) {
                 optional<unsigned> minor_idx = used_in_one_minor(e, x);
-                if (minor_idx && !used_in_entries) {
+                if (minor_idx && may_move_after(x, val, entries, entries_fvars)) {
                     /* If x is only used in only one minor declaration,
-                       and is *not* used in any expression at entries */
+                       and it passed the may_move_after test. */
                     if (modified_val) {
                         /* We need to create a new free variable since the new
                            simplified value `val` */

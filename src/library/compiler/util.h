@@ -33,7 +33,6 @@ bool is_lcnf_atom(expr const & e);
 expr elim_trivial_let_decls(expr const & e);
 
 bool has_inline_attribute(environment const & env, name const & n);
-bool has_inline2_attribute(environment const & env, name const & n);
 bool has_noinline_attribute(environment const & env, name const & n);
 bool has_inline_if_reduce_attribute(environment const & env, name const & n);
 

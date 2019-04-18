@@ -1555,13 +1555,8 @@ class csimp_fn {
             optional<constant_info> info = env().find(c);
             if (!info || !info->is_definition()) return none_expr();
             unsigned arity = get_num_nested_lambdas(info->get_value());
-            if (get_app_num_args(e) < arity) return none_expr();
-            bool inline2_attr = has_inline2_attribute(env(), const_name(fn));
-            if (!inline2_attr &&
-                (get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold ||
-                 is_constant(e))) { /* We only inline constants if they are marked with `[inline2]` attribute */
-                return none_expr();
-            }
+            if (get_app_num_args(e) < arity || arity == 0) return none_expr();
+            if (get_lcnf_size(env(), info->get_value()) > m_cfg.m_inline_threshold) return none_expr();
             if (is_recursive(c)) return none_expr();
             if (uses_unsafe_inductive(c)) return none_expr();
             return some_expr(beta_reduce(info->get_value(), e, is_let_val));

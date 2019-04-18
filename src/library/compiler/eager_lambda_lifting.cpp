@@ -124,7 +124,7 @@ class eager_lambda_lifting_fn {
         buffer<expr> fvars;
         while (is_lambda(e)) {
             expr new_type = instantiate_rev(binding_domain(e), fvars.size(), fvars.data());
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), new_type);
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), binding_name(e), new_type, binding_info(e));
             fvars.push_back(new_fvar);
             e = binding_body(e);
         }

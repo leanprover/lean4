@@ -37,7 +37,7 @@ structure nodeData :=
 
 abbreviation ufData := Array nodeData
 
-abbreviation M (α : Type) := ExceptT' (StateT' id ufData) String α
+abbreviation M (α : Type) := ExceptT' (StateT' Id ufData) String α
 @[inline] def read : M ufData := ExceptT'.lift StateT'.read
 @[inline] def write (s : ufData) : M Unit := ExceptT'.lift (StateT'.write s)
 @[inline] def updt (f : ufData → ufData) : M Unit := ExceptT'.lift (StateT'.updt f)

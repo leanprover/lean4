@@ -215,7 +215,7 @@ if h : a.size ≤ b.size
 then foreach a (λ ⟨i, h'⟩, f (b.index ⟨i, Nat.ltOfLtOfLe h' h⟩))
 else foreach b (λ ⟨i, h'⟩, f (a.index ⟨i, Nat.ltTrans h' (Nat.gtOfNotLe h)⟩))
 
-def map (f : α → β) (as : Array α) : Array β :=
+@[inline] def map (f : α → β) (as : Array α) : Array β :=
 as.foldl (λ a bs, bs.push (f a)) (mkEmpty as.size)
 
 -- TODO(Leo): justify termination using wf-rec

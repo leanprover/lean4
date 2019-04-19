@@ -196,8 +196,8 @@ miterate a ⟨a, rfl⟩ $ λ i v ⟨a', h⟩, do
 @[inline] def mforeach (a : Array α) (f : Π i : Fin a.size, α → m α) : m (Array α) :=
 Subtype.val <$> mforeachAux a f
 
-@[inline] def mmap (f : α → m α) (a : Array α) : m (Array α) :=
-mforeach a (λ _, f)
+@[inline] def mmap {β : Type u} (f : α → m β) (as : Array α) : m (Array β) :=
+as.mfoldl (mkEmpty as.size) (λ a bs, do b ← f a, pure (bs.push b))
 end
 
 @[inline] def foreach (a : Array α) (f : Π i : Fin a.size, α → α) : Array α :=

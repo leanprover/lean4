@@ -1436,6 +1436,7 @@ object * mk_array(obj_arg n, obj_arg v);
 // debugging helper functions
 object * dbg_trace(obj_arg s, obj_arg fn);
 object * dbg_sleep(uint32 ms, obj_arg fn);
+object * dbg_trace_if_shared(obj_arg s, obj_arg a);
 
 // =======================================
 // IO helper functions

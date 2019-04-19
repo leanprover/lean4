@@ -1944,6 +1944,15 @@ object * dbg_sleep(uint32 ms, obj_arg fn) {
     return apply_1(fn, box(0));
 }
 
+object * dbg_trace_if_shared(obj_arg s, obj_arg a) {
+    if (is_heap_obj(a) && is_shared(a)) {
+        unique_lock<mutex> lock(g_dbg_mutex);
+        std::cout << "shared RC: " << get_rc(a) << ", " << string_cstr(s) << std::endl;
+    }
+    dec(s);
+    return a;
+}
+
 // =======================================
 // Statistics
 #ifdef LEAN_RUNTIME_STATS

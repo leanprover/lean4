@@ -251,48 +251,6 @@ class csimp_fn {
         return fvar;
     }
 
-    /* Given a cases_on application `c`, return `some idx` iff `fvar` only occurs
-       in the argument `idx`, this argument is a minor premise. */
-    optional<unsigned> used_in_one_minor(expr const & c, expr const & fvar) {
-        lean_assert(is_cases_on_app(env(), c));
-        lean_assert(is_fvar(fvar));
-        buffer<expr> args;
-        expr const & c_fn = get_app_args(c, args);
-        unsigned minors_begin; unsigned minors_end;
-        std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c_fn), m_before_erasure);
-        unsigned i = 0;
-        for (; i < minors_begin; i++) {
-            if (has_fvar(args[i], fvar)) {
-                /* Free variable occurs in a term that is a not a minor premise. */
-                return optional<unsigned>();
-            }
-        }
-        lean_assert(i == minors_begin);
-        /* The following #pragma is to disable a bogus g++ 4.9 warning at `optional<unsigned> r` */
-        #if defined(__GNUC__) && !defined(__CLANG__)
-        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-        #endif
-        optional<unsigned> r;
-        for (; i < minors_end; i++) {
-            expr minor = args[i];
-            while (is_lambda(minor)) {
-                if (has_fvar(binding_domain(minor), fvar)) {
-                    /* Free variable occurs in the type of a field */
-                    return optional<unsigned>();
-                }
-                minor = binding_body(minor);
-            }
-            if (has_fvar(minor, fvar)) {
-                if (r) {
-                    /* Free variable occur in more than one minor premise. */
-                    return optional<unsigned>();
-                }
-                r = i;
-            }
-        }
-        return r;
-    }
-
     /* Return `let _x := e in _x` */
     expr mk_trivial_let(expr const & e) {
         expr type = infer_type(e);
@@ -861,9 +819,93 @@ class csimp_fn {
         sort_entries(entries);
     }
 
+    /* Given a casesOn application `c`, return `some idx` iff `c` has more than one branch, `fvar` only occurs
+       in the argument `idx`, this argument is a minor premise.
+
+       Recall this method is used to implement the float `let` inwards transformation.
+       Thus, it doesn't really help to move `let` inwards if there is only one branch.
+
+       Moreover, it may negatively impact performance because we use `casesOn` applications to
+       guide the insertion of reset/reuse IR instructions.
+
+       Here is a problematic example:
+       ```
+       let p := Array.index a i in                -- Get pair `p` at `a[i]`
+       let a := Array.update a i (default _) in   -- "Reset" `a[i]` to make sure `p` is now the owner
+       casesOn p (fun fst snd, Array.update a i (fst+1, snd))
+       ```
+       Before this commit the compiler would move
+       ```
+       a := Array.update a i (default _)
+       ```
+       into the `casesOn` branch, and we would get
+       ```
+       let p := Array.index a i in                -- Get pair `p` at `a[i]`
+       casesOn p (fun fst snd,
+         let a := Array.update a i (default _) in -- "Reset" `a[i]` to make sure `p` is now the owner
+         Array.update a i (fst+1, snd))
+       ```
+       Then, we would get
+       ```
+       let p := Array.index a i in                -- Get pair `p` at `a[i]`
+       casesOn p (fun fst snd,
+         let p := reset p in
+         let a := Array.update a i (default _) in -- "Reset" `a[i]` to make sure `p` is now the owner
+         let p := reuse p (fst+1, snd) in
+         Array.update a i p)
+       ```
+       But, this `reset p` will always fail since the `Array` still contains a
+       reference to `p` when we execute `reset p`.
+    */
+    optional<unsigned> used_in_one_minor(expr const & c, expr const & fvar) {
+        lean_assert(is_cases_on_app(env(), c));
+        lean_assert(is_fvar(fvar));
+        buffer<expr> args;
+        expr const & c_fn = get_app_args(c, args);
+        unsigned minors_begin; unsigned minors_end;
+        std::tie(minors_begin, minors_end) = get_cases_on_minors_range(env(), const_name(c_fn), m_before_erasure);
+        if (minors_end <= minors_begin + 1) {
+            /* casesOn has only one branch */
+            return optional<unsigned>();
+        }
+        unsigned i = 0;
+        for (; i < minors_begin; i++) {
+            if (has_fvar(args[i], fvar)) {
+                /* Free variable occurs in a term that is a not a minor premise. */
+                return optional<unsigned>();
+            }
+        }
+        lean_assert(i == minors_begin);
+        /* The following #pragma is to disable a bogus g++ 4.9 warning at `optional<unsigned> r` */
+        #if defined(__GNUC__) && !defined(__CLANG__)
+        #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+        #endif
+        optional<unsigned> r;
+        for (; i < minors_end; i++) {
+            expr minor = args[i];
+            while (is_lambda(minor)) {
+                if (has_fvar(binding_domain(minor), fvar)) {
+                    /* Free variable occurs in the type of a field */
+                    return optional<unsigned>();
+                }
+                minor = binding_body(minor);
+            }
+            if (has_fvar(minor, fvar)) {
+                if (r) {
+                    /* Free variable occur in more than one minor premise. */
+                    return optional<unsigned>();
+                }
+                r = i;
+            }
+        }
+        return r;
+    }
+
     /*
       Given `x := val`, the entries `y_1 := w_1; ...; y_n := w_n`, and the set `S` of all free variables
-      in `entries`. Return true if we may move `x := val` after these entries. */
+      in `entries`. Return true if we may move `x := val` after these entries.
+
+      This method is used to implement the float `let` inwards transformation. */
     bool may_move_after(expr const & x, expr const & /* val */, buffer<expr_pair> const & entries, name_hash_set const & S) {
         lean_assert(is_fvar(x));
         if (S.find(fvar_name(x)) != S.end()) {

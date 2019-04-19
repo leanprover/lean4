@@ -122,18 +122,6 @@ match n with
 | ⟨Syntax.atom _ _, h⟩              := unreachIsNodeAtom h
 | ⟨Syntax.ident _ _ _ _ _, h⟩       := unreachIsNodeIdent h
 
-@[inline] def toSyntaxNode {α : Type} (s : Syntax) (base : α) (fn : SyntaxNode → α) : α :=
-match s with
-| Syntax.node kind args scopes := fn ⟨Syntax.node kind args scopes, IsNode.mk kind args scopes⟩
-| other := base
-
-@[inline] def toSyntaxNodeOf {α : Type} (kind : SyntaxNodeKind) (s : Syntax) (base : α) (fn : SyntaxNode → α) : α :=
-match s with
-| Syntax.node k args scopes :=
-  if k == kind then fn ⟨Syntax.node kind args scopes, IsNode.mk kind args scopes⟩
-  else base
-| other := base
-
 -- TODO(Sebastian): exhaustively argue why (if?) this is correct
 -- The basic idea is List concatenation with elimination of adjacent identical scopes
 def MacroScopes.flip : MacroScopes → MacroScopes → MacroScopes
@@ -151,6 +139,12 @@ def flipScopes (scopes : MacroScopes) : Syntax → Syntax
 | (Syntax.ident info rawVal val pre scopes) := Syntax.ident info rawVal val pre (scopes.flip scopes)
 | (Syntax.node kind args scopes)            := Syntax.node kind args (scopes.flip scopes)
 | other := other
+
+@[inline] def toSyntaxNode {α : Type} (s : Syntax) (base : α) (fn : SyntaxNode → α) : α :=
+match s with
+| Syntax.node kind args []     := fn ⟨Syntax.node kind args [], IsNode.mk _ _ _⟩
+| Syntax.node kind args scopes := fn ⟨Syntax.node kind (args.hmap (flipScopes scopes)) [], IsNode.mk _ _ _⟩
+| other                        := base
 
 local attribute [instance] monadInhabited
 

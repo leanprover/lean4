@@ -187,33 +187,32 @@ instance [HasToString α] : HasToString (Array α) :=
 section
 variables {m : Type u → Type u} [Monad m]
 
-@[inline] private def mforeachAux (a : Array α) (f : Π i : Fin a.size, α → m α) : m { a' : Array α // a'.size = a.size } :=
-miterate a ⟨a, rfl⟩ $ λ i v ⟨a', h⟩, do
-  let i' : Fin a'.size := Eq.recOn h.symm i,
-  x ← f i v,
-  pure $ ⟨a'.update i' x, (szUpdateEq a' i' x) ▸ h⟩
-
-@[inline] def mforeach (a : Array α) (f : Π i : Fin a.size, α → m α) : m (Array α) :=
-Subtype.val <$> mforeachAux a f
-
 @[inline] def mmap {β : Type u} (f : α → m β) (as : Array α) : m (Array β) :=
 as.mfoldl (mkEmpty as.size) (λ a bs, do b ← f a, pure (bs.push b))
 end
 
-@[inline] def foreach (a : Array α) (f : Π i : Fin a.size, α → α) : Array α :=
-Id.run $ mforeach a f
+section
+variables {m : Type u → Type v} [Monad m] [Inhabited α]
+local attribute [instance] monadInhabited'
 
-theorem szForeachEq (a : Array α) (f : Π i : Fin a.size, α → α) : (foreach a f).size = a.size :=
-(Id.run $ mforeachAux a f).property
+@[specialize] partial def hmmapAux (f : α → m α) : Nat → Array α → m (Array α)
+| i a :=
+  if h : i < a.size then
+     let idx : Fin a.size := ⟨i, h⟩ in
+     let v   : α          := a.index idx in
+     let a                := a.update idx (default α) in
+     do v ← f v, hmmapAux (i+1) (a.update idx v)
+  else
+     pure a
+
+/- Homogeneous `mmap` -/
+@[inline] def hmmap (f : α → m α) (a : Array α) : m (Array α) :=
+hmmapAux f 0 a
+end
 
 /- Homogeneous map -/
-@[inline] def hmap (f : α → α) (a : Array α) : Array α :=
-foreach a (λ _, f)
-
-@[inline] def hmap₂ (f : α → α → α) (a b : Array α) : Array α :=
-if h : a.size ≤ b.size
-then foreach a (λ ⟨i, h'⟩, f (b.index ⟨i, Nat.ltOfLtOfLe h' h⟩))
-else foreach b (λ ⟨i, h'⟩, f (a.index ⟨i, Nat.ltTrans h' (Nat.gtOfNotLe h)⟩))
+@[inline] def hmap [Inhabited α] (f : α → α) (a : Array α) : Array α :=
+Id.run $ hmmap f a
 
 @[inline] def map (f : α → β) (as : Array α) : Array β :=
 as.foldl (λ a bs, bs.push (f a)) (mkEmpty as.size)

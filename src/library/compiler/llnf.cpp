@@ -247,23 +247,6 @@ struct cnstr_info {
     }
 };
 
-static expr * g_usize = nullptr;
-std::vector<pair<name, unsigned>> * g_builtin_scalar_size = nullptr;
-
-static bool is_usize_type(expr const & e) {
-    return is_constant(e, get_usize_name());
-}
-
-static optional<unsigned> is_builtin_scalar(expr const & type) {
-    if (!is_constant(type)) return optional<unsigned>();
-    for (pair<name, unsigned> const & p : *g_builtin_scalar_size) {
-        if (const_name(type) == p.first) {
-            return optional<unsigned>(p.second);
-        }
-    }
-    return optional<unsigned>();
-}
-
 unsigned get_llnf_arity(environment const & env, name const & n) {
     /* First, try to infer arity from `_cstage2` auxiliary definition. */
     name c = mk_cstage2_name(n);
@@ -295,12 +278,6 @@ static bool uses_borrowed(environment const & env, name const & n) {
         if (b) return true;
     }
     return borrowed_res;
-}
-
-static optional<unsigned> is_enum_type(environment const & env, expr const & type) {
-    expr const & I = get_app_fn(type);
-    if (!is_constant(I)) return optional<unsigned>();
-    return is_enum_type(env, const_name(I));
 }
 
 static void get_cnstr_info_core(type_checker::state & st, bool unboxed, name const & n, buffer<field_info> & result) {
@@ -1654,7 +1631,7 @@ class explicit_boxing_fn {
 
     expr visit_uset(expr const & fn, buffer<expr> & args) {
         lean_assert(args.size() == 2);
-        args[1] = cast_if_needed(args[1], get_arg_type(args[1]), *g_usize);
+        args[1] = cast_if_needed(args[1], get_arg_type(args[1]), mk_usize_type());
         return mk_app(fn, args);
     }
 
@@ -2499,7 +2476,6 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
 }
 
 void initialize_llnf() {
-    g_usize     = new expr(mk_constant(get_usize_name()));
     g_apply     = new expr(mk_constant("_apply"));
     g_closure   = new expr(mk_constant("_closure"));
     g_reuse     = new name("_reuse");
@@ -2515,15 +2491,9 @@ void initialize_llnf() {
     g_inc       = new expr(mk_constant("_inc"));
     g_dec       = new expr(mk_constant("_dec"));
     register_trace_class({"compiler", "lambda_pure"});
-    g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
-    g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
-    g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
-    g_builtin_scalar_size->emplace_back(get_uint32_name(), 4);
-    g_builtin_scalar_size->emplace_back(get_uint64_name(), 8);
 }
 
 void finalize_llnf() {
-    delete g_usize;
     delete g_closure;
     delete g_apply;
     delete g_reuse;

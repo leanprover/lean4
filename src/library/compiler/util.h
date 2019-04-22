@@ -173,6 +173,16 @@ optional<expr> mk_enf_fix_core(unsigned n);
 bool lcnf_check_let_decls(environment const & env, comp_decl const & d);
 bool lcnf_check_let_decls(environment const & env, comp_decls const & ds);
 
+// =======================================
+// UInt and USize helper functions
+
+expr mk_usize_type();
+bool is_usize_type(expr const & e);
+optional<unsigned> is_builtin_scalar(expr const & type);
+optional<unsigned> is_enum_type(environment const & env, expr const & type);
+
+// =======================================
+
 void initialize_compiler_util();
 void finalize_compiler_util();
 }

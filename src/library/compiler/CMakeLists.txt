@@ -4,4 +4,5 @@ add_library(compiler OBJECT emit_bytecode.cpp init_module.cpp ## New
   extract_closed.cpp simp_app_args.cpp llnf.cpp ll_infer_type.cpp
   reduce_arity.cpp closed_term_cache.cpp name_mangling.cpp
   emit_cpp.cpp export_attribute.cpp llnf_code.cpp extern_attribute.cpp
-  borrowed_annotation.cpp init_attribute.cpp eager_lambda_lifting.cpp)
+  borrowed_annotation.cpp init_attribute.cpp eager_lambda_lifting.cpp
+  struct_cases_on.cpp)

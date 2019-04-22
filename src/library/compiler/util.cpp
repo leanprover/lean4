@@ -641,16 +641,52 @@ bool lcnf_check_let_decls(environment const & env, comp_decls const & ds) {
     return true;
 }
 
+// =======================================
+// UInt and USize helper functions
+
+std::vector<pair<name, unsigned>> * g_builtin_scalar_size = nullptr;
+
+expr mk_usize_type() {
+    return *g_usize;
+}
+
+bool is_usize_type(expr const & e) {
+    return is_constant(e, get_usize_name());
+}
+
+optional<unsigned> is_builtin_scalar(expr const & type) {
+    if (!is_constant(type)) return optional<unsigned>();
+    for (pair<name, unsigned> const & p : *g_builtin_scalar_size) {
+        if (const_name(type) == p.first) {
+            return optional<unsigned>(p.second);
+        }
+    }
+    return optional<unsigned>();
+}
+
+optional<unsigned> is_enum_type(environment const & env, expr const & type) {
+    expr const & I = get_app_fn(type);
+    if (!is_constant(I)) return optional<unsigned>();
+    return is_enum_type(env, const_name(I));
+}
+
+// =======================================
+
 void initialize_compiler_util() {
-    g_neutral_expr     = new expr(mk_constant("_neutral"));
-    g_unreachable_expr = new expr(mk_constant("_unreachable"));
-    g_object_type      = new expr(mk_constant("_obj"));
-    g_void_type        = new expr(mk_constant("_void"));
-    g_usize            = new expr(mk_constant(get_usize_name()));
-    g_uint8            = new expr(mk_constant(get_uint8_name()));
-    g_uint16           = new expr(mk_constant(get_uint16_name()));
-    g_uint32           = new expr(mk_constant(get_uint32_name()));
-    g_uint64           = new expr(mk_constant(get_uint64_name()));
+    g_neutral_expr        = new expr(mk_constant("_neutral"));
+    g_unreachable_expr    = new expr(mk_constant("_unreachable"));
+    g_object_type         = new expr(mk_constant("_obj"));
+    g_void_type           = new expr(mk_constant("_void"));
+    g_usize               = new expr(mk_constant(get_usize_name()));
+    g_uint8               = new expr(mk_constant(get_uint8_name()));
+    g_uint16              = new expr(mk_constant(get_uint16_name()));
+    g_uint32              = new expr(mk_constant(get_uint32_name()));
+    g_uint64              = new expr(mk_constant(get_uint64_name()));
+    g_builtin_scalar_size = new std::vector<pair<name, unsigned>>();
+    g_builtin_scalar_size->emplace_back(get_uint8_name(),  1);
+    g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
+    g_builtin_scalar_size->emplace_back(get_uint32_name(), 4);
+    g_builtin_scalar_size->emplace_back(get_uint64_name(), 8);
 
     register_system_attribute(basic_attribute::with_check(
             "inline", "mark definition to always be inlined",
@@ -695,5 +731,6 @@ void finalize_compiler_util() {
     delete g_uint16;
     delete g_uint32;
     delete g_uint64;
+    delete g_builtin_scalar_size;
 }
 }

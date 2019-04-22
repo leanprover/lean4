@@ -27,6 +27,7 @@ Author: Leonardo de Moura
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/export_attribute.h"
 #include "library/compiler/extern_attribute.h"
+#include "library/compiler/struct_cases_on.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -215,6 +216,8 @@ environment compile(environment const & env, options const & opts, names cs) {
     trace_compiler(name({"compiler", "elim_dead_let"}), ds);
     ds = apply(erase_irrelevant, new_env, ds);
     trace_compiler(name({"compiler", "erase_irrelevant"}), ds);
+    ds = apply(struct_cases_on, new_env, ds);
+    trace_compiler(name({"compiler", "struct_cases_on"}), ds);
     ds = apply(esimp, new_env, ds);
     trace_compiler(name({"compiler", "simp"}), ds);
     ds = reduce_arity(new_env, ds);
@@ -269,6 +272,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "extract_closed"});
     register_trace_class({"compiler", "reduce_arity"});
     register_trace_class({"compiler", "simp_app_args"});
+    register_trace_class({"compiler", "struct_cases_on"});
     register_trace_class({"compiler", "llnf"});
     register_trace_class({"compiler", "boxed"});
     register_trace_class({"compiler", "optimize_bytecode"});

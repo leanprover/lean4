@@ -189,13 +189,13 @@ class csimp_fn {
             if (optional<local_decl> decl = m_lctx.find_local_decl(e)) {
                 if (optional<expr> v = decl->get_value()) {
                     if (!is_join_point_name(decl->get_user_name()))
-                        return find(*v, skip_mdata);
+                        return find(*v, skip_mdata, use_expr2ctor);
                     else if (is_small_join_point(*v))
-                        return find(*v, skip_mdata);
+                        return find(*v, skip_mdata, use_expr2ctor);
                 }
             }
         } else if (is_mdata(e) && skip_mdata) {
-            return find(mdata_expr(e), true);
+            return find(mdata_expr(e), true, use_expr2ctor);
         }
         return e;
     }
@@ -1439,13 +1439,10 @@ class csimp_fn {
     }
 
     expr visit_proj(expr const & e, bool is_let_val) {
-        expr s = find(proj_expr(e));
+        expr s = find_ctor(proj_expr(e));
 
-        if (is_constructor_app(env(), s))
+        if (is_constructor_app(env(), s)) {
             return proj_constructor(s, proj_idx(e).get_small_value());
-
-        if (expr const * ctor = m_expr2ctor.find(s)) {
-            return proj_constructor(*ctor, proj_idx(e).get_small_value());
         }
 
         if (optional<expr> r = try_inline_proj_instance(e, is_let_val)) {

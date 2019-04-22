@@ -9,13 +9,14 @@ set_option pp.binder_types false
 
 def f1 (ps : Array (Nat × Nat)) : Array (Nat × Nat) :=
 ps.hmap (λ p,
-  -- let p := dbgTraceIfShared "bad1" p in
-  match p with (n, m) := (n+1, m))
+ -- let p := dbgTraceIfShared "bad1" p in
+ { p with fst := p.fst + 1 })
 
 def f2 (ps : Array (Nat × Nat)) : Array (Nat × Nat) :=
 ps.map (λ p,
   -- let p := dbgTraceIfShared "bad2" p in
-  match p with (n, m) := (n+1, m))
+  { p with  fst := p.fst + 1 })
+
 
 def prof {α : Type} (msg : String) (p : IO α) : IO α :=
 let msg₁ := "Time for '" ++ msg ++ "':" in

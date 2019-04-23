@@ -148,8 +148,11 @@ def RBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : Type (max u v)
 @[inline] def mkRBMap (α : Type u) (β : Type v) (lt : α → α → Bool) : RBMap α β lt :=
 ⟨leaf, WellFormed.leafWff lt⟩
 
+@[inline] def RBMap.empty {α : Type u} {β : Type v} {lt : α → α → Bool} : RBMap α β lt :=
+mkRBMap _ _ _
+
 instance (α : Type u) (β : Type v) (lt : α → α → Bool) : HasEmptyc (RBMap α β lt) :=
-⟨mkRBMap α β lt⟩
+⟨RBMap.empty⟩
 
 namespace RBMap
 variables {α : Type u} {β : Type v} {σ : Type w} {lt : α → α → Bool}

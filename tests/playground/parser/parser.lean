@@ -6,6 +6,25 @@ export Lean.Parser (Trie)
 -- namespace Lean
 namespace Parser
 
+/-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
+def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
+
+namespace TokenMap
+
+def insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
+match map.find k with
+| none    := map.insert k [v]
+| some vs := map.insert k (v::vs)
+
+def ofListAux {α : Type} : List (Name × α) → TokenMap α → TokenMap α
+| []          m := m
+| (⟨k,v⟩::xs) m := ofListAux xs (m.insert k v)
+
+def ofList {α : Type} (es : List (Name × α)) : TokenMap α :=
+ofListAux es RBMap.empty
+
+end TokenMap
+
 structure FrontendConfig :=
 (filename : String)
 (input    : String)
@@ -77,7 +96,7 @@ instance : Inhabited ParserFn :=
 
 structure ParserInfo :=
 (updateTokens : Trie TokenConfig → Trie TokenConfig := λ tks, tks)
-(firstToken   : Option TokenConfig := none)
+(firstTokens  : List TokenConfig := [])
 
 @[inline] def andthenFn (p q : ParserFn) : ParserFn
 | s d :=
@@ -86,7 +105,7 @@ structure ParserInfo :=
 
 @[noinline] def andthenInfo (p q : ParserInfo) : ParserInfo :=
 { updateTokens := q.updateTokens ∘ p.updateTokens,
-  firstToken   := p.firstToken }
+  firstTokens  := p.firstTokens }
 
 def ParserData.mkNode (d : ParserData) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserData :=
 match d with
@@ -108,7 +127,7 @@ match d with
 
 @[noinline] def nodeInfo (p : ParserInfo) : ParserInfo :=
 { updateTokens := p.updateTokens,
-  firstToken   := p.firstToken }
+  firstTokens  := p.firstTokens }
 
 @[inline] def orelseFn (p q : ParserFn) : ParserFn
 | s d :=
@@ -119,10 +138,7 @@ match d with
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo :=
 { updateTokens := q.updateTokens ∘ p.updateTokens,
-  firstToken   :=
-  match p.firstToken, q.firstToken with
-  | some tk₁, some tk₂ := if tk₁ == tk₂ then some tk₁ else none
-  | _, _               := none }
+  firstTokens  := p.firstTokens ++ q.firstTokens }
 
 @[inline] def tryFn (p : ParserFn) : ParserFn
 | s d :=
@@ -134,7 +150,7 @@ match d with
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo :=
 { updateTokens := info.updateTokens,
-  firstToken   := none }
+  firstTokens  := [] }
 
 @[inline] def optionalFn (p : ParserFn) : ParserFn :=
 λ s d,
@@ -150,6 +166,10 @@ match d with
 
 def ParserData.mkEOIError (d : ParserData) : ParserData :=
 d.mkError "end of input"
+
+def ParserData.mkErrorAt (d : ParserData) (msg : String) (pos : String.Pos) : ParserData :=
+match d with
+| ⟨stack, _, cache, _⟩ := ⟨stack, pos, cache, some msg⟩
 
 @[specialize] partial def manyAux (p : ParserFn) : String → ParserData → ParserData
 | s d :=
@@ -201,11 +221,11 @@ d.mkError "end of input"
 
 @[noinline] def sepByInfo (p sep : ParserInfo) : ParserInfo :=
 { updateTokens := sep.updateTokens ∘ p.updateTokens,
-  firstToken   := none }
+  firstTokens  := [] }
 
 @[noinline] def sepBy1Info (p sep : ParserInfo) : ParserInfo :=
 { updateTokens := sep.updateTokens ∘ p.updateTokens,
-  firstToken   := p.firstToken }
+  firstTokens  := p.firstTokens }
 
 @[specialize] partial def satisfyFn (p : Char → Bool) (errorMsg : String := "unexpected character") : ParserFn
 | s d :=
@@ -439,9 +459,7 @@ match tk with
 
 def mkTokenAndFixPos (startPos : Nat) (tk : Option TokenConfig) (s : String) (d : ParserData) : ParserData :=
 match tk with
-| none    :=
-  let d := d.setPos startPos in
-  d.mkError "token expected"
+| none    := d.mkErrorAt "token expected" startPos
 | some tk :=
   let leading   := mkEmptySubstringAt s startPos in
   let val       := tk.val in
@@ -588,14 +606,12 @@ abbrev TermParserFn : Type           := RecParserFn Nat (CmdParserFn ParserConfi
 abbrev TermParser : Type             := AbsParser TermParserFn
 abbrev TrailingTermParser : Type     := AbsParser (EnvParserFn Syntax TermParserFn)
 
-def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
-
 structure CommandParserConfig extends ParserConfig :=
 (leadingTermParsers  : TokenMap TermParser)
 (trailingTermParsers : TokenMap TrailingTermParser)
 -- local Term parsers (such as from `local notation`) hide previous parsers instead of overloading them
-(localLeadingTermParsers : TokenMap TermParser          := mkRBMap _ _ _)
-(localTrailingTermParsers : TokenMap TrailingTermParser := mkRBMap _ _ _)
+(localLeadingTermParsers : TokenMap TermParser          := RBMap.empty)
+(localTrailingTermParsers : TokenMap TrailingTermParser := RBMap.empty)
 
 abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConfig)
 
@@ -655,35 +671,47 @@ def tokenFn : BasicParserFn
       let d := tokenFnAux cfg s d in
       updateCache i d
 
-def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn
+@[inline] def satisfySymbolFn (p : String → Bool) (errorMsg : String) : BasicParserFn
 | cfg s d :=
-  let iniPos := d.pos in
-  let d      := tokenFn cfg s d in
+  let startPos := d.pos in
+  let d        := tokenFn cfg s d in
   if d.hasError then
-    let d := d.setPos iniPos in
-    d.mkError errorMsg
+    d.mkErrorAt errorMsg startPos
   else
     match d.stxStack.back with
-    | Syntax.atom _ sym' :=
-      if sym == sym' then
-        d
-      else
-        let d := d.setPos iniPos in
-        d.mkError errorMsg
-    | _ :=
-      let d := d.setPos iniPos in
-      d.mkError errorMsg
+    | Syntax.atom _ sym := if p sym then d else d.mkErrorAt errorMsg startPos
+    | _                 := d.mkErrorAt errorMsg startPos
+
+def symbolFnAux (sym : String) (errorMsg : String) : BasicParserFn :=
+satisfySymbolFn (== sym) errorMsg
 
 @[inline] def symbolFn (sym : String) : BasicParserFn :=
 symbolFnAux sym ("expected '" ++ sym ++ "'")
 
 def symbolInfo (sym : String) (lbp : Nat) : ParserInfo :=
 { updateTokens := λ trie, trie.insert sym { val := sym, lbp := lbp },
-  firstToken   := some { val := sym, lbp := lbp } }
+  firstTokens  := [ { val := sym, lbp := lbp } ] }
 
 @[inline] def symbol (sym : String) (lbp : Nat := 0) : BasicParser :=
 { info := symbolInfo sym lbp,
-  fn := symbolFn sym }
+  fn   := symbolFn sym }
+
+def unicodeSymbolFnAux (sym asciiSym : String) (errorMsg : String) : BasicParserFn :=
+satisfySymbolFn (λ s, s == sym || s == asciiSym) errorMsg
+
+@[inline] def unicodeSymbolFn (sym asciiSym : String) : BasicParserFn :=
+unicodeSymbolFnAux sym asciiSym ("expected '" ++ sym ++ "' or '" ++ asciiSym ++ "'")
+
+def unicodeSymbolInfo (sym asciiSym : String) (lbp : Nat) : ParserInfo :=
+{ updateTokens := λ trie,
+  let trie := trie.insert sym { val := sym, lbp := lbp } in
+  trie.insert sym { val := asciiSym, lbp := lbp },
+  firstTokens  := [ { val := sym, lbp := lbp },
+                    { val := asciiSym, lbp := lbp } ] }
+
+@[inline] def unicodeSymbol (sym asciiSym : String) (lbp : Nat := 0) : BasicParser :=
+{ info := unicodeSymbolInfo sym asciiSym lbp,
+  fn   := unicodeSymbolFn sym asciiSym }
 
 def numberFn : BasicParserFn
 | cfg s d :=

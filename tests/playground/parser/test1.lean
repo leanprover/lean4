@@ -9,6 +9,7 @@ def mkNumPairKind : IO SyntaxNodeKind := nextKind `numPair
 def mkNumSetKind : IO SyntaxNodeKind := nextKind `numSet
 @[init mkNumSetKind] constant numSetKind : SyntaxNodeKind := default _
 
+-- set_option pp.implicit true
 -- set_option trace.compiler.boxed true
 
 def numPair : BasicParser :=
@@ -25,7 +26,7 @@ many (numPair || numSet)
 @[noinline] def test (p : BasicParser) (s : String) : IO Unit :=
 match p.run s with
 | Except.error msg := IO.println msg
-| Except.ok stx    := IO.println stx
+| Except.ok stx    := IO.println "ok" -- IO.println stx
 
 def mkNumPairString : Nat → String → String
 | 0     s := s

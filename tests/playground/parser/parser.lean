@@ -79,6 +79,10 @@ def ParserData.pushSyntax (d : ParserData) (n : Syntax) : ParserData :=
 match d with
 | ⟨stack, pos, cache, msg⟩ := ⟨stack.push n, pos, cache, msg⟩
 
+def ParserData.shrinkStack (d : ParserData) (iniStackSz : Nat) : ParserData :=
+match d with
+| ⟨stack, pos, cache, msg⟩ := ⟨stack.shrink iniStackSz, pos, cache, msg⟩
+
 def ParserData.next (d : ParserData) (s : String) (pos : Nat) : ParserData :=
 d.setPos (s.next pos)
 
@@ -604,16 +608,21 @@ abbrev BasicParser : Type            := AbsParser BasicParserFn
 abbrev CmdParserFn (ρ : Type) : Type := EnvParserFn ρ (RecParserFn Unit ParserFn)
 abbrev TermParserFn : Type           := RecParserFn Nat (CmdParserFn ParserConfig)
 abbrev TermParser : Type             := AbsParser TermParserFn
-abbrev TrailingTermParser : Type     := AbsParser (EnvParserFn Syntax TermParserFn)
+abbrev TrailingTermParserFn : Type   := EnvParserFn Syntax TermParserFn
+abbrev TrailingTermParser : Type     := AbsParser TrailingTermParserFn
+
+structure TermParsingTables :=
+(leadingTermParsers       : TokenMap TermParserFn)
+(trailingTermParsers      : TokenMap TrailingTermParserFn)
+-- local Term parsers (such as from `local notation`) hide previous parsers instead of overloading them
+(localLeadingTermParsers  : TokenMap TermParserFn         := RBMap.empty)
+(localTrailingTermParsers : TokenMap TrailingTermParserFn := RBMap.empty)
 
 structure CommandParserConfig extends ParserConfig :=
-(leadingTermParsers  : TokenMap TermParser)
-(trailingTermParsers : TokenMap TrailingTermParser)
--- local Term parsers (such as from `local notation`) hide previous parsers instead of overloading them
-(localLeadingTermParsers : TokenMap TermParser          := RBMap.empty)
-(localTrailingTermParsers : TokenMap TrailingTermParser := RBMap.empty)
+(pTables : TermParsingTables)
 
-abbrev CommandParser : Type          := AbsParser (CmdParserFn CommandParserConfig)
+abbrev CommandParserFn : Type        := CmdParserFn CommandParserConfig
+abbrev CommandParser : Type          := AbsParser CommandParserFn
 
 @[inline] def Term.parser (rbp : Nat := 0) : TermParser :=
 { fn := RecParserFn.recurse rbp }
@@ -735,6 +744,17 @@ def strLitFn : BasicParserFn
 @[inline] def strLit : BasicParser :=
 { fn := numberFn }
 
+def identFn : BasicParserFn
+| cfg s d :=
+  let d := tokenFn cfg s d in
+  if d.hasError || !(d.stxStack.back.isIdent) then
+    d.mkError "expected identifier"
+  else
+    d
+
+@[inline] def ident : BasicParser :=
+{ fn := identFn }
+
 instance string2basic : HasCoe String BasicParser :=
 ⟨symbol⟩
 
@@ -753,6 +773,120 @@ if d.hasError then
   Except.error (d.toErrorMsg cfg)
 else
   Except.ok d.stxStack.back
+
+-- Helper function for testing (non-recursive) term parsers
+def TermParser.test (p : TermParser) (input : String) (filename : String := "<input>") : Except String Syntax :=
+let frontendCfg        := mkFrontendConfig filename input in
+let tokens             := p.info.updateTokens {} in
+let cfg : ParserConfig := { tokens := tokens, .. frontendCfg } in
+let d : ParserData     := { stxStack := Array.empty, pos := 0, cache := {}, errorMsg := none } in
+let dummyCmdParser  : Unit → ParserFn := λ _ _ d, d.mkError "no command parser" in
+let dummyTermParser : ℕ → CmdParserFn ParserConfig := λ _ _ _ _ d, d.mkError "no term parser" in
+let d := p.fn dummyTermParser cfg dummyCmdParser input d in
+if d.hasError then
+  Except.error (d.toErrorMsg cfg)
+else
+  Except.ok d.stxStack.back
+
+def ParserData.keepNewError (d : ParserData) (oldStackSize : Nat) : ParserData :=
+match d with
+| ⟨stack, pos, cache, err⟩ := ⟨stack.shrink oldStackSize, pos, cache, err⟩
+
+def ParserData.keepPrevError (d : ParserData) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option String) : ParserData :=
+match d with
+| ⟨stack, _, cache, _⟩ := ⟨stack.shrink oldStackSize, oldStopPos, cache, oldError⟩
+
+def ParserData.mergeErrors (d : ParserData) (oldStackSize : Nat) (oldError : String) : ParserData :=
+match d with
+| ⟨stack, pos, cache, some err⟩ := ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
+| other                         := other
+
+def ParserData.mkLongestNodeAlt (d : ParserData) (startSize : Nat) : ParserData :=
+match d with
+| ⟨stack, pos, cache, _⟩ :=
+  if stack.size == startSize then ⟨stack.push Syntax.missing, pos, cache, none⟩ -- parser did not create any node, then we just add `Syntax.missing`
+  else if stack.size == startSize + 1 then d
+  else
+    -- parser created more than one node, combine them into a single node
+    let node := Syntax.node nullKind (stack.extract startSize stack.size) [] in
+    let stack := stack.shrink startSize in
+    ⟨stack.push node, pos, cache, none⟩
+
+def ParserData.keepLatest (d : ParserData) (startStackSize : Nat) : ParserData :=
+match d with
+| ⟨stack, pos, cache, _⟩ :=
+  let node  := stack.back in
+  let stack := stack.shrink startStackSize in
+  let stack := stack.push node in
+  ⟨stack, pos, cache, none⟩
+
+def ParserData.replaceLongest (d : ParserData) (startStackSize : Nat) (prevStackSize : Nat) : ParserData :=
+let d := d.mkLongestNodeAlt prevStackSize in
+d.keepLatest startStackSize
+
+def longestMatchFnAux (startSize : Nat) (startPos : String.Pos) : List TermParserFn → TermParserFn
+| []      := λ _ _ _ _ d, if !d.hasError && d.stackSize > startSize + 1 then d.mkNode choiceKind startSize else d
+| (p::ps) := λ tp cfg cp s d,
+   let prevErrorMsg  := d.errorMsg in
+   let prevStopPos   := d.pos in
+   let prevSize      := d.stackSize in
+   let d             := d.restore prevSize startPos in
+   let d             := p tp cfg cp s d in
+   match prevErrorMsg, d.errorMsg with
+   | none, none   := -- both succeeded
+     let d :=
+       if d.pos > prevStopPos      then d.replaceLongest startSize prevSize -- replace
+       else if d.pos < prevStopPos then d.restore prevSize prevStopPos      -- keep prev
+       else d.mkLongestNodeAlt prevSize in                                  -- keep both
+     longestMatchFnAux ps tp cfg cp s d
+   | none, some _ := -- prev succeeded, current failed
+     let d := d.restore prevSize prevStopPos in
+     longestMatchFnAux ps tp cfg cp s d
+   | some oldError, some _ := -- both failed
+     let d :=
+        if d.pos > prevStopPos      then d.keepNewError prevSize
+        else if d.pos < prevStopPos then d.keepPrevError prevSize prevStopPos prevErrorMsg
+        else d.mergeErrors prevSize oldError in
+     longestMatchFnAux ps tp cfg cp s d
+   | some _, none := -- prev failed, current succeeded
+     let d := d.mkLongestNodeAlt startSize in
+     longestMatchFnAux ps tp cfg cp s d
+
+def longestMatchFn : List TermParserFn → TermParserFn
+| []      := λ _ _ _ _ d, d.mkError "longest match: empty list"
+| [p]     := λ tp cfg cp s d,
+  let startSize := d.stackSize in
+  let d := p tp cfg cp s d in
+  if d.hasError then d else d.mkLongestNodeAlt startSize
+| (p::ps) := λ tp cfg cp s d,
+  let startSize := d.stackSize in
+  let startPos  := d.pos in
+  let d         := p tp cfg cp s d in
+  if d.hasError then
+    let d := d.shrinkStack startSize in
+    longestMatchFnAux startSize startPos ps tp cfg cp s d
+  else
+    let d := d.mkLongestNodeAlt startSize in
+    longestMatchFnAux startSize startPos ps tp cfg cp s d
+
+-- Helper function for testing longestMatchFn, we don't use this function directly
+def longestMatch (ps : List TermParser) : TermParser :=
+{ info := { updateTokens := λ trie, ps.foldl (λ trie p, p.info.updateTokens trie) trie,
+            firstTokens  := ps.foldl (λ tks p, p.info.firstTokens ++ tks) [] },
+  fn   := longestMatchFn (ps.map (λ p, p.fn)) }
+
+-- Stopped here
+
+@[noinline] def termPrattParser (tbl : TermParsingTables) (rbp : Nat) : TermParserFn :=
+λ g, g 0 -- TODO(Leo)
+
+@[specialize] def TermParserFn.run (p : TermParserFn) : CommandParserFn
+| cfg r s d :=
+  let p := RecParserFn.run p (termPrattParser cfg.pTables) in
+  p cfg.toParserConfig r s d
+
+def parseExpr (rbp : Nat) : CommandParserFn :=
+TermParserFn.run (RecParserFn.recurse rbp)
 
 end Parser
 -- end Lean

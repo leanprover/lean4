@@ -131,6 +131,10 @@ def MacroScopes.flip : MacroScopes → MacroScopes → MacroScopes
   | []    := [x]
 
 namespace Syntax
+def isIdent : Syntax → Bool
+| (Syntax.ident _ _ _ _ _) := true
+| _                        := false
+
 def isOfKind : Syntax → SyntaxNodeKind → Bool
 | (Syntax.node kind _ _) k := k == kind
 | other                  _ := false

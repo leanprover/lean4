@@ -54,10 +54,13 @@ node setCompKind $
 def testParser2 : TermParser :=
 many (longestMatch [qualifiedP, parenIdentP, seqP, setCompP])
 
+def testParser3 : TermParser :=
+many (longestMatch [qualifiedP, seqP])
+
 @[noinline] def test (p : TermParser) (s : String) : IO Unit :=
 match p.test s with
 | Except.error msg := IO.println msg
-| Except.ok stx    := IO.println stx -- IO.println "ok"
+| Except.ok stx    := IO.println "ok" -- IO.println stx -- IO.println "ok"
 
 def mkTestString1 : Nat → String → String
 | 0     s := s
@@ -81,5 +84,10 @@ def test2 (n : Nat) : IO Unit :=
 let s := mkTestString2 n "" in
 test testParser2 s
 
+def test3 (n : Nat) : IO Unit :=
+let s := mkTestString2 n "" in
+test testParser3 s
+
 def main (xs : List String) : IO Unit :=
-test2 xs.head.toNat
+timeit "test2" (test2 xs.head.toNat) *>
+timeit "test3" (test3 xs.head.toNat)

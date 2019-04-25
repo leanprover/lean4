@@ -105,6 +105,9 @@ partial def filter (p : α → Bool) : LazyList α → LazyList α
 | (cons a as)  := delayed (if p a then cons a (filter as) else filter as)
 | (delayed as) := delayed (filter as.get)
 
+partial def cycle : LazyList α → LazyList α
+| xs := xs ++ delayed (cycle xs)
+
 end LazyList
 
 def fib : LazyList Nat :=
@@ -122,6 +125,7 @@ do x ← [1, 2, 3].toLazy,
 def main : IO Unit :=
 do let n := 10,
    IO.println $ tst.isEmpty,
+   IO.println $ [1, 2, 3].toLazy.cycle.approx 10,
    IO.println $ tst.head,
    IO.println $ (fib.interleave (iota.map (+100))).approx n,
    IO.println $ (((iota.map (+10)).filter (λ v, v % 2 == 0)).approx n)

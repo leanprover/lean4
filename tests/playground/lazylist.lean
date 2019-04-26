@@ -21,8 +21,12 @@ variables {α : Type u} {β : Type v} {δ : Type w}
 instance : Inhabited (LazyList α) :=
 ⟨nil⟩
 
-@[inline] def pure : α → LazyList α
+@[inline] protected def pure : α → LazyList α
 | a := cons a nil
+
+partial def get : LazyList α → LazyList α
+| (delayed as) := get as.get
+| other        := other
 
 partial def isEmpty : LazyList α → Bool
 | nil          := true
@@ -46,38 +50,38 @@ partial def tail : LazyList α → LazyList α
 
 partial def append : LazyList α → LazyList α → LazyList α
 | nil          bs := bs
-| (cons a as)  bs := delayed (cons a (append as bs))
-| (delayed as) bs := delayed (append as.get bs)
+| (cons a as)  bs := cons a (delayed (append as bs))
+| (delayed as) bs := append as.get bs
 
 instance : HasAppend (LazyList α) :=
 ⟨LazyList.append⟩
 
 partial def interleave : LazyList α → LazyList α → LazyList α
 | nil          bs  := bs
-| (cons a as)  bs  := delayed (cons a (interleave bs as))
-| (delayed as) bs  := delayed (interleave as.get bs)
+| (cons a as)  bs  := cons a (delayed (interleave bs as))
+| (delayed as) bs  := interleave as.get bs
 
 partial def map (f : α → β) : LazyList α → LazyList β
 | nil          := nil
-| (cons a as)  := delayed (cons (f a) (map as))
-| (delayed as) := delayed (map as.get)
+| (cons a as)  := cons (f a) (delayed (map as))
+| (delayed as) := map as.get
 
 partial def map₂ (f : α → β → δ) : LazyList α → LazyList β → LazyList δ
 | nil          _            := nil
 | _            nil          := nil
-| (cons a as)  (cons b bs)  := delayed (cons (f a b) (map₂ as bs))
-| (delayed as) bs           := delayed (map₂ as.get bs)
-| as           (delayed bs) := delayed (map₂ as bs.get)
+| (cons a as)  (cons b bs)  := cons (f a b) (delayed (map₂ as bs))
+| (delayed as) bs           := map₂ as.get bs
+| as           (delayed bs) := map₂ as bs.get
 
 @[inline] def zip : LazyList α → LazyList β → LazyList (α × β) :=
 map₂ Prod.mk
 
 partial def join : LazyList (LazyList α) → LazyList α
 | nil          := nil
-| (cons a as)  := delayed (append a (join as))
-| (delayed as) := delayed (join as.get)
+| (cons a as)  := append a (delayed (join as))
+| (delayed as) := join as.get
 
-@[inline] partial def bind (x : LazyList α) (f : α → LazyList β) : LazyList β :=
+@[inline] protected partial def bind (x : LazyList α) (f : α → LazyList β) : LazyList β :=
 join (x.map f)
 
 instance isMonad : Monad LazyList :=
@@ -102,30 +106,71 @@ partial def iterate₂ (f : α → α → α) : α → α → LazyList α
 
 partial def filter (p : α → Bool) : LazyList α → LazyList α
 | nil          := nil
-| (cons a as)  := delayed (if p a then cons a (filter as) else filter as)
-| (delayed as) := delayed (filter as.get)
+| (cons a as)  := if p a then cons a (delayed (filter as)) else filter as
+| (delayed as) := filter as.get
 
 partial def cycle : LazyList α → LazyList α
 | xs := xs ++ delayed (cycle xs)
+
+partial def repeat : α → LazyList α
+| a := cons a (delayed (repeat a))
+
+partial def inits : LazyList α → LazyList (LazyList α)
+| nil          := cons nil nil
+| (cons a as)  := cons nil (delayed (map (λ as, cons a as) (inits as)))
+| (delayed as) := inits as.get
+
+private def addOpenBracket (s : String) : String :=
+if s.isEmpty then "[" else s
+
+partial def approxToStringAux [HasToString α] : Nat → LazyList α → String → String
+| _     nil          r := (if r.isEmpty then "[" else r) ++ "]"
+| 0     _            r := (if r.isEmpty then "[" else r) ++ ", ..]"
+| (n+1) (cons a as)  r := approxToStringAux n as ((if r.isEmpty then "[" else r ++ ", ") ++ toString a)
+| n     (delayed as) r := approxToStringAux n as.get r
+
+def approxToString [HasToString α] (as : LazyList α) (n : Nat := 10) : String :=
+as.approxToStringAux n ""
+
+instance [HasToString α] : HasToString (LazyList α) :=
+⟨approxToString⟩
 
 end LazyList
 
 def fib : LazyList Nat :=
 LazyList.iterate₂ (+) 0 1
 
-def iota (i : Nat := 0) : LazyList Nat :=
-LazyList.iterate Nat.succ i
-
 def tst : LazyList String :=
 do x ← [1, 2, 3].toLazy,
    y ← [2, 3, 4].toLazy,
+   -- dbgTrace (toString x ++ " " ++ toString y) $ λ _,
    guard (x + y > 5),
    pure (toString x ++ " + " ++ toString y ++ " = " ++ toString (x+y))
+
+open LazyList
+
+def iota (i : Nat := 0) : LazyList Nat :=
+iterate Nat.succ i
+
+set_option pp.implicit true
+-- set_option trace.compiler.boxed true
+
+partial def sieve : LazyList Nat → LazyList Nat
+| nil          := nil
+| (cons a as)  := cons a (delayed (sieve (filter (λ b, b % a != 0) as)))
+| (delayed as) := sieve as.get
+
+partial def primes : LazyList Nat :=
+sieve (iota 2)
 
 def main : IO Unit :=
 do let n := 10,
    IO.println $ tst.isEmpty,
-   IO.println $ [1, 2, 3].toLazy.cycle.approx 10,
+   IO.println $ [1, 2, 3].toLazy.cycle,
+   IO.println $ [1, 2, 3].toLazy.cycle.inits,
+   IO.println $ ((iota.filter (λ v, v % 5 == 0)).approx 50000).foldl (+) 0,
+   IO.println $ (primes.approx 1000).foldl (+) 0,
    IO.println $ tst.head,
-   IO.println $ (fib.interleave (iota.map (+100))).approx n,
-   IO.println $ (((iota.map (+10)).filter (λ v, v % 2 == 0)).approx n)
+   IO.println $ fib.interleave (iota.map (+100)),
+   IO.println $ ((iota.map (+10)).filter (λ v, v % 2 == 0)),
+   pure ()

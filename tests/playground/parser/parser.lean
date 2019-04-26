@@ -64,27 +64,22 @@ d.errorMsg != none
 d.stxStack.size
 
 def ParserData.restore (d : ParserData) (iniStackSz : Nat) (iniPos : Nat) : ParserData :=
-match d with
-| ⟨stack, _, cache, _⟩ := ⟨stack.shrink iniStackSz, iniPos, cache, none⟩
+{ stxStack := d.stxStack.shrink iniStackSz, errorMsg := none, pos := iniPos, .. d}
 
 def ParserData.setPos (d : ParserData) (pos : Nat) : ParserData :=
-match d with
-| ⟨stack, _, cache, msg⟩ := ⟨stack, pos, cache, msg⟩
+{ pos := pos, .. d }
 
 def ParserData.setCache (d : ParserData) (cache : ParserCache) : ParserData :=
-match d with
-| ⟨stack, pos, _, msg⟩ := ⟨stack, pos, cache, msg⟩
+{ cache := cache, .. d }
 
 def ParserData.pushSyntax (d : ParserData) (n : Syntax) : ParserData :=
-match d with
-| ⟨stack, pos, cache, msg⟩ := ⟨stack.push n, pos, cache, msg⟩
+{ stxStack := d.stxStack.push n, .. d }
 
 def ParserData.shrinkStack (d : ParserData) (iniStackSz : Nat) : ParserData :=
-match d with
-| ⟨stack, pos, cache, msg⟩ := ⟨stack.shrink iniStackSz, pos, cache, msg⟩
+{ stxStack := d.stxStack.shrink iniStackSz, .. d }
 
 def ParserData.next (d : ParserData) (s : String) (pos : Nat) : ParserData :=
-d.setPos (s.next pos)
+{ pos := s.next pos, .. d }
 
 def ParserData.toErrorMsg (d : ParserData) (cfg : ParserConfig) : String :=
 match d.errorMsg with

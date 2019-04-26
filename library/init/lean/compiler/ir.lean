@@ -240,8 +240,8 @@ def Expr.alphaEqv (ρ : VarRenaming) : Expr → Expr → Bool
 | (Expr.box ty₁ x₁)       (Expr.box ty₂ x₂)       := ty₁ == ty₂ && x₁ =[ρ]= x₂
 | (Expr.unbox x₁)         (Expr.unbox x₂)         := x₁ =[ρ]= x₂
 | (Expr.lit v₁)           (Expr.lit v₂)           := v₁ == v₂
-| (Expr.isShared x₁)     (Expr.isShared x₂)       := x₁ =[ρ]= x₂
-| (Expr.isTaggedPtr x₁) (Expr.isTaggedPtr x₂)     := x₁ =[ρ]= x₂
+| (Expr.isShared x₁)      (Expr.isShared x₂)      := x₁ =[ρ]= x₂
+| (Expr.isTaggedPtr x₁)   (Expr.isTaggedPtr x₂)   := x₁ =[ρ]= x₂
 | _                        _                      := false
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩

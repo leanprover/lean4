@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include <limits>
 #include <cctype>
+#include <vector>
 #include "util/name_hash_set.h"
 #include "kernel/type_checker.h"
 #include "kernel/for_each_fn.h"

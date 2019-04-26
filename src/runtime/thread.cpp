@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
+#include "runtime/alloc.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE
 #define LEAN_DEFAULT_THREAD_STACK_SIZE 8*1024*1024 // 8Mb
@@ -44,6 +45,7 @@ void reset_thread_local() {
 using runnable = std::function<void()>;
 
 static void thread_main(void * p) {
+    init_thread_heap();
     std::unique_ptr<runnable> f;
     f.reset(reinterpret_cast<runnable *>(p));
 

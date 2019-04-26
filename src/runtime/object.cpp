@@ -327,8 +327,8 @@ void * alloc_heap_object(size_t sz) {
     void * r = alloc(sizeof(rc_type) + sz);
 #else
     void * r = malloc(sizeof(rc_type) + sz);
-#endif
     if (r == nullptr) throw std::bad_alloc();
+#endif
     *static_cast<rc_type *>(r) = 1;
     return static_cast<char *>(r) + sizeof(rc_type);
 }

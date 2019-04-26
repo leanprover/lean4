@@ -347,6 +347,7 @@ static void finalize_heap(void * _h) {
 }
 
 static void init_heap(bool main) {
+    lean_assert(g_heap == nullptr);
     g_heap = new heap();
     g_heap->alloc_segment();
     unsigned obj_size = LEAN_OBJECT_SIZE_DELTA;
@@ -360,15 +361,19 @@ static void init_heap(bool main) {
         register_thread_finalizer(finalize_heap, g_heap);
 }
 
+void init_thread_heap() {
+    init_heap(false);
+}
+
 void * alloc(size_t sz) {
     sz = align(sz, LEAN_OBJECT_SIZE_DELTA);
     LEAN_RUNTIME_STAT_CODE(g_num_alloc++);
     if (LEAN_UNLIKELY(sz > LEAN_MAX_SMALL_OBJECT_SIZE)) {
-        return malloc(sz);
+        void * r = malloc(sz);
+        if (r == nullptr) throw std::bad_alloc();
+        return r;
     }
-    if (LEAN_UNLIKELY(g_heap == nullptr)) {
-        init_heap(false);
-    }
+    lean_assert(g_heap);
     LEAN_RUNTIME_STAT_CODE(g_num_small_alloc++);
     unsigned slot_idx = get_slot_idx(sz);
     page * p = g_heap->m_curr_page[slot_idx];

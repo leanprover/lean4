@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include<cstddef>
 #pragma once
 namespace lean {
+void init_thread_heap();
 void * alloc(size_t sz);
 void dealloc(void * o, size_t sz);
 void initialize_alloc();

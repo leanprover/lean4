@@ -88,6 +88,9 @@ class struct_cases_on_fn {
 
     /* Return true iff `e` contains a constructor application of inductive type `S_name` and containg `x`. */
     bool has_ctor_with(expr e, name const & S_name, expr const & x) {
+        while (is_lambda(e)) {
+            e = binding_body(e);
+        }
         while (is_let(e)) {
             if (is_ctor_of(let_value(e), S_name, x))
                 return true;

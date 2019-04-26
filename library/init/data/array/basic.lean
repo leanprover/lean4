@@ -191,6 +191,16 @@ variables {m : Type u → Type u} [Monad m]
 as.mfoldl (mkEmpty as.size) (λ a bs, do b ← f a, pure (bs.push b))
 end
 
+@[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
+if h : i < a.size then
+  let idx : Fin a.size := ⟨i, h⟩ in
+  let v                := a.index idx in
+  let a                := a.update idx (default α) in
+  let v                := f v in
+  a.update idx v
+else
+  a
+
 section
 variables {m : Type u → Type v} [Monad m] [Inhabited α]
 local attribute [instance] monadInhabited'

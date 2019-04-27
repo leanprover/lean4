@@ -60,17 +60,17 @@ protected def max : RBNode α β → Option (Σ k : α, β k)
 def singleton (k : α) (v : β k) : RBNode α β :=
 node red leaf k v leaf
 
-def balance1 : RBNode α β → RBNode α β → RBNode α β
-| (node _ _ kv vv t) (node _ (node red l kx vx r₁) ky vy r₂) := node red (node black l kx vx r₁) ky vy (node black r₂ kv vv t)
-| (node _ _ kv vv t) (node _ l₁ ky vy (node red l₂ kx vx r)) := node red (node black l₁ ky vy l₂) kx vx (node black r kv vv t)
-| (node _ _ kv vv t) (node _ l  ky vy r)                     := node black (node red l ky vy r) kv vv t
-| _                                                        _ := leaf -- unreachable
+@[inline] def balance1 : Π a, β a → RBNode α β → RBNode α β → RBNode α β
+| kv vv t (node _ (node red l kx vx r₁) ky vy r₂) := node red (node black l kx vx r₁) ky vy (node black r₂ kv vv t)
+| kv vv t (node _ l₁ ky vy (node red l₂ kx vx r)) := node red (node black l₁ ky vy l₂) kx vx (node black r kv vv t)
+| kv vv t (node _ l  ky vy r)                     := node black (node red l ky vy r) kv vv t
+| _  _  _                                       _ := leaf -- unreachable
 
-def balance2 : RBNode α β → RBNode α β → RBNode α β
-| (node _ t kv vv _) (node _ (node red l kx₁ vx₁ r₁) ky vy r₂)  := node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
-| (node _ t kv vv _) (node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂)) := node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
-| (node _ t kv vv _) (node _ l ky vy r)                         := node black t kv vv (node red l ky vy r)
-| _                                                        _    := leaf -- unreachable
+@[inline] def balance2 : RBNode α β → Π a, β a → RBNode α β → RBNode α β
+| t kv vv (node _ (node red l kx₁ vx₁ r₁) ky vy r₂)  := node red (node black t kv vv l) kx₁ vx₁ (node black r₁ ky vy r₂)
+| t kv vv (node _ l₁ ky vy (node red l₂ kx₂ vx₂ r₂)) := node red (node black t kv vv l₁) ky vy (node black l₂ kx₂ vx₂ r₂)
+| t kv vv (node _ l ky vy r)                         := node black t kv vv (node red l ky vy r)
+| _ _  _                                        _    := leaf -- unreachable
 
 def isRed : RBNode α β → Bool
 | (node red _ _ _ _) := true
@@ -88,10 +88,10 @@ variables (lt : α → α → Bool)
    else node red a kx vx b
 | (node black a ky vy b) kx vx :=
     if lt kx ky then
-      if isRed a then balance1 (node black leaf ky vy b) (ins a kx vx)
+      if isRed a then balance1 ky vy b (ins a kx vx)
       else node black (ins a kx vx) ky vy b
     else if lt ky kx then
-      if isRed b then balance2 (node black a ky vy leaf) (ins b kx vx)
+      if isRed b then balance2 a ky vy (ins b kx vx)
       else node black a ky vy (ins b kx vx)
     else
        node black a kx vx b

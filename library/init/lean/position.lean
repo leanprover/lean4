@@ -23,8 +23,8 @@ instance : DecidableEq Position :=
 protected def lt : Position → Position → Bool
 | ⟨l₁, c₁⟩ ⟨l₂, c₂⟩ := (l₁, c₁) < (l₂, c₂)
 
-instance : HasToFormat Position :=
-⟨λ ⟨l, c⟩, "⟨" ++ toFmt l ++ ", " ++ toFmt c ++ "⟩"⟩
+instance : HasFormat Position :=
+⟨λ ⟨l, c⟩, "⟨" ++ fmt l ++ ", " ++ fmt c ++ "⟩"⟩
 
 instance : Inhabited Position := ⟨⟨1, 0⟩⟩
 end Position

@@ -40,7 +40,7 @@ structure SyntaxNodeKind :=
 @[pattern] def noKind : SyntaxNodeKind := ⟨`Lean.Parser.noKind⟩
 
 /-- A hygiene marker introduced by a macro expansion. -/
-@[derive DecidableEq HasToFormat]
+@[derive DecidableEq HasFormat]
 def MacroScope := Nat
 abbrev macroScopes := List MacroScope
 
@@ -202,21 +202,21 @@ partial def reprint : Syntax → Option String
   else String.join <$> n.args.mmap reprint
 | missing := ""
 
-protected partial def toFormat : Syntax → Format
-| (atom ⟨_, s⟩) := toFmt $ repr s
+protected partial def format : Syntax → Format
+| (atom ⟨_, s⟩) := fmt $ repr s
 | (ident id)    :=
-  let scopes := id.preresolved.map toFmt ++ id.scopes.reverse.map toFmt in
-  let scopes := match scopes with [] := toFmt "" | _ := bracket "{" (joinSep scopes ", ") "}" in
-  toFmt "`" ++ toFmt id.val ++ scopes
+  let scopes := id.preresolved.map fmt ++ id.scopes.reverse.map fmt in
+  let scopes := match scopes with [] := fmt "" | _ := bracket "{" (joinSep scopes ", ") "}" in
+  fmt "`" ++ fmt id.val ++ scopes
 | stx@(rawNode n) :=
-  let scopes := match n.scopes with [] := toFmt "" | _ := bracket "{" (joinSep n.scopes.reverse ", ") "}" in
-  if n.kind.name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (n.args.map toFormat) line
+  let scopes := match n.scopes with [] := fmt "" | _ := bracket "{" (joinSep n.scopes.reverse ", ") "}" in
+  if n.kind.name = `Lean.Parser.noKind then sbracket $ scopes ++ joinSep (n.args.map format) line
   else let shorterName := n.kind.name.replacePrefix `Lean.Parser Name.anonymous
-       in paren $ joinSep ((toFmt shorterName ++ scopes) :: n.args.map toFormat) line
+       in paren $ joinSep ((fmt shorterName ++ scopes) :: n.args.map format) line
 | missing := "<missing>"
 
-instance : HasToFormat Syntax := ⟨Syntax.toFormat⟩
-instance : HasToString Syntax := ⟨toString ∘ toFmt⟩
+instance : HasFormat Syntax := ⟨Syntax.format⟩
+instance : HasToString Syntax := ⟨toString ∘ fmt⟩
 end Syntax
 
 end Parser

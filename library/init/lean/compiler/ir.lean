@@ -364,48 +364,48 @@ collectFnBody b {} {}
 end freeVariables
 
 private def formatArg : Arg → Format
-| (Arg.var id)   := toFormat id
+| (Arg.var id)   := format id
 | Arg.irrelevant := "◾"
 
-instance argHasFormat : HasToFormat Arg := ⟨formatArg⟩
+instance argHasFormat : HasFormat Arg := ⟨formatArg⟩
 
 private def formatArgs (as : List Arg) : Format :=
 Format.joinSep as " "
 
-instance argsHasFormat : HasToFormat (List Arg) := ⟨formatArgs⟩
+instance argsHasFormat : HasFormat (List Arg) := ⟨formatArgs⟩
 
 private def formatLitVal : LitVal → Format
-| (LitVal.num v) := toFormat v
-| (LitVal.str v) := toFormat (repr v)
+| (LitVal.num v) := format v
+| (LitVal.str v) := format (repr v)
 
-instance litValHasFormat : HasToFormat LitVal := ⟨formatLitVal⟩
+instance litValHasFormat : HasFormat LitVal := ⟨formatLitVal⟩
 
 private def formatCtorInfo : CtorInfo → Format
 | { name := name, cidx := cidx, usize := usize, ssize := ssize } :=
-  let r := toFormat "ctor_" ++ toFormat cidx in
-  let r := if usize > 0 || ssize > 0 then r ++ "." ++ toFormat usize ++ "." ++ toFormat ssize else r in
-  let r := if name != Name.anonymous then r ++ "[" ++ toFormat name ++ "]" else r in
+  let r := format "ctor_" ++ format cidx in
+  let r := if usize > 0 || ssize > 0 then r ++ "." ++ format usize ++ "." ++ format ssize else r in
+  let r := if name != Name.anonymous then r ++ "[" ++ format name ++ "]" else r in
   r
 
-instance ctorInfoHasFormat : HasToFormat CtorInfo := ⟨formatCtorInfo⟩
+instance ctorInfoHasFormat : HasFormat CtorInfo := ⟨formatCtorInfo⟩
 
 private def formatExpr : Expr → Format
-| (Expr.ctor i ys)       := toFormat i ++ " " ++ toFormat ys
-| (Expr.reset x)         := "reset " ++ toFormat x
-| (Expr.reuse x i ys)    := "reuse " ++ toFormat x ++ " in " ++ toFormat i ++ toFormat ys
-| (Expr.proj i x)        := "proj_" ++ toFormat i ++ " " ++ toFormat x
-| (Expr.uproj i x)       := "uproj_" ++ toFormat i ++ " " ++ toFormat x
-| (Expr.sproj n x)       := "sproj_" ++ toFormat n ++ " " ++ toFormat x
-| (Expr.fap c ys)        := toFormat c ++ " " ++ toFormat ys
-| (Expr.pap c ys)        := "pap " ++ toFormat c ++ " " ++ toFormat ys
-| (Expr.ap x ys)         := "app " ++ toFormat x ++ " " ++ toFormat ys
-| (Expr.box _ x)         := "box " ++ toFormat x
-| (Expr.unbox x)         := "unbox " ++ toFormat x
-| (Expr.lit v)           := toFormat v
-| (Expr.isShared x)      := "isShared " ++ toFormat x
-| (Expr.isTaggedPtr x)   := "isTaggedPtr " ++ toFormat x
+| (Expr.ctor i ys)       := format i ++ " " ++ format ys
+| (Expr.reset x)         := "reset " ++ format x
+| (Expr.reuse x i ys)    := "reuse " ++ format x ++ " in " ++ format i ++ format ys
+| (Expr.proj i x)        := "proj_" ++ format i ++ " " ++ format x
+| (Expr.uproj i x)       := "uproj_" ++ format i ++ " " ++ format x
+| (Expr.sproj n x)       := "sproj_" ++ format n ++ " " ++ format x
+| (Expr.fap c ys)        := format c ++ " " ++ format ys
+| (Expr.pap c ys)        := "pap " ++ format c ++ " " ++ format ys
+| (Expr.ap x ys)         := "app " ++ format x ++ " " ++ format ys
+| (Expr.box _ x)         := "box " ++ format x
+| (Expr.unbox x)         := "unbox " ++ format x
+| (Expr.lit v)           := format v
+| (Expr.isShared x)      := "isShared " ++ format x
+| (Expr.isTaggedPtr x)   := "isTaggedPtr " ++ format x
 
-instance exprHasFormat : HasToFormat Expr := ⟨formatExpr⟩
+instance exprHasFormat : HasFormat Expr := ⟨formatExpr⟩
 
 private def formatIRType : IRType → Format
 | IRType.float      := "float"
@@ -418,39 +418,39 @@ private def formatIRType : IRType → Format
 | IRType.object     := "obj"
 | IRType.tobject    := "tobj"
 
-instance typeHasFormat : HasToFormat IRType := ⟨formatIRType⟩
+instance typeHasFormat : HasFormat IRType := ⟨formatIRType⟩
 
 private def formatParam : Param → Format
-| { x := name, borrowed := b, ty := ty } := "(" ++ toFormat name ++ " : " ++ (if b then "@^ " else "") ++ toFormat ty ++ ")"
+| { x := name, borrowed := b, ty := ty } := "(" ++ format name ++ " : " ++ (if b then "@^ " else "") ++ format ty ++ ")"
 
-instance paramHasFormat : HasToFormat Param := ⟨formatParam⟩
+instance paramHasFormat : HasFormat Param := ⟨formatParam⟩
 
 def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
-| (Alt.ctor i b)  := toFormat i ++ " →" ++ Format.nest indent (Format.line ++ fmt b)
+| (Alt.ctor i b)  := format i ++ " →" ++ Format.nest indent (Format.line ++ fmt b)
 | (Alt.default b) := "default →" ++ Format.nest indent (Format.line ++ fmt b)
 
 partial def formatFnBody (indent : Nat := 2) : FnBody → Format
-| (FnBody.vdecl x ty e b)    := "let " ++ toFormat x ++ " : " ++ toFormat ty ++ " := " ++ toFormat e ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.jdecl j xs ty v b) := "jp " ++ toFormat j ++ " " ++ Format.joinSep xs " " ++ " : " ++ toFormat ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line
-| (FnBody.set x i y b)       := "set " ++ toFormat x ++ "[" ++ toFormat i ++ "] := " ++ toFormat y ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.uset x i y b)      := "uset " ++ toFormat x ++ "[" ++ toFormat i ++ "] := " ++ toFormat y ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.sset x i o y ty b) := "sset " ++ toFormat x ++ "[" ++ toFormat i ++ ", " ++ toFormat o ++ "] : " ++ toFormat ty ++ " := " ++ toFormat y ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.release x i b)     := "release " ++ toFormat x ++ "[" ++ toFormat i ++ "];" ++ Format.line ++ formatFnBody b
-| (FnBody.inc x n c b)       := "inc " ++ toFormat x ++ (if n != 1 then toFormat n else "") ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.dec x n c b)       := "dec " ++ toFormat x ++ (if n != 1 then toFormat n else "") ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.mdata d b)         := "mdata " ++ toFormat d ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.case tid x cs)     := "case " ++ toFormat x ++ " of" ++ cs.foldl (λ r c, r ++ formatAlt formatFnBody indent c) Format.line
-| (FnBody.jmp j ys)          := "jmp " ++ toFormat j ++ " " ++ toFormat ys
-| (FnBody.ret x)             := "ret " ++ toFormat x
+| (FnBody.vdecl x ty e b)    := "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.jdecl j xs ty v b) := "jp " ++ format j ++ " " ++ Format.joinSep xs " " ++ " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line
+| (FnBody.set x i y b)       := "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.uset x i y b)      := "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.sset x i o y ty b) := "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.release x i b)     := "release " ++ format x ++ "[" ++ format i ++ "];" ++ Format.line ++ formatFnBody b
+| (FnBody.inc x n c b)       := "inc " ++ format x ++ (if n != 1 then format n else "") ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.dec x n c b)       := "dec " ++ format x ++ (if n != 1 then format n else "") ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.mdata d b)         := "mdata " ++ format d ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.case tid x cs)     := "case " ++ format x ++ " of" ++ cs.foldl (λ r c, r ++ formatAlt formatFnBody indent c) Format.line
+| (FnBody.jmp j ys)          := "jmp " ++ format j ++ " " ++ format ys
+| (FnBody.ret x)             := "ret " ++ format x
 | FnBody.unreachable         := "⊥"
 
-instance fnBodyHasToFormat : HasToFormat FnBody := ⟨formatFnBody⟩
+instance fnBodyHasFormat : HasFormat FnBody := ⟨formatFnBody⟩
 
 def formatDecl (indent : Nat := 2) : Decl → Format
-| (Decl.fdecl f xs ty b) := "def " ++ toFormat f ++ Format.joinSep xs " " ++ toFormat " : " ++ toFormat ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
-| (Decl.extern f xs ty)  := "extern " ++ toFormat f ++ Format.joinSep xs " " ++ toFormat " : " ++ toFormat ty
+| (Decl.fdecl f xs ty b) := "def " ++ format f ++ Format.joinSep xs " " ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
+| (Decl.extern f xs ty)  := "extern " ++ format f ++ Format.joinSep xs " " ++ format " : " ++ format ty
 
-instance declHasToFormat : HasToFormat Decl := ⟨formatDecl⟩
+instance declHasFormat : HasFormat Decl := ⟨formatDecl⟩
 
 end IR
 end Lean

@@ -104,29 +104,29 @@ def parenIfFalse : Format → Bool → Format
 | []      := Format.nil
 | (r::rs) := Format.line ++ fmt r ++ formatLst rs
 
-partial def Result.toFormat : Result → Bool → Format
+partial def Result.format : Result → Bool → Format
 | (Result.leaf f)         _ := f
 | (Result.num k)          _ := toString k
-| (Result.offset f 0)     r := Result.toFormat f r
+| (Result.offset f 0)     r := Result.format f r
 | (Result.offset f (k+1)) r :=
-  let f' := Result.toFormat f false in
-  parenIfFalse (f' ++ "+" ++ toFmt (k+1)) r
-| (Result.maxNode fs)    r := parenIfFalse (Format.group $ "max"  ++ formatLst (λ r, Result.toFormat r false) fs) r
-| (Result.imaxNode fs)   r := parenIfFalse (Format.group $ "imax" ++ formatLst (λ r, Result.toFormat r false) fs) r
+  let f' := Result.format f false in
+  parenIfFalse (f' ++ "+" ++ fmt (k+1)) r
+| (Result.maxNode fs)    r := parenIfFalse (Format.group $ "max"  ++ formatLst (λ r, Result.format r false) fs) r
+| (Result.imaxNode fs)   r := parenIfFalse (Format.group $ "imax" ++ formatLst (λ r, Result.format r false) fs) r
 
 def Level.toResult : Level → Result
 | Level.zero         := Result.num 0
 | (Level.succ l)     := Result.succ (Level.toResult l)
 | (Level.max l₁ l₂)  := Result.max (Level.toResult l₁) (Level.toResult l₂)
 | (Level.imax l₁ l₂) := Result.imax (Level.toResult l₁) (Level.toResult l₂)
-| (Level.Param n)    := Result.leaf (toFmt n)
-| (Level.mvar n)     := Result.leaf (toFmt n)
+| (Level.Param n)    := Result.leaf (fmt n)
+| (Level.mvar n)     := Result.leaf (fmt n)
 
-def Level.toFormat (l : Level) : Format :=
-(Level.toResult l).toFormat true
+def Level.format (l : Level) : Format :=
+(Level.toResult l).format true
 
-instance levelHasToFormat : HasToFormat Level := ⟨Level.toFormat⟩
-instance levelHasToString : HasToString Level := ⟨Format.pretty ∘ Level.toFormat⟩
+instance levelHasFormat : HasFormat Level := ⟨Level.format⟩
+instance levelHasToString : HasToString Level := ⟨Format.pretty ∘ Level.format⟩
 end LevelToFormat
 
 end Lean

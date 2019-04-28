@@ -163,6 +163,21 @@ Id.run $ mfoldlFrom a b f ini
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindAux a f 0
 
+@[specialize] partial def anyAux (a : Array α) (p : α → Bool) : Nat → Bool
+| i :=
+  if h : i < a.size then
+     let idx : Fin a.size := ⟨i, h⟩ in
+     match p (a.index idx) with
+     | true  := true
+     | false := anyAux (i+1)
+  else false
+
+@[inline] def any (a : Array α) (p : α → Bool) : Bool :=
+anyAux a p 0
+
+@[inline] def all (a : Array α) (p : α → Bool) : Bool :=
+!any a (λ v, !p v)
+
 @[specialize] private def revIterateAux (a : Array α) (f : Π i : Fin a.size, α → β → β) : Π (i : Nat), i ≤ a.size → β → β
 | 0     h b := b
 | (j+1) h b :=
@@ -240,6 +255,31 @@ let r : Array α := mkEmpty (e - b) in
 if h : e ≤ a.size then extractAux a b e h r
 else r
 
+@[inline] protected def append (a : Array α) (b : Array α) : Array α :=
+b.foldl (λ v a, a.push v) a
+
+instance : HasAppend (Array α) := ⟨Array.append⟩
+
+-- TODO(Leo): justify termination using wf-rec
+partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α → Bool) : Nat → Bool
+| i :=
+  if h : i < a.size then
+     let aidx : Fin a.size := ⟨i, h⟩ in
+     let bidx : Fin b.size := ⟨i, hsz ▸ h⟩ in
+     match p (a.index aidx) (b.index bidx) with
+     | true  := isEqvAux (i+1)
+     | false := false
+  else
+    true
+
+@[specialize] def isEqv (a b : Array α) (p : α → α → Bool) : Bool :=
+if h : a.size = b.size then
+  isEqvAux a b h p 0
+else
+  false
+
+instance [HasBeq α] : HasBeq (Array α) :=
+⟨λ a b, isEqv a b (==)⟩
 end Array
 
 export Array (mkArray)

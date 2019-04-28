@@ -167,4 +167,23 @@ instance formatHasToString : HasToString Format := ⟨Format.pretty⟩
 
 instance : HasRepr Format := ⟨Format.pretty ∘ Format.repr⟩
 
+def formatDataValue : DataValue → Format
+| (DataValue.ofString v) := toFormat (repr v)
+| (DataValue.ofBool v)   := toFormat v
+| (DataValue.ofName v)   := "`" ++ toFormat v
+| (DataValue.ofNat v)    := toFormat v
+| (DataValue.ofInt v)    := toFormat v
+
+instance dataValueHasToFormat : HasToFormat DataValue := ⟨formatDataValue⟩
+
+def formatEntry : Name × DataValue → Format
+| (n, v) := toFormat n ++ " := " ++ toFormat v
+
+instance entryHasToFormat : HasToFormat (Name × DataValue) := ⟨formatEntry⟩
+
+def formatKVMap (m : KVMap) : Format :=
+sbracket (Format.joinSep m.entries ", ")
+
+instance kvMapHasToFormat : HasToFormat KVMap := ⟨formatKVMap⟩
+
 end Lean

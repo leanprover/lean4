@@ -3,15 +3,16 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import init.lean.name init.lean.kvmap
+import init.lean.name init.lean.kvmap init.lean.format
 prelude
 
 /-
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.
 
-The Lean to IR transformation produces λPure code. That is,
-then transformed using the procedures described in the paper above.
+The Lean to IR transformation produces λPure code, and
+this part is implemented in C++. The procedures described in the paper
+above are implemented in Lean.
 -/
 namespace Lean
 namespace IR
@@ -31,7 +32,7 @@ end MData
 
 /- Low Level IR types. Most are self explanatory.
 
-   - `Usize` represents the C++ `sizeT` Type. We have it here
+   - `usize` represents the C++ `size_t` Type. We have it here
       because it is 32-bit in 32-bit machines, and 64-bit in 64-bit machines,
       and we want the C++ backend for our Compiler to generate platform independent code.
 
@@ -48,7 +49,7 @@ first need to test whether the `tobject` is really a pointer or not.
 Remark: the Lean runtime assumes that sizeof(void*) == sizeof(sizeT).
 Lean cannot be compiled on old platforms where this is not True. -/
 inductive IRType
-| float | uint8 | uint16 | uint32 | uint64 | Usize
+| float | uint8 | uint16 | uint32 | uint64 | usize
 | irrelevant | object | tobject
 
 def IRType.beq : IRType → IRType → Bool
@@ -57,7 +58,7 @@ def IRType.beq : IRType → IRType → Bool
 | IRType.uint16     IRType.uint16     := true
 | IRType.uint32     IRType.uint32     := true
 | IRType.uint64     IRType.uint64     := true
-| IRType.Usize      IRType.Usize      := true
+| IRType.usize      IRType.usize      := true
 | IRType.irrelevant IRType.irrelevant := true
 | IRType.object     IRType.object     := true
 | IRType.tobject    IRType.tobject    := true
@@ -73,33 +74,33 @@ inductive Arg
 | var (id : VarId)
 | irrelevant
 
-inductive Litval
+inductive LitVal
 | num (v : Nat)
 | str (v : String)
 
-def Litval.beq : Litval → Litval → Bool
-| (Litval.num v₁) (Litval.num v₂) := v₁ == v₂
-| (Litval.str v₁) (Litval.str v₂) := v₁ == v₂
+def LitVal.beq : LitVal → LitVal → Bool
+| (LitVal.num v₁) (LitVal.num v₂) := v₁ == v₂
+| (LitVal.str v₁) (LitVal.str v₂) := v₁ == v₂
 | _               _               := false
 
-instance Litval.HasBeq : HasBeq Litval := ⟨Litval.beq⟩
+instance LitVal.HasBeq : HasBeq LitVal := ⟨LitVal.beq⟩
 
 /- Constructor information.
 
-   - `id` is the Name of the Constructor in Lean.
+   - `name` is the Name of the Constructor in Lean.
    - `cidx` is the Constructor index (aka tag).
-   - `Usize` is the number of arguments of type `Usize`.
+   - `usize` is the number of arguments of type `Usize`.
    - `ssize` is the number of bytes used to store scalar values.
 
 Recall that a Constructor object contains a header, then a sequence of
 pointers to other Lean objects, a sequence of `Usize` (i.e., `sizeT`)
 scalar values, and a sequence of other scalar values. -/
 structure CtorInfo :=
-(id : Name) (cidx : Nat) (Usize : Nat) (ssize : Nat)
+(name : Name) (cidx : Nat) (usize : Nat) (ssize : Nat)
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
-| ⟨id₁, cidx₁, usize₁, ssize₁⟩ ⟨id₂, cidx₂, usize₂, ssize₂⟩ :=
-  id₁ == id₂ && cidx₁ == cidx₂ && usize₁ == usize₂ && ssize₁ == ssize₂
+| ⟨n₁, cidx₁, usize₁, ssize₁⟩ ⟨n₂, cidx₂, usize₂, ssize₂⟩ :=
+  n₁ == n₂ && cidx₁ == cidx₂ && usize₁ == usize₂ && ssize₁ == ssize₂
 
 instance CtorInfo.HasBeq : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
 
@@ -125,7 +126,7 @@ inductive Expr
 | box (ty : IRType) (x : VarId)
 /- Given `x : [t]object`, obtain the scalar value. -/
 | unbox (x : VarId)
-| lit (v : Litval)
+| lit (v : LitVal)
 /- Return `1 : uint8` Iff `RC(x) > 1` -/
 | isShared (x : VarId)
 /- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
@@ -134,41 +135,41 @@ inductive Expr
 structure Param :=
 (x : Name) (borrowed : Bool) (ty : IRType)
 
-inductive AltCore (Fnbody : Type) : Type
-| ctor (info : CtorInfo) (b : Fnbody) : AltCore
-| default (b : Fnbody) : AltCore
+inductive AltCore (FnBody : Type) : Type
+| ctor (info : CtorInfo) (b : FnBody) : AltCore
+| default (b : FnBody) : AltCore
 
-inductive Fnbody
+inductive FnBody
 /- `let x : ty := e; b` -/
-| vdecl (x : VarId) (ty : IRType) (e : Expr) (b : Fnbody)
+| vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
 /- Join point Declaration `let j (xs) : ty := e; b` -/
-| jdecl (j : JoinPointId) (xs : List Param) (ty : IRType) (v : Fnbody) (b : Fnbody)
+| jdecl (j : JoinPointId) (xs : List Param) (ty : IRType) (v : FnBody) (b : FnBody)
 /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    This operation is not part of λPure is only used during optimization. -/
-| set (x : VarId) (i : Nat) (y : VarId) (b : Fnbody)
+| set (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
 /- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
-| uset (x : VarId) (i : Nat) (y : VarId) (b : Fnbody)
+| uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
 /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
-| sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : Fnbody)
-| release (x : VarId) (i : Nat) (b : Fnbody)
+| sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
+| release (x : VarId) (i : Nat) (b : FnBody)
 /- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
-| inc (x : VarId) (n : Nat) (c : Bool) (b : Fnbody)
+| inc (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
 /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
-| dec (x : VarId) (n : Nat) (c : Bool) (b : Fnbody)
-| mdata (d : MData) (b : Fnbody)
-| case (tid : Name) (x : VarId) (cs : List (AltCore Fnbody))
+| dec (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
+| mdata (d : MData) (b : FnBody)
+| case (tid : Name) (x : VarId) (cs : List (AltCore FnBody))
 | ret (x : VarId)
 /- Jump to join point `j` -/
 | jmp (j : JoinPointId) (ys : List Arg)
 | unreachable
 
-abbrev Alt := AltCore Fnbody
-@[pattern] abbrev Alt.ctor    := @AltCore.ctor Fnbody
-@[pattern] abbrev Alt.default := @AltCore.default Fnbody
+abbrev Alt := AltCore FnBody
+@[pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
+@[pattern] abbrev Alt.default := @AltCore.default FnBody
 
 inductive Decl
-| fdecl  (f : FunId) (xs : List Param) (ty : IRType) (b : Fnbody)
+| fdecl  (f : FunId) (xs : List Param) (ty : IRType) (b : FnBody)
 | extern (f : FunId) (xs : List Param) (ty : IRType)
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
@@ -183,20 +184,20 @@ def Expr.isPure : Expr → Bool
 | (Expr.lit _)     := true
 | _                := false
 
-/-- `Fnbody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
-partial def Fnbody.isPure : Fnbody → Bool
-| (Fnbody.vdecl _ _ e b)    := e.isPure && b.isPure
-| (Fnbody.jdecl _ _ _ e b)  := e.isPure && b.isPure
-| (Fnbody.uset _ _ _ b)     := b.isPure
-| (Fnbody.sset _ _ _ _ _ b) := b.isPure
-| (Fnbody.mdata _ b)        := b.isPure
-| (Fnbody.case _ _ alts)    := alts.any $ λ alt,
+/-- `FnBody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
+partial def FnBody.isPure : FnBody → Bool
+| (FnBody.vdecl _ _ e b)    := e.isPure && b.isPure
+| (FnBody.jdecl _ _ _ e b)  := e.isPure && b.isPure
+| (FnBody.uset _ _ _ b)     := b.isPure
+| (FnBody.sset _ _ _ _ _ b) := b.isPure
+| (FnBody.mdata _ b)        := b.isPure
+| (FnBody.case _ _ alts)    := alts.any $ λ alt,
   (match alt with
    | (Alt.ctor _ b)  := b.isPure
    | (Alt.default b) := false)
-| (Fnbody.ret _)            := true
-| (Fnbody.jmp _ _)          := true
-| Fnbody.unreachable        := true
+| (FnBody.ret _)            := true
+| (FnBody.jmp _ _)          := true
+| FnBody.unreachable        := true
 | _                         := false
 
 abbrev VarRenaming := NameMap Name
@@ -258,34 +259,34 @@ def addParamsRename : VarRenaming → List Param → List Param → Option VarRe
 | ρ []        []        := some ρ
 | _ _         _         := none
 
-partial def Fnbody.alphaEqv : VarRenaming → Fnbody → Fnbody → Bool
-| ρ (Fnbody.vdecl x₁ t₁ v₁ b₁)      (Fnbody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && Fnbody.alphaEqv (addVarRename ρ x₁ x₂) b₁ b₂
-| ρ (Fnbody.jdecl j₁ ys₁ t₁ v₁ b₁)  (Fnbody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
+partial def FnBody.alphaEqv : VarRenaming → FnBody → FnBody → Bool
+| ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁ x₂) b₁ b₂
+| ρ (FnBody.jdecl j₁ ys₁ t₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
   (match addParamsRename ρ ys₁ ys₂ with
-   | some ρ' := t₁ == t₂ && Fnbody.alphaEqv ρ' v₁ v₂ && Fnbody.alphaEqv (addVarRename ρ j₁ j₂) b₁ b₂
+   | some ρ' := t₁ == t₂ && FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁ j₂) b₁ b₂
    | none    := false)
-| ρ (Fnbody.set x₁ i₁ y₁ b₁)        (Fnbody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.uset x₁ i₁ y₁ b₁)       (Fnbody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.sset x₁ i₁ o₁ y₁ t₁ b₁) (Fnbody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
-  x₁ =[ρ]= x₂ && i₁ = i₂ && o₁ = o₂ && y₁ =[ρ]= y₂ && t₁ == t₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.release x₁ i₁ b₁)       (Fnbody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.inc x₁ n₁ c₁ b₁)        (Fnbody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.dec x₁ n₁ c₁ b₁)        (Fnbody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.mdata m₁ b₁)            (Fnbody.mdata m₂ b₂)              := m₁ == m₂ && Fnbody.alphaEqv ρ b₁ b₂
-| ρ (Fnbody.case n₁ x₁ alts₁)       (Fnbody.case n₂ x₂ alts₂)         := n₁ == n₂ && x₁ =[ρ]= x₂ && List.isEqv alts₁ alts₂ (λ alt₁ alt₂,
+| ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁) (FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
+  x₁ =[ρ]= x₂ && i₁ = i₂ && o₁ = o₂ && y₁ =[ρ]= y₂ && t₁ == t₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.release x₁ i₁ b₁)       (FnBody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.inc x₁ n₁ c₁ b₁)        (FnBody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.dec x₁ n₁ c₁ b₁)        (FnBody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.mdata m₁ b₁)            (FnBody.mdata m₂ b₂)              := m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && x₁ =[ρ]= x₂ && List.isEqv alts₁ alts₂ (λ alt₁ alt₂,
    match alt₁, alt₂ with
-   | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ := i₁ == i₂ && Fnbody.alphaEqv ρ b₁ b₂
-   | Alt.default b₁, Alt.default b₂ := Fnbody.alphaEqv ρ b₁ b₂
+   | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ := i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
+   | Alt.default b₁, Alt.default b₂ := FnBody.alphaEqv ρ b₁ b₂
    | _,              _              := false)
-| ρ (Fnbody.jmp j₁ ys₁)             (Fnbody.jmp j₂ ys₂)               := j₁ == j₂ && ys₁ =[ρ]= ys₂
-| ρ (Fnbody.ret x₁)                 (Fnbody.ret x₂)                   := x₁ =[ρ]= x₂
-| _ Fnbody.unreachable              Fnbody.unreachable                := true
+| ρ (FnBody.jmp j₁ ys₁)             (FnBody.jmp j₂ ys₂)               := j₁ == j₂ && ys₁ =[ρ]= ys₂
+| ρ (FnBody.ret x₁)                 (FnBody.ret x₂)                   := x₁ =[ρ]= x₂
+| _ FnBody.unreachable              FnBody.unreachable                := true
 | _ _                               _                                 := false
 
-def Fnbody.beq (b₁ b₂ : Fnbody) : Bool :=
-Fnbody.alphaEqv ∅  b₁ b₂
+def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
+FnBody.alphaEqv ∅  b₁ b₂
 
-instance Fnbody.HasBeq : HasBeq Fnbody := ⟨Fnbody.beq⟩
+instance FnBody.HasBeq : HasBeq FnBody := ⟨FnBody.beq⟩
 
 abbrev VarSet := NameSet
 
@@ -337,30 +338,119 @@ private def collectExpr : Expr → Collector
 | (Expr.isShared x)      := collectVar x
 | (Expr.isTaggedPtr x)   := collectVar x
 
-private def collectAlts (f : Fnbody → Collector) : List Alt → Collector
+private def collectAlts (f : FnBody → Collector) : List Alt → Collector
 | []                      := skip
 | (Alt.ctor _ b :: alts)  := f b; collectAlts alts
 | (Alt.default b :: alts) := f b; collectAlts alts
 
-private partial def collectFnBody : Fnbody → Collector
-| (Fnbody.vdecl x _ v b)    := collectExpr v; withBv x (collectFnBody b)
-| (Fnbody.jdecl j ys _ v b) := withParams ys (collectFnBody v); withBv j (collectFnBody b)
-| (Fnbody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
-| (Fnbody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
-| (Fnbody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
-| (Fnbody.release x _ b)    := collectVar x; collectFnBody b
-| (Fnbody.inc x _ _ b)      := collectVar x; collectFnBody b
-| (Fnbody.dec x _ _ b)      := collectVar x; collectFnBody b
-| (Fnbody.mdata _ b)        := collectFnBody b
-| (Fnbody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
-| (Fnbody.jmp j ys)         := collectVar j; collectArgs ys
-| (Fnbody.ret x)            := collectVar x
-| Fnbody.unreachable        := skip
+private partial def collectFnBody : FnBody → Collector
+| (FnBody.vdecl x _ v b)    := collectExpr v; withBv x (collectFnBody b)
+| (FnBody.jdecl j ys _ v b) := withParams ys (collectFnBody v); withBv j (collectFnBody b)
+| (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
+| (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
+| (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
+| (FnBody.release x _ b)    := collectVar x; collectFnBody b
+| (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.mdata _ b)        := collectFnBody b
+| (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
+| (FnBody.jmp j ys)         := collectVar j; collectArgs ys
+| (FnBody.ret x)            := collectVar x
+| FnBody.unreachable        := skip
 
-def freeVars (b : Fnbody) : VarSet :=
+def freeVars (b : FnBody) : VarSet :=
 collectFnBody b {} {}
 
 end freeVariables
+
+private def formatArg : Arg → Format
+| (Arg.var id)   := toFormat id
+| Arg.irrelevant := "◾"
+
+instance argHasFormat : HasToFormat Arg := ⟨formatArg⟩
+
+private def formatArgs (as : List Arg) : Format :=
+Format.joinSep as " "
+
+instance argsHasFormat : HasToFormat (List Arg) := ⟨formatArgs⟩
+
+private def formatLitVal : LitVal → Format
+| (LitVal.num v) := toFormat v
+| (LitVal.str v) := toFormat (repr v)
+
+instance litValHasFormat : HasToFormat LitVal := ⟨formatLitVal⟩
+
+private def formatCtorInfo : CtorInfo → Format
+| { name := name, cidx := cidx, usize := usize, ssize := ssize } :=
+  let r := toFormat "ctor_" ++ toFormat cidx in
+  let r := if usize > 0 || ssize > 0 then r ++ "." ++ toFormat usize ++ "." ++ toFormat ssize else r in
+  let r := if name != Name.anonymous then r ++ "[" ++ toFormat name ++ "]" else r in
+  r
+
+instance ctorInfoHasFormat : HasToFormat CtorInfo := ⟨formatCtorInfo⟩
+
+private def formatExpr : Expr → Format
+| (Expr.ctor i ys)       := toFormat i ++ " " ++ toFormat ys
+| (Expr.reset x)         := "reset " ++ toFormat x
+| (Expr.reuse x i ys)    := "reuse " ++ toFormat x ++ " in " ++ toFormat i ++ toFormat ys
+| (Expr.proj i x)        := "proj_" ++ toFormat i ++ " " ++ toFormat x
+| (Expr.uproj i x)       := "uproj_" ++ toFormat i ++ " " ++ toFormat x
+| (Expr.sproj n x)       := "sproj_" ++ toFormat n ++ " " ++ toFormat x
+| (Expr.fap c ys)        := toFormat c ++ " " ++ toFormat ys
+| (Expr.pap c ys)        := "pap " ++ toFormat c ++ " " ++ toFormat ys
+| (Expr.ap x ys)         := "app " ++ toFormat x ++ " " ++ toFormat ys
+| (Expr.box _ x)         := "box " ++ toFormat x
+| (Expr.unbox x)         := "unbox " ++ toFormat x
+| (Expr.lit v)           := toFormat v
+| (Expr.isShared x)      := "isShared " ++ toFormat x
+| (Expr.isTaggedPtr x)   := "isTaggedPtr " ++ toFormat x
+
+instance exprHasFormat : HasToFormat Expr := ⟨formatExpr⟩
+
+private def formatIRType : IRType → Format
+| IRType.float      := "float"
+| IRType.uint8      := "u8"
+| IRType.uint16     := "u16"
+| IRType.uint32     := "u32"
+| IRType.uint64     := "u64"
+| IRType.usize      := "usize"
+| IRType.irrelevant := "◾"
+| IRType.object     := "obj"
+| IRType.tobject    := "tobj"
+
+instance typeHasFormat : HasToFormat IRType := ⟨formatIRType⟩
+
+private def formatParam : Param → Format
+| { x := name, borrowed := b, ty := ty } := "(" ++ toFormat name ++ " : " ++ (if b then "@^ " else "") ++ toFormat ty ++ ")"
+
+instance paramHasFormat : HasToFormat Param := ⟨formatParam⟩
+
+def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
+| (Alt.ctor i b)  := toFormat i ++ " →" ++ Format.nest indent (Format.line ++ fmt b)
+| (Alt.default b) := "default →" ++ Format.nest indent (Format.line ++ fmt b)
+
+partial def formatFnBody (indent : Nat := 2) : FnBody → Format
+| (FnBody.vdecl x ty e b)    := "let " ++ toFormat x ++ " : " ++ toFormat ty ++ " := " ++ toFormat e ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.jdecl j xs ty v b) := "jp " ++ toFormat j ++ " " ++ Format.joinSep xs " " ++ " : " ++ toFormat ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line
+| (FnBody.set x i y b)       := "set " ++ toFormat x ++ "[" ++ toFormat i ++ "] := " ++ toFormat y ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.uset x i y b)      := "uset " ++ toFormat x ++ "[" ++ toFormat i ++ "] := " ++ toFormat y ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.sset x i o y ty b) := "sset " ++ toFormat x ++ "[" ++ toFormat i ++ ", " ++ toFormat o ++ "] : " ++ toFormat ty ++ " := " ++ toFormat y ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.release x i b)     := "release " ++ toFormat x ++ "[" ++ toFormat i ++ "];" ++ Format.line ++ formatFnBody b
+| (FnBody.inc x n c b)       := "inc " ++ toFormat x ++ (if n != 1 then toFormat n else "") ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.dec x n c b)       := "dec " ++ toFormat x ++ (if n != 1 then toFormat n else "") ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.mdata d b)         := "mdata " ++ toFormat d ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.case tid x cs)     := "case " ++ toFormat x ++ " of" ++ cs.foldl (λ r c, r ++ formatAlt formatFnBody indent c) Format.line
+| (FnBody.jmp j ys)          := "jmp " ++ toFormat j ++ " " ++ toFormat ys
+| (FnBody.ret x)             := "ret " ++ toFormat x
+| FnBody.unreachable         := "⊥"
+
+instance fnBodyHasToFormat : HasToFormat FnBody := ⟨formatFnBody⟩
+
+def formatDecl (indent : Nat := 2) : Decl → Format
+| (Decl.fdecl f xs ty b) := "def " ++ toFormat f ++ Format.joinSep xs " " ++ toFormat " : " ++ toFormat ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
+| (Decl.extern f xs ty)  := "extern " ++ toFormat f ++ Format.joinSep xs " " ++ toFormat " : " ++ toFormat ty
+
+instance declHasToFormat : HasToFormat Decl := ⟨formatDecl⟩
 
 end IR
 end Lean

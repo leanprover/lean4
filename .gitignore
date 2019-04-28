@@ -13,6 +13,7 @@ GTAGS
 .lean_options
 .vs
 /src/stage1
+/src/config.h
 compile_commands.json
 *.idea
 tasks.json

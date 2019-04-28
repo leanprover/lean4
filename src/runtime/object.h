@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #if !defined(__APPLE__)
 #include <malloc.h>
 #endif
+#include "config.h"
 #include "runtime/compiler_hints.h"
 #include "runtime/mpz.h"
 #include "runtime/int64.h"

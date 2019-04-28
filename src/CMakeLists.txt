@@ -120,11 +120,11 @@ if ("${FAKE_FREE}" MATCHES "ON")
 endif()
 
 if ("${LAZY_RC}" MATCHES "ON")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_LAZY_RC")
+  set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
 endif()
 
 if ("${SMALL_ALLOCATOR}" MATCHES "ON")
-  set(LEAN_EXTRA_CXX_FLAGS "${LEAN_EXTRA_CXX_FLAGS} -D LEAN_SMALL_ALLOCATOR")
+  set(LEAN_SMALL_ALLOCATOR "#define LEAN_SMALL_ALLOCATOR")
 endif()
 
 if ("${RUNTIME_STATS}" MATCHES "ON")
@@ -417,6 +417,10 @@ endif ()
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
+# Remark: we did not put `config.h` in `${LEAN_BINARY_DIR}` because `leanc` depends on this file.
+# Note that, `leanc` already had problems with multiple configurations before we added `config.h`.
+# For example, it uses binary files located in the `bin` directory.
+configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_SOURCE_DIR}/config.h")
 configure_file("${LEAN_SOURCE_DIR}/../library/Makefile.in" "${LEAN_SOURCE_DIR}/../library/Makefile")
 
 include_directories("${LEAN_BINARY_DIR}")

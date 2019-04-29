@@ -665,11 +665,12 @@ obj_res fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, o
 
 // =======================================
 // Array of objects
-
 inline obj_res alloc_array(size_t size, size_t capacity) {
     LEAN_RUNTIME_STAT_CODE(g_num_array++);
     return new (alloc_heap_object(array_byte_size(capacity))) array_object(size, capacity); // NOLINT
 }
+/* Return empty array. Result is a persistent object, no RC operations are needed. */
+object * array_mk_empty();
 inline size_t array_size(b_obj_arg o) { return to_array(o)->m_size; }
 inline void array_set_size(u_obj_arg o, size_t sz) {
     lean_assert(is_array(o));

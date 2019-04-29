@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "runtime/serializer.h"
 #include "runtime/sstream.h"
 #include "util/object_ref.h"
+#include "util/array_ref.h"
 #include "util/init_module.h"
 #include "util/nat.h"
 using namespace lean;
@@ -852,6 +853,15 @@ void tst20() {
     lean_assert(nat(LEAN_MAX_SMALL_NAT) * nat(LEAN_MAX_SMALL_NAT) > nat(LEAN_MAX_SMALL_NAT));
 }
 
+void tst21() {
+    array_ref<nat> a({nat(1), nat(2), nat(3)});
+    lean_assert(a.size() == 3);
+    lean_assert(a[0] == nat(1));
+    for (nat const & v : a) {
+        std::cout << v << "\n";
+    }
+}
+
 int main() {
     save_stack_info();
     initialize_util_module();
@@ -877,6 +887,7 @@ int main() {
     tst18(400, 30);
     tst19();
     tst20();
+    tst21();
     finalize_util_module();
     return has_violations() ? 1 : 0;
 }

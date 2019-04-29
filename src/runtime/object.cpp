@@ -43,17 +43,6 @@ external_object_class * register_external_object_class(external_object_finalize_
     return cls;
 }
 
-void initialize_object() {
-    g_ext_classes       = new std::vector<external_object_class*>();
-    g_ext_classes_mutex = new mutex();
-}
-
-void finalize_object() {
-    for (external_object_class * cls : *g_ext_classes) delete cls;
-    delete g_ext_classes;
-    delete g_ext_classes_mutex;
-}
-
 // =======================================
 // Object
 
@@ -353,6 +342,14 @@ static object * sarray_ensure_capacity(object * o, size_t extra) {
     }
 }
 #endif
+
+// =======================================
+// Arrays
+static object * g_array_empty = nullptr;
+
+object * array_mk_empty() {
+    return g_array_empty;
+}
 
 // =======================================
 // Persistent arrays
@@ -1986,6 +1983,22 @@ struct runtime_stats {
 };
 runtime_stats g_runtime_stats;
 #endif
+
+// =======================================
+// Module initialization
+
+void initialize_object() {
+    g_ext_classes       = new std::vector<external_object_class*>();
+    g_ext_classes_mutex = new mutex();
+    g_array_empty       = alloc_array(0, 0);
+    mark_persistent(g_array_empty);
+}
+
+void finalize_object() {
+    for (external_object_class * cls : *g_ext_classes) delete cls;
+    delete g_ext_classes;
+    delete g_ext_classes_mutex;
+}
 }
 
 extern "C" void lean_dbg_print_str(lean::object* o) { lean::dbg_print_str(o); }

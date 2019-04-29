@@ -43,7 +43,7 @@ let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
 data.update i (AssocList.cons a b (data.val.idx i h)) h
 
 @[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
-data.val.foldl (λ b d, b.foldl f d) d
+data.val.foldl (λ d b, b.foldl f d) d
 
 def find [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
 match m with

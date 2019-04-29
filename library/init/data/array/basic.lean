@@ -127,11 +127,11 @@ local attribute [instance] monadInhabited'
 @[inline] def miterate (a : Array α) (b : β) (f : Π i : Fin a.size, α → β → m β) : m β :=
 miterateAux a f 0 b
 
-@[inline] def mfoldl (a : Array α) (b : β) (f : α → β → m β) : m β :=
-miterate a b (λ _, f)
+@[inline] def mfoldl (a : Array α) (b : β) (f : β → α → m β) : m β :=
+miterate a b (λ _ b a, f a b)
 
-@[inline] def mfoldlFrom (a : Array α) (b : β) (f : α → β → m β) (ini : Nat := 0) : m β :=
-miterateAux a (λ _, f) ini b
+@[inline] def mfoldlFrom (a : Array α) (b : β) (f : β → α → m β) (ini : Nat := 0) : m β :=
+miterateAux a (λ _ b a, f a b) ini b
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def miterate₂Aux (a₁ a₂ : Array α) (f : Π i : Fin a₁.size, α → α → β → m β) : Nat → β → m β
@@ -147,8 +147,8 @@ miterateAux a (λ _, f) ini b
 @[inline] def miterate₂ (a₁ a₂ : Array α) (b : β) (f : Π i : Fin a₁.size, α → α → β → m β) : m β :=
 miterate₂Aux a₁ a₂ f 0 b
 
-@[inline] def mfoldl₂ (a₁ a₂ : Array α) (b : β) (f : α → α → β → m β) : m β :=
-miterate₂ a₁ a₂ b (λ _, f)
+@[inline] def mfoldl₂ (a₁ a₂ : Array α) (b : β) (f : β → α → α → m β) : m β :=
+miterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 
 local attribute [instance] monadInhabited
 
@@ -171,17 +171,17 @@ end
 @[inline] def iterate (a : Array α) (b : β) (f : Π i : Fin a.size, α → β → β) : β :=
 Id.run $ miterateAux a f 0 b
 
-@[inline] def foldl (a : Array α) (f : α → β → β) (b : β) : β :=
-iterate a b (λ _, f)
+@[inline] def foldl (a : Array α) (f : β → α → β) (b : β) : β :=
+iterate a b (λ _ a b, f b a)
 
-@[inline] def foldlFrom (a : Array α) (f : α → β → β) (b : β) (ini : Nat := 0) : β :=
+@[inline] def foldlFrom (a : Array α) (f : β → α → β) (b : β) (ini : Nat := 0) : β :=
 Id.run $ mfoldlFrom a b f ini
 
 @[inline] def iterate₂ (a₁ a₂ : Array α) (b : β) (f : Π i : Fin a₁.size, α → α → β → β) : β :=
 Id.run $ miterate₂Aux a₁ a₂ f 0 b
 
-@[inline] def foldl₂ (a₁ a₂ : Array α) (f : α → α → β → β) (b : β) : β :=
-iterate₂ a₁ a₂ b (λ _, f)
+@[inline] def foldl₂ (a₁ a₂ : Array α) (f : β → α → α → β) (b : β) : β :=
+iterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindAux a f 0
@@ -226,7 +226,7 @@ section
 variables {m : Type u → Type u} [Monad m]
 
 @[inline] def mmap {β : Type u} (f : α → m β) (as : Array α) : m (Array β) :=
-as.mfoldl (mkEmpty as.size) (λ a bs, do b ← f a, pure (bs.push b))
+as.mfoldl (mkEmpty as.size) (λ bs a, do b ← f a, pure (bs.push b))
 end
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
@@ -263,7 +263,7 @@ end
 Id.run $ hmmap f a
 
 @[inline] def map (f : α → β) (as : Array α) : Array β :=
-as.foldl (λ a bs, bs.push (f a)) (mkEmpty as.size)
+as.foldl (λ bs a, bs.push (f a)) (mkEmpty as.size)
 
 -- TODO(Leo): justify termination using wf-rec
 partial def extractAux (a : Array α) : Nat → Π (e : Nat), e ≤ a.size → Array α → Array α
@@ -279,7 +279,7 @@ if h : e ≤ a.size then extractAux a b e h r
 else r
 
 @[inline] protected def append (a : Array α) (b : Array α) : Array α :=
-b.foldl (λ v a, a.push v) a
+b.foldl (λ a v, a.push v) a
 
 instance : HasAppend (Array α) := ⟨Array.append⟩
 

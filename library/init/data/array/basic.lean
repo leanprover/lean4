@@ -133,6 +133,23 @@ miterate a b (λ _, f)
 @[inline] def mfoldlFrom (a : Array α) (b : β) (f : α → β → m β) (ini : Nat := 0) : m β :=
 miterateAux a (λ _, f) ini b
 
+-- TODO(Leo): justify termination using wf-rec
+@[specialize] partial def miterate₂Aux (a₁ a₂ : Array α) (f : Π i : Fin a₁.size, α → α → β → m β) : Nat → β → m β
+| i b :=
+  if h₁ : i < a₁.size then
+     let idx₁ : Fin a₁.size := ⟨i, h₁⟩ in
+     if h₂ : i < a₂.size then
+       let idx₂ : Fin a₂.size := ⟨i, h₂⟩ in
+       f idx₁ (a₁.index idx₁) (a₂.index idx₂) b >>= miterate₂Aux (i+1)
+     else pure b
+  else pure b
+
+@[inline] def miterate₂ (a₁ a₂ : Array α) (b : β) (f : Π i : Fin a₁.size, α → α → β → m β) : m β :=
+miterate₂Aux a₁ a₂ f 0 b
+
+@[inline] def mfoldl₂ (a₁ a₂ : Array α) (b : β) (f : α → α → β → m β) : m β :=
+miterate₂ a₁ a₂ b (λ _, f)
+
 local attribute [instance] monadInhabited
 
 -- TODO(Leo): justify termination using wf-rec
@@ -159,6 +176,12 @@ iterate a b (λ _, f)
 
 @[inline] def foldlFrom (a : Array α) (f : α → β → β) (b : β) (ini : Nat := 0) : β :=
 Id.run $ mfoldlFrom a b f ini
+
+@[inline] def iterate₂ (a₁ a₂ : Array α) (b : β) (f : Π i : Fin a₁.size, α → α → β → β) : β :=
+Id.run $ miterate₂Aux a₁ a₂ f 0 b
+
+@[inline] def foldl₂ (a₁ a₂ : Array α) (f : α → α → β → β) (b : β) : β :=
+iterate₂ a₁ a₂ b (λ _, f)
 
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindAux a f 0

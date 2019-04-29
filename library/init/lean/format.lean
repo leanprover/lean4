@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.lean.options
+import init.lean.options init.data.array
 universes u v
 
 namespace Lean
@@ -146,6 +146,9 @@ instance listHasFormat {α : Type u} [HasFormat α] : HasFormat (List α) :=
 
 instance prodHasFormat {α : Type u} {β : Type v} [HasFormat α] [HasFormat β] : HasFormat (Prod α β) :=
 ⟨λ ⟨a, b⟩, paren $ format a ++ "," ++ line ++ format b⟩
+
+def Format.joinArraySep {α : Type u} [HasFormat α] (a : Array α) (sep : Format) : Format :=
+a.iterate nil (λ i a r, if i.val > 0 then r ++ sep ++ format a else r ++ format a)
 
 instance natHasFormat : HasFormat Nat       := ⟨λ n, toString n⟩
 instance uint16HasFormat : HasFormat UInt16 := ⟨λ n, toString n⟩

@@ -3,7 +3,7 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import init.lean.name init.lean.kvmap init.lean.format
+import init.lean.name init.lean.kvmap init.lean.format init.data.array
 prelude
 
 /-
@@ -105,10 +105,10 @@ def CtorInfo.beq : CtorInfo → CtorInfo → Bool
 instance CtorInfo.HasBeq : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
 
 inductive Expr
-| ctor (i : CtorInfo) (ys : List Arg)
+| ctor (i : CtorInfo) (ys : Array Arg)
 | reset (x : VarId)
 /- `reuse x in ctorI ys` instruction in the paper. -/
-| reuse (x : VarId) (i : CtorInfo) (ys : List Arg)
+| reuse (x : VarId) (i : CtorInfo) (ys : Array Arg)
 /- Extract the `tobject` value at Position `sizeof(void)*i` from `x`. -/
 | proj (i : Nat) (x : VarId)
 /- Extract the `Usize` value at Position `sizeof(void)*i` from `x`. -/
@@ -116,11 +116,11 @@ inductive Expr
 /- Extract the scalar value at Position `n` (in bytes) from `x`. -/
 | sproj (n : Nat) (x : VarId)
 /- Full application. -/
-| fap (c : FunId) (ys : List Arg)
+| fap (c : FunId) (ys : Array Arg)
 /- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
-| pap (c : FunId) (ys : List Arg)
+| pap (c : FunId) (ys : Array Arg)
 /- Application. `x` must be a `pap` value. -/
-| ap  (x : VarId) (ys : List Arg)
+| ap  (x : VarId) (ys : Array Arg)
 /- Given `x : ty` where `ty` is a scalar type, this operation returns a value of Type `tobject`.
    For small scalar values, the Result is a tagged pointer, and no memory allocation is performed. -/
 | box (ty : IRType) (x : VarId)
@@ -143,7 +143,7 @@ inductive FnBody
 /- `let x : ty := e; b` -/
 | vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
 /- Join point Declaration `let j (xs) : ty := e; b` -/
-| jdecl (j : JoinPointId) (xs : List Param) (ty : IRType) (v : FnBody) (b : FnBody)
+| jdecl (j : JoinPointId) (xs : Array Param) (ty : IRType) (v : FnBody) (b : FnBody)
 /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    This operation is not part of λPure is only used during optimization. -/
 | set (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
@@ -158,10 +158,10 @@ inductive FnBody
 /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | dec (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
 | mdata (d : MData) (b : FnBody)
-| case (tid : Name) (x : VarId) (cs : List (AltCore FnBody))
+| case (tid : Name) (x : VarId) (cs : Array (AltCore FnBody))
 | ret (x : VarId)
 /- Jump to join point `j` -/
-| jmp (j : JoinPointId) (ys : List Arg)
+| jmp (j : JoinPointId) (ys : Array Arg)
 | unreachable
 
 abbrev Alt := AltCore FnBody
@@ -169,8 +169,8 @@ abbrev Alt := AltCore FnBody
 @[pattern] abbrev Alt.default := @AltCore.default FnBody
 
 inductive Decl
-| fdecl  (f : FunId) (xs : List Param) (ty : IRType) (b : FnBody)
-| extern (f : FunId) (xs : List Param) (ty : IRType)
+| fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
+| extern (f : FunId) (xs : Array Param) (ty : IRType)
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
 def Expr.isPure : Expr → Bool
@@ -221,12 +221,10 @@ def Arg.alphaEqv (ρ : VarRenaming) : Arg → Arg → Bool
 
 instance Arg.hasAeqv : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
-def args.alphaEqv (ρ : VarRenaming) : List Arg → List Arg → Bool
-| []      []      := true
-| (a::as) (b::bs) := a =[ρ]= b && args.alphaEqv as bs
-| _       _       := false
+def args.alphaEqv (ρ : VarRenaming) (args₁ args₂ : Array Arg) : Bool :=
+Array.isEqv args₁ args₂ (λ a b, a =[ρ]= b)
 
-instance args.hasAeqv : HasAlphaEqv (List Arg) := ⟨args.alphaEqv⟩
+instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def Expr.alphaEqv (ρ : VarRenaming) : Expr → Expr → Bool
 | (Expr.ctor i₁ ys₁)      (Expr.ctor i₂ ys₂)      := i₁ == i₂ && ys₁ =[ρ]= ys₂
@@ -254,10 +252,9 @@ def addParamRename (ρ : VarRenaming) (p₁ p₂ : Param) : Option VarRenaming :
 if p₁.ty == p₂.ty && p₁.borrowed = p₂.borrowed then some (addVarRename ρ p₁.x p₂.x)
 else none
 
-def addParamsRename : VarRenaming → List Param → List Param → Option VarRenaming
-| ρ (p₁::ps₁) (p₂::ps₂) := do ρ ← addParamRename ρ p₁ p₂, addParamsRename ρ ps₁ ps₂
-| ρ []        []        := some ρ
-| _ _         _         := none
+def addParamsRename (ρ : VarRenaming) (ps₁ ps₂ : Array Param) : Option VarRenaming :=
+if ps₁.size != ps₂.size then none
+else Array.foldl₂ ps₁ ps₂ (λ ρ p₁ p₂, do ρ ← ρ, addParamRename ρ p₁ p₂) (some ρ)
 
 partial def FnBody.alphaEqv : VarRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁ x₂) b₁ b₂
@@ -273,7 +270,7 @@ partial def FnBody.alphaEqv : VarRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.inc x₁ n₁ c₁ b₁)        (FnBody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.dec x₁ n₁ c₁ b₁)        (FnBody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.mdata m₁ b₁)            (FnBody.mdata m₂ b₂)              := m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && x₁ =[ρ]= x₂ && List.isEqv alts₁ alts₂ (λ alt₁ alt₂,
+| ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && x₁ =[ρ]= x₂ && Array.isEqv alts₁ alts₂ (λ alt₁ alt₂,
    match alt₁, alt₂ with
    | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ := i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
    | Alt.default b₁, Alt.default b₂ := FnBody.alphaEqv ρ b₁ b₂
@@ -302,10 +299,10 @@ abbrev Collector := NameSet → NameSet → NameSet
 @[inline] private def withBv (x : VarId) : Collector → Collector :=
 λ k bv fv, k (bv.insert x) fv
 
-def insertParams (s : VarSet) (ys : List Param) : VarSet :=
+def insertParams (s : VarSet) (ys : Array Param) : VarSet :=
 ys.foldl (λ s p, s.insert p.x) s
 
-@[inline] private def withParams (ys : List Param) : Collector → Collector :=
+@[inline] private def withParams (ys : Array Param) : Collector → Collector :=
 λ k bv fv, k (insertParams bv ys) fv
 
 @[inline] private def seq : Collector → Collector → Collector :=
@@ -318,9 +315,11 @@ private def collectArg : Arg → Collector
 | (Arg.var x) := collectVar x
 | irrelevant  := skip
 
-private def collectArgs : List Arg → Collector
-| []      := skip
-| (a::as) := collectArg a; collectArgs as
+@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
+λ bv fv, as.foldl (λ fv a, f a bv fv) fv
+
+private def collectArgs (as : Array Arg) : Collector :=
+collectArray as collectArg
 
 private def collectExpr : Expr → Collector
 | (Expr.ctor i ys)       := collectArgs ys
@@ -338,10 +337,10 @@ private def collectExpr : Expr → Collector
 | (Expr.isShared x)      := collectVar x
 | (Expr.isTaggedPtr x)   := collectVar x
 
-private def collectAlts (f : FnBody → Collector) : List Alt → Collector
-| []                      := skip
-| (Alt.ctor _ b :: alts)  := f b; collectAlts alts
-| (Alt.default b :: alts) := f b; collectAlts alts
+private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
+collectArray alts $ λ alt, match alt with
+  | (Alt.ctor _ b)  := f b
+  | (Alt.default b) := f b
 
 private partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v; withBv x (collectFnBody b)
@@ -369,10 +368,10 @@ private def formatArg : Arg → Format
 
 instance argHasFormat : HasFormat Arg := ⟨formatArg⟩
 
-private def formatArgs (as : List Arg) : Format :=
-Format.joinSep as " "
+private def formatArgs (as : Array Arg) : Format :=
+Format.joinArraySep as " "
 
-instance argsHasFormat : HasFormat (List Arg) := ⟨formatArgs⟩
+instance argsHasFormat : HasFormat (Array Arg) := ⟨formatArgs⟩
 
 private def formatLitVal : LitVal → Format
 | (LitVal.num v) := format v
@@ -431,7 +430,7 @@ def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
 
 partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | (FnBody.vdecl x ty e b)    := "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.jdecl j xs ty v b) := "jp " ++ format j ++ " " ++ Format.joinSep xs " " ++ " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line
+| (FnBody.jdecl j xs ty v b) := "jp " ++ format j ++ " " ++ Format.joinArraySep xs " " ++ " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line
 | (FnBody.set x i y b)       := "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.uset x i y b)      := "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.sset x i o y ty b) := "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
@@ -447,8 +446,8 @@ partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 instance fnBodyHasFormat : HasFormat FnBody := ⟨formatFnBody⟩
 
 def formatDecl (indent : Nat := 2) : Decl → Format
-| (Decl.fdecl f xs ty b) := "def " ++ format f ++ Format.joinSep xs " " ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
-| (Decl.extern f xs ty)  := "extern " ++ format f ++ Format.joinSep xs " " ++ format " : " ++ format ty
+| (Decl.fdecl f xs ty b) := "def " ++ format f ++ Format.joinArraySep xs " " ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
+| (Decl.extern f xs ty)  := "extern " ++ format f ++ Format.joinArraySep xs " " ++ format " : " ++ format ty
 
 instance declHasFormat : HasFormat Decl := ⟨formatDecl⟩
 

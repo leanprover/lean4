@@ -123,5 +123,6 @@ obj* initialize_init_control_monad(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_applicative(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

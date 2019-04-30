@@ -30,6 +30,7 @@ obj* initialize_init_platform(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
+if (io_result_is_error(w)) return w;
  l_System_platform_nbits = _init_l_System_platform_nbits();
 lean::mark_persistent(l_System_platform_nbits);
 return w;

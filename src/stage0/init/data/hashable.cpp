@@ -93,6 +93,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_string_default(w);
+if (io_result_is_error(w)) return w;
  l_String_Hashable = _init_l_String_Hashable();
 lean::mark_persistent(l_String_Hashable);
  l_Nat_Hashable = _init_l_Nat_Hashable();

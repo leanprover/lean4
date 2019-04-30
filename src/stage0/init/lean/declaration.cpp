@@ -230,5 +230,6 @@ obj* initialize_init_lean_declaration(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

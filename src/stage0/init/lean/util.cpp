@@ -78,5 +78,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_position(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_io(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

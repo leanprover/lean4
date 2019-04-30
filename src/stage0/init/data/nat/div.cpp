@@ -173,6 +173,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_wf(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_basic(w);
+if (io_result_is_error(w)) return w;
  l_Nat_HasDiv = _init_l_Nat_HasDiv();
 lean::mark_persistent(l_Nat_HasDiv);
  l_Nat_HasMod = _init_l_Nat_HasMod();

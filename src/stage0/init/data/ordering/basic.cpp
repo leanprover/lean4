@@ -404,6 +404,7 @@ obj* initialize_init_data_ordering_basic(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
+if (io_result_is_error(w)) return w;
  l_Ordering_HasRepr___closed__1 = _init_l_Ordering_HasRepr___closed__1();
 lean::mark_persistent(l_Ordering_HasRepr___closed__1);
  l_Ordering_HasRepr___closed__2 = _init_l_Ordering_HasRepr___closed__2();

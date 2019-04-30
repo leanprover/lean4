@@ -60,7 +60,6 @@ extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_getOptionDefaulValue(obj*, obj*);
 obj* l_Lean_registerOption___closed__2;
 obj* l_Lean_setOptionFromString(obj*, obj*, obj*);
-extern obj* l_IO_RefPointed;
 extern obj* l_Bool_HasRepr___closed__1;
 obj* l_String_toInt(obj*);
 obj* _init_l_Lean_Options_empty() {
@@ -923,6 +922,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_combinators(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_tostring(w);
+if (io_result_is_error(w)) return w;
  l_Lean_Options_empty = _init_l_Lean_Options_empty();
 lean::mark_persistent(l_Lean_Options_empty);
  l_Lean_Options_HasEmptyc = _init_l_Lean_Options_HasEmptyc();

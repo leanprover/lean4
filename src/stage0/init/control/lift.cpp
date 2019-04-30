@@ -237,5 +237,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_monad(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

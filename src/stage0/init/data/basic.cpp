@@ -48,5 +48,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_tostring(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

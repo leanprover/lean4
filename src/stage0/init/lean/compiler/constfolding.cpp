@@ -25,29 +25,32 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_Compiler_foldNatDiv(uint8);
 obj* l_Lean_Compiler_foldUIntMod___lambda__1___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Compiler_getBoolLit___main___boxed(obj*);
 uint8 l_Lean_Compiler_isOfNat(obj*);
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main(obj*);
 obj* l_Lean_Compiler_foldUIntMod(uint8, obj*, obj*);
 obj* l_Lean_Compiler_foldNatMul___boxed(obj*);
 obj* l_Lean_Compiler_foldNatDiv___boxed(obj*);
 obj* l_Lean_Compiler_getInfoFromFn___main(obj*, obj*);
 obj* l_Nat_div___boxed(obj*, obj*);
 obj* l_Lean_Compiler_getNumLit___main(obj*);
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(obj*, obj*);
 obj* l_Lean_Compiler_getInfoFromFn___main___boxed(obj*, obj*);
 obj* l_Lean_Compiler_getInfoFromVal(obj*);
+obj* l_Lean_Compiler_foldStrictOr(uint8);
 obj* l_Lean_Compiler_foldUIntSub___lambda__1(obj*, uint8, obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
 obj* l_Lean_Compiler_foldNatDecLe___closed__2;
 obj* l_Lean_Compiler_foldBinUInt(obj*, uint8, obj*, obj*);
+obj* l_Lean_Compiler_getBoolLit___main___closed__4;
+obj* l_Lean_Compiler_foldStrictOr___boxed(obj*);
+obj* l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Compiler_getInfoFromVal___main(obj*);
 obj* l_Lean_Compiler_foldNatMod___boxed(obj*);
 obj* l_Lean_Compiler_getInfoFromFn(obj*, obj*);
 obj* l_Lean_Compiler_mkNatLt(obj*, obj*);
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___boxed(obj*);
 obj* l_Lean_Compiler_foldNatMod___rarg(obj*, obj*);
+obj* l_Lean_Compiler_getBoolLit___main___closed__2;
 obj* l_Lean_Compiler_foldNatSucc(uint8);
-extern obj* l_Lean_mkDecIsFalse___closed__1;
+obj* l_Lean_Compiler_boolFoldFns;
 extern obj* l_System_platform_nbits;
 obj* l_Lean_Compiler_foldUIntAdd___boxed(obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Compiler_uintBinFoldFns___spec__2(obj*, obj*);
@@ -55,16 +58,21 @@ obj* l_Nat_decEq___boxed(obj*, obj*);
 obj* l_Lean_Compiler_unFoldFns;
 obj* l_Lean_Compiler_foldNatDecEq___closed__2;
 obj* l_Lean_Compiler_foldUIntMod___lambda__1(obj*, uint8, obj*, obj*);
+obj* l_Lean_Compiler_foldStrictAnd(uint8);
+obj* l_Lean_Compiler_foldStrictOr___rarg(obj*, obj*);
 obj* l_List_map___main___at_Lean_Compiler_uintBinFoldFns___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Compiler_findUnFoldFn___boxed(obj*);
+obj* l_Lean_Compiler_mkLcProof(obj*);
 obj* l_Nat_repr(obj*);
 obj* l_Lean_Compiler_mkNatEq___closed__1;
+obj* l_Lean_Compiler_getBoolLit___main___closed__1;
 obj* l_Lean_Compiler_findBinFoldFn___boxed(obj*);
 obj* l_Lean_Compiler_foldUIntDiv___lambda__1(obj*, uint8, obj*, obj*);
 obj* l_Lean_Compiler_foldBinOp___boxed(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 extern obj* l_Lean_Level_one;
 obj* l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1___boxed(obj*, obj*, obj*);
+obj* l_Lean_Compiler_getBoolLit___main(obj*);
 obj* l_Lean_Compiler_foldNatDecEq___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_isOfNat___boxed(obj*);
 obj* l_Lean_Compiler_foldCharOfNat___closed__1;
@@ -80,13 +88,14 @@ obj* l_Lean_Compiler_mkNatLe___closed__1;
 obj* l_Lean_Compiler_foldUIntMul(uint8, obj*, obj*);
 obj* l_Lean_Compiler_mkNatLt___closed__1;
 obj* l_Lean_Compiler_foldNatMod___rarg___closed__1;
+obj* l_Lean_Compiler_foldStrictAnd___rarg(obj*, obj*);
 obj* l_Lean_Compiler_foldNatAdd(uint8);
 obj* l_Nat_mul___boxed(obj*, obj*);
+obj* l_Lean_Compiler_getBoolLit(obj*);
 obj* l_Lean_Compiler_mkUInt32Lit___boxed(obj*);
 obj* l_Lean_Compiler_foldUIntAdd___lambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Compiler_foldNatMul___rarg___closed__1;
 obj* l_Lean_Compiler_foldUIntMul___lambda__1___boxed(obj*, obj*, obj*, obj*);
-extern obj* l_Lean_mkDecIsTrue___closed__1;
 namespace lean {
 obj* nat_mod(obj*, obj*);
 }
@@ -94,6 +103,7 @@ obj* l_Lean_Compiler_mkUIntLit___boxed(obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Compiler_uintBinFoldFns___spec__2___boxed(obj*, obj*);
 obj* l_Lean_Compiler_mkUIntTypeName(obj*);
 obj* l_Lean_Compiler_foldNatDiv___rarg___closed__1;
+obj* l_Lean_mkDecIsFalse(obj*, obj*);
 obj* l_Lean_Compiler_foldNatSucc___boxed(obj*);
 obj* l_Lean_Compiler_foldUIntMod___closed__1;
 uint8 l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1(obj*, uint8, obj*);
@@ -106,6 +116,7 @@ obj* l_Lean_Compiler_foldUnOp___boxed(obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_Lean_Compiler_getBoolLit___boxed(obj*);
 obj* l_Lean_Compiler_foldUIntMul___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_foldUIntDiv___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_foldNatDecLe___closed__1;
@@ -113,6 +124,7 @@ obj* l_Nat_add___boxed(obj*, obj*);
 obj* l_Lean_Compiler_toDecidableExpr(uint8, obj*, uint8);
 obj* l_Lean_Compiler_foldNatDecLe___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_foldUIntMul___closed__1;
+obj* l_Lean_Compiler_getBoolLit___main___closed__3;
 obj* l_Lean_Compiler_foldNatDecEq___closed__1;
 obj* l_Lean_Compiler_foldCharOfNat___boxed(obj*, obj*);
 obj* l_Lean_Compiler_numScalarTypes;
@@ -122,11 +134,12 @@ obj* l_Lean_Compiler_findBinFoldFn(obj*);
 obj* l_Lean_Compiler_foldUIntAdd(uint8, obj*, obj*);
 obj* l_Lean_Compiler_foldNatSucc___rarg(obj*);
 obj* l_Lean_Compiler_getInfoFromFn___boxed(obj*, obj*);
+obj* l_List_lookup___main___at_Lean_Compiler_findUnFoldFn___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Compiler_mkUIntLit(obj*, obj*);
 namespace lean {
 obj* fold_bin_op_core(uint8, obj*, obj*, obj*);
 }
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___rarg(obj*, obj*);
+obj* l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1(obj*, obj*);
 obj* l_Nat_pow___main(obj*, obj*);
 obj* l_Lean_Compiler_toDecidableExpr___closed__2;
 obj* l_Lean_Compiler_foldNatDiv___rarg(obj*, obj*);
@@ -144,8 +157,7 @@ obj* l_Lean_Compiler_mkUIntTypeName___closed__1;
 obj* l_Lean_Compiler_uintBinFoldFns;
 obj* l_Lean_Compiler_foldNatMul___rarg(obj*, obj*);
 obj* l_Lean_Compiler_foldUIntSub___boxed(obj*, obj*, obj*);
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___rarg___boxed(obj*, obj*);
-extern obj* l_Lean_Compiler_mkLcProof___closed__1;
+obj* l_Lean_mkDecIsTrue(obj*, obj*);
 obj* l_Lean_Compiler_foldUIntAdd___lambda__1(obj*, uint8, obj*, obj*);
 obj* l_Lean_Compiler_foldUIntMul___lambda__1(obj*, uint8, obj*, obj*);
 obj* l_Lean_Compiler_foldUIntDiv(uint8, obj*, obj*);
@@ -154,7 +166,7 @@ namespace lean {
 uint32 uint32_of_nat(obj*);
 }
 obj* l_Lean_Compiler_foldUIntDiv___closed__1;
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main___boxed(obj*);
+obj* l_Lean_Compiler_foldStrictAnd___boxed(obj*);
 obj* l_Lean_Compiler_foldNatDecLt(uint8, obj*, obj*);
 namespace lean {
 obj* nat_div(obj*, obj*);
@@ -162,7 +174,7 @@ obj* nat_div(obj*, obj*);
 obj* l_Lean_Compiler_foldNatAdd___rarg___closed__1;
 obj* l_Lean_Compiler_getInfoFromVal___boxed(obj*);
 obj* l_Lean_Compiler_getInfoFromVal___main___boxed(obj*);
-obj* l___private_init_lean_compiler_constfolding_1__alistFind(obj*);
+obj* l_List_lookup___main___at_Lean_Compiler_findUnFoldFn___spec__1(obj*, obj*);
 namespace lean {
 obj* get_num_lit_core(obj*);
 }
@@ -176,7 +188,6 @@ namespace lean {
 obj* nat_mul(obj*, obj*);
 }
 obj* l_Nat_mod___boxed(obj*, obj*);
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg___boxed(obj*, obj*);
 obj* l_Lean_Compiler_foldUIntSub(uint8, obj*, obj*);
 obj* l_Lean_Compiler_foldNatBinOp(obj*, obj*, obj*);
 obj* l_Lean_Compiler_foldUIntMod___boxed(obj*, obj*, obj*);
@@ -296,15 +307,15 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
+obj* x_3; obj* x_4; uint8 x_5; obj* x_6; uint8 x_7; 
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 1);
-x_5 = lean::cnstr_get(x_3, 2);
-x_6 = lean_name_dec_eq(x_5, x_0);
-if (x_6 == 0)
+x_5 = l_List_foldr___main___at_Lean_Compiler_isOfNat___spec__1(x_0, x_1, x_4);
+x_6 = lean::cnstr_get(x_3, 2);
+x_7 = lean_name_dec_eq(x_6, x_0);
+if (x_7 == 0)
 {
-x_2 = x_4;
-goto _start;
+return x_5;
 }
 else
 {
@@ -1010,7 +1021,7 @@ return x_2;
 }
 else
 {
-obj* x_3; obj* x_5; obj* x_7; obj* x_8; obj* x_10; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+obj* x_3; obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
 x_3 = lean::cnstr_get(x_1, 0);
 x_5 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
@@ -1021,33 +1032,33 @@ if (lean::is_exclusive(x_1)) {
  lean::dec(x_1);
  x_7 = lean::box(0);
 }
-x_8 = lean::cnstr_get(x_3, 0);
-x_10 = lean::cnstr_get(x_3, 1);
+x_8 = l_List_map___main___at_Lean_Compiler_uintBinFoldFns___spec__1(x_0, x_5);
+x_9 = lean::cnstr_get(x_3, 0);
+x_11 = lean::cnstr_get(x_3, 1);
 if (lean::is_exclusive(x_3)) {
- x_12 = x_3;
+ x_13 = x_3;
 } else {
- lean::inc(x_8);
- lean::inc(x_10);
+ lean::inc(x_9);
+ lean::inc(x_11);
  lean::dec(x_3);
- x_12 = lean::box(0);
+ x_13 = lean::box(0);
 }
-x_13 = l_List_map___main___at_Lean_Compiler_uintBinFoldFns___spec__1(x_0, x_5);
 x_14 = lean::cnstr_get(x_0, 1);
-x_15 = l_Lean_Name_append___main(x_14, x_8);
-if (lean::is_scalar(x_12)) {
+x_15 = l_Lean_Name_append___main(x_14, x_9);
+if (lean::is_scalar(x_13)) {
  x_16 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_16 = x_12;
+ x_16 = x_13;
 }
 lean::cnstr_set(x_16, 0, x_15);
-lean::cnstr_set(x_16, 1, x_10);
+lean::cnstr_set(x_16, 1, x_11);
 if (lean::is_scalar(x_7)) {
  x_17 = lean::alloc_cnstr(1, 2, 0);
 } else {
  x_17 = x_7;
 }
 lean::cnstr_set(x_17, 0, x_16);
-lean::cnstr_set(x_17, 1, x_13);
+lean::cnstr_set(x_17, 1, x_8);
 return x_17;
 }
 }
@@ -1393,21 +1404,19 @@ return x_3;
 obj* _init_l_Lean_Compiler_toDecidableExpr___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = l_Lean_mkDecIsFalse___closed__1;
-x_1 = l_Lean_Compiler_neutralExpr;
-x_2 = l_Lean_mkBinApp(x_0, x_1, x_1);
-return x_2;
+obj* x_0; obj* x_1; 
+x_0 = l_Lean_Compiler_neutralExpr;
+x_1 = l_Lean_mkDecIsFalse(x_0, x_0);
+return x_1;
 }
 }
 obj* _init_l_Lean_Compiler_toDecidableExpr___closed__2() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = l_Lean_mkDecIsTrue___closed__1;
-x_1 = l_Lean_Compiler_neutralExpr;
-x_2 = l_Lean_mkBinApp(x_0, x_1, x_1);
-return x_2;
+obj* x_0; obj* x_1; 
+x_0 = l_Lean_Compiler_neutralExpr;
+x_1 = l_Lean_mkDecIsTrue(x_0, x_0);
+return x_1;
 }
 }
 obj* l_Lean_Compiler_toDecidableExpr(uint8 x_0, obj* x_1, uint8 x_2) {
@@ -1433,23 +1442,19 @@ else
 {
 if (x_2 == 0)
 {
-obj* x_6; obj* x_8; obj* x_9; obj* x_10; 
-x_6 = l_Lean_Compiler_mkLcProof___closed__1;
+obj* x_7; obj* x_8; 
 lean::inc(x_1);
-x_8 = lean_expr_mk_app(x_6, x_1);
-x_9 = l_Lean_mkDecIsFalse___closed__1;
-x_10 = l_Lean_mkBinApp(x_9, x_1, x_8);
-return x_10;
+x_7 = l_Lean_Compiler_mkLcProof(x_1);
+x_8 = l_Lean_mkDecIsFalse(x_1, x_7);
+return x_8;
 }
 else
 {
-obj* x_11; obj* x_13; obj* x_14; obj* x_15; 
-x_11 = l_Lean_Compiler_mkLcProof___closed__1;
+obj* x_10; obj* x_11; 
 lean::inc(x_1);
-x_13 = lean_expr_mk_app(x_11, x_1);
-x_14 = l_Lean_mkDecIsTrue___closed__1;
-x_15 = l_Lean_mkBinApp(x_14, x_1, x_13);
-return x_15;
+x_10 = l_Lean_Compiler_mkLcProof(x_1);
+x_11 = l_Lean_mkDecIsTrue(x_1, x_10);
+return x_11;
 }
 }
 }
@@ -1719,14 +1724,385 @@ lean::cnstr_set(x_44, 1, x_43);
 return x_44;
 }
 }
+obj* _init_l_Lean_Compiler_getBoolLit___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_0 = lean::box(0);
+x_1 = lean::mk_string("Bool");
+x_2 = lean_name_mk_string(x_0, x_1);
+x_3 = lean::mk_string("true");
+x_4 = lean_name_mk_string(x_2, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_getBoolLit___main___closed__2() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_0 = lean::box(0);
+x_1 = lean::mk_string("Bool");
+x_2 = lean_name_mk_string(x_0, x_1);
+x_3 = lean::mk_string("false");
+x_4 = lean_name_mk_string(x_2, x_3);
+return x_4;
+}
+}
+obj* _init_l_Lean_Compiler_getBoolLit___main___closed__3() {
+_start:
+{
+uint8 x_0; obj* x_1; obj* x_2; 
+x_0 = 0;
+x_1 = lean::box(x_0);
+x_2 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_getBoolLit___main___closed__4() {
+_start:
+{
+uint8 x_0; obj* x_1; obj* x_2; 
+x_0 = 1;
+x_1 = lean::box(x_0);
+x_2 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* l_Lean_Compiler_getBoolLit___main(obj* x_0) {
+_start:
+{
+switch (lean::obj_tag(x_0)) {
+case 4:
+{
+obj* x_1; obj* x_2; uint8 x_3; 
+x_1 = lean::cnstr_get(x_0, 0);
+x_2 = l_Lean_Compiler_getBoolLit___main___closed__1;
+x_3 = lean_name_dec_eq(x_1, x_2);
+if (x_3 == 0)
+{
+obj* x_4; uint8 x_5; 
+x_4 = l_Lean_Compiler_getBoolLit___main___closed__2;
+x_5 = lean_name_dec_eq(x_1, x_4);
+if (x_5 == 0)
+{
+obj* x_6; 
+x_6 = lean::box(0);
+return x_6;
+}
+else
+{
+obj* x_7; 
+x_7 = l_Lean_Compiler_getBoolLit___main___closed__3;
+return x_7;
+}
+}
+else
+{
+obj* x_8; 
+x_8 = l_Lean_Compiler_getBoolLit___main___closed__4;
+return x_8;
+}
+}
+default:
+{
+obj* x_9; 
+x_9 = lean::box(0);
+return x_9;
+}
+}
+}
+}
+obj* l_Lean_Compiler_getBoolLit___main___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Compiler_getBoolLit___main(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Lean_Compiler_getBoolLit(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Compiler_getBoolLit___main(x_0);
+return x_1;
+}
+}
+obj* l_Lean_Compiler_getBoolLit___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_Compiler_getBoolLit(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Lean_Compiler_foldStrictAnd___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Compiler_getBoolLit___main(x_0);
+if (lean::obj_tag(x_2) == 0)
+{
+obj* x_3; 
+x_3 = l_Lean_Compiler_getBoolLit___main(x_1);
+if (lean::obj_tag(x_3) == 0)
+{
+obj* x_6; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_6 = lean::box(0);
+return x_6;
+}
+else
+{
+obj* x_7; obj* x_9; uint8 x_10; 
+x_7 = lean::cnstr_get(x_3, 0);
+if (lean::is_exclusive(x_3)) {
+ lean::cnstr_set(x_3, 0, lean::box(0));
+ x_9 = x_3;
+} else {
+ lean::inc(x_7);
+ lean::dec(x_3);
+ x_9 = lean::box(0);
+}
+x_10 = lean::unbox(x_7);
+if (x_10 == 0)
+{
+obj* x_12; 
+lean::dec(x_0);
+if (lean::is_scalar(x_9)) {
+ x_12 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_12 = x_9;
+}
+lean::cnstr_set(x_12, 0, x_1);
+return x_12;
+}
+else
+{
+obj* x_14; 
+lean::dec(x_1);
+if (lean::is_scalar(x_9)) {
+ x_14 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_14 = x_9;
+}
+lean::cnstr_set(x_14, 0, x_0);
+return x_14;
+}
+}
+}
+else
+{
+obj* x_15; obj* x_17; uint8 x_18; 
+x_15 = lean::cnstr_get(x_2, 0);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_set(x_2, 0, lean::box(0));
+ x_17 = x_2;
+} else {
+ lean::inc(x_15);
+ lean::dec(x_2);
+ x_17 = lean::box(0);
+}
+x_18 = lean::unbox(x_15);
+if (x_18 == 0)
+{
+obj* x_20; 
+lean::dec(x_1);
+if (lean::is_scalar(x_17)) {
+ x_20 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_20 = x_17;
+}
+lean::cnstr_set(x_20, 0, x_0);
+return x_20;
+}
+else
+{
+obj* x_22; 
+lean::dec(x_0);
+if (lean::is_scalar(x_17)) {
+ x_22 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_22 = x_17;
+}
+lean::cnstr_set(x_22, 0, x_1);
+return x_22;
+}
+}
+}
+}
+obj* l_Lean_Compiler_foldStrictAnd(uint8 x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_foldStrictAnd___rarg), 2, 0);
+return x_1;
+}
+}
+obj* l_Lean_Compiler_foldStrictAnd___boxed(obj* x_0) {
+_start:
+{
+uint8 x_1; obj* x_2; 
+x_1 = lean::unbox(x_0);
+x_2 = l_Lean_Compiler_foldStrictAnd(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Compiler_foldStrictOr___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Compiler_getBoolLit___main(x_0);
+if (lean::obj_tag(x_2) == 0)
+{
+obj* x_3; 
+x_3 = l_Lean_Compiler_getBoolLit___main(x_1);
+if (lean::obj_tag(x_3) == 0)
+{
+obj* x_6; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_6 = lean::box(0);
+return x_6;
+}
+else
+{
+obj* x_7; obj* x_9; uint8 x_10; 
+x_7 = lean::cnstr_get(x_3, 0);
+if (lean::is_exclusive(x_3)) {
+ lean::cnstr_set(x_3, 0, lean::box(0));
+ x_9 = x_3;
+} else {
+ lean::inc(x_7);
+ lean::dec(x_3);
+ x_9 = lean::box(0);
+}
+x_10 = lean::unbox(x_7);
+if (x_10 == 0)
+{
+obj* x_12; 
+lean::dec(x_1);
+if (lean::is_scalar(x_9)) {
+ x_12 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_12 = x_9;
+}
+lean::cnstr_set(x_12, 0, x_0);
+return x_12;
+}
+else
+{
+obj* x_14; 
+lean::dec(x_0);
+if (lean::is_scalar(x_9)) {
+ x_14 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_14 = x_9;
+}
+lean::cnstr_set(x_14, 0, x_1);
+return x_14;
+}
+}
+}
+else
+{
+obj* x_15; obj* x_17; uint8 x_18; 
+x_15 = lean::cnstr_get(x_2, 0);
+if (lean::is_exclusive(x_2)) {
+ lean::cnstr_set(x_2, 0, lean::box(0));
+ x_17 = x_2;
+} else {
+ lean::inc(x_15);
+ lean::dec(x_2);
+ x_17 = lean::box(0);
+}
+x_18 = lean::unbox(x_15);
+if (x_18 == 0)
+{
+obj* x_20; 
+lean::dec(x_0);
+if (lean::is_scalar(x_17)) {
+ x_20 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_20 = x_17;
+}
+lean::cnstr_set(x_20, 0, x_1);
+return x_20;
+}
+else
+{
+obj* x_22; 
+lean::dec(x_1);
+if (lean::is_scalar(x_17)) {
+ x_22 = lean::alloc_cnstr(1, 1, 0);
+} else {
+ x_22 = x_17;
+}
+lean::cnstr_set(x_22, 0, x_0);
+return x_22;
+}
+}
+}
+}
+obj* l_Lean_Compiler_foldStrictOr(uint8 x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_foldStrictOr___rarg), 2, 0);
+return x_1;
+}
+}
+obj* l_Lean_Compiler_foldStrictOr___boxed(obj* x_0) {
+_start:
+{
+uint8 x_1; obj* x_2; 
+x_1 = lean::unbox(x_0);
+x_2 = l_Lean_Compiler_foldStrictOr(x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_boolFoldFns() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+x_0 = lean::box(0);
+x_1 = lean::mk_string("strictOr");
+x_2 = lean_name_mk_string(x_0, x_1);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_foldStrictOr___boxed), 1, 0);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_2);
+lean::cnstr_set(x_4, 1, x_3);
+x_5 = lean::mk_string("strictAnd");
+x_6 = lean_name_mk_string(x_0, x_5);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Compiler_foldStrictAnd___boxed), 1, 0);
+x_8 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_8, 0, x_6);
+lean::cnstr_set(x_8, 1, x_7);
+x_9 = lean::box(0);
+x_10 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_10, 0, x_8);
+lean::cnstr_set(x_10, 1, x_9);
+x_11 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_11, 0, x_4);
+lean::cnstr_set(x_11, 1, x_10);
+return x_11;
+}
+}
 obj* _init_l_Lean_Compiler_binFoldFns() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; 
-x_0 = l_Lean_Compiler_uintBinFoldFns;
-x_1 = l_Lean_Compiler_natFoldFns;
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_0 = l_Lean_Compiler_boolFoldFns;
+x_1 = l_Lean_Compiler_uintBinFoldFns;
 x_2 = l_List_append___rarg(x_0, x_1);
-return x_2;
+x_3 = l_Lean_Compiler_natFoldFns;
+x_4 = l_List_append___rarg(x_2, x_3);
+return x_4;
 }
 }
 obj* l_Lean_Compiler_foldNatSucc___rarg(obj* x_0) {
@@ -1787,13 +2163,12 @@ return x_2;
 obj* _init_l_Lean_Compiler_foldCharOfNat___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; obj* x_3; 
-x_0 = l_Lean_Compiler_mkUInt32Lit___closed__1;
-x_1 = lean::mk_nat_obj(0ul);
-x_2 = l_Lean_Compiler_mkUIntLit(x_0, x_1);
-x_3 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_3, 0, x_2);
-return x_3;
+obj* x_0; obj* x_1; obj* x_2; 
+x_0 = lean::mk_nat_obj(0ul);
+x_1 = l_Lean_Compiler_mkUInt32Lit(x_0);
+x_2 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
 }
 }
 obj* l_Lean_Compiler_foldCharOfNat(uint8 x_0, obj* x_1) {
@@ -1852,42 +2227,40 @@ return x_19;
 }
 else
 {
-obj* x_20; obj* x_21; obj* x_23; 
-x_20 = l_Lean_Compiler_mkUInt32Lit___closed__1;
-x_21 = l_Lean_Compiler_mkUIntLit(x_20, x_4);
+obj* x_20; obj* x_22; 
+x_20 = l_Lean_Compiler_mkUInt32Lit(x_4);
 lean::dec(x_4);
 if (lean::is_scalar(x_6)) {
- x_23 = lean::alloc_cnstr(1, 1, 0);
+ x_22 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_23 = x_6;
+ x_22 = x_6;
 }
-lean::cnstr_set(x_23, 0, x_21);
-return x_23;
+lean::cnstr_set(x_22, 0, x_20);
+return x_22;
 }
 }
 }
 else
 {
-obj* x_24; obj* x_25; obj* x_27; 
-x_24 = l_Lean_Compiler_mkUInt32Lit___closed__1;
-x_25 = l_Lean_Compiler_mkUIntLit(x_24, x_4);
+obj* x_23; obj* x_25; 
+x_23 = l_Lean_Compiler_mkUInt32Lit(x_4);
 lean::dec(x_4);
 if (lean::is_scalar(x_6)) {
- x_27 = lean::alloc_cnstr(1, 1, 0);
+ x_25 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_27 = x_6;
+ x_25 = x_6;
 }
-lean::cnstr_set(x_27, 0, x_25);
-return x_27;
+lean::cnstr_set(x_25, 0, x_23);
+return x_25;
 }
 }
 }
 else
 {
-obj* x_29; 
+obj* x_27; 
 lean::dec(x_1);
-x_29 = lean::box(0);
-return x_29;
+x_27 = lean::box(0);
+return x_27;
 }
 }
 }
@@ -1931,7 +2304,7 @@ lean::cnstr_set(x_15, 1, x_14);
 return x_15;
 }
 }
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(obj* x_0, obj* x_1) {
+obj* l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -1972,72 +2345,21 @@ return x_18;
 }
 }
 }
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg___boxed), 2, 0);
-return x_1;
-}
-}
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(x_0, x_1);
-lean::dec(x_0);
-return x_2;
-}
-}
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___main___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l___private_init_lean_compiler_constfolding_1__alistFind___main(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___rarg(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(x_0, x_1);
-return x_2;
-}
-}
-obj* l___private_init_lean_compiler_constfolding_1__alistFind(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_lean_compiler_constfolding_1__alistFind___rarg___boxed), 2, 0);
-return x_1;
-}
-}
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___rarg___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_compiler_constfolding_1__alistFind___rarg(x_0, x_1);
-lean::dec(x_0);
-return x_2;
-}
-}
-obj* l___private_init_lean_compiler_constfolding_1__alistFind___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l___private_init_lean_compiler_constfolding_1__alistFind(x_0);
-lean::dec(x_0);
-return x_1;
-}
-}
 obj* l_Lean_Compiler_findBinFoldFn(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_Compiler_binFoldFns;
-x_2 = l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(x_0, x_1);
+x_2 = l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1(x_0, x_1);
+return x_2;
+}
+}
+obj* l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -2050,12 +2372,62 @@ lean::dec(x_0);
 return x_1;
 }
 }
+obj* l_List_lookup___main___at_Lean_Compiler_findUnFoldFn___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_1) == 0)
+{
+obj* x_2; 
+x_2 = lean::box(0);
+return x_2;
+}
+else
+{
+obj* x_3; obj* x_5; obj* x_8; obj* x_10; uint8 x_13; 
+x_3 = lean::cnstr_get(x_1, 0);
+lean::inc(x_3);
+x_5 = lean::cnstr_get(x_1, 1);
+lean::inc(x_5);
+lean::dec(x_1);
+x_8 = lean::cnstr_get(x_3, 0);
+lean::inc(x_8);
+x_10 = lean::cnstr_get(x_3, 1);
+lean::inc(x_10);
+lean::dec(x_3);
+x_13 = lean_name_dec_eq(x_0, x_8);
+lean::dec(x_8);
+if (x_13 == 0)
+{
+lean::dec(x_10);
+x_1 = x_5;
+goto _start;
+}
+else
+{
+obj* x_18; 
+lean::dec(x_5);
+x_18 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_18, 0, x_10);
+return x_18;
+}
+}
+}
+}
 obj* l_Lean_Compiler_findUnFoldFn(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
 x_1 = l_Lean_Compiler_unFoldFns;
-x_2 = l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(x_0, x_1);
+x_2 = l_List_lookup___main___at_Lean_Compiler_findUnFoldFn___spec__1(x_0, x_1);
+return x_2;
+}
+}
+obj* l_List_lookup___main___at_Lean_Compiler_findUnFoldFn___spec__1___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_List_lookup___main___at_Lean_Compiler_findUnFoldFn___spec__1(x_0, x_1);
+lean::dec(x_0);
 return x_2;
 }
 }
@@ -2080,7 +2452,7 @@ x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 lean::dec(x_1);
 x_7 = l_Lean_Compiler_binFoldFns;
-x_8 = l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(x_4, x_7);
+x_8 = l_List_lookup___main___at_Lean_Compiler_findBinFoldFn___spec__1(x_4, x_7);
 lean::dec(x_4);
 if (lean::obj_tag(x_8) == 0)
 {
@@ -2135,7 +2507,7 @@ x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 lean::dec(x_1);
 x_6 = l_Lean_Compiler_unFoldFns;
-x_7 = l___private_init_lean_compiler_constfolding_1__alistFind___main___rarg(x_3, x_6);
+x_7 = l_List_lookup___main___at_Lean_Compiler_findUnFoldFn___spec__1(x_3, x_6);
 lean::dec(x_3);
 if (lean::obj_tag(x_7) == 0)
 {
@@ -2189,6 +2561,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_platform(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_util(w);
+if (io_result_is_error(w)) return w;
  l_Lean_Compiler_mkUIntTypeName___closed__1 = _init_l_Lean_Compiler_mkUIntTypeName___closed__1();
 lean::mark_persistent(l_Lean_Compiler_mkUIntTypeName___closed__1);
  l_Lean_Compiler_numScalarTypes = _init_l_Lean_Compiler_numScalarTypes();
@@ -2241,6 +2614,16 @@ lean::mark_persistent(l_Lean_Compiler_foldNatDecLe___closed__1);
 lean::mark_persistent(l_Lean_Compiler_foldNatDecLe___closed__2);
  l_Lean_Compiler_natFoldFns = _init_l_Lean_Compiler_natFoldFns();
 lean::mark_persistent(l_Lean_Compiler_natFoldFns);
+ l_Lean_Compiler_getBoolLit___main___closed__1 = _init_l_Lean_Compiler_getBoolLit___main___closed__1();
+lean::mark_persistent(l_Lean_Compiler_getBoolLit___main___closed__1);
+ l_Lean_Compiler_getBoolLit___main___closed__2 = _init_l_Lean_Compiler_getBoolLit___main___closed__2();
+lean::mark_persistent(l_Lean_Compiler_getBoolLit___main___closed__2);
+ l_Lean_Compiler_getBoolLit___main___closed__3 = _init_l_Lean_Compiler_getBoolLit___main___closed__3();
+lean::mark_persistent(l_Lean_Compiler_getBoolLit___main___closed__3);
+ l_Lean_Compiler_getBoolLit___main___closed__4 = _init_l_Lean_Compiler_getBoolLit___main___closed__4();
+lean::mark_persistent(l_Lean_Compiler_getBoolLit___main___closed__4);
+ l_Lean_Compiler_boolFoldFns = _init_l_Lean_Compiler_boolFoldFns();
+lean::mark_persistent(l_Lean_Compiler_boolFoldFns);
  l_Lean_Compiler_binFoldFns = _init_l_Lean_Compiler_binFoldFns();
 lean::mark_persistent(l_Lean_Compiler_binFoldFns);
  l_Lean_Compiler_foldCharOfNat___closed__1 = _init_l_Lean_Compiler_foldCharOfNat___closed__1();

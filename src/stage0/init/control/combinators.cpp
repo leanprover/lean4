@@ -1124,7 +1124,7 @@ if (lean::obj_tag(x_4) == 0)
 {
 obj* x_6; obj* x_9; 
 lean::dec(x_3);
-x_6 = lean::cnstr_get(x_0, 2);
+x_6 = lean::cnstr_get(x_0, 1);
 lean::inc(x_6);
 lean::dec(x_0);
 x_9 = lean::apply_1(x_6, lean::box(0));
@@ -1138,7 +1138,7 @@ lean::inc(x_10);
 x_12 = lean::cnstr_get(x_4, 1);
 lean::inc(x_12);
 lean::dec(x_4);
-x_15 = lean::cnstr_get(x_0, 1);
+x_15 = lean::cnstr_get(x_0, 2);
 lean::inc(x_15);
 lean::inc(x_3);
 x_18 = lean::apply_1(x_3, x_10);
@@ -1492,6 +1492,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_alternative(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
+if (io_result_is_error(w)) return w;
  l_mjoin___rarg___closed__1 = _init_l_mjoin___rarg___closed__1();
 lean::mark_persistent(l_mjoin___rarg___closed__1);
  l_List_mmap___main___rarg___closed__1 = _init_l_List_mmap___main___rarg___closed__1();

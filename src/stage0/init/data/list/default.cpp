@@ -24,5 +24,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_instances(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

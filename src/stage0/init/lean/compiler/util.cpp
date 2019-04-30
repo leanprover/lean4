@@ -639,6 +639,7 @@ obj* initialize_init_lean_compiler_util(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
+if (io_result_is_error(w)) return w;
  l_Lean_Compiler_neutralExpr = _init_l_Lean_Compiler_neutralExpr();
 lean::mark_persistent(l_Lean_Compiler_neutralExpr);
  l_Lean_Compiler_unreachableExpr = _init_l_Lean_Compiler_unreachableExpr();

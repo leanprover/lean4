@@ -1048,34 +1048,34 @@ x_4 = lean::mk_nat_obj(0ul);
 x_5 = lean::nat_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
-obj* x_6; uint32 x_7; obj* x_9; uint8 x_11; 
-x_6 = lean::nat_mod(x_2, x_0);
-x_7 = l_Nat_digitChar(x_6);
-lean::dec(x_6);
-x_9 = lean::nat_div(x_2, x_0);
-lean::dec(x_2);
-x_11 = lean::nat_dec_eq(x_9, x_4);
-if (x_11 == 0)
-{
-obj* x_12; obj* x_13; obj* x_15; obj* x_16; 
-x_12 = lean::mk_nat_obj(1ul);
-x_13 = lean::nat_sub(x_1, x_12);
+obj* x_6; obj* x_7; obj* x_9; uint32 x_10; obj* x_12; uint8 x_14; 
+x_6 = lean::mk_nat_obj(1ul);
+x_7 = lean::nat_sub(x_1, x_6);
 lean::dec(x_1);
-x_15 = lean::box_uint32(x_7);
+x_9 = lean::nat_mod(x_2, x_0);
+x_10 = l_Nat_digitChar(x_9);
+lean::dec(x_9);
+x_12 = lean::nat_div(x_2, x_0);
+lean::dec(x_2);
+x_14 = lean::nat_dec_eq(x_12, x_4);
+if (x_14 == 0)
+{
+obj* x_15; obj* x_16; 
+x_15 = lean::box_uint32(x_10);
 x_16 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_16, 0, x_15);
 lean::cnstr_set(x_16, 1, x_3);
-x_1 = x_13;
-x_2 = x_9;
+x_1 = x_7;
+x_2 = x_12;
 x_3 = x_16;
 goto _start;
 }
 else
 {
 obj* x_20; obj* x_21; 
-lean::dec(x_9);
-lean::dec(x_1);
-x_20 = lean::box_uint32(x_7);
+lean::dec(x_7);
+lean::dec(x_12);
+x_20 = lean::box_uint32(x_10);
 x_21 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_21, 0, x_20);
 lean::cnstr_set(x_21, 1, x_3);
@@ -1656,6 +1656,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_div(w);
+if (io_result_is_error(w)) return w;
  l_Bool_HasRepr___closed__1 = _init_l_Bool_HasRepr___closed__1();
 lean::mark_persistent(l_Bool_HasRepr___closed__1);
  l_Bool_HasRepr___closed__2 = _init_l_Bool_HasRepr___closed__2();

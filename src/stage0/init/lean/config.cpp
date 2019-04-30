@@ -30,6 +30,7 @@ obj* initialize_init_lean_config(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
+if (io_result_is_error(w)) return w;
  l_Lean_closureMaxArgs = _init_l_Lean_closureMaxArgs();
 lean::mark_persistent(l_Lean_closureMaxArgs);
 return w;

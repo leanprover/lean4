@@ -19,6 +19,7 @@ obj* l_Lean_Parser_parseStringLiteralAux___main___rarg___lambda__2(obj*, obj*, o
 extern obj* l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__1(obj*, uint32);
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__7(obj*, obj*, obj*, obj*, obj*, uint32);
+obj* l_DList_singleton___elambda__1___rarg(obj*, obj*);
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__3___boxed(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
@@ -85,7 +86,6 @@ obj* l_Lean_Parser_parseStringLiteral___rarg___lambda__2___boxed(obj*, obj*, obj
 extern obj* l_Lean_Parser_MonadParsec_leftOver___rarg___closed__1;
 obj* l_Lean_Parser_parseStringLiteral___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*);
-obj* l_DList_singleton___rarg(obj*, obj*);
 obj* l_Lean_Parser_parseStringLiteralAux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_labels___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 namespace lean {
@@ -103,6 +103,7 @@ obj* nat_mul(obj*, obj*);
 }
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__5(obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_ch___rarg(obj*, obj*, uint32);
+extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_Parser_parseHexDigit___rarg(obj*, obj*, obj*);
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__1(obj* x_0, uint32 x_1) {
 _start:
@@ -331,7 +332,7 @@ _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
 x_0 = lean::mk_string("hexadecimal");
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___rarg), 2, 1);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_DList_singleton___elambda__1___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_MonadParsec_labels___rarg___lambda__1___boxed), 6, 1);
 lean::closure_set(x_2, 0, x_1);
@@ -342,7 +343,7 @@ obj* l_Lean_Parser_parseHexDigit___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; obj* x_8; obj* x_10; obj* x_12; obj* x_13; obj* x_15; obj* x_17; obj* x_20; obj* x_23; obj* x_25; obj* x_27; obj* x_29; obj* x_31; obj* x_32; obj* x_33; obj* x_35; obj* x_36; obj* x_37; obj* x_40; obj* x_41; 
-x_3 = lean::cnstr_get(x_2, 1);
+x_3 = lean::cnstr_get(x_2, 2);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_0, 1);
 lean::inc(x_5);
@@ -1001,7 +1002,7 @@ obj* l_Lean_Parser_parseStringLiteral___rarg___lambda__1(obj* x_0, obj* x_1, obj
 _start:
 {
 obj* x_4; obj* x_5; 
-x_4 = lean::mk_string("");
+x_4 = l_String_splitAux___main___closed__1;
 x_5 = l_Lean_Parser_parseStringLiteralAux___main___rarg(x_0, x_1, x_2, x_3, x_4);
 return x_5;
 }
@@ -1095,6 +1096,7 @@ obj* initialize_init_lean_parser_stringliteral(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_parsec(w);
+if (io_result_is_error(w)) return w;
  l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1 = _init_l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1();
 lean::mark_persistent(l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1);
  l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1 = _init_l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1();

@@ -251,6 +251,7 @@ obj* initialize_init_control_id(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_lift(w);
+if (io_result_is_error(w)) return w;
  l_Id_Monad = _init_l_Id_Monad();
 lean::mark_persistent(l_Id_Monad);
  l_Id_MonadRun = _init_l_Id_MonadRun();

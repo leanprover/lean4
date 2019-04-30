@@ -71,6 +71,7 @@ obj* l_coeT___boxed(obj*, obj*);
 obj* l_coeOption___boxed(obj*);
 obj* l_coeB___boxed(obj*, obj*);
 uint8 l_coeDecidableEq(uint8);
+obj* l_liftRefl___closed__1;
 obj* l_coeFn___boxed(obj*);
 obj* l_coeSubtype___boxed(obj*, obj*);
 obj* l_liftFnDom___rarg(obj*, obj*, obj*);
@@ -333,11 +334,19 @@ lean::dec(x_2);
 return x_3;
 }
 }
+obj* _init_l_liftRefl___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
+return x_0;
+}
+}
 obj* l_liftRefl(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_id___rarg___boxed), 1, 0);
+x_1 = l_liftRefl___closed__1;
 return x_1;
 }
 }
@@ -952,6 +961,9 @@ obj* initialize_init_coe(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_list_basic(w);
+if (io_result_is_error(w)) return w;
+ l_liftRefl___closed__1 = _init_l_liftRefl___closed__1();
+lean::mark_persistent(l_liftRefl___closed__1);
  l_coeBoolToProp = _init_l_coeBoolToProp();
  l_coeSortBool = _init_l_coeSortBool();
 return w;

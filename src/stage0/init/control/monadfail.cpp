@@ -104,6 +104,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_lift(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_string_basic(w);
+if (io_result_is_error(w)) return w;
  l_matchFailed___rarg___closed__1 = _init_l_matchFailed___rarg___closed__1();
 lean::mark_persistent(l_matchFailed___rarg___closed__1);
 return w;

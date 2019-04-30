@@ -328,6 +328,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_tostring(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_position(w);
+if (io_result_is_error(w)) return w;
  l_Lean_Message_toString___closed__1 = _init_l_Lean_Message_toString___closed__1();
 lean::mark_persistent(l_Lean_Message_toString___closed__1);
  l_Lean_Message_toString___closed__2 = _init_l_Lean_Message_toString___closed__2();

@@ -80,51 +80,55 @@ return x_2;
 uint32 l_Char_utf8Size(uint32 x_0) {
 _start:
 {
-uint32 x_1; uint32 x_2; uint32 x_3; uint32 x_4; uint8 x_5; 
+uint32 x_1; uint32 x_2; uint32 x_3; uint32 x_4; uint32 x_5; uint32 x_6; uint8 x_7; 
 x_1 = 1;
-x_2 = 128;
-x_3 = x_0 & x_2;
-x_4 = 0;
-x_5 = x_3 == x_4;
-if (x_5 == 0)
+x_2 = 2;
+x_3 = 4;
+x_4 = 128;
+x_5 = x_0 & x_4;
+x_6 = 0;
+x_7 = x_5 == x_6;
+if (x_7 == 0)
 {
-uint32 x_6; uint32 x_7; uint32 x_8; uint8 x_9; 
-x_6 = 224;
-x_7 = x_0 & x_6;
-x_8 = 192;
-x_9 = x_7 == x_8;
-if (x_9 == 0)
+uint32 x_8; uint32 x_9; uint32 x_10; uint32 x_11; uint32 x_12; uint8 x_13; 
+x_8 = 3;
+x_9 = 224;
+x_10 = x_0 & x_9;
+x_11 = 6;
+x_12 = 192;
+x_13 = x_10 == x_12;
+if (x_13 == 0)
 {
-uint32 x_10; uint32 x_11; uint8 x_12; 
-x_10 = 240;
-x_11 = x_0 & x_10;
-x_12 = x_11 == x_6;
-if (x_12 == 0)
+uint32 x_14; uint32 x_15; uint8 x_16; 
+x_14 = 240;
+x_15 = x_0 & x_14;
+x_16 = x_15 == x_9;
+if (x_16 == 0)
 {
-uint32 x_13; uint32 x_14; uint8 x_15; 
-x_13 = 248;
-x_14 = x_0 & x_13;
-x_15 = x_14 == x_10;
-if (x_15 == 0)
+uint32 x_17; uint32 x_18; uint8 x_19; 
+x_17 = 248;
+x_18 = x_0 & x_17;
+x_19 = x_18 == x_14;
+if (x_19 == 0)
 {
-uint32 x_16; uint32 x_17; uint8 x_18; 
-x_16 = 252;
-x_17 = x_0 & x_16;
-x_18 = x_17 == x_13;
-if (x_18 == 0)
+uint32 x_20; uint32 x_21; uint8 x_22; 
+x_20 = 252;
+x_21 = x_0 & x_20;
+x_22 = x_21 == x_17;
+if (x_22 == 0)
 {
-uint32 x_19; uint32 x_20; uint8 x_21; 
-x_19 = 254;
-x_20 = x_0 & x_19;
-x_21 = x_20 == x_16;
-if (x_21 == 0)
+uint32 x_23; uint32 x_24; uint8 x_25; 
+x_23 = 254;
+x_24 = x_0 & x_23;
+x_25 = x_24 == x_20;
+if (x_25 == 0)
 {
-uint32 x_22; uint8 x_23; 
-x_22 = 255;
-x_23 = x_0 == x_22;
-if (x_23 == 0)
+uint32 x_26; uint8 x_27; 
+x_26 = 255;
+x_27 = x_0 == x_26;
+if (x_27 == 0)
 {
-return x_4;
+return x_6;
 }
 else
 {
@@ -133,37 +137,29 @@ return x_1;
 }
 else
 {
-uint32 x_24; 
-x_24 = 6;
-return x_24;
-}
-}
-else
-{
-uint32 x_25; 
-x_25 = 5;
-return x_25;
-}
-}
-else
-{
-uint32 x_26; 
-x_26 = 4;
-return x_26;
-}
-}
-else
-{
-uint32 x_27; 
-x_27 = 3;
-return x_27;
+return x_11;
 }
 }
 else
 {
 uint32 x_28; 
-x_28 = 2;
+x_28 = 5;
 return x_28;
+}
+}
+else
+{
+return x_3;
+}
+}
+else
+{
+return x_8;
+}
+}
+else
+{
+return x_2;
 }
 }
 else
@@ -627,6 +623,7 @@ obj* initialize_init_data_char_basic(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_uint(w);
+if (io_result_is_error(w)) return w;
  l_Char_HasLess = _init_l_Char_HasLess();
 lean::mark_persistent(l_Char_HasLess);
  l_Char_HasLessEq = _init_l_Char_HasLessEq();

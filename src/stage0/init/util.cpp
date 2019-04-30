@@ -15,12 +15,21 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_dbgSleep___boxed(obj*, obj*, obj*);
+obj* l_dbgTraceIfShared___boxed(obj*, obj*, obj*);
 obj* l_dbgTrace___boxed(obj*, obj*, obj*);
 obj* l_dbgTrace___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
 x_3 = lean::dbg_trace(x_1, x_2);
+return x_3;
+}
+}
+obj* l_dbgTraceIfShared___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::dbg_trace_if_shared(x_1, x_2);
 return x_3;
 }
 }
@@ -40,5 +49,6 @@ obj* initialize_init_util(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_string_basic(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

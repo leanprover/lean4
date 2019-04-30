@@ -231,6 +231,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_level(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
+if (io_result_is_error(w)) return w;
  l_Lean_MData_empty = _init_l_Lean_MData_empty();
 lean::mark_persistent(l_Lean_MData_empty);
  l_Lean_MData_HasEmptyc = _init_l_Lean_MData_HasEmptyc();

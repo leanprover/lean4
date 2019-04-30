@@ -319,6 +319,7 @@ obj* l_Nat_repeatCore___main___at_List_replicate___spec__1___rarg(obj*, obj*, ob
 obj* l_List_iota(obj*);
 obj* l_List_map_u_2082(obj*, obj*, obj*);
 obj* l_List_intercalate___rarg(obj*, obj*);
+obj* l_List_zip___rarg___closed__1;
 obj* l_List_all(obj*);
 obj* l_List_foldr___boxed(obj*, obj*);
 obj* l_List_any___rarg___boxed(obj*, obj*);
@@ -372,6 +373,7 @@ obj* l_List_tail___main___rarg___boxed(obj*);
 obj* l_List_spanAux(obj*);
 obj* l_List_getLast___main(obj*);
 obj* l_List_getLast___main___boxed(obj*);
+obj* l_List_HasAppend___closed__1;
 obj* l_List_zip___rarg___lambda__1(obj*, obj*);
 obj* l_List_pure___boxed(obj*);
 obj* l_List_decidableMem___main(obj*);
@@ -702,11 +704,19 @@ lean::dec(x_0);
 return x_1;
 }
 }
+obj* _init_l_List_HasAppend___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_List_append___rarg), 2, 0);
+return x_0;
+}
+}
 obj* l_List_HasAppend(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_append___rarg), 2, 0);
+x_1 = l_List_HasAppend___closed__1;
 return x_1;
 }
 }
@@ -3288,27 +3298,25 @@ return x_1;
 }
 else
 {
-obj* x_4; obj* x_6; obj* x_10; uint8 x_11; 
+obj* x_4; obj* x_6; uint8 x_10; obj* x_11; uint8 x_12; 
 x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_2, 1);
 lean::inc(x_6);
 lean::dec(x_2);
 lean::inc(x_0);
-x_10 = lean::apply_1(x_0, x_4);
-x_11 = lean::unbox(x_10);
-if (x_11 == 0)
+x_10 = l_List_foldr___main___at_List_any___spec__1___rarg(x_0, x_1, x_6);
+x_11 = lean::apply_1(x_0, x_4);
+x_12 = lean::unbox(x_11);
+if (x_12 == 0)
 {
-x_2 = x_6;
-goto _start;
+return x_10;
 }
 else
 {
-uint8 x_15; 
-lean::dec(x_6);
-lean::dec(x_0);
-x_15 = 1;
-return x_15;
+uint8 x_13; 
+x_13 = 1;
+return x_13;
 }
 }
 }
@@ -3385,27 +3393,25 @@ return x_1;
 }
 else
 {
-obj* x_4; obj* x_6; obj* x_10; uint8 x_11; 
+obj* x_4; obj* x_6; uint8 x_10; obj* x_11; uint8 x_12; 
 x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_2, 1);
 lean::inc(x_6);
 lean::dec(x_2);
 lean::inc(x_0);
-x_10 = lean::apply_1(x_0, x_4);
-x_11 = lean::unbox(x_10);
-if (x_11 == 0)
+x_10 = l_List_foldr___main___at_List_all___spec__1___rarg(x_0, x_1, x_6);
+x_11 = lean::apply_1(x_0, x_4);
+x_12 = lean::unbox(x_11);
+if (x_12 == 0)
 {
-uint8 x_14; 
-lean::dec(x_6);
-lean::dec(x_0);
-x_14 = 0;
-return x_14;
+uint8 x_13; 
+x_13 = 0;
+return x_13;
 }
 else
 {
-x_2 = x_6;
-goto _start;
+return x_10;
 }
 }
 }
@@ -3698,11 +3704,19 @@ lean::cnstr_set(x_2, 1, x_1);
 return x_2;
 }
 }
+obj* _init_l_List_zip___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_List_zip___rarg___lambda__1), 2, 0);
+return x_0;
+}
+}
 obj* l_List_zip___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_zip___rarg___lambda__1), 2, 0);
+x_2 = l_List_zip___rarg___closed__1;
 x_3 = l_List_zipWith___main___rarg(x_2, x_0, x_1);
 return x_3;
 }
@@ -5241,7 +5255,12 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_nat_basic(w);
+if (io_result_is_error(w)) return w;
+ l_List_HasAppend___closed__1 = _init_l_List_HasAppend___closed__1();
+lean::mark_persistent(l_List_HasAppend___closed__1);
  l_List_partition___rarg___closed__1 = _init_l_List_partition___rarg___closed__1();
 lean::mark_persistent(l_List_partition___rarg___closed__1);
+ l_List_zip___rarg___closed__1 = _init_l_List_zip___rarg___closed__1();
+lean::mark_persistent(l_List_zip___rarg___closed__1);
 return w;
 }

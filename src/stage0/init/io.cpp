@@ -21,6 +21,7 @@ obj* l_IO_Ref_set___boxed(obj*, obj*);
 obj* l_IO_Fs_handle_isEof___at_IO_Fs_handle_readToEnd___spec__1___boxed(obj*, obj*);
 obj* l_ioOfExcept___rarg(obj*, obj*, obj*);
 obj* l_IO_Ref_get___rarg(obj*, obj*, obj*);
+obj* l_EState_Monad(obj*, obj*);
 obj* l_IO_Ref_swap___boxed(obj*, obj*);
 obj* l_IO_HasEval(obj*);
 obj* l_IO_Ref_modify(obj*);
@@ -55,6 +56,7 @@ extern obj* l_String_Inhabited;
 obj* l_allocprof___boxed(obj*, obj*, obj*, obj*);
 obj* l_EIO_MonadExcept(obj*);
 obj* l_IO_print___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_EIO_MonadExcept___closed__1;
 obj* l_IO_userError(obj*);
 obj* l_IO_Ref_swap___rarg(obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_handle_flush(obj*, obj*);
@@ -128,7 +130,7 @@ obj* l_EIO_MonadExcept___boxed(obj*);
 obj* l_IO_Fs_handle_close___boxed(obj*, obj*);
 obj* l_IO_Ref_reset___rarg___boxed(obj*, obj*, obj*);
 obj* l_IOUnit_HasEval(obj*, obj*);
-extern obj* l_EState_Monad___closed__1;
+obj* l_EIO_Monad___closed__1;
 obj* l_IO_Fs_handle_readToEnd___boxed(obj*, obj*);
 obj* l_IO_Prim_Ref_reset___boxed(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_isEof(obj*, obj*);
@@ -136,8 +138,8 @@ obj* l_IO_Prim_iterate___rarg(obj*, obj*, obj*);
 obj* l_IO_Ref_reset___boxed(obj*, obj*);
 obj* l_IO_Fs_readFile___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_handle_readToEnd___rarg(obj*, obj*);
-extern obj* l_EState_MonadExcept___closed__1;
 obj* l_HasRepr_HasEval(obj*);
+obj* l_EState_MonadExcept(obj*, obj*);
 obj* l_timeit___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_handle_isEof___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___main(obj*, obj*);
@@ -164,11 +166,19 @@ obj* l_IO_println___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_io_1__putStr___rarg(obj*, obj*);
 obj* l_IO_Ref_modify___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_String_splitAux___main___closed__1;
+obj* _init_l_EIO_Monad___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = l_EState_Monad(lean::box(0), lean::box(0));
+return x_0;
+}
+}
 obj* l_EIO_Monad(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_EState_Monad___closed__1;
+x_1 = l_EIO_Monad___closed__1;
 return x_1;
 }
 }
@@ -181,11 +191,19 @@ lean::dec(x_0);
 return x_1;
 }
 }
+obj* _init_l_EIO_MonadExcept___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = l_EState_MonadExcept(lean::box(0), lean::box(0));
+return x_0;
+}
+}
 obj* l_EIO_MonadExcept(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_EState_MonadExcept___closed__1;
+x_1 = l_EIO_MonadExcept___closed__1;
 return x_1;
 }
 }
@@ -1219,7 +1237,7 @@ obj* l_IO_Inhabited(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_IO_RefPointed;
+x_1 = lean::box(0);
 return x_1;
 }
 }
@@ -1770,6 +1788,11 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_estate(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_string_basic(w);
+if (io_result_is_error(w)) return w;
+ l_EIO_Monad___closed__1 = _init_l_EIO_Monad___closed__1();
+lean::mark_persistent(l_EIO_Monad___closed__1);
+ l_EIO_MonadExcept___closed__1 = _init_l_EIO_MonadExcept___closed__1();
+lean::mark_persistent(l_EIO_MonadExcept___closed__1);
  l_IO_error_HasToString = _init_l_IO_error_HasToString();
 lean::mark_persistent(l_IO_error_HasToString);
  l_IO_error_Inhabited = _init_l_IO_error_Inhabited();

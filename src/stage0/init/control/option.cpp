@@ -1140,9 +1140,9 @@ x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 lean::dec(x_2);
 lean::inc(x_0);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_OptionT_orelse___rarg___boxed), 4, 1);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_OptionT_fail___rarg___boxed), 2, 1);
 lean::closure_set(x_7, 0, x_0);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_OptionT_fail___rarg___boxed), 2, 1);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_OptionT_orelse___rarg___boxed), 4, 1);
 lean::closure_set(x_8, 0, x_0);
 x_9 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_9, 0, x_3);
@@ -1480,5 +1480,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_lift(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_except(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

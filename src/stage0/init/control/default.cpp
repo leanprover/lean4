@@ -51,5 +51,6 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_option(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_combinators(w);
+if (io_result_is_error(w)) return w;
 return w;
 }

@@ -163,64 +163,64 @@ x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::nat_dec_eq(x_0, x_3);
 if (x_4 == 0)
 {
-uint8 x_5; 
-x_5 = l_String_Iterator_hasNext___main(x_1);
-if (x_5 == 0)
-{
-obj* x_7; 
+obj* x_5; obj* x_6; uint8 x_8; 
+x_5 = lean::mk_nat_obj(1ul);
+x_6 = lean::nat_sub(x_0, x_5);
 lean::dec(x_0);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_1);
-lean::cnstr_set(x_7, 1, x_2);
-return x_7;
+x_8 = l_String_Iterator_hasNext___main(x_1);
+if (x_8 == 0)
+{
+obj* x_10; 
+lean::dec(x_6);
+x_10 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_10, 0, x_1);
+lean::cnstr_set(x_10, 1, x_2);
+return x_10;
 }
 else
 {
-uint32 x_8; uint32 x_9; uint8 x_10; 
-x_8 = l_String_Iterator_curr___main(x_1);
-x_9 = 48;
-x_10 = x_9 <= x_8;
-if (x_10 == 0)
+uint32 x_11; uint32 x_12; uint8 x_13; 
+x_11 = l_String_Iterator_curr___main(x_1);
+x_12 = 48;
+x_13 = x_12 <= x_11;
+if (x_13 == 0)
 {
-obj* x_12; 
-lean::dec(x_0);
-x_12 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_12, 0, x_1);
-lean::cnstr_set(x_12, 1, x_2);
-return x_12;
+obj* x_15; 
+lean::dec(x_6);
+x_15 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_15, 0, x_1);
+lean::cnstr_set(x_15, 1, x_2);
+return x_15;
 }
 else
 {
-uint32 x_13; uint8 x_14; 
-x_13 = 57;
-x_14 = x_8 <= x_13;
-if (x_14 == 0)
+uint32 x_16; uint8 x_17; 
+x_16 = 57;
+x_17 = x_11 <= x_16;
+if (x_17 == 0)
 {
-obj* x_16; 
-lean::dec(x_0);
-x_16 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_16, 0, x_1);
-lean::cnstr_set(x_16, 1, x_2);
-return x_16;
+obj* x_19; 
+lean::dec(x_6);
+x_19 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_19, 0, x_1);
+lean::cnstr_set(x_19, 1, x_2);
+return x_19;
 }
 else
 {
-obj* x_17; obj* x_18; obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_25; obj* x_26; obj* x_28; 
-x_17 = lean::mk_nat_obj(1ul);
-x_18 = lean::nat_sub(x_0, x_17);
-lean::dec(x_0);
+obj* x_20; obj* x_21; obj* x_22; obj* x_24; obj* x_25; obj* x_26; obj* x_28; 
 x_20 = l_String_Iterator_next___main(x_1);
 x_21 = lean::mk_nat_obj(10ul);
 x_22 = lean::nat_mul(x_2, x_21);
 lean::dec(x_2);
-x_24 = lean::uint32_to_nat(x_8);
+x_24 = lean::uint32_to_nat(x_11);
 x_25 = l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 x_26 = lean::nat_sub(x_24, x_25);
 lean::dec(x_24);
 x_28 = lean::nat_add(x_22, x_26);
 lean::dec(x_26);
 lean::dec(x_22);
-x_0 = x_18;
+x_0 = x_6;
 x_1 = x_20;
 x_2 = x_28;
 goto _start;
@@ -255,21 +255,21 @@ x_4 = lean::mk_nat_obj(0ul);
 x_5 = lean::nat_dec_eq(x_1, x_4);
 if (x_5 == 0)
 {
-uint8 x_6; 
-x_6 = l_String_Iterator_hasNext___main(x_2);
-if (x_6 == 0)
-{
+obj* x_6; obj* x_7; uint8 x_9; 
+x_6 = lean::mk_nat_obj(1ul);
+x_7 = lean::nat_sub(x_1, x_6);
 lean::dec(x_1);
+x_9 = l_String_Iterator_hasNext___main(x_2);
+if (x_9 == 0)
+{
+lean::dec(x_7);
 lean::dec(x_0);
 lean::dec(x_2);
 return x_3;
 }
 else
 {
-obj* x_10; obj* x_11; uint32 x_13; uint32 x_14; uint8 x_15; 
-x_10 = lean::mk_nat_obj(1ul);
-x_11 = lean::nat_sub(x_1, x_10);
-lean::dec(x_1);
+uint32 x_13; uint32 x_14; uint8 x_15; 
 x_13 = l_String_Iterator_curr___main(x_2);
 x_14 = 35;
 x_15 = x_13 == x_14;
@@ -278,7 +278,7 @@ if (x_15 == 0)
 obj* x_16; obj* x_17; 
 x_16 = l_String_Iterator_next___main(x_2);
 x_17 = lean::string_push(x_3, x_13);
-x_1 = x_11;
+x_1 = x_7;
 x_2 = x_16;
 x_3 = x_17;
 goto _start;
@@ -294,7 +294,7 @@ lean::inc(x_22);
 x_24 = lean::cnstr_get(x_21, 1);
 lean::inc(x_24);
 lean::dec(x_21);
-x_27 = lean::nat_sub(x_24, x_10);
+x_27 = lean::nat_sub(x_24, x_6);
 lean::dec(x_24);
 lean::inc(x_0);
 x_30 = l_List_getOpt___main___rarg(x_27, x_0);
@@ -303,7 +303,7 @@ if (lean::obj_tag(x_30) == 0)
 obj* x_31; obj* x_32; 
 x_31 = l_String_splitAux___main___closed__1;
 x_32 = lean::string_append(x_3, x_31);
-x_1 = x_11;
+x_1 = x_7;
 x_2 = x_22;
 x_3 = x_32;
 goto _start;
@@ -316,7 +316,7 @@ lean::inc(x_34);
 lean::dec(x_30);
 x_37 = lean::string_append(x_3, x_34);
 lean::dec(x_34);
-x_1 = x_11;
+x_1 = x_7;
 x_2 = x_22;
 x_3 = x_37;
 goto _start;
@@ -620,6 +620,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
+if (io_result_is_error(w)) return w;
  l_Lean_getExternEntryForAux___main___closed__1 = _init_l_Lean_getExternEntryForAux___main___closed__1();
 lean::mark_persistent(l_Lean_getExternEntryForAux___main___closed__1);
 return w;

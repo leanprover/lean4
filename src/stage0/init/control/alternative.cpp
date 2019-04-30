@@ -16,6 +16,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_guard___boxed(obj*);
 obj* l_guardb___rarg___boxed(obj*, obj*);
+obj* l_alternativeHasOrelse___rarg(obj*);
 obj* l_failure___boxed(obj*);
 obj* l_guard(obj*);
 obj* l_guardb___main(obj*);
@@ -39,12 +40,43 @@ obj* l_guardb(obj*);
 obj* l_optional___rarg___boxed(obj*, obj*, obj*);
 obj* l_optional(obj*);
 obj* l_optional___rarg___closed__1;
+obj* l_alternativeHasOrelse(obj*, obj*);
 obj* l_guardb___rarg(obj*, uint8);
+obj* l_alternativeHasOrelse___boxed(obj*, obj*);
+obj* l_alternativeHasOrelse___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_4; 
+x_1 = lean::cnstr_get(x_0, 2);
+lean::inc(x_1);
+lean::dec(x_0);
+x_4 = lean::apply_1(x_1, lean::box(0));
+return x_4;
+}
+}
+obj* l_alternativeHasOrelse(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_alternativeHasOrelse___rarg), 1, 0);
+return x_2;
+}
+}
+obj* l_alternativeHasOrelse___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_alternativeHasOrelse(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
+}
+}
 obj* l_failure___rarg(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_5; 
-x_2 = lean::cnstr_get(x_0, 2);
+x_2 = lean::cnstr_get(x_0, 1);
 lean::inc(x_2);
 lean::dec(x_0);
 x_5 = lean::apply_1(x_2, lean::box(0));
@@ -83,7 +115,7 @@ _start:
 if (x_2 == 0)
 {
 obj* x_3; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 2);
+x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
 lean::dec(x_0);
 x_6 = lean::apply_1(x_3, lean::box(0));
@@ -137,7 +169,7 @@ _start:
 if (x_2 == 0)
 {
 obj* x_3; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 2);
+x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
 lean::dec(x_0);
 x_6 = lean::apply_1(x_3, lean::box(0));
@@ -190,7 +222,7 @@ _start:
 if (x_1 == 0)
 {
 obj* x_2; obj* x_5; 
-x_2 = lean::cnstr_get(x_0, 2);
+x_2 = lean::cnstr_get(x_0, 1);
 lean::inc(x_2);
 lean::dec(x_0);
 x_5 = lean::apply_1(x_2, lean::box(0));
@@ -243,7 +275,7 @@ _start:
 if (x_1 == 0)
 {
 obj* x_2; obj* x_5; 
-x_2 = lean::cnstr_get(x_0, 2);
+x_2 = lean::cnstr_get(x_0, 1);
 lean::inc(x_2);
 lean::dec(x_0);
 x_5 = lean::apply_1(x_2, lean::box(0));
@@ -311,7 +343,7 @@ obj* l_optional___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_5; obj* x_8; obj* x_10; obj* x_13; obj* x_14; obj* x_15; obj* x_18; obj* x_19; obj* x_20; 
-x_3 = lean::cnstr_get(x_0, 1);
+x_3 = lean::cnstr_get(x_0, 2);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_0, 0);
 lean::inc(x_5);
@@ -368,6 +400,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_applicative(w);
+if (io_result_is_error(w)) return w;
  l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
 lean::mark_persistent(l_optional___rarg___closed__1);
 return w;

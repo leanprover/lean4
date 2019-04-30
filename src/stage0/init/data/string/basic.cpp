@@ -5368,6 +5368,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_char_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
+if (io_result_is_error(w)) return w;
  l_String_DecidableEq = _init_l_String_DecidableEq();
 lean::mark_persistent(l_String_DecidableEq);
  l_String_HasLess = _init_l_String_HasLess();

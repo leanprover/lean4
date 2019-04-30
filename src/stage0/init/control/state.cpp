@@ -639,7 +639,7 @@ obj* l_StateT_orelse___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; obj* x_9; obj* x_10; obj* x_11; 
-x_5 = lean::cnstr_get(x_0, 1);
+x_5 = lean::cnstr_get(x_0, 2);
 lean::inc(x_5);
 lean::dec(x_0);
 lean::inc(x_4);
@@ -681,7 +681,7 @@ obj* l_StateT_failure___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_6; 
-x_3 = lean::cnstr_get(x_0, 2);
+x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
 lean::dec(x_0);
 x_6 = lean::apply_1(x_3, lean::box(0));
@@ -726,9 +726,9 @@ x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 lean::dec(x_2);
 lean::inc(x_1);
-x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_StateT_orelse___rarg___boxed), 5, 1);
+x_7 = lean::alloc_closure(reinterpret_cast<void*>(l_StateT_failure___rarg___boxed), 3, 1);
 lean::closure_set(x_7, 0, x_1);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_StateT_failure___rarg___boxed), 3, 1);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_StateT_orelse___rarg___boxed), 5, 1);
 lean::closure_set(x_8, 0, x_1);
 x_9 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_9, 0, x_3);
@@ -1610,6 +1610,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_id(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_except(w);
+if (io_result_is_error(w)) return w;
  l_StateT_run_x_27___rarg___closed__1 = _init_l_StateT_run_x_27___rarg___closed__1();
 lean::mark_persistent(l_StateT_run_x_27___rarg___closed__1);
 return w;

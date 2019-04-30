@@ -28,6 +28,7 @@ extern obj* l_mjoin___rarg___closed__1;
 obj* l_Lean_Parser_RecT_MonadFunctor(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_RecT_HasMonadLift___rarg(obj*);
 obj* l_Lean_Parser_RecT_Lean_Parser_MonadParsec(obj*, obj*, obj*);
+obj* l_Lean_Parser_MonadRec_base___closed__1;
 obj* l_Lean_Parser_RecT_run(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadParsec_error___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_MonadRec_base___boxed(obj*, obj*, obj*, obj*);
@@ -421,11 +422,19 @@ lean::dec(x_3);
 return x_4;
 }
 }
+obj* _init_l_Lean_Parser_MonadRec_base___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_RecT_recurse___rarg), 2, 0);
+return x_0;
+}
+}
 obj* l_Lean_Parser_MonadRec_base(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Parser_RecT_recurse___rarg), 2, 0);
+x_4 = l_Lean_Parser_MonadRec_base___closed__1;
 return x_4;
 }
 }
@@ -454,7 +463,10 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_parsec(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_fix(w);
+if (io_result_is_error(w)) return w;
  l_Lean_Parser_RecT_runParsec___rarg___lambda__1___closed__1 = _init_l_Lean_Parser_RecT_runParsec___rarg___lambda__1___closed__1();
 lean::mark_persistent(l_Lean_Parser_RecT_runParsec___rarg___lambda__1___closed__1);
+ l_Lean_Parser_MonadRec_base___closed__1 = _init_l_Lean_Parser_MonadRec_base___closed__1();
+lean::mark_persistent(l_Lean_Parser_MonadRec_base___closed__1);
 return w;
 }

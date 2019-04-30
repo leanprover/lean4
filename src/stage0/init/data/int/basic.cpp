@@ -755,6 +755,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_repr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_tostring(w);
+if (io_result_is_error(w)) return w;
  l_Int_zero = _init_l_Int_zero();
 lean::mark_persistent(l_Int_zero);
  l_Int_one = _init_l_Int_one();

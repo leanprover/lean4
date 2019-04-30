@@ -940,6 +940,7 @@ obj* initialize_init_lean_parser_pratt(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_token(w);
+if (io_result_is_error(w)) return w;
  l_Lean_Parser_currLbp___rarg___lambda__1___closed__1 = _init_l_Lean_Parser_currLbp___rarg___lambda__1___closed__1();
 lean::mark_persistent(l_Lean_Parser_currLbp___rarg___lambda__1___closed__1);
  l_Lean_Parser_currLbp___rarg___lambda__3___closed__1 = _init_l_Lean_Parser_currLbp___rarg___lambda__3___closed__1();

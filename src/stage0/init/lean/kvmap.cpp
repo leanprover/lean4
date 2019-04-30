@@ -1054,6 +1054,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_int_default(w);
+if (io_result_is_error(w)) return w;
  l_Lean_DataValue_HasBeq = _init_l_Lean_DataValue_HasBeq();
 lean::mark_persistent(l_Lean_DataValue_HasBeq);
  l_Lean_KVMap_HasBeq = _init_l_Lean_KVMap_HasBeq();

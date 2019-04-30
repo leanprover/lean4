@@ -26,7 +26,7 @@ obj* l_EState_Result_toString___main___rarg___closed__1;
 obj* l_EState_set(obj*, obj*);
 obj* l_EState_resultOk_mk(obj*, obj*, obj*);
 obj* l_EState_orelse_x_27___boxed(obj*, obj*, obj*);
-obj* l_EState_HasOrelse___boxed(obj*, obj*);
+obj* l_EState_HasOrelse___boxed(obj*, obj*, obj*);
 obj* l_EState_map___rarg(obj*, obj*, obj*);
 obj* l_EState_Monad___boxed(obj*, obj*);
 obj* l_EState_orelse(obj*, obj*, obj*);
@@ -57,7 +57,7 @@ extern obj* l_Option_HasRepr___rarg___closed__3;
 obj* l_EState_HasOrelse___closed__1;
 obj* l_EState_pure(obj*, obj*, obj*);
 extern obj* l_Except_toString___main___rarg___closed__2;
-obj* l_EState_HasOrelse(obj*, obj*);
+obj* l_EState_HasOrelse(obj*, obj*, obj*);
 obj* l_EState_Monad___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_EState_Result_repr___boxed(obj*, obj*, obj*);
 obj* l_EState_modify___rarg(obj*, obj*);
@@ -1492,28 +1492,27 @@ obj* _init_l_EState_HasOrelse___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_orelse___boxed), 3, 2);
-lean::closure_set(x_0, 0, lean::box(0));
-lean::closure_set(x_0, 1, lean::box(0));
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_orelse___rarg), 3, 0);
 return x_0;
 }
 }
-obj* l_EState_HasOrelse(obj* x_0, obj* x_1) {
+obj* l_EState_HasOrelse(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_2; 
-x_2 = l_EState_HasOrelse___closed__1;
-return x_2;
+obj* x_3; 
+x_3 = l_EState_HasOrelse___closed__1;
+return x_3;
 }
 }
-obj* l_EState_HasOrelse___boxed(obj* x_0, obj* x_1) {
+obj* l_EState_HasOrelse___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_2; 
-x_2 = l_EState_HasOrelse(x_0, x_1);
+obj* x_3; 
+x_3 = l_EState_HasOrelse(x_0, x_1, x_2);
 lean::dec(x_0);
 lean::dec(x_1);
-return x_2;
+lean::dec(x_2);
+return x_3;
 }
 }
 obj* _init_l_EState_MonadState___closed__1() {
@@ -1592,6 +1591,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_state(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_except(w);
+if (io_result_is_error(w)) return w;
  l_EState_Result_toString___main___rarg___closed__1 = _init_l_EState_Result_toString___main___rarg___closed__1();
 lean::mark_persistent(l_EState_Result_toString___main___rarg___closed__1);
  l_EState_Result_toString___main___rarg___closed__2 = _init_l_EState_Result_toString___main___rarg___closed__2();

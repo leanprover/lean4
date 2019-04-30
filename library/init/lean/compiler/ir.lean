@@ -74,6 +74,9 @@ inductive Arg
 | var (id : VarId)
 | irrelevant
 
+@[export lean.ir.mk_var_arg_core] def mkVarArg (id : VarId) : Arg := Arg.var id
+@[export lean.ir.mk_irrelevant_arg_core] def mkIrrelevantArg : Arg := Arg.irrelevant
+
 inductive LitVal
 | num (v : Nat)
 | str (v : String)
@@ -97,6 +100,8 @@ pointers to other Lean objects, a sequence of `Usize` (i.e., `sizeT`)
 scalar values, and a sequence of other scalar values. -/
 structure CtorInfo :=
 (name : Name) (cidx : Nat) (usize : Nat) (ssize : Nat)
+
+@[export lean.ir.mk_ctor_info_core] def mkCtorInfo (n : Name) (cidx : Nat) (usize : Nat) (ssize : Nat) : CtorInfo := ⟨n, cidx, usize, ssize⟩
 
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
 | ⟨n₁, cidx₁, usize₁, ssize₁⟩ ⟨n₂, cidx₂, usize₂, ssize₂⟩ :=
@@ -132,8 +137,20 @@ inductive Expr
 /- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
 | isTaggedPtr (x : VarId)
 
+@[export lean.ir.mk_ctor_expr_core]  def mkCtorExpr (i : CtorInfo) (ys : Array Arg) : Expr := Expr.ctor i ys
+@[export lean.ir.mk_proj_expr_core]  def mkProjExpr (i : Nat) (x : VarId) : Expr := Expr.proj i x
+@[export lean.ir.mk_uproj_expr_core] def mkUProjExpr (i : Nat) (x : VarId) : Expr := Expr.uproj i x
+@[export lean.ir.mk_sproj_expr_core] def mkSProjExpr (n : Nat) (x : VarId) : Expr := Expr.sproj n x
+@[export lean.ir.mk_fapp_expr_core]  def mkFAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.fap c ys
+@[export lean.ir.mk_papp_expr_core]  def mkPAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.pap c ys
+@[export lean.ir.mk_app_expr_core]   def mkAppExpr (x : VarId) (ys : Array Arg) : Expr := Expr.ap x ys
+@[export lean.ir.mk_num_expr_core]   def mkNumExpr (v : Nat) : Expr := Expr.lit (LitVal.num v)
+@[export lean.ir.mk_str_expr_core]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
+
 structure Param :=
 (x : Name) (borrowed : Bool) (ty : IRType)
+
+@[export lean.ir.mk_param_core] def mkParam (x : Name) (borrowed : Bool) (ty : IRType) : Param := ⟨x, borrowed, ty⟩
 
 inductive AltCore (FnBody : Type) : Type
 | ctor (info : CtorInfo) (b : FnBody) : AltCore
@@ -164,13 +181,26 @@ inductive FnBody
 | jmp (j : JoinPointId) (ys : Array Arg)
 | unreachable
 
+@[export lean.ir.mk_vdecl_core] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
+@[export lean.ir.mk_jdecl_core] def mkJDecl (j : JoinPointId) (xs : Array Param) (ty : IRType) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs ty v b
+@[export lean.ir.mk_uset_core] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
+@[export lean.ir.mk_sset_core] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
+@[export lean.ir.mk_case_core] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x cs
+@[export lean.ir.mk_ret_core] def mkRet (x : VarId) : FnBody := FnBody.ret x
+@[export lean.ir.mk_jmp_core] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
+@[export lean.ir.mk_unreachable_core] def mkUnreachable : FnBody := FnBody.unreachable
+
 abbrev Alt := AltCore FnBody
 @[pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
 @[pattern] abbrev Alt.default := @AltCore.default FnBody
 
+@[export lean.ir.mk_alt_core] def mkAlt (info : CtorInfo) (b : FnBody) : Alt := Alt.ctor info b
+
 inductive Decl
 | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
 | extern (f : FunId) (xs : Array Param) (ty : IRType)
+
+@[export lean.ir.mk_decl_core] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
 def Expr.isPure : Expr → Bool

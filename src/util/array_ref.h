@@ -9,21 +9,20 @@ Author: Leonardo de Moura
 #include "util/object_ref.h"
 
 namespace lean {
+template<typename C> object * to_array(C const & elems) {
+    object * a = alloc_array(elems.size(), elems.size());
+    size_t i   = 0;
+    for (typename C::value_type const & elem : elems) {
+        inc(elem.raw());
+        array_set(a, i, elem.raw());
+        i++;
+    }
+    return a;
+}
+
 /* Wrapper for manipulating Lean Arrays in C++ */
 template<typename T>
 class array_ref : public object_ref {
-
-    template<typename C> object * to_array(C const & elems) {
-        object * a = alloc_array(elems.size(), elems.size());
-        size_t i   = 0;
-        for (T const & elem : elems) {
-            inc(elem.raw());
-            array_set(a, i, elem.raw());
-            i++;
-        }
-        return a;
-    }
-
 public:
     explicit array_ref(obj_arg o):object_ref(o) {}
     array_ref(b_obj_arg o, bool b):object_ref(o, b) {}

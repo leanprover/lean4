@@ -101,8 +101,6 @@ scalar values, and a sequence of other scalar values. -/
 structure CtorInfo :=
 (name : Name) (cidx : Nat) (usize : Nat) (ssize : Nat)
 
-@[export lean.ir.mk_ctor_info_core] def mkCtorInfo (n : Name) (cidx : Nat) (usize : Nat) (ssize : Nat) : CtorInfo := ⟨n, cidx, usize, ssize⟩
-
 def CtorInfo.beq : CtorInfo → CtorInfo → Bool
 | ⟨n₁, cidx₁, usize₁, ssize₁⟩ ⟨n₂, cidx₂, usize₂, ssize₂⟩ :=
   n₁ == n₂ && cidx₁ == cidx₂ && usize₁ == usize₂ && ssize₁ == ssize₂
@@ -114,12 +112,12 @@ inductive Expr
 | reset (x : VarId)
 /- `reuse x in ctorI ys` instruction in the paper. -/
 | reuse (x : VarId) (i : CtorInfo) (ys : Array Arg)
-/- Extract the `tobject` value at Position `sizeof(void)*i` from `x`. -/
+/- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`. -/
 | proj (i : Nat) (x : VarId)
-/- Extract the `Usize` value at Position `sizeof(void)*i` from `x`. -/
+/- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
 | uproj (i : Nat) (x : VarId)
-/- Extract the scalar value at Position `n` (in bytes) from `x`. -/
-| sproj (n : Nat) (x : VarId)
+/- Extract the scalar value at Position `sizeof(void*)*n + offset` from `x`. -/
+| sproj (n : Nat) (offset : Nat) (x : VarId)
 /- Full application. -/
 | fap (c : FunId) (ys : Array Arg)
 /- Partial application that creates a `pap` value (aka closure in our nonstandard terminology). -/
@@ -137,10 +135,10 @@ inductive Expr
 /- Return `1 : uint8` Iff `x : tobject` is a tagged pointer (storing a scalar value). -/
 | isTaggedPtr (x : VarId)
 
-@[export lean.ir.mk_ctor_expr_core]  def mkCtorExpr (i : CtorInfo) (ys : Array Arg) : Expr := Expr.ctor i ys
+@[export lean.ir.mk_ctor_expr_core]  def mkCtorExpr (n : Name) (cidx : Nat) (usize : Nat) (ssize : Nat) (ys : Array Arg) : Expr := Expr.ctor ⟨n, cidx, usize, ssize⟩ ys
 @[export lean.ir.mk_proj_expr_core]  def mkProjExpr (i : Nat) (x : VarId) : Expr := Expr.proj i x
 @[export lean.ir.mk_uproj_expr_core] def mkUProjExpr (i : Nat) (x : VarId) : Expr := Expr.uproj i x
-@[export lean.ir.mk_sproj_expr_core] def mkSProjExpr (n : Nat) (x : VarId) : Expr := Expr.sproj n x
+@[export lean.ir.mk_sproj_expr_core] def mkSProjExpr (n : Nat) (offset : Nat) (x : VarId) : Expr := Expr.sproj n offset x
 @[export lean.ir.mk_fapp_expr_core]  def mkFAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.fap c ys
 @[export lean.ir.mk_papp_expr_core]  def mkPAppExpr (c : FunId) (ys : Array Arg) : Expr := Expr.pap c ys
 @[export lean.ir.mk_app_expr_core]   def mkAppExpr (x : VarId) (ys : Array Arg) : Expr := Expr.ap x ys
@@ -176,7 +174,7 @@ inductive FnBody
 | dec (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
 | mdata (d : MData) (b : FnBody)
 | case (tid : Name) (x : VarId) (cs : Array (AltCore FnBody))
-| ret (x : VarId)
+| ret (x : Arg)
 /- Jump to join point `j` -/
 | jmp (j : JoinPointId) (ys : Array Arg)
 | unreachable
@@ -186,7 +184,7 @@ inductive FnBody
 @[export lean.ir.mk_uset_core] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
 @[export lean.ir.mk_sset_core] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
 @[export lean.ir.mk_case_core] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x cs
-@[export lean.ir.mk_ret_core] def mkRet (x : VarId) : FnBody := FnBody.ret x
+@[export lean.ir.mk_ret_core] def mkRet (x : Arg) : FnBody := FnBody.ret x
 @[export lean.ir.mk_jmp_core] def mkJmp (j : JoinPointId) (ys : Array Arg) : FnBody := FnBody.jmp j ys
 @[export lean.ir.mk_unreachable_core] def mkUnreachable : FnBody := FnBody.unreachable
 
@@ -194,7 +192,7 @@ abbrev Alt := AltCore FnBody
 @[pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
 @[pattern] abbrev Alt.default := @AltCore.default FnBody
 
-@[export lean.ir.mk_alt_core] def mkAlt (info : CtorInfo) (b : FnBody) : Alt := Alt.ctor info b
+@[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, usize, ssize⟩ b
 
 inductive Decl
 | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
@@ -204,15 +202,15 @@ inductive Decl
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
 def Expr.isPure : Expr → Bool
-| (Expr.ctor _ _)  := true
-| (Expr.proj _ _)  := true
-| (Expr.uproj _ _) := true
-| (Expr.sproj _ _) := true
-| (Expr.fap _ _)   := true
-| (Expr.pap _ _)   := true
-| (Expr.ap _ _)    := true
-| (Expr.lit _)     := true
-| _                := false
+| (Expr.ctor _ _)    := true
+| (Expr.proj _ _)    := true
+| (Expr.uproj _ _)   := true
+| (Expr.sproj _ _ _) := true
+| (Expr.fap _ _)     := true
+| (Expr.pap _ _)     := true
+| (Expr.ap _ _)      := true
+| (Expr.lit _)       := true
+| _                  := false
 
 /-- `FnBody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
 partial def FnBody.isPure : FnBody → Bool
@@ -262,7 +260,7 @@ def Expr.alphaEqv (ρ : VarRenaming) : Expr → Expr → Bool
 | (Expr.reuse x₁ i₁ ys₁)  (Expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && i₁ == i₂ && ys₁ =[ρ]= ys₂
 | (Expr.proj i₁ x₁)       (Expr.proj i₂ x₂)       := i₁ == i₂ && x₁ =[ρ]= x₂
 | (Expr.uproj i₁ x₁)      (Expr.uproj i₂ x₂)      := i₁ == i₂ && x₁ =[ρ]= x₂
-| (Expr.sproj n₁ x₁)      (Expr.sproj n₂ x₂)      := n₁ == n₂ && x₁ =[ρ]= x₂
+| (Expr.sproj n₁ o₁ x₁)   (Expr.sproj n₂ o₂ x₂)   := n₁ == n₂ && o₁ == o₂ && x₁ =[ρ]= x₂
 | (Expr.fap c₁ ys₁)       (Expr.fap c₂ ys₂)       := c₁ == c₂ && ys₁ =[ρ]= ys₂
 | (Expr.pap c₁ ys₁)       (Expr.pap c₂ ys₂)       := c₁ == c₂ && ys₂ =[ρ]= ys₂
 | (Expr.ap x₁ ys₁)        (Expr.ap x₂ ys₂)        := x₁ =[ρ]= x₂ && ys₁ =[ρ]= ys₂
@@ -352,16 +350,16 @@ private def collectArgs (as : Array Arg) : Collector :=
 collectArray as collectArg
 
 private def collectExpr : Expr → Collector
-| (Expr.ctor i ys)       := collectArgs ys
+| (Expr.ctor _ ys)       := collectArgs ys
 | (Expr.reset x)         := collectVar x
-| (Expr.reuse x i ys)    := collectVar x; collectArgs ys
-| (Expr.proj i x)        := collectVar x
-| (Expr.uproj i x)       := collectVar x
-| (Expr.sproj n x)       := collectVar x
-| (Expr.fap c ys)        := collectArgs ys
-| (Expr.pap c ys)        := collectArgs ys
+| (Expr.reuse x _ ys)    := collectVar x; collectArgs ys
+| (Expr.proj _ x)        := collectVar x
+| (Expr.uproj _ x)       := collectVar x
+| (Expr.sproj _ _ x)     := collectVar x
+| (Expr.fap _ ys)        := collectArgs ys
+| (Expr.pap _ ys)        := collectArgs ys
 | (Expr.ap x ys)         := collectVar x; collectArgs ys
-| (Expr.box ty x)        := collectVar x
+| (Expr.box _ x)        := collectVar x
 | (Expr.unbox x)         := collectVar x
 | (Expr.lit v)           := skip
 | (Expr.isShared x)      := collectVar x
@@ -384,7 +382,7 @@ private partial def collectFnBody : FnBody → Collector
 | (FnBody.mdata _ b)        := collectFnBody b
 | (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
 | (FnBody.jmp j ys)         := collectVar j; collectArgs ys
-| (FnBody.ret x)            := collectVar x
+| (FnBody.ret x)            := collectArg x
 | FnBody.unreachable        := skip
 
 def freeVars (b : FnBody) : VarSet :=
@@ -424,7 +422,7 @@ private def formatExpr : Expr → Format
 | (Expr.reuse x i ys)    := "reuse " ++ format x ++ " in " ++ format i ++ format ys
 | (Expr.proj i x)        := "proj_" ++ format i ++ " " ++ format x
 | (Expr.uproj i x)       := "uproj_" ++ format i ++ " " ++ format x
-| (Expr.sproj n x)       := "sproj_" ++ format n ++ " " ++ format x
+| (Expr.sproj n o x)     := "sproj_" ++ format n ++ "_" ++ format o ++ " " ++ format x
 | (Expr.fap c ys)        := format c ++ " " ++ format ys
 | (Expr.pap c ys)        := "pap " ++ format c ++ " " ++ format ys
 | (Expr.ap x ys)         := "app " ++ format x ++ " " ++ format ys

@@ -11,6 +11,7 @@ namespace lean {
 namespace ir {
 typedef object_ref decl;
 std::string decl_to_string(decl const & d);
+nat decl_max_var(decl const & d);
 }
 ir::decl to_ir_decl(environment const & env, comp_decl const & d);
 }

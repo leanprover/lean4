@@ -37,6 +37,7 @@ extern object * mk_unreachable_core;
 object * mk_alt_core(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
 object * mk_decl_core(object * f, object * xs, uint8 ty, object * b);
 object * decl_to_string_core(object * d);
+object * decl_max_var_core(object * d);
 /*
 inductive IRType
 | float | uint8 | uint16 | uint32 | uint64 | usize
@@ -112,6 +113,10 @@ std::string decl_to_string(decl const & d) {
     inc(d.raw());
     string_ref r(decl_to_string_core(d.raw()));
     return r.to_std_string();
+}
+nat decl_max_var(decl const & d) {
+    inc(d.raw());
+    return nat(decl_max_var_core(d.raw()));
 }
 }
 

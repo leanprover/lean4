@@ -333,7 +333,7 @@ instance FnBody.HasBeq : HasBeq FnBody := ⟨FnBody.beq⟩
 abbrev VarIdxSet := RBTree Index (λ a b, a < b)
 instance vsetInh : Inhabited VarIdxSet := ⟨{}⟩
 
-section freeVariables
+namespace FreeVariables
 abbrev Collector := VarIdxSet → VarIdxSet → VarIdxSet
 
 @[inline] private def skip : Collector :=
@@ -366,8 +366,7 @@ ys.foldl (λ s p, s.insert p.x.idx) s
 @[inline] private def seq : Collector → Collector → Collector :=
 λ k₁ k₂ bv fv, k₂ bv (k₁ bv fv)
 
-instance : HasAndthen Collector :=
-⟨seq⟩
+instance : HasAndthen Collector := ⟨seq⟩
 
 private def collectArg : Arg → Collector
 | (Arg.var x) := collectVar x
@@ -389,7 +388,7 @@ private def collectExpr : Expr → Collector
 | (Expr.fap _ ys)        := collectArgs ys
 | (Expr.pap _ ys)        := collectArgs ys
 | (Expr.ap x ys)         := collectVar x; collectArgs ys
-| (Expr.box _ x)        := collectVar x
+| (Expr.box _ x)         := collectVar x
 | (Expr.unbox x)         := collectVar x
 | (Expr.lit v)           := skip
 | (Expr.isShared x)      := collectVar x
@@ -400,7 +399,7 @@ collectArray alts $ λ alt, match alt with
   | (Alt.ctor _ b)  := f b
   | (Alt.default b) := f b
 
-private partial def collectFnBody : FnBody → Collector
+partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v; withVar x (collectFnBody b)
 | (FnBody.jdecl j ys _ v b) := withParams ys (collectFnBody v); withJP j (collectFnBody b)
 | (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
@@ -415,10 +414,10 @@ private partial def collectFnBody : FnBody → Collector
 | (FnBody.ret x)            := collectArg x
 | FnBody.unreachable        := skip
 
-def freeVars (b : FnBody) : VarIdxSet :=
-collectFnBody b {} {}
+end FreeVariables
 
-end freeVariables
+def freeVars (b : FnBody) : VarIdxSet :=
+FreeVariables.collectFnBody b {} {}
 
 private def formatArg : Arg → Format
 | (Arg.var id)   := format id
@@ -512,6 +511,77 @@ def declToString (d : Decl) : String :=
 (format d).pretty
 
 instance declHasToString : HasToString Decl := ⟨declToString⟩
+
+namespace MaxVar
+abbrev Collector := Index → Index
+
+@[inline] private def skip : Collector := id
+@[inline] private def collect (x : Index) : Collector := λ y, if x > y then x else y
+@[inline] private def collectVar (x : VarId) : Collector := collect x.idx
+@[inline] private def collectJP (j : JoinPointId) : Collector := collect j.idx
+@[inline] private def seq (k₁ k₂ : Collector) : Collector := k₂ ∘ k₁
+instance : HasAndthen Collector := ⟨seq⟩
+
+private def collectArg : Arg → Collector
+| (Arg.var x) := collectVar x
+| irrelevant  := skip
+
+@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
+λ m, as.foldl (λ m a, f a m) m
+
+private def collectArgs (as : Array Arg) : Collector := collectArray as collectArg
+private def collectParam (p : Param) : Collector := collectVar p.x
+private def collectParams (ps : Array Param) : Collector := collectArray ps collectParam
+
+private def collectExpr : Expr → Collector
+| (Expr.ctor _ ys)       := collectArgs ys
+| (Expr.reset x)         := collectVar x
+| (Expr.reuse x _ ys)    := collectVar x; collectArgs ys
+| (Expr.proj _ x)        := collectVar x
+| (Expr.uproj _ x)       := collectVar x
+| (Expr.sproj _ _ x)     := collectVar x
+| (Expr.fap _ ys)        := collectArgs ys
+| (Expr.pap _ ys)        := collectArgs ys
+| (Expr.ap x ys)         := collectVar x; collectArgs ys
+| (Expr.box _ x)         := collectVar x
+| (Expr.unbox x)         := collectVar x
+| (Expr.lit v)           := skip
+| (Expr.isShared x)      := collectVar x
+| (Expr.isTaggedPtr x)   := collectVar x
+
+private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
+collectArray alts $ λ alt, match alt with
+  | (Alt.ctor _ b)  := f b
+  | (Alt.default b) := f b
+
+partial def collectFnBody : FnBody → Collector
+| (FnBody.vdecl x _ v b)    := collectExpr v; collectFnBody b
+| (FnBody.jdecl j ys _ v b) := collectFnBody v; collectParams ys; collectFnBody b
+| (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
+| (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
+| (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
+| (FnBody.release x _ b)    := collectVar x; collectFnBody b
+| (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.mdata _ b)        := collectFnBody b
+| (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
+| (FnBody.jmp j ys)         := collectJP j; collectArgs ys
+| (FnBody.ret x)            := collectArg x
+| FnBody.unreachable        := skip
+
+partial def collectDecl : Decl → Collector
+| (Decl.fdecl _ xs _ b) := collectParams xs; collectFnBody b
+| (Decl.extern _ xs _)  := collectParams xs
+
+end MaxVar
+
+@[export lean.ir.fnbody_max_var_core]
+def FnBody.maxVar (b : FnBody) : Index :=
+MaxVar.collectFnBody b 0
+
+@[export lean.ir.decl_max_var_core]
+def Decl.maxVar (d : Decl) : Index :=
+MaxVar.collectDecl d 0
 
 end IR
 end Lean

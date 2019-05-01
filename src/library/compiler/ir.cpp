@@ -390,6 +390,7 @@ class to_ir_fn {
 
     ir::fn_body visit_decl(local_decl const & decl, ir::fn_body const & b) {
         expr val          = *decl.get_value();
+        lean_assert(!is_fvar(val));
         if (is_lit(val)) {
             return visit_lit(decl, b);
         } if (is_lambda(val)) {
@@ -428,15 +429,20 @@ class to_ir_fn {
             expr type       = let_type(e);
             lean_assert(!has_loose_bvars(type));
             expr val        = instantiate_rev(let_value(e), subst.size(), subst.data());
-            name n          = next_name();
-            expr new_fvar   = m_lctx.mk_local_decl(ngen(), n, type, val);
-            fvars.push_back(new_fvar);
-            expr const & op = get_app_fn(val);
-            if (is_llnf_sset(op) || is_llnf_uset(op)) {
-                // In the Lean IR, sset and uset are instructions that perform destructive updates.
-                subst.push_back(app_arg(app_fn(val)));
+            if (is_fvar(val)) {
+                /* Eliminate `x := y` declarations */
+                subst.push_back(val);
             } else {
-                subst.push_back(new_fvar);
+                name n          = next_name();
+                expr new_fvar   = m_lctx.mk_local_decl(ngen(), n, type, val);
+                fvars.push_back(new_fvar);
+                expr const & op = get_app_fn(val);
+                if (is_llnf_sset(op) || is_llnf_uset(op)) {
+                    /* In the Lean IR, sset and uset are instructions that perform destructive updates. */
+                    subst.push_back(app_arg(app_fn(val)));
+                } else {
+                    subst.push_back(new_fvar);
+                }
             }
             e = let_body(e);
         }

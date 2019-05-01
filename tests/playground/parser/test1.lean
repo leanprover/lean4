@@ -21,8 +21,7 @@ def mkSetCompKind : IO SyntaxNodeKind := nextKind `setComp
 
 -- set_option pp.implicit true
 -- set_option trace.compiler.boxed true
-
-set_option trace.compiler.lambda_pure true
+-- set_option trace.compiler.lambda_pure true
 
 def numPairP : TermParser :=
 node numPairKind $

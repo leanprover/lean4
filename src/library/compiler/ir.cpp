@@ -44,8 +44,8 @@ inductive IRType
 */
 enum class type { Float, UInt8, UInt16, UInt32, UInt64, USize, Irrelevant, Object, TObject };
 
-typedef name       var_id;
-typedef name       jp_id;
+typedef nat        var_id;
+typedef nat        jp_id;
 typedef name       fun_id;
 typedef object_ref arg;
 typedef object_ref expr;
@@ -56,7 +56,7 @@ typedef object_ref decl;
 
 arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(mk_var_arg_core(id.raw())); }
 arg mk_irrelevant_arg() { return arg(mk_irrelevant_arg_core); }
-param mk_param(name const & x, type ty) {
+param mk_param(var_id const & x, type ty) {
     inc(x.raw());
     uint8 borrowed = false;
     return param(mk_param_core(x.raw(), borrowed, static_cast<uint8>(ty)));
@@ -118,10 +118,8 @@ std::string decl_to_string(decl const & d) {
 class to_ir_fn {
     type_checker::state m_st;
     local_ctx           m_lctx;
-    name                m_j{"j"};
     name                m_x{"x"};
-    unsigned            m_next_vidx{1};
-    unsigned            m_next_jidx{1};
+    unsigned            m_next_idx{1};
 
     environment const & env() const { return m_st.env(); }
 
@@ -131,21 +129,29 @@ class to_ir_fn {
         return is_llnf_jmp(get_app_fn(e));
     }
 
-    name next_var_name() {
-        name r(m_x, m_next_vidx);
-        m_next_vidx++;
+    name next_name() {
+        name r(m_x, m_next_idx);
+        m_next_idx++;
         return r;
     }
 
-    name next_jp_name() {
-        name r(m_j, m_next_jidx);
-        m_next_jidx++;
-        return r;
+    ir::var_id to_var_id(local_decl const & d) {
+        name n = d.get_user_name();
+        lean_assert(n.is_numeral());
+        return n.get_numeral();
+    }
+
+    ir::jp_id to_jp_id(local_decl const & d) {
+        return to_var_id(d);
     }
 
     ir::var_id to_var_id(expr const & e) {
         lean_assert(is_fvar(e));
-        return m_lctx.get_local_decl(e).get_user_name();
+        return to_var_id(m_lctx.get_local_decl(e));
+    }
+
+    ir::jp_id to_jp_id(expr const & e) {
+        return to_var_id(e);
     }
 
     ir::arg to_ir_arg(expr const & e) {
@@ -202,9 +208,8 @@ class to_ir_fn {
         buffer<expr> fvars;
         while (is_lambda(e)) {
             lean_assert(!has_loose_bvars(binding_domain(e)));
-            name x        = next_var_name();
-            expr new_fvar = m_lctx.mk_local_decl(ngen(), x, binding_domain(e));
-            new_xs.push_back(ir::mk_param(x, to_ir_type(binding_domain(e))));
+            expr new_fvar = m_lctx.mk_local_decl(ngen(), next_name(), binding_domain(e));
+            new_xs.push_back(ir::mk_param(to_var_id(new_fvar), to_ir_type(binding_domain(e))));
             fvars.push_back(new_fvar);
             e = binding_body(e);
         }
@@ -242,7 +247,7 @@ class to_ir_fn {
         lean_assert(is_fvar(jp));
         buffer<ir::arg> ir_args;
         to_ir_args(args.size()-1, args.data()+1, ir_args);
-        return ir::mk_jmp(to_var_id(jp), ir_args);
+        return ir::mk_jmp(to_jp_id(jp), ir_args);
     }
 
     ir::fn_body visit_terminal(expr const & e) {
@@ -270,7 +275,7 @@ class to_ir_fn {
 
     ir::fn_body mk_vdecl(local_decl const & decl, ir::expr const & val, ir::fn_body const & b) {
         ir::type type = to_ir_type(decl.get_type());
-        return ir::mk_vdecl(decl.get_user_name(), type, val, b);
+        return ir::mk_vdecl(to_var_id(decl), type, val, b);
     }
 
     ir::fn_body visit_lit(local_decl const & decl, ir::fn_body const & b) {
@@ -283,7 +288,7 @@ class to_ir_fn {
         buffer<ir::param> xs;
         ir::fn_body v = visit_lambda(val, xs);
         ir::type t    = to_ir_result_type(decl.get_type(), xs.size());
-        return ir::mk_jdecl(decl.get_user_name(), xs, t, v, b);
+        return ir::mk_jdecl(to_jp_id(decl), xs, t, v, b);
     }
 
     ir::fn_body visit_ctor(local_decl const & decl, ir::fn_body const & b) {
@@ -418,7 +423,7 @@ class to_ir_fn {
             expr type       = let_type(e);
             lean_assert(!has_loose_bvars(type));
             expr val        = instantiate_rev(let_value(e), subst.size(), subst.data());
-            name n          = is_join_point_name(let_name(e)) ? next_jp_name() : next_var_name();
+            name n          = next_name();
             expr new_fvar   = m_lctx.mk_local_decl(ngen(), n, type, val);
             fvars.push_back(new_fvar);
             expr const & op = get_app_fn(val);

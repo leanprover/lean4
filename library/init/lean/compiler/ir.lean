@@ -17,12 +17,28 @@ above are implemented in Lean.
 namespace Lean
 namespace IR
 
-/- Variable identifier -/
-abbrev VarId := Name
 /- Function identifier -/
 abbrev FunId := Name
+abbrev Index := Nat
+/- Variable identifier -/
+structure VarId :=
+(idx : Index)
 /- Join point identifier -/
-abbrev JoinPointId := Name
+structure JoinPointId :=
+(idx : Index)
+
+namespace VarId
+instance : HasBeq VarId := ⟨λ a b, a.idx == b.idx⟩
+instance : HasToString VarId := ⟨λ a, "x_" ++ toString a.idx⟩
+instance : HasFormat VarId := ⟨λ a, toString a⟩
+def lt (a b : VarId) : Bool := a.idx < b.idx
+end VarId
+
+namespace JoinPointId
+instance : HasBeq JoinPointId := ⟨λ a b, a.idx == b.idx⟩
+instance : HasToString JoinPointId := ⟨λ a, "jp_" ++ toString a.idx⟩
+instance : HasFormat JoinPointId := ⟨λ a, toString a⟩
+end JoinPointId
 
 abbrev MData := KVMap
 namespace MData
@@ -147,9 +163,9 @@ inductive Expr
 @[export lean.ir.mk_str_expr_core]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
 
 structure Param :=
-(x : Name) (borrowed : Bool) (ty : IRType)
+(x : VarId) (borrowed : Bool) (ty : IRType)
 
-@[export lean.ir.mk_param_core] def mkParam (x : Name) (borrowed : Bool) (ty : IRType) : Param := ⟨x, borrowed, ty⟩
+@[export lean.ir.mk_param_core] def mkParam (x : VarId) (borrowed : Bool) (ty : IRType) : Param := ⟨x, borrowed, ty⟩
 
 inductive AltCore (FnBody : Type) : Type
 | ctor (info : CtorInfo) (b : FnBody) : AltCore
@@ -229,33 +245,33 @@ partial def FnBody.isPure : FnBody → Bool
 | FnBody.unreachable        := true
 | _                         := false
 
-abbrev VarRenaming := NameMap Name
+abbrev VarIdxRenaming := RBMap Index Index (λ a b, a < b)
 
 class HasAlphaEqv (α : Type) :=
-(aeqv : VarRenaming → α → α → Bool)
+(aeqv : VarIdxRenaming → α → α → Bool)
 
 local notation a `=[`:50 ρ `]=`:0 b:50 := HasAlphaEqv.aeqv ρ a b
 
-def VarId.alphaEqv (ρ : VarRenaming) (v₁ v₂ : VarId) : Bool :=
-match ρ.find v₁ with
-| some v := v == v₂
+def VarId.alphaEqv (ρ : VarIdxRenaming) (v₁ v₂ : VarId) : Bool :=
+match ρ.find v₁.idx with
+| some v := v == v₂.idx
 | none   := v₁ == v₂
 
 instance VarId.hasAeqv : HasAlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
-def Arg.alphaEqv (ρ : VarRenaming) : Arg → Arg → Bool
+def Arg.alphaEqv (ρ : VarIdxRenaming) : Arg → Arg → Bool
 | (Arg.var v₁)   (Arg.var v₂)   := v₁ =[ρ]= v₂
 | Arg.irrelevant Arg.irrelevant := true
 | _              _              := false
 
 instance Arg.hasAeqv : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
-def args.alphaEqv (ρ : VarRenaming) (args₁ args₂ : Array Arg) : Bool :=
+def args.alphaEqv (ρ : VarIdxRenaming) (args₁ args₂ : Array Arg) : Bool :=
 Array.isEqv args₁ args₂ (λ a b, a =[ρ]= b)
 
 instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
-def Expr.alphaEqv (ρ : VarRenaming) : Expr → Expr → Bool
+def Expr.alphaEqv (ρ : VarIdxRenaming) : Expr → Expr → Bool
 | (Expr.ctor i₁ ys₁)      (Expr.ctor i₂ ys₂)      := i₁ == i₂ && ys₁ =[ρ]= ys₂
 | (Expr.reset x₁)         (Expr.reset x₂)         := x₁ =[ρ]= x₂
 | (Expr.reuse x₁ i₁ ys₁)  (Expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && i₁ == i₂ && ys₁ =[ρ]= ys₂
@@ -274,22 +290,22 @@ def Expr.alphaEqv (ρ : VarRenaming) : Expr → Expr → Bool
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
 
-def addVarRename (ρ : VarRenaming) (x₁ x₂ : Name) :=
-if x₁ = x₂ then ρ else ρ.insert x₁ x₂
+def addVarRename (ρ : VarIdxRenaming) (x₁ x₂ : Nat) :=
+if x₁ == x₂ then ρ else ρ.insert x₁ x₂
 
-def addParamRename (ρ : VarRenaming) (p₁ p₂ : Param) : Option VarRenaming :=
-if p₁.ty == p₂.ty && p₁.borrowed = p₂.borrowed then some (addVarRename ρ p₁.x p₂.x)
+def addParamRename (ρ : VarIdxRenaming) (p₁ p₂ : Param) : Option VarIdxRenaming :=
+if p₁.ty == p₂.ty && p₁.borrowed = p₂.borrowed then some (addVarRename ρ p₁.x.idx p₂.x.idx)
 else none
 
-def addParamsRename (ρ : VarRenaming) (ps₁ ps₂ : Array Param) : Option VarRenaming :=
+def addParamsRename (ρ : VarIdxRenaming) (ps₁ ps₂ : Array Param) : Option VarIdxRenaming :=
 if ps₁.size != ps₂.size then none
 else Array.foldl₂ ps₁ ps₂ (λ ρ p₁ p₂, do ρ ← ρ, addParamRename ρ p₁ p₂) (some ρ)
 
-partial def FnBody.alphaEqv : VarRenaming → FnBody → FnBody → Bool
-| ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁ x₂) b₁ b₂
+partial def FnBody.alphaEqv : VarIdxRenaming → FnBody → FnBody → Bool
+| ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
 | ρ (FnBody.jdecl j₁ ys₁ t₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
   (match addParamsRename ρ ys₁ ys₂ with
-   | some ρ' := t₁ == t₂ && FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁ j₂) b₁ b₂
+   | some ρ' := t₁ == t₂ && FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
    | none    := false)
 | ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
@@ -314,22 +330,35 @@ FnBody.alphaEqv ∅  b₁ b₂
 
 instance FnBody.HasBeq : HasBeq FnBody := ⟨FnBody.beq⟩
 
-abbrev VarSet := NameSet
+abbrev VarIdxSet := RBTree Index (λ a b, a < b)
+instance vsetInh : Inhabited VarIdxSet := ⟨{}⟩
 
 section freeVariables
-abbrev Collector := NameSet → NameSet → NameSet
+abbrev Collector := VarIdxSet → VarIdxSet → VarIdxSet
 
 @[inline] private def skip : Collector :=
 λ bv fv, fv
 
-@[inline] private def collectVar (x : VarId) : Collector :=
+@[inline] private def collectIndex (x : Index) : Collector :=
 λ bv fv, if bv.contains x then fv else fv.insert x
 
-@[inline] private def withBv (x : VarId) : Collector → Collector :=
+@[inline] private def collectVar (x : VarId) : Collector :=
+collectIndex x.idx
+
+@[inline] private def collectJP (x : JoinPointId) : Collector :=
+collectIndex x.idx
+
+@[inline] private def withIndex (x : Index) : Collector → Collector :=
 λ k bv fv, k (bv.insert x) fv
 
-def insertParams (s : VarSet) (ys : Array Param) : VarSet :=
-ys.foldl (λ s p, s.insert p.x) s
+@[inline] private def withVar (x : VarId) : Collector → Collector :=
+withIndex x.idx
+
+@[inline] private def withJP (x : JoinPointId) : Collector → Collector :=
+withIndex x.idx
+
+def insertParams (s : VarIdxSet) (ys : Array Param) : VarIdxSet :=
+ys.foldl (λ s p, s.insert p.x.idx) s
 
 @[inline] private def withParams (ys : Array Param) : Collector → Collector :=
 λ k bv fv, k (insertParams bv ys) fv
@@ -372,8 +401,8 @@ collectArray alts $ λ alt, match alt with
   | (Alt.default b) := f b
 
 private partial def collectFnBody : FnBody → Collector
-| (FnBody.vdecl x _ v b)    := collectExpr v; withBv x (collectFnBody b)
-| (FnBody.jdecl j ys _ v b) := withParams ys (collectFnBody v); withBv j (collectFnBody b)
+| (FnBody.vdecl x _ v b)    := collectExpr v; withVar x (collectFnBody b)
+| (FnBody.jdecl j ys _ v b) := withParams ys (collectFnBody v); withJP j (collectFnBody b)
 | (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
 | (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
 | (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
@@ -382,11 +411,11 @@ private partial def collectFnBody : FnBody → Collector
 | (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
 | (FnBody.mdata _ b)        := collectFnBody b
 | (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
-| (FnBody.jmp j ys)         := collectVar j; collectArgs ys
+| (FnBody.jmp j ys)         := collectJP j; collectArgs ys
 | (FnBody.ret x)            := collectArg x
 | FnBody.unreachable        := skip
 
-def freeVars (b : FnBody) : VarSet :=
+def freeVars (b : FnBody) : VarIdxSet :=
 collectFnBody b {} {}
 
 end freeVariables

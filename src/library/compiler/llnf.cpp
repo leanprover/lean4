@@ -24,6 +24,7 @@ Author: Leonardo de Moura
 #include "library/compiler/elim_dead_let.h"
 #include "library/compiler/extern_attribute.h"
 #include "library/compiler/borrowed_annotation.h"
+#include "library/compiler/ir.h"
 
 namespace lean {
 static expr * g_apply       = nullptr;
@@ -207,45 +208,17 @@ bool is_llnf_op(expr const & e) {
         is_llnf_dec(e);
 }
 
-struct field_info {
-    /* Remark: the position of a scalar value in
-       a constructor object is: `sizeof(void*)*m_idx + m_offset` */
-    enum kind { Irrelevant, Object, USize, Scalar };
-    kind     m_kind;
-    unsigned m_size;   // it is used only if `m_kind == Scalar`
-    unsigned m_idx;
-    unsigned m_offset; // it is used only if `m_kind == Scalar`
-    expr     m_type;
-    field_info():m_kind(Irrelevant), m_idx(0), m_type(mk_enf_neutral()) {}
-    field_info(unsigned idx):m_kind(Object), m_idx(idx), m_type(mk_enf_object_type()) {}
-    field_info(unsigned num, bool):m_kind(USize), m_idx(num), m_type(mk_constant(get_usize_name())) {}
-    field_info(unsigned sz, unsigned num, unsigned offset, expr const & type):
-        m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type) {}
-    expr get_type() const { return m_type; }
-    static field_info mk_irrelevant() { return field_info(); }
-    static field_info mk_object(unsigned idx) { return field_info(idx); }
-    static field_info mk_usize(unsigned n) { return field_info(n, true); }
-    static field_info mk_scalar(unsigned sz, unsigned offset, expr const & type) { return field_info(sz, 0, offset, type); }
-};
-
-struct cnstr_info {
-    unsigned         m_cidx;
-    list<field_info> m_field_info;
-    unsigned         m_num_objs{0};
-    unsigned         m_num_usizes{0};
-    unsigned         m_scalar_sz{0};
-    cnstr_info(unsigned cidx, list<field_info> const & finfo):
-        m_cidx(cidx), m_field_info(finfo) {
-        for (field_info const & info : finfo) {
-            if (info.m_kind == field_info::Object)
-                m_num_objs++;
-            else if (info.m_kind == field_info::USize)
-                m_num_usizes++;
-            else if (info.m_kind == field_info::Scalar)
-                m_scalar_sz += info.m_size;
-        }
+cnstr_info::cnstr_info(unsigned cidx, list<field_info> const & finfo):
+    m_cidx(cidx), m_field_info(finfo) {
+    for (field_info const & info : finfo) {
+        if (info.m_kind == field_info::Object)
+            m_num_objs++;
+        else if (info.m_kind == field_info::USize)
+            m_num_usizes++;
+        else if (info.m_kind == field_info::Scalar)
+            m_scalar_sz += info.m_size;
     }
-};
+}
 
 unsigned get_llnf_arity(environment const & env, name const & n) {
     /* First, try to infer arity from `_cstage2` auxiliary definition. */
@@ -343,7 +316,7 @@ static void get_cnstr_info_core(type_checker::state & st, bool unboxed, name con
     }
 }
 
-static cnstr_info get_cnstr_info(type_checker::state & st, bool unboxed, name const & n) {
+cnstr_info get_cnstr_info(type_checker::state & st, bool unboxed, name const & n) {
     buffer<field_info> finfos;
     get_cnstr_info_core(st, unboxed, n, finfos);
     unsigned cidx      = get_constructor_idx(st.env(), n);
@@ -2442,13 +2415,20 @@ public:
     }
 };
 
+static void display_ir(environment const & env, comp_decl const & decl) {
+    ir::decl d = to_ir_decl(env, decl);
+    tout() << ir::decl_to_string(d) << "\n";
+}
+
 pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {
     environment new_env = env;
     buffer<comp_decl> rs;
     buffer<comp_decl> bs;
     for (comp_decl const & d : ds) {
         expr new_v = to_lambda_pure_fn(new_env, unboxed)(d.snd());
-        lean_trace(name({"compiler", "lambda_pure"}), tout() << d.fst() << " :=\n" << new_v << "\n";);
+        if (unboxed) {
+            lean_trace(name({"compiler", "lambda_pure"}), tout() << "\n"; display_ir(new_env, comp_decl(d.fst(), new_v)););
+        }
         new_v      = push_proj_fn(new_env)(new_v);
         new_v      = insert_reset_reuse_fn(new_env, unboxed)(new_v);
         new_v      = simp_cases(new_env, new_v);

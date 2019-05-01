@@ -50,6 +50,38 @@ inline bool is_llnf_unbox(expr const & e) { unsigned n; return is_llnf_unbox(e, 
 expr get_constant_ll_type(environment const & env, name const & c);
 unsigned get_llnf_arity(environment const & env, name const & c);
 
+struct field_info {
+    /* Remark: the position of a scalar value in
+       a constructor object is: `sizeof(void*)*m_idx + m_offset` */
+    enum kind { Irrelevant, Object, USize, Scalar };
+    kind     m_kind;
+    unsigned m_size;   // it is used only if `m_kind == Scalar`
+    unsigned m_idx;
+    unsigned m_offset; // it is used only if `m_kind == Scalar`
+    expr     m_type;
+    field_info():m_kind(Irrelevant), m_idx(0), m_type(mk_enf_neutral()) {}
+    field_info(unsigned idx):m_kind(Object), m_idx(idx), m_type(mk_enf_object_type()) {}
+    field_info(unsigned num, bool):m_kind(USize), m_idx(num), m_type(mk_constant(get_usize_name())) {}
+    field_info(unsigned sz, unsigned num, unsigned offset, expr const & type):
+        m_kind(Scalar), m_size(sz), m_idx(num), m_offset(offset), m_type(type) {}
+    expr get_type() const { return m_type; }
+    static field_info mk_irrelevant() { return field_info(); }
+    static field_info mk_object(unsigned idx) { return field_info(idx); }
+    static field_info mk_usize(unsigned n) { return field_info(n, true); }
+    static field_info mk_scalar(unsigned sz, unsigned offset, expr const & type) { return field_info(sz, 0, offset, type); }
+};
+
+struct cnstr_info {
+    unsigned         m_cidx;
+    list<field_info> m_field_info;
+    unsigned         m_num_objs{0};
+    unsigned         m_num_usizes{0};
+    unsigned         m_scalar_sz{0};
+    cnstr_info(unsigned cidx, list<field_info> const & finfo);
+};
+
+cnstr_info get_cnstr_info(type_checker::state & st, bool unboxed, name const & n);
+
 void initialize_llnf();
 void finalize_llnf();
 }

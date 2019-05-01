@@ -28,6 +28,7 @@ obj* l___private_init_lean_compiler_ir_16__formatExpr___main___closed__9;
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_IR_mkVDecl___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_formatKVMap(obj*);
+obj* l_Lean_Format_pretty(obj*, obj*);
 uint8 l_Lean_IR_IRType_beq(uint8, uint8);
 uint8 l_Lean_IR_Arg_alphaEqv(obj*, obj*, obj*);
 extern obj* l_Lean_Format_paren___closed__2;
@@ -54,7 +55,7 @@ obj* l___private_init_lean_compiler_ir_4__withParams___boxed(obj*, obj*, obj*, o
 obj* l_Lean_IR_addParamRename(obj*, obj*, obj*);
 namespace lean {
 namespace ir {
-obj* mk_alt_core(obj*, obj*, obj*, obj*, obj*);
+obj* mk_alt_core(obj*, obj*, obj*, obj*, obj*, obj*);
 }}
 uint8 l_Lean_IR_LitVal_beq___main(obj*, obj*);
 obj* l_Lean_IR_mkParam___boxed(obj*, obj*, obj*);
@@ -75,6 +76,10 @@ namespace lean {
 namespace ir {
 obj* mk_jmp_core(obj*, obj*);
 }}
+namespace lean {
+namespace ir {
+obj* decl_to_string_core(obj*);
+}}
 obj* l___private_init_lean_compiler_ir_16__formatExpr___main___closed__12;
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__17;
@@ -94,6 +99,7 @@ obj* mk_proj_expr_core(obj*, obj*);
 }}
 obj* l_Lean_IR_formatAlt___main___closed__1;
 uint8 l_Lean_IR_CtorInfo_beq(obj*, obj*);
+extern obj* l_Lean_Options_empty;
 obj* l_Lean_IR_argsHasFormat;
 obj* l___private_init_lean_compiler_ir_11__collectFnBody___main(obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__13;
@@ -224,6 +230,7 @@ obj* mk_irrelevant_arg_core;
 }}
 obj* l_Lean_IR_HasAndthen;
 obj* l_Lean_IR_Arg_alphaEqv___main___boxed(obj*, obj*, obj*);
+obj* l_Lean_IR_declHasToString;
 obj* l_Lean_IR_LitVal_beq___main___boxed(obj*, obj*);
 namespace lean {
 namespace ir {
@@ -290,7 +297,7 @@ obj* l___private_init_lean_compiler_ir_15__formatCtorInfo(obj*);
 obj* l___private_init_lean_compiler_ir_13__formatArgs(obj*);
 namespace lean {
 namespace ir {
-obj* mk_ctor_expr_core(obj*, obj*, obj*, obj*, obj*);
+obj* mk_ctor_expr_core(obj*, obj*, obj*, obj*, obj*, obj*);
 }}
 obj* l___private_init_lean_compiler_ir_16__formatExpr___main___closed__10;
 obj* l___private_init_lean_compiler_ir_16__formatExpr___main___closed__13;
@@ -654,26 +661,18 @@ return x_0;
 uint8 l_Lean_IR_CtorInfo_beq___main(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; uint8 x_10; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; uint8 x_12; 
 x_2 = lean::cnstr_get(x_0, 0);
 x_3 = lean::cnstr_get(x_0, 1);
 x_4 = lean::cnstr_get(x_0, 2);
 x_5 = lean::cnstr_get(x_0, 3);
-x_6 = lean::cnstr_get(x_1, 0);
-x_7 = lean::cnstr_get(x_1, 1);
-x_8 = lean::cnstr_get(x_1, 2);
-x_9 = lean::cnstr_get(x_1, 3);
-x_10 = lean_name_dec_eq(x_2, x_6);
-if (x_10 == 0)
-{
-uint8 x_11; 
-x_11 = 0;
-return x_11;
-}
-else
-{
-uint8 x_12; 
-x_12 = lean::nat_dec_eq(x_3, x_7);
+x_6 = lean::cnstr_get(x_0, 4);
+x_7 = lean::cnstr_get(x_1, 0);
+x_8 = lean::cnstr_get(x_1, 1);
+x_9 = lean::cnstr_get(x_1, 2);
+x_10 = lean::cnstr_get(x_1, 3);
+x_11 = lean::cnstr_get(x_1, 4);
+x_12 = lean_name_dec_eq(x_2, x_7);
 if (x_12 == 0)
 {
 uint8 x_13; 
@@ -683,7 +682,7 @@ return x_13;
 else
 {
 uint8 x_14; 
-x_14 = lean::nat_dec_eq(x_4, x_8);
+x_14 = lean::nat_dec_eq(x_3, x_8);
 if (x_14 == 0)
 {
 uint8 x_15; 
@@ -693,8 +692,29 @@ return x_15;
 else
 {
 uint8 x_16; 
-x_16 = lean::nat_dec_eq(x_5, x_9);
-return x_16;
+x_16 = lean::nat_dec_eq(x_4, x_9);
+if (x_16 == 0)
+{
+uint8 x_17; 
+x_17 = 0;
+return x_17;
+}
+else
+{
+uint8 x_18; 
+x_18 = lean::nat_dec_eq(x_5, x_10);
+if (x_18 == 0)
+{
+uint8 x_19; 
+x_19 = 0;
+return x_19;
+}
+else
+{
+uint8 x_20; 
+x_20 = lean::nat_dec_eq(x_6, x_11);
+return x_20;
+}
 }
 }
 }
@@ -740,19 +760,20 @@ return x_0;
 }
 namespace lean {
 namespace ir {
-obj* mk_ctor_expr_core(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* mk_ctor_expr_core(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-obj* x_5; obj* x_6; 
-x_5 = lean::alloc_cnstr(0, 4, 0);
-lean::cnstr_set(x_5, 0, x_0);
-lean::cnstr_set(x_5, 1, x_1);
-lean::cnstr_set(x_5, 2, x_2);
-lean::cnstr_set(x_5, 3, x_3);
-x_6 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_6, 0, x_5);
-lean::cnstr_set(x_6, 1, x_4);
-return x_6;
+obj* x_6; obj* x_7; 
+x_6 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_6, 0, x_0);
+lean::cnstr_set(x_6, 1, x_1);
+lean::cnstr_set(x_6, 2, x_2);
+lean::cnstr_set(x_6, 3, x_3);
+lean::cnstr_set(x_6, 4, x_4);
+x_7 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_7, 0, x_6);
+lean::cnstr_set(x_7, 1, x_5);
+return x_7;
 }
 }
 }}
@@ -1053,19 +1074,20 @@ return x_1;
 }
 namespace lean {
 namespace ir {
-obj* mk_alt_core(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* mk_alt_core(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-obj* x_5; obj* x_6; 
-x_5 = lean::alloc_cnstr(0, 4, 0);
-lean::cnstr_set(x_5, 0, x_0);
-lean::cnstr_set(x_5, 1, x_1);
-lean::cnstr_set(x_5, 2, x_2);
-lean::cnstr_set(x_5, 3, x_3);
-x_6 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_6, 0, x_5);
-lean::cnstr_set(x_6, 1, x_4);
-return x_6;
+obj* x_6; obj* x_7; 
+x_6 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_6, 0, x_0);
+lean::cnstr_set(x_6, 1, x_1);
+lean::cnstr_set(x_6, 2, x_2);
+lean::cnstr_set(x_6, 3, x_3);
+lean::cnstr_set(x_6, 4, x_4);
+x_7 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_7, 0, x_6);
+lean::cnstr_set(x_7, 1, x_5);
+return x_7;
 }
 }
 }}
@@ -4782,9 +4804,9 @@ x_1 = lean::cnstr_get(x_0, 0);
 lean::inc(x_1);
 x_3 = lean::cnstr_get(x_0, 1);
 lean::inc(x_3);
-x_5 = lean::cnstr_get(x_0, 2);
+x_5 = lean::cnstr_get(x_0, 3);
 lean::inc(x_5);
-x_7 = lean::cnstr_get(x_0, 3);
+x_7 = lean::cnstr_get(x_0, 4);
 lean::inc(x_7);
 lean::dec(x_0);
 x_10 = l_Nat_repr(x_3);
@@ -5834,61 +5856,67 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_3; obj* x_5; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
+obj* x_3; obj* x_5; obj* x_8; obj* x_11; obj* x_12; obj* x_13; uint8 x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_5 = lean::cnstr_get(x_2, 1);
 lean::inc(x_5);
 lean::dec(x_2);
-x_8 = l___private_init_lean_compiler_ir_15__formatCtorInfo___main(x_3);
-x_9 = 0;
-x_10 = l_Lean_IR_formatAlt___main___closed__1;
-x_11 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_11, 0, x_8);
-lean::cnstr_set(x_11, 1, x_10);
-lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_9);
-x_12 = x_11;
-x_13 = lean::apply_1(x_0, x_5);
-x_14 = lean::box(1);
-x_15 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_15, 0, x_14);
-lean::cnstr_set(x_15, 1, x_13);
-lean::cnstr_set_scalar(x_15, sizeof(void*)*2, x_9);
-x_16 = x_15;
-x_17 = lean::alloc_cnstr(3, 2, 0);
-lean::cnstr_set(x_17, 0, x_1);
-lean::cnstr_set(x_17, 1, x_16);
-x_18 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_18, 0, x_12);
-lean::cnstr_set(x_18, 1, x_17);
-lean::cnstr_set_scalar(x_18, sizeof(void*)*2, x_9);
-x_19 = x_18;
-return x_19;
+x_8 = lean::cnstr_get(x_3, 0);
+lean::inc(x_8);
+lean::dec(x_3);
+x_11 = l_Lean_Name_toString___closed__1;
+x_12 = l_Lean_Name_toStringWithSep___main(x_11, x_8);
+x_13 = lean::alloc_cnstr(2, 1, 0);
+lean::cnstr_set(x_13, 0, x_12);
+x_14 = 0;
+x_15 = l_Lean_IR_formatAlt___main___closed__1;
+x_16 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_16, 0, x_13);
+lean::cnstr_set(x_16, 1, x_15);
+lean::cnstr_set_scalar(x_16, sizeof(void*)*2, x_14);
+x_17 = x_16;
+x_18 = lean::apply_1(x_0, x_5);
+x_19 = lean::box(1);
+x_20 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_20, 0, x_19);
+lean::cnstr_set(x_20, 1, x_18);
+lean::cnstr_set_scalar(x_20, sizeof(void*)*2, x_14);
+x_21 = x_20;
+x_22 = lean::alloc_cnstr(3, 2, 0);
+lean::cnstr_set(x_22, 0, x_1);
+lean::cnstr_set(x_22, 1, x_21);
+x_23 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_23, 0, x_17);
+lean::cnstr_set(x_23, 1, x_22);
+lean::cnstr_set_scalar(x_23, sizeof(void*)*2, x_14);
+x_24 = x_23;
+return x_24;
 }
 else
 {
-obj* x_20; obj* x_23; uint8 x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; 
-x_20 = lean::cnstr_get(x_2, 0);
-lean::inc(x_20);
+obj* x_25; obj* x_28; uint8 x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_35; obj* x_36; 
+x_25 = lean::cnstr_get(x_2, 0);
+lean::inc(x_25);
 lean::dec(x_2);
-x_23 = lean::apply_1(x_0, x_20);
-x_24 = 0;
-x_25 = lean::box(1);
-x_26 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_26, 0, x_25);
-lean::cnstr_set(x_26, 1, x_23);
-lean::cnstr_set_scalar(x_26, sizeof(void*)*2, x_24);
-x_27 = x_26;
-x_28 = lean::alloc_cnstr(3, 2, 0);
-lean::cnstr_set(x_28, 0, x_1);
-lean::cnstr_set(x_28, 1, x_27);
-x_29 = l_Lean_IR_formatAlt___main___closed__2;
-x_30 = lean::alloc_cnstr(4, 2, 1);
-lean::cnstr_set(x_30, 0, x_29);
-lean::cnstr_set(x_30, 1, x_28);
-lean::cnstr_set_scalar(x_30, sizeof(void*)*2, x_24);
-x_31 = x_30;
-return x_31;
+x_28 = lean::apply_1(x_0, x_25);
+x_29 = 0;
+x_30 = lean::box(1);
+x_31 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_31, 0, x_30);
+lean::cnstr_set(x_31, 1, x_28);
+lean::cnstr_set_scalar(x_31, sizeof(void*)*2, x_29);
+x_32 = x_31;
+x_33 = lean::alloc_cnstr(3, 2, 0);
+lean::cnstr_set(x_33, 0, x_1);
+lean::cnstr_set(x_33, 1, x_32);
+x_34 = l_Lean_IR_formatAlt___main___closed__2;
+x_35 = lean::alloc_cnstr(4, 2, 1);
+lean::cnstr_set(x_35, 0, x_34);
+lean::cnstr_set(x_35, 1, x_33);
+lean::cnstr_set_scalar(x_35, sizeof(void*)*2, x_29);
+x_36 = x_35;
+return x_36;
 }
 }
 }
@@ -7152,6 +7180,28 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
+namespace lean {
+namespace ir {
+obj* decl_to_string_core(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_1 = lean::mk_nat_obj(2ul);
+x_2 = l_Lean_IR_formatDecl___main(x_1, x_0);
+x_3 = l_Lean_Options_empty;
+x_4 = l_Lean_Format_pretty(x_2, x_3);
+return x_4;
+}
+}
+}}
+obj* _init_l_Lean_IR_declHasToString() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(lean::ir::decl_to_string_core), 1, 0);
+return x_0;
+}
+}
 obj* initialize_init_default(obj*);
 obj* initialize_init_lean_name(obj*);
 obj* initialize_init_lean_kvmap(obj*);
@@ -7316,5 +7366,7 @@ lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__1);
 lean::mark_persistent(l_Lean_IR_formatDecl___main___closed__2);
  l_Lean_IR_declHasFormat = _init_l_Lean_IR_declHasFormat();
 lean::mark_persistent(l_Lean_IR_declHasFormat);
+ l_Lean_IR_declHasToString = _init_l_Lean_IR_declHasToString();
+lean::mark_persistent(l_Lean_IR_declHasToString);
 return w;
 }

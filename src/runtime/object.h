@@ -1431,6 +1431,28 @@ inline object * array_pop(obj_arg a) {
     return r;
 }
 
+inline object * array_swap_core(obj_arg a, usize i, usize j) {
+    object * r   = ensure_exclusive_array(a);
+    object ** it = array_cptr(r);
+    object * v1  = it[i];
+    it[i]        = it[j];
+    it[j]        = v1;
+    return r;
+}
+
+inline object * array_fswap(obj_arg a, b_obj_arg i, b_obj_arg j) {
+    return array_swap_core(a, unbox(i), unbox(j));
+}
+
+inline object * array_swap(obj_arg a, b_obj_arg i, b_obj_arg j) {
+    if (!is_scalar(i) || !is_scalar(j)) return a;
+    usize ui = unbox(i);
+    usize uj = unbox(j);
+    usize sz = to_array(a)->m_size;
+    if (ui >= sz || uj >= sz) return a;
+    return array_swap_core(a, ui, uj);
+}
+
 object * array_push(obj_arg a, obj_arg v);
 object * mk_array(obj_arg n, obj_arg v);
 

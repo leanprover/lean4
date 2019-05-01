@@ -100,6 +100,20 @@ a.update ⟨i.toNat, h⟩ v
 def set (a : Array α) (i : @& Nat) (v : α) : Array α :=
 if h : i < a.size then a.update ⟨i, h⟩ v else a
 
+@[extern cpp inline "lean::array_fswap(#2, #3, #4)"]
+def fswap (a : Array α) (i j : @& Fin a.size) : Array α :=
+let v₁ := a.index i in
+let v₂ := a.index j in
+let a  := a.update i v₂ in
+a.update j v₁
+
+@[extern cpp inline "lean::array_swap(#2, #3, #4)"]
+def swap (a : Array α) (i j : @& Nat) : Array α :=
+if h₁ : i < a.size then
+if h₂ : j < a.size then fswap a ⟨i, h₁⟩ ⟨j, h₂⟩
+else a
+else a
+
 theorem szUpdateEq (a : Array α) (i : Fin a.size) (v : α) : (update a i v).size = a.size :=
 rfl
 

@@ -26,4 +26,7 @@ do
  IO.println $ ([1, 2, 3, 4].toArray.extract 0 100),
  IO.println $ ([1, 2, 3, 4].toArray.extract 1 1),
  IO.println $ ([1, 2, 3, 4].toArray.extract 2 4),
+ IO.println [1,2,3,4].toArray.reverse,
+ IO.println ([] : List Nat).toArray.reverse,
+ IO.println [1,2,3].toArray.reverse,
  pure 0

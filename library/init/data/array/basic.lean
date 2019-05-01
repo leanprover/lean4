@@ -317,6 +317,19 @@ else
 
 instance [HasBeq α] : HasBeq (Array α) :=
 ⟨λ a b, isEqv a b (==)⟩
+
+-- TODO(Leo): justify termination using wf-rec, and use `fswap`
+partial def reverseAux : Array α → Nat → Array α
+| a i :=
+  let n := a.size in
+  if i < n / 2 then
+     reverseAux (a.swap i (n - i - 1)) (i+1)
+  else
+     a
+
+def reverse (a : Array α) : Array α :=
+reverseAux a 0
+
 end Array
 
 export Array (mkArray)

@@ -10,7 +10,7 @@ namespace Parser
 open Lean
 
 /-- A hygiene marker introduced by a macro expansion. -/
-@[derive DecidableEq HasToFormat]
+@[derive DecidableEq HasFormat]
 def MacroScope := Nat
 abbrev MacroScopes := List MacroScope
 
@@ -230,29 +230,29 @@ partial def reprint : Syntax → Option String
     if args.size == 0 then failure
     else do
       s ← reprint (args.get 0),
-      args.mfoldlFrom s (λ stx s, do s' ← reprint stx, guard (s == s'), pure s) 1
-  else args.mfoldl "" (λ stx r, do s ← reprint stx, pure $ r ++ s)
+      args.mfoldlFrom s (λ s stx, do s' ← reprint stx, guard (s == s'), pure s) 1
+  else args.mfoldl "" (λ r stx, do s ← reprint stx, pure $ r ++ s)
 | missing := ""
 
 open Lean.Format
 
-protected partial def toFormat : Syntax → Format
-| (atom info val) := toFmt $ repr val
+protected partial def formatStx : Syntax → Format
+| (atom info val) := format $ repr val
 | (ident _ _ val pre scopes) :=
-  let scopes := pre.map toFmt ++ scopes.reverse.map toFmt in
-  let scopes := match scopes with [] := toFmt "" | _ := bracket "{" (joinSep scopes ", ") "}" in
-  toFmt "`" ++ toFmt val ++ scopes
+  let scopes := pre.map format ++ scopes.reverse.map format in
+  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes ", ") "}" in
+  format "`" ++ format val ++ scopes
 | (node kind args scopes) :=
-  let scopes := match scopes with [] := toFmt "" | _ := bracket "{" (joinSep scopes.reverse ", ") "}" in
+  let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes.reverse ", ") "}" in
   if kind.name = `Lean.Parser.noKind then
-    sbracket $ scopes ++ joinSep (args.toList.map toFormat) line
+    sbracket $ scopes ++ joinSep (args.toList.map formatStx) line
   else
     let shorterName := kind.name.replacePrefix `Lean.Parser Name.anonymous in
-    paren $ joinSep ((toFmt shorterName ++ scopes) :: args.toList.map toFormat) line
+    paren $ joinSep ((format shorterName ++ scopes) :: args.toList.map formatStx) line
 | missing := "<missing>"
 
-instance : HasToFormat Syntax := ⟨Syntax.toFormat⟩
-instance : HasToString Syntax := ⟨toString ∘ toFmt⟩
+instance : HasFormat Syntax := ⟨Syntax.formatStx⟩
+instance : HasToString Syntax := ⟨toString ∘ format⟩
 end Syntax
 
 end Parser

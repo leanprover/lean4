@@ -196,6 +196,8 @@ inductive FnBody
 | jmp (j : JoinPointId) (ys : Array Arg)
 | unreachable
 
+instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
+
 @[export lean.ir.mk_vdecl_core] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
 @[export lean.ir.mk_jdecl_core] def mkJDecl (j : JoinPointId) (xs : Array Param) (ty : IRType) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs ty v b
 @[export lean.ir.mk_uset_core] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
@@ -208,6 +210,56 @@ inductive FnBody
 abbrev Alt := AltCore FnBody
 @[pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
 @[pattern] abbrev Alt.default := @AltCore.default FnBody
+
+def FnBody.body : FnBody → FnBody
+| (FnBody.vdecl _ _ _ b)    := b
+| (FnBody.jdecl _ _ _ _ b)  := b
+| (FnBody.set _ _ _ b)      := b
+| (FnBody.uset _ _ _ b)     := b
+| (FnBody.sset _ _ _ _ _ b) := b
+| (FnBody.release _ _ b)    := b
+| (FnBody.inc _ _ _ b)      := b
+| (FnBody.dec _ _ _ b)      := b
+| (FnBody.mdata _ b)        := b
+| other                     := other
+
+def FnBody.setBody : FnBody → FnBody → FnBody
+| (FnBody.vdecl x t v _)    b := FnBody.vdecl x t v b
+| (FnBody.jdecl j xs t v _) b := FnBody.jdecl j xs t v b
+| (FnBody.set x i y _)      b := FnBody.set x i y b
+| (FnBody.uset x i y _)     b := FnBody.uset x i y b
+| (FnBody.sset x i o y t _) b := FnBody.sset x i o y t b
+| (FnBody.release x i _)    b := FnBody.release x i b
+| (FnBody.inc x n c _)      b := FnBody.inc x n c b
+| (FnBody.dec x n c _)      b := FnBody.dec x n c b
+| (FnBody.mdata d _)        b := FnBody.mdata d b
+| other                     b := other
+
+def Alt.body : Alt → FnBody
+| (Alt.ctor _ b)  := b
+| (Alt.default b) := b
+
+def Alt.setBody : Alt → FnBody → Alt
+| (Alt.ctor c _) b  := Alt.ctor c b
+| (Alt.default _) b := Alt.default b
+
+partial def seqAux : Array FnBody → Nat → FnBody → FnBody
+| a i b :=
+  if i == 0 then b
+  else
+    let i    := i - 1 in
+    let curr := a.get i in
+    let a    := a.set i (default _) in
+    let b    := curr.setBody b in
+    seqAux a i b
+
+def join (bs : Array FnBody) : FnBody :=
+if bs.isEmpty then default _
+else seqAux bs (bs.size - 1) bs.back
+
+def push (bs : Array FnBody) (b : FnBody) : Array FnBody :=
+let b := b.setBody (default _) in
+bs.push b
 
 @[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
@@ -395,9 +447,7 @@ private def collectExpr : Expr → Collector
 | (Expr.isTaggedPtr x)   := collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-collectArray alts $ λ alt, match alt with
-  | (Alt.ctor _ b)  := f b
-  | (Alt.default b) := f b
+collectArray alts $ λ alt, f alt.body
 
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v; withVar x (collectFnBody b)
@@ -416,8 +466,11 @@ partial def collectFnBody : FnBody → Collector
 
 end FreeVariables
 
-def freeVars (b : FnBody) : VarIdxSet :=
-FreeVariables.collectFnBody b {} {}
+def FnBody.collectFreeVars (b : FnBody) (vs : VarIdxSet) : VarIdxSet :=
+FreeVariables.collectFnBody b {} vs
+
+def FnBody.freeVars (b : FnBody) : VarIdxSet :=
+b.collectFreeVars {}
 
 private def formatArg : Arg → Format
 | (Arg.var id)   := format id
@@ -550,9 +603,7 @@ private def collectExpr : Expr → Collector
 | (Expr.isTaggedPtr x)   := collectVar x
 
 private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-collectArray alts $ λ alt, match alt with
-  | (Alt.ctor _ b)  := f b
-  | (Alt.default b) := f b
+collectArray alts $ λ alt, f alt.body
 
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v; collectFnBody b

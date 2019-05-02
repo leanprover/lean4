@@ -32,7 +32,7 @@ reshapeWithoutDeadAux bs term term.freeVars
 partial def FnBody.elimDead : FnBody → FnBody
 | b :=
   let (bs, term) := b.flatten in
-  let bs         := modifyJPVals bs FnBody.elimDead in
+  let bs         := modifyJPs bs FnBody.elimDead in
   let term       := match term with
     | FnBody.case tid x alts :=
       let alts := alts.hmap $ λ alt, alt.modifyBody FnBody.elimDead in

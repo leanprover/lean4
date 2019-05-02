@@ -37,7 +37,7 @@ else
 partial def FnBody.simpCase : FnBody → FnBody
 | b :=
   let (bs, term) := b.flatten in
-  let bs         := modifyJPVals bs FnBody.simpCase in
+  let bs         := modifyJPs bs FnBody.simpCase in
   match term with
   | FnBody.case tid x alts :=
     let alts := alts.hmap $ λ alt, alt.modifyBody FnBody.simpCase in

@@ -284,7 +284,7 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
 def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 reshapeAux bs bs.size term
 
-@[inline] def modifyJPVals (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
+@[inline] def modifyJPs (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
 bs.hmap $ λ b, match b with
   | FnBody.jdecl j xs t v k := FnBody.jdecl j xs t (f v) k
   | other                   := other

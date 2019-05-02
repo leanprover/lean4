@@ -33,7 +33,6 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
        | _                := done ())
     | _ := done ()
 
-/-- Push projections inside `cases` branches. -/
 partial def FnBody.pushProj : FnBody → FnBody
 | b :=
   let (bs, term) := b.flatten in
@@ -46,6 +45,7 @@ partial def FnBody.pushProj : FnBody → FnBody
     reshape bs term
   | other := reshape bs term
 
+/-- Push projections inside `case` branches. -/
 @[export lean.ir.decl_push_proj_core]
 def Decl.pushProj : Decl → Decl
 | (Decl.fdecl f xs t b) := Decl.fdecl f xs t b.pushProj

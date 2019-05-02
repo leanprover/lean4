@@ -29,4 +29,10 @@ do
  IO.println [1,2,3,4].toArray.reverse,
  IO.println ([] : List Nat).toArray.reverse,
  IO.println [1,2,3].toArray.reverse,
+ IO.println $ [1,2,3,4].toArray.filter (λ a, a % 2 == 0),
+ IO.println $ [1,2,3,4,5].toArray.filter (λ a, a % 2 == 0),
+ IO.println $ [1,2,3,4,5].toArray.filter (λ a, a % 2 == 1),
+ IO.println $ [1,2,3,4].toArray.filter (>2),
+ IO.println $ [1,2,3,4].toArray.filter (>10),
+ IO.println $ [1,2,3,4].toArray.filter (>0),
  pure 0

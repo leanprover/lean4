@@ -341,6 +341,23 @@ partial def reverseAux : Array α → Nat → Array α
 def reverse (a : Array α) : Array α :=
 reverseAux a 0
 
+-- TODO(Leo): justify termination using wf-rec
+@[specialize] partial def filterAux (p : α → Bool) : Array α → Nat → Nat → Array α
+| a i j :=
+  if h₁ : i < a.size then
+    if p (a.index ⟨i, h₁⟩) then
+       if h₂ : j < i then
+         filterAux (a.fswap ⟨i, h₁⟩ ⟨j, Nat.ltTrans h₂ h₁⟩) (i+1) (j+1)
+       else
+         filterAux a (i+1) (j+1)
+    else
+       filterAux a (i+1) j
+  else
+    a.shrink j
+
+@[inline] def filter (p : α → Bool) (as : Array α) : Array α :=
+filterAux p as 0 0
+
 end Array
 
 export Array (mkArray)

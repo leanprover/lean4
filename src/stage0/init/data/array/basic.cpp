@@ -19,6 +19,7 @@ obj* l_Array_extractAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_append(obj*);
 obj* l_Array_foldlFrom___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_append___spec__1___boxed(obj*);
+obj* l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1(obj*);
 obj* l_Array_shrink___main___rarg___boxed(obj*, obj*);
 obj* l_Array_hmap(obj*);
 obj* l_Array_miterate_u_2082Aux___main___at_Array_foldl_u_2082___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -34,6 +35,7 @@ obj* l_Array_miterateAux___main___at_Array_foldlFrom___spec__1(obj*, obj*);
 obj* l_Array_any(obj*);
 obj* l_List_repr___rarg(obj*, obj*);
 obj* l_Array_update___boxed(obj*, obj*, obj*, obj*);
+obj* l_Array_swap___boxed(obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___main___at_Array_toList___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_revFoldl(obj*, obj*);
 obj* l_Array_back___boxed(obj*);
@@ -45,6 +47,7 @@ obj* l_Array_iterate___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_mfoldl___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_iterate___spec__1(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_foldlFrom___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_reverse(obj*);
 obj* l_Array_hmmapAux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mfoldl_u_2082___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_all___rarg___boxed(obj*, obj*);
@@ -53,6 +56,8 @@ obj* l_Array_miterateAux___main___at_Array_mfoldlFrom___spec__1___boxed(obj*, ob
 obj* l_Array_miterateAux___main___at_Array_foldlFrom___spec__1___boxed(obj*, obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___main___at_Array_revFoldl___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_shrink___rarg(obj*, obj*);
+obj* l_Array_fswap___boxed(obj*, obj*, obj*, obj*);
+obj* l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_any___boxed(obj*);
 obj* l_Array_extractAux(obj*);
 obj* l_Array_HasRepr(obj*);
@@ -87,6 +92,7 @@ obj* l_Array_mfind(obj*, obj*, obj*);
 obj* l_Array_mfindAux___main___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_foldl___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_extractAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_hmmap(obj*, obj*);
 obj* l_List_redLength___main(obj*);
 obj* l_Array_miterateAux___main___at_Array_mfoldl___spec__1(obj*, obj*, obj*);
@@ -111,15 +117,18 @@ obj* l_Array_map___rarg(obj*, obj*);
 obj* l_Array_empty(obj*);
 obj* l_Array_HasEmptyc(obj*);
 obj* l_Array_extractAux___main___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_reverseAux___boxed(obj*);
 obj* l_List_redLength___main___rarg___boxed(obj*);
 obj* l_Array_toList___rarg(obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___main___at_Array_revFoldl___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 uint8 l_Array_HasBeq___rarg(obj*, obj*, obj*);
+obj* l_Array_hmapIdx(obj*);
 obj* l_Array_get___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_miterate_u_2082Aux___boxed(obj*, obj*, obj*);
 obj* l_Array_iterate(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_mmap___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_mfindAux___boxed(obj*, obj*, obj*);
+obj* l_Array_reverseAux___main___boxed(obj*);
 obj* l_Array_mfindAux___main___at_Array_find___spec__1(obj*, obj*);
 obj* l_Array_extract___rarg(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_mfoldl___spec__1___boxed(obj*, obj*, obj*);
@@ -153,6 +162,7 @@ obj* l_Array_miterate_u_2082Aux___main___at_Array_mfoldl_u_2082___spec__1___rarg
 obj* l_Array_mfindAux___main___at_Array_find___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Array_hmap___rarg(obj*, obj*, obj*);
 obj* l_Array_append___boxed(obj*);
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1(obj*, obj*);
 obj* l_Array_foldl___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_mmap___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_singleton___rarg(obj*);
@@ -161,6 +171,7 @@ obj* l_Array_miterateAux___main___at_Array_foldl___spec__1___boxed(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_iterate_u_2082___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
@@ -174,6 +185,7 @@ obj* l_Array_map___rarg___boxed(obj*, obj*);
 obj* l_Array_push___boxed(obj*, obj*, obj*);
 uint8 l_Array_anyAux___main___rarg(obj*, obj*, obj*);
 obj* l_Array_foldl_u_2082(obj*, obj*);
+obj* l_Array_reverseAux___rarg(obj*, obj*);
 obj* l_Array_miterate_u_2082Aux___main___boxed(obj*, obj*, obj*);
 obj* l_Array_anyAux___boxed(obj*);
 uint8 l_Array_isEqv___rarg(obj*, obj*, obj*);
@@ -197,8 +209,10 @@ obj* l_Array_miterateAux___main___boxed(obj*, obj*, obj*);
 obj* l_List_toArray(obj*);
 obj* l_List_redLength___boxed(obj*);
 obj* l_Array_getOpt___rarg(obj*, obj*);
+obj* l_Array_reverseAux___main(obj*);
 obj* l_Array_hmmapAux___main___at_Array_hmap___spec__1(obj*);
 obj* l_List_toArrayAux___boxed(obj*);
+obj* l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1___boxed(obj*);
 obj* l_Array_append___rarg(obj*, obj*);
 obj* l_Array_miterate_u_2082Aux___main___at_Array_iterate_u_2082___spec__1___boxed(obj*, obj*);
 obj* l_Array_mmap___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -213,16 +227,19 @@ obj* l_Array_singleton(obj*);
 obj* l_Array_shrink___rarg___boxed(obj*, obj*);
 obj* l_Array_updt___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_toArray___boxed(obj*);
+obj* l_Array_hmapIdx___boxed(obj*);
 obj* l_Array_HasAppend___closed__1;
 obj* l_Array_isEmpty___rarg___boxed(obj*);
 obj* l_Array_isEqv___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Array_mfoldlFrom___spec__1(obj*, obj*, obj*);
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_shrink___main___rarg(obj*, obj*);
 obj* l_Array_iterate___rarg(obj*, obj*, obj*);
 obj* l_Array_hmmapAux___boxed(obj*, obj*);
 obj* l_Array_shrink___boxed(obj*);
 obj* l_List_toArray___rarg(obj*);
 obj* l_Array_empty___boxed(obj*);
+obj* l_Array_reverseAux___main___rarg(obj*, obj*);
 obj* l_Array_HasToString___boxed(obj*);
 obj* l_List_redLength___main___boxed(obj*);
 obj* l_Array_anyAux___main(obj*);
@@ -230,6 +247,7 @@ obj* l_Array_miterateAux(obj*, obj*, obj*);
 obj* l_Array_anyAux___main___boxed(obj*);
 obj* l_Array_extractAux___main(obj*);
 obj* l_Array_miterate_u_2082Aux___main___at_Array_iterate_u_2082___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___boxed(obj*, obj*);
 obj* l_Array_modify___boxed(obj*);
 obj* l_Array_mfindAux___main___at_Array_find___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_modify___rarg(obj*, obj*, obj*, obj*);
@@ -238,6 +256,7 @@ obj* l_Array_isEmpty(obj*);
 obj* l_Array_mfoldl_u_2082___boxed(obj*, obj*, obj*);
 obj* l_Array_all(obj*);
 obj* l_Array_hmmapAux(obj*, obj*);
+obj* l_Array_reverse___boxed(obj*);
 obj* l_Array_foldl_u_2082___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_mfoldlFrom___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_anyAux___main___rarg___boxed(obj*, obj*, obj*);
@@ -267,15 +286,20 @@ obj* l_Array_iterate_u_2082(obj*, obj*);
 obj* l_Array_revIterate___rarg___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_foldl___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_any___rarg___boxed(obj*, obj*);
+obj* l_Array_hmapIdx___rarg(obj*, obj*, obj*);
 obj* l_Array_getOpt___boxed(obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___main___boxed(obj*, obj*);
 obj* l_Array_shrink(obj*);
 obj* l_Array_miterateAux___main___at_Array_append___spec__1___rarg___boxed(obj*, obj*, obj*, obj*);
+namespace lean {
+obj* nat_div(obj*, obj*);
+}
 obj* l_Array_isEqvAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_append___spec__1(obj*);
 obj* l_Array_hmmap___boxed(obj*, obj*);
 obj* l_Array_HasToString___rarg(obj*);
 obj* l_Array_miterateAux___main___at_Array_mfoldl___spec__1___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_reverse___rarg(obj*);
 obj* l_Array_mmap___boxed(obj*, obj*);
 obj* l_Array_shrink___main___boxed(obj*);
 obj* l_Array_find(obj*, obj*);
@@ -295,6 +319,7 @@ obj* l_Array_toList(obj*);
 obj* l_Array_set___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Array_append___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_revFoldl___rarg(obj*, obj*, obj*);
+obj* l_Array_reverseAux(obj*);
 obj* l___private_init_data_array_basic_1__revIterateAux___main___at_Array_revFoldl___spec__1___boxed(obj*, obj*);
 obj* l_Array_idx___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_foldl___rarg(obj*, obj*, obj*);
@@ -622,6 +647,26 @@ _start:
 obj* x_4; 
 x_4 = lean::array_set(x_1, x_2, x_3);
 lean::dec(x_2);
+return x_4;
+}
+}
+obj* l_Array_fswap___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::array_fswap(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_3);
+return x_4;
+}
+}
+obj* l_Array_swap___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::array_swap(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_3);
 return x_4;
 }
 }
@@ -2911,22 +2956,23 @@ return x_17;
 }
 else
 {
-obj* x_18; obj* x_20; obj* x_21; obj* x_24; obj* x_25; obj* x_26; 
+obj* x_18; obj* x_20; obj* x_21; obj* x_25; obj* x_26; obj* x_27; 
 x_18 = lean::array_index(x_4, x_3);
 lean::inc(x_1);
 x_20 = lean::array_update(x_4, x_3, x_1);
 x_21 = lean::cnstr_get(x_0, 1);
 lean::inc(x_21);
+lean::inc(x_3);
 lean::inc(x_2);
-x_24 = lean::apply_1(x_2, x_18);
-x_25 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_hmmapAux___main___rarg___lambda__1___boxed), 6, 5);
-lean::closure_set(x_25, 0, x_3);
-lean::closure_set(x_25, 1, x_20);
-lean::closure_set(x_25, 2, x_0);
-lean::closure_set(x_25, 3, x_1);
-lean::closure_set(x_25, 4, x_2);
-x_26 = lean::apply_4(x_21, lean::box(0), lean::box(0), x_24, x_25);
-return x_26;
+x_25 = lean::apply_2(x_2, x_3, x_18);
+x_26 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_hmmapAux___main___rarg___lambda__1___boxed), 6, 5);
+lean::closure_set(x_26, 0, x_3);
+lean::closure_set(x_26, 1, x_20);
+lean::closure_set(x_26, 2, x_0);
+lean::closure_set(x_26, 3, x_1);
+lean::closure_set(x_26, 4, x_2);
+x_27 = lean::apply_4(x_21, lean::box(0), lean::box(0), x_25, x_26);
+return x_27;
 }
 }
 }
@@ -2983,12 +3029,74 @@ lean::dec(x_1);
 return x_2;
 }
 }
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+x_6 = lean::mk_nat_obj(1ul);
+x_7 = lean::nat_add(x_0, x_6);
+x_8 = lean::array_update(x_1, x_0, x_5);
+x_9 = l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg(x_2, x_3, x_4, x_7, x_8);
+return x_9;
+}
+}
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::array_get_size(x_4);
+x_6 = lean::nat_dec_lt(x_3, x_5);
+lean::dec(x_5);
+if (x_6 == 0)
+{
+obj* x_11; obj* x_14; obj* x_17; 
+lean::dec(x_1);
+lean::dec(x_3);
+lean::dec(x_2);
+x_11 = lean::cnstr_get(x_0, 0);
+lean::inc(x_11);
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_11, 1);
+lean::inc(x_14);
+lean::dec(x_11);
+x_17 = lean::apply_2(x_14, lean::box(0), x_4);
+return x_17;
+}
+else
+{
+obj* x_18; obj* x_20; obj* x_21; obj* x_24; obj* x_25; obj* x_26; 
+x_18 = lean::array_index(x_4, x_3);
+lean::inc(x_1);
+x_20 = lean::array_update(x_4, x_3, x_1);
+x_21 = lean::cnstr_get(x_0, 1);
+lean::inc(x_21);
+lean::inc(x_2);
+x_24 = lean::apply_1(x_2, x_18);
+x_25 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg___lambda__1___boxed), 6, 5);
+lean::closure_set(x_25, 0, x_3);
+lean::closure_set(x_25, 1, x_20);
+lean::closure_set(x_25, 2, x_0);
+lean::closure_set(x_25, 3, x_1);
+lean::closure_set(x_25, 4, x_2);
+x_26 = lean::apply_4(x_21, lean::box(0), lean::box(0), x_24, x_25);
+return x_26;
+}
+}
+}
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg), 5, 0);
+return x_2;
+}
+}
 obj* l_Array_hmmap___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; 
 x_4 = lean::mk_nat_obj(0ul);
-x_5 = l_Array_hmmapAux___main___rarg(x_0, x_1, x_2, x_4, x_3);
+x_5 = l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg(x_0, x_1, x_2, x_4, x_3);
 return x_5;
 }
 }
@@ -2997,6 +3105,25 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_hmmap___rarg), 4, 0);
+return x_2;
+}
+}
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; 
+x_6 = l_Array_hmmapAux___main___at_Array_hmmap___spec__1___rarg___lambda__1(x_0, x_1, x_2, x_3, x_4, x_5);
+lean::dec(x_0);
+return x_6;
+}
+}
+obj* l_Array_hmmapAux___main___at_Array_hmmap___spec__1___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Array_hmmapAux___main___at_Array_hmmap___spec__1(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -3081,6 +3208,82 @@ _start:
 {
 obj* x_1; 
 x_1 = l_Array_hmap(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; uint8 x_5; 
+x_4 = lean::array_get_size(x_3);
+x_5 = lean::nat_dec_lt(x_2, x_4);
+lean::dec(x_4);
+if (x_5 == 0)
+{
+lean::dec(x_1);
+lean::dec(x_0);
+lean::dec(x_2);
+return x_3;
+}
+else
+{
+obj* x_10; obj* x_12; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
+x_10 = lean::array_index(x_3, x_2);
+lean::inc(x_0);
+x_12 = lean::array_update(x_3, x_2, x_0);
+lean::inc(x_2);
+lean::inc(x_1);
+x_15 = lean::apply_2(x_1, x_2, x_10);
+x_16 = lean::mk_nat_obj(1ul);
+x_17 = lean::nat_add(x_2, x_16);
+x_18 = lean::array_update(x_12, x_2, x_15);
+lean::dec(x_2);
+x_2 = x_17;
+x_3 = x_18;
+goto _start;
+}
+}
+}
+obj* l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1___rarg), 4, 0);
+return x_1;
+}
+}
+obj* l_Array_hmapIdx___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = lean::mk_nat_obj(0ul);
+x_4 = l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1___rarg(x_0, x_1, x_3, x_2);
+return x_4;
+}
+}
+obj* l_Array_hmapIdx(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_hmapIdx___rarg), 3, 0);
+return x_1;
+}
+}
+obj* l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Array_hmmapAux___main___at_Array_hmapIdx___spec__1(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Array_hmapIdx___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Array_hmapIdx(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -3628,6 +3831,107 @@ _start:
 {
 obj* x_1; 
 x_1 = l_Array_HasBeq(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Array_reverseAux___main___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
+x_2 = lean::array_get_size(x_0);
+x_3 = lean::mk_nat_obj(2ul);
+x_4 = lean::nat_div(x_2, x_3);
+x_5 = lean::nat_dec_lt(x_1, x_4);
+lean::dec(x_4);
+if (x_5 == 0)
+{
+lean::dec(x_1);
+lean::dec(x_2);
+return x_0;
+}
+else
+{
+obj* x_9; obj* x_11; obj* x_12; obj* x_14; obj* x_16; 
+x_9 = lean::nat_sub(x_2, x_1);
+lean::dec(x_2);
+x_11 = lean::mk_nat_obj(1ul);
+x_12 = lean::nat_sub(x_9, x_11);
+lean::dec(x_9);
+x_14 = lean::array_swap(x_0, x_1, x_12);
+lean::dec(x_12);
+x_16 = lean::nat_add(x_1, x_11);
+lean::dec(x_1);
+x_0 = x_14;
+x_1 = x_16;
+goto _start;
+}
+}
+}
+obj* l_Array_reverseAux___main(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_reverseAux___main___rarg), 2, 0);
+return x_1;
+}
+}
+obj* l_Array_reverseAux___main___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Array_reverseAux___main(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Array_reverseAux___rarg(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Array_reverseAux___main___rarg(x_0, x_1);
+return x_2;
+}
+}
+obj* l_Array_reverseAux(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_reverseAux___rarg), 2, 0);
+return x_1;
+}
+}
+obj* l_Array_reverseAux___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Array_reverseAux(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Array_reverse___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_nat_obj(0ul);
+x_2 = l_Array_reverseAux___main___rarg(x_0, x_1);
+return x_2;
+}
+}
+obj* l_Array_reverse(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Array_reverse___rarg), 1, 0);
+return x_1;
+}
+}
+obj* l_Array_reverse___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Array_reverse(x_0);
 lean::dec(x_0);
 return x_1;
 }

@@ -257,24 +257,27 @@ section
 variables {m : Type u → Type v} [Monad m] [Inhabited α]
 local attribute [instance] monadInhabited'
 
-@[specialize] partial def hmmapAux (f : α → m α) : Nat → Array α → m (Array α)
+@[specialize] partial def hmmapAux (f : Nat → α → m α) : Nat → Array α → m (Array α)
 | i a :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩ in
      let v   : α          := a.index idx in
      let a                := a.update idx (default α) in
-     do v ← f v, hmmapAux (i+1) (a.update idx v)
+     do v ← f i v, hmmapAux (i+1) (a.update idx v)
   else
      pure a
 
 /- Homogeneous `mmap` -/
 @[inline] def hmmap (f : α → m α) (a : Array α) : m (Array α) :=
-hmmapAux f 0 a
+hmmapAux (λ _, f) 0 a
 end
 
 /- Homogeneous map -/
 @[inline] def hmap [Inhabited α] (f : α → α) (a : Array α) : Array α :=
 Id.run $ hmmap f a
+
+@[inline] def hmapIdx [Inhabited α] (f : Nat → α → α) (a : Array α) : Array α :=
+Id.run $ hmmapAux f 0 a
 
 @[inline] def map (f : α → β) (as : Array α) : Array β :=
 as.foldl (λ bs a, bs.push (f a)) (mkEmpty as.size)

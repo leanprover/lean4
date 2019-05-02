@@ -3,8 +3,8 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import init.lean.name init.lean.kvmap init.lean.format init.data.array
 prelude
+import init.lean.name init.lean.kvmap init.lean.format init.data.array
 
 /-
 Implements (extended) λPure and λRc proposed in the article
@@ -211,6 +211,16 @@ abbrev Alt := AltCore FnBody
 @[pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
 @[pattern] abbrev Alt.default := @AltCore.default FnBody
 
+instance altInh : Inhabited Alt :=
+⟨Alt.default (default _)⟩
+
+def FnBody.isTerminal : FnBody → Bool
+| (FnBody.case _ _ _) := true
+| (FnBody.ret _)      := true
+| (FnBody.jmp _ _)    := true
+| FnBody.unreachable  := true
+| _                   := false
+
 def FnBody.body : FnBody → FnBody
 | (FnBody.vdecl _ _ _ b)    := b
 | (FnBody.jdecl _ _ _ _ b)  := b
@@ -235,15 +245,31 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 | (FnBody.mdata d _)        b := FnBody.mdata d b
 | other                     b := other
 
-def Alt.body : Alt → FnBody
+def AltCore.body : Alt → FnBody
 | (Alt.ctor _ b)  := b
 | (Alt.default b) := b
 
-def Alt.setBody : Alt → FnBody → Alt
+def AltCore.setBody : Alt → FnBody → Alt
 | (Alt.ctor c _) b  := Alt.ctor c b
 | (Alt.default _) b := Alt.default b
 
-partial def seqAux : Array FnBody → Nat → FnBody → FnBody
+@[inline] def AltCore.modifyBody (f : FnBody → FnBody) : AltCore FnBody → Alt
+| (Alt.ctor c b)  := Alt.ctor c (f b)
+| (Alt.default b) := Alt.default (f b)
+
+def push (bs : Array FnBody) (b : FnBody) : Array FnBody :=
+let b := b.setBody (default _) in
+bs.push b
+
+partial def flattenAux : FnBody → Array FnBody → (Array FnBody) × FnBody
+| b r :=
+  if b.isTerminal then (r, b)
+  else flattenAux b.body (push r b)
+
+def FnBody.flatten (b : FnBody) : (Array FnBody) × FnBody :=
+flattenAux b Array.empty
+
+partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
 | a i b :=
   if i == 0 then b
   else
@@ -251,15 +277,10 @@ partial def seqAux : Array FnBody → Nat → FnBody → FnBody
     let curr := a.get i in
     let a    := a.set i (default _) in
     let b    := curr.setBody b in
-    seqAux a i b
+    reshapeAux a i b
 
-def join (bs : Array FnBody) : FnBody :=
-if bs.isEmpty then default _
-else seqAux bs (bs.size - 1) bs.back
-
-def push (bs : Array FnBody) (b : FnBody) : Array FnBody :=
-let b := b.setBody (default _) in
-bs.push b
+def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
+reshapeAux bs bs.size term
 
 @[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 

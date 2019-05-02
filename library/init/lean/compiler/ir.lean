@@ -273,10 +273,9 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
 | a i b :=
   if i == 0 then b
   else
-    let i    := i - 1 in
-    let curr := a.get i in
-    let a    := a.set i (default _) in
-    let b    := curr.setBody b in
+    let i         := i - 1 in
+    let (curr, a) := a.swapAt i (default _) in
+    let b         := curr.setBody b in
     reshapeAux a i b
 
 def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=

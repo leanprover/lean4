@@ -88,6 +88,9 @@ def update (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
   data := λ j, if h : i = j then v else a.data j }
 
+theorem szUpdateEq (a : Array α) (i : Fin a.size) (v : α) : (update a i v).size = a.size :=
+rfl
+
 /- Low-level version of `update` which is as fast as a C array update.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `update` may be slightly slower than `updt`. -/
@@ -114,8 +117,13 @@ if h₂ : j < a.size then fswap a ⟨i, h₁⟩ ⟨j, h₂⟩
 else a
 else a
 
-theorem szUpdateEq (a : Array α) (i : Fin a.size) (v : α) : (update a i v).size = a.size :=
-rfl
+@[inline] def fswapAt {α : Type} (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
+let e := a.index i in
+let a := a.update i v in
+(e, a)
+
+@[inline] def swapAt {α : Type} (a : Array α) (i : Nat) (v : α) : α × Array α :=
+if h : i < a.size then fswapAt a ⟨i, h⟩ v else (v, a)
 
 @[extern cpp inline "lean::array_pop(#2)"]
 def pop (a : Array α) : Array α :=

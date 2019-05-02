@@ -8,7 +8,7 @@ import init.lean.compiler.ir
 namespace Lean
 namespace IR
 
-partial def pushProjs : Array FnBody → Array Alt → Array VarIdxSet → Array FnBody → VarIdxSet → Array FnBody × Array Alt
+partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array FnBody → IndexSet → Array FnBody × Array Alt
 | bs alts afvs ps vs :=
   if bs.isEmpty then (ps.reverse, alts)
   else

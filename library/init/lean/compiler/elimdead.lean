@@ -8,7 +8,7 @@ import init.lean.compiler.ir
 namespace Lean
 namespace IR
 
-partial def reshapeWithoutDeadAux : Array FnBody → FnBody → VarIdxSet → FnBody
+partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnBody
 | bs b used :=
   if bs.isEmpty then b
   else
@@ -39,6 +39,7 @@ partial def FnBody.elimDead : FnBody → FnBody
     | other := other in
   reshape bs term
 
+/-- Eliminate dead let-declarations and join points -/
 @[export lean.ir.decl_elim_dead_core]
 def Decl.elimDead : Decl → Decl
 | (Decl.fdecl f xs t b) := Decl.fdecl f xs t b.elimDead

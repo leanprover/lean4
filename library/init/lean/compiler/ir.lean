@@ -317,33 +317,33 @@ partial def FnBody.isPure : FnBody → Bool
 | FnBody.unreachable        := true
 | _                         := false
 
-abbrev VarIdxRenaming := RBMap Index Index (λ a b, a < b)
+abbrev IndexRenaming := RBMap Index Index (λ a b, a < b)
 
 class HasAlphaEqv (α : Type) :=
-(aeqv : VarIdxRenaming → α → α → Bool)
+(aeqv : IndexRenaming → α → α → Bool)
 
 local notation a `=[`:50 ρ `]=`:0 b:50 := HasAlphaEqv.aeqv ρ a b
 
-def VarId.alphaEqv (ρ : VarIdxRenaming) (v₁ v₂ : VarId) : Bool :=
+def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
 match ρ.find v₁.idx with
 | some v := v == v₂.idx
 | none   := v₁ == v₂
 
 instance VarId.hasAeqv : HasAlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
-def Arg.alphaEqv (ρ : VarIdxRenaming) : Arg → Arg → Bool
+def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
 | (Arg.var v₁)   (Arg.var v₂)   := v₁ =[ρ]= v₂
 | Arg.irrelevant Arg.irrelevant := true
 | _              _              := false
 
 instance Arg.hasAeqv : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
-def args.alphaEqv (ρ : VarIdxRenaming) (args₁ args₂ : Array Arg) : Bool :=
+def args.alphaEqv (ρ : IndexRenaming) (args₁ args₂ : Array Arg) : Bool :=
 Array.isEqv args₁ args₂ (λ a b, a =[ρ]= b)
 
 instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
-def Expr.alphaEqv (ρ : VarIdxRenaming) : Expr → Expr → Bool
+def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
 | (Expr.ctor i₁ ys₁)      (Expr.ctor i₂ ys₂)      := i₁ == i₂ && ys₁ =[ρ]= ys₂
 | (Expr.reset x₁)         (Expr.reset x₂)         := x₁ =[ρ]= x₂
 | (Expr.reuse x₁ i₁ ys₁)  (Expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && i₁ == i₂ && ys₁ =[ρ]= ys₂
@@ -362,18 +362,18 @@ def Expr.alphaEqv (ρ : VarIdxRenaming) : Expr → Expr → Bool
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
 
-def addVarRename (ρ : VarIdxRenaming) (x₁ x₂ : Nat) :=
+def addVarRename (ρ : IndexRenaming) (x₁ x₂ : Nat) :=
 if x₁ == x₂ then ρ else ρ.insert x₁ x₂
 
-def addParamRename (ρ : VarIdxRenaming) (p₁ p₂ : Param) : Option VarIdxRenaming :=
+def addParamRename (ρ : IndexRenaming) (p₁ p₂ : Param) : Option IndexRenaming :=
 if p₁.ty == p₂.ty && p₁.borrowed = p₂.borrowed then some (addVarRename ρ p₁.x.idx p₂.x.idx)
 else none
 
-def addParamsRename (ρ : VarIdxRenaming) (ps₁ ps₂ : Array Param) : Option VarIdxRenaming :=
+def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming :=
 if ps₁.size != ps₂.size then none
 else Array.foldl₂ ps₁ ps₂ (λ ρ p₁ p₂, do ρ ← ρ, addParamRename ρ p₁ p₂) (some ρ)
 
-partial def FnBody.alphaEqv : VarIdxRenaming → FnBody → FnBody → Bool
+partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
 | ρ (FnBody.jdecl j₁ ys₁ t₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
   (match addParamsRename ρ ys₁ ys₂ with
@@ -402,11 +402,11 @@ FnBody.alphaEqv ∅  b₁ b₂
 
 instance FnBody.HasBeq : HasBeq FnBody := ⟨FnBody.beq⟩
 
-abbrev VarIdxSet := RBTree Index (λ a b, a < b)
-instance vsetInh : Inhabited VarIdxSet := ⟨{}⟩
+abbrev IndexSet := RBTree Index (λ a b, a < b)
+instance vsetInh : Inhabited IndexSet := ⟨{}⟩
 
 namespace FreeVariables
-abbrev Collector := VarIdxSet → VarIdxSet → VarIdxSet
+abbrev Collector := IndexSet → IndexSet → IndexSet
 
 @[inline] private def skip : Collector :=
 λ bv fv, fv
@@ -429,7 +429,7 @@ withIndex x.idx
 @[inline] private def withJP (x : JoinPointId) : Collector → Collector :=
 withIndex x.idx
 
-def insertParams (s : VarIdxSet) (ys : Array Param) : VarIdxSet :=
+def insertParams (s : IndexSet) (ys : Array Param) : IndexSet :=
 ys.foldl (λ s p, s.insert p.x.idx) s
 
 @[inline] private def withParams (ys : Array Param) : Collector → Collector :=
@@ -486,10 +486,10 @@ partial def collectFnBody : FnBody → Collector
 
 end FreeVariables
 
-def FnBody.collectFreeVars (b : FnBody) (vs : VarIdxSet) : VarIdxSet :=
+def FnBody.collectFreeVars (b : FnBody) (vs : IndexSet) : IndexSet :=
 FreeVariables.collectFnBody b {} vs
 
-def FnBody.freeVars (b : FnBody) : VarIdxSet :=
+def FnBody.freeVars (b : FnBody) : IndexSet :=
 b.collectFreeVars {}
 
 private def formatArg : Arg → Format

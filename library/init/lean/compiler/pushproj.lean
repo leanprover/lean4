@@ -14,7 +14,7 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
   else
     let b    := bs.back in
     let bs   := bs.pop in
-    let done (_ : Unit) := ((bs.push b) ++ ps.reverse, alts) in
+    let done (_ : Unit) := (bs.push b ++ ps.reverse, alts) in
     let skip (_ : Unit) := pushProjs bs alts afvs (ps.push b) (b.collectFreeVars vs) in
     match b with
     | FnBody.vdecl x t v _ :=

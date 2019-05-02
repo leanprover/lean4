@@ -9,27 +9,29 @@ namespace Lean
 namespace IR
 
 partial def pushProjs : Array FnBody → Array Alt → Array VarIdxSet → Array FnBody → VarIdxSet → Array FnBody × Array Alt
-| bs alts fvs ps psvs :=
+| bs alts afvs ps vs :=
   if bs.isEmpty then (ps.reverse, alts)
   else
-    let b  := bs.back in
-    let bs := bs.pop in
+    let b    := bs.back in
+    let bs   := bs.pop in
+    let done := λ _ : Unit, ((bs.push b) ++ ps.reverse, alts) in
+    let skip := λ _ : Unit, pushProjs bs alts afvs (ps.push b) (b.collectFreeVars vs) in
     match b with
     | FnBody.vdecl x t v _ :=
       (match v with
        | Expr.proj _ _    :=
-         if !psvs.contains x.idx && !fvs.all (λ s, s.contains x.idx) then
+         if !vs.contains x.idx && !afvs.all (λ s, s.contains x.idx) then
            let alts := alts.hmapIdx $ λ i alt, alt.modifyBody $ λ b',
-              if (fvs.get i).contains x.idx then b.setBody b'
+              if (afvs.get i).contains x.idx then b.setBody b'
               else b' in
-           let fvs  := fvs.hmap $ λ s, if s.contains x.idx then b.collectFreeVars s else s in
-           pushProjs bs alts fvs ps psvs
+           let fvs  := afvs.hmap $ λ s, if s.contains x.idx then b.collectFreeVars s else s in
+           pushProjs bs alts fvs ps vs
          else
-           pushProjs bs alts fvs (ps.push b) (b.collectFreeVars psvs)
-       | Expr.uproj _ _   := pushProjs bs alts fvs (ps.push b) (b.collectFreeVars psvs)
-       | Expr.sproj _ _ _ := pushProjs bs alts fvs (ps.push b) (b.collectFreeVars psvs)
-       | other            := ((bs.push b) ++ ps.reverse, alts))
-    | other := ((bs.push b) ++ ps.reverse, alts)
+           skip ()
+       | Expr.uproj _ _   := skip ()
+       | Expr.sproj _ _ _ := skip ()
+       | _                := done ())
+    | _ := done ()
 
 /-- Push projections inside `cases` branches. -/
 partial def FnBody.pushProj : FnBody → FnBody
@@ -37,8 +39,10 @@ partial def FnBody.pushProj : FnBody → FnBody
   let (bs, term) := b.flatten in
   match term with
   | FnBody.case tid x alts :=
-    let fvs        := alts.map $ λ alt, alt.body.freeVars in
-    let (bs, alts) := pushProjs bs alts fvs Array.empty {} in
+    let afvs       := alts.map $ λ alt, alt.body.freeVars in
+    let vs         := ({} : VarIdxSet) in
+    let vs         := vs.insert x.idx in
+    let (bs, alts) := pushProjs bs alts afvs Array.empty vs in
     let alts       := alts.hmap $ λ alt, alt.modifyBody $ λ b, FnBody.pushProj b in
     let term       := FnBody.case tid x alts in
     reshape bs term

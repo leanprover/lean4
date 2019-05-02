@@ -295,7 +295,7 @@ let r : Array α := mkEmpty (e - b) in
 if h : e ≤ a.size then extractAux a b e h r
 else r
 
-@[inline] protected def append (a : Array α) (b : Array α) : Array α :=
+protected def append (a : Array α) (b : Array α) : Array α :=
 b.foldl (λ a v, a.push v) a
 
 instance : HasAppend (Array α) := ⟨Array.append⟩

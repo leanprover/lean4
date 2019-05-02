@@ -14,8 +14,8 @@ partial def pushProjs : Array FnBody → Array Alt → Array VarIdxSet → Array
   else
     let b    := bs.back in
     let bs   := bs.pop in
-    let done := λ _ : Unit, ((bs.push b) ++ ps.reverse, alts) in
-    let skip := λ _ : Unit, pushProjs bs alts afvs (ps.push b) (b.collectFreeVars vs) in
+    let done (_ : Unit) := ((bs.push b) ++ ps.reverse, alts) in
+    let skip (_ : Unit) := pushProjs bs alts afvs (ps.push b) (b.collectFreeVars vs) in
     match b with
     | FnBody.vdecl x t v _ :=
       (match v with
@@ -40,9 +40,7 @@ partial def FnBody.pushProj : FnBody → FnBody
   match term with
   | FnBody.case tid x alts :=
     let afvs       := alts.map $ λ alt, alt.body.freeVars in
-    let vs         := ({} : VarIdxSet) in
-    let vs         := vs.insert x.idx in
-    let (bs, alts) := pushProjs bs alts afvs Array.empty vs in
+    let (bs, alts) := pushProjs bs alts afvs Array.empty {x.idx} in
     let alts       := alts.hmap $ λ alt, alt.modifyBody $ λ b, FnBody.pushProj b in
     let term       := FnBody.case tid x alts in
     reshape bs term

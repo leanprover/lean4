@@ -5,7 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.name init.lean.kvmap init.lean.format init.data.array
-
 /-
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.
@@ -581,6 +580,7 @@ partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | FnBody.unreachable         := "⊥"
 
 instance fnBodyHasFormat : HasFormat FnBody := ⟨formatFnBody⟩
+instance fnBodyHasToString : HasToString FnBody := ⟨λ b, (format b).pretty⟩
 
 def formatDecl (indent : Nat := 2) : Decl → Format
 | (Decl.fdecl f xs ty b) := "def " ++ format f ++ formatArray xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)

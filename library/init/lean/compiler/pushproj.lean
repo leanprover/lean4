@@ -41,7 +41,7 @@ partial def FnBody.pushProj : FnBody → FnBody
   | FnBody.case tid x alts :=
     let afvs       := alts.map $ λ alt, alt.body.freeVars in
     let (bs, alts) := pushProjs bs alts afvs Array.empty {x.idx} in
-    let alts       := alts.hmap $ λ alt, alt.modifyBody $ λ b, FnBody.pushProj b in
+    let alts       := alts.hmap $ λ alt, alt.modifyBody FnBody.pushProj in
     let term       := FnBody.case tid x alts in
     reshape bs term
   | other := reshape bs term

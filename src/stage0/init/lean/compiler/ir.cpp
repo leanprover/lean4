@@ -2001,19 +2001,34 @@ x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::nat_dec_eq(x_1, x_3);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
+obj* x_5; obj* x_6; obj* x_8; uint8 x_9; 
 x_5 = lean::mk_nat_obj(1ul);
 x_6 = lean::nat_sub(x_1, x_5);
 lean::dec(x_1);
-x_8 = l_Lean_IR_Inhabited;
-x_9 = lean::array_get(x_8, x_0, x_6);
-x_10 = lean::box(12);
-x_11 = lean::array_set(x_0, x_6, x_10);
-x_12 = l_Lean_IR_FnBody_setBody___main(x_9, x_2);
-x_0 = x_11;
+x_8 = lean::array_get_size(x_0);
+x_9 = lean::nat_dec_lt(x_6, x_8);
+lean::dec(x_8);
+if (x_9 == 0)
+{
+obj* x_11; obj* x_12; 
+x_11 = lean::box(12);
+x_12 = l_Lean_IR_FnBody_setBody___main(x_11, x_2);
 x_1 = x_6;
 x_2 = x_12;
 goto _start;
+}
+else
+{
+obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+x_14 = lean::array_index(x_0, x_6);
+x_15 = lean::box(12);
+x_16 = lean::array_update(x_0, x_6, x_15);
+x_17 = l_Lean_IR_FnBody_setBody___main(x_14, x_2);
+x_0 = x_16;
+x_1 = x_6;
+x_2 = x_17;
+goto _start;
+}
 }
 else
 {

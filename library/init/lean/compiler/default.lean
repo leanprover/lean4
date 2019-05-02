@@ -5,4 +5,6 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.compiler.constfolding
-import init.lean.compiler.ir init.lean.compiler.pushproj
+import init.lean.compiler.ir
+import init.lean.compiler.pushproj
+import init.lean.compiler.elimdead

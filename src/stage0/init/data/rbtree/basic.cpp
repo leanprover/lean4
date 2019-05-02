@@ -27,6 +27,7 @@ obj* l_rbtreeOf___boxed(obj*);
 obj* l_rbtreeOf(obj*);
 obj* l_List_foldl___main___at_RBTree_fromList___spec__1___rarg(obj*, obj*, obj*);
 obj* l_RBTree_max___boxed(obj*, obj*);
+obj* l_RBTree_HasInsert(obj*);
 obj* l_RBNode_all___main___at_RBTree_subset___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_RBTree_ofList___main(obj*);
 obj* l_RBNode_fold___main___at_RBTree_fold___spec__1(obj*, obj*);
@@ -66,6 +67,7 @@ uint8 l_RBNode_any___main___at_RBTree_any___spec__1___rarg(obj*, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
+obj* l_RBTree_HasInsert___boxed(obj*);
 obj* l_RBTree_contains___rarg___boxed(obj*, obj*, obj*);
 uint8 l_RBTree_seteq___rarg(obj*, obj*, obj*);
 obj* l_RBTree_fromList(obj*);
@@ -121,6 +123,7 @@ uint8 l_RBTree_isEmpty___rarg(obj*);
 obj* l_RBTree_ofList(obj*);
 obj* l_RBTree_ofList___main___boxed(obj*);
 obj* l_RBTree_depth(obj*, obj*);
+obj* l_RBTree_HasInsert___rarg(obj*, obj*, obj*);
 obj* l_RBTree_fold___boxed(obj*, obj*, obj*);
 obj* l_RBTree_toList___boxed(obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -891,6 +894,45 @@ _start:
 {
 obj* x_1; 
 x_1 = l_RBTree_insert(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_RBTree_HasInsert___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; 
+x_3 = l_RBNode_isRed___main___rarg(x_2);
+if (x_3 == 0)
+{
+obj* x_4; obj* x_5; 
+x_4 = lean::box(0);
+x_5 = l_RBNode_ins___main___rarg(x_0, x_2, x_1, x_4);
+return x_5;
+}
+else
+{
+obj* x_6; obj* x_7; obj* x_8; 
+x_6 = lean::box(0);
+x_7 = l_RBNode_ins___main___rarg(x_0, x_2, x_1, x_6);
+x_8 = l_RBNode_setBlack___main___rarg(x_7);
+return x_8;
+}
+}
+}
+obj* l_RBTree_HasInsert(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_RBTree_HasInsert___rarg), 3, 0);
+return x_1;
+}
+}
+obj* l_RBTree_HasInsert___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_RBTree_HasInsert(x_0);
 lean::dec(x_0);
 return x_1;
 }

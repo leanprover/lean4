@@ -281,6 +281,11 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
 def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 reshapeAux bs bs.size term
 
+@[inline] def modifyJPVals (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
+bs.hmap $ λ b, match b with
+  | FnBody.jdecl j xs t v k := FnBody.jdecl j xs t (f v) k
+  | other                   := other
+
 @[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
 inductive Decl

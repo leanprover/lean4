@@ -36,6 +36,7 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
 partial def FnBody.pushProj : FnBody → FnBody
 | b :=
   let (bs, term) := b.flatten in
+  let bs         := modifyJPVals bs FnBody.pushProj in
   match term with
   | FnBody.case tid x alts :=
     let afvs       := alts.map $ λ alt, alt.body.freeVars in

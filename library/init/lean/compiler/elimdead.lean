@@ -32,12 +32,13 @@ reshapeWithoutDeadAux bs term term.freeVars
 partial def FnBody.elimDead : FnBody → FnBody
 | b :=
   let (bs, term) := b.flatten in
+  let bs         := modifyJPVals bs FnBody.elimDead in
   let term       := match term with
     | FnBody.case tid x alts :=
       let alts := alts.hmap $ λ alt, alt.modifyBody $ λ b, FnBody.elimDead b in
       FnBody.case tid x alts
     | other := other in
-  reshape bs term
+  reshapeWithoutDead bs term
 
 /-- Eliminate dead let-declarations and join points -/
 @[export lean.ir.decl_elim_dead_core]

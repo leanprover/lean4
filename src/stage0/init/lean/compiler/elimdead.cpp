@@ -30,10 +30,7 @@ obj* l_Lean_IR_reshapeWithoutDeadAux___main(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-namespace lean {
-namespace ir {
-obj* decl_elim_dead_core(obj*);
-}}
+obj* l_Lean_IR_Decl_elimDead(obj*);
 obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_2__collectIndex___spec__1(obj*, obj*);
 obj* l_Lean_IR_FnBody_flatten(obj*);
 namespace lean {
@@ -431,9 +428,7 @@ return x_0;
 }
 }
 }
-namespace lean {
-namespace ir {
-obj* decl_elim_dead_core(obj* x_0) {
+obj* l_Lean_IR_Decl_elimDead(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -441,7 +436,6 @@ x_1 = l_Lean_IR_Decl_elimDead___main(x_0);
 return x_1;
 }
 }
-}}
 obj* initialize_init_default(obj*);
 obj* initialize_init_lean_compiler_ir(obj*);
 static bool _G_initialized = false;

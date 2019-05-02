@@ -22,10 +22,7 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 extern obj* l_Lean_IR_vsetInh;
-namespace lean {
-namespace ir {
-obj* decl_push_proj_core(obj*);
-}}
+obj* l_Lean_IR_Decl_pushProj(obj*);
 obj* l_RBNode_ins___main___at___private_init_lean_compiler_ir_2__collectIndex___spec__2(obj*, obj*, obj*);
 obj* l_Lean_IR_pushProjs___main___closed__1;
 obj* l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -829,9 +826,7 @@ return x_0;
 }
 }
 }
-namespace lean {
-namespace ir {
-obj* decl_push_proj_core(obj* x_0) {
+obj* l_Lean_IR_Decl_pushProj(obj* x_0) {
 _start:
 {
 obj* x_1; 
@@ -839,7 +834,6 @@ x_1 = l_Lean_IR_Decl_pushProj___main(x_0);
 return x_1;
 }
 }
-}}
 obj* initialize_init_default(obj*);
 obj* initialize_init_lean_compiler_ir(obj*);
 static bool _G_initialized = false;

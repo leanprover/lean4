@@ -47,7 +47,6 @@ partial def FnBody.pushProj : FnBody → FnBody
   | other := reshape bs term
 
 /-- Push projections inside `case` branches. -/
-@[export lean.ir.decl_push_proj_core]
 def Decl.pushProj : Decl → Decl
 | (Decl.fdecl f xs t b) := Decl.fdecl f xs t b.pushProj
 | other                 := other

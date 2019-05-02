@@ -655,11 +655,9 @@ partial def collectDecl : Decl → Collector
 
 end MaxVar
 
-@[export lean.ir.fnbody_max_var_core]
 def FnBody.maxVar (b : FnBody) : Index :=
 MaxVar.collectFnBody b 0
 
-@[export lean.ir.decl_max_var_core]
 def Decl.maxVar (d : Decl) : Index :=
 MaxVar.collectDecl d 0
 

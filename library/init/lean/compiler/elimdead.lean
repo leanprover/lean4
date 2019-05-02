@@ -41,7 +41,6 @@ partial def FnBody.elimDead : FnBody → FnBody
   reshapeWithoutDead bs term
 
 /-- Eliminate dead let-declarations and join points -/
-@[export lean.ir.decl_elim_dead_core]
 def Decl.elimDead : Decl → Decl
 | (Decl.fdecl f xs t b) := Decl.fdecl f xs t b.elimDead
 | other                 := other

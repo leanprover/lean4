@@ -48,7 +48,6 @@ partial def FnBody.simpCase : FnBody → FnBody
   - Remove unreachable branches.
   - Remove `case` if there is only one branch.
   - Merge most common branches using `Alt.default`. -/
-@[export lean.ir.decl_simp_case_core]
 def Decl.simpCase : Decl → Decl
 | (Decl.fdecl f xs t b) := Decl.fdecl f xs t b.simpCase
 | other                 := other

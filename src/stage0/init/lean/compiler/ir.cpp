@@ -150,10 +150,7 @@ obj* l_Lean_IR_declHasFormat;
 obj* l___private_init_lean_compiler_ir_20__formatIRType___boxed(obj*);
 obj* l___private_init_lean_compiler_ir_19__formatExpr___main___closed__2;
 obj* l_Lean_IR_Alt_default(obj*);
-namespace lean {
-namespace ir {
-obj* decl_max_var_core(obj*);
-}}
+obj* l_Lean_IR_Decl_maxVar(obj*);
 obj* l___private_init_lean_compiler_ir_2__collectIndex(obj*, obj*, obj*);
 namespace lean {
 namespace ir {
@@ -354,10 +351,7 @@ obj* l___private_init_lean_compiler_ir_8__withParams___boxed(obj*, obj*, obj*, o
 obj* l_Lean_IR_VarId_lt___boxed(obj*, obj*);
 obj* l_Lean_IR_mkDecl___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_formatFnBody___main___closed__16;
-namespace lean {
-namespace ir {
-obj* fnbody_max_var_core(obj*);
-}}
+obj* l_Lean_IR_FnBody_maxVar(obj*);
 uint8 l_Lean_IR_CtorInfo_beq___main(obj*, obj*);
 uint8 l_Lean_IR_FnBody_beq(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_14__collectAlts___boxed(obj*, obj*, obj*, obj*);
@@ -400,6 +394,7 @@ obj* l_Lean_IR_FnBody_isPure___main___boxed(obj*);
 obj* l_Lean_IR_litValHasFormat;
 uint8 l_Lean_IR_Alt_isDefault(obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_16__formatArray___spec__1___boxed(obj*);
+obj* l_Lean_IR_fnBodyHasToString(obj*);
 obj* l_Lean_IR_FnBody_body___main(obj*);
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_IR_MaxVar_collectFnBody___main(obj*, obj*);
@@ -10921,6 +10916,17 @@ lean::closure_set(x_1, 0, x_0);
 return x_1;
 }
 }
+obj* l_Lean_IR_fnBodyHasToString(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_1 = lean::mk_nat_obj(2ul);
+x_2 = l_Lean_IR_formatFnBody___main(x_1, x_0);
+x_3 = l_Lean_Options_empty;
+x_4 = l_Lean_Format_pretty(x_2, x_3);
+return x_4;
+}
+}
 obj* _init_l_Lean_IR_formatDecl___main___closed__1() {
 _start:
 {
@@ -12138,9 +12144,7 @@ x_2 = l_Lean_IR_MaxVar_collectDecl___main(x_0, x_1);
 return x_2;
 }
 }
-namespace lean {
-namespace ir {
-obj* fnbody_max_var_core(obj* x_0) {
+obj* l_Lean_IR_FnBody_maxVar(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -12149,10 +12153,7 @@ x_2 = l_Lean_IR_MaxVar_collectFnBody___main(x_0, x_1);
 return x_2;
 }
 }
-}}
-namespace lean {
-namespace ir {
-obj* decl_max_var_core(obj* x_0) {
+obj* l_Lean_IR_Decl_maxVar(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -12161,7 +12162,6 @@ x_2 = l_Lean_IR_MaxVar_collectDecl___main(x_0, x_1);
 return x_2;
 }
 }
-}}
 obj* initialize_init_lean_name(obj*);
 obj* initialize_init_lean_kvmap(obj*);
 obj* initialize_init_lean_format(obj*);

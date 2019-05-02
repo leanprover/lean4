@@ -2020,9 +2020,9 @@ goto _start;
 else
 {
 obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
-x_14 = lean::array_index(x_0, x_6);
+x_14 = lean::array_fget(x_0, x_6);
 x_15 = lean::box(12);
-x_16 = lean::array_update(x_0, x_6, x_15);
+x_16 = lean::array_fset(x_0, x_6, x_15);
 x_17 = l_Lean_IR_FnBody_setBody___main(x_14, x_2);
 x_0 = x_16;
 x_1 = x_6;
@@ -2193,7 +2193,7 @@ return x_6;
 else
 {
 obj* x_7; 
-x_7 = lean::array_index(x_0, x_1);
+x_7 = lean::array_fget(x_0, x_1);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; uint8 x_11; 
@@ -4306,8 +4306,8 @@ return x_4;
 else
 {
 obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
-x_13 = lean::array_index(x_1, x_3);
-x_14 = lean::array_index(x_2, x_3);
+x_13 = lean::array_fget(x_1, x_3);
+x_14 = lean::array_fget(x_2, x_3);
 x_15 = lean::mk_nat_obj(1ul);
 x_16 = lean::nat_add(x_3, x_15);
 lean::dec(x_3);
@@ -7017,7 +7017,7 @@ return x_3;
 else
 {
 obj* x_8; obj* x_9; obj* x_12; obj* x_13; uint8 x_15; 
-x_8 = lean::array_index(x_1, x_2);
+x_8 = lean::array_fget(x_1, x_2);
 x_9 = lean::cnstr_get(x_8, 0);
 lean::inc(x_9);
 lean::dec(x_8);
@@ -7181,7 +7181,7 @@ return x_5;
 else
 {
 obj* x_12; obj* x_15; obj* x_16; obj* x_17; 
-x_12 = lean::array_index(x_3, x_4);
+x_12 = lean::array_fget(x_3, x_4);
 lean::inc(x_2);
 lean::inc(x_1);
 x_15 = lean::apply_3(x_1, x_12, x_2, x_5);
@@ -7272,7 +7272,7 @@ return x_4;
 else
 {
 obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 lean::inc(x_1);
 x_12 = l___private_init_lean_compiler_ir_10__collectArg___main(x_10, x_1, x_4);
 x_13 = lean::mk_nat_obj(1ul);
@@ -7665,7 +7665,7 @@ return x_5;
 else
 {
 obj* x_12; obj* x_13; obj* x_17; obj* x_18; obj* x_19; 
-x_12 = lean::array_index(x_3, x_4);
+x_12 = lean::array_fget(x_3, x_4);
 x_13 = l_Lean_IR_AltCore_body___main(x_12);
 lean::dec(x_12);
 lean::inc(x_2);
@@ -8326,7 +8326,7 @@ return x_4;
 else
 {
 obj* x_10; uint8 x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 x_11 = 0;
 x_12 = l_Lean_Format_flatten___main___closed__1;
 x_13 = lean::alloc_cnstr(4, 2, 1);
@@ -8701,7 +8701,7 @@ return x_3;
 else
 {
 obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
-x_8 = lean::array_index(x_1, x_2);
+x_8 = lean::array_fget(x_1, x_2);
 x_9 = 0;
 x_10 = l_Lean_Format_flatten___main___closed__1;
 x_11 = lean::alloc_cnstr(4, 2, 1);
@@ -9698,7 +9698,7 @@ return x_3;
 else
 {
 obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
-x_8 = lean::array_index(x_1, x_2);
+x_8 = lean::array_fget(x_1, x_2);
 x_9 = 0;
 x_10 = l_Lean_Format_flatten___main___closed__1;
 x_11 = lean::alloc_cnstr(4, 2, 1);
@@ -9747,7 +9747,7 @@ return x_4;
 else
 {
 obj* x_10; uint8 x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_16; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 x_11 = 0;
 x_12 = lean::box(1);
 x_13 = lean::alloc_cnstr(4, 2, 1);
@@ -11149,7 +11149,7 @@ return x_4;
 else
 {
 obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 lean::inc(x_1);
 x_12 = lean::apply_2(x_1, x_10, x_4);
 x_13 = lean::mk_nat_obj(1ul);
@@ -11238,7 +11238,7 @@ return x_3;
 else
 {
 obj* x_8; obj* x_9; obj* x_12; obj* x_13; 
-x_8 = lean::array_index(x_1, x_2);
+x_8 = lean::array_fget(x_1, x_2);
 x_9 = l___private_init_lean_compiler_ir_27__collectArg___main(x_8, x_3);
 lean::dec(x_3);
 lean::dec(x_8);
@@ -11340,7 +11340,7 @@ return x_3;
 else
 {
 obj* x_8; obj* x_9; obj* x_12; obj* x_13; 
-x_8 = lean::array_index(x_1, x_2);
+x_8 = lean::array_fget(x_1, x_2);
 x_9 = l___private_init_lean_compiler_ir_30__collectParam(x_8, x_3);
 lean::dec(x_3);
 lean::dec(x_8);
@@ -11596,7 +11596,7 @@ return x_4;
 else
 {
 obj* x_10; obj* x_11; obj* x_14; obj* x_15; obj* x_16; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 x_11 = l_Lean_IR_AltCore_body___main(x_10);
 lean::dec(x_10);
 lean::inc(x_0);

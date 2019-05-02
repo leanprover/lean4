@@ -2011,7 +2011,7 @@ return x_5;
 else
 {
 obj* x_12; obj* x_13; uint8 x_14; obj* x_15; obj* x_16; 
-x_12 = lean::array_index(x_3, x_4);
+x_12 = lean::array_fget(x_3, x_4);
 x_13 = lean::mk_nat_obj(0ul);
 x_14 = lean::nat_dec_lt(x_13, x_4);
 x_15 = lean::mk_nat_obj(1ul);

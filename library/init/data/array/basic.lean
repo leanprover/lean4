@@ -61,14 +61,14 @@ a.size = 0
 def singleton (v : α) : Array α :=
 mkArray 1 v
 
-@[extern cpp inline "lean::array_index(#2, #3)"]
+@[extern cpp inline "lean::array_fget(#2, #3)"]
 def fget (a : @& Array α) (i : @& Fin a.size) : α :=
 a.data i
 
 /- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fget` may be slightly slower than `uget`. -/
-@[extern cpp inline "lean::array_idx(#2, #3)"]
+@[extern cpp inline "lean::array_uget(#2, #3)"]
 def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
 a.fget ⟨i.toNat, h⟩
 
@@ -83,7 +83,7 @@ a.get (a.size - 1)
 def getOpt (a : Array α) (i : Nat) : Option α :=
 if h : i < a.size then some (a.fget ⟨i, h⟩) else none
 
-@[extern cpp inline "lean::array_update(#2, #3, #4)"]
+@[extern cpp inline "lean::array_fset(#2, #3, #4)"]
 def fset (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
   data := λ j, if h : i = j then v else a.data j }
@@ -94,7 +94,7 @@ rfl
 /- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
    `fset` may be slightly slower than `uset`. -/
-@[extern cpp inline "lean::array_updt(#2, #3, #4)"]
+@[extern cpp inline "lean::array_uset(#2, #3, #4)"]
 def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
 a.fset ⟨i.toNat, h⟩ v
 

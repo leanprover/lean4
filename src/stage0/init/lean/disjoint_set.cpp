@@ -191,7 +191,7 @@ x_7 = lean::apply_1(x_1, x_3);
 x_8 = lean::unbox_size_t(x_7);
 x_9 = lean::usize_modn(x_8, x_5);
 lean::dec(x_5);
-x_11 = lean::array_idx(x_4, x_9);
+x_11 = lean::array_uget(x_4, x_9);
 x_12 = l_AssocList_find___main___at___private_init_lean_disjoint__set_1__findAux___main___spec__2___rarg(x_0, x_3, x_11);
 return x_12;
 }
@@ -616,7 +616,7 @@ lean::inc(x_1);
 x_13 = lean::apply_1(x_1, x_3);
 x_14 = lean::unbox_size_t(x_13);
 x_15 = lean::usize_modn(x_14, x_10);
-x_16 = lean::array_idx(x_7, x_15);
+x_16 = lean::array_uget(x_7, x_15);
 lean::inc(x_16);
 lean::inc(x_3);
 lean::inc(x_0);
@@ -632,7 +632,7 @@ x_25 = lean::alloc_cnstr(1, 3, 0);
 lean::cnstr_set(x_25, 0, x_3);
 lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
-x_26 = lean::array_updt(x_7, x_15, x_25);
+x_26 = lean::array_uset(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
 lean::dec(x_10);
 if (x_27 == 0)
@@ -662,7 +662,7 @@ obj* x_35; obj* x_36; obj* x_37;
 lean::dec(x_10);
 lean::dec(x_1);
 x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__3___rarg(x_0, x_3, x_4, x_16);
-x_36 = lean::array_updt(x_7, x_15, x_35);
+x_36 = lean::array_uset(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
  x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
@@ -826,7 +826,7 @@ lean::inc(x_1);
 x_13 = lean::apply_1(x_1, x_3);
 x_14 = lean::unbox_size_t(x_13);
 x_15 = lean::usize_modn(x_14, x_10);
-x_16 = lean::array_idx(x_7, x_15);
+x_16 = lean::array_uget(x_7, x_15);
 lean::inc(x_16);
 lean::inc(x_3);
 lean::inc(x_0);
@@ -842,7 +842,7 @@ x_25 = lean::alloc_cnstr(1, 3, 0);
 lean::cnstr_set(x_25, 0, x_3);
 lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
-x_26 = lean::array_updt(x_7, x_15, x_25);
+x_26 = lean::array_uset(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
 lean::dec(x_10);
 if (x_27 == 0)
@@ -872,7 +872,7 @@ obj* x_35; obj* x_36; obj* x_37;
 lean::dec(x_10);
 lean::dec(x_1);
 x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__6___rarg(x_0, x_3, x_4, x_16);
-x_36 = lean::array_updt(x_7, x_15, x_35);
+x_36 = lean::array_uset(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
  x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
@@ -1036,7 +1036,7 @@ lean::inc(x_1);
 x_13 = lean::apply_1(x_1, x_3);
 x_14 = lean::unbox_size_t(x_13);
 x_15 = lean::usize_modn(x_14, x_10);
-x_16 = lean::array_idx(x_7, x_15);
+x_16 = lean::array_uget(x_7, x_15);
 lean::inc(x_16);
 lean::inc(x_3);
 lean::inc(x_0);
@@ -1052,7 +1052,7 @@ x_25 = lean::alloc_cnstr(1, 3, 0);
 lean::cnstr_set(x_25, 0, x_3);
 lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
-x_26 = lean::array_updt(x_7, x_15, x_25);
+x_26 = lean::array_uset(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
 lean::dec(x_10);
 if (x_27 == 0)
@@ -1082,7 +1082,7 @@ obj* x_35; obj* x_36; obj* x_37;
 lean::dec(x_10);
 lean::dec(x_1);
 x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__9___rarg(x_0, x_3, x_4, x_16);
-x_36 = lean::array_updt(x_7, x_15, x_35);
+x_36 = lean::array_uset(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
  x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
@@ -1246,7 +1246,7 @@ lean::inc(x_1);
 x_13 = lean::apply_1(x_1, x_3);
 x_14 = lean::unbox_size_t(x_13);
 x_15 = lean::usize_modn(x_14, x_10);
-x_16 = lean::array_idx(x_7, x_15);
+x_16 = lean::array_uget(x_7, x_15);
 lean::inc(x_16);
 lean::inc(x_3);
 lean::inc(x_0);
@@ -1262,7 +1262,7 @@ x_25 = lean::alloc_cnstr(1, 3, 0);
 lean::cnstr_set(x_25, 0, x_3);
 lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
-x_26 = lean::array_updt(x_7, x_15, x_25);
+x_26 = lean::array_uset(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
 lean::dec(x_10);
 if (x_27 == 0)
@@ -1292,7 +1292,7 @@ obj* x_35; obj* x_36; obj* x_37;
 lean::dec(x_10);
 lean::dec(x_1);
 x_35 = l_AssocList_replace___main___at_Lean_DisjointSet_merge___main___spec__12___rarg(x_0, x_3, x_4, x_16);
-x_36 = lean::array_updt(x_7, x_15, x_35);
+x_36 = lean::array_uset(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
  x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {

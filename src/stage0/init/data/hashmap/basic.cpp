@@ -137,7 +137,7 @@ obj* l_HashMapBucket_update___rarg(obj* x_0, usize x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::array_updt(x_0, x_1, x_2);
+x_4 = lean::array_uset(x_0, x_1, x_2);
 return x_4;
 }
 }
@@ -256,12 +256,12 @@ x_6 = lean::apply_1(x_0, x_2);
 x_7 = lean::unbox_size_t(x_6);
 x_8 = lean::usize_modn(x_7, x_4);
 lean::dec(x_4);
-x_10 = lean::array_idx(x_1, x_8);
+x_10 = lean::array_uget(x_1, x_8);
 x_11 = lean::alloc_cnstr(1, 3, 0);
 lean::cnstr_set(x_11, 0, x_2);
 lean::cnstr_set(x_11, 1, x_3);
 lean::cnstr_set(x_11, 2, x_10);
-x_12 = lean::array_updt(x_1, x_8, x_11);
+x_12 = lean::array_uset(x_1, x_8, x_11);
 return x_12;
 }
 }
@@ -299,7 +299,7 @@ return x_4;
 else
 {
 obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 lean::inc(x_1);
 x_12 = l_AssocList_foldl___main___rarg(x_1, x_4, x_10);
 x_13 = lean::mk_nat_obj(1ul);
@@ -388,7 +388,7 @@ x_7 = lean::apply_1(x_1, x_3);
 x_8 = lean::unbox_size_t(x_7);
 x_9 = lean::usize_modn(x_8, x_5);
 lean::dec(x_5);
-x_11 = lean::array_idx(x_4, x_9);
+x_11 = lean::array_uget(x_4, x_9);
 x_12 = l_AssocList_find___main___rarg(x_0, x_3, x_11);
 return x_12;
 }
@@ -431,7 +431,7 @@ x_7 = lean::apply_1(x_1, x_3);
 x_8 = lean::unbox_size_t(x_7);
 x_9 = lean::usize_modn(x_8, x_5);
 lean::dec(x_5);
-x_11 = lean::array_idx(x_4, x_9);
+x_11 = lean::array_uget(x_4, x_9);
 x_12 = l_AssocList_contains___main___rarg(x_0, x_3, x_11);
 return x_12;
 }
@@ -480,7 +480,7 @@ return x_4;
 else
 {
 obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 lean::inc(x_0);
 x_12 = l_AssocList_foldl___main___rarg(x_0, x_4, x_10);
 x_13 = lean::mk_nat_obj(1ul);
@@ -589,7 +589,7 @@ x_14 = lean::apply_1(x_0, x_4);
 x_15 = lean::unbox_size_t(x_14);
 x_16 = lean::usize_modn(x_15, x_11);
 lean::dec(x_11);
-x_18 = lean::array_idx(x_1, x_16);
+x_18 = lean::array_uget(x_1, x_16);
 if (lean::is_scalar(x_10)) {
  x_19 = lean::alloc_cnstr(1, 3, 0);
 } else {
@@ -598,7 +598,7 @@ if (lean::is_scalar(x_10)) {
 lean::cnstr_set(x_19, 0, x_4);
 lean::cnstr_set(x_19, 1, x_6);
 lean::cnstr_set(x_19, 2, x_18);
-x_20 = lean::array_updt(x_1, x_16, x_19);
+x_20 = lean::array_uset(x_1, x_16, x_19);
 x_1 = x_20;
 x_2 = x_8;
 goto _start;
@@ -630,9 +630,9 @@ return x_3;
 else
 {
 obj* x_10; obj* x_11; obj* x_12; obj* x_14; obj* x_15; obj* x_16; 
-x_10 = lean::array_index(x_2, x_1);
+x_10 = lean::array_fget(x_2, x_1);
 x_11 = lean::box(0);
-x_12 = lean::array_update(x_2, x_1, x_11);
+x_12 = lean::array_fset(x_2, x_1, x_11);
 lean::inc(x_0);
 x_14 = l_AssocList_foldl___main___at_HashMapImp_moveEntries___main___spec__1___rarg(x_0, x_3, x_10);
 x_15 = lean::mk_nat_obj(1ul);
@@ -757,7 +757,7 @@ lean::inc(x_1);
 x_13 = lean::apply_1(x_1, x_3);
 x_14 = lean::unbox_size_t(x_13);
 x_15 = lean::usize_modn(x_14, x_10);
-x_16 = lean::array_idx(x_7, x_15);
+x_16 = lean::array_uget(x_7, x_15);
 lean::inc(x_16);
 lean::inc(x_3);
 lean::inc(x_0);
@@ -773,7 +773,7 @@ x_25 = lean::alloc_cnstr(1, 3, 0);
 lean::cnstr_set(x_25, 0, x_3);
 lean::cnstr_set(x_25, 1, x_4);
 lean::cnstr_set(x_25, 2, x_16);
-x_26 = lean::array_updt(x_7, x_15, x_25);
+x_26 = lean::array_uset(x_7, x_15, x_25);
 x_27 = lean::nat_dec_le(x_23, x_10);
 lean::dec(x_10);
 if (x_27 == 0)
@@ -803,7 +803,7 @@ obj* x_35; obj* x_36; obj* x_37;
 lean::dec(x_10);
 lean::dec(x_1);
 x_35 = l_AssocList_replace___main___rarg(x_0, x_3, x_4, x_16);
-x_36 = lean::array_updt(x_7, x_15, x_35);
+x_36 = lean::array_uset(x_7, x_15, x_35);
 if (lean::is_scalar(x_9)) {
  x_37 = lean::alloc_cnstr(0, 2, 0);
 } else {
@@ -847,7 +847,7 @@ x_10 = lean::apply_1(x_1, x_3);
 x_11 = lean::unbox_size_t(x_10);
 x_12 = lean::usize_modn(x_11, x_8);
 lean::dec(x_8);
-x_14 = lean::array_idx(x_6, x_12);
+x_14 = lean::array_uget(x_6, x_12);
 lean::inc(x_14);
 lean::inc(x_3);
 lean::inc(x_0);
@@ -876,7 +876,7 @@ x_25 = lean::mk_nat_obj(1ul);
 x_26 = lean::nat_sub(x_4, x_25);
 lean::dec(x_4);
 x_28 = l_AssocList_erase___main___rarg(x_0, x_3, x_14);
-x_29 = lean::array_updt(x_6, x_12, x_28);
+x_29 = lean::array_uset(x_6, x_12, x_28);
 if (lean::is_scalar(x_24)) {
  x_30 = lean::alloc_cnstr(0, 2, 0);
 } else {
@@ -1122,7 +1122,7 @@ return x_4;
 else
 {
 obj* x_10; obj* x_12; obj* x_13; obj* x_14; 
-x_10 = lean::array_index(x_2, x_3);
+x_10 = lean::array_fget(x_2, x_3);
 lean::inc(x_0);
 x_12 = l_AssocList_foldl___main___rarg(x_0, x_4, x_10);
 x_13 = lean::mk_nat_obj(1ul);

@@ -1356,13 +1356,13 @@ inline object * mk_empty_array(b_obj_arg capacity) {
     return alloc_array(0, cap);
 }
 
-inline object * array_idx(b_obj_arg a, usize i) {
+inline object * array_uget(b_obj_arg a, usize i) {
     object * r = array_get(a, i); inc(r);
     return r;
 }
 
-inline obj_res array_index(b_obj_arg a, b_obj_arg i) {
-    return array_idx(a, unbox(i));
+inline obj_res array_fget(b_obj_arg a, b_obj_arg i) {
+    return array_uget(a, unbox(i));
 }
 
 inline object * array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) {
@@ -1370,7 +1370,7 @@ inline object * array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) {
         usize idx = unbox(i);
         if (idx < array_size(a)) {
             dec(def_val);
-            return array_idx(a, idx);
+            return array_uget(a, idx);
         } else {
             return def_val;
         }
@@ -1390,7 +1390,7 @@ inline obj_res ensure_exclusive_array(obj_arg a) {
     return copy_array(a);
 }
 
-inline object * array_updt(obj_arg a, usize i, obj_arg v) {
+inline object * array_uset(obj_arg a, usize i, obj_arg v) {
     object * r   = ensure_exclusive_array(a);
     object ** it = array_cptr(r) + i;
     dec(*it);
@@ -1398,24 +1398,15 @@ inline object * array_updt(obj_arg a, usize i, obj_arg v) {
     return r;
 }
 
-inline object * array_update(obj_arg a, b_obj_arg i, obj_arg v) {
-    return array_updt(a, unbox(i), v);
-}
-
-inline object * array_safe_uwrite(obj_arg a, usize i, obj_arg v) {
-    if (i < array_size(a)) {
-        return array_updt(a, i, v);
-    } else {
-        dec(v);
-        return a;
-    }
+inline object * array_fset(obj_arg a, b_obj_arg i, obj_arg v) {
+    return array_uset(a, unbox(i), v);
 }
 
 inline object * array_set(obj_arg a, b_obj_arg i, obj_arg v) {
     if (is_scalar(i)) {
         usize idx = unbox(i);
         if (idx < array_size(a))
-            return array_updt(a, idx, v);
+            return array_uset(a, idx, v);
     }
     dec(v);
     return a;
@@ -1431,7 +1422,7 @@ inline object * array_pop(obj_arg a) {
     return r;
 }
 
-inline object * array_swap_core(obj_arg a, usize i, usize j) {
+inline object * array_uswap(obj_arg a, usize i, usize j) {
     object * r   = ensure_exclusive_array(a);
     object ** it = array_cptr(r);
     object * v1  = it[i];
@@ -1441,7 +1432,7 @@ inline object * array_swap_core(obj_arg a, usize i, usize j) {
 }
 
 inline object * array_fswap(obj_arg a, b_obj_arg i, b_obj_arg j) {
-    return array_swap_core(a, unbox(i), unbox(j));
+    return array_uswap(a, unbox(i), unbox(j));
 }
 
 inline object * array_swap(obj_arg a, b_obj_arg i, b_obj_arg j) {
@@ -1450,7 +1441,7 @@ inline object * array_swap(obj_arg a, b_obj_arg i, b_obj_arg j) {
     usize uj = unbox(j);
     usize sz = to_array(a)->m_size;
     if (ui >= sz || uj >= sz) return a;
-    return array_swap_core(a, ui, uj);
+    return array_uswap(a, ui, uj);
 }
 
 object * array_push(obj_arg a, obj_arg v);

@@ -207,9 +207,9 @@ return x_1;
 else
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
-x_6 = lean::array_index(x_1, x_0);
+x_6 = lean::array_fget(x_1, x_0);
 x_7 = l_Array_hmmapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__1___closed__1;
-x_8 = lean::array_update(x_1, x_0, x_7);
+x_8 = lean::array_fset(x_1, x_0, x_7);
 x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_add(x_0, x_9);
 if (lean::obj_tag(x_6) == 0)
@@ -233,7 +233,7 @@ if (lean::is_scalar(x_15)) {
 }
 lean::cnstr_set(x_17, 0, x_11);
 lean::cnstr_set(x_17, 1, x_16);
-x_18 = lean::array_update(x_8, x_0, x_17);
+x_18 = lean::array_fset(x_8, x_0, x_17);
 lean::dec(x_0);
 x_0 = x_10;
 x_1 = x_18;
@@ -257,7 +257,7 @@ if (lean::is_scalar(x_23)) {
  x_25 = x_23;
 }
 lean::cnstr_set(x_25, 0, x_24);
-x_26 = lean::array_update(x_8, x_0, x_25);
+x_26 = lean::array_fset(x_8, x_0, x_25);
 lean::dec(x_0);
 x_0 = x_10;
 x_1 = x_26;

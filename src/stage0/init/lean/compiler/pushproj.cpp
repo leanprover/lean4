@@ -364,8 +364,8 @@ goto _start;
 else
 {
 obj* x_31; obj* x_32; 
-lean::dec(x_14);
 lean::dec(x_11);
+lean::dec(x_14);
 lean::inc(x_6);
 x_31 = lean::array_push(x_3, x_6);
 x_32 = l_Lean_IR_FnBody_collectFreeVars(x_6, x_4);

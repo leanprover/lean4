@@ -62,53 +62,53 @@ def singleton (v : α) : Array α :=
 mkArray 1 v
 
 @[extern cpp inline "lean::array_index(#2, #3)"]
-def index (a : @& Array α) (i : @& Fin a.size) : α :=
+def fget (a : @& Array α) (i : @& Fin a.size) : α :=
 a.data i
 
-/- Low-level version of `index` which is as fast as a C array read.
+/- Low-level version of `fget` which is as fast as a C array read.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
-   `index` may be slightly slower than `idx`. -/
+   `fget` may be slightly slower than `uget`. -/
 @[extern cpp inline "lean::array_idx(#2, #3)"]
-def idx (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
-a.index ⟨i.toNat, h⟩
+def uget (a : @& Array α) (i : USize) (h : i.toNat < a.size) : α :=
+a.fget ⟨i.toNat, h⟩
 
-/- "Comfortable" version of `index`. It performs a bound check at runtime. -/
+/- "Comfortable" version of `fget`. It performs a bound check at runtime. -/
 @[extern cpp inline "lean::array_get(#2, #3, #4)"]
 def get [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
-if h : i < a.size then a.index ⟨i, h⟩ else default α
+if h : i < a.size then a.fget ⟨i, h⟩ else default α
 
 def back [Inhabited α] (a : Array α) : α :=
 a.get (a.size - 1)
 
 def getOpt (a : Array α) (i : Nat) : Option α :=
-if h : i < a.size then some (a.index ⟨i, h⟩) else none
+if h : i < a.size then some (a.fget ⟨i, h⟩) else none
 
 @[extern cpp inline "lean::array_update(#2, #3, #4)"]
-def update (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
+def fset (a : Array α) (i : @& Fin a.size) (v : α) : Array α :=
 { sz   := a.sz,
   data := λ j, if h : i = j then v else a.data j }
 
-theorem szUpdateEq (a : Array α) (i : Fin a.size) (v : α) : (update a i v).size = a.size :=
+theorem szFSetEq (a : Array α) (i : Fin a.size) (v : α) : (fset a i v).size = a.size :=
 rfl
 
-/- Low-level version of `update` which is as fast as a C array update.
+/- Low-level version of `fset` which is as fast as a C array fset.
    `Fin` values are represented as tag pointers in the Lean runtime. Thus,
-   `update` may be slightly slower than `updt`. -/
+   `fset` may be slightly slower than `uset`. -/
 @[extern cpp inline "lean::array_updt(#2, #3, #4)"]
-def updt (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
-a.update ⟨i.toNat, h⟩ v
+def uset (a : Array α) (i : USize) (v : α) (h : i.toNat < a.size) : Array α :=
+a.fset ⟨i.toNat, h⟩ v
 
-/- "Comfortable" version of `update`. It performs a bound check at runtime. -/
+/- "Comfortable" version of `fset`. It performs a bound check at runtime. -/
 @[extern cpp inline "lean::array_set(#2, #3, #4)"]
 def set (a : Array α) (i : @& Nat) (v : α) : Array α :=
-if h : i < a.size then a.update ⟨i, h⟩ v else a
+if h : i < a.size then a.fset ⟨i, h⟩ v else a
 
 @[extern cpp inline "lean::array_fswap(#2, #3, #4)"]
 def fswap (a : Array α) (i j : @& Fin a.size) : Array α :=
-let v₁ := a.index i in
-let v₂ := a.index j in
-let a  := a.update i v₂ in
-a.update j v₁
+let v₁ := a.fget i in
+let v₂ := a.fget j in
+let a  := a.fset i v₂ in
+a.fset j v₁
 
 @[extern cpp inline "lean::array_swap(#2, #3, #4)"]
 def swap (a : Array α) (i j : @& Nat) : Array α :=
@@ -118,8 +118,8 @@ else a
 else a
 
 @[inline] def fswapAt {α : Type} (a : Array α) (i : Fin a.size) (v : α) : α × Array α :=
-let e := a.index i in
-let a := a.update i v in
+let e := a.fget i in
+let a := a.fset i v in
 (e, a)
 
 @[inline] def swapAt {α : Type} (a : Array α) (i : Nat) (v : α) : α × Array α :=
@@ -128,7 +128,7 @@ if h : i < a.size then fswapAt a ⟨i, h⟩ v else (v, a)
 @[extern cpp inline "lean::array_pop(#2)"]
 def pop (a : Array α) : Array α :=
 { sz   := Nat.pred a.size,
-  data := λ ⟨j, h⟩, a.index ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
+  data := λ ⟨j, h⟩, a.fget ⟨j, Nat.ltOfLtOfLe h (Nat.predLe _)⟩ }
 
 -- TODO(Leo): justify termination using wf-rec
 partial def shrink : Array α → Nat → Array α
@@ -143,7 +143,7 @@ local attribute [instance] monadInhabited'
 | i b :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩ in
-     f idx (a.index idx) b >>= miterateAux (i+1)
+     f idx (a.fget idx) b >>= miterateAux (i+1)
   else pure b
 
 @[inline] def miterate (a : Array α) (b : β) (f : Π i : Fin a.size, α → β → m β) : m β :=
@@ -162,7 +162,7 @@ miterateAux a (λ _ b a, f a b) ini b
      let idx₁ : Fin a₁.size := ⟨i, h₁⟩ in
      if h₂ : i < a₂.size then
        let idx₂ : Fin a₂.size := ⟨i, h₂⟩ in
-       f idx₁ (a₁.index idx₁) (a₂.index idx₂) b >>= miterate₂Aux (i+1)
+       f idx₁ (a₁.fget idx₁) (a₂.fget idx₂) b >>= miterate₂Aux (i+1)
      else pure b
   else pure b
 
@@ -179,7 +179,7 @@ local attribute [instance] monadInhabited
 | i :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩ in
-     do r ← f (a.index idx),
+     do r ← f (a.fget idx),
         (match r with
          | some v := pure r
          | none   := mfindAux (i+1))
@@ -212,7 +212,7 @@ Id.run $ mfindAux a f 0
 | i :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩ in
-     match p (a.index idx) with
+     match p (a.fget idx) with
      | true  := true
      | false := anyAux (i+1)
   else false
@@ -227,7 +227,7 @@ anyAux a p 0
 | 0     h b := b
 | (j+1) h b :=
   let i : Fin a.size := ⟨j, h⟩ in
-  revIterateAux j (Nat.leOfLt h) (f i (a.index i) b)
+  revIterateAux j (Nat.leOfLt h) (f i (a.fget i) b)
 
 @[inline] def revIterate (a : Array α) (b : β) (f : Π i : Fin a.size, α → β → β) : β :=
 revIterateAux a f a.size (Nat.leRefl _) b
@@ -254,10 +254,10 @@ end
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
 if h : i < a.size then
   let idx : Fin a.size := ⟨i, h⟩ in
-  let v                := a.index idx in
-  let a                := a.update idx (default α) in
+  let v                := a.fget idx in
+  let a                := a.fset idx (default α) in
   let v                := f v in
-  a.update idx v
+  a.fset idx v
 else
   a
 
@@ -269,9 +269,9 @@ local attribute [instance] monadInhabited'
 | i a :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩ in
-     let v   : α          := a.index idx in
-     let a                := a.update idx (default α) in
-     do v ← f i v, hmmapAux (i+1) (a.update idx v)
+     let v   : α          := a.fget idx in
+     let a                := a.fset idx (default α) in
+     do v ← f i v, hmmapAux (i+1) (a.fset idx v)
   else
      pure a
 
@@ -295,7 +295,7 @@ partial def extractAux (a : Array α) : Nat → Π (e : Nat), e ≤ a.size → A
 | i e hle r :=
   if hlt : i < e then
     let idx : Fin a.size := ⟨i, Nat.ltOfLtOfLe hlt hle⟩ in
-    extractAux (i+1) e hle (r.push (a.index idx))
+    extractAux (i+1) e hle (r.push (a.fget idx))
  else r
 
 def extract (a : Array α) (b e : Nat) : Array α :=
@@ -314,7 +314,7 @@ partial def isEqvAux (a b : Array α) (hsz : a.size = b.size) (p : α → α →
   if h : i < a.size then
      let aidx : Fin a.size := ⟨i, h⟩ in
      let bidx : Fin b.size := ⟨i, hsz ▸ h⟩ in
-     match p (a.index aidx) (b.index bidx) with
+     match p (a.fget aidx) (b.fget bidx) with
      | true  := isEqvAux (i+1)
      | false := false
   else
@@ -345,7 +345,7 @@ reverseAux a 0
 @[specialize] partial def filterAux (p : α → Bool) : Array α → Nat → Nat → Array α
 | a i j :=
   if h₁ : i < a.size then
-    if p (a.index ⟨i, h₁⟩) then
+    if p (a.fget ⟨i, h₁⟩) then
        if h₂ : j < i then
          filterAux (a.fswap ⟨i, h₁⟩ ⟨j, Nat.ltTrans h₂ h₁⟩) (i+1) (j+1)
        else

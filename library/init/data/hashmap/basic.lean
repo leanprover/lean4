@@ -12,8 +12,8 @@ def HashMapBucket (α : Type u) (β : Type v) :=
 { b : Array (AssocList α β) // b.size > 0 }
 
 def HashMapBucket.update {α : Type u} {β : Type v} (data : HashMapBucket α β) (i : USize) (d : AssocList α β) (h : i.toNat < data.val.size) : HashMapBucket α β :=
-⟨ data.val.updt i d h,
-  transRelRight Greater (Array.szUpdateEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
+⟨ data.val.uset i d h,
+  transRelRight Greater (Array.szFSetEq (data.val) ⟨USize.toNat i, h⟩ d) data.property ⟩
 
 structure HashMapImp (α : Type u) (β : Type v) :=
 (size       : Nat)
@@ -40,7 +40,7 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 
 @[inline] def reinsertAux (hashFn : α → USize) (data : HashMapBucket α β) (a : α) (b : β) : HashMapBucket α β :=
 let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
-data.update i (AssocList.cons a b (data.val.idx i h)) h
+data.update i (AssocList.cons a b (data.val.uget i h)) h
 
 @[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
 data.val.foldl (λ d b, b.foldl f d) d
@@ -49,13 +49,13 @@ def find [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :
 match m with
 | ⟨_, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
-  (buckets.val.idx i h).find a
+  (buckets.val.uget i h).find a
 
 def contains [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Bool :=
 match m with
 | ⟨_, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
-  (buckets.val.idx i h).contains a
+  (buckets.val.uget i h).contains a
 
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
 foldBuckets m.buckets d f
@@ -65,9 +65,9 @@ partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → Hash
 | i source target :=
   if h : i < source.size then
      let idx : Fin source.size := ⟨i, h⟩ in
-     let es  : AssocList α β   := source.index idx in
+     let es  : AssocList α β   := source.fget idx in
      -- We remove `es` from `source` to make sure we can reuse its memory cells when performing es.foldl
-     let source                := source.update idx AssocList.nil in
+     let source                := source.fset idx AssocList.nil in
      let target                := es.foldl (reinsertAux hash) target in
      moveEntries (i+1) source target
   else target
@@ -84,7 +84,7 @@ def insert [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) (b : β) : 
 match m with
 | ⟨size, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
-  let bkt    := buckets.val.idx i h in
+  let bkt    := buckets.val.uget i h in
   if bkt.contains a
   then ⟨size, buckets.update i (bkt.replace a b) h⟩
   else
@@ -98,7 +98,7 @@ def erase [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : HashMapImp
 match m with
 | ⟨ size, buckets ⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
-  let bkt    := buckets.val.idx i h in
+  let bkt    := buckets.val.uget i h in
   if bkt.contains a then ⟨size - 1, buckets.update i (bkt.erase a) h⟩
   else m
 

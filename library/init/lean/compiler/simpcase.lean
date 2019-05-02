@@ -21,10 +21,10 @@ private def addDefault (alts : Array Alt) : Array Alt :=
 if alts.size <= 1 || alts.any Alt.isDefault then alts
 else
   let max  := maxOccs alts in
-  let alts := alts.filter $ (λ alt, alt.body == max.body) in
+  let alts := alts.filter $ (λ alt, alt.body != max.body) in
   alts.push (Alt.default max.body)
 
-private def mkCase (tid : Name) (x : VarId) (alts : Array Alt) : FnBody :=
+private def mkSimpCase (tid : Name) (x : VarId) (alts : Array Alt) : FnBody :=
 let alts := alts.filter (λ alt, alt.body != FnBody.unreachable) in
 let alts := addDefault alts in
 if alts.size == 0 then
@@ -39,7 +39,9 @@ partial def FnBody.simpCase : FnBody → FnBody
   let (bs, term) := b.flatten in
   let bs         := modifyJPVals bs FnBody.simpCase in
   match term with
-  | FnBody.case tid x alts := reshape bs (mkCase tid x alts)
+  | FnBody.case tid x alts :=
+    let alts := alts.hmap $ λ alt, alt.modifyBody FnBody.simpCase in
+    reshape bs (mkSimpCase tid x alts)
   | other := reshape bs term
 
 /-- Simplify `case`

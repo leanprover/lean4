@@ -126,8 +126,8 @@ instance CtorInfo.HasBeq : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
 inductive Expr
 | ctor (i : CtorInfo) (ys : Array Arg)
 | reset (x : VarId)
-/- `reuse x in ctorI ys` instruction in the paper. -/
-| reuse (x : VarId) (i : CtorInfo) (ys : Array Arg)
+/- `reuse x in ctor_i ys` instruction in the paper. -/
+| reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
 /- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`. -/
 | proj (i : Nat) (x : VarId)
 /- Extract the `Usize` value at Position `sizeof(void*)*i` from `x`. -/
@@ -352,21 +352,21 @@ Array.isEqv args₁ args₂ (λ a b, a =[ρ]= b)
 instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
-| (Expr.ctor i₁ ys₁)      (Expr.ctor i₂ ys₂)      := i₁ == i₂ && ys₁ =[ρ]= ys₂
-| (Expr.reset x₁)         (Expr.reset x₂)         := x₁ =[ρ]= x₂
-| (Expr.reuse x₁ i₁ ys₁)  (Expr.reuse x₂ i₂ ys₂)  := x₁ =[ρ]= x₂ && i₁ == i₂ && ys₁ =[ρ]= ys₂
-| (Expr.proj i₁ x₁)       (Expr.proj i₂ x₂)       := i₁ == i₂ && x₁ =[ρ]= x₂
-| (Expr.uproj i₁ x₁)      (Expr.uproj i₂ x₂)      := i₁ == i₂ && x₁ =[ρ]= x₂
-| (Expr.sproj n₁ o₁ x₁)   (Expr.sproj n₂ o₂ x₂)   := n₁ == n₂ && o₁ == o₂ && x₁ =[ρ]= x₂
-| (Expr.fap c₁ ys₁)       (Expr.fap c₂ ys₂)       := c₁ == c₂ && ys₁ =[ρ]= ys₂
-| (Expr.pap c₁ ys₁)       (Expr.pap c₂ ys₂)       := c₁ == c₂ && ys₂ =[ρ]= ys₂
-| (Expr.ap x₁ ys₁)        (Expr.ap x₂ ys₂)        := x₁ =[ρ]= x₂ && ys₁ =[ρ]= ys₂
-| (Expr.box ty₁ x₁)       (Expr.box ty₂ x₂)       := ty₁ == ty₂ && x₁ =[ρ]= x₂
-| (Expr.unbox x₁)         (Expr.unbox x₂)         := x₁ =[ρ]= x₂
-| (Expr.lit v₁)           (Expr.lit v₂)           := v₁ == v₂
-| (Expr.isShared x₁)      (Expr.isShared x₂)      := x₁ =[ρ]= x₂
-| (Expr.isTaggedPtr x₁)   (Expr.isTaggedPtr x₂)   := x₁ =[ρ]= x₂
-| _                        _                      := false
+| (Expr.ctor i₁ ys₁)        (Expr.ctor i₂ ys₂)        := i₁ == i₂ && ys₁ =[ρ]= ys₂
+| (Expr.reset x₁)           (Expr.reset x₂)           := x₁ =[ρ]= x₂
+| (Expr.reuse x₁ i₁ u₁ ys₁) (Expr.reuse x₂ i₂ u₂ ys₂) := x₁ =[ρ]= x₂ && i₁ == i₂ && u₁ == u₂ && ys₁ =[ρ]= ys₂
+| (Expr.proj i₁ x₁)         (Expr.proj i₂ x₂)         := i₁ == i₂ && x₁ =[ρ]= x₂
+| (Expr.uproj i₁ x₁)        (Expr.uproj i₂ x₂)        := i₁ == i₂ && x₁ =[ρ]= x₂
+| (Expr.sproj n₁ o₁ x₁)     (Expr.sproj n₂ o₂ x₂)     := n₁ == n₂ && o₁ == o₂ && x₁ =[ρ]= x₂
+| (Expr.fap c₁ ys₁)         (Expr.fap c₂ ys₂)         := c₁ == c₂ && ys₁ =[ρ]= ys₂
+| (Expr.pap c₁ ys₁)         (Expr.pap c₂ ys₂)         := c₁ == c₂ && ys₂ =[ρ]= ys₂
+| (Expr.ap x₁ ys₁)          (Expr.ap x₂ ys₂)          := x₁ =[ρ]= x₂ && ys₁ =[ρ]= ys₂
+| (Expr.box ty₁ x₁)         (Expr.box ty₂ x₂)         := ty₁ == ty₂ && x₁ =[ρ]= x₂
+| (Expr.unbox x₁)           (Expr.unbox x₂)           := x₁ =[ρ]= x₂
+| (Expr.lit v₁)             (Expr.lit v₂)             := v₁ == v₂
+| (Expr.isShared x₁)        (Expr.isShared x₂)        := x₁ =[ρ]= x₂
+| (Expr.isTaggedPtr x₁)     (Expr.isTaggedPtr x₂)     := x₁ =[ρ]= x₂
+| _                          _                        := false
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
 
@@ -461,7 +461,7 @@ collectArray as collectArg
 private def collectExpr : Expr → Collector
 | (Expr.ctor _ ys)       := collectArgs ys
 | (Expr.reset x)         := collectVar x
-| (Expr.reuse x _ ys)    := collectVar x; collectArgs ys
+| (Expr.reuse x _ _ ys)  := collectVar x; collectArgs ys
 | (Expr.proj _ x)        := collectVar x
 | (Expr.uproj _ x)       := collectVar x
 | (Expr.sproj _ _ x)     := collectVar x
@@ -527,7 +527,7 @@ instance ctorInfoHasFormat : HasFormat CtorInfo := ⟨formatCtorInfo⟩
 private def formatExpr : Expr → Format
 | (Expr.ctor i ys)       := format i ++ formatArray ys
 | (Expr.reset x)         := "reset " ++ format x
-| (Expr.reuse x i ys)    := "reuse " ++ format x ++ " in " ++ format i ++ formatArray ys
+| (Expr.reuse x i u ys)  := "reuse" ++ (if u then "!" else "") ++ " " ++ format x ++ " in " ++ format i ++ formatArray ys
 | (Expr.proj i x)        := "proj_" ++ format i ++ " " ++ format x
 | (Expr.uproj i x)       := "uproj_" ++ format i ++ " " ++ format x
 | (Expr.sproj n o x)     := "sproj_" ++ format n ++ "_" ++ format o ++ " " ++ format x
@@ -618,7 +618,7 @@ private def collectParams (ps : Array Param) : Collector := collectArray ps coll
 private def collectExpr : Expr → Collector
 | (Expr.ctor _ ys)       := collectArgs ys
 | (Expr.reset x)         := collectVar x
-| (Expr.reuse x _ ys)    := collectVar x; collectArgs ys
+| (Expr.reuse x _ _ ys)  := collectVar x; collectArgs ys
 | (Expr.proj _ x)        := collectVar x
 | (Expr.uproj _ x)       := collectVar x
 | (Expr.sproj _ _ x)     := collectVar x

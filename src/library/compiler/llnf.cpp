@@ -2417,11 +2417,7 @@ public:
 
 static void display_ir(environment const & env, comp_decl const & decl) {
     ir::decl d = to_ir_decl(env, decl);
-    tout() << ir::decl_to_string(d) << "\n";
-    tout() << "Max var: " << ir::decl_max_var(d).to_std_string() << "\n";
-    tout() << "after push proj\n";
-    d = ir::decl_push_proj(d);
-    tout() << ir::decl_to_string(d) << "\n";
+    ir::test(d);
 }
 
 pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {

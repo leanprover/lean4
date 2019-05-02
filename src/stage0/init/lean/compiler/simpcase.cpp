@@ -1,0 +1,654 @@
+// Lean compiler output
+// Module: init.lean.compiler.simpcase
+// Imports: init.default init.lean.compiler.ir
+#include "runtime/object.h"
+#include "runtime/apply.h"
+typedef lean::object obj;    typedef lean::usize  usize;
+typedef lean::uint8  uint8;  typedef lean::uint16 uint16;
+typedef lean::uint32 uint32; typedef lean::uint64 uint64;
+#if defined(__clang__)
+#pragma clang diagnostic ignored "-Wunused-parameter"
+#pragma clang diagnostic ignored "-Wunused-label"
+#elif defined(__GNUC__) && !defined(__CLANG__)
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2___boxed(obj*, obj*, obj*, obj*);
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_3__mkCase___spec__1(obj*, obj*, obj*);
+obj* l_Lean_IR_FnBody_simpCase(obj*);
+obj* l_Lean_IR_FnBody_simpCase___main(obj*);
+obj* l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1___boxed(obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_reshape(obj*, obj*);
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_lt(obj*, obj*);
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_simpcase_3__mkCase(obj*, obj*, obj*);
+obj* l_Lean_IR_FnBody_flatten(obj*);
+obj* l___private_init_lean_compiler_simpcase_2__addDefault(obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
+namespace lean {
+uint8 nat_dec_eq(obj*, obj*);
+}
+obj* l___private_init_lean_compiler_simpcase_1__maxOccs___boxed(obj*);
+extern obj* l_Lean_IR_altInh;
+uint8 l_Lean_IR_Alt_isDefault___main(obj*);
+uint8 l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(obj*, obj*);
+namespace lean {
+namespace ir {
+obj* decl_simp_case_core(obj*);
+}}
+obj* l_Array_shrink___main___rarg(obj*, obj*);
+obj* l_Lean_IR_AltCore_body___main(obj*);
+uint8 l_Lean_IR_FnBody_beq(obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+uint8 nat_dec_le(obj*, obj*);
+}
+obj* l_Lean_IR_Decl_simpCase___main(obj*);
+obj* l___private_init_lean_compiler_simpcase_1__maxOccs(obj*);
+obj* l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__1(obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::array_get_size(x_2);
+x_6 = lean::nat_dec_lt(x_3, x_5);
+lean::dec(x_5);
+if (x_6 == 0)
+{
+lean::dec(x_1);
+lean::dec(x_3);
+return x_4;
+}
+else
+{
+obj* x_10; obj* x_11; uint8 x_14; obj* x_15; obj* x_16; 
+x_10 = lean::array_fget(x_2, x_3);
+x_11 = l_Lean_IR_AltCore_body___main(x_10);
+lean::dec(x_10);
+lean::inc(x_1);
+x_14 = l_Lean_IR_FnBody_beq(x_11, x_1);
+x_15 = lean::mk_nat_obj(1ul);
+x_16 = lean::nat_add(x_3, x_15);
+lean::dec(x_3);
+if (x_14 == 0)
+{
+x_3 = x_16;
+goto _start;
+}
+else
+{
+obj* x_19; 
+x_19 = lean::nat_add(x_4, x_15);
+lean::dec(x_4);
+x_3 = x_16;
+x_4 = x_19;
+goto _start;
+}
+}
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; uint8 x_5; 
+x_4 = lean::array_get_size(x_1);
+x_5 = lean::nat_dec_lt(x_2, x_4);
+lean::dec(x_4);
+if (x_5 == 0)
+{
+lean::dec(x_2);
+return x_3;
+}
+else
+{
+obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_14; obj* x_15; uint8 x_17; 
+x_8 = lean::array_fget(x_1, x_2);
+x_9 = l_Lean_IR_AltCore_body___main(x_8);
+x_10 = lean::mk_nat_obj(1ul);
+x_11 = lean::nat_add(x_2, x_10);
+lean::dec(x_2);
+lean::inc(x_11);
+x_14 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(x_0, x_9, x_0, x_11, x_10);
+x_15 = lean::cnstr_get(x_3, 1);
+lean::inc(x_15);
+x_17 = lean::nat_dec_lt(x_15, x_14);
+lean::dec(x_15);
+if (x_17 == 0)
+{
+lean::dec(x_14);
+lean::dec(x_8);
+x_2 = x_11;
+goto _start;
+}
+else
+{
+obj* x_23; 
+lean::dec(x_3);
+x_23 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_23, 0, x_8);
+lean::cnstr_set(x_23, 1, x_14);
+x_2 = x_11;
+x_3 = x_23;
+goto _start;
+}
+}
+}
+}
+obj* l___private_init_lean_compiler_simpcase_1__maxOccs(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+x_1 = l_Lean_IR_altInh;
+x_2 = lean::mk_nat_obj(0ul);
+x_3 = lean::array_get(x_1, x_0, x_2);
+x_4 = lean::mk_nat_obj(1ul);
+x_5 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_5, 0, x_3);
+lean::cnstr_set(x_5, 1, x_4);
+x_6 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(x_0, x_0, x_4, x_5);
+x_7 = lean::cnstr_get(x_6, 0);
+lean::inc(x_7);
+lean::dec(x_6);
+return x_7;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_0);
+lean::dec(x_2);
+return x_5;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(x_0, x_1, x_2, x_3);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_compiler_simpcase_1__maxOccs___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l___private_init_lean_compiler_simpcase_1__maxOccs(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+uint8 l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; uint8 x_3; 
+x_2 = lean::array_get_size(x_0);
+x_3 = lean::nat_dec_lt(x_1, x_2);
+lean::dec(x_2);
+if (x_3 == 0)
+{
+uint8 x_6; 
+lean::dec(x_1);
+x_6 = 0;
+return x_6;
+}
+else
+{
+obj* x_7; uint8 x_8; 
+x_7 = lean::array_fget(x_0, x_1);
+x_8 = l_Lean_IR_Alt_isDefault___main(x_7);
+lean::dec(x_7);
+if (x_8 == 0)
+{
+obj* x_10; obj* x_11; 
+x_10 = lean::mk_nat_obj(1ul);
+x_11 = lean::nat_add(x_1, x_10);
+lean::dec(x_1);
+x_1 = x_11;
+goto _start;
+}
+else
+{
+uint8 x_15; 
+lean::dec(x_1);
+x_15 = 1;
+return x_15;
+}
+}
+}
+}
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; uint8 x_5; 
+x_4 = lean::array_get_size(x_1);
+x_5 = lean::nat_dec_lt(x_2, x_4);
+lean::dec(x_4);
+if (x_5 == 0)
+{
+obj* x_8; 
+lean::dec(x_2);
+x_8 = l_Array_shrink___main___rarg(x_1, x_3);
+lean::dec(x_3);
+return x_8;
+}
+else
+{
+obj* x_10; obj* x_11; obj* x_13; uint8 x_14; 
+x_10 = lean::array_fget(x_1, x_2);
+x_11 = l_Lean_IR_AltCore_body___main(x_10);
+lean::dec(x_10);
+x_13 = l_Lean_IR_AltCore_body___main(x_0);
+x_14 = l_Lean_IR_FnBody_beq(x_11, x_13);
+if (x_14 == 0)
+{
+obj* x_15; obj* x_16; 
+x_15 = lean::mk_nat_obj(1ul);
+x_16 = lean::nat_add(x_2, x_15);
+lean::dec(x_2);
+x_2 = x_16;
+goto _start;
+}
+else
+{
+uint8 x_19; 
+x_19 = lean::nat_dec_lt(x_3, x_2);
+if (x_19 == 0)
+{
+obj* x_20; obj* x_21; obj* x_23; 
+x_20 = lean::mk_nat_obj(1ul);
+x_21 = lean::nat_add(x_2, x_20);
+lean::dec(x_2);
+x_23 = lean::nat_add(x_3, x_20);
+lean::dec(x_3);
+x_2 = x_21;
+x_3 = x_23;
+goto _start;
+}
+else
+{
+obj* x_26; obj* x_27; obj* x_28; obj* x_30; 
+x_26 = lean::array_fswap(x_1, x_2, x_3);
+x_27 = lean::mk_nat_obj(1ul);
+x_28 = lean::nat_add(x_2, x_27);
+lean::dec(x_2);
+x_30 = lean::nat_add(x_3, x_27);
+lean::dec(x_3);
+x_1 = x_26;
+x_2 = x_28;
+x_3 = x_30;
+goto _start;
+}
+}
+}
+}
+}
+obj* l___private_init_lean_compiler_simpcase_2__addDefault(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; uint8 x_3; 
+x_1 = lean::array_get_size(x_0);
+x_2 = lean::mk_nat_obj(1ul);
+x_3 = lean::nat_dec_le(x_1, x_2);
+lean::dec(x_1);
+if (x_3 == 0)
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::mk_nat_obj(0ul);
+x_6 = l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(x_0, x_5);
+if (x_6 == 0)
+{
+obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; 
+x_7 = l___private_init_lean_compiler_simpcase_1__maxOccs(x_0);
+x_8 = l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(x_7, x_0, x_5, x_5);
+x_9 = l_Lean_IR_AltCore_body___main(x_7);
+lean::dec(x_7);
+x_11 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_11, 0, x_9);
+x_12 = lean::array_push(x_8, x_11);
+return x_12;
+}
+else
+{
+return x_0;
+}
+}
+else
+{
+return x_0;
+}
+}
+}
+obj* l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_0);
+return x_3;
+}
+}
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(x_0, x_1, x_2, x_3);
+lean::dec(x_0);
+return x_4;
+}
+}
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_3__mkCase___spec__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; uint8 x_4; 
+x_3 = lean::array_get_size(x_0);
+x_4 = lean::nat_dec_lt(x_1, x_3);
+lean::dec(x_3);
+if (x_4 == 0)
+{
+obj* x_7; 
+lean::dec(x_1);
+x_7 = l_Array_shrink___main___rarg(x_0, x_2);
+lean::dec(x_2);
+return x_7;
+}
+else
+{
+obj* x_9; obj* x_10; obj* x_12; uint8 x_13; 
+x_9 = lean::array_fget(x_0, x_1);
+x_10 = l_Lean_IR_AltCore_body___main(x_9);
+lean::dec(x_9);
+x_12 = lean::box(12);
+x_13 = l_Lean_IR_FnBody_beq(x_10, x_12);
+if (x_13 == 0)
+{
+uint8 x_14; 
+x_14 = lean::nat_dec_lt(x_2, x_1);
+if (x_14 == 0)
+{
+obj* x_15; obj* x_16; obj* x_18; 
+x_15 = lean::mk_nat_obj(1ul);
+x_16 = lean::nat_add(x_1, x_15);
+lean::dec(x_1);
+x_18 = lean::nat_add(x_2, x_15);
+lean::dec(x_2);
+x_1 = x_16;
+x_2 = x_18;
+goto _start;
+}
+else
+{
+obj* x_21; obj* x_22; obj* x_23; obj* x_25; 
+x_21 = lean::array_fswap(x_0, x_1, x_2);
+x_22 = lean::mk_nat_obj(1ul);
+x_23 = lean::nat_add(x_1, x_22);
+lean::dec(x_1);
+x_25 = lean::nat_add(x_2, x_22);
+lean::dec(x_2);
+x_0 = x_21;
+x_1 = x_23;
+x_2 = x_25;
+goto _start;
+}
+}
+else
+{
+obj* x_28; obj* x_29; 
+x_28 = lean::mk_nat_obj(1ul);
+x_29 = lean::nat_add(x_1, x_28);
+lean::dec(x_1);
+x_1 = x_29;
+goto _start;
+}
+}
+}
+}
+obj* l___private_init_lean_compiler_simpcase_3__mkCase(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; uint8 x_7; 
+x_3 = lean::mk_nat_obj(0ul);
+x_4 = l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_3__mkCase___spec__1(x_2, x_3, x_3);
+x_5 = l___private_init_lean_compiler_simpcase_2__addDefault(x_4);
+x_6 = lean::array_get_size(x_5);
+x_7 = lean::nat_dec_eq(x_6, x_3);
+if (x_7 == 0)
+{
+obj* x_8; uint8 x_9; 
+x_8 = lean::mk_nat_obj(1ul);
+x_9 = lean::nat_dec_eq(x_6, x_8);
+lean::dec(x_6);
+if (x_9 == 0)
+{
+obj* x_11; 
+x_11 = lean::alloc_cnstr(9, 3, 0);
+lean::cnstr_set(x_11, 0, x_0);
+lean::cnstr_set(x_11, 1, x_1);
+lean::cnstr_set(x_11, 2, x_5);
+return x_11;
+}
+else
+{
+obj* x_14; obj* x_15; obj* x_17; 
+lean::dec(x_1);
+lean::dec(x_0);
+x_14 = l_Lean_IR_altInh;
+x_15 = lean::array_get(x_14, x_5, x_3);
+lean::dec(x_5);
+x_17 = l_Lean_IR_AltCore_body___main(x_15);
+lean::dec(x_15);
+return x_17;
+}
+}
+else
+{
+obj* x_23; 
+lean::dec(x_5);
+lean::dec(x_1);
+lean::dec(x_6);
+lean::dec(x_0);
+x_23 = lean::box(12);
+return x_23;
+}
+}
+}
+obj* l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; uint8 x_3; 
+x_2 = lean::array_get_size(x_1);
+x_3 = lean::nat_dec_lt(x_0, x_2);
+lean::dec(x_2);
+if (x_3 == 0)
+{
+lean::dec(x_0);
+return x_1;
+}
+else
+{
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+x_6 = lean::array_fget(x_1, x_0);
+x_7 = lean::box(12);
+x_8 = lean::array_fset(x_1, x_0, x_7);
+x_9 = lean::mk_nat_obj(1ul);
+x_10 = lean::nat_add(x_0, x_9);
+switch (lean::obj_tag(x_6)) {
+case 1:
+{
+obj* x_11; obj* x_13; uint8 x_15; obj* x_16; obj* x_18; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
+x_11 = lean::cnstr_get(x_6, 0);
+x_13 = lean::cnstr_get(x_6, 1);
+x_15 = lean::cnstr_get_scalar<uint8>(x_6, sizeof(void*)*4);
+x_16 = lean::cnstr_get(x_6, 2);
+x_18 = lean::cnstr_get(x_6, 3);
+if (lean::is_exclusive(x_6)) {
+ x_20 = x_6;
+} else {
+ lean::inc(x_11);
+ lean::inc(x_13);
+ lean::inc(x_16);
+ lean::inc(x_18);
+ lean::dec(x_6);
+ x_20 = lean::box(0);
+}
+x_21 = l_Lean_IR_FnBody_simpCase___main(x_16);
+if (lean::is_scalar(x_20)) {
+ x_22 = lean::alloc_cnstr(1, 4, 1);
+} else {
+ x_22 = x_20;
+}
+lean::cnstr_set(x_22, 0, x_11);
+lean::cnstr_set(x_22, 1, x_13);
+lean::cnstr_set(x_22, 2, x_21);
+lean::cnstr_set(x_22, 3, x_18);
+lean::cnstr_set_scalar(x_22, sizeof(void*)*4, x_15);
+x_23 = x_22;
+x_24 = lean::array_fset(x_8, x_0, x_23);
+lean::dec(x_0);
+x_0 = x_10;
+x_1 = x_24;
+goto _start;
+}
+default:
+{
+obj* x_27; 
+x_27 = lean::array_fset(x_8, x_0, x_6);
+lean::dec(x_0);
+x_0 = x_10;
+x_1 = x_27;
+goto _start;
+}
+}
+}
+}
+}
+obj* l_Lean_IR_FnBody_simpCase___main(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_4; obj* x_7; obj* x_8; 
+x_1 = l_Lean_IR_FnBody_flatten(x_0);
+x_2 = lean::cnstr_get(x_1, 0);
+lean::inc(x_2);
+x_4 = lean::cnstr_get(x_1, 1);
+lean::inc(x_4);
+lean::dec(x_1);
+x_7 = lean::mk_nat_obj(0ul);
+x_8 = l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__1(x_7, x_2);
+switch (lean::obj_tag(x_4)) {
+case 9:
+{
+obj* x_9; obj* x_11; obj* x_13; obj* x_15; obj* x_16; obj* x_17; 
+x_9 = lean::cnstr_get(x_4, 0);
+x_11 = lean::cnstr_get(x_4, 1);
+x_13 = lean::cnstr_get(x_4, 2);
+if (lean::is_exclusive(x_4)) {
+ x_15 = x_4;
+} else {
+ lean::inc(x_9);
+ lean::inc(x_11);
+ lean::inc(x_13);
+ lean::dec(x_4);
+ x_15 = lean::box(0);
+}
+if (lean::is_scalar(x_15)) {
+ x_16 = lean::alloc_cnstr(9, 3, 0);
+} else {
+ x_16 = x_15;
+}
+lean::cnstr_set(x_16, 0, x_9);
+lean::cnstr_set(x_16, 1, x_11);
+lean::cnstr_set(x_16, 2, x_13);
+x_17 = l_Lean_IR_reshape(x_8, x_16);
+return x_17;
+}
+default:
+{
+obj* x_18; 
+x_18 = l_Lean_IR_reshape(x_8, x_4);
+return x_18;
+}
+}
+}
+}
+obj* l_Lean_IR_FnBody_simpCase(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_IR_FnBody_simpCase___main(x_0);
+return x_1;
+}
+}
+obj* l_Lean_IR_Decl_simpCase___main(obj* x_0) {
+_start:
+{
+if (lean::obj_tag(x_0) == 0)
+{
+obj* x_1; obj* x_3; uint8 x_5; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+x_1 = lean::cnstr_get(x_0, 0);
+x_3 = lean::cnstr_get(x_0, 1);
+x_5 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*3);
+x_6 = lean::cnstr_get(x_0, 2);
+if (lean::is_exclusive(x_0)) {
+ x_8 = x_0;
+} else {
+ lean::inc(x_1);
+ lean::inc(x_3);
+ lean::inc(x_6);
+ lean::dec(x_0);
+ x_8 = lean::box(0);
+}
+x_9 = l_Lean_IR_FnBody_simpCase___main(x_6);
+if (lean::is_scalar(x_8)) {
+ x_10 = lean::alloc_cnstr(0, 3, 1);
+} else {
+ x_10 = x_8;
+}
+lean::cnstr_set(x_10, 0, x_1);
+lean::cnstr_set(x_10, 1, x_3);
+lean::cnstr_set(x_10, 2, x_9);
+lean::cnstr_set_scalar(x_10, sizeof(void*)*3, x_5);
+x_11 = x_10;
+return x_11;
+}
+else
+{
+return x_0;
+}
+}
+}
+namespace lean {
+namespace ir {
+obj* decl_simp_case_core(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_IR_Decl_simpCase___main(x_0);
+return x_1;
+}
+}
+}}
+obj* initialize_init_default(obj*);
+obj* initialize_init_lean_compiler_ir(obj*);
+static bool _G_initialized = false;
+obj* initialize_init_lean_compiler_simpcase(obj* w) {
+ if (_G_initialized) return w;
+ _G_initialized = true;
+if (io_result_is_error(w)) return w;
+w = initialize_init_default(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_ir(w);
+if (io_result_is_error(w)) return w;
+return w;
+}

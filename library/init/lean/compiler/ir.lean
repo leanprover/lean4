@@ -257,6 +257,10 @@ def AltCore.setBody : Alt → FnBody → Alt
 | (Alt.ctor c b)  := Alt.ctor c (f b)
 | (Alt.default b) := Alt.default (f b)
 
+def Alt.isDefault : Alt → Bool
+| (Alt.ctor _ _)  := false
+| (Alt.default _) := true
+
 def push (bs : Array FnBody) (b : FnBody) : Array FnBody :=
 let b := b.setBody (default _) in
 bs.push b

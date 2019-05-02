@@ -193,6 +193,9 @@ end
 @[inline] def iterate (a : Array α) (b : β) (f : Π i : Fin a.size, α → β → β) : β :=
 Id.run $ miterateAux a f 0 b
 
+@[inline] def iterateFrom (a : Array α) (b : β) (i : Nat) (f : Π i : Fin a.size, α → β → β) : β :=
+Id.run $ miterateAux a f i b
+
 @[inline] def foldl (a : Array α) (f : β → α → β) (b : β) : β :=
 iterate a b (λ _ a b, f b a)
 

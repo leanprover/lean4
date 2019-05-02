@@ -8,3 +8,4 @@ import init.lean.compiler.constfolding
 import init.lean.compiler.ir
 import init.lean.compiler.pushproj
 import init.lean.compiler.elimdead
+import init.lean.compiler.simpcase

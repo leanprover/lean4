@@ -11,11 +11,6 @@ namespace IR
    inserted `inc/dec` instructions, and perfomed lower level optimizations
    that introduce the instructions `release` and `set`. -/
 
-private partial def hasCtorUsing (x : VarId) : FnBody → Bool
-| (FnBody.vdecl x _ (Expr.ctor _ ys) b) :=
-  ys.any (λ arg, Arg.hasFreeVar arg x) || hasCtorUsing b
-| b := !b.isTerminal && hasCtorUsing b.body
-
 /- Remark: the functions `S`, `D` and `R` defined here implement the
   corresponding functions in the paper "Counting Immutable Beans"
 
@@ -50,43 +45,29 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   if b.isTerminal then b
   else let
     (instr, b) := b.split in
-    instr.setBody (S b)
+    instr <;> S b
 
 abbrev M := State Index
 local attribute [instance] monadInhabited
 
 private def mkFresh : M VarId :=
-do idx ← get,
-   set (idx + 1),
+do idx ← getModify (+1),
    pure { idx := idx }
 
-private def mkReset (w : VarId) (x : VarId) (b : FnBody) : FnBody :=
-FnBody.vdecl w IRType.object (Expr.reset x) b
+private def tryS (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
+do w ← mkFresh,
+   let b' := S w c b in
+   if b == b' then pure b
+   else pure $ FnBody.vdecl w IRType.object (Expr.reset x) b'
 
-private def Ddone (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
+private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
 | (b, true)  := pure b
-| (b, false) := do
-  w ← mkFresh,
-  let b' := S w c b in
-  if b == b' then pure b
-  else pure $ mkReset w x b'
+| (b, false) := tryS x c b
 
-private def Dcont (x : VarId) (c : CtorInfo) (instr : FnBody) : FnBody × Bool → M (FnBody × Bool)
-| (b, true)  := pure (instr.setBody b, true)
-| (b, false) :=
-  if !instr.hasFreeVar x then
-    pure (instr.setBody b, false)
-  else do
-    w ← mkFresh,
-    let b  := instr.setBody b in
-    let b' := S w c b in
-    if b == b' then pure (b, true)
-    else pure (mkReset w x b', true)
-
-private partial def Daux (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bool)
+private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bool)
 | b@(FnBody.case tid y alts) :=
   if b.hasFreeVar x then do
-    alts ← alts.hmmap $ λ alt, alt.mmodifyBody (λ b, Daux b >>= Ddone x c),
+    alts ← alts.hmmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c),
     pure (FnBody.case tid y alts, true)
   else
     pure (b, false)
@@ -95,10 +76,25 @@ private partial def Daux (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bo
     pure (e, e.hasFreeVar x)
   else do
     let (instr, b) := e.split,
-    Daux b >>= Dcont x c instr
+    (b, found) ← Dmain b,
+    let b := instr <;> b,
+    if found then pure (b, true)
+    else if !instr.hasFreeVar x then pure (b, false)
+    else do
+      b ← tryS x c b,
+      pure (b, true)
+
+private partial def hasCtorUsing (x : VarId) : FnBody → Bool
+| (FnBody.vdecl x _ (Expr.ctor _ ys) b) :=
+  ys.any (λ arg, Arg.hasFreeVar arg x) || hasCtorUsing b
+| b := !b.isTerminal && hasCtorUsing b.body
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
-Daux x c b >>= Ddone x c
+/- If the scrutinee `x` (the one that is providing memory) is being
+   stored in a constructor, then reuse will probably not work.
+   It may work only if the new cell is consumed, but we ignore this case. -/
+if hasCtorUsing x b then pure b
+else Dmain x c b >>= Dfinalize x c
 
 private partial def R : FnBody → M FnBody
 | b := do
@@ -119,7 +115,7 @@ private partial def R : FnBody → M FnBody
 def Decl.insertResetReuse : Decl → Decl
 | d@(Decl.fdecl f xs t b) :=
   let nextVar := d.maxVar + 1 in
-  let b       := (R b nextVar).1 in
+  let b       := (R b).run' nextVar in
   Decl.fdecl f xs t b
 | other := other
 

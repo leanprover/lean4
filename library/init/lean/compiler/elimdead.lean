@@ -17,7 +17,7 @@ partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnB
     let bs   := bs.pop in
     let keep (_ : Unit) :=
       let used := curr.collectFreeVars used in
-      let b    := curr.setBody b in
+      let b    := curr <;> b in
       reshapeWithoutDeadAux bs b used in
     let keepIfUsed (vidx : Index) :=
       if used.contains vidx then keep ()

@@ -99,6 +99,9 @@ export MonadState (get set modify)
 section
 variables {σ : Type u} {m : Type u → Type v}
 
+@[inline] def getModify [MonadState σ m] [Monad m] (f : σ → σ) : m σ :=
+do s ← get, modify f, pure s
+
 -- NOTE: The Ordering of the following two instances determines that the top-most `StateT` Monad layer
 -- will be picked first
 instance monadStateTrans {n : Type u → Type w} [HasMonadLift m n] [MonadState σ m] : MonadState σ n :=

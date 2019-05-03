@@ -23,7 +23,7 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
       | Expr.proj _ _    :=
         if !vs.contains x.idx && !afvs.all (λ s, s.contains x.idx) then
           let alts := alts.hmapIdx $ λ i alt, alt.modifyBody $ λ b',
-             if (afvs.get i).contains x.idx then b.setBody b'
+             if (afvs.get i).contains x.idx then b <;> b'
              else b' in
           let fvs  := afvs.hmap $ λ s, if s.contains x.idx then b.collectFreeVars s else s in
           pushProjs bs alts fvs ps vs

@@ -197,6 +197,8 @@ inductive FnBody
 
 instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
 
+abbrev FnBody.nil := FnBody.unreachable
+
 @[export lean.ir.mk_vdecl_core] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
 @[export lean.ir.mk_jdecl_core] def mkJDecl (j : JoinPointId) (xs : Array Param) (ty : IRType) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs ty v b
 @[export lean.ir.mk_uset_core] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
@@ -244,10 +246,13 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 | (FnBody.mdata d _)        b := FnBody.mdata d b
 | other                     b := other
 
-def FnBody.resetBody (b : FnBody) : FnBody :=
-b.setBody (default _)
+infix `<;>`:65 := FnBody.setBody
 
-/- If b is a non terminal, then return a pair `(c, b')` s.t. `b == s.setBody b'` -/
+@[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
+b <;> FnBody.nil
+
+/- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
+   and c.body == FnBody.nil -/
 @[inline] def FnBody.split (b : FnBody) : FnBody × FnBody :=
 let b' := b.body in
 let c  := b.resetBody in
@@ -274,7 +279,7 @@ def Alt.isDefault : Alt → Bool
 | (Alt.default _) := true
 
 def push (bs : Array FnBody) (b : FnBody) : Array FnBody :=
-let b := b.setBody (default _) in
+let b := b.resetBody in
 bs.push b
 
 partial def flattenAux : FnBody → Array FnBody → (Array FnBody) × FnBody
@@ -291,7 +296,7 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
   else
     let i         := i - 1 in
     let (curr, a) := a.swapAt i (default _) in
-    let b         := curr.setBody b in
+    let b         := curr <;> b in
     reshapeAux a i b
 
 def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=

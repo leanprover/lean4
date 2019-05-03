@@ -47,6 +47,7 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
             expr f = p.save_pos(mk_equations(header, eqns.size(), eqns.data()), pos);
             return p.mk_app(f, ts, pos);
         }
+        unsigned case_column = p.pos().second;
         if (is_eqn_prefix(p))
             p.next(); // optional '|' in the first case
         while (true) {
@@ -70,7 +71,8 @@ expr parse_match(parser & p, unsigned, expr const *, pos_info const & pos) {
                 expr rhs = p.parse_expr();
                 eqns.push_back(Fun(fn, Fun(locals, p.save_pos(mk_equation(lhs, rhs), assign_pos), p), p));
             }
-            if (!is_eqn_prefix(p))
+            // terminate match on dedent
+            if (!is_eqn_prefix(p) || p.pos().second < case_column)
                 break;
             p.next();
         }

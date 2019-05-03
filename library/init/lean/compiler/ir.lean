@@ -244,6 +244,15 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 | (FnBody.mdata d _)        b := FnBody.mdata d b
 | other                     b := other
 
+def FnBody.resetBody (b : FnBody) : FnBody :=
+b.setBody (default _)
+
+/- If b is a non terminal, then return a pair `(c, b')` s.t. `b == s.setBody b'` -/
+@[inline] def FnBody.split (b : FnBody) : FnBody × FnBody :=
+let b' := b.body in
+let c  := b.resetBody in
+(c, b')
+
 def AltCore.body : Alt → FnBody
 | (Alt.ctor _ b)  := b
 | (Alt.default b) := b

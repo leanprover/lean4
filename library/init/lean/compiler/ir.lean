@@ -256,6 +256,10 @@ def AltCore.setBody : Alt → FnBody → Alt
 | (Alt.ctor c b)  := Alt.ctor c (f b)
 | (Alt.default b) := Alt.default (f b)
 
+@[inline] def AltCore.mmodifyBody {m : Type → Type} [Monad m] (f : FnBody → m FnBody) : AltCore FnBody → m Alt
+| (Alt.ctor c b)  := Alt.ctor c <$> f b
+| (Alt.default b) := Alt.default <$> f b
+
 def Alt.isDefault : Alt → Bool
 | (Alt.ctor _ _)  := false
 | (Alt.default _) := true
@@ -288,6 +292,11 @@ reshapeAux bs bs.size term
 bs.hmap $ λ b, match b with
   | FnBody.jdecl j xs t v k := FnBody.jdecl j xs t (f v) k
   | other                   := other
+
+@[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
+bs.hmmap $ λ b, match b with
+  | FnBody.jdecl j xs t v k := do v ← f v, pure $ FnBody.jdecl j xs t v k
+  | other                   := pure other
 
 @[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
@@ -660,6 +669,58 @@ MaxVar.collectFnBody b 0
 
 def Decl.maxVar (d : Decl) : Index :=
 MaxVar.collectDecl d 0
+
+namespace HasIndex
+
+def visitVar (w : Index) (x : VarId) : Bool := w == x.idx
+def visitJP (w : Index) (x : JoinPointId) : Bool := w == x.idx
+
+def visitArg (w : Index) : Arg → Bool
+| (Arg.var x) := visitVar w x
+| _           := false
+
+def visitArgs (w : Index) (xs : Array Arg) : Bool :=
+xs.any (visitArg w)
+
+def visitParams (w : Index) (ps : Array Param) : Bool :=
+ps.any (λ p, w == p.x.idx)
+
+def visitExpr (w : Index) : Expr → Bool
+| (Expr.ctor _ ys)       := visitArgs w ys
+| (Expr.reset x)         := visitVar w x
+| (Expr.reuse x _ _ ys)  := visitVar w x || visitArgs w ys
+| (Expr.proj _ x)        := visitVar w x
+| (Expr.uproj _ x)       := visitVar w x
+| (Expr.sproj _ _ x)     := visitVar w x
+| (Expr.fap _ ys)        := visitArgs w ys
+| (Expr.pap _ ys)        := visitArgs w ys
+| (Expr.ap x ys)         := visitVar w x || visitArgs w ys
+| (Expr.box _ x)         := visitVar w x
+| (Expr.unbox x)         := visitVar w x
+| (Expr.lit v)           := false
+| (Expr.isShared x)      := visitVar w x
+| (Expr.isTaggedPtr x)   := visitVar w x
+
+partial def visitFnBody (w : Index) : FnBody → Bool
+| (FnBody.vdecl x _ v b)    := visitExpr w v || (!visitVar w x && visitFnBody b)
+| (FnBody.jdecl j ys _ v b) := (!visitParams w ys && visitFnBody v) || (!visitJP w j && visitFnBody b)
+| (FnBody.set x _ y b)      := visitVar w x || visitVar w y || visitFnBody b
+| (FnBody.uset x _ y b)     := visitVar w x || visitVar w y || visitFnBody b
+| (FnBody.sset x _ _ y _ b) := visitVar w x || visitVar w y || visitFnBody b
+| (FnBody.release x _ b)    := visitVar w x || visitFnBody b
+| (FnBody.inc x _ _ b)      := visitVar w x || visitFnBody b
+| (FnBody.dec x _ _ b)      := visitVar w x || visitFnBody b
+| (FnBody.mdata _ b)        := visitFnBody b
+| (FnBody.jmp j ys)         := visitJP w j || visitArgs w ys
+| (FnBody.ret x)            := visitArg w x
+| (FnBody.case _ x alts)    := visitVar w x || alts.any (λ alt, visitFnBody alt.body)
+| (FnBody.unreachable)      := false
+
+end HasIndex
+
+def Arg.hasFreeVar (arg : Arg) (x : VarId) : Bool := HasIndex.visitArg x.idx arg
+def Expr.hasFreeVar (e : Expr) (x : VarId) : Bool := HasIndex.visitExpr x.idx e
+def FnBody.hasFreeVar (b : FnBody) (x : VarId) : Bool := HasIndex.visitFnBody x.idx b
 
 end IR
 end Lean

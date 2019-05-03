@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 #include "library/sorry.h"
 #include "library/compiler/util.h"
 #include "library/compiler/lcnf.h"
+#include "library/compiler/find_jp.h"
 #include "library/compiler/cse.h"
 #include "library/compiler/csimp.h"
 #include "library/compiler/elim_dead_let.h"
@@ -198,6 +199,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(eta_expand, env, ds);
     trace_compiler(name({"compiler", "eta_expand"}), ds);
     ds = apply(to_lcnf, env, ds);
+    ds = apply(find_jp, env, ds);
     trace_compiler(name({"compiler", "lcnf"}), ds);
     ds = apply(cce, env, ds);
     trace_compiler(name({"compiler", "cce"}), ds);

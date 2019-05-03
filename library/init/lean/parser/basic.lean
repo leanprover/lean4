@@ -147,12 +147,12 @@ do -- the only hardcoded tokens, because they are never directly mentioned by a 
    let builtinTokens : List TokenConfig := [{«prefix» := "/-"}, {«prefix» := "--"}],
    t ← (builtinTokens ++ tokens).mfoldl (λ (t : Trie TokenConfig) tk,
      match t.find tk.prefix with
-     | some tk' := (match tk.lbp, tk'.lbp with
+     | some tk' := match tk.lbp, tk'.lbp with
        | l, 0  := pure $ t.insert tk.prefix tk
        | 0, _  := pure t
        | l, l' := if l = l' then pure t else throw $
          "invalid token '" ++ tk.prefix ++ "', has been defined with precedences " ++
-         toString l ++ " and " ++ toString l')
+         toString l ++ " and " ++ toString l'
      | none := pure $ t.insert tk.prefix tk)
      Trie.empty,
    pure t

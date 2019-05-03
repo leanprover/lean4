@@ -18,19 +18,19 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
     let skip (_ : Unit) := pushProjs bs alts afvs (ps.push b) (b.collectFreeVars vs) in
     match b with
     | FnBody.vdecl x t v _ :=
-      (match v with
-       | Expr.proj _ _    :=
-         if !vs.contains x.idx && !afvs.all (λ s, s.contains x.idx) then
-           let alts := alts.hmapIdx $ λ i alt, alt.modifyBody $ λ b',
-              if (afvs.get i).contains x.idx then b.setBody b'
-              else b' in
-           let fvs  := afvs.hmap $ λ s, if s.contains x.idx then b.collectFreeVars s else s in
-           pushProjs bs alts fvs ps vs
-         else
-           skip ()
-       | Expr.uproj _ _   := skip ()
-       | Expr.sproj _ _ _ := skip ()
-       | _                := done ())
+      match v with
+      | Expr.proj _ _    :=
+        if !vs.contains x.idx && !afvs.all (λ s, s.contains x.idx) then
+          let alts := alts.hmapIdx $ λ i alt, alt.modifyBody $ λ b',
+             if (afvs.get i).contains x.idx then b.setBody b'
+             else b' in
+          let fvs  := afvs.hmap $ λ s, if s.contains x.idx then b.collectFreeVars s else s in
+          pushProjs bs alts fvs ps vs
+        else
+          skip ()
+      | Expr.uproj _ _   := skip ()
+      | Expr.sproj _ _ _ := skip ()
+      | _                := done ()
     | _ := done ()
 
 partial def FnBody.pushProj : FnBody → FnBody

@@ -93,9 +93,9 @@ instance Substring.HasToString : HasToString Substring :=
 -- TODO(Sebastian): exhaustively argue why (if?) this is correct
 -- The basic idea is List concatenation with elimination of adjacent identical scopes
 def macroScopes.flip : macroScopes → macroScopes → macroScopes
-| ys (x::xs) := (match macroScopes.flip ys xs with
+| ys (x::xs) := match macroScopes.flip ys xs with
   | y::ys := if x = y then ys else x::y::ys
-  | []    := [x])
+  | []    := [x]
 | ys []      := ys
 
 namespace Syntax
@@ -132,9 +132,9 @@ local attribute [instance] monadInhabited
 partial def mreplace : Syntax → m Syntax
 | stx@(rawNode n) := do
   o ← r stx,
-  (match o with
+  match o with
   | some stx' := pure stx'
-  | none      := do args' ← n.args.mmap mreplace, pure $ rawNode {n with args := args'})
+  | none      := do args' ← n.args.mmap mreplace, pure $ rawNode {n with args := args'}
 | stx := do
   o ← r stx,
   pure $ o.getOrElse stx

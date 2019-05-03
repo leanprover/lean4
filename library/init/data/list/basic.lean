@@ -23,9 +23,9 @@ protected def hasDecEq [DecidableEq α] : Π a b : List α, Decidable (a = b)
 | (a::as) (b::bs) :=
   match decEq a b with
   | isTrue hab  :=
-    (match hasDecEq as bs with
-     | isTrue habs  := isTrue (Eq.subst hab (Eq.subst habs rfl))
-     | isFalse nabs := isFalse (λ h, List.noConfusion h (λ _ habs, absurd habs nabs)))
+    match hasDecEq as bs with
+    | isTrue habs  := isTrue (Eq.subst hab (Eq.subst habs rfl))
+    | isFalse nabs := isFalse (λ h, List.noConfusion h (λ _ habs, absurd habs nabs))
   | isFalse nab := isFalse (λ h, List.noConfusion h (λ hab _, absurd hab nab))
 
 instance [DecidableEq α] : DecidableEq (List α) :=

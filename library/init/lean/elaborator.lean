@@ -154,11 +154,11 @@ partial def levelGetAppArgs : Syntax → ElaboratorM (Syntax × List Syntax)
 | stx := do
   match stx.kind with
   | some Level.leading := pure (stx, [])
-  | some Level.trailing := (match view Level.trailing stx with
+  | some Level.trailing := match view Level.trailing stx with
     | Level.trailing.View.app lta := do
       (fn, args) ← levelGetAppArgs lta.fn,
       pure (fn, lta.Arg :: args)
-    | Level.trailing.View.addLit _ := pure (stx, []))
+    | Level.trailing.View.addLit _ := pure (stx, [])
   | _ := error stx $ "levelGetAppArgs: unexpected input: " ++ toString stx
 
 def levelAdd : Level → Nat → Level
@@ -170,20 +170,20 @@ partial def toLevel : Syntax → ElaboratorM Level
   (fn, args) ← levelGetAppArgs stx,
   sc ← currentScope,
   match fn.kind with
-  | some Level.leading := (match view Level.leading fn, args with
+  | some Level.leading := match view Level.leading fn, args with
     | Level.leading.View.hole _, [] := pure $ Level.mvar Name.anonymous
     | Level.leading.View.lit lit, [] := pure $ Level.ofNat lit.toNat
-    | Level.leading.View.var id, [] := let id := mangleIdent id in (match sc.univs.find id with
+    | Level.leading.View.var id, [] := let id := mangleIdent id in match sc.univs.find id with
       | some _ := pure $ Level.Param id
-      | none   := error stx $ "unknown universe variable '" ++ toString id ++ "'")
+      | none   := error stx $ "unknown universe variable '" ++ toString id ++ "'"
     | Level.leading.View.max _, (Arg::args) := List.foldr Level.max <$> toLevel Arg <*> args.mmap toLevel
     | Level.leading.View.imax _, (Arg::args) := List.foldr Level.imax <$> toLevel Arg <*> args.mmap toLevel
-    | _, _ := error stx "ill-formed universe Level")
-  | some Level.trailing := (match view Level.trailing fn, args with
+    | _, _ := error stx "ill-formed universe Level"
+  | some Level.trailing := match view Level.trailing fn, args with
     | Level.trailing.View.addLit lta, [] := do
       l ← toLevel lta.lhs,
       pure $ levelAdd l lta.rhs.toNat
-    | _, _ := error stx "ill-formed universe Level")
+    | _, _ := error stx "ill-formed universe Level"
   | _ := error stx $ "toLevel: unexpected input: " ++ toString stx
 
 def Expr.mkAnnotation (ann : Name) (e : Expr) :=
@@ -224,14 +224,14 @@ partial def toPexpr : Syntax → ElaboratorM Expr
       | error stx "ill-formed pi",
     (bi, id, type) ← pure bnder.toBinderInfo,
     Expr.pi (mangleIdent id) bi <$> toPexpr type <*> toPexpr v.range
-  | @sort := (match view sort stx with
+  | @sort := match view sort stx with
     | sort.View.Sort _ := pure $ Expr.sort Level.zero
-    | sort.View.Type _ := pure $ Expr.sort $ Level.succ Level.zero)
+    | sort.View.Type _ := pure $ Expr.sort $ Level.succ Level.zero
   | @sortApp := do
     let v := view sortApp stx,
-    (match view sort v.fn with
-     | sort.View.Sort _ := Expr.sort <$> toLevel v.Arg
-     | sort.View.Type _ := (Expr.sort ∘ Level.succ) <$> toLevel v.Arg)
+    match view sort v.fn with
+    | sort.View.Sort _ := Expr.sort <$> toLevel v.Arg
+    | sort.View.Type _ := (Expr.sort ∘ Level.succ) <$> toLevel v.Arg
   | @anonymousConstructor := do
     let v := view anonymousConstructor stx,
     p ← toPexpr $ mkApp (review hole {}) (v.args.map SepBy.Elem.View.item),
@@ -329,7 +329,7 @@ partial def toPexpr : Syntax → ElaboratorM Expr
     let eqns := Expr.mdata (mdata.setBool `match true) e,
     Expr.mkApp eqns <$> v.scrutinees.mmap (λ scr, toPexpr scr.item)
   | _ := error stx $ "toPexpr: unexpected Node: " ++ toString k.name,
-  (match k with
+  match k with
   | @app := pure e -- no Position
   | _ := do
     cfg ← read,
@@ -337,7 +337,7 @@ partial def toPexpr : Syntax → ElaboratorM Expr
     | some pos :=
       let pos := cfg.fileMap.toPosition pos in
       pure $ Expr.mdata ((MData.empty.setNat `column pos.column).setNat `row pos.line) e
-    | none := pure e)
+    | none := pure e
 | stx := error stx $ "toPexpr: unexpected: " ++ toString stx
 
 /-- Returns the active namespace, that is, the concatenation of all active `namespace` commands. -/
@@ -844,9 +844,9 @@ def setOption.elaborate : Elaborator :=
   -- TODO(Sebastian): check registered Options
   let opts := match v.val with
   | optionValue.View.Bool b := opts.setBool opt (match b with boolOptionValue.View.True _ := true | _ := false)
-  | optionValue.View.String lit := (match lit.value with
+  | optionValue.View.String lit := match lit.value with
     | some s := opts.setString opt s
-    | none   := opts)  -- Parser already failed
+    | none   := opts  -- Parser already failed
   | optionValue.View.num lit := opts.setNat opt lit.toNat,
   modifyCurrentScope $ λ sc, {sc with Options := opts}
 

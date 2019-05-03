@@ -97,9 +97,9 @@ instance [Inhabited ε] : Inhabited (EState ε σ α) :=
 @[inline] protected def orelse' (x₁ x₂ : EState ε σ α) (useFirstEx := true) : EState ε σ α :=
 λ r, match x₁ r with
      | Result.error e₁ s₁ :=
-       (match x₂ (resultOk.mk ⟨⟩ s₁) with
-        | Result.error e₂ s₂ := Result.error (if useFirstEx then e₁ else e₂) s₂
-        | ok                 := ok)
+       match x₂ (resultOk.mk ⟨⟩ s₁) with
+       | Result.error e₂ s₂ := Result.error (if useFirstEx then e₁ else e₂) s₂
+       | ok                 := ok
      | ok                 := ok
 
 @[inline] def adaptExcept {ε' : Type u} [HasLift ε ε'] (x : EState ε σ α) : EState ε' σ α :=

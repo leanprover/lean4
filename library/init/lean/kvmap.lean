@@ -96,9 +96,9 @@ m.insert k (DataValue.ofName v)
 def subsetAux : List (Name × DataValue) → KVMap → Bool
 | []            m₂ := true
 | ((k, v₁)::m₁) m₂ :=
-  (match m₂.find k with
-   | some v₂ := v₁ == v₂ && subsetAux m₁ m₂
-   | none    := false)
+  match m₂.find k with
+  | some v₂ := v₁ == v₂ && subsetAux m₁ m₂
+  | none    := false
 
 def subset : KVMap → KVMap → Bool
 | ⟨m₁⟩ m₂ := subsetAux m₁ m₂

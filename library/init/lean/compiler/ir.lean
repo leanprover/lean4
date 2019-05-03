@@ -317,9 +317,9 @@ partial def FnBody.isPure : FnBody → Bool
 | (FnBody.sset _ _ _ _ _ b) := b.isPure
 | (FnBody.mdata _ b)        := b.isPure
 | (FnBody.case _ _ alts)    := alts.any $ λ alt,
-  (match alt with
-   | (Alt.ctor _ b)  := b.isPure
-   | (Alt.default b) := false)
+  match alt with
+  | (Alt.ctor _ b)  := b.isPure
+  | (Alt.default b) := false
 | (FnBody.ret _)            := true
 | (FnBody.jmp _ _)          := true
 | FnBody.unreachable        := true
@@ -384,9 +384,9 @@ else Array.foldl₂ ps₁ ps₂ (λ ρ p₁ p₂, do ρ ← ρ, addParamRename �
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
 | ρ (FnBody.jdecl j₁ ys₁ t₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
-  (match addParamsRename ρ ys₁ ys₂ with
-   | some ρ' := t₁ == t₂ && FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
-   | none    := false)
+  match addParamsRename ρ ys₁ ys₂ with
+  | some ρ' := t₁ == t₂ && FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
+  | none    := false
 | ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁) (FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=

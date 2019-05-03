@@ -1278,9 +1278,9 @@ instance [DecidableEq α] [DecidableEq β] : DecidableEq (α × β) :=
 {decEq := λ ⟨a, b⟩ ⟨a', b'⟩,
   match (decEq a a') with
   | (isTrue e₁) :=
-    (match (decEq b b') with
-     | (isTrue e₂)  := isTrue (Eq.recOn e₁ (Eq.recOn e₂ rfl))
-     | (isFalse n₂) := isFalse (assume h, Prod.noConfusion h (λ e₁' e₂', absurd e₂' n₂)))
+    match (decEq b b') with
+    | (isTrue e₂)  := isTrue (Eq.recOn e₁ (Eq.recOn e₂ rfl))
+    | (isFalse n₂) := isFalse (assume h, Prod.noConfusion h (λ e₁' e₂', absurd e₂' n₂))
   | (isFalse n₁) := isFalse (assume h, Prod.noConfusion h (λ e₁' e₂', absurd e₁' n₁))}
 
 instance [HasLess α] [HasLess β] : HasLess (α × β) :=
@@ -1359,8 +1359,8 @@ match Setoid.iseqv α with
 | ⟨hRefl, hSymm, hTrans⟩ := hSymm hab
 
 theorem trans {a b c : α} (hab : a ≈ b) (hbc : b ≈ c) : a ≈ c :=
-(match Setoid.iseqv α with
- | ⟨hRefl, hSymm, hTrans⟩ := hTrans hab hbc)
+match Setoid.iseqv α with
+| ⟨hRefl, hSymm, hTrans⟩ := hTrans hab hbc
 end Setoid
 
 /- Propositional extensionality -/

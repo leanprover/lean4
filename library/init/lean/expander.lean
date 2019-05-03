@@ -252,11 +252,11 @@ def expandBracketedBinder : bracketedBinder.View → TransformM (List simpleBind
   | bracketedBinder.View.implicit {content := bc} := pure (BinderInfo.implicit, bc)
   | bracketedBinder.View.strictImplicit {content := bc} := pure (BinderInfo.strictImplicit, bc)
   | bracketedBinder.View.instImplicit {content := bc} :=
-    pure $ Prod.mk BinderInfo.instImplicit $ (match bc with
+    pure $ Prod.mk BinderInfo.instImplicit $ match bc with
       | instImplicitBinderContent.View.anonymous bca :=
         {ids := ["_inst_"], type := some {type := bca.type}}
       | instImplicitBinderContent.View.named bcn :=
-        {ids := [bcn.id], type := some {type := bcn.type}})
+        {ids := [bcn.id], type := some {type := bcn.type}}
   | bracketedBinder.View.anonymousConstructor ctor :=
     error (review anonymousConstructor ctor) "unexpected anonymous Constructor",
   let type := getOptType bc.type,

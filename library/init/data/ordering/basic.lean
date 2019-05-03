@@ -43,15 +43,15 @@ instance : DecidableEq Ordering :=
 {decEq := λ a b,
   match a with
   | Ordering.lt :=
-    (match b with
-     | Ordering.lt := isTrue rfl
-     | Ordering.Eq := isFalse (λ h, Ordering.noConfusion h)
-     | Ordering.gt := isFalse (λ h, Ordering.noConfusion h))
+    match b with
+    | Ordering.lt := isTrue rfl
+    | Ordering.Eq := isFalse (λ h, Ordering.noConfusion h)
+    | Ordering.gt := isFalse (λ h, Ordering.noConfusion h)
   | Ordering.Eq :=
-    (match b with
-     | Ordering.lt := isFalse (λ h, Ordering.noConfusion h)
-     | Ordering.Eq := isTrue rfl
-     | Ordering.gt := isFalse (λ h, Ordering.noConfusion h))
+    match b with
+    | Ordering.lt := isFalse (λ h, Ordering.noConfusion h)
+    | Ordering.Eq := isTrue rfl
+    | Ordering.gt := isFalse (λ h, Ordering.noConfusion h)
   | Ordering.gt :=
     match b with
     | Ordering.lt := isFalse (λ h, Ordering.noConfusion h)

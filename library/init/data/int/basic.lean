@@ -82,12 +82,12 @@ instance : HasLess Int := ⟨Int.Less⟩
 @[extern cpp "lean::int_dec_eq"]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
 match a, b with
- | ofNat a, ofNat b := (match decEq a b with
+ | ofNat a, ofNat b := match decEq a b with
    | isTrue h  := isTrue  $ h ▸ rfl
-   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h))
- | negSucc a, negSucc b := (match decEq a b with
+   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h)
+ | negSucc a, negSucc b := match decEq a b with
    | isTrue h  := isTrue  $ h ▸ rfl
-   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h))
+   | isFalse h := isFalse $ λ h', Int.noConfusion h' (λ h', absurd h' h)
  | ofNat a, negSucc b := isFalse $ λ h, Int.noConfusion h
  | negSucc a, ofNat b := isFalse $ λ h, Int.noConfusion h
 

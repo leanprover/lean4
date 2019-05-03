@@ -180,9 +180,9 @@ local attribute [instance] monadInhabited
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩ in
      do r ← f (a.fget idx),
-        (match r with
-         | some v := pure r
-         | none   := mfindAux (i+1))
+        match r with
+        | some v := pure r
+        | none   := mfindAux (i+1)
   else pure none
 
 @[inline] def mfind (a : Array α) (f : α → m (Option β)) : m (Option β) :=

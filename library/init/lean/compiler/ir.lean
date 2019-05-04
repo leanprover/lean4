@@ -35,7 +35,7 @@ end VarId
 
 namespace JoinPointId
 instance : HasBeq JoinPointId := ⟨λ a b, a.idx == b.idx⟩
-instance : HasToString JoinPointId := ⟨λ a, "jp_" ++ toString a.idx⟩
+instance : HasToString JoinPointId := ⟨λ a, "block_" ++ toString a.idx⟩
 instance : HasFormat JoinPointId := ⟨λ a, toString a⟩
 end JoinPointId
 
@@ -589,7 +589,7 @@ def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
 
 partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | (FnBody.vdecl x ty e b)    := "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.jdecl j xs ty v b) := "let* " ++ format j ++ formatArray xs ++ " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.jdecl j xs ty v b) := format j ++ formatArray xs ++ " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.set x i y b)       := "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.uset x i y b)      := "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.sset x i o y ty b) := "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b

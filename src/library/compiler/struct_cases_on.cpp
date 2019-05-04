@@ -154,7 +154,7 @@ class struct_cases_on_fn {
         while (is_let(e)) {
             lean_assert(!has_loose_bvars(let_type(e)));
             expr type     = let_type(e);
-            expr val      = instantiate_rev(let_value(e), fvars.size(), fvars.data());
+            expr val      = visit(instantiate_rev(let_value(e), fvars.size(), fvars.data()));
             name n        = let_name(e);
             e             = let_body(e);
             expr new_fvar = m_lctx.mk_local_decl(ngen(), n, type, val);
@@ -177,7 +177,7 @@ class struct_cases_on_fn {
             e = mk_let(decl.get_user_name(), type, aval, e);
             if (should_add_cases_on(decl)) {
                 lean_assert(is_proj(val));
-                expr major = proj_expr(val);
+                expr major = proj_expr(aval);
                 buffer<expr> field_types;
                 get_struct_field_types(m_st, proj_sname(val), field_types);
                 e = lift_loose_bvars(e, field_types.size());

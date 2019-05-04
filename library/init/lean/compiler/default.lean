@@ -10,6 +10,7 @@ import init.lean.compiler.pushproj
 import init.lean.compiler.elimdead
 import init.lean.compiler.simpcase
 import init.lean.compiler.resetreuse
+import init.lean.compiler.normids
 namespace Lean
 namespace IR
 
@@ -29,6 +30,9 @@ do
    IO.println d,
    let d := d.simpCase,
    IO.println "=== After simplify case ===",
+   IO.println d,
+   let d := d.normalizeIds,
+   IO.println "=== After normalize Ids ===",
    IO.println d,
    pure ()
 

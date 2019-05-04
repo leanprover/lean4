@@ -89,6 +89,8 @@ inductive Arg
 | var (id : VarId)
 | irrelevant
 
+instance argInh : Inhabited Arg := ⟨Arg.irrelevant⟩
+
 @[export lean.ir.mk_var_arg_core] def mkVarArg (id : VarId) : Arg := Arg.var id
 @[export lean.ir.mk_irrelevant_arg_core] def mkIrrelevantArg : Arg := Arg.irrelevant
 
@@ -163,6 +165,8 @@ inductive Expr
 
 structure Param :=
 (x : VarId) (borrowed : Bool) (ty : IRType)
+
+instance paramInh : Inhabited Param := ⟨{ x := { idx := 0 }, borrowed := false, ty := IRType.object }⟩
 
 @[export lean.ir.mk_param_core] def mkParam (x : VarId) (borrowed : Bool) (ty : IRType) : Param := ⟨x, borrowed, ty⟩
 

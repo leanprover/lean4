@@ -77,12 +77,11 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
   else do
     let (instr, b) := e.split,
     (b, found) ← Dmain b,
-    let b := instr <;> b,
-    if found then pure (b, true)
-    else if !instr.hasFreeVar x then pure (b, false)
+    if found || !instr.hasFreeVar x then
+      pure (instr <;> b, found)
     else do
       b ← tryS x c b,
-      pure (b, true)
+      pure (instr <;> b, true)
 
 private partial def hasCtorUsing (x : VarId) : FnBody → Bool
 | (FnBody.vdecl x _ (Expr.ctor _ ys) b) :=

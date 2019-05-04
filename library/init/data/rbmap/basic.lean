@@ -76,7 +76,11 @@ def isRed : RBNode α β → Bool
 | (node red _ _ _ _) := true
 | _                  := false
 
-section insert
+def isBlack : RBNode α β → Bool
+| (node black _ _ _ _) := true
+| _                    := false
+
+section Insert
 
 variables (lt : α → α → Bool)
 
@@ -104,9 +108,70 @@ def setBlack : RBNode α β → RBNode α β
 if isRed t then setBlack (ins lt t k v)
 else ins lt t k v
 
-end insert
+end Insert
 
-section membership
+def balance₃ : RBNode α β → Π k, β k → RBNode α β → RBNode α β
+| (node red (node red a kx vx b) ky vy c) k v d := node red (node black a kx vx b) ky vy (node black c k v d)
+| (node red a kx vx (node red b ky vy c)) k v d := node red (node black a kx vx b) ky vy (node black c k v d)
+| a k v (node red b ky vy (node red c kz vz d)) := node red (node black a k v b) ky vy (node black c kz vz d)
+| a k v (node red (node red b ky vy c) kz vz d) := node red (node black a k v b) ky vy (node black c kz vz d)
+| l k v r                                       := node black l k v r
+
+def setRed : RBNode α β → RBNode α β
+| (node _ a k v b) := node red a k v b
+| e                := e
+
+def balLeft : RBNode α β → Π k, β k → RBNode α β → RBNode α β
+| (node red a kx vx b) k v r                      := node red (node black a kx vx b) k v r
+| l k v (node black a ky vy b)                    := balance₃ l k v (node red a ky vy b)
+| l k v (node red (node black a ky vy b) kz vz c) := node red (node black l k v a) ky vy (balance₃ b kz vz (setRed c))
+| l k v r                                         := node red l k v r -- unreachable
+
+def balRight (l : RBNode α β) (k : α) (v : β k) (r : RBNode α β) : RBNode α β :=
+match r with
+| (node red b ky vy c) := node red l k v (node black b ky vy c)
+| _ := match l with
+  | node black a kx vx b                    := balance₃ (node red a kx vx b) k v r
+  | node red a kx vx (node black b ky vy c) := node red (balance₃ (setRed a) kx vx b) ky vy (node black c k v r)
+  | _                                       := node red l k v r -- unreachable
+
+-- TODO: use wellfounded recursion
+partial def appendTrees :  RBNode α β → RBNode α β → RBNode α β
+| leaf x := x
+| x leaf := x
+| (node red a kx vx b) (node red c ky vy d) :=
+  match appendTrees b c with
+  | node red b' kz vz c' := node red (node red a kx vx b') kz vz (node red c' ky vy d)
+  | bc                   := node red a kx vx (node red bc ky vy d)
+| (node black a kx vx b) (node black c ky vy d) :=
+   match appendTrees b c with
+   | node red b' kz vz c' := node red (node black a kx vx b') kz vz (node black c' ky vy d)
+   | bc                   := balLeft a kx vx (node black bc ky vy d)
+ | a (node red b kx vx c) := node red (appendTrees a b) kx vx c
+ | (node red a kx vx b) c := node red a kx vx (appendTrees b c)
+
+section Erase
+
+variables (lt : α → α → Bool)
+
+@[specialize] def del (x : α) : RBNode α β → RBNode α β
+| leaf             := leaf
+| (node _ a y v b) :=
+  if lt x y then
+    if a.isBlack then balLeft (del a) y v b
+    else node red (del a) y v b
+  else if lt y x then
+    if b.isBlack then balRight a y v (del b)
+    else node red a y v (del b)
+  else appendTrees a b
+
+@[specialize] def erase (x : α) (t : RBNode α β) : RBNode α β :=
+let t := del lt x t in
+t.setBlack
+
+end Erase
+
+section Membership
 variable (lt : α → α → Bool)
 
 @[specialize] def findCore : RBNode α β → Π k : α, Option (Σ k : α, β k)
@@ -130,11 +195,12 @@ variable (lt : α → α → Bool)
   else if lt ky x then lowerBound b x (some ⟨ky, vy⟩)
   else some ⟨ky, vy⟩
 
-end membership
+end Membership
 
 inductive WellFormed (lt : α → α → Bool) : RBNode α β → Prop
 | leafWff : WellFormed leaf
 | insertWff {n n' : RBNode α β} {k : α} {v : β k} : WellFormed n → n' = insert lt n k v → WellFormed n'
+| eraseWff {n n' : RBNode α β} {k : α} : WellFormed n → n' = erase lt k n → WellFormed n'
 
 end RBNode
 
@@ -196,6 +262,9 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 
 @[inline] def insert : RBMap α β lt → α → β → RBMap α β lt
 | ⟨t, w⟩   k v := ⟨t.insert lt k v, WellFormed.insertWff w rfl⟩
+
+@[inline] def erase : RBMap α β lt → α → RBMap α β lt
+| ⟨t, w⟩ k := ⟨t.erase lt k, WellFormed.eraseWff w rfl⟩
 
 @[specialize] def ofList : List (α × β) → RBMap α β lt
 | []          := mkRBMap _ _ _

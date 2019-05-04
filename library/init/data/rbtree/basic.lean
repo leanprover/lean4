@@ -58,6 +58,9 @@ RBMap.insert t a ()
 
 instance : HasInsert α (RBTree α lt) := ⟨λ a s, s.insert a⟩
 
+@[inline] def erase (t : RBTree α lt) (a : α) : RBTree α lt :=
+RBMap.erase t a
+
 @[specialize] def ofList : List α → RBTree α lt
 | []      := mkRBTree _ _
 | (x::xs) := (ofList xs).insert x

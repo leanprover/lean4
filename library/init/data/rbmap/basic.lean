@@ -100,7 +100,7 @@ def setBlack : RBNode α β → RBNode α β
 | (node _ l k v r) := node black l k v r
 | e                := e
 
-@[inline] def insert (t : RBNode α β) (k : α) (v : β k) : RBNode α β :=
+@[specialize] def insert (t : RBNode α β) (k : α) (v : β k) : RBNode α β :=
 if isRed t then setBlack (ins lt t k v)
 else ins lt t k v
 

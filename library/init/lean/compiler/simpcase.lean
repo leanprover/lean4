@@ -9,21 +9,21 @@ import init.lean.compiler.ir
 namespace Lean
 namespace IR
 
-private def maxOccs (alts : Array Alt) : Alt :=
-let (alt, _) :=
-  alts.iterateFrom (alts.get 0, 1) 1 $ λ i a p,
-    let aBody := a.body in
-    let noccs := alts.iterateFrom 1 (i.val + 1) $ λ _ a' n,
-      if a'.body == aBody then n+1 else n in
-    if noccs > p.2 then (a, noccs) else p in
-alt
+private def maxOccs (alts : Array Alt) : Alt × Nat :=
+alts.iterateFrom (alts.get 0, 1) 1 $ λ i a p,
+  let aBody := a.body in
+  let noccs := alts.iterateFrom 1 (i.val + 1) $ λ _ a' n,
+    if a'.body == aBody then n+1 else n in
+  if noccs > p.2 then (a, noccs) else p
 
 private def addDefault (alts : Array Alt) : Array Alt :=
 if alts.size <= 1 || alts.any Alt.isDefault then alts
 else
-  let max  := maxOccs alts in
-  let alts := alts.filter $ (λ alt, alt.body != max.body) in
-  alts.push (Alt.default max.body)
+  let (max, noccs) := maxOccs alts in
+  if noccs == 1 then alts
+  else
+    let alts := alts.filter $ (λ alt, alt.body != max.body) in
+    alts.push (Alt.default max.body)
 
 private def mkSimpCase (tid : Name) (x : VarId) (alts : Array Alt) : FnBody :=
 let alts := alts.filter (λ alt, alt.body != FnBody.unreachable) in

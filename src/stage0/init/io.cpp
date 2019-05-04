@@ -26,6 +26,7 @@ obj* l_IO_Ref_swap___boxed(obj*, obj*);
 obj* l_IO_HasEval(obj*);
 obj* l_IO_Ref_modify(obj*);
 obj* l_IO_Fs_handle_isEof___rarg(obj*, obj*);
+obj* l_getModify___rarg___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_close___rarg(obj*, obj*);
 obj* l_IO_Ref_swap(obj*, obj*);
 obj* l_EIO_Inhabited___rarg(obj*);
@@ -66,7 +67,6 @@ extern "C" obj* lean_io_prim_get_line(obj*);
 extern "C" obj* lean_io_allocprof(obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_iterate___boxed(obj*, obj*);
 obj* l_IO_Ref_set___rarg(obj*, obj*, obj*, obj*);
-obj* l_IO_Fs_readFile___rarg___lambda__3(obj*, obj*, obj*, obj*);
 obj* l_IO_print___rarg(obj*, obj*, obj*, obj*);
 obj* l_IO_userError___boxed(obj*);
 obj* l_IO_Prim_getLine___boxed(obj*);
@@ -84,7 +84,7 @@ obj* l_IO_mkRef___rarg___boxed(obj*, obj*, obj*);
 obj* l_IO_mkRef___rarg(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_mk___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_iterate(obj*, obj*);
-obj* l_IO_Fs_readFile___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
+obj* l_IO_Fs_readFile___rarg___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_unsafeIO___boxed(obj*, obj*);
 obj* l_String_HasToString___boxed(obj*);
 obj* l_IO_Prim_liftIO(obj*, obj*);
@@ -103,9 +103,8 @@ extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_IO_Ref_modify___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Inhabited___boxed(obj*);
 obj* l_IO_mkRef(obj*, obj*);
-obj* l_IO_Fs_readFile___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_IO_Fs_readFile___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_readFile___rarg(obj*, obj*, obj*, uint8);
-obj* l_IO_Fs_readFile___rarg___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_mk___boxed(obj*, obj*);
 obj* l_IO_mkRef___boxed(obj*, obj*);
 obj* l_EIO_Inhabited___boxed(obj*, obj*);
@@ -1129,33 +1128,19 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_IO_Fs_readFile___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_6; obj* x_9; 
-x_3 = lean::cnstr_get(x_0, 0);
-lean::inc(x_3);
-lean::dec(x_0);
-x_6 = lean::cnstr_get(x_3, 1);
-lean::inc(x_6);
-lean::dec(x_3);
-x_9 = lean::apply_2(x_6, lean::box(0), x_1);
-return x_9;
-}
-}
-obj* l_IO_Fs_readFile___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_IO_Fs_readFile___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; obj* x_6; obj* x_7; 
 x_5 = l_IO_Fs_handle_close___rarg(x_0, x_1);
-x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Fs_readFile___rarg___lambda__1___boxed), 3, 2);
+x_6 = lean::alloc_closure(reinterpret_cast<void*>(l_getModify___rarg___lambda__1___boxed), 3, 2);
 lean::closure_set(x_6, 0, x_2);
 lean::closure_set(x_6, 1, x_4);
 x_7 = lean::apply_4(x_3, lean::box(0), lean::box(0), x_5, x_6);
 return x_7;
 }
 }
-obj* l_IO_Fs_readFile___rarg___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_IO_Fs_readFile___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_6; obj* x_8; obj* x_9; 
@@ -1163,7 +1148,7 @@ lean::inc(x_3);
 lean::inc(x_0);
 x_6 = l_IO_Fs_handle_readToEnd___rarg(x_0, x_3);
 lean::inc(x_2);
-x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Fs_readFile___rarg___lambda__2), 5, 4);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Fs_readFile___rarg___lambda__1), 5, 4);
 lean::closure_set(x_8, 0, x_0);
 lean::closure_set(x_8, 1, x_3);
 lean::closure_set(x_8, 2, x_1);
@@ -1182,7 +1167,7 @@ x_6 = 0;
 lean::inc(x_1);
 x_8 = l_IO_Fs_handle_mk___rarg(x_1, x_2, x_6, x_3);
 lean::inc(x_4);
-x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Fs_readFile___rarg___lambda__3), 4, 3);
+x_10 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Fs_readFile___rarg___lambda__2), 4, 3);
 lean::closure_set(x_10, 0, x_1);
 lean::closure_set(x_10, 1, x_0);
 lean::closure_set(x_10, 2, x_4);
@@ -1196,15 +1181,6 @@ _start:
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_Fs_readFile___rarg___boxed), 4, 0);
 return x_1;
-}
-}
-obj* l_IO_Fs_readFile___rarg___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_IO_Fs_readFile___rarg___lambda__1(x_0, x_1, x_2);
-lean::dec(x_2);
-return x_3;
 }
 }
 obj* l_IO_Fs_readFile___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.elimdead
-// Imports: init.default init.lean.compiler.ir
+// Imports: init.lean.compiler.ir
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -63,45 +63,52 @@ uint8 x_3;
 x_3 = l_Array_isEmpty___rarg(x_0);
 if (x_3 == 0)
 {
-obj* x_4; obj* x_5; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_8; 
 x_4 = l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1(x_0);
 x_5 = lean::array_pop(x_0);
 switch (lean::obj_tag(x_4)) {
 case 0:
 {
-obj* x_6; obj* x_9; 
-x_6 = lean::cnstr_get(x_4, 0);
-lean::inc(x_6);
-lean::inc(x_2);
-x_9 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_2__collectIndex___spec__1(x_2, x_6);
-lean::dec(x_6);
-if (lean::obj_tag(x_9) == 0)
-{
-lean::dec(x_4);
-x_0 = x_5;
-goto _start;
-}
-else
-{
-obj* x_15; obj* x_16; 
-lean::dec(x_9);
-lean::inc(x_4);
-x_15 = l_Lean_IR_FnBody_collectFreeVars(x_4, x_2);
-x_16 = l_Lean_IR_FnBody_setBody___main(x_4, x_1);
-x_0 = x_5;
-x_1 = x_16;
-x_2 = x_15;
-goto _start;
-}
+obj* x_10; 
+x_10 = lean::cnstr_get(x_4, 0);
+lean::inc(x_10);
+x_8 = x_10;
+goto lbl_9;
 }
 case 1:
 {
-obj* x_18; obj* x_21; 
-x_18 = lean::cnstr_get(x_4, 0);
-lean::inc(x_18);
+obj* x_12; 
+x_12 = lean::cnstr_get(x_4, 0);
+lean::inc(x_12);
+x_8 = x_12;
+goto lbl_9;
+}
+default:
+{
+obj* x_14; 
+x_14 = lean::box(0);
+x_6 = x_14;
+goto lbl_7;
+}
+}
+lbl_7:
+{
+obj* x_17; obj* x_18; 
+lean::dec(x_6);
+lean::inc(x_4);
+x_17 = l_Lean_IR_FnBody_collectFreeVars(x_4, x_2);
+x_18 = l_Lean_IR_FnBody_setBody___main(x_4, x_1);
+x_0 = x_5;
+x_1 = x_18;
+x_2 = x_17;
+goto _start;
+}
+lbl_9:
+{
+obj* x_21; 
 lean::inc(x_2);
-x_21 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_2__collectIndex___spec__1(x_2, x_18);
-lean::dec(x_18);
+x_21 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_2__collectIndex___spec__1(x_2, x_8);
+lean::dec(x_8);
 if (lean::obj_tag(x_21) == 0)
 {
 lean::dec(x_4);
@@ -110,37 +117,11 @@ goto _start;
 }
 else
 {
-obj* x_27; obj* x_28; 
+obj* x_26; 
 lean::dec(x_21);
-lean::inc(x_4);
-x_27 = l_Lean_IR_FnBody_collectFreeVars(x_4, x_2);
-x_28 = l_Lean_IR_FnBody_setBody___main(x_4, x_1);
-x_0 = x_5;
-x_1 = x_28;
-x_2 = x_27;
-goto _start;
-}
-}
-case 12:
-{
-obj* x_30; obj* x_31; 
-x_30 = l_Lean_IR_FnBody_collectFreeVars(x_4, x_2);
-x_31 = l_Lean_IR_FnBody_setBody___main(x_4, x_1);
-x_0 = x_5;
-x_1 = x_31;
-x_2 = x_30;
-goto _start;
-}
-default:
-{
-obj* x_34; obj* x_35; 
-lean::inc(x_4);
-x_34 = l_Lean_IR_FnBody_collectFreeVars(x_4, x_2);
-x_35 = l_Lean_IR_FnBody_setBody___main(x_4, x_1);
-x_0 = x_5;
-x_1 = x_35;
-x_2 = x_34;
-goto _start;
+x_26 = lean::box(0);
+x_6 = x_26;
+goto lbl_7;
 }
 }
 }
@@ -436,14 +417,11 @@ x_1 = l_Lean_IR_Decl_elimDead___main(x_0);
 return x_1;
 }
 }
-obj* initialize_init_default(obj*);
 obj* initialize_init_lean_compiler_ir(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_elimdead(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
-if (io_result_is_error(w)) return w;
-w = initialize_init_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir(w);
 if (io_result_is_error(w)) return w;

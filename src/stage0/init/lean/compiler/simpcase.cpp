@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.simpcase
-// Imports: init.default init.lean.compiler.ir
+// Imports: init.lean.compiler.ir
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -708,14 +708,11 @@ x_1 = l_Lean_IR_Decl_simpCase___main(x_0);
 return x_1;
 }
 }
-obj* initialize_init_default(obj*);
 obj* initialize_init_lean_compiler_ir(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_simpcase(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
-if (io_result_is_error(w)) return w;
-w = initialize_init_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir(w);
 if (io_result_is_error(w)) return w;

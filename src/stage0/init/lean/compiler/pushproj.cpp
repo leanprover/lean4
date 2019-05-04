@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.pushproj
-// Imports: init.default init.lean.compiler.ir
+// Imports: init.lean.compiler.ir
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -312,140 +312,138 @@ uint8 x_5;
 x_5 = l_Array_isEmpty___rarg(x_0);
 if (x_5 == 0)
 {
-obj* x_6; obj* x_7; 
+obj* x_6; obj* x_7; obj* x_8; obj* x_10; 
 x_6 = l_Array_back___at_Lean_IR_pushProjs___main___spec__1(x_0);
 x_7 = lean::array_pop(x_0);
 switch (lean::obj_tag(x_6)) {
 case 0:
 {
-obj* x_8; 
-x_8 = lean::cnstr_get(x_6, 1);
-lean::inc(x_8);
-switch (lean::obj_tag(x_8)) {
+obj* x_12; 
+x_12 = lean::cnstr_get(x_6, 1);
+lean::inc(x_12);
+switch (lean::obj_tag(x_12)) {
 case 3:
 {
-obj* x_11; obj* x_14; 
-lean::dec(x_8);
-x_11 = lean::cnstr_get(x_6, 0);
-lean::inc(x_11);
+obj* x_15; obj* x_18; 
+lean::dec(x_12);
+x_15 = lean::cnstr_get(x_6, 0);
+lean::inc(x_15);
 lean::inc(x_4);
-x_14 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_2__collectIndex___spec__1(x_4, x_11);
-if (lean::obj_tag(x_14) == 0)
+x_18 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_2__collectIndex___spec__1(x_4, x_15);
+if (lean::obj_tag(x_18) == 0)
 {
-obj* x_15; obj* x_16; uint8 x_17; 
-x_15 = l_Lean_IR_pushProjs___main___closed__1;
-x_16 = lean::mk_nat_obj(0ul);
-x_17 = l_Array_anyAux___main___at_Lean_IR_pushProjs___main___spec__2(x_15, x_11, x_2, x_16);
-if (x_17 == 0)
+obj* x_19; obj* x_20; uint8 x_21; 
+x_19 = l_Lean_IR_pushProjs___main___closed__1;
+x_20 = lean::mk_nat_obj(0ul);
+x_21 = l_Array_anyAux___main___at_Lean_IR_pushProjs___main___spec__2(x_19, x_15, x_2, x_20);
+if (x_21 == 0)
 {
-obj* x_20; obj* x_21; 
-lean::dec(x_11);
-lean::inc(x_6);
-x_20 = lean::array_push(x_3, x_6);
-x_21 = l_Lean_IR_FnBody_collectFreeVars(x_6, x_4);
-x_0 = x_7;
-x_3 = x_20;
-x_4 = x_21;
-goto _start;
+obj* x_23; 
+lean::dec(x_15);
+x_23 = lean::box(0);
+x_10 = x_23;
+goto lbl_11;
 }
 else
 {
-obj* x_24; obj* x_25; 
+obj* x_25; obj* x_26; 
 lean::inc(x_6);
-x_24 = l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__3(x_2, x_6, x_15, x_11, x_16, x_1);
-x_25 = l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__4(x_6, x_15, x_11, x_16, x_2);
-lean::dec(x_11);
+x_25 = l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__3(x_2, x_6, x_19, x_15, x_20, x_1);
+x_26 = l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__4(x_6, x_19, x_15, x_20, x_2);
+lean::dec(x_15);
 x_0 = x_7;
-x_1 = x_24;
-x_2 = x_25;
+x_1 = x_25;
+x_2 = x_26;
 goto _start;
 }
 }
 else
 {
-obj* x_31; obj* x_32; 
-lean::dec(x_11);
-lean::dec(x_14);
-lean::inc(x_6);
-x_31 = lean::array_push(x_3, x_6);
-x_32 = l_Lean_IR_FnBody_collectFreeVars(x_6, x_4);
-x_0 = x_7;
-x_3 = x_31;
-x_4 = x_32;
-goto _start;
+obj* x_31; 
+lean::dec(x_15);
+lean::dec(x_18);
+x_31 = lean::box(0);
+x_10 = x_31;
+goto lbl_11;
 }
 }
 case 4:
 {
-obj* x_36; obj* x_37; 
-lean::dec(x_8);
-lean::inc(x_6);
-x_36 = lean::array_push(x_3, x_6);
-x_37 = l_Lean_IR_FnBody_collectFreeVars(x_6, x_4);
-x_0 = x_7;
-x_3 = x_36;
-x_4 = x_37;
-goto _start;
+obj* x_33; 
+lean::dec(x_12);
+x_33 = lean::box(0);
+x_10 = x_33;
+goto lbl_11;
 }
 case 5:
 {
-obj* x_41; obj* x_42; 
+obj* x_35; 
+lean::dec(x_12);
+x_35 = lean::box(0);
+x_10 = x_35;
+goto lbl_11;
+}
+default:
+{
+obj* x_39; 
+lean::dec(x_12);
+lean::dec(x_4);
+lean::dec(x_2);
+x_39 = lean::box(0);
+x_8 = x_39;
+goto lbl_9;
+}
+}
+}
+default:
+{
+obj* x_42; 
+lean::dec(x_4);
+lean::dec(x_2);
+x_42 = lean::box(0);
+x_8 = x_42;
+goto lbl_9;
+}
+}
+lbl_9:
+{
+obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_49; 
 lean::dec(x_8);
+x_44 = lean::array_push(x_7, x_6);
+x_45 = lean::mk_nat_obj(0ul);
+x_46 = l_Array_reverseAux___main___rarg(x_3, x_45);
+x_47 = l_Array_miterateAux___main___at_Array_append___spec__1___rarg(x_46, x_46, x_45, x_44);
+lean::dec(x_46);
+x_49 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_49, 0, x_47);
+lean::cnstr_set(x_49, 1, x_1);
+return x_49;
+}
+lbl_11:
+{
+obj* x_52; obj* x_53; 
+lean::dec(x_10);
 lean::inc(x_6);
-x_41 = lean::array_push(x_3, x_6);
-x_42 = l_Lean_IR_FnBody_collectFreeVars(x_6, x_4);
+x_52 = lean::array_push(x_3, x_6);
+x_53 = l_Lean_IR_FnBody_collectFreeVars(x_6, x_4);
 x_0 = x_7;
-x_3 = x_41;
-x_4 = x_42;
+x_3 = x_52;
+x_4 = x_53;
 goto _start;
-}
-default:
-{
-obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_52; 
-lean::dec(x_4);
-lean::dec(x_8);
-lean::dec(x_2);
-x_47 = lean::array_push(x_7, x_6);
-x_48 = lean::mk_nat_obj(0ul);
-x_49 = l_Array_reverseAux___main___rarg(x_3, x_48);
-x_50 = l_Array_miterateAux___main___at_Array_append___spec__1___rarg(x_49, x_49, x_48, x_47);
-lean::dec(x_49);
-x_52 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_52, 0, x_50);
-lean::cnstr_set(x_52, 1, x_1);
-return x_52;
-}
-}
-}
-default:
-{
-obj* x_55; obj* x_56; obj* x_57; obj* x_58; obj* x_60; 
-lean::dec(x_4);
-lean::dec(x_2);
-x_55 = lean::array_push(x_7, x_6);
-x_56 = lean::mk_nat_obj(0ul);
-x_57 = l_Array_reverseAux___main___rarg(x_3, x_56);
-x_58 = l_Array_miterateAux___main___at_Array_append___spec__1___rarg(x_57, x_57, x_56, x_55);
-lean::dec(x_57);
-x_60 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_60, 0, x_58);
-lean::cnstr_set(x_60, 1, x_1);
-return x_60;
-}
 }
 }
 else
 {
-obj* x_64; obj* x_65; obj* x_66; 
+obj* x_58; obj* x_59; obj* x_60; 
 lean::dec(x_4);
 lean::dec(x_0);
 lean::dec(x_2);
-x_64 = lean::mk_nat_obj(0ul);
-x_65 = l_Array_reverseAux___main___rarg(x_3, x_64);
-x_66 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_66, 0, x_65);
-lean::cnstr_set(x_66, 1, x_1);
-return x_66;
+x_58 = lean::mk_nat_obj(0ul);
+x_59 = l_Array_reverseAux___main___rarg(x_3, x_58);
+x_60 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_60, 0, x_59);
+lean::cnstr_set(x_60, 1, x_1);
+return x_60;
 }
 }
 }
@@ -834,14 +832,11 @@ x_1 = l_Lean_IR_Decl_pushProj___main(x_0);
 return x_1;
 }
 }
-obj* initialize_init_default(obj*);
 obj* initialize_init_lean_compiler_ir(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_pushproj(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
-if (io_result_is_error(w)) return w;
-w = initialize_init_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir(w);
 if (io_result_is_error(w)) return w;

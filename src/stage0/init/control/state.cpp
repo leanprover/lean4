@@ -14,9 +14,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_getModify___rarg___lambda__1(obj*, obj*, obj*);
+obj* l_getModify___boxed(obj*, obj*);
 obj* l_StateT_adapt(obj*, obj*, obj*, obj*, obj*);
 obj* l_StateT_adapt___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_MonadStateAdapter_adaptState_x_27___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_getModify___rarg___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_StateT_bind___rarg___lambda__1(obj*, obj*);
 obj* l_monadStateAdapterTrans___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_monadStateRunnerTrans___rarg___lambda__1(obj*, obj*, obj*, obj*);
@@ -68,6 +71,7 @@ obj* l_StateT_failure___rarg(obj*, obj*, obj*);
 obj* l_StateT_Monad___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_StateT_set___rarg(obj*, obj*, obj*);
 obj* l_StateT_failure(obj*, obj*, obj*);
+obj* l_getModify(obj*, obj*);
 obj* l_monadStateRunnerTrans___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_MonadStateAdapter_adaptState_x_27___boxed(obj*, obj*, obj*, obj*);
 obj* l_StateT_MonadExcept___rarg___lambda__2(obj*, obj*, obj*);
@@ -79,6 +83,7 @@ obj* l_StateT_MonadExcept(obj*, obj*);
 obj* l_monadStateRunnerTrans(obj*, obj*, obj*, obj*, obj*);
 obj* l_StateT_HasMonadLift___rarg(obj*);
 obj* l_StateT_set___rarg___boxed(obj*, obj*, obj*);
+obj* l_getModify___rarg(obj*, obj*, obj*);
 obj* l_monadStateAdapterTrans(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_monadStateTrans___rarg___lambda__2(obj*, obj*, obj*);
 obj* l_StateT_MonadStateAdapter___rarg___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -107,6 +112,7 @@ obj* l_StateT_set___boxed(obj*, obj*);
 obj* l_StateT_run(obj*, obj*, obj*);
 obj* l_StateT_MonadRun(obj*, obj*, obj*);
 obj* l_StateT_map___boxed(obj*, obj*);
+obj* l_getModify___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_StateT_MonadStateAdapter(obj*, obj*, obj*);
 obj* l_StateT_bind(obj*, obj*);
 obj* l_StateT_HasMonadLift(obj*, obj*);
@@ -1159,6 +1165,80 @@ _start:
 {
 obj* x_2; 
 x_2 = l_StateT_MonadExcept(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_getModify___rarg___lambda__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_6; obj* x_9; 
+x_3 = lean::cnstr_get(x_0, 0);
+lean::inc(x_3);
+lean::dec(x_0);
+x_6 = lean::cnstr_get(x_3, 1);
+lean::inc(x_6);
+lean::dec(x_3);
+x_9 = lean::apply_2(x_6, lean::box(0), x_1);
+return x_9;
+}
+}
+obj* l_getModify___rarg___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; obj* x_8; obj* x_9; obj* x_10; 
+x_5 = lean::cnstr_get(x_0, 2);
+lean::inc(x_5);
+lean::dec(x_0);
+x_8 = lean::apply_1(x_5, x_1);
+x_9 = lean::alloc_closure(reinterpret_cast<void*>(l_getModify___rarg___lambda__1___boxed), 3, 2);
+lean::closure_set(x_9, 0, x_2);
+lean::closure_set(x_9, 1, x_4);
+x_10 = lean::apply_4(x_3, lean::box(0), lean::box(0), x_8, x_9);
+return x_10;
+}
+}
+obj* l_getModify___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_5; obj* x_8; obj* x_9; 
+x_3 = lean::cnstr_get(x_1, 1);
+lean::inc(x_3);
+x_5 = lean::cnstr_get(x_0, 0);
+lean::inc(x_5);
+lean::inc(x_3);
+x_8 = lean::alloc_closure(reinterpret_cast<void*>(l_getModify___rarg___lambda__2), 5, 4);
+lean::closure_set(x_8, 0, x_0);
+lean::closure_set(x_8, 1, x_2);
+lean::closure_set(x_8, 2, x_1);
+lean::closure_set(x_8, 3, x_3);
+x_9 = lean::apply_4(x_3, lean::box(0), lean::box(0), x_5, x_8);
+return x_9;
+}
+}
+obj* l_getModify(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_getModify___rarg), 3, 0);
+return x_2;
+}
+}
+obj* l_getModify___rarg___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_getModify___rarg___lambda__1(x_0, x_1, x_2);
+lean::dec(x_2);
+return x_3;
+}
+}
+obj* l_getModify___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_getModify(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;

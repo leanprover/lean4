@@ -488,7 +488,7 @@ if (NOT("${CROSS_COMPILE}" MATCHES "ON"))
     target_link_libraries(leanshared leanstatic)
     install(TARGETS leanshared DESTINATION lib)
   endif()
-  install(FILES libleanstatic.a DESTINATION lib)
+  install(TARGETS leanstatic DESTINATION lib)
 endif()
 
 add_subdirectory(shell)

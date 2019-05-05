@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.elimdead
-// Imports: init.lean.compiler.ir.basic
+// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.freevars
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -26,7 +26,6 @@ obj* l_Lean_IR_reshapeWithoutDeadAux(obj*, obj*, obj*);
 obj* l_Array_back___at_Lean_IR_reshapeWithoutDeadAux___main___spec__1___boxed(obj*);
 obj* l_Lean_IR_FnBody_elimDead___main(obj*);
 obj* l_Lean_IR_FnBody_freeVars(obj*);
-obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(obj*, obj*);
 obj* l_Lean_IR_reshapeWithoutDeadAux___main(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
@@ -38,6 +37,7 @@ obj* nat_add(obj*, obj*);
 }
 uint8 l_Array_isEmpty___rarg(obj*);
 obj* l_Lean_IR_Decl_elimDead___main(obj*);
+obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2(obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody___main(obj*, obj*);
 obj* l_Lean_IR_FnBody_elimDead(obj*);
@@ -107,7 +107,7 @@ lbl_9:
 {
 obj* x_21; 
 lean::inc(x_2);
-x_21 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(x_2, x_8);
+x_21 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(x_2, x_8);
 lean::dec(x_8);
 if (lean::obj_tag(x_21) == 0)
 {
@@ -418,12 +418,15 @@ return x_1;
 }
 }
 obj* initialize_init_lean_compiler_ir_basic(obj*);
+obj* initialize_init_lean_compiler_ir_freevars(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_elimdead(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_ir_freevars(w);
 if (io_result_is_error(w)) return w;
  l_Array_hmmapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2___closed__1 = _init_l_Array_hmmapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2___closed__1();
 lean::mark_persistent(l_Array_hmmapAux___main___at_Lean_IR_FnBody_elimDead___main___spec__2___closed__1);

@@ -3,7 +3,10 @@ Copyright (c) 2019 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
-import init.lean.compiler.ir.basic init.control.state
+prelude
+import init.control.state
+import init.lean.compiler.ir.basic
+import init.lean.compiler.ir.freevars
 
 namespace Lean
 namespace IR

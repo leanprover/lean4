@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.resetreuse
-// Imports: init.default init.lean.compiler.ir.basic init.control.state
+// Imports: init.control.state init.lean.compiler.ir.basic init.lean.compiler.ir.freevars
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -1506,19 +1506,19 @@ x_1 = l_Lean_IR_Decl_insertResetReuse___main(x_0);
 return x_1;
 }
 }
-obj* initialize_init_default(obj*);
-obj* initialize_init_lean_compiler_ir_basic(obj*);
 obj* initialize_init_control_state(obj*);
+obj* initialize_init_lean_compiler_ir_basic(obj*);
+obj* initialize_init_lean_compiler_ir_freevars(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_resetreuse(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_default(w);
+w = initialize_init_control_state(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_control_state(w);
+w = initialize_init_lean_compiler_ir_freevars(w);
 if (io_result_is_error(w)) return w;
  l_Array_hmmapAux___main___at___private_init_lean_compiler_ir_resetreuse_2__S___main___spec__1___closed__1 = _init_l_Array_hmmapAux___main___at___private_init_lean_compiler_ir_resetreuse_2__S___main___spec__1___closed__1();
 lean::mark_persistent(l_Array_hmmapAux___main___at___private_init_lean_compiler_ir_resetreuse_2__S___main___spec__1___closed__1);

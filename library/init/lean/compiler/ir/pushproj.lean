@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.compiler.ir.basic
+import init.lean.compiler.ir.freevars
 
 namespace Lean
 namespace IR

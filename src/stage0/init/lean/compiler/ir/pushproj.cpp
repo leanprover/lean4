@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.pushproj
-// Imports: init.lean.compiler.ir.basic
+// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.freevars
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -26,11 +26,9 @@ obj* l_Lean_IR_pushProjs___main___closed__1;
 obj* l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__4___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Decl_pushProj___main(obj*);
 obj* l_Lean_IR_FnBody_freeVars(obj*);
-obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(obj*, obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
 uint8 l_Array_anyAux___main___at_Lean_IR_pushProjs___main___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_pushProj(obj*);
-obj* l_RBNode_insert___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__2(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
@@ -47,7 +45,9 @@ obj* l_Array_reverseAux___main___rarg(obj*, obj*);
 obj* l_Lean_IR_AltCore_body___main(obj*);
 obj* l_Lean_IR_pushProjs___main(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_back___at_Lean_IR_pushProjs___main___spec__1(obj*);
+obj* l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_FnBody_pushProj___main___spec__1(obj*, obj*);
+obj* l_RBNode_insert___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__2(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody___main(obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__4(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_FnBody_pushProj___main___spec__2(obj*, obj*, obj*, obj*);
@@ -90,7 +90,7 @@ else
 {
 obj* x_9; obj* x_10; 
 x_9 = lean::array_fget(x_2, x_3);
-x_10 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(x_9, x_1);
+x_10 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(x_9, x_1);
 if (lean::obj_tag(x_10) == 0)
 {
 uint8 x_12; 
@@ -159,7 +159,7 @@ if (lean::is_exclusive(x_11)) {
 }
 x_21 = l_Lean_IR_vsetInh;
 x_22 = lean::array_get(x_21, x_0, x_4);
-x_23 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(x_22, x_3);
+x_23 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(x_22, x_3);
 if (lean::obj_tag(x_23) == 0)
 {
 obj* x_24; obj* x_25; 
@@ -210,7 +210,7 @@ if (lean::is_exclusive(x_11)) {
 }
 x_38 = l_Lean_IR_vsetInh;
 x_39 = lean::array_get(x_38, x_0, x_4);
-x_40 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(x_39, x_3);
+x_40 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(x_39, x_3);
 if (lean::obj_tag(x_40) == 0)
 {
 obj* x_41; obj* x_42; 
@@ -270,7 +270,7 @@ x_12 = lean::array_fset(x_4, x_3, x_11);
 x_13 = lean::mk_nat_obj(1ul);
 x_14 = lean::nat_add(x_3, x_13);
 lean::inc(x_10);
-x_16 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(x_10, x_2);
+x_16 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(x_10, x_2);
 if (lean::obj_tag(x_16) == 0)
 {
 obj* x_17; 
@@ -327,7 +327,7 @@ lean::dec(x_12);
 x_15 = lean::cnstr_get(x_6, 0);
 lean::inc(x_15);
 lean::inc(x_4);
-x_18 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__1(x_4, x_15);
+x_18 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__1(x_4, x_15);
 if (lean::obj_tag(x_18) == 0)
 {
 obj* x_19; obj* x_20; uint8 x_21; 
@@ -703,7 +703,7 @@ x_19 = l_Array_miterateAux___main___at_Lean_IR_FnBody_pushProj___main___spec__2(
 x_20 = lean::box(0);
 x_21 = lean::box(0);
 lean::inc(x_11);
-x_23 = l_RBNode_insert___at___private_init_lean_compiler_ir_basic_2__collectIndex___spec__2(x_20, x_11, x_21);
+x_23 = l_RBNode_insert___at___private_init_lean_compiler_ir_freevars_2__collectIndex___spec__2(x_20, x_11, x_21);
 x_24 = l_Array_empty___closed__1;
 x_25 = l_Lean_IR_pushProjs___main(x_8, x_13, x_19, x_24, x_23);
 x_26 = lean::cnstr_get(x_25, 0);
@@ -797,12 +797,15 @@ return x_1;
 }
 }
 obj* initialize_init_lean_compiler_ir_basic(obj*);
+obj* initialize_init_lean_compiler_ir_freevars(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_pushproj(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_ir_freevars(w);
 if (io_result_is_error(w)) return w;
  l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__3___closed__1 = _init_l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__3___closed__1();
 lean::mark_persistent(l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__3___closed__1);

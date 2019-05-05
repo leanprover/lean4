@@ -1,6 +1,6 @@
 // Lean compiler output
-// Module: init.lean.compiler.simpcase
-// Imports: init.lean.compiler.ir
+// Module: init.lean.compiler.ir.simpcase
+// Imports: init.lean.compiler.ir.basic
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -14,46 +14,46 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2___boxed(obj*, obj*, obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_simpCase(obj*);
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_simpCase___main(obj*);
-obj* l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1___boxed(obj*, obj*);
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__2___closed__1;
-obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2___boxed(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_ir_simpcase_1__maxOccs(obj*);
+obj* l___private_init_lean_compiler_ir_simpcase_2__addDefault(obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
-obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(obj*, obj*, obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__2(obj*, obj*, obj*, obj*);
+obj* l_Array_anyAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__1___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_flatten(obj*);
-obj* l___private_init_lean_compiler_simpcase_2__addDefault(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l___private_init_lean_compiler_simpcase_1__maxOccs___boxed(obj*);
-obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_3__mkSimpCase___spec__1(obj*, obj*, obj*);
 extern obj* l_Lean_IR_altInh;
 uint8 l_Lean_IR_Alt_isDefault___main(obj*);
-uint8 l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(obj*, obj*);
 obj* l_Lean_IR_Decl_simpCase(obj*);
-obj* l___private_init_lean_compiler_simpcase_3__mkSimpCase(obj*, obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__2(obj*, obj*);
 obj* l_Array_shrink___main___rarg(obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__2___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_AltCore_body___main(obj*);
+uint8 l_Array_anyAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__1(obj*, obj*);
 uint8 l_Lean_IR_FnBody_beq(obj*, obj*);
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(obj*, obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_ir_simpcase_3__mkSimpCase(obj*, obj*, obj*);
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__2(obj*, obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
+obj* l___private_init_lean_compiler_ir_simpcase_1__maxOccs___boxed(obj*);
 obj* l_Lean_IR_Decl_simpCase___main(obj*);
-obj* l___private_init_lean_compiler_simpcase_1__maxOccs(obj*);
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_3__mkSimpCase___spec__1(obj*, obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__1(obj*, obj*);
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; uint8 x_6; 
@@ -94,7 +94,7 @@ goto _start;
 }
 }
 }
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
@@ -115,7 +115,7 @@ x_10 = lean::mk_nat_obj(1ul);
 x_11 = lean::nat_add(x_2, x_10);
 lean::dec(x_2);
 lean::inc(x_11);
-x_14 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(x_0, x_9, x_0, x_11, x_10);
+x_14 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__1(x_0, x_9, x_0, x_11, x_10);
 x_15 = lean::cnstr_get(x_3, 1);
 lean::inc(x_15);
 x_17 = lean::nat_dec_lt(x_15, x_14);
@@ -141,10 +141,10 @@ goto _start;
 }
 }
 }
-obj* l___private_init_lean_compiler_simpcase_1__maxOccs(obj* x_0) {
+obj* l___private_init_lean_compiler_ir_simpcase_1__maxOccs(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_1 = l_Lean_IR_altInh;
 x_2 = lean::mk_nat_obj(0ul);
 x_3 = lean::array_get(x_1, x_0, x_2);
@@ -152,43 +152,40 @@ x_4 = lean::mk_nat_obj(1ul);
 x_5 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_5, 0, x_3);
 lean::cnstr_set(x_5, 1, x_4);
-x_6 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(x_0, x_0, x_4, x_5);
-x_7 = lean::cnstr_get(x_6, 0);
-lean::inc(x_7);
-lean::dec(x_6);
-return x_7;
+x_6 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__2(x_0, x_0, x_4, x_5);
+return x_6;
 }
 }
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__1(x_0, x_1, x_2, x_3, x_4);
+x_5 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__1(x_0, x_1, x_2, x_3, x_4);
 lean::dec(x_0);
 lean::dec(x_2);
 return x_5;
 }
 }
-obj* l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Array_miterateAux___main___at___private_init_lean_compiler_simpcase_1__maxOccs___spec__2(x_0, x_1, x_2, x_3);
+x_4 = l_Array_miterateAux___main___at___private_init_lean_compiler_ir_simpcase_1__maxOccs___spec__2(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_4;
 }
 }
-obj* l___private_init_lean_compiler_simpcase_1__maxOccs___boxed(obj* x_0) {
+obj* l___private_init_lean_compiler_ir_simpcase_1__maxOccs___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l___private_init_lean_compiler_simpcase_1__maxOccs(x_0);
+x_1 = l___private_init_lean_compiler_ir_simpcase_1__maxOccs(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-uint8 l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(obj* x_0, obj* x_1) {
+uint8 l_Array_anyAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
@@ -227,7 +224,7 @@ return x_15;
 }
 }
 }
-obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
@@ -293,7 +290,7 @@ goto _start;
 }
 }
 }
-obj* l___private_init_lean_compiler_simpcase_2__addDefault(obj* x_0) {
+obj* l___private_init_lean_compiler_ir_simpcase_2__addDefault(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; uint8 x_3; 
@@ -305,21 +302,32 @@ if (x_3 == 0)
 {
 obj* x_5; uint8 x_6; 
 x_5 = lean::mk_nat_obj(0ul);
-x_6 = l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(x_0, x_5);
+x_6 = l_Array_anyAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__1(x_0, x_5);
 if (x_6 == 0)
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; 
-x_7 = l___private_init_lean_compiler_simpcase_1__maxOccs(x_0);
-x_8 = l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(x_7, x_0, x_5, x_5);
-x_9 = l_Lean_IR_AltCore_body___main(x_7);
+obj* x_7; obj* x_8; obj* x_10; uint8 x_13; 
+x_7 = l___private_init_lean_compiler_ir_simpcase_1__maxOccs(x_0);
+x_8 = lean::cnstr_get(x_7, 0);
+lean::inc(x_8);
+x_10 = lean::cnstr_get(x_7, 1);
+lean::inc(x_10);
 lean::dec(x_7);
-x_11 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_11, 0, x_9);
-x_12 = lean::array_push(x_8, x_11);
-return x_12;
+x_13 = lean::nat_dec_eq(x_10, x_2);
+lean::dec(x_10);
+if (x_13 == 0)
+{
+obj* x_15; obj* x_16; obj* x_18; obj* x_19; 
+x_15 = l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__2(x_8, x_0, x_5, x_5);
+x_16 = l_Lean_IR_AltCore_body___main(x_8);
+lean::dec(x_8);
+x_18 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_18, 0, x_16);
+x_19 = lean::array_push(x_15, x_18);
+return x_19;
 }
 else
 {
+lean::dec(x_8);
 return x_0;
 }
 }
@@ -328,27 +336,32 @@ else
 return x_0;
 }
 }
+else
+{
+return x_0;
 }
-obj* l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1___boxed(obj* x_0, obj* x_1) {
+}
+}
+obj* l_Array_anyAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_Array_anyAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__1(x_0, x_1);
+x_2 = l_Array_anyAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__1(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_0);
 return x_3;
 }
 }
-obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_2__addDefault___spec__2(x_0, x_1, x_2, x_3);
+x_4 = l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_2__addDefault___spec__2(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 return x_4;
 }
 }
-obj* l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_3__mkSimpCase___spec__1(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_3__mkSimpCase___spec__1(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -414,13 +427,13 @@ goto _start;
 }
 }
 }
-obj* l___private_init_lean_compiler_simpcase_3__mkSimpCase(obj* x_0, obj* x_1, obj* x_2) {
+obj* l___private_init_lean_compiler_ir_simpcase_3__mkSimpCase(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; uint8 x_7; 
 x_3 = lean::mk_nat_obj(0ul);
-x_4 = l_Array_filterAux___main___at___private_init_lean_compiler_simpcase_3__mkSimpCase___spec__1(x_2, x_3, x_3);
-x_5 = l___private_init_lean_compiler_simpcase_2__addDefault(x_4);
+x_4 = l_Array_filterAux___main___at___private_init_lean_compiler_ir_simpcase_3__mkSimpCase___spec__1(x_2, x_3, x_3);
+x_5 = l___private_init_lean_compiler_ir_simpcase_2__addDefault(x_4);
 x_6 = lean::array_get_size(x_5);
 x_7 = lean::nat_dec_eq(x_6, x_3);
 if (x_7 == 0)
@@ -641,7 +654,7 @@ x_13 = lean::cnstr_get(x_4, 2);
 lean::inc(x_13);
 lean::dec(x_4);
 x_16 = l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__2(x_7, x_13);
-x_17 = l___private_init_lean_compiler_simpcase_3__mkSimpCase(x_9, x_11, x_16);
+x_17 = l___private_init_lean_compiler_ir_simpcase_3__mkSimpCase(x_9, x_11, x_16);
 x_18 = l_Lean_IR_reshape(x_8, x_17);
 return x_18;
 }
@@ -708,13 +721,13 @@ x_1 = l_Lean_IR_Decl_simpCase___main(x_0);
 return x_1;
 }
 }
-obj* initialize_init_lean_compiler_ir(obj*);
+obj* initialize_init_lean_compiler_ir_basic(obj*);
 static bool _G_initialized = false;
-obj* initialize_init_lean_compiler_simpcase(obj* w) {
+obj* initialize_init_lean_compiler_ir_simpcase(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_ir(w);
+w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;
  l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__2___closed__1 = _init_l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__2___closed__1();
 lean::mark_persistent(l_Array_hmmapAux___main___at_Lean_IR_FnBody_simpCase___main___spec__2___closed__1);

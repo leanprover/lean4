@@ -35,7 +35,7 @@ obj* l_Lean_Position_Lean_HasFormat___closed__2;
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-obj* l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(obj*, obj*, obj*);
+obj* l_RBNode_insert___at_Lean_FileMap_fromString___spec__2(obj*, obj*, obj*);
 obj* l_Lean_Position_lt___main___closed__1;
 obj* l___private_init_lean_position_1__fromStringAux___boxed(obj*, obj*, obj*);
 uint8 l_String_OldIterator_hasNext___main(obj*);
@@ -55,6 +55,7 @@ obj* l_Lean_Position_lt___main___closed__2;
 obj* l_Nat_decLt___boxed(obj*, obj*);
 extern obj* l_Lean_formatKVMap___closed__1;
 uint8 l_Lean_Position_lt___main(obj*, obj*);
+obj* l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(obj*, obj*, obj*);
 obj* l_Lean_fmt___at_Lean_Position_Lean_HasFormat___spec__1(obj*);
 namespace lean {
 uint32 uint32_of_nat(obj*);
@@ -349,7 +350,7 @@ lean::dec(x_2);
 return x_3;
 }
 }
-obj* l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -416,7 +417,7 @@ return x_21;
 else
 {
 obj* x_22; obj* x_23; obj* x_24; 
-x_22 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_13, x_1, x_2);
+x_22 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_13, x_1, x_2);
 if (lean::is_scalar(x_15)) {
  x_23 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -434,7 +435,7 @@ return x_24;
 else
 {
 obj* x_25; obj* x_26; obj* x_27; 
-x_25 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_7, x_1, x_2);
+x_25 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_7, x_1, x_2);
 if (lean::is_scalar(x_15)) {
  x_26 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -500,7 +501,7 @@ x_43 = l_RBNode_isRed___main___rarg(x_34);
 if (x_43 == 0)
 {
 obj* x_44; obj* x_45; obj* x_46; 
-x_44 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_34, x_1, x_2);
+x_44 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_34, x_1, x_2);
 if (lean::is_scalar(x_36)) {
  x_45 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -517,7 +518,7 @@ return x_46;
 else
 {
 obj* x_47; 
-x_47 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_34, x_1, x_2);
+x_47 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_34, x_1, x_2);
 if (lean::obj_tag(x_47) == 0)
 {
 lean::dec(x_32);
@@ -962,7 +963,7 @@ x_180 = l_RBNode_isRed___main___rarg(x_28);
 if (x_180 == 0)
 {
 obj* x_181; obj* x_182; obj* x_183; 
-x_181 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_28, x_1, x_2);
+x_181 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_28, x_1, x_2);
 if (lean::is_scalar(x_36)) {
  x_182 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -979,7 +980,7 @@ return x_183;
 else
 {
 obj* x_184; 
-x_184 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_28, x_1, x_2);
+x_184 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_28, x_1, x_2);
 if (lean::obj_tag(x_184) == 0)
 {
 lean::dec(x_32);
@@ -1420,6 +1421,26 @@ return x_316;
 }
 }
 }
+obj* l_RBNode_insert___at_Lean_FileMap_fromString___spec__2(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; 
+x_3 = l_RBNode_isRed___main___rarg(x_0);
+if (x_3 == 0)
+{
+obj* x_4; 
+x_4 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_0, x_1, x_2);
+return x_4;
+}
+else
+{
+obj* x_5; obj* x_6; 
+x_5 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__3(x_0, x_1, x_2);
+x_6 = l_RBNode_setBlack___main___rarg(x_5);
+return x_6;
+}
+}
+}
 obj* l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(obj* x_0) {
 _start:
 {
@@ -1431,7 +1452,7 @@ return x_1;
 }
 else
 {
-obj* x_2; obj* x_4; obj* x_7; obj* x_9; obj* x_12; uint8 x_13; 
+obj* x_2; obj* x_4; obj* x_7; obj* x_9; obj* x_12; obj* x_13; 
 x_2 = lean::cnstr_get(x_0, 0);
 lean::inc(x_2);
 x_4 = lean::cnstr_get(x_0, 1);
@@ -1443,20 +1464,8 @@ x_9 = lean::cnstr_get(x_2, 1);
 lean::inc(x_9);
 lean::dec(x_2);
 x_12 = l_RBMap_ofList___main___at_Lean_FileMap_fromString___spec__1(x_4);
-x_13 = l_RBNode_isRed___main___rarg(x_12);
-if (x_13 == 0)
-{
-obj* x_14; 
-x_14 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_12, x_7, x_9);
-return x_14;
-}
-else
-{
-obj* x_15; obj* x_16; 
-x_15 = l_RBNode_ins___main___at_Lean_FileMap_fromString___spec__2(x_12, x_7, x_9);
-x_16 = l_RBNode_setBlack___main___rarg(x_15);
-return x_16;
-}
+x_13 = l_RBNode_insert___at_Lean_FileMap_fromString___spec__2(x_12, x_7, x_9);
+return x_13;
 }
 }
 }

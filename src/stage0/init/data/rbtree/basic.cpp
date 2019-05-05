@@ -15,7 +15,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_RBTree_min___boxed(obj*, obj*);
-obj* l_RBNode_setBlack___main___rarg(obj*);
 obj* l_RBTree_HasEmptyc___boxed(obj*, obj*);
 obj* l_RBNode_any___main___at_RBTree_any___spec__1(obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___boxed(obj*, obj*, obj*);
@@ -41,18 +40,21 @@ obj* l_RBNode_revFold___main___at_RBTree_toList___spec__1___rarg(obj*, obj*);
 obj* l_RBTree_min___rarg(obj*);
 obj* l_RBTree_all___boxed(obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1(obj*, obj*, obj*);
+obj* l_RBNode_erase___rarg(obj*, obj*, obj*);
 obj* l_RBTree_depth___rarg___boxed(obj*, obj*);
 obj* l_RBTree_fromList___rarg(obj*, obj*);
+obj* l_RBNode_insert___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_min___main___rarg(obj*);
-obj* l_RBNode_ins___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfor___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_RBNode_max___main___rarg(obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_RBTree_contains___boxed(obj*);
 obj* l_RBTree_toList___rarg(obj*);
 obj* l_RBTree_HasRepr___boxed(obj*, obj*);
+obj* l_RBTree_erase___boxed(obj*);
 obj* l_RBNode_depth___main___rarg(obj*, obj*);
 obj* l_RBNode_revFold___main___at_RBTree_toList___spec__1(obj*);
+obj* l_RBTree_erase(obj*);
 uint8 l_RBTree_any___rarg(obj*, obj*);
 obj* l_RBTree_HasRepr___rarg___closed__1;
 obj* l_RBTree_depth___boxed(obj*, obj*);
@@ -72,6 +74,7 @@ obj* l_RBTree_contains___rarg___boxed(obj*, obj*, obj*);
 uint8 l_RBTree_seteq___rarg(obj*, obj*, obj*);
 obj* l_RBTree_fromList(obj*);
 obj* l_RBTree_fromList___boxed(obj*);
+obj* l_RBTree_erase___rarg(obj*, obj*, obj*);
 obj* l_RBTree_seteq(obj*);
 obj* l_RBNode_all___main___at_RBTree_subset___spec__1___boxed(obj*);
 obj* l_RBTree_HasEmptyc(obj*, obj*);
@@ -81,7 +84,6 @@ obj* l_RBTree_mfold___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBNode_revFold___main___at_RBTree_revFold___spec__1(obj*, obj*);
 obj* l_RBTree_mfor___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBNode_mfold___main___at_RBTree_mfold___spec__1___boxed(obj*, obj*, obj*);
-uint8 l_RBNode_isRed___main___rarg(obj*);
 obj* l_RBTree_HasRepr(obj*, obj*);
 uint8 l_RBNode_all___main___at_RBTree_all___spec__1___rarg(obj*, obj*);
 obj* l_RBTree_revFold(obj*, obj*, obj*);
@@ -862,23 +864,10 @@ return x_2;
 obj* l_RBTree_insert___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-uint8 x_3; 
-x_3 = l_RBNode_isRed___main___rarg(x_1);
-if (x_3 == 0)
-{
-obj* x_4; obj* x_5; 
-x_4 = lean::box(0);
-x_5 = l_RBNode_ins___main___rarg(x_0, x_1, x_2, x_4);
-return x_5;
-}
-else
-{
-obj* x_6; obj* x_7; obj* x_8; 
-x_6 = lean::box(0);
-x_7 = l_RBNode_ins___main___rarg(x_0, x_1, x_2, x_6);
-x_8 = l_RBNode_setBlack___main___rarg(x_7);
-return x_8;
-}
+obj* x_3; obj* x_4; 
+x_3 = lean::box(0);
+x_4 = l_RBNode_insert___rarg(x_0, x_1, x_2, x_3);
+return x_4;
 }
 }
 obj* l_RBTree_insert(obj* x_0) {
@@ -901,23 +890,10 @@ return x_1;
 obj* l_RBTree_HasInsert___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-uint8 x_3; 
-x_3 = l_RBNode_isRed___main___rarg(x_2);
-if (x_3 == 0)
-{
-obj* x_4; obj* x_5; 
-x_4 = lean::box(0);
-x_5 = l_RBNode_ins___main___rarg(x_0, x_2, x_1, x_4);
-return x_5;
-}
-else
-{
-obj* x_6; obj* x_7; obj* x_8; 
-x_6 = lean::box(0);
-x_7 = l_RBNode_ins___main___rarg(x_0, x_2, x_1, x_6);
-x_8 = l_RBNode_setBlack___main___rarg(x_7);
-return x_8;
-}
+obj* x_3; obj* x_4; 
+x_3 = lean::box(0);
+x_4 = l_RBNode_insert___rarg(x_0, x_2, x_1, x_3);
+return x_4;
 }
 }
 obj* l_RBTree_HasInsert(obj* x_0) {
@@ -937,6 +913,31 @@ lean::dec(x_0);
 return x_1;
 }
 }
+obj* l_RBTree_erase___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_RBNode_erase___rarg(x_0, x_2, x_1);
+return x_3;
+}
+}
+obj* l_RBTree_erase(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_RBTree_erase___rarg), 3, 0);
+return x_1;
+}
+}
+obj* l_RBTree_erase___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_RBTree_erase(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
 obj* l_RBTree_ofList___main___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -949,7 +950,7 @@ return x_3;
 }
 else
 {
-obj* x_4; obj* x_6; obj* x_10; uint8 x_11; 
+obj* x_4; obj* x_6; obj* x_10; obj* x_11; obj* x_12; 
 x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_1, 1);
@@ -957,22 +958,9 @@ lean::inc(x_6);
 lean::dec(x_1);
 lean::inc(x_0);
 x_10 = l_RBTree_ofList___main___rarg(x_0, x_6);
-x_11 = l_RBNode_isRed___main___rarg(x_10);
-if (x_11 == 0)
-{
-obj* x_12; obj* x_13; 
-x_12 = lean::box(0);
-x_13 = l_RBNode_ins___main___rarg(x_0, x_10, x_4, x_12);
-return x_13;
-}
-else
-{
-obj* x_14; obj* x_15; obj* x_16; 
-x_14 = lean::box(0);
-x_15 = l_RBNode_ins___main___rarg(x_0, x_10, x_4, x_14);
-x_16 = l_RBNode_setBlack___main___rarg(x_15);
-return x_16;
-}
+x_11 = lean::box(0);
+x_12 = l_RBNode_insert___rarg(x_0, x_10, x_4, x_11);
+return x_12;
 }
 }
 }
@@ -1126,34 +1114,18 @@ return x_1;
 }
 else
 {
-obj* x_4; obj* x_6; uint8 x_9; 
+obj* x_4; obj* x_6; obj* x_9; obj* x_11; 
 x_4 = lean::cnstr_get(x_2, 0);
 lean::inc(x_4);
 x_6 = lean::cnstr_get(x_2, 1);
 lean::inc(x_6);
 lean::dec(x_2);
-x_9 = l_RBNode_isRed___main___rarg(x_1);
-if (x_9 == 0)
-{
-obj* x_10; obj* x_12; 
-x_10 = lean::box(0);
+x_9 = lean::box(0);
 lean::inc(x_0);
-x_12 = l_RBNode_ins___main___rarg(x_0, x_1, x_4, x_10);
-x_1 = x_12;
+x_11 = l_RBNode_insert___rarg(x_0, x_1, x_4, x_9);
+x_1 = x_11;
 x_2 = x_6;
 goto _start;
-}
-else
-{
-obj* x_14; obj* x_16; obj* x_17; 
-x_14 = lean::box(0);
-lean::inc(x_0);
-x_16 = l_RBNode_ins___main___rarg(x_0, x_1, x_4, x_14);
-x_17 = l_RBNode_setBlack___main___rarg(x_16);
-x_1 = x_17;
-x_2 = x_6;
-goto _start;
-}
 }
 }
 }

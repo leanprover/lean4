@@ -211,17 +211,29 @@ iterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindAux a f 0
 
-@[specialize] partial def anyAux (a : Array α) (p : α → Bool) : Nat → Bool
+section
+variables {m : Type → Type v} [Monad m]
+local attribute [instance] monadInhabited
+
+@[specialize] partial def anyMAux (a : Array α) (p : α → m Bool) : Nat → m Bool
 | i :=
   if h : i < a.size then
      let idx : Fin a.size := ⟨i, h⟩ in
-     match p (a.fget idx) with
-     | true  := true
-     | false := anyAux (i+1)
-  else false
+     do b ← p (a.fget idx),
+     match b with
+     | true  := pure true
+     | false := anyMAux (i+1)
+  else pure false
+
+@[inline] def anyM (a : Array α) (p : α → m Bool) : m Bool :=
+anyMAux a p 0
+
+@[inline] def allM (a : Array α) (p : α → m Bool) : m Bool :=
+not <$> anyM a (λ v, not <$> p v)
+end
 
 @[inline] def any (a : Array α) (p : α → Bool) : Bool :=
-anyAux a p 0
+Id.run $ anyM a p
 
 @[inline] def all (a : Array α) (p : α → Bool) : Bool :=
 !any a (λ v, !p v)

@@ -25,7 +25,7 @@ congrArg
 congrFun
 Decidable
 Decidable.casesOn
-Decidable.toBool
+Decidable.decide
 dite
 Empty
 Exists

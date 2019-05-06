@@ -30,7 +30,7 @@ name const * g_congr_arg = nullptr;
 name const * g_congr_fun = nullptr;
 name const * g_decidable = nullptr;
 name const * g_decidable_cases_on = nullptr;
-name const * g_decidable_to_bool = nullptr;
+name const * g_decidable_decide = nullptr;
 name const * g_dite = nullptr;
 name const * g_empty = nullptr;
 name const * g_exists = nullptr;
@@ -213,7 +213,7 @@ void initialize_constants() {
     g_congr_fun = new name{"congrFun"};
     g_decidable = new name{"Decidable"};
     g_decidable_cases_on = new name{"Decidable", "casesOn"};
-    g_decidable_to_bool = new name{"Decidable", "toBool"};
+    g_decidable_decide = new name{"Decidable", "decide"};
     g_dite = new name{"dite"};
     g_empty = new name{"Empty"};
     g_exists = new name{"Exists"};
@@ -397,7 +397,7 @@ void finalize_constants() {
     delete g_congr_fun;
     delete g_decidable;
     delete g_decidable_cases_on;
-    delete g_decidable_to_bool;
+    delete g_decidable_decide;
     delete g_dite;
     delete g_empty;
     delete g_exists;
@@ -580,7 +580,7 @@ name const & get_congr_arg_name() { return *g_congr_arg; }
 name const & get_congr_fun_name() { return *g_congr_fun; }
 name const & get_decidable_name() { return *g_decidable; }
 name const & get_decidable_cases_on_name() { return *g_decidable_cases_on; }
-name const & get_decidable_to_bool_name() { return *g_decidable_to_bool; }
+name const & get_decidable_decide_name() { return *g_decidable_decide; }
 name const & get_dite_name() { return *g_dite; }
 name const & get_empty_name() { return *g_empty; }
 name const & get_exists_name() { return *g_exists; }

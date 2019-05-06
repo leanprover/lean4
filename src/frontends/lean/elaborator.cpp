@@ -538,7 +538,7 @@ void elaborator::trace_coercion_failure(expr const & e_type, expr const & type, 
 optional<expr> elaborator::mk_Prop_to_bool_coercion(expr const & e, expr const & ref) {
     expr dec    = mk_app(mk_constant(get_decidable_name()), e);
     expr inst   = mk_instance(dec, ref);
-    expr r      = mk_app(mk_constant(get_decidable_to_bool_name()), e, inst);
+    expr r      = mk_app(mk_constant(get_decidable_decide_name()), e, inst);
     return some_expr(r);
 }
 

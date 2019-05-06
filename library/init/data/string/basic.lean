@@ -173,7 +173,7 @@ def pushn (s : String) (c : Char) (n : Nat) : String :=
 n.repeat (λ s, s.push c) s
 
 def isEmpty (s : String) : Bool :=
-toBool (s.bsize == 0)
+s.bsize == 0
 
 def join (l : List String) : String :=
 l.foldl (λ r s, r ++ s) ""

@@ -32,7 +32,7 @@ name const & get_congr_arg_name();
 name const & get_congr_fun_name();
 name const & get_decidable_name();
 name const & get_decidable_cases_on_name();
-name const & get_decidable_to_bool_name();
+name const & get_decidable_decide_name();
 name const & get_dite_name();
 name const & get_empty_name();
 name const & get_exists_name();

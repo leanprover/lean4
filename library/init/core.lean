@@ -872,18 +872,18 @@ Exists.rec h₂ h₁
 
 /- Decidable -/
 
-@[inlineIfReduce, nospecialize] def Decidable.toBool (p : Prop) [h : Decidable p] : Bool :=
+@[inlineIfReduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
 Decidable.casesOn h (λ h₁, false) (λ h₂, true)
 
+export Decidable (isTrue isFalse decide)
+
 instance beqOfEq {α : Type u} [DecidableEq α] : HasBeq α :=
-⟨λ a b, Decidable.toBool (a = b)⟩
+⟨λ a b, decide (a = b)⟩
 
-export Decidable (isTrue isFalse toBool)
-
-theorem toBoolTrueEqTrue (h : Decidable True) : @toBool True h = true :=
+theorem decideTrueEqTrue (h : Decidable True) : @decide True h = true :=
 Decidable.casesOn h (λ h, False.elim (Iff.mp notTrue h)) (λ _, rfl)
 
-theorem toBoolFalseEqFalse (h : Decidable False) : @toBool False h = false :=
+theorem decideFalseEqFalse (h : Decidable False) : @decide False h = false :=
 Decidable.casesOn h (λ h, rfl) (λ h, False.elim h)
 
 instance : Decidable True :=

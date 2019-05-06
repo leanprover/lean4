@@ -26,11 +26,12 @@ structure VarId :=
 structure JoinPointId :=
 (idx : Index)
 
+abbrev Index.lt (a b : Index) : Bool := a < b
+
 namespace VarId
 instance : HasBeq VarId := ⟨λ a b, a.idx == b.idx⟩
 instance : HasToString VarId := ⟨λ a, "x_" ++ toString a.idx⟩
 instance : HasFormat VarId := ⟨λ a, toString a⟩
-def lt (a b : VarId) : Bool := a.idx < b.idx
 end VarId
 
 namespace JoinPointId
@@ -352,7 +353,14 @@ partial def FnBody.isPure : FnBody → Bool
 | FnBody.unreachable        := true
 | _                         := false
 
-abbrev IndexRenaming := RBMap Index Index (λ a b, a < b)
+/-- Set of variable and join point names -/
+abbrev IndexSet := RBTree Index Index.lt
+instance vsetInh : Inhabited IndexSet := ⟨{}⟩
+
+/-- Mapping from variable (join point) indices to their declarations -/
+abbrev Context := RBMap Index FnBody Index.lt
+
+abbrev IndexRenaming := RBMap Index Index Index.lt
 
 class HasAlphaEqv (α : Type) :=
 (aeqv : IndexRenaming → α → α → Bool)

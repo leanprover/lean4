@@ -84,10 +84,6 @@ MaxIndex.collectFnBody b 0
 def Decl.maxIndex (d : Decl) : Index :=
 MaxIndex.collectDecl d 0
 
-/-- Set of variable and join point names -/
-abbrev IndexSet := RBTree Index (λ a b, a < b)
-instance vsetInh : Inhabited IndexSet := ⟨{}⟩
-
 namespace FreeIndices
 /- We say a variable (join point) index (aka name) is free in a function body
    if there isn't a `FnBody.vdecl` (`Fnbody.jdecl`) binding it. -/

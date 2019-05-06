@@ -116,8 +116,8 @@ private partial def R : FnBody → M FnBody
 
 def Decl.insertResetReuse : Decl → Decl
 | d@(Decl.fdecl f xs t b) :=
-  let nextVar := d.maxVar + 1 in
-  let b       := (R b).run' nextVar in
+  let nextIndex := d.maxIndex + 1 in
+  let b         := (R b).run' nextIndex in
   Decl.fdecl f xs t b
 | other := other
 

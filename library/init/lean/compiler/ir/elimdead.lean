@@ -17,7 +17,7 @@ partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnB
     let curr := bs.back in
     let bs   := bs.pop in
     let keep (_ : Unit) :=
-      let used := curr.collectFreeVars used in
+      let used := curr.collectFreeIndices used in
       let b    := curr <;> b in
       reshapeWithoutDeadAux bs b used in
     let keepIfUsed (vidx : Index) :=
@@ -29,7 +29,7 @@ partial def reshapeWithoutDeadAux : Array FnBody → FnBody → IndexSet → FnB
     | _                      := keep ()
 
 def reshapeWithoutDead (bs : Array FnBody) (term : FnBody) : FnBody :=
-reshapeWithoutDeadAux bs term term.freeVars
+reshapeWithoutDeadAux bs term term.freeIndices
 
 partial def FnBody.elimDead : FnBody → FnBody
 | b :=

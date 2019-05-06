@@ -19,7 +19,7 @@ namespace IR
 def test (d : Decl) : IO Unit :=
 do
    IO.println d,
-   IO.println $ ("Max variable " ++ toString d.maxVar),
+   IO.println $ ("Max index " ++ toString d.maxIndex),
    let d := d.pushProj,
    IO.println "=== After push projections ===",
    IO.println d,

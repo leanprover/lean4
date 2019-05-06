@@ -9,10 +9,89 @@ import init.lean.compiler.ir.basic
 namespace Lean
 namespace IR
 
+namespace MaxIndex
+/- Compute the maximum index `M` used in a declaration.
+   We `M` to initialize the fresh index generator used to create fresh
+   variable and join point names.
+
+   Recall that we variable and join points share the same namespace in
+   our implementation.
+-/
+
+abbrev Collector := Index → Index
+
+@[inline] private def skip : Collector := id
+@[inline] private def collect (x : Index) : Collector := λ y, if x > y then x else y
+@[inline] private def collectVar (x : VarId) : Collector := collect x.idx
+@[inline] private def collectJP (j : JoinPointId) : Collector := collect j.idx
+@[inline] private def seq (k₁ k₂ : Collector) : Collector := k₂ ∘ k₁
+instance : HasAndthen Collector := ⟨seq⟩
+
+private def collectArg : Arg → Collector
+| (Arg.var x) := collectVar x
+| irrelevant  := skip
+
+@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
+λ m, as.foldl (λ m a, f a m) m
+
+private def collectArgs (as : Array Arg) : Collector := collectArray as collectArg
+private def collectParam (p : Param) : Collector := collectVar p.x
+private def collectParams (ps : Array Param) : Collector := collectArray ps collectParam
+
+private def collectExpr : Expr → Collector
+| (Expr.ctor _ ys)       := collectArgs ys
+| (Expr.reset x)         := collectVar x
+| (Expr.reuse x _ _ ys)  := collectVar x; collectArgs ys
+| (Expr.proj _ x)        := collectVar x
+| (Expr.uproj _ x)       := collectVar x
+| (Expr.sproj _ _ x)     := collectVar x
+| (Expr.fap _ ys)        := collectArgs ys
+| (Expr.pap _ ys)        := collectArgs ys
+| (Expr.ap x ys)         := collectVar x; collectArgs ys
+| (Expr.box _ x)         := collectVar x
+| (Expr.unbox x)         := collectVar x
+| (Expr.lit v)           := skip
+| (Expr.isShared x)      := collectVar x
+| (Expr.isTaggedPtr x)   := collectVar x
+
+private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
+collectArray alts $ λ alt, f alt.body
+
+partial def collectFnBody : FnBody → Collector
+| (FnBody.vdecl x _ v b)    := collectExpr v; collectFnBody b
+| (FnBody.jdecl j ys _ v b) := collectFnBody v; collectParams ys; collectFnBody b
+| (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
+| (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
+| (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
+| (FnBody.release x _ b)    := collectVar x; collectFnBody b
+| (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.mdata _ b)        := collectFnBody b
+| (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
+| (FnBody.jmp j ys)         := collectJP j; collectArgs ys
+| (FnBody.ret x)            := collectArg x
+| FnBody.unreachable        := skip
+
+partial def collectDecl : Decl → Collector
+| (Decl.fdecl _ xs _ b) := collectParams xs; collectFnBody b
+| (Decl.extern _ xs _)  := collectParams xs
+
+end MaxIndex
+
+def FnBody.maxIndex (b : FnBody) : Index :=
+MaxIndex.collectFnBody b 0
+
+def Decl.maxIndex (d : Decl) : Index :=
+MaxIndex.collectDecl d 0
+
+/-- Set of variable and join point names -/
 abbrev IndexSet := RBTree Index (λ a b, a < b)
 instance vsetInh : Inhabited IndexSet := ⟨{}⟩
 
-namespace FreeVariables
+namespace FreeIndices
+/- We say a variable (join point) index (aka name) is free in a function body
+   if there isn't a `FnBody.vdecl` (`Fnbody.jdecl`) binding it. -/
+
 abbrev Collector := IndexSet → IndexSet → IndexSet
 
 @[inline] private def skip : Collector :=
@@ -91,83 +170,19 @@ partial def collectFnBody : FnBody → Collector
 | (FnBody.ret x)            := collectArg x
 | FnBody.unreachable        := skip
 
-end FreeVariables
+end FreeIndices
 
-def FnBody.collectFreeVars (b : FnBody) (vs : IndexSet) : IndexSet :=
-FreeVariables.collectFnBody b {} vs
+def FnBody.collectFreeIndices (b : FnBody) (vs : IndexSet) : IndexSet :=
+FreeIndices.collectFnBody b {} vs
 
-def FnBody.freeVars (b : FnBody) : IndexSet :=
-b.collectFreeVars {}
-
-namespace MaxVar
-abbrev Collector := Index → Index
-
-@[inline] private def skip : Collector := id
-@[inline] private def collect (x : Index) : Collector := λ y, if x > y then x else y
-@[inline] private def collectVar (x : VarId) : Collector := collect x.idx
-@[inline] private def collectJP (j : JoinPointId) : Collector := collect j.idx
-@[inline] private def seq (k₁ k₂ : Collector) : Collector := k₂ ∘ k₁
-instance : HasAndthen Collector := ⟨seq⟩
-
-private def collectArg : Arg → Collector
-| (Arg.var x) := collectVar x
-| irrelevant  := skip
-
-@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
-λ m, as.foldl (λ m a, f a m) m
-
-private def collectArgs (as : Array Arg) : Collector := collectArray as collectArg
-private def collectParam (p : Param) : Collector := collectVar p.x
-private def collectParams (ps : Array Param) : Collector := collectArray ps collectParam
-
-private def collectExpr : Expr → Collector
-| (Expr.ctor _ ys)       := collectArgs ys
-| (Expr.reset x)         := collectVar x
-| (Expr.reuse x _ _ ys)  := collectVar x; collectArgs ys
-| (Expr.proj _ x)        := collectVar x
-| (Expr.uproj _ x)       := collectVar x
-| (Expr.sproj _ _ x)     := collectVar x
-| (Expr.fap _ ys)        := collectArgs ys
-| (Expr.pap _ ys)        := collectArgs ys
-| (Expr.ap x ys)         := collectVar x; collectArgs ys
-| (Expr.box _ x)         := collectVar x
-| (Expr.unbox x)         := collectVar x
-| (Expr.lit v)           := skip
-| (Expr.isShared x)      := collectVar x
-| (Expr.isTaggedPtr x)   := collectVar x
-
-private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collector :=
-collectArray alts $ λ alt, f alt.body
-
-partial def collectFnBody : FnBody → Collector
-| (FnBody.vdecl x _ v b)    := collectExpr v; collectFnBody b
-| (FnBody.jdecl j ys _ v b) := collectFnBody v; collectParams ys; collectFnBody b
-| (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
-| (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
-| (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
-| (FnBody.release x _ b)    := collectVar x; collectFnBody b
-| (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
-| (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
-| (FnBody.mdata _ b)        := collectFnBody b
-| (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
-| (FnBody.jmp j ys)         := collectJP j; collectArgs ys
-| (FnBody.ret x)            := collectArg x
-| FnBody.unreachable        := skip
-
-partial def collectDecl : Decl → Collector
-| (Decl.fdecl _ xs _ b) := collectParams xs; collectFnBody b
-| (Decl.extern _ xs _)  := collectParams xs
-
-end MaxVar
-
-def FnBody.maxVar (b : FnBody) : Index :=
-MaxVar.collectFnBody b 0
-
-def Decl.maxVar (d : Decl) : Index :=
-MaxVar.collectDecl d 0
+def FnBody.freeIndices (b : FnBody) : IndexSet :=
+b.collectFreeIndices {}
 
 namespace HasIndex
-
+/- In principle, we can check whether a function body `b` contains an index `i` using
+   `b.freeIndices.contains i`, but it is more efficient to avoid the construction
+   of the set of freeIndices and just search whether `i` occurs in `b` or not.
+-/
 def visitVar (w : Index) (x : VarId) : Bool := w == x.idx
 def visitJP (w : Index) (x : JoinPointId) : Bool := w == x.idx
 

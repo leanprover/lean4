@@ -43,16 +43,16 @@ do ctx ← read,
 local attribute [instance] monadInhabited
 
 partial def checkFnBody : FnBody → M Unit
-| d@(FnBody.vdecl x _ v b)    := do
+| (FnBody.vdecl x t v b)    := do
   checkExpr v,
   ctx ← read,
   when (ctx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed"),
-  adaptReader (λ ctx : Context, ctx.addDecl d) (checkFnBody b)
-| d@(FnBody.jdecl j ys v b) := do
+  adaptReader (λ ctx : Context, ctx.addLocal x t v) (checkFnBody b)
+| (FnBody.jdecl j ys v b) := do
   withParams ys (checkFnBody v),
   ctx ← read,
   when (ctx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed"),
-  adaptReader (λ ctx : Context, ctx.addDecl d) (checkFnBody b)
+  adaptReader (λ ctx : Context, ctx.addJP j ys v) (checkFnBody b)
 | (FnBody.set x _ y b)      := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.uset x _ y b)     := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.sset x _ _ y _ b) := checkVar x *> checkVar y *> checkFnBody b

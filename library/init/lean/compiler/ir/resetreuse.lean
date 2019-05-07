@@ -80,8 +80,8 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
     alts ← alts.hmmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c),
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
-| e@(FnBody.jdecl j ys v b) := do
-  (b, _) ← adaptReader (λ ctx : Context, ctx.addDecl e) (Dmain b),
+| (FnBody.jdecl j ys v b) := do
+  (b, _) ← adaptReader (λ ctx : Context, ctx.addJP j ys v) (Dmain b),
   (v, found) ← Dmain v,
   /- If `found == true`, then `Dmain b` must also have returned `(b, true)` since
      we assume the IR does not have dead join points. So, if `x` is live in `j`,
@@ -128,9 +128,9 @@ partial def R : FnBody → M FnBody
       | _            := pure alt
     },
     pure $ FnBody.case tid x alts
-| e@(FnBody.jdecl j ys v b) := do
+| (FnBody.jdecl j ys v b) := do
   v ← R v,
-  b ← adaptReader (λ ctx : Context, ctx.addDecl e) (R b),
+  b ← adaptReader (λ ctx : Context, ctx.addJP j ys v) (R b),
   pure $ FnBody.jdecl j ys v b
 | e := do
   if e.isTerminal then pure e

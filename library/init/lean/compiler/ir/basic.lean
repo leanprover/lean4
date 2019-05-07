@@ -361,43 +361,56 @@ partial def FnBody.isPure : FnBody → Bool
 abbrev IndexSet := RBTree Index Index.lt
 instance vsetInh : Inhabited IndexSet := ⟨{}⟩
 
-/-- Mapping from variable (join point) indices to their declarations -/
-structure Context :=
-(locals : RBMap Index FnBody Index.lt := {})
-(params : RBMap Index Param Index.lt := {})
+inductive ContextEntry
+| param     : IRType → ContextEntry
+| localVar  : IRType → Expr → ContextEntry
+| joinPoint : Array Param → FnBody → ContextEntry
 
-def Context.addDecl (ctx : Context) (b : FnBody) : Context :=
-match b with
-| FnBody.vdecl x _ _ _ := { locals := ctx.locals.insert x.idx b, .. ctx }
-| FnBody.jdecl j _ _ _ := { locals := ctx.locals.insert j.idx b, .. ctx }
-| other := ctx
+abbrev Context := RBMap Index ContextEntry Index.lt
+
+def Context.addLocal (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
+ctx.insert x.idx (ContextEntry.localVar t v)
+
+def Context.addJP (ctx : Context) (j : JoinPointId) (xs : Array Param) (b : FnBody) : Context :=
+ctx.insert j.idx (ContextEntry.joinPoint xs b)
 
 def Context.addParam (ctx : Context) (p : Param) : Context :=
-{ params := ctx.params.insert p.x.idx p, .. ctx }
+ctx.insert p.x.idx (ContextEntry.param p.ty)
+
+def Context.addParams (ctx : Context) (ps : Array Param) : Context :=
+ps.foldl Context.addParam ctx
 
 def Context.isJP (ctx : Context) (idx : Index) : Bool :=
-match ctx.locals.find idx with
-| some (FnBody.jdecl _ _ _ _) := true
+match ctx.find idx with
+| some (ContextEntry.joinPoint _ _) := true
 | other := false
 
 def Context.getJoinPointBody (ctx : Context) (j : JoinPointId) : Option FnBody :=
-match ctx.locals.find j.idx with
-| some (FnBody.jdecl _ _ v _) := some v
+match ctx.find j.idx with
+| some (ContextEntry.joinPoint _ b) := some b
 | other := none
 
 def Context.isParam (ctx : Context) (idx : Index) : Bool :=
-ctx.params.contains idx
+match ctx.find idx with
+| some (ContextEntry.param _) := true
+| other := false
 
 def Context.isLocalVar (ctx : Context) (idx : Index) : Bool :=
-match ctx.locals.find idx with
-| some (FnBody.vdecl _ _ _ _) := true
+match ctx.find idx with
+| some (ContextEntry.localVar _ _) := true
 | other := false
 
 def Context.contains (ctx : Context) (idx : Index) : Bool :=
-ctx.locals.contains idx || ctx.params.contains idx
+ctx.contains idx
 
 def Context.eraseJoinPointDecl (ctx : Context) (j : JoinPointId) : Context :=
-{ locals := ctx.locals.erase j.idx, .. ctx }
+ctx.erase j.idx
+
+def Context.getType (ctx : Context) (x : VarId) : Option IRType :=
+match ctx.find x.idx with
+| some (ContextEntry.param t) := some t
+| some (ContextEntry.localVar t _) := some t
+| other := none
 
 abbrev IndexRenaming := RBMap Index Index Index.lt
 

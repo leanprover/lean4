@@ -81,7 +81,7 @@ end IsLive
 
    Recall that we say that a join point `j` is free in `b` if `b` contains
    `FnBody.jmp j ys` and `j` is not local. -/
-def FnBody.isLive (b : FnBody) (ctx : Context) (x : VarId) : Bool :=
+def FnBody.hasLiveVar (b : FnBody) (ctx : Context) (x : VarId) : Bool :=
 (IsLive.visitFnBody x.idx b).run' ctx
 
 end IR

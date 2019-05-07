@@ -59,7 +59,7 @@ collectArray alts $ λ alt, f alt.body
 
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v; collectFnBody b
-| (FnBody.jdecl j ys _ v b) := collectFnBody v; collectParams ys; collectFnBody b
+| (FnBody.jdecl j ys v b)   := collectFnBody v; collectParams ys; collectFnBody b
 | (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
 | (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
 | (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
@@ -153,7 +153,7 @@ collectArray alts $ λ alt, f alt.body
 
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x _ v b)    := collectExpr v; withVar x (collectFnBody b)
-| (FnBody.jdecl j ys _ v b) := withParams ys (collectFnBody v); withJP j (collectFnBody b)
+| (FnBody.jdecl j ys v b)   := withParams ys (collectFnBody v); withJP j (collectFnBody b)
 | (FnBody.set x _ y b)      := collectVar x; collectVar y; collectFnBody b
 | (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
 | (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
@@ -210,7 +210,7 @@ def visitExpr (w : Index) : Expr → Bool
 
 partial def visitFnBody (w : Index) : FnBody → Bool
 | (FnBody.vdecl x _ v b)    := visitExpr w v || visitFnBody b
-| (FnBody.jdecl j ys _ v b) := visitFnBody v || visitFnBody b
+| (FnBody.jdecl j ys v b)   := visitFnBody v || visitFnBody b
 | (FnBody.set x _ y b)      := visitVar w x || visitVar w y || visitFnBody b
 | (FnBody.uset x _ y b)     := visitVar w x || visitVar w y || visitFnBody b
 | (FnBody.sset x _ _ y _ b) := visitVar w x || visitVar w y || visitFnBody b

@@ -178,8 +178,8 @@ inductive AltCore (FnBody : Type) : Type
 inductive FnBody
 /- `let x : ty := e; b` -/
 | vdecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody)
-/- Join point Declaration `let j (xs) : ty := e; b` -/
-| jdecl (j : JoinPointId) (xs : Array Param) (ty : IRType) (v : FnBody) (b : FnBody)
+/- Join point Declaration `block_j (xs) := e; b` -/
+| jdecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody)
 /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    This operation is not part of λPure is only used during optimization. -/
 | set (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
@@ -205,7 +205,7 @@ instance : Inhabited FnBody := ⟨FnBody.unreachable⟩
 abbrev FnBody.nil := FnBody.unreachable
 
 @[export lean.ir.mk_vdecl_core] def mkVDecl (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : FnBody := FnBody.vdecl x ty e b
-@[export lean.ir.mk_jdecl_core] def mkJDecl (j : JoinPointId) (xs : Array Param) (ty : IRType) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs ty v b
+@[export lean.ir.mk_jdecl_core] def mkJDecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody) : FnBody := FnBody.jdecl j xs v b
 @[export lean.ir.mk_uset_core] def mkUSet (x : VarId) (i : Nat) (y : VarId) (b : FnBody) : FnBody := FnBody.uset x i y b
 @[export lean.ir.mk_sset_core] def mkSSet (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody) : FnBody := FnBody.sset x i offset y ty b
 @[export lean.ir.mk_case_core] def mkCase (tid : Name) (x : VarId) (cs : Array (AltCore FnBody)) : FnBody := FnBody.case tid x cs
@@ -229,7 +229,7 @@ def FnBody.isTerminal : FnBody → Bool
 
 def FnBody.body : FnBody → FnBody
 | (FnBody.vdecl _ _ _ b)    := b
-| (FnBody.jdecl _ _ _ _ b)  := b
+| (FnBody.jdecl _ _ _ b)  := b
 | (FnBody.set _ _ _ b)      := b
 | (FnBody.uset _ _ _ b)     := b
 | (FnBody.sset _ _ _ _ _ b) := b
@@ -241,7 +241,7 @@ def FnBody.body : FnBody → FnBody
 
 def FnBody.setBody : FnBody → FnBody → FnBody
 | (FnBody.vdecl x t v _)    b := FnBody.vdecl x t v b
-| (FnBody.jdecl j xs t v _) b := FnBody.jdecl j xs t v b
+| (FnBody.jdecl j xs v _)   b := FnBody.jdecl j xs v b
 | (FnBody.set x i y _)      b := FnBody.set x i y b
 | (FnBody.uset x i y _)     b := FnBody.uset x i y b
 | (FnBody.sset x i o y t _) b := FnBody.sset x i o y t b
@@ -309,13 +309,13 @@ reshapeAux bs bs.size term
 
 @[inline] def modifyJPs (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
 bs.hmap $ λ b, match b with
-  | FnBody.jdecl j xs t v k := FnBody.jdecl j xs t (f v) k
-  | other                   := other
+  | FnBody.jdecl j xs v k := FnBody.jdecl j xs (f v) k
+  | other                 := other
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
 bs.hmmap $ λ b, match b with
-  | FnBody.jdecl j xs t v k := do v ← f v, pure $ FnBody.jdecl j xs t v k
-  | other                   := pure other
+  | FnBody.jdecl j xs v k := do v ← f v, pure $ FnBody.jdecl j xs v k
+  | other                 := pure other
 
 @[export lean.ir.mk_alt_core] def mkAlt (n : Name) (cidx : Nat) (size : Nat) (usize : Nat) (ssize : Nat) (b : FnBody) : Alt := Alt.ctor ⟨n, cidx, size, usize, ssize⟩ b
 
@@ -344,7 +344,7 @@ def Expr.isPure : Expr → Bool
 /-- `FnBody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
 partial def FnBody.isPure : FnBody → Bool
 | (FnBody.vdecl _ _ e b)    := e.isPure && b.isPure
-| (FnBody.jdecl _ _ _ e b)  := e.isPure && b.isPure
+| (FnBody.jdecl _ _ e b)  := e.isPure && b.isPure
 | (FnBody.uset _ _ _ b)     := b.isPure
 | (FnBody.sset _ _ _ _ _ b) := b.isPure
 | (FnBody.mdata _ b)        := b.isPure
@@ -368,8 +368,8 @@ structure Context :=
 
 def Context.addDecl (ctx : Context) (b : FnBody) : Context :=
 match b with
-| FnBody.vdecl x _ _ _   := { locals := ctx.locals.insert x.idx b, .. ctx }
-| FnBody.jdecl j _ _ _ _ := { locals := ctx.locals.insert j.idx b, .. ctx }
+| FnBody.vdecl x _ _ _ := { locals := ctx.locals.insert x.idx b, .. ctx }
+| FnBody.jdecl j _ _ _ := { locals := ctx.locals.insert j.idx b, .. ctx }
 | other := ctx
 
 def Context.addParam (ctx : Context) (p : Param) : Context :=
@@ -377,12 +377,12 @@ def Context.addParam (ctx : Context) (p : Param) : Context :=
 
 def Context.isJP (ctx : Context) (idx : Index) : Bool :=
 match ctx.locals.find idx with
-| some (FnBody.jdecl _ _ _ _ _) := true
+| some (FnBody.jdecl _ _ _ _) := true
 | other := false
 
 def Context.getJoinPointBody (ctx : Context) (j : JoinPointId) : Option FnBody :=
 match ctx.locals.find j.idx with
-| some (FnBody.jdecl _ _ _ v _) := some v
+| some (FnBody.jdecl _ _ v _) := some v
 | other := none
 
 def Context.isParam (ctx : Context) (idx : Index) : Bool :=
@@ -457,9 +457,9 @@ else Array.foldl₂ ps₁ ps₂ (λ ρ p₁ p₂, do ρ ← ρ, addParamRename �
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
-| ρ (FnBody.jdecl j₁ ys₁ t₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ t₂ v₂ b₂)    :=
+| ρ (FnBody.jdecl j₁ ys₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ v₂ b₂)    :=
   match addParamsRename ρ ys₁ ys₂ with
-  | some ρ' := t₁ == t₂ && FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
+  | some ρ' := FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
   | none    := false
 | ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂

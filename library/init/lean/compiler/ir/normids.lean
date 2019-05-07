@@ -74,9 +74,9 @@ local attribute [instance] monadInhabited
 
 partial def normFnBody : FnBody → N FnBody
 | (FnBody.vdecl x t v b)     := do v ← normExpr v, withVar x $ λ x, FnBody.vdecl x t v <$> normFnBody b
-| (FnBody.jdecl j ys t v b)  := do
+| (FnBody.jdecl j ys v b)    := do
   (ys, v) ← withParams ys $ λ ys, do { v ← normFnBody v, pure (ys, v) },
-  withJP j $ λ j, FnBody.jdecl j ys t v <$> normFnBody b
+  withJP j $ λ j, FnBody.jdecl j ys v <$> normFnBody b
 | (FnBody.set x i y b)       := do x ← normVar x, y ← normVar y, FnBody.set x i y <$> normFnBody b
 | (FnBody.uset x i y b)      := do x ← normVar x, y ← normVar y, FnBody.uset x i y <$> normFnBody b
 | (FnBody.sset x i o y t b)  := do x ← normVar x, y ← normVar y, FnBody.sset x i o y t <$> normFnBody b

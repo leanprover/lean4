@@ -48,7 +48,7 @@ partial def checkFnBody : FnBody → M Unit
   ctx ← read,
   when (ctx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed"),
   adaptReader (λ ctx : Context, ctx.addDecl d) (checkFnBody b)
-| d@(FnBody.jdecl j ys _ v b) := do
+| d@(FnBody.jdecl j ys v b) := do
   withParams ys (checkFnBody v),
   ctx ← read,
   when (ctx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed"),

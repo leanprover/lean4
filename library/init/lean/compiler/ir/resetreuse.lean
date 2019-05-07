@@ -42,10 +42,10 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
     FnBody.vdecl x t (Expr.reuse w c updtCidx ys) b
   else
     FnBody.vdecl x t v (S b)
-| (FnBody.jdecl j ys t v b) :=
+| (FnBody.jdecl j ys v b) :=
   let v' := S v in
-  if v == v' then FnBody.jdecl j ys t v (S b)
-  else FnBody.jdecl j ys t v' b
+  if v == v' then FnBody.jdecl j ys v (S b)
+  else FnBody.jdecl j ys v' b
 | (FnBody.case tid x alts)  := FnBody.case tid x $ alts.hmap $ λ alt, alt.modifyBody S
 | b :=
   if b.isTerminal then b
@@ -79,13 +79,13 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
     alts ← alts.hmmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c),
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
-| e@(FnBody.jdecl j ys t v b) := do
+| e@(FnBody.jdecl j ys v b) := do
   (b, _) ← adaptReader (λ ctx : Context, ctx.addDecl e) (Dmain b),
   (v, found) ← Dmain v,
   /- If `found == true`, then `Dmain b` must also have returned `(b, true)` since
      we assume the IR does not have dead join points. So, if `x` is live in `j`,
      then it must also live in `b` since `j` is reachable from `b` with a `jmp`. -/
-  pure (FnBody.jdecl j ys t v b, found)
+  pure (FnBody.jdecl j ys v b, found)
 | e := do
   ctx ← read,
   if e.isTerminal then
@@ -108,8 +108,8 @@ private partial def hasCtorUsing (x : VarId) : FnBody → Bool
            | Arg.var y := x == y
            | _         := false)
   || hasCtorUsing b
-| (FnBody.jdecl _ _ _ v b) := hasCtorUsing v || hasCtorUsing b
-| b                        := !b.isTerminal && hasCtorUsing b.body
+| (FnBody.jdecl _ _ v b) := hasCtorUsing v || hasCtorUsing b
+| b                      := !b.isTerminal && hasCtorUsing b.body
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 /- If the scrutinee `x` (the one that is providing memory) is being
@@ -127,10 +127,10 @@ private partial def R : FnBody → M FnBody
       | _            := pure alt
     },
     pure $ FnBody.case tid x alts
-| e@(FnBody.jdecl j ys t v b) := do
+| e@(FnBody.jdecl j ys v b) := do
   v ← R v,
   b ← adaptReader (λ ctx : Context, ctx.addDecl e) (R b),
-  pure $ FnBody.jdecl j ys t v b
+  pure $ FnBody.jdecl j ys v b
 | e := do
   if e.isTerminal then pure e
   else do

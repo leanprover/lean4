@@ -29,6 +29,7 @@ obj* l_IO_Fs_handle_isEof___rarg(obj*, obj*);
 obj* l_getModify___rarg___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_close___rarg(obj*, obj*);
 obj* l_IO_Ref_swap(obj*, obj*);
+obj* l_IO_RefPointed___boxed(obj*);
 obj* l_EIO_Inhabited___rarg(obj*);
 obj* l_HasRepr_HasEval___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_swap___boxed(obj*, obj*, obj*, obj*);
@@ -152,7 +153,7 @@ obj* l_IO_Fs_handle_isEof___at_IO_Fs_handle_readToEnd___spec__1(obj*, obj*);
 obj* l_IO_Fs_handle_close(obj*, obj*);
 obj* l_IO_Fs_handle_mk___rarg(obj*, obj*, uint8, uint8);
 obj* l_IO_Prim_liftIO___rarg(obj*, obj*);
-obj* l_IO_RefPointed;
+obj* l_IO_RefPointed(obj*);
 obj* l_IO_println___rarg___closed__1;
 obj* l_IO_Prim_mkRef___boxed(obj*, obj*, obj*);
 obj* l_IO_lazyPure___rarg(obj*, obj*);
@@ -1201,12 +1202,21 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_IO_RefPointed() {
+obj* l_IO_RefPointed(obj* x_0) {
 _start:
 {
-obj* x_0; 
-x_0 = lean::box(0);
-return x_0;
+obj* x_1; 
+x_1 = lean::box(0);
+return x_1;
+}
+}
+obj* l_IO_RefPointed___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_IO_RefPointed(x_0);
+lean::dec(x_0);
+return x_1;
 }
 }
 obj* l_IO_Inhabited(obj* x_0) {
@@ -1775,7 +1785,5 @@ lean::mark_persistent(l_IO_error_HasToString);
 lean::mark_persistent(l_IO_error_Inhabited);
  l_IO_println___rarg___closed__1 = _init_l_IO_println___rarg___closed__1();
 lean::mark_persistent(l_IO_println___rarg___closed__1);
- l_IO_RefPointed = _init_l_IO_RefPointed();
-lean::mark_persistent(l_IO_RefPointed);
 return w;
 }

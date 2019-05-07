@@ -50,7 +50,7 @@ local attribute [instance] monadInhabited
 
 partial def visitFnBody (w : Index) : FnBody → M Bool
 | (FnBody.vdecl x _ v b)    := visitExpr w v <||> visitFnBody b
-| (FnBody.jdecl j ys _ v b) := visitFnBody v <||> visitFnBody b
+| (FnBody.jdecl j ys v b)   := visitFnBody v <||> visitFnBody b
 | (FnBody.set x _ y b)      := visitVar w x <||> visitVar w y <||> visitFnBody b
 | (FnBody.uset x _ y b)     := visitVar w x <||> visitVar w y <||> visitFnBody b
 | (FnBody.sset x _ _ y _ b) := visitVar w x <||> visitVar w y <||> visitFnBody b

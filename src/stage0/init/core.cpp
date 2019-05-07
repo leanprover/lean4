@@ -52,7 +52,6 @@ obj* l_Thunk_bind___boxed(obj*, obj*, obj*, obj*);
 obj* l_decidableOfDecidableOfEq___boxed(obj*, obj*);
 obj* l_ite___boxed(obj*);
 obj* l_Quot_liftOn___rarg(obj*, obj*, obj*);
-uint8 l_Decidable_toBool___rarg(uint8);
 uint8 l_Bool_DecidableEq(uint8, uint8);
 obj* l_Function_onFun___boxed(obj*, obj*, obj*);
 obj* l_inline(obj*);
@@ -156,6 +155,7 @@ obj* l_Prod_DecidableEq___boxed(obj*, obj*);
 obj* l_Subtype_sizeof___main(obj*);
 obj* l_Quot_recOnSubsingleton(obj*, obj*, obj*, obj*);
 obj* l_Prod_HasSizeof___boxed(obj*, obj*);
+obj* l_Decidable_decide___boxed(obj*);
 obj* l_Quotient_liftOn___boxed(obj*, obj*, obj*);
 obj* l_PSum_sizeof(obj*, obj*);
 obj* l_Task_map___boxed(obj*, obj*, obj*, obj*);
@@ -284,6 +284,7 @@ obj* l_Prod_map___main___rarg(obj*, obj*, obj*);
 uint8 l_ite_Decidable___rarg(uint8, uint8, uint8);
 obj* l___private_init_core_21__funSetoid(obj*, obj*);
 obj* l_Quot_hrecOn___boxed(obj*, obj*, obj*);
+uint8 l_Decidable_decide___rarg(uint8);
 obj* l_Xor_Decidable(obj*, obj*);
 obj* l_Nat_add___boxed(obj*, obj*);
 obj* l_PSum_sizeof___rarg(obj*, obj*, obj*);
@@ -340,7 +341,6 @@ uint8 l_Xor_Decidable___rarg(uint8, uint8);
 obj* l_typedExpr___boxed(obj*);
 obj* l_Decidable_byCases___boxed(obj*, obj*);
 obj* l_cond___rarg(uint8, obj*, obj*);
-obj* l_Decidable_toBool(obj*);
 obj* l_Bool_sizeof(uint8);
 obj* l_Pi_Inhabited___boxed(obj*, obj*);
 obj* l_Prod_map(obj*, obj*, obj*, obj*);
@@ -379,6 +379,7 @@ obj* l_Function_const___rarg(obj*, obj*);
 obj* l_Eq_ndrec(obj*, obj*, obj*);
 obj* l_Subtype_HasSizeof___boxed(obj*);
 uint8 l_xor___main(uint8, uint8);
+obj* l_Decidable_decide(obj*);
 obj* l_idRhs___rarg___boxed(obj*);
 obj* l_Quotient_recOnSubsingleton_u_2082___at_Quotient_DecidableEq___spec__1(obj*, obj*);
 obj* l_Subtype_sizeof___rarg___boxed(obj*, obj*, obj*);
@@ -407,6 +408,7 @@ uint8 l_Quotient_DecidableEq___rarg___lambda__1(obj*, obj*, obj*);
 obj* l_inferInstanceAs(obj*);
 obj* l_absurd___boxed(obj*, obj*, obj*, obj*);
 obj* l_PSigma_HasSizeof___boxed(obj*, obj*);
+obj* l_Decidable_decide___rarg___boxed(obj*);
 obj* l_Function_comp(obj*, obj*, obj*);
 uint8 l_prodHasDecidableLt___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Function_combine(obj*, obj*, obj*, obj*, obj*);
@@ -439,7 +441,6 @@ obj* l_inferInstance(obj*);
 obj* l_absurd(obj*, obj*, obj*, obj*);
 obj* l_xor___main___boxed(obj*, obj*);
 uint8 l_decidableOfDecidableOfIff___rarg(uint8, obj*);
-obj* l_Decidable_toBool___boxed(obj*);
 obj* l_PSigma_sizeof___rarg(obj*, obj*, obj*);
 obj* l_Decidable_byCases(obj*, obj*);
 obj* l_Ne_Decidable___boxed(obj*);
@@ -452,7 +453,6 @@ obj* l_Prod_sizeof___boxed(obj*, obj*);
 obj* l_PSigma_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_Option_sizeof(obj*);
 obj* l_Quotient_recOnSubsingleton___boxed(obj*, obj*, obj*, obj*);
-obj* l_Decidable_toBool___rarg___boxed(obj*);
 obj* l_Sigma_sizeof___main___boxed(obj*, obj*);
 obj* l_Sum_inhabitedLeft(obj*, obj*);
 obj* l_Function_swap___rarg(obj*, obj*, obj*);
@@ -2692,7 +2692,7 @@ lean::dec(x_2);
 return x_3;
 }
 }
-uint8 l_Decidable_toBool___rarg(uint8 x_0) {
+uint8 l_Decidable_decide___rarg(uint8 x_0) {
 _start:
 {
 if (x_0 == 0)
@@ -2709,29 +2709,29 @@ return x_2;
 }
 }
 }
-obj* l_Decidable_toBool(obj* x_0) {
+obj* l_Decidable_decide(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Decidable_toBool___rarg___boxed), 1, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Decidable_decide___rarg___boxed), 1, 0);
 return x_1;
 }
 }
-obj* l_Decidable_toBool___rarg___boxed(obj* x_0) {
+obj* l_Decidable_decide___rarg___boxed(obj* x_0) {
 _start:
 {
 uint8 x_1; uint8 x_2; obj* x_3; 
 x_1 = lean::unbox(x_0);
-x_2 = l_Decidable_toBool___rarg(x_1);
+x_2 = l_Decidable_decide___rarg(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }
 }
-obj* l_Decidable_toBool___boxed(obj* x_0) {
+obj* l_Decidable_decide___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Decidable_toBool(x_0);
+x_1 = l_Decidable_decide(x_0);
 lean::dec(x_0);
 return x_1;
 }

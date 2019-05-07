@@ -27,7 +27,7 @@ object * mk_app_expr_core(object * x, object * ys);
 object * mk_num_expr_core(object * v);
 object * mk_str_expr_core(object * v);
 object * mk_vdecl_core(object * x, uint8 ty, object * e, object * b);
-object * mk_jdecl_core(object * j, object * xs, uint8 ty, object * v, object * b);
+object * mk_jdecl_core(object * j, object * xs, object * v, object * b);
 object * mk_uset_core(object * x, object * i, object * y, object * b);
 object * mk_sset_core(object * x, object * i, object * o, object * y, uint8 ty, object * b);
 object * mk_case_core(object * tid, object * x, object * cs);
@@ -79,9 +79,9 @@ fn_body mk_vdecl(var_id const & x, type ty, expr const & e, fn_body const & b) {
     inc(x.raw()); inc(e.raw()), inc(b.raw());
     return fn_body(mk_vdecl_core(x.raw(), static_cast<uint8>(ty), e.raw(), b.raw()));
 }
-fn_body mk_jdecl(jp_id const & j, buffer<param> const & xs, type ty, expr const & v, fn_body const & b) {
+fn_body mk_jdecl(jp_id const & j, buffer<param> const & xs, expr const & v, fn_body const & b) {
     inc(j.raw()); inc(v.raw()); inc(b.raw());
-    return fn_body(mk_jdecl_core(j.raw(), to_array(xs), static_cast<uint8>(ty), v.raw(), b.raw()));
+    return fn_body(mk_jdecl_core(j.raw(), to_array(xs), v.raw(), b.raw()));
 }
 fn_body mk_uset(var_id const & x, unsigned i, var_id const & y, fn_body const & b) {
     inc(x.raw()); inc(y.raw()); inc(b.raw());
@@ -293,8 +293,7 @@ class to_ir_fn {
         expr val = *decl.get_value();
         buffer<ir::param> xs;
         ir::fn_body v = visit_lambda(val, xs);
-        ir::type t    = to_ir_result_type(decl.get_type(), xs.size());
-        return ir::mk_jdecl(to_jp_id(decl), xs, t, v, b);
+        return ir::mk_jdecl(to_jp_id(decl), xs, v, b);
     }
 
     ir::fn_body visit_ctor(local_decl const & decl, ir::fn_body const & b) {

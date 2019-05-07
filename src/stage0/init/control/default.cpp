@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.control.default
-// Imports: init.control.applicative init.control.functor init.control.alternative init.control.monad init.control.lift init.control.state init.control.id init.control.except init.control.reader init.control.option init.control.combinators
+// Imports: init.control.applicative init.control.functor init.control.alternative init.control.monad init.control.lift init.control.state init.control.id init.control.except init.control.reader init.control.option init.control.combinators init.control.conditional
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -25,6 +25,7 @@ obj* initialize_init_control_except(obj*);
 obj* initialize_init_control_reader(obj*);
 obj* initialize_init_control_option(obj*);
 obj* initialize_init_control_combinators(obj*);
+obj* initialize_init_control_conditional(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_control_default(obj* w) {
  if (_G_initialized) return w;
@@ -51,6 +52,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_option(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_combinators(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_control_conditional(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

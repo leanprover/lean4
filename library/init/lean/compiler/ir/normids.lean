@@ -63,7 +63,7 @@ getModify (+1)
 
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
 λ m, do
-  m ← ps.mfoldl m (λ m p, do n ← getModify (+1), pure $ m.insert p.x.idx n),
+  m ← ps.mfoldl (λ (m : IndexRenaming) p, do n ← getModify (+1), pure $ m.insert p.x.idx n) m,
   let ps := ps.hmap $ λ p, { x := normVar p.x m, .. p },
   k ps m
 

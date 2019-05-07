@@ -35,9 +35,9 @@ def checkExpr : Expr → M Unit
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
 do ctx ← read,
-   ctx ← ps.mfoldl ctx (λ ctx p, do
+   ctx ← ps.mfoldl (λ (ctx : Context) p, do
       when (ctx.contains p.x.idx) $ throw ("invalid parameter declaration, shadowing is not allowed"),
-      pure $ ctx.addParam p),
+      pure $ ctx.addParam p) ctx,
    adaptReader (λ _, ctx) k
 
 local attribute [instance] monadInhabited

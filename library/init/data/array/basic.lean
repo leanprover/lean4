@@ -149,10 +149,10 @@ local attribute [instance] monadInhabited'
 @[inline] def miterate (a : Array α) (b : β) (f : Π i : Fin a.size, α → β → m β) : m β :=
 miterateAux a f 0 b
 
-@[inline] def mfoldl (a : Array α) (b : β) (f : β → α → m β) : m β :=
+@[inline] def mfoldl (f : β → α → m β) (b : β) (a : Array α) : m β :=
 miterate a b (λ _ b a, f a b)
 
-@[inline] def mfoldlFrom (a : Array α) (b : β) (f : β → α → m β) (ini : Nat := 0) : m β :=
+@[inline] def mfoldlFrom (f : β → α → m β) (b : β) (a : Array α) (ini : Nat := 0) : m β :=
 miterateAux a (λ _ b a, f a b) ini b
 
 -- TODO(Leo): justify termination using wf-rec
@@ -169,7 +169,7 @@ miterateAux a (λ _ b a, f a b) ini b
 @[inline] def miterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : Π i : Fin a₁.size, α → σ → β → m β) : m β :=
 miterate₂Aux a₁ a₂ f 0 b
 
-@[inline] def mfoldl₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : β → α → σ → m β) : m β :=
+@[inline] def mfoldl₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
 miterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 
 local attribute [instance] monadInhabited
@@ -196,16 +196,16 @@ Id.run $ miterateAux a f 0 b
 @[inline] def iterateFrom (a : Array α) (b : β) (i : Nat) (f : Π i : Fin a.size, α → β → β) : β :=
 Id.run $ miterateAux a f i b
 
-@[inline] def foldl (a : Array α) (f : β → α → β) (b : β) : β :=
+@[inline] def foldl (f : β → α → β) (b : β) (a : Array α) : β :=
 iterate a b (λ _ a b, f b a)
 
-@[inline] def foldlFrom (a : Array α) (f : β → α → β) (b : β) (ini : Nat := 0) : β :=
-Id.run $ mfoldlFrom a b f ini
+@[inline] def foldlFrom (f : β → α → β) (b : β) (a : Array α) (ini : Nat := 0) : β :=
+Id.run $ mfoldlFrom f b a ini
 
 @[inline] def iterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : Π i : Fin a₁.size, α → σ → β → β) : β :=
 Id.run $ miterate₂Aux a₁ a₂ f 0 b
 
-@[inline] def foldl₂ (a₁ : Array α) (a₂ : Array σ) (f : β → α → σ → β) (b : β) : β :=
+@[inline] def foldl₂ (f : β → α → σ → β) (b : β) (a₁ : Array α) (a₂ : Array σ) : β :=
 iterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=
@@ -263,7 +263,7 @@ section
 variables {m : Type u → Type u} [Monad m]
 
 @[inline] def mmap {β : Type u} (f : α → m β) (as : Array α) : m (Array β) :=
-as.mfoldl (mkEmpty as.size) (λ bs a, do b ← f a, pure (bs.push b))
+as.mfoldl (λ bs a, do b ← f a, pure (bs.push b)) (mkEmpty as.size)
 end
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=

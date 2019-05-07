@@ -209,8 +209,8 @@ def visitExpr (w : Index) : Expr → Bool
 | (Expr.isTaggedPtr x)   := visitVar w x
 
 partial def visitFnBody (w : Index) : FnBody → Bool
-| (FnBody.vdecl x _ v b)    := visitExpr w v || (!visitVar w x && visitFnBody b)
-| (FnBody.jdecl j ys _ v b) := (!visitParams w ys && visitFnBody v) || (!visitJP w j && visitFnBody b)
+| (FnBody.vdecl x _ v b)    := visitExpr w v || visitFnBody b
+| (FnBody.jdecl j ys _ v b) := visitFnBody v || visitFnBody b
 | (FnBody.set x _ y b)      := visitVar w x || visitVar w y || visitFnBody b
 | (FnBody.uset x _ y b)     := visitVar w x || visitVar w y || visitFnBody b
 | (FnBody.sset x _ _ y _ b) := visitVar w x || visitVar w y || visitFnBody b

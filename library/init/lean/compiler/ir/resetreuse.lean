@@ -11,6 +11,7 @@ import init.lean.compiler.ir.livevars
 
 namespace Lean
 namespace IR
+namespace ResetReuse
 /- Remark: the insertResetReuse transformation is applied before we have
    inserted `inc/dec` instructions, and perfomed lower level optimizations
    that introduce the instructions `release` and `set`. -/
@@ -118,7 +119,7 @@ private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 if hasCtorUsing x b then pure b
 else Dmain x c b >>= Dfinalize x c
 
-private partial def R : FnBody → M FnBody
+partial def R : FnBody → M FnBody
 | (FnBody.case tid x alts) := do
     alts ← alts.hmmap $ λ alt, do {
       alt ← alt.mmodifyBody R,
@@ -137,6 +138,10 @@ private partial def R : FnBody → M FnBody
     let (instr, b) := e.split,
     b ← R b,
     pure (instr <;> b)
+
+end ResetReuse
+
+open ResetReuse
 
 def Decl.insertResetReuse : Decl → Decl
 | d@(Decl.fdecl f xs t b) :=

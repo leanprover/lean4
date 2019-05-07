@@ -135,6 +135,9 @@ def CtorInfo.beq : CtorInfo → CtorInfo → Bool
 
 instance CtorInfo.HasBeq : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
 
+def CtorInfo.isScalar (info : CtorInfo) : Bool :=
+info.size == 0 && info.usize == 0 && info.ssize == 0
+
 inductive Expr
 | ctor (i : CtorInfo) (ys : Array Arg)
 | reset (x : VarId)
@@ -353,7 +356,7 @@ def Expr.isPure : Expr → Bool
 /-- `FnBody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
 partial def FnBody.isPure : FnBody → Bool
 | (FnBody.vdecl _ _ e b)    := e.isPure && b.isPure
-| (FnBody.jdecl _ _ e b)  := e.isPure && b.isPure
+| (FnBody.jdecl _ _ e b)    := e.isPure && b.isPure
 | (FnBody.uset _ _ _ b)     := b.isPure
 | (FnBody.sset _ _ _ _ _ b) := b.isPure
 | (FnBody.mdata _ b)        := b.isPure
@@ -394,9 +397,14 @@ match ctx.find idx with
 | some (ContextEntry.joinPoint _ _) := true
 | other := false
 
-def Context.getJoinPointBody (ctx : Context) (j : JoinPointId) : Option FnBody :=
+def Context.getJPBody (ctx : Context) (j : JoinPointId) : Option FnBody :=
 match ctx.find j.idx with
 | some (ContextEntry.joinPoint _ b) := some b
+| other := none
+
+def Context.getJPParams (ctx : Context) (j : JoinPointId) : Option (Array Param) :=
+match ctx.find j.idx with
+| some (ContextEntry.joinPoint ys _) := some ys
 | other := none
 
 def Context.isParam (ctx : Context) (idx : Index) : Bool :=
@@ -479,8 +487,7 @@ else Array.foldl₂ (λ ρ p₁ p₂, do ρ ← ρ, addParamRename ρ p₁ p₂)
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
-| ρ (FnBody.jdecl j₁ ys₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ v₂ b₂)    :=
-  match addParamsRename ρ ys₁ ys₂ with
+| ρ (FnBody.jdecl j₁ ys₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ v₂ b₂)          := match addParamsRename ρ ys₁ ys₂ with
   | some ρ' := FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
   | none    := false
 | ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂

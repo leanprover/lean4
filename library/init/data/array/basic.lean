@@ -23,7 +23,7 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 a.sz
 
 namespace Array
-variables {α : Type u} {β : Type v}
+variables {α : Type u} {β : Type v} {σ : Type w}
 
 /- The parameter `c` is the initial capacity -/
 @[extern cpp inline "lean::mk_empty_array(#2)"]
@@ -156,7 +156,7 @@ miterate a b (λ _ b a, f a b)
 miterateAux a (λ _ b a, f a b) ini b
 
 -- TODO(Leo): justify termination using wf-rec
-@[specialize] partial def miterate₂Aux (a₁ a₂ : Array α) (f : Π i : Fin a₁.size, α → α → β → m β) : Nat → β → m β
+@[specialize] partial def miterate₂Aux (a₁ : Array α) (a₂ : Array σ) (f : Π i : Fin a₁.size, α → σ → β → m β) : Nat → β → m β
 | i b :=
   if h₁ : i < a₁.size then
      let idx₁ : Fin a₁.size := ⟨i, h₁⟩ in
@@ -166,10 +166,10 @@ miterateAux a (λ _ b a, f a b) ini b
      else pure b
   else pure b
 
-@[inline] def miterate₂ (a₁ a₂ : Array α) (b : β) (f : Π i : Fin a₁.size, α → α → β → m β) : m β :=
+@[inline] def miterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : Π i : Fin a₁.size, α → σ → β → m β) : m β :=
 miterate₂Aux a₁ a₂ f 0 b
 
-@[inline] def mfoldl₂ (a₁ a₂ : Array α) (b : β) (f : β → α → α → m β) : m β :=
+@[inline] def mfoldl₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : β → α → σ → m β) : m β :=
 miterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 
 local attribute [instance] monadInhabited
@@ -202,10 +202,10 @@ iterate a b (λ _ a b, f b a)
 @[inline] def foldlFrom (a : Array α) (f : β → α → β) (b : β) (ini : Nat := 0) : β :=
 Id.run $ mfoldlFrom a b f ini
 
-@[inline] def iterate₂ (a₁ a₂ : Array α) (b : β) (f : Π i : Fin a₁.size, α → α → β → β) : β :=
+@[inline] def iterate₂ (a₁ : Array α) (a₂ : Array σ) (b : β) (f : Π i : Fin a₁.size, α → σ → β → β) : β :=
 Id.run $ miterate₂Aux a₁ a₂ f 0 b
 
-@[inline] def foldl₂ (a₁ a₂ : Array α) (f : β → α → α → β) (b : β) : β :=
+@[inline] def foldl₂ (a₁ : Array α) (a₂ : Array σ) (f : β → α → σ → β) (b : β) : β :=
 iterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 
 @[inline] def find (a : Array α) (f : α → Option β) : Option β :=

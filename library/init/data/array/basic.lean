@@ -305,6 +305,25 @@ Id.run $ hmmapAux f 0 a
 @[inline] def map (f : α → β) (as : Array α) : Array β :=
 as.foldl (λ bs a, bs.push (f a)) (mkEmpty as.size)
 
+section
+variables {m : Type u → Type u} [Monad m]
+local attribute [instance] monadInhabited
+
+@[specialize]
+partial def mforAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : Nat → m PUnit
+| i :=
+  if h : i < a.size then
+     let idx : Fin a.size := ⟨i, h⟩ in
+     let v   : α          := a.fget idx in
+     f v *> mforAux (i+1)
+  else
+     pure ⟨⟩
+
+def mfor {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : m PUnit :=
+a.mforAux f 0
+
+end
+
 -- TODO(Leo): justify termination using wf-rec
 partial def extractAux (a : Array α) : Nat → Π (e : Nat), e ≤ a.size → Array α → Array α
 | i e hle r :=

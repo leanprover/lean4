@@ -124,7 +124,9 @@ partial def R : FnBody → M FnBody
     alts ← alts.hmmap $ λ alt, do {
       alt ← alt.mmodifyBody R,
       match alt with
-      | Alt.ctor c b := Alt.ctor c <$> D x c b
+      | Alt.ctor c b :=
+        if c.isScalar then pure alt
+        else Alt.ctor c <$> D x c b
       | _            := pure alt
     },
     pure $ FnBody.case tid x alts

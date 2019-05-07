@@ -323,6 +323,10 @@ inductive Decl
 | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
 | extern (f : FunId) (xs : Array Param) (ty : IRType)
 
+def Decl.id : Decl → FunId
+| (Decl.fdecl f _ _ _) := f
+| (Decl.extern f _ _)  := f
+
 @[export lean.ir.mk_decl_core] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
@@ -358,7 +362,42 @@ abbrev IndexSet := RBTree Index Index.lt
 instance vsetInh : Inhabited IndexSet := ⟨{}⟩
 
 /-- Mapping from variable (join point) indices to their declarations -/
-abbrev Context := RBMap Index FnBody Index.lt
+structure Context :=
+(locals : RBMap Index FnBody Index.lt := {})
+(params : RBMap Index Param Index.lt := {})
+
+def Context.addDecl (ctx : Context) (b : FnBody) : Context :=
+match b with
+| FnBody.vdecl x _ _ _   := { locals := ctx.locals.insert x.idx b, .. ctx }
+| FnBody.jdecl j _ _ _ _ := { locals := ctx.locals.insert j.idx b, .. ctx }
+| other := ctx
+
+def Context.addParam (ctx : Context) (p : Param) : Context :=
+{ params := ctx.params.insert p.x.idx p, .. ctx }
+
+def Context.isJP (ctx : Context) (idx : Index) : Bool :=
+match ctx.locals.find idx with
+| some (FnBody.jdecl _ _ _ _ _) := true
+| other := false
+
+def Context.getJoinPointBody (ctx : Context) (j : JoinPointId) : Option FnBody :=
+match ctx.locals.find j.idx with
+| some (FnBody.jdecl _ _ _ v _) := some v
+| other := none
+
+def Context.isParam (ctx : Context) (idx : Index) : Bool :=
+ctx.params.contains idx
+
+def Context.isLocalVar (ctx : Context) (idx : Index) : Bool :=
+match ctx.locals.find idx with
+| some (FnBody.vdecl _ _ _ _) := true
+| other := false
+
+def Context.contains (ctx : Context) (idx : Index) : Bool :=
+ctx.locals.contains idx || ctx.params.contains idx
+
+def Context.eraseJoinPointDecl (ctx : Context) (j : JoinPointId) : Context :=
+{ locals := ctx.locals.erase j.idx, .. ctx }
 
 abbrev IndexRenaming := RBMap Index Index Index.lt
 

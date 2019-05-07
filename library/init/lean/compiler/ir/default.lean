@@ -11,6 +11,7 @@ import init.lean.compiler.ir.elimdead
 import init.lean.compiler.ir.simpcase
 import init.lean.compiler.ir.resetreuse
 import init.lean.compiler.ir.normids
+import init.lean.compiler.ir.checker
 
 namespace Lean
 namespace IR
@@ -18,6 +19,7 @@ namespace IR
 @[export lean.ir.test_core]
 def test (d : Decl) : IO Unit :=
 do
+   d.check,
    IO.println d,
    IO.println $ ("Max index " ++ toString d.maxIndex),
    let d := d.pushProj,
@@ -35,6 +37,7 @@ do
    let d := d.normalizeIds,
    IO.println "=== After normalize Ids ===",
    IO.println d,
+   d.check,
    pure ()
 
 end IR

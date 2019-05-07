@@ -1334,7 +1334,7 @@ instance : Subsingleton PUnit :=
 Subsingleton.intro punitEq
 
 instance : Inhabited PUnit :=
-⟨()⟩
+⟨⟨⟩⟩
 
 instance : DecidableEq PUnit :=
 {decEq := λ a b, isTrue (punitEq a b)}

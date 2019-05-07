@@ -80,6 +80,15 @@ def IRType.beq : IRType → IRType → Bool
 | IRType.tobject    IRType.tobject    := true
 | _               _                   := false
 
+def IRType.isScalar : IRType → Bool
+| IRType.float  := true
+| IRType.uint8  := true
+| IRType.uint16 := true
+| IRType.uint32 := true
+| IRType.uint64 := true
+| IRType.usize  := true
+| _             := false
+
 instance IRType.HasBeq : HasBeq IRType := ⟨IRType.beq⟩
 
 /- Arguments to applications, constructors, etc.

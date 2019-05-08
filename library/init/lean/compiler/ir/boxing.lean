@@ -31,7 +31,7 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
 (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure Env :=
-(ctx: Context) (resultType : IRType) (decls : Name → Decl)
+(ctx: Context) (resultType : IRType) (decls : FunId → Decl)
 
 abbrev M := ReaderT Env (StateT Index Id)
 
@@ -52,9 +52,15 @@ do ctx ← getCtx,
    match ctx.getJPParams j with
    | some ys := pure ys
    | none    := pure Array.empty -- unreachable, we assume the code is well formed
+def getDecl (fid : FunId) : M Decl :=
+do env ← getEnv,
+   pure $ env.decls fid
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
 adaptReader (λ env : Env, { ctx := env.ctx.addParams xs, .. env }) k
+
+@[inline] def withVDecl {α : Type} (x : VarId) (ty : IRType) (v : Expr) (k : M α) : M α :=
+adaptReader (λ env : Env, { ctx := env.ctx.addLocal x ty v, .. env }) k
 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
 adaptReader (λ env : Env, { ctx := env.ctx.addJP j xs v, .. env }) k
@@ -78,27 +84,63 @@ match x with
 | Arg.var x := castVarIfNeeded x expected (λ x, k (Arg.var x))
 | _         := k x
 
-def castArgIfNeededAux (xs : Array Arg) (ps : Array Param) : M (Array Arg × Array FnBody) :=
-Array.mfoldl₂
-  (λ (r : Array Arg × Array FnBody) (x : Arg) (p : Param),
-     let (xs, bs) := r in
-     match x with
-     | Arg.irrelevant := pure (xs.push x, bs)
-     | Arg.var x := do
-       xType ← getVarType x,
-       if eqvTypes xType p.ty then pure (xs.push (Arg.var x), bs)
-       else do
-         y ← mkFresh,
-         let v := mkCast x xType,
-         let b := FnBody.vdecl y p.ty v FnBody.nil,
-         pure (xs.push (Arg.var y), bs.push b))
-  (Array.empty, Array.empty)
-  xs ps
+@[specialize] def castArgsIfNeededAux (xs : Array Arg) (typeFromIdx : Nat → IRType) : M (Array Arg × Array FnBody) :=
+xs.miterate (Array.empty, Array.empty) $ λ i (x : Arg) (r : Array Arg × Array FnBody),
+  let expected := typeFromIdx i.val in
+  let (xs, bs) := r in
+  match x with
+  | Arg.irrelevant := pure (xs.push x, bs)
+  | Arg.var x := do
+    xType ← getVarType x,
+    if eqvTypes xType expected then pure (xs.push (Arg.var x), bs)
+    else do
+      y ← mkFresh,
+      let v := mkCast x xType,
+      let b := FnBody.vdecl y expected v FnBody.nil,
+      pure (xs.push (Arg.var y), bs.push b)
 
 @[inline] def castArgsIfNeeded (xs : Array Arg) (ps : Array Param) (k : Array Arg → M FnBody) : M FnBody :=
-do (ys, bs) ← castArgIfNeededAux xs ps,
+do (ys, bs) ← castArgsIfNeededAux xs (λ i, (ps.get i).ty),
    b ← k ys,
    pure (reshape bs b)
+
+@[inline] def boxArgsIfNeeded (xs : Array Arg) (k : Array Arg → M FnBody) : M FnBody :=
+do (ys, bs) ← castArgsIfNeededAux xs (λ _, IRType.object),
+   b ← k ys,
+   pure (reshape bs b)
+
+def unboxResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
+if ty.isScalar then do
+  y ← mkFresh,
+  pure $ FnBody.vdecl y IRType.object e (FnBody.vdecl x ty (Expr.unbox y) b)
+else
+  pure $ FnBody.vdecl x ty e b
+
+def castResultIfNeeded (x : VarId) (ty : IRType) (e : Expr) (eType : IRType) (b : FnBody) : M FnBody :=
+if eqvTypes ty eType then pure $ FnBody.vdecl x ty e b
+else do
+  y ← mkFresh,
+  pure $ FnBody.vdecl y eType e (FnBody.vdecl x ty (mkCast y eType) b)
+
+def visitVDeclExpr (x : VarId) (ty : IRType) (e : Expr) (b : FnBody) : M FnBody :=
+match e with
+| Expr.ctor c ys :=
+  if c.isScalar && ty.isScalar then
+    pure $ FnBody.vdecl x ty (Expr.lit (LitVal.num c.cidx)) b
+  else
+    boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.ctor c ys) b
+| Expr.reuse w c u ys :=
+  boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.reuse w c u ys) b
+| Expr.fap f ys := do
+  decl ← getDecl f,
+  castArgsIfNeeded ys decl.params $ λ ys,
+  castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
+| Expr.ap f ys :=
+  boxArgsIfNeeded ys $ λ ys,
+  unboxResultIfNeeded x ty (Expr.ap f ys) b
+| _  :=
+   -- TODO(Leo)
+  pure $ FnBody.vdecl x ty e b
 
 def getScrutineeType (alts : Array Alt) : IRType :=
 let isScalar :=
@@ -116,8 +158,9 @@ match isScalar with
   else IRType.object -- in practice this should be unreachable
 
 partial def visitFnBody : FnBody → M FnBody
-| (FnBody.vdecl x t v b)     :=
-  pure (FnBody.vdecl x t v b) -- TODO(Leo)
+| (FnBody.vdecl x t v b)     := do
+  b ← withVDecl x t v (visitFnBody b),
+  visitVDeclExpr x t v b
 | (FnBody.jdecl j xs v b)    := do
   v ← withParams xs (visitFnBody v),
   b ← withJDecl j xs v (visitFnBody b),

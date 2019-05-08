@@ -339,6 +339,14 @@ def Decl.id : Decl → FunId
 | (Decl.fdecl f _ _ _) := f
 | (Decl.extern f _ _)  := f
 
+def Decl.params : Decl → Array Param
+| (Decl.fdecl _ xs _ _) := xs
+| (Decl.extern _ xs _)  := xs
+
+def Decl.resultType : Decl → IRType
+| (Decl.fdecl _ _ t _) := t
+| (Decl.extern _ _ t)  := t
+
 @[export lean.ir.mk_decl_core] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/

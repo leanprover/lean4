@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.data.string.basic
 
-universes u
+universes u v
 /- debugging helper functions -/
 @[extern cpp inline "lean::dbg_trace(#2, #3)"]
 def dbgTrace {α : Type u} (s : String) (f : Unit → α) : α :=
@@ -20,3 +20,6 @@ a
 @[extern cpp inline "lean::dbg_sleep(#2, #3)"]
 def dbgSleep {α : Type u} (ms : UInt32) (f : Unit → α) : α :=
 f ()
+
+@[extern cpp inline "#4"]
+unsafe def unsafeCast {α : Type u} {β : Type v} [Inhabited β] (a : α) : β := default _

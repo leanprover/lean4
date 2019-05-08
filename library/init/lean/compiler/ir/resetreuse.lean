@@ -72,6 +72,12 @@ private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
 | (b, true)  := pure b
 | (b, false) := tryS x c b
 
+/- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
+   and `flag == true` if `x` is live in `b`.
+
+   Note that, in the function `D` defined in the paper, for each `let x := e; F`,
+   `D` checks whether `x` is live in `F` or not. This is great for clarity but it
+   is expensive: `O(n^2)` where `n` is the size of the function body. -/
 private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × Bool)
 | e@(FnBody.case tid y alts) := do
   ctx ← read,

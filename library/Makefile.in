@@ -45,6 +45,7 @@ $(STAGE1_OUT)/%.o: $(STAGE1_DIR)/%.cpp
 	../bin/leanc -c -o $@ $< $(LEANC_OPTS)
 
 $(STAGE1_OUT)/libleanstdlib.a: $(addprefix $(STAGE1_OUT)/,$(patsubst %.lean,%.o,$(SRCS)))
+	@rm -f $@
 	@ar rcs $@ $^
 
 update-stage0:

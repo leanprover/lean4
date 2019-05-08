@@ -27,6 +27,23 @@ Assumptions:
 -/
 local attribute [instance] monadInhabited
 
+/- Infer scrutinee type using `case` alternatives.
+   This can be done whenever `alts` does not contain an `Alt.default _` value. -/
+def getScrutineeType (alts : Array Alt) : IRType :=
+let isScalar :=
+   alts.size > 1 && -- Recall that we encode Unit and PUnit using `object`.
+   alts.all (λ alt, match alt with
+    | Alt.ctor c _  := c.isScalar
+    | Alt.default _ := false) in
+match isScalar with
+| false := IRType.object
+| true  :=
+  let n := alts.size in
+  if n < 256 then IRType.uint8
+  else if n < 65536 then IRType.uint16
+  else if n < 4294967296 then IRType.uint32
+  else IRType.object -- in practice this should be unreachable
+
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
 (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
@@ -135,27 +152,14 @@ match e with
   decl ← getDecl f,
   castArgsIfNeeded ys decl.params $ λ ys,
   castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
+| Expr.pap f ys := do
+  decl ← getDecl f,
+  boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.pap f ys) b
 | Expr.ap f ys :=
   boxArgsIfNeeded ys $ λ ys,
   unboxResultIfNeeded x ty (Expr.ap f ys) b
-| _  :=
-   -- TODO(Leo)
+| other :=
   pure $ FnBody.vdecl x ty e b
-
-def getScrutineeType (alts : Array Alt) : IRType :=
-let isScalar :=
-   alts.size > 1 && -- Recall that we encode Unit and PUnit using `object`.
-   alts.all (λ alt, match alt with
-    | Alt.ctor c _  := c.isScalar
-    | Alt.default _ := false) in
-match isScalar with
-| false := IRType.object
-| true  :=
-  let n := alts.size in
-  if n < 256 then IRType.uint8
-  else if n < 65536 then IRType.uint16
-  else if n < 4294967296 then IRType.uint32
-  else IRType.object -- in practice this should be unreachable
 
 partial def visitFnBody : FnBody → M FnBody
 | (FnBody.vdecl x t v b)     := do

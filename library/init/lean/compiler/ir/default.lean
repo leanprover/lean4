@@ -12,6 +12,7 @@ import init.lean.compiler.ir.simpcase
 import init.lean.compiler.ir.resetreuse
 import init.lean.compiler.ir.normids
 import init.lean.compiler.ir.checker
+import init.lean.compiler.ir.boxing
 
 namespace Lean
 namespace IR

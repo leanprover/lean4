@@ -4,10 +4,42 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.compiler.ir.basic init.control.reader
+import init.control.reader
+import init.control.conditional
+import init.lean.compiler.ir.basic
 
 namespace Lean
 namespace IR
+namespace UniqueIds
+
+abbrev M := StateT IndexSet Id
+
+def checkId (id : Index) : M Bool :=
+do found ← get,
+   if found.contains id then pure false
+   else modify (λ s, s.insert id) *> pure true
+
+def checkParams (ps : Array Param) : M Bool :=
+ps.allM $ λ p, checkId p.x.idx
+
+local attribute [instance] monadInhabited
+
+partial def checkFnBody : FnBody → M Bool
+| (FnBody.vdecl x _ _ b)  := checkId x.idx <&&> checkFnBody b
+| (FnBody.jdecl j ys _ b) := checkId j.idx <&&> checkParams ys <&&> checkFnBody b
+| (FnBody.case _ _ alts)  := alts.allM $ λ alt, checkFnBody alt.body
+| b                       := if b.isTerminal then pure true else checkFnBody b.body
+
+partial def checkDecl : Decl → M Bool
+| (Decl.fdecl _ xs _ b) := checkParams xs <&&> checkFnBody b
+| (Decl.extern _ xs _)  := checkParams xs
+
+end UniqueIds
+
+/- Return true if variable, parameter and join point ids are unique -/
+def Decl.uniqueIds (d : Decl) : Bool :=
+(UniqueIds.checkDecl d).run' {}
+
 namespace NormalizeIds
 
 abbrev M := ReaderT IndexRenaming Id
@@ -47,9 +79,6 @@ def normExpr : Expr → M Expr
 | e@(Expr.lit v)        m :=  e
 
 abbrev N := ReaderT IndexRenaming (State Nat)
-
-def mkFresh : N Index :=
-getModify (+1)
 
 @[inline] def withVar {α : Type} (x : VarId) (k : VarId → N α) : N α :=
 λ m, do
@@ -98,6 +127,7 @@ def normDecl : Decl → N Decl
 
 end NormalizeIds
 
+/- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
 def Decl.normalizeIds (d : Decl) : Decl :=
 (NormalizeIds.normDecl d {}).run' 1
 

@@ -76,7 +76,7 @@ instance (m) [Monad m] : MonadTracer (TraceT m) :=
   }
 }
 
-unsafe def TraceT.run {m α} [Monad m] (opts : Options) (x : TraceT m α) : m (α × TraceMap) :=
+def TraceT.run {m α} [Monad m] (opts : Options) (x : TraceT m α) : m (α × TraceMap) :=
 do (a, st) ← StateT.run x {opts := opts, roots := mkRBMap _ _ _, curPos := none, curTraces := []},
    pure (a, st.roots)
 

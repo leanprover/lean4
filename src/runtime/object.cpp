@@ -323,27 +323,6 @@ void * alloc_heap_object(size_t sz) {
 }
 
 // =======================================
-// Scalar arrays
-
-#if 0
-static object * sarray_ensure_capacity(object * o, size_t extra) {
-    lean_assert(!is_exclusive(o));
-    size_t sz  = sarray_size(o);
-    size_t cap = sarray_capacity(o);
-    if (sz + extra > cap) {
-        unsigned esize = sarray_elem_size(o);
-        object * new_o = alloc_sarray(esize, sz, cap + sz + extra);
-        lean_assert(sarray_capacity(new_o) >= sz + extra);
-        memcpy(sarray_cptr<char>(new_o), sarray_cptr<char>(o), esize * sz);
-        free_heap_obj(o);
-        return new_o;
-    } else {
-        return o;
-    }
-}
-#endif
-
-// =======================================
 // Arrays
 static object * g_array_empty = nullptr;
 
@@ -1746,6 +1725,72 @@ usize string_hash(b_obj_arg s) {
     usize sz = string_size(s) - 1;
     char const * str = string_cstr(s);
     return hash_str(sz, str, 11);
+}
+
+// =======================================
+// ByteArray
+
+obj_res copy_sarray(obj_arg a, bool expand) {
+    unsigned esz   = sarray_elem_size(a);
+    size_t sz      = sarray_size(a);
+    size_t cap     = sarray_capacity(a);
+    lean_assert(cap >= sz);
+    if (expand) cap = (cap + 1) * 2;
+    lean_assert(!expand || cap > sz);
+    object * r     = alloc_sarray(esz, sz, cap);
+    uint8 * it     = sarray_cptr<uint8>(a);
+    uint8 * dest   = sarray_cptr<uint8>(r);
+    memcpy(dest, it, esz*sz);
+    dec(a);
+    return r;
+}
+
+obj_res copy_byte_array(obj_arg a) {
+    return copy_sarray(a, false);
+}
+
+obj_res byte_array_mk(obj_arg a) {
+    usize sz      = array_size(a);
+    obj_res r     = alloc_sarray(1, sz, sz);
+    object ** it  = array_cptr(a);
+    object ** end = it + sz;
+    uint8 * dest  = sarray_cptr<uint8>(r);
+    for (; it != end; ++it, ++dest) {
+        *dest = unbox(*it);
+    }
+    dec(a);
+    return r;
+}
+
+obj_res byte_array_data(obj_arg a) {
+    usize sz       = sarray_size(a);
+    obj_res r      = alloc_array(sz, sz);
+    uint8 * it     = sarray_cptr<uint8>(a);
+    uint8 * end    = it+sz;
+    object ** dest = array_cptr(r);
+    for (; it != end; ++it, ++dest) {
+        *dest = box(*it);
+    }
+    dec(a);
+    return r;
+}
+
+obj_res byte_array_push(obj_arg a, uint8 b) {
+    object * r;
+    if (is_exclusive(a)) {
+        if (sarray_capacity(a) > sarray_size(a))
+            r = a;
+        else
+            r = copy_sarray(a, true);
+    } else {
+        r = copy_sarray(a, sarray_capacity(a) < 2*sarray_size(a) + 1);
+    }
+    lean_assert(sarray_capacity(r) > sarray_size(r));
+    size_t & sz  = to_sarray(r)->m_size;
+    uint8 * it   = sarray_cptr<uint8>(r) + sz;
+    *it = b;
+    sz++;
+    return r;
 }
 
 // =======================================

@@ -128,6 +128,11 @@ def getOpt : Nat → List α → Option α
 | (n+1) (a::as) := getOpt n as
 | _     _       := none
 
+def set : List α → Nat → α → List α
+| (a::as) 0     b := b::as
+| (a::as) (n+1) b := a::(set as n b)
+| []      _     _ := []
+
 def head [Inhabited α] : List α → α
 | []     := default α
 | (a::_) := a

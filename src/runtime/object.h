@@ -1214,6 +1214,47 @@ inline uint8 string_dec_lt(b_obj_arg s1, b_obj_arg s2) { return string_lt(s1, s2
 usize string_hash(b_obj_arg);
 
 // =======================================
+// ByteArray
+
+obj_res byte_array_mk(obj_arg a);
+obj_res byte_array_data(obj_arg a);
+obj_res copy_byte_array(obj_arg a);
+
+inline obj_res mk_empty_byte_array(b_obj_arg capacity) {
+    if (!is_scalar(capacity)) throw std::bad_alloc(); // we will run out of memory
+    usize cap = unbox(capacity);
+    return alloc_sarray(1, 0, cap);
+}
+
+inline obj_res byte_array_size(b_obj_arg a) {
+    return box(sarray_size(a));
+}
+
+inline uint8 byte_array_get(b_obj_arg a, b_obj_arg i) {
+    if (is_scalar(i)) {
+        usize idx = unbox(i);
+        return idx < sarray_size(a) ? sarray_get<uint8>(a, idx) : 0;
+    } else {
+        /* The index must be out of bounds. Otherwise we would be out of memory. */
+        return 0;
+    }
+}
+
+obj_res byte_array_push(obj_arg a, uint8 b);
+
+inline obj_res byte_array_set(obj_arg a, b_obj_arg i, uint8 b) {
+    if (!is_scalar(i)) return a;
+    usize idx = unbox(i);
+    if (idx >= sarray_size(a)) return a;
+    obj_res r;
+    if (is_exclusive(a)) r = a;
+    else r = copy_byte_array(a);
+    uint8 * it = sarray_cptr<uint8>(r) + idx;
+    *it = b;
+    return r;
+}
+
+// =======================================
 // uint8
 uint8 uint8_of_big_nat(b_obj_arg a);
 inline uint8 uint8_of_nat(b_obj_arg a) { return is_scalar(a) ? static_cast<uint8>(unbox(a)) : uint8_of_big_nat(a); }

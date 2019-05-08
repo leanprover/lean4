@@ -16,10 +16,6 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "util/timeit.h"
 #include "library/locals.h"
 #include "library/trace.h"
-#include "library/vm/vm.h"
-#include "library/vm/vm_string.h"
-#include "library/vm/vm_option.h"
-#include "library/vm/vm_nat.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_cmds.h"
@@ -560,21 +556,5 @@ extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_
 
 extern "C" obj_res lean_expr_local(obj_arg vm_name, obj_arg vm_pp_name, obj_arg vm_type, uint8 vm_binder_info) {
     return mk_local(name(vm_name), name(vm_pp_name), expr(vm_type), static_cast<binder_info>(vm_binder_info)).steal();
-}
-
-static vm_obj vm_lean_expr_local(vm_obj const &, vm_obj const &, vm_obj const &, vm_obj const &) {
-    throw exception("elaborator support has not been implemented in the old VM");
-}
-
-static vm_obj vm_lean_elaborator_elaborate_command(vm_obj const &, vm_obj const &, vm_obj const &) {
-    throw exception("elaborator support has not been implemented in the old VM");
-}
-
-void initialize_vm_elaborator() {
-    DECLARE_VM_BUILTIN(name({"lean", "expr", "local"}), vm_lean_expr_local);
-    DECLARE_VM_BUILTIN(name({"lean", "elaborator", "elaborate_command"}), vm_lean_elaborator_elaborate_command);
-}
-
-void finalize_vm_elaborator() {
 }
 }

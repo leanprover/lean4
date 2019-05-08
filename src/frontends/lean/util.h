@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include "kernel/expr_sets.h"
 #include "library/util.h"
 #include "library/locals.h"
-#include "library/vm/vm.h"
+#include "library/pos_info_provider.h"
 #include "frontends/lean/local_decls.h"
 #include "frontends/lean/local_level_decls.h"
 
@@ -134,9 +134,6 @@ unsigned get_field_notation_field_idx(expr const & e);
 
 environment compile_expr(environment const & env, options const & opts,
                          name const & n, names const & ls, expr const & type, expr const & e, pos_info const & pos);
-vm_obj eval_closed_expr(environment const & env, options const & opts,
-                        name const & n, expr const & type, expr const & e, pos_info const & pos);
-
 expr mk_lean_list(parser & p, buffer<expr> const & es, pos_info const & pos);
 expr mk_lean_list(buffer<expr> const & es);
 

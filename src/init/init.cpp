@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/constructions/init_module.h"
 #include "library/equations_compiler/init_module.h"
 #include "library/print.h"
-#include "library/vm/init_module.h"
 #include "library/compiler/init_module.h"
 #include "frontends/lean/init_module.h"
 #include "init/init.h"
@@ -31,14 +30,12 @@ void initialize() {
     initialize_kernel_module();
     init_default_print_fn();
     initialize_library_core_module();
-    initialize_vm_core_module();
     initialize_library_module();
     initialize_compiler_module();
     initialize_tactic_module();
     initialize_constructions_module();
     initialize_equations_compiler_module();
     initialize_frontend_lean_module();
-    initialize_vm_module();
     object * w = initialize_init_default(io_mk_world());
     w = initialize_init_lean_default(w);
     if (io_result_is_error(w)) {
@@ -58,14 +55,12 @@ void finalize() {
     std::cerr << "number of live expressions (before finalization): " << get_num_live_exprs() << "\n";
 #endif
     run_thread_finalizers();
-    finalize_vm_module();
     finalize_frontend_lean_module();
     finalize_equations_compiler_module();
     finalize_constructions_module();
     finalize_tactic_module();
     finalize_compiler_module();
     finalize_library_module();
-    finalize_vm_core_module();
     finalize_library_core_module();
     finalize_kernel_module();
     finalize_sexpr_module();

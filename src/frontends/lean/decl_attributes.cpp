@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/class.h"
 #include "library/num.h"
-#include "library/vm/vm_nat.h"
 #include "library/sorry.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/parser.h"
@@ -47,17 +46,7 @@ void decl_attributes::parse_core(parser & p, bool compact) {
         if (id == "priority") {
             if (deleted)
                 throw parser_error("cannot remove priority attribute", pos);
-            auto pos = p.pos();
-            expr pre_val = p.parse_expr();
-            pre_val = mk_typed_expr(mk_constant(get_nat_name()), pre_val);
-            expr nat = mk_constant(get_nat_name());
-            expr val = p.elaborate("_attribute", list<expr>(), pre_val).first;
-            vm_obj prio = eval_closed_expr(p.env(), p.get_options(), "_attribute", nat, val, pos);
-            if (optional<unsigned> _prio = try_to_unsigned(prio)) {
-                m_prio = _prio;
-            } else {
-                throw parser_error("invalid 'priority', argument does not evaluate to a (small) numeral", pos);
-            }
+            throw parser_error("'priority' has been temporarily disabled", pos);
         } else {
             if (!is_attribute(p.env(), id))
                 throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);

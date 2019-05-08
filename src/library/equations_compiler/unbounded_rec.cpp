@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/aux_definition.h"
 #include "library/module.h"
 #include "library/compiler/compiler.h"
-#include "library/vm/vm.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
 #include "library/equations_compiler/unbounded_rec.h"

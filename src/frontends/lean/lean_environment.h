@@ -12,7 +12,6 @@ Lean interface to the kernel environment type and extensions
 namespace lean {
 environment const & to_environment(b_obj_arg o);
 obj_res to_lean_environment(environment const & env);
-
 void initialize_lean_environment();
 void finalize_lean_environment();
 }

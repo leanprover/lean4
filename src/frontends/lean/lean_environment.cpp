@@ -16,10 +16,6 @@ Lean interface to the kernel environment type and extensions
 #include "util/timeit.h"
 #include "library/locals.h"
 #include "library/trace.h"
-#include "library/vm/vm.h"
-#include "library/vm/vm_string.h"
-#include "library/vm/vm_option.h"
-#include "library/vm/vm_nat.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/decl_cmds.h"
@@ -61,20 +57,9 @@ extern "C" uint8 lean_environment_contains(b_obj_arg lean_environment, b_obj_arg
     return static_cast<uint8>(static_cast<bool>(to_environment(lean_environment).find(name(vm_n, true))));
 }
 
-static vm_obj vm_lean_environment_mk_empty(vm_obj const &) {
-    throw exception("elaborator support has not been implemented in the old VM");
-}
-
-static vm_obj vm_lean_environment_contains(vm_obj const &, vm_obj const &) {
-    throw exception("elaborator support has not been implemented in the old VM");
-}
-
 void initialize_lean_environment() {
     g_env_class = register_external_object_class(env_finalizer, env_foreach);
-    DECLARE_VM_BUILTIN(name({"lean", "environment", "mk_empty"}), vm_lean_environment_mk_empty);
-    DECLARE_VM_BUILTIN(name({"lean", "environment", "contains"}), vm_lean_environment_contains);
 }
-
 void finalize_lean_environment() {
 }
 }

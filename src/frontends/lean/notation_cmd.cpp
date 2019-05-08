@@ -15,9 +15,9 @@ Author: Leonardo de Moura
 #include "library/num.h"
 #include "library/aliases.h"
 #include "library/constants.h"
-#include "library/vm/vm_nat.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/tokens.h"
+#include "frontends/lean/token_table.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/decl_attributes.h"
 #include "frontends/lean/typed_expr.h"
@@ -40,21 +40,11 @@ static unsigned parse_precedence_core(parser & p) {
     auto pos = p.pos();
     if (p.curr_is_numeral()) {
         return p.parse_small_nat();
+    } else if (p.curr_is_token_or_id("max")) {
+        p.next();
+        return get_max_prec();
     } else {
-        environment env = p.env();
-        env = open_prec_aliases(env);
-        parser::local_scope scope(p, env);
-        expr pre_val = p.parse_expr(get_max_prec());
-        expr nat = mk_constant(get_nat_name());
-        pre_val  = mk_typed_expr(nat, pre_val);
-        expr val = p.elaborate("notation", list<expr>(), pre_val).first;
-        options opts = p.get_options();
-        vm_obj p = eval_closed_expr(env, opts, "_precedence", nat, val, pos);
-        if (optional<unsigned> _p = try_to_unsigned(p)) {
-            return *_p;
-        } else {
-            throw parser_error("invalid 'precedence', argument does not evaluate to a small numeral", pos);
-        }
+        throw parser_error("invalid 'precedence', argument is not a numeral nor `max`", pos);
     }
 }
 

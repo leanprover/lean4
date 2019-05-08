@@ -9,6 +9,4 @@ Lean interface to the old elaborator
 #pragma once
 
 namespace lean {
-void initialize_vm_elaborator();
-void finalize_vm_elaborator();
 }

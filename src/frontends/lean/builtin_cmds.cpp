@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
-#include "library/eval_helper.h"
 #include "library/trace.h"
 #include "library/aliases.h"
 #include "library/export_decl.h"
@@ -30,9 +29,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/reducible.h"
 #include "library/placeholder.h"
-#include "library/vm/vm.h"
-#include "library/vm/vm_io.h"
-#include "library/vm/vm_string.h"
 #include "library/compiler/compiler.h"
 #include "frontends/lean/util.h"
 #include "frontends/lean/parser.h"
@@ -390,106 +386,6 @@ static environment unify_cmd(parser & p) {
     return env;
 }
 
-static environment compile_cmd(parser & p) {
-    auto pos = p.pos();
-    name n = p.check_constant_next("invalid #compile command, constant expected");
-    constant_info d = p.env().get(n);
-    if (!d.is_definition())
-        throw parser_error("invalid #compile command, declaration is not a definition", pos);
-    return compile(p.env(), p.get_options(), n);
-}
-
-static environment eval_cmd(parser & p) {
-    transient_cmd_scope cmd_scope(p);
-    auto pos = p.pos();
-    expr e; names ls;
-    std::tie(e, ls) = parse_local_expr(p, "_eval", /* relaxed */ false);
-    if (has_synthetic_sorry(e))
-        return p.env();
-
-    type_context_old tc(p.env(), transparency_mode::All);
-    auto type = tc.infer(e);
-
-    /* Check if resultant type has an instance of has_eval */
-    try {
-        expr has_eval_type = mk_app(tc, get_has_eval_name(), type);
-        optional<expr> eval_instance = tc.mk_class_instance(has_eval_type);
-        if (eval_instance) {
-            /* Modify the 'program' to (has_eval.eval e) */
-            e             = mk_app(tc, get_has_eval_eval_name(), 3, type, *eval_instance, e);
-            type          = tc.infer(e);
-        }
-    } catch (exception &) {}
-
-    bool has_repr_inst = false;
-
-    /* Check if resultant type has an instance of has_repr */
-    try {
-        expr has_repr_type = mk_app(tc, get_has_repr_name(), type);
-        optional<expr> repr_instance = tc.mk_class_instance(has_repr_type);
-        if (repr_instance) {
-            /* Modify the 'program' to (repr e) */
-            e             = mk_app(tc, get_repr_name(), type, *repr_instance, e);
-            type          = tc.infer(e);
-            has_repr_inst = true;
-        }
-    } catch (exception &) {}
-
-    // Close under locals
-    collected_locals locals;
-    collect_locals(e, locals);
-    for (auto & l : locals.get_collected()) {
-        e    = Fun(l, e);
-        type = Pi(l, type);
-    }
-
-    name fn_name = "_main";
-    auto new_env = compile_expr(p.env(), p.get_options(), fn_name, ls, type, e, pos);
-
-    auto out = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
-    out.set_caption("eval result");
-    scope_traces_as_messages scope_traces(p.get_stream_name(), p.cmd_pos());
-    bool should_report = false;
-
-    auto run = [&] {
-        eval_helper fn(new_env, p.get_options(), fn_name);
-        try {
-            if (!fn.try_exec()) {
-                auto r = fn.invoke_fn();
-                should_report = true;
-                if (!has_repr_inst) {
-                    (p.mk_message(p.cmd_pos(), WARNING) << "result type does not have an instance of type class 'has_repr', dumping internal representation").report();
-                }
-                if (is_constant(fn.get_type(), get_string_name())) {
-                    out << to_string(r);
-                } else {
-                    display(out.get_text_stream().get_stream(), r);
-                }
-            }
-        } catch (throwable & t) {
-            p.mk_message(p.cmd_pos(), ERROR).set_exception(t).report();
-        }
-        if (fn.get_profiler().enabled()) {
-            if (fn.get_profiler().get_snapshots().display("#eval", p.get_options(), out.get_text_stream().get_stream()))
-                should_report = true;
-            if (auto filename = p.get_options().get_string({"profiler", "perf_script_file"}))
-                fn.get_profiler().save_perf_script(filename);
-        }
-    };
-
-    if (p.profiling()) {
-        timeit timer(out.get_text_stream().get_stream(), "eval time");
-        run();
-        should_report = true;
-    } else {
-        run();
-    }
-
-    if (should_report) out.report();
-
-    return p.env();
-}
-
 environment import_cmd(parser & p) {
     throw parser_error("invalid 'import' command, it must be used in the beginning of the file", p.cmd_pos());
 }
@@ -608,14 +504,12 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("namespace",         "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("#check",            "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("#eval",             "evaluate given expression using VM", eval_cmd));
     add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("initQuot",          "initialize `quot` type computational rules", init_quot_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
     add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
-    add_cmd(r, cmd_info("#compile",          "(for debugging purposes)", compile_cmd));
     add_cmd(r, cmd_info("#compact_tst",      "(for debugging purposes)", compact_tst_cmd));
     register_decl_cmds(r);
     register_inductive_cmds(r);

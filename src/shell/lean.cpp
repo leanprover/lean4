@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "library/formatter.h"
-#include "library/eval_helper.h"
 #include "library/module.h"
 #include "library/type_context.h"
 #include "library/io_state_stream.h"

@@ -80,6 +80,8 @@ def IRType.beq : IRType → IRType → Bool
 | IRType.tobject    IRType.tobject    := true
 | _               _                   := false
 
+instance IRType.HasBeq : HasBeq IRType := ⟨IRType.beq⟩
+
 def IRType.isScalar : IRType → Bool
 | IRType.float  := true
 | IRType.uint8  := true
@@ -89,7 +91,10 @@ def IRType.isScalar : IRType → Bool
 | IRType.usize  := true
 | _             := false
 
-instance IRType.HasBeq : HasBeq IRType := ⟨IRType.beq⟩
+def IRType.isObj : IRType → Bool
+| IRType.object  := true
+| IRType.tobject := true
+| _              := false
 
 /- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.

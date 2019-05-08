@@ -118,7 +118,13 @@ std::string decl_to_string(decl const & d) {
 void test(decl const & d) {
     inc(d.raw());
     object * r = test_core(d.raw(), io_mk_world());
-    dec(r);
+    if (io_result_is_error(r)) {
+        io_result_show_error(r);
+        dec(r);
+        throw exception("IR test error");
+    } else {
+        dec(r);
+    }
 }
 }
 

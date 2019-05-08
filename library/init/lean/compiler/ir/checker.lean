@@ -30,8 +30,41 @@ match a with
 def checkArgs (as : Array Arg) : M Unit :=
 as.mfor checkArg
 
-def checkExpr : Expr → M Unit
-| e := pure ()
+@[inline] def checkType (ty : IRType) (p : IRType → Bool) : M Unit :=
+unless (p ty) $ throw ("unexpected type")
+
+def checkObjType (ty : IRType) : M Unit := checkType ty IRType.isObj
+
+def checkScalarType (ty : IRType) : M Unit := checkType ty IRType.isScalar
+
+@[inline] def checkVarType (x : VarId) (p : IRType → Bool) : M Unit :=
+do ctx ← read,
+   match ctx.getType x with
+   | some ty := checkType ty p
+   | none    := throw ("unknown variable '" ++ toString x ++ "'")
+
+def checkObjVar (x : VarId) : M Unit :=
+checkVarType x IRType.isObj
+
+def checkScalarVar (x : VarId) : M Unit :=
+checkVarType x IRType.isScalar
+
+def checkExpr (ty : IRType) : Expr → M Unit
+| (Expr.pap _ ys)           := checkObjType ty *> checkArgs ys -- partial applications should always produce a closure object
+| (Expr.ap x ys)            := checkObjVar x *> checkArgs ys
+| (Expr.fap c ys)           := checkArgs ys
+| (Expr.ctor c ys)          := when (!c.isScalar) (checkObjType ty) *> checkArgs ys
+| (Expr.reset x)            := checkObjVar x *> checkObjType ty
+| (Expr.reuse x i u ys)     := checkObjVar x *> checkArgs ys *> checkObjType ty
+| (Expr.box xty x)          := checkObjType ty *> checkScalarVar x *> checkVarType x (==xty)
+| (Expr.unbox x)            := checkScalarType ty *> checkObjVar x
+| (Expr.proj _ x)           := checkObjVar x *> checkObjType ty
+| (Expr.uproj _ x)          := checkObjVar x *> checkType ty (==IRType.usize)
+| (Expr.sproj _ _ x)        := checkObjVar x *> checkScalarType ty
+| (Expr.isShared x)         := checkObjVar x *> checkType ty (==IRType.uint8)
+| (Expr.isTaggedPtr x)      := checkObjVar x *> checkType ty (==IRType.uint8)
+| (Expr.lit (LitVal.str _)) := checkObjType ty
+| (Expr.lit _)              := pure ()
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
 do ctx ← read,
@@ -44,7 +77,7 @@ local attribute [instance] monadInhabited
 
 partial def checkFnBody : FnBody → M Unit
 | (FnBody.vdecl x t v b)    := do
-  checkExpr v,
+  checkExpr t v,
   ctx ← read,
   when (ctx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed"),
   adaptReader (λ ctx : Context, ctx.addLocal x t v) (checkFnBody b)
@@ -73,7 +106,7 @@ end Checker
 
 def Decl.check (d : Decl) : IO Unit :=
 match Checker.checkDecl d {} with
-| Except.error msg := throw (IO.userError ("IR check failed at '" ++ toString d.id ++ "'"))
+| Except.error msg := throw (IO.userError ("IR check failed at '" ++ toString d.id ++ "', error: " ++ msg))
 | other := pure ()
 
 end IR

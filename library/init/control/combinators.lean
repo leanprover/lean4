@@ -32,12 +32,12 @@ mcond c t (pure ())
 
 namespace Nat
 
-@[specialize] def mforAux {m} [Applicative m] (f : Nat → m Unit) : Nat → m Unit
+@[specialize] def mforAux {m} [Applicative m] (f : Nat → m Unit) (n : Nat) : Nat → m Unit
 | 0     := pure ()
-| (i+1) := f i *> mforAux i
+| (i+1) := f (n-i-1) *> mforAux i
 
 @[inline] def mfor {m} [Applicative m] (n : Nat) (f : Nat → m Unit) : m Unit :=
-mforAux f n
+mforAux f n n
 
 -- TODO: enable after we have support for marking arguments that should be considered for specialization.
 /-

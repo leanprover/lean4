@@ -2,10 +2,11 @@ inductive Tree
 | Nil
 | Node (l r : Tree) : Tree
 open Tree
+instance : Inhabited Tree := ⟨Nil⟩
 
 -- This Function has an extra argument to suppress the
--- Common Sub-expression Elimination optimization
-def make' : UInt32 -> UInt32 -> Tree
+-- common sub-expression elimination optimization
+partial def make' : UInt32 -> UInt32 -> Tree
 | n d :=
   if d = 0 then Node Nil Nil
   else Node (make' n (d - 1)) (make' (n + 1) (d - 1))
@@ -19,10 +20,11 @@ def check : Tree → UInt32
 
 def minN := 4
 
-def out (s) (n : Nat) (t : UInt32) := IO.println (s ++ " of depth " ++ toString n ++ "\t check: " ++ toString t)
+def out (s) (n : Nat) (t : UInt32) : IO Unit :=
+IO.println (s ++ " of depth " ++ toString n ++ "\t check: " ++ toString t)
 
 -- allocate and check lots of trees
-def sumT : UInt32 -> UInt32 -> UInt32 -> UInt32
+partial def sumT : UInt32 -> UInt32 -> UInt32 -> UInt32
 | d i t :=
   if i = 0 then t
   else
@@ -30,13 +32,13 @@ def sumT : UInt32 -> UInt32 -> UInt32 -> UInt32
     sumT d (i-1) (t + a)
 
 -- generate many trees
-meta def depth : Nat -> Nat -> List (Nat × Nat × Task UInt32)
+partial def depth : Nat -> Nat -> List (Nat × Nat × Task UInt32)
 | d m := if d ≤ m then
     let n := 2 ^ (m - d + minN) in
     (n, d, Task.mk (λ _, sumT (UInt32.ofNat d) (UInt32.ofNat n) 0)) :: depth (d+2) m
   else []
 
-meta def main : List String → IO UInt32
+def main : List String → IO UInt32
 | [s] := do
   let n := s.toNat,
   let maxN := Nat.max (minN + 2) n,

@@ -71,6 +71,8 @@ private constant envExtensionsRef : IO.Ref (Array (EnvExtension ExtensionEntry E
 
 unsafe def registerEnvExtensionUnsafe {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntry : Bool → σ → α → σ) (toArray : List α → Array α) : IO (EnvExtension α σ) :=
 do
+initializing ← IO.initializing,
+unless initializing $ throw (IO.userError ("Failed to register '" ++ toString name ++ "', environment extensions can only be registered during initialization")),
 exts ← envExtensionsRef.get,
 when (exts.any (λ ext, ext.name == name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString name ++ "' has already been used")),
 let idx := exts.size,
@@ -85,11 +87,18 @@ let ext : EnvExtension α σ := {
 envExtensionsRef.modify (λ exts, exts.push (unsafeCast ext)),
 pure ext
 
+/- Environment extensions can only be registered during initialization.
+   Reasons:
+   1- Our implementation assumes the number of extensions does not change after an environment object is created.
+   2- We do not use any synchronization primitive to access `envExtensionsRef`. -/
 @[implementedBy registerEnvExtensionUnsafe]
 constant registerEnvExtension {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntry : Bool → σ → α → σ) (toArray : List α → Array α) : IO (EnvExtension α σ) := default _
 
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment :=
-do exts ← envExtensionsRef.get,
+do
+initializing ← IO.initializing,
+when initializing $ throw (IO.userError "Environment objects cannot be created during initialization"),
+exts ← envExtensionsRef.get,
 pure { const2ModId := {},
        constants   := {},
        trustLevel  := trustLevel,
@@ -181,7 +190,7 @@ pure {
 imports    := env.imports,
 constants  := env.constants.foldStage2 (λ cs _ c, cs.push c) Array.empty,
 entries    := entries,
-serialized := ByteArray.empty
+serialized := ByteArray.empty -- TODO
 }
 
 end Lean

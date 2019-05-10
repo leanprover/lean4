@@ -21,6 +21,9 @@ def mkEmpty (c : @& Nat) : ByteArray :=
 def empty : ByteArray :=
 mkEmpty 0
 
+instance : Inhabited ByteArray :=
+⟨empty⟩
+
 @[extern cpp "lean::byte_array_push"]
 def push : ByteArray → UInt8 → ByteArray
 | ⟨bs⟩ b := ⟨bs.push b⟩

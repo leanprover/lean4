@@ -495,6 +495,11 @@ def std.prec.maxPlus : Nat := std.prec.max + 10
 infixr × := Prod
 -- notation for n-ary tuples
 
+/- Some type that is not a scalar value in our runtime.
+   TODO: mark opaque -/
+structure NonScalar :=
+(val : Nat)
+
 /- sizeof -/
 
 class HasSizeof (α : Sort u) :=
@@ -1087,6 +1092,8 @@ instance : Inhabited Bool := ⟨false⟩
 instance : Inhabited True := ⟨trivial⟩
 
 instance : Inhabited Nat := ⟨0⟩
+
+instance : Inhabited NonScalar := ⟨⟨default _⟩⟩
 
 instance : Inhabited PointedType := ⟨{type := PUnit, val := ⟨⟩}⟩
 

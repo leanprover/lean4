@@ -38,6 +38,7 @@ void initialize() {
     initialize_frontend_lean_module();
     object * w = initialize_init_default(io_mk_world());
     w = initialize_init_lean_default(w);
+    lean::io_mark_end_initialization();
     if (io_result_is_error(w)) {
         io_result_show_error(w);
         dec(w);

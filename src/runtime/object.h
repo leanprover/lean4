@@ -1507,6 +1507,7 @@ inline bool io_result_is_error(b_obj_arg r) { return cnstr_tag(r) == 1; }
 inline b_obj_res io_result_get_value(b_obj_arg r) { lean_assert(io_result_is_ok(r)); return cnstr_get(r, 0); }
 inline b_obj_arg io_result_get_error(b_obj_arg r) { lean_assert(io_result_is_error(r)); return cnstr_get(r, 0); }
 void io_result_show_error(b_obj_arg r);
+void io_mark_end_initialization();
 
 // =======================================
 // IO ref primitives

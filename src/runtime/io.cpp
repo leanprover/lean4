@@ -55,6 +55,13 @@ static obj_res option_of_io_result(obj_arg r) {
     }
 }
 
+static bool g_initializing = true;
+void io_mark_end_initialization() { g_initializing = false; }
+
+extern "C" obj_res lean_io_initializing(obj_arg r) {
+    return set_io_result(r, box(g_initializing));
+}
+
 extern "C" obj_res lean_io_prim_put_str(b_obj_arg s, obj_arg r) {
     std::cout << string_to_std(s); // TODO(Leo): use out handle
     return set_io_result(r, box(0));

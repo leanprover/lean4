@@ -1154,6 +1154,7 @@ static void emit_main_fn(std::ostream & out, environment const & env, module_nam
         out << "lean::initialize_runtime_module();\n";
     out << "obj * w = lean::io_mk_world();\n";
     out << "w = initialize_" << mangle(m, false) << "(w);\n";
+    out << "lean::io_mark_end_initialization();\n";
     out << "if (io_result_is_ok(w)) {\n";
     out << "lean::scoped_task_manager tmanager(lean::hardware_concurrency());\n";
     if (arity == 2) {

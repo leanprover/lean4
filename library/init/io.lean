@@ -44,6 +44,14 @@ constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := default _
 @[extern 4 "lean_io_allocprof"]
 constant allocprof {α : Type} (msg : @& String) (fn : IO α) : IO α := default _
 
+/- Programs can execute IO actions during initialization that occurs before
+   the `main` function is executed. The attribute `[init <action>]` specifies
+   which IO action is executed to set the value of an opaque constant.
+
+   The action `initializing` returns `true` iff it is invoked during initialization. -/
+@[extern 1 "lean_io_initializing"]
+constant IO.initializing : IO Bool := default _
+
 abbrev monadIO (m : Type → Type) := HasMonadLiftT IO m
 
 def ioOfExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=

@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.io
 import init.util
+import init.data.bytearray
 import init.lean.declaration
 import init.lean.smap
 
@@ -43,6 +44,7 @@ structure Environment :=
 (extensions  : Array EnvExtensionData)
 (trustLevel  : UInt32 := 0)
 (quotInit    : Bool := false)
+(imports     : Array Name := Array.empty)
 
 instance envInh : Inhabited Environment :=
 ⟨{ const2ModId := {}, constants := {}, extensions := Array.empty }⟩
@@ -158,5 +160,28 @@ match extData.state with
 
 @[implementedBy getExtensionStateUnsafe]
 constant getExtensionState {α σ : Type} (env : Environment) (ext : EnvExtension α σ) : σ := ext.initState
+
+structure ModuleData :=
+(imports    : Array Name)
+(constants  : Array ConstantInfo)
+(entries    : Array (Name × Array ExtensionEntry))
+(serialized : ByteArray) -- legacy
+
+def mkModuleData (env : Environment) : IO ModuleData :=
+do
+exts ← envExtensionsRef.get,
+let entries : Array (Name × Array ExtensionEntry) := exts.size.fold
+  (λ i result,
+    let entryList  := (env.extensions.get i).entries in
+    let toArrayFn  := (exts.get i).toArray in
+    let extName   := (exts.get i).name in
+    result.push (extName, toArrayFn entryList))
+  Array.empty,
+pure {
+imports    := env.imports,
+constants  := env.constants.foldStage2 (λ cs _ c, cs.push c) Array.empty,
+entries    := entries,
+serialized := ByteArray.empty
+}
 
 end Lean

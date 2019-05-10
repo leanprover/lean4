@@ -67,10 +67,6 @@ IO.mkRef Array.empty
 @[init mkEnvExtensionsRef]
 private constant envExtensionsRef : IO.Ref (Array (EnvExtension ExtensionEntry ExtensionState)) := default _
 
-/- TODO: replace export/extern trick with (the to be implemented) [implementedBy ...] attribute.
-   The extport/extern trick allows us to implement an opaque constant using an unsafe definition. -/
-
-@[export leanRegisterEnvExtensionUnsafe]
 unsafe def registerEnvExtensionUnsafe {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntry : Bool → σ → α → σ) (toArray : List α → Array α) : IO (EnvExtension α σ) :=
 do
 exts ← envExtensionsRef.get,
@@ -87,7 +83,7 @@ let ext : EnvExtension α σ := {
 envExtensionsRef.modify (λ exts, exts.push (unsafeCast ext)),
 pure ext
 
-@[extern "leanRegisterEnvExtensionUnsafe"]
+@[implementedBy registerEnvExtensionUnsafe]
 constant registerEnvExtension {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntry : Bool → σ → α → σ) (toArray : List α → Array α) : IO (EnvExtension α σ) := default _
 
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment :=
@@ -101,12 +97,11 @@ pure { const2ModId := {},
        }
 }
 
-@[export leanGetModuleEntriesUnsafe]
 unsafe def getModuleEntriesUnsafe {α σ : Type} (env : Environment) (ext : EnvExtension α σ) (m : ModuleId) : Array α :=
 let entries := (env.extensions.get ext.idx).importedEntries.get m.id in
 unsafeCast entries
 
-@[extern "leanGetModuleEntriesUnsafe"]
+@[implementedBy getModuleEntriesUnsafe]
 constant getModuleEntries {α σ : Type} (env : Environment) (ext : EnvExtension α σ) (m : ModuleId) : Array α := default _
 
 private def releaseExtensionData (env : Environment) (extIdx : Nat) : Environment :=
@@ -115,7 +110,6 @@ private def releaseExtensionData (env : Environment) (extIdx : Nat) : Environmen
 private def setExtensionData (env : Environment) (extIdx : Nat) (d : EnvExtensionData) : Environment :=
 { extensions := env.extensions.set extIdx d, .. env }
 
-@[export leanAddEntryUnsafe]
 unsafe def addEntryUnsafe {α σ : Type} (env : Environment) (ext : EnvExtension α σ) (a : α) : Environment :=
 let extIdx  := ext.idx in
 let extData := env.extensions.get extIdx in
@@ -131,7 +125,7 @@ match extData.state with
   let extData := { state := some (unsafeCast s), .. extData } in
   setExtensionData env extIdx extData
 
-@[extern "leanAddEntryUnsafe"]
+@[implementedBy addEntryUnsafe]
 constant addEntry {α σ : Type} (env : Environment) (ext : EnvExtension α σ) (a : α) : Environment := default _
 
 unsafe def mkExtensionState {α σ : Type} (extData : EnvExtensionData) (ext : EnvExtension α σ) : ExtensionState :=
@@ -140,7 +134,6 @@ extData.entries.foldl
   (λ s e, unsafeCast (ext.addEntry false (@unsafeCast _ _ ⟨ext.initState⟩ s) (@unsafeCast _ _ ⟨ext.someVal⟩ e)))
   importedState
 
-@[export leanInitExtensionStateUnsafe]
 unsafe def initExtensionStateUnsafe {α σ : Type} (env : Environment) (ext : EnvExtension α σ) : Environment :=
 let extIdx  := ext.idx in
 let extData := env.extensions.get extIdx in
@@ -151,10 +144,9 @@ else
   let extData := { state := some s, .. extData } in
   setExtensionData env extIdx extData
 
-@[extern "leanInitExtensionStateUnsafe"]
+@[implementedBy initExtensionStateUnsafe]
 constant initExtensionState {α σ : Type} (env : Environment) (ext : EnvExtension α σ) : Environment := default _
 
-@[export leanGetExtensionStateUnsafe]
 unsafe def getExtensionStateUnsafe {α σ : Type} (env : Environment) (ext : EnvExtension α σ) : σ :=
 let extIdx  := ext.idx in
 let extData := env.extensions.get extIdx in
@@ -164,7 +156,7 @@ match extData.state with
   let s := mkExtensionState extData ext in
   @unsafeCast _ _ ⟨ext.initState⟩ s
 
-@[extern "leanGetExtensionStateUnsafe"]
+@[implementedBy getExtensionStateUnsafe]
 constant getExtensionState {α σ : Type} (env : Environment) (ext : EnvExtension α σ) : σ := ext.initState
 
 end Lean

@@ -18,6 +18,7 @@ Author: Leonardo de Moura
 #include "library/projection.h"
 #include "library/aux_match.h"
 #include "library/compiler/util.h"
+#include "library/compiler/implemented_by_attribute.h"
 
 namespace lean {
 class to_lcnf_fn {
@@ -411,6 +412,8 @@ public:
             return visit_app_default(fn, args, root);
         } else if (is_quot_primitive(env(), const_name(fn))) {
             return visit_quot(fn, args, root);
+        } else if (optional<name> n = get_implemented_by_attribute(env(), const_name(fn))) {
+            return visit_app_default(mk_constant(*n, const_levels(fn)), args, root);
         } else {
             return visit_app_default(fn, args, root);
         }

@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "library/compiler/compiler.h"
 #include "library/compiler/export_attribute.h"
 #include "library/compiler/extern_attribute.h"
+#include "library/compiler/implemented_by_attribute.h"
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/emit_cpp.h"
@@ -22,6 +23,7 @@ Author: Leonardo de Moura
 
 namespace lean {
 void initialize_compiler_module() {
+    initialize_implemented_by_attribute();
     initialize_init_attribute();
     initialize_compiler_util();
     initialize_lcnf();
@@ -55,5 +57,6 @@ void finalize_compiler_module() {
     finalize_lcnf();
     finalize_compiler_util();
     finalize_init_attribute();
+    finalize_implemented_by_attribute();
 }
 }

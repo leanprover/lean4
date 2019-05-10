@@ -101,9 +101,7 @@ tactic_state set_env_mctx_goals(tactic_state const & s, environment const & env,
 
    for some type T.
    This function is particularly useful for implementing "converters" (aka "rewriters"). These
-   kind of procedure doesn't care about goals, but env, options, mctx and lctx.
-
-   \remark It returns s is is_eqp(s.mctx(), mctx) and is_decl_eqp(s.get_main_goal_decl()->get_context(), lctx) */
+   kind of procedure doesn't care about goals, but env, options, mctx and lctx. */
 tactic_state set_mctx_lctx(tactic_state const & s, metavar_context const & mctx, local_context const & lctx);
 
 format pp_expr(tactic_state const & s, expr const & e);

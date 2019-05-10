@@ -118,10 +118,6 @@ public:
             is_eqp(e1.m_constants, e2.m_constants) &&
             e1.m_extensions.get() == e2.m_extensions.get();
     }
-
-    friend bool is_decl_eqp(environment const & e1, environment const & e2) {
-        return is_eqp(e1.m_constants, e2.m_constants);
-    }
 };
 
 void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);

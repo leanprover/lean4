@@ -19,6 +19,7 @@ obj* l_Lean_EnvExtension_modifyState___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBNode_setBlack___main___rarg(obj*);
 obj* l_Lean_EnvExtension_setStateUnsafe___rarg___boxed(obj*, obj*, obj*);
 obj* l_mkHashMap___at_Lean_Environment_Inhabited___spec__1(obj*);
+obj* l___private_init_lean_environment_7__mkPersistentEnvExtensionsRef(obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___boxed(obj*);
 obj* l_Lean_ConstantInfo_name(obj*);
 obj* l_Lean_PersistentEnvExtension_inhabited;
@@ -42,6 +43,7 @@ obj* l_Lean_EnvExtension_getStateUnsafe___rarg(obj*, obj*);
 obj* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getEntries___rarg(obj*, obj*);
 obj* l_Lean_EnvExtension_modifyStateUnsafe(obj*);
+obj* l___private_init_lean_environment_4__getTrustLevel___boxed(obj*);
 obj* l_Lean_SMap_find___main___at_Lean_Environment_find___spec__1___boxed(obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_Environment_add___spec__5(obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
@@ -58,7 +60,6 @@ obj* l_Lean_PersistentEnvExtension_getState___rarg___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_forceState(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_inhabited___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_Name_quickLt___boxed(obj*, obj*);
-obj* l___private_init_lean_environment_5__mkPersistentEnvExtensionsRef(obj*);
 obj* l_Lean_ModuleId_Inhabited;
 obj* l_Lean_EnvExtension_setState___boxed(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_io_initializing(obj*);
@@ -89,6 +90,7 @@ obj* string_append(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getModuleEntries(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getEntries(obj*, obj*);
 obj* l_Lean_PersistentEnvExtensionState_inhabited;
+obj* l___private_init_lean_environment_6__envExtensionsRef;
 obj* l_Lean_EnvExtension_getState___boxed(obj*);
 obj* l_Lean_EnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_forceStateAux(obj*, obj*);
@@ -97,6 +99,7 @@ uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Lean_EnvExtensionState_Inhabited;
 extern "C" obj* lean_serialize_modifications(obj*);
+obj* l___private_init_lean_environment_5__mkEnvExtensionsRef(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -107,7 +110,6 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_EnvExtension_setStateUnsafe___rarg(obj*, obj*, obj*);
-obj* l___private_init_lean_environment_3__mkEnvExtensionsRef(obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
 namespace lean {
 obj* set_extension_core(obj*, obj*, obj*);
@@ -128,10 +130,13 @@ obj* l_Lean_EnvExtension_modifyState(obj*, obj*, obj*, obj*);
 obj* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_mkEmptyEnvironment___closed__2;
 obj* l_Lean_Modification_Inhabited;
-obj* l___private_init_lean_environment_4__envExtensionsRef;
+namespace lean {
+uint8 environment_quot_init_core(obj*);
+}
 obj* l_Lean_SMap_switch___at___private_init_lean_environment_1__switch___spec__1(obj*);
 extern obj* l_NonScalar_Inhabited;
 obj* l_List_foldl___main___rarg(obj*, obj*, obj*);
+obj* l___private_init_lean_environment_3__isQuotInit___boxed(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___boxed(obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__2;
@@ -182,6 +187,9 @@ namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
 namespace lean {
+uint32 environment_trust_level_core(obj*);
+}
+namespace lean {
 obj* environment_save_modification_core(obj*, obj*);
 }
 obj* l_Lean_PersistentEnvExtension_forceState___boxed(obj*, obj*);
@@ -191,7 +199,7 @@ obj* l_Lean_PersistentEnvExtension_addEntry(obj*, obj*);
 obj* l_Lean_registerEnvExtension___rarg(obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtension___boxed(obj*, obj*);
-obj* l___private_init_lean_environment_6__persistentEnvExtensionsRef;
+obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 obj* l_AssocList_find___main___at_Lean_Environment_find___spec__4(obj*, obj*);
 namespace lean {
 obj* environment_mark_quot_init_core(obj*);
@@ -2032,6 +2040,46 @@ return x_14;
 }
 }
 }
+namespace lean {
+uint8 environment_quot_init_core(obj* x_0) {
+_start:
+{
+uint8 x_1; 
+x_1 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*4 + 4);
+lean::dec(x_0);
+return x_1;
+}
+}
+}
+obj* l___private_init_lean_environment_3__isQuotInit___boxed(obj* x_0) {
+_start:
+{
+uint8 x_1; obj* x_2; 
+x_1 = lean::environment_quot_init_core(x_0);
+x_2 = lean::box(x_1);
+return x_2;
+}
+}
+namespace lean {
+uint32 environment_trust_level_core(obj* x_0) {
+_start:
+{
+uint32 x_1; 
+x_1 = lean::cnstr_get_scalar<uint32>(x_0, sizeof(void*)*4);
+lean::dec(x_0);
+return x_1;
+}
+}
+}
+obj* l___private_init_lean_environment_4__getTrustLevel___boxed(obj* x_0) {
+_start:
+{
+uint32 x_1; obj* x_2; 
+x_1 = lean::environment_trust_level_core(x_0);
+x_2 = lean::box_uint32(x_1);
+return x_2;
+}
+}
 obj* l_Lean_EnvExtension_setStateUnsafe___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -2347,7 +2395,7 @@ lean::dec(x_3);
 return x_4;
 }
 }
-obj* l___private_init_lean_environment_3__mkEnvExtensionsRef(obj* x_0) {
+obj* l___private_init_lean_environment_5__mkEnvExtensionsRef(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -2459,7 +2507,7 @@ if (lean::is_scalar(x_14)) {
 }
 lean::cnstr_set(x_16, 0, x_15);
 lean::cnstr_set(x_16, 1, x_12);
-x_17 = l___private_init_lean_environment_4__envExtensionsRef;
+x_17 = l___private_init_lean_environment_6__envExtensionsRef;
 x_18 = lean::io_ref_get(x_17, x_16);
 if (lean::obj_tag(x_18) == 0)
 {
@@ -2821,7 +2869,7 @@ if (lean::is_scalar(x_8)) {
 }
 lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_6);
-x_11 = l___private_init_lean_environment_4__envExtensionsRef;
+x_11 = l___private_init_lean_environment_6__envExtensionsRef;
 x_12 = lean::io_ref_get(x_11, x_10);
 if (lean::obj_tag(x_12) == 0)
 {
@@ -3537,7 +3585,7 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l___private_init_lean_environment_5__mkPersistentEnvExtensionsRef(obj* x_0) {
+obj* l___private_init_lean_environment_7__mkPersistentEnvExtensionsRef(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
@@ -3617,7 +3665,7 @@ lean::cnstr_set(x_11, 0, x_10);
 lean::cnstr_set(x_11, 1, x_7);
 lean::cnstr_set(x_11, 2, x_8);
 lean::cnstr_set(x_11, 3, x_9);
-x_12 = l___private_init_lean_environment_6__persistentEnvExtensionsRef;
+x_12 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 x_13 = lean::io_ref_get(x_12, x_5);
 if (lean::obj_tag(x_13) == 0)
 {
@@ -4185,7 +4233,7 @@ obj* l_Lean_mkModuleData(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l___private_init_lean_environment_6__persistentEnvExtensionsRef;
+x_2 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 x_3 = lean::io_ref_get(x_2, x_1);
 if (lean::obj_tag(x_3) == 0)
 {
@@ -4300,10 +4348,10 @@ lean::mark_persistent(l_Lean_SMap_insert___main___at_Lean_Environment_add___spec
 lean::mark_persistent(l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__2);
  l_Lean_EnvExtension_setState___closed__1 = _init_l_Lean_EnvExtension_setState___closed__1();
 lean::mark_persistent(l_Lean_EnvExtension_setState___closed__1);
-w = l___private_init_lean_environment_3__mkEnvExtensionsRef(w);
+w = l___private_init_lean_environment_5__mkEnvExtensionsRef(w);
 if (io_result_is_error(w)) return w;
- l___private_init_lean_environment_4__envExtensionsRef = io_result_get_value(w);
-lean::mark_persistent(l___private_init_lean_environment_4__envExtensionsRef);
+ l___private_init_lean_environment_6__envExtensionsRef = io_result_get_value(w);
+lean::mark_persistent(l___private_init_lean_environment_6__envExtensionsRef);
  l_Lean_registerEnvExtensionUnsafe___rarg___closed__1 = _init_l_Lean_registerEnvExtensionUnsafe___rarg___closed__1();
 lean::mark_persistent(l_Lean_registerEnvExtensionUnsafe___rarg___closed__1);
  l_Lean_registerEnvExtensionUnsafe___rarg___closed__2 = _init_l_Lean_registerEnvExtensionUnsafe___rarg___closed__2();
@@ -4318,10 +4366,10 @@ lean::mark_persistent(l_Lean_EnvExtensionEntry_Inhabited);
 lean::mark_persistent(l_Lean_PersistentEnvExtensionState_inhabited);
  l_Lean_PersistentEnvExtension_inhabited = _init_l_Lean_PersistentEnvExtension_inhabited();
 lean::mark_persistent(l_Lean_PersistentEnvExtension_inhabited);
-w = l___private_init_lean_environment_5__mkPersistentEnvExtensionsRef(w);
+w = l___private_init_lean_environment_7__mkPersistentEnvExtensionsRef(w);
 if (io_result_is_error(w)) return w;
- l___private_init_lean_environment_6__persistentEnvExtensionsRef = io_result_get_value(w);
-lean::mark_persistent(l___private_init_lean_environment_6__persistentEnvExtensionsRef);
+ l___private_init_lean_environment_8__persistentEnvExtensionsRef = io_result_get_value(w);
+lean::mark_persistent(l___private_init_lean_environment_8__persistentEnvExtensionsRef);
  l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1 = _init_l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1();
 lean::mark_persistent(l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1);
  l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2 = _init_l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2();

@@ -51,6 +51,14 @@ private def switch (env : Environment) : Environment :=
 private def markQuotInit (env : Environment) : Environment :=
 { quotInit := true, .. env }
 
+@[export lean.environment_quot_init_core]
+private def isQuotInit (env : Environment) : Bool :=
+env.quotInit
+
+@[export lean.environment_trust_level_core]
+private def getTrustLevel (env : Environment) : UInt32 :=
+env.trustLevel
+
 end Environment
 
 /- "Raw" environment extension.

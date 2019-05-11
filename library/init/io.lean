@@ -36,7 +36,7 @@ s
 abbrev IO : Type → Type := EIO IO.error
 
 @[extern "lean_io_unsafe"]
-constant unsafeIO {α : Type} (fn : IO α) : Option α := default _
+unsafe constant unsafeIO {α : Type} (fn : IO α) : Option α := default _
 
 @[extern 4 "lean_io_timeit"]
 constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := default _

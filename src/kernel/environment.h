@@ -26,9 +26,6 @@ Author: Leonardo de Moura
 namespace lean {
 class environment;
 
-typedef std::function<bool(name const &)> extra_opaque_pred; // NOLINT
-extra_opaque_pred const & no_extra_opaque();
-
 class environment_extension {
 public:
     virtual ~environment_extension();

@@ -34,7 +34,7 @@ uint8 nat_dec_eq(obj*, obj*);
 obj* l_Lean_IR_IsLive_visitFnBody___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_hasLiveVar(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitJP___boxed(obj*, obj*, obj*);
-obj* l_Lean_IR_Context_eraseJoinPointDecl(obj*, obj*);
+obj* l_Lean_IR_Context_getJPBody(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitExpr(obj*, obj*, obj*);
 obj* l_Lean_IR_AltCore_body___main(obj*);
@@ -43,9 +43,9 @@ obj* l_Lean_IR_IsLive_visitArgs(obj*, obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_IsLive_visitFnBody___main___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitFnBody(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitFnBody___boxed(obj*, obj*, obj*);
+obj* l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1(obj*, obj*);
 obj* l_Lean_IR_IsLive_visitVar(obj*, obj*, obj*);
 uint8 l_Lean_IR_HasIndex_visitArg___main(obj*, obj*);
-obj* l_Lean_IR_Context_getJoinPointBody(obj*, obj*);
 obj* l_Lean_IR_IsLive_visitArg___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_IsLive_visitVar(obj* x_0, obj* x_1, obj* x_2) {
 _start:
@@ -501,7 +501,7 @@ if (x_119 == 0)
 {
 obj* x_122; 
 lean::inc(x_2);
-x_122 = l_Lean_IR_Context_getJoinPointBody(x_2, x_113);
+x_122 = l_Lean_IR_Context_getJPBody(x_2, x_113);
 if (lean::obj_tag(x_122) == 0)
 {
 obj* x_124; obj* x_125; 
@@ -518,7 +518,7 @@ obj* x_126; obj* x_129;
 x_126 = lean::cnstr_get(x_122, 0);
 lean::inc(x_126);
 lean::dec(x_122);
-x_129 = l_Lean_IR_Context_eraseJoinPointDecl(x_2, x_113);
+x_129 = l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1(x_113, x_2);
 lean::dec(x_113);
 x_1 = x_126;
 x_2 = x_129;

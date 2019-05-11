@@ -16,6 +16,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_dbgSleep___boxed(obj*, obj*, obj*);
 obj* l_dbgTraceIfShared___boxed(obj*, obj*, obj*);
+obj* l_unsafeCast___boxed(obj*, obj*, obj*, obj*);
 obj* l_dbgTrace___boxed(obj*, obj*, obj*);
 obj* l_dbgTrace___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
@@ -39,6 +40,14 @@ _start:
 uint32 x_3; obj* x_4; 
 x_3 = lean::unbox_uint32(x_1);
 x_4 = lean::dbg_sleep(x_3, x_2);
+return x_4;
+}
+}
+obj* l_unsafeCast___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = x_3;
 return x_4;
 }
 }

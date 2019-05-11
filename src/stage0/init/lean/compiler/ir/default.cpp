@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.default
-// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker
+// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker init.lean.compiler.ir.boxing
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -814,6 +814,7 @@ obj* initialize_init_lean_compiler_ir_simpcase(obj*);
 obj* initialize_init_lean_compiler_ir_resetreuse(obj*);
 obj* initialize_init_lean_compiler_ir_normids(obj*);
 obj* initialize_init_lean_compiler_ir_checker(obj*);
+obj* initialize_init_lean_compiler_ir_boxing(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_default(obj* w) {
  if (_G_initialized) return w;
@@ -834,6 +835,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_normids(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_checker(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_ir_boxing(w);
 if (io_result_is_error(w)) return w;
  l_Lean_IR_test___closed__1 = _init_l_Lean_IR_test___closed__1();
 lean::mark_persistent(l_Lean_IR_test___closed__1);

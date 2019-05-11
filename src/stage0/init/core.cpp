@@ -326,6 +326,7 @@ obj* l_Eq_ndrecOn(obj*, obj*, obj*, obj*, obj*);
 obj* l_Quotient_lift(obj*, obj*, obj*);
 obj* l_implies_Decidable___rarg___boxed(obj*, obj*);
 obj* l_prodHasDecidableLt___boxed(obj*, obj*, obj*, obj*);
+obj* l_NonScalar_Inhabited;
 obj* l_Function_combine___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_EqvGen_Setoid(obj*, obj*);
 obj* l_idRhs___rarg(obj*);
@@ -3785,6 +3786,14 @@ x_0 = lean::mk_nat_obj(0ul);
 return x_0;
 }
 }
+obj* _init_l_NonScalar_Inhabited() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::mk_nat_obj(0ul);
+return x_0;
+}
+}
 obj* _init_l_PointedType_Inhabited() {
 _start:
 {
@@ -5273,6 +5282,8 @@ lean::mark_persistent(l_Bool_Inhabited___boxed);
  l_True_Inhabited = _init_l_True_Inhabited();
  l_Nat_Inhabited = _init_l_Nat_Inhabited();
 lean::mark_persistent(l_Nat_Inhabited);
+ l_NonScalar_Inhabited = _init_l_NonScalar_Inhabited();
+lean::mark_persistent(l_NonScalar_Inhabited);
  l_PointedType_Inhabited = _init_l_PointedType_Inhabited();
 lean::mark_persistent(l_PointedType_Inhabited);
  l_PUnit_Inhabited = _init_l_PUnit_Inhabited();

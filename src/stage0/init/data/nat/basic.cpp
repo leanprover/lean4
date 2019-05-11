@@ -14,29 +14,31 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_Nat_forCore(obj*);
 obj* l_Nat_decLe___boxed(obj*, obj*);
-obj* l_Nat_forCore___main(obj*);
+obj* l_Nat_foldAux___main___boxed(obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+obj* l_Nat_repeatAux___boxed(obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
-obj* l_Nat_forCore___rarg(obj*, obj*, obj*, obj*);
+obj* l_Nat_repeatAux(obj*);
 obj* l_Nat_HasPow;
-obj* l_Nat_repeatCore___boxed(obj*);
-obj* l_Nat_forCore___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_Nat_repeat___boxed(obj*);
-obj* l_Nat_for___rarg(obj*, obj*, obj*);
-obj* l_Nat_forCore___main___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_Nat_fold___boxed(obj*);
+obj* l_Nat_fold___rarg(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_Nat_forCore___boxed(obj*);
+obj* l_Nat_fold(obj*);
+obj* l_Nat_foldAux___rarg(obj*, obj*, obj*, obj*);
+obj* l_Nat_repeatAux___main(obj*);
 obj* l_Nat_decEq___boxed(obj*, obj*);
-obj* l_Nat_forCore___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_Nat_foldAux___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_Nat_foldAux___boxed(obj*);
 obj* l_Nat_sub___boxed(obj*, obj*);
+obj* l_Nat_foldAux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_Nat_mul___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
@@ -45,26 +47,23 @@ obj* l_Nat_ble___boxed(obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
-obj* l_Nat_repeatCore___main___rarg(obj*, obj*, obj*);
-obj* l_Nat_for___boxed(obj*);
-obj* l_Nat_repeatCore___main(obj*);
 obj* l_Nat_repeat___rarg(obj*, obj*, obj*);
-obj* l_Nat_for(obj*);
+obj* l_Nat_foldAux(obj*);
 obj* l_Nat_pow___main(obj*, obj*);
 obj* l_Nat_HasSub;
 obj* l_Nat_decLt___boxed(obj*, obj*);
 obj* l_Nat_pow___main___boxed(obj*, obj*);
 obj* l_Nat_beq___boxed(obj*, obj*);
-obj* l_Nat_repeatCore___rarg(obj*, obj*, obj*);
 obj* l_Nat_pow(obj*, obj*);
-obj* l_Nat_repeatCore___main___boxed(obj*);
+obj* l_Nat_foldAux___main(obj*);
 obj* l_Nat_pred___boxed(obj*);
 obj* l_Nat_HasLessEq;
-obj* l_Nat_forCore___main___boxed(obj*);
 obj* l_Nat_pow___boxed(obj*, obj*);
 obj* l_Nat_HasLess;
+obj* l_Nat_foldAux___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Nat_HasMul;
-obj* l_Nat_repeatCore(obj*);
+obj* l_Nat_repeatAux___rarg(obj*, obj*, obj*);
+obj* l_Nat_repeatAux___main___rarg(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
@@ -75,6 +74,7 @@ obj* l_Nat_DecidableEq;
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
+obj* l_Nat_repeatAux___main___boxed(obj*);
 obj* l_Nat_beq___boxed(obj* x_0, obj* x_1) {
 _start:
 {
@@ -172,7 +172,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_mul___boxed), 2, 0);
 return x_0;
 }
 }
-obj* l_Nat_forCore___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Nat_foldAux___main___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
@@ -199,94 +199,94 @@ return x_3;
 }
 }
 }
-obj* l_Nat_forCore___main(obj* x_0) {
+obj* l_Nat_foldAux___main(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_forCore___main___rarg___boxed), 4, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_foldAux___main___rarg___boxed), 4, 0);
 return x_1;
 }
 }
-obj* l_Nat_forCore___main___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Nat_foldAux___main___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Nat_forCore___main___rarg(x_0, x_1, x_2, x_3);
+x_4 = l_Nat_foldAux___main___rarg(x_0, x_1, x_2, x_3);
 lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_Nat_forCore___main___boxed(obj* x_0) {
+obj* l_Nat_foldAux___main___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Nat_forCore___main(x_0);
+x_1 = l_Nat_foldAux___main(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Nat_forCore___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Nat_foldAux___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Nat_forCore___main___rarg(x_0, x_1, x_2, x_3);
+x_4 = l_Nat_foldAux___main___rarg(x_0, x_1, x_2, x_3);
 return x_4;
 }
 }
-obj* l_Nat_forCore(obj* x_0) {
+obj* l_Nat_foldAux(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_forCore___rarg___boxed), 4, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_foldAux___rarg___boxed), 4, 0);
 return x_1;
 }
 }
-obj* l_Nat_forCore___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Nat_foldAux___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Nat_forCore___rarg(x_0, x_1, x_2, x_3);
+x_4 = l_Nat_foldAux___rarg(x_0, x_1, x_2, x_3);
 lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_Nat_forCore___boxed(obj* x_0) {
+obj* l_Nat_foldAux___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Nat_forCore(x_0);
+x_1 = l_Nat_foldAux(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Nat_for___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Nat_fold___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_4; 
 lean::inc(x_1);
-x_4 = l_Nat_forCore___main___rarg(x_0, x_1, x_1, x_2);
+x_4 = l_Nat_foldAux___main___rarg(x_0, x_1, x_1, x_2);
 lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_Nat_for(obj* x_0) {
+obj* l_Nat_fold(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_for___rarg), 3, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_fold___rarg), 3, 0);
 return x_1;
 }
 }
-obj* l_Nat_for___boxed(obj* x_0) {
+obj* l_Nat_fold___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Nat_for(x_0);
+x_1 = l_Nat_fold(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Nat_repeatCore___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Nat_repeatAux___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -312,44 +312,44 @@ return x_2;
 }
 }
 }
-obj* l_Nat_repeatCore___main(obj* x_0) {
+obj* l_Nat_repeatAux___main(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repeatCore___main___rarg), 3, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repeatAux___main___rarg), 3, 0);
 return x_1;
 }
 }
-obj* l_Nat_repeatCore___main___boxed(obj* x_0) {
+obj* l_Nat_repeatAux___main___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Nat_repeatCore___main(x_0);
+x_1 = l_Nat_repeatAux___main(x_0);
 lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Nat_repeatCore___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Nat_repeatAux___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Nat_repeatCore___main___rarg(x_0, x_1, x_2);
+x_3 = l_Nat_repeatAux___main___rarg(x_0, x_1, x_2);
 return x_3;
 }
 }
-obj* l_Nat_repeatCore(obj* x_0) {
+obj* l_Nat_repeatAux(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repeatCore___rarg), 3, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repeatAux___rarg), 3, 0);
 return x_1;
 }
 }
-obj* l_Nat_repeatCore___boxed(obj* x_0) {
+obj* l_Nat_repeatAux___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Nat_repeatCore(x_0);
+x_1 = l_Nat_repeatAux(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -358,7 +358,7 @@ obj* l_Nat_repeat___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Nat_repeatCore___main___rarg(x_0, x_1, x_2);
+x_3 = l_Nat_repeatAux___main___rarg(x_0, x_1, x_2);
 return x_3;
 }
 }

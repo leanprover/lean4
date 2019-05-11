@@ -57,6 +57,7 @@ obj* l_ioOfExcept___boxed(obj*, obj*);
 extern obj* l_String_Inhabited;
 obj* l_allocprof___boxed(obj*, obj*, obj*, obj*);
 obj* l_EIO_MonadExcept(obj*);
+extern "C" obj* lean_io_initializing(obj*);
 obj* l_IO_print___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_EIO_MonadExcept___closed__1;
 obj* l_IO_userError(obj*);
@@ -127,6 +128,7 @@ obj* l_IO_lazyPure(obj*);
 obj* l_IO_Prim_Ref_set___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Ref_swap___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_EIO_MonadExcept___boxed(obj*);
+obj* l_IO_initializing___boxed(obj*);
 obj* l_IO_Fs_handle_close___boxed(obj*, obj*);
 obj* l_IO_Ref_reset___rarg___boxed(obj*, obj*, obj*);
 obj* l_IOUnit_HasEval(obj*, obj*);
@@ -299,6 +301,14 @@ obj* x_4;
 x_4 = lean_io_allocprof(x_0, x_1, x_2, x_3);
 lean::dec(x_1);
 return x_4;
+}
+}
+obj* l_IO_initializing___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean_io_initializing(x_0);
+return x_1;
 }
 }
 obj* l_ioOfExcept___rarg(obj* x_0, obj* x_1, obj* x_2) {

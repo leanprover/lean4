@@ -18,6 +18,7 @@ obj* l_List_map_u_2082___main(obj*, obj*, obj*);
 obj* l_List_dropWhile___main___boxed(obj*);
 obj* l_List_dropWhile(obj*);
 obj* l_List_hasDecidableLt___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_Nat_repeatAux___main___at_List_replicate___spec__1___boxed(obj*);
 obj* l_List_join___main(obj*);
 uint8 l_List_elem___rarg(obj*, obj*, obj*);
 obj* l_List_head___rarg___boxed(obj*, obj*);
@@ -46,8 +47,10 @@ obj* l_List_length(obj*);
 uint8 l_List_hasDecEq___main___rarg(obj*, obj*, obj*);
 obj* l_List_tail___rarg(obj*);
 obj* l_List_foldr___main___rarg___boxed(obj*, obj*, obj*);
+obj* l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(obj*, obj*, obj*);
 obj* l_List_or___boxed(obj*);
 obj* l_List_hasDecidableLe(obj*);
+obj* l_List_set___main___boxed(obj*);
 obj* l_List_head___main(obj*);
 obj* l_List_enumFrom___rarg(obj*, obj*);
 obj* l_List_lengthAux___boxed(obj*);
@@ -64,6 +67,7 @@ obj* l_List_lengthAux___main___rarg(obj*, obj*);
 obj* l_List_head___main___rarg___boxed(obj*, obj*);
 obj* l_List_removeAll___rarg(obj*, obj*, obj*);
 obj* l_List_partitionAux___main___boxed(obj*);
+obj* l_Nat_repeatAux___main___at_List_replicate___spec__1(obj*);
 uint8 l_List_foldr___main___at_List_or___spec__1(uint8, obj*);
 obj* l_List_decidableMem___boxed(obj*);
 obj* l_List_rangeAux(obj*, obj*);
@@ -87,6 +91,7 @@ obj* l_List_enum___boxed(obj*);
 obj* l_List_pure___rarg(obj*);
 obj* l_List_isPrefixOf___boxed(obj*);
 obj* l_List_take___main(obj*);
+obj* l_List_set___main(obj*);
 obj* l_List_zipWith___main___boxed(obj*, obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_List_hasDecidableLe___rarg___boxed(obj*, obj*, obj*, obj*);
@@ -123,6 +128,7 @@ obj* l_List_isEqv___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_drop___main(obj*);
 obj* l_List_span(obj*);
 obj* l_List_init___main___rarg(obj*);
+obj* l_List_set___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_DecidableEq___boxed(obj*);
 obj* l_List_unzip___main___rarg(obj*);
 obj* l_List_foldr___main___rarg(obj*, obj*, obj*);
@@ -160,6 +166,7 @@ obj* l_List_foldr1Opt___main(obj*);
 obj* l_List_enumFrom___main___rarg(obj*, obj*);
 obj* l_List_take___rarg(obj*, obj*);
 obj* l_List_getOpt___boxed(obj*);
+obj* l_List_set(obj*);
 obj* l_List_HasAppend___boxed(obj*);
 uint8 l_List_isSuffixOf___rarg(obj*, obj*, obj*);
 obj* l_List_foldr1Opt___boxed(obj*);
@@ -243,7 +250,7 @@ obj* l_List_zipWith(obj*, obj*, obj*);
 obj* l_List_zip___boxed(obj*, obj*);
 obj* l_List_lookup___boxed(obj*, obj*);
 obj* l_List_isPrefixOf___main___rarg___boxed(obj*, obj*, obj*);
-obj* l_Nat_repeatCore___main___at_List_replicate___spec__1___boxed(obj*);
+obj* l_List_set___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_foldr1___main(obj*);
 uint8 l_List_isEqv___main___rarg(obj*, obj*, obj*);
 obj* l_List_getLast___rarg(obj*, obj*);
@@ -255,10 +262,12 @@ obj* l_List_removeAll(obj*);
 obj* l_List_dropWhile___boxed(obj*);
 obj* l_List_dropWhile___main___rarg(obj*, obj*);
 obj* l_List_dropWhile___rarg(obj*, obj*);
+obj* l_List_set___rarg(obj*, obj*, obj*);
 obj* l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_foldr1___main___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_foldr___main___at_List_all___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_List_enumFrom___boxed(obj*);
+obj* l_List_set___main___rarg(obj*, obj*, obj*);
 uint8 l_List_and(obj*);
 obj* l_List_head(obj*);
 obj* l_List_getLast___rarg___boxed(obj*, obj*);
@@ -269,6 +278,7 @@ obj* l_List_hasDecidableLt___main___at_List_hasDecidableLe___spec__1(obj*);
 uint8 l_List_hasDecidableLt___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___rarg(obj*, obj*, obj*);
 obj* l_List_dropWhile___main(obj*);
+obj* l_List_set___boxed(obj*);
 obj* l_List_map_u_2082___boxed(obj*, obj*, obj*);
 obj* l_List_reverseAux___main___rarg(obj*, obj*);
 obj* l_List_reverse___boxed(obj*);
@@ -291,7 +301,6 @@ uint8 l_List_all___rarg(obj*, obj*);
 obj* l_List_intercalate(obj*);
 obj* l_List_zip(obj*, obj*);
 uint8 l_List_or(obj*);
-obj* l_Nat_repeatCore___main___at_List_replicate___spec__1(obj*);
 obj* l_List_filter(obj*);
 obj* l_List_foldr___main___at_List_and___spec__1___boxed(obj*, obj*);
 obj* l_List_all___rarg___boxed(obj*, obj*);
@@ -315,7 +324,6 @@ obj* l_List_replicate___boxed(obj*);
 uint8 l_List_isPrefixOf___rarg(obj*, obj*, obj*);
 obj* l_List_drop___main___rarg___boxed(obj*, obj*);
 obj* l_List_find___rarg(obj*, obj*);
-obj* l_Nat_repeatCore___main___at_List_replicate___spec__1___rarg(obj*, obj*, obj*);
 obj* l_List_iota(obj*);
 obj* l_List_map_u_2082(obj*, obj*, obj*);
 obj* l_List_intercalate___rarg(obj*, obj*);
@@ -1359,6 +1367,123 @@ _start:
 {
 obj* x_1; 
 x_1 = l_List_getOpt(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_List_set___main___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+if (lean::obj_tag(x_0) == 0)
+{
+lean::dec(x_2);
+return x_0;
+}
+else
+{
+obj* x_4; obj* x_6; obj* x_8; obj* x_9; uint8 x_10; 
+x_4 = lean::cnstr_get(x_0, 0);
+x_6 = lean::cnstr_get(x_0, 1);
+if (lean::is_exclusive(x_0)) {
+ lean::cnstr_set(x_0, 0, lean::box(0));
+ lean::cnstr_set(x_0, 1, lean::box(0));
+ x_8 = x_0;
+} else {
+ lean::inc(x_4);
+ lean::inc(x_6);
+ lean::dec(x_0);
+ x_8 = lean::box(0);
+}
+x_9 = lean::mk_nat_obj(0ul);
+x_10 = lean::nat_dec_eq(x_1, x_9);
+if (x_10 == 0)
+{
+obj* x_11; obj* x_12; obj* x_13; obj* x_15; 
+x_11 = lean::mk_nat_obj(1ul);
+x_12 = lean::nat_sub(x_1, x_11);
+x_13 = l_List_set___main___rarg(x_6, x_12, x_2);
+lean::dec(x_12);
+if (lean::is_scalar(x_8)) {
+ x_15 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_15 = x_8;
+}
+lean::cnstr_set(x_15, 0, x_4);
+lean::cnstr_set(x_15, 1, x_13);
+return x_15;
+}
+else
+{
+obj* x_17; 
+lean::dec(x_4);
+if (lean::is_scalar(x_8)) {
+ x_17 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_17 = x_8;
+}
+lean::cnstr_set(x_17, 0, x_2);
+lean::cnstr_set(x_17, 1, x_6);
+return x_17;
+}
+}
+}
+}
+obj* l_List_set___main(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_set___main___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+obj* l_List_set___main___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_List_set___main___rarg(x_0, x_1, x_2);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_List_set___main___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_List_set___main(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_List_set___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_List_set___main___rarg(x_0, x_1, x_2);
+return x_3;
+}
+}
+obj* l_List_set(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_set___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+obj* l_List_set___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_List_set___rarg(x_0, x_1, x_2);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_List_set___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_List_set(x_0);
 lean::dec(x_0);
 return x_1;
 }
@@ -3907,7 +4032,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_Nat_repeatCore___main___at_List_replicate___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -3935,11 +4060,11 @@ return x_2;
 }
 }
 }
-obj* l_Nat_repeatCore___main___at_List_replicate___spec__1(obj* x_0) {
+obj* l_Nat_repeatAux___main___at_List_replicate___spec__1(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repeatCore___main___at_List_replicate___spec__1___rarg), 3, 0);
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg), 3, 0);
 return x_1;
 }
 }
@@ -3948,7 +4073,7 @@ _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::box(0);
-x_3 = l_Nat_repeatCore___main___at_List_replicate___spec__1___rarg(x_1, x_0, x_2);
+x_3 = l_Nat_repeatAux___main___at_List_replicate___spec__1___rarg(x_1, x_0, x_2);
 return x_3;
 }
 }
@@ -3960,11 +4085,11 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_List_replicate___rarg), 2, 0
 return x_1;
 }
 }
-obj* l_Nat_repeatCore___main___at_List_replicate___spec__1___boxed(obj* x_0) {
+obj* l_Nat_repeatAux___main___at_List_replicate___spec__1___boxed(obj* x_0) {
 _start:
 {
 obj* x_1; 
-x_1 = l_Nat_repeatCore___main___at_List_replicate___spec__1(x_0);
+x_1 = l_Nat_repeatAux___main___at_List_replicate___spec__1(x_0);
 lean::dec(x_0);
 return x_1;
 }

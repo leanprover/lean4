@@ -68,6 +68,7 @@ obj* l_String_foldrAux(obj*);
 obj* l_String_intercalate(obj*, obj*);
 obj* l___private_init_data_string_basic_8__lineColumnAux___boxed(obj*, obj*, obj*);
 obj* l_String_lineColumn(obj*, obj*);
+obj* l_Nat_repeatAux___main___at_String_pushn___spec__1(uint32, obj*, obj*);
 obj* l_Substring_dropRight___main(obj*, obj*);
 obj* l_Substring_prev(obj*, obj*);
 obj* l_String_Iterator_hasPrev___boxed(obj*);
@@ -156,6 +157,7 @@ obj* l_Substring_dropRight___main___boxed(obj*, obj*);
 obj* l_String_foldlAux___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Substring_dropRightWhile___main(obj*, obj*);
 obj* l_String_foldl(obj*);
+obj* l_Nat_repeatAux___main___at_String_pushn___spec__1___boxed(obj*, obj*, obj*);
 obj* l_String_any___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_5__utf8PrevAux(obj*, obj*, obj*);
 obj* l_String_contains___boxed(obj*, obj*);
@@ -233,7 +235,6 @@ obj* l___private_init_data_string_basic_5__utf8PrevAux___boxed(obj*, obj*, obj*)
 obj* l_String_Iterator_nextn___main(obj*, obj*);
 obj* l_String_Iterator_pos___main___boxed(obj*);
 obj* l_String_isEmpty___boxed(obj*);
-obj* l_Nat_repeatCore___main___at_String_pushn___spec__1(uint32, obj*, obj*);
 obj* l_List_map___main___at_String_intercalate___spec__1(obj*);
 obj* l_String_foldl___rarg___boxed(obj*, obj*, obj*);
 obj* l_String_toList(obj*);
@@ -359,7 +360,6 @@ uint8 l_String_Iterator_hasPrev(obj*);
 obj* l_List_foldl___main___at_String_join___spec__1(obj*, obj*);
 uint8 l_Substring_isNat(obj*);
 obj* l_String_Iterator_setCurr(obj*, uint32);
-obj* l_Nat_repeatCore___main___at_String_pushn___spec__1___boxed(obj*, obj*, obj*);
 obj* l_String_foldlAux___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Substring_toString___main(obj*);
 obj* l_String_Iterator_toEnd(obj*);
@@ -1349,7 +1349,7 @@ x_3 = l_String_str(x_0, x_2);
 return x_3;
 }
 }
-obj* l_Nat_repeatCore___main___at_String_pushn___spec__1(uint32 x_0, obj* x_1, obj* x_2) {
+obj* l_Nat_repeatAux___main___at_String_pushn___spec__1(uint32 x_0, obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -1377,16 +1377,16 @@ obj* l_String_pushn(obj* x_0, uint32 x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l_Nat_repeatCore___main___at_String_pushn___spec__1(x_1, x_2, x_0);
+x_3 = l_Nat_repeatAux___main___at_String_pushn___spec__1(x_1, x_2, x_0);
 return x_3;
 }
 }
-obj* l_Nat_repeatCore___main___at_String_pushn___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_Nat_repeatAux___main___at_String_pushn___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 uint32 x_3; obj* x_4; 
 x_3 = lean::unbox_uint32(x_0);
-x_4 = l_Nat_repeatCore___main___at_String_pushn___spec__1(x_3, x_1, x_2);
+x_4 = l_Nat_repeatAux___main___at_String_pushn___spec__1(x_3, x_1, x_2);
 return x_4;
 }
 }

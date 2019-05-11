@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.default
-// Imports: init.data.basic init.data.nat.default init.data.char.default init.data.string.default init.data.list.default init.data.int.default init.data.array.default init.data.fin.default init.data.uint init.data.ordering.default init.data.rbtree.default init.data.rbmap.default init.data.option.basic init.data.option.instances init.data.hashmap.default init.data.random
+// Imports: init.data.basic init.data.nat.default init.data.char.default init.data.string.default init.data.list.default init.data.int.default init.data.array.default init.data.bytearray.default init.data.fin.default init.data.uint init.data.ordering.default init.data.rbtree.default init.data.rbmap.default init.data.option.basic init.data.option.instances init.data.hashmap.default init.data.random
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -21,6 +21,7 @@ obj* initialize_init_data_string_default(obj*);
 obj* initialize_init_data_list_default(obj*);
 obj* initialize_init_data_int_default(obj*);
 obj* initialize_init_data_array_default(obj*);
+obj* initialize_init_data_bytearray_default(obj*);
 obj* initialize_init_data_fin_default(obj*);
 obj* initialize_init_data_uint(obj*);
 obj* initialize_init_data_ordering_default(obj*);
@@ -48,6 +49,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_int_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_array_default(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_data_bytearray_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_fin_default(w);
 if (io_result_is_error(w)) return w;

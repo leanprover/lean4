@@ -25,16 +25,33 @@ structure Environment :=
 (const2ModId : HashMap Name ModuleId)
 (constants   : SMap Name ConstantInfo Name.quickLt)
 (extensions  : Array EnvExtensionState)
-(trustLevel  : UInt32 := 0)
-(quotInit    : Bool := false)
+(trustLevel  : UInt32     := 0)
+(quotInit    : Bool       := false)
 (imports     : Array Name := Array.empty)
 
-instance Environment.Inhabited : Inhabited Environment :=
+namespace Environment
+
+instance : Inhabited Environment :=
 ⟨{ const2ModId := {}, constants := {}, extensions := Array.empty }⟩
 
 @[export lean.environment_add_core]
-def Environment.add (env : Environment) (cinfo : ConstantInfo) : Environment :=
+def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
 { constants := env.constants.insert cinfo.name cinfo, .. env }
+
+@[export lean.environment_find_core]
+def find (env : Environment) (n : Name) : Option ConstantInfo :=
+env.constants.find n
+
+/- Switch environment to "shared" mode. -/
+@[export lean.environment_switch_core]
+private def switch (env : Environment) : Environment :=
+{ constants := env.constants.switch, .. env }
+
+@[export lean.environment_mark_quot_init_core]
+private def markQuotInit (env : Environment) : Environment :=
+{ quotInit := true, .. env }
+
+end Environment
 
 /- "Raw" environment extension.
    TODO: mark opaque. -/
@@ -196,6 +213,24 @@ pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
 constant registerPersistentEnvExtension {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntryFn : Bool → σ → α → σ) (toArrayFn : List α → Array α) : IO (PersistentEnvExtension α σ) := default _
+
+/- API for creating extensions in C++.
+   This API will eventually be deleted. -/
+
+@[derive Inhabited]
+def CPPExtensionState := NonScalar
+
+@[export lean.register_extension_core]
+def registerCPPExtension (initial : CPPExtensionState) : IO (EnvExtension CPPExtensionState) :=
+registerEnvExtension initial
+
+@[export lean.set_extension_core]
+def setCPPExtensionState (ext : EnvExtension CPPExtensionState) (env : Environment) (s : CPPExtensionState) : Environment :=
+ext.setState env s
+
+@[export lean.get_extension_core]
+def getCPPExtensionState (ext : EnvExtension CPPExtensionState) (env : Environment) : CPPExtensionState :=
+ext.getState env
 
 /- Legacy support for Modification objects -/
 

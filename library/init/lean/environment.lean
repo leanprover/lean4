@@ -229,16 +229,16 @@ constant registerPersistentEnvExtension {α σ : Type} (name : Name) (initState 
 def CPPExtensionState := NonScalar
 
 @[export lean.register_extension_core]
-def registerCPPExtension (initial : CPPExtensionState) : IO (EnvExtension CPPExtensionState) :=
-registerEnvExtension initial
+unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
+unsafeIO (do ext ← registerEnvExtension initial, pure ext.idx)
 
 @[export lean.set_extension_core]
-def setCPPExtensionState (ext : EnvExtension CPPExtensionState) (env : Environment) (s : CPPExtensionState) : Environment :=
-ext.setState env s
+unsafe def setCPPExtensionState (env : Environment) (idx : Nat) (s : CPPExtensionState) : Option Environment :=
+unsafeIO (do exts ← envExtensionsRef.get, pure $ (exts.get idx).setState env s)
 
 @[export lean.get_extension_core]
-def getCPPExtensionState (ext : EnvExtension CPPExtensionState) (env : Environment) : CPPExtensionState :=
-ext.getState env
+unsafe def getCPPExtensionState (env : Environment) (idx : Nat) : Option CPPExtensionState :=
+unsafeIO (do exts ← envExtensionsRef.get, pure $ (exts.get idx).getState env)
 
 /- Legacy support for Modification objects -/
 

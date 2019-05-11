@@ -102,6 +102,7 @@ obj* l_HasRepr_HasEval___boxed(obj*);
 obj* l_ioOfExcept(obj*, obj*);
 obj* l_IO_Fs_handle_flush___boxed(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
+obj* l_unsafeIO___rarg___closed__1;
 obj* l_IO_Ref_modify___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Inhabited___boxed(obj*);
 obj* l_IO_mkRef(obj*, obj*);
@@ -121,7 +122,6 @@ obj* l_IO_Fs_handle_getLine___at_IO_Fs_handle_readToEnd___spec__2___boxed(obj*, 
 obj* l_IO_Fs_handle_getLine___boxed(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_flush(obj*, obj*);
 obj* l___private_init_io_1__putStr(obj*, obj*);
-obj* l_EState_run_x_27___rarg(obj*, obj*);
 obj* l_IO_print(obj*, obj*);
 obj* l_IO_Fs_handle_getLine___rarg(obj*, obj*);
 obj* l_IO_Prim_handle_getLine___boxed(obj*, obj*);
@@ -279,13 +279,40 @@ lean::dec(x_0);
 return x_1;
 }
 }
+obj* _init_l_unsafeIO___rarg___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; 
+x_0 = lean::box(0);
+x_1 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_1, 0, x_0);
+lean::cnstr_set(x_1, 1, x_0);
+return x_1;
+}
+}
 obj* l_unsafeIO___rarg(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::box(0);
-x_2 = l_EState_run_x_27___rarg(x_0, x_1);
-return x_2;
+x_1 = l_unsafeIO___rarg___closed__1;
+x_2 = lean::apply_1(x_0, x_1);
+if (lean::obj_tag(x_2) == 0)
+{
+obj* x_3; obj* x_6; 
+x_3 = lean::cnstr_get(x_2, 0);
+lean::inc(x_3);
+lean::dec(x_2);
+x_6 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_6, 0, x_3);
+return x_6;
+}
+else
+{
+obj* x_8; 
+lean::dec(x_2);
+x_8 = lean::box(0);
+return x_8;
+}
 }
 }
 obj* l_unsafeIO(obj* x_0) {
@@ -1813,6 +1840,8 @@ lean::mark_persistent(l_EIO_MonadExcept___closed__1);
 lean::mark_persistent(l_IO_error_HasToString);
  l_IO_error_Inhabited = _init_l_IO_error_Inhabited();
 lean::mark_persistent(l_IO_error_Inhabited);
+ l_unsafeIO___rarg___closed__1 = _init_l_unsafeIO___rarg___closed__1();
+lean::mark_persistent(l_unsafeIO___rarg___closed__1);
  l_IO_println___rarg___closed__1 = _init_l_IO_println___rarg___closed__1();
 lean::mark_persistent(l_IO_println___rarg___closed__1);
 return w;

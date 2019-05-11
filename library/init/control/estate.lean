@@ -134,10 +134,10 @@ instance : MonadState σ (EState ε σ) :=
 instance : MonadExcept ε (EState ε σ) :=
 { throw := @EState.throw _ _, catch := @EState.catch _ _}
 
-def run (x : EState ε σ α) (s : σ) : Result ε σ α :=
+@[inline] def run (x : EState ε σ α) (s : σ) : Result ε σ α :=
 x (resultOk.mk ⟨⟩ s)
 
-def run' (x : EState ε σ α) (s : σ) : Option α :=
+@[inline] def run' (x : EState ε σ α) (s : σ) : Option α :=
 match run x s with
 | Result.ok v _ := some v
 | Result.error _ _ := none

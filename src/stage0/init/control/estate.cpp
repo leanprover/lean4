@@ -1621,24 +1621,28 @@ return x_3;
 obj* l_EState_run_x_27___rarg(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l_EState_run___rarg(x_0, x_1);
-if (lean::obj_tag(x_2) == 0)
+obj* x_2; obj* x_3; obj* x_4; 
+x_2 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_1);
+x_4 = lean::apply_1(x_0, x_3);
+if (lean::obj_tag(x_4) == 0)
 {
-obj* x_3; obj* x_6; 
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-lean::dec(x_2);
-x_6 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_6, 0, x_3);
-return x_6;
+obj* x_5; obj* x_8; 
+x_5 = lean::cnstr_get(x_4, 0);
+lean::inc(x_5);
+lean::dec(x_4);
+x_8 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_8, 0, x_5);
+return x_8;
 }
 else
 {
-obj* x_8; 
-lean::dec(x_2);
-x_8 = lean::box(0);
-return x_8;
+obj* x_10; 
+lean::dec(x_4);
+x_10 = lean::box(0);
+return x_10;
 }
 }
 }

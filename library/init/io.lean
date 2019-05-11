@@ -7,8 +7,10 @@ prelude
 import init.control.estate init.data.string.basic
 
 /-- Like https://hackage.haskell.org/package/ghc-Prim-0.5.2.0/docs/GHC-Prim.html#t:RealWorld.
-    Makes sure we never reorder `IO` operations. -/
-constant IO.RealWorld : Type := Unit
+    Makes sure we never reorder `IO` operations.
+
+    TODO: mark opaque -/
+def IO.RealWorld : Type := Unit
 
 /- TODO(Leo): mark it as an opaque definition. Reason: prevent
    functions defined in other modules from accessing `IO.RealWorld`.
@@ -35,8 +37,9 @@ s
 
 abbrev IO : Type → Type := EIO IO.error
 
-@[extern "lean_io_unsafe"]
-unsafe constant unsafeIO {α : Type} (fn : IO α) : Option α := default _
+@[inline]
+unsafe def unsafeIO {α : Type} (fn : IO α) : Option α :=
+fn.run' ()
 
 @[extern 4 "lean_io_timeit"]
 constant timeit {α : Type} (msg : @& String) (fn : IO α) : IO α := default _

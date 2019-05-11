@@ -44,7 +44,7 @@ obj* l_IO_print___at_HasRepr_HasEval___spec__2___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3___boxed(obj*, obj*, obj*);
 obj* l_IO_Ref_reset___rarg(obj*, obj*, obj*);
 obj* l_EIO_Inhabited(obj*, obj*);
-extern "C" obj* lean_io_unsafe(obj*, obj*);
+obj* l_unsafeIO(obj*);
 obj* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3(obj*, obj*, obj*);
 obj* l_EIO_Monad(obj*);
 obj* l_IO_HasEval___boxed(obj*);
@@ -87,7 +87,7 @@ obj* l_IO_mkRef___rarg(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_mk___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_iterate(obj*, obj*);
 obj* l_IO_Fs_readFile___rarg___lambda__2(obj*, obj*, obj*, obj*);
-obj* l_unsafeIO___boxed(obj*, obj*);
+obj* l_unsafeIO___boxed(obj*);
 obj* l_String_HasToString___boxed(obj*);
 obj* l_IO_Prim_liftIO(obj*, obj*);
 obj* l_IO_Inhabited(obj*);
@@ -121,6 +121,7 @@ obj* l_IO_Fs_handle_getLine___at_IO_Fs_handle_readToEnd___spec__2___boxed(obj*, 
 obj* l_IO_Fs_handle_getLine___boxed(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_flush(obj*, obj*);
 obj* l___private_init_io_1__putStr(obj*, obj*);
+obj* l_EState_run_x_27___rarg(obj*, obj*);
 obj* l_IO_print(obj*, obj*);
 obj* l_IO_Fs_handle_getLine___rarg(obj*, obj*);
 obj* l_IO_Prim_handle_getLine___boxed(obj*, obj*);
@@ -145,6 +146,7 @@ obj* l_EState_MonadExcept(obj*, obj*);
 obj* l_timeit___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Fs_handle_isEof___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___main(obj*, obj*);
+obj* l_unsafeIO___rarg(obj*);
 obj* l_IO_Prim_iterate___main___at_IO_Fs_handle_readToEnd___spec__4(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_flush___rarg(obj*, obj*);
 extern "C" obj* lean_io_timeit(obj*, obj*, obj*, obj*);
@@ -277,12 +279,30 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_unsafeIO___boxed(obj* x_0, obj* x_1) {
+obj* l_unsafeIO___rarg(obj* x_0) {
 _start:
 {
-obj* x_2; 
-x_2 = lean_io_unsafe(x_0, x_1);
+obj* x_1; obj* x_2; 
+x_1 = lean::box(0);
+x_2 = l_EState_run_x_27___rarg(x_0, x_1);
 return x_2;
+}
+}
+obj* l_unsafeIO(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_unsafeIO___rarg), 1, 0);
+return x_1;
+}
+}
+obj* l_unsafeIO___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_unsafeIO(x_0);
+lean::dec(x_0);
+return x_1;
 }
 }
 obj* l_timeit___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {

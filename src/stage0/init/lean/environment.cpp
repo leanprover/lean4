@@ -46,7 +46,6 @@ obj* l_Lean_EnvExtension_modifyStateUnsafe(obj*);
 obj* l___private_init_lean_environment_4__getTrustLevel___boxed(obj*);
 obj* l_Lean_SMap_find___main___at_Lean_Environment_find___spec__1___boxed(obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_Environment_add___spec__5(obj*, obj*);
-extern "C" obj* lean_io_unsafe(obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1(obj*, obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_Environment_add___spec__7(obj*, obj*, obj*);
@@ -154,6 +153,7 @@ obj* l_Lean_getCPPExtensionState___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_setStateUnsafe___boxed(obj*);
 obj* l_RBNode_insert___at_Lean_Environment_add___spec__2(obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
+obj* l_EState_run_x_27___rarg(obj*, obj*);
 namespace lean {
 obj* environment_switch_core(obj*);
 }
@@ -4077,15 +4077,16 @@ namespace lean {
 obj* register_extension_core(obj* x_0) {
 _start:
 {
-obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_registerEnvExtensionUnsafe___rarg), 2, 1);
 lean::closure_set(x_1, 0, x_0);
 x_2 = l_Lean_registerCPPExtension___closed__1;
 x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_bind___rarg), 3, 2);
 lean::closure_set(x_3, 0, x_1);
 lean::closure_set(x_3, 1, x_2);
-x_4 = lean_io_unsafe(lean::box(0), x_3);
-return x_4;
+x_4 = lean::box(0);
+x_5 = l_EState_run_x_27___rarg(x_3, x_4);
+return x_5;
 }
 }
 }
@@ -4131,7 +4132,7 @@ namespace lean {
 obj* set_extension_core(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_setCPPExtensionState___lambda__1___boxed), 5, 3);
 lean::closure_set(x_3, 0, x_1);
 lean::closure_set(x_3, 1, x_0);
@@ -4140,8 +4141,9 @@ x_4 = l_Lean_setCPPExtensionState___closed__1;
 x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_bind___rarg), 3, 2);
 lean::closure_set(x_5, 0, x_4);
 lean::closure_set(x_5, 1, x_3);
-x_6 = lean_io_unsafe(lean::box(0), x_5);
-return x_6;
+x_6 = lean::box(0);
+x_7 = l_EState_run_x_27___rarg(x_5, x_6);
+return x_7;
 }
 }
 }
@@ -4185,7 +4187,7 @@ namespace lean {
 obj* get_extension_core(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_getCPPExtensionState___lambda__1___boxed), 4, 2);
 lean::closure_set(x_2, 0, x_1);
 lean::closure_set(x_2, 1, x_0);
@@ -4193,8 +4195,9 @@ x_3 = l_Lean_setCPPExtensionState___closed__1;
 x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_EState_bind___rarg), 3, 2);
 lean::closure_set(x_4, 0, x_3);
 lean::closure_set(x_4, 1, x_2);
-x_5 = lean_io_unsafe(lean::box(0), x_4);
-return x_5;
+x_5 = lean::box(0);
+x_6 = l_EState_run_x_27___rarg(x_4, x_5);
+return x_6;
 }
 }
 }

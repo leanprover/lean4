@@ -102,12 +102,6 @@ extern "C" obj_res lean_io_prim_handle_get_line(b_obj_arg /* h */, obj_arg /* w 
     lean_unreachable();
 }
 
-/* constant unsafe_io {α : Type} (fn : io α) : option α */
-extern "C" obj_res lean_io_unsafe(obj_arg, obj_arg fn) {
-    object * r     = io_mk_world();
-    return option_of_io_result(apply_1(fn, r));
-}
-
 /* timeit {α : Type} (msg : @& string) (fn : io α) : io α */
 extern "C" obj_res lean_io_timeit(obj_arg, b_obj_arg msg, obj_arg fn, obj_arg r) {
     auto start = std::chrono::steady_clock::now();

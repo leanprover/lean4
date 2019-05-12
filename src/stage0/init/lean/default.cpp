@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.default
-// Imports: init.lean.compiler.default init.lean.frontend init.lean.extern
+// Imports: init.lean.compiler.default init.lean.frontend init.lean.extern init.lean.environment
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -17,6 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* initialize_init_lean_compiler_default(obj*);
 obj* initialize_init_lean_frontend(obj*);
 obj* initialize_init_lean_extern(obj*);
+obj* initialize_init_lean_environment(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_default(obj* w) {
  if (_G_initialized) return w;
@@ -27,6 +28,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_frontend(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_extern(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

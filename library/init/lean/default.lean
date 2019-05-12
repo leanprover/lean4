@@ -7,3 +7,4 @@ prelude
 import init.lean.compiler
 import init.lean.frontend
 import init.lean.extern
+import init.lean.environment

@@ -56,7 +56,9 @@ static obj_res option_of_io_result(obj_arg r) {
 }
 
 static bool g_initializing = true;
-void io_mark_end_initialization() { g_initializing = false; }
+void io_mark_end_initialization() {
+    g_initializing = false;
+}
 
 extern "C" obj_res lean_io_initializing(obj_arg r) {
     return set_io_result(r, box(g_initializing));

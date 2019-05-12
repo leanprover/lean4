@@ -67,7 +67,7 @@ option(REBUILD_STAGE0      "Automatically rebuild lean_stage0 when out of date. 
 
 # library dir
 set(LIBRARY_DIR           "lib/lean"                   CACHE STRING "library dir")
-set(LEAN_EXT_INCLUDE_DIR  "include/lean_ext"           CACHE STRING "include dir for building Lean extensions")
+set(INCLUDE_DIR           "include"                    CACHE STRING "include dir")
 set(LEAN_EXTRA_MAKE_OPTS  ""                           CACHE STRING "extra options to lean --make")
 set(MINGW_LOCAL_DIR       "C:/msys64/mingw64/bin"      CACHE STRING "where to find MSYS2 required DLLs and binaries")
 
@@ -421,6 +421,7 @@ configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/version.h")
 # Note that, `leanc` already had problems with multiple configurations before we added `config.h`.
 # For example, it uses binary files located in the `bin` directory.
 configure_file("${LEAN_SOURCE_DIR}/config.h.in" "${LEAN_SOURCE_DIR}/config.h")
+install(FILES "${LEAN_SOURCE_DIR}/config.h" DESTINATION "${INCLUDE_DIR}")
 configure_file("${LEAN_SOURCE_DIR}/../library/Makefile.in" "${LEAN_SOURCE_DIR}/../library/Makefile")
 
 include_directories("${LEAN_BINARY_DIR}")
@@ -573,7 +574,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/../leanpkg" DESTINATION "${LIBRARY_DIR}"
         PATTERN "leanpkg.toml"
         PATTERN "*.md")
 
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/" DESTINATION "${LEAN_EXT_INCLUDE_DIR}"
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/runtime" DESTINATION "${INCLUDE_DIR}"
         FILES_MATCHING
         PATTERN "*.h")
 

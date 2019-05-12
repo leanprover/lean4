@@ -25,6 +25,7 @@ Author: Leonardo de Moura
 #include "library/compiler/csimp.h"
 #include "library/compiler/extract_closed.h"
 #include "library/compiler/reduce_arity.h"
+#include "library/compiler/init_attribute.h"
 
 namespace lean {
 csimp_cfg::csimp_cfg(options const &):
@@ -1243,7 +1244,7 @@ class csimp_fn {
 
     bool should_inline_instance(name const & n) const {
         if (is_instance(env(), n))
-            return !has_noinline_attribute(env(), n);
+            return !has_noinline_attribute(env(), n) && !has_init_attribute(env(), n);
         else
             return false;
     }
@@ -1393,6 +1394,7 @@ class csimp_fn {
         buffer<expr> s_args;
         expr const & s_fn = get_app_rev_args(s, s_args);
         if (!is_constant(s_fn)) return none_expr();
+        if (has_init_attribute(env(), const_name(s_fn))) return none_expr();
         if (has_noinline_attribute(env(), const_name(s_fn))) return none_expr();
         optional<constant_info> info = env().find(mk_cstage1_name(const_name(s_fn)));
         if (!info || !info->is_definition()) return none_expr();
@@ -1628,6 +1630,7 @@ class csimp_fn {
         lean_assert(is_constant(fn));
         lean_assert(is_constant(e) || is_eqp(find(get_app_fn(e)), fn));
         if (!m_cfg.m_inline) return none_expr();
+        if (has_init_attribute(env(), const_name(fn))) return none_expr();
         if (check_noinline_attribute(const_name(fn))) return none_expr();
         if (m_before_erasure) {
             if (already_simplified(e)) return none_expr();

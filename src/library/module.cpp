@@ -69,6 +69,11 @@ Missing features: non monotonic modifications in .olean files
 */
 
 namespace lean {
+extern "C" object * lean_serialize_modifications(object *) {
+    // TODO(Leo)
+    lean_unreachable();
+}
+
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
     list<std::shared_ptr<modification const>> m_modifications;

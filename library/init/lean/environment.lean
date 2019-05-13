@@ -262,8 +262,8 @@ registerEnvExtension []
 constant modListExtension : EnvExtension (List Modification) := default _
 
 /- The C++ code uses this function to store the given modification object into the environment. -/
-@[export lean.environment_save_modification_core]
-def saveModification (env : Environment) (mod : Modification) : Environment :=
+@[export lean.environment_add_modification_core]
+def addModification (env : Environment) (mod : Modification) : Environment :=
 modListExtension.modifyState env $ λ mods, mod :: mods
 
 /- mkModuleData invokes this function to convert a list of modification objects into

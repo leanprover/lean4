@@ -37,6 +37,9 @@ obj* l_Lean_EnvExtension_getState(obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_CPPExtensionState_Inhabited;
 obj* l_Lean_PersistentEnvExtension_forceStateAux___rarg(obj*, obj*);
+namespace lean {
+obj* environment_add_modification_core(obj*, obj*);
+}
 obj* l_AssocList_find___main___at_Lean_Environment_find___spec__4___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_getStateUnsafe___rarg(obj*, obj*);
@@ -100,7 +103,6 @@ uint8 nat_dec_lt(obj*, obj*);
 obj* l_Lean_EnvExtensionState_Inhabited;
 extern "C" obj* lean_serialize_modifications(obj*);
 obj* l___private_init_lean_environment_5__mkEnvExtensionsRef(obj*);
-obj* l_Lean_saveModification___closed__1;
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -143,6 +145,7 @@ obj* l___private_init_lean_environment_3__isQuotInit___boxed(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___boxed(obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__2;
+obj* l_Lean_addModification___closed__2;
 obj* l_RBNode_fold___main___at_Lean_mkModuleData___spec__2(obj*, obj*);
 obj* l_Lean_EnvExtension_setStateUnsafe___boxed(obj*);
 obj* l_RBNode_insert___at_Lean_Environment_add___spec__2(obj*, obj*, obj*);
@@ -174,7 +177,6 @@ obj* l_Lean_EnvExtension_Inhabited(obj*);
 obj* l_mkHashMapImp___rarg(obj*);
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___boxed(obj*, obj*);
 obj* l_Lean_EnvExtension_getStateUnsafe(obj*);
-obj* l_Lean_saveModification___closed__2;
 obj* l_HashMapImp_find___at_Lean_Environment_find___spec__3___boxed(obj*, obj*);
 namespace lean {
 obj* get_extension_core(obj*, obj*);
@@ -194,13 +196,11 @@ uint8 l_Lean_Environment_contains(obj*, obj*);
 namespace lean {
 uint32 environment_trust_level_core(obj*);
 }
-namespace lean {
-obj* environment_save_modification_core(obj*, obj*);
-}
 obj* l_Lean_PersistentEnvExtension_forceState___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_forceStateAux___boxed(obj*, obj*);
 obj* l_Lean_serializeModifications___boxed(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry(obj*, obj*);
+obj* l_Lean_addModification___closed__1;
 obj* l_Lean_registerEnvExtension___rarg(obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtension___boxed(obj*, obj*);
@@ -4193,7 +4193,7 @@ x_2 = l_Lean_registerEnvExtensionUnsafe___rarg(x_1, x_0);
 return x_2;
 }
 }
-obj* _init_l_Lean_saveModification___closed__1() {
+obj* _init_l_Lean_addModification___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; 
@@ -4204,7 +4204,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* _init_l_Lean_saveModification___closed__2() {
+obj* _init_l_Lean_addModification___closed__2() {
 _start:
 {
 obj* x_0; obj* x_1; 
@@ -4216,7 +4216,7 @@ return x_1;
 }
 }
 namespace lean {
-obj* environment_save_modification_core(obj* x_0, obj* x_1) {
+obj* environment_add_modification_core(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_4; obj* x_6; uint32 x_8; uint8 x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_14; uint8 x_15; 
@@ -4241,7 +4241,7 @@ if (lean::is_exclusive(x_0)) {
  x_12 = lean::box(0);
 }
 x_13 = lean::array_get_size(x_6);
-x_14 = l_Lean_saveModification___closed__1;
+x_14 = l_Lean_addModification___closed__1;
 x_15 = lean::nat_dec_lt(x_14, x_13);
 lean::dec(x_13);
 if (x_15 == 0)
@@ -4269,7 +4269,7 @@ obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj
 x_21 = lean::array_fget(x_6, x_14);
 x_22 = lean::mk_nat_obj(0ul);
 x_23 = lean::array_fset(x_6, x_14, x_22);
-x_24 = l_Lean_saveModification___closed__2;
+x_24 = l_Lean_addModification___closed__2;
 x_25 = x_21;
 x_26 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_26, 0, x_1);
@@ -4520,9 +4520,9 @@ w = l_Lean_regModListExtension(w);
 if (io_result_is_error(w)) return w;
  l_Lean_modListExtension = io_result_get_value(w);
 lean::mark_persistent(l_Lean_modListExtension);
- l_Lean_saveModification___closed__1 = _init_l_Lean_saveModification___closed__1();
-lean::mark_persistent(l_Lean_saveModification___closed__1);
- l_Lean_saveModification___closed__2 = _init_l_Lean_saveModification___closed__2();
-lean::mark_persistent(l_Lean_saveModification___closed__2);
+ l_Lean_addModification___closed__1 = _init_l_Lean_addModification___closed__1();
+lean::mark_persistent(l_Lean_addModification___closed__1);
+ l_Lean_addModification___closed__2 = _init_l_Lean_addModification___closed__2();
+lean::mark_persistent(l_Lean_addModification___closed__2);
 return w;
 }

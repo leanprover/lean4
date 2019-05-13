@@ -77,7 +77,6 @@ extern "C" object * lean_serialize_modifications(object *) {
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
     list<std::shared_ptr<modification const>> m_modifications;
-    name_set          m_imported;
 };
 
 struct module_ext_reg {
@@ -273,9 +272,9 @@ modification_list parse_olean_modifications(std::string const & olean_code, std:
 }
 
 static void import_module_rec(environment & env, module_name const & mod,
-                              search_path const & path, buffer<import_error> & import_errors) {
-    auto & ext0 = get_extension(env);
-    if (ext0.m_imported.contains(mod))
+                              search_path const & path, buffer<import_error> & import_errors,
+                              name_set & already_imported) {
+    if (already_imported.contains(mod))
         return;
     try {
         auto olean_fn = find_file(path, mod, {".olean"});
@@ -288,13 +287,11 @@ static void import_module_rec(environment & env, module_name const & mod,
         }
 
         for (auto & dep : parsed_olean.m_imports) {
-            import_module_rec(env, dep, path, import_errors);
+            import_module_rec(env, dep, path, import_errors, already_imported);
         }
         import_module(parse_olean_modifications(parsed_olean.m_serialized_modifications, olean_fn), env);
 
-        auto ext = get_extension(env);
-        ext.m_imported.insert(mod);
-        env = update(env, ext);
+        already_imported.insert(mod);
     } catch (throwable) {
         import_errors.push_back({mod, std::current_exception()});
     }
@@ -302,10 +299,11 @@ static void import_module_rec(environment & env, module_name const & mod,
 
 environment import_modules(environment const & env0, std::vector<module_name> const & imports, search_path const & path,
                            buffer<import_error> & import_errors) {
+    name_set already_imported;
     environment env = env0;
 
     for (auto & import : imports)
-        import_module_rec(env, import, path, import_errors);
+        import_module_rec(env, import, path, import_errors, already_imported);
 
     module_ext ext = get_extension(env);
     ext.m_direct_imports = imports;

@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/choice.h"
-#include "frontends/lean/lean_environment.h"
 
 namespace lean {
 void initialize_frontend_lean_module() {
@@ -48,10 +47,8 @@ void initialize_frontend_lean_module() {
     initialize_notation_cmd();
     initialize_frontend_lean_util();
     initialize_brackets();
-    initialize_lean_environment();
 }
 void finalize_frontend_lean_module() {
-    finalize_lean_environment();
     finalize_brackets();
     finalize_frontend_lean_util();
     finalize_notation_cmd();

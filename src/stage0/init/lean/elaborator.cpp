@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.elaborator
-// Imports: init.lean.parser.module init.lean.expander init.lean.expr init.lean.options
+// Imports: init.lean.parser.module init.lean.expander init.lean.expr init.lean.options init.lean.environment
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -50,7 +50,6 @@ obj* l_List_map___main___at_Lean_Elaborator_toPexpr___main___spec__2(obj*);
 obj* l_Lean_Elaborator_processCommand(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toLevel___main___closed__1;
 obj* l_List_mfilter___main___at_Lean_Elaborator_variables_elaborate___spec__1___boxed(obj*, obj*, obj*, obj*);
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1;
 obj* l_Lean_Format_pretty(obj*, obj*);
 obj* l_Lean_Elaborator_mkNotationKind___rarg___closed__1;
 obj* l_Lean_Elaborator_ElaboratorM_MonadExcept;
@@ -60,6 +59,7 @@ obj* l_RBNode_find___main___at_Lean_Elaborator_processCommand___spec__3___boxed(
 obj* l_Lean_Elaborator_toPexpr___main___closed__21;
 obj* l_Lean_Elaborator_matchSpec(obj*, obj*);
 obj* l_Lean_Elaborator_matchOpenSpec(obj*, obj*);
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_RBTree_toList___at_Lean_Elaborator_oldElabCommand___spec__1(obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__6___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_elaboratorInh(obj*, obj*, obj*, obj*);
@@ -69,7 +69,6 @@ obj* l_List_mfoldl___main___at_Lean_Elaborator_CommandParserConfig_registerNotat
 obj* l_List_foldl___main___at_Lean_Elaborator_toPexpr___main___spec__16(obj*, obj*);
 extern obj* l_Lean_Parser_command_namespace;
 extern obj* l_Lean_Parser_Level_trailing_HasView;
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_lengthAux___main___rarg(obj*, obj*);
 extern obj* l_Lean_Parser_Level_leading_HasView_x_27___lambda__1___closed__5;
 obj* l_List_mfoldl___main___at_Lean_Elaborator_CommandParserConfig_registerNotationTokens___spec__1(obj*, obj*);
@@ -81,19 +80,19 @@ obj* l_Lean_Elaborator_toPexpr___main___closed__22;
 obj* l_List_mmap___main___at_Lean_Elaborator_attribute_elaborate___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_ElaboratorM_MonadState;
 obj* l_Lean_Elaborator_elaborators;
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__2;
 obj* l_StateT_Monad___rarg(obj*);
 extern "C" obj* lean_expr_mk_pi(obj*, uint8, obj*, obj*);
 obj* l_Lean_Elaborator_resolveContext___main___closed__1;
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__3___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_section_elaborate(obj*, obj*, obj*, obj*);
-obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_variables_elaborate___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_reserveNotation_elaborate___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_processCommand___lambda__1___closed__2;
+obj* l_Lean_Elaborator_declaration_elaborate___closed__3;
 obj* l_Lean_Elaborator_variables_elaborate(obj*, obj*, obj*, obj*);
+obj* l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1(obj*, obj*);
 obj* l_Lean_Elaborator_oldElabCommand(obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_Elaborator_isOpenNamespace(obj*, obj*);
+extern obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 obj* l_Lean_Elaborator_toPexpr___main___closed__37;
 extern "C" obj* level_mk_mvar(obj*);
 obj* l_List_foldl___main___at_Lean_Elaborator_include_elaborate___spec__1(obj*, obj*);
@@ -106,7 +105,6 @@ obj* l_List_foldl___main___at_Lean_Parser_Term_mkApp___spec__1(obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__9;
 extern obj* l_Lean_Parser_command_attribute;
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_TokenMap_insert___rarg(obj*, obj*, obj*);
 obj* l_RBNode_insert___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_attrsToPexpr___spec__1(obj*, obj*, obj*, obj*);
@@ -124,7 +122,6 @@ obj* l_Lean_KVMap_setNat(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__4;
 obj* l_Lean_Elaborator_declModifiersToPexpr___closed__2;
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__17(obj*, obj*, obj*, obj*);
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__5___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Elaborator_mangleIdent___spec__1(obj*, obj*);
 obj* l_Lean_Parser_Combinators_node___at_Lean_Parser_command_NotationSpec_precedenceLit_Parser___spec__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_inferModToPexpr___closed__3;
@@ -137,6 +134,7 @@ obj* l_Lean_Expr_mkCapp(obj*, obj*);
 obj* l_Lean_Elaborator_end_elaborate___closed__1;
 obj* l_Lean_Elaborator_toPexpr___main___closed__19;
 obj* l_Lean_Expander_error___at_Lean_Elaborator_processCommand___spec__1___boxed(obj*);
+obj* l_Lean_Elaborator_declaration_elaborate___closed__1;
 obj* l_Lean_Elaborator_OrderedRBMap_ofList___boxed(obj*, obj*);
 obj* l_Lean_Parser_Term_simpleBinder_View_toBinderInfo___main(obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__31;
@@ -162,6 +160,7 @@ obj* l_Lean_Elaborator_check_elaborate(obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Elaborator_OrderedRBMap_ofList___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Elaborator_OrderedRBMap_empty___rarg___boxed(obj*);
 obj* l_monadStateTrans___rarg(obj*, obj*);
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__5(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_namesToPexpr(obj*);
 obj* l_Lean_Elaborator_OrderedRBMap_insert___boxed(obj*, obj*);
 obj* l_Lean_Name_quickLt___boxed(obj*, obj*);
@@ -169,7 +168,6 @@ obj* l_Lean_Elaborator_toLevel___main___closed__4;
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__3(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_notation_elaborate___closed__1;
 obj* l_Lean_Elaborator_mkState___closed__4;
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_RBTree_ofList___main___at_Lean_Elaborator_oldElabCommand___spec__3(obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__15___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Level_ofNat___main(obj*);
@@ -186,6 +184,7 @@ extern obj* l_Lean_Parser_command_export_HasView;
 obj* l_List_mmap___main___at_Lean_Elaborator_attribute_elaborate___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_resolveContext___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_inferModToPexpr___closed__1;
+extern obj* l_Lean_Parser_command_declaration_HasView;
 obj* l_Lean_Elaborator_notation_elaborateAux(obj*, obj*, obj*, obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__6(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_command_variables_HasView;
@@ -201,6 +200,7 @@ obj* l_Lean_Elaborator_simpleBindersToPexpr___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Elaborator_elabDefLike___spec__3(obj*, obj*);
 obj* l_Lean_Parser_Syntax_asNode___main(obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__44;
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_levelAdd___main(obj*, obj*);
 extern obj* l_Lean_Parser_command_end_HasView;
 obj* l_Lean_Elaborator_attribute_elaborate___closed__2;
@@ -218,7 +218,6 @@ obj* l_Lean_Elaborator_toPexpr___main___closed__27;
 obj* l_ReaderT_lift___rarg___boxed(obj*, obj*);
 obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__3(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_preresolve___boxed(obj*, obj*, obj*, obj*);
-obj* l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1(obj*, obj*);
 obj* l_Lean_Elaborator_Module_header_elaborate(obj*, obj*, obj*, obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
 obj* l_Lean_Elaborator_toLevel___boxed(obj*, obj*, obj*, obj*);
@@ -243,20 +242,22 @@ obj* l_List_mfoldl___main___at_Lean_Elaborator_updateParserConfig___spec__2___bo
 obj* l_Lean_Elaborator_declModifiersToPexpr(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__29;
 extern obj* l_Lean_Parser_Term_structInstItem_HasView;
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__1;
 extern obj* l_Lean_Parser_command_setOption_HasView;
 obj* l_Lean_Elaborator_Expr_mkAnnotation___closed__1;
 obj* l_Lean_Elaborator_ElaboratorM_Lean_Parser_MonadRec;
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__1(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr(obj*, obj*, obj*, obj*);
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_Elaborator_elabDefLike___spec__2(obj*);
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__4___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_List_mmap___main___at_Lean_Elaborator_CommandParserConfig_registerNotationParser___spec__2___closed__2;
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_registerNotationMacro(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__20;
 extern obj* l_Lean_Parser_command_initQuot;
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__5___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_KVMap_setName(obj*, obj*, obj*);
 extern obj* l_Lean_Parser_command_open_HasView;
 obj* l_Lean_Elaborator_inferModToPexpr___boxed(obj*);
@@ -273,7 +274,6 @@ uint8 nat_dec_lt(obj*, obj*);
 }
 extern obj* l_Lean_Parser_command_include_HasView;
 obj* l_List_map___main___at_Lean_Elaborator_mkEqns___spec__1___closed__1;
-obj* l_Lean_Elaborator_Declaration_elaborate___closed__3;
 obj* l_Lean_Elaborator_end_elaborate___closed__3;
 obj* l_Lean_Elaborator_toPexpr___main___closed__33;
 obj* l_Lean_Elaborator_notation_elaborate___boxed(obj*, obj*, obj*, obj*);
@@ -282,6 +282,7 @@ obj* l_Lean_Elaborator_toLevel(obj*, obj*, obj*, obj*);
 obj* l_RBNode_insert___at_Lean_Expander_builtinTransformers___spec__1(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_mkEqns___closed__1;
 obj* l_Lean_Parser_Syntax_getPos(obj*);
+obj* l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___boxed(obj*, obj*);
 extern obj* l_Lean_Expander_builtinTransformers;
 obj* l_Lean_Expander_error___at_Lean_Elaborator_currentScope___spec__1___boxed(obj*);
 obj* l_Lean_Elaborator_declModifiersToPexpr___closed__4;
@@ -311,7 +312,7 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 obj* l_Lean_Elaborator_matchPrecedence___main___boxed(obj*, obj*);
-obj* l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_Elaborator_declaration_elaborate___closed__2;
 obj* l_RBNode_insert___at_Lean_Elaborator_elaborators___spec__1(obj*, obj*, obj*);
 extern obj* l_Lean_Parser_Module_eoi;
 obj* l_Lean_Elaborator_attrsToPexpr(obj*, obj*, obj*, obj*);
@@ -324,7 +325,6 @@ uint8 l_List_foldr___main___at_Lean_Elaborator_notation_elaborate___spec__1(uint
 obj* l_Lean_Elaborator_inferModToPexpr(obj*);
 obj* l_Lean_Elaborator_Expr_mkAnnotation(obj*, obj*);
 obj* l_StateT_MonadExcept___rarg(obj*, obj*, obj*);
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_section_elaborate___closed__1;
 obj* l_Lean_Elaborator_currentScope___closed__1;
 uint8 l_RBNode_isRed___main___rarg(obj*);
@@ -332,6 +332,7 @@ obj* l_Lean_Elaborator_OrderedRBMap_ofList(obj*, obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_CommandParserConfig_registerNotationParser___spec__2(obj*);
 obj* l_Lean_Elaborator_setOption_elaborate___lambda__1(obj*, obj*);
 obj* l_Lean_Elaborator_noKind_elaborate___closed__1;
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__3___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_CommandParserConfig_registerNotationTokens(obj*, obj*);
 obj* l_Lean_Elaborator_updateParserConfig___boxed(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__11;
@@ -343,16 +344,12 @@ obj* l_Lean_Elaborator_OrderedRBMap_find___boxed(obj*, obj*);
 extern "C" obj* level_mk_imax(obj*, obj*);
 obj* l_Lean_Elaborator_section_elaborate___boxed(obj*, obj*, obj*, obj*);
 uint8 l_List_foldr___main___at_Lean_Elaborator_isOpenNamespace___main___spec__2(obj*, uint8, obj*);
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-extern obj* l_Lean_Parser_command_Declaration;
 obj* l_Lean_Parser_Combinators_node___at_Lean_Parser_Term_sortApp_Parser_Lean_Parser_HasTokens___spec__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_universe_elaborate___boxed(obj*, obj*, obj*, obj*);
 obj* l_List_foldr___main___at_Lean_Elaborator_toLevel___main___spec__3(obj*, obj*);
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__5(obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_Level_trailing_HasView_x_27___lambda__1___closed__2;
 obj* l_Lean_Elaborator_OrderedRBMap_find(obj*, obj*);
 obj* l_Lean_Elaborator_preresolve(obj*, obj*, obj*, obj*);
-obj* l_Lean_Elaborator_Declaration_elaborate(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Expander_expandBracketedBinder___main___closed__4;
 obj* l_Lean_Elaborator_toPexpr___main___closed__13;
 obj* l_Lean_Elaborator_processCommand___lambda__1___closed__1;
@@ -361,7 +358,6 @@ namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
 obj* l_Lean_Elaborator_processCommand___closed__1;
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__1;
 obj* l_Lean_Elaborator_check_elaborate___boxed(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_command_open;
 obj* l_Lean_Elaborator_OrderedRBMap_empty___boxed(obj*, obj*);
@@ -401,7 +397,6 @@ obj* l_Lean_Elaborator_mkEqns(obj*, obj*);
 obj* l_Lean_Elaborator_namespace_elaborate___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_isOpenNamespace___boxed(obj*, obj*);
 obj* l_String_trim(obj*);
-obj* l_Lean_Elaborator_toLevel___main___closed__5;
 extern obj* l_Lean_Parser_command_universe;
 obj* l_List_filterMap___main___at_Lean_Elaborator_resolveContext___main___spec__2(obj*, obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__10___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -413,7 +408,6 @@ extern "C" obj* level_mk_succ(obj*);
 obj* l_Lean_Elaborator_levelGetAppArgs___main___closed__1;
 obj* l_Lean_Elaborator_toPexpr___main___closed__43;
 extern obj* l_Lean_Expander_bindingAnnotationUpdate;
-obj* l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_levelAdd___boxed(obj*, obj*);
 extern obj* l_Lean_Parser_command_namespace_HasView;
@@ -421,9 +415,11 @@ obj* l_Lean_Elaborator_setOption_elaborate___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_levelGetAppArgs(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_elabDefLike___closed__1;
 obj* l_Lean_Elaborator_levelGetAppArgs___main(obj*, obj*, obj*, obj*);
+extern obj* l_Lean_Parser_command_declaration;
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__13(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_levelGetAppArgs___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_namespace_elaborate___closed__1;
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__4___boxed(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_mkState___closed__1;
 obj* l_List_mmap___main___at_Lean_Elaborator_toLevel___main___spec__1___boxed(obj*, obj*, obj*, obj*);
@@ -443,18 +439,17 @@ extern obj* l_Lean_Parser_Term_anonymousConstructor_HasView;
 obj* l_Lean_Elaborator_end_elaborate(obj*, obj*, obj*, obj*);
 obj* l_List_map___main___at_Lean_Elaborator_CommandParserConfig_registerNotationParser___spec__5(obj*);
 obj* l_Lean_Elaborator_elaboratorConfigCoeFrontendConfig(obj*);
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__4(obj*, obj*, obj*, obj*);
-obj* l_Lean_Elaborator_Declaration_elaborate___closed__4;
 obj* l_List_mmap___main___at_Lean_Elaborator_preresolve___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_oldElabCommand___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Elaborator_Declaration_elaborate___closed__5;
 obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__6(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__24;
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__2;
 uint8 l_List_decidableMem___main___at_Lean_Elaborator_isOpenNamespace___main___spec__1(obj*, obj*);
 obj* l_Lean_Elaborator_initQuot_elaborate___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_number_View_ofNat(obj*);
-obj* l_Lean_environment_contains___boxed(obj*, obj*);
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_Term_borrowed_HasView;
+obj* l_Lean_Elaborator_declaration_elaborate(obj*, obj*, obj*, obj*);
 obj* l_Lean_Expander_error___at_Lean_Elaborator_processCommand___spec__1___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__26;
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__9(obj*, obj*, obj*, obj*, obj*);
@@ -465,8 +460,8 @@ obj* l_Lean_KVMap_setString(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_CommandParserConfig_registerNotationParser___closed__1;
 obj* l_Lean_Parser_RecT_recurse___rarg(obj*, obj*);
 obj* l_Lean_Elaborator_notation_elaborate___lambda__1(obj*, obj*);
+obj* l_Lean_Elaborator_declaration_elaborate___closed__4;
 obj* l_Lean_Elaborator_elabDefLike___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
-extern "C" uint8 lean_environment_contains(obj*, obj*);
 obj* l_ExceptT_Monad___rarg(obj*);
 extern obj* l_Lean_Parser_number_HasView_x_27___lambda__1___closed__6;
 obj* l_Lean_Elaborator_preresolve___main(obj*, obj*, obj*, obj*);
@@ -479,6 +474,7 @@ obj* l_Lean_Elaborator_variables_elaborate___closed__2;
 obj* l_Lean_Elaborator_processCommand___lambda__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_KVMap_insertCore___main(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__16;
+obj* l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__35;
 obj* l_Lean_Elaborator_toPexpr___main___closed__7;
 namespace lean {
@@ -492,9 +488,11 @@ obj* l_Lean_Elaborator_updateParserConfig(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_ElaboratorM_MonadReader;
 obj* l_Lean_Elaborator_toPexpr___main___closed__41;
 obj* l_Lean_Elaborator_toPexpr___main___closed__25;
+uint8 l_Lean_Environment_contains(obj*, obj*);
 obj* l_Lean_Elaborator_attribute_elaborate___closed__1;
 obj* l_RBNode_find___main___at_Lean_Elaborator_processCommand___spec__3(obj*, obj*);
 obj* l_Lean_Elaborator_matchPrecedence___boxed(obj*, obj*);
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1;
 obj* l_List_map___main___at_Lean_Elaborator_mkEqns___spec__1(obj*, obj*);
 extern "C" obj* lean_expr_mk_lambda(obj*, uint8, obj*, obj*);
 obj* l_Lean_Elaborator_end_elaborate___boxed(obj*, obj*, obj*, obj*);
@@ -514,7 +512,6 @@ obj* l_Lean_Elaborator_levelAdd(obj*, obj*);
 obj* l_Lean_Elaborator_eoi_elaborate(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_noKind_elaborate(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_Module_header_elaborate___boxed(obj*, obj*, obj*, obj*);
-obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__6___boxed(obj*, obj*, obj*);
 obj* l_Lean_FileMap_toPosition(obj*, obj*);
 obj* l_List_foldr___main___at_Lean_Elaborator_toLevel___main___spec__2(obj*, obj*);
 extern obj* l_Lean_Parser_stringLit_HasView;
@@ -523,6 +520,7 @@ obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__11___boxed(o
 obj* l_Lean_Elaborator_currentScope(obj*, obj*, obj*);
 obj* l_Option_toMonad___main___at_Lean_Elaborator_CommandParserConfig_registerNotationParser___spec__1___boxed(obj*);
 extern obj* l_Lean_Parser_Term_inaccessible_HasView;
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__4___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_precToNat___main(obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_include_elaborate___boxed(obj*, obj*, obj*, obj*);
@@ -538,20 +536,16 @@ obj* l_Lean_Elaborator_elaboratorConfigCoeFrontendConfig___boxed(obj*);
 obj* l_Lean_Expr_local___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Parser_Substring_ofString(obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_preresolve___main___spec__1___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_Elaborator_Declaration_elaborate___closed__1;
-extern obj* l_Lean_Parser_command_Declaration_HasView;
 obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__4(obj*, obj*, obj*);
-obj* l_List_map___main___at_Lean_Elaborator_Declaration_elaborate___spec__3(obj*);
 extern obj* l_Lean_Expander_noExpansion___closed__1;
 extern obj* l_Lean_Parser_Term_sort_HasView;
 obj* l_Lean_Elaborator_resolveContext(obj*, obj*, obj*, obj*);
-obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__3___boxed(obj*, obj*, obj*);
 obj* l_Lean_Elaborator_toPexpr___main___closed__23;
 obj* l_List_mmap___main___at_Lean_Elaborator_attribute_elaborate___spec__1___closed__1;
 obj* l_ReaderT_lift___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_List_foldr___main___at_Lean_Elaborator_toLevel___main___spec__3___boxed(obj*, obj*);
 extern obj* l_Lean_Parser_identUnivs_HasView;
-obj* l_Lean_Elaborator_Declaration_elaborate___closed__2;
 obj* l_Lean_Expander_error___at_Lean_Elaborator_currentScope___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_notation_elaborate___closed__2;
 extern obj* l_Lean_Parser_command_reserveNotation;
@@ -562,6 +556,7 @@ obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__17___boxed(o
 obj* l_List_foldr___main___at_Lean_Elaborator_toPexpr___main___spec__7___boxed(obj*, obj*);
 obj* l_List_foldr___main___at_Lean_Elaborator_notation_elaborate___spec__1___boxed(obj*, obj*);
 obj* l_List_mfilter___main___at_Lean_Elaborator_variables_elaborate___spec__1___lambda__1(obj*, uint8, obj*, obj*);
+obj* l_List_map___main___at_Lean_Elaborator_declaration_elaborate___spec__3(obj*);
 uint8 l_Lean_Elaborator_matchPrecedence___main(obj*, obj*);
 obj* l_Lean_Elaborator_attrsToPexpr___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_mkState___closed__2;
@@ -569,7 +564,6 @@ obj* l_Lean_Elaborator_initQuot_elaborate___closed__1;
 obj* l_StateT_MonadState___rarg(obj*);
 obj* l_List_decidableMem___main___at_Lean_Elaborator_isOpenNamespace___main___spec__1___boxed(obj*, obj*);
 extern obj* l_List_mmap___main___at_Lean_Parser_Syntax_reprint___main___spec__1___closed__1;
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_foldr___main___at_Lean_Elaborator_toPexpr___main___spec__7(obj*, obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__14(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Elaborator_universe_elaborate(obj*, obj*, obj*, obj*);
@@ -582,6 +576,8 @@ extern obj* l_Lean_Parser_Term_let_HasView;
 obj* l_Lean_Parser_number_View_toNat___main(obj*);
 extern "C" obj* level_mk_max(obj*, obj*);
 obj* l_Lean_Parser_Term_binders_Parser(obj*, obj*, obj*, obj*, obj*);
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__4(obj*, obj*, obj*, obj*);
+obj* l_Lean_Elaborator_declaration_elaborate___closed__5;
 extern obj* l_Lean_Parser_Term_pi_HasView;
 obj* l_Lean_Expander_error___at_Lean_Elaborator_processCommand___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_List_mmap___main___at_Lean_Elaborator_matchSpec___spec__1(obj*);
@@ -594,17 +590,6 @@ obj* l_List_mmap___main___at_Lean_Elaborator_toPexpr___main___spec__12(obj*, obj
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_Elaborator_locally(obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Parser_command_include;
-obj* l_Lean_environment_contains___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-uint8 x_2; obj* x_3; 
-x_2 = lean_environment_contains(x_0, x_1);
-x_3 = lean::box(x_2);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_3;
-}
-}
 obj* l_Lean_Expr_local___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -1757,14 +1742,6 @@ obj* _init_l_Lean_Elaborator_toLevel___main___closed__4() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Name_quickLt___boxed), 2, 0);
-return x_0;
-}
-}
-obj* _init_l_Lean_Elaborator_toLevel___main___closed__5() {
-_start:
-{
-obj* x_0; 
 x_0 = lean::mk_string("unknown universe variable '");
 return x_0;
 }
@@ -2445,7 +2422,7 @@ x_291 = l_Lean_Elaborator_mangleIdent(x_288);
 x_292 = lean::cnstr_get(x_39, 3);
 lean::inc(x_292);
 lean::dec(x_39);
-x_295 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_295 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 lean::inc(x_291);
 x_297 = l_Lean_Elaborator_OrderedRBMap_find___rarg(x_295, x_292, x_291);
 if (lean::obj_tag(x_297) == 0)
@@ -2461,7 +2438,7 @@ if (lean::is_scalar(x_64)) {
 lean::cnstr_set(x_300, 0, x_0);
 x_301 = l_Lean_Name_toString___closed__1;
 x_302 = l_Lean_Name_toStringWithSep___main(x_301, x_291);
-x_303 = l_Lean_Elaborator_toLevel___main___closed__5;
+x_303 = l_Lean_Elaborator_toLevel___main___closed__4;
 x_304 = lean::string_append(x_303, x_302);
 lean::dec(x_302);
 x_306 = l_Char_HasRepr___closed__1;
@@ -12329,7 +12306,7 @@ if (lean::is_exclusive(x_1)) {
 }
 x_13 = lean::cnstr_get(x_0, 2);
 lean::inc(x_13);
-x_15 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_15 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 x_16 = l_Lean_Elaborator_OrderedRBMap_ofList___rarg(x_15, x_13);
 x_17 = lean::cnstr_get(x_0, 3);
 lean::inc(x_17);
@@ -14330,7 +14307,7 @@ lean::inc(x_4);
 lean::dec(x_1);
 lean::inc(x_2);
 x_8 = level_mk_param(x_2);
-x_9 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_9 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 x_10 = l_Lean_Elaborator_OrderedRBMap_insert___rarg(x_9, x_0, x_2, x_8);
 x_0 = x_10;
 x_1 = x_4;
@@ -14953,7 +14930,7 @@ lean::dec(x_0);
 return x_1;
 }
 }
-obj* l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_7; 
@@ -14998,23 +14975,23 @@ return x_23;
 }
 }
 }
-obj* l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1(obj* x_0, obj* x_1) {
+obj* l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___rarg), 5, 0);
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___rarg), 5, 0);
 return x_2;
 }
 }
-obj* _init_l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1() {
+obj* _init_l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("Declaration.elaborate: unexpected input");
+x_0 = lean::mk_string("declaration.elaborate: unexpected input");
 return x_0;
 }
 }
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -15132,7 +15109,7 @@ x_61 = l_Lean_Elaborator_mangleIdent(x_58);
 x_62 = 0;
 lean::inc(x_61);
 x_64 = lean_expr_local(x_61, x_61, x_53, x_62);
-x_65 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2(x_0, x_12, x_2, x_3, x_55);
+x_65 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2(x_0, x_12, x_2, x_3, x_55);
 if (lean::obj_tag(x_65) == 0)
 {
 obj* x_67; obj* x_69; obj* x_70; 
@@ -15213,7 +15190,7 @@ lean::dec(x_15);
 lean::inc(x_0);
 x_88 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_88, 0, x_0);
-x_89 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1;
+x_89 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1;
 lean::inc(x_3);
 x_91 = l_Lean_Expander_error___at_Lean_Elaborator_currentScope___spec__1___rarg(x_88, x_89, x_2, x_3, x_4);
 lean::dec(x_4);
@@ -15252,7 +15229,7 @@ lean::inc(x_105);
 x_107 = lean::cnstr_get(x_102, 1);
 lean::inc(x_107);
 lean::dec(x_102);
-x_110 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2(x_0, x_12, x_2, x_3, x_107);
+x_110 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2(x_0, x_12, x_2, x_3, x_107);
 if (lean::obj_tag(x_110) == 0)
 {
 obj* x_113; obj* x_115; obj* x_116; 
@@ -15322,7 +15299,7 @@ return x_127;
 }
 }
 }
-obj* l_List_map___main___at_Lean_Elaborator_Declaration_elaborate___spec__3(obj* x_0) {
+obj* l_List_map___main___at_Lean_Elaborator_declaration_elaborate___spec__3(obj* x_0) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -15349,7 +15326,7 @@ lean::inc(x_7);
 lean::dec(x_2);
 x_10 = l_Lean_Elaborator_inferModToPexpr(x_7);
 lean::dec(x_7);
-x_12 = l_List_map___main___at_Lean_Elaborator_Declaration_elaborate___spec__3(x_4);
+x_12 = l_List_map___main___at_Lean_Elaborator_declaration_elaborate___spec__3(x_4);
 if (lean::is_scalar(x_6)) {
  x_13 = lean::alloc_cnstr(1, 2, 0);
 } else {
@@ -15361,7 +15338,7 @@ return x_13;
 }
 }
 }
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__4(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -15429,7 +15406,7 @@ lean::inc(x_28);
 x_30 = lean::cnstr_get(x_25, 1);
 lean::inc(x_30);
 lean::dec(x_25);
-x_33 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__4(x_10, x_1, x_2, x_30);
+x_33 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__4(x_10, x_1, x_2, x_30);
 if (lean::obj_tag(x_33) == 0)
 {
 obj* x_36; obj* x_38; obj* x_39; 
@@ -15498,7 +15475,7 @@ return x_50;
 }
 }
 }
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__5(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__5(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
@@ -15547,7 +15524,7 @@ lean::dec(x_22);
 lean::inc(x_0);
 x_27 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_27, 0, x_0);
-x_28 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1;
+x_28 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1;
 lean::inc(x_4);
 x_30 = l_Lean_Expander_error___at_Lean_Elaborator_currentScope___spec__1___rarg(x_27, x_28, x_3, x_4, x_5);
 lean::dec(x_5);
@@ -15758,7 +15735,7 @@ lean::cnstr_set(x_139, 0, x_96);
 lean::cnstr_set(x_139, 1, x_138);
 lean::inc(x_1);
 x_141 = l_Lean_Expr_mkCapp(x_1, x_139);
-x_142 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__5(x_0, x_1, x_14, x_3, x_4, x_132);
+x_142 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__5(x_0, x_1, x_14, x_3, x_4, x_132);
 if (lean::obj_tag(x_142) == 0)
 {
 obj* x_144; obj* x_146; obj* x_147; 
@@ -15823,7 +15800,7 @@ return x_158;
 }
 }
 }
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8) {
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8) {
 _start:
 {
 obj* x_9; obj* x_10; obj* x_14; 
@@ -15885,7 +15862,7 @@ return x_38;
 }
 }
 }
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12) {
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12) {
 _start:
 {
 obj* x_13; obj* x_15; 
@@ -16152,7 +16129,7 @@ lean::dec(x_138);
 lean::inc(x_11);
 lean::inc(x_5);
 lean::inc(x_4);
-x_149 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2(x_4, x_5, x_10, x_11, x_143);
+x_149 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2(x_4, x_5, x_10, x_11, x_143);
 if (lean::obj_tag(x_149) == 0)
 {
 obj* x_160; obj* x_162; obj* x_163; 
@@ -16199,7 +16176,7 @@ x_174 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_174, 0, x_172);
 lean::cnstr_set(x_174, 1, x_0);
 x_175 = l_Lean_Expr_mkCapp(x_45, x_174);
-x_176 = l_List_map___main___at_Lean_Elaborator_Declaration_elaborate___spec__3(x_5);
+x_176 = l_List_map___main___at_Lean_Elaborator_declaration_elaborate___spec__3(x_5);
 x_177 = l_Lean_Expr_mkCapp(x_45, x_176);
 lean::inc(x_0);
 x_179 = lean::alloc_cnstr(1, 2, 0);
@@ -16241,7 +16218,7 @@ return x_190;
 }
 }
 }
-obj* _init_l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__1() {
+obj* _init_l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; 
@@ -16250,7 +16227,7 @@ x_1 = l_Lean_Elaborator_inferModToPexpr(x_0);
 return x_1;
 }
 }
-obj* _init_l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__2() {
+obj* _init_l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__2() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; 
@@ -16260,7 +16237,7 @@ x_2 = lean_name_mk_string(x_0, x_1);
 return x_2;
 }
 }
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12, obj* x_13) {
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__3(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12, obj* x_13) {
 _start:
 {
 obj* x_14; 
@@ -16462,7 +16439,7 @@ lbl_112:
 {
 obj* x_118; 
 lean::inc(x_12);
-x_118 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__4(x_111, x_11, x_12, x_108);
+x_118 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__4(x_111, x_11, x_12, x_108);
 if (lean::obj_tag(x_118) == 0)
 {
 obj* x_130; obj* x_132; obj* x_133; 
@@ -16508,11 +16485,11 @@ x_142 = l_Lean_Elaborator_mkEqns___closed__1;
 x_143 = l_Lean_Expr_mkCapp(x_142, x_137);
 lean::inc(x_12);
 lean::inc(x_3);
-x_146 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__5(x_3, x_142, x_4, x_11, x_12, x_139);
+x_146 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__5(x_3, x_142, x_4, x_11, x_12, x_139);
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_149; 
-x_149 = l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__2;
+x_149 = l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__2;
 x_147 = x_149;
 goto lbl_148;
 }
@@ -16580,7 +16557,7 @@ x_181 = l_Lean_Expr_mkCapp(x_142, x_176);
 x_182 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_182, 0, x_181);
 lean::cnstr_set(x_182, 1, x_6);
-x_183 = l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__1;
+x_183 = l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__1;
 x_184 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_184, 0, x_183);
 lean::cnstr_set(x_184, 1, x_182);
@@ -16708,7 +16685,7 @@ return x_240;
 }
 }
 }
-obj* _init_l_Lean_Elaborator_Declaration_elaborate___closed__1() {
+obj* _init_l_Lean_Elaborator_declaration_elaborate___closed__1() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_4; obj* x_5; obj* x_6; 
@@ -16726,7 +16703,7 @@ lean::cnstr_set(x_6, 0, x_5);
 return x_6;
 }
 }
-obj* _init_l_Lean_Elaborator_Declaration_elaborate___closed__2() {
+obj* _init_l_Lean_Elaborator_declaration_elaborate___closed__2() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
@@ -16749,7 +16726,7 @@ lean::cnstr_set(x_8, 1, x_0);
 return x_8;
 }
 }
-obj* _init_l_Lean_Elaborator_Declaration_elaborate___closed__3() {
+obj* _init_l_Lean_Elaborator_declaration_elaborate___closed__3() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -16763,7 +16740,7 @@ x_6 = l_Lean_KVMap_setName(x_5, x_2, x_4);
 return x_6;
 }
 }
-obj* _init_l_Lean_Elaborator_Declaration_elaborate___closed__4() {
+obj* _init_l_Lean_Elaborator_declaration_elaborate___closed__4() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -16777,7 +16754,7 @@ x_6 = l_Lean_KVMap_setName(x_5, x_2, x_4);
 return x_6;
 }
 }
-obj* _init_l_Lean_Elaborator_Declaration_elaborate___closed__5() {
+obj* _init_l_Lean_Elaborator_declaration_elaborate___closed__5() {
 _start:
 {
 obj* x_0; obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
@@ -16791,11 +16768,11 @@ x_6 = l_Lean_KVMap_setName(x_5, x_2, x_4);
 return x_6;
 }
 }
-obj* l_Lean_Elaborator_Declaration_elaborate(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_Elaborator_declaration_elaborate(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_6; obj* x_7; obj* x_11; obj* x_12; 
-x_6 = l_Lean_Parser_command_Declaration_HasView;
+x_6 = l_Lean_Parser_command_declaration_HasView;
 x_7 = lean::cnstr_get(x_6, 0);
 lean::inc(x_7);
 lean::dec(x_6);
@@ -16909,8 +16886,8 @@ obj* x_65; obj* x_68; obj* x_69; obj* x_70; obj* x_71; obj* x_72; obj* x_73;
 x_65 = lean::cnstr_get(x_47, 3);
 lean::inc(x_65);
 lean::dec(x_47);
-x_68 = l_Lean_Elaborator_Declaration_elaborate___closed__1;
-x_69 = l_Lean_Elaborator_Declaration_elaborate___closed__2;
+x_68 = l_Lean_Elaborator_declaration_elaborate___closed__1;
+x_69 = l_Lean_Elaborator_declaration_elaborate___closed__2;
 x_70 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_70, 0, x_68);
 lean::cnstr_set(x_70, 1, x_53);
@@ -16935,7 +16912,7 @@ lean::dec(x_47);
 x_77 = lean::cnstr_get(x_56, 0);
 lean::inc(x_77);
 lean::dec(x_56);
-x_80 = l_Lean_Elaborator_Declaration_elaborate___closed__1;
+x_80 = l_Lean_Elaborator_declaration_elaborate___closed__1;
 x_81 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_81, 0, x_80);
 lean::cnstr_set(x_81, 1, x_53);
@@ -16977,8 +16954,8 @@ lean::cnstr_set(x_100, 1, x_99);
 x_101 = lean::cnstr_get(x_85, 2);
 lean::inc(x_101);
 lean::dec(x_85);
-x_104 = l_Lean_Elaborator_Declaration_elaborate___closed__1;
-x_105 = l_Lean_Elaborator_Declaration_elaborate___closed__2;
+x_104 = l_Lean_Elaborator_declaration_elaborate___closed__1;
+x_105 = l_Lean_Elaborator_declaration_elaborate___closed__2;
 x_106 = lean::alloc_cnstr(0, 5, 0);
 lean::cnstr_set(x_106, 0, x_104);
 lean::cnstr_set(x_106, 1, x_91);
@@ -17036,14 +17013,14 @@ lean::inc(x_132);
 lean::dec(x_11);
 x_135 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_declModifiersToPexpr___boxed), 4, 1);
 lean::closure_set(x_135, 0, x_132);
-x_136 = l_Lean_Elaborator_Declaration_elaborate___closed__3;
-x_137 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_Declaration_elaborate___lambda__1___boxed), 9, 5);
+x_136 = l_Lean_Elaborator_declaration_elaborate___closed__3;
+x_137 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_declaration_elaborate___lambda__1___boxed), 9, 5);
 lean::closure_set(x_137, 0, x_125);
 lean::closure_set(x_137, 1, x_128);
 lean::closure_set(x_137, 2, x_131);
 lean::closure_set(x_137, 3, x_136);
 lean::closure_set(x_137, 4, x_0);
-x_138 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___rarg), 5, 2);
+x_138 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___rarg), 5, 2);
 lean::closure_set(x_138, 0, x_135);
 lean::closure_set(x_138, 1, x_137);
 x_139 = l_Lean_Elaborator_locally(x_138, x_1, x_2, x_3);
@@ -17111,8 +17088,8 @@ lean::dec(x_11);
 lean::inc(x_173);
 x_177 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_declModifiersToPexpr___boxed), 4, 1);
 lean::closure_set(x_177, 0, x_173);
-x_178 = l_Lean_Elaborator_Declaration_elaborate___closed__4;
-x_179 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_Declaration_elaborate___lambda__2___boxed), 13, 9);
+x_178 = l_Lean_Elaborator_declaration_elaborate___closed__4;
+x_179 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_declaration_elaborate___lambda__2___boxed), 13, 9);
 lean::closure_set(x_179, 0, x_172);
 lean::closure_set(x_179, 1, x_161);
 lean::closure_set(x_179, 2, x_166);
@@ -17122,7 +17099,7 @@ lean::closure_set(x_179, 5, x_163);
 lean::closure_set(x_179, 6, x_178);
 lean::closure_set(x_179, 7, x_159);
 lean::closure_set(x_179, 8, x_173);
-x_180 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___rarg), 5, 2);
+x_180 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___rarg), 5, 2);
 lean::closure_set(x_180, 0, x_177);
 lean::closure_set(x_180, 1, x_179);
 x_181 = l_Lean_Elaborator_locally(x_180, x_1, x_2, x_3);
@@ -17193,8 +17170,8 @@ lean::inc(x_219);
 lean::dec(x_11);
 x_222 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_declModifiersToPexpr___boxed), 4, 1);
 lean::closure_set(x_222, 0, x_219);
-x_223 = l_Lean_Elaborator_Declaration_elaborate___closed__5;
-x_224 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_Declaration_elaborate___lambda__3___boxed), 14, 10);
+x_223 = l_Lean_Elaborator_declaration_elaborate___closed__5;
+x_224 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_declaration_elaborate___lambda__3___boxed), 14, 10);
 lean::closure_set(x_224, 0, x_203);
 lean::closure_set(x_224, 1, x_212);
 lean::closure_set(x_224, 2, x_215);
@@ -17205,7 +17182,7 @@ lean::closure_set(x_224, 6, x_218);
 lean::closure_set(x_224, 7, x_223);
 lean::closure_set(x_224, 8, x_205);
 lean::closure_set(x_224, 9, x_201);
-x_225 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___rarg), 5, 2);
+x_225 = lean::alloc_closure(reinterpret_cast<void*>(l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___rarg), 5, 2);
 lean::closure_set(x_225, 0, x_222);
 lean::closure_set(x_225, 1, x_224);
 x_226 = l_Lean_Elaborator_locally(x_225, x_1, x_2, x_3);
@@ -17230,7 +17207,7 @@ obj* x_232; obj* x_233; obj* x_234; obj* x_235;
 lean::dec(x_4);
 x_232 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_232, 0, x_0);
-x_233 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1;
+x_233 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1;
 x_234 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expander_error___at_Lean_Elaborator_currentScope___spec__1___rarg___boxed), 5, 2);
 lean::closure_set(x_234, 0, x_232);
 lean::closure_set(x_234, 1, x_233);
@@ -17239,69 +17216,69 @@ return x_235;
 }
 }
 }
-obj* l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1___boxed(obj* x_0, obj* x_1) {
+obj* l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_ReaderT_bind___at_Lean_Elaborator_Declaration_elaborate___spec__1(x_0, x_1);
+x_2 = l_ReaderT_bind___at_Lean_Elaborator_declaration_elaborate___spec__1(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2(x_0, x_1, x_2, x_3, x_4);
+x_5 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2(x_0, x_1, x_2, x_3, x_4);
 lean::dec(x_2);
 return x_5;
 }
 }
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__4___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__4___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__4(x_0, x_1, x_2, x_3);
+x_4 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__4(x_0, x_1, x_2, x_3);
 lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__5___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+obj* l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__5___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 obj* x_6; 
-x_6 = l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__5(x_0, x_1, x_2, x_3, x_4, x_5);
+x_6 = l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__5(x_0, x_1, x_2, x_3, x_4, x_5);
 lean::dec(x_3);
 return x_6;
 }
 }
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8) {
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8) {
 _start:
 {
 obj* x_9; 
-x_9 = l_Lean_Elaborator_Declaration_elaborate___lambda__1(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
+x_9 = l_Lean_Elaborator_declaration_elaborate___lambda__1(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8);
 lean::dec(x_4);
 lean::dec(x_6);
 return x_9;
 }
 }
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12) {
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12) {
 _start:
 {
 obj* x_13; 
-x_13 = l_Lean_Elaborator_Declaration_elaborate___lambda__2(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
+x_13 = l_Lean_Elaborator_declaration_elaborate___lambda__2(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12);
 lean::dec(x_2);
 lean::dec(x_8);
 lean::dec(x_10);
 return x_13;
 }
 }
-obj* l_Lean_Elaborator_Declaration_elaborate___lambda__3___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12, obj* x_13) {
+obj* l_Lean_Elaborator_declaration_elaborate___lambda__3___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6, obj* x_7, obj* x_8, obj* x_9, obj* x_10, obj* x_11, obj* x_12, obj* x_13) {
 _start:
 {
 obj* x_14; 
-x_14 = l_Lean_Elaborator_Declaration_elaborate___lambda__3(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
+x_14 = l_Lean_Elaborator_declaration_elaborate___lambda__3(x_0, x_1, x_2, x_3, x_4, x_5, x_6, x_7, x_8, x_9, x_10, x_11, x_12, x_13);
 lean::dec(x_1);
 lean::dec(x_8);
 lean::dec(x_11);
@@ -17355,7 +17332,7 @@ lean::cnstr_set(x_28, 0, x_23);
 lean::cnstr_set(x_28, 1, x_25);
 lean::cnstr_set_scalar(x_28, sizeof(void*)*2, x_1);
 x_29 = x_28;
-x_30 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_30 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 x_31 = l_Lean_Elaborator_OrderedRBMap_insert___rarg(x_30, x_12, x_2, x_29);
 if (lean::is_scalar(x_22)) {
  x_32 = lean::alloc_cnstr(0, 9, 0);
@@ -17488,7 +17465,7 @@ x_55 = l_Lean_Elaborator_mangleIdent(x_21);
 x_56 = lean::cnstr_get(x_50, 4);
 lean::inc(x_56);
 lean::dec(x_50);
-x_59 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_59 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 lean::inc(x_55);
 x_61 = l_Lean_Elaborator_OrderedRBMap_find___rarg(x_59, x_56, x_55);
 if (lean::obj_tag(x_61) == 0)
@@ -21729,7 +21706,7 @@ if (lean::is_exclusive(x_1)) {
 }
 lean::inc(x_0);
 x_22 = level_mk_param(x_0);
-x_23 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_23 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 x_24 = l_Lean_Elaborator_OrderedRBMap_insert___rarg(x_23, x_8, x_0, x_22);
 if (lean::is_scalar(x_20)) {
  x_25 = lean::alloc_cnstr(0, 9, 0);
@@ -21816,7 +21793,7 @@ lean::dec(x_23);
 x_31 = lean::cnstr_get(x_26, 3);
 lean::inc(x_31);
 lean::dec(x_26);
-x_34 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_34 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 lean::inc(x_13);
 x_36 = l_Lean_Elaborator_OrderedRBMap_find___rarg(x_34, x_31, x_13);
 if (lean::obj_tag(x_36) == 0)
@@ -25172,8 +25149,8 @@ x_28 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_include_ela
 x_29 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_29, 0, x_27);
 lean::cnstr_set(x_29, 1, x_28);
-x_30 = l_Lean_Parser_command_Declaration;
-x_31 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_Declaration_elaborate), 4, 0);
+x_30 = l_Lean_Parser_command_declaration;
+x_31 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Elaborator_declaration_elaborate), 4, 0);
 x_32 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_32, 0, x_30);
 lean::cnstr_set(x_32, 1, x_31);
@@ -25584,50 +25561,52 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_5; 
+obj* x_6; 
+lean::dec(x_1);
 lean::dec(x_0);
-x_5 = l_List_reverse___rarg(x_3);
-return x_5;
+x_6 = l_List_reverse___rarg(x_3);
+return x_6;
 }
 else
 {
-obj* x_6; obj* x_8; obj* x_10; obj* x_11; obj* x_13; uint8 x_14; 
-x_6 = lean::cnstr_get(x_2, 0);
-x_8 = lean::cnstr_get(x_2, 1);
+obj* x_7; obj* x_9; obj* x_11; obj* x_12; obj* x_15; uint8 x_16; 
+x_7 = lean::cnstr_get(x_2, 0);
+x_9 = lean::cnstr_get(x_2, 1);
 if (lean::is_exclusive(x_2)) {
  lean::cnstr_set(x_2, 0, lean::box(0));
  lean::cnstr_set(x_2, 1, lean::box(0));
- x_10 = x_2;
+ x_11 = x_2;
 } else {
- lean::inc(x_6);
- lean::inc(x_8);
+ lean::inc(x_7);
+ lean::inc(x_9);
  lean::dec(x_2);
- x_10 = lean::box(0);
+ x_11 = lean::box(0);
 }
-x_11 = lean::cnstr_get(x_1, 8);
+x_12 = lean::cnstr_get(x_1, 8);
+lean::inc(x_12);
 lean::inc(x_0);
-x_13 = l_Lean_Name_append___main(x_6, x_0);
-x_14 = lean_environment_contains(x_11, x_13);
-lean::dec(x_13);
-if (x_14 == 0)
+x_15 = l_Lean_Name_append___main(x_7, x_0);
+x_16 = l_Lean_Environment_contains(x_12, x_15);
+lean::dec(x_15);
+if (x_16 == 0)
 {
-lean::dec(x_6);
-lean::dec(x_10);
-x_2 = x_8;
+lean::dec(x_7);
+lean::dec(x_11);
+x_2 = x_9;
 goto _start;
 }
 else
 {
-obj* x_19; 
-if (lean::is_scalar(x_10)) {
- x_19 = lean::alloc_cnstr(1, 2, 0);
+obj* x_21; 
+if (lean::is_scalar(x_11)) {
+ x_21 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_19 = x_10;
+ x_21 = x_11;
 }
-lean::cnstr_set(x_19, 0, x_6);
-lean::cnstr_set(x_19, 1, x_3);
-x_2 = x_8;
-x_3 = x_19;
+lean::cnstr_set(x_21, 0, x_7);
+lean::cnstr_set(x_21, 1, x_3);
+x_2 = x_9;
+x_3 = x_21;
 goto _start;
 }
 }
@@ -25690,45 +25669,47 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-obj* x_3; 
-x_3 = l_List_reverse___rarg(x_2);
-return x_3;
+obj* x_4; 
+lean::dec(x_0);
+x_4 = l_List_reverse___rarg(x_2);
+return x_4;
 }
 else
 {
-obj* x_4; obj* x_6; obj* x_8; uint8 x_9; 
-x_4 = lean::cnstr_get(x_1, 0);
-x_6 = lean::cnstr_get(x_1, 1);
+obj* x_5; obj* x_7; obj* x_9; uint8 x_11; 
+x_5 = lean::cnstr_get(x_1, 0);
+x_7 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_set(x_1, 0, lean::box(0));
  lean::cnstr_set(x_1, 1, lean::box(0));
- x_8 = x_1;
+ x_9 = x_1;
 } else {
- lean::inc(x_4);
- lean::inc(x_6);
+ lean::inc(x_5);
+ lean::inc(x_7);
  lean::dec(x_1);
- x_8 = lean::box(0);
+ x_9 = lean::box(0);
 }
-x_9 = lean_environment_contains(x_0, x_4);
-if (x_9 == 0)
+lean::inc(x_0);
+x_11 = l_Lean_Environment_contains(x_0, x_5);
+if (x_11 == 0)
 {
-lean::dec(x_4);
-lean::dec(x_8);
-x_1 = x_6;
+lean::dec(x_5);
+lean::dec(x_9);
+x_1 = x_7;
 goto _start;
 }
 else
 {
-obj* x_13; 
-if (lean::is_scalar(x_8)) {
- x_13 = lean::alloc_cnstr(1, 2, 0);
+obj* x_15; 
+if (lean::is_scalar(x_9)) {
+ x_15 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_13 = x_8;
+ x_15 = x_9;
 }
-lean::cnstr_set(x_13, 0, x_4);
-lean::cnstr_set(x_13, 1, x_2);
-x_1 = x_6;
-x_2 = x_13;
+lean::cnstr_set(x_15, 0, x_5);
+lean::cnstr_set(x_15, 1, x_2);
+x_1 = x_7;
+x_2 = x_15;
 goto _start;
 }
 }
@@ -25846,45 +25827,47 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-obj* x_3; 
-x_3 = l_List_reverse___rarg(x_2);
-return x_3;
+obj* x_4; 
+lean::dec(x_0);
+x_4 = l_List_reverse___rarg(x_2);
+return x_4;
 }
 else
 {
-obj* x_4; obj* x_6; obj* x_8; uint8 x_9; 
-x_4 = lean::cnstr_get(x_1, 0);
-x_6 = lean::cnstr_get(x_1, 1);
+obj* x_5; obj* x_7; obj* x_9; uint8 x_11; 
+x_5 = lean::cnstr_get(x_1, 0);
+x_7 = lean::cnstr_get(x_1, 1);
 if (lean::is_exclusive(x_1)) {
  lean::cnstr_set(x_1, 0, lean::box(0));
  lean::cnstr_set(x_1, 1, lean::box(0));
- x_8 = x_1;
+ x_9 = x_1;
 } else {
- lean::inc(x_4);
- lean::inc(x_6);
+ lean::inc(x_5);
+ lean::inc(x_7);
  lean::dec(x_1);
- x_8 = lean::box(0);
+ x_9 = lean::box(0);
 }
-x_9 = lean_environment_contains(x_0, x_4);
-if (x_9 == 0)
+lean::inc(x_0);
+x_11 = l_Lean_Environment_contains(x_0, x_5);
+if (x_11 == 0)
 {
-lean::dec(x_4);
-lean::dec(x_8);
-x_1 = x_6;
+lean::dec(x_5);
+lean::dec(x_9);
+x_1 = x_7;
 goto _start;
 }
 else
 {
-obj* x_13; 
-if (lean::is_scalar(x_8)) {
- x_13 = lean::alloc_cnstr(1, 2, 0);
+obj* x_15; 
+if (lean::is_scalar(x_9)) {
+ x_15 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_13 = x_8;
+ x_15 = x_9;
 }
-lean::cnstr_set(x_13, 0, x_4);
-lean::cnstr_set(x_13, 1, x_2);
-x_1 = x_6;
-x_2 = x_13;
+lean::cnstr_set(x_15, 0, x_5);
+lean::cnstr_set(x_15, 1, x_2);
+x_1 = x_7;
+x_2 = x_15;
 goto _start;
 }
 }
@@ -25953,184 +25936,168 @@ if (lean::is_exclusive(x_12)) {
 }
 x_20 = lean::cnstr_get(x_15, 4);
 lean::inc(x_20);
-x_22 = l_Lean_Elaborator_toLevel___main___closed__4;
+x_22 = l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
 lean::inc(x_0);
 x_24 = l_Lean_Elaborator_OrderedRBMap_find___rarg(x_22, x_20, x_0);
 if (lean::obj_tag(x_24) == 0)
 {
-obj* x_25; obj* x_27; obj* x_29; 
+obj* x_25; obj* x_27; obj* x_30; 
 x_25 = lean::cnstr_get(x_15, 6);
 lean::inc(x_25);
 x_27 = lean::box(0);
+lean::inc(x_3);
 lean::inc(x_0);
-x_29 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__1(x_0, x_3, x_25, x_27);
-if (lean::obj_tag(x_29) == 0)
+x_30 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__1(x_0, x_3, x_25, x_27);
+if (lean::obj_tag(x_30) == 0)
 {
-obj* x_30; obj* x_31; obj* x_33; obj* x_34; uint8 x_36; obj* x_37; obj* x_40; obj* x_41; obj* x_42; obj* x_45; obj* x_47; obj* x_48; 
-x_30 = l_Lean_Elaborator_resolveContext___main___closed__1;
-x_31 = lean::box(0);
+obj* x_31; obj* x_32; obj* x_34; obj* x_35; uint8 x_38; obj* x_39; obj* x_42; obj* x_44; obj* x_45; obj* x_48; obj* x_50; obj* x_51; 
+x_31 = l_Lean_Elaborator_resolveContext___main___closed__1;
+x_32 = lean::box(0);
 lean::inc(x_0);
-x_33 = l_Lean_Name_replacePrefix___main(x_0, x_30, x_31);
-x_34 = lean::cnstr_get(x_3, 8);
-lean::inc(x_34);
-x_36 = lean_environment_contains(x_34, x_33);
-x_37 = lean::cnstr_get(x_15, 7);
-lean::inc(x_37);
+x_34 = l_Lean_Name_replacePrefix___main(x_0, x_31, x_32);
+x_35 = lean::cnstr_get(x_3, 8);
+lean::inc(x_35);
+lean::inc(x_35);
+x_38 = l_Lean_Environment_contains(x_35, x_34);
+x_39 = lean::cnstr_get(x_15, 7);
+lean::inc(x_39);
 lean::inc(x_0);
-x_40 = l_List_filterMap___main___at_Lean_Elaborator_resolveContext___main___spec__2(x_0, x_37);
-x_41 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__3(x_34, x_40, x_27);
-x_42 = lean::cnstr_get(x_3, 3);
-lean::inc(x_42);
+x_42 = l_List_filterMap___main___at_Lean_Elaborator_resolveContext___main___spec__2(x_0, x_39);
+lean::inc(x_35);
+x_44 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__3(x_35, x_42, x_27);
+x_45 = lean::cnstr_get(x_3, 3);
+lean::inc(x_45);
 lean::dec(x_3);
-x_45 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__4(x_15, x_42, x_27);
+x_48 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__4(x_15, x_45, x_27);
 lean::dec(x_15);
-x_47 = l_List_filterMap___main___at_Lean_Elaborator_resolveContext___main___spec__5(x_0, x_45);
-x_48 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__6(x_34, x_47, x_27);
+x_50 = l_List_filterMap___main___at_Lean_Elaborator_resolveContext___main___spec__5(x_0, x_48);
+x_51 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__6(x_35, x_50, x_27);
+if (x_38 == 0)
+{
+obj* x_53; obj* x_54; obj* x_55; obj* x_56; 
 lean::dec(x_34);
-if (x_36 == 0)
-{
-obj* x_51; obj* x_52; obj* x_53; obj* x_54; 
-lean::dec(x_33);
-x_51 = l_List_append___rarg(x_29, x_41);
-x_52 = l_List_append___rarg(x_51, x_48);
+x_53 = l_List_append___rarg(x_30, x_44);
+x_54 = l_List_append___rarg(x_53, x_51);
 if (lean::is_scalar(x_19)) {
- x_53 = lean::alloc_cnstr(0, 2, 0);
+ x_55 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_53 = x_19;
+ x_55 = x_19;
 }
-lean::cnstr_set(x_53, 0, x_52);
-lean::cnstr_set(x_53, 1, x_17);
+lean::cnstr_set(x_55, 0, x_54);
+lean::cnstr_set(x_55, 1, x_17);
 if (lean::is_scalar(x_14)) {
- x_54 = lean::alloc_cnstr(1, 1, 0);
+ x_56 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_54 = x_14;
+ x_56 = x_14;
 }
-lean::cnstr_set(x_54, 0, x_53);
-return x_54;
+lean::cnstr_set(x_56, 0, x_55);
+return x_56;
 }
 else
 {
-obj* x_55; obj* x_56; obj* x_57; obj* x_58; obj* x_59; 
-x_55 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_55, 0, x_33);
-lean::cnstr_set(x_55, 1, x_29);
-x_56 = l_List_append___rarg(x_55, x_41);
-x_57 = l_List_append___rarg(x_56, x_48);
+obj* x_57; obj* x_58; obj* x_59; obj* x_60; obj* x_61; 
+x_57 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_57, 0, x_34);
+lean::cnstr_set(x_57, 1, x_30);
+x_58 = l_List_append___rarg(x_57, x_44);
+x_59 = l_List_append___rarg(x_58, x_51);
 if (lean::is_scalar(x_19)) {
- x_58 = lean::alloc_cnstr(0, 2, 0);
+ x_60 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_58 = x_19;
+ x_60 = x_19;
 }
-lean::cnstr_set(x_58, 0, x_57);
-lean::cnstr_set(x_58, 1, x_17);
+lean::cnstr_set(x_60, 0, x_59);
+lean::cnstr_set(x_60, 1, x_17);
 if (lean::is_scalar(x_14)) {
- x_59 = lean::alloc_cnstr(1, 1, 0);
+ x_61 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_59 = x_14;
+ x_61 = x_14;
 }
-lean::cnstr_set(x_59, 0, x_58);
-return x_59;
+lean::cnstr_set(x_61, 0, x_60);
+return x_61;
 }
 }
 else
 {
-obj* x_62; obj* x_64; obj* x_65; obj* x_67; obj* x_68; obj* x_69; 
+obj* x_64; obj* x_66; obj* x_67; obj* x_69; obj* x_70; obj* x_71; 
 lean::dec(x_3);
 lean::dec(x_15);
-x_62 = lean::cnstr_get(x_29, 0);
-if (lean::is_exclusive(x_29)) {
- lean::cnstr_release(x_29, 1);
- x_64 = x_29;
+x_64 = lean::cnstr_get(x_30, 0);
+if (lean::is_exclusive(x_30)) {
+ lean::cnstr_release(x_30, 1);
+ x_66 = x_30;
 } else {
- lean::inc(x_62);
- lean::dec(x_29);
- x_64 = lean::box(0);
+ lean::inc(x_64);
+ lean::dec(x_30);
+ x_66 = lean::box(0);
 }
-x_65 = l_Lean_Name_append___main(x_62, x_0);
-lean::dec(x_62);
-if (lean::is_scalar(x_64)) {
- x_67 = lean::alloc_cnstr(1, 2, 0);
+x_67 = l_Lean_Name_append___main(x_64, x_0);
+lean::dec(x_64);
+if (lean::is_scalar(x_66)) {
+ x_69 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_67 = x_64;
+ x_69 = x_66;
 }
-lean::cnstr_set(x_67, 0, x_65);
-lean::cnstr_set(x_67, 1, x_27);
+lean::cnstr_set(x_69, 0, x_67);
+lean::cnstr_set(x_69, 1, x_27);
 if (lean::is_scalar(x_19)) {
- x_68 = lean::alloc_cnstr(0, 2, 0);
+ x_70 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_68 = x_19;
+ x_70 = x_19;
 }
-lean::cnstr_set(x_68, 0, x_67);
-lean::cnstr_set(x_68, 1, x_17);
+lean::cnstr_set(x_70, 0, x_69);
+lean::cnstr_set(x_70, 1, x_17);
 if (lean::is_scalar(x_14)) {
- x_69 = lean::alloc_cnstr(1, 1, 0);
+ x_71 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_69 = x_14;
+ x_71 = x_14;
 }
-lean::cnstr_set(x_69, 0, x_68);
-return x_69;
+lean::cnstr_set(x_71, 0, x_70);
+return x_71;
 }
 }
 else
 {
-obj* x_74; obj* x_77; obj* x_79; obj* x_80; obj* x_83; obj* x_84; obj* x_85; obj* x_86; 
+obj* x_76; obj* x_79; obj* x_81; obj* x_82; obj* x_85; obj* x_86; obj* x_87; obj* x_88; 
 lean::dec(x_3);
 lean::dec(x_0);
 lean::dec(x_15);
 lean::dec(x_19);
-x_74 = lean::cnstr_get(x_24, 0);
-lean::inc(x_74);
+x_76 = lean::cnstr_get(x_24, 0);
+lean::inc(x_76);
 lean::dec(x_24);
-x_77 = lean::cnstr_get(x_74, 1);
-if (lean::is_exclusive(x_74)) {
- lean::cnstr_release(x_74, 0);
- x_79 = x_74;
+x_79 = lean::cnstr_get(x_76, 1);
+if (lean::is_exclusive(x_76)) {
+ lean::cnstr_release(x_76, 0);
+ x_81 = x_76;
 } else {
- lean::inc(x_77);
- lean::dec(x_74);
- x_79 = lean::box(0);
+ lean::inc(x_79);
+ lean::dec(x_76);
+ x_81 = lean::box(0);
 }
-x_80 = lean::cnstr_get(x_77, 0);
-lean::inc(x_80);
-lean::dec(x_77);
-x_83 = lean::box(0);
-x_84 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_84, 0, x_80);
-lean::cnstr_set(x_84, 1, x_83);
-if (lean::is_scalar(x_79)) {
- x_85 = lean::alloc_cnstr(0, 2, 0);
+x_82 = lean::cnstr_get(x_79, 0);
+lean::inc(x_82);
+lean::dec(x_79);
+x_85 = lean::box(0);
+x_86 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_86, 0, x_82);
+lean::cnstr_set(x_86, 1, x_85);
+if (lean::is_scalar(x_81)) {
+ x_87 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_85 = x_79;
+ x_87 = x_81;
 }
-lean::cnstr_set(x_85, 0, x_84);
-lean::cnstr_set(x_85, 1, x_17);
+lean::cnstr_set(x_87, 0, x_86);
+lean::cnstr_set(x_87, 1, x_17);
 if (lean::is_scalar(x_14)) {
- x_86 = lean::alloc_cnstr(1, 1, 0);
+ x_88 = lean::alloc_cnstr(1, 1, 0);
 } else {
- x_86 = x_14;
+ x_88 = x_14;
 }
-lean::cnstr_set(x_86, 0, x_85);
-return x_86;
-}
-}
+lean::cnstr_set(x_88, 0, x_87);
+return x_88;
 }
 }
-obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__1(x_0, x_1, x_2, x_3);
-lean::dec(x_1);
-return x_4;
-}
-}
-obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__3___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__3(x_0, x_1, x_2);
-lean::dec(x_0);
-return x_3;
 }
 }
 obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__4___boxed(obj* x_0, obj* x_1, obj* x_2) {
@@ -26138,15 +26105,6 @@ _start:
 {
 obj* x_3; 
 x_3 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__4(x_0, x_1, x_2);
-lean::dec(x_0);
-return x_3;
-}
-}
-obj* l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__6___boxed(obj* x_0, obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_List_filterAux___main___at_Lean_Elaborator_resolveContext___main___spec__6(x_0, x_1, x_2);
 lean::dec(x_0);
 return x_3;
 }
@@ -27189,6 +27147,7 @@ obj* initialize_init_lean_parser_module(obj*);
 obj* initialize_init_lean_expander(obj*);
 obj* initialize_init_lean_expr(obj*);
 obj* initialize_init_lean_options(obj*);
+obj* initialize_init_lean_environment(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_elaborator(obj* w) {
  if (_G_initialized) return w;
@@ -27201,6 +27160,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_options(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
  l_Lean_Elaborator_ElaboratorM_Monad = _init_l_Lean_Elaborator_ElaboratorM_Monad();
 lean::mark_persistent(l_Lean_Elaborator_ElaboratorM_Monad);
@@ -27228,8 +27189,6 @@ lean::mark_persistent(l_Lean_Elaborator_toLevel___main___closed__2);
 lean::mark_persistent(l_Lean_Elaborator_toLevel___main___closed__3);
  l_Lean_Elaborator_toLevel___main___closed__4 = _init_l_Lean_Elaborator_toLevel___main___closed__4();
 lean::mark_persistent(l_Lean_Elaborator_toLevel___main___closed__4);
- l_Lean_Elaborator_toLevel___main___closed__5 = _init_l_Lean_Elaborator_toLevel___main___closed__5();
-lean::mark_persistent(l_Lean_Elaborator_toLevel___main___closed__5);
  l_Lean_Elaborator_Expr_mkAnnotation___closed__1 = _init_l_Lean_Elaborator_Expr_mkAnnotation___closed__1();
 lean::mark_persistent(l_Lean_Elaborator_Expr_mkAnnotation___closed__1);
  l_Lean_Elaborator_dummy = _init_l_Lean_Elaborator_dummy();
@@ -27362,22 +27321,22 @@ lean::mark_persistent(l_Lean_Elaborator_inferModToPexpr___closed__1);
 lean::mark_persistent(l_Lean_Elaborator_inferModToPexpr___closed__2);
  l_Lean_Elaborator_inferModToPexpr___closed__3 = _init_l_Lean_Elaborator_inferModToPexpr___closed__3();
 lean::mark_persistent(l_Lean_Elaborator_inferModToPexpr___closed__3);
- l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1 = _init_l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1();
-lean::mark_persistent(l_List_mmap___main___at_Lean_Elaborator_Declaration_elaborate___spec__2___closed__1);
- l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__1 = _init_l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__1();
-lean::mark_persistent(l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__1);
- l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__2 = _init_l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__2();
-lean::mark_persistent(l_Lean_Elaborator_Declaration_elaborate___lambda__3___closed__2);
- l_Lean_Elaborator_Declaration_elaborate___closed__1 = _init_l_Lean_Elaborator_Declaration_elaborate___closed__1();
-lean::mark_persistent(l_Lean_Elaborator_Declaration_elaborate___closed__1);
- l_Lean_Elaborator_Declaration_elaborate___closed__2 = _init_l_Lean_Elaborator_Declaration_elaborate___closed__2();
-lean::mark_persistent(l_Lean_Elaborator_Declaration_elaborate___closed__2);
- l_Lean_Elaborator_Declaration_elaborate___closed__3 = _init_l_Lean_Elaborator_Declaration_elaborate___closed__3();
-lean::mark_persistent(l_Lean_Elaborator_Declaration_elaborate___closed__3);
- l_Lean_Elaborator_Declaration_elaborate___closed__4 = _init_l_Lean_Elaborator_Declaration_elaborate___closed__4();
-lean::mark_persistent(l_Lean_Elaborator_Declaration_elaborate___closed__4);
- l_Lean_Elaborator_Declaration_elaborate___closed__5 = _init_l_Lean_Elaborator_Declaration_elaborate___closed__5();
-lean::mark_persistent(l_Lean_Elaborator_Declaration_elaborate___closed__5);
+ l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1 = _init_l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1();
+lean::mark_persistent(l_List_mmap___main___at_Lean_Elaborator_declaration_elaborate___spec__2___closed__1);
+ l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__1 = _init_l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__1();
+lean::mark_persistent(l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__1);
+ l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__2 = _init_l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__2();
+lean::mark_persistent(l_Lean_Elaborator_declaration_elaborate___lambda__3___closed__2);
+ l_Lean_Elaborator_declaration_elaborate___closed__1 = _init_l_Lean_Elaborator_declaration_elaborate___closed__1();
+lean::mark_persistent(l_Lean_Elaborator_declaration_elaborate___closed__1);
+ l_Lean_Elaborator_declaration_elaborate___closed__2 = _init_l_Lean_Elaborator_declaration_elaborate___closed__2();
+lean::mark_persistent(l_Lean_Elaborator_declaration_elaborate___closed__2);
+ l_Lean_Elaborator_declaration_elaborate___closed__3 = _init_l_Lean_Elaborator_declaration_elaborate___closed__3();
+lean::mark_persistent(l_Lean_Elaborator_declaration_elaborate___closed__3);
+ l_Lean_Elaborator_declaration_elaborate___closed__4 = _init_l_Lean_Elaborator_declaration_elaborate___closed__4();
+lean::mark_persistent(l_Lean_Elaborator_declaration_elaborate___closed__4);
+ l_Lean_Elaborator_declaration_elaborate___closed__5 = _init_l_Lean_Elaborator_declaration_elaborate___closed__5();
+lean::mark_persistent(l_Lean_Elaborator_declaration_elaborate___closed__5);
  l_Lean_Elaborator_variables_elaborate___closed__1 = _init_l_Lean_Elaborator_variables_elaborate___closed__1();
 lean::mark_persistent(l_Lean_Elaborator_variables_elaborate___closed__1);
  l_Lean_Elaborator_variables_elaborate___closed__2 = _init_l_Lean_Elaborator_variables_elaborate___closed__2();

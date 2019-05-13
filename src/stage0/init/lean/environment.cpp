@@ -138,6 +138,7 @@ uint8 environment_quot_init_core(obj*);
 obj* l_Lean_SMap_switch___at___private_init_lean_environment_1__switch___spec__1(obj*);
 extern obj* l_NonScalar_Inhabited;
 obj* l_List_foldl___main___rarg(obj*, obj*, obj*);
+obj* l_Lean_Environment_contains___boxed(obj*, obj*);
 obj* l___private_init_lean_environment_3__isQuotInit___boxed(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___boxed(obj*, obj*);
@@ -189,6 +190,7 @@ extern obj* l_Lean_Name_toString___closed__1;
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
 }
+uint8 l_Lean_Environment_contains(obj*, obj*);
 namespace lean {
 uint32 environment_trust_level_core(obj*);
 }
@@ -1937,6 +1939,39 @@ obj* x_2;
 x_2 = l_Lean_SMap_find___main___at_Lean_Environment_find___spec__1(x_0, x_1);
 lean::dec(x_1);
 return x_2;
+}
+}
+uint8 l_Lean_Environment_contains(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_5; 
+x_2 = lean::cnstr_get(x_0, 1);
+lean::inc(x_2);
+lean::dec(x_0);
+x_5 = l_Lean_SMap_find___main___at_Lean_Environment_find___spec__1(x_2, x_1);
+if (lean::obj_tag(x_5) == 0)
+{
+uint8 x_6; 
+x_6 = 0;
+return x_6;
+}
+else
+{
+uint8 x_8; 
+lean::dec(x_5);
+x_8 = 1;
+return x_8;
+}
+}
+}
+obj* l_Lean_Environment_contains___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Environment_contains(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_1);
+return x_3;
 }
 }
 obj* l_Lean_SMap_switch___at___private_init_lean_environment_1__switch___spec__1(obj* x_0) {

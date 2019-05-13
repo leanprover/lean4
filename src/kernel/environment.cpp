@@ -42,11 +42,11 @@ environment::environment(unsigned trust_lvl):
 }
 
 unsigned environment::trust_lvl() const {
-    return environment_trust_level_core(object_ref::get());
+    return environment_trust_level_core(get_obj_arg());
 }
 
 bool environment::is_quot_initialized() const {
-    return environment_quot_init_core(object_ref::get()) != 0;
+    return environment_quot_init_core(get_obj_arg()) != 0;
 }
 
 void environment::mark_quot_initialized() {
@@ -61,11 +61,11 @@ template<typename T> optional<T> to_optional(obj_arg o) {
 }
 
 optional<constant_info> environment::find(name const & n) const {
-    return to_optional<constant_info>(environment_find_core(object_ref::get(), n.get()));
+    return to_optional<constant_info>(environment_find_core(get_obj_arg(), n.get_obj_arg()));
 }
 
 constant_info environment::get(name const & n) const {
-    object * o = environment_find_core(object_ref::get(), n.get());
+    object * o = environment_find_core(get_obj_arg(), n.get_obj_arg());
     if (is_scalar(o))
         throw unknown_constant_exception(*this, n);
     constant_info r(cnstr_get(o, 0), true);
@@ -127,11 +127,11 @@ static void check_constant_val(environment const & env, constant_val const & v, 
 }
 
 void environment::add_core(constant_info const & info) {
-    m_obj = environment_add_core(m_obj, info.get());
+    m_obj = environment_add_core(m_obj, info.get_obj_arg());
 }
 
 environment environment::add(constant_info const & info) const {
-    return environment(environment_add_core(object_ref::get(), info.get()));
+    return environment(environment_add_core(get_obj_arg(), info.get_obj_arg()));
 }
 
 environment environment::add_axiom(declaration const & d, bool check) const {
@@ -275,7 +275,7 @@ unsigned environment::register_extension(environment_extension * initial) {
 }
 
 environment_extension const & environment::get_extension(unsigned id) const {
-    object * r = get_extension_core(object_ref::get(), box(id));
+    object * r = get_extension_core(get_obj_arg(), box(id));
     if (is_scalar(r)) { throw exception("invalid extension id"); }
     object * ext = cnstr_get(r, 0);
     dec(r);
@@ -283,7 +283,7 @@ environment_extension const & environment::get_extension(unsigned id) const {
 }
 
 environment environment::update(unsigned id, environment_extension * ext) const {
-    object * r = set_extension_core(object_ref::get(), box(id), to_object(ext));
+    object * r = set_extension_core(get_obj_arg(), box(id), to_object(ext));
     if (is_scalar(r)) { throw exception("invalid extension id"); }
     environment env(cnstr_get(r, 0), true);
     dec(r);

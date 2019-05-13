@@ -27,7 +27,6 @@ Lean interface to the old elaborator/elaboration parts of the parser
 #include "frontends/lean/util.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/simple_pos_info_provider.h"
-#include "frontends/lean/lean_environment.h"
 
 namespace lean {
 struct resolve_names_fn : public replace_visitor {
@@ -454,7 +453,7 @@ object_ref to_obj(name_generator const & ngen) {
 // TODO(Sebastian): replace `string` with `message` in the new runtime
 extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_arg vm_cmd, b_obj_arg vm_st) {
     auto vm_e = cnstr_get(vm_st, 0);
-    auto env = to_environment(vm_e);
+    environment env(vm_e, true);
     auto filename = string_to_std(vm_filename);
     std::stringstream in;
     auto ngen = to_name_generator(cnstr_get(vm_st, 1));
@@ -530,14 +529,14 @@ extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_
             }
 
             object * args[] = {
-                    to_lean_environment(p.env()),
-                    to_obj(s->m_ngen).steal(),
-                    vm_lds.steal(),
-                    vm_eds.steal(),
-                    cnstr_get(vm_st, 4),
-                    cnstr_get(vm_st, 5),
-                    cnstr_get(vm_st, 6),
-                    cnstr_get(vm_st, 7)
+                p.env().get_obj_arg(),
+                to_obj(s->m_ngen).steal(),
+                vm_lds.steal(),
+                vm_eds.steal(),
+                cnstr_get(vm_st, 4),
+                cnstr_get(vm_st, 5),
+                cnstr_get(vm_st, 6),
+                cnstr_get(vm_st, 7)
             };
             inc(cnstr_get(vm_st, 4));
             inc(cnstr_get(vm_st, 5));

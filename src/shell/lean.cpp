@@ -39,7 +39,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/pp.h"
 #include "frontends/lean/json.h"
 #include "frontends/lean/util.h"
-#include "frontends/lean/lean_environment.h"
 #include "library/trace.h"
 #include "init/init.h"
 #include "frontends/lean/simple_pos_info_provider.h"
@@ -506,14 +505,14 @@ int main(int argc, char ** argv) {
             scope_message_log scope_log(l);
             // res : estate.result io.error io.world (prod (list syntax) environment)
             object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output),
-                                               to_lean_environment(env), io_mk_world()) };
+                                               env.get_obj_arg(), io_mk_world()) };
             if (io_result_is_error(res.raw())) {
                 // estate.result.error _
                 ok = false;
             } else {
                 // estate.result.ok (prod (list syntax) environment) io.world
                 ok = true;
-                env = to_environment(cnstr_get(io_result_get_value(res.raw()), 1));
+                env = environment(cnstr_get(io_result_get_value(res.raw()), 1), true);
             }
         } else {
             message_log l;

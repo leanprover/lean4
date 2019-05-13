@@ -69,8 +69,6 @@ Missing features: non monotonic modifications in .olean files
 */
 
 namespace lean {
-object * environment_save_modification_core(object * env, object * mod);
-
 static void modification_finalizer(void * ext) {
     delete static_cast<modification*>(ext);
 }
@@ -80,7 +78,7 @@ static void modification_foreach(void * /* mod */, b_obj_arg /* fn */) {
 
 static external_object_class * g_modification_class = nullptr;
 
-static modification const & to_modification(b_obj_arg o) {
+static modification & to_modification(b_obj_arg o) {
     lean_assert(external_class(o) == g_modification_class);
     return *static_cast<modification *>(external_data(o));
 }
@@ -96,7 +94,6 @@ extern "C" object * lean_serialize_modifications(object *) {
 
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
-    list<modification*> m_modifications;
 };
 
 struct module_ext_reg {
@@ -121,13 +118,21 @@ static unsigned olean_hash(std::string const & data) {
     return hash(data.size(), [&] (unsigned i) { return static_cast<unsigned char>(data[i]); });
 }
 
+object * environment_add_modification_core(object * env, object * mod);
+object * environment_get_modifications_core(object * env);
+
 void write_module(environment const & env, module_name const & mod, std::string const & olean_fn) {
     exclusive_file_lock output_lock(olean_fn);
     std::ofstream out(olean_fn, std::ios_base::binary);
     module_ext const & ext = get_extension(env);
 
     buffer<modification*> mods;
-    to_buffer(ext.m_modifications, mods);
+    object * mod_list = environment_get_modifications_core(env.get_obj_arg());
+    while (!is_scalar(mod_list)) {
+        object * mod = cnstr_get(mod_list, 0);
+        mods.push_back(&to_modification(mod));
+        mod_list = cnstr_get(mod_list, 1);
+    }
 
     std::ostringstream out1(std::ios_base::binary);
     serializer s1(out1);
@@ -137,6 +142,9 @@ void write_module(environment const & env, module_name const & mod, std::string 
         s1 << std::string(mods[i]->get_key());
         mods[i]->serialize(s1);
     }
+
+    dec(mod_list);
+
     s1 << g_olean_end_file;
 
     if (!out1.good()) {
@@ -194,17 +202,13 @@ struct decl_modification : public modification {
 
 namespace module {
 environment add(environment const & env, modification* modf) {
-    module_ext ext = get_extension(env);
-    ext.m_modifications = cons(modf, ext.m_modifications);
-    return update(env, ext);
+    return environment(environment_add_modification_core(env.get_obj_arg(), to_object(modf)));
 }
 
 environment add_and_perform(environment const & env, modification * modf) {
     auto new_env = env;
     modf->perform(new_env);
-    module_ext ext = get_extension(new_env);
-    ext.m_modifications = cons(modf, ext.m_modifications);
-    return update(new_env, ext);
+    return add(new_env, modf);
 }
 
 environment add(environment const & env, declaration const & d, bool check) {

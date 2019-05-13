@@ -17,7 +17,7 @@ struct closed_term_ext : public environment_extension {
 
 struct closed_term_ext_reg {
     unsigned m_ext_id;
-    closed_term_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<closed_term_ext>()); }
+    closed_term_ext_reg() { m_ext_id = environment::register_extension(new closed_term_ext()); }
 };
 
 static closed_term_ext_reg * g_ext = nullptr;
@@ -25,7 +25,7 @@ static closed_term_ext const & get_extension(environment const & env) {
     return static_cast<closed_term_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, closed_term_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<closed_term_ext>(ext));
+    return env.update(g_ext->m_ext_id, new closed_term_ext(ext));
 }
 
 /* Support for old module manager.

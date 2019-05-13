@@ -122,7 +122,7 @@ struct aliases_ext_reg {
     unsigned m_ext_id;
     aliases_ext_reg() {
         register_scoped_ext(aliases_ext::push_scope, aliases_ext::pop_scope);
-        m_ext_id = environment::register_extension(std::make_shared<aliases_ext>());
+        m_ext_id = environment::register_extension(new aliases_ext());
     }
 };
 static aliases_ext_reg * g_ext = nullptr;
@@ -130,7 +130,7 @@ static aliases_ext const & get_extension(environment const & env) {
     return static_cast<aliases_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, aliases_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<aliases_ext>(ext));
+    return env.update(g_ext->m_ext_id, new aliases_ext(ext));
 }
 
 environment add_expr_alias(environment const & env, name const & a, name const & e, bool overwrite) {

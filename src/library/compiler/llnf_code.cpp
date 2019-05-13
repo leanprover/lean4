@@ -16,7 +16,7 @@ struct llnf_code_ext : public environment_extension {
 
 struct llnf_code_ext_reg {
     unsigned m_ext_id;
-    llnf_code_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<llnf_code_ext>()); }
+    llnf_code_ext_reg() { m_ext_id = environment::register_extension(new llnf_code_ext()); }
 };
 
 static llnf_code_ext_reg * g_ext = nullptr;
@@ -24,7 +24,7 @@ static llnf_code_ext const & get_extension(environment const & env) {
     return static_cast<llnf_code_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, llnf_code_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<llnf_code_ext>(ext));
+    return env.update(g_ext->m_ext_id, new llnf_code_ext(ext));
 }
 
 environment save_llnf_code(environment const & env, comp_decls const & ds) {

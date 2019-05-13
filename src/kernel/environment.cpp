@@ -9,24 +9,68 @@ Author: Leonardo de Moura
 #include <limits>
 #include "runtime/sstream.h"
 #include "runtime/thread.h"
+#include "util/map_foreach.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker.h"
 #include "kernel/quot.h"
 
 namespace lean {
-environment_extension::~environment_extension() {}
+object* environment_add_core(object*, object*);
+object* mk_empty_environment_core(uint32, object*);
+object* environment_find_core(object*, object*);
+uint32 environment_trust_level_core(object*);
+object* environment_mark_quot_init_core(object*);
+uint8 environment_quot_init_core(object*);
+object* register_extension_core(object*);
+object* get_extension_core(object*, object*);
+object* set_extension_core(object*, object*, object*);
+object* environment_switch_core(object*);
+
+object* mk_empty_environment(uint32 trust_lvl) {
+    object* r = mk_empty_environment_core(trust_lvl, io_mk_world());
+    if (io_result_is_error(r)) { dec(r); throw exception("error creating empty environment"); }
+    object* env = io_result_get_value(r);
+    inc(env);
+    dec(r);
+    return env;
+}
+
+environment::environment(unsigned trust_lvl):
+    // TODO(Leo): do not eagerly switch
+    object_ref(environment_switch_core(mk_empty_environment(trust_lvl))) {
+}
+
+unsigned environment::trust_lvl() const {
+    return environment_trust_level_core(object_ref::get());
+}
+
+bool environment::is_quot_initialized() const {
+    return environment_quot_init_core(object_ref::get()) != 0;
+}
+
+void environment::mark_quot_initialized() {
+    m_obj = environment_mark_quot_init_core(m_obj);
+}
+
+template<typename T> optional<T> to_optional(obj_arg o) {
+    if (is_scalar(o)) return optional<T>();
+    T r(cnstr_get(o, 0), true);
+    dec(o);
+    return optional<T>(r);
+}
 
 optional<constant_info> environment::find(name const & n) const {
-    constant_info const * r = m_constants.find(n);
-    return r ? some_constant_info(*r) : none_constant_info();
+    return to_optional<constant_info>(environment_find_core(object_ref::get(), n.get()));
 }
 
 constant_info environment::get(name const & n) const {
-    constant_info const * r = m_constants.find(n);
-    if (!r)
+    object * o = environment_find_core(object_ref::get(), n.get());
+    if (is_scalar(o))
         throw unknown_constant_exception(*this, n);
-    return *r;
+    constant_info r(cnstr_get(o, 0), true);
+    dec(o);
+    return r;
 }
 
 static void check_no_metavar(environment const & env, name const & n, expr const & e) {
@@ -80,6 +124,14 @@ static void check_constant_val(environment const & env, constant_val const & v, 
 static void check_constant_val(environment const & env, constant_val const & v, bool safe_only) {
     type_checker checker(env, safe_only);
     check_constant_val(env, v, checker);
+}
+
+void environment::add_core(constant_info const & info) {
+    m_obj = environment_add_core(m_obj, info.get());
+}
+
+environment environment::add(constant_info const & info) const {
+    return environment(environment_add_core(object_ref::get(), info.get()));
 }
 
 environment environment::add_axiom(declaration const & d, bool check) const {
@@ -188,65 +240,67 @@ environment environment::add(declaration const & d, bool check) const {
     lean_unreachable();
 }
 
-class extension_manager {
-    std::vector<std::shared_ptr<environment_extension const>> m_exts;
-    mutex                                                     m_mutex;
-public:
-    unsigned register_extension(std::shared_ptr<environment_extension const> const & ext) {
-        lock_guard<mutex> lock(m_mutex);
-        unsigned r = m_exts.size();
-        m_exts.push_back(ext);
-        return r;
-    }
-
-    bool has_ext(unsigned extid) const { return extid < m_exts.size(); }
-
-    environment_extension const & get_initial(unsigned extid) {
-        lock_guard<mutex> lock(m_mutex);
-        return *(m_exts[extid].get());
-    }
-};
-
-static extension_manager * g_extension_manager = nullptr;
-static extension_manager & get_extension_manager() {
-    return *g_extension_manager;
+static void env_ext_finalizer(void * ext) {
+    delete static_cast<environment_extension*>(ext);
 }
 
-void initialize_environment() {
-    g_extension_manager = new extension_manager();
+static void env_ext_foreach(void * /* ext */, b_obj_arg /* fn */) {
+    /* The foreach combinator is used by `mark_mt` when marking values as "multi-threaded".
+       Moreover, it is invoked even when we don't use threads because of global
+       IO.Ref is considered to be "multi-threaded".
+
+       So, we just ignore this issue for now.
+       This is not critical since eventually all environment extensions will be implemented in Lean,
+       and we will be able to delete this code.
+    */
 }
 
-void finalize_environment() {
-    delete g_extension_manager;
+static external_object_class * g_env_ext_class = nullptr;
+
+static environment_extension const & to_env_ext(b_obj_arg o) {
+    lean_assert(external_class(o) == g_env_ext_class);
+    return *static_cast<environment_extension *>(external_data(o));
 }
 
-unsigned environment::register_extension(std::shared_ptr<environment_extension const> const & initial) {
-    return get_extension_manager().register_extension(initial);
+static obj_res to_object(environment_extension * ext) {
+    return alloc_external(g_env_ext_class, ext);
 }
 
-[[ noreturn ]] void throw_invalid_extension(environment const & env) {
-    throw kernel_exception(env, "invalid environment extension identifier");
+unsigned environment::register_extension(environment_extension * initial) {
+    object * r = register_extension_core(to_object(initial));
+    if (is_scalar(r)) { throw exception("error creating empty environment"); }
+    unsigned idx = unbox(cnstr_get(r, 0));
+    dec(r);
+    return idx;
 }
 
 environment_extension const & environment::get_extension(unsigned id) const {
-    if (!get_extension_manager().has_ext(id))
-        throw_invalid_extension(*this);
-    if (id >= m_extensions->size() || !(*m_extensions)[id])
-        return get_extension_manager().get_initial(id);
-    return *((*m_extensions)[id].get());
+    object * r = get_extension_core(object_ref::get(), box(id));
+    if (is_scalar(r)) { throw exception("invalid extension id"); }
+    object * ext = cnstr_get(r, 0);
+    dec(r);
+    return to_env_ext(ext);
 }
 
-environment environment::update(unsigned id, std::shared_ptr<environment_extension const> const & ext) const {
-    if (!get_extension_manager().has_ext(id))
-        throw_invalid_extension(*this);
-    auto new_exts = std::make_shared<environment_extensions>(*m_extensions);
-    if (id >= new_exts->size())
-        new_exts->resize(id+1);
-    (*new_exts)[id] = ext;
-    return environment(*this, new_exts);
+environment environment::update(unsigned id, environment_extension * ext) const {
+    object * r = set_extension_core(object_ref::get(), box(id), to_object(ext));
+    if (is_scalar(r)) { throw exception("invalid extension id"); }
+    environment env(cnstr_get(r, 0), true);
+    dec(r);
+    return env;
 }
 
 void environment::for_each_constant(std::function<void(constant_info const & d)> const & f) const {
-    m_constants.for_each([&](name const &, constant_info const & c) { return f(c); });
+    smap_foreach(cnstr_get(raw(), 1), [&](object *, object * v) {
+            constant_info cinfo(v, true);
+            f(cinfo);
+        });
+}
+
+void initialize_environment() {
+    g_env_ext_class = register_external_object_class(env_ext_finalizer, env_ext_foreach);
+}
+
+void finalize_environment() {
 }
 }

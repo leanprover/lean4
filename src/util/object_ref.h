@@ -11,6 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 /* Smart point for Lean objects. It is useful for writing C++ code that manipulates Lean objects.  */
 class object_ref {
+protected:
     object * m_obj;
 public:
     object_ref():m_obj(box(0)) {}
@@ -34,6 +35,7 @@ public:
     }
     object * raw() const { return m_obj; }
     object * steal() { object * r = m_obj; m_obj = box(0); return r; }
+    object * get() const { inc(m_obj); return m_obj; }
     static void swap(object_ref & a, object_ref & b) { std::swap(a.m_obj, b.m_obj); }
 };
 

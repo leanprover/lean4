@@ -24,7 +24,7 @@ struct private_ext : public environment_extension {
 
 struct private_ext_reg {
     unsigned m_ext_id;
-    private_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<private_ext>()); }
+    private_ext_reg() { m_ext_id = environment::register_extension(new private_ext()); }
 };
 
 static private_ext_reg * g_ext = nullptr;
@@ -32,7 +32,7 @@ static private_ext const & get_extension(environment const & env) {
     return static_cast<private_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, private_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<private_ext>(ext));
+    return env.update(g_ext->m_ext_id, new private_ext(ext));
 }
 
 environment set_main_module_name(environment const & env, name const & mod_name) {

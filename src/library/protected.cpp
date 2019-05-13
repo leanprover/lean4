@@ -17,7 +17,7 @@ struct protected_ext : public environment_extension {
 
 struct protected_ext_reg {
     unsigned m_ext_id;
-    protected_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<protected_ext>()); }
+    protected_ext_reg() { m_ext_id = environment::register_extension(new protected_ext()); }
 };
 
 static protected_ext_reg * g_ext = nullptr;
@@ -25,7 +25,7 @@ static protected_ext const & get_extension(environment const & env) {
     return static_cast<protected_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, protected_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<protected_ext>(ext));
+    return env.update(g_ext->m_ext_id, new protected_ext(ext));
 }
 
 struct protected_modification : public modification {

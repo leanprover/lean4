@@ -159,7 +159,7 @@ public:
         reg() {
             register_scoped_ext(push_fn, pop_fn);
             modification::init();
-            m_ext_id = environment::register_extension(std::make_shared<scoped_ext>());
+            m_ext_id = environment::register_extension(new scoped_ext());
         }
         ~reg() {
             modification::finalize();
@@ -174,7 +174,7 @@ public:
         return static_cast<scoped_ext const &>(env.get_extension(g_ext->m_ext_id));
     }
     static environment update(environment const & env, scoped_ext const & ext) {
-        return env.update(g_ext->m_ext_id, std::make_shared<scoped_ext>(ext));
+        return env.update(g_ext->m_ext_id, new scoped_ext(ext));
     }
     static environment push_fn(environment const & env, io_state const &, scope_kind) {
         return update(env, get(env).push());

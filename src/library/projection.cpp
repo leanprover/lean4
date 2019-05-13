@@ -25,7 +25,7 @@ struct projection_ext : public environment_extension {
 struct projection_ext_reg {
     unsigned m_ext_id;
     projection_ext_reg() {
-        m_ext_id = environment::register_extension(std::make_shared<projection_ext>());
+        m_ext_id = environment::register_extension(new projection_ext());
     }
 };
 
@@ -34,7 +34,7 @@ static projection_ext const & get_extension(environment const & env) {
     return static_cast<projection_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, projection_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<projection_ext>(ext));
+    return env.update(g_ext->m_ext_id, new projection_ext(ext));
 }
 
 struct proj_modification : public modification {

@@ -45,7 +45,7 @@ static void check_eq_type(environment const & env) {
 }
 
 environment environment::add_quot() const {
-    if (m_quot_initialized)
+    if (is_quot_initialized())
         return *this;
     check_eq_type(*this);
     environment new_env = *this;
@@ -93,7 +93,7 @@ environment environment::add_quot() const {
                    : (∀ a : α, β (@quot.mk.{u} α r a)) → ∀ q : @quot.{u} α r, β q */
     new_env.add_core(constant_info(quot_val(*quot_consts::g_quot_ind, {u_name},
                                             lctx.mk_pi({alpha, r, beta}, mk_arrow(all_quot, lctx.mk_pi(q, beta_q))), quot_kind::Ind)));
-    new_env.m_quot_initialized = true;
+    new_env.mark_quot_initialized();
     return new_env;
 }
 

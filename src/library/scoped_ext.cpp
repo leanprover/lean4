@@ -30,7 +30,7 @@ struct scope_mng_ext : public environment_extension {
 
 struct scope_mng_ext_reg {
     unsigned m_ext_id;
-    scope_mng_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<scope_mng_ext>()); }
+    scope_mng_ext_reg() { m_ext_id = environment::register_extension(new scope_mng_ext()); }
 };
 
 static scope_mng_ext_reg * g_ext = nullptr;
@@ -38,7 +38,7 @@ static scope_mng_ext const & get_extension(environment const & env) {
     return static_cast<scope_mng_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, scope_mng_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<scope_mng_ext>(ext));
+    return env.update(g_ext->m_ext_id, new scope_mng_ext(ext));
 }
 
 name const & get_namespace(environment const & env) {

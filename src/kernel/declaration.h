@@ -435,6 +435,8 @@ public:
     constant_info(recursor_val const & v);
     constant_info(constant_info const & other):object_ref(other) {}
     constant_info(constant_info && other):object_ref(other) {}
+    explicit constant_info(b_obj_arg o, bool b):object_ref(o, b) {}
+    explicit constant_info(obj_arg o):object_ref(o) {}
 
     constant_info_kind kind() const { return static_cast<constant_info_kind>(cnstr_tag(raw())); }
 

@@ -24,43 +24,20 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-class environment;
-
 class environment_extension {
 public:
-    virtual ~environment_extension();
+    virtual ~environment_extension() {}
 };
 
-typedef std::vector<std::shared_ptr<environment_extension const>> environment_extensions;
-
-/** \brief Lean core environment. An environment object can be extended/customized in different ways:
-
-    1- By providing a normalizer_extension when creating an empty environment.
-    2- By attaching additional data as environment::extensions. The additional data can be added
-       at any time. They contain information used by the automation (e.g., rewriting sets, unification hints, etc). */
-class environment {
-    typedef name_map<constant_info>                       constants;
-    typedef std::shared_ptr<environment_extensions const> extensions;
+class environment : public object_ref {
     friend class add_inductive_fn;
 
-    unsigned                  m_trust_lvl;
-    bool                      m_quot_initialized{false};
-    constants                 m_constants;
-    extensions                m_extensions;
-
-    environment(environment const & env, extensions const & exts):
-        m_trust_lvl(env.m_trust_lvl), m_quot_initialized(env.m_quot_initialized),
-        m_constants(env.m_constants), m_extensions(exts) {}
-
-    void check_duplicated_univ_params(names ls) const;
     void check_name(name const & n) const;
+    void check_duplicated_univ_params(names ls) const;
 
-    void add_core(constant_info const & info) { m_constants.insert(info.get_name(), info); }
-    environment add(constant_info const & info) const {
-        environment new_env(*this);
-        new_env.add_core(info);
-        return new_env;
-    }
+    void add_core(constant_info const & info);
+    void mark_quot_initialized();
+    environment add(constant_info const & info) const;
     environment add_axiom(declaration const & d, bool check) const;
     environment add_definition(declaration const & d, bool check) const;
     environment add_theorem(declaration const & d, bool check) const;
@@ -68,17 +45,21 @@ class environment {
     environment add_mutual(declaration const & d, bool check) const;
     environment add_quot() const;
     environment add_inductive(declaration const & d) const;
-
 public:
-    environment(unsigned trust_lvl = 0):
-        m_trust_lvl(trust_lvl),
-        m_extensions(std::make_shared<environment_extensions const>()) {}
+    environment(unsigned trust_lvl = 0);
+    environment(environment const & other):object_ref(other) {}
+    environment(environment && other):object_ref(other) {}
+    explicit environment(b_obj_arg o, bool b):object_ref(o, b) {}
+    explicit environment(obj_arg o):object_ref(o) {}
     ~environment() {}
 
-    /** \brief Return the trust level of this environment. */
-    unsigned trust_lvl() const { return m_trust_lvl; }
+    environment & operator=(environment const & other) { object_ref::operator=(other); return *this; }
+    environment & operator=(environment && other) { object_ref::operator=(other); return *this; }
 
-    bool is_quot_initialized() const { return m_quot_initialized; }
+    /** \brief Return the trust level of this environment. */
+    unsigned trust_lvl() const;
+
+    bool is_quot_initialized() const;
 
     /** \brief Return information for the constant with name \c n (if it is defined in this environment). */
     optional<constant_info> find(name const & n) const;
@@ -98,22 +79,20 @@ public:
         \remark The extension objects are created on demand.
 
         \see get_extension */
-    static unsigned register_extension(std::shared_ptr<environment_extension const> const & initial);
+    static unsigned register_extension(environment_extension * initial);
 
     /** \brief Return the extension with the given id. */
     environment_extension const & get_extension(unsigned extid) const;
 
     /** \brief Update the environment extension with the given id. */
-    environment update(unsigned extid, std::shared_ptr<environment_extension const> const & ext) const;
+    environment update(unsigned extid, environment_extension * ext) const;
 
     /** \brief Apply the function \c f to each constant */
     void for_each_constant(std::function<void(constant_info const & d)> const & f) const;
 
-    /** \brief Return true iff declarations and extensions of e1 and e2 are pointer equal */
+    /** \brief Pointer equality */
     friend bool is_eqp(environment const & e1, environment const & e2) {
-        return
-            is_eqp(e1.m_constants, e2.m_constants) &&
-            e1.m_extensions.get() == e2.m_extensions.get();
+        return e1.raw() == e2.raw();
     }
 };
 

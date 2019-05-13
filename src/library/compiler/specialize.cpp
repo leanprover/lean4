@@ -128,7 +128,7 @@ struct specialize_ext : public environment_extension {
 
 struct specialize_ext_reg {
     unsigned m_ext_id;
-    specialize_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<specialize_ext>()); }
+    specialize_ext_reg() { m_ext_id = environment::register_extension(new specialize_ext()); }
 };
 
 static specialize_ext_reg * g_ext = nullptr;
@@ -136,7 +136,7 @@ static specialize_ext const & get_extension(environment const & env) {
     return static_cast<specialize_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, specialize_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<specialize_ext>(ext));
+    return env.update(g_ext->m_ext_id, new specialize_ext(ext));
 }
 
 /* Support for old module manager.

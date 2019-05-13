@@ -82,7 +82,7 @@ struct module_ext : public environment_extension {
 
 struct module_ext_reg {
     unsigned m_ext_id;
-    module_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<module_ext>()); }
+    module_ext_reg() { m_ext_id = environment::register_extension(new module_ext()); }
 };
 
 static module_ext_reg * g_ext = nullptr;
@@ -92,7 +92,7 @@ static module_ext const & get_extension(environment const & env) {
 }
 
 static environment update(environment const & env, module_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<module_ext>(ext));
+    return env.update(g_ext->m_ext_id, new module_ext(ext));
 }
 
 static char const * g_olean_end_file = "EndFile";

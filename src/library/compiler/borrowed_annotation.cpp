@@ -33,7 +33,7 @@ struct borrowed_ext : public environment_extension {
 
 struct borrowed_ext_reg {
     unsigned m_ext_id;
-    borrowed_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<borrowed_ext>()); }
+    borrowed_ext_reg() { m_ext_id = environment::register_extension(new borrowed_ext()); }
 };
 
 static borrowed_ext_reg * g_ext = nullptr;
@@ -41,7 +41,7 @@ static borrowed_ext const & get_extension(environment const & env) {
     return static_cast<borrowed_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, borrowed_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<borrowed_ext>(ext));
+    return env.update(g_ext->m_ext_id, new borrowed_ext(ext));
 }
 
 /* Support for old module manager.

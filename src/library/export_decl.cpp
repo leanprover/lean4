@@ -49,7 +49,7 @@ struct export_decl_env_ext : public environment_extension {
 /** \brief Auxiliary object for registering the environment extension */
 struct export_decl_env_ext_reg {
     unsigned m_ext_id;
-    export_decl_env_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<export_decl_env_ext>()); }
+    export_decl_env_ext_reg() { m_ext_id = environment::register_extension(new export_decl_env_ext()); }
 };
 
 static export_decl_env_ext_reg * g_ext = nullptr;
@@ -61,7 +61,7 @@ static export_decl_env_ext const & get_export_decl_extension(environment const &
 
 /** \brief Update environment extension */
 static environment update(environment const & env, export_decl_env_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<export_decl_env_ext>(ext));
+    return env.update(g_ext->m_ext_id, new export_decl_env_ext(ext));
 }
 
 static environment add_export_decl_core(environment const & env, name const & in_ns, export_decl const & e) {

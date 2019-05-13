@@ -17,7 +17,7 @@ struct aux_recursor_ext : public environment_extension {
 
 struct aux_recursor_ext_reg {
     unsigned m_ext_id;
-    aux_recursor_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<aux_recursor_ext>()); }
+    aux_recursor_ext_reg() { m_ext_id = environment::register_extension(new aux_recursor_ext()); }
 };
 
 static aux_recursor_ext_reg * g_ext = nullptr;
@@ -25,7 +25,7 @@ static aux_recursor_ext const & get_extension(environment const & env) {
     return static_cast<aux_recursor_ext const &>(env.get_extension(g_ext->m_ext_id));
 }
 static environment update(environment const & env, aux_recursor_ext const & ext) {
-    return env.update(g_ext->m_ext_id, std::make_shared<aux_recursor_ext>(ext));
+    return env.update(g_ext->m_ext_id, new aux_recursor_ext(ext));
 }
 
 struct auxrec_modification : public modification {

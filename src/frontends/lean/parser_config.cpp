@@ -377,7 +377,7 @@ struct cmd_ext : public environment_extension {
 
 struct cmd_ext_reg {
     unsigned m_ext_id;
-    cmd_ext_reg() { m_ext_id = environment::register_extension(std::make_shared<cmd_ext>()); }
+    cmd_ext_reg() { m_ext_id = environment::register_extension(new cmd_ext()); }
 };
 static cmd_ext_reg * g_ext = nullptr;
 static cmd_ext const & get_extension(environment const & env) {
@@ -391,7 +391,7 @@ environment add_command(environment const & env, name const & n, cmd_info const 
     auto env2 = token_ext::register_entry(env, get_dummy_ios(), token_entry(n.to_string()));
     cmd_ext ext = get_extension(env2);
     ext.m_cmds.insert(n, info);
-    return env2.update(g_ext->m_ext_id, std::make_shared<cmd_ext>(ext));
+    return env2.update(g_ext->m_ext_id, new cmd_ext(ext));
 }
 
 void initialize_parser_config() {

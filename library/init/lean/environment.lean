@@ -266,6 +266,10 @@ constant modListExtension : EnvExtension (List Modification) := default _
 def addModification (env : Environment) (mod : Modification) : Environment :=
 modListExtension.modifyState env $ λ mods, mod :: mods
 
+@[export lean.environment_get_modifications_core]
+def getModifications (env : Environment) : List Modification :=
+modListExtension.getState env
+
 /- mkModuleData invokes this function to convert a list of modification objects into
    a serialized byte array. -/
 @[extern "lean_serialize_modifications"]

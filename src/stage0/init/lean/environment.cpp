@@ -58,6 +58,9 @@ obj* l_Lean_EnvExtension_Inhabited___boxed(obj*);
 obj* l_List_toArrayAux___main___rarg(obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_EnvExtension_setState(obj*, obj*, obj*, obj*);
+namespace lean {
+obj* environment_get_modifications_core(obj*);
+}
 obj* l_List_redLength___main___rarg(obj*);
 obj* l_Lean_PersistentEnvExtension_getState___rarg___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_forceState(obj*, obj*);
@@ -4292,6 +4295,18 @@ lean::cnstr_set_scalar(x_31, sizeof(void*)*4 + 4, x_9);
 x_32 = x_31;
 return x_32;
 }
+}
+}
+}
+namespace lean {
+obj* environment_get_modifications_core(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_modListExtension;
+x_2 = l_Lean_EnvExtension_getStateUnsafe___rarg(x_1, x_0);
+lean::dec(x_0);
+return x_2;
 }
 }
 }

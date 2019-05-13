@@ -1,49 +1,74 @@
-#BENCH=./bad_bench
-BENCH=bench
+## CONFIG
+
+BENCH=ulimit -s unlimited && bench
+CROSS_BENCHES = binarytrees deriv expr_const_folding rbmap
+
+# basic version usable without Nix
+#CROSS_CATS = .lean .hs .llvm.hs .ml
+CROSS_CATS = .lean .gcc.lean .hs .llvm.hs .ml .flambda.ml
+
+GHC_FLAGS = -O3
+OCAML_FLAGS = -O3
+
+## IMPLEMENTATION
+
+LEAN_BIN ?= ../../bin
+GHC ?= ghc
+OCAML ?= ocamlopt.opt
+
+.PRECIOUS: %.out bench/%
+.DELETE_ON_ERROR:
+
+all: report_cross.csv
 
 # make gets confused by the .cpp files otherwise
 %.lean: ;
 
-%.lean.out: %.lean ../compiler/test_flags.sh
-	./compile.sh $<
+%.lean.cpp: %.lean
+	$(LEAN_BIN)/lean --cpp=$<.cpp $<
+%.lean.out: %.lean.cpp
+	$(LEAN_BIN)/leanc -o $@ $<
+# Binaries x.lean.out and x.gcc.lean.out etc. are produced by the
+# same rules and x.lean source file by copying the latter to
+# x.gcc.lean. This also avoids conflicts between intermediate
+# files of the two binaries.
+%.gcc.lean.out: LEAN_BIN = $(LEAN_GCC_BIN)
+%.gcc.lean: %.lean; ln $< $@
 
 %.hs.out: %.hs
-	ghc -fllvm -O3 $< -o $<.out
+	$(GHC) $(GHC_FLAGS) $< -o $@
+%.llvm.hs.out: GHC_FLAGS += -fllvm
+%.llvm.hs: %.hs; ln $< $@
+
+binarytrees.hs: binarytrees.ghc-6.hs; ln $< $@
+# NOTE: changed `-N4` rtsopt to `-N` to be less system-dependent
+binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -rtsopts -with-rtsopts='-N -K128M -H'
 
 %.ml.out: %.ml
-	ocamlopt -O3 $< -o $<.out
+	$(OCAML) $(OCAML_FLAGS) $< -o $@
+%.flambda.ml.out: OCAML = $(OCAML_FLAMBDA)
+%.flambda.ml: %.ml; ln $< $@
 
-binarytrees.hs.out: binarytrees.ghc-6.hs
-	ghc --make -fllvm -O2 -XBangPatterns -dynamic -threaded -rtsopts  binarytrees.ghc-6.hs -o binarytrees.hs.out
+binarytrees.ml: binarytrees.ocaml-2.ml; ln $< $@
+binarytrees%ml.out: OCAML_FLAGS = -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa
 
-run_binarytrees.hs.out: binarytrees.hs.out
-	time ./binarytrees.hs.out +RTS -N4 -K128M -H -RTS 21
+bench:
+	-@mkdir bench
 
-binarytrees.ml.out: binarytrees.ocaml-2.ml
-	ocamlopt -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa binarytrees.ocaml-2.ml -o binarytrees.ml.out
+bench/%.bench: %.out | bench
+	$(BENCH) "./$< $(BENCH_PARAMS)" --json $@
 
-run_binarytrees.ml.out: binarytrees.ml.out
-	time ./binarytrees.ml.out 21
+bench/binarytrees.%.bench: BENCH_PARAMS = 21
 
-run_binarytrees.lean.out: binarytrees.lean.out
-	time ./binarytrees.lean.out 21
+bench/rbmap.%.bench: BENCH_PARAMS = 7000000
 
-bench_deriv: deriv.lean.out deriv.hs.out deriv.ml.out
-	$(BENCH) ./deriv.lean.out ./deriv.hs.out ./deriv.ml.out
+bench_cross: $(foreach bench,$(CROSS_BENCHES), $(foreach cat, $(CROSS_CATS), bench/$(bench)$(cat).bench))
 
-bench_binarytrees: binarytrees.lean.out binarytrees.hs.out binarytrees.ml.out
-	$(BENCH) "make run_binarytrees.lean.out" "make run_binarytrees.hs.out" "make run_binarytrees.ml.out"
+# yes.
+space = $() $()
 
-bench_expr_const_folding: expr_const_folding.lean.out expr_const_folding.hs.out expr_const_folding.ml.out
-	$(BENCH) ./expr_const_folding.lean.out ./expr_const_folding.hs.out ./expr_const_folding.ml.out
+report_cross.csv: bench_cross report.py
+	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@
 
-bench_rbmap: rbmap.lean.out rbmap.hs.out rbmap.ml.out
-	$(BENCH) "./rbmap.lean.out 7000000" "./rbmap.hs.out 7000000" "./rbmap.ml.out 7000000"
-
-bench_all: bench_deriv bench_binarytrees bench_expr_const_folding bench_rbmap
-
-run_frontend:
-	cd ../.. && time bin/lean --new-frontend library/init/core.lean
-
-bench_lean: deriv.lean.out expr_const_folding.lean.out rbmap.lean.out binarytrees.lean.out ../../bin/lean unionfind1.lean.out unionfind2.lean.out
-	$(BENCH) ./deriv.lean.out ./expr_const_folding.lean.out "./rbmap.lean.out 7000000" "./binarytrees.lean.out 21" "make run_frontend" "./unionfind1.lean.out 3000000" "./unionfind2.lean.out 3000000"
+clean:
+	-rm *.out bench/*

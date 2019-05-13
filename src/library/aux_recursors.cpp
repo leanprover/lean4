@@ -46,8 +46,8 @@ struct auxrec_modification : public modification {
         s << m_decl;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        return std::make_shared<auxrec_modification>(read_name(d));
+    static modification* deserialize(deserializer & d) {
+        return new auxrec_modification(read_name(d));
     }
 };
 
@@ -69,17 +69,17 @@ struct no_conf_modification : public modification {
         s << m_decl;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        return std::make_shared<no_conf_modification>(read_name(d));
+    static modification* deserialize(deserializer & d) {
+        return new no_conf_modification(read_name(d));
     }
 };
 
 environment add_aux_recursor(environment const & env, name const & r) {
-    return module::add_and_perform(env, std::make_shared<auxrec_modification>(r));
+    return module::add_and_perform(env, new auxrec_modification(r));
 }
 
 environment add_no_confusion(environment const & env, name const & r) {
-    return module::add_and_perform(env, std::make_shared<no_conf_modification>(r));
+    return module::add_and_perform(env, new no_conf_modification(r));
 }
 
 bool is_aux_recursor(environment const & env, name const & r) {

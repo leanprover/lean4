@@ -69,6 +69,26 @@ Missing features: non monotonic modifications in .olean files
 */
 
 namespace lean {
+object * environment_save_modification_core(object * env, object * mod);
+
+static void modification_finalizer(void * ext) {
+    delete static_cast<modification*>(ext);
+}
+
+static void modification_foreach(void * /* mod */, b_obj_arg /* fn */) {
+}
+
+static external_object_class * g_modification_class = nullptr;
+
+static modification const & to_modification(b_obj_arg o) {
+    lean_assert(external_class(o) == g_modification_class);
+    return *static_cast<modification *>(external_data(o));
+}
+
+static obj_res to_object(modification * ext) {
+    return alloc_external(g_modification_class, ext);
+}
+
 extern "C" object * lean_serialize_modifications(object *) {
     // TODO(Leo)
     lean_unreachable();
@@ -76,7 +96,7 @@ extern "C" object * lean_serialize_modifications(object *) {
 
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;
-    list<std::shared_ptr<modification const>> m_modifications;
+    list<modification*> m_modifications;
 };
 
 struct module_ext_reg {
@@ -106,7 +126,7 @@ void write_module(environment const & env, module_name const & mod, std::string 
     std::ofstream out(olean_fn, std::ios_base::binary);
     module_ext const & ext = get_extension(env);
 
-    buffer<std::shared_ptr<modification const>> mods;
+    buffer<modification*> mods;
     to_buffer(ext.m_modifications, mods);
 
     std::ostringstream out1(std::ios_base::binary);
@@ -166,20 +186,20 @@ struct decl_modification : public modification {
         s << m_decl;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         auto decl = read_declaration(d);
-        return std::make_shared<decl_modification>(std::move(decl));
+        return new decl_modification(std::move(decl));
     }
 };
 
 namespace module {
-environment add(environment const & env, std::shared_ptr<modification const> const & modf) {
+environment add(environment const & env, modification* modf) {
     module_ext ext = get_extension(env);
     ext.m_modifications = cons(modf, ext.m_modifications);
     return update(env, ext);
 }
 
-environment add_and_perform(environment const & env, std::shared_ptr<modification const> const & modf) {
+environment add_and_perform(environment const & env, modification * modf) {
     auto new_env = env;
     modf->perform(new_env);
     module_ext ext = get_extension(new_env);
@@ -189,7 +209,7 @@ environment add_and_perform(environment const & env, std::shared_ptr<modificatio
 
 environment add(environment const & env, declaration const & d, bool check) {
     environment new_env = env.add(d, check);
-    return add(new_env, std::make_shared<decl_modification>(d));
+    return add(new_env, new decl_modification(d));
 }
 } // end of namespace module
 
@@ -318,6 +338,7 @@ environment import_modules(environment const & env0, std::vector<module_name> co
 }
 
 void initialize_module() {
+    g_modification_class = register_external_object_class(modification_finalizer, modification_foreach);
     g_ext            = new module_ext_reg();
     g_object_readers = new object_readers();
     decl_modification::init();

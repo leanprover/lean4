@@ -65,11 +65,11 @@ struct borrowed_modification : public modification {
         write_list(s, m_info.m_borrowed_args);
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         name fn; borrowed_info info;
         d >> fn >> info.m_borrowed_res;
         info.m_borrowed_args = read_list<bool>(d);
-        return std::make_shared<borrowed_modification>(fn, info);
+        return new borrowed_modification(fn, info);
     }
 };
 
@@ -293,7 +293,7 @@ public:
         for (unsigned fidx = 0; fidx < m_decls.size(); fidx++) {
             name fn = m_decls[fidx].fst();
             borrowed_info info{to_list(m_borrowed_args[fidx]), false};
-            new_env = module::add(new_env, std::make_shared<borrowed_modification>(fn, info));
+            new_env = module::add(new_env, new borrowed_modification(fn, info));
             ext.m_cache.insert(fn, info);
         }
         return update(new_env, ext);

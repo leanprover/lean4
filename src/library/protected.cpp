@@ -46,13 +46,13 @@ struct protected_modification : public modification {
         s << m_name;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        return std::make_shared<protected_modification>(read_name(d));
+    static modification* deserialize(deserializer & d) {
+        return new protected_modification(read_name(d));
     }
 };
 
 environment add_protected(environment const & env, name const & n) {
-    return module::add_and_perform(env, std::make_shared<protected_modification>(n));
+    return module::add_and_perform(env, new protected_modification(n));
 }
 
 bool is_protected(environment const & env, name const & n) {

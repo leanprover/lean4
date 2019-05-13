@@ -149,8 +149,8 @@ public:
             write_entry(s, m_entry);
         }
 
-        static std::shared_ptr<lean::modification const> deserialize(deserializer & d) {
-            return std::make_shared<modification>(read_entry(d));
+        static modification* deserialize(deserializer & d) {
+            return new modification(read_entry(d));
         }
     };
 
@@ -192,7 +192,7 @@ public:
             return update(env, get(env)._add_tmp_entry(env, ios, e));
         } else {
             if (persist == persistence::global) {
-                env = module::add(env, std::make_shared<modification>(e));
+                env = module::add(env, new modification(e));
             }
             return update(env, get(env)._register_entry(env, ios, e));
         }

@@ -48,10 +48,10 @@ struct ct_cache_modification : public modification {
         s << m_expr << m_name;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         expr e; name n;
         d >> e >> n;
-        return std::make_shared<ct_cache_modification>(e, n);
+        return new ct_cache_modification(e, n);
     }
 };
 
@@ -69,7 +69,7 @@ optional<name> get_closed_term_name(environment const & env, expr const & e) {
 environment cache_closed_term_name(environment const & env, expr const & e, name const & n) {
     closed_term_ext ext = get_extension(env);
     ext.m_cache.insert(e, n);
-    environment new_env = module::add(env, std::make_shared<ct_cache_modification>(e, n));
+    environment new_env = module::add(env, new ct_cache_modification(e, n));
     return update(new_env, ext);
 }
 

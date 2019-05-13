@@ -56,16 +56,15 @@ struct proj_modification : public modification {
         s << m_proj << m_info.m_constructor << m_info.m_nparams << m_info.m_i << m_info.m_inst_implicit;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         name p, mk; unsigned nparams, i; bool inst_implicit;
         d >> p >> mk >> nparams >> i >> inst_implicit;
-        return std::make_shared<proj_modification>(p, projection_info(mk, nparams, i, inst_implicit));
+        return new proj_modification(p, projection_info(mk, nparams, i, inst_implicit));
     }
 };
 
 environment save_projection_info(environment const & env, name const & p, name const & mk, unsigned nparams, unsigned i, bool inst_implicit) {
-    return module::add_and_perform(env, std::make_shared<proj_modification>(
-            p, projection_info(mk, nparams, i, inst_implicit)));
+    return module::add_and_perform(env, new proj_modification(p, projection_info(mk, nparams, i, inst_implicit)));
 }
 
 projection_info const * get_projection_info(environment const & env, name const & p) {

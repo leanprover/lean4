@@ -159,10 +159,10 @@ struct spec_info_modification : public modification {
         s << m_name << m_spec_info;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         name n; spec_info s;
         d >> n >> s;
-        return std::make_shared<spec_info_modification>(n, s);
+        return new spec_info_modification(n, s);
     }
 };
 
@@ -285,7 +285,7 @@ environment update_spec_info(environment const & env, comp_decls const & ds) {
                         tout() << " " << to_str(k);
                     }
                     tout() << "\n";);
-        new_env = module::add(new_env, std::make_shared<spec_info_modification>(n, si));
+        new_env = module::add(new_env, new spec_info_modification(n, si));
         ext.m_spec_info.insert(n, si);
     }
     return update(new_env, ext);
@@ -311,10 +311,10 @@ struct spec_cache_modification : public modification {
         s << m_key << m_fn_name;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         expr k; name f;
         d >> k >> f;
-        return std::make_shared<spec_cache_modification>(k, f);
+        return new spec_cache_modification(k, f);
     }
 };
 
@@ -1058,7 +1058,7 @@ class specialize_fn {
             }
             if (gcache_enabled) {
                 m_ext.m_cache.insert(key, *new_fn_name);
-                m_st.env() = module::add(env(), std::make_shared<spec_cache_modification>(key, *new_fn_name));
+                m_st.env() = module::add(env(), new spec_cache_modification(key, *new_fn_name));
             }
         }
         expr r = mk_constant(*new_fn_name);

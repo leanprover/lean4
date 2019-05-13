@@ -96,8 +96,8 @@ struct export_decl_modification : public modification {
         write_list<pair<name, name>>(s, m_export_decl.m_renames);
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
-        auto m = std::make_shared<export_decl_modification>();
+    static modification* deserialize(deserializer & d) {
+        auto m = new export_decl_modification();
         auto & e = m->m_export_decl;
         d >> m->m_in_ns >> e.m_ns >> e.m_as >> e.m_had_explicit;
         e.m_except_names = read_names(d);
@@ -108,7 +108,7 @@ struct export_decl_modification : public modification {
 
 environment add_export_decl(environment const & env, name const & in_ns, export_decl const & e) {
     environment new_env = add_export_decl_core(env, in_ns, e);
-    return module::add(new_env, std::make_shared<export_decl_modification>(in_ns, e));
+    return module::add(new_env, new export_decl_modification(in_ns, e));
 }
 
 environment add_export_decl(environment const & env, export_decl const & entry) {

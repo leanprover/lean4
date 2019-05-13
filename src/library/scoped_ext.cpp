@@ -122,10 +122,10 @@ struct new_namespace_modification : public modification {
         s << m_ns;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         name n;
         d >> n;
-        return std::make_shared<new_namespace_modification>(n);
+        return new new_namespace_modification(n);
     }
 };
 
@@ -134,7 +134,7 @@ environment add_namespace(environment const & env, name const & ns) {
     if (!ext.m_namespace_set.contains(ns)) {
         ext.m_namespace_set.insert(ns);
         environment r = update(env, ext);
-        r = module::add(r, std::make_shared<new_namespace_modification>(ns));
+        r = module::add(r, new new_namespace_modification(ns));
         if (ns.is_atomic())
             return r;
         else
@@ -164,7 +164,7 @@ environment push_scope(environment const & env, io_state const & ios, scope_kind
         r = std::get<0>(t)(r, ios, k);
     }
     if (save_ns)
-        r = module::add(r, std::make_shared<new_namespace_modification>(new_n));
+        r = module::add(r, new new_namespace_modification(new_n));
     return r;
 }
 

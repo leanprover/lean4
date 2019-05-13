@@ -18,7 +18,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 namespace lean {
 struct modification;
 
-using modification_list = std::vector<std::shared_ptr<modification const>>;
+using modification_list = std::vector<modification*>;
 
 /** \brief A finished module. The in-memory representation of a .olean file. */
 struct loaded_module {
@@ -60,7 +60,7 @@ public:
   static void finalize() {} \
   const char * get_key() const override { return k; }
 
-using module_modification_reader = std::function<std::shared_ptr<modification const>(deserializer &)>;
+using module_modification_reader = std::function<modification*(deserializer &)>;
 
 /** \brief Register a module object reader. The key \c k is used to identify the class of objects
     that can be read by the given reader.
@@ -74,8 +74,8 @@ namespace module {
 
     \see module_object_reader
 */
-environment add(environment const & env, std::shared_ptr<modification const> const & modif);
-environment add_and_perform(environment const & env, std::shared_ptr<modification const> const & modif);
+environment add(environment const & env, modification * modif);
+environment add_and_perform(environment const & env, modification * modif);
 
 /** \brief Add the given declaration to the environment, and mark it to be exported. */
 environment add(environment const & env, declaration const & d, bool check = true);

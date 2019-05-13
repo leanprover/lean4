@@ -62,17 +62,17 @@ struct private_modification : public modification {
         s << m_name << m_real;
     }
 
-    static std::shared_ptr<modification const> deserialize(deserializer & d) {
+    static modification* deserialize(deserializer & d) {
         name n, h;
         d >> n >> h;
-        return std::make_shared<private_modification>(n, h);
+        return new private_modification(n, h);
     }
 };
 
 /* Make sure the mapping "hidden-name r ==> user-name n" is preserved when we close sections and
    export .olean files. */
 static environment preserve_private_data(environment const & env, name const & r, name const & n) {
-    return module::add(env, std::make_shared<private_modification>(n, r));
+    return module::add(env, new private_modification(n, r));
 }
 
 static name mk_private_name_core(environment const & env, name const & n) {

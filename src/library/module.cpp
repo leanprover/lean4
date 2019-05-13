@@ -69,6 +69,14 @@ Missing features: non monotonic modifications in .olean files
 */
 
 namespace lean {
+extern "C" object * lean_save_module_data(object * fname, object * mdata, object * w) {
+    return w; // TODO
+}
+
+extern "C" object * lean_read_module_data(object * fname, object * w) {
+    return w; // TODO
+}
+
 static void modification_finalizer(void * ext) {
     delete static_cast<modification*>(ext);
 }

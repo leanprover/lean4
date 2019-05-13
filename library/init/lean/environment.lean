@@ -283,6 +283,11 @@ structure ModuleData :=
 (entries    : Array (Name × Array EnvExtensionEntry))
 (serialized : ByteArray) -- Legacy support: serialized modification objects
 
+@[extern "lean_save_module_data"]
+constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit := default _
+@[extern "lean_read_module_data"]
+constant readModuleData (fname : @& String) : IO ModuleData := default _
+
 def mkModuleData (env : Environment) : IO ModuleData :=
 do
 pExts ← persistentEnvExtensionsRef.get,

@@ -42,6 +42,9 @@ def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
 def find (env : Environment) (n : Name) : Option ConstantInfo :=
 env.constants.find n
 
+def contains (env : Environment) (n : Name) : Bool :=
+(env.constants.find n).isSome
+
 /- Switch environment to "shared" mode. -/
 @[export lean.environment_switch_core]
 private def switch (env : Environment) : Environment :=

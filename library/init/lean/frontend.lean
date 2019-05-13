@@ -26,7 +26,7 @@ do t ← Parser.mkTokenTrie $
    }
 
 def runFrontend (filename input : String) (printMsg : Message → IO Unit) (collectOutputs : Bool) :
-  StateT environment IO (List Syntax) := λ env, do
+  StateT Environment IO (List Syntax) := λ env, do
   parserCfg ← ioOfExcept $ mkConfig filename input,
   -- TODO(Sebastian): `parseHeader` should be called directly by Lean.cpp
   match parseHeader parserCfg with
@@ -70,7 +70,7 @@ def runFrontend (filename input : String) (printMsg : Message → IO Unit) (coll
   }
 
 @[export lean_process_file]
-def processFile (f s : String) (json : Bool) : StateT environment IO Unit := do
+def processFile (f s : String) (json : Bool) : StateT Environment IO Unit := do
   let printMsg : Message → IO Unit := λ msg,
     if json then
       IO.println $ "{\"file_name\": \"<stdin>\", \"pos_line\": " ++ toString msg.pos.line ++

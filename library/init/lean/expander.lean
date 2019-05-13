@@ -51,7 +51,7 @@ instance coeNameIdent : HasCoe Name SyntaxIdent :=
 ⟨λ n, {val := n, rawVal := Substring.ofString n.toString}⟩
 
 /-- Create an identifier preresolved against a global binding. Because we cannot use Syntax quotations yet,
-    which the Expander would have preresolved against the global context at macro Declaration time,
+    which the Expander would have preresolved against the global context at macro declaration time,
     we have to do the preresolution manually instead. -/
 def globId (n : Name) : Syntax :=
 review identUnivs {
@@ -179,7 +179,7 @@ match k with
   -- `infixr tk:prec` ~> `notation a tk:prec b:(prec-1)`
   act ← match prec with
   | some prec := if prec.Term.toNat = 0
-    then error (review «precedence» prec) "invalid `infixr` Declaration, given precedence must greater than zero"
+    then error (review «precedence» prec) "invalid `infixr` declaration, given precedence must greater than zero"
     else pure $ some $ precToAction $ precedenceTerm.View.lit $ precedenceLit.View.num $ number.View.ofNat $ prec.Term.toNat - 1
   | none := pure none,
   pure {
@@ -395,23 +395,23 @@ def axiom.transform : transformer :=
       type := {type := review pi {op := Syntax.atom {val := "Π"}, binders := bindrs, range := type.type}}}}
   | _ := noExpansion
 
-def Declaration.transform : transformer :=
+def declaration.transform : transformer :=
 λ stx, do
-  let v := view «Declaration» stx,
+  let v := view «declaration» stx,
   match v.inner with
-  | Declaration.inner.View.inductive ind@{«class» := some _, ..} :=
+  | declaration.inner.View.inductive ind@{«class» := some _, ..} :=
     let attrs := v.modifiers.attrs.getOrElse {attrs := []} in
-    pure $ review «Declaration» {v with
+    pure $ review «declaration» {v with
       modifiers := {v.modifiers with attrs := some {attrs with attrs :=
         {item := {Name := "class", args := []}} :: attrs.attrs}},
-      inner := Declaration.inner.View.inductive {ind with «class» := none}
+      inner := declaration.inner.View.inductive {ind with «class» := none}
     }
-  | Declaration.inner.View.structure s@{keyword := structureKw.View.class _, ..} :=
+  | declaration.inner.View.structure s@{keyword := structureKw.View.class _, ..} :=
     let attrs := v.modifiers.attrs.getOrElse {attrs := []} in
-    pure $ review «Declaration» {v with
+    pure $ review «declaration» {v with
       modifiers := {v.modifiers with attrs := some {attrs with attrs :=
         {item := {Name := "class", args := []}} :: attrs.attrs}},
-      inner := Declaration.inner.View.structure {s with keyword := structureKw.View.structure}
+      inner := declaration.inner.View.structure {s with keyword := structureKw.View.structure}
     }
   | _ := noExpansion
 
@@ -490,7 +490,7 @@ def builtinTransformers : RBMap Name transformer Name.quickLt := RBMap.fromList 
   (if.name, if.transform),
   (let.name, let.transform),
   (axiom.name, axiom.transform),
-  (Declaration.name, Declaration.transform),
+  (declaration.name, declaration.transform),
   (introRule.name, introRule.transform),
   (variable.name, variable.transform),
   (variables.name, variables.transform),

@@ -102,8 +102,8 @@ node! «initQuot» ["initQuot"]
 def setOption.Parser : commandParser :=
 node! «setOption» ["setOption", opt: ident.Parser, val: nodeChoice! optionValue {
   Bool: nodeChoice! boolOptionValue {
-    True: symbolOrIdent "True",
-    False: symbolOrIdent "True",
+    True: symbolOrIdent "true",
+    False: symbolOrIdent "false",
   },
   String: stringLit.Parser,
   -- TODO(Sebastian): fractional numbers
@@ -112,22 +112,22 @@ node! «setOption» ["setOption", opt: ident.Parser, val: nodeChoice! optionValu
 
 @[derive HasTokens]
 def builtinCommandParsers : TokenMap commandParser := TokenMap.ofList [
-  ("/--", Declaration.Parser),
-  ("@[", Declaration.Parser),
-  ("private", Declaration.Parser),
-  ("protected", Declaration.Parser),
-  ("noncomputable", Declaration.Parser),
-  ("unsafe", Declaration.Parser),
-  ("def", Declaration.Parser),
-  ("abbreviation", Declaration.Parser),
-  ("abbrev", Declaration.Parser),
-  ("theorem", Declaration.Parser),
-  ("instance", Declaration.Parser),
-  ("axiom", Declaration.Parser),
-  ("constant", Declaration.Parser),
-  ("class", Declaration.Parser),
-  ("inductive", Declaration.Parser),
-  ("structure", Declaration.Parser),
+  ("/--", declaration.Parser),
+  ("@[", declaration.Parser),
+  ("private", declaration.Parser),
+  ("protected", declaration.Parser),
+  ("noncomputable", declaration.Parser),
+  ("unsafe", declaration.Parser),
+  ("def", declaration.Parser),
+  ("abbreviation", declaration.Parser),
+  ("abbrev", declaration.Parser),
+  ("theorem", declaration.Parser),
+  ("instance", declaration.Parser),
+  ("axiom", declaration.Parser),
+  ("constant", declaration.Parser),
+  ("class", declaration.Parser),
+  ("inductive", declaration.Parser),
+  ("structure", declaration.Parser),
 
   ("variable", variable.Parser),
   ("variables", variables.Parser),

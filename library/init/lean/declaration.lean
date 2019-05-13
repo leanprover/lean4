@@ -26,11 +26,11 @@ other regular definitions used in a definition. When creating declarations using
 we can specify the definitional depth manually.
 
 Remark: the hint only affects performance. None of the hints prevent the kernel from unfolding a
-Declaration during Type checking.
+declaration during Type checking.
 
 Remark: the ReducibilityHints are not related to the attributes: reducible/irrelevance/semireducible.
 These attributes are used by the Elaborator. The ReducibilityHints are used by the kernel (and Elaborator).
-Moreover, the ReducibilityHints cannot be changed after a Declaration is added to the kernel. -/
+Moreover, the ReducibilityHints cannot be changed after a declaration is added to the kernel. -/
 inductive ReducibilityHints
 | opaque   : ReducibilityHints
 | «abbrev» : ReducibilityHints
@@ -49,7 +49,7 @@ structure DefinitionVal extends ConstantVal :=
 structure TheoremVal extends ConstantVal :=
 (value : Task Expr)
 
-/- Value for an opaque constant Declaration `constant x : t := e` -/
+/- Value for an opaque constant declaration `constant x : t := e` -/
 structure OpaqueVal extends ConstantVal :=
 (value : Expr)
 
@@ -82,7 +82,7 @@ inductive Declaration
 structure InductiveVal extends ConstantVal :=
 (nparams : Nat)       -- Number of parameters
 (nindices : Nat)      -- Number of indices
-(all : List Name)     -- List of all (including this one) inductive datatypes in the mutual Declaration containing this one
+(all : List Name)     -- List of all (including this one) inductive datatypes in the mutual declaration containing this one
 (ctors : List Name)   -- List of all constructors for this inductive datatype
 (isRec : Bool)        -- `true` Iff it is recursive
 (isUnsafe : Bool)
@@ -90,7 +90,7 @@ structure InductiveVal extends ConstantVal :=
 
 structure ConstructorVal extends ConstantVal :=
 (induct  : Name)  -- Inductive Type this Constructor is a member of
-(cidx    : Nat)   -- Constructor index (i.e., Position in the inductive Declaration)
+(cidx    : Nat)   -- Constructor index (i.e., Position in the inductive declaration)
 (nparams : Nat)   -- Number of parameters in inductive datatype `induct`
 (nfields : Nat)   -- Number of fields (i.e., arity - nparams)
 (isUnsafe : Bool)
@@ -102,7 +102,7 @@ structure RecursorRule :=
 (rhs : Expr)    -- Right hand side of the reduction rule
 
 structure RecursorVal extends ConstantVal :=
-(all : List Name)            -- List of all inductive datatypes in the mutual Declaration that generated this recursor
+(all : List Name)            -- List of all inductive datatypes in the mutual declaration that generated this recursor
 (nparams : Nat)              -- Number of parameters
 (nindices : Nat)             -- Number of indices
 (nmotives : Nat)             -- Number of motives

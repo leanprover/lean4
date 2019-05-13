@@ -10,13 +10,9 @@ import init.lean.parser.module
 import init.lean.expander
 import init.lean.expr
 import init.lean.options
+import init.lean.environment
 
 namespace Lean
--- TODO(Sebastian): should probably be meta together with the whole Elaborator
-constant environment : Type := Unit
-
-@[extern "lean_environment_contains"]
-constant environment.contains (env : @& environment) (n : @& Name) : Bool := false
 -- deprecated Constructor
 @[extern "lean_expr_local"]
 constant Expr.local (n : Name) (pp : Name) (ty : Expr) (bi : BinderInfo) : Expr := default Expr
@@ -35,7 +31,7 @@ structure SectionVar :=
 
 /-- Simplified State of the Lean 3 Parser. Maps are replaced with lists for easier interop. -/
 structure OldElaboratorState :=
-(env : environment)
+(env : Environment)
 (ngen : NameGenerator)
 (univs : List (Name × Level))
 (vars : List (Name × SectionVar))
@@ -121,7 +117,7 @@ structure ElaboratorState :=
 (messages : MessageLog := MessageLog.empty)
 (parserCfg : ModuleParserConfig)
 (expanderCfg : Expander.ExpanderConfig)
-(env : environment)
+(env : Environment)
 (ngen : NameGenerator)
 (nextInstIdx : Nat := 0)
 
@@ -455,17 +451,17 @@ Expr.lit $ Literal.natVal $ match mod with
 | some $ inferModifier.View.relaxed _ := 1
 | some $ inferModifier.View.strict _  := 2
 
-def Declaration.elaborate : Elaborator :=
+def declaration.elaborate : Elaborator :=
 λ stx, locally $ do
-  let Decl := view «Declaration» stx,
-  match Decl.inner with
-  | Declaration.inner.View.«axiom» c@{sig := {params := bracketedBinders.View.simple [], type := type}, ..} := do
+  let decl := view «declaration» stx,
+  match decl.inner with
+  | declaration.inner.View.«axiom» c@{sig := {params := bracketedBinders.View.simple [], type := type}, ..} := do
     let mdata := MData.empty.setName `command `«axiom», -- CommentTo(Kha): It was `constant` here
-    mods ← declModifiersToPexpr Decl.modifiers,
+    mods ← declModifiersToPexpr decl.modifiers,
     let id := identUnivParamsToPexpr c.Name,
     type ← toPexpr type.type,
     oldElabCommand stx $ Expr.mdata mdata $ Expr.mkCapp `_ [mods, id, type]
-  | Declaration.inner.View.defLike dl := do
+  | declaration.inner.View.defLike dl := do
       -- The numeric literals below should reflect the enum values
       -- enum class declCmdKind { Theorem, Definition, OpaqueConst, Example, Instance, Var, Abbreviation };
       let kind := match dl.kind with
@@ -474,27 +470,27 @@ def Declaration.elaborate : Elaborator :=
       | defLike.kind.View.«constant» _ := 2
       | defLike.kind.View.abbreviation _ := 6
       | defLike.kind.View.«abbrev» _ := 6,
-      elabDefLike stx Decl.modifiers dl kind
+      elabDefLike stx decl.modifiers dl kind
 
   -- these are almost macros for `def`, Except the Elaborator handles them specially at a few places
   -- based on the kind
-  | Declaration.inner.View.example ex :=
-    elabDefLike stx Decl.modifiers {
+  | declaration.inner.View.example ex :=
+    elabDefLike stx decl.modifiers {
       kind := defLike.kind.View.def,
       Name := {id := Name.anonymous},
       sig := {..ex.sig},
       ..ex} 3
-  | Declaration.inner.View.instance i :=
-    elabDefLike stx Decl.modifiers {
+  | declaration.inner.View.instance i :=
+    elabDefLike stx decl.modifiers {
       kind := defLike.kind.View.def,
       Name := i.Name.getOrElse {id := Name.anonymous},
       sig := {..i.sig},
       ..i} 4
 
-  | Declaration.inner.View.inductive ind@{«class» := none, sig := {params := bracketedBinders.View.simple bbs}, ..} := do
+  | declaration.inner.View.inductive ind@{«class» := none, sig := {params := bracketedBinders.View.simple bbs}, ..} := do
     let mdata := MData.empty.setName `command `inductives,
-    mods ← declModifiersToPexpr Decl.modifiers,
-    attrs ← attrsToPexpr (match Decl.modifiers.attrs with
+    mods ← declModifiersToPexpr decl.modifiers,
+    attrs ← attrsToPexpr (match decl.modifiers.attrs with
       | some attrs := attrs.attrs
       | none       := []),
     let mutAttrs := Expr.mkCapp `_ [attrs],
@@ -514,7 +510,7 @@ def Declaration.elaborate : Elaborator :=
     params ← simpleBindersToPexpr bbs,
     introRules ← ind.introRules.mmap (λ (r : introRule.View), do
       ({params := bracketedBinders.View.simple [], type := some ty}) ← pure r.sig
-        | error stx "Declaration.elaborate: unexpected input",
+        | error stx "declaration.elaborate: unexpected input",
       type ← toPexpr ty.type,
       let Name := mangleIdent r.Name,
       pure $ Expr.local Name Name type BinderInfo.default),
@@ -526,9 +522,9 @@ def Declaration.elaborate : Elaborator :=
     oldElabCommand stx $ Expr.mdata mdata $
       Expr.mkCapp `_ [mods, mutAttrs, uparams, inds, params, introRules, inferKinds]
 
-  | Declaration.inner.View.structure s@{keyword := structureKw.View.structure _, sig := {params := bracketedBinders.View.simple bbs}, ..} := do
+  | declaration.inner.View.structure s@{keyword := structureKw.View.structure _, sig := {params := bracketedBinders.View.simple bbs}, ..} := do
     let mdata := MData.empty.setName `command `structure,
-    mods ← declModifiersToPexpr Decl.modifiers,
+    mods ← declModifiersToPexpr decl.modifiers,
     match s.oldUnivParams with
     | some uparams :=
       modifyCurrentScope $ λ sc, {sc with univs :=
@@ -555,7 +551,7 @@ def Declaration.elaborate : Elaborator :=
     fieldBlocks ← s.fieldBlocks.mmap (λ bl, do
       (bi, content) ← match bl with
         | structureFieldBlock.View.explicit {content := structExplicitBinderContent.View.notation _} :=
-          error stx "Declaration.elaborate: unexpected input"
+          error stx "declaration.elaborate: unexpected input"
         | structureFieldBlock.View.explicit {content := structExplicitBinderContent.View.other c} :=
           pure (BinderInfo.default, c)
         | structureFieldBlock.View.implicit {content := c} := pure (BinderInfo.implicit, c)
@@ -571,7 +567,7 @@ def Declaration.elaborate : Elaborator :=
     oldElabCommand stx $ Expr.mdata mdata $
       Expr.mkCapp `_ [mods, uparams, Name, params, parents, type, mk, infer, fieldBlocks]
   | _ :=
-    error stx "Declaration.elaborate: unexpected input"
+    error stx "declaration.elaborate: unexpected input"
 
 def variables.elaborate : Elaborator :=
 λ stx, do
@@ -906,7 +902,7 @@ def elaborators : RBMap Name Elaborator Name.quickLt := RBMap.fromList [
   (variables.name, variables.elaborate),
   (include.name, include.elaborate),
   --(omit.name, omit.elaborate),
-  (Declaration.name, Declaration.elaborate),
+  (declaration.name, declaration.elaborate),
   (attribute.name, attribute.elaborate),
   (open.name, open.elaborate),
   (export.name, export.elaborate),
@@ -981,7 +977,7 @@ partial def preresolve : Syntax → ElaboratorM Syntax
   pure $ Syntax.rawNode {n with args := args}
 | stx := pure stx
 
-def mkState (cfg : ElaboratorConfig) (env : environment) (opts : Options) : ElaboratorState := {
+def mkState (cfg : ElaboratorConfig) (env : Environment) (opts : Options) : ElaboratorState := {
   parserCfg := cfg.initialParserCfg,
   expanderCfg := {transformers := Expander.builtinTransformers, ..cfg},
   env := env,

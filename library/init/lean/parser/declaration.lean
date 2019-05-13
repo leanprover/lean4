@@ -138,10 +138,10 @@ node! «structure» [
 ]
 
 @[derive HasTokens HasView]
-def Declaration.Parser : commandParser :=
-node! Declaration [
+def declaration.Parser : commandParser :=
+node! declaration [
   modifiers: declModifiers.Parser,
-  inner: nodeChoice! Declaration.inner {
+  inner: nodeChoice! declaration.inner {
     «defLike»: node! «defLike» [
       kind: nodeChoice! defLike.kind {"def", "abbreviation", "abbrev", "theorem", "constant"},
       oldUnivParams: oldUnivParams.Parser?,

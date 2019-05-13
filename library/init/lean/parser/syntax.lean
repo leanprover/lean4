@@ -24,10 +24,10 @@ structure SourceInfo :=
 structure SyntaxAtom :=
 (info : Option SourceInfo := none) (val : String)
 
-/-- A simple wrapper that should remind you to use the static Declaration instead
+/-- A simple wrapper that should remind you to use the static declaration instead
     of hard-coding the Node Name. -/
 structure SyntaxNodeKind :=
--- should be equal to the Name of the Declaration this structure instance was bound to
+-- should be equal to the Name of the declaration this structure instance was bound to
 (name : Name)
 
 /-- Signifies ambiguous Syntax to be disambiguated by the Elaborator. Should have at least two children.

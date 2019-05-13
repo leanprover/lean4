@@ -1,6 +1,0 @@
-add_executable(level level.cpp)
-target_link_libraries(level leanstatic)
-add_exec_test(level "level")
-add_executable(max_sharing max_sharing.cpp)
-target_link_libraries(max_sharing leanstatic)
-add_exec_test(max_sharing "max_sharing")

@@ -126,16 +126,19 @@ pure ext
 @[implementedBy registerEnvExtensionUnsafe]
 constant registerEnvExtension {σ : Type} (initState : σ) : IO (EnvExtension σ) := default _
 
+private def mkInitialExtensionStates : IO (Array EnvExtensionState) :=
+do exts ← envExtensionsRef.get, pure $ exts.map $ λ ext, ext.initial
+
 @[export lean.mk_empty_environment_core]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment :=
 do
 initializing ← IO.initializing,
 when initializing $ throw (IO.userError "Environment objects cannot be created during initialization"),
-exts ← envExtensionsRef.get,
+exts ← mkInitialExtensionStates,
 pure { const2ModId := {},
        constants   := {},
        trustLevel  := trustLevel,
-       extensions  := exts.map $ λ ext, ext.initial }
+       extensions  := exts }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
 (importedEntries : Array (Array α))  -- entries per imported module
@@ -312,7 +315,8 @@ entries    := entries,
 serialized := bytes
 }
 
-def saveModule (env : Environment) (fname : String) : IO Unit :=
+@[export lean.write_module_core]
+def writeModule (env : Environment) (fname : String) : IO Unit :=
 do modData ← mkModuleData env, saveModuleData fname modData
 
 @[extern 2 "lean_find_olean"]
@@ -332,6 +336,7 @@ partial def importModulesAux : List Name → NameSet → Array ModuleData → IO
     let mods := mods.push mod,
     pure mods
 
+@[export lean.import_modules_core]
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
 do
 mods ← importModulesAux modNames {} Array.empty,
@@ -342,11 +347,11 @@ let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap 
   mod.constants.iterate cs $ λ _ cinfo cs,
     cs.insert cinfo.name cinfo,
 let constants   := constants.switch,
-let extensions : Array EnvExtensionState := Array.empty, -- TODO(Leo)
+exts ← mkInitialExtensionStates, -- TODO(Leo): process persistent entries
 let env : Environment := {
   const2ModId := const2ModId,
   constants   := constants,
-  extensions  := extensions,
+  extensions  := exts,
   quotInit    := true, -- We assume `core.lean` initializes quotient module
   trustLevel  := trustLevel,
   imports     := modNames.toArray

@@ -34,14 +34,6 @@ struct loaded_module {
 environment
 import_modules(environment const & env, std::vector<module_name> const & imports, search_path const & path);
 
-struct import_error {
-    module_name m_import;
-    std::exception_ptr m_ex;
-};
-environment
-import_modules(environment const & env, std::vector<module_name> const & imports, search_path const & path,
-               buffer<import_error> & errors);
-
 /** \brief Store module using \c env. */
 void write_module(environment const & env, module_name const & mod, std::string const & olean_fn);
 

@@ -355,49 +355,36 @@ modification_list parse_olean_modifications(std::string const & olean_code, std:
 }
 
 static void import_module_rec(environment & env, module_name const & mod,
-                              search_path const & path, buffer<import_error> & import_errors,
-                              name_set & already_imported) {
+                              search_path const & path, name_set & already_imported) {
     if (already_imported.contains(mod))
         return;
-    try {
-        auto olean_fn = find_file(path, mod, {".olean"});
-        olean_data parsed_olean;
-        {
-            shared_file_lock olean_lock(olean_fn);
-            std::ifstream in2(olean_fn, std::ios_base::binary);
-            bool check_hash = false;
-            parsed_olean = parse_olean(in2, olean_fn, check_hash);
-        }
-
-        for (auto & dep : parsed_olean.m_imports) {
-            import_module_rec(env, dep, path, import_errors, already_imported);
-        }
-        import_module(parse_olean_modifications(parsed_olean.m_serialized_modifications, olean_fn), env);
-
-        already_imported.insert(mod);
-    } catch (throwable) {
-        import_errors.push_back({mod, std::current_exception()});
+    auto olean_fn = find_file(path, mod, {".olean"});
+    olean_data parsed_olean;
+    {
+        shared_file_lock olean_lock(olean_fn);
+        std::ifstream in2(olean_fn, std::ios_base::binary);
+        bool check_hash = false;
+        parsed_olean = parse_olean(in2, olean_fn, check_hash);
     }
+
+    for (auto & dep : parsed_olean.m_imports) {
+        import_module_rec(env, dep, path, already_imported);
+    }
+    import_module(parse_olean_modifications(parsed_olean.m_serialized_modifications, olean_fn), env);
+
+    already_imported.insert(mod);
 }
 
-environment import_modules(environment const & env0, std::vector<module_name> const & imports, search_path const & path,
-                           buffer<import_error> & import_errors) {
+environment import_modules(environment const & env0, std::vector<module_name> const & imports, search_path const & path) {
     name_set already_imported;
     environment env = env0;
 
     for (auto & import : imports)
-        import_module_rec(env, import, path, import_errors, already_imported);
+        import_module_rec(env, import, path, already_imported);
 
     module_ext ext = get_extension(env);
     ext.m_direct_imports = imports;
     return update(env, ext);
-}
-
-environment import_modules(environment const & env0, std::vector<module_name> const & imports, search_path const & path) {
-    buffer<import_error> import_errors;
-    auto env = import_modules(env0, imports, path, import_errors);
-    if (!import_errors.empty()) std::rethrow_exception(import_errors.back().m_ex);
-    return env;
 }
 
 void initialize_module() {

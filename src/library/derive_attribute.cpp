@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/app_builder.h"
 #include "library/class.h"
-#include "library/module.h"
 #include "library/protected.h"
 #include "library/sorry.h"
 #include "library/compiler/compiler.h"
@@ -125,8 +124,8 @@ static environment derive(environment env, options const & opts, name const & n,
         tgt = ctx.mk_pi(params, tgt);
         auto inst2 = ctx.mk_lambda(params, inst.value());
         auto new_n = n + const_name(cls);
-        env = module::add(env, mk_definition(env, new_n, d.get_lparams(),
-                                             ctx.instantiate_mvars(tgt), inst2, d.is_unsafe()));
+        env = env.add(mk_definition(env, new_n, d.get_lparams(),
+                                    ctx.instantiate_mvars(tgt), inst2, d.is_unsafe()));
         env = add_instance(env, new_n, LEAN_DEFAULT_PRIORITY, true);
         env = add_protected(env, new_n);
         env = compile(env, opts, new_n);

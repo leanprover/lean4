@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/find_fn.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/util.h"
-#include "library/module.h"
 #include "library/aliases.h"
 #include "library/trace.h"
 #include "library/app_builder.h"
@@ -524,7 +523,7 @@ environment mk_smart_unfolding_definition(environment const & env, options const
     helper_value = locals.mk_lambda(helper_value);
     try {
         declaration def = mk_definition(env, mk_smart_unfolding_name_for(n), info.get_lparams(), info.get_type(), helper_value, true);
-        return module::add(env, def);
+        return env.add(def);
     } catch (exception & ex) {
         throw nested_exception("failed to generate helper declaration for smart unfolding, type error", std::current_exception());
     }

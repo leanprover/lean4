@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
-#include "library/module.h"
 #include "library/suffixes.h"
 #include "library/protected.h"
 #include "library/reducible.h"
@@ -182,7 +181,7 @@ environment mk_cases_on(environment const & env, name const & n) {
     expr cases_on_value = lctx.mk_lambda(cases_on_params,  mk_app(rec_cnst, rec_args));
     declaration new_d = mk_definition_inferring_unsafe(env, cases_on_name, rec_info.get_lparams(), cases_on_type, cases_on_value,
                                                        reducibility_hints::mk_abbreviation());
-    environment new_env = module::add(env, new_d);
+    environment new_env = env.add(new_d);
     new_env = set_reducible(new_env, cases_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, cases_on_name);
     return add_protected(new_env, cases_on_name);

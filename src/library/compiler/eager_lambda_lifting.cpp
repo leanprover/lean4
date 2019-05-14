@@ -150,7 +150,7 @@ class eager_lambda_lifting_fn {
            other definitions that use `n`.
            We used a similar hack at `specialize.cpp`. */
         declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
-        m_st.env() = module::add(env(), aux_ax, false);
+        m_st.env() = env().add(aux_ax, false);
         m_new_decls.push_back(comp_decl(n, code));
         return mk_app(mk_constant(n), fvars);
     }

@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/placeholder.h"
 #include "library/locals.h"
 #include "library/reducible.h"
-#include "library/module.h"
 #include "library/aliases.h"
 #include "library/annotation.h"
 #include "library/explicit.h"
@@ -1068,7 +1067,7 @@ struct structure_cmd_fn {
         constructor cnstr(m_mk, intro_type);
         inductive_type S(m_name, structure_type, constructors(cnstr));
         declaration decl    = mk_inductive_decl(lnames, nat(m_params.size()), inductive_types(S), is_unsafe);
-        m_env = module::add(m_env, decl);
+        m_env = m_env.add(decl);
         name rec_name = mk_rec_name(m_name);
         m_env = add_namespace(m_env, m_name);
         m_env = add_protected(m_env, rec_name);
@@ -1143,7 +1142,7 @@ struct structure_cmd_fn {
                 names decl_lvls = to_names(used_univs);
                 declaration new_decl = mk_definition_inferring_unsafe(m_env, decl_name, decl_lvls,
                                                                       decl_type, decl_value, reducibility_hints::mk_abbreviation());
-                m_env = module::add(m_env, new_decl);
+                m_env = m_env.add(new_decl);
                 m_env = set_reducible(m_env, decl_name, reducible_status::Reducible, true);
             }
         }
@@ -1155,7 +1154,7 @@ struct structure_cmd_fn {
         declaration new_decl = mk_definition_inferring_unsafe(m_env, n, rec_on_decl.get_lparams(),
                                                               rec_on_decl.get_type(), rec_on_decl.get_value(),
                                                               reducibility_hints::mk_abbreviation());
-        m_env = module::add(m_env, new_decl);
+        m_env = m_env.add(new_decl);
         m_env = set_reducible(m_env, n, reducible_status::Reducible, true);
         add_alias(n);
     }
@@ -1247,7 +1246,7 @@ struct structure_cmd_fn {
             name coercion_name             = coercion_names[i];
             declaration coercion_decl      = mk_definition_inferring_unsafe(m_env, coercion_name, lnames,
                                                                             coercion_type, coercion_value);
-            m_env = module::add(m_env, coercion_decl);
+            m_env = m_env.add(coercion_decl);
             add_alias(coercion_name);
             m_env = compile(m_env, m_p.get_options(), coercion_name);
             if (!m_private_parents[i]) {

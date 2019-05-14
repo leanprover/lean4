@@ -5,7 +5,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "runtime/sstream.h"
-#include "library/module.h"
 #include "library/compiler/util.h"
 #include "library/compiler/init_attribute.h"
 

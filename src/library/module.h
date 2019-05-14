@@ -59,9 +59,6 @@ namespace module {
 */
 environment add(environment const & env, modification * modif);
 environment add_and_perform(environment const & env, modification * modif);
-
-/** \brief Add the given declaration to the environment, and mark it to be exported. */
-environment add(environment const & env, declaration const & d, bool check = true);
 }
 void initialize_module();
 void finalize_module();

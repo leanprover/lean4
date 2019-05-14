@@ -100,7 +100,7 @@ static environment declare_var(parser & p, environment env,
         expr new_type = Pi(new_params, type);
 
         bool is_unsafe = meta.m_modifiers.m_is_unsafe;
-        env = module::add(env, mk_axiom(full_n, ls, new_type, is_unsafe));
+        env = env.add(mk_axiom(full_n, ls, new_type, is_unsafe));
 
         if (!ns.is_anonymous()) {
             if (meta.m_modifiers.m_is_protected)

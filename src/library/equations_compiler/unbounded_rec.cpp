@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "library/aliases.h"
 #include "library/trace.h"
 #include "library/aux_definition.h"
-#include "library/module.h"
 #include "library/compiler/compiler.h"
 #include "library/equations_compiler/util.h"
 #include "library/equations_compiler/elim_match.h"
@@ -173,7 +172,7 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
             fn_actual_names   = tail(fn_actual_names);
         }
 
-        env = module::add(env, mk_mutual_definitions(definition_vals(new_defs)));
+        env = env.add(mk_mutual_definitions(definition_vals(new_defs)));
 
         /* 4. Create result and add private/alias info */
         buffer<expr> result_fns;

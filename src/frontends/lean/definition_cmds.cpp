@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/explicit.h"
 #include "library/private.h"
 #include "library/protected.h"
-#include "library/module.h"
 #include "library/aux_definition.h"
 #include "library/scope_pos_info_provider.h"
 #include "library/replace_visitor.h"
@@ -211,7 +210,7 @@ declare_definition(environment const & env, decl_cmd_kind kind, buffer<name> con
     default:
         throw exception("unknown command declaration");
     }
-    new_env           = module::add(new_env, def);
+    new_env           = new_env.add(def);
 
     if (meta.m_modifiers.m_is_protected)
         new_env = add_protected(new_env, c_real_name);
@@ -478,7 +477,7 @@ static void check_example(environment const & decl_env, options const & opts,
         bool is_unsafe      = modifiers.m_is_unsafe;
         auto new_env = elab.env();
         declaration def = mk_definition(new_env, decl_name, names(univ_params_buf), type, val, is_unsafe);
-        new_env = module::add(new_env, def);
+        new_env = new_env.add(def);
     } catch (throwable & ex) {
         message_builder error_msg(tc, decl_env, get_global_ios(),
                                   pos_provider.get_file_name(), pos_provider.get_some_pos(),

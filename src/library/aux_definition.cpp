@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "kernel/replace_fn.h"
 #include "library/locals.h"
 #include "library/placeholder.h"
-#include "library/module.h"
 #include "library/trace.h"
 #include "library/aux_definition.h"
 #include "library/replace_visitor_with_tc.h"
@@ -167,7 +166,7 @@ struct mk_aux_definition_fn : public closure_helper {
         } else {
             d = mk_definition(env, c, get_norm_level_names(), def_type, def_value, *is_unsafe);
         }
-        environment new_env = module::add(env, d);
+        environment new_env = env.add(d);
         buffer<level> ls;
         get_level_closure(ls);
         buffer<expr> ps;

@@ -12,7 +12,6 @@ Author: Leonardo de Moura
 #include "kernel/inductive.h"
 #include "library/protected.h"
 #include "library/reducible.h"
-#include "library/module.h"
 #include "library/bin_app.h"
 #include "library/suffixes.h"
 #include "library/util.h"
@@ -142,7 +141,7 @@ static environment mk_below(environment const & env, name const & n, bool ibelow
 
     declaration new_d = mk_definition_inferring_unsafe(env, below_name, blvls, below_type, below_value,
                                                        reducibility_hints::mk_abbreviation());
-    environment new_env = module::add(env, new_d);
+    environment new_env = env.add(new_d);
     new_env = set_reducible(new_env, below_name, reducible_status::Reducible, true);
     return add_protected(new_env, below_name);
 }
@@ -343,7 +342,7 @@ static environment mk_brec_on(environment const & env, name const & n, bool ind)
 
     declaration new_d = mk_definition_inferring_unsafe(env, brec_on_name, blps, brec_on_type, brec_on_value,
                                                        reducibility_hints::mk_abbreviation());
-    environment new_env = module::add(env, new_d);
+    environment new_env = env.add(new_d);
     new_env = set_reducible(new_env, brec_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, brec_on_name);
     return add_protected(new_env, brec_on_name);

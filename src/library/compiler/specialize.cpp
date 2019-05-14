@@ -10,12 +10,11 @@ Author: Leonardo de Moura
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"
 #include "library/class.h"
+#include "library/trace.h"
 #include "library/module.h"
 #include "library/attribute_manager.h"
 #include "library/compiler/util.h"
 #include "library/compiler/csimp.h"
-
-#include "library/trace.h"
 
 namespace lean {
 bool has_specialize_attribute(environment const & env, name const & n) {
@@ -946,7 +945,7 @@ class specialize_fn {
         {
             expr type = cheap_beta_reduce(type_checker(m_st).infer(code));
             declaration aux_ax = mk_axiom(n, names(), type, true /* meta */);
-            m_st.env() = module::add(env(), aux_ax, false);
+            m_st.env() = env().add(aux_ax, false);
         }
         code = eta_expand_specialization(code);
         // lean_trace(name("compiler", "spec_info"), tout() << "STEP 2 " << n << "\n" << code << "\n";);

@@ -9,7 +9,6 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
-#include "library/module.h"
 #include "library/reducible.h"
 #include "library/protected.h"
 #include "library/suffixes.h"
@@ -55,9 +54,8 @@ environment mk_rec_on(environment const & env, name const & n) {
     expr rec  = mk_constant(rec_info.get_name(), ls);
     expr rec_on_val = lctx.mk_lambda(new_locals, mk_app(rec, locals));
 
-    environment new_env = module::add(env,
-                                      mk_definition_inferring_unsafe(env, rec_on_name, rec_info.get_lparams(),
-                                                                     rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation()));
+    environment new_env = env.add(mk_definition_inferring_unsafe(env, rec_on_name, rec_info.get_lparams(),
+                                                                 rec_on_type, rec_on_val, reducibility_hints::mk_abbreviation()));
     new_env = set_reducible(new_env, rec_on_name, reducible_status::Reducible, true);
     new_env = add_aux_recursor(new_env, rec_on_name);
     return add_protected(new_env, rec_on_name);

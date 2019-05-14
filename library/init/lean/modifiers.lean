@@ -9,7 +9,11 @@ import init.lean.environment
 namespace Lean
 
 def mkProtectedExtension : IO (PersistentEnvExtension Name NameSet) :=
-registerPersistentEnvExtension `protected {} Name.anonymous (λ _ s n, s.insert n) (λ ns, ns.toArray) false
+registerPersistentEnvExtension {
+  name       := `protected,
+  initState  := {},
+  addEntryFn := λ _ s n, s.insert n,
+  lazy       := false }
 
 @[init mkProtectedExtension]
 constant protectedExt : PersistentEnvExtension Name NameSet := default _

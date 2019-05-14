@@ -207,29 +207,37 @@ IO.mkRef Array.empty
 @[init mkPersistentEnvExtensionsRef]
 private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionState)) := default _
 
-unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntryFn : Bool → σ → α → σ) (toArrayFn : List α → Array α := λ as, as.toArray) (lazy := true) : IO (PersistentEnvExtension α σ) :=
+structure PersistentEnvExtensionDescr (α σ : Type) [Inhabited α] :=
+(name : Name)
+(initState : σ)
+(someVal : α := default _)
+(addEntryFn : Bool → σ → α → σ)
+(toArrayFn : List α → Array α := λ as, as.toArray)
+(lazy := true)
+
+unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} [Inhabited α] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) :=
 do
 let s : PersistentEnvExtensionState α σ := {
   importedEntries := Array.empty,
-  importedState   := Thunk.pure initState,
+  importedState   := Thunk.pure descr.initState,
   entries         := [],
-  state           := some initState },
+  state           := some descr.initState },
 pExts ← persistentEnvExtensionsRef.get,
-when (pExts.any (λ ext, ext.name == name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString name ++ "' has already been used")),
+when (pExts.any (λ ext, ext.name == descr.name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString descr.name ++ "' has already been used")),
 ext ← registerEnvExtension s,
 let pExt : PersistentEnvExtension α σ := {
   toEnvExtension := ext,
-  name           := name,
-  someVal        := someVal,
-  addEntryFn     := addEntryFn,
-  toArrayFn      := toArrayFn,
-  lazy           := lazy
+  name           := descr.name,
+  someVal        := descr.someVal,
+  addEntryFn     := descr.addEntryFn,
+  toArrayFn      := descr.toArrayFn,
+  lazy           := descr.lazy
 },
 persistentEnvExtensionsRef.modify (λ pExts, pExts.push (unsafeCast pExt)),
 pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntryFn : Bool → σ → α → σ) (toArrayFn : List α → Array α := λ as, as.toArray) (lazy := true) : IO (PersistentEnvExtension α σ) := default _
+constant registerPersistentEnvExtension {α σ : Type} [Inhabited α] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := default _
 
 /- API for creating extensions in C++.
    This API will eventually be deleted. -/

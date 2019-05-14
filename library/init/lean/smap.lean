@@ -50,7 +50,7 @@ instance : HasEmptyc (SMap α β lt) := ⟨SMap.empty⟩
 
 /- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β lt) : SMap α β lt :=
-{ stage₁ := false, .. m }
+if m.stage₁ then { stage₁ := false, .. m } else m
 
 @[inline] def foldStage2 {σ : Type w} (f : σ → α → β → σ) (s : σ) (m : SMap α β lt) : σ :=
 m.map₂.fold f s

@@ -27,12 +27,9 @@ struct loaded_module {
     modification_list m_modifications;
 };
 
-/** \brief Return an environment based on \c env, where all modules in \c modules are imported.
-    Modules included directly or indirectly by them are also imported.
-    The environment \c env is usually an empty environment (but with the trust level set).
-*/
-environment
-import_modules(environment const & env, std::vector<module_name> const & imports, search_path const & path);
+/** \brief Return an environment where all modules in \c modules are imported.
+    Modules included directly or indirectly by them are also imported. */
+environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports, search_path const & path);
 
 /** \brief Store module using \c env. */
 void write_module(environment const & env, module_name const & mod, std::string const & olean_fn);

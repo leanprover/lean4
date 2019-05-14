@@ -442,6 +442,7 @@ int main(int argc, char ** argv) {
     scope_global_ios scope_ios(ios);
     type_context_old trace_ctx(env, opts);
     scope_trace_env scope_trace(env, opts, trace_ctx);
+    name main_module_name;
 
     std::string mod_fn, contents;
     if (use_stdin) {
@@ -454,7 +455,7 @@ int main(int argc, char ** argv) {
         std::stringstream buf;
         buf << std::cin.rdbuf();
         contents = buf.str();
-        env      = set_main_module_name(env, "_stdin");
+        main_module_name = name("_stdin");
     } else {
         if (argc - optind != 1) {
             std::cerr << "Expected exactly one file name\n";
@@ -467,7 +468,7 @@ int main(int argc, char ** argv) {
         /* We accept stand-alone files as input, but imports should always be part of a package so that we can give
          * them a (stable) absolute name. */
         input_path.push_back(dirname(mod_fn));
-        env      = set_main_module_name(env, module_name_of_file(input_path, mod_fn));
+        main_module_name = module_name_of_file(input_path, mod_fn);
     }
     try {
         scope_traces_as_messages scope_trace_msgs(mod_fn, {1, 0});
@@ -499,6 +500,7 @@ int main(int argc, char ** argv) {
 
         bool ok;
         if (new_frontend) {
+            env = set_main_module_name(env, main_module_name);
             // Some C++ parts like profiling need a global message log. We may want to refactor them into a
             // message_log-passing state monad in the future.
             message_log l;
@@ -517,7 +519,9 @@ int main(int argc, char ** argv) {
         } else {
             message_log l;
             scope_message_log scope_log(l);
-            p.set_env(import_modules(env, imports, path.get_path()));
+            env = import_modules(trust_lvl, imports, path.get_path());
+            env = set_main_module_name(env, main_module_name);
+            p.set_env(env);
             p.parse_commands();
 
             if (json_output) {

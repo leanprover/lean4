@@ -375,9 +375,9 @@ static void import_module_rec(environment & env, module_name const & mod,
     already_imported.insert(mod);
 }
 
-environment import_modules(environment const & env0, std::vector<module_name> const & imports, search_path const & path) {
+environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports, search_path const & path) {
     name_set already_imported;
-    environment env = env0;
+    environment env(trust_lvl);
 
     for (auto & import : imports)
         import_module_rec(env, import, path, already_imported);

@@ -189,7 +189,7 @@ ext.toEnvExtension.modifyState env $ λ s,
 def forceStateAux {α σ : Type} (ext : PersistentEnvExtension α σ) (s : PersistentEnvExtensionState α σ) : σ :=
 match s.state with
 | some d := d
-| none   := s.entries.foldl (ext.addEntryFn false) s.importedState.get
+| none   := s.entries.foldr (λ a s, ext.addEntryFn false s a) s.importedState.get
 
 def forceState {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) : Environment :=
 ext.toEnvExtension.modifyState env $ λ s, { state := some (ext.forceStateAux s), .. s }
@@ -301,7 +301,7 @@ let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
     let entryList  := (pExts.get i).getEntries env in
     let toArrayFn  := (pExts.get i).toArrayFn in
     let extName    := (pExts.get i).name in
-    result.push (extName, toArrayFn entryList))
+    result.push (extName, toArrayFn entryList.reverse))
   Array.empty,
 bytes ← serializeModifications (modListExtension.getState env),
 pure {

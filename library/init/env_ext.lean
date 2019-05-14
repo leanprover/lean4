@@ -11,9 +11,6 @@ Environment extensions:
 - protected
   * NameSet mProtected;
 
-- noncomputable
-  * NameSet
-
 - exportDecl: it is used to implement the `export` command
   * NameMap<List<exportDecl>> mNsMap;   // mapping from namespace to "export Declaration"
 
@@ -33,22 +30,6 @@ Environment extensions:
 
 - user attributes:
   * NameMap<attributePtr> mAttrs;
-
-- Bytecode
-  * unsignedMap<vmDecl>           mDecls;
-  * unsignedMap<vmCasesFunction> mCases;
-  * Name                            mMonitor;
-
-- Module
-  *  std::vector<moduleName> mDirectImports;
-  *  List<std::sharedPtr<modification const>> mModifications;
-  *  names        mModuleUnivs;
-  *  names        mModuleDecls;
-  *  NameSet     mModuleDefs;
-  *  NameSet     mImported;
-  *  // Map from Declaration Name to olean file where it was defined
-  *  NameMap<std::String>     mDecl2Olean;
-  *  NameMap<posInfo>        mDecl2PosInfo;
 
 - scopedExt: a general purpose scoped extension. It is used to implement
   * Parser/scanner tables

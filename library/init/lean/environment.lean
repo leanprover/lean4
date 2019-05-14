@@ -18,11 +18,11 @@ def EnvExtensionState : Type := NonScalar
 
 /- TODO: mark opaque. -/
 @[derive Inhabited]
-def ModuleId := Nat
+def ModuleIdx := Nat
 
 /- TODO: mark opaque. -/
 structure Environment :=
-(const2ModId : HashMap Name ModuleId)
+(const2ModId : HashMap Name ModuleIdx)
 (constants   : SMap Name ConstantInfo Name.quickLt)
 (extensions  : Array EnvExtensionState)
 (trustLevel  : UInt32     := 0)
@@ -176,7 +176,7 @@ namespace PersistentEnvExtension
 def getEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) : List α :=
 (ext.toEnvExtension.getState env).entries
 
-def getModuleEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (m : ModuleId) : Array α :=
+def getModuleEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (m : ModuleIdx) : Array α :=
 (ext.toEnvExtension.getState env).importedEntries.get m
 
 def addEntry {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (a : α) : Environment :=
@@ -335,7 +335,7 @@ partial def importModulesAux : List Name → (NameSet × Array ModuleData) → I
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
 do
 (_, mods) ← importModulesAux modNames ({}, Array.empty),
-let const2ModId := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleId),
+let const2ModId := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleIdx),
   mod.constants.iterate m $ λ _ cinfo m,
     m.insert cinfo.name modIdx.val,
 let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap Name ConstantInfo Name.quickLt),

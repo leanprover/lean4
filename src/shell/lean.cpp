@@ -519,7 +519,8 @@ int main(int argc, char ** argv) {
         } else {
             message_log l;
             scope_message_log scope_log(l);
-            env = import_modules(trust_lvl, imports, path.get_path());
+            set_search_path(path.get_path());
+            env = import_modules(trust_lvl, imports);
             env = set_main_module_name(env, main_module_name);
             p.set_env(env);
             p.parse_commands();

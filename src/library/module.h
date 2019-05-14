@@ -16,6 +16,19 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "util/lean_path.h"
 
 namespace lean {
+/** Set .olean search path. This function is invoked during initialization. */
+void set_search_path(search_path const & p);
+
+/** \brief Return an environment where all modules in \c modules are imported.
+    Modules included directly or indirectly by them are also imported.
+
+
+    This procedure looks for imported files in the search path set using `set_search_path`. */
+environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports);
+
+/** \brief Store module using \c env. */
+void write_module(environment const & env, module_name const & mod, std::string const & olean_fn);
+
 struct modification;
 
 using modification_list = std::vector<modification*>;
@@ -26,13 +39,6 @@ struct loaded_module {
     std::vector<module_name> m_imports;
     modification_list m_modifications;
 };
-
-/** \brief Return an environment where all modules in \c modules are imported.
-    Modules included directly or indirectly by them are also imported. */
-environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports, search_path const & path);
-
-/** \brief Store module using \c env. */
-void write_module(environment const & env, module_name const & mod, std::string const & olean_fn);
 
 struct modification {
 public:

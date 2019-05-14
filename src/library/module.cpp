@@ -28,7 +28,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/util.h"
 
 namespace lean {
-static char const * g_olean_end_file = "EndFile";
 static char const * g_olean_header   = "oleanfile";
 
 extern "C" object * lean_save_module_data(object * fname, object * mdata, object * w) {
@@ -88,6 +87,10 @@ extern "C" object * lean_read_module_data(object * fname, object * w) {
     }
 }
 
+static search_path * g_search_path = nullptr;
+void set_search_path(search_path const & p) {
+    *g_search_path = p;
+}
 
 // =======================================
 // Legacy support for Lean3 modification objects
@@ -143,6 +146,7 @@ static unsigned olean_hash(std::string const & data) {
 object * environment_add_modification_core(object * env, object * mod);
 object * environment_get_modifications_core(object * env);
 
+static char const * g_olean_end_file = "EndFile";
 void write_module(environment const & env, module_name const & mod, std::string const & olean_fn) {
     exclusive_file_lock output_lock(olean_fn);
     std::ofstream out(olean_fn, std::ios_base::binary);
@@ -317,11 +321,10 @@ modification_list parse_olean_modifications(std::string const & olean_code, std:
     return ms;
 }
 
-static void import_module_rec(environment & env, module_name const & mod,
-                              search_path const & path, name_set & already_imported) {
+static void import_module_rec(environment & env, module_name const & mod, name_set & already_imported) {
     if (already_imported.contains(mod))
         return;
-    auto olean_fn = find_file(path, mod, {".olean"});
+    auto olean_fn = find_file(*g_search_path, mod, {".olean"});
     olean_data parsed_olean;
     {
         shared_file_lock olean_lock(olean_fn);
@@ -331,19 +334,19 @@ static void import_module_rec(environment & env, module_name const & mod,
     }
 
     for (auto & dep : parsed_olean.m_imports) {
-        import_module_rec(env, dep, path, already_imported);
+        import_module_rec(env, dep, already_imported);
     }
     import_module(parse_olean_modifications(parsed_olean.m_serialized_modifications, olean_fn), env);
 
     already_imported.insert(mod);
 }
 
-environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports, search_path const & path) {
+environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports) {
     name_set already_imported;
     environment env(trust_lvl);
 
     for (auto & import : imports)
-        import_module_rec(env, import, path, already_imported);
+        import_module_rec(env, import, already_imported);
 
     module_ext ext = get_extension(env);
     ext.m_direct_imports = imports;
@@ -354,6 +357,7 @@ void initialize_module() {
     g_modification_class = register_external_object_class(modification_finalizer, modification_foreach);
     g_ext            = new module_ext_reg();
     g_object_readers = new object_readers();
+    g_search_path    = new search_path();
     decl_modification::init();
 }
 
@@ -361,5 +365,6 @@ void finalize_module() {
     decl_modification::finalize();
     delete g_object_readers;
     delete g_ext;
+    delete g_search_path;
 }
 }

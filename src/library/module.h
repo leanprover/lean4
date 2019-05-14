@@ -26,7 +26,7 @@ void set_search_path(search_path const & p);
 environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports);
 
 /** \brief Store module using \c env. */
-void write_module(environment const & env, module_name const & mod, std::string const & olean_fn);
+void write_module(environment const & env, std::string const & olean_fn);
 
 struct modification {
 public:

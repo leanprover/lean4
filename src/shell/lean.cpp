@@ -543,7 +543,7 @@ int main(int argc, char ** argv) {
             time_task t(".olean serialization",
                         message_builder(environment(), get_global_ios(), mod_fn, pos_info(),
                                         message_severity::INFORMATION));
-            write_module(env, mod_fn, olean_fn);
+            write_module(env, olean_fn);
         }
 
         if (!json_output)

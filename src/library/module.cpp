@@ -157,7 +157,7 @@ object * environment_add_modification_core(object * env, object * mod);
 object * environment_get_modifications_core(object * env);
 
 static char const * g_olean_end_file = "EndFile";
-void write_module(environment const & env, module_name const & mod, std::string const & olean_fn) {
+void write_module(environment const & env, std::string const & olean_fn) {
     exclusive_file_lock output_lock(olean_fn);
     std::ofstream out(olean_fn, std::ios_base::binary);
     module_ext const & ext = get_extension(env);
@@ -184,7 +184,7 @@ void write_module(environment const & env, module_name const & mod, std::string 
     s1 << g_olean_end_file;
 
     if (!out1.good()) {
-        throw exception(sstream() << "error during serialization of '" << mod << "'");
+        throw exception(sstream() << "error during serialization");
     }
 
     std::string r = out1.str();

@@ -352,7 +352,7 @@ let env : Environment := {
   const2ModId := const2ModId,
   constants   := constants,
   extensions  := exts,
-  quotInit    := true, -- We assume `core.lean` initializes quotient module
+  quotInit    := !modNames.isEmpty, -- We assume `core.lean` initializes quotient module
   trustLevel  := trustLevel,
   imports     := modNames.toArray
 },

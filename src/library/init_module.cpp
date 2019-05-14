@@ -84,7 +84,6 @@ void initialize_library_module() {
     initialize_num();
     initialize_annotation();
     initialize_explicit();
-    initialize_protected();
     initialize_private();
     initialize_reducible();
     initialize_aliases();
@@ -124,7 +123,6 @@ void finalize_library_module() {
     finalize_aliases();
     finalize_reducible();
     finalize_private();
-    finalize_protected();
     finalize_explicit();
     finalize_annotation();
     finalize_num();

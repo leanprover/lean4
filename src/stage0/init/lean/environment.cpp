@@ -39,6 +39,7 @@ obj* nat_sub(obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_importModulesAux(obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_getState(obj*);
+obj* l___private_init_lean_environment_12__mkImportedStateThunk___elambda__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_CPPExtensionState_Inhabited;
 obj* l_Lean_PersistentEnvExtension_forceStateAux___rarg(obj*, obj*);
@@ -52,6 +53,7 @@ obj* l_Lean_EnvExtension_getStateUnsafe___rarg(obj*, obj*);
 obj* l_AssocList_replace___main___at_Lean_importModules___spec__6(obj*, obj*, obj*);
 obj* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getEntries___rarg(obj*, obj*);
+obj* l___private_init_lean_environment_11__setImportedEntries___boxed(obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_modifyStateUnsafe(obj*);
 obj* l___private_init_lean_environment_4__getTrustLevel___boxed(obj*);
 obj* l_Lean_SMap_find___main___at_Lean_Environment_find___spec__1___boxed(obj*, obj*);
@@ -60,8 +62,11 @@ namespace lean {
 obj* import_modules_core(obj*, uint32, obj*);
 }
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1;
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_13__finalizePersistentExtensions___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1(obj*, obj*, obj*);
+obj* l_List_reverse___rarg(obj*);
 uint8 l_List_isEmpty___main___rarg(obj*);
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_Environment_add___spec__7(obj*, obj*, obj*);
 obj* l_AssocList_foldl___main___at_Lean_Environment_add___spec__8(obj*, obj*);
 obj* l_Lean_mkEmptyEnvironment___closed__1;
@@ -70,14 +75,18 @@ obj* l_Lean_importModules___closed__1;
 obj* l_List_toArrayAux___main___rarg(obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_EnvExtension_setState(obj*, obj*, obj*, obj*);
+extern obj* l_Lean_Inhabited;
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_List_redLength___main___rarg(obj*);
 obj* l_Lean_PersistentEnvExtension_getState___rarg___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_forceState(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__8___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_inhabited___lambda__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_Name_quickLt___boxed(obj*, obj*);
-obj* l_Lean_ModuleId_Inhabited;
+obj* l___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_setState___boxed(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_environment_10__getEntriesFor___main___closed__1;
 extern "C" obj* lean_io_initializing(obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__8(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_inhabited___lambda__2(obj*);
@@ -98,12 +107,14 @@ obj* l_RBNode_find___main___at_Lean_Environment_find___spec__2___boxed(obj*, obj
 obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___rarg(obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_Environment_add___spec__5___boxed(obj*, obj*);
+obj* l___private_init_lean_environment_10__getEntriesFor(obj*, obj*, obj*);
 extern "C" usize lean_name_hash_usize(obj*);
 obj* l_Lean_readModuleData___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__10(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getEntries___boxed(obj*, obj*);
 obj* l_Lean_EnvExtension_getStateUnsafe___rarg___boxed(obj*, obj*);
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1(obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe(obj*);
 obj* l_HashMapImp_insert___at_Lean_importModules___spec__1(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__7___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -133,6 +144,7 @@ extern "C" obj* lean_serialize_modifications(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__11___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_environment_5__mkEnvExtensionsRef(obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__10___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_environment_12__mkImportedStateThunk(obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -145,13 +157,16 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_EnvExtension_setStateUnsafe___rarg(obj*, obj*, obj*);
 obj* l_Lean_saveModuleData___boxed(obj*, obj*, obj*);
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___boxed(obj*, obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
 namespace lean {
 obj* set_extension_core(obj*, obj*, obj*);
 }
+obj* l___private_init_lean_environment_10__getEntriesFor___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_regModListExtension(obj*);
 uint8 l_Array_anyMAux___main___at_Lean_registerPersistentEnvExtensionUnsafe___spec__1(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at___private_init_lean_environment_7__mkInitialExtensionStates___spec__1___boxed(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_environment_10__getEntriesFor___boxed(obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_getStateUnsafe___boxed(obj*);
 obj* l_Lean_registerEnvExtension(obj*, obj*);
 obj* l_Lean_importModulesAux___main(obj*, obj*, obj*);
@@ -168,6 +183,7 @@ obj* l_Lean_PersistentEnvExtension_getState(obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_registerPersistentEnvExtensionUnsafe___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_modifyState(obj*, obj*, obj*, obj*);
 obj* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_mkEmptyEnvironment___closed__2;
 obj* l_Lean_SMap_empty___at_Lean_importModules___spec__9;
 obj* l_Lean_Modification_Inhabited;
@@ -178,7 +194,6 @@ uint8 environment_quot_init_core(obj*);
 }
 obj* l_Lean_SMap_switch___at___private_init_lean_environment_1__switch___spec__1(obj*);
 extern obj* l_NonScalar_Inhabited;
-obj* l_List_foldl___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Environment_contains___boxed(obj*, obj*);
 obj* l___private_init_lean_environment_3__isQuotInit___boxed(obj*);
 extern "C" obj* lean_read_module_data(obj*, obj*);
@@ -203,10 +218,13 @@ namespace lean {
 usize usize_modn(usize, obj*);
 }
 obj* l_HashMapImp_find___at_Lean_Environment_find___spec__3(obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__2(obj*, obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_environment_13__finalizePersistentExtensions(obj*, obj*);
 namespace lean {
 obj* environment_find_core(obj*, obj*);
 }
 obj* l_Lean_PersistentEnvExtension_forceState___rarg(obj*, obj*);
+obj* l___private_init_lean_environment_11__setImportedEntries(obj*, obj*, obj*);
 extern obj* l_HashMap_Inhabited___closed__1;
 obj* l_Lean_modListExtension;
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__12(obj*, obj*, obj*, obj*, obj*);
@@ -215,10 +233,14 @@ namespace lean {
 obj* environment_add_core(obj*, obj*);
 }
 obj* l_Lean_EnvExtension_setStateUnsafe(obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__1(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_ModuleIdx_Inhabited;
 obj* l_Lean_EnvExtension_Inhabited(obj*);
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg(obj*, obj*, obj*);
 obj* l_mkHashMapImp___rarg(obj*);
 obj* l_Lean_PersistentEnvExtension_getModuleEntries___boxed(obj*, obj*);
 obj* l_Lean_EnvExtension_getStateUnsafe(obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_importModules___spec__2___boxed(obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_Environment_find___spec__3___boxed(obj*, obj*);
 namespace lean {
@@ -245,8 +267,10 @@ obj* l_Lean_serializeModifications___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry(obj*, obj*);
 obj* l_Lean_addModification___closed__1;
 obj* l_Lean_registerEnvExtension___rarg(obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__2___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtension___boxed(obj*, obj*);
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_13__finalizePersistentExtensions___spec__1(obj*, obj*, obj*, obj*);
 obj* l_AssocList_find___main___at_Lean_Environment_find___spec__4(obj*, obj*);
 obj* l_Lean_ModuleData_inhabited;
 namespace lean {
@@ -255,7 +279,9 @@ obj* environment_mark_quot_init_core(obj*);
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
+obj* l___private_init_lean_environment_10__getEntriesFor___main(obj*, obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__1;
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_importModules___spec__3(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_inhabited___lambda__1(uint8, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__7(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
@@ -268,7 +294,7 @@ x_0 = l_NonScalar_Inhabited;
 return x_0;
 }
 }
-obj* _init_l_Lean_ModuleId_Inhabited() {
+obj* _init_l_Lean_ModuleIdx_Inhabited() {
 _start:
 {
 obj* x_0; 
@@ -3496,6 +3522,43 @@ lean::dec(x_1);
 return x_2;
 }
 }
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+if (lean::obj_tag(x_2) == 0)
+{
+lean::dec(x_0);
+lean::inc(x_1);
+return x_1;
+}
+else
+{
+obj* x_5; obj* x_7; obj* x_11; obj* x_12; uint8 x_15; obj* x_16; obj* x_17; 
+x_5 = lean::cnstr_get(x_2, 0);
+lean::inc(x_5);
+x_7 = lean::cnstr_get(x_2, 1);
+lean::inc(x_7);
+lean::dec(x_2);
+lean::inc(x_0);
+x_11 = l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg(x_0, x_1, x_7);
+x_12 = lean::cnstr_get(x_0, 3);
+lean::inc(x_12);
+lean::dec(x_0);
+x_15 = 0;
+x_16 = lean::box(x_15);
+x_17 = lean::apply_3(x_12, x_16, x_11, x_5);
+return x_17;
+}
+}
+}
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg___boxed), 3, 0);
+return x_2;
+}
+}
 obj* l_Lean_PersistentEnvExtension_forceStateAux___rarg(obj* x_0, obj* x_1) {
 _start:
 {
@@ -3504,32 +3567,27 @@ x_2 = lean::cnstr_get(x_1, 3);
 lean::inc(x_2);
 if (lean::obj_tag(x_2) == 0)
 {
-obj* x_4; uint8 x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_12; obj* x_14; obj* x_17; 
-x_4 = lean::cnstr_get(x_0, 3);
+obj* x_4; obj* x_6; obj* x_8; obj* x_11; 
+x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
-lean::dec(x_0);
-x_7 = 0;
-x_8 = lean::box(x_7);
-x_9 = lean::apply_1(x_4, x_8);
-x_10 = lean::cnstr_get(x_1, 1);
-lean::inc(x_10);
-x_12 = lean::thunk_get_own(x_10);
-lean::dec(x_10);
-x_14 = lean::cnstr_get(x_1, 2);
-lean::inc(x_14);
+x_6 = lean::thunk_get_own(x_4);
+lean::dec(x_4);
+x_8 = lean::cnstr_get(x_1, 2);
+lean::inc(x_8);
 lean::dec(x_1);
-x_17 = l_List_foldl___main___rarg(x_9, x_12, x_14);
-return x_17;
+x_11 = l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg(x_0, x_6, x_8);
+lean::dec(x_6);
+return x_11;
 }
 else
 {
-obj* x_20; 
+obj* x_15; 
 lean::dec(x_1);
 lean::dec(x_0);
-x_20 = lean::cnstr_get(x_2, 0);
-lean::inc(x_20);
+x_15 = lean::cnstr_get(x_2, 0);
+lean::inc(x_15);
 lean::dec(x_2);
-return x_20;
+return x_15;
 }
 }
 }
@@ -3538,6 +3596,25 @@ _start:
 {
 obj* x_2; 
 x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_PersistentEnvExtension_forceStateAux___rarg), 2, 0);
+return x_2;
+}
+}
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg(x_0, x_1, x_2);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_2;
 }
 }
@@ -4450,7 +4527,7 @@ x_5 = lean::mk_nat_obj(0ul);
 x_6 = lean::nat_dec_eq(x_3, x_5);
 if (x_6 == 0)
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; obj* x_15; obj* x_16; obj* x_18; obj* x_21; obj* x_22; obj* x_23; 
+obj* x_7; obj* x_8; obj* x_9; obj* x_11; obj* x_12; obj* x_15; obj* x_16; obj* x_18; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
 x_7 = lean::mk_nat_obj(1ul);
 x_8 = lean::nat_sub(x_3, x_7);
 x_9 = lean::nat_sub(x_2, x_3);
@@ -4465,13 +4542,14 @@ lean::inc(x_16);
 x_18 = lean::cnstr_get(x_12, 1);
 lean::inc(x_18);
 lean::dec(x_12);
-x_21 = lean::apply_1(x_16, x_15);
-x_22 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_22, 0, x_18);
-lean::cnstr_set(x_22, 1, x_21);
-x_23 = lean::array_push(x_4, x_22);
+x_21 = l_List_reverse___rarg(x_15);
+x_22 = lean::apply_1(x_16, x_21);
+x_23 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_23, 0, x_18);
+lean::cnstr_set(x_23, 1, x_22);
+x_24 = lean::array_push(x_4, x_23);
 x_3 = x_8;
-x_4 = x_23;
+x_4 = x_24;
 goto _start;
 }
 else
@@ -4950,6 +5028,653 @@ _start:
 obj* x_3; 
 x_3 = l_Lean_importModulesAux___main(x_0, x_1, x_2);
 return x_3;
+}
+}
+obj* _init_l___private_init_lean_environment_10__getEntriesFor___main___closed__1() {
+_start:
+{
+obj* x_0; obj* x_1; obj* x_2; obj* x_3; 
+x_0 = lean::mk_nat_obj(0ul);
+x_1 = lean::mk_empty_array(x_0);
+x_2 = l_Lean_Inhabited;
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_2);
+lean::cnstr_set(x_3, 1, x_1);
+return x_3;
+}
+}
+obj* l___private_init_lean_environment_10__getEntriesFor___main(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; uint8 x_5; 
+x_3 = lean::cnstr_get(x_0, 2);
+x_4 = lean::array_get_size(x_3);
+x_5 = lean::nat_dec_lt(x_2, x_4);
+lean::dec(x_4);
+if (x_5 == 0)
+{
+obj* x_8; 
+lean::dec(x_2);
+x_8 = l_Array_empty___closed__1;
+return x_8;
+}
+else
+{
+obj* x_9; obj* x_10; obj* x_11; uint8 x_13; 
+x_9 = l___private_init_lean_environment_10__getEntriesFor___main___closed__1;
+x_10 = lean::array_get(x_9, x_3, x_2);
+x_11 = lean::cnstr_get(x_10, 0);
+lean::inc(x_11);
+x_13 = lean_name_dec_eq(x_11, x_1);
+lean::dec(x_11);
+if (x_13 == 0)
+{
+obj* x_16; obj* x_17; 
+lean::dec(x_10);
+x_16 = lean::mk_nat_obj(1ul);
+x_17 = lean::nat_add(x_2, x_16);
+lean::dec(x_2);
+x_2 = x_17;
+goto _start;
+}
+else
+{
+obj* x_21; 
+lean::dec(x_2);
+x_21 = lean::cnstr_get(x_10, 1);
+lean::inc(x_21);
+lean::dec(x_10);
+return x_21;
+}
+}
+}
+}
+obj* l___private_init_lean_environment_10__getEntriesFor___main___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l___private_init_lean_environment_10__getEntriesFor___main(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l___private_init_lean_environment_10__getEntriesFor(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l___private_init_lean_environment_10__getEntriesFor___main(x_0, x_1, x_2);
+return x_3;
+}
+}
+obj* l___private_init_lean_environment_10__getEntriesFor___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l___private_init_lean_environment_10__getEntriesFor(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::array_get_size(x_2);
+x_6 = lean::nat_dec_lt(x_3, x_5);
+lean::dec(x_5);
+if (x_6 == 0)
+{
+lean::dec(x_3);
+return x_4;
+}
+else
+{
+obj* x_9; obj* x_10; obj* x_12; obj* x_13; obj* x_15; obj* x_18; obj* x_20; obj* x_22; uint32 x_24; uint8 x_25; obj* x_26; obj* x_28; obj* x_29; obj* x_31; uint8 x_32; obj* x_34; obj* x_35; 
+x_9 = lean::array_fget(x_2, x_3);
+x_10 = lean::cnstr_get(x_9, 1);
+lean::inc(x_10);
+x_12 = lean::mk_nat_obj(0ul);
+x_13 = l___private_init_lean_environment_10__getEntriesFor___main(x_1, x_10, x_12);
+lean::dec(x_10);
+x_15 = lean::cnstr_get(x_9, 0);
+lean::inc(x_15);
+lean::dec(x_9);
+x_18 = lean::cnstr_get(x_4, 0);
+x_20 = lean::cnstr_get(x_4, 1);
+x_22 = lean::cnstr_get(x_4, 2);
+x_24 = lean::cnstr_get_scalar<uint32>(x_4, sizeof(void*)*4);
+x_25 = lean::cnstr_get_scalar<uint8>(x_4, sizeof(void*)*4 + 4);
+x_26 = lean::cnstr_get(x_4, 3);
+if (lean::is_exclusive(x_4)) {
+ lean::cnstr_set(x_4, 0, lean::box(0));
+ lean::cnstr_set(x_4, 1, lean::box(0));
+ lean::cnstr_set(x_4, 2, lean::box(0));
+ lean::cnstr_set(x_4, 3, lean::box(0));
+ x_28 = x_4;
+} else {
+ lean::inc(x_18);
+ lean::inc(x_20);
+ lean::inc(x_22);
+ lean::inc(x_26);
+ lean::dec(x_4);
+ x_28 = lean::box(0);
+}
+x_29 = lean::cnstr_get(x_15, 0);
+lean::inc(x_29);
+x_31 = lean::array_get_size(x_22);
+x_32 = lean::nat_dec_lt(x_29, x_31);
+lean::dec(x_31);
+x_34 = lean::mk_nat_obj(1ul);
+x_35 = lean::nat_add(x_3, x_34);
+lean::dec(x_3);
+if (x_32 == 0)
+{
+obj* x_40; obj* x_41; obj* x_42; 
+lean::dec(x_13);
+lean::dec(x_15);
+lean::dec(x_29);
+if (lean::is_scalar(x_28)) {
+ x_40 = lean::alloc_cnstr(0, 4, 5);
+} else {
+ x_40 = x_28;
+}
+lean::cnstr_set(x_40, 0, x_18);
+lean::cnstr_set(x_40, 1, x_20);
+lean::cnstr_set(x_40, 2, x_22);
+lean::cnstr_set(x_40, 3, x_26);
+lean::cnstr_set_scalar(x_40, sizeof(void*)*4, x_24);
+x_41 = x_40;
+lean::cnstr_set_scalar(x_41, sizeof(void*)*4 + 4, x_25);
+x_42 = x_41;
+x_3 = x_35;
+x_4 = x_42;
+goto _start;
+}
+else
+{
+obj* x_44; obj* x_45; obj* x_46; obj* x_49; obj* x_50; obj* x_52; obj* x_54; obj* x_56; obj* x_58; obj* x_59; obj* x_60; obj* x_61; obj* x_62; obj* x_63; obj* x_65; obj* x_66; obj* x_67; 
+x_44 = lean::array_fget(x_22, x_29);
+x_45 = lean::array_fset(x_22, x_29, x_12);
+x_46 = lean::cnstr_get(x_15, 1);
+lean::inc(x_46);
+lean::dec(x_15);
+x_49 = x_44;
+x_50 = lean::cnstr_get(x_49, 0);
+x_52 = lean::cnstr_get(x_49, 1);
+x_54 = lean::cnstr_get(x_49, 2);
+x_56 = lean::cnstr_get(x_49, 3);
+if (lean::is_exclusive(x_49)) {
+ x_58 = x_49;
+} else {
+ lean::inc(x_50);
+ lean::inc(x_52);
+ lean::inc(x_54);
+ lean::inc(x_56);
+ lean::dec(x_49);
+ x_58 = lean::box(0);
+}
+x_59 = lean::array_push(x_50, x_13);
+if (lean::is_scalar(x_58)) {
+ x_60 = lean::alloc_cnstr(0, 4, 0);
+} else {
+ x_60 = x_58;
+}
+lean::cnstr_set(x_60, 0, x_59);
+lean::cnstr_set(x_60, 1, x_52);
+lean::cnstr_set(x_60, 2, x_54);
+lean::cnstr_set(x_60, 3, x_56);
+x_61 = l_Lean_EnvExtensionState_Inhabited;
+x_62 = x_60;
+x_63 = lean::array_fset(x_45, x_29, x_62);
+lean::dec(x_29);
+if (lean::is_scalar(x_28)) {
+ x_65 = lean::alloc_cnstr(0, 4, 5);
+} else {
+ x_65 = x_28;
+}
+lean::cnstr_set(x_65, 0, x_18);
+lean::cnstr_set(x_65, 1, x_20);
+lean::cnstr_set(x_65, 2, x_63);
+lean::cnstr_set(x_65, 3, x_26);
+lean::cnstr_set_scalar(x_65, sizeof(void*)*4, x_24);
+x_66 = x_65;
+lean::cnstr_set_scalar(x_66, sizeof(void*)*4 + 4, x_25);
+x_67 = x_66;
+x_3 = x_35;
+x_4 = x_67;
+goto _start;
+}
+}
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::array_get_size(x_2);
+x_6 = lean::nat_dec_lt(x_3, x_5);
+lean::dec(x_5);
+if (x_6 == 0)
+{
+lean::dec(x_3);
+return x_4;
+}
+else
+{
+obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_14; 
+x_9 = lean::array_fget(x_2, x_3);
+x_10 = lean::mk_nat_obj(0ul);
+x_11 = l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__1(x_1, x_9, x_1, x_10, x_4);
+lean::dec(x_9);
+x_13 = lean::mk_nat_obj(1ul);
+x_14 = lean::nat_add(x_3, x_13);
+lean::dec(x_3);
+x_3 = x_14;
+x_4 = x_11;
+goto _start;
+}
+}
+}
+obj* l___private_init_lean_environment_11__setImportedEntries(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = l___private_init_lean_environment_9__persistentEnvExtensionsRef;
+x_4 = lean::io_ref_get(x_3, x_2);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_5; obj* x_7; obj* x_9; obj* x_10; obj* x_11; obj* x_13; 
+x_5 = lean::cnstr_get(x_4, 0);
+x_7 = lean::cnstr_get(x_4, 1);
+if (lean::is_exclusive(x_4)) {
+ x_9 = x_4;
+} else {
+ lean::inc(x_5);
+ lean::inc(x_7);
+ lean::dec(x_4);
+ x_9 = lean::box(0);
+}
+x_10 = lean::mk_nat_obj(0ul);
+x_11 = l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__2(x_1, x_5, x_1, x_10, x_0);
+lean::dec(x_5);
+if (lean::is_scalar(x_9)) {
+ x_13 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_13 = x_9;
+}
+lean::cnstr_set(x_13, 0, x_11);
+lean::cnstr_set(x_13, 1, x_7);
+return x_13;
+}
+else
+{
+obj* x_15; obj* x_17; obj* x_19; obj* x_20; 
+lean::dec(x_0);
+x_15 = lean::cnstr_get(x_4, 0);
+x_17 = lean::cnstr_get(x_4, 1);
+if (lean::is_exclusive(x_4)) {
+ x_19 = x_4;
+} else {
+ lean::inc(x_15);
+ lean::inc(x_17);
+ lean::dec(x_4);
+ x_19 = lean::box(0);
+}
+if (lean::is_scalar(x_19)) {
+ x_20 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_20 = x_19;
+}
+lean::cnstr_set(x_20, 0, x_15);
+lean::cnstr_set(x_20, 1, x_17);
+return x_20;
+}
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__1(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_5;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Array_miterateAux___main___at___private_init_lean_environment_11__setImportedEntries___spec__2(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_5;
+}
+}
+obj* l___private_init_lean_environment_11__setImportedEntries___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l___private_init_lean_environment_11__setImportedEntries(x_0, x_1, x_2);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::array_get_size(x_2);
+x_6 = lean::nat_dec_lt(x_3, x_5);
+lean::dec(x_5);
+if (x_6 == 0)
+{
+lean::dec(x_3);
+lean::dec(x_0);
+return x_4;
+}
+else
+{
+obj* x_10; uint8 x_11; obj* x_12; obj* x_14; obj* x_15; obj* x_16; 
+x_10 = lean::array_fget(x_2, x_3);
+x_11 = 1;
+x_12 = lean::box(x_11);
+lean::inc(x_0);
+x_14 = lean::apply_3(x_0, x_12, x_4, x_10);
+x_15 = lean::mk_nat_obj(1ul);
+x_16 = lean::nat_add(x_3, x_15);
+lean::dec(x_3);
+x_3 = x_16;
+x_4 = x_14;
+goto _start;
+}
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__2(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::array_get_size(x_2);
+x_6 = lean::nat_dec_lt(x_3, x_5);
+lean::dec(x_5);
+if (x_6 == 0)
+{
+lean::dec(x_1);
+lean::dec(x_3);
+return x_4;
+}
+else
+{
+obj* x_10; obj* x_11; obj* x_13; obj* x_15; obj* x_16; 
+x_10 = lean::array_fget(x_2, x_3);
+x_11 = lean::mk_nat_obj(0ul);
+lean::inc(x_1);
+x_13 = l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__1(x_1, x_10, x_10, x_11, x_4);
+lean::dec(x_10);
+x_15 = lean::mk_nat_obj(1ul);
+x_16 = lean::nat_add(x_3, x_15);
+lean::dec(x_3);
+x_3 = x_16;
+x_4 = x_13;
+goto _start;
+}
+}
+}
+obj* l___private_init_lean_environment_12__mkImportedStateThunk___elambda__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; 
+x_4 = lean::mk_nat_obj(0ul);
+x_5 = l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__2(x_0, x_2, x_0, x_4, x_1);
+return x_5;
+}
+}
+obj* l___private_init_lean_environment_12__mkImportedStateThunk(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___boxed), 4, 3);
+lean::closure_set(x_3, 0, x_0);
+lean::closure_set(x_3, 1, x_1);
+lean::closure_set(x_3, 2, x_2);
+x_4 = lean::mk_thunk(x_3);
+return x_4;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__1(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_5;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__2___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Array_miterateAux___main___at___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___spec__2(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_0);
+lean::dec(x_2);
+return x_5;
+}
+}
+obj* l___private_init_lean_environment_12__mkImportedStateThunk___elambda__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_environment_12__mkImportedStateThunk___elambda__1(x_0, x_1, x_2, x_3);
+lean::dec(x_0);
+lean::dec(x_3);
+return x_4;
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_13__finalizePersistentExtensions___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; uint8 x_5; 
+x_4 = lean::array_get_size(x_1);
+x_5 = lean::nat_dec_lt(x_2, x_4);
+lean::dec(x_4);
+if (x_5 == 0)
+{
+lean::dec(x_2);
+return x_3;
+}
+else
+{
+obj* x_8; obj* x_9; obj* x_11; obj* x_13; obj* x_15; uint32 x_17; uint8 x_18; obj* x_19; obj* x_21; obj* x_22; obj* x_24; uint8 x_25; obj* x_27; obj* x_28; 
+x_8 = lean::array_fget(x_1, x_2);
+x_9 = lean::cnstr_get(x_8, 0);
+lean::inc(x_9);
+x_11 = lean::cnstr_get(x_3, 0);
+x_13 = lean::cnstr_get(x_3, 1);
+x_15 = lean::cnstr_get(x_3, 2);
+x_17 = lean::cnstr_get_scalar<uint32>(x_3, sizeof(void*)*4);
+x_18 = lean::cnstr_get_scalar<uint8>(x_3, sizeof(void*)*4 + 4);
+x_19 = lean::cnstr_get(x_3, 3);
+if (lean::is_exclusive(x_3)) {
+ lean::cnstr_set(x_3, 0, lean::box(0));
+ lean::cnstr_set(x_3, 1, lean::box(0));
+ lean::cnstr_set(x_3, 2, lean::box(0));
+ lean::cnstr_set(x_3, 3, lean::box(0));
+ x_21 = x_3;
+} else {
+ lean::inc(x_11);
+ lean::inc(x_13);
+ lean::inc(x_15);
+ lean::inc(x_19);
+ lean::dec(x_3);
+ x_21 = lean::box(0);
+}
+x_22 = lean::cnstr_get(x_9, 0);
+lean::inc(x_22);
+x_24 = lean::array_get_size(x_15);
+x_25 = lean::nat_dec_lt(x_22, x_24);
+lean::dec(x_24);
+x_27 = lean::mk_nat_obj(1ul);
+x_28 = lean::nat_add(x_2, x_27);
+lean::dec(x_2);
+if (x_25 == 0)
+{
+obj* x_33; obj* x_34; obj* x_35; 
+lean::dec(x_9);
+lean::dec(x_8);
+lean::dec(x_22);
+if (lean::is_scalar(x_21)) {
+ x_33 = lean::alloc_cnstr(0, 4, 5);
+} else {
+ x_33 = x_21;
+}
+lean::cnstr_set(x_33, 0, x_11);
+lean::cnstr_set(x_33, 1, x_13);
+lean::cnstr_set(x_33, 2, x_15);
+lean::cnstr_set(x_33, 3, x_19);
+lean::cnstr_set_scalar(x_33, sizeof(void*)*4, x_17);
+x_34 = x_33;
+lean::cnstr_set_scalar(x_34, sizeof(void*)*4 + 4, x_18);
+x_35 = x_34;
+x_2 = x_28;
+x_3 = x_35;
+goto _start;
+}
+else
+{
+obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_44; obj* x_45; obj* x_47; obj* x_48; obj* x_51; obj* x_53; obj* x_57; obj* x_58; obj* x_59; obj* x_60; obj* x_61; obj* x_62; obj* x_63; obj* x_65; obj* x_66; obj* x_67; 
+x_37 = lean::array_fget(x_15, x_22);
+x_38 = lean::mk_nat_obj(0ul);
+x_39 = lean::array_fset(x_15, x_22, x_38);
+x_40 = lean::cnstr_get(x_9, 1);
+lean::inc(x_40);
+lean::dec(x_9);
+lean::inc(x_40);
+x_44 = x_37;
+x_45 = lean::cnstr_get(x_44, 0);
+if (lean::is_exclusive(x_44)) {
+ lean::cnstr_release(x_44, 1);
+ lean::cnstr_release(x_44, 2);
+ lean::cnstr_release(x_44, 3);
+ x_47 = x_44;
+} else {
+ lean::inc(x_45);
+ lean::dec(x_44);
+ x_47 = lean::box(0);
+}
+x_48 = lean::cnstr_get(x_40, 1);
+lean::inc(x_48);
+lean::dec(x_40);
+x_51 = lean::thunk_get_own(x_48);
+lean::dec(x_48);
+x_53 = lean::cnstr_get(x_8, 3);
+lean::inc(x_53);
+lean::dec(x_8);
+lean::inc(x_45);
+x_57 = l___private_init_lean_environment_12__mkImportedStateThunk(x_45, x_51, x_53);
+x_58 = lean::box(0);
+x_59 = lean::box(0);
+if (lean::is_scalar(x_47)) {
+ x_60 = lean::alloc_cnstr(0, 4, 0);
+} else {
+ x_60 = x_47;
+}
+lean::cnstr_set(x_60, 0, x_45);
+lean::cnstr_set(x_60, 1, x_57);
+lean::cnstr_set(x_60, 2, x_58);
+lean::cnstr_set(x_60, 3, x_59);
+x_61 = l_Lean_EnvExtensionState_Inhabited;
+x_62 = x_60;
+x_63 = lean::array_fset(x_39, x_22, x_62);
+lean::dec(x_22);
+if (lean::is_scalar(x_21)) {
+ x_65 = lean::alloc_cnstr(0, 4, 5);
+} else {
+ x_65 = x_21;
+}
+lean::cnstr_set(x_65, 0, x_11);
+lean::cnstr_set(x_65, 1, x_13);
+lean::cnstr_set(x_65, 2, x_63);
+lean::cnstr_set(x_65, 3, x_19);
+lean::cnstr_set_scalar(x_65, sizeof(void*)*4, x_17);
+x_66 = x_65;
+lean::cnstr_set_scalar(x_66, sizeof(void*)*4 + 4, x_18);
+x_67 = x_66;
+x_2 = x_28;
+x_3 = x_67;
+goto _start;
+}
+}
+}
+}
+obj* l___private_init_lean_environment_13__finalizePersistentExtensions(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; 
+x_2 = l___private_init_lean_environment_9__persistentEnvExtensionsRef;
+x_3 = lean::io_ref_get(x_2, x_1);
+if (lean::obj_tag(x_3) == 0)
+{
+obj* x_4; obj* x_6; obj* x_8; obj* x_9; obj* x_10; obj* x_12; 
+x_4 = lean::cnstr_get(x_3, 0);
+x_6 = lean::cnstr_get(x_3, 1);
+if (lean::is_exclusive(x_3)) {
+ x_8 = x_3;
+} else {
+ lean::inc(x_4);
+ lean::inc(x_6);
+ lean::dec(x_3);
+ x_8 = lean::box(0);
+}
+x_9 = lean::mk_nat_obj(0ul);
+x_10 = l_Array_miterateAux___main___at___private_init_lean_environment_13__finalizePersistentExtensions___spec__1(x_4, x_4, x_9, x_0);
+lean::dec(x_4);
+if (lean::is_scalar(x_8)) {
+ x_12 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_12 = x_8;
+}
+lean::cnstr_set(x_12, 0, x_10);
+lean::cnstr_set(x_12, 1, x_6);
+return x_12;
+}
+else
+{
+obj* x_14; obj* x_16; obj* x_18; obj* x_19; 
+lean::dec(x_0);
+x_14 = lean::cnstr_get(x_3, 0);
+x_16 = lean::cnstr_get(x_3, 1);
+if (lean::is_exclusive(x_3)) {
+ x_18 = x_3;
+} else {
+ lean::inc(x_14);
+ lean::inc(x_16);
+ lean::dec(x_3);
+ x_18 = lean::box(0);
+}
+if (lean::is_scalar(x_18)) {
+ x_19 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_19 = x_18;
+}
+lean::cnstr_set(x_19, 0, x_14);
+lean::cnstr_set(x_19, 1, x_16);
+return x_19;
+}
+}
+}
+obj* l_Array_miterateAux___main___at___private_init_lean_environment_13__finalizePersistentExtensions___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Array_miterateAux___main___at___private_init_lean_environment_13__finalizePersistentExtensions___spec__1(x_0, x_1, x_2, x_3);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_4;
 }
 }
 uint8 l_AssocList_contains___main___at_Lean_importModules___spec__2(obj* x_0, obj* x_1) {
@@ -5613,129 +6338,131 @@ lean::cnstr_set_scalar(x_36, sizeof(void*)*4, x_1);
 x_37 = x_36;
 lean::cnstr_set_scalar(x_37, sizeof(void*)*4 + 4, x_35);
 x_38 = x_37;
-x_39 = l_Array_miterateAux___main___at_Lean_importModules___spec__12(x_13, x_13, x_17, x_38, x_29);
-lean::dec(x_13);
+x_39 = l___private_init_lean_environment_11__setImportedEntries(x_38, x_13, x_29);
 if (lean::obj_tag(x_39) == 0)
 {
-obj* x_41; obj* x_43; obj* x_45; obj* x_46; 
-x_41 = lean::cnstr_get(x_39, 0);
-x_43 = lean::cnstr_get(x_39, 1);
+obj* x_40; obj* x_42; obj* x_44; obj* x_45; obj* x_46; 
+x_40 = lean::cnstr_get(x_39, 0);
+x_42 = lean::cnstr_get(x_39, 1);
 if (lean::is_exclusive(x_39)) {
- x_45 = x_39;
+ x_44 = x_39;
 } else {
- lean::inc(x_41);
- lean::inc(x_43);
+ lean::inc(x_40);
+ lean::inc(x_42);
  lean::dec(x_39);
- x_45 = lean::box(0);
+ x_44 = lean::box(0);
 }
-if (lean::is_scalar(x_45)) {
- x_46 = lean::alloc_cnstr(0, 2, 0);
+if (lean::is_scalar(x_44)) {
+ x_45 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_46 = x_45;
+ x_45 = x_44;
 }
-lean::cnstr_set(x_46, 0, x_41);
-lean::cnstr_set(x_46, 1, x_43);
-return x_46;
-}
-else
+lean::cnstr_set(x_45, 0, x_11);
+lean::cnstr_set(x_45, 1, x_42);
+x_46 = l___private_init_lean_environment_13__finalizePersistentExtensions(x_40, x_45);
+if (lean::obj_tag(x_46) == 0)
 {
-obj* x_47; obj* x_49; obj* x_51; obj* x_52; 
-x_47 = lean::cnstr_get(x_39, 0);
-x_49 = lean::cnstr_get(x_39, 1);
-if (lean::is_exclusive(x_39)) {
- x_51 = x_39;
+obj* x_47; obj* x_49; obj* x_51; obj* x_52; obj* x_53; 
+x_47 = lean::cnstr_get(x_46, 0);
+x_49 = lean::cnstr_get(x_46, 1);
+if (lean::is_exclusive(x_46)) {
+ x_51 = x_46;
 } else {
  lean::inc(x_47);
  lean::inc(x_49);
- lean::dec(x_39);
+ lean::dec(x_46);
  x_51 = lean::box(0);
 }
 if (lean::is_scalar(x_51)) {
- x_52 = lean::alloc_cnstr(1, 2, 0);
+ x_52 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_52 = x_51;
 }
-lean::cnstr_set(x_52, 0, x_47);
+lean::cnstr_set(x_52, 0, x_11);
 lean::cnstr_set(x_52, 1, x_49);
-return x_52;
-}
-}
-else
-{
-uint8 x_53; obj* x_54; obj* x_55; obj* x_56; obj* x_57; 
-x_53 = 0;
-x_54 = lean::alloc_cnstr(0, 4, 5);
-lean::cnstr_set(x_54, 0, x_19);
-lean::cnstr_set(x_54, 1, x_22);
-lean::cnstr_set(x_54, 2, x_24);
-lean::cnstr_set(x_54, 3, x_34);
-lean::cnstr_set_scalar(x_54, sizeof(void*)*4, x_1);
-x_55 = x_54;
-lean::cnstr_set_scalar(x_55, sizeof(void*)*4 + 4, x_53);
-x_56 = x_55;
-x_57 = l_Array_miterateAux___main___at_Lean_importModules___spec__13(x_13, x_13, x_17, x_56, x_29);
+x_53 = l_Array_miterateAux___main___at_Lean_importModules___spec__12(x_13, x_13, x_17, x_47, x_52);
 lean::dec(x_13);
-if (lean::obj_tag(x_57) == 0)
+if (lean::obj_tag(x_53) == 0)
 {
-obj* x_59; obj* x_61; obj* x_63; obj* x_64; 
-x_59 = lean::cnstr_get(x_57, 0);
-x_61 = lean::cnstr_get(x_57, 1);
-if (lean::is_exclusive(x_57)) {
- x_63 = x_57;
+obj* x_55; obj* x_57; obj* x_59; obj* x_60; 
+x_55 = lean::cnstr_get(x_53, 0);
+x_57 = lean::cnstr_get(x_53, 1);
+if (lean::is_exclusive(x_53)) {
+ x_59 = x_53;
 } else {
- lean::inc(x_59);
- lean::inc(x_61);
- lean::dec(x_57);
- x_63 = lean::box(0);
+ lean::inc(x_55);
+ lean::inc(x_57);
+ lean::dec(x_53);
+ x_59 = lean::box(0);
 }
-if (lean::is_scalar(x_63)) {
- x_64 = lean::alloc_cnstr(0, 2, 0);
+if (lean::is_scalar(x_59)) {
+ x_60 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_64 = x_63;
+ x_60 = x_59;
 }
-lean::cnstr_set(x_64, 0, x_59);
-lean::cnstr_set(x_64, 1, x_61);
-return x_64;
+lean::cnstr_set(x_60, 0, x_55);
+lean::cnstr_set(x_60, 1, x_57);
+return x_60;
 }
 else
 {
-obj* x_65; obj* x_67; obj* x_69; obj* x_70; 
-x_65 = lean::cnstr_get(x_57, 0);
-x_67 = lean::cnstr_get(x_57, 1);
-if (lean::is_exclusive(x_57)) {
- x_69 = x_57;
+obj* x_61; obj* x_63; obj* x_65; obj* x_66; 
+x_61 = lean::cnstr_get(x_53, 0);
+x_63 = lean::cnstr_get(x_53, 1);
+if (lean::is_exclusive(x_53)) {
+ x_65 = x_53;
 } else {
- lean::inc(x_65);
- lean::inc(x_67);
- lean::dec(x_57);
- x_69 = lean::box(0);
+ lean::inc(x_61);
+ lean::inc(x_63);
+ lean::dec(x_53);
+ x_65 = lean::box(0);
 }
-if (lean::is_scalar(x_69)) {
- x_70 = lean::alloc_cnstr(1, 2, 0);
+if (lean::is_scalar(x_65)) {
+ x_66 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_70 = x_69;
+ x_66 = x_65;
 }
-lean::cnstr_set(x_70, 0, x_65);
-lean::cnstr_set(x_70, 1, x_67);
-return x_70;
+lean::cnstr_set(x_66, 0, x_61);
+lean::cnstr_set(x_66, 1, x_63);
+return x_66;
 }
+}
+else
+{
+obj* x_68; obj* x_70; obj* x_72; obj* x_73; 
+lean::dec(x_13);
+x_68 = lean::cnstr_get(x_46, 0);
+x_70 = lean::cnstr_get(x_46, 1);
+if (lean::is_exclusive(x_46)) {
+ x_72 = x_46;
+} else {
+ lean::inc(x_68);
+ lean::inc(x_70);
+ lean::dec(x_46);
+ x_72 = lean::box(0);
+}
+if (lean::is_scalar(x_72)) {
+ x_73 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_73 = x_72;
+}
+lean::cnstr_set(x_73, 0, x_68);
+lean::cnstr_set(x_73, 1, x_70);
+return x_73;
 }
 }
 else
 {
 obj* x_75; obj* x_77; obj* x_79; obj* x_80; 
 lean::dec(x_13);
-lean::dec(x_0);
-lean::dec(x_22);
-lean::dec(x_19);
-x_75 = lean::cnstr_get(x_23, 0);
-x_77 = lean::cnstr_get(x_23, 1);
-if (lean::is_exclusive(x_23)) {
- x_79 = x_23;
+x_75 = lean::cnstr_get(x_39, 0);
+x_77 = lean::cnstr_get(x_39, 1);
+if (lean::is_exclusive(x_39)) {
+ x_79 = x_39;
 } else {
  lean::inc(x_75);
  lean::inc(x_77);
- lean::dec(x_23);
+ lean::dec(x_39);
  x_79 = lean::box(0);
 }
 if (lean::is_scalar(x_79)) {
@@ -5750,26 +6477,204 @@ return x_80;
 }
 else
 {
-obj* x_82; obj* x_84; obj* x_86; obj* x_87; 
+uint8 x_81; obj* x_82; obj* x_83; obj* x_84; obj* x_85; 
+x_81 = 0;
+x_82 = lean::alloc_cnstr(0, 4, 5);
+lean::cnstr_set(x_82, 0, x_19);
+lean::cnstr_set(x_82, 1, x_22);
+lean::cnstr_set(x_82, 2, x_24);
+lean::cnstr_set(x_82, 3, x_34);
+lean::cnstr_set_scalar(x_82, sizeof(void*)*4, x_1);
+x_83 = x_82;
+lean::cnstr_set_scalar(x_83, sizeof(void*)*4 + 4, x_81);
+x_84 = x_83;
+x_85 = l___private_init_lean_environment_11__setImportedEntries(x_84, x_13, x_29);
+if (lean::obj_tag(x_85) == 0)
+{
+obj* x_86; obj* x_88; obj* x_90; obj* x_91; obj* x_92; 
+x_86 = lean::cnstr_get(x_85, 0);
+x_88 = lean::cnstr_get(x_85, 1);
+if (lean::is_exclusive(x_85)) {
+ x_90 = x_85;
+} else {
+ lean::inc(x_86);
+ lean::inc(x_88);
+ lean::dec(x_85);
+ x_90 = lean::box(0);
+}
+if (lean::is_scalar(x_90)) {
+ x_91 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_91 = x_90;
+}
+lean::cnstr_set(x_91, 0, x_11);
+lean::cnstr_set(x_91, 1, x_88);
+x_92 = l___private_init_lean_environment_13__finalizePersistentExtensions(x_86, x_91);
+if (lean::obj_tag(x_92) == 0)
+{
+obj* x_93; obj* x_95; obj* x_97; obj* x_98; obj* x_99; 
+x_93 = lean::cnstr_get(x_92, 0);
+x_95 = lean::cnstr_get(x_92, 1);
+if (lean::is_exclusive(x_92)) {
+ x_97 = x_92;
+} else {
+ lean::inc(x_93);
+ lean::inc(x_95);
+ lean::dec(x_92);
+ x_97 = lean::box(0);
+}
+if (lean::is_scalar(x_97)) {
+ x_98 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_98 = x_97;
+}
+lean::cnstr_set(x_98, 0, x_11);
+lean::cnstr_set(x_98, 1, x_95);
+x_99 = l_Array_miterateAux___main___at_Lean_importModules___spec__13(x_13, x_13, x_17, x_93, x_98);
+lean::dec(x_13);
+if (lean::obj_tag(x_99) == 0)
+{
+obj* x_101; obj* x_103; obj* x_105; obj* x_106; 
+x_101 = lean::cnstr_get(x_99, 0);
+x_103 = lean::cnstr_get(x_99, 1);
+if (lean::is_exclusive(x_99)) {
+ x_105 = x_99;
+} else {
+ lean::inc(x_101);
+ lean::inc(x_103);
+ lean::dec(x_99);
+ x_105 = lean::box(0);
+}
+if (lean::is_scalar(x_105)) {
+ x_106 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_106 = x_105;
+}
+lean::cnstr_set(x_106, 0, x_101);
+lean::cnstr_set(x_106, 1, x_103);
+return x_106;
+}
+else
+{
+obj* x_107; obj* x_109; obj* x_111; obj* x_112; 
+x_107 = lean::cnstr_get(x_99, 0);
+x_109 = lean::cnstr_get(x_99, 1);
+if (lean::is_exclusive(x_99)) {
+ x_111 = x_99;
+} else {
+ lean::inc(x_107);
+ lean::inc(x_109);
+ lean::dec(x_99);
+ x_111 = lean::box(0);
+}
+if (lean::is_scalar(x_111)) {
+ x_112 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_112 = x_111;
+}
+lean::cnstr_set(x_112, 0, x_107);
+lean::cnstr_set(x_112, 1, x_109);
+return x_112;
+}
+}
+else
+{
+obj* x_114; obj* x_116; obj* x_118; obj* x_119; 
+lean::dec(x_13);
+x_114 = lean::cnstr_get(x_92, 0);
+x_116 = lean::cnstr_get(x_92, 1);
+if (lean::is_exclusive(x_92)) {
+ x_118 = x_92;
+} else {
+ lean::inc(x_114);
+ lean::inc(x_116);
+ lean::dec(x_92);
+ x_118 = lean::box(0);
+}
+if (lean::is_scalar(x_118)) {
+ x_119 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_119 = x_118;
+}
+lean::cnstr_set(x_119, 0, x_114);
+lean::cnstr_set(x_119, 1, x_116);
+return x_119;
+}
+}
+else
+{
+obj* x_121; obj* x_123; obj* x_125; obj* x_126; 
+lean::dec(x_13);
+x_121 = lean::cnstr_get(x_85, 0);
+x_123 = lean::cnstr_get(x_85, 1);
+if (lean::is_exclusive(x_85)) {
+ x_125 = x_85;
+} else {
+ lean::inc(x_121);
+ lean::inc(x_123);
+ lean::dec(x_85);
+ x_125 = lean::box(0);
+}
+if (lean::is_scalar(x_125)) {
+ x_126 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_126 = x_125;
+}
+lean::cnstr_set(x_126, 0, x_121);
+lean::cnstr_set(x_126, 1, x_123);
+return x_126;
+}
+}
+}
+else
+{
+obj* x_131; obj* x_133; obj* x_135; obj* x_136; 
+lean::dec(x_13);
 lean::dec(x_0);
-x_82 = lean::cnstr_get(x_5, 0);
-x_84 = lean::cnstr_get(x_5, 1);
+lean::dec(x_22);
+lean::dec(x_19);
+x_131 = lean::cnstr_get(x_23, 0);
+x_133 = lean::cnstr_get(x_23, 1);
+if (lean::is_exclusive(x_23)) {
+ x_135 = x_23;
+} else {
+ lean::inc(x_131);
+ lean::inc(x_133);
+ lean::dec(x_23);
+ x_135 = lean::box(0);
+}
+if (lean::is_scalar(x_135)) {
+ x_136 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_136 = x_135;
+}
+lean::cnstr_set(x_136, 0, x_131);
+lean::cnstr_set(x_136, 1, x_133);
+return x_136;
+}
+}
+else
+{
+obj* x_138; obj* x_140; obj* x_142; obj* x_143; 
+lean::dec(x_0);
+x_138 = lean::cnstr_get(x_5, 0);
+x_140 = lean::cnstr_get(x_5, 1);
 if (lean::is_exclusive(x_5)) {
- x_86 = x_5;
+ x_142 = x_5;
 } else {
- lean::inc(x_82);
- lean::inc(x_84);
+ lean::inc(x_138);
+ lean::inc(x_140);
  lean::dec(x_5);
- x_86 = lean::box(0);
+ x_142 = lean::box(0);
 }
-if (lean::is_scalar(x_86)) {
- x_87 = lean::alloc_cnstr(1, 2, 0);
+if (lean::is_scalar(x_142)) {
+ x_143 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_87 = x_86;
+ x_143 = x_142;
 }
-lean::cnstr_set(x_87, 0, x_82);
-lean::cnstr_set(x_87, 1, x_84);
-return x_87;
+lean::cnstr_set(x_143, 0, x_138);
+lean::cnstr_set(x_143, 1, x_140);
+return x_143;
 }
 }
 }
@@ -5881,8 +6786,8 @@ w = initialize_init_lean_smap(w);
 if (io_result_is_error(w)) return w;
  l_Lean_EnvExtensionState_Inhabited = _init_l_Lean_EnvExtensionState_Inhabited();
 lean::mark_persistent(l_Lean_EnvExtensionState_Inhabited);
- l_Lean_ModuleId_Inhabited = _init_l_Lean_ModuleId_Inhabited();
-lean::mark_persistent(l_Lean_ModuleId_Inhabited);
+ l_Lean_ModuleIdx_Inhabited = _init_l_Lean_ModuleIdx_Inhabited();
+lean::mark_persistent(l_Lean_ModuleIdx_Inhabited);
  l_Lean_Environment_Inhabited = _init_l_Lean_Environment_Inhabited();
 lean::mark_persistent(l_Lean_Environment_Inhabited);
  l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1 = _init_l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__1();
@@ -5931,6 +6836,8 @@ lean::mark_persistent(l_Lean_addModification___closed__1);
 lean::mark_persistent(l_Lean_addModification___closed__2);
  l_Lean_ModuleData_inhabited = _init_l_Lean_ModuleData_inhabited();
 lean::mark_persistent(l_Lean_ModuleData_inhabited);
+ l___private_init_lean_environment_10__getEntriesFor___main___closed__1 = _init_l___private_init_lean_environment_10__getEntriesFor___main___closed__1();
+lean::mark_persistent(l___private_init_lean_environment_10__getEntriesFor___main___closed__1);
  l_Lean_SMap_empty___at_Lean_importModules___spec__9 = _init_l_Lean_SMap_empty___at_Lean_importModules___spec__9();
 lean::mark_persistent(l_Lean_SMap_empty___at_Lean_importModules___spec__9);
  l_Lean_importModules___closed__1 = _init_l_Lean_importModules___closed__1();

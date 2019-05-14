@@ -331,6 +331,43 @@ partial def importModulesAux : List Name → (NameSet × Array ModuleData) → I
     let mods := mods.push mod,
     importModulesAux ms (s, mods)
 
+private partial def getEntriesFor (mod : ModuleData) (extId : Name) : Nat → Array EnvExtensionState
+| i :=
+  if i < mod.entries.size then
+    let curr := mod.entries.get i in
+    if curr.1 == extId then curr.2 else getEntriesFor (i+1)
+  else
+    Array.empty
+
+private def setImportedEntries (env : Environment) (mods : Array ModuleData) : IO Environment :=
+do
+pExtDescrs ← persistentEnvExtensionsRef.get,
+pure $ mods.iterate env $ λ _ mod env,
+  pExtDescrs.iterate env $ λ _ extDescr env,
+    let entries := getEntriesFor mod extDescr.name 0 in
+    extDescr.toEnvExtension.modifyState env $ λ s,
+      { importedEntries := s.importedEntries.push entries,
+        .. s }
+
+private def mkImportedStateThunk
+    (entries : Array (Array EnvExtensionEntry)) (initial : EnvExtensionState)
+    (addEntryFn : Bool → EnvExtensionState → EnvExtensionEntry → EnvExtensionState)
+    : Thunk EnvExtensionState :=
+Thunk.mk $ λ _,
+  entries.iterate initial $ λ _ entries s,
+    entries.iterate s $ λ _ entry s,
+      addEntryFn true s entry
+
+private def finalizePersistentExtensions (env : Environment) : IO Environment :=
+do
+pExtDescrs ← persistentEnvExtensionsRef.get,
+pure $ pExtDescrs.iterate env $ λ _ extDescr env,
+  extDescr.toEnvExtension.modifyState env $ λ s,
+    { importedState := mkImportedStateThunk s.importedEntries extDescr.initial.importedState.get extDescr.addEntryFn,
+      entries := [],
+      state   := none,
+      .. s }
+
 @[export lean.import_modules_core]
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
 do
@@ -342,7 +379,7 @@ let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap 
   mod.constants.iterate cs $ λ _ cinfo cs,
     cs.insert cinfo.name cinfo,
 let constants   := constants.switch,
-exts ← mkInitialExtensionStates, -- TODO(Leo): process persistent entries
+exts ← mkInitialExtensionStates,
 let env : Environment := {
   const2ModId := const2ModId,
   constants   := constants,
@@ -351,6 +388,8 @@ let env : Environment := {
   trustLevel  := trustLevel,
   imports     := modNames.toArray
 },
+env ← setImportedEntries env mods,
+env ← finalizePersistentExtensions env,
 env ← mods.miterate env $ λ _ mod env, performModifications env mod.serialized,
 pure env
 

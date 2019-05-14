@@ -29,17 +29,6 @@ environment import_modules(unsigned trust_lvl, std::vector<module_name> const & 
 /** \brief Store module using \c env. */
 void write_module(environment const & env, module_name const & mod, std::string const & olean_fn);
 
-struct modification;
-
-using modification_list = std::vector<modification*>;
-
-/** \brief A finished module. The in-memory representation of a .olean file. */
-struct loaded_module {
-    module_name m_name; // not serialized
-    std::vector<module_name> m_imports;
-    modification_list m_modifications;
-};
-
 struct modification {
 public:
     virtual ~modification() {}

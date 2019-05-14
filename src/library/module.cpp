@@ -287,6 +287,8 @@ static olean_data parse_olean(std::istream & in, std::string const & file_name, 
     return { imports, code };
 }
 
+using modification_list = std::vector<modification*>;
+
 static void import_module(modification_list const & modifications, environment & env) {
     for (auto & m : modifications) {
         m->perform(env);

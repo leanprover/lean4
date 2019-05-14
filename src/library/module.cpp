@@ -110,11 +110,12 @@ extern "C" object * lean_read_module_data(object * fname, object * w) {
         if (size < header_size) {
             return set_io_error(w, (sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
-        char header[header_size];
+        char * header = new char[header_size];
         in.read(header, header_size);
         if (strncmp(header, g_olean_header, header_size) != 0) {
             return set_io_error(w, (sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
         }
+        delete[] header;
         char * buffer = new char[size - header_size];
         in.read(buffer, size - header_size);
         if (!in) {

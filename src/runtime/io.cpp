@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #include <iostream>
 #include <chrono>
 #include <iomanip>
+#include <string>
 #include "runtime/object.h"
 #include "runtime/allocprof.h"
 namespace lean {

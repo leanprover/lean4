@@ -272,8 +272,11 @@ modListExtension.getState env
 
 /- mkModuleData invokes this function to convert a list of modification objects into
    a serialized byte array. -/
-@[extern "lean_serialize_modifications"]
-constant serializeModifications : List Modification → ByteArray := default _
+@[extern 2 "lean_serialize_modifications"]
+constant serializeModifications : List Modification → IO ByteArray := default _
+
+@[extern 3 "lean_perform_serialized_modifications"]
+constant performModifications : Environment → ByteArray → IO Environment := default _
 
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
@@ -301,11 +304,12 @@ let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
     let extName    := (pExts.get i).name in
     result.push (extName, toArrayFn entryList))
   Array.empty,
+bytes ← serializeModifications (modListExtension.getState env),
 pure {
 imports    := env.imports,
 constants  := env.constants.foldStage2 (λ cs _ c, cs.push c) Array.empty,
 entries    := entries,
-serialized := serializeModifications (modListExtension.getState env)
+serialized := bytes
 }
 
 def saveModule (env : Environment) (fname : String) : IO Unit :=
@@ -339,13 +343,15 @@ let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap 
     cs.insert cinfo.name cinfo,
 let constants   := constants.switch,
 let extensions : Array EnvExtensionState := Array.empty, -- TODO(Leo)
-pure {
+let env : Environment := {
   const2ModId := const2ModId,
   constants   := constants,
   extensions  := extensions,
   quotInit    := true, -- We assume `core.lean` initializes quotient module
   trustLevel  := trustLevel,
   imports     := modNames.toArray
-}
+},
+env ← mods.miterate env $ λ _ mod env, performModifications env mod.serialized,
+pure env
 
 end Lean

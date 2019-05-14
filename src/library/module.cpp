@@ -123,9 +123,70 @@ static obj_res to_object(modification * ext) {
     return alloc_external(g_modification_class, ext);
 }
 
-extern "C" object * lean_serialize_modifications(object *) {
-    // TODO(Leo)
-    lean_unreachable();
+typedef std::unordered_map<std::string, module_modification_reader> object_readers;
+static object_readers * g_object_readers = nullptr;
+static object_readers & get_object_readers() { return *g_object_readers; }
+
+void register_module_object_reader(std::string const & k, module_modification_reader && r) {
+    object_readers & readers = get_object_readers();
+    lean_assert(readers.find(k) == readers.end());
+    readers[k] = r;
+}
+
+static char const * g_olean_end_file = "EndFile";
+
+extern "C" object * lean_serialize_modifications(object * mod_list, object * w) {
+    object_ref mod(mod_list);
+    try {
+        std::ostringstream out(std::ios_base::binary);
+        serializer s(out);
+
+        while (!is_scalar(mod_list)) {
+            to_modification(cnstr_get(mod_list, 0)).serialize(s);
+            mod_list = cnstr_get(mod_list, 1);
+        }
+
+        s << g_olean_end_file;
+        std::string bytes = out.str();
+
+        object * r = alloc_sarray(1, bytes.size(), bytes.size());
+        memcpy(sarray_cptr<uint8>(r), bytes.data(), bytes.size());
+        return set_io_result(w, r);
+    } catch (exception & ex) {
+        return set_io_error(w, ex.what());
+    }
+}
+
+extern "C" object * lean_perform_serialized_modifications(object * env0, object * bytes, object * w) {
+    environment env(env0);
+    std::string code(sarray_cptr<char>(bytes), sarray_size(bytes));
+    dec_ref(bytes);
+    try {
+        std::istringstream in(code, std::ios_base::binary);
+        deserializer d(in);
+        object_readers & readers = get_object_readers();
+        while (true) {
+            std::string k;
+            unsigned offset = in.tellg();
+            d >> k;
+            if (k == g_olean_end_file) {
+                break;
+            }
+            auto it = readers.find(k);
+            if (it == readers.end())
+                throw exception(sstream() << "olean file has been corrupted at offset " << offset
+                                << ", unknown object: " << k);
+            modification * mod = it->second(d);
+            mod->perform(env);
+            delete mod;
+        }
+        if (!in.good()) {
+            throw exception(sstream() << "olean file has been corrupted");
+        }
+        return set_io_result(w, env.steal());
+    } catch (exception & ex) {
+        return set_io_error(w, ex.what());
+    }
 }
 
 // =======================================
@@ -156,7 +217,6 @@ static unsigned olean_hash(std::string const & data) {
 object * environment_add_modification_core(object * env, object * mod);
 object * environment_get_modifications_core(object * env);
 
-static char const * g_olean_end_file = "EndFile";
 void write_module(environment const & env, std::string const & olean_fn) {
     exclusive_file_lock output_lock(olean_fn);
     std::ofstream out(olean_fn, std::ios_base::binary);
@@ -204,15 +264,6 @@ void write_module(environment const & env, std::string const & olean_fn) {
     if (!out) throw exception("failed to write olean file");
 }
 
-typedef std::unordered_map<std::string, module_modification_reader> object_readers;
-static object_readers * g_object_readers = nullptr;
-static object_readers & get_object_readers() { return *g_object_readers; }
-
-void register_module_object_reader(std::string const & k, module_modification_reader && r) {
-    object_readers & readers = get_object_readers();
-    lean_assert(readers.find(k) == readers.end());
-    readers[k] = r;
-}
 
 struct decl_modification : public modification {
     LEAN_MODIFICATION("decl")

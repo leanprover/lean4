@@ -234,7 +234,6 @@ environment import_modules(unsigned trust_lvl, std::vector<module_name> const & 
 }
 
 object * environment_add_modification_core(object * env, object * mod);
-object * environment_get_modifications_core(object * env);
 
 namespace module {
 environment add(environment const & env, modification* modf) {

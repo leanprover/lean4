@@ -283,6 +283,9 @@ structure ModuleData :=
 (entries    : Array (Name × Array EnvExtensionEntry))
 (serialized : ByteArray) -- Legacy support: serialized modification objects
 
+instance ModuleData.inhabited : Inhabited ModuleData :=
+⟨{imports := default _, constants := default _, entries := default _, serialized := default _}⟩
+
 @[extern 3 "lean_save_module_data"]
 constant saveModuleData (fname : @& String) (m : ModuleData) : IO Unit := default _
 @[extern 2 "lean_read_module_data"]
@@ -305,7 +308,44 @@ entries    := entries,
 serialized := serializeModifications (modListExtension.getState env)
 }
 
+def saveModule (env : Environment) (fname : String) : IO Unit :=
+do modData ← mkModuleData env, saveModuleData fname modData
+
 @[extern 2 "lean_find_olean"]
 constant findOLean (modName : Name) : IO String := default _
+
+partial def importModulesAux : List Name → NameSet → Array ModuleData → IO (Array ModuleData)
+| []      s mods := pure mods
+| (m::ms) s mods :=
+  if s.contains m then
+    importModulesAux ms s mods
+  else do
+    let s := s.insert m,
+    mFile ← findOLean m,
+    mod ← readModuleData mFile,
+    let ms := mod.imports.toList ++ ms,
+    mods ← importModulesAux ms s mods,
+    let mods := mods.push mod,
+    pure mods
+
+def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
+do
+mods ← importModulesAux modNames {} Array.empty,
+let const2ModId := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleId),
+  mod.constants.iterate m $ λ _ cinfo m,
+    m.insert cinfo.name modIdx.val,
+let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap Name ConstantInfo Name.quickLt),
+  mod.constants.iterate cs $ λ _ cinfo cs,
+    cs.insert cinfo.name cinfo,
+let constants   := constants.switch,
+let extensions : Array EnvExtensionState := Array.empty, -- TODO(Leo)
+pure {
+  const2ModId := const2ModId,
+  constants   := constants,
+  extensions  := extensions,
+  quotInit    := true, -- We assume `core.lean` initializes quotient module
+  trustLevel  := trustLevel,
+  imports     := modNames.toArray
+}
 
 end Lean

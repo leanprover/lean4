@@ -441,28 +441,37 @@ return x_2;
 obj* l_Lean_SMap_switch___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_6; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; 
-x_4 = lean::cnstr_get(x_3, 0);
-x_6 = lean::cnstr_get(x_3, 1);
+uint8 x_4; 
+x_4 = lean::cnstr_get_scalar<uint8>(x_3, sizeof(void*)*2);
+if (x_4 == 0)
+{
+return x_3;
+}
+else
+{
+obj* x_5; obj* x_7; obj* x_9; uint8 x_10; obj* x_11; obj* x_12; 
+x_5 = lean::cnstr_get(x_3, 0);
+x_7 = lean::cnstr_get(x_3, 1);
 if (lean::is_exclusive(x_3)) {
- x_8 = x_3;
+ x_9 = x_3;
 } else {
- lean::inc(x_4);
- lean::inc(x_6);
+ lean::inc(x_5);
+ lean::inc(x_7);
  lean::dec(x_3);
- x_8 = lean::box(0);
+ x_9 = lean::box(0);
 }
-x_9 = 0;
-if (lean::is_scalar(x_8)) {
- x_10 = lean::alloc_cnstr(0, 2, 1);
+x_10 = 0;
+if (lean::is_scalar(x_9)) {
+ x_11 = lean::alloc_cnstr(0, 2, 1);
 } else {
- x_10 = x_8;
+ x_11 = x_9;
 }
-lean::cnstr_set(x_10, 0, x_4);
-lean::cnstr_set(x_10, 1, x_6);
-lean::cnstr_set_scalar(x_10, sizeof(void*)*2, x_9);
-x_11 = x_10;
-return x_11;
+lean::cnstr_set(x_11, 0, x_5);
+lean::cnstr_set(x_11, 1, x_7);
+lean::cnstr_set_scalar(x_11, sizeof(void*)*2, x_10);
+x_12 = x_11;
+return x_12;
+}
 }
 }
 obj* l_Lean_SMap_switch(obj* x_0, obj* x_1) {

@@ -305,4 +305,7 @@ entries    := entries,
 serialized := serializeModifications (modListExtension.getState env)
 }
 
+@[extern 2 "lean_find_olean"]
+constant findOLean (modName : Name) : IO String := default _
+
 end Lean

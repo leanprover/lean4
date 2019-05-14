@@ -22,7 +22,6 @@ void set_search_path(search_path const & p);
 /** \brief Return an environment where all modules in \c modules are imported.
     Modules included directly or indirectly by them are also imported.
 
-
     This procedure looks for imported files in the search path set using `set_search_path`. */
 environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports);
 

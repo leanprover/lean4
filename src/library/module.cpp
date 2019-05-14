@@ -92,6 +92,16 @@ void set_search_path(search_path const & p) {
     *g_search_path = p;
 }
 
+extern "C" object * lean_find_olean(object * mod_name, object * w) {
+    name mod(mod_name);
+    try {
+        std::string fn = find_file(*g_search_path, mod, {".olean"});
+        return set_io_result(w, mk_string(fn));
+    } catch (exception & ex) {
+        return set_io_error(w, ex.what());
+    }
+}
+
 // =======================================
 // Legacy support for Lean3 modification objects
 

@@ -158,18 +158,20 @@ structure PersistentEnvExtension (α : Type) (σ : Type) extends EnvExtension (P
 (someVal    : α)
 (addEntryFn : Bool → σ → α → σ)
 (toArrayFn  : List α → Array α)
+(lazy       : Bool)
 
 /- Opaque persistent environment extension entry. It is essentially a C `void *`
    TODO: mark opaque -/
 @[derive Inhabited]
 def EnvExtensionEntry := NonScalar
 
-instance PersistentEnvExtensionState.inhabited : Inhabited (PersistentEnvExtensionState EnvExtensionEntry EnvExtensionState) :=
+instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited α] [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
 ⟨{importedEntries := Array.empty, importedState := Thunk.pure (default _) }⟩
 
-instance PersistentEnvExtension.inhabited : Inhabited (PersistentEnvExtension EnvExtensionEntry EnvExtensionState) :=
+instance PersistentEnvExtension.inhabited {α σ} [Inhabited α] [Inhabited σ] : Inhabited (PersistentEnvExtension α σ) :=
 ⟨{ toEnvExtension := { idx := 0, initial := default _ },
-   name := default _, someVal := default _, addEntryFn := λ _ s _, s, toArrayFn := λ es, es.toArray }⟩
+   name  := default _, someVal := default _, addEntryFn := λ _ s _, s, toArrayFn := λ es, es.toArray,
+   lazy  := true }⟩
 
 namespace PersistentEnvExtension
 
@@ -205,7 +207,7 @@ IO.mkRef Array.empty
 @[init mkPersistentEnvExtensionsRef]
 private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionState)) := default _
 
-unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntryFn : Bool → σ → α → σ) (toArrayFn : List α → Array α) : IO (PersistentEnvExtension α σ) :=
+unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntryFn : Bool → σ → α → σ) (toArrayFn : List α → Array α := λ as, as.toArray) (lazy := true) : IO (PersistentEnvExtension α σ) :=
 do
 let s : PersistentEnvExtensionState α σ := {
   importedEntries := Array.empty,
@@ -220,13 +222,14 @@ let pExt : PersistentEnvExtension α σ := {
   name           := name,
   someVal        := someVal,
   addEntryFn     := addEntryFn,
-  toArrayFn      := toArrayFn
+  toArrayFn      := toArrayFn,
+  lazy           := lazy
 },
 persistentEnvExtensionsRef.modify (λ pExts, pExts.push (unsafeCast pExt)),
 pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntryFn : Bool → σ → α → σ) (toArrayFn : List α → Array α) : IO (PersistentEnvExtension α σ) := default _
+constant registerPersistentEnvExtension {α σ : Type} (name : Name) (initState : σ) (someVal : α) (addEntryFn : Bool → σ → α → σ) (toArrayFn : List α → Array α := λ as, as.toArray) (lazy := true) : IO (PersistentEnvExtension α σ) := default _
 
 /- API for creating extensions in C++.
    This API will eventually be deleted. -/
@@ -363,9 +366,10 @@ do
 pExtDescrs ← persistentEnvExtensionsRef.get,
 pure $ pExtDescrs.iterate env $ λ _ extDescr env,
   extDescr.toEnvExtension.modifyState env $ λ s,
-    { importedState := mkImportedStateThunk s.importedEntries extDescr.initial.importedState.get extDescr.addEntryFn,
-      entries := [],
-      state   := none,
+    let importedState : Thunk EnvExtensionState := mkImportedStateThunk s.importedEntries extDescr.initial.importedState.get extDescr.addEntryFn in
+    { importedState := importedState,
+      entries       := [],
+      state         := if extDescr.lazy then none else some importedState.get,
       .. s }
 
 @[export lean.import_modules_core]

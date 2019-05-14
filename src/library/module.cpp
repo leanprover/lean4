@@ -27,49 +27,6 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "library/time_task.h"
 #include "library/util.h"
 
-/*
-Missing features: non monotonic modifications in .olean files
-
-- Persistent `set_option`. We want to be able to store the option settings in .olean files.
-  The main issue is conflict between imported modules. That is, each imported module wants to
-  set a particular option with a different value. This can create counter-intuitive behavior.
-  Consider the following scenarion
-
-  * A.olean : sets option `foo` to true
-  * B.olean : imports A.olean
-  * C.olean : sets option `foo` to false
-  * We create D.lean containing the following import clause:
-    ```
-    import B C A
-    ```
-    The user may expect that `foo` is set to true, since `A` is the last module to be imported,
-    but this is not the case. `B` is imported first, then `A` (which sets option `foo` to true),
-    then `C` (which sets option `foo` to false), the last import `A` is skipped since `A` has already
-    been imported, and we get `foo` set to false.
-
-  To address this issue we consider a persistent option import validator. The validator
-  signs an error if there are two direct imports which try to set the same option to different
-  values. For example, in the example above, `B` and `C` are conflicting, and an error would
-  be signed when trying to import `C`. Then, users would have to resolve the conflict by
-  creating an auxiliary import. For example, they could create the module `C_aux.lean` containing
-  ```
-  import C
-  set_option persistent foo true
-  ```
-  and replace `import B C A` with `import B C_aux A`
-
-- Removing attributes. The validation procedure for persistent options can be extended to attribute
-  deletion. In latest version, we can only locally remove attributes. The validator for attribute deletion
-  would sign an error if there are two direct imports where one adds an attribute `[foo]` to an declaration
-  `bla` and the other removes it.
-
-- Parametric attributes. This is not a missing feature, but a bug. In the current version, we have
-  parametric attributes, and different modules may set the same declaration with different parameter values.
-  We can fix this bug by using an attribute validator which will check parametric attributes, or
-  we can allow parametric attributes to be set only once. That is, we sign an error if the user tries
-  to reset them.
-*/
-
 namespace lean {
 static char const * g_olean_end_file = "EndFile";
 static char const * g_olean_header   = "oleanfile";
@@ -131,6 +88,10 @@ extern "C" object * lean_read_module_data(object * fname, object * w) {
     }
 }
 
+
+// =======================================
+// Legacy support for Lean3 modification objects
+
 static void modification_finalizer(void * ext) {
     delete static_cast<modification*>(ext);
 }
@@ -153,6 +114,8 @@ extern "C" object * lean_serialize_modifications(object *) {
     // TODO(Leo)
     lean_unreachable();
 }
+
+// =======================================
 
 struct module_ext : public environment_extension {
     std::vector<module_name> m_direct_imports;

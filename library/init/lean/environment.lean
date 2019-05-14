@@ -318,24 +318,23 @@ do modData ← mkModuleData env, saveModuleData fname modData
 @[extern 2 "lean_find_olean"]
 constant findOLean (modName : Name) : IO String := default _
 
-partial def importModulesAux : List Name → NameSet → Array ModuleData → IO (Array ModuleData)
-| []      s mods := pure mods
-| (m::ms) s mods :=
+partial def importModulesAux : List Name → (NameSet × Array ModuleData) → IO (NameSet × Array ModuleData)
+| []      r         := pure r
+| (m::ms) (s, mods) :=
   if s.contains m then
-    importModulesAux ms s mods
+    importModulesAux ms (s, mods)
   else do
     let s := s.insert m,
     mFile ← findOLean m,
     mod ← readModuleData mFile,
-    let ms := mod.imports.toList ++ ms,
-    mods ← importModulesAux ms s mods,
+    (s, mods) ← importModulesAux mod.imports.toList (s, mods),
     let mods := mods.push mod,
-    pure mods
+    importModulesAux ms (s, mods)
 
 @[export lean.import_modules_core]
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
 do
-mods ← importModulesAux modNames {} Array.empty,
+(_, mods) ← importModulesAux modNames ({}, Array.empty),
 let const2ModId := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleId),
   mod.constants.iterate m $ λ _ cinfo m,
     m.insert cinfo.name modIdx.val,

@@ -16,7 +16,7 @@ void io_result_show_error(b_obj_arg r) {
     std::cerr << "uncaught exception: " << string_cstr(io_result_get_error(r)) << std::endl;
 }
 
-static obj_res set_io_result(obj_arg r, obj_arg a) {
+obj_res set_io_result(obj_arg r, obj_arg a) {
     if (is_exclusive(r)) {
         cnstr_set(r, 0, a);
         return r;
@@ -29,7 +29,7 @@ static obj_res set_io_result(obj_arg r, obj_arg a) {
     }
 }
 
-static obj_res set_io_error(obj_arg r, obj_arg e) {
+obj_res set_io_error(obj_arg r, obj_arg e) {
     if (is_exclusive(r)) {
         cnstr_set_tag(r, 1);
         cnstr_set(r, 0, e);
@@ -41,6 +41,19 @@ static obj_res set_io_error(obj_arg r, obj_arg e) {
         cnstr_set(new_r, 1, REAL_WORLD);
         return new_r;
     }
+}
+
+object * mk_io_user_error(object * str) {
+    // TODO(Leo): fix after we expand IO.Error
+    return str;
+}
+
+obj_res set_io_error(obj_arg r, char const * msg) {
+    return set_io_error(r, mk_io_user_error(mk_string(msg)));
+}
+
+obj_res set_io_error(obj_arg r, std::string const & msg) {
+    return set_io_error(r, mk_io_user_error(mk_string(msg)));
 }
 
 static obj_res option_of_io_result(obj_arg r) {

@@ -16,6 +16,8 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
 #include "runtime/hash.h"
+#include "runtime/io.h"
+#include "runtime/compact.h"
 #include "util/lean_path.h"
 #include "util/buffer.h"
 #include "util/name_map.h"
@@ -69,12 +71,63 @@ Missing features: non monotonic modifications in .olean files
 */
 
 namespace lean {
+static char const * g_olean_end_file = "EndFile";
+static char const * g_olean_header   = "oleanfile";
+
 extern "C" object * lean_save_module_data(object * fname, object * mdata, object * w) {
-    return w; // TODO
+    std::string olean_fn(string_cstr(fname));
+    object_ref mdata_ref(mdata);
+    try {
+        exclusive_file_lock output_lock(olean_fn);
+        std::ofstream out(olean_fn, std::ios_base::binary);
+        if (out.fail()) {
+            return set_io_error(w, (sstream() << "failed to create file '" << olean_fn << "'").str());
+        }
+        object_compactor compactor;
+        compactor(mdata_ref.raw());
+        out.write(g_olean_header, strlen(g_olean_header));
+        out.write(static_cast<char const *>(compactor.data()), compactor.size());
+        out.close();
+        return set_io_result(w, box(0));
+    } catch (exception & ex) {
+        return set_io_error(w, (sstream() << "failed to write '" << olean_fn << "': " << ex.what()).str());
+    }
 }
 
 extern "C" object * lean_read_module_data(object * fname, object * w) {
-    return w; // TODO
+    std::string olean_fn(string_cstr(fname));
+    try {
+        shared_file_lock olean_lock(olean_fn);
+        std::ifstream in(olean_fn, std::ios_base::binary);
+        if (in.fail()) {
+            return set_io_error(w, (sstream() << "failed to open file '" << olean_fn << "'").str());
+        }
+        /* Get file size */
+        in.seekg(0, in.end);
+        size_t size = in.tellg();
+        in.seekg(0);
+        size_t header_size = strlen(g_olean_header);
+        if (size < header_size) {
+            return set_io_error(w, (sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
+        }
+        char header[header_size];
+        in.read(header, header_size);
+        if (strncmp(header, g_olean_header, header_size) != 0) {
+            return set_io_error(w, (sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
+        }
+        char * buffer = new char[size - header_size];
+        in.read(buffer, size - header_size);
+        if (!in) {
+            return set_io_error(w, (sstream() << "failed to read file '" << olean_fn << "'").str());
+        }
+        in.close();
+        /* We don't free compacted_region objects */
+        compacted_region * region = new compacted_region(size - header_size, buffer);
+        object * mod = region->read();
+        return set_io_result(w, mod);
+    } catch (exception & ex) {
+        return set_io_error(w, (sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
+    }
 }
 
 static void modification_finalizer(void * ext) {
@@ -118,9 +171,6 @@ static module_ext const & get_extension(environment const & env) {
 static environment update(environment const & env, module_ext const & ext) {
     return env.update(g_ext->m_ext_id, new module_ext(ext));
 }
-
-static char const * g_olean_end_file = "EndFile";
-static char const * g_olean_header   = "oleanfile";
 
 static unsigned olean_hash(std::string const & data) {
     return hash(data.size(), [&] (unsigned i) { return static_cast<unsigned char>(data[i]); });

@@ -83,6 +83,7 @@ obj* l_RBNode_find___main___at_Lean_Environment_find___spec__2___boxed(obj*, obj
 obj* l_Lean_registerEnvExtensionUnsafe___rarg(obj*, obj*);
 obj* l_AssocList_contains___main___at_Lean_Environment_add___spec__5___boxed(obj*, obj*);
 extern "C" usize lean_name_hash_usize(obj*);
+obj* l_Lean_readModuleData___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getEntries___boxed(obj*, obj*);
 obj* l_Lean_EnvExtension_getStateUnsafe___rarg___boxed(obj*, obj*);
@@ -98,6 +99,7 @@ obj* l_Lean_PersistentEnvExtension_getEntries(obj*, obj*);
 obj* l_Lean_PersistentEnvExtensionState_inhabited;
 obj* l___private_init_lean_environment_6__envExtensionsRef;
 obj* l_Lean_EnvExtension_getState___boxed(obj*);
+extern "C" obj* lean_save_module_data(obj*, obj*, obj*);
 obj* l_Lean_EnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_forceStateAux(obj*, obj*);
 namespace lean {
@@ -116,6 +118,7 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_EnvExtension_setStateUnsafe___rarg(obj*, obj*, obj*);
+obj* l_Lean_saveModuleData___boxed(obj*, obj*, obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
 namespace lean {
 obj* set_extension_core(obj*, obj*, obj*);
@@ -145,6 +148,7 @@ extern obj* l_NonScalar_Inhabited;
 obj* l_List_foldl___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Environment_contains___boxed(obj*, obj*);
 obj* l___private_init_lean_environment_3__isQuotInit___boxed(obj*);
+extern "C" obj* lean_read_module_data(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___boxed(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_getState___boxed(obj*, obj*);
 obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__2;
@@ -4316,6 +4320,24 @@ _start:
 obj* x_1; 
 x_1 = lean_serialize_modifications(x_0);
 return x_1;
+}
+}
+obj* l_Lean_saveModuleData___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean_save_module_data(x_0, x_1, x_2);
+lean::dec(x_0);
+return x_3;
+}
+}
+obj* l_Lean_readModuleData___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean_read_module_data(x_0, x_1);
+lean::dec(x_0);
+return x_2;
 }
 }
 obj* l_Nat_foldAux___main___at_Lean_mkModuleData___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {

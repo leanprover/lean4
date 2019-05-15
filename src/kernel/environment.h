@@ -94,6 +94,8 @@ public:
     friend bool is_eqp(environment const & e1, environment const & e2) {
         return e1.raw() == e2.raw();
     }
+
+    void display_stats() const;
 };
 
 void check_no_metavar_no_fvar(environment const & env, name const & n, expr const & e);

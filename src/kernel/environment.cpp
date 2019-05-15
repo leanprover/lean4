@@ -297,6 +297,12 @@ void environment::for_each_constant(std::function<void(constant_info const & d)>
         });
 }
 
+obj_res display_stats_core(obj_arg env, obj_arg w);
+
+void environment::display_stats() const {
+    dec_ref(display_stats_core(get_obj_arg(), io_mk_world()));
+}
+
 void initialize_environment() {
     g_env_ext_class = register_external_object_class(env_ext_finalizer, env_ext_foreach);
 }

@@ -203,6 +203,7 @@ static void display_help(std::ostream & out) {
 #endif
     std::cout << "  --new-frontend     use new frontend\n";
     std::cout << "  --profile          display elaboration/type checking time for each definition/theorem\n";
+    std::cout << "  --stats            display environment statistics\n";
     DEBUG_CODE(
     std::cout << "  --debug=tag        enable assertions with the given tag\n";
         )
@@ -218,6 +219,7 @@ static struct option g_long_options[] = {
     {"memory",       required_argument, 0, 'M'},
     {"trust",        required_argument, 0, 't'},
     {"profile",      no_argument,       0, 'P'},
+    {"stats",        no_argument,       0, 'a'},
     {"threads",      required_argument, 0, 'j'},
     {"quiet",        no_argument,       0, 'q'},
     {"deps",         no_argument,       0, 'd'},
@@ -239,7 +241,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:c:qpgvhet:012E:A:B:j:012rM:012T:012"
+    "Pdc:qpgvht:012j:012rM:012T:012a"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -317,6 +319,7 @@ int main(int argc, char ** argv) {
     unsigned trust_lvl = LEAN_BELIEVER_TRUST_LEVEL + 1;
     bool only_deps = false;
     bool new_frontend = false;
+    bool stats = false;
     // unsigned num_threads    = 0;
 #if defined(LEAN_MULTI_THREAD)
     // num_threads = hardware_concurrency();
@@ -375,6 +378,9 @@ int main(int argc, char ** argv) {
                 break;
             case 'd':
                 only_deps = true;
+                break;
+            case 'a':
+                stats = true;
                 break;
             case 'D':
                 try {
@@ -536,6 +542,10 @@ int main(int argc, char ** argv) {
             }
             ok = !l.has_errors();
             env = p.env();
+        }
+
+        if (stats) {
+            env.display_stats();
         }
 
         if (make_mode && ok) {

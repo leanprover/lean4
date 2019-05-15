@@ -408,4 +408,30 @@ env ← finalizePersistentExtensions env,
 env ← mods.miterate env $ λ _ mod env, performModifications env mod.serialized,
 pure env
 
+namespace Environment
+
+@[export lean.display_stats_core]
+def displayStats (env : Environment) : IO Unit :=
+do
+pExtDescrs ← persistentEnvExtensionsRef.get,
+let numModules := ((pExtDescrs.get 0).toEnvExtension.getState env).importedEntries.size,
+IO.println ("direct imports:             " ++ toString env.imports),
+IO.println ("number of imported modules: " ++ toString numModules),
+IO.println ("number of consts:           " ++ toString env.constants.size),
+IO.println ("number of imported consts:  " ++ toString env.constants.stageSizes.1),
+IO.println ("number of local consts:     " ++ toString env.constants.stageSizes.2),
+IO.println ("trust level:                " ++ toString env.trustLevel),
+IO.println ("number of extensions:       " ++ toString env.extensions.size),
+pExtDescrs.mfor $ λ extDescr, do {
+  IO.println ("extension '" ++ toString extDescr.name ++ "'"),
+  let s := extDescr.toEnvExtension.getState env,
+  IO.println ("  lazy:                       " ++ toString extDescr.lazy),
+  IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (λ sum es, sum + es.size) 0)),
+  IO.println ("  number of local entries:    " ++ toString s.entries.length),
+  IO.println ("  forced state:               " ++ toString s.state.isSome),
+  pure ()
+},
+pure ()
+
+end Environment
 end Lean

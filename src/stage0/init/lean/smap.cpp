@@ -25,6 +25,8 @@ obj* l_Lean_SMap_contains(obj*, obj*);
 obj* l_Lean_SMap_insert___boxed(obj*, obj*);
 obj* l_Lean_SMap_HasEmptyc___boxed(obj*, obj*);
 obj* l_Lean_SMap_find___rarg(obj*, obj*, obj*, obj*, obj*);
+obj* l_RBNode_fold___main___at_RBMap_size___spec__1___rarg(obj*, obj*);
+obj* l_Lean_SMap_stageSizes(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_foldStage2___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_empty___boxed(obj*, obj*);
 obj* l_Lean_SMap_find___main___rarg(obj*, obj*, obj*, obj*, obj*);
@@ -33,14 +35,20 @@ obj* l_Lean_SMap_insert___main___rarg(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_insert(obj*, obj*);
 obj* l_Lean_SMap_insert___main(obj*, obj*);
 obj* l_Lean_SMap_HasEmptyc(obj*, obj*);
+obj* l_Lean_SMap_size(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_SMap_size___rarg___boxed(obj*);
 obj* l_Lean_SMap_contains___main(obj*, obj*);
 obj* l_Lean_SMap_contains___boxed(obj*, obj*);
 uint8 l_Lean_SMap_contains___main___rarg(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* nat_add(obj*, obj*);
+}
 obj* l_HashMapImp_find___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_insert___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_RBNode_fold___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_SMap_switch(obj*, obj*);
 obj* l_Lean_SMap_contains___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_SMap_size___rarg(obj*);
 obj* l_RBNode_find___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_empty(obj*, obj*);
 obj* l_Lean_SMap_find___main___boxed(obj*, obj*);
@@ -48,14 +56,17 @@ obj* l_Lean_SMap_insert___main___boxed(obj*, obj*);
 uint8 l_Lean_SMap_contains___rarg(obj*, obj*, obj*, obj*, obj*);
 extern obj* l_HashMap_Inhabited___closed__1;
 obj* l_Lean_SMap_find___main(obj*, obj*);
+obj* l_Lean_SMap_stageSizes___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_HasEmptyc___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_SMap_HasEmptyc___rarg(obj*, obj*, obj*);
+obj* l_Lean_SMap_stageSizes___rarg(obj*);
 obj* l_Lean_SMap_foldStage2(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_switch___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_contains___main___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_foldStage2___rarg(obj*, obj*, obj*);
 obj* l_Lean_SMap_switch___boxed(obj*, obj*);
 obj* l_Lean_SMap_empty___rarg___boxed(obj*, obj*, obj*);
+obj* l_Lean_SMap_size___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_empty___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -534,6 +545,92 @@ lean::dec(x_3);
 lean::dec(x_4);
 lean::dec(x_5);
 return x_6;
+}
+}
+obj* l_Lean_SMap_size___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_1 = lean::cnstr_get(x_0, 0);
+x_2 = lean::cnstr_get(x_0, 1);
+x_3 = lean::mk_nat_obj(0ul);
+x_4 = l_RBNode_fold___main___at_RBMap_size___spec__1___rarg(x_3, x_2);
+x_5 = lean::cnstr_get(x_1, 0);
+x_6 = lean::nat_add(x_5, x_4);
+lean::dec(x_4);
+return x_6;
+}
+}
+obj* l_Lean_SMap_size(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_size___rarg___boxed), 1, 0);
+return x_5;
+}
+}
+obj* l_Lean_SMap_size___rarg___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_SMap_size___rarg(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_Lean_SMap_size___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Lean_SMap_size(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+lean::dec(x_3);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* l_Lean_SMap_stageSizes___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_3; obj* x_6; obj* x_7; obj* x_9; obj* x_12; 
+x_1 = lean::cnstr_get(x_0, 0);
+lean::inc(x_1);
+x_3 = lean::cnstr_get(x_0, 1);
+lean::inc(x_3);
+lean::dec(x_0);
+x_6 = lean::mk_nat_obj(0ul);
+x_7 = l_RBNode_fold___main___at_RBMap_size___spec__1___rarg(x_6, x_3);
+lean::dec(x_3);
+x_9 = lean::cnstr_get(x_1, 0);
+lean::inc(x_9);
+lean::dec(x_1);
+x_12 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_12, 0, x_9);
+lean::cnstr_set(x_12, 1, x_7);
+return x_12;
+}
+}
+obj* l_Lean_SMap_stageSizes(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_SMap_stageSizes___rarg), 1, 0);
+return x_5;
+}
+}
+obj* l_Lean_SMap_stageSizes___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Lean_SMap_stageSizes(x_0, x_1, x_2, x_3, x_4);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+lean::dec(x_3);
+lean::dec(x_4);
+return x_5;
 }
 }
 obj* initialize_init_data_hashmap_default(obj*);

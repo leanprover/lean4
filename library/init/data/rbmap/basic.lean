@@ -293,6 +293,9 @@ l.foldl (λ r p, r.insert p.1 p.2) (mkRBMap α β lt)
 @[inline] def any : RBMap α β lt → (α → β → Bool) → Bool
 | ⟨t, _⟩ p := t.any p
 
+def size (m : RBMap α β lt) : Nat :=
+m.fold (λ sz _ _, sz+1) 0
+
 end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=

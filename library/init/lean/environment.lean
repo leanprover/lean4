@@ -390,9 +390,11 @@ do
 let const2ModIdx := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleIdx),
   mod.constants.iterate m $ λ _ cinfo m,
     m.insert cinfo.name modIdx.val,
-let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap Name ConstantInfo Name.quickLt),
-  mod.constants.iterate cs $ λ _ cinfo cs,
-    cs.insert cinfo.name cinfo,
+constants ← mods.miterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap Name ConstantInfo Name.quickLt),
+  mod.constants.miterate cs $ λ _ cinfo cs, do {
+    when (cs.contains cinfo.name) $ throw (IO.userError ("import failed, environment already contains '" ++ toString cinfo.name ++ "'")),
+    pure $ cs.insert cinfo.name cinfo
+  },
 let constants   := constants.switch,
 exts ← mkInitialExtensionStates,
 let env : Environment := {

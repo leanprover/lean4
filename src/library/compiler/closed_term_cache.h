@@ -9,6 +9,4 @@ Author: Leonardo de Moura
 namespace lean {
 optional<name> get_closed_term_name(environment const & env, expr const & e);
 environment cache_closed_term_name(environment const & env, expr const & e, name const & n);
-void initialize_closed_term_cache();
-void finalize_closed_term_cache();
 }

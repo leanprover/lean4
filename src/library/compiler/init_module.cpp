@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "library/compiler/cse.h"
 #include "library/compiler/specialize.h"
 #include "library/compiler/llnf.h"
-#include "library/compiler/closed_term_cache.h"
 #include "library/compiler/compiler.h"
 #include "library/compiler/export_attribute.h"
 #include "library/compiler/extern_attribute.h"
@@ -30,7 +29,6 @@ void initialize_compiler_module() {
     initialize_elim_dead_let();
     initialize_cse();
     initialize_specialize();
-    initialize_closed_term_cache();
     initialize_llnf();
     initialize_compiler();
     initialize_export_attribute();
@@ -50,7 +48,6 @@ void finalize_compiler_module() {
     finalize_export_attribute();
     finalize_compiler();
     finalize_llnf();
-    finalize_closed_term_cache();
     finalize_specialize();
     finalize_cse();
     finalize_elim_dead_let();

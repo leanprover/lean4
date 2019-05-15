@@ -153,4 +153,7 @@ match m with
 @[inline] def empty (m : HashMap α β) : Bool :=
 m.size = 0
 
+def numBuckets (m : HashMap α β) : Nat :=
+m.val.buckets.val.size
+
 end HashMap

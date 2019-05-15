@@ -296,6 +296,9 @@ l.foldl (λ r p, r.insert p.1 p.2) (mkRBMap α β lt)
 def size (m : RBMap α β lt) : Nat :=
 m.fold (λ sz _ _, sz+1) 0
 
+def maxDepth (t : RBMap α β lt) : Nat :=
+t.val.depth Nat.max
+
 end RBMap
 
 def rbmapOf {α : Type u} {β : Type v} (l : List (α × β)) (lt : α → α → Bool) : RBMap α β lt :=

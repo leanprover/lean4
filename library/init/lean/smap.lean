@@ -33,6 +33,8 @@ structure SMap (α : Type u) (β : Type v) (lt : α → α → Bool) [HasBeq α]
 namespace SMap
 variables {α : Type u} {β : Type v} {lt : α → α → Bool} [HasBeq α] [Hashable α]
 
+instance : Inhabited (SMap α β lt) := ⟨{}⟩
+
 def empty : SMap α β lt := {}
 instance : HasEmptyc (SMap α β lt) := ⟨SMap.empty⟩
 
@@ -60,6 +62,12 @@ m.map₁.size + m.map₂.size
 
 def stageSizes (m : SMap α β lt) : Nat × Nat :=
 (m.map₁.size, m.map₂.size)
+
+def maxDepth (m : SMap α β lt) : Nat :=
+m.map₂.maxDepth
+
+def numBuckets (m : SMap α β lt) : Nat :=
+m.map₁.numBuckets
 
 end SMap
 end Lean

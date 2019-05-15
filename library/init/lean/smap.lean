@@ -48,7 +48,13 @@ instance : HasEmptyc (SMap α β lt) := ⟨SMap.empty⟩
 
 @[specialize] def contains : SMap α β lt → α → Bool
 | ⟨true, m₁, _⟩ k   := m₁.contains k
-| ⟨false, m₁, m₂⟩ k := m₂.contains k || m₁.contains k
+| ⟨false, m₁, m₂⟩ k := m₁.contains k || m₂.contains k
+
+/- Similar to `find`, but searches for result in the hashmap first.
+   So, the result is correct only if we never "overwrite" `map₁` entries using `map₂`. -/
+@[specialize] def find' : SMap α β lt → α → Option β
+| ⟨true, m₁, _⟩ k   := m₁.find k
+| ⟨false, m₁, m₂⟩ k := (m₁.find k).orelse (m₂.find k)
 
 /- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β lt) : SMap α β lt :=

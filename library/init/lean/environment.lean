@@ -20,10 +20,12 @@ def EnvExtensionState : Type := NonScalar
 @[derive Inhabited]
 def ModuleIdx := Nat
 
+abbrev ConstMap := SMap Name ConstantInfo Name.quickLt
+
 /- TODO: mark opaque. -/
 structure Environment :=
 (const2ModIdx : HashMap Name ModuleIdx)
-(constants    : SMap Name ConstantInfo Name.quickLt)
+(constants    : ConstMap)
 (extensions   : Array EnvExtensionState)
 (trustLevel   : UInt32     := 0)
 (quotInit     : Bool       := false)
@@ -40,10 +42,11 @@ def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
 
 @[export lean.environment_find_core]
 def find (env : Environment) (n : Name) : Option ConstantInfo :=
-env.constants.find n
+/- It is safe to use `find'` because we never overwrite imported declarations. -/
+env.constants.find' n
 
 def contains (env : Environment) (n : Name) : Bool :=
-(env.constants.find n).isSome
+env.constants.contains n
 
 /- Switch environment to "shared" mode. -/
 @[export lean.environment_switch_core]
@@ -390,7 +393,7 @@ do
 let const2ModIdx := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleIdx),
   mod.constants.iterate m $ λ _ cinfo m,
     m.insert cinfo.name modIdx.val,
-constants ← mods.miterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap Name ConstantInfo Name.quickLt),
+constants ← mods.miterate SMap.empty $ λ _ (mod : ModuleData) (cs : ConstMap),
   mod.constants.miterate cs $ λ _ cinfo cs, do {
     when (cs.contains cinfo.name) $ throw (IO.userError ("import failed, environment already contains '" ++ toString cinfo.name ++ "'")),
     pure $ cs.insert cinfo.name cinfo

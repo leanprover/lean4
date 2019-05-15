@@ -8,6 +8,7 @@ import init.data.array.basic
 
 namespace Array
 -- TODO: remove the [Inhabited α] parameters as soon as we have the tactic framework for automating proof generation and using Array.fget
+-- TODO: remove `partial` using well-founded recursion
 
 @[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Nat) (pivot : α) : Array α → Nat → Nat → Nat × Array α
 | as i j :=

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.array.default
-// Imports: init.data.array.basic init.data.array.qsort
+// Imports: init.data.array.basic init.data.array.qsort init.data.array.binsearch
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -16,6 +16,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* initialize_init_data_array_basic(obj*);
 obj* initialize_init_data_array_qsort(obj*);
+obj* initialize_init_data_array_binsearch(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_data_array_default(obj* w) {
  if (_G_initialized) return w;
@@ -24,6 +25,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_data_array_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_array_qsort(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_data_array_binsearch(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

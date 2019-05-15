@@ -5,3 +5,4 @@ Authors: Gabriel Ebner
 -/
 prelude
 import init.data.array.basic
+import init.data.array.qsort

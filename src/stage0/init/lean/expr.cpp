@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_Lean_getAppFn___main(obj*);
+extern "C" uint8 lean_expr_quick_lt(obj*, obj*);
 obj* l_Lean_Expr_hash___boxed(obj*);
 obj* l_Lean_mkBinApp(obj*, obj*, obj*);
 obj* l_Lean_MData_empty;
@@ -23,10 +24,13 @@ obj* l_Lean_exprIsInhabited;
 extern "C" usize lean_expr_hash(obj*);
 obj* l_Lean_getAppFn___main___boxed(obj*);
 extern "C" obj* lean_expr_dbg_to_string(obj*);
+obj* l_Lean_Expr_eqv___boxed(obj*, obj*);
 extern "C" obj* lean_expr_mk_app(obj*, obj*);
+obj* l_Lean_Expr_quickLt___boxed(obj*, obj*);
 obj* l_Lean_Expr_mkCapp(obj*, obj*);
 obj* l_Lean_mkDecIsFalse___closed__1;
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
+extern "C" uint8 lean_expr_eqv(obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Expr_mkApp___spec__1(obj*, obj*);
 obj* l_Lean_MData_HasEmptyc;
 obj* l_Lean_Expr_dbgToString___boxed(obj*);
@@ -34,8 +38,12 @@ obj* l_Lean_mkDecIsTrue___closed__1;
 obj* l_Lean_mkDecIsFalse(obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_getAppFn___boxed(obj*);
+extern "C" uint8 lean_expr_lt(obj*, obj*);
 obj* l_Lean_mkDecIsTrue(obj*, obj*);
+obj* l_Lean_Expr_HasBeq;
 obj* l_Lean_Expr_mkApp(obj*, obj*);
+obj* l_Lean_Expr_Hashable;
+obj* l_Lean_Expr_lt___boxed(obj*, obj*);
 obj* _init_l_Lean_MData_empty() {
 _start:
 {
@@ -112,6 +120,14 @@ lean::dec(x_0);
 return x_2;
 }
 }
+obj* _init_l_Lean_Expr_Hashable() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_hash___boxed), 1, 0);
+return x_0;
+}
+}
 obj* l_Lean_Expr_dbgToString___boxed(obj* x_0) {
 _start:
 {
@@ -119,6 +135,47 @@ obj* x_1;
 x_1 = lean_expr_dbg_to_string(x_0);
 lean::dec(x_0);
 return x_1;
+}
+}
+obj* l_Lean_Expr_quickLt___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = lean_expr_quick_lt(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_Lean_Expr_lt___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = lean_expr_lt(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_Lean_Expr_eqv___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = lean_expr_eqv(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* _init_l_Lean_Expr_HasBeq() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Expr_eqv___boxed), 2, 0);
+return x_0;
 }
 }
 obj* l_Lean_getAppFn___main(obj* x_0) {
@@ -238,6 +295,10 @@ lean::mark_persistent(l_Lean_MData_empty);
 lean::mark_persistent(l_Lean_MData_HasEmptyc);
  l_Lean_exprIsInhabited = _init_l_Lean_exprIsInhabited();
 lean::mark_persistent(l_Lean_exprIsInhabited);
+ l_Lean_Expr_Hashable = _init_l_Lean_Expr_Hashable();
+lean::mark_persistent(l_Lean_Expr_Hashable);
+ l_Lean_Expr_HasBeq = _init_l_Lean_Expr_HasBeq();
+lean::mark_persistent(l_Lean_Expr_HasBeq);
  l_Lean_mkDecIsTrue___closed__1 = _init_l_Lean_mkDecIsTrue___closed__1();
 lean::mark_persistent(l_Lean_mkDecIsTrue___closed__1);
  l_Lean_mkDecIsFalse___closed__1 = _init_l_Lean_mkDecIsFalse___closed__1();

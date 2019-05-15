@@ -78,8 +78,21 @@ mkApp (Expr.const fn []) args
 @[extern "lean_expr_hash"]
 constant hash (n : @& Expr) : USize := default USize
 
+instance : Hashable Expr := ⟨Expr.hash⟩
+
 @[extern "lean_expr_dbg_to_string"]
 constant dbgToString (e : @& Expr) : String := default String
+
+@[extern "lean_expr_quick_lt"]
+constant quickLt (a : @& Expr) (b : @& Expr) : Bool := default _
+
+@[extern "lean_expr_lt"]
+constant lt (a : @& Expr) (b : @& Expr) : Bool := default _
+
+@[extern "lean_expr_eqv"]
+constant eqv (a : @& Expr) (b : @& Expr) : Bool := default _
+
+instance : HasBeq Expr := ⟨Expr.eqv⟩
 
 end Expr
 

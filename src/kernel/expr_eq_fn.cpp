@@ -133,4 +133,8 @@ bool is_equal(expr const & a, expr const & b) {
 bool is_bi_equal(expr const & a, expr const & b) {
     return expr_eq_fn<true>()(a, b);
 }
+
+extern "C" uint8 lean_expr_eqv(b_obj_arg a, b_obj_arg b) {
+    return expr_eq_fn<false>()(expr(a, true), expr(b, true));
+}
 }

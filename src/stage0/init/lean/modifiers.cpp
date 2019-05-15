@@ -59,7 +59,7 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 uint8 l_Array_anyMAux___main___at_Lean_mkProtectedExtension___spec__4(obj*, obj*, obj*);
 obj* l_Lean_mkProtectedExtension___lambda__1___boxed(obj*, obj*, obj*);
-obj* l_Array_binSearchAux___main___at_Lean_isProtected___spec__1(obj*, obj*, obj*, obj*);
+uint8 l_Array_binSearchAux___main___at_Lean_isProtected___spec__1(obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkProtectedExtension___spec__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_protectedExt___elambda__2___rarg(obj*, obj*);
 obj* l_Lean_protectedExt___elambda__2(uint8);
@@ -795,17 +795,17 @@ return x_3;
 }
 }
 }
-obj* l_Array_binSearchAux___main___at_Lean_isProtected___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+uint8 l_Array_binSearchAux___main___at_Lean_isProtected___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 uint8 x_4; 
 x_4 = lean::nat_dec_le(x_2, x_3);
 if (x_4 == 0)
 {
-obj* x_7; 
+uint8 x_7; 
 lean::dec(x_3);
 lean::dec(x_2);
-x_7 = lean::box(0);
+x_7 = 0;
 return x_7;
 }
 else
@@ -823,19 +823,18 @@ if (x_14 == 0)
 uint8 x_16; 
 lean::dec(x_3);
 x_16 = l_Lean_Name_quickLt(x_1, x_13);
+lean::dec(x_13);
 if (x_16 == 0)
 {
-obj* x_19; 
+uint8 x_20; 
 lean::dec(x_10);
 lean::dec(x_2);
-x_19 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_19, 0, x_13);
-return x_19;
+x_20 = 1;
+return x_20;
 }
 else
 {
 obj* x_21; uint8 x_22; 
-lean::dec(x_13);
 x_21 = lean::mk_nat_obj(0ul);
 x_22 = lean::nat_dec_eq(x_10, x_21);
 if (x_22 == 0)
@@ -849,10 +848,10 @@ goto _start;
 }
 else
 {
-obj* x_29; 
+uint8 x_29; 
 lean::dec(x_10);
 lean::dec(x_2);
-x_29 = lean::box(0);
+x_29 = 0;
 return x_29;
 }
 }
@@ -889,7 +888,7 @@ return x_6;
 }
 else
 {
-obj* x_8; obj* x_11; obj* x_12; obj* x_15; obj* x_16; obj* x_17; obj* x_19; obj* x_20; 
+obj* x_8; obj* x_11; obj* x_12; obj* x_15; obj* x_16; obj* x_17; obj* x_19; uint8 x_20; 
 x_8 = lean::cnstr_get(x_2, 0);
 lean::inc(x_8);
 lean::dec(x_2);
@@ -905,19 +904,7 @@ x_19 = lean::mk_nat_obj(0ul);
 x_20 = l_Array_binSearchAux___main___at_Lean_isProtected___spec__1(x_12, x_1, x_19, x_17);
 lean::dec(x_1);
 lean::dec(x_12);
-if (lean::obj_tag(x_20) == 0)
-{
-uint8 x_23; 
-x_23 = 0;
-return x_23;
-}
-else
-{
-uint8 x_25; 
-lean::dec(x_20);
-x_25 = 1;
-return x_25;
-}
+return x_20;
 }
 }
 }
@@ -925,11 +912,12 @@ return x_25;
 obj* l_Array_binSearchAux___main___at_Lean_isProtected___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; 
+uint8 x_4; obj* x_5; 
 x_4 = l_Array_binSearchAux___main___at_Lean_isProtected___spec__1(x_0, x_1, x_2, x_3);
+x_5 = lean::box(x_4);
 lean::dec(x_0);
 lean::dec(x_1);
-return x_4;
+return x_5;
 }
 }
 obj* l_Lean_isProtected___boxed(obj* x_0, obj* x_1) {

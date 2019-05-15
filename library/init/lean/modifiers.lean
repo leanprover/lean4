@@ -26,7 +26,7 @@ protectedExt.addEntry env n
 @[export lean.is_protected_core]
 def isProtected (env : Environment) (n : Name) : Bool :=
 match env.getModuleIdxFor n with
-| some modIdx := ((protectedExt.getModuleEntries env modIdx).binSearch n Name.quickLt).isSome
+| some modIdx := (protectedExt.getModuleEntries env modIdx).binSearchContains n Name.quickLt
 | none        := (protectedExt.getState env).contains n
 
 end Lean

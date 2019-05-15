@@ -13,7 +13,7 @@ def read(bench, cat):
 
 def pp_bench(bench, cat, norm):
     (mean, stddev) = read(bench, cat)
-    return f"{mean/norm:.3} ± {stddev/norm:.3}"
+    return f"{mean/norm:.3f} ± {stddev/norm:.3f}"
 
 def pp_gc_hs(bench, cat, norm):
     info = dict(ast.literal_eval(open(f"bench/{bench}{cat}.bench", 'r').read().strip()))

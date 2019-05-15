@@ -26,7 +26,7 @@ constant closedTermCacheExt : PersistentEnvExtension (Expr × Name) ClosedTermCa
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=
 closedTermCacheExt.addEntry env (e, n)
 
-@[export lean.get_closed_term_name]
+@[export lean.get_closed_term_name_core]
 def getClosedTermName (env : Environment) (e : Expr) : Option Name :=
 (closedTermCacheExt.getState env).find e
 

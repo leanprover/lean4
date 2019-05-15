@@ -78,7 +78,7 @@ usize usize_modn(usize, obj*);
 obj* l_Lean_closedTermCacheExt___elambda__1(obj*);
 obj* l_mkHashMapImp___rarg(obj*);
 namespace lean {
-obj* get_closed_term_name(obj*, obj*);
+obj* get_closed_term_name_core(obj*, obj*);
 }
 obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
@@ -2212,7 +2212,7 @@ return x_15;
 }
 }
 namespace lean {
-obj* get_closed_term_name(obj* x_0, obj* x_1) {
+obj* get_closed_term_name_core(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; obj* x_5; 

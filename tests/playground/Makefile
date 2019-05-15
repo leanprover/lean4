@@ -4,8 +4,8 @@ BENCH=ulimit -s unlimited && bench
 CROSS_BENCHES = binarytrees deriv expr_const_folding rbmap
 
 # basic version usable without Nix
-#CROSS_CATS = .lean .hs .llvm.hs .ml
-CROSS_CATS = .lean .gcc.lean .hs .llvm.hs .ml .flambda.ml
+#CROSS_CATS = .lean .hs .gc.hs .llvm.hs .ml .gc.ml
+CROSS_CATS = .lean .gcc.lean .hs .gc.hs .llvm.hs .llvm.gc.hs .ml .gc.ml .flambda.ml
 
 GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
@@ -16,7 +16,7 @@ LEAN_BIN ?= ../../bin
 GHC ?= ghc
 OCAML ?= ocamlopt.opt
 
-.PRECIOUS: %.out bench/%
+.PRECIOUS: %.lean.out %.hs.out %.ml.out bench/%
 .DELETE_ON_ERROR:
 
 all: report_cross.csv
@@ -25,7 +25,7 @@ all: report_cross.csv
 %.lean: ;
 
 %.lean.cpp: %.lean
-	$(LEAN_BIN)/lean --cpp=$<.cpp $<
+	$(LEAN_BIN)/lean --cpp=$@ $<
 %.lean.out: %.lean.cpp
 	$(LEAN_BIN)/leanc -o $@ $<
 # Binaries x.lean.out and x.gcc.lean.out etc. are produced by the
@@ -36,7 +36,7 @@ all: report_cross.csv
 %.gcc.lean: %.lean; ln $< $@
 
 %.hs.out: %.hs
-	$(GHC) $(GHC_FLAGS) $< -o $@
+	$(GHC) $(GHC_FLAGS) -rtsopts $< -o $@
 %.llvm.hs.out: GHC_FLAGS += -fllvm
 %.llvm.hs: %.hs; ln $< $@
 
@@ -46,11 +46,13 @@ binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -r
 
 %.ml.out: %.ml
 	$(OCAML) $(OCAML_FLAGS) $< -o $@
+%.gc.ml.out: OCAML_FLAGS += -runtime-variant i
+%.gc.ml: %.ml; ln $< $@
 %.flambda.ml.out: OCAML = $(OCAML_FLAMBDA)
 %.flambda.ml: %.ml; ln $< $@
 
 binarytrees.ml: binarytrees.ocaml-2.ml; ln $< $@
-binarytrees%ml.out: OCAML_FLAGS = -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa
+binarytrees%ml.out: OCAML_FLAGS += -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa
 
 bench:
 	-@mkdir bench
@@ -61,6 +63,16 @@ bench/%.bench: %.out | bench
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 
 bench/rbmap.%.bench: BENCH_PARAMS = 7000000
+
+bench/%gc.hs.bench: %hs.out | bench
+	./$< +RTS -t --machine-readable -RTS $(BENCH_PARAMS) 2> $@
+
+bench/%gc.ml.bench: %gc.ml.out | bench
+	ulimit -s unlimited && OCAML_INSTR_FILE=$@ time -ao $@ -f '%e' ./$< $(BENCH_PARAMS)
+
+# fork() breaks instrumentation
+bench/binarytrees.gc.ml.bench:
+	touch $@
 
 bench_cross: $(foreach bench,$(CROSS_BENCHES), $(foreach cat, $(CROSS_CATS), bench/$(bench)$(cat).bench))
 

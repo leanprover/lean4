@@ -5,4 +5,5 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.compiler.constfolding
+import init.lean.compiler.closedtermcache
 import init.lean.compiler.ir

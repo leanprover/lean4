@@ -38,6 +38,7 @@ obj* l_RBNode_mfold___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*
 obj* l_RBNode_appendTrees___rarg(obj*, obj*);
 obj* l_RBNode_findCore___main___boxed(obj*, obj*);
 obj* l_RBMap_find___rarg(obj*, obj*, obj*);
+obj* l_RBMap_maxDepth(obj*, obj*, obj*);
 obj* l_RBNode_insert___boxed(obj*, obj*);
 obj* l_RBMap_any___main(obj*, obj*, obj*);
 obj* l_RBMap_contains___boxed(obj*, obj*);
@@ -132,6 +133,7 @@ obj* l_RBMap_mfor___rarg(obj*, obj*, obj*);
 obj* l_mkRBMap___boxed(obj*, obj*, obj*);
 obj* l_RBMap_isEmpty___main___boxed(obj*, obj*, obj*);
 obj* l_RBNode_appendTrees(obj*, obj*);
+obj* l_RBMap_maxDepth___rarg(obj*);
 obj* l_RBMap_toList___main___rarg(obj*);
 obj* l_RBNode_balRight(obj*, obj*);
 obj* l_RBMap_ofList___main___rarg(obj*, obj*);
@@ -181,12 +183,14 @@ obj* l_RBMap_insert___main___boxed(obj*, obj*);
 obj* l_RBNode_singleton___rarg(obj*, obj*);
 obj* l_RBNode_revFold___main___boxed(obj*, obj*, obj*);
 obj* l_RBNode_appendTrees___main___rarg(obj*, obj*);
+obj* l_RBMap_maxDepth___rarg___boxed(obj*);
 obj* l_RBNode_max___boxed(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
 obj* l_RBNode_del___boxed(obj*, obj*);
 obj* l_RBMap_HasEmptyc___boxed(obj*, obj*, obj*);
+obj* l_RBMap_maxDepth___rarg___closed__1;
 obj* l_RBNode_isRed___main___boxed(obj*, obj*);
 obj* l_RBMap_HasRepr___rarg(obj*, obj*, obj*);
 obj* l_RBNode_balLeft___main___boxed(obj*, obj*);
@@ -301,6 +305,8 @@ obj* l_RBNode_setRed___rarg(obj*);
 obj* l_RBNode_fold___boxed(obj*, obj*, obj*);
 obj* l_RBMap_size___rarg(obj*);
 obj* l_RBNode_fold___main(obj*, obj*, obj*);
+obj* l_Nat_max___boxed(obj*, obj*);
+obj* l_RBMap_maxDepth___boxed(obj*, obj*, obj*);
 obj* l_List_foldl___main___at_rbmapOf___spec__1___boxed(obj*, obj*);
 obj* l_RBNode_fold(obj*, obj*, obj*);
 obj* l_RBNode_depth(obj*, obj*);
@@ -13636,6 +13642,51 @@ lean::dec(x_2);
 return x_3;
 }
 }
+obj* _init_l_RBMap_maxDepth___rarg___closed__1() {
+_start:
+{
+obj* x_0; 
+x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Nat_max___boxed), 2, 0);
+return x_0;
+}
+}
+obj* l_RBMap_maxDepth___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_RBMap_maxDepth___rarg___closed__1;
+x_2 = l_RBNode_depth___main___rarg(x_1, x_0);
+return x_2;
+}
+}
+obj* l_RBMap_maxDepth(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_RBMap_maxDepth___rarg___boxed), 1, 0);
+return x_3;
+}
+}
+obj* l_RBMap_maxDepth___rarg___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_RBMap_maxDepth___rarg(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_RBMap_maxDepth___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_RBMap_maxDepth(x_0, x_1, x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+return x_3;
+}
+}
 obj* l_List_foldl___main___at_rbmapOf___spec__1___rarg(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
@@ -13723,5 +13774,7 @@ w = initialize_init_data_option_basic(w);
 if (io_result_is_error(w)) return w;
  l_RBMap_HasRepr___rarg___closed__1 = _init_l_RBMap_HasRepr___rarg___closed__1();
 lean::mark_persistent(l_RBMap_HasRepr___rarg___closed__1);
+ l_RBMap_maxDepth___rarg___closed__1 = _init_l_RBMap_maxDepth___rarg___closed__1();
+lean::mark_persistent(l_RBMap_maxDepth___rarg___closed__1);
 return w;
 }

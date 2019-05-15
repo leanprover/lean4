@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.default
-// Imports: init.lean.compiler.constfolding init.lean.compiler.ir.default
+// Imports: init.lean.compiler.constfolding init.lean.compiler.closedtermcache init.lean.compiler.ir.default
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* initialize_init_lean_compiler_constfolding(obj*);
+obj* initialize_init_lean_compiler_closedtermcache(obj*);
 obj* initialize_init_lean_compiler_ir_default(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_default(obj* w) {
@@ -22,6 +23,8 @@ obj* initialize_init_lean_compiler_default(obj* w) {
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_constfolding(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_closedtermcache(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_default(w);
 if (io_result_is_error(w)) return w;

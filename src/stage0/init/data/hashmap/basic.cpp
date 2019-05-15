@@ -27,6 +27,7 @@ obj* l_HashMapImp_find___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_expand(obj*, obj*);
 obj* l_mkHashMap(obj*, obj*, obj*, obj*);
 obj* l_HashMap_contains___rarg___boxed(obj*, obj*, obj*, obj*);
+obj* l_HashMap_numBuckets___rarg___boxed(obj*);
 obj* l_HashMap_find___boxed(obj*, obj*);
 obj* l_HashMapImp_erase___boxed(obj*, obj*);
 obj* l_HashMapImp_foldBuckets(obj*, obj*, obj*);
@@ -41,6 +42,7 @@ obj* l_HashMap_erase___rarg(obj*, obj*, obj*, obj*);
 obj* l_HashMap_insert___boxed(obj*, obj*);
 obj* l_HashMapBucket_update___rarg(obj*, usize, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMapImp_fold___spec__1___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
+obj* l_HashMap_numBuckets___rarg(obj*);
 obj* l_HashMapImp_contains___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_contains___boxed(obj*, obj*);
 obj* l_HashMap_size___rarg(obj*);
@@ -79,6 +81,7 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_HashMapImp_moveEntries___boxed(obj*, obj*);
 obj* l_HashMap_find(obj*, obj*);
+obj* l_HashMap_numBuckets___boxed(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__1___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_mkHashMapImp___boxed(obj*, obj*);
 obj* l_mkHashMap___boxed(obj*, obj*, obj*, obj*);
@@ -92,6 +95,7 @@ obj* l_Array_miterateAux___main___at_HashMapImp_fold___spec__1___boxed(obj*, obj
 obj* l_HashMapImp_moveEntries___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMap_fold___spec__1(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMapImp_foldBuckets___spec__1___boxed(obj*, obj*, obj*);
+obj* l_HashMap_numBuckets(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_HashMap_fold___spec__1___boxed(obj*, obj*, obj*);
 namespace lean {
 usize usize_modn(usize, obj*);
@@ -1274,6 +1278,44 @@ _start:
 {
 obj* x_4; 
 x_4 = l_HashMap_empty(x_0, x_1, x_2, x_3);
+lean::dec(x_0);
+lean::dec(x_1);
+lean::dec(x_2);
+lean::dec(x_3);
+return x_4;
+}
+}
+obj* l_HashMap_numBuckets___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::cnstr_get(x_0, 1);
+x_2 = lean::array_get_size(x_1);
+return x_2;
+}
+}
+obj* l_HashMap_numBuckets(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_HashMap_numBuckets___rarg___boxed), 1, 0);
+return x_4;
+}
+}
+obj* l_HashMap_numBuckets___rarg___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_HashMap_numBuckets___rarg(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+obj* l_HashMap_numBuckets___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_HashMap_numBuckets(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 lean::dec(x_1);
 lean::dec(x_2);

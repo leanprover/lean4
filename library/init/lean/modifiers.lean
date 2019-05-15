@@ -12,7 +12,8 @@ def mkProtectedExtension : IO (PersistentEnvExtension Name NameSet) :=
 registerPersistentEnvExtension {
   name       := `protected,
   initState  := {},
-  addEntryFn := λ _ s n, s.insert n,
+  addEntryFn := λ init s n, if init then s else s.insert n,
+  toArrayFn  := λ es, es.toArray.qsort Name.quickLt,
   lazy       := false }
 
 @[init mkProtectedExtension]
@@ -24,6 +25,8 @@ protectedExt.addEntry env n
 
 @[export lean.is_protected_core]
 def isProtected (env : Environment) (n : Name) : Bool :=
-(protectedExt.getState env).contains n
+match env.getModuleIdxFor n with
+| some modIdx := ((protectedExt.getModuleEntries env modIdx).binSearch n Name.quickLt).isSome
+| none        := (protectedExt.getState env).contains n
 
 end Lean

@@ -22,17 +22,17 @@ def ModuleIdx := Nat
 
 /- TODO: mark opaque. -/
 structure Environment :=
-(const2ModId : HashMap Name ModuleIdx)
-(constants   : SMap Name ConstantInfo Name.quickLt)
-(extensions  : Array EnvExtensionState)
-(trustLevel  : UInt32     := 0)
-(quotInit    : Bool       := false)
-(imports     : Array Name := Array.empty)
+(const2ModIdx : HashMap Name ModuleIdx)
+(constants    : SMap Name ConstantInfo Name.quickLt)
+(extensions   : Array EnvExtensionState)
+(trustLevel   : UInt32     := 0)
+(quotInit     : Bool       := false)
+(imports      : Array Name := Array.empty)
 
 namespace Environment
 
 instance : Inhabited Environment :=
-⟨{ const2ModId := {}, constants := {}, extensions := Array.empty }⟩
+⟨{ const2ModIdx := {}, constants := {}, extensions := Array.empty }⟩
 
 @[export lean.environment_add_core]
 def add (env : Environment) (cinfo : ConstantInfo) : Environment :=
@@ -61,6 +61,9 @@ env.quotInit
 @[export lean.environment_trust_level_core]
 private def getTrustLevel (env : Environment) : UInt32 :=
 env.trustLevel
+
+def getModuleIdxFor (env : Environment) (c : Name) : Option ModuleIdx :=
+env.const2ModIdx.find c
 
 end Environment
 
@@ -135,10 +138,10 @@ do
 initializing ← IO.initializing,
 when initializing $ throw (IO.userError "Environment objects cannot be created during initialization"),
 exts ← mkInitialExtensionStates,
-pure { const2ModId := {},
-       constants   := {},
-       trustLevel  := trustLevel,
-       extensions  := exts }
+pure { const2ModIdx := {},
+       constants    := {},
+       trustLevel   := trustLevel,
+       extensions   := exts }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
 (importedEntries : Array (Array α))  -- entries per imported module
@@ -384,7 +387,7 @@ pure $ pExtDescrs.iterate env $ λ _ extDescr env,
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
 do
 (_, mods) ← importModulesAux modNames ({}, Array.empty),
-let const2ModId := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleIdx),
+let const2ModIdx := mods.iterate {} $ λ modIdx (mod : ModuleData) (m : HashMap Name ModuleIdx),
   mod.constants.iterate m $ λ _ cinfo m,
     m.insert cinfo.name modIdx.val,
 let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap Name ConstantInfo Name.quickLt),
@@ -393,12 +396,12 @@ let constants   := mods.iterate SMap.empty $ λ _ (mod : ModuleData) (cs : SMap 
 let constants   := constants.switch,
 exts ← mkInitialExtensionStates,
 let env : Environment := {
-  const2ModId := const2ModId,
-  constants   := constants,
-  extensions  := exts,
-  quotInit    := !modNames.isEmpty, -- We assume `core.lean` initializes quotient module
-  trustLevel  := trustLevel,
-  imports     := modNames.toArray
+  const2ModIdx := const2ModIdx,
+  constants    := constants,
+  extensions   := exts,
+  quotInit     := !modNames.isEmpty, -- We assume `core.lean` initializes quotient module
+  trustLevel   := trustLevel,
+  imports      := modNames.toArray
 },
 env ← setImportedEntries env mods,
 env ← finalizePersistentExtensions env,

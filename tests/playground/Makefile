@@ -4,8 +4,8 @@ BENCH=ulimit -s unlimited && bench
 CROSS_BENCHES = binarytrees deriv expr_const_folding rbmap
 
 # basic version usable without Nix
-#CROSS_CATS = .lean .hs .gc.hs .llvm.hs .ml .gc.ml
-CROSS_CATS = .lean .gcc.lean .hs .gc.hs .llvm.hs .llvm.gc.hs .ml .gc.ml .flambda.ml
+#CROSS_CATS = .lean .perf.lean .hs .gc.hs .perf.hs .llvm.hs .ml .gc.ml .perf.ml
+CROSS_CATS = .lean .lean.perf .gcc.lean .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf .flambda.ml
 
 GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
@@ -71,6 +71,9 @@ bench/%gc.hs.bench: %hs.out | bench
 
 bench/%gc.ml.bench: %gc.ml.out | bench
 	ulimit -s unlimited && OCAML_INSTR_FILE=$@ time -ao $@ -f '%e' ./$< $(BENCH_PARAMS)
+
+bench/%.perf.bench: %.out | bench
+	ulimit -s unlimited && perf stat -e cache-references,cache-misses,branches,branch-misses -o $@ ./$< $(BENCH_PARAMS)
 
 # fork() breaks instrumentation
 bench/binarytrees.gc.ml.bench:

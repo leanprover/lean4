@@ -3,6 +3,7 @@
 import ast
 import json
 import os
+import re
 import sys
 
 def read(bench, cat):
@@ -33,15 +34,24 @@ def pp_gc_ml(bench, cat, norm):
             gc_nanos += int(data[2]) - int(data[1])
     return f"{gc_nanos*1e-9/wall_secs:.0%}"
 
+def pp_perf(bench, cat, norm):
+    stat = open(f"bench/{bench}{cat}.bench", 'r').read()
+    #misses_percent = float(re.search("([0-9.]+) % of all cache refs", stat)[1]) / 100
+    misses = int(re.search("([0-9,]+)\s+cache-misses", stat)[1].replace(',', ''))
+    secs = float(re.search("([0-9.]+) seconds time elapsed", stat)[1])
+    return f"{misses*1e-6/secs:.3f}"
+
 CATBAG = {
     '.lean': ("Lean", pp_bench),
     '.gcc.lean': ("Lean+GCC9", pp_bench),
+    '.lean.perf': ("cache misses (1M/s)", pp_perf),
     '.hs': ("GHC", pp_bench),
     '.gc.hs': ("%GC", pp_gc_hs),
+    '.hs.perf': ("cache misses", pp_perf),
     '.llvm.hs': ("GHC -fllvm", pp_bench),
-    '.llvm.gc.hs': ("%GC", pp_gc_hs),
     '.ml': ("OCaml", pp_bench),
     '.gc.ml': ("%GC", pp_gc_ml),
+    '.ml.perf': ("cache misses", pp_perf),
     '.flambda.ml': ("OCaml+Flambda", pp_bench),
 }
 

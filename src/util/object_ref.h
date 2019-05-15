@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <algorithm>
 #include "runtime/object.h"
+#include "runtime/optional.h"
 
 namespace lean {
 /* Smart point for Lean objects. It is useful for writing C++ code that manipulates Lean objects.  */
@@ -131,5 +132,21 @@ inline object_ref const & cnstr_get_ref(object * o, unsigned i) {
 
 inline object_ref const & cnstr_get_ref(object_ref const & ref, unsigned i) {
     return cnstr_get_ref(ref.raw(), i);
+}
+
+/* Given `T` which is a subclass of object_ref that wraps a Lean value of type `Ty`,
+   convert a value `o` of `Option Ty` into `optional<T>` */
+template<typename T> optional<T> to_optional(obj_arg o) {
+    if (is_scalar(o)) return optional<T>();
+    T r(cnstr_get(o, 0), true);
+    dec(o);
+    return optional<T>(r);
+}
+
+/* "Borrow" version of `to_optional` */
+template<typename T> optional<T> to_optional(b_obj_arg o, bool) {
+    if (is_scalar(o)) return optional<T>();
+    T r(cnstr_get(o, 0), true);
+    return optional<T>(r);
 }
 }

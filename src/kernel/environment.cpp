@@ -53,13 +53,6 @@ void environment::mark_quot_initialized() {
     m_obj = environment_mark_quot_init_core(m_obj);
 }
 
-template<typename T> optional<T> to_optional(obj_arg o) {
-    if (is_scalar(o)) return optional<T>();
-    T r(cnstr_get(o, 0), true);
-    dec(o);
-    return optional<T>(r);
-}
-
 optional<constant_info> environment::find(name const & n) const {
     return to_optional<constant_info>(environment_find_core(get_obj_arg(), n.get_obj_arg()));
 }

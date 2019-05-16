@@ -2447,6 +2447,16 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
     return mk_pair(new_env, append(_rs, _bs));
 }
 
+environment compile_ir(environment const & env, options const & opts, comp_decls const & ds) {
+    bool unboxed = true;
+    buffer<comp_decl> new_ds;
+    for (comp_decl const & d : ds) {
+        expr new_v = to_lambda_pure_fn(env, unboxed)(d.snd());
+        new_ds.push_back(comp_decl(d.fst(), new_v));
+    }
+    return ir::compile(env, opts, new_ds);
+}
+
 void initialize_llnf() {
     g_apply     = new expr(mk_constant("_apply"));
     g_closure   = new expr(mk_constant("_closure"));

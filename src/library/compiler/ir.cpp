@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "util/nat.h"
 #include "kernel/instantiate.h"
 #include "kernel/type_checker.h"
+#include "library/trace.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
 
@@ -38,7 +39,8 @@ extern object * mk_unreachable_core;
 object * mk_alt_core(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
 object * mk_decl_core(object * f, object * xs, uint8 ty, object * b);
 object * decl_to_string_core(object * d);
-object * test_core(object * d, object * w);
+object * compile_core(object * env, object * opts, object * decls);
+object * log_to_string_core(object * log);
 /*
 inductive IRType
 | float | uint8 | uint16 | uint32 | uint64 | usize
@@ -114,17 +116,6 @@ std::string decl_to_string(decl const & d) {
     inc(d.raw());
     string_ref r(decl_to_string_core(d.raw()));
     return r.to_std_string();
-}
-void test(decl const & d) {
-    inc(d.raw());
-    object * r = test_core(d.raw(), io_mk_world());
-    if (io_result_is_error(r)) {
-        io_result_show_error(r);
-        dec(r);
-        throw exception("IR test error");
-    } else {
-        dec(r);
-    }
 }
 }
 
@@ -479,7 +470,38 @@ public:
     ir::decl operator()(comp_decl const & d) { return to_ir_decl(d); }
 };
 
-ir::decl to_ir_decl(environment const & env, comp_decl const & d) {
+namespace ir {
+decl to_ir_decl(environment const & env, comp_decl const & d) {
     return to_ir_fn(env)(d);
+}
+
+/*
+@[export lean.ir.compile_core]
+def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
+*/
+environment compile(environment const & env, options const & opts, comp_decls const & decls) {
+    buffer<decl> ir_decls;
+    for (comp_decl const & decl : decls) {
+        ir_decls.push_back(to_ir_decl(env, decl));
+    }
+    object * r   = compile_core(env.to_obj_arg(), opts.to_obj_arg(), to_array(ir_decls));
+    object * log = cnstr_get(r, 0);
+    if (array_size(log) > 0) {
+        inc(log);
+        object * str = log_to_string_core(log);
+        tout() << string_cstr(str);
+        dec_ref(str);
+    }
+    object * v  = cnstr_get(r, 1);
+    if (cnstr_tag(v) == 0) {
+        string_ref error(cnstr_get(v, 0), true);
+        dec_ref(r);
+        throw exception(error.data());
+    } else {
+        environment new_env(cnstr_get(v, 0), true);
+        dec_ref(r);
+        return new_env;
+    }
+}
 }
 }

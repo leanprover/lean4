@@ -240,11 +240,11 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(ecse, new_env, ds);
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "simp_app_args"}), ds);
-    /* emit C++ code. */
-    comp_decls b_ds;
-    std::tie(new_env, b_ds) = to_llnf(new_env, ds, true);
-    new_env = save_llnf_code(new_env, b_ds);
-    trace_compiler(name({"compiler", "boxed"}), b_ds);
+    /* compile IR. */
+    std::tie(new_env, ds) = to_llnf(new_env, ds, true);
+    new_env = save_llnf_code(new_env, ds);
+    trace_compiler(name({"compiler", "boxed"}), ds);
+    // new_env = compile_ir(new_env, opts, ds); // TODO(Leo)
     return new_env;
 }
 
@@ -276,6 +276,12 @@ void initialize_compiler() {
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
     register_trace_class({"compiler", "ll_infer_type"});
+    register_trace_class({"compiler", "ir"});
+    register_trace_class({"compiler", "ir", "init"});
+    register_trace_class({"compiler", "ir", "push_proj"});
+    register_trace_class({"compiler", "ir", "reset_reuse"});
+    register_trace_class({"compiler", "ir", "elim_dead"});
+    register_trace_class({"compiler", "ir", "simp_case"});
 }
 
 void finalize_compiler() {

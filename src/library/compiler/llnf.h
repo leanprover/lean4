@@ -15,6 +15,8 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
 
 optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name const & fn, unsigned arity);
 
+environment compile_ir(environment const & env, options const & opts, comp_decls const & ds);
+
 bool is_llnf_apply(expr const & e);
 bool is_llnf_closure(expr const & e);
 bool is_llnf_cnstr(expr const & e, name & I, unsigned & cidx, unsigned & nusize, unsigned & ssz);

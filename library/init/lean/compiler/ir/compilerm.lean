@@ -26,9 +26,12 @@ end LogEntry
 
 abbrev Log := Array LogEntry
 
-@[export lean.ir.format_log_core]
-def formatLog (log : Log) : Format :=
+def Log.format (log : Log) : Format :=
 log.foldl (λ fmt entry, fmt ++ Format.line ++ format entry) Format.nil
+
+@[export lean.ir.log_to_string_core]
+def Log.toString (log : Log) : String :=
+log.format.pretty
 
 structure CompilerState :=
 (env : Environment) (log : Log := Array.empty)

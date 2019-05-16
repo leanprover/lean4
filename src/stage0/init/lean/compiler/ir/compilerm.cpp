@@ -28,6 +28,7 @@ obj* l_Lean_IR_containsDecl(obj*, obj*, obj*);
 obj* l_Lean_IR_LogEntry_fmt___main(obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_Lean_IR_logMessage___boxed(obj*);
+obj* l_Lean_Format_pretty(obj*, obj*);
 obj* l_Lean_IR_mkDeclMapExtension___closed__1;
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__2;
 obj* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___boxed(obj*);
@@ -41,6 +42,7 @@ obj* l_HashMapImp_insert___at___private_init_lean_compiler_ir_compilerm_4__mkEnt
 obj* l_mkHashMap___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__1(obj*);
 obj* l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux(obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_IR_findDecl___spec__3(obj*, obj*);
+obj* l_Lean_IR_Log_format(obj*);
 obj* l_Lean_IR_logMessage___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__6(obj*, obj*);
 obj* l_Lean_IR_findDecl(obj*, obj*, obj*);
@@ -51,6 +53,8 @@ extern obj* l_Lean_Format_sbracket___closed__1;
 obj* l_Array_miterateAux___main___at_Lean_IR_LogEntry_fmt___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_List_redLength___main___rarg(obj*);
 obj* l_Lean_IR_addDecls___boxed(obj*, obj*, obj*);
+extern obj* l_Lean_Options_empty;
+obj* l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1(obj*, obj*, obj*, obj*);
 uint8 l_Lean_SMap_contains___main___at_Lean_IR_containsDecl___spec__1(obj*, obj*);
 obj* l_Lean_SMap_find___main___at_Lean_IR_findDecl___spec__1(obj*, obj*);
 obj* l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(obj*, obj*);
@@ -78,6 +82,10 @@ obj* l_Lean_SMap_switch___at_Lean_IR_mkDeclMapExtension___spec__2(obj*);
 obj* l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___closed__1;
 obj* l_Lean_IR_addDecls(obj*, obj*, obj*);
 namespace lean {
+namespace ir {
+obj* log_to_string_core(obj*);
+}}
+namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Array_miterateAux___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__10___boxed(obj*, obj*, obj*, obj*);
@@ -92,7 +100,6 @@ obj* l_Lean_IR_Decl_name___main(obj*);
 obj* l_Lean_IR_declMapExt___elambda__2(uint8);
 obj* l_Lean_IR_LogEntry_Lean_HasFormat;
 obj* l_Lean_IR_findDecl___boxed(obj*, obj*, obj*);
-obj* l_Array_miterateAux___main___at_Lean_IR_formatLog___spec__1(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -106,6 +113,7 @@ uint8 l_AssocList_contains___main___at___private_init_lean_compiler_ir_compilerm
 obj* l_Array_mforAux___main___at_Lean_IR_addDecls___spec__1(obj*, obj*, obj*, obj*);
 uint8 l___private_init_lean_compiler_ir_compilerm_1__isLogEnabledFor(obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_IR_mkDeclMapExtension___spec__5(obj*, obj*, obj*);
+obj* l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_declMapExt___elambda__1(obj*);
 extern obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1___closed__2;
 obj* l___private_init_lean_compiler_ir_compilerm_4__mkEntryArray(obj*);
@@ -118,10 +126,6 @@ namespace lean {
 usize usize_modn(usize, obj*);
 }
 obj* l_HashMapImp_find___at_Lean_IR_findDecl___spec__3___boxed(obj*, obj*);
-namespace lean {
-namespace ir {
-obj* format_log_core(obj*);
-}}
 obj* l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_mkHashMapImp___rarg(obj*);
 obj* l_Lean_IR_modifyEnv(obj*, obj*, obj*);
@@ -130,6 +134,7 @@ obj* l___private_init_lean_compiler_ir_compilerm_3__logMessageIfAux___rarg(obj*,
 uint8 l_HashMapImp_contains___at_Lean_IR_containsDecl___spec__2(obj*, obj*);
 obj* l_Lean_IR_declMapExt___elambda__2___rarg(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__1;
+obj* l_Lean_IR_Log_format___boxed(obj*);
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_IR_log___boxed(obj*, obj*, obj*);
 namespace lean {
@@ -142,7 +147,6 @@ obj* l_AssocList_find___main___at_Lean_IR_findDecl___spec__4___boxed(obj*, obj*)
 obj* l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_addDecl(obj*, obj*, obj*);
 obj* l_Lean_Name_append___main(obj*, obj*);
-obj* l_Array_miterateAux___main___at_Lean_IR_formatLog___spec__1___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
@@ -271,7 +275,7 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_LogEntry_fmt), 1, 0)
 return x_0;
 }
 }
-obj* l_Array_miterateAux___main___at_Lean_IR_formatLog___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
@@ -309,30 +313,51 @@ goto _start;
 }
 }
 }
-namespace lean {
-namespace ir {
-obj* format_log_core(obj* x_0) {
+obj* l_Lean_IR_Log_format(obj* x_0) {
 _start:
 {
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::mk_nat_obj(0ul);
 x_2 = lean::box(0);
-x_3 = l_Array_miterateAux___main___at_Lean_IR_formatLog___spec__1(x_0, x_0, x_1, x_2);
-lean::dec(x_0);
+x_3 = l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1(x_0, x_0, x_1, x_2);
 return x_3;
 }
 }
-}}
-obj* l_Array_miterateAux___main___at_Lean_IR_formatLog___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Array_miterateAux___main___at_Lean_IR_formatLog___spec__1(x_0, x_1, x_2, x_3);
+x_4 = l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_4;
 }
 }
+obj* l_Lean_IR_Log_format___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_IR_Log_format(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+namespace lean {
+namespace ir {
+obj* log_to_string_core(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_5; obj* x_6; 
+x_1 = lean::mk_nat_obj(0ul);
+x_2 = lean::box(0);
+x_3 = l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1(x_0, x_0, x_1, x_2);
+lean::dec(x_0);
+x_5 = l_Lean_Options_empty;
+x_6 = l_Lean_Format_pretty(x_3, x_5);
+return x_6;
+}
+}
+}}
 obj* l_Lean_IR_log(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {

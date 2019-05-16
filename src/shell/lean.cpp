@@ -241,7 +241,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "Pdc:qpgvht:012j:012rM:012T:012a"
+    "PdD:c:qpgvht:012j:012rM:012T:012a"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif

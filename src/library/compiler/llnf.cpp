@@ -253,7 +253,7 @@ static bool uses_borrowed(environment const & env, name const & n) {
     return borrowed_res;
 }
 
-static void get_cnstr_info_core(type_checker::state & st, bool unboxed, name const & n, buffer<field_info> & result) {
+static void get_cnstr_info_core(type_checker::state & st, name const & n, buffer<field_info> & result) {
     environment const & env = st.env();
     constant_info info      = env.get(n);
     lean_assert(info.is_constructor());
@@ -272,7 +272,7 @@ static void get_cnstr_info_core(type_checker::state & st, bool unboxed, name con
         expr ftype = lctx.get_type(telescope[i]);
         if (is_irrelevant_type(st, lctx, ftype)) {
             result.push_back(field_info::mk_irrelevant());
-        } else if (unboxed) {
+        } else {
             type_checker tc(st, lctx);
             ftype = tc.whnf(ftype);
             if (is_usize_type(ftype)) {
@@ -290,35 +290,30 @@ static void get_cnstr_info_core(type_checker::state & st, bool unboxed, name con
                 result.push_back(field_info::mk_object(next_object));
                 next_object++;
             }
-        } else {
-            result.push_back(field_info::mk_object(next_object));
-            next_object++;
         }
     }
     unsigned nobjs     = next_object;
     unsigned nusizes   = next_usize;
-    if (unboxed) {
-        /* Remark:
-           - usize fields are stored after object fields.
-           - regular scalar fields are stored after object and usize fields */
-        for (field_info & info : result) {
-            switch (info.m_kind) {
-            case field_info::Scalar:
-                info.m_offset += (nobjs + nusizes) * sizeof(void*);
-                break;
-            case field_info::USize:
-                info.m_offset += nobjs * sizeof(void*);
-                break;
-            default:
-                break;
-            }
+    /* Remark:
+       - usize fields are stored after object fields.
+       - regular scalar fields are stored after object and usize fields */
+    for (field_info & info : result) {
+        switch (info.m_kind) {
+        case field_info::Scalar:
+            info.m_offset += (nobjs + nusizes) * sizeof(void*);
+            break;
+        case field_info::USize:
+            info.m_offset += nobjs * sizeof(void*);
+            break;
+        default:
+            break;
         }
     }
 }
 
-cnstr_info get_cnstr_info(type_checker::state & st, bool unboxed, name const & n) {
+cnstr_info get_cnstr_info(type_checker::state & st, name const & n) {
     buffer<field_info> finfos;
-    get_cnstr_info_core(st, unboxed, n, finfos);
+    get_cnstr_info_core(st, n, finfos);
     unsigned cidx      = get_constructor_idx(st.env(), n);
     return cnstr_info(cidx, to_list(finfos));
 }
@@ -328,7 +323,6 @@ class to_lambda_pure_fn {
     typedef name_hash_map<cnstr_info> cnstr_info_cache;
     typedef name_hash_map<optional<unsigned>> enum_cache;
     type_checker::state   m_st;
-    bool                  m_unboxed;
     local_ctx             m_lctx;
     buffer<expr>          m_fvars;
     name                  m_x;
@@ -407,7 +401,7 @@ class to_lambda_pure_fn {
         auto it = m_cnstr_info_cache.find(n);
         if (it != m_cnstr_info_cache.end())
             return it->second;
-        cnstr_info r = ::lean::get_cnstr_info(m_st, m_unboxed, n);
+        cnstr_info r = ::lean::get_cnstr_info(m_st, n);
         m_cnstr_info_cache.insert(mk_pair(n, r));
         return r;
     }
@@ -779,8 +773,8 @@ class to_lambda_pure_fn {
     }
 
 public:
-    to_lambda_pure_fn(environment const & env, bool unboxed):
-        m_st(env), m_unboxed(unboxed), m_x("_x"), m_j("j") {
+    to_lambda_pure_fn(environment const & env):
+        m_st(env), m_x("_x"), m_j("j") {
     }
 
     expr operator()(expr e) {
@@ -924,7 +918,6 @@ public:
 
 class insert_reset_reuse_fn {
     type_checker::state m_st;
-    bool                m_unboxed;
     local_ctx           m_lctx;
     name                m_r{"_r"};
     unsigned            m_next_idx{1};
@@ -1116,7 +1109,7 @@ class insert_reset_reuse_fn {
         get_constructor_names(env(), I_name, cnames);
         lean_assert(cases_args.size() == cnames.size() + 1);
         for (unsigned i = 1; i < cases_args.size(); i++) {
-            cnstr_info cinfo = get_cnstr_info(m_st, m_unboxed, cnames[i-1]);
+            cnstr_info cinfo = get_cnstr_info(m_st, cnames[i-1]);
             expr minor       = optimize(cases_args[i]);
             minor            = opt(opt_ctx{I_name, cinfo, major}, minor);
             cases_args[i]    = minor;
@@ -1169,8 +1162,8 @@ class insert_reset_reuse_fn {
     }
 
 public:
-    insert_reset_reuse_fn(environment const & env, bool unboxed):
-        m_st(env), m_unboxed(unboxed) {}
+    insert_reset_reuse_fn(environment const & env):
+        m_st(env) {}
 
     expr operator()(expr const & e) {
         return optimize(e);
@@ -2415,32 +2408,30 @@ public:
     }
 };
 
-pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {
+pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds) {
     environment new_env = env;
     buffer<comp_decl> rs;
     buffer<comp_decl> bs;
     for (comp_decl const & d : ds) {
-        expr new_v = to_lambda_pure_fn(new_env, unboxed)(d.snd());
+        expr new_v = to_lambda_pure_fn(new_env)(d.snd());
         new_v      = push_proj_fn(new_env)(new_v);
-        new_v      = insert_reset_reuse_fn(new_env, unboxed)(new_v);
+        new_v      = insert_reset_reuse_fn(new_env)(new_v);
         new_v      = simp_cases(new_env, new_v);
         rs.push_back(comp_decl(d.fst(), new_v));
     }
-    if (unboxed) {
-        new_env = infer_borrowed_annotations(new_env, rs);
-        for (comp_decl const & r : rs) {
-            if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, r.fst(), get_num_nested_lambdas(r.snd()))) {
-                new_env = p->first;
-                bs.push_back(p->second);
-            }
+    new_env = infer_borrowed_annotations(new_env, rs);
+    for (comp_decl const & r : rs) {
+        if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, r.fst(), get_num_nested_lambdas(r.snd()))) {
+            new_env = p->first;
+            bs.push_back(p->second);
         }
-        for (comp_decl & r : rs) {
-            expr new_code = explicit_boxing_fn(new_env)(r.fst(), r.snd());
-            new_code = ecse(new_env, new_code);
-            new_code = elim_dead_let(new_code);
-            new_code = explicit_rc_fn(new_env)(r.fst(), new_code);
-            r = comp_decl(r.fst(), new_code);
-        }
+    }
+    for (comp_decl & r : rs) {
+        expr new_code = explicit_boxing_fn(new_env)(r.fst(), r.snd());
+        new_code = ecse(new_env, new_code);
+        new_code = elim_dead_let(new_code);
+        new_code = explicit_rc_fn(new_env)(r.fst(), new_code);
+        r = comp_decl(r.fst(), new_code);
     }
     comp_decls _rs(rs);
     comp_decls _bs(bs);
@@ -2448,10 +2439,9 @@ pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const 
 }
 
 environment compile_ir(environment const & env, options const & opts, comp_decls const & ds) {
-    bool unboxed = true;
     buffer<comp_decl> new_ds;
     for (comp_decl const & d : ds) {
-        expr new_v = to_lambda_pure_fn(env, unboxed)(d.snd());
+        expr new_v = to_lambda_pure_fn(env)(d.snd());
         new_ds.push_back(comp_decl(d.fst(), new_v));
     }
     return ir::compile(env, opts, new_ds);

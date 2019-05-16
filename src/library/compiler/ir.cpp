@@ -237,7 +237,7 @@ class to_ir_fn {
         ir::var_id x = to_var_id(args[0]);
         buffer<ir::alt> alts;
         for (unsigned i = 1; i < args.size(); i++) {
-            cnstr_info cinfo = get_cnstr_info(m_st, true, cnames[i-1]);
+            cnstr_info cinfo = get_cnstr_info(m_st, cnames[i-1]);
             ir::fn_body body = to_ir_fn_body(args[i]);
             alts.push_back(ir::mk_alt(cnames[i-1], cinfo.m_cidx, cinfo.m_num_objs, cinfo.m_num_usizes, cinfo.m_scalar_sz, body));
         }

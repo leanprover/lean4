@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 namespace lean {
 /* Convert expression to Low Level Normal Form (LLNF). This is the last normal form
    before converting to the IR. */
-pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed_data = false);
+pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds);
 
 optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name const & fn, unsigned arity);
 
@@ -82,7 +82,7 @@ struct cnstr_info {
     cnstr_info(unsigned cidx, list<field_info> const & finfo);
 };
 
-cnstr_info get_cnstr_info(type_checker::state & st, bool unboxed, name const & n);
+cnstr_info get_cnstr_info(type_checker::state & st, name const & n);
 
 void initialize_llnf();
 void finalize_llnf();

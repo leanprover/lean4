@@ -241,9 +241,9 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "simp_app_args"}), ds);
     /* compile IR. */
-    std::tie(new_env, ds) = to_llnf(new_env, ds, true);
+    std::tie(new_env, ds) = to_llnf(new_env, ds);
     new_env = save_llnf_code(new_env, ds);
-    trace_compiler(name({"compiler", "boxed"}), ds);
+    trace_compiler(name({"compiler", "result"}), ds);
     // new_env = compile_ir(new_env, opts, ds); // TODO(Leo)
     return new_env;
 }
@@ -272,7 +272,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "simp_app_args"});
     register_trace_class({"compiler", "struct_cases_on"});
     register_trace_class({"compiler", "llnf"});
-    register_trace_class({"compiler", "boxed"});
+    register_trace_class({"compiler", "result"});
     register_trace_class({"compiler", "optimize_bytecode"});
     register_trace_class({"compiler", "code_gen"});
     register_trace_class({"compiler", "ll_infer_type"});

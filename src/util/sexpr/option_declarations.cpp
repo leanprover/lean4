@@ -12,6 +12,7 @@ namespace lean {
 void option_declaration::display_value(std::ostream & out, options const & o) const {
     bool contains = false;
     if (o.contains(get_name())) {
+/*
         sexpr s = o.get_sexpr(get_name());
         switch (kind()) {
         case BoolOption:
@@ -39,6 +40,7 @@ void option_declaration::display_value(std::ostream & out, options const & o) co
             }
             break;
         }
+*/
     }
     if (!contains)
         out << get_default_value();

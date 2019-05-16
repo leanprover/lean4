@@ -82,11 +82,6 @@ sexpr options::get_sexpr(name const & n, sexpr const & default_value) const {
     return r == nullptr ? default_value : tail(*r);
 }
 
-int options::get_int(name const & n, int default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_int(r) ? to_int(r) : default_value;
-}
-
 unsigned options::get_unsigned(name const & n, unsigned default_value) const {
     sexpr const & r = get_sexpr(n);
     return !is_nil(r) && is_int(r) ? static_cast<unsigned>(to_int(r)) : default_value;
@@ -106,31 +101,6 @@ sexpr options::get_sexpr(char const * n, sexpr const & default_value) const {
     sexpr const * r = find(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
     return r == nullptr ? default_value : tail(*r);
 }
-
-int options::get_int(char const * n, int default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_int(r) ? to_int(r) : default_value;
-}
-
-unsigned options::get_unsigned(char const * n, unsigned default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_int(r) ? static_cast<unsigned>(to_int(r)) : default_value;
-}
-
-bool options::get_bool(char const * n, bool default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_bool(r) ? to_bool(r) != 0 : default_value;
-}
-
-char const * options::get_string(char const * n, char const * default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_string(r) ? to_string(r).c_str() : default_value;
-}
-
-static char const * g_left_angle_bracket  = "⟨";
-static char const * g_right_angle_bracket = "⟩";
-static char const * g_arrow               = "↦";
-static char const * g_assign              = ":=";
 
 options options::update(name const & n, sexpr const & v) const {
     if (contains(n)) {
@@ -154,63 +124,9 @@ options join(options const & opts1, options const & opts2) {
     return options(r);
 }
 
-/**
-   \brief Return a new set of options based on \c opts by adding the prefix \c prefix.
-
-   The procedure throws an exception if \c opts contains an options (o, v), s.t. prefix + o is
-   an unknown option in Lean.
-*/
-options add_prefix(name const & prefix, options const & opts) {
-    option_declarations const & decls = get_option_declarations();
-    return map(opts.m_value, [&](sexpr const & p) {
-            name n = prefix + to_name(car(p));
-            if (!decls.contains(n))
-                throw exception(sstream() << "unknown option '" << n << "'");
-            return cons(sexpr(n), cdr(p));
-        });
-}
-
-options remove_all_with_prefix(name const & prefix, options const & opts) {
-    sexpr r;
-    for_each(opts.m_value, [&](sexpr const & p) {
-            if (!is_prefix_of(prefix, to_name(car(p))))
-                r = cons(p, r);
-        });
-    return options(r);
-}
-
-format pp(options const & o) {
-    bool unicode = get_pp_unicode(o);
-    format r;
-    bool first = true;
-    char const * arrow = unicode ? g_arrow : g_assign;
-    for_each(o.m_value, [&](sexpr const & p) {
-            if (first) { first = false; } else { r += comma(); r += line(); }
-            name const & n = to_name(head(p));
-            unsigned sz = n.size();
-            unsigned indent = unicode ? sz+3 : sz+4;
-            r += group(nest(indent, pp(head(p)) + space() + format(arrow) + space() + pp(tail(p))));
-        });
-    format open  = unicode ? format(g_left_angle_bracket) : lp();
-    format close = unicode ? format(g_right_angle_bracket) : rp();
-    return group(nest(1, open + r + close));
-}
-
 void options::for_each(std::function<void(name const &)> const & fn) const {
     ::lean::for_each(m_value, [&](sexpr const & p) {
             fn(to_name(head(p)));
         });
-}
-
-std::ostream & operator<<(std::ostream & out, options const & o) {
-    bool unicode = get_pp_unicode(o);
-    out << (unicode ? g_left_angle_bracket : "(");
-    bool first = true;
-    for_each(o.m_value, [&](sexpr const & p) {
-            if (first) first = false; else out << ", ";
-            out << head(p) << " " << (unicode ? g_arrow : g_assign) << " " << tail(p);
-        });
-    out << (unicode ? g_right_angle_bracket : ")");
-    return out;
 }
 }

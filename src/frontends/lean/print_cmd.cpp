@@ -418,9 +418,6 @@ environment print_cmd(parser & p) {
         options opts = out.get_text_stream().get_options();
         opts = opts.update(get_pp_notation_name(), false);
         out.get_text_stream().update_options(opts) << e << endl;
-    } else if (p.curr_is_token_or_id(get_options_tk())) {
-        p.next();
-        out << p.ios().get_options() << endl;
     } else if (p.curr_is_token_or_id(get_trust_tk())) {
         p.next();
         out << "trust level: " << p.env().trust_lvl() << endl;

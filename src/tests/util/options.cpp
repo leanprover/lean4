@@ -15,11 +15,8 @@ using namespace lean;
 
 static void tst1() {
     options opt;
-    std::cout << opt << "\n";
-    opt = opt.update("tst", 10);
-    std::cout << opt << "\n";
+    opt = opt.update("tst", 10u);
     opt = opt.update("foo", true);
-    std::cout << opt << "\n";
 }
 
 static void check_serializer(options const &) {
@@ -27,23 +24,18 @@ static void check_serializer(options const &) {
 
 static void tst2() {
     options opt;
-    opt = update(opt, name{"test", "foo"}, 10);
-    opt = update(opt, name{"color"}, 20);
-    opt = update(opt, name{"ratio"}, 10.5);
-    opt = update(opt, name{"test", "long", "names", "with", "several", "parts"}, true);
-    std::cout << pp(opt) << "\n";
+    opt = opt.update(name{"test", "foo"}, 10u);
+    opt = opt.update(name{"color"}, 20u);
+    opt = opt.update(name{"test", "long", "names", "with", "several", "parts"}, true);
     check_serializer(opt);
 }
 
 static void tst3() {
     options opt;
-    opt = update(opt, name{"test", "foo"}, 10);
-    opt = update(opt, name{"color"}, 20);
-    std::cout << pp(opt) << "\n";
-    opt = update(opt, name{"color"}, 20);
-    std::cout << pp(opt) << "\n";
-    opt = update(opt, name{"color"}, 30);
-    std::cout << pp(opt) << "\n";
+    opt = opt.update(name{"test", "foo"}, 10u);
+    opt = opt.update(name{"color"}, 20u);
+    opt = opt.update(name{"color"}, 20u);
+    opt = opt.update(name{"color"}, 30u);
     check_serializer(opt);
 }
 
@@ -51,50 +43,40 @@ static void tst4() {
     options opt;
     lean_assert(opt.empty());
     lean_assert(opt.size() == 0);
-    opt = update(opt, "color", 10);
+    opt = opt.update("color", 10u);
     opt = opt.update(name("color"), 10u);
     lean_assert(!opt.empty());
     lean_assert(opt.size() == 1);
     lean_assert(opt.contains("color"));
     lean_assert(!opt.contains("name"));
-    std::cout << opt << "\n";
-    lean_assert(opt.get_int(name("color"), 0) == 10);
-    lean_assert(opt.get_int("color", 0) == 10);
-    lean_assert(opt.get_int("name", 20) == 20);
-    opt = update(opt, "color", 3);
+    opt = opt.update("color", 3u);
     lean_assert(opt.size() == 1);
-    lean_assert(opt.get_int("color", 0) == 3);
-    opt = update(opt, "freq", 0.5);
-    std::cout << opt << "\n";
     lean_assert(opt.size() == 2);
     lean_assert(opt.get_unsigned("color", 0) == 3);
     lean_assert(opt.get_unsigned(name("color"), 0) == 3);
-    opt = update(opt, "name", "Leo");
+    opt = opt.update("name", "Leo");
     lean_assert(opt.size() == 3);
     lean_assert(strcmp(opt.get_string("name", ""), "Leo") == 0);
     lean_assert(strcmp(opt.get_string(name("name"), ""), "Leo") == 0);
     lean_assert(strcmp(opt.get_string("name2", ""), "Leo") != 0);
     lean_assert(strcmp(opt.get_string("name2", ""), "") == 0);
-    opt = update(opt, "name", "Soon Ho");
+    opt = opt.update("name", "Soon Ho");
     lean_assert(opt.size() == 3);
     lean_assert(strcmp(opt.get_string("name", ""), "Soon Ho") == 0);
-    opt = update(opt, "flag", true);
+    opt = opt.update("flag", true);
     lean_assert(opt.get_bool("flag", false));
     lean_assert(opt.get_bool(name("flag"), false));
     lean_assert(!opt.get_bool("flag2", false));
-    std::cout << opt << "\n";
     lean_assert(opt.contains("name"));
     lean_assert(!opt.contains("name2"));
     lean_assert(opt.contains("color"));
     check_serializer(opt);
     options opt2;
-    opt2 = update(opt2, "name", "Leo");
-    opt2 = update(opt2, "value", 10);
-    opt2 = update(opt2, "flag", false);
-    std::cout << "# " << opt << "\n# " << opt2 << "\n";
+    opt2 = opt2.update(name("name"), "Leo");
+    opt2 = opt2.update(name("value"), 10u);
+    opt2 = opt2.update(name("flag"), false);
     check_serializer(opt2);
     options opt3 = join(opt, opt2);
-    std::cout << "> " << opt3 << "\n";
     lean_assert(strcmp(opt3.get_string("name", ""), "Leo") == 0);
     lean_assert(opt3.get_unsigned("value", 0) == 10);
     lean_assert(opt3.get_unsigned("color", 0) == 3);
@@ -106,7 +88,6 @@ static void tst4() {
     k = IntOption; s << k << " ";
     k = UnsignedOption; s << k << " ";
     k = StringOption; s << k << " ";
-    std::cout << s.str() << "\n";
 }
 
 static void tst5() {
@@ -123,9 +104,9 @@ static void tst5() {
 static void tst6() {
     options opt, opt2;
     lean_assert(is_eqp(opt, opt2));
-    opt = update(opt, name{"test", "foo"}, 10);
+    opt = opt.update(name{"test", "foo"}, 10u);
     lean_assert(!is_eqp(opt, opt2));
-    opt2 = update(opt2, name{"test", "foo"}, 10);
+    opt2 = opt2.update(name{"test", "foo"}, 10u);
     lean_assert(!is_eqp(opt, opt2));
     opt2 = opt;
     lean_assert(is_eqp(opt, opt2));

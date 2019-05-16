@@ -25,8 +25,7 @@ public:
     format operator()(expr const & e) const { return m_fn(e, m_options); }
     options const & get_options() const { return m_options; }
     formatter update_options(options const & o) const { return formatter(o, m_fn); }
-    template<typename T>
-    formatter update_option_if_undef(name const & n, T v) const { return formatter(m_options.update_if_undef(n, v), m_fn); }
+    formatter update_option_if_undef(name const & n, bool v) const { return formatter(m_options.update_if_undef(n, v), m_fn); }
 };
 
 typedef std::function<formatter(environment const &, options const &, abstract_type_context &)> formatter_factory;

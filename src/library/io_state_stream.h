@@ -66,6 +66,5 @@ inline io_state_stream const & operator<<(io_state_stream const & out, char cons
 inline io_state_stream const & operator<<(io_state_stream const & out, name const & d) { return display(out, d); }
 inline io_state_stream const & operator<<(io_state_stream const & out, unsigned d) { return display(out, d); }
 inline io_state_stream const & operator<<(io_state_stream const & out, std::string const & d) { return display(out, d); }
-inline io_state_stream const & operator<<(io_state_stream const & out, options const & d) { return display(out, d); }
 inline io_state_stream const & operator<<(io_state_stream const & out, pair<format const &, options const &> const & d) { return display(out, d); }
 }

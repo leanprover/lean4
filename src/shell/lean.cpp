@@ -271,9 +271,9 @@ options set_config_option(options const & opts, char const * in) {
                                       << "' value, it must be true/false");
         case lean::IntOption:
         case lean::UnsignedOption:
-            return opts.update(opt, atoi(val.c_str()));
+            return opts.update(opt, static_cast<unsigned>(atoi(val.c_str())));
         case lean::StringOption:
-            return opts.update(opt, val);
+            return opts.update(opt, val.c_str());
         default:
             throw lean::exception(lean::sstream() << "invalid -D parameter, configuration option '" << opt
                                   << "' cannot be set in the command line, use set_option command");
@@ -365,10 +365,10 @@ int main(int argc, char ** argv) {
                 make_mode = true;
                 break;
             case 'M':
-                opts = opts.update(get_max_memory_opt_name(), atoi(optarg));
+                opts = opts.update(get_max_memory_opt_name(), static_cast<unsigned>(atoi(optarg)));
                 break;
             case 'T':
-                opts = opts.update(get_timeout_opt_name(), atoi(optarg));
+                opts = opts.update(get_timeout_opt_name(), static_cast<unsigned>(atoi(optarg)));
                 break;
             case 't':
                 trust_lvl = atoi(optarg);

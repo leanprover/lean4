@@ -209,7 +209,7 @@ environment set_option_cmd(parser & p) {
     } else if (k == StringOption) {
         if (!p.curr_is_string())
             throw parser_error("invalid option value, given option is not a string", p.pos());
-        p.set_option(id, p.get_str_val());
+        p.set_option(id, p.get_str_val().c_str());
         p.next();
     } else if (k == UnsignedOption || k == IntOption) {
         p.set_option(id, p.parse_small_nat());

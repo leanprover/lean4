@@ -3243,7 +3243,7 @@ expr elaborator::visit_node_macro(expr const & e, optional<expr> const & expecte
             << "structure " << macro.to_string() << ".View :=\n";
     buffer<expr> new_args;
     // unhygiene when nested in namespaces
-    auto opts = update(options(), {"pp", "full_names"}, true);
+    auto opts = options().update({"pp", "full_names"}, true);
     auto pp = ::lean::mk_pp_ctx(m_env, opts, m_ctx.mctx(), m_ctx.lctx());
     for (expr args = app_arg(e2); is_app(args); args = app_arg(args)) {
         expr r = app_arg(app_fn(args));
@@ -3338,7 +3338,7 @@ expr elaborator::visit_node_choice_macro(expr const & e, bool longest_match, opt
           << "inductive " << macro.to_string() << ".View\n";
     buffer<expr> new_args;
     // unhygiene when nested in namespaces
-    auto opts = update(options(), {"pp", "full_names"}, true);
+    auto opts = options().update({"pp", "full_names"}, true);
     auto pp = ::lean::mk_pp_ctx(m_env, opts, m_ctx.mctx(), m_ctx.lctx());
     for (expr e = args; is_app(e); e = app_arg(e)) {
         expr r = app_arg(app_fn(e));

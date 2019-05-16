@@ -2415,20 +2415,12 @@ public:
     }
 };
 
-static void display_ir(environment const & env, comp_decl const & decl) {
-    ir::decl d = to_ir_decl(env, decl);
-    ir::test(d);
-}
-
 pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds, bool unboxed) {
     environment new_env = env;
     buffer<comp_decl> rs;
     buffer<comp_decl> bs;
     for (comp_decl const & d : ds) {
         expr new_v = to_lambda_pure_fn(new_env, unboxed)(d.snd());
-        if (unboxed) {
-            lean_trace(name({"compiler", "lambda_pure"}), tout() << "\n"; display_ir(new_env, comp_decl(d.fst(), new_v)););
-        }
         new_v      = push_proj_fn(new_env)(new_v);
         new_v      = insert_reset_reuse_fn(new_env, unboxed)(new_v);
         new_v      = simp_cases(new_env, new_v);

@@ -36,7 +36,7 @@ public:
     }
     object * raw() const { return m_obj; }
     object * steal() { object * r = m_obj; m_obj = box(0); return r; }
-    object * get_obj_arg() const { inc(m_obj); return m_obj; }
+    object * to_obj_arg() const { inc(m_obj); return m_obj; }
     static void swap(object_ref & a, object_ref & b) { std::swap(a.m_obj, b.m_obj); }
 };
 

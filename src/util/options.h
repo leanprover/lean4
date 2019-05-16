@@ -66,6 +66,8 @@ public:
        opts2 overrides the ones in opts1.
     */
     friend options join(options const & opts1, options const & opts2);
+
+    object * to_obj_arg() const { return m_value.to_obj_arg(); }
 };
 
 bool get_verbose(options const & opts);

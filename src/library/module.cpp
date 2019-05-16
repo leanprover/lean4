@@ -204,7 +204,7 @@ def writeModule (env : Environment) (fname : String) : IO Unit := */
 object * write_module_core(object * env, object * fname, object * w);
 
 void write_module(environment const & env, std::string const & olean_fn) {
-    object * r = write_module_core(env.get_obj_arg(), mk_string(olean_fn), io_mk_world());
+    object * r = write_module_core(env.to_obj_arg(), mk_string(olean_fn), io_mk_world());
     if (io_result_is_error(r)) {
         dec_ref(r);
         throw exception(sstream() << "failed to write module '" << olean_fn << "'");
@@ -237,7 +237,7 @@ object * environment_add_modification_core(object * env, object * mod);
 
 namespace module {
 environment add(environment const & env, modification* modf) {
-    return environment(environment_add_modification_core(env.get_obj_arg(), to_object(modf)));
+    return environment(environment_add_modification_core(env.to_obj_arg(), to_object(modf)));
 }
 
 environment add_and_perform(environment const & env, modification * modf) {

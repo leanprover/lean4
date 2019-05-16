@@ -15,11 +15,11 @@ object * add_protected_core(object * env, object * n);
 uint8 is_protected_core(object * env, object * n);
 
 environment add_protected(environment const & env, name const & n) {
-    return environment(add_protected_core(env.get_obj_arg(), n.get_obj_arg()));
+    return environment(add_protected_core(env.to_obj_arg(), n.to_obj_arg()));
 }
 
 bool is_protected(environment const & env, name const & n) {
-    return is_protected_core(env.get_obj_arg(), n.get_obj_arg());
+    return is_protected_core(env.to_obj_arg(), n.to_obj_arg());
 }
 
 name get_protected_shortest_name(name const & n) {

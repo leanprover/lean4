@@ -19,10 +19,10 @@ object * cache_closed_term_name_core(object * env, object * e, object * n);
 object * get_closed_term_name_core(object * env, object * e);
 
 optional<name> get_closed_term_name(environment const & env, expr const & e) {
-    return to_optional<name>(get_closed_term_name_core(env.get_obj_arg(), e.get_obj_arg()));
+    return to_optional<name>(get_closed_term_name_core(env.to_obj_arg(), e.to_obj_arg()));
 }
 
 environment cache_closed_term_name(environment const & env, expr const & e, name const & n) {
-    return environment(cache_closed_term_name_core(env.get_obj_arg(), e.get_obj_arg(), n.get_obj_arg()));
+    return environment(cache_closed_term_name_core(env.to_obj_arg(), e.to_obj_arg(), n.to_obj_arg()));
 }
 }

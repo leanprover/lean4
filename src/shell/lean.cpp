@@ -512,7 +512,7 @@ int main(int argc, char ** argv) {
             scope_message_log scope_log(l);
             // res : estate.result io.error io.world (prod (list syntax) environment)
             object_ref res { lean_process_file(mk_string(mod_fn), mk_string(contents), static_cast<uint8>(json_output),
-                                               env.get_obj_arg(), io_mk_world()) };
+                                               env.to_obj_arg(), io_mk_world()) };
             if (io_result_is_error(res.raw())) {
                 // estate.result.error _
                 ok = false;

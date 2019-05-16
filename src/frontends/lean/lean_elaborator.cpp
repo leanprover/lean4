@@ -511,7 +511,7 @@ extern "C" obj_res lean_elaborator_elaborate_command(b_obj_arg vm_filename, obj_
             }
 
             object * args[] = {
-                p.env().get_obj_arg(),
+                p.env().to_obj_arg(),
                 to_obj(s->m_ngen).steal(),
                 vm_lds.steal(),
                 vm_eds.steal(),

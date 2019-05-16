@@ -7,9 +7,8 @@ Author: Leonardo de Moura
 #include <memory>
 #include <string>
 #include "runtime/sstream.h"
-#include "util/sexpr/options.h"
-#include "util/sexpr/option_declarations.h"
-#include "util/sexpr/sexpr_fn.h"
+#include "util/options.h"
+#include "util/option_declarations.h"
 
 #ifndef LEAN_DEFAULT_VERBOSE
 #define LEAN_DEFAULT_VERBOSE true

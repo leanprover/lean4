@@ -11,7 +11,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "runtime/sstream.h"
 #include "util/fresh_name.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"

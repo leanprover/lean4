@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/find_fn.h"

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <string>
 #include "util/output_channel.h"
-#include "util/sexpr/options.h"
+#include "util/options.h"
 #include "util/exception_with_pos.h"
 #include "kernel/expr.h"
 #include "library/formatter.h"

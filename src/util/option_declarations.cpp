@@ -5,8 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/shared_mutex.h"
-#include "util/sexpr/option_declarations.h"
-#include "util/sexpr/format.h"
+#include "util/option_declarations.h"
 
 namespace lean {
 void option_declaration::display_value(std::ostream & out, options const & o) const {

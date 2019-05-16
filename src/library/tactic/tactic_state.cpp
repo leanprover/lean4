@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "util/fresh_name.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "library/constants.h"
 #include "library/type_context.h"

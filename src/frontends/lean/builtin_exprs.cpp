@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <string>
 #include "runtime/sstream.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "library/annotation.h"

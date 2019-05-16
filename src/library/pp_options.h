@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #pragma once
-#include "util/sexpr/options.h"
+#include "util/options.h"
 namespace lean {
 name const & get_pp_implicit_name();
 name const & get_pp_proofs_name();

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "kernel/replace_fn.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/class.h"

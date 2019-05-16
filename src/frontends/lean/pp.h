@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/pair.h"
 #include "util/name_map.h"
 #include "util/name_set.h"
-#include "util/sexpr/options.h"
+#include "util/options.h"
 #include "util/sexpr/format.h"
 #include "kernel/environment.h"
 #include "library/abstract_type_context.h"

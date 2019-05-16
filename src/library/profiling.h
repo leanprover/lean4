@@ -6,7 +6,7 @@ Author: Gabriel Ebner
 */
 #pragma once
 #include <chrono>
-#include <util/sexpr/options.h>
+#include <util/options.h>
 
 namespace lean {
 

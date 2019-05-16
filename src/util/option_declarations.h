@@ -9,7 +9,7 @@ Author: Leonardo de Moura
 #include <string>
 #include "util/macros.h"
 #include "util/name_map.h"
-#include "util/sexpr/options.h"
+#include "util/options.h"
 
 namespace lean {
 /**

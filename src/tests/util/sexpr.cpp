@@ -10,10 +10,10 @@ Author: Leonardo de Moura
 #include "util/test.h"
 #include "util/name.h"
 #include "util/init_module.h"
+#include "util/options.h"
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/sexpr_fn.h"
 #include "util/sexpr/format.h"
-#include "util/sexpr/options.h"
 #include "util/sexpr/init_module.h"
 using namespace lean;
 

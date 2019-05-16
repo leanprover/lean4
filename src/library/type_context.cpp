@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include "runtime/interrupt.h"
 #include "runtime/flet.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/instantiate.h"
 #include "kernel/abstract.h"
 #include "kernel/replace_fn.h"

@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include <utility>
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "library/formatter.h"
 
 #ifndef LEAN_DEFAULT_FORMATTER_HIDE_FULL_TERMS

@@ -17,8 +17,8 @@
 #include "util/sexpr/sexpr.h"
 #include "util/sexpr/format.h"
 #include "util/sexpr/sexpr_fn.h"
-#include "util/sexpr/options.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/options.h"
+#include "util/option_declarations.h"
 
 #ifndef LEAN_DEFAULT_PP_INDENTATION
 #define LEAN_DEFAULT_PP_INDENTATION 2

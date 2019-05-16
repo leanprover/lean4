@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <utility>
 #include "runtime/thread.h"
 #include "runtime/flet.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/find_fn.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/abstract.h"

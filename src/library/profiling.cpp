@@ -5,7 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Gabriel Ebner
 */
 #include "library/profiling.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 
 #ifndef LEAN_DEFAULT_PROFILER
 #define LEAN_DEFAULT_PROFILER false

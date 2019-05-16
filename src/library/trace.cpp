@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #include <vector>
 #include <string>
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/environment.h"
 #include "library/type_context.h"
 #include "library/io_state.h"

@@ -7,7 +7,7 @@ Author: Leonardo de Moura
 #include <algorithm>
 #include <string>
 #include "runtime/sstream.h"
-#include "util/sexpr/option_declarations.h"
+#include "util/option_declarations.h"
 #include "kernel/for_each_fn.h"
 #include "kernel/quot.h"
 #include "library/trace.h"

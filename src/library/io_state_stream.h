@@ -50,7 +50,6 @@ const endl_class endl;
 class ext_exception;
 
 io_state_stream const & operator<<(io_state_stream const & out, endl_class);
-io_state_stream const & operator<<(io_state_stream const & out, option_kind k);
 io_state_stream const & operator<<(io_state_stream const & out, expr const & e);
 io_state_stream const & operator<<(io_state_stream const & out, level const & l);
 io_state_stream const & operator<<(io_state_stream const & out, ext_exception const & ex);

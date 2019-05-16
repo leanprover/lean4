@@ -338,7 +338,7 @@ void print_id_info(parser & p, message_builder & out, name const & id, bool show
     get_option_declarations().for_each([&](name const &, option_declaration const & opt) {
             if (found) return;
             if (opt.get_name() == id || opt.get_name() == name("lean") + id) {
-                out << "option  " << opt.get_name() << " (" << opt.kind() << ") "
+                out << "option  " << opt.get_name()
                     << opt.get_description() << " (default: " << opt.get_default_value() << ")" << endl;
                 found = true;
             }

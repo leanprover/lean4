@@ -68,7 +68,7 @@ option_declarations get_option_declarations() {
     return r;
 }
 
-void register_option(name const & n, option_kind k, char const * default_value, char const * description) {
+void register_option(name const & n, data_value_kind k, char const * default_value, char const * description) {
     exclusive_lock lock(*g_option_declarations_guard);
     g_option_declarations->insert(n, option_declaration(n, k, default_value, description));
 }

@@ -197,8 +197,8 @@ environment exit_cmd(parser & p) {
 environment set_option_cmd(parser & p) {
     auto id_kind = parse_option_name(p, "invalid set option, identifier (i.e., option name) expected");
     name id       = id_kind.first;
-    option_kind k = id_kind.second;
-    if (k == BoolOption) {
+    data_value_kind k = id_kind.second;
+    if (k == data_value_kind::Bool) {
         if (p.curr_is_token_or_id(get_true_tk()))
             p.set_option(id, true);
         else if (p.curr_is_token_or_id(get_false_tk()))
@@ -206,12 +206,12 @@ environment set_option_cmd(parser & p) {
         else
             throw parser_error("invalid Boolean option value, 'true' or 'false' expected", p.pos());
         p.next();
-    } else if (k == StringOption) {
+    } else if (k == data_value_kind::String) {
         if (!p.curr_is_string())
             throw parser_error("invalid option value, given option is not a string", p.pos());
         p.set_option(id, p.get_str_val().c_str());
         p.next();
-    } else if (k == UnsignedOption || k == IntOption) {
+    } else if (k == data_value_kind::Nat) {
         p.set_option(id, p.parse_small_nat());
     } else {
         throw parser_error("invalid option value, 'true', 'false', string, integer or decimal value expected", p.pos());
@@ -312,7 +312,7 @@ static environment help_cmd(parser & p) {
         rep.set_end_pos(p.pos());
         auto decls = get_option_declarations();
         decls.for_each([&](name const &, option_declaration const & opt) {
-                rep << "  " << opt.get_name() << " (" << opt.kind() << ") "
+                rep << "  " << opt.get_name()
                     << opt.get_description() << " (default: " << opt.get_default_value() << ")\n";
             });
     } else if (p.curr_is_token_or_id(get_commands_tk())) {

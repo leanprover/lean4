@@ -28,7 +28,7 @@ LEAN_THREAD_PTR(abstract_type_context, g_ctx);
 LEAN_THREAD_VALUE(unsigned,  g_depth, 0);
 
 void register_trace_class(name const & n) {
-    register_option(name("trace") + n, BoolOption, "false",
+    register_option(name("trace") + n, data_value_kind::Bool, "false",
                     "(trace) enable/disable tracing for the given module and submodules");
     g_trace_classes->insert(n);
 }

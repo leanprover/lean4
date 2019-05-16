@@ -7,6 +7,7 @@ Author: Leonardo de Moura
 #pragma once
 #include <memory>
 #include <utility>
+#include "util/sexpr/format.h"
 #include "util/sexpr/options.h"
 
 namespace lean {

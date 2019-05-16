@@ -406,24 +406,7 @@ static void elaborate_command(parser & p, expr const & cmd) {
 }
 
 options to_options(b_obj_arg o) {
-    options opts;
-    kvmap m = kvmap(o, true);
-    for (auto const & kv : m) {
-        switch (kv.snd().kind()) {
-        case data_value_kind::Bool:
-            opts = opts.update(kv.fst(), kv.snd().get_bool());
-            break;
-        case data_value_kind::Nat:
-            opts = opts.update(kv.fst(), kv.snd().get_nat().get_small_value());
-            break;
-        case data_value_kind::String:
-            opts = opts.update(kv.fst(), kv.snd().get_string().data());
-            break;
-        default:
-            break;
-        }
-    }
-    return opts;
+    return options(o, true);
 }
 
 name_set to_name_set(b_obj_arg o) {

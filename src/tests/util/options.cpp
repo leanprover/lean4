@@ -82,12 +82,6 @@ static void tst4() {
     lean_assert(opt3.get_unsigned("color", 0) == 3);
     lean_assert(opt3.get_unsigned(name("freq"), 0) == 0);
     check_serializer(opt3);
-    std::ostringstream s;
-    option_kind k;
-    k = BoolOption; s << k << " ";
-    k = IntOption; s << k << " ";
-    k = UnsignedOption; s << k << " ";
-    k = StringOption; s << k << " ";
 }
 
 static void tst5() {

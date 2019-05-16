@@ -261,7 +261,7 @@ options set_config_option(options const & opts, char const * in) {
     auto it = decls.find(opt);
     if (it) {
         switch (it->kind()) {
-        case lean::BoolOption:
+        case lean::data_value_kind::Bool:
             if (val == "true")
                 return opts.update(opt, true);
             else if (val == "false")
@@ -269,10 +269,9 @@ options set_config_option(options const & opts, char const * in) {
             else
                 throw lean::exception(lean::sstream() << "invalid -D parameter, invalid configuration option '" << opt
                                       << "' value, it must be true/false");
-        case lean::IntOption:
-        case lean::UnsignedOption:
+        case lean::data_value_kind::Nat:
             return opts.update(opt, static_cast<unsigned>(atoi(val.c_str())));
-        case lean::StringOption:
+        case lean::data_value_kind::String:
             return opts.update(opt, val.c_str());
         default:
             throw lean::exception(lean::sstream() << "invalid -D parameter, configuration option '" << opt

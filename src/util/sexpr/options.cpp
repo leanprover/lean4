@@ -51,82 +51,19 @@ bool get_verbose(options const & opts) {
     return opts.get_bool(*g_verbose, LEAN_DEFAULT_VERBOSE);
 }
 
-std::ostream & operator<<(std::ostream & out, option_kind k) {
-    switch (k) {
-    case BoolOption: out << "Bool"; break;
-    case IntOption:  out << "Int"; break;
-    case UnsignedOption: out << "Unsigned Int"; break;
-    case StringOption: out << "String"; break;
-    }
-    return out;
-}
-
-bool options::empty() const {
-    return is_nil(m_value);
-}
-
-unsigned options::size() const {
-    return length(m_value);
-}
-
-bool options::contains(name const & n) const {
-    return ::lean::contains(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
-}
-
-bool options::contains(char const * n) const {
-    return ::lean::contains(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
-}
-
-sexpr options::get_sexpr(name const & n, sexpr const & default_value) const {
-    sexpr const * r = find(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
-    return r == nullptr ? default_value : tail(*r);
-}
-
-unsigned options::get_unsigned(name const & n, unsigned default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_int(r) ? static_cast<unsigned>(to_int(r)) : default_value;
-}
-
-bool options::get_bool(name const & n, bool default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_bool(r) ? to_bool(r) != 0 : default_value;
-}
-
-char const * options::get_string(name const & n, char const * default_value) const {
-    sexpr const & r = get_sexpr(n);
-    return !is_nil(r) && is_string(r) ? to_string(r).c_str() : default_value;
-}
-
-sexpr options::get_sexpr(char const * n, sexpr const & default_value) const {
-    sexpr const * r = find(m_value, [&](sexpr const & p) { return to_name(head(p)) == n; });
-    return r == nullptr ? default_value : tail(*r);
-}
-
-options options::update(name const & n, sexpr const & v) const {
-    if (contains(n)) {
-        return map(m_value, [&](sexpr p) {
-                if (to_name(car(p)) == n)
-                    return cons(car(p), v);
-                else
-                    return p;
-            });
-    } else {
-        return options(cons(cons(sexpr(n), v), m_value));
-    }
-}
-
 options join(options const & opts1, options const & opts2) {
-    sexpr r = opts2.m_value;
-    for_each(opts1.m_value, [&](sexpr const & p) {
-            if (!opts2.contains(to_name(car(p))))
-                r = cons(p, r);
-        });
+    kvmap r = opts2.m_value;
+    for (kvmap_entry const & e : opts1.m_value) {
+        if (!opts2.contains(e.fst())) {
+            r = cons(e, r);
+        }
+    }
     return options(r);
 }
 
 void options::for_each(std::function<void(name const &)> const & fn) const {
-    ::lean::for_each(m_value, [&](sexpr const & p) {
-            fn(to_name(head(p)));
-        });
+    for (kvmap_entry const & e : m_value) {
+        fn(e.fst());
+    }
 }
 }

@@ -29,7 +29,7 @@ bool operator<(data_value const & a, data_value const & b) {
     lean_unreachable();
 }
 
-static optional<data_value> find(kvmap m, name const & k) {
+optional<data_value> find(kvmap m, name const & k) {
     while (!is_nil(m)) {
         if (head(m).fst() == k)
             return optional<data_value>(head(m).snd());

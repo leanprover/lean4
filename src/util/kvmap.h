@@ -56,6 +56,8 @@ inline data_value read_data_value(deserializer & d) { return data_value::deseria
 typedef pair_ref<name, data_value> kvmap_entry;
 typedef list_ref<kvmap_entry> kvmap;
 
+optional<data_value> find(kvmap m, name const & k);
+
 optional<string_ref> get_string(kvmap const & m, name const & k);
 optional<nat> get_nat(kvmap const & m, name const & k);
 optional<bool> get_bool(kvmap const & m, name const & k);

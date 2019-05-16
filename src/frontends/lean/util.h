@@ -99,7 +99,7 @@ char const * open_binder_string(binder_info bi, bool unicode);
 char const * close_binder_string(binder_info bi, bool unicode);
 
 /** \brief Parse option name */
-pair<name, option_kind> parse_option_name(parser & p, char const * error_msg);
+pair<name, data_value_kind> parse_option_name(parser & p, char const * error_msg);
 
 expr quote(unsigned u);
 expr quote(char const * str);

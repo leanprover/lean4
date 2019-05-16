@@ -17,15 +17,15 @@ namespace lean {
    configuration options.
 */
 class option_declaration {
-    name        m_name;
-    option_kind m_kind;
-    std::string m_default;
-    std::string m_description;
+    name            m_name;
+    data_value_kind m_kind;
+    std::string     m_default;
+    std::string     m_description;
 public:
     option_declaration() {}
-    option_declaration(name const & n, option_kind k, char const * default_val, char const * descr):
+    option_declaration(name const & n, data_value_kind k, char const * default_val, char const * descr):
         m_name(n), m_kind(k), m_default(default_val), m_description(descr) {}
-    option_kind kind() const { return m_kind; }
+    data_value_kind kind() const { return m_kind; }
     name const & get_name() const { return m_name; }
     std::string const & get_default_value() const { return m_default; }
     std::string const & get_description() const { return m_description; }
@@ -38,9 +38,8 @@ typedef name_map<option_declaration> option_declarations;
 void initialize_option_declarations();
 void finalize_option_declarations();
 option_declarations get_option_declarations();
-void register_option(name const & n, option_kind k, char const * default_value, char const * description);
-#define register_bool_option(n, v, d) register_option(n, BoolOption, LEAN_STR(v), d)
-#define register_unsigned_option(n, v, d) register_option(n, UnsignedOption, LEAN_STR(v), d)
-#define register_double_option(n, v, d) register_option(n, DoubleOption, LEAN_STR(v), d)
-#define register_string_option(n, v, d) register_option(n, StringOption, LEAN_STR(v), d)
+void register_option(name const & n, data_value_kind k, char const * default_value, char const * description);
+#define register_bool_option(n, v, d) register_option(n, data_value_kind::Bool, LEAN_STR(v), d)
+#define register_unsigned_option(n, v, d) register_option(n, data_value_kind::Nat, LEAN_STR(v), d)
+#define register_string_option(n, v, d) register_option(n, data_value_kind::String, LEAN_STR(v), d)
 }

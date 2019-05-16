@@ -18,33 +18,28 @@ import init.lean.compiler.ir.boxing
 namespace Lean
 namespace IR
 
-def test (d : Decl) : IO Unit :=
+private def compileAux (decls : Array Decl) : CompilerM Unit :=
 do
-   d.check,
-   IO.println d,
-   IO.println $ ("Max index " ++ toString d.maxIndex),
-   let d := d.pushProj,
-   IO.println "=== After push projections ===",
-   IO.println d,
-   let d := d.insertResetReuse,
-   IO.println "=== After insert reset reuse ===",
-   IO.println d,
-   let d := d.elimDead,
-   IO.println "=== After elim dead locals ===",
-   IO.println d,
-   let d := d.simpCase,
-   IO.println "=== After simplify case ===",
-   IO.println d,
-   let d := d.normalizeIds,
-   IO.println "=== After normalize Ids ===",
-   IO.println d,
-   d.check,
-   pure ()
-
-def compileAux (decls : Array Decl) : CompilerM Unit :=
--- TODO: new IR
+checkDecls decls,
+logDecls `init decls,
+let decls := decls.hmap Decl.pushProj,
+logDecls `push_proj decls,
+let decls := decls.hmap Decl.insertResetReuse,
+logDecls `reset_reuse decls,
+let decls := decls.hmap Decl.elimDead,
+logDecls `elim_dead decls,
+let decls := decls.hmap Decl.simpCase,
+logDecls `simp_case decls,
+let decls := decls.hmap Decl.normalizeIds,
+checkDecls decls,
+addDecls decls,
 pure ()
 
+@[export lean.ir.compile_core]
+def compile (env : Environment) (opts : Options) (decls : Array Decl) : Log × (Except String Environment) :=
+match (compileAux decls opts).run { env := env } with
+| EState.Result.ok     _  s := (s.log, Except.ok s.env)
+| EState.Result.error msg s := (s.log, Except.error msg)
 
 end IR
 end Lean

@@ -16,26 +16,51 @@ inductive LogEntry
 | step (cls : Name) (decls : Array Decl)
 | message (msg : Format)
 
+namespace LogEntry
+protected def fmt : LogEntry → Format
+| (step cls decls) := Format.bracket "[" (format cls) "]" ++ decls.foldl (λ fmt decl, fmt ++ Format.line ++ format decl) Format.nil
+| (message msg)    := msg
+
+instance : HasFormat LogEntry := ⟨LogEntry.fmt⟩
+end LogEntry
+
 abbrev Log := Array LogEntry
 
+@[export lean.ir.format_log_core]
+def formatLog (log : Log) : Format :=
+log.foldl (λ fmt entry, fmt ++ Format.line ++ format entry) Format.nil
+
 structure CompilerState :=
-(env : Environment) (log : Log)
+(env : Environment) (log : Log := Array.empty)
 
 abbrev CompilerM := ReaderT Options (EState String CompilerState)
 
 def log (entry : LogEntry) : CompilerM Unit :=
 modify $ λ s, { log := s.log.push entry, .. s }
 
-def logDecls (cls : Name) (decls : Array Decl) : CompilerM Unit :=
-do opts ← read,
-   when (opts.getBool cls) $ log (LogEntry.step cls decls)
+def tracePrefixOptionName := `trace.compiler.ir
 
-def logMessage {α : Type} [HasFormat α] (a : α) : CompilerM Unit :=
-log (LogEntry.message (format a))
+private def isLogEnabledFor (opts : Options) (optName : Name) : Bool :=
+match opts.find optName with
+| some (DataValue.ofBool v) := v
+| other := opts.getBool tracePrefixOptionName
 
-def logMessageIf {α : Type} [HasFormat α] (cls : Name) (a : α) : CompilerM Unit :=
+private def logDeclsAux (optName : Name) (cls : Name) (decls : Array Decl) : CompilerM Unit :=
 do opts ← read,
-   when (opts.getBool cls) $ logMessage a
+   when (isLogEnabledFor opts optName) $ log (LogEntry.step cls decls)
+
+@[inline] def logDecls (cls : Name) (decl : Array Decl) : CompilerM Unit :=
+logDeclsAux (tracePrefixOptionName ++ cls) cls decl
+
+private def logMessageIfAux {α : Type} [HasFormat α] (optName : Name) (a : α) : CompilerM Unit :=
+do opts ← read,
+   when (isLogEnabledFor opts optName) $ log (LogEntry.message (format a))
+
+@[inline] def logMessageIf {α : Type} [HasFormat α] (cls : Name) (a : α) : CompilerM Unit :=
+logMessageIfAux (tracePrefixOptionName ++ cls) a
+
+@[inline] def logMessage {α : Type} [HasFormat α] (cls : Name) (a : α) : CompilerM Unit :=
+logMessageIfAux tracePrefixOptionName a
 
 @[inline] def modifyEnv (f : Environment → Environment) : CompilerM Unit :=
 modify $ λ s, { env := f s.env, .. s }

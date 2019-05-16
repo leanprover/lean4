@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.compiler.ir.basic
-import init.control.reader
+import init.lean.compiler.ir.compilerm
 
 namespace Lean
 namespace IR
@@ -104,10 +103,13 @@ def checkDecl : Decl → M Unit
 
 end Checker
 
-def Decl.check (d : Decl) : IO Unit :=
-match Checker.checkDecl d {} with
-| Except.error msg := throw (IO.userError ("IR check failed at '" ++ toString d.name ++ "', error: " ++ msg))
-| other := pure ()
+def checkDecl (decl : Decl) : CompilerM Unit :=
+match Checker.checkDecl decl {} with
+| Except.error msg := throw ("IR check failed at '" ++ toString decl.name ++ "', error: " ++ msg)
+| other            := pure ()
+
+def checkDecls (decls : Array Decl) : CompilerM Unit :=
+decls.mfor checkDecl
 
 end IR
 end Lean

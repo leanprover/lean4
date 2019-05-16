@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.default
-// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker init.lean.compiler.ir.boxing
+// Imports: init.lean.compiler.ir.basic init.lean.compiler.ir.format init.lean.compiler.ir.compilerm init.lean.compiler.ir.pushproj init.lean.compiler.ir.elimdead init.lean.compiler.ir.simpcase init.lean.compiler.ir.resetreuse init.lean.compiler.ir.normids init.lean.compiler.ir.checker init.lean.compiler.ir.boxing
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -17,10 +17,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* l_Lean_IR_test___closed__2;
 obj* l_Lean_IR_test___closed__5;
 obj* l_Lean_IR_Decl_normalizeIds(obj*);
-namespace lean {
-namespace ir {
-obj* test_core(obj*, obj*);
-}}
+obj* l_Lean_IR_test(obj*, obj*);
 namespace lean {
 namespace ir {
 obj* decl_to_string_core(obj*);
@@ -30,15 +27,18 @@ obj* l_IO_println___at_Lean_IR_test___spec__1(obj*, obj*);
 obj* l_Lean_IR_MaxIndex_collectDecl___main(obj*, obj*);
 obj* l_Lean_IR_Decl_pushProj___main(obj*);
 obj* l_Nat_repr(obj*);
+obj* l_Lean_IR_compileAux(obj*, obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_Lean_IR_test___closed__1;
 obj* l_Lean_IR_Decl_elimDead___main(obj*);
 obj* l_Lean_IR_test___closed__4;
+obj* l_Lean_IR_compileAux___boxed(obj*, obj*);
 obj* l_IO_println___at_HasRepr_HasEval___spec__1(obj*, obj*);
 obj* l_Lean_IR_Decl_insertResetReuse___main(obj*);
 obj* l_Lean_IR_test___closed__6;
+obj* l_Lean_IR_compileAux___rarg(obj*);
 obj* l_IO_print___at_Lean_IR_test___spec__2(obj*, obj*);
 obj* l_Lean_IR_Decl_simpCase___main(obj*);
 extern obj* l_IO_println___rarg___closed__1;
@@ -155,9 +155,7 @@ x_0 = lean::mk_string("=== After normalize Ids ===");
 return x_0;
 }
 }
-namespace lean {
-namespace ir {
-obj* test_core(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_test(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_3; 
@@ -805,9 +803,51 @@ return x_194;
 }
 }
 }
-}}
+obj* l_Lean_IR_compileAux___rarg(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_3; obj* x_4; obj* x_5; 
+x_1 = lean::cnstr_get(x_0, 1);
+if (lean::is_exclusive(x_0)) {
+ lean::cnstr_release(x_0, 0);
+ x_3 = x_0;
+} else {
+ lean::inc(x_1);
+ lean::dec(x_0);
+ x_3 = lean::box(0);
+}
+x_4 = lean::box(0);
+if (lean::is_scalar(x_3)) {
+ x_5 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_5 = x_3;
+}
+lean::cnstr_set(x_5, 0, x_4);
+lean::cnstr_set(x_5, 1, x_1);
+return x_5;
+}
+}
+obj* l_Lean_IR_compileAux(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_compileAux___rarg), 1, 0);
+return x_2;
+}
+}
+obj* l_Lean_IR_compileAux___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_IR_compileAux(x_0, x_1);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_2;
+}
+}
 obj* initialize_init_lean_compiler_ir_basic(obj*);
 obj* initialize_init_lean_compiler_ir_format(obj*);
+obj* initialize_init_lean_compiler_ir_compilerm(obj*);
 obj* initialize_init_lean_compiler_ir_pushproj(obj*);
 obj* initialize_init_lean_compiler_ir_elimdead(obj*);
 obj* initialize_init_lean_compiler_ir_simpcase(obj*);
@@ -823,6 +863,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_format(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_ir_compilerm(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_pushproj(w);
 if (io_result_is_error(w)) return w;

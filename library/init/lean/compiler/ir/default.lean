@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.lean.compiler.ir.basic
 import init.lean.compiler.ir.format
+import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.pushproj
 import init.lean.compiler.ir.elimdead
 import init.lean.compiler.ir.simpcase
@@ -17,7 +18,6 @@ import init.lean.compiler.ir.boxing
 namespace Lean
 namespace IR
 
-@[export lean.ir.test_core]
 def test (d : Decl) : IO Unit :=
 do
    d.check,
@@ -40,6 +40,11 @@ do
    IO.println d,
    d.check,
    pure ()
+
+def compileAux (decls : Array Decl) : CompilerM Unit :=
+-- TODO: new IR
+pure ()
+
 
 end IR
 end Lean

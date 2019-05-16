@@ -106,7 +106,7 @@ end Checker
 
 def Decl.check (d : Decl) : IO Unit :=
 match Checker.checkDecl d {} with
-| Except.error msg := throw (IO.userError ("IR check failed at '" ++ toString d.id ++ "', error: " ++ msg))
+| Except.error msg := throw (IO.userError ("IR check failed at '" ++ toString d.name ++ "', error: " ++ msg))
 | other := pure ()
 
 end IR

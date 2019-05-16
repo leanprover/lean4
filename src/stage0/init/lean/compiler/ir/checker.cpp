@@ -50,8 +50,8 @@ obj* l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1(obj*, obj*,
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-obj* l_Lean_IR_Decl_id___main(obj*);
 extern obj* l_Char_HasRepr___closed__1;
+obj* l_Lean_IR_Decl_name___main(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -2194,7 +2194,7 @@ if (lean::is_exclusive(x_1)) {
  lean::dec(x_1);
  x_10 = lean::box(0);
 }
-x_11 = l_Lean_IR_Decl_id___main(x_0);
+x_11 = l_Lean_IR_Decl_name___main(x_0);
 lean::dec(x_0);
 x_13 = l_Lean_Name_toString___closed__1;
 x_14 = l_Lean_Name_toStringWithSep___main(x_13, x_11);

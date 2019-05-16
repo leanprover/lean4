@@ -241,10 +241,11 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "simp_app_args"}), ds);
     /* compile IR. */
+    new_env = compile_ir(new_env, opts, ds);
+    // TODO: remove rest of the code
     std::tie(new_env, ds) = to_llnf(new_env, ds);
     new_env = save_llnf_code(new_env, ds);
     trace_compiler(name({"compiler", "result"}), ds);
-    // new_env = compile_ir(new_env, opts, ds); // TODO(Leo)
     return new_env;
 }
 

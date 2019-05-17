@@ -9,15 +9,14 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/compiler_hints.h"
 #include "runtime/object.h"
+#include "runtime/alloc.h"
 
 #define LEAN_SEGMENT_SIZE          8*1024*1024 // 8 Mb
-#define LEAN_PAGE_SIZE             8192        // 8 Kb
-#define LEAN_OBJECT_SIZE_DELTA     32
-#define LEAN_MAX_SMALL_OBJECT_SIZE 512
 #define LEAN_NUM_SLOTS             (LEAN_MAX_SMALL_OBJECT_SIZE / LEAN_OBJECT_SIZE_DELTA)
-#define LEAN_MAX_TO_EXPORT_OBJS      1024
+#define LEAN_MAX_TO_EXPORT_OBJS    1024
 
 namespace lean {
+namespace allocator {
 #ifdef LEAN_RUNTIME_STATS
 static atomic<uint64> g_num_alloc(0);
 static atomic<uint64> g_num_small_alloc(0);
@@ -41,31 +40,6 @@ struct alloc_stats {
 };
 static alloc_stats g_alloc_stats;
 #endif
-
-struct heap;
-struct page;
-
-static inline size_t align(size_t v, size_t a) {
-    return (v / a)*a + a * (v % a != 0);
-}
-
-static inline char * align_ptr(char * p, size_t a) {
-    return reinterpret_cast<char*>(align(reinterpret_cast<size_t>(p), a));
-}
-
-static inline unsigned get_slot_idx(unsigned obj_size) {
-    lean_assert(obj_size > 0);
-    lean_assert(align(obj_size, LEAN_OBJECT_SIZE_DELTA) == obj_size);
-    return obj_size / LEAN_OBJECT_SIZE_DELTA - 1;
-}
-
-static inline void set_next_obj(void * obj, void * next) {
-    *reinterpret_cast<void**>(obj) = next;
-}
-
-static inline void * get_next_obj(void * obj) {
-    return *reinterpret_cast<void**>(obj);
-}
 
 struct segment {
     segment *    m_next{nullptr};
@@ -127,36 +101,11 @@ struct heap_manager {
     }
 };
 
-struct page_header {
-    atomic<heap *>   m_heap;
-    page *           m_next;
-    page *           m_prev;
-    void *           m_free_list;
-    unsigned         m_max_free;
-    unsigned         m_num_free;
-    unsigned         m_slot_idx;
-    bool             m_in_page_free_list;
-};
-
-struct page {
-    page_header m_header;
-    char        m_data[LEAN_PAGE_SIZE - sizeof(page_header)];
-    page * get_next() const { return m_header.m_next; }
-    page * get_prev() const { return m_header.m_prev; }
-    void set_next(page * n) { m_header.m_next = n; }
-    void set_prev(page * p) { m_header.m_prev = p; }
-    void set_heap(heap * h) { m_header.m_heap = h; }
-    heap * get_heap() { return m_header.m_heap; }
-    bool has_many_free() const { return m_header.m_num_free > m_header.m_max_free / 4; }
-    bool in_page_free_list() const { return m_header.m_in_page_free_list; }
-    unsigned get_slot_idx() const { return m_header.m_slot_idx; }
-    void push_free_obj(void * o);
-};
-
 static inline page * get_page_of(void * o) {
     return reinterpret_cast<page*>((reinterpret_cast<size_t>(o)/LEAN_PAGE_SIZE)*LEAN_PAGE_SIZE);
 }
 
+LEAN_THREAD_GLOBAL_PTR(page *, g_curr_pages);
 LEAN_THREAD_PTR(heap, g_heap);
 static heap_manager * g_heap_manager = nullptr;
 
@@ -349,6 +298,7 @@ static void finalize_heap(void * _h) {
 static void init_heap(bool main) {
     lean_assert(g_heap == nullptr);
     g_heap = new heap();
+    g_curr_pages = g_heap->m_curr_page;
     g_heap->alloc_segment();
     unsigned obj_size = LEAN_OBJECT_SIZE_DELTA;
     for (unsigned i = 0; i < LEAN_NUM_SLOTS; i++) {
@@ -360,6 +310,8 @@ static void init_heap(bool main) {
     if (!main)
         register_thread_finalizer(finalize_heap, g_heap);
 }
+}
+using namespace allocator;
 
 void init_thread_heap() {
     init_heap(false);
@@ -418,6 +370,29 @@ void dealloc(void * o, size_t sz) {
             g_heap->export_objs();
         }
     }
+}
+
+void * alloc_small_slow(size_t sz, unsigned slot_idx) {
+    page * p = g_heap->m_curr_page[slot_idx];
+    if (g_heap->m_page_free_list[slot_idx] == nullptr) {
+        g_heap->import_objs();
+        p = alloc_page(g_heap, sz);
+    } else {
+        p = page_list_pop(g_heap->m_page_free_list[slot_idx]);
+        p->m_header.m_in_page_free_list = false;
+        page_list_insert(g_heap->m_curr_page[slot_idx], p);
+    }
+    void * r = p->m_header.m_free_list;
+    lean_assert(r);
+    p->m_header.m_free_list = get_next_obj(r);
+    p->m_header.m_num_free--;
+    return r;
+}
+
+void * big_alloc(size_t sz) {
+    void * r = malloc(sz);
+    if (r == nullptr) throw std::bad_alloc();
+    return r;
 }
 
 void initialize_alloc() {

@@ -17,6 +17,7 @@ Author: Leonardo de Moura
 #include "runtime/mpz.h"
 #include "runtime/int64.h"
 #include "runtime/thread.h"
+#include "runtime/alloc.h"
 
 #ifdef _MSC_VER
 #define LEAN_ALLOCA(s) ::_alloca(s)
@@ -275,6 +276,17 @@ void * alloc_heap_object(size_t sz);
 void free_heap_obj(object * o);
 void free_mpz_obj(object * o);
 void free_closure_obj(object * o);
+#if defined(LEAN_SMALL_ALLOCATOR) && !defined(LEAN_LAZY_RC)
+inline void * alloc_small_heap_object(size_t sz) {
+    void * r = alloc_small(sizeof(rc_type) + sz);
+    *static_cast<rc_type *>(r) = 1;
+    return static_cast<char *>(r) + sizeof(rc_type);
+}
+#else
+inline void * alloc_small_heap_object(size_t sz) {
+    return alloc_heap_object(sz);
+}
+#endif
 
 inline atomic<rc_type> * mt_rc_addr(object * o) {
     return reinterpret_cast<atomic<rc_type> *>(reinterpret_cast<char *>(o) - sizeof(rc_type));
@@ -578,7 +590,7 @@ bool int_big_lt(object * a1, object * a2);
 inline obj_res alloc_cnstr(unsigned tag, unsigned num_objs, unsigned scalar_sz) {
     LEAN_RUNTIME_STAT_CODE(g_num_ctor++);
     lean_assert(tag < 65536 && num_objs < 65536 && scalar_sz < 65536);
-    return new (alloc_heap_object(cnstr_byte_size(num_objs, scalar_sz))) constructor_object(tag, num_objs, scalar_sz); // NOLINT
+    return new (alloc_small_heap_object(cnstr_byte_size(num_objs, scalar_sz))) constructor_object(tag, num_objs, scalar_sz); // NOLINT
 }
 inline unsigned cnstr_tag(b_obj_arg o) { return to_cnstr(o)->m_tag; }
 inline void cnstr_set_tag(b_obj_arg o, unsigned tag) { to_cnstr(o)->m_tag = tag; }

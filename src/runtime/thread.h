@@ -177,9 +177,13 @@ inline unsigned hardware_concurrency() { return 1; }
 
 #ifdef _MSC_VER
 #define LEAN_THREAD_PTR(T, V) static __declspec(thread) T * V = nullptr
+#define LEAN_THREAD_EXTERN_PTR(T, V) extern __declspec(thread) T * V
+#define LEAN_THREAD_GLOBAL_PTR(T, V) __declspec(thread) T * V = nullptr
 #define LEAN_THREAD_VALUE(T, V, VAL) static __declspec(thread) T V = VAL
 #else
 #define LEAN_THREAD_PTR(T, V) static __thread T * V = nullptr
+#define LEAN_THREAD_EXTERN_PTR(T, V) extern __thread T * V
+#define LEAN_THREAD_GLOBAL_PTR(T, V) __thread T * V = nullptr
 #define LEAN_THREAD_VALUE(T, V, VAL) static __thread T V = VAL
 #endif
 

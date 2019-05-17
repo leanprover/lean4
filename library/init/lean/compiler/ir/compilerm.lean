@@ -109,5 +109,22 @@ modifyEnv (λ env, declMapExt.addEntry env decl)
 def addDecls (decls : Array Decl) : CompilerM Unit :=
 decls.mfor addDecl
 
+def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
+match decls.find (λ decl, if decl.name == n then some decl else none) with
+| some decl := pure $ some decl
+| none      := do
+  s ← get,
+  pure $ (declMapExt.getState s.env).find n
+
+def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool :=
+if decls.any (λ decl, decl.name == n) then pure true
+else do
+  s ← get,
+  pure $ (declMapExt.getState s.env).contains n
+
+def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl :=
+do (some decl) ← findDecl' n decls | throw ("unknown declaration '" ++ toString n ++ "'"),
+   pure decl
+
 end IR
 end Lean

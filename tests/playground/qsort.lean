@@ -1,8 +1,13 @@
-def mkRandomArray (max : Nat) : Nat → Array Nat → IO (Array Nat)
-| 0     as := pure as
-| (i+1) as := do a ← IO.rand 0 max, mkRandomArray i (as.push a)
+abbreviation Elem := UInt32
 
-partial def checkSortedAux (a : Array Nat) : Nat → IO Unit
+def badRand (seed : Elem) : Elem :=
+seed * 1664525 + 1013904223
+
+def mkRandomArray : Nat → Elem → Array Elem → Array Elem
+| 0     seed as := as
+| (i+1) seed as := mkRandomArray i (badRand seed) (as.push seed)
+
+partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
 | i :=
   if i < a.size - 1 then do
     unless (a.get i <= a.get (i+1)) $ throw (IO.userError "array is not sorted"),
@@ -10,22 +15,12 @@ partial def checkSortedAux (a : Array Nat) : Nat → IO Unit
   else
     pure ()
 
-def test1 (xs : Array Nat) : IO Unit :=
-do
-let xs := xs.qsort (λ a b, a < b),
-IO.println ("sorted array of size: " ++ toString (xs.size))
-
 def main (xs : List String) : IO Unit :=
 do
-let n    := xs.head.toNat,
-let seed := xs.tail.head.toNat,
-let m    := xs.tail.tail.head.toNat,
-xs ← mkRandomArray m m Array.empty,
-timeit "qsort" (test1 xs),
-IO.setRandSeed seed,
+let n := xs.head.toNat,
 n.mfor $ λ _,
 n.mfor $ λ i, do
-  xs ← mkRandomArray (i*2) i Array.empty,
+  let xs := mkRandomArray i (UInt32.ofNat i) Array.empty,
   let xs := xs.qsort (λ a b, a < b),
-  IO.println xs,
+  --IO.println xs,
   checkSortedAux xs 0

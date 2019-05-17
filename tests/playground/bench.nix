@@ -5,8 +5,8 @@ let
     (pkgs.callPackage ../../default.nix { inherit stdenv; }).overrideAttrs (attrs: {
       inherit cmakeFlags;
       # pin Lean commit to avoid rebuilds
-      # 2019-05-12
-      src = builtins.fetchGit { url = ../../.; rev = "de5b68f1262214eecf3d59d7540ed0e9447edf7b"; };
+      # 2019-05-16
+      src = builtins.fetchGit { url = ../../.; rev = "7a19f246e6fe2aae21b2f336c435f56712926a33"; };
     });
   # for binarytrees.hs
   ghcPackages = p: [ p.parallel ];

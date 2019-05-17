@@ -1,7 +1,7 @@
 ## CONFIG
 
 BENCH=ulimit -s unlimited && bench
-CROSS_BENCHES = binarytrees deriv expr_const_folding rbmap rbmap_shared
+CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_shared
 
 # basic version usable without Nix
 #CROSS_CATS = .lean .perf.lean .hs .gc.hs .perf.hs .llvm.hs .ml .gc.ml .perf.ml
@@ -64,6 +64,8 @@ bench/%.bench: %.out | bench
 	$(BENCH) "./$< $(BENCH_PARAMS)" --json $@
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
+
+bench/qsort.%.bench: BENCH_PARAMS = 250
 
 bench/rbmap.%.bench: BENCH_PARAMS = 7000000
 

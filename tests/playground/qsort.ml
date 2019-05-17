@@ -17,7 +17,7 @@ let rec checkSortedAux (a : elem array) i =
     checkSortedAux a (i+1)
   end
 
-let swap arr i j =
+let swap (arr : elem array) i j =
   let x = arr.(i) in
   let y = arr.(j) in
   arr.(i) <- y;

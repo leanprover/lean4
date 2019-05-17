@@ -15,12 +15,49 @@ partial def checkSortedAux (a : Array Elem) : Nat → IO Unit
   else
     pure ()
 
+-- copied from stdlib, but with `UInt32` indices instead of `Nat` (which is more comparable to the other versions)
+abbreviation Idx := UInt32
+instance : HasLift UInt32 Nat := ⟨UInt32.toNat⟩
+@[specialize] private partial def partitionAux {α : Type} [Inhabited α] (lt : α → α → Bool) (hi : Idx) (pivot : α) : Array α → Idx → Idx → Idx × Array α
+| as i j :=
+  if j < hi then
+    if lt (as.get ↑j) pivot then
+      let as := as.swap ↑i ↑j in
+      partitionAux as (i+1) (j+1)
+    else
+      partitionAux as i (j+1)
+  else
+    let as := as.swap ↑i ↑hi in
+    (i, as)
+
+@[inline] def partition {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) (lo hi : Idx) : Idx × Array α :=
+let mid := (lo + hi) / 2 in
+let as  := if lt (as.get ↑mid) (as.get ↑lo) then as.swap ↑lo ↑mid else as in
+let as  := if lt (as.get ↑hi)  (as.get ↑lo) then as.swap ↑lo ↑hi  else as in
+let as  := if lt (as.get ↑mid) (as.get ↑hi) then as.swap ↑mid ↑hi else as in
+let pivot := as.get ↑hi in
+partitionAux lt hi pivot as lo lo
+
+@[specialize] partial def qsortAux {α : Type} [Inhabited α] (lt : α → α → Bool) : Array α → Idx → Idx → Array α
+| as low high :=
+  if low < high then
+    let p   := partition as lt low high in
+    -- TODO: fix `partial` support in the equation compiler, it breaks if we use `let (mid, as) := partition as lt low high`
+    let mid := p.1 in
+    let as  := p.2 in
+    let as  := qsortAux as low mid in
+    qsortAux as (mid+1) high
+  else as
+
+@[inline] def qsort {α : Type} [Inhabited α] (as : Array α) (lt : α → α → Bool) : Array α :=
+qsortAux lt as 0 (UInt32.ofNat (as.size - 1))
+
 def main (xs : List String) : IO Unit :=
 do
 let n := xs.head.toNat,
 n.mfor $ λ _,
 n.mfor $ λ i, do
   let xs := mkRandomArray i (UInt32.ofNat i) Array.empty,
-  let xs := xs.qsort (λ a b, a < b),
+  let xs := qsort xs (λ a b, a < b),
   --IO.println xs,
   checkSortedAux xs 0

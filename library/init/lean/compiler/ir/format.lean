@@ -92,8 +92,8 @@ instance fnBodyHasFormat : HasFormat FnBody := ⟨formatFnBody⟩
 instance fnBodyHasToString : HasToString FnBody := ⟨λ b, (format b).pretty⟩
 
 def formatDecl (indent : Nat := 2) : Decl → Format
-| (Decl.fdecl f xs ty b) := "def " ++ format f ++ formatArray xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
-| (Decl.extern f xs ty)  := "extern " ++ format f ++ formatArray xs ++ format " : " ++ format ty
+| (Decl.fdecl f xs ty b)  := "def " ++ format f ++ formatArray xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
+| (Decl.extern f xs ty _) := "extern " ++ format f ++ formatArray xs ++ format " : " ++ format ty
 
 instance declHasFormat : HasFormat Decl := ⟨formatDecl⟩
 

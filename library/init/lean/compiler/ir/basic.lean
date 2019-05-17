@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.name init.lean.kvmap init.lean.format init.data.array
+import init.data.array
+import init.lean.name init.lean.extern
+import init.lean.kvmap init.lean.format
 /-
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.
@@ -338,24 +340,24 @@ bs.hmmap $ λ b, match b with
 
 inductive Decl
 | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
-| extern (f : FunId) (xs : Array Param) (ty : IRType)
+| extern (f : FunId) (xs : Array Param) (ty : IRType) (ext : ExternEntry)
 
 namespace Decl
 
 instance : Inhabited Decl :=
-⟨extern (default _) (default _) IRType.irrelevant⟩
+⟨fdecl (default _) (default _) IRType.irrelevant (default _)⟩
 
 def name : Decl → FunId
-| (Decl.fdecl f _ _ _) := f
-| (Decl.extern f _ _)  := f
+| (Decl.fdecl f _ _ _)  := f
+| (Decl.extern f _ _ _) := f
 
 def params : Decl → Array Param
-| (Decl.fdecl _ xs _ _) := xs
-| (Decl.extern _ xs _)  := xs
+| (Decl.fdecl _ xs _ _)  := xs
+| (Decl.extern _ xs _ _) := xs
 
 def resultType : Decl → IRType
-| (Decl.fdecl _ _ t _) := t
-| (Decl.extern _ _ t)  := t
+| (Decl.fdecl _ _ t _)  := t
+| (Decl.extern _ _ t _) := t
 
 end Decl
 

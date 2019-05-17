@@ -31,8 +31,8 @@ partial def checkFnBody : FnBody → M Bool
 | b                       := if b.isTerminal then pure true else checkFnBody b.body
 
 partial def checkDecl : Decl → M Bool
-| (Decl.fdecl _ xs _ b) := checkParams xs <&&> checkFnBody b
-| (Decl.extern _ xs _)  := checkParams xs
+| (Decl.fdecl _ xs _ b)  := checkParams xs <&&> checkFnBody b
+| (Decl.extern _ xs _ _) := checkParams xs
 
 end UniqueIds
 

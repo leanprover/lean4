@@ -98,8 +98,8 @@ partial def checkFnBody : FnBody → M Unit
 | (FnBody.unreachable)      := pure ()
 
 def checkDecl : Decl → M Unit
-| (Decl.fdecl f xs t b) := withParams xs (checkFnBody b)
-| (Decl.extern f xs t)  := withParams xs (pure ())
+| (Decl.fdecl f xs t b)  := withParams xs (checkFnBody b)
+| (Decl.extern f xs t _) := withParams xs (pure ())
 
 end Checker
 

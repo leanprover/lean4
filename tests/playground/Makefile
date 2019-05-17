@@ -1,7 +1,7 @@
 ## CONFIG
 
 BENCH=ulimit -s unlimited && bench
-CROSS_BENCHES = binarytrees deriv expr_const_folding rbmap
+CROSS_BENCHES = binarytrees deriv expr_const_folding rbmap rbmap_shared
 
 # basic version usable without Nix
 #CROSS_CATS = .lean .perf.lean .hs .gc.hs .perf.hs .llvm.hs .ml .gc.ml .perf.ml
@@ -23,8 +23,9 @@ OCAML ?= ocamlopt.opt
 
 all: report_cross.csv
 
-# make gets confused by the .cpp files otherwise
-%.lean: ;
+# disable some built-in rules
+%.lean:
+%.out: %
 
 %.lean.cpp: %.lean
 	$(LEAN_BIN)/lean --cpp=$@ $<
@@ -65,6 +66,9 @@ bench/%.bench: %.out | bench
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 
 bench/rbmap.%.bench: BENCH_PARAMS = 7000000
+
+rbmap_shared.%.out: rbmap_checkpoint.%.out; ln -f $< $@
+bench/rbmap_shared.%.bench: BENCH_PARAMS = 500000 1
 
 bench/%gc.hs.bench: %hs.out | bench
 	./$< +RTS -t --machine-readable -RTS $(BENCH_PARAMS) 2> $@

@@ -55,7 +55,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
     instr <;> S b
 
 /- We use `Context` to track join points in scope. -/
-abbrev M := ReaderT Context (StateT Index Id)
+abbrev M := ReaderT LocalContext (StateT Index Id)
 local attribute [instance] monadInhabited
 
 private def mkFresh : M VarId :=
@@ -87,7 +87,7 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
 | (FnBody.jdecl j ys v b) := do
-  (b, _) ← adaptReader (λ ctx : Context, ctx.addJP j ys v) (Dmain b),
+  (b, _) ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (Dmain b),
   (v, found) ← Dmain v,
   /- If `found == true`, then `Dmain b` must also have returned `(b, true)` since
      we assume the IR does not have dead join points. So, if `x` is live in `j`,
@@ -138,7 +138,7 @@ partial def R : FnBody → M FnBody
     pure $ FnBody.case tid x alts
 | (FnBody.jdecl j ys v b) := do
   v ← R v,
-  b ← adaptReader (λ ctx : Context, ctx.addJP j ys v) (R b),
+  b ← adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (R b),
   pure $ FnBody.jdecl j ys v b
 | e := do
   if e.isTerminal then pure e

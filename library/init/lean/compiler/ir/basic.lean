@@ -398,60 +398,60 @@ partial def FnBody.isPure : FnBody → Bool
 abbrev IndexSet := RBTree Index Index.lt
 instance vsetInh : Inhabited IndexSet := ⟨{}⟩
 
-inductive ContextEntry
-| param     : IRType → ContextEntry
-| localVar  : IRType → Expr → ContextEntry
-| joinPoint : Array Param → FnBody → ContextEntry
+inductive LocalContextEntry
+| param     : IRType → LocalContextEntry
+| localVar  : IRType → Expr → LocalContextEntry
+| joinPoint : Array Param → FnBody → LocalContextEntry
 
-abbrev Context := RBMap Index ContextEntry Index.lt
+abbrev LocalContext := RBMap Index LocalContextEntry Index.lt
 
-def Context.addLocal (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
-ctx.insert x.idx (ContextEntry.localVar t v)
+def LocalContext.addLocal (ctx : LocalContext) (x : VarId) (t : IRType) (v : Expr) : LocalContext :=
+ctx.insert x.idx (LocalContextEntry.localVar t v)
 
-def Context.addJP (ctx : Context) (j : JoinPointId) (xs : Array Param) (b : FnBody) : Context :=
-ctx.insert j.idx (ContextEntry.joinPoint xs b)
+def LocalContext.addJP (ctx : LocalContext) (j : JoinPointId) (xs : Array Param) (b : FnBody) : LocalContext :=
+ctx.insert j.idx (LocalContextEntry.joinPoint xs b)
 
-def Context.addParam (ctx : Context) (p : Param) : Context :=
-ctx.insert p.x.idx (ContextEntry.param p.ty)
+def LocalContext.addParam (ctx : LocalContext) (p : Param) : LocalContext :=
+ctx.insert p.x.idx (LocalContextEntry.param p.ty)
 
-def Context.addParams (ctx : Context) (ps : Array Param) : Context :=
-ps.foldl Context.addParam ctx
+def LocalContext.addParams (ctx : LocalContext) (ps : Array Param) : LocalContext :=
+ps.foldl LocalContext.addParam ctx
 
-def Context.isJP (ctx : Context) (idx : Index) : Bool :=
+def LocalContext.isJP (ctx : LocalContext) (idx : Index) : Bool :=
 match ctx.find idx with
-| some (ContextEntry.joinPoint _ _) := true
+| some (LocalContextEntry.joinPoint _ _) := true
 | other := false
 
-def Context.getJPBody (ctx : Context) (j : JoinPointId) : Option FnBody :=
+def LocalContext.getJPBody (ctx : LocalContext) (j : JoinPointId) : Option FnBody :=
 match ctx.find j.idx with
-| some (ContextEntry.joinPoint _ b) := some b
+| some (LocalContextEntry.joinPoint _ b) := some b
 | other := none
 
-def Context.getJPParams (ctx : Context) (j : JoinPointId) : Option (Array Param) :=
+def LocalContext.getJPParams (ctx : LocalContext) (j : JoinPointId) : Option (Array Param) :=
 match ctx.find j.idx with
-| some (ContextEntry.joinPoint ys _) := some ys
+| some (LocalContextEntry.joinPoint ys _) := some ys
 | other := none
 
-def Context.isParam (ctx : Context) (idx : Index) : Bool :=
+def LocalContext.isParam (ctx : LocalContext) (idx : Index) : Bool :=
 match ctx.find idx with
-| some (ContextEntry.param _) := true
+| some (LocalContextEntry.param _) := true
 | other := false
 
-def Context.isLocalVar (ctx : Context) (idx : Index) : Bool :=
+def LocalContext.isLocalVar (ctx : LocalContext) (idx : Index) : Bool :=
 match ctx.find idx with
-| some (ContextEntry.localVar _ _) := true
+| some (LocalContextEntry.localVar _ _) := true
 | other := false
 
-def Context.contains (ctx : Context) (idx : Index) : Bool :=
+def LocalContext.contains (ctx : LocalContext) (idx : Index) : Bool :=
 ctx.contains idx
 
-def Context.eraseJoinPointDecl (ctx : Context) (j : JoinPointId) : Context :=
+def LocalContext.eraseJoinPointDecl (ctx : LocalContext) (j : JoinPointId) : LocalContext :=
 ctx.erase j.idx
 
-def Context.getType (ctx : Context) (x : VarId) : Option IRType :=
+def LocalContext.getType (ctx : LocalContext) (x : VarId) : Option IRType :=
 match ctx.find x.idx with
-| some (ContextEntry.param t) := some t
-| some (ContextEntry.localVar t _) := some t
+| some (LocalContextEntry.param t) := some t
+| some (LocalContextEntry.localVar t _) := some t
 | other := none
 
 abbrev IndexRenaming := RBMap Index Index Index.lt

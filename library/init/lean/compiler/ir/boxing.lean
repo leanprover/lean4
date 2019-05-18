@@ -48,7 +48,7 @@ def eqvTypes (t₁ t₂ : IRType) : Bool :=
 (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
 structure Env :=
-(ctx: Context) (resultType : IRType) (decls : FunId → Decl)
+(ctx: LocalContext) (resultType : IRType) (decls : FunId → Decl)
 
 abbrev M := ReaderT Env (StateT Index Id)
 
@@ -57,7 +57,7 @@ do idx ← getModify (+1),
    pure { idx := idx }
 
 def getEnv : M Env := read
-def getCtx : M Context := Env.ctx <$> getEnv
+def getCtx : M LocalContext := Env.ctx <$> getEnv
 def getResultType : M IRType := Env.resultType <$> getEnv
 def getVarType (x : VarId) : M IRType :=
 do ctx ← getCtx,

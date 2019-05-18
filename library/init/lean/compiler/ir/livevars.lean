@@ -38,7 +38,7 @@ namespace IsLive
   Remark: we don't need to track local join points because we assume there is
   no variable or join point shadowing in our IR.
 -/
-abbrev M := State Context
+abbrev M := State LocalContext
 
 @[inline] def visitVar (w : Index) (x : VarId) : M Bool := pure (HasIndex.visitVar w x)
 @[inline] def visitJP (w : Index) (x : JoinPointId) : M Bool := pure (HasIndex.visitJP w x)
@@ -81,7 +81,7 @@ end IsLive
 
    Recall that we say that a join point `j` is free in `b` if `b` contains
    `FnBody.jmp j ys` and `j` is not local. -/
-def FnBody.hasLiveVar (b : FnBody) (ctx : Context) (x : VarId) : Bool :=
+def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
 (IsLive.visitFnBody x.idx b).run' ctx
 
 end IR

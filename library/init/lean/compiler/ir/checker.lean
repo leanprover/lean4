@@ -11,7 +11,7 @@ namespace IR
 
 namespace Checker
 
-abbrev M := ExceptT String (ReaderT Context Id)
+abbrev M := ExceptT String (ReaderT LocalContext Id)
 
 def checkVar (x : VarId) : M Unit :=
 do ctx ← read,
@@ -67,7 +67,7 @@ def checkExpr (ty : IRType) : Expr → M Unit
 
 @[inline] def withParams (ps : Array Param) (k : M Unit) : M Unit :=
 do ctx ← read,
-   ctx ← ps.mfoldl (λ (ctx : Context) p, do
+   ctx ← ps.mfoldl (λ (ctx : LocalContext) p, do
       when (ctx.contains p.x.idx) $ throw ("invalid parameter declaration, shadowing is not allowed"),
       pure $ ctx.addParam p) ctx,
    adaptReader (λ _, ctx) k
@@ -79,12 +79,12 @@ partial def checkFnBody : FnBody → M Unit
   checkExpr t v,
   ctx ← read,
   when (ctx.contains x.idx) $ throw ("invalid variable declaration, shadowing is not allowed"),
-  adaptReader (λ ctx : Context, ctx.addLocal x t v) (checkFnBody b)
+  adaptReader (λ ctx : LocalContext, ctx.addLocal x t v) (checkFnBody b)
 | (FnBody.jdecl j ys v b) := do
   withParams ys (checkFnBody v),
   ctx ← read,
   when (ctx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed"),
-  adaptReader (λ ctx : Context, ctx.addJP j ys v) (checkFnBody b)
+  adaptReader (λ ctx : LocalContext, ctx.addJP j ys v) (checkFnBody b)
 | (FnBody.set x _ y b)      := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.uset x _ y b)     := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.sset x _ _ y _ b) := checkVar x *> checkVar y *> checkFnBody b

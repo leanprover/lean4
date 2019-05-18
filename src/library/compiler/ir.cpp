@@ -388,6 +388,10 @@ class to_ir_fn {
         lean_assert(!is_fvar(val));
         if (is_lit(val)) {
             return visit_lit(decl, b);
+        } else if (optional<nat> const & n = get_num_lit_ext(val)) {
+            ir::type type = to_ir_type(decl.get_type());
+            ir::expr val  = ir::mk_num_lit(*n);
+            return ir::mk_vdecl(to_var_id(decl), type, val, b);
         } else if (is_lambda(val)) {
             return visit_jp(decl, b);
         } else {

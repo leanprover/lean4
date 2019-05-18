@@ -2832,7 +2832,7 @@ x_41 = lean::cnstr_get(x_1, 0);
 lean::inc(x_41);
 x_43 = lean::cnstr_get(x_1, 1);
 lean::inc(x_43);
-x_45 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*2);
+x_45 = lean::cnstr_get_scalar<uint8>(x_1, sizeof(void*)*3);
 lean::dec(x_1);
 x_47 = l_Lean_Name_toString___closed__1;
 x_48 = l_Lean_Name_toStringWithSep___main(x_47, x_41);

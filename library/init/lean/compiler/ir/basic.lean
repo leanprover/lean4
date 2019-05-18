@@ -340,7 +340,7 @@ bs.hmmap $ λ b, match b with
 
 inductive Decl
 | fdecl  (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody)
-| extern (f : FunId) (xs : Array Param) (ty : IRType) (ext : ExternEntry)
+| extern (f : FunId) (xs : Array Param) (ty : IRType) (ext : ExternAttrData)
 
 namespace Decl
 
@@ -362,6 +362,9 @@ def resultType : Decl → IRType
 end Decl
 
 @[export lean.ir.mk_decl_core] def mkDecl (f : FunId) (xs : Array Param) (ty : IRType) (b : FnBody) : Decl := Decl.fdecl f xs ty b
+
+@[export lean.ir.mk_extern_decl_core] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
+Decl.extern f xs ty e
 
 /-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
 def Expr.isPure : Expr → Bool

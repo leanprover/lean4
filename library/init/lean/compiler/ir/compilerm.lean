@@ -103,6 +103,10 @@ def getDecl (n : Name) : CompilerM Decl :=
 do (some decl) ← findDecl n | throw ("unknown declaration '" ++ toString n ++ "'"),
    pure decl
 
+@[export lean.ir.add_decl_core]
+def addDeclAux (env : Environment) (decl : Decl) : Environment :=
+declMapExt.addEntry env decl
+
 def addDecl (decl : Decl) : CompilerM Unit :=
 modifyEnv (λ env, declMapExt.addEntry env decl)
 

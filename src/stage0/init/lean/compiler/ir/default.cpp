@@ -56,17 +56,19 @@ obj* l_Array_hmmapAux___main___at___private_init_lean_compiler_ir_default_1__com
 obj* _init_l_Array_hmmapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__1___closed__1() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; uint8 x_3; obj* x_4; obj* x_5; 
+obj* x_0; obj* x_1; obj* x_2; uint8 x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::mk_nat_obj(0ul);
 x_1 = lean::mk_empty_array(x_0);
 x_2 = lean::box(0);
 x_3 = 6;
-x_4 = lean::alloc_cnstr(1, 2, 1);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set(x_4, 1, x_1);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_3);
-x_5 = x_4;
-return x_5;
+x_4 = lean::box(12);
+x_5 = lean::alloc_cnstr(0, 3, 1);
+lean::cnstr_set(x_5, 0, x_2);
+lean::cnstr_set(x_5, 1, x_1);
+lean::cnstr_set(x_5, 2, x_4);
+lean::cnstr_set_scalar(x_5, sizeof(void*)*3, x_3);
+x_6 = x_5;
+return x_6;
 }
 }
 obj* l_Array_hmmapAux___main___at___private_init_lean_compiler_ir_default_1__compileAux___spec__1(obj* x_0, obj* x_1) {

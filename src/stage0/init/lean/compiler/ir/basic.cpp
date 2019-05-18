@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.basic
-// Imports: init.lean.name init.lean.kvmap init.lean.format init.data.array.default
+// Imports: init.data.array.default init.lean.name init.lean.extern init.lean.kvmap init.lean.format
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -143,6 +143,7 @@ obj* l_Lean_IR_reshape(obj*, obj*);
 obj* l_Lean_IR_JoinPointId_Lean_HasFormat(obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 uint8 l_Array_isEqv___at_Lean_IR_args_alphaEqv___spec__1(obj*, obj*, obj*);
+obj* l_Lean_IR_mkExternDecl___boxed(obj*, obj*, obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_case_core(obj*, obj*, obj*);
@@ -180,6 +181,10 @@ obj* nat_add(obj*, obj*);
 }
 obj* l_Array_isEqv___at_Lean_IR_args_alphaEqv___spec__1___boxed(obj*, obj*, obj*);
 uint8 l_Lean_IR_CtorInfo_isScalar(obj*);
+namespace lean {
+namespace ir {
+obj* mk_extern_decl_core(obj*, obj*, uint8, obj*);
+}}
 obj* l_Array_isEqv___at_Lean_IR_FnBody_alphaEqv___main___spec__1___lambda__1___boxed(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
@@ -2567,17 +2572,19 @@ return x_7;
 obj* _init_l_Lean_IR_Decl_Inhabited() {
 _start:
 {
-obj* x_0; obj* x_1; obj* x_2; uint8 x_3; obj* x_4; obj* x_5; 
+obj* x_0; obj* x_1; obj* x_2; uint8 x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_0 = lean::mk_nat_obj(0ul);
 x_1 = lean::mk_empty_array(x_0);
 x_2 = lean::box(0);
 x_3 = 6;
-x_4 = lean::alloc_cnstr(1, 2, 1);
-lean::cnstr_set(x_4, 0, x_2);
-lean::cnstr_set(x_4, 1, x_1);
-lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_3);
-x_5 = x_4;
-return x_5;
+x_4 = lean::box(12);
+x_5 = lean::alloc_cnstr(0, 3, 1);
+lean::cnstr_set(x_5, 0, x_2);
+lean::cnstr_set(x_5, 1, x_1);
+lean::cnstr_set(x_5, 2, x_4);
+lean::cnstr_set_scalar(x_5, sizeof(void*)*3, x_3);
+x_6 = x_5;
+return x_6;
 }
 }
 obj* l_Lean_IR_Decl_name___main(obj* x_0) {
@@ -2653,18 +2660,9 @@ return x_1;
 uint8 l_Lean_IR_Decl_resultType___main(obj* x_0) {
 _start:
 {
-if (lean::obj_tag(x_0) == 0)
-{
 uint8 x_1; 
 x_1 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*3);
 return x_1;
-}
-else
-{
-uint8 x_2; 
-x_2 = lean::cnstr_get_scalar<uint8>(x_0, sizeof(void*)*2);
-return x_2;
-}
 }
 }
 obj* l_Lean_IR_Decl_resultType___main___boxed(obj* x_0) {
@@ -2717,6 +2715,31 @@ _start:
 uint8 x_4; obj* x_5; 
 x_4 = lean::unbox(x_2);
 x_5 = lean::ir::mk_decl_core(x_0, x_1, x_4, x_3);
+return x_5;
+}
+}
+namespace lean {
+namespace ir {
+obj* mk_extern_decl_core(obj* x_0, obj* x_1, uint8 x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; 
+x_4 = lean::alloc_cnstr(1, 3, 1);
+lean::cnstr_set(x_4, 0, x_0);
+lean::cnstr_set(x_4, 1, x_1);
+lean::cnstr_set(x_4, 2, x_3);
+lean::cnstr_set_scalar(x_4, sizeof(void*)*3, x_2);
+x_5 = x_4;
+return x_5;
+}
+}
+}}
+obj* l_Lean_IR_mkExternDecl___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; obj* x_5; 
+x_4 = lean::unbox(x_2);
+x_5 = lean::ir::mk_extern_decl_core(x_0, x_1, x_4, x_3);
 return x_5;
 }
 }
@@ -8064,22 +8087,25 @@ x_0 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_IR_FnBody_beq___boxed),
 return x_0;
 }
 }
+obj* initialize_init_data_array_default(obj*);
 obj* initialize_init_lean_name(obj*);
+obj* initialize_init_lean_extern(obj*);
 obj* initialize_init_lean_kvmap(obj*);
 obj* initialize_init_lean_format(obj*);
-obj* initialize_init_data_array_default(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_basic(obj* w) {
  if (_G_initialized) return w;
  _G_initialized = true;
 if (io_result_is_error(w)) return w;
+w = initialize_init_data_array_default(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_extern(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_format(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_data_array_default(w);
 if (io_result_is_error(w)) return w;
  l_Lean_IR_VarId_HasToString___closed__1 = _init_l_Lean_IR_VarId_HasToString___closed__1();
 lean::mark_persistent(l_Lean_IR_VarId_HasToString___closed__1);

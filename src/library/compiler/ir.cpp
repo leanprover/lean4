@@ -12,6 +12,7 @@ Author: Leonardo de Moura
 #include "library/trace.h"
 #include "library/compiler/util.h"
 #include "library/compiler/llnf.h"
+#include "library/compiler/extern_attribute.h"
 
 namespace lean {
 namespace ir {
@@ -38,9 +39,11 @@ object * mk_jmp_core(object * j, object * ys);
 extern object * mk_unreachable_core;
 object * mk_alt_core(object * n, object * cidx, object * size, object * usize, object * ssize, object * b);
 object * mk_decl_core(object * f, object * xs, uint8 ty, object * b);
+object * mk_extern_decl_core(object * f, object * xs, uint8 ty, object * ext_entry);
 object * decl_to_string_core(object * d);
 object * compile_core(object * env, object * opts, object * decls);
 object * log_to_string_core(object * log);
+object * add_decl_core(object * env, object * decl);
 /*
 inductive IRType
 | float | uint8 | uint16 | uint32 | uint64 | usize
@@ -61,61 +64,56 @@ typedef object_ref decl;
 arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(mk_var_arg_core(id.raw())); }
 arg mk_irrelevant_arg() { return arg(mk_irrelevant_arg_core); }
 param mk_param(var_id const & x, type ty) {
-    inc(x.raw());
     uint8 borrowed = false;
-    return param(mk_param_core(x.raw(), borrowed, static_cast<uint8>(ty)));
+    return param(mk_param_core(x.to_obj_arg(), borrowed, static_cast<uint8>(ty)));
 }
 expr mk_ctor(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, buffer<arg> const & ys) {
-    inc(n.raw());
-    return expr(mk_ctor_expr_core(n.raw(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), to_array(ys)));
+    return expr(mk_ctor_expr_core(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), to_array(ys)));
 }
-expr mk_proj(unsigned i, var_id const & x) { inc(x.raw()); return expr(mk_proj_expr_core(mk_nat_obj(i), x.raw())); }
-expr mk_uproj(unsigned i, var_id const & x) { inc(x.raw()); return expr(mk_uproj_expr_core(mk_nat_obj(i), x.raw())); }
-expr mk_sproj(unsigned i, unsigned o, var_id const & x) { inc(x.raw()); return expr(mk_sproj_expr_core(mk_nat_obj(i), mk_nat_obj(o), x.raw())); }
-expr mk_fapp(fun_id const & c, buffer<arg> const & ys) { inc(c.raw()); return expr(mk_fapp_expr_core(c.raw(), to_array(ys))); }
-expr mk_papp(fun_id const & c, buffer<arg> const & ys) { inc(c.raw()); return expr(mk_papp_expr_core(c.raw(), to_array(ys))); }
-expr mk_app(var_id const & x, buffer<arg> const & ys) { inc(x.raw()); return expr(mk_app_expr_core(x.raw(), to_array(ys))); }
-expr mk_num_lit(nat const & v) { inc(v.raw()); return expr(mk_num_expr_core(v.raw())); }
-expr mk_str_lit(string_ref const & v) { inc(v.raw()); return expr(mk_str_expr_core(v.raw())); }
+expr mk_proj(unsigned i, var_id const & x) { return expr(mk_proj_expr_core(mk_nat_obj(i), x.to_obj_arg())); }
+expr mk_uproj(unsigned i, var_id const & x) { return expr(mk_uproj_expr_core(mk_nat_obj(i), x.to_obj_arg())); }
+expr mk_sproj(unsigned i, unsigned o, var_id const & x) { return expr(mk_sproj_expr_core(mk_nat_obj(i), mk_nat_obj(o), x.to_obj_arg())); }
+expr mk_fapp(fun_id const & c, buffer<arg> const & ys) { return expr(mk_fapp_expr_core(c.to_obj_arg(), to_array(ys))); }
+expr mk_papp(fun_id const & c, buffer<arg> const & ys) { return expr(mk_papp_expr_core(c.to_obj_arg(), to_array(ys))); }
+expr mk_app(var_id const & x, buffer<arg> const & ys) { return expr(mk_app_expr_core(x.to_obj_arg(), to_array(ys))); }
+expr mk_num_lit(nat const & v) { return expr(mk_num_expr_core(v.to_obj_arg())); }
+expr mk_str_lit(string_ref const & v) { return expr(mk_str_expr_core(v.to_obj_arg())); }
 
 fn_body mk_vdecl(var_id const & x, type ty, expr const & e, fn_body const & b) {
-    inc(x.raw()); inc(e.raw()), inc(b.raw());
-    return fn_body(mk_vdecl_core(x.raw(), static_cast<uint8>(ty), e.raw(), b.raw()));
+    return fn_body(mk_vdecl_core(x.to_obj_arg(), static_cast<uint8>(ty), e.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_jdecl(jp_id const & j, buffer<param> const & xs, expr const & v, fn_body const & b) {
-    inc(j.raw()); inc(v.raw()); inc(b.raw());
-    return fn_body(mk_jdecl_core(j.raw(), to_array(xs), v.raw(), b.raw()));
+    return fn_body(mk_jdecl_core(j.to_obj_arg(), to_array(xs), v.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_uset(var_id const & x, unsigned i, var_id const & y, fn_body const & b) {
-    inc(x.raw()); inc(y.raw()); inc(b.raw());
-    return fn_body(mk_uset_core(x.raw(), mk_nat_obj(i), y.raw(), b.raw()));
+    return fn_body(mk_uset_core(x.to_obj_arg(), mk_nat_obj(i), y.to_obj_arg(), b.to_obj_arg()));
 }
 fn_body mk_sset(var_id const & x, unsigned i, unsigned o, var_id const & y, type ty, fn_body const & b) {
-    inc(x.raw()); inc(y.raw()); inc(b.raw());
-    return fn_body(mk_sset_core(x.raw(), mk_nat_obj(i), mk_nat_obj(o), y.raw(), static_cast<uint8>(ty), b.raw()));
+    return fn_body(mk_sset_core(x.to_obj_arg(), mk_nat_obj(i), mk_nat_obj(o), y.to_obj_arg(), static_cast<uint8>(ty), b.to_obj_arg()));
 }
-fn_body mk_ret(arg const & x) { inc(x.raw()); return fn_body(mk_ret_core(x.raw())); }
+fn_body mk_ret(arg const & x) { return fn_body(mk_ret_core(x.to_obj_arg())); }
 fn_body mk_unreachable() { return fn_body(mk_unreachable_core); }
 alt mk_alt(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, fn_body const & b) {
-    inc(n.raw()); inc(b.raw());
-    return alt(mk_alt_core(n.raw(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), b.raw()));
+    return alt(mk_alt_core(n.to_obj_arg(), mk_nat_obj(cidx), mk_nat_obj(size), mk_nat_obj(usize), mk_nat_obj(ssize), b.to_obj_arg()));
 }
 fn_body mk_case(name const & tid, var_id const & x, buffer<alt> const & alts) {
-    inc(tid.raw()); inc(x.raw());
-    return fn_body(mk_case_core(tid.raw(), x.raw(), to_array(alts)));
+    return fn_body(mk_case_core(tid.to_obj_arg(), x.to_obj_arg(), to_array(alts)));
 }
 fn_body mk_jmp(jp_id const & j, buffer<arg> const & ys) {
-    inc(j.raw());
-    return fn_body(mk_jmp_core(j.raw(), to_array(ys)));
+    return fn_body(mk_jmp_core(j.to_obj_arg(), to_array(ys)));
 }
 decl mk_decl(fun_id const & f, buffer<param> const & xs, type ty, fn_body const & b) {
-    inc(f.raw()); inc(b.raw());
-    return decl(mk_decl_core(f.raw(), to_array(xs), static_cast<uint8>(ty), b.raw()));
+    return decl(mk_decl_core(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), b.to_obj_arg()));
+}
+decl mk_extern_decl(fun_id const & f, buffer<param> const & xs, type ty, extern_attr_data_value const & v) {
+    return decl(mk_extern_decl_core(f.to_obj_arg(), to_array(xs), static_cast<uint8>(ty), v.to_obj_arg()));
 }
 std::string decl_to_string(decl const & d) {
-    inc(d.raw());
-    string_ref r(decl_to_string_core(d.raw()));
+    string_ref r(decl_to_string_core(d.to_obj_arg()));
     return r.to_std_string();
+}
+environment add_decl(environment const & env, decl const & d) {
+    return environment(add_decl_core(env.to_obj_arg(), d.to_obj_arg()));
 }
 }
 
@@ -468,6 +466,22 @@ public:
     to_ir_fn(environment const & env):m_st(env) {}
 
     ir::decl operator()(comp_decl const & d) { return to_ir_decl(d); }
+
+    /* Convert extern constant into a IR.Decl */
+    ir::decl operator()(name const & fn) {
+        lean_assert(is_extern_constant(env(), fn));
+        buffer<ir::param> xs;
+        unsigned arity = *get_extern_constant_arity(env(), fn);
+        expr type      = get_constant_ll_type(env(), fn);
+        for (unsigned i = 0; i < arity; i++) {
+            lean_assert(is_pi(type));
+            xs.push_back(ir::mk_param(ir::var_id(i), to_ir_type(binding_domain(type))));
+            type = binding_body(type);
+        }
+        ir::type result_type = to_ir_type(type);
+        extern_attr_data_value attr = *get_extern_attr_data(env(), fn);
+        return ir::mk_extern_decl(fn, xs, result_type, attr);
+    }
 };
 
 namespace ir {
@@ -502,6 +516,10 @@ environment compile(environment const & env, options const & opts, comp_decls co
         dec_ref(r);
         return new_env;
     }
+}
+
+environment add_extern(environment const & env, name const & fn) {
+    return ir::add_decl(env, to_ir_fn(env)(fn));
 }
 }
 }

@@ -28,6 +28,7 @@ Author: Leonardo de Moura
 #include "library/compiler/export_attribute.h"
 #include "library/compiler/extern_attribute.h"
 #include "library/compiler/struct_cases_on.h"
+#include "library/compiler/ir.h"
 
 namespace lean {
 static name * g_codegen = nullptr;
@@ -173,8 +174,9 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     if (length(cs) == 1 && is_extern_constant(env, head(cs))) {
         /* Generate boxed version for extern/native constant if needed. */
+        environment new_env = ir::add_extern(env, head(cs));
         unsigned arity = *get_extern_constant_arity(env, head(cs));
-        if (optional<pair<environment, comp_decl>> p = mk_boxed_version(env, head(cs), arity)) {
+        if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, head(cs), arity)) {
             /* Remark: we don't need boxed version for the bytecode. */
             return save_llnf_code(p->first, comp_decls(p->second));
         } else {

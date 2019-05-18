@@ -27,7 +27,6 @@ object* get_extern_entry_for_core(object*, object*);
 
 typedef object_ref extern_entry;
 typedef list_ref<extern_entry> extern_entries;
-typedef object_ref extern_attr_data_value;
 
 extern_entry mk_adhoc_ext_entry(name const & backend) {
     inc(backend.raw());
@@ -131,6 +130,15 @@ typedef typed_attribute<extern_attr_data> extern_attr;
 
 extern_attr const & get_extern_attr() {
     return static_cast<extern_attr const &>(get_system_attribute("extern"));
+}
+
+optional<extern_attr_data_value> get_extern_attr_data(environment const & env, name const & fn) {
+    if (std::shared_ptr<extern_attr_data> const & data = get_extern_attr().get(env, fn)) {
+        extern_attr_data_value const & v = data->m_value;
+        return optional<extern_attr_data_value>(v);
+    } else {
+        return optional<extern_attr_data_value>();
+    }
 }
 
 optional<std::string> get_extern_name_for(environment const & env, name const & backend, name const & fn) {

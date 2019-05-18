@@ -14,15 +14,17 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(obj*, obj*);
 obj* l_RBNode_setBlack___main___rarg(obj*);
 obj* l_Lean_IR_FnBody_beq___boxed(obj*, obj*);
+obj* l_Lean_IR_LocalContext_addParams___boxed(obj*, obj*);
+obj* l_Lean_IR_LocalContext_isJP___boxed(obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody(obj*, obj*);
 obj* l_Lean_IR_AltCore_mmodifyBody___boxed(obj*);
 namespace lean {
 namespace ir {
 obj* mk_sset_core(obj*, obj*, obj*, obj*, uint8, obj*);
 }}
-uint8 l_Lean_IR_Context_isLocalVar(obj*, obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_IR_mkVDecl___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_AltCore_setBody(obj*, obj*);
@@ -52,15 +54,18 @@ obj* l_RBNode_balRight___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_isTerminal___boxed(obj*);
 uint8 l_Lean_IR_IRType_beq___main(uint8, uint8);
 obj* l_Lean_IR_AltCore_mmodifyBody(obj*);
-obj* l_Lean_IR_Context_addJP(obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_LocalContext_getJPBody(obj*, obj*);
+obj* l_Lean_IR_LocalContext_isLocalVar___boxed(obj*, obj*);
 obj* l_Lean_IR_addParamsRename___boxed(obj*, obj*, obj*);
+obj* l_Lean_IR_LocalContext_addLocal(obj*, obj*, uint8, obj*);
 namespace lean {
 namespace ir {
 obj* mk_fapp_expr_core(obj*, obj*);
 }}
 obj* l_Lean_IR_AltCore_modifyBody___main(obj*, obj*);
+uint8 l_Lean_IR_LocalContext_isParam(obj*, obj*);
+uint8 l_Lean_IR_LocalContext_contains(obj*, obj*);
 obj* l_Lean_IR_addParamRename(obj*, obj*, obj*);
-uint8 l_Lean_IR_Context_isParam(obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_alt_core(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -72,11 +77,9 @@ obj* l_Lean_IR_mmodifyJPs___boxed(obj*);
 obj* l_Lean_IR_mkParam___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_CtorInfo_HasBeq;
 uint8 l_Lean_IR_Decl_resultType___main(obj*);
-obj* l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(obj*, obj*);
 uint8 l_Lean_IR_VarId_HasBeq(obj*, obj*);
 obj* l_Lean_IR_FnBody_body(obj*);
 obj* l_Array_miterate_u_2082Aux___main___at_Lean_IR_addParamsRename___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_Context_getJPBody___boxed(obj*, obj*);
 obj* l_Lean_IR_FnBody_alphaEqv___boxed(obj*, obj*, obj*);
 uint8 l_Lean_IR_VarId_alphaEqv(obj*, obj*, obj*);
 namespace lean {
@@ -84,28 +87,27 @@ namespace ir {
 obj* mk_jmp_core(obj*, obj*);
 }}
 obj* l_Lean_IR_AltCore_modifyBody(obj*, obj*);
-uint8 l_Lean_IR_Context_contains(obj*, obj*);
+obj* l_Lean_IR_LocalContext_addLocal___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_JoinPointId_HasBeq___boxed(obj*, obj*);
 obj* l_Lean_IR_FnBody_nil;
-obj* l_Lean_IR_Context_addParams___boxed(obj*, obj*);
 uint8 l_Lean_IR_FnBody_alphaEqv(obj*, obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_str_expr_core(obj*);
 }}
+obj* l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1___boxed(obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_proj_expr_core(obj*, obj*);
 }}
+usize l_Lean_IR_JoinPointId_Hashable(obj*);
 uint8 l_Lean_IR_CtorInfo_beq(obj*, obj*);
 obj* l_Lean_IR_IRType_isObj___boxed(obj*);
 uint8 l_Lean_IR_IRType_isObj___main(uint8);
 obj* l_Array_hmmapAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Decl_resultType___boxed(obj*);
-obj* l_Lean_IR_Context_addParam(obj*, obj*);
 obj* l_Lean_IR_Decl_resultType___main___boxed(obj*);
 obj* l_Lean_IR_Alt_default(obj*);
-obj* l_Lean_IR_Context_getJPParams(obj*, obj*);
 uint8 l_Lean_IR_Decl_resultType(obj*);
 namespace lean {
 namespace ir {
@@ -113,32 +115,31 @@ obj* mk_num_expr_core(obj*);
 }}
 uint8 l_Lean_IR_FnBody_isPure(obj*);
 obj* l_Lean_IR_VarId_hasAeqv;
-obj* l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1___boxed(obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_sproj_expr_core(obj*, obj*, obj*);
 }}
 obj* l_Lean_IR_CtorInfo_isScalar___boxed(obj*);
-obj* l_Lean_IR_Context_getJPParams___boxed(obj*, obj*);
 uint8 l_Lean_IR_LitVal_beq(obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_mkSSet___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_Context_addLocal___boxed(obj*, obj*, obj*, obj*);
 uint8 l_Lean_IR_Expr_isPure___main(obj*);
-obj* l_Lean_IR_Context_eraseJoinPointDecl___boxed(obj*, obj*);
 obj* l_Nat_repr(obj*);
 obj* l_Lean_IR_FnBody_alphaEqv___main___boxed(obj*, obj*, obj*);
 uint8 l_Lean_IR_FnBody_alphaEqv___main(obj*, obj*, obj*);
 obj* l_Lean_IR_IRType_isScalar___boxed(obj*);
-obj* l_Lean_IR_Context_getType___boxed(obj*, obj*);
 obj* l_Lean_IR_Arg_alphaEqv___boxed(obj*, obj*, obj*);
+obj* l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(obj*, obj*, obj*);
+obj* l_Lean_IR_LocalContext_addJP(obj*, obj*, obj*, obj*);
 obj* l_Array_miterate_u_2082Aux___main___at_Lean_IR_addParamsRename___spec__1(obj*, obj*, obj*, obj*, obj*);
-obj* l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1___boxed(obj*, obj*);
 obj* l_Lean_IR_AltCore_mmodifyBody___main___boxed(obj*);
 obj* l_Lean_IR_AltCore_body(obj*);
+obj* l_Array_miterateAux___main___at_Lean_IR_LocalContext_addParams___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_AltCore_mmodifyBody___rarg(obj*, obj*, obj*);
 uint8 l_Array_isEqv___at_Lean_IR_FnBody_alphaEqv___main___spec__1(obj*, obj*, obj*);
 obj* l_Lean_IR_flattenAux___main(obj*, obj*);
+obj* l_Array_miterateAux___main___at_Lean_IR_LocalContext_addParams___spec__1___boxed(obj*, obj*, obj*, obj*);
+obj* l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2___boxed(obj*, obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
 obj* l_Lean_IR_JoinPointId_Lean_HasFormat(obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
@@ -149,6 +150,7 @@ namespace ir {
 obj* mk_case_core(obj*, obj*, obj*);
 }}
 obj* l_Array_anyMAux___main___at_Lean_IR_FnBody_isPure___main___spec__1___boxed(obj*, obj*);
+obj* l_Lean_IR_JoinPointId_Hashable___boxed(obj*);
 namespace lean {
 obj* string_append(obj*, obj*);
 }
@@ -157,7 +159,7 @@ obj* l_Lean_IR_addParamsRename(obj*, obj*, obj*);
 obj* l_Lean_IR_Expr_alphaEqv___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_Decl_Inhabited;
 obj* l_Lean_IR_Decl_params___boxed(obj*);
-obj* l_Lean_IR_Context_isParam___boxed(obj*, obj*);
+obj* l_Lean_IR_LocalContext_getJPParams___boxed(obj*, obj*);
 obj* l_Lean_IR_args_hasAeqv;
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
@@ -166,16 +168,17 @@ obj* l_Lean_IR_args_alphaEqv___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_HasBeq;
 uint8 l_Lean_IR_Expr_alphaEqv(obj*, obj*, obj*);
 uint8 l_Lean_IR_FnBody_isTerminal___main(obj*);
+obj* l_Lean_IR_LocalContext_eraseJoinPointDecl(obj*, obj*);
 obj* l_Lean_IR_Decl_name___boxed(obj*);
 obj* l_Lean_IR_LitVal_beq___boxed(obj*, obj*);
 obj* l_Lean_IR_Decl_name___main(obj*);
 obj* l_RBNode_appendTrees___main___rarg(obj*, obj*);
-obj* l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(obj*, obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_ret_core(obj*);
 }}
 obj* l_Lean_IR_FnBody_flatten(obj*);
+obj* l_Lean_IR_LocalContext_addParam(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -196,34 +199,36 @@ obj* mk_param_core(obj*, uint8, uint8);
 obj* l_Lean_IR_AltCore_body___boxed(obj*);
 obj* l_Lean_IR_paramInh;
 uint8 l_RBNode_isRed___main___rarg(obj*);
-obj* l_RBNode_insert___at_Lean_IR_Context_addLocal___spec__1(obj*, obj*, obj*);
 uint8 l_Lean_KVMap_eqv(obj*, obj*);
-obj* l_Array_miterateAux___main___at_Lean_IR_Context_addParams___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Expr_hasAeqv;
+obj* l_Lean_IR_LocalContext_addParams(obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_uset_core(obj*, obj*, obj*, obj*);
 }}
+obj* l_Lean_IR_LocalContext_getType(obj*, obj*);
 obj* l_Lean_IR_FnBody_body___boxed(obj*);
 obj* l_Lean_IR_IRType_HasBeq;
-obj* l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2___boxed(obj*, obj*);
 obj* l_Lean_IR_altInh;
 obj* l_Lean_IR_FnBody_body___main___boxed(obj*);
 obj* l_Lean_IR_FnBody_isTerminal___main___boxed(obj*);
 uint8 l_Lean_IR_Alt_isDefault___main(obj*);
 obj* l_Lean_IR_VarId_HasBeq___boxed(obj*, obj*);
+obj* l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(obj*, obj*);
+obj* l_Lean_IR_LocalContext_getJPBody___boxed(obj*, obj*);
 obj* l_Lean_IR_Expr_isPure___boxed(obj*);
 obj* l_Lean_IR_FnBody_split(obj*);
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
+obj* l_Lean_IR_LocalContext_getJPParams(obj*, obj*);
+obj* l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_mmodifyJPs___spec__1___boxed(obj*);
 namespace lean {
 namespace ir {
 obj* mk_irrelevant_arg_core;
 }}
 obj* l_Lean_IR_Decl_params(obj*);
-obj* l_Lean_IR_Context_getJPBody(obj*, obj*);
 obj* l_Lean_IR_Arg_alphaEqv___main___boxed(obj*, obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_IR_FnBody_isPure___main___spec__1(obj*, obj*);
 obj* l_Lean_IR_LitVal_beq___main___boxed(obj*, obj*);
@@ -232,8 +237,6 @@ namespace ir {
 obj* mk_app_expr_core(obj*, obj*);
 }}
 obj* l_Lean_IR_Expr_isPure___main___boxed(obj*);
-obj* l_Lean_IR_Context_isLocalVar___boxed(obj*, obj*);
-obj* l_Lean_IR_Context_getType(obj*, obj*);
 obj* l_Lean_IR_VarId_HasToString(obj*);
 namespace lean {
 namespace ir {
@@ -244,7 +247,6 @@ uint8 l_Lean_IR_FnBody_isTerminal(obj*);
 obj* l_Lean_IR_addVarRename(obj*, obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_modifyJPs___spec__1(obj*, obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_mmodifyJPs___spec__1___rarg(obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_Context_eraseJoinPointDecl(obj*, obj*);
 obj* l_Lean_IR_AltCore_mmodifyBody___main___rarg(obj*, obj*, obj*);
 uint8 l_Lean_IR_FnBody_isPure___main(obj*);
 obj* l_Lean_IR_Decl_name(obj*);
@@ -254,10 +256,10 @@ obj* l_Lean_IR_AltCore_body___main(obj*);
 obj* l_Lean_IR_mkDecl___boxed(obj*, obj*, obj*, obj*);
 uint8 l_Lean_IR_CtorInfo_beq___main(obj*, obj*);
 uint8 l_Lean_IR_FnBody_beq(obj*, obj*);
-obj* l_Lean_IR_Context_addParams(obj*, obj*);
 uint8 l_Lean_IR_args_alphaEqv(obj*, obj*, obj*);
 obj* l_Lean_IR_CtorInfo_beq___main___boxed(obj*, obj*);
 uint8 l_Lean_IR_Expr_alphaEqv___main(obj*, obj*, obj*);
+uint8 l_Lean_IR_LocalContext_isLocalVar(obj*, obj*);
 obj* l_Lean_IR_VarId_HasToString___closed__1;
 uint8 l_Lean_IR_Expr_isPure(obj*);
 uint8 l_Lean_IR_Index_lt(obj*, obj*);
@@ -274,50 +276,52 @@ obj* mk_uproj_expr_core(obj*, obj*);
 }}
 obj* l_Lean_IR_flattenAux(obj*, obj*);
 obj* l_Lean_IR_Arg_hasAeqv;
+obj* l_Lean_IR_LocalContext_isParam___boxed(obj*, obj*);
 obj* l_Lean_IR_FnBody_isPure___boxed(obj*);
 uint8 l_Lean_IR_IRType_isScalar(uint8);
 obj* l_Lean_IR_Alt_ctor(obj*, obj*);
 obj* l_Lean_IR_MData_HasEmptyc;
-obj* l_Array_miterateAux___main___at_Lean_IR_Context_addParams___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_setBody___main(obj*, obj*);
 uint8 l_Array_isEqvAux___main___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_argInh;
-obj* l_Lean_IR_Context_contains___boxed(obj*, obj*);
 obj* l_Lean_IR_FnBody_isPure___main___boxed(obj*);
 uint8 l_Lean_IR_Alt_isDefault(obj*);
 obj* l_Lean_IR_FnBody_body___main(obj*);
+obj* l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1___boxed(obj*, obj*);
+namespace lean {
+usize usize_of_nat(obj*);
+}
 obj* l_Lean_IR_push(obj*, obj*);
-obj* l_Lean_IR_Context_addLocal(obj*, obj*, uint8, obj*);
-uint8 l_Lean_IR_Context_isJP(obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_papp_expr_core(obj*, obj*);
 }}
+obj* l_Lean_IR_LocalContext_eraseJoinPointDecl___boxed(obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_ctor_expr_core(obj*, obj*, obj*, obj*, obj*, obj*);
 }}
+obj* l_Lean_IR_LocalContext_contains___boxed(obj*, obj*);
 obj* l_Lean_IR_mmodifyJPs___rarg(obj*, obj*, obj*);
 namespace lean {
 namespace ir {
 obj* mk_vdecl_core(obj*, uint8, obj*, obj*);
 }}
 obj* l_Lean_IR_JoinPointId_HasToString(obj*);
-obj* l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1(obj*, obj*);
+obj* l_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(obj*, obj*, obj*);
 obj* l_Lean_IR_IRType_isObj___main___boxed(obj*);
 obj* l_Lean_IR_IRType_beq___boxed(obj*, obj*);
 obj* l_Lean_IR_Decl_name___main___boxed(obj*);
 obj* l_RBNode_insert___at_Lean_IR_addVarRename___spec__1(obj*, obj*, obj*);
+uint8 l_Lean_IR_LocalContext_isJP(obj*, obj*);
 obj* l_Lean_IR_Index_lt___boxed(obj*, obj*);
 obj* l_Lean_IR_AltCore_setBody___main(obj*, obj*);
 obj* l_Lean_IR_reshapeAux___main(obj*, obj*, obj*);
 obj* l_Lean_IR_LitVal_HasBeq;
 obj* l_RBNode_find___main___at_Lean_IR_VarId_alphaEqv___spec__1___boxed(obj*, obj*);
 obj* l_Lean_IR_Expr_alphaEqv___main___boxed(obj*, obj*, obj*);
-obj* l_Lean_IR_Context_isJP___boxed(obj*, obj*);
 obj* l_Array_hmmapAux___main___at_Lean_IR_mmodifyJPs___spec__1(obj*);
 obj* l_Lean_IR_CtorInfo_beq___boxed(obj*, obj*);
-obj* l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(obj*, obj*);
 uint8 l_Lean_IR_IRType_isObj(uint8);
 obj* l_Lean_IR_reshapeAux(obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_resetBody(obj*);
@@ -326,6 +330,7 @@ obj* l_Lean_IR_MData_empty;
 obj* l_Lean_IR_Inhabited;
 obj* l_Lean_IR_Alt_isDefault___main___boxed(obj*);
 uint8 l_Array_isEqv___at_Lean_IR_FnBody_alphaEqv___main___spec__1___lambda__1(obj*, obj*, obj*);
+obj* l_Lean_IR_LocalContext_getType___boxed(obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_IR_addVarRename___spec__2(obj*, obj*, obj*);
 obj* l_Lean_IR_IRType_beq___main___boxed(obj*, obj*);
 uint8 l_Lean_IR_IRType_isScalar___main(uint8);
@@ -449,6 +454,24 @@ lean::dec(x_1);
 x_5 = lean::alloc_cnstr(2, 1, 0);
 lean::cnstr_set(x_5, 0, x_3);
 return x_5;
+}
+}
+usize l_Lean_IR_JoinPointId_Hashable(obj* x_0) {
+_start:
+{
+usize x_1; 
+x_1 = lean::usize_of_nat(x_0);
+return x_1;
+}
+}
+obj* l_Lean_IR_JoinPointId_Hashable___boxed(obj* x_0) {
+_start:
+{
+usize x_1; obj* x_2; 
+x_1 = l_Lean_IR_JoinPointId_Hashable(x_0);
+x_2 = lean::box_size_t(x_1);
+lean::dec(x_0);
+return x_2;
 }
 }
 obj* _init_l_Lean_IR_MData_empty() {
@@ -3016,7 +3039,7 @@ x_0 = lean::box(0);
 return x_0;
 }
 }
-obj* l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -3083,7 +3106,7 @@ return x_21;
 else
 {
 obj* x_22; obj* x_23; obj* x_24; 
-x_22 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_13, x_1, x_2);
+x_22 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_13, x_1, x_2);
 if (lean::is_scalar(x_15)) {
  x_23 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -3101,7 +3124,7 @@ return x_24;
 else
 {
 obj* x_25; obj* x_26; obj* x_27; 
-x_25 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_7, x_1, x_2);
+x_25 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_7, x_1, x_2);
 if (lean::is_scalar(x_15)) {
  x_26 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -3167,7 +3190,7 @@ x_43 = l_RBNode_isRed___main___rarg(x_34);
 if (x_43 == 0)
 {
 obj* x_44; obj* x_45; obj* x_46; 
-x_44 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_34, x_1, x_2);
+x_44 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_34, x_1, x_2);
 if (lean::is_scalar(x_36)) {
  x_45 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -3184,7 +3207,7 @@ return x_46;
 else
 {
 obj* x_47; 
-x_47 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_34, x_1, x_2);
+x_47 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_34, x_1, x_2);
 if (lean::obj_tag(x_47) == 0)
 {
 lean::dec(x_32);
@@ -3629,7 +3652,7 @@ x_180 = l_RBNode_isRed___main___rarg(x_28);
 if (x_180 == 0)
 {
 obj* x_181; obj* x_182; obj* x_183; 
-x_181 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_28, x_1, x_2);
+x_181 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_28, x_1, x_2);
 if (lean::is_scalar(x_36)) {
  x_182 = lean::alloc_cnstr(1, 4, 1);
 } else {
@@ -3646,7 +3669,7 @@ return x_183;
 else
 {
 obj* x_184; 
-x_184 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_28, x_1, x_2);
+x_184 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_28, x_1, x_2);
 if (lean::obj_tag(x_184) == 0)
 {
 lean::dec(x_32);
@@ -4087,7 +4110,7 @@ return x_316;
 }
 }
 }
-obj* l_RBNode_insert___at_Lean_IR_Context_addLocal___spec__1(obj* x_0, obj* x_1, obj* x_2) {
+obj* l_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(obj* x_0, obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; 
@@ -4095,19 +4118,19 @@ x_3 = l_RBNode_isRed___main___rarg(x_0);
 if (x_3 == 0)
 {
 obj* x_4; 
-x_4 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_0, x_1, x_2);
+x_4 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_0, x_1, x_2);
 return x_4;
 }
 else
 {
 obj* x_5; obj* x_6; 
-x_5 = l_RBNode_ins___main___at_Lean_IR_Context_addLocal___spec__2(x_0, x_1, x_2);
+x_5 = l_RBNode_ins___main___at_Lean_IR_LocalContext_addLocal___spec__2(x_0, x_1, x_2);
 x_6 = l_RBNode_setBlack___main___rarg(x_5);
 return x_6;
 }
 }
 }
-obj* l_Lean_IR_Context_addLocal(obj* x_0, obj* x_1, uint8 x_2, obj* x_3) {
+obj* l_Lean_IR_LocalContext_addLocal(obj* x_0, obj* x_1, uint8 x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; obj* x_6; 
@@ -4115,31 +4138,31 @@ x_4 = lean::alloc_cnstr(1, 1, 1);
 lean::cnstr_set(x_4, 0, x_3);
 lean::cnstr_set_scalar(x_4, sizeof(void*)*1, x_2);
 x_5 = x_4;
-x_6 = l_RBNode_insert___at_Lean_IR_Context_addLocal___spec__1(x_0, x_1, x_5);
+x_6 = l_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(x_0, x_1, x_5);
 return x_6;
 }
 }
-obj* l_Lean_IR_Context_addLocal___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_IR_LocalContext_addLocal___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 uint8 x_4; obj* x_5; 
 x_4 = lean::unbox(x_2);
-x_5 = l_Lean_IR_Context_addLocal(x_0, x_1, x_4, x_3);
+x_5 = l_Lean_IR_LocalContext_addLocal(x_0, x_1, x_4, x_3);
 return x_5;
 }
 }
-obj* l_Lean_IR_Context_addJP(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_IR_LocalContext_addJP(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; 
 x_4 = lean::alloc_cnstr(2, 2, 0);
 lean::cnstr_set(x_4, 0, x_2);
 lean::cnstr_set(x_4, 1, x_3);
-x_5 = l_RBNode_insert___at_Lean_IR_Context_addLocal___spec__1(x_0, x_1, x_4);
+x_5 = l_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(x_0, x_1, x_4);
 return x_5;
 }
 }
-obj* l_Lean_IR_Context_addParam(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_addParam(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_4; obj* x_6; obj* x_7; obj* x_8; 
@@ -4150,11 +4173,11 @@ lean::dec(x_1);
 x_6 = lean::alloc_cnstr(0, 0, 1);
 lean::cnstr_set_scalar(x_6, 0, x_4);
 x_7 = x_6;
-x_8 = l_RBNode_insert___at_Lean_IR_Context_addLocal___spec__1(x_0, x_2, x_7);
+x_8 = l_RBNode_insert___at_Lean_IR_LocalContext_addLocal___spec__1(x_0, x_2, x_7);
 return x_8;
 }
 }
-obj* l_Array_miterateAux___main___at_Lean_IR_Context_addParams___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_miterateAux___main___at_Lean_IR_LocalContext_addParams___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
@@ -4170,7 +4193,7 @@ else
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_8 = lean::array_fget(x_1, x_2);
-x_9 = l_Lean_IR_Context_addParam(x_3, x_8);
+x_9 = l_Lean_IR_LocalContext_addParam(x_3, x_8);
 x_10 = lean::mk_nat_obj(1ul);
 x_11 = lean::nat_add(x_2, x_10);
 lean::dec(x_2);
@@ -4180,35 +4203,35 @@ goto _start;
 }
 }
 }
-obj* l_Lean_IR_Context_addParams(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_addParams(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = lean::mk_nat_obj(0ul);
-x_3 = l_Array_miterateAux___main___at_Lean_IR_Context_addParams___spec__1(x_1, x_1, x_2, x_0);
+x_3 = l_Array_miterateAux___main___at_Lean_IR_LocalContext_addParams___spec__1(x_1, x_1, x_2, x_0);
 return x_3;
 }
 }
-obj* l_Array_miterateAux___main___at_Lean_IR_Context_addParams___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_miterateAux___main___at_Lean_IR_LocalContext_addParams___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Array_miterateAux___main___at_Lean_IR_Context_addParams___spec__1(x_0, x_1, x_2, x_3);
+x_4 = l_Array_miterateAux___main___at_Lean_IR_LocalContext_addParams___spec__1(x_0, x_1, x_2, x_3);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_4;
 }
 }
-obj* l_Lean_IR_Context_addParams___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_addParams___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Lean_IR_Context_addParams(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_addParams(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(obj* x_0, obj* x_1) {
+obj* l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_0) == 0)
@@ -4262,11 +4285,11 @@ goto _start;
 }
 }
 }
-uint8 l_Lean_IR_Context_isJP(obj* x_0, obj* x_1) {
+uint8 l_Lean_IR_LocalContext_isJP(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_3; 
@@ -4298,30 +4321,30 @@ return x_10;
 }
 }
 }
-obj* l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1___boxed(obj* x_0, obj* x_1) {
+obj* l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_Context_isJP___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_isJP___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_Lean_IR_Context_isJP(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_isJP(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_IR_Context_getJPBody(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_getJPBody(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -4367,20 +4390,20 @@ return x_13;
 }
 }
 }
-obj* l_Lean_IR_Context_getJPBody___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_getJPBody___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Lean_IR_Context_getJPBody(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_getJPBody(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_Context_getJPParams(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_getJPParams(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -4426,20 +4449,20 @@ return x_13;
 }
 }
 }
-obj* l_Lean_IR_Context_getJPParams___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_getJPParams___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Lean_IR_Context_getJPParams(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_getJPParams(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-uint8 l_Lean_IR_Context_isParam(obj* x_0, obj* x_1) {
+uint8 l_Lean_IR_LocalContext_isParam(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_3; 
@@ -4471,21 +4494,21 @@ return x_10;
 }
 }
 }
-obj* l_Lean_IR_Context_isParam___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_isParam___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_Lean_IR_Context_isParam(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_isParam(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_1);
 return x_3;
 }
 }
-uint8 l_Lean_IR_Context_isLocalVar(obj* x_0, obj* x_1) {
+uint8 l_Lean_IR_LocalContext_isLocalVar(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_3; 
@@ -4517,21 +4540,21 @@ return x_10;
 }
 }
 }
-obj* l_Lean_IR_Context_isLocalVar___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_isLocalVar___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_Lean_IR_Context_isLocalVar(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_isLocalVar(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_1);
 return x_3;
 }
 }
-uint8 l_Lean_IR_Context_contains(obj* x_0, obj* x_1) {
+uint8 l_Lean_IR_LocalContext_contains(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_3; 
@@ -4547,17 +4570,17 @@ return x_5;
 }
 }
 }
-obj* l_Lean_IR_Context_contains___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_contains___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_Lean_IR_Context_contains(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_contains(x_0, x_1);
 x_3 = lean::box(x_2);
 lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(obj* x_0, obj* x_1) {
+obj* l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(obj* x_0, obj* x_1) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
@@ -4606,7 +4629,7 @@ x_17 = l_RBNode_isBlack___main___rarg(x_8);
 if (x_17 == 0)
 {
 obj* x_18; uint8 x_19; obj* x_20; obj* x_21; 
-x_18 = l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(x_0, x_8);
+x_18 = l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(x_0, x_8);
 x_19 = 0;
 if (lean::is_scalar(x_10)) {
  x_20 = lean::alloc_cnstr(1, 4, 1);
@@ -4625,7 +4648,7 @@ else
 {
 obj* x_23; obj* x_24; 
 lean::dec(x_10);
-x_23 = l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(x_0, x_8);
+x_23 = l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(x_0, x_8);
 x_24 = l_RBNode_balRight___rarg(x_2, x_4, x_6, x_23);
 return x_24;
 }
@@ -4638,7 +4661,7 @@ x_25 = l_RBNode_isBlack___main___rarg(x_2);
 if (x_25 == 0)
 {
 obj* x_26; uint8 x_27; obj* x_28; obj* x_29; 
-x_26 = l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(x_0, x_2);
+x_26 = l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(x_0, x_2);
 x_27 = 0;
 if (lean::is_scalar(x_10)) {
  x_28 = lean::alloc_cnstr(1, 4, 1);
@@ -4657,7 +4680,7 @@ else
 {
 obj* x_31; obj* x_32; 
 lean::dec(x_10);
-x_31 = l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(x_0, x_2);
+x_31 = l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(x_0, x_2);
 x_32 = l_RBNode_balLeft___main___rarg(x_31, x_4, x_6, x_8);
 return x_32;
 }
@@ -4665,55 +4688,55 @@ return x_32;
 }
 }
 }
-obj* l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1(obj* x_0, obj* x_1) {
+obj* l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; obj* x_3; 
-x_2 = l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(x_0, x_1);
+x_2 = l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(x_0, x_1);
 x_3 = l_RBNode_setBlack___main___rarg(x_2);
 return x_3;
 }
 }
-obj* l_Lean_IR_Context_eraseJoinPointDecl(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_eraseJoinPointDecl(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1(x_1, x_0);
+x_2 = l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(x_1, x_0);
 return x_2;
 }
 }
-obj* l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2___boxed(obj* x_0, obj* x_1) {
+obj* l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_del___main___at_Lean_IR_Context_eraseJoinPointDecl___spec__2(x_0, x_1);
+x_2 = l_RBNode_del___main___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__2(x_0, x_1);
 lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1___boxed(obj* x_0, obj* x_1) {
+obj* l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_erase___at_Lean_IR_Context_eraseJoinPointDecl___spec__1(x_0, x_1);
+x_2 = l_RBNode_erase___at_Lean_IR_LocalContext_eraseJoinPointDecl___spec__1(x_0, x_1);
 lean::dec(x_0);
 return x_2;
 }
 }
-obj* l_Lean_IR_Context_eraseJoinPointDecl___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_eraseJoinPointDecl___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Lean_IR_Context_eraseJoinPointDecl(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_eraseJoinPointDecl(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_IR_Context_getType(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_getType(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_RBNode_find___main___at_Lean_IR_Context_isJP___spec__1(x_0, x_1);
+x_2 = l_RBNode_find___main___at_Lean_IR_LocalContext_isJP___spec__1(x_0, x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
@@ -4773,11 +4796,11 @@ return x_17;
 }
 }
 }
-obj* l_Lean_IR_Context_getType___boxed(obj* x_0, obj* x_1) {
+obj* l_Lean_IR_LocalContext_getType___boxed(obj* x_0, obj* x_1) {
 _start:
 {
 obj* x_2; 
-x_2 = l_Lean_IR_Context_getType(x_0, x_1);
+x_2 = l_Lean_IR_LocalContext_getType(x_0, x_1);
 lean::dec(x_1);
 return x_2;
 }

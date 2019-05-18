@@ -13,6 +13,7 @@ import init.lean.compiler.ir.simpcase
 import init.lean.compiler.ir.resetreuse
 import init.lean.compiler.ir.normids
 import init.lean.compiler.ir.checker
+import init.lean.compiler.ir.borrow
 import init.lean.compiler.ir.boxing
 
 namespace Lean
@@ -31,6 +32,8 @@ logDecls `elim_dead decls,
 let decls := decls.hmap Decl.simpCase,
 logDecls `simp_case decls,
 let decls := decls.hmap Decl.normalizeIds,
+decls ← inferBorrow decls,
+logDecls `borrow decls,
 checkDecls decls,
 addDecls decls,
 pure ()

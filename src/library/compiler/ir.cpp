@@ -63,8 +63,7 @@ typedef object_ref decl;
 
 arg mk_var_arg(var_id const & id) { inc(id.raw()); return arg(mk_var_arg_core(id.raw())); }
 arg mk_irrelevant_arg() { return arg(mk_irrelevant_arg_core); }
-param mk_param(var_id const & x, type ty) {
-    uint8 borrowed = false;
+param mk_param(var_id const & x, type ty, bool borrowed = false) {
     return param(mk_param_core(x.to_obj_arg(), borrowed, static_cast<uint8>(ty)));
 }
 expr mk_ctor(name const & n, unsigned cidx, unsigned size, unsigned usize, unsigned ssize, buffer<arg> const & ys) {
@@ -470,12 +469,14 @@ public:
     /* Convert extern constant into a IR.Decl */
     ir::decl operator()(name const & fn) {
         lean_assert(is_extern_constant(env(), fn));
+        buffer<bool> borrow; bool dummy;
+        get_extern_borrowed_info(env(), fn, borrow, dummy);
         buffer<ir::param> xs;
         unsigned arity = *get_extern_constant_arity(env(), fn);
         expr type      = get_constant_ll_type(env(), fn);
         for (unsigned i = 0; i < arity; i++) {
             lean_assert(is_pi(type));
-            xs.push_back(ir::mk_param(ir::var_id(i), to_ir_type(binding_domain(type))));
+            xs.push_back(ir::mk_param(ir::var_id(i), to_ir_type(binding_domain(type)), borrow[i]));
             type = binding_body(type);
         }
         ir::type result_type = to_ir_type(type);

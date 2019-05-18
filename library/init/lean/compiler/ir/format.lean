@@ -65,7 +65,7 @@ private def formatIRType : IRType → Format
 instance typeHasFormat : HasFormat IRType := ⟨formatIRType⟩
 
 private def formatParam : Param → Format
-| { x := name, borrowed := b, ty := ty } := "(" ++ format name ++ " : " ++ (if b then "@^ " else "") ++ format ty ++ ")"
+| { x := name, borrow := b, ty := ty } := "(" ++ format name ++ " : " ++ (if b then "@& " else "") ++ format ty ++ ")"
 
 instance paramHasFormat : HasFormat Param := ⟨formatParam⟩
 
@@ -73,9 +73,12 @@ def formatAlt (fmt : FnBody → Format) (indent : Nat) : Alt → Format
 | (Alt.ctor i b)  := format i.name ++ " →" ++ Format.nest indent (Format.line ++ fmt b)
 | (Alt.default b) := "default →" ++ Format.nest indent (Format.line ++ fmt b)
 
+def formatParams (ps : Array Param) : Format :=
+formatArray ps
+
 partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | (FnBody.vdecl x ty e b)    := "let " ++ format x ++ " : " ++ format ty ++ " := " ++ format e ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.jdecl j xs v b)    := format j ++ formatArray xs ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line ++ formatFnBody b
+| (FnBody.jdecl j xs v b)    := format j ++ formatParams xs ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody v) ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.set x i y b)       := "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.uset x i y b)      := "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.sset x i o y ty b) := "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
@@ -92,8 +95,8 @@ instance fnBodyHasFormat : HasFormat FnBody := ⟨formatFnBody⟩
 instance fnBodyHasToString : HasToString FnBody := ⟨λ b, (format b).pretty⟩
 
 def formatDecl (indent : Nat := 2) : Decl → Format
-| (Decl.fdecl f xs ty b)  := "def " ++ format f ++ formatArray xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
-| (Decl.extern f xs ty _) := "extern " ++ format f ++ formatArray xs ++ format " : " ++ format ty
+| (Decl.fdecl f xs ty b)  := "def " ++ format f ++ formatParams xs ++ format " : " ++ format ty ++ " :=" ++ Format.nest indent (Format.line ++ formatFnBody indent b)
+| (Decl.extern f xs ty _) := "extern " ++ format f ++ formatParams xs ++ format " : " ++ format ty
 
 instance declHasFormat : HasFormat Decl := ⟨formatDecl⟩
 

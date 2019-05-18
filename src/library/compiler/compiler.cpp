@@ -285,6 +285,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "ir", "reset_reuse"});
     register_trace_class({"compiler", "ir", "elim_dead"});
     register_trace_class({"compiler", "ir", "simp_case"});
+    register_trace_class({"compiler", "ir", "borrow"});
 }
 
 void finalize_compiler() {

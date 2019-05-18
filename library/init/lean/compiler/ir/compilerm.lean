@@ -91,9 +91,12 @@ registerPersistentEnvExtension {
 @[init mkDeclMapExtension]
 constant declMapExt : PersistentEnvExtension Decl DeclMap := default _
 
+def findEnvDecl (env : Environment) (n : Name) : Option Decl :=
+(declMapExt.getState env).find n
+
 def findDecl (n : Name) : CompilerM (Option Decl) :=
 do s ← get,
-   pure $ (declMapExt.getState s.env).find n
+   pure $ findEnvDecl s.env n
 
 def containsDecl (n : Name) : CompilerM Bool :=
 do s ← get,
@@ -106,6 +109,9 @@ do (some decl) ← findDecl n | throw ("unknown declaration '" ++ toString n ++ 
 @[export lean.ir.add_decl_core]
 def addDeclAux (env : Environment) (decl : Decl) : Environment :=
 declMapExt.addEntry env decl
+
+def getEnv : CompilerM Environment :=
+do s ← get, pure s.env
 
 def addDecl (decl : Decl) : CompilerM Unit :=
 modifyEnv (λ env, declMapExt.addEntry env decl)

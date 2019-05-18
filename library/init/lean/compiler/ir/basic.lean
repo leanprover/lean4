@@ -40,6 +40,7 @@ namespace JoinPointId
 instance : HasBeq JoinPointId := ⟨λ a b, a.idx == b.idx⟩
 instance : HasToString JoinPointId := ⟨λ a, "block_" ++ toString a.idx⟩
 instance : HasFormat JoinPointId := ⟨λ a, toString a⟩
+instance : Hashable JoinPointId := ⟨λ a, hash a.idx⟩
 end JoinPointId
 
 abbrev MData := KVMap
@@ -184,11 +185,11 @@ inductive Expr
 @[export lean.ir.mk_str_expr_core]   def mkStrExpr (v : String) : Expr := Expr.lit (LitVal.str v)
 
 structure Param :=
-(x : VarId) (borrowed : Bool) (ty : IRType)
+(x : VarId) (borrow : Bool) (ty : IRType)
 
-instance paramInh : Inhabited Param := ⟨{ x := { idx := 0 }, borrowed := false, ty := IRType.object }⟩
+instance paramInh : Inhabited Param := ⟨{ x := { idx := 0 }, borrow := false, ty := IRType.object }⟩
 
-@[export lean.ir.mk_param_core] def mkParam (x : VarId) (borrowed : Bool) (ty : IRType) : Param := ⟨x, borrowed, ty⟩
+@[export lean.ir.mk_param_core] def mkParam (x : VarId) (borrow : Bool) (ty : IRType) : Param := ⟨x, borrow, ty⟩
 
 inductive AltCore (FnBody : Type) : Type
 | ctor (info : CtorInfo) (b : FnBody) : AltCore
@@ -503,7 +504,7 @@ def addVarRename (ρ : IndexRenaming) (x₁ x₂ : Nat) :=
 if x₁ == x₂ then ρ else ρ.insert x₁ x₂
 
 def addParamRename (ρ : IndexRenaming) (p₁ p₂ : Param) : Option IndexRenaming :=
-if p₁.ty == p₂.ty && p₁.borrowed = p₂.borrowed then some (addVarRename ρ p₁.x.idx p₂.x.idx)
+if p₁.ty == p₂.ty && p₁.borrow = p₂.borrow then some (addVarRename ρ p₁.x.idx p₂.x.idx)
 else none
 
 def addParamsRename (ρ : IndexRenaming) (ps₁ ps₂ : Array Param) : Option IndexRenaming :=

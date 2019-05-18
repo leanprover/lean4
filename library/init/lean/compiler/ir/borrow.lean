@@ -31,9 +31,6 @@ def getHash : Key → USize
 instance : Hashable Key := ⟨getHash⟩
 end Key
 
-def setBorrow (ps : Array Param) : Array Param :=
-ps.hmap $ λ p, { borrow := true, .. p }
-
 abbrev ParamMap := HashMap Key (Array Param)
 
 def ParamMap.fmt (map : ParamMap) : Format :=
@@ -52,10 +49,14 @@ local attribute [instance] monadInhabited
 
 namespace InitParamMap
 
+/- Mark parameters that take a reference as borrow -/
+def initBorrow (ps : Array Param) : Array Param :=
+ps.hmap $ λ p, { borrow := p.ty.isObj, .. p }
+
 partial def visitFnBody : FnBody → ReaderT FunId (State ParamMap) Unit
 | (FnBody.jdecl j xs v b) := do
   fnid ← read,
-  modify $ λ m, m.insert (Key.jp fnid j) (setBorrow xs),
+  modify $ λ m, m.insert (Key.jp fnid j) (initBorrow xs),
   visitFnBody b
 | e :=
   unless (e.isTerminal) $ do
@@ -65,7 +66,7 @@ partial def visitFnBody : FnBody → ReaderT FunId (State ParamMap) Unit
 def visitDecls (decls : Array Decl) : State ParamMap Unit :=
 decls.mfor $ λ decl, match decl with
   | Decl.fdecl f xs _ b := do
-    modify $ λ m, m.insert (Key.decl f) (setBorrow xs),
+    modify $ λ m, m.insert (Key.decl f) (initBorrow xs),
     visitFnBody b f
   | _ := pure ()
 end InitParamMap

@@ -5,6 +5,7 @@ Author: Sebastian Ullrich, Leonardo de Moura
 -/
 prelude
 import init.lean.name init.lean.format init.data.array
+-- set_option trace.compiler.ir.borrow true
 -- namespace Lean
 namespace Parser
 open Lean
@@ -230,8 +231,8 @@ partial def reprint : Syntax → Option String
     if args.size == 0 then failure
     else do
       s ← reprint (args.get 0),
-      args.mfoldlFrom s (λ s stx, do s' ← reprint stx, guard (s == s'), pure s) 1
-  else args.mfoldl "" (λ r stx, do s ← reprint stx, pure $ r ++ s)
+      args.mfoldlFrom (λ s stx, do s' ← reprint stx, guard (s == s'), pure s) s 1
+  else args.mfoldl (λ r stx, do s ← reprint stx, pure $ r ++ s) ""
 | missing := ""
 
 open Lean.Format

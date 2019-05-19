@@ -7,6 +7,8 @@ prelude
 import init.control.estate
 import init.control.reader
 import init.lean.compiler.ir.basic
+import init.lean.compiler.ir.compilerm
+import init.lean.compiler.ir.freeVars
 
 namespace Lean
 namespace IR
@@ -47,40 +49,43 @@ match isScalar with
 def eqvTypes (t₁ t₂ : IRType) : Bool :=
 (t₁.isScalar == t₂.isScalar) && (!t₁.isScalar || t₁ == t₂)
 
-structure Env :=
-(ctx: LocalContext) (resultType : IRType) (decls : FunId → Decl)
+structure BoxingContext :=
+(localCtx : LocalContext := {}) (resultType : IRType := IRType.irrelevant) (decls : Array Decl) (env : Environment)
 
-abbrev M := ReaderT Env (StateT Index Id)
+abbrev M := ReaderT BoxingContext (StateT Index Id)
 
 def mkFresh : M VarId :=
 do idx ← getModify (+1),
    pure { idx := idx }
 
-def getEnv : M Env := read
-def getCtx : M LocalContext := Env.ctx <$> getEnv
-def getResultType : M IRType := Env.resultType <$> getEnv
+def localContext : M LocalContext := BoxingContext.localCtx <$> read
+
+def resultType : M IRType := BoxingContext.resultType <$> read
+
 def getVarType (x : VarId) : M IRType :=
-do ctx ← getCtx,
-   match ctx.getType x with
+do localCtx ← localContext,
+   match localCtx.getType x with
    | some t := pure t
    | none   := pure IRType.object -- unreachable, we assume the code is well formed
 def getJPParams (j : JoinPointId) : M (Array Param) :=
-do ctx ← getCtx,
-   match ctx.getJPParams j with
+do localCtx ← localContext,
+   match localCtx.getJPParams j with
    | some ys := pure ys
    | none    := pure Array.empty -- unreachable, we assume the code is well formed
 def getDecl (fid : FunId) : M Decl :=
-do env ← getEnv,
-   pure $ env.decls fid
+do ctx ← read,
+   match findDeclAux' ctx.env fid ctx.decls with
+   | some decl := pure decl
+   | none      := pure (default _) -- unreachable if well-formed
 
 @[inline] def withParams {α : Type} (xs : Array Param) (k : M α) : M α :=
-adaptReader (λ env : Env, { ctx := env.ctx.addParams xs, .. env }) k
+adaptReader (λ ctx : BoxingContext, { localCtx := ctx.localCtx.addParams xs, .. ctx }) k
 
 @[inline] def withVDecl {α : Type} (x : VarId) (ty : IRType) (v : Expr) (k : M α) : M α :=
-adaptReader (λ env : Env, { ctx := env.ctx.addLocal x ty v, .. env }) k
+adaptReader (λ ctx : BoxingContext, { localCtx := ctx.localCtx.addLocal x ty v, .. ctx }) k
 
 @[inline] def withJDecl {α : Type} (j : JoinPointId) (xs : Array Param) (v : FnBody) (k : M α) : M α :=
-adaptReader (λ env : Env, { ctx := env.ctx.addJP j xs v, .. env }) k
+adaptReader (λ ctx : BoxingContext, { localCtx := ctx.localCtx.addJP j xs v, .. ctx }) k
 
 /- Auxiliary function used by castVarIfNeeded.
    It is used when the expected type does not match `xType`.
@@ -185,7 +190,7 @@ partial def visitFnBody : FnBody → M FnBody
   castVarIfNeeded x expected $ λ x,
     pure $ FnBody.case tid x alts
 | (FnBody.ret x)             := do
-  expected ← getResultType,
+  expected ← resultType,
   castArgIfNeeded x expected (λ x, pure $ FnBody.ret x)
 | (FnBody.jmp j ys)          := do
   ps ← getJPParams j,
@@ -193,7 +198,20 @@ partial def visitFnBody : FnBody → M FnBody
 | other                      :=
   pure other
 
+def run (env : Environment) (decls : Array Decl) : Array Decl :=
+let ctx : BoxingContext := { decls := decls, env := env } in
+decls.map (λ decl, match decl with
+  | Decl.fdecl f xs t b :=
+    let nextIdx := decl.maxIndex + 1 in
+    let b := (withParams xs (visitFnBody b) { resultType := t, .. ctx }).run' nextIdx in
+    Decl.fdecl f xs t b
+  | d := d)
+
 end ExplicitBoxing
+
+def explicitBoxing (decls : Array Decl) : CompilerM (Array Decl) :=
+do env ← getEnv,
+   pure $ ExplicitBoxing.run env decls
 
 end IR
 end Lean

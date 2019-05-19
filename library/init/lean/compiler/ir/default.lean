@@ -34,6 +34,8 @@ logDecls `simp_case decls,
 let decls := decls.hmap Decl.normalizeIds,
 decls ← inferBorrow decls,
 logDecls `borrow decls,
+decls ← explicitBoxing decls,
+logDecls `boxing decls,
 checkDecls decls,
 addDecls decls,
 pure ()

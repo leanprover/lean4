@@ -163,7 +163,6 @@ extern obj* l_Array_hmmapAux___main___at_Lean_IR_NormalizeIds_withParams___spec_
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_collectFnBody___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_collectDecls___spec__1___boxed(obj*, obj*, obj*, obj*);
 usize l_Lean_IR_Borrow_Key_getHash___main(obj*);
-extern obj* l_Lean_IR_argInh;
 obj* l_Lean_IR_Borrow_markModifiedParamMap(obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__2(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_updateParamSet___boxed(obj*, obj*);
@@ -194,6 +193,7 @@ obj* l_HashMapImp_expand___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___s
 obj* l_Lean_IR_Borrow_mkInitParamMap(obj*);
 obj* l_AssocList_find___main___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___spec__2(obj*, obj*);
 obj* l_Lean_IR_Borrow_collectExpr___main___boxed(obj*, obj*, obj*, obj*);
+extern obj* l_Lean_IR_Arg_Inhabited;
 obj* l_HashMapImp_moveEntries___main___at_Lean_IR_Borrow_InitParamMap_visitFnBody___main___spec__4(obj*, obj*, obj*);
 uint8 l_Lean_IR_Borrow_Key_beq___main(obj* x_0, obj* x_1) {
 _start:
@@ -1986,7 +1986,7 @@ lean::dec(x_3);
 x_11 = lean::nat_sub(x_2, x_9);
 x_12 = lean::nat_sub(x_11, x_8);
 lean::dec(x_11);
-x_14 = l_Lean_IR_argInh;
+x_14 = l_Lean_IR_Arg_Inhabited;
 x_15 = lean::array_get(x_14, x_0, x_12);
 x_16 = l_Lean_IR_paramInh;
 x_17 = lean::array_get(x_16, x_1, x_12);
@@ -2072,7 +2072,7 @@ lean::dec(x_3);
 x_11 = lean::nat_sub(x_2, x_9);
 x_12 = lean::nat_sub(x_11, x_8);
 lean::dec(x_11);
-x_14 = l_Lean_IR_argInh;
+x_14 = l_Lean_IR_Arg_Inhabited;
 x_15 = lean::array_get(x_14, x_0, x_12);
 if (lean::obj_tag(x_15) == 0)
 {

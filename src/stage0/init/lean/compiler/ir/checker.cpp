@@ -59,7 +59,7 @@ obj* l_Lean_IR_LocalContext_addParam(obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
-uint8 l_Lean_IR_CtorInfo_isScalar(obj*);
+uint8 l_Lean_IR_CtorInfo_isRef(obj*);
 obj* l_Lean_IR_LocalContext_getType(obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_Checker_withParams___spec__1(obj*, obj*, obj*, obj*, obj*);
@@ -543,50 +543,50 @@ lean::inc(x_3);
 x_5 = lean::cnstr_get(x_1, 1);
 lean::inc(x_5);
 lean::dec(x_1);
-x_8 = l_Lean_IR_CtorInfo_isScalar(x_3);
+x_8 = l_Lean_IR_CtorInfo_isRef(x_3);
 lean::dec(x_3);
 if (x_8 == 0)
 {
-obj* x_10; 
-x_10 = l_Lean_IR_Checker_checkObjType(x_0, x_2);
-if (lean::obj_tag(x_10) == 0)
-{
-obj* x_13; obj* x_15; obj* x_16; 
+obj* x_10; obj* x_11; 
+x_10 = lean::mk_nat_obj(0ul);
+x_11 = l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1(x_5, x_10, x_2);
 lean::dec(x_5);
-lean::dec(x_2);
-x_13 = lean::cnstr_get(x_10, 0);
-if (lean::is_exclusive(x_10)) {
- x_15 = x_10;
-} else {
- lean::inc(x_13);
- lean::dec(x_10);
- x_15 = lean::box(0);
-}
-if (lean::is_scalar(x_15)) {
- x_16 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_16 = x_15;
-}
-lean::cnstr_set(x_16, 0, x_13);
-return x_16;
+return x_11;
 }
 else
 {
-obj* x_18; obj* x_19; 
-lean::dec(x_10);
-x_18 = lean::mk_nat_obj(0ul);
-x_19 = l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1(x_5, x_18, x_2);
+obj* x_13; 
+x_13 = l_Lean_IR_Checker_checkObjType(x_0, x_2);
+if (lean::obj_tag(x_13) == 0)
+{
+obj* x_16; obj* x_18; obj* x_19; 
 lean::dec(x_5);
-return x_19;
+lean::dec(x_2);
+x_16 = lean::cnstr_get(x_13, 0);
+if (lean::is_exclusive(x_13)) {
+ x_18 = x_13;
+} else {
+ lean::inc(x_16);
+ lean::dec(x_13);
+ x_18 = lean::box(0);
 }
+if (lean::is_scalar(x_18)) {
+ x_19 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_19 = x_18;
+}
+lean::cnstr_set(x_19, 0, x_16);
+return x_19;
 }
 else
 {
 obj* x_21; obj* x_22; 
+lean::dec(x_13);
 x_21 = lean::mk_nat_obj(0ul);
 x_22 = l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1(x_5, x_21, x_2);
 lean::dec(x_5);
 return x_22;
+}
 }
 }
 case 1:

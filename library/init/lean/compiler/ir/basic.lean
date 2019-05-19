@@ -107,7 +107,15 @@ inductive Arg
 | var (id : VarId)
 | irrelevant
 
-instance argInh : Inhabited Arg := ⟨Arg.irrelevant⟩
+namespace Arg
+protected def beq : Arg → Arg → Bool
+| (var x)    (var y)    := x == y
+| irrelevant irrelevant := true
+| _          _          := false
+
+instance : HasBeq Arg := ⟨Arg.beq⟩
+instance : Inhabited Arg := ⟨irrelevant⟩
+end Arg
 
 @[export lean.ir.mk_var_arg_core] def mkVarArg (id : VarId) : Arg := Arg.var id
 @[export lean.ir.mk_irrelevant_arg_core] def mkIrrelevantArg : Arg := Arg.irrelevant
@@ -143,8 +151,11 @@ def CtorInfo.beq : CtorInfo → CtorInfo → Bool
 
 instance CtorInfo.HasBeq : HasBeq CtorInfo := ⟨CtorInfo.beq⟩
 
+def CtorInfo.isRef (info : CtorInfo) : Bool :=
+info.size > 0 || info.usize > 0 || info.ssize > 0
+
 def CtorInfo.isScalar (info : CtorInfo) : Bool :=
-info.size == 0 && info.usize == 0 && info.ssize == 0
+!info.isRef
 
 inductive Expr
 | ctor (i : CtorInfo) (ys : Array Arg)
@@ -538,6 +549,11 @@ def FnBody.beq (b₁ b₂ : FnBody) : Bool :=
 FnBody.alphaEqv ∅  b₁ b₂
 
 instance FnBody.HasBeq : HasBeq FnBody := ⟨FnBody.beq⟩
+
+abbrev VarIdSet := RBTree VarId (λ x y, x.idx < y.idx)
+namespace VarIdSet
+instance : Inhabited VarIdSet := ⟨{}⟩
+end VarIdSet
 
 end IR
 end Lean

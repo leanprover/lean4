@@ -52,7 +52,7 @@ def checkExpr (ty : IRType) : Expr → M Unit
 | (Expr.pap _ ys)           := checkObjType ty *> checkArgs ys -- partial applications should always produce a closure object
 | (Expr.ap x ys)            := checkObjVar x *> checkArgs ys
 | (Expr.fap c ys)           := checkArgs ys
-| (Expr.ctor c ys)          := when (!c.isScalar) (checkObjType ty) *> checkArgs ys
+| (Expr.ctor c ys)          := when c.isRef (checkObjType ty) *> checkArgs ys
 | (Expr.reset x)            := checkObjVar x *> checkObjType ty
 | (Expr.reuse x i u ys)     := checkObjVar x *> checkArgs ys *> checkObjType ty
 | (Expr.box xty x)          := checkObjType ty *> checkScalarVar x *> checkVarType x (==xty)

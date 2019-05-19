@@ -91,6 +91,17 @@ instance : HasMul Nat :=
 @[inline] def fold {α : Type u} (f : Nat → α → α) (n : Nat) (a : α) : α :=
 foldAux f n n a
 
+@[specialize] def anyAux (f : Nat → Bool) (s : Nat) : Nat → Bool
+| 0         := false
+| (succ n)  := f (s - (succ n)) || anyAux n
+
+/- `any f n = true` iff there is `i in [0, n-1]` s.t. `f i = true` -/
+@[inline] def any (f : Nat → Bool) (n : Nat) : Bool :=
+anyAux f n n
+
+@[inline] def all (f : Nat → Bool) (n : Nat) : Bool :=
+!any (λ i, !f i) n
+
 @[specialize] def repeatAux {α : Type u} (f : α → α) : Nat → α → α
 | 0         a := a
 | (succ n)  a := repeatAux n (f a)

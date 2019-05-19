@@ -15,6 +15,7 @@ import init.lean.compiler.ir.normids
 import init.lean.compiler.ir.checker
 import init.lean.compiler.ir.borrow
 import init.lean.compiler.ir.boxing
+import init.lean.compiler.ir.rc
 
 namespace Lean
 namespace IR
@@ -36,6 +37,8 @@ decls ← inferBorrow decls,
 logDecls `borrow decls,
 decls ← explicitBoxing decls,
 logDecls `boxing decls,
+decls ← explicitRC decls,
+logDecls `rc decls,
 checkDecls decls,
 addDecls decls,
 pure ()

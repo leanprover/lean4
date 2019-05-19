@@ -84,14 +84,10 @@ end IsLive
 def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
 (IsLive.visitFnBody x.idx b).run' ctx
 
-abbrev JPLiveVarMap := RBMap JoinPointId (Array VarId) (λ j₁ j₂, j₁.idx < j₂.idx)
-abbrev LiveVarSet   := RBTree VarId (λ x y, x.idx < y.idx)
+abbrev LiveVarSet   := VarIdSet
+abbrev JPLiveVarMap := RBMap JoinPointId LiveVarSet (λ j₁ j₂, j₁.idx < j₂.idx)
 
-namespace LiveVarSet
-instance : Inhabited LiveVarSet := ⟨{}⟩
-def toArray (s : LiveVarSet) : Array VarId :=
-s.fold Array.push Array.empty
-end LiveVarSet
+instance LiveVarSet.inhabited : Inhabited LiveVarSet := ⟨{}⟩
 
 namespace LiveVars
 
@@ -106,11 +102,11 @@ private def collectArg : Arg → Collector
 λ s, as.foldl (λ s a, f a s) s
 private def collectArgs (as : Array Arg) : Collector :=
 collectArray as collectArg
-private def collectVars (xs : Array VarId) : Collector :=
-λ s, xs.foldl (λ s x, s.insert x) s
+private def accumulate (s' : LiveVarSet) : Collector :=
+λ s, s'.fold (λ s x, s.insert x) s
 private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
 match m.find j with
-| some xs := collectVars xs
+| some xs := accumulate xs
 | none    := skip -- unreachable for well-formed code
 private def bindVar (x : VarId) : Collector :=
 λ s, s.erase x
@@ -139,7 +135,7 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | (FnBody.vdecl x _ v b)    m := collectExpr v >> collectFnBody b m >> bindVar x
 | (FnBody.jdecl j ys v b)   m :=
   let jLiveVars := (collectFnBody v m >> bindParams ys) {} in
-  let m         := m.insert j jLiveVars.toArray in
+  let m         := m.insert j jLiveVars in
   collectFnBody b m
 | (FnBody.set x _ y b)      m := collectVar x >> collectVar y >> collectFnBody b m
 | (FnBody.uset x _ y b)     m := collectVar x >> collectVar y >> collectFnBody b m
@@ -155,7 +151,7 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 
 def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap) : JPLiveVarMap :=
 let jLiveVars := (collectFnBody v m >> bindParams ys) {} in
-m.insert j jLiveVars.toArray
+m.insert j jLiveVars
 
 end LiveVars
 

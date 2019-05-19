@@ -84,5 +84,88 @@ end IsLive
 def FnBody.hasLiveVar (b : FnBody) (ctx : LocalContext) (x : VarId) : Bool :=
 (IsLive.visitFnBody x.idx b).run' ctx
 
+abbrev JPLiveVarMap := RBMap JoinPointId (Array VarId) (λ j₁ j₂, j₁.idx < j₂.idx)
+abbrev LiveVarSet   := RBTree VarId (λ x y, x.idx < y.idx)
+
+namespace LiveVarSet
+instance : Inhabited LiveVarSet := ⟨{}⟩
+def toArray (s : LiveVarSet) : Array VarId :=
+s.fold Array.push Array.empty
+end LiveVarSet
+
+namespace LiveVars
+
+abbrev Collector := LiveVarSet → LiveVarSet
+
+@[inline] private def skip : Collector := λ s, s
+@[inline] private def collectVar (x : VarId) : Collector := λ s, s.insert x
+private def collectArg : Arg → Collector
+| (Arg.var x) := collectVar x
+| irrelevant  := skip
+@[specialize] private def collectArray {α : Type} (as : Array α) (f : α → Collector) : Collector :=
+λ s, as.foldl (λ s a, f a s) s
+private def collectArgs (as : Array Arg) : Collector :=
+collectArray as collectArg
+private def collectVars (xs : Array VarId) : Collector :=
+λ s, xs.foldl (λ s x, s.insert x) s
+private def collectJP (m : JPLiveVarMap) (j : JoinPointId) : Collector :=
+match m.find j with
+| some xs := collectVars xs
+| none    := skip -- unreachable for well-formed code
+private def bindVar (x : VarId) : Collector :=
+λ s, s.erase x
+private def bindParams (ps : Array Param) : Collector :=
+λ s, ps.foldl (λ s p, s.erase p.x) s
+
+local infix ` >> `:50 := Function.comp
+
+def collectExpr : Expr → Collector
+| (Expr.ctor _ ys)       := collectArgs ys
+| (Expr.reset x)         := collectVar x
+| (Expr.reuse x _ _ ys)  := collectVar x >> collectArgs ys
+| (Expr.proj _ x)        := collectVar x
+| (Expr.uproj _ x)       := collectVar x
+| (Expr.sproj _ _ x)     := collectVar x
+| (Expr.fap _ ys)        := collectArgs ys
+| (Expr.pap _ ys)        := collectArgs ys
+| (Expr.ap x ys)         := collectVar x >> collectArgs ys
+| (Expr.box _ x)         := collectVar x
+| (Expr.unbox x)         := collectVar x
+| (Expr.lit v)           := skip
+| (Expr.isShared x)      := collectVar x
+| (Expr.isTaggedPtr x)   := collectVar x
+
+partial def collectFnBody : FnBody → JPLiveVarMap → Collector
+| (FnBody.vdecl x _ v b)    m := collectExpr v >> collectFnBody b m >> bindVar x
+| (FnBody.jdecl j ys v b)   m :=
+  let jLiveVars := (collectFnBody v m >> bindParams ys) {} in
+  let m         := m.insert j jLiveVars.toArray in
+  collectFnBody b m
+| (FnBody.set x _ y b)      m := collectVar x >> collectVar y >> collectFnBody b m
+| (FnBody.uset x _ y b)     m := collectVar x >> collectVar y >> collectFnBody b m
+| (FnBody.sset x _ _ y _ b) m := collectVar x >> collectVar y >> collectFnBody b m
+| (FnBody.release x _ b)    m := collectVar x >> collectFnBody b m
+| (FnBody.inc x _ _ b)      m := collectVar x >> collectFnBody b m
+| (FnBody.dec x _ _ b)      m := collectVar x >> collectFnBody b m
+| (FnBody.mdata _ b)        m := collectFnBody b m
+| (FnBody.ret x)            m := collectArg x
+| (FnBody.case _ x alts)    m := collectVar x >> collectArray alts (λ alt, collectFnBody alt.body m)
+| (FnBody.unreachable)      m := skip
+| (FnBody.jmp j xs)         m := collectJP m j >> collectArgs xs
+
+def updateJPLiveVarMap (j : JoinPointId) (ys : Array Param) (v : FnBody) (m : JPLiveVarMap) : JPLiveVarMap :=
+let jLiveVars := (collectFnBody v m >> bindParams ys) {} in
+m.insert j jLiveVars.toArray
+
+end LiveVars
+
+def updateLiveVars (e : Expr) (v : LiveVarSet) : LiveVarSet :=
+LiveVars.collectExpr e v
+
+def collectLiveVars (b : FnBody) (m : JPLiveVarMap) (v : LiveVarSet := {}) : LiveVarSet :=
+LiveVars.collectFnBody b m v
+
+export LiveVars (updateJPLiveVarMap)
+
 end IR
 end Lean

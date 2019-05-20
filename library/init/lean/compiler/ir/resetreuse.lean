@@ -56,7 +56,6 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
 
 /- We use `Context` to track join points in scope. -/
 abbrev M := ReaderT LocalContext (StateT Index Id)
-local attribute [instance] monadInhabited
 
 private def mkFresh : M VarId :=
 do idx ← getModify (+1),

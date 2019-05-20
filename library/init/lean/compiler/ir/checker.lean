@@ -72,8 +72,6 @@ do ctx ← read,
       pure $ ctx.addParam p) ctx,
    adaptReader (λ _, ctx) k
 
-local attribute [instance] monadInhabited
-
 partial def checkFnBody : FnBody → M Unit
 | (FnBody.vdecl x t v b)    := do
   checkExpr t v,

@@ -11,7 +11,6 @@ import init.lean.compiler.ir.compilerm
 
 namespace Lean
 namespace IR
-local attribute [instance] monadInhabited
 
 namespace UsesLeanNamespace
 

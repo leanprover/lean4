@@ -127,7 +127,6 @@ def isOfKind (k : SyntaxNodeKind) : Syntax → Bool
 
 section
 variables {m : Type → Type} [Monad m] (r : Syntax → m (Option Syntax))
-local attribute [instance] monadInhabited
 
 partial def mreplace : Syntax → m Syntax
 | stx@(rawNode n) := do

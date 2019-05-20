@@ -27,7 +27,6 @@ Assumptions:
 - This transformation is applied after `reset` and `reuse` instructions have been added.
   Reason: `resetreuse.lean` ignores `box` and `unbox` instructions.
 -/
-local attribute [instance] monadInhabited
 
 /- Infer scrutinee type using `case` alternatives.
    This can be done whenever `alts` does not contain an `Alt.default _` value. -/

@@ -12,7 +12,6 @@ import init.lean.compiler.ir.emitutil
 namespace Lean
 namespace IR
 namespace EmitCpp
-local attribute [instance] monadInhabited
 
 def leanMainFn := "_lean_main"
 

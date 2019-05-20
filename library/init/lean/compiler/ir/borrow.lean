@@ -45,8 +45,6 @@ let fmts := map.fold (λ fmt k ps,
 instance : HasFormat ParamMap := ⟨ParamMap.fmt⟩
 instance : HasToString ParamMap := ⟨λ m, Format.pretty (format m)⟩
 
-local attribute [instance] monadInhabited
-
 namespace InitParamMap
 
 /- Mark parameters that take a reference as borrow -/

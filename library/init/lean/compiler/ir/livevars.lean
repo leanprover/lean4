@@ -46,8 +46,6 @@ abbrev M := State LocalContext
 @[inline] def visitArgs (w : Index) (as : Array Arg) : M Bool := pure (HasIndex.visitArgs w as)
 @[inline] def visitExpr (w : Index) (e : Expr) : M Bool := pure (HasIndex.visitExpr w e)
 
-local attribute [instance] monadInhabited
-
 partial def visitFnBody (w : Index) : FnBody → M Bool
 | (FnBody.vdecl x _ v b)    := visitExpr w v <||> visitFnBody b
 | (FnBody.jdecl j ys v b)   := visitFnBody v <||> visitFnBody b

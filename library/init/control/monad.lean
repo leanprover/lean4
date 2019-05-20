@@ -27,11 +27,9 @@ class Monad (m : Type u → Type v) extends Applicative m, HasBind m : Type (max
 (seqLeft  := λ α β x y, x >>= λ a, y >>= λ _, pure a)
 (seqRight := λ α β x y, x >>= λ _, y)
 
-/- We do not add these instances by default because they are rarely needed,
-   and could slow down the current type class resolution procedure. -/
-
-def monadInhabited {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) :=
+instance monadInhabited {α : Type u} {m : Type u → Type v} [Monad m] [Inhabited α] : Inhabited (m α) :=
 ⟨pure $ default _⟩
 
+/- Alternative instance -/
 def monadInhabited' {α : Type u} {m : Type u → Type v} [Monad m] : Inhabited (α → m α) :=
 ⟨pure⟩

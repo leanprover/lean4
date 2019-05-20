@@ -22,8 +22,6 @@ do found ← get,
 def checkParams (ps : Array Param) : M Bool :=
 ps.allM $ λ p, checkId p.x.idx
 
-local attribute [instance] monadInhabited
-
 partial def checkFnBody : FnBody → M Bool
 | (FnBody.vdecl x _ _ b)  := checkId x.idx <&&> checkFnBody b
 | (FnBody.jdecl j ys _ b) := checkId j.idx <&&> checkParams ys <&&> checkFnBody b
@@ -98,8 +96,6 @@ abbrev N := ReaderT IndexRenaming (State Nat)
 
 instance MtoN {α} : HasCoe (M α) (N α) :=
 ⟨λ x m, pure $ x m⟩
-
-local attribute [instance] monadInhabited
 
 partial def normFnBody : FnBody → N FnBody
 | (FnBody.vdecl x t v b)     := do v ← normExpr v, withVar x $ λ x, FnBody.vdecl x t v <$> normFnBody b

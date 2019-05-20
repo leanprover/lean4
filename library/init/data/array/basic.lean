@@ -172,8 +172,6 @@ miterate₂Aux a₁ a₂ f 0 b
 @[inline] def mfoldl₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
 miterate₂ a₁ a₂ b (λ _ a₁ a₂ b, f b a₁ a₂)
 
-local attribute [instance] monadInhabited
-
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def mfindAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
 | i :=
@@ -213,7 +211,6 @@ Id.run $ mfindAux a f 0
 
 section
 variables {m : Type → Type v} [Monad m]
-local attribute [instance] monadInhabited
 
 @[specialize] partial def anyMAux (a : Array α) (p : α → m Bool) : Nat → m Bool
 | i :=
@@ -307,7 +304,6 @@ as.foldl (λ bs a, bs.push (f a)) (mkEmpty as.size)
 
 section
 variables {m : Type u → Type u} [Monad m]
-local attribute [instance] monadInhabited
 
 @[specialize]
 partial def mforAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : Nat → m PUnit

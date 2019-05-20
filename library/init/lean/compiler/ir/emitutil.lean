@@ -50,6 +50,29 @@ def usesLeanNamespace (env : Environment) : Decl → Bool
 | _                    := false
 
 
+namespace CollectUsedDecls
+
+abbrev M := State NameSet
+
+@[inline] def collect (f : FunId) : M Unit :=
+modify (λ s, s.insert f)
+
+partial def collectFnBody : FnBody → M Unit
+| (FnBody.vdecl _ _ v b) :=
+  match v with
+  | Expr.fap f _ := collect f *> collectFnBody b
+  | Expr.pap f _ := collect f *> collectFnBody b
+  | other        := collectFnBody b
+| (FnBody.jdecl _ _ v b) := collectFnBody v *> collectFnBody b
+| (FnBody.case _ _ alts) := alts.mfor $ λ alt, collectFnBody alt.body
+| e := unless e.isTerminal $ collectFnBody e.body
+
+end CollectUsedDecls
+
+def collectUsedDecls (decl : Decl) (used : NameSet := {}) : NameSet :=
+match decl with
+| Decl.fdecl _ _ _ b := (CollectUsedDecls.collectFnBody b *> get).run' used
+| other              := used
 
 end IR
 end Lean

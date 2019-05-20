@@ -11,6 +11,9 @@ import init.lean.compiler.ir.emitutil
 
 namespace Lean
 namespace IR
+-- TODO: @[export]
+constant getExportNameFor (env : Environment) (n : Name) : Option Name := default _
+
 namespace EmitCpp
 
 def leanMainFn := "_lean_main"
@@ -37,6 +40,99 @@ modify (λ out, out ++ toString a)
 
 @[inline] def emitLn {α : Type} [HasToString α] (a : α) : M Unit :=
 emit a *> emit "\n"
+
+def toCppType : IRType → String
+| IRType.float      := "double"
+| IRType.uint8      := "uint8"
+| IRType.uint16     := "uint16"
+| IRType.uint32     := "uint32"
+| IRType.uint64     := "uint64"
+| IRType.usize      := "usize"
+| IRType.object     := "obj*"
+| IRType.tobject    := "obj*"
+| IRType.irrelevant := "obj*"
+
+def openNamespacesAux : Name → M Unit
+| Name.anonymous      := pure ()
+| (Name.mkString p s) := openNamespacesAux p *> emitLn ("namespace " ++ s ++ "{")
+| n                   := throw ("invalid namespace '" ++ toString n ++ "'")
+
+def openNamespaces (n : Name) : M Unit :=
+openNamespacesAux n.getPrefix
+
+def openNamespacesFor (n : Name) : M Unit :=
+do env ← getEnv,
+   match getExportNameFor env n with
+   | none   := pure ()
+   | some n := openNamespaces n
+
+def closeNamespacesAux : Name → M Unit
+| Name.anonymous      := pure ()
+| (Name.mkString p _) := emitLn "}" *> closeNamespacesAux p
+| n                   := throw ("invalid namespace '" ++ toString n ++ "'")
+
+def closeNamespaces (n : Name) : M Unit :=
+closeNamespacesAux n.getPrefix
+
+def closeNamespacesFor (n : Name) : M Unit :=
+do env ← getEnv,
+   match getExportNameFor env n with
+   | none   := pure ()
+   | some n := closeNamespaces n
+
+def toBaseCppName (n : Name) : M String :=
+do env ← getEnv,
+   match getExportNameFor env n with
+   | some (Name.mkString _ s) := pure s
+   | some _                   := throw "invalid export name"
+   | none                     := if n == `main then pure leanMainFn else pure n.mangle
+
+def toCppName (n : Name) : M String :=
+do env ← getEnv,
+   match getExportNameFor env n with
+   | some s := pure (s.toStringWithSep "::")
+   | none   := if n == `main then pure leanMainFn else pure n.mangle
+
+def toCppInitName (n : Name) : M String :=
+do env ← getEnv,
+   match getExportNameFor env n with
+   | some (Name.mkString p s) := pure $ (Name.mkString p ("_init_" ++ s)).toStringWithSep "::"
+   | some _                   := throw "invalid export name"
+   | none                     := pure ("_init_" ++ n.mangle)
+
+def emitFnDeclAux (decl : Decl) (extern : Bool) : M Unit :=
+do
+cppBaseName ← toBaseCppName decl.name,
+let ps := decl.params,
+when (ps.isEmpty && extern) (emit "extern "),
+emit (toCppType decl.resultType ++ " " ++ cppBaseName),
+unless (ps.isEmpty) $ do {
+  emit "(",
+  ps.size.mfor $ λ i, do {
+    when (i > 0) (emit ", "),
+    emit (toCppType (ps.get i).ty)
+  },
+  emit ")"
+},
+emitLn ";"
+
+def emitFnDecl (decl : Decl) (extern : Bool) : M Unit :=
+do
+openNamespacesFor decl.name,
+emitFnDeclAux decl extern,
+closeNamespacesFor decl.name
+
+def emitFnDecls : M Unit :=
+do env ← getEnv,
+   let decls := getDecls env,
+   let modDecls  : NameSet := decls.foldl (λ s d, s.insert d.name) {},
+   let usedDecls : NameSet := decls.foldl (λ s d, collectUsedDecls d (s.insert d.name)) {},
+   let usedDecls := usedDecls.toList,
+   usedDecls.mfor $ λ n, do {
+     decl ← getDecl n,
+     -- TODO: check extern
+     emitFnDecl decl (!modDecls.contains n)
+   }
 
 def emitMainFn : M Unit :=
 do
@@ -83,11 +179,43 @@ match d with
   emitLn "}"
 | other := throw "function declaration expected"
 
-def main : M Unit :=
+def hasMainFn : M Bool :=
 do env ← getEnv,
    let decls := getDecls env,
-   when (decls.any (λ d, d.name == `main)) emitMainFn,
-   pure ()
+   pure $ decls.any (λ d, d.name == `main)
+
+def emitMainFnIfNeeded : M Unit :=
+mwhen hasMainFn emitMainFn
+
+def emitFileHeader : M Unit :=
+do
+env ← getEnv,
+modName ← getModName,
+emitLn "// Lean compiler output",
+emitLn ("// Module: " ++ toString modName),
+emit "// Imports:",
+env.imports.mfor $ λ m, emit (" " ++ toString m),
+emitLn "",
+emitLn "#include \"runtime/object.h\"",
+emitLn "#include \"runtime/apply.h\"",
+mwhen hasMainFn $ emitLn "#include \"runtime/init_module.h\"",
+emitLn "typedef lean::object obj;    typedef lean::usize  usize;",
+emitLn "typedef lean::uint8  uint8;  typedef lean::uint16 uint16;",
+emitLn "typedef lean::uint32 uint32; typedef lean::uint64 uint64;",
+emitLn "#if defined(__clang__)",
+emitLn "#pragma clang diagnostic ignored \"-Wunused-parameter\"",
+emitLn "#pragma clang diagnostic ignored \"-Wunused-label\"",
+emitLn "#elif defined(__GNUC__) && !defined(__CLANG__)",
+emitLn "#pragma GCC diagnostic ignored \"-Wunused-parameter\"",
+emitLn "#pragma GCC diagnostic ignored \"-Wunused-label\"",
+emitLn "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"",
+emitLn "#endif"
+
+def main : M Unit :=
+do
+emitFileHeader,
+emitFnDecls,
+emitMainFnIfNeeded
 
 end EmitCpp
 

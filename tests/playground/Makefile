@@ -1,27 +1,27 @@
 ## CONFIG
 
-BENCH=ulimit -s unlimited && bench
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_shared
 
-# basic version usable without Nix
-#CROSS_CATS = .lean .perf.lean .hs .gc.hs .perf.hs .llvm.hs .ml .gc.ml .perf.ml
-CROSS_CATS = .lean .lean.perf .gcc.lean .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf .flambda.ml
+CROSS_CATS = .lean .lean.perf .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf
+TIME_CATS = .lean .hs .llvm.hs .ml
+RETIRED_CATS = .gcc.lean .flambda.ml
 
 GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
+
+TEMCI ?= temci
+LEAN_BIN ?= ../../bin
+GHC ?= ghc
+OCAML ?= ocamlopt.opt
 
 ## IMPLEMENTATION
 
 CROSS_INPUTS = $(foreach bench,$(CROSS_BENCHES), $(foreach cat, $(CROSS_CATS), $(bench)$(cat)))
 
-LEAN_BIN ?= ../../bin
-GHC ?= ghc
-OCAML ?= ocamlopt.opt
-
 .SECONDARY: $(CROSS_INPUTS:%=%.out) $(CROSS_INPUTS:%=bench/%.bench)
 .DELETE_ON_ERROR:
 
-all: report_cross.csv
+all: reports report_cross.csv
 
 # disable some built-in rules
 %.lean:
@@ -61,7 +61,7 @@ bench:
 	-@mkdir bench
 
 bench/%.bench: %.out | bench
-	$(BENCH) "./$< $(BENCH_PARAMS)" --json $@
+	ulimit -s unlimited && $(TEMCI) short exec -d $< "./$< $(BENCH_PARAMS)" --out $@
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 
@@ -73,19 +73,40 @@ rbmap_shared.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_shared.%.bench: BENCH_PARAMS = 500000 1
 
 bench/%gc.hs.bench: %hs.out | bench
-	./$< +RTS -t --machine-readable -RTS $(BENCH_PARAMS) 2> $@
+	$(TEMCI) short exec\
+		-d $< "./$< +RTS -t --machine-readable -RTS $(BENCH_PARAMS) 2>&1 >/dev/null | ./ghc-gc.py"\
+		--runner output --out $@
 
 bench/%gc.ml.bench: %gc.ml.out | bench
-	ulimit -s unlimited && OCAML_INSTR_FILE=$@ time -ao $@ -f '%e' ./$< $(BENCH_PARAMS)
+	ulimit -s unlimited && $(TEMCI) short exec\
+		-d $< "echo > $@.tmp && OCAML_INSTR_FILE=$@.tmp time -ao $@.tmp -f '%e' ./$< $(BENCH_PARAMS) >/dev/null && ./ocaml-gc.py < $@.tmp"\
+		--runner output --out $@
 
 bench/%.perf.bench: %.out | bench
-	ulimit -s unlimited && perf stat -e cache-references,cache-misses,branches,branch-misses -o $@ ./$< $(BENCH_PARAMS)
+	ulimit -s unlimited && $(TEMCI) short exec\
+		-d $< "echo > $@.tmp && time -af '%e' perf stat -e cache-misses -x ';' ./$< $(BENCH_PARAMS) 2>&1 >/dev/null | ./perf.py"\
+		--runner output --out $@
 
 # fork() breaks instrumentation
 bench/binarytrees.gc.ml.bench:
 	touch $@
 
 bench_cross: $(CROSS_INPUTS:%=bench/%.bench)
+
+report:
+	-@mkdir report
+
+report/%: $(foreach cat, $(TIME_CATS), bench/%$(cat).bench) | report
+	cat $^ > $@.tmp
+	$(TEMCI) report $@.tmp --settings_file temci.yaml --reporter html2 --html2_out $@ --html2_force_override --properties etime
+
+report/index.html: | report
+	echo > $@
+	for bench in $(CROSS_BENCHES); do \
+		echo "<a href='$$bench/report.html'>$$bench</a>" >> $@; \
+	done
+
+reports: $(foreach bench, $(CROSS_BENCHES), report/$(bench)) report/index.html
 
 # yes.
 space = $() $()

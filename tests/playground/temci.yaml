@@ -1,0 +1,441 @@
+
+# Logging level
+log_level: info
+
+# Additional settings file
+settings_file: ''
+
+# Used temporary directory
+tmp_dir: /tmp/temci
+
+build:
+    
+    # Input file with the program blocks to build
+    in: build.yaml
+    
+    # Resulting run config file
+    out: run.exec.yaml
+    
+    # Number of threads that build simultaneously
+    threads: 1
+    
+    # Assembly randomization
+    rand:
+        
+        # Randomize the bss sub segments?
+        bss: false
+        
+        # Randomize the data sub segments?
+        data: false
+        
+        # Randomize the file structure.
+        file_structure: false
+        
+        # 0: don't randomize, > 0 randomize with paddings in range(0, x)
+        heap: 0
+        
+        # Randomize the linking order
+        linker: false
+        
+        # Randomize the rodata sub segments?
+        rodata: false
+        
+        # Used gnu assembler, default is /usr/bin/as
+        used_as: /usr/bin/as
+        
+        # Used gnu linker, default is /usr/bin/ld
+        used_ld: /usr/bin/ld
+
+package:
+    
+    # Only log proposed actions?
+    dry_run: false
+    
+    # Name of the produced file to reverse the actions of a package.
+    reverse_file: reverse.temci
+    
+    # If not empty, recipient of a mail if an error occurs or a command finished.
+    send_mail: ''
+    
+    actions:
+        
+        # Default sleep seconds for the sleep action.
+        sleep: 30
+    
+    compression:
+        
+        # Compression level. 0 = low, -9 high compression.
+        level: -6
+        
+        # The used compress program. The parallel version (pixz or pigz) is used if available.
+        program: xz
+
+report:
+    
+    # Exclude all data sets that contain only zeros or NaNs.
+    exclude_invalid: true
+    
+    # Properties that aren't shown in the report.
+    excluded_properties: [__ov-time]
+    
+    # File that contains the benchmarking results
+    in: run_output.yaml
+    
+    # Replace the property names in reports with longer more descriptive versions?
+    long_properties: true
+    
+    # Possible reporter are 'console', 'html', 'html2' and 'csv'
+    reporter: html2
+    
+    # Produce xkcd like plots (requires the humor sans font to be installed)
+    xkcd_like_plots: false
+    
+    #   Simple reporter that outputs just text.
+    console_misc:
+        
+        # Output file name or stdard out (-)
+        out: '-'
+    
+    #   Simple reporter that outputs just a configurable csv table with rows for each run block
+    csv_misc:
+        
+        # List of valid column specs, format is 'PROP\[mod\]' or 'ATTRIBUTES' mod is one of: mean, stddev, property, min, max and stddev per mean
+        columns: [description]
+        
+        # Output file name or standard out (-)
+        out: '-'
+    
+    #   Reporter that produces a HTML based report with lot's of graphics.
+    #   A rewrite of the original HTMLReporter
+    html2_misc:
+        
+        # Alpha value for confidence intervals
+        alpha: 0.05
+        
+        # Height per run block for the big comparison box plots
+        boxplot_height: 2.0
+        
+        # Width of all big plotted figures
+        fig_width_big: 25.0
+        
+        # Width of all small plotted figures
+        fig_width_small: 15.0
+        
+        # Format string used to format floats
+        float_format: '{:5.2e}'
+        
+        # Override the contents of the output directory if it already exists?
+        force_override: false
+        
+        # Generate pdf versions of the plotted figures?
+        gen_pdf: false
+        
+        # Generate simple latex versions of the plotted figures?
+        gen_tex: true
+        
+        # Generate excel files for all tables
+        gen_xls: false
+        
+        # Name of the HTML file
+        html_filename: report.html
+        
+        # Show the mean related values in the big comparison table
+        mean_in_comparison_tables: true
+        
+        # Show the mininmum related values in the big comparison table
+        min_in_comparison_tables: false
+        
+        # Output directory
+        out: report
+        
+        # Format string used to format floats as percentages
+        percent_format: '{:5.2%}'
+        
+        # Show zoomed out (x min = 0) figures in the extended summaries?
+        show_zoomed_out: false
+    
+    #   Reporter that produces a HTML bsaed report with lot's of graphics.
+    html_misc:
+        
+        # Run to to use as base run for relative values in comparison table
+        compare_against: 0
+        
+        # Properties to include in comparison table
+        compared_props: [all]
+        
+        # Name of the HTML file
+        html_filename: report.html
+        
+        # Output directory
+        out: report
+        
+        # Kind of plot to draw for pair plots (see searborn.joinplot)
+        pair_kind: kde
+        
+        # Width of the plots in centimeters
+        plot_size: 8
+    
+    number:
+        
+        # Don't omit the minimum number of decimal places if insignificant?
+        force_min_decimal_places: true
+        
+        # The maximum number of decimal places
+        max_decimal_places: 5
+        
+        # The minimum number of shown decimal places if decimal places are shown
+        min_decimal_places: 3
+        
+        # Omit insignificant decimal places
+        omit_insignificant_decimal_places: false
+        
+        # Show parentheses around non significant digits? (If a std dev is given)
+        parentheses: true
+        
+        # Use the exponential notation, i.e. '10e3' for 1000
+        scientific_notation: false
+        
+        # Use si prefixes instead of 'e…'
+        scientific_notation_si_prefixes: false
+
+run:
+    
+    # Append to the output file instead of overwriting by adding new run data blocks
+    append: false
+    
+    # Disable the hyper threaded cores. Good for cpu bound programs.
+    disable_hyper_threading: false
+    
+    # First n runs that are discarded
+    discarded_runs: 1
+    
+    # Possible run drivers are 'exec'
+    driver: exec
+    
+    # Input file with the program blocks to benchmark
+    in: input.exec.yaml
+    
+    # Maximum number of benchmarking runs
+    max_runs: 50
+    
+    # Maximum time the whole benchmarking should take +- time to execute one block.
+    max_time: 40s
+    
+    # Minimum number of benchmarking runs
+    min_runs: 10
+    
+    # Output file for the benchmarking results
+    out: run_output.yaml
+    
+    # Number of benchmarking runs that are done together
+    run_block_size: 1
+    
+    # if != -1 sets max and min runs to it's value
+    runs: -1
+    
+    # If not empty, recipient of a mail after the benchmarking finished.
+    send_mail: ''
+    
+    # Print console report if log_level=info
+    show_report: true
+    
+    # Randomize the order in which the program blocks are benchmarked.
+    shuffle: true
+    
+    # Store the result file after each set of blocks is benchmarked
+    store_often: false
+    
+    cpuset:
+        
+        # Use cpuset functionality?
+        active: false
+        
+        # Number of cpu cores for the base (remaining part of the) system
+        base_core_number: 1
+        
+        # 0: benchmark sequential, > 0: benchmark parallel with n instances, -1: determine n automatically
+        parallel: 0
+        
+        # Number of cpu cores per parallel running program.
+        sub_core_number: 1
+    
+    #   Implements a simple run driver that just executes one of the passed run_cmds
+    #   in each benchmarking run.
+    #   It meausures the time  using the perf stat tool (runner=perf_stat).
+    #   
+    #   The constructor calls the ``setup`` method.
+    exec_misc:
+        
+        # Pick a random command if more than one run command is passed.
+        random_cmd: true
+        
+        # If not '' overrides the runner setting for each program block
+        runner: ''
+    
+    exec_plugins:
+        
+        # Enable:   Allows the setting of the scaling governor of all cpu cores, to ensure that all use the same.
+        cpu_governor_active: null
+        
+        # Enable:   Disable the L1 and L2 caches on x86 and x86-64 architectures.
+        #   Uses a small custom kernel module (be sure to compile it via 'temci setup').
+        #   
+        #   :warning: slows program down significantly and has probably other weird consequences
+        #   :warning: this is untested
+        #   :warning: a linux-forum user declared: Disabling cpu caches gives you a pentium I like processor!!!
+        disable_cpu_caches_active: null
+        
+        # Enable:   Disables swapping on the system before the benchmarking and enables it after.
+        disable_swap_active: null
+        
+        # Enable:   Drop page cache, directoy entries and inodes before every benchmarking run.
+        drop_fs_caches_active: null
+        
+        # Enable:   Adds random environment variables.
+        env_randomize_active: null
+        
+        # Possible run driver plugins are 'nice', 'env_randomize', 'preheat', 'other_nice', 'stop_start', 'sync', 'sleep', 'drop_fs_caches', 'disable_swap', 'disable_cpu_caches' and 'cpu_governor'
+        exec_active: []
+        
+        # Enable:   Allows the setting of the nice and ionice values of the benchmarking process.
+        nice_active: null
+        
+        # Enable:   Allows the setting of the nice value of most other processes (as far as possible).
+        other_nice_active: null
+        
+        # Enable:   Preheats the system with a cpu bound task
+        #   (calculating the inverse of a big random matrice with numpy).
+        preheat_active: null
+        
+        # Enable:   Sleep a given amount of time before the benchmarking begins.
+        #   
+        #   See Gernot Heisers Systems Benchmarking Crimes:
+        #   Make sure that the system is really quiescent when starting an experiment,
+        #   leave enough time to ensure all previous data is flushed out.
+        sleep_active: null
+        
+        # Enable:   Stop almost all other processes (as far as possible).
+        stop_start_active: null
+        
+        # Enable:   Calls ``sync`` before each program execution.
+        sync_active: null
+        
+        #   Allows the setting of the scaling governor of all cpu cores, to ensure that all use the same.
+        cpu_governor_misc:
+            
+            # New scaling governor for all cpus
+            governor: performance
+        
+        #   Disable the L1 and L2 caches on x86 and x86-64 architectures.
+        #   Uses a small custom kernel module (be sure to compile it via 'temci setup').
+        #   
+        #   :warning: slows program down significantly and has probably other weird consequences
+        #   :warning: this is untested
+        #   :warning: a linux-forum user declared: Disabling cpu caches gives you a pentium I like processor!!!
+        disable_cpu_caches_misc: !!map {}
+        
+        #   Disables swapping on the system before the benchmarking and enables it after.
+        disable_swap_misc: !!map {}
+        
+        #   Drop page cache, directoy entries and inodes before every benchmarking run.
+        drop_fs_caches_misc:
+            
+            # Free dentries and inodes
+            free_dentries_inodes: true
+            
+            # Free the page cache
+            free_pagecache: true
+        
+        #   Adds random environment variables.
+        env_randomize_misc:
+            
+            # Maximum length of each random key
+            key_max: 4096
+            
+            # Maximum number of added random environment variables
+            max: 4
+            
+            # Minimum number of added random environment variables
+            min: 4
+            
+            # Maximum length of each random value
+            var_max: 4096
+        
+        #   Allows the setting of the nice and ionice values of the benchmarking process.
+        nice_misc:
+            
+            # Specify the name or number of the scheduling class to use;0 for none, 1 for realtime, 2 for best-effort, 3 for idle.
+            io_nice: 1
+            
+            # Niceness values range from -20 (most favorable to the process) to 19 (least favorable to the process).
+            nice: -15
+        
+        #   Allows the setting of the nice value of most other processes (as far as possible).
+        other_nice_misc:
+            
+            # Processes with lower nice values are ignored.
+            min_nice: -10
+            
+            # Niceness values for other processes.
+            nice: 19
+        
+        #   Preheats the system with a cpu bound task
+        #   (calculating the inverse of a big random matrice with numpy).
+        preheat_misc:
+            
+            # Number of seconds to preheat the system with an cpu bound task
+            time: 10
+        
+        #   Sleep a given amount of time before the benchmarking begins.
+        #   
+        #   See Gernot Heisers Systems Benchmarking Crimes:
+        #   Make sure that the system is really quiescent when starting an experiment,
+        #   leave enough time to ensure all previous data is flushed out.
+        sleep_misc:
+            
+            # Seconds to sleep
+            seconds: 10
+        
+        #   Stop almost all other processes (as far as possible).
+        stop_start_misc:
+            
+            # Each process which name (lower cased) starts with one of the prefixes is not ignored. Overrides the decision based on the min_id.
+            comm_prefixes: [ssh, xorg, bluetoothd]
+            
+            # Each process which name (lower cased) starts with one of the prefixes is ignored. It overrides the decisions based on comm_prefixes and min_id.
+            comm_prefixes_ignored: [dbus, kworker]
+            
+            # Just output the to be stopped processes but don't actually stop them?
+            dry_run: false
+            
+            # Processes with lower id are ignored.
+            min_id: 1500
+            
+            # Processes with lower nice values are ignored.
+            min_nice: -10
+            
+            # Suffixes of processes names which are stopped.
+            subtree_suffixes: [dm, apache]
+        
+        #   Calls ``sync`` before each program execution.
+        sync_misc: !!map {}
+
+stats:
+    
+    # Properties to use for reporting and null hypothesis tests
+    properties: [all]
+    
+    # Possible testers are 't', 'ks' and 'anderson'
+    tester: t
+    
+    # Range of p values that allow no conclusion.
+    uncertainty_range: !!python/tuple [0.05, 0.15]
+    
+    #   Tester that uses the Anderson statistic on 2 samples.
+    anderson_misc: !!map {}
+    
+    #   Tester that uses the Kolmogorov-Smirnov statistic on 2 samples.
+    ks_misc: !!map {}
+    
+    #   Tester that uses the student's t test.
+    t_misc: !!map {}

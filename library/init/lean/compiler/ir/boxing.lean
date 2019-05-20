@@ -8,7 +8,7 @@ import init.control.estate
 import init.control.reader
 import init.lean.compiler.ir.basic
 import init.lean.compiler.ir.compilerm
-import init.lean.compiler.ir.freeVars
+import init.lean.compiler.ir.freevars
 
 namespace Lean
 namespace IR

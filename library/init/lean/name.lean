@@ -105,6 +105,11 @@ def replacePrefix : Name → Name → Name → Name
   else
     mkNumeral (p.replacePrefix queryP newP) s
 
+def isPrefixOf : Name → Name → Bool
+| p anonymous          := p == anonymous
+| p n@(mkNumeral p' _) := p == n || isPrefixOf p p'
+| p n@(mkString p' _)  := p == n || isPrefixOf p p'
+
 def quickLtCore : Name → Name → Bool
 | anonymous        anonymous          := false
 | anonymous        _                  := true

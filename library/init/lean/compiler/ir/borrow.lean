@@ -199,15 +199,15 @@ xs.mfor $ λ x,
   | _ := pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
-| (Expr.reset x)        := ownVar x
-| (Expr.reuse x _ _ ys) := ownVar x *> ownArgsIfParam ys
-| (Expr.ctor _ xs)      := ownArgsIfParam xs
+| (Expr.reset x)        := ownVar z *> ownVar x
+| (Expr.reuse x _ _ ys) := ownVar z *> ownVar x *> ownArgsIfParam ys
+| (Expr.ctor _ xs)      := ownVar z *> ownArgsIfParam xs
 | (Expr.proj _ x)       := mwhen (isOwned z) $ ownVar x
 | (Expr.fap g xs)       := do ps ← getParamInfo (Key.decl g),
   -- dbgTrace ("collectExpr: " ++ toString g ++ " " ++ toString (formatParams ps)) $ λ _,
-  ownArgsUsingParams xs ps
-| (Expr.ap x ys)        := ownVar x *> ownArgs ys
-| (Expr.pap _ xs)       := ownArgs xs
+  ownVar z *> ownArgsUsingParams xs ps
+| (Expr.ap x ys)        := ownVar z *> ownVar x *> ownArgs ys
+| (Expr.pap _ xs)       := ownVar z *> ownArgs xs
 | other                 := pure ()
 
 def preserveTailCall (x : VarId) (v : Expr) (b : FnBody) : M Unit :=
@@ -228,7 +228,7 @@ partial def collectFnBody : FnBody → M Unit
   adaptReader (λ ctx, updateParamSet ctx ys) (collectFnBody b),
   ctx ← read,
   updateParamMap (Key.jp ctx.currFn j)
-| (FnBody.vdecl x _ v b) := collectFnBody b *> collectExpr x v -- *> preserveTailCall x v b
+| (FnBody.vdecl x _ v b) := collectFnBody b *> collectExpr x v *> preserveTailCall x v b
 | (FnBody.jmp j ys)      := do
   ctx ← read,
   ps ← getParamInfo (Key.jp ctx.currFn j),

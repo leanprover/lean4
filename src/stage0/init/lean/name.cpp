@@ -23,6 +23,7 @@ obj* l_Lean_NameMap_insert(obj*);
 obj* l_RBNode_find___main___at_Lean_NameMap_find___spec__1(obj*);
 obj* l_Lean_Name_Hashable;
 obj* l_Lean_stringToName;
+obj* l_Lean_Name_isPrefixOf___boxed(obj*, obj*);
 obj* l_Lean_Name_hasLtQuick;
 obj* l_Lean_Name_quickLtCore___boxed(obj*, obj*);
 obj* l_Lean_Name_replacePrefix___boxed(obj*, obj*, obj*);
@@ -36,6 +37,7 @@ obj* l_Lean_Name_hash___boxed(obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_Inhabited;
 obj* l_Lean_Name_decEq___boxed(obj*, obj*);
+uint8 l_Lean_Name_isPrefixOf(obj*, obj*);
 obj* l_Lean_Name_quickLt___boxed(obj*, obj*);
 obj* l_Lean_mkSimpleName(obj*);
 obj* l_Lean_NameMap_find___rarg(obj*, obj*);
@@ -75,6 +77,7 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_RBNode_find___main___at_Lean_NameMap_contains___spec__1___rarg(obj*, obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
+obj* l_Lean_Name_isPrefixOf___main___boxed(obj*, obj*);
 obj* l_Lean_NameMap_insert___rarg(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3(obj*);
 obj* l_RBNode_find___main___at_Lean_NameMap_contains___spec__1___boxed(obj*);
@@ -113,6 +116,7 @@ obj* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg___boxed(obj*, 
 obj* l_Lean_Name_replacePrefix(obj*, obj*, obj*);
 obj* l_Lean_Name_getPrefix___main___boxed(obj*);
 obj* l_Lean_mkNameMap___boxed(obj*);
+uint8 l_Lean_Name_isPrefixOf___main(obj*, obj*);
 obj* l_List_foldl___main___at_String_toName___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Name_replacePrefix___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Name_HasAppend;
@@ -516,6 +520,66 @@ obj* x_3;
 x_3 = l_Lean_Name_replacePrefix(x_0, x_1, x_2);
 lean::dec(x_1);
 lean::dec(x_2);
+return x_3;
+}
+}
+uint8 l_Lean_Name_isPrefixOf___main(obj* x_0, obj* x_1) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 0:
+{
+uint8 x_2; 
+x_2 = lean_name_dec_eq(x_0, x_1);
+return x_2;
+}
+default:
+{
+obj* x_3; uint8 x_4; 
+x_3 = lean::cnstr_get(x_1, 0);
+x_4 = lean_name_dec_eq(x_0, x_1);
+if (x_4 == 0)
+{
+x_1 = x_3;
+goto _start;
+}
+else
+{
+uint8 x_6; 
+x_6 = 1;
+return x_6;
+}
+}
+}
+}
+}
+obj* l_Lean_Name_isPrefixOf___main___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Name_isPrefixOf___main(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
+return x_3;
+}
+}
+uint8 l_Lean_Name_isPrefixOf(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; 
+x_2 = l_Lean_Name_isPrefixOf___main(x_0, x_1);
+return x_2;
+}
+}
+obj* l_Lean_Name_isPrefixOf___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Name_isPrefixOf(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_0);
+lean::dec(x_1);
 return x_3;
 }
 }

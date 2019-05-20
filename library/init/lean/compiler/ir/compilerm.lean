@@ -110,6 +110,9 @@ do (some decl) ← findDecl n | throw ("unknown declaration '" ++ toString n ++ 
 def addDeclAux (env : Environment) (decl : Decl) : Environment :=
 declMapExt.addEntry env decl
 
+def getDecls (env : Environment) : List Decl :=
+declMapExt.getEntries env
+
 def getEnv : CompilerM Environment :=
 do s ← get, pure s.env
 

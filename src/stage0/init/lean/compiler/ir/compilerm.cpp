@@ -44,6 +44,7 @@ obj* l_HashMapImp_contains___at_Lean_IR_containsDecl___spec__2___boxed(obj*, obj
 obj* l_Lean_IR_findDeclAux_x_27___boxed(obj*, obj*, obj*);
 obj* l_Lean_KVMap_findCore___main(obj*, obj*);
 obj* l_HashMapImp_insert___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__2(obj*, obj*, obj*);
+obj* l_Lean_PersistentEnvExtension_getEntries___rarg(obj*, obj*);
 obj* l_mkHashMap___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__1(obj*);
 obj* l___private_init_lean_compiler_ir_compilerm_2__logDeclsAux(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Log_format(obj*);
@@ -64,6 +65,7 @@ obj* l_RBNode_find___main___at_Lean_IR_findEnvDecl___spec__2(obj*, obj*);
 uint8 l_Lean_SMap_contains___main___at_Lean_IR_containsDecl___spec__1(obj*, obj*);
 obj* l_Array_mfindAux___main___at_Lean_IR_findDeclAux_x_27___spec__1(obj*, obj*, obj*);
 obj* l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(obj*, obj*);
+obj* l_Lean_IR_getDecls___boxed(obj*);
 extern obj* l___private_init_lean_environment_9__persistentEnvExtensionsRef;
 uint8 l_Lean_KVMap_getBool(obj*, obj*, uint8);
 extern obj* l_Lean_Format_sbracket___closed__2;
@@ -177,6 +179,7 @@ obj* l_Array_mforAux___main___at_Lean_IR_addDecls___spec__1___boxed(obj*, obj*, 
 obj* l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__8(obj*, obj*, obj*);
 obj* l_Lean_IR_containsDecl_x_27___boxed(obj*, obj*, obj*, obj*);
 obj* l_RBNode_insert___at_Lean_IR_mkDeclMapExtension___spec__4(obj*, obj*, obj*);
+obj* l_Lean_IR_getDecls(obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_LogEntry_fmt___main___spec__1(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
@@ -3303,6 +3306,24 @@ return x_3;
 }
 }
 }}
+obj* l_Lean_IR_getDecls(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = l_Lean_IR_declMapExt;
+x_2 = l_Lean_PersistentEnvExtension_getEntries___rarg(x_1, x_0);
+return x_2;
+}
+}
+obj* l_Lean_IR_getDecls___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Lean_IR_getDecls(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
 obj* l_Lean_IR_getEnv___rarg(obj* x_0) {
 _start:
 {

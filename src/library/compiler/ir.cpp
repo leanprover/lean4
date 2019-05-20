@@ -526,5 +526,23 @@ environment compile(environment const & env, options const & opts, comp_decls co
 environment add_extern(environment const & env, name const & fn) {
     return ir::add_decl(env, to_ir_fn(env)(fn));
 }
+
+/*
+@[export lean.ir.emit_cpp_core]
+def emitCpp (env : Environment) (modName : Name) : Except String String :
+*/
+object * emit_cpp_core(object * env, object * mod_name);
+
+string_ref emit_cpp(environment const & env, name const & mod_name) {
+    object * r = emit_cpp_core(env.to_obj_arg(), mod_name.to_obj_arg());
+    string_ref s(cnstr_get(r, 0), true);
+    if (cnstr_tag(r) == 0) {
+        dec_ref(r);
+        throw exception(s.to_std_string());
+    } else {
+        dec_ref(r);
+        return s;
+    }
+}
 }
 }

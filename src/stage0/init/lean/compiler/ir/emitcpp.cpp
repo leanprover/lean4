@@ -78,7 +78,7 @@ obj* l_Lean_IR_EmitCpp_emitMainFn___closed__25;
 obj* l_Lean_IR_EmitCpp_emitMainFn___closed__10;
 namespace lean {
 namespace ir {
-obj* emit_cpp_core(obj*, obj*, obj*);
+obj* emit_cpp_core(obj*, obj*);
 }}
 obj* l_Lean_IR_EmitCpp_emitMainFn___closed__9;
 extern obj* l_IO_println___rarg___closed__1;
@@ -1215,41 +1215,40 @@ return x_2;
 }
 namespace lean {
 namespace ir {
-obj* emit_cpp_core(obj* x_0, obj* x_1, obj* x_2) {
+obj* emit_cpp_core(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+x_2 = lean::box(0);
 x_3 = lean::box(0);
-x_4 = lean::box(0);
-x_5 = l_Array_empty___closed__1;
-x_6 = lean::alloc_cnstr(0, 6, 0);
-lean::cnstr_set(x_6, 0, x_0);
-lean::cnstr_set(x_6, 1, x_3);
-lean::cnstr_set(x_6, 2, x_1);
-lean::cnstr_set(x_6, 3, x_2);
-lean::cnstr_set(x_6, 4, x_4);
-lean::cnstr_set(x_6, 5, x_5);
-x_7 = l_Lean_IR_emitCpp___closed__1;
-x_8 = l_Lean_IR_EmitCpp_main(x_6, x_7);
-if (lean::obj_tag(x_8) == 0)
+x_4 = l_Array_empty___closed__1;
+x_5 = lean::alloc_cnstr(0, 5, 0);
+lean::cnstr_set(x_5, 0, x_0);
+lean::cnstr_set(x_5, 1, x_2);
+lean::cnstr_set(x_5, 2, x_1);
+lean::cnstr_set(x_5, 3, x_3);
+lean::cnstr_set(x_5, 4, x_4);
+x_6 = l_Lean_IR_emitCpp___closed__1;
+x_7 = l_Lean_IR_EmitCpp_main(x_5, x_6);
+if (lean::obj_tag(x_7) == 0)
 {
-obj* x_9; obj* x_12; 
-x_9 = lean::cnstr_get(x_8, 1);
-lean::inc(x_9);
-lean::dec(x_8);
-x_12 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_12, 0, x_9);
-return x_12;
+obj* x_8; obj* x_11; 
+x_8 = lean::cnstr_get(x_7, 1);
+lean::inc(x_8);
+lean::dec(x_7);
+x_11 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_11, 0, x_8);
+return x_11;
 }
 else
 {
-obj* x_13; obj* x_16; 
-x_13 = lean::cnstr_get(x_8, 0);
-lean::inc(x_13);
-lean::dec(x_8);
-x_16 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_16, 0, x_13);
-return x_16;
+obj* x_12; obj* x_15; 
+x_12 = lean::cnstr_get(x_7, 0);
+lean::inc(x_12);
+lean::dec(x_7);
+x_15 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_15, 0, x_12);
+return x_15;
 }
 }
 }

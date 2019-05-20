@@ -15,5 +15,6 @@ std::string decl_to_string(decl const & d);
 void test(decl const & d);
 environment compile(environment const & env, options const & opts, comp_decls const & decls);
 environment add_extern(environment const & env, name const & fn);
+string_ref emit_cpp(environment const & env, name const & mod_name);
 }
 }

@@ -16,6 +16,7 @@ import init.lean.compiler.ir.checker
 import init.lean.compiler.ir.borrow
 import init.lean.compiler.ir.boxing
 import init.lean.compiler.ir.rc
+import init.lean.compiler.ir.emitcpp
 
 namespace Lean
 namespace IR

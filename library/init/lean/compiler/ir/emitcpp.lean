@@ -19,7 +19,6 @@ structure Context :=
 (env        : Environment)
 (localCtx   : LocalContext := {})
 (modName    : Name)
-(modDeps    : Array Name)
 (mainFn     : FunId := default _)
 (mainParams : Array Param := Array.empty)
 
@@ -57,11 +56,11 @@ match d with
   modName ← getModName,
   emitLn ("w = initialize_" ++ (modName.mangle "") ++ "(w);"),
   emitLn "lean::io_mark_end_initialization();",
-  emitLn "if (io_result_is_ok(w)) {\n",
+  emitLn "if (io_result_is_ok(w)) {",
   emitLn "lean::scoped_task_manager tmanager(lean::hardware_concurrency());",
   if xs.size == 2 then do {
     emitLn "obj* in = lean::box(0);",
-    emitLn "int i = argc;\n",
+    emitLn "int i = argc;",
     emitLn "while (i > 1) {",
     emitLn " i--;",
     emitLn " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);",
@@ -93,8 +92,8 @@ do env ← getEnv,
 end EmitCpp
 
 @[export lean.ir.emit_cpp_core]
-def emitCpp (env : Environment) (modName : Name) (modDeps : Array Name) : Except String String :=
-match (EmitCpp.main { env := env, modName := modName, modDeps := modDeps }).run "" with
+def emitCpp (env : Environment) (modName : Name) : Except String String :=
+match (EmitCpp.main { env := env, modName := modName }).run "" with
 | EState.Result.ok    _   s := Except.ok s
 | EState.Result.error err _ := Except.error err
 

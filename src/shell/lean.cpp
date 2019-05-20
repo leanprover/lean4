@@ -35,6 +35,7 @@ Author: Leonardo de Moura
 #include "library/time_task.h"
 #include "library/private.h"
 #include "library/compiler/emit_cpp.h"
+#include "library/compiler/ir.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/pp.h"
 #include "frontends/lean/json.h"
@@ -225,6 +226,7 @@ static struct option g_long_options[] = {
     {"deps",         no_argument,       0, 'd'},
     {"timeout",      optional_argument, 0, 'T'},
     {"cpp",          optional_argument, 0, 'c'},
+    {"newcpp",       optional_argument, 0, 'C'}, // temporary flag for testing new IR
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
     {"path",         no_argument,       0, 'p'},
@@ -241,7 +243,7 @@ static struct option g_long_options[] = {
 };
 
 static char const * g_opt_str =
-    "PdD:c:qpgvht:012j:012rM:012T:012a"
+    "PdD:c:C:qpgvht:012j:012rM:012T:012a"
 #if defined(LEAN_MULTI_THREAD)
     "s:012"
 #endif
@@ -333,6 +335,7 @@ int main(int argc, char ** argv) {
     optional<std::string> server_in;
     std::string native_output;
     optional<std::string> cpp_output;
+    optional<std::string> new_cpp_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -352,6 +355,9 @@ int main(int argc, char ** argv) {
                 return 0;
             case 'c':
                 cpp_output = optarg;
+                break;
+            case 'C':
+                new_cpp_output = optarg;
                 break;
             case 's':
                 lean::lthread::set_thread_stack_size(
@@ -572,6 +578,18 @@ int main(int argc, char ** argv) {
             auto mod = module_name_of_file(path.get_path(), mod_fn);
             emit_cpp(out, env, mod, to_list(imports.begin(), imports.end()));
         }
+
+        if (new_cpp_output && ok) {
+            std::ofstream out(*new_cpp_output);
+            if (out.fail()) {
+                std::cerr << "failed to create '" << *new_cpp_output << "'\n";
+                return 1;
+            }
+            auto mod = module_name_of_file(path.get_path(), mod_fn);
+            out << lean::ir::emit_cpp(env, mod).data();
+            out.close();
+        }
+
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
         std::cerr << lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(

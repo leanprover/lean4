@@ -11,8 +11,8 @@ import init.lean.compiler.ir.emitutil
 
 namespace Lean
 namespace IR
--- TODO: @[export]
-constant getExportNameFor (env : Environment) (n : Name) : Option Name := default _
+@[extern "lean_get_export_name_for"]
+constant getExportNameFor (env : @& Environment) (n : @& Name) : Option Name := default _
 
 namespace EmitCpp
 
@@ -54,7 +54,7 @@ def toCppType : IRType → String
 
 def openNamespacesAux : Name → M Unit
 | Name.anonymous      := pure ()
-| (Name.mkString p s) := openNamespacesAux p *> emitLn ("namespace " ++ s ++ "{")
+| (Name.mkString p s) := openNamespacesAux p *> emitLn ("namespace " ++ s ++ " {")
 | n                   := throw ("invalid namespace '" ++ toString n ++ "'")
 
 def openNamespaces (n : Name) : M Unit :=
@@ -100,11 +100,10 @@ do env ← getEnv,
    | some _                   := throw "invalid export name"
    | none                     := pure ("_init_" ++ n.mangle)
 
-def emitFnDeclAux (decl : Decl) (extern : Bool) : M Unit :=
+def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit :=
 do
-cppBaseName ← toBaseCppName decl.name,
 let ps := decl.params,
-when (ps.isEmpty && extern) (emit "extern "),
+when (ps.isEmpty && addExternForConsts) (emit "extern "),
 emit (toCppType decl.resultType ++ " " ++ cppBaseName),
 unless (ps.isEmpty) $ do {
   emit "(",
@@ -116,11 +115,26 @@ unless (ps.isEmpty) $ do {
 },
 emitLn ";"
 
-def emitFnDecl (decl : Decl) (extern : Bool) : M Unit :=
+def emitFnDecl (decl : Decl) (addExternForConsts : Bool) : M Unit :=
 do
 openNamespacesFor decl.name,
-emitFnDeclAux decl extern,
+cppBaseName ← toBaseCppName decl.name,
+emitFnDeclAux decl cppBaseName addExternForConsts,
 closeNamespacesFor decl.name
+
+def cppQualifiedNameToName (s : String) : Name :=
+(s.split "::").foldl Name.mkString Name.anonymous
+
+def emitExternDeclAux (decl : Decl) (cppName : String) : M Unit :=
+do
+let qCppName := cppQualifiedNameToName cppName,
+openNamespaces qCppName,
+env ← getEnv,
+let extC := isExternC env decl.name,
+when extC (emit "extern \"C\" "),
+(Name.mkString _ qCppBaseName) ← pure qCppName | throw "invalid name",
+emitFnDeclAux decl qCppBaseName (!extC),
+closeNamespaces qCppName
 
 def emitFnDecls : M Unit :=
 do env ← getEnv,
@@ -130,8 +144,9 @@ do env ← getEnv,
    let usedDecls := usedDecls.toList,
    usedDecls.mfor $ λ n, do {
      decl ← getDecl n,
-     -- TODO: check extern
-     emitFnDecl decl (!modDecls.contains n)
+     match getExternNameFor env `cpp decl.name with
+     | some cppName := emitExternDeclAux decl cppName
+     | none         := emitFnDecl decl (!modDecls.contains n)
    }
 
 def emitMainFn : M Unit :=

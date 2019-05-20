@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.expr init.data.option.basic
+import init.lean.environment
 
 namespace Lean
 
@@ -95,5 +96,23 @@ getExternEntryForAux backend d.entries
 def mkExternCall (d : ExternAttrData) (backend : Name) (args : List String) : Option String :=
 do e ← getExternEntryFor d backend,
    expandExternEntry e args
+
+@[extern "lean_get_extern_attr_data"]
+constant getExternAttrData (env : @& Environment) (fn : @& Name) : Option ExternAttrData := default _
+
+/- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
+   Thus, there is no name mangling. -/
+def isExternC (env : Environment) (fn : Name) : Bool :=
+match getExternAttrData env fn with
+| some { entries := [ ExternEntry.standard `all _ ], .. } := true
+| _ := false
+
+def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String :=
+do data ← getExternAttrData env fn,
+   entry ← getExternEntryFor data backend,
+   match entry with
+   | ExternEntry.standard _ n := pure n
+   | ExternEntry.foreign _ n  := pure n
+   | _ := failure
 
 end Lean

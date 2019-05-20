@@ -37,18 +37,16 @@ private def String.mangleAux : Nat → String.Iterator → String → String
 def String.mangle (s : String) : String :=
 String.mangleAux s.length s.mkIterator ""
 
-private def Name.mangleAux (pre : String) : Name → String
-| Name.anonymous       := pre
+private def Name.mangleAux : Name → String
+| Name.anonymous      := ""
 | (Name.mkString p s) :=
   let m := String.mangle s in
   match p with
   | Name.anonymous := m
-  | _              := (Name.mangleAux p) ++ "_" ++ m
-| (Name.mkNumeral p n) :=
-  let r := Name.mangleAux p in
-  r ++ "_" ++ toString n ++ "_"
+  | _              := Name.mangleAux p ++ "_" ++ m
+| (Name.mkNumeral p n) := Name.mangleAux p ++ "_" ++ toString n ++ "_"
 
-def Name.mangle (n : Name) (pre : String := "_l") : String :=
-Name.mangleAux pre n
+def Name.mangle (n : Name) (pre : String := "l_") : String :=
+pre ++ Name.mangleAux n
 
 end Lean

@@ -40,6 +40,10 @@ optional<name> get_export_name_for(environment const & env, name const & n) {
     }
 }
 
+extern "C" obj_res lean_get_export_name_for(b_obj_arg env, b_obj_arg n) {
+    return to_object(get_export_name_for(environment(env, true), name(n, true)));
+}
+
 void initialize_export_attribute() {
     register_system_attribute(export_attr("export", "name to be used by code generators",
                                           [](environment const & env, io_state const &, name const & n, unsigned, bool persistent) {

@@ -62,64 +62,64 @@ inline object_ref mk_cnstr(unsigned tag, object * o1, object * o2, object * o3, 
 
 inline object_ref mk_cnstr(unsigned tag, object_ref const & o, unsigned scalar_sz = 0) {
     object * r = alloc_cnstr(tag, 1, scalar_sz);
-    cnstr_set(r, 0, o.raw()); inc(o.raw());
+    cnstr_set(r, 0, o.to_obj_arg());
     return object_ref(r);
 }
 
 inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const & o2, unsigned scalar_sz = 0) {
     object * r = alloc_cnstr(tag, 2, scalar_sz);
-    cnstr_set(r, 0, o1.raw()); inc(o1.raw());
-    cnstr_set(r, 1, o2.raw()); inc(o2.raw());
+    cnstr_set(r, 0, o1.to_obj_arg());
+    cnstr_set(r, 1, o2.to_obj_arg());
     return object_ref(r);
 }
 
 inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const & o2, object_ref const & o3, unsigned scalar_sz = 0) {
     object * r = alloc_cnstr(tag, 3, scalar_sz);
-    cnstr_set(r, 0, o1.raw()); inc(o1.raw());
-    cnstr_set(r, 1, o2.raw()); inc(o2.raw());
-    cnstr_set(r, 2, o3.raw()); inc(o3.raw());
+    cnstr_set(r, 0, o1.to_obj_arg());
+    cnstr_set(r, 1, o2.to_obj_arg());
+    cnstr_set(r, 2, o3.to_obj_arg());
     return object_ref(r);
 }
 
 inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const & o2, object_ref const & o3, object_ref const & o4, unsigned scalar_sz = 0) {
     object * r = alloc_cnstr(tag, 4, scalar_sz);
-    cnstr_set(r, 0, o1.raw()); inc(o1.raw());
-    cnstr_set(r, 1, o2.raw()); inc(o2.raw());
-    cnstr_set(r, 2, o3.raw()); inc(o3.raw());
-    cnstr_set(r, 3, o4.raw()); inc(o4.raw());
+    cnstr_set(r, 0, o1.to_obj_arg());
+    cnstr_set(r, 1, o2.to_obj_arg());
+    cnstr_set(r, 2, o3.to_obj_arg());
+    cnstr_set(r, 3, o4.to_obj_arg());
     return object_ref(r);
 }
 
 inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const & o2, object_ref const & o3, object_ref const & o4, object_ref const & o5, unsigned scalar_sz = 0) {
     object * r = alloc_cnstr(tag, 5, scalar_sz);
-    cnstr_set(r, 0, o1.raw()); inc(o1.raw());
-    cnstr_set(r, 1, o2.raw()); inc(o2.raw());
-    cnstr_set(r, 2, o3.raw()); inc(o3.raw());
-    cnstr_set(r, 3, o4.raw()); inc(o4.raw());
-    cnstr_set(r, 4, o5.raw()); inc(o5.raw());
+    cnstr_set(r, 0, o1.to_obj_arg());
+    cnstr_set(r, 1, o2.to_obj_arg());
+    cnstr_set(r, 2, o3.to_obj_arg());
+    cnstr_set(r, 3, o4.to_obj_arg());
+    cnstr_set(r, 4, o5.to_obj_arg());
     return object_ref(r);
 }
 
 inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const & o2, object_ref const & o3, object_ref const & o4, object_ref const & o5, object_ref const & o6, unsigned scalar_sz = 0) {
     object * r = alloc_cnstr(tag, 6, scalar_sz);
-    cnstr_set(r, 0, o1.raw()); inc(o1.raw());
-    cnstr_set(r, 1, o2.raw()); inc(o2.raw());
-    cnstr_set(r, 2, o3.raw()); inc(o3.raw());
-    cnstr_set(r, 3, o4.raw()); inc(o4.raw());
-    cnstr_set(r, 4, o5.raw()); inc(o5.raw());
-    cnstr_set(r, 5, o6.raw()); inc(o6.raw());
+    cnstr_set(r, 0, o1.to_obj_arg());
+    cnstr_set(r, 1, o2.to_obj_arg());
+    cnstr_set(r, 2, o3.to_obj_arg());
+    cnstr_set(r, 3, o4.to_obj_arg());
+    cnstr_set(r, 4, o5.to_obj_arg());
+    cnstr_set(r, 5, o6.to_obj_arg());
     return object_ref(r);
 }
 
 inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const & o2, object_ref const & o3, object_ref const & o4, object_ref const & o5, object_ref const & o6, object_ref const & o7, unsigned scalar_sz = 0) {
     object * r = alloc_cnstr(tag, 7, scalar_sz);
-    cnstr_set(r, 0, o1.raw()); inc(o1.raw());
-    cnstr_set(r, 1, o2.raw()); inc(o2.raw());
-    cnstr_set(r, 2, o3.raw()); inc(o3.raw());
-    cnstr_set(r, 3, o4.raw()); inc(o4.raw());
-    cnstr_set(r, 4, o5.raw()); inc(o5.raw());
-    cnstr_set(r, 5, o6.raw()); inc(o6.raw());
-    cnstr_set(r, 6, o7.raw()); inc(o7.raw());
+    cnstr_set(r, 0, o1.to_obj_arg());
+    cnstr_set(r, 1, o2.to_obj_arg());
+    cnstr_set(r, 2, o3.to_obj_arg());
+    cnstr_set(r, 3, o4.to_obj_arg());
+    cnstr_set(r, 4, o5.to_obj_arg());
+    cnstr_set(r, 5, o6.to_obj_arg());
+    cnstr_set(r, 6, o7.to_obj_arg());
     return object_ref(r);
 }
 
@@ -148,5 +148,15 @@ template<typename T> optional<T> to_optional(b_obj_arg o, bool) {
     if (is_scalar(o)) return optional<T>();
     T r(cnstr_get(o, 0), true);
     return optional<T>(r);
+}
+
+template<typename T> obj_res to_object(optional<T> const & o) {
+    if (o) {
+        obj_res r = alloc_cnstr(1, 1, 0);
+        cnstr_set(r, 0, o->to_obj_arg());
+        return r;
+    } else {
+        return box(0);
+    }
 }
 }

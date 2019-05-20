@@ -141,6 +141,10 @@ optional<extern_attr_data_value> get_extern_attr_data(environment const & env, n
     }
 }
 
+extern "C" object * lean_get_extern_attr_data(b_obj_arg env, b_obj_arg fn) {
+    return to_object(get_extern_attr_data(environment(env, true), name(fn, true)));
+}
+
 optional<std::string> get_extern_name_for(environment const & env, name const & backend, name const & fn) {
     if (std::shared_ptr<extern_attr_data> const & data = get_extern_attr().get(env, fn)) {
         extern_attr_data_value const & v = data->m_value;

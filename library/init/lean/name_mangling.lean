@@ -40,9 +40,10 @@ String.mangleAux s.length s.mkIterator ""
 private def Name.mangleAux (pre : String) : Name → String
 | Name.anonymous       := pre
 | (Name.mkString p s) :=
-  let r := Name.mangleAux p in
   let m := String.mangle s in
-  r ++ "_s" ++ toString m.length ++ "_" ++ m
+  match p with
+  | Name.anonymous := m
+  | _              := (Name.mangleAux p) ++ "_" ++ m
 | (Name.mkNumeral p n) :=
   let r := Name.mangleAux p in
   r ++ "_" ++ toString n ++ "_"

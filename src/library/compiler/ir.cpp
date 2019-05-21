@@ -256,7 +256,7 @@ class to_ir_fn {
             return visit_cases(e);
         } else if (is_jmp(e)) {
             return visit_jmp(e);
-        } else if (is_fvar(e)) {
+        } else if (is_fvar(e) || is_enf_neutral(e)) {
             return ir::mk_ret(to_ir_arg(e));
         } else if (is_enf_unreachable(e)) {
             return ir::mk_unreachable();
@@ -428,8 +428,8 @@ class to_ir_fn {
             expr type       = let_type(e);
             lean_assert(!has_loose_bvars(type));
             expr val        = instantiate_rev(let_value(e), subst.size(), subst.data());
-            if (is_fvar(val)) {
-                /* Eliminate `x := y` declarations */
+            if (is_fvar(val) || is_enf_neutral(val)) {
+                /* Eliminate `x := y` and `x := _neutral` declarations */
                 subst.push_back(val);
             } else {
                 name n          = next_name();

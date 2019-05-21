@@ -23,8 +23,8 @@ namespace IR
 
 private def compileAux (decls : Array Decl) : CompilerM Unit :=
 do
-checkDecls decls,
 logDecls `init decls,
+checkDecls decls,
 let decls := decls.hmap Decl.pushProj,
 logDecls `push_proj decls,
 let decls := decls.hmap Decl.insertResetReuse,

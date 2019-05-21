@@ -92,6 +92,7 @@ local infix ` >> `:50 := Function.comp
 partial def collectFnBody : FnBody → Collector
 | (FnBody.vdecl x t _ b)  := collectVar x t >> collectFnBody b
 | (FnBody.jdecl j xs v b) := collectJP j xs >> collectParams xs >> collectFnBody v >> collectFnBody b
+| (FnBody.case _ _ alts)  := λ s, alts.foldl (λ s alt, collectFnBody alt.body s) s
 | e                       := if e.isTerminal then id else collectFnBody e.body
 
 def collectDecl : Decl → Collector

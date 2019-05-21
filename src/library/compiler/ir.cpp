@@ -472,7 +472,6 @@ public:
 
     /* Convert extern constant into a IR.Decl */
     ir::decl operator()(name const & fn) {
-        lean_assert(is_extern_constant(env(), fn));
         buffer<bool> borrow; bool dummy;
         get_extern_borrowed_info(env(), fn, borrow, dummy);
         buffer<ir::param> xs;

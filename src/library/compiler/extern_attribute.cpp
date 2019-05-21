@@ -13,6 +13,7 @@ Authors: Leonardo de Moura
 #include "library/attribute_manager.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/util.h"
+#include "library/compiler/ir.h"
 #include "library/compiler/extern_attribute.h"
 
 namespace lean {
@@ -317,8 +318,16 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
 void initialize_extern_attribute() {
     g_all = new name("all");
     register_system_attribute(extern_attr("extern", "builtin and foreign functions",
-                                          [](environment const & env, io_state const &, name const &, unsigned, bool persistent) {
+                                          [](environment const & env, io_state const &, name const & n, unsigned, bool persistent) {
                                               if (!persistent) throw exception("invalid [extern] attribute, it must be persistent");
+                                              if (optional<constant_info> cinfo = env.find(n)) {
+                                                  if (cinfo->is_constructor()) {
+                                                      /* Hack: we can mark constructors as `extern`.
+                                                         The compiler is not invoked for constructors. So, we
+                                                         register them in the IR here. */
+                                                      return ir::add_extern(env, n);
+                                                  }
+                                              }
                                               return env;
                                           }));
 }

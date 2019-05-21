@@ -94,11 +94,14 @@ do env ← getEnv,
    | none   := pure ()
    | some n := closeNamespaces n
 
+def throwInvalidExportName {α : Type} (n : Name) : M α :=
+throw ("invalid export name '" ++ toString n ++ "'")
+
 def toBaseCppName (n : Name) : M String :=
 do env ← getEnv,
    match getExportNameFor env n with
    | some (Name.mkString _ s) := pure s
-   | some _                   := throw "invalid export name"
+   | some _                   := throwInvalidExportName n
    | none                     := if n == `main then pure leanMainFn else pure n.mangle
 
 def toCppName (n : Name) : M String :=
@@ -111,7 +114,7 @@ def toCppInitName (n : Name) : M String :=
 do env ← getEnv,
    match getExportNameFor env n with
    | some (Name.mkString p s) := pure $ (Name.mkString p ("_init_" ++ s)).toStringWithSep "::"
-   | some _                   := throw "invalid export name"
+   | some _                   := throwInvalidExportName n
    | none                     := pure ("_init_" ++ n.mangle)
 
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit :=
@@ -246,11 +249,14 @@ else match alts.get 0 with
   | Alt.ctor c b := some (c.cidx, b, (alts.get 1).body)
   | _            := none
 
+def throwUnknownVar {α : Type} (x : VarId) : M α :=
+throw ("unknown variable '" ++ toString x ++ "'")
+
 def isObj (x : VarId) : M Bool :=
 do ctx ← read,
    match ctx.varMap.find x with
    | some t := pure t.isObj
-   | none   := throw "unknown variable"
+   | none   := throwUnknownVar x
 
 def declareVar (x : VarId) (t : IRType) : M Unit :=
 do emit (toCppType t), emit " ", emitVar x, emit "; "
@@ -303,10 +309,9 @@ emitBlock emitFnBody b,
 emitJPs emitFnBody b,
 emitLn "}"
 
-def emitDecl (d : Decl) : M Unit :=
+def emitDeclAux (d : Decl) : M Unit :=
 do
 env ← getEnv,
-let d := d.normalizeIds,
 let (vMap, jpMap) := mkVarJPMaps d,
 adaptReader (λ ctx : Context, { varMap := vMap, jpMap := jpMap, .. ctx }) $ do
 unless (hasInitAttr env d.name) $
@@ -333,6 +338,12 @@ unless (hasInitAttr env d.name) $
     emitLn "}",
     closeNamespacesFor f
   | _ := pure ()
+
+def emitDecl (d : Decl) : M Unit :=
+let d := d.normalizeIds in
+catch
+  (emitDeclAux d)
+  (λ err, throw (err ++ "\ncompiling:\n" ++ toString d))
 
 def emitFns : M Unit :=
 do

@@ -247,12 +247,6 @@ emitLns [
  "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"",
  "#endif"]
 
-def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
-if alts.size != 2 then none
-else match alts.get 0 with
-  | Alt.ctor c b := some (c.cidx, b, (alts.get 1).body)
-  | _            := none
-
 def throwUnknownVar {α : Type} (x : VarId) : M α :=
 throw ("unknown variable '" ++ toString x ++ "'")
 
@@ -279,20 +273,32 @@ partial def declareVars : FnBody → Bool → M Bool
 | (FnBody.jdecl j xs _ b) d := declareParams xs *> declareVars b (d || xs.size > 0)
 | e                       d := if e.isTerminal then pure d else declareVars e.body d
 
-partial def emitCase (emitBody : FnBody → M Unit) (x : VarId) (alts : Array Alt) : M Unit :=
+def emitTag (x : VarId) : M Unit :=
+do
+xIsObj ← isObj x,
+if xIsObj then do
+  emit "lean::obj_tag(", emitVar x, emit ")"
+else
+  emitVar x
+
+def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
+if alts.size != 2 then none
+else match alts.get 0 with
+  | Alt.ctor c b := some (c.cidx, b, (alts.get 1).body)
+  | _            := none
+
+def emitIf (emitBody : FnBody → M Unit) (x : VarId) (tag : Nat) (t : FnBody) (e : FnBody) : M Unit :=
+do
+emit "if (", emitTag x, emit " == ", emit tag, emitLn ")",
+emitBody t,
+emitLn "else",
+emitBody e
+
+def emitCase (emitBody : FnBody → M Unit) (x : VarId) (alts : Array Alt) : M Unit :=
 match isIf alts with
-| some (tag, t, e) := do
-  emit "if (", emitVar x, emit " == ", emit tag, emitLn ")",
-  emitBody t,
-  emitLn "else",
-  emitBody e
+| some (tag, t, e) := emitIf emitBody x tag t e
 | _ := do
-  xIsObj ← isObj x,
-  if xIsObj then do {
-    emit "switch (lean::obj_tag(", emitVar x, emitLn ")) {"
-  } else do {
-    emit "switch (", emitVar x, emitLn ") {"
-  },
+  emit "switch (", emitTag x, emitLn ") {",
   alts.mfor $ λ alt, match alt with
     | Alt.ctor c b  := emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
     | Alt.default b := emitLn "default: " *> emitBody b,
@@ -342,12 +348,100 @@ do
   },
   emit "goto ", emitLabel j, emitLn ";"
 
-def emitVDecl (x : VarId) (v : Expr) : M Unit :=
+def emitLhs (z : VarId) : M Unit :=
+do emitVar z, emit " = "
+
+def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit :=
 pure () -- TODO
+
+def emitReset (z : VarId) (x : VarId) : M Unit :=
+pure () -- TODO
+
+def emitReuse (z : VarId) (x : VarId) (c : CtorInfo) (updtHeader : Bool) (ys : Array Arg) : M Unit :=
+pure () -- TODO
+
+def emitProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
+do emitLhs z, emit "lean::cnstr_get(", emitVar x, emit ", ", emit i, emitLn ");"
+
+def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
+pure () -- TODO
+
+def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit :=
+pure () -- TODO
+
+def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
+pure () -- TODO
+
+def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
+pure () -- TODO
+
+def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
+pure () -- TODO
+
+def emitBox (z : VarId) (t : IRType) (x : VarId) : M Unit :=
+pure () -- TODO
+
+def emitUnbox (z : VarId) (x : VarId) : M Unit :=
+pure () -- TODO
+
+def emitIsShared (z : VarId) (x : VarId) : M Unit :=
+do emitLhs z, emit "!lean::is_exclusive(", emitVar x, emitLn ");"
+
+def emitIsTaggedPtr (z : VarId) (x : VarId) : M Unit :=
+do emitLhs z, emit "!lean::is_scalar(", emitVar x, emitLn ");"
+
+def toHexDigit (c : Nat) : String :=
+String.singleton c.digitChar
+
+def quoteString (s : String) : String :=
+let q := "\"" in
+let q := s.foldl
+  (λ q c, q ++
+    if c == '\n' then "\\n"
+    else if c == '\n' then "\\t"
+    else if c == '\\' then "\\\\"
+    else if c == '\"' then "\\\""
+    else if c.toNat <= 31 || c.toNat >= 0x7f then
+      "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
+    else String.singleton c )
+  q in
+q ++ "\""
+
+def emitNumLit (t : IRType) (v : Nat) : M Unit :=
+if t.isObj then do
+  emit "lean::mk_nat_obj(",
+  if v < uint32Sz then emit v
+  else emit "lean::mpz(\"" *> emit v *> emit "\"",
+  emit ")"
+else
+  emit v
+
+def emitLit (z : VarId) (t : IRType) (v : LitVal) : M Unit :=
+emitLhs z *>
+match v with
+| LitVal.num v := emitNumLit t v *> emitLn ";"
+| LitVal.str v := do emit "lean::mk_string(", emit (quoteString v), emitLn ");"
+
+def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
+match v with
+| Expr.ctor c ys      := emitCtor z c ys
+| Expr.reset x        := emitReset z x
+| Expr.reuse x c u ys := emitReuse z x c u ys
+| Expr.proj i x       := emitProj z i x
+| Expr.uproj i x      := emitUProj z i x
+| Expr.sproj n o x    := emitSProj z t n o x
+| Expr.fap c ys       := emitFullApp z c ys
+| Expr.pap c ys       := emitPartialApp z c ys
+| Expr.ap x ys        := emitApp z x ys
+| Expr.box t x        := emitBox z t x
+| Expr.unbox x        := emitUnbox z x
+| Expr.isShared x     := emitIsShared z x
+| Expr.isTaggedPtr x  := emitIsTaggedPtr z x
+| Expr.lit v          := emitLit z t v
 
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | (FnBody.jdecl j xs v b)   := emitBlock b
-| (FnBody.vdecl x _ v b)    := emitVDecl x v *> emitBlock b
+| (FnBody.vdecl x t v b)    := emitVDecl x t v *> emitBlock b
 | (FnBody.inc x n c b)      := emitInc x n c *> emitBlock b
 | (FnBody.dec x n c b)      := emitDec x n c *> emitBlock b
 | (FnBody.release x i b)    := emitRelease x i *> emitBlock b

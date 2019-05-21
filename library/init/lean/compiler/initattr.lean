@@ -7,6 +7,9 @@ prelude
 import init.lean.environment
 
 namespace Lean
+@[extern "lean_is_io_unit_init"]
+constant isIOUnitInitFn (env : @& Environment) (fn : @& Name) : Bool := default _
+
 @[extern "lean_get_init_fn_name_for"]
 constant getInitFnNameFor (env : @& Environment) (fn : @& Name) : Option Name := default _
 

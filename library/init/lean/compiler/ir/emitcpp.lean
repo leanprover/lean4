@@ -121,6 +121,9 @@ do env ← getEnv,
    | some _                   := throwInvalidExportName n
    | none                     := pure ("_init_" ++ n.mangle)
 
+def emitCppInitName (n : Name) : M Unit :=
+toCppInitName n >>= emit
+
 def emitFnDeclAux (decl : Decl) (cppBaseName : String) (addExternForConsts : Bool) : M Unit :=
 do
 let ps := decl.params,
@@ -611,11 +614,56 @@ env ← getEnv,
 let decls := getDecls env,
 decls.reverse.mfor emitDecl
 
+def emitDeclInit (d : Decl) : M Unit :=
+do
+env ← getEnv,
+let n := d.name,
+if isIOUnitInitFn env n then do {
+  emit "w = ", emitCppName n, emitLn "(w);",
+  emitLn "if (io_result_is_error(w)) return w;"
+} else when (d.params.size == 0) $ do {
+  match getInitFnNameFor env d.name with
+  | some initFn := do {
+    emit "w = ", emitCppName initFn, emitLn "(w);",
+    emitLn "if (io_result_is_error(w)) return w;",
+    emitCppName n, emitLn " = io_result_get_value(w);"
+  }
+  | _ := do {
+    emitCppName n, emit " = ", emitCppInitName n, emitLn "();"
+  },
+  when d.resultType.isObj $ do {
+    emit "lean::mark_persistent(", emitCppName n, emitLn ");"
+  }
+}
+
+def emitInitFn : M Unit :=
+do
+env ← getEnv,
+modName ← getModName,
+env.imports.mfor $ λ m, emitLn ("obj* initialize_" ++ m.mangle "" ++ "(obj*);"),
+emitLns [
+    "static bool _G_initialized = false;",
+    "obj* initialize_" ++ modName.mangle "" ++ "(obj* w) {",
+    "if (_G_initialized) return w;",
+    "_G_initialized = true;",
+    "if (io_result_is_error(w)) return w;"
+],
+env.imports.mfor $ λ m, emitLns [
+  "w = initialize_" ++ m.mangle "" ++ "(w);",
+  "if (io_result_is_error(w)) return w;"
+],
+let decls := getDecls env,
+decls.reverse.mfor emitDeclInit,
+emitLns [
+  "return w;",
+  "}"]
+
 def main : M Unit :=
 do
 emitFileHeader,
 emitFnDecls,
 emitFns,
+emitInitFn,
 emitMainFnIfNeeded
 
 end EmitCpp

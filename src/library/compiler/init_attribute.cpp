@@ -42,6 +42,10 @@ bool is_io_unit_init_fn(environment const & env, name const & n) {
         return false;
 }
 
+extern "C" uint8 lean_is_io_unit_init(b_obj_arg env, b_obj_arg n) {
+    return is_io_unit_init_fn(environment(env, true), name(n, true));
+}
+
 optional<name> get_init_fn_name_for(environment const & env, name const & n) {
     if (auto const & data = get_init_attr().get(env, n)) {
         if (data->m_init_fn.is_anonymous())

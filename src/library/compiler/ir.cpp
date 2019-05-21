@@ -325,7 +325,7 @@ class to_ir_fn {
         lean_assert(is_constant(args[0]));
         buffer<ir::arg> ir_args;
         to_ir_args(args.size()-1, args.data()+1, ir_args);
-        ir::expr v = ir::mk_fapp(const_name(args[0]), ir_args);
+        ir::expr v = ir::mk_papp(const_name(args[0]), ir_args);
         return mk_vdecl(decl, v, b);
     }
 

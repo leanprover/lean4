@@ -377,19 +377,35 @@ else do
   emitAllocCtor c, emitCtorSetArgs z ys
 
 def emitReset (z : VarId) (n : Nat) (x : VarId) : M Unit :=
-pure () -- TODO
+do
+emit "if (lean::is_exclusive(", emit x, emitLn ")) {",
+n.mfor $ λ i, do {
+  emit " lean::cnstr_release(", emit x, emit ", ", emit i, emitLn ");"
+},
+emit " ", emitLhs z, emit x, emitLn ";",
+emitLn "} else {",
+emit " lean::dec_ref(", emit x, emitLn ");",
+emit " ", emitLhs z, emitLn "lean::box(0);",
+emitLn "}"
 
 def emitReuse (z : VarId) (x : VarId) (c : CtorInfo) (updtHeader : Bool) (ys : Array Arg) : M Unit :=
-pure () -- TODO
+do
+emit "if (lean::is_scalar(", emit x, emitLn ")) {",
+emit " ", emitLhs z, emitAllocCtor c,
+emitLn "} else {",
+emit " ", emitLhs z, emit x, emitLn ";",
+when updtHeader (do emit " lean::cnstr_set_tag(", emit z, emit ", ", emit c.cidx, emitLn ");"),
+emitLn "}",
+emitCtorSetArgs z ys
 
 def emitProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
 do emitLhs z, emit "lean::cnstr_get(", emit x, emit ", ", emit i, emitLn ");"
 
 def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
-pure () -- TODO
+do emitLhs z, emit "lean::cnstr_get_scalar<usize>(", emit x, emit ", sizeof(void*)*", emit i, emitLn ");"
 
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit :=
-pure () -- TODO
+do emitLhs z, emit "lean::cnstr_get_scalar<", emit (toCppType t), emit ">(", emit x, emit ", ", emitOffset n offset, emitLn ");"
 
 def toStringArgs (ys : Array Arg) : List String :=
 ys.toList.map argToCppString
@@ -403,7 +419,7 @@ match decl with
   match mkExternCall extData `cpp (toStringArgs ys) with
   | some c := emit c *> emitLn ";"
   | none   := throw "failed to emit extern application"
-| _ := do emit f, emit "(", emitArgs ys, emitLn ");"
+| _ := do emit f, when (ys.size > 0) (do emit "(", emitArgs ys, emitLn ");")
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
 do

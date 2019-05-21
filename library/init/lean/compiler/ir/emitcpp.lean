@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.control.conditional
+import init.lean.runtime
 import init.lean.name_mangling
 import init.lean.compiler.initattr
 import init.lean.compiler.ir.compilerm
@@ -353,8 +354,27 @@ ys.size.mfor $ λ i, do
   when (i > 0) (emit ", "),
   emitArg (ys.get i)
 
+def emitCtorScalarSize (usize : Nat) (ssize : Nat) : M Unit :=
+if usize == 0 then emit ssize
+else if ssize == 0 then emit "sizeof(size_t)*" *> emit usize
+else emit "sizeof(size_t)*" *> emit usize *> emit " + " *> emit ssize
+
+def emitAllocCtor (c : CtorInfo) : M Unit :=
+do
+emit "lean::alloc_cnstr(", emit c.cidx, emit ", ", emit c.size, emit ", ",
+emitCtorScalarSize c.usize c.ssize, emitLn ");"
+
+def emitCtorSetArgs (z : VarId) (ys : Array Arg) : M Unit :=
+ys.size.mfor $ λ i, do
+  emit "lean::cnstr_set(", emit z, emit ", ", emit i, emit ", ", emitArg (ys.get i), emitLn ");"
+
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit :=
-pure () -- TODO
+do
+emitLhs z,
+if c.size == 0 && c.usize == 0 && c.ssize == 0 then do
+  emit "lean::box(", emit c.cidx, emitLn ");"
+else do
+  emitAllocCtor c, emitCtorSetArgs z ys
 
 def emitReset (z : VarId) (n : Nat) (x : VarId) : M Unit :=
 pure () -- TODO
@@ -396,7 +416,11 @@ ys.size.mfor $ λ i, do {
 }
 
 def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
-pure () -- TODO
+if ys.size > closureMaxArgs then do
+  emit "{ obj* _aargs[] = {", emitArgs ys, emitLn "};",
+  emitLhs z, emit "lean::apply_m(", emit f, emit ", ", emit ys.size, emitLn ", _aargs); }"
+else do
+  emitLhs z, emit "lean::apply_", emit ys.size, emit "(", emit f, emit ", ", emitArgs ys, emitLn ");"
 
 def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit :=
 do
@@ -475,9 +499,32 @@ match v with
 | Expr.isTaggedPtr x  := emitIsTaggedPtr z x
 | Expr.lit v          := emitLit z t v
 
+def isTailCall (x : VarId) (v : Expr) (b : FnBody) : M Bool :=
+do
+ctx ← read,
+match v, b with
+| Expr.fap f _, FnBody.ret (Arg.var y) := pure $ f == ctx.mainFn && x == y
+| _, _ := pure false
+
+def emitTailCall (v : Expr) : M Unit :=
+match v with
+| Expr.fap _ ys := do
+  ctx ← read,
+  let ps := ctx.mainParams,
+  unless (ys.size == ps.size) (throw "invalid tail call"),
+  ys.size.mfor $ λ i, do {
+    let p := ps.get i,
+    let y := ys.get i,
+    match y with
+    | Arg.irrelevant := pure ()
+    | Arg.var y      := unless (p.x == y) (do emit p.x, emit " = ", emit y, emitLn ";")
+  },
+  emitLn "goto _start;"
+| _ := throw "bug at emitTailCall"
+
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | (FnBody.jdecl j xs v b)   := emitBlock b
-| (FnBody.vdecl x t v b)    := emitVDecl x t v *> emitBlock b
+| (FnBody.vdecl x t v b)    := do isTail ← isTailCall x v b, if isTail then emitTailCall v else emitVDecl x t v *> emitBlock b
 | (FnBody.inc x n c b)      := emitInc x n c *> emitBlock b
 | (FnBody.dec x n c b)      := emitDec x n c *> emitBlock b
 | (FnBody.release x i b)    := emitRelease x i *> emitBlock b

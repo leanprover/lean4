@@ -262,6 +262,12 @@ do ctx ← read,
    | some t := pure t.isObj
    | none   := throwUnknownVar x
 
+def getJPParams (j : JoinPointId) : M (Array Param) :=
+do ctx ← read,
+   match ctx.jpMap.find j with
+   | some ps := pure ps
+   | none    := throw "unknown join point"
+
 def declareVar (x : VarId) (t : IRType) : M Unit :=
 do emit (toCppType t), emit " ", emitVar x, emit "; "
 
@@ -306,15 +312,53 @@ emit "(" *> emitVar x,
 when (n != 1) (emit ", " *> emit n),
 emitLn ");"
 
+def emitRelease (x : VarId) (i : Nat) : M Unit :=
+do emit "lean::cnstr_release(", emitVar x, emit ", ", emit i, emitLn ");"
+
+def emitSet (x : VarId) (i : Nat) (y : VarId) : M Unit :=
+do emit "lean::cnstr_set(", emitVar x, emit ", ", emit i, emit ", ", emitVar y, emitLn ");"
+
+def emitOffset (n : Nat) (offset : Nat) : M Unit :=
+if n > 0 then do
+  emit "sizeof(void*)*", emit n,
+  when (offset > 0) (emit " + " *> emit offset)
+else
+  emit offset
+
+def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit :=
+do emit "lean::cnstr_set_scalar(", emitVar x, emit ", ", emitOffset n 0, emit ", ", emitVar y, emitLn ");"
+
+def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) : M Unit :=
+do emit "lean::cnstr_set_scalar(", emitVar x, emit ", ", emitOffset n offset, emit ", ", emitVar y, emitLn ");"
+
+def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit :=
+do
+  ps ← getJPParams j,
+  unless (xs.size == ps.size) (throw "invalid goto"),
+  xs.size.mfor $ λ i, do {
+    let p := ps.get i,
+    let x := xs.get i,
+    emitVar p.x, emit " = ", emitArg x, emitLn ";"
+  },
+  emit "goto ", emitLabel j, emitLn ";"
+
+def emitVDecl (x : VarId) (v : Expr) : M Unit :=
+pure () -- TODO
+
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
-| (FnBody.jdecl j xs v b) := emitBlock b
-| FnBody.unreachable      := emitLn "lean_unreachable();"
-| (FnBody.ret x)          := emit "return " *> emitArg x *> emitLn ";"
-| (FnBody.case _ x alts)  := emitCase emitBody x alts
-| (FnBody.jmp j xs)       := pure ()
-| (FnBody.inc x n c b)    := emitInc x n c *> emitBlock b
-| (FnBody.dec x n c b)    := emitDec x n c *> emitBlock b
-| e := unless e.isTerminal (emitBlock e.body) -- TODO
+| (FnBody.jdecl j xs v b)   := emitBlock b
+| (FnBody.vdecl x _ v b)    := emitVDecl x v *> emitBlock b
+| (FnBody.inc x n c b)      := emitInc x n c *> emitBlock b
+| (FnBody.dec x n c b)      := emitDec x n c *> emitBlock b
+| (FnBody.release x i b)    := emitRelease x i *> emitBlock b
+| (FnBody.set x i y b)      := emitSet x i y *> emitBlock b
+| (FnBody.uset x i y b)     := emitUSet x i y *> emitBlock b
+| (FnBody.sset x i o y _ b) := emitSSet x i o y *> emitBlock b
+| (FnBody.mdata _ b)        := emitBlock b
+| (FnBody.ret x)            := emit "return " *> emitArg x *> emitLn ";"
+| (FnBody.case _ x alts)    := emitCase emitBody x alts
+| (FnBody.jmp j xs)         := emitJmp j xs
+| FnBody.unreachable        := emitLn "lean_unreachable();"
 
 partial def emitJPs (emitBody : FnBody → M Unit) : FnBody → M Unit
 | (FnBody.jdecl j xs v b) := do emitLabel j, emitLn ":", emitBody v, emitJPs b

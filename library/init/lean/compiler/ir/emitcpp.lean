@@ -47,12 +47,15 @@ emit a *> emit "\n"
 @[inline] def emitVar (x : VarId) : M Unit :=
 emit "x_" *> emit x.idx
 
-@[inline] def emitArg (x : Arg) : M Unit :=
+def emitLns {α : Type} [HasToString α] (as : List α) : M Unit :=
+as.mfor $ λ a, emitLn a
+
+def emitArg (x : Arg) : M Unit :=
 match x with
 | Arg.var x := emitVar x
 | _         := emit "lean::box(0)"
 
-@[inline] def emitLabel (j : JoinPointId) : M Unit :=
+def emitLabel (j : JoinPointId) : M Unit :=
 emit "lbl_" *> emit j.idx
 
 def toCppType : IRType → String
@@ -183,31 +186,31 @@ match d with
   emitLn "obj * w = lean::io_mk_world();",
   modName ← getModName,
   emitLn ("w = initialize_" ++ (modName.mangle "") ++ "(w);"),
-  emitLn "lean::io_mark_end_initialization();",
-  emitLn "if (io_result_is_ok(w)) {",
-  emitLn "lean::scoped_task_manager tmanager(lean::hardware_concurrency());",
+  emitLns ["lean::io_mark_end_initialization();",
+           "if (io_result_is_ok(w)) {",
+           "lean::scoped_task_manager tmanager(lean::hardware_concurrency());"],
   if xs.size == 2 then do {
-    emitLn "obj* in = lean::box(0);",
-    emitLn "int i = argc;",
-    emitLn "while (i > 1) {",
-    emitLn " i--;",
-    emitLn " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);",
-    emitLn " in = n;",
-    emitLn "}",
+    emitLns ["obj* in = lean::box(0);",
+             "int i = argc;",
+             "while (i > 1) {",
+             " i--;",
+             " obj* n = lean::alloc_cnstr(1,2,0); lean::cnstr_set(n, 0, lean::mk_string(argv[i])); lean::cnstr_set(n, 1, in);",
+             " in = n;",
+             "}"],
     emitLn ("w = " ++ leanMainFn ++ "(in, w);")
   } else do {
     emitLn ("w = " ++ leanMainFn ++ "(w);")
   },
   emitLn "}",
-  emitLn "if (io_result_is_ok(w)) {",
-  emitLn "  int ret = lean::unbox(io_result_get_value(w));",
-  emitLn "  lean::dec_ref(w);",
-  emitLn "  return ret;",
-  emitLn "} else {",
-  emitLn "  lean::io_result_show_error(w);",
-  emitLn "  lean::dec_ref(w);",
-  emitLn "  return 1;",
-  emitLn "}",
+  emitLns ["if (io_result_is_ok(w)) {",
+           "  int ret = lean::unbox(io_result_get_value(w));",
+           "  lean::dec_ref(w);",
+           "  return ret;",
+           "} else {",
+           "  lean::io_result_show_error(w);",
+           "  lean::dec_ref(w);",
+           "  return 1;",
+           "}"],
   emitLn "}"
 | other := throw "function declaration expected"
 
@@ -231,17 +234,18 @@ emitLn "",
 emitLn "#include \"runtime/object.h\"",
 emitLn "#include \"runtime/apply.h\"",
 mwhen hasMainFn $ emitLn "#include \"runtime/init_module.h\"",
-emitLn "typedef lean::object obj;    typedef lean::usize  usize;",
-emitLn "typedef lean::uint8  uint8;  typedef lean::uint16 uint16;",
-emitLn "typedef lean::uint32 uint32; typedef lean::uint64 uint64;",
-emitLn "#if defined(__clang__)",
-emitLn "#pragma clang diagnostic ignored \"-Wunused-parameter\"",
-emitLn "#pragma clang diagnostic ignored \"-Wunused-label\"",
-emitLn "#elif defined(__GNUC__) && !defined(__CLANG__)",
-emitLn "#pragma GCC diagnostic ignored \"-Wunused-parameter\"",
-emitLn "#pragma GCC diagnostic ignored \"-Wunused-label\"",
-emitLn "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"",
-emitLn "#endif"
+emitLns [
+ "typedef lean::object obj;    typedef lean::usize  usize;",
+ "typedef lean::uint8  uint8;  typedef lean::uint16 uint16;",
+ "typedef lean::uint32 uint32; typedef lean::uint64 uint64;",
+ "#if defined(__clang__)",
+ "#pragma clang diagnostic ignored \"-Wunused-parameter\"",
+ "#pragma clang diagnostic ignored \"-Wunused-label\"",
+ "#elif defined(__GNUC__) && !defined(__CLANG__)",
+ "#pragma GCC diagnostic ignored \"-Wunused-parameter\"",
+ "#pragma GCC diagnostic ignored \"-Wunused-label\"",
+ "#pragma GCC diagnostic ignored \"-Wunused-but-set-variable\"",
+ "#endif"]
 
 def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
 if alts.size != 2 then none
@@ -288,12 +292,28 @@ match isIf alts with
     | Alt.default b := emitLn "default: " *> emitBody b,
   emitLn "}"
 
+def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit :=
+do
+emit (if checkRef then "lean::inc" else "lean::inc_ref"),
+emit "(" *> emitVar x,
+when (n != 1) (emit ", " *> emit n),
+emitLn ");"
+
+def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit :=
+do
+emit (if checkRef then "lean::dec" else "lean::dec_ref"),
+emit "(" *> emitVar x,
+when (n != 1) (emit ", " *> emit n),
+emitLn ");"
+
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | (FnBody.jdecl j xs v b) := emitBlock b
 | FnBody.unreachable      := emitLn "lean_unreachable();"
 | (FnBody.ret x)          := emit "return " *> emitArg x *> emitLn ";"
 | (FnBody.case _ x alts)  := emitCase emitBody x alts
 | (FnBody.jmp j xs)       := pure ()
+| (FnBody.inc x n c b)    := emitInc x n c *> emitBlock b
+| (FnBody.dec x n c b)    := emitDec x n c *> emitBlock b
 | e := unless e.isTerminal (emitBlock e.body) -- TODO
 
 partial def emitJPs (emitBody : FnBody → M Unit) : FnBody → M Unit

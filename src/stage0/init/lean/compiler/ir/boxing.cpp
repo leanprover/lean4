@@ -42,6 +42,7 @@ obj* l_Lean_IR_ExplicitBoxing_withJDecl___boxed(obj*);
 obj* l_Lean_IR_ExplicitBoxing_unboxResultIfNeeded___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_castArgsIfNeeded___spec__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__2___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_findEnvDecl_x_27(obj*, obj*, obj*);
 obj* l_Lean_IR_LocalContext_addJP(obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_LocalContext_addParams___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_reshape(obj*, obj*);
@@ -94,7 +95,6 @@ obj* l_Lean_IR_ExplicitBoxing_getVarType___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getDecl___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_getJPParams(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___spec__1___boxed(obj*, obj*, obj*);
-obj* l_Lean_IR_findDeclAux_x_27(obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_boxArgsIfNeeded___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_castArgsIfNeededAux___at_Lean_IR_ExplicitBoxing_visitVDeclExpr___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExplicitBoxing_visitVDeclExpr___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -511,7 +511,7 @@ _start:
 obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::cnstr_get(x_1, 2);
 x_4 = lean::cnstr_get(x_1, 1);
-x_5 = l_Lean_IR_findDeclAux_x_27(x_3, x_0, x_4);
+x_5 = l_Lean_IR_findEnvDecl_x_27(x_3, x_0, x_4);
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; 

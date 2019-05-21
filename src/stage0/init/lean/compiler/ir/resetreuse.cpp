@@ -500,7 +500,7 @@ return x_1;
 obj* l___private_init_lean_compiler_ir_resetreuse_4__tryS(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_6; obj* x_8; obj* x_10; obj* x_13; uint8 x_16; 
+obj* x_5; obj* x_6; obj* x_8; obj* x_10; obj* x_14; uint8 x_17; 
 x_5 = l___private_init_lean_compiler_ir_resetreuse_3__mkFresh___rarg(x_4);
 x_6 = lean::cnstr_get(x_5, 0);
 x_8 = lean::cnstr_get(x_5, 1);
@@ -515,47 +515,53 @@ if (lean::is_exclusive(x_5)) {
  x_10 = lean::box(0);
 }
 lean::inc(x_2);
+lean::inc(x_1);
 lean::inc(x_6);
-x_13 = l___private_init_lean_compiler_ir_resetreuse_2__S___main(x_6, x_1, x_2);
-lean::inc(x_13);
+x_14 = l___private_init_lean_compiler_ir_resetreuse_2__S___main(x_6, x_1, x_2);
+lean::inc(x_14);
 lean::inc(x_2);
-x_16 = l_Lean_IR_FnBody_beq(x_2, x_13);
-if (x_16 == 0)
+x_17 = l_Lean_IR_FnBody_beq(x_2, x_14);
+if (x_17 == 0)
 {
-obj* x_18; uint8 x_19; obj* x_20; obj* x_21; obj* x_22; 
+obj* x_19; obj* x_22; uint8 x_23; obj* x_24; obj* x_25; obj* x_26; 
 lean::dec(x_2);
-x_18 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_18, 0, x_0);
-x_19 = 7;
-x_20 = lean::alloc_cnstr(0, 3, 1);
-lean::cnstr_set(x_20, 0, x_6);
-lean::cnstr_set(x_20, 1, x_18);
-lean::cnstr_set(x_20, 2, x_13);
-lean::cnstr_set_scalar(x_20, sizeof(void*)*3, x_19);
-x_21 = x_20;
-if (lean::is_scalar(x_10)) {
- x_22 = lean::alloc_cnstr(0, 2, 0);
-} else {
- x_22 = x_10;
-}
-lean::cnstr_set(x_22, 0, x_21);
-lean::cnstr_set(x_22, 1, x_8);
-return x_22;
-}
-else
-{
-obj* x_26; 
-lean::dec(x_13);
-lean::dec(x_6);
-lean::dec(x_0);
+x_19 = lean::cnstr_get(x_1, 2);
+lean::inc(x_19);
+lean::dec(x_1);
+x_22 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_22, 0, x_19);
+lean::cnstr_set(x_22, 1, x_0);
+x_23 = 7;
+x_24 = lean::alloc_cnstr(0, 3, 1);
+lean::cnstr_set(x_24, 0, x_6);
+lean::cnstr_set(x_24, 1, x_22);
+lean::cnstr_set(x_24, 2, x_14);
+lean::cnstr_set_scalar(x_24, sizeof(void*)*3, x_23);
+x_25 = x_24;
 if (lean::is_scalar(x_10)) {
  x_26 = lean::alloc_cnstr(0, 2, 0);
 } else {
  x_26 = x_10;
 }
-lean::cnstr_set(x_26, 0, x_2);
+lean::cnstr_set(x_26, 0, x_25);
 lean::cnstr_set(x_26, 1, x_8);
 return x_26;
+}
+else
+{
+obj* x_31; 
+lean::dec(x_14);
+lean::dec(x_1);
+lean::dec(x_6);
+lean::dec(x_0);
+if (lean::is_scalar(x_10)) {
+ x_31 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_31 = x_10;
+}
+lean::cnstr_set(x_31, 0, x_2);
+lean::cnstr_set(x_31, 1, x_8);
+return x_31;
 }
 }
 }

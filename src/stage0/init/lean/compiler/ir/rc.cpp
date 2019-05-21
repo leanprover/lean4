@@ -52,6 +52,7 @@ obj* l_RBNode_fold___main___at___private_init_lean_compiler_ir_rc_2__addDecForAl
 obj* l_Array_hmmapAux___main___at_Lean_IR_ExplicitRC_visitFnBody___main___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_rc_14__addDecIfNeeded(obj*, obj*, obj*, obj*);
 uint8 l_Nat_anyAux___main___at___private_init_lean_compiler_ir_rc_8__addIncBefore___spec__5(obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_findEnvDecl_x_27(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_rc_7__addIncBeforeAux(obj*, obj*, obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_ExplicitRC_updateVarInfoWithParams___spec__1(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_rc_8__addIncBefore___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -129,7 +130,6 @@ obj* l_Nat_foldAux___main___at___private_init_lean_compiler_ir_rc_5__getNumConsu
 uint8 l_Nat_anyAux___main___at___private_init_lean_compiler_ir_rc_6__isBorrowParam___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_rc_1__updateRefUsingCtorInfo___boxed(obj*, obj*, obj*);
 obj* l_RBNode_insert___at___private_init_lean_compiler_ir_rc_1__updateRefUsingCtorInfo___spec__1(obj*, obj*, obj*);
-obj* l_Lean_IR_findDeclAux_x_27(obj*, obj*, obj*);
 obj* l___private_init_lean_compiler_ir_rc_5__getNumConsumptions___at___private_init_lean_compiler_ir_rc_9__addIncBeforeConsumeAll___spec__2___boxed(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_rc_15__processVDecl___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Nat_foldAux___main___at___private_init_lean_compiler_ir_rc_8__addIncBefore___spec__3(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -175,7 +175,7 @@ _start:
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = lean::cnstr_get(x_0, 0);
 x_3 = lean::cnstr_get(x_0, 1);
-x_4 = l_Lean_IR_findDeclAux_x_27(x_2, x_1, x_3);
+x_4 = l_Lean_IR_findEnvDecl_x_27(x_2, x_1, x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 

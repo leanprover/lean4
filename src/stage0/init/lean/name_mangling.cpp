@@ -16,12 +16,12 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_Lean_Name_mangle(obj*, obj*);
 uint32 l_String_Iterator_curr___main(obj*);
+extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
-obj* l_Lean_Name_mangle___boxed(obj*, obj*);
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main(obj*, obj*);
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux(obj*, obj*);
+obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main(obj*);
+obj* l___private_init_lean_name__mangling_2__Name_mangleAux(obj*);
 uint8 l_Char_isAlpha(uint32);
 obj* l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__3;
 namespace lean {
@@ -45,8 +45,6 @@ obj* l_Lean_String_mangle(obj*);
 obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1;
 uint8 l_Char_isDigit(uint32);
 obj* l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__2;
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__2;
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main___boxed(obj*, obj*);
 obj* l___private_init_lean_name__mangling_1__String_mangleAux(obj*, obj*, obj*);
 obj* l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__1;
 namespace lean {
@@ -55,7 +53,6 @@ uint32 uint32_of_nat(obj*);
 namespace lean {
 obj* nat_div(obj*, obj*);
 }
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___boxed(obj*, obj*);
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
@@ -243,110 +240,83 @@ obj* _init_l___private_init_lean_name__mangling_2__Name_mangleAux___main___close
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("_s");
-return x_0;
-}
-}
-obj* _init_l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__2() {
-_start:
-{
-obj* x_0; 
 x_0 = lean::mk_string("_");
 return x_0;
 }
 }
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main(obj* x_0, obj* x_1) {
+obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main(obj* x_0) {
 _start:
 {
-switch (lean::obj_tag(x_1)) {
+switch (lean::obj_tag(x_0)) {
 case 0:
 {
-lean::inc(x_0);
-return x_0;
+obj* x_1; 
+x_1 = l_String_splitAux___main___closed__1;
+return x_1;
 }
 case 1:
 {
-obj* x_3; obj* x_5; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_16; obj* x_17; obj* x_18; 
-x_3 = lean::cnstr_get(x_1, 0);
-lean::inc(x_3);
-x_5 = lean::cnstr_get(x_1, 1);
-lean::inc(x_5);
-lean::dec(x_1);
-x_8 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_0, x_3);
-x_9 = l_Lean_String_mangle(x_5);
-x_10 = l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1;
-x_11 = lean::string_append(x_8, x_10);
-x_12 = lean::string_length(x_9);
-x_13 = l_Nat_repr(x_12);
-x_14 = lean::string_append(x_11, x_13);
-lean::dec(x_13);
-x_16 = l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__2;
-x_17 = lean::string_append(x_14, x_16);
-x_18 = lean::string_append(x_17, x_9);
-lean::dec(x_9);
-return x_18;
+obj* x_2; obj* x_4; obj* x_7; obj* x_8; uint8 x_9; 
+x_2 = lean::cnstr_get(x_0, 0);
+lean::inc(x_2);
+x_4 = lean::cnstr_get(x_0, 1);
+lean::inc(x_4);
+lean::dec(x_0);
+x_7 = l_Lean_String_mangle(x_4);
+x_8 = lean::box(0);
+x_9 = lean_name_dec_eq(x_2, x_8);
+if (x_9 == 0)
+{
+obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
+x_10 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_2);
+x_11 = l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1;
+x_12 = lean::string_append(x_10, x_11);
+x_13 = lean::string_append(x_12, x_7);
+lean::dec(x_7);
+return x_13;
+}
+else
+{
+lean::dec(x_2);
+return x_7;
+}
 }
 default:
 {
-obj* x_20; obj* x_22; obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_31; 
-x_20 = lean::cnstr_get(x_1, 0);
-lean::inc(x_20);
-x_22 = lean::cnstr_get(x_1, 1);
-lean::inc(x_22);
-lean::dec(x_1);
-x_25 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_0, x_20);
-x_26 = l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__2;
-x_27 = lean::string_append(x_25, x_26);
-x_28 = l_Nat_repr(x_22);
-x_29 = lean::string_append(x_27, x_28);
-lean::dec(x_28);
-x_31 = lean::string_append(x_29, x_26);
-return x_31;
-}
-}
-}
-}
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_0, x_1);
+obj* x_16; obj* x_18; obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; obj* x_27; 
+x_16 = lean::cnstr_get(x_0, 0);
+lean::inc(x_16);
+x_18 = lean::cnstr_get(x_0, 1);
+lean::inc(x_18);
 lean::dec(x_0);
-return x_2;
+x_21 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_16);
+x_22 = l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1;
+x_23 = lean::string_append(x_21, x_22);
+x_24 = l_Nat_repr(x_18);
+x_25 = lean::string_append(x_23, x_24);
+lean::dec(x_24);
+x_27 = lean::string_append(x_25, x_22);
+return x_27;
 }
 }
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux(obj* x_0, obj* x_1) {
+}
+}
+obj* l___private_init_lean_name__mangling_2__Name_mangleAux(obj* x_0) {
 _start:
 {
-obj* x_2; 
-x_2 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_0, x_1);
-return x_2;
-}
-}
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l___private_init_lean_name__mangling_2__Name_mangleAux(x_0, x_1);
-lean::dec(x_0);
-return x_2;
+obj* x_1; 
+x_1 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_0);
+return x_1;
 }
 }
 obj* l_Lean_Name_mangle(obj* x_0, obj* x_1) {
 _start:
 {
-obj* x_2; 
-x_2 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_1, x_0);
-return x_2;
-}
-}
-obj* l_Lean_Name_mangle___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_Name_mangle(x_0, x_1);
-lean::dec(x_1);
-return x_2;
+obj* x_2; obj* x_3; 
+x_2 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_0);
+x_3 = lean::string_append(x_1, x_2);
+lean::dec(x_2);
+return x_3;
 }
 }
 obj* initialize_init_lean_name(obj*);
@@ -368,7 +338,5 @@ lean::mark_persistent(l___private_init_lean_name__mangling_1__String_mangleAux__
 lean::mark_persistent(l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__3);
  l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1 = _init_l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1();
 lean::mark_persistent(l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1);
- l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__2 = _init_l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__2();
-lean::mark_persistent(l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__2);
 return w;
 }

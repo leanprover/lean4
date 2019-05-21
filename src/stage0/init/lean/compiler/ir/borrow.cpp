@@ -2283,7 +2283,7 @@ return x_13;
 case 1:
 {
 obj* x_16; obj* x_19; obj* x_20; obj* x_23; 
-x_16 = lean::cnstr_get(x_1, 0);
+x_16 = lean::cnstr_get(x_1, 1);
 lean::inc(x_16);
 lean::dec(x_1);
 x_19 = l_Lean_IR_Borrow_ownVar(x_0, x_2, x_3);
@@ -2331,8 +2331,8 @@ x_50 = lean::unbox(x_48);
 if (x_50 == 0)
 {
 obj* x_53; obj* x_55; obj* x_56; obj* x_57; 
-lean::dec(x_43);
 lean::dec(x_2);
+lean::dec(x_43);
 x_53 = lean::cnstr_get(x_46, 1);
 if (lean::is_exclusive(x_46)) {
  lean::cnstr_release(x_46, 0);

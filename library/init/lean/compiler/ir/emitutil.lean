@@ -74,5 +74,37 @@ match decl with
 | Decl.fdecl _ _ _ b := (CollectUsedDecls.collectFnBody b *> get).run' used
 | other              := used
 
+abbrev VarTypeMap  := HashMap VarId IRType
+abbrev JPParamsMap := HashMap JoinPointId (Array Param)
+
+namespace CollectMaps
+/- Auxiliary monad for collecting Decl information -/
+abbrev Collector := (VarTypeMap × JPParamsMap) → (VarTypeMap × JPParamsMap)
+@[inline] def collectVar (x : VarId) (t : IRType) : Collector
+| (vs, js) := (vs.insert x t, js)
+def collectParams (ps : Array Param) : Collector :=
+λ s, ps.foldl (λ s p, collectVar p.x p.ty s) s
+@[inline] def collectJP (j : JoinPointId) (xs : Array Param) : Collector
+| (vs, js) := (vs, js.insert j xs)
+local infix ` >> `:50 := Function.comp
+
+/- `collectFnBody` assumes the variables in -/
+partial def collectFnBody : FnBody → Collector
+| (FnBody.vdecl x t _ b)  := collectVar x t >> collectFnBody b
+| (FnBody.jdecl j xs v b) := collectJP j xs >> collectParams xs >> collectFnBody v >> collectFnBody b
+| e                       := if e.isTerminal then id else collectFnBody e.body
+
+def collectDecl : Decl → Collector
+| (Decl.fdecl _ xs _ b) := collectParams xs >> collectFnBody b
+| _ := id
+
+end CollectMaps
+
+/- Return a pair `(v, j)`, where `v` is a mapping from variable/parameter to type,
+   and `j` is a mapping from join point to parameters.
+   This function assumes `d` has normalized indexes (see `normids.lean`). -/
+def mkVarJPMaps (d : Decl) : VarTypeMap × JPParamsMap :=
+CollectMaps.collectDecl d ({}, {})
+
 end IR
 end Lean

@@ -53,6 +53,10 @@ optional<name> get_init_fn_name_for(environment const & env, name const & n) {
     }
 }
 
+extern "C" object * lean_get_init_fn_name_for(b_obj_arg env, b_obj_arg n) {
+    return to_object(get_init_fn_name_for(environment(env, true), name(n, true)));
+}
+
 static optional<expr> get_io_type_arg(expr const & t) {
     if (!is_app(t)) return none_expr();
     if (!is_constant(app_fn(t), get_io_name())) return none_expr();

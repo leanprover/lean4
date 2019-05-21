@@ -34,6 +34,7 @@ namespace VarId
 instance : HasBeq VarId := ⟨λ a b, a.idx == b.idx⟩
 instance : HasToString VarId := ⟨λ a, "x_" ++ toString a.idx⟩
 instance : HasFormat VarId := ⟨λ a, toString a⟩
+instance : Hashable VarId := ⟨λ a, hash a.idx⟩
 end VarId
 
 namespace JoinPointId

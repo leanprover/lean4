@@ -44,19 +44,16 @@ modify (λ out, out ++ toString a)
 @[inline] def emitLn {α : Type} [HasToString α] (a : α) : M Unit :=
 emit a *> emit "\n"
 
-@[inline] def emitVar (x : VarId) : M Unit :=
-emit "x_" *> emit x.idx
-
 def emitLns {α : Type} [HasToString α] (as : List α) : M Unit :=
 as.mfor $ λ a, emitLn a
 
-def emitArg (x : Arg) : M Unit :=
+def argToCppString (x : Arg) : String :=
 match x with
-| Arg.var x := emitVar x
-| _         := emit "lean::box(0)"
+| Arg.var x := toString x
+| _         := "lean::box(0)"
 
-def emitLabel (j : JoinPointId) : M Unit :=
-emit "lbl_" *> emit j.idx
+def emitArg (x : Arg) : M Unit :=
+emit (argToCppString x)
 
 def toCppType : IRType → String
 | IRType.float      := "double"
@@ -263,7 +260,7 @@ do ctx ← read,
    | none    := throw "unknown join point"
 
 def declareVar (x : VarId) (t : IRType) : M Unit :=
-do emit (toCppType t), emit " ", emitVar x, emit "; "
+do emit (toCppType t), emit " ", emit x, emit "; "
 
 def declareParams (ps : Array Param) : M Unit :=
 ps.mfor $ λ p, declareVar p.x p.ty
@@ -277,9 +274,9 @@ def emitTag (x : VarId) : M Unit :=
 do
 xIsObj ← isObj x,
 if xIsObj then do
-  emit "lean::obj_tag(", emitVar x, emit ")"
+  emit "lean::obj_tag(", emit x, emit ")"
 else
-  emitVar x
+  emit x
 
 def isIf (alts : Array Alt) : Option (Nat × FnBody × FnBody) :=
 if alts.size != 2 then none
@@ -307,22 +304,22 @@ match isIf alts with
 def emitInc (x : VarId) (n : Nat) (checkRef : Bool) : M Unit :=
 do
 emit (if checkRef then "lean::inc" else "lean::inc_ref"),
-emit "(" *> emitVar x,
+emit "(" *> emit x,
 when (n != 1) (emit ", " *> emit n),
 emitLn ");"
 
 def emitDec (x : VarId) (n : Nat) (checkRef : Bool) : M Unit :=
 do
 emit (if checkRef then "lean::dec" else "lean::dec_ref"),
-emit "(" *> emitVar x,
+emit "(" *> emit x,
 when (n != 1) (emit ", " *> emit n),
 emitLn ");"
 
 def emitRelease (x : VarId) (i : Nat) : M Unit :=
-do emit "lean::cnstr_release(", emitVar x, emit ", ", emit i, emitLn ");"
+do emit "lean::cnstr_release(", emit x, emit ", ", emit i, emitLn ");"
 
 def emitSet (x : VarId) (i : Nat) (y : VarId) : M Unit :=
-do emit "lean::cnstr_set(", emitVar x, emit ", ", emit i, emit ", ", emitVar y, emitLn ");"
+do emit "lean::cnstr_set(", emit x, emit ", ", emit i, emit ", ", emit y, emitLn ");"
 
 def emitOffset (n : Nat) (offset : Nat) : M Unit :=
 if n > 0 then do
@@ -332,10 +329,10 @@ else
   emit offset
 
 def emitUSet (x : VarId) (n : Nat) (y : VarId) : M Unit :=
-do emit "lean::cnstr_set_scalar(", emitVar x, emit ", ", emitOffset n 0, emit ", ", emitVar y, emitLn ");"
+do emit "lean::cnstr_set_scalar(", emit x, emit ", ", emitOffset n 0, emit ", ", emit y, emitLn ");"
 
 def emitSSet (x : VarId) (n : Nat) (offset : Nat) (y : VarId) : M Unit :=
-do emit "lean::cnstr_set_scalar(", emitVar x, emit ", ", emitOffset n offset, emit ", ", emitVar y, emitLn ");"
+do emit "lean::cnstr_set_scalar(", emit x, emit ", ", emitOffset n offset, emit ", ", emit y, emitLn ");"
 
 def emitJmp (j : JoinPointId) (xs : Array Arg) : M Unit :=
 do
@@ -344,12 +341,17 @@ do
   xs.size.mfor $ λ i, do {
     let p := ps.get i,
     let x := xs.get i,
-    emitVar p.x, emit " = ", emitArg x, emitLn ";"
+    emit p.x, emit " = ", emitArg x, emitLn ";"
   },
-  emit "goto ", emitLabel j, emitLn ";"
+  emit "goto ", emit j, emitLn ";"
 
 def emitLhs (z : VarId) : M Unit :=
-do emitVar z, emit " = "
+do emit z, emit " = "
+
+def emitArgs (ys : Array Arg) : M Unit :=
+ys.size.mfor $ λ i, do
+  when (i > 0) (emit ", "),
+  emitArg (ys.get i)
 
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit :=
 pure () -- TODO
@@ -361,7 +363,7 @@ def emitReuse (z : VarId) (x : VarId) (c : CtorInfo) (updtHeader : Bool) (ys : A
 pure () -- TODO
 
 def emitProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
-do emitLhs z, emit "lean::cnstr_get(", emitVar x, emit ", ", emit i, emitLn ");"
+do emitLhs z, emit "lean::cnstr_get(", emit x, emit ", ", emit i, emitLn ");"
 
 def emitUProj (z : VarId) (i : Nat) (x : VarId) : M Unit :=
 pure () -- TODO
@@ -369,8 +371,19 @@ pure () -- TODO
 def emitSProj (z : VarId) (t : IRType) (n offset : Nat) (x : VarId) : M Unit :=
 pure () -- TODO
 
+def toStringArgs (ys : Array Arg) : List String :=
+ys.toList.map argToCppString
+
 def emitFullApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
-pure () -- TODO
+do
+emitLhs z,
+decl ← getDecl f,
+match decl with
+| Decl.extern _ _ _ extData :=
+  match mkExternCall extData `cpp (toStringArgs ys) with
+  | some c := emit c *> emitLn ";"
+  | none   := throw "failed to emit extern application"
+| _ := do emit f, emit "(", emitArgs ys, emitLn ");"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
 pure () -- TODO
@@ -378,17 +391,33 @@ pure () -- TODO
 def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
 pure () -- TODO
 
-def emitBox (z : VarId) (t : IRType) (x : VarId) : M Unit :=
-pure () -- TODO
+def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit :=
+do
+emitLhs z,
+match xType with
+| IRType.usize  := emit "lean::box_size_t"
+| IRType.uint32 := emit "lean::box_uint32"
+| IRType.uint64 := emit "lean::box_uint64"
+| IRType.float  := throw "floats are not supported yet"
+| other         := emit "lean::box",
+emit "(", emit x, emitLn ");"
 
-def emitUnbox (z : VarId) (x : VarId) : M Unit :=
-pure () -- TODO
+def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit :=
+do
+emitLhs z,
+match t with
+| IRType.usize  := emit "lean::unbox_size_t"
+| IRType.uint32 := emit "lean::unbox_uint32"
+| IRType.uint64 := emit "lean::unbox_uint64"
+| IRType.float  := throw "floats are not supported yet"
+| other         := emit "lean::unbox",
+emit "(", emit x, emitLn ");"
 
 def emitIsShared (z : VarId) (x : VarId) : M Unit :=
-do emitLhs z, emit "!lean::is_exclusive(", emitVar x, emitLn ");"
+do emitLhs z, emit "!lean::is_exclusive(", emit x, emitLn ");"
 
 def emitIsTaggedPtr (z : VarId) (x : VarId) : M Unit :=
-do emitLhs z, emit "!lean::is_scalar(", emitVar x, emitLn ");"
+do emitLhs z, emit "!lean::is_scalar(", emit x, emitLn ");"
 
 def toHexDigit (c : Nat) : String :=
 String.singleton c.digitChar
@@ -433,8 +462,8 @@ match v with
 | Expr.fap c ys       := emitFullApp z c ys
 | Expr.pap c ys       := emitPartialApp z c ys
 | Expr.ap x ys        := emitApp z x ys
-| Expr.box t x        := emitBox z t x
-| Expr.unbox x        := emitUnbox z x
+| Expr.box t x        := emitBox z x t
+| Expr.unbox x        := emitUnbox z t x
 | Expr.isShared x     := emitIsShared z x
 | Expr.isTaggedPtr x  := emitIsTaggedPtr z x
 | Expr.lit v          := emitLit z t v
@@ -455,7 +484,7 @@ partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | FnBody.unreachable        := emitLn "lean_unreachable();"
 
 partial def emitJPs (emitBody : FnBody → M Unit) : FnBody → M Unit
-| (FnBody.jdecl j xs v b) := do emitLabel j, emitLn ":", emitBody v, emitJPs b
+| (FnBody.jdecl j xs v b) := do emit j, emitLn ":", emitBody v, emitJPs b
 | e                       := unless e.isTerminal (emitJPs e.body)
 
 partial def emitFnBody : FnBody → M Unit
@@ -484,7 +513,7 @@ unless (hasInitAttr env d.name) $
       xs.size.mfor $ λ i, do {
         when (i > 0) (emit ", "),
         let x := xs.get i,
-        emit (toCppType x.ty), emit " ", emitVar(x.x)
+        emit (toCppType x.ty), emit " ", emit(x.x)
       },
       emit ")"
     } else do {

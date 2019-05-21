@@ -160,7 +160,7 @@ def CtorInfo.isScalar (info : CtorInfo) : Bool :=
 
 inductive Expr
 | ctor (i : CtorInfo) (ys : Array Arg)
-| reset (x : VarId)
+| reset (n : Nat) (x : VarId)
 /- `reuse x in ctor_i ys` instruction in the paper. -/
 | reuse (x : VarId) (i : CtorInfo) (updtHeader : Bool) (ys : Array Arg)
 /- Extract the `tobject` value at Position `sizeof(void*)*i` from `x`. -/
@@ -495,7 +495,7 @@ instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
 | (Expr.ctor i₁ ys₁)        (Expr.ctor i₂ ys₂)        := i₁ == i₂ && ys₁ =[ρ]= ys₂
-| (Expr.reset x₁)           (Expr.reset x₂)           := x₁ =[ρ]= x₂
+| (Expr.reset n₁ x₁)        (Expr.reset n₂ x₂)        := n₁ == n₂ && x₁ =[ρ]= x₂
 | (Expr.reuse x₁ i₁ u₁ ys₁) (Expr.reuse x₂ i₂ u₂ ys₂) := x₁ =[ρ]= x₂ && i₁ == i₂ && u₁ == u₂ && ys₁ =[ρ]= ys₂
 | (Expr.proj i₁ x₁)         (Expr.proj i₂ x₂)         := i₁ == i₂ && x₁ =[ρ]= x₂
 | (Expr.uproj i₁ x₁)        (Expr.uproj i₂ x₂)        := i₁ == i₂ && x₁ =[ρ]= x₂

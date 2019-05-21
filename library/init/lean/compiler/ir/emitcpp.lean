@@ -354,7 +354,7 @@ do emitVar z, emit " = "
 def emitCtor (z : VarId) (c : CtorInfo) (ys : Array Arg) : M Unit :=
 pure () -- TODO
 
-def emitReset (z : VarId) (x : VarId) : M Unit :=
+def emitReset (z : VarId) (n : Nat) (x : VarId) : M Unit :=
 pure () -- TODO
 
 def emitReuse (z : VarId) (x : VarId) (c : CtorInfo) (updtHeader : Bool) (ys : Array Arg) : M Unit :=
@@ -425,7 +425,7 @@ match v with
 def emitVDecl (z : VarId) (t : IRType) (v : Expr) : M Unit :=
 match v with
 | Expr.ctor c ys      := emitCtor z c ys
-| Expr.reset x        := emitReset z x
+| Expr.reset n x      := emitReset z n x
 | Expr.reuse x c u ys := emitReuse z x c u ys
 | Expr.proj i x       := emitProj z i x
 | Expr.uproj i x      := emitUProj z i x

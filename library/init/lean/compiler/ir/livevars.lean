@@ -115,7 +115,7 @@ local infix ` >> `:50 := Function.comp
 
 def collectExpr : Expr → Collector
 | (Expr.ctor _ ys)       := collectArgs ys
-| (Expr.reset x)         := collectVar x
+| (Expr.reset _ x)       := collectVar x
 | (Expr.reuse x _ _ ys)  := collectVar x >> collectArgs ys
 | (Expr.proj _ x)        := collectVar x
 | (Expr.uproj _ x)       := collectVar x

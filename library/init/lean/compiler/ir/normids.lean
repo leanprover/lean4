@@ -62,7 +62,7 @@ def normArgs (as : Array Arg) : M (Array Arg) :=
 
 def normExpr : Expr → M Expr
 | (Expr.ctor c ys)      m := Expr.ctor c (normArgs ys m)
-| (Expr.reset x)        m := Expr.reset (normVar x m)
+| (Expr.reset n x)      m := Expr.reset n (normVar x m)
 | (Expr.reuse x c u ys) m := Expr.reuse (normVar x m) c u (normArgs ys m)
 | (Expr.proj i x)       m := Expr.proj i (normVar x m)
 | (Expr.uproj i x)      m := Expr.uproj i (normVar x m)

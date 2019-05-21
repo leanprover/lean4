@@ -197,7 +197,7 @@ xs.mfor $ λ x,
   | _ := pure ()
 
 def collectExpr (z : VarId) : Expr → M Unit
-| (Expr.reset x)        := ownVar z *> ownVar x
+| (Expr.reset _ x)      := ownVar z *> ownVar x
 | (Expr.reuse x _ _ ys) := ownVar z *> ownVar x *> ownArgsIfParam ys
 | (Expr.ctor _ xs)      := ownVar z *> ownArgsIfParam xs
 | (Expr.proj _ x)       := mwhen (isOwned z) $ ownVar x

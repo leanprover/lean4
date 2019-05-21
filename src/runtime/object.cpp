@@ -1954,6 +1954,13 @@ obj_res fixpoint6(obj_arg rec, obj_arg a1, obj_arg a2, obj_arg a3, obj_arg a4, o
 }
 
 // =======================================
+// Runtime info
+
+extern "C" object * lean_closure_max_args(object *) {
+    return mk_nat_obj(static_cast<unsigned>(LEAN_CLOSURE_MAX_ARGS));
+}
+
+// =======================================
 // Debugging helper functions
 
 void dbg_print_str(object * o) {

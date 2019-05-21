@@ -122,13 +122,13 @@ modifyEnv (λ env, declMapExt.addEntry env decl)
 def addDecls (decls : Array Decl) : CompilerM Unit :=
 decls.mfor addDecl
 
-def findDeclAux' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
+def findEnvDecl' (env : Environment) (n : Name) (decls : Array Decl) : Option Decl :=
 match decls.find (λ decl, if decl.name == n then some decl else none) with
 | some decl := some decl
 | none      := (declMapExt.getState env).find n
 
 def findDecl' (n : Name) (decls : Array Decl) : CompilerM (Option Decl) :=
-do s ← get, pure $ findDeclAux' s.env n decls
+do s ← get, pure $ findEnvDecl' s.env n decls
 
 def containsDecl' (n : Name) (decls : Array Decl) : CompilerM Bool :=
 if decls.any (λ decl, decl.name == n) then pure true

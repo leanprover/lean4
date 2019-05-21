@@ -73,7 +73,7 @@ do localCtx ← localContext,
    | none    := pure Array.empty -- unreachable, we assume the code is well formed
 def getDecl (fid : FunId) : M Decl :=
 do ctx ← read,
-   match findDeclAux' ctx.env fid ctx.decls with
+   match findEnvDecl' ctx.env fid ctx.decls with
    | some decl := pure decl
    | none      := pure (default _) -- unreachable if well-formed
 

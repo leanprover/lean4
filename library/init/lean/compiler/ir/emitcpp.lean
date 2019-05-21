@@ -386,7 +386,14 @@ match decl with
 | _ := do emit f, emit "(", emitArgs ys, emitLn ");"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
-pure () -- TODO
+do
+decl ← getDecl f,
+let arity := decl.params.size,
+emitLhs z, emit "lean::alloc_closure(reinterpret_cast<void*>(", emit f, emit "), ", emit arity, emit ", ", emit ys.size, emitLn ");",
+ys.size.mfor $ λ i, do {
+   let y := ys.get i,
+   emit "lean::closure_set(", emit z, emit ", ", emit i, emit ", ", emitArg y, emitLn ");"
+}
 
 def emitApp (z : VarId) (f : VarId) (ys : Array Arg) : M Unit :=
 pure () -- TODO

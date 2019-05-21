@@ -30,7 +30,7 @@ structure Context :=
 (localCtx       : LocalContext := {}) -- we use it to store the join point declarations
 
 def getDecl (ctx : Context) (fid : FunId) : Decl :=
- match findDeclAux' ctx.env fid ctx.decls with
+ match findEnvDecl' ctx.env fid ctx.decls with
 | some decl := decl
 | none      := default _ -- unreachable if well-formed
 

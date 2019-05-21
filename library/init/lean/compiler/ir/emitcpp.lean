@@ -111,6 +111,9 @@ do env ← getEnv,
    | some s := pure (s.toStringWithSep "::")
    | none   := if n == `main then pure leanMainFn else pure n.mangle
 
+def emitCppName (n : Name) : M Unit :=
+toCppName n >>= emit
+
 def toCppInitName (n : Name) : M String :=
 do env ← getEnv,
    match getExportNameFor env n with
@@ -419,13 +422,13 @@ match decl with
   match mkExternCall extData `cpp (toStringArgs ys) with
   | some c := emit c *> emitLn ";"
   | none   := throw "failed to emit extern application"
-| _ := do emit f, when (ys.size > 0) (do emit "(", emitArgs ys, emitLn ");")
+| _ := do emitCppName f, when (ys.size > 0) (do emit "(", emitArgs ys, emitLn ")"), emitLn ";"
 
 def emitPartialApp (z : VarId) (f : FunId) (ys : Array Arg) : M Unit :=
 do
 decl ← getDecl f,
 let arity := decl.params.size,
-emitLhs z, emit "lean::alloc_closure(reinterpret_cast<void*>(", emit f, emit "), ", emit arity, emit ", ", emit ys.size, emitLn ");",
+emitLhs z, emit "lean::alloc_closure(reinterpret_cast<void*>(", emitCppName f, emit "), ", emit arity, emit ", ", emit ys.size, emitLn ");",
 ys.size.mfor $ λ i, do {
    let y := ys.get i,
    emit "lean::closure_set(", emit z, emit ", ", emit i, emit ", ", emitArg y, emitLn ");"
@@ -486,8 +489,8 @@ q ++ "\""
 def emitNumLit (t : IRType) (v : Nat) : M Unit :=
 if t.isObj then do
   emit "lean::mk_nat_obj(",
-  if v < uint32Sz then emit v
-  else emit "lean::mpz(\"" *> emit v *> emit "\"",
+  if v < uint32Sz then emit v *> emit "u"
+  else emit "lean::mpz(\"" *> emit v *> emit "\")",
   emit ")"
 else
   emit v

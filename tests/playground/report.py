@@ -15,6 +15,7 @@ def pp(bench, cat, prop):
 CATBAG = {
     '.lean': ("Lean [s]", "etime"),
     '.gcc.lean': ("Lean+GCC9", "etime"),
+    '.gc.lean': ("GC [%]", "gc"),
     '.lean.perf': ("cache misses [1M/s]", "cache-misses"),
     '.hs': ("GHC", "etime"),
     '.gc.hs': ("GC [%]", "gc"),

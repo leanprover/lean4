@@ -2,7 +2,7 @@
 
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_shared
 
-CROSS_CATS = .lean .lean.perf .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf
+CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf
 TIME_CATS = .lean .hs .llvm.hs .ml
 RETIRED_CATS = .gcc.lean .flambda.ml
 
@@ -72,6 +72,11 @@ bench/rbmap.%.bench: BENCH_PARAMS = 7000000
 
 rbmap_shared.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_shared.%.bench: BENCH_PARAMS = 500000 1
+
+bench/%gc.lean.bench: %lean.out | bench
+	ulimit -s unlimited && $(TEMCI) short exec\
+    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean::del,lean::dealloc' | ./lean-gc.py"\
+	  --runner output --out $@
 
 bench/%gc.hs.bench: %hs.out | bench
 	$(TEMCI) short exec\

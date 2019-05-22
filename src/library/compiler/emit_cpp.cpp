@@ -752,17 +752,45 @@ struct emit_fn_fn {
             return none_expr();
     }
 
+    bool overwrite_param(buffer<expr> const & args) {
+        lean_assert(args.size() == m_fn_args.size());
+        for (unsigned i = 0; i < m_fn_args.size(); i++) {
+            expr p = m_fn_args[i];
+            for (unsigned j = i+1; j < args.size(); j++) {
+                if (args[j] == p)
+                    return true;
+            }
+        }
+        return false;
+    }
+
     void emit_tail_call(expr const & e) {
         buffer<expr> args;
         expr fn = get_app_args(e, args);
         lean_assert(is_constant(fn) && const_name(fn) == m_fn_name);
         lean_assert(args.size() == m_fn_args.size());
-        for (unsigned i = 0; i < args.size(); i++) {
-            if (args[i] != m_fn_args[i]) {
-                emit_fvar(m_fn_args[i]); m_out << " = "; emit_arg(args[i]); m_out << ";\n";
+        if (overwrite_param(args)) {
+            m_out << "{\n";
+            for (unsigned i = 0; i < args.size(); i++) {
+                if (args[i] != m_fn_args[i]) {
+                    m_out << "auto y_" << i << " = "; emit_arg(args[i]); m_out << ";\n";
+                }
             }
+            for (unsigned i = 0; i < args.size(); i++) {
+                if (args[i] != m_fn_args[i]) {
+                    emit_fvar(m_fn_args[i]); m_out << " = y_" << i << ";\n";
+                }
+            }
+            m_out << "}\n";
+            m_out << "goto _start;\n";
+        } else {
+            for (unsigned i = 0; i < args.size(); i++) {
+                if (args[i] != m_fn_args[i]) {
+                    emit_fvar(m_fn_args[i]); m_out << " = "; emit_arg(args[i]); m_out << ";\n";
+                }
+            }
+            m_out << "goto _start;\n";
         }
-        m_out << "goto _start;\n";
     }
 
     void emit_terminal(expr const & e, bool tail_call) {

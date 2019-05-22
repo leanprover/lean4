@@ -11,6 +11,7 @@ import init.lean.compiler.initattr
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.emitutil
 import init.lean.compiler.ir.normids
+import init.lean.compiler.ir.simpcase
 
 namespace Lean
 namespace IR
@@ -303,6 +304,7 @@ match isIf alts with
 | some (tag, t, e) := emitIf emitBody x tag t e
 | _ := do
   emit "switch (", emitTag x, emitLn ") {",
+  let alts := ensureHasDefault alts,
   alts.mfor $ λ alt, match alt with
     | Alt.ctor c b  := emit "case " *> emit c.cidx *> emitLn ":" *> emitBody b
     | Alt.default b := emitLn "default: " *> emitBody b,

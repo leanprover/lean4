@@ -9,6 +9,14 @@ import init.lean.compiler.ir.basic
 namespace Lean
 namespace IR
 
+def ensureHasDefault (alts : Array Alt) : Array Alt :=
+if alts.any Alt.isDefault then alts
+else if alts.size < 2 then alts
+else
+  let last := alts.back in
+  let alts := alts.pop in
+  alts.push (Alt.default last.body)
+
 private def maxOccs (alts : Array Alt) : Alt × Nat :=
 alts.iterateFrom (alts.get 0, 1) 1 $ λ i a p,
   let aBody := a.body in

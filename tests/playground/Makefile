@@ -6,6 +6,7 @@ CROSS_CATS = .lean .lean.perf .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf
 TIME_CATS = .lean .hs .llvm.hs .ml
 RETIRED_CATS = .gcc.lean .flambda.ml
 
+LEANC_FLAGS = -O3
 GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
 
@@ -30,7 +31,7 @@ all: reports report_cross.csv
 %.lean.cpp: %.lean
 	$(LEAN_BIN)/lean --cpp=$@ $<
 %.lean.out: %.lean.cpp
-	$(LEAN_BIN)/leanc -o $@ $<
+	$(LEAN_BIN)/leanc $(LEANC_FLAGS) -o $@ $<
 # Binaries x.lean.out and x.gcc.lean.out etc. are produced by the
 # same rules and x.lean source file by copying the latter to
 # x.gcc.lean. This also avoids conflicts between intermediate

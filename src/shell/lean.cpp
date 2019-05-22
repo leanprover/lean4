@@ -575,8 +575,7 @@ int main(int argc, char ** argv) {
                 std::cerr << "failed to create '" << *cpp_output << "'\n";
                 return 1;
             }
-            auto mod = module_name_of_file(path.get_path(), mod_fn);
-            emit_cpp(out, env, mod, to_list(imports.begin(), imports.end()));
+            emit_cpp(out, env, main_module_name, to_list(imports.begin(), imports.end()));
         }
 
         if (new_cpp_output && ok) {

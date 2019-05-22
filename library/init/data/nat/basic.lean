@@ -700,3 +700,16 @@ protected def max (n m : Nat) : Nat :=
 if n ≤ m then m else n
 
 end Nat
+
+namespace Prod
+
+@[inline] def foldI {α : Type u} (f : Nat → α → α) (i : Nat × Nat) (a : α) : α :=
+Nat.foldAux f i.2 (i.2 - i.1) a
+
+@[inline] def anyI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
+Nat.anyAux f i.2 (i.2 - i.1)
+
+@[inline] def allI (f : Nat → Bool) (i : Nat × Nat) : Bool :=
+!Nat.anyAux (λ a, !f a) i.2 (i.2 - i.1)
+
+end Prod

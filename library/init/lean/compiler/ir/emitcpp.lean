@@ -7,6 +7,7 @@ prelude
 import init.control.conditional
 import init.lean.runtime
 import init.lean.name_mangling
+import init.lean.compiler.export
 import init.lean.compiler.initattr
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.emitutil
@@ -15,9 +16,6 @@ import init.lean.compiler.ir.simpcase
 
 namespace Lean
 namespace IR
-@[extern "lean_get_export_name_for"]
-constant getExportNameFor (env : @& Environment) (n : @& Name) : Option Name := default _
-
 namespace EmitCpp
 
 def leanMainFn := "_lean_main"

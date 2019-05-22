@@ -28,6 +28,55 @@ Assumptions:
   Reason: `resetreuse.lean` ignores `box` and `unbox` instructions.
 -/
 
+def mkBoxedName (n : Name) : Name :=
+Name.mkString n "_boxed"
+
+abbrev N := State Nat
+
+private def mkFresh : N VarId :=
+do idx ← get,
+   modify (+1),
+   pure {idx := idx }
+
+def requiresBoxedVersion (decl : Decl) : Bool :=
+let ps := decl.params in
+ps.size > 0 && (decl.resultType.isScalar || ps.any (λ p, p.ty.isScalar || p.borrow))
+
+def mkBoxedVersionAux (decl : Decl) : N Decl :=
+do
+let ps := decl.params,
+qs ← ps.mmap (λ _, do x ← mkFresh, pure { Param . x := x, ty := IRType.object, borrow := false }),
+(newVDecls, xs) ← qs.size.mfold
+  (λ i (r : Array FnBody × Array Arg),
+     let (newVDecls, xs) := r in
+     let p := ps.get i in
+     let q := qs.get i in
+     if !p.ty.isScalar then pure (newVDecls, xs.push (Arg.var q.x))
+     else do
+       x ← mkFresh,
+       pure (newVDecls.push (FnBody.vdecl x p.ty (Expr.unbox q.x) (default _)), xs.push (Arg.var x)))
+  (Array.empty, Array.empty),
+r ← mkFresh,
+let newVDecls := newVDecls.push (FnBody.vdecl r decl.resultType (Expr.fap decl.name xs) (default _)),
+body ←
+ if !decl.resultType.isScalar then do {
+   pure $ reshape newVDecls (FnBody.ret (Arg.var r))
+ } else do {
+   newR ← mkFresh,
+   let newVDecls := newVDecls.push (FnBody.vdecl newR IRType.object (Expr.box decl.resultType r) (default _)),
+   pure $ reshape newVDecls (FnBody.ret (Arg.var newR))
+ },
+pure $ Decl.fdecl (mkBoxedName decl.name) qs IRType.object body
+
+def mkBoxedVersion (decl : Decl) : Decl :=
+(mkBoxedVersionAux decl).run' 1
+
+def addBoxedVersions (decls : Array Decl) : Array Decl :=
+let boxedDecls := decls.foldl
+  (λ (newDecls : Array Decl) decl, if requiresBoxedVersion decl then newDecls.push (mkBoxedVersion decl) else newDecls)
+  Array.empty in
+decls ++ boxedDecls
+
 /- Infer scrutinee type using `case` alternatives.
    This can be done whenever `alts` does not contain an `Alt.default _` value. -/
 def getScrutineeType (alts : Array Alt) : IRType :=
@@ -158,6 +207,7 @@ match e with
   castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
 | Expr.pap f ys := do
   decl ← getDecl f,
+  let f := if requiresBoxedVersion decl then mkBoxedName f else f,
   boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.pap f ys) b
 | Expr.ap f ys :=
   boxArgsIfNeeded ys $ λ ys,
@@ -199,12 +249,13 @@ partial def visitFnBody : FnBody → M FnBody
 
 def run (env : Environment) (decls : Array Decl) : Array Decl :=
 let ctx : BoxingContext := { decls := decls, env := env } in
-decls.map (λ decl, match decl with
+let decls := decls.map (λ decl, match decl with
   | Decl.fdecl f xs t b :=
     let nextIdx := decl.maxIndex + 1 in
     let b := (withParams xs (visitFnBody b) { resultType := t, .. ctx }).run' nextIdx in
     Decl.fdecl f xs t b
-  | d := d)
+  | d := d) in
+addBoxedVersions decls
 
 end ExplicitBoxing
 

@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import init.lean.compiler.export
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.normids
 
@@ -51,26 +52,37 @@ namespace InitParamMap
 def initBorrow (ps : Array Param) : Array Param :=
 ps.hmap $ λ p, { borrow := p.ty.isObj, .. p }
 
-partial def visitFnBody : FnBody → ReaderT FunId (State ParamMap) Unit
+/- We do perform borrow inference for constants marked as `export`.
+   Reason: we current write wrappers in C++ for using exported functions.
+   These wrappers use smart pointers such as `object_ref`.
+   When writing a new wrapper we need to know whether an argument is a borrow
+   inference or not.
+
+   We can revise this decision when we implement code for generating
+   the wrappers automatically. -/
+def initBorrowIfNotExported (exported : Bool) (ps : Array Param) : Array Param :=
+if exported then ps else initBorrow ps
+
+partial def visitFnBody (exported : Bool) (fnid : FunId) : FnBody → State ParamMap Unit
 | (FnBody.jdecl j xs v b) := do
-  fnid ← read,
-  modify $ λ m, m.insert (Key.jp fnid j) (initBorrow xs),
+  modify $ λ m, m.insert (Key.jp fnid j) (initBorrowIfNotExported exported xs),
   visitFnBody b
 | e :=
   unless (e.isTerminal) $ do
     let (instr, b) := e.split,
     visitFnBody b
 
-def visitDecls (decls : Array Decl) : State ParamMap Unit :=
+def visitDecls (env : Environment) (decls : Array Decl) : State ParamMap Unit :=
 decls.mfor $ λ decl, match decl with
   | Decl.fdecl f xs _ b := do
-    modify $ λ m, m.insert (Key.decl f) (initBorrow xs),
-    visitFnBody b f
+    let exported := isExport env f,
+    modify $ λ m, m.insert (Key.decl f) (initBorrowIfNotExported exported xs),
+    visitFnBody exported f b
   | _ := pure ()
 end InitParamMap
 
-def mkInitParamMap (decls : Array Decl) : ParamMap :=
-(InitParamMap.visitDecls decls *> get).run' {}
+def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
+(InitParamMap.visitDecls env decls *> get).run' {}
 
 namespace ApplyParamMap
 
@@ -276,7 +288,7 @@ s ← get,
 pure s.map
 
 def infer (env : Environment) (decls : Array Decl) : ParamMap :=
-(collectDecls decls { env := env }).run' { map := mkInitParamMap decls }
+(collectDecls decls { env := env }).run' { map := mkInitParamMap env decls }
 
 end Borrow
 

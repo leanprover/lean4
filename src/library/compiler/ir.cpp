@@ -522,8 +522,19 @@ environment compile(environment const & env, options const & opts, comp_decls co
     }
 }
 
+/*
+@[export lean.ir.add_boxed_version_core]
+def addBoxedVersion (env : Environment) (decl : Decl) : Environment :=
+*/
+object * add_boxed_version_core(object * env, object * decl);
+environment add_boxed_version(environment const & env, decl const & d) {
+    return environment(add_boxed_version_core(env.to_obj_arg(), d.to_obj_arg()));
+}
+
 environment add_extern(environment const & env, name const & fn) {
-    return ir::add_decl(env, to_ir_fn(env)(fn));
+    decl d = to_ir_fn(env)(fn);
+    environment new_env = ir::add_decl(env, d);
+    return add_boxed_version(new_env, d);
 }
 
 /*

@@ -483,7 +483,7 @@ let q := s.foldl
     else if c == '\n' then "\\t"
     else if c == '\\' then "\\\\"
     else if c == '\"' then "\\\""
-    else if c.toNat <= 31 || c.toNat >= 0x7f then
+    else if c.toNat <= 255 && (c.toNat <= 31 || c.toNat >= 0x7f) then
       "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
     else String.singleton c )
   q in

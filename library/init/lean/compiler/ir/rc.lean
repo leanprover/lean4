@@ -72,21 +72,23 @@ caseLiveVars.fold
   (λ b x, if !altLiveVars.contains x && mustConsume ctx x then addDec x b else b)
   b
 
-private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
-xs.size.fold
-  (λ i b,
-    match xs.get i with
-    | Arg.irrelevant := b
-    | Arg.var x      :=
-      if mustConsume ctx x && (ps.get i).borrow && !bLiveVars.contains x then
-        addDec x b
-      else b)
-  b
-
 /- `isFirstOcc xs x i = true` if `xs[i]` is the first occurrence of `xs[i]` in `xs` -/
 private def isFirstOcc (xs : Array Arg) (i : Nat) : Bool :=
 let x := xs.get i in
 i.all $ λ j, xs.get j != x
+
+/- Return true if `x` also occurs in `ys` in a position that is not consumed.
+   That is, it is also passed as a borrow reference. -/
+@[specialize]
+private def isBorrowParamAux (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
+ys.size.any $ λ i,
+  let y := ys.get i in
+  match y with
+  | Arg.irrelevant := false
+  | Arg.var y      := x == y && !consumeParamPred i
+
+private def isBorrowParam (x : VarId) (ys : Array Arg) (ps : Array Param) : Bool :=
+isBorrowParamAux x ys (λ i, !(ps.get i).borrow)
 
 /-
 Return `n`, the number of times `x` is consumed.
@@ -103,16 +105,6 @@ ys.size.fold
     | Arg.var y      := if x == y && consumeParamPred i then n+1 else n)
   0
 
-/- Return true if `x` also occurs in `ys` in a position that is not consumed.
-   That is, it is also passed as a borrow reference. -/
-@[specialize]
-private def isBorrowParam (x : VarId) (ys : Array Arg) (consumeParamPred : Nat → Bool) : Bool :=
-ys.size.any $ λ i,
-  let y := ys.get i in
-  match y with
-  | Arg.irrelevant := false
-  | Arg.var y      := x == y && !consumeParamPred i
-
 @[specialize]
 private def addIncBeforeAux (ctx : Context) (xs : Array Arg) (consumeParamPred : Nat → Bool) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
 xs.size.fold
@@ -128,17 +120,33 @@ xs.size.fold
         let numIncs :=
           if !info.consume ||                     -- `x` is not a variable that must be consumed by the current procedure
              liveVarsAfter.contains x ||          -- `x` is live after executing instruction
-             isBorrowParam x xs consumeParamPred  -- `x` is used in a position that is passed as a borrow reference
+             isBorrowParamAux x xs consumeParamPred  -- `x` is used in a position that is passed as a borrow reference
           then numConsuptions
           else numConsuptions - 1 in
         -- dbgTrace ("addInc " ++ toString x ++ " nconsumptions: " ++ toString numConsuptions ++ " incs: " ++ toString numIncs
-        --          ++ " consume: " ++ toString info.consume ++ " live: " ++ toString (liveVarsAfter.contains x)
-        --          ++ " borrowParam : " ++ toString (isBorrowParam x xs consumeParamPred)) $ λ _,
+        --         ++ " consume: " ++ toString info.consume ++ " live: " ++ toString (liveVarsAfter.contains x)
+        --         ++ " borrowParam : " ++ toString (isBorrowParamAux x xs consumeParamPred)) $ λ _,
         addInc x b numIncs)
   b
 
 private def addIncBefore (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
 addIncBeforeAux ctx xs (λ i, !(ps.get i).borrow) b liveVarsAfter
+
+/- See `addIncBeforeAux`/`addIncBefore` for the procedure that inserts `inc` operations before an application.  -/
+private def addDecAfterFullApp (ctx : Context) (xs : Array Arg) (ps : Array Param) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=
+xs.size.fold
+  (λ i b,
+    match xs.get i with
+    | Arg.irrelevant := b
+    | Arg.var x      :=
+      /- We must add a `dec` if `x` must be consumed, it is alive after the application,
+         and it has been borrowed by the application.
+         Remark: `x` may occur multiple times in the application (e.g., `f x y x`).
+         This is why we check whether it is the first occurrence. -/
+      if mustConsume ctx x && isFirstOcc xs i && isBorrowParam x xs ps && !bLiveVars.contains x then
+        addDec x b
+      else b)
+  b
 
 private def addIncBeforeConsumeAll (ctx : Context) (xs : Array Arg) (b : FnBody) (liveVarsAfter : LiveVarSet) : FnBody :=
 addIncBeforeAux ctx xs (λ i, true) b liveVarsAfter
@@ -181,6 +189,7 @@ let b := match v with
   | (Expr.uproj _ x)       := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
   | (Expr.sproj _ _ x)     := FnBody.vdecl z t v (addDecIfNeeded ctx x b bLiveVars)
   | (Expr.fap f ys)        :=
+    -- dbgTrace ("processVDecl " ++ toString v) $ λ _,
     let ps := (getDecl ctx f).params in
     let b  := addDecAfterFullApp ctx ys ps b bLiveVars in
     let b  := FnBody.vdecl z t v b in

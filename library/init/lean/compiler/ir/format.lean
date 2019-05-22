@@ -49,7 +49,8 @@ private def formatExpr : Expr → Format
 | (Expr.isShared x)      := "isShared " ++ format x
 | (Expr.isTaggedPtr x)   := "isTaggedPtr " ++ format x
 
-instance exprHasFormat : HasFormat Expr := ⟨formatExpr⟩
+instance exprHasFormat   : HasFormat Expr := ⟨formatExpr⟩
+instance exprHasToString : HasToString Expr := ⟨λ e, Format.pretty (format e)⟩
 
 private def formatIRType : IRType → Format
 | IRType.float      := "float"

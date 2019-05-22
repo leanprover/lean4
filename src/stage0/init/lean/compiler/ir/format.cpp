@@ -126,6 +126,7 @@ obj* l_Lean_IR_formatDecl___main___closed__2;
 obj* l_Lean_IR_formatFnBody___main___closed__16;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__7;
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___at_Lean_IR_formatParams___spec__1___boxed(obj*);
+obj* l_Lean_IR_exprHasToString(obj*);
 obj* l___private_init_lean_compiler_ir_format_2__formatArray(obj*);
 obj* l___private_init_lean_compiler_ir_format_4__formatCtorInfo(obj*);
 obj* l___private_init_lean_compiler_ir_format_2__formatArray___at___private_init_lean_compiler_ir_format_5__formatExpr___main___spec__1(obj*);
@@ -1283,6 +1284,16 @@ _start:
 obj* x_0; 
 x_0 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_lean_compiler_ir_format_5__formatExpr), 1, 0);
 return x_0;
+}
+}
+obj* l_Lean_IR_exprHasToString(obj* x_0) {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = l___private_init_lean_compiler_ir_format_5__formatExpr___main(x_0);
+x_2 = l_Lean_Options_empty;
+x_3 = l_Lean_Format_pretty(x_1, x_2);
+return x_3;
 }
 }
 obj* _init_l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__1() {

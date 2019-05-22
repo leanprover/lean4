@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.emitcpp
-// Imports: init.control.conditional init.lean.runtime init.lean.name_mangling init.lean.compiler.initattr init.lean.compiler.ir.compilerm init.lean.compiler.ir.emitutil init.lean.compiler.ir.normids init.lean.compiler.ir.simpcase
+// Imports: init.control.conditional init.lean.runtime init.lean.name_mangling init.lean.compiler.export init.lean.compiler.initattr init.lean.compiler.ir.compilerm init.lean.compiler.ir.emitutil init.lean.compiler.ir.normids init.lean.compiler.ir.simpcase
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -75,6 +75,7 @@ obj* l_Lean_IR_EmitCpp_closeNamespaces___boxed(obj*, obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_IR_EmitCpp_isObj___spec__1___boxed(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emit___rarg(obj*, obj*, obj*, obj*);
 extern obj* l_Char_quoteCore___closed__3;
+extern "C" obj* lean_get_export_name_for(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitBlock___main___closed__1;
 obj* l_Lean_IR_EmitCpp_openNamespacesAux___boxed(obj*, obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitTailCall___spec__3(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -165,7 +166,6 @@ obj* l_Lean_IR_EmitCpp_emitNumLit___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitBox___closed__5;
 extern obj* l_Char_quoteCore___closed__1;
 obj* l_Lean_IR_EmitCpp_isTailCall(obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_get_export_name_for(obj*, obj*);
 namespace lean {
 obj* string_push(obj*, uint32);
 }
@@ -272,7 +272,6 @@ namespace lean {
 obj* nat_add(obj*, obj*);
 }
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitJmp___spec__1(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_getExportNameFor___boxed(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitBlock___main___closed__2;
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
@@ -498,16 +497,6 @@ obj* l_List_mfor___main___at_Lean_IR_EmitCpp_emitLns___spec__1___rarg___boxed(ob
 obj* l_Lean_IR_EmitCpp_getEnv(obj*, obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_IR_EmitCpp_emitBox___closed__3;
-obj* l_Lean_IR_getExportNameFor___boxed(obj* x_0, obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean_get_export_name_for(x_0, x_1);
-lean::dec(x_0);
-lean::dec(x_1);
-return x_2;
-}
-}
 obj* _init_l_Lean_IR_EmitCpp_leanMainFn() {
 _start:
 {
@@ -15961,6 +15950,7 @@ return x_15;
 obj* initialize_init_control_conditional(obj*);
 obj* initialize_init_lean_runtime(obj*);
 obj* initialize_init_lean_name__mangling(obj*);
+obj* initialize_init_lean_compiler_export(obj*);
 obj* initialize_init_lean_compiler_initattr(obj*);
 obj* initialize_init_lean_compiler_ir_compilerm(obj*);
 obj* initialize_init_lean_compiler_ir_emitutil(obj*);
@@ -15976,6 +15966,8 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_lean_runtime(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name__mangling(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_export(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_initattr(w);
 if (io_result_is_error(w)) return w;

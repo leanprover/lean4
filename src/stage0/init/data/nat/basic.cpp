@@ -16,9 +16,11 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_Nat_decLe___boxed(obj*, obj*);
 obj* l_Nat_foldAux___main___boxed(obj*);
+uint8 l_Prod_allI(obj*, obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+obj* l_Prod_foldI(obj*);
 obj* l_Nat_repeatAux___boxed(obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
@@ -27,6 +29,7 @@ obj* l_Nat_anyAux___main___at_Nat_all___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Nat_repeatAux(obj*);
 obj* l_Nat_HasPow;
 obj* l_Nat_repeat___boxed(obj*);
+obj* l_Prod_foldI___rarg___boxed(obj*, obj*, obj*);
 obj* l_Nat_fold___boxed(obj*);
 obj* l_Nat_fold___rarg(obj*, obj*, obj*);
 namespace lean {
@@ -34,7 +37,9 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Nat_fold(obj*);
 obj* l_Nat_anyAux___boxed(obj*, obj*, obj*);
+uint8 l_Prod_anyI(obj*, obj*);
 obj* l_Nat_foldAux___rarg(obj*, obj*, obj*, obj*);
+obj* l_Prod_allI___boxed(obj*, obj*);
 obj* l_Nat_repeatAux___main(obj*);
 obj* l_Nat_decEq___boxed(obj*, obj*);
 uint8 l_Nat_all(obj*, obj*);
@@ -42,6 +47,7 @@ uint8 l_Nat_any(obj*, obj*);
 obj* l_Nat_foldAux___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Nat_foldAux___boxed(obj*);
 obj* l_Nat_any___boxed(obj*, obj*);
+obj* l_Prod_foldI___boxed(obj*);
 obj* l_Nat_sub___boxed(obj*, obj*);
 obj* l_Nat_foldAux___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_Nat_mul___boxed(obj*, obj*);
@@ -50,6 +56,7 @@ namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 obj* l_Nat_ble___boxed(obj*, obj*);
+uint8 l_Nat_anyAux___main___at_Prod_allI___spec__1(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
@@ -57,12 +64,14 @@ uint8 l_Nat_anyAux___main(obj*, obj*, obj*);
 uint8 l_Nat_anyAux(obj*, obj*, obj*);
 obj* l_Nat_repeat___rarg(obj*, obj*, obj*);
 obj* l_Nat_foldAux(obj*);
+obj* l_Prod_anyI___boxed(obj*, obj*);
 obj* l_Nat_pow___main(obj*, obj*);
 obj* l_Nat_HasSub;
 obj* l_Nat_decLt___boxed(obj*, obj*);
 obj* l_Nat_pow___main___boxed(obj*, obj*);
 obj* l_Nat_beq___boxed(obj*, obj*);
 obj* l_Nat_pow(obj*, obj*);
+obj* l_Prod_foldI___rarg(obj*, obj*, obj*);
 obj* l_Nat_foldAux___main(obj*);
 uint8 l_Nat_anyAux___main___at_Nat_all___spec__1(obj*, obj*, obj*);
 obj* l_Nat_pred___boxed(obj*);
@@ -72,6 +81,7 @@ obj* l_Nat_HasLess;
 obj* l_Nat_foldAux___main___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Nat_HasMul;
 obj* l_Nat_repeatAux___rarg(obj*, obj*, obj*);
+obj* l_Nat_anyAux___main___at_Prod_allI___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Nat_repeatAux___main___rarg(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
@@ -664,6 +674,146 @@ x_2 = l_Nat_max(x_0, x_1);
 lean::dec(x_0);
 lean::dec(x_1);
 return x_2;
+}
+}
+obj* l_Prod_foldI___rarg(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = lean::cnstr_get(x_1, 0);
+x_5 = lean::nat_sub(x_3, x_4);
+x_6 = l_Nat_foldAux___main___rarg(x_0, x_3, x_5, x_2);
+return x_6;
+}
+}
+obj* l_Prod_foldI(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Prod_foldI___rarg___boxed), 3, 0);
+return x_1;
+}
+}
+obj* l_Prod_foldI___rarg___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Prod_foldI___rarg(x_0, x_1, x_2);
+lean::dec(x_1);
+return x_3;
+}
+}
+obj* l_Prod_foldI___boxed(obj* x_0) {
+_start:
+{
+obj* x_1; 
+x_1 = l_Prod_foldI(x_0);
+lean::dec(x_0);
+return x_1;
+}
+}
+uint8 l_Prod_anyI(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
+x_2 = lean::cnstr_get(x_1, 1);
+x_3 = lean::cnstr_get(x_1, 0);
+x_4 = lean::nat_sub(x_2, x_3);
+x_5 = l_Nat_anyAux___main(x_0, x_2, x_4);
+return x_5;
+}
+}
+obj* l_Prod_anyI___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Prod_anyI(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_1);
+return x_3;
+}
+}
+uint8 l_Nat_anyAux___main___at_Prod_allI___spec__1(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; uint8 x_4; 
+x_3 = lean::mk_nat_obj(0ul);
+x_4 = lean::nat_dec_eq(x_2, x_3);
+if (x_4 == 0)
+{
+obj* x_5; obj* x_6; obj* x_7; obj* x_10; uint8 x_11; 
+x_5 = lean::mk_nat_obj(1ul);
+x_6 = lean::nat_sub(x_2, x_5);
+x_7 = lean::nat_sub(x_1, x_2);
+lean::dec(x_2);
+lean::inc(x_0);
+x_10 = lean::apply_1(x_0, x_7);
+x_11 = lean::unbox(x_10);
+if (x_11 == 0)
+{
+uint8 x_14; 
+lean::dec(x_6);
+lean::dec(x_0);
+x_14 = 1;
+return x_14;
+}
+else
+{
+x_2 = x_6;
+goto _start;
+}
+}
+else
+{
+uint8 x_18; 
+lean::dec(x_0);
+lean::dec(x_2);
+x_18 = 0;
+return x_18;
+}
+}
+}
+uint8 l_Prod_allI(obj* x_0, obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
+x_2 = lean::cnstr_get(x_1, 1);
+x_3 = lean::cnstr_get(x_1, 0);
+x_4 = lean::nat_sub(x_2, x_3);
+x_5 = l_Nat_anyAux___main___at_Prod_allI___spec__1(x_0, x_2, x_4);
+if (x_5 == 0)
+{
+uint8 x_6; 
+x_6 = 1;
+return x_6;
+}
+else
+{
+uint8 x_7; 
+x_7 = 0;
+return x_7;
+}
+}
+}
+obj* l_Nat_anyAux___main___at_Prod_allI___spec__1___boxed(obj* x_0, obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; obj* x_4; 
+x_3 = l_Nat_anyAux___main___at_Prod_allI___spec__1(x_0, x_1, x_2);
+x_4 = lean::box(x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l_Prod_allI___boxed(obj* x_0, obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Prod_allI(x_0, x_1);
+x_3 = lean::box(x_2);
+lean::dec(x_1);
+return x_3;
 }
 }
 obj* initialize_init_core(obj*);

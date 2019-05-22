@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.control.estate
 import init.control.reader
+import init.lean.extern
 import init.lean.compiler.ir.basic
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.freevars
@@ -38,9 +39,9 @@ do idx ← get,
    modify (+1),
    pure {idx := idx }
 
-def requiresBoxedVersion (decl : Decl) : Bool :=
+def requiresBoxedVersion (env : Environment) (decl : Decl) : Bool :=
 let ps := decl.params in
-ps.size > 0 && (decl.resultType.isScalar || ps.any (λ p, p.ty.isScalar || p.borrow))
+ps.size > 0 && (decl.resultType.isScalar || ps.any (λ p, p.ty.isScalar || p.borrow) || isExtern env decl.name)
 
 def mkBoxedVersionAux (decl : Decl) : N Decl :=
 do
@@ -71,15 +72,15 @@ pure $ Decl.fdecl (mkBoxedName decl.name) qs IRType.object body
 def mkBoxedVersion (decl : Decl) : Decl :=
 (mkBoxedVersionAux decl).run' 1
 
-def addBoxedVersions (decls : Array Decl) : Array Decl :=
+def addBoxedVersions (env : Environment) (decls : Array Decl) : Array Decl :=
 let boxedDecls := decls.foldl
-  (λ (newDecls : Array Decl) decl, if requiresBoxedVersion decl then newDecls.push (mkBoxedVersion decl) else newDecls)
+  (λ (newDecls : Array Decl) decl, if requiresBoxedVersion env decl then newDecls.push (mkBoxedVersion decl) else newDecls)
   Array.empty in
 decls ++ boxedDecls
 
 @[export lean.ir.add_boxed_version_core]
 def addBoxedVersion (env : Environment) (decl : Decl) : Environment :=
-if requiresBoxedVersion decl then
+if requiresBoxedVersion env decl then
   addDeclAux env (mkBoxedVersion decl)
 else
   env
@@ -113,17 +114,17 @@ def mkFresh : M VarId :=
 do idx ← getModify (+1),
    pure { idx := idx }
 
-def localContext : M LocalContext := BoxingContext.localCtx <$> read
-
-def resultType : M IRType := BoxingContext.resultType <$> read
+def getEnv : M Environment := BoxingContext.env <$> read
+def getLocalContext : M LocalContext := BoxingContext.localCtx <$> read
+def getResultType : M IRType := BoxingContext.resultType <$> read
 
 def getVarType (x : VarId) : M IRType :=
-do localCtx ← localContext,
+do localCtx ← getLocalContext,
    match localCtx.getType x with
    | some t := pure t
    | none   := pure IRType.object -- unreachable, we assume the code is well formed
 def getJPParams (j : JoinPointId) : M (Array Param) :=
-do localCtx ← localContext,
+do localCtx ← getLocalContext,
    match localCtx.getJPParams j with
    | some ys := pure ys
    | none    := pure Array.empty -- unreachable, we assume the code is well formed
@@ -213,8 +214,9 @@ match e with
   castArgsIfNeeded ys decl.params $ λ ys,
   castResultIfNeeded x ty (Expr.fap f ys) decl.resultType b
 | Expr.pap f ys := do
+  env ← getEnv,
   decl ← getDecl f,
-  let f := if requiresBoxedVersion decl then mkBoxedName f else f,
+  let f := if requiresBoxedVersion env decl then mkBoxedName f else f,
   boxArgsIfNeeded ys $ λ ys, pure $ FnBody.vdecl x ty (Expr.pap f ys) b
 | Expr.ap f ys :=
   boxArgsIfNeeded ys $ λ ys,
@@ -246,7 +248,7 @@ partial def visitFnBody : FnBody → M FnBody
   castVarIfNeeded x expected $ λ x,
     pure $ FnBody.case tid x alts
 | (FnBody.ret x)             := do
-  expected ← resultType,
+  expected ← getResultType,
   castArgIfNeeded x expected (λ x, pure $ FnBody.ret x)
 | (FnBody.jmp j ys)          := do
   ps ← getJPParams j,
@@ -262,7 +264,7 @@ let decls := decls.map (λ decl, match decl with
     let b := (withParams xs (visitFnBody b) { resultType := t, .. ctx }).run' nextIdx in
     Decl.fdecl f xs t b
   | d := d) in
-addBoxedVersions decls
+addBoxedVersions env decls
 
 end ExplicitBoxing
 

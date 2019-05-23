@@ -35,11 +35,11 @@ instance ctorInfoHasFormat : HasFormat CtorInfo := ⟨formatCtorInfo⟩
 
 private def formatExpr : Expr → Format
 | (Expr.ctor i ys)       := format i ++ formatArray ys
-| (Expr.reset n x)       := "reset_" ++ format n ++ " " ++ format x
+| (Expr.reset n x)       := "reset[" ++ format n ++ "] " ++ format x
 | (Expr.reuse x i u ys)  := "reuse" ++ (if u then "!" else "") ++ " " ++ format x ++ " in " ++ format i ++ formatArray ys
-| (Expr.proj i x)        := "proj_" ++ format i ++ " " ++ format x
-| (Expr.uproj i x)       := "uproj_" ++ format i ++ " " ++ format x
-| (Expr.sproj n o x)     := "sproj_" ++ format n ++ "_" ++ format o ++ " " ++ format x
+| (Expr.proj i x)        := "proj[" ++ format i ++ "] " ++ format x
+| (Expr.uproj i x)       := "uproj[" ++ format i ++ "] " ++ format x
+| (Expr.sproj n o x)     := "sproj[" ++ format n ++ ", " ++ format o ++ "] " ++ format x
 | (Expr.fap c ys)        := format c ++ formatArray ys
 | (Expr.pap c ys)        := "pap " ++ format c ++ formatArray ys
 | (Expr.ap x ys)         := "app " ++ format x ++ formatArray ys

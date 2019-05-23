@@ -328,8 +328,8 @@ do emit "lean::free_heap_obj(", emit x, emitLn ");"
 def emitRelease (x : VarId) (i : Nat) : M Unit :=
 do emit "lean::cnstr_release(", emit x, emit ", ", emit i, emitLn ");"
 
-def emitSet (x : VarId) (i : Nat) (y : VarId) : M Unit :=
-do emit "lean::cnstr_set(", emit x, emit ", ", emit i, emit ", ", emit y, emitLn ");"
+def emitSet (x : VarId) (i : Nat) (y : Arg) : M Unit :=
+do emit "lean::cnstr_set(", emit x, emit ", ", emit i, emit ", ", emitArg y, emitLn ");"
 
 def emitOffset (n : Nat) (offset : Nat) : M Unit :=
 if n > 0 then do

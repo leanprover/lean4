@@ -13,7 +13,6 @@ import init.lean.compiler.ir.freevars
 namespace Lean
 namespace IR
 namespace ExpandResetReuse
-
 /- Mapping from variable to projections -/
 abbrev ProjMap  := HashMap VarId Expr
 namespace CollectProjMap
@@ -151,6 +150,33 @@ mask.size.mfold
       pure (FnBody.vdecl fld IRType.object (Expr.proj i y) (FnBody.dec fld 1 true b)))
   b
 
+def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
+zs.size.fold
+  (λ i b,
+    let z := zs.get i in -- TODO: check if we can skip the set
+    FnBody.set y i z b)
+  b
+
+partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
+| (FnBody.dec z n c b) :=
+  if x == z then FnBody.del y b
+  else FnBody.dec z n c (reuseToSet b)
+| (FnBody.vdecl z t v b) :=
+  match v with
+  | Expr.reuse w c u zs :=
+    if x == w then setFields y zs (b.replaceVar z y)
+    else FnBody.vdecl z t v (reuseToSet b)
+  | _ := FnBody.vdecl z t v (reuseToSet b)
+| (FnBody.case tid y alts) :=
+  let alts := alts.hmap $ λ alt, alt.modifyBody reuseToSet in
+  FnBody.case tid y alts
+| e :=
+  if e.isTerminal then e
+  else
+    let (instr, b) := e.split in
+    let b := reuseToSet b in
+    instr <;> b
+
 /-
 replace
 ```
@@ -172,26 +198,28 @@ and `z := reuse x ctor_i ws; F` is replaced with
 -/
 def mkFastPath (x y : VarId) (mask : Mask) (b : FnBody) : M FnBody :=
 do
-let b := FnBody.vdecl x IRType.object (Expr.reset mask.size y) b, -- todo
+ctx ← read,
+let b := reuseToSet ctx x y b,
 releaseUnreadFields y mask b
 
 -- Expand `bs; x := reset[n] y; b`
-partial def expand (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M (Array FnBody × FnBody) :=
+partial def expand (mainFn : FnBody → Array FnBody → M FnBody)
+            (bs : Array FnBody) (x : VarId) (n : Nat) (y : VarId) (b : FnBody) : M FnBody :=
 do
 let bOld := FnBody.vdecl x IRType.object (Expr.reset n y) b,
 let (bs, mask) := eraseProjIncFor n y bs,
 let bSlow      := mkSlowPath x y mask b,
 bFast ← mkFastPath x y mask b,
+/- We only optimize recursively the fast. -/
+bFast ← mainFn bFast Array.empty,
 c ← mkFresh,
-let b          := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast) in
--- dbgTrace ("expand\n" ++ toString (reshape bs b)) $ λ _,
-pure (bs, b)
+let b := FnBody.vdecl c IRType.uint8 (Expr.isShared y) (mkIf c bSlow bFast),
+pure $ reshape bs b
 
 partial def searchAndExpand : FnBody → Array FnBody → M FnBody
 | d@(FnBody.vdecl x t (Expr.reset n y) b) bs :=
   if consumed x b then do
-    (bs, b) ← expand bs x n y b,
-    pure $ reshape bs b -- TODO
+    expand searchAndExpand bs x n y b
   else
     searchAndExpand b (push bs d)
 | (FnBody.jdecl j xs v b) bs := do
@@ -218,8 +246,7 @@ end ExpandResetReuse
 
 /-- (Try to) expand `reset` and `reuse` instructions. -/
 def Decl.expandResetReuse (d : Decl) : Decl :=
-d
--- ExpandResetReuse.main d
+ExpandResetReuse.main d
 
 end IR
 end Lean

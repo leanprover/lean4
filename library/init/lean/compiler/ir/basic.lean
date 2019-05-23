@@ -214,7 +214,7 @@ inductive FnBody
 | jdecl (j : JoinPointId) (xs : Array Param) (v : FnBody) (b : FnBody)
 /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    This operation is not part of λPure is only used during optimization. -/
-| set (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
+| set (x : VarId) (i : Nat) (y : Arg) (b : FnBody)
 /- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
 | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
 /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.

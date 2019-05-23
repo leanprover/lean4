@@ -49,7 +49,7 @@ abbrev M := State LocalContext
 partial def visitFnBody (w : Index) : FnBody → M Bool
 | (FnBody.vdecl x _ v b)    := visitExpr w v <||> visitFnBody b
 | (FnBody.jdecl j ys v b)   := visitFnBody v <||> visitFnBody b
-| (FnBody.set x _ y b)      := visitVar w x <||> visitVar w y <||> visitFnBody b
+| (FnBody.set x _ y b)      := visitVar w x <||> visitArg w y <||> visitFnBody b
 | (FnBody.uset x _ y b)     := visitVar w x <||> visitVar w y <||> visitFnBody b
 | (FnBody.sset x _ _ y _ b) := visitVar w x <||> visitVar w y <||> visitFnBody b
 | (FnBody.release x _ b)    := visitVar w x <||> visitFnBody b
@@ -136,7 +136,7 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
   let jLiveVars := (collectFnBody v m >> bindParams ys) {} in
   let m         := m.insert j jLiveVars in
   collectFnBody b m
-| (FnBody.set x _ y b)      m := collectVar x >> collectVar y >> collectFnBody b m
+| (FnBody.set x _ y b)      m := collectVar x >> collectArg y >> collectFnBody b m
 | (FnBody.uset x _ y b)     m := collectVar x >> collectVar y >> collectFnBody b m
 | (FnBody.sset x _ _ y _ b) m := collectVar x >> collectVar y >> collectFnBody b m
 | (FnBody.release x _ b)    m := collectVar x >> collectFnBody b m

@@ -102,7 +102,7 @@ partial def normFnBody : FnBody → N FnBody
 | (FnBody.jdecl j ys v b)    := do
   (ys, v) ← withParams ys $ λ ys, do { v ← normFnBody v, pure (ys, v) },
   withJP j $ λ j, FnBody.jdecl j ys v <$> normFnBody b
-| (FnBody.set x i y b)       := do x ← normVar x, y ← normVar y, FnBody.set x i y <$> normFnBody b
+| (FnBody.set x i y b)       := do x ← normVar x, y ← normArg y, FnBody.set x i y <$> normFnBody b
 | (FnBody.uset x i y b)      := do x ← normVar x, y ← normVar y, FnBody.uset x i y <$> normFnBody b
 | (FnBody.sset x i o y t b)  := do x ← normVar x, y ← normVar y, FnBody.sset x i o y t <$> normFnBody b
 | (FnBody.release x i b)     := do x ← normVar x, FnBody.release x i <$> normFnBody b
@@ -127,6 +127,58 @@ end NormalizeIds
 /- Create a declaration equivalent to `d` s.t. `d.normalizeIds.uniqueIds == true` -/
 def Decl.normalizeIds (d : Decl) : Decl :=
 (NormalizeIds.normDecl d {}).run' 1
+
+/- Apply a function `f : VarId → VarId` to variable occurrences.
+   The following functions assume the IR code does not have variable shadowing. -/
+namespace MapVars
+
+@[inline] def mapArg (f : VarId → VarId) : Arg → Arg
+| (Arg.var x) := Arg.var (f x)
+| a           := a
+
+@[specialize] def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
+as.hmap (mapArg f)
+
+@[specialize] def mapExpr (f : VarId → VarId) : Expr → Expr
+| (Expr.ctor c ys)      := Expr.ctor c (mapArgs f ys)
+| (Expr.reset n x)      := Expr.reset n (f x)
+| (Expr.reuse x c u ys) := Expr.reuse (f x) c u (mapArgs f ys)
+| (Expr.proj i x)       := Expr.proj i (f x)
+| (Expr.uproj i x)      := Expr.uproj i (f x)
+| (Expr.sproj n o x)    := Expr.sproj n o (f x)
+| (Expr.fap c ys)       := Expr.fap c (mapArgs f ys)
+| (Expr.pap c ys)       := Expr.pap c (mapArgs f ys)
+| (Expr.ap x ys)        := Expr.ap (f x) (mapArgs f ys)
+| (Expr.box t x)        := Expr.box t (f x)
+| (Expr.unbox x)        := Expr.unbox (f x)
+| (Expr.isShared x)     := Expr.isShared (f x)
+| (Expr.isTaggedPtr x)  := Expr.isTaggedPtr (f x)
+| e@(Expr.lit v)        :=  e
+
+@[specialize] partial def mapFnBody (f : VarId → VarId) : FnBody → FnBody
+| (FnBody.vdecl x t v b)     := FnBody.vdecl x t (mapExpr f v) (mapFnBody b)
+| (FnBody.jdecl j ys v b)    := FnBody.jdecl j ys (mapFnBody v) (mapFnBody b)
+| (FnBody.set x i y b)       := FnBody.set (f x) i (mapArg f y) (mapFnBody b)
+| (FnBody.uset x i y b)      := FnBody.uset (f x) i (f y) (mapFnBody b)
+| (FnBody.sset x i o y t b)  := FnBody.sset (f x) i o (f y) t (mapFnBody b)
+| (FnBody.release x i b)     := FnBody.release (f x) i (mapFnBody b)
+| (FnBody.inc x n c b)       := FnBody.inc (f x) n c (mapFnBody b)
+| (FnBody.dec x n c b)       := FnBody.dec (f x) n c (mapFnBody b)
+| (FnBody.del x b)           := FnBody.del (f x) (mapFnBody b)
+| (FnBody.mdata d b)         := FnBody.mdata d (mapFnBody b)
+| (FnBody.case tid x alts)   := FnBody.case tid (f x) (alts.hmap (λ alt, alt.modifyBody mapFnBody))
+| (FnBody.jmp j ys)          := FnBody.jmp j (mapArgs f ys)
+| (FnBody.ret x)             := FnBody.ret (mapArg f x)
+| FnBody.unreachable         := FnBody.unreachable
+
+end MapVars
+
+@[inline] def FnBody.mapVars (f : VarId → VarId) (b : FnBody) : FnBody :=
+MapVars.mapFnBody f b
+
+/- Replace `x` with `y` in `b`. This function assumes `b` does not shadow `x` -/
+def FnBody.replaceVar (x y : VarId) (b : FnBody) : FnBody :=
+b.mapVars $ λ z, if x == z then y else z
 
 end IR
 end Lean

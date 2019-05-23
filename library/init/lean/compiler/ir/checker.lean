@@ -104,7 +104,7 @@ partial def checkFnBody : FnBody → M Unit
   ctx ← read,
   when (ctx.localCtx.contains j.idx) $ throw ("invalid join point declaration, shadowing is not allowed"),
   adaptReader (λ ctx : Context, { localCtx := ctx.localCtx.addJP j ys v, .. ctx }) (checkFnBody b)
-| (FnBody.set x _ y b)      := checkVar x *> checkVar y *> checkFnBody b
+| (FnBody.set x _ y b)      := checkVar x *> checkArg y *> checkFnBody b
 | (FnBody.uset x _ y b)     := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.sset x _ _ y _ b) := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.release x _ b)    := checkVar x *> checkFnBody b

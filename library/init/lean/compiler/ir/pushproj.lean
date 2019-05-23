@@ -18,20 +18,21 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
     let bs   := bs.pop in
     let done (_ : Unit) := (bs.push b ++ ctx.reverse, alts) in
     let skip (_ : Unit) := pushProjs bs alts altsF (ctx.push b) (b.collectFreeIndices ctxF) in
-    match b with
-    | FnBody.vdecl x t v _ :=
-      match v with
-      | Expr.proj _ _    :=
-        if !ctxF.contains x.idx && !altsF.all (λ s, s.contains x.idx) then
+    let push (x : VarId) (t : IRType) (v : Expr) :=
+        if !ctxF.contains x.idx then
           let alts := alts.hmapIdx $ λ i alt, alt.modifyBody $ λ b',
              if (altsF.get i).contains x.idx then b <;> b'
              else b' in
           let altsF  := altsF.hmap $ λ s, if s.contains x.idx then b.collectFreeIndices s else s in
           pushProjs bs alts altsF ctx ctxF
         else
-          skip ()
-      | Expr.uproj _ _   := skip ()
-      | Expr.sproj _ _ _ := skip ()
+          skip () in
+    match b with
+    | FnBody.vdecl x t v _ :=
+      match v with
+      | Expr.proj _ _    := push x t v
+      | Expr.uproj _ _   := push x t v
+      | Expr.sproj _ _ _ := push x t v
       | _                := done ()
     | _ := done ()
 

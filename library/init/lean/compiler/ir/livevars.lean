@@ -55,6 +55,7 @@ partial def visitFnBody (w : Index) : FnBody → M Bool
 | (FnBody.release x _ b)    := visitVar w x <||> visitFnBody b
 | (FnBody.inc x _ _ b)      := visitVar w x <||> visitFnBody b
 | (FnBody.dec x _ _ b)      := visitVar w x <||> visitFnBody b
+| (FnBody.del x b)          := visitVar w x <||> visitFnBody b
 | (FnBody.mdata _ b)        := visitFnBody b
 | (FnBody.jmp j ys)         := visitArgs w ys <||> do {
     ctx ← get,
@@ -141,6 +142,7 @@ partial def collectFnBody : FnBody → JPLiveVarMap → Collector
 | (FnBody.release x _ b)    m := collectVar x >> collectFnBody b m
 | (FnBody.inc x _ _ b)      m := collectVar x >> collectFnBody b m
 | (FnBody.dec x _ _ b)      m := collectVar x >> collectFnBody b m
+| (FnBody.del x b)          m := collectVar x >> collectFnBody b m
 | (FnBody.mdata _ b)        m := collectFnBody b m
 | (FnBody.ret x)            m := collectArg x
 | (FnBody.case _ x alts)    m := collectVar x >> collectArray alts (λ alt, collectFnBody alt.body m)

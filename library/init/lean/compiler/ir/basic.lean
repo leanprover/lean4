@@ -225,6 +225,7 @@ inductive FnBody
 | inc (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
 /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | dec (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
+| del (x : VarId) (b : FnBody)
 | mdata (d : MData) (b : FnBody)
 | case (tid : Name) (x : VarId) (cs : Array (AltCore FnBody))
 | ret (x : Arg)
@@ -268,6 +269,7 @@ def FnBody.body : FnBody → FnBody
 | (FnBody.release _ _ b)    := b
 | (FnBody.inc _ _ _ b)      := b
 | (FnBody.dec _ _ _ b)      := b
+| (FnBody.del _ b)          := b
 | (FnBody.mdata _ b)        := b
 | other                     := other
 
@@ -280,6 +282,7 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 | (FnBody.release x i _)    b := FnBody.release x i b
 | (FnBody.inc x n c _)      b := FnBody.inc x n c b
 | (FnBody.dec x n c _)      b := FnBody.dec x n c b
+| (FnBody.del x _)          b := FnBody.del x b
 | (FnBody.mdata d _)        b := FnBody.mdata d b
 | other                     b := other
 
@@ -535,6 +538,7 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.release x₁ i₁ b₁)       (FnBody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.inc x₁ n₁ c₁ b₁)        (FnBody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.dec x₁ n₁ c₁ b₁)        (FnBody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.del x₁ b₁)              (FnBody.del x₂ b₂)                := x₁ =[ρ]= x₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.mdata m₁ b₁)            (FnBody.mdata m₂ b₂)              := m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && x₁ =[ρ]= x₂ && Array.isEqv alts₁ alts₂ (λ alt₁ alt₂,
    match alt₁, alt₂ with

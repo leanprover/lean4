@@ -108,6 +108,7 @@ partial def normFnBody : FnBody → N FnBody
 | (FnBody.release x i b)     := do x ← normVar x, FnBody.release x i <$> normFnBody b
 | (FnBody.inc x n c b)       := do x ← normVar x, FnBody.inc x n c <$> normFnBody b
 | (FnBody.dec x n c b)       := do x ← normVar x, FnBody.dec x n c <$> normFnBody b
+| (FnBody.del x b)           := do x ← normVar x, FnBody.del x <$> normFnBody b
 | (FnBody.mdata d b)         := FnBody.mdata d <$> normFnBody b
 | (FnBody.case tid x alts)   := do
   x ← normVar x,

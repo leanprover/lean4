@@ -66,6 +66,7 @@ partial def collectFnBody : FnBody → Collector
 | (FnBody.release x _ b)    := collectVar x; collectFnBody b
 | (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
 | (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.del x b)          := collectVar x; collectFnBody b
 | (FnBody.mdata _ b)        := collectFnBody b
 | (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
 | (FnBody.jmp j ys)         := collectJP j; collectArgs ys
@@ -160,6 +161,7 @@ partial def collectFnBody : FnBody → Collector
 | (FnBody.release x _ b)    := collectVar x; collectFnBody b
 | (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
 | (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
+| (FnBody.del x b)          := collectVar x; collectFnBody b
 | (FnBody.mdata _ b)        := collectFnBody b
 | (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
 | (FnBody.jmp j ys)         := collectJP j; collectArgs ys
@@ -217,6 +219,7 @@ partial def visitFnBody (w : Index) : FnBody → Bool
 | (FnBody.release x _ b)    := visitVar w x || visitFnBody b
 | (FnBody.inc x _ _ b)      := visitVar w x || visitFnBody b
 | (FnBody.dec x _ _ b)      := visitVar w x || visitFnBody b
+| (FnBody.del x b)          := visitVar w x || visitFnBody b
 | (FnBody.mdata _ b)        := visitFnBody b
 | (FnBody.jmp j ys)         := visitJP w j || visitArgs w ys
 | (FnBody.ret x)            := visitArg w x

@@ -560,5 +560,11 @@ namespace VarIdSet
 instance : Inhabited VarIdSet := ⟨{}⟩
 end VarIdSet
 
+def mkIf (x : VarId) (t e : FnBody) : FnBody :=
+FnBody.case `Bool x [
+  Alt.ctor {name := `Bool.false, cidx := 0, size := 0, usize := 0, ssize := 0} e,
+  Alt.ctor {name := `Bool.true, cidx := 1, size := 0, usize := 0, ssize := 0} t
+].toArray
+
 end IR
 end Lean

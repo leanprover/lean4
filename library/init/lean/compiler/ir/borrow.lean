@@ -10,9 +10,14 @@ import init.lean.compiler.ir.normids
 
 namespace Lean
 namespace IR
-
 namespace Borrow
+/- We perform borrow inference in a block of mutually recursive functions.
+   Join points are viewed as local functions, and are identified using
+   their local id + the name of the surrounding function.
 
+   We keep a mapping from function and joint points to parameters (`Array Param`).
+   Recall that `Param` contains the field `borrow`.
+   The type `Key` is the the key of this map. -/
 inductive Key
 | decl (name : FunId)
 | jp   (name : FunId) (jpid : JoinPointId)
@@ -63,9 +68,10 @@ ps.hmap $ λ p, { borrow := p.ty.isObj, .. p }
 def initBorrowIfNotExported (exported : Bool) (ps : Array Param) : Array Param :=
 if exported then ps else initBorrow ps
 
-partial def visitFnBody (exported : Bool) (fnid : FunId) : FnBody → State ParamMap Unit
+partial def visitFnBody (fnid : FunId) : FnBody → State ParamMap Unit
 | (FnBody.jdecl j xs v b) := do
-  modify $ λ m, m.insert (Key.jp fnid j) (initBorrowIfNotExported exported xs),
+  modify $ λ m, m.insert (Key.jp fnid j) (initBorrow xs),
+  visitFnBody v,
   visitFnBody b
 | e :=
   unless (e.isTerminal) $ do
@@ -77,17 +83,20 @@ decls.mfor $ λ decl, match decl with
   | Decl.fdecl f xs _ b := do
     let exported := isExport env f,
     modify $ λ m, m.insert (Key.decl f) (initBorrowIfNotExported exported xs),
-    visitFnBody exported f b
+    visitFnBody f b
   | _ := pure ()
 end InitParamMap
 
 def mkInitParamMap (env : Environment) (decls : Array Decl) : ParamMap :=
 (InitParamMap.visitDecls env decls *> get).run' {}
 
+/- Apply the inferred borrow annotations stored at `ParamMap` to a block of mutually
+   recursive functions. -/
 namespace ApplyParamMap
 
 partial def visitFnBody : FnBody → FunId → ParamMap → FnBody
 | (FnBody.jdecl j xs v b) fnid map :=
+  let v := visitFnBody v fnid map in
   let b := visitFnBody b fnid map in
   match map.find (Key.jp fnid j) with
   | some ys := FnBody.jdecl j ys v b
@@ -115,10 +124,17 @@ def applyParamMap (decls : Array Decl) (map : ParamMap) : Array Decl :=
 ApplyParamMap.visitDecls decls map
 
 structure BorrowInfCtx :=
-(env : Environment) (currFn : FunId := default _) (paramSet : IndexSet := {})
+(env : Environment)
+(currFn : FunId := default _) -- Function being analyzed.
+(paramSet : IndexSet := {}) -- Set of all function parameters in scope. This is used to implement the heuristic at `ownArgsUsingParams`
 
 structure BorrowInfState :=
-(map : ParamMap) (owned : IndexSet := {}) (modifiedOwned : Bool := false) (modifiedParamMap : Bool := false)
+/- `map` is a mapping storing the inferred borrow annotations for all functions (and joint points) in a mutually recursive declaration. -/
+(map : ParamMap)
+/- Set of variables that must be `owned`. -/
+(owned : IndexSet := {})
+(modifiedOwned : Bool := false)
+(modifiedParamMap : Bool := false)
 
 abbrev M := ReaderT BorrowInfCtx (State BorrowInfState)
 
@@ -143,6 +159,7 @@ def isOwned (x : VarId) : M Bool :=
 do s ← get,
    pure $ s.owned.contains x.idx
 
+/- Updates `map[k]` using the current set of `owned` variables. -/
 def updateParamMap (k : Key) : M Unit :=
 do
 s ← get,
@@ -234,10 +251,11 @@ def updateParamSet (ctx : BorrowInfCtx) (ps : Array Param) : BorrowInfCtx :=
 { paramSet := ps.foldl (λ s p, s.insert p.x.idx) ctx.paramSet, .. ctx }
 
 partial def collectFnBody : FnBody → M Unit
-| (FnBody.jdecl j ys _ b) := do
-  adaptReader (λ ctx, updateParamSet ctx ys) (collectFnBody b),
+| (FnBody.jdecl j ys v b) := do
+  adaptReader (λ ctx, updateParamSet ctx ys) (collectFnBody v),
   ctx ← read,
-  updateParamMap (Key.jp ctx.currFn j)
+  updateParamMap (Key.jp ctx.currFn j),
+  collectFnBody b
 | (FnBody.vdecl x _ v b) := collectFnBody b *> collectExpr x v *> preserveTailCall x v b
 | (FnBody.jmp j ys)      := do
   ctx ← read,

@@ -11,7 +11,13 @@ namespace Lean
 @[extern "lean_closure_max_args"]
 constant closureMaxArgsFn : Unit → Nat := default _
 
+@[extern "lean_max_small_nat"]
+constant maxSmallNatFn : Unit → Nat := default _
+
 def closureMaxArgs : Nat :=
 closureMaxArgsFn ()
+
+def maxSmallNat : Nat :=
+maxSmallNatFn ()
 
 end Lean

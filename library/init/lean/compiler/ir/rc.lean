@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
+import init.lean.runtime
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.livevars
 
@@ -169,9 +170,19 @@ private def consumeExpr (m : VarMap) : Expr → Bool
   | none      := true
 | other := true
 
+/- Return true iff `v` at runtime is a scalar value stored in a tagged pointer.
+   We do not need RC operations for this kind of value. -/
+private def isScalarBoxedInTaggedPtr (v : Expr) : Bool :=
+match v with
+| Expr.ctor c ys          := c.size == 0 && c.ssize == 0 && c.usize == 0
+| Expr.lit (LitVal.num n) := n ≤ maxSmallNat
+| _ := false
+
 private def updateVarInfo (ctx : Context) (x : VarId) (t : IRType) (v : Expr) : Context :=
-{ varMap :=
-  ctx.varMap.insert x { ref := t.isObj, persistent := isPersistent v, consume := consumeExpr ctx.varMap v },
+{ varMap := ctx.varMap.insert x {
+      ref := t.isObj && !isScalarBoxedInTaggedPtr v,
+      persistent := isPersistent v,
+      consume := consumeExpr ctx.varMap v },
   .. ctx }
 
 private def addDecIfNeeded (ctx : Context) (x : VarId) (b : FnBody) (bLiveVars : LiveVarSet) : FnBody :=

@@ -1960,6 +1960,10 @@ extern "C" object * lean_closure_max_args(object *) {
     return mk_nat_obj(static_cast<unsigned>(LEAN_CLOSURE_MAX_ARGS));
 }
 
+extern "C" object * lean_max_small_nat(object *) {
+    return mk_nat_obj(LEAN_MAX_SMALL_NAT);
+}
+
 // =======================================
 // Debugging helper functions
 

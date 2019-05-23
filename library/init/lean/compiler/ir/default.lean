@@ -16,6 +16,7 @@ import init.lean.compiler.ir.checker
 import init.lean.compiler.ir.borrow
 import init.lean.compiler.ir.boxing
 import init.lean.compiler.ir.rc
+import init.lean.compiler.ir.expandresetreuse
 import init.lean.compiler.ir.emitcpp
 
 namespace Lean
@@ -40,6 +41,8 @@ decls ← explicitBoxing decls,
 logDecls `boxing decls,
 decls ← explicitRC decls,
 logDecls `rc decls,
+let decls := decls.hmap Decl.expandResetReuse,
+logDecls `expand_reset_reuse decls,
 checkDecls decls,
 addDecls decls,
 pure ()

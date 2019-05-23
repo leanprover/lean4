@@ -8,6 +8,7 @@ import init.control.state
 import init.control.reader
 import init.lean.compiler.ir.basic
 import init.lean.compiler.ir.livevars
+import init.lean.compiler.ir.format
 
 namespace Lean
 namespace IR
@@ -71,6 +72,16 @@ private def Dfinalize (x : VarId) (c : CtorInfo) : FnBody × Bool → M FnBody
 | (b, true)  := pure b
 | (b, false) := tryS x c b
 
+private def argsContainsVar (ys : Array Arg) (x : VarId) : Bool :=
+ys.any $ λ arg, match arg with
+  | Arg.var y := x == y
+  | _         := false
+
+private def isCtorUsing (b : FnBody) (x : VarId) : Bool :=
+match b with
+| (FnBody.vdecl _ _ (Expr.ctor _ ys) _) := argsContainsVar ys x
+| _ := false
+
 /- Given `Dmain b`, the resulting pair `(new_b, flag)` contains the new body `new_b`,
    and `flag == true` if `x` is live in `b`.
 
@@ -98,31 +109,23 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
     pure (e, e.hasLiveVar ctx x)
   else do
     let (instr, b) := e.split,
-    (b, found) ← Dmain b,
-    /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
-       since `instr` is not a `FnBody.jmp` (it is not a terminal) nor it is a `FnBody.jdecl`. -/
-    if found || !instr.hasFreeVar x then
-      pure (instr <;> b, found)
+    if isCtorUsing instr x then
+      /- If the scrutinee `x` (the one that is providing memory) is being
+         stored in a constructor, then reuse will probably not be able to reuse memory at runtime.
+         It may work only if the new cell is consumed, but we ignore this case. -/
+      pure (e, true)
     else do
-      b ← tryS x c b,
-      pure (instr <;> b, true)
-
-/- Auxiliary function used to implement an additional heuristic at `D`. -/
-private partial def hasCtorUsing (x : VarId) : FnBody → Bool
-| (FnBody.vdecl x _ (Expr.ctor _ ys) b) :=
-  ys.any (λ arg, match arg with
-           | Arg.var y := x == y
-           | _         := false)
-  || hasCtorUsing b
-| (FnBody.jdecl _ _ v b) := hasCtorUsing v || hasCtorUsing b
-| b                      := !b.isTerminal && hasCtorUsing b.body
+      (b, found) ← Dmain b,
+      /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
+         since `instr` is not a `FnBody.jmp` (it is not a terminal) nor it is a `FnBody.jdecl`. -/
+      if found || !instr.hasFreeVar x then
+        pure (instr <;> b, found)
+      else do
+        b ← tryS x c b,
+        pure (instr <;> b, true)
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
-/- If the scrutinee `x` (the one that is providing memory) is being
-   stored in a constructor, then reuse will probably not be able to reuse memory at runtime.
-   It may work only if the new cell is consumed, but we ignore this case. -/
-if hasCtorUsing x b then pure b
-else Dmain x c b >>= Dfinalize x c
+Dmain x c b >>= Dfinalize x c
 
 partial def R : FnBody → M FnBody
 | (FnBody.case tid x alts) := do

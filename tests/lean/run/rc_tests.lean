@@ -3,7 +3,7 @@ universes u v
 -- setOption pp.binderTypes False
 set_option pp.implicit true
 set_option trace.compiler.llnf true
-set_option trace.compiler.boxed true
+-- set_option trace.compiler.boxed true
 
 namespace x1
 

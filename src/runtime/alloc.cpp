@@ -311,7 +311,7 @@ static void init_heap(bool main) {
         register_thread_finalizer(finalize_heap, g_heap);
 }
 }
-using namespace allocator;
+using namespace allocator; // NOLINT
 
 void init_thread_heap() {
     init_heap(false);

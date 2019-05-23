@@ -1277,7 +1277,7 @@ if (x_30 == 0)
 {
 obj* x_31; obj* x_32; obj* x_33; obj* x_34; obj* x_35; 
 x_31 = l_Lean_IR_FnBody_body___main(x_0);
-x_32 = lean::box(12);
+x_32 = lean::box(13);
 x_33 = l_Lean_IR_FnBody_setBody___main(x_0, x_32);
 x_34 = l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main(x_31, x_1, x_2);
 x_35 = l_Lean_IR_FnBody_setBody___main(x_33, x_34);
@@ -1344,7 +1344,7 @@ x_0 = lean::mk_nat_obj(0ul);
 x_1 = lean::mk_empty_array(x_0);
 x_2 = lean::box(0);
 x_3 = 6;
-x_4 = lean::box(12);
+x_4 = lean::box(13);
 x_5 = lean::alloc_cnstr(0, 3, 1);
 lean::cnstr_set(x_5, 0, x_2);
 lean::cnstr_set(x_5, 1, x_1);
@@ -2498,7 +2498,7 @@ switch (lean::obj_tag(x_1)) {
 case 6:
 {
 switch (lean::obj_tag(x_2)) {
-case 10:
+case 11:
 {
 obj* x_5; 
 x_5 = lean::cnstr_get(x_2, 0);
@@ -2787,7 +2787,7 @@ x_0 = x_35;
 x_2 = x_49;
 goto _start;
 }
-case 9:
+case 10:
 {
 obj* x_53; obj* x_56; obj* x_57; 
 x_53 = lean::cnstr_get(x_0, 2);
@@ -2798,7 +2798,7 @@ x_57 = l_Array_mforAux___main___at_Lean_IR_Borrow_collectFnBody___main___spec__1
 lean::dec(x_53);
 return x_57;
 }
-case 11:
+case 12:
 {
 obj* x_59; obj* x_61; obj* x_64; obj* x_66; obj* x_67; obj* x_69; obj* x_71; obj* x_74; obj* x_75; obj* x_78; 
 x_59 = lean::cnstr_get(x_0, 0);

@@ -457,7 +457,7 @@ lean::cnstr_set(x_117, 1, x_114);
 return x_117;
 }
 }
-case 9:
+case 10:
 {
 obj* x_118; obj* x_121; obj* x_122; 
 x_118 = lean::cnstr_get(x_0, 2);
@@ -708,7 +708,7 @@ x_0 = x_31;
 x_1 = x_35;
 goto _start;
 }
-case 9:
+case 10:
 {
 obj* x_39; obj* x_42; obj* x_43; 
 x_39 = lean::cnstr_get(x_0, 2);
@@ -1625,7 +1625,7 @@ lean::cnstr_set(x_37, 0, x_31);
 lean::cnstr_set(x_37, 1, x_36);
 return x_37;
 }
-case 9:
+case 10:
 {
 obj* x_38; obj* x_41; obj* x_42; 
 x_38 = lean::cnstr_get(x_0, 2);

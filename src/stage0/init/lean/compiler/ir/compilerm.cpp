@@ -2723,7 +2723,7 @@ x_2 = lean_name_mk_string(x_0, x_1);
 x_3 = lean::mk_nat_obj(0ul);
 x_4 = lean::mk_empty_array(x_3);
 x_5 = 6;
-x_6 = lean::box(12);
+x_6 = lean::box(13);
 x_7 = lean::alloc_cnstr(0, 3, 1);
 lean::cnstr_set(x_7, 0, x_0);
 lean::cnstr_set(x_7, 1, x_4);

@@ -2235,146 +2235,184 @@ goto _start;
 }
 case 8:
 {
-obj* x_202; 
-x_202 = lean::cnstr_get(x_0, 1);
+obj* x_202; obj* x_204; obj* x_208; 
+x_202 = lean::cnstr_get(x_0, 0);
 lean::inc(x_202);
+x_204 = lean::cnstr_get(x_0, 1);
+lean::inc(x_204);
 lean::dec(x_0);
-x_0 = x_202;
+lean::inc(x_1);
+x_208 = l_Lean_IR_Checker_checkVar(x_202, x_1);
+if (lean::obj_tag(x_208) == 0)
+{
+obj* x_211; obj* x_213; obj* x_214; 
+lean::dec(x_1);
+lean::dec(x_204);
+x_211 = lean::cnstr_get(x_208, 0);
+if (lean::is_exclusive(x_208)) {
+ x_213 = x_208;
+} else {
+ lean::inc(x_211);
+ lean::dec(x_208);
+ x_213 = lean::box(0);
+}
+if (lean::is_scalar(x_213)) {
+ x_214 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_214 = x_213;
+}
+lean::cnstr_set(x_214, 0, x_211);
+return x_214;
+}
+else
+{
+lean::dec(x_208);
+x_0 = x_204;
 goto _start;
+}
 }
 case 9:
 {
-obj* x_206; obj* x_208; obj* x_212; 
-x_206 = lean::cnstr_get(x_0, 1);
-lean::inc(x_206);
-x_208 = lean::cnstr_get(x_0, 2);
-lean::inc(x_208);
+obj* x_217; 
+x_217 = lean::cnstr_get(x_0, 1);
+lean::inc(x_217);
 lean::dec(x_0);
-lean::inc(x_1);
-x_212 = l_Lean_IR_Checker_checkVar(x_206, x_1);
-if (lean::obj_tag(x_212) == 0)
-{
-obj* x_215; obj* x_217; obj* x_218; 
-lean::dec(x_1);
-lean::dec(x_208);
-x_215 = lean::cnstr_get(x_212, 0);
-if (lean::is_exclusive(x_212)) {
- x_217 = x_212;
-} else {
- lean::inc(x_215);
- lean::dec(x_212);
- x_217 = lean::box(0);
-}
-if (lean::is_scalar(x_217)) {
- x_218 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_218 = x_217;
-}
-lean::cnstr_set(x_218, 0, x_215);
-return x_218;
-}
-else
-{
-obj* x_220; obj* x_221; 
-lean::dec(x_212);
-x_220 = lean::mk_nat_obj(0ul);
-x_221 = l_Array_mforAux___main___at_Lean_IR_Checker_checkFnBody___main___spec__2(x_208, x_220, x_1);
-lean::dec(x_208);
-return x_221;
-}
+x_0 = x_217;
+goto _start;
 }
 case 10:
 {
-obj* x_223; obj* x_226; 
-x_223 = lean::cnstr_get(x_0, 0);
+obj* x_221; obj* x_223; obj* x_227; 
+x_221 = lean::cnstr_get(x_0, 1);
+lean::inc(x_221);
+x_223 = lean::cnstr_get(x_0, 2);
 lean::inc(x_223);
 lean::dec(x_0);
-x_226 = l_Lean_IR_Checker_checkArg(x_223, x_1);
-return x_226;
+lean::inc(x_1);
+x_227 = l_Lean_IR_Checker_checkVar(x_221, x_1);
+if (lean::obj_tag(x_227) == 0)
+{
+obj* x_230; obj* x_232; obj* x_233; 
+lean::dec(x_1);
+lean::dec(x_223);
+x_230 = lean::cnstr_get(x_227, 0);
+if (lean::is_exclusive(x_227)) {
+ x_232 = x_227;
+} else {
+ lean::inc(x_230);
+ lean::dec(x_227);
+ x_232 = lean::box(0);
+}
+if (lean::is_scalar(x_232)) {
+ x_233 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_233 = x_232;
+}
+lean::cnstr_set(x_233, 0, x_230);
+return x_233;
+}
+else
+{
+obj* x_235; obj* x_236; 
+lean::dec(x_227);
+x_235 = lean::mk_nat_obj(0ul);
+x_236 = l_Array_mforAux___main___at_Lean_IR_Checker_checkFnBody___main___spec__2(x_223, x_235, x_1);
+lean::dec(x_223);
+return x_236;
+}
 }
 case 11:
 {
-obj* x_227; obj* x_229; obj* x_233; 
-x_227 = lean::cnstr_get(x_0, 0);
-lean::inc(x_227);
-x_229 = lean::cnstr_get(x_0, 1);
-lean::inc(x_229);
+obj* x_238; obj* x_241; 
+x_238 = lean::cnstr_get(x_0, 0);
+lean::inc(x_238);
 lean::dec(x_0);
-lean::inc(x_1);
-x_233 = l_Lean_IR_Checker_checkJP(x_227, x_1);
-if (lean::obj_tag(x_233) == 0)
-{
-obj* x_236; obj* x_238; obj* x_239; 
-lean::dec(x_1);
-lean::dec(x_229);
-x_236 = lean::cnstr_get(x_233, 0);
-if (lean::is_exclusive(x_233)) {
- x_238 = x_233;
-} else {
- lean::inc(x_236);
- lean::dec(x_233);
- x_238 = lean::box(0);
-}
-if (lean::is_scalar(x_238)) {
- x_239 = lean::alloc_cnstr(0, 1, 0);
-} else {
- x_239 = x_238;
-}
-lean::cnstr_set(x_239, 0, x_236);
-return x_239;
-}
-else
-{
-obj* x_241; obj* x_242; 
-lean::dec(x_233);
-x_241 = lean::mk_nat_obj(0ul);
-x_242 = l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1(x_229, x_241, x_1);
-lean::dec(x_229);
-return x_242;
-}
+x_241 = l_Lean_IR_Checker_checkArg(x_238, x_1);
+return x_241;
 }
 case 12:
 {
-obj* x_245; 
-lean::dec(x_1);
-x_245 = l_Lean_IR_Checker_checkVar___closed__2;
-return x_245;
-}
-default:
-{
-obj* x_246; obj* x_248; obj* x_252; 
-x_246 = lean::cnstr_get(x_0, 0);
-lean::inc(x_246);
-x_248 = lean::cnstr_get(x_0, 2);
-lean::inc(x_248);
+obj* x_242; obj* x_244; obj* x_248; 
+x_242 = lean::cnstr_get(x_0, 0);
+lean::inc(x_242);
+x_244 = lean::cnstr_get(x_0, 1);
+lean::inc(x_244);
 lean::dec(x_0);
 lean::inc(x_1);
-x_252 = l_Lean_IR_Checker_checkVar(x_246, x_1);
-if (lean::obj_tag(x_252) == 0)
+x_248 = l_Lean_IR_Checker_checkJP(x_242, x_1);
+if (lean::obj_tag(x_248) == 0)
 {
-obj* x_255; obj* x_257; obj* x_258; 
-lean::dec(x_248);
+obj* x_251; obj* x_253; obj* x_254; 
 lean::dec(x_1);
-x_255 = lean::cnstr_get(x_252, 0);
-if (lean::is_exclusive(x_252)) {
- x_257 = x_252;
+lean::dec(x_244);
+x_251 = lean::cnstr_get(x_248, 0);
+if (lean::is_exclusive(x_248)) {
+ x_253 = x_248;
 } else {
- lean::inc(x_255);
- lean::dec(x_252);
- x_257 = lean::box(0);
+ lean::inc(x_251);
+ lean::dec(x_248);
+ x_253 = lean::box(0);
 }
-if (lean::is_scalar(x_257)) {
- x_258 = lean::alloc_cnstr(0, 1, 0);
+if (lean::is_scalar(x_253)) {
+ x_254 = lean::alloc_cnstr(0, 1, 0);
 } else {
- x_258 = x_257;
+ x_254 = x_253;
 }
-lean::cnstr_set(x_258, 0, x_255);
-return x_258;
+lean::cnstr_set(x_254, 0, x_251);
+return x_254;
 }
 else
 {
-lean::dec(x_252);
-x_0 = x_248;
+obj* x_256; obj* x_257; 
+lean::dec(x_248);
+x_256 = lean::mk_nat_obj(0ul);
+x_257 = l_Array_mforAux___main___at_Lean_IR_Checker_checkArgs___spec__1(x_244, x_256, x_1);
+lean::dec(x_244);
+return x_257;
+}
+}
+case 13:
+{
+obj* x_260; 
+lean::dec(x_1);
+x_260 = l_Lean_IR_Checker_checkVar___closed__2;
+return x_260;
+}
+default:
+{
+obj* x_261; obj* x_263; obj* x_267; 
+x_261 = lean::cnstr_get(x_0, 0);
+lean::inc(x_261);
+x_263 = lean::cnstr_get(x_0, 2);
+lean::inc(x_263);
+lean::dec(x_0);
+lean::inc(x_1);
+x_267 = l_Lean_IR_Checker_checkVar(x_261, x_1);
+if (lean::obj_tag(x_267) == 0)
+{
+obj* x_270; obj* x_272; obj* x_273; 
+lean::dec(x_263);
+lean::dec(x_1);
+x_270 = lean::cnstr_get(x_267, 0);
+if (lean::is_exclusive(x_267)) {
+ x_272 = x_267;
+} else {
+ lean::inc(x_270);
+ lean::dec(x_267);
+ x_272 = lean::box(0);
+}
+if (lean::is_scalar(x_272)) {
+ x_273 = lean::alloc_cnstr(0, 1, 0);
+} else {
+ x_273 = x_272;
+}
+lean::cnstr_set(x_273, 0, x_270);
+return x_273;
+}
+else
+{
+lean::dec(x_267);
+x_0 = x_263;
 goto _start;
 }
 }

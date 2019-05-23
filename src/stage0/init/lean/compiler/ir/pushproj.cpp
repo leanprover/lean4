@@ -113,7 +113,7 @@ obj* _init_l_Array_hmmapAux___main___at_Lean_IR_pushProjs___main___spec__3___clo
 _start:
 {
 obj* x_0; obj* x_1; 
-x_0 = lean::box(12);
+x_0 = lean::box(13);
 x_1 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_1, 0, x_0);
 return x_1;
@@ -497,7 +497,7 @@ else
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_6 = lean::array_fget(x_1, x_0);
-x_7 = lean::box(12);
+x_7 = lean::box(13);
 x_8 = lean::array_fset(x_1, x_0, x_7);
 x_9 = lean::mk_nat_obj(1ul);
 x_10 = lean::nat_add(x_0, x_9);
@@ -664,7 +664,7 @@ lean::dec(x_1);
 x_7 = lean::mk_nat_obj(0ul);
 x_8 = l_Array_hmmapAux___main___at_Lean_IR_FnBody_pushProj___main___spec__1(x_7, x_2);
 switch (lean::obj_tag(x_4)) {
-case 9:
+case 10:
 {
 obj* x_9; obj* x_11; obj* x_13; obj* x_15; obj* x_16; obj* x_17; obj* x_19; obj* x_20; obj* x_21; obj* x_23; obj* x_24; obj* x_25; obj* x_26; obj* x_28; obj* x_31; obj* x_32; obj* x_33; 
 x_9 = lean::cnstr_get(x_4, 0);
@@ -696,7 +696,7 @@ lean::inc(x_28);
 lean::dec(x_25);
 x_31 = l_Array_hmmapAux___main___at_Lean_IR_FnBody_pushProj___main___spec__3(x_7, x_28);
 if (lean::is_scalar(x_15)) {
- x_32 = lean::alloc_cnstr(9, 3, 0);
+ x_32 = lean::alloc_cnstr(10, 3, 0);
 } else {
  x_32 = x_15;
 }

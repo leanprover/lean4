@@ -325,8 +325,8 @@ emitLn ");"
 def emitDel (x : VarId) : M Unit :=
 do emit "lean::free_heap_obj(", emit x, emitLn ");"
 
-def emitRelease (x : VarId) (i : Nat) : M Unit :=
-do emit "lean::cnstr_release(", emit x, emit ", ", emit i, emitLn ");"
+def emitSetTag (x : VarId) (i : Nat) : M Unit :=
+do emit "lean::cnstr_set_tag(", emit x, emit ", ", emit i, emitLn ");"
 
 def emitSet (x : VarId) (i : Nat) (y : Arg) : M Unit :=
 do emit "lean::cnstr_set(", emit x, emit ", ", emit i, emit ", ", emitArg y, emitLn ");"
@@ -591,7 +591,7 @@ partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | (FnBody.inc x n c b)      := emitInc x n c *> emitBlock b
 | (FnBody.dec x n c b)      := emitDec x n c *> emitBlock b
 | (FnBody.del x b)          := emitDel x *> emitBlock b
-| (FnBody.release x i b)    := emitRelease x i *> emitBlock b
+| (FnBody.setTag x i b)     := emitSetTag x i *> emitBlock b
 | (FnBody.set x i y b)      := emitSet x i y *> emitBlock b
 | (FnBody.uset x i y b)     := emitUSet x i y *> emitBlock b
 | (FnBody.sset x i o y _ b) := emitSSet x i o y *> emitBlock b

@@ -107,7 +107,7 @@ partial def checkFnBody : FnBody → M Unit
 | (FnBody.set x _ y b)      := checkVar x *> checkArg y *> checkFnBody b
 | (FnBody.uset x _ y b)     := checkVar x *> checkVar y *> checkFnBody b
 | (FnBody.sset x _ _ y _ b) := checkVar x *> checkVar y *> checkFnBody b
-| (FnBody.release x _ b)    := checkVar x *> checkFnBody b
+| (FnBody.setTag x _ b)     := checkVar x *> checkFnBody b
 | (FnBody.inc x _ _ b)      := checkVar x *> checkFnBody b
 | (FnBody.dec x _ _ b)      := checkVar x *> checkFnBody b
 | (FnBody.del x b)          := checkVar x *> checkFnBody b

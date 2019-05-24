@@ -215,12 +215,12 @@ inductive FnBody
 /- Store `y` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    This operation is not part of λPure is only used during optimization. -/
 | set (x : VarId) (i : Nat) (y : Arg) (b : FnBody)
+| setTag (x : VarId) (cidx : Nat) (b : FnBody)
 /- Store `y : Usize` at Position `sizeof(void*)*i` in `x`. `x` must be a Constructor object and `RC(x)` must be 1. -/
 | uset (x : VarId) (i : Nat) (y : VarId) (b : FnBody)
 /- Store `y : ty` at Position `sizeof(void*)*i + offset` in `x`. `x` must be a Constructor object and `RC(x)` must be 1.
    `ty` must not be `object`, `tobject`, `irrelevant` nor `Usize`. -/
 | sset (x : VarId) (i : Nat) (offset : Nat) (y : VarId) (ty : IRType) (b : FnBody)
-| release (x : VarId) (i : Nat) (b : FnBody)
 /- RC increment for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
 | inc (x : VarId) (n : Nat) (c : Bool) (b : FnBody)
 /- RC decrement for `object`. If c == `true`, then `inc` must check whether `x` is a tagged pointer or not. -/
@@ -266,7 +266,7 @@ def FnBody.body : FnBody → FnBody
 | (FnBody.set _ _ _ b)      := b
 | (FnBody.uset _ _ _ b)     := b
 | (FnBody.sset _ _ _ _ _ b) := b
-| (FnBody.release _ _ b)    := b
+| (FnBody.setTag _ _ b)     := b
 | (FnBody.inc _ _ _ b)      := b
 | (FnBody.dec _ _ _ b)      := b
 | (FnBody.del _ b)          := b
@@ -279,7 +279,7 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 | (FnBody.set x i y _)      b := FnBody.set x i y b
 | (FnBody.uset x i y _)     b := FnBody.uset x i y b
 | (FnBody.sset x i o y t _) b := FnBody.sset x i o y t b
-| (FnBody.release x i _)    b := FnBody.release x i b
+| (FnBody.setTag x i _)     b := FnBody.setTag x i b
 | (FnBody.inc x n c _)      b := FnBody.inc x n c b
 | (FnBody.dec x n c _)      b := FnBody.dec x n c b
 | (FnBody.del x _)          b := FnBody.del x b
@@ -535,7 +535,7 @@ partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
 | ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁) (FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
   x₁ =[ρ]= x₂ && i₁ = i₂ && o₁ = o₂ && y₁ =[ρ]= y₂ && t₁ == t₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.release x₁ i₁ b₁)       (FnBody.release x₂ i₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.setTag x₁ i₁ b₁)        (FnBody.setTag x₂ i₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.inc x₁ n₁ c₁ b₁)        (FnBody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.dec x₁ n₁ c₁ b₁)        (FnBody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.del x₁ b₁)              (FnBody.del x₂ b₂)                := x₁ =[ρ]= x₂ && FnBody.alphaEqv ρ b₁ b₂

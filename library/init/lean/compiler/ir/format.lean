@@ -83,7 +83,7 @@ partial def formatFnBody (indent : Nat := 2) : FnBody → Format
 | (FnBody.set x i y b)       := "set " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.uset x i y b)      := "uset " ++ format x ++ "[" ++ format i ++ "] := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.sset x i o y ty b) := "sset " ++ format x ++ "[" ++ format i ++ ", " ++ format o ++ "] : " ++ format ty ++ " := " ++ format y ++ ";" ++ Format.line ++ formatFnBody b
-| (FnBody.release x i b)     := "release " ++ format x ++ "[" ++ format i ++ "];" ++ Format.line ++ formatFnBody b
+| (FnBody.setTag x cidx b)   := "setTag " ++ format x ++ " := " ++ format cidx ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.inc x n c b)       := "inc" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.dec x n c b)       := "dec" ++ (if n != 1 then Format.sbracket (format n) else "") ++ " " ++ format x ++ ";" ++ Format.line ++ formatFnBody b
 | (FnBody.del x b)           := "del " ++ format x ++ ";" ++ Format.line ++ formatFnBody b

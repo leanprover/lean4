@@ -105,7 +105,7 @@ partial def normFnBody : FnBody → N FnBody
 | (FnBody.set x i y b)       := do x ← normVar x, y ← normArg y, FnBody.set x i y <$> normFnBody b
 | (FnBody.uset x i y b)      := do x ← normVar x, y ← normVar y, FnBody.uset x i y <$> normFnBody b
 | (FnBody.sset x i o y t b)  := do x ← normVar x, y ← normVar y, FnBody.sset x i o y t <$> normFnBody b
-| (FnBody.release x i b)     := do x ← normVar x, FnBody.release x i <$> normFnBody b
+| (FnBody.setTag x i b)      := do x ← normVar x, FnBody.setTag x i <$> normFnBody b
 | (FnBody.inc x n c b)       := do x ← normVar x, FnBody.inc x n c <$> normFnBody b
 | (FnBody.dec x n c b)       := do x ← normVar x, FnBody.dec x n c <$> normFnBody b
 | (FnBody.del x b)           := do x ← normVar x, FnBody.del x <$> normFnBody b
@@ -159,9 +159,9 @@ as.hmap (mapArg f)
 | (FnBody.vdecl x t v b)     := FnBody.vdecl x t (mapExpr f v) (mapFnBody b)
 | (FnBody.jdecl j ys v b)    := FnBody.jdecl j ys (mapFnBody v) (mapFnBody b)
 | (FnBody.set x i y b)       := FnBody.set (f x) i (mapArg f y) (mapFnBody b)
+| (FnBody.setTag x i b)      := FnBody.setTag (f x) i (mapFnBody b)
 | (FnBody.uset x i y b)      := FnBody.uset (f x) i (f y) (mapFnBody b)
 | (FnBody.sset x i o y t b)  := FnBody.sset (f x) i o (f y) t (mapFnBody b)
-| (FnBody.release x i b)     := FnBody.release (f x) i (mapFnBody b)
 | (FnBody.inc x n c b)       := FnBody.inc (f x) n c (mapFnBody b)
 | (FnBody.dec x n c b)       := FnBody.dec (f x) n c (mapFnBody b)
 | (FnBody.del x b)           := FnBody.del (f x) (mapFnBody b)

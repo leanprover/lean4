@@ -204,7 +204,10 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
 | (FnBody.vdecl z t v b) :=
   match v with
   | Expr.reuse w c u zs :=
-    if x == w then removeSelfSet ctx (setFields y zs (b.replaceVar z y))
+    if x == w then
+      let b := setFields y zs (b.replaceVar z y) in
+      let b := if u then FnBody.setTag y c.cidx b else b in
+      removeSelfSet ctx b
     else FnBody.vdecl z t v (reuseToSet b)
   | _ := FnBody.vdecl z t v (reuseToSet b)
 | (FnBody.case tid y alts) :=

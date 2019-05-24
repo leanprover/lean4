@@ -30,10 +30,12 @@ partial def pushProjs : Array FnBody → Array Alt → Array IndexSet → Array 
     match b with
     | FnBody.vdecl x t v _ :=
       match v with
-      | Expr.proj _ _    := push x t v
-      | Expr.uproj _ _   := push x t v
-      | Expr.sproj _ _ _ := push x t v
-      | _                := done ()
+      | Expr.proj _ _      := push x t v
+      | Expr.uproj _ _     := push x t v
+      | Expr.sproj _ _ _   := push x t v
+      | Expr.isShared _    := skip ()
+      | Expr.isTaggedPtr _ := skip ()
+      | _                  := done ()
     | _ := done ()
 
 partial def FnBody.pushProj : FnBody → FnBody

@@ -289,6 +289,7 @@ void initialize_compiler() {
     register_trace_class({"compiler", "ir", "boxing"});
     register_trace_class({"compiler", "ir", "rc"});
     register_trace_class({"compiler", "ir", "expand_reset_reuse"});
+    register_trace_class({"compiler", "ir", "result"});
 }
 
 void finalize_compiler() {

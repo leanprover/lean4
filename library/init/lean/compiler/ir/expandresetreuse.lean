@@ -152,10 +152,50 @@ mask.size.mfold
 
 def setFields (y : VarId) (zs : Array Arg) (b : FnBody) : FnBody :=
 zs.size.fold
-  (λ i b,
-    let z := zs.get i in -- TODO: check if we can skip the set
-    FnBody.set y i z b)
+  (λ i b, FnBody.set y i (zs.get i) b)
   b
+
+/- Given `set x[i] := y`, return true iff `y := proj[i] x` -/
+def isSelfSet (ctx : Context) (x : VarId) (i : Nat) (y : Arg) : Bool :=
+match y with
+| Arg.var y :=
+  match ctx.projMap.find y with
+  | some (Expr.proj j w) := j == i && w == x
+  | _ := false
+| _ := false
+
+/- Given `uset x[i] := y`, return true iff `y := uproj[i] x` -/
+def isSelfUSet (ctx : Context) (x : VarId) (i : Nat) (y : VarId) : Bool :=
+match ctx.projMap.find y with
+| some (Expr.uproj j w) := j == i && w == x
+| _                     := false
+
+/- Given `sset x[n, i] := y`, return true iff `y := sproj[n, i] x` -/
+def isSelfSSet (ctx : Context) (x : VarId) (n : Nat) (i : Nat) (y : VarId) : Bool :=
+match ctx.projMap.find y with
+| some (Expr.sproj m j w) := n == m && j == i && w == x
+| _                       := false
+
+/- Remove unnecessary `set/uset/sset` operations -/
+partial def removeSelfSet (ctx : Context) : FnBody → FnBody
+| (FnBody.set x i y b) :=
+  if isSelfSet ctx x i y then removeSelfSet b
+  else FnBody.set x i y (removeSelfSet b)
+| (FnBody.uset x i y b) :=
+  if isSelfUSet ctx x i y then removeSelfSet b
+  else FnBody.uset x i y (removeSelfSet b)
+| (FnBody.sset x n i y t b) :=
+  if isSelfSSet ctx x n i y then removeSelfSet b
+  else FnBody.sset x n i y t (removeSelfSet b)
+| (FnBody.case tid y alts) :=
+  let alts := alts.hmap $ λ alt, alt.modifyBody removeSelfSet in
+  FnBody.case tid y alts
+| e :=
+  if e.isTerminal then e
+  else
+    let (instr, b) := e.split in
+    let b := removeSelfSet b in
+    instr <;> b
 
 partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
 | (FnBody.dec z n c b) :=
@@ -164,7 +204,7 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
 | (FnBody.vdecl z t v b) :=
   match v with
   | Expr.reuse w c u zs :=
-    if x == w then setFields y zs (b.replaceVar z y)
+    if x == w then removeSelfSet ctx (setFields y zs (b.replaceVar z y))
     else FnBody.vdecl z t v (reuseToSet b)
   | _ := FnBody.vdecl z t v (reuseToSet b)
 | (FnBody.case tid y alts) :=

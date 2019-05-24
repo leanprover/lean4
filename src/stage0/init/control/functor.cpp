@@ -19,90 +19,68 @@ obj* l_Functor_mapConstRev___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_Functor_mapConstRev(obj*);
 obj* l_Functor_mapRev(obj*);
 obj* l_Functor_mapConstRev___boxed(obj*);
-obj* l_Functor_mapRev___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Functor_mapConstRev___rarg___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Functor_mapRev___boxed(obj*);
-obj* l_Functor_mapConstRev___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Functor_mapConstRev___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-obj* x_5; obj* x_8; 
-x_5 = lean::cnstr_get(x_0, 1);
-lean::inc(x_5);
-lean::dec(x_0);
-x_8 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_4, x_3);
-return x_8;
-}
-}
-obj* l_Functor_mapConstRev(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Functor_mapConstRev___rarg___boxed), 5, 0);
-return x_1;
-}
-}
-obj* l_Functor_mapConstRev___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_Functor_mapConstRev___rarg(x_0, x_1, x_2, x_3, x_4);
+obj* x_6; obj* x_7; 
+x_6 = lean::cnstr_get(x_1, 1);
+lean::inc(x_6);
 lean::dec(x_1);
-lean::dec(x_2);
-return x_5;
+x_7 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_5, x_4);
+return x_7;
 }
 }
-obj* l_Functor_mapConstRev___boxed(obj* x_0) {
+obj* l_Functor_mapConstRev(obj* x_1) {
 _start:
 {
-obj* x_1; 
-x_1 = l_Functor_mapConstRev(x_0);
-lean::dec(x_0);
-return x_1;
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Functor_mapConstRev___rarg), 5, 0);
+return x_2;
 }
 }
-obj* l_Functor_mapRev___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Functor_mapConstRev___boxed(obj* x_1) {
 _start:
 {
-obj* x_5; obj* x_8; 
-x_5 = lean::cnstr_get(x_0, 0);
-lean::inc(x_5);
-lean::dec(x_0);
-x_8 = lean::apply_4(x_5, lean::box(0), lean::box(0), x_4, x_3);
-return x_8;
-}
-}
-obj* l_Functor_mapRev(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Functor_mapRev___rarg___boxed), 5, 0);
-return x_1;
-}
-}
-obj* l_Functor_mapRev___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
-_start:
-{
-obj* x_5; 
-x_5 = l_Functor_mapRev___rarg(x_0, x_1, x_2, x_3, x_4);
+obj* x_2; 
+x_2 = l_Functor_mapConstRev(x_1);
 lean::dec(x_1);
-lean::dec(x_2);
-return x_5;
+return x_2;
 }
 }
-obj* l_Functor_mapRev___boxed(obj* x_0) {
+obj* l_Functor_mapRev___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
-obj* x_1; 
-x_1 = l_Functor_mapRev(x_0);
-lean::dec(x_0);
-return x_1;
+obj* x_6; obj* x_7; 
+x_6 = lean::cnstr_get(x_1, 0);
+lean::inc(x_6);
+lean::dec(x_1);
+x_7 = lean::apply_4(x_6, lean::box(0), lean::box(0), x_5, x_4);
+return x_7;
+}
+}
+obj* l_Functor_mapRev(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Functor_mapRev___rarg), 5, 0);
+return x_2;
+}
+}
+obj* l_Functor_mapRev___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Functor_mapRev(x_1);
+lean::dec(x_1);
+return x_2;
 }
 }
 obj* initialize_init_core(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_control_functor(obj* w) {
- if (_G_initialized) return w;
- _G_initialized = true;
+if (_G_initialized) return w;
+_G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;

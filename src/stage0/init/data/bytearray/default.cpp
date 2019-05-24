@@ -17,8 +17,8 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 obj* initialize_init_data_bytearray_basic(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_data_bytearray_default(obj* w) {
- if (_G_initialized) return w;
- _G_initialized = true;
+if (_G_initialized) return w;
+_G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_bytearray_basic(w);
 if (io_result_is_error(w)) return w;

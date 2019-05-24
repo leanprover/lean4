@@ -19,61 +19,49 @@ extern "C" obj* lean_lean_profileit(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_profileitPure(obj*);
 obj* l_Lean_profileitPure___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_profileitPure___rarg(obj*, obj*, obj*, obj*);
-obj* l_Lean_profileitPure___boxed(obj*);
 obj* l_IO_lazyPure___rarg(obj*, obj*);
-obj* l_Lean_profileit___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+obj* l_Lean_profileit___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+_start:
+{
+obj* x_6; 
+x_6 = lean_lean_profileit(x_1, x_2, x_3, x_4, x_5);
+return x_6;
+}
+}
+obj* l_Lean_profileitPure___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; obj* x_6; 
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_lazyPure___rarg), 2, 1);
+lean::closure_set(x_5, 0, x_3);
+x_6 = lean_lean_profileit(lean::box(0), x_1, x_2, x_5, x_4);
+return x_6;
+}
+}
+obj* l_Lean_profileitPure(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_profileitPure___rarg___boxed), 4, 0);
+return x_2;
+}
+}
+obj* l_Lean_profileitPure___rarg___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
-x_5 = lean_lean_profileit(x_0, x_1, x_2, x_3, x_4);
-lean::dec(x_1);
+x_5 = l_Lean_profileitPure___rarg(x_1, x_2, x_3, x_4);
 lean::dec(x_2);
-return x_5;
-}
-}
-obj* l_Lean_profileitPure___rarg(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; obj* x_5; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_lazyPure___rarg), 2, 1);
-lean::closure_set(x_4, 0, x_2);
-x_5 = lean_lean_profileit(lean::box(0), x_0, x_1, x_4, x_3);
-return x_5;
-}
-}
-obj* l_Lean_profileitPure(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_profileitPure___rarg___boxed), 4, 0);
-return x_1;
-}
-}
-obj* l_Lean_profileitPure___rarg___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
-_start:
-{
-obj* x_4; 
-x_4 = l_Lean_profileitPure___rarg(x_0, x_1, x_2, x_3);
-lean::dec(x_0);
 lean::dec(x_1);
-return x_4;
-}
-}
-obj* l_Lean_profileitPure___boxed(obj* x_0) {
-_start:
-{
-obj* x_1; 
-x_1 = l_Lean_profileitPure(x_0);
-lean::dec(x_0);
-return x_1;
+return x_5;
 }
 }
 obj* initialize_init_lean_position(obj*);
 obj* initialize_init_io(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_util(obj* w) {
- if (_G_initialized) return w;
- _G_initialized = true;
+if (_G_initialized) return w;
+_G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_position(w);
 if (io_result_is_error(w)) return w;

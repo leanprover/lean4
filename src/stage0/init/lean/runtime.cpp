@@ -20,51 +20,51 @@ extern "C" obj* lean_max_small_nat(obj*);
 obj* l_Lean_closureMaxArgs;
 obj* l_Lean_maxSmallNat;
 obj* l_Lean_closureMaxArgsFn___boxed(obj*);
-obj* l_Lean_closureMaxArgsFn___boxed(obj* x_0) {
+obj* l_Lean_closureMaxArgsFn___boxed(obj* x_1) {
 _start:
 {
-obj* x_1; 
-x_1 = lean_closure_max_args(x_0);
-return x_1;
+obj* x_2; 
+x_2 = lean_closure_max_args(x_1);
+return x_2;
 }
 }
-obj* l_Lean_maxSmallNatFn___boxed(obj* x_0) {
+obj* l_Lean_maxSmallNatFn___boxed(obj* x_1) {
 _start:
 {
-obj* x_1; 
-x_1 = lean_max_small_nat(x_0);
-return x_1;
+obj* x_2; 
+x_2 = lean_max_small_nat(x_1);
+return x_2;
 }
 }
 obj* _init_l_Lean_closureMaxArgs() {
 _start:
 {
-obj* x_0; obj* x_1; 
-x_0 = lean::box(0);
-x_1 = lean_closure_max_args(x_0);
-return x_1;
+obj* x_1; obj* x_2; 
+x_1 = lean::box(0);
+x_2 = lean_closure_max_args(x_1);
+return x_2;
 }
 }
 obj* _init_l_Lean_maxSmallNat() {
 _start:
 {
-obj* x_0; obj* x_1; 
-x_0 = lean::box(0);
-x_1 = lean_max_small_nat(x_0);
-return x_1;
+obj* x_1; obj* x_2; 
+x_1 = lean::box(0);
+x_2 = lean_max_small_nat(x_1);
+return x_2;
 }
 }
 obj* initialize_init_core(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_runtime(obj* w) {
- if (_G_initialized) return w;
- _G_initialized = true;
+if (_G_initialized) return w;
+_G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;
- l_Lean_closureMaxArgs = _init_l_Lean_closureMaxArgs();
+l_Lean_closureMaxArgs = _init_l_Lean_closureMaxArgs();
 lean::mark_persistent(l_Lean_closureMaxArgs);
- l_Lean_maxSmallNat = _init_l_Lean_maxSmallNat();
+l_Lean_maxSmallNat = _init_l_Lean_maxSmallNat();
 lean::mark_persistent(l_Lean_maxSmallNat);
 return w;
 }

@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 import System.Environment
 
 data Color =
@@ -67,6 +68,5 @@ mk_Map n freq = mk_Map_aux freq n Leaf []
 main = do
   [n, freq] <- getArgs
   let mList = mk_Map (read n) (read freq)
-  (m:_) <- return mList
-  let v = fold (\_ v r -> if v then r + 1 else r) m 0
-  print v
+  let v :: Int = fold (\_ v r -> if v then r + 1 else r) (head mList) 0
+  print (show (length mList) ++ " " ++ show v)

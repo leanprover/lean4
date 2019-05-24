@@ -68,7 +68,7 @@ fun main n freq =
 let
   val m = mk_map n freq
   val v = fold (fn k => fn v => fn r => if v then r + 1 else r) (List.hd m) 0 in
-print (Int.toString v)
+print (Int.toString (List.length m) ^ " " ^ Int.toString v)
 end
 
 val l = List.map (valOf o Int.fromString) (CommandLine.arguments ())

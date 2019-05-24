@@ -66,7 +66,7 @@ let mk_map n freq = mk_map_aux freq n Leaf [];;
 let main n freq =
 let m = mk_map n freq in
 let v = fold (fun k v r -> if v then r + 1 else r) (List.hd m) 0 in
-Printf.printf "%8d\n" v;
+Printf.printf "%d %d\n" (List.length m) v;
 v;;
 
 main (int_of_string Sys.argv.(1)) (int_of_string Sys.argv.(2));;

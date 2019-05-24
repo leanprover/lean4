@@ -278,6 +278,9 @@ run:
     #   The constructor calls the ``setup`` method.
     exec_misc:
         
+        # Enable other plugins by default: none =  (enable none by default); all = cpu_governor,disable_swap,sync,stop_start,other_nice,nice,disable_aslr,disable_ht,disable_intel_turbo (enable all, might freeze your system); usable = cpu_governor,disable_swap,sync,nice,disable_aslr,disable_ht,disable_intel_turbo (like 'all' but doesn't affect other processes)
+        preset: none
+        
         # Pick a random command if more than one run command is passed.
         random_cmd: true
         
@@ -289,6 +292,9 @@ run:
         # Enable:   Allows the setting of the scaling governor of all cpu cores, to ensure that all use the same.
         cpu_governor_active: null
         
+        # Enable:   Disable address space randomization
+        disable_aslr_active: null
+        
         # Enable:   Disable the L1 and L2 caches on x86 and x86-64 architectures.
         #   Uses a small custom kernel module (be sure to compile it via 'temci setup').
         #   
@@ -296,6 +302,12 @@ run:
         #   :warning: this is untested
         #   :warning: a linux-forum user declared: Disabling cpu caches gives you a pentium I like processor!!!
         disable_cpu_caches_active: null
+        
+        # Enable:   Disable hyper-threading
+        disable_ht_active: null
+        
+        # Enable:   Disable intel turbo mode
+        disable_intel_turbo_active: null
         
         # Enable:   Disables swapping on the system before the benchmarking and enables it after.
         disable_swap_active: null
@@ -338,6 +350,9 @@ run:
             # New scaling governor for all cpus
             governor: performance
         
+        #   Disable address space randomization
+        disable_aslr_misc: !!map {}
+        
         #   Disable the L1 and L2 caches on x86 and x86-64 architectures.
         #   Uses a small custom kernel module (be sure to compile it via 'temci setup').
         #   
@@ -345,6 +360,12 @@ run:
         #   :warning: this is untested
         #   :warning: a linux-forum user declared: Disabling cpu caches gives you a pentium I like processor!!!
         disable_cpu_caches_misc: !!map {}
+        
+        #   Disable hyper-threading
+        disable_ht_misc: !!map {}
+        
+        #   Disable intel turbo mode
+        disable_intel_turbo_misc: !!map {}
         
         #   Disables swapping on the system before the benchmarking and enables it after.
         disable_swap_misc: !!map {}

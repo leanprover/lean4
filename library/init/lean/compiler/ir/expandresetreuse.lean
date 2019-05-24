@@ -50,7 +50,7 @@ partial def consumed (x : VarId) : FnBody → Bool
   | Expr.reuse y _ _ _   := x == y || consumed b
   | _                    := consumed b
 | (FnBody.dec y _ _ b)   := x == y || consumed b
-| (FnBody.case _ _ alts) := alts.any $ λ alt, consumed alt.body
+| (FnBody.case _ _ alts) := alts.all $ λ alt, consumed alt.body
 | e := !e.isTerminal && consumed e.body
 
 abbrev Mask := Array (Option VarId)

@@ -23,6 +23,7 @@ def pp(bench, cat, prop, norm):
     if not open(f).read():
         return "-"
     s = single(bench, cat, prop)
+    norm = norm if prop == 'etime' else 1
     return number.fnumber(s.mean() / norm, abs_deviation=s.std_dev() / norm)
 
 CATBAG = {

@@ -15,7 +15,7 @@ if [[ "$OSTYPE" == "msys" ]]; then
     ff=$(echo $ff  | sed 's|^/\([a-z]\)/|\1:/|' | sed 's|/|\\\\|g')
 fi
 
-$LEAN --newcpp="$ff".cpp "$ff"
+$LEAN --oldcpp="$ff".cpp "$ff"
 if [ $? -ne 0 ]; then
     echo "Failed to compile $ff into C++ file"
     exit 1

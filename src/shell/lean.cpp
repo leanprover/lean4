@@ -334,7 +334,7 @@ int main(int argc, char ** argv) {
     options opts;
     optional<std::string> server_in;
     std::string native_output;
-    optional<std::string> cpp_output;
+    optional<std::string> old_cpp_output;
     optional<std::string> new_cpp_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
@@ -354,7 +354,7 @@ int main(int argc, char ** argv) {
                 display_help(std::cout);
                 return 0;
             case 'C':
-                cpp_output = optarg;
+                old_cpp_output = optarg;
                 break;
             case 'c':
                 new_cpp_output = optarg;
@@ -569,10 +569,10 @@ int main(int argc, char ** argv) {
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
 
-        if (cpp_output && ok) {
-            std::ofstream out(*cpp_output);
+        if (old_cpp_output && ok) {
+            std::ofstream out(*old_cpp_output);
             if (out.fail()) {
-                std::cerr << "failed to create '" << *cpp_output << "'\n";
+                std::cerr << "failed to create '" << *old_cpp_output << "'\n";
                 return 1;
             }
             emit_cpp(out, env, main_module_name, to_list(imports.begin(), imports.end()));

@@ -4,6 +4,6 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 ff=$1
-./newcompile.sh $ff
+./oldcompile.sh $ff
 shift 1
 time "./$ff.out" $*

@@ -34,6 +34,12 @@ CATBAG = {
     '.gc.ml': ("%GC", "gc"),
     '.ml.perf': ("cache misses", "cache-misses"),
     '.flambda.ml': ("OCaml+Flambda", "etime"),
+    '.mlton': ("MLton", "etime"),
+    '.gc.mlton': ("%GC", "gc"),
+    '.mlton.perf': ("cache misses", "cache-misses"),
+    '.mlkit': ("MLKit", "etime"),
+    '.gc.mlkit': ("%GC", "gc"),
+    '.mlkit.perf': ("cache misses", "cache-misses"),
 }
 
 benches = os.environ['BENCHES'].split(':')

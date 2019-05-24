@@ -2,18 +2,22 @@
 
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_shared
 
-CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf
-TIME_CATS = .lean .hs .llvm.hs .ml
+CROSS_CATS = .lean .gc.lean .lean.perf .gcc.lean .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf .mlton .mlton.perf .mlkit .mlkit.perf
+TIME_CATS = .lean .hs .llvm.hs .ml .mlton .mlkit
 RETIRED_CATS = .gcc.lean .flambda.ml
 
 LEANC_FLAGS = -O3
 GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
+MLTON_FLAGS =
+MLKIT_FLAGS =
 
 TEMCI ?= temci
 LEAN_BIN ?= ../../bin
 GHC ?= ghc
 OCAML ?= ocamlopt.opt
+MLTON ?= mlton
+MLKIT ?= mlkit
 
 ## IMPLEMENTATION
 
@@ -58,6 +62,12 @@ binarytrees%hs.out: GHC_FLAGS += --make -O2 -XBangPatterns -dynamic -threaded -r
 binarytrees.ml: binarytrees.ocaml-2.ml; ln -f $< $@
 binarytrees%ml.out: OCAML_FLAGS += -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa
 
+%.mlton.out: %.sml
+	$(MLTON) $(MLTON_FLAGS) -output $@ $<
+
+%.mlkit.out: %.sml
+	$(MLKIT) $(MLKIT_FLAGS) -o $@ $<
+
 bench:
 	-@mkdir bench
 
@@ -94,8 +104,13 @@ bench/%.perf.bench: %.out | bench
 		--runner output --out $@
 
 # fork() breaks instrumentation
-bench/binarytrees.gc.ml.bench:
-	touch $@
+bench/binarytrees.gc.ml.bench: ; touch $@
+
+# no benchmarksgame versions
+bench/binarytrees%mlton.bench: ; touch $@
+bench/binarytrees%mlton.perf.bench: ; touch $@
+bench/binarytrees%mlkit.bench: ; touch $@
+bench/binarytrees%mlkit.perf.bench: ; touch $@
 
 bench_cross: $(CROSS_INPUTS:%=bench/%.bench)
 

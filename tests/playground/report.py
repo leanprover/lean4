@@ -4,13 +4,26 @@ import os
 import re
 import subprocess
 import sys
+import yaml
+
+from temci.utils import util
+util.allow_all_imports = True
+import temci.scripts.cli  # side effects may include: registering settings, loading settings object, ...
+from temci.report import stats, rundata
+from temci.utils import number, settings
+
+number.FNumber.init_settings(settings.Settings()["report/number"])
 
 def pp(bench, cat, prop):
     f = f"bench/{bench}{cat}.bench"
     if not open(f).read():
         return "-"
-    p = subprocess.run([os.environ['TEMCI'], "report", f, "--reporter", "csv", "--csv_columns", f"{prop}[mean|o]"], stdout=subprocess.PIPE)
-    return p.stdout.decode('utf8').splitlines()[1]
+    with open(f, "r") as f:
+        runs = yaml.load(f)
+    stats_helper = rundata.RunDataStatsHelper.init_from_dicts(runs)
+    stat = stats.TestedPairsAndSingles(stats_helper.valid_runs())
+    n = stat.singles[0].properties[prop]
+    return number.fnumber(n.mean(), abs_deviation=n.std_dev())
 
 CATBAG = {
     '.lean': ("Lean [s]", "etime"),

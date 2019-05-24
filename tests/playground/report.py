@@ -6,13 +6,9 @@ import subprocess
 import sys
 import yaml
 
-from temci.utils import util
-util.allow_all_imports = True
-import temci.scripts.cli  # side effects may include: registering settings, loading settings object, ...
+import temci.utils.library_init
 from temci.report import stats, rundata
 from temci.utils import number, settings
-
-number.FNumber.init_settings(settings.Settings()["report/number"])
 
 def pp(bench, cat, prop):
     f = f"bench/{bench}{cat}.bench"

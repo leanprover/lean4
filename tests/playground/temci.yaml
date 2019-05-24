@@ -95,11 +95,14 @@ report:
         
         # Output file name or stdard out (-)
         out: '-'
+        
+        # Print statistical tests for every property for every two programs
+        with_tester_results: true
     
     #   Simple reporter that outputs just a configurable csv table with rows for each run block
     csv_misc:
         
-        # List of valid column specs, format is 'PROP\[mod\]' or 'ATTRIBUTES' mod is one of: mean, stddev, property, min, max and stddev per mean
+        # List of valid column specs, format is a comma separated list of 'PROPERTY\[mod\]' or 'ATTRIBUTE' mod is one of: mean, stddev, property, min, max and stddev per mean, optionally a formatting option can be given viaPROPERTY\[mod|OPT1OPT2…\], where the OPTs are one of the following: % (format as percentage), p (wrap insignificant digits in parentheses (+- 2 std dev)), s (use scientific notation, configured in report/number) and o (wrap digits in the order of magnitude of 2 std devs in parentheses). PROPERTY can be either the description or the short version of the property. Configure the number formatting further via the number settings in the settings file
         columns: [description]
         
         # Output file name or standard out (-)
@@ -192,11 +195,20 @@ report:
         # Show parentheses around non significant digits? (If a std dev is given)
         parentheses: true
         
+        # Mode for showing the parentheses: either d (Digits are considered significant if they don't change if the number itself changes += $sigmas * std dev) or o (digits are consideredsignificant if they are bigger than $sigmas * std dev)
+        parentheses_mode: o
+        
+        # Show as percentages
+        percentages: false
+        
         # Use the exponential notation, i.e. '10e3' for 1000
         scientific_notation: false
         
         # Use si prefixes instead of 'e…'
         scientific_notation_si_prefixes: false
+        
+        # Number of standard deviation used for the digit significance evaluation
+        sigmas: 2
 
 run:
     

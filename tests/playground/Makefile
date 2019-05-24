@@ -1,6 +1,6 @@
 ## CONFIG
 
-CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_shared
+CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared
 
 CROSS_CATS = .lean .gc.lean .lean.perf .gcc.lean .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf .mlton .mlton.perf .mlkit .mlkit.perf
 TIME_CATS = .lean .hs .llvm.hs .ml .mlton .mlkit
@@ -82,6 +82,9 @@ bench/rbmap.%.bench: BENCH_PARAMS = 7000000
 
 rbmap_shared.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_shared.%.bench: BENCH_PARAMS = 500000 1
+
+rbmap_checkpoint_10.%.out: rbmap_checkpoint.%.out; ln -f $< $@
+bench/rbmap_checkpoint_10.%.bench: BENCH_PARAMS = 2000000 10
 
 bench/%gc.lean.bench: %lean.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec\

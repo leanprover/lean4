@@ -375,7 +375,7 @@ lean::dec(x_32);
 if (x_39 == 0)
 {
 uint8 x_41; 
-x_41 = lean::nat_dec_eq(x_0, x_34);
+x_41 = l_Lean_IR_HasIndex_visitArg___main(x_0, x_34);
 lean::dec(x_34);
 if (x_41 == 0)
 {
@@ -405,7 +405,7 @@ lean::cnstr_set(x_50, 1, x_2);
 return x_50;
 }
 }
-case 3:
+case 4:
 {
 obj* x_51; obj* x_53; obj* x_55; uint8 x_58; 
 x_51 = lean::cnstr_get(x_1, 0);
@@ -450,7 +450,7 @@ lean::cnstr_set(x_69, 1, x_2);
 return x_69;
 }
 }
-case 4:
+case 5:
 {
 obj* x_70; obj* x_72; obj* x_74; uint8 x_77; 
 x_70 = lean::cnstr_get(x_1, 0);
@@ -486,8 +486,8 @@ return x_84;
 else
 {
 obj* x_87; obj* x_88; 
-lean::dec(x_74);
 lean::dec(x_72);
+lean::dec(x_74);
 x_87 = lean::box(x_77);
 x_88 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_88, 0, x_87);
@@ -3703,12 +3703,12 @@ x_35 = lean::cnstr_get(x_0, 3);
 lean::inc(x_35);
 lean::dec(x_0);
 x_38 = l_Lean_IR_LiveVars_collectFnBody___main(x_35, x_1, x_2);
-x_39 = lean::box(0);
-x_40 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_38, x_33, x_39);
-x_41 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_40, x_31, x_39);
+x_39 = l___private_init_lean_compiler_ir_livevars_3__collectArg___main(x_33, x_38);
+x_40 = lean::box(0);
+x_41 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_39, x_31, x_40);
 return x_41;
 }
-case 3:
+case 4:
 {
 obj* x_42; obj* x_44; obj* x_46; obj* x_49; obj* x_50; obj* x_51; obj* x_52; 
 x_42 = lean::cnstr_get(x_0, 0);
@@ -3724,7 +3724,7 @@ x_51 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectV
 x_52 = l_RBNode_insert___at___private_init_lean_compiler_ir_livevars_2__collectVar___spec__1(x_51, x_42, x_50);
 return x_52;
 }
-case 4:
+case 5:
 {
 obj* x_53; obj* x_55; obj* x_57; obj* x_60; obj* x_61; obj* x_62; obj* x_63; 
 x_53 = lean::cnstr_get(x_0, 0);

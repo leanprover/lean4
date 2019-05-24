@@ -24,6 +24,7 @@ obj* l_HashMapImp_find___at_Lean_IR_EmitCpp_getJPParams___spec__1___boxed(obj*, 
 obj* l_Lean_IR_EmitCpp_toCppType___main___closed__1;
 obj* l_Lean_IR_EmitCpp_emitNumLit___closed__1;
 obj* l_Lean_IR_EmitCpp_leanMainFn;
+obj* l_Lean_IR_EmitCpp_emitSetTag___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emit(obj*);
 obj* l_List_mfor___main___at_Lean_IR_EmitCpp_emitMainFn___spec__2(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_openNamespacesAux___main___closed__1;
@@ -62,6 +63,7 @@ obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitDeclAux___spec__1___boxed(obj
 extern obj* l_Lean_IR_JoinPointId_HasToString___closed__1;
 obj* l_Lean_IR_EmitCpp_emitArg___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitAllocCtor___closed__1;
+obj* l_Lean_IR_EmitCpp_emitSetTag(obj*, obj*, obj*, obj*);
 obj* l_List_mfor___main___at_Lean_IR_EmitCpp_emitFns___spec__1(obj*, obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitFnDeclAux___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitDec(obj*, obj*, uint8, obj*, obj*);
@@ -132,7 +134,6 @@ obj* l_Lean_IR_EmitCpp_emitDecl(obj*, obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_openNamespaces___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_isObj___boxed(obj*, obj*, obj*);
-obj* l_Lean_IR_EmitCpp_emitRelease___boxed(obj*, obj*, obj*, obj*);
 obj* l_String_foldlAux___main___at_Lean_IR_EmitCpp_quoteString___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitDeclInit___closed__2;
 obj* l_Lean_IR_EmitCpp_emitCase___closed__1;
@@ -253,6 +254,7 @@ obj* nat_mod(obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_IR_EmitCpp_isObj___spec__1(obj*, obj*);
 uint8 l_Lean_IR_FnBody_isTerminal___main(obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitInitFn___spec__1___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_EmitCpp_emitSetTag___closed__1;
 obj* l_Lean_IR_EmitCpp_emitLit(obj*, uint8, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitFns(obj*, obj*);
 extern obj* l_Char_HasRepr___closed__1;
@@ -379,7 +381,6 @@ obj* l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__1___boxed(obj*
 obj* l_RBNode_revFold___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__4(obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitTailCall___spec__1(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_openNamespacesFor___boxed(obj*, obj*, obj*);
-obj* l_Lean_IR_EmitCpp_emitRelease(obj*, obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_IR_EmitCpp_cppQualifiedNameToName___spec__1(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitFileHeader___closed__6;
 obj* l_Lean_IR_EmitCpp_emitReuse(obj*, obj*, obj*, uint8, obj*, obj*, obj*);
@@ -439,7 +440,6 @@ obj* l_Lean_IR_EmitCpp_emitUnbox___closed__1;
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
-obj* l_Lean_IR_EmitCpp_emitRelease___closed__1;
 obj* l_Lean_IR_EmitCpp_quoteString(obj*);
 obj* l_Lean_IR_EmitCpp_emitLns___at_Lean_IR_EmitCpp_emitMainFn___spec__1___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitInc(obj*, obj*, uint8, obj*, obj*);
@@ -6821,15 +6821,15 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* _init_l_Lean_IR_EmitCpp_emitRelease___closed__1() {
+obj* _init_l_Lean_IR_EmitCpp_emitSetTag___closed__1() {
 _start:
 {
 obj* x_0; 
-x_0 = lean::mk_string("lean::cnstr_release(");
+x_0 = lean::mk_string("lean::cnstr_set_tag(");
 return x_0;
 }
 }
-obj* l_Lean_IR_EmitCpp_emitRelease(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_IR_EmitCpp_emitSetTag(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_13; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; 
@@ -6842,7 +6842,7 @@ if (lean::is_exclusive(x_3)) {
  lean::dec(x_3);
  x_6 = lean::box(0);
 }
-x_7 = l_Lean_IR_EmitCpp_emitRelease___closed__1;
+x_7 = l_Lean_IR_EmitCpp_emitSetTag___closed__1;
 x_8 = lean::string_append(x_4, x_7);
 x_9 = l_Nat_repr(x_0);
 x_10 = l_Lean_IR_VarId_HasToString___closed__1;
@@ -6870,11 +6870,11 @@ lean::cnstr_set(x_25, 1, x_23);
 return x_25;
 }
 }
-obj* l_Lean_IR_EmitCpp_emitRelease___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_IR_EmitCpp_emitSetTag___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Lean_IR_EmitCpp_emitRelease(x_0, x_1, x_2, x_3);
+x_4 = l_Lean_IR_EmitCpp_emitSetTag(x_0, x_1, x_2, x_3);
 lean::dec(x_2);
 return x_4;
 }
@@ -6890,7 +6890,7 @@ return x_0;
 obj* l_Lean_IR_EmitCpp_emitSet(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
-obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_14; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_21; obj* x_22; obj* x_23; obj* x_25; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
+obj* x_5; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_14; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
 x_5 = lean::cnstr_get(x_4, 1);
 if (lean::is_exclusive(x_4)) {
  lean::cnstr_release(x_4, 0);
@@ -6914,24 +6914,62 @@ x_18 = l_Nat_repr(x_1);
 x_19 = lean::string_append(x_17, x_18);
 lean::dec(x_18);
 x_21 = lean::string_append(x_19, x_16);
-x_22 = l_Nat_repr(x_2);
-x_23 = lean::string_append(x_11, x_22);
-lean::dec(x_22);
-x_25 = lean::string_append(x_21, x_23);
-lean::dec(x_23);
-x_27 = l_Lean_IR_EmitCpp_emitInc___closed__2;
-x_28 = lean::string_append(x_25, x_27);
-x_29 = l_IO_println___rarg___closed__1;
-x_30 = lean::string_append(x_28, x_29);
-x_31 = lean::box(0);
+x_22 = lean::box(0);
 if (lean::is_scalar(x_7)) {
+ x_23 = lean::alloc_cnstr(0, 2, 0);
+} else {
+ x_23 = x_7;
+}
+lean::cnstr_set(x_23, 0, x_22);
+lean::cnstr_set(x_23, 1, x_21);
+x_24 = l_Lean_IR_EmitCpp_emitArg(x_2, x_3, x_23);
+if (lean::obj_tag(x_24) == 0)
+{
+obj* x_25; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
+x_25 = lean::cnstr_get(x_24, 1);
+if (lean::is_exclusive(x_24)) {
+ lean::cnstr_release(x_24, 0);
+ x_27 = x_24;
+} else {
+ lean::inc(x_25);
+ lean::dec(x_24);
+ x_27 = lean::box(0);
+}
+x_28 = l_Lean_IR_EmitCpp_emitInc___closed__2;
+x_29 = lean::string_append(x_25, x_28);
+x_30 = l_IO_println___rarg___closed__1;
+x_31 = lean::string_append(x_29, x_30);
+if (lean::is_scalar(x_27)) {
  x_32 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_32 = x_7;
+ x_32 = x_27;
 }
-lean::cnstr_set(x_32, 0, x_31);
-lean::cnstr_set(x_32, 1, x_30);
+lean::cnstr_set(x_32, 0, x_22);
+lean::cnstr_set(x_32, 1, x_31);
 return x_32;
+}
+else
+{
+obj* x_33; obj* x_35; obj* x_37; obj* x_38; 
+x_33 = lean::cnstr_get(x_24, 0);
+x_35 = lean::cnstr_get(x_24, 1);
+if (lean::is_exclusive(x_24)) {
+ x_37 = x_24;
+} else {
+ lean::inc(x_33);
+ lean::inc(x_35);
+ lean::dec(x_24);
+ x_37 = lean::box(0);
+}
+if (lean::is_scalar(x_37)) {
+ x_38 = lean::alloc_cnstr(1, 2, 0);
+} else {
+ x_38 = x_37;
+}
+lean::cnstr_set(x_38, 0, x_33);
+lean::cnstr_set(x_38, 1, x_35);
+return x_38;
+}
 }
 }
 obj* l_Lean_IR_EmitCpp_emitSet___boxed(obj* x_0, obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
@@ -12889,143 +12927,143 @@ return x_82;
 }
 case 3:
 {
-obj* x_83; obj* x_85; obj* x_87; obj* x_89; obj* x_92; 
+obj* x_83; obj* x_85; obj* x_87; obj* x_90; 
 x_83 = lean::cnstr_get(x_1, 0);
 lean::inc(x_83);
 x_85 = lean::cnstr_get(x_1, 1);
 lean::inc(x_85);
 x_87 = lean::cnstr_get(x_1, 2);
 lean::inc(x_87);
-x_89 = lean::cnstr_get(x_1, 3);
-lean::inc(x_89);
 lean::dec(x_1);
-x_92 = l_Lean_IR_EmitCpp_emitUSet(x_83, x_85, x_87, x_2, x_3);
-if (lean::obj_tag(x_92) == 0)
+x_90 = l_Lean_IR_EmitCpp_emitSetTag(x_83, x_85, x_2, x_3);
+if (lean::obj_tag(x_90) == 0)
 {
-obj* x_93; obj* x_95; obj* x_96; obj* x_97; 
-x_93 = lean::cnstr_get(x_92, 1);
-if (lean::is_exclusive(x_92)) {
- lean::cnstr_release(x_92, 0);
- x_95 = x_92;
+obj* x_91; obj* x_93; obj* x_94; obj* x_95; 
+x_91 = lean::cnstr_get(x_90, 1);
+if (lean::is_exclusive(x_90)) {
+ lean::cnstr_release(x_90, 0);
+ x_93 = x_90;
 } else {
- lean::inc(x_93);
- lean::dec(x_92);
- x_95 = lean::box(0);
+ lean::inc(x_91);
+ lean::dec(x_90);
+ x_93 = lean::box(0);
 }
-x_96 = lean::box(0);
-if (lean::is_scalar(x_95)) {
- x_97 = lean::alloc_cnstr(0, 2, 0);
+x_94 = lean::box(0);
+if (lean::is_scalar(x_93)) {
+ x_95 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_97 = x_95;
+ x_95 = x_93;
 }
-lean::cnstr_set(x_97, 0, x_96);
-lean::cnstr_set(x_97, 1, x_93);
-x_1 = x_89;
-x_3 = x_97;
+lean::cnstr_set(x_95, 0, x_94);
+lean::cnstr_set(x_95, 1, x_91);
+x_1 = x_87;
+x_3 = x_95;
 goto _start;
 }
 else
 {
-obj* x_102; obj* x_104; obj* x_106; obj* x_107; 
+obj* x_100; obj* x_102; obj* x_104; obj* x_105; 
 lean::dec(x_0);
 lean::dec(x_2);
-lean::dec(x_89);
-x_102 = lean::cnstr_get(x_92, 0);
-x_104 = lean::cnstr_get(x_92, 1);
-if (lean::is_exclusive(x_92)) {
- x_106 = x_92;
+lean::dec(x_87);
+x_100 = lean::cnstr_get(x_90, 0);
+x_102 = lean::cnstr_get(x_90, 1);
+if (lean::is_exclusive(x_90)) {
+ x_104 = x_90;
 } else {
+ lean::inc(x_100);
  lean::inc(x_102);
- lean::inc(x_104);
- lean::dec(x_92);
- x_106 = lean::box(0);
+ lean::dec(x_90);
+ x_104 = lean::box(0);
 }
-if (lean::is_scalar(x_106)) {
- x_107 = lean::alloc_cnstr(1, 2, 0);
+if (lean::is_scalar(x_104)) {
+ x_105 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_107 = x_106;
+ x_105 = x_104;
 }
-lean::cnstr_set(x_107, 0, x_102);
-lean::cnstr_set(x_107, 1, x_104);
-return x_107;
+lean::cnstr_set(x_105, 0, x_100);
+lean::cnstr_set(x_105, 1, x_102);
+return x_105;
 }
 }
 case 4:
 {
-obj* x_108; obj* x_110; obj* x_112; obj* x_114; obj* x_116; obj* x_119; 
-x_108 = lean::cnstr_get(x_1, 0);
+obj* x_106; obj* x_108; obj* x_110; obj* x_112; obj* x_115; 
+x_106 = lean::cnstr_get(x_1, 0);
+lean::inc(x_106);
+x_108 = lean::cnstr_get(x_1, 1);
 lean::inc(x_108);
-x_110 = lean::cnstr_get(x_1, 1);
+x_110 = lean::cnstr_get(x_1, 2);
 lean::inc(x_110);
-x_112 = lean::cnstr_get(x_1, 2);
+x_112 = lean::cnstr_get(x_1, 3);
 lean::inc(x_112);
-x_114 = lean::cnstr_get(x_1, 3);
-lean::inc(x_114);
-x_116 = lean::cnstr_get(x_1, 4);
-lean::inc(x_116);
 lean::dec(x_1);
-x_119 = l_Lean_IR_EmitCpp_emitSSet(x_108, x_110, x_112, x_114, x_2, x_3);
-if (lean::obj_tag(x_119) == 0)
+x_115 = l_Lean_IR_EmitCpp_emitUSet(x_106, x_108, x_110, x_2, x_3);
+if (lean::obj_tag(x_115) == 0)
 {
-obj* x_120; obj* x_122; obj* x_123; obj* x_124; 
-x_120 = lean::cnstr_get(x_119, 1);
-if (lean::is_exclusive(x_119)) {
- lean::cnstr_release(x_119, 0);
- x_122 = x_119;
+obj* x_116; obj* x_118; obj* x_119; obj* x_120; 
+x_116 = lean::cnstr_get(x_115, 1);
+if (lean::is_exclusive(x_115)) {
+ lean::cnstr_release(x_115, 0);
+ x_118 = x_115;
 } else {
- lean::inc(x_120);
- lean::dec(x_119);
- x_122 = lean::box(0);
+ lean::inc(x_116);
+ lean::dec(x_115);
+ x_118 = lean::box(0);
 }
-x_123 = lean::box(0);
-if (lean::is_scalar(x_122)) {
- x_124 = lean::alloc_cnstr(0, 2, 0);
+x_119 = lean::box(0);
+if (lean::is_scalar(x_118)) {
+ x_120 = lean::alloc_cnstr(0, 2, 0);
 } else {
- x_124 = x_122;
+ x_120 = x_118;
 }
-lean::cnstr_set(x_124, 0, x_123);
-lean::cnstr_set(x_124, 1, x_120);
-x_1 = x_116;
-x_3 = x_124;
+lean::cnstr_set(x_120, 0, x_119);
+lean::cnstr_set(x_120, 1, x_116);
+x_1 = x_112;
+x_3 = x_120;
 goto _start;
 }
 else
 {
-obj* x_129; obj* x_131; obj* x_133; obj* x_134; 
-lean::dec(x_116);
+obj* x_125; obj* x_127; obj* x_129; obj* x_130; 
+lean::dec(x_112);
 lean::dec(x_0);
 lean::dec(x_2);
-x_129 = lean::cnstr_get(x_119, 0);
-x_131 = lean::cnstr_get(x_119, 1);
-if (lean::is_exclusive(x_119)) {
- x_133 = x_119;
+x_125 = lean::cnstr_get(x_115, 0);
+x_127 = lean::cnstr_get(x_115, 1);
+if (lean::is_exclusive(x_115)) {
+ x_129 = x_115;
 } else {
- lean::inc(x_129);
- lean::inc(x_131);
- lean::dec(x_119);
- x_133 = lean::box(0);
+ lean::inc(x_125);
+ lean::inc(x_127);
+ lean::dec(x_115);
+ x_129 = lean::box(0);
 }
-if (lean::is_scalar(x_133)) {
- x_134 = lean::alloc_cnstr(1, 2, 0);
+if (lean::is_scalar(x_129)) {
+ x_130 = lean::alloc_cnstr(1, 2, 0);
 } else {
- x_134 = x_133;
+ x_130 = x_129;
 }
-lean::cnstr_set(x_134, 0, x_129);
-lean::cnstr_set(x_134, 1, x_131);
-return x_134;
+lean::cnstr_set(x_130, 0, x_125);
+lean::cnstr_set(x_130, 1, x_127);
+return x_130;
 }
 }
 case 5:
 {
-obj* x_135; obj* x_137; obj* x_139; obj* x_142; 
-x_135 = lean::cnstr_get(x_1, 0);
+obj* x_131; obj* x_133; obj* x_135; obj* x_137; obj* x_139; obj* x_142; 
+x_131 = lean::cnstr_get(x_1, 0);
+lean::inc(x_131);
+x_133 = lean::cnstr_get(x_1, 1);
+lean::inc(x_133);
+x_135 = lean::cnstr_get(x_1, 2);
 lean::inc(x_135);
-x_137 = lean::cnstr_get(x_1, 1);
+x_137 = lean::cnstr_get(x_1, 3);
 lean::inc(x_137);
-x_139 = lean::cnstr_get(x_1, 2);
+x_139 = lean::cnstr_get(x_1, 4);
 lean::inc(x_139);
 lean::dec(x_1);
-x_142 = l_Lean_IR_EmitCpp_emitRelease(x_135, x_137, x_2, x_3);
+x_142 = l_Lean_IR_EmitCpp_emitSSet(x_131, x_133, x_135, x_137, x_2, x_3);
 if (lean::obj_tag(x_142) == 0)
 {
 obj* x_143; obj* x_145; obj* x_146; obj* x_147; 
@@ -16220,8 +16258,8 @@ lean::mark_persistent(l_Lean_IR_EmitCpp_emitDec___closed__1);
 lean::mark_persistent(l_Lean_IR_EmitCpp_emitDec___closed__2);
  l_Lean_IR_EmitCpp_emitDel___closed__1 = _init_l_Lean_IR_EmitCpp_emitDel___closed__1();
 lean::mark_persistent(l_Lean_IR_EmitCpp_emitDel___closed__1);
- l_Lean_IR_EmitCpp_emitRelease___closed__1 = _init_l_Lean_IR_EmitCpp_emitRelease___closed__1();
-lean::mark_persistent(l_Lean_IR_EmitCpp_emitRelease___closed__1);
+ l_Lean_IR_EmitCpp_emitSetTag___closed__1 = _init_l_Lean_IR_EmitCpp_emitSetTag___closed__1();
+lean::mark_persistent(l_Lean_IR_EmitCpp_emitSetTag___closed__1);
  l_Lean_IR_EmitCpp_emitSet___closed__1 = _init_l_Lean_IR_EmitCpp_emitSet___closed__1();
 lean::mark_persistent(l_Lean_IR_EmitCpp_emitSet___closed__1);
  l_Lean_IR_EmitCpp_emitOffset___closed__1 = _init_l_Lean_IR_EmitCpp_emitOffset___closed__1();

@@ -226,7 +226,7 @@ static struct option g_long_options[] = {
     {"deps",         no_argument,       0, 'd'},
     {"timeout",      optional_argument, 0, 'T'},
     {"cpp",          optional_argument, 0, 'c'},
-    {"newcpp",       optional_argument, 0, 'C'}, // temporary flag for testing new IR
+    {"oldcpp",       optional_argument, 0, 'C'}, // use old IR compiler
 #if defined(LEAN_JSON)
     {"json",         no_argument,       0, 'J'},
     {"path",         no_argument,       0, 'p'},
@@ -353,10 +353,10 @@ int main(int argc, char ** argv) {
             case 'h':
                 display_help(std::cout);
                 return 0;
-            case 'c':
+            case 'C':
                 cpp_output = optarg;
                 break;
-            case 'C':
+            case 'c':
                 new_cpp_output = optarg;
                 break;
             case 's':

@@ -17,7 +17,7 @@ let
   ocaml = pkgs.ocaml-ng.ocamlPackages_4_07.ocaml;
   # note that this will need to be compiled from source
   ocamlFlambda = ocaml.override { flambdaSupport = true; };
-  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "e7b5edb1229c63b52cca25ddefee884a84a9e5c6"; }) {};
+  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "90534eb5846dae0e9a540234d6a3b1017e928603"; }) {};
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml"];

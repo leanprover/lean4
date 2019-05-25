@@ -343,12 +343,12 @@ def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=
 reshapeAux bs bs.size term
 
 @[inline] def modifyJPs (bs : Array FnBody) (f : FnBody → FnBody) : Array FnBody :=
-bs.hmap $ λ b, match b with
+bs.map $ λ b, match b with
   | FnBody.jdecl j xs v k := FnBody.jdecl j xs (f v) k
   | other                 := other
 
 @[inline] def mmodifyJPs {m : Type → Type} [Monad m] (bs : Array FnBody) (f : FnBody → m FnBody) : m (Array FnBody) :=
-bs.hmmap $ λ b, match b with
+bs.mmap $ λ b, match b with
   | FnBody.jdecl j xs v k := do v ← f v, pure $ FnBody.jdecl j xs v k
   | other                 := pure other
 

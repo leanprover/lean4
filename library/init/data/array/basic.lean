@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.data.nat.basic init.data.fin.basic init.data.uint
 import init.data.repr init.data.tostring init.control.id
+import init.util
 universes u v w
 
 /-
@@ -256,11 +257,31 @@ instance [HasRepr α] : HasRepr (Array α) :=
 instance [HasToString α] : HasToString (Array α) :=
 ⟨toString ∘ toList⟩
 
-section
-variables {m : Type u → Type u} [Monad m]
 
-@[inline] def mmap {β : Type u} (f : α → m β) (as : Array α) : m (Array β) :=
+section
+variables {m : Type v → Type v} [Monad m]
+
+@[specialize] unsafe partial def ummapAux (f : Nat → α → m β) : Nat → Array α → m (Array β)
+| i a :=
+  if h : i < a.size then
+     let idx : Fin a.size := ⟨i, h⟩ in
+     let v   : α          := a.fget idx in
+     let a                := a.fset idx (@unsafeCast _ _ ⟨v⟩ ()) in
+     do newV ← f i v, ummapAux (i+1) (a.fset idx (@unsafeCast _ _ ⟨v⟩ newV))
+  else
+     pure (unsafeCast a)
+
+@[inline] unsafe partial def ummap (f : α → m β) (as : Array α) : m (Array β) :=
+ummapAux (λ i a, f a) 0 as
+
+@[inline] unsafe partial def ummapIdx (f : Nat → α → m β) (as : Array α) : m (Array β) :=
+ummapAux f 0 as
+
+@[implementedBy Array.ummap] def mmap (f : α → m β) (as : Array α) : m (Array β) :=
 as.mfoldl (λ bs a, do b ← f a, pure (bs.push b)) (mkEmpty as.size)
+
+@[implementedBy Array.ummapIdx] def mmapIdx (f : Nat → α → m β) (as : Array α) : m (Array β) :=
+as.miterate (mkEmpty as.size) (λ i a bs, do b ← f i.val a, pure (bs.push b))
 end
 
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
@@ -273,34 +294,11 @@ if h : i < a.size then
 else
   a
 
-section
-variables {m : Type u → Type v} [Monad m] [Inhabited α]
-local attribute [instance] monadInhabited'
-
-@[specialize] partial def hmmapAux (f : Nat → α → m α) : Nat → Array α → m (Array α)
-| i a :=
-  if h : i < a.size then
-     let idx : Fin a.size := ⟨i, h⟩ in
-     let v   : α          := a.fget idx in
-     let a                := a.fset idx (default α) in
-     do v ← f i v, hmmapAux (i+1) (a.fset idx v)
-  else
-     pure a
-
-/- Homogeneous `mmap` -/
-@[inline] def hmmap (f : α → m α) (a : Array α) : m (Array α) :=
-hmmapAux (λ _, f) 0 a
-end
-
-/- Homogeneous map -/
-@[inline] def hmap [Inhabited α] (f : α → α) (a : Array α) : Array α :=
-Id.run $ hmmap f a
-
-@[inline] def hmapIdx [Inhabited α] (f : Nat → α → α) (a : Array α) : Array α :=
-Id.run $ hmmapAux f 0 a
+@[inline] def mapIdx (f : Nat → α → β) (a : Array α) : Array β :=
+Id.run $ mmapIdx f a
 
 @[inline] def map (f : α → β) (as : Array α) : Array β :=
-as.foldl (λ bs a, bs.push (f a)) (mkEmpty as.size)
+Id.run $ mmap f as
 
 section
 variables {m : Type u → Type u} [Monad m]

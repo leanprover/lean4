@@ -49,7 +49,7 @@ partial def FnBody.simpCase : FnBody → FnBody
   let bs         := modifyJPs bs FnBody.simpCase in
   match term with
   | FnBody.case tid x alts :=
-    let alts := alts.hmap $ λ alt, alt.modifyBody FnBody.simpCase in
+    let alts := alts.map $ λ alt, alt.modifyBody FnBody.simpCase in
     reshape bs (mkSimpCase tid x alts)
   | other := reshape bs term
 

@@ -50,8 +50,8 @@ void initialize_implemented_by_attribute() {
                                               optional<constant_info> cinfo_impl = env.find(impl);
                                               if (!cinfo_impl) throw exception("invalid [implementedBy] attribute, unknown function");
                                               constant_info cinfo = env.get(n);
-                                              if (!cinfo.is_opaque())
-                                                  throw exception("invalid '[implementedBy]' use, only opaque constants may use this attribute");
+                                              if (!cinfo.is_opaque() && !cinfo.is_definition())
+                                                  throw exception("invalid '[implementedBy]' use, only opaque constants and definitions may use this attribute");
                                               /* Remark: the following checks can be improved:
                                                  1- We can use definitional equality instead of structural equality.
                                                  2- We can abstract actual universe parameter names.

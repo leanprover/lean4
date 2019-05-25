@@ -48,7 +48,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   let v' := S v in
   if v == v' then FnBody.jdecl j ys v (S b)
   else FnBody.jdecl j ys v' b
-| (FnBody.case tid x alts)  := FnBody.case tid x $ alts.hmap $ λ alt, alt.modifyBody S
+| (FnBody.case tid x alts)  := FnBody.case tid x $ alts.map $ λ alt, alt.modifyBody S
 | b :=
   if b.isTerminal then b
   else let
@@ -93,7 +93,7 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
   ctx ← read,
   if e.hasLiveVar ctx x then do
     /- If `x` is live in `e`, we recursively process each branch. -/
-    alts ← alts.hmmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c),
+    alts ← alts.mmap $ λ alt, alt.mmodifyBody (λ b, Dmain b >>= Dfinalize x c),
     pure (FnBody.case tid y alts, true)
   else pure (e, false)
 | (FnBody.jdecl j ys v b) := do
@@ -129,7 +129,7 @@ Dmain x c b >>= Dfinalize x c
 
 partial def R : FnBody → M FnBody
 | (FnBody.case tid x alts) := do
-    alts ← alts.hmmap $ λ alt, do {
+    alts ← alts.mmap $ λ alt, do {
       alt ← alt.mmodifyBody R,
       match alt with
       | Alt.ctor c b :=

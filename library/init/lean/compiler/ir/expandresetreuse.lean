@@ -106,7 +106,7 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
   | _ :=
     FnBody.vdecl z t v (reuseToCtor b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.hmap $ λ alt, alt.modifyBody reuseToCtor in
+  let alts := alts.map $ λ alt, alt.modifyBody reuseToCtor in
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
@@ -188,7 +188,7 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
   if isSelfSSet ctx x n i y then removeSelfSet b
   else FnBody.sset x n i y t (removeSelfSet b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.hmap $ λ alt, alt.modifyBody removeSelfSet in
+  let alts := alts.map $ λ alt, alt.modifyBody removeSelfSet in
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
@@ -211,7 +211,7 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
     else FnBody.vdecl z t v (reuseToSet b)
   | _ := FnBody.vdecl z t v (reuseToSet b)
 | (FnBody.case tid y alts) :=
-  let alts := alts.hmap $ λ alt, alt.modifyBody reuseToSet in
+  let alts := alts.map $ λ alt, alt.modifyBody reuseToSet in
   FnBody.case tid y alts
 | e :=
   if e.isTerminal then e
@@ -269,7 +269,7 @@ partial def searchAndExpand : FnBody → Array FnBody → M FnBody
   v ← searchAndExpand v Array.empty,
   searchAndExpand b (push bs (FnBody.jdecl j xs v FnBody.nil))
 | (FnBody.case tid x alts) bs := do
-  alts ← alts.hmmap $ λ alt, alt.mmodifyBody $ λ b, searchAndExpand b Array.empty,
+  alts ← alts.mmap $ λ alt, alt.mmodifyBody $ λ b, searchAndExpand b Array.empty,
   pure $ reshape bs (FnBody.case tid x alts)
 | b bs :=
   if b.isTerminal then pure $ reshape bs b

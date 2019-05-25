@@ -245,7 +245,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   (FnBody.mdata m b, s)
 | b@(FnBody.case tid x alts) ctx :=
   let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap in
-  let alts         := alts.hmap $ λ alt, match alt with
+  let alts         := alts.map $ λ alt, match alt with
     | Alt.ctor c b  :=
       let ctx              := updateRefUsingCtorInfo ctx x c in
       let (b, altLiveVars) := visitFnBody b ctx in
@@ -284,7 +284,7 @@ end ExplicitRC
 
 def explicitRC (decls : Array Decl) : CompilerM (Array Decl) :=
 do env ← getEnv,
-   pure $ decls.hmap (ExplicitRC.visitDecl env decls)
+   pure $ decls.map (ExplicitRC.visitDecl env decls)
 
 end IR
 end Lean

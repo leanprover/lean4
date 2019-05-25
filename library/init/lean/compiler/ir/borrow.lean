@@ -55,7 +55,7 @@ namespace InitParamMap
 
 /- Mark parameters that take a reference as borrow -/
 def initBorrow (ps : Array Param) : Array Param :=
-ps.hmap $ λ p, { borrow := p.ty.isObj, .. p }
+ps.map $ λ p, { borrow := p.ty.isObj, .. p }
 
 /- We do perform borrow inference for constants marked as `export`.
    Reason: we current write wrappers in C++ for using exported functions.
@@ -109,7 +109,7 @@ partial def visitFnBody : FnBody → FunId → ParamMap → FnBody
     instr <;> b
 
 def visitDecls (decls : Array Decl) (map : ParamMap) : Array Decl :=
-decls.hmap $ λ decl, match decl with
+decls.map $ λ decl, match decl with
   | Decl.fdecl f xs ty b :=
     let b := visitFnBody b f map in
     match map.find (Key.decl f) with
@@ -165,7 +165,7 @@ do
 s ← get,
 match s.map.find k with
 | some ps := do
-  ps ← ps.hmmap $ λ (p : Param),
+  ps ← ps.mmap $ λ (p : Param),
    if p.borrow && s.owned.contains p.x.idx then do
      markModifiedParamMap, pure { borrow := false, .. p }
    else
@@ -313,7 +313,7 @@ end Borrow
 def inferBorrow (decls : Array Decl) : CompilerM (Array Decl) :=
 do
 env ← getEnv,
-let decls    := decls.hmap Decl.normalizeIds,
+let decls    := decls.map Decl.normalizeIds,
 let paramMap := Borrow.infer env decls,
 pure (Borrow.applyParamMap decls paramMap)
 

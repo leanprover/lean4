@@ -58,7 +58,7 @@ def normArg : Arg → M Arg
 | other       := pure other
 
 def normArgs (as : Array Arg) : M (Array Arg) :=
-λ m, as.hmap $ λ a, normArg a m
+λ m, as.map $ λ a, normArg a m
 
 def normExpr : Expr → M Expr
 | (Expr.ctor c ys)      m := Expr.ctor c (normArgs ys m)
@@ -91,7 +91,7 @@ abbrev N := ReaderT IndexRenaming (State Nat)
 @[inline] def withParams {α : Type} (ps : Array Param) (k : Array Param → N α) : N α :=
 λ m, do
   m ← ps.mfoldl (λ (m : IndexRenaming) p, do n ← getModify (+1), pure $ m.insert p.x.idx n) m,
-  let ps := ps.hmap $ λ p, { x := normVar p.x m, .. p },
+  let ps := ps.map $ λ p, { x := normVar p.x m, .. p },
   k ps m
 
 instance MtoN {α} : HasCoe (M α) (N α) :=
@@ -112,7 +112,7 @@ partial def normFnBody : FnBody → N FnBody
 | (FnBody.mdata d b)         := FnBody.mdata d <$> normFnBody b
 | (FnBody.case tid x alts)   := do
   x ← normVar x,
-  alts ← alts.hmmap $ λ alt, alt.mmodifyBody normFnBody,
+  alts ← alts.mmap $ λ alt, alt.mmodifyBody normFnBody,
   pure $ FnBody.case tid x alts
 | (FnBody.jmp j ys)         := FnBody.jmp <$> normJP j <*> normArgs ys
 | (FnBody.ret x)            := FnBody.ret <$> normArg x
@@ -137,7 +137,7 @@ namespace MapVars
 | a           := a
 
 @[specialize] def mapArgs (f : VarId → VarId) (as : Array Arg) : Array Arg :=
-as.hmap (mapArg f)
+as.map (mapArg f)
 
 @[specialize] def mapExpr (f : VarId → VarId) : Expr → Expr
 | (Expr.ctor c ys)      := Expr.ctor c (mapArgs f ys)
@@ -166,7 +166,7 @@ as.hmap (mapArg f)
 | (FnBody.dec x n c b)       := FnBody.dec (f x) n c (mapFnBody b)
 | (FnBody.del x b)           := FnBody.del (f x) (mapFnBody b)
 | (FnBody.mdata d b)         := FnBody.mdata d (mapFnBody b)
-| (FnBody.case tid x alts)   := FnBody.case tid (f x) (alts.hmap (λ alt, alt.modifyBody mapFnBody))
+| (FnBody.case tid x alts)   := FnBody.case tid (f x) (alts.map (λ alt, alt.modifyBody mapFnBody))
 | (FnBody.jmp j ys)          := FnBody.jmp j (mapArgs f ys)
 | (FnBody.ret x)             := FnBody.ret (mapArg f x)
 | FnBody.unreachable         := FnBody.unreachable

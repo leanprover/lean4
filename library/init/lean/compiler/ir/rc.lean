@@ -247,7 +247,8 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   let caseLiveVars := collectLiveVars b ctx.jpLiveVarMap in
   let alts         := alts.hmap $ λ alt, match alt with
     | Alt.ctor c b  :=
-      let (b, altLiveVars) := visitFnBody b (updateRefUsingCtorInfo ctx x c) in
+      let ctx              := updateRefUsingCtorInfo ctx x c in
+      let (b, altLiveVars) := visitFnBody b ctx in
       let b                := addDecForAlt ctx caseLiveVars altLiveVars b in
       Alt.ctor c b
     | Alt.default b :=

@@ -57,7 +57,7 @@ def d (x : String) : Expr → Expr
 | (Pow f g) := mul (pow f g) (add (mul (mul g (d f)) (pow f (Val (-1)))) (mul (ln f) (d g)))
 | (Ln f)    := mul (d f) (pow f (Val (-1)))
 
-def count : Expr → Nat
+def count : Expr → UInt32
 | (Val _) := 1
 | (Var _) := 1
 | (Add f g) := count f + count g

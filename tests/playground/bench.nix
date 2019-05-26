@@ -42,7 +42,7 @@ in pkgs.stdenv.mkDerivation rec {
   GHC = "${ghc}/bin/ghc";
   OCAML = "${ocaml}/bin/ocamlopt.opt";
   OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";
-  MLTON = "${mlton}/bin/mlton";
+  MLTON_BIN = "${mlton}/bin";
   MLKIT = "${mlkit}/usr/bin/mlkit";
   TEMCI = "${temci}/bin/temci";
   buildInputs = with pkgs; [

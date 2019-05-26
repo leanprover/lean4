@@ -2,9 +2,9 @@
 
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared
 
-CROSS_CATS = .lean .gc.lean .lean.perf .gcc.lean .hs .gc.hs .hs.perf .llvm.hs .ml .gc.ml .ml.perf .mlton .mlton.perf .mlkit .mlkit.perf
-TIME_CATS = .lean .hs .llvm.hs .ml .mlton .mlkit
-RETIRED_CATS = .gcc.lean .flambda.ml
+CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .mlkit.perf
+TIME_CATS = .lean .hs .ml .mlton .mlkit
+RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
 
 LEANC_FLAGS = -O3
 GHC_FLAGS = -O3
@@ -16,7 +16,7 @@ TEMCI ?= temci
 LEAN_BIN ?= ../../bin
 GHC ?= ghc
 OCAML ?= ocamlopt.opt
-MLTON ?= mlton
+MLTON_BIN ?= /usr/bin
 MLKIT ?= mlkit
 
 ## IMPLEMENTATION
@@ -63,7 +63,9 @@ binarytrees.ml: binarytrees.ocaml-2.ml; ln -f $< $@
 binarytrees%ml.out: OCAML_FLAGS += -noassert -unsafe -fPIC -nodynlink -inline 100 -O3 unix.cmxa
 
 %.mlton.out: %.sml
-	$(MLTON) $(MLTON_FLAGS) -output $@ $<
+	$(MLTON_BIN)/mlton $(MLTON_FLAGS) -output $@ $<
+%.gc.mlton.out: MLTON_FLAGS = -profile time
+%.gc.sml: %.sml; ln -f $< $@
 
 %.mlkit.out: %.sml
 	$(MLKIT) $(MLKIT_FLAGS) -o $@ $<
@@ -101,6 +103,11 @@ bench/%gc.ml.bench: %gc.ml.out | bench
 		-d $< "echo > $@.tmp && OCAML_INSTR_FILE=$@.tmp time -ao $@.tmp -f '%e' ./$< $(BENCH_PARAMS) >/dev/null && ./ocaml-gc.py < $@.tmp"\
 		--runner output --out $@
 
+bench/%gc.mlton.bench: %gc.mlton.out | bench
+	ulimit -s unlimited && $(TEMCI) short exec\
+		-d $< './$< $(BENCH_PARAMS) >/dev/null && $(MLTON_BIN)/mlprof ./$< mlmon.out | awk '\''$$1 == "<gc>" { print "gc: " substr($$2, 0, length($$2)-1); found = 1 } END { if (found != 1) { print "gc: 0.000001" } }'\'\
+		--runner output --out $@
+
 bench/%.perf.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec\
 		-d $< "echo > $@.tmp && time -af '%e' perf stat -e cache-misses -x ';' ./$< $(BENCH_PARAMS) 2>&1 >/dev/null | ./perf.py"\
@@ -135,8 +142,13 @@ reports: $(foreach bench, $(CROSS_BENCHES), report/$(bench)) report/index.html
 # yes.
 space = $() $()
 
-report_cross.csv: bench_cross report.py
+report_cross.csv: $(CROSS_INPUTS:%=bench/%.bench) report.py temci.yaml
 	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@
+
+report_cross.tex: report_cross.csv
+	tail -n +2 $< | head -n -1 | sed 's/^\([^;]\+\)/\\verb!\1!/;s/;/ \& /g;s/(/\\ensuremath{\\tilde{/g;s/)/}}/g;s/$$/\\\\/' > $@
+	echo -n '\midrule ' >> $@
+	tail -n 1 $< | sed 's/. /.\\ /;s/;/ \& /g;s/(/\\ensuremath{\\tilde{/g;s/)/}}/g;s/$$/\\\\/' >> $@
 
 clean:
 	-rm *.out bench/*

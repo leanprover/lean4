@@ -184,10 +184,10 @@ report:
         force_min_decimal_places: true
         
         # The maximum number of decimal places
-        max_decimal_places: 5
+        max_decimal_places: 2
         
         # The minimum number of shown decimal places if decimal places are shown
-        min_decimal_places: 3
+        min_decimal_places: 2
         
         # Omit insignificant decimal places
         omit_insignificant_decimal_places: false
@@ -234,7 +234,7 @@ run:
     max_time: 40s
     
     # Minimum number of benchmarking runs
-    min_runs: 10
+    min_runs: 20
     
     # Output file for the benchmarking results
     out: run_output.yaml

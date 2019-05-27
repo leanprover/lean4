@@ -2,7 +2,7 @@
 
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared
 
-CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .mlkit.perf
+CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf
 TIME_CATS = .lean .hs .ml .mlton .mlkit
 RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
 
@@ -106,6 +106,11 @@ bench/%gc.ml.bench: %gc.ml.out | bench
 bench/%gc.mlton.bench: %gc.mlton.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec\
 		-d $< './$< $(BENCH_PARAMS) >/dev/null && $(MLTON_BIN)/mlprof ./$< mlmon.out | awk '\''$$1 == "<gc>" { print "gc: " substr($$2, 0, length($$2)-1); found = 1 } END { if (found != 1) { print "gc: 0.000001" } }'\'\
+		--runner output --out $@
+
+bench/%gc.mlkit.bench: %gc.mlkit.out | bench
+	ulimit -s unlimited && $(TEMCI) short exec\
+		-d $< "time -f '%e' ./$< -report_gc $(BENCH_PARAMS) 2>&1 >/dev/null | ./mlkit-gc.py"\
 		--runner output --out $@
 
 bench/%.perf.bench: %.out | bench

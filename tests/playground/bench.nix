@@ -1,12 +1,11 @@
 { pkgs ? import ./nixpkgs.nix }:
 
 let
-  lean = { cmakeFlags ? "", stdenv ? pkgs.llvmPackages_7.stdenv }:
+  lean = { stdenv ? pkgs.llvmPackages_7.stdenv }:
     (pkgs.callPackage ../../default.nix { inherit stdenv; }).overrideAttrs (attrs: {
-      inherit cmakeFlags;
      # pin Lean commit to avoid rebuilds
-     # 2019-05-24
-     src = builtins.fetchGit { url = ../../.; rev = "074002eb847b6f4fbaf2484c928c86baadf66a42"; };
+     # 2019-05-27
+     src = builtins.fetchGit { url = ../../.; rev = "0e8abd81bba1b9c06ea7eab23001bbf08ff267dc"; };
     });
   # for binarytrees.hs
   ghcPackages = p: [ p.parallel ];
@@ -39,6 +38,15 @@ in pkgs.stdenv.mkDerivation rec {
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml"];
   LEAN_BIN = "${lean {}}/bin";
   LEAN_GCC_BIN = "${lean { stdenv = pkgs.gcc9Stdenv; }}/bin";
+  LEAN_NO_REUSE_BIN = "${(lean {}).overrideAttrs (attrs: { prePatch = ''
+    substituteInPlace library/init/lean/compiler/ir/default.lean --replace "decls.map Decl.insertResetReuse" "decls"
+  ''; })}/bin";
+  LEAN_NO_BORROW_BIN = "${(lean {}).overrideAttrs (attrs: { prePatch = ''
+    substituteInPlace library/init/lean/compiler/ir/default.lean --replace "decls.map Decl.inferBorrow" "decls"
+  ''; })}/bin";
+  LEAN_NO_ST_BIN = "${(lean {}).overrideAttrs (attrs: { prePatch = ''
+    substituteInPlace src/runtime/object.h --replace "c_init_mem_kind = object_memory_kind::STHeap" "c_init_mem_kind = object_memory_kind::MTHeap"
+  ''; })}/bin";
   GHC = "${ghc}/bin/ghc";
   OCAML = "${ocaml}/bin/ocamlopt.opt";
   OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";

@@ -31,8 +31,7 @@ def pp(bench, cat, prop, norm):
     norm = norm if prop == 'etime' else 1
     mean_by_cat[cat].append(s.mean() / norm)
     stddev_by_cat[cat].append(s.std_dev() / norm)
-    return number.fnumber(s.mean() / norm, abs_deviation=s.std_dev() / norm,
-            min_decimal_places = 0 if cat in ['del', 'gc'] else None)
+    return number.fnumber(s.mean() / norm, abs_deviation=s.std_dev() / norm)
 
 def gmean(cat):
     mean = st.gmean(mean_by_cat[cat])
@@ -41,6 +40,9 @@ def gmean(cat):
 
 CATBAG = {
     '.lean': ("Lean [s]", "etime"),
+    '.no_reuse.lean': ("-reuse", "etime"),
+    '.no_borrow.lean': ("-borrow", "etime"),
+    '.no_st.lean': ("-ST", "etime"),
     '.gcc.lean': ("Lean+GCC9", "etime"),
     '.gc.lean': ("del [%]", "gc"),
     '.lean.perf': ("cache misses (CM) [1M/s]", "cache-misses"),

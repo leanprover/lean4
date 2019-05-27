@@ -1,11 +1,14 @@
 ## CONFIG
 
+LEAN_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared unionfind1 unionfind2
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared
 
+LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
 CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf
 TIME_CATS = .lean .hs .ml .mlton .mlkit
 RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
 
+LEAN_FLAGS =
 LEANC_FLAGS = -O3
 GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
@@ -21,27 +24,36 @@ MLKIT ?= mlkit
 
 ## IMPLEMENTATION
 
+LEAN_INPUTS = $(foreach bench,$(LEAN_BENCHES), $(foreach cat, $(LEAN_CATS), $(bench)$(cat)))
 CROSS_INPUTS = $(foreach bench,$(CROSS_BENCHES), $(foreach cat, $(CROSS_CATS), $(bench)$(cat)))
 
-.SECONDARY: $(CROSS_INPUTS:%=%.out) $(CROSS_INPUTS:%=bench/%.bench)
+.SECONDARY: $(LEAN_INPUTS:%=%.out) $(LEAN_INPUTS:%=bench/%.bench) $(CROSS_INPUTS:%=%.out) $(CROSS_INPUTS:%=bench/%.bench)
 .DELETE_ON_ERROR:
 
-all: reports report_cross.csv
+all: reports report_lean.csv report_cross.csv
 
 # disable some built-in rules
 %.lean:
 %.out: %
 
 %.lean.cpp: %.lean
-	$(LEAN_BIN)/lean --cpp=$@ $<
+	$(LEAN_BIN)/lean --cpp=$@ $(LEAN_FLAGS) $<
 %.lean.out: %.lean.cpp
 	$(LEAN_BIN)/leanc $(LEANC_FLAGS) -o $@ $<
+frontend%lean.out:
+	ln -f $(LEAN_BIN)/lean
 # Binaries x.lean.out and x.gcc.lean.out etc. are produced by the
 # same rules and x.lean source file by copying the latter to
 # x.gcc.lean. This also avoids conflicts between intermediate
 # files of the two binaries.
 %.gcc.lean.out: LEAN_BIN = $(LEAN_GCC_BIN)
 %.gcc.lean: %.lean; ln -f $< $@
+%.no_reuse.lean.out: LEAN_BIN = $(LEAN_NO_REUSE_BIN)
+%.no_reuse.lean: %.lean; ln -f $< $@
+%.no_borrow.lean.out: LEAN_BIN = $(LEAN_NO_BORROW_BIN)
+%.no_borrow.lean: %.lean; ln -f $< $@
+%.no_st.lean.out: LEAN_BIN = $(LEAN_NO_ST_BIN)
+%.no_st.lean: %.lean; ln -f $< $@
 
 %.hs.out: %.hs
 	$(GHC) $(GHC_FLAGS) -rtsopts $< -o $@
@@ -76,6 +88,8 @@ bench:
 bench/%.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec -d $< "./$< $(BENCH_PARAMS)" --out $@
 
+bench/frontend.%.bench: BENCH_PARAMS = --new-frontend ../../library/init/core.lean
+
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 
 bench/qsort.%.bench: BENCH_PARAMS = 250
@@ -87,6 +101,9 @@ bench/rbmap_shared.%.bench: BENCH_PARAMS = 500000 1
 
 rbmap_checkpoint_10.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_checkpoint_10.%.bench: BENCH_PARAMS = 2000000 10
+
+bench/unionfind1.%.bench: BENCH_PARAMS = 3000000
+bench/unionfind2.%.bench: BENCH_PARAMS = 3000000
 
 bench/%gc.lean.bench: %lean.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec\
@@ -127,6 +144,7 @@ bench/binarytrees%mlton.perf.bench: ; touch $@
 bench/binarytrees%mlkit.bench: ; touch $@
 bench/binarytrees%mlkit.perf.bench: ; touch $@
 
+bench_lean: $(LEAN_INPUTS:%=bench/%.bench)
 bench_cross: $(CROSS_INPUTS:%=bench/%.bench)
 
 report:
@@ -146,6 +164,9 @@ reports: $(foreach bench, $(CROSS_BENCHES), report/$(bench)) report/index.html
 
 # yes.
 space = $() $()
+
+report_lean.csv: $(LEAN_INPUTS:%=bench/%.bench) report.py temci.yaml
+	BENCHES=$(subst $(space),:,$(LEAN_BENCHES)) CATS=$(subst $(space),:,$(LEAN_CATS)) ./report.py > $@
 
 report_cross.csv: $(CROSS_INPUTS:%=bench/%.bench) report.py temci.yaml
 	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@

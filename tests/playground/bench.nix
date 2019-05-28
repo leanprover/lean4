@@ -32,7 +32,7 @@ let
         --set SML_LIB $out/usr/lib/mlkit
     '';
   };
-  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "90534eb5846dae0e9a540234d6a3b1017e928603"; }) {};
+  temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "43b2f9b0ece4d396b56ff287a4df72b38224da64"; }) {};
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml"];

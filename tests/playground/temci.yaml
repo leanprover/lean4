@@ -5,6 +5,9 @@ log_level: info
 # Additional settings file
 settings_file: ''
 
+# Acquire sudo privileges and run benchmark programs with non-sudo user. Only supported on the command line.
+sudo: false
+
 # Used temporary directory
 tmp_dir: /tmp/temci
 
@@ -72,7 +75,7 @@ package:
 
 report:
     
-    # Exclude all data sets that contain only zeros or NaNs.
+    # Exclude all data sets that contain only NaNs.
     exclude_invalid: true
     
     # Properties that aren't shown in the report.
@@ -218,19 +221,25 @@ run:
     # Disable the hyper threaded cores. Good for cpu bound programs.
     disable_hyper_threading: false
     
+    # Discard all run data for the failing program on error
+    discard_all_data_for_block_on_error: false
+    
     # First n runs that are discarded
     discarded_runs: 1
     
-    # Possible run drivers are 'exec'
+    # Possible run drivers are 'exec' and 'shell'
     driver: exec
     
     # Input file with the program blocks to benchmark
     in: input.exec.yaml
     
+    # Maximum time one run block should take
+    max_block_time: 1000h
+    
     # Maximum number of benchmarking runs
     max_runs: 50
     
-    # Maximum time the whole benchmarking should take +- time to execute one block.
+    # Maximum time the whole benchmarking should take
     max_time: 40s
     
     # Minimum number of benchmarking runs
@@ -318,7 +327,7 @@ run:
         # Enable:   Adds random environment variables.
         env_randomize_active: null
         
-        # Possible run driver plugins are 'nice', 'env_randomize', 'preheat', 'other_nice', 'stop_start', 'sync', 'sleep', 'drop_fs_caches', 'disable_swap', 'disable_cpu_caches' and 'cpu_governor'
+        # Possible run driver plugins are 'nice', 'env_randomize', 'preheat', 'other_nice', 'stop_start', 'sync', 'sleep', 'drop_fs_caches', 'disable_swap', 'disable_cpu_caches', 'cpu_governor', 'disable_aslr', 'disable_ht' and 'disable_intel_turbo'
         exec_active: []
         
         # Enable:   Allows the setting of the nice and ionice values of the benchmarking process.
@@ -452,6 +461,15 @@ run:
         
         #   Calls ``sync`` before each program execution.
         sync_misc: !!map {}
+    
+    #   Implements a run driver that runs the benched command a single time with redirected in- and output.
+    #   It can be used to run own benchmarking commands inside a sane benchmarking environment
+    #   
+    #   The constructor calls the ``setup`` method.
+    shell_misc:
+        
+        # Enable other plugins by default: none =  (enable none by default); all = cpu_governor,disable_swap,sync,stop_start,other_nice,nice,disable_aslr,disable_ht,disable_intel_turbo (enable all, might freeze your system); usable = cpu_governor,disable_swap,sync,nice,disable_aslr,disable_ht,disable_intel_turbo (like 'all' but doesn't affect other processes)
+        preset: none
 
 stats:
     

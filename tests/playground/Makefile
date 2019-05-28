@@ -50,8 +50,10 @@ frontend%lean.out:
 # files of the two binaries.
 %.gcc.lean.out: LEAN_BIN = $(LEAN_GCC_BIN)
 %.gcc.lean: %.lean; ln -f $< $@
+%.no_reuse.lean.cpp: LEAN_BIN = $(LEAN_NO_REUSE_BIN)
 %.no_reuse.lean.out: LEAN_BIN = $(LEAN_NO_REUSE_BIN)
 %.no_reuse.lean: %.lean; ln -f $< $@
+%.no_borrow.lean.cpp: LEAN_BIN = $(LEAN_NO_BORROW_BIN)
 %.no_borrow.lean.out: LEAN_BIN = $(LEAN_NO_BORROW_BIN)
 %.no_borrow.lean: %.lean; ln -f $< $@
 %.no_st.lean.out: LEAN_BIN = $(LEAN_NO_ST_BIN)

@@ -15,6 +15,8 @@ OCAML_FLAGS = -O3
 MLTON_FLAGS =
 MLKIT_FLAGS =
 
+TEMCI_FLAGS ?=
+
 TEMCI ?= temci
 LEAN_BIN ?= ../../bin
 GHC ?= ghc
@@ -86,7 +88,7 @@ bench:
 	-@mkdir bench
 
 bench/%.bench: %.out | bench
-	ulimit -s unlimited && $(TEMCI) short exec -d $< "./$< $(BENCH_PARAMS)" --out $@
+	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS) -d $< "./$< $(BENCH_PARAMS)" --out $@
 
 bench/frontend.%.bench: BENCH_PARAMS = --new-frontend ../../library/init/core.lean
 
@@ -106,32 +108,32 @@ bench/unionfind1.%.bench: BENCH_PARAMS = 3000000
 bench/unionfind2.%.bench: BENCH_PARAMS = 3000000
 
 bench/%gc.lean.bench: %lean.out | bench
-	ulimit -s unlimited && $(TEMCI) short exec\
+	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
     -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio -S 'lean::del,lean::dealloc' | ./lean-gc.py"\
 	  --runner output --out $@
 
 bench/%gc.hs.bench: %hs.out | bench
-	$(TEMCI) short exec\
+	$(TEMCI) short exec $(TEMCI_FLAGS)\
 		-d $< "./$< +RTS -t --machine-readable -RTS $(BENCH_PARAMS) 2>&1 >/dev/null | ./ghc-gc.py"\
 		--runner output --out $@
 
 bench/%gc.ml.bench: %gc.ml.out | bench
-	ulimit -s unlimited && $(TEMCI) short exec\
+	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
 		-d $< "echo > $@.tmp && OCAML_INSTR_FILE=$@.tmp time -ao $@.tmp -f '%e' ./$< $(BENCH_PARAMS) >/dev/null && ./ocaml-gc.py < $@.tmp"\
 		--runner output --out $@
 
 bench/%gc.mlton.bench: %gc.mlton.out | bench
-	ulimit -s unlimited && $(TEMCI) short exec\
+	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
 		-d $< './$< $(BENCH_PARAMS) >/dev/null && $(MLTON_BIN)/mlprof ./$< mlmon.out | awk '\''$$1 == "<gc>" { print "gc: " substr($$2, 0, length($$2)-1); found = 1 } END { if (found != 1) { print "gc: 0.000001" } }'\'\
 		--runner output --out $@
 
 bench/%gc.mlkit.bench: %gc.mlkit.out | bench
-	ulimit -s unlimited && $(TEMCI) short exec\
+	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
 		-d $< "time -f '%e' ./$< -report_gc $(BENCH_PARAMS) 2>&1 >/dev/null | ./mlkit-gc.py"\
 		--runner output --out $@
 
 bench/%.perf.bench: %.out | bench
-	ulimit -s unlimited && $(TEMCI) short exec\
+	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
 		-d $< "echo > $@.tmp && time -af '%e' perf stat -e cache-misses -x ';' ./$< $(BENCH_PARAMS) 2>&1 >/dev/null | ./perf.py"\
 		--runner output --out $@
 

@@ -25,10 +25,8 @@ static environment update(environment const & env, aliases_ext const & ext);
 struct aliases_ext : public environment_extension {
     struct state {
         bool                  m_in_section;
-        name_map<names>  m_aliases;
+        name_map<names>       m_aliases;
         name_map<name>        m_inv_aliases;
-        name_map<name>        m_level_aliases;
-        name_map<name>        m_inv_level_aliases;
         name_map<expr>        m_local_refs;
         state():m_in_section(false) {}
 
@@ -55,14 +53,6 @@ struct aliases_ext : public environment_extension {
 
     void add_expr_alias(name const & a, name const & e, bool overwrite) {
         m_state.add_expr_alias(a, e, overwrite);
-    }
-
-    void add_level_alias(name const & a, name const & l) {
-        auto it = m_state.m_level_aliases.find(a);
-        if (it)
-            throw exception(sstream() << "universe level alias '" << a << "' shadows existing alias");
-        m_state.m_level_aliases.insert(a, l);
-        m_state.m_inv_level_aliases.insert(l, a);
     }
 
     list<state> add_expr_alias_rec_core(list<state> const & scopes, name const & a, name const & e, bool overwrite) {
@@ -172,22 +162,6 @@ optional<expr> get_local_ref(environment const & env, name const & n) {
         return some_expr(*r);
     else
         return none_expr();
-}
-
-environment add_level_alias(environment const & env, name const & a, name const & l) {
-    aliases_ext ext = get_extension(env);
-    ext.add_level_alias(a, l);
-    return update(env, ext);
-}
-
-optional<name> is_level_aliased(environment const & env, name const & l) {
-    auto it = get_extension(env).m_state.m_inv_level_aliases.find(l);
-    return it ? optional<name>(*it) : optional<name>();
-}
-
-optional<name> get_level_alias(environment const & env, name const & n) {
-    auto it = get_extension(env).m_state.m_level_aliases.find(n);
-    return it ? optional<name>(*it) : optional<name>();
 }
 
 // Return true iff \c n is (prefix + ex) for some ex in exceptions

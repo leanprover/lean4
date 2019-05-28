@@ -27,19 +27,6 @@ names get_expr_aliases(environment const & env, name const & n);
 environment erase_expr_aliases(environment const & env, name const & n);
 
 /**
-    \brief Add the alias \c a for level \c l. An error is generated if the new alias shadows
-    existing aliases and/or declarations. We don't have "choice" construct for universe
-    levels.
-*/
-environment add_level_alias(environment const & env, name const & a, name const & l);
-
-/** \brief If \c l is aliased in \c env, then return its name. Otherwise, return none. */
-optional<name> is_level_aliased(environment const & env, name const & l);
-
-/** \brief Return the level associated with the given alias. */
-optional<name> get_level_alias(environment const & env, name const & n);
-
-/**
    \brief Create an alias for each declaration named <tt>prefix.rest</tt>.
    The alias for <tt>prefix.rest</tt> is <tt>new_prefix.rest</tt>.
 

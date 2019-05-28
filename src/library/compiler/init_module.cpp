@@ -16,7 +16,6 @@ Author: Leonardo de Moura
 #include "library/compiler/implemented_by_attribute.h"
 #include "library/compiler/llnf_code.h"
 #include "library/compiler/borrowed_annotation.h"
-#include "library/compiler/emit_cpp.h"
 #include "library/compiler/ll_infer_type.h"
 #include "library/compiler/init_attribute.h"
 
@@ -35,13 +34,11 @@ void initialize_compiler_module() {
     initialize_extern_attribute();
     initialize_llnf_code();
     initialize_borrowed_annotation();
-    initialize_emit_cpp();
     initialize_ll_infer_type();
 }
 
 void finalize_compiler_module() {
     finalize_ll_infer_type();
-    finalize_emit_cpp();
     finalize_borrowed_annotation();
     finalize_llnf_code();
     finalize_extern_attribute();

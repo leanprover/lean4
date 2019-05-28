@@ -9,12 +9,6 @@ Author: Leonardo de Moura
 #include "library/compiler/util.h"
 
 namespace lean {
-/* Convert expression to Low Level Normal Form (LLNF). This is the last normal form
-   before converting to the IR. */
-pair<environment, comp_decls> to_llnf(environment const & env, comp_decls const & ds);
-
-optional<pair<environment, comp_decl>> mk_boxed_version(environment env, name const & fn, unsigned arity);
-
 environment compile_ir(environment const & env, options const & opts, comp_decls const & ds);
 
 bool is_llnf_apply(expr const & e);

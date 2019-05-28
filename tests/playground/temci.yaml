@@ -233,14 +233,14 @@ run:
     # Input file with the program blocks to benchmark
     in: input.exec.yaml
     
-    # Maximum time one run block should take
-    max_block_time: 1000h
+    # Maximum time one run block should take, -1s == no timeout
+    max_block_time: 1min
     
     # Maximum number of benchmarking runs
     max_runs: 50
     
-    # Maximum time the whole benchmarking should take
-    max_time: 1000h
+    # Maximum time the whole benchmarking should take, -1s == no timeout
+    max_time: 2h
     
     # Minimum number of benchmarking runs
     min_runs: 20

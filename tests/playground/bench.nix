@@ -50,7 +50,7 @@ in pkgs.stdenv.mkDerivation rec {
   })}/bin";
   LEAN_NO_BORROW_BIN = "${(lean {}).overrideAttrs (attrs: {
     prePatch = ''
-      substituteInPlace library/init/lean/compiler/ir/default.lean --replace "decls.map Decl.inferBorrow" "decls"
+      substituteInPlace library/init/lean/compiler/ir/default.lean --replace "inferBorrow" "pure"
     '';
     preBuild = ''
       # bootstrap changes

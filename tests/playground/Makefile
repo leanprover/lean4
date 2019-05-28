@@ -1,6 +1,6 @@
 ## CONFIG
 
-LEAN_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared unionfind1 unionfind2
+LEAN_BENCHES = binarytrees deriv expr_const_folding frontend qsort rbmap rbmap_checkpoint_10 rbmap_shared unionfind1 unionfind2
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
@@ -43,7 +43,7 @@ all: reports report_lean.csv report_cross.csv
 %.lean.out: %.lean.cpp
 	$(LEAN_BIN)/leanc $(LEANC_FLAGS) -o $@ $<
 frontend%lean.out:
-	ln -f $(LEAN_BIN)/lean
+	ln -sf $(LEAN_BIN)/lean $@
 # Binaries x.lean.out and x.gcc.lean.out etc. are produced by the
 # same rules and x.lean source file by copying the latter to
 # x.gcc.lean. This also avoids conflicts between intermediate
@@ -92,7 +92,7 @@ bench:
 bench/%.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS) -d $< "./$< $(BENCH_PARAMS)" --out $@
 
-bench/frontend.%.bench: BENCH_PARAMS = --new-frontend ../../library/init/core.lean
+bench/frontend.%.bench: BENCH_PARAMS = --new-frontend frontend_test.lean
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 

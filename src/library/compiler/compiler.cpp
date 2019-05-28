@@ -24,7 +24,6 @@ Author: Leonardo de Moura
 #include "library/compiler/ll_infer_type.h"
 #include "library/compiler/simp_app_args.h"
 #include "library/compiler/llnf.h"
-#include "library/compiler/llnf_code.h"
 #include "library/compiler/export_attribute.h"
 #include "library/compiler/extern_attribute.h"
 #include "library/compiler/struct_cases_on.h"
@@ -174,15 +173,7 @@ environment compile(environment const & env, options const & opts, names cs) {
 
     if (length(cs) == 1 && is_extern_constant(env, head(cs))) {
         /* Generate boxed version for extern/native constant if needed. */
-        environment new_env = ir::add_extern(env, head(cs));
-        unsigned arity = *get_extern_constant_arity(env, head(cs));
-        if (optional<pair<environment, comp_decl>> p = mk_boxed_version(new_env, head(cs), arity)) {
-            /* Remark: we don't need boxed version for the bytecode. */
-            return save_llnf_code(p->first, comp_decls(p->second));
-        } else {
-            /* We always generate boxed versions for extern. */
-            lean_unreachable();
-        }
+        return ir::add_extern(env, head(cs));
     }
 
     for (name const & c : cs) {
@@ -243,12 +234,7 @@ environment compile(environment const & env, options const & opts, names cs) {
     ds = apply(elim_dead_let, ds);
     trace_compiler(name({"compiler", "simp_app_args"}), ds);
     /* compile IR. */
-    new_env = compile_ir(new_env, opts, ds);
-    // TODO(Leo): remove rest of the code
-    std::tie(new_env, ds) = to_llnf(new_env, ds);
-    new_env = save_llnf_code(new_env, ds);
-    trace_compiler(name({"compiler", "result"}), ds);
-    return new_env;
+    return compile_ir(new_env, opts, ds);
 }
 
 void initialize_compiler() {

@@ -63,16 +63,6 @@ bool in_section(environment const & env);
     Then, the procedure tries n, 'foo.bla.boo'+n, 'foo.bla'+n, 'foo'+n. */
 optional<name> to_valid_namespace_name(environment const & env, name const & n);
 
-std::vector<name> get_namespace_completion_candidates(environment const & env);
-
-/** \brief Mark the given namespace as opened */
-environment mark_namespace_as_open(environment const & env, name const & n);
-/** \brief Return the set of namespaces marked as "open" using \c mark_namespace_as_open. */
-name_set get_opened_namespaces(environment const & env);
-
-/** \brief Return true iff \c n is a namespace */
-bool is_namespace(environment const & env, name const & n);
-
 /** \brief Auxilary template used to simplify the creation of environment extensions that support
     the scope */
 template<typename Config>

@@ -22,7 +22,6 @@ void register_scoped_ext(push_scope_fn push, pop_scope_fn pop) {
 
 struct scope_mng_ext : public environment_extension {
     name_set         m_namespace_set;     // all namespaces registered in the system
-    name_set         m_opened_namespaces; // set of namespaces marked as "open"
     names       m_namespaces;        // stack of namespaces/sections
     names       m_headers;           // namespace/section header
     list<scope_kind> m_scope_kinds;
@@ -64,16 +63,6 @@ names const & get_namespaces(environment const & env) {
 bool in_section(environment const & env) {
     scope_mng_ext const & ext = get_extension(env);
     return !is_nil(ext.m_scope_kinds) && head(ext.m_scope_kinds) == scope_kind::Section;
-}
-
-environment mark_namespace_as_open(environment const & env, name const & n) {
-    scope_mng_ext ext = get_extension(env);
-    ext.m_opened_namespaces.insert(n);
-    return update(env, ext);
-}
-
-name_set get_opened_namespaces(environment const & env) {
-    return get_extension(env).m_opened_namespaces;
 }
 
 bool is_namespace(environment const & env, name const & n) {

@@ -244,7 +244,6 @@ environment open_export_cmd(parser & p, bool open) {
         buffer<pair<name, name>> renames;
         bool found_explicit = false;
         // Remark: we currently to not allow renaming and hiding of universe levels
-        env = mark_namespace_as_open(env, ns);
         while (p.curr_is_token(get_lparen_tk())) {
             p.next();
             if (p.curr_is_token_or_id(get_renaming_tk())) {

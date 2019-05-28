@@ -123,9 +123,6 @@ private:
     result add_paren_if_needed(result const & r, unsigned bp);
     std::pair<bool, token_table const *> needs_space_sep(token_table const * t, std::string const &s1, std::string const &s2) const;
 
-    result pp_overriden_local_ref(expr const & e);
-    optional<result> pp_local_ref(expr const & e);
-
     result pp_hide_coercion(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_hide_coercion_fn(expr const & e, unsigned bp, bool ignore_hide = false);
     result pp_child_core(expr const & e, unsigned bp, bool ignore_hide = false);

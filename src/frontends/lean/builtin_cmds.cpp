@@ -110,16 +110,13 @@ static environment redeclare_aliases(environment env, parser & p,
     if (!in_section(old_env))
         return env;
     list<pair<name, expr>> new_entries = p.get_local_entries();
-    buffer<pair<name, expr>> to_redeclare;
     unsigned new_len = length(new_entries);
     unsigned old_len = length(old_entries);
     lean_assert(old_len >= new_len);
     name_set popped_locals;
     while (old_len > new_len) {
         pair<name, expr> entry = head(old_entries);
-        if (is_local_ref(entry.second))
-            to_redeclare.push_back(entry);
-        else if (is_local_p(entry.second))
+        if (is_local_p(entry.second))
             popped_locals.insert(local_name_p(entry.second));
         old_entries = tail(old_entries);
         old_len--;
@@ -130,11 +127,6 @@ static environment redeclare_aliases(environment env, parser & p,
             if (is_param(l) && !is_placeholder(l) && !level_decls.contains(n))
                 popped_levels.insert(param_id(l));
         });
-    for (auto const & entry : to_redeclare) {
-        expr new_ref = update_local_ref(entry.second, popped_levels, popped_locals);
-        if (!is_constant(new_ref))
-            env = p.add_local_ref(env, entry.first, new_ref);
-    }
     return env;
 }
 

@@ -385,25 +385,6 @@ void parser::add_local_expr(name const & n, expr const & p, bool is_variable) {
     }
 }
 
-environment parser::add_local_ref(environment const & env, name const & n, expr const & ref) {
-    add_local_expr(n, ref, false);
-    if (is_as_atomic(ref)) {
-        buffer<expr> args;
-        expr f = get_app_args(get_as_atomic_arg(ref), args);
-        if (is_explicit(f))
-            f = get_explicit_arg(f);
-        if (is_constant(f)) {
-            return ::lean::add_local_ref(env, const_name(f), ref);
-        } else {
-            return env;
-        }
-    } else if (is_constant(ref) && const_levels(ref)) {
-        return ::lean::add_local_ref(env, const_name(ref), ref);
-    } else {
-        return env;
-    }
-}
-
 static void check_no_metavars(name const & n, expr const & e) {
     lean_assert(is_local_p(e));
     if (has_metavar(e)) {
@@ -1748,11 +1729,6 @@ expr parser::id_to_expr(name const & id, pos_info const & p, bool resolve_only, 
 
     if (!explicit_levels && m_id_behavior == id_behavior::AssumeLocalIfNotLocal) {
         return save_pos(mk_local(id, save_pos(mk_expr_placeholder(), p)), p);
-    }
-
-    if (auto ref = get_local_ref(m_env, id)) {
-        check_no_levels(ls, p);
-        return copy_with_new_pos(*ref, p);
     }
 
     for (name const & ns : get_namespaces(m_env)) {

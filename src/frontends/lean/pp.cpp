@@ -490,94 +490,6 @@ static expr consume_ref_annotations(expr const & e) {
         return e;
 }
 
-enum local_ref_kind { LocalRef, OverridenLocalRef, NotLocalRef };
-
-static local_ref_kind check_local_ref(environment const & env, expr const & e, unsigned & num_ref_univ_params) {
-    expr const & rfn = get_app_fn(e);
-    if (!is_constant(rfn))
-        return NotLocalRef;
-    auto ref = get_local_ref(env, const_name(rfn));
-    if (!ref)
-        return NotLocalRef;
-    if (is_as_atomic(*ref))
-        ref = get_as_atomic_arg(*ref);
-    buffer<expr> ref_args, e_args;
-    expr ref_fn = consume_ref_annotations(get_app_args(*ref, ref_args));
-    get_app_args(e, e_args);
-    if (!is_constant(ref_fn) || e_args.size() != ref_args.size()) {
-        return NotLocalRef;
-    }
-    for (unsigned i = 0; i < e_args.size(); i++) {
-        expr e_arg   = e_args[i];
-        expr ref_arg = consume_ref_annotations(ref_args[i]);
-        if (!is_local(e_arg) || !is_local(ref_arg) || local_pp_name(e_arg) != local_pp_name(ref_arg))
-            return OverridenLocalRef;
-    }
-    num_ref_univ_params = length(const_levels(ref_fn));
-    buffer<level> lvls;
-    to_buffer(const_levels(rfn), lvls);
-    if (lvls.size() < num_ref_univ_params) {
-        return NotLocalRef;
-    }
-    for (unsigned i = 0; i < num_ref_univ_params; i++) {
-        level const & l = lvls[i];
-        if (!is_param(l)) {
-            return OverridenLocalRef;
-        }
-        for (unsigned j = 0; j < i; j++)
-            if (lvls[i] == lvls[j]) {
-                return OverridenLocalRef;
-            }
-    }
-    return LocalRef;
-}
-
-static bool is_local_ref(environment const & env, expr const & e) {
-    unsigned num_ref_univ_params;
-    return check_local_ref(env, e, num_ref_univ_params) == LocalRef;
-}
-
-auto pretty_fn::pp_overriden_local_ref(expr const & e) -> result {
-    buffer<expr> args;
-    expr const & fn = get_app_args(e, args);
-    result res_fn;
-    {
-        flet<bool> set1(m_full_names, true);
-        res_fn = pp_const(fn, some(0u));
-    }
-    format fn_fmt    = res_fn.fmt();
-    if (const_name(fn).is_atomic())
-        fn_fmt = compose(format("_root_."), fn_fmt);
-    if (m_implict && has_implicit_args(fn))
-        fn_fmt = compose(*g_explicit_fmt, fn_fmt);
-    format r_fmt = fn_fmt;
-    expr curr_fn = fn;
-    for (unsigned i = 0; i < args.size(); i++) {
-        expr const & arg = args[i];
-        if (m_implict || !is_implicit(curr_fn)) {
-            result res_arg   = pp_child(arg, max_bp());
-            r_fmt = group(compose(r_fmt, nest(m_indent, compose(line(), res_arg.fmt()))));
-        }
-        curr_fn = mk_app(curr_fn, arg);
-    }
-    return result(max_bp()-1, r_fmt);
-}
-
-// Return some result if \c e is of the form (c p_1 ... p_n) where
-// c is a constant, and p_i's are parameters fixed in a section.
-auto pretty_fn::pp_local_ref(expr const & e) -> optional<result> {
-    unsigned num_ref_univ_params;
-    switch (check_local_ref(m_env, e, num_ref_univ_params)) {
-    case NotLocalRef:
-        return optional<result>();
-    case LocalRef:
-        return some(pp_const(get_app_fn(e), optional<unsigned>(num_ref_univ_params)));
-    case OverridenLocalRef:
-        return some(pp_overriden_local_ref(e));
-    }
-    lean_unreachable();
-}
-
 static bool is_coercion(expr const & e) {
     return is_app_of(e, get_coe_name()) && get_app_num_args(e) >= 4;
 }
@@ -612,8 +524,6 @@ auto pretty_fn::pp_hide_coercion_fn(expr const & e, unsigned bp, bool ignore_hid
 
 auto pretty_fn::pp_child(expr const & e, unsigned bp, bool ignore_hide) -> result {
     if (is_app(e)) {
-        if (auto r = pp_local_ref(e))
-            return add_paren_if_needed(*r, bp);
         if (m_numerals) {
             if (auto n = to_num(e)) return pp_num(*n, bp);
         }
@@ -681,10 +591,6 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     name n = const_name(e);
     if (m_notation && n == get_unit_unit_name())
         return format("()");
-    if (!num_ref_univ_params) {
-        if (auto r = pp_local_ref(e))
-            return *r;
-    }
     // Remark: if num_ref_univ_params is "some", then it contains the number of
     // universe levels that are fixed in a section. That is, \c e corresponds to
     // a constant in a section which has fixed levels.
@@ -869,8 +775,6 @@ auto pretty_fn::pp_field_notation(expr const & e) -> result {
 }
 
 auto pretty_fn::pp_app(expr const & e) -> result {
-    if (auto r = pp_local_ref(e))
-        return *r;
     if (is_default_arg_app(e))
         return pp_child(app_fn(e), max_bp());
     expr const & fn = app_fn(e);
@@ -885,7 +789,7 @@ auto pretty_fn::pp_app(expr const & e) -> result {
     bool ignore_hide = true;
     result res_fn    = pp_child(fn, max_bp()-1, ignore_hide);
     format fn_fmt    = res_fn.fmt();
-    if (m_implict && (!is_app(fn) || (is_local_ref(m_env, fn))) && has_implicit_args(fn))
+    if (m_implict && !is_app(fn) && has_implicit_args(fn))
         fn_fmt = compose(*g_explicit_fmt, fn_fmt);
     result res_arg = pp_child(app_arg(e), max_bp());
     return result(max_bp()-1, group(compose(fn_fmt, nest(m_indent, compose(line(), res_arg.fmt())))));

@@ -27,24 +27,15 @@ struct aliases_ext : public environment_extension {
         bool                  m_in_section;
         name_map<names>       m_aliases;
         name_map<name>        m_inv_aliases;
-        name_map<expr>        m_local_refs;
         state():m_in_section(false) {}
 
-        void add_local_ref(name const & a, expr const & ref) {
-            m_local_refs.insert(a, ref);
-        }
-
         void add_expr_alias(name const & a, name const & e, bool overwrite) {
-            if (auto ref = m_local_refs.find(e)) {
-                add_local_ref(a, *ref);
-            } else {
-                auto it = m_aliases.find(a);
-                if (it && !overwrite)
-                    m_aliases.insert(a, cons(e, filter(*it, [&](name const & t) { return t != e; })));
-                else
-                    m_aliases.insert(a, names(e));
-                m_inv_aliases.insert(e, a);
-            }
+            auto it = m_aliases.find(a);
+            if (it && !overwrite)
+                m_aliases.insert(a, cons(e, filter(*it, [&](name const & t) { return t != e; })));
+            else
+                m_aliases.insert(a, names(e));
+            m_inv_aliases.insert(e, a);
         }
     };
 
@@ -74,10 +65,6 @@ struct aliases_ext : public environment_extension {
             m_scopes = add_expr_alias_rec_core(m_scopes, a, e, overwrite);
         }
         add_expr_alias(a, e, overwrite);
-    }
-
-    void add_local_ref(name const & a, expr const & ref) {
-        m_state.add_local_ref(a, ref);
     }
 
     void push(bool in_section) {
@@ -148,20 +135,6 @@ environment erase_expr_aliases(environment const & env, name const & n) {
     aliases_ext ext = get_extension(env);
     ext.m_state.m_aliases.erase(n);
     return update(env, ext);
-}
-
-environment add_local_ref(environment const & env, name const & a, expr const & ref) {
-    aliases_ext ext = get_extension(env);
-    ext.add_local_ref(a, ref);
-    return update(env, ext);
-}
-
-optional<expr> get_local_ref(environment const & env, name const & n) {
-    aliases_ext const & ext = get_extension(env);
-    if (auto r = ext.m_state.m_local_refs.find(n))
-        return some_expr(*r);
-    else
-        return none_expr();
 }
 
 // Return true iff \c n is (prefix + ex) for some ex in exceptions

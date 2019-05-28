@@ -333,56 +333,6 @@ void elaborate_params(elaborator & elab, buffer<expr> const & params, buffer<exp
     }
 }
 
-environment add_local_ref(parser & p, environment const & env, name const & c_name, name const & c_real_name, buffer<name> const & lp_names, buffer<expr> const & var_params) {
-    buffer<expr> params;
-    buffer<name> lps;
-    for (name const & u : lp_names) {
-        if (!p.is_local_level(u)) {
-            /* Stop, it is a definition parameter */
-            break;
-        } else if (p.is_local_level_variable(u)) {
-            /* Stop, it is a parser universe variable (i.e., it has been declared using the `universe variable` command */
-            break;
-        } else {
-            lps.push_back(u);
-        }
-    }
-    for (expr const & e : var_params) {
-        if (!p.is_local_decl(e)) {
-            /* Stop, it is a definition parameter */
-            break;
-        } else if (p.is_local_variable(e)) {
-            /* Stop, it is a parser variable (i.e., it has been declared using the `variable` command */
-            break;
-        } else {
-            /* It is a parser parameter (i.e., it has been declared with the `parameter` command */
-            params.push_back(e);
-        }
-    }
-    if (lps.empty() && params.empty()) return env;
-    /*
-      Procedures such as `collect_implicit_locals` wrap parameter types with the `as_is` annotation.
-      So, we remove these annotations before creating the local reference using `mk_local_ref`.
-      Remark: the resulting object is wrapped with the macro `as_atomic`.
-
-      Remark: The local constants created here and `collect_implicit_locals` are not structurally
-      equal. That is, `l : ty` is not structurally equal to `l : as_is ty`, but they are definitionally
-      equal, and moreover the collection method relies on the fact that they have the same internal
-      id.
-    */
-    buffer<expr> new_params;
-    for (unsigned i = 0; i < params.size(); i++) {
-        expr & param = params[i];
-        expr type          = local_type_p(param);
-        if (is_as_is(type))
-            type = get_as_is_arg(type);
-        expr new_type      = replace_locals_preserving_pos_info(type, i, params.data(), new_params.data());
-        new_params.push_back(copy_pos(param, update_local_p(param, new_type)));
-    }
-    expr ref = mk_local_ref(c_real_name, lparams_to_levels(names(lps)), new_params);
-    return p.add_local_ref(env, c_name, ref);
-}
-
 environment add_alias(environment const & env, bool is_protected, name const & c_name, name const & c_real_name) {
     if (c_name != c_real_name) {
         if (is_protected)

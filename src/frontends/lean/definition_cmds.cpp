@@ -259,7 +259,6 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
         name c_real_name;
         std::tie(env, c_real_name) = declare_definition(env, kind, lp_names, c_name, prv_names[i],
                                                         curr_type, some_expr(curr), meta);
-        env = add_local_ref(p, env, c_name, c_real_name, lp_names, params);
         new_d_names.push_back(c_real_name);
         elab.set_env(env);
     }
@@ -566,7 +565,6 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
         time_task _("decl post-processing", p.mk_message(header_pos, INFORMATION), c_name);
         environment new_env = env_n.first;
         name c_real_name    = env_n.second;
-        new_env = add_local_ref(p, new_env, c_name, c_real_name, lp_names, params);
         if (!meta.m_modifiers.m_is_unsafe && !meta.m_modifiers.m_is_partial &&
             (kind == decl_cmd_kind::Definition || kind == decl_cmd_kind::Instance)) {
             new_env = mk_smart_unfolding_definition(new_env, p.get_options(), c_real_name);

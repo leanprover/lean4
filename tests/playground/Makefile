@@ -96,15 +96,15 @@ bench/frontend.%.bench: BENCH_PARAMS = --new-frontend frontend_test.lean
 
 bench/binarytrees.%.bench: BENCH_PARAMS = 21
 
-bench/qsort.%.bench: BENCH_PARAMS = 250
+bench/qsort.%.bench: BENCH_PARAMS = 400
 
-bench/rbmap.%.bench: BENCH_PARAMS = 7000000
+bench/rbmap.%.bench: BENCH_PARAMS = 5000000
 
 rbmap_shared.%.out: rbmap_checkpoint.%.out; ln -f $< $@
 bench/rbmap_shared.%.bench: BENCH_PARAMS = 500000 1
 
 rbmap_checkpoint_10.%.out: rbmap_checkpoint.%.out; ln -f $< $@
-bench/rbmap_checkpoint_10.%.bench: BENCH_PARAMS = 2000000 10
+bench/rbmap_checkpoint_10.%.bench: BENCH_PARAMS = 5000000 10
 
 bench/unionfind1.%.bench: BENCH_PARAMS = 3000000
 bench/unionfind2.%.bench: BENCH_PARAMS = 3000000

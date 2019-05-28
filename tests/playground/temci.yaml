@@ -240,7 +240,7 @@ run:
     max_runs: 50
     
     # Maximum time the whole benchmarking should take
-    max_time: 40s
+    max_time: 1000h
     
     # Minimum number of benchmarking runs
     min_runs: 20

@@ -139,6 +139,9 @@ bench/%.perf.bench: %.out | bench
 		-d $< "echo > $@.tmp && time -af '%e' perf stat -e cache-misses -x ';' ./$< $(BENCH_PARAMS) 2>&1 >/dev/null | ./perf.py"\
 		--runner output --out $@
 
+#broken
+bench/unionfind1.no_reuse.lean.bench: ; touch $@
+
 # fork() breaks instrumentation
 bench/binarytrees.gc.ml.bench: ; touch $@
 

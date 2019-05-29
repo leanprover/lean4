@@ -1,5 +1,0 @@
-#!/bin/bash
-for bench in "$@"; do
-  echo "benchmarking $bench"
-  time $bench >/dev/null
-done

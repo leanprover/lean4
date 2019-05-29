@@ -1,0 +1,5 @@
+*.out
+*.lean.cpp
+*.cmi
+*.cmx
+*.o

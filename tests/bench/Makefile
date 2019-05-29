@@ -1,7 +1,7 @@
 ## CONFIG
 
-LEAN_BENCHES = binarytrees deriv expr_const_folding frontend qsort rbmap rbmap_checkpoint_10 rbmap_shared unionfind2
-CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared
+LEAN_BENCHES = binarytrees deriv const_fold frontend qsort rbmap rbmap_10 rbmap_1 unionfind
+CROSS_BENCHES = binarytrees deriv const_fold qsort rbmap rbmap_10 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
 CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf
@@ -100,14 +100,13 @@ bench/qsort.%.bench: BENCH_PARAMS = 400
 
 bench/rbmap.%.bench: BENCH_PARAMS = 2000000
 
-rbmap_shared.%.out: rbmap_checkpoint.%.out; ln -f $< $@
-bench/rbmap_shared.%.bench: BENCH_PARAMS = 2000000 1
+rbmap_1.%.out: rbmap_checkpoint.%.out; ln -f $< $@
+bench/rbmap_1.%.bench: BENCH_PARAMS = 2000000 1
 
-rbmap_checkpoint_10.%.out: rbmap_checkpoint.%.out; ln -f $< $@
-bench/rbmap_checkpoint_10.%.bench: BENCH_PARAMS = 2000000 10
+rbmap_10.%.out: rbmap_checkpoint.%.out; ln -f $< $@
+bench/rbmap_10.%.bench: BENCH_PARAMS = 2000000 10
 
-bench/unionfind1.%.bench: BENCH_PARAMS = 3000000
-bench/unionfind2.%.bench: BENCH_PARAMS = 3000000
+bench/unionfind.%.bench: BENCH_PARAMS = 3000000
 
 bench/%gc.lean.bench: %lean.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
@@ -186,7 +185,7 @@ report_cross.csv: bench_cross
 	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@
 	column -s';' -t < $@
 
-TO_TEX = 's/unionfind2/unionfind/;s/expr_const_folding/const_fold/;s/rbmap_checkpoint/rbmap/;s/rbmap_shared/rbmap_1/;s/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))/\\ensuremath{\\tilde{\1}\\tilde{\2}}/g;s/(\([0-9]\))/\\ensuremath{\\tilde{\1}}/g;s/;/ \& /g;s/$$/\\\\/'
+TO_TEX = 's/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))/\\ensuremath{\\tilde{\1}\\tilde{\2}}/g;s/(\([0-9]\))/\\ensuremath{\\tilde{\1}}/g;s/;/ \& /g;s/$$/\\\\/'
 report_%.tex: report_%.csv
 	tail -n +2 $< | head -n -1 | sed 's/^\([^;]\+\)/\\verb!\1!/;'$(TO_TEX) > $@
 	echo -n '\midrule ' >> $@

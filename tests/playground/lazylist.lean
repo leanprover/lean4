@@ -153,7 +153,7 @@ def iota (i : UInt32 := 0) : LazyList UInt32 :=
 iterate (+1) i
 
 set_option pp.implicit true
-set_option trace.compiler.boxed true
+set_option trace.compiler.ir.result true
 
 partial def sieve : LazyList UInt32 → LazyList UInt32
 | nil          := nil

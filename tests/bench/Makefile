@@ -5,7 +5,7 @@ CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoin
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
 CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf
-TIME_CATS = .lean .hs .ml .mlton .mlkit
+CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit
 RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
 
 LEAN_FLAGS =
@@ -32,7 +32,7 @@ CROSS_INPUTS = $(foreach bench,$(CROSS_BENCHES), $(foreach cat, $(CROSS_CATS), $
 .SECONDARY: $(LEAN_INPUTS:%=%.out) $(LEAN_INPUTS:%=bench/%.bench) $(CROSS_INPUTS:%=%.out) $(CROSS_INPUTS:%=bench/%.bench)
 .DELETE_ON_ERROR:
 
-all: reports report_lean.tex report_cross.tex
+all: report_lean.tex report_cross.tex report
 
 # disable some built-in rules
 %.lean:
@@ -151,20 +151,29 @@ bench/binarytrees%mlkit.perf.bench: ; touch $@
 bench_lean: $(LEAN_INPUTS:%=bench/%.bench)
 bench_cross: $(CROSS_INPUTS:%=bench/%.bench)
 
-report:
-	-@mkdir report
+report/lean: ; -@mkdir -p $@
+report/cross: ; -@mkdir -p $@
 
-report/%: $(foreach cat, $(TIME_CATS), bench/%$(cat).bench) | report
+report/lean/%: $(foreach cat, $(LEAN_CATS), bench/%$(cat).bench) | report/lean
 	cat $^ > $@.tmp
-	$(TEMCI) report $@.tmp --settings_file temci.yaml --reporter html2 --html2_out $@ --html2_force_override --properties etime
+	$(TEMCI) report $@.tmp --reporter html2 --html2_out $@ --html2_force_override --properties etime
 
-report/index.html: | report
-	echo > $@
-	for bench in $(CROSS_BENCHES); do \
-		echo "<a href='$$bench/report.html'>$$bench</a>" >> $@; \
+report/cross/%: $(foreach cat, $(CROSS_TIME_CATS), bench/%$(cat).bench) | report/cross
+	cat $^ > $@.tmp
+	$(TEMCI) report $@.tmp --reporter html2 --html2_out $@ --html2_force_override --properties etime
+
+report/index.html: $(LEAN_BENCHES:%=report/lean/%) $(CROSS_BENCHES:%=report/cross/%)
+	echo "<html><h1>Lean variant benchmarks</h1><ul>"> $@
+	for bench in $(LEAN_BENCHES); do \
+		echo "<li><a href='lean/$$bench/report.html'>$$bench</a></li>" >> $@; \
 	done
+	echo "</ul><h1>Cross-language benchmarks</h1><ul>">> $@
+	for bench in $(CROSS_BENCHES); do \
+		echo "<li><a href='cross/$$bench/report.html'>$$bench</a></li>" >> $@; \
+	done
+	echo "</ul></html>">> $@
 
-reports: $(foreach bench, $(CROSS_BENCHES), report/$(bench)) report/index.html
+report: report/index.html
 
 # yes.
 space = $() $()

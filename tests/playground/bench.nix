@@ -71,7 +71,7 @@ in pkgs.stdenv.mkDerivation rec {
     gmp # needed by leanc
     (python3.withPackages (ps: [ temci ]))
     temci
-    pkgs.linuxPackages.perf time
+    pkgs.linuxPackages.perf time unixtools.column
   ];
   patchPhase = ''
     patchShebangs .

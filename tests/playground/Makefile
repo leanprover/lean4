@@ -174,9 +174,11 @@ space = $() $()
 
 report_lean.csv: bench_lean
 	BENCHES=$(subst $(space),:,$(LEAN_BENCHES)) CATS=$(subst $(space),:,$(LEAN_CATS)) ./report.py > $@
+	column -s';' -t < $@
 
 report_cross.csv: bench_cross
 	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@
+	column -s';' -t < $@
 
 TO_TEX = 's/expr_const_folding/const_fold/;s/rbmap_checkpoint/rbmap/;s/rbmap_shared/rbmap_1/;s/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))/\\ensuremath{\\tilde{\1}\\tilde{\2}}/g;s/(\([0-9]\))/\\ensuremath{\\tilde{\1}}/g;s/;/ \& /g;s/$$/\\\\/'
 report_%.tex: report_%.csv

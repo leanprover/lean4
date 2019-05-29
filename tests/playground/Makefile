@@ -32,7 +32,7 @@ CROSS_INPUTS = $(foreach bench,$(CROSS_BENCHES), $(foreach cat, $(CROSS_CATS), $
 .SECONDARY: $(LEAN_INPUTS:%=%.out) $(LEAN_INPUTS:%=bench/%.bench) $(CROSS_INPUTS:%=%.out) $(CROSS_INPUTS:%=bench/%.bench)
 .DELETE_ON_ERROR:
 
-all: reports report_lean.csv report_cross.csv
+all: reports report_lean.tex report_cross.tex
 
 # disable some built-in rules
 %.lean:

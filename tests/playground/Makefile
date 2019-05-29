@@ -1,6 +1,6 @@
 ## CONFIG
 
-LEAN_BENCHES = binarytrees deriv expr_const_folding frontend qsort rbmap rbmap_checkpoint_10 rbmap_shared unionfind1 unionfind2
+LEAN_BENCHES = binarytrees deriv expr_const_folding frontend qsort rbmap rbmap_checkpoint_10 rbmap_shared unionfind2
 CROSS_BENCHES = binarytrees deriv expr_const_folding qsort rbmap rbmap_checkpoint_10 rbmap_shared
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
@@ -139,9 +139,6 @@ bench/%.perf.bench: %.out | bench
 		-d $< "echo > $@.tmp && time -af '%e' perf stat -e cache-misses -x ';' ./$< $(BENCH_PARAMS) 2>&1 >/dev/null | ./perf.py"\
 		--runner output --out $@
 
-#broken
-bench/unionfind1.no_reuse.lean.bench: ; touch $@
-
 # fork() breaks instrumentation
 bench/binarytrees.gc.ml.bench: ; touch $@
 
@@ -180,7 +177,7 @@ report_cross.csv: bench_cross
 	BENCHES=$(subst $(space),:,$(CROSS_BENCHES)) CATS=$(subst $(space),:,$(CROSS_CATS)) ./report.py > $@
 	column -s';' -t < $@
 
-TO_TEX = 's/expr_const_folding/const_fold/;s/rbmap_checkpoint/rbmap/;s/rbmap_shared/rbmap_1/;s/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))/\\ensuremath{\\tilde{\1}\\tilde{\2}}/g;s/(\([0-9]\))/\\ensuremath{\\tilde{\1}}/g;s/;/ \& /g;s/$$/\\\\/'
+TO_TEX = 's/unionfind2/unionfind/;s/expr_const_folding/const_fold/;s/rbmap_checkpoint/rbmap/;s/rbmap_shared/rbmap_1/;s/-/---/g;s/%/\\%/g;s/\.$$//g;s/(\([0-9]\)\([0-9]\))/\\ensuremath{\\tilde{\1}\\tilde{\2}}/g;s/(\([0-9]\))/\\ensuremath{\\tilde{\1}}/g;s/;/ \& /g;s/$$/\\\\/'
 report_%.tex: report_%.csv
 	tail -n +2 $< | head -n -1 | sed 's/^\([^;]\+\)/\\verb!\1!/;'$(TO_TEX) > $@
 	echo -n '\midrule ' >> $@

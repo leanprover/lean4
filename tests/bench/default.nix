@@ -25,9 +25,13 @@ let
       sha256 = "0wbz4l1i8z8kv3qkd1hc06lpqbfq1kndr8n68339mlpgzriz01vy";
     };
     buildInputs = [ pkgs.makeWrapper ];
-    buildCommand = ''
+    unpackCmd = "${pkgs.dpkg}/bin/dpkg -x $src source";
+    dontBuild = true;
+    installPhase = ''
       mkdir $out
-      ${pkgs.dpkg}/bin/dpkg -x $src $out/
+      cp -R . $out
+    '';
+    preFixup = ''
       wrapProgram $out/usr/bin/mlkit --set PATH ${pkgs.binutils}/bin:${pkgs.pkgsi686Linux.gcc}/bin\
         --set SML_LIB $out/usr/lib/mlkit
     '';
@@ -35,7 +39,7 @@ let
   temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "e397ef9df168d581dcb46de4603088b7a5c6749c"; }) {};
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
-  src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml"];
+  src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];
   LEAN_BIN = "${lean {}}/bin";
   LEAN_GCC_BIN = "${lean { stdenv = pkgs.gcc9Stdenv; }}/bin";
   LEAN_NO_REUSE_BIN = "${(lean {}).overrideAttrs (attrs: {

@@ -222,7 +222,7 @@ run:
     disable_hyper_threading: false
     
     # Discard all run data for the failing program on error
-    discard_all_data_for_block_on_error: false
+    discard_all_data_for_block_on_error: true
     
     # First n runs that are discarded
     discarded_runs: 1
@@ -234,16 +234,16 @@ run:
     in: input.exec.yaml
     
     # Maximum time one run block should take, -1s == no timeout
-    max_block_time: 1min
+    max_block_time: 100h
     
     # Maximum number of benchmarking runs
     max_runs: 50
     
     # Maximum time the whole benchmarking should take, -1s == no timeout
-    max_time: 2h
+    max_time: 100h
     
     # Minimum number of benchmarking runs
-    min_runs: 20
+    min_runs: 50
     
     # Output file for the benchmarking results
     out: run_output.yaml

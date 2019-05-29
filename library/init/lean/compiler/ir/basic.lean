@@ -382,34 +382,6 @@ end Decl
 @[export lean.ir.mk_extern_decl_core] def mkExternDecl (f : FunId) (xs : Array Param) (ty : IRType) (e : ExternAttrData) : Decl :=
 Decl.extern f xs ty e
 
-/-- `Expr.isPure e` return `true` Iff `e` is in the `λPure` fragment. -/
-def Expr.isPure : Expr → Bool
-| (Expr.ctor _ _)    := true
-| (Expr.proj _ _)    := true
-| (Expr.uproj _ _)   := true
-| (Expr.sproj _ _ _) := true
-| (Expr.fap _ _)     := true
-| (Expr.pap _ _)     := true
-| (Expr.ap _ _)      := true
-| (Expr.lit _)       := true
-| _                  := false
-
-/-- `FnBody.isPure b` return `true` Iff `b` is in the `λPure` fragment. -/
-partial def FnBody.isPure : FnBody → Bool
-| (FnBody.vdecl _ _ e b)    := e.isPure && b.isPure
-| (FnBody.jdecl _ _ e b)    := e.isPure && b.isPure
-| (FnBody.uset _ _ _ b)     := b.isPure
-| (FnBody.sset _ _ _ _ _ b) := b.isPure
-| (FnBody.mdata _ b)        := b.isPure
-| (FnBody.case _ _ alts)    := alts.any $ λ alt,
-  match alt with
-  | (Alt.ctor _ b)  := b.isPure
-  | (Alt.default b) := false
-| (FnBody.ret _)            := true
-| (FnBody.jmp _ _)          := true
-| FnBody.unreachable        := true
-| _                         := false
-
 /-- Set of variable and join point names -/
 abbrev IndexSet := RBTree Index Index.lt
 instance vsetInh : Inhabited IndexSet := ⟨{}⟩

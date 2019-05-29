@@ -19,7 +19,7 @@ Add explicit boxing and unboxing instructions.
 Recall that the Lean to λ_pure compiler produces code without these instructions.
 
 Assumptions:
-- This transformation is applied before explicit RC instructions (`inc`, `dec` and `release`) are inserted.
+- This transformation is applied before explicit RC instructions (`inc`, `dec`) are inserted.
 - This transformation is applied before `FnBody.case` has been simplified and `Alt.default` is used.
   Reason: if there is no `Alt.default` branch, then we can decide whether `x` at `FnBody.case x alts` is an
   enumeration type by simply inspecting the `CtorInfo` values at `alts`.

@@ -41,7 +41,7 @@ in pkgs.stdenv.mkDerivation rec {
   name = "bench";
   src = pkgs.lib.sourceFilesBySuffices ./. ["Makefile" "leanpkg.path" "temci.yaml" ".py" ".lean" ".hs" ".ml" ".sml"];
   LEAN_BIN = "${lean {}}/bin";
-  LEAN_GCC_BIN = "${lean { stdenv = pkgs.gcc9Stdenv; }}/bin";
+  #LEAN_GCC_BIN = "${lean { stdenv = pkgs.gcc9Stdenv; }}/bin";
   LEAN_NO_REUSE_BIN = "${(lean {}).overrideAttrs (attrs: {
     prePatch = ''
       substituteInPlace library/init/lean/compiler/ir/default.lean --replace "decls.map Decl.insertResetReuse" "decls"
@@ -67,7 +67,7 @@ in pkgs.stdenv.mkDerivation rec {
   ''; })}/bin";
   GHC = "${ghc}/bin/ghc";
   OCAML = "${ocaml}/bin/ocamlopt.opt";
-  OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";
+  #OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";
   MLTON_BIN = "${mlton}/bin";
   MLKIT = "${mlkit}/usr/bin/mlkit";
   TEMCI = "${temci}/bin/temci";

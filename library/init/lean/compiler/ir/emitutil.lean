@@ -11,6 +11,11 @@ import init.lean.compiler.ir.compilerm
 
 namespace Lean
 namespace IR
+/- Return true iff `b` is of the form `let x := g ys; ret x` -/
+def isTailCallTo (g : Name) (b : FnBody) : Bool :=
+match b with
+| FnBody.vdecl x _ (Expr.fap f _) (FnBody.ret (Arg.var y)) := x == y && f == g
+| _  := false
 
 namespace UsesLeanNamespace
 

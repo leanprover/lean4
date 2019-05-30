@@ -272,9 +272,14 @@ def declareParams (ps : Array Param) : M Unit :=
 ps.mfor $ λ p, declareVar p.x p.ty
 
 partial def declareVars : FnBody → Bool → M Bool
-| (FnBody.vdecl x t _ b)  d := declareVar x t *> declareVars b true
-| (FnBody.jdecl j xs _ b) d := declareParams xs *> declareVars b (d || xs.size > 0)
-| e                       d := if e.isTerminal then pure d else declareVars e.body d
+| e@(FnBody.vdecl x t _ b)  d := do
+  ctx ← read,
+  if isTailCallTo ctx.mainFn e then
+    pure d
+  else
+    declareVar x t *> declareVars b true
+| (FnBody.jdecl j xs _ b)   d := declareParams xs *> declareVars b (d || xs.size > 0)
+| e                         d := if e.isTerminal then pure d else declareVars e.body d
 
 def emitTag (x : VarId) : M Unit :=
 do
@@ -587,7 +592,8 @@ match v with
 
 partial def emitBlock (emitBody : FnBody → M Unit) : FnBody → M Unit
 | (FnBody.jdecl j xs v b)   := emitBlock b
-| (FnBody.vdecl x t v b)    := do isTail ← isTailCall x v b, if isTail then emitTailCall v else emitVDecl x t v *> emitBlock b
+| d@(FnBody.vdecl x t v b)  :=
+  do ctx ← read, if isTailCallTo ctx.mainFn d then emitTailCall v else emitVDecl x t v *> emitBlock b
 | (FnBody.inc x n c b)      := emitInc x n c *> emitBlock b
 | (FnBody.dec x n c b)      := emitDec x n c *> emitBlock b
 | (FnBody.del x b)          := emitDel x *> emitBlock b

@@ -34,6 +34,7 @@ let
         --set SML_LIB $out/lib/mlkit
     '';
   };
+  swift = pkgs.swift;
   temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "e397ef9df168d581dcb46de4603088b7a5c6749c"; }) {};
 in pkgs.stdenv.mkDerivation rec {
   name = "bench";
@@ -68,6 +69,7 @@ in pkgs.stdenv.mkDerivation rec {
   #OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";
   MLTON_BIN = "${mlton}/bin";
   MLKIT = "${mlkit}/bin/mlkit";
+  SWIFTC = "${swift}/bin/swiftc";
   TEMCI = "${temci}/bin/temci";
   buildInputs = with pkgs; [
     gmp # needed by leanc

@@ -4,7 +4,7 @@ LEAN_BENCHES = binarytrees deriv const_fold frontend qsort rbmap rbmap_10 rbmap_
 CROSS_BENCHES = binarytrees deriv const_fold qsort rbmap rbmap_10 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
-CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf
+CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf .swift .gc.swift .swift.perf
 CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit
 RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
 
@@ -14,6 +14,7 @@ GHC_FLAGS = -O3
 OCAML_FLAGS = -O3
 MLTON_FLAGS =
 MLKIT_FLAGS =
+SWIFTC_FLAGS = -O -whole-module-optimization
 
 TEMCI_FLAGS ?=
 
@@ -23,6 +24,7 @@ GHC ?= ghc
 OCAML ?= ocamlopt.opt
 MLTON_BIN ?= /usr/bin
 MLKIT ?= mlkit
+SWIFTC ?= swiftc
 
 ## IMPLEMENTATION
 
@@ -86,6 +88,11 @@ binarytrees%ml.out: OCAML_FLAGS += -noassert -unsafe -fPIC -nodynlink -inline 10
 %.mlkit.out: %.sml
 	$(MLKIT) $(MLKIT_FLAGS) -o $@ $<
 
+%.swift.out: %.swift
+	$(SWIFTC) $(SWIFTC_FLAGS) -o $@ $<
+
+binarytrees%swift.out: SWIFTC_FLAGS = -Ounchecked -I Include/swift/apr
+
 bench:
 	-@mkdir bench
 
@@ -132,6 +139,11 @@ bench/%gc.mlkit.bench: %gc.mlkit.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
 		-d $< "time -f '%e' ./$< -report_gc $(BENCH_PARAMS) 2>&1 >/dev/null | ./mlkit-gc.py"\
 		--runner output --out $@
+
+bench/%gc.swift.bench: %swift.out | bench
+	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
+    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio | grep -E 'retain|release|free' | ./lean-gc.py"\
+	  --runner output --out $@
 
 bench/%.perf.bench: %.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\

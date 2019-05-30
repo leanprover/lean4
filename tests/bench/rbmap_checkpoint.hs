@@ -65,8 +65,13 @@ mk_Map_aux freq n m r =
 
 mk_Map n freq = mk_Map_aux freq n Leaf []
 
+myLen :: [Map] -> Int -> Int
+myLen ((Node _ _ _ _ _) : xs) r = myLen xs (r+1)
+myLen (_ : xs) r = myLen xs r
+myLen [] r = r
+
 main = do
   [n, freq] <- getArgs
   let mList = mk_Map (read n) (read freq)
   let v :: Int = fold (\_ v r -> if v then r + 1 else r) (head mList) 0
-  print (show (length mList) ++ " " ++ show v)
+  print (show (myLen mList 0) ++ " " ++ show v)

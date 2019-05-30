@@ -63,10 +63,16 @@ else let n = n-1 in
 
 let mk_map n freq = mk_map_aux freq n Leaf [];;
 
+let rec myLen n r =
+match n with
+| (Node (_, _, _, _, _) :: xs) -> myLen xs (r+1)
+| (_ :: xs)      -> myLen xs r
+| []             -> r;;
+
 let main n freq =
 let m = mk_map n freq in
 let v = fold (fun k v r -> if v then r + 1 else r) (List.hd m) 0 in
-Printf.printf "%d %d\n" (List.length m) v;
+Printf.printf "%d %d\n" (myLen m 0) v;
 v;;
 
 main (int_of_string Sys.argv.(1)) (int_of_string Sys.argv.(2));;

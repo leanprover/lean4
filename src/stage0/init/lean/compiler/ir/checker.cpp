@@ -356,7 +356,6 @@ return x_13;
 }
 else
 {
-obj* x_14; 
 lean::dec(x_10);
 x_2 = x_9;
 goto _start;
@@ -1686,7 +1685,7 @@ x_13 = l_Lean_IR_LocalContext_contains(x_4, x_12);
 lean::dec(x_12);
 if (x_13 == 0)
 {
-obj* x_14; obj* x_15; 
+obj* x_14; 
 x_14 = l_Lean_IR_LocalContext_addParam(x_4, x_9);
 x_3 = x_11;
 x_4 = x_14;
@@ -1850,7 +1849,7 @@ x_13 = l_Lean_IR_LocalContext_contains(x_4, x_12);
 lean::dec(x_12);
 if (x_13 == 0)
 {
-obj* x_14; obj* x_15; 
+obj* x_14; 
 x_14 = l_Lean_IR_LocalContext_addParam(x_4, x_9);
 x_3 = x_11;
 x_4 = x_14;
@@ -1917,7 +1916,6 @@ return x_14;
 }
 else
 {
-obj* x_15; 
 lean::dec(x_11);
 x_2 = x_9;
 goto _start;
@@ -1999,7 +1997,7 @@ x_14 = lean::cnstr_get(x_2, 2);
 x_15 = l_Lean_IR_LocalContext_contains(x_13, x_3);
 if (x_15 == 0)
 {
-obj* x_16; obj* x_17; 
+obj* x_16; 
 x_16 = l_Lean_IR_LocalContext_addLocal(x_13, x_3, x_4, x_5);
 lean::cnstr_set(x_2, 1, x_16);
 x_1 = x_6;
@@ -2032,7 +2030,7 @@ lean::dec(x_2);
 x_22 = l_Lean_IR_LocalContext_contains(x_20, x_3);
 if (x_22 == 0)
 {
-obj* x_23; obj* x_24; obj* x_25; 
+obj* x_23; obj* x_24; 
 x_23 = l_Lean_IR_LocalContext_addLocal(x_20, x_3, x_4, x_5);
 x_24 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_24, 0, x_19);
@@ -2159,7 +2157,7 @@ lean::dec(x_44);
 x_48 = l_Lean_IR_LocalContext_contains(x_32, x_27);
 if (x_48 == 0)
 {
-obj* x_49; obj* x_50; obj* x_51; 
+obj* x_49; obj* x_50; 
 x_49 = l_Lean_IR_LocalContext_addJP(x_32, x_27, x_28, x_29);
 x_50 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_50, 0, x_31);
@@ -2263,7 +2261,7 @@ lean::dec(x_58);
 x_62 = l_Lean_IR_LocalContext_contains(x_32, x_27);
 if (x_62 == 0)
 {
-obj* x_63; obj* x_64; obj* x_65; 
+obj* x_63; obj* x_64; 
 x_63 = l_Lean_IR_LocalContext_addJP(x_32, x_27, x_28, x_29);
 x_64 = lean::alloc_cnstr(0, 3, 0);
 lean::cnstr_set(x_64, 0, x_31);
@@ -2351,7 +2349,6 @@ return x_77;
 }
 else
 {
-obj* x_78; 
 lean::dec(x_74);
 x_1 = x_69;
 goto _start;
@@ -2419,7 +2416,6 @@ return x_89;
 }
 else
 {
-obj* x_90; 
 lean::dec(x_86);
 x_1 = x_81;
 goto _start;
@@ -2487,7 +2483,6 @@ return x_101;
 }
 else
 {
-obj* x_102; 
 lean::dec(x_98);
 x_1 = x_93;
 goto _start;
@@ -2526,7 +2521,6 @@ return x_108;
 }
 else
 {
-obj* x_109; 
 lean::dec(x_105);
 x_1 = x_104;
 goto _start;
@@ -2534,7 +2528,7 @@ goto _start;
 }
 case 9:
 {
-obj* x_110; obj* x_111; 
+obj* x_110; 
 x_110 = lean::cnstr_get(x_1, 1);
 lean::inc(x_110);
 lean::dec(x_1);
@@ -2671,7 +2665,6 @@ return x_136;
 }
 else
 {
-obj* x_137; 
 lean::dec(x_133);
 x_1 = x_132;
 goto _start;
@@ -2736,7 +2729,7 @@ x_13 = l_Lean_IR_LocalContext_contains(x_4, x_12);
 lean::dec(x_12);
 if (x_13 == 0)
 {
-obj* x_14; obj* x_15; 
+obj* x_14; 
 x_14 = l_Lean_IR_LocalContext_addParam(x_4, x_9);
 x_3 = x_11;
 x_4 = x_14;
@@ -2782,7 +2775,7 @@ x_13 = l_Lean_IR_LocalContext_contains(x_4, x_12);
 lean::dec(x_12);
 if (x_13 == 0)
 {
-obj* x_14; obj* x_15; 
+obj* x_14; 
 x_14 = l_Lean_IR_LocalContext_addParam(x_4, x_9);
 x_3 = x_11;
 x_4 = x_14;
@@ -3180,7 +3173,7 @@ uint8 x_18;
 x_18 = !lean::is_exclusive(x_17);
 if (x_18 == 0)
 {
-obj* x_19; obj* x_20; obj* x_21; 
+obj* x_19; obj* x_20; 
 x_19 = lean::cnstr_get(x_17, 0);
 lean::dec(x_19);
 x_20 = lean::box(0);
@@ -3191,7 +3184,7 @@ goto _start;
 }
 else
 {
-obj* x_22; obj* x_23; obj* x_24; obj* x_25; 
+obj* x_22; obj* x_23; obj* x_24; 
 x_22 = lean::cnstr_get(x_17, 1);
 lean::inc(x_22);
 lean::dec(x_17);

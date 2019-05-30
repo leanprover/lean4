@@ -385,7 +385,6 @@ x_6 = lean::cnstr_get(x_4, 2);
 x_7 = lean_name_dec_eq(x_6, x_1);
 if (x_7 == 0)
 {
-obj* x_8; 
 x_2 = x_5;
 goto _start;
 }
@@ -508,7 +507,6 @@ return x_8;
 }
 else
 {
-obj* x_9; 
 x_1 = x_3;
 goto _start;
 }
@@ -1128,7 +1126,7 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 1);
 x_5 = l_Lean_Compiler_preUIntBinFoldFns;
@@ -2557,7 +2555,6 @@ x_7 = lean::cnstr_get(x_4, 1);
 x_8 = lean_name_dec_eq(x_1, x_6);
 if (x_8 == 0)
 {
-obj* x_9; 
 x_2 = x_5;
 goto _start;
 }
@@ -2619,7 +2616,6 @@ x_7 = lean::cnstr_get(x_4, 1);
 x_8 = lean_name_dec_eq(x_1, x_6);
 if (x_8 == 0)
 {
-obj* x_9; 
 x_2 = x_5;
 goto _start;
 }

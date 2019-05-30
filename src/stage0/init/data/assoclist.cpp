@@ -46,7 +46,7 @@ return x_2;
 }
 else
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = lean::cnstr_get(x_3, 1);
@@ -114,7 +114,6 @@ x_9 = lean::unbox(x_8);
 lean::dec(x_8);
 if (x_9 == 0)
 {
-obj* x_10; 
 lean::dec(x_6);
 x_3 = x_7;
 goto _start;
@@ -182,7 +181,6 @@ x_8 = lean::unbox(x_7);
 lean::dec(x_7);
 if (x_8 == 0)
 {
-uint8 x_9; 
 x_3 = x_6;
 goto _start;
 }

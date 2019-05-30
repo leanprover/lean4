@@ -199,7 +199,7 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_4 = lean::cnstr_get(x_2, 1);
@@ -295,7 +295,7 @@ _start:
 {
 if (lean::obj_tag(x_1) == 5)
 {
-obj* x_2; obj* x_3; 
+obj* x_2; 
 x_2 = lean::cnstr_get(x_1, 0);
 x_1 = x_2;
 goto _start;

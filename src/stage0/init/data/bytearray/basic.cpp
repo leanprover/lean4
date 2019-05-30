@@ -193,7 +193,7 @@ return x_6;
 }
 else
 {
-obj* x_7; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; 
+obj* x_7; obj* x_8; uint8 x_9; obj* x_10; obj* x_11; 
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_add(x_2, x_7);
 x_9 = lean::byte_array_get(x_1, x_2);
@@ -262,7 +262,7 @@ return x_2;
 }
 else
 {
-obj* x_3; obj* x_4; uint8 x_5; obj* x_6; obj* x_7; 
+obj* x_3; obj* x_4; uint8 x_5; obj* x_6; 
 x_3 = lean::cnstr_get(x_1, 0);
 lean::inc(x_3);
 x_4 = lean::cnstr_get(x_1, 1);

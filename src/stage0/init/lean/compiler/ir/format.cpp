@@ -219,7 +219,7 @@ return x_5;
 }
 else
 {
-obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
+obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
 x_8 = lean::array_fget(x_3, x_4);
 x_9 = 0;
 x_10 = l_Lean_Format_flatten___main___closed__1;
@@ -556,7 +556,7 @@ return x_4;
 }
 else
 {
-obj* x_7; uint8 x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+obj* x_7; uint8 x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_7 = lean::array_fget(x_2, x_3);
 x_8 = 0;
 x_9 = l_Lean_Format_flatten___main___closed__1;
@@ -1607,7 +1607,7 @@ return x_4;
 }
 else
 {
-obj* x_7; uint8 x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+obj* x_7; uint8 x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_7 = lean::array_fget(x_2, x_3);
 x_8 = 0;
 x_9 = l_Lean_Format_flatten___main___closed__1;
@@ -1692,7 +1692,7 @@ return x_5;
 }
 else
 {
-obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+obj* x_8; uint8 x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
 x_8 = lean::array_fget(x_3, x_4);
 x_9 = 0;
 x_10 = lean::box(1);

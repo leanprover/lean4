@@ -542,7 +542,6 @@ x_4 = lean::cnstr_get(x_2, 0);
 x_5 = lean_name_dec_eq(x_1, x_2);
 if (x_5 == 0)
 {
-uint8 x_6; 
 x_2 = x_4;
 goto _start;
 }
@@ -633,7 +632,6 @@ return x_11;
 }
 else
 {
-uint8 x_13; 
 x_1 = x_7;
 x_2 = x_9;
 goto _start;
@@ -687,7 +685,6 @@ return x_22;
 }
 else
 {
-uint8 x_24; 
 x_1 = x_18;
 x_2 = x_20;
 goto _start;
@@ -5918,14 +5915,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -6020,14 +6015,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -8593,14 +8586,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -8657,7 +8648,7 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 1);
 x_5 = l_String_trim(x_3);

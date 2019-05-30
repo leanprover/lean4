@@ -525,7 +525,6 @@ return x_28;
 }
 else
 {
-obj* x_30; 
 x_2 = x_26;
 x_3 = x_28;
 goto _start;
@@ -544,7 +543,6 @@ return x_33;
 }
 else
 {
-obj* x_35; 
 x_2 = x_32;
 x_3 = x_33;
 goto _start;
@@ -563,7 +561,6 @@ return x_38;
 }
 else
 {
-obj* x_40; 
 x_2 = x_37;
 x_3 = x_38;
 goto _start;
@@ -592,7 +589,6 @@ return x_46;
 }
 else
 {
-obj* x_48; 
 x_2 = x_43;
 x_3 = x_46;
 goto _start;
@@ -601,14 +597,14 @@ goto _start;
 }
 case 10:
 {
-obj* x_49; obj* x_50; 
+obj* x_49; 
 x_49 = lean::cnstr_get(x_2, 1);
 x_2 = x_49;
 goto _start;
 }
 case 11:
 {
-obj* x_51; obj* x_52; 
+obj* x_51; 
 x_51 = lean::cnstr_get(x_2, 2);
 x_2 = x_51;
 goto _start;

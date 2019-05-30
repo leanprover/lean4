@@ -45006,7 +45006,7 @@ uint8 x_3;
 x_3 = !lean::is_exclusive(x_2);
 if (x_3 == 0)
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_4 = lean::cnstr_get(x_2, 1);
 x_5 = lean::box(0);
 lean::cnstr_set(x_2, 1, x_5);
@@ -45021,7 +45021,7 @@ goto _start;
 }
 else
 {
-obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
 x_10 = lean::cnstr_get(x_2, 0);
 x_11 = lean::cnstr_get(x_2, 1);
 lean::inc(x_11);
@@ -47879,14 +47879,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -47932,14 +47930,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -47985,14 +47981,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -48038,14 +48032,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -49314,7 +49306,7 @@ return x_9;
 }
 else
 {
-obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
+obj* x_10; obj* x_11; obj* x_12; 
 x_10 = lean::cnstr_get(x_2, 0);
 lean::inc(x_10);
 x_11 = lean::cnstr_get(x_2, 1);
@@ -49912,14 +49904,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -49965,14 +49955,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -50018,14 +50006,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -50071,14 +50057,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }

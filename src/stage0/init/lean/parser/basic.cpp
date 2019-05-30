@@ -1300,7 +1300,7 @@ lean::inc(x_1);
 x_8 = l___private_init_lean_parser_trie_3__findAux___main___rarg(x_6, x_1, x_7);
 if (lean::obj_tag(x_8) == 0)
 {
-obj* x_9; obj* x_10; 
+obj* x_9; 
 x_9 = l___private_init_lean_parser_trie_2__insertAux___main___rarg(x_6, x_4, x_1, x_7);
 lean::dec(x_6);
 x_1 = x_9;
@@ -1352,7 +1352,6 @@ return x_27;
 }
 else
 {
-obj* x_28; 
 lean::dec(x_14);
 lean::dec(x_12);
 lean::dec(x_6);
@@ -1362,7 +1361,7 @@ goto _start;
 }
 else
 {
-obj* x_29; obj* x_30; 
+obj* x_29; 
 lean::dec(x_14);
 lean::dec(x_12);
 x_29 = l___private_init_lean_parser_trie_2__insertAux___main___rarg(x_6, x_4, x_1, x_7);
@@ -1383,7 +1382,6 @@ x_32 = lean::nat_dec_eq(x_31, x_7);
 lean::dec(x_31);
 if (x_32 == 0)
 {
-obj* x_33; 
 lean::dec(x_6);
 lean::dec(x_4);
 x_2 = x_5;
@@ -1391,7 +1389,7 @@ goto _start;
 }
 else
 {
-obj* x_34; obj* x_35; 
+obj* x_34; 
 x_34 = l___private_init_lean_parser_trie_2__insertAux___main___rarg(x_6, x_4, x_1, x_7);
 lean::dec(x_6);
 x_1 = x_34;
@@ -1881,14 +1879,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }

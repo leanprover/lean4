@@ -188,7 +188,7 @@ x_5 = lean::mk_nat_obj(0u);
 x_6 = lean::nat_dec_eq(x_3, x_5);
 if (x_6 == 0)
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_7 = lean::mk_nat_obj(1u);
 x_8 = lean::nat_sub(x_3, x_7);
 x_9 = lean::nat_sub(x_2, x_3);
@@ -286,7 +286,6 @@ x_10 = lean::unbox(x_9);
 lean::dec(x_9);
 if (x_10 == 0)
 {
-uint8 x_11; 
 x_3 = x_7;
 goto _start;
 }
@@ -383,7 +382,6 @@ return x_11;
 }
 else
 {
-uint8 x_12; 
 x_3 = x_7;
 goto _start;
 }
@@ -446,7 +444,7 @@ x_4 = lean::mk_nat_obj(0u);
 x_5 = lean::nat_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {
-obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_6; obj* x_7; obj* x_8; 
 x_6 = lean::mk_nat_obj(1u);
 x_7 = lean::nat_sub(x_2, x_6);
 lean::dec(x_2);
@@ -686,7 +684,6 @@ return x_11;
 }
 else
 {
-uint8 x_12; 
 x_3 = x_7;
 goto _start;
 }

@@ -287,7 +287,6 @@ x_7 = lean::cnstr_get(x_4, 1);
 x_8 = lean_name_dec_eq(x_6, x_2);
 if (x_8 == 0)
 {
-obj* x_9; 
 x_1 = x_5;
 goto _start;
 }
@@ -849,7 +848,6 @@ return x_12;
 }
 else
 {
-uint8 x_13; 
 x_1 = x_5;
 goto _start;
 }

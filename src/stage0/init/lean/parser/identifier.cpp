@@ -818,7 +818,7 @@ return x_12;
 }
 else
 {
-obj* x_13; obj* x_14; obj* x_15; 
+obj* x_13; obj* x_14; 
 x_13 = lean::string_push(x_2, x_10);
 x_14 = l_String_OldIterator_next___main(x_3);
 x_1 = x_7;
@@ -1033,7 +1033,7 @@ x_10 = l_String_OldIterator_curr___main(x_3);
 x_11 = l_Lean_isIdEndEscape(x_10);
 if (x_11 == 0)
 {
-obj* x_12; obj* x_13; obj* x_14; 
+obj* x_12; obj* x_13; 
 x_12 = lean::string_push(x_2, x_10);
 x_13 = l_String_OldIterator_next___main(x_3);
 x_1 = x_7;
@@ -1587,7 +1587,7 @@ return x_14;
 }
 else
 {
-obj* x_15; obj* x_16; obj* x_17; 
+obj* x_15; obj* x_16; 
 x_15 = lean::string_push(x_2, x_10);
 x_16 = l_String_OldIterator_next___main(x_3);
 x_1 = x_7;
@@ -1598,7 +1598,7 @@ goto _start;
 }
 else
 {
-obj* x_18; obj* x_19; obj* x_20; 
+obj* x_18; obj* x_19; 
 x_18 = lean::string_push(x_2, x_10);
 x_19 = l_String_OldIterator_next___main(x_3);
 x_1 = x_7;

@@ -956,7 +956,7 @@ lean::dec(x_3);
 x_12 = lean::nat_dec_eq(x_11, x_5);
 if (x_12 == 0)
 {
-obj* x_13; obj* x_14; obj* x_15; 
+obj* x_13; obj* x_14; 
 x_13 = lean::box_uint32(x_10);
 x_14 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_14, 0, x_13);

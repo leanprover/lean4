@@ -1338,7 +1338,7 @@ lean::inc(x_21);
 lean::dec(x_8);
 if (lean::obj_tag(x_21) == 0)
 {
-obj* x_22; obj* x_23; 
+obj* x_22; 
 lean::dec(x_14);
 lean::free_heap_obj(x_2);
 x_22 = lean::cnstr_get(x_20, 1);
@@ -1403,7 +1403,7 @@ lean::dec(x_31);
 x_34 = !lean::is_exclusive(x_32);
 if (x_34 == 0)
 {
-obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; obj* x_42; obj* x_43; 
+obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; obj* x_42; 
 x_35 = lean::cnstr_get(x_32, 3);
 lean::dec(x_35);
 x_36 = l_Lean_Parser_Term_binderIdent_HasView;
@@ -1427,7 +1427,7 @@ goto _start;
 }
 else
 {
-obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_55; 
+obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_51; obj* x_52; obj* x_53; obj* x_54; 
 x_44 = lean::cnstr_get(x_32, 0);
 x_45 = lean::cnstr_get(x_32, 1);
 x_46 = lean::cnstr_get(x_32, 2);
@@ -1506,7 +1506,7 @@ lean::dec(x_61);
 x_64 = !lean::is_exclusive(x_62);
 if (x_64 == 0)
 {
-obj* x_65; obj* x_66; obj* x_67; obj* x_68; obj* x_69; 
+obj* x_65; obj* x_66; obj* x_67; obj* x_68; 
 x_65 = lean::cnstr_get(x_62, 3);
 lean::dec(x_65);
 x_66 = l_Lean_Parser_Term_binders_HasView;
@@ -1521,7 +1521,7 @@ goto _start;
 }
 else
 {
-obj* x_70; obj* x_71; obj* x_72; obj* x_73; obj* x_74; obj* x_75; obj* x_76; obj* x_77; 
+obj* x_70; obj* x_71; obj* x_72; obj* x_73; obj* x_74; obj* x_75; obj* x_76; 
 x_70 = lean::cnstr_get(x_62, 0);
 x_71 = lean::cnstr_get(x_62, 1);
 x_72 = lean::cnstr_get(x_62, 2);
@@ -1602,7 +1602,7 @@ x_88 = lean::cnstr_get(x_86, 1);
 x_89 = !lean::is_exclusive(x_88);
 if (x_89 == 0)
 {
-obj* x_90; obj* x_91; obj* x_92; 
+obj* x_90; obj* x_91; 
 x_90 = lean::cnstr_get(x_86, 0);
 x_91 = lean::cnstr_get(x_88, 2);
 lean::cnstr_set(x_86, 1, x_90);
@@ -1616,7 +1616,7 @@ goto _start;
 }
 else
 {
-obj* x_93; obj* x_94; obj* x_95; obj* x_96; obj* x_97; obj* x_98; obj* x_99; 
+obj* x_93; obj* x_94; obj* x_95; obj* x_96; obj* x_97; obj* x_98; 
 x_93 = lean::cnstr_get(x_86, 0);
 x_94 = lean::cnstr_get(x_88, 0);
 x_95 = lean::cnstr_get(x_88, 1);
@@ -1643,7 +1643,7 @@ goto _start;
 }
 else
 {
-obj* x_100; obj* x_101; obj* x_102; obj* x_103; obj* x_104; obj* x_105; obj* x_106; obj* x_107; obj* x_108; obj* x_109; 
+obj* x_100; obj* x_101; obj* x_102; obj* x_103; obj* x_104; obj* x_105; obj* x_106; obj* x_107; obj* x_108; 
 x_100 = lean::cnstr_get(x_86, 1);
 x_101 = lean::cnstr_get(x_86, 0);
 lean::inc(x_100);
@@ -1746,7 +1746,7 @@ x_120 = lean::cnstr_get(x_118, 1);
 x_121 = !lean::is_exclusive(x_120);
 if (x_121 == 0)
 {
-obj* x_122; obj* x_123; obj* x_124; 
+obj* x_122; obj* x_123; 
 x_122 = lean::cnstr_get(x_118, 0);
 x_123 = lean::cnstr_get(x_120, 2);
 lean::cnstr_set(x_118, 1, x_122);
@@ -1760,7 +1760,7 @@ goto _start;
 }
 else
 {
-obj* x_125; obj* x_126; obj* x_127; obj* x_128; obj* x_129; obj* x_130; obj* x_131; 
+obj* x_125; obj* x_126; obj* x_127; obj* x_128; obj* x_129; obj* x_130; 
 x_125 = lean::cnstr_get(x_118, 0);
 x_126 = lean::cnstr_get(x_120, 0);
 x_127 = lean::cnstr_get(x_120, 1);
@@ -1787,7 +1787,7 @@ goto _start;
 }
 else
 {
-obj* x_132; obj* x_133; obj* x_134; obj* x_135; obj* x_136; obj* x_137; obj* x_138; obj* x_139; obj* x_140; obj* x_141; 
+obj* x_132; obj* x_133; obj* x_134; obj* x_135; obj* x_136; obj* x_137; obj* x_138; obj* x_139; obj* x_140; 
 x_132 = lean::cnstr_get(x_118, 1);
 x_133 = lean::cnstr_get(x_118, 0);
 lean::inc(x_132);
@@ -1912,7 +1912,7 @@ return x_155;
 }
 else
 {
-obj* x_156; obj* x_157; obj* x_158; 
+obj* x_156; obj* x_157; 
 x_156 = lean::cnstr_get(x_152, 0);
 lean::inc(x_156);
 lean::dec(x_152);
@@ -1938,7 +1938,7 @@ lean::dec(x_161);
 x_162 = !lean::is_exclusive(x_150);
 if (x_162 == 0)
 {
-obj* x_163; obj* x_164; obj* x_165; obj* x_166; obj* x_167; obj* x_168; obj* x_169; obj* x_170; obj* x_171; obj* x_172; obj* x_173; obj* x_174; obj* x_175; obj* x_176; obj* x_177; obj* x_178; obj* x_179; obj* x_180; obj* x_181; obj* x_182; obj* x_183; obj* x_184; obj* x_185; obj* x_186; 
+obj* x_163; obj* x_164; obj* x_165; obj* x_166; obj* x_167; obj* x_168; obj* x_169; obj* x_170; obj* x_171; obj* x_172; obj* x_173; obj* x_174; obj* x_175; obj* x_176; obj* x_177; obj* x_178; obj* x_179; obj* x_180; obj* x_181; obj* x_182; obj* x_183; obj* x_184; obj* x_185; 
 x_163 = lean::cnstr_get(x_150, 2);
 x_164 = lean::cnstr_get(x_150, 3);
 lean::dec(x_164);
@@ -1996,7 +1996,7 @@ goto _start;
 }
 else
 {
-obj* x_187; obj* x_188; obj* x_189; obj* x_190; obj* x_191; obj* x_192; obj* x_193; obj* x_194; obj* x_195; obj* x_196; obj* x_197; obj* x_198; obj* x_199; obj* x_200; obj* x_201; obj* x_202; obj* x_203; obj* x_204; obj* x_205; obj* x_206; obj* x_207; obj* x_208; obj* x_209; obj* x_210; obj* x_211; obj* x_212; 
+obj* x_187; obj* x_188; obj* x_189; obj* x_190; obj* x_191; obj* x_192; obj* x_193; obj* x_194; obj* x_195; obj* x_196; obj* x_197; obj* x_198; obj* x_199; obj* x_200; obj* x_201; obj* x_202; obj* x_203; obj* x_204; obj* x_205; obj* x_206; obj* x_207; obj* x_208; obj* x_209; obj* x_210; obj* x_211; 
 x_187 = lean::cnstr_get(x_150, 0);
 x_188 = lean::cnstr_get(x_150, 1);
 x_189 = lean::cnstr_get(x_150, 2);
@@ -2063,7 +2063,7 @@ goto _start;
 }
 else
 {
-obj* x_213; obj* x_214; obj* x_215; obj* x_216; obj* x_217; obj* x_218; obj* x_219; obj* x_220; obj* x_221; obj* x_222; obj* x_223; obj* x_224; obj* x_225; obj* x_226; obj* x_227; obj* x_228; obj* x_229; obj* x_230; obj* x_231; obj* x_232; obj* x_233; obj* x_234; obj* x_235; obj* x_236; obj* x_237; obj* x_238; obj* x_239; obj* x_240; obj* x_241; 
+obj* x_213; obj* x_214; obj* x_215; obj* x_216; obj* x_217; obj* x_218; obj* x_219; obj* x_220; obj* x_221; obj* x_222; obj* x_223; obj* x_224; obj* x_225; obj* x_226; obj* x_227; obj* x_228; obj* x_229; obj* x_230; obj* x_231; obj* x_232; obj* x_233; obj* x_234; obj* x_235; obj* x_236; obj* x_237; obj* x_238; obj* x_239; obj* x_240; 
 x_213 = lean::cnstr_get(x_149, 0);
 lean::inc(x_213);
 lean::dec(x_149);
@@ -2183,7 +2183,7 @@ return x_247;
 }
 else
 {
-obj* x_248; obj* x_249; obj* x_250; 
+obj* x_248; obj* x_249; 
 x_248 = lean::cnstr_get(x_244, 0);
 lean::inc(x_248);
 lean::dec(x_244);
@@ -2241,7 +2241,7 @@ return x_256;
 }
 else
 {
-obj* x_257; obj* x_258; obj* x_259; obj* x_260; obj* x_261; obj* x_262; obj* x_263; obj* x_264; obj* x_265; obj* x_266; obj* x_267; obj* x_268; obj* x_269; obj* x_270; obj* x_271; obj* x_272; obj* x_273; 
+obj* x_257; obj* x_258; obj* x_259; obj* x_260; obj* x_261; obj* x_262; obj* x_263; obj* x_264; obj* x_265; obj* x_266; obj* x_267; obj* x_268; obj* x_269; obj* x_270; obj* x_271; obj* x_272; 
 x_257 = lean::cnstr_get(x_253, 0);
 lean::inc(x_257);
 lean::dec(x_253);
@@ -2329,7 +2329,7 @@ return x_278;
 }
 else
 {
-obj* x_279; obj* x_280; obj* x_281; obj* x_282; obj* x_283; obj* x_284; obj* x_285; obj* x_286; obj* x_287; obj* x_288; obj* x_289; obj* x_290; obj* x_291; 
+obj* x_279; obj* x_280; obj* x_281; obj* x_282; obj* x_283; obj* x_284; obj* x_285; obj* x_286; obj* x_287; obj* x_288; obj* x_289; obj* x_290; 
 x_279 = lean::cnstr_get(x_275, 0);
 lean::inc(x_279);
 lean::dec(x_275);
@@ -2419,7 +2419,7 @@ return x_299;
 }
 else
 {
-obj* x_300; obj* x_301; obj* x_302; obj* x_303; obj* x_304; obj* x_305; obj* x_306; obj* x_307; obj* x_308; obj* x_309; obj* x_310; obj* x_311; 
+obj* x_300; obj* x_301; obj* x_302; obj* x_303; obj* x_304; obj* x_305; obj* x_306; obj* x_307; obj* x_308; obj* x_309; obj* x_310; 
 x_300 = lean::cnstr_get(x_296, 0);
 lean::inc(x_300);
 lean::dec(x_296);
@@ -2524,7 +2524,7 @@ return x_319;
 }
 else
 {
-obj* x_320; obj* x_321; obj* x_322; obj* x_323; obj* x_324; obj* x_325; obj* x_326; obj* x_327; obj* x_328; obj* x_329; obj* x_330; obj* x_331; 
+obj* x_320; obj* x_321; obj* x_322; obj* x_323; obj* x_324; obj* x_325; obj* x_326; obj* x_327; obj* x_328; obj* x_329; obj* x_330; 
 x_320 = lean::cnstr_get(x_316, 0);
 lean::inc(x_320);
 lean::dec(x_316);
@@ -2664,7 +2664,7 @@ return x_345;
 }
 else
 {
-obj* x_346; obj* x_347; obj* x_348; 
+obj* x_346; obj* x_347; 
 x_346 = lean::cnstr_get(x_342, 0);
 lean::inc(x_346);
 lean::dec(x_342);
@@ -2678,7 +2678,7 @@ goto _start;
 }
 else
 {
-obj* x_349; obj* x_350; obj* x_351; obj* x_352; obj* x_353; obj* x_354; obj* x_355; obj* x_356; obj* x_357; obj* x_358; obj* x_359; obj* x_360; obj* x_361; obj* x_362; obj* x_363; obj* x_364; obj* x_365; obj* x_366; obj* x_367; obj* x_368; obj* x_369; obj* x_370; obj* x_371; obj* x_372; obj* x_373; obj* x_374; obj* x_375; obj* x_376; obj* x_377; obj* x_378; 
+obj* x_349; obj* x_350; obj* x_351; obj* x_352; obj* x_353; obj* x_354; obj* x_355; obj* x_356; obj* x_357; obj* x_358; obj* x_359; obj* x_360; obj* x_361; obj* x_362; obj* x_363; obj* x_364; obj* x_365; obj* x_366; obj* x_367; obj* x_368; obj* x_369; obj* x_370; obj* x_371; obj* x_372; obj* x_373; obj* x_374; obj* x_375; obj* x_376; obj* x_377; 
 lean::dec(x_14);
 x_349 = lean::cnstr_get(x_339, 0);
 lean::inc(x_349);
@@ -2810,7 +2810,7 @@ return x_384;
 }
 else
 {
-obj* x_385; obj* x_386; obj* x_387; 
+obj* x_385; obj* x_386; 
 x_385 = lean::cnstr_get(x_381, 0);
 lean::inc(x_385);
 lean::dec(x_381);
@@ -2877,7 +2877,7 @@ lean::inc(x_396);
 lean::dec(x_8);
 if (lean::obj_tag(x_396) == 0)
 {
-obj* x_397; obj* x_398; 
+obj* x_397; 
 lean::dec(x_389);
 x_397 = lean::cnstr_get(x_395, 1);
 lean::inc(x_397);
@@ -2933,7 +2933,7 @@ return x_405;
 }
 else
 {
-obj* x_406; obj* x_407; obj* x_408; obj* x_409; obj* x_410; obj* x_411; obj* x_412; obj* x_413; obj* x_414; obj* x_415; obj* x_416; obj* x_417; obj* x_418; obj* x_419; obj* x_420; obj* x_421; obj* x_422; obj* x_423; 
+obj* x_406; obj* x_407; obj* x_408; obj* x_409; obj* x_410; obj* x_411; obj* x_412; obj* x_413; obj* x_414; obj* x_415; obj* x_416; obj* x_417; obj* x_418; obj* x_419; obj* x_420; obj* x_421; obj* x_422; 
 x_406 = lean::cnstr_get(x_402, 0);
 lean::inc(x_406);
 lean::dec(x_402);
@@ -3026,7 +3026,7 @@ return x_428;
 }
 else
 {
-obj* x_429; obj* x_430; obj* x_431; obj* x_432; obj* x_433; obj* x_434; obj* x_435; obj* x_436; obj* x_437; obj* x_438; obj* x_439; obj* x_440; obj* x_441; 
+obj* x_429; obj* x_430; obj* x_431; obj* x_432; obj* x_433; obj* x_434; obj* x_435; obj* x_436; obj* x_437; obj* x_438; obj* x_439; obj* x_440; 
 x_429 = lean::cnstr_get(x_425, 0);
 lean::inc(x_429);
 lean::dec(x_425);
@@ -3120,7 +3120,7 @@ return x_449;
 }
 else
 {
-obj* x_450; obj* x_451; obj* x_452; obj* x_453; obj* x_454; obj* x_455; obj* x_456; obj* x_457; obj* x_458; obj* x_459; obj* x_460; obj* x_461; obj* x_462; 
+obj* x_450; obj* x_451; obj* x_452; obj* x_453; obj* x_454; obj* x_455; obj* x_456; obj* x_457; obj* x_458; obj* x_459; obj* x_460; obj* x_461; 
 x_450 = lean::cnstr_get(x_446, 0);
 lean::inc(x_450);
 lean::dec(x_446);
@@ -3225,7 +3225,7 @@ return x_470;
 }
 else
 {
-obj* x_471; obj* x_472; obj* x_473; obj* x_474; obj* x_475; obj* x_476; obj* x_477; obj* x_478; obj* x_479; obj* x_480; obj* x_481; obj* x_482; obj* x_483; 
+obj* x_471; obj* x_472; obj* x_473; obj* x_474; obj* x_475; obj* x_476; obj* x_477; obj* x_478; obj* x_479; obj* x_480; obj* x_481; obj* x_482; 
 x_471 = lean::cnstr_get(x_467, 0);
 lean::inc(x_471);
 lean::dec(x_467);
@@ -3364,7 +3364,7 @@ return x_497;
 }
 else
 {
-obj* x_498; obj* x_499; obj* x_500; 
+obj* x_498; obj* x_499; 
 x_498 = lean::cnstr_get(x_494, 0);
 lean::inc(x_498);
 lean::dec(x_494);
@@ -3378,7 +3378,7 @@ goto _start;
 }
 else
 {
-obj* x_501; obj* x_502; obj* x_503; obj* x_504; obj* x_505; obj* x_506; obj* x_507; obj* x_508; obj* x_509; obj* x_510; obj* x_511; obj* x_512; obj* x_513; obj* x_514; obj* x_515; obj* x_516; obj* x_517; obj* x_518; obj* x_519; obj* x_520; obj* x_521; obj* x_522; obj* x_523; obj* x_524; obj* x_525; obj* x_526; obj* x_527; obj* x_528; obj* x_529; obj* x_530; obj* x_531; 
+obj* x_501; obj* x_502; obj* x_503; obj* x_504; obj* x_505; obj* x_506; obj* x_507; obj* x_508; obj* x_509; obj* x_510; obj* x_511; obj* x_512; obj* x_513; obj* x_514; obj* x_515; obj* x_516; obj* x_517; obj* x_518; obj* x_519; obj* x_520; obj* x_521; obj* x_522; obj* x_523; obj* x_524; obj* x_525; obj* x_526; obj* x_527; obj* x_528; obj* x_529; obj* x_530; 
 lean::dec(x_389);
 x_501 = lean::cnstr_get(x_491, 0);
 lean::inc(x_501);
@@ -3510,7 +3510,7 @@ return x_537;
 }
 else
 {
-obj* x_538; obj* x_539; obj* x_540; 
+obj* x_538; obj* x_539; 
 x_538 = lean::cnstr_get(x_534, 0);
 lean::inc(x_538);
 lean::dec(x_534);
@@ -3576,7 +3576,7 @@ lean::inc(x_549);
 lean::dec(x_8);
 if (lean::obj_tag(x_549) == 0)
 {
-obj* x_550; obj* x_551; 
+obj* x_550; 
 lean::free_heap_obj(x_2);
 x_550 = lean::cnstr_get(x_548, 1);
 lean::inc(x_550);
@@ -3639,7 +3639,7 @@ lean::dec(x_559);
 x_562 = !lean::is_exclusive(x_560);
 if (x_562 == 0)
 {
-obj* x_563; obj* x_564; obj* x_565; obj* x_566; obj* x_567; obj* x_568; obj* x_569; obj* x_570; obj* x_571; 
+obj* x_563; obj* x_564; obj* x_565; obj* x_566; obj* x_567; obj* x_568; obj* x_569; obj* x_570; 
 x_563 = lean::cnstr_get(x_560, 3);
 lean::dec(x_563);
 x_564 = l_Lean_Parser_Term_binderIdent_HasView;
@@ -3663,7 +3663,7 @@ goto _start;
 }
 else
 {
-obj* x_572; obj* x_573; obj* x_574; obj* x_575; obj* x_576; obj* x_577; obj* x_578; obj* x_579; obj* x_580; obj* x_581; obj* x_582; obj* x_583; 
+obj* x_572; obj* x_573; obj* x_574; obj* x_575; obj* x_576; obj* x_577; obj* x_578; obj* x_579; obj* x_580; obj* x_581; obj* x_582; 
 x_572 = lean::cnstr_get(x_560, 0);
 x_573 = lean::cnstr_get(x_560, 1);
 x_574 = lean::cnstr_get(x_560, 2);
@@ -3741,7 +3741,7 @@ lean::dec(x_589);
 x_592 = !lean::is_exclusive(x_590);
 if (x_592 == 0)
 {
-obj* x_593; obj* x_594; obj* x_595; obj* x_596; obj* x_597; 
+obj* x_593; obj* x_594; obj* x_595; obj* x_596; 
 x_593 = lean::cnstr_get(x_590, 3);
 lean::dec(x_593);
 x_594 = l_Lean_Parser_Term_binders_HasView;
@@ -3756,7 +3756,7 @@ goto _start;
 }
 else
 {
-obj* x_598; obj* x_599; obj* x_600; obj* x_601; obj* x_602; obj* x_603; obj* x_604; obj* x_605; 
+obj* x_598; obj* x_599; obj* x_600; obj* x_601; obj* x_602; obj* x_603; obj* x_604; 
 x_598 = lean::cnstr_get(x_590, 0);
 x_599 = lean::cnstr_get(x_590, 1);
 x_600 = lean::cnstr_get(x_590, 2);
@@ -3836,7 +3836,7 @@ x_616 = lean::cnstr_get(x_614, 1);
 x_617 = !lean::is_exclusive(x_616);
 if (x_617 == 0)
 {
-obj* x_618; obj* x_619; obj* x_620; 
+obj* x_618; obj* x_619; 
 x_618 = lean::cnstr_get(x_614, 0);
 x_619 = lean::cnstr_get(x_616, 2);
 lean::cnstr_set(x_614, 1, x_618);
@@ -3850,7 +3850,7 @@ goto _start;
 }
 else
 {
-obj* x_621; obj* x_622; obj* x_623; obj* x_624; obj* x_625; obj* x_626; obj* x_627; 
+obj* x_621; obj* x_622; obj* x_623; obj* x_624; obj* x_625; obj* x_626; 
 x_621 = lean::cnstr_get(x_614, 0);
 x_622 = lean::cnstr_get(x_616, 0);
 x_623 = lean::cnstr_get(x_616, 1);
@@ -3877,7 +3877,7 @@ goto _start;
 }
 else
 {
-obj* x_628; obj* x_629; obj* x_630; obj* x_631; obj* x_632; obj* x_633; obj* x_634; obj* x_635; obj* x_636; obj* x_637; 
+obj* x_628; obj* x_629; obj* x_630; obj* x_631; obj* x_632; obj* x_633; obj* x_634; obj* x_635; obj* x_636; 
 x_628 = lean::cnstr_get(x_614, 1);
 x_629 = lean::cnstr_get(x_614, 0);
 lean::inc(x_628);
@@ -3982,7 +3982,7 @@ x_649 = lean::cnstr_get(x_647, 1);
 x_650 = !lean::is_exclusive(x_649);
 if (x_650 == 0)
 {
-obj* x_651; obj* x_652; obj* x_653; 
+obj* x_651; obj* x_652; 
 x_651 = lean::cnstr_get(x_647, 0);
 x_652 = lean::cnstr_get(x_649, 2);
 lean::cnstr_set(x_647, 1, x_651);
@@ -3996,7 +3996,7 @@ goto _start;
 }
 else
 {
-obj* x_654; obj* x_655; obj* x_656; obj* x_657; obj* x_658; obj* x_659; obj* x_660; 
+obj* x_654; obj* x_655; obj* x_656; obj* x_657; obj* x_658; obj* x_659; 
 x_654 = lean::cnstr_get(x_647, 0);
 x_655 = lean::cnstr_get(x_649, 0);
 x_656 = lean::cnstr_get(x_649, 1);
@@ -4023,7 +4023,7 @@ goto _start;
 }
 else
 {
-obj* x_661; obj* x_662; obj* x_663; obj* x_664; obj* x_665; obj* x_666; obj* x_667; obj* x_668; obj* x_669; obj* x_670; 
+obj* x_661; obj* x_662; obj* x_663; obj* x_664; obj* x_665; obj* x_666; obj* x_667; obj* x_668; obj* x_669; 
 x_661 = lean::cnstr_get(x_647, 1);
 x_662 = lean::cnstr_get(x_647, 0);
 lean::inc(x_661);
@@ -4151,7 +4151,7 @@ return x_685;
 }
 else
 {
-obj* x_686; obj* x_687; obj* x_688; 
+obj* x_686; obj* x_687; 
 x_686 = lean::cnstr_get(x_682, 0);
 lean::inc(x_686);
 lean::dec(x_682);
@@ -4177,7 +4177,7 @@ lean::dec(x_691);
 x_692 = !lean::is_exclusive(x_679);
 if (x_692 == 0)
 {
-obj* x_693; obj* x_694; obj* x_695; obj* x_696; obj* x_697; obj* x_698; obj* x_699; obj* x_700; obj* x_701; obj* x_702; obj* x_703; obj* x_704; obj* x_705; obj* x_706; obj* x_707; obj* x_708; obj* x_709; obj* x_710; obj* x_711; obj* x_712; obj* x_713; obj* x_714; obj* x_715; obj* x_716; 
+obj* x_693; obj* x_694; obj* x_695; obj* x_696; obj* x_697; obj* x_698; obj* x_699; obj* x_700; obj* x_701; obj* x_702; obj* x_703; obj* x_704; obj* x_705; obj* x_706; obj* x_707; obj* x_708; obj* x_709; obj* x_710; obj* x_711; obj* x_712; obj* x_713; obj* x_714; obj* x_715; 
 x_693 = lean::cnstr_get(x_679, 2);
 x_694 = lean::cnstr_get(x_679, 3);
 lean::dec(x_694);
@@ -4235,7 +4235,7 @@ goto _start;
 }
 else
 {
-obj* x_717; obj* x_718; obj* x_719; obj* x_720; obj* x_721; obj* x_722; obj* x_723; obj* x_724; obj* x_725; obj* x_726; obj* x_727; obj* x_728; obj* x_729; obj* x_730; obj* x_731; obj* x_732; obj* x_733; obj* x_734; obj* x_735; obj* x_736; obj* x_737; obj* x_738; obj* x_739; obj* x_740; obj* x_741; obj* x_742; 
+obj* x_717; obj* x_718; obj* x_719; obj* x_720; obj* x_721; obj* x_722; obj* x_723; obj* x_724; obj* x_725; obj* x_726; obj* x_727; obj* x_728; obj* x_729; obj* x_730; obj* x_731; obj* x_732; obj* x_733; obj* x_734; obj* x_735; obj* x_736; obj* x_737; obj* x_738; obj* x_739; obj* x_740; obj* x_741; 
 x_717 = lean::cnstr_get(x_679, 0);
 x_718 = lean::cnstr_get(x_679, 1);
 x_719 = lean::cnstr_get(x_679, 2);
@@ -4302,7 +4302,7 @@ goto _start;
 }
 else
 {
-obj* x_743; obj* x_744; obj* x_745; obj* x_746; obj* x_747; obj* x_748; obj* x_749; obj* x_750; obj* x_751; obj* x_752; obj* x_753; obj* x_754; obj* x_755; obj* x_756; obj* x_757; obj* x_758; obj* x_759; obj* x_760; obj* x_761; obj* x_762; obj* x_763; obj* x_764; obj* x_765; obj* x_766; obj* x_767; obj* x_768; obj* x_769; obj* x_770; obj* x_771; 
+obj* x_743; obj* x_744; obj* x_745; obj* x_746; obj* x_747; obj* x_748; obj* x_749; obj* x_750; obj* x_751; obj* x_752; obj* x_753; obj* x_754; obj* x_755; obj* x_756; obj* x_757; obj* x_758; obj* x_759; obj* x_760; obj* x_761; obj* x_762; obj* x_763; obj* x_764; obj* x_765; obj* x_766; obj* x_767; obj* x_768; obj* x_769; obj* x_770; 
 x_743 = lean::cnstr_get(x_678, 0);
 lean::inc(x_743);
 lean::dec(x_678);
@@ -4424,7 +4424,7 @@ return x_777;
 }
 else
 {
-obj* x_778; obj* x_779; obj* x_780; 
+obj* x_778; obj* x_779; 
 x_778 = lean::cnstr_get(x_774, 0);
 lean::inc(x_778);
 lean::dec(x_774);
@@ -4485,7 +4485,7 @@ return x_788;
 }
 else
 {
-obj* x_789; obj* x_790; obj* x_791; obj* x_792; obj* x_793; obj* x_794; obj* x_795; obj* x_796; obj* x_797; obj* x_798; obj* x_799; obj* x_800; 
+obj* x_789; obj* x_790; obj* x_791; obj* x_792; obj* x_793; obj* x_794; obj* x_795; obj* x_796; obj* x_797; obj* x_798; obj* x_799; 
 x_789 = lean::cnstr_get(x_785, 0);
 lean::inc(x_789);
 lean::dec(x_785);
@@ -4628,7 +4628,7 @@ return x_816;
 }
 else
 {
-obj* x_817; obj* x_818; obj* x_819; 
+obj* x_817; obj* x_818; 
 x_817 = lean::cnstr_get(x_813, 0);
 lean::inc(x_817);
 lean::dec(x_813);
@@ -4642,7 +4642,7 @@ goto _start;
 }
 else
 {
-obj* x_820; obj* x_821; obj* x_822; obj* x_823; obj* x_824; obj* x_825; obj* x_826; obj* x_827; obj* x_828; obj* x_829; obj* x_830; obj* x_831; obj* x_832; obj* x_833; obj* x_834; obj* x_835; obj* x_836; obj* x_837; obj* x_838; obj* x_839; obj* x_840; obj* x_841; obj* x_842; obj* x_843; obj* x_844; obj* x_845; obj* x_846; obj* x_847; obj* x_848; obj* x_849; 
+obj* x_820; obj* x_821; obj* x_822; obj* x_823; obj* x_824; obj* x_825; obj* x_826; obj* x_827; obj* x_828; obj* x_829; obj* x_830; obj* x_831; obj* x_832; obj* x_833; obj* x_834; obj* x_835; obj* x_836; obj* x_837; obj* x_838; obj* x_839; obj* x_840; obj* x_841; obj* x_842; obj* x_843; obj* x_844; obj* x_845; obj* x_846; obj* x_847; obj* x_848; 
 x_820 = lean::cnstr_get(x_808, 0);
 lean::inc(x_820);
 if (lean::is_exclusive(x_808)) {
@@ -4776,7 +4776,7 @@ return x_856;
 }
 else
 {
-obj* x_857; obj* x_858; obj* x_859; 
+obj* x_857; obj* x_858; 
 x_857 = lean::cnstr_get(x_853, 0);
 lean::inc(x_857);
 lean::dec(x_853);
@@ -4834,7 +4834,7 @@ return x_865;
 }
 else
 {
-obj* x_866; obj* x_867; obj* x_868; obj* x_869; obj* x_870; obj* x_871; obj* x_872; obj* x_873; obj* x_874; obj* x_875; obj* x_876; obj* x_877; obj* x_878; obj* x_879; obj* x_880; obj* x_881; obj* x_882; 
+obj* x_866; obj* x_867; obj* x_868; obj* x_869; obj* x_870; obj* x_871; obj* x_872; obj* x_873; obj* x_874; obj* x_875; obj* x_876; obj* x_877; obj* x_878; obj* x_879; obj* x_880; obj* x_881; 
 x_866 = lean::cnstr_get(x_862, 0);
 lean::inc(x_866);
 lean::dec(x_862);
@@ -4921,7 +4921,7 @@ return x_887;
 }
 else
 {
-obj* x_888; obj* x_889; obj* x_890; obj* x_891; obj* x_892; obj* x_893; obj* x_894; obj* x_895; obj* x_896; obj* x_897; obj* x_898; obj* x_899; obj* x_900; 
+obj* x_888; obj* x_889; obj* x_890; obj* x_891; obj* x_892; obj* x_893; obj* x_894; obj* x_895; obj* x_896; obj* x_897; obj* x_898; obj* x_899; 
 x_888 = lean::cnstr_get(x_884, 0);
 lean::inc(x_888);
 lean::dec(x_884);
@@ -5010,7 +5010,7 @@ return x_908;
 }
 else
 {
-obj* x_909; obj* x_910; obj* x_911; obj* x_912; obj* x_913; obj* x_914; obj* x_915; obj* x_916; obj* x_917; obj* x_918; obj* x_919; obj* x_920; 
+obj* x_909; obj* x_910; obj* x_911; obj* x_912; obj* x_913; obj* x_914; obj* x_915; obj* x_916; obj* x_917; obj* x_918; obj* x_919; 
 x_909 = lean::cnstr_get(x_905, 0);
 lean::inc(x_909);
 lean::dec(x_905);
@@ -5121,7 +5121,7 @@ return x_929;
 }
 else
 {
-obj* x_930; obj* x_931; obj* x_932; obj* x_933; obj* x_934; obj* x_935; obj* x_936; obj* x_937; obj* x_938; obj* x_939; obj* x_940; obj* x_941; 
+obj* x_930; obj* x_931; obj* x_932; obj* x_933; obj* x_934; obj* x_935; obj* x_936; obj* x_937; obj* x_938; obj* x_939; obj* x_940; 
 x_930 = lean::cnstr_get(x_926, 0);
 lean::inc(x_930);
 lean::dec(x_926);
@@ -5269,7 +5269,7 @@ return x_957;
 }
 else
 {
-obj* x_958; obj* x_959; obj* x_960; 
+obj* x_958; obj* x_959; 
 x_958 = lean::cnstr_get(x_954, 0);
 lean::inc(x_958);
 lean::dec(x_954);
@@ -5283,7 +5283,7 @@ goto _start;
 }
 else
 {
-obj* x_961; obj* x_962; obj* x_963; obj* x_964; obj* x_965; obj* x_966; obj* x_967; obj* x_968; obj* x_969; obj* x_970; obj* x_971; obj* x_972; obj* x_973; obj* x_974; obj* x_975; obj* x_976; obj* x_977; obj* x_978; obj* x_979; obj* x_980; obj* x_981; obj* x_982; obj* x_983; obj* x_984; obj* x_985; obj* x_986; obj* x_987; obj* x_988; obj* x_989; obj* x_990; 
+obj* x_961; obj* x_962; obj* x_963; obj* x_964; obj* x_965; obj* x_966; obj* x_967; obj* x_968; obj* x_969; obj* x_970; obj* x_971; obj* x_972; obj* x_973; obj* x_974; obj* x_975; obj* x_976; obj* x_977; obj* x_978; obj* x_979; obj* x_980; obj* x_981; obj* x_982; obj* x_983; obj* x_984; obj* x_985; obj* x_986; obj* x_987; obj* x_988; obj* x_989; 
 lean::dec(x_922);
 x_961 = lean::cnstr_get(x_949, 0);
 lean::inc(x_961);
@@ -5422,7 +5422,7 @@ return x_997;
 }
 else
 {
-obj* x_998; obj* x_999; obj* x_1000; 
+obj* x_998; obj* x_999; 
 x_998 = lean::cnstr_get(x_994, 0);
 lean::inc(x_998);
 lean::dec(x_994);
@@ -5483,7 +5483,7 @@ lean::inc(x_1007);
 lean::dec(x_8);
 if (lean::obj_tag(x_1007) == 0)
 {
-obj* x_1008; obj* x_1009; 
+obj* x_1008; 
 x_1008 = lean::cnstr_get(x_1006, 1);
 lean::inc(x_1008);
 lean::dec(x_1006);
@@ -5537,7 +5537,7 @@ return x_1016;
 }
 else
 {
-obj* x_1017; obj* x_1018; obj* x_1019; obj* x_1020; obj* x_1021; obj* x_1022; obj* x_1023; obj* x_1024; obj* x_1025; obj* x_1026; obj* x_1027; obj* x_1028; obj* x_1029; obj* x_1030; obj* x_1031; obj* x_1032; obj* x_1033; obj* x_1034; 
+obj* x_1017; obj* x_1018; obj* x_1019; obj* x_1020; obj* x_1021; obj* x_1022; obj* x_1023; obj* x_1024; obj* x_1025; obj* x_1026; obj* x_1027; obj* x_1028; obj* x_1029; obj* x_1030; obj* x_1031; obj* x_1032; obj* x_1033; 
 x_1017 = lean::cnstr_get(x_1013, 0);
 lean::inc(x_1017);
 lean::dec(x_1013);
@@ -5629,7 +5629,7 @@ return x_1039;
 }
 else
 {
-obj* x_1040; obj* x_1041; obj* x_1042; obj* x_1043; obj* x_1044; obj* x_1045; obj* x_1046; obj* x_1047; obj* x_1048; obj* x_1049; obj* x_1050; obj* x_1051; obj* x_1052; 
+obj* x_1040; obj* x_1041; obj* x_1042; obj* x_1043; obj* x_1044; obj* x_1045; obj* x_1046; obj* x_1047; obj* x_1048; obj* x_1049; obj* x_1050; obj* x_1051; 
 x_1040 = lean::cnstr_get(x_1036, 0);
 lean::inc(x_1040);
 lean::dec(x_1036);
@@ -5722,7 +5722,7 @@ return x_1060;
 }
 else
 {
-obj* x_1061; obj* x_1062; obj* x_1063; obj* x_1064; obj* x_1065; obj* x_1066; obj* x_1067; obj* x_1068; obj* x_1069; obj* x_1070; obj* x_1071; obj* x_1072; obj* x_1073; 
+obj* x_1061; obj* x_1062; obj* x_1063; obj* x_1064; obj* x_1065; obj* x_1066; obj* x_1067; obj* x_1068; obj* x_1069; obj* x_1070; obj* x_1071; obj* x_1072; 
 x_1061 = lean::cnstr_get(x_1057, 0);
 lean::inc(x_1061);
 lean::dec(x_1057);
@@ -5833,7 +5833,7 @@ return x_1082;
 }
 else
 {
-obj* x_1083; obj* x_1084; obj* x_1085; obj* x_1086; obj* x_1087; obj* x_1088; obj* x_1089; obj* x_1090; obj* x_1091; obj* x_1092; obj* x_1093; obj* x_1094; obj* x_1095; 
+obj* x_1083; obj* x_1084; obj* x_1085; obj* x_1086; obj* x_1087; obj* x_1088; obj* x_1089; obj* x_1090; obj* x_1091; obj* x_1092; obj* x_1093; obj* x_1094; 
 x_1083 = lean::cnstr_get(x_1079, 0);
 lean::inc(x_1083);
 lean::dec(x_1079);
@@ -5980,7 +5980,7 @@ return x_1111;
 }
 else
 {
-obj* x_1112; obj* x_1113; obj* x_1114; 
+obj* x_1112; obj* x_1113; 
 x_1112 = lean::cnstr_get(x_1108, 0);
 lean::inc(x_1112);
 lean::dec(x_1108);
@@ -5994,7 +5994,7 @@ goto _start;
 }
 else
 {
-obj* x_1115; obj* x_1116; obj* x_1117; obj* x_1118; obj* x_1119; obj* x_1120; obj* x_1121; obj* x_1122; obj* x_1123; obj* x_1124; obj* x_1125; obj* x_1126; obj* x_1127; obj* x_1128; obj* x_1129; obj* x_1130; obj* x_1131; obj* x_1132; obj* x_1133; obj* x_1134; obj* x_1135; obj* x_1136; obj* x_1137; obj* x_1138; obj* x_1139; obj* x_1140; obj* x_1141; obj* x_1142; obj* x_1143; obj* x_1144; obj* x_1145; 
+obj* x_1115; obj* x_1116; obj* x_1117; obj* x_1118; obj* x_1119; obj* x_1120; obj* x_1121; obj* x_1122; obj* x_1123; obj* x_1124; obj* x_1125; obj* x_1126; obj* x_1127; obj* x_1128; obj* x_1129; obj* x_1130; obj* x_1131; obj* x_1132; obj* x_1133; obj* x_1134; obj* x_1135; obj* x_1136; obj* x_1137; obj* x_1138; obj* x_1139; obj* x_1140; obj* x_1141; obj* x_1142; obj* x_1143; obj* x_1144; 
 lean::dec(x_1075);
 x_1115 = lean::cnstr_get(x_1103, 0);
 lean::inc(x_1115);
@@ -6133,7 +6133,7 @@ return x_1152;
 }
 else
 {
-obj* x_1153; obj* x_1154; obj* x_1155; 
+obj* x_1153; obj* x_1154; 
 x_1153 = lean::cnstr_get(x_1149, 0);
 lean::inc(x_1153);
 lean::dec(x_1149);
@@ -6289,7 +6289,6 @@ x_7 = lean::cnstr_get(x_4, 1);
 x_8 = lean_name_dec_eq(x_1, x_6);
 if (x_8 == 0)
 {
-obj* x_9; 
 x_2 = x_5;
 goto _start;
 }
@@ -6380,7 +6379,7 @@ lean::inc(x_21);
 lean::dec(x_8);
 if (lean::obj_tag(x_21) == 0)
 {
-obj* x_22; obj* x_23; 
+obj* x_22; 
 lean::dec(x_14);
 lean::free_heap_obj(x_2);
 x_22 = lean::cnstr_get(x_20, 1);
@@ -6445,7 +6444,7 @@ lean::dec(x_31);
 x_34 = !lean::is_exclusive(x_32);
 if (x_34 == 0)
 {
-obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; obj* x_42; obj* x_43; 
+obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; obj* x_42; 
 x_35 = lean::cnstr_get(x_32, 3);
 lean::dec(x_35);
 x_36 = l_Lean_Parser_Term_binderIdent_HasView;
@@ -6469,7 +6468,7 @@ goto _start;
 }
 else
 {
-obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_51; obj* x_52; obj* x_53; obj* x_54; obj* x_55; 
+obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_51; obj* x_52; obj* x_53; obj* x_54; 
 x_44 = lean::cnstr_get(x_32, 0);
 x_45 = lean::cnstr_get(x_32, 1);
 x_46 = lean::cnstr_get(x_32, 2);
@@ -6548,7 +6547,7 @@ lean::dec(x_61);
 x_64 = !lean::is_exclusive(x_62);
 if (x_64 == 0)
 {
-obj* x_65; obj* x_66; obj* x_67; obj* x_68; obj* x_69; 
+obj* x_65; obj* x_66; obj* x_67; obj* x_68; 
 x_65 = lean::cnstr_get(x_62, 3);
 lean::dec(x_65);
 x_66 = l_Lean_Parser_Term_binders_HasView;
@@ -6563,7 +6562,7 @@ goto _start;
 }
 else
 {
-obj* x_70; obj* x_71; obj* x_72; obj* x_73; obj* x_74; obj* x_75; obj* x_76; obj* x_77; 
+obj* x_70; obj* x_71; obj* x_72; obj* x_73; obj* x_74; obj* x_75; obj* x_76; 
 x_70 = lean::cnstr_get(x_62, 0);
 x_71 = lean::cnstr_get(x_62, 1);
 x_72 = lean::cnstr_get(x_62, 2);
@@ -6644,7 +6643,7 @@ x_88 = lean::cnstr_get(x_86, 1);
 x_89 = !lean::is_exclusive(x_88);
 if (x_89 == 0)
 {
-obj* x_90; obj* x_91; obj* x_92; 
+obj* x_90; obj* x_91; 
 x_90 = lean::cnstr_get(x_86, 0);
 x_91 = lean::cnstr_get(x_88, 2);
 lean::cnstr_set(x_86, 1, x_90);
@@ -6658,7 +6657,7 @@ goto _start;
 }
 else
 {
-obj* x_93; obj* x_94; obj* x_95; obj* x_96; obj* x_97; obj* x_98; obj* x_99; 
+obj* x_93; obj* x_94; obj* x_95; obj* x_96; obj* x_97; obj* x_98; 
 x_93 = lean::cnstr_get(x_86, 0);
 x_94 = lean::cnstr_get(x_88, 0);
 x_95 = lean::cnstr_get(x_88, 1);
@@ -6685,7 +6684,7 @@ goto _start;
 }
 else
 {
-obj* x_100; obj* x_101; obj* x_102; obj* x_103; obj* x_104; obj* x_105; obj* x_106; obj* x_107; obj* x_108; obj* x_109; 
+obj* x_100; obj* x_101; obj* x_102; obj* x_103; obj* x_104; obj* x_105; obj* x_106; obj* x_107; obj* x_108; 
 x_100 = lean::cnstr_get(x_86, 1);
 x_101 = lean::cnstr_get(x_86, 0);
 lean::inc(x_100);
@@ -6788,7 +6787,7 @@ x_120 = lean::cnstr_get(x_118, 1);
 x_121 = !lean::is_exclusive(x_120);
 if (x_121 == 0)
 {
-obj* x_122; obj* x_123; obj* x_124; 
+obj* x_122; obj* x_123; 
 x_122 = lean::cnstr_get(x_118, 0);
 x_123 = lean::cnstr_get(x_120, 2);
 lean::cnstr_set(x_118, 1, x_122);
@@ -6802,7 +6801,7 @@ goto _start;
 }
 else
 {
-obj* x_125; obj* x_126; obj* x_127; obj* x_128; obj* x_129; obj* x_130; obj* x_131; 
+obj* x_125; obj* x_126; obj* x_127; obj* x_128; obj* x_129; obj* x_130; 
 x_125 = lean::cnstr_get(x_118, 0);
 x_126 = lean::cnstr_get(x_120, 0);
 x_127 = lean::cnstr_get(x_120, 1);
@@ -6829,7 +6828,7 @@ goto _start;
 }
 else
 {
-obj* x_132; obj* x_133; obj* x_134; obj* x_135; obj* x_136; obj* x_137; obj* x_138; obj* x_139; obj* x_140; obj* x_141; 
+obj* x_132; obj* x_133; obj* x_134; obj* x_135; obj* x_136; obj* x_137; obj* x_138; obj* x_139; obj* x_140; 
 x_132 = lean::cnstr_get(x_118, 1);
 x_133 = lean::cnstr_get(x_118, 0);
 lean::inc(x_132);
@@ -6954,7 +6953,7 @@ return x_155;
 }
 else
 {
-obj* x_156; obj* x_157; obj* x_158; 
+obj* x_156; obj* x_157; 
 x_156 = lean::cnstr_get(x_152, 0);
 lean::inc(x_156);
 lean::dec(x_152);
@@ -6980,7 +6979,7 @@ lean::dec(x_161);
 x_162 = !lean::is_exclusive(x_150);
 if (x_162 == 0)
 {
-obj* x_163; obj* x_164; obj* x_165; obj* x_166; obj* x_167; obj* x_168; obj* x_169; obj* x_170; obj* x_171; obj* x_172; obj* x_173; obj* x_174; obj* x_175; obj* x_176; obj* x_177; obj* x_178; obj* x_179; obj* x_180; obj* x_181; obj* x_182; obj* x_183; obj* x_184; obj* x_185; obj* x_186; 
+obj* x_163; obj* x_164; obj* x_165; obj* x_166; obj* x_167; obj* x_168; obj* x_169; obj* x_170; obj* x_171; obj* x_172; obj* x_173; obj* x_174; obj* x_175; obj* x_176; obj* x_177; obj* x_178; obj* x_179; obj* x_180; obj* x_181; obj* x_182; obj* x_183; obj* x_184; obj* x_185; 
 x_163 = lean::cnstr_get(x_150, 2);
 x_164 = lean::cnstr_get(x_150, 3);
 lean::dec(x_164);
@@ -7038,7 +7037,7 @@ goto _start;
 }
 else
 {
-obj* x_187; obj* x_188; obj* x_189; obj* x_190; obj* x_191; obj* x_192; obj* x_193; obj* x_194; obj* x_195; obj* x_196; obj* x_197; obj* x_198; obj* x_199; obj* x_200; obj* x_201; obj* x_202; obj* x_203; obj* x_204; obj* x_205; obj* x_206; obj* x_207; obj* x_208; obj* x_209; obj* x_210; obj* x_211; obj* x_212; 
+obj* x_187; obj* x_188; obj* x_189; obj* x_190; obj* x_191; obj* x_192; obj* x_193; obj* x_194; obj* x_195; obj* x_196; obj* x_197; obj* x_198; obj* x_199; obj* x_200; obj* x_201; obj* x_202; obj* x_203; obj* x_204; obj* x_205; obj* x_206; obj* x_207; obj* x_208; obj* x_209; obj* x_210; obj* x_211; 
 x_187 = lean::cnstr_get(x_150, 0);
 x_188 = lean::cnstr_get(x_150, 1);
 x_189 = lean::cnstr_get(x_150, 2);
@@ -7105,7 +7104,7 @@ goto _start;
 }
 else
 {
-obj* x_213; obj* x_214; obj* x_215; obj* x_216; obj* x_217; obj* x_218; obj* x_219; obj* x_220; obj* x_221; obj* x_222; obj* x_223; obj* x_224; obj* x_225; obj* x_226; obj* x_227; obj* x_228; obj* x_229; obj* x_230; obj* x_231; obj* x_232; obj* x_233; obj* x_234; obj* x_235; obj* x_236; obj* x_237; obj* x_238; obj* x_239; obj* x_240; obj* x_241; 
+obj* x_213; obj* x_214; obj* x_215; obj* x_216; obj* x_217; obj* x_218; obj* x_219; obj* x_220; obj* x_221; obj* x_222; obj* x_223; obj* x_224; obj* x_225; obj* x_226; obj* x_227; obj* x_228; obj* x_229; obj* x_230; obj* x_231; obj* x_232; obj* x_233; obj* x_234; obj* x_235; obj* x_236; obj* x_237; obj* x_238; obj* x_239; obj* x_240; 
 x_213 = lean::cnstr_get(x_149, 0);
 lean::inc(x_213);
 lean::dec(x_149);
@@ -7225,7 +7224,7 @@ return x_247;
 }
 else
 {
-obj* x_248; obj* x_249; obj* x_250; 
+obj* x_248; obj* x_249; 
 x_248 = lean::cnstr_get(x_244, 0);
 lean::inc(x_248);
 lean::dec(x_244);
@@ -7283,7 +7282,7 @@ return x_256;
 }
 else
 {
-obj* x_257; obj* x_258; obj* x_259; obj* x_260; obj* x_261; obj* x_262; obj* x_263; obj* x_264; obj* x_265; obj* x_266; obj* x_267; obj* x_268; obj* x_269; obj* x_270; obj* x_271; obj* x_272; obj* x_273; 
+obj* x_257; obj* x_258; obj* x_259; obj* x_260; obj* x_261; obj* x_262; obj* x_263; obj* x_264; obj* x_265; obj* x_266; obj* x_267; obj* x_268; obj* x_269; obj* x_270; obj* x_271; obj* x_272; 
 x_257 = lean::cnstr_get(x_253, 0);
 lean::inc(x_257);
 lean::dec(x_253);
@@ -7371,7 +7370,7 @@ return x_278;
 }
 else
 {
-obj* x_279; obj* x_280; obj* x_281; obj* x_282; obj* x_283; obj* x_284; obj* x_285; obj* x_286; obj* x_287; obj* x_288; obj* x_289; obj* x_290; obj* x_291; 
+obj* x_279; obj* x_280; obj* x_281; obj* x_282; obj* x_283; obj* x_284; obj* x_285; obj* x_286; obj* x_287; obj* x_288; obj* x_289; obj* x_290; 
 x_279 = lean::cnstr_get(x_275, 0);
 lean::inc(x_279);
 lean::dec(x_275);
@@ -7461,7 +7460,7 @@ return x_299;
 }
 else
 {
-obj* x_300; obj* x_301; obj* x_302; obj* x_303; obj* x_304; obj* x_305; obj* x_306; obj* x_307; obj* x_308; obj* x_309; obj* x_310; obj* x_311; 
+obj* x_300; obj* x_301; obj* x_302; obj* x_303; obj* x_304; obj* x_305; obj* x_306; obj* x_307; obj* x_308; obj* x_309; obj* x_310; 
 x_300 = lean::cnstr_get(x_296, 0);
 lean::inc(x_300);
 lean::dec(x_296);
@@ -7566,7 +7565,7 @@ return x_319;
 }
 else
 {
-obj* x_320; obj* x_321; obj* x_322; obj* x_323; obj* x_324; obj* x_325; obj* x_326; obj* x_327; obj* x_328; obj* x_329; obj* x_330; obj* x_331; 
+obj* x_320; obj* x_321; obj* x_322; obj* x_323; obj* x_324; obj* x_325; obj* x_326; obj* x_327; obj* x_328; obj* x_329; obj* x_330; 
 x_320 = lean::cnstr_get(x_316, 0);
 lean::inc(x_320);
 lean::dec(x_316);
@@ -7706,7 +7705,7 @@ return x_345;
 }
 else
 {
-obj* x_346; obj* x_347; obj* x_348; 
+obj* x_346; obj* x_347; 
 x_346 = lean::cnstr_get(x_342, 0);
 lean::inc(x_346);
 lean::dec(x_342);
@@ -7720,7 +7719,7 @@ goto _start;
 }
 else
 {
-obj* x_349; obj* x_350; obj* x_351; obj* x_352; obj* x_353; obj* x_354; obj* x_355; obj* x_356; obj* x_357; obj* x_358; obj* x_359; obj* x_360; obj* x_361; obj* x_362; obj* x_363; obj* x_364; obj* x_365; obj* x_366; obj* x_367; obj* x_368; obj* x_369; obj* x_370; obj* x_371; obj* x_372; obj* x_373; obj* x_374; obj* x_375; obj* x_376; obj* x_377; obj* x_378; 
+obj* x_349; obj* x_350; obj* x_351; obj* x_352; obj* x_353; obj* x_354; obj* x_355; obj* x_356; obj* x_357; obj* x_358; obj* x_359; obj* x_360; obj* x_361; obj* x_362; obj* x_363; obj* x_364; obj* x_365; obj* x_366; obj* x_367; obj* x_368; obj* x_369; obj* x_370; obj* x_371; obj* x_372; obj* x_373; obj* x_374; obj* x_375; obj* x_376; obj* x_377; 
 lean::dec(x_14);
 x_349 = lean::cnstr_get(x_339, 0);
 lean::inc(x_349);
@@ -7852,7 +7851,7 @@ return x_384;
 }
 else
 {
-obj* x_385; obj* x_386; obj* x_387; 
+obj* x_385; obj* x_386; 
 x_385 = lean::cnstr_get(x_381, 0);
 lean::inc(x_385);
 lean::dec(x_381);
@@ -7919,7 +7918,7 @@ lean::inc(x_396);
 lean::dec(x_8);
 if (lean::obj_tag(x_396) == 0)
 {
-obj* x_397; obj* x_398; 
+obj* x_397; 
 lean::dec(x_389);
 x_397 = lean::cnstr_get(x_395, 1);
 lean::inc(x_397);
@@ -7975,7 +7974,7 @@ return x_405;
 }
 else
 {
-obj* x_406; obj* x_407; obj* x_408; obj* x_409; obj* x_410; obj* x_411; obj* x_412; obj* x_413; obj* x_414; obj* x_415; obj* x_416; obj* x_417; obj* x_418; obj* x_419; obj* x_420; obj* x_421; obj* x_422; obj* x_423; 
+obj* x_406; obj* x_407; obj* x_408; obj* x_409; obj* x_410; obj* x_411; obj* x_412; obj* x_413; obj* x_414; obj* x_415; obj* x_416; obj* x_417; obj* x_418; obj* x_419; obj* x_420; obj* x_421; obj* x_422; 
 x_406 = lean::cnstr_get(x_402, 0);
 lean::inc(x_406);
 lean::dec(x_402);
@@ -8068,7 +8067,7 @@ return x_428;
 }
 else
 {
-obj* x_429; obj* x_430; obj* x_431; obj* x_432; obj* x_433; obj* x_434; obj* x_435; obj* x_436; obj* x_437; obj* x_438; obj* x_439; obj* x_440; obj* x_441; 
+obj* x_429; obj* x_430; obj* x_431; obj* x_432; obj* x_433; obj* x_434; obj* x_435; obj* x_436; obj* x_437; obj* x_438; obj* x_439; obj* x_440; 
 x_429 = lean::cnstr_get(x_425, 0);
 lean::inc(x_429);
 lean::dec(x_425);
@@ -8162,7 +8161,7 @@ return x_449;
 }
 else
 {
-obj* x_450; obj* x_451; obj* x_452; obj* x_453; obj* x_454; obj* x_455; obj* x_456; obj* x_457; obj* x_458; obj* x_459; obj* x_460; obj* x_461; obj* x_462; 
+obj* x_450; obj* x_451; obj* x_452; obj* x_453; obj* x_454; obj* x_455; obj* x_456; obj* x_457; obj* x_458; obj* x_459; obj* x_460; obj* x_461; 
 x_450 = lean::cnstr_get(x_446, 0);
 lean::inc(x_450);
 lean::dec(x_446);
@@ -8267,7 +8266,7 @@ return x_470;
 }
 else
 {
-obj* x_471; obj* x_472; obj* x_473; obj* x_474; obj* x_475; obj* x_476; obj* x_477; obj* x_478; obj* x_479; obj* x_480; obj* x_481; obj* x_482; obj* x_483; 
+obj* x_471; obj* x_472; obj* x_473; obj* x_474; obj* x_475; obj* x_476; obj* x_477; obj* x_478; obj* x_479; obj* x_480; obj* x_481; obj* x_482; 
 x_471 = lean::cnstr_get(x_467, 0);
 lean::inc(x_471);
 lean::dec(x_467);
@@ -8406,7 +8405,7 @@ return x_497;
 }
 else
 {
-obj* x_498; obj* x_499; obj* x_500; 
+obj* x_498; obj* x_499; 
 x_498 = lean::cnstr_get(x_494, 0);
 lean::inc(x_498);
 lean::dec(x_494);
@@ -8420,7 +8419,7 @@ goto _start;
 }
 else
 {
-obj* x_501; obj* x_502; obj* x_503; obj* x_504; obj* x_505; obj* x_506; obj* x_507; obj* x_508; obj* x_509; obj* x_510; obj* x_511; obj* x_512; obj* x_513; obj* x_514; obj* x_515; obj* x_516; obj* x_517; obj* x_518; obj* x_519; obj* x_520; obj* x_521; obj* x_522; obj* x_523; obj* x_524; obj* x_525; obj* x_526; obj* x_527; obj* x_528; obj* x_529; obj* x_530; obj* x_531; 
+obj* x_501; obj* x_502; obj* x_503; obj* x_504; obj* x_505; obj* x_506; obj* x_507; obj* x_508; obj* x_509; obj* x_510; obj* x_511; obj* x_512; obj* x_513; obj* x_514; obj* x_515; obj* x_516; obj* x_517; obj* x_518; obj* x_519; obj* x_520; obj* x_521; obj* x_522; obj* x_523; obj* x_524; obj* x_525; obj* x_526; obj* x_527; obj* x_528; obj* x_529; obj* x_530; 
 lean::dec(x_389);
 x_501 = lean::cnstr_get(x_491, 0);
 lean::inc(x_501);
@@ -8552,7 +8551,7 @@ return x_537;
 }
 else
 {
-obj* x_538; obj* x_539; obj* x_540; 
+obj* x_538; obj* x_539; 
 x_538 = lean::cnstr_get(x_534, 0);
 lean::inc(x_538);
 lean::dec(x_534);
@@ -8618,7 +8617,7 @@ lean::inc(x_549);
 lean::dec(x_8);
 if (lean::obj_tag(x_549) == 0)
 {
-obj* x_550; obj* x_551; 
+obj* x_550; 
 lean::free_heap_obj(x_2);
 x_550 = lean::cnstr_get(x_548, 1);
 lean::inc(x_550);
@@ -8681,7 +8680,7 @@ lean::dec(x_559);
 x_562 = !lean::is_exclusive(x_560);
 if (x_562 == 0)
 {
-obj* x_563; obj* x_564; obj* x_565; obj* x_566; obj* x_567; obj* x_568; obj* x_569; obj* x_570; obj* x_571; 
+obj* x_563; obj* x_564; obj* x_565; obj* x_566; obj* x_567; obj* x_568; obj* x_569; obj* x_570; 
 x_563 = lean::cnstr_get(x_560, 3);
 lean::dec(x_563);
 x_564 = l_Lean_Parser_Term_binderIdent_HasView;
@@ -8705,7 +8704,7 @@ goto _start;
 }
 else
 {
-obj* x_572; obj* x_573; obj* x_574; obj* x_575; obj* x_576; obj* x_577; obj* x_578; obj* x_579; obj* x_580; obj* x_581; obj* x_582; obj* x_583; 
+obj* x_572; obj* x_573; obj* x_574; obj* x_575; obj* x_576; obj* x_577; obj* x_578; obj* x_579; obj* x_580; obj* x_581; obj* x_582; 
 x_572 = lean::cnstr_get(x_560, 0);
 x_573 = lean::cnstr_get(x_560, 1);
 x_574 = lean::cnstr_get(x_560, 2);
@@ -8783,7 +8782,7 @@ lean::dec(x_589);
 x_592 = !lean::is_exclusive(x_590);
 if (x_592 == 0)
 {
-obj* x_593; obj* x_594; obj* x_595; obj* x_596; obj* x_597; 
+obj* x_593; obj* x_594; obj* x_595; obj* x_596; 
 x_593 = lean::cnstr_get(x_590, 3);
 lean::dec(x_593);
 x_594 = l_Lean_Parser_Term_binders_HasView;
@@ -8798,7 +8797,7 @@ goto _start;
 }
 else
 {
-obj* x_598; obj* x_599; obj* x_600; obj* x_601; obj* x_602; obj* x_603; obj* x_604; obj* x_605; 
+obj* x_598; obj* x_599; obj* x_600; obj* x_601; obj* x_602; obj* x_603; obj* x_604; 
 x_598 = lean::cnstr_get(x_590, 0);
 x_599 = lean::cnstr_get(x_590, 1);
 x_600 = lean::cnstr_get(x_590, 2);
@@ -8878,7 +8877,7 @@ x_616 = lean::cnstr_get(x_614, 1);
 x_617 = !lean::is_exclusive(x_616);
 if (x_617 == 0)
 {
-obj* x_618; obj* x_619; obj* x_620; 
+obj* x_618; obj* x_619; 
 x_618 = lean::cnstr_get(x_614, 0);
 x_619 = lean::cnstr_get(x_616, 2);
 lean::cnstr_set(x_614, 1, x_618);
@@ -8892,7 +8891,7 @@ goto _start;
 }
 else
 {
-obj* x_621; obj* x_622; obj* x_623; obj* x_624; obj* x_625; obj* x_626; obj* x_627; 
+obj* x_621; obj* x_622; obj* x_623; obj* x_624; obj* x_625; obj* x_626; 
 x_621 = lean::cnstr_get(x_614, 0);
 x_622 = lean::cnstr_get(x_616, 0);
 x_623 = lean::cnstr_get(x_616, 1);
@@ -8919,7 +8918,7 @@ goto _start;
 }
 else
 {
-obj* x_628; obj* x_629; obj* x_630; obj* x_631; obj* x_632; obj* x_633; obj* x_634; obj* x_635; obj* x_636; obj* x_637; 
+obj* x_628; obj* x_629; obj* x_630; obj* x_631; obj* x_632; obj* x_633; obj* x_634; obj* x_635; obj* x_636; 
 x_628 = lean::cnstr_get(x_614, 1);
 x_629 = lean::cnstr_get(x_614, 0);
 lean::inc(x_628);
@@ -9024,7 +9023,7 @@ x_649 = lean::cnstr_get(x_647, 1);
 x_650 = !lean::is_exclusive(x_649);
 if (x_650 == 0)
 {
-obj* x_651; obj* x_652; obj* x_653; 
+obj* x_651; obj* x_652; 
 x_651 = lean::cnstr_get(x_647, 0);
 x_652 = lean::cnstr_get(x_649, 2);
 lean::cnstr_set(x_647, 1, x_651);
@@ -9038,7 +9037,7 @@ goto _start;
 }
 else
 {
-obj* x_654; obj* x_655; obj* x_656; obj* x_657; obj* x_658; obj* x_659; obj* x_660; 
+obj* x_654; obj* x_655; obj* x_656; obj* x_657; obj* x_658; obj* x_659; 
 x_654 = lean::cnstr_get(x_647, 0);
 x_655 = lean::cnstr_get(x_649, 0);
 x_656 = lean::cnstr_get(x_649, 1);
@@ -9065,7 +9064,7 @@ goto _start;
 }
 else
 {
-obj* x_661; obj* x_662; obj* x_663; obj* x_664; obj* x_665; obj* x_666; obj* x_667; obj* x_668; obj* x_669; obj* x_670; 
+obj* x_661; obj* x_662; obj* x_663; obj* x_664; obj* x_665; obj* x_666; obj* x_667; obj* x_668; obj* x_669; 
 x_661 = lean::cnstr_get(x_647, 1);
 x_662 = lean::cnstr_get(x_647, 0);
 lean::inc(x_661);
@@ -9193,7 +9192,7 @@ return x_685;
 }
 else
 {
-obj* x_686; obj* x_687; obj* x_688; 
+obj* x_686; obj* x_687; 
 x_686 = lean::cnstr_get(x_682, 0);
 lean::inc(x_686);
 lean::dec(x_682);
@@ -9219,7 +9218,7 @@ lean::dec(x_691);
 x_692 = !lean::is_exclusive(x_679);
 if (x_692 == 0)
 {
-obj* x_693; obj* x_694; obj* x_695; obj* x_696; obj* x_697; obj* x_698; obj* x_699; obj* x_700; obj* x_701; obj* x_702; obj* x_703; obj* x_704; obj* x_705; obj* x_706; obj* x_707; obj* x_708; obj* x_709; obj* x_710; obj* x_711; obj* x_712; obj* x_713; obj* x_714; obj* x_715; obj* x_716; 
+obj* x_693; obj* x_694; obj* x_695; obj* x_696; obj* x_697; obj* x_698; obj* x_699; obj* x_700; obj* x_701; obj* x_702; obj* x_703; obj* x_704; obj* x_705; obj* x_706; obj* x_707; obj* x_708; obj* x_709; obj* x_710; obj* x_711; obj* x_712; obj* x_713; obj* x_714; obj* x_715; 
 x_693 = lean::cnstr_get(x_679, 2);
 x_694 = lean::cnstr_get(x_679, 3);
 lean::dec(x_694);
@@ -9277,7 +9276,7 @@ goto _start;
 }
 else
 {
-obj* x_717; obj* x_718; obj* x_719; obj* x_720; obj* x_721; obj* x_722; obj* x_723; obj* x_724; obj* x_725; obj* x_726; obj* x_727; obj* x_728; obj* x_729; obj* x_730; obj* x_731; obj* x_732; obj* x_733; obj* x_734; obj* x_735; obj* x_736; obj* x_737; obj* x_738; obj* x_739; obj* x_740; obj* x_741; obj* x_742; 
+obj* x_717; obj* x_718; obj* x_719; obj* x_720; obj* x_721; obj* x_722; obj* x_723; obj* x_724; obj* x_725; obj* x_726; obj* x_727; obj* x_728; obj* x_729; obj* x_730; obj* x_731; obj* x_732; obj* x_733; obj* x_734; obj* x_735; obj* x_736; obj* x_737; obj* x_738; obj* x_739; obj* x_740; obj* x_741; 
 x_717 = lean::cnstr_get(x_679, 0);
 x_718 = lean::cnstr_get(x_679, 1);
 x_719 = lean::cnstr_get(x_679, 2);
@@ -9344,7 +9343,7 @@ goto _start;
 }
 else
 {
-obj* x_743; obj* x_744; obj* x_745; obj* x_746; obj* x_747; obj* x_748; obj* x_749; obj* x_750; obj* x_751; obj* x_752; obj* x_753; obj* x_754; obj* x_755; obj* x_756; obj* x_757; obj* x_758; obj* x_759; obj* x_760; obj* x_761; obj* x_762; obj* x_763; obj* x_764; obj* x_765; obj* x_766; obj* x_767; obj* x_768; obj* x_769; obj* x_770; obj* x_771; 
+obj* x_743; obj* x_744; obj* x_745; obj* x_746; obj* x_747; obj* x_748; obj* x_749; obj* x_750; obj* x_751; obj* x_752; obj* x_753; obj* x_754; obj* x_755; obj* x_756; obj* x_757; obj* x_758; obj* x_759; obj* x_760; obj* x_761; obj* x_762; obj* x_763; obj* x_764; obj* x_765; obj* x_766; obj* x_767; obj* x_768; obj* x_769; obj* x_770; 
 x_743 = lean::cnstr_get(x_678, 0);
 lean::inc(x_743);
 lean::dec(x_678);
@@ -9466,7 +9465,7 @@ return x_777;
 }
 else
 {
-obj* x_778; obj* x_779; obj* x_780; 
+obj* x_778; obj* x_779; 
 x_778 = lean::cnstr_get(x_774, 0);
 lean::inc(x_778);
 lean::dec(x_774);
@@ -9527,7 +9526,7 @@ return x_788;
 }
 else
 {
-obj* x_789; obj* x_790; obj* x_791; obj* x_792; obj* x_793; obj* x_794; obj* x_795; obj* x_796; obj* x_797; obj* x_798; obj* x_799; obj* x_800; 
+obj* x_789; obj* x_790; obj* x_791; obj* x_792; obj* x_793; obj* x_794; obj* x_795; obj* x_796; obj* x_797; obj* x_798; obj* x_799; 
 x_789 = lean::cnstr_get(x_785, 0);
 lean::inc(x_789);
 lean::dec(x_785);
@@ -9670,7 +9669,7 @@ return x_816;
 }
 else
 {
-obj* x_817; obj* x_818; obj* x_819; 
+obj* x_817; obj* x_818; 
 x_817 = lean::cnstr_get(x_813, 0);
 lean::inc(x_817);
 lean::dec(x_813);
@@ -9684,7 +9683,7 @@ goto _start;
 }
 else
 {
-obj* x_820; obj* x_821; obj* x_822; obj* x_823; obj* x_824; obj* x_825; obj* x_826; obj* x_827; obj* x_828; obj* x_829; obj* x_830; obj* x_831; obj* x_832; obj* x_833; obj* x_834; obj* x_835; obj* x_836; obj* x_837; obj* x_838; obj* x_839; obj* x_840; obj* x_841; obj* x_842; obj* x_843; obj* x_844; obj* x_845; obj* x_846; obj* x_847; obj* x_848; obj* x_849; 
+obj* x_820; obj* x_821; obj* x_822; obj* x_823; obj* x_824; obj* x_825; obj* x_826; obj* x_827; obj* x_828; obj* x_829; obj* x_830; obj* x_831; obj* x_832; obj* x_833; obj* x_834; obj* x_835; obj* x_836; obj* x_837; obj* x_838; obj* x_839; obj* x_840; obj* x_841; obj* x_842; obj* x_843; obj* x_844; obj* x_845; obj* x_846; obj* x_847; obj* x_848; 
 x_820 = lean::cnstr_get(x_808, 0);
 lean::inc(x_820);
 if (lean::is_exclusive(x_808)) {
@@ -9818,7 +9817,7 @@ return x_856;
 }
 else
 {
-obj* x_857; obj* x_858; obj* x_859; 
+obj* x_857; obj* x_858; 
 x_857 = lean::cnstr_get(x_853, 0);
 lean::inc(x_857);
 lean::dec(x_853);
@@ -9876,7 +9875,7 @@ return x_865;
 }
 else
 {
-obj* x_866; obj* x_867; obj* x_868; obj* x_869; obj* x_870; obj* x_871; obj* x_872; obj* x_873; obj* x_874; obj* x_875; obj* x_876; obj* x_877; obj* x_878; obj* x_879; obj* x_880; obj* x_881; obj* x_882; 
+obj* x_866; obj* x_867; obj* x_868; obj* x_869; obj* x_870; obj* x_871; obj* x_872; obj* x_873; obj* x_874; obj* x_875; obj* x_876; obj* x_877; obj* x_878; obj* x_879; obj* x_880; obj* x_881; 
 x_866 = lean::cnstr_get(x_862, 0);
 lean::inc(x_866);
 lean::dec(x_862);
@@ -9963,7 +9962,7 @@ return x_887;
 }
 else
 {
-obj* x_888; obj* x_889; obj* x_890; obj* x_891; obj* x_892; obj* x_893; obj* x_894; obj* x_895; obj* x_896; obj* x_897; obj* x_898; obj* x_899; obj* x_900; 
+obj* x_888; obj* x_889; obj* x_890; obj* x_891; obj* x_892; obj* x_893; obj* x_894; obj* x_895; obj* x_896; obj* x_897; obj* x_898; obj* x_899; 
 x_888 = lean::cnstr_get(x_884, 0);
 lean::inc(x_888);
 lean::dec(x_884);
@@ -10052,7 +10051,7 @@ return x_908;
 }
 else
 {
-obj* x_909; obj* x_910; obj* x_911; obj* x_912; obj* x_913; obj* x_914; obj* x_915; obj* x_916; obj* x_917; obj* x_918; obj* x_919; obj* x_920; 
+obj* x_909; obj* x_910; obj* x_911; obj* x_912; obj* x_913; obj* x_914; obj* x_915; obj* x_916; obj* x_917; obj* x_918; obj* x_919; 
 x_909 = lean::cnstr_get(x_905, 0);
 lean::inc(x_909);
 lean::dec(x_905);
@@ -10163,7 +10162,7 @@ return x_929;
 }
 else
 {
-obj* x_930; obj* x_931; obj* x_932; obj* x_933; obj* x_934; obj* x_935; obj* x_936; obj* x_937; obj* x_938; obj* x_939; obj* x_940; obj* x_941; 
+obj* x_930; obj* x_931; obj* x_932; obj* x_933; obj* x_934; obj* x_935; obj* x_936; obj* x_937; obj* x_938; obj* x_939; obj* x_940; 
 x_930 = lean::cnstr_get(x_926, 0);
 lean::inc(x_930);
 lean::dec(x_926);
@@ -10311,7 +10310,7 @@ return x_957;
 }
 else
 {
-obj* x_958; obj* x_959; obj* x_960; 
+obj* x_958; obj* x_959; 
 x_958 = lean::cnstr_get(x_954, 0);
 lean::inc(x_958);
 lean::dec(x_954);
@@ -10325,7 +10324,7 @@ goto _start;
 }
 else
 {
-obj* x_961; obj* x_962; obj* x_963; obj* x_964; obj* x_965; obj* x_966; obj* x_967; obj* x_968; obj* x_969; obj* x_970; obj* x_971; obj* x_972; obj* x_973; obj* x_974; obj* x_975; obj* x_976; obj* x_977; obj* x_978; obj* x_979; obj* x_980; obj* x_981; obj* x_982; obj* x_983; obj* x_984; obj* x_985; obj* x_986; obj* x_987; obj* x_988; obj* x_989; obj* x_990; 
+obj* x_961; obj* x_962; obj* x_963; obj* x_964; obj* x_965; obj* x_966; obj* x_967; obj* x_968; obj* x_969; obj* x_970; obj* x_971; obj* x_972; obj* x_973; obj* x_974; obj* x_975; obj* x_976; obj* x_977; obj* x_978; obj* x_979; obj* x_980; obj* x_981; obj* x_982; obj* x_983; obj* x_984; obj* x_985; obj* x_986; obj* x_987; obj* x_988; obj* x_989; 
 lean::dec(x_922);
 x_961 = lean::cnstr_get(x_949, 0);
 lean::inc(x_961);
@@ -10464,7 +10463,7 @@ return x_997;
 }
 else
 {
-obj* x_998; obj* x_999; obj* x_1000; 
+obj* x_998; obj* x_999; 
 x_998 = lean::cnstr_get(x_994, 0);
 lean::inc(x_998);
 lean::dec(x_994);
@@ -10525,7 +10524,7 @@ lean::inc(x_1007);
 lean::dec(x_8);
 if (lean::obj_tag(x_1007) == 0)
 {
-obj* x_1008; obj* x_1009; 
+obj* x_1008; 
 x_1008 = lean::cnstr_get(x_1006, 1);
 lean::inc(x_1008);
 lean::dec(x_1006);
@@ -10579,7 +10578,7 @@ return x_1016;
 }
 else
 {
-obj* x_1017; obj* x_1018; obj* x_1019; obj* x_1020; obj* x_1021; obj* x_1022; obj* x_1023; obj* x_1024; obj* x_1025; obj* x_1026; obj* x_1027; obj* x_1028; obj* x_1029; obj* x_1030; obj* x_1031; obj* x_1032; obj* x_1033; obj* x_1034; 
+obj* x_1017; obj* x_1018; obj* x_1019; obj* x_1020; obj* x_1021; obj* x_1022; obj* x_1023; obj* x_1024; obj* x_1025; obj* x_1026; obj* x_1027; obj* x_1028; obj* x_1029; obj* x_1030; obj* x_1031; obj* x_1032; obj* x_1033; 
 x_1017 = lean::cnstr_get(x_1013, 0);
 lean::inc(x_1017);
 lean::dec(x_1013);
@@ -10671,7 +10670,7 @@ return x_1039;
 }
 else
 {
-obj* x_1040; obj* x_1041; obj* x_1042; obj* x_1043; obj* x_1044; obj* x_1045; obj* x_1046; obj* x_1047; obj* x_1048; obj* x_1049; obj* x_1050; obj* x_1051; obj* x_1052; 
+obj* x_1040; obj* x_1041; obj* x_1042; obj* x_1043; obj* x_1044; obj* x_1045; obj* x_1046; obj* x_1047; obj* x_1048; obj* x_1049; obj* x_1050; obj* x_1051; 
 x_1040 = lean::cnstr_get(x_1036, 0);
 lean::inc(x_1040);
 lean::dec(x_1036);
@@ -10764,7 +10763,7 @@ return x_1060;
 }
 else
 {
-obj* x_1061; obj* x_1062; obj* x_1063; obj* x_1064; obj* x_1065; obj* x_1066; obj* x_1067; obj* x_1068; obj* x_1069; obj* x_1070; obj* x_1071; obj* x_1072; obj* x_1073; 
+obj* x_1061; obj* x_1062; obj* x_1063; obj* x_1064; obj* x_1065; obj* x_1066; obj* x_1067; obj* x_1068; obj* x_1069; obj* x_1070; obj* x_1071; obj* x_1072; 
 x_1061 = lean::cnstr_get(x_1057, 0);
 lean::inc(x_1061);
 lean::dec(x_1057);
@@ -10875,7 +10874,7 @@ return x_1082;
 }
 else
 {
-obj* x_1083; obj* x_1084; obj* x_1085; obj* x_1086; obj* x_1087; obj* x_1088; obj* x_1089; obj* x_1090; obj* x_1091; obj* x_1092; obj* x_1093; obj* x_1094; obj* x_1095; 
+obj* x_1083; obj* x_1084; obj* x_1085; obj* x_1086; obj* x_1087; obj* x_1088; obj* x_1089; obj* x_1090; obj* x_1091; obj* x_1092; obj* x_1093; obj* x_1094; 
 x_1083 = lean::cnstr_get(x_1079, 0);
 lean::inc(x_1083);
 lean::dec(x_1079);
@@ -11022,7 +11021,7 @@ return x_1111;
 }
 else
 {
-obj* x_1112; obj* x_1113; obj* x_1114; 
+obj* x_1112; obj* x_1113; 
 x_1112 = lean::cnstr_get(x_1108, 0);
 lean::inc(x_1112);
 lean::dec(x_1108);
@@ -11036,7 +11035,7 @@ goto _start;
 }
 else
 {
-obj* x_1115; obj* x_1116; obj* x_1117; obj* x_1118; obj* x_1119; obj* x_1120; obj* x_1121; obj* x_1122; obj* x_1123; obj* x_1124; obj* x_1125; obj* x_1126; obj* x_1127; obj* x_1128; obj* x_1129; obj* x_1130; obj* x_1131; obj* x_1132; obj* x_1133; obj* x_1134; obj* x_1135; obj* x_1136; obj* x_1137; obj* x_1138; obj* x_1139; obj* x_1140; obj* x_1141; obj* x_1142; obj* x_1143; obj* x_1144; obj* x_1145; 
+obj* x_1115; obj* x_1116; obj* x_1117; obj* x_1118; obj* x_1119; obj* x_1120; obj* x_1121; obj* x_1122; obj* x_1123; obj* x_1124; obj* x_1125; obj* x_1126; obj* x_1127; obj* x_1128; obj* x_1129; obj* x_1130; obj* x_1131; obj* x_1132; obj* x_1133; obj* x_1134; obj* x_1135; obj* x_1136; obj* x_1137; obj* x_1138; obj* x_1139; obj* x_1140; obj* x_1141; obj* x_1142; obj* x_1143; obj* x_1144; 
 lean::dec(x_1075);
 x_1115 = lean::cnstr_get(x_1103, 0);
 lean::inc(x_1115);
@@ -11175,7 +11174,7 @@ return x_1152;
 }
 else
 {
-obj* x_1153; obj* x_1154; obj* x_1155; 
+obj* x_1153; obj* x_1154; 
 x_1153 = lean::cnstr_get(x_1149, 0);
 lean::inc(x_1153);
 lean::dec(x_1149);
@@ -25029,7 +25028,7 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_3 = lean::cnstr_get(x_2, 0);
 lean::inc(x_3);
 x_4 = lean::cnstr_get(x_2, 1);
@@ -25380,14 +25379,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -26300,7 +26297,7 @@ return x_75;
 }
 else
 {
-obj* x_76; obj* x_77; obj* x_78; 
+obj* x_76; obj* x_77; 
 lean::dec(x_47);
 lean::dec(x_14);
 x_76 = lean::cnstr_get(x_55, 0);

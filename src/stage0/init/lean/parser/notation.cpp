@@ -5978,7 +5978,7 @@ x_11 = 96;
 x_12 = x_10 == x_11;
 if (x_12 == 0)
 {
-obj* x_13; obj* x_14; obj* x_15; 
+obj* x_13; obj* x_14; 
 x_13 = lean::string_push(x_2, x_10);
 x_14 = l_String_OldIterator_next___main(x_3);
 x_1 = x_7;
@@ -11671,7 +11671,7 @@ return x_8;
 }
 else
 {
-obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
+obj* x_9; obj* x_10; obj* x_11; 
 x_9 = lean::cnstr_get(x_2, 0);
 lean::inc(x_9);
 x_10 = lean::cnstr_get(x_2, 1);

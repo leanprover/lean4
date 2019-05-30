@@ -115,7 +115,7 @@ x_14 = lean::mk_nat_obj(255u);
 x_15 = lean::nat_dec_lt(x_13, x_14);
 if (x_15 == 0)
 {
-obj* x_16; obj* x_17; obj* x_18; obj* x_19; uint32 x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; uint32 x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; uint32 x_30; obj* x_31; obj* x_32; uint32 x_33; obj* x_34; obj* x_35; obj* x_36; 
+obj* x_16; obj* x_17; obj* x_18; obj* x_19; uint32 x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; uint32 x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; uint32 x_30; obj* x_31; obj* x_32; uint32 x_33; obj* x_34; obj* x_35; 
 x_16 = l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__1;
 x_17 = lean::string_append(x_3, x_16);
 x_18 = lean::mk_nat_obj(4096u);
@@ -150,7 +150,7 @@ goto _start;
 }
 else
 {
-obj* x_37; obj* x_38; obj* x_39; obj* x_40; uint32 x_41; obj* x_42; obj* x_43; uint32 x_44; obj* x_45; obj* x_46; obj* x_47; 
+obj* x_37; obj* x_38; obj* x_39; obj* x_40; uint32 x_41; obj* x_42; obj* x_43; uint32 x_44; obj* x_45; obj* x_46; 
 x_37 = l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__2;
 x_38 = lean::string_append(x_3, x_37);
 x_39 = lean::mk_nat_obj(16u);
@@ -172,7 +172,7 @@ goto _start;
 }
 else
 {
-obj* x_48; obj* x_49; obj* x_50; obj* x_51; 
+obj* x_48; obj* x_49; obj* x_50; 
 x_48 = l_String_Iterator_next___main(x_2);
 x_49 = l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__3;
 x_50 = lean::string_append(x_3, x_49);
@@ -184,7 +184,7 @@ goto _start;
 }
 else
 {
-obj* x_52; obj* x_53; obj* x_54; 
+obj* x_52; obj* x_53; 
 x_52 = l_String_Iterator_next___main(x_2);
 x_53 = lean::string_push(x_3, x_8);
 x_1 = x_7;
@@ -195,7 +195,7 @@ goto _start;
 }
 else
 {
-obj* x_55; obj* x_56; obj* x_57; 
+obj* x_55; obj* x_56; 
 x_55 = l_String_Iterator_next___main(x_2);
 x_56 = lean::string_push(x_3, x_8);
 x_1 = x_7;

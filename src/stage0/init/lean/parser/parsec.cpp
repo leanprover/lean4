@@ -1171,7 +1171,7 @@ x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_5; obj* x_6; obj* x_7; 
 x_5 = lean::mk_nat_obj(1u);
 x_6 = lean::nat_sub(x_2, x_5);
 lean::dec(x_2);
@@ -1293,7 +1293,7 @@ x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_5; obj* x_6; obj* x_7; 
 x_5 = lean::mk_nat_obj(1u);
 x_6 = lean::nat_sub(x_2, x_5);
 lean::dec(x_2);
@@ -1325,7 +1325,7 @@ x_3 = lean::mk_nat_obj(0u);
 x_4 = lean::nat_dec_eq(x_2, x_3);
 if (x_4 == 0)
 {
-obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_5; obj* x_6; obj* x_7; 
 x_5 = lean::mk_nat_obj(1u);
 x_6 = lean::nat_sub(x_2, x_5);
 lean::dec(x_2);
@@ -1390,7 +1390,7 @@ x_15 = 10;
 x_16 = x_14 == x_15;
 if (x_16 == 0)
 {
-obj* x_17; obj* x_18; obj* x_19; 
+obj* x_17; obj* x_18; 
 x_17 = l_String_OldIterator_next___main(x_2);
 x_18 = lean::nat_add(x_9, x_6);
 lean::dec(x_9);
@@ -1401,7 +1401,7 @@ goto _start;
 }
 else
 {
-obj* x_20; obj* x_21; obj* x_22; 
+obj* x_20; obj* x_21; 
 lean::dec(x_9);
 x_20 = l_String_OldIterator_next___main(x_2);
 x_21 = lean::nat_add(x_8, x_6);
@@ -1422,7 +1422,7 @@ x_24 = 10;
 x_25 = x_23 == x_24;
 if (x_25 == 0)
 {
-obj* x_26; obj* x_27; obj* x_28; obj* x_29; 
+obj* x_26; obj* x_27; obj* x_28; 
 x_26 = l_String_OldIterator_next___main(x_2);
 x_27 = lean::nat_add(x_9, x_6);
 lean::dec(x_9);
@@ -1436,7 +1436,7 @@ goto _start;
 }
 else
 {
-obj* x_30; obj* x_31; obj* x_32; obj* x_33; 
+obj* x_30; obj* x_31; obj* x_32; 
 lean::dec(x_9);
 x_30 = l_String_OldIterator_next___main(x_2);
 x_31 = lean::nat_add(x_8, x_6);
@@ -6395,7 +6395,7 @@ return x_13;
 }
 else
 {
-obj* x_14; obj* x_15; obj* x_16; 
+obj* x_14; obj* x_15; 
 x_14 = l_String_OldIterator_next___main(x_2);
 x_15 = l_String_OldIterator_next___main(x_3);
 x_1 = x_7;
@@ -6576,7 +6576,7 @@ return x_9;
 }
 else
 {
-uint32 x_10; obj* x_11; obj* x_12; obj* x_13; 
+uint32 x_10; obj* x_11; obj* x_12; 
 x_10 = l_String_OldIterator_curr___main(x_3);
 x_11 = lean::string_push(x_2, x_10);
 x_12 = l_String_OldIterator_next___main(x_3);
@@ -6752,7 +6752,7 @@ return x_15;
 }
 else
 {
-obj* x_16; obj* x_17; obj* x_18; 
+obj* x_16; obj* x_17; 
 x_16 = lean::string_push(x_3, x_11);
 x_17 = l_String_OldIterator_next___main(x_4);
 x_2 = x_8;
@@ -6974,7 +6974,7 @@ x_14 = lean::unbox(x_13);
 lean::dec(x_13);
 if (x_14 == 0)
 {
-obj* x_15; obj* x_16; obj* x_17; 
+obj* x_15; obj* x_16; 
 x_15 = lean::string_push(x_3, x_11);
 x_16 = l_String_OldIterator_next___main(x_4);
 x_2 = x_8;
@@ -7117,7 +7117,7 @@ x_14 = lean::unbox(x_13);
 lean::dec(x_13);
 if (x_14 == 0)
 {
-obj* x_15; obj* x_16; obj* x_17; 
+obj* x_15; obj* x_16; 
 x_15 = lean::string_push(x_3, x_11);
 x_16 = l_String_OldIterator_next___main(x_4);
 x_2 = x_8;
@@ -7423,7 +7423,7 @@ return x_15;
 }
 else
 {
-obj* x_16; uint8 x_17; obj* x_18; 
+obj* x_16; uint8 x_17; 
 x_16 = l_String_OldIterator_next___main(x_4);
 x_17 = 1;
 x_2 = x_8;
@@ -7608,7 +7608,7 @@ return x_12;
 }
 else
 {
-obj* x_13; uint8 x_14; obj* x_15; 
+obj* x_13; uint8 x_14; 
 x_13 = l_String_OldIterator_next___main(x_3);
 x_14 = 1;
 x_1 = x_7;
@@ -7793,7 +7793,7 @@ return x_12;
 }
 else
 {
-obj* x_13; obj* x_14; obj* x_15; 
+obj* x_13; obj* x_14; 
 x_13 = lean::string_push(x_2, x_10);
 x_14 = l_String_OldIterator_next___main(x_3);
 x_1 = x_7;

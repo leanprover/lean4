@@ -430,7 +430,7 @@ uint8 x_6;
 x_6 = !lean::is_exclusive(x_4);
 if (x_6 == 0)
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+obj* x_7; obj* x_8; obj* x_9; 
 x_7 = lean::cnstr_get(x_4, 0);
 lean::dec(x_7);
 x_8 = lean::cnstr_get(x_5, 0);
@@ -444,7 +444,7 @@ goto _start;
 }
 else
 {
-obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
 x_11 = lean::cnstr_get(x_4, 1);
 lean::inc(x_11);
 lean::dec(x_4);
@@ -924,7 +924,7 @@ uint8 x_11;
 x_11 = !lean::is_exclusive(x_10);
 if (x_11 == 0)
 {
-obj* x_12; obj* x_13; obj* x_14; 
+obj* x_12; obj* x_13; 
 x_12 = lean::cnstr_get(x_10, 0);
 x_13 = lean::string_append(x_2, x_12);
 lean::dec(x_12);
@@ -935,7 +935,7 @@ goto _start;
 }
 else
 {
-obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
+obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
 x_15 = lean::cnstr_get(x_10, 0);
 x_16 = lean::cnstr_get(x_10, 1);
 lean::inc(x_16);
@@ -988,7 +988,7 @@ lean::cnstr_set(x_26, 1, x_24);
 x_27 = lean_io_prim_handle_get_line(x_1, x_26);
 if (lean::obj_tag(x_27) == 0)
 {
-obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; obj* x_33; 
+obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
 x_28 = lean::cnstr_get(x_27, 0);
 lean::inc(x_28);
 x_29 = lean::cnstr_get(x_27, 1);

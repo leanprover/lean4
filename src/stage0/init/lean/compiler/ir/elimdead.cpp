@@ -99,7 +99,7 @@ goto block_11;
 }
 block_11:
 {
-obj* x_8; obj* x_9; obj* x_10; 
+obj* x_8; obj* x_9; 
 lean::dec(x_7);
 lean::inc(x_5);
 x_8 = l_Lean_IR_FnBody_collectFreeIndices(x_5, x_3);
@@ -116,7 +116,6 @@ x_13 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14
 lean::dec(x_12);
 if (lean::obj_tag(x_13) == 0)
 {
-obj* x_14; 
 lean::dec(x_5);
 x_1 = x_6;
 goto _start;
@@ -219,7 +218,7 @@ goto block_17;
 }
 block_17:
 {
-obj* x_14; obj* x_15; obj* x_16; 
+obj* x_14; obj* x_15; 
 x_14 = x_13;
 x_15 = lean::array_fset(x_10, x_1, x_14);
 lean::dec(x_1);
@@ -257,7 +256,7 @@ x_11 = lean::mk_nat_obj(1u);
 x_12 = lean::nat_add(x_1, x_11);
 if (lean::obj_tag(x_7) == 0)
 {
-obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
+obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
 x_13 = lean::cnstr_get(x_7, 0);
 lean::inc(x_13);
 x_14 = lean::cnstr_get(x_7, 1);
@@ -275,7 +274,7 @@ goto _start;
 }
 else
 {
-obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; obj* x_25; 
+obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
 x_20 = lean::cnstr_get(x_7, 0);
 lean::inc(x_20);
 x_21 = l_Lean_IR_FnBody_elimDead___main(x_20);

@@ -2512,7 +2512,7 @@ uint8 x_3;
 x_3 = l_Lean_IR_FnBody_isTerminal___main(x_1);
 if (x_3 == 0)
 {
-obj* x_4; obj* x_5; obj* x_6; 
+obj* x_4; obj* x_5; 
 x_4 = l_Lean_IR_FnBody_body___main(x_1);
 x_5 = l_Lean_IR_push(x_2, x_1);
 x_1 = x_4;
@@ -2563,7 +2563,7 @@ x_9 = lean::nat_dec_lt(x_7, x_8);
 lean::dec(x_8);
 if (x_9 == 0)
 {
-obj* x_10; obj* x_11; obj* x_12; 
+obj* x_10; obj* x_11; 
 x_10 = lean::box(13);
 x_11 = l_Lean_IR_FnBody_setBody___main(x_10, x_3);
 x_2 = x_7;
@@ -2572,7 +2572,7 @@ goto _start;
 }
 else
 {
-obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
+obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
 x_13 = lean::array_fget(x_1, x_7);
 x_14 = lean::box(13);
 x_15 = lean::array_fset(x_1, x_7, x_14);
@@ -2663,7 +2663,7 @@ goto block_18;
 }
 block_18:
 {
-obj* x_15; obj* x_16; obj* x_17; 
+obj* x_15; obj* x_16; 
 x_15 = x_14;
 x_16 = lean::array_fset(x_11, x_2, x_15);
 lean::dec(x_2);
@@ -5597,7 +5597,7 @@ return x_4;
 }
 else
 {
-obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
 x_7 = lean::array_fget(x_2, x_3);
 x_8 = l_Lean_IR_LocalContext_addParam(x_4, x_7);
 x_9 = lean::mk_nat_obj(1u);
@@ -5668,14 +5668,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -6392,14 +6390,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -9691,7 +9687,7 @@ x_13 = lean::nat_add(x_4, x_12);
 lean::dec(x_4);
 if (lean::obj_tag(x_5) == 0)
 {
-obj* x_14; obj* x_15; 
+obj* x_14; 
 lean::dec(x_11);
 lean::dec(x_10);
 x_14 = lean::box(0);
@@ -9701,7 +9697,7 @@ goto _start;
 }
 else
 {
-obj* x_16; obj* x_17; obj* x_18; 
+obj* x_16; obj* x_17; 
 x_16 = lean::cnstr_get(x_5, 0);
 lean::inc(x_16);
 lean::dec(x_5);
@@ -9921,7 +9917,7 @@ return x_15;
 }
 else
 {
-obj* x_16; uint8 x_17; 
+obj* x_16; 
 x_16 = l_Lean_IR_addVarRename(x_1, x_4, x_8);
 x_1 = x_16;
 x_2 = x_7;
@@ -10000,7 +9996,7 @@ return x_31;
 }
 else
 {
-obj* x_32; uint8 x_33; 
+obj* x_32; 
 x_32 = l_Lean_IR_addVarRename(x_1, x_19, x_23);
 x_1 = x_32;
 x_2 = x_22;
@@ -10092,7 +10088,6 @@ return x_48;
 }
 else
 {
-uint8 x_49; 
 x_2 = x_38;
 x_3 = x_42;
 goto _start;
@@ -10160,7 +10155,6 @@ return x_60;
 }
 else
 {
-uint8 x_61; 
 x_2 = x_53;
 x_3 = x_56;
 goto _start;
@@ -10250,7 +10244,6 @@ return x_76;
 }
 else
 {
-uint8 x_77; 
 x_2 = x_66;
 x_3 = x_70;
 goto _start;
@@ -10381,7 +10374,6 @@ return x_100;
 }
 else
 {
-uint8 x_101; 
 x_2 = x_84;
 x_3 = x_90;
 goto _start;
@@ -10457,7 +10449,6 @@ if (x_105 == 0)
 {
 if (x_109 == 0)
 {
-uint8 x_115; 
 x_2 = x_106;
 x_3 = x_110;
 goto _start;
@@ -10485,7 +10476,6 @@ return x_117;
 }
 else
 {
-uint8 x_118; 
 x_2 = x_106;
 x_3 = x_110;
 goto _start;
@@ -10560,7 +10550,6 @@ if (x_122 == 0)
 {
 if (x_126 == 0)
 {
-uint8 x_132; 
 x_2 = x_123;
 x_3 = x_127;
 goto _start;
@@ -10588,7 +10577,6 @@ return x_134;
 }
 else
 {
-uint8 x_135; 
 x_2 = x_123;
 x_3 = x_127;
 goto _start;
@@ -10636,7 +10624,6 @@ return x_142;
 }
 else
 {
-uint8 x_143; 
 x_2 = x_138;
 x_3 = x_140;
 goto _start;
@@ -10681,7 +10668,6 @@ return x_150;
 }
 else
 {
-uint8 x_151; 
 x_2 = x_146;
 x_3 = x_148;
 goto _start;

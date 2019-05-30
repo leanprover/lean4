@@ -9019,7 +9019,7 @@ return x_7;
 }
 else
 {
-obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+obj* x_8; obj* x_9; obj* x_10; 
 x_8 = lean::cnstr_get(x_2, 0);
 lean::inc(x_8);
 x_9 = lean::cnstr_get(x_2, 1);
@@ -14085,14 +14085,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -14138,14 +14136,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -14191,14 +14187,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }
@@ -14244,14 +14238,12 @@ return x_10;
 }
 else
 {
-obj* x_11; 
 x_1 = x_7;
 goto _start;
 }
 }
 else
 {
-obj* x_12; 
 x_1 = x_4;
 goto _start;
 }

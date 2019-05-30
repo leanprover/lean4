@@ -285,7 +285,7 @@ x_11 = 10;
 x_12 = x_10 == x_11;
 if (x_12 == 0)
 {
-obj* x_13; obj* x_14; 
+obj* x_13; 
 x_13 = l_String_OldIterator_next___main(x_2);
 x_1 = x_7;
 x_2 = x_13;
@@ -2876,7 +2876,7 @@ return x_11;
 }
 else
 {
-obj* x_12; obj* x_13; obj* x_14; 
+obj* x_12; obj* x_13; 
 lean::inc(x_6);
 lean::inc(x_5);
 x_12 = lean::alloc_cnstr(0, 2, 0);
@@ -2891,7 +2891,6 @@ goto _start;
 }
 else
 {
-obj* x_15; 
 x_1 = x_4;
 goto _start;
 }

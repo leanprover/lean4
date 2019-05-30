@@ -217,7 +217,7 @@ return x_16;
 }
 else
 {
-obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
+obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; 
 x_17 = l_String_Iterator_next___main(x_2);
 x_18 = lean::mk_nat_obj(10u);
 x_19 = lean::nat_mul(x_3, x_18);
@@ -283,7 +283,7 @@ x_11 = 35;
 x_12 = x_10 == x_11;
 if (x_12 == 0)
 {
-obj* x_13; obj* x_14; obj* x_15; 
+obj* x_13; obj* x_14; 
 x_13 = l_String_Iterator_next___main(x_3);
 x_14 = lean::string_push(x_4, x_10);
 x_2 = x_8;
@@ -307,7 +307,7 @@ lean::dec(x_20);
 x_22 = l_List_getOpt___main___rarg(x_21, x_1);
 if (lean::obj_tag(x_22) == 0)
 {
-obj* x_23; obj* x_24; obj* x_25; 
+obj* x_23; obj* x_24; 
 x_23 = l_String_splitAux___main___closed__1;
 x_24 = lean::string_append(x_4, x_23);
 x_2 = x_8;
@@ -317,7 +317,7 @@ goto _start;
 }
 else
 {
-obj* x_26; obj* x_27; obj* x_28; 
+obj* x_26; obj* x_27; 
 x_26 = lean::cnstr_get(x_22, 0);
 lean::inc(x_26);
 lean::dec(x_22);
@@ -391,7 +391,7 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+obj* x_3; obj* x_4; obj* x_5; 
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 1);
 x_5 = lean::string_append(x_1, x_3);
@@ -542,7 +542,6 @@ x_9 = lean_name_dec_eq(x_6, x_1);
 lean::dec(x_6);
 if (x_9 == 0)
 {
-obj* x_10; 
 x_2 = x_5;
 goto _start;
 }

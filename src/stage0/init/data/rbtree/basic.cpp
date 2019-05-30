@@ -205,7 +205,7 @@ return x_2;
 }
 else
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = lean::cnstr_get(x_3, 1);
@@ -266,7 +266,7 @@ return x_2;
 }
 else
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
 x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = lean::cnstr_get(x_3, 1);
@@ -606,7 +606,7 @@ return x_1;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_3 = lean::cnstr_get(x_2, 0);
 x_4 = lean::cnstr_get(x_2, 1);
 x_5 = lean::cnstr_get(x_2, 3);
@@ -1049,7 +1049,7 @@ return x_2;
 }
 else
 {
-obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
 x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
 x_5 = lean::cnstr_get(x_3, 1);
@@ -1137,7 +1137,6 @@ return x_11;
 }
 else
 {
-uint8 x_12; 
 x_2 = x_6;
 goto _start;
 }
@@ -1227,7 +1226,6 @@ lean::inc(x_1);
 x_9 = l_RBNode_any___main___at_RBTree_any___spec__1___rarg(x_1, x_4);
 if (x_9 == 0)
 {
-uint8 x_10; 
 x_2 = x_6;
 goto _start;
 }
@@ -1355,7 +1353,6 @@ return x_11;
 }
 else
 {
-uint8 x_12; 
 x_3 = x_7;
 goto _start;
 }

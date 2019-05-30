@@ -167,7 +167,7 @@ return x_2;
 }
 case 1:
 {
-obj* x_3; uint8 x_4; 
+obj* x_3; 
 x_3 = lean::cnstr_get(x_1, 0);
 x_1 = x_3;
 goto _start;
@@ -192,7 +192,6 @@ x_8 = lean::cnstr_get(x_1, 1);
 x_9 = l_Lean_Level_hasParam___main(x_7);
 if (x_9 == 0)
 {
-uint8 x_10; 
 x_1 = x_8;
 goto _start;
 }
@@ -1192,7 +1191,6 @@ return x_20;
 }
 else
 {
-obj* x_21; 
 lean::dec(x_8);
 x_1 = x_7;
 goto _start;

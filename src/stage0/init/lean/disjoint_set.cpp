@@ -136,7 +136,6 @@ x_9 = lean::unbox(x_8);
 lean::dec(x_8);
 if (x_9 == 0)
 {
-obj* x_10; 
 lean::dec(x_6);
 x_3 = x_7;
 goto _start;
@@ -232,7 +231,6 @@ x_15 = lean::unbox(x_14);
 lean::dec(x_14);
 if (x_15 == 0)
 {
-obj* x_16; 
 lean::dec(x_12);
 x_3 = x_9;
 x_4 = x_13;
@@ -414,7 +412,6 @@ x_8 = lean::unbox(x_7);
 lean::dec(x_7);
 if (x_8 == 0)
 {
-uint8 x_9; 
 x_3 = x_6;
 goto _start;
 }
@@ -704,7 +701,6 @@ x_8 = lean::unbox(x_7);
 lean::dec(x_7);
 if (x_8 == 0)
 {
-uint8 x_9; 
 x_3 = x_6;
 goto _start;
 }
@@ -994,7 +990,6 @@ x_8 = lean::unbox(x_7);
 lean::dec(x_7);
 if (x_8 == 0)
 {
-uint8 x_9; 
 x_3 = x_6;
 goto _start;
 }
@@ -1284,7 +1279,6 @@ x_8 = lean::unbox(x_7);
 lean::dec(x_7);
 if (x_8 == 0)
 {
-uint8 x_9; 
 x_3 = x_6;
 goto _start;
 }

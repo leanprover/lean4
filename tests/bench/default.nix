@@ -19,21 +19,19 @@ let
   mlton = pkgs.mlton;
   mlkit = pkgs.stdenv.mkDerivation {
     name = "mlkit";
-    src = builtins.fetchurl {
-      name = "mlkit-deb";
-      url = "https://launchpad.net/~pmunksgaard/+archive/ubuntu/mlkit/+files/mlkit_4.3.18-0~12~ubuntu18.10.1_amd64.deb";
-      sha256 = "0wbz4l1i8z8kv3qkd1hc06lpqbfq1kndr8n68339mlpgzriz01vy";
+    src = pkgs.fetchzip {
+      url = "https://github.com/melsman/mlkit/releases/download/mlkit-4.4.2/mlkit_bin_dist.tgz";
+      sha256 = "079299h5m3gkk10qpn2r6va7kjj0sr9z3cs0knjz3qv1cldpzj7x";
     };
     buildInputs = [ pkgs.makeWrapper ];
-    unpackCmd = "${pkgs.dpkg}/bin/dpkg -x $src source";
     dontBuild = true;
     installPhase = ''
       mkdir $out
       cp -R . $out
     '';
     preFixup = ''
-      wrapProgram $out/usr/bin/mlkit --set PATH ${pkgs.binutils}/bin:${pkgs.pkgsi686Linux.gcc}/bin\
-        --set SML_LIB $out/usr/lib/mlkit
+      wrapProgram $out/bin/mlkit --set PATH ${pkgs.binutils}/bin:${pkgs.gcc}/bin\
+        --set SML_LIB $out/lib/mlkit
     '';
   };
   temci = import (builtins.fetchGit { url = http://github.com/parttimenerd/temci.git; rev = "e397ef9df168d581dcb46de4603088b7a5c6749c"; }) {};
@@ -69,7 +67,7 @@ in pkgs.stdenv.mkDerivation rec {
   OCAML = "${ocaml}/bin/ocamlopt.opt";
   #OCAML_FLAMBDA = "${ocamlFlambda}/bin/ocamlopt.opt";
   MLTON_BIN = "${mlton}/bin";
-  MLKIT = "${mlkit}/usr/bin/mlkit";
+  MLKIT = "${mlkit}/bin/mlkit";
   TEMCI = "${temci}/bin/temci";
   buildInputs = with pkgs; [
     gmp # needed by leanc

@@ -74,6 +74,11 @@ def mkMapAux (freq : Nat) : Nat → Tree → List Tree → List Tree
 def mkMap (n : Nat) (freq : Nat) : List Tree :=
 mkMapAux freq n Leaf []
 
+def myLen : List Tree → Nat → Nat
+| (Node _ _ _ _ _ :: xs) r := myLen xs (r + 1)
+| (_ :: xs) r := myLen xs r
+| [] r := r
+
 def main (xs : List String) : IO UInt32 :=
 do
 [n, freq] ← pure xs | throw "invalid input",
@@ -82,5 +87,5 @@ let freq  := freq.toNat,
 let freq  := if freq == 0 then 1 else freq,
 let mList := mkMap n freq,
 let v     := fold (λ (k : Nat) (v : Bool) (r : Nat), if v then r + 1 else r) mList.head 0,
-IO.println (toString mList.length ++ " " ++ toString v) *>
+IO.println (toString (myLen mList 0) ++ " " ++ toString v) *>
 pure 0

@@ -64,11 +64,19 @@ else let val n = n-1
 
 fun mk_map n freq = mk_map_aux freq n Leaf [];;
 
+fun mylen m r =
+case m of
+  [] => r
+| (x::xs) =>
+  case x of
+    Node _ => mylen xs (r + 1)
+  | _ => mylen xs r;;
+
 fun main n freq =
 let
   val m = mk_map n freq
   val v = fold (fn k => fn v => fn r => if v then r + 1 else r) (List.hd m) 0 in
-print (Int.toString (List.length m) ^ " " ^ Int.toString v)
+print (Int.toString (mylen m 0) ^ " " ^ Int.toString v)
 end
 
 val l = List.map (valOf o Int.fromString) (CommandLine.arguments ())

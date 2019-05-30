@@ -256,7 +256,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_4; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)
@@ -354,7 +353,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_4; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)
@@ -452,7 +450,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_4; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)
@@ -550,7 +547,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_4; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)

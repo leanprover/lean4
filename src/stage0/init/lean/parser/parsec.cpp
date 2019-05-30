@@ -1496,7 +1496,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_String_splitAux___main___closed__1;
 return x_2;
 }
@@ -1508,7 +1507,6 @@ lean::inc(x_3);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; 
-lean::dec(x_3);
 x_4 = lean::cnstr_get(x_1, 0);
 lean::inc(x_4);
 lean::dec(x_1);
@@ -1522,7 +1520,6 @@ lean::inc(x_5);
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
-lean::dec(x_5);
 x_6 = lean::cnstr_get(x_1, 0);
 lean::inc(x_6);
 lean::dec(x_1);
@@ -2235,7 +2232,6 @@ x_13 = lean::cnstr_get(x_2, 2);
 lean::inc(x_13);
 if (lean::obj_tag(x_13) == 0)
 {
-lean::dec(x_13);
 lean::dec(x_1);
 return x_2;
 }
@@ -4185,7 +4181,6 @@ x_3 = lean::cnstr_get(x_1, 2);
 lean::inc(x_3);
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_2);
 return x_1;
 }
@@ -4489,7 +4484,6 @@ x_3 = lean::cnstr_get(x_2, 2);
 lean::inc(x_3);
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -6446,7 +6440,6 @@ x_7 = l___private_init_lean_parser_parsec_2__strAux___main(x_4, x_6, x_3);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; uint8 x_11; obj* x_12; 
-lean::dec(x_7);
 lean::dec(x_1);
 x_8 = lean::box(0);
 x_9 = l_String_splitAux___main___closed__1;
@@ -9857,7 +9850,6 @@ _start:
 if (lean::obj_tag(x_9) == 0)
 {
 obj* x_10; obj* x_11; obj* x_12; 
-lean::dec(x_9);
 lean::dec(x_7);
 lean::dec(x_6);
 lean::dec(x_5);

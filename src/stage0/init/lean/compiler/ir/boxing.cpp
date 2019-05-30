@@ -1255,7 +1255,6 @@ lean::dec(x_6);
 if (lean::obj_tag(x_7) == 0)
 {
 uint8 x_8; obj* x_9; 
-lean::dec(x_7);
 x_8 = 7;
 x_9 = lean::box(x_8);
 lean::cnstr_set(x_4, 0, x_9);
@@ -1284,7 +1283,6 @@ lean::dec(x_11);
 if (lean::obj_tag(x_13) == 0)
 {
 uint8 x_14; obj* x_15; obj* x_16; 
-lean::dec(x_13);
 x_14 = 7;
 x_15 = lean::box(x_14);
 x_16 = lean::alloc_cnstr(0, 2, 0);
@@ -1331,7 +1329,6 @@ lean::dec(x_6);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; 
-lean::dec(x_7);
 x_8 = l_Array_empty___closed__1;
 lean::cnstr_set(x_4, 0, x_8);
 return x_4;
@@ -1359,7 +1356,6 @@ lean::dec(x_10);
 if (lean::obj_tag(x_12) == 0)
 {
 obj* x_13; obj* x_14; 
-lean::dec(x_12);
 x_13 = l_Array_empty___closed__1;
 x_14 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_14, 0, x_13);
@@ -1417,7 +1413,6 @@ x_6 = l_Lean_IR_findEnvDecl_x27(x_4, x_1, x_5);
 if (lean::obj_tag(x_6) == 0)
 {
 obj* x_7; obj* x_8; 
-lean::dec(x_6);
 x_7 = l_Lean_IR_ExplicitBoxing_getDecl___closed__1;
 x_8 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_8, 0, x_7);

@@ -113,7 +113,6 @@ lean::dec(x_19);
 if (lean::obj_tag(x_20) == 0)
 {
 obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
-lean::dec(x_20);
 x_21 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_21, 0, x_16);
 lean::cnstr_set(x_21, 1, x_17);
@@ -153,7 +152,6 @@ lean::dec(x_32);
 if (lean::obj_tag(x_33) == 0)
 {
 obj* x_34; obj* x_35; obj* x_36; obj* x_37; 
-lean::dec(x_33);
 x_34 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_34, 0, x_30);
 x_35 = x_34;
@@ -212,7 +210,6 @@ x_15 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14
 if (lean::obj_tag(x_15) == 0)
 {
 obj* x_16; obj* x_17; obj* x_18; 
-lean::dec(x_15);
 lean::inc(x_9);
 x_16 = x_9;
 x_17 = lean::array_fset(x_12, x_3, x_16);
@@ -358,7 +355,6 @@ x_24 = l_RBNode_findCore___main___at___private_init_lean_compiler_ir_freevars_14
 if (lean::obj_tag(x_24) == 0)
 {
 obj* x_25; obj* x_26; obj* x_27; obj* x_28; 
-lean::dec(x_24);
 x_25 = lean::mk_nat_obj(0u);
 lean::inc(x_7);
 x_26 = l_Array_ummapAux___main___at_Lean_IR_pushProjs___main___spec__2(x_3, x_7, x_21, x_25, x_2);

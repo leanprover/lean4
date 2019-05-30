@@ -965,7 +965,6 @@ lean::cnstr_set(x_15, 1, x_14);
 if (lean::obj_tag(x_11) == 0)
 {
 obj* x_16; obj* x_17; 
-lean::dec(x_11);
 x_16 = l_Lean_Parser_run___rarg___lambda__1___closed__1;
 lean::cnstr_set(x_4, 1, x_15);
 lean::cnstr_set(x_4, 0, x_16);
@@ -1060,7 +1059,6 @@ lean::cnstr_set(x_41, 1, x_40);
 if (lean::obj_tag(x_37) == 0)
 {
 obj* x_42; obj* x_43; obj* x_44; 
-lean::dec(x_37);
 x_42 = l_Lean_Parser_run___rarg___lambda__1___closed__1;
 x_43 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_43, 0, x_42);
@@ -1283,7 +1281,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 x_3 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_3, 0, x_1);
 return x_3;
@@ -1304,7 +1301,6 @@ x_8 = l___private_init_lean_parser_trie_3__findAux___main___rarg(x_6, x_1, x_7);
 if (lean::obj_tag(x_8) == 0)
 {
 obj* x_9; obj* x_10; 
-lean::dec(x_8);
 x_9 = l___private_init_lean_parser_trie_2__insertAux___main___rarg(x_6, x_4, x_1, x_7);
 lean::dec(x_6);
 x_1 = x_9;
@@ -11727,7 +11723,6 @@ x_4 = l_RBNode_find___main___at_Lean_Parser_TokenMap_insert___spec__1___rarg(x_1
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; 
-lean::dec(x_4);
 x_5 = lean::box(0);
 x_6 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_6, 0, x_3);
@@ -11773,7 +11768,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }

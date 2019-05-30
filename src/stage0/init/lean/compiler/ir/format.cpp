@@ -183,7 +183,6 @@ return x_6;
 else
 {
 obj* x_7; 
-lean::dec(x_1);
 x_7 = l___private_init_lean_compiler_ir_format_1__formatArg___main___closed__1;
 return x_7;
 }
@@ -2699,7 +2698,6 @@ return x_302;
 default: 
 {
 obj* x_303; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_303 = l_Lean_IR_formatFnBody___main___closed__20;
 return x_303;

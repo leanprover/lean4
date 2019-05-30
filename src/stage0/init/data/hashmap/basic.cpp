@@ -473,7 +473,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }

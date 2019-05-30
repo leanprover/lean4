@@ -249,7 +249,6 @@ switch (lean::obj_tag(x_1)) {
 case 0:
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_String_splitAux___main___closed__1;
 return x_2;
 }

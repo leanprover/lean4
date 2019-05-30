@@ -508,7 +508,6 @@ x_3 = l_Lean_KVMap_findCore___main(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 0;
 return x_4;
 }
@@ -539,7 +538,6 @@ obj* x_4;
 x_4 = l_Lean_KVMap_findCore___main(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
-lean::dec(x_4);
 lean::inc(x_3);
 return x_3;
 }
@@ -584,7 +582,6 @@ obj* x_4;
 x_4 = l_Lean_KVMap_findCore___main(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
-lean::dec(x_4);
 lean::inc(x_3);
 return x_3;
 }
@@ -629,7 +626,6 @@ obj* x_4;
 x_4 = l_Lean_KVMap_findCore___main(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
-lean::dec(x_4);
 lean::inc(x_3);
 return x_3;
 }
@@ -674,7 +670,6 @@ obj* x_4;
 x_4 = l_Lean_KVMap_findCore___main(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
-lean::dec(x_4);
 return x_3;
 }
 else
@@ -718,7 +713,6 @@ obj* x_4;
 x_4 = l_Lean_KVMap_findCore___main(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
-lean::dec(x_4);
 lean::inc(x_3);
 return x_3;
 }
@@ -836,7 +830,6 @@ x_8 = l_Lean_KVMap_findCore___main(x_2, x_6);
 if (lean::obj_tag(x_8) == 0)
 {
 uint8 x_9; 
-lean::dec(x_8);
 x_9 = 0;
 return x_9;
 }

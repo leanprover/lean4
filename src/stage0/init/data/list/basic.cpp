@@ -313,12 +313,10 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 lean::dec(x_1);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 1;
 return x_4;
 }
@@ -335,7 +333,6 @@ else
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_6; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_6 = 0;
@@ -452,7 +449,6 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-lean::dec(x_1);
 return x_2;
 }
 else
@@ -578,7 +574,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 0;
@@ -1339,7 +1334,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
@@ -1410,7 +1404,6 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
 return x_4;
@@ -1420,7 +1413,6 @@ else
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_5 = lean::box(0);
@@ -1497,7 +1489,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }
@@ -1545,7 +1536,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
@@ -1564,7 +1554,6 @@ x_7 = lean::apply_1(x_1, x_5);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; 
-lean::dec(x_7);
 lean::free_heap_obj(x_2);
 x_2 = x_6;
 goto _start;
@@ -1594,7 +1583,6 @@ x_13 = lean::apply_1(x_1, x_11);
 if (lean::obj_tag(x_13) == 0)
 {
 obj* x_14; 
-lean::dec(x_13);
 x_2 = x_12;
 goto _start;
 }
@@ -1644,7 +1632,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = l_List_reverse___rarg(x_3);
 return x_4;
@@ -1765,7 +1752,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_4; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)
@@ -2051,7 +2037,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
@@ -2118,7 +2103,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 0;
@@ -2352,7 +2336,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
@@ -2426,7 +2409,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_5 = l_List_reverse___rarg(x_4);
@@ -2701,7 +2683,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -2750,7 +2731,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 lean::inc(x_2);
 return x_2;
@@ -2821,7 +2801,6 @@ lean::inc(x_4);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
-lean::dec(x_4);
 lean::dec(x_1);
 x_5 = lean::cnstr_get(x_2, 0);
 lean::inc(x_5);
@@ -2871,7 +2850,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
@@ -2915,7 +2893,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -2995,7 +2972,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -3195,7 +3171,6 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
 return x_4;
@@ -3205,7 +3180,6 @@ else
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_5; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_5 = lean::box(0);
@@ -3317,7 +3291,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_List_partition___rarg___closed__1;
 return x_2;
 }
@@ -3641,7 +3614,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
@@ -3944,7 +3916,6 @@ x_3 = lean::cnstr_get(x_2, 1);
 lean::inc(x_3);
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -4115,12 +4086,10 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_2);
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_5; 
-lean::dec(x_4);
 x_5 = 0;
 return x_5;
 }
@@ -4137,7 +4106,6 @@ else
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_7; 
-lean::dec(x_4);
 lean::dec(x_3);
 lean::dec(x_2);
 x_7 = 0;
@@ -4277,12 +4245,10 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_2);
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_5; 
-lean::dec(x_4);
 x_5 = 0;
 return x_5;
 }
@@ -4299,7 +4265,6 @@ else
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_7; 
-lean::dec(x_4);
 lean::dec(x_3);
 lean::dec(x_2);
 x_7 = 0;
@@ -4425,7 +4390,6 @@ if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_4; 
 lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 1;
 return x_4;
@@ -4435,7 +4399,6 @@ else
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_5; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_5 = 0;
@@ -4553,11 +4516,9 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 lean::dec(x_3);
-lean::dec(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_4; 
-lean::dec(x_2);
 x_4 = 1;
 return x_4;
 }
@@ -4575,7 +4536,6 @@ if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_6; 
 lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 x_6 = 0;
 return x_6;

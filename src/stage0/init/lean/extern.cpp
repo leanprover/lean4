@@ -308,7 +308,6 @@ x_22 = l_List_getOpt___main___rarg(x_21, x_1);
 if (lean::obj_tag(x_22) == 0)
 {
 obj* x_23; obj* x_24; obj* x_25; 
-lean::dec(x_22);
 x_23 = l_String_splitAux___main___closed__1;
 x_24 = lean::string_append(x_4, x_23);
 x_2 = x_8;
@@ -620,7 +619,6 @@ x_4 = lean::get_extern_entry_for_core(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
-lean::dec(x_4);
 lean::dec(x_3);
 x_5 = lean::box(0);
 return x_5;
@@ -653,7 +651,6 @@ x_3 = lean_get_extern_attr_data(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 0;
 return x_4;
 }
@@ -685,7 +682,6 @@ x_3 = lean_get_extern_attr_data(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 0;
 return x_4;
 }
@@ -701,7 +697,6 @@ lean::dec(x_5);
 if (lean::obj_tag(x_6) == 0)
 {
 uint8 x_7; 
-lean::dec(x_6);
 x_7 = 0;
 return x_7;
 }
@@ -734,7 +729,6 @@ else
 if (lean::obj_tag(x_9) == 0)
 {
 uint8 x_14; 
-lean::dec(x_9);
 x_14 = 1;
 return x_14;
 }
@@ -778,7 +772,6 @@ x_4 = lean_get_extern_attr_data(x_1, x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
-lean::dec(x_4);
 lean::dec(x_2);
 x_5 = lean::box(0);
 return x_5;
@@ -793,7 +786,6 @@ x_7 = lean::get_extern_entry_for_core(x_6, x_2);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; 
-lean::dec(x_7);
 x_8 = lean::box(0);
 return x_8;
 }

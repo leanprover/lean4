@@ -195,7 +195,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else

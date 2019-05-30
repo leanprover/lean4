@@ -114,7 +114,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
@@ -210,7 +209,6 @@ x_10 = l_HashMapImp_find___at___private_init_lean_disjoint__set_1__findAux___mai
 if (lean::obj_tag(x_10) == 0)
 {
 obj* x_11; 
-lean::dec(x_10);
 lean::dec(x_9);
 lean::dec(x_2);
 lean::dec(x_1);
@@ -396,7 +394,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 0;
@@ -687,7 +684,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 0;
@@ -978,7 +974,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 0;
@@ -1269,7 +1264,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 0;

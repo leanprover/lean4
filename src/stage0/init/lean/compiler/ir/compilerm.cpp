@@ -495,7 +495,6 @@ x_3 = l_Lean_KVMap_findCore___main(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; uint8 x_5; uint8 x_6; 
-lean::dec(x_3);
 x_4 = l_Lean_IR_tracePrefixOptionName;
 x_5 = 0;
 x_6 = l_Lean_KVMap_getBool(x_1, x_4, x_5);
@@ -913,7 +912,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -1215,7 +1213,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 return x_2;
 }
 else
@@ -1239,7 +1236,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -5038,7 +5034,6 @@ x_6 = l_RBNode_find___main___at_Lean_IR_findEnvDecl___spec__2(x_5, x_2);
 if (lean::obj_tag(x_6) == 0)
 {
 obj* x_7; 
-lean::dec(x_6);
 x_7 = l_HashMapImp_find___at_Lean_IR_findEnvDecl___spec__3(x_4, x_2);
 return x_7;
 }
@@ -5198,7 +5193,6 @@ x_7 = l_RBNode_find___main___at_Lean_IR_findEnvDecl___spec__2(x_5, x_2);
 if (lean::obj_tag(x_7) == 0)
 {
 uint8 x_8; 
-lean::dec(x_7);
 x_8 = 0;
 return x_8;
 }
@@ -5322,7 +5316,6 @@ lean::inc(x_5);
 if (lean::obj_tag(x_5) == 0)
 {
 uint8 x_6; 
-lean::dec(x_5);
 x_6 = !lean::is_exclusive(x_4);
 if (x_6 == 0)
 {
@@ -5768,7 +5761,6 @@ x_5 = l_Array_mfindAux___main___at_Lean_IR_findEnvDecl_x27___spec__1(x_2, x_3, x
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; 
-lean::dec(x_5);
 x_6 = l_Lean_IR_declMapExt;
 x_7 = l_Lean_PersistentEnvExtension_getState___rarg(x_6, x_1);
 x_8 = l_Lean_SMap_find___main___at_Lean_IR_findEnvDecl___spec__1(x_7, x_2);
@@ -5999,7 +5991,6 @@ lean::inc(x_6);
 if (lean::obj_tag(x_6) == 0)
 {
 uint8 x_7; 
-lean::dec(x_6);
 x_7 = !lean::is_exclusive(x_5);
 if (x_7 == 0)
 {

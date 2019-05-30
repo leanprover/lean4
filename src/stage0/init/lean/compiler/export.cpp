@@ -34,7 +34,6 @@ x_3 = lean_get_export_name_for(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 0;
 return x_4;
 }

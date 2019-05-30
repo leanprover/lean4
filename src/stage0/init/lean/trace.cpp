@@ -88,7 +88,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }
@@ -3333,7 +3332,6 @@ lean::inc(x_12);
 if (lean::obj_tag(x_12) == 0)
 {
 obj* x_13; obj* x_14; obj* x_15; 
-lean::dec(x_12);
 lean::dec(x_10);
 lean::dec(x_9);
 lean::dec(x_8);

@@ -771,7 +771,6 @@ return x_9;
 else
 {
 obj* x_13; obj* x_14; uint8 x_15; 
-lean::dec(x_7);
 x_13 = lean::mk_nat_obj(1u);
 x_14 = lean::nat_add(x_3, x_13);
 lean::dec(x_3);

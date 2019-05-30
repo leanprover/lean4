@@ -508,7 +508,6 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-lean::dec(x_1);
 return x_2;
 }
 else
@@ -584,7 +583,6 @@ if (lean::obj_tag(x_1) == 0)
 {
 uint32 x_4; 
 lean::dec(x_2);
-lean::dec(x_1);
 x_4 = 65;
 return x_4;
 }
@@ -790,7 +788,6 @@ if (lean::obj_tag(x_1) == 0)
 {
 obj* x_4; 
 lean::dec(x_2);
-lean::dec(x_1);
 x_4 = lean::mk_nat_obj(0u);
 return x_4;
 }
@@ -1526,7 +1523,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }

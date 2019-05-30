@@ -547,7 +547,6 @@ x_74 = l_Lean_IR_LocalContext_getJPBody(x_3, x_70);
 if (lean::obj_tag(x_74) == 0)
 {
 obj* x_75; obj* x_76; 
-lean::dec(x_74);
 x_75 = lean::box(x_73);
 x_76 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_76, 0, x_75);
@@ -3169,7 +3168,6 @@ return x_5;
 }
 else
 {
-lean::dec(x_1);
 return x_2;
 }
 }
@@ -3331,7 +3329,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 return x_2;
 }
 else
@@ -3431,7 +3428,6 @@ obj* x_4;
 x_4 = l_RBNode_find___main___at___private_init_lean_compiler_ir_livevars_7__collectJP___spec__1(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
-lean::dec(x_4);
 return x_3;
 }
 else
@@ -6506,7 +6502,6 @@ return x_60;
 case 13:
 {
 lean::dec(x_2);
-lean::dec(x_1);
 return x_3;
 }
 default: 

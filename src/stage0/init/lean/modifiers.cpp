@@ -1433,7 +1433,6 @@ x_3 = l_Lean_Environment_getModuleIdxFor(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; obj* x_5; uint8 x_6; 
-lean::dec(x_3);
 x_4 = l_Lean_protectedExt;
 x_5 = l_Lean_PersistentEnvExtension_getState___rarg(x_4, x_1);
 lean::dec(x_1);

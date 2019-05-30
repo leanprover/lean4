@@ -41,7 +41,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -93,7 +92,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
@@ -164,7 +162,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 0;

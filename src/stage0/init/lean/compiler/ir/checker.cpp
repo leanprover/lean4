@@ -132,7 +132,6 @@ x_5 = l_Lean_IR_findEnvDecl_x27(x_3, x_1, x_4);
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
-lean::dec(x_5);
 x_6 = l_Lean_Name_toString___closed__1;
 x_7 = l_Lean_Name_toStringWithSep___main(x_6, x_1);
 x_8 = l_Lean_IR_getDecl___closed__1;
@@ -299,7 +298,6 @@ return x_4;
 else
 {
 obj* x_5; 
-lean::dec(x_1);
 x_5 = l_Lean_IR_Checker_checkVar___closed__2;
 return x_5;
 }
@@ -507,7 +505,6 @@ x_5 = l_Lean_IR_LocalContext_getType(x_4, x_1);
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
-lean::dec(x_5);
 lean::dec(x_2);
 x_6 = l_Nat_repr(x_1);
 x_7 = l_Lean_IR_VarId_HasToString___closed__1;
@@ -565,7 +562,6 @@ x_4 = l_Lean_IR_LocalContext_getType(x_3, x_1);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
-lean::dec(x_4);
 x_5 = l_Nat_repr(x_1);
 x_6 = l_Lean_IR_VarId_HasToString___closed__1;
 x_7 = lean::string_append(x_6, x_5);
@@ -622,7 +618,6 @@ x_4 = l_Lean_IR_LocalContext_getType(x_3, x_1);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
-lean::dec(x_4);
 x_5 = l_Nat_repr(x_1);
 x_6 = l_Lean_IR_VarId_HasToString___closed__1;
 x_7 = lean::string_append(x_6, x_5);
@@ -1351,7 +1346,6 @@ x_73 = l_Lean_IR_LocalContext_getType(x_72, x_61);
 if (lean::obj_tag(x_73) == 0)
 {
 obj* x_74; obj* x_75; obj* x_76; obj* x_77; obj* x_78; obj* x_79; obj* x_80; 
-lean::dec(x_73);
 x_74 = l_Nat_repr(x_61);
 x_75 = l_Lean_IR_VarId_HasToString___closed__1;
 x_76 = lean::string_append(x_75, x_74);
@@ -1399,7 +1393,6 @@ x_87 = l_Lean_IR_LocalContext_getType(x_86, x_61);
 if (lean::obj_tag(x_87) == 0)
 {
 obj* x_88; obj* x_89; obj* x_90; obj* x_91; obj* x_92; obj* x_93; obj* x_94; obj* x_95; 
-lean::dec(x_87);
 x_88 = l_Nat_repr(x_61);
 x_89 = l_Lean_IR_VarId_HasToString___closed__1;
 x_90 = lean::string_append(x_89, x_88);
@@ -2643,7 +2636,6 @@ case 13:
 {
 obj* x_130; 
 lean::dec(x_2);
-lean::dec(x_1);
 x_130 = l_Lean_IR_Checker_checkVar___closed__2;
 return x_130;
 }

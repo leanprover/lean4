@@ -179,7 +179,6 @@ _start:
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-lean::dec(x_5);
 lean::dec(x_4);
 x_6 = lean::box(0);
 x_7 = l_Lean_Parser_currLbp___rarg___lambda__1___closed__1;
@@ -387,7 +386,6 @@ return x_37;
 default: 
 {
 obj* x_38; obj* x_39; obj* x_40; obj* x_41; 
-lean::dec(x_11);
 lean::dec(x_5);
 lean::dec(x_4);
 lean::dec(x_1);

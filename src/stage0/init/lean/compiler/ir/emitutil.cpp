@@ -219,7 +219,6 @@ lean::dec(x_14);
 if (lean::obj_tag(x_20) == 0)
 {
 obj* x_21; 
-lean::dec(x_20);
 x_1 = x_13;
 x_3 = x_19;
 goto _start;
@@ -333,7 +332,6 @@ lean::dec(x_39);
 if (lean::obj_tag(x_45) == 0)
 {
 obj* x_46; 
-lean::dec(x_45);
 x_1 = x_38;
 x_3 = x_44;
 goto _start;
@@ -851,7 +849,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -1376,7 +1373,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else

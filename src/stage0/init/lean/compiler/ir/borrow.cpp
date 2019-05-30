@@ -372,7 +372,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -699,7 +698,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -1286,7 +1284,6 @@ x_20 = l_HashMapImp_find___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___
 lean::dec(x_19);
 if (lean::obj_tag(x_20) == 0)
 {
-lean::dec(x_20);
 lean::cnstr_set(x_1, 3, x_18);
 lean::cnstr_set(x_1, 2, x_17);
 return x_1;
@@ -1329,7 +1326,6 @@ lean::dec(x_28);
 if (lean::obj_tag(x_29) == 0)
 {
 obj* x_30; 
-lean::dec(x_29);
 x_30 = lean::alloc_cnstr(1, 4, 0);
 lean::cnstr_set(x_30, 0, x_22);
 lean::cnstr_set(x_30, 1, x_23);
@@ -1474,7 +1470,6 @@ lean::dec(x_19);
 if (lean::obj_tag(x_20) == 0)
 {
 obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
-lean::dec(x_20);
 x_21 = lean::alloc_cnstr(0, 3, 1);
 lean::cnstr_set(x_21, 0, x_14);
 lean::cnstr_set(x_21, 1, x_15);
@@ -1635,7 +1630,6 @@ x_7 = l_RBNode_findCore___main___at_Lean_IR_UniqueIds_checkId___spec__1(x_5, x_1
 if (lean::obj_tag(x_7) == 0)
 {
 uint8 x_8; 
-lean::dec(x_7);
 x_8 = !lean::is_exclusive(x_3);
 if (x_8 == 0)
 {
@@ -1711,7 +1705,6 @@ return x_5;
 else
 {
 obj* x_6; obj* x_7; 
-lean::dec(x_1);
 x_6 = lean::box(0);
 x_7 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_7, 0, x_6);
@@ -1803,7 +1796,6 @@ lean::dec(x_4);
 if (lean::obj_tag(x_5) == 0)
 {
 uint8 x_6; obj* x_7; obj* x_8; 
-lean::dec(x_5);
 x_6 = 0;
 x_7 = lean::box(x_6);
 x_8 = lean::alloc_cnstr(0, 2, 0);
@@ -1885,7 +1877,6 @@ x_24 = l_RBNode_findCore___main___at_Lean_IR_UniqueIds_checkId___spec__1(x_23, x
 if (lean::obj_tag(x_24) == 0)
 {
 obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; 
-lean::dec(x_24);
 lean::dec(x_21);
 x_25 = lean::mk_nat_obj(1u);
 x_26 = lean::nat_add(x_2, x_25);
@@ -1935,7 +1926,6 @@ lean::dec(x_4);
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; 
-lean::dec(x_5);
 lean::dec(x_1);
 x_6 = lean::box(0);
 x_7 = lean::alloc_cnstr(0, 2, 0);
@@ -2063,7 +2053,6 @@ x_5 = l_HashMapImp_find___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___s
 lean::dec(x_4);
 if (lean::obj_tag(x_5) == 0)
 {
-lean::dec(x_5);
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; 
@@ -2073,7 +2062,6 @@ x_8 = l_Lean_IR_findEnvDecl(x_7, x_6);
 if (lean::obj_tag(x_8) == 0)
 {
 obj* x_9; obj* x_10; 
-lean::dec(x_8);
 x_9 = l_Array_empty___closed__1;
 x_10 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_10, 0, x_9);
@@ -2278,7 +2266,6 @@ goto _start;
 else
 {
 obj* x_28; 
-lean::dec(x_14);
 lean::dec(x_12);
 x_4 = x_10;
 goto _start;
@@ -2365,7 +2352,6 @@ x_15 = l_RBNode_findCore___main___at_Lean_IR_UniqueIds_checkId___spec__1(x_14, x
 if (lean::obj_tag(x_15) == 0)
 {
 obj* x_16; 
-lean::dec(x_15);
 lean::dec(x_13);
 x_3 = x_12;
 goto _start;
@@ -2386,7 +2372,6 @@ goto _start;
 else
 {
 obj* x_20; 
-lean::dec(x_10);
 x_3 = x_12;
 goto _start;
 }

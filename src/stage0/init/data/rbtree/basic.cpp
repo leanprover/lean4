@@ -200,7 +200,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -262,7 +261,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -347,7 +345,6 @@ _start:
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; 
-lean::dec(x_4);
 lean::dec(x_2);
 x_5 = lean::cnstr_get(x_1, 0);
 lean::inc(x_5);
@@ -466,7 +463,6 @@ _start:
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; obj* x_7; 
-lean::dec(x_4);
 lean::dec(x_2);
 x_5 = lean::cnstr_get(x_1, 0);
 lean::inc(x_5);
@@ -685,7 +681,6 @@ x_2 = l_RBNode_min___main___rarg(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 x_3 = lean::box(0);
 return x_3;
 }
@@ -753,7 +748,6 @@ x_2 = l_RBNode_max___main___rarg(x_1);
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 x_3 = lean::box(0);
 return x_3;
 }
@@ -915,7 +909,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
@@ -968,7 +961,6 @@ x_4 = l_RBNode_findCore___main___rarg(x_1, x_2, x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
-lean::dec(x_4);
 x_5 = lean::box(0);
 return x_5;
 }
@@ -1018,7 +1010,6 @@ x_4 = l_RBNode_findCore___main___rarg(x_1, x_2, x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_5; 
-lean::dec(x_4);
 x_5 = 0;
 return x_5;
 }
@@ -1053,7 +1044,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 return x_2;
 }
@@ -1105,7 +1095,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = 1;
 return x_3;
@@ -1213,7 +1202,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 uint8 x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = 0;
 return x_3;
@@ -1321,7 +1309,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = 1;
@@ -1343,7 +1330,6 @@ x_8 = l_RBNode_findCore___main___rarg(x_1, x_2, x_6);
 if (lean::obj_tag(x_8) == 0)
 {
 uint8 x_9; 
-lean::dec(x_8);
 lean::dec(x_7);
 lean::dec(x_5);
 lean::dec(x_2);

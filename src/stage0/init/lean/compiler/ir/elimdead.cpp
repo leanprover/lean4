@@ -117,7 +117,6 @@ lean::dec(x_12);
 if (lean::obj_tag(x_13) == 0)
 {
 obj* x_14; 
-lean::dec(x_13);
 lean::dec(x_5);
 x_1 = x_6;
 goto _start;

@@ -287,7 +287,6 @@ switch (lean::obj_tag(x_1)) {
 case 0:
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }
@@ -366,7 +365,6 @@ _start:
 switch (lean::obj_tag(x_2)) {
 case 0:
 {
-lean::dec(x_2);
 lean::inc(x_1);
 return x_1;
 }
@@ -833,7 +831,6 @@ switch (lean::obj_tag(x_2)) {
 case 0:
 {
 obj* x_3; 
-lean::dec(x_2);
 x_3 = l_Lean_Name_toStringWithSep___main___closed__1;
 return x_3;
 }
@@ -5951,7 +5948,6 @@ x_3 = l_RBNode_find___main___at_Lean_NameMap_contains___spec__1___rarg(x_1, x_2)
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 0;
 return x_4;
 }
@@ -8619,7 +8615,6 @@ x_3 = l_RBNode_find___main___at_Lean_NameSet_contains___spec__1(x_1, x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 0;
 return x_4;
 }

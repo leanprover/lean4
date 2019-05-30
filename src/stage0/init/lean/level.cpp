@@ -421,7 +421,6 @@ x_4 = l_Lean_Level_toNat___main(x_3);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
-lean::dec(x_4);
 x_5 = lean::box(0);
 return x_5;
 }
@@ -463,7 +462,6 @@ x_16 = l_Lean_Level_toNat___main(x_14);
 if (lean::obj_tag(x_16) == 0)
 {
 obj* x_17; 
-lean::dec(x_16);
 x_17 = lean::box(0);
 return x_17;
 }
@@ -477,7 +475,6 @@ x_19 = l_Lean_Level_toNat___main(x_15);
 if (lean::obj_tag(x_19) == 0)
 {
 obj* x_20; 
-lean::dec(x_19);
 lean::dec(x_18);
 x_20 = lean::box(0);
 return x_20;
@@ -521,7 +518,6 @@ x_29 = l_Lean_Level_toNat___main(x_27);
 if (lean::obj_tag(x_29) == 0)
 {
 obj* x_30; 
-lean::dec(x_29);
 x_30 = lean::box(0);
 return x_30;
 }
@@ -535,7 +531,6 @@ x_32 = l_Lean_Level_toNat___main(x_28);
 if (lean::obj_tag(x_32) == 0)
 {
 obj* x_33; 
-lean::dec(x_32);
 lean::dec(x_31);
 x_33 = lean::box(0);
 return x_33;
@@ -717,7 +712,6 @@ lean::inc(x_16);
 x_17 = lean::apply_1(x_1, x_16);
 if (lean::obj_tag(x_17) == 0)
 {
-lean::dec(x_17);
 return x_2;
 }
 else
@@ -1030,7 +1024,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
@@ -1084,7 +1077,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }
@@ -1299,7 +1291,6 @@ switch (lean::obj_tag(x_1)) {
 case 0:
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_Lean_LevelToFormat_Level_toResult___main___closed__1;
 return x_2;
 }

@@ -2645,7 +2645,6 @@ x_3 = l_RBNode_findCore___main___at_Lean_IR_UniqueIds_checkId___spec__1(x_2, x_1
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; obj* x_5; uint8 x_6; obj* x_7; obj* x_8; 
-lean::dec(x_3);
 x_4 = lean::box(0);
 x_5 = l_RBNode_insert___at_Lean_IR_UniqueIds_checkId___spec__2(x_2, x_1, x_4);
 x_6 = 1;
@@ -3267,7 +3266,6 @@ obj* x_3;
 x_3 = l_RBNode_find___main___at_Lean_IR_VarId_alphaEqv___spec__1(x_2, x_1);
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::inc(x_1);
 return x_1;
 }

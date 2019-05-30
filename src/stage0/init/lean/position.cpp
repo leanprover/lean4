@@ -2804,7 +2804,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }
@@ -2908,7 +2907,6 @@ x_4 = l_RBNode_lowerBound___main___at_Lean_FileMap_toPosition___spec__1(x_1, x_2
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; 
-lean::dec(x_4);
 x_5 = lean::mk_nat_obj(1u);
 x_6 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_6, 0, x_5);

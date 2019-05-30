@@ -2664,7 +2664,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -4185,7 +4184,6 @@ x_6 = l_RBNode_find___main___at_Lean_getClosedTermName___spec__2(x_5, x_2);
 if (lean::obj_tag(x_6) == 0)
 {
 obj* x_7; 
-lean::dec(x_6);
 x_7 = l_HashMapImp_find___at_Lean_getClosedTermName___spec__3(x_4, x_2);
 return x_7;
 }

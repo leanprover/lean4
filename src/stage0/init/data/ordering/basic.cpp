@@ -356,7 +356,6 @@ x_3 = lean::box(x_2);
 if (lean::obj_tag(x_3) == 0)
 {
 uint8 x_4; 
-lean::dec(x_3);
 x_4 = 1;
 return x_4;
 }

@@ -258,7 +258,6 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-lean::dec(x_1);
 return x_2;
 }
 else
@@ -303,7 +302,6 @@ if (x_1 == 0)
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 x_3 = l_String_splitAux___main___closed__1;
 return x_3;
 }
@@ -333,7 +331,6 @@ else
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_13; 
-lean::dec(x_2);
 x_13 = l_String_splitAux___main___closed__1;
 return x_13;
 }
@@ -364,7 +361,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_List_repr___main___rarg___closed__1;
 return x_2;
 }

@@ -1330,7 +1330,6 @@ _start:
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; obj* x_8; 
-lean::dec(x_5);
 x_6 = lean::mk_nat_obj(1u);
 x_7 = lean::nat_add(x_1, x_6);
 x_8 = l_Array_mfindAux___main___rarg(x_2, x_3, x_4, x_7);
@@ -1959,7 +1958,6 @@ x_8 = lean::apply_1(x_1, x_7);
 if (lean::obj_tag(x_8) == 0)
 {
 obj* x_9; obj* x_10; obj* x_11; 
-lean::dec(x_8);
 x_9 = lean::mk_nat_obj(1u);
 x_10 = lean::nat_add(x_3, x_9);
 lean::dec(x_3);
@@ -4142,7 +4140,6 @@ _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-lean::dec(x_1);
 return x_2;
 }
 else

@@ -278,7 +278,6 @@ x_9 = l_RBNode_find___main___rarg(x_1, lean::box(0), x_8, x_5);
 if (lean::obj_tag(x_9) == 0)
 {
 obj* x_10; 
-lean::dec(x_9);
 x_10 = l_HashMapImp_find___rarg(x_2, x_3, x_7, x_5);
 lean::dec(x_7);
 return x_10;
@@ -352,7 +351,6 @@ x_10 = l_RBNode_find___main___rarg(x_1, lean::box(0), x_8, x_5);
 if (lean::obj_tag(x_10) == 0)
 {
 uint8 x_11; 
-lean::dec(x_10);
 x_11 = 0;
 return x_11;
 }
@@ -448,7 +446,6 @@ lean::dec(x_7);
 if (lean::obj_tag(x_9) == 0)
 {
 obj* x_10; 
-lean::dec(x_9);
 x_10 = l_RBNode_find___main___rarg(x_1, lean::box(0), x_8, x_5);
 return x_10;
 }

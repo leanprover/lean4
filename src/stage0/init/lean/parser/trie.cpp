@@ -258,7 +258,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
-lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
 }
@@ -10212,7 +10211,6 @@ x_11 = l_RBNode_find___main___at___private_init_lean_parser_trie_2__insertAux___
 if (lean::obj_tag(x_11) == 0)
 {
 obj* x_12; obj* x_13; 
-lean::dec(x_11);
 x_12 = l___private_init_lean_parser_trie_1__insertEmptyAux___main___rarg(x_1, x_2, x_10);
 lean::dec(x_10);
 x_13 = l_RBNode_insert___at___private_init_lean_parser_trie_2__insertAux___main___spec__2___rarg(x_7, x_9, x_12);
@@ -10261,7 +10259,6 @@ x_23 = l_RBNode_find___main___at___private_init_lean_parser_trie_2__insertAux___
 if (lean::obj_tag(x_23) == 0)
 {
 obj* x_24; obj* x_25; obj* x_26; 
-lean::dec(x_23);
 x_24 = l___private_init_lean_parser_trie_1__insertEmptyAux___main___rarg(x_1, x_2, x_22);
 lean::dec(x_22);
 x_25 = l_RBNode_insert___at___private_init_lean_parser_trie_2__insertAux___main___spec__2___rarg(x_19, x_21, x_24);
@@ -10445,7 +10442,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
-lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
 }
@@ -10527,7 +10523,6 @@ x_9 = l_RBNode_find___main___at___private_init_lean_parser_trie_3__findAux___mai
 if (lean::obj_tag(x_9) == 0)
 {
 obj* x_10; 
-lean::dec(x_9);
 lean::dec(x_8);
 x_10 = lean::box(0);
 return x_10;
@@ -10635,7 +10630,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 lean::dec(x_2);
-lean::dec(x_1);
 lean::inc(x_3);
 return x_3;
 }
@@ -10672,7 +10666,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
-lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
 }
@@ -10755,7 +10748,6 @@ lean::dec(x_3);
 x_11 = l_RBNode_find___main___at___private_init_lean_parser_trie_5__matchPrefixAux___main___spec__1___rarg(x_6, x_9);
 if (lean::obj_tag(x_11) == 0)
 {
-lean::dec(x_11);
 lean::dec(x_10);
 return x_8;
 }
@@ -10869,7 +10861,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
-lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
 }
@@ -10951,10 +10942,8 @@ x_11 = l_String_OldIterator_curr___main(x_3);
 x_12 = l_RBNode_find___main___at___private_init_lean_parser_trie_6__oldMatchPrefixAux___main___spec__1___rarg(x_10, x_11);
 if (lean::obj_tag(x_9) == 0)
 {
-lean::dec(x_9);
 if (lean::obj_tag(x_12) == 0)
 {
-lean::dec(x_12);
 lean::dec(x_8);
 lean::dec(x_3);
 return x_4;
@@ -10988,7 +10977,6 @@ lean::cnstr_set(x_18, 1, x_17);
 lean::cnstr_set(x_9, 0, x_18);
 if (lean::obj_tag(x_12) == 0)
 {
-lean::dec(x_12);
 lean::dec(x_8);
 lean::dec(x_3);
 return x_9;
@@ -11021,7 +11009,6 @@ x_24 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_24, 0, x_23);
 if (lean::obj_tag(x_12) == 0)
 {
-lean::dec(x_12);
 lean::dec(x_8);
 lean::dec(x_3);
 return x_24;
@@ -11051,7 +11038,6 @@ lean::inc(x_28);
 lean::dec(x_2);
 if (lean::obj_tag(x_28) == 0)
 {
-lean::dec(x_28);
 lean::dec(x_3);
 return x_4;
 }
@@ -11187,7 +11173,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else

@@ -182,7 +182,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -1594,7 +1593,6 @@ lean::dec(x_3);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_10; 
-lean::dec(x_7);
 x_3 = x_9;
 goto _start;
 }
@@ -1703,7 +1701,6 @@ x_15 = lean::array_get(x_14, x_2, x_13);
 if (lean::obj_tag(x_15) == 0)
 {
 obj* x_16; obj* x_17; obj* x_18; obj* x_19; uint8 x_20; obj* x_21; uint8 x_22; obj* x_23; obj* x_24; 
-lean::dec(x_15);
 x_16 = l_Lean_IR_ExpandResetReuse_mkFresh___rarg(x_7);
 x_17 = lean::cnstr_get(x_16, 0);
 lean::inc(x_17);
@@ -1910,7 +1907,6 @@ x_6 = l_HashMapImp_find___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1(x_1, x
 if (lean::obj_tag(x_6) == 0)
 {
 uint8 x_7; 
-lean::dec(x_6);
 x_7 = 0;
 return x_7;
 }
@@ -2003,7 +1999,6 @@ x_5 = l_HashMapImp_find___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1(x_1, x
 if (lean::obj_tag(x_5) == 0)
 {
 uint8 x_6; 
-lean::dec(x_5);
 x_6 = 0;
 return x_6;
 }
@@ -2069,7 +2064,6 @@ x_6 = l_HashMapImp_find___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1(x_1, x
 if (lean::obj_tag(x_6) == 0)
 {
 uint8 x_7; 
-lean::dec(x_6);
 x_7 = 0;
 return x_7;
 }

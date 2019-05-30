@@ -293,7 +293,6 @@ lean::dec(x_6);
 if (lean::obj_tag(x_7) == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
-lean::dec(x_7);
 x_8 = l_Lean_Name_toString___closed__1;
 x_9 = l_Lean_Name_toStringWithSep___main(x_8, x_1);
 x_10 = l_Lean_getOptionDecl___closed__1;
@@ -329,7 +328,6 @@ lean::dec(x_15);
 if (lean::obj_tag(x_17) == 0)
 {
 obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
-lean::dec(x_17);
 x_18 = l_Lean_Name_toString___closed__1;
 x_19 = l_Lean_Name_toStringWithSep___main(x_18, x_1);
 x_20 = l_Lean_getOptionDecl___closed__1;
@@ -517,7 +515,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = lean::box(0);
 return x_2;
 }
@@ -612,7 +609,6 @@ x_8 = l_List_map___main___at_Lean_setOptionFromString___spec__1(x_7);
 if (lean::obj_tag(x_8) == 0)
 {
 obj* x_9; 
-lean::dec(x_8);
 lean::dec(x_1);
 x_9 = l_Lean_setOptionFromString___closed__2;
 lean::cnstr_set_tag(x_3, 1);
@@ -627,7 +623,6 @@ lean::inc(x_10);
 if (lean::obj_tag(x_10) == 0)
 {
 obj* x_11; 
-lean::dec(x_10);
 lean::dec(x_8);
 lean::dec(x_1);
 x_11 = l_Lean_setOptionFromString___closed__2;
@@ -643,7 +638,6 @@ lean::inc(x_12);
 if (lean::obj_tag(x_12) == 0)
 {
 obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; 
-lean::dec(x_12);
 x_13 = lean::cnstr_get(x_8, 0);
 lean::inc(x_13);
 lean::dec(x_8);
@@ -1040,7 +1034,6 @@ x_133 = l_List_map___main___at_Lean_setOptionFromString___spec__1(x_132);
 if (lean::obj_tag(x_133) == 0)
 {
 obj* x_134; obj* x_135; 
-lean::dec(x_133);
 lean::dec(x_1);
 x_134 = l_Lean_setOptionFromString___closed__2;
 x_135 = lean::alloc_cnstr(1, 2, 0);
@@ -1056,7 +1049,6 @@ lean::inc(x_136);
 if (lean::obj_tag(x_136) == 0)
 {
 obj* x_137; obj* x_138; 
-lean::dec(x_136);
 lean::dec(x_133);
 lean::dec(x_1);
 x_137 = l_Lean_setOptionFromString___closed__2;
@@ -1073,7 +1065,6 @@ lean::inc(x_139);
 if (lean::obj_tag(x_139) == 0)
 {
 obj* x_140; obj* x_141; obj* x_142; obj* x_143; obj* x_144; obj* x_145; 
-lean::dec(x_139);
 x_140 = lean::cnstr_get(x_133, 0);
 lean::inc(x_140);
 lean::dec(x_133);

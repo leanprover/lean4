@@ -298,7 +298,6 @@ return x_1;
 case 1:
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_Lean_Format_flatten___main___closed__1;
 return x_2;
 }
@@ -763,7 +762,6 @@ _start:
 {
 if (lean::obj_tag(x_4) == 0)
 {
-lean::dec(x_4);
 lean::dec(x_2);
 return x_3;
 }
@@ -778,7 +776,6 @@ switch (lean::obj_tag(x_6)) {
 case 0:
 {
 obj* x_7; obj* x_8; 
-lean::dec(x_6);
 lean::dec(x_5);
 x_7 = lean::cnstr_get(x_4, 1);
 lean::inc(x_7);
@@ -789,7 +786,6 @@ goto _start;
 case 1:
 {
 obj* x_9; obj* x_10; obj* x_11; obj* x_12; uint32 x_13; obj* x_14; obj* x_15; 
-lean::dec(x_6);
 lean::dec(x_2);
 x_9 = lean::cnstr_get(x_4, 1);
 lean::inc(x_9);
@@ -1615,7 +1611,6 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
 return x_4;
@@ -1628,7 +1623,6 @@ lean::inc(x_5);
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; obj* x_7; 
-lean::dec(x_5);
 lean::dec(x_3);
 x_6 = lean::cnstr_get(x_2, 0);
 lean::inc(x_6);
@@ -1690,7 +1684,6 @@ _start:
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; 
-lean::dec(x_3);
 lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
@@ -1752,7 +1745,6 @@ if (lean::obj_tag(x_2) == 0)
 {
 obj* x_4; 
 lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 x_4 = lean::box(0);
 return x_4;
@@ -1838,7 +1830,6 @@ _start:
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 lean::dec(x_1);
 x_3 = l_Lean_List_format___main___rarg___closed__1;
 return x_3;
@@ -2301,14 +2292,12 @@ switch (lean::obj_tag(x_1)) {
 case 0:
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_Lean_Format_repr___main___closed__1;
 return x_2;
 }
 case 1:
 {
 obj* x_3; 
-lean::dec(x_1);
 x_3 = l_Lean_Format_repr___main___closed__2;
 return x_3;
 }
@@ -2941,7 +2930,6 @@ if (lean::obj_tag(x_1) == 0)
 {
 obj* x_3; 
 lean::dec(x_2);
-lean::dec(x_1);
 x_3 = lean::box(0);
 return x_3;
 }
@@ -2953,7 +2941,6 @@ lean::inc(x_4);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; obj* x_6; 
-lean::dec(x_4);
 lean::dec(x_2);
 x_5 = lean::cnstr_get(x_1, 0);
 lean::inc(x_5);

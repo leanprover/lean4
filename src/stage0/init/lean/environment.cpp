@@ -2910,7 +2910,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -3452,7 +3451,6 @@ x_6 = l_HashMapImp_find___at_Lean_Environment_find___spec__2(x_4, x_2);
 if (lean::obj_tag(x_6) == 0)
 {
 obj* x_7; 
-lean::dec(x_6);
 x_7 = l_RBNode_find___main___at_Lean_Environment_find___spec__4(x_5, x_2);
 return x_7;
 }
@@ -3561,7 +3559,6 @@ x_7 = l_RBNode_find___main___at_Lean_Environment_find___spec__4(x_5, x_2);
 if (lean::obj_tag(x_7) == 0)
 {
 uint8 x_8; 
-lean::dec(x_7);
 x_8 = 0;
 return x_8;
 }
@@ -5931,7 +5928,6 @@ _start:
 {
 if (lean::obj_tag(x_3) == 0)
 {
-lean::dec(x_3);
 lean::dec(x_1);
 lean::inc(x_2);
 return x_2;
@@ -5973,7 +5969,6 @@ lean::inc(x_3);
 if (lean::obj_tag(x_3) == 0)
 {
 obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
-lean::dec(x_3);
 x_4 = lean::cnstr_get(x_2, 1);
 lean::inc(x_4);
 x_5 = lean::thunk_get_own(x_4);
@@ -7579,7 +7574,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -7903,7 +7897,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 uint8 x_4; 
-lean::dec(x_1);
 x_4 = !lean::is_exclusive(x_3);
 if (x_4 == 0)
 {
@@ -9504,7 +9497,6 @@ _start:
 {
 if (lean::obj_tag(x_2) == 0)
 {
-lean::dec(x_2);
 return x_1;
 }
 else
@@ -12319,7 +12311,6 @@ if (x_1 == 0)
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_3; 
-lean::dec(x_2);
 x_3 = l_String_splitAux___main___closed__1;
 return x_3;
 }
@@ -12347,7 +12338,6 @@ else
 if (lean::obj_tag(x_2) == 0)
 {
 obj* x_12; 
-lean::dec(x_2);
 x_12 = l_String_splitAux___main___closed__1;
 return x_12;
 }
@@ -12376,7 +12366,6 @@ _start:
 if (lean::obj_tag(x_1) == 0)
 {
 obj* x_2; 
-lean::dec(x_1);
 x_2 = l_List_repr___main___rarg___closed__1;
 return x_2;
 }
@@ -12683,7 +12672,6 @@ lean::dec(x_28);
 if (lean::obj_tag(x_52) == 0)
 {
 obj* x_53; obj* x_54; 
-lean::dec(x_52);
 x_53 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__5;
 x_54 = l_IO_println___at_HasRepr_HasEval___spec__1(x_53, x_49);
 if (lean::obj_tag(x_54) == 0)
@@ -12812,7 +12800,6 @@ lean::dec(x_28);
 if (lean::obj_tag(x_79) == 0)
 {
 obj* x_80; obj* x_81; 
-lean::dec(x_79);
 x_80 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__5;
 x_81 = l_IO_println___at_HasRepr_HasEval___spec__1(x_80, x_78);
 if (lean::obj_tag(x_81) == 0)
@@ -12993,7 +12980,6 @@ lean::dec(x_28);
 if (lean::obj_tag(x_115) == 0)
 {
 obj* x_116; obj* x_117; 
-lean::dec(x_115);
 x_116 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__5;
 x_117 = l_IO_println___at_HasRepr_HasEval___spec__1(x_116, x_114);
 if (lean::obj_tag(x_117) == 0)
@@ -13233,7 +13219,6 @@ lean::dec(x_28);
 if (lean::obj_tag(x_165) == 0)
 {
 obj* x_166; obj* x_167; 
-lean::dec(x_165);
 x_166 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__5;
 x_167 = l_IO_println___at_HasRepr_HasEval___spec__1(x_166, x_164);
 if (lean::obj_tag(x_167) == 0)
@@ -13549,7 +13534,6 @@ lean::dec(x_206);
 if (lean::obj_tag(x_233) == 0)
 {
 obj* x_234; obj* x_235; 
-lean::dec(x_233);
 x_234 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__9___closed__5;
 x_235 = l_IO_println___at_HasRepr_HasEval___spec__1(x_234, x_232);
 if (lean::obj_tag(x_235) == 0)

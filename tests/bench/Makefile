@@ -5,7 +5,7 @@ CROSS_BENCHES = binarytrees deriv const_fold qsort rbmap rbmap_10 rbmap_1
 
 LEAN_CATS = .lean .no_reuse.lean .no_borrow.lean .no_st.lean
 CROSS_CATS = .lean .gc.lean .lean.perf .hs .gc.hs .hs.perf .ml .gc.ml .ml.perf .mlton .gc.mlton .mlton.perf .mlkit .gc.mlkit .mlkit.perf .swift .gc.swift .swift.perf
-CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit
+CROSS_TIME_CATS = .lean .hs .ml .mlton .mlkit .swift
 RETIRED_CATS = .gcc.lean .llvm.hs .flambda.ml
 
 LEAN_FLAGS =
@@ -142,7 +142,7 @@ bench/%gc.mlkit.bench: %gc.mlkit.out | bench
 
 bench/%gc.swift.bench: %swift.out | bench
 	ulimit -s unlimited && $(TEMCI) short exec $(TEMCI_FLAGS)\
-    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio | grep -E 'retain|release|free' | ./lean-gc.py"\
+    -d $< "perf record -o $@.tmp ./$< $(BENCH_PARAMS) >/dev/null && perf report -i $@.tmp -t ';' --stdio | grep -E 'retain|release|dealloc|free' | ./lean-gc.py"\
 	  --runner output --out $@
 
 bench/%.perf.bench: %.out | bench

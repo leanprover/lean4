@@ -64,6 +64,9 @@ CATBAG = {
     '.mlkit': ("MLKit", "etime"),
     '.gc.mlkit': ("GC", "gc"),
     '.mlkit.perf': ("CM", "cache-misses"),
+    '.swift': ("Swift", "etime"),
+    '.gc.swift': ("GC", "gc"),
+    '.swift.perf': ("CM", "cache-misses"),
 }
 
 benches = os.environ['BENCHES'].split(':')

@@ -871,7 +871,7 @@ inline obj_res nat_mul(b_obj_arg a1, b_obj_arg a2) {
             return a1;
         usize n2 = unbox(a2);
         usize r  = n1*n2;
-        if (r / n1 == n2)
+        if (r <= LEAN_MAX_SMALL_NAT && r / n1 == n2)
             return box(r);
         else
             return mk_nat_obj_core(mpz(n1)*mpz(n2));

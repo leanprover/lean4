@@ -22,6 +22,7 @@ structure NumScalarTypeInfo :=
 (nbits : Nat)
 (id : Name      := mkUIntTypeName nbits)
 (ofNatFn : Name := Name.mkString id "ofNat")
+(toNatFn : Name := Name.mkString id "toNat")
 (size : Nat     := 2^nbits)
 
 def numScalarTypes : List NumScalarTypeInfo :=
@@ -30,6 +31,9 @@ def numScalarTypes : List NumScalarTypeInfo :=
 
 def isOfNat (fn : Name) : Bool :=
 numScalarTypes.any (λ info, info.ofNatFn = fn)
+
+def isToNat (fn : Name) : Bool :=
+numScalarTypes.any (λ info, info.toNatFn = fn)
 
 def getInfoFromFn (fn : Name) : List NumScalarTypeInfo → Option NumScalarTypeInfo
 | []            := none
@@ -43,7 +47,7 @@ def getInfoFromVal : Expr → Option NumScalarTypeInfo
 
 @[export lean.get_num_lit_core]
 def getNumLit : Expr → Option Nat
-| (Expr.lit (Literal.natVal n)) := some n
+| (Expr.lit (Literal.natVal n))  := some n
 | (Expr.app (Expr.const fn _) a) := if isOfNat fn then getNumLit a else none
 | _                              := none
 
@@ -81,6 +85,7 @@ def foldNatAdd (_ : Bool) := foldNatBinOp (+)
 def foldNatMul (_ : Bool) := foldNatBinOp (*)
 def foldNatDiv (_ : Bool) := foldNatBinOp (/)
 def foldNatMod (_ : Bool) := foldNatBinOp (%)
+def foldNatPow (_ : Bool) := foldNatBinOp (^)
 
 def mkNatEq (a b : Expr) : Expr :=
 mkBinApp (Expr.app (Expr.const `Eq [Level.one]) (Expr.const `Nat [])) a b
@@ -113,6 +118,8 @@ def natFoldFns : List (Name × BinFoldFn) :=
  (`Nat.mul, foldNatMul),
  (`Nat.div, foldNatDiv),
  (`Nat.mod, foldNatMod),
+ (`Nat.pow, foldNatPow),
+ (`Nat.pow._main, foldNatPow),
  (`Nat.decEq, foldNatDecEq),
  (`Nat.decLt, foldNatDecLt),
  (`Nat.decLe, foldNatDecLe)]
@@ -159,9 +166,17 @@ do guard (!beforeErasure),
      if isValidChar (UInt32.ofNat n) then mkUInt32Lit n
      else mkUInt32Lit 0
 
+def foldToNat (_ : Bool) (a : Expr) : Option Expr :=
+do n ← getNumLit a,
+   pure $ Expr.lit (Literal.natVal n)
+
+def uintFoldToNatFns : List (Name × UnFoldFn) :=
+numScalarTypes.foldl (λ r info, (info.toNatFn, foldToNat) :: r) []
+
 def unFoldFns : List (Name × UnFoldFn) :=
 [(`Nat.succ, foldNatSucc),
  (`Char.ofNat, foldCharOfNat)]
+++ uintFoldToNatFns
 
 def findBinFoldFn (fn : Name) : Option BinFoldFn :=
 binFoldFns.lookup fn

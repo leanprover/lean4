@@ -268,6 +268,11 @@ def USize.lor (a b : USize) : USize := ⟨Fin.lor a.val b.val⟩
 def USize.ofUInt32 (a : UInt32) : USize := USize.ofNat (UInt32.toNat a)
 @[extern cpp inline "((lean::usize)#1)"]
 def USize.ofUInt64 (a : UInt64) : USize := USize.ofNat (UInt64.toNat a)
+-- TODO(Leo): give reference implementation for shift_left and shift_right, and define them for other UInt types
+@[extern cpp inline "#1 << #2"]
+constant USize.shift_left (a b : USize) : USize := USize.ofNat (default _)
+@[extern cpp inline "#1 >> #2"]
+constant USize.shift_right (a b : USize) : USize := USize.ofNat (default _)
 def USize.lt (a b : USize) : Prop := a.val < b.val
 def USize.le (a b : USize) : Prop := a.val ≤ b.val
 

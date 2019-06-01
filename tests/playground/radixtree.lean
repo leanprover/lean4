@@ -132,6 +132,24 @@ end
 @[inline] def map (f : α → β) (t : RadixTree α) : RadixTree β :=
 Id.run (t.mmap f)
 
+structure Stats :=
+(numNodes : Nat) (depth : Nat) (tailSize : Nat)
+
+partial def collectStats : RadixNode α → Stats → Nat → Stats
+| (node cs) s d :=
+  cs.foldl (λ s c, collectStats c s (d+1))
+    { numNodes := s.numNodes + 1,
+      depth    := Nat.max d s.depth, .. s }
+| (leaf vs) s d := { numNodes := s.numNodes + 1, depth := Nat.max d s.depth, .. s }
+
+def stats (r : RadixTree α) : Stats :=
+collectStats r.root { numNodes := 0, depth := 0, tailSize := r.tail.size } 0
+
+def Stats.toString (s : Stats) : String :=
+toString [s.numNodes, s.depth, s.tailSize]
+
+instance : HasToString Stats := ⟨Stats.toString⟩
+
 partial def formatRawAux [HasFormat α] : RadixNode α → Format
 | (node cs) := "Node" ++ Format.sbracket (cs.foldl (λ f c, f ++ Format.line ++ formatRawAux c) Format.nil)
 | (leaf cs) := format cs.toList
@@ -173,4 +191,5 @@ checkId n t,
 let t := inc1 n t,
 check n (λ i v, v == i + 1) t,
 IO.println t.size,
+IO.println t.stats,
 pure ()

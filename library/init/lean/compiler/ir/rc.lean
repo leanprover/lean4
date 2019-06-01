@@ -234,7 +234,7 @@ partial def visitFnBody : FnBody → Context → (FnBody × LiveVarSet)
   let (b, s) := visitFnBody b ctx in
   -- We don't need to insert `y` since we only need to track live variables that are references at runtime
   let s      := s.insert x in
-  (FnBody.uset x i y b, {})
+  (FnBody.uset x i y b, s)
 | (FnBody.sset x i o y t b) ctx :=
   let (b, s) := visitFnBody b ctx in
   -- We don't need to insert `y` since we only need to track live variables that are references at runtime

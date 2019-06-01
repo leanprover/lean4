@@ -276,7 +276,7 @@ lean::cnstr_set(x_22, 1, x_19);
 lean::cnstr_set(x_22, 2, x_20);
 lean::cnstr_set(x_22, 3, x_21);
 x_23 = lean::box(0);
-x_24 = lean::mk_string("Usize");
+x_24 = lean::mk_string("USize");
 x_25 = lean_name_mk_string(x_23, x_24);
 lean::inc(x_25);
 x_26 = lean_name_mk_string(x_25, x_3);

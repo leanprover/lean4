@@ -20,13 +20,13 @@ mkSimpleName ("UInt" ++ toString nbytes)
 
 structure NumScalarTypeInfo :=
 (nbits : Nat)
-(id : Name        := mkUIntTypeName nbits)
+(id : Name      := mkUIntTypeName nbits)
 (ofNatFn : Name := Name.mkString id "ofNat")
-(size : Nat       := 2^nbits)
+(size : Nat     := 2^nbits)
 
 def numScalarTypes : List NumScalarTypeInfo :=
 [{nbits := 8}, {nbits := 16}, {nbits := 32}, {nbits := 64},
- {id := `Usize, nbits := System.platform.nbits}]
+ {id := `USize, nbits := System.platform.nbits}]
 
 def isOfNat (fn : Name) : Bool :=
 numScalarTypes.any (λ info, info.ofNatFn = fn)

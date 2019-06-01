@@ -16,11 +16,9 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #endif
 obj* l_Fin_HasZero___boxed(obj*);
 obj* l_Fin_HasLess___boxed(obj*);
-obj* l_Nat_bitwise___main(obj*, obj*, obj*);
 obj* l_Fin_elim0___boxed(obj*, obj*);
 obj* l_Fin_add___main(obj*, obj*, obj*);
 obj* l_Fin_decLt(obj*);
-extern obj* l_Nat_lor___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
@@ -79,11 +77,13 @@ obj* l_Fin_add___main___boxed(obj*, obj*, obj*);
 obj* l_Fin_sub___main(obj*, obj*, obj*);
 obj* l_Fin_HasMul(obj*);
 obj* l_Fin_decLe___rarg___boxed(obj*, obj*);
-extern obj* l_Nat_land___closed__1;
 obj* l_Fin_HasOne(obj*);
 obj* l_Fin_decLt___rarg___boxed(obj*, obj*);
 obj* l_Fin_ofNat(obj*, obj*);
 uint8 l_Fin_decLt___rarg(obj*, obj*);
+namespace lean {
+obj* nat_land(obj*, obj*);
+}
 obj* l_Fin_land___main(obj*, obj*, obj*);
 obj* l_Fin_HasLessEq___boxed(obj*);
 obj* l_Fin_lor___boxed(obj*, obj*, obj*);
@@ -104,6 +104,9 @@ obj* nat_mul(obj*, obj*);
 }
 obj* l_Fin_HasOne___boxed(obj*);
 obj* l_Fin_HasLess(obj*);
+namespace lean {
+obj* nat_lor(obj*, obj*);
+}
 obj* l_Fin_mul___main(obj*, obj*, obj*);
 obj* l_Fin_HasLess(obj* x_1) {
 _start:
@@ -507,12 +510,11 @@ return x_4;
 obj* l_Fin_land___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; obj* x_6; 
-x_4 = l_Nat_land___closed__1;
-x_5 = l_Nat_bitwise___main(x_4, x_2, x_3);
-x_6 = lean::nat_mod(x_5, x_1);
-lean::dec(x_5);
-return x_6;
+obj* x_4; obj* x_5; 
+x_4 = lean::nat_land(x_2, x_3);
+x_5 = lean::nat_mod(x_4, x_1);
+lean::dec(x_4);
+return x_5;
 }
 }
 obj* l_Fin_land___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
@@ -520,8 +522,6 @@ _start:
 {
 obj* x_4; 
 x_4 = l_Fin_land___main(x_1, x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 return x_4;
 }
@@ -539,8 +539,6 @@ _start:
 {
 obj* x_4; 
 x_4 = l_Fin_land(x_1, x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 return x_4;
 }
@@ -548,12 +546,11 @@ return x_4;
 obj* l_Fin_lor___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; obj* x_5; obj* x_6; 
-x_4 = l_Nat_lor___closed__1;
-x_5 = l_Nat_bitwise___main(x_4, x_2, x_3);
-x_6 = lean::nat_mod(x_5, x_1);
-lean::dec(x_5);
-return x_6;
+obj* x_4; obj* x_5; 
+x_4 = lean::nat_lor(x_2, x_3);
+x_5 = lean::nat_mod(x_4, x_1);
+lean::dec(x_4);
+return x_5;
 }
 }
 obj* l_Fin_lor___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
@@ -561,8 +558,6 @@ _start:
 {
 obj* x_4; 
 x_4 = l_Fin_lor___main(x_1, x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 return x_4;
 }
@@ -580,8 +575,6 @@ _start:
 {
 obj* x_4; 
 x_4 = l_Fin_lor(x_1, x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
 lean::dec(x_1);
 return x_4;
 }

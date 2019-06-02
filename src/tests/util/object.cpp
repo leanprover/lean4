@@ -389,45 +389,6 @@ void tst13() {
     std::cout << g_task7_counter << "\n";
 }
 
-obj_res mk_parray(unsigned n, b_obj_arg v) {
-    object * r = alloc_parray(n);
-    for (unsigned i = 0; i < n; i++) {
-        inc(v);
-        r = parray_push(r, v);
-    }
-    return r;
-}
-
-void tst14() {
-    object * a = mk_parray(10, box(0));
-    lean_assert(parray_size(a) == 10);
-    lean_assert(parray_get(a, 0) == box(0));
-    object * b = a;
-    inc(b);
-    lean_assert(get_rc(a) == 2);
-    lean_assert(get_rc(b) == 2);
-    a = parray_set(a, 0, box(1));
-    lean_assert(a != b);
-    lean_assert(get_rc(b) == 1);
-    lean_assert(get_rc(a) == 2);
-    lean_assert(parray_get(a, 0) == box(1));
-    lean_assert(parray_get(a, 1) == box(0));
-    lean_assert(parray_get(b, 0) == box(0));
-    lean_assert(parray_get(a, 0) == box(1));
-    inc(b);
-    object * c = b;
-    c = parray_push(c, box(20));
-    lean_assert(parray_size(c) == 11);
-    lean_assert(parray_size(a) == 10);
-    lean_assert(parray_size(b) == 10);
-    lean_assert(parray_get(c, 0)  == box(0));
-    lean_assert(parray_get(c, 10) == box(20));
-    lean_assert(parray_get(a, 0)  == box(1));
-    lean_assert(parray_get(b, 0)  == box(0));
-    dec_ref(a); dec_ref(b);
-    lean_assert(get_rc(c) == 1);
-    dec_ref(c);
-}
 
 obj_res mk_foo(unsigned n) {
     object * r = alloc_cnstr(0, 1, 0);
@@ -437,106 +398,6 @@ obj_res mk_foo(unsigned n) {
 
 unsigned foo_val(b_obj_arg v) {
     return unbox(cnstr_get(v, 0));
-}
-
-void tst15() {
-    object * v1 = alloc_parray(0);
-    v1 = parray_push(v1, mk_foo(2));
-    v1 = parray_push(v1, mk_foo(3));
-    lean_assert(foo_val(parray_get(v1, 0)) == 2);
-    lean_assert(foo_val(parray_get(v1, 1)) == 3);
-    object * v2 = v1;
-    inc(v2);
-    for (unsigned i = 0; i < 10; i++)
-        v1 = parray_push(v1, mk_foo(i));
-    v1 = parray_set(v1, 0, mk_foo(100));
-    v1 = parray_set(v1, 1, mk_foo(100));
-    lean_assert(parray_size(v2) == 2);
-    lean_assert(foo_val(parray_get(v2, 0)) == 2);
-    lean_assert(foo_val(parray_get(v2, 1)) == 3);
-    object * v3 = v1;
-    inc(v3);
-    v1 = parray_pop(v1);
-    v1 = parray_pop(v1);
-    lean_assert(parray_size(v1) == 10);
-    lean_assert(parray_size(v3) == 12);
-    dec_ref(v1); dec_ref(v2);
-    lean_assert(get_rc(v3) == 1);
-    dec_ref(v3);
-}
-
-void driver(unsigned max_sz, unsigned max_val, unsigned num_it,
-            double push_freq,
-            double pop_freq,
-            double set_freq,
-            double copy_freq) {
-    object * v1 = alloc_parray(0);
-    std::vector<unsigned> v2;
-    std::mt19937   rng;
-    rng.seed(static_cast<unsigned int>(time(0)));
-    std::uniform_int_distribution<unsigned int> uint_dist;
-    std::vector<std::pair<object*, std::vector<unsigned>>> copies;
-    lean_assert(get_rc(v1) == 1);
-    size_t acc_sz = 0;
-    for (unsigned i = 0; i < num_it; i++) {
-        acc_sz += parray_size(v1);
-        double f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
-        if (f < copy_freq) {
-            inc_ref(v1);
-            copies.emplace_back(v1, v2);
-        }
-        f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
-        if (f < push_freq) {
-            if (parray_size(v1) < max_sz) {
-                unsigned a = uint_dist(rng) % max_val;
-                v1 = parray_push(v1, box(a));
-                v2.push_back(a);
-            }
-        }
-        if (parray_size(v1) > 0) {
-            f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
-            if (f < pop_freq) {
-                v1 = parray_pop(v1);
-                v2.pop_back();
-            }
-        }
-        if (parray_size(v1) > 0) {
-            f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
-            if (f < set_freq) {
-                unsigned idx = uint_dist(rng) % parray_size(v1);
-                unsigned a   = uint_dist(rng) % max_val;
-                v1 = parray_set(v1, idx, box(a));
-                v2[idx] = a;
-            }
-        }
-        f = static_cast<double>(uint_dist(rng) % 10000) / 10000.0;
-        lean_assert(parray_size(v1) == v2.size());
-        for (unsigned i = 0; i < v2.size(); i++) {
-            lean_assert(unbox(parray_get(v1, i)) == v2[i]);
-        }
-    }
-    for (std::pair<object *, std::vector<unsigned>> const & p : copies) {
-        lean_assert(parray_size(p.first) == p.second.size());
-        for (unsigned i = 0; i < p.second.size(); i++) {
-            lean_assert(unbox(parray_get(p.first, i)) == p.second[i]);
-        }
-        dec_ref(p.first);
-    }
-    std::cout << "\n";
-    std::cout << "Copies created:  " << copies.size() << "\n";
-    std::cout << "Average size:    " << static_cast<double>(acc_sz) / static_cast<double>(num_it) << "\n";
-    lean_assert(get_rc(v1) == 1);
-    dec_ref(v1);
-}
-
-void tst16() {
-    driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.1);
-    driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.1);
-    driver(4,  32, 10000, 0.5, 0.1, 0.5, 0.5);
-    driver(16, 16, 100000, 0.5, 0.5, 0.5, 0.01);
-    driver(16, 16, 100000, 0.5, 0.1, 0.5, 0.01);
-    driver(16, 16, 100000, 0.5, 0.6, 0.5, 0.01);
-    driver(16, 16, 10000, 0.5, 0.1, 0.5, 0.0);
 }
 
 object * mk_list(unsigned n) {
@@ -878,9 +739,6 @@ int main() {
     tst11();
     tst12();
     tst13();
-    tst14();
-    tst15();
-    tst16();
     // tst17(40000, 3000);
     tst17(400, 30);
     // tst18(4000, 3000);

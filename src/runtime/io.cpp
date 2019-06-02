@@ -57,18 +57,6 @@ obj_res set_io_error(obj_arg r, std::string const & msg) {
     return set_io_error(r, mk_io_user_error(mk_string(msg)));
 }
 
-static obj_res option_of_io_result(obj_arg r) {
-    if (io_result_is_ok(r)) {
-        object * o = alloc_cnstr(1, 1, 0);
-        cnstr_set(o, 0, io_result_get_value(r));
-        dec(r);
-        return o;
-    } else {
-        dec(r);
-        return box(0);
-    }
-}
-
 static bool g_initializing = true;
 void io_mark_end_initialization() {
     g_initializing = false;

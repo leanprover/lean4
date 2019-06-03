@@ -50,7 +50,6 @@ obj* l___private_init_lean_modifiers_2__privatePrefixAux___main(obj*);
 obj* l_Array_mkEmpty(obj*, obj*);
 obj* l___private_init_lean_modifiers_1__privateToUserNameAux(obj*);
 obj* l_Lean_protectedExt___elambda__1(obj*);
-extern obj* l___private_init_lean_environment_9__persistentEnvExtensionsRef;
 obj* l_Array_swap(obj*, obj*, obj*, obj*);
 uint8 l_Lean_NameSet_contains(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
@@ -118,6 +117,7 @@ obj* nat_div(obj*, obj*);
 }
 obj* l_Lean_mkProtectedExtension(obj*);
 obj* l_Array_binSearchAux___main___at_Lean_isProtected___spec__1___boxed(obj*, obj*, obj*, obj*);
+extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 namespace lean {
 uint8 is_private_name_core(obj*);
 }
@@ -392,7 +392,7 @@ lean::cnstr_set(x_12, 0, x_11);
 lean::cnstr_set(x_12, 1, x_8);
 lean::cnstr_set(x_12, 2, x_9);
 lean::cnstr_set(x_12, 3, x_10);
-x_13 = l___private_init_lean_environment_9__persistentEnvExtensionsRef;
+x_13 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 x_14 = lean::io_ref_get(x_13, x_2);
 if (lean::obj_tag(x_14) == 0)
 {

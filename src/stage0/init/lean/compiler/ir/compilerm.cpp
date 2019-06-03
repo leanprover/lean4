@@ -68,7 +68,6 @@ uint8 l_Lean_SMap_contains___main___at_Lean_IR_containsDecl___spec__1(obj*, obj*
 obj* l_Array_mkEmpty(obj*, obj*);
 obj* l_HashMapImp_expand___at___private_init_lean_compiler_ir_compilerm_4__mkEntryArray___spec__4(obj*, obj*);
 obj* l_Lean_IR_getDecls___boxed(obj*);
-extern obj* l___private_init_lean_environment_9__persistentEnvExtensionsRef;
 uint8 l_Lean_KVMap_getBool(obj*, obj*, uint8);
 obj* l_Lean_IR_findEnvDecl_x27(obj*, obj*, obj*);
 extern obj* l_Lean_Format_sbracket___closed__2;
@@ -180,6 +179,7 @@ obj* l_List_foldl___main___at___private_init_lean_compiler_ir_compilerm_4__mkEnt
 obj* l_Lean_IR_findDecl_x27___boxed(obj*, obj*, obj*, obj*);
 uint8 l_Array_anyMAux___main___at_Lean_IR_containsDecl_x27___spec__1(obj*, obj*, obj*);
 obj* l_Array_mfindAux___main___at_Lean_IR_findEnvDecl_x27___spec__1(obj*, obj*, obj*);
+extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 obj* l_Lean_IR_addDecl(obj*, obj*, obj*);
 obj* l_Lean_Name_append___main(obj*, obj*);
 namespace lean {
@@ -3966,7 +3966,7 @@ lean::cnstr_set(x_12, 0, x_11);
 lean::cnstr_set(x_12, 1, x_8);
 lean::cnstr_set(x_12, 2, x_9);
 lean::cnstr_set(x_12, 3, x_10);
-x_13 = l___private_init_lean_environment_9__persistentEnvExtensionsRef;
+x_13 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 x_14 = lean::io_ref_get(x_13, x_2);
 if (lean::obj_tag(x_14) == 0)
 {

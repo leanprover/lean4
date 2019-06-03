@@ -50,7 +50,6 @@ obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__2(obj*);
 obj* l_Lean_mkClosedTermCacheExtension(obj*);
 obj* l_Lean_SMap_switch___at_Lean_mkClosedTermCacheExtension___spec__3(obj*);
 obj* l_HashMapImp_find___at_Lean_getClosedTermName___spec__3(obj*, obj*);
-extern obj* l___private_init_lean_environment_9__persistentEnvExtensionsRef;
 obj* l_Lean_SMap_find___main___at_Lean_getClosedTermName___spec__1___boxed(obj*, obj*);
 obj* l_Lean_registerEnvExtensionUnsafe___rarg(obj*, obj*);
 extern obj* l_Lean_registerPersistentEnvExtensionUnsafe___rarg___closed__3;
@@ -102,6 +101,7 @@ obj* l_RBNode_find___main___at_Lean_getClosedTermName___spec__2___boxed(obj*, ob
 obj* l_RBNode_insert___at_Lean_mkClosedTermCacheExtension___spec__5(obj*, obj*, obj*);
 obj* l_Lean_closedTermCacheExt___elambda__2___rarg___boxed(obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___lambda__1(uint8, obj*, obj*);
+extern obj* l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
@@ -3086,7 +3086,7 @@ lean::cnstr_set(x_12, 0, x_11);
 lean::cnstr_set(x_12, 1, x_8);
 lean::cnstr_set(x_12, 2, x_9);
 lean::cnstr_set(x_12, 3, x_10);
-x_13 = l___private_init_lean_environment_9__persistentEnvExtensionsRef;
+x_13 = l___private_init_lean_environment_8__persistentEnvExtensionsRef;
 x_14 = lean::io_ref_get(x_13, x_2);
 if (lean::obj_tag(x_14) == 0)
 {

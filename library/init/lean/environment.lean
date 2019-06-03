@@ -64,11 +64,6 @@ def setMainModule (env : Environment) (m : Name) : Environment :=
 def mainModule (env : Environment) : Name :=
 env.header.mainModule
 
-/- Switch environment to "shared" mode. -/
-@[export lean.environment_switch_core]
-private def switch (env : Environment) : Environment :=
-{ constants := env.constants.switch, .. env }
-
 @[export lean.environment_mark_quot_init_core]
 private def markQuotInit (env : Environment) : Environment :=
 { header := { quotInit := true, .. env.header } , .. env }

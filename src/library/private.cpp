@@ -128,13 +128,13 @@ environment register_private_name(environment const & env, name const & n, name 
     return preserve_private_data(new_env, prv_n, n);
 }
 
-optional<name> hidden_to_user_name(environment const & env, name const & n) {
+optional<name> private_to_user_name(environment const & env, name const & n) {
     auto it = get_extension(env).m_inv_map.find(n);
     return it ? optional<name>(*it) : optional<name>();
 }
 
 bool is_private(environment const & env, name const & n) {
-    return static_cast<bool>(hidden_to_user_name(env, n));
+    return static_cast<bool>(private_to_user_name(env, n));
 }
 
 void initialize_private() {

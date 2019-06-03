@@ -207,7 +207,7 @@ static void print_patterns(parser & p, name const & n) {
 #endif
 
 static name to_user_name(environment const & env, name const & n) {
-    if (auto r = hidden_to_user_name(env, n))
+    if (auto r = private_to_user_name(env, n))
         return *r;
     else
         return n;

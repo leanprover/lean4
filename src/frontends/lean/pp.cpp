@@ -597,7 +597,7 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
     auto short_n = n;
     if (!m_full_names) {
         if (auto it = is_aliased(n)) {
-            if (!m_private_names || !private_to_user_name(m_env, n))
+            if (!m_private_names || !private_to_user_name(n))
                 short_n = *it;
         } else {
             for (name const & ns : get_namespaces(m_env)) {
@@ -614,7 +614,7 @@ auto pretty_fn::pp_const(expr const & e, optional<unsigned> const & num_ref_univ
         }
     }
     if (!m_private_names) {
-        if (auto n1 = private_to_user_name(m_env, short_n))
+        if (auto n1 = private_to_user_name(short_n))
             short_n = *n1;
     }
     if (m_ctx.is_local_user_name(short_n.get_root())) {

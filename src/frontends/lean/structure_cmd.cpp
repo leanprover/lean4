@@ -311,7 +311,6 @@ struct structure_cmd_fn {
         if (is_private()) {
             std::tie(m_env, m_private_prefix) = mk_private_prefix(m_env);
             m_name = m_private_prefix + m_given_name;
-            m_env  = register_private_name(m_env, m_given_name, m_name);
         } else {
             m_name = m_namespace + m_given_name;
         }
@@ -1329,7 +1328,6 @@ struct structure_cmd_fn {
         if (is_private()) {
             std::tie(m_env, m_private_prefix) = mk_private_prefix(m_env);
             m_name = m_private_prefix + m_given_name;
-            m_env = register_private_name(m_env, m_given_name, m_name);
         } else {
             m_name = m_namespace + m_given_name;
         }

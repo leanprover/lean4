@@ -11,8 +11,9 @@ namespace lean {
 /* Wrapper for manipulating Lean pairs in C++ */
 template<typename T1, typename T2>
 class pair_ref : public object_ref {
-    explicit pair_ref(b_obj_arg o, bool b):object_ref(o, b) {}
 public:
+    explicit pair_ref(b_obj_arg o):object_ref(o) {}
+    explicit pair_ref(b_obj_arg o, bool b):object_ref(o, b) {}
     pair_ref(T1 const & a, T2 const & b):object_ref(mk_cnstr(0, a.raw(), b.raw())) { inc(a.raw()); inc(b.raw()); }
     pair_ref(pair_ref const & other):object_ref(other) {}
     pair_ref(pair_ref && other):object_ref(other) {}

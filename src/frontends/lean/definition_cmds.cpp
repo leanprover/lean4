@@ -185,8 +185,7 @@ declare_definition(environment const & env, decl_cmd_kind kind, buffer<name> con
                    name const & c_name, name const & prv_name, expr type, optional<expr> val, cmd_meta const & meta) {
     name c_real_name;
     environment new_env = env;
-    if (has_private_prefix(new_env, prv_name)) {
-        new_env     = register_private_name(new_env, c_name, prv_name);
+    if (is_private(prv_name)) {
         c_real_name = prv_name;
     } else {
         c_real_name = get_namespace(env) + c_name;

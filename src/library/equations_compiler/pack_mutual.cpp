@@ -155,7 +155,7 @@ struct pack_mutual_fn {
         name         new_fn_name;
         name         new_fn_actual_name;
         if (header.m_is_private) {
-            new_fn_actual_name = *get_private_prefix(m_ctx.env(), head(header.m_fn_actual_names));
+            new_fn_actual_name = *get_private_prefix(head(header.m_fn_actual_names));
         }
         for (unsigned fidx = 0; fidx < ues.get_num_fns(); fidx++) {
             expr const & fn = ues.get_fn(fidx);

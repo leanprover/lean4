@@ -288,7 +288,6 @@ pair<environment, expr> mk_aux_definition(environment const & env, options const
     }
     name new_c          = actual_c;
     if (header.m_is_private) {
-        new_env = register_private_name(env, c, actual_c);
         new_env = add_expr_alias(new_env, c, actual_c);
     }
     expr r;

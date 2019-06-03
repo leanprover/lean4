@@ -184,7 +184,6 @@ eqn_compiler_result unbounded_rec(environment & env, elaborator & elab,
 
             result_fns.push_back(result_fn);
             if (header.m_is_private) {
-                env = register_private_name(env, head(fn_names), fn_name);
                 env = add_expr_alias(env, head(fn_names), fn_name);
             }
             fn_names        = tail(fn_names);

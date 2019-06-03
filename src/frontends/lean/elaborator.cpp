@@ -2014,7 +2014,7 @@ expr elaborator::visit_anonymous_constructor(expr const & e, optional<expr> cons
         throw elaborator_exception(e, format("invalid constructor ⟨...⟩, expected type is not an inductive type") +
                                    pp_indent(*expected_type));
     name I_name = const_name(I);
-    if (is_private(m_env, I_name) && !is_expr_aliased(m_env, I_name))
+    if (is_private(I_name) && !is_expr_aliased(m_env, I_name))
         throw elaborator_exception(e, "invalid constructor ⟨...⟩, type is a private inductive datatype");
     constant_info I_info = m_env.get(I_name);
     if (!I_info.is_inductive())
@@ -3167,7 +3167,7 @@ public:
         if (m_S_name.is_anonymous())
             find_structure_name();
 
-        if (is_private(m_env, m_S_name) && !is_expr_aliased(m_env, m_S_name))
+        if (is_private(m_S_name) && !is_expr_aliased(m_env, m_S_name))
             throw elaborator_exception(m_e, "invalid structure instance, type is a private structure");
 
         expr e2, c_type;

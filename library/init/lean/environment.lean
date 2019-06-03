@@ -22,14 +22,19 @@ def ModuleIdx := Nat
 
 abbrev ConstMap := SMap Name ConstantInfo Name.quickLt
 
+/- Environment fields that are not used often. -/
+structure EnvironmentHeader :=
+(trustLevel   : UInt32     := 0)
+(quotInit     : Bool       := false)
+(mainModule   : Name       := default _)
+(imports      : Array Name := Array.empty)
+
 /- TODO: mark opaque. -/
 structure Environment :=
 (const2ModIdx : HashMap Name ModuleIdx)
 (constants    : ConstMap)
 (extensions   : Array EnvExtensionState)
-(trustLevel   : UInt32     := 0)
-(quotInit     : Bool       := false)
-(imports      : Array Name := Array.empty)
+(header       : EnvironmentHeader := {})
 
 namespace Environment
 
@@ -48,6 +53,13 @@ env.constants.find' n
 def contains (env : Environment) (n : Name) : Bool :=
 env.constants.contains n
 
+def imports (env : Environment) : Array Name :=
+env.header.imports
+
+@[export lean.environment_set_main_module_name_core]
+def setMainModuleName (env : Environment) (m : Name) : Environment :=
+{ header := { mainModule := m, .. env.header }, .. env }
+
 /- Switch environment to "shared" mode. -/
 @[export lean.environment_switch_core]
 private def switch (env : Environment) : Environment :=
@@ -55,15 +67,15 @@ private def switch (env : Environment) : Environment :=
 
 @[export lean.environment_mark_quot_init_core]
 private def markQuotInit (env : Environment) : Environment :=
-{ quotInit := true, .. env }
+{ header := { quotInit := true, .. env.header } , .. env }
 
 @[export lean.environment_quot_init_core]
 private def isQuotInit (env : Environment) : Bool :=
-env.quotInit
+env.header.quotInit
 
 @[export lean.environment_trust_level_core]
 private def getTrustLevel (env : Environment) : UInt32 :=
-env.trustLevel
+env.header.trustLevel
 
 def getModuleIdxFor (env : Environment) (c : Name) : Option ModuleIdx :=
 env.const2ModIdx.find c
@@ -143,7 +155,7 @@ when initializing $ throw (IO.userError "Environment objects cannot be created d
 exts ← mkInitialExtensionStates,
 pure { const2ModIdx := {},
        constants    := {},
-       trustLevel   := trustLevel,
+       header       := { trustLevel := trustLevel },
        extensions   := exts }
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
@@ -319,7 +331,7 @@ let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
   Array.empty,
 bytes ← serializeModifications (modListExtension.getState env),
 pure {
-imports    := env.imports,
+imports    := env.header.imports,
 constants  := env.constants.foldStage2 (λ cs _ c, cs.push c) Array.empty,
 entries    := entries,
 serialized := bytes
@@ -401,9 +413,11 @@ let env : Environment := {
   const2ModIdx := const2ModIdx,
   constants    := constants,
   extensions   := exts,
-  quotInit     := !modNames.isEmpty, -- We assume `core.lean` initializes quotient module
-  trustLevel   := trustLevel,
-  imports      := modNames.toArray
+  header       := {
+    quotInit     := !modNames.isEmpty, -- We assume `core.lean` initializes quotient module
+    trustLevel   := trustLevel,
+    imports      := modNames.toArray
+  }
 },
 env ← setImportedEntries env mods,
 env ← finalizePersistentExtensions env,
@@ -417,14 +431,14 @@ def displayStats (env : Environment) : IO Unit :=
 do
 pExtDescrs ← persistentEnvExtensionsRef.get,
 let numModules := ((pExtDescrs.get 0).toEnvExtension.getState env).importedEntries.size,
-IO.println ("direct imports:                        " ++ toString env.imports),
+IO.println ("direct imports:                        " ++ toString env.header.imports),
 IO.println ("number of imported modules:            " ++ toString numModules),
 IO.println ("number of consts:                      " ++ toString env.constants.size),
 IO.println ("number of imported consts:             " ++ toString env.constants.stageSizes.1),
 IO.println ("number of local consts:                " ++ toString env.constants.stageSizes.2),
 IO.println ("number of buckets for imported consts: " ++ toString env.constants.numBuckets),
 IO.println ("map depth for local consts:            " ++ toString env.constants.maxDepth),
-IO.println ("trust level:                           " ++ toString env.trustLevel),
+IO.println ("trust level:                           " ++ toString env.header.trustLevel),
 IO.println ("number of extensions:                  " ++ toString env.extensions.size),
 pExtDescrs.mfor $ λ extDescr, do {
   IO.println ("extension '" ++ toString extDescr.name ++ "'"),

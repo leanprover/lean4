@@ -223,14 +223,14 @@ IO.mkRef Array.empty
 @[init mkPersistentEnvExtensionsRef]
 private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionState)) := default _
 
-structure PersistentEnvExtensionDescr (α σ : Type) [Inhabited α] :=
+structure PersistentEnvExtensionDescr (α σ : Type) :=
 (name : Name)
 (initState : σ)
 (addEntryFn : Bool → σ → α → σ)
 (toArrayFn : List α → Array α := λ as, as.toArray)
 (lazy := true)
 
-unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} [Inhabited α] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) :=
+unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) :=
 do
 let s : PersistentEnvExtensionState α σ := {
   importedEntries := Array.empty,
@@ -251,7 +251,7 @@ persistentEnvExtensionsRef.modify (λ pExts, pExts.push (unsafeCast pExt)),
 pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
-constant registerPersistentEnvExtension {α σ : Type} [Inhabited α] (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := default _
+constant registerPersistentEnvExtension {α σ : Type} (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := default _
 
 /- API for creating extensions in C++.
    This API will eventually be deleted. -/

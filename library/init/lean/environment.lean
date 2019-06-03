@@ -161,7 +161,6 @@ structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
    TODO: mark opaque. -/
 structure PersistentEnvExtension (α : Type) (σ : Type) extends EnvExtension (PersistentEnvExtensionState α σ) :=
 (name       : Name)
-(someVal    : α)
 (addEntryFn : Bool → σ → α → σ)
 (toArrayFn  : List α → Array α)
 (lazy       : Bool)
@@ -176,7 +175,7 @@ instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited α] [Inhabited
 
 instance PersistentEnvExtension.inhabited {α σ} [Inhabited α] [Inhabited σ] : Inhabited (PersistentEnvExtension α σ) :=
 ⟨{ toEnvExtension := { idx := 0, initial := default _ },
-   name  := default _, someVal := default _, addEntryFn := λ _ s _, s, toArrayFn := λ es, es.toArray,
+   name  := default _, addEntryFn := λ _ s _, s, toArrayFn := λ es, es.toArray,
    lazy  := true }⟩
 
 namespace PersistentEnvExtension
@@ -216,7 +215,6 @@ private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtens
 structure PersistentEnvExtensionDescr (α σ : Type) [Inhabited α] :=
 (name : Name)
 (initState : σ)
-(someVal : α := default _)
 (addEntryFn : Bool → σ → α → σ)
 (toArrayFn : List α → Array α := λ as, as.toArray)
 (lazy := true)
@@ -234,7 +232,6 @@ ext ← registerEnvExtension s,
 let pExt : PersistentEnvExtension α σ := {
   toEnvExtension := ext,
   name           := descr.name,
-  someVal        := descr.someVal,
   addEntryFn     := descr.addEntryFn,
   toArrayFn      := descr.toArrayFn,
   lazy           := descr.lazy

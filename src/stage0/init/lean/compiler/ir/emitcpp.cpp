@@ -407,6 +407,7 @@ obj* l_List_mfor___main___at_Lean_IR_EmitCpp_emitMainFn___spec__2___boxed(obj*, 
 obj* l_Lean_IR_EmitCpp_throwUnknownVar___rarg(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitCtorScalarSize___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_toCppName___closed__1;
+obj* l_Lean_Environment_imports(obj*);
 obj* l_AssocList_find___main___at_Lean_IR_EmitCpp_getJPParams___spec__2(obj*, obj*);
 obj* l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitArgs(obj*, obj*, obj*);
@@ -7069,8 +7070,7 @@ x_21 = l_Lean_IR_EmitCpp_emitFileHeader___closed__4;
 x_22 = lean::string_append(x_20, x_21);
 lean::cnstr_set(x_7, 1, x_22);
 lean::cnstr_set(x_7, 0, x_6);
-x_23 = lean::cnstr_get(x_5, 3);
-lean::inc(x_23);
+x_23 = l_Lean_Environment_imports(x_5);
 lean::dec(x_5);
 x_24 = lean::mk_nat_obj(0u);
 x_25 = l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitFileHeader___spec__1(x_23, x_24, x_1, x_7);
@@ -7344,8 +7344,7 @@ x_116 = lean::string_append(x_114, x_115);
 x_117 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_117, 0, x_6);
 lean::cnstr_set(x_117, 1, x_116);
-x_118 = lean::cnstr_get(x_5, 3);
-lean::inc(x_118);
+x_118 = l_Lean_Environment_imports(x_5);
 lean::dec(x_5);
 x_119 = lean::mk_nat_obj(0u);
 x_120 = l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitFileHeader___spec__1(x_118, x_119, x_1, x_117);
@@ -7563,8 +7562,7 @@ if (lean::is_scalar(x_168)) {
 }
 lean::cnstr_set(x_181, 0, x_163);
 lean::cnstr_set(x_181, 1, x_180);
-x_182 = lean::cnstr_get(x_161, 3);
-lean::inc(x_182);
+x_182 = l_Lean_Environment_imports(x_161);
 lean::dec(x_161);
 x_183 = lean::mk_nat_obj(0u);
 x_184 = l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitFileHeader___spec__1(x_182, x_183, x_1, x_181);
@@ -26078,8 +26076,7 @@ if (x_8 == 0)
 obj* x_9; obj* x_10; obj* x_11; obj* x_12; 
 x_9 = lean::cnstr_get(x_7, 0);
 lean::cnstr_set(x_7, 0, x_6);
-x_10 = lean::cnstr_get(x_5, 3);
-lean::inc(x_10);
+x_10 = l_Lean_Environment_imports(x_5);
 x_11 = lean::mk_nat_obj(0u);
 x_12 = l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitInitFn___spec__1(x_10, x_11, x_1, x_7);
 if (lean::obj_tag(x_12) == 0)
@@ -26632,8 +26629,7 @@ lean::dec(x_7);
 x_143 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_143, 0, x_6);
 lean::cnstr_set(x_143, 1, x_142);
-x_144 = lean::cnstr_get(x_5, 3);
-lean::inc(x_144);
+x_144 = l_Lean_Environment_imports(x_5);
 x_145 = lean::mk_nat_obj(0u);
 x_146 = l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitInitFn___spec__1(x_144, x_145, x_1, x_143);
 if (lean::obj_tag(x_146) == 0)
@@ -26912,8 +26908,7 @@ if (lean::is_scalar(x_205)) {
 }
 lean::cnstr_set(x_206, 0, x_200);
 lean::cnstr_set(x_206, 1, x_204);
-x_207 = lean::cnstr_get(x_198, 3);
-lean::inc(x_207);
+x_207 = l_Lean_Environment_imports(x_198);
 x_208 = lean::mk_nat_obj(0u);
 x_209 = l_Array_mforAux___main___at_Lean_IR_EmitCpp_emitInitFn___spec__1(x_207, x_208, x_1, x_206);
 if (lean::obj_tag(x_209) == 0)

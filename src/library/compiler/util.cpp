@@ -411,6 +411,7 @@ bool is_runtime_builtin_type(name const & n) {
         n == get_lean_level_name() ||
         n == get_task_name()   ||
         n == get_array_name()  ||
+        n == get_byte_array_name()  ||
         n == get_nat_name()    ||
         n == get_int_name();
 }

@@ -9,6 +9,7 @@ Array
 autoParam
 bit0
 bit1
+ByteArray
 Bool
 Bool.false
 Bool.true
@@ -57,15 +58,12 @@ HasAdd
 HasAdd.add
 HasDiv.div
 HasEmptyc.emptyc
-HasEval
-HasEval.eval
 HasInsert.insert
 HasNeg.neg
 HasOne
 HasOne.one
 HasSep.sep
 HasSub.sub
-HasRepr
 HasWellFounded
 HasWellFounded.r
 HasWellFounded.wf
@@ -140,7 +138,6 @@ PProd.snd
 propext
 Quot.mk
 Quot.lift
-repr
 rfl
 scopeTrace
 setOf

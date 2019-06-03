@@ -14,6 +14,7 @@ name const * g_array = nullptr;
 name const * g_auto_param = nullptr;
 name const * g_bit0 = nullptr;
 name const * g_bit1 = nullptr;
+name const * g_byte_array = nullptr;
 name const * g_bool = nullptr;
 name const * g_bool_false = nullptr;
 name const * g_bool_true = nullptr;
@@ -62,15 +63,12 @@ name const * g_has_add = nullptr;
 name const * g_has_add_add = nullptr;
 name const * g_has_div_div = nullptr;
 name const * g_has_emptyc_emptyc = nullptr;
-name const * g_has_eval = nullptr;
-name const * g_has_eval_eval = nullptr;
 name const * g_has_insert_insert = nullptr;
 name const * g_has_neg_neg = nullptr;
 name const * g_has_one = nullptr;
 name const * g_has_one_one = nullptr;
 name const * g_has_sep_sep = nullptr;
 name const * g_has_sub_sub = nullptr;
-name const * g_has_repr = nullptr;
 name const * g_has_well_founded = nullptr;
 name const * g_has_well_founded_r = nullptr;
 name const * g_has_well_founded_wf = nullptr;
@@ -145,7 +143,6 @@ name const * g_pprod_snd = nullptr;
 name const * g_propext = nullptr;
 name const * g_quot_mk = nullptr;
 name const * g_quot_lift = nullptr;
-name const * g_repr = nullptr;
 name const * g_rfl = nullptr;
 name const * g_scope_trace = nullptr;
 name const * g_set_of = nullptr;
@@ -197,6 +194,7 @@ void initialize_constants() {
     g_auto_param = new name{"autoParam"};
     g_bit0 = new name{"bit0"};
     g_bit1 = new name{"bit1"};
+    g_byte_array = new name{"ByteArray"};
     g_bool = new name{"Bool"};
     g_bool_false = new name{"Bool", "false"};
     g_bool_true = new name{"Bool", "true"};
@@ -245,15 +243,12 @@ void initialize_constants() {
     g_has_add_add = new name{"HasAdd", "add"};
     g_has_div_div = new name{"HasDiv", "div"};
     g_has_emptyc_emptyc = new name{"HasEmptyc", "emptyc"};
-    g_has_eval = new name{"HasEval"};
-    g_has_eval_eval = new name{"HasEval", "eval"};
     g_has_insert_insert = new name{"HasInsert", "insert"};
     g_has_neg_neg = new name{"HasNeg", "neg"};
     g_has_one = new name{"HasOne"};
     g_has_one_one = new name{"HasOne", "one"};
     g_has_sep_sep = new name{"HasSep", "sep"};
     g_has_sub_sub = new name{"HasSub", "sub"};
-    g_has_repr = new name{"HasRepr"};
     g_has_well_founded = new name{"HasWellFounded"};
     g_has_well_founded_r = new name{"HasWellFounded", "r"};
     g_has_well_founded_wf = new name{"HasWellFounded", "wf"};
@@ -328,7 +323,6 @@ void initialize_constants() {
     g_propext = new name{"propext"};
     g_quot_mk = new name{"Quot", "mk"};
     g_quot_lift = new name{"Quot", "lift"};
-    g_repr = new name{"repr"};
     g_rfl = new name{"rfl"};
     g_scope_trace = new name{"scopeTrace"};
     g_set_of = new name{"setOf"};
@@ -381,6 +375,7 @@ void finalize_constants() {
     delete g_auto_param;
     delete g_bit0;
     delete g_bit1;
+    delete g_byte_array;
     delete g_bool;
     delete g_bool_false;
     delete g_bool_true;
@@ -429,15 +424,12 @@ void finalize_constants() {
     delete g_has_add_add;
     delete g_has_div_div;
     delete g_has_emptyc_emptyc;
-    delete g_has_eval;
-    delete g_has_eval_eval;
     delete g_has_insert_insert;
     delete g_has_neg_neg;
     delete g_has_one;
     delete g_has_one_one;
     delete g_has_sep_sep;
     delete g_has_sub_sub;
-    delete g_has_repr;
     delete g_has_well_founded;
     delete g_has_well_founded_r;
     delete g_has_well_founded_wf;
@@ -512,7 +504,6 @@ void finalize_constants() {
     delete g_propext;
     delete g_quot_mk;
     delete g_quot_lift;
-    delete g_repr;
     delete g_rfl;
     delete g_scope_trace;
     delete g_set_of;
@@ -564,6 +555,7 @@ name const & get_array_name() { return *g_array; }
 name const & get_auto_param_name() { return *g_auto_param; }
 name const & get_bit0_name() { return *g_bit0; }
 name const & get_bit1_name() { return *g_bit1; }
+name const & get_byte_array_name() { return *g_byte_array; }
 name const & get_bool_name() { return *g_bool; }
 name const & get_bool_false_name() { return *g_bool_false; }
 name const & get_bool_true_name() { return *g_bool_true; }
@@ -612,15 +604,12 @@ name const & get_has_add_name() { return *g_has_add; }
 name const & get_has_add_add_name() { return *g_has_add_add; }
 name const & get_has_div_div_name() { return *g_has_div_div; }
 name const & get_has_emptyc_emptyc_name() { return *g_has_emptyc_emptyc; }
-name const & get_has_eval_name() { return *g_has_eval; }
-name const & get_has_eval_eval_name() { return *g_has_eval_eval; }
 name const & get_has_insert_insert_name() { return *g_has_insert_insert; }
 name const & get_has_neg_neg_name() { return *g_has_neg_neg; }
 name const & get_has_one_name() { return *g_has_one; }
 name const & get_has_one_one_name() { return *g_has_one_one; }
 name const & get_has_sep_sep_name() { return *g_has_sep_sep; }
 name const & get_has_sub_sub_name() { return *g_has_sub_sub; }
-name const & get_has_repr_name() { return *g_has_repr; }
 name const & get_has_well_founded_name() { return *g_has_well_founded; }
 name const & get_has_well_founded_r_name() { return *g_has_well_founded_r; }
 name const & get_has_well_founded_wf_name() { return *g_has_well_founded_wf; }
@@ -695,7 +684,6 @@ name const & get_pprod_snd_name() { return *g_pprod_snd; }
 name const & get_propext_name() { return *g_propext; }
 name const & get_quot_mk_name() { return *g_quot_mk; }
 name const & get_quot_lift_name() { return *g_quot_lift; }
-name const & get_repr_name() { return *g_repr; }
 name const & get_rfl_name() { return *g_rfl; }
 name const & get_scope_trace_name() { return *g_scope_trace; }
 name const & get_set_of_name() { return *g_set_of; }

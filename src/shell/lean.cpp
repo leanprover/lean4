@@ -505,7 +505,7 @@ int main(int argc, char ** argv) {
 
         bool ok;
         if (new_frontend) {
-            env = set_main_module_name(env, main_module_name);
+            env.set_main_module(main_module_name);
             // Some C++ parts like profiling need a global message log. We may want to refactor them into a
             // message_log-passing state monad in the future.
             message_log l;
@@ -531,7 +531,7 @@ int main(int argc, char ** argv) {
             } else {
                 env = import_modules(trust_lvl, imports);
             }
-            env = set_main_module_name(env, main_module_name);
+            env.set_main_module(main_module_name);
             p.set_env(env);
             p.parse_commands();
 

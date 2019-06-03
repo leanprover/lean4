@@ -61,6 +61,10 @@ public:
 
     bool is_quot_initialized() const;
 
+    void set_main_module(name const & n);
+
+    name get_main_module() const;
+
     /** \brief Return information for the constant with name \c n (if it is defined in this environment). */
     optional<constant_info> find(name const & n) const;
 

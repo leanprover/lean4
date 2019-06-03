@@ -18,7 +18,6 @@ struct private_ext : public environment_extension {
     /* We store private prefixes to make sure register_private_name is used correctly.
        This information does not need to be stored in .olean files. */
     name_set       m_private_prefixes;
-    name           m_mod_name;
     private_ext():m_counter(1) {}
 };
 
@@ -33,12 +32,6 @@ static private_ext const & get_extension(environment const & env) {
 }
 static environment update(environment const & env, private_ext const & ext) {
     return env.update(g_ext->m_ext_id, new private_ext(ext));
-}
-
-environment set_main_module_name(environment const & env, name const & mod_name) {
-    private_ext ext = get_extension(env);
-    ext.m_mod_name  = mod_name;
-    return  update(env, ext);
 }
 
 static name * g_private = nullptr;
@@ -77,7 +70,7 @@ static environment preserve_private_data(environment const & env, name const & r
 
 static name mk_private_name_core(environment const & env, name const & n) {
     private_ext const & ext = get_extension(env);
-    return name(name(*g_private) + ext.m_mod_name, ext.m_counter) + n;
+    return name(name(*g_private) + env.get_main_module(), ext.m_counter) + n;
 }
 
 pair<environment, name> add_private_name(environment const & env, name const & n) {

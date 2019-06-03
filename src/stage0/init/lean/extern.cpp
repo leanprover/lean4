@@ -20,7 +20,6 @@ namespace lean {
 obj* mk_extern_attr_data_core(obj*, obj*);
 }
 obj* l_Lean_expandExternPatternAux(obj*, obj*, obj*, obj*);
-extern obj* l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 obj* l_Lean_getExternNameFor(obj*, obj*, obj*);
 obj* l_Lean_getExternNameFor___boxed(obj*, obj*, obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
@@ -223,7 +222,7 @@ x_18 = lean::mk_nat_obj(10u);
 x_19 = lean::nat_mul(x_3, x_18);
 lean::dec(x_3);
 x_20 = lean::uint32_to_nat(x_10);
-x_21 = l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
+x_21 = lean::mk_nat_obj(48u);
 x_22 = lean::nat_sub(x_20, x_21);
 lean::dec(x_20);
 x_23 = lean::nat_add(x_19, x_22);

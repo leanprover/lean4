@@ -26,7 +26,6 @@ obj* l_String_mkIterator(obj*);
 obj* l___private_init_data_string_basic_4__utf8SetAux(uint32, obj*, obj*, obj*);
 obj* l_String_posOf___boxed(obj*, obj*);
 obj* l_Substring_takeWhileAux(obj*, obj*, obj*, obj*);
-obj* l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 uint8 l_Substring_all(obj*, obj*);
 obj* l_String_Iterator_hasPrev___main___boxed(obj*);
 obj* l_List_asString(obj*);
@@ -2959,15 +2958,6 @@ x_4 = l_String_mapAux___main(x_1, x_3, x_2);
 return x_4;
 }
 }
-obj* _init_l_String_foldlAux___main___at_String_toNat___spec__1___closed__1() {
-_start:
-{
-uint32 x_1; obj* x_2; 
-x_1 = 48;
-x_2 = lean::uint32_to_nat(x_1);
-return x_2;
-}
-}
 obj* l_String_foldlAux___main___at_String_toNat___spec__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
@@ -2983,7 +2973,7 @@ x_8 = lean::mk_nat_obj(10u);
 x_9 = lean::nat_mul(x_4, x_8);
 lean::dec(x_4);
 x_10 = lean::uint32_to_nat(x_7);
-x_11 = l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
+x_11 = lean::mk_nat_obj(48u);
 x_12 = lean::nat_sub(x_10, x_11);
 lean::dec(x_10);
 x_13 = lean::nat_add(x_9, x_12);
@@ -5642,8 +5632,6 @@ l_String_HasAppend = _init_l_String_HasAppend();
 lean::mark_persistent(l_String_HasAppend);
 l_String_lineColumn___closed__1 = _init_l_String_lineColumn___closed__1();
 lean::mark_persistent(l_String_lineColumn___closed__1);
-l_String_foldlAux___main___at_String_toNat___spec__1___closed__1 = _init_l_String_foldlAux___main___at_String_toNat___spec__1___closed__1();
-lean::mark_persistent(l_String_foldlAux___main___at_String_toNat___spec__1___closed__1);
 l_Substring_drop___main___closed__1 = _init_l_Substring_drop___main___closed__1();
 lean::mark_persistent(l_Substring_drop___main___closed__1);
 l_Substring_extract___main___closed__1 = _init_l_Substring_extract___main___closed__1();

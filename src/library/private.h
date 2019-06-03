@@ -10,7 +10,6 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 
 namespace lean {
-environment set_main_module_name(environment const & env, name const & mod_name);
 /**
    \brief This is an auxiliary function used to simulate private declarations.
 */

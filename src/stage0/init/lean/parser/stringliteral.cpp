@@ -14,9 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-obj* l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1;
 obj* l_Lean_Parser_parseStringLiteralAux___main___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*, obj*, uint32);
-extern obj* l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__1(obj*, uint32);
 obj* l_Lean_Parser_parseQuotedChar___rarg___lambda__7(obj*, obj*, obj*, obj*, obj*, uint32);
 obj* l_DList_singleton___elambda__1___rarg(obj*, obj*);
@@ -25,7 +23,6 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_Parser_MonadParsec_satisfy___rarg___lambda__1___boxed(obj*, obj*, obj*);
-obj* l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1;
 extern obj* l_mjoin___rarg___closed__1;
 obj* l_Lean_Parser_parseStringLiteralAux(obj*, obj*);
 obj* l_Lean_Parser_parseStringLiteralAux___main___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
@@ -115,7 +112,7 @@ x_4 = lean::cnstr_get(x_3, 1);
 lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::uint32_to_nat(x_2);
-x_6 = l_String_foldlAux___main___at_String_toNat___spec__1___closed__1;
+x_6 = lean::mk_nat_obj(48u);
 x_7 = lean::nat_sub(x_5, x_6);
 lean::dec(x_5);
 x_8 = lean::apply_2(x_4, lean::box(0), x_7);
@@ -194,15 +191,6 @@ return x_30;
 }
 }
 }
-obj* _init_l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1() {
-_start:
-{
-uint32 x_1; obj* x_2; 
-x_1 = 97;
-x_2 = lean::uint32_to_nat(x_1);
-return x_2;
-}
-}
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__3(obj* x_1, uint32 x_2) {
 _start:
 {
@@ -214,7 +202,7 @@ x_4 = lean::cnstr_get(x_3, 1);
 lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::uint32_to_nat(x_2);
-x_6 = l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1;
+x_6 = lean::mk_nat_obj(97u);
 x_7 = lean::nat_sub(x_5, x_6);
 lean::dec(x_5);
 x_8 = lean::mk_nat_obj(10u);
@@ -296,15 +284,6 @@ return x_30;
 }
 }
 }
-obj* _init_l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1() {
-_start:
-{
-uint32 x_1; obj* x_2; 
-x_1 = 65;
-x_2 = lean::uint32_to_nat(x_1);
-return x_2;
-}
-}
 obj* l_Lean_Parser_parseHexDigit___rarg___lambda__5(obj* x_1, uint32 x_2) {
 _start:
 {
@@ -316,7 +295,7 @@ x_4 = lean::cnstr_get(x_3, 1);
 lean::inc(x_4);
 lean::dec(x_3);
 x_5 = lean::uint32_to_nat(x_2);
-x_6 = l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1;
+x_6 = lean::mk_nat_obj(65u);
 x_7 = lean::nat_sub(x_5, x_6);
 lean::dec(x_5);
 x_8 = lean::mk_nat_obj(10u);
@@ -1098,10 +1077,6 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_parsec(w);
 if (io_result_is_error(w)) return w;
-l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1 = _init_l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1();
-lean::mark_persistent(l_Lean_Parser_parseHexDigit___rarg___lambda__3___closed__1);
-l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1 = _init_l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1();
-lean::mark_persistent(l_Lean_Parser_parseHexDigit___rarg___lambda__5___closed__1);
 l_Lean_Parser_parseHexDigit___rarg___closed__1 = _init_l_Lean_Parser_parseHexDigit___rarg___closed__1();
 lean::mark_persistent(l_Lean_Parser_parseHexDigit___rarg___closed__1);
 l_Lean_Parser_parseQuotedChar___rarg___lambda__7___closed__1 = _init_l_Lean_Parser_parseQuotedChar___rarg___lambda__7___closed__1();

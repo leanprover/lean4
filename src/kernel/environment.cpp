@@ -26,6 +26,8 @@ object* register_extension_core(object*);
 object* get_extension_core(object*, object*);
 object* set_extension_core(object*, object*, object*);
 object* environment_switch_core(object*);
+object * environment_set_main_module_core(object*, object*);
+object * environment_main_module_core(object*);
 
 object* mk_empty_environment(uint32 trust_lvl) {
     object* r = mk_empty_environment_core(trust_lvl, io_mk_world());
@@ -39,6 +41,14 @@ object* mk_empty_environment(uint32 trust_lvl) {
 environment::environment(unsigned trust_lvl):
     // TODO(Leo): do not eagerly switch
     object_ref(environment_switch_core(mk_empty_environment(trust_lvl))) {
+}
+
+void environment::set_main_module(name const & n) {
+    m_obj = environment_set_main_module_core(m_obj, n.to_obj_arg());
+}
+
+name environment::get_main_module() const {
+    return name(environment_main_module_core(to_obj_arg()), true);
 }
 
 unsigned environment::trust_lvl() const {

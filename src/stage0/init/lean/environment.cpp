@@ -31,7 +31,13 @@ obj* l_Lean_performModifications___boxed(obj*, obj*, obj*);
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__12___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_SMap_find_x27___main___at_Lean_Environment_find___spec__1___boxed(obj*, obj*);
+namespace lean {
+obj* environment_set_main_module_core(obj*, obj*);
+}
 obj* l_Lean_PersistentEnvExtension_inhabited___rarg(obj*);
+namespace lean {
+obj* environment_main_module_core(obj*);
+}
 obj* l_HashMapImp_find___at_Lean_Environment_find___spec__2___boxed(obj*, obj*);
 obj* l_Lean_EnvExtension_modifyStateUnsafe___rarg(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_displayStats___spec__8___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -86,9 +92,6 @@ obj* l_Lean_SMap_insert___main___at_Lean_Environment_add___spec__1(obj*, obj*, o
 obj* l_List_reverse___rarg(obj*);
 obj* l_List_toStringAux___main___at_Lean_Environment_displayStats___spec__2___boxed(obj*, obj*);
 uint8 l_List_isEmpty___main___rarg(obj*);
-namespace lean {
-obj* environment_set_main_module_name_core(obj*, obj*);
-}
 obj* l_List_foldr___main___at_Lean_PersistentEnvExtension_forceStateAux___spec__1___rarg___boxed(obj*, obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_Environment_add___spec__7(obj*, obj*, obj*);
 obj* l_AssocList_foldl___main___at_Lean_Environment_add___spec__8(obj*, obj*);
@@ -3650,7 +3653,7 @@ return x_2;
 }
 }
 namespace lean {
-obj* environment_set_main_module_name_core(obj* x_1, obj* x_2) {
+obj* environment_set_main_module_core(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; 
@@ -3725,6 +3728,21 @@ lean::cnstr_set(x_20, 2, x_14);
 lean::cnstr_set(x_20, 3, x_19);
 return x_20;
 }
+}
+}
+}
+namespace lean {
+obj* environment_main_module_core(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; 
+x_2 = lean::cnstr_get(x_1, 3);
+lean::inc(x_2);
+lean::dec(x_1);
+x_3 = lean::cnstr_get(x_2, 0);
+lean::inc(x_3);
+lean::dec(x_2);
+return x_3;
 }
 }
 }

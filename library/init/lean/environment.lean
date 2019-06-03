@@ -56,9 +56,13 @@ env.constants.contains n
 def imports (env : Environment) : Array Name :=
 env.header.imports
 
-@[export lean.environment_set_main_module_name_core]
-def setMainModuleName (env : Environment) (m : Name) : Environment :=
+@[export lean.environment_set_main_module_core]
+def setMainModule (env : Environment) (m : Name) : Environment :=
 { header := { mainModule := m, .. env.header }, .. env }
+
+@[export lean.environment_main_module_core]
+def mainModule (env : Environment) : Name :=
+env.header.mainModule
 
 /- Switch environment to "shared" mode. -/
 @[export lean.environment_switch_core]

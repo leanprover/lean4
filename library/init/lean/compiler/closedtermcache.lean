@@ -16,8 +16,8 @@ registerPersistentEnvExtension {
   initState  := {},
   addEntryFn := λ init s ⟨e, n⟩,
     let s := if init then s else s.switch in
-    s.insert e n,
-  lazy       := false }
+    s.insert e n
+}
 
 @[init mkClosedTermCacheExtension]
 constant closedTermCacheExt : PersistentEnvExtension (Expr × Name) ClosedTermCache := default _

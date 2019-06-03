@@ -10,11 +10,12 @@ namespace Lean
 
 def mkProtectedExtension : IO (PersistentEnvExtension Name NameSet) :=
 registerPersistentEnvExtension {
-  name       := `protected,
-  initState  := {},
-  addEntryFn := λ init s n, if init then s else s.insert n,
-  toArrayFn  := λ es, es.toArray.qsort Name.quickLt,
-  lazy       := false }
+  name        := `protected,
+  initState   := {},
+  addImported := false,
+  addEntryFn  := λ init s n, s.insert n,
+  toArrayFn  := λ es, es.toArray.qsort Name.quickLt
+}
 
 @[init mkProtectedExtension]
 constant protectedExt : PersistentEnvExtension Name NameSet := default _

@@ -85,8 +85,8 @@ registerPersistentEnvExtension {
   addEntryFn := λ init s d,
     let s := if init then s else s.switch in
     s.insert d.name d,
-  toArrayFn  := mkEntryArray,
-  lazy       := false }
+  toArrayFn  := mkEntryArray
+}
 
 @[init mkDeclMapExtension]
 constant declMapExt : PersistentEnvExtension Decl DeclMap := default _

@@ -8,17 +8,16 @@ import init.lean.environment
 
 namespace Lean
 
-def mkProtectedExtension : IO (PersistentEnvExtension Name NameSet) :=
-registerPersistentEnvExtension {
-  name        := `protected,
-  initState   := {},
-  addImported := false,
-  addEntryFn  := λ init s n, s.insert n,
-  toArrayFn  := λ es, es.toArray.qsort Name.quickLt
+def mkProtectedExtension : IO (SimplePersistentEnvExtension Name NameSet) :=
+registerSimplePersistentEnvExtension {
+  name          := `protected,
+  addImportedFn := λ as, {},
+  addEntryFn    := λ s n, s.insert n,
+  toArrayFn     := λ es, es.toArray.qsort Name.quickLt
 }
 
 @[init mkProtectedExtension]
-constant protectedExt : PersistentEnvExtension Name NameSet := default _
+constant protectedExt : SimplePersistentEnvExtension Name NameSet := default _
 
 @[export lean.add_protected_core]
 def addProtected (env : Environment) (n : Name) : Environment :=

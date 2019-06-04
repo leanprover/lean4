@@ -78,18 +78,18 @@ let map : HashMap Name Decl := {} in
 let map := decls.foldl (λ (map : HashMap Name Decl) decl, map.insert decl.name decl) map in
 map.fold (λ a k v, a.push v) Array.empty
 
-def mkDeclMapExtension : IO (PersistentEnvExtension Decl DeclMap) :=
-registerPersistentEnvExtension {
+def mkDeclMapExtension : IO (SimplePersistentEnvExtension Decl DeclMap) :=
+registerSimplePersistentEnvExtension {
   name       := `IRDecls,
-  initState  := {},
-  addEntryFn := λ init s d,
-    let s := if init then s else s.switch in
-    s.insert d.name d,
+  addImportedFn := λ as,
+     let m : DeclMap := mkStateFromImportedEntries (λ s (d : Decl), s.insert d.name d) {} as in
+     m.switch,
+  addEntryFn := λ s d, s.insert d.name d,
   toArrayFn  := mkEntryArray
 }
 
 @[init mkDeclMapExtension]
-constant declMapExt : PersistentEnvExtension Decl DeclMap := default _
+constant declMapExt : SimplePersistentEnvExtension Decl DeclMap := default _
 
 def findEnvDecl (env : Environment) (n : Name) : Option Decl :=
 (declMapExt.getState env).find n

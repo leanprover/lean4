@@ -159,49 +159,45 @@ pure { const2ModIdx := {},
 
 structure PersistentEnvExtensionState (α : Type) (σ : Type) :=
 (importedEntries : Array (Array α))  -- entries per imported module
-(entries         : List α   := [])   -- entries defined in the current module
-(state           : σ)
+(state : σ)
 
 /- An environment extension with support for storing/retrieving entries from a .olean file.
    - α is the entry type.
    - σ is the actual state.
-   We re-construct the actual state lazily. Moreover, if function `PersistentEnvExtension.getState` is not
-   used, then we don't even compute the field `state`.
 
    TODO: mark opaque. -/
 structure PersistentEnvExtension (α : Type) (σ : Type) extends EnvExtension (PersistentEnvExtensionState α σ) :=
-(name        : Name)
-(addEntryFn  : Bool → σ → α → σ)
-(toArrayFn   : List α → Array α)
-(addImported : Bool := true)
+(name            : Name)
+(addImportedFn   : Array (Array α) → σ)
+(addEntryFn      : σ → α → σ)
+(exportEntriesFn : σ → Array α)
+(statsFn         : σ → Format)
 
 /- Opaque persistent environment extension entry. It is essentially a C `void *`
    TODO: mark opaque -/
 @[derive Inhabited]
 def EnvExtensionEntry := NonScalar
 
-instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited α] [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
+instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
 ⟨{importedEntries := Array.empty, state := default _ }⟩
 
-instance PersistentEnvExtension.inhabited {α σ} [Inhabited α] [Inhabited σ] : Inhabited (PersistentEnvExtension α σ) :=
+instance PersistentEnvExtension.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α σ) :=
 ⟨{ toEnvExtension := { idx := 0, initial := default _ },
    name := default _,
-   addEntryFn := λ _ s _, s,
-   toArrayFn := λ es, es.toArray }⟩
+   addImportedFn := λ _, default _,
+   addEntryFn := λ s _, s,
+   exportEntriesFn := λ _, Array.empty,
+   statsFn := λ _, Format.nil }⟩
 
 namespace PersistentEnvExtension
-
-def getEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) : List α :=
-(ext.toEnvExtension.getState env).entries
 
 def getModuleEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (m : ModuleIdx) : Array α :=
 (ext.toEnvExtension.getState env).importedEntries.get m
 
-def addEntry {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (a : α) (persistent : Bool := true) : Environment :=
+def addEntry {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (a : α) : Environment :=
 ext.toEnvExtension.modifyState env $ λ s,
-  let entries := if persistent then a :: s.entries else s.entries in
-  let state   := ext.addEntryFn false s.state a in
-  { entries := entries, state := state, .. s }
+  let state   := ext.addEntryFn s.state a in
+  { state := state, .. s }
 
 def getState {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) : σ :=
 (ext.toEnvExtension.getState env).state
@@ -215,35 +211,69 @@ IO.mkRef Array.empty
 private constant persistentEnvExtensionsRef : IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionState)) := default _
 
 structure PersistentEnvExtensionDescr (α σ : Type) :=
-(name        : Name)
-(initState   : σ)
-(addEntryFn  : Bool → σ → α → σ)
-(toArrayFn   : List α → Array α := λ as, as.toArray)
-/- If addImported == false, then `addEntryFn` is not invoked for imported entries.
-   This feature is useful for extensions that can quickly scan imported entries using `(importedEntries : Array (Array α))` -/
-(addImported : Bool := true)
+(name            : Name)
+(addImportedFn   : Array (Array α) → σ)
+(addEntryFn      : σ → α → σ)
+(exportEntriesFn : σ → Array α)
+(statsFn         : σ → Format := λ _, Format.nil)
 
 unsafe def registerPersistentEnvExtensionUnsafe {α σ : Type} (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) :=
 do
 let s : PersistentEnvExtensionState α σ := {
   importedEntries := Array.empty,
-  entries         := [],
-  state           := descr.initState },
+  state           := descr.addImportedFn Array.empty },
 pExts ← persistentEnvExtensionsRef.get,
 when (pExts.any (λ ext, ext.name == descr.name)) $ throw (IO.userError ("invalid environment extension, '" ++ toString descr.name ++ "' has already been used")),
 ext ← registerEnvExtension s,
 let pExt : PersistentEnvExtension α σ := {
-  toEnvExtension := ext,
-  name           := descr.name,
-  addEntryFn     := descr.addEntryFn,
-  toArrayFn      := descr.toArrayFn,
-  addImported    := descr.addImported
+  toEnvExtension  := ext,
+  name            := descr.name,
+  addImportedFn   := descr.addImportedFn,
+  addEntryFn      := descr.addEntryFn,
+  exportEntriesFn := descr.exportEntriesFn,
+  statsFn         := descr.statsFn
 },
 persistentEnvExtensionsRef.modify (λ pExts, pExts.push (unsafeCast pExt)),
 pure pExt
 
 @[implementedBy registerPersistentEnvExtensionUnsafe]
 constant registerPersistentEnvExtension {α σ : Type} (descr : PersistentEnvExtensionDescr α σ) : IO (PersistentEnvExtension α σ) := default _
+
+/- Simple PersistentEnvExtension that implements exportEntriesFn using a list of entries. -/
+
+def SimplePersistentEnvExtension (α σ : Type) := PersistentEnvExtension α (List α × σ)
+
+@[specialize] def mkStateFromImportedEntries {α σ : Type} (addEntryFn : σ → α → σ) (initState : σ) (as : Array (Array α)) : σ :=
+as.foldl (λ r es, es.foldl (λ r e, addEntryFn r e) r) initState
+
+structure SimplePersistentEnvExtensionDescr (α σ : Type) :=
+(name          : Name)
+(addEntryFn    : σ → α → σ)
+(addImportedFn : Array (Array α) → σ)
+(toArrayFn     : List α → Array α := λ es, es.toArray)
+
+def registerSimplePersistentEnvExtension {α σ : Type} (descr : SimplePersistentEnvExtensionDescr α σ) : IO (SimplePersistentEnvExtension α σ) :=
+registerPersistentEnvExtension {
+  name := descr.name,
+  addImportedFn := λ as, ([], descr.addImportedFn as),
+  addEntryFn := λ s e, match s with
+    | (entries, s) := (e::entries, descr.addEntryFn s e),
+  exportEntriesFn := λ s, descr.toArrayFn s.1.reverse,
+  statsFn := λ s, format "number of local entries: " ++ format s.1.length
+}
+
+namespace SimplePersistentEnvExtension
+
+instance {α σ : Type} [Inhabited σ] : Inhabited (SimplePersistentEnvExtension α σ) :=
+inferInstanceAs (Inhabited (PersistentEnvExtension α (List α × σ)))
+
+def getEntries {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) : List α :=
+(PersistentEnvExtension.getState ext env).1
+
+def getState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
+(PersistentEnvExtension.getState ext env).2
+
+end SimplePersistentEnvExtension
 
 /- API for creating extensions in C++.
    This API will eventually be deleted. -/
@@ -297,7 +327,6 @@ constant performModifications : Environment → ByteArray → IO Environment := 
 /- Scope management -/
 
 structure ScopeManagerState :=
-/- All namespaces in imported modules and current module. -/
 (allNamespaces : NameSet := {})
 /- Stack of namespaces for each each open namespace and section  -/
 (namespaces : List Name := [])
@@ -305,17 +334,24 @@ structure ScopeManagerState :=
 (headers : List Name := [])
 (isNamespace : List Bool := [])
 
-instance ScopeManagerState.inhabited : Inhabited ScopeManagerState := ⟨{}⟩
+namespace ScopeManagerState
 
-def regScopeManagerExtension : IO (PersistentEnvExtension Name ScopeManagerState) :=
-registerPersistentEnvExtension {
-  name        := `scopes,
-  initState   := {},
-  addEntryFn  := λ _ s n, { allNamespaces := s.allNamespaces.insert n, .. s },
+instance : Inhabited ScopeManagerState := ⟨{}⟩
+
+def saveNamespace (s : ScopeManagerState) (n : Name) : ScopeManagerState :=
+{ allNamespaces := s.allNamespaces.insert n, .. s }
+
+end ScopeManagerState
+
+def regScopeManagerExtension : IO (SimplePersistentEnvExtension Name ScopeManagerState) :=
+registerSimplePersistentEnvExtension {
+  name            := `scopes,
+  addImportedFn   := λ as, mkStateFromImportedEntries ScopeManagerState.saveNamespace {} as,
+  addEntryFn      := λ s n, { allNamespaces := s.allNamespaces.insert n, .. s },
 }
 
 @[init regScopeManagerExtension]
-constant scopeManagerExt : PersistentEnvExtension Name ScopeManagerState := default _
+constant scopeManagerExt : SimplePersistentEnvExtension Name ScopeManagerState := default _
 
 namespace Environment
 
@@ -366,10 +402,10 @@ do
 pExts ← persistentEnvExtensionsRef.get,
 let entries : Array (Name × Array EnvExtensionEntry) := pExts.size.fold
   (λ i result,
-    let entryList  := (pExts.get i).getEntries env in
-    let toArrayFn  := (pExts.get i).toArrayFn in
+    let state  := (pExts.get i).getState env in
+    let exportEntriesFn := (pExts.get i).exportEntriesFn in
     let extName    := (pExts.get i).name in
-    result.push (extName, toArrayFn entryList.reverse))
+    result.push (extName, exportEntriesFn state))
   Array.empty,
 bytes ← serializeModifications (modListExtension.getState env),
 pure {
@@ -417,23 +453,12 @@ pure $ mods.iterate env $ λ _ mod env,
       { importedEntries := s.importedEntries.push entries,
         .. s }
 
-private def mkImportedState
-    (entries : Array (Array EnvExtensionEntry)) (initial : EnvExtensionState)
-    (addEntryFn : Bool → EnvExtensionState → EnvExtensionEntry → EnvExtensionState)
-    : EnvExtensionState :=
-entries.iterate initial $ λ _ entries s,
-  entries.iterate s $ λ _ entry s,
-    addEntryFn true s entry
-
 private def finalizePersistentExtensions (env : Environment) : IO Environment :=
 do
 pExtDescrs ← persistentEnvExtensionsRef.get,
 pure $ pExtDescrs.iterate env $ λ _ extDescr env,
   extDescr.toEnvExtension.modifyState env $ λ s,
-    { entries       := [],
-      state         := if extDescr.addImported then mkImportedState s.importedEntries extDescr.initial.state extDescr.addEntryFn
-                       else extDescr.initial.state,
-      .. s }
+    { state := extDescr.addImportedFn s.importedEntries, .. s }
 
 @[export lean.import_modules_core]
 def importModules (modNames : List Name) (trustLevel : UInt32 := 0) : IO Environment :=
@@ -484,8 +509,7 @@ pExtDescrs.mfor $ λ extDescr, do {
   IO.println ("extension '" ++ toString extDescr.name ++ "'"),
   let s := extDescr.toEnvExtension.getState env,
   IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (λ sum es, sum + es.size) 0)),
-  IO.println ("  number of local entries:    " ++ toString s.entries.length),
-  IO.println ("  add imported entries:       " ++ toString extDescr.addImported),
+  IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state))),
   pure ()
 },
 pure ()

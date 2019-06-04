@@ -10,17 +10,17 @@ namespace Lean
 
 abbrev ClosedTermCache := SMap Expr Name Expr.quickLt
 
-def mkClosedTermCacheExtension : IO (PersistentEnvExtension (Expr × Name) ClosedTermCache) :=
-registerPersistentEnvExtension {
+def mkClosedTermCacheExtension : IO (SimplePersistentEnvExtension (Expr × Name) ClosedTermCache) :=
+registerSimplePersistentEnvExtension {
   name       := `closedTermCache,
-  initState  := {},
-  addEntryFn := λ init s ⟨e, n⟩,
-    let s := if init then s else s.switch in
-    s.insert e n
+  addImportedFn := λ as,
+    let cache : ClosedTermCache := mkStateFromImportedEntries (λ s (p : Expr × Name), s.insert p.1 p.2) {} as in
+    cache.switch,
+  addEntryFn := λ s ⟨e, n⟩, s.insert e n
 }
 
 @[init mkClosedTermCacheExtension]
-constant closedTermCacheExt : PersistentEnvExtension (Expr × Name) ClosedTermCache := default _
+constant closedTermCacheExt : SimplePersistentEnvExtension (Expr × Name) ClosedTermCache := default _
 
 @[export lean.cache_closed_term_name_core]
 def cacheClosedTermName (env : Environment) (e : Expr) (n : Name) : Environment :=

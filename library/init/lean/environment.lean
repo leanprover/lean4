@@ -294,6 +294,57 @@ constant serializeModifications : List Modification → IO ByteArray := default 
 @[extern 3 "lean_perform_serialized_modifications"]
 constant performModifications : Environment → ByteArray → IO Environment := default _
 
+/- Scope management -/
+
+structure ScopeManagerState :=
+/- All namespaces in imported modules and current module. -/
+(allNamespaces : NameSet := {})
+/- Stack of namespaces for each each open namespace and section  -/
+(namespaces : List Name := [])
+/- Stack of namespace/section headers -/
+(headers : List Name := [])
+(isNamespace : List Bool := [])
+
+instance ScopeManagerState.inhabited : Inhabited ScopeManagerState := ⟨{}⟩
+
+def regScopeManagerExtension : IO (PersistentEnvExtension Name ScopeManagerState) :=
+registerPersistentEnvExtension {
+  name        := `scopes,
+  initState   := {},
+  addEntryFn  := λ _ s n, { allNamespaces := s.allNamespaces.insert n, .. s },
+}
+
+@[init regScopeManagerExtension]
+constant scopeManagerExt : PersistentEnvExtension Name ScopeManagerState := default _
+
+namespace Environment
+
+def getNamespaces (env : Environment) : List Name :=
+(scopeManagerExt.getState env).namespaces
+
+def getNamespace (env : Environment) : Name :=
+match env.getNamespaces with
+| (n::_) := n
+| _      := Name.anonymous
+
+def getScopeHeader (env : Environment) : Name :=
+match (scopeManagerExt.getState env).headers with
+| (n::_) := n
+| _      := Name.anonymous
+
+def toValidNamespace (env : Environment) (n : Name) : Option Name :=
+let s := scopeManagerExt.getState env in
+if s.allNamespaces.contains n then some n
+else s.namespaces.foldl
+  (λ r ns, match r with
+    | some _ := r
+    | none   :=
+      let c := ns ++ n in
+      if s.allNamespaces.contains c then some c else none)
+  none
+
+end Environment
+
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData :=

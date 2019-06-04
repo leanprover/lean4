@@ -14,6 +14,7 @@ Author: Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/instantiate.h"
 #include "kernel/inductive.h"
+#include "kernel/kernel_exception.h"
 #include "library/util.h"
 #include "library/constants.h"
 #include "library/class.h"
@@ -1318,21 +1319,25 @@ class csimp_fn {
     optional<expr> try_inline_proj_instance(expr const & e, bool is_let_val) {
         lean_assert(is_proj(e));
         if (!m_before_erasure) return none_expr();
-        expr e_type = infer_type(e);
-        if (is_type_class(e_type)) {
-            /* If `typeof(e)` is a type class, then we should not instantiate it.
-               See comment above. */
+        try {
+            expr e_type = infer_type(e);
+            if (is_type_class(e_type)) {
+                /* If `typeof(e)` is a type class, then we should not instantiate it.
+                   See comment above. */
+                return none_expr();
+            }
+
+            unsigned saved_fvars_size = m_fvars.size();
+            if (optional<expr> new_s = try_inline_proj_instance_aux(proj_expr(e))) {
+                lean_assert(is_constructor_app(env(), *new_s));
+                expr r = proj_constructor(*new_s, proj_idx(e).get_small_value());
+                return some_expr(visit(r, is_let_val));
+            }
+            m_fvars.resize(saved_fvars_size);
+            return none_expr();
+        } catch (kernel_exception &) {
             return none_expr();
         }
-
-        unsigned saved_fvars_size = m_fvars.size();
-        if (optional<expr> new_s = try_inline_proj_instance_aux(proj_expr(e))) {
-            lean_assert(is_constructor_app(env(), *new_s));
-            expr r = proj_constructor(*new_s, proj_idx(e).get_small_value());
-            return some_expr(visit(r, is_let_val));
-        }
-        m_fvars.resize(saved_fvars_size);
-        return none_expr();
     }
 
     /* Return true iff `e` is of the form `fun (xs), let ys := ts in (ctor ...)`.

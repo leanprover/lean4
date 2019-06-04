@@ -324,63 +324,6 @@ constant serializeModifications : List Modification → IO ByteArray := default 
 @[extern 3 "lean_perform_serialized_modifications"]
 constant performModifications : Environment → ByteArray → IO Environment := default _
 
-/- Scope management -/
-
-structure ScopeManagerState :=
-(allNamespaces : NameSet := {})
-/- Stack of namespaces for each each open namespace and section  -/
-(namespaces : List Name := [])
-/- Stack of namespace/section headers -/
-(headers : List Name := [])
-(isNamespace : List Bool := [])
-
-namespace ScopeManagerState
-
-instance : Inhabited ScopeManagerState := ⟨{}⟩
-
-def saveNamespace (s : ScopeManagerState) (n : Name) : ScopeManagerState :=
-{ allNamespaces := s.allNamespaces.insert n, .. s }
-
-end ScopeManagerState
-
-def regScopeManagerExtension : IO (SimplePersistentEnvExtension Name ScopeManagerState) :=
-registerSimplePersistentEnvExtension {
-  name            := `scopes,
-  addImportedFn   := λ as, mkStateFromImportedEntries ScopeManagerState.saveNamespace {} as,
-  addEntryFn      := λ s n, { allNamespaces := s.allNamespaces.insert n, .. s },
-}
-
-@[init regScopeManagerExtension]
-constant scopeManagerExt : SimplePersistentEnvExtension Name ScopeManagerState := default _
-
-namespace Environment
-
-def getNamespaces (env : Environment) : List Name :=
-(scopeManagerExt.getState env).namespaces
-
-def getNamespace (env : Environment) : Name :=
-match env.getNamespaces with
-| (n::_) := n
-| _      := Name.anonymous
-
-def getScopeHeader (env : Environment) : Name :=
-match (scopeManagerExt.getState env).headers with
-| (n::_) := n
-| _      := Name.anonymous
-
-def toValidNamespace (env : Environment) (n : Name) : Option Name :=
-let s := scopeManagerExt.getState env in
-if s.allNamespaces.contains n then some n
-else s.namespaces.foldl
-  (λ r ns, match r with
-    | some _ := r
-    | none   :=
-      let c := ns ++ n in
-      if s.allNamespaces.contains c then some c else none)
-  none
-
-end Environment
-
 /- Content of a .olean file.
    We use `compact.cpp` to generate the image of this object in disk. -/
 structure ModuleData :=

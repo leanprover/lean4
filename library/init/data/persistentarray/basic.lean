@@ -68,6 +68,20 @@ if i >= t.tailOff then
 else
   { root := setAux t.root (USize.ofNat i) t.shift a, .. t }
 
+@[specialize] partial def modifyAux [Inhabited α] (f : α → α) : PersistentArrayNode α → USize → USize → PersistentArrayNode α
+| (node cs) i shift :=
+  let j     := div2Shift i shift in
+  let i     := mod2Shift i shift in
+  let shift := shift - initShift in
+  node $ cs.modify j.toNat $ λ c, modifyAux c i shift
+| (leaf cs) i _     := leaf (cs.modify i.toNat f)
+
+@[specialize] def modify [Inhabited α] (t : PersistentArray α) (i : Nat) (f : α → α) : PersistentArray α :=
+if i >= t.tailOff then
+  { tail := t.tail.modify (i - t.tailOff) f, .. t }
+else
+  { root := modifyAux f t.root (USize.ofNat i) t.shift, .. t }
+
 partial def mkNewPath : USize → Array α → PersistentArrayNode α
 | shift a :=
   if shift == 0 then

@@ -185,7 +185,7 @@ instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited α] [Inhabited
 
 instance PersistentEnvExtension.inhabited {α σ} [Inhabited α] [Inhabited σ] : Inhabited (PersistentEnvExtension α σ) :=
 ⟨{ toEnvExtension := { idx := 0, initial := default _ },
-   name  := default _,
+   name := default _,
    addEntryFn := λ _ s _, s,
    toArrayFn := λ es, es.toArray }⟩
 
@@ -197,10 +197,11 @@ def getEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Enviro
 def getModuleEntries {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (m : ModuleIdx) : Array α :=
 (ext.toEnvExtension.getState env).importedEntries.get m
 
-def addEntry {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (a : α) : Environment :=
+def addEntry {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (a : α) (persistent : Bool := true) : Environment :=
 ext.toEnvExtension.modifyState env $ λ s,
-  let entries := a :: s.entries in
-  { entries := entries, state := ext.addEntryFn false s.state a, .. s }
+  let entries := if persistent then a :: s.entries else s.entries in
+  let state   := ext.addEntryFn false s.state a in
+  { entries := entries, state := state, .. s }
 
 def getState {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) : σ :=
 (ext.toEnvExtension.getState env).state

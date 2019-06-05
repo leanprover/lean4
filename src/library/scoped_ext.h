@@ -39,9 +39,9 @@ bool has_open_scopes(environment const & env);
 /** \brief Add a new namespace (if it does not exist) */
 environment add_namespace(environment const & env, name const & ns);
 
-name const & get_namespace(environment const & env);
+name get_namespace(environment const & env);
 environment set_namespace(environment const & env, name const & ns);
-name const & get_scope_header(environment const & env);
+name get_scope_header(environment const & env);
 /** \brief Return the current stack of namespaces.
     Example: at
       namespace foo
@@ -50,7 +50,7 @@ name const & get_scope_header(environment const & env);
       - It returns [foo.bla.boo, foo.bla, foo]
 
     \remark This is *not* the set of opened namespaces. */
-names const & get_namespaces(environment const & env);
+names get_namespaces(environment const & env);
 bool in_section(environment const & env);
 
 /** \brief Check if \c n may be a reference to a namespace, if it is return it.

@@ -27,7 +27,9 @@ obj* l_HashMapImp_expand___at_Lean_registerAttribute___spec__4(obj*, obj*);
 obj* l_Lean_Environment_activateScopedAttributes(obj*, obj*, obj*);
 obj* l_Lean_Environment_popScopeCore___lambda__1(obj*);
 obj* l_Lean_scopeManagerExt___elambda__1(obj*);
-uint8 l_Lean_Environment_hasOpenScopes(obj*);
+namespace lean {
+uint8 has_open_scopes_core(obj*);
+}
 uint8 l_HashMapImp_contains___at_Lean_registerAttribute___spec__1(obj*, obj*);
 obj* l_Lean_Environment_popScopeCore___closed__1;
 obj* l_Lean_Environment_getAttributeNames(obj*);
@@ -614,7 +616,8 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
-uint8 l_Lean_Environment_hasOpenScopes(obj* x_1) {
+namespace lean {
+uint8 has_open_scopes_core(obj* x_1) {
 _start:
 {
 obj* x_2; uint8 x_3; 
@@ -635,11 +638,12 @@ return x_5;
 }
 }
 }
+}
 obj* l_Lean_Environment_hasOpenScopes___boxed(obj* x_1) {
 _start:
 {
 uint8 x_2; obj* x_3; 
-x_2 = l_Lean_Environment_hasOpenScopes(x_1);
+x_2 = lean::has_open_scopes_core(x_1);
 x_3 = lean::box(x_2);
 return x_3;
 }

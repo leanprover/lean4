@@ -57,6 +57,7 @@ match (scopeManagerExt.getState env).isNamespace with
 | (b::_) := !b
 | _      := false
 
+@[export lean.has_open_scopes_core]
 def hasOpenScopes (env : Environment) : Bool :=
 !env.getNamespaces.isEmpty
 

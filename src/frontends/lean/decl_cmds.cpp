@@ -487,8 +487,6 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
         name d = p.check_constant_next("invalid 'attribute' command, constant expected");
         ds.push_back(d);
     } while (p.curr_is_identifier());
-    if (attributes.is_parsing_only())
-        throw exception(sstream() << "invalid [parsing_only] attribute, can only be applied at declaration time");
     environment env = p.env();
     for (name const & d : ds)
         env = attributes.apply(env, p.ios(), d);

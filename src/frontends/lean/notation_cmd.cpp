@@ -684,8 +684,6 @@ struct notation_modifiers {
                 throw parser_error(sstream() << "invalid notation: unexpected attribute ["
                                              << entry.m_attr->get_name() << "]", pos);
         }
-        if (attrs.get_priority())
-            m_priority = *attrs.get_priority();
     }
 };
 

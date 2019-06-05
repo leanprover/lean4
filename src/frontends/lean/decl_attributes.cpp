@@ -43,48 +43,40 @@ void decl_attributes::parse_core(parser & p, bool compact) {
         } else {
             id = p.check_id_next("invalid attribute declaration, identifier expected");
         }
-        if (id == "priority") {
-            if (deleted)
-                throw parser_error("cannot remove priority attribute", pos);
-            throw parser_error("'priority' has been temporarily disabled", pos);
-        } else {
-            if (!is_attribute(p.env(), id))
-                throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);
+        if (!is_attribute(p.env(), id))
+            throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);
 
-            auto const & attr = ::lean::get_attribute(p.env(), id);
-            if (!deleted) {
-                for (auto const & entry : m_entries) {
-                    if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
-                        throw parser_error(sstream() << "invalid attribute [" << id
-                                                     << "], declaration was already marked with ["
-                                                     << entry.m_attr->get_name()
-                                                     << "]", pos);
-                    }
+        auto const & attr = ::lean::get_attribute(p.env(), id);
+        if (!deleted) {
+            for (auto const & entry : m_entries) {
+                if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
+                    throw parser_error(sstream() << "invalid attribute [" << id
+                                       << "], declaration was already marked with ["
+                                       << entry.m_attr->get_name()
+                                       << "]", pos);
                 }
             }
-            attr_data_ptr data;
-            if (!deleted) {
-                // not all identifiers in attributes are actual Lean declarations
-                parser::undef_id_to_local_scope scope(p);
-                expr e = mk_const(id);
-                while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
-                    expr arg = p.parse_expr(get_max_prec());
-                    if (has_sorry(arg))
-                        break;
-                    e = mk_app(e, arg);
-                }
-                // the new frontend uses consts instead of locals for unknown names...
-                e = replace(e, [](expr const & e) {
+        }
+        attr_data_ptr data;
+        if (!deleted) {
+            // not all identifiers in attributes are actual Lean declarations
+            parser::undef_id_to_local_scope scope(p);
+            expr e = mk_const(id);
+            while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
+                expr arg = p.parse_expr(get_max_prec());
+                if (has_sorry(arg))
+                    break;
+                e = mk_app(e, arg);
+            }
+            // the new frontend uses consts instead of locals for unknown names...
+            e = replace(e, [](expr const & e) {
                     if (is_local(e))
                         return some_expr(mk_const(local_name(e)));
                     return none_expr();
                 });
-                data = attr.parse_data(e);
-            }
-            m_entries = cons({&attr, data}, m_entries);
-            if (id == "parsing_only")
-                m_parsing_only = true;
+            data = attr.parse_data(e);
         }
+        m_entries = cons({&attr, data}, m_entries);
         if (p.curr_is_token(get_comma_tk())) {
             p.next();
         } else {
@@ -142,7 +134,7 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
                                           << "]: no prior declaration on " << d);
             env = entry.m_attr->unset(env, ios, d, m_persistent);
         } else {
-            unsigned prio = m_prio ? *m_prio : get_default_priority(ios.get_options());
+            unsigned prio = get_default_priority(ios.get_options());
             env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
         }
     }

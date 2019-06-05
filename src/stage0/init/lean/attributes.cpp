@@ -19,12 +19,15 @@ obj* l_Lean_attributeArrayRef;
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
 obj* l_Lean_mkAttributeArrayRef(obj*);
-obj* l_Lean_Environment_isAttribute___boxed(obj*);
-obj* l_Lean_Environment_addScopedAttribute(obj*, obj*, obj*, obj*, obj*);
+namespace lean {
+obj* add_scoped_attribure_core(obj*, obj*, obj*, obj*, obj*);
+}
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_List_foldl___main___at_Lean_Environment_toValidNamespace___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_registerAttribute___spec__4(obj*, obj*);
-obj* l_Lean_Environment_activateScopedAttributes(obj*, obj*, obj*);
+namespace lean {
+obj* activate_scoped_attributes_core(obj*, obj*, obj*);
+}
 obj* l_Lean_Environment_popScopeCore___lambda__1(obj*);
 obj* l_Lean_scopeManagerExt___elambda__1(obj*);
 namespace lean {
@@ -71,8 +74,9 @@ obj* l_Lean_regScopeManagerExtension___lambda__1(obj*, obj*);
 namespace lean {
 obj* push_scope_core(obj*, obj*, uint8, obj*);
 }
-obj* l_Lean_Environment_isAttribute___rarg___boxed(obj*, obj*);
-obj* l_Lean_Environment_activateScopedAttribute(obj*, obj*, obj*, obj*);
+namespace lean {
+obj* activate_scoped_attribute_core(obj*, obj*, obj*, obj*);
+}
 uint8 l_Lean_NameSet_contains(obj*, obj*);
 obj* l_Lean_regScopeManagerExtension___lambda__2___closed__1;
 obj* l_Lean_Environment_inSection___boxed(obj*);
@@ -107,12 +111,16 @@ obj* l_Lean_Environment_getAttributeNames___rarg(obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
-obj* l_Lean_Environment_addAttribute(obj*, obj*, obj*, obj*, uint8, obj*);
+namespace lean {
+obj* add_attribure_core(obj*, obj*, obj*, obj*, uint8, obj*);
+}
 namespace lean {
 uint8 is_namespace_core(obj*, obj*);
 }
 obj* l_Array_miterateAux___main___at_Lean_Environment_activateScopedAttributes___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Environment_eraseAttribute(obj*, obj*, obj*, uint8, obj*);
+namespace lean {
+obj* erase_attribure_core(obj*, obj*, obj*, uint8, obj*);
+}
 obj* l_Array_push(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_popScope___spec__1___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_Environment_getAttributeNames___spec__1___boxed(obj*, obj*);
@@ -137,7 +145,6 @@ obj* l_Lean_Environment_popScopeCore(obj*);
 obj* l_Lean_Environment_getNamespaceSet___boxed(obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
-obj* l_Lean_Environment_isAttribute___rarg(obj*, obj*);
 obj* l_HashMapImp_find___at_Lean_Environment_getAttributeImpl___spec__1___boxed(obj*, obj*);
 namespace lean {
 usize usize_modn(usize, obj*);
@@ -183,7 +190,9 @@ obj* to_valid_namespace_core(obj*, obj*);
 obj* l_IO_Prim_Ref_reset(obj*, obj*, obj*);
 obj* l_Lean_scopeManagerExt___elambda__4(obj*, obj*, obj*);
 obj* l_Lean_Environment_eraseAttribute___boxed(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_Environment_isAttribute(obj*);
+namespace lean {
+obj* is_attribute_core(obj*, obj*, obj*);
+}
 obj* l_Lean_regScopeManagerExtension___lambda__3(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_getAttributeNames___spec__2(obj*, obj*, obj*, obj*);
 obj* _init_l_Lean_ScopeManagerState_Inhabited() {
@@ -2974,91 +2983,71 @@ x_4 = lean::box(x_3);
 return x_4;
 }
 }
-obj* l_Lean_Environment_isAttribute___rarg(obj* x_1, obj* x_2) {
+namespace lean {
+obj* is_attribute_core(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_3; obj* x_4; 
-x_3 = l_Lean_attributeMapRef;
-x_4 = lean::io_ref_get(x_3, x_2);
-if (lean::obj_tag(x_4) == 0)
+obj* x_4; obj* x_5; 
+lean::dec(x_1);
+x_4 = l_Lean_attributeMapRef;
+x_5 = lean::io_ref_get(x_4, x_3);
+if (lean::obj_tag(x_5) == 0)
 {
-uint8 x_5; 
-x_5 = !lean::is_exclusive(x_4);
-if (x_5 == 0)
+uint8 x_6; 
+x_6 = !lean::is_exclusive(x_5);
+if (x_6 == 0)
 {
-obj* x_6; uint8 x_7; obj* x_8; 
-x_6 = lean::cnstr_get(x_4, 0);
-x_7 = l_HashMapImp_contains___at_Lean_registerAttribute___spec__1(x_6, x_1);
-lean::dec(x_6);
-x_8 = lean::box(x_7);
-lean::cnstr_set(x_4, 0, x_8);
-return x_4;
+obj* x_7; uint8 x_8; obj* x_9; 
+x_7 = lean::cnstr_get(x_5, 0);
+x_8 = l_HashMapImp_contains___at_Lean_registerAttribute___spec__1(x_7, x_2);
+lean::dec(x_2);
+lean::dec(x_7);
+x_9 = lean::box(x_8);
+lean::cnstr_set(x_5, 0, x_9);
+return x_5;
 }
 else
 {
-obj* x_9; obj* x_10; uint8 x_11; obj* x_12; obj* x_13; 
-x_9 = lean::cnstr_get(x_4, 0);
-x_10 = lean::cnstr_get(x_4, 1);
+obj* x_10; obj* x_11; uint8 x_12; obj* x_13; obj* x_14; 
+x_10 = lean::cnstr_get(x_5, 0);
+x_11 = lean::cnstr_get(x_5, 1);
+lean::inc(x_11);
 lean::inc(x_10);
-lean::inc(x_9);
-lean::dec(x_4);
-x_11 = l_HashMapImp_contains___at_Lean_registerAttribute___spec__1(x_9, x_1);
-lean::dec(x_9);
-x_12 = lean::box(x_11);
-x_13 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_13, 0, x_12);
-lean::cnstr_set(x_13, 1, x_10);
-return x_13;
+lean::dec(x_5);
+x_12 = l_HashMapImp_contains___at_Lean_registerAttribute___spec__1(x_10, x_2);
+lean::dec(x_2);
+lean::dec(x_10);
+x_13 = lean::box(x_12);
+x_14 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_14, 0, x_13);
+lean::cnstr_set(x_14, 1, x_11);
+return x_14;
 }
 }
 else
 {
-uint8 x_14; 
-x_14 = !lean::is_exclusive(x_4);
-if (x_14 == 0)
+uint8 x_15; 
+lean::dec(x_2);
+x_15 = !lean::is_exclusive(x_5);
+if (x_15 == 0)
 {
-return x_4;
+return x_5;
 }
 else
 {
-obj* x_15; obj* x_16; obj* x_17; 
-x_15 = lean::cnstr_get(x_4, 0);
-x_16 = lean::cnstr_get(x_4, 1);
+obj* x_16; obj* x_17; obj* x_18; 
+x_16 = lean::cnstr_get(x_5, 0);
+x_17 = lean::cnstr_get(x_5, 1);
+lean::inc(x_17);
 lean::inc(x_16);
-lean::inc(x_15);
-lean::dec(x_4);
-x_17 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_17, 0, x_15);
-lean::cnstr_set(x_17, 1, x_16);
-return x_17;
+lean::dec(x_5);
+x_18 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_18, 0, x_16);
+lean::cnstr_set(x_18, 1, x_17);
+return x_18;
 }
 }
 }
-}
-obj* l_Lean_Environment_isAttribute(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Environment_isAttribute___rarg___boxed), 2, 0);
-return x_2;
-}
-}
-obj* l_Lean_Environment_isAttribute___rarg___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_Environment_isAttribute___rarg(x_1, x_2);
-lean::dec(x_1);
-return x_3;
-}
-}
-obj* l_Lean_Environment_isAttribute___boxed(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = l_Lean_Environment_isAttribute(x_1);
-lean::dec(x_1);
-return x_2;
 }
 }
 obj* l_AssocList_mfoldl___main___at_Lean_Environment_getAttributeNames___spec__1(obj* x_1, obj* x_2) {
@@ -3415,7 +3404,8 @@ lean::dec(x_1);
 return x_2;
 }
 }
-obj* l_Lean_Environment_addAttribute(obj* x_1, obj* x_2, obj* x_3, obj* x_4, uint8 x_5, obj* x_6) {
+namespace lean {
+obj* add_attribure_core(obj* x_1, obj* x_2, obj* x_3, obj* x_4, uint8 x_5, obj* x_6) {
 _start:
 {
 obj* x_7; 
@@ -3484,17 +3474,19 @@ return x_24;
 }
 }
 }
+}
 obj* l_Lean_Environment_addAttribute___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5, obj* x_6) {
 _start:
 {
 uint8 x_7; obj* x_8; 
 x_7 = lean::unbox(x_5);
 lean::dec(x_5);
-x_8 = l_Lean_Environment_addAttribute(x_1, x_2, x_3, x_4, x_7, x_6);
+x_8 = lean::add_attribure_core(x_1, x_2, x_3, x_4, x_7, x_6);
 return x_8;
 }
 }
-obj* l_Lean_Environment_addScopedAttribute(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
+namespace lean {
+obj* add_scoped_attribure_core(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 obj* x_6; 
@@ -3561,7 +3553,9 @@ return x_21;
 }
 }
 }
-obj* l_Lean_Environment_eraseAttribute(obj* x_1, obj* x_2, obj* x_3, uint8 x_4, obj* x_5) {
+}
+namespace lean {
+obj* erase_attribure_core(obj* x_1, obj* x_2, obj* x_3, uint8 x_4, obj* x_5) {
 _start:
 {
 obj* x_6; 
@@ -3629,17 +3623,19 @@ return x_23;
 }
 }
 }
+}
 obj* l_Lean_Environment_eraseAttribute___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4, obj* x_5) {
 _start:
 {
 uint8 x_6; obj* x_7; 
 x_6 = lean::unbox(x_4);
 lean::dec(x_4);
-x_7 = l_Lean_Environment_eraseAttribute(x_1, x_2, x_3, x_6, x_5);
+x_7 = lean::erase_attribure_core(x_1, x_2, x_3, x_6, x_5);
 return x_7;
 }
 }
-obj* l_Lean_Environment_activateScopedAttribute(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+namespace lean {
+obj* activate_scoped_attribute_core(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
 _start:
 {
 obj* x_5; 
@@ -3701,6 +3697,7 @@ x_20 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_20, 0, x_18);
 lean::cnstr_set(x_20, 1, x_19);
 return x_20;
+}
 }
 }
 }
@@ -3810,7 +3807,8 @@ return x_30;
 }
 }
 }
-obj* l_Lean_Environment_activateScopedAttributes(obj* x_1, obj* x_2, obj* x_3) {
+namespace lean {
+obj* activate_scoped_attributes_core(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; obj* x_5; 
@@ -3871,6 +3869,7 @@ x_20 = lean::alloc_cnstr(1, 2, 0);
 lean::cnstr_set(x_20, 0, x_18);
 lean::cnstr_set(x_20, 1, x_19);
 return x_20;
+}
 }
 }
 }

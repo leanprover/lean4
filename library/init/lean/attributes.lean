@@ -148,6 +148,7 @@ do m ← attributeMapRef.get,
 namespace Environment
 
 /- Return true iff `n` is the name of a registered attribute. -/
+@[export lean.is_attribute_core]
 def isAttribute (env : Environment) (n : Name) : IO Bool :=
 do m ← attributeMapRef.get, pure (m.contains n)
 
@@ -166,6 +167,7 @@ do m ← attributeMapRef.get,
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support `persistent == false`.
    - `args` is not valid for `attr`. -/
+@[export lean.add_attribure_core]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment :=
 do attr ← env.getAttributeImpl attrName,
    attr.add env decl args persistent
@@ -178,6 +180,7 @@ do attr ← env.getAttributeImpl attrName,
    - `args` is not valid for `attr`.
 
    Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
+@[export lean.add_scoped_attribure_core]
 def addScopedAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) : IO Environment :=
 do attr ← env.getAttributeImpl attrName,
    attr.addScoped env decl args
@@ -187,17 +190,20 @@ do attr ← env.getAttributeImpl attrName,
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support erasure.
    - `args` is not valid for `attr`. -/
+@[export lean.erase_attribure_core]
 def eraseAttribute (env : Environment) (decl : Name) (attrName : Name) (persistent := true) : IO Environment :=
 do attr ← env.getAttributeImpl attrName,
    attr.erase env decl persistent
 
 /- Activate the scoped attribute `attr` for all declarations in scope `scope`.
    We use this function to implement the command `open foo`. -/
+@[export lean.activate_scoped_attribute_core]
 def activateScopedAttribute (env : Environment) (attrName : Name) (scope : Name) : IO Environment :=
 do attr ← env.getAttributeImpl attrName,
    attr.activateScoped env scope
 
 /- Activate all scoped attributes at `scope` -/
+@[export lean.activate_scoped_attributes_core]
 def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment :=
 do attrs ← attributeArrayRef.get,
    attrs.mfoldl (λ env attr, attr.activateScoped env scope) env

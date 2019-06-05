@@ -154,7 +154,7 @@ int getopt_long(int argc, char *in_argv[], const char *optstring, const option *
 
 using namespace lean; // NOLINT
 
-object * lean_process_file(object * filename, object * contents, uint8 json, object * env, object * world);
+// object * lean_process_file(object * filename, object * contents, uint8 json, object * env, object * world);
 
 #ifndef LEAN_SERVER_DEFAULT_MAX_MEMORY
 #define LEAN_SERVER_DEFAULT_MAX_MEMORY 1024
@@ -505,6 +505,7 @@ int main(int argc, char ** argv) {
 
         bool ok;
         if (new_frontend) {
+#if 0
             env.set_main_module(main_module_name);
             // Some C++ parts like profiling need a global message log. We may want to refactor them into a
             // message_log-passing state monad in the future.
@@ -521,6 +522,7 @@ int main(int argc, char ** argv) {
                 ok = true;
                 env = environment(cnstr_get(io_result_get_value(res.raw()), 1), true);
             }
+#endif
         } else {
             message_log l;
             scope_message_log scope_log(l);

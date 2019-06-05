@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.environment init.lean.parser.syntax
+import init.lean.environment
 
 namespace Lean
-open Lean.Parser
+def Syntax := Unit -- Temporary hack
+def Syntax.missing := () -- Temporary hack
 
 /- Scope management -/
 

@@ -14,7 +14,6 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
-extern obj* l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
 obj* l_Lean_MessageLog_empty;
 obj* l_Lean_Message_toString___closed__2;
 obj* l_Lean_Message_toString___closed__1;
@@ -28,6 +27,7 @@ obj* l_Nat_repr(obj*);
 obj* l_List_foldr___main___at_Lean_MessageLog_hasErrors___spec__1___boxed(obj*, obj*);
 extern obj* l_EState_Result_toString___main___rarg___closed__2;
 uint8 l_Lean_MessageLog_hasErrors(obj*);
+obj* l_Lean_Message_toString___closed__4;
 namespace lean {
 obj* string_append(obj*, obj*);
 }
@@ -58,6 +58,14 @@ return x_1;
 }
 }
 obj* _init_l_Lean_Message_toString___closed__3() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string(":\n");
+return x_1;
+}
+}
+obj* _init_l_Lean_Message_toString___closed__4() {
 _start:
 {
 obj* x_1; 
@@ -105,7 +113,7 @@ x_20 = lean::string_append(x_14, x_17);
 if (x_18 == 0)
 {
 obj* x_21; obj* x_22; obj* x_23; obj* x_24; 
-x_21 = l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
+x_21 = l_Lean_Message_toString___closed__3;
 x_22 = lean::string_append(x_16, x_21);
 x_23 = lean::string_append(x_20, x_22);
 lean::dec(x_22);
@@ -129,12 +137,12 @@ obj* x_27; obj* x_28; obj* x_29;
 x_27 = lean::cnstr_get(x_1, 4);
 lean::inc(x_27);
 lean::dec(x_1);
-x_28 = l_Lean_Message_toString___closed__3;
+x_28 = l_Lean_Message_toString___closed__4;
 x_29 = lean::string_append(x_14, x_28);
 if (x_18 == 0)
 {
 obj* x_30; obj* x_31; obj* x_32; obj* x_33; 
-x_30 = l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
+x_30 = l_Lean_Message_toString___closed__3;
 x_31 = lean::string_append(x_16, x_30);
 x_32 = lean::string_append(x_29, x_31);
 lean::dec(x_31);
@@ -163,7 +171,7 @@ x_38 = lean::string_append(x_14, x_37);
 if (x_18 == 0)
 {
 obj* x_39; obj* x_40; obj* x_41; obj* x_42; 
-x_39 = l_Lean_Parser_Parsec_Message_toString___rarg___closed__3;
+x_39 = l_Lean_Message_toString___closed__3;
 x_40 = lean::string_append(x_16, x_39);
 x_41 = lean::string_append(x_38, x_40);
 lean::dec(x_40);
@@ -338,6 +346,8 @@ l_Lean_Message_toString___closed__2 = _init_l_Lean_Message_toString___closed__2(
 lean::mark_persistent(l_Lean_Message_toString___closed__2);
 l_Lean_Message_toString___closed__3 = _init_l_Lean_Message_toString___closed__3();
 lean::mark_persistent(l_Lean_Message_toString___closed__3);
+l_Lean_Message_toString___closed__4 = _init_l_Lean_Message_toString___closed__4();
+lean::mark_persistent(l_Lean_Message_toString___closed__4);
 l_Lean_Message_Inhabited = _init_l_Lean_Message_Inhabited();
 lean::mark_persistent(l_Lean_Message_Inhabited);
 l_Lean_Message_HasToString = _init_l_Lean_Message_HasToString();

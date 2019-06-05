@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.name_mangling
-// Imports: init.lean.name init.lean.parser.stringliteral
+// Imports: init.lean.name
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -318,15 +318,12 @@ return x_4;
 }
 }
 obj* initialize_init_lean_name(obj*);
-obj* initialize_init_lean_parser_stringliteral(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_name__mangling(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_stringliteral(w);
 if (io_result_is_error(w)) return w;
 l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__1 = _init_l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__1();
 lean::mark_persistent(l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__1);

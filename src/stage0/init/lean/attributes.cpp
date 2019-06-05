@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.attributes
-// Imports: init.lean.environment init.lean.parser.syntax
+// Imports: init.lean.environment
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -166,6 +166,7 @@ obj* l_Lean_Environment_pushScopeCore(obj*, obj*, uint8);
 obj* l_AssocList_replace___main___at_Lean_registerAttribute___spec__7(obj*, obj*, obj*);
 obj* l_Lean_Environment_isNamespace___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_getAttributeNames___spec__2___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_Syntax_missing;
 obj* l_Lean_attributeMapRef;
 obj* l_Lean_Environment_hasOpenScopes___boxed(obj*);
 namespace lean {
@@ -186,6 +187,14 @@ obj* l_Lean_Environment_eraseAttribute___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_Environment_isAttribute(obj*);
 obj* l_Lean_regScopeManagerExtension___lambda__3(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Environment_getAttributeNames___spec__2(obj*, obj*, obj*, obj*);
+obj* _init_l_Lean_Syntax_missing() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::box(0);
+return x_1;
+}
+}
 obj* _init_l_Lean_ScopeManagerState_Inhabited() {
 _start:
 {
@@ -4408,7 +4417,6 @@ return x_6;
 }
 }
 obj* initialize_init_lean_environment(obj*);
-obj* initialize_init_lean_parser_syntax(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_attributes(obj* w) {
 if (_G_initialized) return w;
@@ -4416,8 +4424,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_parser_syntax(w);
-if (io_result_is_error(w)) return w;
+l_Lean_Syntax_missing = _init_l_Lean_Syntax_missing();
+lean::mark_persistent(l_Lean_Syntax_missing);
 l_Lean_ScopeManagerState_Inhabited = _init_l_Lean_ScopeManagerState_Inhabited();
 lean::mark_persistent(l_Lean_ScopeManagerState_Inhabited);
 l_Lean_regScopeManagerExtension___lambda__2___closed__1 = _init_l_Lean_regScopeManagerExtension___lambda__2___closed__1();

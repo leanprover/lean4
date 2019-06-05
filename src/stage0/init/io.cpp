@@ -20,6 +20,9 @@ obj* l_IO_println(obj*);
 obj* l_IO_Ref_set___boxed(obj*, obj*);
 obj* l_IO_Fs_handle_isEof___at_IO_Fs_handle_readToEnd___spec__1___boxed(obj*, obj*);
 obj* l_ioOfExcept___rarg(obj*, obj*, obj*);
+namespace lean {
+obj* io_error_to_string_core(obj*);
+}
 obj* l_IO_Ref_get___rarg(obj*, obj*, obj*);
 obj* l_EState_Monad(obj*, obj*);
 obj* l_IO_Ref_swap___boxed(obj*, obj*);
@@ -32,7 +35,6 @@ obj* l_IO_Ref_swap(obj*, obj*);
 obj* l_EIO_Inhabited___rarg(obj*);
 obj* l_HasRepr_HasEval___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_swap___boxed(obj*, obj*, obj*, obj*);
-obj* l_IO_error_Inhabited;
 obj* l_IO_Fs_handle_mk(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_is_eof(obj*, obj*);
 obj* l_IO_println___at_HasRepr_HasEval___spec__1___boxed(obj*, obj*);
@@ -42,6 +44,7 @@ obj* l_IO_print___boxed(obj*, obj*);
 obj* l_IO_print___at_HasRepr_HasEval___spec__2___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3___boxed(obj*, obj*, obj*);
 obj* l_IO_Ref_reset___rarg(obj*, obj*, obj*);
+obj* l_IO_Error_Inhabited;
 obj* l_EIO_Inhabited(obj*, obj*);
 obj* l_unsafeIO(obj*);
 obj* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3(obj*, obj*, obj*);
@@ -64,6 +67,7 @@ obj* l_IO_Prim_Ref_get___boxed(obj*, obj*, obj*);
 extern "C" obj* lean_io_prim_get_line(obj*);
 extern "C" obj* lean_io_allocprof(obj*, obj*, obj*, obj*);
 obj* l_IO_Ref_set___rarg(obj*, obj*, obj*, obj*);
+obj* l_IO_Error_HasToString;
 obj* l_IO_print___rarg(obj*, obj*, obj*, obj*);
 obj* l_IO_userError___boxed(obj*);
 obj* l_IO_Prim_getLine___boxed(obj*);
@@ -86,7 +90,6 @@ obj* l_IO_Prim_liftIO(obj*, obj*);
 obj* l_IO_Inhabited(obj*);
 obj* l_IO_Ref_modify___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_handle_close___boxed(obj*, obj*);
-obj* l_IO_error_HasToString;
 obj* l_IO_Prim_handle_flush___boxed(obj*, obj*);
 obj* l_IO_println___boxed(obj*);
 obj* l_ioOfExcept(obj*, obj*);
@@ -204,7 +207,7 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_EIO_Inhabited___rarg), 1, 0)
 return x_3;
 }
 }
-obj* _init_l_IO_error_HasToString() {
+obj* _init_l_IO_Error_HasToString() {
 _start:
 {
 obj* x_1; 
@@ -212,7 +215,7 @@ x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_String_HasToString___boxed),
 return x_1;
 }
 }
-obj* _init_l_IO_error_Inhabited() {
+obj* _init_l_IO_Error_Inhabited() {
 _start:
 {
 obj* x_1; 
@@ -234,6 +237,14 @@ obj* x_2;
 x_2 = l_IO_userError(x_1);
 lean::dec(x_1);
 return x_2;
+}
+}
+namespace lean {
+obj* io_error_to_string_core(obj* x_1) {
+_start:
+{
+return x_1;
+}
 }
 }
 obj* _init_l_unsafeIO___rarg___closed__1() {
@@ -1733,10 +1744,10 @@ l_EIO_Monad___closed__1 = _init_l_EIO_Monad___closed__1();
 lean::mark_persistent(l_EIO_Monad___closed__1);
 l_EIO_MonadExcept___closed__1 = _init_l_EIO_MonadExcept___closed__1();
 lean::mark_persistent(l_EIO_MonadExcept___closed__1);
-l_IO_error_HasToString = _init_l_IO_error_HasToString();
-lean::mark_persistent(l_IO_error_HasToString);
-l_IO_error_Inhabited = _init_l_IO_error_Inhabited();
-lean::mark_persistent(l_IO_error_Inhabited);
+l_IO_Error_HasToString = _init_l_IO_Error_HasToString();
+lean::mark_persistent(l_IO_Error_HasToString);
+l_IO_Error_Inhabited = _init_l_IO_Error_Inhabited();
+lean::mark_persistent(l_IO_Error_Inhabited);
 l_unsafeIO___rarg___closed__1 = _init_l_unsafeIO___rarg___closed__1();
 lean::mark_persistent(l_unsafeIO___rarg___closed__1);
 l_IO_println___rarg___closed__1 = _init_l_IO_println___rarg___closed__1();

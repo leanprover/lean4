@@ -18,6 +18,7 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include "runtime/hash.h"
 #include "runtime/io.h"
 #include "runtime/compact.h"
+#include "util/io.h"
 #include "util/lean_path.h"
 #include "util/buffer.h"
 #include "util/name_map.h"
@@ -204,13 +205,7 @@ def writeModule (env : Environment) (fname : String) : IO Unit := */
 object * write_module_core(object * env, object * fname, object * w);
 
 void write_module(environment const & env, std::string const & olean_fn) {
-    object * r = write_module_core(env.to_obj_arg(), mk_string(olean_fn), io_mk_world());
-    if (io_result_is_error(r)) {
-        dec_ref(r);
-        throw exception(sstream() << "failed to write module '" << olean_fn << "'");
-    } else {
-        dec_ref(r);
-    }
+    consume_io_result(write_module_core(env.to_obj_arg(), mk_string(olean_fn), io_mk_world()));
 }
 
 /*
@@ -221,16 +216,7 @@ object * import_modules_core(object * mod_names, uint32 trust_level, object * w)
 
 environment import_modules(unsigned trust_lvl, std::vector<module_name> const & imports) {
     names mods(imports.begin(), imports.end());
-    object * r = import_modules_core(mods.steal(), trust_lvl, io_mk_world());
-    if (io_result_is_error(r)) {
-        dec_ref(r);
-        io_result_show_error(r); // TODO(Leo): move to exception
-        throw exception("failed to import modules");
-    } else {
-        environment env(io_result_get_value(r), true);
-        dec_ref(r);
-        return env;
-    }
+    return get_io_result<environment>(import_modules_core(mods.steal(), trust_lvl, io_mk_world()));
 }
 
 object * environment_add_modification_core(object * env, object * mod);

@@ -30,12 +30,16 @@ In the future, we may want to give more concrete data
 like in https://doc.rust-lang.org/std/IO/enum.ErrorKind.html
 -/
 @[derive HasToString Inhabited]
-def IO.error := String
+def IO.Error := String
 
-def IO.userError (s : String) : IO.error :=
+def IO.userError (s : String) : IO.Error :=
 s
 
-abbrev IO : Type → Type := EIO IO.error
+@[export lean.io_error_to_string_core]
+def IO.Error.toString : IO.Error → String :=
+id
+
+abbrev IO : Type → Type := EIO IO.Error
 
 @[inline]
 unsafe def unsafeIO {α : Type} (fn : IO α) : Option α :=

@@ -10,6 +10,7 @@ Author: Leonardo de Moura
 #include "runtime/sstream.h"
 #include "runtime/thread.h"
 #include "util/map_foreach.h"
+#include "util/io.h"
 #include "kernel/environment.h"
 #include "kernel/kernel_exception.h"
 #include "kernel/type_checker.h"
@@ -28,13 +29,8 @@ object* set_extension_core(object*, object*, object*);
 object* environment_set_main_module_core(object*, object*);
 object* environment_main_module_core(object*);
 
-object* mk_empty_environment(uint32 trust_lvl) {
-    object* r = mk_empty_environment_core(trust_lvl, io_mk_world());
-    if (io_result_is_error(r)) { dec(r); throw exception("error creating empty environment"); }
-    object* env = io_result_get_value(r);
-    inc(env);
-    dec(r);
-    return env;
+environment mk_empty_environment(uint32 trust_lvl) {
+    return get_io_result<environment>(mk_empty_environment_core(trust_lvl, io_mk_world()));
 }
 
 environment::environment(unsigned trust_lvl):

@@ -251,5 +251,20 @@ protected partial def formatStx : Syntax → Format
 
 instance : HasFormat Syntax := ⟨Syntax.formatStx⟩
 instance : HasToString Syntax := ⟨toString ∘ format⟩
+
+/- Helper functions for creating Syntax objects using C++ -/
+
+@[export lean.mk_syntax_atom_core]
+def mkSimpleAtom (val : String) : Syntax :=
+atom none val
+
+@[export lean.mk_syntax_ident_core]
+def mkSimpleIdent (val : Name) : Syntax :=
+ident none (toString val).toSubstring val [] []
+
+@[export lean.mk_syntax_list_core]
+def mkListNode (args : Array Syntax) : Syntax :=
+node nullKind args []
+
 end Syntax
 end Lean

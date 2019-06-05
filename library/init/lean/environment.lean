@@ -126,7 +126,7 @@ instance EnvExtension.Inhabited (σ : Type) [Inhabited σ] : Inhabited (EnvExten
 unsafe def registerEnvExtensionUnsafe {σ : Type} (initState : σ) : IO (EnvExtension σ) :=
 do
 initializing ← IO.initializing,
-unless initializing $ throw (IO.userError ("Failed to register environment, extensions can only be registered during initialization")),
+unless initializing $ throw (IO.userError ("failed to register environment, extensions can only be registered during initialization")),
 exts ← envExtensionsRef.get,
 let idx := exts.size,
 let ext : EnvExtension σ := {
@@ -150,7 +150,7 @@ do exts ← envExtensionsRef.get, pure $ exts.map $ λ ext, ext.initial
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment :=
 do
 initializing ← IO.initializing,
-when initializing $ throw (IO.userError "Environment objects cannot be created during initialization"),
+when initializing $ throw (IO.userError "environment objects cannot be created during initialization"),
 exts ← mkInitialExtensionStates,
 pure { const2ModIdx := {},
        constants    := {},

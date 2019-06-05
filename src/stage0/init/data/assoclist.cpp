@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.data.assoclist
-// Imports: init.core
+// Imports: init.control.id
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -15,11 +15,15 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* l_AssocList_foldl___rarg(obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___boxed(obj*, obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(obj*, obj*, obj*);
 obj* l_AssocList_replace___main(obj*, obj*);
 obj* l_AssocList_erase___rarg(obj*, obj*, obj*);
 obj* l_AssocList_find___main(obj*, obj*);
+obj* l_AssocList_mfoldl(obj*, obj*, obj*, obj*);
 obj* l_AssocList_erase___main___rarg(obj*, obj*, obj*);
 obj* l_AssocList_contains___rarg___boxed(obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_AssocList_contains(obj*, obj*);
 obj* l_AssocList_find___rarg(obj*, obj*, obj*);
 obj* l_AssocList_find___main___rarg(obj*, obj*, obj*);
@@ -29,14 +33,106 @@ uint8 l_AssocList_contains___main___rarg(obj*, obj*, obj*);
 obj* l_AssocList_foldl(obj*, obj*, obj*);
 obj* l_AssocList_replace___main___rarg(obj*, obj*, obj*, obj*);
 obj* l_AssocList_replace(obj*, obj*);
+obj* l_AssocList_mfoldl___main(obj*, obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___rarg(obj*, obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(obj*, obj*, obj*);
 obj* l_AssocList_erase(obj*, obj*);
 obj* l_AssocList_find(obj*, obj*);
+obj* l_AssocList_mfoldl___main___rarg___lambda__1(obj*, obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_AssocList_erase___main(obj*, obj*);
 obj* l_AssocList_replace___rarg(obj*, obj*, obj*, obj*);
 obj* l_AssocList_contains___main(obj*, obj*);
-obj* l_AssocList_foldl___main(obj*, obj*, obj*);
-obj* l_AssocList_foldl___main___rarg(obj*, obj*, obj*);
-obj* l_AssocList_foldl___main___rarg(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_AssocList_mfoldl___main___rarg___lambda__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_AssocList_mfoldl___main___rarg(x_1, x_2, x_4, x_3);
+return x_5;
+}
+}
+obj* l_AssocList_mfoldl___main___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_5; obj* x_6; obj* x_7; 
+lean::dec(x_2);
+x_5 = lean::cnstr_get(x_1, 0);
+lean::inc(x_5);
+lean::dec(x_1);
+x_6 = lean::cnstr_get(x_5, 1);
+lean::inc(x_6);
+lean::dec(x_5);
+x_7 = lean::apply_2(x_6, lean::box(0), x_3);
+return x_7;
+}
+else
+{
+obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+x_9 = lean::cnstr_get(x_4, 1);
+lean::inc(x_9);
+x_10 = lean::cnstr_get(x_4, 2);
+lean::inc(x_10);
+lean::dec(x_4);
+x_11 = lean::cnstr_get(x_1, 1);
+lean::inc(x_11);
+lean::inc(x_2);
+x_12 = lean::apply_3(x_2, x_3, x_8, x_9);
+x_13 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___main___rarg___lambda__1), 4, 3);
+lean::closure_set(x_13, 0, x_1);
+lean::closure_set(x_13, 1, x_2);
+lean::closure_set(x_13, 2, x_10);
+x_14 = lean::apply_4(x_11, lean::box(0), lean::box(0), x_12, x_13);
+return x_14;
+}
+}
+}
+obj* l_AssocList_mfoldl___main(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___main___rarg), 4, 0);
+return x_5;
+}
+}
+obj* l_AssocList_mfoldl___main___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_AssocList_mfoldl___main(x_1, x_2, x_3, x_4);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* l_AssocList_mfoldl___rarg(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_AssocList_mfoldl___main___rarg(x_1, x_2, x_3, x_4);
+return x_5;
+}
+}
+obj* l_AssocList_mfoldl(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___rarg), 4, 0);
+return x_5;
+}
+}
+obj* l_AssocList_mfoldl___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_AssocList_mfoldl(x_1, x_2, x_3, x_4);
+lean::dec(x_4);
+return x_5;
+}
+}
+obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_3) == 0)
@@ -62,11 +158,11 @@ goto _start;
 }
 }
 }
-obj* l_AssocList_foldl___main(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_foldl___main___rarg), 3, 0);
+x_4 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg), 3, 0);
 return x_4;
 }
 }
@@ -74,7 +170,7 @@ obj* l_AssocList_foldl___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_AssocList_foldl___main___rarg(x_1, x_2, x_3);
+x_4 = l_AssocList_mfoldl___main___at_AssocList_foldl___spec__1___rarg(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -451,13 +547,13 @@ x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_AssocList_erase___rarg), 3, 
 return x_3;
 }
 }
-obj* initialize_init_core(obj*);
+obj* initialize_init_control_id(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_data_assoclist(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_core(w);
+w = initialize_init_control_id(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

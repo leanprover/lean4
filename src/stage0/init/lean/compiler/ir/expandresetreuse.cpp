@@ -27,7 +27,6 @@ obj* l_Array_ummapAux___main___at_Lean_IR_ExpandResetReuse_searchAndExpand___mai
 obj* l_Lean_IR_ExpandResetReuse_reuseToCtor___boxed(obj*, obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_mkSlowPath___boxed(obj*, obj*, obj*, obj*);
-obj* l_AssocList_foldl___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__5(obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_mkFastPath(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_isSelfUSet___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_ExpandResetReuse_searchAndExpand___main(obj*, obj*, obj*, obj*);
@@ -147,6 +146,7 @@ obj* l_HashMapImp_find___at_Lean_IR_ExpandResetReuse_isSelfSet___spec__1(obj*, o
 obj* l_Lean_IR_ExpandResetReuse_setFields___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_IR_Arg_Inhabited;
 extern obj* l_Lean_IR_Inhabited;
+obj* l_AssocList_mfoldl___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__5(obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__2(obj* x_1, obj* x_2) {
 _start:
 {
@@ -176,7 +176,7 @@ return x_8;
 }
 }
 }
-obj* l_AssocList_foldl___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__5(obj* x_1, obj* x_2) {
+obj* l_AssocList_mfoldl___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__5(obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
@@ -257,7 +257,7 @@ obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11;
 x_6 = lean::array_fget(x_2, x_1);
 x_7 = lean::box(0);
 x_8 = lean::array_fset(x_2, x_1, x_7);
-x_9 = l_AssocList_foldl___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__5(x_3, x_6);
+x_9 = l_AssocList_mfoldl___main___at_Lean_IR_ExpandResetReuse_CollectProjMap_collectVDecl___spec__5(x_3, x_6);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_1, x_10);
 lean::dec(x_1);

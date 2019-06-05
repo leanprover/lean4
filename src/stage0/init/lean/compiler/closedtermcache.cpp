@@ -28,6 +28,7 @@ namespace lean {
 obj* cache_closed_term_name_core(obj*, obj*, obj*);
 }
 obj* l_AssocList_replace___main___at_Lean_mkClosedTermCacheExtension___spec__9(obj*, obj*, obj*);
+obj* l_AssocList_mfoldl___main___at_Lean_mkClosedTermCacheExtension___spec__8(obj*, obj*);
 obj* l_Lean_mkClosedTermCacheExtension___closed__1;
 obj* l_Lean_SMap_insert___main___at_Lean_mkClosedTermCacheExtension___spec__1(obj*, obj*, obj*);
 obj* l_Lean_Expr_quickLt___boxed(obj*, obj*);
@@ -55,7 +56,6 @@ obj* l_Lean_mkClosedTermCacheExtension___lambda__3(obj*);
 namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
-obj* l_AssocList_foldl___main___at_Lean_mkClosedTermCacheExtension___spec__8(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg(obj*, obj*);
@@ -2579,7 +2579,7 @@ return x_8;
 }
 }
 }
-obj* l_AssocList_foldl___main___at_Lean_mkClosedTermCacheExtension___spec__8(obj* x_1, obj* x_2) {
+obj* l_AssocList_mfoldl___main___at_Lean_mkClosedTermCacheExtension___spec__8(obj* x_1, obj* x_2) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
@@ -2660,7 +2660,7 @@ obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11;
 x_6 = lean::array_fget(x_2, x_1);
 x_7 = lean::box(0);
 x_8 = lean::array_fset(x_2, x_1, x_7);
-x_9 = l_AssocList_foldl___main___at_Lean_mkClosedTermCacheExtension___spec__8(x_3, x_6);
+x_9 = l_AssocList_mfoldl___main___at_Lean_mkClosedTermCacheExtension___spec__8(x_3, x_6);
 x_10 = lean::mk_nat_obj(1u);
 x_11 = lean::nat_add(x_1, x_10);
 lean::dec(x_1);

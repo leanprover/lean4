@@ -42,8 +42,17 @@ def mkIdx {n : Nat} (h : n > 0) (u : USize) : { u : USize // u.toNat < n } :=
 let ⟨i, h⟩ := mkIdx data.property (hashFn a) in
 data.update i (AssocList.cons a b (data.val.uget i h)) h
 
+@[inline] def mfoldBuckets {δ : Type w} {m : Type w → Type w} [Monad m] (data : HashMapBucket α β) (d : δ) (f : δ → α → β → m δ) : m δ :=
+data.val.mfoldl (λ d b, b.mfoldl f d) d
+
 @[inline] def foldBuckets {δ : Type w} (data : HashMapBucket α β) (d : δ) (f : δ → α → β → δ) : δ :=
-data.val.foldl (λ d b, b.foldl f d) d
+Id.run $ mfoldBuckets data d f
+
+@[inline] def mfold {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMapImp α β) : m δ :=
+mfoldBuckets h.buckets d f
+
+@[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
+foldBuckets m.buckets d f
 
 def find [HasBeq α] [Hashable α] (m : HashMapImp α β) (a : α) : Option β :=
 match m with
@@ -56,9 +65,6 @@ match m with
 | ⟨_, buckets⟩ :=
   let ⟨i, h⟩ := mkIdx buckets.property (hash a) in
   (buckets.val.uget i h).contains a
-
-@[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMapImp α β) : δ :=
-foldBuckets m.buckets d f
 
 -- TODO: remove `partial` by using well-founded recursion
 partial def moveEntries [Hashable α] : Nat → Array (AssocList α β) → HashMapBucket α β → HashMapBucket α β
@@ -141,6 +147,10 @@ match m with
 @[inline] def contains (m : HashMap α β) (a : α) : Bool :=
 match m with
 | ⟨ m, _ ⟩ := m.contains a
+
+@[inline] def mfold {δ : Type w} {m : Type w → Type w} [Monad m] (f : δ → α → β → m δ) (d : δ) (h : HashMap α β) : m δ :=
+match h with
+| ⟨ h, _ ⟩ := h.mfold f d
 
 @[inline] def fold {δ : Type w} (f : δ → α → β → δ) (d : δ) (m : HashMap α β) : δ :=
 match m with

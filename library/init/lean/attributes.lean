@@ -66,109 +66,98 @@ else s.namespaces.foldl
 
 end Environment
 
+structure AttributeImpl :=
+(name : Name)
+(descr : String)
+(add (env : Environment) (decl : Name) (args : Syntax) (persistent : Bool) : IO Environment)
+(addScoped (env : Environment) (decl : Name) (args : Syntax) : IO Environment
+           := throw (IO.userError ("attribute '" ++ toString name ++ "' does not support scopes")))
+(erase (env : Environment) (decl : Name) (persistent : Bool) : IO Environment
+       := throw (IO.userError ("attribute '" ++ toString name ++ "' does not support removal")))
+(activateScoped (env : Environment) (scope : Name) : IO Environment := pure env)
+(pushScope (env : Environment) : IO Environment := pure env)
+(popScope (env : Environment) : IO Environment := pure env)
+
+def mkAttributeMapRef : IO (IO.Ref (HashMap Name AttributeImpl)) :=
+IO.mkRef {}
+
+@[init mkAttributeMapRef]
+constant attributeMapRef : IO.Ref (HashMap Name AttributeImpl) := default _
+
+/- Low level attribute registration function. -/
+def registerAttribute (attr : AttributeImpl) : IO Unit :=
+do m ← attributeMapRef.get,
+   when (m.contains attr.name) $ throw (IO.userError ("invalid attribute declaration, '" ++ toString attr.name ++ "' has already been used")),
+   initializing ← IO.initializing,
+   unless initializing $ throw (IO.userError ("failed to register attribute, attributes can only be registered during initialization")),
+   attributeMapRef.modify (λ m, m.insert attr.name attr)
 
 namespace Environment
 
 /- Return true iff `n` is the name of a registered attribute. -/
-def isAttribute (env : Environment) (n : Name) : Bool :=
-false -- TODO
+def isAttribute (env : Environment) (n : Name) : IO Bool :=
+do m ← attributeMapRef.get, pure (m.contains n)
 
 /- Return the name of all registered attributes. -/
-def getAttributes (env : Environment) : Array Name :=
-Array.empty -- TODO
+def getAttributeNames (env : Environment) : IO (List Name) :=
+do m ← attributeMapRef.get, pure $ m.fold (λ r n _, n::r) []
+
+def getAttributeImpl (env : Environment) (attrName : Name) : IO AttributeImpl :=
+do m ← attributeMapRef.get,
+   match m.find attrName with
+   | some attr := pure attr
+   | none      := throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 
 /- Add attribute `attr` to declaration `decl` with arguments `args`. If `persistent == true`, then attribute is saved on .olean file.
-   It returns `Except.error` when
-   - `decl` is not the name of a declaration in `env`.
+   It throws an error when
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support `persistent == false`.
    - `args` is not valid for `attr`. -/
-def addAttribute (env : Environment) (decl : Name) (attr : Name) (args : Syntax := Syntax.missing) (persistent := true) : ExceptT String Id Environment :=
-pure env -- TODO
+def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment :=
+do attr ← env.getAttributeImpl attrName,
+   attr.add env decl args persistent
 
 /- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.
    Scoped attributes are always persistent.
    It returns `Except.error` when
-   - `decl` is not the name of a declaration in `env`.
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support scoped attributes.
    - `args` is not valid for `attr`.
 
    Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
-def addScopedAttribute (env : Environment) (decl : Name) (attr : Name) (args : Syntax := Syntax.missing) : ExceptT String Id Environment :=
-pure env -- TODO
+def addScopedAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) : IO Environment :=
+do attr ← env.getAttributeImpl attrName,
+   attr.addScoped env decl args
 
 /- Remove attribute `attr` from declaration `decl`. The effect is the current scope.
    It returns `Except.error` when
-   - `decl` is not the name of a declaration in `env`.
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support erasure.
    - `args` is not valid for `attr`. -/
-def eraseAttribute (env : Environment) (decl : Name) (attr : Name) : ExceptT String Id Environment :=
-pure env -- TODO
+def eraseAttribute (env : Environment) (decl : Name) (attrName : Name) (persistent := true) : IO Environment :=
+do attr ← env.getAttributeImpl attrName,
+   attr.erase env decl persistent
 
 /- Activate the scoped attribute `attr` for all declarations in scope `scope`.
    We use this function to implement the command `open foo`. -/
-def activateScopedAttribute (env : Environment) (attr : Name) (scope : Name) : Environment :=
-env -- TODO
+def activateScopedAttribute (env : Environment) (attrName : Name) (scope : Name) : IO Environment :=
+do attr ← env.getAttributeImpl attrName,
+   attr.activateScoped env scope
 
 /- Activate all scoped attributes at `scope` -/
-def activateScopedAttributes (env : Environment) (scope : Name) : Environment :=
-let attrs := env.getAttributes in
-attrs.foldl (λ env attr, env.activateScopedAttribute attr scope) env
+def activateScopedAttributes (env : Environment) (scope : Name) : IO Environment :=
+do m ← attributeMapRef.get,
+   m.mfold (λ env _ attr, attr.activateScoped env scope) env
 
 /- We use this function to implement commands `namespace foo` and `section foo`.
-
    It activates scoped attributes in the new resulting namespace. -/
-def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : Environment :=
-env -- TODO
+def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : IO Environment :=
+pure env -- TODO
 
 /- We use this function to implement commands `end foo` for closing namespaces and sections. -/
-def popScope (env : Environment) : Environment :=
-env -- TODO
+def popScope (env : Environment) : IO Environment :=
+pure env -- TODO
 
 end Environment
 
-/-
-structure AttributeEntry :=
-(decl  : Name := default _)
-(args  : Syntax := default _)
-(scope : Option Name := none)
-(nonLocal : Bool := false)
-
-namespace AttributeEntry
-instance : Inhabited AttributeEntry := ⟨{}⟩
-end AttributeEntry
-
-/- Create an array of entries to be saved on .olean file.
-   We assume entries may contain duplicates, but we assume the one that occurs last is the most recent one. -/
-def mkAttributeEntryArray (entries : List AttributeEntry) : Array AttributeEntry :=
-let map : HashMap Name AttributeEntry := {} in
-let map := entries.foldl (λ (map : HashMap Name AttributeEntry) entry, map.insert entry.decl entry) map in
-let entries : Array AttributeEntry := map.fold (λ a k v, a.push v) Array.empty in
-entries.qsort (λ a b, Name.quickLt a.decl b.decl)
-
-structure AttributeState (σ : Type) :=
-(importedEntries : Array (Array AttributeEntry))
-(importedState   : Thunk σ)
-(scopes          : List (List AttributeEntry × Option σ) := [])
-(scopedEntries   : SMap Name AttributeEntry Name.quickLt := {})
-
-structure AttributeDescr (σ : Type) :=
-(name : Name)
-(initState : σ)
-(addEntryFn : Bool → AttributeEntry → σ → σ)
-/- If `eraseEntryFn == some g`, then we can remove attributes -/
-(eraseEntryFn : Option (AttributeEntry → σ → σ) := none)
-/- If `updateEnvFn == some g`, then `g` is invoked whenever an attribute entry is activated. -/
-(updateEnvFn : Option (AttributeEntry → Environment → Environment) := none)
-/- If `nonLocalEntries == true`, then an attribute for a declaration `f` may be set in a module different from the module where `f` was declared. -/
-(nonLocalEntries : Bool := false)
-(scopedEntries : Bool := false)
-
-structure AttributeExtension (σ : Type) :=
-(descr : AttributeDescr σ)
-(ext   : EnvExtension (AttributeState σ))
-
--/
 end Lean

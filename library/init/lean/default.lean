@@ -10,3 +10,4 @@ import init.lean.extern
 import init.lean.environment
 import init.lean.modifiers
 import init.lean.runtime
+import init.lean.attributes

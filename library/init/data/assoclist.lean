@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 -/
 prelude
-import init.core
+import init.control.id
 universes u v w
 
 /- List-like type to avoid extra level of indirection -/
@@ -13,11 +13,14 @@ inductive AssocList (α : Type u) (β : Type v)
 | cons (key : α) (value : β) (tail : AssocList) : AssocList
 
 namespace AssocList
-variables {α : Type u} {β : Type v} {δ : Type w}
+variables {α : Type u} {β : Type v} {δ : Type w} {m : Type w → Type w} [Monad m]
 
-@[specialize] def foldl (f : δ → α → β → δ) : δ → AssocList α β → δ
-| d nil           := d
-| d (cons a b es) := foldl (f d a b) es
+@[specialize] def mfoldl (f : δ → α → β → m δ) : δ → AssocList α β → m δ
+| d nil           := pure d
+| d (cons a b es) := do d ← f d a b, mfoldl d es
+
+@[inline] def foldl (f : δ → α → β → δ) (d : δ) (as : AssocList α β) : δ :=
+Id.run (mfoldl f d as)
 
 def find [HasBeq α] (a : α) : AssocList α β → Option β
 | nil           := none

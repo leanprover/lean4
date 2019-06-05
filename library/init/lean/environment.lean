@@ -202,6 +202,12 @@ ext.toEnvExtension.modifyState env $ λ s,
 def getState {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) : σ :=
 (ext.toEnvExtension.getState env).state
 
+def setState {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
+ext.toEnvExtension.modifyState env $ λ ps, { state := s, .. ps }
+
+def modifyState {α σ : Type} (ext : PersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
+ext.toEnvExtension.modifyState env $ λ ps, { state := f (ps.state), .. ps }
+
 end PersistentEnvExtension
 
 private def mkPersistentEnvExtensionsRef : IO (IO.Ref (Array (PersistentEnvExtension EnvExtensionEntry EnvExtensionState))) :=
@@ -272,6 +278,12 @@ def getEntries {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : 
 
 def getState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) : σ :=
 (PersistentEnvExtension.getState ext env).2
+
+def setState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (s : σ) : Environment :=
+PersistentEnvExtension.modifyState ext env (λ ⟨entries, _⟩, (entries, s))
+
+def modifyState {α σ : Type} (ext : SimplePersistentEnvExtension α σ) (env : Environment) (f : σ → σ) : Environment :=
+PersistentEnvExtension.modifyState ext env (λ ⟨entries, s⟩, (entries, f s))
 
 end SimplePersistentEnvExtension
 

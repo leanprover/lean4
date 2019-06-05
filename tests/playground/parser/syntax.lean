@@ -148,7 +148,7 @@ def flipScopes (scopes : MacroScopes) : Syntax → Syntax
 @[inline] def toSyntaxNode {α : Type} (s : Syntax) (base : α) (fn : SyntaxNode → α) : α :=
 match s with
 | Syntax.node kind args []     := fn ⟨Syntax.node kind args [], IsNode.mk _ _ _⟩
-| Syntax.node kind args scopes := fn ⟨Syntax.node kind (args.hmap (flipScopes scopes)) [], IsNode.mk _ _ _⟩
+| Syntax.node kind args scopes := fn ⟨Syntax.node kind (args.map (flipScopes scopes)) [], IsNode.mk _ _ _⟩
 | other                        := base
 
 local attribute [instance] monadInhabited

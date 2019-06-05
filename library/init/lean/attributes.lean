@@ -67,6 +67,68 @@ else s.namespaces.foldl
 end Environment
 
 
+namespace Environment
+
+/- Return true iff `n` is the name of a registered attribute. -/
+def isAttribute (env : Environment) (n : Name) : Bool :=
+false -- TODO
+
+/- Return the name of all registered attributes. -/
+def getAttributes (env : Environment) : Array Name :=
+Array.empty -- TODO
+
+/- Add attribute `attr` to declaration `decl` with arguments `args`. If `persistent == true`, then attribute is saved on .olean file.
+   It returns `Except.error` when
+   - `decl` is not the name of a declaration in `env`.
+   - `attr` is not the name of an attribute registered in the system.
+   - `attr` does not support `persistent == false`.
+   - `args` is not valid for `attr`. -/
+def addAttribute (env : Environment) (decl : Name) (attr : Name) (args : Syntax := Syntax.missing) (persistent := true) : ExceptT String Id Environment :=
+pure env -- TODO
+
+/- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.
+   Scoped attributes are always persistent.
+   It returns `Except.error` when
+   - `decl` is not the name of a declaration in `env`.
+   - `attr` is not the name of an attribute registered in the system.
+   - `attr` does not support scoped attributes.
+   - `args` is not valid for `attr`.
+
+   Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
+def addScopedAttribute (env : Environment) (decl : Name) (attr : Name) (args : Syntax := Syntax.missing) : ExceptT String Id Environment :=
+pure env -- TODO
+
+/- Remove attribute `attr` from declaration `decl`. The effect is the current scope.
+   It returns `Except.error` when
+   - `decl` is not the name of a declaration in `env`.
+   - `attr` is not the name of an attribute registered in the system.
+   - `attr` does not support erasure.
+   - `args` is not valid for `attr`. -/
+def eraseAttribute (env : Environment) (decl : Name) (attr : Name) : ExceptT String Id Environment :=
+pure env -- TODO
+
+/- Activate the scoped attribute `attr` for all declarations in scope `scope`.
+   We use this function to implement the command `open foo`. -/
+def activateScopedAttribute (env : Environment) (attr : Name) (scope : Name) : Environment :=
+env -- TODO
+
+/- Activate all scoped attributes at `scope` -/
+def activateScopedAttributes (env : Environment) (scope : Name) : Environment :=
+let attrs := env.getAttributes in
+attrs.foldl (λ env attr, env.activateScopedAttribute attr scope) env
+
+/- We use this function to implement commands `namespace foo` and `section foo`.
+
+   It activates scoped attributes in the new resulting namespace. -/
+def pushScope (env : Environment) (header : Name) (isNamespace : Bool) : Environment :=
+env -- TODO
+
+/- We use this function to implement commands `end foo` for closing namespaces and sections. -/
+def popScope (env : Environment) : Environment :=
+env -- TODO
+
+end Environment
+
 /-
 structure AttributeEntry :=
 (decl  : Name := default _)

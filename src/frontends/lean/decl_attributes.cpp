@@ -6,6 +6,7 @@ Author: Leonardo de Moura
 */
 #include "kernel/replace_fn.h"
 #include "util/option_declarations.h"
+#include "util/io.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/class.h"
@@ -19,6 +20,28 @@ Author: Leonardo de Moura
 
 namespace lean {
 // ==========================================
+// New attribute manager API
+object* is_attribute_core(object* env, object* n, object* w);
+object* add_attribute_core(object* env, object* decl, object* attr, object* args, uint8 persistent, object *w);
+object* add_scoped_attribute_core(object* env, object* decl, object* attr, object* args, object *w);
+object* erase_attribute_core(object* env, object* decl, object* attr, uint8 persistent, object *w);
+
+bool is_new_attribute(environment const & env, name const & n) {
+    return get_io_scalar_result<bool>(is_attribute_core(env.to_obj_arg(), n.to_obj_arg(), io_mk_world()));
+}
+environment add_attribute(environment const & env, name const & decl, name const & attr, syntax const & args, bool persistent) {
+    return get_io_result<environment>(add_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), persistent, io_mk_world()));
+}
+environment add_scoped_attribute(environment const & env, name const & decl, name const & attr, syntax const & args) {
+    return get_io_result<environment>(add_scoped_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), io_mk_world()));
+}
+environment erase_attribute(environment const & env, name const & decl, name const & attr, bool persistent) {
+    return get_io_result<environment>(erase_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), persistent, io_mk_world()));
+}
+// ==========================================
+
+
+// ==========================================
 // configuration options
 static name * g_default_priority = nullptr;
 
@@ -27,13 +50,41 @@ unsigned get_default_priority(options const & opts) {
 }
 // ==========================================
 
+expr decl_attributes::parse_attr_arg(parser & p, name const & attr_id) {
+    parser::undef_id_to_local_scope scope(p);
+    expr e = mk_const(attr_id);
+    while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
+        expr arg = p.parse_expr(get_max_prec());
+        if (has_sorry(arg))
+            break;
+        e = mk_app(e, arg);
+    }
+    // the new frontend uses consts instead of locals for unknown names...
+    return replace(e, [](expr const & e) {
+            if (is_local(e))
+                return some_expr(mk_const(local_name(e)));
+            return none_expr();
+        });
+}
+
+syntax decl_attributes::expr_to_syntax(expr const & e) {
+    // TODO(Lean)
+    return object_ref(box(0));
+}
+
 void decl_attributes::parse_core(parser & p, bool compact) {
     while (true) {
         auto pos = p.pos();
+        bool scoped  = p.curr_is_token_or_id(get_scoped_tk());
+        if (scoped) {
+            p.next();
+        }
         bool deleted = p.curr_is_token_or_id(get_sub_tk());
         if (deleted) {
             if (m_persistent)
                 throw parser_error("cannot remove attribute globally (solution: use 'local attribute')", pos);
+            if (scoped)
+                throw parser_error("cannot remove scoped attribute", pos);
             p.next();
         }
         name id;
@@ -43,40 +94,38 @@ void decl_attributes::parse_core(parser & p, bool compact) {
         } else {
             id = p.check_id_next("invalid attribute declaration, identifier expected");
         }
-        if (!is_attribute(p.env(), id))
-            throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);
-
-        auto const & attr = ::lean::get_attribute(p.env(), id);
-        if (!deleted) {
-            for (auto const & entry : m_entries) {
-                if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
-                    throw parser_error(sstream() << "invalid attribute [" << id
-                                       << "], declaration was already marked with ["
-                                       << entry.m_attr->get_name()
-                                       << "]", pos);
+        if (is_attribute(p.env(), id)) {
+            /* Old attribute manager */
+            if (scoped) {
+                throw parser_error("old attribute manager does not support scoped attributes", pos);
+            }
+            auto const & attr = ::lean::get_attribute(p.env(), id);
+            if (!deleted) {
+                for (auto const & entry : m_entries) {
+                    if (!entry.deleted() && are_incompatible(*entry.m_attr, attr)) {
+                        throw parser_error(sstream() << "invalid attribute [" << id
+                                           << "], declaration was already marked with ["
+                                           << entry.m_attr->get_name()
+                                           << "]", pos);
+                    }
                 }
             }
-        }
-        attr_data_ptr data;
-        if (!deleted) {
-            // not all identifiers in attributes are actual Lean declarations
-            parser::undef_id_to_local_scope scope(p);
-            expr e = mk_const(id);
-            while (!p.curr_is_token("]") && !p.curr_is_token(",")) {
-                expr arg = p.parse_expr(get_max_prec());
-                if (has_sorry(arg))
-                    break;
-                e = mk_app(e, arg);
+            attr_data_ptr data;
+            if (!deleted) {
+                expr e = parse_attr_arg(p, id);
+                data = attr.parse_data(e);
             }
-            // the new frontend uses consts instead of locals for unknown names...
-            e = replace(e, [](expr const & e) {
-                    if (is_local(e))
-                        return some_expr(mk_const(local_name(e)));
-                    return none_expr();
-                });
-            data = attr.parse_data(e);
+            m_entries = cons({&attr, data}, m_entries);
+        } else if (is_new_attribute(p.env(), id)) {
+            syntax args(box(0));
+            if (!deleted) {
+                expr e = parse_attr_arg(p, id);
+                args = expr_to_syntax(e);
+            }
+            m_new_entries = cons({id, deleted, scoped, args}, m_new_entries);
+        } else {
+            throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);
         }
-        m_entries = cons({&attr, data}, m_entries);
         if (p.curr_is_token(get_comma_tk())) {
             p.next();
         } else {
@@ -136,6 +185,20 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
         } else {
             unsigned prio = get_default_priority(ios.get_options());
             env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
+        }
+    }
+    buffer<new_entry> new_entries;
+    to_buffer(m_new_entries, new_entries);
+    i = new_entries.size();
+    while (i > 0) {
+        --i;
+        auto const & entry = new_entries[i];
+        if (entry.m_deleted) {
+            env = erase_attribute(env, d, entry.m_attr, m_persistent);
+        } else if (entry.m_scoped) {
+            env = add_scoped_attribute(env, d, entry.m_attr, entry.m_args);
+        } else {
+            env = add_attribute(env, d, entry.m_attr, entry.m_args, m_persistent);
         }
     }
     return env;

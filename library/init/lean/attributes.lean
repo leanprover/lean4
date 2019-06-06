@@ -241,7 +241,7 @@ structure TagAttribute :=
 (attr : AttributeImpl)
 (ext  : PersistentEnvExtension Name NameSet)
 
-def registerTagAttribute (name : Name) (descr : String) : IO TagAttribute :=
+def registerTagAttribute (name : Name) (descr : String) (validate : Environment → Name → Except String Unit := λ _ _, Except.ok ()) : IO TagAttribute :=
 do
 ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
   name            := name,
@@ -260,7 +260,9 @@ let attrImpl : AttributeImpl := {
     unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
-    pure $ ext.addEntry env decl
+    match validate env decl with
+    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | _                := pure $ ext.addEntry env decl
 },
 registerAttribute attrImpl,
 pure { attr := attrImpl, ext := ext }

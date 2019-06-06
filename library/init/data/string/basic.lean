@@ -312,6 +312,18 @@ s.foldl (λ n c, n*10 + (c.toNat - '0'.toNat)) 0
 def isNat (s : String) : Bool :=
 s.all $ λ c, c.isDigit
 
+partial def isPrefixOfAux (p s : String) : Pos → Bool
+| i :=
+  if p.atEnd i then true
+  else
+    let c₁ := p.get i in
+    let c₂ := s.get i in
+    c₁ == c₂ && isPrefixOfAux (s.next i)
+
+/- Return true iff `p` is a prefix of `s` -/
+def isPrefixOf (p : String) (s : String) : Bool :=
+p.length ≤ s.length && isPrefixOfAux p s 0
+
 end String
 
 namespace Substring

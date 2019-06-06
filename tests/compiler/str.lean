@@ -18,4 +18,11 @@ IO.println (s₁.extract (b+8) e) *>
 IO.println (toString e) *>
 IO.println (repr "   aaa   ".trim) *>
 showChars s₁.length s₁ 0  *>
+IO.println ("abc".isPrefixOf "abcd") *>
+IO.println ("abcd".isPrefixOf "abcd") *>
+IO.println ("".isPrefixOf "abcd") *>
+IO.println ("".isPrefixOf "") *>
+IO.println ("ab".isPrefixOf "cb") *>
+IO.println ("ab".isPrefixOf "a") *>
+IO.println ("αb".isPrefixOf "αbc") *>
 pure 0

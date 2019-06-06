@@ -78,6 +78,10 @@ inductive Syntax
 instance stxInh : Inhabited Syntax :=
 ⟨Syntax.missing⟩
 
+def Syntax.isMissing : Syntax → Bool
+| Syntax.missing := true
+| _ := false
+
 def SyntaxNodeKind.fix : SyntaxNodeKind → IO SyntaxNodeKind
 | {name := n, ..} := do
   m ← nameToKindTable.get,

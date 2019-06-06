@@ -225,4 +225,45 @@ do let env := env.popScopeCore,
    attrs.mfoldl (λ env attr, attr.popScope env) env
 
 end Environment
+
+/--
+   Tag attributes are simple and efficient. They are useful for marking declarations in the modules where
+   they were defined.
+
+   The startup cost for this kind of attribute is very small since `addImportedFn` is a constant function.
+
+   They provide the predicate `tagAttr.hasTag env decl` which returns true iff declaration `decl`
+   is tagged in the environment `env`. -/
+structure TagAttribute :=
+(attr : AttributeImpl)
+(ext  : PersistentEnvExtension Name NameSet)
+
+def registerTagAttribute (name : Name) (descr : String) : IO TagAttribute :=
+do
+ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
+  name            := name,
+  addImportedFn   := λ _, {},
+  addEntryFn      := λ (s : NameSet) n, s.insert n,
+  exportEntriesFn := λ es,
+    let r : Array Name := es.fold (λ a e, a.push e) Array.empty in
+    r.qsort Name.quickLt
+},
+let attrImpl : AttributeImpl := {
+  name  := name,
+  descr := descr,
+  add   := λ env decl args persistent, do
+    unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument")),
+    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
+    unless (env.getModuleIdxFor decl).isNone $
+      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
+    pure $ ext.addEntry env decl
+},
+registerAttribute attrImpl,
+pure { attr := attrImpl, ext := ext }
+
+def TagAttribute.hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
+match env.getModuleIdxFor decl with
+| some modIdx := (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
+| none        := (attr.ext.getState env).contains decl
+
 end Lean

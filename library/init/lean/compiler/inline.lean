@@ -48,7 +48,7 @@ hasInlineAttrAux env inlineAttribute n
 def hasInlineIfReduceAttribure (env : Environment) (n : Name) : Bool :=
 hasInlineAttrAux env inlineIfReduceAttribute n
 
-@[export lean.has_no_inline_attribute_core]
+@[export lean.has_noinline_attribute_core]
 def hasNoInlineAttribure (env : Environment) (n : Name) : Bool :=
 hasInlineAttrAux env noInlineAttribute n
 

@@ -42,7 +42,7 @@ uint8 has_inline_if_reduce_attribute_core(obj*, obj*);
 obj* l___private_init_lean_compiler_inline_1__checkIsDefinition___closed__1;
 obj* l_Lean_Compiler_hasInlineAttribure___boxed(obj*, obj*);
 namespace lean {
-uint8 has_no_inline_attribute_core(obj*, obj*);
+uint8 has_noinline_attribute_core(obj*, obj*);
 }
 obj* l_Lean_Compiler_mkInlineAttribute___closed__2;
 obj* l_Lean_AttributeImpl_inhabited___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -382,7 +382,7 @@ return x_4;
 }
 }
 namespace lean {
-uint8 has_no_inline_attribute_core(obj* x_1, obj* x_2) {
+uint8 has_noinline_attribute_core(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; uint8 x_4; 
@@ -397,7 +397,7 @@ obj* l_Lean_Compiler_hasNoInlineAttribure___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::has_no_inline_attribute_core(x_1, x_2);
+x_3 = lean::has_noinline_attribute_core(x_1, x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }

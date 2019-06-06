@@ -131,7 +131,7 @@ else quickLtCore n₁ n₂
 inferInstanceAs (DecidableRel (λ a b, Name.quickLt a b = true))
 
 def toStringWithSep (sep : String) : Name → String
-| anonymous                := "[anonymous]"
+| anonymous               := "[anonymous]"
 | (mkString anonymous s)  := s
 | (mkNumeral anonymous v) := toString v
 | (mkString n s)          := toStringWithSep n ++ sep ++ s
@@ -142,6 +142,14 @@ toStringWithSep "."
 
 instance : HasToString Name :=
 ⟨Name.toString⟩
+
+def appendAfter : Name → String → Name
+| (mkString p s) suffix := mkString p (s ++ suffix)
+| n              suffix := mkString n suffix
+
+def appendIndexAfter : Name → Nat → Name
+| (mkString p s) idx := mkString p (s ++ "_" ++ toString idx)
+| n              idx := mkString n ("_" ++ toString idx)
 
 theorem mkStringNeMkStringOfNePrefix {p₁ : Name} (s₁ : String) {p₂ : Name} (s₂ : String) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
 λ h₁ h₂, Name.noConfusion h₂ (λ h _, absurd h h₁)

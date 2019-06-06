@@ -124,6 +124,9 @@ structure AttributeImpl :=
 (pushScope (env : Environment) : IO Environment := pure env)
 (popScope (env : Environment) : IO Environment := pure env)
 
+instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
+⟨{ name := default _, descr := default _, add := λ env _ _ _, pure env }⟩
+
 def mkAttributeMapRef : IO (IO.Ref (HashMap Name AttributeImpl)) :=
 IO.mkRef {}
 
@@ -246,7 +249,8 @@ ext : PersistentEnvExtension Name NameSet ← registerPersistentEnvExtension {
   addEntryFn      := λ (s : NameSet) n, s.insert n,
   exportEntriesFn := λ es,
     let r : Array Name := es.fold (λ a e, a.push e) Array.empty in
-    r.qsort Name.quickLt
+    r.qsort Name.quickLt,
+  statsFn         := λ s, "tag attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
 },
 let attrImpl : AttributeImpl := {
   name  := name,
@@ -261,9 +265,15 @@ let attrImpl : AttributeImpl := {
 registerAttribute attrImpl,
 pure { attr := attrImpl, ext := ext }
 
-def TagAttribute.hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
+namespace TagAttribute
+
+instance : Inhabited TagAttribute := ⟨{attr := default _, ext := default _}⟩
+
+def hasTag (attr : TagAttribute) (env : Environment) (decl : Name) : Bool :=
 match env.getModuleIdxFor decl with
 | some modIdx := (attr.ext.getModuleEntries env modIdx).binSearchContains decl Name.quickLt
 | none        := (attr.ext.getState env).contains decl
+
+end TagAttribute
 
 end Lean

@@ -25,6 +25,10 @@ instance : Inhabited Format     := ⟨nil⟩
 def join (xs : List Format) : Format :=
 xs.foldl (++) ""
 
+def isNil : Format → Bool
+| nil := true
+| _   := false
+
 def flatten : Format → Format
 | nil                     := nil
 | line                    := text " "

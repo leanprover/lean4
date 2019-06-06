@@ -463,8 +463,9 @@ IO.println ("number of extensions:                  " ++ toString env.extensions
 pExtDescrs.mfor $ λ extDescr, do {
   IO.println ("extension '" ++ toString extDescr.name ++ "'"),
   let s := extDescr.toEnvExtension.getState env,
+  let fmt := extDescr.statsFn s.state,
+  unless fmt.isNil (IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state)))),
   IO.println ("  number of imported entries: " ++ toString (s.importedEntries.foldl (λ sum es, sum + es.size) 0)),
-  IO.println ("  " ++ toString (Format.nest 2 (extDescr.statsFn s.state))),
   pure ()
 },
 pure ()

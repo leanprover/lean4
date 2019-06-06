@@ -503,7 +503,7 @@ int main(int argc, char ** argv) {
             return 0;
         }
 
-        bool ok;
+        bool ok = true;
         if (new_frontend) {
 #if 0
             env.set_main_module(main_module_name);

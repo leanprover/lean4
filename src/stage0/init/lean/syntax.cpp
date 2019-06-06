@@ -71,6 +71,7 @@ obj* l_Lean_stxKindInh;
 extern obj* l_Lean_Format_sbracket___closed__1;
 obj* l_IO_Prim_Ref_set(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_isIdent___main___boxed(obj*);
+obj* l_Lean_Syntax_isMissing___main___boxed(obj*);
 obj* l_Lean_Syntax_reprint___boxed(obj*);
 obj* l_Lean_Syntax_formatStx___main___closed__2;
 obj* l_Lean_nextKind___closed__1;
@@ -92,6 +93,7 @@ obj* l_Nat_repr(obj*);
 obj* l_Lean_manyKind;
 obj* l_Lean_Syntax_mreplace___main___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Format_sbracket___closed__2;
+obj* l_Lean_Syntax_isMissing___boxed(obj*);
 obj* l_Lean_Syntax_mreplace___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_reprint___main___closed__1;
 obj* l_Lean_Syntax_mreplace___boxed(obj*);
@@ -129,6 +131,7 @@ obj* l_Lean_nextKind(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Lean_unreachIsNodeAtom(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_mreplace___main___rarg___lambda__2(obj*, obj*, obj*, obj*);
+uint8 l_Lean_Syntax_isMissing___main(obj*);
 obj* l_List_append___rarg(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
@@ -218,6 +221,7 @@ obj* mk_syntax_ident_core(obj*);
 }
 obj* l_Lean_Syntax_toSyntaxNode___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_unreachIsNodeIdent(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+uint8 l_Lean_Syntax_isMissing(obj*);
 extern obj* l_String_splitAux___main___closed__1;
 obj* l_Lean_MacroScopes_flip___main___boxed(obj*, obj*);
 namespace lean {
@@ -1031,6 +1035,51 @@ _start:
 obj* x_1; 
 x_1 = lean::box(0);
 return x_1;
+}
+}
+uint8 l_Lean_Syntax_isMissing___main(obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_1) == 0)
+{
+uint8 x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8 x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+obj* l_Lean_Syntax_isMissing___main___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Syntax_isMissing___main(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
+}
+}
+uint8 l_Lean_Syntax_isMissing(obj* x_1) {
+_start:
+{
+uint8 x_2; 
+x_2 = l_Lean_Syntax_isMissing___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isMissing___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Syntax_isMissing(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
 }
 }
 obj* l_RBNode_find___main___at_Lean_SyntaxNodeKind_fix___main___spec__1(obj* x_1, obj* x_2) {

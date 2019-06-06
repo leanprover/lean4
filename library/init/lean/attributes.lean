@@ -170,7 +170,7 @@ do m ← attributeMapRef.get,
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support `persistent == false`.
    - `args` is not valid for `attr`. -/
-@[export lean.add_attribure_core]
+@[export lean.add_attribute_core]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment :=
 do attr ← env.getAttributeImpl attrName,
    attr.add env decl args persistent
@@ -183,7 +183,7 @@ do attr ← env.getAttributeImpl attrName,
    - `args` is not valid for `attr`.
 
    Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
-@[export lean.add_scoped_attribure_core]
+@[export lean.add_scoped_attribute_core]
 def addScopedAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) : IO Environment :=
 do attr ← env.getAttributeImpl attrName,
    attr.addScoped env decl args
@@ -193,7 +193,7 @@ do attr ← env.getAttributeImpl attrName,
    - `attr` is not the name of an attribute registered in the system.
    - `attr` does not support erasure.
    - `args` is not valid for `attr`. -/
-@[export lean.erase_attribure_core]
+@[export lean.erase_attribute_core]
 def eraseAttribute (env : Environment) (decl : Name) (attrName : Name) (persistent := true) : IO Environment :=
 do attr ← env.getAttributeImpl attrName,
    attr.erase env decl persistent

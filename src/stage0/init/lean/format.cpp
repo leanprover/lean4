@@ -54,6 +54,7 @@ obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_id___rarg___boxed(obj*);
 obj* l_Lean_Format_sbracket___closed__1;
 obj* l_Lean_Format_be(obj*, obj*, obj*, obj*);
+uint8 l_Lean_Format_isNil___main(obj*);
 obj* l_Lean_fmt(obj*);
 obj* l_Lean_entryHasFormat;
 extern obj* l_Lean_Options_empty;
@@ -138,6 +139,7 @@ obj* l_Lean_Format_repr___main___closed__7;
 obj* l_Lean_Format_repr___main___closed__5;
 obj* l_Array_miterateAux___main___at_Lean_Format_joinArraySep___spec__1(obj*);
 obj* l_Lean_Format_paren(obj*);
+obj* l_Lean_Format_isNil___main___boxed(obj*);
 obj* l_Lean_usizeHasFormat(usize);
 obj* l_Lean_Format_group(obj*);
 obj* l_Lean_Format_bracket(obj*, obj*, obj*);
@@ -158,12 +160,14 @@ obj* l_Lean_Format_widthOption(obj*);
 extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_Format_prefixJoin___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Format_joinSuffix___main___rarg(obj*, obj*, obj*);
+obj* l_Lean_Format_isNil___boxed(obj*);
 obj* l_Lean_Format_pretty___boxed(obj*, obj*);
 obj* l_Lean_Format_spaceUptoLine_x27(obj*, obj*);
 obj* l_Lean_Format_spaceUptoLine___main___closed__1;
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
+uint8 l_Lean_Format_isNil(obj*);
 obj* l_Lean_Format_joinSep___rarg(obj*, obj*, obj*);
 obj* l_String_quote(obj*);
 obj* l_Lean_formatDataValue___main___closed__2;
@@ -275,6 +279,51 @@ obj* x_2;
 x_2 = l_Lean_Format_join(x_1);
 lean::dec(x_1);
 return x_2;
+}
+}
+uint8 l_Lean_Format_isNil___main(obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_1) == 0)
+{
+uint8 x_2; 
+x_2 = 1;
+return x_2;
+}
+else
+{
+uint8 x_3; 
+x_3 = 0;
+return x_3;
+}
+}
+}
+obj* l_Lean_Format_isNil___main___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Format_isNil___main(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
+}
+}
+uint8 l_Lean_Format_isNil(obj* x_1) {
+_start:
+{
+uint8 x_2; 
+x_2 = l_Lean_Format_isNil___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Format_isNil___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Format_isNil(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
 }
 }
 obj* _init_l_Lean_Format_flatten___main___closed__1() {

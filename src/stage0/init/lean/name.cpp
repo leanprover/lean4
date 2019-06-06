@@ -42,6 +42,7 @@ obj* l_Lean_mkSimpleName(obj*);
 obj* l_Lean_NameMap_find___rarg(obj*, obj*);
 obj* l_Lean_mkStrName(obj*, obj*);
 obj* l_Lean_Name_DecidableEq;
+obj* l_Lean_Name_appendIndexAfter___main___closed__1;
 uint8 l_Lean_NameSet_contains(obj*, obj*);
 obj* l_Nat_repr(obj*);
 obj* l_Lean_Name_append(obj*, obj*);
@@ -66,6 +67,7 @@ uint8 nat_dec_lt(obj*, obj*);
 obj* l_Lean_NameSet_contains___boxed(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1___rarg(obj*, obj*, obj*);
 obj* l_Lean_Name_getPrefix(obj*);
+obj* l_Lean_Name_appendIndexAfter(obj*, obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_mkNameSet;
 uint8 l_Lean_NameMap_contains___rarg(obj*, obj*);
@@ -77,10 +79,14 @@ uint8 l_RBNode_isRed___main___rarg(obj*);
 obj* l_Lean_Name_isPrefixOf___main___boxed(obj*, obj*);
 obj* l_Lean_NameMap_insert___rarg(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3(obj*);
+namespace lean {
+uint32 string_utf8_get(obj*, obj*);
+}
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__2(obj*);
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
+uint8 l_UInt32_decEq(uint32, uint32);
 obj* l_Lean_mkNameMap(obj*);
 obj* l_Lean_Name_getPrefix___boxed(obj*);
 obj* l_Lean_NameMap_contains(obj*);
@@ -93,12 +99,17 @@ obj* l_String_split(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_NameSet_contains___spec__1___boxed(obj*, obj*);
 obj* l_Lean_Name_toStringWithSep(obj*, obj*);
 obj* l_Lean_Name_append___boxed(obj*, obj*);
+obj* l_Lean_Name_isInternal___boxed(obj*);
+obj* l_Lean_Name_isInternal___main___boxed(obj*);
 obj* l_RBNode_find___main___at_Lean_NameMap_find___spec__1___rarg(obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
+obj* l_Lean_Name_appendAfter(obj*, obj*);
 extern "C" obj* lean_name_mk_numeral(obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__2___rarg(obj*, obj*, obj*);
 obj* l_String_toName(obj*);
+obj* l_Lean_Name_appendIndexAfter___main(obj*, obj*);
 obj* l_Lean_NameMap_Inhabited(obj*);
+obj* l_Lean_Name_appendAfter___main(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_NameSet_contains___spec__1(obj*, obj*);
 obj* l_Lean_NameSet_Inhabited;
 obj* l_Lean_Name_getPrefix___main(obj*);
@@ -115,12 +126,14 @@ obj* l_Lean_Name_HasAppend;
 obj* l_Lean_Name_mkString___boxed(obj*, obj*);
 obj* l_Lean_NameSet_insert(obj*, obj*);
 obj* l_RBNode_find___main___at_Lean_NameMap_contains___spec__1___rarg___boxed(obj*, obj*);
+uint8 l_Lean_Name_isInternal___main(obj*);
 obj* l_Lean_NameMap_contains___rarg___boxed(obj*, obj*);
 obj* l_Lean_Name_append___main(obj*, obj*);
 obj* l_Lean_Name_quickLtCore___main___boxed(obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameMap_insert___spec__1(obj*);
 obj* l_Lean_Name_toStringWithSep___boxed(obj*, obj*);
 obj* l_Lean_mkNumName(obj*, obj*);
+uint8 l_Lean_Name_isInternal(obj*);
 obj* l_Lean_Name_toString(obj*);
 obj* l_RBNode_ins___main___at_Lean_NameSet_insert___spec__2(obj*, obj*, obj*);
 obj* l_RBNode_ins___main___at_Lean_NameMap_insert___spec__3___rarg(obj*, obj*, obj*);
@@ -936,6 +949,180 @@ _start:
 obj* x_1; 
 x_1 = lean::alloc_closure(reinterpret_cast<void*>(l_Lean_Name_toString), 1, 0);
 return x_1;
+}
+}
+obj* l_Lean_Name_appendAfter___main(obj* x_1, obj* x_2) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 0:
+{
+obj* x_3; 
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+case 1:
+{
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+x_4 = lean::cnstr_get(x_1, 0);
+lean::inc(x_4);
+x_5 = lean::cnstr_get(x_1, 1);
+lean::inc(x_5);
+lean::dec(x_1);
+x_6 = lean::string_append(x_5, x_2);
+lean::dec(x_2);
+x_7 = lean_name_mk_string(x_4, x_6);
+return x_7;
+}
+default: 
+{
+obj* x_8; 
+x_8 = lean_name_mk_string(x_1, x_2);
+return x_8;
+}
+}
+}
+}
+obj* l_Lean_Name_appendAfter(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Name_appendAfter___main(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_Name_appendIndexAfter___main___closed__1() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::mk_string("_");
+return x_1;
+}
+}
+obj* l_Lean_Name_appendIndexAfter___main(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+switch (lean::obj_tag(x_1)) {
+case 0:
+{
+obj* x_9; 
+x_9 = lean::box(0);
+x_3 = x_9;
+goto block_8;
+}
+case 1:
+{
+obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; 
+x_10 = lean::cnstr_get(x_1, 0);
+lean::inc(x_10);
+x_11 = lean::cnstr_get(x_1, 1);
+lean::inc(x_11);
+lean::dec(x_1);
+x_12 = l_Lean_Name_appendIndexAfter___main___closed__1;
+x_13 = lean::string_append(x_11, x_12);
+x_14 = l_Nat_repr(x_2);
+x_15 = lean::string_append(x_13, x_14);
+lean::dec(x_14);
+x_16 = lean_name_mk_string(x_10, x_15);
+return x_16;
+}
+default: 
+{
+obj* x_17; 
+x_17 = lean::box(0);
+x_3 = x_17;
+goto block_8;
+}
+}
+block_8:
+{
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
+lean::dec(x_3);
+x_4 = l_Nat_repr(x_2);
+x_5 = l_Lean_Name_appendIndexAfter___main___closed__1;
+x_6 = lean::string_append(x_5, x_4);
+lean::dec(x_4);
+x_7 = lean_name_mk_string(x_1, x_6);
+return x_7;
+}
+}
+}
+obj* l_Lean_Name_appendIndexAfter(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_Name_appendIndexAfter___main(x_1, x_2);
+return x_3;
+}
+}
+uint8 l_Lean_Name_isInternal___main(obj* x_1) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 0:
+{
+uint8 x_2; 
+x_2 = 0;
+return x_2;
+}
+case 1:
+{
+obj* x_3; obj* x_4; obj* x_5; uint32 x_6; uint32 x_7; uint8 x_8; 
+x_3 = lean::cnstr_get(x_1, 0);
+x_4 = lean::cnstr_get(x_1, 1);
+x_5 = lean::mk_nat_obj(0u);
+x_6 = lean::string_utf8_get(x_4, x_5);
+x_7 = 95;
+x_8 = x_6 == x_7;
+if (x_8 == 0)
+{
+x_1 = x_3;
+goto _start;
+}
+else
+{
+uint8 x_10; 
+x_10 = 1;
+return x_10;
+}
+}
+default: 
+{
+obj* x_11; 
+x_11 = lean::cnstr_get(x_1, 0);
+x_1 = x_11;
+goto _start;
+}
+}
+}
+}
+obj* l_Lean_Name_isInternal___main___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Name_isInternal___main(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
+}
+}
+uint8 l_Lean_Name_isInternal(obj* x_1) {
+_start:
+{
+uint8 x_2; 
+x_2 = l_Lean_Name_isInternal___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Name_isInternal___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; obj* x_3; 
+x_2 = l_Lean_Name_isInternal(x_1);
+lean::dec(x_1);
+x_3 = lean::box(x_2);
+return x_3;
 }
 }
 obj* l_Lean_mkNameMap(obj* x_1) {
@@ -8724,6 +8911,8 @@ l_Lean_Name_toString___closed__1 = _init_l_Lean_Name_toString___closed__1();
 lean::mark_persistent(l_Lean_Name_toString___closed__1);
 l_Lean_Name_HasToString = _init_l_Lean_Name_HasToString();
 lean::mark_persistent(l_Lean_Name_HasToString);
+l_Lean_Name_appendIndexAfter___main___closed__1 = _init_l_Lean_Name_appendIndexAfter___main___closed__1();
+lean::mark_persistent(l_Lean_Name_appendIndexAfter___main___closed__1);
 l_Lean_mkNameSet = _init_l_Lean_mkNameSet();
 lean::mark_persistent(l_Lean_mkNameSet);
 l_Lean_NameSet_HasEmptyc = _init_l_Lean_NameSet_HasEmptyc();

@@ -27,6 +27,7 @@ obj* l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__3
 namespace lean {
 obj* string_push(obj*, uint32);
 }
+extern obj* l_Lean_Name_appendIndexAfter___main___closed__1;
 obj* l_Nat_repr(obj*);
 obj* l_String_Iterator_next___main(obj*);
 namespace lean {
@@ -43,7 +44,6 @@ uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_String_mangle(obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
-obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1;
 uint8 l_Char_isDigit(uint32);
 obj* l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__2;
 obj* l___private_init_lean_name__mangling_1__String_mangleAux(obj*, obj*, obj*);
@@ -234,14 +234,6 @@ x_6 = l___private_init_lean_name__mangling_1__String_mangleAux___main(x_2, x_4, 
 return x_6;
 }
 }
-obj* _init_l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1() {
-_start:
-{
-obj* x_1; 
-x_1 = lean::mk_string("_");
-return x_1;
-}
-}
 obj* l___private_init_lean_name__mangling_2__Name_mangleAux___main(obj* x_1) {
 _start:
 {
@@ -267,7 +259,7 @@ if (x_7 == 0)
 {
 obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
 x_8 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_3);
-x_9 = l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1;
+x_9 = l_Lean_Name_appendIndexAfter___main___closed__1;
 x_10 = lean::string_append(x_8, x_9);
 x_11 = lean::string_append(x_10, x_5);
 lean::dec(x_5);
@@ -288,7 +280,7 @@ x_13 = lean::cnstr_get(x_1, 1);
 lean::inc(x_13);
 lean::dec(x_1);
 x_14 = l___private_init_lean_name__mangling_2__Name_mangleAux___main(x_12);
-x_15 = l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1;
+x_15 = l_Lean_Name_appendIndexAfter___main___closed__1;
 x_16 = lean::string_append(x_14, x_15);
 x_17 = l_Nat_repr(x_13);
 x_18 = lean::string_append(x_16, x_17);
@@ -331,7 +323,5 @@ l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__2 = _i
 lean::mark_persistent(l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__2);
 l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__3 = _init_l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__3();
 lean::mark_persistent(l___private_init_lean_name__mangling_1__String_mangleAux___main___closed__3);
-l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1 = _init_l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1();
-lean::mark_persistent(l___private_init_lean_name__mangling_2__Name_mangleAux___main___closed__1);
 return w;
 }

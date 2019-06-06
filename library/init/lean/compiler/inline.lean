@@ -5,8 +5,10 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.attributes
+import init.lean.compiler.util
 
 namespace Lean
+namespace Compiler
 
 private def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find n with
@@ -30,4 +32,29 @@ def mkMacroInlineAttribute : IO TagAttribute :=
 registerTagAttribute `macroInline "mark definition to always be inlined before ANF conversion" checkIsDefinition
 @[init mkMacroInlineAttribute] constant macroInlineAttribute : TagAttribute := default _
 
+private partial def hasInlineAttrAux (env : Environment) (attr : TagAttribute) : Name → Bool
+| n :=
+  /- We never inline auxiliary declarations created by eager lambda lifting -/
+  if isEagerLambdaLiftingName n then false
+  else if attr.hasTag env n then true
+  else if n.isInternal then hasInlineAttrAux n.getPrefix
+  else false
+
+@[export lean.has_inline_attribute_core]
+def hasInlineAttribure (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env inlineAttribute n
+
+@[export lean.has_inline_if_reduce_attribute_core]
+def hasInlineIfReduceAttribure (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env inlineIfReduceAttribute n
+
+@[export lean.has_no_inline_attribute_core]
+def hasNoInlineAttribure (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env noInlineAttribute n
+
+@[export lean.has_macro_inline_attribute_core]
+def hasMacroInlineAttribure (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env macroInlineAttribute n
+
+end Compiler
 end Lean

@@ -55,5 +55,17 @@ def atMostOnce (e : Expr) (x : Name) : Bool :=
 let {result := result, ..} := atMostOnce.visit x e {found := false, result := true} in
 result
 
+/- Helper functions for creating auxiliary names used in compiler passes. -/
+
+@[export lean.mk_eager_lambda_lifting_name_core]
+def mkEagerLambdaLiftingName (n : Name) (idx : Nat) : Name :=
+Name.mkString n ("_elambda_" ++ toString idx)
+
+@[export lean.is_eager_lambda_lifting_name_core]
+def isEagerLambdaLiftingName : Name → Bool
+| (Name.mkString p s)  := "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
+| (Name.mkNumeral p _) := isEagerLambdaLiftingName p
+| _ := false
+
 end Compiler
 end Lean

@@ -151,6 +151,13 @@ def appendIndexAfter : Name → Nat → Name
 | (mkString p s) idx := mkString p (s ++ "_" ++ toString idx)
 | n              idx := mkString n ("_" ++ toString idx)
 
+/- The frontend does not allow user declarations to start with `_` in any of its parts.
+   We use name parts starting with `_` internally to create auxiliary names (e.g., `_private`). -/
+def isInternal : Name → Bool
+| (mkString p s)  := s.get 0 == '_' || isInternal p
+| (mkNumeral p _) := isInternal p
+| _ := false
+
 theorem mkStringNeMkStringOfNePrefix {p₁ : Name} (s₁ : String) {p₂ : Name} (s₂ : String) : p₁ ≠ p₂ → mkString p₁ s₁ ≠ mkString p₂ s₂ :=
 λ h₁ h₂, Name.noConfusion h₂ (λ h _, absurd h h₁)
 

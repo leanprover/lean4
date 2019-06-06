@@ -80,6 +80,8 @@ uint8 l_String_Iterator_hasPrev___main(obj*);
 obj* l_Char_toString___boxed(obj*);
 obj* l_String_push___boxed(obj*, obj*);
 obj* l_Substring_takeRightWhileAux___main___boxed(obj*, obj*, obj*, obj*);
+uint8 l_String_isPrefixOf(obj*, obj*);
+obj* l_String_isPrefixOfAux___main___boxed(obj*, obj*, obj*);
 obj* l_String_foldrAux___rarg(obj*, obj*, obj*, obj*, obj*);
 obj* l_String_dropRight___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_4__utf8SetAux___main(uint32, obj*, obj*, obj*);
@@ -139,6 +141,7 @@ obj* l_String_takeRight___boxed(obj*, obj*);
 obj* l_Substring_drop___main(obj*, obj*);
 obj* l_String_Iterator_toString(obj*);
 obj* l_Substring_drop(obj*, obj*);
+obj* l_String_isPrefixOfAux___boxed(obj*, obj*, obj*);
 obj* l___private_init_data_string_basic_6__utf8ExtractAux_u2082___main(obj*, obj*, obj*);
 obj* l_Substring_trim___main(obj*);
 obj* l_Char_toString(uint32);
@@ -157,6 +160,7 @@ obj* l_String_contains___boxed(obj*, obj*);
 obj* l___private_init_data_string_basic_5__utf8PrevAux___main(obj*, obj*, obj*);
 obj* l_Substring_posOf(obj*, uint32);
 uint8 l_String_anyAux___main___at_Substring_contains___spec__1(uint32, obj*, obj*, obj*);
+obj* l_String_isPrefixOf___boxed(obj*, obj*);
 obj* l_String_offsetOfPosAux___main___boxed(obj*, obj*, obj*, obj*);
 obj* l_String_offsetOfPosAux(obj*, obj*, obj*, obj*);
 obj* l_String_Iterator_next___main(obj*);
@@ -219,6 +223,7 @@ obj* l_Substring_takeRight___main(obj*, obj*);
 obj* l_Substring_takeRightWhileAux___main(obj*, obj*, obj*, obj*);
 obj* l_String_join(obj*);
 obj* l_String_Iterator_remainingBytes___main___boxed(obj*);
+uint8 l_String_isPrefixOfAux___main(obj*, obj*, obj*);
 namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
@@ -300,6 +305,7 @@ obj* l_Substring_toString___boxed(obj*);
 obj* l_String_HasSizeof;
 uint32 l_String_front(obj*);
 uint8 l_String_anyAux___main___at_String_all___spec__1(obj*, obj*, obj*, obj*);
+uint8 l_String_isPrefixOfAux(obj*, obj*, obj*);
 obj* l_Substring_get___main___boxed(obj*, obj*);
 obj* l_String_anyAux___main___boxed(obj*, obj*, obj*, obj*);
 uint32 l___private_init_data_string_basic_3__utf8GetAux___main(obj*, obj*, obj*);
@@ -3096,6 +3102,107 @@ x_2 = l_String_isNat(x_1);
 lean::dec(x_1);
 x_3 = lean::box(x_2);
 return x_3;
+}
+}
+uint8 l_String_isPrefixOfAux___main(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; 
+x_4 = lean::string_utf8_at_end(x_1, x_3);
+if (x_4 == 0)
+{
+uint32 x_5; uint32 x_6; uint8 x_7; 
+x_5 = lean::string_utf8_get(x_1, x_3);
+x_6 = lean::string_utf8_get(x_2, x_3);
+x_7 = x_5 == x_6;
+if (x_7 == 0)
+{
+uint8 x_8; 
+lean::dec(x_3);
+x_8 = 0;
+return x_8;
+}
+else
+{
+obj* x_9; 
+x_9 = lean::string_utf8_next(x_2, x_3);
+lean::dec(x_3);
+x_3 = x_9;
+goto _start;
+}
+}
+else
+{
+uint8 x_11; 
+lean::dec(x_3);
+x_11 = 1;
+return x_11;
+}
+}
+}
+obj* l_String_isPrefixOfAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; obj* x_5; 
+x_4 = l_String_isPrefixOfAux___main(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_1);
+x_5 = lean::box(x_4);
+return x_5;
+}
+}
+uint8 l_String_isPrefixOfAux(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; 
+x_4 = l_String_isPrefixOfAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_String_isPrefixOfAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; obj* x_5; 
+x_4 = l_String_isPrefixOfAux(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_1);
+x_5 = lean::box(x_4);
+return x_5;
+}
+}
+uint8 l_String_isPrefixOf(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; uint8 x_5; 
+x_3 = lean::string_length(x_1);
+x_4 = lean::string_length(x_2);
+x_5 = lean::nat_dec_le(x_3, x_4);
+lean::dec(x_4);
+lean::dec(x_3);
+if (x_5 == 0)
+{
+uint8 x_6; 
+x_6 = 0;
+return x_6;
+}
+else
+{
+obj* x_7; uint8 x_8; 
+x_7 = lean::mk_nat_obj(0u);
+x_8 = l_String_isPrefixOfAux___main(x_1, x_2, x_7);
+return x_8;
+}
+}
+}
+obj* l_String_isPrefixOf___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; obj* x_4; 
+x_3 = l_String_isPrefixOf(x_1, x_2);
+lean::dec(x_2);
+lean::dec(x_1);
+x_4 = lean::box(x_3);
+return x_4;
 }
 }
 obj* l_Substring_toString___main(obj* x_1) {

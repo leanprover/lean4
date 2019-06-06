@@ -16,18 +16,15 @@ Author: Leonardo de Moura
 #include "library/compiler/closed_term_cache.h"
 
 namespace lean {
+object* mk_eager_lambda_lifting_name_core(object* n, object* idx);
+uint8 is_eager_lambda_lifting_name_core(object* n);
+
 name mk_elambda_lifting_name(name const & fn, unsigned idx) {
-    name r(fn, "_elambda");
-    return r.append_after(idx);
+    return name(mk_eager_lambda_lifting_name_core(fn.to_obj_arg(), mk_nat_obj(idx)));
 }
 
 bool is_elambda_lifting_name(name fn) {
-    while (!fn.is_atomic()) {
-        if (fn.is_string() && strncmp(fn.get_string().data(), "_elambda", 8) == 0)
-            return true;
-        fn = fn.get_prefix();
-    }
-    return false;
+    return is_eager_lambda_lifting_name_core(fn.to_obj_arg());
 }
 
 /*

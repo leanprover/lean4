@@ -88,53 +88,15 @@ unsigned get_num_nested_lambdas(expr e) {
     return r;
 }
 
-bool has_inline_attribute(environment const & env, name const & n) {
-    if (is_elambda_lifting_name(n))
-        return false; // don't undo lambda lifting
-    if (has_attribute(env, "inline", n))
-        return true;
-    if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inline]`
-           if `f` is marked. */
-        return has_inline_attribute(env, n.get_prefix());
-    }
-    return false;
-}
+uint8 has_inline_attribute_core(object* env, object* n);
+uint8 has_inline_if_reduce_attribute_core(object* env, object* n);
+uint8 has_macro_inline_attribute_core(object* env, object* n);
+uint8 has_noinline_attribute_core(object* env, object* n);
 
-bool has_inline_if_reduce_attribute(environment const & env, name const & n) {
-    if (is_elambda_lifting_name(n))
-        return false; // don't undo lambda lifting
-    if (has_attribute(env, "inlineIfReduce", n))
-        return true;
-    if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[inlineIfReduce]`
-           if `f` is marked. */
-        return has_inline_if_reduce_attribute(env, n.get_prefix());
-    }
-    return false;
-}
-
-bool has_macro_inline_attribute(environment const & env, name const & n) {
-    if (has_attribute(env, "macroInline", n))
-        return true;
-    if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[macroInline]`
-           if `f` is marked. */
-        return has_macro_inline_attribute(env, n.get_prefix());
-    }
-    return false;
-}
-
-bool has_noinline_attribute(environment const & env, name const & n) {
-    if (has_attribute(env, "noinline", n))
-        return true;
-    if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[noinline]`
-           if `f` is marked. */
-        return has_noinline_attribute(env, n.get_prefix());
-    }
-    return false;
-}
+bool has_inline_attribute(environment const & env, name const & n) { return has_inline_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_inline_if_reduce_attribute(environment const & env, name const & n) { return has_inline_if_reduce_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_macro_inline_attribute(environment const & env, name const & n) { return has_macro_inline_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
+bool has_noinline_attribute(environment const & env, name const & n) { return has_noinline_attribute_core(env.to_obj_arg(), n.to_obj_arg()); }
 
 bool is_lcnf_atom(expr const & e) {
     switch (e.kind()) {
@@ -688,38 +650,6 @@ void initialize_compiler_util() {
     g_builtin_scalar_size->emplace_back(get_uint16_name(), 2);
     g_builtin_scalar_size->emplace_back(get_uint32_name(), 4);
     g_builtin_scalar_size->emplace_back(get_uint64_name(), 8);
-
-    register_system_attribute(basic_attribute::with_check(
-            "inline", "mark definition to always be inlined",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'inline' use, only definitions can be marked as [inline]");
-            }));
-
-    register_system_attribute(basic_attribute::with_check(
-            "inlineIfReduce", "mark definition to be inlined when resultant term after reduction is not a `cases_on` application.",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'inline_if_reduce' use, only definitions can be marked as [inlineIfReduce]");
-            }));
-
-    register_system_attribute(basic_attribute::with_check(
-            "noinline", "mark definition to never be inlined",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'noinline' use, only definitions can be marked as [noinline]");
-            }));
-
-    register_system_attribute(basic_attribute::with_check(
-            "macroInline", "mark definition to always be inlined before ANF conversion",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'macroInline' use, only definitions can be marked as [macroInline]");
-            }));
 }
 
 void finalize_compiler_util() {

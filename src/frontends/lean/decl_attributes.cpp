@@ -152,11 +152,17 @@ void decl_attributes::parse_compact(parser & p) {
 }
 
 void decl_attributes::set_attribute(environment const & env, name const & attr_name, attr_data_ptr data) {
-    if (!is_attribute(env, attr_name))
+    if (is_attribute(env, attr_name)) {
+        auto const & attr = ::lean::get_attribute(env, attr_name);
+        entry e = {&attr, data};
+        m_entries = append(m_entries, to_list(e));
+    } else if (is_new_attribute(env, attr_name)) {
+        // Temporary Hack... ignore attr_data_ptr
+        syntax args(box(0));
+        m_new_entries = cons({attr_name, false, false, args}, m_new_entries);
+    } else {
         throw exception(sstream() << "unknown attribute [" << attr_name << "]");
-    auto const & attr = ::lean::get_attribute(env, attr_name);
-    entry e = {&attr, data};
-    m_entries = append(m_entries, to_list(e));
+    }
 }
 
 attr_data_ptr decl_attributes::get_attribute(environment const & env, name const & attr_name) const {

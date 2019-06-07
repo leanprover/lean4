@@ -22,7 +22,9 @@ obj* l_Lean_dataValueHasFormat;
 obj* l_Lean_Format_joinSep___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_formatKVMap(obj*);
 obj* l_Lean_Format_HasCoe(obj*);
-obj* l_Lean_Format_pretty(obj*, obj*);
+namespace lean {
+obj* format_pretty_core(obj*, obj*);
+}
 obj* l_Lean_toStringToFormat___rarg(obj*);
 obj* l_Lean_Format_repr___main___closed__4;
 obj* l_Lean_Format_paren___closed__2;
@@ -57,6 +59,9 @@ obj* l_Lean_Format_be(obj*, obj*, obj*, obj*);
 uint8 l_Lean_Format_isNil___main(obj*);
 obj* l_Lean_fmt(obj*);
 obj* l_Lean_entryHasFormat;
+namespace lean {
+obj* format_append_core(obj*, obj*);
+}
 extern obj* l_Lean_Options_empty;
 obj* l_Lean_Format_getIndent___boxed(obj*);
 obj* l_Lean_Format_repr___main(obj*);
@@ -95,7 +100,7 @@ obj* uint64_to_nat(uint64);
 obj* l_Lean_List_format___rarg(obj*, obj*);
 obj* l_Lean_Format_joinSuffix___rarg(obj*, obj*, obj*);
 obj* l_Int_repr___main(obj*);
-obj* l_Lean_Format_HasAppend(obj*, obj*);
+obj* l_Lean_Format_HasAppend;
 obj* l_List_foldl___main___at_Lean_Format_join___spec__1___boxed(obj*, obj*);
 obj* l_Lean_formatEntry(obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
@@ -161,7 +166,6 @@ extern obj* l_Lean_Name_toString___closed__1;
 obj* l_Lean_Format_prefixJoin___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Format_joinSuffix___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Format_isNil___boxed(obj*);
-obj* l_Lean_Format_pretty___boxed(obj*, obj*);
 obj* l_Lean_Format_spaceUptoLine_x27(obj*, obj*);
 obj* l_Lean_Format_spaceUptoLine___main___closed__1;
 namespace lean {
@@ -170,6 +174,9 @@ obj* uint32_to_nat(uint32);
 uint8 l_Lean_Format_isNil(obj*);
 obj* l_Lean_Format_joinSep___rarg(obj*, obj*, obj*);
 obj* l_String_quote(obj*);
+namespace lean {
+obj* format_pretty_aux_core(obj*, obj*);
+}
 obj* l_Lean_formatDataValue___main___closed__2;
 obj* l_Lean_Format_join___boxed(obj*);
 namespace lean {
@@ -191,7 +198,8 @@ namespace lean {
 obj* string_length(obj*);
 }
 obj* l_Lean_Format_getWidth___closed__1;
-obj* l_Lean_Format_HasAppend(obj* x_1, obj* x_2) {
+namespace lean {
+obj* format_append_core(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
@@ -201,6 +209,15 @@ lean::cnstr_set(x_4, 0, x_1);
 lean::cnstr_set(x_4, 1, x_2);
 lean::cnstr_set_scalar(x_4, sizeof(void*)*2, x_3);
 return x_4;
+}
+}
+}
+obj* _init_l_Lean_Format_HasAppend() {
+_start:
+{
+obj* x_1; 
+x_1 = lean::alloc_closure(reinterpret_cast<void*>(lean::format_append_core), 2, 0);
+return x_1;
 }
 }
 obj* l_Lean_Format_HasCoe(obj* x_1) {
@@ -1556,32 +1573,36 @@ x_4 = l_Lean_registerOption(x_2, x_3, x_1);
 return x_4;
 }
 }
-obj* l_Lean_Format_pretty(obj* x_1, obj* x_2) {
+namespace lean {
+obj* format_pretty_aux_core(obj* x_1, obj* x_2) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
-x_3 = l_Lean_Format_getWidth(x_2);
-x_4 = lean::mk_nat_obj(0u);
-x_5 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_5, 0, x_4);
-lean::cnstr_set(x_5, 1, x_1);
-x_6 = lean::box(0);
-x_7 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_7, 0, x_5);
-lean::cnstr_set(x_7, 1, x_6);
-x_8 = l_String_splitAux___main___closed__1;
-x_9 = l_Lean_Format_be___main(x_3, x_4, x_8, x_7);
-lean::dec(x_3);
-return x_9;
-}
-}
-obj* l_Lean_Format_pretty___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_Lean_Format_pretty(x_1, x_2);
+obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+x_3 = lean::mk_nat_obj(0u);
+x_4 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_1);
+x_5 = lean::box(0);
+x_6 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_6, 0, x_4);
+lean::cnstr_set(x_6, 1, x_5);
+x_7 = l_String_splitAux___main___closed__1;
+x_8 = l_Lean_Format_be___main(x_2, x_3, x_7, x_6);
 lean::dec(x_2);
-return x_3;
+return x_8;
+}
+}
+}
+namespace lean {
+obj* format_pretty_core(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = l_Lean_Format_getWidth(x_2);
+lean::dec(x_2);
+x_4 = lean::format_pretty_aux_core(x_1, x_3);
+return x_4;
+}
 }
 }
 obj* l_Lean_fmt___rarg(obj* x_1, obj* x_2) {
@@ -2771,7 +2792,7 @@ _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = l_Lean_Options_empty;
-x_3 = l_Lean_Format_pretty(x_1, x_2);
+x_3 = lean::format_pretty_core(x_1, x_2);
 return x_3;
 }
 }
@@ -2780,7 +2801,7 @@ _start:
 {
 obj* x_2; obj* x_3; 
 x_2 = l_Lean_Options_empty;
-x_3 = l_Lean_Format_pretty(x_1, x_2);
+x_3 = lean::format_pretty_core(x_1, x_2);
 return x_3;
 }
 }
@@ -3074,6 +3095,8 @@ w = initialize_init_lean_options(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_array_default(w);
 if (io_result_is_error(w)) return w;
+l_Lean_Format_HasAppend = _init_l_Lean_Format_HasAppend();
+lean::mark_persistent(l_Lean_Format_HasAppend);
 l_Lean_Format_Inhabited = _init_l_Lean_Format_Inhabited();
 lean::mark_persistent(l_Lean_Format_Inhabited);
 l_Lean_Format_join___closed__1 = _init_l_Lean_Format_join___closed__1();

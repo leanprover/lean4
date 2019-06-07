@@ -18,7 +18,9 @@ obj* l_RBNode_setBlack___main___rarg(obj*);
 obj* l___private_init_lean_parser_trie_6__toStringAux___rarg(obj*);
 obj* l_RBNode_fold___main___at___private_init_lean_parser_trie_6__toStringAux___main___spec__2(obj*);
 obj* l___private_init_lean_parser_trie_6__toStringAux(obj*);
-obj* l_Lean_Format_pretty(obj*, obj*);
+namespace lean {
+obj* format_pretty_core(obj*, obj*);
+}
 obj* l___private_init_lean_parser_trie_3__findAux___rarg(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_trie_4__updtAcc___rarg___boxed(obj*, obj*, obj*);
 obj* l___private_init_lean_parser_trie_1__insertEmptyAux___main(obj*);
@@ -10986,7 +10988,7 @@ x_3 = lean::box(1);
 x_4 = l_Lean_Format_joinSep___main___at___private_init_lean_parser_trie_6__toStringAux___main___spec__1(x_2, x_3);
 lean::dec(x_2);
 x_5 = l_Lean_Options_empty;
-x_6 = l_Lean_Format_pretty(x_4, x_5);
+x_6 = lean::format_pretty_core(x_4, x_5);
 return x_6;
 }
 }

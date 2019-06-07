@@ -23,7 +23,9 @@ namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_HashMapImp_find___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___spec__1(obj*, obj*);
-obj* l_Lean_Format_pretty(obj*, obj*);
+namespace lean {
+obj* format_pretty_core(obj*, obj*);
+}
 extern obj* l_Lean_IR_JoinPointId_HasToString___closed__1;
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_ownArgs(obj*, obj*, obj*);
@@ -573,7 +575,7 @@ _start:
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = l_Lean_IR_Borrow_ParamMap_fmt(x_1);
 x_3 = l_Lean_Options_empty;
-x_4 = l_Lean_Format_pretty(x_2, x_3);
+x_4 = lean::format_pretty_core(x_2, x_3);
 return x_4;
 }
 }

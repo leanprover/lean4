@@ -54,7 +54,9 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_registerEnvExtensionUnsafe___rarg___closed__2;
 obj* l_Lean_importModulesAux(obj*, obj*, obj*);
-obj* l_Lean_Format_pretty(obj*, obj*);
+namespace lean {
+obj* format_pretty_core(obj*, obj*);
+}
 obj* l_Lean_EnvExtension_getState(obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__9(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_HashMap_numBuckets___at_Lean_Environment_displayStats___spec__6___boxed(obj*);
@@ -12781,7 +12783,7 @@ x_34 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_34, 0, x_33);
 lean::cnstr_set(x_34, 1, x_31);
 x_35 = l_Lean_Options_empty;
-x_36 = l_Lean_Format_pretty(x_34, x_35);
+x_36 = lean::format_pretty_core(x_34, x_35);
 x_37 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__10___closed__2;
 x_38 = lean::string_append(x_37, x_36);
 lean::dec(x_36);
@@ -13058,7 +13060,7 @@ x_107 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_107, 0, x_106);
 lean::cnstr_set(x_107, 1, x_104);
 x_108 = l_Lean_Options_empty;
-x_109 = l_Lean_Format_pretty(x_107, x_108);
+x_109 = lean::format_pretty_core(x_107, x_108);
 x_110 = l_Array_mforAux___main___at_Lean_Environment_displayStats___spec__10___closed__2;
 x_111 = lean::string_append(x_110, x_109);
 lean::dec(x_109);

@@ -18,7 +18,11 @@ inductive Format
 | choice       : Format → Format → Format
 
 namespace Format
-instance : HasAppend Format     := ⟨compose false⟩
+@[export lean.format_append_core]
+protected def append (a b : Format) : Format :=
+compose false a b
+
+instance : HasAppend Format     := ⟨Format.append⟩
 instance : HasCoe String Format := ⟨text⟩
 instance : Inhabited Format     := ⟨nil⟩
 
@@ -103,9 +107,13 @@ registerOption `format.unicode { defValue := defUnicode, group := "format", desc
 @[init] def widthOption : IO Unit :=
 registerOption `format.width { defValue := defWidth, group := "format", descr := "line width" }
 
-def pretty (f : Format) (o : Options := {}) : String :=
-let w := getWidth o in
+@[export lean.format_pretty_aux_core]
+def prettyAux (f : Format) (w : Nat := defWidth) : String :=
 be w 0 "" [(0, f)]
+
+@[export lean.format_pretty_core]
+def pretty (f : Format) (o : Options := {}) : String :=
+prettyAux f (getWidth o)
 
 end Format
 

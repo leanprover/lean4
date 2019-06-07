@@ -116,26 +116,26 @@ bool pp_using_anonymous_constructor(environment const & env, name const & n) {
 }
 
 void initialize_pp() {
-    g_ellipsis_n_fmt  = new format(highlight(format("…")));
-    g_ellipsis_fmt    = new format(highlight(format("...")));
-    g_placeholder_fmt = new format(highlight(format("_")));
-    g_lambda_n_fmt    = new format(highlight_keyword(format("λ")));
-    g_lambda_fmt      = new format(highlight_keyword(format("fun")));
-    g_forall_n_fmt    = new format(highlight_keyword(format("∀")));
-    g_forall_fmt      = new format(highlight_keyword(format("forall")));
-    g_pi_n_fmt        = new format(highlight_keyword(format("Π")));
-    g_pi_fmt          = new format(highlight_keyword(format("Pi")));
-    g_arrow_n_fmt     = new format(highlight_keyword(format("→")));
-    g_arrow_fmt       = new format(highlight_keyword(format("->")));
-    g_let_fmt         = new format(highlight_keyword(format("let")));
-    g_in_fmt          = new format(highlight_keyword(format("in")));
-    g_assign_fmt      = new format(highlight_keyword(format(":=")));
-    g_have_fmt        = new format(highlight_keyword(format("have")));
-    g_from_fmt        = new format(highlight_keyword(format("from")));
-    g_visible_fmt     = new format(highlight_keyword(format("[visible]")));
-    g_show_fmt        = new format(highlight_keyword(format("show")));
-    g_explicit_fmt    = new format(highlight_keyword(format("@")));
-    g_partial_explicit_fmt    = new format(highlight_keyword(format("@@")));
+    g_ellipsis_n_fmt  = new format(format("…"));
+    g_ellipsis_fmt    = new format(format("..."));
+    g_placeholder_fmt = new format(format("_"));
+    g_lambda_n_fmt    = new format(format("λ"));
+    g_lambda_fmt      = new format(format("fun"));
+    g_forall_n_fmt    = new format(format("∀"));
+    g_forall_fmt      = new format(format("forall"));
+    g_pi_n_fmt        = new format(format("Π"));
+    g_pi_fmt          = new format(format("Pi"));
+    g_arrow_n_fmt     = new format(format("→"));
+    g_arrow_fmt       = new format(format("->"));
+    g_let_fmt         = new format(format("let"));
+    g_in_fmt          = new format(format("in"));
+    g_assign_fmt      = new format(format(":="));
+    g_have_fmt        = new format(format("have"));
+    g_from_fmt        = new format(format("from"));
+    g_visible_fmt     = new format(format("[visible]"));
+    g_show_fmt        = new format(format("show"));
+    g_explicit_fmt    = new format(format("@"));
+    g_partial_explicit_fmt    = new format(format("@@"));
     g_nat_numeral_pp  = new nat_numeral_pp();
 
     g_pp_using_anonymous_constructor = new name("ppAsAnonymousCtor");

@@ -29,13 +29,11 @@ class options;
    compose      f1 ... fn = ["COMPOSE" f1 ... fn]
    line                   = ["LINE"]
    nest         n  f      = ("NEST" n . f)
-   highlight    c  f      = ("HIGHLIGHT" c . f)
 */
 
 class format {
 public:
-    enum format_kind { NIL, NEST, COMPOSE, FLAT_COMPOSE, CHOICE, LINE, TEXT, COLOR_BEGIN, COLOR_END};
-    enum format_color {RED, GREEN, ORANGE, BLUE, PINK, CYAN, GREY};
+    enum format_kind { NIL, NEST, COMPOSE, FLAT_COMPOSE, CHOICE, LINE, TEXT };
 private:
     sexpr m_value;
     static sexpr flatten(sexpr const & s);
@@ -97,19 +95,6 @@ private:
     }
     static inline sexpr sexpr_text(std::string const & s) {
         return sexpr(sexpr(format_kind::TEXT), sexpr(s));
-    }
-    static inline sexpr sexpr_color_begin(format_color c) {
-        return sexpr(sexpr(format_kind::COLOR_BEGIN), sexpr(c));
-    }
-    static inline format_color sexpr_color_begin(sexpr const & s) {
-        lean_assert(sexpr_kind(s) == format_kind::TEXT);
-        return static_cast<format_color>(to_int(cdr(s)));
-    }
-    static inline sexpr sexpr_color_end() {
-        return sexpr(sexpr(format_kind::COLOR_END), sexpr());
-    }
-    static inline sexpr sexpr_highlight(sexpr const & s, format_color c) {
-        return sexpr_compose(sexpr(sexpr_color_begin(c), sexpr(s, sexpr(sexpr_color_end(), sexpr()))));
     }
     static inline sexpr sexpr_nil() {
         return sexpr(sexpr(format::format_kind::NIL), sexpr());
@@ -175,7 +160,6 @@ public:
 
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);
-    friend format highlight(format const & f, format::format_color const c);
     friend format mk_line();
 
     friend format group(format const & f);
@@ -198,8 +182,7 @@ public:
         return *this;
     }
 
-    static std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f);
-    friend std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f);
+    static std::ostream & pretty(std::ostream & out, unsigned w, format const & f);
     friend std::ostream & pretty(std::ostream & out, unsigned w, format const & f);
     friend std::ostream & pretty(std::ostream & out, options const & o, format const & f);
 
@@ -213,10 +196,6 @@ public:
 format wrap(format const & f1, format const & f2);
 format compose(format const & f1, format const & f2);
 format nest(int i, format const & f);
-format highlight(format const & f, format::format_color const c = format::RED);
-format highlight_keyword(format const & f);
-format highlight_builtin(format const & f);
-format highlight_command(format const & f);
 format const & line();
 format const & space();
 format const & lp();

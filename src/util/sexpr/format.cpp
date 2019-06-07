@@ -32,26 +32,9 @@
 #define LEAN_DEFAULT_PP_WIDTH 120
 #endif
 
-#ifndef LEAN_DEFAULT_PP_COLORS
-#define LEAN_DEFAULT_PP_COLORS false
-#endif
-
-#ifndef LEAN_KEYWORD_HIGHLIGHT_COLOR
-#define LEAN_KEYWORD_HIGHLIGHT_COLOR format::ORANGE
-#endif
-
-#ifndef LEAN_BUILTIN_HIGHLIGHT_COLOR
-#define LEAN_BUILTIN_HIGHLIGHT_COLOR format::CYAN
-#endif
-
-#ifndef LEAN_COMMAND_HIGHLIGHT_COLOR
-#define LEAN_COMMAND_HIGHLIGHT_COLOR format::BLUE
-#endif
-
 namespace lean {
 static name * g_pp_indent  = nullptr;
 static name * g_pp_unicode = nullptr;
-static name * g_pp_colors  = nullptr;
 static name * g_pp_width   = nullptr;
 
 unsigned get_pp_indent(options const & o) {
@@ -59,9 +42,6 @@ unsigned get_pp_indent(options const & o) {
 }
 bool get_pp_unicode(options const & o) {
     return o.get_bool(*g_pp_unicode, LEAN_DEFAULT_PP_UNICODE);
-}
-bool get_pp_colors(options const & o) {
-    return o.get_bool(*g_pp_colors, LEAN_DEFAULT_PP_COLORS);
 }
 unsigned get_pp_width(options const & o) {
     return o.get_unsigned(*g_pp_width, LEAN_DEFAULT_PP_WIDTH);
@@ -71,18 +51,6 @@ format compose(format const & f1, format const & f2) {
 }
 format nest(int i, format const & f) {
     return format(format::sexpr_nest(i, f.m_value));
-}
-format highlight(format const & f, format::format_color const c) {
-    return format(format::sexpr_highlight(f.m_value, c));
-}
-format highlight_keyword(format const & f) {
-    return highlight(f, LEAN_KEYWORD_HIGHLIGHT_COLOR);
-}
-format highlight_builtin(format const & f) {
-    return highlight(f, LEAN_BUILTIN_HIGHLIGHT_COLOR);
-}
-format highlight_command(format const & f) {
-    return highlight(f, LEAN_COMMAND_HIGHLIGHT_COLOR);
 }
 // Commonly used format objects
 format mk_line() {
@@ -141,8 +109,6 @@ sexpr format::flatten(sexpr const & s) {
         return *g_sexpr_space;
     case format_kind::FLAT_COMPOSE:
     case format_kind::TEXT:
-    case format_kind::COLOR_BEGIN:
-    case format_kind::COLOR_END:
         return s;
     }
     lean_unreachable(); // LCOV_EXCL_LINE
@@ -216,8 +182,6 @@ struct format::separate_tokens_fn {
         std::tuple<sexpr, sexpr const *> result;
         switch (sexpr_kind(s)) {
         case format_kind::NIL:
-        case format_kind::COLOR_BEGIN:
-        case format_kind::COLOR_END:
             result = std::make_tuple(s, last);
             break;
         case format_kind::LINE:
@@ -316,12 +280,9 @@ bool format::space_upto_line_break_list_exceeded(sexpr const & s, int available,
 int format::space_upto_line_break(sexpr const & s, int available, bool & found_newline) {
     // s : format
     lean_assert(!found_newline);
-    lean_assert(sexpr_kind(s) <= format_kind::COLOR_END);
 
     switch (sexpr_kind(s)) {
     case format_kind::NIL:
-    case format_kind::COLOR_BEGIN:
-    case format_kind::COLOR_END:
     {
         return 0;
     }
@@ -367,7 +328,7 @@ format operator^(format const & f1, format const & f2) {
     return compose(f1, compose(format(" "), f2));
 }
 
-std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, format const & f) {
+std::ostream & format::pretty(std::ostream & out, unsigned w, format const & f) {
     unsigned pos        = 0;
     std::vector<pair<sexpr, unsigned>> todo;
     todo.push_back(std::make_pair(f.m_value, 0));
@@ -380,17 +341,6 @@ std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, forma
 
         switch (sexpr_kind(s)) {
         case format_kind::NIL:
-            break;
-        case format_kind::COLOR_BEGIN:
-            if (colors) {
-                format::format_color c = static_cast<format::format_color>(to_int(cdr(s)));
-                out << "\x1b[" << (31 + c % 7) << "m";
-            }
-            break;
-        case format_kind::COLOR_END:
-            if (colors) {
-                out << "\x1b[0m";
-            }
             break;
         case format_kind::COMPOSE:
         case format_kind::FLAT_COMPOSE: {
@@ -429,20 +379,16 @@ std::ostream & format::pretty(std::ostream & out, unsigned w, bool colors, forma
     return out;
 }
 
-std::ostream & pretty(std::ostream & out, unsigned w, bool colors, format const & f) {
-    return format::pretty(out, w, colors, f);
-}
-
 std::ostream & pretty(std::ostream & out, unsigned w, format const & f) {
-    return pretty(out, w, LEAN_DEFAULT_PP_COLORS, f);
+    return format::pretty(out, w, f);
 }
 
 std::ostream & pretty(std::ostream & out, options const & opts, format const & f) {
-    return pretty(out, get_pp_width(opts), get_pp_colors(opts), f);
+    return pretty(out, get_pp_width(opts), f);
 }
 
 std::ostream & operator<<(std::ostream & out, format const & f) {
-    return pretty(out, LEAN_DEFAULT_PP_WIDTH, LEAN_DEFAULT_PP_COLORS, f);
+    return pretty(out, LEAN_DEFAULT_PP_WIDTH, f);
 }
 
 std::ostream & operator<<(std::ostream & out, pair<format const &, options const &> const & p) {
@@ -510,11 +456,9 @@ format pp(sexpr const & s) {
 void initialize_format() {
     g_pp_indent  = new name{"pp", "indent"};
     g_pp_unicode = new name{"pp", "unicode"};
-    g_pp_colors  = new name{"pp", "colors"};
     g_pp_width   = new name{"pp", "width"};
     register_unsigned_option(*g_pp_indent, LEAN_DEFAULT_PP_INDENTATION, "(pretty printer) default indentation");
     register_bool_option(*g_pp_unicode, LEAN_DEFAULT_PP_UNICODE, "(pretty printer) use unicode characters");
-    register_bool_option(*g_pp_colors, LEAN_DEFAULT_PP_COLORS, "(pretty printer) use colors");
     register_unsigned_option(*g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
     g_line = new format(mk_line());
     g_space = new format(" ");
@@ -545,7 +489,6 @@ void finalize_format() {
     delete g_dot;
     delete g_pp_indent;
     delete g_pp_unicode;
-    delete g_pp_colors;
     delete g_pp_width;
 }
 }

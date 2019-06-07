@@ -59,27 +59,9 @@ format mk_line() {
 
 static format * g_line = nullptr;
 static format * g_space = nullptr;
-static format * g_lp = nullptr;
-static format * g_rp = nullptr;
-static format * g_lsb = nullptr;
-static format * g_rsb = nullptr;
-static format * g_lcurly = nullptr;
-static format * g_rcurly = nullptr;
-static format * g_comma = nullptr;
-static format * g_colon = nullptr;
-static format * g_dot = nullptr;
 static sexpr  * g_sexpr_space = nullptr;
-format const & line() { return *g_line; }
-format const & space() { return *g_space; }
-format const & lp() { return *g_lp; }
-format const & rp() { return *g_rp; }
-format const & lsb() { return *g_lsb; }
-format const & rsb() { return *g_rsb; }
-format const & lcurly() { return *g_lcurly; }
-format const & rcurly() { return *g_rcurly; }
-format const & comma() { return *g_comma; }
-format const & colon() { return *g_colon; }
-format const & dot() { return *g_dot; }
+format line() { return *g_line; }
+format space() { return *g_space; }
 // Auxiliary flag used to mark whether flatten
 // produce a different sexpr
 LEAN_THREAD_VALUE(bool, g_diff_flatten, false);
@@ -127,123 +109,11 @@ format group(format const & f) {
         return flat_f;
     }
 }
-format above(format const & f1, format const & f2) {
-    return f1 + line() + f2;
-}
 format bracket(std::string const & l, format const & x, std::string const & r) {
     return group(nest(l.size(), format(l) + x + format(r)));
 }
 format paren(format const & x) {
-    return group(nest(1, lp() + x + rp()));
-}
-
-// wrap = <+/>
-// wrap x y = x <> (text " " :<|> line) <> y
-format wrap(format const & f1, format const & f2) {
-    return f1 + choice(format(" "), line()) + f2;
-}
-
-struct format::separate_tokens_fn {
-    typedef std::pair<sexpr, sexpr const *> input;
-    typedef std::tuple<sexpr, sexpr const *> output;
-
-    struct input_hash_fn {
-        unsigned operator()(input const & in) const {
-            return ::lean::hash(hash_ptr(in.first.raw()), hash_ptr(in.second));
-        }
-    };
-
-    struct input_eq_fn {
-        bool operator()(input const & in1, input const & in2) const {
-            return is_eqp(in1.first, in2.first) && in1.second == in2.second;
-        };
-    };
-
-    typedef std::unordered_map<input, output, input_hash_fn, input_eq_fn> cache;
-    cache m_cache;
-    std::function<bool(sexpr const &, sexpr const &)> m_sep; // NOLINT
-
-    separate_tokens_fn(std::function<bool(sexpr const &, sexpr const &)> const & sep):m_sep(sep) {} // NOLINT
-
-    std::tuple<sexpr, sexpr const *> separate(sexpr const & s, sexpr const * last) {
-        try {
-            check_system("separate_tokens");
-        } catch (stack_space_exception &) {
-            return std::make_tuple(s, last);
-        }
-
-        input in(s, last);
-
-        auto it = m_cache.find(in);
-        if (it != m_cache.end()) {
-            return it->second;
-        }
-
-        std::tuple<sexpr, sexpr const *> result;
-        switch (sexpr_kind(s)) {
-        case format_kind::NIL:
-            result = std::make_tuple(s, last);
-            break;
-        case format_kind::LINE:
-            result = std::make_tuple(s, nullptr);
-            break;
-        case format_kind::COMPOSE:
-        case format_kind::FLAT_COMPOSE:
-        {
-            sexpr list = sexpr_compose_list(s);
-            list = map(list, [&](sexpr const & s) {
-                sexpr t;
-                std::tie(t, last) = separate(s, last);
-                return t;
-            });
-            sexpr t = sexpr_kind(s) == format_kind::COMPOSE ? sexpr_compose(list) : sexpr_flat_compose(list);
-            result = std::make_tuple(t, last);
-            break;
-        }
-        case format_kind::NEST:
-        {
-            sexpr t;
-            std::tie(t, last) = separate(sexpr_nest_s(s), last);
-            result = std::make_tuple(sexpr_nest(sexpr_nest_i(s), t), last);
-            break;
-        }
-        case format_kind::TEXT:
-        {
-            sexpr const & text = sexpr_text_t(s);
-            if (last && m_sep(*last, text))
-                result = std::make_tuple(sexpr_compose({*g_sexpr_space, s}), &text);
-            else
-                result = std::make_tuple(s, &text);
-            break;
-        }
-        case format_kind::CHOICE:
-        {
-            sexpr s1, s2; sexpr const * last1, * last2;
-            std::tie(s1, last1) = separate(sexpr_choice_1(s), last);
-            std::tie(s2, last2) = separate(sexpr_choice_2(s), last);
-            if (last1 == last2 || (last1 && last2 && *last1 == *last2)) {
-                result = std::make_tuple(sexpr_choice(s1, s2), last1);
-            } else {
-                // group(... + line()) produces a choice where the last elements are not equal.
-                result = std::make_tuple(sexpr_choice(s1, s2), nullptr);
-            }
-            break;
-        }}
-        m_cache.insert(mk_pair(in, result));
-        return result;
-    }
-
-    std::tuple<sexpr, sexpr const *> operator()(sexpr const & s, sexpr const * last) {
-        return separate(s, last);
-    }
-};
-
-/**
-   \brief Replaces every text sepxr \c t with <tt>compose(" ", t)</tt> if there is a preceding
-   text sexpr \c s and <tt>sep(s, t)</tt> is true
-*/
-format format::separate_tokens(std::function<bool(sexpr const &, sexpr const &)> sep) const { // NOLINT
-    return format(std::get<0>(separate_tokens_fn(sep)(m_value, nullptr)));
+    return group(nest(1, format("(") + x + format(")")));
 }
 
 /**
@@ -407,52 +277,6 @@ format pp(name const & n) {
     return format(n.to_string());
 }
 
-struct sexpr_pp_fn {
-    format apply(sexpr const & s) {
-        check_system("formatter");
-        switch (s.kind()) {
-        case sexpr_kind::Nil:         return format("nil");
-        case sexpr_kind::String: {
-            std::ostringstream ss;
-            ss << "\"" << escaped(to_string(s).c_str()) << "\"";
-            return format(ss.str());
-        }
-        case sexpr_kind::Bool:        return format(to_bool(s) ? "true" : "false");
-        case sexpr_kind::Int:         return format(to_int(s));
-        case sexpr_kind::Double:      return format(to_double(s));
-        case sexpr_kind::Name:        return pp(to_name(s));
-        case sexpr_kind::Ext: {
-            std::ostringstream ss;
-            to_ext(s).display(ss);
-            return format(ss.str());
-        }
-        case sexpr_kind::Cons: {
-            sexpr const * curr = &s;
-            format r;
-            while (true) {
-                r += apply(head(*curr));
-                curr = &tail(*curr);
-                if (is_nil(*curr)) {
-                    return paren(r);
-                } else if (!is_cons(*curr)) {
-                    return group(nest(1, lp() + r + space() + dot() + line() + apply(*curr) + rp()));
-                } else {
-                    r += line();
-                }
-            }
-        }}
-        lean_unreachable(); // LCOV_EXCL_LINE
-    }
-
-    format operator()(sexpr const & s) {
-        return apply(s);
-    }
-};
-
-format pp(sexpr const & s) {
-    return sexpr_pp_fn()(s);
-}
-
 void initialize_format() {
     g_pp_indent  = new name{"pp", "indent"};
     g_pp_unicode = new name{"pp", "unicode"};
@@ -462,15 +286,6 @@ void initialize_format() {
     register_unsigned_option(*g_pp_width, LEAN_DEFAULT_PP_WIDTH, "(pretty printer) line width");
     g_line = new format(mk_line());
     g_space = new format(" ");
-    g_lp = new format("(");
-    g_rp = new format(")");
-    g_lsb = new format("[");
-    g_rsb = new format("]");
-    g_lcurly = new format("{");
-    g_rcurly = new format("}");
-    g_comma = new format(",");
-    g_colon = new format(":");
-    g_dot = new format(".");
     g_sexpr_space = new sexpr(sexpr(format::format_kind::TEXT), " ");
 }
 
@@ -478,15 +293,6 @@ void finalize_format() {
     delete g_sexpr_space;
     delete g_line;
     delete g_space;
-    delete g_lp;
-    delete g_rp;
-    delete g_lsb;
-    delete g_rsb;
-    delete g_lcurly;
-    delete g_rcurly;
-    delete g_comma;
-    delete g_colon;
-    delete g_dot;
     delete g_pp_indent;
     delete g_pp_unicode;
     delete g_pp_width;

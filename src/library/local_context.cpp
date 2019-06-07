@@ -320,9 +320,9 @@ format local_context::pp(formatter const & fmt, std::function<bool(local_decl co
             if (type && (d.get_type() != *type || d.get_value())) {
                 // add (ids : type) IF the d.get_type() != type OR d is a let-decl
                 if (first) first = false;
-                else r += comma() + line();
+                else r += format(",") + line();
 
-                r += group(ids + space() + colon() + nest(indent, line() + fmt(*type)));
+                r += group(ids + space() + format(":") + nest(indent, line() + fmt(*type)));
                 type = optional<expr>();
                 ids  = format();
             }
@@ -332,8 +332,8 @@ format local_context::pp(formatter const & fmt, std::function<bool(local_decl co
 
             if (d.get_value()) {
                 if (first) first = false;
-                else r += comma() + line();
-                r += group(format(n) + space() + colon() + space() + fmt(d.get_type()) +
+                else r += format(",") + line();
+                r += group(format(n) + space() + format(":") + space() + fmt(d.get_type()) +
                            space() + format(":=") + nest(indent, line() + fmt(*d.get_value())));
             } else if (!type) {
                 lean_assert(!d.get_value());
@@ -346,8 +346,8 @@ format local_context::pp(formatter const & fmt, std::function<bool(local_decl co
             }
         });
     if (type) {
-        if (!first) r += comma() + line();
-        r += group(ids + space() + colon() + nest(indent, line() + fmt(*type)));
+        if (!first) r += format(",") + line();
+        r += group(ids + space() + format(":") + nest(indent, line() + fmt(*type)));
     }
     if (get_pp_goal_compact(opts))
         r = group(r);

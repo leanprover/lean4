@@ -38,9 +38,9 @@ format nested_elaborator_exception::pp() const {
     pos_info_provider * pip = get_pos_info_provider();
     r += line();
     if (pip) {
-        r += format(pip->get_file_name()) + colon();
+        r += format(pip->get_file_name()) + format(":");
         if (m_pos) {
-            r += format(m_pos->first) + colon() + format(m_pos->second) + colon();
+            r += format(m_pos->first) + format(":") + format(m_pos->second) + format(":");
         }
         r += space();
     }

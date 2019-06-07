@@ -236,7 +236,7 @@ struct elim_match_fn {
         format v;
         bool first = true;
         for (expr const & x : P.m_var_stack) {
-            if (first) first = false; else v += comma() + space();
+            if (first) first = false; else v += format(", ");
             v += pp(x);
         }
         r += bracket("[", v, "]");

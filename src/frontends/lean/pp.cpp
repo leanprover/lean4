@@ -724,7 +724,7 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
         for (unsigned i = num_params; i < args.size(); i++) {
             if (i > num_params) r += line();
             format fval_fmt     = pp(args[i]).fmt();
-            if (i < args.size() - 1) fval_fmt += comma();
+            if (i < args.size() - 1) fval_fmt += format(",");
             r += fval_fmt;
         }
         r = group(nest(1, format("⟨") + r + format("⟩")));
@@ -740,7 +740,7 @@ auto pretty_fn::pp_structure_instance(expr const & e) -> result {
             name fname          = fields[i];
             unsigned field_size = fname.utf8_size();
             format fval_fmt     = pp_child(args[i + num_params], 0).fmt();
-            if (i < fields.size() - 1) fval_fmt += comma();
+            if (i < fields.size() - 1) fval_fmt += format(",");
             r                  += format(fname) + space() + *g_assign_fmt + space() + nest(field_size + 4, fval_fmt);
         }
         r = group(nest(1, format("{") + r + format("}")));
@@ -803,7 +803,7 @@ format pretty_fn::pp_binder(expr const & local) {
     r += escape(local_pp_name(local));
     if (m_binder_types) {
         r += space();
-        r += compose(colon(), nest(m_indent, compose(line(), pp_child(local_type(local), 0).fmt())));
+        r += compose(format(":"), nest(m_indent, compose(line(), pp_child(local_type(local), 0).fmt())));
     }
     if (!is_default(bi))
         r += format(close_binder_string(bi, m_unicode));
@@ -819,7 +819,7 @@ format pretty_fn::pp_binder_block(buffer<name> const & names, expr const & type,
     }
     if (m_binder_types) {
         r += space();
-        r += compose(colon(), nest(m_indent, compose(line(), pp_child(type, 0).fmt())));
+        r += compose(format(":"), nest(m_indent, compose(line(), pp_child(type, 0).fmt())));
     }
     if (m_binder_types || !is_default(bi))
         r += format(close_binder_string(bi, m_unicode));
@@ -860,7 +860,7 @@ auto pretty_fn::pp_lambda(expr const & e) -> result {
     }
     format r = m_unicode ? *g_lambda_n_fmt : *g_lambda_fmt;
     r += pp_binders(locals);
-    r += group(compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
+    r += group(compose(format(","), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
     return result(0, r);
 }
 
@@ -892,7 +892,7 @@ auto pretty_fn::pp_pi(expr const & e) -> result {
         else
             r = m_unicode ? *g_pi_n_fmt : *g_pi_fmt;
         r += pp_binders(locals);
-        r += group(compose(comma(), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
+        r += group(compose(format(","), nest(m_indent, compose(line(), pp_child(b, 0).fmt()))));
         return result(0, r);
     }
 }
@@ -917,9 +917,9 @@ auto pretty_fn::pp_have(expr const & e) -> result {
     format body_fmt  = pp_child(body, 0).fmt();
     format head_fmt  = *g_have_fmt;
     format r = head_fmt + space() + escape(n) + space();
-    r += colon() + nest(m_indent, line() + type_fmt + comma() + space() + *g_from_fmt);
+    r += format(":") + nest(m_indent, line() + type_fmt + format(",") + space() + *g_from_fmt);
     r = group(r);
-    r += nest(m_indent, line() + proof_fmt + comma());
+    r += nest(m_indent, line() + proof_fmt + format(","));
     r = group(r);
     r += line() + body_fmt;
     return result(0, r);
@@ -932,7 +932,7 @@ auto pretty_fn::pp_show(expr const & e) -> result {
     expr type        = binding_domain(app_fn(s));
     format type_fmt  = pp_child(type, 0).fmt();
     format proof_fmt = pp_child(proof, 0).fmt();
-    format r = *g_show_fmt + space() + nest(5, type_fmt) + comma() + space() + *g_from_fmt;
+    format r = *g_show_fmt + space() + nest(5, type_fmt) + format(",") + space() + *g_from_fmt;
     r = group(r);
     r += nest(m_indent, compose(line(), proof_fmt));
     return result(0, group(r));
@@ -977,13 +977,13 @@ auto pretty_fn::pp_equations(expr const & e) -> optional<result> {
         }
         r += line();
     } else {
-        r = format("def") + space() + pp(fns[0]).fmt() + space() + colon() + space() + pp(local_type(fns[0])).fmt();
+        r = format("def") + space() + pp(fns[0]).fmt() + space() + format(":") + space() + pp(local_type(fns[0])).fmt();
     }
     unsigned eqnidx = 0;
     for (unsigned fidx = 0; fidx < num_fns; fidx++) {
         if (num_fns > 1) {
             if (fidx > 0) r += line();
-            r += format("with") + space() + pp(fns[fidx]).fmt() + space() + colon() +
+            r += format("with") + space() + pp(fns[fidx]).fmt() + space() + format(":") +
                 space() + pp(local_type(fns[fidx])).fmt();
         }
         if (eqnidx >= eqns.size()) return optional<result>();
@@ -1068,7 +1068,7 @@ auto pretty_fn::pp_let(expr e) -> result {
         std::tie(l, t, v) = decls[i];
         name const & n = local_pp_name(l);
         format beg     = i == 0 ? space() : line();
-        format sep     = i < sz - 1 ? comma() : format();
+        format sep     = i < sz - 1 ? format(",") : format();
         format entry   = format(n);
         format v_fmt   = pp_child(v, 0).fmt();
         unsigned indent = m_compact_let ? 0 : m_indent;
@@ -1076,7 +1076,7 @@ auto pretty_fn::pp_let(expr e) -> result {
             entry += space() + *g_assign_fmt + nest(indent, line() + v_fmt + sep);
         } else {
             format t_fmt   = pp_child(t, 0).fmt();
-            entry += space() + colon() + space() + t_fmt + space() + *g_assign_fmt + nest(indent, line() + v_fmt + sep);
+            entry += space() + format(":") + space() + t_fmt + space() + *g_assign_fmt + nest(indent, line() + v_fmt + sep);
         }
         if (m_compact_let)
             r += nest(1, beg + group(entry));
@@ -1538,7 +1538,7 @@ auto pretty_fn::pp_explicit_collection(buffer<expr> const & elems) -> result {
     } else {
         format r = pp_child(elems[0], 0).fmt();
         for (unsigned i = 1; i < elems.size(); i++) {
-            r += nest(m_indent, comma() + line() + pp_child(elems[i], 0).fmt());
+            r += nest(m_indent, format(",") + line() + pp_child(elems[i], 0).fmt());
         }
         r = group(bracket("{", r, "}"));
         return result(r);
@@ -1592,11 +1592,11 @@ auto pretty_fn::pp_prod(expr const & e) -> result {
     format r = pp(app_arg(app_fn(e))).fmt();
     auto it = app_arg(e);
     while (is_app_of(it, get_prod_mk_name(), 4)) {
-        r += comma() + line();
+        r += format(",") + line();
         r += pp(app_arg(app_fn(it))).fmt();
         it = app_arg(it);
     }
-    r += comma() + line();
+    r += format(",") + line();
     r += pp(it).fmt();
     return result(paren(group(r)));
 }
@@ -1771,15 +1771,7 @@ format pretty_fn::operator()(expr const & e) {
     m_depth = 0; m_num_steps = 0;
     result r = pp_child(purified, 0);
 
-    // insert spaces so that lexing the result round-trips
-    std::function<bool(sexpr const &, sexpr const &)> sep; // NOLINT
-    token_table const * last = nullptr;
-    sep = [&](sexpr const & s1, sexpr const & s2) {
-        bool b;
-        std::tie(b, last) = needs_space_sep(last, sexpr_to_string(s1), sexpr_to_string(s2));
-        return b;
-    };
-    return r.fmt().separate_tokens(sep);
+    return r.fmt();
 }
 
 formatter_factory mk_pretty_formatter_factory() {

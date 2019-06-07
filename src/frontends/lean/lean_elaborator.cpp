@@ -210,7 +210,7 @@ void elab_check_cmd(parser & p, expr const & cmd) {
     unsigned indent       = get_pp_indent(p.get_options());
     format e_fmt    = fmt(e);
     format type_fmt = fmt(type);
-    format r = group(e_fmt + space() + colon() + nest(indent, line() + type_fmt));
+    format r = group(e_fmt + space() + format(":") + nest(indent, line() + type_fmt));
     out.set_caption("check result") << r;
     out.report();
 }

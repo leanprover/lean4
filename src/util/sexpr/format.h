@@ -103,8 +103,6 @@ private:
         return sexpr(sexpr(format::format_kind::LINE), sexpr());
     }
 
-    struct separate_tokens_fn;
-
     // Functions used inside of pretty printing
     static bool space_upto_line_break_list_exceeded(sexpr const & s, int available, std::vector<pair<sexpr, unsigned>> const & todo);
     static int space_upto_line_break(sexpr const & s, int available, bool & found);
@@ -156,8 +154,6 @@ public:
     bool is_nil_fmt() const { return kind() == format_kind::NIL; }
     unsigned hash() const { return m_value.hash(); }
 
-    format separate_tokens(std::function<bool(sexpr const &, sexpr const &)> sep) const; // NOLINT
-
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);
     friend format mk_line();
@@ -188,89 +184,17 @@ public:
 
     friend std::ostream & operator<<(std::ostream & out, format const & f);
     friend std::ostream & operator<<(std::ostream & out, pair<format const &, options const &> const & p);
-
-    /** \brief Return true iff f is just a name */
-    friend bool is_name(format const & f) { return format::is_text(f) && ::lean::is_name(cdr(f.m_value)); }
 };
 
 format wrap(format const & f1, format const & f2);
 format compose(format const & f1, format const & f2);
 format nest(int i, format const & f);
-format const & line();
-format const & space();
-format const & lp();
-format const & rp();
-format const & lsb();
-format const & rsb();
-format const & lcurly();
-format const & rcurly();
-format const & comma();
-format const & colon();
-format const & dot();
+format line();
+format space();
 format group(format const & f);
-format above(format const & f1, format const & f2);
 format bracket(std::string const & l, format const & x, std::string const & r);
 format paren(format const & x);
-format wrap(format const & f1, format const & f2);
 
-// is_iterator
-template<typename T, typename = void>
-struct is_iterator {
-    static constexpr bool value = false;
-};
-template<typename T>
-struct is_iterator<T, typename std::enable_if<!std::is_same<typename std::iterator_traits<T>::value_type, void>::value>::type> {
-    static constexpr bool value = true;
-};
-
-template <class InputIterator, typename F>
-format folddoc(InputIterator first, InputIterator last, F f) {
-    // InputIterator : iterator<T>
-    static_assert(is_iterator<InputIterator>::value, "folddoc takes non-iterator type arguments");
-    // F : T x format -> format
-    static_assert(std::is_same<typename std::result_of<F(typename std::iterator_traits<InputIterator>::value_type,
-                                                         format)>::type, format>::value,
-                  "folddoc: return type of f is not format");
-    if (first == last) { return format(); }
-    return f(*first, folddoc(first + 1, last, f));
-}
-template <class InputIterator>
-format spread(InputIterator first, InputIterator last) {
-    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type, format>::value,
-                  "stack takes an argument which is not an iterator containing format.");
-    return folddoc(first, last, compose);
-}
-inline format spread(std::initializer_list<format> const & l) {
-    return spread(l.begin(), l.end());
-}
-template <class InputIterator>
-format stack(InputIterator first, InputIterator last) {
-    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type, format>::value,
-                  "stack takes an argument which is not an iterator containing format.");
-    return folddoc(first, last, above);
-}
-inline format stack(std::initializer_list<format> const & l) {
-    return stack(l.begin(), l.end());
-}
-template <typename InputIterator>
-format fill(InputIterator first, InputIterator last) {
-    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type, format>::value,
-                  "fill takes an argument which is not an iterator containing format.");
-    return folddoc(first, last, wrap);
-}
-inline format fill(std::initializer_list<format> const & l) {
-    return fill(l.begin(), l.end());
-}
-template <typename InputIterator>
-format fillwords(InputIterator first, InputIterator last) {
-    static_assert(std::is_same<typename std::iterator_traits<InputIterator>::value_type,
-                  typename std::string>::value,
-                  "fillwords takes an argument which is not an iterator containing std::string.");
-    return folddoc(first, last, [](std::string const & s, format const & r) { return wrap(format(s), r); } );
-}
-inline format fillwords(std::initializer_list<std::string> const & l) {
-    return fillwords(l.begin(), l.end());
-}
 class options;
 /** \brief Extract indentation from options */
 unsigned get_pp_indent(options const & o);
@@ -279,9 +203,6 @@ bool get_pp_unicode(options const & o);
 
 /** \brief Format a hierarchical name */
 format pp(name const & n);
-
-/** \brief Format a S-expression */
-format pp(sexpr const & s);
 
 /** \brief Return true iff \c f1 and \c f2 are equal when formatted with options \c o */
 bool format_pp_eq(format const & f1, format const & f2, options const & o);

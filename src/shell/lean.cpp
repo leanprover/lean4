@@ -332,7 +332,7 @@ int main(int argc, char ** argv) {
     options opts;
     optional<std::string> server_in;
     std::string native_output;
-    optional<std::string> new_cpp_output;
+    optional<std::string> cpp_output;
     while (true) {
         int c = getopt_long(argc, argv, g_opt_str, g_long_options, NULL);
         if (c == -1)
@@ -351,7 +351,7 @@ int main(int argc, char ** argv) {
                 display_help(std::cout);
                 return 0;
             case 'c':
-                new_cpp_output = optarg;
+                cpp_output = optarg;
                 break;
             case 's':
                 lean::lthread::set_thread_stack_size(
@@ -565,10 +565,10 @@ int main(int argc, char ** argv) {
         if (!json_output)
             display_cumulative_profiling_times(std::cerr);
 
-        if (new_cpp_output && ok) {
-            std::ofstream out(*new_cpp_output);
+        if (cpp_output && ok) {
+            std::ofstream out(*cpp_output);
             if (out.fail()) {
-                std::cerr << "failed to create '" << *new_cpp_output << "'\n";
+                std::cerr << "failed to create '" << *cpp_output << "'\n";
                 return 1;
             }
             auto mod = module_name_of_file(path.get_path(), mod_fn);

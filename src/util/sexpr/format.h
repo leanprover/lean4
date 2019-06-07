@@ -152,29 +152,18 @@ public:
         return sexpr_kind(m_value);
     }
     bool is_nil_fmt() const { return kind() == format_kind::NIL; }
-    unsigned hash() const { return m_value.hash(); }
 
     friend format compose(format const & f1, format const & f2);
     friend format nest(int i, format const & f);
     friend format mk_line();
-
     friend format group(format const & f);
-    friend format above(format const & f1, format const & f2);
     friend format bracket(std::string const & l, format const & x, std::string const & r);
-    friend format wrap(format const & f1, format const & f2);
     friend format flatten(format const & f);
 
     // x + y = x <> y
     friend format operator+(format const & f1, format const & f2);
     format & operator+=(format const & f) {
         *this = *this + f;
-        return *this;
-    }
-
-    // x ^ y = x <> " " <> y
-    friend format operator^(format const & f1, format const & f2);
-    format & operator^=(format const & f) {
-        *this = *this ^ f;
         return *this;
     }
 
@@ -186,13 +175,12 @@ public:
     friend std::ostream & operator<<(std::ostream & out, pair<format const &, options const &> const & p);
 };
 
-format wrap(format const & f1, format const & f2);
 format compose(format const & f1, format const & f2);
 format nest(int i, format const & f);
 format line();
 format space();
-format group(format const & f);
 format bracket(std::string const & l, format const & x, std::string const & r);
+format group(format const & f);
 format paren(format const & x);
 
 class options;

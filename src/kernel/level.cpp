@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "runtime/debug.h"
 #include "runtime/interrupt.h"
 #include "runtime/hash.h"
-#include "util/safe_arith.h"
 #include "util/buffer.h"
 #include "util/list.h"
 #include "kernel/level.h"

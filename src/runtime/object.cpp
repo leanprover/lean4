@@ -1799,14 +1799,17 @@ runtime_stats g_runtime_stats;
 
 static object * g_decls = nullptr;
 
-/* Low level function for creating a Lean.Name in the runtime. */
+/* Remark: this is ugly, it forces the Lean runtime to depend on the implementation of `Lean.Name`.
+   This may be an issue for standalone applications. */
+extern "C" object* lean_name_mk_string(obj_arg p, obj_arg s);
+
 obj_res mk_const_name(obj_arg p, char const * s) {
-    obj_res r = alloc_cnstr(1, 2, 0);
-    cnstr_set(r, 0, p);
-    cnstr_set(r, 1, mk_string(s));
-    return r;
+    return lean_name_mk_string(p, mk_string(s));
 }
 
+/* Remark: we should improve this too. A standalone application implemented in Lean will seldom
+   need a table with all constants. This table is only used to implement `Lean.evalConst`
+   unsafe primitive. */
 void register_constant(obj_arg fn, obj_arg obj) {
     object * p = alloc_cnstr(0, 2, 0);
     cnstr_set(p, 0, fn);
@@ -1816,12 +1819,12 @@ void register_constant(obj_arg fn, obj_arg obj) {
 
 obj_res set_io_result(obj_arg r, obj_arg a);
 
-obj_res modify_constant_table(obj_arg f, obj_arg w) {
+extern "C" obj_res lean_modify_constant_table(obj_arg f, obj_arg w) {
     g_decls = apply_1(f, g_decls);
     return w;
 }
 
-obj_res get_constant_table(obj_arg w) {
+extern "C" obj_res lean_get_constant_table(obj_arg w) {
     inc(g_decls);
     return set_io_result(w, g_decls);
 }

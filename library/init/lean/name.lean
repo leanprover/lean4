@@ -9,7 +9,7 @@ import init.data.hashable init.data.rbmap init.data.rbtree
 namespace Lean
 
 inductive Name
-| anonymous  : Name
+| anonymous : Name
 | mkString  : Name → String → Name
 | mkNumeral : Name → Nat → Name
 

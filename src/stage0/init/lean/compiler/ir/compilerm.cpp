@@ -27,9 +27,7 @@ obj* l_Lean_SMap_switch___at_Lean_IR_mkDeclMapExtension___spec__8(obj*);
 obj* l_Lean_IR_LogEntry_fmt___main(obj*);
 obj* l_Lean_IR_findEnvDecl___boxed(obj*, obj*);
 extern obj* l_Array_empty___closed__1;
-namespace lean {
-obj* format_pretty_core(obj*, obj*);
-}
+obj* l_Lean_Format_pretty(obj*, obj*);
 obj* l_Lean_IR_mkDeclMapExtension___closed__1;
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_formatDecl___main(obj*, obj*);
@@ -382,7 +380,7 @@ x_3 = lean::box(0);
 x_4 = l_Array_miterateAux___main___at_Lean_IR_Log_format___spec__1(x_1, x_1, x_2, x_3);
 lean::dec(x_1);
 x_5 = l_Lean_Options_empty;
-x_6 = lean::format_pretty_core(x_4, x_5);
+x_6 = l_Lean_Format_pretty(x_4, x_5);
 return x_6;
 }
 }

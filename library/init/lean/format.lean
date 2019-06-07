@@ -42,6 +42,7 @@ def flatten : Format → Format
 | f@(compose true _ _)    := f
 | f@(compose false f₁ f₂) := compose true (flatten f₁) (flatten f₂)
 
+@[export lean.format_group_core]
 def group : Format → Format
 | nil                  := nil
 | f@(text _)           := f
@@ -107,11 +108,10 @@ registerOption `format.unicode { defValue := defUnicode, group := "format", desc
 @[init] def widthOption : IO Unit :=
 registerOption `format.width { defValue := defWidth, group := "format", descr := "line width" }
 
-@[export lean.format_pretty_aux_core]
+@[export lean.format_pretty_core]
 def prettyAux (f : Format) (w : Nat := defWidth) : String :=
 be w 0 "" [(0, f)]
 
-@[export lean.format_pretty_core]
 def pretty (f : Format) (o : Options := {}) : String :=
 prettyAux f (getWidth o)
 

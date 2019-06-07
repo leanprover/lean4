@@ -21,9 +21,7 @@ obj* l_Lean_IR_formatFnBody___main___closed__1;
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__6;
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_formatKVMap(obj*);
-namespace lean {
-obj* format_pretty_core(obj*, obj*);
-}
+obj* l_Lean_Format_pretty(obj*, obj*);
 obj* l___private_init_lean_compiler_ir_format_5__formatExpr___main___closed__3;
 obj* l___private_init_lean_compiler_ir_format_6__formatIRType___main___closed__3;
 extern obj* l_Lean_Format_paren___closed__2;
@@ -1219,7 +1217,7 @@ _start:
 obj* x_2; obj* x_3; obj* x_4; 
 x_2 = l___private_init_lean_compiler_ir_format_5__formatExpr___main(x_1);
 x_3 = l_Lean_Options_empty;
-x_4 = lean::format_pretty_core(x_2, x_3);
+x_4 = l_Lean_Format_pretty(x_2, x_3);
 return x_4;
 }
 }
@@ -2742,7 +2740,7 @@ obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_2 = lean::mk_nat_obj(2u);
 x_3 = l_Lean_IR_formatFnBody___main(x_2, x_1);
 x_4 = l_Lean_Options_empty;
-x_5 = lean::format_pretty_core(x_3, x_4);
+x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }
 }
@@ -2898,7 +2896,7 @@ obj* x_2; obj* x_3; obj* x_4; obj* x_5;
 x_2 = lean::mk_nat_obj(2u);
 x_3 = l_Lean_IR_formatDecl___main(x_2, x_1);
 x_4 = l_Lean_Options_empty;
-x_5 = lean::format_pretty_core(x_3, x_4);
+x_5 = l_Lean_Format_pretty(x_3, x_4);
 return x_5;
 }
 }

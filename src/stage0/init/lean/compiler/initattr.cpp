@@ -76,5 +76,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isIOUnitInitFn"), 2, l_Lean_isIOUnitInitFn___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getInitFnNameFor"), 2, l_Lean_getInitFnNameFor___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "hasInitAttr"), 2, l_Lean_hasInitAttr___boxed);
 return w;
 }

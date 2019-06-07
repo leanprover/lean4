@@ -753,5 +753,18 @@ w = initialize_init_data_hashmap_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_rbmap_default(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "Inhabited"), 2, l_Lean_SMap_Inhabited);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "empty"), 2, l_Lean_SMap_empty);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "HasEmptyc"), 2, l_Lean_SMap_HasEmptyc);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "insert"), 2, l_Lean_SMap_insert);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "find"), 2, l_Lean_SMap_find);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "contains"), 2, l_Lean_SMap_contains);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "find'"), 2, l_Lean_SMap_find_x27);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "switch"), 2, l_Lean_SMap_switch);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "foldStage2"), 6, l_Lean_SMap_foldStage2___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "size"), 5, l_Lean_SMap_size___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "stageSizes"), 5, l_Lean_SMap_stageSizes___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "maxDepth"), 5, l_Lean_SMap_maxDepth___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SMap"), "numBuckets"), 5, l_Lean_SMap_numBuckets___boxed);
 return w;
 }

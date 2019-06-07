@@ -1395,8 +1395,13 @@ l_Lean_registerOption___closed__1 = _init_l_Lean_registerOption___closed__1();
 lean::mark_persistent(l_Lean_registerOption___closed__1);
 l_Lean_registerOption___closed__2 = _init_l_Lean_registerOption___closed__2();
 lean::mark_persistent(l_Lean_registerOption___closed__2);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "registerOption"), 3, l_Lean_registerOption);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getOptionDecls"), 1, l_Lean_getOptionDecls);
 l_Lean_getOptionDecl___closed__1 = _init_l_Lean_getOptionDecl___closed__1();
 lean::mark_persistent(l_Lean_getOptionDecl___closed__1);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getOptionDecl"), 2, l_Lean_getOptionDecl);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getOptionDefaulValue"), 2, l_Lean_getOptionDefaulValue);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getOptionDescr"), 2, l_Lean_getOptionDescr);
 l_Lean_setOptionFromString___closed__1 = _init_l_Lean_setOptionFromString___closed__1();
 lean::mark_persistent(l_Lean_setOptionFromString___closed__1);
 l_Lean_setOptionFromString___closed__2 = _init_l_Lean_setOptionFromString___closed__2();
@@ -1407,5 +1412,6 @@ l_Lean_setOptionFromString___closed__4 = _init_l_Lean_setOptionFromString___clos
 lean::mark_persistent(l_Lean_setOptionFromString___closed__4);
 l_Lean_setOptionFromString___closed__5 = _init_l_Lean_setOptionFromString___closed__5();
 lean::mark_persistent(l_Lean_setOptionFromString___closed__5);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "setOptionFromString"), 3, l_Lean_setOptionFromString);
 return w;
 }

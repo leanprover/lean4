@@ -84,5 +84,7 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Functor"), "mapConstRev"), 1, l_Functor_mapConstRev___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Functor"), "mapRev"), 1, l_Functor_mapRev___boxed);
 return w;
 }

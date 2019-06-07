@@ -382,7 +382,13 @@ w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_applicative(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("alternativeHasOrelse"), 2, l_alternativeHasOrelse___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("failure"), 1, l_failure___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("guard"), 1, l_guard___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("assert"), 1, l_assert___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("guardb"), 1, l_guardb___boxed);
 l_optional___rarg___closed__1 = _init_l_optional___rarg___closed__1();
 lean::mark_persistent(l_optional___rarg___closed__1);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("optional"), 1, l_optional___boxed);
 return w;
 }

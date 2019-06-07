@@ -446,6 +446,7 @@ l_Lean_Compiler_mkInlineAttribute___closed__2 = _init_l_Lean_Compiler_mkInlineAt
 lean::mark_persistent(l_Lean_Compiler_mkInlineAttribute___closed__2);
 l_Lean_Compiler_mkInlineAttribute___closed__3 = _init_l_Lean_Compiler_mkInlineAttribute___closed__3();
 lean::mark_persistent(l_Lean_Compiler_mkInlineAttribute___closed__3);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkInlineAttribute"), 1, l_Lean_Compiler_mkInlineAttribute);
 w = l_Lean_Compiler_mkInlineAttribute(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_inlineAttribute = io_result_get_value(w);
@@ -454,6 +455,7 @@ l_Lean_Compiler_mkInlineIfReduceAttribute___closed__1 = _init_l_Lean_Compiler_mk
 lean::mark_persistent(l_Lean_Compiler_mkInlineIfReduceAttribute___closed__1);
 l_Lean_Compiler_mkInlineIfReduceAttribute___closed__2 = _init_l_Lean_Compiler_mkInlineIfReduceAttribute___closed__2();
 lean::mark_persistent(l_Lean_Compiler_mkInlineIfReduceAttribute___closed__2);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkInlineIfReduceAttribute"), 1, l_Lean_Compiler_mkInlineIfReduceAttribute);
 w = l_Lean_Compiler_mkInlineIfReduceAttribute(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_inlineIfReduceAttribute = io_result_get_value(w);
@@ -462,6 +464,7 @@ l_Lean_Compiler_mkNoInlineAttribute___closed__1 = _init_l_Lean_Compiler_mkNoInli
 lean::mark_persistent(l_Lean_Compiler_mkNoInlineAttribute___closed__1);
 l_Lean_Compiler_mkNoInlineAttribute___closed__2 = _init_l_Lean_Compiler_mkNoInlineAttribute___closed__2();
 lean::mark_persistent(l_Lean_Compiler_mkNoInlineAttribute___closed__2);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkNoInlineAttribute"), 1, l_Lean_Compiler_mkNoInlineAttribute);
 w = l_Lean_Compiler_mkNoInlineAttribute(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_noInlineAttribute = io_result_get_value(w);
@@ -470,9 +473,14 @@ l_Lean_Compiler_mkMacroInlineAttribute___closed__1 = _init_l_Lean_Compiler_mkMac
 lean::mark_persistent(l_Lean_Compiler_mkMacroInlineAttribute___closed__1);
 l_Lean_Compiler_mkMacroInlineAttribute___closed__2 = _init_l_Lean_Compiler_mkMacroInlineAttribute___closed__2();
 lean::mark_persistent(l_Lean_Compiler_mkMacroInlineAttribute___closed__2);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "mkMacroInlineAttribute"), 1, l_Lean_Compiler_mkMacroInlineAttribute);
 w = l_Lean_Compiler_mkMacroInlineAttribute(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_macroInlineAttribute = io_result_get_value(w);
 lean::mark_persistent(l_Lean_Compiler_macroInlineAttribute);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "hasInlineAttribure"), 2, l_Lean_Compiler_hasInlineAttribure___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "hasInlineIfReduceAttribure"), 2, l_Lean_Compiler_hasInlineIfReduceAttribure___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "hasNoInlineAttribure"), 2, l_Lean_Compiler_hasNoInlineAttribure___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "hasMacroInlineAttribure"), 2, l_Lean_Compiler_hasMacroInlineAttribure___boxed);
 return w;
 }

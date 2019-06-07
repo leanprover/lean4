@@ -63,5 +63,9 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_string_basic(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("dbgTrace"), 3, l_dbgTrace___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("dbgTraceIfShared"), 3, l_dbgTraceIfShared___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("dbgSleep"), 3, l_dbgSleep___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("unsafeCast"), 4, l_unsafeCast___boxed);
 return w;
 }

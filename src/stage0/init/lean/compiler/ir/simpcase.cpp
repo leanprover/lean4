@@ -772,5 +772,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ensureHasDefault"), 1, l_Lean_IR_ensureHasDefault);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "FnBody"), "simpCase"), 1, l_Lean_IR_FnBody_simpCase);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Decl"), "simpCase"), 1, l_Lean_IR_Decl_simpCase);
 return w;
 }

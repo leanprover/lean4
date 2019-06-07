@@ -348,13 +348,18 @@ l_Lean_Message_toString___closed__3 = _init_l_Lean_Message_toString___closed__3(
 lean::mark_persistent(l_Lean_Message_toString___closed__3);
 l_Lean_Message_toString___closed__4 = _init_l_Lean_Message_toString___closed__4();
 lean::mark_persistent(l_Lean_Message_toString___closed__4);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Message"), "toString"), 1, l_Lean_Message_toString);
 l_Lean_Message_Inhabited = _init_l_Lean_Message_Inhabited();
 lean::mark_persistent(l_Lean_Message_Inhabited);
 l_Lean_Message_HasToString = _init_l_Lean_Message_HasToString();
 lean::mark_persistent(l_Lean_Message_HasToString);
 l_Lean_MessageLog_empty = _init_l_Lean_MessageLog_empty();
 lean::mark_persistent(l_Lean_MessageLog_empty);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "add"), 2, l_Lean_MessageLog_add);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "append"), 2, l_Lean_MessageLog_append);
 l_Lean_MessageLog_HasAppend = _init_l_Lean_MessageLog_HasAppend();
 lean::mark_persistent(l_Lean_MessageLog_HasAppend);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "hasErrors"), 1, l_Lean_MessageLog_hasErrors___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MessageLog"), "toList"), 1, l_Lean_MessageLog_toList);
 return w;
 }

@@ -13,9 +13,11 @@ import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.emitutil
 import init.lean.compiler.ir.normids
 import init.lean.compiler.ir.simpcase
+import init.lean.compiler.ir.boxing
 
 namespace Lean
 namespace IR
+open ExplicitBoxing (requiresBoxedVersion mkBoxedName)
 namespace EmitCpp
 
 def leanMainFn := "_lean_main"
@@ -662,6 +664,13 @@ env ← getEnv,
 let decls := getDecls env,
 decls.reverse.mfor emitDecl
 
+def quoteName : Name → Option String
+| (Name.mkString Name.anonymous s) := some $ "lean::mk_const_name(" ++ repr s ++ ")"
+| (Name.mkString p s) := match quoteName p with
+  | some q := some $ "lean::mk_const_name(" ++ q ++ ", " ++ repr s ++ ")"
+  | _ := none
+| _ := none
+
 def emitDeclInit (d : Decl) : M Unit :=
 do
 env ← getEnv,
@@ -669,7 +678,7 @@ let n := d.name,
 if isIOUnitInitFn env n then do {
   emit "w = ", emitCppName n, emitLn "(w);",
   emitLn "if (io_result_is_error(w)) return w;"
-} else when (d.params.size == 0) $ do {
+} else if (d.params.size == 0) then do {
   match getInitFnNameFor env d.name with
   | some initFn := do {
     emit "w = ", emitCppName initFn, emitLn "(w);",
@@ -682,6 +691,13 @@ if isIOUnitInitFn env n then do {
   when d.resultType.isObj $ do {
     emit "lean::mark_persistent(", emitCppName n, emitLn ");"
   }
+} else unless d.name.isInternal $ do {
+  /- TODO(Leo): perhaps we should add a flag to disable closure registration. -/
+  match quoteName d.name with
+  | some q := do
+    let clsName := if requiresBoxedVersion env d then mkBoxedName d.name else d.name,
+    emit ("REGISTER_LEAN_FUNCTION(" ++ q ++ ", " ++ toString d.params.size ++ ", "), emitCppName clsName, emitLn ");"
+  | _ := pure ()
 }
 
 def emitInitFn : M Unit :=

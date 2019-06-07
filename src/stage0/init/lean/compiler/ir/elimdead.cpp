@@ -410,5 +410,9 @@ w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_freevars(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "reshapeWithoutDeadAux"), 3, l_Lean_IR_reshapeWithoutDeadAux);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "reshapeWithoutDead"), 2, l_Lean_IR_reshapeWithoutDead);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "FnBody"), "elimDead"), 1, l_Lean_IR_FnBody_elimDead);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Decl"), "elimDead"), 1, l_Lean_IR_Decl_elimDead);
 return w;
 }

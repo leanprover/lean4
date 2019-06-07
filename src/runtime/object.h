@@ -1497,6 +1497,17 @@ obj_res io_ref_reset(b_obj_arg, obj_arg);
 obj_res io_ref_swap(b_obj_arg, obj_arg, obj_arg);
 
 // =======================================
+// Global function table
+
+/* Create a Lean.Name for a constant */
+obj_res mk_const_name(obj_arg p, char const * s);
+inline obj_res mk_const_name(char const * s) { return mk_const_name(box(0), s); }
+void register_constant(obj_arg n, obj_arg obj);
+#define REGISTER_LEAN_FUNCTION(fn, arity, cls) ::lean::register_constant(fn, lean::alloc_closure(reinterpret_cast<void*>(cls), arity, 0))
+obj_res modify_constant_table(obj_arg f, obj_arg w);
+obj_res get_constant_table(obj_arg w);
+
+// =======================================
 // Module initialization/finalization
 void initialize_object();
 void finalize_object();

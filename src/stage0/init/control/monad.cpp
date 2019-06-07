@@ -119,5 +119,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_applicative(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("mcomp"), 4, l_mcomp___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadInhabited"), 2, l_monadInhabited___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadInhabited'"), 2, l_monadInhabited_x27___boxed);
 return w;
 }

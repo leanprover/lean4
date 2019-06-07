@@ -555,5 +555,11 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_id(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("AssocList"), "mfoldl"), 4, l_AssocList_mfoldl___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("AssocList"), "foldl"), 3, l_AssocList_foldl);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("AssocList"), "find"), 2, l_AssocList_find);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("AssocList"), "contains"), 2, l_AssocList_contains);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("AssocList"), "replace"), 2, l_AssocList_replace);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("AssocList"), "erase"), 2, l_AssocList_erase);
 return w;
 }

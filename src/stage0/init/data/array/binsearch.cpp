@@ -471,5 +471,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_data_array_basic(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Array"), "binSearchAux"), 2, l_Array_binSearchAux);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Array"), "binSearch"), 1, l_Array_binSearch);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Array"), "binSearchContains"), 1, l_Array_binSearchContains);
 return w;
 }

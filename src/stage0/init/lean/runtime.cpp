@@ -62,6 +62,8 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_core(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "closureMaxArgsFn"), 1, l_Lean_closureMaxArgsFn___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "maxSmallNatFn"), 1, l_Lean_maxSmallNatFn___boxed);
 l_Lean_closureMaxArgs = _init_l_Lean_closureMaxArgs();
 lean::mark_persistent(l_Lean_closureMaxArgs);
 l_Lean_maxSmallNat = _init_l_Lean_maxSmallNat();

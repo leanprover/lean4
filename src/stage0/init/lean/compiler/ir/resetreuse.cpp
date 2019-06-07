@@ -2090,5 +2090,7 @@ w = initialize_init_lean_compiler_ir_livevars(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_format(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "ResetReuse"), "R"), 3, l_Lean_IR_ResetReuse_R);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Decl"), "insertResetReuse"), 1, l_Lean_IR_Decl_insertResetReuse);
 return w;
 }

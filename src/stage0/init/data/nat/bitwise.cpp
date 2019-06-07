@@ -192,5 +192,8 @@ w = initialize_init_data_nat_div(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_coe(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "bitwise"), 3, l_Nat_bitwise___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "land"), 2, l_Nat_land___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "lor"), 2, l_Nat_lor___boxed);
 return w;
 }

@@ -65,5 +65,7 @@ _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getExportNameFor"), 2, l_Lean_getExportNameFor___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isExport"), 2, l_Lean_isExport___boxed);
 return w;
 }

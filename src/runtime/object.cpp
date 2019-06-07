@@ -1795,6 +1795,38 @@ runtime_stats g_runtime_stats;
 #endif
 
 // =======================================
+// Global constant table
+
+static object * g_decls = nullptr;
+
+/* Low level function for creating a Lean.Name in the runtime. */
+obj_res mk_const_name(obj_arg p, char const * s) {
+    obj_res r = alloc_cnstr(1, 2, 0);
+    cnstr_set(r, 0, p);
+    cnstr_set(r, 1, mk_string(s));
+    return r;
+}
+
+void register_constant(obj_arg fn, obj_arg obj) {
+    object * p = alloc_cnstr(0, 2, 0);
+    cnstr_set(p, 0, fn);
+    cnstr_set(p, 1, obj);
+    g_decls = array_push(g_decls, p);
+}
+
+obj_res set_io_result(obj_arg r, obj_arg a);
+
+obj_res modify_constant_table(obj_arg f, obj_arg w) {
+    g_decls = apply_1(f, g_decls);
+    return w;
+}
+
+obj_res get_constant_table(obj_arg w) {
+    inc(g_decls);
+    return set_io_result(w, g_decls);
+}
+
+// =======================================
 // Module initialization
 
 void initialize_object() {
@@ -1802,6 +1834,7 @@ void initialize_object() {
     g_ext_classes_mutex = new mutex();
     g_array_empty       = alloc_array(0, 0);
     mark_persistent(g_array_empty);
+    g_decls             = alloc_array(0, 8192);
 }
 
 void finalize_object() {

@@ -8,7 +8,7 @@ Author: Leonardo de Moura
 #include <memory>
 #include <utility>
 #include "util/options.h"
-#include "util/sexpr/format.h"
+#include "util/format.h"
 
 namespace lean {
 class expr;

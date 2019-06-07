@@ -20,7 +20,7 @@ Author: Leonardo de Moura
 #include "util/buffer.h"
 #include "util/kvmap.h"
 #include "util/list_fn.h"
-#include "util/sexpr/format.h"
+#include "util/format.h"
 #include "kernel/level.h"
 #include "kernel/expr_eq_fn.h"
 

@@ -501,7 +501,8 @@ function(add_exec_test name tgt)
     endif()
 endfunction()
 
-add_subdirectory(tests/util)
+# C++ unit tests are disabled for now since they rely on `format` which relies on `Lean` generated code.
+# add_subdirectory(tests/util)
 
 # Include style check
 if (NOT(${CMAKE_SYSTEM_NAME} MATCHES "Windows") AND PYTHONINTERP_FOUND)

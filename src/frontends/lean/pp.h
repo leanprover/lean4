@@ -13,7 +13,7 @@ Author: Leonardo de Moura
 #include "util/name_map.h"
 #include "util/name_set.h"
 #include "util/options.h"
-#include "util/sexpr/format.h"
+#include "util/format.h"
 #include "kernel/environment.h"
 #include "library/abstract_type_context.h"
 #include "frontends/lean/token_table.h"

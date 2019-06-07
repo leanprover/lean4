@@ -12,7 +12,7 @@ Author: Leonardo de Moura
 #include "util/name.h"
 #include "util/list_ref.h"
 #include "util/options.h"
-#include "util/sexpr/format.h"
+#include "util/format.h"
 
 namespace lean {
 class environment;

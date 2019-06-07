@@ -6,7 +6,7 @@ Author: Leonardo de Moura
 */
 #pragma once
 #include <utility>
-#include "util/sexpr/format.h"
+#include "util/format.h"
 #include "kernel/expr.h"
 #include "util/message_definitions.h"
 

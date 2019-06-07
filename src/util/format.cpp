@@ -13,12 +13,9 @@
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
 #include "runtime/hash.h"
-#include "util/escaped.h"
-#include "util/sexpr/sexpr.h"
-#include "util/sexpr/format.h"
-#include "util/sexpr/sexpr_fn.h"
 #include "util/options.h"
 #include "util/option_declarations.h"
+#include "util/format.h"
 
 #ifndef LEAN_DEFAULT_PP_INDENTATION
 #define LEAN_DEFAULT_PP_INDENTATION 2

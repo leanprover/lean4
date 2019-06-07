@@ -8,7 +8,6 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/init_module.h"
 #include "util/init_module.h"
-#include "util/sexpr/init_module.h"
 #include "kernel/init_module.h"
 #include "library/init_module.h"
 #include "library/tactic/init_module.h"
@@ -35,7 +34,6 @@ void initialize() {
     } else {
         dec(w);
     }
-    initialize_sexpr_module();
     initialize_kernel_module();
     init_default_print_fn();
     initialize_library_core_module();
@@ -63,7 +61,6 @@ void finalize() {
     finalize_library_module();
     finalize_library_core_module();
     finalize_kernel_module();
-    finalize_sexpr_module();
     finalize_util_module();
     run_post_thread_finalizers();
 #ifdef LEAN_TRACK_CUSTOM_ALLOCATORS

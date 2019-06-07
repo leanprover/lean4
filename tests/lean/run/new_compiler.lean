@@ -1,4 +1,3 @@
-import init.lean.parser.parsec
 universes u v w r s
 
 set_option trace.compiler.stage1 true

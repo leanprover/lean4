@@ -5,6 +5,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Leonardo de Moura
 */
 #include "util/sexpr/format.h"
+#include "util/sexpr/sexpr.h"
 
 namespace lean {
 void initialize_sexpr_module() {

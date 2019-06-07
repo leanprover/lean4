@@ -1709,14 +1709,6 @@ class pp_beta_reduce_fn : public replace_visitor {
     }
 };
 
-std::string sexpr_to_string(sexpr const & s) {
-    if (is_string(s))
-        return to_string(s);
-    std::stringstream ss;
-    ss << s;
-    return ss.str();
-}
-
 // check whether a space must be inserted between the strings so that lexing them would
 // produce separate tokens
 std::pair<bool, token_table const *> pretty_fn::needs_space_sep(token_table const * last, std::string const & s1, std::string const & s2) const {

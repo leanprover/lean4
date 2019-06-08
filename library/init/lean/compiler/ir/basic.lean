@@ -100,6 +100,10 @@ def IRType.isObj : IRType → Bool
 | IRType.tobject := true
 | _              := false
 
+def IRType.isIrrelevant : IRType → Bool
+| IRType.irrelevant := true
+| _ := false
+
 /- Arguments to applications, constructors, etc.
    We use `irrelevant` for Lean types, propositions and proofs that have been erased.
    Recall that for a Function `f`, we also generate `f._rarg` which does not take

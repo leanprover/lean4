@@ -454,16 +454,16 @@ if ys.size > closureMaxArgs then do
 else do
   emitLhs z, emit "lean::apply_", emit ys.size, emit "(", emit f, emit ", ", emitArgs ys, emitLn ");"
 
-def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit :=
-do
-emitLhs z,
+def emitBoxFn (xType : IRType) : M Unit :=
 match xType with
 | IRType.usize  := emit "lean::box_size_t"
 | IRType.uint32 := emit "lean::box_uint32"
 | IRType.uint64 := emit "lean::box_uint64"
 | IRType.float  := throw "floats are not supported yet"
-| other         := emit "lean::box",
-emit "(", emit x, emitLn ");"
+| other         := emit "lean::box"
+
+def emitBox (z : VarId) (x : VarId) (xType : IRType) : M Unit :=
+do emitLhs z, emitBoxFn xType, emit "(", emit x, emitLn ");"
 
 def emitUnbox (z : VarId) (t : IRType) (x : VarId) : M Unit :=
 do
@@ -664,12 +664,16 @@ env ← getEnv,
 let decls := getDecls env,
 decls.reverse.mfor emitDecl
 
-def quoteName : Name → Option String
+def quoteNameAux : Name → Option String
 | (Name.mkString Name.anonymous s) := some $ "lean::mk_const_name(" ++ repr s ++ ")"
-| (Name.mkString p s) := match quoteName p with
+| (Name.mkString p s) := match quoteNameAux p with
   | some q := some $ "lean::mk_const_name(" ++ q ++ ", " ++ repr s ++ ")"
   | _ := none
 | _ := none
+
+def quoteName (n : Name) : Option String :=
+if n.isInternal then none
+else quoteNameAux n
 
 def emitDeclInit (d : Decl) : M Unit :=
 do
@@ -688,17 +692,23 @@ if isIOUnitInitFn env n then do {
   | _ := do {
     emitCppName n, emit " = ", emitCppInitName n, emitLn "();"
   },
-  when d.resultType.isObj $ do {
-    emit "lean::mark_persistent(", emitCppName n, emitLn ");"
+  if d.resultType.isObj then do {
+    emit "lean::mark_persistent(", emitCppName n, emitLn ");",
+    match quoteName n with
+    | some q := do emit ("lean::register_constant(" ++ q ++ ", "), emitCppName n, emitLn ");"
+    | none   := pure ()
+  } else unless d.resultType.isIrrelevant $ do {
+    match quoteName n with
+    | some q := do emit ("lean::register_constant(" ++ q ++ ", "), emitBoxFn d.resultType, emit "(", emitCppName n, emitLn "));"
+    | none   := pure ()
   }
-} else unless d.name.isInternal $ do {
+} else
   /- TODO(Leo): perhaps we should add a flag to disable closure registration. -/
   match quoteName d.name with
   | some q := do
     let clsName := if requiresBoxedVersion env d then mkBoxedName d.name else d.name,
     emit ("REGISTER_LEAN_FUNCTION(" ++ q ++ ", " ++ toString d.params.size ++ ", "), emitCppName clsName, emitLn ");"
   | _ := pure ()
-}
 
 def emitInitFn : M Unit :=
 do

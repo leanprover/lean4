@@ -42,9 +42,11 @@ obj* l_Lean_IR_vsetInh;
 obj* l_Lean_IR_VarId_Lean_HasFormat(obj*);
 obj* l_Lean_IR_Alt_isDefault___boxed(obj*);
 uint8 l_Lean_IR_IRType_beq(uint8, uint8);
+uint8 l_Lean_IR_IRType_isIrrelevant___main(uint8);
 uint8 l_Lean_IR_Arg_alphaEqv(obj*, obj*, obj*);
 obj* l_Lean_IR_AltCore_mmodifyBody___main___rarg___closed__1;
 obj* l_Lean_IR_AltCore_mmodifyBody___main(obj*);
+obj* l_Lean_IR_IRType_isIrrelevant___boxed(obj*);
 obj* l_Lean_IR_CtorInfo_isRef___boxed(obj*);
 namespace lean {
 namespace ir {
@@ -80,6 +82,7 @@ namespace ir {
 obj* mk_alt_core(obj*, obj*, obj*, obj*, obj*, obj*);
 }
 }
+uint8 l_Lean_IR_IRType_isIrrelevant(uint8);
 obj* l_Lean_IR_modifyJPs(obj*, obj*);
 uint8 l_Lean_IR_LitVal_beq___main(obj*, obj*);
 obj* l_Lean_IR_AltCore_body___main___boxed(obj*);
@@ -221,6 +224,7 @@ obj* mk_param_core(obj*, uint8, uint8);
 }
 }
 obj* l_Lean_IR_AltCore_body___boxed(obj*);
+obj* l_Lean_IR_IRType_isIrrelevant___main___boxed(obj*);
 obj* l_Lean_IR_paramInh;
 obj* l_Array_push(obj*, obj*, obj*);
 uint8 l_RBNode_isRed___main___rarg(obj*);
@@ -872,6 +876,56 @@ uint8 x_2; uint8 x_3; obj* x_4;
 x_2 = lean::unbox(x_1);
 lean::dec(x_1);
 x_3 = l_Lean_IR_IRType_isObj(x_2);
+x_4 = lean::box(x_3);
+return x_4;
+}
+}
+uint8 l_Lean_IR_IRType_isIrrelevant___main(uint8 x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = lean::box(x_1);
+if (lean::obj_tag(x_2) == 6)
+{
+uint8 x_3; 
+x_3 = 1;
+return x_3;
+}
+else
+{
+uint8 x_4; 
+lean::dec(x_2);
+x_4 = 0;
+return x_4;
+}
+}
+}
+obj* l_Lean_IR_IRType_isIrrelevant___main___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; uint8 x_3; obj* x_4; 
+x_2 = lean::unbox(x_1);
+lean::dec(x_1);
+x_3 = l_Lean_IR_IRType_isIrrelevant___main(x_2);
+x_4 = lean::box(x_3);
+return x_4;
+}
+}
+uint8 l_Lean_IR_IRType_isIrrelevant(uint8 x_1) {
+_start:
+{
+uint8 x_2; 
+x_2 = l_Lean_IR_IRType_isIrrelevant___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_IR_IRType_isIrrelevant___boxed(obj* x_1) {
+_start:
+{
+uint8 x_2; uint8 x_3; obj* x_4; 
+x_2 = lean::unbox(x_1);
+lean::dec(x_1);
+x_3 = l_Lean_IR_IRType_isIrrelevant(x_2);
 x_4 = lean::box(x_3);
 return x_4;
 }
@@ -11047,6 +11101,7 @@ l_Lean_IR_IRType_HasBeq = _init_l_Lean_IR_IRType_HasBeq();
 lean::mark_persistent(l_Lean_IR_IRType_HasBeq);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "IRType"), "isScalar"), 1, l_Lean_IR_IRType_isScalar___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "IRType"), "isObj"), 1, l_Lean_IR_IRType_isObj___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "IRType"), "isIrrelevant"), 1, l_Lean_IR_IRType_isIrrelevant___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Arg"), "beq"), 2, l_Lean_IR_Arg_beq___boxed);
 l_Lean_IR_Arg_HasBeq = _init_l_Lean_IR_Arg_HasBeq();
 lean::mark_persistent(l_Lean_IR_Arg_HasBeq);

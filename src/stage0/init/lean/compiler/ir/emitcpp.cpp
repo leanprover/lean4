@@ -30514,6 +30514,7 @@ w = initialize_init_lean_compiler_ir_boxing(w);
 if (io_result_is_error(w)) return w;
 l_Lean_IR_EmitCpp_leanMainFn = _init_l_Lean_IR_EmitCpp_leanMainFn();
 lean::mark_persistent(l_Lean_IR_EmitCpp_leanMainFn);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "EmitCpp"), "leanMainFn"), l_Lean_IR_EmitCpp_leanMainFn);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "EmitCpp"), "getEnv"), 2, l_Lean_IR_EmitCpp_getEnv___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "EmitCpp"), "getModName"), 2, l_Lean_IR_EmitCpp_getModName___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "EmitCpp"), "getDecl"), 3, l_Lean_IR_EmitCpp_getDecl___boxed);

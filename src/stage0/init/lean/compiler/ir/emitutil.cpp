@@ -2057,6 +2057,7 @@ if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "isTailCallTo"), 2, l_Lean_IR_isTailCallTo___boxed);
 l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix = _init_l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix();
 lean::mark_persistent(l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "UsesLeanNamespace"), "leanNameSpacePrefix"), l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "UsesLeanNamespace"), "visitFnBody"), 3, l_Lean_IR_UsesLeanNamespace_visitFnBody___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "usesLeanNamespace"), 2, l_Lean_IR_usesLeanNamespace___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collect"), 2, l_Lean_IR_CollectUsedDecls_collect);

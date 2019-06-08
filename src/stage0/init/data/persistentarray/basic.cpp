@@ -3568,7 +3568,9 @@ l_PersistentArrayNode_inhabited___closed__1 = _init_l_PersistentArrayNode_inhabi
 lean::mark_persistent(l_PersistentArrayNode_inhabited___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArrayNode"), "inhabited"), 1, l_PersistentArrayNode_inhabited);
 l_PersistentArray_initShift = _init_l_PersistentArray_initShift();
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "initShift"), lean::box_size_t(l_PersistentArray_initShift));
 l_PersistentArray_branching = _init_l_PersistentArray_branching();
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "branching"), lean::box_size_t(l_PersistentArray_branching));
 l_PersistentArray_Inhabited___closed__1 = _init_l_PersistentArray_Inhabited___closed__1();
 lean::mark_persistent(l_PersistentArray_Inhabited___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "Inhabited"), 1, l_PersistentArray_Inhabited);
@@ -3591,6 +3593,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArray"
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "mkNewTail"), 1, l_PersistentArray_mkNewTail);
 l_PersistentArray_tooBig = _init_l_PersistentArray_tooBig();
 lean::mark_persistent(l_PersistentArray_tooBig);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "tooBig"), l_PersistentArray_tooBig);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "push"), 1, l_PersistentArray_push);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "mfoldlAux"), 3, l_PersistentArray_mfoldlAux___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "mfoldl"), 3, l_PersistentArray_mfoldl___boxed);
@@ -3608,6 +3611,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("PersistentArray"
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "Stats"), "toString"), 1, l_PersistentArray_Stats_toString___boxed);
 l_PersistentArray_HasToString = _init_l_PersistentArray_HasToString();
 lean::mark_persistent(l_PersistentArray_HasToString);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("PersistentArray"), "HasToString"), l_PersistentArray_HasToString);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "toPersistentArrayAux"), 1, l_List_toPersistentArrayAux);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "toPersistentArray"), 1, l_List_toPersistentArray);
 return w;

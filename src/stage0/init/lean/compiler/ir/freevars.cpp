@@ -5612,6 +5612,7 @@ w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;
 l_Lean_IR_MaxIndex_HasAndthen = _init_l_Lean_IR_MaxIndex_HasAndthen();
 lean::mark_persistent(l_Lean_IR_MaxIndex_HasAndthen);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "MaxIndex"), "HasAndthen"), l_Lean_IR_MaxIndex_HasAndthen);
 l_Lean_IR_MaxIndex_collectFnBody___main___closed__1 = _init_l_Lean_IR_MaxIndex_collectFnBody___main___closed__1();
 lean::mark_persistent(l_Lean_IR_MaxIndex_collectFnBody___main___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "MaxIndex"), "collectFnBody"), 2, l_Lean_IR_MaxIndex_collectFnBody);
@@ -5621,6 +5622,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "FreeIndices"), "insertParams"), 2, l_Lean_IR_FreeIndices_insertParams___boxed);
 l_Lean_IR_FreeIndices_HasAndthen = _init_l_Lean_IR_FreeIndices_HasAndthen();
 lean::mark_persistent(l_Lean_IR_FreeIndices_HasAndthen);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "FreeIndices"), "HasAndthen"), l_Lean_IR_FreeIndices_HasAndthen);
 l_Lean_IR_FreeIndices_collectFnBody___main___closed__1 = _init_l_Lean_IR_FreeIndices_collectFnBody___main___closed__1();
 lean::mark_persistent(l_Lean_IR_FreeIndices_collectFnBody___main___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "FreeIndices"), "collectFnBody"), 3, l_Lean_IR_FreeIndices_collectFnBody);

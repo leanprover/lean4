@@ -425,8 +425,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "da
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "mkEmpty"), 1, l_ByteArray_mkEmpty___boxed);
 l_ByteArray_empty = _init_l_ByteArray_empty();
 lean::mark_persistent(l_ByteArray_empty);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("ByteArray"), "empty"), l_ByteArray_empty);
 l_ByteArray_Inhabited = _init_l_ByteArray_Inhabited();
 lean::mark_persistent(l_ByteArray_Inhabited);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("ByteArray"), "Inhabited"), l_ByteArray_Inhabited);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "push"), 2, l_ByteArray_push___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "size"), 1, l_ByteArray_size___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("ByteArray"), "get"), 2, l_ByteArray_get___boxed);

@@ -640,8 +640,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "HasSize
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "utf8Size"), 1, l_Char_utf8Size___boxed);
 l_Char_HasLess = _init_l_Char_HasLess();
 lean::mark_persistent(l_Char_HasLess);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Char"), "HasLess"), l_Char_HasLess);
 l_Char_HasLessEq = _init_l_Char_HasLessEq();
 lean::mark_persistent(l_Char_HasLessEq);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Char"), "HasLessEq"), l_Char_HasLessEq);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "lt"), 2, l_Char_lt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "decLt"), 2, l_Char_decLt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "decLe"), 2, l_Char_decLe___boxed);
@@ -649,6 +651,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "ofNat")
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "toNat"), 1, l_Char_toNat___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "DecidableEq"), 2, l_Char_DecidableEq___boxed);
 l_Char_Inhabited = _init_l_Char_Inhabited();
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Char"), "Inhabited"), lean::box_uint32(l_Char_Inhabited));
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "isWhitespace"), 1, l_Char_isWhitespace___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "isUpper"), 1, l_Char_isUpper___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Char"), "isLower"), 1, l_Char_isLower___boxed);

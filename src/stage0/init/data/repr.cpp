@@ -1594,6 +1594,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "toDigits
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "repr"), 1, l_Nat_repr);
 l_Nat_HasRepr = _init_l_Nat_HasRepr();
 lean::mark_persistent(l_Nat_HasRepr);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "HasRepr"), l_Nat_HasRepr);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("hexDigitRepr"), 1, l_hexDigitRepr___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("charToHex"), 1, l_charToHex___boxed);
 l_Char_quoteCore___closed__1 = _init_l_Char_quoteCore___closed__1();
@@ -1618,6 +1619,7 @@ lean::mark_persistent(l_String_quote___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "quote"), 1, l_String_quote);
 l_String_HasRepr = _init_l_String_HasRepr();
 lean::mark_persistent(l_String_HasRepr);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "HasRepr"), l_String_HasRepr);
 l_Substring_HasRepr___closed__1 = _init_l_Substring_HasRepr___closed__1();
 lean::mark_persistent(l_Substring_HasRepr___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Substring"), "HasRepr"), 1, l_Substring_HasRepr___boxed);

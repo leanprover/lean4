@@ -98,8 +98,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name("mixHash"), 2, l_mixHash___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "hash"), 1, l_String_hash___boxed);
 l_String_Hashable = _init_l_String_Hashable();
 lean::mark_persistent(l_String_Hashable);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "Hashable"), l_String_Hashable);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Nat"), "hash"), 1, l_Nat_hash___boxed);
 l_Nat_Hashable = _init_l_Nat_Hashable();
 lean::mark_persistent(l_Nat_Hashable);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Nat"), "Hashable"), l_Nat_Hashable);
 return w;
 }

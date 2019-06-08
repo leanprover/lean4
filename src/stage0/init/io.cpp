@@ -1749,8 +1749,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "MonadExc
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("EIO"), "Inhabited"), 2, l_EIO_Inhabited);
 l_IO_Error_HasToString = _init_l_IO_Error_HasToString();
 lean::mark_persistent(l_IO_Error_HasToString);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "HasToString"), l_IO_Error_HasToString);
 l_IO_Error_Inhabited = _init_l_IO_Error_Inhabited();
 lean::mark_persistent(l_IO_Error_Inhabited);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "Inhabited"), l_IO_Error_Inhabited);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "userError"), 1, l_IO_userError___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Error"), "toString"), 1, lean::io_error_to_string_core);
 l_unsafeIO___rarg___closed__1 = _init_l_unsafeIO___rarg___closed__1();

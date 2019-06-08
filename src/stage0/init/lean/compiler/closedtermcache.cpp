@@ -3473,6 +3473,7 @@ w = l_Lean_mkClosedTermCacheExtension(w);
 if (io_result_is_error(w)) return w;
 l_Lean_closedTermCacheExt = io_result_get_value(w);
 lean::mark_persistent(l_Lean_closedTermCacheExt);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "closedTermCacheExt"), l_Lean_closedTermCacheExt);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "cacheClosedTermName"), 3, lean::cache_closed_term_name_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getClosedTermName"), 2, lean::get_closed_term_name_core);
 return w;

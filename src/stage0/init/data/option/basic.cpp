@@ -1140,9 +1140,11 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "bind"
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "map"), 2, l_Option_map);
 l_Option_Monad = _init_l_Option_Monad();
 lean::mark_persistent(l_Option_Monad);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Option"), "Monad"), l_Option_Monad);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "orelse"), 1, l_Option_orelse);
 l_Option_Alternative = _init_l_Option_Alternative();
 lean::mark_persistent(l_Option_Alternative);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Option"), "Alternative"), l_Option_Alternative);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "decidableRelLt"), 2, l_Option_decidableRelLt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "Inhabited"), 1, l_Option_Inhabited);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Option"), "DecidableEq"), 1, l_Option_DecidableEq);

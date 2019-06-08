@@ -1401,8 +1401,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Level"), "mvar"), 1, l_Lean_Level_mvar___boxed);
 l_Lean_levelIsInhabited = _init_l_Lean_levelIsInhabited();
 lean::mark_persistent(l_Lean_levelIsInhabited);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "levelIsInhabited"), l_Lean_levelIsInhabited);
 l_Lean_Level_one = _init_l_Lean_Level_one();
 lean::mark_persistent(l_Lean_Level_one);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Level"), "one"), l_Lean_Level_one);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Level"), "hasParam"), 1, l_Lean_Level_hasParam___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Level"), "hasMvar"), 1, l_Lean_Level_hasMvar___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Level"), "ofNat"), 1, l_Lean_Level_ofNat___boxed);
@@ -1430,7 +1432,9 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "LevelToFormat"), "Level"), "format"), 1, l_Lean_LevelToFormat_Level_format);
 l_Lean_LevelToFormat_levelHasFormat = _init_l_Lean_LevelToFormat_levelHasFormat();
 lean::mark_persistent(l_Lean_LevelToFormat_levelHasFormat);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "LevelToFormat"), "levelHasFormat"), l_Lean_LevelToFormat_levelHasFormat);
 l_Lean_LevelToFormat_levelHasToString = _init_l_Lean_LevelToFormat_levelHasToString();
 lean::mark_persistent(l_Lean_LevelToFormat_levelHasToString);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "LevelToFormat"), "levelHasToString"), l_Lean_LevelToFormat_levelHasToString);
 return w;
 }

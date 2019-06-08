@@ -66,7 +66,9 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "closure
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "maxSmallNatFn"), 1, l_Lean_maxSmallNatFn___boxed);
 l_Lean_closureMaxArgs = _init_l_Lean_closureMaxArgs();
 lean::mark_persistent(l_Lean_closureMaxArgs);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "closureMaxArgs"), l_Lean_closureMaxArgs);
 l_Lean_maxSmallNat = _init_l_Lean_maxSmallNat();
 lean::mark_persistent(l_Lean_maxSmallNat);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "maxSmallNat"), l_Lean_maxSmallNat);
 return w;
 }

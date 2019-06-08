@@ -690,7 +690,9 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isSubSc
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isIdFirst"), 1, l_Lean_isIdFirst___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isIdRest"), 1, l_Lean_isIdRest___boxed);
 l_Lean_idBeginEscape = _init_l_Lean_idBeginEscape();
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "idBeginEscape"), lean::box_uint32(l_Lean_idBeginEscape));
 l_Lean_idEndEscape = _init_l_Lean_idEndEscape();
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "idEndEscape"), lean::box_uint32(l_Lean_idEndEscape));
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isIdBeginEscape"), 1, l_Lean_isIdBeginEscape___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isIdEndEscape"), 1, l_Lean_isIdEndEscape___boxed);
 return w;

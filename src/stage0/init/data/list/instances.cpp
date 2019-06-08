@@ -404,7 +404,9 @@ w = initialize_init_control_monad(w);
 if (io_result_is_error(w)) return w;
 l_List_Monad = _init_l_List_Monad();
 lean::mark_persistent(l_List_Monad);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("List"), "Monad"), l_List_Monad);
 l_List_Alternative = _init_l_List_Alternative();
 lean::mark_persistent(l_List_Alternative);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("List"), "Alternative"), l_List_Alternative);
 return w;
 }

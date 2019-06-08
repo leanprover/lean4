@@ -200,8 +200,10 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Id"), "bind"), 2
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Id"), "map"), 2, l_Id_map);
 l_Id_Monad = _init_l_Id_Monad();
 lean::mark_persistent(l_Id_Monad);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Id"), "Monad"), l_Id_Monad);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Id"), "run"), 1, l_Id_run);
 l_Id_MonadRun = _init_l_Id_MonadRun();
 lean::mark_persistent(l_Id_MonadRun);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Id"), "MonadRun"), l_Id_MonadRun);
 return w;
 }

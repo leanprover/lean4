@@ -5730,9 +5730,11 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "data"
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "decEq"), 2, l_String_decEq___boxed);
 l_String_DecidableEq = _init_l_String_DecidableEq();
 lean::mark_persistent(l_String_DecidableEq);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "DecidableEq"), l_String_DecidableEq);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("List"), "asString"), 1, l_List_asString);
 l_String_HasLess = _init_l_String_HasLess();
 lean::mark_persistent(l_String_HasLess);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "HasLess"), l_String_HasLess);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "decLt"), 2, l_String_decLt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "length"), 1, l_String_length___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "push"), 2, l_String_push___boxed);
@@ -5757,10 +5759,13 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "split
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "split"), 2, l_String_split___boxed);
 l_String_Inhabited = _init_l_String_Inhabited();
 lean::mark_persistent(l_String_Inhabited);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "Inhabited"), l_String_Inhabited);
 l_String_HasSizeof = _init_l_String_HasSizeof();
 lean::mark_persistent(l_String_HasSizeof);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "HasSizeof"), l_String_HasSizeof);
 l_String_HasAppend = _init_l_String_HasAppend();
 lean::mark_persistent(l_String_HasAppend);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("String"), "HasAppend"), l_String_HasAppend);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "str"), 2, l_String_str___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "pushn"), 3, l_String_pushn___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "isEmpty"), 1, l_String_isEmpty___boxed);

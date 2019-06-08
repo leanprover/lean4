@@ -6603,6 +6603,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "FnBody"), "hasLiveVar"), 3, l_Lean_IR_FnBody_hasLiveVar___boxed);
 l_Lean_IR_LiveVarSet_inhabited = _init_l_Lean_IR_LiveVarSet_inhabited();
 lean::mark_persistent(l_Lean_IR_LiveVarSet_inhabited);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "LiveVarSet"), "inhabited"), l_Lean_IR_LiveVarSet_inhabited);
 l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1 = _init_l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_ir_livevars_6__accumulate___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "LiveVars"), "collectExpr"), 2, l_Lean_IR_LiveVars_collectExpr);

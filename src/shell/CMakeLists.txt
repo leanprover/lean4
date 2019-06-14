@@ -22,7 +22,7 @@ add_custom_target(stdlib
   # '-G Ninja' complains otherwise
   BYPRODUCTS "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a"
   WORKING_DIRECTORY "${LEAN_SOURCE_DIR}/../library"
-  COMMAND make -j8 "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
+  COMMAND make -j8 --output-sync "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" "LEAN=$<TARGET_FILE:lean_stage0>" "LEANC_OPTS=${LEANC_OPTS}" "STAGE1_OUT=${CMAKE_BINARY_DIR}/stage1"
   DEPENDS lean_stage0)
 install(FILES "${CMAKE_BINARY_DIR}/stage1/libleanstdlib.a" DESTINATION lib)
 

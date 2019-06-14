@@ -1,0 +1,13 @@
+#!/usr/bin/env python3
+
+import collections
+import re
+import sys
+
+data = sys.stdin.read()
+cats = collections.defaultdict(lambda: 0)
+for m in re.findall("^([^\n\d]+)([\d.]+)(m?)s", data, re.MULTILINE):
+    cats[m[0].strip()] += float(m[1]) * (1e-3 if m[2] else 1)
+
+for cat in sorted(cats.keys()):
+    print(f"{cat!r}: {cats[cat]}")

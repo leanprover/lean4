@@ -1,0 +1,95 @@
+- attributes:
+    description: stdlib
+    tags: [slow]
+    time: &time
+      runner: time
+      # alternative config: use `perf stat` for extended properties
+      #runner: perf_stat
+      #perf_stat:
+      #  properties: ['cache-misses', 'wall-clock']
+  run_config:
+    <<: *time
+    cwd: ../../build/release/
+    cmd: |
+      bash -c "
+      set -euo pipefail &&
+      cmake . -DLEAN_EXTRA_MAKE_OPTS='-Dprofiler=true -Dprofiler.threshold=9999' >&2 &&
+      cmake --build . --target clean-olean >&2 &&
+      cmake --build . --target stdlib 2>&1 | ../../tests/bench/accumulate_profile.py"
+    max_runs: 3
+    parse_output: true
+- attributes:
+    description: stdlib size
+    tags: [deterministic, fast]
+  run_config:
+    cwd: ../../
+    cmd: |
+      bash -c "
+      set -euxo pipefail &&
+      echo -n 'lines: ' &&
+      find library -name '*.lean' | wc -c - | tail -1 | cut -d' ' -f 1"
+    max_runs: 1
+    runner: output
+#- attributes:
+#    description: frontend
+#    tags: [fast, suite]
+#  run_config:
+#    run_cmd: |
+#      ../../bin/lean --new-frontend -Dprofiler=true -Dprofiler.threshold=9999 frontend_test.lean 2>&1 >/dev/null | ./accumulate_profile.py
+#    parse_output: true
+- attributes:
+    description: binarytrees
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./binarytrees.lean.out 21
+  build_config:
+    cmd: ./compile.sh binarytrees.lean
+- attributes:
+    description: deriv
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./deriv.lean.out
+  build_config:
+    cmd: ./compile.sh deriv.lean
+- attributes:
+    description: const_fold
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: bash -c "ulimit -s unlimited && ./const_fold.lean.out"
+  build_config:
+    cmd: ./compile.sh const_fold.lean
+- attributes:
+    description: qsort
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./qsort.lean.out 400
+  build_config:
+    cmd: ./compile.sh qsort.lean
+- attributes:
+    description: rbmap
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./rbmap.lean.out 2000000
+  build_config:
+    cmd: ./compile.sh rbmap.lean
+- attributes:
+    description: rbmap_1
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./rbmap_checkpoint.lean.out 2000000 1
+  build_config:
+    cmd: ./compile.sh rbmap_checkpoint.lean
+- attributes:
+    description: unionfind
+    tags: [fast, suite]
+  run_config:
+    <<: *time
+    cmd: ./unionfind.lean.out 3000000
+  build_config:
+    cmd: ./compile.sh unionfind.lean

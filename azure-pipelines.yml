@@ -1,0 +1,11 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: |
+    curl https://nixos.org/nix/install | sh
+    nix-env -h
+  displayName: 'Setup'

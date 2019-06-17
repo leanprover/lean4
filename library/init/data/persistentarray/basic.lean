@@ -33,7 +33,7 @@ abbrev PArray (α : Type u) := PersistentArray α
 namespace PersistentArray
 /- TODO: use proofs for showing that array accesses are not out of bounds.
    We can do it after we reimplement the tactic framework. -/
-variables {α : Type u} {β : Type v}
+variables {α : Type u}
 open PersistentArrayNode
 
 instance : Inhabited (PersistentArray α) := ⟨{}⟩
@@ -126,7 +126,8 @@ else
   mkNewTail r
 
 section
-variables {m : Type v → Type v} [Monad m]
+variables {m : Type u → Type v} [Monad m]
+variable {β: Type u}
 
 @[specialize] partial def mfoldlAux (f : β → α → m β) : PersistentArrayNode α → β → m β
 | (node cs) b := cs.mfoldl (fun b c => mfoldlAux c b) b
@@ -137,14 +138,15 @@ do b ← mfoldlAux f t.root b; t.tail.mfoldl f b
 
 end
 
-@[inline] def foldl (f : β → α → β) (b : β) (t : PersistentArray α) : β :=
+@[inline] def foldl {β} (f : β → α → β) (b : β) (t : PersistentArray α) : β :=
 Id.run (t.mfoldl f b)
 
 def toList (t : PersistentArray α) : List α :=
 (t.foldl (fun xs x => x :: xs) []).reverse
 
 section
-variables {m : Type v → Type v} [Monad m]
+variables {m : Type u → Type v} [Monad m]
+variable {β:Type u}
 
 @[specialize] partial def mmapAux (f : α → m β) : PersistentArrayNode α → m (PersistentArrayNode β)
 | (node cs) := node <$> cs.mmap (fun c => mmapAux c)
@@ -158,7 +160,7 @@ do
 
 end
 
-@[inline] def map (f : α → β) (t : PersistentArray α) : PersistentArray β :=
+@[inline] def map {β} (f : α → β) (t : PersistentArray α) : PersistentArray β :=
 Id.run (t.mmap f)
 
 structure Stats :=

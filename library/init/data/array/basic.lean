@@ -24,7 +24,7 @@ def Array.size {α : Type u} (a : @& Array α) : Nat :=
 a.sz
 
 namespace Array
-variables {α : Type u} {β : Type v} {σ : Type w}
+variables {α : Type u}
 
 /- The parameter `c` is the initial capacity -/
 @[extern cpp inline "lean::mk_empty_array(#2)"]
@@ -136,7 +136,8 @@ partial def shrink : Array α → Nat → Array α
 | a n := if n ≥ a.size then a else shrink a.pop n
 
 section
-variables {m : Type v → Type v} [Monad m]
+variables {m : Type v → Type w} [Monad m]
+variables {β : Type v} {σ : Type u}
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def miterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → m β) : Nat → β → m β
@@ -172,6 +173,7 @@ miterate₂Aux a₁ a₂ f 0 b
 @[inline] def mfoldl₂ (f : β → α → σ → m β) (b : β) (a₁ : Array α) (a₂ : Array σ): m β :=
 miterate₂ a₁ a₂ b (fun _ a₁ a₂ b => f b a₁ a₂)
 
+
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def mfindAux (a : Array α) (f : α → m (Option β)) : Nat → m (Option β)
 | i :=
@@ -206,6 +208,9 @@ mfindRevAux a f a.size (Nat.leRefl _)
 
 end
 
+section
+variables {β:Type w} {σ:Type u}
+
 @[inline] def iterate (a : Array α) (b : β) (f : ∀ (i : Fin a.size), α → β → β) : β :=
 Id.run $ miterateAux a f 0 b
 
@@ -229,9 +234,10 @@ Id.run $ mfindAux a f 0
 
 @[inline] def findRev (a : Array α) (f : α → Option β) : Option β :=
 Id.run $ mfindRevAux a f a.size (Nat.leRefl _)
+end
 
 section
-variables {m : Type → Type v} [Monad m]
+variables {m : Type → Type w} [Monad m]
 
 @[specialize] partial def anyMAux (a : Array α) (p : α → m Bool) : Nat → m Bool
 | i :=
@@ -256,6 +262,9 @@ Id.run $ anyM a p
 @[inline] def all (a : Array α) (p : α → Bool) : Bool :=
 !any a (fun v => !p v)
 
+section
+variable {β:Type w}
+
 @[specialize] private def revIterateAux (a : Array α) (f : ∀ (i : Fin a.size), α → β → β) : ∀ (i : Nat), i ≤ a.size → β → β
 | 0     h b := b
 | (j+1) h b :=
@@ -276,10 +285,11 @@ instance [HasRepr α] : HasRepr (Array α) :=
 
 instance [HasToString α] : HasToString (Array α) :=
 ⟨toString ∘ toList⟩
-
+end
 
 section
-variables {m : Type v → Type v} [Monad m]
+variables {m : Type u → Type w} [Monad m]
+variable {β:Type u}
 
 @[specialize] unsafe partial def ummapAux (f : Nat → α → m β) : Nat → Array α → m (Array β)
 | i a :=
@@ -304,6 +314,9 @@ as.mfoldl (fun bs a => do b ← f a; pure (bs.push b)) (mkEmpty as.size)
 as.miterate (mkEmpty as.size) (fun i a bs => do b ← f i.val a; pure (bs.push b))
 end
 
+section
+variable {β:Type u}
+
 @[inline] def modify [Inhabited α] (a : Array α) (i : Nat) (f : α → α) : Array α :=
 if h : i < a.size then
   let idx : Fin a.size := ⟨i, h⟩;
@@ -319,9 +332,11 @@ Id.run $ mmapIdx f a
 
 @[inline] def map (f : α → β) (as : Array α) : Array β :=
 Id.run $ mmap f as
+end
 
 section
 variables {m : Type u → Type u} [Monad m]
+variable {β:Type u}
 
 @[specialize]
 partial def mforAux {α : Type w} {β : Type u} (f : α → m β) (a : Array α) : Nat → m PUnit

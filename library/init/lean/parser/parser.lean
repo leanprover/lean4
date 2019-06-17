@@ -7,6 +7,8 @@ prelude
 import init.lean.position
 import init.lean.syntax
 import init.lean.environment
+import init.lean.attributes
+import init.lean.evalconst
 import init.lean.parser.trie
 import init.lean.parser.identifier
 
@@ -146,6 +148,9 @@ structure ParserInfo :=
 structure Parser (k : ParserKind := nud) :=
 (info : ParserInfo := {})
 (fn   : ParserFn k)
+
+instance Parser.inhabited {k : ParserKind} : Inhabited (Parser k) :=
+⟨{ fn := λ _ _ s, s }⟩
 
 abbrev TrailingParser := Parser led
 
@@ -725,6 +730,84 @@ else
 
 instance string2basic {k : ParserKind} : HasCoe String (Parser k) :=
 ⟨symbol⟩
+
+/-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
+def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
+
+namespace TokenMap
+
+def insert {α : Type} (map : TokenMap α) (k : Name) (v : α) : TokenMap α :=
+match map.find k with
+| none    := map.insert k [v]
+| some vs := map.insert k (v::vs)
+
+instance {α : Type} : Inhabited (TokenMap α) := ⟨RBMap.empty⟩
+
+instance {α : Type} : HasEmptyc (TokenMap α) := ⟨RBMap.empty⟩
+
+end TokenMap
+
+structure ParsingTables :=
+(nudTable   : TokenMap Parser := {})
+(ledTable   : TokenMap TrailingParser := {})
+(ledParsers : List TrailingParser := []) -- for supporting parsers such as function application
+(tokens     : Trie TokenConfig := {})
+
+structure BuiltinParsingTablesAttribute :=
+(tables : IO.Ref ParsingTables)
+(attr   : AttributeImpl)
+
+private def throwUnexpectedParserType (declName : Name) : IO Unit :=
+throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))
+
+private def updateTokens (info : ParserInfo) (tablesRef : IO.Ref ParsingTables) : IO Unit :=
+do tables ← tablesRef.get,
+   tablesRef.reset,
+   match info.updateTokens tables.tokens with
+   | Except.ok newTokens := tablesRef.set { tokens := newTokens, .. tables }
+   | Except.error msg    := throw (IO.userError msg)
+
+private unsafe def addBuiltinParserUnsafe (env : Environment) (declName : Name) (tablesRef : IO.Ref ParsingTables) : IO Unit :=
+match env.find declName with
+| none      := throw "unknown declaration"
+| some decl :=
+  match decl.type with
+  | Expr.const `Lean.Parser.TrailingParser _ := do
+    p ← evalConst TrailingParser declName,
+    updateTokens p.info tablesRef,
+    match p.info.firstTokens with
+    | FirstTokens.tokens tks := tablesRef.modify $ λ tables, tks.foldl (λ tables tk, { ledTable := tables.ledTable.insert tk.val p, .. tables }) tables
+    | _                      := tablesRef.modify $ λ tables, { ledParsers := p :: tables.ledParsers, .. tables }
+  | Expr.app (Expr.const `Lean.Parser.Parser _) (Expr.const `Lean.Parser.ParserKind.nud _) := do
+    p ← evalConst Parser declName,
+    updateTokens p.info tablesRef,
+    match p.info.firstTokens with
+    | FirstTokens.tokens tks := tablesRef.modify $ λ tables, tks.foldl (λ tables tk, { nudTable := tables.nudTable.insert tk.val p, .. tables }) tables
+    | _                      := throw (IO.userError ("invalid parser '" ++ toString declName ++ "', initial token is not statically known"))
+  | _ := throwUnexpectedParserType declName
+
+@[implementedBy addBuiltinParserUnsafe]
+private constant addBuiltinParser (env : Environment) (declName : Name) (tables : IO.Ref ParsingTables) : IO Unit := default _
+
+/-
+The parsing tables for builtin parsers are "stored" in the extracted source code.
+This is needed for bootstrapping reasons.
+For example, we use the attribute `[builtinTermParser]` to compute the initial state for the
+attribute `[termParser]`.
+-/
+def registerBuiltinParserAttribute (name : Name) : IO BuiltinParsingTablesAttribute :=
+do tables ← IO.mkRef { ParsingTables . },
+   let attr : AttributeImpl := {
+     name  := name,
+     descr := "Builtin parser",
+     add   := λ env decl args persistent, do
+      unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument")),
+      unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
+      addBuiltinParser env decl tables,
+      pure env
+   },
+   registerAttribute attr,
+   pure { tables := tables, attr := attr }
 
 end Parser
 end Lean

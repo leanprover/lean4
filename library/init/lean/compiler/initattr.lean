@@ -9,13 +9,38 @@ import init.lean.attributes
 
 namespace Lean
 
+private def getIOTypeArg : Expr → Option Expr
+| (Expr.app (Expr.const `IO _) arg) := some arg
+| _ := none
+
+private def isUnitType : Expr → Bool
+| (Expr.const `Unit _) := true
+| _ := false
+
+private def isIOUnit (type : Expr) : Bool :=
+match getIOTypeArg type with
+| some type := isUnitType type
+| _ := false
+
 def mkInitAttr : IO (ParametricAttribute Name) :=
 registerParametricAttribute `myInit "initialization procedure for global references" $ λ env declName stx,
-  match stx with
-  | Syntax.ident _ _ initFnName _ _ :=
-    dbgTrace ("myInit " ++ toString initFnName) $ λ _, Except.ok initFnName
-  | Syntax.missing := Except.error "invalid 'init' attribute, argument is missing"
-  | _ := Except.error "invalid 'init' attribute, unexpected kind of argument"
+  match env.find declName with
+  | none := Except.error "unknown declaration"
+  | some decl :=
+    match stx with
+    | Syntax.ident _ _ initFnName _ _ :=
+      match env.find initFnName with
+      | none := Except.error ("unknown initialization function '" ++ toString initFnName ++ "'")
+      | some initDecl :=
+        match getIOTypeArg initDecl.type with
+        | none := Except.error ("initialization function '" ++ toString initFnName ++ "' must have type of the form `IO <type>`")
+        | some initTypeArg :=
+          if decl.type == initTypeArg then Except.ok initFnName
+          else Except.error ("initialization function '" ++ toString initFnName ++ "' type mismatch")
+    | Syntax.missing :=
+      if isIOUnit decl.type then Except.ok Name.anonymous
+      else Except.error "initialization function must have type `IO Unit`"
+    | _ := Except.error "unexpected kind of argument"
 
 @[init mkInitAttr]
 constant initAttr : ParametricAttribute Name := default _

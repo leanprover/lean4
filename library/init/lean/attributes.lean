@@ -278,4 +278,53 @@ match env.getModuleIdxFor decl with
 
 end TagAttribute
 
+/--
+   A `TagAttribute` variant where we can attach parameters to attributes.
+   It is slightly more expensive and consumes a little bit more memory than `TagAttribute`.
+
+   They provide the function `pAttr.getParam env decl` which returns `some p` iff declaration `decl`
+   contains the attribute `pAttr` with parameter `p`. -/
+structure ParametricAttribute (α : Type) :=
+(attr : AttributeImpl)
+(ext  : PersistentEnvExtension (Name × α) (NameMap α))
+
+def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String) (getParam : Environment → Name → Syntax → Except String α) : IO (ParametricAttribute α) :=
+do
+ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+  name            := name,
+  addImportedFn   := λ _, {},
+  addEntryFn      := λ (s : NameMap α) (p : Name × α), s.insert p.1 p.2,
+  exportEntriesFn := λ m,
+    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty in
+    r.qsort (λ a b, Name.quickLt a.1 b.1),
+  statsFn         := λ s, "parametric attribute" ++ Format.line ++ "number of local entries: " ++ format s.size
+},
+let attrImpl : AttributeImpl := {
+  name  := name,
+  descr := descr,
+  add   := λ env decl args persistent, do
+    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
+    unless (env.getModuleIdxFor decl).isNone $
+      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
+    match getParam env decl args with
+    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | Except.ok val    := pure $ ext.addEntry env (decl, val)
+},
+registerAttribute attrImpl,
+pure { attr := attrImpl, ext := ext }
+
+namespace ParametricAttribute
+
+instance {α : Type} : Inhabited (ParametricAttribute α) := ⟨{attr := default _, ext := default _}⟩
+
+def getParam {α : Type} [Inhabited α] (attr : ParametricAttribute α) (env : Environment) (decl : Name) : Option α :=
+match env.getModuleIdxFor decl with
+| some modIdx :=
+  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (λ a b, Name.quickLt a.1 b.1) with
+  | some (_, val) := some val
+  | none          := none
+| none        := (attr.ext.getState env).find decl
+
+end ParametricAttribute
+
 end Lean

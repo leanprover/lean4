@@ -4,9 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 
 Author: Leonardo de Moura
 */
-#include "kernel/replace_fn.h"
 #include "util/option_declarations.h"
 #include "util/io.h"
+#include "util/array_ref.h"
+#include "kernel/replace_fn.h"
 #include "library/attribute_manager.h"
 #include "library/constants.h"
 #include "library/class.h"
@@ -67,9 +68,43 @@ expr decl_attributes::parse_attr_arg(parser & p, name const & attr_id) {
         });
 }
 
+object* mk_syntax_atom_core(object*);
+object* mk_syntax_ident_core(object*);
+object* mk_syntax_list_core(object*);
+
+syntax mk_syntax_atom(string_ref const & s) { return syntax(mk_syntax_atom_core(s.to_obj_arg())); }
+syntax mk_syntax_ident(name const & n) { return syntax(mk_syntax_ident_core(n.to_obj_arg())); }
+syntax mk_syntax_list(buffer<syntax> const & args) { return syntax(mk_syntax_list_core(to_array(args))); }
+
 syntax decl_attributes::expr_to_syntax(expr const & e) {
-    // TODO(Lean)
-    return object_ref(box(0));
+    buffer<expr> args;
+    get_app_args(e, args);
+    buffer<syntax> new_args;
+    for (expr const & arg : args) {
+        if (is_constant(arg)) {
+            new_args.push_back(mk_syntax_ident(const_name(arg)));
+        } else if (is_lit(arg)) {
+            literal const & val = lit_value(arg);
+            switch (val.kind()) {
+            case literal_kind::Nat:
+                new_args.push_back(mk_syntax_atom(string_ref(val.get_nat().to_std_string())));
+                break;
+            case literal_kind::String:
+                new_args.push_back(mk_syntax_atom(val.get_string()));
+                break;
+            }
+        } else {
+            throw exception("unsupported kind of attribute parameter");
+        }
+    }
+    switch (new_args.size()) {
+    case 0:
+        return syntax(box(0));
+    case 1:
+        return new_args[0];
+    default:
+        return mk_syntax_list(new_args);
+    }
 }
 
 void decl_attributes::parse_core(parser & p, bool compact) {

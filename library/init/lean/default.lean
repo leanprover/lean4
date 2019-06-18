@@ -11,3 +11,4 @@ import init.lean.modifiers
 import init.lean.runtime
 import init.lean.attributes
 import init.lean.evalconst
+import init.lean.parser

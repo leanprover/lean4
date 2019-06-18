@@ -948,6 +948,9 @@ structure BuiltinParserAttribute :=
 
 namespace BuiltinParserAttribute
 
+instance : Inhabited BuiltinParserAttribute :=
+⟨{ tables := default _, attr := default _ }⟩
+
 def runParser (attr : BuiltinParserAttribute) (env : Environment) (input : String) (fileName := "<input>") : IO Syntax :=
 do tables ← attr.tables.get,
    match runParser env tables input fileName with
@@ -1007,6 +1010,24 @@ do tables ← IO.mkRef { ParsingTables . },
    },
    registerAttribute attr,
    pure { tables := tables, attr := attr }
+
+/- Register builtin parsing tables -/
+
+def mkBuiltinCommandParserAttr : IO BuiltinParserAttribute := registerBuiltinParserAttribute `builtinCommandParser
+def mkBuiltinTermParserAttr : IO BuiltinParserAttribute := registerBuiltinParserAttribute `builtinTermParser
+def mkBuiltinLevelParserAttr : IO BuiltinParserAttribute := registerBuiltinParserAttribute `builtinLevelParser
+
+@[init mkBuiltinCommandParserAttr]
+constant builtinCommandParserAttr : BuiltinParserAttribute := default _
+@[init mkBuiltinTermParserAttr]
+constant builtinTermParserAttr : BuiltinParserAttribute := default _
+@[init mkBuiltinLevelParserAttr]
+constant builtinLevelParserAttr : BuiltinParserAttribute := default _
+
+/- builting test parsing tables. TODO: delete -/
+def mkBuiltinTestParserAttr : IO BuiltinParserAttribute := registerBuiltinParserAttribute `builtinTestParser
+@[init mkBuiltinTestParserAttr]
+constant builtinTestParserAttr : BuiltinParserAttribute := default _
 
 end Parser
 end Lean

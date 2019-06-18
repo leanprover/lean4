@@ -53,7 +53,10 @@ match initAttr.getParam env fn with
 
 @[export lean.get_init_fn_name_for_core]
 def getInitFnNameFor (env : Environment) (fn : Name) : Option Name :=
-initAttr.getParam env fn
+match initAttr.getParam env fn with
+| some Name.anonymous := none
+| some n := some n
+| _ := none
 
 def hasInitAttr (env : Environment) (fn : Name) : Bool :=
 (getInitFnNameFor env fn).isSome

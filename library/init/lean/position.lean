@@ -72,8 +72,7 @@ def toPosition : FileMap → String.Pos → Position
 | { source := str, positions := ps, lines := lines } pos := toPositionAux str ps lines pos 0 (ps.size-1)
 
 end FileMap
-
-def String.toFileMap (s : String) : FileMap :=
-FileMap.ofString s
-
 end Lean
+
+def String.toFileMap (s : String) : Lean.FileMap :=
+Lean.FileMap.ofString s

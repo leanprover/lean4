@@ -50,10 +50,10 @@ structure ParserContext :=
 (tokens   : Trie TokenConfig)
 
 structure ParserState :=
-(stxStack : Array Syntax)
-(pos      : String.Pos)
-(cache    : ParserCache)
-(errorMsg : Option String)
+(stxStack : Array Syntax := Array.empty)
+(pos      : String.Pos := 0)
+(cache    : ParserCache := {})
+(errorMsg : Option String := none)
 
 namespace ParserState
 
@@ -887,21 +887,23 @@ match stx with
   | _       := (s, [])
 | _                        := (s, [])
 
+private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
+if s.stackSize == iniSz + 1 then s
+else s.mkNode nullKind iniSz -- throw error instead?
+
 def leadingParser (tables : ParsingTables) : ParserFn nud :=
 λ a c s,
   let iniSz   := s.stackSize in
   let (s, ps) := indexed tables.nudTable c s in
   let s       := longestMatchFn ps a c s in
-  if s.stackSize == iniSz + 1 then s
-  else s.mkNode nullKind iniSz -- throw error instead?
+  mkResult s iniSz
 
 def trailingParser (tables : ParsingTables) : ParserFn led :=
 λ a c s,
   let iniSz   := s.stackSize in
   let (s, ps) := indexed tables.ledTable c s in
   let s       := orelseFn (longestMatchFn ps) (anyOfFn tables.ledParsers) a c s in
-  if s.stackSize == iniSz + 1 then s
-  else s.mkNode nullKind iniSz -- throw error instead?
+  mkResult s iniSz
 
 partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
 | left s :=
@@ -924,9 +926,35 @@ def prattParser (tables : ParsingTables) : ParserFn nud :=
     let s    := s.popSyntax in
     trailingLoop tables rbp c left s
 
-structure BuiltinParsingTablesAttribute :=
+def mkParserContext (env : Environment) (input : String) (filename : String) (tokens : Trie TokenConfig) : ParserContext :=
+{ env      := env,
+  input    := input,
+  filename := filename,
+  fileMap  := input.toFileMap,
+  tokens   := tokens }
+
+def runParser (env : Environment) (tables : ParsingTables) (input : String) (fileName := "<input>") : Except String Syntax :=
+let c := mkParserContext env input fileName tables.tokens in
+let s := { ParserState . } in
+let s := prattParser tables (0 : Nat) c s in
+if s.hasError then
+  Except.error (s.toErrorMsg c)
+else
+  Except.ok s.stxStack.back
+
+structure BuiltinParserAttribute :=
 (tables : IO.Ref ParsingTables)
 (attr   : AttributeImpl)
+
+namespace BuiltinParserAttribute
+
+def runParser (attr : BuiltinParserAttribute) (env : Environment) (input : String) (fileName := "<input>") : IO Syntax :=
+do tables ← attr.tables.get,
+   match runParser env tables input fileName with
+   | Except.error err := throw (IO.userError err)
+   | Except.ok stx    := pure stx
+
+end BuiltinParserAttribute
 
 private def throwUnexpectedParserType (declName : Name) : IO Unit :=
 throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))
@@ -966,7 +994,7 @@ This is needed for bootstrapping reasons.
 For example, we use the attribute `[builtinTermParser]` to compute the initial state for the
 attribute `[termParser]`.
 -/
-def registerBuiltinParserAttribute (name : Name) : IO BuiltinParsingTablesAttribute :=
+def registerBuiltinParserAttribute (name : Name) : IO BuiltinParserAttribute :=
 do tables ← IO.mkRef { ParsingTables . },
    let attr : AttributeImpl := {
      name  := name,

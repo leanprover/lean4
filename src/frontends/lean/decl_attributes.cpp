@@ -80,7 +80,10 @@ syntax decl_attributes::expr_to_syntax(expr const & e) {
     buffer<expr> args;
     get_app_args(e, args);
     buffer<syntax> new_args;
-    for (expr const & arg : args) {
+    for (expr arg : args) {
+        while (is_mdata(arg)) {
+            arg = mdata_expr(arg);
+        }
         if (is_constant(arg)) {
             new_args.push_back(mk_syntax_ident(const_name(arg)));
         } else if (is_lit(arg)) {

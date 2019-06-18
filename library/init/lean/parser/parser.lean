@@ -75,6 +75,9 @@ def setCache (s : ParserState) (cache : ParserCache) : ParserState :=
 def pushSyntax (s : ParserState) (n : Syntax) : ParserState :=
 { stxStack := s.stxStack.push n, .. s }
 
+def popSyntax (s : ParserState) : ParserState :=
+{ stxStack := s.stxStack.pop, .. s }
+
 def shrinkStack (s : ParserState) (iniStackSz : Nat) : ParserState :=
 { stxStack := s.stxStack.shrink iniStackSz, .. s }
 
@@ -810,10 +813,10 @@ match prevErrorMsg, s.errorMsg with
 def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
 if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
 
-def longestMatchFnAux {k : ParserKind} (startSize : Nat) (startPos : String.Pos) : List (ParserFn k) → ParserFn k
+def longestMatchFnAux {k : ParserKind} (startSize : Nat) (startPos : String.Pos) : List (Parser k) → ParserFn k
 | []      := λ _ _ s, longestMatchMkResult startSize s
 | (p::ps) := λ a c s,
-   let s := longestMatchStep startSize startPos p a c s in
+   let s := longestMatchStep startSize startPos p.fn a c s in
    longestMatchFnAux ps a c s
 
 def longestMatchFn₁ {k : ParserKind} (p : ParserFn k) : ParserFn k :=
@@ -822,19 +825,24 @@ let startSize := s.stackSize in
 let s := p a c s in
 if s.hasError then s else s.mkLongestNodeAlt startSize
 
-def longestMatchFn {k : ParserKind} : List (ParserFn k) → ParserFn k
-| []      := λ _ _ s, s.mkError "longest match: empty list"
-| [p]     := longestMatchFn₁ p
+def longestMatchFn {k : ParserKind} : List (Parser k) → ParserFn k
+| []      := λ _ _ s, s.mkError "longestMatch: empty list"
+| [p]     := longestMatchFn₁ p.fn
 | (p::ps) := λ a c s,
   let startSize := s.stackSize in
   let startPos  := s.pos in
-  let s         := p a c s in
+  let s         := p.fn a c s in
   if s.hasError then
     let s := s.shrinkStack startSize in
     longestMatchFnAux startSize startPos ps a c s
   else
     let s := s.mkLongestNodeAlt startSize in
     longestMatchFnAux startSize startPos ps a c s
+
+def anyOfFn {k : ParserKind} : List (Parser k) → ParserFn k
+| []      _ _ s := s.mkError "anyOf: empty list"
+| [p]     a c s := p.fn a c s
+| (p::ps) a c s := orelseFn p.fn (anyOfFn ps) a c s
 
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
 def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
@@ -878,6 +886,43 @@ match stx with
   | some as := (s, as)
   | _       := (s, [])
 | _                        := (s, [])
+
+def leadingParser (tables : ParsingTables) : ParserFn nud :=
+λ a c s,
+  let iniSz   := s.stackSize in
+  let (s, ps) := indexed tables.nudTable c s in
+  let s       := longestMatchFn ps a c s in
+  if s.stackSize == iniSz + 1 then s
+  else s.mkNode nullKind iniSz -- throw error instead?
+
+def trailingParser (tables : ParsingTables) : ParserFn led :=
+λ a c s,
+  let iniSz   := s.stackSize in
+  let (s, ps) := indexed tables.ledTable c s in
+  let s       := orelseFn (longestMatchFn ps) (anyOfFn tables.ledParsers) a c s in
+  if s.stackSize == iniSz + 1 then s
+  else s.mkNode nullKind iniSz -- throw error instead?
+
+partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
+| left s :=
+  let (s, lbp) := currLbp c s in
+  if rbp ≥ lbp then s
+  else
+    let s    := trailingParser tables left c s in
+    if s.hasError then s
+    else
+      let left := s.stxStack.back in
+      let s    := s.popSyntax in
+      trailingLoop left s
+
+def prattParser (tables : ParsingTables) : ParserFn nud :=
+λ rbp c s,
+  let s := leadingParser tables rbp c s in
+  if s.hasError then s
+  else
+    let left := s.stxStack.back in
+    let s    := s.popSyntax in
+    trailingLoop tables rbp c left s
 
 structure BuiltinParsingTablesAttribute :=
 (tables : IO.Ref ParsingTables)

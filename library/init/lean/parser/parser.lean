@@ -943,16 +943,53 @@ else
   Except.ok s.stxStack.back
 
 structure BuiltinParserAttribute :=
-(tables : IO.Ref ParsingTables)
-(attr   : AttributeImpl)
+(tables     : IO.Ref (Option ParsingTables))
+(ledParsers : IO.Ref (List Name))
+(nudParsers : IO.Ref (List Name))
+(attr       : AttributeImpl)
 
 namespace BuiltinParserAttribute
 
 instance : Inhabited BuiltinParserAttribute :=
-⟨{ tables := default _, attr := default _ }⟩
+⟨{ tables := default _, attr := default _, ledParsers := default _, nudParsers := default _ }⟩
+
+private def updateTokens (tables : ParsingTables) (info : ParserInfo) : IO ParsingTables :=
+match info.updateTokens tables.tokens with
+| Except.ok newTokens := pure { tokens := newTokens, .. tables }
+| Except.error msg    := throw (IO.userError msg)
+
+unsafe def getTablesUnsafe (attr : BuiltinParserAttribute) : IO ParsingTables :=
+do tables ← attr.tables.get,
+   match tables with
+   | some tables := pure tables
+   | none := do
+     ledParsers ← attr.ledParsers.get,
+     nudParsers ← attr.nudParsers.get,
+     let ledParsers := ledParsers.reverse,
+     let nudParsers := nudParsers.reverse,
+     let tables : ParsingTables := {},
+     tables ← nudParsers.mfoldl
+       (λ tables declName, do
+         p ← evalConst Parser declName,
+         tables ← updateTokens tables p.info,
+         match p.info.firstTokens with
+         | FirstTokens.tokens tks := pure $ tks.foldl (λ tables tk, { nudTable := tables.nudTable.insert tk.val p, .. tables }) tables
+         | _                      := throw (IO.userError ("invalid parser '" ++ toString declName ++ "', initial token is not statically known")))
+       tables,
+     ledParsers.mfoldl
+       (λ tables declName, do
+         p ← evalConst TrailingParser declName,
+         tables ← updateTokens tables p.info,
+         match p.info.firstTokens with
+         | FirstTokens.tokens tks := pure $ tks.foldl (λ tables tk, { ledTable := tables.ledTable.insert tk.val p, .. tables }) tables
+         | _                      := pure $ { ledParsers := p :: tables.ledParsers, .. tables })
+       tables
+
+@[implementedBy getTablesUnsafe]
+constant getTables (attr : BuiltinParserAttribute) : IO ParsingTables := default _
 
 def runParser (attr : BuiltinParserAttribute) (env : Environment) (input : String) (fileName := "<input>") : IO Syntax :=
-do tables ← attr.tables.get,
+do tables ← attr.getTables,
    match runParser env tables input fileName with
    | Except.error err := throw (IO.userError err)
    | Except.ok stx    := pure stx
@@ -975,6 +1012,7 @@ match env.find declName with
 | some decl :=
   match decl.type with
   | Expr.const `Lean.Parser.TrailingParser _ := do
+
     p ← evalConst TrailingParser declName,
     updateTokens p.info tablesRef,
     match p.info.firstTokens with
@@ -998,18 +1036,28 @@ For example, we use the attribute `[builtinTermParser]` to compute the initial s
 attribute `[termParser]`.
 -/
 def registerBuiltinParserAttribute (name : Name) : IO BuiltinParserAttribute :=
-do tables ← IO.mkRef { ParsingTables . },
+do tables ← IO.mkRef (none : Option ParsingTables),
+   ledParsers ← IO.mkRef ([] : List Name),
+   nudParsers ← IO.mkRef ([] : List Name),
    let attr : AttributeImpl := {
      name  := name,
      descr := "Builtin parser",
-     add   := λ env decl args persistent, do
+     add   := λ env declName args persistent, do
       unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', unexpected argument")),
       unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
-      addBuiltinParser env decl tables,
-      pure env
+      match env.find declName with
+      | none  := throw "unknown declaration"
+      | some decl :=
+        match decl.type with
+        | Expr.const `Lean.Parser.TrailingParser _ :=
+          ledParsers.modify $ λ ns, declName :: ns
+        | Expr.app (Expr.const `Lean.Parser.Parser _) (Expr.const `Lean.Parser.ParserKind.nud _) :=
+          nudParsers.modify $ λ ns, declName :: ns
+        | _ := throwUnexpectedParserType declName,
+        pure env
    },
    registerAttribute attr,
-   pure { tables := tables, attr := attr }
+   pure { tables := tables, attr := attr, ledParsers := ledParsers, nudParsers := nudParsers }
 
 /- Register builtin parsing tables -/
 

@@ -45,7 +45,6 @@ registerParametricAttribute `init "initialization procedure for global reference
 @[init mkInitAttr]
 constant initAttr : ParametricAttribute Name := default _
 
-@[export lean.is_io_unit_init_core]
 def isIOUnitInitFn (env : Environment) (fn : Name) : Bool :=
 match initAttr.getParam env fn with
 | some Name.anonymous := true

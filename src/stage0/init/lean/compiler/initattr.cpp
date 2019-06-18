@@ -39,9 +39,7 @@ obj* get_init_fn_name_for_core(obj*, obj*);
 obj* l_Lean_hasInitAttr___boxed(obj*, obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
 obj* l_RBNode_fold___main___at_Lean_mkInitAttr___spec__2___boxed(obj*, obj*);
-namespace lean {
-uint8 is_io_unit_init_core(obj*, obj*);
-}
+uint8 l_Lean_isIOUnitInitFn(obj*, obj*);
 uint8 l___private_init_lean_compiler_initattr_2__isUnitType___main(obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_mkInitAttr___lambda__1___closed__1;
@@ -1303,14 +1301,12 @@ return x_24;
 }
 }
 }
-namespace lean {
-uint8 is_io_unit_init_core(obj* x_1, obj* x_2) {
+uint8 l_Lean_isIOUnitInitFn(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = l_Lean_initAttr;
 x_4 = l_Lean_ParametricAttribute_getParam___at_Lean_isIOUnitInitFn___spec__1(x_3, x_1, x_2);
-lean::dec(x_1);
 if (lean::obj_tag(x_4) == 0)
 {
 uint8 x_5; 
@@ -1337,7 +1333,6 @@ else
 uint8 x_10; 
 x_10 = 1;
 return x_10;
-}
 }
 }
 }
@@ -1375,7 +1370,8 @@ obj* l_Lean_isIOUnitInitFn___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 uint8 x_3; obj* x_4; 
-x_3 = lean::is_io_unit_init_core(x_1, x_2);
+x_3 = l_Lean_isIOUnitInitFn(x_1, x_2);
+lean::dec(x_1);
 x_4 = lean::box(x_3);
 return x_4;
 }

@@ -15,6 +15,12 @@ import init.lean.parser.identifier
 namespace Lean
 namespace Parser
 
+/- Maximum standard precedence. This is the precedence of Function application.
+   In the standard Lean language, only the token `.` has a left-binding power greater
+   than `maxPrec` (so that field accesses like `g (h x).f` are parsed as `g ((h x).f)`,
+   not `(g (h x)).f`). -/
+def maxPrec : Nat := 1024
+
 structure TokenConfig :=
 (val : String)
 (lbp : Option Nat := none)
@@ -653,6 +659,15 @@ def tokenFn : BasicParserFn :=
       let s := tokenFnAux c s in
       updateCache i s
 
+def peekToken (c : ParserContext) (s : ParserState) : ParserState × Option Syntax :=
+let iniSz  := s.stackSize in
+let iniPos := s.pos in
+let s      := tokenFn c s in
+if s.hasError then (s.restore iniSz iniPos, none)
+else
+  let stx := s.stxStack.back in
+  (s.restore iniSz iniPos, some stx)
+
 @[inline] def satisfySymbolFn (p : String → Bool) (errorMsg : String) : BasicParserFn :=
 λ c s,
   let startPos := s.pos in
@@ -731,6 +746,96 @@ else
 instance string2basic {k : ParserKind} : HasCoe String (Parser k) :=
 ⟨symbol⟩
 
+namespace ParserState
+
+def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
+match s with
+| ⟨stack, pos, cache, err⟩ := ⟨stack.shrink oldStackSize, pos, cache, err⟩
+
+def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos) (oldError : Option String) : ParserState :=
+match s with
+| ⟨stack, _, cache, _⟩ := ⟨stack.shrink oldStackSize, oldStopPos, cache, oldError⟩
+
+def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : String) : ParserState :=
+match s with
+| ⟨stack, pos, cache, some err⟩ := ⟨stack.shrink oldStackSize, pos, cache, some (err ++ "; " ++ oldError)⟩
+| other                         := other
+
+def mkLongestNodeAlt (s : ParserState) (startSize : Nat) : ParserState :=
+match s with
+| ⟨stack, pos, cache, _⟩ :=
+  if stack.size == startSize then ⟨stack.push Syntax.missing, pos, cache, none⟩ -- parser did not create any node, then we just add `Syntax.missing`
+  else if stack.size == startSize + 1 then s
+  else
+    -- parser created more than one node, combine them into a single node
+    let node := Syntax.node nullKind (stack.extract startSize stack.size) [] in
+    let stack := stack.shrink startSize in
+    ⟨stack.push node, pos, cache, none⟩
+
+def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
+match s with
+| ⟨stack, pos, cache, _⟩ :=
+  let node  := stack.back in
+  let stack := stack.shrink startStackSize in
+  let stack := stack.push node in
+  ⟨stack, pos, cache, none⟩
+
+def replaceLongest (s : ParserState) (startStackSize : Nat) (prevStackSize : Nat) : ParserState :=
+let s := s.mkLongestNodeAlt prevStackSize in
+s.keepLatest startStackSize
+
+end ParserState
+
+def longestMatchStep {k : ParserKind} (startSize : Nat) (startPos : String.Pos) (p : ParserFn k) : ParserFn k :=
+λ a c s,
+let prevErrorMsg  := s.errorMsg in
+let prevStopPos   := s.pos in
+let prevSize      := s.stackSize in
+let s             := s.restore prevSize startPos in
+let s             := p a c s in
+match prevErrorMsg, s.errorMsg with
+| none, none   := -- both succeeded
+  if s.pos > prevStopPos      then s.replaceLongest startSize prevSize -- replace
+  else if s.pos < prevStopPos then s.restore prevSize prevStopPos      -- keep prev
+  else s.mkLongestNodeAlt prevSize                                     -- keep both
+| none, some _ := -- prev succeeded, current failed
+  s.restore prevSize prevStopPos
+| some oldError, some _ := -- both failed
+  if s.pos > prevStopPos      then s.keepNewError prevSize
+  else if s.pos < prevStopPos then s.keepPrevError prevSize prevStopPos prevErrorMsg
+  else s.mergeErrors prevSize oldError
+| some _, none := -- prev failed, current succeeded
+  s.mkLongestNodeAlt startSize
+
+def longestMatchMkResult (startSize : Nat) (s : ParserState) : ParserState :=
+if !s.hasError && s.stackSize > startSize + 1 then s.mkNode choiceKind startSize else s
+
+def longestMatchFnAux {k : ParserKind} (startSize : Nat) (startPos : String.Pos) : List (ParserFn k) → ParserFn k
+| []      := λ _ _ s, longestMatchMkResult startSize s
+| (p::ps) := λ a c s,
+   let s := longestMatchStep startSize startPos p a c s in
+   longestMatchFnAux ps a c s
+
+def longestMatchFn₁ {k : ParserKind} (p : ParserFn k) : ParserFn k :=
+λ a c s,
+let startSize := s.stackSize in
+let s := p a c s in
+if s.hasError then s else s.mkLongestNodeAlt startSize
+
+def longestMatchFn {k : ParserKind} : List (ParserFn k) → ParserFn k
+| []      := λ _ _ s, s.mkError "longest match: empty list"
+| [p]     := longestMatchFn₁ p
+| (p::ps) := λ a c s,
+  let startSize := s.stackSize in
+  let startPos  := s.pos in
+  let s         := p a c s in
+  if s.hasError then
+    let s := s.shrinkStack startSize in
+    longestMatchFnAux startSize startPos ps a c s
+  else
+    let s := s.mkLongestNodeAlt startSize in
+    longestMatchFnAux startSize startPos ps a c s
+
 /-- A multimap indexed by tokens. Used for indexing parsers by their leading token. -/
 def TokenMap (α : Type) := RBMap Name (List α) Name.quickLt
 
@@ -752,6 +857,27 @@ structure ParsingTables :=
 (ledTable   : TokenMap TrailingParser := {})
 (ledParsers : List TrailingParser := []) -- for supporting parsers such as function application
 (tokens     : Trie TokenConfig := {})
+
+def currLbp (c : ParserContext) (s : ParserState) : ParserState × Nat :=
+let (s, stx) := peekToken c s in
+match stx with
+| some (Syntax.atom _ sym) :=
+  match c.tokens.matchPrefix sym 0 with
+  | (_, some tk) := (s, tk.lbp.getOrElse 0)
+  | _            := (s, 0)
+| some (Syntax.ident _ _ _ _ _) := (s, maxPrec)
+| some (Syntax.node k _ _)      := if k == numberKind || k == strLitKind then (s, maxPrec) else (s, 0)
+| _                             := (s, 0)
+
+def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=
+let (s, stx) := peekToken c s in
+match stx with
+| some (Syntax.atom _ sym) :=
+  let n := mkSimpleName sym in
+  match map.find n with
+  | some as := (s, as)
+  | _       := (s, [])
+| _                        := (s, [])
 
 structure BuiltinParsingTablesAttribute :=
 (tables : IO.Ref ParsingTables)

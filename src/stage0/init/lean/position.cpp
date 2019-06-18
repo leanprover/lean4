@@ -23,6 +23,7 @@ obj* nat_sub(obj*, obj*);
 obj* l_Lean_Position_DecidableEq___boxed(obj*, obj*);
 obj* l_Lean_Position_Lean_HasFormat(obj*);
 obj* l_Lean_FileMap_ofString___closed__2;
+obj* l_String_toFileMap(obj*);
 obj* l___private_init_lean_position_1__ofStringAux___main(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_position_2__toColumnAux___main(obj*, obj*, obj*, obj*);
 obj* l_Lean_Position_Lean_HasFormat___closed__1;
@@ -80,7 +81,6 @@ obj* l___private_init_lean_position_3__toPositionAux___main___boxed(obj*, obj*, 
 obj* l_Lean_FileMap_ofString(obj*);
 obj* l_Lean_FileMap_toPosition___boxed(obj*, obj*);
 obj* l___private_init_lean_position_2__toColumnAux(obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_String_toFileMap(obj*);
 uint8 l_Lean_Position_DecidableEq(obj* x_1, obj* x_2) {
 _start:
 {
@@ -583,7 +583,7 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_String_toFileMap(obj* x_1) {
+obj* l_String_toFileMap(obj* x_1) {
 _start:
 {
 obj* x_2; 
@@ -628,6 +628,6 @@ l_Lean_FileMap_ofString___closed__2 = _init_l_Lean_FileMap_ofString___closed__2(
 lean::mark_persistent(l_Lean_FileMap_ofString___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "FileMap"), "ofString"), 1, l_Lean_FileMap_ofString);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "FileMap"), "toPosition"), 2, l_Lean_FileMap_toPosition___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "String"), "toFileMap"), 1, l_Lean_String_toFileMap);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("String"), "toFileMap"), 1, l_String_toFileMap);
 return w;
 }

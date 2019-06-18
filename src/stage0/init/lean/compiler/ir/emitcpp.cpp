@@ -98,7 +98,9 @@ obj* l_Lean_IR_EmitCpp_emitMainFn___closed__11;
 obj* l_Lean_IR_EmitCpp_emitUProj(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_toCppType___main___closed__7;
 obj* l_Lean_IR_EmitCpp_emitApp(obj*, obj*, obj*, obj*, obj*);
-extern "C" obj* lean_get_init_fn_name_for(obj*, obj*);
+namespace lean {
+obj* get_init_fn_name_for_core(obj*, obj*);
+}
 obj* l_Lean_IR_EmitCpp_emitInc___closed__2;
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitPartialApp___spec__1___closed__1;
 obj* l_Lean_IR_Decl_normalizeIds(obj*);
@@ -115,7 +117,9 @@ obj* l_Lean_IR_EmitCpp_closeNamespacesFor___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitFnDeclAux___closed__3;
 obj* l_Lean_IR_EmitCpp_emitDeclAux___closed__1;
 obj* l_Lean_IR_EmitCpp_emitDeclInit(obj*, obj*, obj*);
-extern "C" uint8 lean_is_io_unit_init(obj*, obj*);
+namespace lean {
+uint8 is_io_unit_init_core(obj*, obj*);
+}
 obj* l_List_reverse___rarg(obj*);
 namespace lean {
 obj* mk_extern_call_core(obj*, obj*, obj*);
@@ -22916,8 +22920,6 @@ lean::inc(x_11);
 lean::dec(x_9);
 x_12 = l_Lean_IR_Decl_name___main(x_1);
 x_13 = l_Lean_hasInitAttr(x_6, x_12);
-lean::dec(x_12);
-lean::dec(x_6);
 if (x_13 == 0)
 {
 uint8 x_245; 
@@ -23863,8 +23865,6 @@ lean::inc(x_253);
 lean::dec(x_251);
 x_254 = l_Lean_IR_Decl_name___main(x_1);
 x_255 = l_Lean_hasInitAttr(x_247, x_254);
-lean::dec(x_254);
-lean::dec(x_247);
 if (x_255 == 0)
 {
 uint8 x_333; 
@@ -24699,7 +24699,9 @@ x_8 = lean::box(0);
 lean::inc(x_7);
 lean::cnstr_set(x_4, 0, x_8);
 x_9 = l_Lean_IR_Decl_name___main(x_1);
-x_10 = lean_is_io_unit_init(x_6, x_9);
+lean::inc(x_9);
+lean::inc(x_6);
+x_10 = lean::is_io_unit_init_core(x_6, x_9);
 if (x_10 == 0)
 {
 obj* x_11; obj* x_12; obj* x_13; uint8 x_14; 
@@ -24882,8 +24884,8 @@ else
 {
 obj* x_68; 
 lean::dec(x_12);
-x_68 = lean_get_init_fn_name_for(x_6, x_9);
-lean::dec(x_6);
+lean::inc(x_9);
+x_68 = lean::get_init_fn_name_for_core(x_6, x_9);
 if (lean::obj_tag(x_68) == 0)
 {
 obj* x_69; 
@@ -27297,7 +27299,9 @@ x_674 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_674, 0, x_673);
 lean::cnstr_set(x_674, 1, x_672);
 x_675 = l_Lean_IR_Decl_name___main(x_1);
-x_676 = lean_is_io_unit_init(x_671, x_675);
+lean::inc(x_675);
+lean::inc(x_671);
+x_676 = lean::is_io_unit_init_core(x_671, x_675);
 if (x_676 == 0)
 {
 obj* x_677; obj* x_678; obj* x_679; uint8 x_680; 
@@ -27468,8 +27472,8 @@ else
 {
 obj* x_722; 
 lean::dec(x_678);
-x_722 = lean_get_init_fn_name_for(x_671, x_675);
-lean::dec(x_671);
+lean::inc(x_675);
+x_722 = lean::get_init_fn_name_for_core(x_671, x_675);
 if (lean::obj_tag(x_722) == 0)
 {
 obj* x_723; 

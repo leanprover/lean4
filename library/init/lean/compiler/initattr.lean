@@ -23,7 +23,7 @@ match getIOTypeArg type with
 | _ := false
 
 def mkInitAttr : IO (ParametricAttribute Name) :=
-registerParametricAttribute `myInit "initialization procedure for global references" $ λ env declName stx,
+registerParametricAttribute `init "initialization procedure for global references" $ λ env declName stx,
   match env.find declName with
   | none := Except.error "unknown declaration"
   | some decl :=
@@ -45,11 +45,15 @@ registerParametricAttribute `myInit "initialization procedure for global referen
 @[init mkInitAttr]
 constant initAttr : ParametricAttribute Name := default _
 
-@[extern "lean_is_io_unit_init"]
-constant isIOUnitInitFn (env : @& Environment) (fn : @& Name) : Bool := default _
+@[export lean.is_io_unit_init_core]
+def isIOUnitInitFn (env : Environment) (fn : Name) : Bool :=
+match initAttr.getParam env fn with
+| some Name.anonymous := true
+| _ := false
 
-@[extern "lean_get_init_fn_name_for"]
-constant getInitFnNameFor (env : @& Environment) (fn : @& Name) : Option Name := default _
+@[export lean.get_init_fn_name_for_core]
+def getInitFnNameFor (env : Environment) (fn : Name) : Option Name :=
+initAttr.getParam env fn
 
 def hasInitAttr (env : Environment) (fn : Name) : Bool :=
 (getInitFnNameFor env fn).isSome

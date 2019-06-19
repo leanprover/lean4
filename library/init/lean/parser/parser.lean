@@ -1026,11 +1026,32 @@ registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsin
 @[init] def regBuiltinLevelParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
 
+@[noinline] unsafe def runBuiltinParserUnsafe (ref : IO.Ref ParsingTables) : ParserFn nud :=
+λ a c s,
+match unsafeIO (do tables ← ref.get, pure $ prattParser tables a c s) with
+| some s := s
+| none   := s.mkError "failed to access builtin reference"
+
+@[implementedBy runBuiltinParserUnsafe]
+constant runBuiltinParser (ref : IO.Ref ParsingTables) : ParserFn nud := default _
+
+def commandParser (rbp : Nat := 0) : Parser :=
+{ fn := λ _, runBuiltinParser builtinCommandParsingTable rbp }
+
+def termParser (rbp : Nat := 0) : Parser :=
+{ fn := λ _, runBuiltinParser builtinTermParsingTable rbp }
+
+def levelParser (rbp : Nat := 0) : Parser :=
+{ fn := λ _, runBuiltinParser builtinLevelParsingTable rbp }
+
 /- TODO(Leo): delete -/
 @[init mkBultinParsingTablesRef]
 constant builtinTestParsingTable : IO.Ref ParsingTables := default _
 @[init] def regBuiltinTestParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinTestParser `Lean.Parser.builtinTestParsingTable
+
+def testParser (rbp : Nat := 0) : Parser :=
+{ fn := λ _, runBuiltinParser builtinTestParsingTable rbp }
 
 end Parser
 end Lean

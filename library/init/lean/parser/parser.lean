@@ -283,8 +283,8 @@ andthen p (many p)
   let pos := s.pos in
   let s   := p a c s in
   if s.hasError then
-    let s := s.restore sz pos in
     if pOpt then
+      let s := s.restore sz pos in
       s.mkNode nullKind iniSz
     else
       -- append `Syntax.missing` to make clear that List is incomplete

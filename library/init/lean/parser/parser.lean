@@ -452,8 +452,8 @@ def quotedCharFn : BasicParserFn
 def mkStrLitKind : IO SyntaxNodeKind := nextKind `strLit
 @[init mkStrLitKind] constant strLitKind : SyntaxNodeKind := default _
 
-def mkNumberKind : IO SyntaxNodeKind := nextKind `number
-@[init mkNumberKind] constant numberKind : SyntaxNodeKind := default _
+def mkNumberKind : IO SyntaxNodeKind := nextKind `numLit
+@[init mkNumberKind] constant numLitKind : SyntaxNodeKind := default _
 
 /-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : BasicParserFn :=
@@ -498,22 +498,22 @@ def decimalNumberFn (startPos : Nat) : BasicParserFn :=
         s
     else
       s in
-  mkNodeToken numberKind startPos c s
+  mkNodeToken numLitKind startPos c s
 
 def binNumberFn (startPos : Nat) : BasicParserFn :=
 λ c s,
   let s := takeWhile1Fn (λ c, c == '0' || c == '1') "expected binary number" c s in
-  mkNodeToken numberKind startPos c s
+  mkNodeToken numLitKind startPos c s
 
 def octalNumberFn (startPos : Nat) : BasicParserFn :=
 λ c s,
   let s := takeWhile1Fn (λ c, '0' ≤ c && c ≤ '7') "expected octal number" c s in
-  mkNodeToken numberKind startPos c s
+  mkNodeToken numLitKind startPos c s
 
 def hexNumberFn (startPos : Nat) : BasicParserFn :=
 λ c s,
   let s := takeWhile1Fn (λ c, ('0' ≤ c && c ≤ '9') || ('a' ≤ c && c ≤ 'f') || ('A' ≤ c && c ≤ 'F')) "expected hexadecimal number" c s in
-  mkNodeToken numberKind startPos c s
+  mkNodeToken numLitKind startPos c s
 
 def numberFnAux : BasicParserFn :=
 λ c s,
@@ -720,13 +720,17 @@ def unicodeSymbolInfo (sym asciiSym : String) (lbp : Option Nat) : ParserInfo :=
 { info := unicodeSymbolInfo sym asciiSym lbp,
   fn   := unicodeSymbolFn sym asciiSym }
 
+def mkAtomicInfo (k : String) : ParserInfo :=
+{ firstTokens := FirstTokens.tokens [ { val := k } ] }
+
 def numberFn {k : ParserKind} : ParserFn k :=
 λ _ c s,
   let s := tokenFn c s in
-  if s.hasError || !(s.stxStack.back.isOfKind numberKind) then s.mkError "expected numeral" else s
+  if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkError "expected numeral" else s
 
 @[inline] def number {k : ParserKind} : Parser k :=
-{ fn := numberFn }
+{ fn   := numberFn,
+  info := mkAtomicInfo "numLit" }
 
 def strLitFn {k : ParserKind} : ParserFn k :=
 λ _ c s,
@@ -734,7 +738,8 @@ let s := tokenFn c s in
 if s.hasError || !(s.stxStack.back.isOfKind strLitKind) then s.mkError "expected string literal" else s
 
 @[inline] def strLit {k : ParserKind} : Parser k :=
-{ fn := strLitFn }
+{ fn   := strLitFn,
+  info := mkAtomicInfo "strLit" }
 
 def identFn {k : ParserKind} : ParserFn k :=
 λ _ c s,
@@ -745,7 +750,8 @@ else
   s
 
 @[inline] def ident {k : ParserKind} : Parser k :=
-{ fn := identFn }
+{ fn   := identFn,
+  info := mkAtomicInfo "ident" }
 
 instance string2basic {k : ParserKind} : HasCoe String (Parser k) :=
 ⟨symbol⟩
@@ -875,18 +881,20 @@ match stx with
   | (_, some tk) := (s, tk.lbp.getOrElse 0)
   | _            := (s, 0)
 | some (Syntax.ident _ _ _ _ _) := (s, maxPrec)
-| some (Syntax.node k _ _)      := if k == numberKind || k == strLitKind then (s, maxPrec) else (s, 0)
+| some (Syntax.node k _ _)      := if k == numLitKind || k == strLitKind then (s, maxPrec) else (s, 0)
 | _                             := (s, 0)
 
 def indexed {α : Type} (map : TokenMap α) (c : ParserContext) (s : ParserState) : ParserState × List α :=
 let (s, stx) := peekToken c s in
-match stx with
-| some (Syntax.atom _ sym) :=
-  let n := mkSimpleName sym in
+let find (n : Name) : ParserState × List α :=
   match map.find n with
   | some as := (s, as)
-  | _       := (s, [])
-| _                        := (s, [])
+  | _       := (s, []) in
+match stx with
+| some (Syntax.atom _ sym)      := find (mkSimpleName sym)
+| some (Syntax.ident _ _ _ _ _) := find `ident
+| some (Syntax.node k _ _)      := find k.name
+| _                             := (s, [])
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
@@ -957,7 +965,7 @@ do tables ← tablesRef.get,
    tables ← updateTokens tables p.info,
    match p.info.firstTokens with
    | FirstTokens.tokens tks :=
-     let tables := tks.foldl (λ (tables : ParsingTables) tk, { leadingTable := tables.leadingTable.insert tk.val p, .. tables }) tables in
+     let tables := tks.foldl (λ (tables : ParsingTables) tk, { leadingTable := tables.leadingTable.insert (mkSimpleName tk.val) p, .. tables }) tables in
      tablesRef.set tables
    | _ :=
      throw (IO.userError ("invalid builtin parser '" ++ toString declName ++ "', initial token is not statically known"))
@@ -968,7 +976,7 @@ do tables ← tablesRef.get,
    tables ← updateTokens tables p.info,
    match p.info.firstTokens with
    | FirstTokens.tokens tks :=
-     let tables := tks.foldl (λ (tables : ParsingTables) tk, { trailingTable := tables.trailingTable.insert tk.val p, .. tables }) tables in
+     let tables := tks.foldl (λ (tables : ParsingTables) tk, { trailingTable := tables.trailingTable.insert (mkSimpleName tk.val) p, .. tables }) tables in
      tablesRef.set tables
    | _ :=
      let tables := { trailingParsers := p :: tables.trailingParsers, .. tables } in

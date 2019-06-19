@@ -24,7 +24,7 @@ attribute [builtinTestParser] pairParser
 
 def pairsParser : Parser :=
 node pairsKind $
-  "{" >> many1 testParser >> "}"
+  "{" >> sepBy1 testParser "," >> "}"
 
 attribute [builtinTestParser] pairsParser
 
@@ -33,6 +33,21 @@ node funKind $
   "fun" >> ident >> "," >> testParser
 
 attribute [builtinTestParser] functionParser
+
+def identParser : Parser :=
+ident
+
+attribute [builtinTestParser] identParser
+
+def numParser : Parser :=
+number
+
+attribute [builtinTestParser] numParser
+
+def strParser : Parser :=
+strLit
+
+attribute [builtinTestParser] strParser
 
 def testParser (input : String) : IO Unit :=
 do
@@ -44,4 +59,4 @@ IO.println stx
 def main (xs : List String) : IO Unit :=
 do
 testParser "(10, hello)",
-testParser "{ (10, hello) /- comment -/ (20, world) { fun x, (10, hello) } { (30, foo) } }"
+testParser "{ hello, 400, \"hello\", (10, hello), /- comment -/ (20, world), { fun x, (10, hello) }, { (30, foo) } }"

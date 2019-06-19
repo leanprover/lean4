@@ -68,13 +68,13 @@ attribute [extern "lean_expr_mk_lit"]    Expr.lit
 attribute [extern "lean_expr_mk_mdata"]  Expr.mdata
 attribute [extern "lean_expr_mk_proj"]   Expr.proj
 
-namespace Expr
 def mkApp (fn : Expr) (args : List Expr) : Expr :=
 args.foldl Expr.app fn
 
-def mkCapp (fn : Name) (args : List Expr) : Expr :=
+def mkCApp (fn : Name) (args : List Expr) : Expr :=
 mkApp (Expr.const fn []) args
 
+namespace Expr
 @[extern "lean_expr_hash"]
 constant hash (n : @& Expr) : USize := default USize
 
@@ -96,12 +96,18 @@ instance : HasBeq Expr := ⟨Expr.eqv⟩
 
 end Expr
 
+def mkConst (n : Name) (ls : List Level := []) : Expr :=
+Expr.const n ls
+
 def getAppFn : Expr → Expr
 | (Expr.app f a) := getAppFn f
 | e              := e
 
 def mkBinApp (f a b : Expr) :=
 Expr.app (Expr.app f a) b
+
+def mkBinCApp (f : Name) (a b : Expr) :=
+mkBinApp (mkConst f) a b
 
 def mkDecIsTrue (pred proof : Expr) :=
 mkBinApp (Expr.const `Decidable.isTrue []) pred proof

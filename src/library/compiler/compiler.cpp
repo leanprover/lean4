@@ -253,7 +253,8 @@ extern "C" object * lean_add_and_compile(object * env, object * opts, object * d
     try {
         environment new_env = add_and_compile(environment(env, true), options(opts, true), declaration(decl, true));
         return mk_cnstr(1, new_env).steal();
-    } catch (exception &) {
+    } catch (exception & ex) {
+        // throw;
         return box(0);
     }
 }

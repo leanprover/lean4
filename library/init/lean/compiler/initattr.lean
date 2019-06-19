@@ -60,4 +60,7 @@ match initAttr.getParam env fn with
 def hasInitAttr (env : Environment) (fn : Name) : Bool :=
 (getInitFnNameFor env fn).isSome
 
+def setInitAttr (env : Environment) (declName : Name) (initFnName : Name := Name.anonymous) : Except String Environment :=
+initAttr.setParam env declName initFnName
+
 end Lean

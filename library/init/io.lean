@@ -61,12 +61,12 @@ constant IO.initializing : IO Bool := default _
 
 abbrev monadIO (m : Type → Type) := HasMonadLiftT IO m
 
-def ioOfExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=
+namespace IO
+
+def ofExcept {ε α : Type} [HasToString ε] (e : Except ε α) : IO α :=
 match e with
 | Except.ok a    := pure a
-| Except.error e := throw $ toString e
-
-namespace IO
+| Except.error e := throw (IO.userError (toString e))
 
 def lazyPure {α : Type} (fn : Unit → α) : IO α :=
 pure (fn ())

@@ -37,11 +37,14 @@ instance : HasBeq TokenConfig :=
 end TokenConfig
 
 structure TokenCacheEntry :=
-(startPos stopPos : String.Pos)
-(token : Syntax)
+(startPos stopPos : String.Pos := 0)
+(token : Syntax := Syntax.missing)
 
 structure ParserCache :=
-(tokenCache : Option TokenCacheEntry := none)
+(tokenCache : TokenCacheEntry := {})
+
+def initCacheForInput (input : String) : ParserCache :=
+{ tokenCache := { startPos := input.bsize + 1 /- make sure it is not a valid position -/} }
 
 structure ParserContext :=
 (env      : Environment)
@@ -642,7 +645,7 @@ match s with
   if stack.size == 0 then s
   else
     let tk := stack.back in
-    ⟨stack, pos, { tokenCache := some { startPos := startPos, stopPos := pos, token := tk } }, none⟩
+    ⟨stack, pos, { tokenCache := { startPos := startPos, stopPos := pos, token := tk } }, none⟩
 | other := other
 
 def tokenFn : BasicParserFn :=
@@ -651,15 +654,11 @@ def tokenFn : BasicParserFn :=
   let i     := s.pos in
   if input.atEnd i then s.mkEOIError
   else
-    match s.cache with
-    | { tokenCache := some tkc } :=
-      if tkc.startPos == i then
-        let s := s.pushSyntax tkc.token in
-        s.setPos tkc.stopPos
-      else
-        let s := tokenFnAux c s in
-        updateCache i s
-    | _ :=
+    let tkc := s.cache.tokenCache in
+    if tkc.startPos == i then
+      let s := s.pushSyntax tkc.token in
+      s.setPos tkc.stopPos
+    else
       let s := tokenFnAux c s in
       updateCache i s
 
@@ -948,9 +947,12 @@ def mkParserContext (env : Environment) (input : String) (filename : String) (to
   fileMap  := input.toFileMap,
   tokens   := tokens }
 
+def mkParserState (input : String) : ParserState :=
+{ cache := initCacheForInput input }
+
 def runParser (env : Environment) (tables : ParsingTables) (input : String) (fileName := "<input>") (kind := "<main>") : Except String Syntax :=
 let c := mkParserContext env input fileName tables.tokens in
-let s := { ParserState . } in
+let s := mkParserState input in
 let s := prattParser kind tables (0 : Nat) c s in
 if s.hasError then
   Except.error (s.toErrorMsg c)

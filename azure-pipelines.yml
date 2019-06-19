@@ -1,11 +1,59 @@
 trigger:
-- master
+  branches:
+    include:
+      - master
+  tags:
+    include:
+      - '*'
 
-pool:
-  vmImage: 'ubuntu-latest'
+jobs:
+- job: Nix
+  strategy:
+    matrix:
+      Linux:
+        imageName: ubuntu-latest
+      macOS:
+        imageName: macos-latest
+  pool:
+    vmImage: $(imageName)
+  steps:
+  - script: |
+      curl https://nixos.org/nix/install | sh
+      . ~/.nix-profile/etc/profile.d/nix.sh
+    displayName: Setup
+  - script: |
+      . ~/.nix-profile/etc/profile.d/nix.sh
+      nix-shell --run ./script/ci.sh
+    displayName: Build
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: cTest
+      testResultsFiles: build/Testing/*/Test.xml
+      testRunTitle: $(Agent.JobName)
+    condition: succeededOrFailed()
+    displayName: Publish test results
 
-steps:
-- script: |
-    curl https://nixos.org/nix/install | sh
-    nix-env -h
-  displayName: 'Setup'
+- job: Windows
+  pool:
+    vmImage: windows-latest
+  steps:
+  - script: |
+      choco install -y msys2
+      C:\tools\msys64\usr\bin\bash -lc "pacman --noconfirm -S make python mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc git diffutils"
+    displayName: Setup
+  - script: |
+      C:\tools\msys64\usr\bin\bash -l ./script/ci.sh
+    env:
+      CMAKE_OPTIONS: -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles"
+      # use mingw64 shell
+      MSYSTEM: MINGW64
+      # don't let bash reset cwd
+      CHERE_INVOKING: 1
+    displayName: Build
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: cTest
+      testResultsFiles: build/Testing/*/Test.xml
+      testRunTitle: $(Agent.JobName)
+    condition: succeededOrFailed()
+    displayName: Publish test results

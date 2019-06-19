@@ -31,7 +31,7 @@ bool arity_was_reduced(comp_decl const & cdecl) {
 
 comp_decls reduce_arity(environment const & env, comp_decl const & cdecl) {
     if (has_export_name(env, cdecl.fst()) || cdecl.fst() == "main") {
-        /* We do not modify the arity of entry points (i.e., functions with attribute [extname]) */
+        /* We do not modify the arity of entry points (i.e., functions with attribute [export]) */
         return comp_decls(cdecl);
     }
     expr code    = cdecl.snd();

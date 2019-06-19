@@ -9,7 +9,6 @@ import init.lean.syntax
 import init.lean.toexpr
 import init.lean.environment
 import init.lean.attributes
-import init.lean.evalconst
 import init.lean.parser.trie
 import init.lean.parser.identifier
 import init.lean.compiler.initattr

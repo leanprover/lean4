@@ -910,7 +910,7 @@ def trailingParser (tables : ParsingTables) : ParserFn led :=
 partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
 | left s :=
   let (s, lbp) := currLbp c s in
-  if rbp ≥ lbp then s
+  if rbp ≥ lbp then s.pushSyntax left
   else
     let s    := trailingParser tables left c s in
     if s.hasError then s

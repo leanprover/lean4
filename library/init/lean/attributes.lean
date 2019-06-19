@@ -326,7 +326,7 @@ match env.getModuleIdxFor decl with
 | none        := (attr.ext.getState env).find decl
 
 def setParam {α : Type} (attr : ParametricAttribute α) (env : Environment) (decl : Name) (param : α) : Except String Environment :=
-if (env.getModuleIdxFor decl).isNone then
+if (env.getModuleIdxFor decl).isSome then
   Except.error ("invalid '" ++ toString attr.attr.name ++ "'.setParam, declaration is in an imported module")
 else if ((attr.ext.getState env).find decl).isSome then
   Except.error ("invalid '" ++ toString attr.attr.name ++ "'.setParam, attribute has already been set")

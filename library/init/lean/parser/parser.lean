@@ -900,40 +900,46 @@ private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
 else s.mkNode nullKind iniSz -- throw error instead?
 
-def leadingParser (tables : ParsingTables) : ParserFn nud :=
+def leadingParser (kind : String) (tables : ParsingTables) : ParserFn nud :=
 λ a c s,
   let iniSz   := s.stackSize in
   let (s, ps) := indexed tables.leadingTable c s in
-  let s       := longestMatchFn ps a c s in
-  mkResult s iniSz
+  if ps.isEmpty then
+    s.mkError ("expected " ++ kind)
+  else
+    let s       := longestMatchFn ps a c s in
+    mkResult s iniSz
 
-def trailingParser (tables : ParsingTables) : ParserFn led :=
+def trailingParser (kind : String) (tables : ParsingTables) : ParserFn led :=
 λ a c s,
   let iniSz   := s.stackSize in
   let (s, ps) := indexed tables.trailingTable c s in
-  let s       := orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) a c s in
-  mkResult s iniSz
+  if ps.isEmpty then
+    s.mkError ("expected trail of " ++ kind) -- better error message?
+  else
+    let s       := orelseFn (longestMatchFn ps) (anyOfFn tables.trailingParsers) a c s in
+    mkResult s iniSz
 
-partial def trailingLoop (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
+partial def trailingLoop (kind : String) (tables : ParsingTables) (rbp : Nat) (c : ParserContext) : Syntax → ParserState → ParserState
 | left s :=
   let (s, lbp) := currLbp c s in
   if rbp ≥ lbp then s.pushSyntax left
   else
-    let s    := trailingParser tables left c s in
+    let s    := trailingParser kind tables left c s in
     if s.hasError then s
     else
       let left := s.stxStack.back in
       let s    := s.popSyntax in
       trailingLoop left s
 
-def prattParser (tables : ParsingTables) : ParserFn nud :=
+def prattParser (kind : String) (tables : ParsingTables) : ParserFn nud :=
 λ rbp c s,
-  let s := leadingParser tables rbp c s in
+  let s := leadingParser kind tables rbp c s in
   if s.hasError then s
   else
     let left := s.stxStack.back in
     let s    := s.popSyntax in
-    trailingLoop tables rbp c left s
+    trailingLoop kind tables rbp c left s
 
 def mkParserContext (env : Environment) (input : String) (filename : String) (tokens : Trie TokenConfig) : ParserContext :=
 { env      := env,
@@ -942,10 +948,10 @@ def mkParserContext (env : Environment) (input : String) (filename : String) (to
   fileMap  := input.toFileMap,
   tokens   := tokens }
 
-def runParser (env : Environment) (tables : ParsingTables) (input : String) (fileName := "<input>") : Except String Syntax :=
+def runParser (env : Environment) (tables : ParsingTables) (input : String) (fileName := "<input>") (kind := "<main>") : Except String Syntax :=
 let c := mkParserContext env input fileName tables.tokens in
 let s := { ParserState . } in
-let s := prattParser tables (0 : Nat) c s in
+let s := prattParser kind tables (0 : Nat) c s in
 if s.hasError then
   Except.error (s.toErrorMsg c)
 else
@@ -1033,23 +1039,23 @@ registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsin
 @[init] def regBuiltinLevelParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
 
-@[noinline] unsafe def runBuiltinParserUnsafe (ref : IO.Ref ParsingTables) : ParserFn nud :=
+@[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn nud :=
 λ a c s,
-match unsafeIO (do tables ← ref.get, pure $ prattParser tables a c s) with
+match unsafeIO (do tables ← ref.get, pure $ prattParser kind tables a c s) with
 | some s := s
 | none   := s.mkError "failed to access builtin reference"
 
 @[implementedBy runBuiltinParserUnsafe]
-constant runBuiltinParser (ref : IO.Ref ParsingTables) : ParserFn nud := default _
+constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn nud := default _
 
 def commandParser (rbp : Nat := 0) : Parser :=
-{ fn := λ _, runBuiltinParser builtinCommandParsingTable rbp }
+{ fn := λ _, runBuiltinParser "command" builtinCommandParsingTable rbp }
 
 def termParser (rbp : Nat := 0) : Parser :=
-{ fn := λ _, runBuiltinParser builtinTermParsingTable rbp }
+{ fn := λ _, runBuiltinParser "term" builtinTermParsingTable rbp }
 
 def levelParser (rbp : Nat := 0) : Parser :=
-{ fn := λ _, runBuiltinParser builtinLevelParsingTable rbp }
+{ fn := λ _, runBuiltinParser "level" builtinLevelParsingTable rbp }
 
 /- TODO(Leo): delete -/
 @[init mkBultinParsingTablesRef]
@@ -1058,7 +1064,7 @@ constant builtinTestParsingTable : IO.Ref ParsingTables := default _
 registerBuiltinParserAttribute `builtinTestParser `Lean.Parser.builtinTestParsingTable
 
 def testParser (rbp : Nat := 0) : Parser :=
-{ fn := λ _, runBuiltinParser builtinTestParsingTable rbp }
+{ fn := λ _, runBuiltinParser "testExpr" builtinTestParsingTable rbp }
 
 end Parser
 end Lean

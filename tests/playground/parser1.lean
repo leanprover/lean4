@@ -10,6 +10,10 @@ def mkPairsKind : IO SyntaxNodeKind := nextKind `pairs
 @[init mkPairsKind]
 constant pairsKind : SyntaxNodeKind := default _
 
+def mkFunKind : IO SyntaxNodeKind := nextKind `fun
+@[init mkFunKind]
+constant funKind : SyntaxNodeKind := default _
+
 local infixl `>>`:50 := Lean.Parser.andthen
 
 def pairParser : Parser :=
@@ -20,9 +24,15 @@ attribute [builtinTestParser] pairParser
 
 def pairsParser : Parser :=
 node pairsKind $
-  "{" >> many testParser >> "}"
+  "{" >> many1 testParser >> "}"
 
 attribute [builtinTestParser] pairsParser
+
+def functionParser : Parser :=
+node funKind $
+  "fun" >> ident >> "," >> testParser
+
+attribute [builtinTestParser] functionParser
 
 def testParser (input : String) : IO Unit :=
 do
@@ -34,4 +44,4 @@ IO.println stx
 def main (xs : List String) : IO Unit :=
 do
 testParser "(10, hello)",
-testParser "{ (10, hello) /- comment -/ (20, world) { } { (30, foo) } }"
+testParser "{ (10, hello) /- comment -/ (20, world) { fun x, (10, hello) } { (30, foo) } }"

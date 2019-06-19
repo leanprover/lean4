@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.expr
+import init.lean.declaration
 
 namespace Lean
 namespace Compiler
@@ -66,6 +67,15 @@ def isEagerLambdaLiftingName : Name → Bool
 | (Name.mkString p s)  := "_elambda".isPrefixOf s || isEagerLambdaLiftingName p
 | (Name.mkNumeral p _) := isEagerLambdaLiftingName p
 | _ := false
+
+/-- Return the name of new definitions in the a given declaration.
+    Here we consider only declarations we generate code for.
+    We use this definition to implement `add_and_compile`. -/
+@[export lean.get_decl_names_for_code_gen_core]
+private def getDeclNamesForCodeGen : Declaration → List Name
+| (Declaration.defnDecl { name := n, .. })   := [n]
+| (Declaration.mutualDefnDecl defs)          := defs.map $ λ d, d.name
+| _                                          := []
 
 end Compiler
 end Lean

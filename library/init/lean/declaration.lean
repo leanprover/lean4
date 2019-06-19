@@ -66,7 +66,7 @@ inductive Declaration
 | thmDecl         (val : TheoremVal)
 | opaqueDecl      (val : OpaqueVal)
 | quotDecl
-| mutualDefnDecl (defns : List DefinitionVal) -- All definitions must be marked as `unsafe`
+| mutualDefnDecl  (defns : List DefinitionVal) -- All definitions must be marked as `unsafe`
 | inductDecl      (lparams : List Name) (nparams : Nat) (types : List inductiveType) (isUnsafe : Bool)
 
 /-- The kernel compiles (mutual) inductive declarations (see `inductiveDecls`) into a set of

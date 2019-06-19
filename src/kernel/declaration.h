@@ -199,6 +199,7 @@ public:
     declaration(declaration && other):object_ref(other) {}
     /* low-level constructors */
     explicit declaration(object * o):object_ref(o) {}
+    explicit declaration(b_obj_arg o, bool b):object_ref(o, b) {}
     explicit declaration(object_ref const & o):object_ref(o) {}
     declaration_kind kind() const { return static_cast<declaration_kind>(obj_tag(raw())); }
 

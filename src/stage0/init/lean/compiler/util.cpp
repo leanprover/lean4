@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.util
-// Imports: init.lean.expr
+// Imports: init.lean.expr init.lean.declaration
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -15,6 +15,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
+obj* l___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main(obj*);
 obj* l_Lean_Compiler_atMostOnce_HasAndthen;
 obj* l_Lean_Compiler_atMostOnce_seq(obj*, obj*, obj*);
 uint8 l_String_isPrefixOf(obj*, obj*);
@@ -34,6 +35,7 @@ namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_Lean_Compiler_atMostOnce___closed__1;
+obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(obj*);
 extern "C" obj* lean_name_mk_string(obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main(obj*, obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce___boxed(obj*, obj*);
@@ -43,6 +45,9 @@ obj* l_Lean_Compiler_atMostOnce_visitFVar(obj*, obj*, obj*);
 obj* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
 obj* l_Lean_Compiler_voidType;
 obj* l_Lean_Compiler_atMostOnce_skip(obj*);
+namespace lean {
+obj* get_decl_names_for_code_gen_core(obj*);
+}
 obj* l_Lean_Compiler_atMostOnce_skip___boxed(obj*);
 namespace lean {
 uint8 is_eager_lambda_lifting_name_core(obj*);
@@ -795,13 +800,117 @@ x_3 = lean::box(x_2);
 return x_3;
 }
 }
+obj* l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_1) == 0)
+{
+obj* x_2; 
+x_2 = lean::box(0);
+return x_2;
+}
+else
+{
+obj* x_3; obj* x_4; uint8 x_5; 
+x_3 = lean::cnstr_get(x_1, 0);
+lean::inc(x_3);
+x_4 = lean::cnstr_get(x_3, 0);
+lean::inc(x_4);
+lean::dec(x_3);
+x_5 = !lean::is_exclusive(x_1);
+if (x_5 == 0)
+{
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+x_6 = lean::cnstr_get(x_1, 1);
+x_7 = lean::cnstr_get(x_1, 0);
+lean::dec(x_7);
+x_8 = lean::cnstr_get(x_4, 0);
+lean::inc(x_8);
+lean::dec(x_4);
+x_9 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(x_6);
+lean::cnstr_set(x_1, 1, x_9);
+lean::cnstr_set(x_1, 0, x_8);
+return x_1;
+}
+else
+{
+obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
+x_10 = lean::cnstr_get(x_1, 1);
+lean::inc(x_10);
+lean::dec(x_1);
+x_11 = lean::cnstr_get(x_4, 0);
+lean::inc(x_11);
+lean::dec(x_4);
+x_12 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(x_10);
+x_13 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_13, 0, x_11);
+lean::cnstr_set(x_13, 1, x_12);
+return x_13;
+}
+}
+}
+}
+obj* l___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main(obj* x_1) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 1:
+{
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; 
+x_2 = lean::cnstr_get(x_1, 0);
+lean::inc(x_2);
+lean::dec(x_1);
+x_3 = lean::cnstr_get(x_2, 0);
+lean::inc(x_3);
+lean::dec(x_2);
+x_4 = lean::cnstr_get(x_3, 0);
+lean::inc(x_4);
+lean::dec(x_3);
+x_5 = lean::box(0);
+x_6 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_6, 0, x_4);
+lean::cnstr_set(x_6, 1, x_5);
+return x_6;
+}
+case 5:
+{
+obj* x_7; obj* x_8; 
+x_7 = lean::cnstr_get(x_1, 0);
+lean::inc(x_7);
+lean::dec(x_1);
+x_8 = l_List_map___main___at___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main___spec__1(x_7);
+return x_8;
+}
+default: 
+{
+obj* x_9; 
+lean::dec(x_1);
+x_9 = lean::box(0);
+return x_9;
+}
+}
+}
+}
+namespace lean {
+obj* get_decl_names_for_code_gen_core(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l___private_init_lean_compiler_util_1__getDeclNamesForCodeGen___main(x_1);
+return x_2;
+}
+}
+}
 obj* initialize_init_lean_expr(obj*);
+obj* initialize_init_lean_declaration(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_util(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_expr(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_declaration(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_neutralExpr = _init_l_Lean_Compiler_neutralExpr();
 lean::mark_persistent(l_Lean_Compiler_neutralExpr);

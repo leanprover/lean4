@@ -237,6 +237,27 @@ environment compile(environment const & env, options const & opts, names cs) {
     return compile_ir(new_env, opts, ds);
 }
 
+object* get_decl_names_for_code_gen_core(object *);
+names get_decl_names_for_code_gen(declaration const & decl) {
+    return names(get_decl_names_for_code_gen_core(decl.to_obj_arg()));
+}
+
+environment add_and_compile(environment const & env, options const & opts, declaration const & decl) {
+    environment new_env = env.add(decl);
+    return compile(new_env, opts, get_decl_names_for_code_gen(decl));
+}
+
+// TODO(Leo): better error handling. We are just returning `Option Environment` and "forgetting" failure.
+// I will do it after we move more code to Lean.
+extern "C" object * lean_add_and_compile(object * env, object * opts, object * decl) {
+    try {
+        environment new_env = add_and_compile(environment(env, true), options(opts, true), declaration(decl, true));
+        return mk_cnstr(1, new_env).steal();
+    } catch (exception &) {
+        return box(0);
+    }
+}
+
 void initialize_compiler() {
     g_codegen = new name("codegen");
     register_bool_option(*g_codegen, true, "(compiler) enable/disable code generation");

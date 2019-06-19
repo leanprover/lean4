@@ -79,6 +79,14 @@ env.header.trustLevel
 def getModuleIdxFor (env : Environment) (c : Name) : Option ModuleIdx :=
 env.const2ModIdx.find c
 
+/--
+Type check, add and compile the given declaration.
+
+TODO: better error handling, we are forgetting the information produced by the C++ type checker and compiler.
+-/
+@[extern "lean_add_and_compile"]
+constant addAndCompile (env : @& Environment) (o : @& Options) (d : @& Declaration) : Option Environment := default _
+
 end Environment
 
 /- "Raw" environment extension.

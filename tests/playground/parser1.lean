@@ -16,38 +16,26 @@ constant funKind : SyntaxNodeKind := default _
 
 local infixl `>>`:50 := Lean.Parser.andthen
 
-def pairParser : Parser :=
+@[builtinTestParser] def pairParser : Parser :=
 node pairKind $
   "(" >> number >> "," >> ident >> ")"
 
-attribute [builtinTestParser] pairParser
-
-def pairsParser : Parser :=
+@[builtinTestParser] def pairsParser : Parser :=
 node pairsKind $
   "{" >> sepBy1 testParser "," >> "}"
 
-attribute [builtinTestParser] pairsParser
-
-def functionParser : Parser :=
+@[builtinTestParser] def functionParser : Parser :=
 node funKind $
   "fun" >> ident >> "," >> testParser
 
-attribute [builtinTestParser] functionParser
-
-def identParser : Parser :=
+@[builtinTestParser] def identParser : Parser :=
 ident
 
-attribute [builtinTestParser] identParser
-
-def numParser : Parser :=
+@[builtinTestParser] def numParser : Parser :=
 number
 
-attribute [builtinTestParser] numParser
-
-def strParser : Parser :=
+@[builtinTestParser] def strParser : Parser :=
 strLit
-
-attribute [builtinTestParser] strParser
 
 def testParser (input : String) : IO Unit :=
 do

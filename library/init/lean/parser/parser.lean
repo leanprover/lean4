@@ -1012,7 +1012,7 @@ def registerBuiltinParserAttribute (attrName : Name) (refDeclName : Name) : IO U
 registerAttribute {
  name  := attrName,
  descr := "Builtin parser",
- add   := λ env declName args persistent, do
+ add   := λ env declName args persistent, do {
    unless args.isMissing $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', unexpected argument")),
    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString attrName ++ "', must be persistent")),
    match env.find declName with
@@ -1025,6 +1025,8 @@ registerAttribute {
        declareLeadingBuiltinParser env refDeclName declName
      | _ :=
        throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))
+ },
+ applicationTime := AttributeApplicationTime.afterCompilation
 }
 
 @[init mkBultinParsingTablesRef]

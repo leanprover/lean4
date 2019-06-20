@@ -121,13 +121,13 @@ match s with
 end ParserState
 
 inductive ParserKind
-| nud | led
+| leading | trailing
 
-export ParserKind (nud led)
+export ParserKind (leading trailing)
 
 def ParserArg : ParserKind → Type
-| ParserKind.nud := Nat
-| ParserKind.led := Syntax
+| ParserKind.leading := Nat
+| ParserKind.trailing := Syntax
 
 def BasicParserFn := ParserContext → ParserState → ParserState
 
@@ -158,26 +158,26 @@ structure ParserInfo :=
 (updateTokens : Trie TokenConfig → ExceptT String Id (Trie TokenConfig) := λ tks, pure tks)
 (firstTokens  : FirstTokens := FirstTokens.unknown)
 
-structure Parser (k : ParserKind := nud) :=
+structure Parser (k : ParserKind := leading) :=
 (info : ParserInfo := {})
 (fn   : ParserFn k)
 
 instance Parser.inhabited {k : ParserKind} : Inhabited (Parser k) :=
 ⟨{ fn := λ _ _ s, s }⟩
 
-abbrev TrailingParser := Parser led
+abbrev TrailingParser := Parser trailing
 
 @[noinline] def epsilonInfo : ParserInfo :=
 { firstTokens := FirstTokens.epsilon }
 
-@[inline] def pushLeadingFn : ParserFn led :=
+@[inline] def pushLeadingFn : ParserFn trailing :=
 λ a c s, s.pushSyntax a
 
 @[inline] def pushLeading : TrailingParser :=
 { info := epsilonInfo,
   fn   := pushLeadingFn }
 
-@[inline] def checkLeadingFn (p : Syntax → Bool) : ParserFn led :=
+@[inline] def checkLeadingFn (p : Syntax → Bool) : ParserFn trailing :=
 λ a c s,
   if p a then s
   else s.mkError "invalid leading token"
@@ -719,13 +719,13 @@ def unicodeSymbolInfo (sym asciiSym : String) (lbp : Option Nat) : ParserInfo :=
 def mkAtomicInfo (k : String) : ParserInfo :=
 { firstTokens := FirstTokens.tokens [ { val := k } ] }
 
-def numberFn {k : ParserKind} : ParserFn k :=
+def numLitFn {k : ParserKind} : ParserFn k :=
 λ _ c s,
   let s := tokenFn c s in
   if s.hasError || !(s.stxStack.back.isOfKind numLitKind) then s.mkError "expected numeral" else s
 
-@[inline] def number {k : ParserKind} : Parser k :=
-{ fn   := numberFn,
+@[inline] def numLit {k : ParserKind} : Parser k :=
+{ fn   := numLitFn,
   info := mkAtomicInfo "numLit" }
 
 def strLitFn {k : ParserKind} : ParserFn k :=
@@ -896,7 +896,7 @@ private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=
 if s.stackSize == iniSz + 1 then s
 else s.mkNode nullKind iniSz -- throw error instead?
 
-def leadingParser (kind : String) (tables : ParsingTables) : ParserFn nud :=
+def leadingParser (kind : String) (tables : ParsingTables) : ParserFn leading :=
 λ a c s,
   let iniSz   := s.stackSize in
   let (s, ps) := indexed tables.leadingTable c s in
@@ -906,7 +906,7 @@ def leadingParser (kind : String) (tables : ParsingTables) : ParserFn nud :=
     let s       := longestMatchFn ps a c s in
     mkResult s iniSz
 
-def trailingParser (kind : String) (tables : ParsingTables) : ParserFn led :=
+def trailingParser (kind : String) (tables : ParsingTables) : ParserFn trailing :=
 λ a c s,
   let iniSz   := s.stackSize in
   let (s, ps) := indexed tables.trailingTable c s in
@@ -928,7 +928,7 @@ partial def trailingLoop (kind : String) (tables : ParsingTables) (rbp : Nat) (c
       let s    := s.popSyntax in
       trailingLoop left s
 
-def prattParser (kind : String) (tables : ParsingTables) : ParserFn nud :=
+def prattParser (kind : String) (tables : ParsingTables) : ParserFn leading :=
 λ rbp c s,
   let s := leadingParser kind tables rbp c s in
   if s.hasError then s
@@ -1018,7 +1018,7 @@ registerAttribute {
      match decl.type with
      | Expr.const `Lean.Parser.TrailingParser _ :=
        declareTrailingBuiltinParser env refDeclName declName
-     | Expr.app (Expr.const `Lean.Parser.Parser _) (Expr.const `Lean.Parser.ParserKind.nud _) :=
+     | Expr.app (Expr.const `Lean.Parser.Parser _) (Expr.const `Lean.Parser.ParserKind.leading _) :=
        declareLeadingBuiltinParser env refDeclName declName
      | _ :=
        throw (IO.userError ("unexpected parser type at '" ++ toString declName ++ "' (`Parser` or `TrailingParser` expected"))
@@ -1040,14 +1040,14 @@ registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsin
 @[init] def regBuiltinLevelParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
 
-@[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn nud :=
+@[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading :=
 λ a c s,
 match unsafeIO (do tables ← ref.get, pure $ prattParser kind tables a c s) with
 | some s := s
 | none   := s.mkError "failed to access builtin reference"
 
 @[implementedBy runBuiltinParserUnsafe]
-constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn nud := default _
+constant runBuiltinParser (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading := default _
 
 def commandParser (rbp : Nat := 0) : Parser :=
 { fn := λ _, runBuiltinParser "command" builtinCommandParsingTable rbp }

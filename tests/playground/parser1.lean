@@ -6,7 +6,7 @@ local infixl `>>`:50 := Lean.Parser.andthen
 
 @[builtinTestParser] def pairParser : Parser :=
 node ⟨`pairKind⟩ $
-  "(" >> number >> "," >> ident >> ")"
+  "(" >> numLit >> "," >> ident >> ")"
 
 @[builtinTestParser] def pairsParser : Parser :=
 node ⟨`pairsKind⟩ $
@@ -20,7 +20,7 @@ node ⟨`funKind⟩ $
 ident
 
 @[builtinTestParser] def numParser : Parser :=
-number
+numLit
 
 @[builtinTestParser] def strParser : Parser :=
 strLit

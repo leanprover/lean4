@@ -19,7 +19,6 @@ extern "C" obj* lean_io_prim_handle_get_line(obj*, obj*);
 obj* l_IO_println(obj*);
 obj* l_IO_Ref_set___boxed(obj*, obj*);
 obj* l_IO_Fs_handle_isEof___at_IO_Fs_handle_readToEnd___spec__1___boxed(obj*, obj*);
-obj* l_ioOfExcept___rarg(obj*, obj*, obj*);
 namespace lean {
 obj* io_error_to_string_core(obj*);
 }
@@ -41,6 +40,7 @@ obj* l_IO_println___at_HasRepr_HasEval___spec__1___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___main___at_IO_Fs_handle_readToEnd___spec__4___boxed(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_getLine(obj*, obj*);
 obj* l_IO_print___boxed(obj*, obj*);
+obj* l_IO_ofExcept(obj*, obj*);
 obj* l_IO_print___at_HasRepr_HasEval___spec__2___boxed(obj*, obj*);
 obj* l_IO_Prim_iterate___at_IO_Fs_handle_readToEnd___spec__3___boxed(obj*, obj*, obj*);
 obj* l_IO_Ref_reset___rarg(obj*, obj*, obj*);
@@ -84,6 +84,7 @@ obj* l_IO_Prim_Ref_swap(obj*, obj*, obj*, obj*);
 obj* l_IO_mkRef___rarg(obj*, obj*, obj*);
 obj* l_IO_Fs_handle_mk___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_iterate(obj*, obj*);
+obj* l_IO_ofExcept___rarg(obj*, obj*, obj*);
 obj* l_IO_Fs_readFile___rarg___lambda__2(obj*, obj*, obj*, obj*);
 obj* l_String_HasToString___boxed(obj*);
 obj* l_IO_Prim_liftIO(obj*, obj*);
@@ -92,7 +93,6 @@ obj* l_IO_Ref_modify___rarg___lambda__2(obj*, obj*, obj*, obj*, obj*);
 obj* l_IO_Prim_handle_close___boxed(obj*, obj*);
 obj* l_IO_Prim_handle_flush___boxed(obj*, obj*);
 obj* l_IO_println___boxed(obj*);
-obj* l_ioOfExcept(obj*, obj*);
 obj* l_IO_Fs_handle_flush___boxed(obj*, obj*);
 extern "C" obj* lean_io_prim_handle_close(obj*, obj*);
 obj* l_unsafeIO___rarg___closed__1;
@@ -315,7 +315,7 @@ x_2 = lean_io_initializing(x_1);
 return x_2;
 }
 }
-obj* l_ioOfExcept___rarg(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_IO_ofExcept___rarg(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_2) == 0)
@@ -378,11 +378,11 @@ return x_15;
 }
 }
 }
-obj* l_ioOfExcept(obj* x_1, obj* x_2) {
+obj* l_IO_ofExcept(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_ioOfExcept___rarg), 3, 0);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_IO_ofExcept___rarg), 3, 0);
 return x_3;
 }
 }
@@ -1761,7 +1761,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name("unsafeIO"), 1, l_unsafeIO);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("timeit"), 4, l_timeit___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("allocprof"), 4, l_allocprof___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "initializing"), 1, l_IO_initializing___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("ioOfExcept"), 2, l_ioOfExcept);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "ofExcept"), 2, l_IO_ofExcept);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("IO"), "lazyPure"), 1, l_IO_lazyPure);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "iterate"), 2, l_IO_Prim_iterate);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("IO"), "Prim"), "putStr"), 2, l_IO_Prim_putStr___boxed);

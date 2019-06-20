@@ -215,6 +215,7 @@ obj* l_Lean_SimplePersistentEnvExtension_getState___rarg___boxed(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__10___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg(obj*, obj*);
+extern "C" obj* lean_add_and_compile(obj*, obj*, obj*);
 namespace lean {
 obj* nat_add(obj*, obj*);
 }
@@ -281,6 +282,7 @@ obj* l_Lean_SMap_numBuckets___at_Lean_Environment_displayStats___spec__5___boxed
 obj* l_Lean_addModification___closed__2;
 obj* l_RBNode_fold___main___at_Lean_mkModuleData___spec__2(obj*, obj*);
 obj* l_Lean_registerSimplePersistentEnvExtension___rarg___lambda__4(obj*);
+obj* l_Lean_Environment_addAndCompile___boxed(obj*, obj*, obj*);
 obj* l_RBNode_insert___at_Lean_Environment_add___spec__2(obj*, obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_addEntry___rarg(obj*, obj*, obj*);
 obj* l_IO_Prim_Ref_get(obj*, obj*, obj*);
@@ -3974,6 +3976,14 @@ x_3 = l_Lean_Environment_getModuleIdxFor(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 return x_3;
+}
+}
+obj* l_Lean_Environment_addAndCompile___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean_add_and_compile(x_1, x_2, x_3);
+return x_4;
 }
 }
 obj* l_Lean_EnvExtension_setStateUnsafe___rarg(obj* x_1, obj* x_2, obj* x_3) {
@@ -17157,6 +17167,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "setMainModule"), 2, lean::environment_set_main_module_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "mainModule"), 1, lean::environment_main_module_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "getModuleIdxFor"), 2, l_Lean_Environment_getModuleIdxFor___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "addAndCompile"), 3, l_Lean_Environment_addAndCompile___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EnvExtension"), "setStateUnsafe"), 1, l_Lean_EnvExtension_setStateUnsafe);
 l_Lean_EnvExtension_setState___closed__1 = _init_l_Lean_EnvExtension_setState___closed__1();
 lean::mark_persistent(l_Lean_EnvExtension_setState___closed__1);

@@ -112,6 +112,9 @@ else scopeManagerExt.modifyState env $ λ s,
 
 end Environment
 
+inductive AttributeApplicationTime
+| afterTypeChecking | afterCompilation
+
 structure AttributeImpl :=
 (name : Name)
 (descr : String)
@@ -123,6 +126,7 @@ structure AttributeImpl :=
 (activateScoped (env : Environment) (scope : Name) : IO Environment := pure env)
 (pushScope (env : Environment) : IO Environment := pure env)
 (popScope (env : Environment) : IO Environment := pure env)
+(applicationTime := AttributeApplicationTime.afterTypeChecking)
 
 instance AttributeImpl.inhabited : Inhabited AttributeImpl :=
 ⟨{ name := default _, descr := default _, add := λ env _ _ _, pure env }⟩
@@ -148,22 +152,22 @@ do m ← attributeMapRef.get,
    attributeMapRef.modify (λ m, m.insert attr.name attr),
    attributeArrayRef.modify (λ attrs, attrs.push attr)
 
-namespace Environment
-
 /- Return true iff `n` is the name of a registered attribute. -/
 @[export lean.is_attribute_core]
-def isAttribute (env : Environment) (n : Name) : IO Bool :=
+def isAttribute (n : Name) : IO Bool :=
 do m ← attributeMapRef.get, pure (m.contains n)
 
 /- Return the name of all registered attributes. -/
-def getAttributeNames (env : Environment) : IO (List Name) :=
+def getAttributeNames : IO (List Name) :=
 do m ← attributeMapRef.get, pure $ m.fold (λ r n _, n::r) []
 
-def getAttributeImpl (env : Environment) (attrName : Name) : IO AttributeImpl :=
+def getAttributeImpl (attrName : Name) : IO AttributeImpl :=
 do m ← attributeMapRef.get,
    match m.find attrName with
    | some attr := pure attr
    | none      := throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
+
+namespace Environment
 
 /- Add attribute `attr` to declaration `decl` with arguments `args`. If `persistent == true`, then attribute is saved on .olean file.
    It throws an error when
@@ -172,7 +176,7 @@ do m ← attributeMapRef.get,
    - `args` is not valid for `attr`. -/
 @[export lean.add_attribute_core]
 def addAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) (persistent := true) : IO Environment :=
-do attr ← env.getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName,
    attr.add env decl args persistent
 
 /- Add a scoped attribute `attr` to declaration `decl` with arguments `args` and scope `decl.getPrefix`.
@@ -185,7 +189,7 @@ do attr ← env.getAttributeImpl attrName,
    Remark: the attribute will not be activated if `decl` is not inside the current namespace `env.getNamespace`. -/
 @[export lean.add_scoped_attribute_core]
 def addScopedAttribute (env : Environment) (decl : Name) (attrName : Name) (args : Syntax := Syntax.missing) : IO Environment :=
-do attr ← env.getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName,
    attr.addScoped env decl args
 
 /- Remove attribute `attr` from declaration `decl`. The effect is the current scope.
@@ -195,14 +199,14 @@ do attr ← env.getAttributeImpl attrName,
    - `args` is not valid for `attr`. -/
 @[export lean.erase_attribute_core]
 def eraseAttribute (env : Environment) (decl : Name) (attrName : Name) (persistent := true) : IO Environment :=
-do attr ← env.getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName,
    attr.erase env decl persistent
 
 /- Activate the scoped attribute `attr` for all declarations in scope `scope`.
    We use this function to implement the command `open foo`. -/
 @[export lean.activate_scoped_attribute_core]
 def activateScopedAttribute (env : Environment) (attrName : Name) (scope : Name) : IO Environment :=
-do attr ← env.getAttributeImpl attrName,
+do attr ← getAttributeImpl attrName,
    attr.activateScoped env scope
 
 /- Activate all scoped attributes at `scope` -/

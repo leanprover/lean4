@@ -22,13 +22,13 @@ Author: Leonardo de Moura
 namespace lean {
 // ==========================================
 // New attribute manager API
-object* is_attribute_core(object* env, object* n, object* w);
+object* is_attribute_core(object* n, object* w);
 object* add_attribute_core(object* env, object* decl, object* attr, object* args, uint8 persistent, object *w);
 object* add_scoped_attribute_core(object* env, object* decl, object* attr, object* args, object *w);
 object* erase_attribute_core(object* env, object* decl, object* attr, uint8 persistent, object *w);
 
-bool is_new_attribute(environment const & env, name const & n) {
-    return get_io_scalar_result<bool>(is_attribute_core(env.to_obj_arg(), n.to_obj_arg(), io_mk_world()));
+bool is_new_attribute(name const & n) {
+    return get_io_scalar_result<bool>(is_attribute_core(n.to_obj_arg(), io_mk_world()));
 }
 environment add_attribute(environment const & env, name const & decl, name const & attr, syntax const & args, bool persistent) {
     return get_io_result<environment>(add_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), args.to_obj_arg(), persistent, io_mk_world()));
@@ -154,7 +154,7 @@ void decl_attributes::parse_core(parser & p, bool compact) {
                 data = attr.parse_data(e);
             }
             m_entries = cons({&attr, data}, m_entries);
-        } else if (is_new_attribute(p.env(), id)) {
+        } else if (is_new_attribute(id)) {
             syntax args(box(0));
             if (!deleted) {
                 expr e = parse_attr_arg(p, id);
@@ -194,7 +194,7 @@ void decl_attributes::set_attribute(environment const & env, name const & attr_n
         auto const & attr = ::lean::get_attribute(env, attr_name);
         entry e = {&attr, data};
         m_entries = append(m_entries, to_list(e));
-    } else if (is_new_attribute(env, attr_name)) {
+    } else if (is_new_attribute(attr_name)) {
         // Temporary Hack... ignore attr_data_ptr
         syntax args(box(0));
         m_new_entries = cons({attr_name, false, false, args}, m_new_entries);

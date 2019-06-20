@@ -669,31 +669,11 @@ static environment add_user_token(environment const & env, char const * val, uns
     return add_token(env, val, prec);
 }
 
-struct notation_modifiers {
-    bool     m_parse_only;
-    unsigned m_priority;
-    notation_modifiers():m_parse_only(false), m_priority(LEAN_DEFAULT_NOTATION_PRIORITY) {}
-    void parse(parser & p) {
-        auto pos = p.pos();
-        decl_attributes attrs;
-        attrs.parse(p);
-        for (auto const & entry : attrs.get_entries()) {
-            if (entry.m_attr->get_name() == "parsing_only")
-                m_parse_only = true;
-            else
-                throw parser_error(sstream() << "invalid notation: unexpected attribute ["
-                                             << entry.m_attr->get_name() << "]", pos);
-        }
-    }
-};
-
 static environment notation_cmd_core(parser & p, bool overload, notation_entry_group grp, bool persistent) {
-    notation_modifiers mods;
-    mods.parse(p);
     flet<bool> set_allow_local(g_allow_local, !persistent);
     environment env = p.env();
     buffer<token_entry> new_tokens;
-    auto ne = parse_notation_core(p, overload, grp, new_tokens, mods.m_parse_only, mods.m_priority);
+    auto ne = parse_notation_core(p, overload, grp, new_tokens, false, LEAN_DEFAULT_NOTATION_PRIORITY);
     for (auto const & te : new_tokens)
         env = add_user_token(env, te, persistent);
     env = add_notation(env, ne, persistent);
@@ -701,10 +681,8 @@ static environment notation_cmd_core(parser & p, bool overload, notation_entry_g
 }
 
 static environment mixfix_cmd(parser & p, mixfix_kind k, bool overload, notation_entry_group grp, bool persistent) {
-    notation_modifiers mods;
-    mods.parse(p);
     flet<bool> set_allow_local(g_allow_local, !persistent);
-    auto nt = parse_mixfix_notation(p, k, overload, grp, mods.m_parse_only, mods.m_priority);
+    auto nt = parse_mixfix_notation(p, k, overload, grp, false, LEAN_DEFAULT_NOTATION_PRIORITY);
     environment env = p.env();
     if (nt.second)
         env = add_user_token(env, *nt.second, persistent);
@@ -814,11 +792,6 @@ bool is_notation_cmd(name const & n) {
 }
 
 void initialize_notation_cmd() {
-    register_system_attribute(basic_attribute::with_check(
-            "parsingOnly", "parsing-only notation declaration",
-            [](environment const &, name const &, bool) {
-                throw exception("invalid '[parsing_only]' attribute, can only be used in notation declarations");
-            }));
 }
 void finalize_notation_cmd() {
 }

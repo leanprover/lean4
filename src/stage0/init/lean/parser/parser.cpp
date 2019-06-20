@@ -21541,7 +21541,7 @@ lean::closure_set(x_6, 0, x_1);
 x_7 = l_Lean_Parser_registerBuiltinParserAttribute___closed__1;
 x_8 = l_Lean_registerTagAttribute___closed__5;
 x_9 = l_Lean_registerTagAttribute___closed__6;
-x_10 = 0;
+x_10 = 1;
 x_11 = lean::alloc_cnstr(0, 8, 1);
 lean::cnstr_set(x_11, 0, x_1);
 lean::cnstr_set(x_11, 1, x_7);

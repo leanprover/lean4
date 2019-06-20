@@ -675,11 +675,11 @@ public:
         add_namespaces(new_inds);
         for (expr const & ind : new_inds) {
             /* Apply attributes last so that they may access any information on the new decl */
-            m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), local_name_p(ind));
+            m_env = m_meta_info.m_attrs.apply_all(m_env, m_p.ios(), local_name_p(ind));
         }
         lean_assert(new_inds.size() == m_mut_attrs.size());
         for (unsigned i = 0; i < new_inds.size(); ++i)
-            m_env = m_mut_attrs[i].apply(m_env, m_p.ios(), local_name_p(new_inds[i]));
+            m_env = m_mut_attrs[i].apply_all(m_env, m_p.ios(), local_name_p(new_inds[i]));
     }
 
     struct parse_result {

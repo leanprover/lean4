@@ -263,7 +263,7 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
     }
     /* Apply attributes last so that they may access any information on the new decl */
     for (auto const & c_real_name : new_d_names) {
-        elab.set_env(meta.m_attrs.apply(elab.env(), p.ios(), c_real_name));
+        elab.set_env(meta.m_attrs.apply_after_tc(elab.env(), p.ios(), c_real_name));
     }
     /* Compile functions */
     if (!meta.m_modifiers.m_is_noncomputable) {
@@ -273,6 +273,10 @@ static environment elab_defs_core(parser & p, decl_cmd_kind kind, cmd_meta const
             name c_real_name = new_d_names[i];
             elab.set_env(compile_decl(p, elab.env(), c_name, c_real_name, header_pos));
         }
+    }
+    /* Apply attributes last so that they may access any information on the new decl */
+    for (auto const & c_real_name : new_d_names) {
+        elab.set_env(meta.m_attrs.apply_after_comp(elab.env(), c_real_name));
     }
     return elab.env();
 }
@@ -569,11 +573,12 @@ static environment elab_single_def(parser & p, decl_cmd_kind const & kind, cmd_m
             new_env = mk_smart_unfolding_definition(new_env, p.get_options(), c_real_name);
         }
         /* Apply attributes last so that they may access any information on the new decl */
-        new_env = meta.m_attrs.apply(new_env, p.ios(), c_real_name);
+        new_env = meta.m_attrs.apply_after_tc(new_env, p.ios(), c_real_name);
         /* Compile function */
         if (!meta.m_modifiers.m_is_noncomputable) {
             new_env = compile_decl(p, new_env, c_name, c_real_name, header_pos);
         }
+        new_env = meta.m_attrs.apply_after_comp(new_env, c_real_name);
         return new_env;
     };
 

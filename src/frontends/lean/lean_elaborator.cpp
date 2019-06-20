@@ -172,7 +172,7 @@ environment elab_attribute_cmd(environment env, expr const & cmd) {
     auto attributes = to_decl_attributes(env, app_fn(e), local);
     buffer<expr> eids; get_app_args(app_arg(e), eids);
     for (auto const & e : eids)
-        env = attributes.apply(env, get_dummy_ios(), const_name(e));
+        env = attributes.apply_all(env, get_dummy_ios(), const_name(e));
     return env;
 }
 

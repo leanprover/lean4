@@ -112,7 +112,7 @@ static environment declare_var(parser & p, environment env,
             env = add_protected(env, full_n);
         env = ensure_decl_namespaces(env, full_n);
         /* Apply attributes last so that they may access any information on the new decl */
-        env = meta.m_attrs.apply(env, p.ios(), full_n);
+        env = meta.m_attrs.apply_all(env, p.ios(), full_n);
         return env;
     }
 }
@@ -489,7 +489,7 @@ static environment attribute_cmd_core(parser & p, bool persistent) {
     } while (p.curr_is_identifier());
     environment env = p.env();
     for (name const & d : ds)
-        env = attributes.apply(env, p.ios(), d);
+        env = attributes.apply_all(env, p.ios(), d);
     return env;
 }
 

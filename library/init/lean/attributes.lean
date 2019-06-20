@@ -167,6 +167,11 @@ do m ← attributeMapRef.get,
    | some attr := pure attr
    | none      := throw (IO.userError ("unknown attribute '" ++ toString attrName ++ "'"))
 
+@[export lean.attribute_application_time_core]
+def attributeApplicationTime (n : Name) : IO AttributeApplicationTime :=
+do attr ← getAttributeImpl n,
+   pure attr.applicationTime
+
 namespace Environment
 
 /- Add attribute `attr` to declaration `decl` with arguments `args`. If `persistent == true`, then attribute is saved on .olean file.

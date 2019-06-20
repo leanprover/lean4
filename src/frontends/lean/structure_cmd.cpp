@@ -1283,7 +1283,7 @@ struct structure_cmd_fn {
             declare_no_confusion();
         }
         /* Apply attributes last so that they may access any information on the new decl */
-        m_env = m_meta_info.m_attrs.apply(m_env, m_p.ios(), m_name);
+        m_env = m_meta_info.m_attrs.apply_all(m_env, m_p.ios(), m_name);
     }
 
     environment operator()() {

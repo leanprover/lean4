@@ -23,6 +23,7 @@ namespace lean {
 // ==========================================
 // New attribute manager API
 object* is_attribute_core(object* n, object* w);
+object* attribute_application_time_core(object* n, object* w);
 object* add_attribute_core(object* env, object* decl, object* attr, object* args, uint8 persistent, object *w);
 object* add_scoped_attribute_core(object* env, object* decl, object* attr, object* args, object *w);
 object* erase_attribute_core(object* env, object* decl, object* attr, uint8 persistent, object *w);
@@ -38,6 +39,13 @@ environment add_scoped_attribute(environment const & env, name const & decl, nam
 }
 environment erase_attribute(environment const & env, name const & decl, name const & attr, bool persistent) {
     return get_io_result<environment>(erase_attribute_core(env.to_obj_arg(), decl.to_obj_arg(), attr.to_obj_arg(), persistent, io_mk_world()));
+}
+/*
+inductive AttributeApplicationTime
+| afterTypeChecking | afterCompilation
+*/
+bool is_after_compilation_attribute(name const & n) {
+    return get_io_scalar_result<uint8>(attribute_application_time_core(n.to_obj_arg(), io_mk_world())) == 1;
 }
 // ==========================================
 
@@ -160,7 +168,11 @@ void decl_attributes::parse_core(parser & p, bool compact) {
                 expr e = parse_attr_arg(p, id);
                 args = expr_to_syntax(e);
             }
-            m_new_entries = cons({id, deleted, scoped, args}, m_new_entries);
+            if (is_after_compilation_attribute(id)) {
+                m_after_comp_entries = cons({id, deleted, scoped, args}, m_after_comp_entries);
+            } else {
+                m_after_tc_entries = cons({id, deleted, scoped, args}, m_after_tc_entries);
+            }
         } else {
             throw parser_error(sstream() << "unknown attribute [" << id << "]", pos);
         }
@@ -197,7 +209,11 @@ void decl_attributes::set_attribute(environment const & env, name const & attr_n
     } else if (is_new_attribute(attr_name)) {
         // Temporary Hack... ignore attr_data_ptr
         syntax args(box(0));
-        m_new_entries = cons({attr_name, false, false, args}, m_new_entries);
+        if (is_after_compilation_attribute(attr_name)) {
+            m_after_comp_entries = cons({attr_name, false, false, args}, m_after_comp_entries);
+        } else {
+            m_after_tc_entries = cons({attr_name, false, false, args}, m_after_tc_entries);
+        }
     } else {
         throw exception(sstream() << "unknown attribute [" << attr_name << "]");
     }
@@ -214,7 +230,25 @@ attr_data_ptr decl_attributes::get_attribute(environment const & env, name const
     return nullptr;
 }
 
-environment decl_attributes::apply(environment env, io_state const & ios, name const & d) const {
+environment decl_attributes::apply_new_entries(environment env, list<new_entry> const & es, name const & d) const {
+    buffer<new_entry> new_entries;
+    to_buffer(es, new_entries);
+    unsigned i = new_entries.size();
+    while (i > 0) {
+        --i;
+        auto const & entry = new_entries[i];
+        if (entry.m_deleted) {
+            env = erase_attribute(env, d, entry.m_attr, m_persistent);
+        } else if (entry.m_scoped) {
+            env = add_scoped_attribute(env, d, entry.m_attr, entry.m_args);
+        } else {
+            env = add_attribute(env, d, entry.m_attr, entry.m_args, m_persistent);
+        }
+    }
+    return env;
+}
+
+environment decl_attributes::apply_after_tc(environment env, io_state const & ios, name const & d) const {
     buffer<entry> entries;
     to_buffer(m_entries, entries);
     unsigned i = entries.size();
@@ -231,21 +265,16 @@ environment decl_attributes::apply(environment env, io_state const & ios, name c
             env = entry.m_attr->set_untyped(env, ios, d, prio, entry.m_params, m_persistent);
         }
     }
-    buffer<new_entry> new_entries;
-    to_buffer(m_new_entries, new_entries);
-    i = new_entries.size();
-    while (i > 0) {
-        --i;
-        auto const & entry = new_entries[i];
-        if (entry.m_deleted) {
-            env = erase_attribute(env, d, entry.m_attr, m_persistent);
-        } else if (entry.m_scoped) {
-            env = add_scoped_attribute(env, d, entry.m_attr, entry.m_args);
-        } else {
-            env = add_attribute(env, d, entry.m_attr, entry.m_args, m_persistent);
-        }
-    }
-    return env;
+    return apply_new_entries(env, m_after_tc_entries, d);
+}
+
+environment decl_attributes::apply_after_comp(environment env, name const & d) const {
+    return apply_new_entries(env, m_after_comp_entries, d);
+}
+
+environment decl_attributes::apply_all(environment env, io_state const & ios, name const & d) const {
+    environment new_env = apply_after_tc(env, ios, d);
+    return apply_after_comp(new_env, d);
 }
 
 bool decl_attributes::ok_for_inductive_type() const {

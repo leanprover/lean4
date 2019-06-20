@@ -30,10 +30,12 @@ public:
 private:
     bool               m_persistent;
     list<entry>        m_entries;
-    list<new_entry>    m_new_entries;
+    list<new_entry>    m_after_tc_entries;
+    list<new_entry>    m_after_comp_entries;
     void parse_core(parser & p, bool compact);
     expr parse_attr_arg(parser & p, name const & attr_id);
     syntax expr_to_syntax(expr const & e);
+    environment apply_new_entries(environment env, list<new_entry> const & es, name const & d) const;
 public:
     decl_attributes(bool persistent = true): m_persistent(persistent) {}
     void set_attribute(environment const & env, name const & attr_name, attr_data_ptr data = get_default_attr_data());
@@ -42,7 +44,9 @@ public:
     void parse(parser & p);
     /* Parse attributes after `@[` ... ] */
     void parse_compact(parser & p);
-    environment apply(environment env, io_state const & ios, name const & d) const;
+    environment apply_after_tc(environment env, io_state const & ios, name const & d) const;
+    environment apply_after_comp(environment env, name const & d) const;
+    environment apply_all(environment env, io_state const & ios, name const & d) const;
     list<entry> const & get_entries() const { return m_entries; }
     void set_persistent(bool persistent) { m_persistent = persistent; }
     bool ok_for_inductive_type() const;

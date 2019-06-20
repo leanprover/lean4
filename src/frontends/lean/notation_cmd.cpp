@@ -74,7 +74,6 @@ using notation::mk_expr_action;
 using notation::mk_binder_action;
 using notation::mk_binders_action;
 using notation::mk_exprs_action;
-using notation::mk_scoped_expr_action;
 using notation::mk_skip_action;
 using notation::transition;
 using notation::action;
@@ -327,11 +326,8 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
         } else if (p.curr_is_token_or_id(get_prev_tk())) {
             p.next();
             return mk_expr_action(get_precedence(p.env(), new_tokens, prev_token));
-        } else if (p.curr_is_token_or_id(get_scoped_tk())) {
-            p.next();
-            return mk_scoped_expr_action(mk_bvar(0));
         } else {
-            p.check_token_next(get_lparen_tk(), "invalid notation declaration, '(', numeral or 'scoped' expected");
+            p.check_token_next(get_lparen_tk(), "invalid notation declaration, '(', numeral expected");
             if (p.curr_is_token_or_id(get_foldl_tk()) || p.curr_is_token_or_id(get_foldr_tk())) {
                 bool is_fold_right = p.curr_is_token_or_id(get_foldr_tk());
                 p.next();
@@ -357,21 +353,8 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
                     terminator = parse_quoted_symbol_or_token(p, new_tokens);
                 p.check_token_next(get_rparen_tk(), "invalid fold notation argument, ')' expected");
                 return mk_exprs_action(sep, rec, ini, terminator, is_fold_right, prec ? *prec : 0);
-            } else if (p.curr_is_token_or_id(get_scoped_tk())) {
-                p.next();
-                auto prec = parse_optional_precedence(p);
-                expr rec;
-                {
-                    parser::local_scope scope(p);
-                    parse_notation_local(p, locals);
-                    p.check_token_next(get_comma_tk(),  "invalid scoped notation argument, ',' expected");
-                    rec  = parse_notation_expr(p, locals);
-                    locals.pop_back();
-                }
-                p.check_token_next(get_rparen_tk(), "invalid scoped notation argument, ')' expected");
-                return mk_scoped_expr_action(rec, prec ? *prec : 0);
             } else {
-                throw parser_error("invalid notation declaration, 'foldl', 'foldr' or 'scoped' expected", p.pos());
+                throw parser_error("invalid notation declaration, 'foldl', 'foldr' expected", p.pos());
             }
         }
     } else {
@@ -530,7 +513,7 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                                          "(declaration prefix matches reserved notation)");
                 ts.push_back(transition(tk, a, pp_tk));
                 break;
-            case notation::action_kind::Expr: case notation::action_kind::Exprs: case notation::action_kind::ScopedExpr:
+            case notation::action_kind::Expr: case notation::action_kind::Exprs:
             case notation::action_kind::Ext:  {
                 if (g_allow_local && !p.curr_is_identifier()) {
                     ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));
@@ -560,7 +543,9 @@ static notation_entry parse_notation_core(parser & p, bool overload, notation_en
                     ts.push_back(transition(tk, a, pp_tk));
                     break;
                 }
-            }}
+            }
+            default: throw parser_error("invalid notation", p.pos());
+            }
         } else {
             reserved_pt = optional<parse_table>();
             ts.push_back(parse_transition(p, pt, tk, locals, new_tokens, pp_tk));

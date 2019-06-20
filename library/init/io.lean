@@ -19,8 +19,10 @@ def IO.RealWorld : Type := Unit
    def getWorld : IO (IO.RealWorld) := get
    ```
 -/
-@[derive Monad MonadExcept]
 def EIO (ε : Type) : Type → Type := EState ε IO.RealWorld
+
+instance (ε : Type) : Monad (EIO ε) := inferInstanceAs (Monad (EState ε IO.RealWorld))
+instance (ε : Type) : MonadExcept ε (EIO ε) := inferInstanceAs (MonadExcept ε (EState ε IO.RealWorld))
 
 instance {ε : Type} {α : Type} [Inhabited ε] : Inhabited (EIO ε α) :=
 inferInstanceAs (Inhabited (EState ε IO.RealWorld α))
@@ -29,8 +31,10 @@ inferInstanceAs (Inhabited (EState ε IO.RealWorld α))
 In the future, we may want to give more concrete data
 like in https://doc.rust-lang.org/std/IO/enum.ErrorKind.html
 -/
-@[derive HasToString Inhabited]
 def IO.Error := String
+
+instance : HasToString IO.Error := inferInstanceAs (HasToString String)
+instance : Inhabited IO.Error := inferInstanceAs (Inhabited String)
 
 def IO.userError (s : String) : IO.Error :=
 s

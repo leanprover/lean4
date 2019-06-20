@@ -8,8 +8,13 @@ import init.lean.name init.lean.format init.data.array
 
 namespace Lean
 /-- A hygiene marker introduced by a macro expansion. -/
-@[derive DecidableEq HasFormat]
 def MacroScope := Nat
+
+namespace MacroScope
+instance : DecidableEq MacroScope := inferInstanceAs (DecidableEq Nat)
+instance : HasFormat MacroScope   := inferInstanceAs (HasFormat Nat)
+end MacroScope
+
 abbrev MacroScopes := List MacroScope
 
 structure SourceInfo :=

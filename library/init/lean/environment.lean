@@ -13,12 +13,14 @@ import init.lean.smap
 namespace Lean
 /- Opaque environment extension state. It is essentially the Lean version of a C `void *`
    TODO: mark opaque -/
-@[derive Inhabited]
 def EnvExtensionState : Type := NonScalar
 
+instance EnvExtensionState.inhabited : Inhabited EnvExtensionState := inferInstanceAs (Inhabited NonScalar)
+
 /- TODO: mark opaque. -/
-@[derive Inhabited]
 def ModuleIdx := Nat
+
+instance ModuleIdx.inhabited : Inhabited ModuleIdx := inferInstanceAs (Inhabited Nat)
 
 abbrev ConstMap := SMap Name ConstantInfo Name.quickLt
 
@@ -183,8 +185,9 @@ structure PersistentEnvExtension (α : Type) (σ : Type) extends EnvExtension (P
 
 /- Opaque persistent environment extension entry. It is essentially a C `void *`
    TODO: mark opaque -/
-@[derive Inhabited]
 def EnvExtensionEntry := NonScalar
+
+instance EnvExtensionEntry.inhabited : Inhabited EnvExtensionEntry := inferInstanceAs (Inhabited NonScalar)
 
 instance PersistentEnvExtensionState.inhabited {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
 ⟨{importedEntries := Array.empty, state := default _ }⟩
@@ -297,9 +300,9 @@ end SimplePersistentEnvExtension
 
 /- API for creating extensions in C++.
    This API will eventually be deleted. -/
-
-@[derive Inhabited]
 def CPPExtensionState := NonScalar
+
+instance CPPExtensionState.inhabited : Inhabited CPPExtensionState := inferInstanceAs (Inhabited NonScalar)
 
 @[export lean.register_extension_core]
 unsafe def registerCPPExtension (initial : CPPExtensionState) : Option Nat :=
@@ -322,8 +325,9 @@ unsafeIO (do exts ← envExtensionsRef.get, pure $ (exts.get idx).getState env)
    legacy code.
 
    TODO: mark opaque -/
-@[derive Inhabited]
 def Modification := NonScalar
+
+instance Modification.inhabited : Inhabited Modification := inferInstanceAs (Inhabited NonScalar)
 
 def regModListExtension : IO (EnvExtension (List Modification)) :=
 registerEnvExtension []

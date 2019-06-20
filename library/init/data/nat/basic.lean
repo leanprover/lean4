@@ -431,13 +431,13 @@ theorem leAddRight : ∀ (n k : Nat), n ≤ n + k
 theorem leAddLeft (n m : Nat): n ≤ m + n :=
 Nat.addComm n m ▸ leAddRight n m
 
-theorem le.dest : ∀ {n m : Nat}, n ≤ m → ∃ k, n + k = m
+theorem le.dest : ∀ {n m : Nat}, n ≤ m → Exists (λ k, n + k = m)
 | zero     zero     h := ⟨0, rfl⟩
 | zero     (succ n) h := ⟨succ n, show 0 + succ n = succ n, from (Nat.addComm 0 (succ n)).symm ▸ rfl⟩
 | (succ n) zero     h := Bool.noConfusion h
 | (succ n) (succ m) h :=
   have n ≤ m, from h,
-  have ∃ k, n + k = m, from le.dest this,
+  have Exists (λ k, n + k = m), from le.dest this,
   match this with
   | ⟨k, h⟩ := ⟨k, show succ n + k = succ m, from ((succAdd n k).symm ▸ h ▸ rfl)⟩
 

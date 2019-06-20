@@ -417,8 +417,8 @@ infixr \/      := Or
 infixr ∨       := Or
 infix <->      := Iff
 infix ↔        := Iff
-notation `exists` binders `, ` r:(scoped P, Exists P) := r
-notation `∃` binders `, ` r:(scoped P, Exists P) := r
+-- notation `exists` binders `, ` r:(scoped P, Exists P) := r
+-- notation `∃` binders `, ` r:(scoped P, Exists P) := r
 infixr <|>     := HasOrelse.orelse
 infixr >>      := HasAndthen.andthen
 
@@ -869,7 +869,7 @@ Or.elim h id (λ nb, absurd hb nb)
 /- Exists -/
 
 theorem Exists.elim {α : Sort u} {p : α → Prop} {b : Prop}
-  (h₁ : ∃ x, p x) (h₂ : ∀ (a : α), p a → b) : b :=
+   (h₁ : Exists (λ x, p x)) (h₂ : ∀ (a : α), p a → b) : b :=
 Exists.rec h₂ h₁
 
 /- Decidable -/
@@ -1103,7 +1103,7 @@ Nonempty.rec h₂ h₁
 instance nonemptyOfInhabited {α : Sort u} [Inhabited α] : Nonempty α :=
 ⟨default α⟩
 
-theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : (∃ x, p x) → Nonempty α
+theorem nonemptyOfExists {α : Sort u} {p : α → Prop} : Exists (λ x, p x) → Nonempty α
 | ⟨w, h⟩ := ⟨w⟩
 
 /- Subsingleton -/
@@ -1223,7 +1223,7 @@ end binary
 /- Subtype -/
 
 namespace Subtype
-def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → ∃ x, p x
+def existsOfSubtype {α : Type u} {p : α → Prop} : { x // p x } → Exists (λ x, p x)
 | ⟨a, h⟩ := ⟨a, h⟩
 
 variables {α : Type u} {p : α → Prop}
@@ -1306,23 +1306,23 @@ def {u₁ u₂ v₁ v₂} Prod.map {α₁ : Type u₁} {α₂ : Type u₂} {β�
 
 /- Dependent products -/
 
-notation `Σ` binders `, ` r:(scoped p, Sigma p) := r
-notation `Σ'` binders `, ` r:(scoped p, PSigma p) := r
+-- notation `Σ` binders `, ` r:(scoped p, Sigma p) := r
+-- notation `Σ'` binders `, ` r:(scoped p, PSigma p) := r
 
-theorem exOfPsig {α : Type u} {p : α → Prop} : (Σ' x, p x) → ∃ x, p x
+theorem exOfPsig {α : Type u} {p : α → Prop} : (PSigma (λ x, p x)) → Exists (λ x, p x)
 | ⟨x, hx⟩ := ⟨x, hx⟩
 
 section
 variables {α : Type u} {β : α → Type v}
 
-protected theorem Sigma.Eq : ∀ {p₁ p₂ : Σ a : α, β a} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
+protected theorem Sigma.eq : ∀ {p₁ p₂ : Sigma (λ a : α, β a)} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
 | ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
 end
 
 section
 variables {α : Sort u} {β : α → Sort v}
 
-protected theorem PSigma.Eq : ∀ {p₁ p₂ : PSigma β} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
+protected theorem PSigma.eq : ∀ {p₁ p₂ : PSigma β} (h₁ : p₁.1 = p₂.1), (Eq.recOn h₁ p₁.2 : β p₂.1) = p₂.2 → p₁ = p₂
 | ⟨a, b⟩ ⟨.(a), .(b)⟩ rfl rfl := rfl
 end
 
@@ -1402,7 +1402,7 @@ lift f c q
 protected theorem inductionOn {α : Sort u} {r : α → α → Prop} {β : Quot r → Prop} (q : Quot r) (h : ∀ a, β (Quot.mk r a)) : β q :=
 ind h q
 
-theorem existsRep {α : Sort u} {r : α → α → Prop} (q : Quot r) : ∃ a : α, (Quot.mk r a) = q :=
+theorem existsRep {α : Sort u} {r : α → α → Prop} (q : Quot r) : Exists (λ a : α, (Quot.mk r a) = q) :=
 Quot.inductionOn q (λ a, ⟨a, rfl⟩)
 
 section
@@ -1419,7 +1419,7 @@ protected def indep (f : Π a, β ⟦a⟧) (a : α) : PSigma β :=
 protected theorem indepCoherent (f : Π a, β ⟦a⟧)
                      (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
                      : ∀ a b, r a b → Quot.indep f a = Quot.indep f b  :=
-λ a b e, PSigma.Eq (sound e) (h a b e)
+λ a b e, PSigma.eq (sound e) (h a b e)
 
 protected theorem liftIndepPr1
   (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
@@ -1483,7 +1483,7 @@ Quot.liftOn q f c
 protected theorem inductionOn {α : Sort u} [s : Setoid α] {β : Quotient s → Prop} (q : Quotient s) (h : ∀ a, β ⟦a⟧) : β q :=
 Quot.inductionOn q h
 
-theorem existsRep {α : Sort u} [s : Setoid α] (q : Quotient s) : ∃ a : α, ⟦a⟧ = q :=
+theorem existsRep {α : Sort u} [s : Setoid α] (q : Quotient s) : Exists (λ a : α, ⟦a⟧ = q) :=
 Quot.existsRep q
 
 section
@@ -1714,21 +1714,21 @@ namespace Classical
 axiom choice {α : Sort u} : Nonempty α → α
 
 noncomputable def indefiniteDescription {α : Sort u} (p : α → Prop)
-  (h : ∃ x, p x) : {x // p x} :=
+  (h : Exists (λ x, p x)) : {x // p x} :=
 choice $ let ⟨x, px⟩ := h in ⟨⟨x, px⟩⟩
 
-noncomputable def choose {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : α :=
+noncomputable def choose {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) : α :=
 (indefiniteDescription p h).val
 
-theorem chooseSpec {α : Sort u} {p : α → Prop} (h : ∃ x, p x) : p (choose h) :=
+theorem chooseSpec {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) : p (choose h) :=
 (indefiniteDescription p h).property
 
 /- Diaconescu's theorem: excluded middle from choice, Function extensionality and propositional extensionality. -/
 theorem em (p : Prop) : p ∨ ¬p :=
 let U (x : Prop) : Prop := x = True ∨ p in
 let V (x : Prop) : Prop := x = False ∨ p in
-have exU : ∃ x, U x, from ⟨True, Or.inl rfl⟩,
-have exV : ∃ x, V x, from ⟨False, Or.inl rfl⟩,
+have exU : Exists (λ x, U x), from ⟨True, Or.inl rfl⟩,
+have exV : Exists (λ x, V x), from ⟨False, Or.inl rfl⟩,
 let u : Prop := choose exU in
 let v : Prop := choose exV in
 have uDef : U u, from chooseSpec exU,
@@ -1759,13 +1759,13 @@ Or.elim notUvOrP
   (assume hne : u ≠ v, Or.inr (mt pImpliesUv hne))
   Or.inl
 
-theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → ∃ x : α, True
+theorem existsTrueOfNonempty {α : Sort u} : Nonempty α → Exists (λ x : α, True)
 | ⟨x⟩ := ⟨x, trivial⟩
 
 noncomputable def inhabitedOfNonempty {α : Sort u} (h : Nonempty α) : Inhabited α :=
 ⟨choice h⟩
 
-noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : ∃ x, p x) :
+noncomputable def inhabitedOfExists {α : Sort u} {p : α → Prop} (h : Exists (λ x, p x)) :
   Inhabited α :=
 inhabitedOfNonempty (Exists.elim h (λ w hw, ⟨w⟩))
 
@@ -1789,8 +1789,8 @@ match (propDecidable (Nonempty α)) with
 | (isFalse hn) := PSum.inr (λ a, absurd (Nonempty.intro a) hn)
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
-  (h : Nonempty α) : {x : α // (∃ y : α, p y) → p x} :=
-if hp : ∃ x : α, p x then
+  (h : Nonempty α) : {x : α // Exists (λ y : α, p y) → p x} :=
+if hp : Exists (λ x : α, p x) then
   let xp := indefiniteDescription _ hp in
   ⟨xp.val, λ h', xp.property⟩
 else ⟨choice h, λ h, absurd h hp⟩
@@ -1801,10 +1801,10 @@ noncomputable def epsilon {α : Sort u} [h : Nonempty α] (p : α → Prop) : α
 (strongIndefiniteDescription p h).val
 
 theorem epsilonSpecAux {α : Sort u} (h : Nonempty α) (p : α → Prop)
-  : (∃ y, p y) → p (@epsilon α h p) :=
+  : Exists (λ y, p y) → p (@epsilon α h p) :=
 (strongIndefiniteDescription p h).property
 
-theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : ∃ y, p y) :
+theorem epsilonSpec {α : Sort u} {p : α → Prop} (hex : Exists (λ y, p y)) :
     p (@epsilon α (nonemptyOfExists hex) p) :=
 epsilonSpecAux (nonemptyOfExists hex) p hex
 
@@ -1813,12 +1813,12 @@ theorem epsilonSingleton {α : Sort u} (x : α) : @epsilon α ⟨x⟩ (λ y, y =
 
 /- the axiom of choice -/
 
-theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : Π x, β x → Prop} (h : ∀ x, ∃ y, r x y) :
-  ∃ (f : Π x, β x), ∀ x, r x (f x) :=
+theorem axiomOfChoice {α : Sort u} {β : α → Sort v} {r : Π x, β x → Prop} (h : ∀ x, Exists (λ y, r x y)) :
+  Exists (λ (f : Π x, β x), ∀ x, r x (f x)) :=
 ⟨_, λ x, chooseSpec (h x)⟩
 
 theorem skolem {α : Sort u} {b : α → Sort v} {p : Π x, b x → Prop} :
-  (∀ x, ∃ y, p x y) ↔ ∃ (f : Π x, b x), ∀ x, p x (f x) :=
+  (∀ x, Exists (λ y, p x y)) ↔ Exists (λ (f : Π x, b x), ∀ x, p x (f x)) :=
 ⟨axiomOfChoice, λ ⟨f, hw⟩ x, ⟨f x, hw x⟩⟩
 
 theorem propComplete (a : Prop) : a = True ∨ a = False :=

@@ -24,12 +24,12 @@ def depth (f : Nat → Nat → Nat) : RBNode α β → Nat
 | leaf               := 0
 | (node _ l _ _ r)   := succ (f (depth l) (depth r))
 
-protected def min : RBNode α β → Option (Σ k : α, β k)
+protected def min : RBNode α β → Option (Sigma (λ k : α, β k))
 | leaf                  := none
 | (node _ leaf k v _)   := some ⟨k, v⟩
 | (node _ l k v _)      := min l
 
-protected def max : RBNode α β → Option (Σ k : α, β k)
+protected def max : RBNode α β → Option (Sigma (λ k : α, β k))
 | leaf                  := none
 | (node _ _ k v leaf)   := some ⟨k, v⟩
 | (node _ _ k v r)      := max r
@@ -174,7 +174,7 @@ end Erase
 section Membership
 variable (lt : α → α → Bool)
 
-@[specialize] def findCore : RBNode α β → Π k : α, Option (Σ k : α, β k)
+@[specialize] def findCore : RBNode α β → Π k : α, Option (Sigma (λ k : α, β k))
 | leaf               x := none
 | (node _ a ky vy b) x :=
    if lt x ky then findCore a x
@@ -270,7 +270,7 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 | []          := mkRBMap _ _ _
 | (⟨k,v⟩::xs) := (ofList xs).insert k v
 
-@[inline] def findCore : RBMap α β lt → α → Option (Σ k : α, β)
+@[inline] def findCore : RBMap α β lt → α → Option (Sigma (λ k : α, β))
 | ⟨t, _⟩ x := t.findCore lt x
 
 @[inline] def find : RBMap α β lt → α → Option β
@@ -278,7 +278,7 @@ instance [HasRepr α] [HasRepr β] : HasRepr (RBMap α β lt) :=
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
-@[inline] def lowerBound : RBMap α β lt → α → Option (Σ k : α, β)
+@[inline] def lowerBound : RBMap α β lt → α → Option (Sigma (λ k : α, β))
 | ⟨t, _⟩ x := t.lowerBound lt x none
 
 @[inline] def contains (t : RBMap α β lt) (a : α) : Bool :=

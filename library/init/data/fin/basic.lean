@@ -8,8 +8,6 @@ import init.data.nat.div init.data.nat.bitwise
 open Nat
 structure Fin (n : Nat) := (val : Nat) (isLt : val < n)
 
-attribute [ppAsAnonymousCtor] Fin
-
 namespace Fin
 
 protected def lt {n} (a b : Fin n) : Prop :=

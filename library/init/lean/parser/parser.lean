@@ -452,11 +452,8 @@ def quotedCharFn : BasicParserFn
     else
       s.mkError "invalid escape sequence"
 
-def mkStrLitKind : IO SyntaxNodeKind := nextKind `strLit
-@[init mkStrLitKind] constant strLitKind : SyntaxNodeKind := default _
-
-def mkNumberKind : IO SyntaxNodeKind := nextKind `numLit
-@[init mkNumberKind] constant numLitKind : SyntaxNodeKind := default _
+def strLitKind : SyntaxNodeKind := { name := `strLit }
+def numLitKind : SyntaxNodeKind := { name := `numLit }
 
 /-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : BasicParserFn :=

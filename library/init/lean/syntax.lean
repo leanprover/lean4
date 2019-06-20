@@ -29,48 +29,14 @@ def SourceInfo.updateTrailing : SourceInfo → Substring → SourceInfo
 
 /- Node kind generation -/
 
-def mkUniqIdRef : IO (IO.Ref Nat) :=
-IO.mkRef 0
-
-@[init mkUniqIdRef]
-constant nextUniqId : IO.Ref Nat := default _
-
 structure SyntaxNodeKind :=
-(name : Name) (id : Nat)
-
-instance stxKindInh : Inhabited SyntaxNodeKind :=
-⟨{name := default _, id := default _}⟩
+(name : Name)
 
 instance stxKindBeq : HasBeq SyntaxNodeKind :=
-⟨λ k₁ k₂, k₁.id == k₂.id⟩
+⟨λ k₁ k₂, k₁.name == k₂.name⟩
 
-def mkNameToKindTable : IO (IO.Ref (NameMap Nat)) :=
-IO.mkRef {}
-
-@[init mkNameToKindTable]
-constant nameToKindTable : IO.Ref (NameMap Nat) := default _
-
-def nextKind (k : Name) : IO SyntaxNodeKind :=
-do m ← nameToKindTable.get,
-   when (m.contains k) (throw $ IO.userError ("kind '" ++ toString k ++ "' already exists")),
-   id ← nextUniqId.get,
-   nameToKindTable.set (m.insert k id),
-   nextUniqId.set (id+1),
-   pure { name := k, id := id }
-
-/- Basic node kinds -/
-
-def mkNullKind : IO SyntaxNodeKind := nextKind `null
-@[init mkNullKind] constant nullKind : SyntaxNodeKind := default _
-def mkChoiceKind : IO SyntaxNodeKind := nextKind `choice
-@[init mkChoiceKind] constant choiceKind : SyntaxNodeKind := default _
-def mkOptionSomeKind : IO SyntaxNodeKind := nextKind `some
-@[init mkOptionSomeKind] constant optionSomeKind : SyntaxNodeKind := default _
-def mkOptionNoneKind : IO SyntaxNodeKind := nextKind `none
-@[init mkOptionNoneKind] constant optionNoneKind : SyntaxNodeKind := default _
-def mkManyKind : IO SyntaxNodeKind := nextKind `many
-@[init mkManyKind] constant manyKind : SyntaxNodeKind := default _
-def mkHoleKind : IO SyntaxNodeKind := nextKind `hole
+@[pattern] def choiceKind : SyntaxNodeKind := ⟨`choice⟩
+@[pattern] def nullKind : SyntaxNodeKind := ⟨`null⟩
 
 /- Syntax AST -/
 
@@ -86,20 +52,6 @@ instance stxInh : Inhabited Syntax :=
 def Syntax.isMissing : Syntax → Bool
 | Syntax.missing := true
 | _ := false
-
-def SyntaxNodeKind.fix : SyntaxNodeKind → IO SyntaxNodeKind
-| {name := n, ..} := do
-  m ← nameToKindTable.get,
-  match m.find n with
-  | some id := pure {name := n, id := id}
-  | none    := throw $ IO.userError ("Error unknown Syntax kind '" ++ toString n ++ "'")
-
-partial def Syntax.fixKinds : Syntax → IO Syntax
-| (Syntax.node k args scopes) := do
-  k ← k.fix,
-  args ← args.mmap Syntax.fixKinds,
-  pure (Syntax.node k args scopes)
-| other                       := pure other
 
 inductive IsNode : Syntax → Prop
 | mk (kind : SyntaxNodeKind) (args : Array Syntax) (scopes : MacroScopes) : IsNode (Syntax.node kind args scopes)

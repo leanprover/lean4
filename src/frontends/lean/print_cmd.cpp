@@ -19,7 +19,6 @@ Author: Leonardo de Moura
 #include "library/private.h"
 #include "library/protected.h"
 #include "library/attribute_manager.h"
-#include "library/user_recursors.h"
 #include "library/type_context.h"
 #include "library/reducible.h"
 #include "frontends/lean/parser.h"

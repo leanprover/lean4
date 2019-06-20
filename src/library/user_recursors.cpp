@@ -14,7 +14,6 @@ Author: Leonardo de Moura
 #include "library/scoped_ext.h"
 #include "library/user_recursors.h"
 #include "library/aux_recursors.h"
-#include "library/attribute_manager.h"
 #include "library/suffixes.h"
 
 namespace lean {
@@ -44,25 +43,6 @@ recursor_info::recursor_info(name const & r, name const & I, list<unsigned> cons
     m_num_args(num_args), m_major_pos(major_pos), m_params_pos(params_pos), m_indices_pos(indices_pos),
     m_produce_motive(produce_motive) {}
 recursor_info::recursor_info() {}
-
-void recursor_info::write(serializer & s) const {
-    s << m_recursor << m_type_name << m_dep_elim << m_recursive << m_num_args << m_major_pos;
-    write_list(s, m_universe_pos);
-    write_list(s, m_params_pos);
-    write_list(s, m_indices_pos);
-    write_list(s, m_produce_motive);
-}
-
-recursor_info recursor_info::read(deserializer & d) {
-    recursor_info info;
-    d >> info.m_recursor >> info.m_type_name >> info.m_dep_elim >> info.m_recursive
-      >> info.m_num_args >> info.m_major_pos;
-    info.m_universe_pos   = read_list<unsigned>(d);
-    info.m_params_pos     = read_list<optional<unsigned>>(d);
-    info.m_indices_pos    = read_list<unsigned>(d);
-    info.m_produce_motive = read_list<bool>(d);
-    return info;
-}
 
 static void throw_invalid_motive(expr const & C) {
     throw exception(sstream() << "invalid user defined recursor, motive '" << C
@@ -297,89 +277,15 @@ recursor_info mk_recursor_info(environment const & env, name const & r, optional
                          to_list(params_pos), to_list(indices_pos), to_list(produce_motive));
 }
 
-struct recursor_state {
-    name_map<recursor_info> m_recursors;
-    name_map<names>    m_type2recursors;
-
-    void insert(recursor_info const & info) {
-        m_recursors.insert(info.get_name(), info);
-        if (auto l = m_type2recursors.find(info.get_type_name())) {
-            m_type2recursors.insert(info.get_type_name(),
-                                    cons(info.get_name(),
-                                         filter(*l, [&](name const & n) { return n != info.get_name(); })));
-        } else {
-            m_type2recursors.insert(info.get_type_name(), names(info.get_name()));
-        }
-    }
-};
-
-struct recursor_config {
-    typedef recursor_state  state;
-    typedef recursor_info   entry;
-
-    static void add_entry(environment const &, io_state const &, state & s, entry const & e) {
-        s.insert(e);
-    }
-    static const char * get_serialization_key() { return "UREC"; }
-    static void  write_entry(serializer & s, entry const & e) {
-        e.write(s);
-    }
-    static entry read_entry(deserializer & d) {
-        return recursor_info::read(d);
-    }
-};
-
-template class scoped_ext<recursor_config>;
-typedef scoped_ext<recursor_config> recursor_ext;
-
-environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos,
-                              bool persistent) {
-    if (is_recursor(env, r))
-        throw exception(sstream() << "invalid user defined recursor, '" << r << "' is a builtin recursor");
-    recursor_info info = mk_recursor_info(env, r, major_pos);
-    return recursor_ext::add_entry(env, get_dummy_ios(), info, persistent);
-}
-
 recursor_info get_recursor_info(environment const & env, name const & r) {
-    if (auto info = recursor_ext::get_state(env).m_recursors.find(r))
-        return *info;
     return mk_recursor_info(env, r, optional<unsigned>());
 }
 
-names get_recursors_for(environment const & env, name const & I) {
-    if (auto l = recursor_ext::get_state(env).m_type2recursors.find(I))
-        return *l;
-    else
-        return names();
-}
-
-bool is_user_defined_recursor(environment const & env, name const & r) {
-    return recursor_ext::get_state(env).m_recursors.find(r) != nullptr;
-}
-
-has_recursors_pred::has_recursors_pred(environment const & env):
-    m_type2recursors(recursor_ext::get_state(env).m_type2recursors) {}
-
-static indices_attribute const & get_recursor_attribute() {
-    return static_cast<indices_attribute const &>(get_system_attribute("recursor"));
-}
-
 void initialize_user_recursors() {
-    recursor_ext::initialize();
-    register_system_attribute(indices_attribute("recursor", "user defined recursor",
-                                                [](environment const & env, io_state const &, name const & n, unsigned,
-                                                   bool persistent) {
-                                                    auto const & data = *get_recursor_attribute().get(env, n);
-                                                    if (data.m_idxs && tail(data.m_idxs))
-                                                        throw exception(sstream()
-                                                                                << "invalid [recursor] declaration, expected at most one parameter");
-                                                    return add_user_recursor(env, n, head_opt(data.m_idxs), persistent);
-                                                }));
     g_user_rec_fresh = new name("_user_rec_fresh");
     register_name_generator_prefix(*g_user_rec_fresh);
 }
 
 void finalize_user_recursors() {
-    recursor_ext::finalize();
 }
 }

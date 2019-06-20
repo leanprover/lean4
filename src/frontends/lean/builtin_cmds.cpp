@@ -21,7 +21,6 @@ Author: Leonardo de Moura
 #include "library/constants.h"
 #include "library/app_builder.h"
 #include "library/class.h"
-#include "library/user_recursors.h"
 #include "library/pp_options.h"
 #include "library/attribute_manager.h"
 #include "library/aux_recursors.h"

@@ -56,18 +56,7 @@ public:
     static recursor_info read(deserializer & d);
 };
 
-environment add_user_recursor(environment const & env, name const & r, optional<unsigned> const & major_pos,
-                              bool persistent);
 recursor_info get_recursor_info(environment const & env, name const & r);
-names get_recursors_for(environment const & env, name const & I);
-bool is_user_defined_recursor(environment const & env, name const & r);
-
-class has_recursors_pred {
-    name_map<names>    m_type2recursors;
-public:
-    has_recursors_pred(environment const & env);
-    bool operator()(name const & n) const { return m_type2recursors.contains(n); }
-};
 
 void initialize_user_recursors();
 void finalize_user_recursors();

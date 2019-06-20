@@ -793,7 +793,6 @@ def Or.symm := @Or.swap
 /- xor -/
 def Xor (a b : Prop) : Prop := (a ∧ ¬ b) ∨ (b ∧ ¬ a)
 
-@[recursor 5]
 theorem Iff.elim (h₁ : (a → b) → (b → a) → c) (h₂ : a ↔ b) : c :=
 Iff.rec h₁ h₂
 

@@ -106,8 +106,8 @@ elaborator_strategy get_elaborator_strategy(environment const & env, name const 
         return data->m_status;
 
     if (is_recursor(env, n) ||
-        is_aux_recursor(env, n)  ||
-        is_user_defined_recursor(env, n)) {
+        is_aux_recursor(env, n)) {
+        // is_user_defined_recursor(env, n)) {
         return elaborator_strategy::AsEliminator;
     }
 

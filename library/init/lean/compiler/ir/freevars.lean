@@ -41,13 +41,13 @@ private def collectParams (ps : Array Param) : Collector := collectArray ps coll
 private def collectExpr : Expr → Collector
 | (Expr.ctor _ ys)       := collectArgs ys
 | (Expr.reset _ x)       := collectVar x
-| (Expr.reuse x _ _ ys)  := collectVar x; collectArgs ys
+| (Expr.reuse x _ _ ys)  := collectVar x >> collectArgs ys
 | (Expr.proj _ x)        := collectVar x
 | (Expr.uproj _ x)       := collectVar x
 | (Expr.sproj _ _ x)     := collectVar x
 | (Expr.fap _ ys)        := collectArgs ys
 | (Expr.pap _ ys)        := collectArgs ys
-| (Expr.ap x ys)         := collectVar x; collectArgs ys
+| (Expr.ap x ys)         := collectVar x >> collectArgs ys
 | (Expr.box _ x)         := collectVar x
 | (Expr.unbox x)         := collectVar x
 | (Expr.lit v)           := skip
@@ -58,23 +58,23 @@ private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collecto
 collectArray alts $ λ alt, f alt.body
 
 partial def collectFnBody : FnBody → Collector
-| (FnBody.vdecl x _ v b)    := collectExpr v; collectFnBody b
-| (FnBody.jdecl j ys v b)   := collectFnBody v; collectParams ys; collectFnBody b
-| (FnBody.set x _ y b)      := collectVar x; collectArg y; collectFnBody b
-| (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
-| (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
-| (FnBody.setTag x _ b)     := collectVar x; collectFnBody b
-| (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
-| (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
-| (FnBody.del x b)          := collectVar x; collectFnBody b
+| (FnBody.vdecl x _ v b)    := collectExpr v >> collectFnBody b
+| (FnBody.jdecl j ys v b)   := collectFnBody v >> collectParams ys >> collectFnBody b
+| (FnBody.set x _ y b)      := collectVar x >> collectArg y >> collectFnBody b
+| (FnBody.uset x _ y b)     := collectVar x >> collectVar y >> collectFnBody b
+| (FnBody.sset x _ _ y _ b) := collectVar x >> collectVar y >> collectFnBody b
+| (FnBody.setTag x _ b)     := collectVar x >> collectFnBody b
+| (FnBody.inc x _ _ b)      := collectVar x >> collectFnBody b
+| (FnBody.dec x _ _ b)      := collectVar x >> collectFnBody b
+| (FnBody.del x b)          := collectVar x >> collectFnBody b
 | (FnBody.mdata _ b)        := collectFnBody b
-| (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
-| (FnBody.jmp j ys)         := collectJP j; collectArgs ys
+| (FnBody.case _ x alts)    := collectVar x >> collectAlts collectFnBody alts
+| (FnBody.jmp j ys)         := collectJP j >> collectArgs ys
 | (FnBody.ret x)            := collectArg x
 | FnBody.unreachable        := skip
 
 partial def collectDecl : Decl → Collector
-| (Decl.fdecl _ xs _ b)  := collectParams xs; collectFnBody b
+| (Decl.fdecl _ xs _ b)  := collectParams xs >> collectFnBody b
 | (Decl.extern _ xs _ _) := collectParams xs
 
 end MaxIndex
@@ -136,13 +136,13 @@ collectArray as collectArg
 private def collectExpr : Expr → Collector
 | (Expr.ctor _ ys)       := collectArgs ys
 | (Expr.reset _ x)       := collectVar x
-| (Expr.reuse x _ _ ys)  := collectVar x; collectArgs ys
+| (Expr.reuse x _ _ ys)  := collectVar x >> collectArgs ys
 | (Expr.proj _ x)        := collectVar x
 | (Expr.uproj _ x)       := collectVar x
 | (Expr.sproj _ _ x)     := collectVar x
 | (Expr.fap _ ys)        := collectArgs ys
 | (Expr.pap _ ys)        := collectArgs ys
-| (Expr.ap x ys)         := collectVar x; collectArgs ys
+| (Expr.ap x ys)         := collectVar x >> collectArgs ys
 | (Expr.box _ x)         := collectVar x
 | (Expr.unbox x)         := collectVar x
 | (Expr.lit v)           := skip
@@ -153,18 +153,18 @@ private def collectAlts (f : FnBody → Collector) (alts : Array Alt) : Collecto
 collectArray alts $ λ alt, f alt.body
 
 partial def collectFnBody : FnBody → Collector
-| (FnBody.vdecl x _ v b)    := collectExpr v; withVar x (collectFnBody b)
-| (FnBody.jdecl j ys v b)   := withParams ys (collectFnBody v); withJP j (collectFnBody b)
-| (FnBody.set x _ y b)      := collectVar x; collectArg y; collectFnBody b
-| (FnBody.uset x _ y b)     := collectVar x; collectVar y; collectFnBody b
-| (FnBody.sset x _ _ y _ b) := collectVar x; collectVar y; collectFnBody b
-| (FnBody.setTag x _ b)     := collectVar x; collectFnBody b
-| (FnBody.inc x _ _ b)      := collectVar x; collectFnBody b
-| (FnBody.dec x _ _ b)      := collectVar x; collectFnBody b
-| (FnBody.del x b)          := collectVar x; collectFnBody b
+| (FnBody.vdecl x _ v b)    := collectExpr v >> withVar x (collectFnBody b)
+| (FnBody.jdecl j ys v b)   := withParams ys (collectFnBody v) >> withJP j (collectFnBody b)
+| (FnBody.set x _ y b)      := collectVar x >> collectArg y >> collectFnBody b
+| (FnBody.uset x _ y b)     := collectVar x >> collectVar y >> collectFnBody b
+| (FnBody.sset x _ _ y _ b) := collectVar x >> collectVar y >> collectFnBody b
+| (FnBody.setTag x _ b)     := collectVar x >> collectFnBody b
+| (FnBody.inc x _ _ b)      := collectVar x >> collectFnBody b
+| (FnBody.dec x _ _ b)      := collectVar x >> collectFnBody b
+| (FnBody.del x b)          := collectVar x >> collectFnBody b
 | (FnBody.mdata _ b)        := collectFnBody b
-| (FnBody.case _ x alts)    := collectVar x; collectAlts collectFnBody alts
-| (FnBody.jmp j ys)         := collectJP j; collectArgs ys
+| (FnBody.case _ x alts)    := collectVar x >> collectAlts collectFnBody alts
+| (FnBody.jmp j ys)         := collectJP j >> collectArgs ys
 | (FnBody.ret x)            := collectArg x
 | FnBody.unreachable        := skip
 

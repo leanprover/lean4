@@ -90,7 +90,7 @@ reserve infixr ` >=> `:55
 reserve infixl ` <*> `:60
 reserve infixl ` <* ` :60
 reserve infixr ` *> ` :60
-reserve infixr ` >>> `:60
+reserve infixr ` >> ` :60
 reserve infixr ` <$> `:100
 reserve infixr ` <$ ` :100
 reserve infixr ` $> ` :100
@@ -422,7 +422,7 @@ infix ↔        := Iff
 notation `exists` binders `, ` r:(scoped P, Exists P) := r
 notation `∃` binders `, ` r:(scoped P, Exists P) := r
 infixr <|>     := HasOrelse.orelse
-infixr ;       := HasAndthen.andthen
+infixr >>      := HasAndthen.andthen
 
 export HasAppend (append)
 

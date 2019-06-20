@@ -336,7 +336,6 @@ inductive List (T : Type u)
 | cons (hd : T) (tl : List) : List
 
 infixr :: := List.cons
-notation `[` l:(foldr `, ` (h t, List.cons h t) List.nil `]`) := l
 
 inductive Nat
 | zero : Nat

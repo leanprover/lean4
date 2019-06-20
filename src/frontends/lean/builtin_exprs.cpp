@@ -718,6 +718,28 @@ static expr parse_assume(parser & p, unsigned, expr const *, pos_info const & po
     }
 }
 
+static expr parse_list(parser & p, unsigned, expr const *, pos_info const & pos) {
+    buffer<expr> elems;
+    if (!p.curr_is_token(get_rbracket_tk())) {
+        while (true) {
+            expr elem = p.parse_expr();
+            elems.push_back(elem);
+            if (!p.curr_is_token(get_comma_tk()))
+                break;
+            p.next();
+        }
+    }
+    p.check_token_next(get_rbracket_tk(), "invalid list, ']' expected");
+    expr r = p.save_pos(mk_constant(get_list_nil_name()), pos);
+    unsigned i = elems.size();
+    while (i > 0) {
+        --i;
+        expr elem = elems[i];
+        r = p.save_pos(mk_app(mk_constant(get_list_cons_name()), elem, r), p.pos_of(elem));
+    }
+    return r;
+}
+
 static void consume_rparen(parser & p) {
     p.check_token_next(get_rparen_tk(), "invalid expression, `)` expected");
 }
@@ -955,6 +977,7 @@ parse_table init_nud_table() {
     r = r.add({transition("suffices", mk_ext_action(parse_suffices))}, x0);
     r = r.add({transition("if", mk_ext_action(parse_if_then_else))}, x0);
     r = r.add({transition("(", mk_ext_action(parse_lparen))}, x0);
+    r = r.add({transition("[", mk_ext_action(parse_list))}, x0);
     r = r.add({transition("⟨", mk_ext_action(parse_constructor))}, x0);
     r = r.add({transition("{", mk_ext_action(parse_curly_bracket))}, x0);
     r = r.add({transition(".(", mk_ext_action(parse_inaccessible))}, x0);

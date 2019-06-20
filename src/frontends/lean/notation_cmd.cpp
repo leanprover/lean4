@@ -328,34 +328,7 @@ static action parse_action(parser & p, name const & prev_token, unsigned default
             return mk_expr_action(get_precedence(p.env(), new_tokens, prev_token));
         } else {
             p.check_token_next(get_lparen_tk(), "invalid notation declaration, '(', numeral expected");
-            if (p.curr_is_token_or_id(get_foldl_tk()) || p.curr_is_token_or_id(get_foldr_tk())) {
-                bool is_fold_right = p.curr_is_token_or_id(get_foldr_tk());
-                p.next();
-                auto prec = parse_optional_precedence(p);
-                name sep  = parse_quoted_symbol_or_token(p, new_tokens);
-                expr rec;
-                {
-                    parser::local_scope scope(p);
-                    p.check_token_next(get_lparen_tk(), "invalid fold notation argument, '(' expected");
-                    parse_notation_local(p, locals);
-                    parse_notation_local(p, locals);
-                    p.check_token_next(get_comma_tk(),  "invalid fold notation argument, ',' expected");
-                    rec  = parse_notation_expr(p, locals);
-                    p.check_token_next(get_rparen_tk(), "invalid fold notation argument, ')' expected");
-                    locals.pop_back();
-                    locals.pop_back();
-                }
-                optional<expr> ini;
-                if (!p.curr_is_token(get_rparen_tk()) && !p.curr_is_quoted_symbol())
-                    ini = parse_notation_expr(p, locals);
-                optional<name> terminator;
-                if (!p.curr_is_token(get_rparen_tk()))
-                    terminator = parse_quoted_symbol_or_token(p, new_tokens);
-                p.check_token_next(get_rparen_tk(), "invalid fold notation argument, ')' expected");
-                return mk_exprs_action(sep, rec, ini, terminator, is_fold_right, prec ? *prec : 0);
-            } else {
-                throw parser_error("invalid notation declaration, 'foldl', 'foldr' expected", p.pos());
-            }
+            throw parser_error("invalid notation declaration", p.pos());
         }
     } else {
         return mk_expr_action(default_prec);

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.control.conditional
+import init.lean.compiler.initattr
 import init.lean.compiler.ir.compilerm
 
 /- Helper functions for backend code generators -/
@@ -57,7 +58,7 @@ def usesLeanNamespace (env : Environment) : Decl → Bool
 
 namespace CollectUsedDecls
 
-abbrev M := State NameSet
+abbrev M := ReaderT Environment (State NameSet)
 
 @[inline] def collect (f : FunId) : M Unit :=
 modify (λ s, s.insert f)
@@ -72,12 +73,20 @@ partial def collectFnBody : FnBody → M Unit
 | (FnBody.case _ _ alts) := alts.mfor $ λ alt, collectFnBody alt.body
 | e := unless e.isTerminal $ collectFnBody e.body
 
+def collectInitDecl (fn : Name) : M Unit :=
+do env ← read,
+   match getInitFnNameFor env fn with
+   | some initFn := collect initFn
+   | _           := pure ()
+
+def collectDecl : Decl → M NameSet
+| (Decl.fdecl fn _ _ b)  := collectInitDecl fn *> CollectUsedDecls.collectFnBody b *> get
+| (Decl.extern fn _ _ _) := collectInitDecl fn *> get
+
 end CollectUsedDecls
 
-def collectUsedDecls (decl : Decl) (used : NameSet := {}) : NameSet :=
-match decl with
-| Decl.fdecl _ _ _ b := (CollectUsedDecls.collectFnBody b *> get).run' used
-| other              := used
+def collectUsedDecls (env : Environment) (decl : Decl) (used : NameSet := {}) : NameSet :=
+(CollectUsedDecls.collectDecl decl env).run' used
 
 abbrev VarTypeMap  := HashMap VarId IRType
 abbrev JPParamsMap := HashMap JoinPointId (Array Param)

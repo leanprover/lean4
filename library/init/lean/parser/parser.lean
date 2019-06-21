@@ -956,7 +956,7 @@ if s.hasError then
 else
   Except.ok s.stxStack.back
 
-def mkBultinParsingTablesRef : IO (IO.Ref ParsingTables) :=
+def mkBuiltinParsingTablesRef : IO (IO.Ref ParsingTables) :=
 IO.mkRef {}
 
 private def updateTokens (tables : ParsingTables) (info : ParserInfo) : IO ParsingTables :=
@@ -1026,19 +1026,15 @@ registerAttribute {
  applicationTime := AttributeApplicationTime.afterCompilation
 }
 
-@[init mkBultinParsingTablesRef]
+@[init mkBuiltinParsingTablesRef]
 constant builtinCommandParsingTable : IO.Ref ParsingTables := default _
-@[init mkBultinParsingTablesRef]
+@[init mkBuiltinParsingTablesRef]
 constant builtinTermParsingTable : IO.Ref ParsingTables := default _
-@[init mkBultinParsingTablesRef]
-constant builtinLevelParsingTable : IO.Ref ParsingTables := default _
 
 @[init] def regBuiltinCommandParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinCommandParser `Lean.Parser.builtinCommandParsingTable
 @[init] def regBuiltinTermParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinTermParser `Lean.Parser.builtinTermParsingTable
-@[init] def regBuiltinLevelParserAttr : IO Unit :=
-registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelParsingTable
 
 @[noinline] unsafe def runBuiltinParserUnsafe (kind : String) (ref : IO.Ref ParsingTables) : ParserFn leading :=
 λ a c s,
@@ -1055,11 +1051,8 @@ def commandParser (rbp : Nat := 0) : Parser :=
 def termParser (rbp : Nat := 0) : Parser :=
 { fn := λ _, runBuiltinParser "term" builtinTermParsingTable rbp }
 
-def levelParser (rbp : Nat := 0) : Parser :=
-{ fn := λ _, runBuiltinParser "level" builtinLevelParsingTable rbp }
-
 /- TODO(Leo): delete -/
-@[init mkBultinParsingTablesRef]
+@[init mkBuiltinParsingTablesRef]
 constant builtinTestParsingTable : IO.Ref ParsingTables := default _
 @[init] def regBuiltinTestParserAttr : IO Unit :=
 registerBuiltinParserAttribute `builtinTestParser `Lean.Parser.builtinTestParsingTable

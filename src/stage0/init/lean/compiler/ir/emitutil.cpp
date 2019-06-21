@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.emitutil
-// Imports: init.control.conditional init.lean.compiler.ir.compilerm
+// Imports: init.control.conditional init.lean.compiler.initattr init.lean.compiler.ir.compilerm
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -19,8 +19,11 @@ extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectFnBody___main(obj*, obj*);
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_mkVarJPMaps___closed__1;
-obj* l_Lean_IR_CollectUsedDecls_collect(obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collect(obj*, obj*, obj*);
 obj* l_Lean_IR_UsesLeanNamespace_visitFnBody(obj*, obj*, obj*);
+namespace lean {
+obj* get_init_fn_name_for_core(obj*, obj*);
+}
 obj* l_AssocList_replace___main___at_Lean_IR_CollectMaps_collectVar___main___spec__6(obj*, uint8, obj*);
 obj* l_AssocList_mfoldl___main___at_Lean_IR_CollectMaps_collectJP___main___spec__5(obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectVar___main___spec__1___boxed(obj*, obj*, obj*);
@@ -28,15 +31,20 @@ obj* l_Array_miterateAux___main___at_Lean_IR_CollectMaps_collectFnBody___main___
 obj* l_HashMapImp_expand___at_Lean_IR_CollectMaps_collectVar___main___spec__3(obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectVar___main___boxed(obj*, obj*, obj*);
 obj* l_Array_uget(obj*, obj*, usize, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collect___boxed(obj*, obj*, obj*);
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
 obj* l_HashMapImp_insert___at_Lean_IR_CollectMaps_collectVar___main___spec__1(obj*, obj*, uint8);
 obj* l_Lean_IR_CollectMaps_collectDecl(obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(obj*, obj*, obj*);
 uint8 l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectVar___main___spec__2(obj*, obj*);
 obj* l_Lean_IR_usesLeanNamespace___main(obj*, obj*);
 uint8 l_Lean_NameSet_contains(obj*, obj*);
 obj* l_Lean_IR_UsesLeanNamespace_visitFnBody___main___boxed(obj*, obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collectDecl(obj*, obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collectInitDecl(obj*, obj*, obj*);
 obj* l_Lean_IR_UsesLeanNamespace_visitFnBody___main(obj*, obj*, obj*);
 obj* l_RBNode_insert___at_Lean_NameSet_insert___spec__1(obj*, obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collectDecl___main(obj*, obj*, obj*);
 obj* l_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__2(obj*);
 obj* l_Lean_IR_mkVarJPMaps(obj*);
 obj* l_Lean_IR_CollectMaps_collectVar___boxed(obj*, obj*, obj*);
@@ -59,13 +67,14 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_IR_CollectMaps_collectJP(obj*, obj*, obj*);
-obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(obj*, obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectJP___main(obj*, obj*, obj*);
-obj* l_Lean_IR_CollectUsedDecls_collectFnBody___main(obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody___main(obj*, obj*, obj*);
 obj* l_mkHashMap___at_Lean_IR_mkVarJPMaps___spec__1(obj*);
 obj* l_AssocList_replace___main___at_Lean_IR_CollectMaps_collectJP___main___spec__6(obj*, obj*, obj*);
-obj* l_Lean_IR_collectUsedDecls(obj*, obj*);
+obj* l_Lean_IR_collectUsedDecls(obj*, obj*, obj*);
 obj* l_Array_anyMAux___main___at_Lean_IR_UsesLeanNamespace_visitFnBody___main___spec__1___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectVar(obj*, uint8, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collectJP___main___spec__4(obj*, obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_IR_CollectMaps_collectParams___spec__1___boxed(obj*, obj*, obj*, obj*);
@@ -85,9 +94,9 @@ obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_HashMapImp_moveEntries___main___at_Lean_IR_CollectMaps_collectVar___main___spec__4(obj*, obj*, obj*);
 obj* l_mkHashMapImp___rarg(obj*);
-obj* l_Lean_IR_CollectUsedDecls_collectFnBody(obj*, obj*);
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody(obj*, obj*, obj*);
 obj* l_Lean_IR_CollectMaps_collectParams___boxed(obj*, obj*);
-obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1___boxed(obj*, obj*, obj*);
+obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_FnBody_body___main(obj*);
 namespace lean {
 uint8 nat_dec_le(obj*, obj*);
@@ -685,205 +694,334 @@ lean::dec(x_1);
 return x_3;
 }
 }
-obj* l_Lean_IR_CollectUsedDecls_collect(obj* x_1, obj* x_2) {
+obj* l_Lean_IR_CollectUsedDecls_collect(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::box(0);
-x_4 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_2, x_1, x_3);
-x_5 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_5, 0, x_3);
-lean::cnstr_set(x_5, 1, x_4);
-return x_5;
+obj* x_4; obj* x_5; obj* x_6; 
+x_4 = lean::box(0);
+x_5 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_3, x_1, x_4);
+x_6 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_6, 0, x_4);
+lean::cnstr_set(x_6, 1, x_5);
+return x_6;
 }
 }
-obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Lean_IR_CollectUsedDecls_collect___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_4; uint8 x_5; 
-x_4 = lean::array_get_size(x_1);
-x_5 = lean::nat_dec_lt(x_2, x_4);
-lean::dec(x_4);
-if (x_5 == 0)
-{
-obj* x_6; obj* x_7; 
+obj* x_4; 
+x_4 = l_Lean_IR_CollectUsedDecls_collect(x_1, x_2, x_3);
 lean::dec(x_2);
-x_6 = lean::box(0);
-x_7 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_7, 0, x_6);
-lean::cnstr_set(x_7, 1, x_3);
-return x_7;
+return x_4;
+}
+}
+obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; uint8 x_6; 
+x_5 = lean::array_get_size(x_1);
+x_6 = lean::nat_dec_lt(x_2, x_5);
+lean::dec(x_5);
+if (x_6 == 0)
+{
+obj* x_7; obj* x_8; 
+lean::dec(x_2);
+x_7 = lean::box(0);
+x_8 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_8, 0, x_7);
+lean::cnstr_set(x_8, 1, x_4);
+return x_8;
 }
 else
 {
-obj* x_8; obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; 
-x_8 = lean::array_fget(x_1, x_2);
-x_9 = lean::mk_nat_obj(1u);
-x_10 = lean::nat_add(x_2, x_9);
+obj* x_9; obj* x_10; obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
+x_9 = lean::array_fget(x_1, x_2);
+x_10 = lean::mk_nat_obj(1u);
+x_11 = lean::nat_add(x_2, x_10);
 lean::dec(x_2);
-x_11 = l_Lean_IR_AltCore_body___main(x_8);
-lean::dec(x_8);
-x_12 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_11, x_3);
-x_13 = lean::cnstr_get(x_12, 1);
-lean::inc(x_13);
-lean::dec(x_12);
-x_2 = x_10;
-x_3 = x_13;
+x_12 = l_Lean_IR_AltCore_body___main(x_9);
+lean::dec(x_9);
+x_13 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_12, x_3, x_4);
+x_14 = lean::cnstr_get(x_13, 1);
+lean::inc(x_14);
+lean::dec(x_13);
+x_2 = x_11;
+x_4 = x_14;
 goto _start;
 }
 }
 }
-obj* l_Lean_IR_CollectUsedDecls_collectFnBody___main(obj* x_1, obj* x_2) {
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_3; 
+obj* x_4; 
 switch (lean::obj_tag(x_1)) {
 case 0:
 {
-obj* x_10; 
-x_10 = lean::cnstr_get(x_1, 1);
-lean::inc(x_10);
-switch (lean::obj_tag(x_10)) {
+obj* x_11; 
+x_11 = lean::cnstr_get(x_1, 1);
+lean::inc(x_11);
+switch (lean::obj_tag(x_11)) {
 case 6:
 {
-obj* x_11; obj* x_12; obj* x_13; obj* x_14; 
-x_11 = lean::cnstr_get(x_1, 2);
-lean::inc(x_11);
-lean::dec(x_1);
-x_12 = lean::cnstr_get(x_10, 0);
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+x_12 = lean::cnstr_get(x_1, 2);
 lean::inc(x_12);
-lean::dec(x_10);
-x_13 = lean::box(0);
-x_14 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_2, x_12, x_13);
-x_1 = x_11;
-x_2 = x_14;
+lean::dec(x_1);
+x_13 = lean::cnstr_get(x_11, 0);
+lean::inc(x_13);
+lean::dec(x_11);
+x_14 = lean::box(0);
+x_15 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_3, x_13, x_14);
+x_1 = x_12;
+x_3 = x_15;
 goto _start;
 }
 case 7:
 {
-obj* x_16; obj* x_17; obj* x_18; obj* x_19; 
-x_16 = lean::cnstr_get(x_1, 2);
-lean::inc(x_16);
-lean::dec(x_1);
-x_17 = lean::cnstr_get(x_10, 0);
+obj* x_17; obj* x_18; obj* x_19; obj* x_20; 
+x_17 = lean::cnstr_get(x_1, 2);
 lean::inc(x_17);
-lean::dec(x_10);
-x_18 = lean::box(0);
-x_19 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_2, x_17, x_18);
-x_1 = x_16;
-x_2 = x_19;
+lean::dec(x_1);
+x_18 = lean::cnstr_get(x_11, 0);
+lean::inc(x_18);
+lean::dec(x_11);
+x_19 = lean::box(0);
+x_20 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_3, x_18, x_19);
+x_1 = x_17;
+x_3 = x_20;
 goto _start;
 }
 default: 
 {
-obj* x_21; 
-lean::dec(x_10);
-x_21 = lean::cnstr_get(x_1, 2);
-lean::inc(x_21);
+obj* x_22; 
+lean::dec(x_11);
+x_22 = lean::cnstr_get(x_1, 2);
+lean::inc(x_22);
 lean::dec(x_1);
-x_1 = x_21;
+x_1 = x_22;
 goto _start;
 }
 }
 }
 case 1:
 {
-obj* x_23; obj* x_24; obj* x_25; obj* x_26; 
-x_23 = lean::cnstr_get(x_1, 2);
-lean::inc(x_23);
-x_24 = lean::cnstr_get(x_1, 3);
+obj* x_24; obj* x_25; obj* x_26; obj* x_27; 
+x_24 = lean::cnstr_get(x_1, 2);
 lean::inc(x_24);
+x_25 = lean::cnstr_get(x_1, 3);
+lean::inc(x_25);
 lean::dec(x_1);
-x_25 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_23, x_2);
-x_26 = lean::cnstr_get(x_25, 1);
-lean::inc(x_26);
-lean::dec(x_25);
-x_1 = x_24;
-x_2 = x_26;
+x_26 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_24, x_2, x_3);
+x_27 = lean::cnstr_get(x_26, 1);
+lean::inc(x_27);
+lean::dec(x_26);
+x_1 = x_25;
+x_3 = x_27;
 goto _start;
 }
 case 10:
 {
-obj* x_28; obj* x_29; obj* x_30; 
-x_28 = lean::cnstr_get(x_1, 2);
-lean::inc(x_28);
+obj* x_29; obj* x_30; obj* x_31; 
+x_29 = lean::cnstr_get(x_1, 2);
+lean::inc(x_29);
 lean::dec(x_1);
-x_29 = lean::mk_nat_obj(0u);
-x_30 = l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(x_28, x_29, x_2);
-lean::dec(x_28);
-return x_30;
+x_30 = lean::mk_nat_obj(0u);
+x_31 = l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(x_29, x_30, x_2, x_3);
+lean::dec(x_29);
+return x_31;
 }
 default: 
 {
-obj* x_31; 
-x_31 = lean::box(0);
-x_3 = x_31;
-goto block_9;
+obj* x_32; 
+x_32 = lean::box(0);
+x_4 = x_32;
+goto block_10;
 }
 }
-block_9:
+block_10:
 {
-uint8 x_4; 
-lean::dec(x_3);
-x_4 = l_Lean_IR_FnBody_isTerminal___main(x_1);
-if (x_4 == 0)
+uint8 x_5; 
+lean::dec(x_4);
+x_5 = l_Lean_IR_FnBody_isTerminal___main(x_1);
+if (x_5 == 0)
 {
-obj* x_5; 
-x_5 = l_Lean_IR_FnBody_body___main(x_1);
+obj* x_6; 
+x_6 = l_Lean_IR_FnBody_body___main(x_1);
 lean::dec(x_1);
-x_1 = x_5;
+x_1 = x_6;
 goto _start;
 }
 else
 {
-obj* x_7; obj* x_8; 
+obj* x_8; obj* x_9; 
 lean::dec(x_1);
-x_7 = lean::box(0);
-x_8 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_8, 0, x_7);
-lean::cnstr_set(x_8, 1, x_2);
-return x_8;
+x_8 = lean::box(0);
+x_9 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_9, 0, x_8);
+lean::cnstr_set(x_9, 1, x_3);
+return x_9;
 }
 }
 }
 }
-obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1___boxed(obj* x_1, obj* x_2, obj* x_3) {
+obj* l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1___boxed(obj* x_1, obj* x_2, obj* x_3, obj* x_4) {
+_start:
+{
+obj* x_5; 
+x_5 = l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(x_1, x_2, x_3, x_4);
+lean::dec(x_3);
+lean::dec(x_1);
+return x_5;
+}
+}
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l_Array_mforAux___main___at_Lean_IR_CollectUsedDecls_collectFnBody___main___spec__1(x_1, x_2, x_3);
-lean::dec(x_1);
+x_4 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_1, x_2, x_3);
+lean::dec(x_2);
 return x_4;
 }
 }
-obj* l_Lean_IR_CollectUsedDecls_collectFnBody(obj* x_1, obj* x_2) {
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-obj* x_3; 
-x_3 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_1, x_2);
-return x_3;
+obj* x_4; 
+x_4 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_1, x_2, x_3);
+return x_4;
 }
 }
-obj* l_Lean_IR_collectUsedDecls(obj* x_1, obj* x_2) {
+obj* l_Lean_IR_CollectUsedDecls_collectFnBody___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_IR_CollectUsedDecls_collectFnBody(x_1, x_2, x_3);
+lean::dec(x_2);
+return x_4;
+}
+}
+obj* l_Lean_IR_CollectUsedDecls_collectInitDecl(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = lean::get_init_fn_name_for_core(x_2, x_1);
+if (lean::obj_tag(x_4) == 0)
+{
+obj* x_5; obj* x_6; 
+x_5 = lean::box(0);
+x_6 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_6, 0, x_5);
+lean::cnstr_set(x_6, 1, x_3);
+return x_6;
+}
+else
+{
+obj* x_7; obj* x_8; obj* x_9; obj* x_10; 
+x_7 = lean::cnstr_get(x_4, 0);
+lean::inc(x_7);
+lean::dec(x_4);
+x_8 = lean::box(0);
+x_9 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_3, x_7, x_8);
+x_10 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_10, 0, x_8);
+lean::cnstr_set(x_10, 1, x_9);
+return x_10;
+}
+}
+}
+obj* l_Lean_IR_CollectUsedDecls_collectDecl___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 if (lean::obj_tag(x_1) == 0)
 {
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::cnstr_get(x_1, 2);
-lean::inc(x_3);
-lean::dec(x_1);
-x_4 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_3, x_2);
-x_5 = lean::cnstr_get(x_4, 1);
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; uint8 x_9; 
+x_4 = lean::cnstr_get(x_1, 0);
+lean::inc(x_4);
+x_5 = lean::cnstr_get(x_1, 2);
 lean::inc(x_5);
-lean::dec(x_4);
-return x_5;
+lean::dec(x_1);
+lean::inc(x_2);
+x_6 = l_Lean_IR_CollectUsedDecls_collectInitDecl(x_4, x_2, x_3);
+x_7 = lean::cnstr_get(x_6, 1);
+lean::inc(x_7);
+lean::dec(x_6);
+x_8 = l_Lean_IR_CollectUsedDecls_collectFnBody___main(x_5, x_2, x_7);
+lean::dec(x_2);
+x_9 = !lean::is_exclusive(x_8);
+if (x_9 == 0)
+{
+obj* x_10; obj* x_11; 
+x_10 = lean::cnstr_get(x_8, 1);
+x_11 = lean::cnstr_get(x_8, 0);
+lean::dec(x_11);
+lean::inc(x_10);
+lean::cnstr_set(x_8, 0, x_10);
+return x_8;
 }
 else
 {
-lean::dec(x_1);
-return x_2;
+obj* x_12; obj* x_13; 
+x_12 = lean::cnstr_get(x_8, 1);
+lean::inc(x_12);
+lean::dec(x_8);
+lean::inc(x_12);
+x_13 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_13, 0, x_12);
+lean::cnstr_set(x_13, 1, x_12);
+return x_13;
 }
+}
+else
+{
+obj* x_14; obj* x_15; uint8 x_16; 
+x_14 = lean::cnstr_get(x_1, 0);
+lean::inc(x_14);
+lean::dec(x_1);
+x_15 = l_Lean_IR_CollectUsedDecls_collectInitDecl(x_14, x_2, x_3);
+x_16 = !lean::is_exclusive(x_15);
+if (x_16 == 0)
+{
+obj* x_17; obj* x_18; 
+x_17 = lean::cnstr_get(x_15, 1);
+x_18 = lean::cnstr_get(x_15, 0);
+lean::dec(x_18);
+lean::inc(x_17);
+lean::cnstr_set(x_15, 0, x_17);
+return x_15;
+}
+else
+{
+obj* x_19; obj* x_20; 
+x_19 = lean::cnstr_get(x_15, 1);
+lean::inc(x_19);
+lean::dec(x_15);
+lean::inc(x_19);
+x_20 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_20, 0, x_19);
+lean::cnstr_set(x_20, 1, x_19);
+return x_20;
+}
+}
+}
+}
+obj* l_Lean_IR_CollectUsedDecls_collectDecl(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_IR_CollectUsedDecls_collectDecl___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l_Lean_IR_collectUsedDecls(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; 
+x_4 = l_Lean_IR_CollectUsedDecls_collectDecl___main(x_2, x_1, x_3);
+x_5 = lean::cnstr_get(x_4, 0);
+lean::inc(x_5);
+lean::dec(x_4);
+return x_5;
 }
 }
 uint8 l_AssocList_contains___main___at_Lean_IR_CollectMaps_collectVar___main___spec__2(obj* x_1, obj* x_2) {
@@ -2044,6 +2182,7 @@ return x_3;
 }
 }
 obj* initialize_init_control_conditional(obj*);
+obj* initialize_init_lean_compiler_initattr(obj*);
 obj* initialize_init_lean_compiler_ir_compilerm(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_emitutil(obj* w) {
@@ -2051,6 +2190,8 @@ if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_conditional(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_initattr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_compilerm(w);
 if (io_result_is_error(w)) return w;
@@ -2060,9 +2201,11 @@ lean::mark_persistent(l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "UsesLeanNamespace"), "leanNameSpacePrefix"), l_Lean_IR_UsesLeanNamespace_leanNameSpacePrefix);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "UsesLeanNamespace"), "visitFnBody"), 3, l_Lean_IR_UsesLeanNamespace_visitFnBody___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "usesLeanNamespace"), 2, l_Lean_IR_usesLeanNamespace___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collect"), 2, l_Lean_IR_CollectUsedDecls_collect);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collectFnBody"), 2, l_Lean_IR_CollectUsedDecls_collectFnBody);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "collectUsedDecls"), 2, l_Lean_IR_collectUsedDecls);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collect"), 3, l_Lean_IR_CollectUsedDecls_collect___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collectFnBody"), 3, l_Lean_IR_CollectUsedDecls_collectFnBody___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collectInitDecl"), 3, l_Lean_IR_CollectUsedDecls_collectInitDecl);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectUsedDecls"), "collectDecl"), 3, l_Lean_IR_CollectUsedDecls_collectDecl);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "collectUsedDecls"), 3, l_Lean_IR_collectUsedDecls);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectVar"), 3, l_Lean_IR_CollectMaps_collectVar___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectParams"), 2, l_Lean_IR_CollectMaps_collectParams___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "CollectMaps"), "collectJP"), 3, l_Lean_IR_CollectMaps_collectJP);

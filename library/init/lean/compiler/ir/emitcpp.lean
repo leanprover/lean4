@@ -166,7 +166,7 @@ do
 env ← getEnv,
 let decls := getDecls env,
 let modDecls  : NameSet := decls.foldl (λ s d, s.insert d.name) {},
-let usedDecls : NameSet := decls.foldl (λ s d, collectUsedDecls d (s.insert d.name)) {},
+let usedDecls : NameSet := decls.foldl (λ s d, collectUsedDecls env d (s.insert d.name)) {},
 let usedDecls := usedDecls.toList,
 usedDecls.mfor $ λ n, do
   decl ← getDecl n,

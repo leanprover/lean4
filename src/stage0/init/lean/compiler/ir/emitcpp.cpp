@@ -329,7 +329,7 @@ obj* l_Lean_IR_EmitCpp_emitJmp___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitDeclInit___closed__1;
 obj* l_List_mfor___main___at_Lean_IR_EmitCpp_emitLns___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitFileHeader___closed__2;
-obj* l_Lean_IR_collectUsedDecls(obj*, obj*);
+obj* l_Lean_IR_collectUsedDecls(obj*, obj*, obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
 obj* l_Lean_IR_EmitCpp_emitCppInitName(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitBox(obj*, obj*, uint8, obj*, obj*);
@@ -422,7 +422,7 @@ obj* l_Lean_IR_EmitCpp_emitCtorScalarSize___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_toCppName___closed__1;
 obj* l_Lean_Environment_imports(obj*);
 obj* l_AssocList_find___main___at_Lean_IR_EmitCpp_getJPParams___spec__2(obj*, obj*);
-obj* l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(obj*, obj*);
+obj* l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitArgs(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_toCppType___main___closed__2;
 namespace lean {
@@ -3976,27 +3976,29 @@ goto _start;
 }
 }
 }
-obj* l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(obj* x_1, obj* x_2) {
+obj* l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
-if (lean::obj_tag(x_2) == 0)
+if (lean::obj_tag(x_3) == 0)
 {
-return x_1;
+lean::dec(x_1);
+return x_2;
 }
 else
 {
-obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
-x_3 = lean::cnstr_get(x_2, 0);
-lean::inc(x_3);
-x_4 = lean::cnstr_get(x_2, 1);
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+x_4 = lean::cnstr_get(x_3, 0);
 lean::inc(x_4);
-lean::dec(x_2);
-x_5 = l_Lean_IR_Decl_name___main(x_3);
-x_6 = lean::box(0);
-x_7 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_1, x_5, x_6);
-x_8 = l_Lean_IR_collectUsedDecls(x_3, x_7);
-x_1 = x_8;
-x_2 = x_4;
+x_5 = lean::cnstr_get(x_3, 1);
+lean::inc(x_5);
+lean::dec(x_3);
+x_6 = l_Lean_IR_Decl_name___main(x_4);
+x_7 = lean::box(0);
+x_8 = l_RBNode_insert___at_Lean_NameSet_insert___spec__1(x_2, x_6, x_7);
+lean::inc(x_1);
+x_9 = l_Lean_IR_collectUsedDecls(x_1, x_4, x_8);
+x_2 = x_9;
+x_3 = x_5;
 goto _start;
 }
 }
@@ -4522,7 +4524,8 @@ x_7 = l_Lean_IR_declMapExt;
 x_8 = l_Lean_SimplePersistentEnvExtension_getEntries___rarg(x_7, x_5);
 x_9 = lean::box(0);
 x_10 = l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__1(x_9, x_8);
-x_11 = l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(x_9, x_8);
+lean::inc(x_5);
+x_11 = l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(x_5, x_9, x_8);
 x_12 = l_RBTree_toList___at_Lean_IR_EmitCpp_emitFnDecls___spec__3(x_11);
 lean::dec(x_11);
 x_13 = l_List_mfor___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__5(x_5, x_10, x_12, x_1, x_3);
@@ -4546,7 +4549,8 @@ x_18 = l_Lean_IR_declMapExt;
 x_19 = l_Lean_SimplePersistentEnvExtension_getEntries___rarg(x_18, x_14);
 x_20 = lean::box(0);
 x_21 = l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__1(x_20, x_19);
-x_22 = l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(x_20, x_19);
+lean::inc(x_14);
+x_22 = l_List_foldl___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__2(x_14, x_20, x_19);
 x_23 = l_RBTree_toList___at_Lean_IR_EmitCpp_emitFnDecls___spec__3(x_22);
 lean::dec(x_22);
 x_24 = l_List_mfor___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__5(x_14, x_21, x_23, x_1, x_17);

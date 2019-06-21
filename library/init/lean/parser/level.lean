@@ -18,5 +18,17 @@ registerBuiltinParserAttribute `builtinLevelParser `Lean.Parser.builtinLevelPars
 def levelParser (rbp : Nat := 0) : Parser :=
 { fn := λ _, runBuiltinParser "universe level" builtinLevelParsingTable rbp }
 
+/-
+def_parser [builtinLevelParser]
+  paren  := "(":max_prec; levelParser; ")":0
+  hole   := "_":max_prec
+  imax   := "imax"
+  max    := "max"
+  num    := numLit
+  id     := ident
+  addLit := levelParser; "+":65; numLit
+  app    := levelParser; levelParser maxPrec
+-/
+
 end Parser
 end Lean

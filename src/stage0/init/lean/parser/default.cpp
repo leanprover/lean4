@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.parser.default
-// Imports: init.lean.parser.parser
+// Imports: init.lean.parser.parser init.lean.parser.level
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -15,12 +15,15 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 obj* initialize_init_lean_parser_parser(obj*);
+obj* initialize_init_lean_parser_level(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_parser_default(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_parser_parser(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_parser_level(w);
 if (io_result_is_error(w)) return w;
 return w;
 }

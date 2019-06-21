@@ -26,12 +26,12 @@ def depth (f : Nat → Nat → Nat) : Rbnode α β → Nat
 | leaf               := 0
 | (Node _ l _ _ r)   := (f (depth l) (depth r))+1
 
-protected def min : Rbnode α β → Option (Σ k : α, β k)
+protected def min : Rbnode α β → Option (Sigma (λ k : α, β k))
 | leaf                    := none
 | (Node _ leaf k v _)     := some ⟨k, v⟩
 | (Node _ l _ _ _)        := min l
 
-protected def max : Rbnode α β → Option (Σ k : α, β k)
+protected def max : Rbnode α β → Option (Sigma (λ k : α, β k))
 | leaf                  := none
 | (Node _ _ k v leaf)   := some ⟨k, v⟩
 | (Node _ _ _ _ r)      := max r
@@ -97,7 +97,7 @@ variable (lt : α → α → Prop)
 
 variable [DecidableRel lt]
 
-def findCore : Rbnode α β → Π k : α, Option (Σ k : α, β k)
+def findCore : Rbnode α β → Π k : α, Option (Sigma (λ k : α, β k))
 | leaf               x := none
 | (Node _ a ky vy b) x :=
   (match cmpUsing lt x ky with
@@ -187,7 +187,7 @@ def insert : Rbmap α β lt → α → β → Rbmap α β lt
 | []          := mkRbmap _ _ _
 | (⟨k,v⟩::xs) := (ofList xs).insert k v
 
-def findCore : Rbmap α β lt → α → Option (Σ k : α, β)
+def findCore : Rbmap α β lt → α → Option (Sigma (λ k : α, β))
 | ⟨t, _⟩ x := t.findCore lt x
 
 def find : Rbmap α β lt → α → Option β
@@ -195,7 +195,7 @@ def find : Rbmap α β lt → α → Option β
 
 /-- (lowerBound k) retrieves the kv pair of the largest key smaller than or equal to `k`,
     if it exists. -/
-def lowerBound : Rbmap α β lt → α → Option (Σ k : α, β)
+def lowerBound : Rbmap α β lt → α → Option (Sigma (λ k : α, β))
 | ⟨t, _⟩ x := t.lowerBound lt x none
 
 @[inline] def contains (t : Rbmap α β lt) (a : α) : Bool :=

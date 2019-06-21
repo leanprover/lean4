@@ -202,6 +202,9 @@ abbrev TrailingParser := Parser trailing
 { info := andthenInfo p.info q.info,
   fn   := andthenFn p.fn q.fn }
 
+instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
+⟨andthen⟩
+
 @[inline] def nodeFn {k : ParserKind} (n : SyntaxNodeKind) (p : ParserFn k) : ParserFn k
 | a c s :=
   let iniSz := s.stackSize in
@@ -230,6 +233,9 @@ abbrev TrailingParser := Parser trailing
 @[inline] def orelse {k : ParserKind} (p q : Parser k) : Parser k :=
 { info := orelseInfo p.info q.info,
   fn   := orelseFn p.fn q.fn }
+
+instance hashOrelse {k : ParserKind} : HasOrelse (Parser k) :=
+⟨orelse⟩
 
 @[noinline] def noFirstTokenInfo (info : ParserInfo) : ParserInfo :=
 { updateTokens := info.updateTokens }

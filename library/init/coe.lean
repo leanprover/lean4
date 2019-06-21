@@ -155,7 +155,7 @@ instance coeBoolToProp : HasCoe Bool Prop :=
 ⟨Prop, λ y, y = true⟩
 
 instance coeDecidableEq (x : Bool) : Decidable (coe x) :=
-show Decidable (x = true), from decEq x true
+inferInstanceAs (Decidable (x = true))
 
 instance coeSubtype {a : Sort u} {p : a → Prop} : HasCoe {x // p x} a :=
 ⟨Subtype.val⟩

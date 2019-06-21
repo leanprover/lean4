@@ -458,8 +458,8 @@ def quotedCharFn : BasicParserFn
     else
       s.mkError "invalid escape sequence"
 
-def strLitKind : SyntaxNodeKind := { name := `strLit }
-def numLitKind : SyntaxNodeKind := { name := `numLit }
+def strLitKind : SyntaxNodeKind := `strLit
+def numLitKind : SyntaxNodeKind := `numLit
 
 /-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : BasicParserFn :=
@@ -895,7 +895,7 @@ let find (n : Name) : ParserState × List α :=
 match stx with
 | some (Syntax.atom _ sym)      := find (mkSimpleName sym)
 | some (Syntax.ident _ _ _ _ _) := find `ident
-| some (Syntax.node k _ _)      := find k.name
+| some (Syntax.node k _ _)      := find k
 | _                             := (s, [])
 
 private def mkResult (s : ParserState) (iniSz : Nat) : ParserState :=

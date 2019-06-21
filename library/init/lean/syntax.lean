@@ -29,14 +29,10 @@ def SourceInfo.updateTrailing : SourceInfo → Substring → SourceInfo
 
 /- Node kind generation -/
 
-structure SyntaxNodeKind :=
-(name : Name)
+abbrev SyntaxNodeKind := Name
 
-instance stxKindBeq : HasBeq SyntaxNodeKind :=
-⟨λ k₁ k₂, k₁.name == k₂.name⟩
-
-@[pattern] def choiceKind : SyntaxNodeKind := ⟨`choice⟩
-@[pattern] def nullKind : SyntaxNodeKind := ⟨`null⟩
+@[pattern] def choiceKind : SyntaxNodeKind := `choice
+@[pattern] def nullKind : SyntaxNodeKind := `null
 
 /- Syntax AST -/
 
@@ -203,10 +199,10 @@ protected partial def formatStx : Syntax → Format
   format "`" ++ format val ++ scopes
 | (node kind args scopes) :=
   let scopes := match scopes with [] := format "" | _ := bracket "{" (joinSep scopes.reverse ", ") "}" in
-  if kind.name = `Lean.Parser.noKind then
+  if kind = `Lean.Parser.noKind then
     sbracket $ scopes ++ joinSep (args.toList.map formatStx) line
   else
-    let shorterName := kind.name.replacePrefix `Lean.Parser Name.anonymous in
+    let shorterName := kind.replacePrefix `Lean.Parser Name.anonymous in
     paren $ joinSep ((format shorterName ++ scopes) :: args.toList.map formatStx) line
 | missing := "<missing>"
 

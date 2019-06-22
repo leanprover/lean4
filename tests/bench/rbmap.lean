@@ -22,17 +22,19 @@ def fold (f : Nat → Bool → σ → σ) : Tree → σ → σ
 | Leaf b               := b
 | (Node _ l k v r)   b := fold r (f k v (fold l b))
 
-def balance1 : Tree → Tree → Tree
-| (Node _ _ kv vv t) (Node _ (Node Red l kx vx r₁) ky vy r₂) := Node Red (Node Black l kx vx r₁) ky vy (Node Black r₂ kv vv t)
-| (Node _ _ kv vv t) (Node _ l₁ ky vy (Node Red l₂ kx vx r)) := Node Red (Node Black l₁ ky vy l₂) kx vx (Node Black r kv vv t)
-| (Node _ _ kv vv t) (Node _ l  ky vy r)                     := Node Black (Node Red l ky vy r) kv vv t
-| _                                                        _ := Leaf
+@[inline]
+def balance1 : Nat → Bool → Tree → Tree → Tree
+| kv vv t (Node _ (Node Red l kx vx r₁) ky vy r₂) := Node Red (Node Black l kx vx r₁) ky vy (Node Black r₂ kv vv t)
+| kv vv t (Node _ l₁ ky vy (Node Red l₂ kx vx r)) := Node Red (Node Black l₁ ky vy l₂) kx vx (Node Black r kv vv t)
+| kv vv t (Node _ l  ky vy r)                     := Node Black (Node Red l ky vy r) kv vv t
+| _  _  _                                       _ := Leaf
 
-def balance2 : Tree → Tree → Tree
-| (Node _ t kv vv _) (Node _ (Node Red l kx₁ vx₁ r₁) ky vy r₂)  := Node Red (Node Black t kv vv l) kx₁ vx₁ (Node Black r₁ ky vy r₂)
-| (Node _ t kv vv _) (Node _ l₁ ky vy (Node Red l₂ kx₂ vx₂ r₂)) := Node Red (Node Black t kv vv l₁) ky vy (Node Black l₂ kx₂ vx₂ r₂)
-| (Node _ t kv vv _) (Node _ l ky vy r)                         := Node Black t kv vv (Node Red l ky vy r)
-| _                                                        _    := Leaf
+@[inline]
+def balance2 : Tree → Nat → Bool → Tree → Tree
+| t kv vv (Node _ (Node Red l kx₁ vx₁ r₁) ky vy r₂)  := Node Red (Node Black t kv vv l) kx₁ vx₁ (Node Black r₁ ky vy r₂)
+| t kv vv (Node _ l₁ ky vy (Node Red l₂ kx₂ vx₂ r₂)) := Node Red (Node Black t kv vv l₁) ky vy (Node Black l₂ kx₂ vx₂ r₂)
+| t kv vv (Node _ l ky vy r)                         := Node Black t kv vv (Node Red l ky vy r)
+| _ _ _                                         _    := Leaf
 
 def isRed : Tree → Bool
 | (Node Red _ _ _ _) := true
@@ -46,10 +48,10 @@ def ins : Tree → Nat → Bool → Tree
     else Node Red a ky vy (ins b kx vx))
 | (Node Black a ky vy b) kx vx :=
     if kx < ky then
-      (if isRed a then balance1 (Node Black Leaf ky vy b) (ins a kx vx)
+      (if isRed a then balance1 ky vy b (ins a kx vx)
        else Node Black (ins a kx vx) ky vy b)
     else if kx = ky then Node Black a kx vx b
-    else if isRed b then balance2 (Node Black a ky vy Leaf) (ins b kx vx)
+    else if isRed b then balance2 a ky vy (ins b kx vx)
          else Node Black a ky vy (ins b kx vx)
 
 def setBlack : Tree → Tree

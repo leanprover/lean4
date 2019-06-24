@@ -1506,7 +1506,6 @@ section
 universes uA uB uC
 variables {α : Sort uA} {β : Sort uB} {φ : Sort uC}
 variables [s₁ : Setoid α] [s₂ : Setoid β]
-include s₁ s₂
 
 @[reducible, elabAsEliminator, inline]
 protected def lift₂
@@ -1548,10 +1547,8 @@ end
 
 section Exact
 variable   {α : Sort u}
-variable   [s : Setoid α]
-include s
 
-private def rel (q₁ q₂ : Quotient s) : Prop :=
+private def rel [s : Setoid α] (q₁ q₂ : Quotient s) : Prop :=
 Quotient.liftOn₂ q₁ q₂
   (λ a₁ a₂, a₁ ≈ a₂)
   (λ a₁ a₂ b₁ b₂ a₁b₁ a₂b₂,
@@ -1559,13 +1556,13 @@ Quotient.liftOn₂ q₁ q₂
       (λ a₁a₂, Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
       (λ b₁b₂, Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
-private theorem rel.refl : ∀ q : Quotient s, rel q q :=
+private theorem rel.refl [s : Setoid α] : ∀ q : Quotient s, rel q q :=
 λ q, Quot.inductionOn q (λ a, Setoid.refl a)
 
-private theorem eqImpRel {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
+private theorem eqImpRel [s : Setoid α] {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
 assume h, Eq.ndrecOn h (rel.refl q₁)
 
-theorem exact {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
+theorem exact [s : Setoid α] {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
 assume h, eqImpRel h
 end Exact
 
@@ -1573,7 +1570,6 @@ section
 universes uA uB uC
 variables {α : Sort uA} {β : Sort uB}
 variables [s₁ : Setoid α] [s₂ : Setoid β]
-include s₁ s₂
 
 @[reducible, elabAsEliminator]
 protected def recOnSubsingleton₂

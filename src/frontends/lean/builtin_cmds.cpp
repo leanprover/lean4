@@ -485,12 +485,9 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("namespace",         "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("#check",            "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("initQuot",          "initialize `quot` type computational rules", init_quot_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));
     add_cmd(r, cmd_info("hide",              "hide aliases in the current scope", hide_cmd));
-    add_cmd(r, cmd_info("#unify",            "(for debugging purposes)", unify_cmd));
-    add_cmd(r, cmd_info("#compact_tst",      "(for debugging purposes)", compact_tst_cmd));
     register_decl_cmds(r);
     register_inductive_cmds(r);
     register_structure_cmd(r);

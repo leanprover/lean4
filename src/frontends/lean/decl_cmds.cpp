@@ -557,10 +557,8 @@ void register_decl_cmds(cmd_table & r) {
     add_cmd(r, cmd_info("abbreviation",    "add new abbreviation", abbreviation_cmd));
     add_cmd(r, cmd_info("abbrev",          "add new abbreviation", abbreviation_cmd));
     add_cmd(r, cmd_info("example",         "add new example", example_cmd));
-    add_cmd(r, cmd_info("include",         "force section variable to be included", include_cmd));
     add_cmd(r, cmd_info("attribute",       "set declaration attributes", attribute_cmd));
     add_cmd(r, cmd_info("@[",              "declaration attributes", compact_attribute_cmd));
-    add_cmd(r, cmd_info("omit",            "undo 'include' command", omit_cmd));
 }
 
 void initialize_decl_cmds() {

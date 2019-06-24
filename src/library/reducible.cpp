@@ -89,16 +89,4 @@ reducible_status get_reducible_status(environment const & env, name const & n) {
         return data->m_status;
     return reducible_status::Semireducible;
 }
-
-name_predicate mk_not_reducible_pred(environment const & env) {
-    return [=](name const & n) { // NOLINT
-        return get_reducible_status(env, n) != reducible_status::Reducible;
-    };
-}
-
-name_predicate mk_irreducible_pred(environment const & env) {
-    return [=](name const & n) { // NOLINT
-        return get_reducible_status(env, n) == reducible_status::Irreducible;
-    };
-}
 }

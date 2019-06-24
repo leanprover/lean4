@@ -45,7 +45,6 @@ obj* l_Function_comp___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_reprint___main(obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_toSyntaxNode___spec__1(obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
-uint8 l_Lean_stxKindBeq(obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main(obj*);
 obj* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStx___main___spec__2(obj*, obj*);
 uint8 l_Lean_Syntax_isOfKind___main(obj*, obj*);
@@ -80,7 +79,6 @@ obj* l_Lean_Syntax_reprint___main___closed__1;
 obj* l_Lean_Syntax_mreplace___boxed(obj*);
 obj* l_Lean_unreachIsNodeIdent___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_MacroScope_DecidableEq;
-obj* l_Lean_stxKindBeq___boxed(obj*, obj*);
 obj* l_List_map___main___at_Lean_Syntax_formatStx___main___spec__1(obj*);
 obj* l_Lean_Syntax_getPos___boxed(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__1___boxed(obj*, obj*, obj*, obj*);
@@ -134,7 +132,6 @@ obj* l_Lean_Syntax_updateLeading(obj*);
 obj* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStx___main___spec__2___boxed(obj*, obj*);
 obj* l___private_init_lean_syntax_1__updateInfo(obj*, obj*);
 obj* l_Lean_Syntax_flipScopes(obj*);
-obj* l_Lean_Syntax_reprint___main___closed__2;
 obj* l_Lean_Name_replacePrefix___main(obj*, obj*, obj*);
 extern obj* l_Lean_Format_sbracket___closed__3;
 obj* l_Lean_MacroScope_Lean_HasFormat;
@@ -240,25 +237,6 @@ _start:
 obj* x_3; 
 x_3 = l_Lean_SourceInfo_updateTrailing___main(x_1, x_2);
 return x_3;
-}
-}
-uint8 l_Lean_stxKindBeq(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; 
-x_3 = lean_name_dec_eq(x_1, x_2);
-return x_3;
-}
-}
-obj* l_Lean_stxKindBeq___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-uint8 x_3; obj* x_4; 
-x_3 = l_Lean_stxKindBeq(x_1, x_2);
-lean::dec(x_2);
-lean::dec(x_1);
-x_4 = lean::box(x_3);
-return x_4;
 }
 }
 obj* _init_l_Lean_choiceKind() {
@@ -2578,16 +2556,6 @@ lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
 }
-obj* _init_l_Lean_Syntax_reprint___main___closed__2() {
-_start:
-{
-obj* x_1; obj* x_2; obj* x_3; 
-x_1 = lean::box(0);
-x_2 = lean::mk_string("choice");
-x_3 = lean_name_mk_string(x_1, x_2);
-return x_3;
-}
-}
 obj* l_Lean_Syntax_reprint___main(obj* x_1) {
 _start:
 {
@@ -2603,7 +2571,7 @@ case 1:
 obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
 x_3 = lean::cnstr_get(x_1, 0);
 x_4 = lean::cnstr_get(x_1, 1);
-x_5 = l_Lean_Syntax_reprint___main___closed__2;
+x_5 = l_Lean_choiceKind;
 x_6 = lean_name_dec_eq(x_3, x_5);
 if (x_6 == 0)
 {
@@ -3510,7 +3478,6 @@ l_Lean_MacroScope_Lean_HasFormat = _init_l_Lean_MacroScope_Lean_HasFormat();
 lean::mark_persistent(l_Lean_MacroScope_Lean_HasFormat);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "MacroScope"), "Lean"), "HasFormat"), l_Lean_MacroScope_Lean_HasFormat);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "SourceInfo"), "updateTrailing"), 2, l_Lean_SourceInfo_updateTrailing);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "stxKindBeq"), 2, l_Lean_stxKindBeq___boxed);
 l_Lean_choiceKind = _init_l_Lean_choiceKind();
 lean::mark_persistent(l_Lean_choiceKind);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "choiceKind"), l_Lean_choiceKind);
@@ -3539,8 +3506,6 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "getPos"), 1, l_Lean_Syntax_getPos___boxed);
 l_Lean_Syntax_reprint___main___closed__1 = _init_l_Lean_Syntax_reprint___main___closed__1();
 lean::mark_persistent(l_Lean_Syntax_reprint___main___closed__1);
-l_Lean_Syntax_reprint___main___closed__2 = _init_l_Lean_Syntax_reprint___main___closed__2();
-lean::mark_persistent(l_Lean_Syntax_reprint___main___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "reprint"), 1, l_Lean_Syntax_reprint___boxed);
 l_Lean_Syntax_formatStx___main___closed__1 = _init_l_Lean_Syntax_formatStx___main___closed__1();
 lean::mark_persistent(l_Lean_Syntax_formatStx___main___closed__1);

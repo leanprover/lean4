@@ -49,37 +49,6 @@ lean::dec(x_4);
 return x_5;
 }
 }
-obj* l_monadInhabited___rarg(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; obj* x_4; obj* x_5; 
-x_3 = lean::cnstr_get(x_1, 0);
-lean::inc(x_3);
-lean::dec(x_1);
-x_4 = lean::cnstr_get(x_3, 1);
-lean::inc(x_4);
-lean::dec(x_3);
-x_5 = lean::apply_2(x_4, lean::box(0), x_2);
-return x_5;
-}
-}
-obj* l_monadInhabited(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_monadInhabited___rarg), 2, 0);
-return x_3;
-}
-}
-obj* l_monadInhabited___boxed(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = l_monadInhabited(x_1, x_2);
-lean::dec(x_2);
-return x_3;
-}
-}
 obj* l_monadInhabited_x27___rarg(obj* x_1) {
 _start:
 {
@@ -111,6 +80,37 @@ lean::dec(x_2);
 return x_3;
 }
 }
+obj* l_monadInhabited___rarg(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; obj* x_5; 
+x_3 = lean::cnstr_get(x_1, 0);
+lean::inc(x_3);
+lean::dec(x_1);
+x_4 = lean::cnstr_get(x_3, 1);
+lean::inc(x_4);
+lean::dec(x_3);
+x_5 = lean::apply_2(x_4, lean::box(0), x_2);
+return x_5;
+}
+}
+obj* l_monadInhabited(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l_monadInhabited___rarg), 2, 0);
+return x_3;
+}
+}
+obj* l_monadInhabited___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_monadInhabited(x_1, x_2);
+lean::dec(x_2);
+return x_3;
+}
+}
 obj* initialize_init_control_applicative(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_control_monad(obj* w) {
@@ -120,7 +120,7 @@ if (io_result_is_error(w)) return w;
 w = initialize_init_control_applicative(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("mcomp"), 4, l_mcomp___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadInhabited"), 2, l_monadInhabited___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadInhabited'"), 2, l_monadInhabited_x27___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name("monadInhabited"), 2, l_monadInhabited___boxed);
 return w;
 }

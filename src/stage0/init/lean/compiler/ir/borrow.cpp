@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.borrow
-// Imports: init.lean.compiler.export init.lean.compiler.ir.compilerm init.lean.compiler.ir.normids
+// Imports: init.lean.compiler.exportattr init.lean.compiler.ir.compilerm init.lean.compiler.ir.normids
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -24,6 +24,7 @@ obj* nat_sub(obj*, obj*);
 }
 obj* l_HashMapImp_find___at_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___spec__1(obj*, obj*);
 obj* l_Lean_Format_pretty(obj*, obj*);
+extern obj* l_Lean_Syntax_formatStx___main___closed__5;
 extern obj* l_Lean_IR_JoinPointId_HasToString___closed__1;
 obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_ownArgs(obj*, obj*, obj*);
@@ -45,7 +46,6 @@ obj* l_Lean_IR_Borrow_preserveTailCall(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_InitParamMap_visitDecls(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_Lean_HasFormat;
 obj* l_Array_miterateAux___main___at_Lean_IR_Borrow_updateParamSet___spec__1___boxed(obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_Borrow_ParamMap_fmt___closed__1;
 obj* l_Lean_IR_Borrow_updateParamMap___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_whileModifingOwnedAux___main___at_Lean_IR_Borrow_collectDecl___main___spec__1(obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_ApplyParamMap_visitFnBody___main___boxed(obj*, obj*, obj*);
@@ -54,7 +54,6 @@ obj* l_Nat_mforAux___main___at_Lean_IR_Borrow_ownArgsUsingParams___spec__1___box
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_IR_Borrow_infer___boxed(obj*, obj*);
 obj* l_Nat_mforAux___main___at_Lean_IR_Borrow_ownParamsUsingArgs___spec__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
-obj* l_Lean_IR_Borrow_ParamMap_fmt___closed__2;
 obj* l_RBNode_findCore___main___at_Lean_IR_UniqueIds_checkId___spec__1(obj*, obj*);
 obj* l_Array_uset(obj*, obj*, usize, obj*, obj*);
 obj* l_Lean_IR_Borrow_ownArg(obj*, obj*, obj*);
@@ -69,6 +68,7 @@ uint8 l_Lean_IR_IRType_isObj___main(uint8);
 obj* l_Lean_IR_Borrow_ownArgsIfParam___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_preserveTailCall___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_whileModifingOwnedAux___main(obj*, obj*, obj*, obj*);
+extern obj* l_Lean_Syntax_formatStx___main___closed__4;
 obj* l_Lean_IR_Borrow_collectDecl___main(obj*, obj*, obj*);
 obj* l_Lean_IR_Borrow_getParamInfo(obj*, obj*, obj*);
 obj* l_Array_mforAux___main___at_Lean_IR_Borrow_InitParamMap_visitDecls___spec__1(obj*, obj*, obj*, obj*);
@@ -494,26 +494,6 @@ goto _start;
 }
 }
 }
-obj* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__1() {
-_start:
-{
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("{");
-x_2 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__2() {
-_start:
-{
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("}");
-x_2 = lean::alloc_cnstr(2, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
 obj* l_Lean_IR_Borrow_ParamMap_fmt(obj* x_1) {
 _start:
 {
@@ -527,12 +507,12 @@ x_7 = lean::alloc_cnstr(3, 2, 0);
 lean::cnstr_set(x_7, 0, x_6);
 lean::cnstr_set(x_7, 1, x_5);
 x_8 = 0;
-x_9 = l_Lean_IR_Borrow_ParamMap_fmt___closed__1;
+x_9 = l_Lean_Syntax_formatStx___main___closed__4;
 x_10 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_10, 0, x_9);
 lean::cnstr_set(x_10, 1, x_7);
 lean::cnstr_set_scalar(x_10, sizeof(void*)*2, x_8);
-x_11 = l_Lean_IR_Borrow_ParamMap_fmt___closed__2;
+x_11 = l_Lean_Syntax_formatStx___main___closed__5;
 x_12 = lean::alloc_cnstr(4, 2, 1);
 lean::cnstr_set(x_12, 0, x_10);
 lean::cnstr_set(x_12, 1, x_11);
@@ -1112,6 +1092,7 @@ lean::inc(x_13);
 x_14 = lean::cnstr_get(x_9, 2);
 lean::inc(x_14);
 lean::dec(x_9);
+lean::inc(x_12);
 x_15 = l_Lean_isExport(x_1, x_12);
 lean::inc(x_12);
 x_16 = lean::alloc_cnstr(0, 1, 0);
@@ -3902,7 +3883,7 @@ lean::dec(x_2);
 return x_4;
 }
 }
-obj* initialize_init_lean_compiler_export(obj*);
+obj* initialize_init_lean_compiler_exportattr(obj*);
 obj* initialize_init_lean_compiler_ir_compilerm(obj*);
 obj* initialize_init_lean_compiler_ir_normids(obj*);
 static bool _G_initialized = false;
@@ -3910,7 +3891,7 @@ obj* initialize_init_lean_compiler_ir_borrow(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_compiler_export(w);
+w = initialize_init_lean_compiler_exportattr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_compilerm(w);
 if (io_result_is_error(w)) return w;
@@ -3928,10 +3909,6 @@ l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1
 lean::mark_persistent(l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__1);
 l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2 = _init_l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2();
 lean::mark_persistent(l_AssocList_mfoldl___main___at_Lean_IR_Borrow_ParamMap_fmt___spec__1___closed__2);
-l_Lean_IR_Borrow_ParamMap_fmt___closed__1 = _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__1();
-lean::mark_persistent(l_Lean_IR_Borrow_ParamMap_fmt___closed__1);
-l_Lean_IR_Borrow_ParamMap_fmt___closed__2 = _init_l_Lean_IR_Borrow_ParamMap_fmt___closed__2();
-lean::mark_persistent(l_Lean_IR_Borrow_ParamMap_fmt___closed__2);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Borrow"), "ParamMap"), "fmt"), 1, l_Lean_IR_Borrow_ParamMap_fmt___boxed);
 l_Lean_IR_Borrow_Lean_HasFormat = _init_l_Lean_IR_Borrow_Lean_HasFormat();
 lean::mark_persistent(l_Lean_IR_Borrow_Lean_HasFormat);

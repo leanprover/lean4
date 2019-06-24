@@ -7,7 +7,7 @@ prelude
 import init.control.conditional
 import init.lean.runtime
 import init.lean.name_mangling
-import init.lean.compiler.export
+import init.lean.compiler.exportattr
 import init.lean.compiler.initattr
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.emitutil

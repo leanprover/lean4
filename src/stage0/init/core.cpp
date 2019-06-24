@@ -67,7 +67,6 @@ obj* l_Fun_Inhabited___rarg(obj*, obj*);
 obj* l_Quotient_mk___boxed(obj*, obj*);
 obj* l_Sum_sizeof(obj*, obj*);
 obj* l_Thunk_pure(obj*, obj*);
-obj* l___private_init_core_22__extfunApp___rarg(obj*, obj*);
 obj* l_decidableOfDecidableOfIff(obj*, obj*);
 obj* l_defaultHasSizeof(obj*);
 obj* l_arbitrary___rarg___boxed(obj*);
@@ -94,7 +93,6 @@ obj* l_decidableOfDecidableOfIff___rarg___boxed(obj*, obj*);
 uint8 l_and(uint8, uint8);
 obj* l_ite___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_or___main___boxed(obj*, obj*);
-obj* l___private_init_core_22__extfunApp(obj*, obj*);
 obj* l_Option_HasSizeof___rarg(obj*);
 obj* l_Subtype_sizeof___main___rarg(obj*, obj*, obj*);
 obj* l_bne(obj*);
@@ -124,9 +122,9 @@ obj* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1(obj*, obj*);
 obj* l_Quotient_recOnSubsingleton_u2082___at_Quotient_DecidableEq___spec__1___boxed(obj*, obj*);
 obj* l_default_sizeof___main(obj*, obj*);
 obj* l_Sigma_HasSizeof___boxed(obj*, obj*);
-obj* l___private_init_core_22__extfunApp___boxed(obj*, obj*);
 obj* l_std_priority_default;
 obj* l_Quotient_DecidableEq___rarg(obj*, obj*, obj*, obj*);
+obj* l___private_init_core_20__funSetoid(obj*, obj*);
 obj* l_arbitrary___rarg(obj*);
 obj* l_Prod_HasSizeof(obj*, obj*);
 obj* l_Subtype_sizeof___main(obj*);
@@ -146,6 +144,7 @@ obj* l_dite(obj*);
 obj* l_Thunk_mk(obj*, obj*);
 obj* l_Eq_ndrecOn___rarg___boxed(obj*);
 obj* l_Task_bind(obj*, obj*, obj*, obj*);
+obj* l___private_init_core_21__extfunApp___rarg(obj*, obj*);
 obj* l_Thunk_map(obj*, obj*, obj*, obj*);
 obj* l_dite___rarg___boxed(obj*, obj*, obj*, obj*);
 obj* l_Quotient_lift_u2082___boxed(obj*, obj*, obj*, obj*, obj*);
@@ -186,6 +185,7 @@ obj* l_Nat_sizeof(obj*);
 obj* l_Quot_indep___boxed(obj*, obj*, obj*);
 obj* l_List_HasSizeof(obj*);
 obj* l_Prod_sizeof___main___rarg(obj*, obj*, obj*);
+obj* l___private_init_core_20__funSetoid___boxed(obj*, obj*);
 obj* l_Quotient_hrecOn(obj*, obj*, obj*);
 obj* l_Option_sizeof___main___rarg(obj*, obj*);
 obj* l_Quotient_liftOn_u2082(obj*, obj*, obj*, obj*, obj*);
@@ -238,7 +238,6 @@ obj* l_std_prec_maxPlus;
 obj* l_Or_Decidable(obj*, obj*);
 obj* l_Prod_map___main___rarg(obj*, obj*, obj*);
 uint8 l_ite_Decidable___rarg(uint8, uint8, uint8);
-obj* l___private_init_core_21__funSetoid(obj*, obj*);
 obj* l_Quot_hrecOn___boxed(obj*, obj*, obj*);
 uint8 l_Decidable_decide___rarg(uint8);
 obj* l_Xor_Decidable(obj*, obj*);
@@ -340,6 +339,7 @@ obj* l_idRhs(obj*);
 obj* l_Quot_hrecOn(obj*, obj*, obj*);
 obj* l_and___main___boxed(obj*, obj*);
 obj* l_List_sizeof___main___rarg(obj*, obj*);
+obj* l___private_init_core_21__extfunApp___boxed(obj*, obj*);
 obj* l_Quotient_mk___rarg___boxed(obj*);
 obj* l_Quot_rec___rarg(obj*, obj*, obj*);
 obj* l_PointedType_Inhabited;
@@ -353,6 +353,7 @@ obj* l_Function_combine(obj*, obj*, obj*, obj*, obj*);
 obj* l_Nat_sizeof___boxed(obj*);
 obj* l_Quotient_recOnSubsingleton_u2082___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 obj* l_Decidable_recOnTrue(obj*);
+obj* l___private_init_core_21__extfunApp(obj*, obj*);
 obj* l_PSigma_sizeof___main___at_PSigma_HasSizeof___spec__2___rarg(obj*, obj*, obj*);
 obj* l_Nat_HasAdd;
 obj* l_Subtype_Inhabited___rarg(obj*, obj*);
@@ -402,7 +403,6 @@ obj* l_implies_Decidable(obj*, obj*);
 obj* l_setoidHasEquiv___boxed(obj*, obj*);
 obj* l_Sigma_sizeof___at_Sigma_HasSizeof___spec__1___boxed(obj*, obj*);
 uint8 l_or___main(uint8, uint8);
-obj* l___private_init_core_21__funSetoid___boxed(obj*, obj*);
 uint8 l_strictAnd(uint8, uint8);
 obj* l_Eq_mp___rarg(obj*);
 obj* l_Quotient_hrecOn___boxed(obj*, obj*, obj*);
@@ -4212,7 +4212,7 @@ lean::dec(x_1);
 return x_5;
 }
 }
-obj* l___private_init_core_21__funSetoid(obj* x_1, obj* x_2) {
+obj* l___private_init_core_20__funSetoid(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -4220,16 +4220,16 @@ x_3 = lean::box(0);
 return x_3;
 }
 }
-obj* l___private_init_core_21__funSetoid___boxed(obj* x_1, obj* x_2) {
+obj* l___private_init_core_20__funSetoid___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l___private_init_core_21__funSetoid(x_1, x_2);
+x_3 = l___private_init_core_20__funSetoid(x_1, x_2);
 lean::dec(x_2);
 return x_3;
 }
 }
-obj* l___private_init_core_22__extfunApp___rarg(obj* x_1, obj* x_2) {
+obj* l___private_init_core_21__extfunApp___rarg(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
@@ -4237,19 +4237,19 @@ x_3 = lean::apply_1(x_1, x_2);
 return x_3;
 }
 }
-obj* l___private_init_core_22__extfunApp(obj* x_1, obj* x_2) {
+obj* l___private_init_core_21__extfunApp(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_core_22__extfunApp___rarg), 2, 0);
+x_3 = lean::alloc_closure(reinterpret_cast<void*>(l___private_init_core_21__extfunApp___rarg), 2, 0);
 return x_3;
 }
 }
-obj* l___private_init_core_22__extfunApp___boxed(obj* x_1, obj* x_2) {
+obj* l___private_init_core_21__extfunApp___boxed(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; 
-x_3 = l___private_init_core_22__extfunApp(x_1, x_2);
+x_3 = l___private_init_core_21__extfunApp(x_1, x_2);
 lean::dec(x_2);
 return x_3;
 }

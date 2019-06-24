@@ -33,10 +33,9 @@ structure TraceState :=
 (curPos : Option Position)
 (curTraces : List Trace)
 
-def TraceT (m : Type → Type u) := StateT TraceState m
-local attribute [reducible] TraceT
+abbrev TraceT (m : Type → Type u) := StateT TraceState m
 
-instance (m) [Monad m] : Monad (TraceT m) := inferInstance
+instance (m) [Monad m] : Monad (TraceT m) := inferInstanceAs (Monad (StateT TraceState m))
 
 class MonadTracer (m : Type → Type u) :=
 (traceRoot {α} : Position → Name → Message → Thunk (m α) → m α)

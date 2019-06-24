@@ -1754,11 +1754,9 @@ noncomputable def propDecidable (a : Prop) : Decidable a :=
 choice $ Or.elim (em a)
   (assume ha, ⟨isTrue ha⟩)
   (assume hna, ⟨isFalse hna⟩)
-local attribute [instance] propDecidable
 
 noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) :=
 ⟨propDecidable a⟩
-local attribute [instance] decidableInhabited
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
 {decEq := λ x y, propDecidable (x = y)}
@@ -1770,10 +1768,12 @@ match (propDecidable (Nonempty α)) with
 
 noncomputable def strongIndefiniteDescription {α : Sort u} (p : α → Prop)
   (h : Nonempty α) : {x : α // Exists (λ y : α, p y) → p x} :=
-if hp : Exists (λ x : α, p x) then
-  let xp := indefiniteDescription _ hp in
-  ⟨xp.val, λ h', xp.property⟩
-else ⟨choice h, λ h, absurd h hp⟩
+@dite (Exists (λ x : α, p x)) (propDecidable _) _
+  (λ hp : Exists (λ x : α, p x),
+    show {x : α // Exists (λ y : α, p y) → p x}, from
+    let xp := indefiniteDescription _ hp in
+    ⟨xp.val, λ h', xp.property⟩)
+  (λ hp, ⟨choice h, λ h, absurd h hp⟩)
 
 /- the Hilbert epsilon Function -/
 
@@ -1808,10 +1808,10 @@ Or.elim (em a)
 
 -- this supercedes byCases in Decidable
 theorem byCases {p q : Prop} (hpq : p → q) (hnpq : ¬p → q) : q :=
-Decidable.byCases hpq hnpq
+@Decidable.byCases _ _ (propDecidable _) hpq hnpq
 
 -- this supercedes byContradiction in Decidable
 theorem byContradiction {p : Prop} (h : ¬p → False) : p :=
-Decidable.byContradiction h
+@Decidable.byContradiction _ (propDecidable _) h
 
 end Classical

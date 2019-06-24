@@ -286,15 +286,6 @@ environment open_export_cmd(parser & p, bool open) {
 static environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 static environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
-static environment local_cmd(parser & p) {
-    if (p.curr_is_token_or_id(get_attribute_tk())) {
-        p.next();
-        return local_attribute_cmd(p);
-    } else {
-        throw exception("invalid 'local' command, 'attribute' expected");
-    }
-}
-
 static environment help_cmd(parser & p) {
     auto rep = p.mk_message(p.cmd_pos(), INFORMATION);
     if (p.curr_is_token_or_id(get_options_tk())) {
@@ -494,7 +485,6 @@ void init_cmd_table(cmd_table & r) {
     add_cmd(r, cmd_info("namespace",         "open a new namespace", namespace_cmd));
     add_cmd(r, cmd_info("end",               "close the current namespace/section", end_scoped_cmd));
     add_cmd(r, cmd_info("#check",            "type check given expression, and display its type", check_cmd));
-    add_cmd(r, cmd_info("local",             "define local attributes or notation", local_cmd));
     add_cmd(r, cmd_info("#help",             "brief description of available commands and options", help_cmd));
     add_cmd(r, cmd_info("initQuot",          "initialize `quot` type computational rules", init_quot_cmd));
     add_cmd(r, cmd_info("import",            "import module(s)", import_cmd));

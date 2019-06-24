@@ -105,8 +105,6 @@ match s with
 | Syntax.node kind args scopes := fn ⟨Syntax.node kind (args.map (flipScopes scopes)) [], IsNode.mk _ _ _⟩
 | other                        := base
 
-local attribute [instance] monadInhabited
-
 @[specialize] partial def mreplace {m : Type → Type} [Monad m] (fn : Syntax → m (Option Syntax)) : Syntax → m Syntax
 | stx@(node kind args scopes) := do
   o ← fn stx,

@@ -127,7 +127,6 @@ else
 
 section
 variables {m : Type v → Type v} [Monad m]
-local attribute [instance] monadInhabited'
 
 @[specialize] partial def mfoldlAux (f : β → α → m β) : PersistentArrayNode α → β → m β
 | (node cs) b := cs.mfoldl (λ b c, mfoldlAux c b) b

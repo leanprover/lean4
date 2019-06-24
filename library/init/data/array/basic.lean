@@ -137,7 +137,6 @@ partial def shrink : Array α → Nat → Array α
 
 section
 variables {m : Type v → Type v} [Monad m]
-local attribute [instance] monadInhabited'
 
 -- TODO(Leo): justify termination using wf-rec
 @[specialize] partial def miterateAux (a : Array α) (f : Π i : Fin a.size, α → β → m β) : Nat → β → m β

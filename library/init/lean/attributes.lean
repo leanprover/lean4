@@ -344,4 +344,59 @@ else
 
 end ParametricAttribute
 
+/-
+  Given a list `[a₁, ..., a_n]` of elements of type `α`, `EnumAttributes` provides an attribute `Attr_i` for
+  associating a value `a_i` with an declaration. `α` is usually an enumeration type.
+  Note that whenever we register an `EnumAttributes`, we create `n` attributes, but only one environment extension. -/
+structure EnumAttributes (α : Type) :=
+(attrs : List AttributeImpl)
+(ext   : PersistentEnvExtension (Name × α) (NameMap α))
+
+def registerEnumAttributes {α : Type} [Inhabited α] (extName : Name) (attrDescrs : List (Name × String × α)) (validate : Environment → Name → α → Except String Unit := λ _ _ _, Except.ok ()) : IO (EnumAttributes α) :=
+do
+ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
+  name            := extName,
+  addImportedFn   := λ _, {},
+  addEntryFn      := λ (s : NameMap α) (p : Name × α), s.insert p.1 p.2,
+  exportEntriesFn := λ m,
+    let r : Array (Name × α) := m.fold (λ a n p, a.push (n, p)) Array.empty in
+    r.qsort (λ a b, Name.quickLt a.1 b.1),
+  statsFn         := λ s, "enumeration attribute extension" ++ Format.line ++ "number of local entries: " ++ format s.size
+},
+let attrs := attrDescrs.map $ λ ⟨name, descr, val⟩, { AttributeImpl .
+  name  := name,
+  descr := descr,
+  add   := λ env decl args persistent, do
+    unless persistent $ throw (IO.userError ("invalid attribute '" ++ toString name ++ "', must be persistent")),
+    unless (env.getModuleIdxFor decl).isNone $
+      throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
+    match validate env decl val with
+    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | _                := pure $ ext.addEntry env (decl, val)
+},
+attrs.mfor registerAttribute,
+pure { ext := ext, attrs := attrs }
+
+namespace EnumAttributes
+
+instance {α : Type} : Inhabited (EnumAttributes α) := ⟨{attrs := [], ext := default _}⟩
+
+def getValue {α : Type} [Inhabited α] (attr : EnumAttributes α) (env : Environment) (decl : Name) : Option α :=
+match env.getModuleIdxFor decl with
+| some modIdx :=
+  match (attr.ext.getModuleEntries env modIdx).binSearch (decl, default _) (λ a b, Name.quickLt a.1 b.1) with
+  | some (_, val) := some val
+  | none          := none
+| none        := (attr.ext.getState env).find decl
+
+def setValue {α : Type} (attrs : EnumAttributes α) (env : Environment) (decl : Name) (val : α) : Except String Environment :=
+if (env.getModuleIdxFor decl).isSome then
+  Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, declaration is in an imported module")
+else if ((attrs.ext.getState env).find decl).isSome then
+  Except.error ("invalid '" ++ toString attrs.ext.name ++ "'.setValue, attribute has already been set")
+else
+  Except.ok (attrs.ext.addEntry env (decl, val))
+
+end EnumAttributes
+
 end Lean

@@ -15,7 +15,6 @@ Author: Leonardo de Moura
 #include "library/protected.h"
 #include "library/private.h"
 #include "library/scoped_ext.h"
-#include "library/reducible.h"
 #include "library/aliases.h"
 #include "library/export_decl.h"
 #include "library/io_state.h"
@@ -82,7 +81,6 @@ void initialize_library_module() {
     initialize_annotation();
     initialize_explicit();
     initialize_private();
-    initialize_reducible();
     initialize_aliases();
     initialize_export_decl();
     initialize_class();
@@ -118,7 +116,6 @@ void finalize_library_module() {
     finalize_class();
     finalize_export_decl();
     finalize_aliases();
-    finalize_reducible();
     finalize_private();
     finalize_explicit();
     finalize_annotation();

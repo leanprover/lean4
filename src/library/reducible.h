@@ -26,7 +26,4 @@ reducible_status get_reducible_status(environment const & env, name const & n);
 
 inline bool is_reducible(environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Reducible; }
 inline bool is_semireducible(environment const & env, name const & n) { return get_reducible_status(env, n) == reducible_status::Semireducible; }
-
-void initialize_reducible();
-void finalize_reducible();
 }

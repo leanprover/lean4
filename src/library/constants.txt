@@ -109,6 +109,7 @@ Lean.Name
 Lean.Name.anonymous
 Lean.Name.mkNumeral
 Lean.Name.mkString
+Lean.Parser.node
 Nat
 Nat.succ
 Nat.zero

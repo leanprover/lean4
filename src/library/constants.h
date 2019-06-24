@@ -116,6 +116,7 @@ name const & get_lean_name_name();
 name const & get_lean_name_anonymous_name();
 name const & get_lean_name_mk_numeral_name();
 name const & get_lean_name_mk_string_name();
+name const & get_lean_parser_node_name();
 name const & get_nat_name();
 name const & get_nat_succ_name();
 name const & get_nat_zero_name();

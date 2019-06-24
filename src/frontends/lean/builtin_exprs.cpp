@@ -20,6 +20,7 @@ Author: Leonardo de Moura
 #include "library/equations_compiler/equations.h"
 #include "frontends/lean/builtin_exprs.h"
 #include "frontends/lean/decl_cmds.h"
+#include "frontends/lean/decl_util.h"
 #include "frontends/lean/token_table.h"
 #include "frontends/lean/parser.h"
 #include "frontends/lean/util.h"
@@ -888,81 +889,17 @@ expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info c
     return save_pos(r, pos);
 }
 
-static expr parse_node(parser & p, unsigned, expr const *, pos_info const &) {
-    name macro = p.check_id_next("identifier expected");
-    std::function<buffer<expr>()> go;
-    go = [&]() {
-        buffer<expr> args;
-        p.check_token_next("[", "'[' expected");
-        while (!p.curr_is_token("]")) {
-            name fname;
-            expr reader;
-            if (p.curr_is_string()) {
-                fname = utf8_trim(p.get_str_val());
-                p.next();
-                reader = mk_app(mk_const({"Lean", "Parser", "symbol"}), from_string(p.get_str_val()));
-                if (p.curr_is_token(":")) {
-                    p.next();
-                    auto prec = p.parse_expr(get_max_prec());
-                    reader = mk_app(reader, prec);
-                }
-                args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
-            } else if (p.curr_is_token_or_id("try")) {
-                p.next();
-                auto try_args = go();
-                args.push_back(mk_app(mk_const({"lean", "parser", "combinators", "try"}),
-                                      mk_app(mk_const({"lean", "parser", "combinators", "seq"}),
-                                             mk_lean_list(try_args))));
-            } else {
-                fname = p.check_id_next("identifier expected");
-                p.check_token_next(":", "':' expected");
-                reader = p.parse_expr();
-                args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
-            }
-            if (!p.curr_is_token(get_comma_tk()))
-                break;
-            p.next();
-        }
-        p.check_token_next(get_rbracket_tk(), "`]` expected");
-        return args;
-    };
-    auto args = go();
-    return mk_mdata(set_name(kvmap(), "node!", macro),
-                    mk_app(mk_const({"lean", "parser", "combinators", "node"}), mk_const(get_namespace(p.env()) + macro), mk_lean_list(args)));
-}
-
-static expr parse_choice(parser & p, unsigned, expr const *, pos_info const &) {
-    name this_macro = p.get_token_info().value();
-    p.next();
-    name macro = p.check_id_next("identifier expected");
-    std::function<buffer<expr>()> go;
-    buffer<expr> args;
-    p.check_token_next("{", "'{' expected");
-    while (!p.curr_is_token("}")) {
-        name fname;
-        expr reader;
-        if (p.curr_is_string()) {
-            fname = utf8_trim(p.get_str_val());
-            p.next();
-            reader = mk_app(mk_const({"Lean", "Parser", "symbol"}), from_string(p.get_str_val()));
-            if (p.curr_is_token(":")) {
-                p.next();
-                auto prec = p.parse_expr(get_max_prec());
-                reader = mk_app(reader, prec);
-            }
-            args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
-        } else {
-            fname = p.check_id_next("identifier expected");
-            p.check_token_next(":", "':' expected");
-            reader = p.parse_expr();
-            args.push_back(mk_mdata(set_name(kvmap(), "fname", fname), reader));
-        }
-        if (!p.curr_is_token(get_comma_tk()))
-            break;
-        p.next();
+static expr parse_parser(parser & p, unsigned, expr const *, pos_info const & pos) {
+    name kind;
+    if (p.curr_is_identifier()) {
+        kind = p.check_id_next("identifier expected");
+        kind = get_namespace(p.env()) + kind;
+    } else {
+        kind = get_curr_declaration_name();
     }
-    p.check_token_next("}", "`}` expected");
-    return mk_mdata(set_name(kvmap(), this_macro, macro), mk_lean_list(args));
+    expr e = p.parse_expr();
+    expr r = mk_app(mk_constant(get_lean_parser_node_name()), quote(kind), e);
+    return save_pos(r, pos);
 }
 
 parse_table init_nud_table() {
@@ -999,9 +936,7 @@ parse_table init_nud_table() {
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
-    r = r.add({transition("node!", mk_ext_action(parse_node))}, x0);
-    r = r.add({transition("nodeChoice!", mk_ext_action_core(parse_choice))}, x0);
-    r = r.add({transition("nodeLongestChoice!", mk_ext_action_core(parse_choice))}, x0);
+    r = r.add({transition("parser!", mk_ext_action(parse_parser))}, x0);
     return r;
 }
 

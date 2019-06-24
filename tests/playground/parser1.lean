@@ -2,19 +2,16 @@ import init.lean.parser.parser
 open Lean
 open Lean.Parser
 
-local infixl `>>`:50 := Lean.Parser.andthen
+namespace Foo
 
 @[builtinTestParser] def pairParser : Parser :=
-node `pairKind $
-  "(" >> numLit >> "," >> ident >> ")"
+parser! "(" >> numLit >> "," >> ident >> ")"
 
 @[builtinTestParser] def pairsParser : Parser :=
-node `pairsKind $
-  "{" >> sepBy1 testParser "," >> "}"
+parser! "{" >> sepBy1 testParser "," >> "}"
 
 @[builtinTestParser] def functionParser : Parser :=
-node `funKind $
-  "fun" >> ident >> "," >> testParser
+parser! "fun" >> ident >> "," >> testParser
 
 @[builtinTestParser] def identParser : Parser :=
 ident
@@ -24,6 +21,8 @@ numLit
 
 @[builtinTestParser] def strParser : Parser :=
 strLit
+
+end Foo
 
 def testParser (input : String) : IO Unit :=
 do

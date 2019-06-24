@@ -364,6 +364,10 @@ struct definition_info {
 
 MK_THREAD_LOCAL_GET_DEF(definition_info, get_definition_info);
 
+name get_curr_declaration_name() {
+    return get_definition_info().m_actual_prefix;
+}
+
 declaration_info_scope::declaration_info_scope(name const & ns, decl_cmd_kind kind, decl_modifiers const & modifiers, bool is_extern) {
     definition_info & info = get_definition_info();
     lean_assert(info.m_prefix.is_anonymous());

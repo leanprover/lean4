@@ -69,6 +69,9 @@ public:
     name const & get_actual_name() const { return m_actual_name; }
 };
 
+/* Get declaration name in the current scope. */
+name get_curr_declaration_name();
+
 /** \brief Auxiliary scope for setting m_actual_prefix.
     It is used with declaration_name_scope. */
 class private_name_scope {

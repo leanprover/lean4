@@ -291,7 +291,7 @@ static environment local_cmd(parser & p) {
         p.next();
         return local_attribute_cmd(p);
     } else {
-        return local_notation_cmd(p);
+        throw exception("invalid 'local' command, 'attribute' expected");
     }
 }
 

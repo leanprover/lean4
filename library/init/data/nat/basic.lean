@@ -7,8 +7,6 @@ prelude
 import init.core
 universes u
 
-notation `ℕ` := Nat
-
 namespace Nat
 
 @[extern cpp "lean::nat_dec_eq"]

@@ -139,7 +139,7 @@ catch t₁ $ λ _, t₂
 catch t₁ $ λ e₁, catch t₂ $ λ e₂, throw (if useFirstEx then e₁ else e₂)
 
 @[inline] def liftExcept {ε' : Type u} [MonadExcept ε m] [HasLiftT ε' ε] [Monad m] {α : Type v} : Except ε' α → m α
-| (Except.error e) := throw ↑e
+| (Except.error e) := throw (coe e)
 | (Except.ok a)    := pure a
 end MonadExcept
 

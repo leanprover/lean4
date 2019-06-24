@@ -53,7 +53,7 @@ private partial def S (w : VarId) (c : CtorInfo) : FnBody → FnBody
   if b.isTerminal then b
   else let
     (instr, b) := b.split in
-    instr <;> S b
+    instr.setBody (S b)
 
 /- We use `Context` to track join points in scope. -/
 abbrev M := ReaderT LocalContext (StateT Index Id)
@@ -119,10 +119,10 @@ private partial def Dmain (x : VarId) (c : CtorInfo) : FnBody → M (FnBody × B
       /- Remark: it is fine to use `hasFreeVar` instead of `hasLiveVar`
          since `instr` is not a `FnBody.jmp` (it is not a terminal) nor it is a `FnBody.jdecl`. -/
       if found || !instr.hasFreeVar x then
-        pure (instr <;> b, found)
+        pure (instr.setBody b, found)
       else do
         b ← tryS x c b,
-        pure (instr <;> b, true)
+        pure (instr.setBody b, true)
 
 private def D (x : VarId) (c : CtorInfo) (b : FnBody) : M FnBody :=
 Dmain x c b >>= Dfinalize x c
@@ -147,7 +147,7 @@ partial def R : FnBody → M FnBody
   else do
     let (instr, b) := e.split,
     b ← R b,
-    pure (instr <;> b)
+    pure (instr.setBody b)
 
 end ResetReuse
 

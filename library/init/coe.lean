@@ -75,12 +75,6 @@ HasCoeToSort.coe
 
 /- Notation -/
 
-notation `↑`:max x:max := coe x
-
-notation `⇑`:max x:max := coeFn x
-
-notation `↥`:max x:max := coeSort x
-
 universes u₁ u₂ u₃
 
 /- Transitive closure for HasLift, HasCoe, HasCoeToFun -/
@@ -167,22 +161,22 @@ universes ua ua₁ ua₂ ub ub₁ ub₂
 /- Remark: we can't use [HasLiftT a₂ a₁] since it will produce non-termination whenever a type class resolution
    problem does not have a solution. -/
 instance liftFn {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLift a₂ a₁] [HasLiftT b₁ b₂] : HasLift (a₁ → b₁) (a₂ → b₂) :=
-⟨λ f x, ↑(f ↑x)⟩
+⟨λ f x, coe (f (coe x))⟩
 
 instance liftFnRange {a : Sort ua} {b₁ : Sort ub₁} {b₂ : Sort ub₂} [HasLiftT b₁ b₂] : HasLift (a → b₁) (a → b₂) :=
-⟨λ f x, ↑(f x)⟩
+⟨λ f x, coe (f x)⟩
 
 instance liftFnDom {a₁ : Sort ua₁} {a₂ : Sort ua₂} {b : Sort ub} [HasLift a₂ a₁] : HasLift (a₁ → b) (a₂ → b) :=
-⟨λ f x, f ↑x⟩
+⟨λ f x, f (coe x)⟩
 
 instance liftPair {a₁ : Type ua₁} {a₂ : Type ub₂} {b₁ : Type ub₁} {b₂ : Type ub₂} [HasLiftT a₁ a₂] [HasLiftT b₁ b₂] : HasLift (a₁ × b₁) (a₂ × b₂) :=
-⟨λ p, Prod.casesOn p (λ x y, (↑x, ↑y))⟩
+⟨λ p, Prod.casesOn p (λ x y, (coe x,  coe y))⟩
 
 instance liftPair₁ {a₁ : Type ua₁} {a₂ : Type ua₂} {b : Type ub} [HasLiftT a₁ a₂] : HasLift (a₁ × b) (a₂ × b) :=
-⟨λ p, Prod.casesOn p (λ x y, (↑x, y))⟩
+⟨λ p, Prod.casesOn p (λ x y, (coe x, y))⟩
 
 instance liftPair₂ {a : Type ua} {b₁ : Type ub₁} {b₂ : Type ub₂} [HasLiftT b₁ b₂] : HasLift (a × b₁) (a × b₂) :=
-⟨λ p, Prod.casesOn p (λ x y, (x, ↑y))⟩
+⟨λ p, Prod.casesOn p (λ x y, (x,  coe y))⟩
 
 instance liftList {a : Type u} {b : Type v} [HasLiftT a b] : HasLift (List a) (List b) :=
 ⟨λ l, List.map (@coe a b _) l⟩

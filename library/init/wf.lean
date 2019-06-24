@@ -135,10 +135,10 @@ def Nat.ltWf : WellFounded Nat.lt :=
      Or.elim (Nat.eqOrLtOfLe (Nat.leOfSuccLeSucc h))
         (λ e, Eq.substr e ih) (Acc.inv ih))⟩
 
-def measure {α : Sort u} : (α → ℕ) → α → α → Prop :=
+def measure {α : Sort u} : (α → Nat) → α → α → Prop :=
 InvImage (<)
 
-def measureWf {α : Sort u} (f : α → ℕ) : WellFounded (measure f) :=
+def measureWf {α : Sort u} (f : α → Nat) : WellFounded (measure f) :=
 InvImage.wf f Nat.ltWf
 
 def sizeofMeasure (α : Sort u) [HasSizeof α] : α → α → Prop :=

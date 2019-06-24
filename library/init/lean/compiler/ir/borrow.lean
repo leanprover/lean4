@@ -106,7 +106,7 @@ partial def visitFnBody : FnBody → FunId → ParamMap → FnBody
   else
     let (instr, b) := e.split in
     let b := visitFnBody b fnid map in
-    instr <;> b
+    instr.setBody b
 
 def visitDecls (decls : Array Decl) (map : ParamMap) : Array Decl :=
 decls.map $ λ decl, match decl with

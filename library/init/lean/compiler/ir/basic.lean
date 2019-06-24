@@ -290,10 +290,8 @@ def FnBody.setBody : FnBody → FnBody → FnBody
 | (FnBody.mdata d _)        b := FnBody.mdata d b
 | other                     b := other
 
-infix `<;>`:65 := FnBody.setBody
-
 @[inline] def FnBody.resetBody (b : FnBody) : FnBody :=
-b <;> FnBody.nil
+b.setBody FnBody.nil
 
 /- If b is a non terminal, then return a pair `(c, b')` s.t. `b == c <;> b'`,
    and c.body == FnBody.nil -/
@@ -340,7 +338,7 @@ partial def reshapeAux : Array FnBody → Nat → FnBody → FnBody
   else
     let i         := i - 1 in
     let (curr, a) := a.swapAt i (default _) in
-    let b         := curr <;> b in
+    let b         := curr.setBody b in
     reshapeAux a i b
 
 def reshape (bs : Array FnBody) (term : FnBody) : FnBody :=

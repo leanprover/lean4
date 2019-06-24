@@ -97,7 +97,7 @@ mod.inductionOn x y
         have Heq : x % y = x, from modEqOfLt hgt,
         Heq.symm ▸ hgt))
 
-theorem modLe (x y : ℕ) : x % y ≤ x :=
+theorem modLe (x y : Nat) : x % y ≤ x :=
 Or.elim (Nat.ltOrGe x y)
   (λ h₁ : x < y, (modEqOfLt h₁).symm ▸ Nat.leRefl _)
   (λ h₁ : x ≥ y, Or.elim (eqZeroOrPos y)

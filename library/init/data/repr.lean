@@ -56,7 +56,7 @@ instance {α : Type u} {p : α → Prop} [HasRepr α] : HasRepr (Subtype p) :=
 
 namespace Nat
 
-def digitChar (n : ℕ) : Char :=
+def digitChar (n : Nat) : Char :=
 if n = 0 then '0' else
 if n = 1 then '1' else
 if n = 2 then '2' else
@@ -86,7 +86,7 @@ def toDigitsCore (base : Nat) : Nat → Nat → List Char → List Char
 def toDigits (base : Nat) (n : Nat) : List Char :=
 toDigitsCore base (n+1) n []
 
-protected def repr (n : ℕ) : String :=
+protected def repr (n : Nat) : String :=
 (toDigits 10 n).asString
 
 end Nat

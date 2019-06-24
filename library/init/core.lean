@@ -1685,9 +1685,6 @@ infixr  ` ∘ `      := Function.comp
 @[inline, reducible] def swap {φ : α → β → Sort u₃} (f : Π x y, φ x y) : Π y x, φ x y :=
 λ y x, f x y
 
-infixl  ` on `:2         := onFun
-notation f ` -[` op `]- ` g  := combine f op g
-
 end Function
 
 /- Classical reasoning support -/

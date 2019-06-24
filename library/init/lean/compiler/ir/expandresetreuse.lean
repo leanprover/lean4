@@ -112,7 +112,7 @@ partial def reuseToCtor (x : VarId) : FnBody → FnBody
   else
     let (instr, b) := e.split in
     let b := reuseToCtor b in
-    instr <;> b
+    instr.setBody b
 
 /-
 replace
@@ -194,7 +194,7 @@ partial def removeSelfSet (ctx : Context) : FnBody → FnBody
   else
     let (instr, b) := e.split in
     let b := removeSelfSet b in
-    instr <;> b
+    instr.setBody b
 
 partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
 | (FnBody.dec z n c b) :=
@@ -217,7 +217,7 @@ partial def reuseToSet (ctx : Context) (x y : VarId) : FnBody → FnBody
   else
     let (instr, b) := e.split in
     let b := reuseToSet b in
-    instr <;> b
+    instr.setBody b
 
 /-
 replace

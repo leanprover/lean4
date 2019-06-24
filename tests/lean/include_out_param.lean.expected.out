@@ -1,4 +1,0 @@
-def f : ℕ :=
-1
-def g : Π {α β : Type} [_inst_1 : c α β], α → ℕ :=
-λ {α β : Type} [_inst_1 : c α β] (a : α), c.n a

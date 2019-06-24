@@ -26,7 +26,6 @@ Author: Leonardo de Moura
 #include "frontends/lean/util.h"
 #include "frontends/lean/tokens.h"
 #include "frontends/lean/match_expr.h"
-#include "frontends/lean/decl_util.h"
 #include "frontends/lean/brackets.h"
 #include "frontends/lean/elaborator.h"
 #include "frontends/lean/typed_expr.h"

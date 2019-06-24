@@ -17,5 +17,3 @@ constant h : Nat → Bool → Nat := default _
 
 constant f1 : Nat → Nat → Bool := default _
 constant f2 : Bool → Nat := default _
-
-#check (f1 on f2) false true

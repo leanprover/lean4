@@ -46,22 +46,21 @@ assume a, WellFounded.recOn wf (λ p, p) a
 
 section
 variables {α : Sort u} {r : α → α → Prop} (hwf : WellFounded r)
-local infix `≺`:50    := r
 
-theorem recursion {C : α → Sort v} (a : α) (h : Π x, (Π y, y ≺ x → C y) → C x) : C a :=
+theorem recursion {C : α → Sort v} (a : α) (h : Π x, (Π y, r y x → C y) → C x) : C a :=
 Acc.recOn (apply hwf a) (λ x₁ ac₁ ih, h x₁ ih)
 
-theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, y ≺ x → C y) → C x) : C a :=
+theorem induction {C : α → Prop} (a : α) (h : ∀ x, (∀ y, r y x → C y) → C x) : C a :=
 recursion hwf a h
 
 variable {C : α → Sort v}
-variable F : Π x, (Π y, y ≺ x → C y) → C x
+variable F : Π x, (Π y, r y x → C y) → C x
 
 def fixF (x : α) (a : Acc r x) : C x :=
 Acc.recOn a (λ x₁ ac₁ ih, F x₁ ih)
 
 theorem fixFEq (x : α) (acx : Acc r x) :
-  fixF F x acx = F x (λ (y : α) (p : y ≺ x), fixF F y (Acc.inv acx p)) :=
+  fixF F x acx = F x (λ (y : α) (p : r y x), fixF F y (Acc.inv acx p)) :=
 Acc.rec (λ x r ih, rfl) acx
 end
 
@@ -115,7 +114,6 @@ end InvImage
 -- The transitive closure of a well-founded relation is well-founded
 namespace TC
 variables {α : Sort u} {r : α → α → Prop}
-local notation `r⁺` := TC r
 
 def accessible {z : α} (ac : Acc r z) : Acc (TC r) z :=
 Acc.ndrecOn ac $ λ x acx ih,
@@ -125,7 +123,7 @@ Acc.ndrecOn ac $ λ x acx ih,
       (λ a b c rab rbc ih₁ ih₂ acx ih, Acc.inv (ih₂ acx ih) rab)
       acx ih
 
-def wf (h : WellFounded r) : WellFounded r⁺ :=
+def wf (h : WellFounded r) : WellFounded (TC r) :=
 ⟨λ a, accessible (apply h a)⟩
 end TC
 
@@ -173,7 +171,6 @@ end
 section
 variables {α : Type u} {β : Type v}
 variables {ra  : α → α → Prop} {rb  : β → β → Prop}
-local infix `≺`:50 := Lex ra rb
 
 def lexAccessible {a} (aca : Acc ra a) (acb : ∀ b, Acc rb b): ∀ b, Acc (Lex ra rb) (a, b) :=
 Acc.ndrecOn aca $ λ xa aca iha b,
@@ -219,12 +216,11 @@ end
 section
 variables {α : Sort u} {β : α → Sort v}
 variables {r  : α → α → Prop} {s : Π a : α, β a → β a → Prop}
-local infix `≺`:50 := Lex r s
 
 def lexAccessible {a} (aca : Acc r a) (acb : ∀ a, WellFounded (s a)) : ∀ (b : β a), Acc (Lex r s) ⟨a, b⟩ :=
 Acc.ndrecOn aca $ λ xa aca (iha : ∀ y, r y xa → ∀ b : β y, Acc (Lex r s) ⟨y, b⟩) (b : β xa),
   Acc.ndrecOn (WellFounded.apply (acb xa) b) $ λ xb acb (ihb : ∀ (y : β xa), s xa y xb → Acc (Lex r s) ⟨xa, y⟩),
-     Acc.intro ⟨xa, xb⟩ $ λ p (lt : p ≺ ⟨xa, xb⟩),
+     Acc.intro ⟨xa, xb⟩ $ λ p (lt : Lex r s p ⟨xa, xb⟩),
         have aux : xa = xa → xb ≅ xb → Acc (Lex r s) p, from
           @PSigma.Lex.recOn α β r s (λ p₁ p₂ _, p₂.1 = xa → p₂.2 ≅ xb → Acc (Lex r s) p₁)
                             p ⟨xa, xb⟩ lt
@@ -275,12 +271,11 @@ section
 open WellFounded
 variables {α : Sort u} {β : Sort v}
 variables {r  : α → α → Prop} {s : β → β → Prop}
-local infix `≺`:50 := RevLex r s
 
 def revLexAccessible {b} (acb : Acc s b) (aca : ∀ a, Acc r a): ∀ a, Acc (RevLex r s) ⟨a, b⟩ :=
 Acc.recOn acb $ λ xb acb (ihb : ∀ y, s y xb → ∀ a, Acc (RevLex r s) ⟨a, y⟩) a,
   Acc.recOn (aca a) $ λ xa aca (iha : ∀ y, r y xa → Acc (RevLex r s) (mk y xb)),
-    Acc.intro ⟨xa, xb⟩ $ λ p (lt : p ≺ ⟨xa, xb⟩),
+    Acc.intro ⟨xa, xb⟩ $ λ p (lt : RevLex r s p ⟨xa, xb⟩),
       have aux : xa = xa → xb = xb → Acc (RevLex r s) p, from
         @RevLex.recOn α β r s (λ p₁ p₂ _, fst p₂ = xa → snd p₂ = xb → Acc (RevLex r s) p₁)
                             p ⟨xa, xb⟩ lt

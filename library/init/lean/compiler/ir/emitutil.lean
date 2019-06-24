@@ -99,17 +99,16 @@ def collectParams (ps : Array Param) : Collector :=
 λ s, ps.foldl (λ s p, collectVar p.x p.ty s) s
 @[inline] def collectJP (j : JoinPointId) (xs : Array Param) : Collector
 | (vs, js) := (vs, js.insert j xs)
-local infix ` >> `:50 := Function.comp
 
 /- `collectFnBody` assumes the variables in -/
 partial def collectFnBody : FnBody → Collector
-| (FnBody.vdecl x t _ b)  := collectVar x t >> collectFnBody b
-| (FnBody.jdecl j xs v b) := collectJP j xs >> collectParams xs >> collectFnBody v >> collectFnBody b
+| (FnBody.vdecl x t _ b)  := collectVar x t ∘ collectFnBody b
+| (FnBody.jdecl j xs v b) := collectJP j xs ∘ collectParams xs ∘ collectFnBody v ∘ collectFnBody b
 | (FnBody.case _ _ alts)  := λ s, alts.foldl (λ s alt, collectFnBody alt.body s) s
 | e                       := if e.isTerminal then id else collectFnBody e.body
 
 def collectDecl : Decl → Collector
-| (Decl.fdecl _ xs _ b) := collectParams xs >> collectFnBody b
+| (Decl.fdecl _ xs _ b) := collectParams xs ∘ collectFnBody b
 | _ := id
 
 end CollectMaps

@@ -1140,31 +1140,30 @@ match h with
 
 section relation
 variables {α : Sort u} {β : Sort v} (r : β → β → Prop)
-local infix `≺`:50 := r
 
-def Reflexive := ∀ x, x ≺ x
+def Reflexive := ∀ x, r x x
 
-def Symmetric := ∀ {x y}, x ≺ y → y ≺ x
+def Symmetric := ∀ {x y}, r x y → r y x
 
-def Transitive := ∀ {x y z}, x ≺ y → y ≺ z → x ≺ z
+def Transitive := ∀ {x y z}, r x y → r y z → r x z
 
 def Equivalence := Reflexive r ∧ Symmetric r ∧ Transitive r
 
-def Total := ∀ x y, x ≺ y ∨ y ≺ x
+def Total := ∀ x y, r x y ∨ r y x
 
 def mkEquivalence (rfl : Reflexive r) (symm : Symmetric r) (trans : Transitive r) : Equivalence r :=
 ⟨rfl, @symm, @trans⟩
 
-def Irreflexive := ∀ x, ¬ x ≺ x
+def Irreflexive := ∀ x, ¬ r x x
 
-def AntiSymmetric := ∀ {x y}, x ≺ y → y ≺ x → x = y
+def AntiSymmetric := ∀ {x y}, r x y → r y x → x = y
 
 def emptyRelation := λ a₁ a₂ : α, False
 
 def Subrelation (q r : β → β → Prop) := ∀ {x y}, q x y → r x y
 
 def InvImage (f : α → β) : α → α → Prop :=
-λ a₁ a₂, f a₁ ≺ f a₂
+λ a₁ a₂, r (f a₁) (f a₂)
 
 theorem InvImage.Transitive (f : α → β) (h : Transitive r) : Transitive (InvImage r f) :=
 λ (a₁ a₂ a₃ : α) (h₁ : InvImage r f a₁ a₂) (h₂ : InvImage r f a₂ a₃), h h₁ h₂
@@ -1193,31 +1192,24 @@ theorem {u1 u2} TC.ndrecOn {α : Sort u} {r : α → α → Prop} {C : α → α
 
 end relation
 
-section binary
+section Binary
 variables {α : Type u} {β : Type v}
 variable f : α → α → α
-local infix * := f
 
-def Commutative        := ∀ a b, a * b = b * a
-def Associative        := ∀ a b c, (a * b) * c = a * (b * c)
+def Commutative        := ∀ a b, f a b = f b a
+def Associative        := ∀ a b c, f (f a b) c = f a (f b c)
 def RightCommutative (h : β → α → β) := ∀ b a₁ a₂, h (h b a₁) a₂ = h (h b a₂) a₁
 def LeftCommutative  (h : α → β → β) := ∀ a₁ a₂ b, h a₁ (h a₂ b) = h a₂ (h a₁ b)
 
-local infix `◾`:50 := Eq.trans
-
 theorem leftComm : Commutative f → Associative f → LeftCommutative f :=
 assume hcomm hassoc, assume a b c,
-  Eq.symm (hassoc a b c)
-◾ (hcomm a b ▸ rfl : (a*b)*c = (b*a)*c)
-◾ hassoc b a c
+((Eq.symm (hassoc a b c)).trans (hcomm a b ▸ rfl : f (f a b) c = f (f b a) c)).trans (hassoc b a c)
 
 theorem rightComm : Commutative f → Associative f → RightCommutative f :=
 assume hcomm hassoc, assume a b c,
-  hassoc a b c
-◾ (hcomm b c ▸ rfl : a*(b*c) = a*(c*b))
-◾ Eq.symm (hassoc a c b)
+((hassoc a b c).trans (hcomm b c ▸ rfl : f a (f b c) = f a (f c b))).trans (Eq.symm (hassoc a c b))
 
-end binary
+end Binary
 
 /- Subtype -/
 
@@ -1409,44 +1401,42 @@ variable {α : Sort u}
 variable {r : α → α → Prop}
 variable {β : Quot r → Sort v}
 
-local notation `⟦`:max a `⟧` := Quot.mk r a
-
 @[reducible, macroInline]
-protected def indep (f : Π a, β ⟦a⟧) (a : α) : PSigma β :=
-⟨⟦a⟧, f a⟩
+protected def indep (f : Π a, β (Quot.mk r a)) (a : α) : PSigma β :=
+⟨Quot.mk r a, f a⟩
 
-protected theorem indepCoherent (f : Π a, β ⟦a⟧)
-                     (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
+protected theorem indepCoherent (f : Π a, β (Quot.mk r a))
+                     (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b)
                      : ∀ a b, r a b → Quot.indep f a = Quot.indep f b  :=
 λ a b e, PSigma.eq (sound e) (h a b e)
 
 protected theorem liftIndepPr1
-  (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
+  (f : Π a, β (Quot.mk r a)) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b)
   (q : Quot r) : (lift (Quot.indep f) (Quot.indepCoherent f h) q).1 = q  :=
 Quot.ind (λ (a : α), Eq.refl (Quot.indep f a).1) q
 
 @[reducible, elabAsEliminator, inline]
 protected def rec
-   (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b)
+   (f : Π a, β (Quot.mk r a)) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b)
    (q : Quot r) : β q :=
 Eq.ndrecOn (Quot.liftIndepPr1 f h q) ((lift (Quot.indep f) (Quot.indepCoherent f h) q).2)
 
 @[reducible, elabAsEliminator, inline]
 protected def recOn
-   (q : Quot r) (f : Π a, β ⟦a⟧) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β ⟦b⟧) = f b) : β q :=
+   (q : Quot r) (f : Π a, β (Quot.mk r a)) (h : ∀ (a b : α) (p : r a b), (Eq.rec (f a) (sound p) : β (Quot.mk r b)) = f b) : β q :=
 Quot.rec f h q
 
 @[reducible, elabAsEliminator, inline]
 protected def recOnSubsingleton
-   [h : ∀ a, Subsingleton (β ⟦a⟧)] (q : Quot r) (f : Π a, β ⟦a⟧) : β q :=
+   [h : ∀ a, Subsingleton (β (Quot.mk r a))] (q : Quot r) (f : Π a, β (Quot.mk r a)) : β q :=
 Quot.rec f (λ a b h, Subsingleton.elim _ (f b)) q
 
 @[reducible, elabAsEliminator, inline]
 protected def hrecOn
-   (q : Quot r) (f : Π a, β ⟦a⟧) (c : ∀ (a b : α) (p : r a b), f a ≅ f b) : β q :=
+   (q : Quot r) (f : Π a, β (Quot.mk r a)) (c : ∀ (a b : α) (p : r a b), f a ≅ f b) : β q :=
 Quot.recOn q f $
   λ a b p, eqOfHeq $
-    have p₁ : (Eq.rec (f a) (sound p) : β ⟦b⟧) ≅ f a, from eqRecHeq (sound p) (f a),
+    have p₁ : (Eq.rec (f a) (sound p) : β (Quot.mk r b)) ≅ f a, from eqRecHeq (sound p) (f a),
     Heq.trans p₁ (c a b p)
 
 end
@@ -1556,7 +1546,7 @@ protected theorem inductionOn₃
 Quotient.ind (λ a₁, Quotient.ind (λ a₂, Quotient.ind (λ a₃, h a₁ a₂ a₃) q₃) q₂) q₁
 end
 
-section exact
+section Exact
 variable   {α : Sort u}
 variable   [s : Setoid α]
 include s
@@ -1569,17 +1559,15 @@ Quotient.liftOn₂ q₁ q₂
       (λ a₁a₂, Setoid.trans (Setoid.symm a₁b₁) (Setoid.trans a₁a₂ a₂b₂))
       (λ b₁b₂, Setoid.trans a₁b₁ (Setoid.trans b₁b₂ (Setoid.symm a₂b₂)))))
 
-local infix `~` := rel
-
-private theorem rel.refl : ∀ q : Quotient s, q ~ q :=
+private theorem rel.refl : ∀ q : Quotient s, rel q q :=
 λ q, Quot.inductionOn q (λ a, Setoid.refl a)
 
-private theorem eqImpRel {q₁ q₂ : Quotient s} : q₁ = q₂ → q₁ ~ q₂ :=
+private theorem eqImpRel {q₁ q₂ : Quotient s} : q₁ = q₂ → rel q₁ q₂ :=
 assume h, Eq.ndrecOn h (rel.refl q₁)
 
 theorem exact {a b : α} : ⟦a⟧ = ⟦b⟧ → a ≈ b :=
 assume h, eqImpRel h
-end exact
+end Exact
 
 section
 universes uA uB uC
@@ -1638,16 +1626,14 @@ instance {α : Sort u} {s : Setoid α} [d : ∀ a b : α, Decidable (a ≈ b)] :
 namespace Function
 variables {α : Sort u} {β : α → Sort v}
 
-protected def Equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
+def Equiv (f₁ f₂ : Π x : α, β x) : Prop := ∀ x, f₁ x = f₂ x
 
-local infix `~` := Function.Equiv
+protected theorem Equiv.refl (f : Π x : α, β x) : Equiv f f := assume x, rfl
 
-protected theorem Equiv.refl (f : Π x : α, β x) : f ~ f := assume x, rfl
-
-protected theorem Equiv.symm {f₁ f₂ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₁ :=
+protected theorem Equiv.symm {f₁ f₂ : Π x: α, β x} : Equiv f₁ f₂ → Equiv f₂ f₁ :=
 λ h x, Eq.symm (h x)
 
-protected theorem Equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : f₁ ~ f₂ → f₂ ~ f₃ → f₁ ~ f₃ :=
+protected theorem Equiv.trans {f₁ f₂ f₃ : Π x: α, β x} : Equiv f₁ f₂ → Equiv f₂ f₃ → Equiv f₁ f₃ :=
 λ h₁ h₂ x, Eq.trans (h₁ x) (h₂ x)
 
 protected theorem Equiv.isEquivalence (α : Sort u) (β : α → Sort v) : Equivalence (@Function.Equiv α β) :=
@@ -1672,8 +1658,6 @@ theorem funext {f₁ f₂ : Π x : α, β x} (h : ∀ x, f₁ x = f₂ x) : f₁
 show extfunApp ⟦f₁⟧ = extfunApp ⟦f₂⟧, from
 congrArg extfunApp (sound h)
 end
-
-local infix `~` := Function.Equiv
 
 instance Pi.Subsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingleton (β a)] : Subsingleton (Π a, β a) :=
 ⟨λ f₁ f₂, funext (λ a, Subsingleton.elim (f₁ a) (f₂ a))⟩

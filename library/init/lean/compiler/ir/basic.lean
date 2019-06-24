@@ -451,7 +451,7 @@ abbrev IndexRenaming := RBMap Index Index Index.lt
 class HasAlphaEqv (α : Type) :=
 (aeqv : IndexRenaming → α → α → Bool)
 
-local notation a `=[`:50 ρ `]=`:0 b:50 := HasAlphaEqv.aeqv ρ a b
+export HasAlphaEqv (aeqv)
 
 def VarId.alphaEqv (ρ : IndexRenaming) (v₁ v₂ : VarId) : Bool :=
 match ρ.find v₁.idx with
@@ -461,32 +461,32 @@ match ρ.find v₁.idx with
 instance VarId.hasAeqv : HasAlphaEqv VarId := ⟨VarId.alphaEqv⟩
 
 def Arg.alphaEqv (ρ : IndexRenaming) : Arg → Arg → Bool
-| (Arg.var v₁)   (Arg.var v₂)   := v₁ =[ρ]= v₂
+| (Arg.var v₁)   (Arg.var v₂)   := aeqv ρ v₁ v₂
 | Arg.irrelevant Arg.irrelevant := true
 | _              _              := false
 
 instance Arg.hasAeqv : HasAlphaEqv Arg := ⟨Arg.alphaEqv⟩
 
 def args.alphaEqv (ρ : IndexRenaming) (args₁ args₂ : Array Arg) : Bool :=
-Array.isEqv args₁ args₂ (λ a b, a =[ρ]= b)
+Array.isEqv args₁ args₂ (λ a b, aeqv ρ a b)
 
 instance args.hasAeqv : HasAlphaEqv (Array Arg) := ⟨args.alphaEqv⟩
 
 def Expr.alphaEqv (ρ : IndexRenaming) : Expr → Expr → Bool
-| (Expr.ctor i₁ ys₁)        (Expr.ctor i₂ ys₂)        := i₁ == i₂ && ys₁ =[ρ]= ys₂
-| (Expr.reset n₁ x₁)        (Expr.reset n₂ x₂)        := n₁ == n₂ && x₁ =[ρ]= x₂
-| (Expr.reuse x₁ i₁ u₁ ys₁) (Expr.reuse x₂ i₂ u₂ ys₂) := x₁ =[ρ]= x₂ && i₁ == i₂ && u₁ == u₂ && ys₁ =[ρ]= ys₂
-| (Expr.proj i₁ x₁)         (Expr.proj i₂ x₂)         := i₁ == i₂ && x₁ =[ρ]= x₂
-| (Expr.uproj i₁ x₁)        (Expr.uproj i₂ x₂)        := i₁ == i₂ && x₁ =[ρ]= x₂
-| (Expr.sproj n₁ o₁ x₁)     (Expr.sproj n₂ o₂ x₂)     := n₁ == n₂ && o₁ == o₂ && x₁ =[ρ]= x₂
-| (Expr.fap c₁ ys₁)         (Expr.fap c₂ ys₂)         := c₁ == c₂ && ys₁ =[ρ]= ys₂
-| (Expr.pap c₁ ys₁)         (Expr.pap c₂ ys₂)         := c₁ == c₂ && ys₂ =[ρ]= ys₂
-| (Expr.ap x₁ ys₁)          (Expr.ap x₂ ys₂)          := x₁ =[ρ]= x₂ && ys₁ =[ρ]= ys₂
-| (Expr.box ty₁ x₁)         (Expr.box ty₂ x₂)         := ty₁ == ty₂ && x₁ =[ρ]= x₂
-| (Expr.unbox x₁)           (Expr.unbox x₂)           := x₁ =[ρ]= x₂
+| (Expr.ctor i₁ ys₁)        (Expr.ctor i₂ ys₂)        := i₁ == i₂ && aeqv ρ ys₁ ys₂
+| (Expr.reset n₁ x₁)        (Expr.reset n₂ x₂)        := n₁ == n₂ && aeqv ρ x₁ x₂
+| (Expr.reuse x₁ i₁ u₁ ys₁) (Expr.reuse x₂ i₂ u₂ ys₂) := aeqv ρ x₁ x₂ && i₁ == i₂ && u₁ == u₂ && aeqv ρ ys₁ ys₂
+| (Expr.proj i₁ x₁)         (Expr.proj i₂ x₂)         := i₁ == i₂ && aeqv ρ x₁ x₂
+| (Expr.uproj i₁ x₁)        (Expr.uproj i₂ x₂)        := i₁ == i₂ && aeqv ρ x₁ x₂
+| (Expr.sproj n₁ o₁ x₁)     (Expr.sproj n₂ o₂ x₂)     := n₁ == n₂ && o₁ == o₂ && aeqv ρ x₁ x₂
+| (Expr.fap c₁ ys₁)         (Expr.fap c₂ ys₂)         := c₁ == c₂ && aeqv ρ ys₁ ys₂
+| (Expr.pap c₁ ys₁)         (Expr.pap c₂ ys₂)         := c₁ == c₂ && aeqv ρ ys₂ ys₂
+| (Expr.ap x₁ ys₁)          (Expr.ap x₂ ys₂)          := aeqv ρ x₁ x₂ && aeqv ρ ys₁ ys₂
+| (Expr.box ty₁ x₁)         (Expr.box ty₂ x₂)         := ty₁ == ty₂ && aeqv ρ x₁ x₂
+| (Expr.unbox x₁)           (Expr.unbox x₂)           := aeqv ρ x₁ x₂
 | (Expr.lit v₁)             (Expr.lit v₂)             := v₁ == v₂
-| (Expr.isShared x₁)        (Expr.isShared x₂)        := x₁ =[ρ]= x₂
-| (Expr.isTaggedPtr x₁)     (Expr.isTaggedPtr x₂)     := x₁ =[ρ]= x₂
+| (Expr.isShared x₁)        (Expr.isShared x₂)        := aeqv ρ x₁ x₂
+| (Expr.isTaggedPtr x₁)     (Expr.isTaggedPtr x₂)     := aeqv ρ x₁ x₂
 | _                          _                        := false
 
 instance Expr.hasAeqv : HasAlphaEqv Expr:= ⟨Expr.alphaEqv⟩
@@ -503,26 +503,26 @@ if ps₁.size != ps₂.size then none
 else Array.foldl₂ (λ ρ p₁ p₂, do ρ ← ρ, addParamRename ρ p₁ p₂) (some ρ) ps₁ ps₂
 
 partial def FnBody.alphaEqv : IndexRenaming → FnBody → FnBody → Bool
-| ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && v₁ =[ρ]= v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
+| ρ (FnBody.vdecl x₁ t₁ v₁ b₁)      (FnBody.vdecl x₂ t₂ v₂ b₂)        := t₁ == t₂ && aeqv ρ v₁ v₂ && FnBody.alphaEqv (addVarRename ρ x₁.idx x₂.idx) b₁ b₂
 | ρ (FnBody.jdecl j₁ ys₁ v₁ b₁)  (FnBody.jdecl j₂ ys₂ v₂ b₂)          := match addParamsRename ρ ys₁ ys₂ with
   | some ρ' := FnBody.alphaEqv ρ' v₁ v₂ && FnBody.alphaEqv (addVarRename ρ j₁.idx j₂.idx) b₁ b₂
   | none    := false
-| ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := x₁ =[ρ]= x₂ && i₁ == i₂ && y₁ =[ρ]= y₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.set x₁ i₁ y₁ b₁)        (FnBody.set x₂ i₂ y₂ b₂)          := aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.uset x₁ i₁ y₁ b₁)       (FnBody.uset x₂ i₂ y₂ b₂)         := aeqv ρ x₁ x₂ && i₁ == i₂ && aeqv ρ y₁ y₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.sset x₁ i₁ o₁ y₁ t₁ b₁) (FnBody.sset x₂ i₂ o₂ y₂ t₂ b₂)   :=
-  x₁ =[ρ]= x₂ && i₁ = i₂ && o₁ = o₂ && y₁ =[ρ]= y₂ && t₁ == t₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.setTag x₁ i₁ b₁)        (FnBody.setTag x₂ i₂ b₂)          := x₁ =[ρ]= x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.inc x₁ n₁ c₁ b₁)        (FnBody.inc x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.dec x₁ n₁ c₁ b₁)        (FnBody.dec x₂ n₂ c₂ b₂)          := x₁ =[ρ]= x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.del x₁ b₁)              (FnBody.del x₂ b₂)                := x₁ =[ρ]= x₂ && FnBody.alphaEqv ρ b₁ b₂
+  aeqv ρ x₁ x₂ && i₁ = i₂ && o₁ = o₂ && aeqv ρ y₁ y₂ && t₁ == t₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.setTag x₁ i₁ b₁)        (FnBody.setTag x₂ i₂ b₂)          := aeqv ρ x₁ x₂ && i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.inc x₁ n₁ c₁ b₁)        (FnBody.inc x₂ n₂ c₂ b₂)          := aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.dec x₁ n₁ c₁ b₁)        (FnBody.dec x₂ n₂ c₂ b₂)          := aeqv ρ x₁ x₂ && n₁ == n₂ && c₁ == c₂ && FnBody.alphaEqv ρ b₁ b₂
+| ρ (FnBody.del x₁ b₁)              (FnBody.del x₂ b₂)                := aeqv ρ x₁ x₂ && FnBody.alphaEqv ρ b₁ b₂
 | ρ (FnBody.mdata m₁ b₁)            (FnBody.mdata m₂ b₂)              := m₁ == m₂ && FnBody.alphaEqv ρ b₁ b₂
-| ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && x₁ =[ρ]= x₂ && Array.isEqv alts₁ alts₂ (λ alt₁ alt₂,
+| ρ (FnBody.case n₁ x₁ alts₁)       (FnBody.case n₂ x₂ alts₂)         := n₁ == n₂ && aeqv ρ x₁ x₂ && Array.isEqv alts₁ alts₂ (λ alt₁ alt₂,
    match alt₁, alt₂ with
    | Alt.ctor i₁ b₁, Alt.ctor i₂ b₂ := i₁ == i₂ && FnBody.alphaEqv ρ b₁ b₂
    | Alt.default b₁, Alt.default b₂ := FnBody.alphaEqv ρ b₁ b₂
    | _,              _              := false)
-| ρ (FnBody.jmp j₁ ys₁)             (FnBody.jmp j₂ ys₂)               := j₁ == j₂ && ys₁ =[ρ]= ys₂
-| ρ (FnBody.ret x₁)                 (FnBody.ret x₂)                   := x₁ =[ρ]= x₂
+| ρ (FnBody.jmp j₁ ys₁)             (FnBody.jmp j₂ ys₂)               := j₁ == j₂ && aeqv ρ ys₁ ys₂
+| ρ (FnBody.ret x₁)                 (FnBody.ret x₂)                   := aeqv ρ x₁ x₂
 | _ FnBody.unreachable              FnBody.unreachable                := true
 | _ _                               _                                 := false
 

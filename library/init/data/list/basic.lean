@@ -35,8 +35,6 @@ def reverseAux : List α → List α → List α
 | []     r := r
 | (a::l) r := reverseAux l (a::r)
 
-local infix `**`:66 := reverseAux
-
 def reverse : List α → List α :=
 λ l, reverseAux l []
 
@@ -46,7 +44,7 @@ reverseAux as.reverse bs
 instance : HasAppend (List α) :=
 ⟨List.append⟩
 
-theorem reverseAuxReverseAuxNil : ∀ (as bs : List α), (as ** bs) ** [] = bs ** as
+theorem reverseAuxReverseAuxNil : ∀ (as bs : List α), reverseAux (reverseAux as bs) [] = reverseAux bs as
 | []  bs     := rfl
 | (a::as) bs :=
   show reverseAux (reverseAux as (a::bs)) [] = reverseAux bs (a::as), from
@@ -56,17 +54,15 @@ theorem nilAppend (as : List α) : [] ++ as = as :=
 rfl
 
 theorem appendNil (as : List α) : as ++ [] = as :=
-show (as ** []) ** [] = as, from
+show reverseAux (reverseAux as []) [] = as, from
 reverseAuxReverseAuxNil as []
 
-theorem reverseAuxReverseAux : ∀ (as bs cs : List α), (as ** bs) ** cs = bs ** ((as ** []) ** cs)
+theorem reverseAuxReverseAux : ∀ (as bs cs : List α), reverseAux (reverseAux as bs) cs = reverseAux bs (reverseAux (reverseAux as []) cs)
 | []      bs cs := rfl
 | (a::as) bs cs :=
-  show (as ** a::bs) ** cs = bs ** ((as ** [a]) ** cs), from
-  have h₁ : (as ** a::bs) ** cs = bs ** a::((as ** []) ** cs),       from reverseAuxReverseAux as (a::bs) cs,
-  have h₂ : ((as ** [a]) ** cs) = a::((as ** []) ** cs),             from reverseAuxReverseAux as [a] cs,
-  have h₃ : bs ** a::((as ** []) ** cs) = bs ** ((as ** [a]) ** cs), from congrArg (λ b, bs ** b) h₂.symm,
-  Eq.trans h₁ h₃
+  Eq.trans
+    (reverseAuxReverseAux as (a::bs) cs)
+    (congrArg (λ b, reverseAux bs b) (reverseAuxReverseAux as [a] cs).symm)
 
 theorem consAppend (a : α) (as bs : List α) : (a::as) ++ bs = a::(as ++ bs) :=
 reverseAuxReverseAux as [a] bs

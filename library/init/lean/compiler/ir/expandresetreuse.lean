@@ -23,11 +23,10 @@ abbrev Collector := ProjMap → ProjMap
  | Expr.sproj _ _ _ := m.insert x v
  | Expr.uproj _ _   := m.insert x v
  | _                := m
-local infix ` >> `:50 := Function.comp
 
 partial def collectFnBody : FnBody → Collector
-| (FnBody.vdecl x _ v b)  := collectVDecl x v >> collectFnBody b
-| (FnBody.jdecl _ _ v b)  := collectFnBody v >> collectFnBody b
+| (FnBody.vdecl x _ v b)  := collectVDecl x v ∘ collectFnBody b
+| (FnBody.jdecl _ _ v b)  := collectFnBody v ∘ collectFnBody b
 | (FnBody.case _ _ alts)  := λ s, alts.foldl (λ s alt, collectFnBody alt.body s) s
 | e                       := if e.isTerminal then id else collectFnBody e.body
 end CollectProjMap

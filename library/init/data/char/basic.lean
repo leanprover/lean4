@@ -17,17 +17,15 @@ instance : HasSizeof Char :=
 ⟨λ c, c.val.toNat⟩
 
 namespace Char
-local infix `&`:65 := UInt32.land
-
 def utf8Size (c : Char) : UInt32 :=
 let v := c.val in
-     if v & 0x80 = 0    then 1
-else if v & 0xE0 = 0xC0 then 2
-else if v & 0xF0 = 0xE0 then 3
-else if v & 0xF8 = 0xF0 then 4
-else if v & 0xFC = 0xF8 then 5
-else if v & 0xFE = 0xFC then 6
-else if v = 0xFF        then 1
+     if UInt32.land v 0x80 = 0    then 1
+else if UInt32.land v 0xE0 = 0xC0 then 2
+else if UInt32.land v 0xF0 = 0xE0 then 3
+else if UInt32.land v 0xF8 = 0xF0 then 4
+else if UInt32.land v 0xFC = 0xF8 then 5
+else if UInt32.land v 0xFE = 0xFC then 6
+else if v = 0xFF                  then 1
 else 0
 
 protected def Less (a b : Char) : Prop := a.val < b.val

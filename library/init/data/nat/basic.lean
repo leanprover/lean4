@@ -196,8 +196,6 @@ Nat.zeroAdd
 protected theorem oneMul (n : Nat) : 1 * n = n :=
 Nat.mulComm n 1 ▸ Nat.mulOne n
 
-local infix `◾`:50 := Eq.trans
-
 protected theorem leftDistrib : ∀ (n m k : Nat), n * (m + k) = n * m + n * k
 | 0        m k := (Nat.zeroMul (m + k)).symm ▸ (Nat.zeroMul m).symm ▸ (Nat.zeroMul k).symm ▸ rfl
 | (succ n) m k :=
@@ -208,14 +206,14 @@ protected theorem leftDistrib : ∀ (n m k : Nat), n * (m + k) = n * m + n * k
   have h₅ : n * m + (m + (n * k + k)) = (n * m + m) + (n * k + k), from (Nat.addAssoc _ _ _).symm,
   have h₆ : (n * m + m) + (n * k + k) = (n * m + m) + succ n * k,  from succMul n k ▸ rfl,
   have h₇ : (n * m + m) + succ n * k = succ n * m + succ n * k,    from succMul n m ▸ rfl,
-  h₁ ◾ h₂ ◾ h₃ ◾ h₄ ◾ h₅ ◾ h₆ ◾ h₇
+  (((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆).trans h₇
 
 protected theorem rightDistrib (n m k : Nat) : (n + m) * k = n * k + m * k :=
 have h₁ : (n + m) * k = k * (n + m),     from Nat.mulComm _ _,
 have h₂ : k * (n + m) = k * n + k * m,   from Nat.leftDistrib _ _ _,
 have h₃ : k * n + k * m = n * k + k * m, from Nat.mulComm n k ▸ rfl,
 have h₄ : n * k + k * m = n * k + m * k, from Nat.mulComm m k ▸ rfl,
-h₁ ◾ h₂ ◾ h₃ ◾ h₄
+((h₁.trans h₂).trans h₃).trans h₄
 
 protected theorem mulAssoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
 | n m 0        := rfl
@@ -226,7 +224,7 @@ protected theorem mulAssoc : ∀ (n m k : Nat), (n * m) * k = n * (m * k)
   have h₄ : (n * m * k) + n * m = (n * (m * k)) + n * m,   from (mulAssoc n m k).symm ▸ rfl,
   have h₅ : (n * (m * k)) + n * m = n * (m * k + m),       from (Nat.leftDistrib n (m*k) m).symm,
   have h₆ : n * (m * k + m) = n * (m * succ k),            from Nat.mulSucc m k ▸ rfl,
-h₁ ◾ h₂ ◾ h₃ ◾ h₄ ◾ h₅ ◾ h₆
+((((h₁.trans h₂).trans h₃).trans h₄).trans h₅).trans h₆
 
 /- Inequalities -/
 
@@ -464,7 +462,7 @@ match le.dest h with
 | ⟨w, hw⟩ :=
   have h₁ : k + n + w = k + (n + w), from Nat.addAssoc _ _ _,
   have h₂ : k + (n + w) = k + m,     from congrArg _ hw,
-  le.intro $ h₁ ◾ h₂
+  le.intro $ h₁.trans h₂
 
 protected theorem addLeAddRight {n m : Nat} (h : n ≤ m) (k : Nat) : n + k ≤ m + k :=
 have h₁ : n + k = k + n, from Nat.addComm _ _,

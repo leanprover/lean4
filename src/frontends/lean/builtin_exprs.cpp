@@ -889,7 +889,7 @@ expr mk_annotation_with_pos(parser &, name const & a, expr const & e, pos_info c
     return save_pos(r, pos);
 }
 
-static expr parse_parser(parser & p, unsigned, expr const *, pos_info const & pos) {
+static expr parse_parser(parser & p, bool leading, pos_info const & pos) {
     name kind;
     if (p.curr_is_identifier()) {
         kind = p.check_id_next("identifier expected");
@@ -898,8 +898,17 @@ static expr parse_parser(parser & p, unsigned, expr const *, pos_info const & po
         kind = get_curr_declaration_name();
     }
     expr e = p.parse_expr();
-    expr r = mk_app(mk_constant(get_lean_parser_node_name()), quote(kind), e);
+    name n = leading ? get_lean_parser_leading_node_name() : get_lean_parser_trailing_node_name();
+    expr r = mk_app(mk_constant(n), quote(kind), e);
     return save_pos(r, pos);
+}
+
+static expr parse_lparser(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_parser(p, true, pos);
+}
+
+static expr parse_tparser(parser & p, unsigned, expr const *, pos_info const & pos) {
+    return parse_parser(p, false, pos);
 }
 
 parse_table init_nud_table() {
@@ -936,7 +945,8 @@ parse_table init_nud_table() {
     r = r.add({transition("sorry", mk_ext_action(parse_sorry))}, x0);
     r = r.add({transition("match", mk_ext_action(parse_match))}, x0);
     r = r.add({transition("do", mk_ext_action(parse_do_expr))}, x0);
-    r = r.add({transition("parser!", mk_ext_action(parse_parser))}, x0);
+    r = r.add({transition("parser!", mk_ext_action(parse_lparser))}, x0);
+    r = r.add({transition("tparser!", mk_ext_action(parse_tparser))}, x0);
     return r;
 }
 

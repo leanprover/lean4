@@ -219,6 +219,12 @@ instance hashAndthen {k : ParserKind} : HasAndthen (Parser k) :=
 { info := nodeInfo p.info,
   fn   := nodeFn n p.fn }
 
+@[inline] def leadingNode (n : SyntaxNodeKind) (p : Parser leading) : Parser leading :=
+node n p
+
+@[inline] def trailingNode (n : SyntaxNodeKind) (p : Parser trailing) : Parser trailing :=
+node n p
+
 @[inline] def orelseFn {k : ParserKind} (p q : ParserFn k) : ParserFn k
 | a c s :=
   let iniSz  := s.stackSize in

@@ -4,13 +4,13 @@ open Lean.Parser
 
 namespace Foo
 
-@[builtinTestParser] def pairParser : Parser :=
+@[builtinTestParser] def pairParser :=
 parser! "(" >> numLit >> "," >> ident >> ")"
 
-@[builtinTestParser] def pairsParser : Parser :=
+@[builtinTestParser] def pairsParser :=
 parser! "{" >> sepBy1 testParser "," >> "}"
 
-@[builtinTestParser] def functionParser : Parser :=
+@[builtinTestParser] def functionParser :=
 parser! "fun" >> ident >> "," >> testParser
 
 @[builtinTestParser] def identParser : Parser :=

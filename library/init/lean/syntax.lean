@@ -245,7 +245,9 @@ mkStrLit val
 def mkNumLitAux (val : Nat) : Syntax :=
 mkNumLit (toString val)
 
-def Syntax.isStrLit : Syntax → Option String
+namespace Syntax
+
+def isStrLit : Syntax → Option String
 | (Syntax.node k args _) :=
   if k == strLitKind && args.size == 1 then
     match args.get 0 with
@@ -314,7 +316,7 @@ else
   else if c.isDigit then decodeDecimalLitAux s 0 0
   else none
 
-def Syntax.isNatLit : Syntax → Option Nat
+def isNatLit : Syntax → Option Nat
 | (Syntax.node k args _) :=
   if k == strLitKind && args.size == 1 then
     match args.get 0 with
@@ -323,5 +325,12 @@ def Syntax.isNatLit : Syntax → Option Nat
   else
     none
 | _ := none
+
+def isIdOrAtom : Syntax → Option String
+| (Syntax.atom _ val)           := some val
+| (Syntax.ident _ rawVal _ _ _) := some rawVal.toString
+| _ := none
+
+end Syntax
 
 end Lean

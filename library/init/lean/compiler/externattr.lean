@@ -42,15 +42,38 @@ structure ExternAttrData :=
 
 @[export lean.mk_extern_attr_data_core] def mkExternAttrData := ExternAttrData.mk
 
+/-
+private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List ExternEntry → Except String (List ExternEntry)
+| i entries :=
+  if i == a.size then Except.ok entries
+  else match a.get i with
+    | Syntax.ident _ _ backend _ _ :=
+      let i := i + 1 in
+      if i == a.size then Except.error "string or identifier expected"
+      else match a.get i with
+        | Syntax.ident _ _ "inline" _ _ := Except.error ""
+        | Syntax.ident _ _
+    | _ := Except.error "identifier expected"
+-/
+
 private def syntaxToExternAttrData (s : Syntax) : Except String ExternAttrData :=
 match s with
 | Syntax.missing := Except.ok { entries := [ ExternEntry.adhoc `all ] }
 | Syntax.node _ args _ :=
   if args.size == 0 then Except.error "unexpected kind of argument"
   else
-    let i := 0 in
-    -- TODO
-    Except.ok { entries := [] }
+    let (arity, i) : Option Nat × Nat := match (args.get 0).isNatLit with
+      | some arity := (some arity, 1)
+      | none       := (none, 0) in
+    match (args.get i).isStrLit with
+    | some str :=
+      if args.size == i+1 then
+        Except.ok { arity := arity, entries := [ ExternEntry.standard `all str ] }
+      else
+        Except.error "invalid extern attribute"
+    | none :=
+      -- TODO
+      Except.ok { entries := [] }
 | _ := Except.error "unexpected kind of argument"
 
 -- def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=

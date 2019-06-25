@@ -21,7 +21,7 @@ def mkExportAttr : IO (ParametricAttribute Name) :=
 registerParametricAttribute `export "name to be used by code generators" $ λ env declName stx,
   match stx with
   | Syntax.ident _ _ exportName _ _ :=
-    if isValidCppName exportName then Except.ok exportName
+    if isValidCppName exportName then Except.ok (exportName, env)
     else Except.error "invalid 'export' function name, is not a valid C++ identifier"
   | _ := Except.error "unexpected kind of argument"
 

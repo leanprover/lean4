@@ -4,8 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.expr init.data.option.basic
+import init.data.option.basic
+import init.lean.expr
 import init.lean.environment
+import init.lean.attributes
 
 namespace Lean
 
@@ -39,6 +41,9 @@ structure ExternAttrData :=
 (entries  : List ExternEntry)
 
 @[export lean.mk_extern_attr_data_core] def mkExternAttrData := ExternAttrData.mk
+
+-- def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
+-- registerParametricAttribute `extern "builtin and foreign functions" $ λ env declName stx,
 
 private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
 | 0     it r := (it, r)

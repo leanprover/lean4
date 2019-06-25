@@ -297,7 +297,7 @@ structure ParametricAttribute (α : Type) :=
 (attr : AttributeImpl)
 (ext  : PersistentEnvExtension (Name × α) (NameMap α))
 
-def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String) (getParam : Environment → Name → Syntax → Except String α) : IO (ParametricAttribute α) :=
+def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String) (getParam : Environment → Name → Syntax → Except String (α × Environment)) : IO (ParametricAttribute α) :=
 do
 ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := name,
@@ -316,8 +316,8 @@ let attrImpl : AttributeImpl := {
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
     match getParam env decl args with
-    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | Except.ok val    := pure $ ext.addEntry env (decl, val)
+    | Except.error msg     := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | Except.ok (val, env) := pure $ ext.addEntry env (decl, val)
 },
 registerAttribute attrImpl,
 pure { attr := attrImpl, ext := ext }

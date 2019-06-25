@@ -40,7 +40,6 @@ obj* l_Lean_IR_Checker_checkExpr___boxed(obj*, obj*, obj*);
 obj* l_Lean_IR_Checker_checkDecl(obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_IR_Checker_checkFnBody___main___closed__2;
-obj* l_Lean_IR_Checker_checkFullApp___closed__4;
 obj* l_Lean_IR_checkDecls(obj*, obj*, obj*);
 uint8 l_Lean_IR_IRType_isObj___main(uint8);
 obj* l_Lean_IR_Checker_checkType___closed__1;
@@ -67,6 +66,7 @@ namespace lean {
 uint8 nat_dec_lt(obj*, obj*);
 }
 extern obj* l_Char_HasRepr___closed__1;
+extern obj* l_Lean_registerTagAttribute___lambda__5___closed__4;
 obj* l_Lean_IR_Checker_checkFullApp(obj*, obj*, obj*);
 obj* l_Lean_IR_Checker_checkScalarVar___boxed(obj*, obj*);
 obj* l_Array_fget(obj*, obj*, obj*);
@@ -676,19 +676,11 @@ obj* _init_l_Lean_IR_Checker_checkFullApp___closed__2() {
 _start:
 {
 obj* x_1; 
-x_1 = lean::mk_string("', ");
-return x_1;
-}
-}
-obj* _init_l_Lean_IR_Checker_checkFullApp___closed__3() {
-_start:
-{
-obj* x_1; 
 x_1 = lean::mk_string(" provided, ");
 return x_1;
 }
 }
-obj* _init_l_Lean_IR_Checker_checkFullApp___closed__4() {
+obj* _init_l_Lean_IR_Checker_checkFullApp___closed__3() {
 _start:
 {
 obj* x_1; 
@@ -744,17 +736,17 @@ x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_1);
 x_16 = l_Lean_IR_Checker_checkFullApp___closed__1;
 x_17 = lean::string_append(x_16, x_15);
 lean::dec(x_15);
-x_18 = l_Lean_IR_Checker_checkFullApp___closed__2;
+x_18 = l_Lean_registerTagAttribute___lambda__5___closed__4;
 x_19 = lean::string_append(x_17, x_18);
 x_20 = l_Nat_repr(x_10);
 x_21 = lean::string_append(x_19, x_20);
 lean::dec(x_20);
-x_22 = l_Lean_IR_Checker_checkFullApp___closed__3;
+x_22 = l_Lean_IR_Checker_checkFullApp___closed__2;
 x_23 = lean::string_append(x_21, x_22);
 x_24 = l_Nat_repr(x_12);
 x_25 = lean::string_append(x_23, x_24);
 lean::dec(x_24);
-x_26 = l_Lean_IR_Checker_checkFullApp___closed__4;
+x_26 = l_Lean_IR_Checker_checkFullApp___closed__3;
 x_27 = lean::string_append(x_25, x_26);
 lean::cnstr_set_tag(x_4, 0);
 lean::cnstr_set(x_4, 0, x_27);
@@ -792,17 +784,17 @@ x_36 = l_Lean_Name_toStringWithSep___main(x_35, x_1);
 x_37 = l_Lean_IR_Checker_checkFullApp___closed__1;
 x_38 = lean::string_append(x_37, x_36);
 lean::dec(x_36);
-x_39 = l_Lean_IR_Checker_checkFullApp___closed__2;
+x_39 = l_Lean_registerTagAttribute___lambda__5___closed__4;
 x_40 = lean::string_append(x_38, x_39);
 x_41 = l_Nat_repr(x_31);
 x_42 = lean::string_append(x_40, x_41);
 lean::dec(x_41);
-x_43 = l_Lean_IR_Checker_checkFullApp___closed__3;
+x_43 = l_Lean_IR_Checker_checkFullApp___closed__2;
 x_44 = lean::string_append(x_42, x_43);
 x_45 = l_Nat_repr(x_33);
 x_46 = lean::string_append(x_44, x_45);
 lean::dec(x_45);
-x_47 = l_Lean_IR_Checker_checkFullApp___closed__4;
+x_47 = l_Lean_IR_Checker_checkFullApp___closed__3;
 x_48 = lean::string_append(x_46, x_47);
 x_49 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_49, 0, x_48);
@@ -3287,8 +3279,6 @@ l_Lean_IR_Checker_checkFullApp___closed__2 = _init_l_Lean_IR_Checker_checkFullAp
 lean::mark_persistent(l_Lean_IR_Checker_checkFullApp___closed__2);
 l_Lean_IR_Checker_checkFullApp___closed__3 = _init_l_Lean_IR_Checker_checkFullApp___closed__3();
 lean::mark_persistent(l_Lean_IR_Checker_checkFullApp___closed__3);
-l_Lean_IR_Checker_checkFullApp___closed__4 = _init_l_Lean_IR_Checker_checkFullApp___closed__4();
-lean::mark_persistent(l_Lean_IR_Checker_checkFullApp___closed__4);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Checker"), "checkFullApp"), 3, l_Lean_IR_Checker_checkFullApp___boxed);
 l_Lean_IR_Checker_checkPartialApp___closed__1 = _init_l_Lean_IR_Checker_checkPartialApp___closed__1();
 lean::mark_persistent(l_Lean_IR_Checker_checkPartialApp___closed__1);

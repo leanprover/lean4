@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.externattr
-// Imports: init.lean.expr init.data.option.basic init.lean.environment
+// Imports: init.data.option.basic init.lean.expr init.lean.environment init.lean.attributes
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -870,19 +870,22 @@ lean::dec(x_1);
 return x_4;
 }
 }
-obj* initialize_init_lean_expr(obj*);
 obj* initialize_init_data_option_basic(obj*);
+obj* initialize_init_lean_expr(obj*);
 obj* initialize_init_lean_environment(obj*);
+obj* initialize_init_lean_attributes(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_externattr(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_expr(w);
-if (io_result_is_error(w)) return w;
 w = initialize_init_data_option_basic(w);
 if (io_result_is_error(w)) return w;
+w = initialize_init_lean_expr(w);
+if (io_result_is_error(w)) return w;
 w = initialize_init_lean_environment(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkAdhocExtEntry"), 1, lean::mk_adhoc_ext_entry_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkInlineExtEntry"), 2, lean::mk_inline_ext_entry_core);

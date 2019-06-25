@@ -890,23 +890,28 @@ x_5 = l___private_init_lean_compiler_exportattr_2__isValidCppName___main(x_4);
 if (x_5 == 0)
 {
 obj* x_6; 
+lean::dec(x_1);
 x_6 = l_Lean_mkExportAttr___lambda__1___closed__2;
 return x_6;
 }
 else
 {
-obj* x_7; 
+obj* x_7; obj* x_8; 
 lean::inc(x_4);
-x_7 = lean::alloc_cnstr(1, 1, 0);
+x_7 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_7, 0, x_4);
-return x_7;
+lean::cnstr_set(x_7, 1, x_1);
+x_8 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_8, 0, x_7);
+return x_8;
 }
 }
 else
 {
-obj* x_8; 
-x_8 = l_Lean_mkExportAttr___lambda__1___closed__1;
-return x_8;
+obj* x_9; 
+lean::dec(x_1);
+x_9 = l_Lean_mkExportAttr___lambda__1___closed__1;
+return x_9;
 }
 }
 }
@@ -991,7 +996,6 @@ obj* x_4;
 x_4 = l_Lean_mkExportAttr___lambda__1(x_1, x_2, x_3);
 lean::dec(x_3);
 lean::dec(x_2);
-lean::dec(x_1);
 return x_4;
 }
 }

@@ -45,7 +45,6 @@ obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l_Lean_mkInitAttr___lambda__1___closed__1;
 extern obj* l_Lean_Inhabited;
 obj* l_Array_qsortAux___main___at_Lean_mkInitAttr___spec__3(obj*, obj*, obj*);
-obj* l_Lean_mkInitAttr___lambda__1___closed__8;
 extern obj* l_Lean_registerParametricAttribute___rarg___closed__1;
 obj* l___private_init_lean_compiler_initattr_1__getIOTypeArg___main___closed__1;
 obj* l_Array_mkEmpty(obj*, obj*);
@@ -844,8 +843,8 @@ obj* _init_l_Lean_mkInitAttr___lambda__1___closed__3() {
 _start:
 {
 obj* x_1; obj* x_2; 
-x_1 = lean::box(0);
-x_2 = lean::alloc_cnstr(1, 1, 0);
+x_1 = lean::mk_string("unexpected kind of argument");
+x_2 = lean::alloc_cnstr(0, 1, 0);
 lean::cnstr_set(x_2, 0, x_1);
 return x_2;
 }
@@ -853,22 +852,12 @@ return x_2;
 obj* _init_l_Lean_mkInitAttr___lambda__1___closed__4() {
 _start:
 {
-obj* x_1; obj* x_2; 
-x_1 = lean::mk_string("unexpected kind of argument");
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
-obj* _init_l_Lean_mkInitAttr___lambda__1___closed__5() {
-_start:
-{
 obj* x_1; 
 x_1 = lean::mk_string("unknown initialization function '");
 return x_1;
 }
 }
-obj* _init_l_Lean_mkInitAttr___lambda__1___closed__6() {
+obj* _init_l_Lean_mkInitAttr___lambda__1___closed__5() {
 _start:
 {
 obj* x_1; 
@@ -876,7 +865,7 @@ x_1 = lean::mk_string("initialization function '");
 return x_1;
 }
 }
-obj* _init_l_Lean_mkInitAttr___lambda__1___closed__7() {
+obj* _init_l_Lean_mkInitAttr___lambda__1___closed__6() {
 _start:
 {
 obj* x_1; 
@@ -884,7 +873,7 @@ x_1 = lean::mk_string("' must have type of the form `IO <type>`");
 return x_1;
 }
 }
-obj* _init_l_Lean_mkInitAttr___lambda__1___closed__8() {
+obj* _init_l_Lean_mkInitAttr___lambda__1___closed__7() {
 _start:
 {
 obj* x_1; 
@@ -912,7 +901,6 @@ switch (lean::obj_tag(x_3)) {
 case 0:
 {
 obj* x_6; obj* x_7; uint8 x_8; 
-lean::dec(x_1);
 x_6 = lean::cnstr_get(x_4, 0);
 lean::inc(x_6);
 lean::dec(x_4);
@@ -923,110 +911,123 @@ lean::dec(x_7);
 if (x_8 == 0)
 {
 obj* x_9; 
+lean::dec(x_1);
 x_9 = l_Lean_mkInitAttr___lambda__1___closed__2;
 return x_9;
 }
 else
 {
-obj* x_10; 
-x_10 = l_Lean_mkInitAttr___lambda__1___closed__3;
-return x_10;
+obj* x_10; obj* x_11; obj* x_12; 
+x_10 = lean::box(0);
+x_11 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_11, 0, x_10);
+lean::cnstr_set(x_11, 1, x_1);
+x_12 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_12, 0, x_11);
+return x_12;
 }
 }
 case 3:
 {
-obj* x_11; obj* x_12; obj* x_13; 
-x_11 = lean::cnstr_get(x_4, 0);
-lean::inc(x_11);
+obj* x_13; obj* x_14; obj* x_15; 
+x_13 = lean::cnstr_get(x_4, 0);
+lean::inc(x_13);
 lean::dec(x_4);
-x_12 = lean::cnstr_get(x_3, 2);
-lean::inc(x_12);
+x_14 = lean::cnstr_get(x_3, 2);
+lean::inc(x_14);
 lean::dec(x_3);
-lean::inc(x_12);
-x_13 = lean::environment_find_core(x_1, x_12);
-if (lean::obj_tag(x_13) == 0)
+lean::inc(x_14);
+lean::inc(x_1);
+x_15 = lean::environment_find_core(x_1, x_14);
+if (lean::obj_tag(x_15) == 0)
 {
-obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; 
-lean::dec(x_11);
-x_14 = l_Lean_Name_toString___closed__1;
-x_15 = l_Lean_Name_toStringWithSep___main(x_14, x_12);
-x_16 = l_Lean_mkInitAttr___lambda__1___closed__5;
-x_17 = lean::string_append(x_16, x_15);
-lean::dec(x_15);
-x_18 = l_Char_HasRepr___closed__1;
-x_19 = lean::string_append(x_17, x_18);
-x_20 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_20, 0, x_19);
-return x_20;
-}
-else
-{
-obj* x_21; obj* x_22; obj* x_23; 
-x_21 = lean::cnstr_get(x_13, 0);
-lean::inc(x_21);
+obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; 
 lean::dec(x_13);
-x_22 = l_Lean_ConstantInfo_type(x_21);
-lean::dec(x_21);
-x_23 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(x_22);
-lean::dec(x_22);
-if (lean::obj_tag(x_23) == 0)
-{
-obj* x_24; obj* x_25; obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; 
-lean::dec(x_11);
-x_24 = l_Lean_Name_toString___closed__1;
-x_25 = l_Lean_Name_toStringWithSep___main(x_24, x_12);
-x_26 = l_Lean_mkInitAttr___lambda__1___closed__6;
-x_27 = lean::string_append(x_26, x_25);
-lean::dec(x_25);
-x_28 = l_Lean_mkInitAttr___lambda__1___closed__7;
-x_29 = lean::string_append(x_27, x_28);
-x_30 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_30, 0, x_29);
-return x_30;
+lean::dec(x_1);
+x_16 = l_Lean_Name_toString___closed__1;
+x_17 = l_Lean_Name_toStringWithSep___main(x_16, x_14);
+x_18 = l_Lean_mkInitAttr___lambda__1___closed__4;
+x_19 = lean::string_append(x_18, x_17);
+lean::dec(x_17);
+x_20 = l_Char_HasRepr___closed__1;
+x_21 = lean::string_append(x_19, x_20);
+x_22 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_22, 0, x_21);
+return x_22;
 }
 else
 {
-obj* x_31; obj* x_32; uint8 x_33; 
-x_31 = lean::cnstr_get(x_23, 0);
-lean::inc(x_31);
+obj* x_23; obj* x_24; obj* x_25; 
+x_23 = lean::cnstr_get(x_15, 0);
+lean::inc(x_23);
+lean::dec(x_15);
+x_24 = l_Lean_ConstantInfo_type(x_23);
 lean::dec(x_23);
-x_32 = l_Lean_ConstantInfo_type(x_11);
-lean::dec(x_11);
-x_33 = lean_expr_eqv(x_32, x_31);
-lean::dec(x_31);
-lean::dec(x_32);
-if (x_33 == 0)
+x_25 = l___private_init_lean_compiler_initattr_1__getIOTypeArg___main(x_24);
+lean::dec(x_24);
+if (lean::obj_tag(x_25) == 0)
 {
-obj* x_34; obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; 
-x_34 = l_Lean_Name_toString___closed__1;
-x_35 = l_Lean_Name_toStringWithSep___main(x_34, x_12);
-x_36 = l_Lean_mkInitAttr___lambda__1___closed__6;
-x_37 = lean::string_append(x_36, x_35);
-lean::dec(x_35);
-x_38 = l_Lean_mkInitAttr___lambda__1___closed__8;
-x_39 = lean::string_append(x_37, x_38);
-x_40 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_40, 0, x_39);
-return x_40;
+obj* x_26; obj* x_27; obj* x_28; obj* x_29; obj* x_30; obj* x_31; obj* x_32; 
+lean::dec(x_13);
+lean::dec(x_1);
+x_26 = l_Lean_Name_toString___closed__1;
+x_27 = l_Lean_Name_toStringWithSep___main(x_26, x_14);
+x_28 = l_Lean_mkInitAttr___lambda__1___closed__5;
+x_29 = lean::string_append(x_28, x_27);
+lean::dec(x_27);
+x_30 = l_Lean_mkInitAttr___lambda__1___closed__6;
+x_31 = lean::string_append(x_29, x_30);
+x_32 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_32, 0, x_31);
+return x_32;
 }
 else
 {
-obj* x_41; 
-x_41 = lean::alloc_cnstr(1, 1, 0);
-lean::cnstr_set(x_41, 0, x_12);
-return x_41;
+obj* x_33; obj* x_34; uint8 x_35; 
+x_33 = lean::cnstr_get(x_25, 0);
+lean::inc(x_33);
+lean::dec(x_25);
+x_34 = l_Lean_ConstantInfo_type(x_13);
+lean::dec(x_13);
+x_35 = lean_expr_eqv(x_34, x_33);
+lean::dec(x_33);
+lean::dec(x_34);
+if (x_35 == 0)
+{
+obj* x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; obj* x_42; 
+lean::dec(x_1);
+x_36 = l_Lean_Name_toString___closed__1;
+x_37 = l_Lean_Name_toStringWithSep___main(x_36, x_14);
+x_38 = l_Lean_mkInitAttr___lambda__1___closed__5;
+x_39 = lean::string_append(x_38, x_37);
+lean::dec(x_37);
+x_40 = l_Lean_mkInitAttr___lambda__1___closed__7;
+x_41 = lean::string_append(x_39, x_40);
+x_42 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_42, 0, x_41);
+return x_42;
+}
+else
+{
+obj* x_43; obj* x_44; 
+x_43 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_43, 0, x_14);
+lean::cnstr_set(x_43, 1, x_1);
+x_44 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_44, 0, x_43);
+return x_44;
 }
 }
 }
 }
 default: 
 {
-obj* x_42; 
+obj* x_45; 
 lean::dec(x_4);
 lean::dec(x_3);
 lean::dec(x_1);
-x_42 = l_Lean_mkInitAttr___lambda__1___closed__4;
-return x_42;
+x_45 = l_Lean_mkInitAttr___lambda__1___closed__3;
+return x_45;
 }
 }
 }
@@ -1488,8 +1489,6 @@ l_Lean_mkInitAttr___lambda__1___closed__6 = _init_l_Lean_mkInitAttr___lambda__1_
 lean::mark_persistent(l_Lean_mkInitAttr___lambda__1___closed__6);
 l_Lean_mkInitAttr___lambda__1___closed__7 = _init_l_Lean_mkInitAttr___lambda__1___closed__7();
 lean::mark_persistent(l_Lean_mkInitAttr___lambda__1___closed__7);
-l_Lean_mkInitAttr___lambda__1___closed__8 = _init_l_Lean_mkInitAttr___lambda__1___closed__8();
-lean::mark_persistent(l_Lean_mkInitAttr___lambda__1___closed__8);
 l_Lean_mkInitAttr___closed__1 = _init_l_Lean_mkInitAttr___closed__1();
 lean::mark_persistent(l_Lean_mkInitAttr___closed__1);
 l_Lean_mkInitAttr___closed__2 = _init_l_Lean_mkInitAttr___closed__2();

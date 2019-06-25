@@ -168,4 +168,28 @@ template<typename T> obj_res to_object(optional<T> const & o) {
         return box(0);
     }
 }
+
+/*
+inductive Except (ε : Type u) (α : Type v)
+| error {} : ε → Except
+| ok {} : α → Except
+*/
+
+template<typename T> object * mk_except_ok(T const & val) {
+    obj_res r = alloc_cnstr(1, 1, 0);
+    cnstr_set(r, 0, val.to_obj_arg());
+    return r;
+}
+
+template<typename T> object * mk_except_error(T const & err) {
+    obj_res r = alloc_cnstr(0, 1, 0);
+    cnstr_set(r, 0, err.to_obj_arg());
+    return r;
+}
+
+inline object * mk_except_error_string(char const * err) {
+    obj_res r = alloc_cnstr(0, 1, 0);
+    cnstr_set(r, 0, mk_string(err));
+    return r;
+}
 }

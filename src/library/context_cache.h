@@ -93,7 +93,7 @@ public:
     context_cache & operator=(context_cache &&) = default;
 
     virtual optional<constant_info> get_decl(type_context_old &, transparency_mode, name const &) override;
-    virtual projection_info const * get_proj_info(type_context_old &, name const &) override;
+    virtual optional<projection_info> get_proj_info(type_context_old &, name const &) override;
     virtual bool get_aux_recursor(type_context_old &, name const &) override;
 
     /* Cache support for type_context_old module */

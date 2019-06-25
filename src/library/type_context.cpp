@@ -594,31 +594,31 @@ optional<expr> type_context_old::unfold_definition(expr const & e) {
     }
 }
 
-projection_info const * type_context_old::is_projection(expr const & e) {
+optional<projection_info> type_context_old::is_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f))
-        return nullptr;
-    projection_info const * info = m_cache->get_proj_info(*this, const_name(f));
+        return optional<projection_info>();
+    optional<projection_info> info = m_cache->get_proj_info(*this, const_name(f));
     if (!info)
-        return nullptr;
-    if (get_app_num_args(e) <= info->m_nparams)
-        return nullptr;
+        return info;
+    if (get_app_num_args(e) <= info->get_nparams())
+        return optional<projection_info>();
     return info;
 }
 
-optional<expr> type_context_old::reduce_projection_core(projection_info const * info, expr const & e) {
+optional<expr> type_context_old::reduce_projection_core(optional<projection_info> const & info, expr const & e) {
     buffer<expr> args;
     get_app_args(e, args);
-    lean_assert(args.size() > info->m_nparams);
-    unsigned mkidx  = info->m_nparams;
+    lean_assert(args.size() > info->get_nparams());
+    unsigned mkidx  = info->get_nparams();
     expr const & mk = args[mkidx];
     expr new_mk     = whnf(mk);
     expr const & new_mk_fn = get_app_fn(new_mk);
-    if (!is_constant(new_mk_fn) || const_name(new_mk_fn) != info->m_constructor)
+    if (!is_constant(new_mk_fn) || const_name(new_mk_fn) != info->get_constructor())
         return none_expr();
     buffer<expr> mk_args;
     get_app_args(new_mk, mk_args);
-    unsigned i = info->m_nparams + info->m_i;
+    unsigned i = info->get_nparams() + info->get_i();
     if (i >= mk_args.size())
         none_expr();
     expr r = mk_args[i];
@@ -627,7 +627,7 @@ optional<expr> type_context_old::reduce_projection_core(projection_info const * 
 }
 
 optional<expr> type_context_old::reduce_projection(expr const & e) {
-    projection_info const * info = is_projection(e);
+    optional<projection_info> info = is_projection(e);
     if (!info)
         return none_expr();
     return reduce_projection_core(info, e);
@@ -877,12 +877,12 @@ expr type_context_old::relaxed_whnf(expr const & e) {
 optional<expr> type_context_old::is_stuck_projection(expr const & e) {
     expr const & f = get_app_fn(e);
     if (!is_constant(f)) return none_expr(); // it is not projection app
-    projection_info const * info = m_cache->get_proj_info(*this, const_name(f));
+    optional<projection_info> info = m_cache->get_proj_info(*this, const_name(f));
     if (!info) return none_expr(); // it is not projection app
     buffer<expr> args;
     get_app_args(e, args);
-    if (args.size() <= info->m_nparams) return none_expr(); // partially applied projection
-    unsigned mkidx  = info->m_nparams;
+    if (args.size() <= info->get_nparams()) return none_expr(); // partially applied projection
+    unsigned mkidx  = info->get_nparams();
     expr mk         = args[mkidx];
     return is_stuck(mk);
 }
@@ -3105,8 +3105,8 @@ lbool type_context_old::is_def_eq_delta(expr const & t, expr const & s) {
 }
 
 lbool type_context_old::is_def_eq_proj(expr t, expr s) {
-    projection_info const * t_proj = is_projection(t);
-    projection_info const * s_proj = is_projection(s);
+    optional<projection_info> t_proj = is_projection(t);
+    optional<projection_info> s_proj = is_projection(s);
     if (t_proj && !s_proj) {
         if (auto t_n = reduce_projection_core(t_proj, t)) {
             return to_lbool(is_def_eq_core_core(*t_n, s));
@@ -3115,7 +3115,7 @@ lbool type_context_old::is_def_eq_proj(expr t, expr s) {
         if (auto s_n = reduce_projection_core(s_proj, s))
             return to_lbool(is_def_eq_core_core(t, *s_n));
     } else if (t_proj && s_proj) {
-        if (t_proj == s_proj) {
+        if (t_proj->get_constructor() == s_proj->get_constructor()) {
             t = instantiate_mvars(t);
             s = instantiate_mvars(s);
             if (has_expr_metavar(t) || has_expr_metavar(s)) {

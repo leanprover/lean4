@@ -19,15 +19,20 @@ namespace lean {
 
     We also use this information in the rewriter/simplifier.
 */
-struct projection_info {
+class projection_info {
     name     m_constructor;   // mk in the rule above
     unsigned m_nparams;       // number of parameters of the inductive datatype
     unsigned m_i;             // i in the rule above
     bool     m_inst_implicit; // true if it is the projection of a "class"
-
+    friend struct proj_modification;
+public:
     projection_info() {}
     projection_info(name const & c, unsigned nparams, unsigned i, bool inst_implicit):
         m_constructor(c), m_nparams(nparams), m_i(i), m_inst_implicit(inst_implicit) {}
+    name const & get_constructor() const { return m_constructor; }
+    unsigned get_nparams() const { return m_nparams; }
+    unsigned get_i() const { return m_i; }
+    bool is_inst_implicit() const { return m_inst_implicit; }
 };
 
 /** \brief Mark \c p as a projection in the given environment and store that
@@ -41,14 +46,11 @@ environment save_projection_info(environment const & env, name const & p, name c
     associated with it (constructor, number of parameters, and index).
     If \c p is not a projection, then return nullptr.
 */
-projection_info const * get_projection_info(environment const & env, name const & p);
+optional<projection_info> get_projection_info(environment const & env, name const & p);
 
 inline bool is_projection(environment const & env, name const & n) {
-    return get_projection_info(env, n) != nullptr;
+    return static_cast<bool>(get_projection_info(env, n));
 }
-
-/** \brief Return the mapping from projection name to associated information */
-name_map<projection_info> const & get_projection_info_map(environment const & env);
 
 /** \brief Return true iff the type named \c S can be viewed as
     a structure in the given environment.

@@ -67,13 +67,12 @@ environment save_projection_info(environment const & env, name const & p, name c
     return module::add_and_perform(env, new proj_modification(p, projection_info(mk, nparams, i, inst_implicit)));
 }
 
-projection_info const * get_projection_info(environment const & env, name const & p) {
+optional<projection_info> get_projection_info(environment const & env, name const & p) {
     projection_ext const & ext = get_extension(env);
-    return ext.m_info.find(p);
-}
-
-name_map<projection_info> const & get_projection_info_map(environment const & env) {
-    return get_extension(env).m_info;
+    if (auto info = ext.m_info.find(p))
+        return optional<projection_info>(*info);
+    else
+        return optional<projection_info>();
 }
 
 /** \brief Return true iff the type named \c S can be viewed as

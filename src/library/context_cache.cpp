@@ -30,7 +30,7 @@ optional<constant_info> context_cache::get_decl(type_context_old & ctx, transpar
     return r;
 }
 
-projection_info const * context_cache::get_proj_info(type_context_old & ctx, name const & n) {
+optional<projection_info> context_cache::get_proj_info(type_context_old & ctx, name const & n) {
     // TODO(Leo): check if we really need a cache for get_proj_info
     return context_cacheless::get_proj_info(ctx, n);
 }

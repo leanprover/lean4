@@ -535,8 +535,8 @@ private:
     void init_local_instances();
     void update_local_instances(expr const & new_local, expr const & new_type);
 
-    projection_info const * is_projection(expr const & e);
-    optional<expr> reduce_projection_core(projection_info const * info, expr const & e);
+    optional<projection_info> is_projection(expr const & e);
+    optional<expr> reduce_projection_core(optional<projection_info> const & info, expr const & e);
 
     type_context_old(abstract_context_cache * cache, metavar_context const & mctx, local_context const & lctx,
                  transparency_mode m);

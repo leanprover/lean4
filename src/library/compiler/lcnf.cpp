@@ -90,7 +90,7 @@ public:
     }
 
     expr visit_projection(expr const & fn, projection_info const & pinfo, buffer<expr> & args, bool root) {
-        name const & k        = pinfo.m_constructor;
+        name const & k        = pinfo.get_constructor();
         constructor_val k_val = env().get(k).to_constructor_val();
         name const & I_name   = k_val.get_induct();
         if (is_runtime_builtin_type(I_name)) {
@@ -401,7 +401,7 @@ public:
             return visit_false_rec(fn, args, root);
         } else if (is_cases_on_recursor(env(), const_name(fn))) {
             return visit_cases_on(fn, args, root);
-        } else if (projection_info const * pinfo = get_projection_info(env(), const_name(fn))) {
+        } else if (optional<projection_info> pinfo = get_projection_info(env(), const_name(fn))) {
             return visit_projection(fn, *pinfo, args, root);
         } else if (is_no_confusion(env(), const_name(fn))) {
             return visit_no_confusion(fn, args, root);

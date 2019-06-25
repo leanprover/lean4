@@ -76,7 +76,7 @@ bool context_cacheless::is_transparent(type_context_old & ctx, transparency_mode
     if (m == transparency_mode::None)
         return false;
     name const & n = info.get_name();
-    if (get_proj_info(ctx, n) != nullptr)
+    if (get_proj_info(ctx, n))
         return false;
     if (m == transparency_mode::All)
         return true;
@@ -101,7 +101,7 @@ optional<constant_info> context_cacheless::get_decl(type_context_old & ctx, tran
     return none_constant_info();
 }
 
-projection_info const * context_cacheless::get_proj_info(type_context_old & ctx, name const & n) {
+optional<projection_info> context_cacheless::get_proj_info(type_context_old & ctx, name const & n) {
     return get_projection_info(ctx.env(), n);
 }
 

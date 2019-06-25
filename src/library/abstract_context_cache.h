@@ -182,7 +182,7 @@ public:
        The default implementation provided by this class does not have any optimization. */
 
     virtual optional<constant_info> get_decl(type_context_old &, transparency_mode, name const &) = 0;
-    virtual projection_info const * get_proj_info(type_context_old &, name const &) = 0;
+    virtual optional<projection_info> get_proj_info(type_context_old &, name const &) = 0;
     virtual bool get_aux_recursor(type_context_old &, name const &) = 0;
 
     /* Cache support for type_context_old module */
@@ -262,7 +262,7 @@ public:
        The default implementation provided by this class does not have any optimization. */
 
     virtual optional<constant_info> get_decl(type_context_old &, transparency_mode, name const &) override;
-    virtual projection_info const * get_proj_info(type_context_old &, name const &) override;
+    virtual optional<projection_info> get_proj_info(type_context_old &, name const &) override;
     virtual bool get_aux_recursor(type_context_old &, name const &) override;
 
     /* Cache support for type_context_old module */

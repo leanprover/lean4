@@ -114,7 +114,7 @@ bool is_structure(environment const & env, name const & S) {
     if (!is_pi(cnstr_type))
         return false;
     name field_name = S + deinternalize_field_name(binding_name(cnstr_type));
-    return get_projection_info(env, field_name) != nullptr;
+    return static_cast<bool>(get_projection_info(env, field_name));
 }
 
 optional<name> is_subobject_field(environment const & env, name const & S_name, name const & fname) {

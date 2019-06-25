@@ -42,7 +42,6 @@ structure ExternAttrData :=
 
 @[export lean.mk_extern_attr_data_core] def mkExternAttrData := ExternAttrData.mk
 
-/-
 private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List ExternEntry → Except String (List ExternEntry)
 | i entries :=
   if i == a.size then Except.ok entries
@@ -50,11 +49,17 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
     | Syntax.ident _ _ backend _ _ :=
       let i := i + 1 in
       if i == a.size then Except.error "string or identifier expected"
-      else match a.get i with
-        | Syntax.ident _ _ "inline" _ _ := Except.error ""
-        | Syntax.ident _ _
+      else match (a.get i).isIdOrAtom with
+        | some "adhoc"  := syntaxToExternEntries (i+1) (ExternEntry.adhoc backend :: entries)
+        | some "inline" :=
+          let i := i + 1 in
+          match (a.get i).isStrLit with
+          | some pattern := syntaxToExternEntries (i+1) (ExternEntry.inline backend pattern :: entries)
+          | none := Except.error "string literal expected"
+        | _ := match (a.get i).isStrLit with
+          | some fn := syntaxToExternEntries (i+1) (ExternEntry.standard backend fn :: entries)
+          | none := Except.error "string literal expected"
     | _ := Except.error "identifier expected"
--/
 
 private def syntaxToExternAttrData (s : Syntax) : Except String ExternAttrData :=
 match s with
@@ -71,9 +76,9 @@ match s with
         Except.ok { arity := arity, entries := [ ExternEntry.standard `all str ] }
       else
         Except.error "invalid extern attribute"
-    | none :=
-      -- TODO
-      Except.ok { entries := [] }
+    | none := match syntaxToExternEntries args i [] with
+      | Except.ok entries := Except.ok { arity := arity, entries := entries }
+      | Except.error msg  := Except.error msg
 | _ := Except.error "unexpected kind of argument"
 
 -- def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=

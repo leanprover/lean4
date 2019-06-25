@@ -40,6 +40,8 @@ structure ExternAttrData :=
 (arity    : Option Nat := none)
 (entries  : List ExternEntry)
 
+instance ExternAttrData.inhabited : Inhabited ExternAttrData := ⟨{ entries := [] }⟩
+
 @[export lean.mk_extern_attr_data_core] def mkExternAttrData := ExternAttrData.mk
 
 private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List ExternEntry → Except String (List ExternEntry)
@@ -61,7 +63,7 @@ private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List Exte
           | none := Except.error "string literal expected"
     | _ := Except.error "identifier expected"
 
-private def syntaxToExternAttrData (s : Syntax) : Except String ExternAttrData :=
+private def syntaxToExternAttrData (s : Syntax) : ExceptT String Id  ExternAttrData :=
 match s with
 | Syntax.missing := Except.ok { entries := [ ExternEntry.adhoc `all ] }
 | Syntax.node _ args _ :=
@@ -81,8 +83,14 @@ match s with
       | Except.error msg  := Except.error msg
 | _ := Except.error "unexpected kind of argument"
 
--- def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
--- registerParametricAttribute `extern "builtin and foreign functions" $ λ env declName stx,
+@[extern "lean_add_extern"]
+constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment := default _
+
+def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
+registerParametricAttribute `extern "builtin and foreign functions" $ λ env declName stx, do
+  val ← syntaxToExternAttrData stx,
+  -- TODO: invoke addExtern for constructors and generated projections
+  pure (val, env)
 
 private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
 | 0     it r := (it, r)

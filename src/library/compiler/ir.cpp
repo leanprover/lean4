@@ -537,6 +537,15 @@ environment add_extern(environment const & env, name const & fn) {
     return add_boxed_version(new_env, d);
 }
 
+extern "C" object* lean_add_extern(object * env, object * fn) {
+    try {
+        environment env = add_extern(environment(env), name(fn));
+        return mk_except_ok(env);
+    } catch (exception & ex) {
+        return mk_except_error_string(ex.what());
+    }
+}
+
 /*
 @[export lean.ir.emit_cpp_core]
 def emitCpp (env : Environment) (modName : Name) : Except String String :

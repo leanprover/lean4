@@ -14,6 +14,7 @@ typedef lean::uint32 uint32; typedef lean::uint64 uint64;
 #pragma GCC diagnostic ignored "-Wunused-label"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux___main(obj*, obj*, obj*);
 obj* l_unsafeCast(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_getHeadInfo___boxed(obj*);
 obj* l_Lean_Syntax_replace(obj*, obj*, obj*);
@@ -21,31 +22,35 @@ obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__1(obj*, 
 extern "C" uint8 lean_name_dec_eq(obj*, obj*);
 obj* l_Lean_Syntax_reprint___main___boxed(obj*);
 obj* l_Lean_Syntax_flipScopes___rarg(obj*);
+obj* l_Lean_Syntax_isNatLit(obj*);
 extern obj* l_Array_empty___closed__1;
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
 obj* l_Lean_stxInh;
 obj* l_Lean_Syntax_mreplace___main___at_Lean_Syntax_replace___spec__1(obj*, obj*);
-namespace lean {
-obj* mk_syntax_atom_core(obj*);
-}
 extern obj* l_Lean_Format_paren___closed__2;
 obj* l_Lean_Syntax_formatStx___main___closed__5;
 obj* l_Lean_Syntax_isOfKind___boxed(obj*, obj*);
+obj* l_Array_mkArray(obj*, obj*, obj*);
 obj* l_Lean_withArgs___rarg(obj*, obj*);
 obj* l_Lean_Syntax_toSyntaxNode(obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_updateLeading___spec__2(obj*, obj*, obj*);
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Format_group___main(obj*);
 obj* l___private_init_lean_syntax_3__reprintLeaf___main___boxed(obj*, obj*);
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1(obj*);
 obj* l___private_init_lean_syntax_3__reprintLeaf(obj*, obj*);
+obj* l_Lean_mkStrLit(obj*, obj*);
 obj* l_Lean_Syntax_replace___boxed(obj*, obj*, obj*);
 obj* l_Function_comp___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_reprint___main(obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_toSyntaxNode___spec__1(obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
+obj* l___private_init_lean_syntax_4__decodeBinLitAux___main(obj*, obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main(obj*);
+obj* l_Lean_numLitKind;
 obj* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStx___main___spec__2(obj*, obj*);
 uint8 l_Lean_Syntax_isOfKind___main(obj*, obj*);
 obj* l_Lean_Syntax_updateTrailing(obj*, obj*);
@@ -53,27 +58,35 @@ obj* l_Lean_updateArgs(obj*, obj*);
 obj* l_Lean_MacroScopes_flip(obj*, obj*);
 obj* l_Lean_Name_toStringWithSep___main(obj*, obj*);
 obj* l___private_init_lean_syntax_2__updateLeadingAux___main(obj*, obj*);
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux___boxed(obj*, obj*, obj*);
 obj* l_Lean_Syntax_updateTrailing___main(obj*, obj*);
 extern obj* l_Lean_Format_sbracket___closed__1;
 obj* l_Lean_Syntax_isIdent___main___boxed(obj*);
 obj* l_Lean_Syntax_isMissing___main___boxed(obj*);
 obj* l_Lean_Syntax_reprint___boxed(obj*);
+obj* l___private_init_lean_syntax_8__decodeNatLitVal(obj*);
 obj* l_Lean_Syntax_formatStx___main___closed__2;
 obj* l_Lean_Syntax_flipScopes___main(obj*);
 obj* l_Lean_Syntax_HasToString;
 obj* l_Lean_Syntax_formatStx___main___closed__4;
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux___boxed(obj*, obj*, obj*);
 obj* l_Nat_decEq___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__2(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_syntax_6__decodeHexLitAux(obj*, obj*, obj*);
+obj* l_Lean_mkNumLit(obj*, obj*);
 extern obj* l_Lean_Format_join___closed__1;
+obj* l___private_init_lean_syntax_6__decodeHexLitAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_SourceInfo_updateTrailing(obj*, obj*);
 obj* l___private_init_lean_syntax_1__updateInfo___main(obj*, obj*);
 obj* l_Array_toList___rarg(obj*);
 obj* l_Lean_Syntax_replace___rarg(obj*, obj*);
 obj* l_List_map___main___at_Lean_Syntax_formatStx___main___spec__4(obj*);
 obj* l_Nat_repr(obj*);
+obj* l___private_init_lean_syntax_4__decodeBinLitAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Syntax_mreplace___main___rarg___lambda__3(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_Format_sbracket___closed__2;
 obj* l_Lean_Syntax_isMissing___boxed(obj*);
+obj* l_Lean_Syntax_isStrLit___main(obj*);
 obj* l_Lean_Syntax_mreplace___main___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_reprint___main___closed__1;
 obj* l_Lean_Syntax_mreplace___boxed(obj*);
@@ -81,15 +94,23 @@ obj* l_Lean_unreachIsNodeIdent___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*)
 obj* l_Lean_MacroScope_DecidableEq;
 obj* l_List_map___main___at_Lean_Syntax_formatStx___main___spec__1(obj*);
 obj* l_Lean_Syntax_getPos___boxed(obj*);
+obj* l_Lean_Syntax_isNatLit___main(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__1___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_Syntax_Lean_HasFormat;
 obj* l_Lean_Syntax_formatStx(obj*);
 namespace lean {
+obj* mk_syntax_str_lit_core(obj*);
+}
+namespace lean {
 obj* string_append(obj*, obj*);
 }
 obj* l_Array_mfindAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1___boxed(obj*, obj*);
+uint8 l_UInt32_decLe(uint32, uint32);
 obj* l___private_init_lean_syntax_2__updateLeadingAux(obj*, obj*);
 extern obj* l_Lean_Format_paren___closed__1;
+namespace lean {
+uint8 string_utf8_at_end(obj*, obj*);
+}
 obj* l_Lean_Syntax_mreplace___main___at_Lean_Syntax_updateLeading___spec__1(obj*, obj*);
 uint8 l_Lean_Syntax_isOfKind(obj*, obj*);
 obj* l_Lean_Syntax_getHeadInfo___main(obj*);
@@ -117,37 +138,59 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 obj* l_Lean_Syntax_mreplace___main___rarg___lambda__1(obj*, obj*, obj*);
+namespace lean {
+obj* mk_syntax_ident_core(obj*);
+}
+obj* l_Lean_strLitKind;
+obj* l_Lean_Syntax_isStrLit___main___boxed(obj*);
 obj* l_List_map___main___at_Lean_Syntax_formatStx___main___spec__5(obj*);
 obj* l_Lean_Syntax_reprint(obj*);
 obj* l_Lean_Syntax_getHeadInfo(obj*);
+namespace lean {
+uint32 string_utf8_get(obj*, obj*);
+}
 obj* l_Lean_Syntax_mreplace___rarg(obj*, obj*, obj*);
 obj* l_Lean_unreachIsNodeMissing(obj*, obj*);
 namespace lean {
 uint8 string_dec_eq(obj*, obj*);
 }
 obj* l_Lean_HasRepr___lambda__1(obj*);
+uint8 l_UInt32_decEq(uint32, uint32);
 uint8 l_Lean_Syntax_isIdent(obj*);
 obj* l_Array_mfindAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1(obj*, obj*);
 obj* l_Lean_Syntax_updateLeading(obj*);
 obj* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStx___main___spec__2___boxed(obj*, obj*);
 obj* l___private_init_lean_syntax_1__updateInfo(obj*, obj*);
+uint8 l_Char_isDigit(uint32);
 obj* l_Lean_Syntax_flipScopes(obj*);
+obj* l___private_init_lean_syntax_8__decodeNatLitVal___closed__1;
 obj* l_Lean_Name_replacePrefix___main(obj*, obj*, obj*);
 extern obj* l_Lean_Format_sbracket___closed__3;
+obj* l___private_init_lean_syntax_6__decodeHexLitAux___main(obj*, obj*, obj*);
 obj* l_Lean_MacroScope_Lean_HasFormat;
 extern obj* l_Lean_formatKVMap___closed__1;
+namespace lean {
+obj* mk_syntax_list_core(obj*);
+}
+obj* l_Lean_Syntax_isNatLit___main___boxed(obj*);
+obj* l_Lean_Syntax_isStrLit(obj*);
 obj* l_Lean_Syntax_flipScopes___boxed(obj*);
+namespace lean {
+obj* mk_syntax_num_lit_core(obj*);
+}
 obj* l_Lean_Syntax_getPos(obj*);
 obj* l_Array_size(obj*, obj*);
 obj* l_Array_fset(obj*, obj*, obj*, obj*);
 obj* l_Array_get(obj*, obj*, obj*, obj*);
-namespace lean {
-obj* mk_syntax_list_core(obj*);
-}
 obj* l___private_init_lean_syntax_3__reprintLeaf___boxed(obj*, obj*);
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Format_joinSep___main___at_Lean_Syntax_formatStx___main___spec__3(obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1___rarg(obj*, obj*, obj*, obj*);
 obj* l_Lean_unreachIsNodeAtom___boxed(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux___main(obj*, obj*, obj*);
+namespace lean {
+obj* string_utf8_next(obj*, obj*);
+}
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1___rarg___lambda__1___boxed(obj*, obj*, obj*, obj*, obj*, obj*);
 extern obj* l_Lean_formatDataValue___main___closed__3;
 obj* l_Array_ummapAux___main___at_Lean_Syntax_mreplace___main___spec__1___boxed(obj*);
@@ -155,29 +198,43 @@ extern obj* l_Lean_Name_toString___closed__1;
 namespace lean {
 obj* string_utf8_extract(obj*, obj*, obj*);
 }
+obj* l___private_init_lean_syntax_4__decodeBinLitAux___boxed(obj*, obj*, obj*);
 obj* l_Lean_Syntax_isOfKind___main___boxed(obj*, obj*);
 namespace lean {
 obj* string_utf8_byte_size(obj*);
 }
+obj* l_Lean_Syntax_isNatLit___boxed(obj*);
+obj* l___private_init_lean_syntax_8__decodeNatLitVal___boxed(obj*);
+namespace lean {
+obj* uint32_to_nat(uint32);
+}
+obj* l___private_init_lean_syntax_4__decodeBinLitAux(obj*, obj*, obj*);
 obj* l_Lean_Syntax_mreplace___main___boxed(obj*);
 obj* l_Array_set(obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_syntax_3__reprintLeaf___main(obj*, obj*);
 obj* l_Lean_MacroScopes_flip___main(obj*, obj*);
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux(obj*, obj*, obj*);
 obj* l_Lean_Syntax_formatStx___main___closed__6;
 obj* l_String_quote(obj*);
 obj* l_Lean_Syntax_mreplace(obj*);
+obj* l_Lean_Syntax_isStrLit___boxed(obj*);
+namespace lean {
+obj* mk_syntax_atom_core(obj*);
+}
 obj* l_Lean_Syntax_mreplace___main(obj*);
 obj* l_Array_miterateAux___main___at_Lean_Syntax_reprint___main___spec__2___boxed(obj*, obj*, obj*, obj*);
+obj* l_Lean_mkLit(obj*, obj*, obj*);
+namespace lean {
+obj* nat_mul(obj*, obj*);
+}
 obj* l_Lean_withArgs(obj*);
 obj* l_Lean_MacroScopes_flip___boxed(obj*, obj*);
+obj* l___private_init_lean_syntax_6__decodeHexLitAux___boxed(obj*, obj*, obj*);
 obj* l_Array_ummapAux___main___at_Lean_Syntax_replace___spec__2(obj*, obj*, obj*);
 obj* l_Lean_Syntax_toSyntaxNode___rarg(obj*, obj*, obj*);
 obj* l_Lean_Syntax_isIdent___boxed(obj*);
 obj* l_Lean_Syntax_getHeadInfo___main___boxed(obj*);
 obj* l_Lean_SourceInfo_updateTrailing___main(obj*, obj*);
-namespace lean {
-obj* mk_syntax_ident_core(obj*);
-}
 obj* l_Lean_Syntax_toSyntaxNode___rarg___boxed(obj*, obj*, obj*);
 obj* l_Lean_unreachIsNodeIdent(obj*, obj*, obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_Syntax_isMissing(obj*);
@@ -255,6 +312,26 @@ _start:
 obj* x_1; obj* x_2; obj* x_3; 
 x_1 = lean::box(0);
 x_2 = lean::mk_string("null");
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_strLitKind() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = lean::mk_string("strLit");
+x_3 = lean_name_mk_string(x_1, x_2);
+return x_3;
+}
+}
+obj* _init_l_Lean_numLitKind() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; 
+x_1 = lean::box(0);
+x_2 = lean::mk_string("numLit");
 x_3 = lean_name_mk_string(x_1, x_2);
 return x_3;
 }
@@ -3457,6 +3534,919 @@ return x_4;
 }
 }
 }
+obj* l_Lean_mkLit(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; 
+x_4 = lean::alloc_cnstr(2, 2, 0);
+lean::cnstr_set(x_4, 0, x_3);
+lean::cnstr_set(x_4, 1, x_2);
+x_5 = lean::mk_nat_obj(1u);
+x_6 = lean::mk_array(x_5, x_4);
+x_7 = lean::box(0);
+x_8 = lean::alloc_cnstr(1, 3, 0);
+lean::cnstr_set(x_8, 0, x_1);
+lean::cnstr_set(x_8, 1, x_6);
+lean::cnstr_set(x_8, 2, x_7);
+return x_8;
+}
+}
+obj* l_Lean_mkStrLit(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = l_Lean_strLitKind;
+x_4 = l_Lean_mkLit(x_3, x_1, x_2);
+return x_4;
+}
+}
+obj* l_Lean_mkNumLit(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; obj* x_4; 
+x_3 = l_Lean_numLitKind;
+x_4 = l_Lean_mkLit(x_3, x_1, x_2);
+return x_4;
+}
+}
+namespace lean {
+obj* mk_syntax_str_lit_core(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; 
+x_2 = lean::box(0);
+x_3 = l_Lean_strLitKind;
+x_4 = l_Lean_mkLit(x_3, x_1, x_2);
+return x_4;
+}
+}
+}
+namespace lean {
+obj* mk_syntax_num_lit_core(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; obj* x_4; obj* x_5; 
+x_2 = l_Nat_repr(x_1);
+x_3 = lean::box(0);
+x_4 = l_Lean_numLitKind;
+x_5 = l_Lean_mkLit(x_4, x_2, x_3);
+return x_5;
+}
+}
+}
+obj* l_Lean_Syntax_isStrLit___main(obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_1) == 1)
+{
+obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
+x_2 = lean::cnstr_get(x_1, 0);
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = l_Lean_strLitKind;
+x_5 = lean_name_dec_eq(x_2, x_4);
+if (x_5 == 0)
+{
+obj* x_6; 
+x_6 = lean::box(0);
+return x_6;
+}
+else
+{
+obj* x_7; obj* x_8; uint8 x_9; 
+x_7 = lean::array_get_size(x_3);
+x_8 = lean::mk_nat_obj(1u);
+x_9 = lean::nat_dec_eq(x_7, x_8);
+lean::dec(x_7);
+if (x_9 == 0)
+{
+obj* x_10; 
+x_10 = lean::box(0);
+return x_10;
+}
+else
+{
+obj* x_11; obj* x_12; obj* x_13; 
+x_11 = l_Lean_stxInh;
+x_12 = lean::mk_nat_obj(0u);
+x_13 = lean::array_get(x_11, x_3, x_12);
+if (lean::obj_tag(x_13) == 2)
+{
+obj* x_14; obj* x_15; 
+x_14 = lean::cnstr_get(x_13, 1);
+lean::inc(x_14);
+lean::dec(x_13);
+x_15 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_15, 0, x_14);
+return x_15;
+}
+else
+{
+obj* x_16; 
+lean::dec(x_13);
+x_16 = lean::box(0);
+return x_16;
+}
+}
+}
+}
+else
+{
+obj* x_17; 
+x_17 = lean::box(0);
+return x_17;
+}
+}
+}
+obj* l_Lean_Syntax_isStrLit___main___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isStrLit___main(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isStrLit(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isStrLit___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isStrLit___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isStrLit(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l___private_init_lean_syntax_4__decodeBinLitAux___main(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; 
+x_4 = lean::string_utf8_at_end(x_1, x_2);
+if (x_4 == 0)
+{
+uint32 x_5; uint32 x_6; uint8 x_7; 
+x_5 = lean::string_utf8_get(x_1, x_2);
+x_6 = 48;
+x_7 = x_5 == x_6;
+if (x_7 == 0)
+{
+uint32 x_8; uint8 x_9; 
+x_8 = 49;
+x_9 = x_5 == x_8;
+if (x_9 == 0)
+{
+obj* x_10; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_10 = lean::box(0);
+return x_10;
+}
+else
+{
+obj* x_11; obj* x_12; obj* x_13; obj* x_14; obj* x_15; 
+x_11 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_12 = lean::mk_nat_obj(2u);
+x_13 = lean::nat_mul(x_12, x_3);
+lean::dec(x_3);
+x_14 = lean::mk_nat_obj(1u);
+x_15 = lean::nat_add(x_13, x_14);
+lean::dec(x_13);
+x_2 = x_11;
+x_3 = x_15;
+goto _start;
+}
+}
+else
+{
+obj* x_17; obj* x_18; obj* x_19; 
+x_17 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_18 = lean::mk_nat_obj(2u);
+x_19 = lean::nat_mul(x_18, x_3);
+lean::dec(x_3);
+x_2 = x_17;
+x_3 = x_19;
+goto _start;
+}
+}
+else
+{
+obj* x_21; 
+lean::dec(x_2);
+x_21 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_21, 0, x_3);
+return x_21;
+}
+}
+}
+obj* l___private_init_lean_syntax_4__decodeBinLitAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_4__decodeBinLitAux___main(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_4__decodeBinLitAux(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_4__decodeBinLitAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_4__decodeBinLitAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_4__decodeBinLitAux(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux___main(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; 
+x_4 = lean::string_utf8_at_end(x_1, x_2);
+if (x_4 == 0)
+{
+uint32 x_5; uint32 x_6; uint8 x_7; 
+x_5 = lean::string_utf8_get(x_1, x_2);
+x_6 = 48;
+x_7 = x_6 <= x_5;
+if (x_7 == 0)
+{
+obj* x_8; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_8 = lean::box(0);
+return x_8;
+}
+else
+{
+uint32 x_9; uint8 x_10; 
+x_9 = 55;
+x_10 = x_5 <= x_9;
+if (x_10 == 0)
+{
+obj* x_11; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_11 = lean::box(0);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
+x_12 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_13 = lean::mk_nat_obj(8u);
+x_14 = lean::nat_mul(x_13, x_3);
+lean::dec(x_3);
+x_15 = lean::uint32_to_nat(x_5);
+x_16 = lean::nat_add(x_14, x_15);
+lean::dec(x_15);
+lean::dec(x_14);
+x_17 = lean::mk_nat_obj(48u);
+x_18 = lean::nat_sub(x_16, x_17);
+lean::dec(x_16);
+x_2 = x_12;
+x_3 = x_18;
+goto _start;
+}
+}
+}
+else
+{
+obj* x_20; 
+lean::dec(x_2);
+x_20 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_20, 0, x_3);
+return x_20;
+}
+}
+}
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_5__decodeOctalLitAux___main(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_5__decodeOctalLitAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_5__decodeOctalLitAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_5__decodeOctalLitAux(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_6__decodeHexLitAux___main(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; 
+x_4 = lean::string_utf8_at_end(x_1, x_2);
+if (x_4 == 0)
+{
+uint32 x_5; obj* x_6; uint32 x_54; uint8 x_55; 
+x_5 = lean::string_utf8_get(x_1, x_2);
+x_54 = 48;
+x_55 = x_54 <= x_5;
+if (x_55 == 0)
+{
+obj* x_56; 
+x_56 = lean::box(0);
+x_6 = x_56;
+goto block_53;
+}
+else
+{
+uint32 x_57; uint8 x_58; 
+x_57 = 57;
+x_58 = x_5 <= x_57;
+if (x_58 == 0)
+{
+obj* x_59; 
+x_59 = lean::box(0);
+x_6 = x_59;
+goto block_53;
+}
+else
+{
+obj* x_60; obj* x_61; obj* x_62; obj* x_63; obj* x_64; obj* x_65; obj* x_66; 
+x_60 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_61 = lean::mk_nat_obj(16u);
+x_62 = lean::nat_mul(x_61, x_3);
+lean::dec(x_3);
+x_63 = lean::uint32_to_nat(x_5);
+x_64 = lean::nat_add(x_62, x_63);
+lean::dec(x_63);
+lean::dec(x_62);
+x_65 = lean::mk_nat_obj(48u);
+x_66 = lean::nat_sub(x_64, x_65);
+lean::dec(x_64);
+x_2 = x_60;
+x_3 = x_66;
+goto _start;
+}
+}
+block_53:
+{
+uint32 x_7; uint8 x_8; 
+lean::dec(x_6);
+x_7 = 97;
+x_8 = x_7 <= x_5;
+if (x_8 == 0)
+{
+uint32 x_9; uint8 x_10; 
+x_9 = 65;
+x_10 = x_9 <= x_5;
+if (x_10 == 0)
+{
+obj* x_11; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_11 = lean::box(0);
+return x_11;
+}
+else
+{
+uint32 x_12; uint8 x_13; 
+x_12 = 70;
+x_13 = x_5 <= x_12;
+if (x_13 == 0)
+{
+obj* x_14; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_14 = lean::box(0);
+return x_14;
+}
+else
+{
+obj* x_15; obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; obj* x_23; 
+x_15 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_16 = lean::mk_nat_obj(16u);
+x_17 = lean::nat_mul(x_16, x_3);
+lean::dec(x_3);
+x_18 = lean::mk_nat_obj(10u);
+x_19 = lean::nat_add(x_17, x_18);
+lean::dec(x_17);
+x_20 = lean::uint32_to_nat(x_5);
+x_21 = lean::nat_add(x_19, x_20);
+lean::dec(x_20);
+lean::dec(x_19);
+x_22 = lean::mk_nat_obj(65u);
+x_23 = lean::nat_sub(x_21, x_22);
+lean::dec(x_21);
+x_2 = x_15;
+x_3 = x_23;
+goto _start;
+}
+}
+}
+else
+{
+uint32 x_25; uint8 x_26; 
+x_25 = 102;
+x_26 = x_5 <= x_25;
+if (x_26 == 0)
+{
+uint32 x_27; uint8 x_28; 
+x_27 = 65;
+x_28 = x_27 <= x_5;
+if (x_28 == 0)
+{
+obj* x_29; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_29 = lean::box(0);
+return x_29;
+}
+else
+{
+uint32 x_30; uint8 x_31; 
+x_30 = 70;
+x_31 = x_5 <= x_30;
+if (x_31 == 0)
+{
+obj* x_32; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_32 = lean::box(0);
+return x_32;
+}
+else
+{
+obj* x_33; obj* x_34; obj* x_35; obj* x_36; obj* x_37; obj* x_38; obj* x_39; obj* x_40; obj* x_41; 
+x_33 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_34 = lean::mk_nat_obj(16u);
+x_35 = lean::nat_mul(x_34, x_3);
+lean::dec(x_3);
+x_36 = lean::mk_nat_obj(10u);
+x_37 = lean::nat_add(x_35, x_36);
+lean::dec(x_35);
+x_38 = lean::uint32_to_nat(x_5);
+x_39 = lean::nat_add(x_37, x_38);
+lean::dec(x_38);
+lean::dec(x_37);
+x_40 = lean::mk_nat_obj(65u);
+x_41 = lean::nat_sub(x_39, x_40);
+lean::dec(x_39);
+x_2 = x_33;
+x_3 = x_41;
+goto _start;
+}
+}
+}
+else
+{
+obj* x_43; obj* x_44; obj* x_45; obj* x_46; obj* x_47; obj* x_48; obj* x_49; obj* x_50; obj* x_51; 
+x_43 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_44 = lean::mk_nat_obj(16u);
+x_45 = lean::nat_mul(x_44, x_3);
+lean::dec(x_3);
+x_46 = lean::mk_nat_obj(10u);
+x_47 = lean::nat_add(x_45, x_46);
+lean::dec(x_45);
+x_48 = lean::uint32_to_nat(x_5);
+x_49 = lean::nat_add(x_47, x_48);
+lean::dec(x_48);
+lean::dec(x_47);
+x_50 = lean::mk_nat_obj(97u);
+x_51 = lean::nat_sub(x_49, x_50);
+lean::dec(x_49);
+x_2 = x_43;
+x_3 = x_51;
+goto _start;
+}
+}
+}
+}
+else
+{
+obj* x_68; 
+lean::dec(x_2);
+x_68 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_68, 0, x_3);
+return x_68;
+}
+}
+}
+obj* l___private_init_lean_syntax_6__decodeHexLitAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_6__decodeHexLitAux___main(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_6__decodeHexLitAux(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_6__decodeHexLitAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_6__decodeHexLitAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_6__decodeHexLitAux(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux___main(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+uint8 x_4; 
+x_4 = lean::string_utf8_at_end(x_1, x_2);
+if (x_4 == 0)
+{
+uint32 x_5; uint32 x_6; uint8 x_7; 
+x_5 = lean::string_utf8_get(x_1, x_2);
+x_6 = 48;
+x_7 = x_6 <= x_5;
+if (x_7 == 0)
+{
+obj* x_8; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_8 = lean::box(0);
+return x_8;
+}
+else
+{
+uint32 x_9; uint8 x_10; 
+x_9 = 57;
+x_10 = x_5 <= x_9;
+if (x_10 == 0)
+{
+obj* x_11; 
+lean::dec(x_3);
+lean::dec(x_2);
+x_11 = lean::box(0);
+return x_11;
+}
+else
+{
+obj* x_12; obj* x_13; obj* x_14; obj* x_15; obj* x_16; obj* x_17; obj* x_18; 
+x_12 = lean::string_utf8_next(x_1, x_2);
+lean::dec(x_2);
+x_13 = lean::mk_nat_obj(10u);
+x_14 = lean::nat_mul(x_13, x_3);
+lean::dec(x_3);
+x_15 = lean::uint32_to_nat(x_5);
+x_16 = lean::nat_add(x_14, x_15);
+lean::dec(x_15);
+lean::dec(x_14);
+x_17 = lean::mk_nat_obj(48u);
+x_18 = lean::nat_sub(x_16, x_17);
+lean::dec(x_16);
+x_2 = x_12;
+x_3 = x_18;
+goto _start;
+}
+}
+}
+else
+{
+obj* x_20; 
+lean::dec(x_2);
+x_20 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_20, 0, x_3);
+return x_20;
+}
+}
+}
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux___main___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_7__decodeDecimalLitAux___main(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_7__decodeDecimalLitAux___main(x_1, x_2, x_3);
+return x_4;
+}
+}
+obj* l___private_init_lean_syntax_7__decodeDecimalLitAux___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l___private_init_lean_syntax_7__decodeDecimalLitAux(x_1, x_2, x_3);
+lean::dec(x_1);
+return x_4;
+}
+}
+obj* _init_l___private_init_lean_syntax_8__decodeNatLitVal___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_nat_obj(0u);
+x_2 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* l___private_init_lean_syntax_8__decodeNatLitVal(obj* x_1) {
+_start:
+{
+obj* x_2; obj* x_3; uint8 x_4; 
+x_2 = lean::string_length(x_1);
+x_3 = lean::mk_nat_obj(0u);
+x_4 = lean::nat_dec_eq(x_2, x_3);
+if (x_4 == 0)
+{
+uint32 x_5; uint32 x_6; uint8 x_7; 
+x_5 = lean::string_utf8_get(x_1, x_3);
+x_6 = 48;
+x_7 = x_5 == x_6;
+if (x_7 == 0)
+{
+uint8 x_8; 
+lean::dec(x_2);
+x_8 = l_Char_isDigit(x_5);
+if (x_8 == 0)
+{
+obj* x_9; 
+x_9 = lean::box(0);
+return x_9;
+}
+else
+{
+obj* x_10; 
+x_10 = l___private_init_lean_syntax_7__decodeDecimalLitAux___main(x_1, x_3, x_3);
+return x_10;
+}
+}
+else
+{
+obj* x_11; uint8 x_12; 
+x_11 = lean::mk_nat_obj(1u);
+x_12 = lean::nat_dec_eq(x_2, x_11);
+lean::dec(x_2);
+if (x_12 == 0)
+{
+uint32 x_13; uint32 x_14; uint8 x_15; 
+x_13 = lean::string_utf8_get(x_1, x_11);
+x_14 = 120;
+x_15 = x_13 == x_14;
+if (x_15 == 0)
+{
+uint32 x_16; uint8 x_17; 
+x_16 = 88;
+x_17 = x_13 == x_16;
+if (x_17 == 0)
+{
+uint32 x_18; uint8 x_19; uint8 x_38; 
+x_18 = 98;
+x_38 = x_13 == x_18;
+if (x_38 == 0)
+{
+uint8 x_39; 
+x_39 = 0;
+x_19 = x_39;
+goto block_37;
+}
+else
+{
+uint8 x_40; 
+x_40 = 1;
+x_19 = x_40;
+goto block_37;
+}
+block_37:
+{
+if (x_19 == 0)
+{
+uint32 x_20; uint8 x_21; 
+x_20 = 66;
+x_21 = x_13 == x_20;
+if (x_21 == 0)
+{
+uint32 x_22; uint8 x_23; 
+x_22 = 111;
+x_23 = x_13 == x_22;
+if (x_23 == 0)
+{
+uint32 x_24; uint8 x_25; 
+x_24 = 79;
+x_25 = x_13 == x_24;
+if (x_25 == 0)
+{
+uint8 x_26; 
+x_26 = l_Char_isDigit(x_13);
+if (x_26 == 0)
+{
+obj* x_27; 
+x_27 = lean::box(0);
+return x_27;
+}
+else
+{
+obj* x_28; 
+x_28 = l___private_init_lean_syntax_7__decodeDecimalLitAux___main(x_1, x_3, x_3);
+return x_28;
+}
+}
+else
+{
+obj* x_29; obj* x_30; 
+x_29 = lean::mk_nat_obj(2u);
+x_30 = l___private_init_lean_syntax_5__decodeOctalLitAux___main(x_1, x_29, x_3);
+return x_30;
+}
+}
+else
+{
+obj* x_31; obj* x_32; 
+x_31 = lean::mk_nat_obj(2u);
+x_32 = l___private_init_lean_syntax_5__decodeOctalLitAux___main(x_1, x_31, x_3);
+return x_32;
+}
+}
+else
+{
+obj* x_33; obj* x_34; 
+x_33 = lean::mk_nat_obj(2u);
+x_34 = l___private_init_lean_syntax_4__decodeBinLitAux___main(x_1, x_33, x_3);
+return x_34;
+}
+}
+else
+{
+obj* x_35; obj* x_36; 
+x_35 = lean::mk_nat_obj(2u);
+x_36 = l___private_init_lean_syntax_4__decodeBinLitAux___main(x_1, x_35, x_3);
+return x_36;
+}
+}
+}
+else
+{
+obj* x_41; obj* x_42; 
+x_41 = lean::mk_nat_obj(2u);
+x_42 = l___private_init_lean_syntax_6__decodeHexLitAux___main(x_1, x_41, x_3);
+return x_42;
+}
+}
+else
+{
+obj* x_43; obj* x_44; 
+x_43 = lean::mk_nat_obj(2u);
+x_44 = l___private_init_lean_syntax_6__decodeHexLitAux___main(x_1, x_43, x_3);
+return x_44;
+}
+}
+else
+{
+obj* x_45; 
+x_45 = l___private_init_lean_syntax_8__decodeNatLitVal___closed__1;
+return x_45;
+}
+}
+}
+else
+{
+obj* x_46; 
+lean::dec(x_2);
+x_46 = lean::box(0);
+return x_46;
+}
+}
+}
+obj* l___private_init_lean_syntax_8__decodeNatLitVal___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l___private_init_lean_syntax_8__decodeNatLitVal(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isNatLit___main(obj* x_1) {
+_start:
+{
+if (lean::obj_tag(x_1) == 1)
+{
+obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
+x_2 = lean::cnstr_get(x_1, 0);
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = l_Lean_strLitKind;
+x_5 = lean_name_dec_eq(x_2, x_4);
+if (x_5 == 0)
+{
+obj* x_6; 
+x_6 = lean::box(0);
+return x_6;
+}
+else
+{
+obj* x_7; obj* x_8; uint8 x_9; 
+x_7 = lean::array_get_size(x_3);
+x_8 = lean::mk_nat_obj(1u);
+x_9 = lean::nat_dec_eq(x_7, x_8);
+lean::dec(x_7);
+if (x_9 == 0)
+{
+obj* x_10; 
+x_10 = lean::box(0);
+return x_10;
+}
+else
+{
+obj* x_11; obj* x_12; obj* x_13; 
+x_11 = l_Lean_stxInh;
+x_12 = lean::mk_nat_obj(0u);
+x_13 = lean::array_get(x_11, x_3, x_12);
+if (lean::obj_tag(x_13) == 2)
+{
+obj* x_14; obj* x_15; 
+x_14 = lean::cnstr_get(x_13, 1);
+lean::inc(x_14);
+lean::dec(x_13);
+x_15 = l___private_init_lean_syntax_8__decodeNatLitVal(x_14);
+lean::dec(x_14);
+return x_15;
+}
+else
+{
+obj* x_16; 
+lean::dec(x_13);
+x_16 = lean::box(0);
+return x_16;
+}
+}
+}
+}
+else
+{
+obj* x_17; 
+x_17 = lean::box(0);
+return x_17;
+}
+}
+}
+obj* l_Lean_Syntax_isNatLit___main___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isNatLit___main(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isNatLit(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isNatLit___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isNatLit___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isNatLit(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
 obj* initialize_init_lean_name(obj*);
 obj* initialize_init_lean_format(obj*);
 obj* initialize_init_data_array_default(obj*);
@@ -3484,6 +4474,12 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "choice
 l_Lean_nullKind = _init_l_Lean_nullKind();
 lean::mark_persistent(l_Lean_nullKind);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "nullKind"), l_Lean_nullKind);
+l_Lean_strLitKind = _init_l_Lean_strLitKind();
+lean::mark_persistent(l_Lean_strLitKind);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "strLitKind"), l_Lean_strLitKind);
+l_Lean_numLitKind = _init_l_Lean_numLitKind();
+lean::mark_persistent(l_Lean_numLitKind);
+lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "numLitKind"), l_Lean_numLitKind);
 l_Lean_stxInh = _init_l_Lean_stxInh();
 lean::mark_persistent(l_Lean_stxInh);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name("Lean"), "stxInh"), l_Lean_stxInh);
@@ -3526,8 +4522,17 @@ lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_n
 l_Lean_Syntax_HasToString = _init_l_Lean_Syntax_HasToString();
 lean::mark_persistent(l_Lean_Syntax_HasToString);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "HasToString"), l_Lean_Syntax_HasToString);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "mkSimpleAtom"), 1, lean::mk_syntax_atom_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "mkSimpleIdent"), 1, lean::mk_syntax_ident_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "mkListNode"), 1, lean::mk_syntax_list_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkSimpleAtom"), 1, lean::mk_syntax_atom_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkSimpleIdent"), 1, lean::mk_syntax_ident_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkListNode"), 1, lean::mk_syntax_list_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkLit"), 3, l_Lean_mkLit);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkStrLit"), 2, l_Lean_mkStrLit);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkNumLit"), 2, l_Lean_mkNumLit);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkStrLitAux"), 1, lean::mk_syntax_str_lit_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkNumLitAux"), 1, lean::mk_syntax_num_lit_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isStrLit"), 1, l_Lean_Syntax_isStrLit___boxed);
+l___private_init_lean_syntax_8__decodeNatLitVal___closed__1 = _init_l___private_init_lean_syntax_8__decodeNatLitVal___closed__1();
+lean::mark_persistent(l___private_init_lean_syntax_8__decodeNatLitVal___closed__1);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isNatLit"), 1, l_Lean_Syntax_isNatLit___boxed);
 return w;
 }

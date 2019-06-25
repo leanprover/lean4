@@ -42,6 +42,17 @@ structure ExternAttrData :=
 
 @[export lean.mk_extern_attr_data_core] def mkExternAttrData := ExternAttrData.mk
 
+private def syntaxToExternAttrData (s : Syntax) : Except String ExternAttrData :=
+match s with
+| Syntax.missing := Except.ok { entries := [ ExternEntry.adhoc `all ] }
+| Syntax.node _ args _ :=
+  if args.size == 0 then Except.error "unexpected kind of argument"
+  else
+    let i := 0 in
+    -- TODO
+    Except.ok { entries := [] }
+| _ := Except.error "unexpected kind of argument"
+
 -- def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
 -- registerParametricAttribute `extern "builtin and foreign functions" $ λ env declName stx,
 

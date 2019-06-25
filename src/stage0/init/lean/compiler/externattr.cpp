@@ -27,6 +27,7 @@ obj* l_Lean_ExternEntry_backend(obj*);
 namespace lean {
 obj* nat_sub(obj*, obj*);
 }
+obj* l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___boxed(obj*);
 namespace lean {
 obj* mk_adhoc_ext_entry_core(obj*);
 }
@@ -45,13 +46,15 @@ obj* mk_extern_call_core(obj*, obj*, obj*);
 }
 obj* l_String_Iterator_remainingBytes___main(obj*);
 obj* l_Lean_isExtern___boxed(obj*, obj*);
-obj* l___private_init_lean_compiler_externattr_1__parseOptNum(obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__1;
 obj* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1(obj*, obj*);
+obj* l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__3;
 namespace lean {
 obj* string_push(obj*, uint32);
 }
 obj* l_Lean_ExternEntry_backend___boxed(obj*);
 obj* l_Lean_expandExternPatternAux___boxed(obj*, obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__2;
 namespace lean {
 obj* expand_extern_pattern_core(obj*, obj*);
 }
@@ -75,13 +78,16 @@ namespace lean {
 uint8 nat_dec_eq(obj*, obj*);
 }
 extern obj* l_Prod_HasRepr___rarg___closed__1;
+obj* l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData(obj*);
+obj* l___private_init_lean_compiler_externattr_2__parseOptNum(obj*, obj*, obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
 namespace lean {
 obj* mk_inline_ext_entry_core(obj*, obj*);
 }
 obj* l_Lean_getExternAttrData___boxed(obj*, obj*);
+obj* l_Array_size(obj*, obj*);
 obj* l_Lean_getExternEntryForAux(obj*, obj*);
-obj* l___private_init_lean_compiler_externattr_1__parseOptNum___main(obj*, obj*, obj*);
+obj* l___private_init_lean_compiler_externattr_2__parseOptNum___main(obj*, obj*, obj*);
 obj* l_Lean_getExternEntryForAux___main___boxed(obj*, obj*);
 uint8 l_String_Iterator_hasNext___main(obj*);
 obj* l_Lean_getExternEntryForAux___main(obj*, obj*);
@@ -163,7 +169,102 @@ return x_3;
 }
 }
 }
-obj* l___private_init_lean_compiler_externattr_1__parseOptNum___main(obj* x_1, obj* x_2, obj* x_3) {
+obj* _init_l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; obj* x_8; obj* x_9; 
+x_1 = lean::box(0);
+x_2 = lean::box(0);
+x_3 = lean::mk_string("all");
+x_4 = lean_name_mk_string(x_2, x_3);
+x_5 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+x_6 = lean::box(0);
+x_7 = lean::alloc_cnstr(1, 2, 0);
+lean::cnstr_set(x_7, 0, x_5);
+lean::cnstr_set(x_7, 1, x_6);
+x_8 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_8, 0, x_1);
+lean::cnstr_set(x_8, 1, x_7);
+x_9 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_9, 0, x_8);
+return x_9;
+}
+}
+obj* _init_l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; obj* x_3; obj* x_4; 
+x_1 = lean::box(0);
+x_2 = lean::box(0);
+x_3 = lean::alloc_cnstr(0, 2, 0);
+lean::cnstr_set(x_3, 0, x_1);
+lean::cnstr_set(x_3, 1, x_2);
+x_4 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_4, 0, x_3);
+return x_4;
+}
+}
+obj* _init_l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_string("unexpected kind of argument");
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData(obj* x_1) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 0:
+{
+obj* x_2; 
+x_2 = l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__1;
+return x_2;
+}
+case 1:
+{
+obj* x_3; obj* x_4; obj* x_5; uint8 x_6; 
+x_3 = lean::cnstr_get(x_1, 1);
+x_4 = lean::array_get_size(x_3);
+x_5 = lean::mk_nat_obj(0u);
+x_6 = lean::nat_dec_eq(x_4, x_5);
+lean::dec(x_4);
+if (x_6 == 0)
+{
+obj* x_7; 
+x_7 = l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__2;
+return x_7;
+}
+else
+{
+obj* x_8; 
+x_8 = l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__3;
+return x_8;
+}
+}
+default: 
+{
+obj* x_9; 
+x_9 = l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__3;
+return x_9;
+}
+}
+}
+}
+obj* l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l___private_init_lean_compiler_externattr_2__parseOptNum___main(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; uint8 x_5; 
@@ -247,11 +348,11 @@ return x_25;
 }
 }
 }
-obj* l___private_init_lean_compiler_externattr_1__parseOptNum(obj* x_1, obj* x_2, obj* x_3) {
+obj* l___private_init_lean_compiler_externattr_2__parseOptNum(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = l___private_init_lean_compiler_externattr_1__parseOptNum___main(x_1, x_2, x_3);
+x_4 = l___private_init_lean_compiler_externattr_2__parseOptNum___main(x_1, x_2, x_3);
 return x_4;
 }
 }
@@ -295,7 +396,7 @@ else
 obj* x_16; obj* x_17; obj* x_18; obj* x_19; obj* x_20; obj* x_21; obj* x_22; 
 x_16 = l_String_Iterator_next___main(x_3);
 x_17 = l_String_Iterator_remainingBytes___main(x_16);
-x_18 = l___private_init_lean_compiler_externattr_1__parseOptNum___main(x_17, x_16, x_5);
+x_18 = l___private_init_lean_compiler_externattr_2__parseOptNum___main(x_17, x_16, x_5);
 x_19 = lean::cnstr_get(x_18, 0);
 lean::inc(x_19);
 x_20 = lean::cnstr_get(x_18, 1);
@@ -892,6 +993,12 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkInlin
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkStdExtEntry"), 2, lean::mk_std_ext_entry_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkForeignExtEntry"), 2, lean::mk_foreign_ext_entry_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkExternAttrData"), 2, lean::mk_extern_attr_data_core);
+l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__1 = _init_l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__1();
+lean::mark_persistent(l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__1);
+l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__2 = _init_l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__2();
+lean::mark_persistent(l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__2);
+l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__3 = _init_l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__3();
+lean::mark_persistent(l___private_init_lean_compiler_externattr_1__syntaxToExternAttrData___closed__3);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "expandExternPatternAux"), 4, l_Lean_expandExternPatternAux___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "expandExternPattern"), 2, lean::expand_extern_pattern_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkSimpleFnCall"), 2, l_Lean_mkSimpleFnCall);

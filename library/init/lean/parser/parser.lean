@@ -464,9 +464,6 @@ def quotedCharFn : BasicParserFn
     else
       s.mkError "invalid escape sequence"
 
-def strLitKind : SyntaxNodeKind := `strLit
-def numLitKind : SyntaxNodeKind := `numLit
-
 /-- Push `(Syntax.node tk <new-atom>)` into syntax stack -/
 def mkNodeToken (n : SyntaxNodeKind) (startPos : Nat) : BasicParserFn :=
 λ c s,
@@ -477,9 +474,8 @@ let val       := input.extract startPos stopPos in
 let s         := whitespace c s in
 let wsStopPos := s.pos in
 let trailing  := { Substring . str := input, startPos := stopPos, stopPos := wsStopPos } in
-let atom      := Syntax.atom (some { leading := leading, pos := startPos, trailing := trailing }) val in
-let tk        := Syntax.node n (Array.singleton atom) [] in
-s.pushSyntax tk
+let info      := { SourceInfo . leading := leading, pos := startPos, trailing := trailing } in
+s.pushSyntax (mkLit n val (some info))
 
 partial def strLitFnAux (startPos : Nat) : BasicParserFn
 | c s :=
@@ -501,6 +497,7 @@ def decimalNumberFn (startPos : Nat) : BasicParserFn :=
   let i     := s.pos in
   let curr  := input.get i in
   let s :=
+    /- TODO(Leo): should we use a different kind for numerals containing decimal points? -/
     if curr == '.' then
       let i    := input.next i in
       let curr := input.get i in

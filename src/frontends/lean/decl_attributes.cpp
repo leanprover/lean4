@@ -79,10 +79,14 @@ expr decl_attributes::parse_attr_arg(parser & p, name const & attr_id) {
 object* mk_syntax_atom_core(object*);
 object* mk_syntax_ident_core(object*);
 object* mk_syntax_list_core(object*);
+object* mk_syntax_str_lit_core(object*);
+object* mk_syntax_num_lit_core(object*);
 
 syntax mk_syntax_atom(string_ref const & s) { return syntax(mk_syntax_atom_core(s.to_obj_arg())); }
 syntax mk_syntax_ident(name const & n) { return syntax(mk_syntax_ident_core(n.to_obj_arg())); }
 syntax mk_syntax_list(buffer<syntax> const & args) { return syntax(mk_syntax_list_core(to_array(args))); }
+syntax mk_syntax_str_lit(string_ref const & s) { return syntax(mk_syntax_str_lit_core(s.to_obj_arg())); }
+syntax mk_syntax_num_lit(nat const & n) { return syntax(mk_syntax_num_lit_core(n.to_obj_arg())); }
 
 syntax decl_attributes::expr_to_syntax(expr const & e) {
     buffer<expr> args;
@@ -98,10 +102,10 @@ syntax decl_attributes::expr_to_syntax(expr const & e) {
             literal const & val = lit_value(arg);
             switch (val.kind()) {
             case literal_kind::Nat:
-                new_args.push_back(mk_syntax_atom(string_ref(val.get_nat().to_std_string())));
+                new_args.push_back(mk_syntax_num_lit(val.get_nat()));
                 break;
             case literal_kind::String:
-                new_args.push_back(mk_syntax_atom(val.get_string()));
+                new_args.push_back(mk_syntax_str_lit(val.get_string()));
                 break;
             }
         } else {

@@ -33,6 +33,8 @@ abbrev SyntaxNodeKind := Name
 
 @[pattern] def choiceKind : SyntaxNodeKind := `choice
 @[pattern] def nullKind : SyntaxNodeKind := `null
+def strLitKind : SyntaxNodeKind := `strLit
+def numLitKind : SyntaxNodeKind := `numLit
 
 /- Syntax AST -/
 
@@ -207,19 +209,119 @@ protected partial def formatStx : Syntax → Format
 instance : HasFormat Syntax := ⟨Syntax.formatStx⟩
 instance : HasToString Syntax := ⟨toString ∘ format⟩
 
+end Syntax
+
 /- Helper functions for creating Syntax objects using C++ -/
 
 @[export lean.mk_syntax_atom_core]
 def mkSimpleAtom (val : String) : Syntax :=
-atom none val
+Syntax.atom none val
 
 @[export lean.mk_syntax_ident_core]
 def mkSimpleIdent (val : Name) : Syntax :=
-ident none (toString val).toSubstring val [] []
+Syntax.ident none (toString val).toSubstring val [] []
 
 @[export lean.mk_syntax_list_core]
 def mkListNode (args : Array Syntax) : Syntax :=
-node nullKind args []
+Syntax.node nullKind args []
 
-end Syntax
+/- Helper functions for creating string and numeric literals -/
+
+def mkLit (kind : SyntaxNodeKind) (val : String) (info : Option SourceInfo := none) : Syntax :=
+let atom := Syntax.atom info val in
+Syntax.node kind (Array.singleton atom) []
+
+def mkStrLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+mkLit strLitKind val info
+
+def mkNumLit (val : String) (info : Option SourceInfo := none) : Syntax :=
+mkLit numLitKind val info
+
+@[export lean.mk_syntax_str_lit_core]
+def mkStrLitAux (val : String) : Syntax :=
+mkStrLit val
+
+@[export lean.mk_syntax_num_lit_core]
+def mkNumLitAux (val : Nat) : Syntax :=
+mkNumLit (toString val)
+
+def Syntax.isStrLit : Syntax → Option String
+| (Syntax.node k args _) :=
+  if k == strLitKind && args.size == 1 then
+    match args.get 0 with
+    | (Syntax.atom _ val) := some val
+    | _ := none
+  else
+    none
+| _ := none
+
+/- Recall that we don't have special Syntax constructors for storing numeric atoms.
+   The idea is to have an extensible approach where embedded DSLs may have new kind of atoms and/or
+   different ways of representing them. So, our atoms contain just the parsed string.
+   The main Lean parser uses the kind `numLitKind` for storing natural numbers that can be encoded
+   in binary, octal, decimal and hexadecimal format. `isNatLit` implements a "decoder"
+   for Syntax objects representing these numerals. -/
+
+private partial def decodeBinLitAux (s : String) : Nat → Nat → Option Nat
+| i val :=
+  if s.atEnd i then some val
+  else
+    let c := s.get i in
+    if c == '0' then decodeBinLitAux (s.next i) (2*val)
+    else if c == '1' then decodeBinLitAux (s.next i) (2*val + 1)
+    else none
+
+private partial def decodeOctalLitAux (s : String) : Nat → Nat → Option Nat
+| i val :=
+  if s.atEnd i then some val
+  else
+    let c := s.get i in
+    if '0' ≤ c && c ≤ '7' then decodeOctalLitAux (s.next i) (8*val + c.toNat - '0'.toNat)
+    else none
+
+private partial def decodeHexLitAux (s : String) : Nat → Nat → Option Nat
+| i val :=
+  if s.atEnd i then some val
+  else
+    let c := s.get i in
+    if '0' ≤ c && c ≤ '9' then decodeHexLitAux (s.next i) (16*val + c.toNat - '0'.toNat)
+    else if 'a' ≤ c && c ≤ 'f' then decodeHexLitAux (s.next i) (16*val + 10 + c.toNat - 'a'.toNat)
+    else if 'A' ≤ c && c ≤ 'F' then decodeHexLitAux (s.next i) (16*val + 10 + c.toNat - 'A'.toNat)
+    else none
+
+private partial def decodeDecimalLitAux (s : String) : Nat → Nat → Option Nat
+| i val :=
+  if s.atEnd i then some val
+  else
+    let c := s.get i in
+    if '0' ≤ c && c ≤ '9' then decodeDecimalLitAux (s.next i) (10*val + c.toNat - '0'.toNat)
+    else none
+
+private def decodeNatLitVal (s : String) : Option Nat :=
+let len := s.length in
+if len == 0 then none
+else
+  let c := s.get 0 in
+  if c == '0' then
+    if len == 1 then some 0
+    else
+     let c := s.get 1 in
+     if c == 'x' || c == 'X' then decodeHexLitAux s 2 0
+     else if c == 'b' || c == 'B' then decodeBinLitAux s 2 0
+     else if c == 'o' || c == 'O' then decodeOctalLitAux s 2 0
+     else if c.isDigit then decodeDecimalLitAux s 0 0
+     else none
+  else if c.isDigit then decodeDecimalLitAux s 0 0
+  else none
+
+def Syntax.isNatLit : Syntax → Option Nat
+| (Syntax.node k args _) :=
+  if k == strLitKind && args.size == 1 then
+    match args.get 0 with
+    | (Syntax.atom _ val) := decodeNatLitVal val
+    | _ := none
+  else
+    none
+| _ := none
+
 end Lean

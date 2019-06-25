@@ -150,6 +150,15 @@ template<typename T> optional<T> to_optional(b_obj_arg o, bool) {
     return optional<T>(r);
 }
 
+/* Given `T` which is a scalar type that wraps a Lean scalar value of type `Ty`,
+   convert a value `o` of `Option Ty` into `optional<T>` */
+template<typename T> optional<T> to_optional_scalar(obj_arg o) {
+    if (is_scalar(o)) return optional<T>();
+    T r = static_cast<T>(unbox(cnstr_get(o, 0)));
+    dec(o);
+    return optional<T>(r);
+}
+
 template<typename T> obj_res to_object(optional<T> const & o) {
     if (o) {
         obj_res r = alloc_cnstr(1, 1, 0);

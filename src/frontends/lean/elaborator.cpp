@@ -60,50 +60,18 @@ Author: Leonardo de Moura
 #endif
 
 namespace lean {
-static name * g_elab_strategy = nullptr;
 static name * g_elaborator_coercions = nullptr;
 
 bool get_elaborator_coercions(options const & opts) {
     return opts.get_bool(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS);
 }
 
-struct elaborator_strategy_attribute_data : public attr_data {
-    elaborator_strategy m_status;
-    elaborator_strategy_attribute_data() {}
-    elaborator_strategy_attribute_data(elaborator_strategy status) : m_status(status) {}
-    virtual unsigned hash() const override { return static_cast<unsigned>(m_status); }
-    void write(serializer & s) const { s << static_cast<char>(m_status); }
-    void read(deserializer & d) {
-        char c; d >> c;
-        m_status = static_cast<elaborator_strategy>(c);
-    }
-};
-
-bool operator==(elaborator_strategy_attribute_data const & d1, elaborator_strategy_attribute_data const & d2) {
-    return d1.m_status == d2.m_status;
-}
-
-template class typed_attribute<elaborator_strategy_attribute_data>;
-typedef typed_attribute<elaborator_strategy_attribute_data> elaborator_strategy_attribute;
-
-static elaborator_strategy_attribute const & get_elaborator_strategy_attribute() {
-    return static_cast<elaborator_strategy_attribute const &>(get_system_attribute(*g_elab_strategy));
-}
-
-class elaborator_strategy_proxy_attribute : public proxy_attribute<elaborator_strategy_attribute_data> {
-    typedef proxy_attribute<elaborator_strategy_attribute_data> parent;
-public:
-    elaborator_strategy_proxy_attribute(char const * id, char const * descr, elaborator_strategy status):
-        parent(id, descr, status) {}
-
-    virtual typed_attribute<elaborator_strategy_attribute_data> const & get_attribute() const {
-        return get_elaborator_strategy_attribute();
-    }
-};
+object* get_elaborator_strategy_core(object* env, object *n);
 
 elaborator_strategy get_elaborator_strategy(environment const & env, name const & n) {
-    if (auto data = get_elaborator_strategy_attribute().get(env, n))
-        return data->m_status;
+    optional<elaborator_strategy> st = to_optional_scalar<elaborator_strategy>(get_elaborator_strategy_core(env.to_obj_arg(), n.to_obj_arg()));
+    if (st)
+        return *st;
 
     if (is_recursor(env, n) ||
         is_aux_recursor(env, n)) {
@@ -3877,7 +3845,6 @@ elaborate(environment & env, options const & opts, name const & decl_name,
 }
 
 void initialize_elaborator() {
-    g_elab_strategy = new name("elab_strategy");
     register_trace_class("elaborator");
     register_trace_class(name({"elaborator", "numeral"}));
     register_trace_class(name({"elaborator", "instances"}));
@@ -3885,48 +3852,12 @@ void initialize_elaborator() {
     register_trace_class("elaborator_detail");
     register_trace_class("elaborator_debug");
 
-    char const * elab_simple             = "elabSimple";
-    char const * elab_with_expected_type = "elabWithExpectedType";
-    char const * elab_as_eliminator      = "elabAsEliminator";
-
-    register_system_attribute(
-        elaborator_strategy_attribute(
-            *g_elab_strategy,
-            "internal attribute for the elaborator strategy for a given constant"));
-
-    register_system_attribute(
-        elaborator_strategy_proxy_attribute(
-            elab_with_expected_type,
-            "instructs elaborator that the arguments of the function application (f ...) "
-            "should be elaborated using information about the expected type",
-            elaborator_strategy::WithExpectedType));
-
-    register_system_attribute(
-        elaborator_strategy_proxy_attribute(
-            elab_as_eliminator,
-            "instructs elaborator that the arguments of the function application (f ...) "
-            "should be elaborated as f were an eliminator",
-            elaborator_strategy::AsEliminator));
-
-    register_system_attribute(
-        elaborator_strategy_proxy_attribute(
-            elab_simple,
-            "instructs elaborator that the arguments of the function application (f ...) "
-            "should be elaborated from left to right, and without propagating information from the expected type "
-            "to its arguments",
-            elaborator_strategy::Simple));
-
-    register_incompatible(elab_simple, elab_with_expected_type);
-    register_incompatible(elab_simple, elab_as_eliminator);
-    register_incompatible(elab_with_expected_type, elab_as_eliminator);
-
     g_elaborator_coercions          = new name{"elaborator", "coercions"};
     register_bool_option(*g_elaborator_coercions, LEAN_DEFAULT_ELABORATOR_COERCIONS,
                          "(elaborator) if true, the elaborator will automatically introduce coercions");
 }
 
 void finalize_elaborator() {
-    delete g_elab_strategy;
     delete g_elaborator_coercions;
 }
 }

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.boxing
-// Imports: init.control.estate init.control.reader init.lean.extern init.lean.compiler.ir.basic init.lean.compiler.ir.compilerm init.lean.compiler.ir.freevars
+// Imports: init.control.estate init.control.reader init.lean.compiler.externattr init.lean.compiler.ir.basic init.lean.compiler.ir.compilerm init.lean.compiler.ir.freevars
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -6334,7 +6334,7 @@ return x_4;
 }
 obj* initialize_init_control_estate(obj*);
 obj* initialize_init_control_reader(obj*);
-obj* initialize_init_lean_extern(obj*);
+obj* initialize_init_lean_compiler_externattr(obj*);
 obj* initialize_init_lean_compiler_ir_basic(obj*);
 obj* initialize_init_lean_compiler_ir_compilerm(obj*);
 obj* initialize_init_lean_compiler_ir_freevars(obj*);
@@ -6347,7 +6347,7 @@ w = initialize_init_control_estate(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_control_reader(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_extern(w);
+w = initialize_init_lean_compiler_externattr(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_ir_basic(w);
 if (io_result_is_error(w)) return w;

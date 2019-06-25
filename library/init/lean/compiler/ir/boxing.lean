@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.control.estate
 import init.control.reader
-import init.lean.extern
+import init.lean.compiler.externattr
 import init.lean.compiler.ir.basic
 import init.lean.compiler.ir.compilerm
 import init.lean.compiler.ir.freevars

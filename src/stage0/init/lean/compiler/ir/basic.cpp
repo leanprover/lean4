@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.basic
-// Imports: init.data.array.default init.lean.name init.lean.extern init.lean.kvmap init.lean.format
+// Imports: init.data.array.default init.lean.name init.lean.kvmap init.lean.format init.lean.compiler.externattr
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -11061,9 +11061,9 @@ return x_12;
 }
 obj* initialize_init_data_array_default(obj*);
 obj* initialize_init_lean_name(obj*);
-obj* initialize_init_lean_extern(obj*);
 obj* initialize_init_lean_kvmap(obj*);
 obj* initialize_init_lean_format(obj*);
+obj* initialize_init_lean_compiler_externattr(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_ir_basic(obj* w) {
 if (_G_initialized) return w;
@@ -11073,11 +11073,11 @@ w = initialize_init_data_array_default(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_name(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_extern(w);
-if (io_result_is_error(w)) return w;
 w = initialize_init_lean_kvmap(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_format(w);
+if (io_result_is_error(w)) return w;
+w = initialize_init_lean_compiler_externattr(w);
 if (io_result_is_error(w)) return w;
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "Index"), "lt"), 2, l_Lean_IR_Index_lt___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "IR"), "VarId"), "HasBeq"), 2, l_Lean_IR_VarId_HasBeq___boxed);

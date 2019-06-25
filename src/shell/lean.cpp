@@ -449,7 +449,8 @@ int main(int argc, char ** argv) {
     scope_trace_env scope_trace(env, opts, trace_ctx);
     name main_module_name;
 
-    std::string mod_fn, contents;
+    std::string mod_fn = "<unknown>";
+    std::string contents;
     if (use_stdin) {
         if (argc - optind != 0) {
             std::cerr << "Expected exactly one of file name or --stdin\n";
@@ -578,7 +579,7 @@ int main(int argc, char ** argv) {
 
         return ok ? 0 : 1;
     } catch (lean::throwable & ex) {
-        std::cerr << lean::message_builder(env, ios, "<unknown>", lean::pos_info(1, 1), lean::ERROR).set_exception(
+        std::cerr << lean::message_builder(env, ios, mod_fn, lean::pos_info(1, 1), lean::ERROR).set_exception(
                 ex).build();
     } catch (std::bad_alloc & ex) {
         std::cerr << "out of memory" << std::endl;

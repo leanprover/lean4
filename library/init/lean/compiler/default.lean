@@ -7,4 +7,5 @@ prelude
 import init.lean.compiler.inline
 import init.lean.compiler.constfolding
 import init.lean.compiler.closedtermcache
+import init.lean.compiler.externattr
 import init.lean.compiler.ir

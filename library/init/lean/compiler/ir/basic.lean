@@ -5,8 +5,10 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.data.array
-import init.lean.name init.lean.extern
-import init.lean.kvmap init.lean.format
+import init.lean.name
+import init.lean.kvmap
+import init.lean.format
+import init.lean.compiler.externattr
 /-
 Implements (extended) λPure and λRc proposed in the article
 "Counting Immutable Beans", Sebastian Ullrich and Leonardo de Moura.

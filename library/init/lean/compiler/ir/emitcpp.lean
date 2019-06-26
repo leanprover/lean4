@@ -6,7 +6,7 @@ Authors: Leonardo de Moura
 prelude
 import init.control.conditional
 import init.lean.runtime
-import init.lean.name_mangling
+import init.lean.compiler.namemangling
 import init.lean.compiler.exportattr
 import init.lean.compiler.initattr
 import init.lean.compiler.ir.compilerm

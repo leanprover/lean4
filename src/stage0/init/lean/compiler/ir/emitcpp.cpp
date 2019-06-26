@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.ir.emitcpp
-// Imports: init.control.conditional init.lean.runtime init.lean.name_mangling init.lean.compiler.exportattr init.lean.compiler.initattr init.lean.compiler.ir.compilerm init.lean.compiler.ir.emitutil init.lean.compiler.ir.normids init.lean.compiler.ir.simpcase init.lean.compiler.ir.boxing
+// Imports: init.control.conditional init.lean.runtime init.lean.compiler.namemangling init.lean.compiler.exportattr init.lean.compiler.initattr init.lean.compiler.ir.compilerm init.lean.compiler.ir.emitutil init.lean.compiler.ir.normids init.lean.compiler.ir.simpcase init.lean.compiler.ir.boxing
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -30495,7 +30495,7 @@ return x_12;
 }
 obj* initialize_init_control_conditional(obj*);
 obj* initialize_init_lean_runtime(obj*);
-obj* initialize_init_lean_name__mangling(obj*);
+obj* initialize_init_lean_compiler_namemangling(obj*);
 obj* initialize_init_lean_compiler_exportattr(obj*);
 obj* initialize_init_lean_compiler_initattr(obj*);
 obj* initialize_init_lean_compiler_ir_compilerm(obj*);
@@ -30512,7 +30512,7 @@ w = initialize_init_control_conditional(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_runtime(w);
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_name__mangling(w);
+w = initialize_init_lean_compiler_namemangling(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_compiler_exportattr(w);
 if (io_result_is_error(w)) return w;

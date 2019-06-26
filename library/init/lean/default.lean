@@ -7,6 +7,7 @@ prelude
 import init.lean.compiler
 import init.lean.environment
 import init.lean.modifiers
+import init.lean.projfns
 import init.lean.runtime
 import init.lean.attributes
 import init.lean.evalconst

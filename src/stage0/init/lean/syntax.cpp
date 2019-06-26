@@ -108,6 +108,7 @@ obj* l_Array_mfindAux___main___at_Lean_Syntax_getHeadInfo___main___spec__1___box
 uint8 l_UInt32_decLe(uint32, uint32);
 obj* l___private_init_lean_syntax_2__updateLeadingAux(obj*, obj*);
 extern obj* l_Lean_Format_paren___closed__1;
+obj* l_Lean_Syntax_isIdOrAtom(obj*);
 namespace lean {
 uint8 string_utf8_at_end(obj*, obj*);
 }
@@ -175,6 +176,8 @@ obj* mk_syntax_list_core(obj*);
 obj* l_Lean_Syntax_isNatLit___main___boxed(obj*);
 obj* l_Lean_Syntax_isStrLit(obj*);
 obj* l_Lean_Syntax_flipScopes___boxed(obj*);
+obj* l_Lean_Syntax_isIdOrAtom___main___boxed(obj*);
+obj* l_Lean_Syntax_isIdOrAtom___boxed(obj*);
 namespace lean {
 obj* mk_syntax_num_lit_core(obj*);
 }
@@ -227,6 +230,7 @@ obj* l_Lean_mkLit(obj*, obj*, obj*);
 namespace lean {
 obj* nat_mul(obj*, obj*);
 }
+obj* l_Lean_Syntax_isIdOrAtom___main(obj*);
 obj* l_Lean_withArgs(obj*);
 obj* l_Lean_MacroScopes_flip___boxed(obj*, obj*);
 obj* l___private_init_lean_syntax_6__decodeHexLitAux___boxed(obj*, obj*, obj*);
@@ -4447,6 +4451,72 @@ lean::dec(x_1);
 return x_2;
 }
 }
+obj* l_Lean_Syntax_isIdOrAtom___main(obj* x_1) {
+_start:
+{
+switch (lean::obj_tag(x_1)) {
+case 0:
+{
+obj* x_2; 
+x_2 = lean::box(0);
+return x_2;
+}
+case 1:
+{
+obj* x_3; 
+x_3 = lean::box(0);
+return x_3;
+}
+case 2:
+{
+obj* x_4; obj* x_5; 
+x_4 = lean::cnstr_get(x_1, 1);
+lean::inc(x_4);
+x_5 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_5, 0, x_4);
+return x_5;
+}
+default: 
+{
+obj* x_6; obj* x_7; obj* x_8; obj* x_9; obj* x_10; obj* x_11; 
+x_6 = lean::cnstr_get(x_1, 1);
+x_7 = lean::cnstr_get(x_6, 0);
+x_8 = lean::cnstr_get(x_6, 1);
+x_9 = lean::cnstr_get(x_6, 2);
+x_10 = lean::string_utf8_extract(x_7, x_8, x_9);
+x_11 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_11, 0, x_10);
+return x_11;
+}
+}
+}
+}
+obj* l_Lean_Syntax_isIdOrAtom___main___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isIdOrAtom___main(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isIdOrAtom(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isIdOrAtom___main(x_1);
+return x_2;
+}
+}
+obj* l_Lean_Syntax_isIdOrAtom___boxed(obj* x_1) {
+_start:
+{
+obj* x_2; 
+x_2 = l_Lean_Syntax_isIdOrAtom(x_1);
+lean::dec(x_1);
+return x_2;
+}
+}
 obj* initialize_init_lean_name(obj*);
 obj* initialize_init_lean_format(obj*);
 obj* initialize_init_data_array_default(obj*);
@@ -4534,5 +4604,6 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 l___private_init_lean_syntax_8__decodeNatLitVal___closed__1 = _init_l___private_init_lean_syntax_8__decodeNatLitVal___closed__1();
 lean::mark_persistent(l___private_init_lean_syntax_8__decodeNatLitVal___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isNatLit"), 1, l_Lean_Syntax_isNatLit___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Syntax"), "isIdOrAtom"), 1, l_Lean_Syntax_isIdOrAtom___boxed);
 return w;
 }

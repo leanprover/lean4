@@ -22,7 +22,7 @@ environment set_pattern_attribute(environment const & env, name const & n) {
 }
 
 void initialize_pattern_attribute() {
-    g_pattern_attr = new name({"pattern"});
+    g_pattern_attr = new name({"matchPattern"});
     register_system_attribute(basic_attribute(*g_pattern_attr, "mark that a definition can be used in a pattern"
                                               "(remark: the dependent pattern matching compiler will unfold the definition)"));
 }

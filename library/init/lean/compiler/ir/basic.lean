@@ -253,8 +253,8 @@ abbrev FnBody.nil := FnBody.unreachable
 @[export lean.ir.mk_unreachable_core] def mkUnreachable : FnBody := FnBody.unreachable
 
 abbrev Alt := AltCore FnBody
-@[pattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
-@[pattern] abbrev Alt.default := @AltCore.default FnBody
+@[matchPattern] abbrev Alt.ctor    := @AltCore.ctor FnBody
+@[matchPattern] abbrev Alt.default := @AltCore.default FnBody
 
 instance altInh : Inhabited Alt :=
 ⟨Alt.default (default _)⟩

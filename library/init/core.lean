@@ -149,7 +149,7 @@ inductive PUnit : Sort u
     unnecessary universe parameters. -/
 abbrev Unit : Type := PUnit
 
-@[pattern] abbrev Unit.unit : Unit := PUnit.unit
+@[matchPattern] abbrev Unit.unit : Unit := PUnit.unit
 
 /- Remark: thunks have an efficient implementation in the runtime. -/
 structure Thunk (α : Type u) : Type u :=
@@ -246,7 +246,7 @@ intro :: (mp : a → b) (mpr : b → a)
 
 infix = := Eq
 
-@[pattern] def rfl {α : Sort u} {a : α} : a = a := Eq.refl a
+@[matchPattern] def rfl {α : Sort u} {a : α} : a = a := Eq.refl a
 
 @[elabAsEliminator]
 theorem Eq.subst {α : Sort u} {P : α → Prop} {a b : α} (h₁ : a = b) (h₂ : P a) : P b :=
@@ -263,7 +263,7 @@ h ▸ rfl
 infix ~= := Heq
 infix ≅ := Heq
 
-@[pattern] def Heq.rfl {α : Sort u} {a : α} : a ≅ a := Heq.refl a
+@[matchPattern] def Heq.rfl {α : Sort u} {a : α} : a ≅ a := Heq.refl a
 
 theorem eqOfHeq {α : Sort u} {a a' : α} (h : a ≅ a') : a = a' :=
 have ∀ (α' : Sort u) (a' : α') (h₁ : @Heq α a α' a') (h₂ : α = α'), (Eq.recOn h₂ a : α') = a', from
@@ -439,7 +439,7 @@ infix ⊃        := SSuperset
 @[inline] def bit0 {α : Type u} [s  : HasAdd α] (a  : α)                 : α := a + a
 @[inline] def bit1 {α : Type u} [s₁ : HasOne α] [s₂ : HasAdd α] (a : α) : α := (bit0 a) + 1
 
-attribute [pattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
+attribute [matchPattern] HasZero.zero HasOne.one bit0 bit1 HasAdd.add HasNeg.neg
 
 export HasInsert (insert)
 
@@ -455,7 +455,7 @@ protected def Nat.add : (@& Nat) → (@& Nat) → Nat
 
 /- We mark the following definitions as pattern to make sure they can be used in recursive equations,
    and reduced by the equation Compiler. -/
-attribute [pattern] Nat.add Nat.add._main
+attribute [matchPattern] Nat.add Nat.add._main
 
 instance : HasZero Nat := ⟨Nat.zero⟩
 

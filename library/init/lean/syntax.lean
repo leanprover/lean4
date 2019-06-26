@@ -31,8 +31,8 @@ def SourceInfo.updateTrailing : SourceInfo → Substring → SourceInfo
 
 abbrev SyntaxNodeKind := Name
 
-@[pattern] def choiceKind : SyntaxNodeKind := `choice
-@[pattern] def nullKind : SyntaxNodeKind := `null
+@[matchPattern] def choiceKind : SyntaxNodeKind := `choice
+@[matchPattern] def nullKind : SyntaxNodeKind := `null
 def strLitKind : SyntaxNodeKind := `strLit
 def numLitKind : SyntaxNodeKind := `numLit
 

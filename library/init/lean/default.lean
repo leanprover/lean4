@@ -14,3 +14,4 @@ import init.lean.evalconst
 import init.lean.parser
 import init.lean.reducibilityattrs
 import init.lean.elaborator
+import init.lean.eqncompiler

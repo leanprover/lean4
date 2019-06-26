@@ -8,7 +8,4 @@ Author: Leonardo de Moura
 #include "kernel/environment.h"
 namespace lean {
 bool has_pattern_attribute(environment const & env, name const & d);
-environment set_pattern_attribute(environment const & env, name const & d);
-void initialize_pattern_attribute();
-void finalize_pattern_attribute();
 }

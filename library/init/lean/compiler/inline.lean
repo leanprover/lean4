@@ -10,51 +10,64 @@ import init.lean.compiler.util
 namespace Lean
 namespace Compiler
 
+inductive InlineAttributeKind
+| inline | noinline | macroInline | inlineIfReduce
+
+namespace InlineAttributeKind
+
+instance : Inhabited InlineAttributeKind := ⟨InlineAttributeKind.inline⟩
+
+protected def beq : InlineAttributeKind → InlineAttributeKind → Bool
+| inline inline := true
+| noinline noinline := true
+| macroInline macroInline := true
+| inlineIfReduce inlineIfReduce := true
+| _ _ := false
+
+instance : HasBeq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
+
+end InlineAttributeKind
+
 private def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
 match env.find n with
 | (some (ConstantInfo.defnInfo _)) := Except.ok ()
 | none := Except.error "unknow declaration"
 | _    := Except.error "declaration is not a definition"
 
-def mkInlineAttribute : IO TagAttribute :=
-registerTagAttribute `inline "mark definition to always be inlined" checkIsDefinition
-@[init mkInlineAttribute] constant inlineAttribute : TagAttribute := default _
+def mkInlineAttrs : IO (EnumAttributes InlineAttributeKind) :=
+registerEnumAttributes `inlineAttrs
+  [(`inline, "mark definition to always be inlined", InlineAttributeKind.inline),
+   (`inlineIfReduce, "mark definition to be inlined when resultant term after reduction is not a `cases_on` application", InlineAttributeKind.inlineIfReduce),
+   (`noinline, "mark definition to never be inlined", InlineAttributeKind.noinline),
+   (`macroInline, "mark definition to always be inlined before ANF conversion", InlineAttributeKind.macroInline)]
+  (λ env declName _, checkIsDefinition env declName)
 
-def mkInlineIfReduceAttribute : IO TagAttribute :=
-registerTagAttribute `inlineIfReduce "mark definition to be inlined when resultant term after reduction is not a `cases_on` application." checkIsDefinition
-@[init mkInlineIfReduceAttribute] constant inlineIfReduceAttribute : TagAttribute := default _
+@[init mkInlineAttrs]
+constant inlineAttrs : EnumAttributes InlineAttributeKind := default _
 
-def mkNoInlineAttribute : IO TagAttribute :=
-registerTagAttribute `noinline "mark definition to never be inlined" checkIsDefinition
-@[init mkNoInlineAttribute] constant noInlineAttribute : TagAttribute := default _
-
-def mkMacroInlineAttribute : IO TagAttribute :=
-registerTagAttribute `macroInline "mark definition to always be inlined before ANF conversion" checkIsDefinition
-@[init mkMacroInlineAttribute] constant macroInlineAttribute : TagAttribute := default _
-
-private partial def hasInlineAttrAux (env : Environment) (attr : TagAttribute) : Name → Bool
+private partial def hasInlineAttrAux (env : Environment) (kind : InlineAttributeKind) : Name → Bool
 | n :=
   /- We never inline auxiliary declarations created by eager lambda lifting -/
   if isEagerLambdaLiftingName n then false
-  else if attr.hasTag env n then true
-  else if n.isInternal then hasInlineAttrAux n.getPrefix
-  else false
+  else match inlineAttrs.getValue env n with
+    | some k := kind == k
+    | none   := if n.isInternal then hasInlineAttrAux n.getPrefix else false
 
 @[export lean.has_inline_attribute_core]
-def hasInlineAttribure (env : Environment) (n : Name) : Bool :=
-hasInlineAttrAux env inlineAttribute n
+def hasInlineAttribute (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env InlineAttributeKind.inline n
 
 @[export lean.has_inline_if_reduce_attribute_core]
-def hasInlineIfReduceAttribure (env : Environment) (n : Name) : Bool :=
-hasInlineAttrAux env inlineIfReduceAttribute n
+def hasInlineIfReduceAttribute (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env InlineAttributeKind.inlineIfReduce n
 
 @[export lean.has_noinline_attribute_core]
-def hasNoInlineAttribure (env : Environment) (n : Name) : Bool :=
-hasInlineAttrAux env noInlineAttribute n
+def hasNoInlineAttribute (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env InlineAttributeKind.noinline n
 
 @[export lean.has_macro_inline_attribute_core]
-def hasMacroInlineAttribure (env : Environment) (n : Name) : Bool :=
-hasInlineAttrAux env macroInlineAttribute n
+def hasMacroInlineAttribute (env : Environment) (n : Name) : Bool :=
+hasInlineAttrAux env InlineAttributeKind.macroInline n
 
 end Compiler
 end Lean

@@ -11,13 +11,11 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/compiler.h"
-#include "library/compiler/implemented_by_attribute.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/ll_infer_type.h"
 
 namespace lean {
 void initialize_compiler_module() {
-    initialize_implemented_by_attribute();
     initialize_compiler_util();
     initialize_lcnf();
     initialize_elim_dead_let();
@@ -39,6 +37,5 @@ void finalize_compiler_module() {
     finalize_elim_dead_let();
     finalize_lcnf();
     finalize_compiler_util();
-    finalize_implemented_by_attribute();
 }
 }

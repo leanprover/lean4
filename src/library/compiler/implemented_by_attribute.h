@@ -9,6 +9,4 @@ Author: Leonardo de Moura
 
 namespace lean {
 optional<name> get_implemented_by_attribute(environment const & env, name const & n);
-void initialize_implemented_by_attribute();
-void finalize_implemented_by_attribute();
 }

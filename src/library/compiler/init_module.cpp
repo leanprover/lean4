@@ -11,7 +11,6 @@ Author: Leonardo de Moura
 #include "library/compiler/specialize.h"
 #include "library/compiler/llnf.h"
 #include "library/compiler/compiler.h"
-#include "library/compiler/extern_attribute.h"
 #include "library/compiler/implemented_by_attribute.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/ll_infer_type.h"
@@ -26,7 +25,6 @@ void initialize_compiler_module() {
     initialize_specialize();
     initialize_llnf();
     initialize_compiler();
-    initialize_extern_attribute();
     initialize_borrowed_annotation();
     initialize_ll_infer_type();
 }
@@ -34,7 +32,6 @@ void initialize_compiler_module() {
 void finalize_compiler_module() {
     finalize_ll_infer_type();
     finalize_borrowed_annotation();
-    finalize_extern_attribute();
     finalize_compiler();
     finalize_llnf();
     finalize_specialize();

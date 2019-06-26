@@ -120,10 +120,4 @@ optional<expr> get_extern_constant_ll_type(environment const & env, name const &
     }
     return none_expr();
 }
-
-void initialize_extern_attribute() {
-}
-
-void finalize_extern_attribute() {
-}
 }

@@ -16,7 +16,4 @@ optional<extern_attr_data_value> get_extern_attr_data(environment const & env, n
 /* Return true if `c` is an extern constant, and store in borrowed_args and
    borrowed_res which arguments/results are marked as borrowed. */
 bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bool> & borrowed_args, bool & borrowed_res);
-
-void initialize_extern_attribute();
-void finalize_extern_attribute();
 }

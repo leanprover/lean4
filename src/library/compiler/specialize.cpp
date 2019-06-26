@@ -12,31 +12,19 @@ Author: Leonardo de Moura
 #include "library/class.h"
 #include "library/trace.h"
 #include "library/module.h"
-#include "library/attribute_manager.h"
 #include "library/compiler/util.h"
 #include "library/compiler/csimp.h"
 
 namespace lean {
+uint8 has_specialize_attribute_core(object* env, object* n);
+uint8 has_nospecialize_attribute_core(object* env, object* n);
+
 bool has_specialize_attribute(environment const & env, name const & n) {
-    if (has_attribute(env, "specialize", n))
-        return true;
-    if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[specialize]`
-           if `f` is marked. */
-        return has_specialize_attribute(env, n.get_prefix());
-    }
-    return false;
+    return has_specialize_attribute_core(env.to_obj_arg(), n.to_obj_arg());
 }
 
 bool has_nospecialize_attribute(environment const & env, name const & n) {
-    if (has_attribute(env, "nospecialize", n))
-        return true;
-    if (is_internal_name(n) && !n.is_atomic()) {
-        /* Auxiliary declarations such as `f._main` are considered to be marked as `@[nospecialize]`
-           if `f` is marked. */
-        return has_nospecialize_attribute(env, n.get_prefix());
-    }
-    return false;
+    return has_nospecialize_attribute_core(env.to_obj_arg(), n.to_obj_arg());
 }
 
 /* IMPORTANT: We currently do NOT specialize Fixed arguments.
@@ -1138,22 +1126,6 @@ void initialize_specialize() {
     spec_cache_modification::init();
     register_trace_class({"compiler", "spec_info"});
     register_trace_class({"compiler", "spec_candidate"});
-
-    register_system_attribute(basic_attribute::with_check(
-            "specialize", "mark definition to always be specialized",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'specialize' use, only definitions can be marked as specialize");
-            }));
-
-    register_system_attribute(basic_attribute::with_check(
-            "nospecialize", "mark definition to never be specialized",
-            [](environment const & env, name const & d, bool) -> void {
-                auto decl = env.get(d);
-                if (!decl.is_definition())
-                    throw exception("invalid 'nospecialize' use, only definitions can be marked as nospecialize");
-            }));
 }
 
 void finalize_specialize() {

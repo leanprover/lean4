@@ -8,6 +8,7 @@ import init.data.option.basic
 import init.lean.expr
 import init.lean.environment
 import init.lean.attributes
+import init.lean.projfns
 
 namespace Lean
 
@@ -89,8 +90,18 @@ constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environmen
 def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
 registerParametricAttribute `extern "builtin and foreign functions" $ λ env declName stx, do
   val ← syntaxToExternAttrData stx,
-  -- TODO: invoke addExtern for constructors and generated projections
-  pure (val, env)
+  if env.isProjectionFn declName || env.isConstructor declName then do
+    env ← addExtern env declName,
+    pure (val, env)
+  else
+    pure (val, env)
+
+@[init mkExternAttr]
+constant externAttr : ParametricAttribute ExternAttrData := default _
+
+@[export lean.get_extern_attr_data_core]
+def getExternAttrData (env : Environment) (n : Name) : Option ExternAttrData :=
+externAttr.getParam env n
 
 private def parseOptNum : Nat → String.Iterator → Nat → String.Iterator × Nat
 | 0     it r := (it, r)
@@ -150,20 +161,20 @@ do e ← getExternEntryFor d backend,
    expandExternEntry e args
 
 @[extern "lean_get_extern_attr_data"]
-constant getExternAttrData (env : @& Environment) (fn : @& Name) : Option ExternAttrData := default _
+constant getExternAttrDataOld (env : @& Environment) (fn : @& Name) : Option ExternAttrData := default _
 
 def isExtern (env : Environment) (fn : Name) : Bool :=
-(getExternAttrData env fn).isSome
+(getExternAttrDataOld env fn).isSome
 
 /- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
-match getExternAttrData env fn with
+match getExternAttrDataOld env fn with
 | some { entries := [ ExternEntry.standard `all _ ], .. } := true
 | _ := false
 
 def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String :=
-do data ← getExternAttrData env fn,
+do data ← getExternAttrDataOld env fn,
    entry ← getExternEntryFor data backend,
    match entry with
    | ExternEntry.standard _ n := pure n

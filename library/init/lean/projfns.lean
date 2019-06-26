@@ -34,6 +34,8 @@ constant projectionFnInfoExt : SimplePersistentEnvExtension (Name × ProjectionF
 def addProjectionFnInfo (env : Environment) (projName : Name) (ctorName : Name) (nparams : Nat) (i : Nat) (fromClass : Bool) : Environment :=
 projectionFnInfoExt.addEntry env (projName, { ctorName := ctorName, nparams := nparams, i := i, fromClass := fromClass })
 
+namespace Environment
+
 @[export lean.get_projection_info_core]
 def getProjectionFnInfo (env : Environment) (projName : Name) : Option ProjectionFunctionInfo :=
 match env.getModuleIdxFor projName with
@@ -43,4 +45,10 @@ match env.getModuleIdxFor projName with
   | none   := none
 | none        := (projectionFnInfoExt.getState env).find projName
 
+def isProjectionFn (env : Environment) (n : Name) : Bool :=
+match env.getModuleIdxFor n with
+| some modIdx := (projectionFnInfoExt.getModuleEntries env modIdx).binSearchContains (n, default _) (λ a b, Name.quickLt a.1 b.1)
+| none        := (projectionFnInfoExt.getState env).contains n
+
+end Environment
 end Lean

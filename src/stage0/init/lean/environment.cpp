@@ -186,6 +186,7 @@ uint8 l_Array_anyMAux___main___at_Lean_registerPersistentEnvExtensionUnsafe___sp
 namespace lean {
 obj* display_stats_core(obj*, obj*);
 }
+uint8 l_Lean_Environment_isConstructor(obj*, obj*);
 obj* l_Lean_registerPersistentEnvExtension___rarg(obj*);
 obj* l_Lean_Environment_Inhabited;
 namespace lean {
@@ -303,6 +304,7 @@ obj* environment_find_core(obj*, obj*);
 obj* l_Lean_SMap_empty___at_Lean_Environment_Inhabited___spec__2;
 extern obj* l_HashMap_Inhabited___closed__1;
 obj* l_Lean_modListExtension;
+obj* l_Lean_Environment_isConstructor___boxed(obj*, obj*);
 obj* l_Array_miterateAux___main___at_Lean_importModules___spec__12(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_lean_environment_9__getEntriesFor___main___boxed(obj*, obj*, obj*);
 obj* l_HashMapImp_expand___at_Lean_Environment_add___spec__6(obj*, obj*);
@@ -3976,6 +3978,49 @@ x_3 = l_Lean_Environment_getModuleIdxFor(x_1, x_2);
 lean::dec(x_2);
 lean::dec(x_1);
 return x_3;
+}
+}
+uint8 l_Lean_Environment_isConstructor(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::environment_find_core(x_1, x_2);
+if (lean::obj_tag(x_3) == 0)
+{
+uint8 x_4; 
+x_4 = 0;
+return x_4;
+}
+else
+{
+obj* x_5; 
+x_5 = lean::cnstr_get(x_3, 0);
+lean::inc(x_5);
+lean::dec(x_3);
+if (lean::obj_tag(x_5) == 6)
+{
+uint8 x_6; 
+lean::dec(x_5);
+x_6 = 1;
+return x_6;
+}
+else
+{
+uint8 x_7; 
+lean::dec(x_5);
+x_7 = 0;
+return x_7;
+}
+}
+}
+}
+obj* l_Lean_Environment_isConstructor___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+uint8 x_3; obj* x_4; 
+x_3 = l_Lean_Environment_isConstructor(x_1, x_2);
+x_4 = lean::box(x_3);
+return x_4;
 }
 }
 obj* l_Lean_Environment_addAndCompile___boxed(obj* x_1, obj* x_2, obj* x_3) {
@@ -17167,6 +17212,7 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "setMainModule"), 2, lean::environment_set_main_module_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "mainModule"), 1, lean::environment_main_module_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "getModuleIdxFor"), 2, l_Lean_Environment_getModuleIdxFor___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "isConstructor"), 2, l_Lean_Environment_isConstructor___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Environment"), "addAndCompile"), 3, l_Lean_Environment_addAndCompile___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "EnvExtension"), "setStateUnsafe"), 1, l_Lean_EnvExtension_setStateUnsafe);
 l_Lean_EnvExtension_setState___closed__1 = _init_l_Lean_EnvExtension_setState___closed__1();

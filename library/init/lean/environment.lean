@@ -81,6 +81,11 @@ env.header.trustLevel
 def getModuleIdxFor (env : Environment) (c : Name) : Option ModuleIdx :=
 env.const2ModIdx.find c
 
+def isConstructor (env : Environment) (c : Name) : Bool :=
+match env.find c with
+| ConstantInfo.ctorInfo _ := true
+| _ := false
+
 /--
 Type check, add and compile the given declaration.
 

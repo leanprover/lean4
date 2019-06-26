@@ -139,7 +139,7 @@ a
 
 /- `idRhs` is an auxiliary Declaration used in the equation Compiler to address performance
    issues when proving equational theorems. The equation Compiler uses it as a marker. -/
-@[macroInline] abbrev idRhs (α : Sort u) (a : α) : α := a
+@[macroInline, reducible] def idRhs (α : Sort u) (a : α) : α := a
 
 inductive PUnit : Sort u
 | unit : PUnit

@@ -19,20 +19,22 @@ namespace lean {
 
     We also use this information in the rewriter/simplifier.
 */
-class projection_info {
-    name     m_constructor;   // mk in the rule above
-    unsigned m_nparams;       // number of parameters of the inductive datatype
-    unsigned m_i;             // i in the rule above
-    bool     m_inst_implicit; // true if it is the projection of a "class"
-    friend struct proj_modification;
+class projection_info : public object_ref {
 public:
-    projection_info() {}
-    projection_info(name const & c, unsigned nparams, unsigned i, bool inst_implicit):
-        m_constructor(c), m_nparams(nparams), m_i(i), m_inst_implicit(inst_implicit) {}
-    name const & get_constructor() const { return m_constructor; }
-    unsigned get_nparams() const { return m_nparams; }
-    unsigned get_i() const { return m_i; }
-    bool is_inst_implicit() const { return m_inst_implicit; }
+    projection_info(name const & c, unsigned nparams, unsigned i, bool inst_implicit);
+    projection_info():projection_info(name(), 0, 0, false) {}
+    projection_info(projection_info const & other):object_ref(other) {}
+    projection_info(projection_info && other):object_ref(other) {}
+    /* low-level constructors */
+    explicit projection_info(object * o):object_ref(o) {}
+    explicit projection_info(b_obj_arg o, bool b):object_ref(o, b) {}
+    explicit projection_info(object_ref const & o):object_ref(o) {}
+    projection_info & operator=(projection_info const & other) { object_ref::operator=(other); return *this; }
+    projection_info & operator=(projection_info && other) { object_ref::operator=(other); return *this; }
+    name const & get_constructor() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
+    unsigned get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
+    unsigned get_i() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
+    bool is_inst_implicit() const { return cnstr_get_scalar<unsigned char>(raw(), sizeof(object*)*3) != 0; }
 };
 
 /** \brief Mark \c p as a projection in the given environment and store that
@@ -58,7 +60,4 @@ inline bool is_projection(environment const & env, name const & n) {
     If not, generate an error message using \c pos.
 */
 bool is_structure_like(environment const & env, name const & S);
-
-void initialize_projection();
-void finalize_projection();
 }

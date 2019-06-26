@@ -23,7 +23,6 @@ Author: Leonardo de Moura
 #include "library/print.h"
 #include "library/util.h"
 #include "library/pp_options.h"
-#include "library/projection.h"
 #include "library/user_recursors.h"
 #include "library/aux_recursors.h"
 #include "library/abstract_context_cache.h"
@@ -86,7 +85,6 @@ void initialize_library_module() {
     initialize_class();
     initialize_library_util();
     initialize_pp_options();
-    initialize_projection();
     initialize_user_recursors();
     initialize_aux_recursors();
     initialize_app_builder();
@@ -110,7 +108,6 @@ void finalize_library_module() {
     finalize_app_builder();
     finalize_aux_recursors();
     finalize_user_recursors();
-    finalize_projection();
     finalize_pp_options();
     finalize_library_util();
     finalize_class();

@@ -35,10 +35,10 @@ registerParametricAttribute `init "initialization procedure for global reference
         match getIOTypeArg initDecl.type with
         | none := Except.error ("initialization function '" ++ toString initFnName ++ "' must have type of the form `IO <type>`")
         | some initTypeArg :=
-          if decl.type == initTypeArg then Except.ok (initFnName, env)
+          if decl.type == initTypeArg then Except.ok initFnName
           else Except.error ("initialization function '" ++ toString initFnName ++ "' type mismatch")
     | Syntax.missing :=
-      if isIOUnit decl.type then Except.ok (Name.anonymous, env)
+      if isIOUnit decl.type then Except.ok Name.anonymous
       else Except.error "initialization function must have type `IO Unit`"
     | _ := Except.error "unexpected kind of argument"
 

@@ -297,7 +297,9 @@ structure ParametricAttribute (α : Type) :=
 (attr : AttributeImpl)
 (ext  : PersistentEnvExtension (Name × α) (NameMap α))
 
-def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String) (getParam : Environment → Name → Syntax → Except String (α × Environment)) : IO (ParametricAttribute α) :=
+def registerParametricAttribute {α : Type} [Inhabited α] (name : Name) (descr : String)
+       (getParam : Environment → Name → Syntax → Except String α)
+       (afterSet : Environment → Name → α → Except String Environment := λ env _ _, Except.ok env) : IO (ParametricAttribute α) :=
 do
 ext : PersistentEnvExtension (Name × α) (NameMap α) ← registerPersistentEnvExtension {
   name            := name,
@@ -316,8 +318,12 @@ let attrImpl : AttributeImpl := {
     unless (env.getModuleIdxFor decl).isNone $
       throw (IO.userError ("invalid attribute '" ++ toString name ++ "', declaration is in an imported module")),
     match getParam env decl args with
-    | Except.error msg     := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
-    | Except.ok (val, env) := pure $ ext.addEntry env (decl, val)
+    | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+    | Except.ok val    := do
+      let env := ext.addEntry env (decl, val),
+      match afterSet env decl val with
+      | Except.error msg := throw (IO.userError ("invalid attribute '" ++ toString name ++ "', " ++ msg))
+      | Except.ok env    := pure env
 },
 registerAttribute attrImpl,
 pure { attr := attrImpl, ext := ext }

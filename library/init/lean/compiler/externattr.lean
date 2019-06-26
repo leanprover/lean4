@@ -88,13 +88,13 @@ match s with
 constant addExtern (env : Environment) (n : Name) : ExceptT String Id Environment := default _
 
 def mkExternAttr : IO (ParametricAttribute ExternAttrData) :=
-registerParametricAttribute `extern "builtin and foreign functions" $ λ env declName stx, do
-  val ← syntaxToExternAttrData stx,
-  if env.isProjectionFn declName || env.isConstructor declName then do
-    env ← addExtern env declName,
-    pure (val, env)
-  else
-    pure (val, env)
+registerParametricAttribute `extern "builtin and foreign functions"
+  (λ _ _, syntaxToExternAttrData)
+  (λ env declName _,
+    if env.isProjectionFn declName || env.isConstructor declName then
+      addExtern env declName
+    else
+      pure env)
 
 @[init mkExternAttr]
 constant externAttr : ParametricAttribute ExternAttrData := default _
@@ -160,21 +160,18 @@ def mkExternCall (d : ExternAttrData) (backend : Name) (args : List String) : Op
 do e ← getExternEntryFor d backend,
    expandExternEntry e args
 
-@[extern "lean_get_extern_attr_data"]
-constant getExternAttrDataOld (env : @& Environment) (fn : @& Name) : Option ExternAttrData := default _
-
 def isExtern (env : Environment) (fn : Name) : Bool :=
-(getExternAttrDataOld env fn).isSome
+(getExternAttrData env fn).isSome
 
 /- We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
    Thus, there is no name mangling. -/
 def isExternC (env : Environment) (fn : Name) : Bool :=
-match getExternAttrDataOld env fn with
+match getExternAttrData env fn with
 | some { entries := [ ExternEntry.standard `all _ ], .. } := true
 | _ := false
 
 def getExternNameFor (env : Environment) (backend : Name) (fn : Name) : Option String :=
-do data ← getExternAttrDataOld env fn,
+do data ← getExternAttrData env fn,
    entry ← getExternEntryFor data backend,
    match entry with
    | ExternEntry.standard _ n := pure n

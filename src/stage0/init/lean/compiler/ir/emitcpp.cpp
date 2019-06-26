@@ -118,9 +118,7 @@ obj* l_Lean_IR_EmitCpp_emitDeclAux___closed__1;
 obj* l_Lean_IR_EmitCpp_emitDeclInit(obj*, obj*, obj*);
 uint8 l_Lean_isIOUnitInitFn(obj*, obj*);
 obj* l_List_reverse___rarg(obj*);
-namespace lean {
-obj* mk_extern_call_core(obj*, obj*, obj*);
-}
+obj* l_Lean_mkExternCall(obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_emitMainFn___closed__13;
 obj* l_Nat_mforAux___main___at_Lean_IR_EmitCpp_emitDeclAux___spec__1(obj*, obj*, obj*, obj*, obj*);
 obj* l_Lean_IR_EmitCpp_isIf(obj*);
@@ -15908,7 +15906,8 @@ lean::inc(x_116);
 lean::dec(x_11);
 x_117 = l_Lean_IR_EmitCpp_toStringArgs(x_3);
 x_118 = l_List_mfor___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__5___closed__1;
-x_119 = lean::mk_extern_call_core(x_116, x_118, x_117);
+x_119 = l_Lean_mkExternCall(x_116, x_118, x_117);
+lean::dec(x_116);
 if (lean::obj_tag(x_119) == 0)
 {
 obj* x_120; 
@@ -15945,7 +15944,8 @@ lean::inc(x_128);
 lean::dec(x_11);
 x_129 = l_Lean_IR_EmitCpp_toStringArgs(x_3);
 x_130 = l_List_mfor___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__5___closed__1;
-x_131 = lean::mk_extern_call_core(x_128, x_130, x_129);
+x_131 = l_Lean_mkExternCall(x_128, x_130, x_129);
+lean::dec(x_128);
 if (lean::obj_tag(x_131) == 0)
 {
 obj* x_132; obj* x_133; 
@@ -16182,7 +16182,8 @@ lean::inc(x_187);
 lean::dec(x_149);
 x_188 = l_Lean_IR_EmitCpp_toStringArgs(x_3);
 x_189 = l_List_mfor___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__5___closed__1;
-x_190 = lean::mk_extern_call_core(x_187, x_189, x_188);
+x_190 = l_Lean_mkExternCall(x_187, x_189, x_188);
+lean::dec(x_187);
 if (lean::obj_tag(x_190) == 0)
 {
 obj* x_191; obj* x_192; 

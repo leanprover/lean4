@@ -18,9 +18,6 @@ obj* l_RBNode_fold___main___at_Lean_mkExternAttr___spec__2___boxed(obj*, obj*);
 uint32 l_String_Iterator_curr___main(obj*);
 obj* l_Lean_getExternEntryForAux___boxed(obj*, obj*);
 obj* l_RBNode_fold___main___at_Lean_mkExternAttr___spec__2(obj*, obj*);
-namespace lean {
-obj* mk_extern_attr_data_core(obj*, obj*);
-}
 obj* l_Lean_expandExternPatternAux(obj*, obj*, obj*, obj*);
 obj* l_Lean_getExternNameFor(obj*, obj*, obj*);
 obj* l_Lean_getExternNameFor___boxed(obj*, obj*, obj*);
@@ -35,28 +32,22 @@ obj* nat_sub(obj*, obj*);
 obj* l_Array_qsortAux___main___at_Lean_mkExternAttr___spec__3___boxed(obj*, obj*, obj*);
 extern obj* l_Lean_stxInh;
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__5;
-namespace lean {
-obj* mk_adhoc_ext_entry_core(obj*);
-}
 obj* l_Lean_addExtern___boxed(obj*, obj*);
-namespace lean {
-obj* mk_foreign_ext_entry_core(obj*, obj*);
-}
 obj* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1(obj*, obj*, obj*);
 obj* l_List_intersperse___main___rarg(obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___lambda__3___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_expandExternEntry(obj*, obj*);
 obj* l_Lean_PersistentEnvExtension_inhabited___rarg___lambda__1___boxed(obj*);
+obj* l_Lean_expandExternPattern___boxed(obj*, obj*);
 obj* l_List_getOpt___main___rarg(obj*, obj*);
 obj* l_Lean_mkProjectionFnInfoExtension___lambda__2___boxed(obj*);
 obj* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1___boxed(obj*, obj*);
 obj* l_Lean_ExternEntry_backend___main___boxed(obj*);
 obj* l_Lean_registerAttribute(obj*, obj*);
+obj* l_Lean_mkExternCall___boxed(obj*, obj*, obj*);
 obj* l_Lean_expandExternEntry___main(obj*, obj*);
 obj* l_Lean_mkExternAttr___closed__2;
-namespace lean {
-obj* mk_extern_call_core(obj*, obj*, obj*);
-}
+obj* l_Lean_mkExternCall(obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___closed__1;
 obj* l_Lean_mkExternAttr___closed__3;
 obj* l_String_Iterator_remainingBytes___main(obj*);
@@ -83,9 +74,7 @@ obj* l_Lean_PersistentEnvExtension_getState___rarg(obj*, obj*);
 obj* l_Lean_ExternEntry_backend___boxed(obj*);
 obj* l_Lean_expandExternPatternAux___boxed(obj*, obj*, obj*, obj*);
 obj* l_Lean_registerParametricAttribute___at_Lean_mkExternAttr___spec__1___lambda__1(obj*);
-namespace lean {
-obj* expand_extern_pattern_core(obj*, obj*);
-}
+obj* l_Lean_expandExternPattern(obj*, obj*);
 obj* l_Lean_Environment_getModuleIdxFor(obj*, obj*);
 obj* l_Lean_Syntax_isNatLit___main(obj*);
 obj* l_String_Iterator_next___main(obj*);
@@ -136,10 +125,8 @@ uint8 string_dec_eq(obj*, obj*);
 }
 obj* l___private_init_lean_compiler_externattr_3__parseOptNum(obj*, obj*, obj*);
 uint8 l_UInt32_decEq(uint32, uint32);
-namespace lean {
-obj* mk_inline_ext_entry_core(obj*, obj*);
-}
 obj* l_Lean_registerParametricAttribute___rarg___lambda__4___boxed(obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*, obj*);
+obj* l_Lean_getExternEntryFor___boxed(obj*, obj*);
 obj* l_Lean_registerTagAttribute___lambda__7___boxed(obj*, obj*, obj*, obj*, obj*);
 obj* l___private_init_data_array_qsort_1__partitionAux___main___at_Lean_mkExternAttr___spec__4(obj*, obj*, obj*, obj*, obj*);
 uint8 l_Lean_Name_quickLt(obj*, obj*);
@@ -163,18 +150,13 @@ obj* l_Lean_getExternEntryForAux___main(obj*, obj*);
 namespace lean {
 obj* nat_div(obj*, obj*);
 }
-namespace lean {
-obj* get_extern_entry_for_core(obj*, obj*);
-}
+obj* l_Lean_getExternEntryFor(obj*, obj*);
 namespace lean {
 obj* uint32_to_nat(uint32);
 }
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData___closed__2;
 obj* l_Lean_mkExternAttr___lambda__1(obj*, obj*, obj*);
 obj* l_Lean_AttributeImpl_inhabited___lambda__2___boxed(obj*, obj*, obj*, obj*);
-namespace lean {
-obj* mk_std_ext_entry_core(obj*, obj*);
-}
 obj* l___private_init_lean_compiler_externattr_2__syntaxToExternAttrData(obj*);
 extern "C" obj* lean_add_extern(obj*, obj*);
 obj* l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___boxed(obj*, obj*, obj*);
@@ -199,53 +181,6 @@ obj* l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1__
 namespace lean {
 obj* string_length(obj*);
 }
-namespace lean {
-obj* mk_adhoc_ext_entry_core(obj* x_1) {
-_start:
-{
-obj* x_2; 
-x_2 = lean::alloc_cnstr(0, 1, 0);
-lean::cnstr_set(x_2, 0, x_1);
-return x_2;
-}
-}
-}
-namespace lean {
-obj* mk_inline_ext_entry_core(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_cnstr(1, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
-}
-}
-}
-namespace lean {
-obj* mk_std_ext_entry_core(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_cnstr(2, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
-}
-}
-}
-namespace lean {
-obj* mk_foreign_ext_entry_core(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_cnstr(3, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
-}
-}
-}
 obj* _init_l_Lean_ExternAttrData_inhabited() {
 _start:
 {
@@ -256,18 +191,6 @@ x_3 = lean::alloc_cnstr(0, 2, 0);
 lean::cnstr_set(x_3, 0, x_1);
 lean::cnstr_set(x_3, 1, x_2);
 return x_3;
-}
-}
-namespace lean {
-obj* mk_extern_attr_data_core(obj* x_1, obj* x_2) {
-_start:
-{
-obj* x_3; 
-x_3 = lean::alloc_cnstr(0, 2, 0);
-lean::cnstr_set(x_3, 0, x_1);
-lean::cnstr_set(x_3, 1, x_2);
-return x_3;
-}
 }
 }
 obj* _init_l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__1() {
@@ -1976,8 +1899,7 @@ lean::dec(x_1);
 return x_5;
 }
 }
-namespace lean {
-obj* expand_extern_pattern_core(obj* x_1, obj* x_2) {
+obj* l_Lean_expandExternPattern(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; obj* x_5; obj* x_6; obj* x_7; 
@@ -1988,9 +1910,16 @@ lean::cnstr_set(x_5, 0, x_1);
 lean::cnstr_set(x_5, 1, x_4);
 x_6 = l_String_splitAux___main___closed__1;
 x_7 = l_Lean_expandExternPatternAux___main(x_2, x_3, x_5, x_6);
-lean::dec(x_2);
 return x_7;
 }
+}
+obj* l_Lean_expandExternPattern___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_expandExternPattern(x_1, x_2);
+lean::dec(x_2);
+return x_3;
 }
 }
 obj* l_List_foldl___main___at_Lean_mkSimpleFnCall___spec__1(obj* x_1, obj* x_2) {
@@ -2057,7 +1986,8 @@ obj* x_4; obj* x_5; obj* x_6;
 x_4 = lean::cnstr_get(x_1, 1);
 lean::inc(x_4);
 lean::dec(x_1);
-x_5 = lean::expand_extern_pattern_core(x_4, x_2);
+x_5 = l_Lean_expandExternPattern(x_4, x_2);
+lean::dec(x_2);
 x_6 = lean::alloc_cnstr(1, 1, 0);
 lean::cnstr_set(x_6, 0, x_5);
 return x_6;
@@ -2195,27 +2125,30 @@ lean::dec(x_1);
 return x_3;
 }
 }
-namespace lean {
-obj* get_extern_entry_for_core(obj* x_1, obj* x_2) {
+obj* l_Lean_getExternEntryFor(obj* x_1, obj* x_2) {
 _start:
 {
 obj* x_3; obj* x_4; 
 x_3 = lean::cnstr_get(x_1, 1);
-lean::inc(x_3);
-lean::dec(x_1);
 x_4 = l_Lean_getExternEntryForAux___main(x_2, x_3);
-lean::dec(x_3);
-lean::dec(x_2);
 return x_4;
 }
 }
+obj* l_Lean_getExternEntryFor___boxed(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = l_Lean_getExternEntryFor(x_1, x_2);
+lean::dec(x_2);
+lean::dec(x_1);
+return x_3;
 }
-namespace lean {
-obj* mk_extern_call_core(obj* x_1, obj* x_2, obj* x_3) {
+}
+obj* l_Lean_mkExternCall(obj* x_1, obj* x_2, obj* x_3) {
 _start:
 {
 obj* x_4; 
-x_4 = lean::get_extern_entry_for_core(x_1, x_2);
+x_4 = l_Lean_getExternEntryFor(x_1, x_2);
 if (lean::obj_tag(x_4) == 0)
 {
 obj* x_5; 
@@ -2233,6 +2166,15 @@ x_7 = l_Lean_expandExternEntry___main(x_6, x_3);
 return x_7;
 }
 }
+}
+obj* l_Lean_mkExternCall___boxed(obj* x_1, obj* x_2, obj* x_3) {
+_start:
+{
+obj* x_4; 
+x_4 = l_Lean_mkExternCall(x_1, x_2, x_3);
+lean::dec(x_2);
+lean::dec(x_1);
+return x_4;
 }
 }
 uint8 l_Lean_isExtern(obj* x_1, obj* x_2) {
@@ -2365,7 +2307,6 @@ x_5 = l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1(
 if (lean::obj_tag(x_5) == 0)
 {
 obj* x_6; 
-lean::dec(x_2);
 x_6 = lean::box(0);
 return x_6;
 }
@@ -2375,7 +2316,8 @@ obj* x_7; obj* x_8;
 x_7 = lean::cnstr_get(x_5, 0);
 lean::inc(x_7);
 lean::dec(x_5);
-x_8 = lean::get_extern_entry_for_core(x_7, x_2);
+x_8 = l_Lean_getExternEntryFor(x_7, x_2);
+lean::dec(x_7);
 if (lean::obj_tag(x_8) == 0)
 {
 obj* x_9; 
@@ -2460,6 +2402,7 @@ _start:
 {
 obj* x_4; 
 x_4 = l_Lean_getExternNameFor(x_1, x_2, x_3);
+lean::dec(x_2);
 lean::dec(x_1);
 return x_4;
 }
@@ -2484,14 +2427,9 @@ w = initialize_init_lean_attributes(w);
 if (io_result_is_error(w)) return w;
 w = initialize_init_lean_projfns(w);
 if (io_result_is_error(w)) return w;
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkAdhocExtEntry"), 1, lean::mk_adhoc_ext_entry_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkInlineExtEntry"), 2, lean::mk_inline_ext_entry_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkStdExtEntry"), 2, lean::mk_std_ext_entry_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkForeignExtEntry"), 2, lean::mk_foreign_ext_entry_core);
 l_Lean_ExternAttrData_inhabited = _init_l_Lean_ExternAttrData_inhabited();
 lean::mark_persistent(l_Lean_ExternAttrData_inhabited);
 lean::register_constant(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ExternAttrData"), "inhabited"), l_Lean_ExternAttrData_inhabited);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkExternAttrData"), 2, lean::mk_extern_attr_data_core);
 l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__1 = _init_l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__1();
 lean::mark_persistent(l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__1);
 l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__2 = _init_l___private_init_lean_compiler_externattr_1__syntaxToExternEntries___main___closed__2();
@@ -2537,13 +2475,13 @@ l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1___clos
 lean::mark_persistent(l_Lean_ParametricAttribute_getParam___at_Lean_getExternAttrData___spec__1___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getExternAttrData"), 2, lean::get_extern_attr_data_core);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "expandExternPatternAux"), 4, l_Lean_expandExternPatternAux___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "expandExternPattern"), 2, lean::expand_extern_pattern_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "expandExternPattern"), 2, l_Lean_expandExternPattern___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkSimpleFnCall"), 2, l_Lean_mkSimpleFnCall);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "expandExternEntry"), 2, l_Lean_expandExternEntry);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "ExternEntry"), "backend"), 1, l_Lean_ExternEntry_backend___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getExternEntryForAux"), 2, l_Lean_getExternEntryForAux___boxed);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getExternEntryFor"), 2, lean::get_extern_entry_for_core);
-REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkExternCall"), 3, lean::mk_extern_call_core);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getExternEntryFor"), 2, l_Lean_getExternEntryFor___boxed);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "mkExternCall"), 3, l_Lean_mkExternCall___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isExtern"), 2, l_Lean_isExtern___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "isExternC"), 2, l_Lean_isExternC___boxed);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name("Lean"), "getExternNameFor"), 3, l_Lean_getExternNameFor___boxed);

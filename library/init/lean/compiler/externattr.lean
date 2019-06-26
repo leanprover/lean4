@@ -18,11 +18,6 @@ inductive ExternEntry
 | standard (backend : Name) (fn : String)
 | foreign  (backend : Name) (fn : String)
 
-@[export lean.mk_adhoc_ext_entry_core]   def mkAdhocExtEntry   := ExternEntry.adhoc
-@[export lean.mk_inline_ext_entry_core]  def mkInlineExtEntry  := ExternEntry.inline
-@[export lean.mk_std_ext_entry_core]     def mkStdExtEntry     := ExternEntry.standard
-@[export lean.mk_foreign_ext_entry_core] def mkForeignExtEntry := ExternEntry.foreign
-
 /-
 - `@[extern]`
    encoding: ```.entries = [adhoc `all]```
@@ -42,8 +37,6 @@ structure ExternAttrData :=
 (entries  : List ExternEntry)
 
 instance ExternAttrData.inhabited : Inhabited ExternAttrData := ⟨{ entries := [] }⟩
-
-@[export lean.mk_extern_attr_data_core] def mkExternAttrData := ExternAttrData.mk
 
 private partial def syntaxToExternEntries (a : Array Syntax) : Nat → List ExternEntry → Except String (List ExternEntry)
 | i entries :=
@@ -125,7 +118,6 @@ def expandExternPatternAux (args : List String) : Nat → String.Iterator → St
       let j       := j-1 in
       expandExternPatternAux i it (r ++ (args.getOpt j).getOrElse "")
 
-@[export lean.expand_extern_pattern_core]
 def expandExternPattern (pattern : String) (args : List String) : String :=
 expandExternPatternAux args pattern.length pattern.mkIterator ""
 
@@ -151,11 +143,9 @@ def getExternEntryForAux (backend : Name) : List ExternEntry → Option ExternEn
   else if e.backend = backend then some e
   else getExternEntryForAux es
 
-@[export lean.get_extern_entry_for_core]
 def getExternEntryFor (d : ExternAttrData) (backend : Name) : Option ExternEntry :=
 getExternEntryForAux backend d.entries
 
-@[export lean.mk_extern_call_core]
 def mkExternCall (d : ExternAttrData) (backend : Name) (args : List String) : Option String :=
 do e ← getExternEntryFor d backend,
    expandExternEntry e args

@@ -5,6 +5,7 @@ Authors: Leonardo de Moura
 -/
 prelude
 import init.lean.compiler.inlineattrs
+import init.lean.compiler.specializeattrs
 import init.lean.compiler.constfolding
 import init.lean.compiler.closedtermcache
 import init.lean.compiler.externattr

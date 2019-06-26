@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: init.lean.compiler.util
-// Imports: init.lean.expr init.lean.declaration
+// Imports: init.lean.environment
 #include "runtime/object.h"
 #include "runtime/apply.h"
 typedef lean::object obj;    typedef lean::usize  usize;
@@ -27,6 +27,7 @@ obj* l_Lean_Compiler_atMostOnce_visit___boxed(obj*, obj*, obj*);
 uint8 l_Lean_Compiler_isEagerLambdaLiftingName___main(obj*);
 obj* l_Lean_Compiler_atMostOnce_visit___main___boxed(obj*, obj*, obj*);
 obj* l_Lean_Compiler_atMostOnce_visitFVar___main(obj*, obj*, obj*);
+obj* l_Lean_Compiler_checkIsDefinition___closed__3;
 obj* l_Lean_Compiler_mkLcProof(obj*);
 obj* l_Nat_repr(obj*);
 extern "C" obj* lean_expr_mk_const(obj*, obj*);
@@ -46,6 +47,9 @@ obj* l_Lean_Compiler_mkEagerLambdaLiftingName___closed__1;
 obj* l_Lean_Compiler_voidType;
 obj* l_Lean_Compiler_atMostOnce_skip(obj*);
 namespace lean {
+obj* environment_find_core(obj*, obj*);
+}
+namespace lean {
 obj* get_decl_names_for_code_gen_core(obj*);
 }
 obj* l_Lean_Compiler_atMostOnce_skip___boxed(obj*);
@@ -54,6 +58,9 @@ uint8 is_eager_lambda_lifting_name_core(obj*);
 }
 obj* l_Lean_Compiler_mkLcProof___closed__1;
 obj* l_Lean_Compiler_isEagerLambdaLiftingName___boxed(obj*);
+obj* l_Lean_Compiler_checkIsDefinition___closed__1;
+obj* l_Lean_Compiler_checkIsDefinition___closed__2;
+obj* l_Lean_Compiler_checkIsDefinition(obj*, obj*);
 namespace lean {
 obj* mk_eager_lambda_lifting_name_core(obj*, obj*);
 }
@@ -901,16 +908,77 @@ return x_2;
 }
 }
 }
-obj* initialize_init_lean_expr(obj*);
-obj* initialize_init_lean_declaration(obj*);
+obj* _init_l_Lean_Compiler_checkIsDefinition___closed__1() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_string("unknow declaration");
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_checkIsDefinition___closed__2() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::mk_string("declaration is not a definition");
+x_2 = lean::alloc_cnstr(0, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* _init_l_Lean_Compiler_checkIsDefinition___closed__3() {
+_start:
+{
+obj* x_1; obj* x_2; 
+x_1 = lean::box(0);
+x_2 = lean::alloc_cnstr(1, 1, 0);
+lean::cnstr_set(x_2, 0, x_1);
+return x_2;
+}
+}
+obj* l_Lean_Compiler_checkIsDefinition(obj* x_1, obj* x_2) {
+_start:
+{
+obj* x_3; 
+x_3 = lean::environment_find_core(x_1, x_2);
+if (lean::obj_tag(x_3) == 0)
+{
+obj* x_4; 
+x_4 = l_Lean_Compiler_checkIsDefinition___closed__1;
+return x_4;
+}
+else
+{
+obj* x_5; 
+x_5 = lean::cnstr_get(x_3, 0);
+lean::inc(x_5);
+lean::dec(x_3);
+if (lean::obj_tag(x_5) == 1)
+{
+obj* x_6; 
+lean::dec(x_5);
+x_6 = l_Lean_Compiler_checkIsDefinition___closed__3;
+return x_6;
+}
+else
+{
+obj* x_7; 
+lean::dec(x_5);
+x_7 = l_Lean_Compiler_checkIsDefinition___closed__2;
+return x_7;
+}
+}
+}
+}
+obj* initialize_init_lean_environment(obj*);
 static bool _G_initialized = false;
 obj* initialize_init_lean_compiler_util(obj* w) {
 if (_G_initialized) return w;
 _G_initialized = true;
 if (io_result_is_error(w)) return w;
-w = initialize_init_lean_expr(w);
-if (io_result_is_error(w)) return w;
-w = initialize_init_lean_declaration(w);
+w = initialize_init_lean_environment(w);
 if (io_result_is_error(w)) return w;
 l_Lean_Compiler_neutralExpr = _init_l_Lean_Compiler_neutralExpr();
 lean::mark_persistent(l_Lean_Compiler_neutralExpr);
@@ -943,5 +1011,12 @@ REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_na
 l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1 = _init_l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1();
 lean::mark_persistent(l_Lean_Compiler_isEagerLambdaLiftingName___main___closed__1);
 REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "isEagerLambdaLiftingName"), 1, l_Lean_Compiler_isEagerLambdaLiftingName___boxed);
+l_Lean_Compiler_checkIsDefinition___closed__1 = _init_l_Lean_Compiler_checkIsDefinition___closed__1();
+lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__1);
+l_Lean_Compiler_checkIsDefinition___closed__2 = _init_l_Lean_Compiler_checkIsDefinition___closed__2();
+lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__2);
+l_Lean_Compiler_checkIsDefinition___closed__3 = _init_l_Lean_Compiler_checkIsDefinition___closed__3();
+lean::mark_persistent(l_Lean_Compiler_checkIsDefinition___closed__3);
+REGISTER_LEAN_FUNCTION(lean::mk_const_name(lean::mk_const_name(lean::mk_const_name("Lean"), "Compiler"), "checkIsDefinition"), 2, l_Lean_Compiler_checkIsDefinition);
 return w;
 }

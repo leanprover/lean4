@@ -4,8 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 prelude
-import init.lean.expr
-import init.lean.declaration
+import init.lean.environment
 
 namespace Lean
 namespace Compiler
@@ -76,6 +75,12 @@ private def getDeclNamesForCodeGen : Declaration → List Name
 | (Declaration.defnDecl { name := n, .. })   := [n]
 | (Declaration.mutualDefnDecl defs)          := defs.map $ λ d, d.name
 | _                                          := []
+
+def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
+match env.find n with
+| (some (ConstantInfo.defnInfo _)) := Except.ok ()
+| none := Except.error "unknow declaration"
+| _    := Except.error "declaration is not a definition"
 
 end Compiler
 end Lean

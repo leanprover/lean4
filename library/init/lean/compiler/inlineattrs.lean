@@ -28,12 +28,6 @@ instance : HasBeq InlineAttributeKind := ⟨InlineAttributeKind.beq⟩
 
 end InlineAttributeKind
 
-private def checkIsDefinition (env : Environment) (n : Name) : Except String Unit :=
-match env.find n with
-| (some (ConstantInfo.defnInfo _)) := Except.ok ()
-| none := Except.error "unknow declaration"
-| _    := Except.error "declaration is not a definition"
-
 def mkInlineAttrs : IO (EnumAttributes InlineAttributeKind) :=
 registerEnumAttributes `inlineAttrs
   [(`inline, "mark definition to always be inlined", InlineAttributeKind.inline),

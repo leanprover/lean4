@@ -18,7 +18,6 @@ Author: Leonardo de Moura
 #include "kernel/kernel_exception.h"
 #include "library/util.h"
 #include "library/suffixes.h"
-#include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
 #include "library/replace_visitor.h"
 #include "library/constants.h"

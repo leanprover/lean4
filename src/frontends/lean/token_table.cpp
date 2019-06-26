@@ -7,7 +7,6 @@ Author: Leonardo de Moura
 #include <limits>
 #include <utility>
 #include "util/pair.h"
-#include "library/attribute_manager.h"
 #include "frontends/lean/token_table.h"
 
 namespace lean {

@@ -28,7 +28,6 @@ Author: Leonardo de Moura
 #include "library/type_context.h"
 #include "library/locals.h"
 #include "library/aux_recursors.h"
-#include "library/attribute_manager.h"
 #include "library/fun_info.h"
 #include "library/num.h"
 #include "library/check.h"

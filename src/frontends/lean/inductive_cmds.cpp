@@ -16,7 +16,6 @@ Authors: Daniel Selsam, Leonardo de Moura
 #include "kernel/abstract.h"
 #include "kernel/inductive.h"
 #include "library/locals.h"
-#include "library/attribute_manager.h"
 #include "library/deep_copy.h"
 #include "library/placeholder.h"
 #include "library/aliases.h"

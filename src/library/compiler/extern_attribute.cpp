@@ -11,7 +11,6 @@ Authors: Leonardo de Moura
 #include "kernel/type_checker.h"
 #include "library/util.h"
 #include "library/projection.h"
-#include "library/attribute_manager.h"
 #include "library/compiler/borrowed_annotation.h"
 #include "library/compiler/util.h"
 #include "library/compiler/ir.h"

@@ -22,7 +22,6 @@ Author: Leonardo de Moura
 #include "library/app_builder.h"
 #include "library/class.h"
 #include "library/pp_options.h"
-#include "library/attribute_manager.h"
 #include "library/aux_recursors.h"
 #include "library/private.h"
 #include "library/type_context.h"
@@ -286,36 +285,6 @@ environment open_export_cmd(parser & p, bool open) {
 static environment open_cmd(parser & p) { return open_export_cmd(p, true); }
 static environment export_cmd(parser & p) { return open_export_cmd(p, false); }
 
-static environment help_cmd(parser & p) {
-    auto rep = p.mk_message(p.cmd_pos(), INFORMATION);
-    if (p.curr_is_token_or_id(get_options_tk())) {
-        p.next();
-        rep.set_end_pos(p.pos());
-        auto decls = get_option_declarations();
-        decls.for_each([&](name const &, option_declaration const & opt) {
-                rep << "  " << opt.get_name()
-                    << opt.get_description() << " (default: " << opt.get_default_value() << ")\n";
-            });
-    } else if (p.curr_is_token_or_id(get_commands_tk())) {
-        p.next();
-        buffer<name> ns;
-        cmd_table const & cmds = p.cmds();
-        cmds.for_each([&](name const & n, cmd_info const &) {
-                ns.push_back(n);
-            });
-        std::sort(ns.begin(), ns.end());
-        rep.set_end_pos(p.pos());
-        for (name const & n : ns) {
-            rep << "  " << n << ": " << cmds.find(n)->get_descr() << "\n";
-        };
-    } else {
-        rep << "help options  : describe available options\n"
-            << "help commands : describe available commands\n";
-    }
-    rep.report();
-    return p.env();
-}
-
 static environment init_quot_cmd(parser & p) {
     return p.env().add(mk_quot_decl());
 }
@@ -342,29 +311,6 @@ static expr convert_metavars(metavar_context & mctx, expr const & e) {
             });
     };
     return convert(e);
-}
-
-static environment unify_cmd(parser & p) {
-    transient_cmd_scope cmd_scope(p);
-    environment const & env = p.env();
-    expr e1; names ls1;
-    std::tie(e1, ls1) = parse_local_expr(p, "_unify");
-    p.check_token_next(get_comma_tk(), "invalid #unify command, proper usage \"#unify e1, e2\"");
-    expr e2; names ls2;
-    std::tie(e2, ls2) = parse_local_expr(p, "_unify");
-    metavar_context mctx;
-    local_context   lctx;
-    e1 = convert_metavars(mctx, e1);
-    e2 = convert_metavars(mctx, e2);
-    auto rep = p.mk_message(p.cmd_pos(), p.pos(), INFORMATION);
-    rep << e1 << " =?= " << e2 << "\n";
-    type_context_old ctx(env, p.get_options(), mctx, lctx, transparency_mode::Semireducible);
-    bool success = ctx.is_def_eq(e1, e2);
-    if (success)
-        rep << ctx.instantiate_mvars(e1) << " =?= " << ctx.instantiate_mvars(e2) << "\n";
-    rep << (success ? "unification successful" : "unification failed");
-    rep.report();
-    return env;
 }
 
 environment import_cmd(parser & p) {

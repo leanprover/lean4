@@ -33,7 +33,6 @@ Author: Leonardo de Moura
 #include "library/replace_visitor.h"
 #include "library/locals.h"
 #include "library/private.h"
-#include "library/attribute_manager.h"
 #include "library/protected.h"
 #include "library/message_builder.h"
 #include "library/aliases.h"

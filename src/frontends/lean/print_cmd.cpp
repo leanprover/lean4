@@ -447,14 +447,6 @@ environment print_cmd(parser & p) {
         for (name const & i : get_class_instances(env, c)) {
             out << i << " : " << env.get(i).get_type() << endl;
         }
-    } else if (p.curr_is_token_or_id(get_classes_tk())) {
-        p.next();
-        buffer<name> classes;
-        get_classes(env, classes);
-        std::sort(classes.begin(), classes.end());
-        for (name const & c : classes) {
-            out << c << " : " << env.get(c).get_type() << endl;
-        }
     } else if (p.curr_is_token_or_id(get_attributes_tk())) {
         p.next();
         buffer<attribute const *> attrs;

@@ -1214,7 +1214,7 @@ struct structure_cmd_fn {
                 if (!m_private_parents[i]) {
                     if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name)) {
                         // if both are classes, then we also mark coercion_name as an instance
-                        m_env = add_instance(m_env, m_name + m_fields[i].get_name(), m_prio, true);
+                        m_env = add_instance(m_env, m_name + m_fields[i].get_name(), true);
                     }
                 }
                 continue;
@@ -1250,7 +1250,7 @@ struct structure_cmd_fn {
             if (!m_private_parents[i]) {
                 if (m_meta_info.m_attrs.has_class() && is_class(m_env, parent_name)) {
                     // if both are classes, then we also mark coercion_name as an instance
-                    m_env = add_instance(m_env, coercion_name, m_prio, true);
+                    m_env = add_instance(m_env, coercion_name, true);
                 }
             }
         }

@@ -25,39 +25,29 @@ struct class_entry {
     class_entry_kind m_kind;
     name             m_class;
     name             m_instance;    // only relevant if m_kind == Instance
-    unsigned         m_priority{0}; // only relevant if m_kind == Instance
     class_entry():m_kind(class_entry_kind::Class) {}
     explicit class_entry(name const & c):m_kind(class_entry_kind::Class), m_class(c) {}
-    class_entry(class_entry_kind k, name const & c, name const & i, unsigned p):
-        m_kind(k), m_class(c), m_instance(i), m_priority(p) {}
+    class_entry(class_entry_kind k, name const & c, name const & i):
+        m_kind(k), m_class(c), m_instance(i) {}
 };
 
 struct class_state {
     typedef name_map<names> class_instances;
-    typedef name_map<unsigned>   instance_priorities;
+    typedef name_set        instance_set;
 
     class_instances       m_instances;
-    instance_priorities   m_priorities;
+    instance_set          m_instance_set;
     name_set              m_has_out_params;
 
-    unsigned get_priority(name const & i) const {
-        if (auto it = m_priorities.find(i))
-            return *it;
-        else
-            return LEAN_DEFAULT_PRIORITY;
-    }
-
     bool is_instance(name const & i) const {
-        return m_priorities.contains(i);
+        return m_instance_set.contains(i);
     }
 
-    names insert(name const & inst, unsigned priority, names const & insts) const {
+    names insert(name const & inst, names const & insts) const {
         if (!insts)
             return names(inst);
-        else if (priority >= get_priority(head(insts)))
-            return names(inst, insts);
         else
-            return names(head(insts), insert(inst, priority, tail(insts)));
+            return names(inst, insts);
     }
 
     void add_class(environment const & env, name const & c) {
@@ -77,15 +67,15 @@ struct class_state {
             m_has_out_params.insert(c);
     }
 
-    void add_instance(name const & c, name const & i, unsigned p) {
+    void add_instance(name const & c, name const & i) {
         auto it = m_instances.find(c);
         if (!it) {
             m_instances.insert(c, names(i));
         } else {
             auto lst = filter(*it, [&](name const & i1) { return i1 != i; });
-            m_instances.insert(c, insert(i, p, lst));
+            m_instances.insert(c, names(i, lst));
         }
-        m_priorities.insert(i, p);
+        m_instance_set.insert(i);
     }
 };
 
@@ -100,7 +90,7 @@ struct class_config {
             s.add_class(env, e.m_class);
             break;
         case class_entry_kind::Instance:
-            s.add_instance(e.m_class, e.m_instance, e.m_priority);
+            s.add_instance(e.m_class, e.m_instance);
             break;
         }
     }
@@ -118,7 +108,7 @@ struct class_config {
             s << e.m_class;
             break;
         case class_entry_kind::Instance:
-            s << e.m_class << e.m_instance << e.m_priority;
+            s << e.m_class << e.m_instance;
             break;
         }
     }
@@ -132,7 +122,7 @@ struct class_config {
             d >> e.m_class;
             break;
         case class_entry_kind::Instance:
-            d >> e.m_class >> e.m_instance >> e.m_priority;
+            d >> e.m_class >> e.m_instance;
             break;
         }
         return e;
@@ -165,13 +155,6 @@ environment add_class_core(environment const & env, name const &n, bool persiste
     return class_ext::add_entry(env, get_dummy_ios(), class_entry(n), persistent);
 }
 
-void get_classes(environment const & env, buffer<name> & classes) {
-    class_state const & s = class_ext::get_state(env);
-    s.m_instances.for_each([&](name const & c, names const &) {
-            classes.push_back(c);
-        });
-}
-
 bool is_class(environment const & env, name const & c) {
     class_state const & s = class_ext::get_state(env);
     return s.m_instances.contains(c);
@@ -182,7 +165,7 @@ bool has_class_out_params(environment const & env, name const & c) {
     return s.m_has_out_params.contains(c);
 }
 
-environment add_instance_core(environment const & env, name const & n, unsigned priority, bool persistent) {
+environment add_instance_core(environment const & env, name const & n, bool persistent) {
     constant_info info = env.get(n);
     expr type = info.get_type();
     type_context_old ctx(env, transparency_mode::All);
@@ -199,7 +182,7 @@ environment add_instance_core(environment const & env, name const & n, unsigned 
     }
     name c = get_class_name(env, get_app_fn(type));
     check_is_class(env, c);
-    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n, priority),
+    environment new_env = class_ext::add_entry(env, get_dummy_ios(), class_entry(class_entry_kind::Instance, c, n),
                                                persistent);
     return new_env;
 }
@@ -207,26 +190,6 @@ environment add_instance_core(environment const & env, name const & n, unsigned 
 bool is_instance(environment const & env, name const & i) {
     class_state const & s = class_ext::get_state(env);
     return s.is_instance(i);
-}
-
-unsigned get_instance_priority(environment const & env, name const & n) {
-    class_state const & s                  = class_ext::get_state(env);
-    class_state::instance_priorities insts = s.m_priorities;
-    if (auto r = insts.find(n))
-        return *r;
-    return LEAN_DEFAULT_PRIORITY;
-}
-
-name_predicate mk_class_pred(environment const & env) {
-    class_state const & s = class_ext::get_state(env);
-    class_state::class_instances cs = s.m_instances;
-    return [=](name const & n) { return cs.contains(n); }; // NOLINT
-}
-
-name_predicate mk_instance_pred(environment const & env) {
-    class_state const & s = class_ext::get_state(env);
-    class_state::instance_priorities insts = s.m_priorities;
-    return [=](name const & n) { return insts.contains(n); }; // NOLINT
 }
 
 names get_class_instances(environment const & env, name const & c) {
@@ -241,12 +204,8 @@ environment add_class(environment const &env, name const &n, bool persistent) {
     return static_cast<basic_attribute const &>(get_system_attribute(*g_class_attr_name)).set(env, get_global_ios(), n, LEAN_DEFAULT_PRIORITY, persistent);
 }
 
-environment add_instance(environment const & env, name const & n, unsigned priority, bool persistent) {
-    return static_cast<basic_attribute const &>(get_system_attribute(*g_instance_attr_name)).set(env, get_global_ios(), n, priority, persistent);
-}
-
-name const & get_instance_attr_name() {
-    return *g_instance_attr_name;
+environment add_instance(environment const & env, name const & n, bool persistent) {
+    return static_cast<basic_attribute const &>(get_system_attribute(*g_instance_attr_name)).set(env, get_global_ios(), n, LEAN_DEFAULT_PRIORITY, persistent);
 }
 
 static name * g_anonymous_inst_name_prefix = nullptr;
@@ -286,8 +245,8 @@ void initialize_class() {
 
     register_system_attribute(basic_attribute(*g_instance_attr_name, "type class instance",
                                               [](environment const & env, io_state const &, name const & d,
-                                                 unsigned prio, bool persistent) {
-                                                  return add_instance_core(env, d, prio, persistent);
+                                                 unsigned, bool persistent) {
+                                                  return add_instance_core(env, d, persistent);
                                               }));
 
     g_anonymous_inst_name_prefix = new name("_inst");

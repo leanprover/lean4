@@ -318,7 +318,7 @@ else
 
 def isNatLit : Syntax → Option Nat
 | (Syntax.node k args _) :=
-  if k == strLitKind && args.size == 1 then
+  if k == numLitKind && args.size == 1 then
     match args.get 0 with
     | (Syntax.atom _ val) := decodeNatLitVal val
     | _ := none

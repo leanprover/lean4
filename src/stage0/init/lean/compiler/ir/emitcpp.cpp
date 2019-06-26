@@ -3289,7 +3289,6 @@ x_12 = lean::cnstr_get(x_10, 0);
 x_13 = lean::cnstr_get(x_10, 1);
 x_14 = l_Lean_IR_Decl_name___main(x_1);
 x_15 = l_Lean_isExternC(x_12, x_14);
-lean::dec(x_14);
 lean::dec(x_12);
 if (x_15 == 0)
 {
@@ -3474,7 +3473,6 @@ lean::inc(x_48);
 lean::dec(x_10);
 x_50 = l_Lean_IR_Decl_name___main(x_1);
 x_51 = l_Lean_isExternC(x_48, x_50);
-lean::dec(x_50);
 lean::dec(x_48);
 if (x_51 == 0)
 {
@@ -3703,7 +3701,6 @@ if (lean::is_exclusive(x_93)) {
 }
 x_97 = l_Lean_IR_Decl_name___main(x_1);
 x_98 = l_Lean_isExternC(x_94, x_97);
-lean::dec(x_97);
 lean::dec(x_94);
 if (x_98 == 0)
 {
@@ -4112,7 +4109,6 @@ lean::cnstr_set(x_14, 0, x_17);
 x_18 = l_Lean_IR_Decl_name___main(x_16);
 x_19 = l_List_mfor___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__5___closed__1;
 x_20 = l_Lean_getExternNameFor(x_1, x_19, x_18);
-lean::dec(x_18);
 if (lean::obj_tag(x_20) == 0)
 {
 uint8 x_21; 
@@ -4312,7 +4308,6 @@ lean::cnstr_set(x_61, 1, x_59);
 x_62 = l_Lean_IR_Decl_name___main(x_58);
 x_63 = l_List_mfor___main___at_Lean_IR_EmitCpp_emitFnDecls___spec__5___closed__1;
 x_64 = l_Lean_getExternNameFor(x_1, x_63, x_62);
-lean::dec(x_62);
 if (lean::obj_tag(x_64) == 0)
 {
 uint8 x_65; 

@@ -115,8 +115,6 @@ syntax decl_attributes::expr_to_syntax(expr const & e) {
     switch (new_args.size()) {
     case 0:
         return syntax(box(0));
-    case 1:
-        return new_args[0];
     default:
         return mk_syntax_list(new_args);
     }
@@ -232,6 +230,29 @@ attr_data_ptr decl_attributes::get_attribute(environment const & env, name const
             return e.m_params;
     }
     return nullptr;
+}
+
+bool decl_attributes::has_attribute(list<new_entry> const & entries, name const & attr_name) const {
+    for (auto entry : entries) {
+        if (entry.m_attr == attr_name)
+            return true;
+    }
+    return false;
+}
+
+bool decl_attributes::has_attribute(environment const & env, name const & attr_name) const {
+    if (is_attribute(env, attr_name)) {
+        auto const & attr = ::lean::get_attribute(env, attr_name);
+        for (entry const & e : m_entries) {
+            if (e.m_attr == &attr)
+                return true;
+        }
+        return false;
+    } else if (is_new_attribute(attr_name)) {
+        return has_attribute(m_after_tc_entries, attr_name) || has_attribute(m_after_comp_entries, attr_name);
+    } else {
+        throw exception(sstream() << "unknown attribute [" << attr_name << "]");
+    }
 }
 
 environment decl_attributes::apply_new_entries(environment env, list<new_entry> const & es, name const & d) const {

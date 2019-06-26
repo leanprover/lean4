@@ -273,7 +273,6 @@ if (x_10 == 0)
 obj* x_11; uint8 x_12; 
 x_11 = l_Lean_IR_Decl_name___main(x_2);
 x_12 = l_Lean_isExtern(x_1, x_11);
-lean::dec(x_11);
 return x_12;
 }
 else

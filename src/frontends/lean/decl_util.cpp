@@ -391,7 +391,7 @@ declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind k
     declaration_info_scope(get_namespace(p.env()), kind, modifiers, is_extern) {}
 
 declaration_info_scope::declaration_info_scope(parser const & p, decl_cmd_kind kind, cmd_meta const & meta):
-    declaration_info_scope(p, kind, meta.m_modifiers, static_cast<bool>(meta.m_attrs.get_attribute(p.env(), "extern"))) {}
+    declaration_info_scope(p, kind, meta.m_modifiers, meta.m_attrs.has_attribute(p.env(), "extern")) {}
 
 declaration_info_scope::~declaration_info_scope() {
     get_definition_info() = definition_info();

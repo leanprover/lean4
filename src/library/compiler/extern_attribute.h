@@ -17,15 +17,6 @@ optional<extern_attr_data_value> get_extern_attr_data(environment const & env, n
    borrowed_res which arguments/results are marked as borrowed. */
 bool get_extern_borrowed_info(environment const & env, name const & c, buffer<bool> & borrowed_args, bool & borrowed_res);
 
-bool emit_extern_call_core(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs);
-void emit_extern_call(std::ostream & out, environment const & env, name const & backend, name const & fn, string_refs const & attrs);
-
-optional<std::string> get_extern_name_for(environment const & env, name const & backend, name const & fn);
-
-/* We say a Lean function marked as `[extern "<c_fn_nane>"]` is for all backends, and it is implemented using `extern "C"`.
-   Thus, there is no name mangling. */
-bool is_extern_c(environment const & env, name const & fn);
-
 void initialize_extern_attribute();
 void finalize_extern_attribute();
 }

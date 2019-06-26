@@ -36,10 +36,12 @@ private:
     expr parse_attr_arg(parser & p, name const & attr_id);
     syntax expr_to_syntax(expr const & e);
     environment apply_new_entries(environment env, list<new_entry> const & es, name const & d) const;
+    bool has_attribute(list<new_entry> const & entries, name const & attr_name) const;
 public:
     decl_attributes(bool persistent = true): m_persistent(persistent) {}
     void set_attribute(environment const & env, name const & attr_name, attr_data_ptr data = get_default_attr_data());
     attr_data_ptr get_attribute(environment const & env, name const & attr_name) const;
+    bool has_attribute(environment const & env, name const & attr_name) const;
     /* attributes: zero-or-more [ ... ] */
     void parse(parser & p);
     /* Parse attributes after `@[` ... ] */

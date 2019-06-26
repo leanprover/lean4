@@ -4370,7 +4370,7 @@ if (lean::obj_tag(x_1) == 1)
 obj* x_2; obj* x_3; obj* x_4; uint8 x_5; 
 x_2 = lean::cnstr_get(x_1, 0);
 x_3 = lean::cnstr_get(x_1, 1);
-x_4 = l_Lean_strLitKind;
+x_4 = l_Lean_numLitKind;
 x_5 = lean_name_dec_eq(x_2, x_4);
 if (x_5 == 0)
 {

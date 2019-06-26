@@ -27,8 +27,8 @@ registerParametricAttribute `init "initialization procedure for global reference
   match env.find declName with
   | none := Except.error "unknown declaration"
   | some decl :=
-    match stx with
-    | Syntax.ident _ _ initFnName _ _ :=
+    match attrParamSyntaxToIdentifier stx with
+    | some initFnName :=
       match env.find initFnName with
       | none := Except.error ("unknown initialization function '" ++ toString initFnName ++ "'")
       | some initDecl :=
@@ -37,10 +37,11 @@ registerParametricAttribute `init "initialization procedure for global reference
         | some initTypeArg :=
           if decl.type == initTypeArg then Except.ok initFnName
           else Except.error ("initialization function '" ++ toString initFnName ++ "' type mismatch")
-    | Syntax.missing :=
-      if isIOUnit decl.type then Except.ok Name.anonymous
-      else Except.error "initialization function must have type `IO Unit`"
-    | _ := Except.error "unexpected kind of argument"
+    | _ := match stx with
+      | Syntax.missing :=
+        if isIOUnit decl.type then Except.ok Name.anonymous
+        else Except.error "initialization function must have type `IO Unit`"
+      | _ := Except.error "unexpected kind of argument"
 
 @[init mkInitAttr]
 constant initAttr : ParametricAttribute Name := default _

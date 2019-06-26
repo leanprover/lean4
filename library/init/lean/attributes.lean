@@ -405,4 +405,19 @@ else
 
 end EnumAttributes
 
+/- Helper function for converting a Syntax object representing attribute parameters into an identifier.
+   It returns `none` if the parameter is not a simple identifier.
+
+   Remark: in the future, attributes should define their own parsers, and we should use `match_syntax` to
+   decode the Syntax object. -/
+def attrParamSyntaxToIdentifier (s : Syntax) : Option Name :=
+match s with
+| Syntax.node k args _ :=
+  if k == nullKind && args.size == 1 then match args.get 0 with
+    | Syntax.ident _ _ id _ _ := some id
+    | _ := none
+  else
+    none
+| _ := none
+
 end Lean

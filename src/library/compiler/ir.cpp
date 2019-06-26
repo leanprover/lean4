@@ -539,9 +539,10 @@ environment add_extern(environment const & env, name const & fn) {
 
 extern "C" object* lean_add_extern(object * env, object * fn) {
     try {
-        environment env = add_extern(environment(env), name(fn));
-        return mk_except_ok(env);
+        environment new_env = add_extern(environment(env), name(fn));
+        return mk_except_ok(new_env);
     } catch (exception & ex) {
+        throw;
         return mk_except_error_string(ex.what());
     }
 }

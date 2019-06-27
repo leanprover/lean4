@@ -16,9 +16,9 @@ public:
     nat():object_ref(box(0)) {}
     explicit nat(obj_arg o):object_ref(o) {}
     nat(b_obj_arg o, bool b):object_ref(o, b) {}
-    explicit nat(int v):object_ref(mk_nat_obj(v < 0 ? static_cast<usize>(0) : static_cast<usize>(v))) {}
+    explicit nat(int v):object_ref(unsigned_to_nat(v < 0 ? static_cast<usize>(0) : static_cast<usize>(v))) {}
     explicit nat(unsigned v):object_ref(mk_nat_obj(v)) {}
-    explicit nat(unsigned long v):object_ref(mk_nat_obj(v)) {}
+    explicit nat(unsigned long v):object_ref(unsigned_to_nat(v)) {}
     explicit nat(mpz const & v):object_ref(mk_nat_obj(v)) {}
     explicit nat(char const * v):object_ref(box(0)) {
         mpz m(v);
